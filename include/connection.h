@@ -38,7 +38,7 @@
  * connection(s) relating to the server you want information on.
  * The core and module API provide functions for this.
  */
-class ircd_connector : public classbase
+class ircd_connector : public Extensible
 {
  private:
 	/** Sockaddr of the outbound ip and port

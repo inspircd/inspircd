@@ -188,7 +188,7 @@ class chanrec : public Extensible
  * a userrec and chanrec class. The uc_modes member holds a bitmask of which privilages the user
  * has on the channel, such as op, voice, etc.
  */
-class ucrec : public classbase
+class ucrec : public Extensible
 {
  public:
 	/** Contains a bitmask of the UCMODE_OP ... UCMODE_FOUNDER values.

@@ -13,16 +13,16 @@
  *
  * ---------------------------------------------------
  */
+#ifndef __CTABLES_H__
+#define __CTABLES_H__
+
 #include "inspircd_config.h"
 #include "inspircd.h"
 #include "base.h"
 
-#ifndef __CTABLES_H__
-#define __CTABLES_H__
-
 /** A structure that defines a command
  */
-class command_t : public classbase
+class command_t : public Extensible
 {
  public:
 	/** Command name
