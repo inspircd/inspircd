@@ -263,10 +263,16 @@
 #  netbuffersize - size of the buffer used to receive data from       #
 #                  clients. The ircd may only read() this amount      #
 #		   of text in one go at any time. (OPTIONAL)          #
+#  maxwho        - The maximum number of results returned by a /WHO   #
+#                  query. This is to prevent /WHO being used as a     #
+#                  spam vector or means of flooding an ircd. The      #
+#                  default is 128, it is not recommended to raise it  #
+#                  above 1024. Values up to 65535 are permitted.      #
 
 <options prefixquit="Quit: "
 	 loglevel="default"
 	 netbuffersize="10240"
+         maxwho="128"
 	 allowhalfop="yes"
 	 allowprotect="yes"
 	 allowfounder="yes">

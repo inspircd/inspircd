@@ -82,6 +82,7 @@ int WHOWAS_MAX = 100;  // default 100 people maximum in the WHOWAS list
 int DieDelay  =  5;
 time_t startup_time = time(NULL);
 int NetBufferSize = 10240; // NetBufferSize used as the buffer size for all read() ops
+extern int MaxWhoResults;
 time_t nb_start = 0;
 
 extern vector<Module*> modules;
@@ -299,7 +300,7 @@ void readfile(file_cache &F, const char* fname)
 
 void ReadConfig(void)
 {
-	char dbg[MAXBUF],pauseval[MAXBUF],Value[MAXBUF],timeout[MAXBUF],NB[MAXBUF],flood[MAXBUF];
+	char dbg[MAXBUF],pauseval[MAXBUF],Value[MAXBUF],timeout[MAXBUF],NB[MAXBUF],flood[MAXBUF],MW[MAXBUF];
 	ConnectClass c;
 	
 	LoadConf(CONFIG_FILE,&config_f);
@@ -319,11 +320,18 @@ void ReadConfig(void)
 	ConfValue("die","value",0,DieValue,&config_f);
 	ConfValue("options","loglevel",0,dbg,&config_f);
 	ConfValue("options","netbuffersize",0,NB,&config_f);
+	ConfValue("options","maxwho",0,MW,&config_f);
 	NetBufferSize = atoi(NB);
+	MaxWhoResults = atoi(MW);
 	if ((!NetBufferSize) || (NetBufferSize > 65535) || (NetBufferSize < 1024))
 	{
 		log(DEFAULT,"No NetBufferSize specified or size out of range, setting to default of 10240.");
 		NetBufferSize = 10240;
+	}
+	if ((!MaxWhoResults) || (MaxWhoResults > 65535) || (MaxWhoResults < 1))
+	{
+		log(DEFAULT,"No MaxWhoResults specified or size out of range, setting to default of 128.");
+		MaxWhoResults = 128;
 	}
 	if (!strcmp(dbg,"debug"))
 		LogLevel = DEBUG;
@@ -2096,7 +2104,7 @@ void AddClient(int socket, char* host, int port, bool iscached, char* ip)
 	clientlist[tempnick] = new userrec();
 
 	NonBlocking(socket);
-	log(DEBUG,"AddClient: %d %s %d",socket,host,port);
+	log(DEBUG,"AddClient: %d %s %d %s",socket,host,port,ip);
 
 	clientlist[tempnick]->fd = socket;
 	strncpy(clientlist[tempnick]->nick, tn2,NICKMAX);
@@ -3545,7 +3553,7 @@ int InspIRCd(void)
 				}
 				else
 				{
-					AddClient(incomingSockfd, resolved, ports[count], iscached, target);
+					AddClient(incomingSockfd, resolved, ports[count], iscached, inet_ntoa (client.sin_addr));
 					log(DEBUG,"InspIRCd: adding client on port %d fd=%d",ports[count],incomingSockfd);
 				}
 				goto label;

@@ -602,8 +602,9 @@ void apply_lines()
 				char* check = matches_zline(u->second->ip);
 				if (check)
 				{
+					snprintf(reason,MAXBUF,"Z-Lined: %s",check);
 					WriteOpers("*** User %s matches Z-Line: %s",u->second->nick,u->second->host,check);
-					WriteServ(u->second->fd,"432 %s %s :Invalid nickname: %s",u->second->nick,u->second->nick,check);
+					kill_link(u->second,reason);
 					go_again = true;
 					break;
 				}

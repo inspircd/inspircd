@@ -68,6 +68,7 @@ extern int WHOWAS_MAX;
 extern int DieDelay;
 extern time_t startup_time;
 extern int NetBufferSize;
+int MaxWhoResults;
 extern time_t nb_start;
 
 extern std::vector<int> fd_reap;
@@ -778,12 +779,17 @@ void handle_who(char **parameters, int pcnt, userrec *user)
 		{
 			if (user->chans[0].channel)
 			{
-				Ptr = user->chans[0].channel;
+				int n_list = 0;
 			  	for (user_hash::const_iterator i = clientlist.begin(); i != clientlist.end(); i++)
 				{
-					if ((common_channels(user,i->second)) && (isnick(i->second->nick)))
+					Ptr = i->second->chans[0].channel;
+					// suggested by phidjit and FCS
+					if ((!common_channels(user,i->second)) && (isnick(i->second->nick)))
 					{
-						WriteServ(user->fd,"352 %s %s %s %s %s %s Hr@ :0 %s",user->nick, Ptr->name, i->second->ident, i->second->dhost, i->second->server, i->second->nick, i->second->fullname);
+						WriteServ(user->fd,"352 %s %s %s %s %s %s Hr@ :0 %s",user->nick, Ptr ? Ptr->name : "*", i->second->ident, i->second->dhost, i->second->server, i->second->nick, i->second->fullname);
+						n_list++;
+						if (n_list > MaxWhoResults)
+							break;
 					}
 				}
 			}
