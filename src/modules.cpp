@@ -116,7 +116,7 @@ void Module::OnPacketReceive(char *p) { }
 void Module::OnRehash() { }
 void Module::OnServerRaw(std::string &raw, bool inbound) { }
 int Module::OnUserPreJoin(userrec* user, chanrec* chan, const char* cname) { return 0; }
-bool Module::OnExtendedMode(userrec* user, void* target, char modechar, int type, bool mode_on, string_list &params) { }
+bool Module::OnExtendedMode(userrec* user, void* target, char modechar, int type, bool mode_on, string_list &params) { return false; }
 Version Module::GetVersion() { return Version(1,0,0,0); }
 void Module::OnOper(userrec* user) { };
 void Module::OnInfo(userrec* user) { };

@@ -224,7 +224,7 @@ int EnumConf(std::stringstream *config, const char* tag)
 
 int ConfValueEnum(char* tag, std::stringstream* config)
 {
-	EnumConf(config,tag);
+	return EnumConf(config,tag);
 }
 
 
@@ -347,6 +347,7 @@ int ReadConf(std::stringstream *config, const char* tag, const char* var, int in
 int ConfValue(char* tag, char* var, int index, char *result,std::stringstream *config)
 {
 	ReadConf(config, tag, var, index, result);
+	return 0;
 }
 
 

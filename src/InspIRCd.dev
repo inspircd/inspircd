@@ -1,7 +1,7 @@
 [Project]
 FileName=InspIRCd.dev
-Name=InspIRCd
-UnitCount=40
+Name=InspIRCd - The Inspire Internet Relay Chat Daemon
+UnitCount=38
 Type=1
 Ver=1
 ObjFiles=
@@ -19,7 +19,7 @@ ObjectOutput=
 OverrideOutput=0
 OverrideOutputName=InspIRCd.exe
 HostApplication=
-Folders=Headers,Modules,"Shell Scripts etc",Source
+Folders=Headers,Modules,Source
 CommandLine=
 IncludeVersionInfo=0
 SupportXPThemes=0
@@ -365,45 +365,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit33]
-FileName=..\makeconf
-Folder=Shell Scripts etc
-Compile=0
-Link=0
-Priority=1000
-OverrideBuildCmd=0
-BuildCmd=
-
-[Unit34]
-FileName=..\configure
-Folder=Shell Scripts etc
-Compile=0
-Link=0
-Priority=1000
-OverrideBuildCmd=0
-BuildCmd=
-
 [Unit35]
-FileName=modules\m_filter.cpp
-CompileCpp=1
-Folder=Modules
-Compile=1
-Link=1
-Priority=1000
-OverrideBuildCmd=0
-BuildCmd=
-
-[Unit36]
-FileName=modules\m_chghost.cpp
-CompileCpp=1
-Folder=Modules
-Compile=1
-Link=1
-Priority=1000
-OverrideBuildCmd=0
-BuildCmd=
-
-[Unit37]
 FileName=modules\m_sethost.cpp
 CompileCpp=1
 Folder=Modules
@@ -413,8 +375,28 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit38]
+[Unit36]
 FileName=modules\m_setname.cpp
+CompileCpp=1
+Folder=Modules
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit37]
+FileName=modules\m_saquit.cpp
+CompileCpp=1
+Folder=Modules
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit38]
+FileName=modules\m_helpop.cpp
 CompileCpp=1
 Folder=Modules
 Compile=1
@@ -435,6 +417,26 @@ BuildCmd=
 
 [Unit40]
 FileName=modules\m_helpop.cpp
+CompileCpp=1
+Folder=Modules
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit33]
+FileName=modules\m_filter.cpp
+CompileCpp=1
+Folder=Modules
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit34]
+FileName=modules\m_chghost.cpp
 CompileCpp=1
 Folder=Modules
 Compile=1

@@ -5399,28 +5399,9 @@ int InspIRCd(void)
 	int flip_flop = 0, udp_port = 0;
 	char udp_msg[MAXBUF], udp_host[MAXBUF];
 	  
-	/* main loop for multiplexing/resetting */
+	/* main loop, this never returns */
 	for (;;)
 	{
-		/* set up select call */
-		for (count = 0; count < boundPortCount; count++)
-		{
-			FD_SET (openSockfd[count], &selectFds);
-		}
-	
-		/* added timeout! select was waiting forever... wank... :/ */
-		tv.tv_usec = 0;
-	
-		flip_flop++;
-		reap_counter++;
-		if (flip_flop > 20)
-		{
-			tv.tv_usec = 1;
-			flip_flop = 0;
-		}
-      
-		vector<int>::iterator niterator;
-		
 
 		// *FIX* Instead of closing sockets in kill_link when they receive the ERROR :blah line, we should queue
 		// them in a list, then reap the list every second or so.
@@ -5437,10 +5418,7 @@ int InspIRCd(void)
 			reap_counter=0;
 		}
 
-      
-		tv.tv_sec = 0;
-		selectResult = select(MAXSOCKS, &selectFds, NULL, NULL, &tv);
-	
+     
 		for (int x = 0; x != UDPportCount; x++)
 		{
 			long theirkey = 0;
@@ -5460,6 +5438,7 @@ int InspIRCd(void)
 	
 	fd_set sfd;
 	struct timeval tval;
+	FD_ZERO(&sfd);
 
 	user_hash::iterator count2 = clientlist.begin();
 	
@@ -5487,41 +5466,43 @@ int InspIRCd(void)
 			{
 				if (count2 != clientlist.end())
 				{
-					// registration timeout -- didnt send USER/NICK/HOST in the time specified in
-					// their connection class.
-					if ((time(NULL) > count2->second->timeout) && (count2->second->registered != 7)) 
-					{
-					  	log(DEBUG,"InspIRCd: registration timeout: %s",count2->second->nick);
-						kill_link(count2->second,"Registration timeout");
-						goto label;
-					}
-					if (((time(NULL)) > count2->second->nping) && (isnick(count2->second->nick)) && (count2->second->registered == 7))
-					{
-						if (!count2->second->lastping) 
+						FD_SET (count2->second->fd, &sfd);
+
+						// registration timeout -- didnt send USER/NICK/HOST in the time specified in
+						// their connection class.
+						if ((time(NULL) > count2->second->timeout) && (count2->second->registered != 7)) 
 						{
-						  	log(DEBUG,"InspIRCd: ping timeout: %s",count2->second->nick);
-							kill_link(count2->second,"Ping timeout");
+						  	log(DEBUG,"InspIRCd: registration timeout: %s",count2->second->nick);
+							kill_link(count2->second,"Registration timeout");
 							goto label;
 						}
-						Write(count2->second->fd,"PING :%s",ServerName);
-					  	log(DEBUG,"InspIRCd: pinging: %s",count2->second->nick);
-						count2->second->lastping = 0;
-						count2->second->nping = time(NULL)+120;
-					}
-
-					FD_SET (count2->second->fd, &sfd);
-					count2++;
-					total_in_this_set++;
+						if (((time(NULL)) > count2->second->nping) && (isnick(count2->second->nick)) && (count2->second->registered == 7))
+						{
+							if ((!count2->second->lastping) && (count2->second->registered == 7))
+							{
+							  	log(DEBUG,"InspIRCd: ping timeout: %s",count2->second->nick);
+								kill_link(count2->second,"Ping timeout");
+								goto label;
+							}
+							Write(count2->second->fd,"PING :%s",ServerName);
+						  	log(DEBUG,"InspIRCd: pinging: %s",count2->second->nick);
+							count2->second->lastping = 0;
+							count2->second->nping = time(NULL)+120;
+						}
+						count2++;
+						total_in_this_set++;
 				}
 				else break;
 			}
    
-	       		endingiter = count2;				
+	       		endingiter = count2;
        			count2 = xcount; // roll back to where we were
-          
+        
+        		int v = 0;
+
 			tval.tv_usec = 0;
 			tval.tv_sec = 0;
-			selectResult2 = select(total_in_this_set, &sfd, NULL, NULL, &tval);
+			selectResult2 = select(65535, &sfd, NULL, NULL, &tval);
 			
 			// now loop through all of the items in this pool if any are waiting
 			//if (selectResult2 > 0)
@@ -5533,6 +5514,7 @@ int InspIRCd(void)
 					result = read(count2a->second->fd, data, 1);
 					if ((result == -1) && (errno != EAGAIN) && (errno != EINTR))
 					{
+						log(DEBUG,"killing: %s",count2a->second->nick);
 						kill_link(count2a->second,strerror(errno));
 						goto label;
 					}
@@ -5606,6 +5588,26 @@ int InspIRCd(void)
 		}
 	}
 	
+	// set up select call
+	for (count = 0; count < boundPortCount; count++)
+	{
+		FD_SET (openSockfd[count], &selectFds);
+	}
+
+	/* added timeout! select was waiting forever... wank... :/ */
+	tv.tv_usec = 0;
+
+	flip_flop++;
+	reap_counter++;
+	if (flip_flop > 20)
+	{
+		tv.tv_usec = 1;
+		flip_flop = 0;
+	}
+	
+	tv.tv_sec = 0;
+	selectResult = select(MAXSOCKS, &selectFds, NULL, NULL, &tv);
+
 	/* select is reporting a waiting socket. Poll them all to find out which */
 	if (selectResult > 0)
 	{
@@ -5641,11 +5643,13 @@ int InspIRCd(void)
 				{
 					WriteOpers("*** WARNING: Accept failed on port %d (%s)", ports[count],target);
 					log(DEBUG,"InspIRCd: accept failed: %d",ports[count]);
-					break;
 				}
-				AddClient(incomingSockfd, resolved, ports[count], iscached);
-				log(DEBUG,"InspIRCd: adding client on port %d fd=%d",ports[count],incomingSockfd);
-				break;
+				else
+				{
+					AddClient(incomingSockfd, resolved, ports[count], iscached);
+					log(DEBUG,"InspIRCd: adding client on port %d fd=%d",ports[count],incomingSockfd);
+				}
+				goto label;
 			}
 		}
 	}
