@@ -28,7 +28,6 @@
 #include "users.h"
 #include "channels.h"
 
-
 char* give_ops(userrec *user,char *dest,chanrec *chan,int status);
 char* give_hops(userrec *user,char *dest,chanrec *chan,int status);
 char* give_voice(userrec *user,char *dest,chanrec *chan,int status);
