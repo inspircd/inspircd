@@ -6427,8 +6427,11 @@ void handle_plus(char token,char* params,serverrec* source,serverrec* reply, cha
 			{
 				if (!strcasecmp(me[i]->connectors[j].GetServerName().c_str(),servername))
 				{
-					log(DEBUG,"Already got a connection to %s:%d, ignoring +",ipaddr,atoi(ipport));
-					conn_already = true;
+					if (me[i]->connectors[j].GetServerPort() == atoi(ipport))
+					{
+						log(DEBUG,"Already got a connection to %s:%d, ignoring +",ipaddr,atoi(ipport));
+						conn_already = true;
+					}
 				}
 			}
 		}
