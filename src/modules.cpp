@@ -14,6 +14,7 @@
 #include "wildcard.h"
 #include "mode.h"
 #include "message.h"
+#include "commands.h"
 
 // class type for holding an extended mode character - internal to core
 
@@ -176,6 +177,11 @@ void Server::QuitUser(userrec* user, std::string reason)
 {
 	send_network_quit(user->nick,reason.c_str());
 	kill_link(user,reason.c_str());
+}
+
+bool Server::IsUlined(std::string server)
+{
+	return is_uline(server.c_str())
 }
 
 void Server::CallCommandHandler(std::string commandname, char** parameters, int pcnt, userrec* user)

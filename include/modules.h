@@ -495,6 +495,16 @@ class Server : public classbase
 	 * linked servers.
 	 */	
 	virtual void ChangeGECOS(userrec* user, std::string gecos);
+	
+	/** Returns true if the servername you give is ulined.
+	 * ULined servers have extra privilages. They are allowed to change nicknames on remote servers,
+	 * change modes of clients which are on remote servers and set modes of channels where there are
+	 * no channel operators for that channel on the ulined server, amongst other things. Ulined server
+	 * data is also broadcast across the mesh at all times as opposed to selectively messaged in the
+	 * case of normal servers, as many ulined server types (such as services) do not support meshed
+	 * links and must operate in this manner.
+	 */
+	virtual bool IsUlined(std::string server);
 };
 
 /** Allows reading of values from configuration files
