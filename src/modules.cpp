@@ -355,14 +355,12 @@ ConfigReader::ConfigReader(std::string filename)
 
 std::string ConfigReader::ReadValue(std::string tag, std::string name, int index)
 {
-	log(DEBUG,"ConfigReader::ReadValue '%s' '%s' %d",tag.c_str(),name.c_str(),index);
 	char val[MAXBUF];
 	char t[MAXBUF];
 	char n[MAXBUF];
 	strncpy(t,tag.c_str(),MAXBUF);
 	strncpy(n,name.c_str(),MAXBUF);
 	ReadConf(cache,t,n,index,val);
-	log(DEBUG,"ConfigReader::ReadValue read '%s'",val);
 	return std::string(val);
 }
 

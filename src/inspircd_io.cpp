@@ -331,7 +331,6 @@ int ReadConf(std::stringstream *config, const char* tag, const char* var, int in
 	const char* buf = config->str().c_str();
 	long bptr = 0;
 	long len = strlen(buf);
-	log(DEBUG,"Data length: %d",len);
 	
 	ptr = 0;
 	in_token = 0;
@@ -378,7 +377,6 @@ int ReadConf(std::stringstream *config, const char* tag, const char* var, int in
 						{
 							/* value not found in tag */
 							strcpy(result,"");
-							log(DEBUG,"ReadConf: value '%s' was not found in tag",var);
 							return 0;
 						}
 						else
@@ -390,7 +388,6 @@ int ReadConf(std::stringstream *config, const char* tag, const char* var, int in
 								{
 									/* missing quote */
 									strcpy(result,"");
-									log(DEBUG,"ReadConf: possible missing quote!");
 									return 0;
 								}
 								key++;
@@ -404,7 +401,6 @@ int ReadConf(std::stringstream *config, const char* tag, const char* var, int in
 								}
 							}
 							strcpy(result,key);
-							log(DEBUG,"ReadConf: Got value '%s'",result);
 							return 1;
 						}
 					}
@@ -412,7 +408,6 @@ int ReadConf(std::stringstream *config, const char* tag, const char* var, int in
 			}
 			if (!strcmp(c_tag,tag))
 			{
-				log(DEBUG,"Tag name correct but index value incorrect");
 				/* correct tag, but wrong index */
 				idx++;
 			}
@@ -430,7 +425,6 @@ int ReadConf(std::stringstream *config, const char* tag, const char* var, int in
 			}
 		}
 	}
-	log(DEBUG,"ReadConf: neither value '%s' or tag '%s' were found at all!",var,tag);
 	strcpy(result,""); // value or its tag not found at all
 	return 0;
 }

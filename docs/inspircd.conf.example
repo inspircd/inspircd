@@ -203,12 +203,28 @@
 # recvpass  - Password to receive to accept an inbound connection     #
 #             from this server.                                       #
 #                                                                     #
+# to u:line a server (give it extra privilages required for running   #
+# services, Q, etc) you must include the <uline server> tag as shown  #
+# in the example below. You can have as many of these as you like.    #
+#                                                                     #
+# WARNING: Unlike other ircds, u:lining a server allows ALL users on  #
+# that server to operoverride modes. This should only be used for     #
+# services and protected oper servers!                                #
+#                                                                     #
 
 <link name="hub.penguin.org"
 	ipaddr="12.34.56.78"
 	port="7000"
 	sendpass="outgoing!password"
 	recvpass="incoming!password">
+
+<link name="services.antarctic.com"
+	ipaddr="98.76.54.32"
+	port="7000"
+	sendpass="penguins"
+	recvpass="polarbears">
+
+<uline server="services.antarctic.com">
 
 
 

@@ -32,6 +32,7 @@
 #include "dynamic.h"
 #include "wildcard.h"
 #include "message.h"
+#include "commands.h"
 
 using namespace std;
 
@@ -64,7 +65,7 @@ int give_ops(userrec *user,char *dest,chanrec *chan,int status)
 		log(DEFAULT,"*** BUG *** give_ops was given an invalid parameter");
 		return 0;
 	}
-	if (status < STATUS_OP)
+	if ((status < STATUS_OP) && (!is_uline(user->server)))
 	{
 		log(DEBUG,"%s cant give ops to %s because they nave status %d and needs %d",user->nick,dest,status,STATUS_OP);
 		WriteServ(user->fd,"482 %s %s :You're not a channel operator",user->nick, chan->name);
@@ -119,7 +120,7 @@ int give_hops(userrec *user,char *dest,chanrec *chan,int status)
 		log(DEFAULT,"*** BUG *** give_hops was given an invalid parameter");
 		return 0;
 	}
-	if (status != STATUS_OP)
+	if ((status < STATUS_OP) && (!is_uline(user->server)))
 	{
 		WriteServ(user->fd,"482 %s %s :You're not a channel operator",user->nick, chan->name);
 		return 0;
@@ -169,7 +170,7 @@ int give_voice(userrec *user,char *dest,chanrec *chan,int status)
 		log(DEFAULT,"*** BUG *** give_voice was given an invalid parameter");
 		return 0;
 	}
-	if (status < STATUS_HOP)
+	if ((status < STATUS_HOP) && (!is_uline(user->server)))
 	{
 		WriteServ(user->fd,"482 %s %s :You must be at least a half-operator to change modes on this channel",user->nick, chan->name);
 		return 0;
@@ -219,7 +220,7 @@ int take_ops(userrec *user,char *dest,chanrec *chan,int status)
 		log(DEFAULT,"*** BUG *** take_ops was given an invalid parameter");
 		return 0;
 	}
-	if (status < STATUS_OP)
+	if ((status < STATUS_OP) && (!is_uline(user->server)))
 	{
 		log(DEBUG,"%s cant give ops to %s because they have status %d and needs %d",user->nick,dest,status,STATUS_OP);
 		WriteServ(user->fd,"482 %s %s :You're not a channel operator",user->nick, chan->name);
@@ -273,7 +274,7 @@ int take_hops(userrec *user,char *dest,chanrec *chan,int status)
 		log(DEFAULT,"*** BUG *** take_hops was given an invalid parameter");
 		return 0;
 	}
-	if (status != STATUS_OP)
+	if ((status < STATUS_OP) && (!is_uline(user->server)))
 	{
 		WriteServ(user->fd,"482 %s %s :You're not a channel operator",user->nick, chan->name);
 		return 0;
@@ -323,7 +324,7 @@ int take_voice(userrec *user,char *dest,chanrec *chan,int status)
 		log(DEFAULT,"*** BUG *** take_voice was given an invalid parameter");
 		return 0;
 	}
-	if (status < STATUS_HOP)
+	if ((status < STATUS_HOP) && (!is_uline(user->server)))
 	{
 		WriteServ(user->fd,"482 %s %s :You must be at least a half-operator to change modes on this channel",user->nick, chan->name);
 		return 0;
@@ -1723,12 +1724,15 @@ void merge_mode2(char **parameters, int pcnt, userrec* user)
 	Ptr = FindChan(parameters[0]);
 	if (Ptr)
 	{
-		if ((cstatus(user,Ptr) < STATUS_HOP) && (Ptr))
+		log(DEBUG,"merge_mode2: found channel %s",Ptr->name);
+		if (Ptr)
 		{
-			return;
+			if ((cstatus(user,Ptr) < STATUS_HOP) && (!is_uline(user->server)))
+			{
+				return;
+			}
+			process_modes(parameters,user,Ptr,cstatus(user,Ptr),pcnt,false,false,true);
 		}
-
-		process_modes(parameters,user,Ptr,cstatus(user,Ptr),pcnt,false,false,true);
 	}
 }
 

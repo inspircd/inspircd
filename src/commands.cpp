@@ -1256,6 +1256,22 @@ void handle_map(char **parameters, int pcnt, userrec *user)
 	WriteServ(user->fd,"007 %s :End of /MAP",user->nick);
 }
 
+bool is_uline(const char* server)
+{
+	char ServName[MAXBUF];
+	int i,j;
+
+	for (int i = 0; i < ConfValueEnum("uline",&config_f); i++)
+	{
+		ConfValue("uline","server",i,ServName,&config_f);
+		if (!strcasecmp(server,ServName))
+		{
+			return true;
+		}
+	}
+	return false;
+}
+
 
 void handle_oper(char **parameters, int pcnt, userrec *user)
 {
@@ -1277,6 +1293,9 @@ void handle_oper(char **parameters, int pcnt, userrec *user)
 			WriteOpers("*** %s (%s@%s) is now an IRC operator of type %s",user->nick,user->ident,user->host,OperType);
 			WriteServ(user->fd,"381 %s :You are now an IRC operator of type %s",user->nick,OperType);
 			WriteServ(user->fd,"MODE %s :+o",user->nick);
+			char global[MAXBUF];
+			snprintf(global,MAXBUF,"M %s +o",user->nick);
+			NetSendToAll(global);
 			for (j =0; j < ConfValueEnum("type",&config_f); j++)
 			{
 				ConfValue("type","name",j,TypeName,&config_f);
@@ -1471,6 +1490,7 @@ void handle_t(char token,char* params,serverrec* source,serverrec* reply, char* 
 		WriteChannelLocal(c,u,"TOPIC %s :%s",c->name,topic);
 		strncpy(c->topic,topic,MAXTOPIC);
 		strncpy(c->setby,u->nick,NICKMAX);
+		c->topicset = time(NULL);
  	}	
 }
 	
@@ -1642,6 +1662,13 @@ void handle_n(char token,char* params,serverrec* source,serverrec* reply, char* 
 	if (user)
 	{
 		WriteCommon(user,"NICK %s",newnick);
+		if (is_uline(tcp_host))
+		{
+			// broadcast this because its a services thingy
+			char buffer[MAXBUF];
+			snprintf(buffer,MAXBUF,"n %s %s",user->nick,newnick);
+			NetSendToAll(buffer);
+		}
 		user = ReHashNick(user->nick, newnick);
 		if (!user) return;
 		if (!user->nick) return;
@@ -1664,6 +1691,14 @@ void handle_k(char token,char* params,serverrec* source,serverrec* reply, char* 
 	if ((s) && (d) && (c))
 	{
 		kick_channel(s,d,c,reason);
+		return;
+	}
+	d = Find(channel);
+	c = FindChan(dest);
+	if ((s) && (d) && (c))
+	{
+		kick_channel(s,d,c,reason);
+		return;
 	}
 }
 
@@ -2136,13 +2171,42 @@ void handle_link_packet(char* udp_msg, char* tcp_host, serverrec *serv)
 		strcpy(source,src);
 		strcpy(command,comd);
 		udp_msg = old;
+		
+		// unused numeric:
+		// :services-dev.chatspike.net 433 Craig Craig :Nickname is registered to someone else
+		if (!strcmp(command,"433"))
+		{
+			token = '*';
+		}
 		if (!strcmp(command,"NOTICE"))
 		{
 			snprintf(udp_msg,MAXBUF,"V %s %s",source,data);
 			log(DEBUG,"Rewrote NOTICE from services to: '%s'",udp_msg);
 			token = udp_msg[0];
 		}
+		if (!strcmp(command,"QUIT"))
+		{
+			if (!strcmp(data,":"))
+			{
+				strcpy(data,":No reason");
+			}
+			snprintf(udp_msg,MAXBUF,"Q %s %s",source,data);
+			log(DEBUG,"Rewrote QUIT from services to: '%s'",udp_msg);
+			token = udp_msg[0];
+		}
+		if (!strcmp(command,"SQUIT"))
+		{
+			snprintf(udp_msg,MAXBUF,"& %s",source);
+			log(DEBUG,"Rewrote SQUIT from services to: '%s'",udp_msg);
+			token = udp_msg[0];
+		}
 		if (!strcmp(command,"SVSMODE"))
+		{
+			snprintf(udp_msg,MAXBUF,"M %s",data);
+			log(DEBUG,"Rewrote SVSMODE from services to: '%s'",udp_msg);
+			token = udp_msg[0];
+		}
+		if (!strcmp(command,"SVS2MODE"))
 		{
 			snprintf(udp_msg,MAXBUF,"M %s",data);
 			log(DEBUG,"Rewrote SVSMODE from services to: '%s'",udp_msg);
@@ -2154,6 +2218,12 @@ void handle_link_packet(char* udp_msg, char* tcp_host, serverrec *serv)
 		{
 			snprintf(udp_msg,MAXBUF,"m %s %s",source,data);
 			log(DEBUG,"Rewrote MODE from services to: '%s'",udp_msg);
+			token = udp_msg[0];
+		}
+		if (!strcmp(command,"KICK"))
+		{
+			snprintf(udp_msg,MAXBUF,"k %s %s",source,data);
+			log(DEBUG,"Rewrote KICK from services to: '%s'",udp_msg);
 			token = udp_msg[0];
 		}
 		

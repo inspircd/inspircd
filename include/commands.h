@@ -88,5 +88,8 @@ void handle_i(char token,char* params,serverrec* source,serverrec* reply, char* 
 void handle_P(char token,char* params,serverrec* source,serverrec* reply, char* tcp_host);
 void handle_V(char token,char* params,serverrec* source,serverrec* reply, char* tcp_host);
 
+/** Functions for u:lined servers
+ */
+bool is_uline(const char* server);
 
 #endif

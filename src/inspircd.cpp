@@ -1567,7 +1567,7 @@ void kick_channel(userrec *src,userrec *user, chanrec *Ptr, char* reason)
 		WriteServ(src->fd,"441 %s %s %s :They are not on that channel",src->nick, user->nick, Ptr->name);
 		return;
 	}
-	if ((cstatus(src,Ptr) < STATUS_HOP) || (cstatus(src,Ptr) < cstatus(user,Ptr)))
+	if (((cstatus(src,Ptr) < STATUS_HOP) || (cstatus(src,Ptr) < cstatus(user,Ptr))) && (!is_uline(src->server)))
 	{
 		if (cstatus(src,Ptr) == STATUS_HOP)
 		{
