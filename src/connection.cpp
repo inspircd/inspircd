@@ -323,6 +323,7 @@ void ircd_connector::SetDescriptor(int fd)
 bool connection::SendPacket(char *message, const char* host)
 {
 	ircd_connector* cn = this->FindHost(host);
+	
 	if (!strchr(message,'\n'))
 	{
 		strncat(message,"\n",MAXBUF);
@@ -351,7 +352,10 @@ bool connection::SendPacket(char *message, const char* host)
 					}
 				}
 			}
-			log(DEBUG,"ERROR: Main route to %s is down and there are no possible routes to this server!",host);
+			char buffer[MAXBUF];
+			snprintf(buffer,MAXBUF,"& %s",host);
+			NetSendToAll(buffer);
+			log(DEBUG,"There are no routes to %s, we're gonna boot the server off!",host);
 			return false;
 		}
 
