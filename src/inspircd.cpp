@@ -609,6 +609,42 @@ void WriteChannel(chanrec* Ptr, userrec* user, char* text, ...)
 	}
 }
 
+/* write formatted text from a source user to all users on a channel
+ * including the sender (NOT for privmsg, notice etc!) doesnt send to
+ * users on remote servers */
+
+void WriteChannelLocal(chanrec* Ptr, userrec* user, char* text, ...)
+{
+	if ((!Ptr) || (!text))
+	{
+		log(DEFAULT,"*** BUG *** WriteChannel was given an invalid parameter");
+		return;
+	}
+	char textbuffer[MAXBUF];
+	va_list argsPtr;
+	va_start (argsPtr, text);
+	vsnprintf(textbuffer, MAXBUF, text, argsPtr);
+	va_end(argsPtr);
+	for (user_hash::const_iterator i = clientlist.begin(); i != clientlist.end(); i++)
+	{
+		if (has_channel(i->second,Ptr))
+		{
+			if (i->second->fd != -1)
+			{
+				if (!user)
+				{
+					WriteServ(i->second->fd,"%s",textbuffer);
+				}
+				else
+				{
+					WriteTo(user,i->second,"%s",textbuffer);
+				}
+			}	
+		}
+	}
+}
+
+
 void WriteChannelWithServ(char* ServerName, chanrec* Ptr, userrec* user, char* text, ...)
 {
 	if ((!Ptr) || (!user) || (!text))
@@ -1330,7 +1366,7 @@ int usercount(chanrec *c)
 /* add a channel to a user, creating the record for it if needed and linking
  * it to the user record */
 
-chanrec* add_channel(userrec *user, const char* cn, const char* key)
+chanrec* add_channel(userrec *user, const char* cn, const char* key, bool override)
 {
 	if ((!user) || (!cn))
 	{
@@ -1404,63 +1440,71 @@ chanrec* add_channel(userrec *user, const char* cn, const char* key)
 			}
 			
 			log(DEBUG,"add_channel: joining to: %s",Ptr->name);
-			if (strcmp(Ptr->key,""))
+			
+			// the override flag allows us to bypass channel modes
+			// and bans (used by servers)
+			if (!override)
 			{
-				log(DEBUG,"add_channel: %s has key %s",Ptr->name,Ptr->key);
-				if (!key)
+				
+				if (strcmp(Ptr->key,""))
 				{
-					log(DEBUG,"add_channel: no key given in JOIN");
-					WriteServ(user->fd,"475 %s %s :Cannot join channel (Requires key)",user->nick, Ptr->name);
-					return NULL;
-				}
-				else
-				{
-					log(DEBUG,"key at %p is %s",key,key);
-					if (strcasecmp(key,Ptr->key))
+					log(DEBUG,"add_channel: %s has key %s",Ptr->name,Ptr->key);
+					if (!key)
 					{
-						log(DEBUG,"add_channel: bad key given in JOIN");
-						WriteServ(user->fd,"475 %s %s :Cannot join channel (Incorrect key)",user->nick, Ptr->name);
+						log(DEBUG,"add_channel: no key given in JOIN");
+						WriteServ(user->fd,"475 %s %s :Cannot join channel (Requires key)",user->nick, Ptr->name);
+						return NULL;
+					}
+					else
+					{
+						log(DEBUG,"key at %p is %s",key,key);
+						if (strcasecmp(key,Ptr->key))
+						{
+							log(DEBUG,"add_channel: bad key given in JOIN");
+							WriteServ(user->fd,"475 %s %s :Cannot join channel (Incorrect key)",user->nick, Ptr->name);
+							return NULL;
+						}
+					}
+				}
+				log(DEBUG,"add_channel: no key");
+	
+				if (Ptr->inviteonly)
+				{
+					log(DEBUG,"add_channel: channel is +i");
+					if (user->IsInvited(Ptr->name))
+					{
+						/* user was invited to channel */
+						/* there may be an optional channel NOTICE here */
+					}
+					else
+					{
+						WriteServ(user->fd,"473 %s %s :Cannot join channel (Invite only)",user->nick, Ptr->name);
 						return NULL;
 					}
 				}
-			}
-			log(DEBUG,"add_channel: no key");
-
-			if (Ptr->inviteonly)
-			{
-				log(DEBUG,"add_channel: channel is +i");
-				if (user->IsInvited(Ptr->name))
+				log(DEBUG,"add_channel: channel is not +i");
+	
+				if (Ptr->limit)
 				{
-					/* user was invited to channel */
-					/* there may be an optional channel NOTICE here */
+					if (usercount(Ptr) == Ptr->limit)
+					{
+						WriteServ(user->fd,"471 %s %s :Cannot join channel (Channel is full)",user->nick, Ptr->name);
+						return NULL;
+					}
 				}
-				else
+				
+				log(DEBUG,"add_channel: about to walk banlist");
+	
+				/* check user against the channel banlist */
+				for (BanList::iterator i = Ptr->bans.begin(); i != Ptr->bans.end(); i++)
 				{
-					WriteServ(user->fd,"473 %s %s :Cannot join channel (Invite only)",user->nick, Ptr->name);
-					return NULL;
+					if (match(user->GetFullHost(),i->data))
+					{
+						WriteServ(user->fd,"474 %s %s :Cannot join channel (You're banned)",user->nick, Ptr->name);
+						return NULL;
+					}
 				}
-			}
-			log(DEBUG,"add_channel: channel is not +i");
-
-			if (Ptr->limit)
-			{
-				if (usercount(Ptr) == Ptr->limit)
-				{
-					WriteServ(user->fd,"471 %s %s :Cannot join channel (Channel is full)",user->nick, Ptr->name);
-					return NULL;
-				}
-			}
-			
-			log(DEBUG,"add_channel: about to walk banlist");
-
-			/* check user against the channel banlist */
-			for (BanList::iterator i = Ptr->bans.begin(); i != Ptr->bans.end(); i++)
-			{
-				if (match(user->GetFullHost(),i->data))
-				{
-					WriteServ(user->fd,"474 %s %s :Cannot join channel (You're banned)",user->nick, Ptr->name);
-					return NULL;
-				}
+				
 			}
 
 			log(DEBUG,"add_channel: bans checked");
@@ -3104,7 +3148,7 @@ void handle_join(char **parameters, int pcnt, userrec *user)
 		return;
 	if (parameters[0][0] == '#')
 	{
-		Ptr = add_channel(user,parameters[0],parameters[1]);
+		Ptr = add_channel(user,parameters[0],parameters[1],false);
 	}
 }
 
@@ -3831,6 +3875,10 @@ char* chlist(userrec *user)
 				}
 			}
 		}
+	}
+	if (strlen(lst))
+	{
+		lst[strlen(lst)-1] = '\0'; // chop trailing space
 	}
 	return lst;
 }
@@ -5069,18 +5117,18 @@ void DoSync(serverrec* serv, char* udp_host,int udp_port, long MyKey)
 		serv->SendPacket(data,udp_host,udp_port,MyKey);
 		if (strcmp(chlist(u->second),""))
 		{
-			snprintf(data,MAXBUF,"J %s :%s",u->second->nick,chlist(u->second));
+			snprintf(data,MAXBUF,"J %s %s",u->second->nick,chlist(u->second));
 			serv->SendPacket(data,udp_host,udp_port,MyKey);
 		}
 	}
 	// send channel modes, topics etc...
 	for (chan_hash::iterator c = chanlist.begin(); c != chanlist.end(); c++)
 	{
-		snprintf(data,MAXBUF,"C %s %d %s :%s",c->second->name,c->second->created,c->second->setby,chanmodes(c->second));
+		snprintf(data,MAXBUF,"C %s %d %s %s",c->second->name,c->second->created,c->second->setby,chanmodes(c->second));
 		serv->SendPacket(data,udp_host,udp_port,MyKey);
 		if (strcmp(c->second->topic,""))
 		{
-			snprintf(data,MAXBUF,"T %d %s :%s",c->second->topicset,c->second->name,c->second->topic);
+			snprintf(data,MAXBUF,"T %d %s %s",c->second->topicset,c->second->name,c->second->topic);
 		}
 		serv->SendPacket(data,udp_host,udp_port,MyKey);
 		// send current banlist
@@ -5099,7 +5147,6 @@ void DoSync(serverrec* serv, char* udp_host,int udp_port, long MyKey)
 
 void handle_N(char token,char* params,serverrec* source,serverrec* reply, char* udp_host,int udp_port)
 {
-	log(DEBUG,"Sync: Received an 'N' packet, processing");
 	char* tm = strtok(params," ");
 	char* nick = strtok(NULL," ");
 	char* host = strtok(NULL," ");
@@ -5113,9 +5160,15 @@ void handle_N(char token,char* params,serverrec* source,serverrec* reply, char* 
 	if (iter != clientlist.end())
 	{
 		// nick collision
-		// TODO: make this work!
 		WriteOpers("Nickname collision: %s@%s != %s@%s",nick,server,iter->second->nick,iter->second->server);
-		return;
+		if (TS >= iter->second->age)
+		{
+			char str[MAXBUF];
+			snprintf(str,MAXBUF,"Killed (Nick Collision (%s@%s < %s@%s))",nick,server,iter->second->nick,iter->second->server);
+			WriteServ(iter->second->fd, "KILL %s :%s",iter->second->nick,str);
+			// client on remote server is older than the local user, kill the local user
+			kill_link(iter->second,str);
+		}
 	}
 	clientlist[nick] = new userrec();
 	// remote users have an fd of -1. This is so that our Write abstraction
@@ -5127,18 +5180,66 @@ void handle_N(char token,char* params,serverrec* source,serverrec* reply, char* 
 	strncpy(clientlist[nick]->dhost, dhost,160);
 	strncpy(clientlist[nick]->server, server,256);
 	strncpy(clientlist[nick]->ident, ident,10); // +1 char to compensate for '~'
+	strncpy(clientlist[nick]->fullname, gecos,128);
 	clientlist[nick]->signon = TS;
 	clientlist[nick]->nping = 0; // this is ignored for a remote user anyway.
 	clientlist[nick]->lastping = 1;
 	clientlist[nick]->port = 0; // so is this...
 	clientlist[nick]->registered = 7; // this however we need to set for them to receive messages and appear online
-	clientlist[nick]->idle_lastmsg = time(NULL); // this will have to update as they pm us,
-					 // so a user wont need /WHOIS <nick> <server> to find it
-					 // but it may be slightly different over the net
-					 // (a couple of seconds at most)
-	log(DEBUG,"Sync: Added %s",nick);
+	clientlist[nick]->idle_lastmsg = time(NULL); // this is unrealiable and wont actually be used locally
 }
 
+void handle_J(char token,char* params,serverrec* source,serverrec* reply, char* udp_host,int udp_port)
+{
+	// IMPORTANT NOTE
+	// The J token currently has no timestamp - this needs looking at
+	// because it will allow splitriding.
+	char* nick = strtok(params," ");
+	char* channel = strtok(NULL," ");
+	userrec* user = Find(nick);
+	while (channel)
+	{
+		if ((user != NULL) && (strcmp(channel,"")))
+		{
+			char privilage = '\0';
+			if (channel[0] != '#')
+			{
+				privilage = channel[0];
+				channel++;
+			}
+			add_channel(user,channel,"",true);
+
+			// now work out the privilages they should have on each channel
+			// and send the appropriate servermodes.
+			for (int i = 0; i != MAXCHANS; i++)
+			{
+				if (user->chans[i].channel)
+				{
+					if (!strcasecmp(user->chans[i].channel->name,channel))
+					{
+						if (privilage == '@')
+						{
+							user->chans[i].uc_modes = user->chans[i].uc_modes | UCMODE_OP;
+							WriteChannelLocal(user->chans[i].channel, NULL, "MODE %s +o %s",channel,user->nick);
+						}
+						if (privilage == '%')
+						{
+							user->chans[i].uc_modes = user->chans[i].uc_modes | UCMODE_HOP;
+							WriteChannelLocal(user->chans[i].channel, NULL, "MODE %s +h %s",channel,user->nick);
+						}
+						if (privilage == '+')
+						{
+							user->chans[i].uc_modes = user->chans[i].uc_modes | UCMODE_VOICE;
+							WriteChannelLocal(user->chans[i].channel, NULL, "MODE %s +o %s",channel,user->nick);
+						}
+					}
+				}
+			}
+
+		}
+		channel = strtok(NULL," ");
+	}
+}
 
 void process_restricted_commands(char token,char* params,serverrec* source,serverrec* reply, char* udp_host,int udp_port)
 {
@@ -5152,17 +5253,17 @@ void process_restricted_commands(char token,char* params,serverrec* source,serve
 		// introduce remote client
 		case 'N':
 			handle_N(token,params,source,reply,udp_host,udp_port);
-			log(DEBUG,"Sync: exit 1");
 		break;
-		// J <NICK> :<CHANLIST>
+		// J <NICK> <CHANLIST>
 		// Join user to channel list, merge channel permissions
 		case 'J':
+			handle_J(token,params,source,reply,udp_host,udp_port);
 		break;
-		// C <CHANNEL> <TS> <TOPICSETTER> :<MODES>
+		// C <CHANNEL> <TS> <TOPICSETTER> <MODES>
 		// initialise channel (netburst only)
 		case 'C':
 		break;
-		// T <TS> <CHANNEL> :<TOPIC>
+		// T <TS> <CHANNEL> <TOPIC>
 		// change channel topic (netburst only)
 		case 'T':
 		break;
