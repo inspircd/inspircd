@@ -1244,7 +1244,7 @@ void userlist(userrec *user,chanrec *c)
 				{
 					/* list overflowed into
 					 * multiple numerics */
-					WriteServ(user->fd,list);
+					WriteServ(user->fd,"%s",list);
 					snprintf(list,MAXBUF,"353 %s = %s :", user->nick, c->name);
 				}
 			}
@@ -1252,7 +1252,7 @@ void userlist(userrec *user,chanrec *c)
 	}
 	/* if whats left in the list isnt empty, send it */	if (list[strlen(list)-1] != ':')
 	{
-		WriteServ(user->fd,list);
+		WriteServ(user->fd,"%s",list);
 	}
 }
 
