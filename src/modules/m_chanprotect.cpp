@@ -36,6 +36,68 @@ class ModuleChanProtect : public Module
 		}
 	}
 	
+	virtual int OnAccessCheck(userrec* source,userrec* dest,chanrec* channel,int access_type)
+	{
+		// don't allow action if:
+		// (A) Theyre founder (no matter what)
+		// (B) Theyre protected, and you're not
+		switch (access_type)
+		{
+			case AC_DEOP:
+				if (dest->GetExt("cm_founder_"+std::string(channel->name)))
+				{
+					Srv->SendServ(source->fd,"482 "+std::string(source->nick)+" "+std::string(channel->name)+" :Can't deop "+std::string(dest->nick)+" as the're a channel founder");
+					return ACR_DENY;
+				}
+				if ((dest->GetExt("cm_protect_"+std::string(channel->name))) && (!source->GetExt("cm_protect_"+std::string(channel->name))))
+				{
+					Srv->SendServ(source->fd,"482 "+std::string(source->nick)+" "+std::string(channel->name)+" :Can't deop "+std::string(dest->nick)+" as the're protected (+a)");
+					return ACR_DENY;
+				}
+			break;
+
+			case AC_KICK:
+				if (dest->GetExt("cm_founder_"+std::string(channel->name)))
+				{
+					Srv->SendServ(source->fd,"482 "+std::string(source->nick)+" "+std::string(channel->name)+" :Can't kick "+std::string(dest->nick)+" as the're a channel founder");
+					return ACR_DENY;
+				}
+				if ((dest->GetExt("cm_protect_"+std::string(channel->name))) && (!source->GetExt("cm_protect_"+std::string(channel->name))))
+				{
+					Srv->SendServ(source->fd,"482 "+std::string(source->nick)+" "+std::string(channel->name)+" :Can't kick "+std::string(dest->nick)+" as the're protected (+a)");
+					return ACR_DENY;
+				}
+			break;
+
+			case AC_DEHALFOP:
+				if (dest->GetExt("cm_founder_"+std::string(channel->name)))
+				{
+					Srv->SendServ(source->fd,"482 "+std::string(source->nick)+" "+std::string(channel->name)+" :Can't de-halfop "+std::string(dest->nick)+" as the're a channel founder");
+					return ACR_DENY;
+				}
+				if ((dest->GetExt("cm_protect_"+std::string(channel->name))) && (!source->GetExt("cm_protect_"+std::string(channel->name))))
+				{
+					Srv->SendServ(source->fd,"482 "+std::string(source->nick)+" "+std::string(channel->name)+" :Can't de-halfop "+std::string(dest->nick)+" as the're protected (+a)");
+					return ACR_DENY;
+				}
+			break;
+
+			case AC_DEVOICE:
+				if (dest->GetExt("cm_founder_"+std::string(channel->name)))
+				{
+					Srv->SendServ(source->fd,"482 "+std::string(source->nick)+" "+std::string(channel->name)+" :Can't devoice "+std::string(dest->nick)+" as the're a channel founder");
+					return ACR_DENY;
+				}
+				if ((dest->GetExt("cm_protect_"+std::string(channel->name))) && (!source->GetExt("cm_protect_"+std::string(channel->name))))
+				{
+					Srv->SendServ(source->fd,"482 "+std::string(source->nick)+" "+std::string(channel->name)+" :Can't devoice "+std::string(dest->nick)+" as the're protected (+a)");
+					return ACR_DENY;
+				}
+			break;
+		}
+		return ACR_DEFAULT;
+	}
+	
 	virtual int OnExtendedMode(userrec* user, void* target, char modechar, int type, bool mode_on, string_list &params)
 	{
 		// not out mode, bail
