@@ -3665,6 +3665,12 @@ void process_command(userrec *user, char* cmd)
 		return;
 	}
 	strcpy(temp,cmd);
+
+	string temp = cmd;
+  	FOREACH_MOD OnServerRaw(temp,true);
+  	const char* cmd2 = temp.c_str();
+  	sprintf(cmd,"%s",cmd2);
+
 	if (!strchr(cmd,' '))
 	{
 		/* no parameters, lets skip the formalities and not chop up
