@@ -5391,6 +5391,16 @@ long map_count(serverrec* s)
 	return c;
 }
 
+long local_count()
+{
+	int c = 0;
+	for (user_hash::const_iterator i = clientlist.begin(); i != clientlist.end(); i++)
+	{
+		if ((i->second->fd) && (isnick(i->second->nick)) && (strcasecmp(i->second->server,ServerName))) c++;
+	}
+	return c;
+}
+
 void handle_links(char **parameters, int pcnt, userrec *user)
 {
 	WriteServ(user->fd,"364 %s %s %s :0 %s",user->nick,ServerName,ServerName,ServerDesc);
@@ -5406,16 +5416,19 @@ void handle_links(char **parameters, int pcnt, userrec *user)
 
 void handle_map(char **parameters, int pcnt, userrec *user)
 {
-	WriteServ(user->fd,"006 %s :%s",user->nick,ServerName);
+	char line[MAXBUF];
+	snprintf(line,MAXBUF,"006 %s :%s",user->nick,ServerName);
+	while (strlen(line) < 40)
+		strcat(line," ");
+	WriteServ(user->fd,"%s%d (%.2f%%)",line,local_count(),(float)(((float)local_count()/(float)usercnt())*100));
 	for (int j = 0; j < 255; j++)
  	{
 		if (servers[j] != NULL)
   		{
-  			char line[MAXBUF];
 			snprintf(line,MAXBUF,"006 %s :%c-%s",user->nick,islast(servers[j]),servers[j]->name);
 			while (strlen(line) < 40)
 				strcat(line," ");
-			WriteServ(user->fd,"%s%d",line,map_count(servers[j]));
+			WriteServ(user->fd,"%s%d (%.2f%%)",line,map_count(servers[j]),(float)(((float)map_count(servers[j])/(float)usercnt())*100));
 		}
 	}
 	WriteServ(user->fd,"007 %s :End of /MAP",user->nick);
