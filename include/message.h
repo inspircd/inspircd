@@ -29,5 +29,8 @@ int isnick(const char* n);
 char* cmode(userrec *user, chanrec *chan);
 int cstatus(userrec *user, chanrec *chan);
 int has_channel(userrec *u, chanrec *c);
+void TidyBan(char *ban);
+char* chlist(userrec *user);
+void send_network_quit(const char* nick, const char* reason);
 
 #endif

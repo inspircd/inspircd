@@ -1920,32 +1920,6 @@ int take_voice(userrec *user,char *dest,chanrec *chan,int status)
 	return 1;
 }
 
-void TidyBan(char *ban)
-{
-	if (!ban) {
-		log(DEFAULT,"*** BUG *** TidyBan was given an invalid parameter");
-		return;
-	}
-	
-	char temp[MAXBUF],NICK[MAXBUF],IDENT[MAXBUF],HOST[MAXBUF];
-
-	strcpy(temp,ban);
-
-	char* pos_of_pling = strchr(temp,'!');
-	char* pos_of_at = strchr(temp,'@');
-
-	pos_of_pling[0] = '\0';
-	pos_of_at[0] = '\0';
-	pos_of_pling++;
-	pos_of_at++;
-
-	strncpy(NICK,temp,NICKMAX);
-	strncpy(IDENT,pos_of_pling,IDENTMAX+1);
-	strncpy(HOST,pos_of_at,160);
-
-	sprintf(ban,"%s!%s@%s",NICK,IDENT,HOST);
-}
-
 int add_ban(userrec *user,char *dest,chanrec *chan,int status)
 {
 	if ((!user) || (!dest) || (!chan)) {
@@ -4268,45 +4242,6 @@ void handle_notice(char **parameters, int pcnt, userrec *user)
 	}
 }
 
-char lst[MAXBUF];
-
-char* chlist(userrec *user)
-{
-	int i = 0;
-	char cmp[MAXBUF];
-
-        log(DEBUG,"chlist: %s",user->nick);
-	strcpy(lst,"");
-	if (!user)
-	{
-		return lst;
-	}
-	for (int i = 0; i != MAXCHANS; i++)
-	{
-		if (user->chans[i].channel != NULL)
-		{
-			if (user->chans[i].channel->name)
-			{
-				strcpy(cmp,user->chans[i].channel->name);
-				strcat(cmp," ");
-				if (!strstr(lst,cmp))
-				{
-					if ((!user->chans[i].channel->c_private) && (!user->chans[i].channel->secret))
-					{
-						strcat(lst,cmode(user,user->chans[i].channel));
-						strcat(lst,user->chans[i].channel->name);
-						strcat(lst," ");
-					}
-				}
-			}
-		}
-	}
-	if (strlen(lst))
-	{
-		lst[strlen(lst)-1] = '\0'; // chop trailing space
-	}
-	return lst;
-}
 
 void handle_info(char **parameters, int pcnt, userrec *user)
 {
@@ -4378,13 +4313,6 @@ void handle_whois(char **parameters, int pcnt, userrec *user)
 		/* no such nick/channel */
 		WriteServ(user->fd,"401 %s %s :No suck nick/channel",user->nick, parameters[0]);
 	}
-}
-
-void send_network_quit(const char* nick, const char* reason)
-{
-	char buffer[MAXBUF];
-	snprintf(buffer,MAXBUF,"Q %s :%s",nick,reason);
-	NetSendToAll(buffer);
 }
 
 void handle_quit(char **parameters, int pcnt, userrec *user)

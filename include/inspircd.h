@@ -110,7 +110,6 @@ void force_nickchange(userrec* user,const char* newnick);
 void kill_link(userrec *user,const char* r);
 int usercount(chanrec *c);
 void call_handler(const char* commandname,char **parameters, int pcnt, userrec *user);
-void send_network_quit(const char* nick, const char* reason);
 long GetRevision();
 
 // mesh network functions
