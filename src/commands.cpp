@@ -1564,6 +1564,7 @@ void handle_oper(char **parameters, int pcnt, userrec *user)
                         snprintf(global,MAXBUF,"M %s +o",user->nick);
                         NetSendToAll(global);
 			FOREACH_MOD OnOper(user);
+			log(DEFAULT,"OPER: %s!%s@%s opered as type: %s",user->nick,user->ident,user->host,OperType);
 		}
 	}
 	else
@@ -1571,7 +1572,7 @@ void handle_oper(char **parameters, int pcnt, userrec *user)
 		if (!fail2)
 		{
 			WriteServ(user->fd,"491 %s :Invalid oper credentials",user->nick);
-			WriteOpers("*** WARNING! Failed oper attempt by %s!%s@%s!",user->nick,user->ident,user->host);
+			WriteOpers("*** WARNING! qFailed oper attempt by %s!%s@%s!",user->nick,user->ident,user->host);
 			log(DEFAULT,"OPER: Failed oper attempt by %s!%s@%s: user, host or password did not match.",user->nick,user->ident,user->host);
 		}
 		else
