@@ -68,6 +68,13 @@ class ModuleChanProtect : public Module
                 output = temp2.substr(0,temp2.length()-1);
         }
 
+	virtual void OnUserPart(userrec* user, chanrec* channel)
+	{
+		// FIX: when someone parts a channel we must remove their Extensibles!
+		user->Shrink("cm_founder_"+std::string(channel->name));
+		user->Shrink("cm_protect_"+std::string(channel->name));
+	}
+
 	virtual void OnRehash()
 	{
 		// on a rehash we delete our classes for good measure and create them again.
