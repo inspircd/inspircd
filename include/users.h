@@ -87,7 +87,7 @@ class userrec : public connection
 	 * This may contain any of the following RFC characters: o, w, s, i
 	 * Your module may define other mode characters as it sees fit.
 	 */
-	char modes[32];
+	char modes[MAXBUF];
 	
 	ucrec chans[MAXCHANS];
 	

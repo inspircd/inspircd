@@ -1003,8 +1003,8 @@ char* cmode(userrec *user, chanrec *chan)
 	}
 }
 
-char scratch[MAXMODES];
-char sparam[MAXMODES];
+char scratch[MAXBUF];
+char sparam[MAXBUF];
 
 char* chanmodes(chanrec *chan)
 {
@@ -1019,45 +1019,45 @@ char* chanmodes(chanrec *chan)
 	strcpy(sparam,"");
 	if (chan->noexternal)
 	{
-		strcat(scratch,"n");
+		strncat(scratch,"n",MAXMODES);
 	}
 	if (chan->topiclock)
 	{
-		strcat(scratch,"t");
+		strncat(scratch,"t",MAXMODES);
 	}
 	if (strcmp(chan->key,""))
 	{
-		strcat(scratch,"k");
+		strncat(scratch,"k",MAXMODES);
 	}
 	if (chan->limit)
 	{
-		strcat(scratch,"l");
+		strncat(scratch,"l",MAXMODES);
 	}
 	if (chan->inviteonly)
 	{
-		strcat(scratch,"i");
+		strncat(scratch,"i",MAXMODES);
 	}
 	if (chan->moderated)
 	{
-		strcat(scratch,"m");
+		strncat(scratch,"m",MAXMODES);
 	}
 	if (chan->secret)
 	{
-		strcat(scratch,"s");
+		strncat(scratch,"s",MAXMODES);
 	}
 	if (chan->c_private)
 	{
-		strcat(scratch,"p");
+		strncat(scratch,"p",MAXMODES);
 	}
 	if (strcmp(chan->key,""))
 	{
-		strcat(sparam,chan->key);
+		strncat(sparam,chan->key,MAXBUF);
 	}
 	if (chan->limit)
 	{
 		char foo[24];
 		sprintf(foo," %d",chan->limit);
-		strcat(sparam,foo);
+		strncat(sparam,foo,MAXBUF);
 	}
 	if (strlen(chan->custom_modes))
 	{
@@ -1067,8 +1067,8 @@ char* chanmodes(chanrec *chan)
 			std::string extparam = chan->GetModeParameter(chan->custom_modes[z]);
 			if (extparam != "")
 			{
-				strcat(sparam," ");
-				strcat(sparam,extparam.c_str());
+				strncat(sparam," ",MAXBUF);
+				strncat(sparam,extparam.c_str(),MAXBUF);
 			}
 		}
 	}
@@ -2345,6 +2345,78 @@ void process_modes(char **parameters,userrec* user,chanrec *chan,int status, int
 	}
 }
 
+// based on sourcemodes, return true or false to determine if umode is a valid mode a user may set on themselves or others.
+
+bool allowed_umode(char umode, char* sourcemodes,bool adding)
+{
+	log(DEBUG,"Allowed_umode: %c %s",umode,sourcemodes);
+	// RFC1459 specified modes
+	if ((umode == 'w') || (umode == 's') || (umode == 'i'))
+	{
+		log(DEBUG,"umode %c allowed by RFC1459 scemantics",umode);
+		return true;
+	}
+	
+	// user may not +o themselves or others, but an oper may de-oper other opers or themselves
+	if ((strchr(sourcemodes,'o')) && (!adding))
+	{
+		log(DEBUG,"umode %c allowed by RFC1459 scemantics",umode);
+		return true;
+	}
+	else if (umode == 'o')
+	{
+		log(DEBUG,"umode %c allowed by RFC1459 scemantics",umode);
+		return false;
+	}
+	
+	// process any module-defined modes that need oper
+	if ((ModeDefinedOper(umode,MT_CLIENT)) && (strchr(sourcemodes,'o')))
+	{
+		log(DEBUG,"umode %c allowed by module handler (oper only mode)",umode);
+		return true;
+	}
+	else
+	if (ModeDefined(umode,MT_CLIENT))
+	{
+		// process any module-defined modes that don't need oper
+		log(DEBUG,"umode %c allowed by module handler (non-oper mode)",umode);
+		if ((ModeDefinedOper(umode,MT_CLIENT)) && (!strchr(sourcemodes,'o')))
+		{
+			// no, this mode needs oper, and this user 'aint got what it takes!
+			return false;
+		}
+		return true;
+	}
+
+	// anything else - return false.
+	log(DEBUG,"umode %c not known by any ruleset",umode);
+	return false;
+}
+
+bool process_module_umode(char umode, userrec* source, userrec* dest, bool adding)
+{
+	string_list p;
+	p.clear();
+	if (ModeDefined(umode,MT_CLIENT))
+	{
+		for (int i = 0; i <= MODCOUNT; i++)
+		{
+			if (modules[i]->OnExtendedMode(source,(chanrec*)NULL,umode,MT_CLIENT,adding,p))
+			{
+				log(DEBUG,"Module claims umode %c",umode);
+				return true;
+			}
+		}
+		log(DEBUG,"No module claims umode %c",umode);
+		return false;
+	}
+	else
+	{
+		log(DEBUG,"*** BUG *** Non-module umode passed to process_module_umode!");
+		return false;
+	}
+}
+
 void handle_mode(char **parameters, int pcnt, userrec *user)
 {
 	chanrec* Ptr;
@@ -2360,8 +2432,13 @@ void handle_mode(char **parameters, int pcnt, userrec *user)
 		WriteServ(user->fd,"221 %s :+%s",user->nick,user->modes);
 		return;
 	}
+
 	if ((dest) && (pcnt > 1))
 	{
+		char dmodes[MAXBUF];
+		strncpy(dmodes,dest->modes,MAXBUF);
+		log(DEBUG,"pulled up dest user modes: %s",dmodes);
+	
 		can_change = 0;
 		if (user != dest)
 		{
@@ -2428,7 +2505,7 @@ void handle_mode(char **parameters, int pcnt, userrec *user)
 				}
 				else
 				{
-					if ((parameters[1][i] == 'i') || (parameters[1][i] == 'w') || (parameters[1][i] == 's'))
+					if ((parameters[1][i] == 'i') || (parameters[1][i] == 'w') || (parameters[1][i] == 's') || (allowed_umode(parameters[1][i],user->modes,direction)))
 					{
 						can_change = 1;
 					}
@@ -2437,34 +2514,45 @@ void handle_mode(char **parameters, int pcnt, userrec *user)
 				{
 					if (direction == 1)
 					{
-						if (!strchr(dest->modes,parameters[1][i]))
+						if ((!strchr(dmodes,parameters[1][i])) && (allowed_umode(parameters[1][i],user->modes,true)))
 						{
-							dest->modes[strlen(dest->modes)+1]='\0';
-							dest->modes[strlen(dest->modes)] = parameters[1][i];
-							outpars[strlen(outpars)+1]='\0';
-							outpars[strlen(outpars)] = parameters[1][i];
+							char umode = parameters[1][i];
+							if ((process_module_umode(umode, user, dest, direction)) || (umode == 'i') || (umode == 's') || (umode == 'w') || (umode == 'o'))
+							{
+								dmodes[strlen(dmodes)+1]='\0';
+								dmodes[strlen(dmodes)] = parameters[1][i];
+								outpars[strlen(outpars)+1]='\0';
+								outpars[strlen(outpars)] = parameters[1][i];
+							}
 						}
 					}
 					else
 					{
-						int q = 0;
-						char temp[MAXBUF];
-						char moo[MAXBUF];
-
-						outpars[strlen(outpars)+1]='\0';
-						outpars[strlen(outpars)] = parameters[1][i];
-						
-						strcpy(temp,"");
-						for (q = 0; q < strlen(user->modes); q++)
+						if ((allowed_umode(parameters[1][i],user->modes,false)) && (strchr(dmodes,parameters[1][i])))
 						{
-							if (user->modes[q] != parameters[1][i])
+							char umode = parameters[1][i];
+							if ((process_module_umode(umode, user, dest, direction)) || (umode == 'i') || (umode == 's') || (umode == 'w') || (umode == 'o'))
 							{
-								moo[0] = user->modes[q];
-								moo[1] = '\0';
-								strcat(temp,moo);
+								int q = 0;
+								char temp[MAXBUF];	
+								char moo[MAXBUF];	
+
+								outpars[strlen(outpars)+1]='\0';
+								outpars[strlen(outpars)] = parameters[1][i];
+							
+								strcpy(temp,"");
+								for (q = 0; q < strlen(dmodes); q++)
+								{
+									if (dmodes[q] != parameters[1][i])
+									{
+										moo[0] = dmodes[q];
+										moo[1] = '\0';
+										strcat(temp,moo);
+									}
+								}
+								strcpy(dmodes,temp);
 							}
 						}
-						strcpy(user->modes,temp);
 					}
 				}
 			}
@@ -2505,7 +2593,17 @@ void handle_mode(char **parameters, int pcnt, userrec *user)
 				return;
 
 			WriteTo(user, dest, "MODE %s :%s", dest->nick, b);
+
+			if (strlen(dmodes)>MAXMODES)
+			{
+				dmodes[MAXMODES-1] = '\0';
+			}
+			log(DEBUG,"Stripped mode line");
+			log(DEBUG,"Line dest is now %s",dmodes);
+			strncpy(dest->modes,dmodes,MAXMODES);
+
 		}
+
 		return;
 	}
 	
@@ -2559,9 +2657,16 @@ void server_mode(char **parameters, int pcnt, userrec *user)
 	char outpars[MAXBUF];
 
 	dest = Find(parameters[0]);
+	
+	log(DEBUG,"server_mode on %s",dest->nick);
 
 	if ((dest) && (pcnt > 1))
 	{
+		log(DEBUG,"params > 1");
+
+		char dmodes[MAXBUF];
+		strncpy(dmodes,dest->modes,MAXBUF);
+
 		strcpy(outpars,"+");
 		direction = 1;
 
@@ -2603,50 +2708,56 @@ void server_mode(char **parameters, int pcnt, userrec *user)
 			}
 			else
 			{
-				can_change = 0;
-				if (strchr(user->modes,'o'))
-				{
-					can_change = 1;
-				}
-				else
-				{
-					if ((parameters[1][i] == 'i') || (parameters[1][i] == 'w') || (parameters[1][i] == 's'))
-					{
-						can_change = 1;
-					}
-				}
+				log(DEBUG,"begin mode processing entry");
+				can_change = 1;
 				if (can_change)
 				{
 					if (direction == 1)
 					{
-						if (!strchr(dest->modes,parameters[1][i]))
+						log(DEBUG,"umode %c being added",parameters[1][i]);
+						if ((!strchr(dmodes,parameters[1][i])) && (allowed_umode(parameters[1][i],user->modes,true)))
 						{
-							dest->modes[strlen(dest->modes)+1]='\0';
-							dest->modes[strlen(dest->modes)] = parameters[1][i];
-							outpars[strlen(outpars)+1]='\0';
-							outpars[strlen(outpars)] = parameters[1][i];
+							char umode = parameters[1][i];
+							log(DEBUG,"umode %c is an allowed umode",umode);
+							if ((process_module_umode(umode, user, dest, direction)) || (umode == 'i') || (umode == 's') || (umode == 'w') || (umode == 'o'))
+							{
+								dmodes[strlen(dmodes)+1]='\0';
+								dmodes[strlen(dmodes)] = parameters[1][i];
+								outpars[strlen(outpars)+1]='\0';
+								outpars[strlen(outpars)] = parameters[1][i];
+							}
 						}
 					}
 					else
 					{
-						int q = 0;
-						char temp[MAXBUF];
-						char moo[MAXBUF];
-
-						outpars[strlen(outpars)+1]='\0';
-						outpars[strlen(outpars)] = parameters[1][i];
-						
-						strcpy(temp,"");
-						for (q = 0; q < strlen(user->modes); q++)
+						// can only remove a mode they already have
+						log(DEBUG,"umode %c being removed",parameters[1][i]);
+						if ((allowed_umode(parameters[1][i],user->modes,false)) && (strchr(dmodes,parameters[1][i])))
 						{
-							if (user->modes[q] != parameters[1][i])
+							char umode = parameters[1][i];
+							log(DEBUG,"umode %c is an allowed umode",umode);
+							if ((process_module_umode(umode, user, dest, direction)) || (umode == 'i') || (umode == 's') || (umode == 'w') || (umode == 'o'))
 							{
-								moo[0] = user->modes[q];
-								moo[1] = '\0';
-								strcat(temp,moo);
+								int q = 0;
+								char temp[MAXBUF];
+								char moo[MAXBUF];	
+
+								outpars[strlen(outpars)+1]='\0';
+								outpars[strlen(outpars)] = parameters[1][i];
+							
+								strcpy(temp,"");
+								for (q = 0; q < strlen(dmodes); q++)
+								{
+									if (dmodes[q] != parameters[1][i])
+									{
+										moo[0] = dmodes[q];
+										moo[1] = '\0';
+										strcat(temp,moo);
+									}
+								}
+								strcpy(dmodes,temp);
 							}
 						}
-						strcpy(user->modes,temp);
 					}
 				}
 			}
@@ -2687,7 +2798,17 @@ void server_mode(char **parameters, int pcnt, userrec *user)
 				return;
 
 			WriteTo(user, dest, "MODE %s :%s", dest->nick, b);
+
+			if (strlen(dmodes)>MAXMODES)
+			{
+				dmodes[MAXMODES-1] = '\0';
+			}
+			log(DEBUG,"Stripped mode line");
+			log(DEBUG,"Line dest is now %s",dmodes);
+			strncpy(dest->modes,dmodes,MAXMODES);
+
 		}
+
 		return;
 	}
 	

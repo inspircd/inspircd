@@ -19,10 +19,10 @@ class ExtMode
 public:
 	char modechar;
 	int type;
-	bool default_on;
 	int params_when_on;
 	int params_when_off;
-	ExtMode(char mc, int ty, bool d_on, int p_on, int p_off) : modechar(mc), type(ty), default_on(d_on), params_when_on(p_on), params_when_off(p_off) { };
+	bool needsoper;
+	ExtMode(char mc, int ty, bool oper, int p_on, int p_off) : modechar(mc), type(ty), needsoper(oper), params_when_on(p_on), params_when_off(p_off) { };
 };                                     
 
 typedef std::vector<ExtMode> ExtModeList;
@@ -38,6 +38,20 @@ bool ModeDefined(char modechar, int type)
 	{
 		log(DEBUG,"i->modechar==%c, modechar=%c, i->type=%d, type=%d",i->modechar,modechar,i->type,type);
 		if ((i->modechar == modechar) && (i->type == type))
+		{
+			return true;
+		}
+	}
+	return false;
+}
+
+bool ModeDefinedOper(char modechar, int type)
+{
+	log(DEBUG,"Size of extmodes vector is %d",EMode.size());
+	for (ExtModeListIter i = EMode.begin(); i < EMode.end(); i++)
+	{
+		log(DEBUG,"i->modechar==%c, modechar=%c, i->type=%d, type=%d",i->modechar,modechar,i->type,type);
+		if ((i->modechar == modechar) && (i->type == type) && (i->needsoper == true))
 		{
 			return true;
 		}
@@ -72,12 +86,12 @@ int ModeDefinedOff(char modechar, int type)
 }
 
 // returns true if an extended mode character is in use
-bool DoAddExtendedMode(char modechar, int type, bool default_on, int params_on, int params_off)
+bool DoAddExtendedMode(char modechar, int type, bool requires_oper, int params_on, int params_off)
 {
 	if (ModeDefined(modechar,type)) {
 		return false;
 	}
-	EMode.push_back(ExtMode(modechar,type,default_on,params_on,params_off));
+	EMode.push_back(ExtMode(modechar,type,requires_oper,params_on,params_off));
 	return true;
 }
 
@@ -227,7 +241,7 @@ Admin Server::GetAdmin()
 
 
 
-bool Server::AddExtendedMode(char modechar, int type, bool default_on, int params_when_on, int params_when_off)
+bool Server::AddExtendedMode(char modechar, int type, bool requires_oper, int params_when_on, int params_when_off)
 {
 	if (type == MT_SERVER)
 	{
@@ -244,7 +258,7 @@ bool Server::AddExtendedMode(char modechar, int type, bool default_on, int param
 		log(DEBUG,"*** API ERROR *** More than one parameter for an MT_CHANNEL mode is not yet supported");
 		return false;
 	}
-	return DoAddExtendedMode(modechar,type,default_on,params_when_on,params_when_off);
+	return DoAddExtendedMode(modechar,type,requires_oper,params_when_on,params_when_off);
 }
 
 

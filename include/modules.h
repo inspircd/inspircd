@@ -293,9 +293,10 @@ class Server : public classbase
 	 * This allows modules to add extra mode letters, e.g. +x for hostcloak.
 	 * the "type" parameter is either MT_CHANNEL, MT_CLIENT, or MT_SERVER, to
 	 * indicate wether the mode is a channel mode, a client mode, or a server mode.
-	 * default_on is true if the mode is to be applied to default connections.
+	 * requires_oper is used with MT_CLIENT type modes only to indicate the mode can only
+	 * be set or unset by an oper. If this is used for MT_CHANNEL type modes it is ignored.
 	 * params_when_on is the number of modes to expect when the mode is turned on
-	 * (for type MT_CHANNEL only), e.g. with mode +b, this would have a value of 1.
+	 * (for type MT_CHANNEL only), e.g. with mode +k, this would have a value of 1.
 	 * the params_when_off value has a similar value to params_when_on, except it indicates
 	 * the number of parameters to expect when the mode is disabled. Modes which act in a similar
 	 * way to channel mode +l (e.g. require a parameter to enable, but not to disable) should
@@ -306,7 +307,7 @@ class Server : public classbase
 	 * a mode can have at most one parameter, attempting to use more parameters will have undefined
 	 * effects.
 	 */
-	virtual bool AddExtendedMode(char modechar, int type, bool default_on, int params_when_on, int params_when_off);
+	virtual bool AddExtendedMode(char modechar, int type, bool requires_oper, int params_when_on, int params_when_off);
 
 	/** Adds a command to the command table.
 	 * This allows modules to add extra commands into the command table. You must place a function within your

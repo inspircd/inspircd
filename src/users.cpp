@@ -69,14 +69,18 @@ void userrec::InviteTo(char* channel)
 
 void userrec::RemoveInvite(char* channel)
 {
-        for (InvitedList::iterator i = invites.begin(); i != invites.end(); i++)
-        {
-        	if (i->channel) {
-			if (!strcasecmp(i->channel,channel))
-			{
-       				invites.erase(i);
-				return;
-                	}
-                }
+	log(DEBUG,"Removing invites");
+	if (invites.size())
+	{
+	        for (InvitedList::iterator i = invites.begin(); i != invites.end(); i++)
+	        {
+	        	if (i->channel) {
+				if (!strcasecmp(i->channel,channel))
+				{
+       					invites.erase(i);
+					return;
+	                	}
+	                }
+        	}
         }
 }

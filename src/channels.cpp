@@ -3,6 +3,11 @@
 #include "inspircd.h"
 #include <stdio.h>
 #include <string>
+#include <vector>
+
+using namespace std;
+
+vector<ModeParameter> custom_mode_params;
 
 chanrec::chanrec()
 {
@@ -28,7 +33,7 @@ void chanrec::SetCustomMode(char mode,bool mode_on)
 		log(DEBUG,"Custom mode %c set",mode);
 	}
 	else {
-		char temp[MAXMODES];
+		char temp[MAXBUF];
 		int count = 0;
 		for (int q = 0; q < strlen(custom_modes); q++) {
 			if (custom_modes[q] != mode) {
@@ -41,8 +46,6 @@ void chanrec::SetCustomMode(char mode,bool mode_on)
 		this->SetCustomModeParam(mode,"",false);
 	}
 }
-
-vector<ModeParameter> custom_mode_params;
 
 void chanrec::SetCustomModeParam(char mode,char* parameter,bool mode_on)
 {
