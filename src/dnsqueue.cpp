@@ -162,6 +162,7 @@ extern command_table cmdlist;
 extern ClassVector Classes;
 
 extern char DNSServer[MAXBUF];
+long max_fd_alloc = 0;
 
 class Lookup {
 private:
@@ -244,9 +245,11 @@ public:
 	int GetFD()
 	{
 		userrec* usr = Find(u);
-		if (usr)
-			return usr->fd;
-		else return 0;
+		if (!usr)
+			return 0;
+		if (usr->dns_done)
+			return 0;
+		return usr->fd;
 	}
 };
 
@@ -271,6 +274,10 @@ bool lookup_dns(std::string nick)
 					return true;
 				}
 			}
+			// calculate the maximum value, this saves cpu time later
+			for (int p = 0; p < MAXBUF; p++)
+				if (dnsq[p].GetFD())
+					max_fd_alloc = p;
 		}
 		else
 		{
@@ -283,7 +290,7 @@ bool lookup_dns(std::string nick)
 void dns_poll()
 {
 	// do we have items in the queue?
-	for (int j = 0; j < MAXBUF; j++)
+	for (int j = 0; j <= max_fd_alloc; j++)
 	{
 		// are any ready, or stale?
 		if (dnsq[j].GetFD())
@@ -294,5 +301,11 @@ void dns_poll()
 			}
 		}
 	}
+	// looks like someones freed an item, recalculate end of list.
+	if ((!dnsq[max_fd_alloc].GetFD()) && (max_fd_alloc != 0))
+		for (int p = 0; p < MAXBUF; p++)
+			if (dnsq[p].GetFD())
+				max_fd_alloc = p;
+
 }
 

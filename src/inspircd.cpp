@@ -3391,20 +3391,27 @@ int InspIRCd(void)
 #ifdef _POSIX_PRIORITY_SCHEDULING
 		sched_yield();
 #endif
-		// update the status of klines, etc
-		expire_lines();
+                // poll dns queue
+                dns_poll();
 
 		fd_set sfd;
 		timeval tval;
 		FD_ZERO(&sfd);
 
-		// poll dns queue
-		dns_poll();
-
 		user_hash::iterator count2 = clientlist.begin();
 
 		// *FIX* Instead of closing sockets in kill_link when they receive the ERROR :blah line, we should queue
 		// them in a list, then reap the list every second or so.
+		if ((reap_counter % 50) == 0)
+		{
+			// These functions eat cpu, and should not be done so often!
+
+        	        // update the status of klines, etc
+	                expire_lines();
+#ifdef _POSIX_PRIORITY_SCHEDULING
+			sched_yield();
+#endif
+		}
 		if (reap_counter>300)
   		{
 			if (fd_reap.size() > 0)
@@ -3432,7 +3439,7 @@ int InspIRCd(void)
 				FD_SET(me[x]->fd, &serverfds);
 		}
 		
-		tvs.tv_usec = 0;		
+		tvs.tv_usec = 5000;
 		tvs.tv_sec = 0;
 		
 		int servresult = select(32767, &serverfds, NULL, NULL, &tvs);
@@ -3496,7 +3503,8 @@ int InspIRCd(void)
 	while (count2 != clientlist.end())
 	{
 		char data[10240];
-		tval.tv_usec = tval.tv_sec = 0;
+		tval.tv_usec = 5000;
+		tval.tv_sec = 0;
 		FD_ZERO(&sfd);
 		int total_in_this_set = 0;
 
@@ -3567,7 +3575,7 @@ int InspIRCd(void)
         
         		int v = 0;
 
-			tval.tv_usec = 0;
+			tval.tv_usec = 5000;
 			tval.tv_sec = 0;
 			selectResult2 = select(65535, &sfd, NULL, NULL, &tval);
 			
@@ -3583,14 +3591,11 @@ int InspIRCd(void)
 				result = EAGAIN;
 				if ((count2a->second->fd != -1) && (FD_ISSET (count2a->second->fd, &sfd)))
 				{
-					log(DEBUG,"Reading fd %d",count2a->second->fd);
 					memset(data, 0, 10240);
 					result = read(count2a->second->fd, data, 10240);
 					
 					if (result)
 					{
-						if (result > 0)
-							log(DEBUG,"Read %d characters from socket",result);
 						userrec* current = count2a->second;
 						int currfd = current->fd;
 						char* l = strtok(data,"\n");
@@ -3689,7 +3694,7 @@ int InspIRCd(void)
 		FD_SET (openSockfd[count], &selectFds);
 	}
 
-	tv.tv_usec = 1;
+	tv.tv_usec = 5000;
 	selectResult = select(MAXSOCKS, &selectFds, NULL, NULL, &tv);
 
 	/* select is reporting a waiting socket. Poll them all to find out which */
