@@ -1,13 +1,10 @@
 # (C) ChatSpike development team
 # Makefile by <Craig@ChatSpike.net>
-# Small modifications by <brain@ChatSpike.net>
-#
+# Many Thanks to Andrew Church <achurch@achurch.org>
+#    for assisting with making this work right.
 
 all: $(MODULES)
 
-%.so:
-	@$(MAKE) --no-print-directory TARGET=$(@:.so=)
-
-$(TARGET).so:
-	$(CC) -I../../include $(FLAGS) -shared -o $@ $(TARGET).cpp
-	@cp $(TARGET).so $(MODPATH)/$(TARGET).so
+%.so: %.cpp
+	$(CC) -I../../include $(FLAGS) -shared -o $@ $<
+	@cp $@ $(MODPATH)/
