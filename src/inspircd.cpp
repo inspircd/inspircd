@@ -3915,7 +3915,7 @@ void handle_kill(char **parameters, int pcnt, userrec *user)
 		{
 			// remote kill
 			WriteOpers("*** Remote kill: %s!%s@%s (%s)",user->nick,u->nick,u->ident,u->host,parameters[1]);
-			sprintf(killreason,"[%s] Killed (%s (%s))",u->server,user->nick,parameters[1]);
+			sprintf(killreason,"[%s] Killed (%s (%s))",ServerName,user->nick,parameters[1]);
 			WriteCommonExcept(u,"QUIT :%s",killreason);
 			// K token must go to ALL servers!!!
 			char buffer[MAXBUF];
@@ -6272,6 +6272,7 @@ void handle_K(char token,char* params,serverrec* source,serverrec* reply, char* 
 	char* src = strtok(params," ");
 	char* nick = strtok(NULL," :");
 	char* reason = strtok(NULL,"\r\n");
+	char kreason[MAXBUF];
 	reason++;
 
 	userrec* u = Find(nick);
@@ -6279,10 +6280,10 @@ void handle_K(char token,char* params,serverrec* source,serverrec* reply, char* 
 	
 	if ((user) && (u))
 	{
-		WriteTo(user, u, "KILL %s :%s!%s!%s!%s (%s)", u->nick, source->name,ServerName,user->dhost,user->nick,reason);
+		WriteTo(user, u, "KILL %s :%s!%s!%s!%s (%s)", u->nick, ServerName, reply->name, user->dhost,user->nick,reason);
 		WriteOpers("*** Remote kill from %s by %s: %s!%s@%s (%s)",source->name,user->nick,u->nick,u->ident,u->host,reason);
-		snprintf(reason,MAXQUIT,"[%s] Killed (%s (%s))",source->name,user->nick,reason);
-		kill_link(u,reason);
+		snprintf(kreason,MAXBUF,"[%s] Killed (%s (%s))",reply->name,user->nick,reason);
+		kill_link(u,kreason);
 	}
 }
 
