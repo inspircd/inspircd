@@ -33,6 +33,7 @@
 #include "wildcard.h"
 #include "message.h"
 #include "mode.h"
+#include "xline.h"
 
 #ifdef GCC3
 #define nspace __gnu_cxx

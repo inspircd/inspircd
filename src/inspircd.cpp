@@ -54,6 +54,7 @@ using namespace std;
 #include "message.h"
 #include "mode.h"
 #include "commands.h"
+#include "xline.h"
 
 #ifdef GCC3
 #define nspace __gnu_cxx

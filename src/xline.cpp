@@ -33,6 +33,7 @@
 #include "wildcard.h"
 #include "message.h"
 #include "commands.h"
+#include "xline.h"
 
 using namespace std;
 
@@ -55,4 +56,8 @@ extern char list[MAXBUF];
 extern char PrefixQuit[MAXBUF];
 extern char DieValue[MAXBUF];
 
+std::vector<KLine> klines;
+std::vector<GLine> glines;
+std::vector<ZLine> zlines;
+std::vector<QLine> qlines;
 

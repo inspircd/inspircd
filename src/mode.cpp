@@ -33,6 +33,7 @@
 #include "wildcard.h"
 #include "message.h"
 #include "commands.h"
+#include "xline.h"
 
 using namespace std;
 
