@@ -168,7 +168,7 @@ class ModuleHelpop : public Module
 
 	virtual void OnWhois(userrec* src, userrec* dst)
 	{
-		if (strchr(src->modes,'h'))
+		if (strchr(dst->modes,'h'))
 		{
 			Srv->SendTo(NULL,src,"310 "+std::string(src->nick)+" "+std::string(dst->nick)+" :is available for help.");
 		}

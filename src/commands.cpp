@@ -2186,6 +2186,10 @@ void handle_link_packet(char* udp_msg, char* tcp_host, serverrec *serv)
 		}
 		if (!strcmp(command,"QUIT"))
 		{
+			if ((!udp_msg) || (!strcmp(data,"")) || (strcmp(data,":")))
+			{
+				strcpy(data,":No reason");
+			}
 			if (!strcmp(data,":"))
 			{
 				strcpy(data,":No reason");
