@@ -86,7 +86,7 @@
 #   need this ability should know the die and restart password.       #
 #                                                                     #
 #  Syntax is as follows:                                              #
-#       <power diepass="die password" restartpass="restart password"
+#       <power diepass="die password" restartpass="restart password"  #
 #	 pause="secs before dying">			      	      #
 #                                                                     #
 
@@ -177,7 +177,31 @@
         type="NetAdmin">
 
 
-#-#-#-#-#-#-#-#-#-#-  MISCELLANEOUS CONFIGURATION   -#-#-#-#-#-#-#-#-#-
+#-#-#-#-#-#-#-#-#-#-#-  SERVER LINK CONFIGURATION  -#-#-#-#-#-#-#-#-#-#
+#                                                                     #
+# Defines which servers can link to this one, and which servers this  #
+# server may create outbound links to.                                #
+#                                                                     #
+# name      - The name is the canocial name of the server, it does    #
+#             not have to resolve - but it is expected to be sent in  #
+#             the remote servers connection info.                     #
+# ipaddr    - Valid ip address for remote server.                     #
+# port      - Valid listening UDP port for remote server.             #
+# sendpass  - Password to send to create an outbound connection to    #
+#             this server.                                            #
+# recvpass  - Password to receive to accept an inbound connection     #
+#             from this server.                                       #
+#                                                                     #
+
+<server name="hub.penguin.org"
+	ipaddr="12.34.56.78"
+	port="7000"
+	sendpass="outgoing!password"
+	recvpass="incoming!password">
+
+
+
+#-#-#-#-#-#-#-#-#-#-  MISCELLANEOUS CONFIGURATION  -#-#-#-#-#-#-#-#-#-#
 #								      #
 #   These options let you define the path to your motd and rules      #
 #   files.							      #

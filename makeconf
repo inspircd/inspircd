@@ -44,7 +44,7 @@ FILES_MOTD="$ME/conf/inspire.motd"
 FILES_RULE="$ME/conf/inspire.rules"
 
 OP_PREFIX="Quit: "
-OP_DEBUG="off"
+OP_DEBUG="default"
 OP_HALFY="yes"
 OP_PROTE="yes"
 OP_FOUND="yes"
@@ -622,7 +622,7 @@ if [ $cc ] ; then
 fi
 
 echo ""
-echo "Debug [on / off] Switch on or off Extensive IRCd loggin to ircd.log"
+echo "Log level [debug, verbose, default, sparse, none]"
 echo -e $n "[\033[1;32m$OP_DEBUG\033[0;37m] -> $c"
 read cc
 if [ "$cc" ] ; then
