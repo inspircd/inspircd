@@ -211,8 +211,9 @@ public:
 				usr = Find(u);
 				if (usr)
 				{
-					if (usr->registered == 7)
+					if (usr->registered > 3)
 					{
+						usr->dns_done = true;
 						return true;
 					}
 					if ((hostname != "") && (usr->registered != 7))
@@ -222,7 +223,8 @@ public:
 						usr->dns_done = true;
 						return true;
 					}
-					return false;
+					usr->dns_done = true;
+					return true;
 				}
 			}
 			else
