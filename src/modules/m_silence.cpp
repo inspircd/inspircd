@@ -95,6 +95,14 @@ void handle_silence(char **parameters, int pcnt, userrec *user)
 				user->Extend(std::string("silence_list"),(char*)sl);
 			}
 			// add the nick to it -- silence only takes nicks for some reason even though its list shows masks
+			for (silencelist::iterator n = sl->begin(); n != sl->end();  n++)
+			{
+				if (!strcasecmp(n->c_str(),nick))
+				{
+					WriteServ(user->fd,"952 %s %s :%s is already on your silence list",user->nick, user->nick,nick);
+					return;
+				}
+			}
 			sl->push_back(std::string(nick));
 			WriteServ(user->fd,"951 %s %s :Added %s!*@* to silence list",user->nick, user->nick,nick);
 			return;
