@@ -14,6 +14,9 @@
  * ---------------------------------------------------
  
  $Log$
+ Revision 1.4  2003/01/26 20:15:03  brain
+ Added server classes for linking
+
  Revision 1.3  2003/01/25 20:17:53  brain
  Fixed WHOWAS memory leak
 
@@ -210,6 +213,7 @@
 #include <errno.h>
 #include <deque>
 #include "users.h"
+#include "servers.h"
 #include "ctables.h"
 #include "globals.h"
 #include "modules.h"
@@ -301,6 +305,7 @@ typedef DLLFactory<ModuleFactory> ircd_module;
 user_hash clientlist;
 chan_hash chanlist;
 user_hash whowas;
+server_list servers;
 command_table cmdlist;
 file_cache MOTD;
 file_cache RULES;
