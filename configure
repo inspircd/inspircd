@@ -364,6 +364,11 @@ touch include/inspircd_config.h
 
 echo "Preparing Variables for the Makefile"
 
+if [ "$CONFIG_DIR" != "$ME/conf" ] ; then
+    COPY_CONF=1
+fi
+
+
 case "$OSNAME" in
 	(FreeBSD)
 		LDLIBS="-Ldl"

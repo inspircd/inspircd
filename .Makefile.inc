@@ -31,7 +31,11 @@ echo "	\${MAKE} -C src DIRNAME="src" \$(MAKEARGS)" >> Makefile
 echo "	cp src/inspircd \$(BINPATH)" >> Makefile
 echo "" >> Makefile
 echo "config:" >> Makefile
+if [ -n "$COPY_CONF" ] ; then
 echo "	cp conf/* \$(CONPATH)" >> Makefile
+else
+echo "	echo \"*** Nothing to Be Done for make config\"" >> Makefile
+fi
 echo "clean:" >> Makefile
 echo "	rm -rf src/*.o" >> Makefile
 echo "	rm -rf src/modules/*.o" >> Makefile
