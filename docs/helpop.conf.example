@@ -290,5 +290,6 @@
 	line19="T                Only halfops/ops can send NOTICEs to the channel"
 	line20="C                No CTCPs allowed to the channel"
 	line21="c                mIRC colour codes blocked on the channel"
-	line22="L [channel]      If the channel is full, redirect users to [channel]">
+	line22="K                No /KNOCK allowed to channel (if knock module is loaded)"
+	line23="L [channel]      If the channel is full, redirect users to [channel]">
 
