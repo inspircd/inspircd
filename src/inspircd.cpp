@@ -98,7 +98,7 @@ std::vector<std::string> module_names;
 extern std::vector<ircd_module*> factory;
 std::vector<int> fd_reap;
 
-std::vector<std::string> pending_connects;
+std::string pending_connects[MAXBUF];
 
 extern int MODCOUNT;
 
@@ -2440,11 +2440,11 @@ void FullConnectUser(userrec* user)
 // handles any connects where DNS isnt done yet, times out stale dns queries on users, and lets completed queries connect.
 void HandlePendingConnects()
 {
-	if (pending_connects.size())
+	for (long i = 0; i < MAXBUF; i++)
 	{
-		for (std::vector<std::string>::iterator i = pending_connects.begin(); i <= pending_connects.end(); i++)
+		std::string t = pending_connects[i];
+		if (t != "")
 		{
-			std::string t = *i;
 			userrec* a = Find(t);
 			if (a)
 			{
@@ -2452,7 +2452,7 @@ void HandlePendingConnects()
 				if ((a->dns_done) && (a->registered == 3))
 				{
 					FullConnectUser(a); // attack! attack!....
-					pending_connects.erase(i);
+					pending_connects[i] = "";
 					return;	// ...RUN AWAY! RUN AWAY!
 				}
 				// this users dns is NOT done, but its timed out.
@@ -2460,7 +2460,7 @@ void HandlePendingConnects()
 				{
 					WriteServ(a->fd,"NOTICE Auth :Failed to resolve your hostname, using your IP address instead.");
 					FullConnectUser(a);
-					pending_connects.erase(i);
+					pending_connects[i] = "";
 					return;
 				}
 			}
@@ -2479,7 +2479,11 @@ void ConnectUser(userrec *user)
 	else
 	{
 		// add them to the pending queue
-		pending_connects.push_back(user->nick);
+		for (int i = 0; i < MAXBUF; i++)
+		{
+			pending_connects[i] = std::string(user->nick);
+			break;
+		}
 	}
 }
 
