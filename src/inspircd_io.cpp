@@ -268,12 +268,16 @@ bool LoadConf(const char* filename, std::stringstream *target, std::stringstream
 	target->str("");
 	errorstream->str("");
 	long linenumber = 1;
-	FILE* conf = fopen(filename,"r");
+	// first, check that the file exists before we try to do anything with it
 	if (!FileExists(filename))
 	{
 		*errorstream << "File " << filename << " not found." << endl;
 		return false;
 	}
+	// Fix the chmod of the file to restrict it to the current user and group
+	chmod(filename,0600);
+	// now open it
+	FILE* conf = fopen(filename,"r");
 	char buffer[MAXBUF];
 	if (conf)
 	{
