@@ -276,7 +276,7 @@
 	line5="o [nickname]     Gives ops to [nickname]"
 	line6="b [hostmask]     Bans [hostmask] on the channel"
 	line7="a [nickname]     Give protected status to [nickname] (+q only)"
-	lone8="q [nickname]     Give founder status to [nickname] (ulines only)"
+	line8="q [nickname]     Give founder status to [nickname] (ulines only)"
 	line9="i                Make the channel invite only, must /INVITE users"
 	line10="k [key]          Set the channel key (password) to [key]"
 	line11="l [limit]        Set the maximum possible users to [limit]"
