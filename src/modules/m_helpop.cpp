@@ -138,11 +138,6 @@ class ModuleHelpop : public Module
 	{
 		Srv  = new Server;
 		conf = new ConfigReader;
-		if (conf->GetError())
-		{
-			// dump errors and ABORT
-			conf->DumpErrors(true,NULL);
-		}
 
 		h_file = conf->ReadValue("helpop", "file", 0);
 
