@@ -17,7 +17,9 @@ void handle_sanick(char **parameters, int pcnt, userrec *user)
 	{
 		if (Srv->IsNick(std::string(parameters[1])))
 		{
-			Srv->SendOpers(std::string(user->nick)+" used SANICK to change "+std::string(source->nick)+" to "+parameters[1]);
+			// FIX by brain: Cant use source->nick here because if it traverses a server link then
+			// source->nick becomes invalid as the object data moves in memory.
+			Srv->SendOpers(std::string(user->nick)+" used SANICK to change "+std::string(parameters[0])+" to "+parameters[1]);
 			Srv->ChangeUserNick(source,std::string(parameters[1]));
 		}
 	}

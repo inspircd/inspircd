@@ -2590,12 +2590,51 @@ void process_modes(char **parameters,userrec* user,chanrec *chan,int status, int
 		if (servermode)
 		{
 			if (!silent)
+			{
 				WriteChannelWithServ(ServerName,chan,user,"MODE %s %s",chan->name,outstr);
+				// M token for a usermode must go to all servers
+				char buffer[MAXBUF];
+				snprintf(buffer,MAXBUF,"M %s %s",ServerName,chan->name, outstr);
+				for (int j = 0; j < 255; j++)
+				{
+					if (servers[j] != NULL)
+					{
+						if (strcmp(servers[j]->name,ServerName))
+						{
+							if (ChanAnyOnThisServer(chan,servers[j]->name))
+							{
+								me[defaultRoute]->SendPacket(buffer,servers[j]->internal_addr,servers[j]->internal_port,MyKey);
+								log(DEBUG,"Sent M token");
+							}
+						}
+					}
+				}
+			}
+				
 		}
 		else
 		{
 			if (!silent)
+			{
 				WriteChannel(chan,user,"MODE %s %s",chan->name,outstr);
+				// M token for a usermode must go to all servers
+				char buffer[MAXBUF];
+				snprintf(buffer,MAXBUF,"m %s %s %s",user,chan->name, outstr);
+				for (int j = 0; j < 255; j++)
+				{
+					if (servers[j] != NULL)
+					{
+						if (strcmp(servers[j]->name,ServerName))
+						{
+							if (ChanAnyOnThisServer(chan,servers[j]->name))
+							{
+								me[defaultRoute]->SendPacket(buffer,servers[j]->internal_addr,servers[j]->internal_port,MyKey);
+								log(DEBUG,"Sent m token");
+							}
+						}
+					}
+				}
+			}
 		}
 	}
 }
@@ -2875,6 +2914,21 @@ void handle_mode(char **parameters, int pcnt, userrec *user)
 
 			WriteTo(user, dest, "MODE %s :%s", dest->nick, b);
 
+			// M token for a usermode must go to all servers
+			char buffer[MAXBUF];
+			snprintf(buffer,MAXBUF,"m %s %s %s",user->nick, dest->nick, b);
+			for (int j = 0; j < 255; j++)
+			{
+				if (servers[j] != NULL)
+				{
+					if (strcmp(servers[j]->name,ServerName))
+					{
+						me[defaultRoute]->SendPacket(buffer,servers[j]->internal_addr,servers[j]->internal_port,MyKey);
+						log(DEBUG,"Sent m token");
+					}
+				}
+			}
+
 			if (strlen(dmodes)>MAXMODES)
 			{
 				dmodes[MAXMODES-1] = '\0';
@@ -3084,6 +3138,21 @@ void server_mode(char **parameters, int pcnt, userrec *user)
 
 			WriteTo(user, dest, "MODE %s :%s", dest->nick, b);
 
+			// M token for a usermode must go to all servers
+			char buffer[MAXBUF];
+			snprintf(buffer,MAXBUF,"m %s %s %s",user->nick, dest->nick, b);
+			for (int j = 0; j < 255; j++)
+			{
+				if (servers[j] != NULL)
+				{
+					if (strcmp(servers[j]->name,ServerName))
+					{
+						me[defaultRoute]->SendPacket(buffer,servers[j]->internal_addr,servers[j]->internal_port,MyKey);
+						log(DEBUG,"Sent m token");
+					}
+				}
+			}
+			
 			if (strlen(dmodes)>MAXMODES)
 			{
 				dmodes[MAXMODES-1] = '\0';
@@ -3286,6 +3355,181 @@ void merge_mode(char **parameters, int pcnt)
 		process_modes(parameters,&s2,Ptr,STATUS_OP,pcnt,true,true);
 	}
 }
+
+
+void merge_mode2(char **parameters, int pcnt, userrec* user)
+{
+	chanrec* Ptr;
+	userrec* dest;
+	int can_change,i;
+	int direction = 1;
+	char outpars[MAXBUF];
+
+	dest = Find(parameters[0]);
+	
+	// fix: ChroNiCk found this - we cant use this as debug if its null!
+	if (dest)
+	{
+		log(DEBUG,"merge_mode on %s",dest->nick);
+	}
+
+	if ((dest) && (pcnt > 1))
+	{
+		log(DEBUG,"params > 1");
+
+		char dmodes[MAXBUF];
+		strncpy(dmodes,dest->modes,MAXBUF);
+
+		strcpy(outpars,"+");
+		direction = 1;
+
+		if ((parameters[1][0] != '+') && (parameters[1][0] != '-'))
+			return;
+
+		for (int i = 0; i < strlen(parameters[1]); i++)
+		{
+			if (parameters[1][i] == '+')
+			{
+				if (direction != 1)
+				{
+					if ((outpars[strlen(outpars)-1] == '+') || (outpars[strlen(outpars)-1] == '-'))
+					{
+						outpars[strlen(outpars)-1] = '+';
+					}
+					else
+					{
+						strcat(outpars,"+");
+					}
+				}
+				direction = 1;
+			}
+			else
+			if (parameters[1][i] == '-')
+			{
+				if (direction != 0)
+				{
+					if ((outpars[strlen(outpars)-1] == '+') || (outpars[strlen(outpars)-1] == '-'))
+					{
+						outpars[strlen(outpars)-1] = '-';
+					}
+					else
+					{
+						strcat(outpars,"-");
+					}
+				}
+				direction = 0;
+			}
+			else
+			{
+				log(DEBUG,"begin mode processing entry");
+				can_change = 1;
+				if (can_change)
+				{
+					if (direction == 1)
+					{
+						log(DEBUG,"umode %c being added",parameters[1][i]);
+						if ((!strchr(dmodes,parameters[1][i])) && (allowed_umode(parameters[1][i],user->modes,true)))
+						{
+							char umode = parameters[1][i];
+							log(DEBUG,"umode %c is an allowed umode",umode);
+							if ((process_module_umode(umode, NULL, dest, direction)) || (umode == 'i') || (umode == 's') || (umode == 'w') || (umode == 'o'))
+							{
+								dmodes[strlen(dmodes)+1]='\0';
+								dmodes[strlen(dmodes)] = parameters[1][i];
+								outpars[strlen(outpars)+1]='\0';
+								outpars[strlen(outpars)] = parameters[1][i];
+							}
+						}
+					}
+					else
+					{
+						// can only remove a mode they already have
+						log(DEBUG,"umode %c being removed",parameters[1][i]);
+						if ((allowed_umode(parameters[1][i],user->modes,false)) && (strchr(dmodes,parameters[1][i])))
+						{
+							char umode = parameters[1][i];
+							log(DEBUG,"umode %c is an allowed umode",umode);
+							if ((process_module_umode(umode, NULL, dest, direction)) || (umode == 'i') || (umode == 's') || (umode == 'w') || (umode == 'o'))
+							{
+								int q = 0;
+								char temp[MAXBUF];
+								char moo[MAXBUF];	
+
+								outpars[strlen(outpars)+1]='\0';
+								outpars[strlen(outpars)] = parameters[1][i];
+							
+								strcpy(temp,"");
+								for (q = 0; q < strlen(dmodes); q++)
+								{
+									if (dmodes[q] != parameters[1][i])
+									{
+										moo[0] = dmodes[q];
+										moo[1] = '\0';
+										strcat(temp,moo);
+									}
+								}
+								strcpy(dmodes,temp);
+							}
+						}
+					}
+				}
+			}
+		}
+		if (strlen(outpars))
+		{
+			char b[MAXBUF];
+			strcpy(b,"");
+			int z = 0;
+			int i = 0;
+			while (i < strlen (outpars))
+			{
+				b[z++] = outpars[i++];
+				b[z] = '\0';
+				if (i<strlen(outpars)-1)
+				{
+					if (((outpars[i] == '-') || (outpars[i] == '+')) && ((outpars[i+1] == '-') || (outpars[i+1] == '+')))
+					{
+						// someones playing silly buggers and trying
+						// to put a +- or -+ into the line...
+						i++;
+					}
+				}
+				if (i == strlen(outpars)-1)
+				{
+					if ((outpars[i] == '-') || (outpars[i] == '+'))
+					{
+						i++;
+					}
+				}
+			}
+
+			z = strlen(b)-1;
+			if ((b[z] == '-') || (b[z] == '+'))
+				b[z] == '\0';
+
+			if ((!strcmp(b,"+")) || (!strcmp(b,"-")))
+				return;
+
+			if (strlen(dmodes)>MAXMODES)
+			{
+				dmodes[MAXMODES-1] = '\0';
+			}
+			log(DEBUG,"Stripped mode line");
+			log(DEBUG,"Line dest is now %s",dmodes);
+			strncpy(dest->modes,dmodes,MAXMODES);
+
+		}
+
+		return;
+	}
+	
+	Ptr = FindChan(parameters[0]);
+	if (Ptr)
+	{
+		process_modes(parameters,user,Ptr,STATUS_OP,pcnt,true,true);
+	}
+}
+
 
 
 /* This function pokes and hacks at a parameter list like the following:
@@ -5612,6 +5856,8 @@ void DoSync(serverrec* serv, char* udp_host,int udp_port, long MyKey)
 {
 	char data[MAXBUF];
 	// send start of sync marker: Y <timestamp>
+	// at this point the ircd receiving it starts broadcasting this netburst to all ircds
+	// except the ones its receiving it from.
 	snprintf(data,MAXBUF,"Y %d",time(NULL));
 	serv->SendPacket(data,udp_host,udp_port,MyKey);
 	// send users and channels
@@ -5646,6 +5892,7 @@ void DoSync(serverrec* serv, char* udp_host,int udp_port, long MyKey)
 	// send end of sync marker: E <timestamp>
 	snprintf(data,MAXBUF,"F %d",time(NULL));
 	serv->SendPacket(data,udp_host,udp_port,MyKey);
+	// ircd sends its serverlist after the end of sync here
 }
 
 
@@ -5751,6 +5998,40 @@ void handle_M(char token,char* params,serverrec* source,serverrec* reply, char* 
 		WriteTo(NULL,Find(target),"MODE %s",original);
 	}
 }
+
+// m is modes set by users only (not servers) valid targets are channels or users.
+
+void handle_m(char token,char* params,serverrec* source,serverrec* reply, char* udp_host,int udp_port)
+{
+	char* pars[128];
+	char original[MAXBUF],target[MAXBUF];
+	strncpy(original,params,MAXBUF);
+	int index = 0;
+	
+	char* src = strtok(params," ");
+	userrec* user = Find(src);
+	
+	if (user)
+	{
+		char* parameter = strtok(NULL," ");
+		strncpy(target,parameter,MAXBUF);
+		while (parameter)
+		{
+			pars[index++] = parameter;
+			parameter = strtok(NULL," ");
+		}
+		merge_mode2(pars,--index,user);
+		if (FindChan(target))
+		{
+			WriteChannelLocal(FindChan(target), user, "MODE %s",original);
+		}
+		if (Find(target))
+		{
+			WriteTo(user,Find(target),"MODE %s",original);
+		}
+	}
+}
+
 
 void handle_L(char token,char* params,serverrec* source,serverrec* reply, char* udp_host,int udp_port)
 {
