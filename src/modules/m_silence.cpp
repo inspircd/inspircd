@@ -126,6 +126,12 @@ class ModuleSilence : public Module
 			user->Shrink("silence_list");
 		}
 	}
+
+	virtual void On005Numeric(std::string &output)
+	{
+		// we don't really have a limit...
+		output = output + " SILENCE=999";
+	}
 	
 	virtual int OnUserPreNotice(userrec* user,void* dest,int target_type, std::string &text)
 	{
