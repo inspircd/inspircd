@@ -24,6 +24,7 @@
 #define STATE_SYNC		2
 #define STATE_NOAUTH_INBOUND	3
 #define STATE_NOAUTH_OUTBOUND	4
+#define STATE_SERVICES		5
 
 /** Each connection has one or more of these
  * each represents ONE outbound connection to another ircd

@@ -1506,9 +1506,12 @@ void handle_M(char token,char* params,serverrec* source,serverrec* reply, char* 
 	strncpy(target,parameter,MAXBUF);
 	while (parameter)
 	{
+		if (parameter[0] == ':')
+			parameter++;
 		pars[index++] = parameter;
 		parameter = strtok(NULL," ");
 	}
+	log(DEBUG,"*** MODE: %s %s",pars[0],pars[1]);
 	merge_mode(pars,index);
 	if (FindChan(target))
 	{
@@ -1516,7 +1519,7 @@ void handle_M(char token,char* params,serverrec* source,serverrec* reply, char* 
 	}
 	if (Find(target))
 	{
-		WriteTo(NULL,Find(target),"MODE %s",original);
+		Write(Find(target)->fd,":%s MODE %s",ServerName,original);
 	}
 }
 
@@ -2112,13 +2115,48 @@ void handle_link_packet(char* udp_msg, char* tcp_host, serverrec *serv)
 {
 	char response[10240];
 	char token = udp_msg[0];
+	char* old = udp_msg;
 
 	if (token == ':') // leading :servername or details - strip them off (services does this, sucky)
 	{
+		char* src = udp_msg+1;
 		while (udp_msg[0] != ' ')
 			udp_msg++;
+		udp_msg[0] = 0;
 		udp_msg++;
-		token = udp_msg[0];
+		char* comd = udp_msg;
+		while (udp_msg[0] != ' ')
+			udp_msg++;
+		udp_msg[0] = 0;
+		udp_msg++;
+		char data[MAXBUF];
+		char source[MAXBUF];
+		char command[MAXBUF];
+		strcpy(data,udp_msg);
+		strcpy(source,src);
+		strcpy(command,comd);
+		udp_msg = old;
+		if (!strcmp(command,"NOTICE"))
+		{
+			snprintf(udp_msg,MAXBUF,"V %s %s",source,data);
+			log(DEBUG,"Rewrote NOTICE from services to: '%s'",udp_msg);
+			token = udp_msg[0];
+		}
+		if (!strcmp(command,"SVSMODE"))
+		{
+			snprintf(udp_msg,MAXBUF,"M %s",data);
+			log(DEBUG,"Rewrote SVSMODE from services to: '%s'",udp_msg);
+			token = udp_msg[0];
+		}
+		// todo: this wont work without u:lines
+		// in give_ops etc allow nick on a u:lined serv to do just about anything
+		if (!strcmp(command,"MODE"))
+		{
+			snprintf(udp_msg,MAXBUF,"m %s %s",source,data);
+			log(DEBUG,"Rewrote MODE from services to: '%s'",udp_msg);
+			token = udp_msg[0];
+		}
+		
 	}
 
 
@@ -2307,7 +2345,6 @@ void handle_link_packet(char* udp_msg, char* tcp_host, serverrec *serv)
       							{
 								char buffer[MAXBUF];
 								me[j]->connectors[k].SetDescription(serverdesc);
-								me[j]->connectors[k].SetState(STATE_CONNECTED);
 								sprintf(buffer,"X 0");
 								serv->SendPacket(buffer,tcp_host);
 								DoSync(me[j],tcp_host);
@@ -2371,13 +2408,13 @@ void handle_link_packet(char* udp_msg, char* tcp_host, serverrec *serv)
      						{
 							if (!strcasecmp(me[j]->connectors[k].GetServerName().c_str(),tcp_host))
       							{
-								char buffer[MAXBUF];
+          							char buffer[MAXBUF];
 								me[j]->connectors[k].SetDescription(serverdesc);
 								me[j]->connectors[k].SetServerName(servername);
-								me[j]->connectors[k].SetState(STATE_CONNECTED);
+								me[j]->connectors[k].SetState(STATE_SERVICES);
 								sprintf(buffer,"X 0");
-								serv->SendPacket(buffer,tcp_host);
-								DoSync(me[j],tcp_host);
+								serv->SendPacket(buffer,servername);
+								DoSync(me[j],servername);
 								NetSendMyRoutingTable();
 								return;
 							}
@@ -2418,7 +2455,7 @@ void handle_link_packet(char* udp_msg, char* tcp_host, serverrec *serv)
     					log(DEBUG,"Servers are: '%s' '%s'",tcp_host,me[j]->connectors[x].GetServerName().c_str());
     					if (!strcasecmp(me[j]->connectors[x].GetServerName().c_str(),tcp_host))
     					{
-    						if (me[j]->connectors[x].GetState() == STATE_CONNECTED)
+    						if ((me[j]->connectors[x].GetState() == STATE_CONNECTED) || (me[j]->connectors[x].GetState() == STATE_SERVICES))
     						{
     							// found a valid ircd_connector.
       							process_restricted_commands(token,params,me[j],serv,tcp_host,me[j]->connectors[x].GetServerIP(),me[j]->connectors[x].GetServerPort());

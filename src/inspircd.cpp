@@ -2785,6 +2785,7 @@ void process_buffer(const char* cmdbuf,userrec *user)
 void DoSync(serverrec* serv, char* tcp_host)
 {
 	char data[MAXBUF];
+	log(DEBUG,"Sending sync");
 	// send start of sync marker: Y <timestamp>
 	// at this point the ircd receiving it starts broadcasting this netburst to all ircds
 	// except the ones its receiving it from.
@@ -2821,6 +2822,7 @@ void DoSync(serverrec* serv, char* tcp_host)
 	}
 	snprintf(data,MAXBUF,"F %d",time(NULL));
 	serv->SendPacket(data,tcp_host);
+	log(DEBUG,"Sent sync");
 	// ircd sends its serverlist after the end of sync here
 }
 
