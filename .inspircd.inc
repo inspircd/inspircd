@@ -47,7 +47,8 @@ if ($arg eq "rehash") {
 }
 
 if ($arg eq "cron") {
-	if (getstatus() == 0) { start(); exit(); }
+	if (getstatus() == 0) { start(); }
+	exit();
 }
 
 if ($arg eq "restart") {
