@@ -5154,8 +5154,8 @@ void handle_N(char token,char* params,serverrec* source,serverrec* reply, char* 
 	char* dhost = strtok(NULL," ");
 	char* ident = strtok(NULL," ");
 	char* modes = strtok(NULL," ");
-	char* server = strtok(NULL," ");
-	char* gecos = strtok(NULL," ");
+	char* server = strtok(NULL," :");
+	char* gecos = strtok(NULL,"\r\n");
 	time_t TS = atoi(tm);
 	user_hash::iterator iter = clientlist.find(nick);
 	if (iter != clientlist.end())
