@@ -6444,9 +6444,9 @@ void process_restricted_commands(char token,char* params,serverrec* source,serve
 			// except the newcomer. They'll all attempt to connect back to it.
 			char buffer[MAXBUF];
 			snprintf(buffer,MAXBUF,"+ %s %s %d %d",udp_host,ipaddr,port,authcookie);
-			NetSendToAllExcept(udp_host,buffer);
+			NetSendToAllExcept(buffer,udp_host);
 			snprintf(buffer,MAXBUF,"~ %d",authcookie);
-			NetSendToAllExcept(udp_host,buffer);
+			NetSendToAllExcept(buffer,udp_host);
 		break;
 		// ~
   		// Store authcookie
