@@ -193,7 +193,7 @@
 #             from this server.                                       #
 #                                                                     #
 
-<server name="hub.penguin.org"
+<link name="hub.penguin.org"
 	ipaddr="12.34.56.78"
 	port="7000"
 	sendpass="outgoing!password"
