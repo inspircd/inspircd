@@ -1375,17 +1375,19 @@ chanrec* add_channel(userrec *user, const char* cn, const char* key, bool overri
 			
 			// the override flag allows us to bypass channel modes
 			// and bans (used by servers)
-			if (!override)
+			if ((!override) || (!strcasecmp(user->server,ServerName)))
 			{
+				log(DEBUG,"Not overriding...");
 				int MOD_RESULT = 0;
 				FOREACH_RESULT(OnUserPreJoin(user,Ptr,cname));
 				if (MOD_RESULT == 1) {
 					return NULL;
 				}
+				log(DEBUG,"MOD_RESULT=%d",MOD_RESULT);
 				
-				if (MOD_RESULT == 0) 
+				if (!MOD_RESULT) 
 				{
-					
+					log(DEBUG,"add_channel: checking key, invite, etc");
 					if (strcmp(Ptr->key,""))
 					{
 						log(DEBUG,"add_channel: %s has key %s",Ptr->name,Ptr->key);

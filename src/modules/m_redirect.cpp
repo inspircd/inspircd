@@ -90,6 +90,7 @@ class ModuleRedirect : public Module
 				}
 			}
 		}
+		return 0;
 	}
 
 	virtual ~ModuleRedirect()
