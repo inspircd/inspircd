@@ -4541,7 +4541,7 @@ void SetupCommandTable(void)
   createcommand("PART",handle_part,0,1);
   createcommand("KICK",handle_kick,0,2);
   createcommand("MODE",handle_mode,0,1);
-  createcommand("TOPIC",handle_topic,0,1);
+  createcommand("TOPIC",handle_topic,0,2);
   createcommand("WHO",handle_who,0,1);
   createcommand("MOTD",handle_motd,0,0);
   createcommand("RULES",handle_join,0,0);
