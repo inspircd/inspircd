@@ -7,7 +7,7 @@
 <center>
 <a class="qindex" href="main.html">Main Page</a> &nbsp; <a class="qindex" href="namespaces.html">Namespace List</a> &nbsp; <a class="qindex" href="hierarchy.html">Class Hierarchy</a> &nbsp; <a class="qindex" href="classes.html">Alphabetical List</a> &nbsp; <a class="qindex" href="annotated.html">Compound List</a> &nbsp; <a class="qindex" href="files.html">File List</a> &nbsp; <a class="qindex" href="functions.html">Compound Members</a> &nbsp; <a class="qindex" href="globals.html">File Members</a> &nbsp; </center>
 <hr><h1>users.cpp</h1><a href="users_8cpp.html">Go to the documentation of this file.</a><div class="fragment"><pre>00001 <span class="comment">/*</span>
-00002 <span class="comment"></span>
+00002 <span class="comment">Manages userrec objects</span>
 00003 <span class="comment">*/</span>
 00004 
 00005 <span class="preprocessor">#include "inspircd_config.h"</span> 
@@ -16,90 +16,150 @@
 00008 <span class="preprocessor">#include "inspircd.h"</span>
 00009 <span class="preprocessor">#include &lt;stdio.h&gt;</span>
 00010 
-<a name="l00011"></a><a class="code" href="classuserrec.html#a0">00011</a> <a class="code" href="classuserrec.html#a0">userrec::userrec</a>()
-00012 {
-00013         <span class="comment">// the PROPER way to do it, AVOID bzero at *ALL* costs</span>
-00014         strcpy(nick,<span class="stringliteral">""</span>);
-00015         strcpy(ip,<span class="stringliteral">"127.0.0.1"</span>);
-00016         <a class="code" href="classuserrec.html#m10">timeout</a> = 0;
-00017         strcpy(ident,<span class="stringliteral">""</span>);
-00018         strcpy(host,<span class="stringliteral">""</span>);
-00019         strcpy(dhost,<span class="stringliteral">""</span>);
-00020         strcpy(fullname,<span class="stringliteral">""</span>);
-00021         strcpy(modes,<span class="stringliteral">""</span>);
-00022         strcpy(inbuf,<span class="stringliteral">""</span>);
-00023         strcpy(server,<span class="stringliteral">""</span>);
-00024         strcpy(awaymsg,<span class="stringliteral">""</span>);
-00025         <a class="code" href="classconnection.html#m0">fd</a> = <a class="code" href="classconnection.html#m12">lastping</a> = <a class="code" href="classconnection.html#m13">signon</a> = <a class="code" href="classconnection.html#m14">idle_lastmsg</a> = <a class="code" href="classconnection.html#m15">nping</a> = <a class="code" href="classconnection.html#m10">registered</a> = 0;
-00026         <a class="code" href="classuserrec.html#m9">flood</a> = <a class="code" href="classconnection.html#m9">port</a> = <a class="code" href="classconnection.html#m4">bytes_in</a> = <a class="code" href="classconnection.html#m5">bytes_out</a> = <a class="code" href="classconnection.html#m6">cmds_in</a> = <a class="code" href="classconnection.html#m7">cmds_out</a> = 0;
-00027         <a class="code" href="classconnection.html#m8">haspassed</a> = <span class="keyword">false</span>;
-00028         strcpy(result,<span class="stringliteral">""</span>);
-00029         <span class="keywordflow">for</span> (<span class="keywordtype">int</span> i = 0; i &lt; MAXCHANS; i++)
-00030         {
-00031                 this-&gt;<a class="code" href="classuserrec.html#m5">chans</a>[i].<a class="code" href="classucrec.html#m1">channel</a> = NULL;
-00032                 this-&gt;<a class="code" href="classuserrec.html#m5">chans</a>[i].<a class="code" href="classucrec.html#m0">uc_modes</a> = 0;
-00033         }
-00034         <a class="code" href="classuserrec.html#o0">invites</a>.clear();
-00035 }
-00036 
-00037 
-00038  
-<a name="l00039"></a><a class="code" href="classuserrec.html#a2">00039</a> <span class="keywordtype">char</span>* <a class="code" href="classuserrec.html#a2">userrec::GetFullHost</a>()
-00040 {
-00041         sprintf(result,<span class="stringliteral">"%s!%s@%s"</span>,nick,ident,dhost);
-00042         <span class="keywordflow">return</span> <a class="code" href="classuserrec.html#m8">result</a>;
-00043 }
-00044 
-00045 
-<a name="l00046"></a><a class="code" href="classuserrec.html#a3">00046</a> <span class="keywordtype">char</span>* <a class="code" href="classuserrec.html#a3">userrec::GetFullRealHost</a>()
-00047 {
-00048         sprintf(result,<span class="stringliteral">"%s!%s@%s"</span>,nick,ident,host);
-00049         <span class="keywordflow">return</span> <a class="code" href="classuserrec.html#m8">result</a>;
-00050 }
-00051 
-<a name="l00052"></a><a class="code" href="classuserrec.html#a4">00052</a> <span class="keywordtype">bool</span> <a class="code" href="classuserrec.html#a4">userrec::IsInvited</a>(<span class="keywordtype">char</span>* channel)
-00053 {
-00054         <span class="keywordflow">for</span> (InvitedList::iterator i = <a class="code" href="classuserrec.html#o0">invites</a>.begin(); i != <a class="code" href="classuserrec.html#o0">invites</a>.end(); i++)
-00055         {
-00056                 <span class="keywordflow">if</span> (i-&gt;channel) {
-00057                         <span class="keywordflow">if</span> (!strcasecmp(i-&gt;channel,channel))
-00058                         {
-00059                                 <span class="keywordflow">return</span> <span class="keyword">true</span>;
-00060                         }
-00061                 }
-00062         }
-00063         <span class="keywordflow">return</span> <span class="keyword">false</span>;
-00064 }
-00065 
-<a name="l00066"></a><a class="code" href="classuserrec.html#a5">00066</a> <span class="keywordtype">void</span> <a class="code" href="classuserrec.html#a5">userrec::InviteTo</a>(<span class="keywordtype">char</span>* channel)
-00067 {
-00068         <a class="code" href="classInvited.html">Invited</a> i;
-00069         strcpy(i.<a class="code" href="classInvited.html#m0">channel</a>,channel);
-00070         <a class="code" href="classuserrec.html#o0">invites</a>.push_back(i);
-00071 }
-00072 
-<a name="l00073"></a><a class="code" href="classuserrec.html#a6">00073</a> <span class="keywordtype">void</span> <a class="code" href="classuserrec.html#a6">userrec::RemoveInvite</a>(<span class="keywordtype">char</span>* channel)
-00074 {
-00075         log(DEBUG,<span class="stringliteral">"Removing invites"</span>);
-00076         <span class="keywordflow">if</span> (channel)
-00077         {
-00078                 <span class="keywordflow">if</span> (<a class="code" href="classuserrec.html#o0">invites</a>.size())
-00079                 {
-00080                         <span class="keywordflow">for</span> (InvitedList::iterator i = <a class="code" href="classuserrec.html#o0">invites</a>.begin(); i != <a class="code" href="classuserrec.html#o0">invites</a>.end(); i++)
-00081                         {
-00082                                 <span class="keywordflow">if</span> (i-&gt;channel)
-00083                                 {
-00084                                         <span class="keywordflow">if</span> (!strcasecmp(i-&gt;channel,channel))
-00085                                         {
-00086                                                 <a class="code" href="classuserrec.html#o0">invites</a>.erase(i);
-00087                                                 <span class="keywordflow">return</span>;
-00088                                         }
-00089                                 }
-00090                         }
-00091                 }
-00092         }
-00093 }
-</pre></div><hr><address style="align: right;"><small>Generated on Fri Apr 30 13:23:14 2004 for InspIRCd by
+<a name="l00011"></a><a class="code" href="users_8cpp.html#a0">00011</a> <span class="keyword">extern</span> std::stringstream <a class="code" href="users_8cpp.html#a0">config_f</a>;
+00012 
+<a name="l00013"></a><a class="code" href="classuserrec.html#a0">00013</a> <a class="code" href="classuserrec.html#a0">userrec::userrec</a>()
+00014 {
+00015         <span class="comment">// the PROPER way to do it, AVOID bzero at *ALL* costs</span>
+00016         strcpy(nick,<span class="stringliteral">""</span>);
+00017         strcpy(ip,<span class="stringliteral">"127.0.0.1"</span>);
+00018         <a class="code" href="classuserrec.html#m10">timeout</a> = 0;
+00019         strcpy(ident,<span class="stringliteral">""</span>);
+00020         strcpy(host,<span class="stringliteral">""</span>);
+00021         strcpy(dhost,<span class="stringliteral">""</span>);
+00022         strcpy(fullname,<span class="stringliteral">""</span>);
+00023         strcpy(modes,<span class="stringliteral">""</span>);
+00024         strcpy(inbuf,<span class="stringliteral">""</span>);
+00025         strcpy(server,<span class="stringliteral">""</span>);
+00026         strcpy(awaymsg,<span class="stringliteral">""</span>);
+00027         <a class="code" href="classconnection.html#m0">fd</a> = <a class="code" href="classconnection.html#m12">lastping</a> = <a class="code" href="classconnection.html#m13">signon</a> = <a class="code" href="classconnection.html#m14">idle_lastmsg</a> = <a class="code" href="classconnection.html#m15">nping</a> = <a class="code" href="classconnection.html#m10">registered</a> = 0;
+00028         <a class="code" href="classuserrec.html#m9">flood</a> = <a class="code" href="classconnection.html#m9">port</a> = <a class="code" href="classconnection.html#m4">bytes_in</a> = <a class="code" href="classconnection.html#m5">bytes_out</a> = <a class="code" href="classconnection.html#m6">cmds_in</a> = <a class="code" href="classconnection.html#m7">cmds_out</a> = 0;
+00029         <a class="code" href="classconnection.html#m8">haspassed</a> = <span class="keyword">false</span>;
+00030         strcpy(result,<span class="stringliteral">""</span>);
+00031         <span class="keywordflow">for</span> (<span class="keywordtype">int</span> i = 0; i &lt; MAXCHANS; i++)
+00032         {
+00033                 this-&gt;<a class="code" href="classuserrec.html#m5">chans</a>[i].<a class="code" href="classucrec.html#m1">channel</a> = NULL;
+00034                 this-&gt;<a class="code" href="classuserrec.html#m5">chans</a>[i].<a class="code" href="classucrec.html#m0">uc_modes</a> = 0;
+00035         }
+00036         <a class="code" href="classuserrec.html#o0">invites</a>.clear();
+00037 }
+00038 
+00039 
+00040  
+<a name="l00041"></a><a class="code" href="classuserrec.html#a2">00041</a> <span class="keywordtype">char</span>* <a class="code" href="classuserrec.html#a2">userrec::GetFullHost</a>()
+00042 {
+00043         sprintf(result,<span class="stringliteral">"%s!%s@%s"</span>,nick,ident,dhost);
+00044         <span class="keywordflow">return</span> <a class="code" href="classuserrec.html#m8">result</a>;
+00045 }
+00046 
+00047 
+<a name="l00048"></a><a class="code" href="classuserrec.html#a3">00048</a> <span class="keywordtype">char</span>* <a class="code" href="classuserrec.html#a3">userrec::GetFullRealHost</a>()
+00049 {
+00050         sprintf(result,<span class="stringliteral">"%s!%s@%s"</span>,nick,ident,host);
+00051         <span class="keywordflow">return</span> <a class="code" href="classuserrec.html#m8">result</a>;
+00052 }
+00053 
+<a name="l00054"></a><a class="code" href="classuserrec.html#a4">00054</a> <span class="keywordtype">bool</span> <a class="code" href="classuserrec.html#a4">userrec::IsInvited</a>(<span class="keywordtype">char</span>* channel)
+00055 {
+00056         <span class="keywordflow">for</span> (InvitedList::iterator i = <a class="code" href="classuserrec.html#o0">invites</a>.begin(); i != <a class="code" href="classuserrec.html#o0">invites</a>.end(); i++)
+00057         {
+00058                 <span class="keywordflow">if</span> (i-&gt;channel) {
+00059                         <span class="keywordflow">if</span> (!strcasecmp(i-&gt;channel,channel))
+00060                         {
+00061                                 <span class="keywordflow">return</span> <span class="keyword">true</span>;
+00062                         }
+00063                 }
+00064         }
+00065         <span class="keywordflow">return</span> <span class="keyword">false</span>;
+00066 }
+00067 
+<a name="l00068"></a><a class="code" href="classuserrec.html#a5">00068</a> <span class="keywordtype">void</span> <a class="code" href="classuserrec.html#a5">userrec::InviteTo</a>(<span class="keywordtype">char</span>* channel)
+00069 {
+00070         <a class="code" href="classInvited.html">Invited</a> i;
+00071         strcpy(i.<a class="code" href="classInvited.html#m0">channel</a>,channel);
+00072         <a class="code" href="classuserrec.html#o0">invites</a>.push_back(i);
+00073 }
+00074 
+<a name="l00075"></a><a class="code" href="classuserrec.html#a6">00075</a> <span class="keywordtype">void</span> <a class="code" href="classuserrec.html#a6">userrec::RemoveInvite</a>(<span class="keywordtype">char</span>* channel)
+00076 {
+00077         log(DEBUG,<span class="stringliteral">"Removing invites"</span>);
+00078         <span class="keywordflow">if</span> (channel)
+00079         {
+00080                 <span class="keywordflow">if</span> (<a class="code" href="classuserrec.html#o0">invites</a>.size())
+00081                 {
+00082                         <span class="keywordflow">for</span> (InvitedList::iterator i = <a class="code" href="classuserrec.html#o0">invites</a>.begin(); i != <a class="code" href="classuserrec.html#o0">invites</a>.end(); i++)
+00083                         {
+00084                                 <span class="keywordflow">if</span> (i-&gt;channel)
+00085                                 {
+00086                                         <span class="keywordflow">if</span> (!strcasecmp(i-&gt;channel,channel))
+00087                                         {
+00088                                                 <a class="code" href="classuserrec.html#o0">invites</a>.erase(i);
+00089                                                 <span class="keywordflow">return</span>;
+00090                                         }
+00091                                 }
+00092                         }
+00093                 }
+00094         }
+00095 }
+00096 
+<a name="l00097"></a><a class="code" href="classuserrec.html#a7">00097</a> <span class="keywordtype">bool</span> <a class="code" href="classuserrec.html#a7">userrec::HasPermission</a>(<span class="keywordtype">char</span>* command)
+00098 {
+00099         <span class="keywordtype">char</span> TypeName[MAXBUF],Classes[MAXBUF],ClassName[MAXBUF],CommandList[MAXBUF];
+00100         <span class="keywordtype">char</span>* myclass;
+00101         <span class="keywordtype">char</span>* mycmd;
+00102         <span class="keywordtype">char</span>* savept;
+00103         <span class="keywordtype">char</span>* savept2;
+00104         
+00105         <span class="comment">// are they even an oper at all?</span>
+00106         <span class="keywordflow">if</span> (strchr(this-&gt;modes,<span class="charliteral">'o'</span>))
+00107         {
+00108                 log(DEBUG,<span class="stringliteral">"*** HasPermission: %s is an oper"</span>,this-&gt;nick);
+00109                 <span class="keywordflow">for</span> (<span class="keywordtype">int</span> j =0; j &lt; ConfValueEnum(<span class="stringliteral">"type"</span>,&amp;config_f); j++)
+00110                 {
+00111                         ConfValue(<span class="stringliteral">"type"</span>,<span class="stringliteral">"name"</span>,j,TypeName,&amp;config_f);
+00112                         <span class="keywordflow">if</span> (!strcmp(TypeName,this-&gt;oper))
+00113                         {
+00114                                 log(DEBUG,<span class="stringliteral">"*** HasPermission: %s is an oper of type '%s'"</span>,this-&gt;nick,this-&gt;oper);
+00115                                 ConfValue(<span class="stringliteral">"type"</span>,<span class="stringliteral">"classes"</span>,j,Classes,&amp;config_f);
+00116                                 <span class="keywordtype">char</span>* myclass = strtok_r(Classes,<span class="stringliteral">" "</span>,&amp;savept);
+00117                                 <span class="comment">//myclass = savept;</span>
+00118                                 <span class="keywordflow">while</span> (myclass)
+00119                                 {
+00120                                         log(DEBUG,<span class="stringliteral">"*** HasPermission: checking classtype '%s'"</span>,myclass);
+00121                                         <span class="keywordflow">for</span> (<span class="keywordtype">int</span> k =0; k &lt; ConfValueEnum(<span class="stringliteral">"class"</span>,&amp;config_f); k++)
+00122                                         {
+00123                                                 ConfValue(<span class="stringliteral">"class"</span>,<span class="stringliteral">"name"</span>,k,ClassName,&amp;config_f);
+00124                                                 <span class="keywordflow">if</span> (!strcmp(ClassName,myclass))
+00125                                                 {
+00126                                                         ConfValue(<span class="stringliteral">"class"</span>,<span class="stringliteral">"commands"</span>,k,CommandList,&amp;config_f);
+00127                                                         log(DEBUG,<span class="stringliteral">"*** HasPermission: found class named %s with commands: '%s'"</span>,ClassName,CommandList);
+00128                                                         
+00129                                                         
+00130                                                         mycmd = strtok_r(CommandList,<span class="stringliteral">" "</span>,&amp;savept2);
+00131                                                         <span class="comment">//mycmd = savept2;</span>
+00132                                                         <span class="keywordflow">while</span> (mycmd)
+00133                                                         {
+00134                                                                 <span class="keywordflow">if</span> (!strcasecmp(mycmd,command))
+00135                                                                 {
+00136                                                                         log(DEBUG,<span class="stringliteral">"*** Command %s found, returning true"</span>,command);
+00137                                                                         <span class="keywordflow">return</span> <span class="keyword">true</span>;
+00138                                                                 }
+00139                                                                 mycmd = strtok_r(NULL,<span class="stringliteral">" "</span>,&amp;savept2);
+00140                                                                 <span class="comment">//mycmd = savept2;</span>
+00141                                                         }
+00142                                                 }
+00143                                         }
+00144                                         myclass = strtok_r(NULL,<span class="stringliteral">" "</span>,&amp;savept);
+00145                                         <span class="comment">//myclass = savept;</span>
+00146                                 }
+00147                         }
+00148                 }
+00149         }
+00150         <span class="keywordflow">return</span> <span class="keyword">false</span>;
+00151 }
+00152 
+00153 
+</pre></div><hr><address style="align: right;"><small>Generated on Fri Apr 30 15:46:22 2004 for InspIRCd by
 <a href="http://www.doxygen.org/index.html">
 <img src="doxygen.png" alt="doxygen" align="middle" border=0 
 width=110 height=53></a>1.3-rc3 </small></address>
