@@ -15,9 +15,9 @@ void handle_sapart(char **parameters, int pcnt, userrec *user)
 	userrec* dest = Srv->FindNick(std::string(parameters[0]));
 	if (dest)
 	{
-		for (int x = 0; x < strlen(parameters[0]); x++)
+		for (int x = 0; x < strlen(parameters[1]); x++)
 		{
-				if ((parameters[0][0] != '#') || (parameters[0][x] == ' ') || (parameters[0][x]> ','))
+				if ((parameters[1][0] != '#') || (parameters[1][x] == ' ') || (parameters[1][x] == ','))
 				{
 					Srv->SendTo(NULL,user,"NOTICE "+std::string(user->nick)+" :*** Invalid characters in channel name");
 					return;
