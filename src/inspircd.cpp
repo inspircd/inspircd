@@ -2363,7 +2363,7 @@ void ConnectUser(userrec *user)
 	WriteServ(user->fd,"005 %s WALLCHOPS WATCH=128 SILENCE=5 MODES=13 CHANTYPES=# PREFIX=(ohv)@%c+ CHANMODES=ohvbeqa,kfL,l,psmntirRcOAQKVHGCuzN NETWORK=%s :are supported by this server",user->nick,'%',Network);
 	ShowMOTD(user);
 	FOREACH_MOD OnUserConnect(user);
-	WriteOpers("*** Client connecting on port %d: %s!%s@%s",user->port,user->nick,user->ident,user->host);
+	WriteOpers("*** Client connecting on port %d: %s!%s@%s [%s]",user->port,user->nick,user->ident,user->host,user->ip);
 	
 	char buffer[MAXBUF];
 	snprintf(buffer,MAXBUF,"N %d %s %s %s %s +%s %s %s :%s",user->age,user->nick,user->host,user->dhost,user->ident,user->modes,user->ip,ServerName,user->fullname);
