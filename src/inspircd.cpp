@@ -733,7 +733,7 @@ std::string GetServerDescription(char* servername)
 				}
 			}
 		}
-		return "";
+		return ServerDesc; // not a remote server that can be found, it must be me.
 	}
 }
 
@@ -4707,8 +4707,11 @@ void handle_whois(char **parameters, int pcnt, userrec *user)
 				WriteServ(user->fd,"313 %s %s :is an IRC operator",user->nick, dest->nick);
 			}
 			FOREACH_MOD OnWhois(user,dest);
-			//WriteServ(user->fd,"310 %s %s :is available for help.",user->nick, dest->nick);
-			WriteServ(user->fd,"317 %s %s %d %d :seconds idle, signon time",user->nick, dest->nick, abs((dest->idle_lastmsg)-time(NULL)), dest->signon);
+			if (!strcasecmp(user->server,dest->server))
+			{
+				// idle time and signon line can only be sent if youre on the same server (according to RFC)
+				WriteServ(user->fd,"317 %s %s %d %d :seconds idle, signon time",user->nick, dest->nick, abs((dest->idle_lastmsg)-time(NULL)), dest->signon);
+			}
 			
 			WriteServ(user->fd,"318 %s %s :End of /WHOIS list.",user->nick, dest->nick);
 		}
@@ -5052,7 +5055,10 @@ void ConnectUser(userrec *user)
 
 void handle_version(char **parameters, int pcnt, userrec *user)
 {
-	WriteServ(user->fd,"351 %s :%s %s %s :%s",user->nick,VERSION,"$Revision$ $Date$",ServerName,SYSTEM);
+	char Revision[] = "$Revision$";
+	char *v1 = strtok(Revision," ");
+	char *v2 = strtok(NULL," ");
+	WriteServ(user->fd,"351 %s :%s Rev. %s %s :%s (O=%d)",user->nick,VERSION,v2,ServerName,SYSTEM,OPTIMISATION);
 }
 
 void handle_ping(char **parameters, int pcnt, userrec *user)
