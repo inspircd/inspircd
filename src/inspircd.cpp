@@ -2591,7 +2591,7 @@ void process_command(userrec *user, char* cmd)
 	for (int i = 0; i <= MODCOUNT; i++)
 	{
 		std::string oldtmp = tmp;
-		modules[i]->OnServerRaw(tmp,true);
+		modules[i]->OnServerRaw(tmp,true,user);
 		if (oldtmp != tmp)
 		{
 			log(DEBUG,"A Module changed the input string!");

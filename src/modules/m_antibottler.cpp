@@ -26,7 +26,7 @@ class ModuleAntiBottler : public Module
 	}
 
 
-	virtual void OnServerRaw(std::string &raw, bool inbound)
+	virtual void OnServerRaw(std::string &raw, bool inbound, userrec* user)
 	{
 		if (inbound)
 		{

@@ -159,9 +159,11 @@ class Module : public classbase
 	 * This method is the lowest level of handler available to a module. It will be called with raw
 	 * data which is passing through a connected socket. If you wish, you may munge this data by changing
 	 * the string parameter "raw". If you do this, after your function exits it will immediately be
-	 * cut down to 510 characters plus a carriage return and linefeed.
+	 * cut down to 510 characters plus a carriage return and linefeed. For INBOUND messages only (where
+	 * inbound is set to true) the value of user will be the userrec of the connection sending the
+	 * data. This is not possible for outbound data because the data may be being routed to multiple targets.
 	 */
- 	virtual void OnServerRaw(std::string &raw, bool inbound);
+ 	virtual void OnServerRaw(std::string &raw, bool inbound, userrec* user);
 
 	/** Called whenever an extended mode is to be processed.
 	 * The type parameter is MT_SERVER, MT_CLIENT or MT_CHANNEL, dependent on where the mode is being

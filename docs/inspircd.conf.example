@@ -324,6 +324,36 @@
 <badhost host="*@hundredz.n.hundredz.o.1337.kiddies.com" reason="Too many 1337 kiddiots">
 <badhost host="*@localhost" reason="No irc from localhost!">
 
+#-#-#-#-#-#-#-#-#-#-#-  ALIAS DEFINITIONS  -#-#-#-#-#-#-#-#-#-#-#-#-#-#
+#                                                                     #
+# If you have the m_alias.so module loaded, you may also define       #
+# aliases as shown below. They are commonly used to provide shortcut  #
+# commands to services, however they are not limited to jsut this use.#
+# An alias tag requires the following values to be defined in it:     #
+#                                                                     #
+# text        -      The text to detect at the start of the line,     #
+#                    must be at the start of the line to trigger the  #
+#                    alias. May contain spaces, but case insensitive. #
+# replace     -      The text to replace 'text' with. Usually this    #
+#                    will be "PRIVMSG ServiceName :" or similar.      #
+# requires    -      If you provide a value for 'requires' this means #
+#                    the given nickname MUST be online for the alias  #
+#                    to successfully trigger. If they are not, then   #
+#                    the user receives a 'no such nick' 401 numeric.  #
+# uline       -      Defining this value with 'yes', 'true' or '1'    #
+#                    will ensure that the user given in 'requires'    #
+#                    must also be on a u-lined server, as well as     #
+#                    actually being on the network. If the user is    #
+#                    online, but not on a u-lined server, then an     #
+#                    oper-alert is sent out as this is possibly signs #
+#                    of a user trying to impersonate a service.       #
+#                                                                     #
+
+<alias text="NICKSERV" replace="PRIVMSG NickServ :" requires="NickServ" uline="yes">
+<alias text="CHANSERV" replace="PRIVMSG ChanServ :" requires="ChanServ" uline="yes">
+<alias text="NS ID" replace="PRIVMSG NickServ :identify" requires="NickServ" uline="yes">
+<alias text="NS" replace="PRIVMSG NickServ :" requires="NickServ" uline="yes">
+<alias text="CS" replace="PRIVMSG ChanServ :" requires="ChanServ" uline="yes">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#- YAWN  -#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 #                                                                     #

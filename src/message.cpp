@@ -162,7 +162,7 @@ void chop(char* str)
   	return;
   }
   string temp = str;
-  FOREACH_MOD OnServerRaw(temp,false);
+  FOREACH_MOD OnServerRaw(temp,false,NULL);
   const char* str2 = temp.c_str();
   sprintf(str,"%s",str2);
   
