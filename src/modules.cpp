@@ -161,7 +161,7 @@ chanrec* Server::JoinUserToChannel(userrec* user, std::string cname, std::string
 
 chanrec* Server::PartUserFromChannel(userrec* user, std::string cname, std::string reason)
 {
-	return del_channel(user,cname.c_str(),reason.c_str());
+	return del_channel(user,cname.c_str(),reason.c_str(),false);
 }
 
 void Server::ChangeUserNick(userrec* user, std::string nickname)

@@ -83,8 +83,6 @@ std::vector<std::string> module_names;
 extern vector<ircd_module*> factory;
 std::vector<int> fd_reap;
 
-int client_exit = 0;
-
 extern int MODCOUNT;
 
 bool nofork = false;
@@ -1635,7 +1633,7 @@ chanrec* add_channel(userrec *user, const char* cn, const char* key, bool overri
 /* remove a channel from a users record, and remove the record from memory
  * if the channel has become empty */
 
-chanrec* del_channel(userrec *user, const char* cname, const char* reason)
+chanrec* del_channel(userrec *user, const char* cname, const char* reason, bool local)
 {
 	if ((!user) || (!cname))
 	{
@@ -1670,16 +1668,19 @@ chanrec* del_channel(userrec *user, const char* cname, const char* reason)
 			{
 				WriteChannel(Ptr,user,"PART %s :%s",Ptr->name, reason);
 
-				char buffer[MAXBUF];
-				snprintf(buffer,MAXBUF,"L %s %s :%s",user->nick,Ptr->name,reason);
-				for (int j = 0; j < 255; j++)
+				if (!local)
 				{
-					if (servers[j] != NULL)
+					char buffer[MAXBUF];
+					snprintf(buffer,MAXBUF,"L %s %s :%s",user->nick,Ptr->name,reason);
+					for (int j = 0; j < 255; j++)
 					{
-						if (ChanAnyOnThisServer(Ptr,servers[j]->name))
+						if (servers[j] != NULL)
 						{
-							me[defaultRoute]->SendPacket(buffer,servers[j]->internal_addr,servers[j]->internal_port,MyKey);
-							log(DEBUG,"Sent L token (with reason)");
+							if (ChanAnyOnThisServer(Ptr,servers[j]->name))
+							{
+								me[defaultRoute]->SendPacket(buffer,servers[j]->internal_addr,servers[j]->internal_port,MyKey);
+								log(DEBUG,"Sent L token (with reason)");
+							}
 						}
 					}
 				}
@@ -1688,16 +1689,19 @@ chanrec* del_channel(userrec *user, const char* cname, const char* reason)
 			}
 			else
 			{
-				char buffer[MAXBUF];
-				snprintf(buffer,MAXBUF,"L %s %s :",user->nick,Ptr->name);
-				for (int j = 0; j < 255; j++)
+				if (!local)
 				{
-					if (servers[j] != NULL)
+					char buffer[MAXBUF];
+					snprintf(buffer,MAXBUF,"L %s %s :",user->nick,Ptr->name);
+					for (int j = 0; j < 255; j++)
 					{
-						if (ChanAnyOnThisServer(Ptr,servers[j]->name))
+						if (servers[j] != NULL)
 						{
-							me[defaultRoute]->SendPacket(buffer,servers[j]->internal_addr,servers[j]->internal_port,MyKey);
-							log(DEBUG,"Sent L token (no reason)");
+						if (ChanAnyOnThisServer(Ptr,servers[j]->name))
+							{
+								me[defaultRoute]->SendPacket(buffer,servers[j]->internal_addr,servers[j]->internal_port,MyKey);
+								log(DEBUG,"Sent L token (no reason)");
+							}
 						}
 					}
 				}
@@ -3469,13 +3473,13 @@ void handle_part(char **parameters, int pcnt, userrec *user)
 	{
 		if (loop_call(handle_part,parameters,pcnt,user,0,pcnt-2,0))
 			return;
-		del_channel(user,parameters[0],parameters[1]);
+		del_channel(user,parameters[0],parameters[1],false);
 	}
 	else
 	{
 		if (loop_call(handle_part,parameters,pcnt,user,0,pcnt-1,0))
 			return;
-		del_channel(user,parameters[0],NULL);
+		del_channel(user,parameters[0],NULL,false);
 	}
 }
 
@@ -3608,8 +3612,6 @@ void kill_link(userrec *user,const char* r)
 	if (user->registered == 7) {
 		purge_empty_chans();
 	}
-	
-	client_exit = 1;
 }
 
 
@@ -4427,8 +4429,6 @@ void handle_quit(char **parameters, int pcnt, userrec *user)
 	if (user->registered == 7) {
 		purge_empty_chans();
 	}
-	
-	client_exit = 1;
 }
 
 void handle_who(char **parameters, int pcnt, userrec *user)
@@ -5720,6 +5720,60 @@ void handle_M(char token,char* params,serverrec* source,serverrec* reply, char* 
 	}
 }
 
+void handle_L(char token,char* params,serverrec* source,serverrec* reply, char* udp_host,int udp_port)
+{
+	char* nick = strtok(params," ");
+	char* channel = strtok(NULL," :");
+	char* reason = strtok(NULL,"\r\n");
+	userrec* user = Find(nick);
+	reason++;
+	if (user)
+	{
+		if (strcmp(reason,""))
+		{
+			del_channel(user,channel,reason,true);
+		}
+		else
+		{
+			del_channel(user,channel,NULL,true);
+		}
+	}
+}
+
+void handle_Q(char token,char* params,serverrec* source,serverrec* reply, char* udp_host,int udp_port)
+{
+	char* nick = strtok(params," :");
+	char* reason = strtok(NULL,"\r\n");
+	reason++;
+
+	userrec* user = Find(nick);
+	
+	if (user)
+	{
+		if (strlen(reason)>MAXQUIT)
+		{
+			reason[MAXQUIT-1] = '\0';
+		}
+
+
+		WriteCommonExcept(user,"QUIT :%s",reason);
+
+		user_hash::iterator iter = clientlist.find(user->nick);
+	
+		if (iter != clientlist.end())
+		{
+			log(DEBUG,"deleting user hash value %d",iter->second);
+			if ((iter->second) && (user->registered == 7)) {
+				delete iter->second;
+			}
+			clientlist.erase(iter);
+		}
+
+		purge_empty_chans();
+	}
+}
+
+
 void handle_N(char token,char* params,serverrec* source,serverrec* reply, char* udp_host,int udp_port)
 {
 	char* tm = strtok(params," ");
@@ -5868,6 +5922,16 @@ void process_restricted_commands(char token,char* params,serverrec* source,serve
 		// Send a private/channel notice
 		case 'O':
 			handle_O(token,params,source,reply,udp_host,udp_port);
+		break;
+		// L <SOURCE> <CHANNEL> :<REASON>
+		// User parting a channel
+		case 'L':
+			handle_L(token,params,source,reply,udp_host,udp_port);
+		break;
+		// Q <SOURCE> :<REASON>
+		// user quitting
+		case 'Q':
+			handle_Q(token,params,source,reply,udp_host,udp_port);
 		break;
 		// F <TS>
 		// end netburst
