@@ -33,6 +33,8 @@
 #include "wildcard.h"
 #include "message.h"
 
+using namespace std;
+
 extern int MODCOUNT;
 extern vector<Module*> modules;
 extern vector<ircd_module*> factory;
