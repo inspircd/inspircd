@@ -87,6 +87,12 @@ extern serverrec* me[32];
 
 extern FILE *log_file;
 
+const long duration_m = 60;
+const long duration_h = duration_m * 60;
+const long duration_d = duration_h * 24;
+const long duration_w = duration_d * 7;
+const long duration_y = duration_w * 52;
+
 namespace nspace
 {
 	template<> struct nspace::hash<in_addr>
@@ -1067,8 +1073,28 @@ void handle_stats(char **parameters, int pcnt, userrec *user)
 		parameters[0][1] = '\0';
 	}
 
+	if (!strcmp(parameters[0],"k"))
+	{
+		stats_k(user);
+	}
+
+	if (!strcmp(parameters[0],"g"))
+	{
+		stats_g(user);
+	}
+
+	if (!strcmp(parameters[0],"q"))
+	{
+		stats_q(user);
+	}
+
+	if (!strcmp(parameters[0],"Z"))
+	{
+		stats_z(user);
+	}
+
 	/* stats m (list number of times each command has been used, plus bytecount) */
-	if (!strcasecmp(parameters[0],"m"))
+	if (!strcmp(parameters[0],"m"))
 	{
 		for (int i = 0; i < cmdlist.size(); i++)
 		{
@@ -1085,7 +1111,7 @@ void handle_stats(char **parameters, int pcnt, userrec *user)
 	}
 
 	/* stats z (debug and memory info) */
-	if (!strcasecmp(parameters[0],"z"))
+	if (!strcmp(parameters[0],"z"))
 	{
 		WriteServ(user->fd,"249 %s :Users(HASH_MAP) %d (%d bytes, %d buckets)",user->nick,clientlist.size(),clientlist.size()*sizeof(userrec),clientlist.bucket_count());
 		WriteServ(user->fd,"249 %s :Channels(HASH_MAP) %d (%d bytes, %d buckets)",user->nick,chanlist.size(),chanlist.size()*sizeof(chanrec),chanlist.bucket_count());
@@ -1098,7 +1124,7 @@ void handle_stats(char **parameters, int pcnt, userrec *user)
 	}
 	
 	/* stats o */
-	if (!strcasecmp(parameters[0],"o"))
+	if (!strcmp(parameters[0],"o"))
 	{
 		for (int i = 0; i < ConfValueEnum("oper",&config_f); i++)
 		{
@@ -1113,7 +1139,7 @@ void handle_stats(char **parameters, int pcnt, userrec *user)
 	}
 	
 	/* stats l (show user I/O stats) */
-	if (!strcasecmp(parameters[0],"l"))
+	if (!strcmp(parameters[0],"l"))
 	{
 		WriteServ(user->fd,"211 %s :server:port nick bytes_in cmds_in bytes_out cmds_out",user->nick);
 	  	for (user_hash::iterator i = clientlist.begin(); i != clientlist.end(); i++)
@@ -1131,7 +1157,7 @@ void handle_stats(char **parameters, int pcnt, userrec *user)
 	}
 	
 	/* stats u (show server uptime) */
-	if (!strcasecmp(parameters[0],"u"))
+	if (!strcmp(parameters[0],"u"))
 	{
 		time_t current_time = 0;
 		current_time = time(NULL);
@@ -2615,21 +2641,170 @@ void handle_link_packet(char* udp_msg, char* tcp_host, serverrec *serv)
 	}
 }
 
+long duration(char* str)
+{
+	char n_field[MAXBUF];
+	long total = 0;
+	char* str_end = str + strlen(str);
+	n_field[0] = 0;
+	
+	for (char* i = str; i < str_end; i++)
+	{
+		// if we have digits, build up a string for the value in n_field,
+		// up to 10 digits in size.
+		if ((*i >= '0') && (*i <= '9'))
+		{
+			strncat(n_field,i,10);
+		}
+		else
+		{
+			// we dont have a digit, check for numeric tokens
+			switch (tolower(*i))
+			{
+				case 's':
+					total += atoi(n_field);
+				break;
+
+				case 'm':
+					total += (atoi(n_field)*duration_m);
+				break;
+
+				case 'h':
+					total += (atoi(n_field)*duration_h);
+				break;
+
+				case 'd':
+					total += (atoi(n_field)*duration_d);
+				break;
+
+				case 'w':
+					total += (atoi(n_field)*duration_w);
+				break;
+
+				case 'y':
+					total += (atoi(n_field)*duration_y);
+				break;
+			}
+			n_field[0] = 0;
+		}
+	}
+	// add trailing seconds
+	total += atoi(n_field);
+	
+	return total;
+}
+
 
 void handle_kline(char **parameters, int pcnt, userrec *user)
 {
+	if (pcnt >= 3)
+	{
+		add_kline(duration(parameters[1]),user->nick,parameters[2],parameters[0]);
+		if (!duration(parameters[1]))
+		{
+			WriteOpers("*** %s added permenant K-line for %s.",user->nick,parameters[0]);
+		}
+		else
+		{
+			WriteOpers("*** %s added timed K-line for %s, expires in %d seconds.",user->nick,parameters[0],duration(parameters[1]));
+		}
+	}
+	else
+	{
+		if (del_kline(parameters[0]))
+		{
+			WriteOpers("*** %s Removed K-line on %s.",user->nick,parameters[0]);
+		}
+		else
+		{
+			WriteServ(user->fd,"NOTICE %s :*** K-Line %s not found in list, try /stats k.",user->nick,parameters[0]);
+		}
+	}
+	apply_lines();
 }
 
 void handle_gline(char **parameters, int pcnt, userrec *user)
 {
+	if (pcnt >= 3)
+	{
+		add_gline(duration(parameters[1]),user->nick,parameters[2],parameters[0]);
+		if (!duration(parameters[1]))
+		{
+			WriteOpers("*** %s added permenant G-line for %s.",user->nick,parameters[0]);
+		}
+		else
+		{
+			WriteOpers("*** %s added timed G-line for %s, expires in %d seconds.",user->nick,parameters[0],duration(parameters[1]));
+		}
+	}
+	else
+	{
+		if (del_gline(parameters[0]))
+		{
+			WriteOpers("*** %s Removed G-line on %s.",user->nick,parameters[0]);
+		}
+		else
+		{
+			WriteServ(user->fd,"NOTICE %s :*** G-Line %s not found in list, try /stats g.",user->nick,parameters[0]);
+		}
+	}
+	apply_lines();
 }
 
 void handle_zline(char **parameters, int pcnt, userrec *user)
 {
+	if (pcnt >= 3)
+	{
+		add_zline(duration(parameters[1]),user->nick,parameters[2],parameters[0]);
+		if (!duration(parameters[1]))
+		{
+			WriteOpers("*** %s added permenant Z-line for %s.",user->nick,parameters[0]);
+		}
+		else
+		{
+			WriteOpers("*** %s added timed Z-line for %s, expires in %d seconds.",user->nick,parameters[0],duration(parameters[1]));
+		}
+	}
+	else
+	{
+		if (del_zline(parameters[0]))
+		{
+			WriteOpers("*** %s Removed Z-line on %s.",user->nick,parameters[0]);
+		}
+		else
+		{
+			WriteServ(user->fd,"NOTICE %s :*** Z-Line %s not found in list, try /stats Z.",user->nick,parameters[0]);
+		}
+	}
+	apply_lines();
 }
 
 void handle_qline(char **parameters, int pcnt, userrec *user)
 {
+	if (pcnt >= 3)
+	{
+		add_qline(duration(parameters[1]),user->nick,parameters[2],parameters[0]);
+		if (!duration(parameters[1]))
+		{
+			WriteOpers("*** %s added permenant Q-line for %s.",user->nick,parameters[0]);
+		}
+		else
+		{
+			WriteOpers("*** %s added timed Q-line for %s, expires in %d seconds.",user->nick,parameters[0],duration(parameters[1]));
+		}
+	}
+	else
+	{
+		if (del_qline(parameters[0]))
+		{
+			WriteOpers("*** %s Removed Q-line on %s.",user->nick,parameters[0]);
+		}
+		else
+		{
+			WriteServ(user->fd,"NOTICE %s :*** Q-Line %s not found in list, try /stats k.",user->nick,parameters[0]);
+		}
+	}
+	apply_lines();
 }
 
 

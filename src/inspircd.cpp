@@ -2749,10 +2749,10 @@ void SetupCommandTable(void)
 	createcommand("MODULES",handle_modules,'o',0);
 	createcommand("LINKS",handle_links,0,0);
 	createcommand("MAP",handle_map,0,0);
-	createcommand("KLINE",handle_kline,'o',3);
-	createcommand("GLINE",handle_gline,'o',3);
-	createcommand("ZLINE",handle_zline,'o',3);
-	createcommand("QLINE",handle_qline,'o',3);
+	createcommand("KLINE",handle_kline,'o',1);
+	createcommand("GLINE",handle_gline,'o',1);
+	createcommand("ZLINE",handle_zline,'o',1);
+	createcommand("QLINE",handle_qline,'o',1);
 }
 
 void process_buffer(const char* cmdbuf,userrec *user)
@@ -3142,6 +3142,8 @@ int InspIRCd(void)
 #ifdef _POSIX_PRIORITY_SCHEDULING
 		sched_yield();
 #endif
+		// update the status of klines, etc
+		expire_lines();
 
 		fd_set sfd;
 		timeval tval;

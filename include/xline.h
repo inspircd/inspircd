@@ -105,5 +105,10 @@ char* matches_kline(const char* host);
 void expire_lines();
 void apply_lines();
 
+void stats_k(userrec* user);
+void stats_g(userrec* user);
+void stats_q(userrec* user);
+void stats_z(userrec* user);
+
 #endif
 
