@@ -3965,7 +3965,7 @@ void handle_who(char **parameters, int pcnt, userrec *user)
 				{
 					if ((common_channels(user,i->second)) && (isnick(i->second->nick)))
 					{
-						WriteServ(user->fd,"352 %s %s %s %s %s %s Hr@ :0 %s",user->nick, Ptr->name, i->second->ident, i->second->dhost, ServerName, i->second->nick, i->second->fullname);
+						WriteServ(user->fd,"352 %s %s %s %s %s %s Hr@ :0 %s",user->nick, Ptr->name, i->second->ident, i->second->dhost, i->second->server, i->second->nick, i->second->fullname);
 					}
 				}
 			}
@@ -3979,7 +3979,7 @@ void handle_who(char **parameters, int pcnt, userrec *user)
 			}
 			return;
 		}
-		if (parameters[0][0] = '#')
+		if (parameters[0][0] == '#')
 		{
 			Ptr = FindChan(parameters[0]);
 			if (Ptr)
@@ -3988,7 +3988,7 @@ void handle_who(char **parameters, int pcnt, userrec *user)
 				{
 					if ((has_channel(i->second,Ptr)) && (isnick(i->second->nick)))
 					{
-						WriteServ(user->fd,"352 %s %s %s %s %s %s Hr@ :0 %s",user->nick, Ptr->name, i->second->ident, i->second->dhost, ServerName, i->second->nick, i->second->fullname);
+						WriteServ(user->fd,"352 %s %s %s %s %s %s Hr@ :0 %s",user->nick, Ptr->name, i->second->ident, i->second->dhost, i->second->server, i->second->nick, i->second->fullname);
 					}
 				}
 				WriteServ(user->fd,"315 %s %s :End of /WHO list.",user->nick, Ptr->name);
@@ -3997,6 +3997,11 @@ void handle_who(char **parameters, int pcnt, userrec *user)
 			{
 				WriteServ(user->fd,"401 %s %s :No suck nick/channel",user->nick, parameters[0]);
 			}
+		}
+		else
+		{
+			userrec* u = Find(parameters[0]);
+			WriteServ(user->fd,"352 %s %s %s %s %s %s Hr@ :0 %s",user->nick, u->nick, u->ident, u->dhost, u->server, u->nick, u->fullname);
 		}
 	}
 	if (pcnt == 2)
@@ -4010,7 +4015,7 @@ void handle_who(char **parameters, int pcnt, userrec *user)
                                 {
                                         if (strchr(i->second->modes,'o'))
                                         {
-                                                WriteServ(user->fd,"352 %s %s %s %s %s %s Hr@ :0 %s",user->nick, Ptr->name, i->second->ident, i->second->dhost, ServerName, i->second->nick, i->second->fullname);
+                                                WriteServ(user->fd,"352 %s %s %s %s %s %s Hr@ :0 %s",user->nick, Ptr->name, i->second->ident, i->second->dhost, i->second->server, i->second->nick, i->second->fullname);
                                         }
                                 }
                         }
@@ -5042,6 +5047,46 @@ void process_buffer(const char* cmdbuf,userrec *user)
 	}
 }
 
+void DoSync(serverrec* serv, char* udp_host,int udp_port, long MyKey)
+{
+	char data[MAXBUF];
+	// send start of sync marker: Y <timestamp>
+	snprintf(data,MAXBUF,"Y %d",time(NULL));
+	serv->SendPacket(data,udp_host,udp_port,MyKey);
+	// send users and channels
+	for (user_hash::iterator u = clientlist.begin(); u != clientlist.end(); u++)
+	{
+		snprintf(data,MAXBUF,"N %d %s %s %s %s %s %s :%s",u->second->age,u->second->nick,u->second->host,u->second->dhost,u->second->ident,u->second->modes,u->second->server,u->second->fullname);
+		serv->SendPacket(data,udp_host,udp_port,MyKey);
+		if (strcmp(chlist(u->second),""))
+		{
+			snprintf(data,MAXBUF,"J %s :%s",u->second->nick,chlist(u->second));
+			serv->SendPacket(data,udp_host,udp_port,MyKey);
+		}
+	}
+	// send channel modes, topics etc...
+	for (chan_hash::iterator c = chanlist.begin(); c != chanlist.end(); c++)
+	{
+		snprintf(data,MAXBUF,"C %s %d %s :%s",c->second->name,c->second->created,c->second->setby,chanmodes(c->second));
+		serv->SendPacket(data,udp_host,udp_port,MyKey);
+		if (strcmp(c->second->topic),"")
+		{
+			snprintf(data,MAXBUF,"T %d %s :%s",c->second->topicset,c->second->name,c->second->topic);
+		}
+		serv->SendPacket(data,udp_host,udp_port,MyKey);
+		// send current banlist
+		
+		for (BanList::iterator b = c->second->bans.begin(); b != c->second->bans.end(); b++)
+		{
+			snprintf(data,MAXBUF,"M %d %s +b %s",b->set_time,c->second->name,b->data);
+			serv->SendPacket(data,udp_host,udp_port,MyKey);
+		}
+	}
+	// send end of sync marker: E <timestamp>
+	snprintf(data,MAXBUF,"F %d",time(NULL));
+	serv->SendPacket(data,udp_host,udp_port,MyKey);
+}
+
 void process_restricted_commands(char token,char* params,serverrec* source,serverrec* reply, char* udp_host,int udp_port)
 {
 	WriteOpers("Secure-UDP-Channel: Token='%c', Params='%s'",token,params);
@@ -5099,6 +5144,7 @@ void handle_link_packet(long theirkey, char* udp_msg, char* udp_host, int udp_po
 								// create a server record for this server
 								snprintf(response,10240,"O %d",MyKey);
 								serv->SendPacket(response,udp_host,udp_port,0);
+								DoSync(serv,udp_host,udp_port,MyKey);
 								return;
 							}
 						}
@@ -5131,7 +5177,7 @@ void handle_link_packet(long theirkey, char* udp_msg, char* udp_host, int udp_po
 				if (!strcasecmp(servers[i]->internal_addr,udp_host)) {
 					servers[i]->key = atoi(params);
 					log(DEBUG,"Key for this server is now %d",servers[i]->key);
-					serv->SendPacket("Z blah blah",udp_host,udp_port,MyKey);
+					DoSync(serv,udp_host,udp_port,MyKey);
 					return;
 				}
 			}
@@ -5234,7 +5280,6 @@ void handle_link_packet(long theirkey, char* udp_msg, char* udp_host, int udp_po
 					if (servers[j]->key == theirkey) {
 						// found a valid key for this server, can process restricted stuff here
 						process_restricted_commands(token,params,servers[j],serv,udp_host,udp_port);
-						
 						return;
 					}
 				}
