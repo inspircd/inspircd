@@ -85,7 +85,15 @@ int DaemonSeed (void)
 }
 
 
-
+/* Make Sure Modules Are Avaliable!
+ * (BugFix By Craig.. See? I do work! :p) */
+int CheckModule (char module[MAXBUF])
+{
+  FILE *input;
+  
+  if ((input = fopen (module, "r")) == NULL) { return(FALSE); }
+  else { fclose (input); return(TRUE); }
+}
 
 /* Make sure the config file is available */
 int CheckConfig (void)

@@ -4067,32 +4067,47 @@ int InspIRCd(void)
   log(DEBUG,"InspIRCd: startup: InspIRCd is now running!");
 
   printf("\n");
-  for (count = 0; count < ConfValueEnum("module"); count++)
+
+  /* BugFix By Craig! :p */
+  count2 = 0;
+  for (count = 0; count2 < ConfValueEnum("module"); count2++)
   {
 	char modfile[MAXBUF];
 	ConfValue("module","name",count,configToken);
 	sprintf(modfile,"%s/%s",MOD_PATH,configToken);
 	printf("Loading module... \033[1;37m%s\033[0;37m\n",modfile);
 	log(DEBUG,"InspIRCd: startup: Loading module: %s",modfile);
-	
-  	factory[count] = new ircd_module(modfile);
-	if (factory[count]->LastError())
+	/* If The File Doesnt exist, Trying to load it
+ 	 * Will Segfault the IRCd.. So, check to see if
+	 * it Exists, Before Proceeding. */
+	if (CheckModule(modfile))
 	{
-		log(DEBUG,"Unable to load %s: %s",modfile,factory[count]->LastError());
-		sprintf("Unable to load %s: %s\nExiting...\n",modfile,factory[count]->LastError());
-		Exit(ERROR);
-	}
-	if (factory[count]->factory)
-	{
-		modules[count] = factory[count]->factory->CreateModule();
-		/* save the module and the module's classfactory, if
-		 * this isnt done, random crashes can occur :/ */
+  		factory[count] = new ircd_module(modfile);
+		if (factory[count]->LastError())
+		{
+			log(DEBUG,"Unable to load %s: %s",modfile,factory[count]->LastError());
+			sprintf("Unable to load %s: %s\nExiting...\n",modfile,factory[count]->LastError());
+			Exit(ERROR);
+		}
+		if (factory[count]->factory)
+		{
+			modules[count] = factory[count]->factory->CreateModule();
+			/* save the module and the module's classfactory, if
+			 * this isnt done, random crashes can occur :/ */
+		}
+		else
+		{
+			log(DEBUG,"Unable to load %s",modfile);
+			sprintf("Unable to load %s\nExiting...\n",modfile);
+			Exit(ERROR);
+		}
+		/* Increase the Count */
+		count++;
 	}
 	else
 	{
-		log(DEBUG,"Unable to load %s",modfile);
-		sprintf("Unable to load %s\nExiting...\n",modfile);
-		Exit(ERROR);
+		log(DEBUG,"InspIRCd: startup: Module Not Found %s",modfile);
+		printf("Module Not Found: \033[1;37m%s\033[0;37m, Skipping\n",modfile);
 	}
   }
   MODCOUNT = count - 1;
