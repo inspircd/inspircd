@@ -39,7 +39,7 @@ class ModuleRestrictMsg : public Module
 		if (target_type == TYPE_USER)
 		{
 			userrec* u = (userrec*)dest;
-			if (strchr(u->modes,'o')) || (strchr(user->modes,'o')))
+			if ((strchr(u->modes,'o')) || (strchr(user->modes,'o')))
 			{
 				// message allowed if:
 				// (1) the sender is opered
