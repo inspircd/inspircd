@@ -5357,14 +5357,11 @@ void handle_T(char token,char* params,serverrec* source,serverrec* reply, char* 
 	topic++;
 	time_t TS = atoi(tm);
 	chanrec* c = FindChan(channel);
-	log(DEBUG,"time='%d' setby='%s' channel='%s' topic='%s'",TS,setby,channel,topic);
 	if (c)
 	{
-		log(DEBUG,"channel found");
 		// in the case of topics and TS, the *NEWER* 
-		if (TS <= c->age)
+		if (TS <= c->topicset)
 		{
-			log(DEBUG,"channel TS higher, replacing");
 			WriteChannelLocal(c,NULL,"TOPIC %s :%s",c->name,topic);
 			strncpy(c->topic,topic,MAXTOPIC);
 			strncpy(c->setby,setby,NICKMAX);
