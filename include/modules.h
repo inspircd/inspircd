@@ -318,6 +318,10 @@ class Server : public classbase
 	 * Nicks for unregistered connections will return false.
 	 */
 	virtual bool IsNick(std::string nick);
+	/** Returns a count of the number of users on a channel.
+	 * This will NEVER be 0, as if the chanrec exists, it will have at least one user in the channel.
+	 */
+	virtual int CountUsers(chanrec* c);
 	/** Attempts to look up a nick and return a pointer to it.
 	 * This function will return NULL if the nick does not exist.
 	 */

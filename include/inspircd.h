@@ -111,4 +111,5 @@ chanrec* add_channel(userrec *user, const char* cn, const char* key);
 chanrec* del_channel(userrec *user, const char* cname, const char* reason);
 void force_nickchange(userrec* user,const char* newnick);
 void kill_link(userrec *user,const char* r);
+int usercount(chanrec *c);
 

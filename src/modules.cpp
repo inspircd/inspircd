@@ -310,6 +310,11 @@ bool Server::AddExtendedMode(char modechar, int type, bool requires_oper, int pa
 	return DoAddExtendedMode(modechar,type,requires_oper,params_when_on,params_when_off);
 }
 
+int Server::CountUsers(chanrec* c)
+{
+	return usercount(c);
+}
+
 
 ConfigReader::ConfigReader()
 {
