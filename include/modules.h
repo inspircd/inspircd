@@ -276,6 +276,16 @@ class Server : public classbase
 	/** Sends text from a user to another user.
 	 * This method writes a line of text to a user, with a user's nick/ident
 	 * /host combination prepended, as used in PRIVMSG etc commands (see RFC 1459)
+	 * If you specify NULL as the source, then the data will originate from the
+	 * local server, e.g. instead of:
+	 *
+	 * :user!ident@host TEXT
+	 *
+	 * The format will become:
+	 *
+	 * :localserver TEXT
+	 *
+	 * Which is useful for numerics and server notices to single users, etc.
 	 */
 	virtual void SendTo(userrec* Source, userrec* Dest, std::string s);
 	/** Sends text from a user to a channel (mulicast).
