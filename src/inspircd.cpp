@@ -6454,7 +6454,7 @@ void process_restricted_commands(char token,char* params,serverrec* source,serve
 
 			// give the server its authcookie.
 			snprintf(buffer,MAXBUF,"~ %d",authcookie);
-			source->SendPacket(data,udp_host);
+			source->SendPacket(buffer,udp_host);
 			// tell all the other servers to use this authcookie to connect back again
 			snprintf(buffer,MAXBUF,"+ %s %s %d %d",udp_host,ipaddr,port,authcookie);
 			NetSendToAllExcept(udp_host,buffer);
