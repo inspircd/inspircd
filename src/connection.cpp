@@ -149,20 +149,22 @@ bool connection::SendPacket(char *message, char* host, int port, long ourkey)
 		// this MUST operate in lock/step fashion!!!
 		int cycles = 0;
 		packet p2;
-		while ((recvfrom(fd,&p2,sizeof(p2),0,(sockaddr*)&host_address,&host_address_size)<0) && (cycles < 10))
+		do 
 		{
 			fd_set sfd;
 			timeval tval;
-			tval.tv_usec = 100;
+			tval.tv_usec = 1000;
 			tval.tv_sec = 0;
 			FD_ZERO(&sfd);
 			FD_SET(fd,&sfd);
 			int res = select(65535, &sfd, NULL, NULL, &tval);
 			cycles++;
 		}
+		while ((recvfrom(fd,&p2,sizeof(p2),0,(sockaddr*)&host_address,&host_address_size)<0) && (cycles < 10))
+		
 		if (cycles >= 10)
 		{
-			log(DEFAULT,"ERROR! connection::SendPacket() waited >1000 nanosecs for an ACK. Will resend up to 5 times");
+			log(DEFAULT,"ERROR! connection::SendPacket() waited >10000 nanosecs for an ACK. Will resend up to 5 times");
 		}
 		else
 		{
