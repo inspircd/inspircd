@@ -519,25 +519,12 @@ if [ "$YN" != "n" ] ; then
 	$MAKEPROG
 	echo ""
         echo "Done!"
-        echo ""
 else
 	echo ""
-	echo "Done!"
-	echo ""
-	echo -e "To build your server with these settings, please type '\033[1;32mmake\033[0;37m' now."
-	echo ""
-	echo -e "*** \033[1;32mRemember to edit your configuration files!!!\033[0;37m ***"
-	echo ""
+	echo -e "To build your server with these settings, please type '\033[1;32m$MAKEPROG\033[0;37m' now."
 fi
 
 
 echo ""
-echo "Do you want to run the config file maker?"
-echo -e $n "[\033[1;32my\033[0;37m] $c"
-read YN
-if [ "$YN" != "n" ] ; then
-	sh makeconf
-fi
-
 echo -e "*** \033[1;32mRemember to edit your configuration files!!!\033[0;37m ***"
 echo ""
