@@ -11,27 +11,47 @@ char dummyvalue[] = "on";
 class ModuleChanProtect : public Module
 {
 	Server *Srv;
+	bool FirstInGetsFounder;
+	ConfigReader *Conf;
 	
  public:
  
 	ModuleChanProtect()
 	{
 		Srv = new Server;
+		Conf = new ConfigReader;
 		// set up our modes. We're using listmodes and not normal extmodes here.
 		// listmodes only need one parameter as everything else is assumed by the
 		// nature of the mode thats being created.
 		Srv->AddExtendedListMode('a');
 		Srv->AddExtendedListMode('q');
+		
+		// read our config options (main config file)
+		std::string val = Conf->ReadValue("options","noservices",0);
+		FirstInGetsFounder = ((val == "yes") || (val == "1") || (val == "true"));
+	}
+	
+	virtual void OnRehash()
+	{
+		delete Conf;
+		Conf = new ConfigReader;
+		// re-read our config options on a rehash
+		std::string val = Conf->ReadValue("options","noservices",0);
+		FirstInGetsFounder = ((val == "yes") || (val == "1") || (val == "true"));
 	}
 	
 	virtual void OnUserJoin(userrec* user, chanrec* channel)
 	{
-		// if the user is the first user into the channel, mark them as the founder
-		if (Srv->CountUsers(channel) == 1)
+		// if the user is the first user into the channel, mark them as the founder, but only if
+		// the config option for it is set
+		if (FirstInGetsFounder)
 		{
-			if (user->Extend("cm_founder_"+std::string(channel->name),dummyvalue))
+			if (Srv->CountUsers(channel) == 1)
 			{
-				Srv->Log(DEBUG,"Marked user "+std::string(user->nick)+" as founder for "+std::string(channel->name));
+				if (user->Extend("cm_founder_"+std::string(channel->name),dummyvalue))
+				{
+					Srv->Log(DEBUG,"Marked user "+std::string(user->nick)+" as founder for "+std::string(channel->name));
+				}
 			}
 		}
 	}
@@ -41,6 +61,14 @@ class ModuleChanProtect : public Module
 		// don't allow action if:
 		// (A) Theyre founder (no matter what)
 		// (B) Theyre protected, and you're not
+		// always allow the action if:
+		// (A) The source is ulined
+		
+		if ((Srv->IsUlined(source->nick)) || (Srv->IsUlined(source->server)))
+		{
+			return ACR_ALLOW;
+		}
+
 		switch (access_type)
 		{
 			case AC_DEOP:
@@ -188,6 +216,7 @@ class ModuleChanProtect : public Module
 	
 	virtual ~ModuleChanProtect()
 	{
+		delete Conf;
 		delete Srv;
 	}
 	
