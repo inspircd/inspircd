@@ -13,9 +13,9 @@ LeftChar=1
 [Editor_1]
 Open=1
 Top=1
-CursorCol=37
-CursorRow=6901
-TopLine=7059
+CursorCol=9
+CursorRow=7052
+TopLine=7007
 LeftChar=1
 
 [Editor_2]
@@ -199,7 +199,7 @@ Open=1
 Top=0
 CursorCol=27
 CursorRow=134
-TopLine=102
+TopLine=315
 LeftChar=1
 [Editor_25]
 Open=1

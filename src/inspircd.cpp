@@ -718,6 +718,26 @@ int c_count(userrec* u)
 
 }
 
+
+std::string GetServerDescription(char* servername)
+{
+	for (int j = 0; j < 32; j++)
+	{
+		if (me[j] != NULL)
+		{
+			for (int k = 0; k < me[j]->connectors.size(); k++)
+			{
+				if (!strcasecmp(me[j]->connectors[k].GetServerName().c_str(),servername))
+				{
+					return me[j]->connectors[k].GetDescription();
+				}
+			}
+		}
+		return "";
+	}
+}
+
+
 /* return 0 or 1 depending if users u and u2 share one or more common channels
  * (used by QUIT, NICK etc which arent channel specific notices) */
 
@@ -4677,7 +4697,7 @@ void handle_whois(char **parameters, int pcnt, userrec *user)
 			{
 				WriteServ(user->fd,"319 %s %s :%s",user->nick, dest->nick, chlist(dest));
 			}
-			WriteServ(user->fd,"312 %s %s %s :%s",user->nick, dest->nick, dest->server, ServerDesc);
+			WriteServ(user->fd,"312 %s %s %s :%s",user->nick, dest->nick, dest->server, GetServerDescription(dest->server));
 			if (strcmp(dest->awaymsg,""))
 			{
 				WriteServ(user->fd,"301 %s %s :%s",user->nick, dest->nick, dest->awaymsg);
@@ -6923,7 +6943,8 @@ void handle_link_packet(char* udp_msg, char* udp_host, serverrec *serv)
 							if (!strcasecmp(me[j]->connectors[k].GetServerName().c_str(),udp_host))
       							{
       								me[j]->connectors[k].SetServerName(servername);
-      								me[j]->connectors[k].SetState(STATE_CONNECTED);
+								me[j]->connectors[k].SetDescription(serverdesc);
+								me[j]->connectors[k].SetState(STATE_CONNECTED);
 								NetSendMyRoutingTable();
       								return;
 							}
@@ -6955,6 +6976,7 @@ void handle_link_packet(char* udp_msg, char* udp_host, serverrec *serv)
 			if (!strcasecmp(serv->connectors[j].GetServerName().c_str(),udp_host))
 			{
 				serv->connectors[j].SetServerName(servername);
+				serv->connectors[j].SetDescription(serverdesc);
 				serv->connectors[j].SetServerPort(atoi(myport));
 			}
 		}
@@ -7039,7 +7061,7 @@ void handle_link_packet(char* udp_msg, char* udp_host, serverrec *serv)
 				// at this point we must begin key exchange and insert this
 				// server into our 'active' table.
 				for (int j = 0; j < 32; j++)
-    				{
+				{
 					if (me[j] != NULL)
      					{
      						for (int k = 0; k < me[j]->connectors.size(); k++)
@@ -7047,6 +7069,7 @@ void handle_link_packet(char* udp_msg, char* udp_host, serverrec *serv)
 							if (!strcasecmp(me[j]->connectors[k].GetServerName().c_str(),udp_host))
       							{
 								char buffer[MAXBUF];
+								me[j]->connectors[k].SetDescription(serverdesc);
 								me[j]->connectors[k].SetState(STATE_CONNECTED);
 								sprintf(buffer,"X 0");
 								serv->SendPacket(buffer,udp_host);
