@@ -73,29 +73,28 @@ bool do_helpop(char **parameters, int pcnt, userrec *src)
 	std::string output = " "; // a fix bought to you by brain :p
 	char a[MAXBUF];
 
-	if (!parameters) { strcpy(search, "start"); }
-	else { search = parameters[0]; }
+	if (!parameters) {
+ 		search = "start";
+  	}
+	else {
+ 		search = parameters[0];
+   	}
 
-	if (search[0] == '?') { search++; }
+	if (search[0] == '?') {
+ 		search++;
+   	}
 
-	// Make sure it exists.
-	if (helpop->ReadValue(std::string(search), "line1", 0) == "")
-	{
-		// Tell caller..
-		return false;
-	}
-
-	// Somethings there.. tell the person who wants to know :p
-
+	int nlines = 0;
 	for (int i = 1; output != ""; i++)
 	{
 		snprintf(a,MAXBUF,"line%d",i);
 		output = helpop->ReadValue(std::string(search), std::string(a), 0);
 		if (output != "") {
 			Srv->SendTo(NULL,src,"290 "+std::string(src->nick)+" :"+output);
+			nlines++;
 		}
 	}
-	return true;
+	return (nlines>0);
 }
 
 
