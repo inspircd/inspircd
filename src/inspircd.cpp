@@ -6560,6 +6560,53 @@ void handle_dollar(char token,char* params,serverrec* source,serverrec* reply, c
 	log(DEBUG,"Warning! routing table received from nonexistent server!");
 }
 
+
+void DoSplit(const char* params)
+{
+	bool go_again = true;
+	while (go_again)
+	{
+		go_again = false;
+		for (int i = 0; i < 32; i++)
+		{
+			if (me[i] != NULL)
+			{
+				for (vector<ircd_connector>::iterator j = me[i]->connectors.begin(); j != me[i]->connectors.end(); j++)
+				{
+					if (!strcasecmp(j->GetServerName().c_str(),params))
+					{
+						j->routes.clear();
+						j->CloseConnection();
+						me[i]->connectors.erase(j);
+						go_again = true;
+						break;
+					}
+				}
+			}
+		}
+	}
+	log(DEBUG,"Removed server. Will remove clients...");
+	// iterate through the userlist and remove all users on this server.
+	// because we're dealing with a mesh, we dont have to deal with anything
+	// "down-route" from this server (nice huh)
+	go_again = true;
+	char reason[MAXBUF];
+	snprintf(reason,MAXBUF,"%s %s",ServerName,params);
+	while (go_again)
+	{
+		go_again = false;
+		for (user_hash::const_iterator u = clientlist.begin(); u != clientlist.end(); u++)
+		{
+			if (!strcasecmp(u->second->server,params))
+			{
+				kill_link(u->second,reason);
+				go_again = true;
+				break;
+			}
+		}
+	}
+}
+
 void handle_amp(char token,char* params,serverrec* source,serverrec* reply, char* udp_host)
 {
 	log(DEBUG,"Netsplit! %s split from mesh, removing!",params);

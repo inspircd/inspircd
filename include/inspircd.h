@@ -125,4 +125,5 @@ void NetSendToAllAlive(char* s);
 void NetSendToOne(char* target,char* s);
 void NetSendToAllExcept(const char* target,char* s);
 void NetSendMyRoutingTable();
+void DoSplit(const char* params);
 
