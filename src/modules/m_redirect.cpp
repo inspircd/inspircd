@@ -1,0 +1,97 @@
+#include <stdio.h>
+
+#include "users.h"
+#include "channels.h"
+#include "modules.h"
+
+/* $ModDesc: Provides channel mode +L (limit redirection) */
+
+
+class ModuleRedirect : public Module
+{
+	Server *Srv;
+	
+ public:
+ 
+	ModuleRedirect()
+	{
+		Srv = new Server;
+		Srv->AddExtendedMode('L',MT_CHANNEL,false,1,0);
+	}
+	
+	virtual int OnExtendedMode(userrec* user, void* target, char modechar, int type, bool mode_on, string_list &params)
+	{
+		
+		if ((modechar == 'L') && (type == MT_CHANNEL))
+		{
+			chanrec* c = Srv->Findchannel(params[0]);
+			if (c)
+			{
+				if (c->IsCustomModeSet('L'))
+				{
+					WriteServ(user->fd,"690 %s :Circular redirection, mode +L to %s not allowed.",user->nick,params[0].c_str());
+     					return 0;
+				}
+			}
+			return 1;
+		}
+	}
+	
+	virtual int OnUserPreJoin(userrec* user, chanrec* chan, const char* cname)
+	{
+		if (chan)
+		{
+			if (chan->IsCustomModeSet('L'))
+			{
+				if (chan->limit >= Srv->CountUsers(chan))
+				{
+					char* channel = chan->GetModeParameter('L');
+					WriteServ(user->fd,"470 %s :%s has become full, so you are automatically being transferred to the linked channel %s",user->nick,cname,channel);
+					Srv->JoinUserToChannel(user,channel,"");
+					return 1;
+				}
+			}
+		}
+	}
+
+	virtual ~ModuleRedirect()
+	{
+		delete Srv;
+	}
+	
+	virtual Version GetVersion()
+	{
+		return Version(1,0,0,0);
+	}
+	
+	virtual void OnUserConnect(userrec* user)
+	{
+	}
+
+};
+
+
+class ModuleRedirectFactory : public ModuleFactory
+{
+ public:
+	ModuleRedirectFactory()
+	{
+	}
+	
+	~ModuleRedirectFactory()
+	{
+	}
+	
+	virtual Module * CreateModule()
+	{
+		return new ModuleRedirect;
+	}
+	
+};
+
+
+extern "C" void * init_module( void )
+{
+	return new ModuleRedirectFactory;
+}
+
