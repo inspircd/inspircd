@@ -259,8 +259,10 @@
 #                  log file. You may select from debug, verbose,      #
 #                  default, sparse and none.                          #
 #  allowhalfop   - allows the +h channel mode			      #
-#  allowprotect  - allows the +a channel mode			      #
-#  allowfounder  - allows the +q channel mode			      #
+#  noservices    - If noservices is true, yes, or 1, then the first   #
+#                  user into a channel gets founder status. This is   #
+#                  only useful on networks running the m_chanprotect  #
+#                  module without services.                           #
 #  netbuffersize - size of the buffer used to receive data from       #
 #                  clients. The ircd may only read() this amount      #
 #		   of text in one go at any time. (OPTIONAL)          #
@@ -274,9 +276,8 @@
 	 loglevel="default"
 	 netbuffersize="10240"
          maxwho="128"
-	 allowhalfop="yes"
-	 allowprotect="yes"
-	 allowfounder="yes">
+	 noservices="0">
+	 allowhalfop="yes">
 
 
 
