@@ -198,10 +198,8 @@ public:
 		userrec* usr = NULL;
 		if (resolver->HasResult())
 		{
-			log(DEBUG,"resolver says result available!");
 			if (resolver->GetFD() != 0)
 			{
-				log(DEBUG,"Resolver FD is not 0, getting %s",u);
 				std::string hostname = resolver->GetResult();
 				usr = Find(u);
 				if (usr)
@@ -264,9 +262,11 @@ void dns_poll()
 		// are any ready, or stale?
 		if (dnsq[0].Done() || (!dnsq[0].GetFD()))
 		{
-			log(DEBUG,"****** DNS lookup for fd %d is complete. ******",dnsq[0].GetFD());
 			if (dnsq[0].GetFD())
-				dnsq.pop_front();
+			{
+				log(DEBUG,"****** DNS lookup for fd %d is complete. ******",dnsq[0].GetFD());
+			}
+			dnsq.pop_front();
 		}
 	}
 }
