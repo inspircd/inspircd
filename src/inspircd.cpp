@@ -14,6 +14,9 @@
  * ---------------------------------------------------
  
  $Log$
+ Revision 1.3  2003/01/25 20:17:53  brain
+ Fixed WHOWAS memory leak
+
  Revision 1.2  2003/01/25 20:00:45  brain
  Added /WHOWAS
 
@@ -2803,18 +2806,23 @@ void AddWhoWas(userrec* u)
 				// 3600 seconds in an hour ;)
 				if ((i->second->signon)<(time(NULL)-(WHOWAS_STALE*3600)))
 				{
+					delete i->second;
 					i->second = a;
 					debug("added WHOWAS entry, purged an old record");
 					return;
 				}
 			}
 		}
-		debug("added fresh WHOWAS entry");
-		whowas[a->nick] = a;
+		else
+		{
+			debug("added fresh WHOWAS entry");
+			whowas[a->nick] = a;
+		}
 	}
 	else
 	{
 		debug("updated WHOWAS entry");
+		delete iter->second;
 		iter->second = a;
 	}
 }
