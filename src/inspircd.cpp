@@ -6007,7 +6007,7 @@ void SetupCommandTable(void)
 	createcommand("TRACE",handle_trace,'o',0);
 	createcommand("WHOWAS",handle_whowas,0,1);
 	createcommand("CONNECT",handle_connect,'o',1);
-	createcommand("SQUIT",handle_squit,'o',1);
+	createcommand("SQUIT",handle_squit,'o',0);
 	createcommand("MODULES",handle_modules,'o',0);
 	createcommand("LINKS",handle_links,0,0);
 	createcommand("MAP",handle_map,0,0);
