@@ -431,6 +431,13 @@ void handle_invite(char **parameters, int pcnt, userrec *user)
 		WriteServ(user->fd,"442 %s %s :You're not on that channel!",user->nick, c->name);
   		return;
 	}
+
+	int MOD_RESULT = 0;
+	FOREACH_RESULT(OnUserPreInvite(user,u,c));
+	if (MOD_RESULT == 1) {
+		return NULL;
+	}
+
 	u->InviteTo(c->name);
 	WriteFrom(u->fd,user,"INVITE %s :%s",u->nick,c->name);
 	WriteServ(user->fd,"341 %s %s %s",user->nick,u->nick,c->name);
