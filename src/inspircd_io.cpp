@@ -324,30 +324,28 @@ int ConfValueEnum(char* tag, std::stringstream* config)
 int ReadConf(std::stringstream *config, const char* tag, const char* var, int index, char *result)
 {
 	int ptr = 0;
-	char buffer[MAXBUF], c_tag[MAXBUF], c, lastc;
+	char buffer[65535], c_tag[MAXBUF], c, lastc;
 	int in_token, in_quotes, tptr, j, idx = 0;
 	char* key;
 
 	const char* buf = config->str().c_str();
 	long bptr = 0;
 	long len = strlen(buf);
+	log(DEBUG,"Data length: %d",len);
 	
 	ptr = 0;
 	in_token = 0;
 	in_quotes = 0;
 	lastc = '\0';
+	c_tag[0] = '\0';
+	buffer[0] = '\0';
 	while (bptr<len)
 	{
 		lastc = c;
 		c = buf[bptr++];
-		if ((c == '#') && (lastc == '\n'))
-		{
-			while ((c != '\n') && (bptr<len))
-			{
-				lastc = c;
-				c = buf[bptr++];
-			}
-		}
+		// FIX: Treat tabs as spaces
+		if (c == 9)
+			c = 32;
 		if ((c == '<') && (!in_quotes))
 		{
 			tptr = 0;
@@ -359,7 +357,8 @@ int ReadConf(std::stringstream *config, const char* tag, const char* var, int in
 					c_tag[tptr++] = c;
 					c_tag[tptr] = '\0';
 				}
-			} while (c != ' ');
+			// FIX: Tab can follow a tagname as well as space.
+			} while ((c != ' ') && (c != 9));
 		}
 		if (c == '"')
 		{
@@ -379,6 +378,7 @@ int ReadConf(std::stringstream *config, const char* tag, const char* var, int in
 						{
 							/* value not found in tag */
 							strcpy(result,"");
+							log(DEBUG,"ReadConf: value '%s' was not found in tag",var);
 							return 0;
 						}
 						else
@@ -390,6 +390,7 @@ int ReadConf(std::stringstream *config, const char* tag, const char* var, int in
 								{
 									/* missing quote */
 									strcpy(result,"");
+									log(DEBUG,"ReadConf: possible missing quote!");
 									return 0;
 								}
 								key++;
@@ -403,6 +404,7 @@ int ReadConf(std::stringstream *config, const char* tag, const char* var, int in
 								}
 							}
 							strcpy(result,key);
+							log(DEBUG,"ReadConf: Got value '%s'",result);
 							return 1;
 						}
 					}
@@ -410,6 +412,7 @@ int ReadConf(std::stringstream *config, const char* tag, const char* var, int in
 			}
 			if (!strcmp(c_tag,tag))
 			{
+				log(DEBUG,"Tag name correct but index value incorrect");
 				/* correct tag, but wrong index */
 				idx++;
 			}
@@ -427,6 +430,7 @@ int ReadConf(std::stringstream *config, const char* tag, const char* var, int in
 			}
 		}
 	}
+	log(DEBUG,"ReadConf: neither value '%s' or tag '%s' were found at all!",var,tag);
 	strcpy(result,""); // value or its tag not found at all
 	return 0;
 }
