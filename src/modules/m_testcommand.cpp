@@ -60,14 +60,13 @@ class ModuleTestCommand : public Module
 	
 	virtual bool OnExtendedMode(userrec* user, chanrec* chan, char modechar, int type, bool mode_on, string_list &params)
 	{
-		if (modechar != 'Z') {
+		if ((modechar != 'Z') || (type != MT_CHANNEL)) {
 			// this mode isn't ours, we have to bail and return 0 to not handle it.
 			Srv->Log(DEBUG,"Extended mode event triggered, but this is not a mode i've claimed!");
 			return 0;
 		}
 		
 		
-		// TODO: Add checking here - should bail with 0 value if the mode is already on or off
 		if (mode_on) {
 			Srv->Log(DEBUG,"Custom mode is being added to channel");
 		}
