@@ -1,0 +1,28 @@
+This is a list of datagram types supported by this version of
+InspIRCd. The datagrams must be encapsulated in a valid link
+packet, and except for those prefixed with a *, a pseudo-session
+must be established along which secure commands may pass.
+
+S *		Active server connect
+s *		Passive server connect (response to S)
+O *		Exchange session key
+E *		Error response
+?		Ping
+!		Pong
+*		No Operation
+Y		Begin netburst
+N		Introduce new client
+n		Client nickchange
+t		Change channel topic
+i		Invite user
+k		Kick user
+J		Join a user to one or more channels
+T		Server topic change
+M		Server mode change
+m		User mode change
+P		PRIVMSG
+V		NOTICE
+L		User leaving a channel
+Q		User disconnect
+F		End netburst
+
