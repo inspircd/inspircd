@@ -7179,8 +7179,6 @@ void handle_link_packet(char* udp_msg, char* udp_host, serverrec *serv)
 	if (token == 'E') {
 		char* error_message = finalparam+2;
 		WriteOpers("ERROR from %s: %s",udp_host,error_message);
-		// remove this server from any lists
-		RemoveServer(udp_host);
 		return;
 	}
 	else {
