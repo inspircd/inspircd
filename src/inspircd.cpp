@@ -5493,7 +5493,7 @@ int InspIRCd(void)
 					{
 					  	log(DEBUG,"InspIRCd: registration timeout: %s",count2->second->nick);
 						kill_link(count2->second,"Registration timeout");
-						break;
+						goto label;
 					}
 					if (((time(NULL)) > count2->second->nping) && (isnick(count2->second->nick)) && (count2->second->registered == 7))
 					{
@@ -5501,7 +5501,7 @@ int InspIRCd(void)
 						{
 						  	log(DEBUG,"InspIRCd: ping timeout: %s",count2->second->nick);
 							kill_link(count2->second,"Ping timeout");
-							break;
+							goto label;
 						}
 						Write(count2->second->fd,"PING :%s",ServerName);
 					  	log(DEBUG,"InspIRCd: pinging: %s",count2->second->nick);
