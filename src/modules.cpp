@@ -255,7 +255,7 @@ void Server::SendCommon(userrec* User, std::string text,bool IncludeSender)
 
 void Server::SendWallops(userrec* User, std::string text)
 {
-	WriteWallOps(User,"%s",text.c_str());
+	WriteWallOps(User,false,"%s",text.c_str());
 }
 
 bool Server::IsNick(std::string nick)

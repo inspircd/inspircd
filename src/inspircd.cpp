@@ -949,7 +949,7 @@ void WriteMode(const char* modes, int flags, const char* text, ...)
 	}
 }
 
-void WriteWallOps(userrec *source, char* text, ...)  
+void WriteWallOps(userrec *source, bool local_only, char* text, ...)  
 {  
 	if ((!text) || (!source))
 	{
@@ -969,10 +969,27 @@ void WriteWallOps(userrec *source, char* text, ...)
         	if (i->second)
         	{
                 	if (strchr(i->second->modes,'w'))
-                	{  
+                	{
 				WriteTo(source,i->second,"WALLOPS %s",textbuffer);
                 	}
                 }
+	}
+
+	if (!local_only)
+	{
+		char buffer[MAXBUF];
+		snprintf(buffer,MAXBUF,"@ %s :%s",source->nick,textbuffer);
+		for (int j = 0; j < 255; j++)
+		{
+			if (servers[j] != NULL)
+			{
+				if (strcmp(servers[j]->name,ServerName))
+				{
+					me[defaultRoute]->SendPacket(buffer,servers[j]->internal_addr,servers[j]->internal_port,MyKey);
+					log(DEBUG,"Sent @ token");
+				}
+			}
+		}
 	}
 }  
 
@@ -3914,7 +3931,7 @@ void handle_kill(char **parameters, int pcnt, userrec *user)
 		if (strcmp(ServerName,u->server))
 		{
 			// remote kill
-			WriteOpers("*** Remote kill: %s!%s@%s (%s)",user->nick,u->nick,u->ident,u->host,parameters[1]);
+			WriteOpers("*** Remote kill by %s: %s!%s@%s (%s)",user->nick,u->nick,u->ident,u->host,parameters[1]);
 			sprintf(killreason,"[%s] Killed (%s (%s))",ServerName,user->nick,parameters[1]);
 			WriteCommonExcept(u,"QUIT :%s",killreason);
 			// K token must go to ALL servers!!!
@@ -4869,7 +4886,7 @@ void handle_who(char **parameters, int pcnt, userrec *user)
 
 void handle_wallops(char **parameters, int pcnt, userrec *user)
 {
-	WriteWallOps(user,"%s",parameters[0]);
+	WriteWallOps(user,false,"%s",parameters[0]);
 }
 
 void handle_list(char **parameters, int pcnt, userrec *user)
@@ -6280,9 +6297,9 @@ void handle_K(char token,char* params,serverrec* source,serverrec* reply, char* 
 	
 	if ((user) && (u))
 	{
-		WriteTo(user, u, "KILL %s :%s!%s!%s!%s (%s)", u->nick, ServerName, reply->name, user->dhost,user->nick,reason);
+		WriteTo(user, u, "KILL %s :%s!%s!%s!%s (%s)", u->nick, source->name, ServerName, user->dhost,user->nick,reason);
 		WriteOpers("*** Remote kill from %s by %s: %s!%s@%s (%s)",source->name,user->nick,u->nick,u->ident,u->host,reason);
-		snprintf(kreason,MAXBUF,"[%s] Killed (%s (%s))",reply->name,user->nick,reason);
+		snprintf(kreason,MAXBUF,"[%s] Killed (%s (%s))",source->name,user->nick,reason);
 		kill_link(u,kreason);
 	}
 }
@@ -6354,6 +6371,19 @@ void handle_k(char token,char* params,serverrec* source,serverrec* reply, char* 
 		kick_channel(s,d,c,reason);
 	}
 }
+
+void handle_AT(char token,char* params,serverrec* source,serverrec* reply, char* udp_host,int udp_port)
+{
+	char* who = strtok(params," :");
+	char* text = strtok(NULL,"\r\n");
+	text++;
+	userrec* s = Find(who);
+	if (s)
+	{
+		WriteWallOps(s,true,text);
+	}
+}
+
 
 void handle_N(char token,char* params,serverrec* source,serverrec* reply, char* udp_host,int udp_port)
 {
@@ -6555,10 +6585,15 @@ void process_restricted_commands(char token,char* params,serverrec* source,serve
 		case 'Q':
 			handle_Q(token,params,source,reply,udp_host,udp_port);
 		break;
-		// K <SOURCE> :<REASON>
+		// K <SOURCE> <DEST> :<REASON>
 		// remote kill
 		case 'K':
 			handle_K(token,params,source,reply,udp_host,udp_port);
+		break;
+		// @ <SOURCE> :<TEXT>
+		// wallops
+		case '@':
+			handle_AT(token,params,source,reply,udp_host,udp_port);
 		break;
 		// F <TS>
 		// end netburst
