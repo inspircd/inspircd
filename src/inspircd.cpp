@@ -3526,6 +3526,11 @@ void merge_mode2(char **parameters, int pcnt, userrec* user)
 	Ptr = FindChan(parameters[0]);
 	if (Ptr)
 	{
+		if ((cstatus(user,Ptr) < STATUS_HOP) && (Ptr))
+		{
+			return;
+		}
+
 		process_modes(parameters,user,Ptr,cstatus(user,Ptr),pcnt,false,true);
 	}
 }
