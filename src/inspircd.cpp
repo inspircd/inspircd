@@ -5108,6 +5108,7 @@ void process_restricted_commands(char token,char* params,serverrec* source,serve
 		// introduce remote client
 		case 'N':
 		{
+			printf("Sync: Received an 'N' packet, processing");
 			char* tm = strtok(params," ");
 			char* nick = strtok(params," ");
 			char* host = strtok(params," ");
@@ -5144,6 +5145,7 @@ void process_restricted_commands(char token,char* params,serverrec* source,serve
 							 // so a user wont need /WHOIS <nick> <server> to find it
 							 // but it may be slightly different over the net
 							 // (a couple of seconds at most)
+			printf("Sync: Added %s",nick);
 		}
 		break;
 		// J <NICK> :<CHANLIST>
