@@ -19,6 +19,7 @@ serverrec::serverrec()
 	signon = time(NULL);
 	jupiter = false;
 	fd = 0;
+	sync_soon = false;
 }
 
  
@@ -36,5 +37,6 @@ serverrec::serverrec(char* n, long ver, bool jupe)
 	signon = time(NULL);
 	jupiter = jupe;
 	fd = 0;
+	sync_soon = false;
 }
 

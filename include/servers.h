@@ -49,7 +49,7 @@ class serverrec : public connection
 	 */	
 	char description[MAXBUF];
 	
-	bool initiator;
+	bool sync_soon;
 
 	/** Constructor
 	 */

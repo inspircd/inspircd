@@ -6570,6 +6570,7 @@ void handle_link_packet(long theirkey, char* udp_msg, char* udp_host, int udp_po
 								strcpy(servers[j]->description,serverdesc);
 								servers[j]->internal_port = udp_port;
 								// create a server record for this server
+								WriteOpers("Server %s authenticated, exchanging server keys...",servername);
 								snprintf(response,10240,"O %d",MyKey);
 								serv->SendPacket(response,udp_host,udp_port,0);
 								return;
@@ -6604,10 +6605,7 @@ void handle_link_packet(long theirkey, char* udp_msg, char* udp_host, int udp_po
 				if (!strcasecmp(servers[i]->internal_addr,udp_host)) {
 					servers[i]->key = atoi(params);
 					log(DEBUG,"Key for this server is now %d",servers[i]->key);
-					//if (servers[i]->initiator)
-					//{
-						DoSync(serv,udp_host,udp_port,MyKey);
-					//}
+					servers[i]->sync_soon = true;
 					return;
 				}
 			}
@@ -6925,6 +6923,17 @@ int InspIRCd(void)
 			}
 			fd_reap.clear();
 			reap_counter=0;
+			for (int j = 0; j < 255; j++)
+			{
+				if (servers[j])
+				{
+					if (servers[j]->sync_soon)
+					{
+						servers[j]->sync_soon = false;
+						DoSync(servers[j],servers[j]->internal_addr,servers[j]->internal_port,MyKey);
+					}
+				}
+			}
 		}
 
      
