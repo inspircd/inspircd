@@ -5564,8 +5564,10 @@ int InspIRCd(void)
 
 		// *FIX* Instead of closing sockets in kill_link when they receive the ERROR :blah line, we should queue
 		// them in a list, then reap the list every second or so.
-		if (reap_counter>5000) {
-			if (fd_reap.size() > 0) {
+		if (reap_counter>5000)
+  		{
+			if (fd_reap.size() > 0)
+   			{
 				for( int n = 0; n < fd_reap.size(); n++)
 				{
 					Blocking(fd_reap[n]);
@@ -5594,7 +5596,6 @@ int InspIRCd(void)
 				// link packets can manipulate the usertable so beware of
 				// any loops here watching the user or channels hash
 				log(DEBUG,"Sync: exit 3");
-				goto label;
 			}
 		}
 	}
@@ -5683,6 +5684,7 @@ int InspIRCd(void)
 					
 					if (result)
 					{
+						log(DEBUG,"Read %d characters from socket",result);
 						userrec* current = count2a->second;
 						int currfd = current->fd;
 						char* l = strtok(data,"\n");
