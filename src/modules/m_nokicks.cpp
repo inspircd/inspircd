@@ -8,8 +8,6 @@
 
 class ModuleNoKicks : public Module
 {
-	Server *Srv;
-	bool NoisyNoKicks;
 	ConfigReader *Conf;
 	
  public:
@@ -34,6 +32,7 @@ class ModuleNoKicks : public Module
 				else
 				{
 					// nobody else can (not even opers with override, and founders)
+					WriteServ(source->fd,"484 %s %s :Can't kick user %s from channel (+Q set)",source->nick, c->name,dest->nick);
 					return ACR_DENY;
 				}
 			}
