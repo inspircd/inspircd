@@ -20,8 +20,6 @@
 #ifndef __CTABLES_H__
 #define __CTABLES_H__
 
-typedef void (handlerfunc) (char**, int, userrec*);
-
 /** A structure that defines a command
  */
 class command_t : public classbase

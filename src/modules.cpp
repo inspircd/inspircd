@@ -12,6 +12,8 @@
 #include "ctables.h"
 #include "inspircd_io.h"
 #include "wildcard.h"
+#include "mode.h"
+#include "message.h"
 
 // class type for holding an extended mode character - internal to core
 

@@ -71,6 +71,8 @@
 
 typedef std::deque<std::string> file_cache;
 
+typedef void (handlerfunc) (char**, int, userrec*);
+
 /* prototypes */
 int InspIRCd(void);
 int InitConfig(void);
@@ -91,6 +93,9 @@ void ChanExceptSender(chanrec* Ptr, userrec* user, char* text, ...);
 void WriteCommon(userrec *u, char* text, ...);
 void WriteCommonExcept(userrec *u, char* text, ...);
 void WriteWallOps(userrec *source, bool local_only, char* text, ...);
+void WriteChannelLocal(chanrec* Ptr, userrec* user, char* text, ...);
+void WriteChannelWithServ(char* ServerName, chanrec* Ptr, userrec* user, char* text, ...);
+char* chanmodes(chanrec *chan);
 userrec* Find(std::string nick);
 chanrec* FindChan(const char* chan);
 std::string getservername();
@@ -111,6 +116,7 @@ void kill_link(userrec *user,const char* r);
 int usercount(chanrec *c);
 void call_handler(const char* commandname,char **parameters, int pcnt, userrec *user);
 long GetRevision();
+int loop_call(handlerfunc fn, char **parameters, int pcnt, userrec *u, int start, int end, int joins);
 
 // mesh network functions
 
