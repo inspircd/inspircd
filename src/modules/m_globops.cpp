@@ -1,15 +1,4 @@
-// Hostname cloaking (+x mode) module for inspircd.
-// version 1.0.0.1 by brain (C. J. Edwards) Mar 2004.
-//
-// When loaded this module will automatically set the
-// +x mode on all connecting clients.
-//
-// Setting +x on a client causes the module to change the
-// dhost entry (displayed host) for each user who has the
-// mode, cloaking their host. Unlike unreal, the algorithm
-// is non-reversible as uncloaked hosts are passed along
-// the server->server link, and all encoding of hosts is
-// done locally on the server by this module.
+// Globops and +g support module by C.J.Edwards
 
 #include <stdio.h>
 #include <string>
