@@ -1601,11 +1601,8 @@ chanrec* add_channel(userrec *user, const char* cn, const char* key, bool overri
 				{
 					if (servers[j] != NULL)
 					{
-						if (ChanAnyOnThisServer(Ptr,servers[j]->name))
-						{
-							me[defaultRoute]->SendPacket(buffer,servers[j]->internal_addr,servers[j]->internal_port,MyKey);
-							log(DEBUG,"Sent J token");
-						}
+						me[defaultRoute]->SendPacket(buffer,servers[j]->internal_addr,servers[j]->internal_port,MyKey);
+						log(DEBUG,"Sent J token");
 					}
 				}
 			}
@@ -1676,11 +1673,8 @@ chanrec* del_channel(userrec *user, const char* cname, const char* reason, bool 
 					{
 						if (servers[j] != NULL)
 						{
-							if (ChanAnyOnThisServer(Ptr,servers[j]->name))
-							{
-								me[defaultRoute]->SendPacket(buffer,servers[j]->internal_addr,servers[j]->internal_port,MyKey);
-								log(DEBUG,"Sent L token (with reason)");
-							}
+							me[defaultRoute]->SendPacket(buffer,servers[j]->internal_addr,servers[j]->internal_port,MyKey);
+							log(DEBUG,"Sent L token (with reason)");
 						}
 					}
 				}
