@@ -929,6 +929,32 @@ void NetSendToAll(char* s)
 	}
 }
 
+void NetSendToAllAlive(char* s)
+{
+	char buffer[MAXBUF];
+	snprintf(buffer,MAXBUF,"%s",s);
+	
+	log(DEBUG,"NetSendToAllAlive: '%s'",s);
+
+	for (int j = 0; j < 32; j++)
+	{
+		if (me[j] != NULL)
+		{
+			for (int k = 0; k < me[j]->connectors.size(); k++)
+			{
+				if (me[j]->connectors[k].GetState() != STATE_DISCONNECTED)
+				{
+					me[j]->SendPacket(buffer,me[j]->connectors[k].GetServerName().c_str());
+				}
+				else
+				{
+					log(DEBUG,"%s is dead, not sending to it.",me[j]->connectors[k].GetServerName.c_str());
+				}
+			}
+		}
+	}
+}
+
 
 void NetSendToOne(char* target,char* s)
 {
