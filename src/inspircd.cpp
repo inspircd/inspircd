@@ -5367,7 +5367,7 @@ void handle_T(char token,char* params,serverrec* source,serverrec* reply, char* 
 			log(DEBUG,"channel TS higher, replacing");
 			WriteChannelLocal(c,NULL,"TOPIC %s :%s",c->name,topic);
 			strncpy(c->topic,topic,MAXTOPIC);
-			strncpy(c->setby,setnick,NICKMAX);
+			strncpy(c->setby,setby,NICKMAX);
 		}
  	}	
 }
