@@ -76,6 +76,7 @@ int DieDelay  =  5;
 time_t startup_time = time(NULL);
 
 extern vector<Module*> modules;
+vector<string> module_names;
 extern vector<ircd_module*> factory;
 vector<int> fd_reap;
 
@@ -3976,6 +3977,15 @@ void handle_trace(char **parameters, int pcnt, userrec *user)
 	}
 }
 
+void handle_modules(char **parameters, int pcnt, userrec *user)
+{
+  	for (int i = 0; i < module_names.size(); i++)
+	{
+			Version V = modules[i]->GetVersion();
+			WriteServ(user->fd,"900 0x%08lx %d.%d.%d.%d :%s",modules[i],V.Major,V.Minor,V.Revision,V.Build,module_names[i].c_str());
+	}
+}
+
 void handle_stats(char **parameters, int pcnt, userrec *user)
 {
 	if (pcnt != 1)
@@ -4555,6 +4565,7 @@ void SetupCommandTable(void)
   createcommand("WHOWAS",handle_whowas,0,1);
   createcommand("CONNECT",handle_connect,'o',1);
   createcommand("SQUIT",handle_squit,'o',1);
+  createcommand("MODULES",handle_modules,'o',0);
 }
 
 void process_buffer(userrec *user)
@@ -4906,8 +4917,9 @@ int InspIRCd(void)
 		if (factory[count]->factory)
 		{
 			modules[count] = factory[count]->factory->CreateModule();
-			/* save the module and the module's classfactory, if
+   			/* save the module and the module's classfactory, if
 			 * this isnt done, random crashes can occur :/ */
+			module_names.push_back(modfile);	
 		}
 		else
 		{
