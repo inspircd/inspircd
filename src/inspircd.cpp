@@ -959,7 +959,7 @@ void WriteWallOps(userrec *source, bool local_only, char* text, ...)
         	{
                 	if (strchr(i->second->modes,'w'))
                 	{
-				WriteTo(source,i->second,"WALLOPS %s",textbuffer);
+				WriteTo(source,i->second,"WALLOPS :%s",textbuffer);
                 	}
                 }
 	}
