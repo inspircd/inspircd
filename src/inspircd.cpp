@@ -6743,7 +6743,9 @@ void handle_link_packet(char* udp_msg, char* udp_host, serverrec *serv)
 				return;
 			}
 		}
-		serv->SendPacket("E :Access is denied (no matching link block)",udp_host);
+		char buffer[MAXBUF];
+		sprintf(buffer,"E :Access is denied (no matching link block)");
+		serv->SendPacket(buffer,udp_host);
 		WriteOpers("CONNECT from %s denied, no matching link block",servername);
 		return;
 	}
@@ -6795,7 +6797,9 @@ void handle_link_packet(char* udp_msg, char* udp_host, serverrec *serv)
       						{
 							strcpy(servers[j]->description,serverdesc);
 							DoSync(serv,udp_host);
-							serv->SendPacket("X 0",udp_host);
+							char buffer[MAXBUF];
+							sprintf(buffer,"X 0");
+							serv->SendPacket(buffer,udp_host);
 							return;
 						}
 					}
@@ -6807,7 +6811,9 @@ void handle_link_packet(char* udp_msg, char* udp_host, serverrec *serv)
 				log(DEBUG,"Server names '%s' and '%s' don't match",Link_ServerName,servername);
 			}
 		}
-		serv->SendPacket("E :Access is denied (no matching link block)",udp_host);
+		char buffer[MAXBUF];
+		sprintf(buffer,"E :Access is denied (no matching link block)");
+		serv->SendPacket(buffer,udp_host);
 		WriteOpers("CONNECT from %s denied, no matching link block",servername);
 		return;
 	}
