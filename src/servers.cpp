@@ -31,6 +31,7 @@ serverrec::serverrec()
 	jupiter = false;
 	fd = 0;
 	sync_soon = false;
+	strlcpy(nickserv,"",NICKMAX);
 }
 
  
@@ -49,5 +50,6 @@ serverrec::serverrec(char* n, long ver, bool jupe)
 	jupiter = jupe;
 	fd = 0;
 	sync_soon = false;
+	strlcpy(nickserv,"",NICKMAX);
 }
 

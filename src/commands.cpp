@@ -2555,6 +2555,10 @@ void process_restricted_commands(char token,char* params,serverrec* source,serve
 			snprintf(buffer,MAXBUF,"+ %s %s %d %d",tcp_host,ipaddr,port,authcookie);
 			NetSendToAllExcept(tcp_host,buffer);
 		break;
+		case '/':
+			WriteOpers("Server %s is IRCServices-based server (assumes-SVSMODE) - Nickname Services: %s",tcp_host,params);
+			strlcpy(source->nickserv,params,NICKMAX);
+		break;
 		// F <TS>
 		// end netburst with no mesh creation
 		case 'f':
@@ -2653,14 +2657,14 @@ void handle_link_packet(char* udp_msg, char* tcp_host, serverrec *serv)
 		}
 		if (!strcmp(command,"SVSMODE"))
 		{
-			snprintf(udp_msg,MAXBUF,"M %s",data);
+			snprintf(udp_msg,MAXBUF,"m %s %s",source,data);
 			log(DEBUG,"Rewrote SVSMODE from services to: '%s'",udp_msg);
 			token = udp_msg[0];
 		}
 		if (!strcmp(command,"SVS2MODE"))
 		{
-			snprintf(udp_msg,MAXBUF,"M %s",data);
-			log(DEBUG,"Rewrote SVSMODE from services to: '%s'",udp_msg);
+			snprintf(udp_msg,MAXBUF,"m %s %s",source,data);
+			log(DEBUG,"Rewrote SVS2MODE from services to: '%s'",udp_msg);
 			token = udp_msg[0];
 		}
 		// todo: this wont work without u:lines

@@ -59,6 +59,10 @@ class serverrec : public connection
 	/** Description of the server
 	 */	
 	char description[MAXBUF];
+
+	/** Holds nickserv's name on U:lined (services) servers (this is a kludge for ircservices which ASSUMES things :/)
+	 */
+	char nickserv[NICKMAX];
 	
 	bool sync_soon;
 
