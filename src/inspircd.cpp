@@ -3184,10 +3184,7 @@ void kill_link(userrec *user,const char* r)
 	 * 'Client exited' is an exception to this as it means the client side has already
 	 * closed the socket, we don't need to do it.
 	 */
-	if (strcmp(reason,"Client exited"))
-	{
-		fd_reap.push_back(user->fd);
-	}
+	fd_reap.push_back(user->fd);
 	
 	bool do_purge = false;
 	
