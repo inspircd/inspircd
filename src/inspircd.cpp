@@ -4184,7 +4184,7 @@ void ConnectUser(userrec *user)
 
 void handle_version(char **parameters, int pcnt, userrec *user)
 {
-	WriteServ(user->fd,"351 %s :%s %s %s :%s",user->nick,VERSION,"$Id$",ServerName,SYSTEM);
+	WriteServ(user->fd,"351 %s :%s %s %s :%s",user->nick,VERSION,"$Revision$ $Date$",ServerName,SYSTEM);
 }
 
 void handle_ping(char **parameters, int pcnt, userrec *user)
