@@ -9,149 +9,152 @@
 <hr><h1>modules.h</h1><a href="modules_8h.html">Go to the documentation of this file.</a><div class="fragment"><pre>00001 <span class="comment">/*</span>
 00002 <span class="comment"></span>
 00003 <span class="comment">$Log$
-00003 <span class="comment">Revision 1.1  2003/01/23 19:45:58  brain
-00003 <span class="comment">Initial revision
-00003 <span class="comment">
-00003 <span class="comment">Revision 1.9  2003/01/22 20:59:12  brain
-00003 <span class="comment">Added FileReader class documentation
+00003 <span class="comment">Revision 1.2  2003/01/23 20:38:00  brain
+00003 <span class="comment">Updated documentation scripts
 00003 <span class="comment"></span>
-00004 <span class="comment">Revision 1.11  2003/01/22 20:49:16  brain</span>
-00005 <span class="comment">Added FileReader file-caching class</span>
-00006 <span class="comment">Changed m_randquote to use FileReader class</span>
-00007 <span class="comment"></span>
-00008 <span class="comment">Revision 1.10  2003/01/22 00:57:27  brain</span>
-00009 <span class="comment">Changes to documentation</span>
-00010 <span class="comment"></span>
-00011 <span class="comment">Revision 1.9  2003/01/22 00:44:26  brain</span>
-00012 <span class="comment">Added documentation comments</span>
+00004 <span class="comment">Revision 1.1.1.1  2003/01/23 19:45:58  brain</span>
+00005 <span class="comment">InspIRCd second source tree</span>
+00006 <span class="comment"></span>
+00007 <span class="comment">Revision 1.12  2003/01/22 20:59:10  brain</span>
+00008 <span class="comment">Added FileReader class documentation</span>
+00009 <span class="comment"></span>
+00010 <span class="comment">Revision 1.11  2003/01/22 20:49:16  brain</span>
+00011 <span class="comment">Added FileReader file-caching class</span>
+00012 <span class="comment">Changed m_randquote to use FileReader class</span>
 00013 <span class="comment"></span>
-00014 <span class="comment">Revision 1.8  2003/01/21 20:31:24  brain</span>
-00015 <span class="comment">Modified to add documentation</span>
-00016 <span class="comment">Added ConfigReader class for modules</span>
-00017 <span class="comment"></span>
-00018 <span class="comment">Revision 1.7  2003/01/15 22:47:44  brain</span>
-00019 <span class="comment">Changed user and channel structs to classes (finally)</span>
-00020 <span class="comment"></span>
-00021 <span class="comment">Revision 1.6  2003/01/13 22:30:50  brain</span>
-00022 <span class="comment">Added Admin class (holds /admin info for modules)</span>
-00023 <span class="comment">Added methods to Server class</span>
-00024 <span class="comment"></span>
-00025 <span class="comment"></span>
-00026 <span class="comment">*/</span>
-00027 
-00028 
-00029 <span class="preprocessor">#ifndef __PLUGIN_H</span>
-00030 <span class="preprocessor"></span><span class="preprocessor">#define __PLUGIN_H</span>
-00031 <span class="preprocessor"></span>
-00032 <span class="preprocessor">#include "dynamic.h"</span>
-00033 <span class="preprocessor">#include &lt;string&gt;</span>
-00034 <span class="preprocessor">#include &lt;deque&gt;</span>
-00035 
-<a name="l00038"></a><a class="code" href="modules_8h.html#a1">00038</a> <span class="keyword">typedef</span> deque&lt;string&gt; <a class="code" href="modules_8h.html#a1">file_cache</a>;
-00039 
-00040 
-00041 <span class="comment">// This #define allows us to call a method in all</span>
-00042 <span class="comment">// loaded modules in a readable simple way, e.g.:</span>
-00043 <span class="comment">// 'FOREACH_MOD OnConnect(user);'</span>
-00044 
-<a name="l00045"></a><a class="code" href="modules_8h.html#a0">00045</a> <span class="preprocessor">#define FOREACH_MOD for (int i = 0; i &lt;= MODCOUNT; i++) modules[i]-&gt;</span>
-00046 <span class="preprocessor"></span>
-00047 <span class="comment">// class Version holds the version information of a Module, returned</span>
-00048 <span class="comment">// by Module::GetVersion (thanks RD)</span>
-00049 
-<a name="l00054"></a><a class="code" href="classVersion.html">00054</a> <span class="keyword">class </span><a class="code" href="classVersion.html">Version</a>
-00055 {
-00056  <span class="keyword">public</span>:
-<a name="l00057"></a><a class="code" href="classVersion.html#m2">00057</a>          <span class="keyword">const</span> <span class="keywordtype">int</span> <a class="code" href="classVersion.html#m0">Major</a>, <a class="code" href="classVersion.html#m1">Minor</a>, <a class="code" href="classVersion.html#m2">Revision</a>, <a class="code" href="classVersion.html#m3">Build</a>;
-00058          <a class="code" href="classVersion.html#a0">Version</a>(<span class="keywordtype">int</span> major, <span class="keywordtype">int</span> minor, <span class="keywordtype">int</span> revision, <span class="keywordtype">int</span> build);
-00059 };
-00060 
-00061 
-<a name="l00067"></a><a class="code" href="classAdmin.html">00067</a> <span class="keyword">class </span><a class="code" href="classAdmin.html">Admin</a>
-00068 {
-00069  <span class="keyword">public</span>:
-<a name="l00070"></a><a class="code" href="classAdmin.html#m2">00070</a>          <span class="keyword">const</span> string <a class="code" href="classAdmin.html#m0">Name</a>, <a class="code" href="classAdmin.html#m1">Email</a>, <a class="code" href="classAdmin.html#m2">Nick</a>;
-00071          <a class="code" href="classAdmin.html#a0">Admin</a>(string name,string email,string nick);
-00072 };
-00073 
-<a name="l00079"></a><a class="code" href="classModule.html">00079</a> <span class="keyword">class </span><a class="code" href="classModule.html">Module</a>
-00080 {
-00081  <span class="keyword">public</span>:
-00085         <a class="code" href="classModule.html#a0">Module</a>();
-00089         <span class="keyword">virtual</span> <a class="code" href="classModule.html#a1">~Module</a>();
-00094         <span class="keyword">virtual</span> <a class="code" href="classVersion.html">Version</a> <a class="code" href="classModule.html#a2">GetVersion</a>();
-00098         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classModule.html#a3">OnUserConnect</a>(<a class="code" href="classuserrec.html">userrec</a>* user);
-00102         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classModule.html#a4">OnUserQuit</a>(<a class="code" href="classuserrec.html">userrec</a>* user);
-00107         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classModule.html#a5">OnUserJoin</a>(<a class="code" href="classuserrec.html">userrec</a>* user, <a class="code" href="classchanrec.html">chanrec</a>* channel);
-00112         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classModule.html#a6">OnUserPart</a>(<a class="code" href="classuserrec.html">userrec</a>* user, <a class="code" href="classchanrec.html">chanrec</a>* channel);
-00113 };
-00114 
-00115 
-<a name="l00121"></a><a class="code" href="classServer.html">00121</a> <span class="keyword">class </span><a class="code" href="classServer.html">Server</a>
-00122 {
-00123  <span class="keyword">public</span>:
-00127         <a class="code" href="classServer.html#a0">Server</a>();
-00131         <span class="keyword">virtual</span> <a class="code" href="classServer.html#a1">~Server</a>();
-00132 
-00136         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classServer.html#a2">SendOpers</a>(string s);
-00141         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classServer.html#a3">Debug</a>(string s);
-00146         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classServer.html#a4">Send</a>(<span class="keywordtype">int</span> Socket, string s);
-00151         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classServer.html#a5">SendServ</a>(<span class="keywordtype">int</span> Socket, string s);
-00156         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classServer.html#a6">SendFrom</a>(<span class="keywordtype">int</span> Socket, <a class="code" href="classuserrec.html">userrec</a>* User, string s);
-00161         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classServer.html#a7">SendTo</a>(<a class="code" href="classuserrec.html">userrec</a>* Source, <a class="code" href="classuserrec.html">userrec</a>* Dest, string s);
-00168         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classServer.html#a8">SendChannel</a>(<a class="code" href="classuserrec.html">userrec</a>* User, <a class="code" href="classchanrec.html">chanrec</a>* Channel, string s,<span class="keywordtype">bool</span> IncludeSender);
-00173         <span class="keyword">virtual</span> <span class="keywordtype">bool</span> <a class="code" href="classServer.html#a9">CommonChannels</a>(<a class="code" href="classuserrec.html">userrec</a>* u1, <a class="code" href="classuserrec.html">userrec</a>* u2);
-00181         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classServer.html#a10">SendCommon</a>(<a class="code" href="classuserrec.html">userrec</a>* User, string text,<span class="keywordtype">bool</span> IncludeSender);
-00186         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classServer.html#a11">SendWallops</a>(<a class="code" href="classuserrec.html">userrec</a>* User, string text);
-00187 
-00191         <span class="keyword">virtual</span> <span class="keywordtype">bool</span> <a class="code" href="classServer.html#a12">IsNick</a>(string nick);
-00195         <span class="keyword">virtual</span> <a class="code" href="classuserrec.html">userrec</a>* <a class="code" href="classServer.html#a13">FindNick</a>(string nick);
-00199         <span class="keyword">virtual</span> <a class="code" href="classchanrec.html">chanrec</a>* <a class="code" href="classServer.html#a14">FindChannel</a>(string channel);
-00204         <span class="keyword">virtual</span> string <a class="code" href="classServer.html#a15">ChanMode</a>(<a class="code" href="classuserrec.html">userrec</a>* User, <a class="code" href="classchanrec.html">chanrec</a>* Chan);
-00207         <span class="keyword">virtual</span> string <a class="code" href="classServer.html#a16">GetServerName</a>();
-00210         <span class="keyword">virtual</span> string <a class="code" href="classServer.html#a17">GetNetworkName</a>();
-00216         <span class="keyword">virtual</span> <a class="code" href="classAdmin.html">Admin</a> <a class="code" href="classServer.html#a18">GetAdmin</a>();
-00217          
-00218 };
-00219 
-<a name="l00226"></a><a class="code" href="classConfigReader.html">00226</a> <span class="keyword">class </span><a class="code" href="classConfigReader.html">ConfigReader</a>
-00227 {
-00228   <span class="keyword">protected</span>:
-<a name="l00231"></a><a class="code" href="classConfigReader.html#n0">00231</a>         string <a class="code" href="classConfigReader.html#n0">fname</a>;
-00232   <span class="keyword">public</span>:
-00237         <a class="code" href="classConfigReader.html#a0">ConfigReader</a>();                 <span class="comment">// default constructor reads ircd.conf</span>
-00241 <span class="comment"></span>        <a class="code" href="classConfigReader.html#a0">ConfigReader</a>(string filename);  <span class="comment">// read a module-specific config</span>
-00245 <span class="comment"></span>        <a class="code" href="classConfigReader.html#a2">~ConfigReader</a>();
-00250         string <a class="code" href="classConfigReader.html#a3">ReadValue</a>(string tag, string name, <span class="keywordtype">int</span> index);
-00257         <span class="keywordtype">int</span> <a class="code" href="classConfigReader.html#a4">Enumerate</a>(string tag);
-00261         <span class="keywordtype">bool</span> <a class="code" href="classConfigReader.html#a5">Verify</a>();
-00262 };
-00263 
-00264 
-00265 
-<a name="l00271"></a><a class="code" href="classFileReader.html">00271</a> <span class="keyword">class </span><a class="code" href="classFileReader.html">FileReader</a>
-00272 {
-<a name="l00273"></a><a class="code" href="classFileReader.html#o0">00273</a>  <a class="code" href="modules_8h.html#a1">file_cache</a> <a class="code" href="classFileReader.html#o0">fc</a>;
-00274  <span class="keyword">public</span>:
-00279          <a class="code" href="classFileReader.html#a0">FileReader</a>();
-00285          <a class="code" href="classFileReader.html#a0">FileReader</a>(string filename);
-00289          <a class="code" href="classFileReader.html#a2">~FileReader</a>();
-00295          <span class="keywordtype">void</span> <a class="code" href="classFileReader.html#a3">LoadFile</a>(string filename);
-00300          string <a class="code" href="classFileReader.html#a4">GetLine</a>(<span class="keywordtype">int</span> x);
-00306          <span class="keywordtype">int</span> <a class="code" href="classFileReader.html#a5">FileSize</a>();
-00307 };
-00308 
-00309 
-<a name="l00316"></a><a class="code" href="classModuleFactory.html">00316</a> <span class="keyword">class </span><a class="code" href="classModuleFactory.html">ModuleFactory</a>
-00317 {
-00318  <span class="keyword">public</span>:
-<a name="l00319"></a><a class="code" href="classModuleFactory.html#a0">00319</a>         <a class="code" href="classModuleFactory.html#a0">ModuleFactory</a>() { }
-<a name="l00320"></a><a class="code" href="classModuleFactory.html#a1">00320</a>         <span class="keyword">virtual</span> <a class="code" href="classModuleFactory.html#a1">~ModuleFactory</a>() { }
-00325         <span class="keyword">virtual</span> <a class="code" href="classModule.html">Module</a> * <a class="code" href="classModuleFactory.html#a2">CreateModule</a>() = 0;
-00326 };
-00327 
-00328 <span class="preprocessor">#endif</span>
-</pre></div><hr><address style="align: right;"><small>Generated on Wed Jan 22 20:56:47 2003 for InspIRCd by
+00014 <span class="comment">Revision 1.10  2003/01/22 00:57:27  brain</span>
+00015 <span class="comment">Changes to documentation</span>
+00016 <span class="comment"></span>
+00017 <span class="comment">Revision 1.9  2003/01/22 00:44:26  brain</span>
+00018 <span class="comment">Added documentation comments</span>
+00019 <span class="comment"></span>
+00020 <span class="comment">Revision 1.8  2003/01/21 20:31:24  brain</span>
+00021 <span class="comment">Modified to add documentation</span>
+00022 <span class="comment">Added ConfigReader class for modules</span>
+00023 <span class="comment"></span>
+00024 <span class="comment">Revision 1.7  2003/01/15 22:47:44  brain</span>
+00025 <span class="comment">Changed user and channel structs to classes (finally)</span>
+00026 <span class="comment"></span>
+00027 <span class="comment">Revision 1.6  2003/01/13 22:30:50  brain</span>
+00028 <span class="comment">Added Admin class (holds /admin info for modules)</span>
+00029 <span class="comment">Added methods to Server class</span>
+00030 <span class="comment"></span>
+00031 <span class="comment"></span>
+00032 <span class="comment">*/</span>
+00033 
+00034 
+00035 <span class="preprocessor">#ifndef __PLUGIN_H</span>
+00036 <span class="preprocessor"></span><span class="preprocessor">#define __PLUGIN_H</span>
+00037 <span class="preprocessor"></span>
+00038 <span class="preprocessor">#include "dynamic.h"</span>
+00039 <span class="preprocessor">#include &lt;string&gt;</span>
+00040 <span class="preprocessor">#include &lt;deque&gt;</span>
+00041 
+<a name="l00044"></a><a class="code" href="modules_8h.html#a1">00044</a> <span class="keyword">typedef</span> deque&lt;string&gt; <a class="code" href="modules_8h.html#a1">file_cache</a>;
+00045 
+00046 
+00047 <span class="comment">// This #define allows us to call a method in all</span>
+00048 <span class="comment">// loaded modules in a readable simple way, e.g.:</span>
+00049 <span class="comment">// 'FOREACH_MOD OnConnect(user);'</span>
+00050 
+<a name="l00051"></a><a class="code" href="modules_8h.html#a0">00051</a> <span class="preprocessor">#define FOREACH_MOD for (int i = 0; i &lt;= MODCOUNT; i++) modules[i]-&gt;</span>
+00052 <span class="preprocessor"></span>
+00053 <span class="comment">// class Version holds the version information of a Module, returned</span>
+00054 <span class="comment">// by Module::GetVersion (thanks RD)</span>
+00055 
+<a name="l00060"></a><a class="code" href="classVersion.html">00060</a> <span class="keyword">class </span><a class="code" href="classVersion.html">Version</a>
+00061 {
+00062  <span class="keyword">public</span>:
+<a name="l00063"></a><a class="code" href="classVersion.html#m2">00063</a>          <span class="keyword">const</span> <span class="keywordtype">int</span> <a class="code" href="classVersion.html#m0">Major</a>, <a class="code" href="classVersion.html#m1">Minor</a>, <a class="code" href="classVersion.html#m2">Revision</a>, <a class="code" href="classVersion.html#m3">Build</a>;
+00064          <a class="code" href="classVersion.html#a0">Version</a>(<span class="keywordtype">int</span> major, <span class="keywordtype">int</span> minor, <span class="keywordtype">int</span> revision, <span class="keywordtype">int</span> build);
+00065 };
+00066 
+00067 
+<a name="l00073"></a><a class="code" href="classAdmin.html">00073</a> <span class="keyword">class </span><a class="code" href="classAdmin.html">Admin</a>
+00074 {
+00075  <span class="keyword">public</span>:
+<a name="l00076"></a><a class="code" href="classAdmin.html#m2">00076</a>          <span class="keyword">const</span> string <a class="code" href="classAdmin.html#m0">Name</a>, <a class="code" href="classAdmin.html#m1">Email</a>, <a class="code" href="classAdmin.html#m2">Nick</a>;
+00077          <a class="code" href="classAdmin.html#a0">Admin</a>(string name,string email,string nick);
+00078 };
+00079 
+<a name="l00085"></a><a class="code" href="classModule.html">00085</a> <span class="keyword">class </span><a class="code" href="classModule.html">Module</a>
+00086 {
+00087  <span class="keyword">public</span>:
+00091         <a class="code" href="classModule.html#a0">Module</a>();
+00095         <span class="keyword">virtual</span> <a class="code" href="classModule.html#a1">~Module</a>();
+00100         <span class="keyword">virtual</span> <a class="code" href="classVersion.html">Version</a> <a class="code" href="classModule.html#a2">GetVersion</a>();
+00104         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classModule.html#a3">OnUserConnect</a>(<a class="code" href="classuserrec.html">userrec</a>* user);
+00108         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classModule.html#a4">OnUserQuit</a>(<a class="code" href="classuserrec.html">userrec</a>* user);
+00113         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classModule.html#a5">OnUserJoin</a>(<a class="code" href="classuserrec.html">userrec</a>* user, <a class="code" href="classchanrec.html">chanrec</a>* channel);
+00118         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classModule.html#a6">OnUserPart</a>(<a class="code" href="classuserrec.html">userrec</a>* user, <a class="code" href="classchanrec.html">chanrec</a>* channel);
+00119 };
+00120 
+00121 
+<a name="l00127"></a><a class="code" href="classServer.html">00127</a> <span class="keyword">class </span><a class="code" href="classServer.html">Server</a>
+00128 {
+00129  <span class="keyword">public</span>:
+00133         <a class="code" href="classServer.html#a0">Server</a>();
+00137         <span class="keyword">virtual</span> <a class="code" href="classServer.html#a1">~Server</a>();
+00138 
+00142         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classServer.html#a2">SendOpers</a>(string s);
+00147         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classServer.html#a3">Debug</a>(string s);
+00152         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classServer.html#a4">Send</a>(<span class="keywordtype">int</span> Socket, string s);
+00157         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classServer.html#a5">SendServ</a>(<span class="keywordtype">int</span> Socket, string s);
+00162         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classServer.html#a6">SendFrom</a>(<span class="keywordtype">int</span> Socket, <a class="code" href="classuserrec.html">userrec</a>* User, string s);
+00167         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classServer.html#a7">SendTo</a>(<a class="code" href="classuserrec.html">userrec</a>* Source, <a class="code" href="classuserrec.html">userrec</a>* Dest, string s);
+00174         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classServer.html#a8">SendChannel</a>(<a class="code" href="classuserrec.html">userrec</a>* User, <a class="code" href="classchanrec.html">chanrec</a>* Channel, string s,<span class="keywordtype">bool</span> IncludeSender);
+00179         <span class="keyword">virtual</span> <span class="keywordtype">bool</span> <a class="code" href="classServer.html#a9">CommonChannels</a>(<a class="code" href="classuserrec.html">userrec</a>* u1, <a class="code" href="classuserrec.html">userrec</a>* u2);
+00187         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classServer.html#a10">SendCommon</a>(<a class="code" href="classuserrec.html">userrec</a>* User, string text,<span class="keywordtype">bool</span> IncludeSender);
+00192         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classServer.html#a11">SendWallops</a>(<a class="code" href="classuserrec.html">userrec</a>* User, string text);
+00193 
+00197         <span class="keyword">virtual</span> <span class="keywordtype">bool</span> <a class="code" href="classServer.html#a12">IsNick</a>(string nick);
+00201         <span class="keyword">virtual</span> <a class="code" href="classuserrec.html">userrec</a>* <a class="code" href="classServer.html#a13">FindNick</a>(string nick);
+00205         <span class="keyword">virtual</span> <a class="code" href="classchanrec.html">chanrec</a>* <a class="code" href="classServer.html#a14">FindChannel</a>(string channel);
+00210         <span class="keyword">virtual</span> string <a class="code" href="classServer.html#a15">ChanMode</a>(<a class="code" href="classuserrec.html">userrec</a>* User, <a class="code" href="classchanrec.html">chanrec</a>* Chan);
+00213         <span class="keyword">virtual</span> string <a class="code" href="classServer.html#a16">GetServerName</a>();
+00216         <span class="keyword">virtual</span> string <a class="code" href="classServer.html#a17">GetNetworkName</a>();
+00222         <span class="keyword">virtual</span> <a class="code" href="classAdmin.html">Admin</a> <a class="code" href="classServer.html#a18">GetAdmin</a>();
+00223          
+00224 };
+00225 
+<a name="l00232"></a><a class="code" href="classConfigReader.html">00232</a> <span class="keyword">class </span><a class="code" href="classConfigReader.html">ConfigReader</a>
+00233 {
+00234   <span class="keyword">protected</span>:
+<a name="l00237"></a><a class="code" href="classConfigReader.html#n0">00237</a>         string <a class="code" href="classConfigReader.html#n0">fname</a>;
+00238   <span class="keyword">public</span>:
+00243         <a class="code" href="classConfigReader.html#a0">ConfigReader</a>();                 <span class="comment">// default constructor reads ircd.conf</span>
+00247 <span class="comment"></span>        <a class="code" href="classConfigReader.html#a0">ConfigReader</a>(string filename);  <span class="comment">// read a module-specific config</span>
+00251 <span class="comment"></span>        <a class="code" href="classConfigReader.html#a2">~ConfigReader</a>();
+00256         string <a class="code" href="classConfigReader.html#a3">ReadValue</a>(string tag, string name, <span class="keywordtype">int</span> index);
+00263         <span class="keywordtype">int</span> <a class="code" href="classConfigReader.html#a4">Enumerate</a>(string tag);
+00267         <span class="keywordtype">bool</span> <a class="code" href="classConfigReader.html#a5">Verify</a>();
+00268 };
+00269 
+00270 
+00271 
+<a name="l00277"></a><a class="code" href="classFileReader.html">00277</a> <span class="keyword">class </span><a class="code" href="classFileReader.html">FileReader</a>
+00278 {
+<a name="l00279"></a><a class="code" href="classFileReader.html#o0">00279</a>  <a class="code" href="modules_8h.html#a1">file_cache</a> <a class="code" href="classFileReader.html#o0">fc</a>;
+00280  <span class="keyword">public</span>:
+00285          <a class="code" href="classFileReader.html#a0">FileReader</a>();
+00291          <a class="code" href="classFileReader.html#a0">FileReader</a>(string filename);
+00295          <a class="code" href="classFileReader.html#a2">~FileReader</a>();
+00301          <span class="keywordtype">void</span> <a class="code" href="classFileReader.html#a3">LoadFile</a>(string filename);
+00306          string <a class="code" href="classFileReader.html#a4">GetLine</a>(<span class="keywordtype">int</span> x);
+00312          <span class="keywordtype">int</span> <a class="code" href="classFileReader.html#a5">FileSize</a>();
+00313 };
+00314 
+00315 
+<a name="l00322"></a><a class="code" href="classModuleFactory.html">00322</a> <span class="keyword">class </span><a class="code" href="classModuleFactory.html">ModuleFactory</a>
+00323 {
+00324  <span class="keyword">public</span>:
+<a name="l00325"></a><a class="code" href="classModuleFactory.html#a0">00325</a>         <a class="code" href="classModuleFactory.html#a0">ModuleFactory</a>() { }
+<a name="l00326"></a><a class="code" href="classModuleFactory.html#a1">00326</a>         <span class="keyword">virtual</span> <a class="code" href="classModuleFactory.html#a1">~ModuleFactory</a>() { }
+00331         <span class="keyword">virtual</span> <a class="code" href="classModule.html">Module</a> * <a class="code" href="classModuleFactory.html#a2">CreateModule</a>() = 0;
+00332 };
+00333 
+00334 <span class="preprocessor">#endif</span>
+</pre></div><hr><address style="align: right;"><small>Generated on Thu Jan 23 20:28:57 2003 for InspIRCd by
 <a href="http://www.doxygen.org/index.html">
 <img src="doxygen.png" alt="doxygen" align="middle" border=0 
 width=110 height=53></a>1.3-rc2 </small></address>
