@@ -650,7 +650,36 @@ void strlower(char *n)
 	}
 }
 
-/* verify that a user's nickname is valid */
+/* verify that a user's ident and nickname is valid */
+
+int isident(const char* n)
+{
+        int i = 0;
+        char v[MAXBUF];
+        if (!n)
+
+        {
+                return 0;
+        }
+        if (!strcmp(n,""))
+        {
+                return 0;
+        }
+        for (i = 0; i != strlen(n); i++)
+        {
+                if ((n[i] < 33) || (n[i] > 125))
+                {
+                        return 0;
+                }
+                /* can't occur ANYWHERE in an Ident! */
+                if (strchr("<>,./?:;@'~#=+()*&%$£ \"!",n[i]))
+                {
+                        return 0;
+                }
+        }
+        return 1;
+}
+
 
 int isnick(const char* n)
 {
@@ -3274,11 +3303,18 @@ void handle_user(char **parameters, int pcnt, userrec *user)
 {
 	if (user->registered < 3)
 	{
-		WriteServ(user->fd,"NOTICE Auth :No ident response, ident prefixed with ~");
-		strcpy(user->ident,"~"); /* we arent checking ident... but these days why bother anyway? */
-		strncat(user->ident,parameters[0],IDENTMAX);
-		strncpy(user->fullname,parameters[3],128);
-		user->registered = (user->registered | 1);
+		if (isident(parameters[0]) == 0) {
+			// This kinda Sucks, According to the RFC thou, its either this,
+			// or "You have already registered" :p -- Craig
+			WriteServ(user->fd,"461 %s USER :Not enough parameters",user->nick);
+		}
+		else {
+			WriteServ(user->fd,"NOTICE Auth :No ident response, ident prefixed with ~");
+			strcpy(user->ident,"~"); /* we arent checking ident... but these days why bother anyway? */
+			strncat(user->ident,parameters[0],IDENTMAX);
+			strncpy(user->fullname,parameters[3],128);
+			user->registered = (user->registered | 1);
+		}
 	}
 	else
 	{
@@ -3884,7 +3920,7 @@ void SetupCommandTable(void)
 {
   createcommand("USER",handle_user,0,4);
   createcommand("NICK",handle_nick,0,1);
-  createcommand("QUIT",handle_quit,0,1);
+  createcommand("QUIT",handle_quit,0,0);
   createcommand("VERSION",handle_version,0,0);
   createcommand("PING",handle_ping,0,1);
   createcommand("PONG",handle_pong,0,1);
