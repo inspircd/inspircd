@@ -3526,7 +3526,7 @@ void merge_mode2(char **parameters, int pcnt, userrec* user)
 	Ptr = FindChan(parameters[0]);
 	if (Ptr)
 	{
-		process_modes(parameters,user,Ptr,STATUS_OP,pcnt,false,true);
+		process_modes(parameters,user,Ptr,cstatus(user,Ptr),pcnt,false,true);
 	}
 }
 
