@@ -74,6 +74,8 @@ class ircd_connector : public classbase
 	int GetState();
 	void SetState(int state);
 	char* GetServerIP();
+	std::string GetDescription();
+	void SetDescription(std::string desc);
 	int GetServerPort();
 	bool SetHostAndPort(char* host, int port);
 };

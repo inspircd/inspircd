@@ -267,9 +267,19 @@ std::string ircd_connector::GetServerName()
 	return this->servername;
 }
 
+std::string ircd_connector::GetDescription()
+{
+	return this->description;
+}
+
 void ircd_connector::SetServerName(std::string serv)
 {
 	this->servername = serv;
+}
+
+void ircd_connector::SetDescription(std::string desc)
+{
+	this->servername = desc;
 }
 
 

@@ -5350,29 +5350,35 @@ void handle_squit(char **parameters, int pcnt, userrec *user)
 	// send out an squit across the mesh and then clear the server list (for local squit)
 }
 
-char islast(serverrec* s)
+char islast(const char* s)
 {
 	char c = '`';
-	/*for (int j = 0; j < 255; j++)
+	for (int j = 0; j < 32; j++)
  	{
-		if (servers[j] != NULL)
-  		{
-			c = '|';
+ 		if (me[j] != NULL)
+ 		{
+			for (int k = 0; k < me[j]->connectors.size(); k++)
+			{
+				if (strcasecmp(me[j]->connectors[k].GetServerName().c_str(),s))
+  				{
+  					c = '|';
+				}
+				if (!strcasecmp(me[j]->connectors[k].GetServerName().c_str(),s))
+  				{
+  					c = '`';
+				}
+			}
 		}
-		if (servers[j] == s)
-  		{
-  			c = '`';
-		}
-	}*/
+	}
 	return c;
 }
 
-long map_count(serverrec* s)
+long map_count(const char* s)
 {
 	int c = 0;
 	for (user_hash::const_iterator i = clientlist.begin(); i != clientlist.end(); i++)
 	{
-		if ((i->second->fd) && (isnick(i->second->nick)) && (!strcasecmp(i->second->server,s->name))) c++;
+		if ((i->second->fd) && (isnick(i->second->nick)) && (!strcasecmp(i->second->server,s))) c++;
 	}
 	return c;
 }
@@ -5380,12 +5386,15 @@ long map_count(serverrec* s)
 void handle_links(char **parameters, int pcnt, userrec *user)
 {
 	WriteServ(user->fd,"364 %s %s %s :0 %s",user->nick,ServerName,ServerName,ServerDesc);
-	for (int j = 0; j < 255; j++)
+	for (int j = 0; j < 32; j++)
  	{
-	//	if (servers[j] != NULL)
-  	//	{
-	//		WriteServ(user->fd,"364 %s %s %s :1 %s",user->nick,servers[j]->name,ServerName,servers[j]->description);
-	//	}
+		if (me[j] != NULL)
+  		{
+			for (int k = 0; k < me[j]->connectors.size(); k++)
+			{
+				WriteServ(user->fd,"364 %s %s %s :1 %s",user->nick,me[j]->connectors[k].GetServerName().c_str(),ServerName,me[j]->connectors[k].GetDescription().c_str());
+			}
+		}
 	}
 	WriteServ(user->fd,"365 %s * :End of /LINKS list.",user->nick);
 }
@@ -5397,15 +5406,18 @@ void handle_map(char **parameters, int pcnt, userrec *user)
 	while (strlen(line) < 50)
 		strcat(line," ");
 	WriteServ(user->fd,"%s%d (%.2f%%)",line,local_count(),(float)(((float)local_count()/(float)usercnt())*100));
-	for (int j = 0; j < 255; j++)
+	for (int j = 0; j < 32; j++)
  	{
-	//	if (servers[j] != NULL)
-  	//	{
-	//		snprintf(line,MAXBUF,"006 %s :%c-%s",user->nick,islast(servers[j]),servers[j]->name);
-	//		while (strlen(line) < 50)
-	//			strcat(line," ");
-	//		WriteServ(user->fd,"%s%d (%.2f%%)",line,map_count(servers[j]),(float)(((float)map_count(servers[j])/(float)usercnt())*100));
-	//	}
+		if (me[j] != NULL)
+  		{
+			for (int k = 0; k < me[j]->connectors.size(); k++)
+			{
+				snprintf(line,MAXBUF,"006 %s :%c-%s",user->nick,islast(me[j]->connectors[k].GetServerName().c_str()),me[j]->connectors[k].GetServerName().c_str());
+				while (strlen(line) < 50)
+					strcat(line," ");
+				WriteServ(user->fd,"%s%d (%.2f%%)",line,map_count(me[j]->connectors[k].GetServerName().c_str()),(float)(((float)map_count(me[j]->connectors[k].GetServerName().c_str())/(float)usercnt())*100));
+			}
+		}
 	}
 	WriteServ(user->fd,"007 %s :End of /MAP",user->nick);
 }
