@@ -118,14 +118,14 @@ class ModuleHelpop : public Module
 		h_file = conf->ReadValue("helpop", "file", 0);
 
 		if (h_file == "") {
-			printf("WE ARE AAAAALL GONNA DIEEEEEEEEEEEE!!");
+			printf("m_helpop: Helpop file not Specified.");
 			exit(0);
 		}
 
 		helpop = new ConfigReader(h_file);
 		if (!helpop->Verify())
 		{
-			printf("Thats it.. were all dead.");
+			printf("m_helpop: Invalid Helpop File. Please Ensure it exists and is error free.");
 			exit(0);
 		}
 
@@ -133,21 +133,22 @@ class ModuleHelpop : public Module
                     (helpop->ReadValue("nohelpo", "line1", 0) == "") ||
                     (helpop->ReadValue("start",   "line1", 0) == ""))
 		{
-			printf("m_helpop: Important Shit Missing. Please check your file.");
+			printf("m_helpop: Helpop file is missing important entries. Please check the example conf.");
 			exit(0);
 		}
 
 		if (!Srv->AddExtendedMode('h',MT_CLIENT,true,0,0))
 		{
-			Srv->Log(DEFAULT,"pr0n Found. Send it to Craig@chatspike.net for investigation.");
-			printf("Could not claim usermode +h for this module!");
+			Srv->Log(DEFAULT,"Unable to clame the +h usermode.");
+			printf("m_helpop: Unable to claim the +h usermode!");
 			exit(0);
 		}
 
-		/*if (!*/Srv->AddCommand("HELPOP",handle_helpop,0,1);/*)
+		// Loads of comments, untill supported properly.
+		/*if (!*/Srv->AddCommand("HELPOP",handle_helpop,0,0);/*)
 		{
-			Srv->Log(DEFAULT,"Someone br0ked it.. not me");
-			printf("B0RKED! JUMP SHIP.. AAAAAAAAAAAAAAAAAHHHHHH!");
+			Srv->Log(DEFAULT,"Unable to claim the HELPOP command.");
+			printf("m_helpop: Unable to claim the HELPOP command.");
 			exit(0);
 		}*/		
 
