@@ -20,6 +20,7 @@
 #define PT_SYN_ONLY 0
 #define PT_ACK_ONLY 1
 #define PT_SYN_WITH_DATA 2
+#define PT_KEY_EXCHANGE 3
 
 
 class packet : public classbase
@@ -54,13 +55,14 @@ class connection : public classbase
 	time_t signon;
 	time_t idle_lastmsg;
 	time_t nping;
+	char internal_addr[1024];
 	
 	connection();
 	bool CreateListener(char* host, int p);
 	bool BeginLink(char* targethost, int port, char* password);
 	void TerminateLink(char* targethost);
-	bool SendPacket(char *message, char* host, int port);
-	bool RecvPacket(char *message, char* host, int &prt);
+	bool SendPacket(char *message, char* host, int port, long ourkey);
+	bool RecvPacket(char *message, char* host, int &prt, long &theirkey);
 	bool SendSYN(char* host, int port);
 	bool SendACK(char* host, int port, int reply_id);
 	long GenKey();

@@ -86,8 +86,7 @@ bool connection::BeginLink(char* targethost, int port, char* password)
 	{
 		sprintf(connect,"S %s %s :%s",getservername().c_str(),password,getserverdesc().c_str());
 		this->haspassed = false;
-		this->SendPacket(connect, targethost, port);
-		return true;
+		return this->SendPacket(connect, targethost, port, 0);
 	}
 	return false;
 }
@@ -99,7 +98,7 @@ void connection::TerminateLink(char* targethost)
 
 // host: in dot notation a.b.c.d
 // port: host byte order
-bool connection::SendPacket(char *message, char* host, int port)
+bool connection::SendPacket(char *message, char* host, int port, long ourkey)
 {
 	sockaddr_in host_address;
 	in_addr addy;
@@ -115,14 +114,17 @@ bool connection::SendPacket(char *message, char* host, int port)
 
 	strcpy(p.data,message);
 	p.type = PT_SYN_WITH_DATA;
-	p.key = key;
+	p.key = ourkey;
 
 
-    FOREACH_MOD OnPacketTransmit(p.data);
+	FOREACH_MOD OnPacketTransmit(p.data);
+
+	log(DEBUG,"main: Connection::SendPacket() sent '%s' to %s:%d",p.data,host,port);
 
 	// returns false if the packet could not be sent (e.g. target host down)
-	if (sendto(fd,&p,sizeof(p),0,(sockaddr*)&host_address,sizeof(host_address))<0)
+	if (sendto(this->fd,&p,sizeof(p),0,(sockaddr*)&host_address,sizeof(host_address))<0)
 	{
+		log(DEBUG,"sendto() failed for Connection::SendPacket() with a packet of size %d",sizeof(p));
 		return false;
 	}
 	return true;
@@ -213,7 +215,7 @@ long connection::GenKey()
 
 // host: in dot notation a.b.c.d
 // port: host byte order
-bool connection::RecvPacket(char *message, char* host, int &prt)
+bool connection::RecvPacket(char *message, char* host, int &prt, long &theirkey)
 {
 	// returns false if no packet waiting for receive, e.g. EAGAIN or ECONNRESET
 	sockaddr_in host_address;
@@ -229,6 +231,8 @@ bool connection::RecvPacket(char *message, char* host, int &prt)
 	{
 		return false;
 	}
+
+	log(DEBUG,"connection::RecvPacket(): received packet type %d '%s'",p.type,p.data);
 
 	if (p.type == PT_SYN_ONLY)
 	{
@@ -251,10 +255,13 @@ bool connection::RecvPacket(char *message, char* host, int &prt)
 	{
 		strcpy(message,p.data);
 		strcpy(host,inet_ntoa(host_address.sin_addr));
+		theirkey = p.key;
 		prt = ntohs(host_address.sin_port);
 		SendACK(host,this->port,p.id);
+		return true;
 	}
 
+	log(DEBUG,"connection::RecvPacket(): Invalid packet type %d (protocol error)",p.type);
 	return true;
 }
 

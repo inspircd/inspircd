@@ -50,11 +50,14 @@ bool userrec::IsInvited(char* channel)
 {
 	for (InvitedList::iterator i = invites.begin(); i != invites.end(); i++)
 	{
-		if (!strcasecmp(i->channel,channel))
-		{
-			return true;
+		if (i->channel) {
+			if (!strcasecmp(i->channel,channel))
+			{
+				return true;
+			}
 		}
 	}
+	return false;
 }
 
 void userrec::InviteTo(char* channel)
@@ -68,10 +71,12 @@ void userrec::RemoveInvite(char* channel)
 {
         for (InvitedList::iterator i = invites.begin(); i != invites.end(); i++)
         {
-                if (!strcasecmp(i->channel,channel))
-                {
-                        invites.erase(i);
-			return;
+        	if (i->channel) {
+			if (!strcasecmp(i->channel,channel))
+			{
+       				invites.erase(i);
+				return;
+                	}
                 }
         }
 }

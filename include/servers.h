@@ -58,7 +58,5 @@ class serverrec : public connection
 
 
 
-typedef std::map<std::string, serverrec*> server_list;
-
 #endif
 

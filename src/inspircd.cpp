@@ -142,7 +142,7 @@ typedef nspace::hash_map<in_addr,string*, nspace::hash<in_addr>, InAddr_HashComp
 typedef std::deque<command_t> command_table;
 
 serverrec* me[32];
-server_list* servers;
+serverrec* servers[255];
 
 user_hash clientlist;
 chan_hash chanlist;
@@ -159,6 +159,10 @@ char bannerBuffer[MAXBUF];
 int boundPortCount = 0;
 int portCount = 0, UDPportCount = 0, ports[MAXSOCKS];
 int defaultRoute = 0;
+
+connection C;
+
+long MyKey = C.GenKey();
 
 /* prototypes */
 
@@ -981,11 +985,14 @@ int usercount(chanrec *c)
 	strcpy(list,"");
   	for (user_hash::const_iterator i = clientlist.begin(); i != clientlist.end(); i++)
 	{
-		if (has_channel(i->second,c))
+		if (i->second)
 		{
-			if (isnick(i->second->nick))
+			if (has_channel(i->second,c))
 			{
-				count++;
+				if ((isnick(i->second->nick)) && (i->second->registered == 7))
+				{
+					count++;
+				}
 			}
 		}
 	}
@@ -1068,9 +1075,11 @@ chanrec* add_channel(userrec *user, char* cname, char* key)
 					}
 				}
 			}
+			log(DEBUG,"add_channel: no key");
 
 			if (Ptr->inviteonly)
 			{
+				log(DEBUG,"add_channel: channel is +i");
 				if (user->IsInvited(Ptr->name))
 				{
 					/* user was invited to channel */
@@ -1082,6 +1091,7 @@ chanrec* add_channel(userrec *user, char* cname, char* key)
 					return NULL;
 				}
 			}
+			log(DEBUG,"add_channel: channel is not +i");
 
 			if (Ptr->limit)
 			{
@@ -1092,6 +1102,8 @@ chanrec* add_channel(userrec *user, char* cname, char* key)
 				}
 			}
 			
+			log(DEBUG,"add_channel: about to walk banlist");
+
 			/* check user against the channel banlist */
 			for (BanList::iterator i = Ptr->bans.begin(); i != Ptr->bans.end(); i++)
 			{
@@ -1102,17 +1114,24 @@ chanrec* add_channel(userrec *user, char* cname, char* key)
 				}
 			}
 
+			log(DEBUG,"add_channel: bans checked");
+
 			user->RemoveInvite(Ptr->name);
+
+			log(DEBUG,"add_channel: invites removed");
 			
 		}
 		created = 1;
 	}
 
+	log(DEBUG,"Passed channel checks");
 	
 	for (i =0; i != MAXCHANS; i++)
 	{
 		if (user->chans[i].channel == NULL)
 		{
+			log(DEBUG,"Adding into their channel list");
+
 			if (created == 2) 
 			{
 				/* first user in is given ops */
@@ -1124,6 +1143,9 @@ chanrec* add_channel(userrec *user, char* cname, char* key)
 			}
 			user->chans[i].channel = Ptr;
 			WriteChannel(Ptr,user,"JOIN :%s",Ptr->name);
+
+			log(DEBUG,"Sent JOIN to client");
+
 			if (Ptr->topicset)
 			{
 				WriteServ(user->fd,"332 %s %s :%s", user->nick, Ptr->name, Ptr->topic);
@@ -2451,16 +2473,26 @@ void kill_link(userrec *user,char* reason)
 	Blocking(user->fd);
 	close(user->fd);
 	NonBlocking(user->fd);
-	AddWhoWas(user);
+	
+	bool do_purge = false;
+	
+	if (user->registered == 7) {
+		AddWhoWas(user);
+		do_purge = true;
+	}
 
 	if (iter != clientlist.end())
 	{
-		log(DEBUG,"deleting user hash value %p",iter->second);
-		delete iter->second;
+		log(DEBUG,"deleting user hash value %d",iter->second);
+		if (iter->second) {
+			delete iter->second;
+		}
 		clientlist.erase(iter);
 	}
 	
-	purge_empty_chans();
+	if (do_purge) {
+		purge_empty_chans();
+	}
 }
 
 
@@ -3549,22 +3581,64 @@ void handle_stats(char **parameters, int pcnt, userrec *user)
 
 void handle_connect(char **parameters, int pcnt, userrec *user)
 {
-	WriteServ(user->fd,"NOTICE %s :*** Connecting to %s port %s...",user->nick,parameters[0],parameters[1]);
+	char Link_ServerName[1024];
+	char Link_IPAddr[1024];
+	char Link_Port[1024];
+	char Link_Pass[1024];
+	int LinkPort;
+	bool found = false;
+	
+	for (int i = 0; i < ConfValueEnum("link"); i++)
+	{
+		ConfValue("link","name",i,Link_ServerName);
+		ConfValue("link","ipaddr",i,Link_IPAddr);
+		ConfValue("link","port",i,Link_Port);
+		ConfValue("link","sendpass",i,Link_Pass);
+		log(DEBUG,"(%d) Comparing against name='%s', ipaddr='%s', port='%s', recvpass='%s'",i,Link_ServerName,Link_IPAddr,Link_Port,Link_Pass);
+		LinkPort = atoi(Link_Port);
+		if (match(Link_ServerName,parameters[0])) {
+			found = true;
+		}
+	}
+	
+	if (!found) {
+		WriteServ(user->fd,"NOTICE %s :*** Failed to connect to %s: No servers matching this pattern are configured for linking.",user->nick,parameters[0]);
+		return;
+	}
+	
+	// TODO: Perform a check here to stop a server being linked twice!
+
+	WriteServ(user->fd,"NOTICE %s :*** Connecting to %s (%s) port %s...",user->nick,Link_ServerName,Link_IPAddr,Link_Port);
+
 	if (me[defaultRoute])
 	{
-		if (!me[defaultRoute]->BeginLink(parameters[0],atoi(parameters[1]),"password"))
-		{
-			WriteServ(user->fd,"NOTICE %s :*** Failed to send auth packet to %s!",user->nick,parameters[0]);
+
+		// at this point parameters[0] is an ip in a string.
+		// TODO: Look this up from the <link> blocks instead!
+		for (int j = 0; j < 255; j++) {
+			if (servers[j] == NULL) {
+				servers[j] = new serverrec;
+				strcpy(servers[j]->internal_addr,Link_IPAddr);
+				strcpy(servers[j]->name,Link_ServerName);
+				log(DEBUG,"Allocated new serverrec");
+				if (!me[defaultRoute]->BeginLink(Link_IPAddr,LinkPort,Link_Pass))
+				{
+					WriteServ(user->fd,"NOTICE %s :*** Failed to send auth packet to %s!",user->nick,Link_IPAddr);
+				}
+				return;
+			}
 		}
+		WriteServ(user->fd,"NOTICE %s :*** Failed to create server record for address %s!",user->nick,Link_IPAddr);
 	}
 	else
 	{
-		WriteServ(user->fd,"NOTICE %s :No default route is defined for server connections on this server",user->nick);
+		WriteServ(user->fd,"NOTICE %s :No default route is defined for server connections on this server. You must define a server connection to be default route so that sockets can be bound to it.",user->nick);
 	}
 }
 
 void handle_squit(char **parameters, int pcnt, userrec *user)
 {
+	// send out an squit across the mesh and then clear the server list (for local squit)
 }
 
 void handle_oper(char **parameters, int pcnt, userrec *user)
@@ -3975,7 +4049,7 @@ void SetupCommandTable(void)
   createcommand("PASS",handle_pass,0,1);
   createcommand("TRACE",handle_trace,'o',0);
   createcommand("WHOWAS",handle_whowas,0,1);
-  createcommand("CONNECT",handle_connect,'o',2);
+  createcommand("CONNECT",handle_connect,'o',1);
   createcommand("SQUIT",handle_squit,'o',1);
 }
 
@@ -4013,8 +4087,207 @@ void process_buffer(userrec *user)
 	process_command(user,cmd);
 }
 
-void handle_link_packet(char* udp_msg, char* udp_host, int udp_port, serverrec *serv)
+void process_restricted_commands(char token,char* params,serverrec* source,serverrec* reply, char* udp_host,int udp_port)
 {
+	WriteOpers("Secure-UDP-Channel: Token='%c', Params='%s'",token,params);
+}
+
+
+void handle_link_packet(long theirkey, char* udp_msg, char* udp_host, int udp_port, serverrec *serv)
+{
+	char response[10240];
+	char token = udp_msg[0];
+	char* params = udp_msg + 2;
+	char finalparam[1024];
+	strcpy(finalparam," :xxxx");
+	if (strstr(params," :")) {
+ 		strncpy(finalparam,strstr(params," :"),1024);
+	}
+  	if (token == 'S') {
+		// S test.chatspike.net password :ChatSpike InspIRCd test server
+		char* servername = strtok(params," ");
+		char* password = strtok(NULL," ");
+		char* serverdesc = finalparam+2;
+		WriteOpers("CONNECT from %s (%s)",servername,udp_host,password,serverdesc);
+		
+		
+		char Link_ServerName[1024];
+		char Link_IPAddr[1024];
+		char Link_Port[1024];
+		char Link_Pass[1024];
+		char Link_SendPass[1024];
+		int LinkPort = 0;
+		
+		// search for a corresponding <link> block in the config files
+		for (int i = 0; i < ConfValueEnum("link"); i++)
+		{
+			ConfValue("link","name",i,Link_ServerName);
+			ConfValue("link","ipaddr",i,Link_IPAddr);
+			ConfValue("link","port",i,Link_Port);
+			ConfValue("link","recvpass",i,Link_Pass);
+			ConfValue("link","sendpass",i,Link_SendPass);
+			log(DEBUG,"(%d) Comparing against name='%s', ipaddr='%s', port='%s', recvpass='%s'",i,Link_ServerName,Link_IPAddr,Link_Port,Link_Pass);
+			LinkPort = atoi(Link_Port);
+			if (!strcasecmp(Link_ServerName,servername)) {
+				if (!strcasecmp(Link_IPAddr,udp_host)) {
+					if (LinkPort == udp_port) {
+						// we have a matching link line -
+						// send a 'diminutive' server message back...
+						snprintf(response,10240,"s %s %s :%s",ServerName,Link_SendPass,ServerDesc);
+						serv->SendPacket(response,udp_host,udp_port,0);
+						WriteOpers("CONNECT from %s accepted, authenticating",servername);
+						for (int j = 0; j < 255; j++) {
+							if (servers[j] == NULL) {
+								servers[j] = new serverrec;
+								strcpy(servers[j]->internal_addr,udp_host);
+								strcpy(servers[j]->name,servername);
+								// create a server record for this server
+								snprintf(response,10240,"O %d",MyKey);
+								serv->SendPacket(response,udp_host,udp_port,0);
+								return;
+							}
+						}
+						WriteOpers("Internal error connecting to %s, failed to create server record!",servername);
+						return;
+					}
+					else {
+						log(DEBUG,"Port numbers '%d' and '%d' don't match",LinkPort,udp_port);
+					}
+				}
+				else {
+					log(DEBUG,"IP Addresses '%s' and '%s' don't match",Link_IPAddr,udp_host);
+				}
+			}
+			else {
+				log(DEBUG,"Server names '%s' and '%s' don't match",Link_ServerName,servername);
+			}
+		}
+		serv->SendPacket("E :Access is denied (no matching link block)",udp_host,udp_port,0);
+		WriteOpers("CONNECT from %s denied, no matching link block",servername);
+		return;
+	}
+	else
+	if (token == 'O') {
+		// if this is received, this means the server-ip that sent it said "OK" to credentials.
+		// only when a server says this do we exchange keys. The server MUST have an entry in the servers
+		// array, which is only added by an 'S' packet or BeginLink().
+		for (int i = 0; i < 255; i++) {
+			if (servers[i] != NULL) {
+				if (!strcasecmp(servers[i]->internal_addr,udp_host)) {
+					servers[i]->key = atoi(params);
+					log(DEBUG,"Key for this server is now %d",servers[i]->key);
+					serv->SendPacket("Z blah blah",udp_host,udp_port,MyKey);
+					return;
+				}
+			}
+		}
+		WriteOpers("\2WARNING!\2 Server ip %s attempted a key exchange, but is not in the authentication state! Possible intrusion attempt!",udp_host);
+	}
+	else
+	if (token == 's') {
+		// S test.chatspike.net password :ChatSpike InspIRCd test server
+		char* servername = strtok(params," ");
+		char* password = strtok(NULL," ");
+		char* serverdesc = finalparam+2;
+		
+		// TODO: we should do a check here to ensure that this server is one we recently initiated a
+		// link with, and didnt hear an 's' or 'E' back from yet (these are the only two valid responses
+		// to an 'S' command. If we didn't recently send an 'S' to this server, theyre trying to spoof
+		// a connect, so put out an oper alert!
+		
+		
+		
+		
+		// for now, just accept all, we'll fix that later.
+		WriteOpers("%s accepted our link credentials ",servername);
+		
+		char Link_ServerName[1024];
+		char Link_IPAddr[1024];
+		char Link_Port[1024];
+		char Link_Pass[1024];
+		char Link_SendPass[1024];
+		int LinkPort = 0;
+		
+		// search for a corresponding <link> block in the config files
+		for (int i = 0; i < ConfValueEnum("link"); i++)
+		{
+			ConfValue("link","name",i,Link_ServerName);
+			ConfValue("link","ipaddr",i,Link_IPAddr);
+			ConfValue("link","port",i,Link_Port);
+			ConfValue("link","recvpass",i,Link_Pass);
+			ConfValue("link","sendpass",i,Link_SendPass);
+			log(DEBUG,"(%d) Comparing against name='%s', ipaddr='%s', port='%s', recvpass='%s'",i,Link_ServerName,Link_IPAddr,Link_Port,Link_Pass);
+			LinkPort = atoi(Link_Port);
+			if (!strcasecmp(Link_ServerName,servername)) {
+				if (!strcasecmp(Link_IPAddr,udp_host)) {
+					if (LinkPort == udp_port) {
+						// matching link at this end too, we're all done!
+						// at this point we must begin key exchange and insert this
+						// server into our 'active' table.
+						for (int j = 0; j < 255; j++) {
+							if (servers[j] != NULL) {
+								if (!strcasecmp(servers[j]->internal_addr,udp_host)) {
+									WriteOpers("Server %s authenticated, exchanging server keys...",servername);
+									snprintf(response,10240,"O %d",MyKey);
+									serv->SendPacket(response,udp_host,udp_port,0);
+									return;
+								}
+							}
+						}
+						WriteOpers("\2WARNING!\2 %s sent us an authentication packet but we are not authenticating with this server right noe! Possible intrusion attempt!",udp_host);
+						return;
+
+					}
+					else {
+						log(DEBUG,"Port numbers '%d' and '%d' don't match",LinkPort,udp_port);
+					}
+				}
+				else {
+					log(DEBUG,"IP Addresses '%s' and '%s' don't match",Link_IPAddr,udp_host);
+				}
+			}
+			else {
+				log(DEBUG,"Server names '%s' and '%s' don't match",Link_ServerName,servername);
+			}
+		}
+		serv->SendPacket("E :Access is denied (no matching link block)",udp_host,udp_port,0);
+		WriteOpers("CONNECT from %s denied, no matching link block",servername);
+		return;
+	}
+	else
+	if (token == 'E') {
+		char* error_message = finalparam+2;
+		WriteOpers("ERROR from %s: %s",udp_host,error_message);
+		// remove this server from any lists
+		for (int j = 0; j < 255; j++) {
+			if (servers[j] != NULL) {
+				if (!strcasecmp(servers[j]->internal_addr,udp_host)) {
+					delete servers[j];
+					return;
+				}
+			}
+		}
+		return;
+	}
+	else {
+
+		serverrec* source_server = NULL;
+
+		for (int j = 0; j < 255; j++) {
+			if (servers[j] != NULL) {
+				if (!strcasecmp(servers[j]->internal_addr,udp_host)) {
+					if (servers[j]->key == theirkey) {
+						// found a valid key for this server, can process restricted stuff here
+						process_restricted_commands(token,params,servers[j],serv,udp_host,udp_port);
+						
+						return;
+					}
+				}
+			}
+		}
+
+		log(DEBUG,"Unrecognised token or unauthenticated host in datagram from %s:%d: %c",udp_host,udp_port,token);
+	}
 }
 
 int InspIRCd(void)
@@ -4131,9 +4404,6 @@ int InspIRCd(void)
   MODCOUNT = count - 1;
   log(DEBUG,"Total loaded modules: %d",MODCOUNT+1);
 
-  servers = new server_list;
-  servers->clear();
-
   printf("\nInspIRCd is now running!\n");
 
   startup_time = time(NULL);
@@ -4205,13 +4475,18 @@ int InspIRCd(void)
 
       for (int x = 0; x != UDPportCount; x++)
       {
-      		if (me[x]->RecvPacket(udp_msg, udp_host, udp_port))
-        	{
-        	    FOREACH_MOD OnPacketReceive(udp_msg);
-      			WriteOpers("UDP Link Packet: '%s' from %s:%d:%d [route%d]",udp_msg,udp_host,udp_port,me[x]->port,x);
-      			// Packets must go back via the route they arrived on :)
-      			handle_link_packet(udp_msg, udp_host, udp_port, me[x]);
-      	    }
+	   long theirkey = 0;
+           if (me[x]->RecvPacket(udp_msg, udp_host, udp_port, theirkey))
+           {
+                	if (strlen(udp_msg)<1) {
+                		log(DEBUG,"Invalid datagram from %s:%d:%d [route%d]",udp_host,udp_port,me[x]->port,x);
+                	}
+                	else {
+				FOREACH_MOD OnPacketReceive(udp_msg);
+				// Packets must go back via the route they arrived on :)
+				handle_link_packet(theirkey, udp_msg, udp_host, udp_port, me[x]);
+      			}
+      	   }
       }
 
   	for (user_hash::iterator count2 = clientlist.begin(); count2 != clientlist.end(); count2++)
