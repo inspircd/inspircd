@@ -115,6 +115,11 @@ class ModuleRemove : public Module
 		Srv = new Server;
 		Srv->AddCommand("REMOVE", handle_remove, 0, 3);
 	}
+
+        virtual void On005Numeric(std::string &output)
+        {
+                output = output + std::string(" REMOVE");
+        }
 	
 	virtual ~ModuleRemove()
 	{

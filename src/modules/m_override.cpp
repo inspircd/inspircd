@@ -52,6 +52,11 @@ class ModuleOverride : public Module
 		// re-read our config options on a rehash
 		NoisyOverride = Conf->ReadFlag("override","noisy",0);
 	}
+
+        virtual void On005Numeric(std::string &output)
+        {
+		output = output + std::string(" OVERRIDE");
+        }
 	
 	virtual int OnAccessCheck(userrec* source,userrec* dest,chanrec* channel,int access_type)
 	{

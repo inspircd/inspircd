@@ -50,6 +50,24 @@ class ModuleChanProtect : public Module
 		FirstInGetsFounder = Conf->ReadFlag("options","noservices",0);
 	}
 	
+        virtual void On005Numeric(std::string &output)
+        {
+                std::stringstream line(output);
+                std::string temp1, temp2;
+                while (!line.eof())
+                {
+                        line >> temp1;
+                        if (temp1.substr(0,10) == "CHANMODES=")
+                        {
+                                // append the chanmode to the end
+                                temp1 = temp1.substr(10,temp1.length());
+                                temp1 = "CHANMODES=qa" + temp1;
+                        }
+                        temp2 = temp2 + temp1 + " ";
+                }
+                output = temp2.substr(0,temp2.length()-1);
+        }
+
 	virtual void OnRehash()
 	{
 		// on a rehash we delete our classes for good measure and create them again.

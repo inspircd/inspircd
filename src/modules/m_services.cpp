@@ -37,6 +37,24 @@ class ModuleServices : public Module
 		Srv->AddExtendedMode('R',MT_CLIENT,false,0,0);
 		Srv->AddExtendedMode('M',MT_CHANNEL,false,0,0);
 	}
+
+        virtual void On005Numeric(std::string &output)
+        {
+                std::stringstream line(output);
+                std::string temp1, temp2;
+                while (!line.eof())
+                {
+                        line >> temp1;
+                        if (temp1.substr(0,10) == "CHANMODES=")
+                        {
+                                // append the chanmode to the end
+                                temp1 = temp1.substr(10,temp1.length());
+                                temp1 = "CHANMODES=" + temp1 + "rRM";
+                        }
+                        temp2 = temp2 + temp1 + " ";
+                }
+                output = temp2.substr(0,temp2.length()-1);
+        }
 	
 	virtual int OnExtendedMode(userrec* user, void* target, char modechar, int type, bool mode_on, string_list &params)
 	{

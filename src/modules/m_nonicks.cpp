@@ -43,6 +43,24 @@ class ModuleNoNickChange : public Module
 	{
 		return Version(1,0,0,1);
 	}
+
+        virtual void On005Numeric(std::string &output)
+        {
+                std::stringstream line(output);
+                std::string temp1, temp2;
+                while (!line.eof())
+                {
+                        line >> temp1;
+                        if (temp1.substr(0,10) == "CHANMODES=")
+                        {
+                                // append the chanmode to the end
+                                temp1 = temp1.substr(10,temp1.length());
+                                temp1 = "CHANMODES=" + temp1 + "N";
+                        }
+                        temp2 = temp2 + temp1 + " ";
+                }
+                output = temp2.substr(0,temp2.length()-1);
+        }
 	
 	virtual int OnUserPreNick(userrec* user, std::string newnick)
 	{
