@@ -6840,7 +6840,7 @@ void handle_link_packet(char* udp_msg, char* udp_host, serverrec *serv)
   		{
 			if (servers[j] != NULL)
    			{
-				for (int x = 0; x < servers[j]->connectors.size(); j++)
+				for (int x = 0; x < servers[j]->connectors.size(); x++)
     				{
     					if (servers[j]->connectors[x].GetServerName() == std::string(udp_host))
     					{
