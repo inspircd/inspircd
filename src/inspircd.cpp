@@ -3100,14 +3100,13 @@ void handle_topic(char **parameters, int pcnt, userrec *user)
 			}
 			else
 			{
-				WriteServ(user->fd,"331 %s %s :No topic is set.", user->nick, Ptr->name);
+				WriteServ(user->fd,"401 %s %s :No suck nick/channel",user->nick, parameters[0]);
 			}
 		}
+		return;
 	}
 	else if (pcnt>1)
 	{
-		if (loop_call(handle_topic,parameters,pcnt,user,0,pcnt-2,0))
-			return;
 		if (strlen(parameters[0]) <= CHANMAX)
 		{
 			Ptr = FindChan(parameters[0]);
@@ -3120,7 +3119,7 @@ void handle_topic(char **parameters, int pcnt, userrec *user)
 				}
 				
 				char topic[MAXBUF];
-				strncpy(topic,parameters[2],MAXBUF);
+				strncpy(topic,parameters[1],MAXBUF);
 				if (strlen(topic)>MAXTOPIC)
 				{
 					topic[MAXTOPIC-1] = '\0';
@@ -4541,7 +4540,7 @@ void SetupCommandTable(void)
   createcommand("PART",handle_part,0,1);
   createcommand("KICK",handle_kick,0,2);
   createcommand("MODE",handle_mode,0,1);
-  createcommand("TOPIC",handle_topic,0,2);
+  createcommand("TOPIC",handle_topic,0,1);
   createcommand("WHO",handle_who,0,1);
   createcommand("MOTD",handle_motd,0,0);
   createcommand("RULES",handle_join,0,0);
