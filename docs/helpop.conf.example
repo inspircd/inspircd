@@ -1,0 +1,17 @@
+// Helpop Configuration...
+
+<start line1="This is the Helpop crap."
+       line2="This is more helpop Crap."
+       line3="This is the 3rd line of crap.">
+
+
+<nohelp line1="There is no help for the topic"
+        line2="You searched for.">
+
+
+<nohelpo line1="There is no help for the topic"
+         line2="You searched for."
+         line3="-"
+         line4="Your Query has been forwarded to an IRCOp">
+
+<rar line1="RAR!">
