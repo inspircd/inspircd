@@ -125,7 +125,7 @@ sub getstatus {
 
 sub getprocessid {
 	my $pid;
-	open PIDFILE, "< $pidfile" or die "Cannot open PID";
+	open PIDFILE, "< $pidfile" or return 0;
 	while($i = <PIDFILE>)
 	{
 		$pid = $i;
