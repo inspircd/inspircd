@@ -1698,7 +1698,7 @@ void kick_channel(userrec *src,userrec *user, chanrec *Ptr, char* reason)
 
 /* This function pokes and hacks at a parameter list like the following:
  *
- * PART #winbot, #darkgalaxy :m00!
+ * PART #winbot,#darkgalaxy :m00!
  *
  * to turn it into a series of individual calls like this:
  *

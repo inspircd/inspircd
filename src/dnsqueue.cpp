@@ -281,6 +281,7 @@ void dns_poll()
 				dnsq[j].Reset();
 			}
 		}
+		else dnsq[j].Reset();
 	}
 }
 
