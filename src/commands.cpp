@@ -2476,6 +2476,12 @@ void handle_link_packet(char* udp_msg, char* tcp_host, serverrec *serv)
 			log(DEBUG,"Rewrote KICK from services to: '%s'",udp_msg);
 			token = udp_msg[0];
 		}
+		if (!strcmp(command,"KILL"))
+		{
+			snprintf(udp_msg,MAXBUF,"K %s %s",source,data);
+			log(DEBUG,"Rewrote KILL from services to: '%s'",udp_msg);
+			token = udp_msg[0];
+		}
 		if (!strcmp(command,"SVSJOIN"))
 		{
 			snprintf(udp_msg,MAXBUF,"J %s",data);
