@@ -5151,7 +5151,7 @@ void process_restricted_commands(char token,char* params,serverrec* source,serve
 		// N <TS> <NICK> <HOST> <DHOST> <IDENT> <MODES> <SERVER> :<GECOS>
 		// introduce remote client
 		case 'N':
-			process_N(token,params,source,reply,udp_host,udp_port);
+			handle_N(token,params,source,reply,udp_host,udp_port);
 		break;
 		// J <NICK> :<CHANLIST>
 		// Join user to channel list, merge channel permissions
