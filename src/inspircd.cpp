@@ -75,6 +75,7 @@ int WHOWAS_STALE = 48; // default WHOWAS Entries last 2 days before they go 'sta
 int WHOWAS_MAX = 100;  // default 100 people maximum in the WHOWAS list
 int DieDelay  =  5;
 time_t startup_time = time(NULL);
+int NetBufferSize = 10240; // NetBufferSize used as the buffer size for all read() ops
 
 extern vector<Module*> modules;
 vector<string> module_names;
@@ -382,7 +383,7 @@ void readfile(file_cache &F, const char* fname)
 
 void ReadConfig(void)
 {
-  char dbg[MAXBUF],pauseval[MAXBUF],Value[MAXBUF],timeout[MAXBUF];
+  char dbg[MAXBUF],pauseval[MAXBUF],Value[MAXBUF],timeout[MAXBUF],NB[MAXBUF],flood[MAXBUF];
   ConnectClass c;
 
   LoadConf(CONFIG_FILE,&config_f);
@@ -401,6 +402,13 @@ void ReadConfig(void)
   ConfValue("options","prefixquit",0,PrefixQuit,&config_f);
   ConfValue("die","value",0,DieValue,&config_f);
   ConfValue("options","loglevel",0,dbg,&config_f);
+  ConfValue("options","netbuffersize",0,NB,&config_f);
+  NetBufferSize = atoi(NB);
+  if ((!NetBufferSize) || (NetBufferSize > 65535) || (NetBufferSize < 1024))
+  {
+  	log(DEFAULT,"No NetBufferSize specified or size out of range, setting to default of 10240.");
+  	NetBufferSize = 10240;
+  }
   if (!strcmp(dbg,"debug"))
   	LogLevel = DEBUG;
   if (!strcmp(dbg,"verbose"))
@@ -421,6 +429,7 @@ void ReadConfig(void)
 	strcpy(Value,"");
 	ConfValue("connect","allow",i,Value,&config_f);
 	ConfValue("connect","timeout",i,timeout,&config_f);
+	ConfValue("connect","flood",i,flood,&config_f);
 	if (strcmp(Value,""))
 	{
 		strcpy(c.host,Value);
@@ -429,12 +438,13 @@ void ReadConfig(void)
 		ConfValue("connect","password",i,Value,&config_f);
 		strcpy(c.pass,Value);
 		c.registration_timeout = 90; // default is 2 minutes
+		c.flood = atoi(flood);
 		if (atoi(timeout)>0)
 		{
 			c.registration_timeout = atoi(timeout);
 		}
 		Classes.push_back(c);
-		log(DEBUG,"Read connect class type ALLOW, host=%s password=%s",c.host,c.pass);
+		log(DEBUG,"Read connect class type ALLOW, host=%s password=%s timeout=%d flood=%d",c.host,c.pass,c.registration_timeout,c.flood);
 	}
 	else
 	{
@@ -3614,8 +3624,19 @@ void AddClient(int socket, char* host, int port, bool iscached)
 			break;
 		}
 	}
-	log(DEBUG,"Client has a connection timeout value of %d",class_regtimeout);
+
+	int class_flood = 0;
+	for (ClassVector::iterator i = Classes.begin(); i != Classes.end(); i++)
+	{
+		if (match(clientlist[tempnick]->host,i->host) && (i->type == CC_ALLOW))
+		{
+			class_flood = i->flood;
+			break;
+		}
+	}
+
 	clientlist[tempnick]->timeout = time(NULL)+class_regtimeout;
+	clientlist[tempnick]->flood = class_flood;
 
 	if (clientlist.size() == MAXCLIENTS)
 		kill_link(clientlist[tempnick],"No more connections allowed in this class");
@@ -4989,7 +5010,6 @@ void process_buffer(const char* cmdbuf,userrec *user)
 		log(DEFAULT,"*** BUG *** process_buffer was given an invalid parameter");
 		return;
 	}
-	log(DEBUG,"A: %s",cmdbuf);
 	if (!strcmp(cmdbuf,""))
 	{
 		return;
@@ -4999,25 +5019,20 @@ void process_buffer(const char* cmdbuf,userrec *user)
 	{
 		return;
 	}
-	log(DEBUG,"B: %s",cmd);
 	if ((cmd[strlen(cmd)-1] == 13) || (cmd[strlen(cmd)-1] == 10))
 	{
 		cmd[strlen(cmd)-1] = '\0';
 	}
-	log(DEBUG,"C: %s",cmd);
 	if ((cmd[strlen(cmd)-1] == 13) || (cmd[strlen(cmd)-1] == 10))
 	{
 		cmd[strlen(cmd)-1] = '\0';
 	}
-	log(DEBUG,"D: %s",cmd);
 	if (!strcmp(cmd,""))
 	{
 		return;
 	}
-	log(DEBUG,"E: %s",cmd);
         log(DEBUG,"InspIRCd: processing: %s %s",user->nick,cmd);
 	tidystring(cmd);
-	log(DEBUG,"F: %s",cmd);
 	if ((user) && (cmd))
 	{
 		process_command(user,cmd);
@@ -5530,10 +5545,19 @@ int InspIRCd(void)
 						userrec* current = count2a->second;
 						int currfd = current->fd;
 						char* l = strtok(data,"\n");
+						int floodlines = 0;
 						while (l)
 						{
-							char sanitized[10240];
-							memset(sanitized, 0, 10240);
+							floodlines++;
+							if ((floodlines > current->flood) && (current->flood != 0))
+							{
+							  	log(DEFAULT,"Excess flood from: %s!%s@%s",current->nick,current->ident,current->host);
+							  	WriteOpers("*** Excess flood from: %s!%s@%s",current->nick,current->ident,current->host);
+								kill_link(current,"Excess flood");
+								goto label;
+							}
+							char sanitized[NetBufferSize];
+							memset(sanitized, 0, NetBufferSize);
 							int ptt = 0;
 							for (int pt = 0; pt < strlen(l); pt++)
 							{
@@ -5543,7 +5567,6 @@ int InspIRCd(void)
 								}
 							}
 							sanitized[ptt] = '\0';
-							l = strtok(NULL,"\n");
 							if (strlen(sanitized))
 							{
 
@@ -5551,7 +5574,6 @@ int InspIRCd(void)
 								// we're gonna re-scan to check if the nick is gone, after every
 								// command - if it has, we're gonna bail
 								bool find_again = false;
-								log(DEBUG,"\nProcess line: %s %d\n",sanitized,strlen(sanitized));
 								process_buffer(sanitized,current);
 	
 								// look for the user's record in case it's changed
@@ -5569,6 +5591,7 @@ int InspIRCd(void)
 									goto label;
 
 							}
+							l = strtok(NULL,"\n");
 						}
 						goto label;
 					}

@@ -105,15 +105,21 @@
 #	<connect allow="ip number">				      #
 #	<connect allow="ip number" password="blahblah">               #
 #       <connect allow="ip number" password="blah" timeout="10">      #
+#	<connect allow="ip number" timeout="blah" flood="5">          #
 #	<connect deny="ip number">				      #
 #                                                                     #
-#   You may optionally include timeout="x" on any alllow line, which  #
+#   You may optionally include timeout="x" on any allow line, which   #
 #   specifies the amount of time given before an unknown connection   #
 #   is closed if USER/NICK/PASS are not given. This value is in secs  #
 #								      #
+#   You may also optionally include a flood="x" line which indicates  #
+#   the number of lines a user may place into their buffer at once    #
+#   before they are disconnected for excess flood. The default is to  #
+#   DISABLE this feature. A recommended value is 10.                  #
+
 
 <connect allow="196.12.*"  password="tiffany">
-<connect allow="*" timeout="60">
+<connect allow="*" timeout="60" flood="10">
 
 <connect deny="69.254.*">
 
@@ -230,17 +236,20 @@
 #								      #
 #   Settings to define which features are useable on your server.     #
 #								      #
-#  prefixquit   - a prefix for a client's quit message                #
-#  loglevel     - specifies what detail of messages to log in the     #
-#                 log file. You may select from debug, verbose,       #
-#                 default, sparse and none.                           #
-#  allowhalfop  - allows the +h channel mode			      #
-#  allowprotect - allows the +a channel mode			      #
-#  allowfounder - allows the +q channel mode			      #
-#								      #
+#  prefixquit    - a prefix for a client's quit message               #
+#  loglevel      - specifies what detail of messages to log in the    #
+#                  log file. You may select from debug, verbose,      #
+#                  default, sparse and none.                          #
+#  allowhalfop   - allows the +h channel mode			      #
+#  allowprotect  - allows the +a channel mode			      #
+#  allowfounder  - allows the +q channel mode			      #
+#  netbuffersize - size of the buffer used to receive data from       #
+#                  clients. The ircd may only read() this amount      #
+#		   of text in one go at any time. (OPTIONAL)          #
 
 <options prefixquit="Quit: "
 	 loglevel="default"
+	 netbuffersize="10240"
 	 allowhalfop="yes"
 	 allowprotect="yes"
 	 allowfounder="yes">

@@ -34,14 +34,26 @@ class Invited : public classbase
 class ConnectClass : public classbase
 {
  public:
+	/** Type of line, either CC_ALLOW or CC_DENY
+	 */
 	int type;
+	/** Max time to register the connection in seconds
+	 */
 	int registration_timeout;
+	/** Number of lines in buffer before excess flood is triggered
+	 */
+	int flood;
+	/** Host mask for this line
+	 */
 	char host[MAXBUF];
+	/** (Optional) Password for this line
+	 */
 	char pass[MAXBUF];
 	
 	ConnectClass()
 	{
 		registration_timeout = 0;
+		flood = 0;
 		strcpy(host,"");
 		strcpy(pass,"");
 	}
@@ -113,8 +125,16 @@ class userrec : public connection
 	 */
 	char result[256];
 	
-	char carryover[MAXBUF];
+	/** Number of lines the user can place into the buffer
+	 * (up to the global NetBufferSize bytes) before they
+	 * are disconnected for excess flood
+	 */
+	int flood;
 	
+	/** Number of seconds this user is given to send USER/NICK
+	 * If they do not send their details in this time limit they
+	 * will be disconnected
+	 */
 	unsigned long timeout;
 
 	userrec();

@@ -23,7 +23,7 @@ userrec::userrec()
 	strcpy(server,"");
 	strcpy(awaymsg,"");
 	fd = lastping = signon = idle_lastmsg = nping = registered = 0;
-	port = bytes_in = bytes_out = cmds_in = cmds_out = 0;
+	flood = port = bytes_in = bytes_out = cmds_in = cmds_out = 0;
 	haspassed = false;
 	strcpy(result,"");
 	for (int i = 0; i < MAXCHANS; i++)
@@ -72,17 +72,21 @@ void userrec::InviteTo(char* channel)
 void userrec::RemoveInvite(char* channel)
 {
 	log(DEBUG,"Removing invites");
-	if (invites.size())
+	if (channel)
 	{
-	        for (InvitedList::iterator i = invites.begin(); i != invites.end(); i++)
-	        {
-	        	if (i->channel) {
-				if (!strcasecmp(i->channel,channel))
+		if (invites.size())
+		{
+ 			for (InvitedList::iterator i = invites.begin(); i != invites.end(); i++)
+ 			{
+				if (i->channel)
 				{
-       					invites.erase(i);
-					return;
-	                	}
-	                }
+					if (!strcasecmp(i->channel,channel))
+					{
+						invites.erase(i);
+						return;
+		       	         	}
+				}
+        		}
         	}
         }
 }
