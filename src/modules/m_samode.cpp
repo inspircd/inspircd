@@ -1,4 +1,4 @@
-i/*
+/*
  * SAMODE module for InspIRCd
  *  Co authored by Brain and w00t
  *
@@ -14,7 +14,6 @@ i/*
  */ 
 
 #include <stdio.h>
-
 #include "users.h"
 #include "channels.h"
 #include "modules.h"
