@@ -10,4 +10,4 @@ all: $(MODULES)
 
 $(TARGET).so:
 	$(CC) -I../../include $(FLAGS) -shared -o $@ $(TARGET).cpp
-	@cp $(TARGET).so $(MODPATH)$(TARGET).so
+	@cp $(TARGET).so $(MODPATH)/$(TARGET).so
