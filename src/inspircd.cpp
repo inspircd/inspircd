@@ -5355,7 +5355,7 @@ int InspIRCd(void)
 					char udp_msg[MAXBUF];
 					strncpy(udp_msg,msgs[ctr].c_str(),MAXBUF);
 					if (strlen(udp_msg)<1)
-    						{
+    					{
 						log(DEBUG,"Invalid string from %s [route%d]",udp_host,x);
 						break;
 					}
