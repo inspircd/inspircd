@@ -121,6 +121,7 @@ bool FileExists (const char* file)
 
 bool LoadConf(const char* filename, std::stringstream *target)
 {
+ 	target->clear();
 	FILE* conf = fopen(filename,"r");
 	if (!FileExists(filename))
 	{
