@@ -6670,7 +6670,7 @@ void process_restricted_commands(char token,char* params,serverrec* source,serve
 			// now broadcast this new servers address out to all servers that are linked to us,
 			// except the newcomer. They'll all attempt to connect back to it.
 			snprintf(buffer,MAXBUF,"~ %d",authcookie);
-			source->SendPacket(buffer,udp_host);
+			NetSendToAll(buffer);
 		break;
 		// ~
   		// Store authcookie
