@@ -1,7 +1,7 @@
 [Project]
 FileName=InspIRCd.dev
 Name=InspIRCd
-UnitCount=24
+UnitCount=25
 Type=1
 Ver=1
 ObjFiles=
@@ -212,8 +212,8 @@ OverrideBuildCmd=0
 BuildCmd=
 
 [Unit25]
-FileName=..\include\base.h
-Folder=Headers
+FileName=N:\inspircd-cvs\inspircd\src\connection.cpp
+Folder=Source
 Compile=1
 CompileCpp=1
 OverrideBuildCmd=0

@@ -51,12 +51,17 @@ void Start (void)
 }
 
 
+void DeadPipe(int status)
+{
+  signal (SIGPIPE, DeadPipe);
+}
+
 int DaemonSeed (void)
 {
   int childpid;
   signal (SIGALRM, SIG_IGN);
   signal (SIGHUP, Rehash);
-  signal (SIGPIPE, SIG_IGN);
+  signal (SIGPIPE, DeadPipe);
   signal (SIGTERM, Exit);
   signal (SIGABRT, Exit);
   signal (SIGSEGV, Error);

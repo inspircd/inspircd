@@ -125,10 +125,12 @@ typedef hash_map<in_addr,string*, hash<in_addr>, InAddr_HashComp> address_cache;
 typedef deque<command_t> command_table;
 typedef DLLFactory<ModuleFactory> ircd_module;
 
+serverrec* me;
+server_list* servers;
+
 user_hash clientlist;
 chan_hash chanlist;
 user_hash whowas;
-server_list servers;
 command_table cmdlist;
 file_cache MOTD;
 file_cache RULES;
@@ -197,6 +199,11 @@ void chop(char* str)
 string getservername()
 {
 	return ServerName;
+}
+
+string getserverdesc()
+{
+	return ServerDesc;
 }
 
 string getnetworkname()
@@ -3437,6 +3444,11 @@ void handle_stats(char **parameters, int pcnt, userrec *user)
 
 void handle_connect(char **parameters, int pcnt, userrec *user)
 {
+	WriteServ(user->fd,"NOTICE %s :*** Connecting to %s port 7000...",user->nick,parameters[0]);
+	if (!me->BeginLink(parameters[0],7000,"password"))
+	{
+		WriteServ(user->fd,"NOTICE %s :*** Failed to send auth packet to %s!",user->nick,parameters[0]);
+	}
 }
 
 void handle_squit(char **parameters, int pcnt, userrec *user)
@@ -3962,6 +3974,12 @@ int InspIRCd(void)
   MODCOUNT = count - 1;
   debug("Total loaded modules: %d",MODCOUNT+1);
 
+  me = new serverrec(ServerName,100L,false);
+  servers = new server_list;
+  servers->clear();
+  
+  me->CreateListener("127.0.0.1",7000);
+
   printf("\nInspIRCd is now running!\n");
 
   startup_time = time(NULL);
@@ -4005,7 +4023,8 @@ int InspIRCd(void)
   }
 
   length = sizeof (client);
-  int flip_flop = 0;
+  int flip_flop = 0, udp_port = 0;
+  char udp_msg[MAXBUF], udp_host[MAXBUF];
   
   /* main loop for multiplexing/resetting */
   for (;;)
@@ -4028,6 +4047,11 @@ int InspIRCd(void)
       
       tv.tv_sec = 0;
       selectResult = select(MAXSOCKS, &selectFds, NULL, NULL, &tv);
+
+      if (me->RecvPacket(udp_msg, udp_host, udp_port))
+      {
+      	WriteOpers("UDP Link Packet: '%s' from %s:%d",udp_msg,udp_host,udp_port);
+      }
 
   	for (user_hash::iterator count2 = clientlist.begin(); count2 != clientlist.end(); count2++)
 	{
@@ -4085,38 +4109,38 @@ int InspIRCd(void)
       if (selectResult > 0)
       {
         char target[MAXBUF], resolved[MAXBUF];
-	for (count = 0; count < boundPortCount; count++)		
+        for (count = 0; count < boundPortCount; count++)		
         {
 	    if (FD_ISSET (openSockfd[count], &selectFds))
             {
               incomingSockfd = accept (openSockfd[count], (struct sockaddr *) &client, &length);
 	      
               address_cache::iterator iter = IP.find(client.sin_addr);
-	      bool iscached = false;
+              bool iscached = false;
               if (iter == IP.end())
               {
                         /* ip isn't in cache, add it */
                         strncpy (target, (char *) inet_ntoa (client.sin_addr), MAXBUF);
-			if(CleanAndResolve(resolved, target) != TRUE)
-			{
-				strncpy(resolved,target,MAXBUF);
-			}
+                        if(CleanAndResolve(resolved, target) != TRUE)
+                        {
+                        	strncpy(resolved,target,MAXBUF);
+                       	}
                         /* hostname now in 'target' */
                         IP[client.sin_addr] = new string(resolved);
-			/* hostname in cache */
+              /* hostname in cache */
               }
               else
               {
-			/* found ip (cached) */
-	                strncpy(resolved, iter->second->c_str(), MAXBUF);
-			iscached = true;
-	      }
+              /* found ip (cached) */
+              strncpy(resolved, iter->second->c_str(), MAXBUF);
+              iscached = true;
+           }
 
 	      if (incomingSockfd < 0)
 	      {
-	        WriteOpers("*** WARNING: Accept failed on port %d (%s)", ports[count],target);
-	  	debug("InspIRCd: accept failed: %d",ports[count]);
-	        break;
+	        	WriteOpers("*** WARNING: Accept failed on port %d (%s)", ports[count],target);
+	        	debug("InspIRCd: accept failed: %d",ports[count]);
+	        	break;
 	      }
 
 	      AddClient(incomingSockfd, resolved, ports[count], iscached);
@@ -4124,7 +4148,7 @@ int InspIRCd(void)
 	      break;
 	    }
 
-	}
+	   }
       }
   }
 

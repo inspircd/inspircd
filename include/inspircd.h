@@ -68,6 +68,7 @@ userrec* Find(string nick);
 chanrec* FindChan(const char* chan);
 char* cmode(userrec *user, chanrec *chan);
 string getservername();
+string getserverdesc();
 string getnetworkname();
 string getadminname();
 string getadminemail();
