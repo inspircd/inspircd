@@ -7301,7 +7301,7 @@ int InspIRCd(void)
 
 	flip_flop++;
 	reap_counter++;
-	if (flip_flop > 20)
+	if (flip_flop > 10)
 	{
 		tv.tv_usec = 1;
 		flip_flop = 0;
