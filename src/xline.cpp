@@ -205,6 +205,7 @@ void read_xline_defaults()
 
 void add_gline(long duration, char* source, char* reason, char* hostmask)
 {
+	del_gline(hostmask);
 	GLine item;
 	item.duration = duration;
 	strncpy(item.hostmask,hostmask,MAXBUF);
@@ -219,6 +220,7 @@ void add_gline(long duration, char* source, char* reason, char* hostmask)
 
 void add_qline(long duration, char* source, char* reason, char* nickname)
 {
+	del_qline(nickname);
 	QLine item;
 	item.duration = duration;
 	strncpy(item.nick,nickname,MAXBUF);
@@ -233,6 +235,7 @@ void add_qline(long duration, char* source, char* reason, char* nickname)
 
 void add_zline(long duration, char* source, char* reason, char* ipaddr)
 {
+	del_zline(ipaddr);
 	ZLine item;
 	item.duration = duration;
 	strncpy(item.ipaddr,ipaddr,MAXBUF);
@@ -247,6 +250,7 @@ void add_zline(long duration, char* source, char* reason, char* ipaddr)
 
 void add_kline(long duration, char* source, char* reason, char* hostmask)
 {
+	del_kline(hostmask);
 	KLine item;
 	item.duration = duration;
 	strncpy(item.hostmask,hostmask,MAXBUF);

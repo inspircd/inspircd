@@ -656,6 +656,11 @@ void process_modes(char **parameters,userrec* user,chanrec *chan,int status, int
 							break;
 						
 						chan->limit = atoi(parameters[param]);
+						
+						// reported by mech: large values cause underflow
+						if (chan->limit < 0)
+							chan->limit = MAXINT;
+							
 						if (chan->limit)
 						{
 							strcat(outlist,"l");
