@@ -2413,6 +2413,10 @@ void handle_link_packet(char* udp_msg, char* tcp_host, serverrec *serv)
 		{
 			token = '*';
 		}
+		if (!strcmp(command,"432"))
+		{
+			token = '*';
+		}
 		if (!strcmp(command,"NOTICE"))
 		{
 			snprintf(udp_msg,MAXBUF,"V %s %s",source,data);
