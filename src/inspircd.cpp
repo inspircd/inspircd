@@ -5154,6 +5154,19 @@ void handle_nick(char **parameters, int pcnt, userrec *user)
 	if (user->registered == 7)
 	{
 		WriteCommon(user,"NICK %s",parameters[0]);
+		
+		// Q token must go to ALL servers!!!
+		char buffer[MAXBUF];
+		snprintf(buffer,MAXBUF,"n %s %s",user->nick,parameters[0]);
+		for (int j = 0; j < 255; j++)
+		{
+			if (servers[j] != NULL)
+			{
+				me[defaultRoute]->SendPacket(buffer,servers[j]->internal_addr,servers[j]->internal_port,MyKey);
+				log(DEBUG,"Sent n token");
+			}
+		}
+		
 	}
 	
 	/* change the nick of the user in the users_hash */
@@ -5783,6 +5796,23 @@ void handle_Q(char token,char* params,serverrec* source,serverrec* reply, char* 
 	}
 }
 
+void handle_n(char token,char* params,serverrec* source,serverrec* reply, char* udp_host,int udp_port)
+{
+	char* oldnick = strtok(params," ");
+	char* newnick = strtok(NULL," ");
+	
+	userrec* user = Find(oldnick);
+	
+	if (!user)
+	{
+		WriteCommon(user,"NICK %s",newnick);
+		user = ReHashNick(user->nick, newnick);
+		if (!user) return;
+		if (!user->nick) return;
+		strncpy(user->nick, newnick,NICKMAX);
+		log(DEBUG,"new nick set: %s",user->nick);
+	}
+}
 
 void handle_N(char token,char* params,serverrec* source,serverrec* reply, char* udp_host,int udp_port)
 {
@@ -5907,6 +5937,13 @@ void process_restricted_commands(char token,char* params,serverrec* source,serve
 		// introduce remote client
 		case 'N':
 			handle_N(token,params,source,reply,udp_host,udp_port);
+		break;
+		// n <NICK> <NEWNICK>
+		// change nickname of client -- a server should only be able to
+		// change the nicknames of clients that reside on it unless
+		// they are ulined.
+		case 'n':
+			handle_n(token,params,source,reply,udp_host,udp_port);
 		break;
 		// J <NICK> <CHANLIST>
 		// Join user to channel list, merge channel permissions
