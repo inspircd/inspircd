@@ -12,21 +12,6 @@
  *            the file COPYING for details.
  *
  * ---------------------------------------------------
- 
- $Log$
- Revision 1.1  2003/01/23 19:45:58  brain
- Initial revision
-
- Revision 1.5  2003/01/21 20:31:24  brain
- Modified to add documentation
- Added ConfigReader class for modules
-
- Revision 1.4  2003/01/06 23:38:29  brain
-
- just playing with header tags
-
-
- * ---------------------------------------------------
  */
 
 void Exit (int); 

@@ -12,36 +12,6 @@
  *            the file COPYING for details.
  *
  * ---------------------------------------------------
- 
- $Log$
- Revision 1.1  2003/01/23 19:45:58  brain
- Initial revision
-
- Revision 1.12  2003/01/22 20:49:16  brain
- Added FileReader file-caching class
- Changed m_randquote to use FileReader class
-
- Revision 1.11  2003/01/21 20:31:24  brain
- Modified to add documentation
- Added ConfigReader class for modules
-
- Revision 1.10  2003/01/16 20:11:55  brain
- fixed some ugly pointer bugs (thanks dblack and a|KK|y!)
-
- Revision 1.9  2003/01/09 13:05:58  brain
-
- Fixed socket lingering problems (is BSD compatible)
-
- Revision 1.8  2003/01/07 19:57:56  brain
-
- Dynamix module support, preliminary release
-
- Revision 1.7  2003/01/06 23:38:29  brain
-
- just playing with header tags
-
-
- * ---------------------------------------------------
  */
 
 #include "inspircd.h"

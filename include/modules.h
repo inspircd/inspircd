@@ -1,36 +1,5 @@
 /*
 
-$Log$
-Revision 1.2  2003/01/26 23:52:59  brain
-Modified documentation for base classes
-Added base classes
-
-Revision 1.1.1.1  2003/01/23 19:45:58  brain
-InspIRCd second source tree
-
-Revision 1.12  2003/01/22 20:59:10  brain
-Added FileReader class documentation
-
-Revision 1.11  2003/01/22 20:49:16  brain
-Added FileReader file-caching class
-Changed m_randquote to use FileReader class
-
-Revision 1.10  2003/01/22 00:57:27  brain
-Changes to documentation
-
-Revision 1.9  2003/01/22 00:44:26  brain
-Added documentation comments
-
-Revision 1.8  2003/01/21 20:31:24  brain
-Modified to add documentation
-Added ConfigReader class for modules
-
-Revision 1.7  2003/01/15 22:47:44  brain
-Changed user and channel structs to classes (finally)
-
-Revision 1.6  2003/01/13 22:30:50  brain
-Added Admin class (holds /admin info for modules)
-Added methods to Server class
 
 
 */

@@ -1,39 +1,5 @@
 /*
 
-$Log$
-Revision 1.3  2003/01/27 00:22:53  brain
-Modified documentation
-Moved some classes below base class
-
-Revision 1.2  2003/01/26 23:52:59  brain
-Modified documentation for base classes
-Added base classes
-
-Revision 1.1.1.1  2003/01/23 19:45:58  brain
-InspIRCd second source tree
-
-Revision 1.9  2003/01/22 00:44:26  brain
-Added documentation comments
-
-Revision 1.8  2003/01/21 21:11:17  brain
-Added documentation
-
-Revision 1.7  2003/01/17 13:21:38  brain
-Added CONNECT ALLOW and CONNECT DENY config tags
-Added PASS command
-
-Revision 1.6  2003/01/17 10:37:55  brain
-Added /INVITE command and relevent structures
-
-Revision 1.5  2003/01/16 20:11:56  brain
-fixed some ugly pointer bugs (thanks dblack and a|KK|y!)
-
-Revision 1.4  2003/01/15 22:47:44  brain
-Changed user and channel structs to classes (finally)
-
-Revision 1.3  2003/01/14 21:14:30  brain
-added /ISON command (for mIRC etc basic notify)
-
 
 */
 

@@ -1,25 +1,5 @@
 /*
 
-$Log$
-Revision 1.2  2003/01/26 23:52:59  brain
-Modified documentation for base classes
-Added base classes
-
-Revision 1.1.1.1  2003/01/23 19:45:58  brain
-InspIRCd second source tree
-
-Revision 1.7  2003/01/22 00:44:26  brain
-Added documentation comments
-
-Revision 1.6  2003/01/21 21:11:17  brain
-Added documentation
-
-Revision 1.5  2003/01/16 20:11:55  brain
-fixed some ugly pointer bugs (thanks dblack and a|KK|y!)
-
-Revision 1.4  2003/01/15 22:47:44  brain
-Changed user and channel structs to classes (finally)
-
    
 */
 

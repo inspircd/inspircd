@@ -1,20 +1,5 @@
 /*
 
-$Log$
-Revision 1.1  2003/01/23 19:45:58  brain
-Initial revision
-
-Revision 1.3  2003/01/17 13:21:38  brain
-Added CONNECT ALLOW and CONNECT DENY config tags
-Added PASS command
-
-Revision 1.2  2003/01/17 10:37:55  brain
-Added /INVITE command and relevent structures
-
-Revision 1.1  2003/01/16 01:10:04  brain
-forgot to add this
-
-
 */
 
 #include "inspircd_config.h" 

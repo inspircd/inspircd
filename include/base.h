@@ -1,10 +1,5 @@
 /*
 
-$Log$
-Revision 1.1  2003/01/26 23:52:59  brain
-Modified documentation for base classes
-Added base classes
-
 
 */
 

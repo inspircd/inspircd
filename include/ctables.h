@@ -12,27 +12,6 @@
  *            the file COPYING for details.
  *
  * ---------------------------------------------------
- 
- $Log$
- Revision 1.2  2003/01/26 23:52:59  brain
- Modified documentation for base classes
- Added base classes
-
- Revision 1.1.1.1  2003/01/23 19:45:58  brain
- InspIRCd second source tree
-
- Revision 1.3  2003/01/15 22:47:44  brain
- Changed user and channel structs to classes (finally)
-
- Revision 1.2  2003/01/09 21:09:50  brain
- added '/stats M' command
-
- Revision 1.1  2003/01/07 01:02:14  brain
-
- definitions for command table types
-
-
- * ---------------------------------------------------
  */
 #include "inspircd_config.h"
 #include "inspircd.h"
