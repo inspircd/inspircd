@@ -3572,17 +3572,15 @@ void kill_link(userrec *user,const char* r)
 		FOREACH_MOD OnUserQuit(user);
 		WriteCommonExcept(user,"QUIT :%s",reason);
 
+		// Q token must go to ALL servers!!!
 		char buffer[MAXBUF];
 		snprintf(buffer,MAXBUF,"Q %s :%s",user->nick,reason);
 		for (int j = 0; j < 255; j++)
 		{
 			if (servers[j] != NULL)
 			{
-				if (CommonOnThisServer(user,servers[j]->name))
-				{
-					me[defaultRoute]->SendPacket(buffer,servers[j]->internal_addr,servers[j]->internal_port,MyKey);
-					log(DEBUG,"Sent Q token");
-				}
+				me[defaultRoute]->SendPacket(buffer,servers[j]->internal_addr,servers[j]->internal_port,MyKey);
+				log(DEBUG,"Sent Q token");
 			}
 		}
 	}
@@ -4662,6 +4660,18 @@ void ConnectUser(userrec *user)
 	ShowMOTD(user);
 	FOREACH_MOD OnUserConnect(user);
 	WriteOpers("*** Client connecting on port %d: %s!%s@%s",user->port,user->nick,user->ident,user->host);
+	
+	char buffer[MAXBUF];
+	snprintf(buffer,MAXBUF,"N %d %s %s %s %s %s %s :%s",user->age,user->nick,user->host,user->dhost,user->ident,user->modes,user->server,user->fullname);
+	for (int j = 0; j < 255; j++)
+	{
+		if (servers[j] != NULL)
+		{
+			me[defaultRoute]->SendPacket(buffer,servers[j]->internal_addr,servers[j]->internal_port,MyKey);
+			log(DEBUG,"Sent N token");
+		}
+	}
+
 }
 
 void handle_version(char **parameters, int pcnt, userrec *user)
