@@ -22,7 +22,7 @@ class ModuleServices : public Module
 		Srv->AddExtendedMode('r',MT_CLIENT,false,0,0);
 	}
 	
-	virtual bool OnExtendedMode(userrec* user, void* target, char modechar, int type, bool mode_on, string_list &params)
+	virtual int OnExtendedMode(userrec* user, void* target, char modechar, int type, bool mode_on, string_list &params)
 	{
 		
 		if (modechar != 'r') {

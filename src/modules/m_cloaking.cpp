@@ -59,7 +59,7 @@ class ModuleCloaking : public Module
 		return Version(1,0,0,1);
 	}
 	
-	virtual bool OnExtendedMode(userrec* user, void* target, char modechar, int type, bool mode_on, string_list &params)
+	virtual int OnExtendedMode(userrec* user, void* target, char modechar, int type, bool mode_on, string_list &params)
 	{
 		// this method is called for any extended mode character.
 		// all module modes for all modules pass through here

@@ -157,7 +157,7 @@ class ModuleHelpop : public Module
 
 	}
 
-	virtual bool OnExtendedMode(userrec* user, void* target, char modechar, int type, bool mode_on, string_list &params)
+	virtual int OnExtendedMode(userrec* user, void* target, char modechar, int type, bool mode_on, string_list &params)
 	{
 		if ((modechar == 'h') && (type == MT_CLIENT))
   		{

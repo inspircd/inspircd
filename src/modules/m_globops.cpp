@@ -47,7 +47,7 @@ class ModuleGlobops : public Module
 		return Version(1,0,0,1);
 	}
 	
-	virtual bool OnExtendedMode(userrec* user, void* target, char modechar, int type, bool mode_on, string_list &params)
+	virtual int OnExtendedMode(userrec* user, void* target, char modechar, int type, bool mode_on, string_list &params)
 	{
 		// check if this is our mode character...
 		if ((modechar == 'g') && (type == MT_CLIENT))
