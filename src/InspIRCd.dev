@@ -1,7 +1,7 @@
 [Project]
 FileName=InspIRCd.dev
 Name=InspIRCd
-UnitCount=27
+UnitCount=28
 Type=1
 Ver=1
 ObjFiles=
@@ -307,6 +307,16 @@ Priority=1000
 
 [Unit27]
 FileName=modules\m_testcommand.cpp
+CompileCpp=1
+Folder=Modules
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit28]
+FileName=modules\m_globops.cpp
 CompileCpp=1
 Folder=Modules
 Compile=1
