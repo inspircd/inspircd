@@ -173,6 +173,14 @@
         line6="1y2w3d4h5m6s - meaning one year, two weeks, three days, 4 hours,"
         line7="5 minutes and 6 seconds. All fields in this format are optional.">
 
+<eline line1="/ELINE [user@host] {[duration] :[reason]}"
+	line2="Sets or removes a e-line (local ban exception) on host mask."
+	line3="You must specify at least 3 parameters to add an exception, and one"
+	line4="parameter to remove an exception (just the user@host section)."
+	line5="The duration may be specified in seconds, or in the following format"
+	line6="1y2w3d4h5m6s - meaning one year, two weeks, three days, 4 hours,"
+	line7="5 minutes and 6 seconds. All fields in this format are optional.">
+
 <userhost line1="/USERHOST [nickname]"
 	line2="Returns the hostname and nickname of a user, and some other"
 	line3="miscellanious information.">
@@ -224,7 +232,7 @@
 	line2="-------------"
 	line3="DIE      RESTART KILL    REHASH      TRACE"
 	line4="CONNECT  SQUIT   MODULES KLINE       ZLINE"
-	line5="QLINE    GLINE">
+	line5="QLINE    GLINE   ELINE">
 
 <die line1="/DIE [password]"
 	line2="If the correct password is provided, and you are an operator,"
