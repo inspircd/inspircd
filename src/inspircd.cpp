@@ -327,7 +327,7 @@ void ReadConfig(bool bail, userrec* user)
 		if (bail)
 		{
 			printf("There were errors in your configuration:\n%s",errstr.str().c_str());
-			exit(0);
+			Exit(0);
 		}
 		else
 		{
@@ -2044,9 +2044,9 @@ void Error(int status)
 	signal (SIGSEGV, SIG_IGN);
 	signal (SIGURG, SIG_IGN);
 	signal (SIGKILL, SIG_IGN);
-	log(DEBUG,"*** fell down a pothole in the road to perfection ***");
+	log(DEFAULT,"*** fell down a pothole in the road to perfection ***");
 	send_error("Error! Segmentation fault! save meeeeeeeeeeeeee *splat!*");
-	exit(status);
+	Exit(status);
 }
 
 
@@ -2058,7 +2058,7 @@ int main(int argc, char **argv)
 	if (!FileExists(CONFIG_FILE))
 	{
 		printf("ERROR: Cannot open config file: %s\nExiting...\n",CONFIG_FILE);
-		log(DEBUG,"main: no config");
+		log(DEFAULT,"main: no config");
 		printf("ERROR: Your config file is missing, this IRCd will self destruct in 10 seconds!\n");
 		Exit(ERROR);
 	}
@@ -2077,7 +2077,7 @@ int main(int argc, char **argv)
 	
 	if (InspIRCd() == ERROR)
 	{
-		log(DEBUG,"main: daemon function bailed");
+		log(DEFAULT,"main: daemon function bailed");
 		printf("ERROR: could not initialise. Shutting down.\n");
 		Exit(ERROR);
 	}
@@ -3260,7 +3260,7 @@ int InspIRCd(void)
 	{
 		printf("WARNING!!! You are running an irc server as ROOT!!! DO NOT DO THIS!!!\n\n");
 		Exit(ERROR);
-		log(DEBUG,"InspIRCd: startup: not starting with UID 0!");
+		log(DEFAULT,"InspIRCd: startup: not starting with UID 0!");
 	}
 	SetupCommandTable();
 	log(DEBUG,"InspIRCd: startup: default command table set up");
@@ -3335,7 +3335,7 @@ int InspIRCd(void)
 			factory[count] = new ircd_module(modfile);
 			if (factory[count]->LastError())
 			{
-				log(DEBUG,"Unable to load %s: %s",modfile,factory[count]->LastError());
+				log(DEFAULT,"Unable to load %s: %s",modfile,factory[count]->LastError());
 				printf("Unable to load %s: %s\nExiting...\n",modfile,factory[count]->LastError());
 				Exit(ERROR);
 			}
@@ -3348,7 +3348,7 @@ int InspIRCd(void)
 			}
 			else
 			{
-				log(DEBUG,"Unable to load %s",modfile);
+				log(DEFAULT,"Unable to load %s",modfile);
 				printf("Unable to load %s\nExiting...\n",modfile);
 				Exit(ERROR);
 			}
@@ -3376,7 +3376,7 @@ int InspIRCd(void)
 	{
 		if (DaemonSeed() == ERROR)
 		{
-			log(DEBUG,"InspIRCd: startup: can't daemonise");
+			log(DEFAULT,"InspIRCd: startup: can't daemonise");
 	  		printf("ERROR: could not go into daemon mode. Shutting down.\n");
 			Exit(ERROR);
 	  	}
@@ -3401,7 +3401,7 @@ int InspIRCd(void)
 		}
 		if (BindSocket(openSockfd[boundPortCount],client,server,ports[count],addrs[count]) == ERROR)
 		{
-			log(DEBUG,"InspIRCd: startup: failed to bind port %d",ports[count]);
+			log(DEFAULT,"InspIRCd: startup: failed to bind port %d",ports[count]);
 		}
 		else	/* well we at least bound to one socket so we'll continue */
 		{
@@ -3414,7 +3414,7 @@ int InspIRCd(void)
 	/* if we didn't bind to anything then abort */
 	if (boundPortCount == 0)
 	{
-		log(DEBUG,"InspIRCd: startup: no ports bound, bailing!");
+		log(DEFAULT,"InspIRCd: startup: no ports bound, bailing!");
 		return (ERROR);
 	}
 	
