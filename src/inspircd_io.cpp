@@ -14,10 +14,8 @@
  * ---------------------------------------------------
  */
 
-#ifdef __linux__ 
+#include <sys/time.h>
 #include <sys/resource.h>
-#endif
-
 #include <sys/types.h>
 #include <string>
 #include <unistd.h>
@@ -96,9 +94,7 @@ int DaemonSeed (void)
   close(1);
   close(2);
 
-  #ifdef __linux__ 
   setpriority(PRIO_PROCESS,(int)getpid(),15); /* ircd sets to low process priority so it doesnt hog the box */
-  #endif
   
   return (TRUE);
 }
