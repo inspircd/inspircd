@@ -583,7 +583,6 @@ void apply_lines()
 					{
 						snprintf(reason,MAXBUF,"Matched Q-Lined nick: %s",check);
 						WriteOpers("*** Q-Lined nickname %s from %s: %s",u->second->nick,u->second->host,check);
-						WriteServ(u->second->fd,"432 %s %s :Invalid nickname: %s",u->second->nick,u->second->nick,check);
 						kill_link(u->second,reason);
 						go_again = true;
 						break;

@@ -58,7 +58,7 @@ int common_channels(userrec *u, userrec *u2)
 		{
 			if ((u->chans[i].channel != NULL) && (u2->chans[z].channel != NULL))
 			{
-				if ((u->chans[i].channel == u2->chans[z].channel) && (u->chans[i].channel) && (u2->chans[z].channel) && (u->registered == 7) && (u2->registered == 7))
+				if ((!strcasecmp(u->chans[i].channel->name,u2->chans[z].channel->name)) && (u->chans[i].channel) && (u2->chans[z].channel) && (u->registered == 7) && (u2->registered == 7))
 				{
 					if ((c_count(u)) && (c_count(u2)))
 					{
@@ -328,21 +328,24 @@ char* cmode(userrec *user, chanrec *chan)
 	int i;
 	for (int i = 0; i != MAXCHANS; i++)
 	{
-		if ((user->chans[i].channel == chan) && (chan != NULL))
+		if (u->chans[i].channel)
 		{
-			if ((user->chans[i].uc_modes & UCMODE_OP) > 0)
+			if ((!strcasecmp(u->chans[i].channel->name,chan->name)) && (chan != NULL))
 			{
-				return "@";
+				if ((user->chans[i].uc_modes & UCMODE_OP) > 0)
+				{
+					return "@";
+				}
+				if ((user->chans[i].uc_modes & UCMODE_HOP) > 0)
+				{
+					return "%";
+				}
+				if ((user->chans[i].uc_modes & UCMODE_VOICE) > 0)
+				{
+					return "+";
+				}
+				return "";
 			}
-			if ((user->chans[i].uc_modes & UCMODE_HOP) > 0)
-			{
-				return "%";
-			}
-			if ((user->chans[i].uc_modes & UCMODE_VOICE) > 0)
-			{
-				return "+";
-			}
-			return "";
 		}
 	}
 }
@@ -361,21 +364,24 @@ int cstatus(userrec *user, chanrec *chan)
 
 	for (int i = 0; i != MAXCHANS; i++)
 	{
-		if ((user->chans[i].channel == chan) && (chan != NULL))
+		if (u->chans[i].channel)
 		{
-			if ((user->chans[i].uc_modes & UCMODE_OP) > 0)
+			if ((!strcasecmp(u->chans[i].channel->name,chan->name)) && (chan != NULL))
 			{
-				return STATUS_OP;
+				if ((user->chans[i].uc_modes & UCMODE_OP) > 0)
+				{
+					return STATUS_OP;
+				}
+				if ((user->chans[i].uc_modes & UCMODE_HOP) > 0)
+				{
+					return STATUS_HOP;
+				}
+				if ((user->chans[i].uc_modes & UCMODE_VOICE) > 0)
+				{
+					return STATUS_VOICE;
+				}
+				return STATUS_NORMAL;
 			}
-			if ((user->chans[i].uc_modes & UCMODE_HOP) > 0)
-			{
-				return STATUS_HOP;
-			}
-			if ((user->chans[i].uc_modes & UCMODE_VOICE) > 0)
-			{
-				return STATUS_VOICE;
-			}
-			return STATUS_NORMAL;
 		}
 	}
 }
@@ -391,9 +397,12 @@ int has_channel(userrec *u, chanrec *c)
 	}
 	for (int i =0; i != MAXCHANS; i++)
 	{
-		if (u->chans[i].channel == c)
+		if (u->chans[i].channel)
 		{
-			return 1;
+			if (!strcasecmp(u->chans[i].channel->name,c->name))
+			{
+				return 1;
+			}
 		}
 	}
 	return 0;
