@@ -228,12 +228,12 @@ void handle_kick(char **parameters, int pcnt, userrec *user)
 		return;
 	}
 	
-	if (!has_channel(u,Ptr))
+	if (!has_channel(user,Ptr))
 	{
 		WriteServ(user->fd,"442 %s %s :You're not on that channel!",user->nick, parameters[0]);
 		return;
 	}
-
+	
 	char reason[MAXBUF];
 	
 	if (pcnt > 2)
