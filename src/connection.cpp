@@ -5,6 +5,7 @@
 #include <sys/ioctl.h>
 #include <sys/utsname.h>
 #include <errno.h>
+#include <vector>
 #include "inspircd.h"
 #include "modules.h"
 
@@ -161,7 +162,7 @@ bool connection::SendPacket(char *message, char* host, int port, long ourkey)
 			int res = select(65535, &sfd, NULL, NULL, &tval);
 			cycles++;
 		}
-		while ((recvfrom(fd,&p2,sizeof(p2),MSG_PEEK,(sockaddr*)&host_address,&host_address_size)<0) && (cycles < 10));
+		while ((recvfrom(fd,&p2,sizeof(p2),0,(sockaddr*)&host_address,&host_address_size)<0) && (cycles < 10));
 		
 		if (cycles >= 10)
 		{
@@ -171,21 +172,27 @@ bool connection::SendPacket(char *message, char* host, int port, long ourkey)
 		{
 			if (p2.type != PT_ACK_ONLY)
 			{
-				log(DEFAULT,"ERROR! connection::SendPacket() received a data response and was expecting a syn!!!");
+				packet_buf pb;
+				pb.p.id = p.id;
+				pb.p.key = p.key;
+				pb.p.type = p.type;
+				strcpy(pb.host,inet_ntoa(host_address.sin_addr));
+				pb.port = ntohs(host_address.sin_port);
+				this->buffer.push_back(pb);
+				
+				log(DEFAULT,"ERROR! connection::SendPacket() received a data response and was expecting an ACK!!!");
 				this->state = STATE_CLEAR;
 				return true;
 			}
 
 			if (p2.id != p.id)
 			{
-				recvfrom(fd,&p2,sizeof(p2),0,(sockaddr*)&host_address,&host_address_size);
 				log(DEFAULT,"ERROR! connection::SendPacket() received an ack for a packet it didnt send!");
 				this->state = STATE_CLEAR;
 				return false;
 			}
 			else
 			{
-				recvfrom(fd,&p2,sizeof(p2),0,(sockaddr*)&host_address,&host_address_size);
 				log(DEFAULT,"Successfully received ACK");
 				this->state = STATE_CLEAR;
 				return true;
@@ -297,6 +304,19 @@ bool connection::RecvPacket(char *message, char* host, int &prt, long &theirkey)
 	//int recvfrom(int s, void *buf, size_t len, int flags, struct sockaddr *from, socklen_t *fromlen);
 	if (recvfrom(fd,&p,sizeof(p),0,(sockaddr*)&host_address,&host_address_size)<0)
 	{
+		if (this->buffer.size())
+		{
+			log(DEBUG,"Fetching a buffered packet");
+
+			strcpy(message,buffer[0].p.data);
+			theirkey = buffer[0].p.key;
+			strcpy(host,buffer[0].host);
+			prt = buffer[0].port;
+			
+			buffer.erase(0);
+			
+			return true;
+		}
 		return false;
 	}
 
@@ -327,6 +347,26 @@ bool connection::RecvPacket(char *message, char* host, int &prt, long &theirkey)
 		theirkey = p.key;
 		prt = ntohs(host_address.sin_port); // the port we received it on
 		SendACK(host,prt,p.id);
+
+		if (this->buffer.size())
+		{
+			log(DEBUG,"Fetching a buffered packet");
+			packet_buf pb;
+			pb.p.id = p.id;
+			pb.p.key = p.key;
+			pb.p.type = p.type;
+			strcpy(pb.host,inet_ntoa(host_address.sin_addr));
+			pb.port = ntohs(host_address.sin_port);
+			this->buffer.push_back(pb);
+
+			strcpy(message,buffer[0].p.data);
+			theirkey = buffer[0].p.key;
+			strcpy(host,buffer[0].host);
+			prt = buffer[0].port;
+			
+			buffer.erase(0);
+		}
+
 		return true;
 	}
 

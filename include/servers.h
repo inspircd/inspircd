@@ -60,6 +60,7 @@ class serverrec : public connection
 	/** Destructor
 	 */
 	~serverrec();
+	
 };
 
 

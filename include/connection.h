@@ -13,6 +13,7 @@
 #include <unistd.h>
 #include <errno.h>
 #include <time.h>
+#include <vector>
 
 #ifndef __CONNECTION_H__
 #define __CONNECTION_H__
@@ -34,6 +35,15 @@ class packet : public classbase
 	packet();
 	~packet();
 };
+
+class packet_buf : public classbase
+{
+ public:
+	packet p;
+	char host[128];
+	int port;
+};
+
 
 
 class connection : public classbase
@@ -58,6 +68,7 @@ class connection : public classbase
 	time_t nping;
 	char internal_addr[1024];
 	int internal_port;
+	std::vector<packet_buf> buffer;
 	
 	connection();
 	bool CreateListener(char* host, int p);
