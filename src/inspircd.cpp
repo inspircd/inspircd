@@ -291,6 +291,19 @@ void chop(char* str)
 }
 
 
+long GetRevision()
+{
+	char Revision[] = "$Revision$";
+	char *s1 = Revision;
+	char *savept;
+	char *v1 = strtok_r(s1," ",&savept);
+	s1 = savept;
+	char *v2 = strtok_r(s1," ",&savept);
+	s1 = savept;
+	return (long)(atof(v2)*10000);
+}
+
+
 std::string getservername()
 {
 	return ServerName;
