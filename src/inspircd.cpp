@@ -6732,32 +6732,13 @@ void handle_link_packet(char* udp_msg, char* udp_host, serverrec *serv)
 			log(DEBUG,"(%d) Comparing against name='%s', ipaddr='%s', port='%s', recvpass='%s'",i,Link_ServerName,Link_IPAddr,Link_Port,Link_Pass);
 			LinkPort = atoi(Link_Port);
 			if (!strcasecmp(Link_ServerName,servername))
-   			{
-				if (!strcasecmp(Link_IPAddr,udp_host))
-    				{
-					// we have a matching link line -
-					// send a 'diminutive' server message back...
-					snprintf(response,10240,"s %s %s :%s",ServerName,Link_SendPass,ServerDesc);
-					serv->SendPacket(response,udp_host);
-					WriteOpers("CONNECT from %s accepted, authenticating",servername);
-					for (int j = 0; j < 255; j++)
-     					{
-						if (servers[j] == NULL)
-						{
-							servers[j] = new serverrec;
-							strcpy(servers[j]->internal_addr,udp_host);
-							strcpy(servers[j]->name,servername);
-							strcpy(servers[j]->description,serverdesc);
-							// create a server record for this server
-							WriteOpers("Server %s authenticated, exchanging server keys...",servername);
-							snprintf(response,10240,"O %d",MyKey);
-							serv->SendPacket(response,udp_host);
-							return;
-						}
-					}
-					WriteOpers("Internal error connecting to %s, failed to create server record!",servername);
-					return;
-				}
+  			{
+				// we have a matching link line -
+				// send a 'diminutive' server message back...
+				snprintf(response,10240,"s %s %s :%s",ServerName,Link_SendPass,ServerDesc);
+				serv->SendPacket(response,udp_host);
+				WriteOpers("Internal error connecting to %s, failed to create server record!",servername);
+				return;
 			}
 			else {
 				log(DEBUG,"Server names '%s' and '%s' don't match",Link_ServerName,servername);

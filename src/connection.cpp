@@ -269,6 +269,7 @@ bool connection::RecvPacket(char *message, char* host)
 				// something new on this socket, fill the return values and bail
 				strncpy(host,this->connectors[i].GetServerName().c_str(),160);
 				message[rcvsize-1] = 0;
+				log(DEBUG,"main: Connection::RecvPacket() got '%s' from %s",message,host);
 				return true;
 			}
 		}
