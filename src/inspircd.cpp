@@ -6836,14 +6836,10 @@ void handle_link_packet(char* udp_msg, char* udp_host, serverrec *serv)
 
 		serverrec* source_server = NULL;
 
-		log(DEBUG,"Begin checking");
-
-		for (int j = 0; j < 255; j++)
+		for (int j = 0; j < 32; j++)
   		{
-			log(DEBUG,"Loop %d",j);
 			if (me[j] != NULL)
    			{
-				log(DEBUG,"Server %d not null",j);
 				for (int x = 0; x < me[j]->connectors.size(); x++)
     				{
     					log(DEBUG,"Servers are: '%s' '%s'",udp_host,me[j]->connectors[x].GetServerName().c_str());
