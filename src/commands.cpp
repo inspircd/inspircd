@@ -685,7 +685,8 @@ void handle_whois(char **parameters, int pcnt, userrec *user)
 			}
 			if (strchr(dest->modes,'o'))
 			{
-				WriteServ(user->fd,"313 %s %s :is an IRC operator",user->nick, dest->nick);
+				WriteServ(user->fd,"313 %s %s :is %s %s on %s",user->nick, dest->nick,
+    				(strchr("aeiou",dest->oper[0]) ? "an" : "a"),dest->oper, Network);
 			}
 			FOREACH_MOD OnWhois(user,dest);
 			if (!strcasecmp(user->server,dest->server))
