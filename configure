@@ -101,9 +101,10 @@ exists () { # because some shells don't have test -e
 }
 
 echo "#include <string.h>">.test.cpp
-echo >"int main() { char a[10]; char b[10]; strlcpy(a,b,10); sprintf("999"); }" >>.test.cpp
-gcc -o .test .test.cpp
-$HAS_STRLCPY=`./.test`
+echo "#include <stdio.h>">>.test.cpp
+echo "int main() { char a[10]; char b[10]; strlcpy(a,b,10); printf(\"%d\\n\",999); }" >>.test.cpp
+g++ -o .test .test.cpp
+HAS_STRLCPY=`./.test`
 rm -f .test.cpp .test
 
 clear
@@ -405,7 +406,7 @@ echo -e "\033[0;37mGCC Version Found:\033[1;32m\t\t$GCCVER.$GCC34"
 echo -e "\033[0;37mOptimatizaton Flag:\033[1;32m\t\t$OPTIMISATI"
 echo -e "\033[0;37m"
 
-yyecho "Writing cache file for future ./configures ..."
+echo "Writing cache file for future ./configures ..."
 
 if [ "$CONFIG_DIR" != "$ME/conf" ] ; then
     COPY_CONF=1
