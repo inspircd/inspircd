@@ -5562,6 +5562,12 @@ int InspIRCd(void)
 	for (;;)
 	{
 
+		fd_set sfd;
+		struct timeval tval;
+		FD_ZERO(&sfd);
+
+		user_hash::iterator count2 = clientlist.begin();
+
 		// *FIX* Instead of closing sockets in kill_link when they receive the ERROR :blah line, we should queue
 		// them in a list, then reap the list every second or so.
 		if (reap_counter>5000)
@@ -5596,16 +5602,12 @@ int InspIRCd(void)
 				// link packets can manipulate the usertable so beware of
 				// any loops here watching the user or channels hash
 				log(DEBUG,"Sync: exit 3");
+				goto label;
 			}
 		}
 	}
 	
-	fd_set sfd;
-	struct timeval tval;
-	FD_ZERO(&sfd);
 
-	user_hash::iterator count2 = clientlist.begin();
-	
 	while (count2 != clientlist.end())
 	{
 		char data[10240];
