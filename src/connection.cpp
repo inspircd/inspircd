@@ -119,24 +119,25 @@ void ircd_connector::SetServerPort(int p)
 
 bool ircd_connector::MakeOutboundConnection(char* host, int port)
 {
+	log(DEBUG,"MakeOutboundConnection: Original param: %s",host);
 	hostent* hoste = gethostbyname(host);
 	if (!hoste)
 	{
-		WriteOpers("Failed to look up hostname for %s, using as an ip address",host);
+		log(DEBUG,"MakeOutboundConnection: gethostbyname was NULL, setting %s",host);
 		this->SetHostAddress(host,port);
 		SetHostAndPort(host,port);
 	}
 	else
 	{
-		WriteOpers("Found hostname for %s",host);
-		this->SetHostAddress(hoste->h_addr,port);
-		SetHostAndPort(hoste->h_addr,port);
+		log(DEBUG,"MakeOutboundConnection: gethostbyname was valid, setting %s",(char *)hoste->h_addr);
+		this->SetHostAddress((char *)hoste->h_addr,port);
+		SetHostAndPort((char *)hoste->h_addr,port);
 	}
 
 	this->fd = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 	if (this->fd >= 0)
 	{
-		if(connect(this->fd, (sockaddr*)&addr,sizeof(addr)))
+		if(connect(this->fd, (sockaddr*)&this->addr,sizeof(this->addr)))
 		{
 			WriteOpers("connect() failed for %s",host);
 			return false;
