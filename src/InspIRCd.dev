@@ -18,102 +18,102 @@ Icon=
 ExeOutput=
 ObjectOutput=
 OverrideOutput=0
-OverrideOutputName=
+OverrideOutputName=InspIRCd.exe
 HostApplication=
-Folders=Modules,Headers
+Folders=Headers,Modules,Source
 CommandLine=
 IncludeVersionInfo=0
 SupportXPThemes=0
 CompilerSet=0
-CompilerSettings=
+CompilerSettings=000000000000000000
 
 [Unit1]
 FileName=wildcard.cpp
-Folder=
-Compile=1
+Folder=Source
+Compile=0
 CompileCpp=1
 OverrideBuildCmd=0
-BuildCmd=
+BuildCmd=$(CPP) -c wildcard.cpp -o wildcard.o $(CXXFLAGS)
 
 [Unit2]
 FileName=inspircd.cpp
-Folder=
-Compile=1
+Folder=Source
+Compile=0
 CompileCpp=1
 OverrideBuildCmd=0
-BuildCmd=
+BuildCmd=$(CPP) -c inspircd.cpp -o inspircd.o $(CXXFLAGS)
 
 [Unit3]
 FileName=inspircd_io.cpp
-Folder=
-Compile=1
+Folder=Source
+Compile=0
 CompileCpp=1
 OverrideBuildCmd=0
-BuildCmd=
+BuildCmd=$(CPP) -c inspircd_io.cpp -o inspircd_io.o $(CXXFLAGS)
 
 [Unit4]
 FileName=inspircd_util.cpp
-Folder=
-Compile=1
+Folder=Source
+Compile=0
 CompileCpp=1
 OverrideBuildCmd=0
-BuildCmd=
+BuildCmd=$(CPP) -c inspircd_util.cpp -o inspircd_util.o $(CXXFLAGS)
 
 [Unit5]
 FileName=modules.cpp
-Folder=
-Compile=1
+Folder=Source
+Compile=0
 CompileCpp=1
 OverrideBuildCmd=0
-BuildCmd=
+BuildCmd=$(CPP) -c modules.cpp -o modules.o $(CXXFLAGS)
 
 [Unit6]
 FileName=servers.cpp
-Folder=
-Compile=1
+Folder=Source
+Compile=0
 CompileCpp=1
 OverrideBuildCmd=0
-BuildCmd=
+BuildCmd=$(CPP) -c servers.cpp -o servers.o $(CXXFLAGS)
 
 [Unit7]
 FileName=users.cpp
-Folder=
-Compile=1
+Folder=Source
+Compile=0
 CompileCpp=1
 OverrideBuildCmd=0
-BuildCmd=
+BuildCmd=$(CPP) -c users.cpp -o users.o $(CXXFLAGS)
 
 [Unit8]
 FileName=dynamic.cpp
-Folder=
-Compile=1
+Folder=Source
+Compile=0
 CompileCpp=1
 OverrideBuildCmd=0
-BuildCmd=
+BuildCmd=$(CPP) -c dynamic.cpp -o dynamic.o $(CXXFLAGS)
 
 [Unit9]
 FileName=modules\m_randquote.cpp
 Folder=Modules
-Compile=1
+Compile=0
 CompileCpp=1
 OverrideBuildCmd=0
-BuildCmd=
+BuildCmd=$(CPP) -c m_randquote.cpp -o m_randquote.o $(CXXFLAGS)
 
 [Unit10]
 FileName=modules\m_foobar.cpp
 Folder=Modules
-Compile=1
+Compile=0
 CompileCpp=1
 OverrideBuildCmd=0
-BuildCmd=
+BuildCmd=$(CPP) -c m_foobar.cpp -o m_foobar.o $(CXXFLAGS)
 
 [Unit11]
 FileName=modules\m_cloaking.cpp
 Folder=Modules
-Compile=1
+Compile=0
 CompileCpp=1
 OverrideBuildCmd=0
-BuildCmd=
+BuildCmd=$(CPP) -c m_cloaking.cpp -o m_cloaking.o $(CXXFLAGS)
 
 [Unit12]
 FileName=..\include\wildcard.h

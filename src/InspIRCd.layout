@@ -1,10 +1,10 @@
 [Editors]
-Focused=-1
+Focused=0
 Order=-1,7,1,2,3,4,5,6,0
 
 [Editor_0]
 Open=1
-Top=0
+Top=1
 CursorCol=1
 CursorRow=1
 TopLine=1
@@ -188,7 +188,7 @@ LeftChar=1
 
 [Editor_23]
 Open=1
-Top=1
+Top=0
 CursorCol=1
 CursorRow=3
 TopLine=1
