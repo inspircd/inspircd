@@ -885,11 +885,11 @@ void handle_who(char **parameters, int pcnt, userrec *user)
 			}
 			if (Ptr)
 			{
-				WriteServ(user->fd,"315 %s %s :End of /WHO list.",user->nick, Ptr->name);
+				WriteServ(user->fd,"315 %s %s :End of /WHO list.",user->nick , parameters[0]);
 			}
 			else
 			{
-				WriteServ(user->fd,"315 %s %s :End of /WHO list.",user->nick, user->nick);
+				WriteServ(user->fd,"315 %s %s :End of /WHO list.",user->nick, parameters[0]);
 			}
 			return;
 		}
@@ -914,7 +914,7 @@ void handle_who(char **parameters, int pcnt, userrec *user)
 						WriteServ(user->fd,"352 %s %s %s %s %s %s %s :0 %s",user->nick, Ptr->name, i->second->ident, i->second->dhost, i->second->server, i->second->nick, tmp, i->second->fullname);
 					}
 				}
-				WriteServ(user->fd,"315 %s %s :End of /WHO list.",user->nick, Ptr->name);
+				WriteServ(user->fd,"315 %s %s :End of /WHO list.",user->nick, parameters[0]);
 			}
 			else
 			{
@@ -962,7 +962,7 @@ void handle_who(char **parameters, int pcnt, userrec *user)
                                         }
                                 }
                         }
-                        WriteServ(user->fd,"315 %s %s :End of /WHO list.",user->nick, user->nick);
+                        WriteServ(user->fd,"315 %s %s :End of /WHO list.",user->nick, parameters[0]);
                         return;
                 }
 	}
