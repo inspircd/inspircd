@@ -88,6 +88,8 @@ extern serverrec* me[32];
 
 extern FILE *log_file;
 
+extern ClassVector Classes;
+
 const long duration_m = 60;
 const long duration_h = duration_m * 60;
 const long duration_d = duration_h * 24;
@@ -1075,6 +1077,7 @@ void handle_modules(char **parameters, int pcnt, userrec *user)
 
 void handle_stats(char **parameters, int pcnt, userrec *user)
 {
+	char Link_ServerName[MAXBUF],Link_IPAddr[MAXBUF],Link_Port[MAXBUF];
 	if (pcnt != 1)
 	{
 		return;
@@ -1085,6 +1088,63 @@ void handle_stats(char **parameters, int pcnt, userrec *user)
 		parameters[0][1] = '\0';
 	}
 
+
+	if (!strcasecmp(parameters[0],"c"))
+	{
+		for (int i = 0; i < ConfValueEnum("link",&config_f); i++)
+		{
+			ConfValue("link","name",i,Link_ServerName,&config_f);
+			ConfValue("link","ipaddr",i,Link_IPAddr,&config_f);
+			ConfValue("link","port",i,Link_Port,&config_f);
+			WriteServ(user->fd,"213 %s C *@%s * %s %s 0 M",user->nick,Link_IPAddr,Link_ServerName,Link_Port);
+			WriteServ(user->fd,"244 %s H * * %s",user->nick,Link_ServerName);
+		}
+	}
+	
+	if (!strcasecmp(parameters[0],"i"))
+	{
+		int idx = 0;
+		for (ClassVector::iterator i = Classes.begin(); i != Classes.end(); i++)
+		{
+			WriteServ(user->fd,"215 %s I * * * %d %d %s *",user->nick,MAXCLIENTS,idx,ServerName);
+			idx++;
+		}
+	}
+	
+	if (!strcasecmp(parameters[0],"y"))
+	{
+		int idx = 0;
+		for (ClassVector::iterator i = Classes.begin(); i != Classes.end(); i++)
+		{
+			WriteServ(user->fd,"218 %s Y %d %d 0 %d %d",user->nick,idx,120,i->flood,i->registration_timeout);
+			idx++;
+		}
+	}
+
+	if (!strcmp(parameters[0],"U"))
+	{
+		for (int i = 0; i < ConfValueEnum("uline",&config_f); i++)
+		{
+			ConfValue("uline","server",i,Link_ServerName,&config_f);
+			WriteServ(user->fd,"248 %s U %s",user->nick,Link_ServerName);
+		}
+	}
+	
+	if (!strcmp(parameters[0],"P"))
+	{
+		int idx = 0;
+	  	for (user_hash::iterator i = clientlist.begin(); i != clientlist.end(); i++)
+		{
+			if (strchr(i->second->modes,'o'))
+			{
+				WriteServ(user->fd,"249 %s :%s (%s@%s) Idle: %d",user->nick,i->second->nick,i->second->ident,i->second->dhost,(time(NULL) - i->second->idle_lastmsg));
+				idx++;
+			}
+				WriteServ(user->fd,"249 %s :%d OPER(s)",user->nick,idx);
+		}
+	//249 [Brain] :bwoadway-monitor (~wgmon@204.152.186.58) Idle: 18
+	}
+ 	
 	if (!strcmp(parameters[0],"k"))
 	{
 		stats_k(user);
