@@ -6795,7 +6795,7 @@ void handle_link_packet(char* udp_msg, char* udp_host, serverrec *serv)
       						{
 							strcpy(servers[j]->description,serverdesc);
 							DoSync(serv,udp_host);
-							Serv->SendPacket("X",udp_host);
+							Serv->SendPacket("X 0",udp_host);
 							return;
 						}
 					}
