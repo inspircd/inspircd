@@ -65,42 +65,75 @@ class Admin : public classbase
 class Module : public classbase
 {
  public:
+
 	/** Default constructor
 	 * creates a module class
 	 */
 	Module();
+
 	/** Default destructor
 	 * destroys a module class
 	 */
 	virtual ~Module();
+
 	/** Returns the version number of a Module.
 	 * The method should return a Version object with its version information assigned via
 	 * Version::Version
 	 */
 	virtual Version GetVersion();
+
 	/** Called when a user connects.
 	 * The details of the connecting user are available to you in the parameter userrec *user
 	 */
 	virtual void OnUserConnect(userrec* user);
+
 	/** Called when a user quits.
 	 * The details of the exiting user are available to you in the parameter userrec *user
 	 */
 	virtual void OnUserQuit(userrec* user);
+
 	/** Called when a user joins a channel.
 	 * The details of the joining user are available to you in the parameter userrec *user,
 	 * and the details of the channel they have joined is available in the variable chanrec *channel
 	 */
 	virtual void OnUserJoin(userrec* user, chanrec* channel);
+
 	/** Called when a user parts a channel.
 	 * The details of the leaving user are available to you in the parameter userrec *user,
 	 * and the details of the channel they have left is available in the variable chanrec *channel
 	 */
 	virtual void OnUserPart(userrec* user, chanrec* channel);
 
-
+	/** Called before a packet is transmitted across the irc network between two irc servers.
+	 * The packet is represented as a char*, as it should be regarded as a buffer, and not a string.
+	 * This allows you to easily represent it in the correct ways to implement encryption, compression,
+	 * digital signatures and anything else you may want to add. This should be regarded as a pre-processor
+	 * and will be called before ANY other operations within the ircd core program.
+	 */
 	virtual void Module::OnPacketTransmit(char *p);
+
+	/** Called after a packet is received from another irc server.
+	 * The packet is represented as a char*, as it should be regarded as a buffer, and not a string.
+	 * This allows you to easily represent it in the correct ways to implement encryption, compression,
+	 * digital signatures and anything else you may want to add. This should be regarded as a pre-processor
+	 * and will be called immediately after the packet is received but before any other operations with the
+	 * core of the ircd.
+	 */
  	virtual void Module::OnPacketReceive(char *p);
+
+	/** Called on rehash.
+	 * This method is called prior to a /REHASH or when a SIGHUP is received from the operating
+	 * system. You should use it to reload any files so that your module keeps in step with the
+	 * rest of the application.
+	 */
  	virtual void OnRehash();
+
+	/** Called when a raw command is transmitted or received.
+	 * This method is the lowest level of handler available to a module. It will be called with raw
+	 * data which is passing through a connected socket. If you wish, you may munge this data by changing
+	 * the string parameter "raw". If you do this, after your function exits it will immediately be
+	 * cut down to 510 characters plus a carriage return and linefeed.
+	 */
  	virtual void Module::OnServerRaw(string &raw, bool inbound);
 
 };
