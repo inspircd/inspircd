@@ -7,7 +7,7 @@
 CC = g++
 PROGS = inspircd
 FLAGS = -fPIC -frtti -O3
-LDLIBS = -ldl
+LDLIBS = -Ldl
 MODPATH = modules/
 MODULES = m_cloaking.so m_foobar.so m_randquote.so
 MAKEARGS = 'PROGS=${PROGS}' 'FLAGS=${FLAGS}' 'CC=${CC}' 'LDLIBS=${LDLIBS}' 'MODULES=${MODULES}'
