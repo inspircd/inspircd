@@ -1452,7 +1452,14 @@ chanrec* add_channel(userrec *user, const char* cn, const char* key, bool overri
 			{
 				// use the stamdard J token with no privilages.
 				char buffer[MAXBUF];
-				snprintf(buffer,MAXBUF,"J %s %s",user->nick,Ptr->name);
+				if (created == 2)
+				{
+					snprintf(buffer,MAXBUF,"J %s @%s",user->nick,Ptr->name);
+				}
+				else
+				{
+					snprintf(buffer,MAXBUF,"J %s %s",user->nick,Ptr->name);
+				}
 				NetSendToAll(buffer);
 			}
 
