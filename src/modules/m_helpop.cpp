@@ -88,7 +88,7 @@ bool do_helpop(char **parameters, int pcnt, userrec *src)
 	for (int i = 1; output != ""; i++)
 	{
 		snprintf(a,MAXBUF,"line%d",i);
-		output = helpop->ReadValue(std::string(search), std::string(a), 0);
+		output = helpop->ReadValue(search, a, 0);
 		if (output != "") {
 			Srv->SendTo(NULL,src,"290 "+std::string(src->nick)+" :"+output);
 			nlines++;
@@ -147,18 +147,13 @@ class ModuleHelpop : public Module
 
 		if (!Srv->AddExtendedMode('h',MT_CLIENT,true,0,0))
 		{
-			Srv->Log(DEFAULT,"Unable to clame the +h usermode.");
+			Srv->Log(DEFAULT,"Unable to claim the +h usermode.");
 			printf("m_helpop: Unable to claim the +h usermode!");
 			exit(0);
 		}
 
 		// Loads of comments, untill supported properly.
-		/*if (!*/Srv->AddCommand("HELPOP",handle_helpop,0,0);/*)
-		{
-			Srv->Log(DEFAULT,"Unable to claim the HELPOP command.");
-			printf("m_helpop: Unable to claim the HELPOP command.");
-			exit(0);
-		}*/		
+		Srv->AddCommand("HELPOP",handle_helpop,0,0);
 
 	}
 
@@ -171,7 +166,8 @@ class ModuleHelpop : public Module
 		return 0;
 	}
 
-	virtual void OnWhois(userrec* src, userrec* dst) {
+	virtual void OnWhois(userrec* src, userrec* dst)
+	{
 		if (strchr(src->modes,'h'))
 		{
 			Srv->SendTo(NULL,src,"310 "+std::string(src->nick)+" "+std::string(dst->nick)+" :is available for help.");
