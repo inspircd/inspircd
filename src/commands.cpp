@@ -1729,6 +1729,14 @@ void handle_AT(char token,char* params,serverrec* source,serverrec* reply, char*
 	}
 }
 
+void handle_H(char token,char* params,serverrec* source,serverrec* reply, char* tcp_host)
+{
+	log(DEBUG,"Adding ULined server %s to my map",params);
+	ircd_connector s;
+	s.SetState(STATE_DISCONNECTED);
+	s.SetServerName(params);
+	source->connectors.push_back(s);
+}
 
 void handle_N(char token,char* params,serverrec* source,serverrec* reply, char* tcp_host)
 {
@@ -2514,6 +2522,8 @@ void handle_link_packet(char* udp_msg, char* tcp_host, serverrec *serv)
 								serv->SendPacket(buffer,servername);
 								DoSync(me[j],servername);
 								NetSendMyRoutingTable();
+								sprintf(buffer,"H %s",servername);
+								NetSendToAllExcept(servername,buffer);
 								return;
 							}
 						}
