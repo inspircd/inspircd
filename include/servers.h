@@ -48,6 +48,8 @@ class serverrec : public connection
 	/** Description of the server
 	 */	
 	char description[MAXBUF];
+	
+	bool initiator;
 
 	/** Constructor
 	 */

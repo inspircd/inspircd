@@ -153,7 +153,7 @@ bool connection::SendPacket(char *message, char* host, int port, long ourkey)
 		{
 			fd_set sfd;
 			timeval tval;
-			tval.tv_usec = 1000;
+			tval.tv_usec = 100;
 			tval.tv_sec = 0;
 			FD_ZERO(&sfd);
 			FD_SET(fd,&sfd);
