@@ -28,7 +28,11 @@
 #include <cstdio>
 #include <time.h>
 #include <string>
+#ifdef GCC3
 #include <ext/hash_map>
+#else
+#include <hash_map>
+#endif
 #include <map>
 #include <sstream>
 #include <vector>
@@ -44,6 +48,12 @@
 #include "wildcard.h"
 
 using namespace std;
+
+#ifdef GCC3
+#define nspace __gnu_cxx
+#else
+#define nspace std
+#endif
 
 int LogLevel = DEFAULT;
 char ServerName[MAXBUF];
@@ -70,9 +80,9 @@ extern vector<ircd_module*> factory;
 
 extern int MODCOUNT;
 
-namespace __gnu_cxx
+namespace nspace
 {
-	template<> struct __gnu_cxx::hash<in_addr>
+	template<> struct nspace::hash<in_addr>
 	{
 		size_t operator()(const struct in_addr &a) const
 		{
@@ -82,7 +92,7 @@ namespace __gnu_cxx
 		}
 	};
 
-	template<> struct __gnu_cxx::hash<string>
+	template<> struct nspace::hash<string>
 	{
 		size_t operator()(const string &s) const
 		{
@@ -126,9 +136,9 @@ struct InAddr_HashComp
 };
 
 
-typedef __gnu_cxx::hash_map<std::string, userrec*, __gnu_cxx::hash<string>, StrHashComp> user_hash;
-typedef __gnu_cxx::hash_map<std::string, chanrec*, __gnu_cxx::hash<string>, StrHashComp> chan_hash;
-typedef __gnu_cxx::hash_map<in_addr,string*, __gnu_cxx::hash<in_addr>, InAddr_HashComp> address_cache;
+typedef nspace::hash_map<std::string, userrec*, nspace::hash<string>, StrHashComp> user_hash;
+typedef nspace::hash_map<std::string, chanrec*, nspace::hash<string>, StrHashComp> chan_hash;
+typedef nspace::hash_map<in_addr,string*, nspace::hash<in_addr>, InAddr_HashComp> address_cache;
 typedef std::deque<command_t> command_table;
 
 serverrec* me[32];
@@ -4037,25 +4047,25 @@ int InspIRCd(void)
 	ConfValue("bind","port",count,configToken);
 	ConfValue("bind","address",count,Addr);
 	ConfValue("bind","type",count,Type);
-	if (!strcmp(Type,"clients"))
+	if (!strcmp(Type,"servers"))
 	{
-	 	ports[count2] = atoi(configToken);
-		strcpy(addrs[count2],Addr);
-		count2++;
+                char Default[MAXBUF];
+                strcpy(Default,"no");
+                ConfValue("bind","default",count,Default);
+                if (strchr(Default,'y'))
+                {
+                                defaultRoute = count3;
+                                log(DEBUG,"InspIRCd: startup: binding '%s:%s' is default server route",Addr,configToken);
+                }
+                me[count3] = new serverrec(ServerName,100L,false);
+                me[count3]->CreateListener(Addr,atoi(configToken));
+                count3++;
 	}
 	else
 	{
-		char Default[MAXBUF];
-		strcpy(Default,"no");
-		ConfValue("bind","default",count,Default);
-		if (strchr(Default,'y'))
-		{
-				defaultRoute = count3;
-				log(DEBUG,"InspIRCd: startup: binding '%s:%s' is default server route",Addr,configToken);
-		}
-		me[count3] = new serverrec(ServerName,100L,false);
-		me[count3]->CreateListener(Addr,atoi(configToken));
-		count3++;
+                ports[count2] = atoi(configToken);
+                strcpy(addrs[count2],Addr);
+                count2++;
 	}
 	log(DEBUG,"InspIRCd: startup: read binding %s:%s [%s] from config",Addr,configToken, Type);
   }
