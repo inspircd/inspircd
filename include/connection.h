@@ -44,6 +44,10 @@ class ircd_connector : public classbase
 	 */
 	std::string servername;
 	
+	/** Server 'GECOS'
+	 */
+	std::string description;
+	
 	/** Server names of servers that this server is linked to
 	 * So for A->B->C, if this was the record for B it would contain A and C
 	 * whilever both servers are connected to B.
@@ -110,7 +114,7 @@ class connection : public classbase
 	bool CreateListener(char* host, int p);
 	bool BeginLink(char* targethost, int port, char* password, char* servername);
 	void TerminateLink(char* targethost);
-	bool SendPacket(char *message, char* host);
+	bool SendPacket(char *message, const char* host);
 	bool RecvPacket(std::deque<std::string> &messages, char* host);
 	ircd_connector* FindHost(std::string host);
 	bool AddIncoming(int fd,char* targethost);

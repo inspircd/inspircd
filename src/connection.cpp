@@ -235,7 +235,7 @@ void ircd_connector::SetDescriptor(int fd)
 	this->fd = fd;
 }
 
-bool connection::SendPacket(char *message, char* host)
+bool connection::SendPacket(char *message, const char* host)
 {
 	ircd_connector* cn = this->FindHost(host);
 	

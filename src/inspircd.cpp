@@ -149,7 +149,6 @@ typedef nspace::hash_map<in_addr,string*, nspace::hash<in_addr>, InAddr_HashComp
 typedef std::deque<command_t> command_table;
 
 serverrec* me[32];
-serverrec* servers[255];
 
 FILE *log_file;
 
@@ -869,7 +868,7 @@ bool ChanAnyOnThisServer(chanrec *c,char* servername)
 
 // returns true if user 'u' shares any common channels with any users on server 'servername'
 
-bool CommonOnThisServer(userrec* u,char* servername)
+bool CommonOnThisServer(userrec* u,const char* servername)
 {
 	log(DEBUG,"ChanAnyOnThisServer");
 	for (user_hash::iterator i = clientlist.begin(); i != clientlist.end(); i++)
@@ -885,6 +884,85 @@ bool CommonOnThisServer(userrec* u,char* servername)
 	return false;
 }
 
+
+void NetSendToCommon(userrec* u, chanrec* c, char* s)
+{
+	char buffer[MAXBUF];
+	snprintf(buffer,MAXBUF,"%s",s);
+	
+	for (int j = 0; j < 32; j++)
+	{
+		if (me[j] != NULL)
+		{
+			for (int k = 0; k < me[j]->connectors.size(); k++)
+			{
+				if (CommonOnThisServer(u,me[j]->connectors[k].GetServerName().c_str()))
+				{
+					me[j]->SendPacket(buffer,me[j]->connectors[k].GetServerName().c_str());
+				}
+			}
+		}
+	}
+}
+
+
+void NetSendToAll(char* s)
+{
+	char buffer[MAXBUF];
+	snprintf(buffer,MAXBUF,"%s",s);
+	
+	for (int j = 0; j < 32; j++)
+	{
+		if (me[j] != NULL)
+		{
+			for (int k = 0; k < me[j]->connectors.size(); k++)
+			{
+				me[j]->SendPacket(buffer,me[j]->connectors[k].GetServerName().c_str());
+			}
+		}
+	}
+}
+
+
+void NetSendToOne(char* target,char* s)
+{
+	char buffer[MAXBUF];
+	snprintf(buffer,MAXBUF,"%s",s);
+	
+	for (int j = 0; j < 32; j++)
+	{
+		if (me[j] != NULL)
+		{
+			for (int k = 0; k < me[j]->connectors.size(); k++)
+			{
+				if (!strcasecmp(me[j]->connectors[k].GetServerName().c_str(),target))
+				{
+					me[j]->SendPacket(buffer,me[j]->connectors[k].GetServerName().c_str());
+				}
+			}
+		}
+	}
+}
+
+void NetSendToAllExcept(char* target,char* s)
+{
+	char buffer[MAXBUF];
+	snprintf(buffer,MAXBUF,"%s",s);
+	
+	for (int j = 0; j < 32; j++)
+	{
+		if (me[j] != NULL)
+		{
+			for (int k = 0; k < me[j]->connectors.size(); k++)
+			{
+				if (strcasecmp(me[j]->connectors[k].GetServerName().c_str(),target))
+				{
+					me[j]->SendPacket(buffer,me[j]->connectors[k].GetServerName().c_str());
+				}
+			}
+		}
+	}
+}
 
 
 bool hasumode(userrec* user, char mode)
@@ -952,19 +1030,17 @@ void WriteMode(const char* modes, int flags, const char* text, ...)
 void ChangeName(userrec* user, const char* gecos)
 {
 	strncpy(user->fullname,gecos,MAXBUF);
+
+	// TODO: replace these with functions:
+	// NetSendToAll - to all
+	// NetSendToCommon - to all that hold users sharing a common channel with another user
+	// NetSendToOne - to one server
+	// NetSendToAllExcept - send to all but one
+	// all by servername
+
 	char buffer[MAXBUF];
 	snprintf(buffer,MAXBUF,"a %s :%s",user->nick,gecos);
-	for (int j = 0; j < 255; j++)
-	{
-		if (servers[j] != NULL)
-		{
-			if (strcmp(servers[j]->name,ServerName))
-			{
-				me[defaultRoute]->SendPacket(buffer,servers[j]->name);
-				log(DEBUG,"Sent a token");
-			}
-		}
-	}
+	NetSendToAll(buffer);
 }
 
 void ChangeDisplayedHost(userrec* user, const char* host)
@@ -972,17 +1048,7 @@ void ChangeDisplayedHost(userrec* user, const char* host)
 	strncpy(user->dhost,host,160);
 	char buffer[MAXBUF];
 	snprintf(buffer,MAXBUF,"b %s :%s",user->nick,host);
-	for (int j = 0; j < 255; j++)
-	{
-		if (servers[j] != NULL)
-		{
-			if (strcmp(servers[j]->name,ServerName))
-			{
-				me[defaultRoute]->SendPacket(buffer,servers[j]->name);
-				log(DEBUG,"Sent b token");
-			}
-		}
-	}
+	NetSendToAll(buffer);
 }
 
 void WriteWallOps(userrec *source, bool local_only, char* text, ...)  
@@ -1015,17 +1081,7 @@ void WriteWallOps(userrec *source, bool local_only, char* text, ...)
 	{
 		char buffer[MAXBUF];
 		snprintf(buffer,MAXBUF,"@ %s :%s",source->nick,textbuffer);
-		for (int j = 0; j < 255; j++)
-		{
-			if (servers[j] != NULL)
-			{
-				if (strcmp(servers[j]->name,ServerName))
-				{
-					me[defaultRoute]->SendPacket(buffer,servers[j]->name);
-					log(DEBUG,"Sent @ token");
-				}
-			}
-		}
+		NetSendToAll(buffer);
 	}
 }  
 
@@ -1650,14 +1706,7 @@ chanrec* add_channel(userrec *user, const char* cn, const char* key, bool overri
 				// use the stamdard J token with no privilages.
 				char buffer[MAXBUF];
 				snprintf(buffer,MAXBUF,"J %s :%s",user->nick,Ptr->name);
-				for (int j = 0; j < 255; j++)
-				{
-					if (servers[j] != NULL)
-					{
-						me[defaultRoute]->SendPacket(buffer,servers[j]->name);
-						log(DEBUG,"Sent J token");
-					}
-				}
+				NetSendToAll(buffer);
 			}
 
 			log(DEBUG,"Sent JOIN to client");
@@ -1722,14 +1771,7 @@ chanrec* del_channel(userrec *user, const char* cname, const char* reason, bool 
 				{
 					char buffer[MAXBUF];
 					snprintf(buffer,MAXBUF,"L %s %s :%s",user->nick,Ptr->name,reason);
-					for (int j = 0; j < 255; j++)
-					{
-						if (servers[j] != NULL)
-						{
-							me[defaultRoute]->SendPacket(buffer,servers[j]->name);
-							log(DEBUG,"Sent L token (with reason)");
-						}
-					}
+					NetSendToAll(buffer);
 				}
 
 				
@@ -1740,14 +1782,7 @@ chanrec* del_channel(userrec *user, const char* cname, const char* reason, bool 
 				{
 					char buffer[MAXBUF];
 					snprintf(buffer,MAXBUF,"L %s %s :",user->nick,Ptr->name);
-					for (int j = 0; j < 255; j++)
-					{
-						if (servers[j] != NULL)
-						{
-							me[defaultRoute]->SendPacket(buffer,servers[j]->name);
-							log(DEBUG,"Sent L token (no reason)");
-						}
-					}
+					NetSendToAll(buffer);
 				}
 			
 				WriteChannel(Ptr,user,"PART :%s",Ptr->name);
@@ -2672,17 +2707,7 @@ void process_modes(char **parameters,userrec* user,chanrec *chan,int status, int
 					// M token for a usermode must go to all servers
 					char buffer[MAXBUF];
 					snprintf(buffer,MAXBUF,"M %s %s",chan->name, outstr);
-					for (int j = 0; j < 255; j++)
-					{
-						if (servers[j] != NULL)
-						{
-							if (strcmp(servers[j]->name,ServerName))
-							{
-								me[defaultRoute]->SendPacket(buffer,servers[j]->name);
-								log(DEBUG,"Sent M token");
-							}
-						}
-					}
+					NetSendToAll(buffer);
 				}
 					
 			}
@@ -2694,17 +2719,7 @@ void process_modes(char **parameters,userrec* user,chanrec *chan,int status, int
 					// M token for a usermode must go to all servers
 					char buffer[MAXBUF];
 					snprintf(buffer,MAXBUF,"m %s %s %s",user->nick,chan->name, outstr);
-					for (int j = 0; j < 255; j++)
-					{
-						if (servers[j] != NULL)
-						{
-							if (strcmp(servers[j]->name,ServerName))
-							{
-								me[defaultRoute]->SendPacket(buffer,servers[j]->name);
-								log(DEBUG,"Sent m token");
-							}
-						}
-					}
+					NetSendToAll(buffer);
 				}
 			}
 		}
@@ -2989,17 +3004,7 @@ void handle_mode(char **parameters, int pcnt, userrec *user)
 			// M token for a usermode must go to all servers
 			char buffer[MAXBUF];
 			snprintf(buffer,MAXBUF,"m %s %s %s",user->nick, dest->nick, b);
-			for (int j = 0; j < 255; j++)
-			{
-				if (servers[j] != NULL)
-				{
-					if (strcmp(servers[j]->name,ServerName))
-					{
-						me[defaultRoute]->SendPacket(buffer,servers[j]->name);
-						log(DEBUG,"Sent m token");
-					}
-				}
-			}
+			NetSendToAll(buffer);
 
 			if (strlen(dmodes)>MAXMODES)
 			{
@@ -3214,17 +3219,7 @@ void server_mode(char **parameters, int pcnt, userrec *user)
 			// M token for a usermode must go to all servers
 			char buffer[MAXBUF];
 			snprintf(buffer,MAXBUF,"m %s %s %s",user->nick, dest->nick, b);
-			for (int j = 0; j < 255; j++)
-			{
-				if (servers[j] != NULL)
-				{
-					if (strcmp(servers[j]->name,ServerName))
-					{
-						me[defaultRoute]->SendPacket(buffer,servers[j]->name);
-						log(DEBUG,"Sent m token");
-					}
-				}
-			}
+			NetSendToAll(buffer);
 			
 			if (strlen(dmodes)>MAXMODES)
 			{
@@ -3846,15 +3841,7 @@ void handle_kick(char **parameters, int pcnt, userrec *user)
 	
 	char buffer[MAXBUF];
 	snprintf(buffer,MAXBUF,"k %s %s %s :%s",user->nick,u->nick,Ptr->name,reason);
-	for (int j = 0; j < 255; j++)
-	{
-		if (servers[j] != NULL)
-		{
-			me[defaultRoute]->SendPacket(buffer,servers[j]->name);
-			log(DEBUG,"Sent k token");
-		}
-	}
-	
+	NetSendToAll(buffer);
 }
 
 
@@ -3915,17 +3902,7 @@ void kill_link(userrec *user,const char* r)
 		// Q token must go to ALL servers!!!
 		char buffer[MAXBUF];
 		snprintf(buffer,MAXBUF,"Q %s :%s",user->nick,reason);
-		for (int j = 0; j < 255; j++)
-		{
-			if (servers[j] != NULL)
-			{
-				if (strcmp(servers[j]->name,ServerName))
-				{
-					me[defaultRoute]->SendPacket(buffer,servers[j]->name);
-					log(DEBUG,"Sent Q token");
-				}
-			}
-		}
+		NetSendToAll(buffer);
 	}
 
 	/* push the socket on a stack of sockets due to be closed at the next opportunity
@@ -3972,18 +3949,9 @@ void handle_kill(char **parameters, int pcnt, userrec *user)
 			WriteCommonExcept(u,"QUIT :%s",killreason);
 			// K token must go to ALL servers!!!
 			char buffer[MAXBUF];
-				snprintf(buffer,MAXBUF,"K %s %s :%s",user->nick,u->nick,killreason);
-			for (int j = 0; j < 255; j++)
-			{
-				if (servers[j] != NULL)
-				{
-					if (strcmp(servers[j]->name,ServerName))
-					{
-						me[defaultRoute]->SendPacket(buffer,servers[j]->name);
-						log(DEBUG,"Sent K token");
-					}
-				}
-			}
+			snprintf(buffer,MAXBUF,"K %s %s :%s",user->nick,u->nick,killreason);
+			NetSendToAll(buffer);
+			
 			user_hash::iterator iter = clientlist.find(u->nick);
 			if (iter != clientlist.end())
 			{
@@ -4110,17 +4078,7 @@ void handle_invite(char **parameters, int pcnt, userrec *user)
 	// i token must go to ALL servers!!!
 	char buffer[MAXBUF];
 	snprintf(buffer,MAXBUF,"i %s %s %s",u->nick,user->nick,c->name);
-	for (int j = 0; j < 255; j++)
-	{
-		if (servers[j] != NULL)
-		{
-			if (strcmp(servers[j]->name,ServerName))
-			{
-				me[defaultRoute]->SendPacket(buffer,servers[j]->name);
-				log(DEBUG,"Sent i token");
-			}
-		}
-	}
+	NetSendToAll(buffer);
 }
 
 void handle_topic(char **parameters, int pcnt, userrec *user)
@@ -4179,17 +4137,7 @@ void handle_topic(char **parameters, int pcnt, userrec *user)
 				// t token must go to ALL servers!!!
 				char buffer[MAXBUF];
 				snprintf(buffer,MAXBUF,"t %s %s :%s",user->nick,Ptr->name,topic);
-				for (int j = 0; j < 255; j++)
-				{
-					if (servers[j] != NULL)
-					{
-						if (strcmp(servers[j]->name,ServerName))
-						{
-							me[defaultRoute]->SendPacket(buffer,servers[j]->name);
-							log(DEBUG,"Sent t token");
-						}
-					}
-				}
+				NetSendToAll(buffer);
 			}
 			else
 			{
@@ -4486,16 +4434,7 @@ void handle_privmsg(char **parameters, int pcnt, userrec *user)
 			// if any users of this channel are on remote servers, broadcast the packet
 			char buffer[MAXBUF];
 			snprintf(buffer,MAXBUF,"P %s %s :%s",user->nick,chan->name,parameters[1]);
-			for (int j = 0; j < 255; j++)
-			{
-				if (servers[j] != NULL)
-				{
-					if (ChanAnyOnThisServer(chan,servers[j]->name))
-					{
-						me[defaultRoute]->SendPacket(buffer,servers[j]->name);
-					}
-				}
-			}
+			NetSendToCommon(user,chan,buffer);
 		}
 		else
 		{
@@ -4530,19 +4469,9 @@ void handle_privmsg(char **parameters, int pcnt, userrec *user)
 		}
 		else
 		{
-			for (int j = 0; j < 255; j++)
-			{
-				if (servers[j] != NULL)
-				{
-					if (!strcasecmp(servers[j]->name,dest->server))
-					{
-						// direct write, same server
-						char buffer[MAXBUF];
-						snprintf(buffer,MAXBUF,"P %s %s :%s",user->nick,dest->nick,parameters[1]);
-						me[defaultRoute]->SendPacket(buffer,servers[j]->name);
-					}
-				}
-			}
+			char buffer[MAXBUF];
+			snprintf(buffer,MAXBUF,"P %s %s :%s",user->nick,dest->nick,parameters[1]);
+			NetSendToOne(dest->server,buffer);
 		}
 	}
 	else
@@ -4589,16 +4518,7 @@ void handle_notice(char **parameters, int pcnt, userrec *user)
 			// if any users of this channel are on remote servers, broadcast the packet
 			char buffer[MAXBUF];
 			snprintf(buffer,MAXBUF,"V %s %s :%s",user->nick,chan->name,parameters[1]);
-			for (int j = 0; j < 255; j++)
-			{
-				if (servers[j] != NULL)
-				{
-					if (ChanAnyOnThisServer(chan,servers[j]->name))
-					{
-						me[defaultRoute]->SendPacket(buffer,servers[j]->name);
-					}
-				}
-			}
+			NetSendToCommon(user,chan,buffer);
 		}
 		else
 		{
@@ -4625,19 +4545,9 @@ void handle_notice(char **parameters, int pcnt, userrec *user)
 		}
 		else
 		{
-			for (int j = 0; j < 255; j++)
-			{
-				if (servers[j] != NULL)
-				{
-					if (!strcasecmp(servers[j]->name,dest->server))
-					{
-						// direct write, same server
-						char buffer[MAXBUF];
-						snprintf(buffer,MAXBUF,"V %s %s :%s",user->nick,dest->nick,parameters[1]);
-						me[defaultRoute]->SendPacket(buffer,servers[j]->name);
-					}
-				}
-			}
+			char buffer[MAXBUF];
+			snprintf(buffer,MAXBUF,"V %s %s :%s",user->nick,dest->nick,parameters[1]);
+			NetSendToOne(dest->server,buffer);
 		}
 	}
 	else
@@ -4758,16 +4668,9 @@ void handle_whois(char **parameters, int pcnt, userrec *user)
 
 void send_network_quit(const char* nick, const char* reason)
 {
-		char buffer[MAXBUF];
-		snprintf(buffer,MAXBUF,"Q %s :%s",nick,reason);
-		for (int j = 0; j < 255; j++)
-		{
-			if (servers[j] != NULL)
-			{
-				me[defaultRoute]->SendPacket(buffer,servers[j]->name);
-				log(DEBUG,"Sent Q token");
-			}
-		}
+	char buffer[MAXBUF];
+	snprintf(buffer,MAXBUF,"Q %s :%s",nick,reason);
+	NetSendToAll(buffer);
 }
 
 void handle_quit(char **parameters, int pcnt, userrec *user)
@@ -4797,14 +4700,7 @@ void handle_quit(char **parameters, int pcnt, userrec *user)
 
 			char buffer[MAXBUF];
 			snprintf(buffer,MAXBUF,"Q %s :%s%s",user->nick,PrefixQuit,parameters[0]);
-			for (int j = 0; j < 255; j++)
-			{
-				if (servers[j] != NULL)
-				{
-					me[defaultRoute]->SendPacket(buffer,servers[j]->name);
-					log(DEBUG,"Sent Q token");
-				}
-			}
+			NetSendToAll(buffer);
 		}
 		else
 		{
@@ -4814,14 +4710,7 @@ void handle_quit(char **parameters, int pcnt, userrec *user)
 
 			char buffer[MAXBUF];
 			snprintf(buffer,MAXBUF,"Q %s :Client exited",user->nick);
-			for (int j = 0; j < 255; j++)
-			{
-				if (servers[j] != NULL)
-				{
-					me[defaultRoute]->SendPacket(buffer,servers[j]->name);
-					log(DEBUG,"Sent Q token");
-				}
-			}
+			NetSendToAll(buffer);
 		}
 		FOREACH_MOD OnUserQuit(user);
 		AddWhoWas(user);
@@ -4998,11 +4887,11 @@ long chancount(void)
 long count_servs(void)
 {
 	int c = 0;
-	for (int j = 0; j < 255; j++)
-	{
-		if (servers[j] != NULL)
-			c++;
-	}
+	//for (int j = 0; j < 255; j++)
+	//{
+	//	if (servers[j] != NULL)
+	//		c++;
+	//}
 	return c;
 }
 
@@ -5100,18 +4989,7 @@ void ConnectUser(userrec *user)
 	
 	char buffer[MAXBUF];
 	snprintf(buffer,MAXBUF,"N %d %s %s %s %s +%s %s :%s",user->age,user->nick,user->host,user->dhost,user->ident,user->modes,ServerName,user->fullname);
-	for (int j = 0; j < 255; j++)
-	{
-		if (servers[j] != NULL)
-		{
-			if (strcmp(servers[j]->name,ServerName))
-			{
-				me[defaultRoute]->SendPacket(buffer,servers[j]->name);
-				log(DEBUG,"Sent N token");
-			}
-		}
-	}
-
+	NetSendToAll(buffer);
 }
 
 void handle_version(char **parameters, int pcnt, userrec *user)
@@ -5447,21 +5325,8 @@ void handle_connect(char **parameters, int pcnt, userrec *user)
 
 	if (me[defaultRoute])
 	{
-
-		// at this point parameters[0] is an ip in a string.
-		// TODO: Look this up from the <link> blocks instead!
-		for (int j = 0; j < 255; j++) {
-			if (servers[j] == NULL) {
-				servers[j] = new serverrec;
-				//servers[j]->initiator = true;
-				strcpy(servers[j]->internal_addr,Link_IPAddr);
-				strcpy(servers[j]->name,Link_ServerName);
-				log(DEBUG,"Allocated new serverrec");
-				me[defaultRoute]->BeginLink(Link_IPAddr,LinkPort,Link_Pass,Link_ServerName);
-				return;
-			}
-		}
-		WriteServ(user->fd,"NOTICE %s :*** Failed to create server record for address %s!",user->nick,Link_IPAddr);
+		me[defaultRoute]->BeginLink(Link_IPAddr,LinkPort,Link_Pass,Link_ServerName);
+		return;
 	}
 	else
 	{
@@ -5477,7 +5342,7 @@ void handle_squit(char **parameters, int pcnt, userrec *user)
 char islast(serverrec* s)
 {
 	char c = '`';
-	for (int j = 0; j < 255; j++)
+	/*for (int j = 0; j < 255; j++)
  	{
 		if (servers[j] != NULL)
   		{
@@ -5487,7 +5352,7 @@ char islast(serverrec* s)
   		{
   			c = '`';
 		}
-	}
+	}*/
 	return c;
 }
 
@@ -5506,10 +5371,10 @@ void handle_links(char **parameters, int pcnt, userrec *user)
 	WriteServ(user->fd,"364 %s %s %s :0 %s",user->nick,ServerName,ServerName,ServerDesc);
 	for (int j = 0; j < 255; j++)
  	{
-		if (servers[j] != NULL)
-  		{
-			WriteServ(user->fd,"364 %s %s %s :1 %s",user->nick,servers[j]->name,ServerName,servers[j]->description);
-		}
+	//	if (servers[j] != NULL)
+  	//	{
+	//		WriteServ(user->fd,"364 %s %s %s :1 %s",user->nick,servers[j]->name,ServerName,servers[j]->description);
+	//	}
 	}
 	WriteServ(user->fd,"365 %s * :End of /LINKS list.",user->nick);
 }
@@ -5523,13 +5388,13 @@ void handle_map(char **parameters, int pcnt, userrec *user)
 	WriteServ(user->fd,"%s%d (%.2f%%)",line,local_count(),(float)(((float)local_count()/(float)usercnt())*100));
 	for (int j = 0; j < 255; j++)
  	{
-		if (servers[j] != NULL)
-  		{
-			snprintf(line,MAXBUF,"006 %s :%c-%s",user->nick,islast(servers[j]),servers[j]->name);
-			while (strlen(line) < 50)
-				strcat(line," ");
-			WriteServ(user->fd,"%s%d (%.2f%%)",line,map_count(servers[j]),(float)(((float)map_count(servers[j])/(float)usercnt())*100));
-		}
+	//	if (servers[j] != NULL)
+  	//	{
+	//		snprintf(line,MAXBUF,"006 %s :%c-%s",user->nick,islast(servers[j]),servers[j]->name);
+	//		while (strlen(line) < 50)
+	//			strcat(line," ");
+	//		WriteServ(user->fd,"%s%d (%.2f%%)",line,map_count(servers[j]),(float)(((float)map_count(servers[j])/(float)usercnt())*100));
+	//	}
 	}
 	WriteServ(user->fd,"007 %s :End of /MAP",user->nick);
 }
@@ -5638,17 +5503,7 @@ void handle_nick(char **parameters, int pcnt, userrec *user)
 		// Q token must go to ALL servers!!!
 		char buffer[MAXBUF];
 		snprintf(buffer,MAXBUF,"n %s %s",user->nick,parameters[0]);
-		for (int j = 0; j < 255; j++)
-		{
-			if (servers[j] != NULL)
-			{
-				if (strcmp(servers[j]->name,ServerName))
-				{
-					me[defaultRoute]->SendPacket(buffer,servers[j]->name);
-					log(DEBUG,"Sent n token");
-				}
-			}
-		}
+		NetSendToAll(buffer);
 		
 	}
 	
@@ -6789,18 +6644,20 @@ void handle_link_packet(char* udp_msg, char* udp_host, serverrec *serv)
 				// matching link at this end too, we're all done!
 				// at this point we must begin key exchange and insert this
 				// server into our 'active' table.
-				for (int j = 0; j < 255; j++)
+				for (int j = 0; j < 32; j++)
     				{
-					if (servers[j] != NULL)
+					if (me[j] != NULL)
      					{
-						if (!strcasecmp(servers[j]->name,udp_host))
-      						{
-							char buffer[MAXBUF];
-							strcpy(servers[j]->description,serverdesc);
-							sprintf(buffer,"X 0");
-							serv->SendPacket(buffer,udp_host);
-							DoSync(serv,udp_host);
-							return;
+     						for (int k = 0; k < me[j]->connectors.size(); k++)
+     						{
+							if (!strcasecmp(me[j]->connectors[k].GetServerName().c_str(),udp_host))
+      							{
+								char buffer[MAXBUF];
+								sprintf(buffer,"X 0");
+								serv->SendPacket(buffer,udp_host);
+								DoSync(serv,udp_host);
+								return;
+							}
 						}
 					}
 					WriteOpers("\2WARNING!\2 %s sent us an authentication packet but we are not authenticating with this server right noe! Possible intrusion attempt!",udp_host);
@@ -6822,14 +6679,6 @@ void handle_link_packet(char* udp_msg, char* udp_host, serverrec *serv)
 		char* error_message = finalparam+2;
 		WriteOpers("ERROR from %s: %s",udp_host,error_message);
 		// remove this server from any lists
-		for (int j = 0; j < 255; j++) {
-			if (servers[j] != NULL) {
-				if (!strcasecmp(servers[j]->name,udp_host)) {
-					delete servers[j];
-					return;
-				}
-			}
-		}
 		return;
 	}
 	else {
