@@ -27,7 +27,6 @@ packet::~packet()
 
 connection::connection()
 {
-	key = GenKey();
 	fd = 0;
 }
 
