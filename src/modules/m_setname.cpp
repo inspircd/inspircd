@@ -20,13 +20,13 @@ Server *Srv;
 	 
 void handle_setname(char **parameters, int pcnt, userrec *user)
 {
-	std::string = "";
+	std::string line = "";
 	for (int i = 0; i < pcnt-1; i++)
 	{
 		line = line + std::string(parameters[i]);
 	}
 	line = line + std::string(parameters[pcnt-1]);
-	strncpy(user->fullname,parameters[0],127);
+	strncpy(user->fullname,line.c_str(),127);
 }
 
 

@@ -14,6 +14,7 @@ MODULES2 = $(MODS2:.cpp=.so)
 main:
 	rm -f .make ; \
 	for i in $(MODULES) ; do \
+		echo "echo \"Compiling: $$i\"" >>.make ;  \
 		echo "$(CXX) $(CXXFLAGS) -shared -o $$i `echo $$i | sed 's/.so/.cpp/'`">>.make ; \
 	done ; chmod u+x .make ; ./.make
 
