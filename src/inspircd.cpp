@@ -915,7 +915,7 @@ void NetSendToAll(char* s)
 	char buffer[MAXBUF];
 	snprintf(buffer,MAXBUF,"%s",s);
 	
-	log(DEBUG,"NetSendToAll: '%s'",target,s);
+	log(DEBUG,"NetSendToAll: '%s'",s);
 
 	for (int j = 0; j < 32; j++)
 	{
