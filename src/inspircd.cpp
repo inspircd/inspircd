@@ -3526,7 +3526,7 @@ void merge_mode2(char **parameters, int pcnt, userrec* user)
 	Ptr = FindChan(parameters[0]);
 	if (Ptr)
 	{
-		process_modes(parameters,user,Ptr,STATUS_OP,pcnt,true,true);
+		process_modes(parameters,user,Ptr,STATUS_OP,pcnt,false,true);
 	}
 }
 
@@ -6004,7 +6004,7 @@ void handle_M(char token,char* params,serverrec* source,serverrec* reply, char* 
 void handle_m(char token,char* params,serverrec* source,serverrec* reply, char* udp_host,int udp_port)
 {
 	char* pars[128];
-	char original[MAXBUF],target[MAXBUF];
+	char original[MAXBUF];
 	strncpy(original,params,MAXBUF);
 	int index = 0;
 	
@@ -6020,14 +6020,15 @@ void handle_m(char token,char* params,serverrec* source,serverrec* reply, char* 
 			pars[index++] = parameter;
 			parameter = strtok(NULL," ");
 		}
+		
 		merge_mode2(pars,--index,user);
-		if (FindChan(target))
+		if (FindChan(pars[0]))
 		{
-			WriteChannelLocal(FindChan(target), user, "MODE %s",original);
+			WriteChannelLocal(FindChan(pars[0]), user, "MODE %s",original);
 		}
-		if (Find(target))
+		if (Find(pars[0]))
 		{
-			WriteTo(user,Find(target),"MODE %s",original);
+			WriteTo(user,Find(pars[0]),"MODE %s",original);
 		}
 	}
 }
