@@ -9,119 +9,123 @@
 <hr><h1>users.h</h1><a href="users_8h.html">Go to the documentation of this file.</a><div class="fragment"><pre>00001 <span class="comment">/*</span>
 00002 <span class="comment"></span>
 00003 <span class="comment">$Log$
-00003 <span class="comment">Revision 1.3  2003/01/26 23:52:48  brain
-00003 <span class="comment">Modified documentation for base classes
+00003 <span class="comment">Revision 1.4  2003/01/27 00:22:39  brain
+00003 <span class="comment">Modified documentation
 00003 <span class="comment"></span>
-00004 <span class="comment">Revision 1.1.1.1  2003/01/23 19:45:58  brain</span>
-00005 <span class="comment">InspIRCd second source tree</span>
-00006 <span class="comment"></span>
-00007 <span class="comment">Revision 1.9  2003/01/22 00:44:26  brain</span>
-00008 <span class="comment">Added documentation comments</span>
-00009 <span class="comment"></span>
-00010 <span class="comment">Revision 1.8  2003/01/21 21:11:17  brain</span>
-00011 <span class="comment">Added documentation</span>
-00012 <span class="comment"></span>
-00013 <span class="comment">Revision 1.7  2003/01/17 13:21:38  brain</span>
-00014 <span class="comment">Added CONNECT ALLOW and CONNECT DENY config tags</span>
-00015 <span class="comment">Added PASS command</span>
+00004 <span class="comment">Revision 1.2  2003/01/26 23:52:59  brain</span>
+00005 <span class="comment">Modified documentation for base classes</span>
+00006 <span class="comment">Added base classes</span>
+00007 <span class="comment"></span>
+00008 <span class="comment">Revision 1.1.1.1  2003/01/23 19:45:58  brain</span>
+00009 <span class="comment">InspIRCd second source tree</span>
+00010 <span class="comment"></span>
+00011 <span class="comment">Revision 1.9  2003/01/22 00:44:26  brain</span>
+00012 <span class="comment">Added documentation comments</span>
+00013 <span class="comment"></span>
+00014 <span class="comment">Revision 1.8  2003/01/21 21:11:17  brain</span>
+00015 <span class="comment">Added documentation</span>
 00016 <span class="comment"></span>
-00017 <span class="comment">Revision 1.6  2003/01/17 10:37:55  brain</span>
-00018 <span class="comment">Added /INVITE command and relevent structures</span>
-00019 <span class="comment"></span>
-00020 <span class="comment">Revision 1.5  2003/01/16 20:11:56  brain</span>
-00021 <span class="comment">fixed some ugly pointer bugs (thanks dblack and a|KK|y!)</span>
-00022 <span class="comment"></span>
-00023 <span class="comment">Revision 1.4  2003/01/15 22:47:44  brain</span>
-00024 <span class="comment">Changed user and channel structs to classes (finally)</span>
-00025 <span class="comment"></span>
-00026 <span class="comment">Revision 1.3  2003/01/14 21:14:30  brain</span>
-00027 <span class="comment">added /ISON command (for mIRC etc basic notify)</span>
-00028 <span class="comment"></span>
+00017 <span class="comment">Revision 1.7  2003/01/17 13:21:38  brain</span>
+00018 <span class="comment">Added CONNECT ALLOW and CONNECT DENY config tags</span>
+00019 <span class="comment">Added PASS command</span>
+00020 <span class="comment"></span>
+00021 <span class="comment">Revision 1.6  2003/01/17 10:37:55  brain</span>
+00022 <span class="comment">Added /INVITE command and relevent structures</span>
+00023 <span class="comment"></span>
+00024 <span class="comment">Revision 1.5  2003/01/16 20:11:56  brain</span>
+00025 <span class="comment">fixed some ugly pointer bugs (thanks dblack and a|KK|y!)</span>
+00026 <span class="comment"></span>
+00027 <span class="comment">Revision 1.4  2003/01/15 22:47:44  brain</span>
+00028 <span class="comment">Changed user and channel structs to classes (finally)</span>
 00029 <span class="comment"></span>
-00030 <span class="comment">*/</span>
-00031 
-00032 <span class="preprocessor">#include "inspircd_config.h"</span> 
-00033 <span class="preprocessor">#include "<a class="code" href="channels_8h.html">channels.h</a>"</span>
-00034 <span class="preprocessor">#include "<a class="code" href="connection_8h.html">connection.h</a>"</span>
+00030 <span class="comment">Revision 1.3  2003/01/14 21:14:30  brain</span>
+00031 <span class="comment">added /ISON command (for mIRC etc basic notify)</span>
+00032 <span class="comment"></span>
+00033 <span class="comment"></span>
+00034 <span class="comment">*/</span>
 00035 
-00036 <span class="preprocessor">#include &lt;string&gt;</span>
-00037  
-00038 <span class="preprocessor">#ifndef __USERS_H__ </span>
-00039 <span class="preprocessor"></span><span class="preprocessor">#define __USERS_H__ </span>
-00040 <span class="preprocessor"></span> 
-<a name="l00041"></a><a class="code" href="users_8h.html#a0">00041</a> <span class="preprocessor">#define STATUS_OP       4</span>
-<a name="l00042"></a><a class="code" href="users_8h.html#a1">00042</a> <span class="preprocessor"></span><span class="preprocessor">#define STATUS_HOP      2</span>
-<a name="l00043"></a><a class="code" href="users_8h.html#a2">00043</a> <span class="preprocessor"></span><span class="preprocessor">#define STATUS_VOICE    1</span>
-<a name="l00044"></a><a class="code" href="users_8h.html#a3">00044</a> <span class="preprocessor"></span><span class="preprocessor">#define STATUS_NORMAL   0</span>
-00045 <span class="preprocessor"></span>
-<a name="l00046"></a><a class="code" href="users_8h.html#a4">00046</a> <span class="preprocessor">#define CC_ALLOW        0</span>
-<a name="l00047"></a><a class="code" href="users_8h.html#a5">00047</a> <span class="preprocessor"></span><span class="preprocessor">#define CC_DENY         1</span>
-00048 <span class="preprocessor"></span>
-<a name="l00051"></a><a class="code" href="classInvited.html">00051</a> <span class="keyword">class </span><a class="code" href="classInvited.html">Invited</a>
-00052 {
-00053  <span class="keyword">public</span>:
-<a name="l00054"></a><a class="code" href="classInvited.html#m0">00054</a>         <span class="keywordtype">char</span> <a class="code" href="classInvited.html#m0">channel</a>[CHANMAX];
-00055 };
-00056 
-00057 
-<a name="l00060"></a><a class="code" href="classConnectClass.html">00060</a> <span class="keyword">class </span><a class="code" href="classConnectClass.html">ConnectClass</a>
-00061 {
-00062  <span class="keyword">public</span>:
-<a name="l00063"></a><a class="code" href="classConnectClass.html#m0">00063</a>         <span class="keywordtype">int</span> <a class="code" href="classConnectClass.html#m0">type</a>;
-<a name="l00064"></a><a class="code" href="classConnectClass.html#m1">00064</a>         <span class="keywordtype">char</span> <a class="code" href="classConnectClass.html#m1">host</a>[MAXBUF];
-<a name="l00065"></a><a class="code" href="classConnectClass.html#m2">00065</a>         <span class="keywordtype">char</span> <a class="code" href="classConnectClass.html#m2">pass</a>[MAXBUF];
-00066 };
-00067 
-<a name="l00070"></a><a class="code" href="users_8h.html#a6">00070</a> <span class="keyword">typedef</span> vector&lt;Invited&gt; <a class="code" href="users_8h.html#a6">InvitedList</a>;
+00036 <span class="preprocessor">#include "inspircd_config.h"</span> 
+00037 <span class="preprocessor">#include "<a class="code" href="channels_8h.html">channels.h</a>"</span>
+00038 <span class="preprocessor">#include "<a class="code" href="connection_8h.html">connection.h</a>"</span>
+00039 
+00040 <span class="preprocessor">#include &lt;string&gt;</span>
+00041  
+00042 <span class="preprocessor">#ifndef __USERS_H__ </span>
+00043 <span class="preprocessor"></span><span class="preprocessor">#define __USERS_H__ </span>
+00044 <span class="preprocessor"></span> 
+<a name="l00045"></a><a class="code" href="users_8h.html#a0">00045</a> <span class="preprocessor">#define STATUS_OP       4</span>
+<a name="l00046"></a><a class="code" href="users_8h.html#a1">00046</a> <span class="preprocessor"></span><span class="preprocessor">#define STATUS_HOP      2</span>
+<a name="l00047"></a><a class="code" href="users_8h.html#a2">00047</a> <span class="preprocessor"></span><span class="preprocessor">#define STATUS_VOICE    1</span>
+<a name="l00048"></a><a class="code" href="users_8h.html#a3">00048</a> <span class="preprocessor"></span><span class="preprocessor">#define STATUS_NORMAL   0</span>
+00049 <span class="preprocessor"></span>
+<a name="l00050"></a><a class="code" href="users_8h.html#a4">00050</a> <span class="preprocessor">#define CC_ALLOW        0</span>
+<a name="l00051"></a><a class="code" href="users_8h.html#a5">00051</a> <span class="preprocessor"></span><span class="preprocessor">#define CC_DENY         1</span>
+00052 <span class="preprocessor"></span>
+<a name="l00055"></a><a class="code" href="classInvited.html">00055</a> <span class="keyword">class </span><a class="code" href="classInvited.html">Invited</a> : <span class="keyword">public</span> <a class="code" href="classclassbase.html">classbase</a>
+00056 {
+00057  <span class="keyword">public</span>:
+<a name="l00058"></a><a class="code" href="classInvited.html#m0">00058</a>         <span class="keywordtype">char</span> <a class="code" href="classInvited.html#m0">channel</a>[CHANMAX];
+00059 };
+00060 
+00061 
+<a name="l00064"></a><a class="code" href="classConnectClass.html">00064</a> <span class="keyword">class </span><a class="code" href="classConnectClass.html">ConnectClass</a> : <span class="keyword">public</span> <a class="code" href="classclassbase.html">classbase</a>
+00065 {
+00066  <span class="keyword">public</span>:
+<a name="l00067"></a><a class="code" href="classConnectClass.html#m0">00067</a>         <span class="keywordtype">int</span> <a class="code" href="classConnectClass.html#m0">type</a>;
+<a name="l00068"></a><a class="code" href="classConnectClass.html#m1">00068</a>         <span class="keywordtype">char</span> <a class="code" href="classConnectClass.html#m1">host</a>[MAXBUF];
+<a name="l00069"></a><a class="code" href="classConnectClass.html#m2">00069</a>         <span class="keywordtype">char</span> <a class="code" href="classConnectClass.html#m2">pass</a>[MAXBUF];
+00070 };
 00071 
-00072 
-00073 
-<a name="l00076"></a><a class="code" href="users_8h.html#a7">00076</a> <span class="keyword">typedef</span> vector&lt;ConnectClass&gt; <a class="code" href="users_8h.html#a7">ClassVector</a>;
+<a name="l00074"></a><a class="code" href="users_8h.html#a6">00074</a> <span class="keyword">typedef</span> vector&lt;Invited&gt; <a class="code" href="users_8h.html#a6">InvitedList</a>;
+00075 
+00076 
 00077 
-<a name="l00084"></a><a class="code" href="classuserrec.html">00084</a> <span class="keyword">class </span><a class="code" href="classuserrec.html">userrec</a> : <span class="keyword">public</span> <a class="code" href="classconnection.html">connection</a>
-00085 {
-00086  <span class="keyword">private</span>:
-00087 
-<a name="l00090"></a><a class="code" href="classuserrec.html#o0">00090</a>         <a class="code" href="users_8h.html#a6">InvitedList</a> <a class="code" href="classuserrec.html#o0">invites</a>;
-00091  <span class="keyword">public</span>:
-00092         
-<a name="l00097"></a><a class="code" href="classuserrec.html#m0">00097</a>         <span class="keywordtype">char</span> <a class="code" href="classuserrec.html#m0">nick</a>[NICKMAX];
-00098         
-<a name="l00101"></a><a class="code" href="classuserrec.html#m1">00101</a>         <span class="keywordtype">char</span> <a class="code" href="classuserrec.html#m1">ident</a>[64];
-00102 
-<a name="l00106"></a><a class="code" href="classuserrec.html#m2">00106</a>         <span class="keywordtype">char</span> <a class="code" href="classuserrec.html#m2">dhost</a>[256];
-00107         
-<a name="l00110"></a><a class="code" href="classuserrec.html#m3">00110</a>         <span class="keywordtype">char</span> <a class="code" href="classuserrec.html#m3">fullname</a>[128];
+<a name="l00080"></a><a class="code" href="users_8h.html#a7">00080</a> <span class="keyword">typedef</span> vector&lt;ConnectClass&gt; <a class="code" href="users_8h.html#a7">ClassVector</a>;
+00081 
+<a name="l00088"></a><a class="code" href="classuserrec.html">00088</a> <span class="keyword">class </span><a class="code" href="classuserrec.html">userrec</a> : <span class="keyword">public</span> <a class="code" href="classconnection.html">connection</a>
+00089 {
+00090  <span class="keyword">private</span>:
+00091 
+<a name="l00094"></a><a class="code" href="classuserrec.html#o0">00094</a>         <a class="code" href="users_8h.html#a6">InvitedList</a> <a class="code" href="classuserrec.html#o0">invites</a>;
+00095  <span class="keyword">public</span>:
+00096         
+<a name="l00101"></a><a class="code" href="classuserrec.html#m0">00101</a>         <span class="keywordtype">char</span> <a class="code" href="classuserrec.html#m0">nick</a>[NICKMAX];
+00102         
+<a name="l00105"></a><a class="code" href="classuserrec.html#m1">00105</a>         <span class="keywordtype">char</span> <a class="code" href="classuserrec.html#m1">ident</a>[64];
+00106 
+<a name="l00110"></a><a class="code" href="classuserrec.html#m2">00110</a>         <span class="keywordtype">char</span> <a class="code" href="classuserrec.html#m2">dhost</a>[256];
 00111         
-<a name="l00116"></a><a class="code" href="classuserrec.html#m4">00116</a>         <span class="keywordtype">char</span> <a class="code" href="classuserrec.html#m4">modes</a>[32];
-00117         
-<a name="l00118"></a><a class="code" href="classuserrec.html#m5">00118</a>         <a class="code" href="classucrec.html">ucrec</a> <a class="code" href="classuserrec.html#m5">chans</a>[MAXCHANS];
-00119         
-<a name="l00122"></a><a class="code" href="classuserrec.html#m6">00122</a>         <span class="keywordtype">char</span> <a class="code" href="classuserrec.html#m6">server</a>[256];
+<a name="l00114"></a><a class="code" href="classuserrec.html#m3">00114</a>         <span class="keywordtype">char</span> <a class="code" href="classuserrec.html#m3">fullname</a>[128];
+00115         
+<a name="l00120"></a><a class="code" href="classuserrec.html#m4">00120</a>         <span class="keywordtype">char</span> <a class="code" href="classuserrec.html#m4">modes</a>[32];
+00121         
+<a name="l00122"></a><a class="code" href="classuserrec.html#m5">00122</a>         <a class="code" href="classucrec.html">ucrec</a> <a class="code" href="classuserrec.html#m5">chans</a>[MAXCHANS];
 00123         
-<a name="l00127"></a><a class="code" href="classuserrec.html#m7">00127</a>         <span class="keywordtype">char</span> <a class="code" href="classuserrec.html#m7">awaymsg</a>[512];
-00128         
-<a name="l00132"></a><a class="code" href="classuserrec.html#m8">00132</a>         <span class="keywordtype">char</span> <a class="code" href="classuserrec.html#m8">result</a>[256];
-00133         
-00134         <a class="code" href="classuserrec.html#a0">userrec</a>();
-00135         
-<a name="l00136"></a><a class="code" href="classuserrec.html#a1">00136</a>         <span class="keyword">virtual</span> <a class="code" href="classuserrec.html#a1">~userrec</a>() {  }
+<a name="l00126"></a><a class="code" href="classuserrec.html#m6">00126</a>         <span class="keywordtype">char</span> <a class="code" href="classuserrec.html#m6">server</a>[256];
+00127         
+<a name="l00131"></a><a class="code" href="classuserrec.html#m7">00131</a>         <span class="keywordtype">char</span> <a class="code" href="classuserrec.html#m7">awaymsg</a>[512];
+00132         
+<a name="l00136"></a><a class="code" href="classuserrec.html#m8">00136</a>         <span class="keywordtype">char</span> <a class="code" href="classuserrec.html#m8">result</a>[256];
 00137         
-00142         <span class="keyword">virtual</span> <span class="keywordtype">char</span>* <a class="code" href="classuserrec.html#a2">GetFullHost</a>();
-00143         
-00149         <span class="keyword">virtual</span> <span class="keywordtype">char</span>* <a class="code" href="classuserrec.html#a3">GetFullRealHost</a>();
-00150         
-00153         <span class="keyword">virtual</span> <span class="keywordtype">bool</span> <a class="code" href="classuserrec.html#a4">IsInvited</a>(<span class="keywordtype">char</span>* channel);
+00138         <a class="code" href="classuserrec.html#a0">userrec</a>();
+00139         
+<a name="l00140"></a><a class="code" href="classuserrec.html#a1">00140</a>         <span class="keyword">virtual</span> <a class="code" href="classuserrec.html#a1">~userrec</a>() {  }
+00141         
+00146         <span class="keyword">virtual</span> <span class="keywordtype">char</span>* <a class="code" href="classuserrec.html#a2">GetFullHost</a>();
+00147         
+00153         <span class="keyword">virtual</span> <span class="keywordtype">char</span>* <a class="code" href="classuserrec.html#a3">GetFullRealHost</a>();
 00154         
-00157         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classuserrec.html#a5">InviteTo</a>(<span class="keywordtype">char</span>* channel);
+00157         <span class="keyword">virtual</span> <span class="keywordtype">bool</span> <a class="code" href="classuserrec.html#a4">IsInvited</a>(<span class="keywordtype">char</span>* channel);
 00158         
-00163         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classuserrec.html#a6">RemoveInvite</a>(<span class="keywordtype">char</span>* channel);
-00164         
-00165 };
-00166 
-00167 
-00168 <span class="preprocessor">#endif</span>
-</pre></div><hr><address style="align: right;"><small>Generated on Sun Jan 26 23:45:48 2003 for InspIRCd by
+00161         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classuserrec.html#a5">InviteTo</a>(<span class="keywordtype">char</span>* channel);
+00162         
+00167         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classuserrec.html#a6">RemoveInvite</a>(<span class="keywordtype">char</span>* channel);
+00168         
+00169 };
+00170 
+00171 
+00172 <span class="preprocessor">#endif</span>
+</pre></div><hr><address style="align: right;"><small>Generated on Mon Jan 27 00:16:41 2003 for InspIRCd by
 <a href="http://www.doxygen.org/index.html">
 <img src="doxygen.png" alt="doxygen" align="middle" border=0 
 width=110 height=53></a>1.3-rc2 </small></address>
