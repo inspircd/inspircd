@@ -345,19 +345,23 @@ bool connection::SendPacket(char *message, const char* host)
 		if (cn->GetState() == STATE_DISCONNECTED)
 		{
 			log(DEBUG,"Main route to %s is down, seeking alternative",host);
-			// this route is down, we must re-route the packet through an available point in the mesh.
-			for (int k = 0; k < this->connectors.size(); k++)
+			// fix: can only route one hop to avoid a loop
+			if (strncat(message,"R ",2))
 			{
-				// search for another point in the mesh which can 'reach' where we want to go
-				for (int m = 0; m < this->connectors[k].routes.size(); m++)
+				// this route is down, we must re-route the packet through an available point in the mesh.
+				for (int k = 0; k < this->connectors.size(); k++)
 				{
-					if (!strcasecmp(this->connectors[k].routes[m].c_str(),host))
+					// search for another point in the mesh which can 'reach' where we want to go
+					for (int m = 0; m < this->connectors[k].routes.size(); m++)
 					{
-						log(DEBUG,"Found alternative route for packet: %s",this->connectors[k].GetServerName().c_str());
-						char buffer[MAXBUF];
-						snprintf(buffer,MAXBUF,"R %s %s",host,message);
-						this->SendPacket(buffer,this->connectors[k].GetServerName().c_str());
-						return true;
+						if (!strcasecmp(this->connectors[k].routes[m].c_str(),host))
+						{
+							log(DEBUG,"Found alternative route for packet: %s",this->connectors[k].GetServerName().c_str());
+							char buffer[MAXBUF];
+							snprintf(buffer,MAXBUF,"R %s %s",host,message);
+							this->SendPacket(buffer,this->connectors[k].GetServerName().c_str());
+							return true;
+						}
 					}
 				}
 			}

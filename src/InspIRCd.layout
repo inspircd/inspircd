@@ -13,9 +13,9 @@ LeftChar=1
 [Editor_1]
 Open=1
 Top=1
-CursorCol=10
-CursorRow=5358
-TopLine=3349
+CursorCol=1
+CursorRow=2762
+TopLine=2726
 LeftChar=1
 
 [Editor_2]
@@ -197,9 +197,9 @@ LeftChar=1
 [Editor_24]
 Open=1
 Top=0
-CursorCol=2
-CursorRow=206
-TopLine=161
+CursorCol=50
+CursorRow=348
+TopLine=320
 LeftChar=1
 [Editor_25]
 Open=1
@@ -303,8 +303,8 @@ LeftChar=1
 Open=1
 Top=0
 CursorCol=1
-CursorRow=39
-TopLine=1
+CursorRow=37
+TopLine=103
 LeftChar=1
 [Editor_40]
 Open=1
@@ -324,6 +324,6 @@ LeftChar=1
 Open=1
 Top=0
 CursorCol=1
-CursorRow=1733
-TopLine=1679
+CursorRow=37
+TopLine=1
 LeftChar=1

@@ -2750,25 +2750,28 @@ void handle_who(char **parameters, int pcnt, userrec *user)
 		else
 		{
 			userrec* u = Find(parameters[0]);
-			WriteServ(user->fd,"352 %s %s %s %s %s %s Hr@ :0 %s",user->nick, u->nick, u->ident, u->dhost, u->server, u->nick, u->fullname);
+			if (u)
+			{
+				WriteServ(user->fd,"352 %s %s %s %s %s %s Hr@ :0 %s",user->nick, u->nick, u->ident, u->dhost, u->server, u->nick, u->fullname);
+			}
+			WriteServ(user->fd,"315 %s %s :End of /WHO list.",user->nick, parameters[0]);
 		}
 	}
 	if (pcnt == 2)
 	{
                 if ((!strcmp(parameters[0],"0")) || (!strcmp(parameters[0],"*")) && (!strcmp(parameters[1],"o")))
                 {
-                        Ptr = user->chans[0].channel;
 		  	for (user_hash::const_iterator i = clientlist.begin(); i != clientlist.end(); i++)
                         {
                                 if ((common_channels(user,i->second)) && (isnick(i->second->nick)))
                                 {
                                         if (strchr(i->second->modes,'o'))
                                         {
-                                                WriteServ(user->fd,"352 %s %s %s %s %s %s Hr@ :0 %s",user->nick, Ptr->name, i->second->ident, i->second->dhost, i->second->server, i->second->nick, i->second->fullname);
+                                                WriteServ(user->fd,"352 %s %s %s %s %s %s Hr@ :0 %s",user->nick, user->nick, i->second->ident, i->second->dhost, i->second->server, i->second->nick, i->second->fullname);
                                         }
                                 }
                         }
-                        WriteServ(user->fd,"315 %s %s :End of /WHO list.",user->nick, Ptr->name);
+                        WriteServ(user->fd,"315 %s %s :End of /WHO list.",user->nick, user->nick);
                         return;
                 }
 	}
