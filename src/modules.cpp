@@ -171,9 +171,14 @@ void Server::ChangeUserNick(userrec* user, std::string nickname)
 
 void Server::QuitUser(userrec* user, std::string reason)
 {
+	send_network_quit(user->nick,reason.c_str());
 	kill_link(user,reason.c_str());
 }
 
+void Server::CallCommandHandler(std::string commandname, char** parameters, int pcnt, userrec* user)
+{
+	call_handler(commandname.c_str(),parameters,pcnt,user);
+}
 
 void Server::Log(int level, std::string s)
 {

@@ -2988,6 +2988,7 @@ void handle_mode(char **parameters, int pcnt, userrec *user)
 					WriteServ(user->fd,"367 %s %s %s %s %d",user->nick, Ptr->name, i->data, i->set_by, i->set_time);
 				}
 				WriteServ(user->fd,"368 %s %s :End of channel ban list",user->nick, Ptr->name);
+				return;
 			}
 		}
 
@@ -4024,6 +4025,21 @@ void handle_invite(char **parameters, int pcnt, userrec *user)
 	u->InviteTo(c->name);
 	WriteFrom(u->fd,user,"INVITE %s :%s",u->nick,c->name);
 	WriteServ(user->fd,"341 %s %s %s",user->nick,u->nick,c->name);
+	
+	// i token must go to ALL servers!!!
+	char buffer[MAXBUF];
+	snprintf(buffer,MAXBUF,"i %s %s %s",u->nick,user->nick,c->name);
+	for (int j = 0; j < 255; j++)
+	{
+		if (servers[j] != NULL)
+		{
+			if (strcmp(servers[j]->name,ServerName))
+			{
+				me[defaultRoute]->SendPacket(buffer,servers[j]->internal_addr,servers[j]->internal_port,MyKey);
+				log(DEBUG,"Sent i token");
+			}
+		}
+	}
 }
 
 void handle_topic(char **parameters, int pcnt, userrec *user)
@@ -4078,6 +4094,21 @@ void handle_topic(char **parameters, int pcnt, userrec *user)
 				strcpy(Ptr->setby,user->nick);
 				Ptr->topicset = time(NULL);
 				WriteChannel(Ptr,user,"TOPIC %s :%s",Ptr->name, Ptr->topic);
+
+				// t token must go to ALL servers!!!
+				char buffer[MAXBUF];
+				snprintf(buffer,MAXBUF,"t %s %s :%s",user->nick,Ptr->name,topic);
+				for (int j = 0; j < 255; j++)
+				{
+					if (servers[j] != NULL)
+					{
+						if (strcmp(servers[j]->name,ServerName))
+						{
+							me[defaultRoute]->SendPacket(buffer,servers[j]->internal_addr,servers[j]->internal_port,MyKey);
+							log(DEBUG,"Sent t token");
+						}
+					}
+				}
 			}
 			else
 			{
@@ -4644,6 +4675,20 @@ void handle_whois(char **parameters, int pcnt, userrec *user)
 	}
 }
 
+void send_network_quit(const char* nick, const char* reason)
+{
+		char buffer[MAXBUF];
+		snprintf(buffer,MAXBUF,"Q %s :%s",nick,reason);
+		for (int j = 0; j < 255; j++)
+		{
+			if (servers[j] != NULL)
+			{
+				me[defaultRoute]->SendPacket(buffer,servers[j]->internal_addr,servers[j]->internal_port,MyKey);
+				log(DEBUG,"Sent Q token");
+			}
+		}
+}
+
 void handle_quit(char **parameters, int pcnt, userrec *user)
 {
 	user_hash::iterator iter = clientlist.find(user->nick);
@@ -4675,12 +4720,9 @@ void handle_quit(char **parameters, int pcnt, userrec *user)
 			{
 				if (servers[j] != NULL)
 				{
-					if (CommonOnThisServer(user,servers[j]->name))
-					{
-						me[defaultRoute]->SendPacket(buffer,servers[j]->internal_addr,servers[j]->internal_port,MyKey);
-						log(DEBUG,"Sent Q token");
-					}
-					}
+					me[defaultRoute]->SendPacket(buffer,servers[j]->internal_addr,servers[j]->internal_port,MyKey);
+					log(DEBUG,"Sent Q token");
+				}
 			}
 		}
 		else
@@ -4695,12 +4737,9 @@ void handle_quit(char **parameters, int pcnt, userrec *user)
 			{
 				if (servers[j] != NULL)
 				{
-					if (CommonOnThisServer(user,servers[j]->name))
-					{
-						me[defaultRoute]->SendPacket(buffer,servers[j]->internal_addr,servers[j]->internal_port,MyKey);
-						log(DEBUG,"Sent Q token");
-					}
-					}
+					me[defaultRoute]->SendPacket(buffer,servers[j]->internal_addr,servers[j]->internal_port,MyKey);
+					log(DEBUG,"Sent Q token");
+				}
 			}
 		}
 		FOREACH_MOD OnUserQuit(user);
@@ -5144,6 +5183,28 @@ void handle_modules(char **parameters, int pcnt, userrec *user)
 			strncpy(modulename,module_names[i].c_str(),256);
 			WriteServ(user->fd,"900 %s :0x%08lx %d.%d.%d.%d %s",user->nick,modules[i],V.Major,V.Minor,V.Revision,V.Build,CleanFilename(modulename));
 	}
+}
+
+// calls a handler function for a command
+
+void call_handler(const char* commandname,char **parameters, int pcnt, userrec *user)
+{
+		for (int i = 0; i < cmdlist.size(); i++)
+		{
+			if (!strcasecmp(cmdlist[i].command,commandname))
+			{
+				if (cmdlist[i].handler_function)
+				{
+					if (pcnt>=cmdlist[i].min_params)
+					{
+						if (strchr(user->modes,cmdlist[i].flags_needed))
+						{
+							cmdlist[i].handler_function(parameters,pcnt,user);
+						}
+					}
+				}
+			}
+		}
 }
 
 void handle_stats(char **parameters, int pcnt, userrec *user)
@@ -6001,6 +6062,37 @@ void handle_P(char token,char* params,serverrec* source,serverrec* reply, char* 
 	
 }
 
+void handle_i(char token,char* params,serverrec* source,serverrec* reply, char* udp_host,int udp_port)
+{
+	char* nick = strtok(params," ");
+	char* from = strtok(params," ");
+	char* channel = strtok(NULL," ");
+	userrec* u = Find(nick);
+	userrec* user = Find(from);
+	chanrec* c = FindChan(channel);
+	if ((c) && (u) && (user))
+	{
+		u->InviteTo(c->name);
+		WriteFrom(u->fd,user,"INVITE %s :%s",u->nick,c->name);
+	}
+}
+
+void handle_t(char token,char* params,serverrec* source,serverrec* reply, char* udp_host,int udp_port)
+{
+	char* setby = strtok(params," ");
+	char* channel = strtok(NULL," :");
+	char* topic = strtok(NULL,"\r\n");
+	topic++;
+	userrec* u = Find(setby);
+	chanrec* c = FindChan(channel);
+	if ((c) && (u))
+	{
+		WriteChannelLocal(c,u,"TOPIC %s :%s",c->name,topic);
+		strncpy(c->topic,topic,MAXTOPIC);
+		strncpy(c->setby,u->nick,NICKMAX);
+ 	}	
+}
+	
 
 void handle_T(char token,char* params,serverrec* source,serverrec* reply, char* udp_host,int udp_port)
 {
@@ -6296,7 +6388,18 @@ void process_restricted_commands(char token,char* params,serverrec* source,serve
 		case 'N':
 			handle_N(token,params,source,reply,udp_host,udp_port);
 		break;
+		// t <NICK> <CHANNEL> :<TOPIC>
+		// change a channel topic
+		case 't':
+			handle_t(token,params,source,reply,udp_host,udp_port);
+		break;
+		// i <NICK> <CHANNEL>
+		// invite a user to a channel
+		case 'i':
+			handle_i(token,params,source,reply,udp_host,udp_port);
+		break;
 		// k <SOURCE> <DEST> <CHANNEL> :<REASON>
+		// kick a user from a channel
 		case 'k':
 			handle_k(token,params,source,reply,udp_host,udp_port);
 		break;

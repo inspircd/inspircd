@@ -27,17 +27,17 @@ typedef void (handlerfunc) (char**, int, userrec*);
 class command_t : public classbase
 {
  public:
-    /** Command name
-     */
+	/** Command name
+	*/
 	char command[MAXBUF];
 	/** Handler function as in typedef
-     */
+	*/
 	handlerfunc *handler_function; 
 	/** User flags needed to execute the command or 0
 	 */
 	char flags_needed;
-    /** Minimum number of parameters command takes
-     */
+	/** Minimum number of parameters command takes
+	*/
 	int min_params;
 	/** used by /stats m
 	 */

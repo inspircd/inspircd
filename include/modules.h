@@ -458,6 +458,19 @@ class Server : public classbase
 	 * Returns true if the literal successfully matches the pattern, false if otherwise.
 	 */
 	virtual bool MatchText(std::string sliteral, std::string spattern);
+	
+	/** Calls the handler for a command, either implemented by the core or by another module.
+	 * You can use this function to trigger other commands in the ircd, such as PRIVMSG, JOIN,
+	 * KICK etc, or even as a method of callback. By defining command names that are untypeable
+	 * for users on irc (e.g. those which contain a \r or \n) you may use them as callback identifiers.
+	 * The first parameter to this method is the name of the command handler you wish to call, e.g.
+	 * PRIVMSG. This will be a command handler previously registered by the core or wih AddCommand().
+	 * The second parameter is an array of parameters, and the third parameter is a count of parameters
+	 * in the array. If you do not pass enough parameters to meet the minimum needed by the handler, the
+	 * functiom will silently ignore it. The final parameter is the user executing the command handler,
+	 * used for privilage checks, etc.
+	 */
+	virtual void CallCommandHandler(std::string commandname, char** parameters, int pcnt, userrec* user);
 };
 
 /** Allows reading of values from configuration files
