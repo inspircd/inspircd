@@ -20,7 +20,17 @@ Server *Srv;
 	 
 void handle_chghost(char **parameters, int pcnt, userrec *user)
 {
-	userrec* dest = Srv->FindNick(std::string(parameters[0]));
+	for (int x = 0; x < strlen(parameters[1]); x++)
+	{
+		if (((tolower(parameters[1][x]) < 'a') || (tolower(parameters[1][x]) > 'z')) && (parameters[1][x] != '.'))
+		{
+			if (((parameters[1][x] < '0') || (parameters[1][x]> '9')) && (parameters[1][x] != '-'))
+			{
+				Srv->SendTo(NULL,user,"NOTICE "+std::string(user->nick)+" :*** Invalid characters in hostname");
+				return;
+			}
+		}
+	}	userrec* dest = Srv->FindNick(std::string(parameters[0]));
 	if (dest)
 	{
 		strncpy(dest->dhost,parameters[1],127);

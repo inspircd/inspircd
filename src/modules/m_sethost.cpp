@@ -21,6 +21,17 @@ Server *Srv;
 	 
 void handle_sethost(char **parameters, int pcnt, userrec *user)
 {
+	for (int x = 0; x < strlen(parameters[0]); x++)
+	{
+		if (((tolower(parameters[0][x]) < 'a') || (tolower(parameters[0][x]) > 'z')) && (parameters[0][x] != '.'))
+		{
+			if (((parameters[0][x] < '0') || (parameters[0][x]> '9')) && (parameters[0][x] != '-'))
+			{
+				Srv->SendTo(NULL,user,"NOTICE "+std::string(user->nick)+" :*** Invalid characters in hostname");
+				return;
+			}
+		}
+	}
 	strncpy(user->dhost,parameters[0],127);
 	Srv->SendOpers(std::string(user->nick)+" used SETHOST to change their displayed host to "+std::string(parameters[1]));
 }
