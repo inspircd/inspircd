@@ -10,14 +10,99 @@
 <code>#include "<a class="el" href="base_8h-source.html">base.h</a>"</code><br>
 <code>#include &lt;string&gt;</code><br>
 <code>#include &lt;map.h&gt;</code><br>
+<code>#include &lt;sys/socket.h&gt;</code><br>
+<code>#include &lt;sys/types.h&gt;</code><br>
+<code>#include &lt;netdb.h&gt;</code><br>
+<code>#include &lt;netinet/in.h&gt;</code><br>
+<code>#include &lt;unistd.h&gt;</code><br>
+<code>#include &lt;errno.h&gt;</code><br>
+<code>#include &lt;time.h&gt;</code><br>
 
 <p>
 <a href="connection_8h-source.html">Go to the source code of this file.</a><table border=0 cellpadding=0 cellspacing=0>
 <tr><td></td></tr>
 <tr><td colspan=2><br><h2>Compounds</h2></td></tr>
 <tr><td nowrap align=right valign=top>class &nbsp;</td><td valign=bottom><a class="el" href="classconnection.html">connection</a></td></tr>
+<tr><td nowrap align=right valign=top>class &nbsp;</td><td valign=bottom><a class="el" href="classpacket.html">packet</a></td></tr>
+<tr><td colspan=2><br><h2>Defines</h2></td></tr>
+<tr><td nowrap align=right valign=top>#define&nbsp;</td><td valign=bottom><a class="el" href="connection_8h.html#a0">PT_SYN_ONLY</a>&nbsp;&nbsp;&nbsp;0</td></tr>
+<tr><td nowrap align=right valign=top>#define&nbsp;</td><td valign=bottom><a class="el" href="connection_8h.html#a1">PT_ACK_ONLY</a>&nbsp;&nbsp;&nbsp;1</td></tr>
+<tr><td nowrap align=right valign=top>#define&nbsp;</td><td valign=bottom><a class="el" href="connection_8h.html#a2">PT_SYN_WITH_DATA</a>&nbsp;&nbsp;&nbsp;2</td></tr>
 </table>
-<hr><address style="align: right;"><small>Generated on Mon Jan 27 00:23:11 2003 for InspIRCd by
+<hr><h2>Define Documentation</h2>
+<a name="a1" doxytag="connection.h::PT_ACK_ONLY"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> #define PT_ACK_ONLY&nbsp;&nbsp;&nbsp;1
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+
+<p>
+Definition at line <a class="el" href="connection_8h-source.html#l00021">21</a> of file <a class="el" href="connection_8h-source.html">connection.h</a>.    </td>
+  </tr>
+</table>
+<a name="a0" doxytag="connection.h::PT_SYN_ONLY"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> #define PT_SYN_ONLY&nbsp;&nbsp;&nbsp;0
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+
+<p>
+Definition at line <a class="el" href="connection_8h-source.html#l00020">20</a> of file <a class="el" href="connection_8h-source.html">connection.h</a>.    </td>
+  </tr>
+</table>
+<a name="a2" doxytag="connection.h::PT_SYN_WITH_DATA"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> #define PT_SYN_WITH_DATA&nbsp;&nbsp;&nbsp;2
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+
+<p>
+Definition at line <a class="el" href="connection_8h-source.html#l00022">22</a> of file <a class="el" href="connection_8h-source.html">connection.h</a>.    </td>
+  </tr>
+</table>
+<hr><address style="align: right;"><small>Generated on Sun Feb 9 12:48:16 2003 for InspIRCd by
 <a href="http://www.doxygen.org/index.html">
 <img src="doxygen.png" alt="doxygen" align="middle" border=0 
 width=110 height=53></a>1.3-rc2 </small></address>

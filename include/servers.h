@@ -14,21 +14,45 @@
 #define LINK_ACTIVE	1
 #define LINK_INACTIVE	0
 
+/** A class that defines the local server or a remote server
+ */
 class serverrec : public connection
 {
  private:
  public:
-	char name[MAXBUF]; 	// server name
-	long pingtime;		// last ping response (ms)
-	long usercount_i;	// invisible users on server
-	long usercount;		// non-invisible users on server
-	long opercount;		// opers on server
-	int hops_away;	// number of hops away (for quick access)
-	long version;		// ircd version
-	bool jupiter;		// is a JUPE server (faked to enforce a server ban)
+    /** server name
+     */
+	char name[MAXBUF];
+	/** last ping response (ms)
+     */
+	long pingtime;
+	/** invisible users on server
+     */
+	long usercount_i;
+	/** non-invisible users on server
+     */
+	long usercount;
+	/** opers on server
+     */
+	long opercount;
+	/** number of hops away (for quick access)
+     */
+	int hops_away;
+	/** ircd version
+     */
+	long version;
+	/** is a JUPE server (faked to enforce a server ban)
+     */
+	bool jupiter;
 
+	/** Constructor
+     */
 	serverrec();
+	/** Constructor which initialises some of the main variables
+     */
 	serverrec(char* n, long ver, bool jupe);
+	/** Destructor
+     */
 	~serverrec();
 };
 
