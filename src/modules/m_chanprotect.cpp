@@ -189,7 +189,7 @@ class ModuleChanProtect : public Module
 			else
 			{
 				// whoops, someones being naughty!
-				WriteServ(user->fd,"482 %s %s :Only servers may set channel mode +q",user->nick, chan->name);
+				WriteServ(user->fd,"468 %s %s :Only servers may set channel mode +q",user->nick, chan->name);
 				return -1;
 			}
 		}
