@@ -32,7 +32,7 @@ echo "bininst:" >> Makefile
 echo "	@cp src/inspircd \$(BINPATH)" >> Makefile
 echo "" >> Makefile
 echo "config:" >> Makefile
-if [ -n "$COPY_CONF" ] ; then
+if [ "$COPY_CONF" -eq "1" ] ; then
 echo "	@cp conf/inspire.motd \$(CONPATH)/inspire.motd.example" >> Makefile
 echo "	@cp conf/inspire.quotes \$(CONPATH)/inspire.quotes.example" >> Makefile
 echo "	@cp conf/inspire.rules \$(CONPATH)/inspire.rules.example" >> Makefile

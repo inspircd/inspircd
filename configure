@@ -103,8 +103,8 @@ exists () { # because some shells don't have test -e
 echo "#include <string.h>">.test.cpp
 echo "#include <stdio.h>">>.test.cpp
 echo "int main() { char a[10]; char b[10]; strlcpy(a,b,10); printf(\"%d\\n\",999); }" >>.test.cpp
-g++ -o .test .test.cpp
-HAS_STRLCPY=`./.test`
+g++ -o .test .test.cpp 2>&1
+HAS_STRLCPY=`./.test 2>&1`
 rm -f .test.cpp .test
 
 clear
@@ -408,6 +408,7 @@ echo -e "\033[0;37m"
 
 echo "Writing cache file for future ./configures ..."
 
+COPY_CONF=0
 if [ "$CONFIG_DIR" != "$ME/conf" ] ; then
     COPY_CONF=1
 fi
