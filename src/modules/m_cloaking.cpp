@@ -67,11 +67,8 @@ class ModuleCloaking : public Module
 		// so we must be VERY careful to only act upon modes which
 		// we have claimed ourselves. This is a feature to allow
 		// modules to 'spy' on extended mode activity if they so wish.
-		log(DEBUG,"modechar=%c type=%d MT_CLIENT=%d",modechar,type,MT_CLIENT);
-		
 		if ((modechar == 'x') && (type == MT_CLIENT))
   		{
-  			Srv->Log(DEBUG,"Mode x being handled");
   			// OnExtendedMode gives us a void* as the target, we must cast
   			// it into a userrec* or a chanrec* depending on the value of
   			// the 'type' parameter (MT_CLIENT or MT_CHANNEL)
@@ -102,14 +99,14 @@ class ModuleCloaking : public Module
 					sprintf(ra,"%.8X",seed*s2*strlen(dest->host));
 					std::string b = Srv->GetNetworkName() + "-" + ra + a;
 					Srv->Log(DEBUG,"cloak: allocated "+b);
-					Srv->ChangeHost(user,b);
+					Srv->ChangeHost(dest,b);
 				}
 			}
 			else
   			{
   				// user is removing the mode, so just restore their real host
   				// and make it match the displayed one.
-				Srv->ChangeHost(user,user->host);
+				Srv->ChangeHost(dest,dest->host);
 			}
 			// this mode IS ours, and we have handled it. If we chose not to handle it,
 			// for example the user cannot cloak as they have a vhost or such, then
