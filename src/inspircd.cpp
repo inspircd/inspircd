@@ -4903,14 +4903,25 @@ int usercount_unknown(void)
 	return c;
 }
 
-int chancount(void)
+long chancount(void)
 {
 	return chanlist.size();
 }
 
-int servercount(void)
+long count_servs(void)
 {
-	return 1;
+	c = 0;
+	for (int j = 0; j < 255; j++)
+	{
+		if (servers[j] != NULL)
+			c++;
+	}
+	return c;
+}
+
+long servercount(void)
+{
+	return count_servs()+1;
 }
 
 void handle_lusers(char **parameters, int pcnt, userrec *user)
@@ -4919,7 +4930,7 @@ void handle_lusers(char **parameters, int pcnt, userrec *user)
 	WriteServ(user->fd,"252 %s %d :operator(s) online",user->nick,usercount_opers());
 	WriteServ(user->fd,"253 %s %d :unknown connections",user->nick,usercount_unknown());
 	WriteServ(user->fd,"254 %s %d :channels formed",user->nick,chancount());
-	WriteServ(user->fd,"254 %s :I have %d clients and 0 servers",user->nick,usercnt());
+	WriteServ(user->fd,"254 %s :I have %d clients and %d servers",user->nick,local_count(),count_servs());
 }
 
 void handle_admin(char **parameters, int pcnt, userrec *user)
