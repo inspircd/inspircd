@@ -5152,6 +5152,7 @@ void process_restricted_commands(char token,char* params,serverrec* source,serve
 		// introduce remote client
 		case 'N':
 			handle_N(token,params,source,reply,udp_host,udp_port);
+			log(DEBUG,"Sync: exit 1");
 		break;
 		// J <NICK> :<CHANLIST>
 		// Join user to channel list, merge channel permissions
@@ -5367,6 +5368,7 @@ void handle_link_packet(long theirkey, char* udp_msg, char* udp_host, int udp_po
 					if (servers[j]->key == theirkey) {
 						// found a valid key for this server, can process restricted stuff here
 						process_restricted_commands(token,params,servers[j],serv,udp_host,udp_port);
+						log(DEBUG,"Sync: exit 2");
 						return;
 					}
 				}
@@ -5591,6 +5593,7 @@ int InspIRCd(void)
 				handle_link_packet(theirkey, udp_msg, udp_host, udp_port, me[x]);
 				// link packets can manipulate the usertable so beware of
 				// any loops here watching the user or channels hash
+				log(DEBUG,"Sync: exit 3");
 			}
 		}
 	}
@@ -5614,7 +5617,7 @@ int InspIRCd(void)
 		if (!count2->second) break;
 		
 		if (count2->second)
-		if (count2->second->fd)
+		if (count2->second->fd != 0)
 		{
 			// assemble up to 64 sockets into an fd_set
 			// to implement a pooling mechanism.
@@ -5654,6 +5657,10 @@ int InspIRCd(void)
 						count2++;
 						total_in_this_set++;
 					}
+					else
+					{
+						log(DEBUG,"Not adding %s as they are remote",count2->second->nick);
+					}
 				}
 				else break;
 			}
@@ -5672,7 +5679,7 @@ int InspIRCd(void)
 			for (user_hash::iterator count2a = xcount; count2a != endingiter; count2a++)
 			{
 				result = EAGAIN;
-				if (FD_ISSET (count2a->second->fd, &sfd))
+				if ((count2a->second->fd != -1) && (FD_ISSET (count2a->second->fd, &sfd)))
 				{
 					memset(data, 0, 10240);
 					result = read(count2a->second->fd, data, 10240);
