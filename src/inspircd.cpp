@@ -4738,10 +4738,13 @@ void process_command(userrec *user, char* cmd)
 	
 	for (int x = 0; x < strlen(command); x++)
 	{
-		if ((command[x] < 'A') || (command[x] > 'Z'))
+		if (((command[x] < 'A') || (command[x] > 'Z')) && (command[x] != '.'))
 		{
-			kill_link(user,"Protocol violation");
-			return;
+			if (((command[x] < '0') || (command[x]> '9')) && (command[x] != '-'))
+			{
+				kill_link(user,"Protocol violation");
+				return;
+			}
 		}
 	}
 

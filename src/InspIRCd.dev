@@ -1,7 +1,7 @@
 [Project]
 FileName=InspIRCd.dev
 Name=InspIRCd
-UnitCount=31
+UnitCount=32
 Type=1
 Ver=1
 ObjFiles=
@@ -347,6 +347,16 @@ BuildCmd=
 
 [Unit31]
 FileName=modules\m_sajoin.cpp
+CompileCpp=1
+Folder=Modules
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit32]
+FileName=modules\m_samode.cpp
 CompileCpp=1
 Folder=Modules
 Compile=1
