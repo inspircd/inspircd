@@ -2274,12 +2274,15 @@ void handle_link_packet(char* udp_msg, char* tcp_host, serverrec *serv)
 		}
 		if (!strcmp(command,"SVSJOIN"))
 		{
-			snprintf(udp_msg,MAXBUF,"J %s %s",source,data);
+			snprintf(udp_msg,MAXBUF,"J %s",data);
+			NetSendToOne(tcp_host,udp_msg);
+			char* nick = strtok(data," ");
+			char* chan = strtok(NULL," ");
 			log(DEBUG,"Rewrote SVSJOIN from services to: '%s'",udp_msg);
-			userrec* u = Find(source);
+			userrec* u = Find(nick);
 			if (u)
 			{
-				add_channel(u,data,"",true);
+				add_channel(u,chan,"",true);
 			}
 			token = udp_msg[0];
 		}
