@@ -280,7 +280,7 @@ void ircd_connector::SetServerName(std::string serv)
 
 void ircd_connector::SetDescription(std::string desc)
 {
-	this->servername = desc;
+	this->description = desc;
 }
 
 
