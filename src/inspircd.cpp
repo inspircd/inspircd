@@ -209,8 +209,19 @@ void safedelete(chanrec *p)
 void tidystring(char* str)
 {
 	// strips out double spaces before a : parameter
+	
 	char temp[MAXBUF];
 	bool go_again = true;
+	
+	if (!str)
+	{
+		return;
+	}
+	
+	while ((str[0] == ' ') && (strlen(str)>0))
+	{
+		str++;
+	}
 	
 	while (go_again)
 	{
@@ -256,11 +267,11 @@ void chop(char* str)
   sprintf(str,"%s",str2);
   
 
-  if (strlen(str) > 512)
+  if (strlen(str) >= 512)
   {
-  	str[510] = '\r';
-  	str[511] = '\n';
-  	str[512] = '\0';
+  	str[509] = '\r';
+  	str[510] = '\n';
+  	str[511] = '\0';
   }
 }
 
@@ -461,6 +472,11 @@ int CleanAndResolve (char *resolvedHost, const char *unresolvedHost)
 
 void Write(int sock,char *text, ...)
 {
+  if (!text)
+  {
+  	log(DEFAULT,"*** BUG *** Write was given an invalid parameter");
+  	return;
+  }
   char textbuffer[MAXBUF];
   va_list argsPtr;
   char tb[MAXBUF];
@@ -478,6 +494,11 @@ void Write(int sock,char *text, ...)
 
 void WriteServ(int sock, char* text, ...)
 {
+  if (!text)
+  {
+  	log(DEFAULT,"*** BUG *** WriteServ was given an invalid parameter");
+	return;
+  }
   char textbuffer[MAXBUF],tb[MAXBUF];
   va_list argsPtr;
   va_start (argsPtr, text);
@@ -494,6 +515,11 @@ void WriteServ(int sock, char* text, ...)
 
 void WriteFrom(int sock, userrec *user,char* text, ...)
 {
+  if ((!text) || (!user))
+  {
+  	log(DEFAULT,"*** BUG *** WriteFrom was given an invalid parameter");
+	return;
+  }
   char textbuffer[MAXBUF],tb[MAXBUF];
   va_list argsPtr;
   va_start (argsPtr, text);
@@ -510,13 +536,14 @@ void WriteFrom(int sock, userrec *user,char* text, ...)
 
 void WriteTo(userrec *source, userrec *dest,char *data, ...)
 {
+	if ((!source) || (!dest) || (!data))
+	{
+		log(DEFAULT,"*** BUG *** WriteTo was given an invalid parameter");
+		return;
+	}
 	char textbuffer[MAXBUF],tb[MAXBUF];
 	va_list argsPtr;
 	va_start (argsPtr, data);
-	if ((!dest) || (!source))
-	{
-		return;
-	}
 	vsnprintf(textbuffer, MAXBUF, data, argsPtr);
 	va_end(argsPtr);
 	chop(tb);
@@ -528,6 +555,11 @@ void WriteTo(userrec *source, userrec *dest,char *data, ...)
 
 void WriteChannel(chanrec* Ptr, userrec* user, char* text, ...)
 {
+	if ((!Ptr) || (!user) || (!text))
+	{
+		log(DEFAULT,"*** BUG *** WriteChannel was given an invalid parameter");
+		return;
+	}
 	char textbuffer[MAXBUF];
 	va_list argsPtr;
 	va_start (argsPtr, text);
@@ -544,6 +576,11 @@ void WriteChannel(chanrec* Ptr, userrec* user, char* text, ...)
 
 void WriteChannelWithServ(char* ServerName, chanrec* Ptr, userrec* user, char* text, ...)
 {
+	if ((!Ptr) || (!user) || (!text))
+	{
+		log(DEFAULT,"*** BUG *** WriteChannelWithServ was given an invalid parameter");
+		return;
+	}
 	char textbuffer[MAXBUF];
 	va_list argsPtr;
 	va_start (argsPtr, text);
@@ -551,9 +588,12 @@ void WriteChannelWithServ(char* ServerName, chanrec* Ptr, userrec* user, char* t
 	va_end(argsPtr);
 	for (user_hash::const_iterator i = clientlist.begin(); i != clientlist.end(); i++)
 	{
-		if (has_channel(i->second,Ptr))
+		if (i->second)
 		{
-			WriteServ(i->second->fd,"%s",textbuffer);
+			if (has_channel(i->second,Ptr))
+			{
+				WriteServ(i->second->fd,"%s",textbuffer);
+			}
 		}
 	}
 }
@@ -564,6 +604,11 @@ void WriteChannelWithServ(char* ServerName, chanrec* Ptr, userrec* user, char* t
 
 void ChanExceptSender(chanrec* Ptr, userrec* user, char* text, ...)
 {
+	if ((!Ptr) || (!user) || (!text))
+	{
+		log(DEFAULT,"*** BUG *** ChanExceptSender was given an invalid parameter");
+		return;
+	}
 	char textbuffer[MAXBUF];
 	va_list argsPtr;
 	va_start (argsPtr, text);
@@ -572,9 +617,12 @@ void ChanExceptSender(chanrec* Ptr, userrec* user, char* text, ...)
 
 	for (user_hash::const_iterator i = clientlist.begin(); i != clientlist.end(); i++)
 	{
-		if (has_channel(i->second,Ptr) && (user != i->second))
+		if (i->second)
 		{
-			WriteTo(user,i->second,"%s",textbuffer);
+			if (has_channel(i->second,Ptr) && (user != i->second))
+			{
+				WriteTo(user,i->second,"%s",textbuffer);
+			}
 		}
 	}
 }
@@ -583,7 +631,7 @@ int c_count(userrec* u)
 {
 	int z = 0;
 	for (int i =0; i != MAXCHANS; i++)
-		if (u->chans[i].channel)
+		if (u->chans[i].channel != NULL)
 			z++;
 	return z;
 
@@ -599,17 +647,21 @@ int common_channels(userrec *u, userrec *u2)
 
 	if ((!u) || (!u2))
 	{
+		log(DEFAULT,"*** BUG *** common_channels was given an invalid parameter");
 		return 0;
 	}
 	for (i = 0; i != MAXCHANS; i++)
 	{
 		for (z = 0; z != MAXCHANS; z++)
 		{
-			if ((u->chans[i].channel == u2->chans[z].channel) && (u->chans[i].channel) && (u2->chans[z].channel) && (u->registered == 7) && (u2->registered == 7))
+			if ((u->chans[i].channel != NULL) && (u2->chans[z].channel != NULL))
 			{
-				if ((c_count(u)) && (c_count(u2)))
+				if ((u->chans[i].channel == u2->chans[z].channel) && (u->chans[i].channel) && (u2->chans[z].channel) && (u->registered == 7) && (u2->registered == 7))
 				{
-					return 1;
+					if ((c_count(u)) && (c_count(u2)))
+					{
+						return 1;
+					}
 				}
 			}
 		}
@@ -622,6 +674,17 @@ int common_channels(userrec *u, userrec *u2)
 
 void WriteCommon(userrec *u, char* text, ...)
 {
+	if (!u)
+	{
+		log(DEFAULT,"*** BUG *** WriteCommon was given an invalid parameter");
+		return;
+	}
+
+	if (u->registered != 7) {
+		log(DEFAULT,"*** BUG *** WriteCommon on an unregistered user");
+		return;
+	}
+	
 	char textbuffer[MAXBUF];
 	va_list argsPtr;
 	va_start (argsPtr, text);
@@ -632,9 +695,12 @@ void WriteCommon(userrec *u, char* text, ...)
 
 	for (user_hash::const_iterator i = clientlist.begin(); i != clientlist.end(); i++)
 	{
-		if (common_channels(u,i->second) && (i->second != u))
+		if (i->second)
 		{
-			WriteFrom(i->second->fd,u,"%s",textbuffer);
+			if (common_channels(u,i->second) && (i->second != u))
+			{
+				WriteFrom(i->second->fd,u,"%s",textbuffer);
+			}
 		}
 	}
 }
@@ -644,6 +710,17 @@ void WriteCommon(userrec *u, char* text, ...)
 
 void WriteCommonExcept(userrec *u, char* text, ...)
 {
+	if (!u)
+	{
+		log(DEFAULT,"*** BUG *** WriteCommon was given an invalid parameter");
+		return;
+	}
+
+	if (u->registered != 7) {
+		log(DEFAULT,"*** BUG *** WriteCommon on an unregistered user");
+		return;
+	}
+
 	char textbuffer[MAXBUF];
 	va_list argsPtr;
 	va_start (argsPtr, text);
@@ -652,15 +729,24 @@ void WriteCommonExcept(userrec *u, char* text, ...)
 
 	for (user_hash::const_iterator i = clientlist.begin(); i != clientlist.end(); i++)
 	{
-		if ((common_channels(u,i->second)) && (u != i->second))
+		if (i->second)
 		{
-			WriteFrom(i->second->fd,u,"%s",textbuffer);
+			if ((common_channels(u,i->second)) && (u != i->second))
+			{
+				WriteFrom(i->second->fd,u,"%s",textbuffer);
+			}
 		}
 	}
 }
 
 void WriteOpers(char* text, ...)
 {
+	if (!text)
+	{
+		log(DEFAULT,"*** BUG *** WriteOpers was given an invalid parameter");
+		return;
+	}
+
 	char textbuffer[MAXBUF];
 	va_list argsPtr;
 	va_start (argsPtr, text);
@@ -669,13 +755,16 @@ void WriteOpers(char* text, ...)
 
 	for (user_hash::const_iterator i = clientlist.begin(); i != clientlist.end(); i++)
 	{
-		if (strchr(i->second->modes,'o'))
+		if (i->second)
 		{
-			if (strchr(i->second->modes,'s'))
+			if (strchr(i->second->modes,'o'))
 			{
-				// send server notices to all with +s
-				// (TODO: needs SNOMASKs)
-				WriteServ(i->second->fd,"NOTICE %s :%s",i->second->nick,textbuffer);
+				if (strchr(i->second->modes,'s'))
+				{
+					// send server notices to all with +s
+					// (TODO: needs SNOMASKs)
+					WriteServ(i->second->fd,"NOTICE %s :%s",i->second->nick,textbuffer);
+				}
 			}
 		}
 	}
@@ -683,6 +772,12 @@ void WriteOpers(char* text, ...)
 
 void WriteWallOps(userrec *source, char* text, ...)  
 {  
+	if ((!text) || (!source))
+	{
+		log(DEFAULT,"*** BUG *** WriteOpers was given an invalid parameter");
+		return;
+	}
+
         int i = 0;  
         char textbuffer[MAXBUF];  
         va_list argsPtr;  
@@ -691,10 +786,13 @@ void WriteWallOps(userrec *source, char* text, ...)
         va_end(argsPtr);  
   
   	for (user_hash::const_iterator i = clientlist.begin(); i != clientlist.end(); i++)
-        {  
-                if (strchr(i->second->modes,'w'))
-                {  
-			WriteTo(source,i->second,"WALLOPS %s",textbuffer);
+        {
+        	if (i->second)
+        	{
+                	if (strchr(i->second->modes,'w'))
+                	{  
+				WriteTo(source,i->second,"WALLOPS %s",textbuffer);
+                	}
                 }
 	}
 }  
@@ -811,10 +909,13 @@ void update_stats_l(int fd,int data_out) /* add one line-out to stats L for this
 {
 	for (user_hash::const_iterator i = clientlist.begin(); i != clientlist.end(); i++)
 	{
-		if (i->second->fd == fd)
+		if (i->second)
 		{
-			i->second->bytes_out+=data_out;
-			i->second->cmds_out++;
+			if (i->second->fd == fd)
+			{
+				i->second->bytes_out+=data_out;
+				i->second->cmds_out++;
+			}
 		}
 	}
 }
@@ -824,6 +925,12 @@ void update_stats_l(int fd,int data_out) /* add one line-out to stats L for this
 
 chanrec* FindChan(const char* chan)
 {
+	if (!chan)
+	{
+		log(DEFAULT,"*** BUG *** Findchan was given an invalid parameter");
+		return NULL;
+	}
+
 	chan_hash::iterator iter = chanlist.find(chan);
 
 	if (iter == chanlist.end())
@@ -857,6 +964,10 @@ void purge_empty_chans(void)
 						break;
 					}
 				}
+				else
+				{
+					log(DEBUG,"skipped purge for %s",i->second->name);
+				}
 			}
 		}
 	}
@@ -869,6 +980,12 @@ void purge_empty_chans(void)
 
 char* cmode(userrec *user, chanrec *chan)
 {
+	if ((!user) || (!chan))
+	{
+		log(DEFAULT,"*** BUG *** cmode was given an invalid parameter");
+		return "";
+	}
+
 	int i;
 	for (i = 0; i != MAXCHANS; i++)
 	{
@@ -896,6 +1013,13 @@ char sparam[MAXMODES];
 
 char* chanmodes(chanrec *chan)
 {
+	if (!chan)
+	{
+		log(DEFAULT,"*** BUG *** chanmodes was given an invalid parameter");
+		strcpy(scratch,"");
+		return scratch;
+	}
+
 	strcpy(scratch,"");
 	strcpy(sparam,"");
 	if (chan->noexternal)
@@ -957,6 +1081,12 @@ char* chanmodes(chanrec *chan)
 
 int cstatus(userrec *user, chanrec *chan)
 {
+	if ((!chan) || (!user))
+	{
+		log(DEFAULT,"*** BUG *** cstatus was given an invalid parameter");
+		return 0;
+	}
+
 	int i;
 	for (i = 0; i != MAXCHANS; i++)
 	{
@@ -985,6 +1115,12 @@ int cstatus(userrec *user, chanrec *chan)
 
 void userlist(userrec *user,chanrec *c)
 {
+	if ((!c) || (!user))
+	{
+		log(DEFAULT,"*** BUG *** userlist was given an invalid parameter");
+		return;
+	}
+
 	sprintf(list,"353 %s = %s :", user->nick, c->name);
   	for (user_hash::const_iterator i = clientlist.begin(); i != clientlist.end(); i++)
 	{
@@ -1025,6 +1161,12 @@ int usercount_i(chanrec *c)
 {
 	int i = 0;
 	int count = 0;
+	
+	if (!c)
+	{
+		log(DEFAULT,"*** BUG *** usercount_i was given an invalid parameter");
+		return 0;
+	}
 
 	strcpy(list,"");
   	for (user_hash::const_iterator i = clientlist.begin(); i != clientlist.end(); i++)
@@ -1055,6 +1197,12 @@ int usercount(chanrec *c)
 {
 	int i = 0;
 	int count = 0;
+	
+	if (!c)
+	{
+		log(DEFAULT,"*** BUG *** usercount was given an invalid parameter");
+		return 0;
+	}
 
 	strcpy(list,"");
   	for (user_hash::const_iterator i = clientlist.begin(); i != clientlist.end(); i++)
@@ -1080,6 +1228,13 @@ int usercount(chanrec *c)
 
 chanrec* add_channel(userrec *user, char* cname, char* key)
 {
+
+	if ((!user) || (!cname))
+	{
+		log(DEFAULT,"*** BUG *** add_channel was given an invalid parameter");
+		return 0;
+	}
+
 	int i = 0;
 	chanrec* Ptr;
 	int created = 0;
@@ -1257,6 +1412,12 @@ chanrec* add_channel(userrec *user, char* cname, char* key)
 
 chanrec* del_channel(userrec *user, char* cname, char* reason)
 {
+	if ((!user) || (!cname))
+	{
+		log(DEFAULT,"*** BUG *** del_channel was given an invalid parameter");
+		return NULL;
+	}
+
 	int i = 0;
 	chanrec* Ptr;
 	int created = 0;
@@ -1316,6 +1477,12 @@ chanrec* del_channel(userrec *user, char* cname, char* reason)
 
 void kick_channel(userrec *src,userrec *user, chanrec *Ptr, char* reason)
 {
+	if ((!src) || (!user) || (!Ptr) || (!reason))
+	{
+		log(DEFAULT,"*** BUG *** kick_channel was given an invalid parameter");
+		return;
+	}
+
 	int i = 0;
 	int created = 0;
 
@@ -1382,8 +1549,9 @@ int has_channel(userrec *u, chanrec *c)
 {
 	int i = 0;
 
-	if (!u)
+	if ((!u) || (!c))
 	{
+		log(DEFAULT,"*** BUG *** has_channel was given an invalid parameter");
 		return 0;
 	}
 	for (i =0; i != MAXCHANS; i++)
@@ -1403,6 +1571,7 @@ int give_ops(userrec *user,char *dest,chanrec *chan,int status)
 	
 	if ((!user) || (!dest) || (!chan))
 	{
+		log(DEFAULT,"*** BUG *** give_ops was given an invalid parameter");
 		return 0;
 	}
 	if (status != STATUS_OP)
@@ -1450,6 +1619,7 @@ int give_hops(userrec *user,char *dest,chanrec *chan,int status)
 	
 	if ((!user) || (!dest) || (!chan))
 	{
+		log(DEFAULT,"*** BUG *** give_hops was given an invalid parameter");
 		return 0;
 	}
 	if (status != STATUS_OP)
@@ -1497,6 +1667,7 @@ int give_voice(userrec *user,char *dest,chanrec *chan,int status)
 	
 	if ((!user) || (!dest) || (!chan))
 	{
+		log(DEFAULT,"*** BUG *** give_voice was given an invalid parameter");
 		return 0;
 	}
 	if (status < STATUS_HOP)
@@ -1544,6 +1715,7 @@ int take_ops(userrec *user,char *dest,chanrec *chan,int status)
 	
 	if ((!user) || (!dest) || (!chan))
 	{
+		log(DEFAULT,"*** BUG *** take_ops was given an invalid parameter");
 		return 0;
 	}
 	if (status != STATUS_OP)
@@ -1591,6 +1763,7 @@ int take_hops(userrec *user,char *dest,chanrec *chan,int status)
 	
 	if ((!user) || (!dest) || (!chan))
 	{
+		log(DEFAULT,"*** BUG *** take_hops was given an invalid parameter");
 		return 0;
 	}
 	if (status != STATUS_OP)
@@ -1638,6 +1811,7 @@ int take_voice(userrec *user,char *dest,chanrec *chan,int status)
 	
 	if ((!user) || (!dest) || (!chan))
 	{
+		log(DEFAULT,"*** BUG *** take_voice was given an invalid parameter");
 		return 0;
 	}
 	if (status < STATUS_HOP)
@@ -1680,6 +1854,11 @@ int take_voice(userrec *user,char *dest,chanrec *chan,int status)
 
 void TidyBan(char *ban)
 {
+	if (!ban) {
+		log(DEFAULT,"*** BUG *** TidyBan was given an invalid parameter");
+		return;
+	}
+	
 	char temp[MAXBUF],NICK[MAXBUF],IDENT[MAXBUF],HOST[MAXBUF];
 
 	strcpy(temp,ban);
@@ -1701,6 +1880,11 @@ void TidyBan(char *ban)
 
 int add_ban(userrec *user,char *dest,chanrec *chan,int status)
 {
+	if ((!user) || (!dest) || (!chan)) {
+		log(DEFAULT,"*** BUG *** add_ban was given an invalid parameter");
+		return 0;
+	}
+
 	BanItem b;
 	if ((!user) || (!dest) || (!chan))
 		return 0;
@@ -1747,8 +1931,8 @@ int add_ban(userrec *user,char *dest,chanrec *chan,int status)
 
 int take_ban(userrec *user,char *dest,chanrec *chan,int status)
 {
-	if ((!user) || (!dest) || (!chan))
-	{
+	if ((!user) || (!dest) || (!chan)) {
+		log(DEFAULT,"*** BUG *** take_ban was given an invalid parameter");
 		return 0;
 	}
 
@@ -1766,6 +1950,12 @@ int take_ban(userrec *user,char *dest,chanrec *chan,int status)
 
 void process_modes(char **parameters,userrec* user,chanrec *chan,int status, int pcnt, bool servermode)
 {
+	if ((!parameters) || (!user)) {
+		log(DEFAULT,"*** BUG *** process_modes was given an invalid parameter");
+		return;
+	}
+
+
 	char modelist[MAXBUF];
 	char outlist[MAXBUF];
 	char outstr[MAXBUF];
@@ -2692,7 +2882,14 @@ void handle_kick(char **parameters, int pcnt, userrec *user)
 	
 	if (pcnt > 2)
 	{
-		kick_channel(user,u,Ptr,parameters[2]);
+		char reason[MAXBUF];
+		strncpy(reason,parameters[2],MAXBUF);
+		if (strlen(reason)>MAXKICK)
+		{
+			reason[MAXKICK-1] = '\0';
+		}
+
+		kick_channel(user,u,Ptr,reason);
 	}
 	else
 	{
@@ -2737,6 +2934,11 @@ void kill_link(userrec *user,char* reason)
 {
 	user_hash::iterator iter = clientlist.find(user->nick);
 
+	if (strlen(reason)>MAXQUIT)
+	{
+		reason[MAXQUIT-1] = '\0';
+	}
+
 	log(DEBUG,"kill_link: %s '%s'",user->nick,reason);
 	Write(user->fd,"ERROR :Closing link (%s@%s) [%s]",user->ident,user->host,reason);
 	fdatasync(user->fd);
@@ -2767,7 +2969,9 @@ void kill_link(userrec *user,char* reason)
 		clientlist.erase(iter);
 	}
 
-	purge_empty_chans();
+	if (user->registered == 7) {
+		purge_empty_chans();
+	}
 }
 
 
@@ -2914,7 +3118,15 @@ void handle_topic(char **parameters, int pcnt, userrec *user)
 					WriteServ(user->fd,"482 %s %s :You must be at least a half-operator", user->nick, Ptr->name);
 					return;
 				}
-				strcpy(Ptr->topic,parameters[1]);
+				
+				char topic[MAXBUF];
+				strncpy(topic,parameters[2],MAXBUF);
+				if (strlen(topic)>MAXTOPIC)
+				{
+					topic[MAXTOPIC-1] = '\0';
+				}
+					
+				strcpy(Ptr->topic,topic);
 				strcpy(Ptr->setby,user->nick);
 				Ptr->topicset = time(NULL);
 				WriteChannel(Ptr,user,"TOPIC %s :%s",Ptr->name, Ptr->topic);
@@ -3330,6 +3542,7 @@ void handle_whois(char **parameters, int pcnt, userrec *user)
 void handle_quit(char **parameters, int pcnt, userrec *user)
 {
 	user_hash::iterator iter = clientlist.find(user->nick);
+	char* reason;
 
 	if (user->registered == 7)
 	{
@@ -3340,6 +3553,13 @@ void handle_quit(char **parameters, int pcnt, userrec *user)
 			{
 				*parameters[0]++;
 			}
+			reason = parameters[0];
+
+			if (strlen(reason)>MAXQUIT)
+			{
+				reason[MAXQUIT-1] = '\0';
+			}
+
 			Write(user->fd,"ERROR :Closing link (%s@%s) [%s]",user->ident,user->host,parameters[0]);
 			WriteOpers("*** Client exiting: %s!%s@%s [%s]",user->nick,user->ident,user->host,parameters[0]);
 			WriteCommonExcept(user,"QUIT :%s%s",PrefixQuit,parameters[0]);
@@ -4184,6 +4404,12 @@ void process_command(userrec *user, char* cmd)
 	
 	cmd_found = 0;
 
+	if (strlen(command)>MAXCOMMAND)
+	{
+		command[MAXCOMMAND-1] = '\0';
+		WriteOpers("Possible command-flood from %s, sending excessively long commands.",user->nick);
+	}
+
 	for (i = 0; i != cmdlist.size(); i++)
 	{
 		if (strcmp(cmdlist[i].command,""))
@@ -4342,10 +4568,16 @@ void SetupCommandTable(void)
 
 void process_buffer(userrec *user)
 {
+	if (!user)
+	{
+		log(DEFAULT,"*** BUG *** process_buffer was given an invalid parameter");
+		return;
+	}
 	char cmd[MAXBUF];
 	int i;
 	if (!user->inbuf)
 	{
+		log(DEFAULT,"*** BUG *** process_buffer was given an invalid parameter");
 		return;
 	}
 	if (!strcmp(user->inbuf,""))
@@ -4372,7 +4604,10 @@ void process_buffer(userrec *user)
 	}
         log(DEBUG,"InspIRCd: processing: %s %s",user->nick,cmd);
 	tidystring(cmd);
-	process_command(user,cmd);
+	if (user)
+	{
+		process_command(user,cmd);
+	}
 }
 
 void process_restricted_commands(char token,char* params,serverrec* source,serverrec* reply, char* udp_host,int udp_port)
@@ -4837,21 +5072,37 @@ int InspIRCd(void)
 			else
 			if (result == 0)
 			{
-			  	log(DEBUG,"InspIRCd: Exited: %s",count2->second->nick);
-				kill_link(count2->second,"Client exited");
+			  	if (count2->second)
+			  	{
+				  	log(DEBUG,"InspIRCd: Exited: %s",count2->second->nick);
+					kill_link(count2->second,"Client exited");
+					// must bail here? kill_link removes the hash, corrupting the iterator
+					log(DEBUG,"Bailing from client exit");
+					break;
+				}
 			}
 			else if (result > 0)
 			{
-				strncat(count2->second->inbuf, data, result);
-				if (strchr(count2->second->inbuf, '\n') || strchr(count2->second->inbuf, '\r'))
+				if (count2->second)
 				{
-					/* at least one complete line is waiting to be processed */
-					if (!count2->second->fd)
-						break;
-					else
+					strncat(count2->second->inbuf, data, result);
+
+					if (strlen(count2->second->inbuf) > 509) {
+						count2->second->inbuf[509] = '\r';
+						count2->second->inbuf[510] = '\n';
+						count2->second->inbuf[511] = '\0';
+					}
+
+					if (strchr(count2->second->inbuf, '\n') || strchr(count2->second->inbuf, '\r') || (strlen(count2->second->inbuf) > 509))
 					{
-						process_buffer(count2->second);
-						break;
+						/* at least one complete line is waiting to be processed */
+						if (!count2->second->fd)
+							break;
+						else
+						{
+							process_buffer(count2->second);
+							break;
+						}
 					}
 				}
 			}

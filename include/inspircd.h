@@ -40,6 +40,11 @@
 #define IDENTMAX 9
 #define MAXSOCKS 64
 
+#define MAXQUIT 255
+#define MAXCOMMAND 32
+#define MAXTOPIC 307
+#define MAXKICK 255
+
 #define DEBUG 10
 #define VERBOSE 20
 #define DEFAULT 30
