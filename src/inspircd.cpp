@@ -6451,10 +6451,12 @@ void process_restricted_commands(char token,char* params,serverrec* source,serve
 			// now broadcast this new servers address out to all servers that are linked to us,
 			// except the newcomer. They'll all attempt to connect back to it.
 			char buffer[MAXBUF];
-			snprintf(buffer,MAXBUF,"+ %s %s %d %d",udp_host,ipaddr,port,authcookie);
-			NetSendToAllExcept(buffer,udp_host);
+			// give the server its authcookie.
 			snprintf(buffer,MAXBUF,"~ %d",authcookie);
-			NetSendToAllExcept(buffer,udp_host);
+			NetSendToOne(udp_host,buffer);
+			// tell all the other servers to use this authcookie to connect back again
+			snprintf(buffer,MAXBUF,"+ %s %s %d %d",udp_host,ipaddr,port,authcookie);
+			NetSendToAllExcept(udp_host,buffer);
 		break;
 		// ~
   		// Store authcookie
