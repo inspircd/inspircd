@@ -1911,6 +1911,23 @@ void handle_H(char token,char* params,serverrec* source,serverrec* reply, char* 
 	ircd_connector s;
 	s.SetState(STATE_DISCONNECTED);
 	s.SetServerName(params);
+
+	for (int j = 0; j < 32; j++)
+	{
+		if (me[j] != NULL)
+		{
+			for (int k = 0; k < me[j]->connectors.size(); k++)
+			{
+				if (!strcasecmp(me[j]->connectors[k].GetServerName().c_str(),params))
+				{
+					// dont allow a server to be added twice
+					log(DEBUG,"ULined server %s already in the map!",params);
+					return;
+				}
+			}
+		}
+	}
+
 	source->connectors.push_back(s);
 	WriteOpers("Non-Mesh server %s has joined the network",params);
 }

@@ -3010,6 +3010,22 @@ void DoSync(serverrec* serv, char* tcp_host)
 	}
 	// sync global zlines, glines, etc
 	sync_xlines(serv,tcp_host);
+
+	for (int j = 0; j < 32; j++)
+	{
+		if (me[j] != NULL)
+		{
+			for (int k = 0; k < me[j]->connectors.size(); k++)
+			{
+				if (is_uline(me[j]->connectors[k].GetServerName().c_str()))
+				{
+					sprintf(data,"H %s",me[j]->connectors[k].GetServerName().c_str());
+					serv->SendPacket(data,tcp_host);
+				}
+			}
+		}
+	}
+
 	snprintf(data,MAXBUF,"F %d",time(NULL));
 	serv->SendPacket(data,tcp_host);
 	log(DEBUG,"Sent sync");
