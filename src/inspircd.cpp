@@ -2329,17 +2329,21 @@ long local_count()
 
 void ShowMOTD(userrec *user)
 {
-	if (!MOTD.size())
-	{
-		WriteServ(user->fd,"422 %s :Message of the day file is missing.",user->nick);
-		return;
-	}
-  	WriteServ(user->fd,"375 %s :- %s message of the day",user->nick,ServerName);
-	for (int i = 0; i != MOTD.size(); i++)
-	{
-				WriteServ(user->fd,"372 %s :- %s",user->nick,MOTD[i].c_str());
-	}
-	WriteServ(user->fd,"376 %s :End of %s message of the day.",user->nick,ServerName);
+        std::string WholeMOTD = "";
+        if (!MOTD.size())
+        {
+                WriteServ(user->fd,"422 %s :Message of the day file is missing.",user->nick);
+                return;
+        }
+        WholeMOTD = std::string(":") + std::string(ServerName) + std::string(" 375 ") + std::string(user->nick) + std::string(" :- ") + std::string(ServerName) + " message of the day\r\n";
+        for (int i = 0; i != MOTD.size(); i++)
+        {
+                WholeMOTD = WholeMOTD + std::string(":") + std::string(ServerName) + std::string(" 372 ") + std::string(user->nick) + std::string(" :- ") + MOTD[i] + std::string("\r\n");
+        }
+        WholeMOTD = WholeMOTD + std::string(":") + std::string(ServerName) + std::string(" 376 ") + std::string(user->nick) + std::string(" :End of message of the day.\r\n");
+        // only one write operation
+        send(user->fd,WholeMOTD.c_str(),WholeMOTD.length(),NULL);
+
 }
 
 void ShowRULES(userrec *user)
@@ -3233,7 +3237,7 @@ int InspIRCd(void)
 	char *temp, configToken[MAXBUF], stuff[MAXBUF], Addr[MAXBUF], Type[MAXBUF];
 	char resolvedHost[MAXBUF];
 	fd_set selectFds;
-	struct timeval tv;
+	timeval tv;
 
 	log_file = fopen("ircd.log","a+");
 	if (!log_file)
@@ -3409,6 +3413,20 @@ int InspIRCd(void)
 
 	length = sizeof (client);
 	char udp_msg[MAXBUF], tcp_host[MAXBUF];
+
+        fd_set serverfds;
+        timeval tvs;
+        tvs.tv_usec = 10000L;
+        tvs.tv_sec = 0;
+	tv.tv_sec = 0;
+	tv.tv_usec = 10000L;
+        char data[10240];
+	timeval tval;
+	fd_set sfd;
+        tval.tv_usec = 10000L;
+        tval.tv_sec = 0;
+        int total_in_this_set = 0;
+	int v = 0;
 	  
 	/* main loop, this never returns */
 	for (;;)
@@ -3419,8 +3437,6 @@ int InspIRCd(void)
                 // poll dns queue
                 dns_poll();
 
-		fd_set sfd;
-		timeval tval;
 		FD_ZERO(&sfd);
 
 		user_hash::iterator count2 = clientlist.begin();
@@ -3454,9 +3470,7 @@ int InspIRCd(void)
 		}
 		reap_counter++;
 
-		fd_set serverfds;
 		FD_ZERO(&serverfds);
-		timeval tvs;
 		
 		for (int x = 0; x != UDPportCount; x++)
 		{
@@ -3464,9 +3478,9 @@ int InspIRCd(void)
 				FD_SET(me[x]->fd, &serverfds);
 		}
 		
-		tvs.tv_usec = 5000;
-		tvs.tv_sec = 0;
+		// serverFds timevals went here
 		
+		tvs.tv_usec = 10000L;
 		int servresult = select(32767, &serverfds, NULL, NULL, &tvs);
 		if (servresult > 0)
 		{
@@ -3527,11 +3541,8 @@ int InspIRCd(void)
 
 	while (count2 != clientlist.end())
 	{
-		char data[10240];
-		tval.tv_usec = 5000;
-		tval.tv_sec = 0;
 		FD_ZERO(&sfd);
-		int total_in_this_set = 0;
+		total_in_this_set = 0;
 
 		user_hash::iterator xcount = count2;
 		user_hash::iterator endingiter = count2;
@@ -3597,10 +3608,11 @@ int InspIRCd(void)
 	       		endingiter = count2;
        			count2 = xcount; // roll back to where we were
         
-        		int v = 0;
+        		v = 0;
 
-			tval.tv_usec = 5000;
-			tval.tv_sec = 0;
+			// tvals defined here
+
+			tval.tv_usec = 10000L;
 			selectResult2 = select(65535, &sfd, NULL, NULL, &tval);
 			
 			// now loop through all of the items in this pool if any are waiting
@@ -3718,7 +3730,7 @@ int InspIRCd(void)
 		FD_SET (openSockfd[count], &selectFds);
 	}
 
-	tv.tv_usec = 5000;
+	tv.tv_usec = 10000L;
 	selectResult = select(MAXSOCKS, &selectFds, NULL, NULL, &tv);
 
 	/* select is reporting a waiting socket. Poll them all to find out which */
