@@ -177,12 +177,14 @@ bool connection::SendPacket(char *message, char* host, int port, long ourkey)
 
 			if (p2.id != p.id)
 			{
+				recvfrom(fd,&p2,sizeof(p2),0,(sockaddr*)&host_address,&host_address_size);
 				log(DEFAULT,"ERROR! connection::SendPacket() received an ack for a packet it didnt send!");
 				this->state = STATE_CLEAR;
 				return false;
 			}
 			else
 			{
+				recvfrom(fd,&p2,sizeof(p2),0,(sockaddr*)&host_address,&host_address_size);
 				log(DEFAULT,"Successfully received ACK");
 				this->state = STATE_CLEAR;
 				return true;
