@@ -132,16 +132,13 @@ void chanrec::SetCustomMode(char mode,bool mode_on)
 		log(DEBUG,"Custom mode %c set",mode);
 	}
 	else {
-		char temp[MAXBUF];
-		int count = 0;
-		for (int q = 0; q < strlen(custom_modes); q++) {
-			if (custom_modes[q] != mode) {
-				temp[count++] = mode;
-			}
-		}
-		temp[count] = '\0';
-		strncpy(custom_modes,temp,MAXMODES);
-		log(DEBUG,"Custom mode %c removed",mode);
+
+		std::string a = this->custom_modes;
+		int pos = a.find(mode);
+		a.erase(pos,1);
+		strncpy(this->custom_modes,a.c_str(),MAXMODES);
+
+		log(DEBUG,"Custom mode %c removed: modelist='%s'",mode,this->custom_modes);
 		this->SetCustomModeParam(mode,"",false);
 	}
 }

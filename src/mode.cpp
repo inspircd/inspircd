@@ -815,7 +815,7 @@ void process_modes(char **parameters,userrec* user,chanrec *chan,int status, int
 				break;
 				
 				default:
-					log(DEBUG,"Preprocessing custom mode %c",modechar);
+					log(DEBUG,"Preprocessing custom mode %c: modelist: %s",modechar,chan->custom_modes);
 					string_list p;
 					p.clear();
 					if (((!strchr(chan->custom_modes,modechar)) && (!mdir)) || ((strchr(chan->custom_modes,modechar)) && (mdir)))
@@ -843,10 +843,10 @@ void process_modes(char **parameters,userrec* user,chanrec *chan,int status, int
   						bool handled = false;
   						if (param>=pcnt)
   						{
-  							log(DEBUG,"Not enough parameters for module-mode %c",modechar);
   							// we're supposed to have a parameter, but none was given... so dont handle the mode.
   							if (((ModeDefinedOn(modechar,MT_CHANNEL)>0) && (mdir)) || ((ModeDefinedOff(modechar,MT_CHANNEL)>0) && (!mdir)))	
   							{
+  								log(DEBUG,"Not enough parameters for module-mode %c",modechar);
   								handled = true;
   								param++;
   							}

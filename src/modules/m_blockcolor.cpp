@@ -75,6 +75,7 @@ class ModuleBlockColor : public Module
 		// check if this is our mode character...
 		if ((modechar == 'c') && (type == MT_CHANNEL))
   		{
+  			log(DEBUG,"Allowing c change");
 			return 1;
 		}
 		else

@@ -78,6 +78,7 @@ class ModuleNoCTCP : public Module
 		// check if this is our mode character...
 		if ((modechar == 'C') && (type == MT_CHANNEL))
   		{
+  			log(DEBUG,"Allowing C change");
 			return 1;
 		}
 		else
