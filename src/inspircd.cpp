@@ -174,7 +174,7 @@ address_cache IP;
 ClassVector Classes;
 
 struct linger linger = { 0 };
-char bannerBuffer[MAXBUF];
+char MyExecutable[1024];
 int boundPortCount = 0;
 int portCount = 0, UDPportCount = 0, ports[MAXSOCKS];
 int defaultRoute = 0;
@@ -2000,7 +2000,7 @@ void Error(int status)
 }
 
 
-int main(int argc, char *argv[])
+int main(int argc, char **argv)
 {
 	Start();
 	srand(time(NULL));
@@ -2013,10 +2013,18 @@ int main(int argc, char *argv[])
 		Exit(ERROR);
 	}
 	if (argc > 1) {
-		if (!strcmp(argv[1],"-nofork")) {
-			nofork = true;
+		for (int i = 1; i < argc; i++)
+		{
+			if (!strcmp(argv[i],"-nofork")) {
+				nofork = true;
+			}
+			if (!strcmp(argv[i],"-wait")) {
+				sleep(6);
+			}
 		}
 	}
+	strcpy(MyExecutable,argv[0]);
+	
 	if (InspIRCd() == ERROR)
 	{
 		log(DEBUG,"main: daemon function bailed");
@@ -3174,8 +3182,14 @@ int InspIRCd(void)
 				log(DEBUG,"InspIRCd: startup: binding '%s:%s' is default server route",Addr,configToken);
 			}
 			me[count3] = new serverrec(ServerName,100L,false);
-			me[count3]->CreateListener(Addr,atoi(configToken));
-			count3++;
+			if (!me[count3]->CreateListener(Addr,atoi(configToken)))
+			{
+				log(DEFAULT,"Error! Failed to bind port %d",atoi(configToken));
+			}
+			else
+			{
+				count3++;
+			}
 		}
 		else
 		{

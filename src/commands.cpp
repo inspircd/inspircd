@@ -71,10 +71,12 @@ extern int NetBufferSize;
 extern int MaxWhoResults;
 extern time_t nb_start;
 
+extern bool nofork;
+
 extern std::vector<int> fd_reap;
 extern std::vector<std::string> module_names;
 
-extern char bannerBuffer[MAXBUF];
+extern char MyExecutable[1024];
 extern int boundPortCount;
 extern int portCount;
 extern int UDPportCount;
@@ -259,13 +261,44 @@ void handle_die(char **parameters, int pcnt, userrec *user)
 
 void handle_restart(char **parameters, int pcnt, userrec *user)
 {
-	log(DEBUG,"restart: %s",user->nick);
+	char restart[1024];
+	char *argv[32];
+	log(DEFAULT,"Restart: %s",user->nick);
 	if (!strcmp(parameters[0],restartpass))
 	{
-		WriteOpers("*** RESTART command from %s!%s@%s, Pretending to restart till this is finished :D",user->nick,user->ident,user->host);
-		sleep(DieDelay);
-		Exit(ERROR);
-		/* Will finish this later when i can be arsed :) */
+		WriteOpers("*** RESTART command from %s!%s@%s, restarting server.",user->nick,user->ident,user->host);
+
+		argv[0] = MyExecutable;
+		argv[1] = "-wait";
+		if (nofork)
+		{
+			argv[2] = "-nofork";
+		}
+		else
+		{
+			argv[2] = NULL;
+		}
+		argv[3] = NULL;
+		
+		// close ALL file descriptors
+		send_error("Server restarting.");
+		sleep(1);
+		for (int i = 0; i < 65536; i++)
+		{
+			int on = 0;
+			struct linger linger = { 0 };
+			setsockopt(i, SOL_SOCKET, SO_REUSEADDR, (const char*)&on, sizeof(on));
+			linger.l_onoff = 1;
+			linger.l_linger = 0;
+			setsockopt(i, SOL_SOCKET, SO_LINGER, (const char*)&linger,sizeof(linger));
+			Blocking(i);
+    			close(i);
+		}
+		sleep(5);
+		
+		execv(MyExecutable,argv);
+
+		exit(0);
 	}
 	else
 	{
