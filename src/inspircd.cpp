@@ -5056,8 +5056,14 @@ void ConnectUser(userrec *user)
 void handle_version(char **parameters, int pcnt, userrec *user)
 {
 	char Revision[] = "$Revision$";
-	char *v1 = strtok(Revision," ");
-	char *v2 = strtok(NULL," ");
+
+	char *s1 = Revision;
+	char *savept;
+	char *v1 = strtok_r(s1," ",&savept);
+	s1 = savept;
+	char *v2 = strtok_r(s1," ",&savept);
+	s1 = savept;
+	
 	WriteServ(user->fd,"351 %s :%s Rev. %s %s :%s (O=%d)",user->nick,VERSION,v2,ServerName,SYSTEM,OPTIMISATION);
 }
 
