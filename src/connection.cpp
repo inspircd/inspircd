@@ -256,20 +256,40 @@ bool connection::SendPacket(char *message, char* host)
 // receives a packet from any where there is data waiting, first come, first served
 // fills the message and host values with the host where the data came from.
 
-bool connection::RecvPacket(char *message, char* host)
+bool connection::RecvPacket(string_list &messages, char* host)
 {
+	char data[32767];
 	for (int i = 0; i < this->connectors.size(); i++)
 	{
 		// returns false if the packet could not be sent (e.g. target host down)
 		int rcvsize = 0;
-		if (rcvsize = recv(this->connectors[i].GetDescriptor(),message,MAXBUF,0))
+		if (rcvsize = recv(this->connectors[i].GetDescriptor(),data,32767,0))
 		{
 			if (rcvsize > 0)
 			{
-				// something new on this socket, fill the return values and bail
-				strncpy(host,this->connectors[i].GetServerName().c_str(),160);
-				message[rcvsize-1] = 0;
-				log(DEBUG,"main: Connection::RecvPacket() got '%s' from %s",message,host);
+				char* l = strtok(data,"\n");
+				while (l)
+				{
+					char sanitized[32767];
+					memset(sanitized, 0, 32767);
+					int ptt = 0;
+					for (int pt = 0; pt < strlen(l); pt++)
+					{
+						if (l[pt] != '\r')
+						{
+							sanitized[ptt++] = l[pt];
+						}
+					}
+					sanitized[ptt] = '\0';
+					if (strlen(sanitized))
+					{
+						messages.push_back(sanitized);
+						strncpy(host,this->connectors[i].GetServerName().c_str(),160);
+						log(DEBUG,"main: Connection::RecvPacket() got '%s' from %s",sanitized,host);
+						
+					}
+					l = strtok(NULL,"\n");
+				}
 				return true;
 			}
 		}

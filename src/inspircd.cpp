@@ -7082,16 +7082,22 @@ int InspIRCd(void)
      
 		for (int x = 0; x != UDPportCount; x++)
 		{
-			long theirkey = 0;
-			if (me[x]->RecvPacket(udp_msg, udp_host))
+			string_list msgs;
+			msgs.clear();
+			if (me[x]->RecvPacket(msgs, udp_host))
 			{
-				if (strlen(udp_msg)<1) {
-				log(DEBUG,"Invalid string from %s [route%d]",udp_host,x);
-			}
-			else
-			{
-				FOREACH_MOD OnPacketReceive(udp_msg);
-				handle_link_packet(udp_msg, udp_host, me[x]);
+				for (int ctr = 0; ctr < msgs.size(); ctr++)
+				{
+					char udp_msg[MAXBUF];
+					strncpy(udp_msg,MAXBUF,msgs[ctr].c_str());
+					if (strlen(udp_msg)<1)
+     					{
+						log(DEBUG,"Invalid string from %s [route%d]",udp_host,x);
+						break;
+					}
+					FOREACH_MOD OnPacketReceive(udp_msg);
+					handle_link_packet(udp_msg, udp_host, me[x]);
+				}
 				goto label;
 			}
 		}

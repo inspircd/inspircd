@@ -110,7 +110,7 @@ class connection : public classbase
 	bool BeginLink(char* targethost, int port, char* password, char* servername);
 	void TerminateLink(char* targethost);
 	bool SendPacket(char *message, char* host);
-	bool RecvPacket(char *message, char* host);
+	bool RecvPacket(string_list &messages, char* host);
 	ircd_connector* FindHost(std::string host);
 	bool AddIncoming(int fd,char* targethost);
 	long GenKey();
