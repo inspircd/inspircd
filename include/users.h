@@ -113,6 +113,8 @@ class userrec : public connection
 	 */
 	char result[256];
 	
+	unsigned long timeout;
+
 	userrec();
 	
 	virtual ~userrec() {  }

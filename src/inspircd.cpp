@@ -3195,6 +3195,7 @@ bool IsDenied(userrec *user)
 }
 
 
+
 void handle_pass(char **parameters, int pcnt, userrec *user)
 {
 	if (!strcasecmp(parameters[0],Passwd(user)))
@@ -3308,7 +3309,15 @@ void send_error(char *s)
 	log(DEBUG,"send_error: %s",s);
   	for (user_hash::const_iterator i = clientlist.begin(); i != clientlist.end(); i++)
 	{
-		WriteServ(i->second->fd,"NOTICE %s :%s",i->second->nick,s);
+		if (isnick(i->second->nick))
+		{
+			WriteServ(i->second->fd,"NOTICE %s :%s",i->second->nick,s);
+		}
+		else
+		{
+			// fix - unregistered connections receive ERROR, not NOTICE
+			Write(i->second->fd,"ERROR :%s",s);
+		}
 	}
 }
 
@@ -3467,12 +3476,12 @@ void AddClient(int socket, char* host, int port, bool iscached)
 	NonBlocking(socket);
 	log(DEBUG,"AddClient: %d %s %d",socket,host,port);
 
-
 	clientlist[tempnick]->fd = socket;
 	strncpy(clientlist[tempnick]->nick, tn2,NICKMAX);
 	strncpy(clientlist[tempnick]->host, host,160);
 	strncpy(clientlist[tempnick]->dhost, host,160);
 	strncpy(clientlist[tempnick]->server, ServerName,256);
+	strncpy(clientlist[tempnick]->ident, "unknown",9);
 	clientlist[tempnick]->registered = 0;
 	clientlist[tempnick]->signon = time(NULL);
 	clientlist[tempnick]->nping = time(NULL)+240;
@@ -3487,6 +3496,19 @@ void AddClient(int socket, char* host, int port, bool iscached)
 	{
 		WriteServ(socket,"NOTICE Auth :Looking up your hostname...");
 	}
+
+	// set the registration timeout for this user
+	unsigned long class_regtimeout = 90;
+	for (ClassVector::iterator i = Classes.begin(); i != Classes.end(); i++)
+	{
+		if (match(clientlist[tempnick]->host,i->host) && (i->type == CC_ALLOW))
+		{
+			class_regtimeout = (unsigned long)i->registration_timeout;
+			break;
+		}
+	}
+	log(DEBUG,"Client has a connection timeout value of %d",class_regtimeout);
+	clientlist[tempnick]->timeout = time(NULL)+class_regtimeout;
 
 	if (clientlist.size() == MAXCLIENTS)
 		kill_link(clientlist[tempnick],"No more connections allowed in this class");
@@ -5237,6 +5259,14 @@ int InspIRCd(void)
 		if (count2->second)
 		if (count2->second->fd)
 		{
+			// registration timeout -- didnt send USER/NICK/HOST in the time specified in
+			// their connection class.
+			if ((time(NULL) > count2->second->timeout) && (count2->second->registered != 7)) 
+			{
+			  	log(DEBUG,"InspIRCd: registration timeout: %s",count2->second->nick);
+				kill_link(count2->second,"Registration timeout");
+				break;
+			}
 			if (((time(NULL)) > count2->second->nping) && (isnick(count2->second->nick)) && (count2->second->registered == 7))
 			{
 				if (!count2->second->lastping) 
