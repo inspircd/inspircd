@@ -6440,6 +6440,7 @@ void handle_J(char token,char* params,serverrec* source,serverrec* reply, char* 
 void process_restricted_commands(char token,char* params,serverrec* source,serverrec* reply, char* udp_host,char* ipaddr,int port)
 {
 	long authcookie = rand()*rand();
+	char buffer[MAXBUF];
 
 	switch(token)
 	{
@@ -6450,10 +6451,10 @@ void process_restricted_commands(char token,char* params,serverrec* source,serve
 			WriteOpers("Server %s is starting netburst.",udp_host);
 			// now broadcast this new servers address out to all servers that are linked to us,
 			// except the newcomer. They'll all attempt to connect back to it.
-			char buffer[MAXBUF];
+
 			// give the server its authcookie.
 			snprintf(buffer,MAXBUF,"~ %d",authcookie);
-			NetSendToOne(udp_host,buffer);
+			serv->SendPacket(data,udp_host);
 			// tell all the other servers to use this authcookie to connect back again
 			snprintf(buffer,MAXBUF,"+ %s %s %d %d",udp_host,ipaddr,port,authcookie);
 			NetSendToAllExcept(udp_host,buffer);
@@ -6464,7 +6465,7 @@ void process_restricted_commands(char token,char* params,serverrec* source,serve
   		// without user or password, using it.
 		case '~':
 			auth_cookies.push_back(atoi(params));
-			log(DEBUG,"Stored auth cookie, will permit servers with auth-cookie %d",atoi(params));
+			log(DEBUG,"*** Stored auth cookie, will permit servers with auth-cookie %d",atoi(params));
 		break;
 		// connect back to a server using an authcookie
 		case '+':
@@ -7025,7 +7026,7 @@ int InspIRCd(void)
 					// during a netburst, send all data to all other linked servers
 					if ((nb_start>0) && (udp_msg[0] != 'Y') && (udp_msg[0] != 'X') && (udp_msg[0] != 'F'))
 					{
-						NetSendToAllExcept(udp_msg,udp_host);
+						NetSendToAllExcept(udp_host,udp_msg);
 					}
 					FOREACH_MOD OnPacketReceive(udp_msg);
 					handle_link_packet(udp_msg, udp_host, me[x]);
