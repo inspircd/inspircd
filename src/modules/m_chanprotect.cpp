@@ -32,8 +32,7 @@ class ModuleChanProtect : public Module
 		Srv->AddExtendedListMode('q');
 		
 		// read our config options (main config file)
-		std::string val = Conf->ReadValue("options","noservices",0);
-		FirstInGetsFounder = ((val == "yes") || (val == "1") || (val == "true"));
+		FirstInGetsFounder = Conf->ReadFlag("options","noservices",0);
 	}
 	
 	virtual void OnRehash()
@@ -42,8 +41,7 @@ class ModuleChanProtect : public Module
 		delete Conf;
 		Conf = new ConfigReader;
 		// re-read our config options on a rehash
-		std::string val = Conf->ReadValue("options","noservices",0);
-		FirstInGetsFounder = ((val == "yes") || (val == "1") || (val == "true"));
+		FirstInGetsFounder = Conf->ReadFlag("options","noservices",0);
 	}
 	
 	virtual void OnUserJoin(userrec* user, chanrec* channel)
