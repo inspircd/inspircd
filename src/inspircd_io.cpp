@@ -14,6 +14,9 @@
  * ---------------------------------------------------
  */
 
+#include <sys/resource.h>
+#include <sys/types.h>
+#include <unistd.h>
 #include "inspircd.h"
 #include "inspircd_io.h"
 #include "inspircd_util.h"
@@ -77,6 +80,7 @@ int DaemonSeed (void)
   close(0);
   close(1);
   close(2);
+  setpriority(PRIO_PROCESS,(int)getpid(),15); /* ircd sets to low process priority so it doesnt hog the box */
   return (TRUE);
 }
 
