@@ -21,14 +21,16 @@
 #include <map>
 #include "inspstring.h"
 
+extern time_t TIME;
+
 serverrec::serverrec()
 {
 	strlcpy(name,"",256);
 	pingtime = 0;
-	lastping = time(NULL);
+	lastping = TIME;
 	usercount_i = usercount = opercount = version = 0;
 	hops_away = 1;
-	signon = time(NULL);
+	signon = TIME;
 	jupiter = false;
 	fd = 0;
 	sync_soon = false;
@@ -43,11 +45,11 @@ serverrec::~serverrec()
 serverrec::serverrec(char* n, long ver, bool jupe)
 {
 	strlcpy(name,n,256);
-	lastping = time(NULL);
+	lastping = TIME;
 	usercount_i = usercount = opercount = 0;
 	version = ver;
 	hops_away = 1;
-	signon = time(NULL);
+	signon = TIME;
 	jupiter = jupe;
 	fd = 0;
 	sync_soon = false;

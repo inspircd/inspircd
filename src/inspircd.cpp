@@ -102,6 +102,8 @@ extern int MODCOUNT;
 int openSockfd[MAXSOCKS];
 bool nofork = false;
 
+time_t TIME = time(NULL);
+
 namespace nspace
 {
 #ifdef GCC34
@@ -1369,7 +1371,7 @@ chanrec* add_channel(userrec *user, const char* cn, const char* key, bool overri
 			strlcpy(chanlist[cname]->name, cname,CHANMAX);
 			chanlist[cname]->topiclock = 1;
 			chanlist[cname]->noexternal = 1;
-			chanlist[cname]->created = time(NULL);
+			chanlist[cname]->created = TIME;
 			strcpy(chanlist[cname]->topic, "");
 			strncpy(chanlist[cname]->setby, user->nick,NICKMAX);
 			chanlist[cname]->topicset = 0;
@@ -2144,7 +2146,7 @@ void AddWhoWas(userrec* u)
 			for (user_hash::iterator i = whowas.begin(); i != whowas.end(); i++)
 			{
 				// 3600 seconds in an hour ;)
-				if ((i->second->signon)<(time(NULL)-(WHOWAS_STALE*3600)))
+				if ((i->second->signon)<(TIME-(WHOWAS_STALE*3600)))
 				{
 					if (i->second) delete i->second;
 					i->second = a;
@@ -2204,34 +2206,27 @@ void AddClient(int socket, char* host, int port, bool iscached, char* ip)
 	strncpy(clientlist[tempnick]->server, ServerName,256);
 	strncpy(clientlist[tempnick]->ident, "unknown",9);
 	clientlist[tempnick]->registered = 0;
-	clientlist[tempnick]->signon = time(NULL)+dns_timeout;
-	clientlist[tempnick]->nping = time(NULL)+240+dns_timeout;
+	clientlist[tempnick]->signon = TIME+dns_timeout;
+	clientlist[tempnick]->nping = TIME+240+dns_timeout;
 	clientlist[tempnick]->lastping = 1;
 	clientlist[tempnick]->port = port;
 	strncpy(clientlist[tempnick]->ip,ip,32);
 
 	// set the registration timeout for this user
 	unsigned long class_regtimeout = 90;
+	int class_flood = 0;
+
 	for (ClassVector::iterator i = Classes.begin(); i != Classes.end(); i++)
 	{
 		if (match(clientlist[tempnick]->host,i->host) && (i->type == CC_ALLOW))
 		{
 			class_regtimeout = (unsigned long)i->registration_timeout;
-			break;
-		}
-	}
-
-	int class_flood = 0;
-	for (ClassVector::iterator i = Classes.begin(); i != Classes.end(); i++)
-	{
-		if (match(clientlist[tempnick]->host,i->host) && (i->type == CC_ALLOW))
-		{
 			class_flood = i->flood;
 			break;
 		}
 	}
 
-	clientlist[tempnick]->timeout = time(NULL)+class_regtimeout;
+	clientlist[tempnick]->timeout = TIME+class_regtimeout;
 	clientlist[tempnick]->flood = class_flood;
 
 	for (int i = 0; i < MAXCHANS; i++)
@@ -2244,13 +2239,16 @@ void AddClient(int socket, char* host, int port, bool iscached, char* ip)
 		kill_link(clientlist[tempnick],"No more connections allowed in this class");
 		
 
-	char* r = matches_zline(ip);
         char* e = matches_exception(ip);
-	if ((r) && (!e))
+	if (!e)
 	{
-		char reason[MAXBUF];
-		snprintf(reason,MAXBUF,"Z-Lined: %s",r);
-		kill_link(clientlist[tempnick],reason);
+		char* r = matches_zline(ip);
+		if (r)
+		{
+			char reason[MAXBUF];
+			snprintf(reason,MAXBUF,"Z-Lined: %s",r);
+			kill_link(clientlist[tempnick],reason);
+		}
 	}
 }
 
@@ -2365,7 +2363,7 @@ void ShowRULES(userrec *user)
 void FullConnectUser(userrec* user)
 {
         user->registered = 7;
-        user->idle_lastmsg = time(NULL);
+        user->idle_lastmsg = TIME;
         log(DEBUG,"ConnectUser: %s",user->nick);
 
         if (strcmp(Passwd(user),"") && (!user->haspassed))
@@ -2834,7 +2832,7 @@ void process_command(userrec *user, char* cmd)
 					log(DEBUG,"Processing command");
 					
 					/* activity resets the ping pending timer */
-					user->nping = time(NULL) + 120;
+					user->nping = TIME + 120;
 					if ((items) < cmdlist[i].min_params)
 					{
 					        log(DEBUG,"process_command: not enough parameters: %s %s",user->nick,command);
@@ -3038,7 +3036,7 @@ void DoSync(serverrec* serv, char* tcp_host)
 	// send start of sync marker: Y <timestamp>
 	// at this point the ircd receiving it starts broadcasting this netburst to all ircds
 	// except the ones its receiving it from.
-	snprintf(data,MAXBUF,"Y %d",time(NULL));
+	snprintf(data,MAXBUF,"Y %d",TIME);
 	serv->SendPacket(data,tcp_host);
 	// send users and channels
 	for (user_hash::iterator u = clientlist.begin(); u != clientlist.end(); u++)
@@ -3111,7 +3109,7 @@ void DoSync(serverrec* serv, char* tcp_host)
 		}
 	}
 
-	snprintf(data,MAXBUF,"F %d",time(NULL));
+	snprintf(data,MAXBUF,"F %d",TIME);
 	serv->SendPacket(data,tcp_host);
 	log(DEBUG,"Sent sync");
 	// ircd sends its serverlist after the end of sync here
@@ -3416,17 +3414,18 @@ int InspIRCd(void)
 
         fd_set serverfds;
         timeval tvs;
-        tvs.tv_usec = 10000L;
+        tvs.tv_usec = 7000L;
         tvs.tv_sec = 0;
 	tv.tv_sec = 0;
-	tv.tv_usec = 10000L;
+	tv.tv_usec = 7000L;
         char data[10240];
 	timeval tval;
 	fd_set sfd;
-        tval.tv_usec = 10000L;
+        tval.tv_usec = 7000L;
         tval.tv_sec = 0;
         int total_in_this_set = 0;
 	int v = 0;
+	bool expire_run = false;
 	  
 	/* main loop, this never returns */
 	for (;;)
@@ -3436,23 +3435,22 @@ int InspIRCd(void)
 #endif
                 // poll dns queue
                 dns_poll();
-
 		FD_ZERO(&sfd);
+
+		// we only read time() once per iteration rather than tons of times!
+		TIME = time(NULL);
 
 		user_hash::iterator count2 = clientlist.begin();
 
 		// *FIX* Instead of closing sockets in kill_link when they receive the ERROR :blah line, we should queue
 		// them in a list, then reap the list every second or so.
-		if ((reap_counter % 50) == 0)
+		if (((TIME % 5) == 0) && (!expire_run))
 		{
-			// These functions eat cpu, and should not be done so often!
-
-        	        // update the status of klines, etc
-	                expire_lines();
-#ifdef _POSIX_PRIORITY_SCHEDULING
-			sched_yield();
-#endif
+			expire_lines();
+			expire_run = true;
 		}
+		if ((TIME % 5) == 1)
+			expire_run = false;
 		if (reap_counter>300)
   		{
 			if (fd_reap.size() > 0)
@@ -3480,7 +3478,7 @@ int InspIRCd(void)
 		
 		// serverFds timevals went here
 		
-		tvs.tv_usec = 10000L;
+		tvs.tv_usec = 7000L;
 		int servresult = select(32767, &serverfds, NULL, NULL, &tvs);
 		if (servresult > 0)
 		{
@@ -3568,13 +3566,13 @@ int InspIRCd(void)
 
 						// registration timeout -- didnt send USER/NICK/HOST in the time specified in
 						// their connection class.
-						if ((time(NULL) > count2->second->timeout) && (count2->second->registered != 7)) 
+						if ((TIME > count2->second->timeout) && (count2->second->registered != 7)) 
 						{
 						  	log(DEBUG,"InspIRCd: registration timeout: %s",count2->second->nick);
 							kill_link(count2->second,"Registration timeout");
 							goto label;
 						}
-						if ((time(NULL) > count2->second->signon) && (count2->second->registered == 3))
+						if ((TIME > count2->second->signon) && (count2->second->registered == 3))
 						{
 								count2->second->dns_done = true;
 								FullConnectUser(count2->second);
@@ -3585,7 +3583,7 @@ int InspIRCd(void)
 		                                        FullConnectUser(count2->second);
 							goto label;
 		                                }
-						if (((time(NULL)) > count2->second->nping) && (isnick(count2->second->nick)) && (count2->second->registered == 7))
+						if ((TIME > count2->second->nping) && (isnick(count2->second->nick)) && (count2->second->registered == 7))
 						{
 							if ((!count2->second->lastping) && (count2->second->registered == 7))
 							{
@@ -3596,7 +3594,7 @@ int InspIRCd(void)
 							Write(count2->second->fd,"PING :%s",ServerName);
 						  	log(DEBUG,"InspIRCd: pinging: %s",count2->second->nick);
 							count2->second->lastping = 0;
-							count2->second->nping = time(NULL)+120;
+							count2->second->nping = TIME+120;
 						}
 					}
 					count2++;
@@ -3612,7 +3610,7 @@ int InspIRCd(void)
 
 			// tvals defined here
 
-			tval.tv_usec = 10000L;
+			tval.tv_usec = 7000L;
 			selectResult2 = select(65535, &sfd, NULL, NULL, &tval);
 			
 			// now loop through all of the items in this pool if any are waiting
@@ -3730,7 +3728,7 @@ int InspIRCd(void)
 		FD_SET (openSockfd[count], &selectFds);
 	}
 
-	tv.tv_usec = 10000L;
+	tv.tv_usec = 7000L;
 	selectResult = select(MAXSOCKS, &selectFds, NULL, NULL, &tv);
 
 	/* select is reporting a waiting socket. Poll them all to find out which */

@@ -181,6 +181,7 @@ extern file_cache MOTD;
 extern file_cache RULES;
 extern address_cache IP;
 
+extern time_t TIME;
 
 std::vector<KLine> klines;
 std::vector<GLine> glines;
@@ -243,7 +244,7 @@ void add_gline(long duration, char* source, char* reason, char* hostmask)
 	strlcpy(item.reason,reason,MAXBUF);
 	strlcpy(item.source,source,MAXBUF);
 	item.n_matches = 0;
-	item.set_time = time(NULL);
+	item.set_time = TIME;
 	glines.push_back(item);
 }
 
@@ -258,7 +259,7 @@ void add_eline(long duration, char* source, char* reason, char* hostmask)
         strlcpy(item.reason,reason,MAXBUF);
         strlcpy(item.source,source,MAXBUF);
         item.n_matches = 0;
-        item.set_time = time(NULL);
+        item.set_time = TIME;
         elines.push_back(item);
 }
 
@@ -274,7 +275,7 @@ void add_qline(long duration, char* source, char* reason, char* nickname)
 	strlcpy(item.source,source,MAXBUF);
 	item.n_matches = 0;
 	item.is_global = false;
-	item.set_time = time(NULL);
+	item.set_time = TIME;
 	qlines.push_back(item);
 }
 
@@ -290,7 +291,7 @@ void add_zline(long duration, char* source, char* reason, char* ipaddr)
 	strlcpy(item.source,source,MAXBUF);
 	item.n_matches = 0;
 	item.is_global = false;
-	item.set_time = time(NULL);
+	item.set_time = TIME;
 	zlines.push_back(item);
 }
 
@@ -305,7 +306,7 @@ void add_kline(long duration, char* source, char* reason, char* hostmask)
 	strlcpy(item.reason,reason,MAXBUF);
 	strlcpy(item.source,source,MAXBUF);
 	item.n_matches = 0;
-	item.set_time = time(NULL);
+	item.set_time = TIME;
 	klines.push_back(item);
 }
 
@@ -444,6 +445,8 @@ bool del_kline(char* hostmask)
 
 char* matches_qline(const char* nick)
 {
+	if (qlines.empty())
+		return NULL;
 	for (std::vector<QLine>::iterator i = qlines.begin(); i != qlines.end(); i++)
 	{
 		if (match(nick,i->nick))
@@ -458,6 +461,8 @@ char* matches_qline(const char* nick)
 
 char* matches_gline(const char* host)
 {
+        if (glines.empty())
+                return NULL;
 	for (std::vector<GLine>::iterator i = glines.begin(); i != glines.end(); i++)
 	{
 		if (match(host,i->hostmask))
@@ -470,6 +475,8 @@ char* matches_gline(const char* host)
 
 char* matches_exception(const char* host)
 {
+        if (elines.empty())
+                return NULL;
 	char host2[MAXBUF];
 	snprintf(host2,MAXBUF,"*@%s",host);
         for (std::vector<ELine>::iterator i = elines.begin(); i != elines.end(); i++)
@@ -526,6 +533,8 @@ void zline_set_creation_time(char* ip, time_t create_time)
 
 char* matches_zline(const char* ipaddr)
 {
+        if (zlines.empty())
+                return NULL;
 	for (std::vector<ZLine>::iterator i = zlines.begin(); i != zlines.end(); i++)
 	{
 		if (match(ipaddr,i->ipaddr))
@@ -540,6 +549,8 @@ char* matches_zline(const char* ipaddr)
 
 char* matches_kline(const char* host)
 {
+        if (klines.empty())
+                return NULL;
 	for (std::vector<KLine>::iterator i = klines.begin(); i != klines.end(); i++)
 	{
 		if (match(host,i->hostmask))
@@ -555,7 +566,7 @@ char* matches_kline(const char* host)
 void expire_lines()
 {
 	bool go_again = true;
-	time_t current = time(NULL);
+	time_t current = TIME;
 	
 	// because we mess up an iterator when we remove from the vector, we must bail from
 	// the loop early if we delete an item, therefore this outer while loop is required.

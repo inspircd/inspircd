@@ -32,6 +32,7 @@ using namespace std;
 extern FILE *log_file;
 extern int boundPortCount;
 extern int openSockfd[MAXSOCKS];
+extern time_t TIME;
 
 void WriteOpers(char* text, ...);
 

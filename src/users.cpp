@@ -23,6 +23,8 @@
 
 extern std::stringstream config_f;
 
+extern time_t TIME;
+
 userrec::userrec()
 {
 	// the PROPER way to do it, AVOID bzero at *ALL* costs

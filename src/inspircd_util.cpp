@@ -18,6 +18,8 @@
 #include "inspircd_io.h" 
 #include "inspircd_util.h" 
 #include "inspstring.h"
+
+extern time_t TIME;
  
 char *SafeStrncpy (char *dest, const char *src, size_t size) 
 { 

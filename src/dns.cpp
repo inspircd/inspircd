@@ -95,6 +95,8 @@ struct s_header { /* DNS query header */
 	unsigned char payload[512]; /* DNS question, populated by dns_build_query_payload() */
 };
 
+extern time_t TIME;
+
 void *dns_align(void *inp) {
 	char *p = (char*)inp;
 	int offby = ((char *)p - (char *)0) % DNS_ALIGN;
@@ -161,7 +163,7 @@ void DNS::dns_init() { /* on first call only: populates servers4 struct with up 
 	i4 = 0;
 
 	initdone = 1;
-	srand((unsigned int) time(NULL));
+	srand((unsigned int) TIME);
 	memset(servers4,'\0',sizeof(in_addr) * DNS_MAX);
 	f = fopen(DNS_CONFIG_FBCK,"r");
 	if (f == NULL)
@@ -191,7 +193,7 @@ void DNS::dns_init_2(const char* dnsserver) { /* populates servers4 struct with 
         i4 = 0;
 
         initdone = 1;
-        srand((unsigned int) time(NULL));
+        srand((unsigned int) TIME);
         memset(servers4,'\0',sizeof(in_addr) * DNS_MAX);
         if (dns_aton4_s(dnsserver,&addr4) != NULL)
             memcpy(&servers4[i4++],&addr4,sizeof(in_addr));

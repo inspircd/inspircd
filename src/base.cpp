@@ -22,6 +22,8 @@
 #include "inspircd.h"
 #include "modules.h"
 
+extern time_t TIME;
+
 bool Extensible::Extend(std::string key, char* p)
 {
 	// only add an item if it doesnt already exist

@@ -104,6 +104,7 @@ extern serverrec* me[32];
 
 extern FILE *log_file;
 
+extern time_t TIME;
 
 using namespace std;
 

@@ -79,6 +79,7 @@ extern bool AllowHalfop;
 extern bool AllowProtect;
 extern bool AllowFounder;
 
+extern time_t TIME;
 
 char* give_ops(userrec *user,char *dest,chanrec *chan,int status)
 {
@@ -484,7 +485,7 @@ char* add_ban(userrec *user,char *dest,chanrec *chan,int status)
 		}
 	}
 
-	b.set_time = time(NULL);
+	b.set_time = TIME;
 	strncpy(b.data,dest,MAXBUF);
 	strncpy(b.set_by,user->nick,NICKMAX);
 	chan->bans.push_back(b);

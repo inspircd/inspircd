@@ -35,7 +35,7 @@ extern std::vector<ircd_module*> factory;
 
 extern int MODCOUNT;
 
-
+extern time_t TIME;
 
 connection::connection()
 {
@@ -469,7 +469,6 @@ bool connection::RecvPacket(std::deque<std::string> &messages, char* host)
 
 long connection::GenKey()
 {
-	srand(time(NULL));
 	return (random()*time(NULL));
 }
 

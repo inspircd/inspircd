@@ -164,6 +164,8 @@ extern ClassVector Classes;
 extern char DNSServer[MAXBUF];
 long max_fd_alloc = 0;
 
+extern time_t TIME;
+
 class Lookup {
 private:
 	DNS* resolver;
