@@ -50,11 +50,11 @@
 00051 };
 00052 
 00053 
-<a name="l00056"></a><a class="code" href="channels_8h.html#a5">00056</a> <span class="keyword">typedef</span> vector&lt;BanItem&gt;         <a class="code" href="channels_8h.html#a5">BanList</a>;
+<a name="l00056"></a><a class="code" href="channels_8h.html#a5">00056</a> <span class="keyword">typedef</span> std::vector&lt;BanItem&gt;    <a class="code" href="channels_8h.html#a5">BanList</a>;
 00057 
-<a name="l00060"></a><a class="code" href="channels_8h.html#a6">00060</a> <span class="keyword">typedef</span> vector&lt;ExemptItem&gt;      <a class="code" href="channels_8h.html#a6">ExemptList</a>;
+<a name="l00060"></a><a class="code" href="channels_8h.html#a6">00060</a> <span class="keyword">typedef</span> std::vector&lt;ExemptItem&gt; <a class="code" href="channels_8h.html#a6">ExemptList</a>;
 00061 
-<a name="l00064"></a><a class="code" href="channels_8h.html#a7">00064</a> <span class="keyword">typedef</span> vector&lt;InviteItem&gt;      <a class="code" href="channels_8h.html#a7">InviteList</a>;
+<a name="l00064"></a><a class="code" href="channels_8h.html#a7">00064</a> <span class="keyword">typedef</span> std::vector&lt;InviteItem&gt; <a class="code" href="channels_8h.html#a7">InviteList</a>;
 00065 
 <a name="l00070"></a><a class="code" href="classchanrec.html">00070</a> <span class="keyword">class </span><a class="code" href="classchanrec.html">chanrec</a> : <span class="keyword">public</span> <a class="code" href="classclassbase.html">classbase</a>
 00071 {
@@ -84,43 +84,38 @@
 00131         
 <a name="l00134"></a><a class="code" href="classchanrec.html#m14">00134</a>         <a class="code" href="channels_8h.html#a5">BanList</a> <a class="code" href="classchanrec.html#m14">bans</a>;
 00135 
-<a name="l00138"></a><a class="code" href="classchanrec.html#a0">00138</a>         <a class="code" href="classchanrec.html#a0">chanrec</a>()
-00139         {
-00140                 strcpy(name,<span class="stringliteral">""</span>);
-00141                 strcpy(custom_modes,<span class="stringliteral">""</span>);
-00142                 strcpy(topic,<span class="stringliteral">""</span>);
-00143                 strcpy(setby,<span class="stringliteral">""</span>);
-00144                 strcpy(key,<span class="stringliteral">""</span>);
-00145                 created = topicset = limit = 0;
-00146                 topiclock = noexternal = inviteonly = moderated = secret = c_private = <span class="keyword">false</span>;
-00147         }
-00148 
-<a name="l00149"></a><a class="code" href="classchanrec.html#a1">00149</a>         <span class="keyword">virtual</span> <a class="code" href="classchanrec.html#a1">~chanrec</a>() { <span class="comment">/* stub */</span> }
-00150 };
-00151 
-00152 <span class="comment">/* used to hold a channel and a users modes on that channel, e.g. +v, +h, +o</span>
-00153 <span class="comment"> * needs to come AFTER struct chanrec */</span>
-00154 
-<a name="l00155"></a><a class="code" href="channels_8h.html#a0">00155</a> <span class="preprocessor">#define UCMODE_OP      1</span>
-<a name="l00156"></a><a class="code" href="channels_8h.html#a1">00156</a> <span class="preprocessor"></span><span class="preprocessor">#define UCMODE_VOICE   2</span>
-<a name="l00157"></a><a class="code" href="channels_8h.html#a2">00157</a> <span class="preprocessor"></span><span class="preprocessor">#define UCMODE_HOP     4</span>
-<a name="l00158"></a><a class="code" href="channels_8h.html#a3">00158</a> <span class="preprocessor"></span><span class="preprocessor">#define UCMODE_PROTECT 8</span>
-<a name="l00159"></a><a class="code" href="channels_8h.html#a4">00159</a> <span class="preprocessor"></span><span class="preprocessor">#define UCMODE_FOUNDER 16</span>
-00160 <span class="preprocessor"></span> 
-<a name="l00166"></a><a class="code" href="classucrec.html">00166</a> <span class="keyword">class </span><a class="code" href="classucrec.html">ucrec</a> : <span class="keyword">public</span> <a class="code" href="classclassbase.html">classbase</a>
-00167 {
-00168  <span class="keyword">public</span>:
-<a name="l00172"></a><a class="code" href="classucrec.html#m0">00172</a>         <span class="keywordtype">long</span> <a class="code" href="classucrec.html#m0">uc_modes</a>;
-00173         
-<a name="l00177"></a><a class="code" href="classucrec.html#m1">00177</a>         <a class="code" href="classchanrec.html">chanrec</a> *<a class="code" href="classucrec.html#m1">channel</a>;
-00178 
-<a name="l00179"></a><a class="code" href="classucrec.html#a0">00179</a>         <a class="code" href="classucrec.html#a0">ucrec</a>() { <span class="comment">/* stub */</span> }
-<a name="l00180"></a><a class="code" href="classucrec.html#a1">00180</a>         <span class="keyword">virtual</span> <a class="code" href="classucrec.html#a1">~ucrec</a>() { <span class="comment">/* stub */</span> }
-00181 };
-00182 
-00183 <span class="preprocessor">#endif</span>
-00184 <span class="preprocessor"></span>
-</pre></div><hr><address style="align: right;"><small>Generated on Sun Mar 30 19:34:53 2003 for InspIRCd by
+00138         <span class="keywordtype">void</span> <a class="code" href="classchanrec.html#a0">SetCustomMode</a>(<span class="keywordtype">char</span> mode,<span class="keywordtype">bool</span> mode_on);
+00139 
+00142         <span class="keywordtype">void</span> <a class="code" href="classchanrec.html#a1">SetCustomModeParam</a>(<span class="keywordtype">char</span> mode,<span class="keywordtype">char</span>* parameter,<span class="keywordtype">bool</span> mode_on);
+00143  
+00146         <a class="code" href="classchanrec.html#a2">chanrec</a>();
+00147 
+<a name="l00148"></a><a class="code" href="classchanrec.html#a3">00148</a>         <span class="keyword">virtual</span> <a class="code" href="classchanrec.html#a3">~chanrec</a>() { <span class="comment">/* stub */</span> }
+00149 };
+00150 
+00151 <span class="comment">/* used to hold a channel and a users modes on that channel, e.g. +v, +h, +o</span>
+00152 <span class="comment"> * needs to come AFTER struct chanrec */</span>
+00153 
+<a name="l00154"></a><a class="code" href="channels_8h.html#a0">00154</a> <span class="preprocessor">#define UCMODE_OP      1</span>
+<a name="l00155"></a><a class="code" href="channels_8h.html#a1">00155</a> <span class="preprocessor"></span><span class="preprocessor">#define UCMODE_VOICE   2</span>
+<a name="l00156"></a><a class="code" href="channels_8h.html#a2">00156</a> <span class="preprocessor"></span><span class="preprocessor">#define UCMODE_HOP     4</span>
+<a name="l00157"></a><a class="code" href="channels_8h.html#a3">00157</a> <span class="preprocessor"></span><span class="preprocessor">#define UCMODE_PROTECT 8</span>
+<a name="l00158"></a><a class="code" href="channels_8h.html#a4">00158</a> <span class="preprocessor"></span><span class="preprocessor">#define UCMODE_FOUNDER 16</span>
+00159 <span class="preprocessor"></span> 
+<a name="l00165"></a><a class="code" href="classucrec.html">00165</a> <span class="keyword">class </span><a class="code" href="classucrec.html">ucrec</a> : <span class="keyword">public</span> <a class="code" href="classclassbase.html">classbase</a>
+00166 {
+00167  <span class="keyword">public</span>:
+<a name="l00171"></a><a class="code" href="classucrec.html#m0">00171</a>         <span class="keywordtype">long</span> <a class="code" href="classucrec.html#m0">uc_modes</a>;
+00172         
+<a name="l00176"></a><a class="code" href="classucrec.html#m1">00176</a>         <a class="code" href="classchanrec.html">chanrec</a> *<a class="code" href="classucrec.html#m1">channel</a>;
+00177 
+<a name="l00178"></a><a class="code" href="classucrec.html#a0">00178</a>         <a class="code" href="classucrec.html#a0">ucrec</a>() { <span class="comment">/* stub */</span> }
+<a name="l00179"></a><a class="code" href="classucrec.html#a1">00179</a>         <span class="keyword">virtual</span> <a class="code" href="classucrec.html#a1">~ucrec</a>() { <span class="comment">/* stub */</span> }
+00180 };
+00181 
+00182 <span class="preprocessor">#endif</span>
+00183 <span class="preprocessor"></span>
+</pre></div><hr><address style="align: right;"><small>Generated on Fri Apr 2 13:37:27 2004 for InspIRCd by
 <a href="http://www.doxygen.org/index.html">
 <img src="doxygen.png" alt="doxygen" align="middle" border=0 
 width=110 height=53></a>1.3-rc3 </small></address>

@@ -20,6 +20,7 @@
 
 #include "dynamic.h"
 #include "base.h"
+#include "ctables.h"
 #include <string>
 #include <deque>
 
@@ -33,6 +34,8 @@ typedef file_cache string_list;
 // 'FOREACH_MOD OnConnect(user);'
 
 #define FOREACH_MOD for (int i = 0; i <= MODCOUNT; i++) modules[i]->
+
+extern void createcommand(char* cmd, handlerfunc f, char flags, int minparams);
 
 // class Version holds the version information of a Module, returned
 // by Module::GetVersion (thanks RD)
@@ -271,6 +274,22 @@ class Server : public classbase
 	 * effects.
 	 */
 	virtual bool AddExtendedMode(char modechar, int type, bool default_on, int params_when_on, int params_when_off);
+
+	/** Adds a command to the command table.
+	 * This allows modules to add extra commands into the command table. You must place a function within your
+	 * module which is is of type handlerfunc:
+	 * 
+	 * typedef void (handlerfunc) (char**, int, userrec*);
+	 * ...
+	 * void handle_kill(char **parameters, int pcnt, userrec *user)
+	 *
+	 * When the command is typed, the parameters will be placed into the parameters array (similar to argv) and
+	 * the parameter count will be placed into pcnt (similar to argv). There will never be any less parameters
+	 * than the 'minparams' value you specified when creating the command. The *user parameter is the class of
+	 * the user which caused the command to trigger, who will always have the flag you specified in 'flags' when
+	 * creating the initial command. For example to create an oper only command create the commands with flags='o'.
+	 */
+	virtual void AddCommand(char* cmd, handlerfunc f, char flags, int minparams);
 	 
 };
 

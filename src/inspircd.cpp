@@ -77,6 +77,7 @@ time_t startup_time = time(NULL);
 
 extern vector<Module*> modules;
 extern vector<ircd_module*> factory;
+vector<int> fd_reap;
 
 extern int MODCOUNT;
 
@@ -958,17 +959,20 @@ int usercount_i(chanrec *c)
 	strcpy(list,"");
   	for (user_hash::const_iterator i = clientlist.begin(); i != clientlist.end(); i++)
 	{
-		if (has_channel(i->second,c))
+		if (i->second)
 		{
-			if (isnick(i->second->nick))
+			if (has_channel(i->second,c))
 			{
-				if ((!has_channel(i->second,c)) && (strchr(i->second->modes,'i')))
+				if (isnick(i->second->nick))
 				{
-					/* user is +i, and source not on the channel, does not show
-					 * nick in NAMES list */
-					continue;
+					if ((!has_channel(i->second,c)) && (strchr(i->second->modes,'i')))
+					{
+						/* user is +i, and source not on the channel, does not show
+						 * nick in NAMES list */
+						continue;
+					}
+					count++;
 				}
-				count++;
 			}
 		}
 	}
@@ -2465,34 +2469,34 @@ void kill_link(userrec *user,char* reason)
 	log(DEBUG,"kill_link: %s '%s'",user->nick,reason);
 	Write(user->fd,"ERROR :Closing link (%s@%s) [%s]",user->ident,user->host,reason);
 	fdatasync(user->fd);
-	WriteOpers("*** Client exiting: %s!%s@%s [%s]",user->nick,user->ident,user->host,reason);
-	FOREACH_MOD OnUserQuit(user);
 	log(DEBUG,"closing fd %d",user->fd);
+
 	/* bugfix, cant close() a nonblocking socket (sux!) */
-	WriteCommonExcept(user,"QUIT :%s",reason);
-	Blocking(user->fd);
-	close(user->fd);
-	NonBlocking(user->fd);
+	if (user->registered == 7) {
+		FOREACH_MOD OnUserQuit(user);
+		WriteCommonExcept(user,"QUIT :%s",reason);
+	}
+
+	/* push the socket on a stack of sockets due to be closed at the next opportunity */
+	fd_reap.push_back(user->fd);
 	
 	bool do_purge = false;
 	
 	if (user->registered == 7) {
+		WriteOpers("*** Client exiting: %s!%s@%s [%s]",user->nick,user->ident,user->host,reason);
 		AddWhoWas(user);
-		do_purge = true;
 	}
 
 	if (iter != clientlist.end())
 	{
 		log(DEBUG,"deleting user hash value %d",iter->second);
-		if (iter->second) {
+		if ((iter->second) && (user->registered == 7)) {
 			delete iter->second;
 		}
 		clientlist.erase(iter);
 	}
-	
-	if (do_purge) {
-		purge_empty_chans();
-	}
+
+	purge_empty_chans();
 }
 
 
@@ -2504,6 +2508,8 @@ void handle_kill(char **parameters, int pcnt, userrec *user)
         log(DEBUG,"kill: %s %s",parameters[0],parameters[1]);
 	if (u)
 	{
+		WriteTo(user, u, "KILL %s :%s!%s!%s (%s)", u->nick, ServerName,user->dhost,user->nick,parameters[1]);
+		// :Brain!brain@NetAdmin.chatspike.net KILL [Brain] :homer!NetAdmin.chatspike.net!Brain (test kill)
 		WriteOpers("*** Local Kill by %s: %s!%s@%s (%s)",user->nick,u->nick,u->ident,u->host,parameters[1]);
 		sprintf(killreason,"Killed (%s (%s))",user->nick,parameters[1]);
 		kill_link(u,killreason);
@@ -3318,7 +3324,7 @@ void ConnectUser(userrec *user)
 
 void handle_version(char **parameters, int pcnt, userrec *user)
 {
-	WriteServ(user->fd,"351 %s :%s %s :%s",user->nick,VERSION,ServerName,SYSTEM);
+	WriteServ(user->fd,"351 %s :%s %s %s :%s",user->nick,VERSION,"$Id$",ServerName,SYSTEM);
 }
 
 void handle_ping(char **parameters, int pcnt, userrec *user)
@@ -4290,6 +4296,8 @@ void handle_link_packet(long theirkey, char* udp_msg, char* udp_host, int udp_po
 	}
 }
 
+int reap_counter = 0;
+
 int InspIRCd(void)
 {
   struct sockaddr_in client, server;
@@ -4464,11 +4472,31 @@ int InspIRCd(void)
       tv.tv_usec = 0;
 
       flip_flop++;
+      reap_counter++;
       if (flip_flop > 20)
       {
 	      tv.tv_usec = 1;
 	      flip_flop = 0;
       }
+      
+	vector<int>::iterator niterator;
+		
+
+	// *FIX* Instead of closing sockets in kill_link when they receive the ERROR :blah line, we should queue
+	// them in a list, then reap the list every second or so.
+	if (reap_counter>5000) {
+		if (fd_reap.size() > 0) {
+			for( int n = 0; n < fd_reap.size(); n++)
+			{
+				Blocking(fd_reap[n]);
+				close(fd_reap[n]);
+				NonBlocking(fd_reap[n]);
+			}
+		}
+		fd_reap.clear();
+		reap_counter=0;
+	}
+
       
       tv.tv_sec = 0;
       selectResult = select(MAXSOCKS, &selectFds, NULL, NULL, &tv);

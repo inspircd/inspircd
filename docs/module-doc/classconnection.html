@@ -25,8 +25,8 @@ Inheritance diagram for connection:<p><center><img src="classconnection__inherit
 <tr><td nowrap align=right valign=top>bool&nbsp;</td><td valign=bottom><a class="el" href="classconnection.html#a1">CreateListener</a> (char *<a class="el" href="classconnection.html#m2">host</a>, int p)</td></tr>
 <tr><td nowrap align=right valign=top>bool&nbsp;</td><td valign=bottom><a class="el" href="classconnection.html#a2">BeginLink</a> (char *targethost, int <a class="el" href="classconnection.html#m10">port</a>, char *password)</td></tr>
 <tr><td nowrap align=right valign=top>void&nbsp;</td><td valign=bottom><a class="el" href="classconnection.html#a3">TerminateLink</a> (char *targethost)</td></tr>
-<tr><td nowrap align=right valign=top>bool&nbsp;</td><td valign=bottom><a class="el" href="classconnection.html#a4">SendPacket</a> (char *message, char *<a class="el" href="classconnection.html#m2">host</a>, int <a class="el" href="classconnection.html#m10">port</a>)</td></tr>
-<tr><td nowrap align=right valign=top>bool&nbsp;</td><td valign=bottom><a class="el" href="classconnection.html#a5">RecvPacket</a> (char *message, char *<a class="el" href="classconnection.html#m2">host</a>, int &amp;prt)</td></tr>
+<tr><td nowrap align=right valign=top>bool&nbsp;</td><td valign=bottom><a class="el" href="classconnection.html#a4">SendPacket</a> (char *message, char *<a class="el" href="classconnection.html#m2">host</a>, int <a class="el" href="classconnection.html#m10">port</a>, long ourkey)</td></tr>
+<tr><td nowrap align=right valign=top>bool&nbsp;</td><td valign=bottom><a class="el" href="classconnection.html#a5">RecvPacket</a> (char *message, char *<a class="el" href="classconnection.html#m2">host</a>, int &amp;prt, long &amp;theirkey)</td></tr>
 <tr><td nowrap align=right valign=top>bool&nbsp;</td><td valign=bottom><a class="el" href="classconnection.html#a6">SendSYN</a> (char *<a class="el" href="classconnection.html#m2">host</a>, int <a class="el" href="classconnection.html#m10">port</a>)</td></tr>
 <tr><td nowrap align=right valign=top>bool&nbsp;</td><td valign=bottom><a class="el" href="classconnection.html#a7">SendACK</a> (char *<a class="el" href="classconnection.html#m2">host</a>, int <a class="el" href="classconnection.html#m10">port</a>, int reply_id)</td></tr>
 <tr><td nowrap align=right valign=top>long&nbsp;</td><td valign=bottom><a class="el" href="classconnection.html#a8">GenKey</a> ()</td></tr>
@@ -47,6 +47,7 @@ Inheritance diagram for connection:<p><center><img src="classconnection__inherit
 <tr><td nowrap align=right valign=top>time_t&nbsp;</td><td valign=bottom><a class="el" href="classconnection.html#m13">signon</a></td></tr>
 <tr><td nowrap align=right valign=top>time_t&nbsp;</td><td valign=bottom><a class="el" href="classconnection.html#m14">idle_lastmsg</a></td></tr>
 <tr><td nowrap align=right valign=top>time_t&nbsp;</td><td valign=bottom><a class="el" href="classconnection.html#m15">nping</a></td></tr>
+<tr><td nowrap align=right valign=top>char&nbsp;</td><td valign=bottom><a class="el" href="classconnection.html#m16">internal_addr</a> [1024]</td></tr>
 </table>
 <hr><h2>Constructor &amp; Destructor Documentation</h2>
 <a name="a0" doxytag="connection::connection"></a><p>
@@ -209,7 +210,13 @@ Inheritance diagram for connection:<p><center><img src="classconnection__inherit
           <td></td>
           <td></td>
           <td class="md" nowrap>int &amp;&nbsp;</td>
-          <td class="mdname" nowrap>&nbsp; <em>prt</em></td>
+          <td class="mdname" nowrap>&nbsp; <em>prt</em>, </td>
+        </tr>
+        <tr>
+          <td></td>
+          <td></td>
+          <td class="md" nowrap>long &amp;&nbsp;</td>
+          <td class="mdname" nowrap>&nbsp; <em>theirkey</em></td>
         </tr>
         <tr>
           <td></td>
@@ -297,7 +304,13 @@ Inheritance diagram for connection:<p><center><img src="classconnection__inherit
           <td></td>
           <td></td>
           <td class="md" nowrap>int&nbsp;</td>
-          <td class="mdname" nowrap>&nbsp; <em>port</em></td>
+          <td class="mdname" nowrap>&nbsp; <em>port</em>, </td>
+        </tr>
+        <tr>
+          <td></td>
+          <td></td>
+          <td class="md" nowrap>long&nbsp;</td>
+          <td class="mdname" nowrap>&nbsp; <em>ourkey</em></td>
         </tr>
         <tr>
           <td></td>
@@ -409,7 +422,7 @@ Inheritance diagram for connection:<p><center><img src="classconnection__inherit
 <p>
 
 <p>
-Definition at line <a class="el" href="connection_8h-source.html#l00046">46</a> of file <a class="el" href="connection_8h-source.html">connection.h</a>.
+Definition at line <a class="el" href="connection_8h-source.html#l00047">47</a> of file <a class="el" href="connection_8h-source.html">connection.h</a>.
 <p>
 Referenced by <a class="el" href="users_8cpp-source.html#l00011">userrec::userrec()</a>.    </td>
   </tr>
@@ -435,7 +448,7 @@ Referenced by <a class="el" href="users_8cpp-source.html#l00011">userrec::userre
 <p>
 
 <p>
-Definition at line <a class="el" href="connection_8h-source.html#l00047">47</a> of file <a class="el" href="connection_8h-source.html">connection.h</a>.
+Definition at line <a class="el" href="connection_8h-source.html#l00048">48</a> of file <a class="el" href="connection_8h-source.html">connection.h</a>.
 <p>
 Referenced by <a class="el" href="users_8cpp-source.html#l00011">userrec::userrec()</a>.    </td>
   </tr>
@@ -461,7 +474,7 @@ Referenced by <a class="el" href="users_8cpp-source.html#l00011">userrec::userre
 <p>
 
 <p>
-Definition at line <a class="el" href="connection_8h-source.html#l00048">48</a> of file <a class="el" href="connection_8h-source.html">connection.h</a>.
+Definition at line <a class="el" href="connection_8h-source.html#l00049">49</a> of file <a class="el" href="connection_8h-source.html">connection.h</a>.
 <p>
 Referenced by <a class="el" href="users_8cpp-source.html#l00011">userrec::userrec()</a>.    </td>
   </tr>
@@ -487,7 +500,7 @@ Referenced by <a class="el" href="users_8cpp-source.html#l00011">userrec::userre
 <p>
 
 <p>
-Definition at line <a class="el" href="connection_8h-source.html#l00049">49</a> of file <a class="el" href="connection_8h-source.html">connection.h</a>.
+Definition at line <a class="el" href="connection_8h-source.html#l00050">50</a> of file <a class="el" href="connection_8h-source.html">connection.h</a>.
 <p>
 Referenced by <a class="el" href="users_8cpp-source.html#l00011">userrec::userrec()</a>.    </td>
   </tr>
@@ -513,7 +526,7 @@ Referenced by <a class="el" href="users_8cpp-source.html#l00011">userrec::userre
 <p>
 
 <p>
-Definition at line <a class="el" href="connection_8h-source.html#l00042">42</a> of file <a class="el" href="connection_8h-source.html">connection.h</a>.
+Definition at line <a class="el" href="connection_8h-source.html#l00043">43</a> of file <a class="el" href="connection_8h-source.html">connection.h</a>.
 <p>
 Referenced by <a class="el" href="servers_8cpp-source.html#l00012">serverrec::serverrec()</a>, and <a class="el" href="users_8cpp-source.html#l00011">userrec::userrec()</a>.    </td>
   </tr>
@@ -539,7 +552,7 @@ Referenced by <a class="el" href="servers_8cpp-source.html#l00012">serverrec::se
 <p>
 
 <p>
-Definition at line <a class="el" href="connection_8h-source.html#l00050">50</a> of file <a class="el" href="connection_8h-source.html">connection.h</a>.
+Definition at line <a class="el" href="connection_8h-source.html#l00051">51</a> of file <a class="el" href="connection_8h-source.html">connection.h</a>.
 <p>
 Referenced by <a class="el" href="users_8cpp-source.html#l00011">userrec::userrec()</a>.    </td>
   </tr>
@@ -565,7 +578,7 @@ Referenced by <a class="el" href="users_8cpp-source.html#l00011">userrec::userre
 <p>
 
 <p>
-Definition at line <a class="el" href="connection_8h-source.html#l00043">43</a> of file <a class="el" href="connection_8h-source.html">connection.h</a>.    </td>
+Definition at line <a class="el" href="connection_8h-source.html#l00044">44</a> of file <a class="el" href="connection_8h-source.html">connection.h</a>.    </td>
   </tr>
 </table>
 <a name="m14" doxytag="connection::idle_lastmsg"></a><p>
@@ -589,7 +602,7 @@ Definition at line <a class="el" href="connection_8h-source.html#l00043">43</a> 
 <p>
 
 <p>
-Definition at line <a class="el" href="connection_8h-source.html#l00055">55</a> of file <a class="el" href="connection_8h-source.html">connection.h</a>.
+Definition at line <a class="el" href="connection_8h-source.html#l00056">56</a> of file <a class="el" href="connection_8h-source.html">connection.h</a>.
 <p>
 Referenced by <a class="el" href="users_8cpp-source.html#l00011">userrec::userrec()</a>.    </td>
   </tr>
@@ -615,7 +628,31 @@ Referenced by <a class="el" href="users_8cpp-source.html#l00011">userrec::userre
 <p>
 
 <p>
-Definition at line <a class="el" href="connection_8h-source.html#l00045">45</a> of file <a class="el" href="connection_8h-source.html">connection.h</a>.    </td>
+Definition at line <a class="el" href="connection_8h-source.html#l00046">46</a> of file <a class="el" href="connection_8h-source.html">connection.h</a>.    </td>
+  </tr>
+</table>
+<a name="m16" doxytag="connection::internal_addr"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> char connection::internal_addr[1024]
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+
+<p>
+Definition at line <a class="el" href="connection_8h-source.html#l00058">58</a> of file <a class="el" href="connection_8h-source.html">connection.h</a>.    </td>
   </tr>
 </table>
 <a name="m3" doxytag="connection::ip"></a><p>
@@ -639,7 +676,7 @@ Definition at line <a class="el" href="connection_8h-source.html#l00045">45</a> 
 <p>
 
 <p>
-Definition at line <a class="el" href="connection_8h-source.html#l00044">44</a> of file <a class="el" href="connection_8h-source.html">connection.h</a>.
+Definition at line <a class="el" href="connection_8h-source.html#l00045">45</a> of file <a class="el" href="connection_8h-source.html">connection.h</a>.
 <p>
 Referenced by <a class="el" href="users_8cpp-source.html#l00011">userrec::userrec()</a>.    </td>
   </tr>
@@ -665,7 +702,7 @@ Referenced by <a class="el" href="users_8cpp-source.html#l00011">userrec::userre
 <p>
 
 <p>
-Definition at line <a class="el" href="connection_8h-source.html#l00041">41</a> of file <a class="el" href="connection_8h-source.html">connection.h</a>.    </td>
+Definition at line <a class="el" href="connection_8h-source.html#l00042">42</a> of file <a class="el" href="connection_8h-source.html">connection.h</a>.    </td>
   </tr>
 </table>
 <a name="m12" doxytag="connection::lastping"></a><p>
@@ -689,7 +726,7 @@ Definition at line <a class="el" href="connection_8h-source.html#l00041">41</a> 
 <p>
 
 <p>
-Definition at line <a class="el" href="connection_8h-source.html#l00053">53</a> of file <a class="el" href="connection_8h-source.html">connection.h</a>.
+Definition at line <a class="el" href="connection_8h-source.html#l00054">54</a> of file <a class="el" href="connection_8h-source.html">connection.h</a>.
 <p>
 Referenced by <a class="el" href="servers_8cpp-source.html#l00012">serverrec::serverrec()</a>, and <a class="el" href="users_8cpp-source.html#l00011">userrec::userrec()</a>.    </td>
   </tr>
@@ -715,7 +752,7 @@ Referenced by <a class="el" href="servers_8cpp-source.html#l00012">serverrec::se
 <p>
 
 <p>
-Definition at line <a class="el" href="connection_8h-source.html#l00056">56</a> of file <a class="el" href="connection_8h-source.html">connection.h</a>.
+Definition at line <a class="el" href="connection_8h-source.html#l00057">57</a> of file <a class="el" href="connection_8h-source.html">connection.h</a>.
 <p>
 Referenced by <a class="el" href="users_8cpp-source.html#l00011">userrec::userrec()</a>.    </td>
   </tr>
@@ -741,7 +778,7 @@ Referenced by <a class="el" href="users_8cpp-source.html#l00011">userrec::userre
 <p>
 
 <p>
-Definition at line <a class="el" href="connection_8h-source.html#l00051">51</a> of file <a class="el" href="connection_8h-source.html">connection.h</a>.
+Definition at line <a class="el" href="connection_8h-source.html#l00052">52</a> of file <a class="el" href="connection_8h-source.html">connection.h</a>.
 <p>
 Referenced by <a class="el" href="users_8cpp-source.html#l00011">userrec::userrec()</a>.    </td>
   </tr>
@@ -767,7 +804,7 @@ Referenced by <a class="el" href="users_8cpp-source.html#l00011">userrec::userre
 <p>
 
 <p>
-Definition at line <a class="el" href="connection_8h-source.html#l00052">52</a> of file <a class="el" href="connection_8h-source.html">connection.h</a>.
+Definition at line <a class="el" href="connection_8h-source.html#l00053">53</a> of file <a class="el" href="connection_8h-source.html">connection.h</a>.
 <p>
 Referenced by <a class="el" href="users_8cpp-source.html#l00011">userrec::userrec()</a>.    </td>
   </tr>
@@ -793,14 +830,14 @@ Referenced by <a class="el" href="users_8cpp-source.html#l00011">userrec::userre
 <p>
 
 <p>
-Definition at line <a class="el" href="connection_8h-source.html#l00054">54</a> of file <a class="el" href="connection_8h-source.html">connection.h</a>.
+Definition at line <a class="el" href="connection_8h-source.html#l00055">55</a> of file <a class="el" href="connection_8h-source.html">connection.h</a>.
 <p>
 Referenced by <a class="el" href="servers_8cpp-source.html#l00012">serverrec::serverrec()</a>, and <a class="el" href="users_8cpp-source.html#l00011">userrec::userrec()</a>.    </td>
   </tr>
 </table>
 <hr>The documentation for this class was generated from the following file:<ul>
 <li><a class="el" href="connection_8h-source.html">connection.h</a></ul>
-<hr><address style="align: right;"><small>Generated on Sun Mar 30 19:35:54 2003 for InspIRCd by
+<hr><address style="align: right;"><small>Generated on Fri Apr 2 13:37:38 2004 for InspIRCd by
 <a href="http://www.doxygen.org/index.html">
 <img src="doxygen.png" alt="doxygen" align="middle" border=0 
 width=110 height=53></a>1.3-rc3 </small></address>

@@ -12,7 +12,9 @@
 <p>
 Here is a list of all class members with links to the classes they belong to:<h3><a name="index_a">- a -</a>
 </h3><ul>
-<li>Admin()
+<li>AddCommand()
+: <a class="el" href="classServer.html#a20">Server</a><li>AddExtendedMode()
+: <a class="el" href="classServer.html#a19">Server</a><li>Admin()
 : <a class="el" href="classAdmin.html#a0">Admin</a><li>age
 : <a class="el" href="classclassbase.html#m0">classbase</a><li>awaymsg
 : <a class="el" href="classuserrec.html#m7">userrec</a></ul>
@@ -30,7 +32,7 @@ Here is a list of all class members with links to the classes they belong to:<h3
 : <a class="el" href="classchanrec.html#m13">chanrec</a><li>ChanMode()
 : <a class="el" href="classServer.html#a15">Server</a><li>channel
 : <a class="el" href="classInvited.html#m0">Invited</a>, <a class="el" href="classucrec.html#m1">ucrec</a><li>chanrec()
-: <a class="el" href="classchanrec.html#a0">chanrec</a><li>chans
+: <a class="el" href="classchanrec.html#a2">chanrec</a><li>chans
 : <a class="el" href="classuserrec.html#m5">userrec</a><li>classbase()
 : <a class="el" href="classclassbase.html#a0">classbase</a><li>cmds_in
 : <a class="el" href="classconnection.html#m7">connection</a><li>cmds_out
@@ -46,20 +48,23 @@ Here is a list of all class members with links to the classes they belong to:<h3
 <h3><a name="index_d">- d -</a>
 </h3><ul>
 <li>data
-: <a class="el" href="classpacket.html#m3">packet</a>, <a class="el" href="classHostItem.html#m2">HostItem</a><li>dhost
+: <a class="el" href="classpacket.html#m3">packet</a>, <a class="el" href="classHostItem.html#m2">HostItem</a><li>default_on
+: <a class="el" href="classExtMode.html#m2">ExtMode</a><li>dhost
 : <a class="el" href="classuserrec.html#m2">userrec</a></ul>
 <h3><a name="index_e">- e -</a>
 </h3><ul>
 <li>Email
 : <a class="el" href="classAdmin.html#m1">Admin</a><li>Enumerate()
-: <a class="el" href="classConfigReader.html#a4">ConfigReader</a></ul>
+: <a class="el" href="classConfigReader.html#a4">ConfigReader</a><li>Exists()
+: <a class="el" href="classFileReader.html#a4">FileReader</a><li>ExtMode()
+: <a class="el" href="classExtMode.html#a0">ExtMode</a></ul>
 <h3><a name="index_f">- f -</a>
 </h3><ul>
 <li>fc
 : <a class="el" href="classFileReader.html#o0">FileReader</a><li>fd
 : <a class="el" href="classconnection.html#m1">connection</a><li>FileReader()
 : <a class="el" href="classFileReader.html#a1">FileReader</a><li>FileSize()
-: <a class="el" href="classFileReader.html#a5">FileReader</a><li>FindChannel()
+: <a class="el" href="classFileReader.html#a6">FileReader</a><li>FindChannel()
 : <a class="el" href="classServer.html#a14">Server</a><li>FindNick()
 : <a class="el" href="classServer.html#a13">Server</a><li>flags_needed
 : <a class="el" href="classcommand__t.html#m2">command_t</a><li>fname
@@ -72,7 +77,7 @@ Here is a list of all class members with links to the classes they belong to:<h3
 : <a class="el" href="classServer.html#a18">Server</a><li>GetFullHost()
 : <a class="el" href="classuserrec.html#a2">userrec</a><li>GetFullRealHost()
 : <a class="el" href="classuserrec.html#a3">userrec</a><li>GetLine()
-: <a class="el" href="classFileReader.html#a4">FileReader</a><li>GetNetworkName()
+: <a class="el" href="classFileReader.html#a5">FileReader</a><li>GetNetworkName()
 : <a class="el" href="classServer.html#a17">Server</a><li>GetServerName()
 : <a class="el" href="classServer.html#a16">Server</a><li>GetVersion()
 : <a class="el" href="classModule.html#a2">Module</a></ul>
@@ -90,7 +95,8 @@ Here is a list of all class members with links to the classes they belong to:<h3
 : <a class="el" href="classpacket.html#m1">packet</a><li>ident
 : <a class="el" href="classuserrec.html#m1">userrec</a><li>idle_lastmsg
 : <a class="el" href="classconnection.html#m14">connection</a><li>inbuf
-: <a class="el" href="classconnection.html#m4">connection</a><li>inviteonly
+: <a class="el" href="classconnection.html#m4">connection</a><li>internal_addr
+: <a class="el" href="classconnection.html#m16">connection</a><li>inviteonly
 : <a class="el" href="classchanrec.html#m10">chanrec</a><li>invites
 : <a class="el" href="classuserrec.html#o0">userrec</a><li>InviteTo()
 : <a class="el" href="classuserrec.html#a5">userrec</a><li>ip
@@ -117,27 +123,29 @@ Here is a list of all class members with links to the classes they belong to:<h3
 <li>Major
 : <a class="el" href="classVersion.html#m0">Version</a><li>min_params
 : <a class="el" href="classcommand__t.html#m3">command_t</a><li>Minor
-: <a class="el" href="classVersion.html#m1">Version</a><li>moderated
+: <a class="el" href="classVersion.html#m1">Version</a><li>modechar
+: <a class="el" href="classExtMode.html#m0">ExtMode</a><li>moderated
 : <a class="el" href="classchanrec.html#m11">chanrec</a><li>modes
 : <a class="el" href="classuserrec.html#m4">userrec</a><li>Module()
 : <a class="el" href="classModule.html#a0">Module</a><li>Module::OnPacketReceive()
 : <a class="el" href="classModule.html#a8">Module</a><li>Module::OnPacketTransmit()
-: <a class="el" href="classModule.html#a7">Module</a><li>Module::OnServerRaw()
-: <a class="el" href="classModule.html#a10">Module</a><li>ModuleFactory()
+: <a class="el" href="classModule.html#a7">Module</a><li>ModuleFactory()
 : <a class="el" href="classModuleFactory.html#a0">ModuleFactory</a></ul>
 <h3><a name="index_n">- n -</a>
 </h3><ul>
 <li>name
 : <a class="el" href="classserverrec.html#m0">serverrec</a>, <a class="el" href="classchanrec.html#m0">chanrec</a><li>Name
-: <a class="el" href="classAdmin.html#m0">Admin</a><li>Nick
-: <a class="el" href="classAdmin.html#m2">Admin</a><li>nick
-: <a class="el" href="classuserrec.html#m0">userrec</a><li>noexternal
+: <a class="el" href="classAdmin.html#m0">Admin</a><li>nick
+: <a class="el" href="classuserrec.html#m0">userrec</a><li>Nick
+: <a class="el" href="classAdmin.html#m2">Admin</a><li>noexternal
 : <a class="el" href="classchanrec.html#m9">chanrec</a><li>nping
 : <a class="el" href="classconnection.html#m15">connection</a></ul>
 <h3><a name="index_o">- o -</a>
 </h3><ul>
-<li>OnRehash()
-: <a class="el" href="classModule.html#a9">Module</a><li>OnUserConnect()
+<li>OnExtendedMode()
+: <a class="el" href="classModule.html#a11">Module</a><li>OnRehash()
+: <a class="el" href="classModule.html#a9">Module</a><li>OnServerRaw()
+: <a class="el" href="classModule.html#a10">Module</a><li>OnUserConnect()
 : <a class="el" href="classModule.html#a3">Module</a><li>OnUserJoin()
 : <a class="el" href="classModule.html#a5">Module</a><li>OnUserPart()
 : <a class="el" href="classModule.html#a6">Module</a><li>OnUserQuit()
@@ -146,7 +154,9 @@ Here is a list of all class members with links to the classes they belong to:<h3
 <h3><a name="index_p">- p -</a>
 </h3><ul>
 <li>packet()
-: <a class="el" href="classpacket.html#a0">packet</a><li>pass
+: <a class="el" href="classpacket.html#a0">packet</a><li>params_when_off
+: <a class="el" href="classExtMode.html#m4">ExtMode</a><li>params_when_on
+: <a class="el" href="classExtMode.html#m3">ExtMode</a><li>pass
 : <a class="el" href="classConnectClass.html#m2">ConnectClass</a><li>pingtime
 : <a class="el" href="classserverrec.html#m1">serverrec</a><li>port
 : <a class="el" href="classconnection.html#m10">connection</a></ul>
@@ -173,13 +183,15 @@ Here is a list of all class members with links to the classes they belong to:<h3
 : <a class="el" href="classServer.html#a5">Server</a><li>SendSYN()
 : <a class="el" href="classconnection.html#a6">connection</a><li>SendTo()
 : <a class="el" href="classServer.html#a7">Server</a><li>SendWallops()
-: <a class="el" href="classServer.html#a11">Server</a><li>server
-: <a class="el" href="classuserrec.html#m6">userrec</a><li>Server()
-: <a class="el" href="classServer.html#a0">Server</a><li>serverrec()
+: <a class="el" href="classServer.html#a11">Server</a><li>Server()
+: <a class="el" href="classServer.html#a0">Server</a><li>server
+: <a class="el" href="classuserrec.html#m6">userrec</a><li>serverrec()
 : <a class="el" href="classserverrec.html#a1">serverrec</a><li>set_by
 : <a class="el" href="classHostItem.html#m1">HostItem</a><li>set_time
 : <a class="el" href="classHostItem.html#m0">HostItem</a><li>setby
-: <a class="el" href="classchanrec.html#m5">chanrec</a><li>signon
+: <a class="el" href="classchanrec.html#m5">chanrec</a><li>SetCustomMode()
+: <a class="el" href="classchanrec.html#a0">chanrec</a><li>SetCustomModeParam()
+: <a class="el" href="classchanrec.html#a1">chanrec</a><li>signon
 : <a class="el" href="classconnection.html#m13">connection</a></ul>
 <h3><a name="index_t">- t -</a>
 </h3><ul>
@@ -189,7 +201,7 @@ Here is a list of all class members with links to the classes they belong to:<h3
 : <a class="el" href="classchanrec.html#m8">chanrec</a><li>topicset
 : <a class="el" href="classchanrec.html#m4">chanrec</a><li>total_bytes
 : <a class="el" href="classcommand__t.html#m5">command_t</a><li>type
-: <a class="el" href="classConnectClass.html#m0">ConnectClass</a>, <a class="el" href="classpacket.html#m2">packet</a></ul>
+: <a class="el" href="classConnectClass.html#m0">ConnectClass</a>, <a class="el" href="classpacket.html#m2">packet</a>, <a class="el" href="classExtMode.html#m1">ExtMode</a></ul>
 <h3><a name="index_u">- u -</a>
 </h3><ul>
 <li>uc_modes
@@ -202,13 +214,13 @@ Here is a list of all class members with links to the classes they belong to:<h3
 <h3><a name="index_v">- v -</a>
 </h3><ul>
 <li>Verify()
-: <a class="el" href="classConfigReader.html#a5">ConfigReader</a><li>Version()
-: <a class="el" href="classVersion.html#a0">Version</a><li>version
-: <a class="el" href="classserverrec.html#m6">serverrec</a></ul>
+: <a class="el" href="classConfigReader.html#a5">ConfigReader</a><li>version
+: <a class="el" href="classserverrec.html#m6">serverrec</a><li>Version()
+: <a class="el" href="classVersion.html#a0">Version</a></ul>
 <h3><a name="index_~">- ~ -</a>
 </h3><ul>
 <li>~chanrec()
-: <a class="el" href="classchanrec.html#a1">chanrec</a><li>~classbase()
+: <a class="el" href="classchanrec.html#a3">chanrec</a><li>~classbase()
 : <a class="el" href="classclassbase.html#a1">classbase</a><li>~ConfigReader()
 : <a class="el" href="classConfigReader.html#a2">ConfigReader</a><li>~FileReader()
 : <a class="el" href="classFileReader.html#a2">FileReader</a><li>~HostItem()
@@ -220,7 +232,7 @@ Here is a list of all class members with links to the classes they belong to:<h3
 : <a class="el" href="classserverrec.html#a2">serverrec</a><li>~ucrec()
 : <a class="el" href="classucrec.html#a1">ucrec</a><li>~userrec()
 : <a class="el" href="classuserrec.html#a1">userrec</a></ul>
-<hr><address style="align: right;"><small>Generated on Sun Mar 30 19:35:25 2003 for InspIRCd by
+<hr><address style="align: right;"><small>Generated on Fri Apr 2 13:37:33 2004 for InspIRCd by
 <a href="http://www.doxygen.org/index.html">
 <img src="doxygen.png" alt="doxygen" align="middle" border=0 
 width=110 height=53></a>1.3-rc3 </small></address>

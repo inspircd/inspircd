@@ -7,29 +7,31 @@
 <center>
 <a class="qindex" href="main.html">Main Page</a> &nbsp; <a class="qindex" href="hierarchy.html">Class Hierarchy</a> &nbsp; <a class="qindex" href="classes.html">Alphabetical List</a> &nbsp; <a class="qindex" href="annotated.html">Compound List</a> &nbsp; <a class="qindex" href="files.html">File List</a> &nbsp; <a class="qindex" href="functions.html">Compound Members</a> &nbsp; <a class="qindex" href="globals.html">File Members</a> &nbsp; </center>
 <hr><h1>Server Member List</h1>This is the complete list of members for <a class="el" href="classServer.html">Server</a>, including all inherited members.<table>
+  <tr bgcolor="#f0f0f0"><td><a class="el" href="classServer.html#a20">AddCommand</a>(char *cmd, handlerfunc f, char flags, int minparams)</td><td><a class="el" href="classServer.html">Server</a></td><td><code> [virtual]</code></td></tr>
+  <tr bgcolor="#f0f0f0"><td><a class="el" href="classServer.html#a19">AddExtendedMode</a>(char modechar, int type, bool default_on, int params_when_on, int params_when_off)</td><td><a class="el" href="classServer.html">Server</a></td><td><code> [virtual]</code></td></tr>
   <tr bgcolor="#f0f0f0"><td><a class="el" href="classclassbase.html#m0">age</a></td><td><a class="el" href="classclassbase.html">classbase</a></td><td></td></tr>
   <tr bgcolor="#f0f0f0"><td><a class="el" href="classServer.html#a15">ChanMode</a>(userrec *User, chanrec *Chan)</td><td><a class="el" href="classServer.html">Server</a></td><td><code> [virtual]</code></td></tr>
   <tr bgcolor="#f0f0f0"><td><a class="el" href="classclassbase.html#a0">classbase</a>()</td><td><a class="el" href="classclassbase.html">classbase</a></td><td><code> [inline]</code></td></tr>
   <tr bgcolor="#f0f0f0"><td><a class="el" href="classServer.html#a9">CommonChannels</a>(userrec *u1, userrec *u2)</td><td><a class="el" href="classServer.html">Server</a></td><td><code> [virtual]</code></td></tr>
-  <tr bgcolor="#f0f0f0"><td><a class="el" href="classServer.html#a14">FindChannel</a>(string channel)</td><td><a class="el" href="classServer.html">Server</a></td><td><code> [virtual]</code></td></tr>
-  <tr bgcolor="#f0f0f0"><td><a class="el" href="classServer.html#a13">FindNick</a>(string nick)</td><td><a class="el" href="classServer.html">Server</a></td><td><code> [virtual]</code></td></tr>
+  <tr bgcolor="#f0f0f0"><td><a class="el" href="classServer.html#a14">FindChannel</a>(std::string channel)</td><td><a class="el" href="classServer.html">Server</a></td><td><code> [virtual]</code></td></tr>
+  <tr bgcolor="#f0f0f0"><td><a class="el" href="classServer.html#a13">FindNick</a>(std::string nick)</td><td><a class="el" href="classServer.html">Server</a></td><td><code> [virtual]</code></td></tr>
   <tr bgcolor="#f0f0f0"><td><a class="el" href="classServer.html#a18">GetAdmin</a>()</td><td><a class="el" href="classServer.html">Server</a></td><td><code> [virtual]</code></td></tr>
   <tr bgcolor="#f0f0f0"><td><a class="el" href="classServer.html#a17">GetNetworkName</a>()</td><td><a class="el" href="classServer.html">Server</a></td><td><code> [virtual]</code></td></tr>
   <tr bgcolor="#f0f0f0"><td><a class="el" href="classServer.html#a16">GetServerName</a>()</td><td><a class="el" href="classServer.html">Server</a></td><td><code> [virtual]</code></td></tr>
-  <tr bgcolor="#f0f0f0"><td><a class="el" href="classServer.html#a12">IsNick</a>(string nick)</td><td><a class="el" href="classServer.html">Server</a></td><td><code> [virtual]</code></td></tr>
-  <tr bgcolor="#f0f0f0"><td><a class="el" href="classServer.html#a3">Log</a>(int level, string s)</td><td><a class="el" href="classServer.html">Server</a></td><td><code> [virtual]</code></td></tr>
-  <tr bgcolor="#f0f0f0"><td><a class="el" href="classServer.html#a4">Send</a>(int Socket, string s)</td><td><a class="el" href="classServer.html">Server</a></td><td><code> [virtual]</code></td></tr>
-  <tr bgcolor="#f0f0f0"><td><a class="el" href="classServer.html#a8">SendChannel</a>(userrec *User, chanrec *Channel, string s, bool IncludeSender)</td><td><a class="el" href="classServer.html">Server</a></td><td><code> [virtual]</code></td></tr>
-  <tr bgcolor="#f0f0f0"><td><a class="el" href="classServer.html#a10">SendCommon</a>(userrec *User, string text, bool IncludeSender)</td><td><a class="el" href="classServer.html">Server</a></td><td><code> [virtual]</code></td></tr>
-  <tr bgcolor="#f0f0f0"><td><a class="el" href="classServer.html#a6">SendFrom</a>(int Socket, userrec *User, string s)</td><td><a class="el" href="classServer.html">Server</a></td><td><code> [virtual]</code></td></tr>
-  <tr bgcolor="#f0f0f0"><td><a class="el" href="classServer.html#a2">SendOpers</a>(string s)</td><td><a class="el" href="classServer.html">Server</a></td><td><code> [virtual]</code></td></tr>
-  <tr bgcolor="#f0f0f0"><td><a class="el" href="classServer.html#a5">SendServ</a>(int Socket, string s)</td><td><a class="el" href="classServer.html">Server</a></td><td><code> [virtual]</code></td></tr>
-  <tr bgcolor="#f0f0f0"><td><a class="el" href="classServer.html#a7">SendTo</a>(userrec *Source, userrec *Dest, string s)</td><td><a class="el" href="classServer.html">Server</a></td><td><code> [virtual]</code></td></tr>
-  <tr bgcolor="#f0f0f0"><td><a class="el" href="classServer.html#a11">SendWallops</a>(userrec *User, string text)</td><td><a class="el" href="classServer.html">Server</a></td><td><code> [virtual]</code></td></tr>
+  <tr bgcolor="#f0f0f0"><td><a class="el" href="classServer.html#a12">IsNick</a>(std::string nick)</td><td><a class="el" href="classServer.html">Server</a></td><td><code> [virtual]</code></td></tr>
+  <tr bgcolor="#f0f0f0"><td><a class="el" href="classServer.html#a3">Log</a>(int level, std::string s)</td><td><a class="el" href="classServer.html">Server</a></td><td><code> [virtual]</code></td></tr>
+  <tr bgcolor="#f0f0f0"><td><a class="el" href="classServer.html#a4">Send</a>(int Socket, std::string s)</td><td><a class="el" href="classServer.html">Server</a></td><td><code> [virtual]</code></td></tr>
+  <tr bgcolor="#f0f0f0"><td><a class="el" href="classServer.html#a8">SendChannel</a>(userrec *User, chanrec *Channel, std::string s, bool IncludeSender)</td><td><a class="el" href="classServer.html">Server</a></td><td><code> [virtual]</code></td></tr>
+  <tr bgcolor="#f0f0f0"><td><a class="el" href="classServer.html#a10">SendCommon</a>(userrec *User, std::string text, bool IncludeSender)</td><td><a class="el" href="classServer.html">Server</a></td><td><code> [virtual]</code></td></tr>
+  <tr bgcolor="#f0f0f0"><td><a class="el" href="classServer.html#a6">SendFrom</a>(int Socket, userrec *User, std::string s)</td><td><a class="el" href="classServer.html">Server</a></td><td><code> [virtual]</code></td></tr>
+  <tr bgcolor="#f0f0f0"><td><a class="el" href="classServer.html#a2">SendOpers</a>(std::string s)</td><td><a class="el" href="classServer.html">Server</a></td><td><code> [virtual]</code></td></tr>
+  <tr bgcolor="#f0f0f0"><td><a class="el" href="classServer.html#a5">SendServ</a>(int Socket, std::string s)</td><td><a class="el" href="classServer.html">Server</a></td><td><code> [virtual]</code></td></tr>
+  <tr bgcolor="#f0f0f0"><td><a class="el" href="classServer.html#a7">SendTo</a>(userrec *Source, userrec *Dest, std::string s)</td><td><a class="el" href="classServer.html">Server</a></td><td><code> [virtual]</code></td></tr>
+  <tr bgcolor="#f0f0f0"><td><a class="el" href="classServer.html#a11">SendWallops</a>(userrec *User, std::string text)</td><td><a class="el" href="classServer.html">Server</a></td><td><code> [virtual]</code></td></tr>
   <tr bgcolor="#f0f0f0"><td><a class="el" href="classServer.html#a0">Server</a>()</td><td><a class="el" href="classServer.html">Server</a></td><td></td></tr>
   <tr bgcolor="#f0f0f0"><td><a class="el" href="classclassbase.html#a1">~classbase</a>()</td><td><a class="el" href="classclassbase.html">classbase</a></td><td><code> [inline]</code></td></tr>
   <tr bgcolor="#f0f0f0"><td><a class="el" href="classServer.html#a1">~Server</a>()</td><td><a class="el" href="classServer.html">Server</a></td><td><code> [virtual]</code></td></tr>
-</table><hr><address style="align: right;"><small>Generated on Sun Mar 30 19:36:22 2003 for InspIRCd by
+</table><hr><address style="align: right;"><small>Generated on Fri Apr 2 13:37:44 2004 for InspIRCd by
 <a href="http://www.doxygen.org/index.html">
 <img src="doxygen.png" alt="doxygen" align="middle" border=0 
 width=110 height=53></a>1.3-rc3 </small></address>

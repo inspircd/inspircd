@@ -42,8 +42,10 @@ Inheritance diagram for Module:<p><center><img src="classModule__inherit__graph.
 <tr><td>&nbsp;</td><td><font size=-1><em>Called after a packet is received from another irc server.</em> <a href="#a8"></a><em></em></font><br><br></td></tr>
 <tr><td nowrap align=right valign=top>virtual void&nbsp;</td><td valign=bottom><a class="el" href="classModule.html#a9">OnRehash</a> ()</td></tr>
 <tr><td>&nbsp;</td><td><font size=-1><em>Called on rehash.</em> <a href="#a9"></a><em></em></font><br><br></td></tr>
-<tr><td nowrap align=right valign=top>virtual void&nbsp;</td><td valign=bottom><a class="el" href="classModule.html#a10">Module::OnServerRaw</a> (string &amp;raw, bool inbound)</td></tr>
+<tr><td nowrap align=right valign=top>virtual void&nbsp;</td><td valign=bottom><a class="el" href="classModule.html#a10">OnServerRaw</a> (std::string &amp;raw, bool inbound)</td></tr>
 <tr><td>&nbsp;</td><td><font size=-1><em>Called when a raw command is transmitted or received.</em> <a href="#a10"></a><em></em></font><br><br></td></tr>
+<tr><td nowrap align=right valign=top>virtual bool&nbsp;</td><td valign=bottom><a class="el" href="classModule.html#a11">OnExtendedMode</a> (<a class="el" href="classuserrec.html">userrec</a> *user, <a class="el" href="classchanrec.html">chanrec</a> *chan, char modechar, int type, bool mode_on, <a class="el" href="modules_8h.html#a10">string_list</a> &amp;params)</td></tr>
+<tr><td>&nbsp;</td><td><font size=-1><em>Called whenever an extended mode is to be processed.</em> <a href="#a11"></a><em></em></font><br><br></td></tr>
 </table>
 <hr><a name="_details"></a><h2>Detailed Description</h2>
 Base class for all InspIRCd modules This class is the base class for InspIRCd modules.
@@ -52,7 +54,7 @@ All modules must inherit from this class, its methods will be called when irc se
 <p>
 
 <p>
-Definition at line <a class="el" href="modules_8h-source.html#l00065">65</a> of file <a class="el" href="modules_8h-source.html">modules.h</a>.<hr><h2>Constructor &amp; Destructor Documentation</h2>
+Definition at line <a class="el" href="modules_8h-source.html#l00071">71</a> of file <a class="el" href="modules_8h-source.html">modules.h</a>.<hr><h2>Constructor &amp; Destructor Documentation</h2>
 <a name="a0" doxytag="Module::Module"></a><p>
 <table width="100%" cellpadding="2" cellspacing="0" border="0">
   <tr>
@@ -82,9 +84,9 @@ Default constructor creates a module class.
 <p>
 
 <p>
-Definition at line <a class="el" href="modules_8cpp-source.html#l00027">27</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
+Definition at line <a class="el" href="modules_8cpp-source.html#l00088">88</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
 <p>
-<div class="fragment"><pre>00027 { }
+<div class="fragment"><pre>00088 { }
 </pre></div>    </td>
   </tr>
 </table>
@@ -117,9 +119,9 @@ Default destructor destroys a module class.
 <p>
 
 <p>
-Definition at line <a class="el" href="modules_8cpp-source.html#l00028">28</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
+Definition at line <a class="el" href="modules_8cpp-source.html#l00089">89</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
 <p>
-<div class="fragment"><pre>00028 { }
+<div class="fragment"><pre>00089 { }
 </pre></div>    </td>
   </tr>
 </table>
@@ -153,9 +155,9 @@ Returns the version number of a Module.
 <p>
 The method should return a <a class="el" href="classVersion.html">Version</a> object with its version information assigned via <a class="el" href="classVersion.html#a0">Version::Version</a>
 <p>
-Definition at line <a class="el" href="modules_8cpp-source.html#l00037">37</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
+Definition at line <a class="el" href="modules_8cpp-source.html#l00099">99</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
 <p>
-<div class="fragment"><pre>00037 { <span class="keywordflow">return</span> <a class="code" href="classVersion.html">Version</a>(1,0,0,0); }
+<div class="fragment"><pre>00099 { <span class="keywordflow">return</span> <a class="code" href="classVersion.html">Version</a>(1,0,0,0); }
 </pre></div>    </td>
   </tr>
 </table>
@@ -221,22 +223,46 @@ Called before a packet is transmitted across the irc network between two irc ser
 The packet is represented as a char*, as it should be regarded as a buffer, and not a string. This allows you to easily represent it in the correct ways to implement encryption, compression, digital signatures and anything else you may want to add. This should be regarded as a pre-processor and will be called before ANY other operations within the ircd core program.    </td>
   </tr>
 </table>
-<a name="a10" doxytag="Module::Module::OnServerRaw"></a><p>
+<a name="a11" doxytag="Module::OnExtendedMode"></a><p>
 <table width="100%" cellpadding="2" cellspacing="0" border="0">
   <tr>
     <td class="md">
       <table cellpadding="0" cellspacing="0" border="0">
         <tr>
-          <td class="md" nowrap valign="top"> virtual void Module::Module::OnServerRaw </td>
+          <td class="md" nowrap valign="top"> bool Module::OnExtendedMode </td>
           <td class="md" valign="top">(&nbsp;</td>
-          <td class="md" nowrap valign="top">string &amp;&nbsp;</td>
-          <td class="mdname" nowrap>&nbsp; <em>raw</em>, </td>
+          <td class="md" nowrap valign="top"><a class="el" href="classuserrec.html">userrec</a> *&nbsp;</td>
+          <td class="mdname" nowrap>&nbsp; <em>user</em>, </td>
+        </tr>
+        <tr>
+          <td></td>
+          <td></td>
+          <td class="md" nowrap><a class="el" href="classchanrec.html">chanrec</a> *&nbsp;</td>
+          <td class="mdname" nowrap>&nbsp; <em>chan</em>, </td>
+        </tr>
+        <tr>
+          <td></td>
+          <td></td>
+          <td class="md" nowrap>char&nbsp;</td>
+          <td class="mdname" nowrap>&nbsp; <em>modechar</em>, </td>
+        </tr>
+        <tr>
+          <td></td>
+          <td></td>
+          <td class="md" nowrap>int&nbsp;</td>
+          <td class="mdname" nowrap>&nbsp; <em>type</em>, </td>
         </tr>
         <tr>
           <td></td>
           <td></td>
           <td class="md" nowrap>bool&nbsp;</td>
-          <td class="mdname" nowrap>&nbsp; <em>inbound</em></td>
+          <td class="mdname" nowrap>&nbsp; <em>mode_on</em>, </td>
+        </tr>
+        <tr>
+          <td></td>
+          <td></td>
+          <td class="md" nowrap><a class="el" href="modules_8h.html#a10">string_list</a> &amp;&nbsp;</td>
+          <td class="mdname" nowrap>&nbsp; <em>params</em></td>
         </tr>
         <tr>
           <td></td>
@@ -256,9 +282,14 @@ The packet is represented as a char*, as it should be regarded as a buffer, and 
     <td>
 
 <p>
-Called when a raw command is transmitted or received.
+Called whenever an extended mode is to be processed.
 <p>
-This method is the lowest level of handler available to a module. It will be called with raw data which is passing through a connected socket. If you wish, you may munge this data by changing the string parameter "raw". If you do this, after your function exits it will immediately be cut down to 510 characters plus a carriage return and linefeed.    </td>
+The type parameter is MT_SERVER, MT_CLIENT or MT_CHANNEL, dependent on where the mode is being changed. mode_on is set when the mode is being set, in which case params contains a list of parameters for the mode as strings. If mode_on is false, the mode is being removed, and parameters may contain the parameters for the mode, dependent on wether they were defined when a mode handler was set up with <a class="el" href="classServer.html#a19">Server::AddExtendedMode</a> If the mode is not a channel mode, chanrec* chan is null, and should not be read from or written to.
+<p>
+Definition at line <a class="el" href="modules_8cpp-source.html#l00098">98</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
+<p>
+<div class="fragment"><pre>00098 { }
+</pre></div>    </td>
   </tr>
 </table>
 <a name="a9" doxytag="Module::OnRehash"></a><p>
@@ -290,9 +321,54 @@ Called on rehash.
 <p>
 This method is called prior to a /REHASH or when a SIGHUP is received from the operating system. You should use it to reload any files so that your module keeps in step with the rest of the application.
 <p>
-Definition at line <a class="el" href="modules_8cpp-source.html#l00035">35</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
+Definition at line <a class="el" href="modules_8cpp-source.html#l00096">96</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
 <p>
-<div class="fragment"><pre>00035 { }
+<div class="fragment"><pre>00096 { }
+</pre></div>    </td>
+  </tr>
+</table>
+<a name="a10" doxytag="Module::OnServerRaw"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> void Module::OnServerRaw </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="md" nowrap valign="top">std::string &amp;&nbsp;</td>
+          <td class="mdname" nowrap>&nbsp; <em>raw</em>, </td>
+        </tr>
+        <tr>
+          <td></td>
+          <td></td>
+          <td class="md" nowrap>bool&nbsp;</td>
+          <td class="mdname" nowrap>&nbsp; <em>inbound</em></td>
+        </tr>
+        <tr>
+          <td></td>
+          <td class="md">)&nbsp;</td>
+          <td class="md" colspan="2"><code> [virtual]</code></td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+Called when a raw command is transmitted or received.
+<p>
+This method is the lowest level of handler available to a module. It will be called with raw data which is passing through a connected socket. If you wish, you may munge this data by changing the string parameter "raw". If you do this, after your function exits it will immediately be cut down to 510 characters plus a carriage return and linefeed.
+<p>
+Definition at line <a class="el" href="modules_8cpp-source.html#l00097">97</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
+<p>
+<div class="fragment"><pre>00097 { }
 </pre></div>    </td>
   </tr>
 </table>
@@ -326,9 +402,9 @@ Called when a user connects.
 <p>
 The details of the connecting user are available to you in the parameter userrec *user
 <p>
-Definition at line <a class="el" href="modules_8cpp-source.html#l00029">29</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
+Definition at line <a class="el" href="modules_8cpp-source.html#l00090">90</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
 <p>
-<div class="fragment"><pre>00029 { }
+<div class="fragment"><pre>00090 { }
 </pre></div>    </td>
   </tr>
 </table>
@@ -371,9 +447,9 @@ Called when a user joins a channel.
 <p>
 The details of the joining user are available to you in the parameter userrec *user, and the details of the channel they have joined is available in the variable chanrec *channel
 <p>
-Definition at line <a class="el" href="modules_8cpp-source.html#l00031">31</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
+Definition at line <a class="el" href="modules_8cpp-source.html#l00092">92</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
 <p>
-<div class="fragment"><pre>00031 { }
+<div class="fragment"><pre>00092 { }
 </pre></div>    </td>
   </tr>
 </table>
@@ -416,9 +492,9 @@ Called when a user parts a channel.
 <p>
 The details of the leaving user are available to you in the parameter userrec *user, and the details of the channel they have left is available in the variable chanrec *channel
 <p>
-Definition at line <a class="el" href="modules_8cpp-source.html#l00032">32</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
+Definition at line <a class="el" href="modules_8cpp-source.html#l00093">93</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
 <p>
-<div class="fragment"><pre>00032 { }
+<div class="fragment"><pre>00093 { }
 </pre></div>    </td>
   </tr>
 </table>
@@ -452,15 +528,15 @@ Called when a user quits.
 <p>
 The details of the exiting user are available to you in the parameter userrec *user
 <p>
-Definition at line <a class="el" href="modules_8cpp-source.html#l00030">30</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
+Definition at line <a class="el" href="modules_8cpp-source.html#l00091">91</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
 <p>
-<div class="fragment"><pre>00030 { }
+<div class="fragment"><pre>00091 { }
 </pre></div>    </td>
   </tr>
 </table>
 <hr>The documentation for this class was generated from the following files:<ul>
 <li><a class="el" href="modules_8h-source.html">modules.h</a><li><a class="el" href="modules_8cpp-source.html">modules.cpp</a></ul>
-<hr><address style="align: right;"><small>Generated on Sun Mar 30 19:36:13 2003 for InspIRCd by
+<hr><address style="align: right;"><small>Generated on Fri Apr 2 13:37:42 2004 for InspIRCd by
 <a href="http://www.doxygen.org/index.html">
 <img src="doxygen.png" alt="doxygen" align="middle" border=0 
 width=110 height=53></a>1.3-rc3 </small></address>

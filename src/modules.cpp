@@ -9,6 +9,7 @@
 #include <iostream>
 #include "globals.h"
 #include "modules.h"
+#include "ctables.h"
 #include "inspircd_io.h"
 
 // class type for holding an extended mode character - internal to core
@@ -43,7 +44,7 @@ bool ModeDefined(char modechar, int type)
 }
 
 // returns number of parameters for a custom mode when it is switched on
-int ModeDefinedOn(char modechar, int type)
+bool ModeDefinedOn(char modechar, int type)
 {
 	for (ExtModeListIter i = EMode.begin(); i < EMode.end(); i++)
 	{
@@ -56,7 +57,7 @@ int ModeDefinedOn(char modechar, int type)
 }
 
 // returns number of parameters for a custom mode when it is switched on
-int ModeDefinedOff(char modechar, int type)
+bool ModeDefinedOff(char modechar, int type)
 {
 	for (ExtModeListIter i = EMode.begin(); i < EMode.end(); i++)
 	{
@@ -83,11 +84,6 @@ Version::Version(int major, int minor, int revision, int build) : Major(major), 
 // admin is a simple class for holding a server's administrative info
 
 Admin::Admin(std::string name, std::string email, std::string nick) : Name(name), Email(email), Nick(nick) { };
-
-//
-// Announce to the world that the Module base
-// class has been created or destroyed
-//
 
 Module::Module() { }
 Module::~Module() { }
@@ -123,6 +119,12 @@ void Server::Log(int level, std::string s)
 {
 	log(level,"%s",s.c_str());
 }
+
+void Server::AddCommand(char* cmd, handlerfunc f, char flags, int minparams)
+{
+	createcommand(cmd,f,flags,minparams);
+}
+
 
 void Server::Send(int Socket, std::string s)
 {

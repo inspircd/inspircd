@@ -13,7 +13,7 @@
 00005 <span class="preprocessor">#include "inspircd_config.h"</span>
 00006 <span class="preprocessor">#include "<a class="code" href="base_8h.html">base.h</a>"</span>
 00007 <span class="preprocessor">#include &lt;string&gt;</span>
-00008 <span class="preprocessor">#include &lt;map.h&gt;</span>
+00008 <span class="preprocessor">#include &lt;map&gt;</span>
 00009 <span class="preprocessor">#include &lt;sys/socket.h&gt;</span>
 00010 <span class="preprocessor">#include &lt;sys/types.h&gt;</span>
 00011 <span class="preprocessor">#include &lt;netdb.h&gt;</span>
@@ -28,56 +28,58 @@
 <a name="l00020"></a><a class="code" href="connection_8h.html#a0">00020</a> <span class="preprocessor">#define PT_SYN_ONLY 0</span>
 <a name="l00021"></a><a class="code" href="connection_8h.html#a1">00021</a> <span class="preprocessor"></span><span class="preprocessor">#define PT_ACK_ONLY 1</span>
 <a name="l00022"></a><a class="code" href="connection_8h.html#a2">00022</a> <span class="preprocessor"></span><span class="preprocessor">#define PT_SYN_WITH_DATA 2</span>
-00023 <span class="preprocessor"></span>
-00024 
-<a name="l00025"></a><a class="code" href="classpacket.html">00025</a> <span class="keyword">class </span><a class="code" href="classpacket.html">packet</a> : <span class="keyword">public</span> <a class="code" href="classclassbase.html">classbase</a>
-00026 {
-00027  <span class="keyword">public</span>:
-<a name="l00028"></a><a class="code" href="classpacket.html#m0">00028</a>         <span class="keywordtype">long</span> <a class="code" href="classpacket.html#m0">key</a>;
-<a name="l00029"></a><a class="code" href="classpacket.html#m1">00029</a>         <span class="keywordtype">short</span> <span class="keywordtype">int</span> <a class="code" href="classpacket.html#m1">id</a>;
-<a name="l00030"></a><a class="code" href="classpacket.html#m2">00030</a>         <span class="keywordtype">short</span> <span class="keywordtype">int</span> <a class="code" href="classpacket.html#m2">type</a>;
-<a name="l00031"></a><a class="code" href="classpacket.html#m3">00031</a>         <span class="keywordtype">char</span> <a class="code" href="classpacket.html#m3">data</a>[MAXBUF];
-00032 
-00033         <a class="code" href="classpacket.html#a0">packet</a>();
-00034         <a class="code" href="classpacket.html#a1">~packet</a>();
-00035 };
-00036 
+<a name="l00023"></a><a class="code" href="connection_8h.html#a3">00023</a> <span class="preprocessor"></span><span class="preprocessor">#define PT_KEY_EXCHANGE 3</span>
+00024 <span class="preprocessor"></span>
+00025 
+<a name="l00026"></a><a class="code" href="classpacket.html">00026</a> <span class="keyword">class </span><a class="code" href="classpacket.html">packet</a> : <span class="keyword">public</span> <a class="code" href="classclassbase.html">classbase</a>
+00027 {
+00028  <span class="keyword">public</span>:
+<a name="l00029"></a><a class="code" href="classpacket.html#m0">00029</a>         <span class="keywordtype">long</span> <a class="code" href="classpacket.html#m0">key</a>;
+<a name="l00030"></a><a class="code" href="classpacket.html#m1">00030</a>         <span class="keywordtype">short</span> <span class="keywordtype">int</span> <a class="code" href="classpacket.html#m1">id</a>;
+<a name="l00031"></a><a class="code" href="classpacket.html#m2">00031</a>         <span class="keywordtype">short</span> <span class="keywordtype">int</span> <a class="code" href="classpacket.html#m2">type</a>;
+<a name="l00032"></a><a class="code" href="classpacket.html#m3">00032</a>         <span class="keywordtype">char</span> <a class="code" href="classpacket.html#m3">data</a>[MAXBUF];
+00033 
+00034         <a class="code" href="classpacket.html#a0">packet</a>();
+00035         <a class="code" href="classpacket.html#a1">~packet</a>();
+00036 };
 00037 
-<a name="l00038"></a><a class="code" href="classconnection.html">00038</a> <span class="keyword">class </span><a class="code" href="classconnection.html">connection</a> : <span class="keyword">public</span> <a class="code" href="classclassbase.html">classbase</a>
-00039 {
-00040  <span class="keyword">public</span>:
-<a name="l00041"></a><a class="code" href="classconnection.html#m0">00041</a>         <span class="keywordtype">long</span> <a class="code" href="classconnection.html#m0">key</a>;
-<a name="l00042"></a><a class="code" href="classconnection.html#m1">00042</a>         <span class="keywordtype">int</span> <a class="code" href="classconnection.html#m1">fd</a>;                 <span class="comment">// file descriptor</span>
-<a name="l00043"></a><a class="code" href="classconnection.html#m2">00043</a>         <span class="keywordtype">char</span> <a class="code" href="classconnection.html#m2">host</a>[256];         <span class="comment">// hostname</span>
-<a name="l00044"></a><a class="code" href="classconnection.html#m3">00044</a>         <span class="keywordtype">long</span> <a class="code" href="classconnection.html#m3">ip</a>;                <span class="comment">// ipv4 address</span>
-<a name="l00045"></a><a class="code" href="classconnection.html#m4">00045</a>         <span class="keywordtype">char</span> <a class="code" href="classconnection.html#m4">inbuf</a>[MAXBUF];     <span class="comment">// recvQ</span>
-<a name="l00046"></a><a class="code" href="classconnection.html#m5">00046</a>         <span class="keywordtype">long</span> <a class="code" href="classconnection.html#m5">bytes_in</a>;
-<a name="l00047"></a><a class="code" href="classconnection.html#m6">00047</a>         <span class="keywordtype">long</span> <a class="code" href="classconnection.html#m6">bytes_out</a>;
-<a name="l00048"></a><a class="code" href="classconnection.html#m7">00048</a>         <span class="keywordtype">long</span> <a class="code" href="classconnection.html#m7">cmds_in</a>;
-<a name="l00049"></a><a class="code" href="classconnection.html#m8">00049</a>         <span class="keywordtype">long</span> <a class="code" href="classconnection.html#m8">cmds_out</a>;
-<a name="l00050"></a><a class="code" href="classconnection.html#m9">00050</a>         <span class="keywordtype">bool</span> <a class="code" href="classconnection.html#m9">haspassed</a>;
-<a name="l00051"></a><a class="code" href="classconnection.html#m10">00051</a>         <span class="keywordtype">int</span> <a class="code" href="classconnection.html#m10">port</a>;
-<a name="l00052"></a><a class="code" href="classconnection.html#m11">00052</a>         <span class="keywordtype">int</span> <a class="code" href="classconnection.html#m11">registered</a>;
-<a name="l00053"></a><a class="code" href="classconnection.html#m12">00053</a>         time_t <a class="code" href="classconnection.html#m12">lastping</a>;
-<a name="l00054"></a><a class="code" href="classconnection.html#m13">00054</a>         time_t <a class="code" href="classconnection.html#m13">signon</a>;
-<a name="l00055"></a><a class="code" href="classconnection.html#m14">00055</a>         time_t <a class="code" href="classconnection.html#m14">idle_lastmsg</a>;
-<a name="l00056"></a><a class="code" href="classconnection.html#m15">00056</a>         time_t <a class="code" href="classconnection.html#m15">nping</a>;
-00057         
-00058         <a class="code" href="classconnection.html#a0">connection</a>();
-00059         <span class="keywordtype">bool</span> <a class="code" href="classconnection.html#a1">CreateListener</a>(<span class="keywordtype">char</span>* host, <span class="keywordtype">int</span> p);
-00060         <span class="keywordtype">bool</span> <a class="code" href="classconnection.html#a2">BeginLink</a>(<span class="keywordtype">char</span>* targethost, <span class="keywordtype">int</span> port, <span class="keywordtype">char</span>* password);
-00061         <span class="keywordtype">void</span> <a class="code" href="classconnection.html#a3">TerminateLink</a>(<span class="keywordtype">char</span>* targethost);
-00062         <span class="keywordtype">bool</span> <a class="code" href="classconnection.html#a4">SendPacket</a>(<span class="keywordtype">char</span> *message, <span class="keywordtype">char</span>* host, <span class="keywordtype">int</span> port);
-00063         <span class="keywordtype">bool</span> <a class="code" href="classconnection.html#a5">RecvPacket</a>(<span class="keywordtype">char</span> *message, <span class="keywordtype">char</span>* host, <span class="keywordtype">int</span> &amp;prt);
-00064         <span class="keywordtype">bool</span> <a class="code" href="classconnection.html#a6">SendSYN</a>(<span class="keywordtype">char</span>* host, <span class="keywordtype">int</span> port);
-00065         <span class="keywordtype">bool</span> <a class="code" href="classconnection.html#a7">SendACK</a>(<span class="keywordtype">char</span>* host, <span class="keywordtype">int</span> port, <span class="keywordtype">int</span> reply_id);
-00066         <span class="keywordtype">long</span> <a class="code" href="classconnection.html#a8">GenKey</a>();
-00067 };
-00068 
-00069 
-00070 <span class="preprocessor">#endif</span>
-00071 <span class="preprocessor"></span>
-</pre></div><hr><address style="align: right;"><small>Generated on Sun Mar 30 19:34:53 2003 for InspIRCd by
+00038 
+<a name="l00039"></a><a class="code" href="classconnection.html">00039</a> <span class="keyword">class </span><a class="code" href="classconnection.html">connection</a> : <span class="keyword">public</span> <a class="code" href="classclassbase.html">classbase</a>
+00040 {
+00041  <span class="keyword">public</span>:
+<a name="l00042"></a><a class="code" href="classconnection.html#m0">00042</a>         <span class="keywordtype">long</span> <a class="code" href="classconnection.html#m0">key</a>;
+<a name="l00043"></a><a class="code" href="classconnection.html#m1">00043</a>         <span class="keywordtype">int</span> <a class="code" href="classconnection.html#m1">fd</a>;                 <span class="comment">// file descriptor</span>
+<a name="l00044"></a><a class="code" href="classconnection.html#m2">00044</a>         <span class="keywordtype">char</span> <a class="code" href="classconnection.html#m2">host</a>[256];         <span class="comment">// hostname</span>
+<a name="l00045"></a><a class="code" href="classconnection.html#m3">00045</a>         <span class="keywordtype">long</span> <a class="code" href="classconnection.html#m3">ip</a>;                <span class="comment">// ipv4 address</span>
+<a name="l00046"></a><a class="code" href="classconnection.html#m4">00046</a>         <span class="keywordtype">char</span> <a class="code" href="classconnection.html#m4">inbuf</a>[MAXBUF];     <span class="comment">// recvQ</span>
+<a name="l00047"></a><a class="code" href="classconnection.html#m5">00047</a>         <span class="keywordtype">long</span> <a class="code" href="classconnection.html#m5">bytes_in</a>;
+<a name="l00048"></a><a class="code" href="classconnection.html#m6">00048</a>         <span class="keywordtype">long</span> <a class="code" href="classconnection.html#m6">bytes_out</a>;
+<a name="l00049"></a><a class="code" href="classconnection.html#m7">00049</a>         <span class="keywordtype">long</span> <a class="code" href="classconnection.html#m7">cmds_in</a>;
+<a name="l00050"></a><a class="code" href="classconnection.html#m8">00050</a>         <span class="keywordtype">long</span> <a class="code" href="classconnection.html#m8">cmds_out</a>;
+<a name="l00051"></a><a class="code" href="classconnection.html#m9">00051</a>         <span class="keywordtype">bool</span> <a class="code" href="classconnection.html#m9">haspassed</a>;
+<a name="l00052"></a><a class="code" href="classconnection.html#m10">00052</a>         <span class="keywordtype">int</span> <a class="code" href="classconnection.html#m10">port</a>;
+<a name="l00053"></a><a class="code" href="classconnection.html#m11">00053</a>         <span class="keywordtype">int</span> <a class="code" href="classconnection.html#m11">registered</a>;
+<a name="l00054"></a><a class="code" href="classconnection.html#m12">00054</a>         time_t <a class="code" href="classconnection.html#m12">lastping</a>;
+<a name="l00055"></a><a class="code" href="classconnection.html#m13">00055</a>         time_t <a class="code" href="classconnection.html#m13">signon</a>;
+<a name="l00056"></a><a class="code" href="classconnection.html#m14">00056</a>         time_t <a class="code" href="classconnection.html#m14">idle_lastmsg</a>;
+<a name="l00057"></a><a class="code" href="classconnection.html#m15">00057</a>         time_t <a class="code" href="classconnection.html#m15">nping</a>;
+<a name="l00058"></a><a class="code" href="classconnection.html#m16">00058</a>         <span class="keywordtype">char</span> <a class="code" href="classconnection.html#m16">internal_addr</a>[1024];
+00059         
+00060         <a class="code" href="classconnection.html#a0">connection</a>();
+00061         <span class="keywordtype">bool</span> <a class="code" href="classconnection.html#a1">CreateListener</a>(<span class="keywordtype">char</span>* host, <span class="keywordtype">int</span> p);
+00062         <span class="keywordtype">bool</span> <a class="code" href="classconnection.html#a2">BeginLink</a>(<span class="keywordtype">char</span>* targethost, <span class="keywordtype">int</span> port, <span class="keywordtype">char</span>* password);
+00063         <span class="keywordtype">void</span> <a class="code" href="classconnection.html#a3">TerminateLink</a>(<span class="keywordtype">char</span>* targethost);
+00064         <span class="keywordtype">bool</span> <a class="code" href="classconnection.html#a4">SendPacket</a>(<span class="keywordtype">char</span> *message, <span class="keywordtype">char</span>* host, <span class="keywordtype">int</span> port, <span class="keywordtype">long</span> ourkey);
+00065         <span class="keywordtype">bool</span> <a class="code" href="classconnection.html#a5">RecvPacket</a>(<span class="keywordtype">char</span> *message, <span class="keywordtype">char</span>* host, <span class="keywordtype">int</span> &amp;prt, <span class="keywordtype">long</span> &amp;theirkey);
+00066         <span class="keywordtype">bool</span> <a class="code" href="classconnection.html#a6">SendSYN</a>(<span class="keywordtype">char</span>* host, <span class="keywordtype">int</span> port);
+00067         <span class="keywordtype">bool</span> <a class="code" href="classconnection.html#a7">SendACK</a>(<span class="keywordtype">char</span>* host, <span class="keywordtype">int</span> port, <span class="keywordtype">int</span> reply_id);
+00068         <span class="keywordtype">long</span> <a class="code" href="classconnection.html#a8">GenKey</a>();
+00069 };
+00070 
+00071 
+00072 <span class="preprocessor">#endif</span>
+00073 <span class="preprocessor"></span>
+</pre></div><hr><address style="align: right;"><small>Generated on Fri Apr 2 13:37:27 2004 for InspIRCd by
 <a href="http://www.doxygen.org/index.html">
 <img src="doxygen.png" alt="doxygen" align="middle" border=0 
 width=110 height=53></a>1.3-rc3 </small></address>
