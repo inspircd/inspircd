@@ -34,26 +34,27 @@ std::string suffix;
 
 void handle_randquote(char** parameters, int pcntl, userrec *user)
 {
-                std::string str;
-                int fsize;
-                char buf[MAXBUF];
+	std::string str;
+	int fsize;
+	char buf[MAXBUF];
 
-                fsize = quotes->FileSize();
-                srand(time(NULL));
-                str = quotes->GetLine(rand() % fsize);
+	fsize = quotes->FileSize();
+	srand(time(NULL));
+	str = quotes->GetLine(rand() % fsize);
 
-                sprintf(buf,"NOTICE %s :%s%s%s",user->nick,prefix.c_str(),str.c_str(),suffix.c_str());
-                Srv->SendServ(user->fd, buf);
-                return;
+	sprintf(buf,"NOTICE %s :%s%s%s",user->nick,prefix.c_str(),str.c_str(),suffix.c_str());
+	Srv->SendServ(user->fd, buf);
+	return;
 }
+
+
+
 
 class ModuleRandQuote : public Module
 {
  private:
 
-	 Server *Srv;
-	 ConfigReader *conf;
-	 
+	ConfigReader *conf;
  public:
 	ModuleRandQuote()
 	{
