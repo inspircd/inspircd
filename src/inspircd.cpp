@@ -3319,6 +3319,11 @@ void handle_invite(char **parameters, int pcnt, userrec *user)
  		WriteServ(user->fd,"443 %s %s %s :Is already on channel %s",user->nick,u->nick,c->name,c->name);
  		return;
 	}
+	if (!has_channel(user,c))
+ 	{
+		WriteServ(user->fd,"442 %s %s :You're not on that channel!",user->nick, c->name);
+  		return;
+	}
 	u->InviteTo(c->name);
 	WriteFrom(u->fd,user,"INVITE %s :%s",u->nick,c->name);
 	WriteServ(user->fd,"341 %s %s %s",user->nick,u->nick,c->name);
@@ -5279,7 +5284,7 @@ int InspIRCd(void)
 	for (count2 = 0; count2 < ConfValueEnum("module",&config_f); count2++)
 	{
 		char modfile[MAXBUF];
-		ConfValue("module","name",count,configToken,&config_f);
+		ConfValue("module","name",count2,configToken,&config_f);
 		sprintf(modfile,"%s/%s",MOD_PATH,configToken,&config_f);
 		printf("Loading module... \033[1;37m%s\033[0;37m\n",modfile);
 		log(DEBUG,"InspIRCd: startup: Loading module: %s",modfile);
