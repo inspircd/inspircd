@@ -140,6 +140,7 @@ bool ircd_connector::MakeOutboundConnection(char* host, int port)
 		if(connect(this->fd, (sockaddr*)&this->addr,sizeof(this->addr)))
 		{
 			WriteOpers("connect() failed for %s",host);
+			RemoveServer(this->servername.c_str());
 			return false;
 		}
 		int flags = fcntl(this->fd, F_GETFL, 0);
@@ -153,6 +154,7 @@ bool ircd_connector::MakeOutboundConnection(char* host, int port)
 	else
 	{
 		WriteOpers("socket() failed!");
+		RemoveServer(this->servername.c_str());
 	}
 
 	return false;
