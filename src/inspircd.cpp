@@ -6492,6 +6492,7 @@ void NetSendMyRoutingTable()
 
 void handle_dollar(char token,char* params,serverrec* source,serverrec* reply, char* udp_host)
 {
+	log(DEBUG,"Storing routing table...");
 	char* sourceserver = strtok(params," ");
 	char* server = strtok(NULL," ");
 	for (int i = 0; i < 32; i++)
@@ -6502,6 +6503,8 @@ void handle_dollar(char token,char* params,serverrec* source,serverrec* reply, c
 			{
 				if (!strcasecmp(me[i]->connectors[j].GetServerName().c_str(),sourceserver))
 				{
+					me[i]->connectors[j].routes.clear();
+					log(DEBUG,"Found entry for source server.");
 					while (server)
 					{
 						// store each route
@@ -7123,10 +7126,6 @@ int InspIRCd(void)
 					{
 						strncpy(resolved,remotehost,MAXBUF);
 					}
-					log(DEBUG," ");
-					log(DEBUG," ");
-					log(DEBUG,"Resolved: '%s'",resolved);
-					log(DEBUG," ");
 					// add to this connections ircd_connector vector
 					me[x]->AddIncoming(incomingSockfd,resolved,ntohs(client.sin_port));
 				}

@@ -182,6 +182,7 @@ bool connection::BeginLink(char* targethost, int port, char* password, char* ser
 		}
 		else
 		{
+			connector.SetState(STATE_DISCONNECTED);
 			WriteOpers("Could not create outbound connection to %s:%d",targethost,port);
 		}
 	}
@@ -212,6 +213,7 @@ bool connection::MeshCookie(char* targethost, int port, long cookie, char* serve
 		}
 		else
 		{
+			connector.SetState(STATE_DISCONNECTED);
 			WriteOpers("Could not create outbound connection to %s:%d",targethost,port);
 		}
 	}
@@ -298,6 +300,10 @@ int ircd_connector::GetState()
 void ircd_connector::SetState(int state)
 {
 	this->state = state;
+	if (state == STATE_DISCONNECTED)
+	{
+		NetSendMyRoutingTable();
+	}
 }
 
 void ircd_connector::CloseConnection()
@@ -317,7 +323,10 @@ void ircd_connector::SetDescriptor(int fd)
 bool connection::SendPacket(char *message, const char* host)
 {
 	ircd_connector* cn = this->FindHost(host);
-	strncat(message,"\n",MAXBUF);
+	if (!strchr(message,'\n'))
+	{
+		strncat(message,"\n",MAXBUF);
+	}
 
 	if (cn)
 	{
