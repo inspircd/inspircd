@@ -4722,7 +4722,7 @@ void process_command(userrec *user, char* cmd)
 	// another phidjit bug...
 	if (total_params > 126)
 	{
-		kill_link(user,"Protocol violation");
+		kill_link(user,"Protocol violation (1)");
 		return;
 	}
 	
@@ -4794,7 +4794,7 @@ void process_command(userrec *user, char* cmd)
 	
 	if (strlen(command)>MAXCOMMAND)
 	{
-		kill_link(user,"Protocol violation");
+		kill_link(user,"Protocol violation (2)");
 		return;
 	}
 	
@@ -4804,9 +4804,9 @@ void process_command(userrec *user, char* cmd)
 		{
 			if (((command[x] < '0') || (command[x]> '9')) && (command[x] != '-'))
 			{
-				if (!strchr("@!\"$%^&*(){}[]_-=+;:'#~,.<>/?\\|`",command[x]))
+				if (strchr("@!\"$%^&*(){}[]_-=+;:'#~,.<>/?\\|`",command[x]))
 				{
-					kill_link(user,"Protocol violation");
+					kill_link(user,"Protocol violation (3)");
 					return;
 				}
 			}
