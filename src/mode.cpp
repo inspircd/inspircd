@@ -902,6 +902,10 @@ void process_modes(char **parameters,userrec* user,chanrec *chan,int status, int
         	 					}
      						}
      					}
+					else
+					{
+						WriteServ(user->fd,"472 %s %c :is unknown mode char to me",user->nick,modechar);
+					}
 				break;
 				
 			}
