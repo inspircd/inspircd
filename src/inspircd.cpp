@@ -98,7 +98,7 @@ std::vector<std::string> module_names;
 extern std::vector<ircd_module*> factory;
 std::vector<int> fd_reap;
 
-std::vector<userrec*> pending_connects;
+std::vector<std::string> pending_connects;
 
 extern int MODCOUNT;
 
@@ -1056,7 +1056,7 @@ void strlower(char *n)
 
 /* Find a user record by nickname and return a pointer to it */
 
-userrec* Find(string nick)
+userrec* Find(std::string nick)
 {
 	user_hash::iterator iter = clientlist.find(nick);
 
@@ -2442,9 +2442,10 @@ void HandlePendingConnects()
 {
 	if (pending_connects.size())
 	{
-		for (std::vector<userrec*>::iterator i = pending_connects.begin(); i <= pending_connects.end(); i++)
+		for (std::vector<std::string>::iterator i = pending_connects.begin(); i <= pending_connects.end(); i++)
 		{
-			userrec* a = *i;
+			std::string t = *i;
+			userrec* a = Find(t);
 			if (a)
 			{
 				// this user's dns is done now.
@@ -2478,7 +2479,7 @@ void ConnectUser(userrec *user)
 	else
 	{
 		// add them to the pending queue
-		pending_connects.push_back(user);
+		pending_connects.push_back(user->nick);
 	}
 }
 

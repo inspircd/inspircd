@@ -167,11 +167,11 @@ extern char DNSServer[MAXBUF];
 class Lookup {
 private:
 	DNS* resolver;
-	userrec* u;
+	char u[NICKMAX];
 public:
 	Lookup()
 	{
-		u = NULL;
+		strcpy(u,"");
 		resolver = NULL;
 	}
 
@@ -181,31 +181,37 @@ public:
 			delete resolver;
 	}
 
-	Lookup(userrec* user)
+	Lookup(std::string nick)
 	{
-		u = user;
-		log(DEBUG,"New Lookup class with DNSServer set to '%s'",DNSServer);
-		resolver = new DNS(std::string(DNSServer));
-		resolver->ReverseLookup(std::string(user->host));
+		userrec* usr = Find(nick);
+		if (usr)
+		{
+			log(DEBUG,"New Lookup class for %s with DNSServer set to '%s'",nick.c_str(),DNSServer);
+			resolver = new DNS(std::string(DNSServer));
+			resolver->ReverseLookup(std::string(usr->host));
+			strlcpy(u,nick.c_str(),NICKMAX);
+		}
 	}
 
 	bool Done()
 	{
+		userrec* usr = NULL;
 		if (resolver->HasResult())
 		{
 			log(DEBUG,"resolver says result available!");
 			if (resolver->GetFD() != 0)
 			{
-				log(DEBUG,"Resolver FD is not 0");
+				log(DEBUG,"Resolver FD is not 0, getting %s",u);
 				std::string hostname = resolver->GetResult();
-				if (u)
+				usr = Find(u);
+				if (usr)
 				{
-					log(DEBUG,"Applying hostname lookup to %s: %s",u->nick,hostname.c_str());
+					log(DEBUG,"Applying hostname lookup to %s: %s",usr->nick,hostname.c_str());
 					if (hostname != "")
 					{
-						strlcpy(u->host,hostname.c_str(),MAXBUF);
-						WriteServ(u->fd,"NOTICE Auth :Resolved your hostname: %s",hostname.c_str());
-						u->dns_done = true;
+						strlcpy(usr->host,hostname.c_str(),MAXBUF);
+						WriteServ(usr->fd,"NOTICE Auth :Resolved your hostname: %s",hostname.c_str());
+						usr->dns_done = true;
 						return true;
 					}
 					return false;
@@ -213,7 +219,7 @@ public:
 			}
 			else
 			{
-				u->dns_done = true;
+				usr->dns_done = true;
 				return true;
 			}
 		}
@@ -222,26 +228,32 @@ public:
 
 	int GetFD()
 	{
-		if (u)
+		userrec* usr = Find(u);
+		if (usr)
 		{
-			return u->fd;
+			return usr->fd;
 		}
 		else return 0;
 	}
 };
 
-typedef std::vector<Lookup> dns_queue;
+typedef std::deque<Lookup> dns_queue;
 
 dns_queue dnsq;
 
-bool lookup_dns(userrec* u)
+bool lookup_dns(std::string nick)
 {
-	// place a new user into the queue...
-	log(DEBUG,"Queueing DNS lookup for %s",u->nick);
-	WriteServ(u->fd,"NOTICE Auth :Looking up your hostname...");
-	Lookup L(u);
-	dnsq.push_back(L);
-	return true;
+	userrec* u = Find(nick);
+	if (u)
+	{
+		// place a new user into the queue...
+		log(DEBUG,"Queueing DNS lookup for %s",u->nick);
+		WriteServ(u->fd,"NOTICE Auth :Looking up your hostname...");
+		Lookup L(nick);
+		dnsq.push_back(L);
+		return true;
+	}
+	return false;
 }
 
 void dns_poll()
@@ -253,7 +265,8 @@ void dns_poll()
 		if (dnsq[0].Done() || (!dnsq[0].GetFD()))
 		{
 			log(DEBUG,"****** DNS lookup for fd %d is complete. ******",dnsq[0].GetFD());
-			dnsq.erase(dnsq.begin());
+			if (dnsq[0].GetFD())
+				dnsq.pop_front();
 		}
 	}
 }
