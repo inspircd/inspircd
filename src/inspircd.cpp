@@ -5796,10 +5796,21 @@ void process_command(userrec *user, char* cmd)
 	
 	strcpy(temp,cmd);
 
-	string tmp = cmd;
-  	FOREACH_MOD OnServerRaw(tmp,true);
-  	const char* cmd2 = tmp.c_str();
-  	snprintf(cmd,512,"%s",cmd2);
+	std::string tmp = cmd;
+	for (int i = 0; i <= MODCOUNT; i++)
+	{
+		std::string oldtmp = tmp;
+		modules[i]->OnServerRaw(tmp,true);
+		if (oldtmp != tmp)
+		{
+			log(DEBUG,"A Module changed the input string!");
+			log(DEBUG,"New string: %s",tmp.c_str());
+			log(DEBUG,"Old string: %s",oldtmp.c_str());
+			break;
+		}
+	}
+  	strncpy(cmd,tmp.c_str(),MAXBUF);
+	strcpy(temp,cmd);
 
 	if (!strchr(cmd,' '))
 	{
