@@ -512,8 +512,11 @@ void Write(int sock,char *text, ...)
   va_end(argsPtr);
   sprintf(tb,"%s\r\n",textbuffer);
   chop(tb);
-  write(sock,tb,strlen(tb));
-  update_stats_l(sock,strlen(tb)); /* add one line-out to stats L for this fd */
+  if (sock != -1)
+  {
+	write(sock,tb,strlen(tb));
+	update_stats_l(sock,strlen(tb)); /* add one line-out to stats L for this fd */
+  }
 }
 
 /* write a server formatted numeric response to a single socket */
@@ -533,8 +536,11 @@ void WriteServ(int sock, char* text, ...)
   va_end(argsPtr);
   sprintf(tb,":%s %s\r\n",ServerName,textbuffer);
   chop(tb);
-  write(sock,tb,strlen(tb));
-  update_stats_l(sock,strlen(tb)); /* add one line-out to stats L for this fd */
+  if (sock != -1)
+  {
+	write(sock,tb,strlen(tb));
+	update_stats_l(sock,strlen(tb)); /* add one line-out to stats L for this fd */
+  }
 }
 
 /* write text from an originating user to originating user */
@@ -554,8 +560,11 @@ void WriteFrom(int sock, userrec *user,char* text, ...)
   va_end(argsPtr);
   sprintf(tb,":%s!%s@%s %s\r\n",user->nick,user->ident,user->dhost,textbuffer);
   chop(tb);
-  write(sock,tb,strlen(tb));
-  update_stats_l(sock,strlen(tb)); /* add one line-out to stats L for this fd */
+  if (sock != -1)
+  {
+	write(sock,tb,strlen(tb));
+	update_stats_l(sock,strlen(tb)); /* add one line-out to stats L for this fd */
+  }
 }
 
 /* write text to an destination user from a source user (e.g. user privmsg) */
@@ -5089,7 +5098,91 @@ void DoSync(serverrec* serv, char* udp_host,int udp_port, long MyKey)
 
 void process_restricted_commands(char token,char* params,serverrec* source,serverrec* reply, char* udp_host,int udp_port)
 {
-	WriteOpers("Secure-UDP-Channel: Token='%c', Params='%s'",token,params);
+	switch(token)
+	{
+		// Y <TS>
+  		// start netburst
+		case 'Y':
+		break;
+		// N <TS> <NICK> <HOST> <DHOST> <IDENT> <MODES> <SERVER> :<GECOS>
+		// introduce remote client
+		case 'N':
+		{
+			char* tm = strtok(params," ");
+			char* nick = strtok(params," ");
+			char* host = strtok(params," ");
+			char* dhost = strtok(params," ");
+			char* ident = strtok(params," ");
+			char* modes = strtok(params," ");
+			char* server = strtok(params," ");
+			char* gecos = strchr(params,':') + 1;
+			time_t TS = atoi(tm);
+			user_hash::iterator iter = clientlist.find(nick);
+			if (iter != clientlist.end())
+   			{
+   				// nick collision
+   				// TODO: make this work!
+   				WriteOpers("Nickname collision: %s@%s != %s@%s",nick,server,iter->second->nick,iter->second->server);
+   				return;
+   			}
+			clientlist[nick] = new userrec();
+			// remote users have an fd of -1. This is so that our Write abstraction
+			// routines know to route any messages to this record away to whatever server
+			// theyre on.
+			clientlist[nick]->fd = -1;
+			strncpy(clientlist[nick]->nick, nick,NICKMAX);
+			strncpy(clientlist[nick]->host, host,160);
+			strncpy(clientlist[nick]->dhost, dhost,160);
+			strncpy(clientlist[nick]->server, server,256);
+			strncpy(clientlist[nick]->ident, ident,10); // +1 char to compensate for '~'
+			clientlist[nick]->signon = TS;
+			clientlist[nick]->nping = 0; // this is ignored for a remote user anyway.
+			clientlist[nick]->lastping = 1;
+			clientlist[nick]->port = 0; // so is this...
+			clientlist[nick]->registered = 7; // this however we need to set for them to receive messages and appear online
+			clientlist[nick]->idle_lastmsg = time(NULL); // this will have to update as they pm us,
+							 // so a user wont need /WHOIS <nick> <server> to find it
+							 // but it may be slightly different over the net
+							 // (a couple of seconds at most)
+		}
+		break;
+		// J <NICK> :<CHANLIST>
+		// Join user to channel list, merge channel permissions
+		case 'J':
+		{
+		}
+		break;
+		// C <CHANNEL> <TS> <TOPICSETTER> :<MODES>
+		// initialise channel (netburst only)
+		case 'C':
+		{
+		}
+		break;
+		// T <TS> <CHANNEL> :<TOPIC>
+		// change channel topic (netburst only)
+		case 'T':
+		{
+		}
+		break;
+		// M <TS> <TARGET> <MODES> [MODE-PARAMETERS]
+		// Set modes on an object
+		case 'M':
+		{
+		}
+		break;
+		// F <TS>
+		// end netburst
+		case 'F':
+		{
+		}
+		break;
+		// anything else
+		default:
+		{
+			WriteOpers("WARNING! Unknown datagram type '%c'",token);
+		}
+		break;
+	}
 }
 
 
@@ -5144,7 +5237,6 @@ void handle_link_packet(long theirkey, char* udp_msg, char* udp_host, int udp_po
 								// create a server record for this server
 								snprintf(response,10240,"O %d",MyKey);
 								serv->SendPacket(response,udp_host,udp_port,0);
-								DoSync(serv,udp_host,udp_port,MyKey);
 								return;
 							}
 						}
@@ -5502,6 +5594,8 @@ int InspIRCd(void)
 				FOREACH_MOD OnPacketReceive(udp_msg);
 				// Packets must go back via the route they arrived on :)
 				handle_link_packet(theirkey, udp_msg, udp_host, udp_port, me[x]);
+				// link packets can manipulate the usertable so beware of
+				// any loops here watching the user or channels hash
 			}
 		}
 	}
@@ -5536,6 +5630,9 @@ int InspIRCd(void)
 			{
 				if (count2 != clientlist.end())
 				{
+					// we don't check the state of remote users.
+					if (count2->second->fd > 0)
+					{
 						FD_SET (count2->second->fd, &sfd);
 
 						// registration timeout -- didnt send USER/NICK/HOST in the time specified in
@@ -5561,6 +5658,7 @@ int InspIRCd(void)
 						}
 						count2++;
 						total_in_this_set++;
+					}
 				}
 				else break;
 			}
