@@ -2922,6 +2922,8 @@ void DoSync(serverrec* serv, char* tcp_host)
 			serv->SendPacket(data,tcp_host);
 		}
 	}
+	// sync global zlines, glines, etc
+	sync_xlines(serv,tcp_host);
 	snprintf(data,MAXBUF,"F %d",time(NULL));
 	serv->SendPacket(data,tcp_host);
 	log(DEBUG,"Sent sync");

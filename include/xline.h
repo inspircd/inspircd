@@ -72,6 +72,7 @@ class ZLine : public XLine
 	 * May contain wildcards.
 	 */
 	char ipaddr[MAXBUF];
+	bool is_global;
 };
 
 /** QLine class
@@ -83,6 +84,7 @@ class QLine : public XLine
 	 * May contain wildcards.
 	 */
 	char nick[MAXBUF];
+	bool is_global;
 };
 
 void read_xline_defaults();
@@ -114,5 +116,11 @@ void gline_set_creation_time(char* host, time_t create_time);
 void qline_set_creation_time(char* nick, time_t create_time);
 void zline_set_creation_time(char* ip, time_t create_time);
 
+bool zline_make_global(char* ipaddr);
+bool qline_make_global(char* nickname);
+
+void sync_xlines(serverrec* serv, char* tcp_host);
+
 #endif
+
 

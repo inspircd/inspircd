@@ -2085,6 +2085,7 @@ void handle_add_sqline(char token,char* params,serverrec* source,serverrec* repl
 	// we must update the creation time on this gline
 	// now that we've added it, or it wont expire at the right time.
 	qline_set_creation_time(mask,atoi(create_time));
+	qline_make_global(mask);
 	if (!atoi(duration))
 	{
 		WriteOpers("*** %s Added permenant Q-Line on %s.",who,mask);
@@ -2126,6 +2127,7 @@ void handle_add_szline(char token,char* params,serverrec* source,serverrec* repl
 	// we must update the creation time on this gline
 	// now that we've added it, or it wont expire at the right time.
 	zline_set_creation_time(mask,atoi(create_time));
+	zline_make_global(mask);
 	if (!atoi(duration))
 	{
 		WriteOpers("*** %s Added permenant Z-Line on %s.",who,mask);

@@ -234,14 +234,6 @@ bool hasumode(userrec* user, char mode)
 void ChangeName(userrec* user, const char* gecos)
 {
 	strncpy(user->fullname,gecos,MAXBUF);
-
-	// TODO: replace these with functions:
-	// NetSendToAll - to all
-	// NetSendToCommon - to all that hold users sharing a common channel with another user
-	// NetSendToOne - to one server
-	// NetSendToAllExcept - send to all but one
-	// all by servername
-
 	char buffer[MAXBUF];
 	snprintf(buffer,MAXBUF,"a %s :%s",user->nick,gecos);
 	NetSendToAll(buffer);

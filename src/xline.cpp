@@ -227,6 +227,7 @@ void add_qline(long duration, char* source, char* reason, char* nickname)
 	strncpy(item.reason,reason,MAXBUF);
 	strncpy(item.source,source,MAXBUF);
 	item.n_matches = 0;
+	item.is_global = false;
 	item.set_time = time(NULL);
 	qlines.push_back(item);
 }
@@ -242,6 +243,7 @@ void add_zline(long duration, char* source, char* reason, char* ipaddr)
 	strncpy(item.reason,reason,MAXBUF);
 	strncpy(item.source,source,MAXBUF);
 	item.n_matches = 0;
+	item.is_global = false;
 	item.set_time = time(NULL);
 	zlines.push_back(item);
 }
@@ -290,6 +292,62 @@ bool del_qline(char* nickname)
 	}
 	return false;
 }
+
+bool qline_make_global(char* nickname)
+{
+	for (std::vector<QLine>::iterator i = qlines.begin(); i != qlines.end(); i++)
+	{
+		if (!strcasecmp(nickname,i->nick))
+		{
+			i->is_global = true;
+			return true;
+		}
+	}
+	return false;
+}
+
+bool zline_make_global(char* ipaddr)
+{
+	for (std::vector<ZLine>::iterator i = zlines.begin(); i != zlines.end(); i++)
+	{
+		if (!strcasecmp(ipaddr,i->ipaddr))
+		{
+			i->is_global = true;
+			return true;
+		}
+	}
+	return false;
+}
+
+void sync_xlines(serverrec* serv, char* tcp_host)
+{
+	char data[MAXBUF];
+	
+	// for zlines and qlines, we should first check if theyre global...
+	for (std::vector<ZLine>::iterator i = zlines.begin(); i != zlines.end(); i++)
+	{
+		if (i->is_global)
+		{
+			snprintf(netdata,MAXBUF,"} %s %s %ld %ld :%s",i->ipaddr,i->source,i->set_time,i->duration,i->reason);
+			serv->SendPacket(data,tcp_host);
+		}
+	}
+	for (std::vector<QLine>::iterator i = qlines.begin(); i != qlines.end(); i++)
+	{
+		if (i->is_global)
+		{
+			snprintf(netdata,MAXBUF,"{ %s %s %ld %ld :%s",i->ipaddr,i->source,i->set_time,i->duration,i->reason);
+			serv->SendPacket(data,tcp_host);
+		}
+	}
+	// glines are always global, so no need to check
+	for (std::vector<GLine>::iterator i = glines.begin(); i != glines.end(); i++)
+	{
+		snprintf(netdata,MAXBUF,"# %s %s %ld %ld :%s",i->ipaddr,i->source,i->set_time,i->duration,i->reason);
+		serv->SendPacket(data,tcp_host);
+	}
+}
+
 
 // deletes a z:line, returns true if the line existed and was removed
 
