@@ -35,6 +35,24 @@ typedef file_cache string_list;
 
 #define FOREACH_MOD for (int i = 0; i <= MODCOUNT; i++) modules[i]->
 
+// This define is similar to the one above but returns a result in MOD_RESULT.
+// The first module to return a nonzero result is the value to be accepted,
+// and any modules after are ignored.
+
+// *********************************************************************************************
+
+#define FOREACH_RESULT(x) { MOD_RESULT = 0; \
+			for (int i = 0; i <= MODCOUNT; i++) { \
+			int res = modules[i]->x ; \
+			if (res) { \
+				MOD_RESULT = res; \
+				break; \
+			} \
+		} \
+   } 
+   
+// *********************************************************************************************
+
 extern void createcommand(char* cmd, handlerfunc f, char flags, int minparams);
 extern void server_mode(char **parameters, int pcnt, userrec *user);
 
@@ -117,7 +135,7 @@ class Module : public classbase
 	 * digital signatures and anything else you may want to add. This should be regarded as a pre-processor
 	 * and will be called before ANY other operations within the ircd core program.
 	 */
-	virtual void Module::OnPacketTransmit(char *p);
+	virtual void OnPacketTransmit(char *p);
 
 	/** Called after a packet is received from another irc server.
 	 * The packet is represented as a char*, as it should be regarded as a buffer, and not a string.
@@ -126,7 +144,7 @@ class Module : public classbase
 	 * and will be called immediately after the packet is received but before any other operations with the
 	 * core of the ircd.
 	 */
- 	virtual void Module::OnPacketReceive(char *p);
+ 	virtual void OnPacketReceive(char *p);
 
 	/** Called on rehash.
 	 * This method is called prior to a /REHASH or when a SIGHUP is received from the operating
@@ -153,6 +171,19 @@ class Module : public classbase
 	 */
  	virtual bool OnExtendedMode(userrec* user, chanrec* chan, char modechar, int type, bool mode_on, string_list &params);
  	
+	/** Called whenever a user is about to join a channel, before any processing is done.
+	 * Returning any nonzero value from this function stops the process immediately, causing no
+	 * output to be sent to the user by the core. If you do this you must produce your own numerics,
+	 * notices etc. This is useful for modules which may want to mimic +b, +k, +l etc.
+	 *
+	 * IMPORTANT NOTE!
+	 *
+	 * If the user joins a NEW channel which does not exist yet, OnUserPreJoin will be called BEFORE the channel
+	 * record is created. This will cause chanrec* chan to be NULL. There is very little you can do in form of
+	 * processing on the actual channel record at this point, however the channel NAME will still be passed in
+	 * char* cname, so that you could for example implement a channel blacklist or whitelist, etc.
+	 */
+	virtual int Module::OnUserPreJoin(userrec* user, chanrec* chan, char* cname);
  
 };
 

@@ -854,10 +854,12 @@ char* cmode(userrec *user, chanrec *chan)
 }
 
 char scratch[MAXMODES];
+char sparam[MAXMODES];
 
 char* chanmodes(chanrec *chan)
 {
 	strcpy(scratch,"");
+	strcpy(sparam,"");
 	if (chan->noexternal)
 	{
 		strcat(scratch,"n");
@@ -892,16 +894,22 @@ char* chanmodes(chanrec *chan)
 	}
 	if (strcmp(chan->key,""))
 	{
-		strcat(scratch," ");
-		strcat(scratch,chan->key);
+		strcat(sparam,chan->key);
 	}
 	if (chan->limit)
 	{
 		char foo[24];
 		sprintf(foo," %d",chan->limit);
-		strcat(scratch,foo);
+		strcat(sparam,foo);
 	}
-	log(DEBUG,"chanmodes: %s %s",chan->name,scratch);
+	if (strlen(chan->custom_modes))
+	{
+		// TODO: Tack on mode parameters here -
+		// IN ORDER OF CUSTOM_MODES!
+		strncat(scratch,chan->custom_modes,MAXMODES);
+	}
+	log(DEBUG,"chanmodes: %s %s%s",chan->name,scratch,sparam);
+	strncat(scratch,sparam,MAXMODES);
 	return scratch;
 }
 
@@ -1037,6 +1045,9 @@ chanrec* add_channel(userrec *user, char* cname, char* key)
 	int i = 0;
 	chanrec* Ptr;
 	int created = 0;
+	
+	// we MUST declare this wherever we use FOREACH_RESULT
+	int MOD_RESULT = 0;
 
 	if ((!cname) || (!user))
 	{
@@ -1053,9 +1064,15 @@ chanrec* add_channel(userrec *user, char* cname, char* key)
 	{
 		return NULL; // already on the channel!
 	}
-	
+
+
 	if (!FindChan(cname))
 	{
+		FOREACH_RESULT(OnUserPreJoin(user,NULL,cname));
+		if (MOD_RESULT) {
+			return NULL;
+		}
+
 		/* create a new one */
 		log(DEBUG,"add_channel: creating: %s",cname);
 		{
@@ -1082,6 +1099,11 @@ chanrec* add_channel(userrec *user, char* cname, char* key)
 		Ptr = FindChan(cname);
 		if (Ptr)
 		{
+			FOREACH_RESULT(OnUserPreJoin(user,Ptr,cname));
+			if (MOD_RESULT) {
+				return NULL;
+			}
+			
 			log(DEBUG,"add_channel: joining to: %s",Ptr->name);
 			if (strcmp(Ptr->key,""))
 			{
@@ -1984,34 +2006,58 @@ void process_modes(char **parameters,userrec* user,chanrec *chan,int status, int
 				break;
 				
 				default:
+					log(DEBUG,"Preprocessing custom mode %c",modechar);
 					string_list p;
 					p.clear();
-					if (ModeDefined(modelist[ptr],MT_CHANNEL))
+					if (((!strchr(chan->custom_modes,modechar)) && (!mdir)) || ((strchr(chan->custom_modes,modechar)) && (mdir)))
 					{
-						if ((ModeDefinedOn(modelist[ptr],MT_CHANNEL)>0) && (mdir))
+						log(DEBUG,"Mode %c isnt set on %s but trying to remove!",modechar,chan->name);
+						break;
+					}
+					if (ModeDefined(modechar,MT_CHANNEL))
+					{
+						log(DEBUG,"A module has claimed this mode");
+     						if ((ModeDefinedOn(modechar,MT_CHANNEL)>0) && (mdir))
 						{
-      						p.push_back(parameters[param]);
+      							p.push_back(parameters[param]);
   						}
-						if ((ModeDefinedOff(modelist[ptr],MT_CHANNEL)>0) && (!mdir))
+						if ((ModeDefinedOff(modechar,MT_CHANNEL)>0) && (!mdir))
 						{
-      						p.push_back(parameters[param]);
+      							p.push_back(parameters[param]);
   						}
-						for (int i = 0; i <= MODCOUNT; i++)
+  						bool handled = false;
+  						for (int i = 0; i <= MODCOUNT; i++)
 						{
-							if (modules[i]->OnExtendedMode(user,chan,modechar,MT_CHANNEL,mdir,p))
+							if (!handled)
 							{
-								char app[] = {modechar, 0};
-								strcat(outlist, app);
-								chan->SetCustomMode(modelist[ptr],mdir);
-								// include parameters in output if mode has them
-								if ((ModeDefinedOn(modelist[ptr],MT_CHANNEL)>0) || (ModeDefinedOff(modelist[ptr],MT_CHANNEL)>0))
+								if (modules[i]->OnExtendedMode(user,chan,modechar,MT_CHANNEL,mdir,p))
 								{
-									chan->SetCustomModeParam(modelist[ptr],parameters[param],mdir);
-									strcpy(outpars[pc++],parameters[param++]);
-								}
-        	 				}
+									log(DEBUG,"OnExtendedMode returned nonzero for a module");
+									char app[] = {modechar, 0};
+									if (ptr>0)
+									{
+										if ((modelist[ptr-1] == '+') || (modelist[ptr-1] == '-'))
+										{
+											strcat(outlist, app);
+										}
+										else if (!strchr(outlist,modechar))
+										{
+											strcat(outlist, app);
+										}
+									}
+									chan->SetCustomMode(modechar,mdir);
+									// include parameters in output if mode has them
+									if ((ModeDefinedOn(modechar,MT_CHANNEL)>0) || (ModeDefinedOff(modechar,MT_CHANNEL)>0))
+									{
+										chan->SetCustomModeParam(modelist[ptr],parameters[param],mdir);
+										strcpy(outpars[pc++],parameters[param++]);
+									}
+									// break, because only one module can handle the mode.
+									handled = true;
+        		 					}
+        	 					}
+     						}
      					}
-     				}
 				break;
 				
 			}

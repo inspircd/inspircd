@@ -80,5 +80,5 @@ std::string getadminemail();
 std::string getadminnick();
 void readfile(file_cache &F, const char* fname);
 bool ModeDefined(char c, int i);
-bool ModeDefinedOn(char c, int i);
-bool ModeDefinedOff(char c, int i);
+int ModeDefinedOn(char c, int i);
+int ModeDefinedOff(char c, int i);

@@ -132,12 +132,12 @@ class chanrec : public classbase
 	/** The list of all bans set on the channel.
 	 */
 	BanList bans;
-
+	
 	/** Sets or unsets a custom mode in the channels info
 	 */
 	void SetCustomMode(char mode,bool mode_on);
 
-	/** Sets or unsets the parameterrs for a custom mode in a channels info
+	/** Sets or unsets the parameters for a custom mode in a channels info
 	 */
 	void SetCustomModeParam(char mode,char* parameter,bool mode_on);
  

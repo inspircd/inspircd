@@ -33,8 +33,10 @@ ExtModeList EMode;
 // returns true if an extended mode character is in use
 bool ModeDefined(char modechar, int type)
 {
+	log(DEBUG,"Size of extmodes vector is %d",EMode.size());
 	for (ExtModeListIter i = EMode.begin(); i < EMode.end(); i++)
 	{
+		log(DEBUG,"i->modechar==%c, modechar=%c, i->type=%d, type=%d",i->modechar,modechar,i->type,type);
 		if ((i->modechar == modechar) && (i->type == type))
 		{
 			return true;
@@ -44,7 +46,7 @@ bool ModeDefined(char modechar, int type)
 }
 
 // returns number of parameters for a custom mode when it is switched on
-bool ModeDefinedOn(char modechar, int type)
+int ModeDefinedOn(char modechar, int type)
 {
 	for (ExtModeListIter i = EMode.begin(); i < EMode.end(); i++)
 	{
@@ -57,7 +59,7 @@ bool ModeDefinedOn(char modechar, int type)
 }
 
 // returns number of parameters for a custom mode when it is switched on
-bool ModeDefinedOff(char modechar, int type)
+int ModeDefinedOff(char modechar, int type)
 {
 	for (ExtModeListIter i = EMode.begin(); i < EMode.end(); i++)
 	{
@@ -70,9 +72,12 @@ bool ModeDefinedOff(char modechar, int type)
 }
 
 // returns true if an extended mode character is in use
-bool AddExtendedMode(char modechar, int type, bool default_on, int params_on, int params_off)
+bool DoAddExtendedMode(char modechar, int type, bool default_on, int params_on, int params_off)
 {
-	EMode.push_back( ExtMode (modechar,type,default_on,params_on,params_off));
+	if (ModeDefined(modechar,type)) {
+		return false;
+	}
+	EMode.push_back(ExtMode(modechar,type,default_on,params_on,params_off));
 	return true;
 }
 
@@ -95,6 +100,7 @@ void Module::OnPacketTransmit(char *p) { }
 void Module::OnPacketReceive(char *p) { }
 void Module::OnRehash() { }
 void Module::OnServerRaw(std::string &raw, bool inbound) { }
+int Module::OnUserPreJoin(userrec* user, chanrec* chan, char* cname) { return 0; }
 bool Module::OnExtendedMode(userrec* user, chanrec* chan, char modechar, int type, bool mode_on, string_list &params) { }
 Version Module::GetVersion() { return Version(1,0,0,0); }
 
@@ -223,6 +229,7 @@ Admin Server::GetAdmin()
 
 bool Server::AddExtendedMode(char modechar, int type, bool default_on, int params_when_on, int params_when_off)
 {
+	return DoAddExtendedMode(modechar,type,default_on,params_when_on,params_when_off);
 }
 
 
