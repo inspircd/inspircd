@@ -134,12 +134,12 @@ bool connection::SendPacket(char *message, char* host, int port, long ourkey)
 	this->state = STATE_WAIT_FOR_ACK;
 
 
-	socklen_t host_address_size;
 	// host_address remains unchanged. we only want to receive from where we just sent the packet to.
 	
 	// retry the packet up to 5 times
 	for (int retries = 0; retries < 5; retries++)
 	{
+		socklen_t host_address_size;
 		host_address.sin_family=AF_INET;
 		host_address_size=sizeof(host_address);
 	
@@ -153,7 +153,7 @@ bool connection::SendPacket(char *message, char* host, int port, long ourkey)
 		{
 			fd_set sfd;
 			timeval tval;
-			tval.tv_usec = 10;
+			tval.tv_usec = 100;
 			tval.tv_sec = 0;
 			FD_ZERO(&sfd);
 			FD_SET(fd,&sfd);
@@ -162,7 +162,7 @@ bool connection::SendPacket(char *message, char* host, int port, long ourkey)
 		}
 		if (cycles >= 10)
 		{
-			log(DEFAULT,"ERROR! connection::SendPacket() waited >100 nanosecs for an ACK. Will resend up to 5 times");
+			log(DEFAULT,"ERROR! connection::SendPacket() waited >1000 nanosecs for an ACK. Will resend up to 5 times");
 		}
 		else
 		{
