@@ -6003,6 +6003,7 @@ void handle_M(char token,char* params,serverrec* source,serverrec* reply, char* 
 
 void handle_m(char token,char* params,serverrec* source,serverrec* reply, char* udp_host,int udp_port)
 {
+	// m blah #chatspike +b *!test@*4
 	char* pars[128];
 	char original[MAXBUF];
 	strncpy(original,params,MAXBUF);
@@ -6250,10 +6251,15 @@ void process_restricted_commands(char token,char* params,serverrec* source,serve
 		case 'T':
 			handle_T(token,params,source,reply,udp_host,udp_port);
 		break;
-		// M <TS> <TARGET> <MODES> [MODE-PARAMETERS]
-		// Set modes on an object
+		// M <TARGET> <MODES> [MODE-PARAMETERS]
+		// Server setting modes on an object
 		case 'M':
 			handle_M(token,params,source,reply,udp_host,udp_port);
+		break;
+		// m <SOURCE> <TARGET> <MODES> [MODE-PARAMETERS]
+		// User setting modes on an object
+		case 'm':
+			handle_m(token,params,source,reply,udp_host,udp_port);
 		break;
 		// P <SOURCE> <TARGET> :<TEXT>
 		// Send a private/channel message
