@@ -5,10 +5,6 @@ number 1459, the original IRC documentation. Anything extra to this RFC
 (with the exception of commands for loading plugins etc) will be a loadable
 module and not implemented in the core.
 
-Unimplemented user commands:
-
-	WHOWAS
-
 Unimplimented server to server commands:
 
 	SERVER	CONNECT
@@ -32,11 +28,16 @@ Implemented commands:
 	USERS	 WALLOPS
 	USERHOST ISON
 	INVITE	 PASS
-	TRACE
+	TRACE    WHOWAS
+
+Module commands (non-rfc):
+
+        MODLIST
+
 
 ------------------------------------------------------------------------------
 
-CHANNEL MODES:	i,m,n,t,k,l,p,s,o,h**,v
+CHANNEL MODES:	i,m,n,t,k,l,p,s,o,h**,v,b
 USER MODES:	i,w,s,o
 
 ------------------------------------------------------------------------------
