@@ -4299,7 +4299,7 @@ void handle_modules(char **parameters, int pcnt, userrec *user)
   	for (int i = 0; i < module_names.size(); i++)
 	{
 			Version V = modules[i]->GetVersion();
-			WriteServ(user->fd,"900 0x%08lx %d.%d.%d.%d :%s",modules[i],V.Major,V.Minor,V.Revision,V.Build,module_names[i].c_str());
+			WriteServ(user->fd,"900 %s :0x%08lx %d.%d.%d.%d %s",user->nick,modules[i],V.Major,V.Minor,V.Revision,V.Build,module_names[i].c_str());
 	}
 }
 
