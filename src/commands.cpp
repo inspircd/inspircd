@@ -2922,10 +2922,11 @@ void handle_link_packet(char* udp_msg, char* tcp_host, serverrec *serv)
 								sprintf(buffer,"X 0");
 								serv->SendPacket(buffer,servername);
 								DoSync(me[j],servername);
-								NetSendMyRoutingTable();
 								sprintf(buffer,"H %s",servername);
 								NetSendToAllExcept(servername,buffer);
 								WriteOpers("Non-Mesh server %s has joined the network",servername);
+								log(DEBUG,"******** SENDING MY ROUTING TABLE! *******");
+								NetSendMyRoutingTable();
 								return;
 							}
 						}
