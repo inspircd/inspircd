@@ -32,8 +32,9 @@ void handle_helpop(char **parameters, int pcnt, userrec *user)
                         {
                                 snprintf(a,MAXBUF,"line%d",i);
                                 output = helpop->ReadValue("nohelp", std::string(a), 0);
-                                // Send line to client..
-                                Srv->SendTo(NULL,user,"290 "+std::string(user->nick)+" :"+output);
+				if(output != "") {
+	                                Srv->SendTo(NULL,user,"290 "+std::string(user->nick)+" :"+output);
+				}
                         }
                 }
 	} else if (strchr(user->modes,'o')) {
@@ -47,8 +48,9 @@ void handle_helpop(char **parameters, int pcnt, userrec *user)
       			{
             			snprintf(a,MAXBUF,"line%d",i);
                			output = helpop->ReadValue("nohelpo", std::string(a), 0);
-                		// Send line to client..
-                		Srv->SendTo(NULL,user,"290 "+std::string(user->nick)+" :"+output);
+        			if (output != "") {        		
+	                		Srv->SendTo(NULL,user,"290 "+std::string(user->nick)+" :"+output);
+				}
       			}
 			// Forward.
 			sendtohelpop(user, pcnt, parameters);
@@ -80,8 +82,9 @@ bool do_helpop(char **parameters, int pcnt, userrec *src)
 	{
 		snprintf(a,MAXBUF,"line%d",i);
 		output = helpop->ReadValue(std::string(search), std::string(a), 0);
-		// Send line to client..
-		Srv->SendTo(NULL,src,"290 "+std::string(src->nick)+" :"+output);
+		if (output != "") {
+			Srv->SendTo(NULL,src,"290 "+std::string(src->nick)+" :"+output);
+		}
 	}
 	return true;
 }
@@ -209,4 +212,3 @@ extern "C" void * init_module( void )
 {
 	return new ModuleHelpopFactory;
 }
-
