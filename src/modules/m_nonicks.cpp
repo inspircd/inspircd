@@ -37,9 +37,10 @@ class ModuleNoNickChange : public Module
 				if (user->chans[i].channel != NULL)
 				{
 					chanrec* curr = user->chans[i].channel;
-					if (curr->IsCustomModeSet('N'))
+					if ((curr->IsCustomModeSet('N')) && (user->chans[i].uc_modes < STATUS_HOP))
 					{
 						// don't allow the nickchange, theyre on at least one channel with +N set
+						// and theyre not a (H)OP on the channel
 						WriteServ(user->fd,"447 %s :Can't change nickname while on %s (+N is set)",user->nick,curr->name);
 						return 1;
 					}
