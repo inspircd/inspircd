@@ -2102,6 +2102,14 @@ void AddClient(int socket, char* host, int port, bool iscached, char* ip)
 
 	if (clientlist.size() == MAXCLIENTS)
 		kill_link(clientlist[tempnick],"No more connections allowed in this class");
+		
+	char* r = matches_zline(ip);
+	if (r)
+	{
+		char reason[MAXBUF];
+		snprintf(reason,MAXBUF,"Z-Lined: %s",r);
+		kill_link(clientlist[tempnick],reason);
+	}
 }
 
 
@@ -2222,6 +2230,26 @@ void ConnectUser(userrec *user)
 	if (IsDenied(user))
 	{
 		kill_link(user,"Unauthorised connection");
+		return;
+	}
+
+	char match_against[MAXBUF];
+	snprintf(match_against,MAXBUF,"%s@%s",user->ident,user->host);
+	char* r = matches_gline(match_against);
+	if (r)
+	{
+		char reason[MAXBUF];
+		snprintf(reason,MAXBUF,"G-Lined: %s",r);
+		kill_link(user,reason);
+		return;
+	}
+
+	r = matches_kline(user->host);
+	if (r)
+	{
+		char reason[MAXBUF];
+		snprintf(reason,MAXBUF,"K-Lined: %s",r);
+		kill_link(user,reason);
 		return;
 	}
 

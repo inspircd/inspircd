@@ -110,5 +110,9 @@ void stats_g(userrec* user);
 void stats_q(userrec* user);
 void stats_z(userrec* user);
 
+void gline_set_creation_time(char* host, time_t create_time);
+void qline_set_creation_time(char* nick, time_t create_time);
+void zline_set_creation_time(char* ip, time_t create_time);
+
 #endif
 

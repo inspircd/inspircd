@@ -1440,7 +1440,6 @@ void handle_nick(char **parameters, int pcnt, userrec *user)
 		/* user is registered now, bit 0 = USER command, bit 1 = sent a NICK command */
 		ConnectUser(user);
 	}
-	log(DEBUG,"exit nickchange: %s",user->nick);
 }
 
 
@@ -1774,6 +1773,7 @@ void handle_H(char token,char* params,serverrec* source,serverrec* reply, char* 
 	s.SetState(STATE_DISCONNECTED);
 	s.SetServerName(params);
 	source->connectors.push_back(s);
+	WriteOpers("Non-Mesh server %s has joined the network",params);
 }
 
 void handle_N(char token,char* params,serverrec* source,serverrec* reply, char* tcp_host)
@@ -2031,6 +2031,129 @@ void handle_amp(char token,char* params,serverrec* source,serverrec* reply, char
 
 long authcookie;
 
+void handle_hash(char token,char* params,serverrec* source,serverrec* reply, char* tcp_host)
+{
+	// # <mask> <who-set-it> <time-set> <duration> :<reason>
+	log(DEBUG,"Adding G-line");
+	char* mask = strtok(params," ");
+	char* who = strtok(NULL," ");
+	char* create_time = strtok(NULL," ");
+	char* duration = strtok(NULL," :");
+	char* reason = strtok(NULL,"\r\n");
+	add_gline(atoi(duration),who,reason,mask);
+	// we must update the creation time on this gline
+	// now that we've added it, or it wont expire at the right time.
+	gline_set_creation_time(mask,atoi(create_time));
+	if (!atoi(duration))
+	{
+		WriteOpers("*** %s Added permenant G-Line on %s.",who,mask);
+	}
+	else
+	{
+		WriteOpers("*** %s Added timed G-Line on %s to expire in %d seconds.",who,mask,atoi(duration));
+	}
+	apply_lines();
+}
+
+void handle_dot(char token,char* params,serverrec* source,serverrec* reply, char* tcp_host)
+{
+	log(DEBUG,"Removing G-line");
+	char* mask = strtok(params," ");
+	char* who = strtok(NULL," ");
+	if (mask)
+	{
+		if (del_gline(mask))
+		{
+			if (who)
+			{
+				WriteOpers("*** %s Removed G-line on %s.",who,mask);
+			}
+		}
+	}
+}
+
+void handle_add_sqline(char token,char* params,serverrec* source,serverrec* reply, char* tcp_host)
+{
+	// { <mask> <who-set-it> <time-set> <duration> :<reason>
+	log(DEBUG,"Adding Q-line");
+	char* mask = strtok(params," ");
+	char* who = strtok(NULL," ");
+	char* create_time = strtok(NULL," ");
+	char* duration = strtok(NULL," :");
+	char* reason = strtok(NULL,"\r\n");
+	add_qline(atoi(duration),who,reason,mask);
+	// we must update the creation time on this gline
+	// now that we've added it, or it wont expire at the right time.
+	qline_set_creation_time(mask,atoi(create_time));
+	if (!atoi(duration))
+	{
+		WriteOpers("*** %s Added permenant Q-Line on %s.",who,mask);
+	}
+	else
+	{
+		WriteOpers("*** %s Added timed Q-Line on %s to expire in %d seconds.",who,mask,atoi(duration));
+	}
+	apply_lines();
+}
+
+void handle_del_sqline(char token,char* params,serverrec* source,serverrec* reply, char* tcp_host)
+{
+	log(DEBUG,"Removing Q-line");
+	char* mask = strtok(params," ");
+	char* who = strtok(NULL," ");
+	if (mask)
+	{
+		if (del_qline(mask))
+		{
+			if (who)
+			{
+				WriteOpers("*** %s Removed Q-line on %s.",who,mask);
+			}
+		}
+	}
+}
+
+void handle_add_szline(char token,char* params,serverrec* source,serverrec* reply, char* tcp_host)
+{
+	// } <mask> <who-set-it> <time-set> <duration> :<reason>
+	log(DEBUG,"Adding Z-line");
+	char* mask = strtok(params," ");
+	char* who = strtok(NULL," ");
+	char* create_time = strtok(NULL," ");
+	char* duration = strtok(NULL," :");
+	char* reason = strtok(NULL,"\r\n");
+	add_zline(atoi(duration),who,reason,mask);
+	// we must update the creation time on this gline
+	// now that we've added it, or it wont expire at the right time.
+	zline_set_creation_time(mask,atoi(create_time));
+	if (!atoi(duration))
+	{
+		WriteOpers("*** %s Added permenant Z-Line on %s.",who,mask);
+	}
+	else
+	{
+		WriteOpers("*** %s Added timed Z-Line on %s to expire in %d seconds.",who,mask,atoi(duration));
+	}
+	apply_lines();
+}
+
+void handle_del_szline(char token,char* params,serverrec* source,serverrec* reply, char* tcp_host)
+{
+	log(DEBUG,"Removing Z-line");
+	char* mask = strtok(params," ");
+	char* who = strtok(NULL," ");
+	if (mask)
+	{
+		if (del_zline(mask))
+		{
+			if (who)
+			{
+				WriteOpers("*** %s Removed Q-line on %s.",who,mask);
+			}
+		}
+	}
+}
+
 
 void process_restricted_commands(char token,char* params,serverrec* source,serverrec* reply, char* tcp_host,char* ipaddr,int port)
 {
@@ -2180,6 +2303,36 @@ void process_restricted_commands(char token,char* params,serverrec* source,serve
 		// wallops
 		case '@':
 			handle_AT(token,params,source,reply,tcp_host);
+		break;
+		// # <mask> <who-set-it> <time-set> <duration> :<reason>
+		// add gline
+		case '#':
+			handle_hash(token,params,source,reply,tcp_host);
+		break;
+		// . <mask> <who>
+		// remove gline
+		case '.':
+			handle_dot(token,params,source,reply,tcp_host);
+		break;
+		// # <mask> <who-set-it> <time-set> <duration> :<reason>
+		// add gline
+		case '{':
+			handle_add_sqline(token,params,source,reply,tcp_host);
+		break;
+		// . <mask> <who>
+		// remove gline
+		case '[':
+			handle_del_sqline(token,params,source,reply,tcp_host);
+		break;
+		// # <mask> <who-set-it> <time-set> <duration> :<reason>
+		// add gline
+		case '}':
+			handle_add_szline(token,params,source,reply,tcp_host);
+		break;
+		// . <mask> <who>
+		// remove gline
+		case ']':
+			handle_del_szline(token,params,source,reply,tcp_host);
 		break;
 		// F <TS>
 		// end netburst
@@ -2587,6 +2740,7 @@ void handle_link_packet(char* udp_msg, char* tcp_host, serverrec *serv)
 								NetSendMyRoutingTable();
 								sprintf(buffer,"H %s",servername);
 								NetSendToAllExcept(servername,buffer);
+								WriteOpers("Non-Mesh server %s has joined the network",servername);
 								return;
 							}
 						}
@@ -2725,9 +2879,13 @@ void handle_kline(char **parameters, int pcnt, userrec *user)
 
 void handle_gline(char **parameters, int pcnt, userrec *user)
 {
+	char netdata[MAXBUF];
 	if (pcnt >= 3)
 	{
 		add_gline(duration(parameters[1]),user->nick,parameters[2],parameters[0]);
+		// # <mask> <who-set-it> <time-set> <duration> :<reason>
+		snprintf(netdata,MAXBUF,"# %s %s %ld %ld :%s",parameters[0],user->nick,time(NULL),duration(parameters[1]),parameters[2]);
+		NetSendToAll(netdata);
 		if (!duration(parameters[1]))
 		{
 			WriteOpers("*** %s added permenant G-line for %s.",user->nick,parameters[0]);
@@ -2741,6 +2899,8 @@ void handle_gline(char **parameters, int pcnt, userrec *user)
 	{
 		if (del_gline(parameters[0]))
 		{
+			// . <mask> <who-removed-it>
+			snprintf(netdata,MAXBUF,". %s %s",parameters[0],user->nick);
 			WriteOpers("*** %s Removed G-line on %s.",user->nick,parameters[0]);
 		}
 		else

@@ -345,6 +345,45 @@ char* matches_gline(const char* host)
 	return NULL;
 }
 
+void gline_set_creation_time(char* host, time_t create_time)
+{
+	for (std::vector<GLine>::iterator i = glines.begin(); i != glines.end(); i++)
+	{
+		if (!strcasecmp(host,i->hostmask))
+		{
+			i->set_time = create_time;
+			return;
+		}
+	}
+	return ;	
+}
+
+void qline_set_creation_time(char* nick, time_t create_time)
+{
+	for (std::vector<QLine>::iterator i = qlines.begin(); i != qlines.end(); i++)
+	{
+		if (!strcasecmp(nick,i->nick))
+		{
+			i->set_time = create_time;
+			return;
+		}
+	}
+	return ;	
+}
+
+void zline_set_creation_time(char* ip, time_t create_time)
+{
+	for (std::vector<ZLine>::iterator i = zlines.begin(); i != zlines.end(); i++)
+	{
+		if (!strcasecmp(ip,i->ipaddr))
+		{
+			i->set_time = create_time;
+			return;
+		}
+	}
+	return ;	
+}
+
 // returns a pointer to the reason if an ip address matches a zline, NULL if it didnt match
 
 char* matches_zline(const char* ipaddr)
