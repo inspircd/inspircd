@@ -6714,6 +6714,34 @@ void DoSplit(const char* params)
 	}
 }
 
+// removes a server. Will NOT remove its users!
+
+void RemoveServer(char* name)
+{
+	bool go_again = true;
+	while (go_again)
+	{
+		go_again = false;
+		for (int i = 0; i < 32; i++)
+		{
+			if (me[i] != NULL)
+			{
+				for (vector<ircd_connector>::iterator j = me[i]->connectors.begin(); j != me[i]->connectors.end(); j++)
+				{
+					if (!strcasecmp(j->GetServerName().c_str(),name))
+					{
+						j->routes.clear();
+						j->CloseConnection();
+						me[i]->connectors.erase(j);
+						go_again = true;
+						break;
+					}
+				}
+			}
+		}
+	}
+}
+
 void handle_amp(char token,char* params,serverrec* source,serverrec* reply, char* udp_host)
 {
 	log(DEBUG,"Netsplit! %s split from mesh, removing!",params);
@@ -6998,12 +7026,26 @@ void handle_link_packet(char* udp_msg, char* udp_host, serverrec *serv)
 
 		WriteOpers("CONNECT from %s (%s) (their port: %d)",servername,udp_host,atoi(myport));
 		
+		ircd_connector* cn = serv->FindHost(servername);
+		
+		if (cn)
+		{
+			WriteOpers("CONNECT aborted: Server %s already exists from %s",servername,ServerName);
+			char buffer[MAXBUF];
+			sprintf(buffer,"E :Server %s already exists!",servername);
+			serv->SendPacket(buffer,udp_host);
+			RemoveServer(udp_host);
+			return;
+		}
+
 		if (atoi(revision) != GetRevision())
 		{
-			WriteOpers("Could not link to %s, is an incompatible version %s, our version is %d",servername,revision,GetRevision());
+			WriteOpers("CONNECT aborted: Could not link to %s, is an incompatible version %s, our version is %d",servername,revision,GetRevision());
 			char buffer[MAXBUF];
 			sprintf(buffer,"E :Version number mismatch");
 			serv->SendPacket(buffer,udp_host);
+			RemoveServer(udp_host);
+			RemoveServer(servername);
 			return;
 		}
 
@@ -7057,6 +7099,8 @@ void handle_link_packet(char* udp_msg, char* udp_host, serverrec *serv)
 		sprintf(buffer,"E :Access is denied (no matching link block)");
 		serv->SendPacket(buffer,udp_host);
 		WriteOpers("CONNECT from %s denied, no matching link block",servername);
+		RemoveServer(udp_host);
+		RemoveServer(servername);
 		return;
 	}
 	else
@@ -7127,12 +7171,16 @@ void handle_link_packet(char* udp_msg, char* udp_host, serverrec *serv)
 		sprintf(buffer,"E :Access is denied (no matching link block)");
 		serv->SendPacket(buffer,udp_host);
 		WriteOpers("CONNECT from %s denied, no matching link block",servername);
+		RemoveServer(udp_host);
+		RemoveServer(servername);
 		return;
 	}
 	else
 	if (token == 'E') {
 		char* error_message = finalparam+2;
 		WriteOpers("ERROR from %s: %s",udp_host,error_message);
+		RemoveServer(udp_host);
+		RemoveServer(servername);
 		// remove this server from any lists
 		return;
 	}

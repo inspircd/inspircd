@@ -366,8 +366,7 @@ bool connection::SendPacket(char *message, const char* host)
 			cn->CloseConnection();
 			cn->SetState(STATE_DISCONNECTED);
 			// retry the packet along a new route so either arrival OR failure are gauranteed (bugfix)
-			this->SendPacket(message,host);
-			return false;
+			return this->SendPacket(message,host);
 		}
 		return true;
 	}
