@@ -136,6 +136,13 @@ class userrec : public connection
 	 * will be disconnected
 	 */
 	unsigned long timeout;
+	
+	/** The oper type they logged in as, if they are an oper.
+	 * This is used to check permissions in operclasses, so that
+	 * we can say 'yay' or 'nay' to any commands they issue.
+	 * The value of this is the value of a valid 'type name=' tag.
+	 */
+	char oper[NICKMAX];
 
 	userrec();
 	
@@ -167,6 +174,12 @@ class userrec : public connection
 	 * to which the user has previously been invited, to clear the invitation.
 	 */
 	virtual void RemoveInvite(char* channel);
+	
+	/** Returns true or false for if a user can execute a privilaged oper command.
+	 * This is done by looking up their oper type from userrec::oper, then referencing
+	 * this to their oper classes and checking the commands they can execute.
+	 */
+	virtual bool HasPermission(char* command);
 	
 };
 
