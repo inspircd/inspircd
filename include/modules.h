@@ -167,9 +167,10 @@ class Module : public classbase
 	 * parameters for the mode as strings. If mode_on is false, the mode is being removed, and parameters
 	 * may contain the parameters for the mode, dependent on wether they were defined when a mode handler
  	 * was set up with Server::AddExtendedMode
- 	 * If the mode is not a channel mode, chanrec* chan is null, and should not be read from or written to.
+ 	 * If the mode is a channel mode, target is a chanrec*, and if it is a user mode, target is a userrec*.
+ 	 * You must cast this value yourself to make use of it.
 	 */
- 	virtual bool OnExtendedMode(userrec* user, chanrec* chan, char modechar, int type, bool mode_on, string_list &params);
+ 	virtual bool OnExtendedMode(userrec* user, void* target, char modechar, int type, bool mode_on, string_list &params);
  	
 	/** Called whenever a user is about to join a channel, before any processing is done.
 	 * Returning any nonzero value from this function stops the process immediately, causing no

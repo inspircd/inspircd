@@ -46,20 +46,24 @@ class ModuleTestCommand : public Module
 		Srv->AddExtendedMode('Z',MT_CHANNEL,false,1,0);
 	}
 	
-	virtual bool OnExtendedMode(userrec* user, chanrec* chan, char modechar, int type, bool mode_on, string_list &params)
+	virtual bool OnExtendedMode(userrec* user, void* target, char modechar, int type, bool mode_on, string_list &params)
 	{
+		
 		if ((modechar != 'Z') || (type != MT_CHANNEL)) {
 			// this mode isn't ours, we have to bail and return 0 to not handle it.
 			Srv->Log(DEBUG,"Extended mode event triggered, but this is not a mode i've claimed!");
 			return 0;
 		}
 		
+		chanrec* chan = (chanrec*)target;
 		
 		if (mode_on) {
 			Srv->Log(DEBUG,"Custom mode is being added to channel");
+			Srv->Log(DEBUG,chan->name);
 		}
 		else {
 			Srv->Log(DEBUG,"Custom mode is being taken from a channel");
+			Srv->Log(DEBUG,chan->name);
 		}
 
 		// must return 1 to handle the mode!

@@ -59,7 +59,7 @@ class ModuleCloaking : public Module
 		return Version(1,0,0,1);
 	}
 	
-	virtual bool OnExtendedMode(userrec* user, chanrec* chan, char modechar, int type, bool mode_on, string_list &params)
+	virtual bool OnExtendedMode(userrec* user, void* target, char modechar, int type, bool mode_on, string_list &params)
 	{
 		// this method is called for any extended mode character.
 		// all module modes for all modules pass through here
@@ -69,6 +69,11 @@ class ModuleCloaking : public Module
 		// modules to 'spy' on extended mode activity if they so wish.
 		if ((modechar == 'x') && (type == MT_CLIENT))
   		{
+  			// OnExtendedMode gives us a void* as the target, we must cast
+  			// it into a userrec* or a chanrec* depending on the value of
+  			// the 'type' parameter (MT_CLIENT or MT_CHANNEL)
+  			userrec* dest = (userrec*)target;
+  			
 			// we've now determined that this is our mode character...
 			// is the user adding the mode to their list or removing it?
 			if (mode_on)
@@ -80,28 +85,28 @@ class ModuleCloaking : public Module
 				// will not work if the user has only one level of domain
 				// naming in their hostname (e.g. if they are on a lan or
 				// are connecting via localhost) -- this doesnt matter much.
-				if (strstr(user->host,"."))
+				if (strstr(dest->host,"."))
 				{
 					// in inspircd users have two hostnames. A displayed
 					// hostname which can be modified by modules (e.g.
 					// to create vhosts, implement chghost, etc) and a
 					// 'real' hostname which you shouldnt write to.
-					std::string a = strstr(user->host,".");
+					std::string a = strstr(dest->host,".");
 					char ra[64];
 					long seed,s2;
-					memcpy(&seed,user->host,sizeof(long));
+					memcpy(&seed,dest->host,sizeof(long));
 					memcpy(&s2,a.c_str(),sizeof(long));
-					sprintf(ra,"%.8X",seed*s2*strlen(user->host));
+					sprintf(ra,"%.8X",seed*s2*strlen(dest->host));
 					std::string b = Srv->GetNetworkName() + "-" + ra + a;
 					Srv->Log(DEBUG,"cloak: allocated "+b);
-					strcpy(user->dhost,b.c_str());
+					strcpy(dest->dhost,b.c_str());
 				}
 			}
 			else
   			{
   				// user is removing the mode, so just restore their real host
   				// and make it match the displayed one.
-  				strcpy(user->dhost,user->host);
+  				strcpy(dest->dhost,dest->host);
 			}
 			// this mode IS ours, and we have handled it. If we chose not to handle it,
 			// for example the user cannot cloak as they have a vhost or such, then

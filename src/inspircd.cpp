@@ -2395,7 +2395,7 @@ bool allowed_umode(char umode, char* sourcemodes,bool adding)
 	return false;
 }
 
-bool process_module_umode(char umode, userrec* source, userrec* dest, bool adding)
+bool process_module_umode(char umode, userrec* source, void* dest, bool adding)
 {
 	string_list p;
 	p.clear();
@@ -2403,7 +2403,7 @@ bool process_module_umode(char umode, userrec* source, userrec* dest, bool addin
 	{
 		for (int i = 0; i <= MODCOUNT; i++)
 		{
-			if (modules[i]->OnExtendedMode(source,(chanrec*)NULL,umode,MT_CLIENT,adding,p))
+			if (modules[i]->OnExtendedMode(source,(void*)dest,umode,MT_CLIENT,adding,p))
 			{
 				log(DEBUG,"Module claims umode %c",umode);
 				return true;
