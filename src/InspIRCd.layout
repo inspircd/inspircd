@@ -265,7 +265,7 @@ TopLine=41
 LeftChar=1
 [Editor_35]
 Open=1
-Top=1
+Top=0
 CursorCol=1
 CursorRow=25
 TopLine=1
@@ -273,8 +273,8 @@ LeftChar=1
 [Editor_36]
 Open=1
 Top=0
-CursorCol=3
-CursorRow=34
+CursorCol=21
+CursorRow=30
 TopLine=1
 LeftChar=1
 [Editor_37]
@@ -282,5 +282,12 @@ Open=1
 Top=0
 CursorCol=37
 CursorRow=29
+TopLine=1
+LeftChar=1
+[Editor_38]
+Open=1
+Top=1
+CursorCol=3
+CursorRow=33
 TopLine=1
 LeftChar=1

@@ -23,14 +23,13 @@ void handle_saquit(char **parameters, int pcnt, userrec *user)
 	userrec* dest = Srv->FindNick(std::string(parameters[0]));
 	if (dest)
 	{
-
-	std::string line = "";
-	for (int i = 1; i < pcnt - 1; i++)
-	{
-		line = line + std::string(parameters[i]) + " ";
-	}
-	line = line + std::string(parameters[pcnt-1])
-
+		std::string line = "";
+		for (int i = 1; i < pcnt - 1; i++)
+		{
+			line = line + std::string(parameters[i]) + " ";
+		}
+		line = line + std::string(parameters[pcnt-1]);
+	
 		Srv->SendOpers(std::string(user->nick)+" used SAQUIT to make "+std::string(dest->nick)+" quit with a reason of "+line);
 		Srv->QuitUser(dest, line);
 	}
