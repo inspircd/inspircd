@@ -16,7 +16,7 @@ void sendtohelpop(userrec*, int, char**);
 void handle_helpop(char **parameters, int pcnt, userrec *user)
 {
 	char a[MAXBUF];
-	std::string output;
+	std::string output = " ";
 
 	if (parameters[0] == "") { do_helpop(NULL,pcnt,user); }
 
@@ -59,7 +59,7 @@ void handle_helpop(char **parameters, int pcnt, userrec *user)
 bool do_helpop(char **parameters, int pcnt, userrec *src)
 {
 	char *search;
-	std::string output;
+	std::string output = " "; // a fix bought to you by brain :p
 	char a[MAXBUF];
 
 	if (!parameters) { strcpy(search, "start"); }
