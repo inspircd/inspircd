@@ -33,7 +33,7 @@ class ModuleRandQuote : public Module
 		suffix = conf->ReadValue("randquote","suffix",0);
 
 		if (q_file == "") {
-			printf("m_randquote: Quotefile not specified.. Please check your config.");
+			printf("m_randquote: Quotefile not specified.. Please check your config.\n\n");
 			exit(0);
                 }
 
