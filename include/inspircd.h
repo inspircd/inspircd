@@ -114,6 +114,7 @@ chanrec* add_channel(userrec *user, const char* cn, const char* key, bool overri
 chanrec* del_channel(userrec *user, const char* cname, const char* reason, bool local);
 void force_nickchange(userrec* user,const char* newnick);
 void kill_link(userrec *user,const char* r);
+void kill_link_silent(userrec *user,const char* r);
 int usercount(chanrec *c);
 void call_handler(const char* commandname,char **parameters, int pcnt, userrec *user);
 long GetRevision();

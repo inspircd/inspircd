@@ -1840,6 +1840,56 @@ void kill_link(userrec *user,const char* r)
 	}
 }
 
+void kill_link_silent(userrec *user,const char* r)
+{
+	user_hash::iterator iter = clientlist.find(user->nick);
+	
+	char reason[MAXBUF];
+	
+	strncpy(reason,r,MAXBUF);
+
+	if (strlen(reason)>MAXQUIT)
+	{
+		reason[MAXQUIT-1] = '\0';
+	}
+
+	log(DEBUG,"kill_link: %s '%s'",user->nick,reason);
+	Write(user->fd,"ERROR :Closing link (%s@%s) [%s]",user->ident,user->host,reason);
+	log(DEBUG,"closing fd %d",user->fd);
+
+	/* bugfix, cant close() a nonblocking socket (sux!) */
+	if (user->registered == 7) {
+		FOREACH_MOD OnUserQuit(user);
+		WriteCommonExcept(user,"QUIT :%s",reason);
+
+		// Q token must go to ALL servers!!!
+		char buffer[MAXBUF];
+		snprintf(buffer,MAXBUF,"Q %s :%s",user->nick,reason);
+		NetSendToAll(buffer);
+	}
+
+	/* push the socket on a stack of sockets due to be closed at the next opportunity
+	 * 'Client exited' is an exception to this as it means the client side has already
+	 * closed the socket, we don't need to do it.
+	 */
+	fd_reap.push_back(user->fd);
+	
+	bool do_purge = false;
+	
+	if (iter != clientlist.end())
+	{
+		log(DEBUG,"deleting user hash value %d",iter->second);
+		if ((iter->second) && (user->registered == 7)) {
+			delete iter->second;
+		}
+		clientlist.erase(iter);
+	}
+
+	if (user->registered == 7) {
+		purge_empty_chans();
+	}
+}
+
 
 
 // looks up a users password for their connection class (<ALLOW>/<DENY> tags)
@@ -2240,7 +2290,7 @@ void ConnectUser(userrec *user)
 	{
 		char reason[MAXBUF];
 		snprintf(reason,MAXBUF,"G-Lined: %s",r);
-		kill_link(user,reason);
+		kill_link_silent(user,reason);
 		return;
 	}
 
@@ -2249,7 +2299,7 @@ void ConnectUser(userrec *user)
 	{
 		char reason[MAXBUF];
 		snprintf(reason,MAXBUF,"K-Lined: %s",r);
-		kill_link(user,reason);
+		kill_link_silent(user,reason);
 		return;
 	}
 
