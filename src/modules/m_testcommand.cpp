@@ -23,7 +23,7 @@ class ModuleTestCommand : public Module
 	ModuleTestCommand()
 	{
 		Srv = new Server;
-		Srv->AddCommand("WOOT",handle_woot,0,1)
+		Srv->AddCommand("WOOT",handle_woot,0,1);
 	}
 	
 	virtual ~ModuleTestCommand()
