@@ -5342,6 +5342,7 @@ void handle_connect(char **parameters, int pcnt, userrec *user)
 		LinkPort = atoi(Link_Port);
 		if (match(Link_ServerName,parameters[0])) {
 			found = true;
+			break;
 		}
 	}
 	
