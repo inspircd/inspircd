@@ -5353,7 +5353,7 @@ void handle_M(char token,char* params,serverrec* source,serverrec* reply, char* 
 	char original[MAXBUF],target[MAXBUF];
 	strncpy(original,params,MAXBUF);
 	int index = 0;
-	char* parameter = strtok(NULL," ");
+	char* parameter = strtok(params," ");
 	strncpy(target,parameter,MAXBUF);
 	while (parameter)
 	{
