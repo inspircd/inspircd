@@ -85,6 +85,10 @@ int NetBufferSize = 10240; // NetBufferSize used as the buffer size for all read
 extern int MaxWhoResults;
 time_t nb_start = 0;
 
+bool AllowHalfop = true;
+bool AllowProtect = true;
+bool AllowFounder = true;
+
 extern vector<Module*> modules;
 std::vector<std::string> module_names;
 extern vector<ircd_module*> factory;
@@ -301,6 +305,7 @@ void readfile(file_cache &F, const char* fname)
 void ReadConfig(void)
 {
 	char dbg[MAXBUF],pauseval[MAXBUF],Value[MAXBUF],timeout[MAXBUF],NB[MAXBUF],flood[MAXBUF],MW[MAXBUF];
+	char AH[MAXBUF],AP[MAXBUF],AF[MAXBUF];
 	ConnectClass c;
 	
 	LoadConf(CONFIG_FILE,&config_f);
@@ -321,8 +326,14 @@ void ReadConfig(void)
 	ConfValue("options","loglevel",0,dbg,&config_f);
 	ConfValue("options","netbuffersize",0,NB,&config_f);
 	ConfValue("options","maxwho",0,MW,&config_f);
+	ConfValue("options","allowhalfop",0,AH,&config_f);
+	ConfValue("options","allowprotect",0,AP,&config_f);
+	ConfValue("options","allowfounder",0,AF,&config_f);
 	NetBufferSize = atoi(NB);
 	MaxWhoResults = atoi(MW);
+	AllowHalfop = ((!strcasecmp(AH,"true")) || (!strcasecmp(AH,"1")) || (!strcasecmp(AH,"yes")));
+	AllowProtect = ((!strcasecmp(AP,"true")) || (!strcasecmp(AP,"1")) || (!strcasecmp(AP,"yes")));
+	AllowFounder = ((!strcasecmp(AF,"true")) || (!strcasecmp(AF,"1")) || (!strcasecmp(AF,"yes")));
 	if ((!NetBufferSize) || (NetBufferSize > 65535) || (NetBufferSize < 1024))
 	{
 		log(DEFAULT,"No NetBufferSize specified or size out of range, setting to default of 10240.");

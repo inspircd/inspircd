@@ -56,6 +56,11 @@ extern char list[MAXBUF];
 extern char PrefixQuit[MAXBUF];
 extern char DieValue[MAXBUF];
 
+extern bool AllowHalfop;
+extern bool AllowProtect;
+extern bool AllowFounder;
+
+
 char* give_ops(userrec *user,char *dest,chanrec *chan,int status)
 {
 	userrec *d;
@@ -530,7 +535,7 @@ void process_modes(char **parameters,userrec* user,chanrec *chan,int status, int
 				break;
 			
 				case 'h':
-					if ((param >= pcnt)) break;
+					if (((param >= pcnt)) || (!AllowHalfop)) break;
 					if (mdir == 1)
 					{
 						r = give_hops(user,parameters[param++],chan,status);
