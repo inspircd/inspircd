@@ -76,10 +76,10 @@ Default constructor.
 <p>
 This method does not load any file into memory, you must use the LoadFile method after constructing the class this way.
 <p>
-Definition at line <a class="el" href="modules_8cpp-source.html#l00385">385</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
+Definition at line <a class="el" href="modules_8cpp-source.html#l00387">387</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
 <p>
-<div class="fragment"><pre>00386 {
-00387 }
+<div class="fragment"><pre>00388 {
+00389 }
 </pre></div>    </td>
   </tr>
 </table>
@@ -113,15 +113,15 @@ Secondary constructor.
 <p>
 This method initialises the class with a file loaded into it ready for GetLine and and other methods to be called. If the file could not be loaded, <a class="el" href="classFileReader.html#a6">FileReader::FileSize</a> returns 0.
 <p>
-Definition at line <a class="el" href="modules_8cpp-source.html#l00378">378</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
+Definition at line <a class="el" href="modules_8cpp-source.html#l00380">380</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
 <p>
 References <a class="el" href="modules_8h-source.html#l00559">fc</a>, and <a class="el" href="modules_8h-source.html#l00030">file_cache</a>.
 <p>
-<div class="fragment"><pre>00379 {
-00380         <a class="code" href="modules_8h.html#a10">file_cache</a> c;
-00381         readfile(c,filename.c_str());
-00382         this-&gt;<a class="code" href="classFileReader.html#o0">fc</a> = c;
-00383 }
+<div class="fragment"><pre>00381 {
+00382         <a class="code" href="modules_8h.html#a10">file_cache</a> c;
+00383         readfile(c,filename.c_str());
+00384         this-&gt;<a class="code" href="classFileReader.html#o0">fc</a> = c;
+00385 }
 </pre></div>    </td>
   </tr>
 </table>
@@ -154,10 +154,10 @@ Default destructor.
 <p>
 This deletes the memory allocated to the file.
 <p>
-Definition at line <a class="el" href="modules_8cpp-source.html#l00397">397</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
+Definition at line <a class="el" href="modules_8cpp-source.html#l00399">399</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
 <p>
-<div class="fragment"><pre>00398 {
-00399 }
+<div class="fragment"><pre>00400 {
+00401 }
 </pre></div>    </td>
   </tr>
 </table>
@@ -191,20 +191,20 @@ Returns true if the file exists This function will return false if the file coul
 <p>
 
 <p>
-Definition at line <a class="el" href="modules_8cpp-source.html#l00401">401</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
+Definition at line <a class="el" href="modules_8cpp-source.html#l00403">403</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
 <p>
 References <a class="el" href="modules_8h-source.html#l00559">fc</a>.
 <p>
-<div class="fragment"><pre>00402 {
-00403         <span class="keywordflow">if</span> (<a class="code" href="classFileReader.html#o0">fc</a>.size() == 0)
-00404         {
-00405                 <span class="keywordflow">return</span>(false);
-00406         }
-00407         <span class="keywordflow">else</span>
-00408         {
-00409                 <span class="keywordflow">return</span>(true);
-00410         }
-00411 }
+<div class="fragment"><pre>00404 {
+00405         <span class="keywordflow">if</span> (<a class="code" href="classFileReader.html#o0">fc</a>.size() == 0)
+00406         {
+00407                 <span class="keywordflow">return</span>(false);
+00408         }
+00409         <span class="keywordflow">else</span>
+00410         {
+00411                 <span class="keywordflow">return</span>(true);
+00412         }
+00413 }
 </pre></div>    </td>
   </tr>
 </table>
@@ -237,13 +237,13 @@ Returns the size of the file in lines.
 <p>
 This method returns the number of lines in the read file. If it is 0, no lines have been read into memory, either because the file is empty or it does not exist, or cannot be opened due to permission problems.
 <p>
-Definition at line <a class="el" href="modules_8cpp-source.html#l00420">420</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
+Definition at line <a class="el" href="modules_8cpp-source.html#l00422">422</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
 <p>
 References <a class="el" href="modules_8h-source.html#l00559">fc</a>.
 <p>
-<div class="fragment"><pre>00421 {
-00422         <span class="keywordflow">return</span> <a class="code" href="classFileReader.html#o0">fc</a>.size();
-00423 }
+<div class="fragment"><pre>00423 {
+00424         <span class="keywordflow">return</span> <a class="code" href="classFileReader.html#o0">fc</a>.size();
+00425 }
 </pre></div>    </td>
   </tr>
 </table>
@@ -277,15 +277,15 @@ Retrieve one line from the file.
 <p>
 This method retrieves one line from the text file. If an empty non-NULL string is returned, the index was out of bounds, or the line had no data on it.
 <p>
-Definition at line <a class="el" href="modules_8cpp-source.html#l00413">413</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
+Definition at line <a class="el" href="modules_8cpp-source.html#l00415">415</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
 <p>
 References <a class="el" href="modules_8h-source.html#l00559">fc</a>.
 <p>
-<div class="fragment"><pre>00414 {
-00415         <span class="keywordflow">if</span> ((x&lt;0) || (x&gt;<a class="code" href="classFileReader.html#o0">fc</a>.size()))
-00416                 <span class="keywordflow">return</span> <span class="stringliteral">""</span>;
-00417         <span class="keywordflow">return</span> <a class="code" href="classFileReader.html#o0">fc</a>[x];
-00418 }
+<div class="fragment"><pre>00416 {
+00417         <span class="keywordflow">if</span> ((x&lt;0) || (x&gt;<a class="code" href="classFileReader.html#o0">fc</a>.size()))
+00418                 <span class="keywordflow">return</span> <span class="stringliteral">""</span>;
+00419         <span class="keywordflow">return</span> <a class="code" href="classFileReader.html#o0">fc</a>[x];
+00420 }
 </pre></div>    </td>
   </tr>
 </table>
@@ -319,15 +319,15 @@ Used to load a file.
 <p>
 This method loads a file into the class ready for GetLine and and other methods to be called. If the file could not be loaded, <a class="el" href="classFileReader.html#a6">FileReader::FileSize</a> returns 0.
 <p>
-Definition at line <a class="el" href="modules_8cpp-source.html#l00389">389</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
+Definition at line <a class="el" href="modules_8cpp-source.html#l00391">391</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
 <p>
 References <a class="el" href="modules_8h-source.html#l00559">fc</a>, and <a class="el" href="modules_8h-source.html#l00030">file_cache</a>.
 <p>
-<div class="fragment"><pre>00390 {
-00391         <a class="code" href="modules_8h.html#a10">file_cache</a> c;
-00392         readfile(c,filename.c_str());
-00393         this-&gt;<a class="code" href="classFileReader.html#o0">fc</a> = c;
-00394 }
+<div class="fragment"><pre>00392 {
+00393         <a class="code" href="modules_8h.html#a10">file_cache</a> c;
+00394         readfile(c,filename.c_str());
+00395         this-&gt;<a class="code" href="classFileReader.html#o0">fc</a> = c;
+00396 }
 </pre></div>    </td>
   </tr>
 </table>
@@ -355,12 +355,12 @@ References <a class="el" href="modules_8h-source.html#l00559">fc</a>, and <a cla
 <p>
 Definition at line <a class="el" href="modules_8h-source.html#l00559">559</a> of file <a class="el" href="modules_8h-source.html">modules.h</a>.
 <p>
-Referenced by <a class="el" href="modules_8cpp-source.html#l00401">Exists()</a>, <a class="el" href="modules_8cpp-source.html#l00378">FileReader()</a>, <a class="el" href="modules_8cpp-source.html#l00420">FileSize()</a>, <a class="el" href="modules_8cpp-source.html#l00413">GetLine()</a>, and <a class="el" href="modules_8cpp-source.html#l00389">LoadFile()</a>.    </td>
+Referenced by <a class="el" href="modules_8cpp-source.html#l00403">Exists()</a>, <a class="el" href="modules_8cpp-source.html#l00380">FileReader()</a>, <a class="el" href="modules_8cpp-source.html#l00422">FileSize()</a>, <a class="el" href="modules_8cpp-source.html#l00415">GetLine()</a>, and <a class="el" href="modules_8cpp-source.html#l00391">LoadFile()</a>.    </td>
   </tr>
 </table>
 <hr>The documentation for this class was generated from the following files:<ul>
 <li><a class="el" href="modules_8h-source.html">modules.h</a><li><a class="el" href="modules_8cpp-source.html">modules.cpp</a></ul>
-<hr><address style="align: right;"><small>Generated on Sat Apr 17 13:33:55 2004 for InspIRCd by
+<hr><address style="align: right;"><small>Generated on Mon Apr 19 02:34:44 2004 for InspIRCd by
 <a href="http://www.doxygen.org/index.html">
 <img src="doxygen.png" alt="doxygen" align="middle" border=0 
 width=110 height=53></a>1.3-rc3 </small></address>
