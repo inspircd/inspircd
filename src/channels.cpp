@@ -7,7 +7,7 @@
 
 using namespace std;
 
-vector<ModeParameter> custom_mode_params;
+std::vector<ModeParameter> custom_mode_params;
 
 chanrec::chanrec()
 {
