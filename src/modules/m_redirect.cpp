@@ -72,7 +72,8 @@ class ModuleRedirect : public Module
                         }
                         temp2 = temp2 + temp1 + " ";
                 }
-                output = temp2.substr(0,temp2.length()-1);
+		if (temp2.length())
+	                output = temp2.substr(0,temp2.length()-1);
         }
 	
 	virtual int OnUserPreJoin(userrec* user, chanrec* chan, const char* cname)

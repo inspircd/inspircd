@@ -48,7 +48,8 @@ class ModuleNoKicks : public Module
                         }
                         temp2 = temp2 + temp1 + " ";
                 }
-                output = temp2.substr(0,temp2.length()-1);
+		if (temp2.length())
+	                output = temp2.substr(0,temp2.length()-1);
         }
 
 	virtual int OnAccessCheck(userrec* source,userrec* dest,chanrec* channel,int access_type)
