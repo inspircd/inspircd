@@ -45,10 +45,16 @@ class ModuleAntiBottler : public Module
 						not_bottler = true;
 					}
 				}
+				// Bug Fix (#14) -- FCS
+				if (!strlen(data)) break;				
 				char *user = strtok(data," ");
+				if (!strlen(data)) break;
 				char *ident = strtok(NULL," ");
+				if (!strlen(data)) break;
 				char *local = strtok(NULL," ");
+				if (!strlen(data)) break;
 				char *remote = strtok(NULL," :");
+				if (!strlen(data)) break;
 				char *gecos = strtok(NULL,"\r\n");
 				for (int j = 0; j < strlen(remote); j++)
 				{
