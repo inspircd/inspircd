@@ -123,7 +123,7 @@
 <a name="l00115"></a><a class="code" href="classModule.html#a9">00115</a> <span class="keywordtype">void</span> <a class="code" href="classModule.html#a9">Module::OnRehash</a>() { }
 <a name="l00116"></a><a class="code" href="classModule.html#a10">00116</a> <span class="keywordtype">void</span> <a class="code" href="classModule.html#a10">Module::OnServerRaw</a>(std::string &amp;raw, <span class="keywordtype">bool</span> inbound) { }
 00117 <span class="keywordtype">int</span> Module::OnUserPreJoin(<a class="code" href="classuserrec.html">userrec</a>* user, <a class="code" href="classchanrec.html">chanrec</a>* chan, <span class="keywordtype">char</span>* cname) { <span class="keywordflow">return</span> 0; }
-<a name="l00118"></a><a class="code" href="classModule.html#a11">00118</a> <span class="keywordtype">bool</span> <a class="code" href="classModule.html#a11">Module::OnExtendedMode</a>(<a class="code" href="classuserrec.html">userrec</a>* user, <a class="code" href="classchanrec.html">chanrec</a>* chan, <span class="keywordtype">char</span> modechar, <span class="keywordtype">int</span> type, <span class="keywordtype">bool</span> mode_on, string_list &amp;params) { }
+<a name="l00118"></a><a class="code" href="classModule.html#a11">00118</a> <span class="keywordtype">bool</span> <a class="code" href="classModule.html#a11">Module::OnExtendedMode</a>(<a class="code" href="classuserrec.html">userrec</a>* user, <span class="keywordtype">void</span>* target, <span class="keywordtype">char</span> modechar, <span class="keywordtype">int</span> type, <span class="keywordtype">bool</span> mode_on, string_list &amp;params) { }
 <a name="l00119"></a><a class="code" href="classModule.html#a2">00119</a> <a class="code" href="classVersion.html">Version</a> <a class="code" href="classModule.html#a2">Module::GetVersion</a>() { <span class="keywordflow">return</span> <a class="code" href="classVersion.html">Version</a>(1,0,0,0); }
 00120 
 00121 <span class="comment">// server is a wrapper class that provides methods to all of the C-style</span>
@@ -357,7 +357,7 @@
 <a name="l00349"></a><a class="code" href="modules_8cpp.html#a3">00349</a> <span class="keywordtype">int</span> <a class="code" href="modules_8cpp.html#a3">MODCOUNT</a>  = -1;
 00350 
 00351 
-</pre></div><hr><address style="align: right;"><small>Generated on Sun Apr 4 23:02:14 2004 for InspIRCd by
+</pre></div><hr><address style="align: right;"><small>Generated on Mon Apr 5 02:03:51 2004 for InspIRCd by
 <a href="http://www.doxygen.org/index.html">
 <img src="doxygen.png" alt="doxygen" align="middle" border=0 
 width=110 height=53></a>1.3-rc3 </small></address>
