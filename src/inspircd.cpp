@@ -3308,6 +3308,11 @@ void handle_invite(char **parameters, int pcnt, userrec *user)
 			return;
 		}
 	}
+	if (has_channel(u,c))
+ 	{
+ 		WriteServ(user->fd,"443 %s %s %s :Is already on channel %s",user->nick,u->nick,c->name,c->name);
+ 		return;
+	}
 	u->InviteTo(c->name);
 	WriteFrom(u->fd,user,"INVITE %s :%s",u->nick,c->name);
 	WriteServ(user->fd,"341 %s %s %s",user->nick,u->nick,c->name);
