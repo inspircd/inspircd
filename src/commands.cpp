@@ -116,28 +116,35 @@ const long duration_y = duration_w * 52;
 
 namespace nspace
 {
-	template<> struct nspace::hash<in_addr>
-	{
-		size_t operator()(const struct in_addr &a) const
-		{
-			size_t q;
-			memcpy(&q,&a,sizeof(size_t));
-			return q;
-		}
-	};
-
-	template<> struct nspace::hash<string>
-	{
-		size_t operator()(const string &s) const
-		{
-			char a[MAXBUF];
-			static struct hash<const char *> strhash;
-			strlcpy(a,s.c_str(),MAXBUF);
-			strlower(a);
-			return strhash(a);
-		}
-	};
-}	
+#ifdef GCC34
+        template<> struct hash<in_addr>
+#else
+        template<> struct nspace::hash<in_addr>
+#endif
+        {
+                size_t operator()(const struct in_addr &a) const
+                {
+                        size_t q;
+                        memcpy(&q,&a,sizeof(size_t));
+                        return q;
+                }
+        };
+#ifdef GCC34
+        template<> struct hash<string>
+#else
+        template<> struct nspace::hash<string>
+#endif
+        {
+                size_t operator()(const string &s) const
+                {
+                        char a[MAXBUF];
+                        static struct hash<const char *> strhash;
+                        strlcpy(a,s.c_str(),MAXBUF);
+                        strlower(a);
+                        return strhash(a);
+                }
+        };
+}
 
 
 struct StrHashComp
