@@ -3127,11 +3127,11 @@ int reap_counter = 0;
 
 int InspIRCd(void)
 {
-	struct sockaddr_in client, server;
+	struct sockaddr_in client,server;
 	char addrs[MAXBUF][255];
 	int openSockfd[MAXSOCKS], incomingSockfd, result = TRUE;
 	socklen_t length;
-	int count = 0, scanDetectTrigger = TRUE, showBanner = FALSE;
+	int count = 0;
 	int selectResult = 0, selectResult2 = 0;
 	char *temp, configToken[MAXBUF], stuff[MAXBUF], Addr[MAXBUF], Type[MAXBUF];
 	char resolvedHost[MAXBUF];
