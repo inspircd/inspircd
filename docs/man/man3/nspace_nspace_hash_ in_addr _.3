@@ -1,4 +1,4 @@
-.TH "nspace::nspace::hash< in_addr >" 3 "25 Mar 2005" "InspIRCd" \" -*- nroff -*-
+.TH "nspace::nspace::hash< in_addr >" 3 "28 Mar 2005" "InspIRCd" \" -*- nroff -*-
 .ad l
 .nh
 .SH NAME
@@ -20,14 +20,14 @@ nspace::nspace::hash< in_addr > \-
 .PP 
 .SS "size_t nspace::hash< in_addr >::operator() (const struct in_addr & a) const\fC [inline]\fP"
 .PP
-Definition at line 112 of file modules.cpp.
+Definition at line 117 of file modules.cpp.
 .PP
 .nf
-113                 {
-114                         size_t q;
-115                         memcpy(&q,&a,sizeof(size_t));
-116                         return q;
-117                 }
+118                 {
+119                         size_t q;
+120                         memcpy(&q,&a,sizeof(size_t));
+121                         return q;
+122                 }
 .fi
 
 
