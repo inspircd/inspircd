@@ -1650,9 +1650,11 @@ void handle_nick(char **parameters, int pcnt, userrec *user)
 		char buffer[MAXBUF];
 		snprintf(buffer,MAXBUF,"n %s %s",user->nick,parameters[0]);
 		NetSendToAll(buffer);
-		
 	}
 	
+	char oldnick[NICKMAX];
+	strlcpy(oldnick,user->nick,NICKMAX);
+
 	/* change the nick of the user in the users_hash */
 	user = ReHashNick(user->nick, parameters[0]);
 	/* actually change the nick within the record */
@@ -1676,6 +1678,10 @@ void handle_nick(char **parameters, int pcnt, userrec *user)
 	{
 		/* user is registered now, bit 0 = USER command, bit 1 = sent a NICK command */
 		ConnectUser(user);
+	}
+	if (user->registered == 7)
+	{
+		FOREACH_MOD OnUserPostNick(user,oldnick);
 	}
 }
 

@@ -284,12 +284,18 @@ class Module : public classbase
 	 * check user->server before taking any action (including returning nonzero from the method).
 	 * If your method returns nonzero, the nickchange is silently forbidden, and it is down to your
 	 * module to generate some meaninful output.
-	 * You may alter the message text as you wish before relinquishing control to the next module
-	 * in the chain, and if no other modules block the text this altered form of the text will be sent out
-	 * to the user and possibly to other servers.
 	 */
 	virtual int OnUserPreNick(userrec* user, std::string newnick);
 	
+	/** Called after any nickchange, local or remote. This can be used to track users after nickchanges
+	 * have been applied. Please note that although you can see remote nickchanges through this function, you should
+         * NOT make any changes to the userrec if the user is a remote user as this may cause a desnyc.
+         * check user->server before taking any action (including returning nonzero from the method).
+	 * Because this method is called after the nickchange is taken place, no return values are possible
+	 * to indicate forbidding of the nick change. Use OnUserPreNick for this.
+         */
+	virtual void OnUserPostNick(userrec* user, std::string oldnick);
+
 	/** Called before an action which requires a channel privilage check.
 	 * This function is called before many functions which check a users status on a channel, for example
 	 * before opping a user, deopping a user, kicking a user, etc.

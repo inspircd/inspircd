@@ -321,6 +321,7 @@ int Module::OnUserPreInvite(userrec* source,userrec* dest,chanrec* channel) { re
 int Module::OnUserPreMessage(userrec* user,void* dest,int target_type, std::string &text) { return 0; };
 int Module::OnUserPreNotice(userrec* user,void* dest,int target_type, std::string &text) { return 0; };
 int Module::OnUserPreNick(userrec* user, std::string newnick) { return 0; };
+void Module::OnUserPostNick(userrec* user, std::string oldnick) { };
 int Module::OnAccessCheck(userrec* source,userrec* dest,chanrec* channel,int access_type) { return ACR_DEFAULT; };
 string_list Module::OnUserSync(userrec* user) { string_list empty; return empty; }
 string_list Module::OnChannelSync(chanrec* chan) { string_list empty; return empty; }
