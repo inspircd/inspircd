@@ -8,5 +8,5 @@
 #		replace="text to replace with">
 
 <badword text="shit" replace="poo">
-<badword pattern="fuck" reason="(censored)">
+<badword pattern="fuck" replace="(censored)">
 

@@ -71,11 +71,14 @@ class ModuleCensor : public Module
 	
 	virtual void ReplaceLine(std::string &text,std::string pattern, std::string replace)
 	{
-		while (strstr(text.c_str(),pattern.c_str()))
+		if ((pattern != "") && (text != ""))
 		{
-			int pos = text.find(pattern);
-			text.erase(pos,pattern.length());
-			text.insert(pos,replace);
+			while (strstr(text.c_str(),pattern.c_str()))
+			{
+				int pos = text.find(pattern);
+				text.erase(pos,pattern.length());
+				text.insert(pos,replace);
+			}
 		}
 	}
 	
