@@ -12,10 +12,10 @@ Server *Srv;
 	 
 void handle_globops(char **parameters, int pcnt, userrec *user)
 {
-	std::string line = "";
+	std::string line = "*** GLOBOPS - From " + std::string(user->nick) + ": ";
 	for (int i = 0; i < pcnt; i++)
 	{
-		line = line + string(parameters[i]) + " ";
+		line = line + std::string(parameters[i]) + " ";
 	}
 	Srv->SendToModeMask("og",WM_AND,line);
 }
