@@ -19,6 +19,7 @@
 #include "users.h"
 #include "inspircd.h"
 #include <stdio.h>
+#include "inspstring.h"
 
 extern std::stringstream config_f;
 

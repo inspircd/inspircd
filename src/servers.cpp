@@ -19,6 +19,7 @@
 #include "inspircd.h"
 #include <stdio.h>
 #include <map>
+#include "inspstring.h"
 
 serverrec::serverrec()
 {

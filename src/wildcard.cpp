@@ -17,6 +17,7 @@
 #include <string>
 #include "inspircd_config.h"
 #include "inspircd.h"
+#include "inspstring.h"
 
 void Delete(char* str,int pos)
 {

@@ -17,8 +17,7 @@
 #include "globals.h"
 #include <dlfcn.h>
 #include "dynamic.h"
-
-
+#include "inspstring.h"
 
 DLLManager::DLLManager(const char *fname)
 {

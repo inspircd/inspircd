@@ -25,6 +25,7 @@
 #include "inspircd.h"
 #include "inspircd_io.h"
 #include "inspircd_util.h"
+#include "inspstring.h"
 
 using namespace std;
 

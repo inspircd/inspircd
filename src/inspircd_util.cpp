@@ -17,6 +17,7 @@
 #include "inspircd.h" 
 #include "inspircd_io.h" 
 #include "inspircd_util.h" 
+#include "inspstring.h"
  
 char *SafeStrncpy (char *dest, const char *src, size_t size) 
 { 

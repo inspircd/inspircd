@@ -100,6 +100,12 @@ exists () { # because some shells don't have test -e
     fi
 }
 
+echo "#include <string.h>">.test.cpp
+echo >"int main() { char a[10]; char b[10]; strlcpy(a,b,10); sprintf("999"); }" >>.test.cpp
+gcc -o .test .test.cpp
+$HAS_STRLCPY=`./.test`
+rm -f .test.cpp .test
+
 clear
 echo -e "'\033[1;33m####\033[0;37m:'\033[1;33m##\033[0;37m::: \033[1;33m##\033[0;37m::'\033[1;33m######\033[0;37m::'\033[1;33m########\033[0;37m::'\033[1;33m####\033[0;37m:'\033[1;33m########\033[0;37m:::'\033[1;33m######\033[0;37m::'\033[1;33m########\033[0;37m::"
 echo -e ". \033[1;33m##\033[0;37m:: \033[1;33m###\033[0;37m:: \033[1;33m##\033[0;37m:'\033[1;33m##\033[0;37m... \033[1;33m##\033[0;37m: \033[1;33m##\033[0;37m.... \033[1;33m##\033[0;37m:. \033[1;33m##\033[0;37m:: \033[1;33m##\033[0;37m.... \033[1;33m##\033[0;37m:'\033[1;33m##\033[0;37m... \033[1;33m##\033[0;37m: \033[1;33m##\033[0;37m.... \033[1;33m##\033[0;37m:"
@@ -399,7 +405,7 @@ echo -e "\033[0;37mGCC Version Found:\033[1;32m\t\t$GCCVER.$GCC34"
 echo -e "\033[0;37mOptimatizaton Flag:\033[1;32m\t\t$OPTIMISATI"
 echo -e "\033[0;37m"
 
-echo "Writing cache file for future ./configures ..."
+yyecho "Writing cache file for future ./configures ..."
 
 if [ "$CONFIG_DIR" != "$ME/conf" ] ; then
     COPY_CONF=1
@@ -419,6 +425,7 @@ echo "MAXI_MODES=\"$MAXI_MODES\"" >> .config.cache
 echo "OPTIMITEMP=\"$OPTIMITEMP\"" >> .config.cache
 echo "OPTIMISATI=\"$OPTIMISATI\"" >> .config.cache
 echo "GCC34=\"$GCC34\"" >> .config.cache
+echo "HAS_STRLCPY=\"$HAS_STRLCPY\"" >> .config.cache
 echo "COPY_CONF=\"$COPY_CONF\"" >> .config.cache
 
 echo "Writing include/inspircd_config.h ..."
@@ -430,6 +437,9 @@ echo "#define GCC3" >>include/inspircd_config.h
 	if [ "$GCC34" -gt "3" ] ; then
 		echo "#define GCC34" >>include/inspircd_config.h
 	fi
+fi
+if [ "$HAS_STRLCPY" -eq "999" ] ; then
+	echo "#define HAS_STRLCPY" >>include/inspircd_config.h
 fi
 echo "#define SYSLOG_FACILITY LOG_DAEMON" >>include/inspircd_config.h
 echo "#define SYSLOG_LEVEL LOG_NOTICE" >>include/inspircd_config.h
@@ -508,4 +518,3 @@ fi
 
 echo -e "*** \033[1;32mRemember to edit your configuration files!!!\033[0;37m ***"
 echo ""
-

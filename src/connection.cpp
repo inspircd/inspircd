@@ -25,6 +25,7 @@
 #include <deque>
 #include "inspircd.h"
 #include "modules.h"
+#include "inspstring.h"
 
 using namespace std;
 

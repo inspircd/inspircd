@@ -48,6 +48,7 @@
 #include "dynamic.h"
 #include "wildcard.h"
 #include "message.h"
+#include "inspstring.h"
 
 using namespace std;
 

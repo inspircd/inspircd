@@ -50,6 +50,7 @@
 #include "message.h"
 #include "commands.h"
 #include "xline.h"
+#include "inspstring.h"
 
 #ifdef GCC3
 #define nspace __gnu_cxx
