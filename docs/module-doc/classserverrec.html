@@ -93,22 +93,22 @@ Constructor.
 <p>
 
 <p>
-Definition at line <a class="el" href="servers_8cpp-source.html#l00023">23</a> of file <a class="el" href="servers_8cpp-source.html">servers.cpp</a>.
+Definition at line <a class="el" href="servers_8cpp-source.html#l00024">24</a> of file <a class="el" href="servers_8cpp-source.html">servers.cpp</a>.
 <p>
 References <a class="el" href="connection_8h-source.html#l00178">connection::fd</a>, <a class="el" href="servers_8h-source.html#l00051">hops_away</a>, <a class="el" href="servers_8h-source.html#l00057">jupiter</a>, <a class="el" href="connection_8h-source.html#l00228">connection::lastping</a>, <a class="el" href="servers_8h-source.html#l00036">name</a>, <a class="el" href="servers_8h-source.html#l00065">nickserv</a>, <a class="el" href="servers_8h-source.html#l00048">opercount</a>, <a class="el" href="servers_8h-source.html#l00039">pingtime</a>, <a class="el" href="connection_8h-source.html#l00232">connection::signon</a>, <a class="el" href="servers_8h-source.html#l00067">sync_soon</a>, <a class="el" href="servers_8h-source.html#l00045">usercount</a>, <a class="el" href="servers_8h-source.html#l00042">usercount_i</a>, and <a class="el" href="servers_8h-source.html#l00054">version</a>.
 <p>
-<div class="fragment"><pre>00024 {
-00025         strlcpy(name,<span class="stringliteral">""</span>,256);
-00026         <a class="code" href="classserverrec.html#o1">pingtime</a> = 0;
-00027         <a class="code" href="classconnection.html#o12">lastping</a> = time(NULL);
-00028         <a class="code" href="classserverrec.html#o2">usercount_i</a> = <a class="code" href="classserverrec.html#o3">usercount</a> = <a class="code" href="classserverrec.html#o4">opercount</a> = <a class="code" href="classserverrec.html#o6">version</a> = 0;
-00029         <a class="code" href="classserverrec.html#o5">hops_away</a> = 1;
-00030         <a class="code" href="classconnection.html#o13">signon</a> = time(NULL);
-00031         <a class="code" href="classserverrec.html#o7">jupiter</a> = <span class="keyword">false</span>;
-00032         <a class="code" href="classconnection.html#o0">fd</a> = 0;
-00033         <a class="code" href="classserverrec.html#o10">sync_soon</a> = <span class="keyword">false</span>;
-00034         strlcpy(nickserv,<span class="stringliteral">""</span>,NICKMAX);
-00035 }
+<div class="fragment"><pre>00025 {
+00026         strlcpy(name,<span class="stringliteral">""</span>,256);
+00027         <a class="code" href="classserverrec.html#o1">pingtime</a> = 0;
+00028         <a class="code" href="classconnection.html#o12">lastping</a> = time(NULL);
+00029         <a class="code" href="classserverrec.html#o2">usercount_i</a> = <a class="code" href="classserverrec.html#o3">usercount</a> = <a class="code" href="classserverrec.html#o4">opercount</a> = <a class="code" href="classserverrec.html#o6">version</a> = 0;
+00030         <a class="code" href="classserverrec.html#o5">hops_away</a> = 1;
+00031         <a class="code" href="classconnection.html#o13">signon</a> = time(NULL);
+00032         <a class="code" href="classserverrec.html#o7">jupiter</a> = <span class="keyword">false</span>;
+00033         <a class="code" href="classconnection.html#o0">fd</a> = 0;
+00034         <a class="code" href="classserverrec.html#o10">sync_soon</a> = <span class="keyword">false</span>;
+00035         strlcpy(nickserv,<span class="stringliteral">""</span>,NICKMAX);
+00036 }
 </pre></div>    </td>
   </tr>
 </table>
@@ -157,22 +157,22 @@ Constructor which initialises some of the main variables.
 <p>
 
 <p>
-Definition at line <a class="el" href="servers_8cpp-source.html#l00042">42</a> of file <a class="el" href="servers_8cpp-source.html">servers.cpp</a>.
+Definition at line <a class="el" href="servers_8cpp-source.html#l00043">43</a> of file <a class="el" href="servers_8cpp-source.html">servers.cpp</a>.
 <p>
 References <a class="el" href="connection_8h-source.html#l00178">connection::fd</a>, <a class="el" href="servers_8h-source.html#l00051">hops_away</a>, <a class="el" href="servers_8h-source.html#l00057">jupiter</a>, <a class="el" href="connection_8h-source.html#l00228">connection::lastping</a>, <a class="el" href="servers_8h-source.html#l00036">name</a>, <a class="el" href="servers_8h-source.html#l00065">nickserv</a>, <a class="el" href="servers_8h-source.html#l00048">opercount</a>, <a class="el" href="connection_8h-source.html#l00232">connection::signon</a>, <a class="el" href="servers_8h-source.html#l00067">sync_soon</a>, <a class="el" href="servers_8h-source.html#l00045">usercount</a>, <a class="el" href="servers_8h-source.html#l00042">usercount_i</a>, and <a class="el" href="servers_8h-source.html#l00054">version</a>.
 <p>
-<div class="fragment"><pre>00043 {
-00044         strlcpy(name,n,256);
-00045         <a class="code" href="classconnection.html#o12">lastping</a> = time(NULL);
-00046         <a class="code" href="classserverrec.html#o2">usercount_i</a> = <a class="code" href="classserverrec.html#o3">usercount</a> = <a class="code" href="classserverrec.html#o4">opercount</a> = 0;
-00047         <a class="code" href="classserverrec.html#o6">version</a> = ver;
-00048         <a class="code" href="classserverrec.html#o5">hops_away</a> = 1;
-00049         <a class="code" href="classconnection.html#o13">signon</a> = time(NULL);
-00050         <a class="code" href="classserverrec.html#o7">jupiter</a> = jupe;
-00051         <a class="code" href="classconnection.html#o0">fd</a> = 0;
-00052         <a class="code" href="classserverrec.html#o10">sync_soon</a> = <span class="keyword">false</span>;
-00053         strlcpy(nickserv,<span class="stringliteral">""</span>,NICKMAX);
-00054 }
+<div class="fragment"><pre>00044 {
+00045         strlcpy(name,n,256);
+00046         <a class="code" href="classconnection.html#o12">lastping</a> = time(NULL);
+00047         <a class="code" href="classserverrec.html#o2">usercount_i</a> = <a class="code" href="classserverrec.html#o3">usercount</a> = <a class="code" href="classserverrec.html#o4">opercount</a> = 0;
+00048         <a class="code" href="classserverrec.html#o6">version</a> = ver;
+00049         <a class="code" href="classserverrec.html#o5">hops_away</a> = 1;
+00050         <a class="code" href="classconnection.html#o13">signon</a> = time(NULL);
+00051         <a class="code" href="classserverrec.html#o7">jupiter</a> = jupe;
+00052         <a class="code" href="classconnection.html#o0">fd</a> = 0;
+00053         <a class="code" href="classserverrec.html#o10">sync_soon</a> = <span class="keyword">false</span>;
+00054         strlcpy(nickserv,<span class="stringliteral">""</span>,NICKMAX);
+00055 }
 </pre></div>    </td>
   </tr>
 </table>
@@ -205,10 +205,10 @@ Destructor.
 <p>
 
 <p>
-Definition at line <a class="el" href="servers_8cpp-source.html#l00038">38</a> of file <a class="el" href="servers_8cpp-source.html">servers.cpp</a>.
+Definition at line <a class="el" href="servers_8cpp-source.html#l00039">39</a> of file <a class="el" href="servers_8cpp-source.html">servers.cpp</a>.
 <p>
-<div class="fragment"><pre>00039 {
-00040 }
+<div class="fragment"><pre>00040 {
+00041 }
 </pre></div>    </td>
   </tr>
 </table>
@@ -264,7 +264,7 @@ number of hops away (for quick access)
 <p>
 Definition at line <a class="el" href="servers_8h-source.html#l00051">51</a> of file <a class="el" href="servers_8h-source.html">servers.h</a>.
 <p>
-Referenced by <a class="el" href="servers_8cpp-source.html#l00023">serverrec()</a>.    </td>
+Referenced by <a class="el" href="servers_8cpp-source.html#l00024">serverrec()</a>.    </td>
   </tr>
 </table>
 <a name="o7" doxytag="serverrec::jupiter"></a><p>
@@ -292,7 +292,7 @@ is a JUPE server (faked to enforce a server ban)
 <p>
 Definition at line <a class="el" href="servers_8h-source.html#l00057">57</a> of file <a class="el" href="servers_8h-source.html">servers.h</a>.
 <p>
-Referenced by <a class="el" href="servers_8cpp-source.html#l00023">serverrec()</a>.    </td>
+Referenced by <a class="el" href="servers_8cpp-source.html#l00024">serverrec()</a>.    </td>
   </tr>
 </table>
 <a name="o0" doxytag="serverrec::name"></a><p>
@@ -320,7 +320,7 @@ server name
 <p>
 Definition at line <a class="el" href="servers_8h-source.html#l00036">36</a> of file <a class="el" href="servers_8h-source.html">servers.h</a>.
 <p>
-Referenced by <a class="el" href="servers_8cpp-source.html#l00023">serverrec()</a>.    </td>
+Referenced by <a class="el" href="servers_8cpp-source.html#l00024">serverrec()</a>.    </td>
   </tr>
 </table>
 <a name="o9" doxytag="serverrec::nickserv"></a><p>
@@ -348,7 +348,7 @@ Holds nickserv's name on U:lined (services) servers (this is a kludge for ircser
 <p>
 Definition at line <a class="el" href="servers_8h-source.html#l00065">65</a> of file <a class="el" href="servers_8h-source.html">servers.h</a>.
 <p>
-Referenced by <a class="el" href="servers_8cpp-source.html#l00023">serverrec()</a>.    </td>
+Referenced by <a class="el" href="servers_8cpp-source.html#l00024">serverrec()</a>.    </td>
   </tr>
 </table>
 <a name="o4" doxytag="serverrec::opercount"></a><p>
@@ -376,7 +376,7 @@ opers on server
 <p>
 Definition at line <a class="el" href="servers_8h-source.html#l00048">48</a> of file <a class="el" href="servers_8h-source.html">servers.h</a>.
 <p>
-Referenced by <a class="el" href="servers_8cpp-source.html#l00023">serverrec()</a>.    </td>
+Referenced by <a class="el" href="servers_8cpp-source.html#l00024">serverrec()</a>.    </td>
   </tr>
 </table>
 <a name="o1" doxytag="serverrec::pingtime"></a><p>
@@ -404,7 +404,7 @@ last ping response (ms)
 <p>
 Definition at line <a class="el" href="servers_8h-source.html#l00039">39</a> of file <a class="el" href="servers_8h-source.html">servers.h</a>.
 <p>
-Referenced by <a class="el" href="servers_8cpp-source.html#l00023">serverrec()</a>.    </td>
+Referenced by <a class="el" href="servers_8cpp-source.html#l00024">serverrec()</a>.    </td>
   </tr>
 </table>
 <a name="o10" doxytag="serverrec::sync_soon"></a><p>
@@ -430,7 +430,7 @@ Referenced by <a class="el" href="servers_8cpp-source.html#l00023">serverrec()</
 <p>
 Definition at line <a class="el" href="servers_8h-source.html#l00067">67</a> of file <a class="el" href="servers_8h-source.html">servers.h</a>.
 <p>
-Referenced by <a class="el" href="servers_8cpp-source.html#l00023">serverrec()</a>.    </td>
+Referenced by <a class="el" href="servers_8cpp-source.html#l00024">serverrec()</a>.    </td>
   </tr>
 </table>
 <a name="o3" doxytag="serverrec::usercount"></a><p>
@@ -458,7 +458,7 @@ non-invisible users on server
 <p>
 Definition at line <a class="el" href="servers_8h-source.html#l00045">45</a> of file <a class="el" href="servers_8h-source.html">servers.h</a>.
 <p>
-Referenced by <a class="el" href="servers_8cpp-source.html#l00023">serverrec()</a>.    </td>
+Referenced by <a class="el" href="servers_8cpp-source.html#l00024">serverrec()</a>.    </td>
   </tr>
 </table>
 <a name="o2" doxytag="serverrec::usercount_i"></a><p>
@@ -486,7 +486,7 @@ invisible users on server
 <p>
 Definition at line <a class="el" href="servers_8h-source.html#l00042">42</a> of file <a class="el" href="servers_8h-source.html">servers.h</a>.
 <p>
-Referenced by <a class="el" href="servers_8cpp-source.html#l00023">serverrec()</a>.    </td>
+Referenced by <a class="el" href="servers_8cpp-source.html#l00024">serverrec()</a>.    </td>
   </tr>
 </table>
 <a name="o6" doxytag="serverrec::version"></a><p>
@@ -514,12 +514,12 @@ ircd version
 <p>
 Definition at line <a class="el" href="servers_8h-source.html#l00054">54</a> of file <a class="el" href="servers_8h-source.html">servers.h</a>.
 <p>
-Referenced by <a class="el" href="servers_8cpp-source.html#l00023">serverrec()</a>.    </td>
+Referenced by <a class="el" href="servers_8cpp-source.html#l00024">serverrec()</a>.    </td>
   </tr>
 </table>
 <hr>The documentation for this class was generated from the following files:<ul>
 <li><a class="el" href="servers_8h-source.html">servers.h</a><li><a class="el" href="servers_8cpp-source.html">servers.cpp</a></ul>
-<hr size="1"><address style="align: right;"><small>Generated on Fri Mar 25 03:49:34 2005 for InspIRCd by
+<hr size="1"><address style="align: right;"><small>Generated on Mon Mar 28 21:09:37 2005 for InspIRCd by
 <a href="http://www.doxygen.org/index.html">
 <img src="doxygen.png" alt="doxygen" align="middle" border=0 > 
 </a>1.3.3 </small></address>

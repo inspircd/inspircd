@@ -26,41 +26,42 @@
 00019 <span class="preprocessor">#include "inspircd.h"</span>
 00020 <span class="preprocessor">#include &lt;stdio.h&gt;</span>
 00021 <span class="preprocessor">#include &lt;map&gt;</span>
-00022 
-<a name="l00023"></a><a class="code" href="classserverrec.html#a0">00023</a> <a class="code" href="classserverrec.html#a0">serverrec::serverrec</a>()
-00024 {
-00025         strlcpy(<a class="code" href="classserverrec.html#o0">name</a>,<span class="stringliteral">""</span>,256);
-00026         <a class="code" href="classserverrec.html#o1">pingtime</a> = 0;
-00027         <a class="code" href="classconnection.html#o12">lastping</a> = time(NULL);
-00028         <a class="code" href="classserverrec.html#o2">usercount_i</a> = <a class="code" href="classserverrec.html#o3">usercount</a> = <a class="code" href="classserverrec.html#o4">opercount</a> = <a class="code" href="classserverrec.html#o6">version</a> = 0;
-00029         <a class="code" href="classserverrec.html#o5">hops_away</a> = 1;
-00030         <a class="code" href="classconnection.html#o13">signon</a> = time(NULL);
-00031         <a class="code" href="classserverrec.html#o7">jupiter</a> = <span class="keyword">false</span>;
-00032         <a class="code" href="classconnection.html#o0">fd</a> = 0;
-00033         <a class="code" href="classserverrec.html#o10">sync_soon</a> = <span class="keyword">false</span>;
-00034         strlcpy(<a class="code" href="classserverrec.html#o9">nickserv</a>,<span class="stringliteral">""</span>,NICKMAX);
-00035 }
-00036 
-00037  
-<a name="l00038"></a><a class="code" href="classserverrec.html#a2">00038</a> <a class="code" href="classserverrec.html#a2">serverrec::~serverrec</a>()
-00039 {
-00040 }
-00041 
-<a name="l00042"></a><a class="code" href="classserverrec.html#a1">00042</a> <a class="code" href="classserverrec.html#a0">serverrec::serverrec</a>(<span class="keywordtype">char</span>* n, <span class="keywordtype">long</span> ver, <span class="keywordtype">bool</span> jupe)
-00043 {
-00044         strlcpy(<a class="code" href="classserverrec.html#o0">name</a>,n,256);
-00045         <a class="code" href="classconnection.html#o12">lastping</a> = time(NULL);
-00046         <a class="code" href="classserverrec.html#o2">usercount_i</a> = <a class="code" href="classserverrec.html#o3">usercount</a> = <a class="code" href="classserverrec.html#o4">opercount</a> = 0;
-00047         <a class="code" href="classserverrec.html#o6">version</a> = ver;
-00048         <a class="code" href="classserverrec.html#o5">hops_away</a> = 1;
-00049         <a class="code" href="classconnection.html#o13">signon</a> = time(NULL);
-00050         <a class="code" href="classserverrec.html#o7">jupiter</a> = jupe;
-00051         <a class="code" href="classconnection.html#o0">fd</a> = 0;
-00052         <a class="code" href="classserverrec.html#o10">sync_soon</a> = <span class="keyword">false</span>;
-00053         strlcpy(<a class="code" href="classserverrec.html#o9">nickserv</a>,<span class="stringliteral">""</span>,NICKMAX);
-00054 }
-00055 
-</pre></div><hr size="1"><address style="align: right;"><small>Generated on Fri Mar 25 03:49:28 2005 for InspIRCd by
+00022 <span class="preprocessor">#include "inspstring.h"</span>
+00023 
+<a name="l00024"></a><a class="code" href="classserverrec.html#a0">00024</a> <a class="code" href="classserverrec.html#a0">serverrec::serverrec</a>()
+00025 {
+00026         strlcpy(<a class="code" href="classserverrec.html#o0">name</a>,<span class="stringliteral">""</span>,256);
+00027         <a class="code" href="classserverrec.html#o1">pingtime</a> = 0;
+00028         <a class="code" href="classconnection.html#o12">lastping</a> = time(NULL);
+00029         <a class="code" href="classserverrec.html#o2">usercount_i</a> = <a class="code" href="classserverrec.html#o3">usercount</a> = <a class="code" href="classserverrec.html#o4">opercount</a> = <a class="code" href="classserverrec.html#o6">version</a> = 0;
+00030         <a class="code" href="classserverrec.html#o5">hops_away</a> = 1;
+00031         <a class="code" href="classconnection.html#o13">signon</a> = time(NULL);
+00032         <a class="code" href="classserverrec.html#o7">jupiter</a> = <span class="keyword">false</span>;
+00033         <a class="code" href="classconnection.html#o0">fd</a> = 0;
+00034         <a class="code" href="classserverrec.html#o10">sync_soon</a> = <span class="keyword">false</span>;
+00035         strlcpy(<a class="code" href="classserverrec.html#o9">nickserv</a>,<span class="stringliteral">""</span>,NICKMAX);
+00036 }
+00037 
+00038  
+<a name="l00039"></a><a class="code" href="classserverrec.html#a2">00039</a> <a class="code" href="classserverrec.html#a2">serverrec::~serverrec</a>()
+00040 {
+00041 }
+00042 
+<a name="l00043"></a><a class="code" href="classserverrec.html#a1">00043</a> <a class="code" href="classserverrec.html#a0">serverrec::serverrec</a>(<span class="keywordtype">char</span>* n, <span class="keywordtype">long</span> ver, <span class="keywordtype">bool</span> jupe)
+00044 {
+00045         strlcpy(<a class="code" href="classserverrec.html#o0">name</a>,n,256);
+00046         <a class="code" href="classconnection.html#o12">lastping</a> = time(NULL);
+00047         <a class="code" href="classserverrec.html#o2">usercount_i</a> = <a class="code" href="classserverrec.html#o3">usercount</a> = <a class="code" href="classserverrec.html#o4">opercount</a> = 0;
+00048         <a class="code" href="classserverrec.html#o6">version</a> = ver;
+00049         <a class="code" href="classserverrec.html#o5">hops_away</a> = 1;
+00050         <a class="code" href="classconnection.html#o13">signon</a> = time(NULL);
+00051         <a class="code" href="classserverrec.html#o7">jupiter</a> = jupe;
+00052         <a class="code" href="classconnection.html#o0">fd</a> = 0;
+00053         <a class="code" href="classserverrec.html#o10">sync_soon</a> = <span class="keyword">false</span>;
+00054         strlcpy(<a class="code" href="classserverrec.html#o9">nickserv</a>,<span class="stringliteral">""</span>,NICKMAX);
+00055 }
+00056 
+</pre></div><hr size="1"><address style="align: right;"><small>Generated on Mon Mar 28 21:09:25 2005 for InspIRCd by
 <a href="http://www.doxygen.org/index.html">
 <img src="doxygen.png" alt="doxygen" align="middle" border=0 > 
 </a>1.3.3 </small></address>

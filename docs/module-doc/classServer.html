@@ -131,7 +131,7 @@ All modules should instantiate at least one copy of this class, and use its memb
 <p>
 
 <p>
-Definition at line <a class="el" href="modules_8h-source.html#l00337">337</a> of file <a class="el" href="modules_8h-source.html">modules.h</a>.<hr><h2>Constructor &amp; Destructor Documentation</h2>
+Definition at line <a class="el" href="modules_8h-source.html#l00365">365</a> of file <a class="el" href="modules_8h-source.html">modules.h</a>.<hr><h2>Constructor &amp; Destructor Documentation</h2>
 <a name="a0" doxytag="Server::Server"></a><p>
 <table class="mdTable" width="100%" cellpadding="2" cellspacing="0">
   <tr>
@@ -161,10 +161,10 @@ Default constructor.
 <p>
 Creates a Server object.
 <p>
-Definition at line <a class="el" href="modules_8cpp-source.html#l00326">326</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
+Definition at line <a class="el" href="modules_8cpp-source.html#l00336">336</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
 <p>
-<div class="fragment"><pre>00327 {
-00328 }
+<div class="fragment"><pre>00337 {
+00338 }
 </pre></div>    </td>
   </tr>
 </table>
@@ -197,10 +197,10 @@ Default destructor.
 <p>
 Destroys a Server object.
 <p>
-Definition at line <a class="el" href="modules_8cpp-source.html#l00330">330</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
+Definition at line <a class="el" href="modules_8cpp-source.html#l00340">340</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
 <p>
-<div class="fragment"><pre>00331 {
-00332 }
+<div class="fragment"><pre>00341 {
+00342 }
 </pre></div>    </td>
   </tr>
 </table>
@@ -258,13 +258,13 @@ This allows modules to add extra commands into the command table. You must place
 typedef void (handlerfunc) (char**, int, userrec*); ... void <a class="el" href="commands_8h.html#a5">handle_kill(char **parameters, int pcnt, userrec *user)</a><p>
 When the command is typed, the parameters will be placed into the parameters array (similar to argv) and the parameter count will be placed into pcnt (similar to argv). There will never be any less parameters than the 'minparams' value you specified when creating the command. The *user parameter is the class of the user which caused the command to trigger, who will always have the flag you specified in 'flags' when creating the initial command. For example to create an oper only command create the commands with flags='o'.
 <p>
-Definition at line <a class="el" href="modules_8cpp-source.html#l00407">407</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
+Definition at line <a class="el" href="modules_8cpp-source.html#l00417">417</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
 <p>
 References <a class="el" href="modules_8h.html#a30">createcommand()</a>.
 <p>
-<div class="fragment"><pre>00408 {
-00409         <a class="code" href="modules_8h.html#a30">createcommand</a>(cmd,f,flags,minparams);
-00410 }
+<div class="fragment"><pre>00418 {
+00419         <a class="code" href="modules_8h.html#a30">createcommand</a>(cmd,f,flags,minparams);
+00420 }
 </pre></div>    </td>
   </tr>
 </table>
@@ -303,16 +303,16 @@ This call is used to implement modes like +q and +a. The characteristics of thes
 (4) The mode and its parameter are NOT stored in the channels modes structure<p>
 It is down to the module handling the mode to maintain state and determine what 'items' (e.g. users, or a banlist) have the mode set on them, and process the modes at the correct times, e.g. during access checks on channels, etc. When the extended mode is triggered the OnExtendedMode method will be triggered as above. Note that the target you are given will be a channel, if for example your mode is set 'on a user' (in for example +a) you must use Server::Find to locate the user the mode is operating on. Your mode handler may return 1 to handle the mode AND tell the core to display the mode change, e.g. '+aaa one two three' in the case of the mode for 'two', or it may return -1 to 'eat' the mode change, so the above example would become '+aa one three' after processing.
 <p>
-Definition at line <a class="el" href="modules_8cpp-source.html#l00552">552</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
+Definition at line <a class="el" href="modules_8cpp-source.html#l00562">562</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
 <p>
-References <a class="el" href="modules_8cpp-source.html#l00266">DoAddExtendedMode()</a>, <a class="el" href="modules_8cpp-source.html#l00276">ModeMakeList()</a>, and <a class="el" href="modules_8h-source.html#l00031">MT_CHANNEL</a>.
+References <a class="el" href="modules_8cpp-source.html#l00273">DoAddExtendedMode()</a>, <a class="el" href="modules_8cpp-source.html#l00283">ModeMakeList()</a>, and <a class="el" href="modules_8h-source.html#l00031">MT_CHANNEL</a>.
 <p>
-<div class="fragment"><pre>00553 {
-00554         <span class="keywordtype">bool</span> res = <a class="code" href="modules_8cpp.html#a56">DoAddExtendedMode</a>(modechar,MT_CHANNEL,<span class="keyword">false</span>,1,1);
-00555         <span class="keywordflow">if</span> (res)
-00556                 <a class="code" href="modules_8cpp.html#a57">ModeMakeList</a>(modechar);
-00557         <span class="keywordflow">return</span> res;
-00558 }
+<div class="fragment"><pre>00563 {
+00564         <span class="keywordtype">bool</span> res = <a class="code" href="modules_8cpp.html#a56">DoAddExtendedMode</a>(modechar,MT_CHANNEL,<span class="keyword">false</span>,1,1);
+00565         <span class="keywordflow">if</span> (res)
+00566                 <a class="code" href="modules_8cpp.html#a57">ModeMakeList</a>(modechar);
+00567         <span class="keywordflow">return</span> res;
+00568 }
 </pre></div>    </td>
   </tr>
 </table>
@@ -373,28 +373,28 @@ Adds an extended mode letter which is parsed by a module.
 <p>
 This allows modules to add extra mode letters, e.g. +x for hostcloak. the "type" parameter is either MT_CHANNEL, MT_CLIENT, or MT_SERVER, to indicate wether the mode is a channel mode, a client mode, or a server mode. requires_oper is used with MT_CLIENT type modes only to indicate the mode can only be set or unset by an oper. If this is used for MT_CHANNEL type modes it is ignored. params_when_on is the number of modes to expect when the mode is turned on (for type MT_CHANNEL only), e.g. with mode +k, this would have a value of 1. the params_when_off value has a similar value to params_when_on, except it indicates the number of parameters to expect when the mode is disabled. Modes which act in a similar way to channel mode +l (e.g. require a parameter to enable, but not to disable) should use this parameter. The function returns false if the mode is unavailable, and will not attempt to allocate another character, as this will confuse users. This also means that as only one module can claim a specific mode character, the core does not need to keep track of which modules own which modes, which speeds up operation of the server. In this version, a mode can have at most one parameter, attempting to use more parameters will have undefined effects.
 <p>
-Definition at line <a class="el" href="modules_8cpp-source.html#l00532">532</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
+Definition at line <a class="el" href="modules_8cpp-source.html#l00542">542</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
 <p>
-References <a class="el" href="modules_8h-source.html#l00023">DEBUG</a>, <a class="el" href="modules_8cpp-source.html#l00266">DoAddExtendedMode()</a>, <a class="el" href="modules_8h-source.html#l00032">MT_CLIENT</a>, and <a class="el" href="modules_8h-source.html#l00033">MT_SERVER</a>.
+References <a class="el" href="modules_8h-source.html#l00023">DEBUG</a>, <a class="el" href="modules_8cpp-source.html#l00273">DoAddExtendedMode()</a>, <a class="el" href="modules_8h-source.html#l00032">MT_CLIENT</a>, and <a class="el" href="modules_8h-source.html#l00033">MT_SERVER</a>.
 <p>
-<div class="fragment"><pre>00533 {
-00534         <span class="keywordflow">if</span> (type == <a class="code" href="modules_8h.html#a7">MT_SERVER</a>)
-00535         {
-00536                 log(DEBUG,<span class="stringliteral">"*** API ERROR *** Modes of type MT_SERVER are reserved for future expansion"</span>);
-00537                 <span class="keywordflow">return</span> <span class="keyword">false</span>;
-00538         }
-00539         <span class="keywordflow">if</span> (((params_when_on&gt;0) || (params_when_off&gt;0)) &amp;&amp; (type == <a class="code" href="modules_8h.html#a6">MT_CLIENT</a>))
-00540         {
-00541                 log(DEBUG,<span class="stringliteral">"*** API ERROR *** Parameters on MT_CLIENT modes are not supported"</span>);
-00542                 <span class="keywordflow">return</span> <span class="keyword">false</span>;
-00543         }
-00544         <span class="keywordflow">if</span> ((params_when_on&gt;1) || (params_when_off&gt;1))
+<div class="fragment"><pre>00543 {
+00544         <span class="keywordflow">if</span> (type == <a class="code" href="modules_8h.html#a7">MT_SERVER</a>)
 00545         {
-00546                 log(DEBUG,<span class="stringliteral">"*** API ERROR *** More than one parameter for an MT_CHANNEL mode is not yet supported"</span>);
+00546                 log(DEBUG,<span class="stringliteral">"*** API ERROR *** Modes of type MT_SERVER are reserved for future expansion"</span>);
 00547                 <span class="keywordflow">return</span> <span class="keyword">false</span>;
 00548         }
-00549         <span class="keywordflow">return</span> <a class="code" href="modules_8cpp.html#a56">DoAddExtendedMode</a>(modechar,type,requires_oper,params_when_on,params_when_off);
-00550 }
+00549         <span class="keywordflow">if</span> (((params_when_on&gt;0) || (params_when_off&gt;0)) &amp;&amp; (type == <a class="code" href="modules_8h.html#a6">MT_CLIENT</a>))
+00550         {
+00551                 log(DEBUG,<span class="stringliteral">"*** API ERROR *** Parameters on MT_CLIENT modes are not supported"</span>);
+00552                 <span class="keywordflow">return</span> <span class="keyword">false</span>;
+00553         }
+00554         <span class="keywordflow">if</span> ((params_when_on&gt;1) || (params_when_off&gt;1))
+00555         {
+00556                 log(DEBUG,<span class="stringliteral">"*** API ERROR *** More than one parameter for an MT_CHANNEL mode is not yet supported"</span>);
+00557                 <span class="keywordflow">return</span> <span class="keyword">false</span>;
+00558         }
+00559         <span class="keywordflow">return</span> <a class="code" href="modules_8cpp.html#a56">DoAddExtendedMode</a>(modechar,type,requires_oper,params_when_on,params_when_off);
+00560 }
 </pre></div>    </td>
   </tr>
 </table>
@@ -450,11 +450,11 @@ Calls the handler for a command, either implemented by the core or by another mo
 You can use this function to trigger other commands in the ircd, such as PRIVMSG, JOIN, KICK etc, or even as a method of callback. By defining command names that are untypeable for users on irc (e.g. those which contain a  or <br>
 ) you may use them as callback identifiers. The first parameter to this method is the name of the command handler you wish to call, e.g. PRIVMSG. This will be a command handler previously registered by the core or wih <a class="el" href="classServer.html#a23">AddCommand()</a>. The second parameter is an array of parameters, and the third parameter is a count of parameters in the array. If you do not pass enough parameters to meet the minimum needed by the handler, the functiom will silently ignore it. The final parameter is the user executing the command handler, used for privilage checks, etc.
 <p>
-Definition at line <a class="el" href="modules_8cpp-source.html#l00397">397</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
+Definition at line <a class="el" href="modules_8cpp-source.html#l00407">407</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
 <p>
-<div class="fragment"><pre>00398 {
-00399         call_handler(commandname.c_str(),parameters,pcnt,user);
-00400 }
+<div class="fragment"><pre>00408 {
+00409         call_handler(commandname.c_str(),parameters,pcnt,user);
+00410 }
 </pre></div>    </td>
   </tr>
 </table>
@@ -497,13 +497,13 @@ Change GECOS (fullname) of a user.
 <p>
 You should always call this method to change a user's GECOS rather than writing directly to the fullname member of userrec, as any change applied via this method will be propogated to any linked servers.
 <p>
-Definition at line <a class="el" href="modules_8cpp-source.html#l00485">485</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
+Definition at line <a class="el" href="modules_8cpp-source.html#l00495">495</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
 <p>
 References <a class="el" href="message_8h.html#a10">ChangeName()</a>.
 <p>
-<div class="fragment"><pre>00486 {
-00487         <a class="code" href="message_8h.html#a10">ChangeName</a>(user,gecos.c_str());
-00488 }
+<div class="fragment"><pre>00496 {
+00497         <a class="code" href="message_8h.html#a10">ChangeName</a>(user,gecos.c_str());
+00498 }
 </pre></div>    </td>
   </tr>
 </table>
@@ -546,13 +546,13 @@ Change displayed hostname of a user.
 <p>
 You should always call this method to change a user's host rather than writing directly to the dhost member of userrec, as any change applied via this method will be propogated to any linked servers.
 <p>
-Definition at line <a class="el" href="modules_8cpp-source.html#l00480">480</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
+Definition at line <a class="el" href="modules_8cpp-source.html#l00490">490</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
 <p>
 References <a class="el" href="message_8h.html#a11">ChangeDisplayedHost()</a>.
 <p>
-<div class="fragment"><pre>00481 {
-00482         <a class="code" href="message_8h.html#a11">ChangeDisplayedHost</a>(user,host.c_str());
-00483 }
+<div class="fragment"><pre>00491 {
+00492         <a class="code" href="message_8h.html#a11">ChangeDisplayedHost</a>(user,host.c_str());
+00493 }
 </pre></div>    </td>
   </tr>
 </table>
@@ -595,11 +595,11 @@ Forces a user nickchange.
 <p>
 This command works similarly to SVSNICK, and can be used to implement Q-lines etc. If you specify an invalid nickname, the nick change will be dropped and the target user will receive the error numeric for it.
 <p>
-Definition at line <a class="el" href="modules_8cpp-source.html#l00381">381</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
+Definition at line <a class="el" href="modules_8cpp-source.html#l00391">391</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
 <p>
-<div class="fragment"><pre>00382 {
-00383         force_nickchange(user,nickname.c_str());
-00384 }
+<div class="fragment"><pre>00392 {
+00393         force_nickchange(user,nickname.c_str());
+00394 }
 </pre></div>    </td>
   </tr>
 </table>
@@ -642,13 +642,13 @@ Attempts to look up a user's privilages on a channel.
 <p>
 This function will return a string containing either @, , +, or an empty string, representing the user's privilages upon the channel you specify.
 <p>
-Definition at line <a class="el" href="modules_8cpp-source.html#l00505">505</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
+Definition at line <a class="el" href="modules_8cpp-source.html#l00515">515</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
 <p>
 References <a class="el" href="message_8h.html#a14">cmode()</a>.
 <p>
-<div class="fragment"><pre>00506 {
-00507         <span class="keywordflow">return</span> <a class="code" href="message_8h.html#a14">cmode</a>(User,Chan);
-00508 }
+<div class="fragment"><pre>00516 {
+00517         <span class="keywordflow">return</span> <a class="code" href="message_8h.html#a14">cmode</a>(User,Chan);
+00518 }
 </pre></div>    </td>
   </tr>
 </table>
@@ -691,13 +691,13 @@ Returns true if two users share a common channel.
 <p>
 This method is used internally by the NICK and QUIT commands, and the <a class="el" href="classServer.html#a10">Server::SendCommon</a> method.
 <p>
-Definition at line <a class="el" href="modules_8cpp-source.html#l00458">458</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
+Definition at line <a class="el" href="modules_8cpp-source.html#l00468">468</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
 <p>
 References <a class="el" href="message_8h.html#a0">common_channels()</a>.
 <p>
-<div class="fragment"><pre>00459 {
-00460         <span class="keywordflow">return</span> (<a class="code" href="message_8h.html#a0">common_channels</a>(u1,u2) != 0);
-00461 }
+<div class="fragment"><pre>00469 {
+00470         <span class="keywordflow">return</span> (<a class="code" href="message_8h.html#a0">common_channels</a>(u1,u2) != 0);
+00471 }
 </pre></div>    </td>
   </tr>
 </table>
@@ -731,11 +731,11 @@ Returns a count of the number of users on a channel.
 <p>
 This will NEVER be 0, as if the chanrec exists, it will have at least one user in the channel.
 <p>
-Definition at line <a class="el" href="modules_8cpp-source.html#l00560">560</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
+Definition at line <a class="el" href="modules_8cpp-source.html#l00570">570</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
 <p>
-<div class="fragment"><pre>00561 {
-00562         <span class="keywordflow">return</span> usercount(c);
-00563 }
+<div class="fragment"><pre>00571 {
+00572         <span class="keywordflow">return</span> usercount(c);
+00573 }
 </pre></div>    </td>
   </tr>
 </table>
@@ -769,11 +769,11 @@ Attempts to look up a channel and return a pointer to it.
 <p>
 This function will return NULL if the channel does not exist.
 <p>
-Definition at line <a class="el" href="modules_8cpp-source.html#l00500">500</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
+Definition at line <a class="el" href="modules_8cpp-source.html#l00510">510</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
 <p>
-<div class="fragment"><pre>00501 {
-00502         <span class="keywordflow">return</span> FindChan(channel.c_str());
-00503 }
+<div class="fragment"><pre>00511 {
+00512         <span class="keywordflow">return</span> FindChan(channel.c_str());
+00513 }
 </pre></div>    </td>
   </tr>
 </table>
@@ -807,11 +807,11 @@ Attempts to look up a nick and return a pointer to it.
 <p>
 This function will return NULL if the nick does not exist.
 <p>
-Definition at line <a class="el" href="modules_8cpp-source.html#l00495">495</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
+Definition at line <a class="el" href="modules_8cpp-source.html#l00505">505</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
 <p>
-<div class="fragment"><pre>00496 {
-00497         <span class="keywordflow">return</span> Find(nick);
-00498 }
+<div class="fragment"><pre>00506 {
+00507         <span class="keywordflow">return</span> Find(nick);
+00508 }
 </pre></div>    </td>
   </tr>
 </table>
@@ -844,11 +844,11 @@ Returns the information of the server as returned by the /ADMIN command.
 <p>
 See the <a class="el" href="classAdmin.html">Admin</a> class for further information of the return value. The members <a class="el" href="classAdmin.html#o2">Admin::Nick</a>, <a class="el" href="classAdmin.html#o1">Admin::Email</a> and <a class="el" href="classAdmin.html#o0">Admin::Name</a> contain the information for the server where the module is loaded.
 <p>
-Definition at line <a class="el" href="modules_8cpp-source.html#l00525">525</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
+Definition at line <a class="el" href="modules_8cpp-source.html#l00535">535</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
 <p>
-<div class="fragment"><pre>00526 {
-00527         <span class="keywordflow">return</span> <a class="code" href="classAdmin.html">Admin</a>(getadminname(),getadminemail(),getadminnick());
-00528 }
+<div class="fragment"><pre>00536 {
+00537         <span class="keywordflow">return</span> <a class="code" href="classAdmin.html">Admin</a>(getadminname(),getadminemail(),getadminnick());
+00538 }
 </pre></div>    </td>
   </tr>
 </table>
@@ -881,11 +881,11 @@ Returns the network name, global to all linked servers.
 <p>
 
 <p>
-Definition at line <a class="el" href="modules_8cpp-source.html#l00520">520</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
+Definition at line <a class="el" href="modules_8cpp-source.html#l00530">530</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
 <p>
-<div class="fragment"><pre>00521 {
-00522         <span class="keywordflow">return</span> getnetworkname();
-00523 }
+<div class="fragment"><pre>00531 {
+00532         <span class="keywordflow">return</span> getnetworkname();
+00533 }
 </pre></div>    </td>
   </tr>
 </table>
@@ -918,11 +918,11 @@ Returns the server name of the server where the module is loaded.
 <p>
 
 <p>
-Definition at line <a class="el" href="modules_8cpp-source.html#l00515">515</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
+Definition at line <a class="el" href="modules_8cpp-source.html#l00525">525</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
 <p>
-<div class="fragment"><pre>00516 {
-00517         <span class="keywordflow">return</span> getservername();
-00518 }
+<div class="fragment"><pre>00526 {
+00527         <span class="keywordflow">return</span> getservername();
+00528 }
 </pre></div>    </td>
   </tr>
 </table>
@@ -956,28 +956,28 @@ Fetches the userlist of a channel.
 <p>
 This function must be here and not a member of userrec or chanrec due to include constraints.
 <p>
-Definition at line <a class="el" href="modules_8cpp-source.html#l00362">362</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
+Definition at line <a class="el" href="modules_8cpp-source.html#l00372">372</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
 <p>
-References <a class="el" href="modules_8h-source.html#l00065">chanuserlist</a>, <a class="el" href="modules_8cpp-source.html#l00170">clientlist</a>, <a class="el" href="message_8h.html#a16">has_channel()</a>, and <a class="el" href="message_8h.html#a13">isnick()</a>.
+References <a class="el" href="modules_8h-source.html#l00065">chanuserlist</a>, <a class="el" href="modules_8cpp-source.html#l00177">clientlist</a>, <a class="el" href="message_8h.html#a16">has_channel()</a>, and <a class="el" href="message_8h.html#a13">isnick()</a>.
 <p>
-<div class="fragment"><pre>00363 {
-00364         <a class="code" href="modules_8h.html#a28">chanuserlist</a> userl;
-00365         userl.clear();
-00366         <span class="keywordflow">for</span> (user_hash::const_iterator i = <a class="code" href="modules_8cpp.html#a41">clientlist</a>.begin(); i != <a class="code" href="modules_8cpp.html#a41">clientlist</a>.end(); i++)
-00367         {
-00368                 <span class="keywordflow">if</span> (i-&gt;second)
-00369                 {
-00370                         <span class="keywordflow">if</span> (<a class="code" href="message_8h.html#a16">has_channel</a>(i-&gt;second,chan))
-00371                         {
-00372                                 <span class="keywordflow">if</span> (<a class="code" href="message_8h.html#a13">isnick</a>(i-&gt;second-&gt;nick))
-00373                                 {
-00374                                         userl.push_back(i-&gt;second);
-00375                                 }
-00376                         }
-00377                 }
-00378         }
-00379         <span class="keywordflow">return</span> userl;
-00380 }
+<div class="fragment"><pre>00373 {
+00374         <a class="code" href="modules_8h.html#a28">chanuserlist</a> userl;
+00375         userl.clear();
+00376         <span class="keywordflow">for</span> (user_hash::const_iterator i = <a class="code" href="modules_8cpp.html#a41">clientlist</a>.begin(); i != <a class="code" href="modules_8cpp.html#a41">clientlist</a>.end(); i++)
+00377         {
+00378                 <span class="keywordflow">if</span> (i-&gt;second)
+00379                 {
+00380                         <span class="keywordflow">if</span> (<a class="code" href="message_8h.html#a16">has_channel</a>(i-&gt;second,chan))
+00381                         {
+00382                                 <span class="keywordflow">if</span> (<a class="code" href="message_8h.html#a13">isnick</a>(i-&gt;second-&gt;nick))
+00383                                 {
+00384                                         userl.push_back(i-&gt;second);
+00385                                 }
+00386                         }
+00387                 }
+00388         }
+00389         <span class="keywordflow">return</span> userl;
+00390 }
 </pre></div>    </td>
   </tr>
 </table>
@@ -1011,13 +1011,13 @@ Returns true if a nick is valid.
 <p>
 Nicks for unregistered connections will return false.
 <p>
-Definition at line <a class="el" href="modules_8cpp-source.html#l00490">490</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
+Definition at line <a class="el" href="modules_8cpp-source.html#l00500">500</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
 <p>
 References <a class="el" href="message_8h.html#a13">isnick()</a>.
 <p>
-<div class="fragment"><pre>00491 {
-00492         <span class="keywordflow">return</span> (<a class="code" href="message_8h.html#a13">isnick</a>(nick.c_str()) != 0);
-00493 }
+<div class="fragment"><pre>00501 {
+00502         <span class="keywordflow">return</span> (<a class="code" href="message_8h.html#a13">isnick</a>(nick.c_str()) != 0);
+00503 }
 </pre></div>    </td>
   </tr>
 </table>
@@ -1060,13 +1060,13 @@ Checks if a user is on a channel.
 <p>
 This function will return true or false to indicate if user 'User' is on channel 'Chan'.
 <p>
-Definition at line <a class="el" href="modules_8cpp-source.html#l00510">510</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
+Definition at line <a class="el" href="modules_8cpp-source.html#l00520">520</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
 <p>
 References <a class="el" href="message_8h.html#a16">has_channel()</a>.
 <p>
-<div class="fragment"><pre>00511 {
-00512         <span class="keywordflow">return</span> <a class="code" href="message_8h.html#a16">has_channel</a>(User,Chan);
-00513 }
+<div class="fragment"><pre>00521 {
+00522         <span class="keywordflow">return</span> <a class="code" href="message_8h.html#a16">has_channel</a>(User,Chan);
+00523 }
 </pre></div>    </td>
   </tr>
 </table>
@@ -1100,13 +1100,13 @@ Returns true if the servername you give is ulined.
 <p>
 ULined servers have extra privilages. They are allowed to change nicknames on remote servers, change modes of clients which are on remote servers and set modes of channels where there are no channel operators for that channel on the ulined server, amongst other things. Ulined server data is also broadcast across the mesh at all times as opposed to selectively messaged in the case of normal servers, as many ulined server types (such as services) do not support meshed links and must operate in this manner.
 <p>
-Definition at line <a class="el" href="modules_8cpp-source.html#l00392">392</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
+Definition at line <a class="el" href="modules_8cpp-source.html#l00402">402</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
 <p>
 References <a class="el" href="commands_8h.html#a71">is_uline()</a>.
 <p>
-<div class="fragment"><pre>00393 {
-00394         <span class="keywordflow">return</span> <a class="code" href="commands_8h.html#a71">is_uline</a>(server.c_str());
-00395 }
+<div class="fragment"><pre>00403 {
+00404         <span class="keywordflow">return</span> <a class="code" href="commands_8h.html#a71">is_uline</a>(server.c_str());
+00405 }
 </pre></div>    </td>
   </tr>
 </table>
@@ -1155,11 +1155,11 @@ Forces a user to join a channel.
 <p>
 This is similar to svsjoin and can be used to implement redirection, etc. On success, the return value is a valid pointer to a chanrec* of the channel the user was joined to. On failure, the result is NULL.
 <p>
-Definition at line <a class="el" href="modules_8cpp-source.html#l00352">352</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
+Definition at line <a class="el" href="modules_8cpp-source.html#l00362">362</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
 <p>
-<div class="fragment"><pre>00353 {
-00354         <span class="keywordflow">return</span> add_channel(user,cname.c_str(),key.c_str(),<span class="keyword">true</span>);
-00355 }
+<div class="fragment"><pre>00363 {
+00364         <span class="keywordflow">return</span> add_channel(user,cname.c_str(),key.c_str(),<span class="keyword">true</span>);
+00365 }
 </pre></div>    </td>
   </tr>
 </table>
@@ -1202,11 +1202,11 @@ Writes a log string.
 <p>
 This method writes a line of text to the log. If the level given is lower than the level given in the configuration, this command has no effect.
 <p>
-Definition at line <a class="el" href="modules_8cpp-source.html#l00402">402</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
+Definition at line <a class="el" href="modules_8cpp-source.html#l00412">412</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
 <p>
-<div class="fragment"><pre>00403 {
-00404         log(level,<span class="stringliteral">"%s"</span>,s.c_str());
-00405 }
+<div class="fragment"><pre>00413 {
+00414         log(level,<span class="stringliteral">"%s"</span>,s.c_str());
+00415 }
 </pre></div>    </td>
   </tr>
 </table>
@@ -1249,14 +1249,14 @@ Matches text against a glob pattern.
 <p>
 Uses the ircd's internal matching function to match string against a globbing pattern, e.g. *!*@*.com Returns true if the literal successfully matches the pattern, false if otherwise.
 <p>
-Definition at line <a class="el" href="modules_8cpp-source.html#l00339">339</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
+Definition at line <a class="el" href="modules_8cpp-source.html#l00349">349</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
 <p>
-<div class="fragment"><pre>00340 {
-00341         <span class="keywordtype">char</span> literal[MAXBUF],pattern[MAXBUF];
-00342         strlcpy(literal,sliteral.c_str(),MAXBUF);
-00343         strlcpy(pattern,spattern.c_str(),MAXBUF);
-00344         <span class="keywordflow">return</span> match(literal,pattern);
-00345 }
+<div class="fragment"><pre>00350 {
+00351         <span class="keywordtype">char</span> literal[MAXBUF],pattern[MAXBUF];
+00352         strlcpy(literal,sliteral.c_str(),MAXBUF);
+00353         strlcpy(pattern,spattern.c_str(),MAXBUF);
+00354         <span class="keywordflow">return</span> match(literal,pattern);
+00355 }
 </pre></div>    </td>
   </tr>
 </table>
@@ -1305,11 +1305,11 @@ Forces a user to part a channel.
 <p>
 This is similar to svspart and can be used to implement redirection, etc. Although the return value of this function is a pointer to a channel record, the returned data is undefined and should not be read or written to. This behaviour may be changed in a future version.
 <p>
-Definition at line <a class="el" href="modules_8cpp-source.html#l00357">357</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
+Definition at line <a class="el" href="modules_8cpp-source.html#l00367">367</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
 <p>
-<div class="fragment"><pre>00358 {
-00359         <span class="keywordflow">return</span> del_channel(user,cname.c_str(),reason.c_str(),<span class="keyword">false</span>);
-00360 }
+<div class="fragment"><pre>00368 {
+00369         <span class="keywordflow">return</span> del_channel(user,cname.c_str(),reason.c_str(),<span class="keyword">false</span>);
+00370 }
 </pre></div>    </td>
   </tr>
 </table>
@@ -1354,14 +1354,14 @@ To the user, it will appear as if they typed /QUIT themselves, except for the fa
 WARNING!<p>
 Once you call this function, userrec* user will immediately become INVALID. You MUST NOT write to, or read from this pointer after calling the QuitUser method UNDER ANY CIRCUMSTANCES! The best course of action after calling this method is to immediately bail from your handler.
 <p>
-Definition at line <a class="el" href="modules_8cpp-source.html#l00386">386</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
+Definition at line <a class="el" href="modules_8cpp-source.html#l00396">396</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
 <p>
 References <a class="el" href="users_8h-source.html#l00102">userrec::nick</a>, and <a class="el" href="message_8h.html#a19">send_network_quit()</a>.
 <p>
-<div class="fragment"><pre>00387 {
-00388         <a class="code" href="message_8h.html#a19">send_network_quit</a>(user-&gt;<a class="code" href="classuserrec.html#o0">nick</a>,reason.c_str());
-00389         kill_link(user,reason.c_str());
-00390 }
+<div class="fragment"><pre>00397 {
+00398         <a class="code" href="message_8h.html#a19">send_network_quit</a>(user-&gt;<a class="code" href="classuserrec.html#o0">nick</a>,reason.c_str());
+00399         kill_link(user,reason.c_str());
+00400 }
 </pre></div>    </td>
   </tr>
 </table>
@@ -1404,11 +1404,11 @@ Sends a line of text down a TCP/IP socket.
 <p>
 This method writes a line of text to an established socket, cutting it to 510 characters plus a carriage return and linefeed if required.
 <p>
-Definition at line <a class="el" href="modules_8cpp-source.html#l00417">417</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
+Definition at line <a class="el" href="modules_8cpp-source.html#l00427">427</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
 <p>
-<div class="fragment"><pre>00418 {
-00419         Write(Socket,<span class="stringliteral">"%s"</span>,s.c_str());
-00420 }
+<div class="fragment"><pre>00428 {
+00429         Write(Socket,<span class="stringliteral">"%s"</span>,s.c_str());
+00430 }
 </pre></div>    </td>
   </tr>
 </table>
@@ -1463,18 +1463,18 @@ Sends text from a user to a channel (mulicast).
 <p>
 This method writes a line of text to a channel, with the given user's nick/ident /host combination prepended, as used in PRIVMSG etc commands (see RFC 1459). If the IncludeSender flag is set, then the text is also sent back to the user from which it originated, as seen in MODE (see RFC 1459).
 <p>
-Definition at line <a class="el" href="modules_8cpp-source.html#l00446">446</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
+Definition at line <a class="el" href="modules_8cpp-source.html#l00456">456</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
 <p>
-<div class="fragment"><pre>00447 {
-00448         <span class="keywordflow">if</span> (IncludeSender)
-00449         {
-00450                 WriteChannel(Channel,User,<span class="stringliteral">"%s"</span>,s.c_str());
-00451         }
-00452         <span class="keywordflow">else</span>
-00453         {
-00454                 ChanExceptSender(Channel,User,<span class="stringliteral">"%s"</span>,s.c_str());
-00455         }
-00456 }
+<div class="fragment"><pre>00457 {
+00458         <span class="keywordflow">if</span> (IncludeSender)
+00459         {
+00460                 WriteChannel(Channel,User,<span class="stringliteral">"%s"</span>,s.c_str());
+00461         }
+00462         <span class="keywordflow">else</span>
+00463         {
+00464                 ChanExceptSender(Channel,User,<span class="stringliteral">"%s"</span>,s.c_str());
+00465         }
+00466 }
 </pre></div>    </td>
   </tr>
 </table>
@@ -1523,18 +1523,18 @@ Sends text from a user to one or more channels (mulicast).
 <p>
 This method writes a line of text to all users which share a common channel with a given user, with the user's nick/ident/host combination prepended, as used in PRIVMSG etc commands (see RFC 1459). If the IncludeSender flag is set, then the text is also sent back to the user from which it originated, as seen in NICK (see RFC 1459). Otherwise, it is only sent to the other recipients, as seen in QUIT.
 <p>
-Definition at line <a class="el" href="modules_8cpp-source.html#l00463">463</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
+Definition at line <a class="el" href="modules_8cpp-source.html#l00473">473</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
 <p>
-<div class="fragment"><pre>00464 {
-00465         <span class="keywordflow">if</span> (IncludeSender)
-00466         {
-00467                 WriteCommon(User,<span class="stringliteral">"%s"</span>,text.c_str());
-00468         }
-00469         <span class="keywordflow">else</span>
-00470         {
-00471                 WriteCommonExcept(User,<span class="stringliteral">"%s"</span>,text.c_str());
-00472         }
-00473 }
+<div class="fragment"><pre>00474 {
+00475         <span class="keywordflow">if</span> (IncludeSender)
+00476         {
+00477                 WriteCommon(User,<span class="stringliteral">"%s"</span>,text.c_str());
+00478         }
+00479         <span class="keywordflow">else</span>
+00480         {
+00481                 WriteCommonExcept(User,<span class="stringliteral">"%s"</span>,text.c_str());
+00482         }
+00483 }
 </pre></div>    </td>
   </tr>
 </table>
@@ -1583,11 +1583,11 @@ Sends text from a user to a socket.
 <p>
 This method writes a line of text to an established socket, with the given user's nick/ident /host combination prepended, as used in PRIVSG etc commands (see RFC 1459)
 <p>
-Definition at line <a class="el" href="modules_8cpp-source.html#l00427">427</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
+Definition at line <a class="el" href="modules_8cpp-source.html#l00437">437</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
 <p>
-<div class="fragment"><pre>00428 {
-00429         WriteFrom(Socket,User,<span class="stringliteral">"%s"</span>,s.c_str());
-00430 }
+<div class="fragment"><pre>00438 {
+00439         WriteFrom(Socket,User,<span class="stringliteral">"%s"</span>,s.c_str());
+00440 }
 </pre></div>    </td>
   </tr>
 </table>
@@ -1643,13 +1643,13 @@ modes[2] = user-&gt;nick;<p>
 Srv-&gt;SendMode(modes,3,user);<p>
 The modes will originate from the server where the command was issued, however responses (e.g. numerics) will be sent to the user you provide as the third parameter. You must be sure to get the number of parameters correct in the pcnt parameter otherwise you could leave your server in an unstable state!
 <p>
-Definition at line <a class="el" href="modules_8cpp-source.html#l00412">412</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
+Definition at line <a class="el" href="modules_8cpp-source.html#l00422">422</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
 <p>
 References <a class="el" href="modules_8h.html#a31">server_mode()</a>.
 <p>
-<div class="fragment"><pre>00413 {
-00414         <a class="code" href="modules_8h.html#a31">server_mode</a>(parameters,pcnt,user);
-00415 }
+<div class="fragment"><pre>00423 {
+00424         <a class="code" href="modules_8h.html#a31">server_mode</a>(parameters,pcnt,user);
+00425 }
 </pre></div>    </td>
   </tr>
 </table>
@@ -1683,11 +1683,11 @@ Sends text to all opers.
 <p>
 This method sends a server notice to all opers with the usermode +s.
 <p>
-Definition at line <a class="el" href="modules_8cpp-source.html#l00334">334</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
+Definition at line <a class="el" href="modules_8cpp-source.html#l00344">344</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
 <p>
-<div class="fragment"><pre>00335 {
-00336         WriteOpers(<span class="stringliteral">"%s"</span>,s.c_str());
-00337 }
+<div class="fragment"><pre>00345 {
+00346         WriteOpers(<span class="stringliteral">"%s"</span>,s.c_str());
+00347 }
 </pre></div>    </td>
   </tr>
 </table>
@@ -1730,11 +1730,11 @@ Sends text from the server to a socket.
 <p>
 This method writes a line of text to an established socket, with the servername prepended as used by numerics (see RFC 1459)
 <p>
-Definition at line <a class="el" href="modules_8cpp-source.html#l00422">422</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
+Definition at line <a class="el" href="modules_8cpp-source.html#l00432">432</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
 <p>
-<div class="fragment"><pre>00423 {
-00424         WriteServ(Socket,<span class="stringliteral">"%s"</span>,s.c_str());
-00425 }
+<div class="fragment"><pre>00433 {
+00434         WriteServ(Socket,<span class="stringliteral">"%s"</span>,s.c_str());
+00435 }
 </pre></div>    </td>
   </tr>
 </table>
@@ -1787,22 +1787,22 @@ The format will become:<p>
 :localserver TEXT<p>
 Which is useful for numerics and server notices to single users, etc.
 <p>
-Definition at line <a class="el" href="modules_8cpp-source.html#l00432">432</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
+Definition at line <a class="el" href="modules_8cpp-source.html#l00442">442</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
 <p>
 References <a class="el" href="connection_8h-source.html#l00178">connection::fd</a>.
 <p>
-<div class="fragment"><pre>00433 {
-00434         <span class="keywordflow">if</span> (!Source)
-00435         {
-00436                 <span class="comment">// if source is NULL, then the message originates from the local server</span>
-00437                 Write(Dest-&gt;<a class="code" href="classconnection.html#o0">fd</a>,<span class="stringliteral">":%s %s"</span>,this-&gt;GetServerName().c_str(),s.c_str());
-00438         }
-00439         <span class="keywordflow">else</span>
-00440         {
-00441                 <span class="comment">// otherwise it comes from the user specified</span>
-00442                 WriteTo(Source,Dest,<span class="stringliteral">"%s"</span>,s.c_str());
-00443         }
-00444 }
+<div class="fragment"><pre>00443 {
+00444         <span class="keywordflow">if</span> (!Source)
+00445         {
+00446                 <span class="comment">// if source is NULL, then the message originates from the local server</span>
+00447                 Write(Dest-&gt;<a class="code" href="classconnection.html#o0">fd</a>,<span class="stringliteral">":%s %s"</span>,this-&gt;GetServerName().c_str(),s.c_str());
+00448         }
+00449         <span class="keywordflow">else</span>
+00450         {
+00451                 <span class="comment">// otherwise it comes from the user specified</span>
+00452                 WriteTo(Source,Dest,<span class="stringliteral">"%s"</span>,s.c_str());
+00453         }
+00454 }
 </pre></div>    </td>
   </tr>
 </table>
@@ -1853,11 +1853,11 @@ These can be RFC specified modes such as +i, or module provided modes, including
 Serv-&gt;SendToModeMask("xi", WM_OR, "m00");<p>
 Then the text 'm00' will be sent to all users with EITHER mode x or i. Conversely if you used WM_AND, the user must have both modes set to receive the message.
 <p>
-Definition at line <a class="el" href="modules_8cpp-source.html#l00347">347</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
+Definition at line <a class="el" href="modules_8cpp-source.html#l00357">357</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
 <p>
-<div class="fragment"><pre>00348 {
-00349         WriteMode(modes.c_str(),flags,<span class="stringliteral">"%s"</span>,text.c_str());
-00350 }
+<div class="fragment"><pre>00358 {
+00359         WriteMode(modes.c_str(),flags,<span class="stringliteral">"%s"</span>,text.c_str());
+00360 }
 </pre></div>    </td>
   </tr>
 </table>
@@ -1900,17 +1900,17 @@ Sends a WALLOPS message.
 <p>
 This method writes a WALLOPS message to all users with the +w flag, originating from the specified user.
 <p>
-Definition at line <a class="el" href="modules_8cpp-source.html#l00475">475</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
+Definition at line <a class="el" href="modules_8cpp-source.html#l00485">485</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
 <p>
-<div class="fragment"><pre>00476 {
-00477         WriteWallOps(User,<span class="keyword">false</span>,<span class="stringliteral">"%s"</span>,text.c_str());
-00478 }
+<div class="fragment"><pre>00486 {
+00487         WriteWallOps(User,<span class="keyword">false</span>,<span class="stringliteral">"%s"</span>,text.c_str());
+00488 }
 </pre></div>    </td>
   </tr>
 </table>
 <hr>The documentation for this class was generated from the following files:<ul>
 <li><a class="el" href="modules_8h-source.html">modules.h</a><li><a class="el" href="modules_8cpp-source.html">modules.cpp</a></ul>
-<hr size="1"><address style="align: right;"><small>Generated on Fri Mar 25 03:49:34 2005 for InspIRCd by
+<hr size="1"><address style="align: right;"><small>Generated on Mon Mar 28 21:09:37 2005 for InspIRCd by
 <a href="http://www.doxygen.org/index.html">
 <img src="doxygen.png" alt="doxygen" align="middle" border=0 > 
 </a>1.3.3 </small></address>

@@ -35,6 +35,7 @@
 <code>#include "<a class="el" href="message_8h-source.html">message.h</a>"</code><br>
 <code>#include "<a class="el" href="mode_8h-source.html">mode.h</a>"</code><br>
 <code>#include "<a class="el" href="xline_8h-source.html">xline.h</a>"</code><br>
+<code>#include "inspstring.h"</code><br>
 
 <p>
 <a href="channels_8cpp-source.html">Go to the source code of this file.</a><table border=0 cellpadding=0 cellspacing=0>
@@ -48,9 +49,9 @@
 <tr><td colspan=2><br><h2>Variables</h2></td></tr>
 <tr><td class="memItemLeft" nowrap align=right valign=top>int&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="channels_8cpp.html#a1">MODCOUNT</a> = -1</td></tr>
 
-<tr><td class="memItemLeft" nowrap align=right valign=top>vector&lt; <a class="el" href="classModule.html">Module</a> * &gt;&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="channels_8cpp.html#a2">modules</a></td></tr>
+<tr><td class="memItemLeft" nowrap align=right valign=top>std::vector&lt; <a class="el" href="classModule.html">Module</a> * &gt;&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="channels_8cpp.html#a2">modules</a></td></tr>
 
-<tr><td class="memItemLeft" nowrap align=right valign=top>vector&lt; <a class="el" href="modules_8h.html#a29">ircd_module</a> * &gt;&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="channels_8cpp.html#a3">factory</a></td></tr>
+<tr><td class="memItemLeft" nowrap align=right valign=top>std::vector&lt; <a class="el" href="modules_8h.html#a29">ircd_module</a> * &gt;&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="channels_8cpp.html#a3">factory</a></td></tr>
 
 <tr><td class="memItemLeft" nowrap align=right valign=top>int&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="channels_8cpp.html#a4">LogLevel</a></td></tr>
 
@@ -143,7 +144,7 @@
 <p>
 
 <p>
-Definition at line <a class="el" href="channels_8cpp-source.html#l00057">57</a> of file <a class="el" href="channels_8cpp-source.html">channels.cpp</a>.    </td>
+Definition at line <a class="el" href="channels_8cpp-source.html#l00058">58</a> of file <a class="el" href="channels_8cpp-source.html">channels.cpp</a>.    </td>
   </tr>
 </table>
 <hr><h2>Variable Documentation</h2>
@@ -168,7 +169,7 @@ Definition at line <a class="el" href="channels_8cpp-source.html#l00057">57</a> 
 <p>
 
 <p>
-Definition at line <a class="el" href="channels_8cpp-source.html#l00071">71</a> of file <a class="el" href="channels_8cpp-source.html">channels.cpp</a>.    </td>
+Definition at line <a class="el" href="channels_8cpp-source.html#l00072">72</a> of file <a class="el" href="channels_8cpp-source.html">channels.cpp</a>.    </td>
   </tr>
 </table>
 <a name="a8" doxytag="channels.cpp::AdminName"></a><p>
@@ -192,7 +193,7 @@ Definition at line <a class="el" href="channels_8cpp-source.html#l00071">71</a> 
 <p>
 
 <p>
-Definition at line <a class="el" href="channels_8cpp-source.html#l00070">70</a> of file <a class="el" href="channels_8cpp-source.html">channels.cpp</a>.    </td>
+Definition at line <a class="el" href="channels_8cpp-source.html#l00071">71</a> of file <a class="el" href="channels_8cpp-source.html">channels.cpp</a>.    </td>
   </tr>
 </table>
 <a name="a10" doxytag="channels.cpp::AdminNick"></a><p>
@@ -216,7 +217,7 @@ Definition at line <a class="el" href="channels_8cpp-source.html#l00070">70</a> 
 <p>
 
 <p>
-Definition at line <a class="el" href="channels_8cpp-source.html#l00072">72</a> of file <a class="el" href="channels_8cpp-source.html">channels.cpp</a>.    </td>
+Definition at line <a class="el" href="channels_8cpp-source.html#l00073">73</a> of file <a class="el" href="channels_8cpp-source.html">channels.cpp</a>.    </td>
   </tr>
 </table>
 <a name="a33" doxytag="channels.cpp::auth_cookies"></a><p>
@@ -240,7 +241,7 @@ Definition at line <a class="el" href="channels_8cpp-source.html#l00072">72</a> 
 <p>
 
 <p>
-Definition at line <a class="el" href="channels_8cpp-source.html#l00099">99</a> of file <a class="el" href="channels_8cpp-source.html">channels.cpp</a>.    </td>
+Definition at line <a class="el" href="channels_8cpp-source.html#l00100">100</a> of file <a class="el" href="channels_8cpp-source.html">channels.cpp</a>.    </td>
   </tr>
 </table>
 <a name="a28" doxytag="channels.cpp::boundPortCount"></a><p>
@@ -264,7 +265,7 @@ Definition at line <a class="el" href="channels_8cpp-source.html#l00099">99</a> 
 <p>
 
 <p>
-Definition at line <a class="el" href="channels_8cpp-source.html#l00093">93</a> of file <a class="el" href="channels_8cpp-source.html">channels.cpp</a>.    </td>
+Definition at line <a class="el" href="channels_8cpp-source.html#l00094">94</a> of file <a class="el" href="channels_8cpp-source.html">channels.cpp</a>.    </td>
   </tr>
 </table>
 <a name="a34" doxytag="channels.cpp::config_f"></a><p>
@@ -288,9 +289,9 @@ Definition at line <a class="el" href="channels_8cpp-source.html#l00093">93</a> 
 <p>
 
 <p>
-Definition at line <a class="el" href="channels_8cpp-source.html#l00100">100</a> of file <a class="el" href="channels_8cpp-source.html">channels.cpp</a>.
+Definition at line <a class="el" href="channels_8cpp-source.html#l00101">101</a> of file <a class="el" href="channels_8cpp-source.html">channels.cpp</a>.
 <p>
-Referenced by <a class="el" href="users_8cpp-source.html#l00109">userrec::HasPermission()</a>.    </td>
+Referenced by <a class="el" href="users_8cpp-source.html#l00111">userrec::HasPermission()</a>.    </td>
   </tr>
 </table>
 <a name="a37" doxytag="channels.cpp::custom_mode_params"></a><p>
@@ -314,9 +315,9 @@ Referenced by <a class="el" href="users_8cpp-source.html#l00109">userrec::HasPer
 <p>
 
 <p>
-Definition at line <a class="el" href="channels_8cpp-source.html#l00109">109</a> of file <a class="el" href="channels_8cpp-source.html">channels.cpp</a>.
+Definition at line <a class="el" href="channels_8cpp-source.html#l00110">110</a> of file <a class="el" href="channels_8cpp-source.html">channels.cpp</a>.
 <p>
-Referenced by <a class="el" href="channels_8cpp-source.html#l00184">chanrec::GetModeParameter()</a>, and <a class="el" href="channels_8cpp-source.html#l00147">chanrec::SetCustomModeParam()</a>.    </td>
+Referenced by <a class="el" href="channels_8cpp-source.html#l00185">chanrec::GetModeParameter()</a>, and <a class="el" href="channels_8cpp-source.html#l00148">chanrec::SetCustomModeParam()</a>.    </td>
   </tr>
 </table>
 <a name="a18" doxytag="channels.cpp::debugging"></a><p>
@@ -340,7 +341,7 @@ Referenced by <a class="el" href="channels_8cpp-source.html#l00184">chanrec::Get
 <p>
 
 <p>
-Definition at line <a class="el" href="channels_8cpp-source.html#l00081">81</a> of file <a class="el" href="channels_8cpp-source.html">channels.cpp</a>.    </td>
+Definition at line <a class="el" href="channels_8cpp-source.html#l00082">82</a> of file <a class="el" href="channels_8cpp-source.html">channels.cpp</a>.    </td>
   </tr>
 </table>
 <a name="a32" doxytag="channels.cpp::defaultRoute"></a><p>
@@ -364,7 +365,7 @@ Definition at line <a class="el" href="channels_8cpp-source.html#l00081">81</a> 
 <p>
 
 <p>
-Definition at line <a class="el" href="channels_8cpp-source.html#l00097">97</a> of file <a class="el" href="channels_8cpp-source.html">channels.cpp</a>.    </td>
+Definition at line <a class="el" href="channels_8cpp-source.html#l00098">98</a> of file <a class="el" href="channels_8cpp-source.html">channels.cpp</a>.    </td>
   </tr>
 </table>
 <a name="a21" doxytag="channels.cpp::DieDelay"></a><p>
@@ -388,7 +389,7 @@ Definition at line <a class="el" href="channels_8cpp-source.html#l00097">97</a> 
 <p>
 
 <p>
-Definition at line <a class="el" href="channels_8cpp-source.html#l00084">84</a> of file <a class="el" href="channels_8cpp-source.html">channels.cpp</a>.    </td>
+Definition at line <a class="el" href="channels_8cpp-source.html#l00085">85</a> of file <a class="el" href="channels_8cpp-source.html">channels.cpp</a>.    </td>
   </tr>
 </table>
 <a name="a11" doxytag="channels.cpp::diepass"></a><p>
@@ -412,7 +413,7 @@ Definition at line <a class="el" href="channels_8cpp-source.html#l00084">84</a> 
 <p>
 
 <p>
-Definition at line <a class="el" href="channels_8cpp-source.html#l00073">73</a> of file <a class="el" href="channels_8cpp-source.html">channels.cpp</a>.    </td>
+Definition at line <a class="el" href="channels_8cpp-source.html#l00074">74</a> of file <a class="el" href="channels_8cpp-source.html">channels.cpp</a>.    </td>
   </tr>
 </table>
 <a name="a17" doxytag="channels.cpp::DieValue"></a><p>
@@ -436,7 +437,7 @@ Definition at line <a class="el" href="channels_8cpp-source.html#l00073">73</a> 
 <p>
 
 <p>
-Definition at line <a class="el" href="channels_8cpp-source.html#l00079">79</a> of file <a class="el" href="channels_8cpp-source.html">channels.cpp</a>.    </td>
+Definition at line <a class="el" href="channels_8cpp-source.html#l00080">80</a> of file <a class="el" href="channels_8cpp-source.html">channels.cpp</a>.    </td>
   </tr>
 </table>
 <a name="a3" doxytag="channels.cpp::factory"></a><p>
@@ -445,7 +446,7 @@ Definition at line <a class="el" href="channels_8cpp-source.html#l00079">79</a> 
     <td class="mdRow">
       <table cellpadding="0" cellspacing="0" border="0">
         <tr>
-          <td class="md" nowrap valign="top"> vector&lt;<a class="el" href="modules_8h.html#a29">ircd_module</a>*&gt; factory
+          <td class="md" nowrap valign="top"> std::vector&lt;<a class="el" href="modules_8h.html#a29">ircd_module</a>*&gt; factory
       </table>
     </td>
   </tr>
@@ -460,7 +461,7 @@ Definition at line <a class="el" href="channels_8cpp-source.html#l00079">79</a> 
 <p>
 
 <p>
-Definition at line <a class="el" href="channels_8cpp-source.html#l00064">64</a> of file <a class="el" href="channels_8cpp-source.html">channels.cpp</a>.    </td>
+Definition at line <a class="el" href="channels_8cpp-source.html#l00065">65</a> of file <a class="el" href="channels_8cpp-source.html">channels.cpp</a>.    </td>
   </tr>
 </table>
 <a name="a26" doxytag="channels.cpp::fd_reap"></a><p>
@@ -484,7 +485,7 @@ Definition at line <a class="el" href="channels_8cpp-source.html#l00064">64</a> 
 <p>
 
 <p>
-Definition at line <a class="el" href="channels_8cpp-source.html#l00090">90</a> of file <a class="el" href="channels_8cpp-source.html">channels.cpp</a>.    </td>
+Definition at line <a class="el" href="channels_8cpp-source.html#l00091">91</a> of file <a class="el" href="channels_8cpp-source.html">channels.cpp</a>.    </td>
   </tr>
 </table>
 <a name="a15" doxytag="channels.cpp::list"></a><p>
@@ -508,7 +509,7 @@ Definition at line <a class="el" href="channels_8cpp-source.html#l00090">90</a> 
 <p>
 
 <p>
-Definition at line <a class="el" href="channels_8cpp-source.html#l00077">77</a> of file <a class="el" href="channels_8cpp-source.html">channels.cpp</a>.    </td>
+Definition at line <a class="el" href="channels_8cpp-source.html#l00078">78</a> of file <a class="el" href="channels_8cpp-source.html">channels.cpp</a>.    </td>
   </tr>
 </table>
 <a name="a36" doxytag="channels.cpp::log_file"></a><p>
@@ -532,7 +533,7 @@ Definition at line <a class="el" href="channels_8cpp-source.html#l00077">77</a> 
 <p>
 
 <p>
-Definition at line <a class="el" href="channels_8cpp-source.html#l00104">104</a> of file <a class="el" href="channels_8cpp-source.html">channels.cpp</a>.    </td>
+Definition at line <a class="el" href="channels_8cpp-source.html#l00105">105</a> of file <a class="el" href="channels_8cpp-source.html">channels.cpp</a>.    </td>
   </tr>
 </table>
 <a name="a4" doxytag="channels.cpp::LogLevel"></a><p>
@@ -556,7 +557,7 @@ Definition at line <a class="el" href="channels_8cpp-source.html#l00104">104</a>
 <p>
 
 <p>
-Definition at line <a class="el" href="channels_8cpp-source.html#l00066">66</a> of file <a class="el" href="channels_8cpp-source.html">channels.cpp</a>.    </td>
+Definition at line <a class="el" href="channels_8cpp-source.html#l00067">67</a> of file <a class="el" href="channels_8cpp-source.html">channels.cpp</a>.    </td>
   </tr>
 </table>
 <a name="a24" doxytag="channels.cpp::MaxWhoResults"></a><p>
@@ -580,7 +581,7 @@ Definition at line <a class="el" href="channels_8cpp-source.html#l00066">66</a> 
 <p>
 
 <p>
-Definition at line <a class="el" href="channels_8cpp-source.html#l00087">87</a> of file <a class="el" href="channels_8cpp-source.html">channels.cpp</a>.    </td>
+Definition at line <a class="el" href="channels_8cpp-source.html#l00088">88</a> of file <a class="el" href="channels_8cpp-source.html">channels.cpp</a>.    </td>
   </tr>
 </table>
 <a name="a35" doxytag="channels.cpp::me"></a><p>
@@ -604,7 +605,7 @@ Definition at line <a class="el" href="channels_8cpp-source.html#l00087">87</a> 
 <p>
 
 <p>
-Definition at line <a class="el" href="channels_8cpp-source.html#l00102">102</a> of file <a class="el" href="channels_8cpp-source.html">channels.cpp</a>.    </td>
+Definition at line <a class="el" href="channels_8cpp-source.html#l00103">103</a> of file <a class="el" href="channels_8cpp-source.html">channels.cpp</a>.    </td>
   </tr>
 </table>
 <a name="a1" doxytag="channels.cpp::MODCOUNT"></a><p>
@@ -628,7 +629,7 @@ Definition at line <a class="el" href="channels_8cpp-source.html#l00102">102</a>
 <p>
 
 <p>
-Definition at line <a class="el" href="modules_8cpp-source.html#l00763">763</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.    </td>
+Definition at line <a class="el" href="modules_8cpp-source.html#l00773">773</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.    </td>
   </tr>
 </table>
 <a name="a27" doxytag="channels.cpp::module_names"></a><p>
@@ -652,7 +653,7 @@ Definition at line <a class="el" href="modules_8cpp-source.html#l00763">763</a> 
 <p>
 
 <p>
-Definition at line <a class="el" href="channels_8cpp-source.html#l00091">91</a> of file <a class="el" href="channels_8cpp-source.html">channels.cpp</a>.    </td>
+Definition at line <a class="el" href="channels_8cpp-source.html#l00092">92</a> of file <a class="el" href="channels_8cpp-source.html">channels.cpp</a>.    </td>
   </tr>
 </table>
 <a name="a2" doxytag="channels.cpp::modules"></a><p>
@@ -661,7 +662,7 @@ Definition at line <a class="el" href="channels_8cpp-source.html#l00091">91</a> 
     <td class="mdRow">
       <table cellpadding="0" cellspacing="0" border="0">
         <tr>
-          <td class="md" nowrap valign="top"> vector&lt;<a class="el" href="classModule.html">Module</a>*&gt; modules
+          <td class="md" nowrap valign="top"> std::vector&lt;<a class="el" href="classModule.html">Module</a>*&gt; modules
       </table>
     </td>
   </tr>
@@ -676,7 +677,7 @@ Definition at line <a class="el" href="channels_8cpp-source.html#l00091">91</a> 
 <p>
 
 <p>
-Definition at line <a class="el" href="channels_8cpp-source.html#l00063">63</a> of file <a class="el" href="channels_8cpp-source.html">channels.cpp</a>.    </td>
+Definition at line <a class="el" href="channels_8cpp-source.html#l00064">64</a> of file <a class="el" href="channels_8cpp-source.html">channels.cpp</a>.    </td>
   </tr>
 </table>
 <a name="a13" doxytag="channels.cpp::motd"></a><p>
@@ -700,7 +701,7 @@ Definition at line <a class="el" href="channels_8cpp-source.html#l00063">63</a> 
 <p>
 
 <p>
-Definition at line <a class="el" href="channels_8cpp-source.html#l00075">75</a> of file <a class="el" href="channels_8cpp-source.html">channels.cpp</a>.    </td>
+Definition at line <a class="el" href="channels_8cpp-source.html#l00076">76</a> of file <a class="el" href="channels_8cpp-source.html">channels.cpp</a>.    </td>
   </tr>
 </table>
 <a name="a25" doxytag="channels.cpp::nb_start"></a><p>
@@ -724,7 +725,7 @@ Definition at line <a class="el" href="channels_8cpp-source.html#l00075">75</a> 
 <p>
 
 <p>
-Definition at line <a class="el" href="channels_8cpp-source.html#l00088">88</a> of file <a class="el" href="channels_8cpp-source.html">channels.cpp</a>.    </td>
+Definition at line <a class="el" href="channels_8cpp-source.html#l00089">89</a> of file <a class="el" href="channels_8cpp-source.html">channels.cpp</a>.    </td>
   </tr>
 </table>
 <a name="a23" doxytag="channels.cpp::NetBufferSize"></a><p>
@@ -748,7 +749,7 @@ Definition at line <a class="el" href="channels_8cpp-source.html#l00088">88</a> 
 <p>
 
 <p>
-Definition at line <a class="el" href="channels_8cpp-source.html#l00086">86</a> of file <a class="el" href="channels_8cpp-source.html">channels.cpp</a>.    </td>
+Definition at line <a class="el" href="channels_8cpp-source.html#l00087">87</a> of file <a class="el" href="channels_8cpp-source.html">channels.cpp</a>.    </td>
   </tr>
 </table>
 <a name="a6" doxytag="channels.cpp::Network"></a><p>
@@ -772,7 +773,7 @@ Definition at line <a class="el" href="channels_8cpp-source.html#l00086">86</a> 
 <p>
 
 <p>
-Definition at line <a class="el" href="channels_8cpp-source.html#l00068">68</a> of file <a class="el" href="channels_8cpp-source.html">channels.cpp</a>.    </td>
+Definition at line <a class="el" href="channels_8cpp-source.html#l00069">69</a> of file <a class="el" href="channels_8cpp-source.html">channels.cpp</a>.    </td>
   </tr>
 </table>
 <a name="a29" doxytag="channels.cpp::portCount"></a><p>
@@ -796,7 +797,7 @@ Definition at line <a class="el" href="channels_8cpp-source.html#l00068">68</a> 
 <p>
 
 <p>
-Definition at line <a class="el" href="channels_8cpp-source.html#l00094">94</a> of file <a class="el" href="channels_8cpp-source.html">channels.cpp</a>.    </td>
+Definition at line <a class="el" href="channels_8cpp-source.html#l00095">95</a> of file <a class="el" href="channels_8cpp-source.html">channels.cpp</a>.    </td>
   </tr>
 </table>
 <a name="a31" doxytag="channels.cpp::ports"></a><p>
@@ -820,7 +821,7 @@ Definition at line <a class="el" href="channels_8cpp-source.html#l00094">94</a> 
 <p>
 
 <p>
-Definition at line <a class="el" href="channels_8cpp-source.html#l00096">96</a> of file <a class="el" href="channels_8cpp-source.html">channels.cpp</a>.    </td>
+Definition at line <a class="el" href="channels_8cpp-source.html#l00097">97</a> of file <a class="el" href="channels_8cpp-source.html">channels.cpp</a>.    </td>
   </tr>
 </table>
 <a name="a16" doxytag="channels.cpp::PrefixQuit"></a><p>
@@ -844,7 +845,7 @@ Definition at line <a class="el" href="channels_8cpp-source.html#l00096">96</a> 
 <p>
 
 <p>
-Definition at line <a class="el" href="channels_8cpp-source.html#l00078">78</a> of file <a class="el" href="channels_8cpp-source.html">channels.cpp</a>.    </td>
+Definition at line <a class="el" href="channels_8cpp-source.html#l00079">79</a> of file <a class="el" href="channels_8cpp-source.html">channels.cpp</a>.    </td>
   </tr>
 </table>
 <a name="a12" doxytag="channels.cpp::restartpass"></a><p>
@@ -868,7 +869,7 @@ Definition at line <a class="el" href="channels_8cpp-source.html#l00078">78</a> 
 <p>
 
 <p>
-Definition at line <a class="el" href="channels_8cpp-source.html#l00074">74</a> of file <a class="el" href="channels_8cpp-source.html">channels.cpp</a>.    </td>
+Definition at line <a class="el" href="channels_8cpp-source.html#l00075">75</a> of file <a class="el" href="channels_8cpp-source.html">channels.cpp</a>.    </td>
   </tr>
 </table>
 <a name="a14" doxytag="channels.cpp::rules"></a><p>
@@ -892,7 +893,7 @@ Definition at line <a class="el" href="channels_8cpp-source.html#l00074">74</a> 
 <p>
 
 <p>
-Definition at line <a class="el" href="channels_8cpp-source.html#l00076">76</a> of file <a class="el" href="channels_8cpp-source.html">channels.cpp</a>.    </td>
+Definition at line <a class="el" href="channels_8cpp-source.html#l00077">77</a> of file <a class="el" href="channels_8cpp-source.html">channels.cpp</a>.    </td>
   </tr>
 </table>
 <a name="a7" doxytag="channels.cpp::ServerDesc"></a><p>
@@ -916,7 +917,7 @@ Definition at line <a class="el" href="channels_8cpp-source.html#l00076">76</a> 
 <p>
 
 <p>
-Definition at line <a class="el" href="channels_8cpp-source.html#l00069">69</a> of file <a class="el" href="channels_8cpp-source.html">channels.cpp</a>.    </td>
+Definition at line <a class="el" href="channels_8cpp-source.html#l00070">70</a> of file <a class="el" href="channels_8cpp-source.html">channels.cpp</a>.    </td>
   </tr>
 </table>
 <a name="a5" doxytag="channels.cpp::ServerName"></a><p>
@@ -940,7 +941,7 @@ Definition at line <a class="el" href="channels_8cpp-source.html#l00069">69</a> 
 <p>
 
 <p>
-Definition at line <a class="el" href="channels_8cpp-source.html#l00067">67</a> of file <a class="el" href="channels_8cpp-source.html">channels.cpp</a>.    </td>
+Definition at line <a class="el" href="channels_8cpp-source.html#l00068">68</a> of file <a class="el" href="channels_8cpp-source.html">channels.cpp</a>.    </td>
   </tr>
 </table>
 <a name="a22" doxytag="channels.cpp::startup_time"></a><p>
@@ -964,7 +965,7 @@ Definition at line <a class="el" href="channels_8cpp-source.html#l00067">67</a> 
 <p>
 
 <p>
-Definition at line <a class="el" href="channels_8cpp-source.html#l00085">85</a> of file <a class="el" href="channels_8cpp-source.html">channels.cpp</a>.    </td>
+Definition at line <a class="el" href="channels_8cpp-source.html#l00086">86</a> of file <a class="el" href="channels_8cpp-source.html">channels.cpp</a>.    </td>
   </tr>
 </table>
 <a name="a30" doxytag="channels.cpp::UDPportCount"></a><p>
@@ -988,7 +989,7 @@ Definition at line <a class="el" href="channels_8cpp-source.html#l00085">85</a> 
 <p>
 
 <p>
-Definition at line <a class="el" href="channels_8cpp-source.html#l00095">95</a> of file <a class="el" href="channels_8cpp-source.html">channels.cpp</a>.    </td>
+Definition at line <a class="el" href="channels_8cpp-source.html#l00096">96</a> of file <a class="el" href="channels_8cpp-source.html">channels.cpp</a>.    </td>
   </tr>
 </table>
 <a name="a20" doxytag="channels.cpp::WHOWAS_MAX"></a><p>
@@ -1012,7 +1013,7 @@ Definition at line <a class="el" href="channels_8cpp-source.html#l00095">95</a> 
 <p>
 
 <p>
-Definition at line <a class="el" href="channels_8cpp-source.html#l00083">83</a> of file <a class="el" href="channels_8cpp-source.html">channels.cpp</a>.    </td>
+Definition at line <a class="el" href="channels_8cpp-source.html#l00084">84</a> of file <a class="el" href="channels_8cpp-source.html">channels.cpp</a>.    </td>
   </tr>
 </table>
 <a name="a19" doxytag="channels.cpp::WHOWAS_STALE"></a><p>
@@ -1036,10 +1037,10 @@ Definition at line <a class="el" href="channels_8cpp-source.html#l00083">83</a> 
 <p>
 
 <p>
-Definition at line <a class="el" href="channels_8cpp-source.html#l00082">82</a> of file <a class="el" href="channels_8cpp-source.html">channels.cpp</a>.    </td>
+Definition at line <a class="el" href="channels_8cpp-source.html#l00083">83</a> of file <a class="el" href="channels_8cpp-source.html">channels.cpp</a>.    </td>
   </tr>
 </table>
-<hr size="1"><address style="align: right;"><small>Generated on Fri Mar 25 03:49:29 2005 for InspIRCd by
+<hr size="1"><address style="align: right;"><small>Generated on Mon Mar 28 21:09:26 2005 for InspIRCd by
 <a href="http://www.doxygen.org/index.html">
 <img src="doxygen.png" alt="doxygen" align="middle" border=0 > 
 </a>1.3.3 </small></address>
