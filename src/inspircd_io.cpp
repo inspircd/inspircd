@@ -87,7 +87,7 @@ int DaemonSeed (void)
 
 /* Make Sure Modules Are Avaliable!
  * (BugFix By Craig.. See? I do work! :p) */
-int CheckModule (char module[MAXBUF])
+int CheckModule (char* module)
 {
   FILE *input;
   
