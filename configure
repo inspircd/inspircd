@@ -52,11 +52,10 @@ echo "clean:" >> fdscount/Makefile
 echo "	rm -f *.o core" >> fdscount/Makefile
 
 cd fdscount
-make
+make >> /dev/null
 cd ..
 
 ME=`pwd`
-PERL=`which perl`
 CONFIG_DIR=$ME/conf
 MODULE_DIR=$ME/modules
 MAX_CLIENT=`fdscount/fdcounter`
@@ -67,9 +66,9 @@ MAXI_MODES=20
 
 rm -rf fdscount
 
-if [ "$PERL" = "" ] ; then
-	echo "You require perl to run this program."
-	exit
+if [ -z $MAX_CLIENT ] ; then
+	MAX_CLIENT=1024
+        SCAN_FAILED=1
 fi
 
 if [ "$1" = "-clean" -o "$2" = "-clean" ] ; then
@@ -195,59 +194,130 @@ echo ""
 
 
 ###############################################################################
+# Craigs Version 2 With Extra Cheeze :p
 
+  cheeze=0
   echo -e "Maximum number of clients at any one time (\033[1;32m1-$MAX_CLIENT\033[0;37m)?"
-  echo -e $n "[\033[1;32m$MAX_CLIENT\033[0;37m] -> $c"
-  read cc
-  if [ "$cc" ] ; then 
-	if [ "$cc" > "$MAX_CLIENT" ] ; then
-		echo -e "Number entered was above the maximum allowed by your OS."
-		echo -e "Max clients was set to the highest possible value, \033[1;32m$MAX_CLIENT\033[0;37m"
+  while [ $cheeze -eq 0 ] ; do
+	echo -e $n "[\033[1;32m$MAX_CLIENT\033[0;37m] -> $c"
+	read cc
+	if [ "$cc" ] ; then
+		case "$cc" in
+			[0-9]*)
+			if [ $cc > $MAX_CLIENT ] ; then
+				ASK=1
+			else
+				MAX_CLIENT=$cc
+			fi
+			cheeze=1
+			;;
+			*)
+			echo ""
+			echo "You Must Enter a Number in this field. Please Try Again."
+			cheeze=0
+			;;
+		esac
 	else
-		MAX_CLIENT=$cc
+		cheeze=1
 	fi
-  fi
-    echo ""
+	if [ $cheeze -eq 1 ] ; then
+		if [ -z $SCAN_FAILED ] ; then
+			if [ $ASK -eq 1 ] ; then
+				echo "WARNING: Our scans have indicated that you are"
+				echo "         Attempting to use more sockets than"
+				echo "         there are avaliable, do you wish to"
+				echo "         do this? [y/n]"
+				echo -e $n "[\033[1;32mn\033[0;37m] $c"
+				read YN
+				if [ "$YN" == "y" ] ; then
+					MAX_CLIENT=$cc
+				else
+                                        cheeze=0
+                                        echo ""
+                                        echo "Please Enter the Correct number of sockets:"
+				fi
+			fi
+		else
+			MAX_CLIENT=$cc
+		fi
+	fi
+  done
+  echo ""
 
 ###############################################################################
 
-  echo "What is the Maximum length of nicknames?"
-  echo -e $n "[\033[1;32m$NICK_LENGT\033[0;37m] -> $c"
-  read cc
-  if [ "$cc" ] ; then
-     NICK_LENGT=$cc
-  fi
-    echo ""
+  cheeze=0
+  echo -e "What is the Maximum length of nicknames?"
+  while [ $cheeze -eq 0 ] ; do
+        echo -e $n "[\033[1;32m$NICK_LENGT\033[0;37m] -> $c"
+        read cc
+        if [ "$cc" ] ; then
+                case "$cc" in
+                        [0-9]*)
+                        NICK_LENGT=$cc
+                        cheeze=1
+                        ;;
+                        *)
+                        echo ""
+                        echo "You Must Enter a Number in this field. Please Try Again."
+                        cheeze=0
+                        ;;
+                esac
+        else
+                cheeze=1
+        fi
+  done
+  echo ""
 
 ###############################################################################
 
-  echo "What is the Maximum length of channel names?"
-  echo -e $n "[\033[1;32m$CHAN_LENGT\033[0;37m] -> $c"
-  read cc
-  if [ "$cc" ] ; then
-     CHAN_LENGT=$cc
-  fi
-    echo ""
+  cheeze=0
+  echo -e "What is the Maximum length of channel names?"
+  while [ $cheeze -eq 0 ] ; do
+        echo -e $n "[\033[1;32m$MAX_CHANNE\033[0;37m] -> $c"
+        read cc
+        if [ "$cc" ] ; then
+                case "$cc" in
+                        [0-9]*)
+                        MAX_CHANNE=$cc
+                        cheeze=1
+                        ;;
+                        *)
+                        echo ""
+                        echo "You Must Enter a Number in this field. Please Try Again."
+                        cheeze=0
+                        ;;
+                esac
+        else
+                cheeze=1
+        fi
+  done
+  echo ""
 
 ###############################################################################
 
-  echo "What is the Maximum Number of channels a user may Join?"
-  echo -e $n "[\033[1;32m$MAX_CHANNE\033[0;37m] -> $c"
-  read cc
-  if [ "$cc" ] ; then
-     MAX_CHANNE_LENGT=$cc
-  fi
-    echo ""
-
-###############################################################################
-
-  echo "What is the Maximum number of mode changes in one line?"
-  echo -e $n "[\033[1;32m$MAXI_MODES\033[0;37m] -> $c"
-  read cc
-  if [ "$cc" ] ; then
-     MAXI_MODES=$cc
-  fi
-    echo ""
+  cheeze=0
+  echo -e "What is the Maximum number of mode changes in one line?"
+  while [ $cheeze -eq 0 ] ; do
+        echo -e $n "[\033[1;32m$MAXI_MODES\033[0;37m] -> $c"
+        read cc
+        if [ "$cc" ] ; then
+                case "$cc" in
+                        [0-9]*)
+                        MAXI_MODES=$cc
+                        cheeze=1
+                        ;;
+                        *)
+                        echo ""
+                        echo "You Must Enter a Number in this field. Please Try Again."
+                        cheeze=0
+                        ;;
+                esac
+        else
+                cheeze=1
+        fi
+  done
+  echo ""
 
 ###############################################################################
 
