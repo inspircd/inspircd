@@ -2982,23 +2982,32 @@ void handle_quit(char **parameters, int pcnt, userrec *user)
 
 void handle_who(char **parameters, int pcnt, userrec *user)
 {
-	chanrec* Ptr;
+	chanrec* Ptr = null;
 	
 	/* theres more to do here, but for now just close the socket */
 	if (pcnt == 1)
 	{
 		if ((!strcmp(parameters[0],"0")) || (!strcmp(parameters[0],"*")))
 		{
-			Ptr = user->chans[0].channel;
-			printf(user->chans[0].channel->name);
-		  	for (user_hash::const_iterator i = clientlist.begin(); i != clientlist.end(); i++)
+			if (user->chans[0].channel)
 			{
-				if ((common_channels(user,i->second)) && (isnick(i->second->nick)))
+				Ptr = user->chans[0].channel;
+			  	for (user_hash::const_iterator i = clientlist.begin(); i != clientlist.end(); i++)
 				{
-					WriteServ(user->fd,"352 %s %s %s %s %s %s Hr@ :0 %s",user->nick, Ptr->name, i->second->ident, i->second->dhost, ServerName, i->second->nick, i->second->fullname);
+					if ((common_channels(user,i->second)) && (isnick(i->second->nick)))
+					{
+						WriteServ(user->fd,"352 %s %s %s %s %s %s Hr@ :0 %s",user->nick, Ptr->name, i->second->ident, i->second->dhost, ServerName, i->second->nick, i->second->fullname);
+					}
 				}
 			}
-			WriteServ(user->fd,"315 %s %s :End of /WHO list.",user->nick, Ptr->name);
+			if (Ptr)
+			{
+				WriteServ(user->fd,"315 %s %s :End of /WHO list.",user->nick, Ptr->name);
+			}
+			else
+			{
+				WriteServ(user->fd,"315 %s %s :End of /WHO list.",user->nick, user->nick);
+			}
 			return;
 		}
 		if (parameters[0][0] = '#')
@@ -3666,10 +3675,10 @@ void process_command(userrec *user, char* cmd)
 	}
 	strcpy(temp,cmd);
 
-	string temp = cmd;
-  	FOREACH_MOD OnServerRaw(temp,true);
-  	const char* cmd2 = temp.c_str();
-  	sprintf(cmd,"%s",cmd2);
+	string tmp = cmd;
+  	FOREACH_MOD OnServerRaw(tmp,true);
+  	const char* cmd2 = tmp.c_str();
+  	snprintf(cmd,512,"%s",cmd2);
 
 	if (!strchr(cmd,' '))
 	{

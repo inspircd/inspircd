@@ -34,6 +34,7 @@ void Module::OnPacketTransmit(char *p) { }
 void Module::OnPacketReceive(char *p) { }
 void Module::OnRehash() { }
 void Module::OnServerRaw(string &raw, bool inbound) { }
+bool Module::OnExtendedMode(char modechar, int type, bool mode_on, string_list &params) { }
 Version Module::GetVersion() { return Version(1,0,0,0); }
 
 // server is a wrapper class that provides methods to all of the C-style
@@ -160,6 +161,11 @@ ConfigReader::~ConfigReader()
 }
 
 
+bool Server::AddExtendedMode(char modechar, int type, bool default_on, int params_when_on, int params_when_off)
+{
+}
+
+ 
 ConfigReader::ConfigReader(string filename) : fname(filename) { };
 
 string ConfigReader::ReadValue(string tag, string name, int index)
