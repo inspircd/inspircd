@@ -207,7 +207,27 @@ class Module : public classbase
 	 * The source parameter contains the details of the user who issued the WHOIS command, and
 	 * the dest parameter contains the information of the user they are whoising.
 	 */
-	void Module::OnWhois(userrec* source, userrec* dest);
+	virtual void Module::OnWhois(userrec* source, userrec* dest);
+	
+	/** Called whenever a user is about to PRIVMSG A user or a channel, before any processing is done.
+	 * Returning any nonzero value from this function stops the process immediately, causing no
+	 * output to be sent to the user by the core. If you do this you must produce your own numerics,
+	 * notices etc. This is useful for modules which may want to filter or redirect messages.
+	 * target_type can be one of TYPE_USER or TYPE_CHANNEL. If the target_type value is a user,
+	 * you must cast dest to a userrec* otherwise you must cast it to a chanrec*, this is the details
+	 * of where the message is destined to be sent.
+	 */
+	virtual int OnUserPreMessage(userrec* user,void* dest,int target_type, std::String text);
+
+	/** Called whenever a user is about to NOTICE A user or a channel, before any processing is done.
+	 * Returning any nonzero value from this function stops the process immediately, causing no
+	 * output to be sent to the user by the core. If you do this you must produce your own numerics,
+	 * notices etc. This is useful for modules which may want to filter or redirect messages.
+	 * target_type can be one of TYPE_USER or TYPE_CHANNEL. If the target_type value is a user,
+	 * you must cast dest to a userrec* otherwise you must cast it to a chanrec*, this is the details
+	 * of where the message is destined to be sent.
+	 */
+	virtual int OnUserPreNotice(userrec* user,void* dest,int target_type, std::String text);
 };
 
 

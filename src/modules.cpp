@@ -120,6 +120,8 @@ Version Module::GetVersion() { return Version(1,0,0,0); }
 void Module::OnOper(userrec* user) { };
 void Module::OnInfo(userrec* user) { };
 void Module::OnWhois(userrec* source, userrec* dest) { };
+int OnUserPreMessage(userrec* user,void* dest,int target_type, std::String text) { return 0; };
+int OnUserPreNotice(userrec* user,void* dest,int target_type, std::String text) { return 0; };
 
 // server is a wrapper class that provides methods to all of the C-style
 // exports in the core

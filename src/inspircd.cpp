@@ -3639,6 +3639,14 @@ void handle_privmsg(char **parameters, int pcnt, userrec *user)
 				WriteServ(user->fd,"404 %s %s :Cannot send to channel (+m)", user->nick, chan->name);
 				return;
 			}
+			
+			int MOD_RESULT = 0;
+
+			FOREACH_RESULT(OnUserPreMessage(user,chan,TYPE_USER,std::string(parameters[1]));
+			if (MOD_RESULT) {
+				return;
+			}
+			
 			ChanExceptSender(chan, user, "PRIVMSG %s :%s", chan->name, parameters[1]);
 		}
 		else
@@ -3657,6 +3665,14 @@ void handle_privmsg(char **parameters, int pcnt, userrec *user)
 			/* auto respond with aweh msg */
 			WriteServ(user->fd,"301 %s %s :%s",user->nick,dest->nick,dest->awaymsg);
 		}
+
+		int MOD_RESULT = 0;
+		
+		FOREACH_RESULT(OnUserPreMessage(user,dest,TYPE_USER,std::string(parameters[1]));
+		if (MOD_RESULT) {
+			return;
+		}
+		
 		WriteTo(user, dest, "PRIVMSG %s :%s", dest->nick, parameters[1]);
 	}
 	else
@@ -3690,6 +3706,14 @@ void handle_notice(char **parameters, int pcnt, userrec *user)
 				WriteServ(user->fd,"404 %s %s :Cannot send to channel (+m)", user->nick, chan->name);
 				return;
 			}
+
+			int MOD_RESULT = 0;
+		
+			FOREACH_RESULT(OnUserPreNotice(user,chan,TYPE_CHANNEL,std::string(parameters[1]));
+			if (MOD_RESULT) {
+				return;
+			}
+
 			WriteChannel(chan, user, "NOTICE %s :%s", chan->name, parameters[1]);
 		}
 		else
@@ -3703,6 +3727,13 @@ void handle_notice(char **parameters, int pcnt, userrec *user)
 	dest = Find(parameters[0]);
 	if (dest)
 	{
+		int MOD_RESULT = 0;
+		
+		FOREACH_RESULT(OnUserPreNotice(user,dest,TYPE_USER,std::string(parameters[1]));
+		if (MOD_RESULT) {
+			return;
+		}
+
 		WriteTo(user, dest, "NOTICE %s :%s", dest->nick, parameters[1]);
 	}
 	else

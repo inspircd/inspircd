@@ -64,6 +64,11 @@
 #define WM_AND 1
 #define WM_OR 2
 
+// flags for use with OnUserPreMessage and OnUserPreNotice
+
+#define TYPE_USER 1
+#define TYPE_CHANNEL 2
+
 typedef std::deque<std::string> file_cache;
 
 /* prototypes */
