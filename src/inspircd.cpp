@@ -264,7 +264,11 @@ void tidystring(char* str)
 
 void chop(char* str)
 {
-
+  if (!str)
+  {
+  	log(DEBUG,"ERROR! Null string passed to chop()!");
+  	return;
+  }
   string temp = str;
   FOREACH_MOD OnServerRaw(temp,false);
   const char* str2 = temp.c_str();
