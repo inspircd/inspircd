@@ -3301,11 +3301,10 @@ void handle_invite(char **parameters, int pcnt, userrec *user)
 			WriteServ(user->fd,"482 %s %s :You must be at least a half-operator to change modes on this channel",user->nick, c->name);
 			return;
 		}
-
-		u->InviteTo(c->name);
-		WriteFrom(u->fd,user,"INVITE %s :%s",u->nick,c->name);
-		WriteServ(user->fd,"341 %s %s %s",user->nick,u->nick,c->name);
 	}
+	u->InviteTo(c->name);
+	WriteFrom(u->fd,user,"INVITE %s :%s",u->nick,c->name);
+	WriteServ(user->fd,"341 %s %s %s",user->nick,u->nick,c->name);
 }
 
 void handle_topic(char **parameters, int pcnt, userrec *user)
