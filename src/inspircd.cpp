@@ -4697,7 +4697,7 @@ void handle_whois(char **parameters, int pcnt, userrec *user)
 			{
 				WriteServ(user->fd,"319 %s %s :%s",user->nick, dest->nick, chlist(dest));
 			}
-			WriteServ(user->fd,"312 %s %s %s :%s",user->nick, dest->nick, dest->server, GetServerDescription(dest->server));
+			WriteServ(user->fd,"312 %s %s %s :%s",user->nick, dest->nick, dest->server, GetServerDescription(dest->server).c_str());
 			if (strcmp(dest->awaymsg,""))
 			{
 				WriteServ(user->fd,"301 %s %s :%s",user->nick, dest->nick, dest->awaymsg);
