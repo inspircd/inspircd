@@ -334,6 +334,9 @@ void ircd_connector::SetDescriptor(int fd)
 
 bool connection::SendPacket(char *message, const char* host)
 {
+	if ((!message) || (!host))
+		return true;
+
 	ircd_connector* cn = this->FindHost(host);
 	
 	if (!strchr(message,'\n'))
