@@ -3235,40 +3235,44 @@ void handle_quit(char **parameters, int pcnt, userrec *user)
 {
 	user_hash::iterator iter = clientlist.find(user->nick);
 
-	/* theres more to do here, but for now just close the socket */
-	if (pcnt == 1)
+	if (user->registered == 7)
 	{
-		if (parameters[0][0] == ':')
+		/* theres more to do here, but for now just close the socket */
+		if (pcnt == 1)
 		{
-			*parameters[0]++;
+			if (parameters[0][0] == ':')
+			{
+				*parameters[0]++;
+			}
+			Write(user->fd,"ERROR :Closing link (%s@%s) [%s]",user->ident,user->host,parameters[0]);
+			WriteOpers("*** Client exiting: %s!%s@%s [%s]",user->nick,user->ident,user->host,parameters[0]);
+			WriteCommonExcept(user,"QUIT :%s%s",PrefixQuit,parameters[0]);
 		}
-		Write(user->fd,"ERROR :Closing link (%s@%s) [%s]",user->ident,user->host,parameters[0]);
-		WriteOpers("*** Client exiting: %s!%s@%s [%s]",user->nick,user->ident,user->host,parameters[0]);
-		WriteCommonExcept(user,"QUIT :%s%s",PrefixQuit,parameters[0]);
+		else
+		{
+			Write(user->fd,"ERROR :Closing link (%s@%s) [QUIT]",user->ident,user->host);
+			WriteOpers("*** Client exiting: %s!%s@%s [Client exited]",user->nick,user->ident,user->host);
+			WriteCommonExcept(user,"QUIT :Client exited");
+		}
+		FOREACH_MOD OnUserQuit(user);
+		AddWhoWas(user);
 	}
-	else
-	{
-		Write(user->fd,"ERROR :Closing link (%s@%s) [QUIT]",user->ident,user->host);
-		WriteOpers("*** Client exiting: %s!%s@%s [Client exited]",user->nick,user->ident,user->host);
-		WriteCommonExcept(user,"QUIT :Client exited");
-	}
 
-	FOREACH_MOD OnUserQuit(user);
-
-	/* confucious say, he who close nonblocking socket, get nothing! */
-	Blocking(user->fd);
-	close(user->fd);
-	NonBlocking(user->fd);
-	AddWhoWas(user);
-
+	/* push the socket on a stack of sockets due to be closed at the next opportunity */
+	fd_reap.push_back(user->fd);
+	
 	if (iter != clientlist.end())
 	{
-		log(DEBUG,"deleting user hash value");
-		delete iter->second;
+		log(DEBUG,"deleting user hash value %d",iter->second);
+		if ((iter->second) && (user->registered == 7)) {
+			delete iter->second;
+		}
 		clientlist.erase(iter);
 	}
-	
-	purge_empty_chans();
+
+	if (user->registered == 7) {
+		purge_empty_chans();
+	}
 }
 
 void handle_who(char **parameters, int pcnt, userrec *user)
