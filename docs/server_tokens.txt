@@ -25,4 +25,7 @@ V		NOTICE
 L		User leaving a channel
 Q		User disconnect
 F		End netburst
-
+K		Remote kill
+@		WALLOPS
+a		Change displayed host
+b		Change GECOS
