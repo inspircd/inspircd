@@ -3550,9 +3550,16 @@ void handle_stats(char **parameters, int pcnt, userrec *user)
 void handle_connect(char **parameters, int pcnt, userrec *user)
 {
 	WriteServ(user->fd,"NOTICE %s :*** Connecting to %s port %s...",user->nick,parameters[0],parameters[1]);
-	if (!me[defaultRoute]->BeginLink(parameters[0],atoi(parameters[1]),"password"))
+	if (me[defaultRoute])
 	{
-		WriteServ(user->fd,"NOTICE %s :*** Failed to send auth packet to %s!",user->nick,parameters[0]);
+		if (!me[defaultRoute]->BeginLink(parameters[0],atoi(parameters[1]),"password"))
+		{
+			WriteServ(user->fd,"NOTICE %s :*** Failed to send auth packet to %s!",user->nick,parameters[0]);
+		}
+	}
+	else
+	{
+		WriteServ(user->fd,"NOTICE %s :No default route is defined for server connections on this server",user->nick);
 	}
 }
 
