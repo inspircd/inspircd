@@ -172,7 +172,7 @@ bool connection::BeginLink(char* targethost, int port, char* password, char* ser
 			// targethost has been turned into an ip...
 			// we dont want this as the server name.
 			connector.SetServerName(servername);
-			sprintf(connect,"S %s %s %d :%s",getservername().c_str(),password,myport,getserverdesc().c_str());
+			sprintf(connect,"S %s %s %d %d :%s",getservername().c_str(),password,myport,GetRevision(),getserverdesc().c_str());
 			connector.SetState(STATE_NOAUTH_OUTBOUND);
 			connector.SetHostAndPort(targethost, port);
 			this->connectors.push_back(connector);
