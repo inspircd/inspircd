@@ -77,11 +77,13 @@ bool connection::CreateListener(char* host, int p)
 
 	this->port = p;
 
-    setsockopt(fd,SOL_SOCKET,SO_REUSEADDR,(const char*)&on,sizeof(on));
-    linger.l_onoff = 1;
-    linger.l_linger = 0;
-    setsockopt(fd,SOL_SOCKET,SO_LINGER,(const char*)&linger,sizeof(linger));
+	setsockopt(fd,SOL_SOCKET,SO_REUSEADDR,(const char*)&on,sizeof(on));
+	linger.l_onoff = 1;
+	linger.l_linger = 0;
+	setsockopt(fd,SOL_SOCKET,SO_LINGER,(const char*)&linger,sizeof(linger));
 
+	buffer.clear();
+	
 	return true;
 }
 
@@ -305,7 +307,7 @@ bool connection::RecvPacket(char *message, char* host, int &prt, long &theirkey)
 	//int recvfrom(int s, void *buf, size_t len, int flags, struct sockaddr *from, socklen_t *fromlen);
 	if (recvfrom(fd,&p,sizeof(p),0,(sockaddr*)&host_address,&host_address_size)<0)
 	{
-		if (buffer.size())
+		if (buffer.size()>0)
 		{
 			log(DEBUG,"Fetching a buffered packet size %d",buffer.size());
 			strcpy(message,buffer[0].p.data);
@@ -348,7 +350,7 @@ bool connection::RecvPacket(char *message, char* host, int &prt, long &theirkey)
 		prt = ntohs(host_address.sin_port); // the port we received it on
 		SendACK(host,prt,p.id);
 
-		if (buffer.size())
+		if (buffer.size()>0)
 		{
 			log(DEBUG,"Fetching a buffered packet size %d",buffer.size());
 			packet_buf pb;
