@@ -81,6 +81,8 @@ vector<int> fd_reap;
 
 extern int MODCOUNT;
 
+bool nofork = false;
+
 namespace nspace
 {
 	template<> struct nspace::hash<in_addr>
@@ -279,6 +281,11 @@ void log(int level,char *text, ...)
 		b[strlen(b)-1] = ':';
 		fprintf(f,"%s %s\n",b,textbuffer);
 		fclose(f);
+		if (nofork)
+		{
+			// nofork enabled? display it on terminal too
+			printf("%s %s\n",b,textbuffer);
+		}
 	}
 	else
 	{
@@ -2873,6 +2880,11 @@ int main (int argc, char *argv[])
 		printf("ERROR: Your config file is missing, this IRCd will self destruct in 10 seconds!\n");
 		Exit(ERROR);
 	}
+	if (argc > 1) {
+		if (!strcmp(argv[1],"-nofork")) {
+			nofork = true;
+		}
+	}
 	if (InspIRCd() == ERROR)
 	{
 		log(DEBUG,"main: daemon function bailed");
@@ -4601,11 +4613,18 @@ int InspIRCd(void)
 
   startup_time = time(NULL);
   
-  if (DaemonSeed() == ERROR)
+  if (nofork)
   {
-     log(DEBUG,"InspIRCd: startup: can't daemonise");
-     printf("ERROR: could not go into daemon mode. Shutting down.\n");
-     Exit(ERROR);
+  	log(VERBOSE,"Not forking as -nofork was specified");
+  }
+  else
+  {
+	if (DaemonSeed() == ERROR)
+	{
+		log(DEBUG,"InspIRCd: startup: can't daemonise");
+  		printf("ERROR: could not go into daemon mode. Shutting down.\n");
+		Exit(ERROR);
+  	}
   }
   
   
