@@ -335,10 +335,16 @@ void handle_kill(char **parameters, int pcnt, userrec *user)
 {
 	userrec *u = Find(parameters[0]);
 	char killreason[MAXBUF];
-	
+
         log(DEBUG,"kill: %s %s",parameters[0],parameters[1]);
 	if (u)
 	{
+		int MOD_RESULT = 0;
+                FOREACH_RESULT(OnKill(user,u,parameters[1]));
+                if (MOD_RESULT) {
+                        return;
+                }
+
 		if (strcmp(ServerName,u->server))
 		{
 			// remote kill

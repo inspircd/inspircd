@@ -1290,6 +1290,11 @@ void handle_mode(char **parameters, int pcnt, userrec *user)
 				return;
 			}
 		}
+                if ((Ptr) && (!has_channel(user,Ptr)))
+                {
+                        WriteServ(user->fd,"442 %s %s :You're not on that channel!",user->nick, Ptr->name);
+                        return;
+                }
 
 		process_modes(parameters,user,Ptr,cstatus(user,Ptr),pcnt,false,false,false);
 	}
