@@ -12,8 +12,10 @@ Server *Srv;
 void handle_woot(char **parameters, int pcnt, userrec *user)
 {
 	// this test command just accepts:
-	// /woot <text>
+	// /woot :<text>
 	// and sends <text> to all opers with +s mode.
+	// NB: The ':' is *REQUIRED* otherwise the parser will
+	// split the line into multiple parameters[]!
 	Srv->SendOpers(parameters[0]);
 }
 
