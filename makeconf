@@ -365,14 +365,26 @@ while [ $ok -eq 0 ] ; do
                ALLOW_IP=$cc 
        fi 
        if [ "$ok" != "1" ] ; then 
+               echo "A Registration Timeout is the time it takes before Ping Timeouting"
+               echo "a client trying to connect to the server, which hasnt issued the initial"
+               echo "commands. It is recommended that you set this to 90, if you give no"
+               echo "value, the default will be used."
+               echo "Enter 'registration' timeout"
+	       echo $n "[\033[1;32m90\033[0;37m] -> $c"
+               read cc
+               if [ ! "$cc" ] ; then
+                TIMEOUT = "90"
+               else
+                TIMEOUT = $cc
+               fi
                echo "Enter Password [If Applicable]" 
                echo $n "[] -> $c" 
                read cc 
                if [ ! "$cc" ] ; then
 	       default=1 
-                       echo "<connect allow=\"$ALLOW_IP\">" >> makeconf.temp 
+                       echo "<connect allow=\"$ALLOW_IP\" timeout=\"$TIMEOUT\">" >> makeconf.temp 
                else 
-                       echo "<connect allow=\"$ALLOW_IP\" password=\"$cc\">" >> makeconf.temp 
+                       echo "<connect allow=\"$ALLOW_IP\" password=\"$cc\" timeout=\"$TIMEOUT\>" >> makeconf.temp 
                fi 
        fi 
 done 
