@@ -762,7 +762,7 @@ void handle_whois(char **parameters, int pcnt, userrec *user)
 			{
 				WriteServ(user->fd,"301 %s %s :%s",user->nick, dest->nick, dest->awaymsg);
 			}
-			if (strchr(dest->modes,'o'))
+			if ((strchr(dest->modes,'o')) && (strcmp(dest->oper,"")))
 			{
 				WriteServ(user->fd,"313 %s %s :is %s %s on %s",user->nick, dest->nick,
     				(strchr("aeiou",dest->oper[0]) ? "an" : "a"),dest->oper, Network);
@@ -1487,6 +1487,7 @@ void handle_oper(char **parameters, int pcnt, userrec *user)
 	char TypeName[MAXBUF];
 	char Hostname[MAXBUF];
 	int i,j;
+	bool found = false;
 
 	for (int i = 0; i < ConfValueEnum("oper",&config_f); i++)
 	{
@@ -1494,14 +1495,6 @@ void handle_oper(char **parameters, int pcnt, userrec *user)
 		ConfValue("oper","password",i,Password,&config_f);
 		if ((!strcmp(LoginName,parameters[0])) && (!strcmp(Password,parameters[1])))
 		{
-			/* correct oper credentials */
-			ConfValue("oper","type",i,OperType,&config_f);
-			WriteOpers("*** %s (%s@%s) is now an IRC operator of type %s",user->nick,user->ident,user->host,OperType);
-			WriteServ(user->fd,"381 %s :You are now an IRC operator of type %s",user->nick,OperType);
-			WriteServ(user->fd,"MODE %s :+o",user->nick);
-			char global[MAXBUF];
-			snprintf(global,MAXBUF,"M %s +o",user->nick);
-			NetSendToAll(global);
 			for (j =0; j < ConfValueEnum("type",&config_f); j++)
 			{
 				ConfValue("type","name",j,TypeName,&config_f);
@@ -1513,13 +1506,29 @@ void handle_oper(char **parameters, int pcnt, userrec *user)
 					ConfValue("type","host",j,Hostname,&config_f);
 					ChangeDisplayedHost(user,Hostname);
 					strlcpy(user->oper,TypeName,NICKMAX);
+					found = true;
 				}
 			}
-			if (!strchr(user->modes,'o'))
+			if (found)
 			{
-				strcat(user->modes,"o");
+	                        /* correct oper credentials */
+        	                ConfValue("oper","type",i,OperType,&config_f);
+	                        WriteOpers("*** %s (%s@%s) is now an IRC operator of type %s",user->nick,user->ident,user->host,OperType);
+	                        WriteServ(user->fd,"381 %s :You are now an IRC operator of type %s",user->nick,OperType);
+				if (!strchr(user->modes,'o'))
+				{
+					strcat(user->modes,"o");
+					WriteServ(user->fd,"MODE %s :+o",user->nick);
+	                                char global[MAXBUF];
+	                                snprintf(global,MAXBUF,"M %s +o",user->nick);
+	                                NetSendToAll(global);
+					FOREACH_MOD OnOper(user);
+				}
 			}
-			FOREACH_MOD OnOper(user);
+			else
+			{
+				WriteOpers("*** BROKEN CONFIGURATION! *** Oper type %s for oper %s not found!",OperType,LoginName);
+			}
 			return;
 		}
 	}

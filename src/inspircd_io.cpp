@@ -209,7 +209,7 @@ std::string ConfProcess(char* buffer, long linenumber, std::stringstream* errors
 		}
 	}
 	// no quotes, and no equals. something freaky.
-	if ((!number_of_quotes) || (!number_of_equals) && (strlen(buffer)>2))
+	if ((!number_of_quotes) || (!number_of_equals) && (strlen(buffer)>2) && (buffer[0]=='<'))
 	{
 		*errorstream << "Malformed tag at " << filename << ":" << linenumber << endl;
 		error = true;

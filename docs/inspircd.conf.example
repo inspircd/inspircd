@@ -134,7 +134,7 @@
 #  Syntax is as follow:						      #
 #	<class name="name" commands="oper commands">		      #
 #								      #
-    
+
 <class name="Shutdown" commands="DIE RESTART REHASH">
 <class name="ServerLink" commands="CONNECT SQUIT">
 <class name="BanControl" commands="KILL GLINE KLINE ZLINE QLINE SHUN">

@@ -326,6 +326,34 @@ class Module : public classbase
 	 * multiple commands in the string_list.
 	 */
 	virtual string_list OnChannelSync(chanrec* chan);
+
+	/** Called when a 005 numeric is about to be output.
+	 * The module should modify the 005 numeric if needed to indicate its features.
+	 */
+	virtual void On005Numeric(std::string &output);
+
+	/** Called when a client is disconnected by KILL.
+	 * If a client is killed by a server, e.g. a nickname collision or protocol error,
+	 * source is NULL.
+	 * Return 1 from this function to prevent the kill, and 0 from this function to allow
+	 * it as normal. If you prevent the kill no output will be sent to the client, it is
+	 * down to your module to generate this information.
+	 * NOTE: It is NOT advisable to stop kills which originate from servers. If you do
+	 * so youre risking race conditions, desyncs and worse!
+	 */
+	virtual int OnKill(userrec* source, userrec* dest, std::string reason);
+
+	/** Called whenever a module is loaded.
+	 * mod will contain a pointer to the module, and string will contain its name,
+	 * for example m_widgets.so. This function is primary for dependency checking,
+	 * your module may decide to enable some extra features if it sees that you have
+	 * for example loaded "m_killwidgets.so" with "m_makewidgets.so". It is highly
+	 * recommended that modules do *NOT* bail if they cannot satisfy dependencies,
+	 * but instead operate under reduced functionality, unless the dependency is
+	 * absolutely neccessary (e.g. a module that extends the features of another
+	 * module).
+	 */
+	virtual void OnLoadModule(Module* mod,std::string name);
 };
 
 
