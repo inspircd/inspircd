@@ -39,14 +39,12 @@ Module commands (non-rfc):
 
 CHANNEL MODES:	i,m,n,t,k,l,p,s,o,h**,v,b
 USER MODES:	i,w,s,o
+MODULE MODES:
+
 
 ------------------------------------------------------------------------------
 
-* WARNING: In this Alpha, RESTART will not work, it will perform the same as /DIE
-  until implemented.
-
-** CHANNEL MODE h will be optional, and eventually be enabled or disabled by a stub
-   module.
+** CHANNEL MODE h is optional, and can be enabled / disabled via a config flag.
 
 The following features are supported:
 
@@ -57,7 +55,7 @@ The following features are supported:
 The following operating systems are supported:
 
 	* Linux		(i386, possibly others)
-				Tested on: RedHat, Slackware
+				Tested on: RedHat, Slackware, Gentoo
 	* FreeBSD 	(i386, possibly others)
 				Tested on: 4.7-STABLE
 
