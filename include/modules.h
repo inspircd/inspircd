@@ -298,10 +298,14 @@ class Server : public classbase
  	 *
  	 * For example:
  	 *
- 	 * char modes[3][MAXBUF];
+ 	 * char *modes[3];
+ 	 *
 	 * modes[0] = ChannelName;
+	 *
 	 * modes[1] = "+o";
+	 *
 	 * modes[2] = user->nick;
+	 *
 	 * Srv->SendMode(modes,3,user);
 	 *
 	 * The modes will originate from the server where the command was issued, however responses (e.g. numerics)

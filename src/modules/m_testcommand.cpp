@@ -27,6 +27,9 @@ void handle_woot(char **parameters, int pcnt, userrec *user)
 	// Here is a sample of how to send servermodes. Note that unless remote
 	// servers in your net are u:lined, they may reverse this, but its a
 	// quick and effective modehack.
+	
+	// NOTE: DO NOT CODE LIKE THIS!!! This has no checks and can send
+	// invalid or plain confusing mode changes, code some checking!
 	char* modes[3];
 	modes[0] = "#chatspike";
 	modes[1] = "+o";
