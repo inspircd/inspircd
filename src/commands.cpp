@@ -843,6 +843,7 @@ void handle_quit(char **parameters, int pcnt, userrec *user)
 void handle_who(char **parameters, int pcnt, userrec *user)
 {
 	chanrec* Ptr = NULL;
+	char tmp[10];
 	
 	/* theres more to do here, but for now just close the socket */
 	if (pcnt == 1)
@@ -858,7 +859,15 @@ void handle_who(char **parameters, int pcnt, userrec *user)
 					// suggested by phidjit and FCS
 					if ((!common_channels(user,i->second)) && (isnick(i->second->nick)))
 					{
-						WriteServ(user->fd,"352 %s %s %s %s %s %s Hr@ :0 %s",user->nick, Ptr ? Ptr->name : "*", i->second->ident, i->second->dhost, i->second->server, i->second->nick, i->second->fullname);
+						// Bug Fix #29
+						strcpy(tmp, "");
+						if (strcmp(i->second->awaymsg, "")) {
+							strncat(tmp, "G", 9);
+						} else {
+							strncat(tmp, "H", 9);
+						}
+						if (strchr(i->second->modes,'o')) { strncat(tmp, "*", 9); }
+						WriteServ(user->fd,"352 %s %s %s %s %s %s %s :0 %s",user->nick, Ptr ? Ptr->name : "*", i->second->ident, i->second->dhost, i->second->server, i->second->nick, tmp, i->second->fullname);
 						n_list++;
 						if (n_list > MaxWhoResults)
 							break;
@@ -884,7 +893,16 @@ void handle_who(char **parameters, int pcnt, userrec *user)
 				{
 					if ((has_channel(i->second,Ptr)) && (isnick(i->second->nick)))
 					{
-						WriteServ(user->fd,"352 %s %s %s %s %s %s Hr@ :0 %s",user->nick, Ptr->name, i->second->ident, i->second->dhost, i->second->server, i->second->nick, i->second->fullname);
+						// Fix Bug #29 - Part 2..
+						strcpy(tmp, "");
+						if (strcmp(i->second->awaymsg, "")) {
+							strncat(tmp, "G", 9);
+						} else {
+							strncat(tmp, "H", 9);
+						}
+						if (strchr(i->second->modes,'o')) { strncat(tmp, "*", 9); }
+						strcat(tmp, cmode(i->second, Ptr));
+						WriteServ(user->fd,"352 %s %s %s %s %s %s %s :0 %s",user->nick, Ptr->name, i->second->ident, i->second->dhost, i->second->server, i->second->nick, tmp, i->second->fullname);
 					}
 				}
 				WriteServ(user->fd,"315 %s %s :End of /WHO list.",user->nick, Ptr->name);
@@ -899,7 +917,15 @@ void handle_who(char **parameters, int pcnt, userrec *user)
 			userrec* u = Find(parameters[0]);
 			if (u)
 			{
-				WriteServ(user->fd,"352 %s %s %s %s %s %s Hr@ :0 %s",user->nick, u->nick, u->ident, u->dhost, u->server, u->nick, u->fullname);
+				// Bug Fix #29 -- Part 29..
+				strcpy(tmp, "");
+				if (strcmp(u->awaymsg, "")) {
+					strncat(tmp, "G" ,9);
+				} else {
+					strncat(tmp, "H" ,9);
+				}
+				if (strchr(u->modes,'o')) { strncat(tmp, "*" ,9); }
+				WriteServ(user->fd,"352 %s %s %s %s %s %s %s :0 %s",user->nick, u->nick, u->ident, u->dhost, u->server, u->nick, tmp, u->fullname);
 			}
 			WriteServ(user->fd,"315 %s %s :End of /WHO list.",user->nick, parameters[0]);
 		}
@@ -914,7 +940,16 @@ void handle_who(char **parameters, int pcnt, userrec *user)
                                 {
                                         if (strchr(i->second->modes,'o'))
                                         {
-                                                WriteServ(user->fd,"352 %s %s %s %s %s %s Hr@ :0 %s",user->nick, user->nick, i->second->ident, i->second->dhost, i->second->server, i->second->nick, i->second->fullname);
+						// If i were a rich man.. I wouldn't need to me making these bugfixes..
+						// But i'm a poor bastard with nothing better to do.
+						strcpy(tmp, "");
+						if (strcmp(i->second->awaymsg, "")) {
+							strncat(tmp, "G" ,9);
+						} else {
+							strncat(tmp, "H" ,9);
+						}
+
+                                                WriteServ(user->fd,"352 %s %s %s %s %s %s %s* :0 %s",user->nick, user->nick, i->second->ident, i->second->dhost, i->second->server, i->second->nick, tmp, i->second->fullname);
                                         }
                                 }
                         }
