@@ -5334,15 +5334,18 @@ void handle_connect(char **parameters, int pcnt, userrec *user)
 	
 	for (int i = 0; i < ConfValueEnum("link",&config_f); i++)
 	{
-		ConfValue("link","name",i,Link_ServerName,&config_f);
-		ConfValue("link","ipaddr",i,Link_IPAddr,&config_f);
-		ConfValue("link","port",i,Link_Port,&config_f);
-		ConfValue("link","sendpass",i,Link_Pass,&config_f);
-		log(DEBUG,"(%d) Comparing against name='%s', ipaddr='%s', port='%s', recvpass='%s'",i,Link_ServerName,Link_IPAddr,Link_Port,Link_Pass);
-		LinkPort = atoi(Link_Port);
-		if (match(Link_ServerName,parameters[0])) {
-			found = true;
-			break;
+		if (!found)
+		{
+			ConfValue("link","name",i,Link_ServerName,&config_f);
+			ConfValue("link","ipaddr",i,Link_IPAddr,&config_f);
+			ConfValue("link","port",i,Link_Port,&config_f);
+			ConfValue("link","sendpass",i,Link_Pass,&config_f);
+			log(DEBUG,"(%d) Comparing against name='%s', ipaddr='%s', port='%s', recvpass='%s'",i,Link_ServerName,Link_IPAddr,Link_Port,Link_Pass);
+			LinkPort = atoi(Link_Port);
+			if (match(Link_ServerName,parameters[0])) {
+				found = true;
+				break;
+			}
 		}
 	}
 	
