@@ -132,8 +132,13 @@
 	line13="g  Show g-lines (global bans)"
 	line14="q  Show q-lines (nick mask bans)"
 	line15="Z  Show z-lines (ip mask bans)"
-	line16="-"
-	line17="Note that all /STATS use is broadcast to online IRC operators.">
+	line16="Y  Show connection classes"
+	line17="C  Show link blocks"
+	line18="U  Show u-lined servers"
+	line19="P  Show online opers and their idle times"
+	line20="I  Show connect class permissions"
+	line21="-"
+	line22="Note that all /STATS use is broadcast to online IRC operators.">
 
 <kline line1="/KLINE [user@host] {[duration] :[reason]}"
 	line2="Sets or removes a k-line (host based ban) on a host and ident mask."
@@ -270,12 +275,14 @@
 	line4="h [nickname]     Gives halfops to [nickname] (requires halfop module)"
 	line5="o [nickname]     Gives ops to [nickname]"
 	line6="b [hostmask]     Bans [hostmask] on the channel"
-	line7="i                Make the channel invite only, must /INVITE users"
-	line8="k [key]          Set the channel key (password) to [key]"
-	line9="l [limit]        Set the maximum possible users to [limit]"
-	line10="m                Enable moderation. Only +vo can speak"
-	line11="n                Only users who are members of the channel may message it"
-	line12="p                Make channel private (hide from /LIST)"
-	line13="s                Make channel secret (can't be used at the same time as +p)"
-	line14="t                Only halfops and above can change the topic">
+	line7="a [nickname]     Give protected status to [nickname] (+q only)"
+	lone8="q [nickname]     Give founder status to [nickname] (ulines only)"
+	line9="i                Make the channel invite only, must /INVITE users"
+	line10="k [key]          Set the channel key (password) to [key]"
+	line11="l [limit]        Set the maximum possible users to [limit]"
+	line12="m                Enable moderation. Only +vo can speak"
+	line13="n                Only users who are members of the channel may message it"
+	line14="p                Make channel private (hide from /LIST)"
+	line15="s                Make channel secret (can't be used at the same time as +p)"
+	line16="t                Only halfops and above can change the topic">
 
