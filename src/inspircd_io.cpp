@@ -292,6 +292,7 @@ int ReadConf(std::stringstream *config, const char* tag, const char* var, int in
 						if (!key)
 						{
 							/* value not found in tag */
+							strcpy(result,"");
 							return 0;
 						}
 						else
@@ -302,6 +303,7 @@ int ReadConf(std::stringstream *config, const char* tag, const char* var, int in
 								if (!strlen(key))
 								{
 									/* missing quote */
+									strcpy(result,"");
 									return 0;
 								}
 								key++;
@@ -339,6 +341,7 @@ int ReadConf(std::stringstream *config, const char* tag, const char* var, int in
 			}
 		}
 	}
+	strcpy(result,""); // value or its tag not found at all
 	return 0;
 }
 

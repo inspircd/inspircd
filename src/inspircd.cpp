@@ -4797,8 +4797,6 @@ void process_command(userrec *user, char* cmd)
 		}
 
 	}
-	log(DEBUG,"A %d %s",strlen(cmd),cmd);
-	
 	cmd_found = 0;
 	
 	if (strlen(command)>MAXCOMMAND)
@@ -4806,8 +4804,6 @@ void process_command(userrec *user, char* cmd)
 		kill_link(user,"Protocol violation (2)");
 		return;
 	}
-	
-	log(DEBUG,"A %d %s",strlen(cmd),cmd);
 	
 	for (int x = 0; x < strlen(command); x++)
 	{
