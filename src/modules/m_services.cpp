@@ -48,7 +48,14 @@ class ModuleServices : public Module
 				// only a u-lined server may add or remove the +r mode.
 				if ((Srv->IsUlined(user->nick)) || (Srv->IsUlined(user->server)))
 				{
-					return 1;
+					// FCS - BugFix for #27 :)
+					if ((!strchr(user->modes,'r')) && (mode_on == false)) {
+						return 1;
+					} else if (strchr(user->modes,'r'))  && (mode_on == true)) {
+						return 1;
+					} else { 
+						return 0;
+					}
 				}
 				else
 				{
