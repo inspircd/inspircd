@@ -12,6 +12,7 @@
 echo "Configuring Default Values"
 
 ME=`pwd`
+TEMP="$ME/makeconf.temp"
 SERV_NAME="my.server.name"
 SERV_DESC="My InspIRCd Server"
 SERV_NET="MyNetwork"
@@ -42,8 +43,9 @@ OP_DEBUG="default"
 OP_HALFY="yes"
 OP_PROTE="yes"
 OP_FOUND="yes"
+OP_MAWHO="128"
 
-rm -f makeconf.temp
+rm -f $TEMP
 
 c=""
 n=""
@@ -142,46 +144,46 @@ echo "Section Complete, Writing Config File Header."
 # Config file header Here!
 ###
 
-echo "########################################################################" >> makeconf.temp
-echo "#                                                                      #" >> makeconf.temp
-echo "#                     ---------------------------                      #" >> makeconf.temp
-echo "#                     InspIRCd Configuration File                      #" >> makeconf.temp
-echo "#                     ---------------------------                      #" >> makeconf.temp
-echo "#                                                                      #" >> makeconf.temp
-echo "##################################||####################################" >> makeconf.temp
-echo "                                 #||#" >> makeconf.temp
-echo "##################################||####################################" >> makeconf.temp
-echo "#                                                                      #" >> makeconf.temp
-echo "#         This is an example of the config file for InspIRCd.          #" >> makeconf.temp
-echo "#             Change the options to suit your network                  #" >> makeconf.temp
-echo "#                                                                      #" >> makeconf.temp
-echo "#                 Written by      : makeconf (Craig@inspircd.org)      #" >> makeconf.temp
-echo "#                                                                      #" >> makeconf.temp
-echo "########################################################################" >> makeconf.temp
-echo "" >> makeconf.temp
-echo "" >> makeconf.temp
+echo "########################################################################" >> $TEMP
+echo "#                                                                      #" >> $TEMP
+echo "#                     ---------------------------                      #" >> $TEMP
+echo "#                     InspIRCd Configuration File                      #" >> $TEMP
+echo "#                     ---------------------------                      #" >> $TEMP
+echo "#                                                                      #" >> $TEMP
+echo "##################################||####################################" >> $TEMP
+echo "                                 #||#" >> $TEMP
+echo "##################################||####################################" >> $TEMP
+echo "#                                                                      #" >> $TEMP
+echo "#         This is an example of the config file for InspIRCd.          #" >> $TEMP
+echo "#             Change the options to suit your network                  #" >> $TEMP
+echo "#                                                                      #" >> $TEMP
+echo "#                 Written by      : makeconf (Craig@inspircd.org)      #" >> $TEMP
+echo "#                                                                      #" >> $TEMP
+echo "########################################################################" >> $TEMP
+echo "" >> $TEMP
+echo "" >> $TEMP
 
 ###
 # Complete, server tag now
 ###
 
-echo "#-#-#-#-#-#-#-#-#-#-#-#-  SERVER DESCRIPTION  -#-#-#-#-#-#-#-#-#-#-#-#-" >> makeconf.temp
-echo "<server  name=\"$SERV_NAME\"" >> makeconf.temp
-echo "         description=\"$SERV_DESC\"" >> makeconf.temp
-echo "         network=\"$SERV_NET\">" >> makeconf.temp
-echo "" >> makeconf.temp
-echo "" >> makeconf.temp
+echo "#-#-#-#-#-#-#-#-#-#-#-#-  SERVER DESCRIPTION  -#-#-#-#-#-#-#-#-#-#-#-#-" >> $TEMP
+echo "<server  name=\"$SERV_NAME\"" >> $TEMP
+echo "         description=\"$SERV_DESC\"" >> $TEMP
+echo "         network=\"$SERV_NET\">" >> $TEMP
+echo "" >> $TEMP
+echo "" >> $TEMP
 
 ###
 # Admin Tag..
 ###
 
-echo "#-#-#-#-#-#-#-#-#-#-#-#-   ADMIN INFORMATION   -#-#-#-#-#-#-#-#-#-#-#-#" >> makeconf.temp
-echo "<admin  name=\"$ADMIN_NAME\"" >> makeconf.temp
-echo "        nick=\"$ADMIN_NICK\"" >> makeconf.temp
-echo "        email=\"$ADMIN_MAIL\">" >> makeconf.temp
-echo "" >> makeconf.temp
-echo "" >> makeconf.temp
+echo "#-#-#-#-#-#-#-#-#-#-#-#-   ADMIN INFORMATION   -#-#-#-#-#-#-#-#-#-#-#-#" >> $TEMP
+echo "<admin  name=\"$ADMIN_NAME\"" >> $TEMP
+echo "        nick=\"$ADMIN_NICK\"" >> $TEMP
+echo "        email=\"$ADMIN_MAIL\">" >> $TEMP
+echo "" >> $TEMP
+echo "" >> $TEMP
 
 ###
 # Complete.
@@ -205,17 +207,17 @@ echo ""
 # Write Config Header..
 ###
 
-echo "#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-  RTFM LINE  -#-#-#-#-#-#-#-#-#-#-#-#-#-#" >> makeconf.temp
-echo "#                                                                     #" >> makeconf.temp
-echo "#   Just remove this... Its here to make you read through this file   #" >> makeconf.temp
-echo "#   properly after running \"makeconf\"                               #" >> makeconf.temp
-echo "" >> makeconf.temp
-echo "<die value=\"tut tut, someone didnt check their config file properly\">" >> makeconf.temp
-echo "" >> makeconf.temp
-echo "" >> makeconf.temp
+echo "#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-  RTFM LINE  -#-#-#-#-#-#-#-#-#-#-#-#-#-#" >> $TEMP
+echo "#                                                                     #" >> $TEMP
+echo "#   Just remove this... Its here to make you read through this file   #" >> $TEMP
+echo "#   properly after running \"makeconf\"                               #" >> $TEMP
+echo "" >> $TEMP
+echo "<die value=\"tut tut, someone didnt check their config file properly\">" >> $TEMP
+echo "" >> $TEMP
+echo "" >> $TEMP
 
 
-echo "#-#-#-#-#-#-#-#-#-#-#-#-   PORT CONFIGURATION   -#-#-#-#-#-#-#-#-#-#-#-" >> makeconf.temp
+echo "#-#-#-#-#-#-#-#-#-#-#-#-   PORT CONFIGURATION   -#-#-#-#-#-#-#-#-#-#-#-" >> $TEMP
 
 ###
 # Ok, done.. Proceed :)
@@ -243,21 +245,21 @@ while [ $ok -eq 0 ] ; do
 		else
 			default=1
 			BOUND_PORT="$BOUND_PORT $cc"
-			echo "<bind address=\"$BIND_IP\" port=\"$cc\">" >> makeconf.temp
+			echo "<bind address=\"$BIND_IP\" port=\"$cc\">" >> $TEMP
 		fi
 	fi
 done
 
 if [ "$default" == "0" ] ; then 
-	echo "<bind address=\"\" port=\"6667\">" >> makeconf.temp
+	echo "<bind address=\"\" port=\"6667\">" >> $TEMP
 fi
 
 ###
 # OoOok.. Finishing section
 ###
 
-echo "" >> makeconf.temp
-echo "" >> makeconf.temp
+echo "" >> $TEMP
+echo "" >> $TEMP
 
 ###
 # Finished, Port Configuration Complete :D
@@ -266,7 +268,7 @@ echo "" >> makeconf.temp
 
 clear
 if [ "$default" == "0" ] ; then
-	echo "<bind address=\"\" port=\"6667\">" >> makeconf.temp
+	echo "<bind address=\"\" port=\"6667\">" >> $TEMP
 	echo ""
 	echo ""
 fi
@@ -321,12 +323,12 @@ fi
 # Now Write the config.. What phun
 ###
 
-echo "#-#-#-#-#-#-#-#-#-#-  DIE/RESTART CONFIGURATION   -#-#-#-#-#-#-#-#-#-#-" >> makeconf.temp
-echo "<power  diepass=\"$DIE_PASS\"" >> makeconf.temp
-echo "        restartpass=\"$RESTART_PASS\"" >> makeconf.temp
-echo "        pause=\"$DIE_WAIT\">" >> makeconf.temp
-echo "" >> makeconf.temp
-echo "" >> makeconf.temp
+echo "#-#-#-#-#-#-#-#-#-#-  DIE/RESTART CONFIGURATION   -#-#-#-#-#-#-#-#-#-#-" >> $TEMP
+echo "<power  diepass=\"$DIE_PASS\"" >> $TEMP
+echo "        restartpass=\"$RESTART_PASS\"" >> $TEMP
+echo "        pause=\"$DIE_WAIT\">" >> $TEMP
+echo "" >> $TEMP
+echo "" >> $TEMP
 
 ###
 # <Insert done comment here>
@@ -347,7 +349,7 @@ echo ""
 # Just another Friendly Header :p
 ###
 
-echo "#-#-#-#-#-#-#-#-#-#-  CONNECTIONS CONFIGURATION   -#-#-#-#-#-#-#-#-#-#-" >> makeconf.temp
+echo "#-#-#-#-#-#-#-#-#-#-  CONNECTIONS CONFIGURATION   -#-#-#-#-#-#-#-#-#-#-" >> $TEMP
 
 ok=0
 default=0
@@ -382,21 +384,21 @@ while [ $ok -eq 0 ] ; do
                read cc 
                if [ ! "$cc" ] ; then
 	       default=1 
-                       echo "<connect allow=\"$ALLOW_IP\" timeout=\"$TIMEOUT\">" >> makeconf.temp 
+                       echo "<connect allow=\"$ALLOW_IP\" timeout=\"$TIMEOUT\">" >> $TEMP 
                else 
-                       echo "<connect allow=\"$ALLOW_IP\" password=\"$cc\" timeout=\"$TIMEOUT\>" >> makeconf.temp 
+                       echo "<connect allow=\"$ALLOW_IP\" password=\"$cc\" timeout=\"$TIMEOUT\>" >> $TEMP 
                fi 
        fi 
 done 
 if [ "$default" == "0" ] ; then
-	 echo "<connect allow=\"*\">" >> makeconf.temp
+	 echo "<connect allow=\"*\">" >> $TEMP
 fi
 
 ###
 # Insert Line Break before deny
 ###
 
-echo "" >> makeconf.temp
+echo "" >> $TEMP
 
 
 ###
@@ -421,7 +423,7 @@ while [ $ok -eq 0 ] ; do
         elif [ ! "$cc" ] ; then
                 ok=1
         else
-               echo "<connect deny=\"$cc\">" >> makeconf.temp
+               echo "<connect deny=\"$cc\">" >> $TEMP
         fi
 done
 
@@ -429,8 +431,8 @@ done
 # Footer Now
 ###
 
-echo "" >> makeconf.temp
-echo "" >> makeconf.temp
+echo "" >> $TEMP
+echo "" >> $TEMP
 
 clear
 echo "Ok, now thats finished, we come to oper Classes And Compositions. Due to the Nature"
@@ -447,21 +449,21 @@ if [ "$cc" ] ; then
         VHOST_DOMAIN=$cc
 fi
 
-echo "#-#-#-#-#-#-#-#-#-#-#-#-  CLASS CONFIGURATION   -#-#-#-#-#-#-#-#-#-#-#-" >> makeconf.temp
-echo "<class name=\"Shutdown\" commands=\"DIE RESTART REHASH\">" >> makeconf.temp
-echo "<class name=\"ServerLink\" commands=\"CONNECT SQUIT\">" >> makeconf.temp
-echo "<class name=\"BanControl\" commands=\"KILL GLINE KLINE ZLINE QLINE SHUN\">" >> makeconf.temp
-echo "<class name=\"OperChat\" commands=\"WALLOPS CHATOPS\">" >> makeconf.temp
-echo "<class name=\"HostCloak\" commands=\"SETHOST SETIDENT SETNAME\">" >> makeconf.temp
-echo "" >> makeconf.temp
-echo "" >> makeconf.temp
-echo "#-#-#-#-#-#-#-#-#-#-#-#-  OPERATOR COMPOSITION   -#-#-#-#-#-#-#-#-#-#-#" >> makeconf.temp
-echo "<type name=\"NetAdmin\" classes=\"OperChat BanControl HostCloak Shutdown ServerLink\" host=\"netadmin.$VHOST_DOMAIN\">" >> makeconf.temp
-echo "<type name=\"GlobalOp\" classes=\"OperChat BanControl HostCloak ServerLink\" host=\"ircop.$VHOST_DOMAIN\">" >> makeconf.temp
-echo "<type name=\"LocalOp\" classes=\"OperChat BanControl HostCloak\" host=\"local.$VHOST_DOMAIN\">" >> makeconf.temp
-echo "<type name=\"Helper\" classes=\"HostCloak\" host=\"helper.$VHOST_DOMAIN\">" >> makeconf.temp
-echo "" >> makeconf.temp
-echo "" >> makeconf.temp
+echo "#-#-#-#-#-#-#-#-#-#-#-#-  CLASS CONFIGURATION   -#-#-#-#-#-#-#-#-#-#-#-" >> $TEMP
+echo "<class name=\"Shutdown\" commands=\"DIE RESTART REHASH\">" >> $TEMP
+echo "<class name=\"ServerLink\" commands=\"CONNECT SQUIT\">" >> $TEMP
+echo "<class name=\"BanControl\" commands=\"KILL GLINE KLINE ZLINE QLINE SHUN\">" >> $TEMP
+echo "<class name=\"OperChat\" commands=\"WALLOPS CHATOPS\">" >> $TEMP
+echo "<class name=\"HostCloak\" commands=\"SETHOST SETIDENT SETNAME\">" >> $TEMP
+echo "" >> $TEMP
+echo "" >> $TEMP
+echo "#-#-#-#-#-#-#-#-#-#-#-#-  OPERATOR COMPOSITION   -#-#-#-#-#-#-#-#-#-#-#" >> $TEMP
+echo "<type name=\"NetAdmin\" classes=\"OperChat BanControl HostCloak Shutdown ServerLink\" host=\"netadmin.$VHOST_DOMAIN\">" >> $TEMP
+echo "<type name=\"GlobalOp\" classes=\"OperChat BanControl HostCloak ServerLink\" host=\"ircop.$VHOST_DOMAIN\">" >> $TEMP
+echo "<type name=\"LocalOp\" classes=\"OperChat BanControl HostCloak\" host=\"local.$VHOST_DOMAIN\">" >> $TEMP
+echo "<type name=\"Helper\" classes=\"HostCloak\" host=\"helper.$VHOST_DOMAIN\">" >> $TEMP
+echo "" >> $TEMP
+echo "" >> $TEMP
 clear
 echo "Yay, now comes the fun Part, time to specify Opers."
 
@@ -480,7 +482,7 @@ echo "You may re-configure the classes later, and if you enter nothing for part 
 # Stolen another few lines >;)
 ###
 
-echo "#-#-#-#-#-#-#-#-#-#-#-  OPERATOR CONFIGURATION   -#-#-#-#-#-#-#-#-#-#-#" >> makeconf.temp
+echo "#-#-#-#-#-#-#-#-#-#-#-  OPERATOR CONFIGURATION   -#-#-#-#-#-#-#-#-#-#-#" >> $TEMP
 
 ###
 # Done :p
@@ -527,23 +529,23 @@ while [ $ok -eq 0 ] ; do
 		fi
 		echo "Coming for a re-run"
 
-		echo "<oper  name=\"$OPER_LOGIN\"" >> makeconf.temp
-		echo "       password=\"$OPER_PASS\"" >> makeconf.temp
-		echo "       host=\"$OPER_HOST\"" >> makeconf.temp 
-		echo "       type=\"$OPER_TYPE\">" >> makeconf.temp
+		echo "<oper  name=\"$OPER_LOGIN\"" >> $TEMP
+		echo "       password=\"$OPER_PASS\"" >> $TEMP
+		echo "       host=\"$OPER_HOST\"" >> $TEMP 
+		echo "       type=\"$OPER_TYPE\">" >> $TEMP
 
 	fi
 done
 
-echo "" >> makeconf.temp
-echo "" >> makeconf.temp
+echo "" >> $TEMP
+echo "" >> $TEMP
 
-echo "#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-  RTFM LINE  -#-#-#-#-#-#-#-#-#-#-#-#-#-#" >> makeconf.temp
-echo "# You should know what to do here.. if not.. RTFM!! muahahahahaha     #" >> makeconf.temp
-echo "" >> makeconf.temp
-echo "<die value=\"And god came down from the heavens and smote down the noob.\">" >> makeconf.temp
-echo "" >> makeconf.temp
-echo "" >> makeconf.temp
+echo "#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-  RTFM LINE  -#-#-#-#-#-#-#-#-#-#-#-#-#-#" >> $TEMP
+echo "# You should know what to do here.. if not.. RTFM!! muahahahahaha     #" >> $TEMP
+echo "" >> $TEMP
+echo "<die value=\"And god came down from the heavens and smote down the noob.\">" >> $TEMP
+echo "" >> $TEMP
+echo "" >> $TEMP
 
 
 clear
@@ -567,11 +569,11 @@ if [ "$cc" ] ; then
 	FILES_RULE=$cc
 fi
 
-echo "#-#-#-#-#-#-#-#-#-#-  MISCELLANEOUS CONFIGURATION   -#-#-#-#-#-#-#-#-#-" >> makeconf.temp
-echo "<files  motd=\"$FILES_MOTD\"" >> makeconf.temp
-echo "        rules=\"$FILES_RULE\">" >> makeconf.temp
-echo "" >> makeconf.temp
-echo "" >> makeconf.temp
+echo "#-#-#-#-#-#-#-#-#-#-  MISCELLANEOUS CONFIGURATION   -#-#-#-#-#-#-#-#-#-" >> $TEMP
+echo "<files  motd=\"$FILES_MOTD\"" >> $TEMP
+echo "        rules=\"$FILES_RULE\">" >> $TEMP
+echo "" >> $TEMP
+echo "" >> $TEMP
 clear
 echo "Module Time!!"
 echo ""
@@ -593,7 +595,7 @@ echo ""
 # Module Header :p
 ###
 
-echo "#-#-#-#-#-#-#-#-#-#-#-#-#-  MODULE OPTIONS   -#-#-#-#-#-#-#-#-#-#-#-#-#" >> makeconf.temp
+echo "#-#-#-#-#-#-#-#-#-#-#-#-#-  MODULE OPTIONS   -#-#-#-#-#-#-#-#-#-#-#-#-#" >> $TEMP
 
 ###
 # End header
@@ -603,14 +605,14 @@ while [ "$ok" -eq 0 ] ; do
 echo $n "[] -> $c"
 read cc
 if [ "$cc" ] ; then
-	echo "<module name=\"$cc\">" >> makeconf.temp
+	echo "<module name=\"$cc\">" >> $TEMP
 else
 	ok=1
 fi
 done
 
-echo "" >> makeconf.temp
-echo "" >> makeconf.temp
+echo "" >> $TEMP
+echo "" >> $TEMP
 
 clear
 
@@ -625,6 +627,18 @@ read cc
 if [ $cc ] ; then
 	OP_PREFIX=$cc
 fi
+
+echo ""
+echo "Maximum Number of results for a /who (Between 1 and 65535) Default 128."
+echo -e $n "[\033[1;32m$OP_MAWHO\033[0;37m] -> $c"
+if [ -z $cc ] ; then
+        cc=$OP_MAWHO
+fi
+case "$cc" in
+	([0-9]*)
+		OP_MAWHO=$cc
+		;;
+esac
 
 echo ""
 echo "Log level [debug, verbose, default, sparse, none]"
@@ -658,14 +672,15 @@ if [ "$cc" ] ; then
         OP_FOUND=$cc
 fi
 
-echo "#-#-#-#-#-#-#-#-#-#-#-#-#-  SERVER OPTIONS   -#-#-#-#-#-#-#-#-#-#-#-#-#" >> makeconf.temp
-echo "<options  prefixquit=\"$OP_PREFIX\"" >> makeconf.temp 
-echo "          loglevel=\"$OP_DEBUG\"" >> makeconf.temp
-echo "          allowhalfop=\"$OP_HALFY\"" >> makeconf.temp
-echo "          allowprotect=\"$OP_PROTE\"" >> makeconf.temp
-echo "          allowfounder=\"$OP_FOUND\">" >> makeconf.temp
-echo "" >> makeconf.temp
-echo "" >> makeconf.temp
+echo "#-#-#-#-#-#-#-#-#-#-#-#-#-  SERVER OPTIONS   -#-#-#-#-#-#-#-#-#-#-#-#-#" >> $TEMP
+echo "<options  prefixquit=\"$OP_PREFIX\"" >> $TEMP 
+echo "          loglevel=\"$OP_DEBUG\"" >> $TEMP
+echo "          allowhalfop=\"$OP_HALFY\"" >> $TEMP
+echo "          allowprotect=\"$OP_PROTE\"" >> $TEMP
+echo "          allowfounder=\"$OP_FOUND\">" >> $TEMP
+echo "          maxwho=\"$OP_MAWHO\">" >> $TEMP
+echo "" >> $TEMP
+echo "" >> $TEMP
 
 ME=`pwd`
 DIR=$ME/conf/inspircd.conf
@@ -678,21 +693,19 @@ if [ "$cc" ] ; then
  DIR=$cc
 fi
 
-echo "#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#- YAWN  -#-#-#-#-#-#-#-#-#-#-#-#-#-#-#" >> makeconf.temp
-echo "#                                                                     #" >> makeconf.temp
-echo "#   You should already know what to do here :)                        #" >> makeconf.temp
-echo "" >> makeconf.temp
-echo "<die value=\"All l33t noobs must edit their configs.\">" >> makeconf.temp
-echo "" >> makeconf.temp
-echo "" >> makeconf.temp
-echo "#########################################################################" >> makeconf.temp
-echo "#                                                                       #" >> makeconf.temp
-echo "#                -InspIRCd Development and Coding Team-                 #" >> makeconf.temp
-echo "#                          www.inspircd.org                             #" >> makeconf.temp
-echo "#                                                                       #" >> makeconf.temp
-echo "#########################################################################" >> makeconf.temp
+echo "#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#- YAWN  -#-#-#-#-#-#-#-#-#-#-#-#-#-#-#" >> $TEMP
+echo "#                                                                     #" >> $TEMP
+echo "#   You should already know what to do here :)                        #" >> $TEMP
+echo "" >> $TEMP
+echo "<die value=\"All l33t noobs must edit their configs.\">" >> $TEMP
+echo "" >> $TEMP
+echo "" >> $TEMP
+echo "#########################################################################" >> $TEMP
+echo "#                                                                       #" >> $TEMP
+echo "#                -InspIRCd Development and Coding Team-                 #" >> $TEMP
+echo "#                          www.inspircd.org                             #" >> $TEMP
+echo "#                                                                       #" >> $TEMP
+echo "#########################################################################" >> $TEMP
 
-
-
-
-mv makeconf.temp $DIR
+mv $TEMP $DIR
+echo -e "Complete."

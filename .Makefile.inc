@@ -35,7 +35,7 @@ echo "config:" >> Makefile
 if [ -n "$COPY_CONF" ] ; then
 echo "	@cp conf/* \$(CONPATH)" >> Makefile
 else
-echo "	echo \"*** Nothing to Be Done for make config\"" >> Makefile
+echo "	@echo \"*** Nothing to Be Done for make config\"" >> Makefile
 fi
 echo "clean:" >> Makefile
 echo "	rm -rf src/*.o" >> Makefile
