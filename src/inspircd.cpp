@@ -76,6 +76,7 @@ int WHOWAS_MAX = 100;  // default 100 people maximum in the WHOWAS list
 int DieDelay  =  5;
 time_t startup_time = time(NULL);
 int NetBufferSize = 10240; // NetBufferSize used as the buffer size for all read() ops
+time_t nb_start = time(NULL);
 
 extern vector<Module*> modules;
 std::vector<std::string> module_names;
@@ -5332,8 +5333,8 @@ void DoSync(serverrec* serv, char* udp_host,int udp_port, long MyKey)
 		if (strcmp(c->second->topic,""))
 		{
 			snprintf(data,MAXBUF,"T %d %s %s :%s",c->second->topicset,c->second->setby,c->second->name,c->second->topic);
+			serv->SendPacket(data,udp_host,udp_port,MyKey);
 		}
-		serv->SendPacket(data,udp_host,udp_port,MyKey);
 		// send current banlist
 		
 		for (BanList::iterator b = c->second->bans.begin(); b != c->second->bans.end(); b++)
@@ -5347,6 +5348,25 @@ void DoSync(serverrec* serv, char* udp_host,int udp_port, long MyKey)
 	serv->SendPacket(data,udp_host,udp_port,MyKey);
 }
 
+void handle_T(char token,char* params,serverrec* source,serverrec* reply, char* udp_host,int udp_port)
+{
+	char* tm = strtok(params," ");
+	char* setnick = strtok(NULL," ");
+	char* channel = strtok(NULL," :");
+	char* topic = strtok(NULL,"\r\n");
+	topic++;
+	time_t TS = atoi(tm);
+	chanrec* c = FindChan(channel);
+	if (c)
+	{
+		if (TS <= c->age)
+		{
+			WriteChannelLocal(c,NULL,"TOPIC %s :%s",c->name,topic);
+			strncpy(c->topic,topic,MAXTOPIC);
+		}
+ 	}	
+}
+	
 void handle_M(char token,char* params,serverrec* source,serverrec* reply, char* udp_host,int udp_port)
 {
 	char* pars[128];
@@ -5416,6 +5436,12 @@ void handle_N(char token,char* params,serverrec* source,serverrec* reply, char* 
 	clientlist[nick]->idle_lastmsg = time(NULL); // this is unrealiable and wont actually be used locally
 }
 
+void handle_F(char token,char* params,serverrec* source,serverrec* reply, char* udp_host,int udp_port)
+{
+	long tdiff = time(NULL) - atoi(params);
+	WriteOpers("TS split for %s -> %s: %d",source->name,reply->name,tdiff);
+}
+
 void handle_J(char token,char* params,serverrec* source,serverrec* reply, char* udp_host,int udp_port)
 {
 	// IMPORTANT NOTE
@@ -5475,6 +5501,8 @@ void process_restricted_commands(char token,char* params,serverrec* source,serve
 		// Y <TS>
   		// start netburst
 		case 'Y':
+			nb_start = time(NULL);
+			WriteOpers("Server %s is starting netburst.",source->name);
 		break;
 		// N <TS> <NICK> <HOST> <DHOST> <IDENT> <MODES> <SERVER> :<GECOS>
 		// introduce remote client
@@ -5486,9 +5514,10 @@ void process_restricted_commands(char token,char* params,serverrec* source,serve
 		case 'J':
 			handle_J(token,params,source,reply,udp_host,udp_port);
 		break;
-		// T <TS> <CHANNEL> <TOPICSETTER> <TOPIC>
+		// T <TS> <CHANNEL> <TOPICSETTER> :<TOPIC>
 		// change channel topic (netburst only)
 		case 'T':
+			handle_T(token,params,source,reply,udp_host,udp_port);
 		break;
 		// M <TS> <TARGET> <MODES> [MODE-PARAMETERS]
 		// Set modes on an object
@@ -5498,6 +5527,8 @@ void process_restricted_commands(char token,char* params,serverrec* source,serve
 		// F <TS>
 		// end netburst
 		case 'F':
+			WriteOpers("Server %s has completed netburst. (%d secs)",source->name,time(NULL)-nb_start);
+			handle_F(token,params,source,reply,udp_host,udp_port);
 		break;
 		// anything else
 		default:
