@@ -82,7 +82,7 @@ class ModuleKnock : public Module
                 }
 		if (temp2.length())
 		{
-	                output = temp2.substr(0,temp2.length()-1) + std::string(" KNOCK")
+	                output = temp2.substr(0,temp2.length()-1) + std::string(" KNOCK");
 		}
 		else output = output + std::string(" KNOCK");
         }
