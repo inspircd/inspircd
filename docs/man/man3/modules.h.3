@@ -1,0 +1,302 @@
+.TH "modules.h" 3 "2 May 2004" "InspIRCd" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+modules.h \- 
+.SH SYNOPSIS
+.br
+.PP
+\fC#include 'dynamic.h'\fP
+.br
+\fC#include 'base.h'\fP
+.br
+\fC#include 'ctables.h'\fP
+.br
+\fC#include <string>\fP
+.br
+\fC#include <deque>\fP
+.br
+\fC#include <sstream>\fP
+.br
+
+.SS "Compounds"
+
+.in +1c
+.ti -1c
+.RI "class \fBAdmin\fP"
+.br
+.RI "\fIHolds /ADMIN data This class contains the admin details of the local server.\fP"
+.ti -1c
+.RI "class \fBConfigReader\fP"
+.br
+.RI "\fIAllows reading of values from configuration files This class allows a module to read from either the main configuration file (inspircd.conf) or from a module-specified configuration file.\fP"
+.ti -1c
+.RI "class \fBFileReader\fP"
+.br
+.RI "\fICaches a text file into memory and can be used to retrieve lines from it.\fP"
+.ti -1c
+.RI "class \fBModule\fP"
+.br
+.RI "\fIBase class for all InspIRCd modules This class is the base class for InspIRCd modules.\fP"
+.ti -1c
+.RI "class \fBModuleFactory\fP"
+.br
+.RI "\fIInstantiates classes inherited from \fBModule\fP This class creates a class inherited from type \fBModule\fP, using new.\fP"
+.ti -1c
+.RI "class \fBServer\fP"
+.br
+.RI "\fIAllows server output and query functions This class contains methods which allow a module to query the state of the irc server, and produce output to users and other servers.\fP"
+.ti -1c
+.RI "class \fBVersion\fP"
+.br
+.RI "\fIHolds a module's Version information The four members (set by the constructor only) indicate details as to the version number of a module.\fP"
+.in -1c
+.SS "Defines"
+
+.in +1c
+.ti -1c
+.RI "#define \fBDEBUG\fP   10"
+.br
+.ti -1c
+.RI "#define \fBVERBOSE\fP   20"
+.br
+.ti -1c
+.RI "#define \fBDEFAULT\fP   30"
+.br
+.ti -1c
+.RI "#define \fBSPARSE\fP   40"
+.br
+.ti -1c
+.RI "#define \fBNONE\fP   50"
+.br
+.ti -1c
+.RI "#define \fBMT_CHANNEL\fP   1"
+.br
+.ti -1c
+.RI "#define \fBMT_CLIENT\fP   2"
+.br
+.ti -1c
+.RI "#define \fBMT_SERVER\fP   3"
+.br
+.ti -1c
+.RI "#define \fBACR_DEFAULT\fP   0"
+.br
+.ti -1c
+.RI "#define \fBACR_DENY\fP   1"
+.br
+.ti -1c
+.RI "#define \fBACR_ALLOW\fP   2"
+.br
+.ti -1c
+.RI "#define \fBAC_KICK\fP   0"
+.br
+.ti -1c
+.RI "#define \fBAC_DEOP\fP   1"
+.br
+.ti -1c
+.RI "#define \fBAC_OP\fP   2"
+.br
+.ti -1c
+.RI "#define \fBAC_VOICE\fP   3"
+.br
+.ti -1c
+.RI "#define \fBAC_DEVOICE\fP   4"
+.br
+.ti -1c
+.RI "#define \fBAC_HALFOP\fP   5"
+.br
+.ti -1c
+.RI "#define \fBAC_DEHALFOP\fP   6"
+.br
+.ti -1c
+.RI "#define \fBAC_INVITE\fP   7"
+.br
+.ti -1c
+.RI "#define \fBAC_GENERAL_MODE\fP   8"
+.br
+.ti -1c
+.RI "#define \fBFOREACH_MOD\fP   for (int i = 0; i <= \fBMODCOUNT\fP; i++) modules[i]->"
+.br
+.ti -1c
+.RI "#define \fBFOREACH_RESULT\fP(x)"
+.br
+.ti -1c
+.RI "#define \fBCONF_NOT_A_NUMBER\fP   0x000010"
+.br
+.ti -1c
+.RI "#define \fBCONF_NOT_UNSIGNED\fP   0x000080"
+.br
+.ti -1c
+.RI "#define \fBCONF_VALUE_NOT_FOUND\fP   0x000100"
+.br
+.ti -1c
+.RI "#define \fBCONF_FILE_NOT_FOUND\fP   0x000200"
+.br
+.in -1c
+.SS "Typedefs"
+
+.in +1c
+.ti -1c
+.RI "typedef std::deque< std::string > \fBfile_cache\fP"
+.br
+.RI "\fILow level definition of a \fBFileReader\fP classes file cache area.\fP"
+.ti -1c
+.RI "typedef \fBfile_cache\fP \fBstring_list\fP"
+.br
+.ti -1c
+.RI "typedef std::deque< \fBuserrec\fP * > \fBchanuserlist\fP"
+.br
+.RI "\fIHolds a list of users in a channel.\fP"
+.ti -1c
+.RI "typedef DLLFactory< \fBModuleFactory\fP > \fBircd_module\fP"
+.br
+.in -1c
+.SS "Functions"
+
+.in +1c
+.ti -1c
+.RI "void \fBcreatecommand\fP (char *cmd, handlerfunc f, char flags, int minparams)"
+.br
+.ti -1c
+.RI "void \fBserver_mode\fP (char **parameters, int pcnt, \fBuserrec\fP *user)"
+.br
+.in -1c
+.SH "Define Documentation"
+.PP 
+.SS "#define AC_DEHALFOP   6"
+.PP
+Definition at line 37 of file modules.h.
+.SS "#define AC_DEOP   1"
+.PP
+Definition at line 32 of file modules.h.
+.SS "#define AC_DEVOICE   4"
+.PP
+Definition at line 35 of file modules.h.
+.SS "#define AC_GENERAL_MODE   8"
+.PP
+Definition at line 39 of file modules.h.
+.SS "#define AC_HALFOP   5"
+.PP
+Definition at line 36 of file modules.h.
+.SS "#define AC_INVITE   7"
+.PP
+Definition at line 38 of file modules.h.
+.SS "#define AC_KICK   0"
+.PP
+Definition at line 31 of file modules.h.
+.SS "#define AC_OP   2"
+.PP
+Definition at line 33 of file modules.h.
+.SS "#define AC_VOICE   3"
+.PP
+Definition at line 34 of file modules.h.
+.SS "#define ACR_ALLOW   2"
+.PP
+Definition at line 29 of file modules.h.
+.SS "#define ACR_DEFAULT   0"
+.PP
+Definition at line 27 of file modules.h.
+.PP
+Referenced by Module::OnAccessCheck().
+.SS "#define ACR_DENY   1"
+.PP
+Definition at line 28 of file modules.h.
+.SS "#define CONF_FILE_NOT_FOUND   0x000200"
+.PP
+Definition at line 610 of file modules.h.
+.PP
+Referenced by ConfigReader::ConfigReader().
+.SS "#define CONF_NOT_A_NUMBER   0x000010"
+.PP
+Definition at line 607 of file modules.h.
+.PP
+Referenced by ConfigReader::ReadInteger().
+.SS "#define CONF_NOT_UNSIGNED   0x000080"
+.PP
+Definition at line 608 of file modules.h.
+.PP
+Referenced by ConfigReader::ReadInteger().
+.SS "#define CONF_VALUE_NOT_FOUND   0x000100"
+.PP
+Definition at line 609 of file modules.h.
+.PP
+Referenced by ConfigReader::ReadFlag(), ConfigReader::ReadInteger(), and ConfigReader::ReadValue().
+.SS "#define DEBUG   10"
+.PP
+Definition at line 13 of file modules.h.
+.SS "#define DEFAULT   30"
+.PP
+Definition at line 15 of file modules.h.
+.SS "#define FOREACH_MOD   for (int i = 0; i <= \fBMODCOUNT\fP; i++) modules[i]->"
+.PP
+Definition at line 62 of file modules.h.
+.SS "#define FOREACH_RESULT(x)"
+.PP
+\fBValue:\fP.nf
+{ MOD_RESULT = 0; \
+                        for (int i = 0; i <= MODCOUNT; i++) { \
+                        int res = modules[i]->x ; \
+                        if (res != 0) { \
+                                MOD_RESULT = res; \
+                                break; \
+                        } \
+                } \
+        }
+.fi
+.PP
+Definition at line 70 of file modules.h.
+.SS "#define MT_CHANNEL   1"
+.PP
+Definition at line 21 of file modules.h.
+.PP
+Referenced by ModeMakeList().
+.SS "#define MT_CLIENT   2"
+.PP
+Definition at line 22 of file modules.h.
+.PP
+Referenced by Server::AddExtendedMode().
+.SS "#define MT_SERVER   3"
+.PP
+Definition at line 23 of file modules.h.
+.PP
+Referenced by Server::AddExtendedMode().
+.SS "#define NONE   50"
+.PP
+Definition at line 17 of file modules.h.
+.SS "#define SPARSE   40"
+.PP
+Definition at line 16 of file modules.h.
+.SS "#define VERBOSE   20"
+.PP
+Definition at line 14 of file modules.h.
+.SH "Typedef Documentation"
+.PP 
+.SS "typedef std::deque<\fBuserrec\fP*> chanuserlist"
+.PP
+Holds a list of users in a channel.Definition at line 55 of file modules.h.
+.PP
+Referenced by Server::GetUsers().
+.SS "typedef std::deque<std::string> file_cache"
+.PP
+Low level definition of a \fBFileReader\fP classes file cache area.Definition at line 50 of file modules.h.
+.PP
+Referenced by FileReader::FileReader(), and FileReader::LoadFile().
+.SS "typedef DLLFactory<\fBModuleFactory\fP> ircd_module"
+.PP
+Definition at line 767 of file modules.h.
+.SS "typedef \fBfile_cache\fP string_list"
+.PP
+Definition at line 51 of file modules.h.
+.PP
+Referenced by Module::OnChannelSync(), and Module::OnUserSync().
+.SH "Function Documentation"
+.PP 
+.SS "void createcommand (char * cmd, handlerfunc f, char flags, int minparams)"
+.PP
+Referenced by Server::AddCommand().
+.SS "void server_mode (char ** parameters, int pcnt, \fBuserrec\fP * user)"
+.PP
+Referenced by Server::SendMode().
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for InspIRCd from the source code.

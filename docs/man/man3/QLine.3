@@ -1,0 +1,41 @@
+.TH "QLine" 3 "2 May 2004" "InspIRCd" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+QLine \- QLine class. 
+
+.PP
+.SH SYNOPSIS
+.br
+.PP
+\fC#include <xline.h>\fP
+.PP
+Inherits \fBXLine\fP.
+.PP
+.SS "Public Attributes"
+
+.in +1c
+.ti -1c
+.RI "char \fBnick\fP [MAXBUF]"
+.br
+.RI "\fINickname to match against.\fP"
+.ti -1c
+.RI "bool \fBis_global\fP"
+.br
+.RI "\fISet if this is a global Z:line (e.g.\fP"
+.in -1c
+.SH "Detailed Description"
+.PP 
+QLine class.Definition at line 83 of file xline.h.
+.SH "Member Data Documentation"
+.PP 
+.SS "bool QLine::is_global"
+.PP
+Set if this is a global Z:line (e.g.it came from another server)Definition at line 93 of file xline.h.
+.SS "char QLine::nick[MAXBUF]"
+.PP
+Nickname to match against.May contain wildcards.Definition at line 89 of file xline.h.
+
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for InspIRCd from the source code.

@@ -1,0 +1,37 @@
+.TH "InAddr_HashComp" 3 "2 May 2004" "InspIRCd" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+InAddr_HashComp \- 
+.SH SYNOPSIS
+.br
+.PP
+.SS "Public Member Functions"
+
+.in +1c
+.ti -1c
+.RI "bool \fBoperator()\fP (const in_addr &s1, const in_addr &s2) const"
+.br
+.in -1c
+.SH "Member Function Documentation"
+.PP 
+.SS "bool InAddr_HashComp::operator() (const in_addr & s1, const in_addr & s2) const\fC [inline]\fP"
+.PP
+Definition at line 135 of file modules.cpp.
+.PP
+.nf
+136         {
+137                 size_t q;
+138                 size_t p;
+139                 
+140                 memcpy(&q,&s1,sizeof(size_t));
+141                 memcpy(&p,&s2,sizeof(size_t));
+142                 
+143                 return (q == p);
+144         }
+.fi
+
+
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for InspIRCd from the source code.

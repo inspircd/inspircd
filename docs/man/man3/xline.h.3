@@ -1,0 +1,183 @@
+.TH "xline.h" 3 "2 May 2004" "InspIRCd" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+xline.h \- 
+.SH SYNOPSIS
+.br
+.PP
+\fC#include <typeinfo>\fP
+.br
+\fC#include <iostream>\fP
+.br
+\fC#include <string>\fP
+.br
+\fC#include <deque>\fP
+.br
+\fC#include <sstream>\fP
+.br
+\fC#include <vector>\fP
+.br
+\fC#include 'users.h'\fP
+.br
+\fC#include 'channels.h'\fP
+.br
+
+.SS "Compounds"
+
+.in +1c
+.ti -1c
+.RI "class \fBGLine\fP"
+.br
+.RI "\fIGLine class.\fP"
+.ti -1c
+.RI "class \fBKLine\fP"
+.br
+.RI "\fIKLine class.\fP"
+.ti -1c
+.RI "class \fBQLine\fP"
+.br
+.RI "\fIQLine class.\fP"
+.ti -1c
+.RI "class \fBXLine\fP"
+.br
+.RI "\fIXLine is the base class for ban lines such as G lines and K lines.\fP"
+.ti -1c
+.RI "class \fBZLine\fP"
+.br
+.RI "\fIZLine class.\fP"
+.in -1c
+.SS "Functions"
+
+.in +1c
+.ti -1c
+.RI "void \fBread_xline_defaults\fP ()"
+.br
+.ti -1c
+.RI "void \fBadd_gline\fP (long duration, char *source, char *reason, char *hostmask)"
+.br
+.ti -1c
+.RI "void \fBadd_qline\fP (long duration, char *source, char *reason, char *nickname)"
+.br
+.ti -1c
+.RI "void \fBadd_zline\fP (long duration, char *source, char *reason, char *ipaddr)"
+.br
+.ti -1c
+.RI "void \fBadd_kline\fP (long duration, char *source, char *reason, char *hostmask)"
+.br
+.ti -1c
+.RI "bool \fBdel_gline\fP (char *hostmask)"
+.br
+.ti -1c
+.RI "bool \fBdel_qline\fP (char *nickname)"
+.br
+.ti -1c
+.RI "bool \fBdel_zline\fP (char *ipaddr)"
+.br
+.ti -1c
+.RI "bool \fBdel_kline\fP (char *hostmask)"
+.br
+.ti -1c
+.RI "char * \fBmatches_qline\fP (const char *nick)"
+.br
+.ti -1c
+.RI "char * \fBmatches_gline\fP (const char *host)"
+.br
+.ti -1c
+.RI "char * \fBmatches_zline\fP (const char *ipaddr)"
+.br
+.ti -1c
+.RI "char * \fBmatches_kline\fP (const char *host)"
+.br
+.ti -1c
+.RI "void \fBexpire_lines\fP ()"
+.br
+.ti -1c
+.RI "void \fBapply_lines\fP ()"
+.br
+.ti -1c
+.RI "void \fBstats_k\fP (\fBuserrec\fP *user)"
+.br
+.ti -1c
+.RI "void \fBstats_g\fP (\fBuserrec\fP *user)"
+.br
+.ti -1c
+.RI "void \fBstats_q\fP (\fBuserrec\fP *user)"
+.br
+.ti -1c
+.RI "void \fBstats_z\fP (\fBuserrec\fP *user)"
+.br
+.ti -1c
+.RI "void \fBgline_set_creation_time\fP (char *host, time_t create_time)"
+.br
+.ti -1c
+.RI "void \fBqline_set_creation_time\fP (char *nick, time_t create_time)"
+.br
+.ti -1c
+.RI "void \fBzline_set_creation_time\fP (char *ip, time_t create_time)"
+.br
+.ti -1c
+.RI "bool \fBzline_make_global\fP (char *ipaddr)"
+.br
+.ti -1c
+.RI "bool \fBqline_make_global\fP (char *nickname)"
+.br
+.ti -1c
+.RI "void \fBsync_xlines\fP (\fBserverrec\fP *serv, char *tcp_host)"
+.br
+.in -1c
+.SH "Function Documentation"
+.PP 
+.SS "void add_gline (long duration, char * source, char * reason, char * hostmask)"
+.PP
+.SS "void add_kline (long duration, char * source, char * reason, char * hostmask)"
+.PP
+.SS "void add_qline (long duration, char * source, char * reason, char * nickname)"
+.PP
+.SS "void add_zline (long duration, char * source, char * reason, char * ipaddr)"
+.PP
+.SS "void apply_lines ()"
+.PP
+.SS "bool del_gline (char * hostmask)"
+.PP
+.SS "bool del_kline (char * hostmask)"
+.PP
+.SS "bool del_qline (char * nickname)"
+.PP
+.SS "bool del_zline (char * ipaddr)"
+.PP
+.SS "void expire_lines ()"
+.PP
+.SS "void gline_set_creation_time (char * host, time_t create_time)"
+.PP
+.SS "char* matches_gline (const char * host)"
+.PP
+.SS "char* matches_kline (const char * host)"
+.PP
+.SS "char* matches_qline (const char * nick)"
+.PP
+.SS "char* matches_zline (const char * ipaddr)"
+.PP
+.SS "bool qline_make_global (char * nickname)"
+.PP
+.SS "void qline_set_creation_time (char * nick, time_t create_time)"
+.PP
+.SS "void read_xline_defaults ()"
+.PP
+.SS "void stats_g (\fBuserrec\fP * user)"
+.PP
+.SS "void stats_k (\fBuserrec\fP * user)"
+.PP
+.SS "void stats_q (\fBuserrec\fP * user)"
+.PP
+.SS "void stats_z (\fBuserrec\fP * user)"
+.PP
+.SS "void sync_xlines (\fBserverrec\fP * serv, char * tcp_host)"
+.PP
+.SS "bool zline_make_global (char * ipaddr)"
+.PP
+.SS "void zline_set_creation_time (char * ip, time_t create_time)"
+.PP
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for InspIRCd from the source code.

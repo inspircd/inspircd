@@ -1,0 +1,264 @@
+.TH "connection" 3 "2 May 2004" "InspIRCd" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+connection \- Please note: classes serverrec and userrec both inherit from class connection. 
+
+.PP
+.SH SYNOPSIS
+.br
+.PP
+\fC#include <connection.h>\fP
+.PP
+Inherits \fBExtensible\fP.
+.PP
+Inherited by \fBserverrec\fP, and \fBuserrec\fP.
+.PP
+.SS "Public Member Functions"
+
+.in +1c
+.ti -1c
+.RI "\fBconnection\fP ()"
+.br
+.RI "\fIDefault constructor.\fP"
+.ti -1c
+.RI "bool \fBCreateListener\fP (char *\fBhost\fP, int p)"
+.br
+.RI "\fICreate a listening socket on 'host' using port number 'p'.\fP"
+.ti -1c
+.RI "bool \fBBeginLink\fP (char *targethost, int \fBport\fP, char *password, char *servername, int myport)"
+.br
+.RI "\fIBegin an outbound link to another ircd at targethost.\fP"
+.ti -1c
+.RI "bool \fBMeshCookie\fP (char *targethost, int \fBport\fP, long cookie, char *servername)"
+.br
+.RI "\fIBegin an outbound mesh link to another ircd on a network you are already an authenticated member of.\fP"
+.ti -1c
+.RI "void \fBTerminateLink\fP (char *targethost)"
+.br
+.RI "\fITerminate a link to 'targethost' by calling the \fBircd_connector::CloseConnection\fP method.\fP"
+.ti -1c
+.RI "bool \fBSendPacket\fP (char *message, const char *\fBhost\fP)"
+.br
+.RI "\fISend a message to a server by name, if the server is unavailable directly route the packet via another server If the server still cannot be reached after attempting to route the message remotely, returns false.\fP"
+.ti -1c
+.RI "bool \fBRecvPacket\fP (std::deque< std::string > &messages, char *\fBhost\fP)"
+.br
+.RI "\fIReturns the next available packet and returns true if data is available.\fP"
+.ti -1c
+.RI "\fBircd_connector\fP * \fBFindHost\fP (std::string \fBhost\fP)"
+.br
+.RI "\fIFind the \fBircd_connector\fP oject related to a certain servername given in 'host'.\fP"
+.ti -1c
+.RI "bool \fBAddIncoming\fP (int \fBfd\fP, char *targethost, int sourceport)"
+.br
+.RI "\fIAdd an incoming connection to the connection pool.\fP"
+.ti -1c
+.RI "long \fBGenKey\fP ()"
+.br
+.RI "\fIThis function is deprecated and may be removed in a later alpha/beta.\fP"
+.in -1c
+.SS "Public Attributes"
+
+.in +1c
+.ti -1c
+.RI "int \fBfd\fP"
+.br
+.RI "\fIFile descriptor of the connection.\fP"
+.ti -1c
+.RI "char \fBhost\fP [256]"
+.br
+.RI "\fIHostname of connection.\fP"
+.ti -1c
+.RI "char \fBip\fP [32]"
+.br
+.RI "\fIIP of connection.\fP"
+.ti -1c
+.RI "char \fBinbuf\fP [MAXBUF]"
+.br
+.RI "\fIInbuf of connection.\fP"
+.ti -1c
+.RI "long \fBbytes_in\fP"
+.br
+.RI "\fIStats counter for bytes inbound.\fP"
+.ti -1c
+.RI "long \fBbytes_out\fP"
+.br
+.RI "\fIStats counter for bytes outbound.\fP"
+.ti -1c
+.RI "long \fBcmds_in\fP"
+.br
+.RI "\fIStats counter for commands inbound.\fP"
+.ti -1c
+.RI "long \fBcmds_out\fP"
+.br
+.RI "\fIStats counter for commands outbound.\fP"
+.ti -1c
+.RI "bool \fBhaspassed\fP"
+.br
+.RI "\fITrue if server/user has authenticated, false if otherwise.\fP"
+.ti -1c
+.RI "int \fBport\fP"
+.br
+.RI "\fIPort number For a userrec, this is the port they connected to the network on.\fP"
+.ti -1c
+.RI "int \fBregistered\fP"
+.br
+.RI "\fIUsed by userrec to indicate the registration status of the connection.\fP"
+.ti -1c
+.RI "short int \fBstate\fP"
+.br
+.RI "\fIReserved for future use.\fP"
+.ti -1c
+.RI "time_t \fBlastping\fP"
+.br
+.RI "\fITime the connection was last pinged.\fP"
+.ti -1c
+.RI "time_t \fBsignon\fP"
+.br
+.RI "\fITime the connection was created, set in the constructor.\fP"
+.ti -1c
+.RI "time_t \fBidle_lastmsg\fP"
+.br
+.RI "\fITime that the connection last sent data, used to calculate idle time.\fP"
+.ti -1c
+.RI "time_t \fBnping\fP"
+.br
+.RI "\fIUsed by PING checks with clients.\fP"
+.ti -1c
+.RI "char \fBinternal_addr\fP [MAXBUF]"
+.br
+.RI "\fIUnused, will be removed in a future alpha/beta.\fP"
+.ti -1c
+.RI "int \fBinternal_port\fP"
+.br
+.RI "\fIUnused, will be removed in a future alpha/beta.\fP"
+.ti -1c
+.RI "std::vector< \fBircd_connector\fP > \fBconnectors\fP"
+.br
+.RI "\fIWith a serverrec, this is a list of all established server connections.\fP"
+.in -1c
+.SH "Detailed Description"
+.PP 
+Please note: classes serverrec and userrec both inherit from class connection.Definition at line 161 of file connection.h.
+.SH "Constructor & Destructor Documentation"
+.PP 
+.SS "connection::connection ()"
+.PP
+Default constructor.
+.SH "Member Function Documentation"
+.PP 
+.SS "bool connection::AddIncoming (int fd, char * targethost, int sourceport)"
+.PP
+Add an incoming connection to the connection pool.(reserved for core use)
+.SS "bool connection::BeginLink (char * targethost, int port, char * password, char * servername, int myport)"
+.PP
+Begin an outbound link to another ircd at targethost.
+.SS "bool connection::CreateListener (char * host, int p)"
+.PP
+Create a listening socket on 'host' using port number 'p'.
+.SS "\fBircd_connector\fP* connection::FindHost (std::string host)"
+.PP
+Find the \fBircd_connector\fP oject related to a certain servername given in 'host'.
+.SS "long connection::GenKey ()"
+.PP
+This function is deprecated and may be removed in a later alpha/beta.
+.SS "bool connection::MeshCookie (char * targethost, int port, long cookie, char * servername)"
+.PP
+Begin an outbound mesh link to another ircd on a network you are already an authenticated member of.
+.SS "bool connection::RecvPacket (std::deque< std::string > & messages, char * host)"
+.PP
+Returns the next available packet and returns true if data is available.Writes the servername the data came from to 'host'. If no data is available this function returns false. This function will automatically close broken links and reroute pathways, generating split messages on the network.
+.SS "bool connection::SendPacket (char * message, const char * host)"
+.PP
+Send a message to a server by name, if the server is unavailable directly route the packet via another server If the server still cannot be reached after attempting to route the message remotely, returns false.
+.SS "void connection::TerminateLink (char * targethost)"
+.PP
+Terminate a link to 'targethost' by calling the \fBircd_connector::CloseConnection\fP method.
+.SH "Member Data Documentation"
+.PP 
+.SS "long connection::bytes_in"
+.PP
+Stats counter for bytes inbound.Definition at line 182 of file connection.h.
+.PP
+Referenced by userrec::userrec().
+.SS "long connection::bytes_out"
+.PP
+Stats counter for bytes outbound.Definition at line 186 of file connection.h.
+.PP
+Referenced by userrec::userrec().
+.SS "long connection::cmds_in"
+.PP
+Stats counter for commands inbound.Definition at line 190 of file connection.h.
+.PP
+Referenced by userrec::userrec().
+.SS "long connection::cmds_out"
+.PP
+Stats counter for commands outbound.Definition at line 194 of file connection.h.
+.PP
+Referenced by userrec::userrec().
+.SS "std::vector<\fBircd_connector\fP> connection::connectors"
+.PP
+With a serverrec, this is a list of all established server connections.With a userrec this is unused.Definition at line 241 of file connection.h.
+.SS "int connection::fd"
+.PP
+File descriptor of the connection.Definition at line 166 of file connection.h.
+.PP
+Referenced by Server::SendTo(), serverrec::serverrec(), and userrec::userrec().
+.SS "bool connection::haspassed"
+.PP
+True if server/user has authenticated, false if otherwise.Definition at line 198 of file connection.h.
+.PP
+Referenced by userrec::userrec().
+.SS "char connection::host[256]"
+.PP
+Hostname of connection.Not used if this is a serverrecDefinition at line 170 of file connection.h.
+.SS "time_t connection::idle_lastmsg"
+.PP
+Time that the connection last sent data, used to calculate idle time.Definition at line 224 of file connection.h.
+.PP
+Referenced by userrec::userrec().
+.SS "char connection::inbuf[MAXBUF]"
+.PP
+Inbuf of connection.Only used for userrecDefinition at line 178 of file connection.h.
+.SS "char connection::internal_addr[MAXBUF]"
+.PP
+Unused, will be removed in a future alpha/beta.Definition at line 232 of file connection.h.
+.SS "int connection::internal_port"
+.PP
+Unused, will be removed in a future alpha/beta.Definition at line 236 of file connection.h.
+.SS "char connection::ip[32]"
+.PP
+IP of connection.Reserved for future use.Definition at line 174 of file connection.h.
+.SS "time_t connection::lastping"
+.PP
+Time the connection was last pinged.Definition at line 216 of file connection.h.
+.PP
+Referenced by serverrec::serverrec(), and userrec::userrec().
+.SS "time_t connection::nping"
+.PP
+Used by PING checks with clients.Definition at line 228 of file connection.h.
+.PP
+Referenced by userrec::userrec().
+.SS "int connection::port"
+.PP
+Port number For a userrec, this is the port they connected to the network on.For a serverrec this is the current listening port of the serverrec object.Definition at line 204 of file connection.h.
+.PP
+Referenced by userrec::userrec().
+.SS "int connection::registered"
+.PP
+Used by userrec to indicate the registration status of the connection.Definition at line 208 of file connection.h.
+.PP
+Referenced by userrec::userrec().
+.SS "time_t connection::signon"
+.PP
+Time the connection was created, set in the constructor.Definition at line 220 of file connection.h.
+.PP
+Referenced by serverrec::serverrec(), and userrec::userrec().
+.SS "short int connection::state"
+.PP
+Reserved for future use.Definition at line 212 of file connection.h.
+
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for InspIRCd from the source code.

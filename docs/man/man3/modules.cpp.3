@@ -1,0 +1,603 @@
+.TH "modules.cpp" 3 "2 May 2004" "InspIRCd" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+modules.cpp \- 
+.SH SYNOPSIS
+.br
+.PP
+\fC#include 'inspircd.h'\fP
+.br
+\fC#include 'inspircd_io.h'\fP
+.br
+\fC#include 'inspircd_util.h'\fP
+.br
+\fC#include 'inspircd_config.h'\fP
+.br
+\fC#include <unistd.h>\fP
+.br
+\fC#include <fcntl.h>\fP
+.br
+\fC#include <sys/errno.h>\fP
+.br
+\fC#include <sys/ioctl.h>\fP
+.br
+\fC#include <sys/utsname.h>\fP
+.br
+\fC#include <cstdio>\fP
+.br
+\fC#include <time.h>\fP
+.br
+\fC#include <string>\fP
+.br
+\fC#include <hash_map>\fP
+.br
+\fC#include <map>\fP
+.br
+\fC#include <sstream>\fP
+.br
+\fC#include <vector>\fP
+.br
+\fC#include <errno.h>\fP
+.br
+\fC#include <deque>\fP
+.br
+\fC#include <sched.h>\fP
+.br
+\fC#include 'connection.h'\fP
+.br
+\fC#include 'users.h'\fP
+.br
+\fC#include 'servers.h'\fP
+.br
+\fC#include 'ctables.h'\fP
+.br
+\fC#include 'globals.h'\fP
+.br
+\fC#include 'modules.h'\fP
+.br
+\fC#include 'dynamic.h'\fP
+.br
+\fC#include 'wildcard.h'\fP
+.br
+\fC#include 'message.h'\fP
+.br
+\fC#include 'mode.h'\fP
+.br
+\fC#include 'xline.h'\fP
+.br
+\fC#include 'commands.h'\fP
+.br
+
+.SS "Namespaces"
+
+.in +1c
+.ti -1c
+.RI "namespace \fBnspace\fP"
+.br
+.in -1c
+.SS "Compounds"
+
+.in +1c
+.ti -1c
+.RI "class \fBExtMode\fP"
+.br
+.ti -1c
+.RI "struct \fBInAddr_HashComp\fP"
+.br
+.ti -1c
+.RI "struct \fBStrHashComp\fP"
+.br
+.in -1c
+.SS "Defines"
+
+.in +1c
+.ti -1c
+.RI "#define \fBnspace\fP   std"
+.br
+.in -1c
+.SS "Typedefs"
+
+.in +1c
+.ti -1c
+.RI "typedef nspace::hash_map< std::string, \fBuserrec\fP *, nspace::hash< string >, \fBStrHashComp\fP > \fBuser_hash\fP"
+.br
+.ti -1c
+.RI "typedef nspace::hash_map< std::string, \fBchanrec\fP *, nspace::hash< string >, \fBStrHashComp\fP > \fBchan_hash\fP"
+.br
+.ti -1c
+.RI "typedef nspace::hash_map< in_addr, string *, nspace::hash< in_addr >, \fBInAddr_HashComp\fP > \fBaddress_cache\fP"
+.br
+.ti -1c
+.RI "typedef std::deque< \fBcommand_t\fP > \fBcommand_table\fP"
+.br
+.ti -1c
+.RI "typedef std::vector< \fBExtMode\fP > \fBExtModeList\fP"
+.br
+.ti -1c
+.RI "typedef ExtModeList::iterator \fBExtModeListIter\fP"
+.br
+.in -1c
+.SS "Functions"
+
+.in +1c
+.ti -1c
+.RI "bool \fBModeDefined\fP (char modechar, int type)"
+.br
+.ti -1c
+.RI "bool \fBModeIsListMode\fP (char modechar, int type)"
+.br
+.ti -1c
+.RI "bool \fBModeDefinedOper\fP (char modechar, int type)"
+.br
+.ti -1c
+.RI "int \fBModeDefinedOn\fP (char modechar, int type)"
+.br
+.ti -1c
+.RI "int \fBModeDefinedOff\fP (char modechar, int type)"
+.br
+.ti -1c
+.RI "bool \fBDoAddExtendedMode\fP (char modechar, int type, bool requires_oper, int params_on, int params_off)"
+.br
+.ti -1c
+.RI "void \fBModeMakeList\fP (char modechar)"
+.br
+.ti -1c
+.RI "std::vector< \fBModule\fP * > \fBmodules\fP (255)"
+.br
+.ti -1c
+.RI "std::vector< \fBircd_module\fP * > \fBfactory\fP (255)"
+.br
+.in -1c
+.SS "Variables"
+
+.in +1c
+.ti -1c
+.RI "int \fBMODCOUNT\fP = -1"
+.br
+.ti -1c
+.RI "vector< \fBModule\fP * > \fBmodules\fP"
+.br
+.ti -1c
+.RI "vector< \fBircd_module\fP * > \fBfactory\fP"
+.br
+.ti -1c
+.RI "int \fBLogLevel\fP"
+.br
+.ti -1c
+.RI "char \fBServerName\fP [MAXBUF]"
+.br
+.ti -1c
+.RI "char \fBNetwork\fP [MAXBUF]"
+.br
+.ti -1c
+.RI "char \fBServerDesc\fP [MAXBUF]"
+.br
+.ti -1c
+.RI "char \fBAdminName\fP [MAXBUF]"
+.br
+.ti -1c
+.RI "char \fBAdminEmail\fP [MAXBUF]"
+.br
+.ti -1c
+.RI "char \fBAdminNick\fP [MAXBUF]"
+.br
+.ti -1c
+.RI "char \fBdiepass\fP [MAXBUF]"
+.br
+.ti -1c
+.RI "char \fBrestartpass\fP [MAXBUF]"
+.br
+.ti -1c
+.RI "char \fBmotd\fP [MAXBUF]"
+.br
+.ti -1c
+.RI "char \fBrules\fP [MAXBUF]"
+.br
+.ti -1c
+.RI "char \fBlist\fP [MAXBUF]"
+.br
+.ti -1c
+.RI "char \fBPrefixQuit\fP [MAXBUF]"
+.br
+.ti -1c
+.RI "char \fBDieValue\fP [MAXBUF]"
+.br
+.ti -1c
+.RI "int \fBdebugging\fP"
+.br
+.ti -1c
+.RI "int \fBWHOWAS_STALE\fP"
+.br
+.ti -1c
+.RI "int \fBWHOWAS_MAX\fP"
+.br
+.ti -1c
+.RI "int \fBDieDelay\fP"
+.br
+.ti -1c
+.RI "time_t \fBstartup_time\fP"
+.br
+.ti -1c
+.RI "int \fBNetBufferSize\fP"
+.br
+.ti -1c
+.RI "int \fBMaxWhoResults\fP"
+.br
+.ti -1c
+.RI "time_t \fBnb_start\fP"
+.br
+.ti -1c
+.RI "std::vector< int > \fBfd_reap\fP"
+.br
+.ti -1c
+.RI "std::vector< std::string > \fBmodule_names\fP"
+.br
+.ti -1c
+.RI "char \fBbannerBuffer\fP [MAXBUF]"
+.br
+.ti -1c
+.RI "int \fBboundPortCount\fP"
+.br
+.ti -1c
+.RI "int \fBportCount\fP"
+.br
+.ti -1c
+.RI "int \fBUDPportCount\fP"
+.br
+.ti -1c
+.RI "int \fBports\fP [MAXSOCKS]"
+.br
+.ti -1c
+.RI "int \fBdefaultRoute\fP"
+.br
+.ti -1c
+.RI "std::vector< long > \fBauth_cookies\fP"
+.br
+.ti -1c
+.RI "std::stringstream \fBconfig_f\fP"
+.br
+.ti -1c
+.RI "\fBserverrec\fP * \fBme\fP [32]"
+.br
+.ti -1c
+.RI "FILE * \fBlog_file\fP"
+.br
+.ti -1c
+.RI "\fBuser_hash\fP \fBclientlist\fP"
+.br
+.ti -1c
+.RI "\fBchan_hash\fP \fBchanlist\fP"
+.br
+.ti -1c
+.RI "\fBuser_hash\fP \fBwhowas\fP"
+.br
+.ti -1c
+.RI "\fBcommand_table\fP \fBcmdlist\fP"
+.br
+.ti -1c
+.RI "\fBfile_cache\fP \fBMOTD\fP"
+.br
+.ti -1c
+.RI "\fBfile_cache\fP \fBRULES\fP"
+.br
+.ti -1c
+.RI "\fBaddress_cache\fP \fBIP\fP"
+.br
+.ti -1c
+.RI "\fBExtModeList\fP \fBEMode\fP"
+.br
+.in -1c
+.SH "Define Documentation"
+.PP 
+.SS "#define nspace   std"
+.PP
+Definition at line 42 of file modules.cpp.
+.SH "Typedef Documentation"
+.PP 
+.SS "typedef nspace::hash_map<in_addr,string*, nspace::hash<in_addr>, \fBInAddr_HashComp\fP> address_cache"
+.PP
+Definition at line 151 of file modules.cpp.
+.SS "typedef nspace::hash_map<std::string, \fBchanrec\fP*, nspace::hash<string>, \fBStrHashComp\fP> chan_hash"
+.PP
+Definition at line 150 of file modules.cpp.
+.SS "typedef std::deque<\fBcommand_t\fP> command_table"
+.PP
+Definition at line 152 of file modules.cpp.
+.SS "typedef std::vector<\fBExtMode\fP> ExtModeList"
+.PP
+Definition at line 178 of file modules.cpp.
+.SS "typedef ExtModeList::iterator ExtModeListIter"
+.PP
+Definition at line 179 of file modules.cpp.
+.PP
+Referenced by ModeDefined(), ModeDefinedOff(), ModeDefinedOn(), ModeDefinedOper(), ModeIsListMode(), and ModeMakeList().
+.SS "typedef nspace::hash_map<std::string, \fBuserrec\fP*, nspace::hash<string>, \fBStrHashComp\fP> user_hash"
+.PP
+Definition at line 149 of file modules.cpp.
+.SH "Function Documentation"
+.PP 
+.SS "bool DoAddExtendedMode (char modechar, int type, bool requires_oper, int params_on, int params_off)"
+.PP
+Definition at line 254 of file modules.cpp.
+.PP
+References EMode, and ModeDefined().
+.PP
+Referenced by Server::AddExtendedListMode(), and Server::AddExtendedMode().
+.PP
+.nf
+255 {
+256         if (ModeDefined(modechar,type)) {
+257                 return false;
+258         }
+259         EMode.push_back(ExtMode(modechar,type,requires_oper,params_on,params_off));
+260         return true;
+261 }
+.fi
+.SS "std::vector<\fBircd_module\fP*> factory (255)"
+.PP
+.SS "bool ModeDefined (char modechar, int type)"
+.PP
+Definition at line 185 of file modules.cpp.
+.PP
+References EMode, and ExtModeListIter.
+.PP
+Referenced by DoAddExtendedMode().
+.PP
+.nf
+186 {
+187         log(DEBUG,'Size of extmodes vector is %d',EMode.size());
+188         for (ExtModeListIter i = EMode.begin(); i < EMode.end(); i++)
+189         {
+190                 log(DEBUG,'i->modechar==%c, modechar=%c, i->type=%d, type=%d',i->modechar,modechar,i->type,type);
+191                 if ((i->modechar == modechar) && (i->type == type))
+192                 {
+193                         return true;
+194                 }
+195         }
+196         return false;
+197 }
+.fi
+.SS "int ModeDefinedOff (char modechar, int type)"
+.PP
+Definition at line 241 of file modules.cpp.
+.PP
+References EMode, and ExtModeListIter.
+.PP
+.nf
+242 {
+243         for (ExtModeListIter i = EMode.begin(); i < EMode.end(); i++)
+244         {
+245                 if ((i->modechar == modechar) && (i->type == type))
+246                 {
+247                         return i->params_when_off;
+248                 }
+249         }
+250         return 0;
+251 }
+.fi
+.SS "int ModeDefinedOn (char modechar, int type)"
+.PP
+Definition at line 228 of file modules.cpp.
+.PP
+References EMode, and ExtModeListIter.
+.PP
+.nf
+229 {
+230         for (ExtModeListIter i = EMode.begin(); i < EMode.end(); i++)
+231         {
+232                 if ((i->modechar == modechar) && (i->type == type))
+233                 {
+234                         return i->params_when_on;
+235                 }
+236         }
+237         return 0;
+238 }
+.fi
+.SS "bool ModeDefinedOper (char modechar, int type)"
+.PP
+Definition at line 213 of file modules.cpp.
+.PP
+References EMode, and ExtModeListIter.
+.PP
+.nf
+214 {
+215         log(DEBUG,'Size of extmodes vector is %d',EMode.size());
+216         for (ExtModeListIter i = EMode.begin(); i < EMode.end(); i++)
+217         {
+218                 log(DEBUG,'i->modechar==%c, modechar=%c, i->type=%d, type=%d',i->modechar,modechar,i->type,type);
+219                 if ((i->modechar == modechar) && (i->type == type) && (i->needsoper == true))
+220                 {
+221                         return true;
+222                 }
+223         }
+224         return false;
+225 }
+.fi
+.SS "bool ModeIsListMode (char modechar, int type)"
+.PP
+Definition at line 199 of file modules.cpp.
+.PP
+References EMode, and ExtModeListIter.
+.PP
+.nf
+200 {
+201         log(DEBUG,'Size of extmodes vector is %d',EMode.size());
+202         for (ExtModeListIter i = EMode.begin(); i < EMode.end(); i++)
+203         {
+204                 log(DEBUG,'i->modechar==%c, modechar=%c, i->type=%d, type=%d',i->modechar,modechar,i->type,type);
+205                 if ((i->modechar == modechar) && (i->type == type) && (i->list == true))
+206                 {
+207                         return true;
+208                 }
+209         }
+210         return false;
+211 }
+.fi
+.SS "void ModeMakeList (char modechar)"
+.PP
+Definition at line 264 of file modules.cpp.
+.PP
+References EMode, ExtModeListIter, and MT_CHANNEL.
+.PP
+Referenced by Server::AddExtendedListMode().
+.PP
+.nf
+265 {
+266         for (ExtModeListIter i = EMode.begin(); i < EMode.end(); i++)
+267         {
+268                 if ((i->modechar == modechar) && (i->type == MT_CHANNEL))
+269                 {
+270                         i->list = true;
+271                         return;
+272                 }
+273         }
+274         return;
+275 }
+.fi
+.SS "std::vector<\fBModule\fP*> modules (255)"
+.PP
+.SH "Variable Documentation"
+.PP 
+.SS "char AdminEmail[MAXBUF]"
+.PP
+Definition at line 56 of file modules.cpp.
+.SS "char AdminName[MAXBUF]"
+.PP
+Definition at line 55 of file modules.cpp.
+.SS "char AdminNick[MAXBUF]"
+.PP
+Definition at line 57 of file modules.cpp.
+.SS "std::vector<long> auth_cookies"
+.PP
+Definition at line 85 of file modules.cpp.
+.SS "char bannerBuffer[MAXBUF]"
+.PP
+Definition at line 78 of file modules.cpp.
+.SS "int boundPortCount"
+.PP
+Definition at line 79 of file modules.cpp.
+.SS "\fBchan_hash\fP chanlist"
+.PP
+Definition at line 156 of file modules.cpp.
+.SS "\fBuser_hash\fP clientlist"
+.PP
+Definition at line 155 of file modules.cpp.
+.PP
+Referenced by Server::GetUsers().
+.SS "\fBcommand_table\fP cmdlist"
+.PP
+Definition at line 158 of file modules.cpp.
+.SS "std::stringstream config_f"
+.PP
+Definition at line 86 of file modules.cpp.
+.SS "int debugging"
+.PP
+Definition at line 66 of file modules.cpp.
+.SS "int defaultRoute"
+.PP
+Definition at line 83 of file modules.cpp.
+.SS "int DieDelay"
+.PP
+Definition at line 69 of file modules.cpp.
+.SS "char diepass[MAXBUF]"
+.PP
+Definition at line 58 of file modules.cpp.
+.SS "char DieValue[MAXBUF]"
+.PP
+Definition at line 64 of file modules.cpp.
+.SS "\fBExtModeList\fP EMode"
+.PP
+Definition at line 182 of file modules.cpp.
+.PP
+Referenced by DoAddExtendedMode(), ModeDefined(), ModeDefinedOff(), ModeDefinedOn(), ModeDefinedOper(), ModeIsListMode(), and ModeMakeList().
+.SS "vector<\fBircd_module\fP*> factory"
+.PP
+Definition at line 49 of file modules.cpp.
+.SS "std::vector<int> fd_reap"
+.PP
+Definition at line 75 of file modules.cpp.
+.SS "\fBaddress_cache\fP IP"
+.PP
+Definition at line 161 of file modules.cpp.
+.SS "char list[MAXBUF]"
+.PP
+Definition at line 62 of file modules.cpp.
+.SS "FILE* log_file"
+.PP
+Definition at line 90 of file modules.cpp.
+.SS "int LogLevel"
+.PP
+Definition at line 51 of file modules.cpp.
+.SS "int MaxWhoResults"
+.PP
+Definition at line 72 of file modules.cpp.
+.SS "\fBserverrec\fP* me[32]"
+.PP
+Definition at line 88 of file modules.cpp.
+.SS "int MODCOUNT = -1"
+.PP
+Definition at line 714 of file modules.cpp.
+.SS "std::vector<std::string> module_names"
+.PP
+Definition at line 76 of file modules.cpp.
+.SS "vector<\fBModule\fP*> modules"
+.PP
+Definition at line 48 of file modules.cpp.
+.SS "\fBfile_cache\fP MOTD"
+.PP
+Definition at line 159 of file modules.cpp.
+.SS "char motd[MAXBUF]"
+.PP
+Definition at line 60 of file modules.cpp.
+.SS "time_t nb_start"
+.PP
+Definition at line 73 of file modules.cpp.
+.SS "int NetBufferSize"
+.PP
+Definition at line 71 of file modules.cpp.
+.SS "char Network[MAXBUF]"
+.PP
+Definition at line 53 of file modules.cpp.
+.SS "int portCount"
+.PP
+Definition at line 80 of file modules.cpp.
+.SS "int ports[MAXSOCKS]"
+.PP
+Definition at line 82 of file modules.cpp.
+.SS "char PrefixQuit[MAXBUF]"
+.PP
+Definition at line 63 of file modules.cpp.
+.SS "char restartpass[MAXBUF]"
+.PP
+Definition at line 59 of file modules.cpp.
+.SS "\fBfile_cache\fP RULES"
+.PP
+Definition at line 160 of file modules.cpp.
+.SS "char rules[MAXBUF]"
+.PP
+Definition at line 61 of file modules.cpp.
+.SS "char ServerDesc[MAXBUF]"
+.PP
+Definition at line 54 of file modules.cpp.
+.SS "char ServerName[MAXBUF]"
+.PP
+Definition at line 52 of file modules.cpp.
+.SS "time_t startup_time"
+.PP
+Definition at line 70 of file modules.cpp.
+.SS "int UDPportCount"
+.PP
+Definition at line 81 of file modules.cpp.
+.SS "\fBuser_hash\fP whowas"
+.PP
+Definition at line 157 of file modules.cpp.
+.SS "int WHOWAS_MAX"
+.PP
+Definition at line 68 of file modules.cpp.
+.SS "int WHOWAS_STALE"
+.PP
+Definition at line 67 of file modules.cpp.
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for InspIRCd from the source code.

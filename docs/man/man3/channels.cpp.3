@@ -1,0 +1,327 @@
+.TH "channels.cpp" 3 "2 May 2004" "InspIRCd" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+channels.cpp \- 
+.SH SYNOPSIS
+.br
+.PP
+\fC#include 'inspircd.h'\fP
+.br
+\fC#include 'inspircd_io.h'\fP
+.br
+\fC#include 'inspircd_util.h'\fP
+.br
+\fC#include 'inspircd_config.h'\fP
+.br
+\fC#include <unistd.h>\fP
+.br
+\fC#include <fcntl.h>\fP
+.br
+\fC#include <sys/errno.h>\fP
+.br
+\fC#include <sys/ioctl.h>\fP
+.br
+\fC#include <sys/utsname.h>\fP
+.br
+\fC#include <cstdio>\fP
+.br
+\fC#include <time.h>\fP
+.br
+\fC#include <string>\fP
+.br
+\fC#include <hash_map>\fP
+.br
+\fC#include <map>\fP
+.br
+\fC#include <sstream>\fP
+.br
+\fC#include <vector>\fP
+.br
+\fC#include <errno.h>\fP
+.br
+\fC#include <deque>\fP
+.br
+\fC#include <sched.h>\fP
+.br
+\fC#include 'connection.h'\fP
+.br
+\fC#include 'users.h'\fP
+.br
+\fC#include 'servers.h'\fP
+.br
+\fC#include 'ctables.h'\fP
+.br
+\fC#include 'globals.h'\fP
+.br
+\fC#include 'modules.h'\fP
+.br
+\fC#include 'dynamic.h'\fP
+.br
+\fC#include 'wildcard.h'\fP
+.br
+\fC#include 'message.h'\fP
+.br
+\fC#include 'mode.h'\fP
+.br
+\fC#include 'xline.h'\fP
+.br
+
+.SS "Namespaces"
+
+.in +1c
+.ti -1c
+.RI "namespace \fBstd\fP"
+.br
+.in -1c
+.SS "Defines"
+
+.in +1c
+.ti -1c
+.RI "#define \fBnspace\fP   std"
+.br
+.in -1c
+.SS "Variables"
+
+.in +1c
+.ti -1c
+.RI "int \fBMODCOUNT\fP = -1"
+.br
+.ti -1c
+.RI "vector< \fBModule\fP * > \fBmodules\fP"
+.br
+.ti -1c
+.RI "vector< \fBircd_module\fP * > \fBfactory\fP"
+.br
+.ti -1c
+.RI "int \fBLogLevel\fP"
+.br
+.ti -1c
+.RI "char \fBServerName\fP [MAXBUF]"
+.br
+.ti -1c
+.RI "char \fBNetwork\fP [MAXBUF]"
+.br
+.ti -1c
+.RI "char \fBServerDesc\fP [MAXBUF]"
+.br
+.ti -1c
+.RI "char \fBAdminName\fP [MAXBUF]"
+.br
+.ti -1c
+.RI "char \fBAdminEmail\fP [MAXBUF]"
+.br
+.ti -1c
+.RI "char \fBAdminNick\fP [MAXBUF]"
+.br
+.ti -1c
+.RI "char \fBdiepass\fP [MAXBUF]"
+.br
+.ti -1c
+.RI "char \fBrestartpass\fP [MAXBUF]"
+.br
+.ti -1c
+.RI "char \fBmotd\fP [MAXBUF]"
+.br
+.ti -1c
+.RI "char \fBrules\fP [MAXBUF]"
+.br
+.ti -1c
+.RI "char \fBlist\fP [MAXBUF]"
+.br
+.ti -1c
+.RI "char \fBPrefixQuit\fP [MAXBUF]"
+.br
+.ti -1c
+.RI "char \fBDieValue\fP [MAXBUF]"
+.br
+.ti -1c
+.RI "int \fBdebugging\fP"
+.br
+.ti -1c
+.RI "int \fBWHOWAS_STALE\fP"
+.br
+.ti -1c
+.RI "int \fBWHOWAS_MAX\fP"
+.br
+.ti -1c
+.RI "int \fBDieDelay\fP"
+.br
+.ti -1c
+.RI "time_t \fBstartup_time\fP"
+.br
+.ti -1c
+.RI "int \fBNetBufferSize\fP"
+.br
+.ti -1c
+.RI "int \fBMaxWhoResults\fP"
+.br
+.ti -1c
+.RI "time_t \fBnb_start\fP"
+.br
+.ti -1c
+.RI "std::vector< int > \fBfd_reap\fP"
+.br
+.ti -1c
+.RI "std::vector< std::string > \fBmodule_names\fP"
+.br
+.ti -1c
+.RI "char \fBbannerBuffer\fP [MAXBUF]"
+.br
+.ti -1c
+.RI "int \fBboundPortCount\fP"
+.br
+.ti -1c
+.RI "int \fBportCount\fP"
+.br
+.ti -1c
+.RI "int \fBUDPportCount\fP"
+.br
+.ti -1c
+.RI "int \fBports\fP [MAXSOCKS]"
+.br
+.ti -1c
+.RI "int \fBdefaultRoute\fP"
+.br
+.ti -1c
+.RI "std::vector< long > \fBauth_cookies\fP"
+.br
+.ti -1c
+.RI "std::stringstream \fBconfig_f\fP"
+.br
+.ti -1c
+.RI "\fBserverrec\fP * \fBme\fP [32]"
+.br
+.ti -1c
+.RI "FILE * \fBlog_file\fP"
+.br
+.ti -1c
+.RI "std::vector< \fBModeParameter\fP > \fBcustom_mode_params\fP"
+.br
+.in -1c
+.SH "Define Documentation"
+.PP 
+.SS "#define nspace   std"
+.PP
+Definition at line 41 of file channels.cpp.
+.SH "Variable Documentation"
+.PP 
+.SS "char AdminEmail[MAXBUF]"
+.PP
+Definition at line 55 of file channels.cpp.
+.SS "char AdminName[MAXBUF]"
+.PP
+Definition at line 54 of file channels.cpp.
+.SS "char AdminNick[MAXBUF]"
+.PP
+Definition at line 56 of file channels.cpp.
+.SS "std::vector<long> auth_cookies"
+.PP
+Definition at line 84 of file channels.cpp.
+.SS "char bannerBuffer[MAXBUF]"
+.PP
+Definition at line 77 of file channels.cpp.
+.SS "int boundPortCount"
+.PP
+Definition at line 78 of file channels.cpp.
+.SS "std::stringstream config_f"
+.PP
+Definition at line 85 of file channels.cpp.
+.SS "std::vector<\fBModeParameter\fP> custom_mode_params"
+.PP
+Definition at line 94 of file channels.cpp.
+.PP
+Referenced by chanrec::GetModeParameter(), and chanrec::SetCustomModeParam().
+.SS "int debugging"
+.PP
+Definition at line 65 of file channels.cpp.
+.SS "int defaultRoute"
+.PP
+Definition at line 82 of file channels.cpp.
+.SS "int DieDelay"
+.PP
+Definition at line 68 of file channels.cpp.
+.SS "char diepass[MAXBUF]"
+.PP
+Definition at line 57 of file channels.cpp.
+.SS "char DieValue[MAXBUF]"
+.PP
+Definition at line 63 of file channels.cpp.
+.SS "vector<\fBircd_module\fP*> factory"
+.PP
+Definition at line 48 of file channels.cpp.
+.SS "std::vector<int> fd_reap"
+.PP
+Definition at line 74 of file channels.cpp.
+.SS "char list[MAXBUF]"
+.PP
+Definition at line 61 of file channels.cpp.
+.SS "FILE* log_file"
+.PP
+Definition at line 89 of file channels.cpp.
+.SS "int LogLevel"
+.PP
+Definition at line 50 of file channels.cpp.
+.SS "int MaxWhoResults"
+.PP
+Definition at line 71 of file channels.cpp.
+.SS "\fBserverrec\fP* me[32]"
+.PP
+Definition at line 87 of file channels.cpp.
+.SS "int MODCOUNT = -1"
+.PP
+Definition at line 714 of file modules.cpp.
+.SS "std::vector<std::string> module_names"
+.PP
+Definition at line 75 of file channels.cpp.
+.SS "vector<\fBModule\fP*> modules"
+.PP
+Definition at line 47 of file channels.cpp.
+.SS "char motd[MAXBUF]"
+.PP
+Definition at line 59 of file channels.cpp.
+.SS "time_t nb_start"
+.PP
+Definition at line 72 of file channels.cpp.
+.SS "int NetBufferSize"
+.PP
+Definition at line 70 of file channels.cpp.
+.SS "char Network[MAXBUF]"
+.PP
+Definition at line 52 of file channels.cpp.
+.SS "int portCount"
+.PP
+Definition at line 79 of file channels.cpp.
+.SS "int ports[MAXSOCKS]"
+.PP
+Definition at line 81 of file channels.cpp.
+.SS "char PrefixQuit[MAXBUF]"
+.PP
+Definition at line 62 of file channels.cpp.
+.SS "char restartpass[MAXBUF]"
+.PP
+Definition at line 58 of file channels.cpp.
+.SS "char rules[MAXBUF]"
+.PP
+Definition at line 60 of file channels.cpp.
+.SS "char ServerDesc[MAXBUF]"
+.PP
+Definition at line 53 of file channels.cpp.
+.SS "char ServerName[MAXBUF]"
+.PP
+Definition at line 51 of file channels.cpp.
+.SS "time_t startup_time"
+.PP
+Definition at line 69 of file channels.cpp.
+.SS "int UDPportCount"
+.PP
+Definition at line 80 of file channels.cpp.
+.SS "int WHOWAS_MAX"
+.PP
+Definition at line 67 of file channels.cpp.
+.SS "int WHOWAS_STALE"
+.PP
+Definition at line 66 of file channels.cpp.
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for InspIRCd from the source code.

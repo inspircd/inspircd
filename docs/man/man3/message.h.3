@@ -1,0 +1,141 @@
+.TH "message.h" 3 "2 May 2004" "InspIRCd" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+message.h \- 
+.SH SYNOPSIS
+.br
+.PP
+\fC#include <typeinfo>\fP
+.br
+\fC#include <iostream>\fP
+.br
+\fC#include <string>\fP
+.br
+\fC#include <deque>\fP
+.br
+\fC#include <sstream>\fP
+.br
+\fC#include <vector>\fP
+.br
+\fC#include 'users.h'\fP
+.br
+\fC#include 'channels.h'\fP
+.br
+
+.SS "Functions"
+
+.in +1c
+.ti -1c
+.RI "int \fBcommon_channels\fP (\fBuserrec\fP *u, \fBuserrec\fP *u2)"
+.br
+.ti -1c
+.RI "void \fBchop\fP (char *str)"
+.br
+.ti -1c
+.RI "void \fBtidystring\fP (char *str)"
+.br
+.ti -1c
+.RI "void \fBsafedelete\fP (\fBchanrec\fP *p)"
+.br
+.ti -1c
+.RI "void \fBsafedelete\fP (\fBuserrec\fP *p)"
+.br
+.ti -1c
+.RI "void \fBBlocking\fP (int s)"
+.br
+.ti -1c
+.RI "void \fBNonBlocking\fP (int s)"
+.br
+.ti -1c
+.RI "int \fBCleanAndResolve\fP (char *resolvedHost, const char *unresolvedHost)"
+.br
+.ti -1c
+.RI "int \fBc_count\fP (\fBuserrec\fP *u)"
+.br
+.ti -1c
+.RI "bool \fBhasumode\fP (\fBuserrec\fP *user, char mode)"
+.br
+.ti -1c
+.RI "void \fBChangeName\fP (\fBuserrec\fP *user, const char *gecos)"
+.br
+.ti -1c
+.RI "void \fBChangeDisplayedHost\fP (\fBuserrec\fP *user, const char *host)"
+.br
+.ti -1c
+.RI "int \fBisident\fP (const char *n)"
+.br
+.ti -1c
+.RI "int \fBisnick\fP (const char *n)"
+.br
+.ti -1c
+.RI "char * \fBcmode\fP (\fBuserrec\fP *user, \fBchanrec\fP *chan)"
+.br
+.ti -1c
+.RI "int \fBcstatus\fP (\fBuserrec\fP *user, \fBchanrec\fP *chan)"
+.br
+.ti -1c
+.RI "int \fBhas_channel\fP (\fBuserrec\fP *u, \fBchanrec\fP *c)"
+.br
+.ti -1c
+.RI "void \fBTidyBan\fP (char *ban)"
+.br
+.ti -1c
+.RI "char * \fBchlist\fP (\fBuserrec\fP *user)"
+.br
+.ti -1c
+.RI "void \fBsend_network_quit\fP (const char *nick, const char *reason)"
+.br
+.in -1c
+.SH "Function Documentation"
+.PP 
+.SS "void Blocking (int s)"
+.PP
+.SS "int c_count (\fBuserrec\fP * u)"
+.PP
+.SS "void ChangeDisplayedHost (\fBuserrec\fP * user, const char * host)"
+.PP
+Referenced by Server::ChangeHost().
+.SS "void ChangeName (\fBuserrec\fP * user, const char * gecos)"
+.PP
+Referenced by Server::ChangeGECOS().
+.SS "char* chlist (\fBuserrec\fP * user)"
+.PP
+.SS "void chop (char * str)"
+.PP
+.SS "int CleanAndResolve (char * resolvedHost, const char * unresolvedHost)"
+.PP
+.SS "char* cmode (\fBuserrec\fP * user, \fBchanrec\fP * chan)"
+.PP
+Referenced by Server::ChanMode().
+.SS "int common_channels (\fBuserrec\fP * u, \fBuserrec\fP * u2)"
+.PP
+Referenced by Server::CommonChannels().
+.SS "int cstatus (\fBuserrec\fP * user, \fBchanrec\fP * chan)"
+.PP
+.SS "int has_channel (\fBuserrec\fP * u, \fBchanrec\fP * c)"
+.PP
+Referenced by Server::GetUsers(), and Server::IsOnChannel().
+.SS "bool hasumode (\fBuserrec\fP * user, char mode)"
+.PP
+.SS "int isident (const char * n)"
+.PP
+.SS "int isnick (const char * n)"
+.PP
+Referenced by Server::GetUsers(), and Server::IsNick().
+.SS "void NonBlocking (int s)"
+.PP
+.SS "void safedelete (\fBuserrec\fP * p)"
+.PP
+.SS "void safedelete (\fBchanrec\fP * p)"
+.PP
+.SS "void send_network_quit (const char * nick, const char * reason)"
+.PP
+Referenced by Server::QuitUser().
+.SS "void TidyBan (char * ban)"
+.PP
+.SS "void tidystring (char * str)"
+.PP
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for InspIRCd from the source code.

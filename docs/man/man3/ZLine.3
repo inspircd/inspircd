@@ -1,0 +1,41 @@
+.TH "ZLine" 3 "2 May 2004" "InspIRCd" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+ZLine \- ZLine class. 
+
+.PP
+.SH SYNOPSIS
+.br
+.PP
+\fC#include <xline.h>\fP
+.PP
+Inherits \fBXLine\fP.
+.PP
+.SS "Public Attributes"
+
+.in +1c
+.ti -1c
+.RI "char \fBipaddr\fP [MAXBUF]"
+.br
+.RI "\fIIP Address (xx.yy.zz.aa) to match against May contain wildcards.\fP"
+.ti -1c
+.RI "bool \fBis_global\fP"
+.br
+.RI "\fISet if this is a global Z:line (e.g.\fP"
+.in -1c
+.SH "Detailed Description"
+.PP 
+ZLine class.Definition at line 68 of file xline.h.
+.SH "Member Data Documentation"
+.PP 
+.SS "char ZLine::ipaddr[MAXBUF]"
+.PP
+IP Address (xx.yy.zz.aa) to match against May contain wildcards.Definition at line 74 of file xline.h.
+.SS "bool ZLine::is_global"
+.PP
+Set if this is a global Z:line (e.g.it came from another server)Definition at line 78 of file xline.h.
+
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for InspIRCd from the source code.

@@ -1,0 +1,64 @@
+.TH "XLine" 3 "2 May 2004" "InspIRCd" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+XLine \- XLine is the base class for ban lines such as G lines and K lines. 
+
+.PP
+.SH SYNOPSIS
+.br
+.PP
+\fC#include <xline.h>\fP
+.PP
+Inherits \fBclassbase\fP.
+.PP
+Inherited by \fBGLine\fP, \fBKLine\fP, \fBQLine\fP, and \fBZLine\fP.
+.PP
+.SS "Public Attributes"
+
+.in +1c
+.ti -1c
+.RI "time_t \fBset_time\fP"
+.br
+.RI "\fIThe time the line was added.\fP"
+.ti -1c
+.RI "long \fBduration\fP"
+.br
+.RI "\fIThe duration of the ban, or 0 if permenant.\fP"
+.ti -1c
+.RI "char \fBsource\fP [MAXBUF]"
+.br
+.RI "\fISource of the ban.\fP"
+.ti -1c
+.RI "char \fBreason\fP [MAXBUF]"
+.br
+.RI "\fIReason for the ban.\fP"
+.ti -1c
+.RI "long \fBn_matches\fP"
+.br
+.RI "\fINumber of times the core matches the ban, for statistics.\fP"
+.in -1c
+.SH "Detailed Description"
+.PP 
+XLine is the base class for ban lines such as G lines and K lines.Definition at line 18 of file xline.h.
+.SH "Member Data Documentation"
+.PP 
+.SS "long XLine::duration"
+.PP
+The duration of the ban, or 0 if permenant.Definition at line 28 of file xline.h.
+.SS "long XLine::n_matches"
+.PP
+Number of times the core matches the ban, for statistics.Definition at line 40 of file xline.h.
+.SS "char XLine::reason[MAXBUF]"
+.PP
+Reason for the ban.Definition at line 36 of file xline.h.
+.SS "time_t XLine::set_time"
+.PP
+The time the line was added.Definition at line 24 of file xline.h.
+.SS "char XLine::source[MAXBUF]"
+.PP
+Source of the ban.This can be a servername or an oper nicknameDefinition at line 32 of file xline.h.
+
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for InspIRCd from the source code.

@@ -1,0 +1,402 @@
+.TH "commands.h" 3 "2 May 2004" "InspIRCd" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+commands.h \- 
+.SH SYNOPSIS
+.br
+.PP
+\fC#include <typeinfo>\fP
+.br
+\fC#include <iostream>\fP
+.br
+\fC#include <string>\fP
+.br
+\fC#include <deque>\fP
+.br
+\fC#include <sstream>\fP
+.br
+\fC#include <vector>\fP
+.br
+\fC#include 'users.h'\fP
+.br
+\fC#include 'channels.h'\fP
+.br
+
+.SS "Functions"
+
+.in +1c
+.ti -1c
+.RI "void \fBhandle_join\fP (char **parameters, int pcnt, \fBuserrec\fP *user)"
+.br
+.RI "\fIThese are the handlers for user commands.\fP"
+.ti -1c
+.RI "void \fBhandle_part\fP (char **parameters, int pcnt, \fBuserrec\fP *user)"
+.br
+.ti -1c
+.RI "void \fBhandle_kick\fP (char **parameters, int pcnt, \fBuserrec\fP *user)"
+.br
+.ti -1c
+.RI "void \fBhandle_die\fP (char **parameters, int pcnt, \fBuserrec\fP *user)"
+.br
+.ti -1c
+.RI "void \fBhandle_restart\fP (char **parameters, int pcnt, \fBuserrec\fP *user)"
+.br
+.ti -1c
+.RI "void \fBhandle_kill\fP (char **parameters, int pcnt, \fBuserrec\fP *user)"
+.br
+.ti -1c
+.RI "void \fBhandle_summon\fP (char **parameters, int pcnt, \fBuserrec\fP *user)"
+.br
+.ti -1c
+.RI "void \fBhandle_users\fP (char **parameters, int pcnt, \fBuserrec\fP *user)"
+.br
+.ti -1c
+.RI "void \fBhandle_pass\fP (char **parameters, int pcnt, \fBuserrec\fP *user)"
+.br
+.ti -1c
+.RI "void \fBhandle_invite\fP (char **parameters, int pcnt, \fBuserrec\fP *user)"
+.br
+.ti -1c
+.RI "void \fBhandle_topic\fP (char **parameters, int pcnt, \fBuserrec\fP *user)"
+.br
+.ti -1c
+.RI "void \fBhandle_names\fP (char **parameters, int pcnt, \fBuserrec\fP *user)"
+.br
+.ti -1c
+.RI "void \fBhandle_privmsg\fP (char **parameters, int pcnt, \fBuserrec\fP *user)"
+.br
+.ti -1c
+.RI "void \fBhandle_notice\fP (char **parameters, int pcnt, \fBuserrec\fP *user)"
+.br
+.ti -1c
+.RI "void \fBhandle_info\fP (char **parameters, int pcnt, \fBuserrec\fP *user)"
+.br
+.ti -1c
+.RI "void \fBhandle_time\fP (char **parameters, int pcnt, \fBuserrec\fP *user)"
+.br
+.ti -1c
+.RI "void \fBhandle_whois\fP (char **parameters, int pcnt, \fBuserrec\fP *user)"
+.br
+.ti -1c
+.RI "void \fBhandle_quit\fP (char **parameters, int pcnt, \fBuserrec\fP *user)"
+.br
+.ti -1c
+.RI "void \fBhandle_who\fP (char **parameters, int pcnt, \fBuserrec\fP *user)"
+.br
+.ti -1c
+.RI "void \fBhandle_wallops\fP (char **parameters, int pcnt, \fBuserrec\fP *user)"
+.br
+.ti -1c
+.RI "void \fBhandle_list\fP (char **parameters, int pcnt, \fBuserrec\fP *user)"
+.br
+.ti -1c
+.RI "void \fBhandle_rehash\fP (char **parameters, int pcnt, \fBuserrec\fP *user)"
+.br
+.ti -1c
+.RI "void \fBhandle_lusers\fP (char **parameters, int pcnt, \fBuserrec\fP *user)"
+.br
+.ti -1c
+.RI "void \fBhandle_admin\fP (char **parameters, int pcnt, \fBuserrec\fP *user)"
+.br
+.ti -1c
+.RI "void \fBhandle_ping\fP (char **parameters, int pcnt, \fBuserrec\fP *user)"
+.br
+.ti -1c
+.RI "void \fBhandle_pong\fP (char **parameters, int pcnt, \fBuserrec\fP *user)"
+.br
+.ti -1c
+.RI "void \fBhandle_motd\fP (char **parameters, int pcnt, \fBuserrec\fP *user)"
+.br
+.ti -1c
+.RI "void \fBhandle_rules\fP (char **parameters, int pcnt, \fBuserrec\fP *user)"
+.br
+.ti -1c
+.RI "void \fBhandle_user\fP (char **parameters, int pcnt, \fBuserrec\fP *user)"
+.br
+.ti -1c
+.RI "void \fBhandle_userhost\fP (char **parameters, int pcnt, \fBuserrec\fP *user)"
+.br
+.ti -1c
+.RI "void \fBhandle_ison\fP (char **parameters, int pcnt, \fBuserrec\fP *user)"
+.br
+.ti -1c
+.RI "void \fBhandle_away\fP (char **parameters, int pcnt, \fBuserrec\fP *user)"
+.br
+.ti -1c
+.RI "void \fBhandle_whowas\fP (char **parameters, int pcnt, \fBuserrec\fP *user)"
+.br
+.ti -1c
+.RI "void \fBhandle_trace\fP (char **parameters, int pcnt, \fBuserrec\fP *user)"
+.br
+.ti -1c
+.RI "void \fBhandle_modules\fP (char **parameters, int pcnt, \fBuserrec\fP *user)"
+.br
+.ti -1c
+.RI "void \fBhandle_stats\fP (char **parameters, int pcnt, \fBuserrec\fP *user)"
+.br
+.ti -1c
+.RI "void \fBhandle_connect\fP (char **parameters, int pcnt, \fBuserrec\fP *user)"
+.br
+.ti -1c
+.RI "void \fBhandle_squit\fP (char **parameters, int pcnt, \fBuserrec\fP *user)"
+.br
+.ti -1c
+.RI "void \fBhandle_links\fP (char **parameters, int pcnt, \fBuserrec\fP *user)"
+.br
+.ti -1c
+.RI "void \fBhandle_map\fP (char **parameters, int pcnt, \fBuserrec\fP *user)"
+.br
+.ti -1c
+.RI "void \fBhandle_oper\fP (char **parameters, int pcnt, \fBuserrec\fP *user)"
+.br
+.ti -1c
+.RI "void \fBhandle_nick\fP (char **parameters, int pcnt, \fBuserrec\fP *user)"
+.br
+.ti -1c
+.RI "void \fBhandle_kline\fP (char **parameters, int pcnt, \fBuserrec\fP *user)"
+.br
+.ti -1c
+.RI "void \fBhandle_gline\fP (char **parameters, int pcnt, \fBuserrec\fP *user)"
+.br
+.ti -1c
+.RI "void \fBhandle_zline\fP (char **parameters, int pcnt, \fBuserrec\fP *user)"
+.br
+.ti -1c
+.RI "void \fBhandle_qline\fP (char **parameters, int pcnt, \fBuserrec\fP *user)"
+.br
+.ti -1c
+.RI "void \fBhandle_server\fP (char **parameters, int pcnt, \fBuserrec\fP *user)"
+.br
+.ti -1c
+.RI "void \fBhandle_link_packet\fP (char *udp_msg, char *tcp_host, \fBserverrec\fP *serv)"
+.br
+.RI "\fISpecial functions for processing server to server traffic.\fP"
+.ti -1c
+.RI "void \fBprocess_restricted_commands\fP (char token, char *params, \fBserverrec\fP *source, \fBserverrec\fP *reply, char *tcp_host, char *ipaddr, int port)"
+.br
+.ti -1c
+.RI "void \fBhandle_amp\fP (char token, char *params, \fBserverrec\fP *source, \fBserverrec\fP *reply, char *tcp_host)"
+.br
+.RI "\fIThese are the handlers for server commands (tokens).\fP"
+.ti -1c
+.RI "void \fBhandle_dollar\fP (char token, char *params, \fBserverrec\fP *source, \fBserverrec\fP *reply, char *tcp_host)"
+.br
+.ti -1c
+.RI "void \fBhandle_J\fP (char token, char *params, \fBserverrec\fP *source, \fBserverrec\fP *reply, char *tcp_host)"
+.br
+.ti -1c
+.RI "void \fBhandle_R\fP (char token, char *params, \fBserverrec\fP *source, \fBserverrec\fP *reply, char *tcp_host)"
+.br
+.ti -1c
+.RI "void \fBhandle_plus\fP (char token, char *params, \fBserverrec\fP *source, \fBserverrec\fP *reply, char *tcp_host)"
+.br
+.ti -1c
+.RI "void \fBhandle_b\fP (char token, char *params, \fBserverrec\fP *source, \fBserverrec\fP *reply, char *tcp_host)"
+.br
+.ti -1c
+.RI "void \fBhandle_a\fP (char token, char *params, \fBserverrec\fP *source, \fBserverrec\fP *reply, char *tcp_host)"
+.br
+.ti -1c
+.RI "void \fBhandle_F\fP (char token, char *params, \fBserverrec\fP *source, \fBserverrec\fP *reply, char *tcp_host)"
+.br
+.ti -1c
+.RI "void \fBhandle_N\fP (char token, char *params, \fBserverrec\fP *source, \fBserverrec\fP *reply, char *tcp_host)"
+.br
+.ti -1c
+.RI "void \fBhandle_AT\fP (char token, char *params, \fBserverrec\fP *source, \fBserverrec\fP *reply, char *tcp_host)"
+.br
+.ti -1c
+.RI "void \fBhandle_k\fP (char token, char *params, \fBserverrec\fP *source, \fBserverrec\fP *reply, char *tcp_host)"
+.br
+.ti -1c
+.RI "void \fBhandle_n\fP (char token, char *params, \fBserverrec\fP *source, \fBserverrec\fP *reply, char *tcp_host)"
+.br
+.ti -1c
+.RI "void \fBhandle_Q\fP (char token, char *params, \fBserverrec\fP *source, \fBserverrec\fP *reply, char *tcp_host)"
+.br
+.ti -1c
+.RI "void \fBhandle_K\fP (char token, char *params, \fBserverrec\fP *source, \fBserverrec\fP *reply, char *tcp_host)"
+.br
+.ti -1c
+.RI "void \fBhandle_L\fP (char token, char *params, \fBserverrec\fP *source, \fBserverrec\fP *reply, char *tcp_host)"
+.br
+.ti -1c
+.RI "void \fBhandle_m\fP (char token, char *params, \fBserverrec\fP *source, \fBserverrec\fP *reply, char *tcp_host)"
+.br
+.ti -1c
+.RI "void \fBhandle_M\fP (char token, char *params, \fBserverrec\fP *source, \fBserverrec\fP *reply, char *tcp_host)"
+.br
+.ti -1c
+.RI "void \fBhandle_T\fP (char token, char *params, \fBserverrec\fP *source, \fBserverrec\fP *reply, char *tcp_host)"
+.br
+.ti -1c
+.RI "void \fBhandle_t\fP (char token, char *params, \fBserverrec\fP *source, \fBserverrec\fP *reply, char *tcp_host)"
+.br
+.ti -1c
+.RI "void \fBhandle_i\fP (char token, char *params, \fBserverrec\fP *source, \fBserverrec\fP *reply, char *tcp_host)"
+.br
+.ti -1c
+.RI "void \fBhandle_P\fP (char token, char *params, \fBserverrec\fP *source, \fBserverrec\fP *reply, char *tcp_host)"
+.br
+.ti -1c
+.RI "void \fBhandle_V\fP (char token, char *params, \fBserverrec\fP *source, \fBserverrec\fP *reply, char *tcp_host)"
+.br
+.ti -1c
+.RI "bool \fBis_uline\fP (const char *server)"
+.br
+.RI "\fIFunctions for u:lined servers.\fP"
+.in -1c
+.SH "Function Documentation"
+.PP 
+.SS "void handle_a (char token, char * params, \fBserverrec\fP * source, \fBserverrec\fP * reply, char * tcp_host)"
+.PP
+.SS "void handle_admin (char ** parameters, int pcnt, \fBuserrec\fP * user)"
+.PP
+.SS "void handle_amp (char token, char * params, \fBserverrec\fP * source, \fBserverrec\fP * reply, char * tcp_host)"
+.PP
+These are the handlers for server commands (tokens).
+.SS "void handle_AT (char token, char * params, \fBserverrec\fP * source, \fBserverrec\fP * reply, char * tcp_host)"
+.PP
+.SS "void handle_away (char ** parameters, int pcnt, \fBuserrec\fP * user)"
+.PP
+.SS "void handle_b (char token, char * params, \fBserverrec\fP * source, \fBserverrec\fP * reply, char * tcp_host)"
+.PP
+.SS "void handle_connect (char ** parameters, int pcnt, \fBuserrec\fP * user)"
+.PP
+.SS "void handle_die (char ** parameters, int pcnt, \fBuserrec\fP * user)"
+.PP
+.SS "void handle_dollar (char token, char * params, \fBserverrec\fP * source, \fBserverrec\fP * reply, char * tcp_host)"
+.PP
+.SS "void handle_F (char token, char * params, \fBserverrec\fP * source, \fBserverrec\fP * reply, char * tcp_host)"
+.PP
+.SS "void handle_gline (char ** parameters, int pcnt, \fBuserrec\fP * user)"
+.PP
+.SS "void handle_i (char token, char * params, \fBserverrec\fP * source, \fBserverrec\fP * reply, char * tcp_host)"
+.PP
+.SS "void handle_info (char ** parameters, int pcnt, \fBuserrec\fP * user)"
+.PP
+.SS "void handle_invite (char ** parameters, int pcnt, \fBuserrec\fP * user)"
+.PP
+.SS "void handle_ison (char ** parameters, int pcnt, \fBuserrec\fP * user)"
+.PP
+.SS "void handle_J (char token, char * params, \fBserverrec\fP * source, \fBserverrec\fP * reply, char * tcp_host)"
+.PP
+.SS "void handle_join (char ** parameters, int pcnt, \fBuserrec\fP * user)"
+.PP
+These are the handlers for user commands.
+.SS "void handle_K (char token, char * params, \fBserverrec\fP * source, \fBserverrec\fP * reply, char * tcp_host)"
+.PP
+.SS "void handle_k (char token, char * params, \fBserverrec\fP * source, \fBserverrec\fP * reply, char * tcp_host)"
+.PP
+.SS "void handle_kick (char ** parameters, int pcnt, \fBuserrec\fP * user)"
+.PP
+.SS "void handle_kill (char ** parameters, int pcnt, \fBuserrec\fP * user)"
+.PP
+.SS "void handle_kline (char ** parameters, int pcnt, \fBuserrec\fP * user)"
+.PP
+.SS "void handle_L (char token, char * params, \fBserverrec\fP * source, \fBserverrec\fP * reply, char * tcp_host)"
+.PP
+.SS "void handle_link_packet (char * udp_msg, char * tcp_host, \fBserverrec\fP * serv)"
+.PP
+Special functions for processing server to server traffic.
+.SS "void handle_links (char ** parameters, int pcnt, \fBuserrec\fP * user)"
+.PP
+.SS "void handle_list (char ** parameters, int pcnt, \fBuserrec\fP * user)"
+.PP
+.SS "void handle_lusers (char ** parameters, int pcnt, \fBuserrec\fP * user)"
+.PP
+.SS "void handle_M (char token, char * params, \fBserverrec\fP * source, \fBserverrec\fP * reply, char * tcp_host)"
+.PP
+.SS "void handle_m (char token, char * params, \fBserverrec\fP * source, \fBserverrec\fP * reply, char * tcp_host)"
+.PP
+.SS "void handle_map (char ** parameters, int pcnt, \fBuserrec\fP * user)"
+.PP
+.SS "void handle_modules (char ** parameters, int pcnt, \fBuserrec\fP * user)"
+.PP
+.SS "void handle_motd (char ** parameters, int pcnt, \fBuserrec\fP * user)"
+.PP
+.SS "void handle_n (char token, char * params, \fBserverrec\fP * source, \fBserverrec\fP * reply, char * tcp_host)"
+.PP
+.SS "void handle_N (char token, char * params, \fBserverrec\fP * source, \fBserverrec\fP * reply, char * tcp_host)"
+.PP
+.SS "void handle_names (char ** parameters, int pcnt, \fBuserrec\fP * user)"
+.PP
+.SS "void handle_nick (char ** parameters, int pcnt, \fBuserrec\fP * user)"
+.PP
+.SS "void handle_notice (char ** parameters, int pcnt, \fBuserrec\fP * user)"
+.PP
+.SS "void handle_oper (char ** parameters, int pcnt, \fBuserrec\fP * user)"
+.PP
+.SS "void handle_P (char token, char * params, \fBserverrec\fP * source, \fBserverrec\fP * reply, char * tcp_host)"
+.PP
+.SS "void handle_part (char ** parameters, int pcnt, \fBuserrec\fP * user)"
+.PP
+.SS "void handle_pass (char ** parameters, int pcnt, \fBuserrec\fP * user)"
+.PP
+.SS "void handle_ping (char ** parameters, int pcnt, \fBuserrec\fP * user)"
+.PP
+.SS "void handle_plus (char token, char * params, \fBserverrec\fP * source, \fBserverrec\fP * reply, char * tcp_host)"
+.PP
+.SS "void handle_pong (char ** parameters, int pcnt, \fBuserrec\fP * user)"
+.PP
+.SS "void handle_privmsg (char ** parameters, int pcnt, \fBuserrec\fP * user)"
+.PP
+.SS "void handle_Q (char token, char * params, \fBserverrec\fP * source, \fBserverrec\fP * reply, char * tcp_host)"
+.PP
+.SS "void handle_qline (char ** parameters, int pcnt, \fBuserrec\fP * user)"
+.PP
+.SS "void handle_quit (char ** parameters, int pcnt, \fBuserrec\fP * user)"
+.PP
+.SS "void handle_R (char token, char * params, \fBserverrec\fP * source, \fBserverrec\fP * reply, char * tcp_host)"
+.PP
+.SS "void handle_rehash (char ** parameters, int pcnt, \fBuserrec\fP * user)"
+.PP
+.SS "void handle_restart (char ** parameters, int pcnt, \fBuserrec\fP * user)"
+.PP
+.SS "void handle_rules (char ** parameters, int pcnt, \fBuserrec\fP * user)"
+.PP
+.SS "void handle_server (char ** parameters, int pcnt, \fBuserrec\fP * user)"
+.PP
+.SS "void handle_squit (char ** parameters, int pcnt, \fBuserrec\fP * user)"
+.PP
+.SS "void handle_stats (char ** parameters, int pcnt, \fBuserrec\fP * user)"
+.PP
+.SS "void handle_summon (char ** parameters, int pcnt, \fBuserrec\fP * user)"
+.PP
+.SS "void handle_t (char token, char * params, \fBserverrec\fP * source, \fBserverrec\fP * reply, char * tcp_host)"
+.PP
+.SS "void handle_T (char token, char * params, \fBserverrec\fP * source, \fBserverrec\fP * reply, char * tcp_host)"
+.PP
+.SS "void handle_time (char ** parameters, int pcnt, \fBuserrec\fP * user)"
+.PP
+.SS "void handle_topic (char ** parameters, int pcnt, \fBuserrec\fP * user)"
+.PP
+.SS "void handle_trace (char ** parameters, int pcnt, \fBuserrec\fP * user)"
+.PP
+.SS "void handle_user (char ** parameters, int pcnt, \fBuserrec\fP * user)"
+.PP
+.SS "void handle_userhost (char ** parameters, int pcnt, \fBuserrec\fP * user)"
+.PP
+.SS "void handle_users (char ** parameters, int pcnt, \fBuserrec\fP * user)"
+.PP
+.SS "void handle_V (char token, char * params, \fBserverrec\fP * source, \fBserverrec\fP * reply, char * tcp_host)"
+.PP
+.SS "void handle_wallops (char ** parameters, int pcnt, \fBuserrec\fP * user)"
+.PP
+.SS "void handle_who (char ** parameters, int pcnt, \fBuserrec\fP * user)"
+.PP
+.SS "void handle_whois (char ** parameters, int pcnt, \fBuserrec\fP * user)"
+.PP
+.SS "void handle_whowas (char ** parameters, int pcnt, \fBuserrec\fP * user)"
+.PP
+.SS "void handle_zline (char ** parameters, int pcnt, \fBuserrec\fP * user)"
+.PP
+.SS "bool is_uline (const char * server)"
+.PP
+Functions for u:lined servers.Referenced by Server::IsUlined().
+.SS "void process_restricted_commands (char token, char * params, \fBserverrec\fP * source, \fBserverrec\fP * reply, char * tcp_host, char * ipaddr, int port)"
+.PP
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for InspIRCd from the source code.

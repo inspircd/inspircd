@@ -1,0 +1,75 @@
+.TH "ucrec" 3 "2 May 2004" "InspIRCd" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+ucrec \- Holds a user's modes on a channel This class associates a users privilages with a channel by creating a pointer link between a userrec and chanrec class. 
+
+.PP
+.SH SYNOPSIS
+.br
+.PP
+\fC#include <channels.h>\fP
+.PP
+Inherits \fBclassbase\fP.
+.PP
+.SS "Public Member Functions"
+
+.in +1c
+.ti -1c
+.RI "\fBucrec\fP ()"
+.br
+.ti -1c
+.RI "virtual \fB~ucrec\fP ()"
+.br
+.in -1c
+.SS "Public Attributes"
+
+.in +1c
+.ti -1c
+.RI "long \fBuc_modes\fP"
+.br
+.RI "\fIContains a bitmask of the UCMODE_OP ...\fP"
+.ti -1c
+.RI "\fBchanrec\fP * \fBchannel\fP"
+.br
+.RI "\fIPoints to the channel record where the given modes apply.\fP"
+.in -1c
+.SH "Detailed Description"
+.PP 
+Holds a user's modes on a channel This class associates a users privilages with a channel by creating a pointer link between a userrec and chanrec class.
+
+The uc_modes member holds a bitmask of which privilages the user has on the channel, such as op, voice, etc. 
+.PP
+Definition at line 191 of file channels.h.
+.SH "Constructor & Destructor Documentation"
+.PP 
+.SS "ucrec::ucrec ()\fC [inline]\fP"
+.PP
+Definition at line 204 of file channels.h.
+.PP
+.nf
+204 { /* stub */ }
+.fi
+.SS "virtual ucrec::~ucrec ()\fC [inline, virtual]\fP"
+.PP
+Definition at line 205 of file channels.h.
+.PP
+.nf
+205 { /* stub */ }
+.fi
+.SH "Member Data Documentation"
+.PP 
+.SS "\fBchanrec\fP* ucrec::channel"
+.PP
+Points to the channel record where the given modes apply.If the record is not in use, this value will be NULL.Definition at line 202 of file channels.h.
+.PP
+Referenced by userrec::userrec().
+.SS "long ucrec::uc_modes"
+.PP
+Contains a bitmask of the UCMODE_OP ...UCMODE_FOUNDER values. If this value is zero, the user has no privilages upon the channel.Definition at line 197 of file channels.h.
+.PP
+Referenced by userrec::userrec().
+
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for InspIRCd from the source code.

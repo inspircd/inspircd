@@ -1,0 +1,206 @@
+.TH "ircd_connector" 3 "2 May 2004" "InspIRCd" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+ircd_connector \- Each connection has one or more of these each represents ONE outbound connection to another ircd so each inbound has multiple outbounds. 
+
+.PP
+.SH SYNOPSIS
+.br
+.PP
+\fC#include <connection.h>\fP
+.PP
+Inherits \fBExtensible\fP.
+.PP
+.SS "Public Member Functions"
+
+.in +1c
+.ti -1c
+.RI "bool \fBMakeOutboundConnection\fP (char *\fBhost\fP, int \fBport\fP)"
+.br
+.RI "\fICreate an outbound connection to a listening socket.\fP"
+.ti -1c
+.RI "std::string \fBGetServerName\fP ()"
+.br
+.RI "\fIReturn the servername on this established connection.\fP"
+.ti -1c
+.RI "void \fBSetServerName\fP (std::string serv)"
+.br
+.RI "\fISet the server name of this connection.\fP"
+.ti -1c
+.RI "int \fBGetDescriptor\fP ()"
+.br
+.RI "\fIGet the file descriptor associated with this connection.\fP"
+.ti -1c
+.RI "void \fBSetDescriptor\fP (int \fBfd\fP)"
+.br
+.RI "\fISet the file descriptor for this connection.\fP"
+.ti -1c
+.RI "int \fBGetState\fP ()"
+.br
+.RI "\fIGet the state flags for this connection.\fP"
+.ti -1c
+.RI "void \fBSetState\fP (int \fBstate\fP)"
+.br
+.RI "\fISet the state flags for this connection.\fP"
+.ti -1c
+.RI "char * \fBGetServerIP\fP ()"
+.br
+.RI "\fIGet the ip address (not servername) associated with this connection.\fP"
+.ti -1c
+.RI "std::string \fBGetDescription\fP ()"
+.br
+.RI "\fIGet the server description of this connection.\fP"
+.ti -1c
+.RI "void \fBSetDescription\fP (std::string desc)"
+.br
+.RI "\fISet the server description of this connection.\fP"
+.ti -1c
+.RI "int \fBGetServerPort\fP ()"
+.br
+.RI "\fIGet the port number being used for this connection If the connection is outbound this will be the remote port otherwise it will be the local port, so it can always be gautanteed as open at the address given in \fBGetServerIP()\fP.\fP"
+.ti -1c
+.RI "void \fBSetServerPort\fP (int p)"
+.br
+.RI "\fISet the port used by this connection.\fP"
+.ti -1c
+.RI "bool \fBSetHostAndPort\fP (char *\fBhost\fP, int \fBport\fP)"
+.br
+.RI "\fISet both the host and the port in one operation for this connection.\fP"
+.ti -1c
+.RI "void \fBCloseConnection\fP ()"
+.br
+.RI "\fIClose the connection by calling close() on its file descriptor This function call updates no other data.\fP"
+.in -1c
+.SS "Public Attributes"
+
+.in +1c
+.ti -1c
+.RI "char \fBhost\fP [MAXBUF]"
+.br
+.RI "\fIWhen MakeOutboundConnection is called, these public members are filled with the details passed to the function, for future reference.\fP"
+.ti -1c
+.RI "int \fBport\fP"
+.br
+.RI "\fIWhen MakeOutboundConnection is called, these public members are filled with the details passed to the function, for future reference.\fP"
+.ti -1c
+.RI "std::vector< std::string > \fBroutes\fP"
+.br
+.RI "\fI\fBServer\fP names of servers that this server is linked to So for A->B->C, if this was the record for B it would contain A and C whilever both servers are connected to B.\fP"
+.in -1c
+.SS "Private Member Functions"
+
+.in +1c
+.ti -1c
+.RI "bool \fBSetHostAddress\fP (char *\fBhost\fP, int \fBport\fP)"
+.br
+.RI "\fIPRIVATE function to set the host address and port to connect to.\fP"
+.in -1c
+.SS "Private Attributes"
+
+.in +1c
+.ti -1c
+.RI "sockaddr_in \fBaddr\fP"
+.br
+.RI "\fISockaddr of the outbound ip and port.\fP"
+.ti -1c
+.RI "int \fBfd\fP"
+.br
+.RI "\fIFile descriptor of the connection.\fP"
+.ti -1c
+.RI "std::string \fBservername\fP"
+.br
+.RI "\fI\fBServer\fP name.\fP"
+.ti -1c
+.RI "std::string \fBdescription\fP"
+.br
+.RI "\fI\fBServer\fP 'GECOS'.\fP"
+.ti -1c
+.RI "int \fBstate\fP"
+.br
+.RI "\fIState.\fP"
+.in -1c
+.SH "Detailed Description"
+.PP 
+Each connection has one or more of these each represents ONE outbound connection to another ircd so each inbound has multiple outbounds.
+
+A listening socket that accepts server type connections is represented by one class serverrec. Class serverrec will instantiate several objects of type ircd_connector to represent each established connection, inbound or outbound. So, to determine all linked servers you must walk through all the serverrecs that the core defines, and in each one iterate through until you find connection(s) relating to the server you want information on. The core and module API provide functions for this. 
+.PP
+Definition at line 41 of file connection.h.
+.SH "Member Function Documentation"
+.PP 
+.SS "void ircd_connector::CloseConnection ()"
+.PP
+Close the connection by calling close() on its file descriptor This function call updates no other data.
+.SS "std::string ircd_connector::GetDescription ()"
+.PP
+Get the server description of this connection.
+.SS "int ircd_connector::GetDescriptor ()"
+.PP
+Get the file descriptor associated with this connection.
+.SS "char* ircd_connector::GetServerIP ()"
+.PP
+Get the ip address (not servername) associated with this connection.
+.SS "std::string ircd_connector::GetServerName ()"
+.PP
+Return the servername on this established connection.
+.SS "int ircd_connector::GetServerPort ()"
+.PP
+Get the port number being used for this connection If the connection is outbound this will be the remote port otherwise it will be the local port, so it can always be gautanteed as open at the address given in \fBGetServerIP()\fP.
+.SS "int ircd_connector::GetState ()"
+.PP
+Get the state flags for this connection.
+.SS "bool ircd_connector::MakeOutboundConnection (char * host, int port)"
+.PP
+Create an outbound connection to a listening socket.
+.SS "void ircd_connector::SetDescription (std::string desc)"
+.PP
+Set the server description of this connection.
+.SS "void ircd_connector::SetDescriptor (int fd)"
+.PP
+Set the file descriptor for this connection.
+.SS "bool ircd_connector::SetHostAddress (char * host, int port)\fC [private]\fP"
+.PP
+PRIVATE function to set the host address and port to connect to.
+.SS "bool ircd_connector::SetHostAndPort (char * host, int port)"
+.PP
+Set both the host and the port in one operation for this connection.
+.SS "void ircd_connector::SetServerName (std::string serv)"
+.PP
+Set the server name of this connection.
+.SS "void ircd_connector::SetServerPort (int p)"
+.PP
+Set the port used by this connection.
+.SS "void ircd_connector::SetState (int state)"
+.PP
+Set the state flags for this connection.
+.SH "Member Data Documentation"
+.PP 
+.SS "sockaddr_in ircd_connector::addr\fC [private]\fP"
+.PP
+Sockaddr of the outbound ip and port.Definition at line 46 of file connection.h.
+.SS "std::string ircd_connector::description\fC [private]\fP"
+.PP
+\fBServer\fP 'GECOS'.Definition at line 58 of file connection.h.
+.SS "int ircd_connector::fd\fC [private]\fP"
+.PP
+File descriptor of the connection.Definition at line 50 of file connection.h.
+.SS "char ircd_connector::host[MAXBUF]"
+.PP
+When MakeOutboundConnection is called, these public members are filled with the details passed to the function, for future reference.Definition at line 75 of file connection.h.
+.SS "int ircd_connector::port"
+.PP
+When MakeOutboundConnection is called, these public members are filled with the details passed to the function, for future reference.Definition at line 81 of file connection.h.
+.SS "std::vector<std::string> ircd_connector::routes"
+.PP
+\fBServer\fP names of servers that this server is linked to So for A->B->C, if this was the record for B it would contain A and C whilever both servers are connected to B.Definition at line 87 of file connection.h.
+.SS "std::string ircd_connector::servername\fC [private]\fP"
+.PP
+\fBServer\fP name.Definition at line 54 of file connection.h.
+.SS "int ircd_connector::state\fC [private]\fP"
+.PP
+State.STATE_NOAUTH_INBOUND, STATE_NOAUTH_OUTBOUND STATE_SYNC, STATE_DISCONNECTED, STATE_CONNECTEDDefinition at line 63 of file connection.h.
+
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for InspIRCd from the source code.

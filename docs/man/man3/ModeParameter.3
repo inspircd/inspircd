@@ -1,0 +1,55 @@
+.TH "ModeParameter" 3 "2 May 2004" "InspIRCd" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+ModeParameter \- Holds a custom parameter to a module-defined channel mode e.g. 
+
+.PP
+.SH SYNOPSIS
+.br
+.PP
+\fC#include <channels.h>\fP
+.PP
+Inherits \fBclassbase\fP.
+.PP
+.SS "Public Attributes"
+
+.in +1c
+.ti -1c
+.RI "char \fBmode\fP"
+.br
+.ti -1c
+.RI "char \fBparameter\fP [MAXBUF]"
+.br
+.ti -1c
+.RI "char \fBchannel\fP [CHANMAX]"
+.br
+.in -1c
+.SH "Detailed Description"
+.PP 
+Holds a custom parameter to a module-defined channel mode e.g.
+
+for +L this would hold the channel name. 
+.PP
+Definition at line 59 of file channels.h.
+.SH "Member Data Documentation"
+.PP 
+.SS "char ModeParameter::channel[CHANMAX]"
+.PP
+Definition at line 64 of file channels.h.
+.PP
+Referenced by chanrec::SetCustomModeParam().
+.SS "char ModeParameter::mode"
+.PP
+Definition at line 62 of file channels.h.
+.PP
+Referenced by chanrec::SetCustomModeParam().
+.SS "char ModeParameter::parameter[MAXBUF]"
+.PP
+Definition at line 63 of file channels.h.
+.PP
+Referenced by chanrec::SetCustomModeParam().
+
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for InspIRCd from the source code.
