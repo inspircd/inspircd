@@ -6015,7 +6015,7 @@ void handle_m(char token,char* params,serverrec* source,serverrec* reply, char* 
 	}
 	
 	char* o = original;
-	while (o != ' ')
+	while (o[0] != ' ')
 		o++;
 	o++;
 	
