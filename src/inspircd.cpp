@@ -6460,6 +6460,63 @@ void handle_J(char token,char* params,serverrec* source,serverrec* reply, char* 
 	}
 }
 
+void NetSendMyRoutingTable()
+{
+	// send out a line saying what is reachable to us.
+	// E.g. if A is linked to B C and D, send out:
+	// $ A B C D
+	// if its only linked to B and D send out:
+	// $ A B D
+	// if it has no links, dont even send out the line at all.
+	char buffer[MAXBUF];
+	sprintf(buffer,"$ %s",ServerName);
+	bool sendit = false;
+	for (int i = 0; i < 32; i++)
+	{
+		if (me[i] != NULL)
+		{
+			for (int j = 0; j < me[i]->connectors.size(); j++)
+			{
+				if (me[i]->connectors[j].GetState() != STATE_DISCONNECTED)
+				{
+					strncat(buffer," ",MAXBUF);
+					strncat(buffer,me[i]->connectors[j].GetServerName().c_str(),MAXBUF);
+					sendit = true;
+				}
+			}
+		}
+	}
+	if (sendit)
+		NetSendToAll(buffer);
+}
+
+void handle_dollar(char token,char* params,serverrec* source,serverrec* reply, char* udp_host)
+{
+	char* sourceserver = strtok(params," ");
+	char* server = strtok(NULL," ");
+	for (int i = 0; i < 32; i++)
+	{
+		if (me[i] != NULL)
+		{
+			for (int j = 0; j < me[i]->connectors.size(); j++)
+			{
+				if (!strcasecmp(me[i]->connectors[j].GetServerName().c_str(),sourceserver))
+				{
+					while (server)
+					{
+						// store each route
+						me[i]->connectors[j].routes.push_back(server);
+						log(DEBUG,"*** Stored route: %s -> %s -> %s",ServerName,sourceserver,server);
+						server = strtok(NULL," ");
+					}
+					return;
+				}
+			}
+		}
+	}
+	log(DEBUG,"Warning! routing table received from nonexistent server!");
+}
+
 
 void process_restricted_commands(char token,char* params,serverrec* source,serverrec* reply, char* udp_host,char* ipaddr,int port)
 {
@@ -6495,6 +6552,10 @@ void process_restricted_commands(char token,char* params,serverrec* source,serve
 		// connect back to a server using an authcookie
 		case '+':
 			handle_plus(token,params,source,reply,udp_host);
+		break;
+		// routing table
+		case '$':
+			handle_dollar(token,params,source,reply,udp_host);
 		break;
 		// R <server> <data>
 		// redirect token, send all of <data> along to the given 
@@ -6615,7 +6676,7 @@ void process_restricted_commands(char token,char* params,serverrec* source,serve
 			WriteOpers("Sending my netburst to %s",udp_host);
 			DoSync(source,udp_host);
 			WriteOpers("Send of netburst to %s completed",udp_host);
-		
+			NetSendMyRoutingTable();
 		break;
 		// anything else
 		default:
@@ -6656,6 +6717,7 @@ void handle_link_packet(char* udp_msg, char* udp_host, serverrec *serv)
 							if (!strcasecmp(me[j]->connectors[k].GetServerName().c_str(),udp_host))
       							{
       								me[j]->connectors[k].SetServerName(servername);
+								NetSendMyRoutingTable();
       								return;
 							}
 						}
@@ -6668,6 +6730,7 @@ void handle_link_packet(char* udp_msg, char* udp_host, serverrec *serv)
 				return;
 			}
 		}
+		// bad cookie, bad bad! go sit in the corner!
 		WriteOpers("Bad cookie from %s!",servername);
 		return;
   	}
@@ -6772,6 +6835,7 @@ void handle_link_packet(char* udp_msg, char* udp_host, serverrec *serv)
 								sprintf(buffer,"X 0");
 								serv->SendPacket(buffer,udp_host);
 								DoSync(me[j],udp_host);
+								NetSendMyRoutingTable();
 								return;
 							}
 						}
