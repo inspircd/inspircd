@@ -62,9 +62,6 @@ void handle_helpop(char **parameters, int pcnt, userrec *user)
 				}
                         }
                 }
-	} else if (strchr(user->modes,'o')) {
-		// Its an oper whos not using ?, send to all +h
-		sendtohelpop(user, pcnt, parameters);
 	} else {
 		// Check with the helpop database, if not found send to +h
 		if (do_helpop(parameters, pcnt, user) == false) {
