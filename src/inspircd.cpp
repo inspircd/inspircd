@@ -2625,11 +2625,8 @@ void process_modes(char **parameters,userrec* user,chanrec *chan,int status, int
 						{
 							if (strcmp(servers[j]->name,ServerName))
 							{
-								if (ChanAnyOnThisServer(chan,servers[j]->name))
-								{
-									me[defaultRoute]->SendPacket(buffer,servers[j]->internal_addr,servers[j]->internal_port,MyKey);
-									log(DEBUG,"Sent M token");
-								}
+								me[defaultRoute]->SendPacket(buffer,servers[j]->internal_addr,servers[j]->internal_port,MyKey);
+								log(DEBUG,"Sent M token");
 							}
 						}
 					}
@@ -2650,11 +2647,8 @@ void process_modes(char **parameters,userrec* user,chanrec *chan,int status, int
 						{
 							if (strcmp(servers[j]->name,ServerName))
 							{
-								if (ChanAnyOnThisServer(chan,servers[j]->name))
-								{
-									me[defaultRoute]->SendPacket(buffer,servers[j]->internal_addr,servers[j]->internal_port,MyKey);
-									log(DEBUG,"Sent m token");
-								}
+								me[defaultRoute]->SendPacket(buffer,servers[j]->internal_addr,servers[j]->internal_port,MyKey);
+								log(DEBUG,"Sent m token");
 							}
 						}
 					}
