@@ -57,6 +57,7 @@ public:
 	bool ForwardLookup(std::string host);
 	bool HasResult();
 	std::string GetResult();
+	int GetFD();
 };
 
 #endif

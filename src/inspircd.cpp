@@ -87,6 +87,7 @@ time_t startup_time = time(NULL);
 int NetBufferSize = 10240; // NetBufferSize used as the buffer size for all read() ops
 extern int MaxWhoResults;
 time_t nb_start = 0;
+int dns_timeout = 5;
 
 bool AllowHalfop = true;
 bool AllowProtect = true;
@@ -96,6 +97,8 @@ extern std::vector<Module*> modules;
 std::vector<std::string> module_names;
 extern std::vector<ircd_module*> factory;
 std::vector<int> fd_reap;
+
+std::vector<userrec*> pending_connects;
 
 extern int MODCOUNT;
 
@@ -315,7 +318,7 @@ void readfile(file_cache &F, const char* fname)
 void ReadConfig(bool bail, userrec* user)
 {
 	char dbg[MAXBUF],pauseval[MAXBUF],Value[MAXBUF],timeout[MAXBUF],NB[MAXBUF],flood[MAXBUF],MW[MAXBUF];
-	char AH[MAXBUF],AP[MAXBUF],AF[MAXBUF];
+	char AH[MAXBUF],AP[MAXBUF],AF[MAXBUF],DNT[MAXBUF];
 	ConnectClass c;
 	std::stringstream errstr;
 	
@@ -372,8 +375,14 @@ void ReadConfig(bool bail, userrec* user)
 	ConfValue("options","allowprotect",0,AP,&config_f);
 	ConfValue("options","allowfounder",0,AF,&config_f);
 	ConfValue("dns","server",0,DNSServer,&config_f);
+	ConfValue("dns","timeout",0,DNT,&config_f);
 	NetBufferSize = atoi(NB);
 	MaxWhoResults = atoi(MW);
+	dns_timeout = atoi(DNT);
+	if (!dns_timeout)
+		dns_timeout = 5;
+	if (!strcmp(DNSServer,""))
+		strlcpy(DNSServer,"127.0.0.1",MAXBUF);
 	AllowHalfop = ((!strcasecmp(AH,"true")) || (!strcasecmp(AH,"1")) || (!strcasecmp(AH,"yes")));
 	AllowProtect = ((!strcasecmp(AP,"true")) || (!strcasecmp(AP,"1")) || (!strcasecmp(AP,"yes")));
 	AllowFounder = ((!strcasecmp(AF,"true")) || (!strcasecmp(AF,"1")) || (!strcasecmp(AF,"yes")));
@@ -1110,7 +1119,7 @@ void purge_empty_chans(void)
 					if (i != chanlist.end())
 					{
 						log(DEBUG,"del_channel: destroyed: %s",i->second->name);
-						delete i->second;
+						if (i->second) delete i->second;
 						chanlist.erase(i);
 						go_again = 1;
 						purge++;
@@ -1619,7 +1628,7 @@ chanrec* del_channel(userrec *user, const char* cname, const char* reason, bool 
 		if (iter != chanlist.end())
 		{
 			log(DEBUG,"del_channel: destroyed: %s",Ptr->name);
-			delete iter->second;
+			if (iter->second) delete iter->second;
 			chanlist.erase(iter);
 		}
 	}
@@ -1698,7 +1707,7 @@ void kick_channel(userrec *src,userrec *user, chanrec *Ptr, char* reason)
 		if (iter != chanlist.end())
 		{
 			log(DEBUG,"del_channel: destroyed: %s",Ptr->name);
-			delete iter->second;
+			if (iter->second) delete iter->second;
 			chanlist.erase(iter);
 		}
 	}
@@ -1916,7 +1925,7 @@ void kill_link(userrec *user,const char* r)
 	{
 		log(DEBUG,"deleting user hash value %d",iter->second);
 		if ((iter->second) && (user->registered == 7)) {
-			delete iter->second;
+			if (iter->second) delete iter->second;
 		}
 		clientlist.erase(iter);
 	}
@@ -1966,7 +1975,7 @@ void kill_link_silent(userrec *user,const char* r)
 	{
 		log(DEBUG,"deleting user hash value %d",iter->second);
 		if ((iter->second) && (user->registered == 7)) {
-			delete iter->second;
+			if (iter->second) delete iter->second;
 		}
 		clientlist.erase(iter);
 	}
@@ -2106,7 +2115,6 @@ userrec* ReHashNick(char* Old, char* New)
 
 	clientlist[New] = new userrec();
 	clientlist[New] = oldnick->second;
-	/*delete oldnick->second; */
 	clientlist.erase(oldnick);
 
 	log(DEBUG,"ReHashNick: Nick rehashed as %s",New);
@@ -2141,7 +2149,7 @@ void AddWhoWas(userrec* u)
 				// 3600 seconds in an hour ;)
 				if ((i->second->signon)<(time(NULL)-(WHOWAS_STALE*3600)))
 				{
-					delete i->second;
+					if (i->second) delete i->second;
 					i->second = a;
 					log(DEBUG,"added WHOWAS entry, purged an old record");
 					return;
@@ -2157,7 +2165,7 @@ void AddWhoWas(userrec* u)
 	else
 	{
 		log(DEBUG,"updated WHOWAS entry");
-		delete iter->second;
+		if (iter->second) delete iter->second;
 		iter->second = a;
 	}
 }
@@ -2204,15 +2212,6 @@ void AddClient(int socket, char* host, int port, bool iscached, char* ip)
 	clientlist[tempnick]->lastping = 1;
 	clientlist[tempnick]->port = port;
 	strncpy(clientlist[tempnick]->ip,ip,32);
-
-	if (iscached)
-	{
-		WriteServ(socket,"NOTICE Auth :Found your hostname (cached)...");
-	}
-	else
-	{
-		WriteServ(socket,"NOTICE Auth :Looking up your hostname...");
-	}
 
 	lookup_dns(clientlist[tempnick]);
 
@@ -2362,81 +2361,131 @@ void ShowRULES(userrec *user)
 }
 
 /* shows the message of the day, and any other on-logon stuff */
-void ConnectUser(userrec *user)
+void FullConnectUser(userrec* user)
 {
-	user->registered = 7;
-	user->idle_lastmsg = time(NULL);
+        user->registered = 7;
+        user->idle_lastmsg = time(NULL);
         log(DEBUG,"ConnectUser: %s",user->nick);
 
-	if (strcmp(Passwd(user),"") && (!user->haspassed))
-	{
-		kill_link(user,"Invalid password");
-		return;
-	}
-	if (IsDenied(user))
-	{
-		kill_link(user,"Unauthorised connection");
-		return;
-	}
+        if (strcmp(Passwd(user),"") && (!user->haspassed))
+        {
+                kill_link(user,"Invalid password");
+                return;
+        }
+        if (IsDenied(user))
+        {
+                kill_link(user,"Unauthorised connection");
+                return;
+        }
 
-	char match_against[MAXBUF];
-	snprintf(match_against,MAXBUF,"%s@%s",user->ident,user->host);
-	char* r = matches_gline(match_against);
-	if (r)
-	{
-		char reason[MAXBUF];
-		snprintf(reason,MAXBUF,"G-Lined: %s",r);
-		kill_link_silent(user,reason);
-		return;
-	}
+        char match_against[MAXBUF];
+        snprintf(match_against,MAXBUF,"%s@%s",user->ident,user->host);
+        char* r = matches_gline(match_against);
+        if (r)
+        {
+                char reason[MAXBUF];
+                snprintf(reason,MAXBUF,"G-Lined: %s",r);
+                kill_link_silent(user,reason);
+                return;
+        }
 
-	r = matches_kline(user->host);
-	if (r)
-	{
-		char reason[MAXBUF];
-		snprintf(reason,MAXBUF,"K-Lined: %s",r);
-		kill_link_silent(user,reason);
-		return;
-	}
+        r = matches_kline(user->host);
+        if (r)
+        {
+                char reason[MAXBUF];
+                snprintf(reason,MAXBUF,"K-Lined: %s",r);
+                kill_link_silent(user,reason);
+                return;
+        }
 
-	WriteServ(user->fd,"NOTICE Auth :Welcome to \002%s\002!",Network);
-	WriteServ(user->fd,"001 %s :Welcome to the %s IRC Network %s!%s@%s",user->nick,Network,user->nick,user->ident,user->host);
-	WriteServ(user->fd,"002 %s :Your host is %s, running version %s",user->nick,ServerName,VERSION);
-	WriteServ(user->fd,"003 %s :This server was created %s %s",user->nick,__TIME__,__DATE__);
-	WriteServ(user->fd,"004 %s %s %s iowghraAsORVSxNCWqBzvdHtGI lvhopsmntikrRcaqOALQbSeKVfHGCuzN",user->nick,ServerName,VERSION);
-	// the neatest way to construct the initial 005 numeric, considering the number of configure constants to go in it...
-	std::stringstream v;
-	v << "MESHED WALLCHOPS MODES=13 CHANTYPES=# PREFIX=(ohv)@%+ MAP SAFELIST MAXCHANNELS=" << MAXCHANS;
-	v << " MAXBANS=60 NICKLEN=" << NICKMAX;
-	v << " TOPICLEN=307 KICKLEN=307 MAXTARGETS=20 AWAYLEN=307 CHANMODES=ohvb,k,l,psmnti NETWORK=";
-	v << std::string(Network);
-	std::string data005 = v.str();
-	FOREACH_MOD On005Numeric(data005);
-	// anfl @ #ratbox, efnet reminded me that according to the RFC this cant contain more than 13 tokens per line...
-	// so i'd better split it :)
-	std::stringstream out(data005);
-	std::string token = "";
-	std::string line5 = "";
-	int token_counter = 0;
-	while (!out.eof())
+        WriteServ(user->fd,"NOTICE Auth :Welcome to \002%s\002!",Network);
+        WriteServ(user->fd,"001 %s :Welcome to the %s IRC Network %s!%s@%s",user->nick,Network,user->nick,user->ident,user->host);
+        WriteServ(user->fd,"002 %s :Your host is %s, running version %s",user->nick,ServerName,VERSION);
+        WriteServ(user->fd,"003 %s :This server was created %s %s",user->nick,__TIME__,__DATE__);
+        WriteServ(user->fd,"004 %s %s %s iowghraAsORVSxNCWqBzvdHtGI lvhopsmntikrRcaqOALQbSeKVfHGCuzN",user->nick,ServerName,VERSION);
+        // the neatest way to construct the initial 005 numeric, considering the number of configure constants to go in it...
+        std::stringstream v;
+        v << "MESHED WALLCHOPS MODES=13 CHANTYPES=# PREFIX=(ohv)@%+ MAP SAFELIST MAXCHANNELS=" << MAXCHANS;
+        v << " MAXBANS=60 NICKLEN=" << NICKMAX;
+        v << " TOPICLEN=307 KICKLEN=307 MAXTARGETS=20 AWAYLEN=307 CHANMODES=ohvb,k,l,psmnti NETWORK=";
+        v << std::string(Network);
+        std::string data005 = v.str();
+        FOREACH_MOD On005Numeric(data005);
+        // anfl @ #ratbox, efnet reminded me that according to the RFC this cant contain more than 13 tokens per line...
+        // so i'd better split it :)
+        std::stringstream out(data005);
+        std::string token = "";
+        std::string line5 = "";
+        int token_counter = 0;
+        while (!out.eof())
+        {
+                out >> token;
+                line5 = line5 + token + " ";
+                token_counter++;
+                if ((token_counter >= 13) || (out.eof() == true))
+                {
+                        WriteServ(user->fd,"005 %s %s:are supported by this server",user->nick,line5.c_str());
+                        line5 = "";
+                        token_counter = 0;
+                }
+        }
+        ShowMOTD(user);
+        FOREACH_MOD OnUserConnect(user);
+        WriteOpers("*** Client connecting on port %d: %s!%s@%s [%s]",user->port,user->nick,user->ident,user->host,user->ip);
+
+        char buffer[MAXBUF];
+	snprintf(buffer,MAXBUF,"N %d %s %s %s %s +%s %s %s :%s",user->age,user->nick,user->host,user->dhost,user->ident,user->modes,user->ip,ServerName,user->fullname);
+        NetSendToAll(buffer);
+}
+
+// handles any connects where DNS isnt done yet, times out stale dns queries on users, and lets completed queries connect.
+void HandlePendingConnects()
+{
+	if (pending_connects.size())
 	{
-		out >> token;
-		line5 = line5 + token + " ";
-		token_counter++;
-		if ((token_counter >= 13) || (out.eof() == true))
+		for (std::vector<userrec*>::iterator i = pending_connects.begin(); i <= pending_connects.end(); i++)
 		{
-			WriteServ(user->fd,"005 %s %s:are supported by this server",user->nick,line5.c_str());
-			line5 = "";
-			token_counter = 0;
+			userrec* a = *i;
+			if (a)
+			{
+				// this user's dns is done now.
+				if ((a->dns_done) && (a->registered == 3))
+				{
+					FullConnectUser(a); // attack! attack!....
+					pending_connects.erase(i);
+					return;	// ...RUN AWAY! RUN AWAY!
+				}
+				// this users dns is NOT done, but its timed out.
+				if ((time(NULL) > a->signon+dns_timeout) && (a->registered == 3))
+				{
+					WriteServ(a->fd,"NOTICE Auth :Failed to resolve your hostname, using your IP address instead.");
+					FullConnectUser(a);
+					pending_connects.erase(i);
+					return;
+				}
+			}
+			else
+			{
+				pending_connects.erase(i);
+				return;
+			}
 		}
 	}
-	ShowMOTD(user);
-	FOREACH_MOD OnUserConnect(user);
-	WriteOpers("*** Client connecting on port %d: %s!%s@%s [%s]",user->port,user->nick,user->ident,user->host,user->ip);
-	
-	char buffer[MAXBUF];
-	snprintf(buffer,MAXBUF,"N %d %s %s %s %s +%s %s %s :%s",user->age,user->nick,user->host,user->dhost,user->ident,user->modes,user->ip,ServerName,user->fullname);
-	NetSendToAll(buffer);
+}
+
+/* shows the message of the day, and any other on-logon stuff */
+void ConnectUser(userrec *user)
+{
+	// dns is already done, things are fast. no need to wait for dns to complete just pass them straight on
+	if (user->dns_done)
+	{
+		FullConnectUser(user);
+	}
+	else
+	{
+		// add them to the pending queue
+		pending_connects.push_back(user);
+	}
 }
 
 void handle_version(char **parameters, int pcnt, userrec *user)
@@ -3409,6 +3458,9 @@ int InspIRCd(void)
 		// poll dns queue
 		dns_poll();
 
+		// handle pending connects
+		HandlePendingConnects();
+
 		user_hash::iterator count2 = clientlist.begin();
 
 		// *FIX* Instead of closing sockets in kill_link when they receive the ERROR :blah line, we should queue
@@ -3698,23 +3750,8 @@ int InspIRCd(void)
 				length = sizeof (client);
 				incomingSockfd = accept (openSockfd[count], (struct sockaddr *) &client, &length);
 			      
-				//address_cache::iterator iter = IP.find(client.sin_addr);
-				bool iscached = false;
-				//if (iter == IP.end())
-				//{
-					/* ip isn't in cache, add it */
-					strlcpy (target, (char *) inet_ntoa (client.sin_addr), MAXBUF);
-					strlcpy (resolved, target, MAXBUF);
-					/* hostname now in 'target' */
-					//IP[client.sin_addr] = new string(resolved);
-					/* hostname in cache */
-				//}
-				//else
-				//{
-				//	/* found ip (cached) */
-				//	strlcpy(resolved, iter->second->c_str(), MAXBUF);
-				//	iscached = true;
-				//}
+				strlcpy (target, (char *) inet_ntoa (client.sin_addr), MAXBUF);
+				strlcpy (resolved, target, MAXBUF);
 			
 				if (incomingSockfd < 0)
 				{
@@ -3723,7 +3760,7 @@ int InspIRCd(void)
 				}
 				else
 				{
-					AddClient(incomingSockfd, resolved, ports[count], iscached, inet_ntoa (client.sin_addr));
+					AddClient(incomingSockfd, resolved, ports[count], false, inet_ntoa (client.sin_addr));
 					log(DEBUG,"InspIRCd: adding client on port %d fd=%d",ports[count],incomingSockfd);
 				}
 				goto label;

@@ -28,6 +28,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include <stdio.h>
 #include <errno.h>
 #include <fcntl.h>
+#include <poll.h>
 #include "dns.h"
 
 static const char tagstring[] = "$Id$";
@@ -255,7 +256,7 @@ static s_connection *dns_add_query(s_header *h) { /* build DNS query, add to lis
 			}
 		}
 		if (s->fd == -1) {
-			free(s);
+			delete s;
 			return NULL;
 		}
 	/* create new connection object, add to linked list */
@@ -315,7 +316,7 @@ in_addr* DNS::dns_aton4_r(const char *ipstring) { /* ascii to numeric (reentrant
 	in_addr* ip;
 	ip = new in_addr;
 	if(dns_aton4_s(ipstring,ip) == NULL) {
-		free(ip);
+		delete ip;
 		return NULL;
 	}
 	return ip;
@@ -470,7 +471,7 @@ char* DNS::dns_getresult_r(const int fd) { /* retrieve result of DNS query (reen
 	char *result;
 	result = new char[RESULTSIZE];
 	if(dns_getresult_s(fd,result) == NULL) {
-		free(result);
+		delete result;
 		return NULL;
 	}
 	return result;
@@ -483,6 +484,11 @@ char* DNS::dns_getresult_s(const int fd, char *result) { /* retrieve result of D
 	s_rr_middle rr;
 	unsigned char buffer[sizeof(s_header)];
 	unsigned short p;
+
+	if (result)
+	{
+		result[0] = 0;
+	}
 
 	prev = NULL;
 	c = connection_head;
@@ -504,28 +510,28 @@ char* DNS::dns_getresult_s(const int fd, char *result) { /* retrieve result of D
 	l = recv(c->fd,buffer,sizeof(s_header),0);
 	dns_close(c->fd);
 	if (l < 12) {
-		free(c);
+		delete c;
 		return NULL;
 	}
 	dns_fill_header(&h,buffer,l - 12);
 	if (c->id[0] != h.id[0] || c->id[1] != h.id[1]) {
-		free(c);
+		delete c;
 		return NULL; /* ID mismatch */
 	}
 	if ((h.flags1 & FLAGS1_MASK_QR) == 0) {
-		free(c);
+		delete c;
 		return NULL;
 	}
 	if ((h.flags1 & FLAGS1_MASK_OPCODE) != 0) {
-		free(c);
+		delete c;
 		return NULL;
 	}
 	if ((h.flags2 & FLAGS2_MASK_RCODE) != 0) {
-		free(c);
+		delete c;
 		return NULL;
 	}
 	if (h.ancount < 1)  { /* no sense going on if we don't have any answers */
-		free(c);
+		delete c;
 		return NULL;
 	}
 	/* skip queries */
@@ -561,7 +567,7 @@ char* DNS::dns_getresult_s(const int fd, char *result) { /* retrieve result of D
 			}
 		}
 		if (l - i < 10) {
-			free(c);
+			delete c;
 			return NULL;
 		}
 		dns_fill_rr(&rr,&h.payload[i]);
@@ -617,7 +623,7 @@ char* DNS::dns_getresult_s(const int fd, char *result) { /* retrieve result of D
 					if (rr._class != 1)
 						break;
 					if (rr.rdlength != 4) {
-						free(c);
+						delete c;
 						return NULL;
 					}
 					memcpy(&alist->ip,&h.payload[i],4);
@@ -641,7 +647,7 @@ char* DNS::dns_getresult_s(const int fd, char *result) { /* retrieve result of D
 						}
 					}
 					if (l - i < 10) {
-						free(c);
+						delete c;
 						return NULL;
 					}
 					dns_fill_rr(&rr,&h.payload[i]);
@@ -661,7 +667,7 @@ char* DNS::dns_getresult_s(const int fd, char *result) { /* retrieve result of D
 			result[rr.rdlength] = '\0';
 			break;
 	}
-	free(c);
+	delete c;
 	return result;
 }
 
@@ -695,14 +701,16 @@ bool DNS::ForwardLookup(std::string host)
 
 bool DNS::HasResult()
 {
-	fd_set fds;
-	FD_ZERO(&fds);
-	FD_SET(this->fd,&fds);
-	timeval tvs;
-        tvs.tv_usec = 0;
-        tvs.tv_sec = 0;
-	int result = select(this->fd+1, &fds, NULL, NULL, &tvs);
-	return (result > 0);
+	pollfd polls;
+	polls.fd = this->fd;
+	polls.events = POLLIN;
+	int ret = poll(&polls,1,1);
+	return (ret > 0);
+}
+
+int DNS::GetFD()
+{
+	return this->fd;
 }
 
 std::string DNS::GetResult()

@@ -193,13 +193,26 @@ public:
 	{
 		if (resolver->HasResult())
 		{
-			log(DEBUG,"DNS Result available!");
-			std::string hostname = resolver->GetResult();
-			if (u)
+			log(DEBUG,"resolver says result available!");
+			if (resolver->GetFD() != 0)
 			{
-				log(DEBUG,"Applying hostname lookup to %s: %s",u->nick,hostname.c_str());
-				if (hostname != "")
-					strlcpy(u->host,hostname.c_str(),MAXBUF);
+				log(DEBUG,"Resolver FD is not 0");
+				std::string hostname = resolver->GetResult();
+				if (u)
+				{
+					log(DEBUG,"Applying hostname lookup to %s: %s",u->nick,hostname.c_str());
+					if (hostname != "")
+					{
+						strlcpy(u->host,hostname.c_str(),MAXBUF);
+						WriteServ(u->fd,"NOTICE Auth :Resolved your hostname: %s",hostname.c_str());
+						u->dns_done = true;
+						return true;
+					}
+					return false;
+				}
+			}
+			else
+			{
 				u->dns_done = true;
 				return true;
 			}
@@ -225,6 +238,7 @@ bool lookup_dns(userrec* u)
 {
 	// place a new user into the queue...
 	log(DEBUG,"Queueing DNS lookup for %s",u->nick);
+	WriteServ(u->fd,"NOTICE Auth :Looking up your hostname...");
 	Lookup L(u);
 	dnsq.push_back(L);
 	return true;
@@ -235,11 +249,9 @@ void dns_poll()
 	// do we have items in the queue?
 	if (dnsq.size())
 	{
-		log(DEBUG,"DNS items pending...");
 		// are any ready, or stale?
 		if (dnsq[0].Done() || (!dnsq[0].GetFD()))
 		{
-			// if they are take them out...
 			log(DEBUG,"****** DNS lookup for fd %d is complete. ******",dnsq[0].GetFD());
 			dnsq.erase(dnsq.begin());
 		}
