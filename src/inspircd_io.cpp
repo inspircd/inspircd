@@ -92,6 +92,7 @@ void WritePID(std::string filename)
 	else
 	{
 		printf("Failed to write PID-file '%s', exiting.\n",filename.c_str());
+		log(DEFAULT,"Failed to write PID-file '%s', exiting.",filename.c_str());
 		Exit(0);
 	}
 }
