@@ -5147,6 +5147,7 @@ void DoSync(serverrec* serv, char* udp_host,int udp_port, long MyKey)
 
 void handle_N(char token,char* params,serverrec* source,serverrec* reply, char* udp_host,int udp_port)
 {
+	// %d %s %s %s %s %s %s :%s
 	char* tm = strtok(params," ");
 	char* nick = strtok(NULL," ");
 	char* host = strtok(NULL," ");
@@ -5154,7 +5155,7 @@ void handle_N(char token,char* params,serverrec* source,serverrec* reply, char* 
 	char* ident = strtok(NULL," ");
 	char* modes = strtok(NULL," ");
 	char* server = strtok(NULL," ");
-	char* gecos = strchr(params,':') + 1;
+	char* gecos = strtok(NULL," ");
 	time_t TS = atoi(tm);
 	user_hash::iterator iter = clientlist.find(nick);
 	if (iter != clientlist.end())
