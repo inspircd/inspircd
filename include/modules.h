@@ -23,6 +23,7 @@
 #include "ctables.h"
 #include <string>
 #include <deque>
+#include <sstream>
 
 /** Low level definition of a FileReader classes file cache area
  */
@@ -451,6 +452,7 @@ class ConfigReader : public classbase
 	/** The filename of the configuration file, as set by the constructor.
 	 */
 	std::string fname;
+	std::stringstream *cache;
   public:
 	/** Default constructor.
 	 * This constructor initialises the ConfigReader class to read the inspircd.conf file

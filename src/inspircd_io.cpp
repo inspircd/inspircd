@@ -19,10 +19,16 @@
 #endif
 
 #include <sys/types.h>
+#include <string>
 #include <unistd.h>
+#include <sstream>
+#include <iostream>
+#include <fstream>
 #include "inspircd.h"
 #include "inspircd_io.h"
 #include "inspircd_util.h"
+
+using namespace std;
 
 extern FILE *log_file;
 
@@ -109,87 +115,107 @@ int FileExists (char* file)
 }
 
 
+void LoadConf(const char* filename, std::stringstream *target)
+{
+	FILE* conf = fopen(filename,"r");
+	char buffer[MAXBUF];
+	if (conf)
+	{
+		target->clear();
+		while (!feof(conf))
+		{
+			if (fgets(buffer, MAXBUF, conf))
+			{
+				if ((!feof(conf)) && (buffer) && (strlen(buffer)))
+				{
+					if (buffer[0] != '#')
+					{
+						*target << std::string(buffer);
+					}
+				}
+			}
+		}
+		fclose(conf);
+	}
+	target->seekg(0);
+}
+
 /* Counts the number of tags of a certain type within the config file, e.g. to enumerate opers */
 
-int EnumConf(const char* filename, const char* tag)
+int EnumConf(std::stringstream *config, const char* tag)
 {
-	FILE *config;
 	int ptr = 0;
 	char buffer[MAXBUF], c_tag[MAXBUF], c, lastc;
 	int in_token, in_quotes, tptr, j, idx = 0;
 	char* key;
 
-	if ((config = fopen (filename, "r")) == NULL)
+	const char* buf = config->str().c_str();
+	long bptr = 0;
+	long len = strlen(buf);
+	
+	ptr = 0;
+	in_token = 0;
+	in_quotes = 0;
+	lastc = '\0';
+	while (bptr<len)
 	{
-		return 0;
-	}
-	else
-	{
-		ptr = 0;
-		in_token = 0;
-		in_quotes = 0;
-		lastc = '\0';
-		while (!feof(config))
+		lastc = c;
+		c = buf[bptr++];
+		if ((c == '#') && (lastc == '\n'))
 		{
-			lastc = c;
-			c = fgetc(config);
-			if ((c == '#') && (lastc == '\n'))
+			while ((c != '\n') && (bptr<len))
 			{
-				while ((c != '\n') && (!feof(config)))
+				lastc = c;
+				c = buf[bptr++];
+			}
+		}
+		if ((c == '<') && (!in_quotes))
+		{
+			tptr = 0;
+			in_token = 1;
+			do {
+				c = buf[bptr++];
+				if (c != ' ')
 				{
-					lastc = c;
-					c = fgetc(config);
+					c_tag[tptr++] = c;
+					c_tag[tptr] = '\0';
 				}
-			}
-			if ((c == '<') && (!in_quotes))
+			} while (c != ' ');
+		}
+		if (c == '"')
+		{
+			in_quotes = (!in_quotes);
+		}
+		if ((c == '>') && (!in_quotes))
+		{
+			in_token = 0;
+			if (!strcmp(c_tag,tag))
 			{
-				tptr = 0;
-				in_token = 1;
-				do {
-					c = fgetc(config);
-					if (c != ' ')
-					{
-						c_tag[tptr++] = c;
-						c_tag[tptr] = '\0';
-					}
-				} while (c != ' ');
+				/* correct tag, but wrong index */
+				idx++;
 			}
-			if (c == '"')
+			c_tag[0] = '\0';
+			buffer[0] = '\0';
+			ptr = 0;
+			tptr = 0;
+		}
+		if (c != '>')
+		{
+			if ((in_token) && (c != '\n') && (c != '\r'))
 			{
-				in_quotes = (!in_quotes);
-			}
-			if ((c == '>') && (!in_quotes))
-			{
-				in_token = 0;
-				if (!strcmp(c_tag,tag))
-				{
-					/* correct tag, but wrong index */
-					idx++;
-				}
-				c_tag[0] = '\0';
-				buffer[0] = '\0';
-				ptr = 0;
-				tptr = 0;
-			}
-			if (c != '>')
-			{
-				if ((in_token) && (c != '\n') && (c != '\r'))
-				{
-					buffer[ptr++] = c;
-					buffer[ptr] = '\0';
-				}
+				buffer[ptr++] = c;
+				buffer[ptr] = '\0';
 			}
 		}
 	}
-	fclose(config);
 	return idx;
 }
 
 
 
-int ConfValueEnum(char* tag)
+int ConfValueEnum(char* tag, std::stringstream* config)
 {
-	EnumConf(CONFIG_FILE,tag);
+	EnumConf(config,tag);
 }
 
 
@@ -200,125 +226,118 @@ int ConfValueEnum(char* tag)
  * ConfValue("oper","name",2,result);
  */
 
-int ReadConf(const char* filename, const char* tag, const char* var, int index, char *result)
+int ReadConf(std::stringstream *config, const char* tag, const char* var, int index, char *result)
 {
-	FILE *config;
 	int ptr = 0;
 	char buffer[MAXBUF], c_tag[MAXBUF], c, lastc;
 	int in_token, in_quotes, tptr, j, idx = 0;
 	char* key;
 
-	if ((config = fopen (filename, "r")) == NULL)
+	const char* buf = config->str().c_str();
+	long bptr = 0;
+	long len = strlen(buf);
+	
+	ptr = 0;
+	in_token = 0;
+	in_quotes = 0;
+	lastc = '\0';
+	while (bptr<len)
 	{
-		return 0;
-	}
-	else
-	{
-		ptr = 0;
-		in_token = 0;
-		in_quotes = 0;
-		lastc = '\0';
-		while (!feof(config))
+		lastc = c;
+		c = buf[bptr++];
+		if ((c == '#') && (lastc == '\n'))
 		{
-			lastc = c;
-			c = fgetc(config);
-			if ((c == '#') && (lastc == '\n'))
+			while ((c != '\n') && (bptr<len))
 			{
-				while ((c != '\n') && (!feof(config)))
+				lastc = c;
+				c = buf[bptr++];
+			}
+		}
+		if ((c == '<') && (!in_quotes))
+		{
+			tptr = 0;
+			in_token = 1;
+			do {
+				c = buf[bptr++];
+				if (c != ' ')
 				{
-					lastc = c;
-					c = fgetc(config);
+					c_tag[tptr++] = c;
+					c_tag[tptr] = '\0';
 				}
-			}
-			if ((c == '<') && (!in_quotes))
+			} while (c != ' ');
+		}
+		if (c == '"')
+		{
+			in_quotes = (!in_quotes);
+		}
+		if ((c == '>') && (!in_quotes))
+		{
+			in_token = 0;
+			if (idx == index)
 			{
-				tptr = 0;
-				in_token = 1;
-				do {
-					c = fgetc(config);
-					if (c != ' ')
-					{
-						c_tag[tptr++] = c;
-						c_tag[tptr] = '\0';
-					}
-				} while (c != ' ');
-			}
-			if (c == '"')
-			{
-				in_quotes = (!in_quotes);
-			}
-			if ((c == '>') && (!in_quotes))
-			{
-				in_token = 0;
-				if (idx == index)
+				if (!strcmp(c_tag,tag))
 				{
-					if (!strcmp(c_tag,tag))
+					if ((buffer) && (c_tag) && (var))
 					{
-						if ((buffer) && (c_tag) && (var))
+						key = strstr(buffer,var);
+						if (!key)
 						{
-							key = strstr(buffer,var);
-							if (!key)
+							/* value not found in tag */
+							return 0;
+						}
+						else
+						{
+							key+=strlen(var);
+							while (key[0] !='"')
 							{
-								/* value not found in tag */
-								fclose(config);
-								return 0;
-							}
-							else
-							{
-								key+=strlen(var);
-								while (key[0] !='"')
+								if (!strlen(key))
 								{
-									if (!strlen(key))
-									{
-										/* missing quote */
-										return 0;
-									}
-									key++;
+									/* missing quote */
+									return 0;
 								}
 								key++;
-								for (j = 0; j < strlen(key); j++)
-								{
-									if (key[j] == '"')
-									{
-										key[j] = '\0';
-									}
-								}
-								fclose(config);
-								strcpy(result,key);
-								return 1;
 							}
+							key++;
+							for (j = 0; j < strlen(key); j++)
+							{
+								if (key[j] == '"')
+								{
+									key[j] = '\0';
+								}
+							}
+							strcpy(result,key);
+							return 1;
 						}
 					}
 				}
-				if (!strcmp(c_tag,tag))
-				{
-					/* correct tag, but wrong index */
-					idx++;
-				}
-				c_tag[0] = '\0';
-				buffer[0] = '\0';
-				ptr = 0;
-				tptr = 0;
 			}
-			if (c != '>')
+			if (!strcmp(c_tag,tag))
 			{
-				if ((in_token) && (c != '\n') && (c != '\r'))
-				{
-					buffer[ptr++] = c;
-					buffer[ptr] = '\0';
-				}
+				/* correct tag, but wrong index */
+				idx++;
+			}
+			c_tag[0] = '\0';
+			buffer[0] = '\0';
+			ptr = 0;
+			tptr = 0;
+		}
+		if (c != '>')
+		{
+			if ((in_token) && (c != '\n') && (c != '\r'))
+			{
+				buffer[ptr++] = c;
+				buffer[ptr] = '\0';
 			}
 		}
 	}
-	fclose(config);
 	return 0;
 }
 
 
 
-int ConfValue(char* tag, char* var, int index, char *result)
+int ConfValue(char* tag, char* var, int index, char *result,std::stringstream *config)
 {
-	ReadConf(CONFIG_FILE, tag, var, index, result);
+	ReadConf(config, tag, var, index, result);
 }
 
 

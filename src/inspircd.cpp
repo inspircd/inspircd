@@ -16,6 +16,8 @@
 
 /* Now with added unF! ;) */
 
+using namespace std;
+
 #include "inspircd.h"
 #include "inspircd_io.h"
 #include "inspircd_util.h"
@@ -46,8 +48,6 @@
 #include "modules.h"
 #include "dynamic.h"
 #include "wildcard.h"
-
-using namespace std;
 
 #ifdef GCC3
 #define nspace __gnu_cxx
@@ -180,6 +180,7 @@ char* Passwd(userrec *user);
 bool IsDenied(userrec *user);
 void AddWhoWas(userrec* u);
 
+std::stringstream config_f(stringstream::in | stringstream::out);
 
 void safedelete(userrec *p)
 {
@@ -375,20 +376,22 @@ void ReadConfig(void)
   char dbg[MAXBUF],pauseval[MAXBUF],Value[MAXBUF],timeout[MAXBUF];
   ConnectClass c;
 
-  ConfValue("server","name",0,ServerName);
-  ConfValue("server","description",0,ServerDesc);
-  ConfValue("server","network",0,Network);
-  ConfValue("admin","name",0,AdminName);
-  ConfValue("admin","email",0,AdminEmail);
-  ConfValue("admin","nick",0,AdminNick);
-  ConfValue("files","motd",0,motd);
-  ConfValue("files","rules",0,rules);
-  ConfValue("power","diepass",0,diepass);
-  ConfValue("power","pause",0,pauseval);
-  ConfValue("power","restartpass",0,restartpass);
-  ConfValue("options","prefixquit",0,PrefixQuit);
-  ConfValue("die","value",0,DieValue);
-  ConfValue("options","loglevel",0,dbg);
+  LoadConf(CONFIG_FILE,&config_f);
+  
+  ConfValue("server","name",0,ServerName,&config_f);
+  ConfValue("server","description",0,ServerDesc,&config_f);
+  ConfValue("server","network",0,Network,&config_f);
+  ConfValue("admin","name",0,AdminName,&config_f);
+  ConfValue("admin","email",0,AdminEmail,&config_f);
+  ConfValue("admin","nick",0,AdminNick,&config_f);
+  ConfValue("files","motd",0,motd,&config_f);
+  ConfValue("files","rules",0,rules,&config_f);
+  ConfValue("power","diepass",0,diepass,&config_f);
+  ConfValue("power","pause",0,pauseval,&config_f);
+  ConfValue("power","restartpass",0,restartpass,&config_f);
+  ConfValue("options","prefixquit",0,PrefixQuit,&config_f);
+  ConfValue("die","value",0,DieValue,&config_f);
+  ConfValue("options","loglevel",0,dbg,&config_f);
   if (!strcmp(dbg,"debug"))
   	LogLevel = DEBUG;
   if (!strcmp(dbg,"verbose"))
@@ -404,17 +407,17 @@ void ReadConfig(void)
   readfile(RULES,rules);
   log(DEBUG,"Reading connect classes");
   Classes.clear();
-  for (int i = 0; i < ConfValueEnum("connect"); i++)
+  for (int i = 0; i < ConfValueEnum("connect",&config_f); i++)
   {
 	strcpy(Value,"");
-	ConfValue("connect","allow",i,Value);
-	ConfValue("connect","timeout",i,timeout);
+	ConfValue("connect","allow",i,Value,&config_f);
+	ConfValue("connect","timeout",i,timeout,&config_f);
 	if (strcmp(Value,""))
 	{
 		strcpy(c.host,Value);
 		c.type = CC_ALLOW;
 		strcpy(Value,"");
-		ConfValue("connect","password",i,Value);
+		ConfValue("connect","password",i,Value,&config_f);
 		strcpy(c.pass,Value);
 		c.registration_timeout = 90; // default is 2 minutes
 		if (atoi(timeout)>0)
@@ -426,7 +429,7 @@ void ReadConfig(void)
 	}
 	else
 	{
-		ConfValue("connect","deny",i,Value);
+		ConfValue("connect","deny",i,Value,&config_f);
                 strcpy(c.host,Value);
                 c.type = CC_DENY;
 		Classes.push_back(c);
@@ -3955,7 +3958,6 @@ void handle_who(char **parameters, int pcnt, userrec *user)
                 if ((!strcmp(parameters[0],"0")) || (!strcmp(parameters[0],"*")) && (!strcmp(parameters[1],"o")))
                 {
                         Ptr = user->chans[0].channel;
-                        printf(user->chans[0].channel->name);
 		  	for (user_hash::const_iterator i = clientlist.begin(); i != clientlist.end(); i++)
                         {
                                 if ((common_channels(user,i->second)) && (isnick(i->second->nick)))
@@ -4345,14 +4347,14 @@ void handle_stats(char **parameters, int pcnt, userrec *user)
 	/* stats o */
 	if (!strcasecmp(parameters[0],"o"))
 	{
-		for (int i = 0; i < ConfValueEnum("oper"); i++)
+		for (int i = 0; i < ConfValueEnum("oper",&config_f); i++)
 		{
 			char LoginName[MAXBUF];
 			char HostName[MAXBUF];
 			char OperType[MAXBUF];
-			ConfValue("oper","name",i,LoginName);
-			ConfValue("oper","host",i,HostName);
-			ConfValue("oper","type",i,OperType);
+			ConfValue("oper","name",i,LoginName,&config_f);
+			ConfValue("oper","host",i,HostName,&config_f);
+			ConfValue("oper","type",i,OperType,&config_f);
 			WriteServ(user->fd,"243 %s O %s * %s %s 0",user->nick,HostName,LoginName,OperType);
 		}
 	}
@@ -4409,12 +4411,12 @@ void handle_connect(char **parameters, int pcnt, userrec *user)
 	int LinkPort;
 	bool found = false;
 	
-	for (int i = 0; i < ConfValueEnum("link"); i++)
+	for (int i = 0; i < ConfValueEnum("link",&config_f); i++)
 	{
-		ConfValue("link","name",i,Link_ServerName);
-		ConfValue("link","ipaddr",i,Link_IPAddr);
-		ConfValue("link","port",i,Link_Port);
-		ConfValue("link","sendpass",i,Link_Pass);
+		ConfValue("link","name",i,Link_ServerName,&config_f);
+		ConfValue("link","ipaddr",i,Link_IPAddr,&config_f);
+		ConfValue("link","port",i,Link_Port,&config_f);
+		ConfValue("link","sendpass",i,Link_Pass,&config_f);
 		log(DEBUG,"(%d) Comparing against name='%s', ipaddr='%s', port='%s', recvpass='%s'",i,Link_ServerName,Link_IPAddr,Link_Port,Link_Pass);
 		LinkPort = atoi(Link_Port);
 		if (match(Link_ServerName,parameters[0])) {
@@ -4471,24 +4473,24 @@ void handle_oper(char **parameters, int pcnt, userrec *user)
 	char Hostname[MAXBUF];
 	int i,j;
 
-	for (i = 0; i < ConfValueEnum("oper"); i++)
+	for (i = 0; i < ConfValueEnum("oper",&config_f); i++)
 	{
-		ConfValue("oper","name",i,LoginName);
-		ConfValue("oper","password",i,Password);
+		ConfValue("oper","name",i,LoginName,&config_f);
+		ConfValue("oper","password",i,Password,&config_f);
 		if ((!strcmp(LoginName,parameters[0])) && (!strcmp(Password,parameters[1])))
 		{
 			/* correct oper credentials */
-			ConfValue("oper","type",i,OperType);
+			ConfValue("oper","type",i,OperType,&config_f);
 			WriteOpers("*** %s (%s@%s) is now an IRC operator of type %s",user->nick,user->ident,user->host,OperType);
 			WriteServ(user->fd,"381 %s :You are now an IRC operator of type %s",user->nick,OperType);
 			WriteServ(user->fd,"MODE %s :+o",user->nick);
-			for (j =0; j < ConfValueEnum("type"); j++)
+			for (j =0; j < ConfValueEnum("type",&config_f); j++)
 			{
-				ConfValue("type","name",j,TypeName);
+				ConfValue("type","name",j,TypeName,&config_f);
 				if (!strcmp(TypeName,OperType))
 				{
 					/* found this oper's opertype */
-					ConfValue("type","host",j,Hostname);
+					ConfValue("type","host",j,Hostname,&config_f);
 					strncpy(user->dhost,Hostname,256);
 				}
 			}
@@ -5012,13 +5014,13 @@ void handle_link_packet(long theirkey, char* udp_msg, char* udp_host, int udp_po
 		int LinkPort = 0;
 		
 		// search for a corresponding <link> block in the config files
-		for (int i = 0; i < ConfValueEnum("link"); i++)
+		for (int i = 0; i < ConfValueEnum("link",&config_f); i++)
 		{
-			ConfValue("link","name",i,Link_ServerName);
-			ConfValue("link","ipaddr",i,Link_IPAddr);
-			ConfValue("link","port",i,Link_Port);
-			ConfValue("link","recvpass",i,Link_Pass);
-			ConfValue("link","sendpass",i,Link_SendPass);
+			ConfValue("link","name",i,Link_ServerName,&config_f);
+			ConfValue("link","ipaddr",i,Link_IPAddr,&config_f);
+			ConfValue("link","port",i,Link_Port,&config_f);
+			ConfValue("link","recvpass",i,Link_Pass,&config_f);
+			ConfValue("link","sendpass",i,Link_SendPass,&config_f);
 			log(DEBUG,"(%d) Comparing against name='%s', ipaddr='%s', port='%s', recvpass='%s'",i,Link_ServerName,Link_IPAddr,Link_Port,Link_Pass);
 			LinkPort = atoi(Link_Port);
 			if (!strcasecmp(Link_ServerName,servername)) {
@@ -5102,13 +5104,13 @@ void handle_link_packet(long theirkey, char* udp_msg, char* udp_host, int udp_po
 		int LinkPort = 0;
 		
 		// search for a corresponding <link> block in the config files
-		for (int i = 0; i < ConfValueEnum("link"); i++)
+		for (int i = 0; i < ConfValueEnum("link",&config_f); i++)
 		{
-			ConfValue("link","name",i,Link_ServerName);
-			ConfValue("link","ipaddr",i,Link_IPAddr);
-			ConfValue("link","port",i,Link_Port);
-			ConfValue("link","recvpass",i,Link_Pass);
-			ConfValue("link","sendpass",i,Link_SendPass);
+			ConfValue("link","name",i,Link_ServerName,&config_f);
+			ConfValue("link","ipaddr",i,Link_IPAddr,&config_f);
+			ConfValue("link","port",i,Link_Port,&config_f);
+			ConfValue("link","recvpass",i,Link_Pass,&config_f);
+			ConfValue("link","sendpass",i,Link_SendPass,&config_f);
 			log(DEBUG,"(%d) Comparing against name='%s', ipaddr='%s', port='%s', recvpass='%s'",i,Link_ServerName,Link_IPAddr,Link_Port,Link_Pass);
 			LinkPort = atoi(Link_Port);
 			if (!strcasecmp(Link_ServerName,servername)) {
@@ -5226,16 +5228,16 @@ int InspIRCd(void)
 	  
 	int count2 = 0, count3 = 0;
 
-	for (count = 0; count < ConfValueEnum("bind"); count++)
+	for (count = 0; count < ConfValueEnum("bind",&config_f); count++)
 	{
-		ConfValue("bind","port",count,configToken);
-		ConfValue("bind","address",count,Addr);
-		ConfValue("bind","type",count,Type);
+		ConfValue("bind","port",count,configToken,&config_f);
+		ConfValue("bind","address",count,Addr,&config_f);
+		ConfValue("bind","type",count,Type,&config_f);
 		if (!strcmp(Type,"servers"))
 		{
 			char Default[MAXBUF];
 			strcpy(Default,"no");
-			ConfValue("bind","default",count,Default);
+			ConfValue("bind","default",count,Default,&config_f);
 			if (strchr(Default,'y'))
 			{
 				defaultRoute = count3;
@@ -5264,11 +5266,11 @@ int InspIRCd(void)
 	
 	/* BugFix By Craig! :p */
 	count2 = 0;
-	for (count = 0; count2 < ConfValueEnum("module"); count2++)
+	for (count = 0; count2 < ConfValueEnum("module",&config_f); count2++)
 	{
 		char modfile[MAXBUF];
-		ConfValue("module","name",count,configToken);
-		sprintf(modfile,"%s/%s",MOD_PATH,configToken);
+		ConfValue("module","name",count,configToken,&config_f);
+		sprintf(modfile,"%s/%s",MOD_PATH,configToken,&config_f);
 		printf("Loading module... \033[1;37m%s\033[0;37m\n",modfile);
 		log(DEBUG,"InspIRCd: startup: Loading module: %s",modfile);
 		/* If The File Doesnt exist, Trying to load it

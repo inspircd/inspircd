@@ -295,7 +295,8 @@ bool Server::AddExtendedMode(char modechar, int type, bool requires_oper, int pa
 
 ConfigReader::ConfigReader()
 {
-	fname = CONFIG_FILE;
+	this->cache = new std::stringstream(stringstream::in | stringstream::out);
+	LoadConf(CONFIG_FILE,this->cache);
 }
 
 
@@ -304,19 +305,23 @@ ConfigReader::~ConfigReader()
 }
 
 
-ConfigReader::ConfigReader(std::string filename) : fname(filename) { };
+ConfigReader::ConfigReader(std::string filename)
+{
+	this->cache = new std::stringstream(stringstream::in | stringstream::out);
+	LoadConf(filename.c_str(),this->cache);
+};
 
 std::string ConfigReader::ReadValue(std::string tag, std::string name, int index)
 {
 	char val[MAXBUF];
-	ReadConf(fname.c_str(),tag.c_str(),name.c_str(),index,val);
+	ReadConf(cache,tag.c_str(),name.c_str(),index,val);
 	return val;
 }
 
 
 int ConfigReader::Enumerate(std::string tag)
 {
-	return EnumConf(fname.c_str(),tag.c_str());
+	return EnumConf(cache,tag.c_str());
 }
 
 

@@ -1,7 +1,7 @@
 [Project]
 FileName=InspIRCd.dev
 Name=InspIRCd
-UnitCount=34
+UnitCount=35
 Type=1
 Ver=1
 ObjFiles=
@@ -379,6 +379,16 @@ FileName=..\configure
 Folder=Shell Scripts etc
 Compile=0
 Link=0
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit35]
+FileName=modules\m_filter.cpp
+CompileCpp=1
+Folder=Modules
+Compile=1
+Link=1
 Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
