@@ -659,7 +659,7 @@ void process_modes(char **parameters,userrec* user,chanrec *chan,int status, int
 						
 						// reported by mech: large values cause underflow
 						if (chan->limit < 0)
-							chan->limit = MAXINT;
+							chan->limit = 0x7FFFFF;
 							
 						if (chan->limit)
 						{
