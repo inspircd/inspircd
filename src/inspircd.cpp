@@ -6795,11 +6795,11 @@ void handle_link_packet(char* udp_msg, char* udp_host, serverrec *serv)
      					{
 						if (!strcasecmp(servers[j]->name,udp_host))
       						{
+							char buffer[MAXBUF];
 							strcpy(servers[j]->description,serverdesc);
 							sprintf(buffer,"X 0");
 							serv->SendPacket(buffer,udp_host);
 							DoSync(serv,udp_host);
-							char buffer[MAXBUF];
 							return;
 						}
 					}
