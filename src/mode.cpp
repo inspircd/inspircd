@@ -40,6 +40,8 @@ using namespace std;
 extern int MODCOUNT;
 extern vector<Module*> modules;
 extern vector<ircd_module*> factory;
+extern std::vector<std::string> module_names;
+
 
 extern int LogLevel;
 extern char ServerName[MAXBUF];
@@ -1006,7 +1008,7 @@ bool process_module_umode(char umode, userrec* source, void* dest, bool adding)
 		{
 			if (modules[i]->OnExtendedMode(source,(void*)dest,umode,MT_CLIENT,adding,p))
 			{
-				log(DEBUG,"Module claims umode %c",umode);
+				log(DEBUG,"Module %s claims umode %c",module_names[i].c_str(),umode);
 				return true;
 			}
 		}

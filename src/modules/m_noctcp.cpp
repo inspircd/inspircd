@@ -4,7 +4,7 @@
 #include "channels.h"
 #include "modules.h"
 
-/* $ModDesc: Provides support for unreal-style channel mode +Q */
+/* $ModDesc: Provides support for unreal-style channel mode +c */
 
 class ModuleNoCTCP : public Module
 {
@@ -20,7 +20,7 @@ class ModuleNoCTCP : public Module
 	
 	virtual int OnUserPreMessage(userrec* user,void* dest,int target_type, std::string text)
 	{
-		if (target_type == TARGET_CHANNEL)
+		if (target_type == TYPE_CHANNEL)
 		{
 			chanrec* c = (chanrec*)dest;
 			if (c->IsCustomModeSet('C'))
@@ -37,7 +37,7 @@ class ModuleNoCTCP : public Module
 	
 	virtual int OnUserPreNotice(userrec* user,void* dest,int target_type, std::string text)
 	{
-		if (target_type == TARGET_CHANNEL)
+		if (target_type == TYPE_CHANNEL)
 		{
 			chanrec* c = (chanrec*)dest;
 			if (c->IsCustomModeSet('C'))

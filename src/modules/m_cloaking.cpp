@@ -67,8 +67,11 @@ class ModuleCloaking : public Module
 		// so we must be VERY careful to only act upon modes which
 		// we have claimed ourselves. This is a feature to allow
 		// modules to 'spy' on extended mode activity if they so wish.
+		log(DEBUG,"modechar=%c type=%d MT_CLIENT=%d",modechar,type,MT_CLIENT);
+		
 		if ((modechar == 'x') && (type == MT_CLIENT))
   		{
+  			Srv->Log(DEBUG,"Mode x being handled");
   			// OnExtendedMode gives us a void* as the target, we must cast
   			// it into a userrec* or a chanrec* depending on the value of
   			// the 'type' parameter (MT_CLIENT or MT_CHANNEL)
@@ -85,7 +88,7 @@ class ModuleCloaking : public Module
 				// will not work if the user has only one level of domain
 				// naming in their hostname (e.g. if they are on a lan or
 				// are connecting via localhost) -- this doesnt matter much.
-				if (strstr(dest->host,"."))
+				if (strchr(dest->host,'.'))
 				{
 					// in inspircd users have two hostnames. A displayed
 					// hostname which can be modified by modules (e.g.
