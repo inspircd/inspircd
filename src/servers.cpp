@@ -7,7 +7,7 @@
 #include "servers.h"
 #include "inspircd.h"
 #include <stdio.h>
-#include <map.h>
+#include <map>
 
 serverrec::serverrec()
 {
