@@ -1438,17 +1438,16 @@ chanrec* add_channel(userrec *user, const char* cn, const char* key, bool overri
 		Ptr = FindChan(cname);
 		if (Ptr)
 		{
-			FOREACH_RESULT(OnUserPreJoin(user,Ptr,cname));
-			if (MOD_RESULT) {
-				return NULL;
-			}
-			
 			log(DEBUG,"add_channel: joining to: %s",Ptr->name);
 			
 			// the override flag allows us to bypass channel modes
 			// and bans (used by servers)
 			if (!override)
 			{
+				FOREACH_RESULT(OnUserPreJoin(user,Ptr,cname));
+				if (MOD_RESULT) {
+					return NULL;
+				}
 				
 				if (strcmp(Ptr->key,""))
 				{
@@ -1515,16 +1514,22 @@ chanrec* add_channel(userrec *user, const char* cn, const char* key, bool overri
 					}
 				}
 				
+				log(DEBUG,"add_channel: bans checked");
+				
+
+				if ((Ptr) && (user))
+				{
+					user->RemoveInvite(Ptr->name);
+				}
+	
+				log(DEBUG,"add_channel: invites removed");
+
 			}
-
-			log(DEBUG,"add_channel: bans checked");
-
-			if ((Ptr) && (user))
+			else
 			{
-				user->RemoveInvite(Ptr->name);
+				log(DEBUG,"Overridden checks");
 			}
 
-			log(DEBUG,"add_channel: invites removed");
 			
 		}
 		created = 1;
