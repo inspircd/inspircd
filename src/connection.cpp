@@ -357,6 +357,7 @@ bool connection::RecvPacket(char *message, char* host, int &prt, long &theirkey)
 			pb.p.id = p.id;
 			pb.p.key = p.key;
 			pb.p.type = p.type;
+			strcpy(pb.p.data,p.data);
 			strcpy(pb.host,inet_ntoa(host_address.sin_addr));
 			pb.port = ntohs(host_address.sin_port);
 			this->buffer.push_back(pb);
