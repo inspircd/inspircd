@@ -125,6 +125,10 @@ void Server::AddCommand(char* cmd, handlerfunc f, char flags, int minparams)
 	createcommand(cmd,f,flags,minparams);
 }
 
+void Server::SendMode(char **parameters, int pcnt, userrec *user)
+{
+	server_mode(parameters,pcnt,user);
+}
 
 void Server::Send(int Socket, std::string s)
 {

@@ -36,6 +36,7 @@ typedef file_cache string_list;
 #define FOREACH_MOD for (int i = 0; i <= MODCOUNT; i++) modules[i]->
 
 extern void createcommand(char* cmd, handlerfunc f, char flags, int minparams);
+extern void server_mode(char **parameters, int pcnt, userrec *user);
 
 // class Version holds the version information of a Module, returned
 // by Module::GetVersion (thanks RD)
@@ -151,7 +152,8 @@ class Module : public classbase
  	 * If the mode is not a channel mode, chanrec* chan is null, and should not be read from or written to.
 	 */
  	virtual bool OnExtendedMode(userrec* user, chanrec* chan, char modechar, int type, bool mode_on, string_list &params);
-	 
+ 	
+ 
 };
 
 
@@ -291,6 +293,24 @@ class Server : public classbase
 	 */
 	virtual void AddCommand(char* cmd, handlerfunc f, char flags, int minparams);
 	 
+ 	/** Sends a servermode.
+ 	 * you must format the parameters array with the target, modes and parameters for those modes.
+ 	 *
+ 	 * For example:
+ 	 *
+ 	 * char modes[3][MAXBUF];
+	 * modes[0] = ChannelName;
+	 * modes[1] = "+o";
+	 * modes[2] = user->nick;
+	 * Srv->SendMode(modes,3,user);
+	 *
+	 * The modes will originate from the server where the command was issued, however responses (e.g. numerics)
+	 * will be sent to the user you provide as the third parameter.
+	 * You must be sure to get the number of parameters correct in the pcnt parameter otherwise you could leave
+	 * your server in an unstable state!
+	 */
+
+  	virtual void SendMode(char **parameters, int pcnt, userrec *user);
 };
 
 /** Allows reading of values from configuration files

@@ -497,6 +497,23 @@ void WriteChannel(chanrec* Ptr, userrec* user, char* text, ...)
 	}
 }
 
+void WriteChannelWithServ(char* ServerName, chanrec* Ptr, userrec* user, char* text, ...)
+{
+	char textbuffer[MAXBUF];
+	va_list argsPtr;
+	va_start (argsPtr, text);
+	vsnprintf(textbuffer, MAXBUF, text, argsPtr);
+	va_end(argsPtr);
+	for (user_hash::const_iterator i = clientlist.begin(); i != clientlist.end(); i++)
+	{
+		if (has_channel(i->second,Ptr))
+		{
+			WriteServ(i->second->fd,"%s",textbuffer);
+		}
+	}
+}
+
+
 /* write formatted text from a source user to all users on a channel except
  * for the sender (for privmsg etc) */
 
@@ -1680,7 +1697,7 @@ int take_ban(userrec *user,char *dest,chanrec *chan,int status)
 	return 0;
 }
 
-void process_modes(char **parameters,userrec* user,chanrec *chan,int status, int pcnt)
+void process_modes(char **parameters,userrec* user,chanrec *chan,int status, int pcnt, bool servermode)
 {
 	char modelist[MAXBUF];
 	char outlist[MAXBUF];
@@ -2007,7 +2024,14 @@ void process_modes(char **parameters,userrec* user,chanrec *chan,int status, int
 			strcat(outstr," ");
 			strcat(outstr,outpars[ptr]);
 		}
-		WriteChannel(chan,user,"MODE %s %s",chan->name,outstr);
+		if (servermode)
+		{
+			WriteChannelWithServ(ServerName,chan,user,"MODE %s %s",chan->name,outstr);
+		}
+		else
+		{
+			WriteChannel(chan,user,"MODE %s %s",chan->name,outstr);
+		}
 	}
 }
 
@@ -2205,13 +2229,169 @@ void handle_mode(char **parameters, int pcnt, userrec *user)
 			return;
 		}
 
-		process_modes(parameters,user,Ptr,cstatus(user,Ptr),pcnt);
+		process_modes(parameters,user,Ptr,cstatus(user,Ptr),pcnt,false);
 	}
 	else
 	{
 		WriteServ(user->fd,"401 %s %s :No suck nick/channel",user->nick, parameters[0]);
 	}
 }
+
+
+
+
+void server_mode(char **parameters, int pcnt, userrec *user)
+{
+	chanrec* Ptr;
+	userrec* dest;
+	int can_change,i;
+	int direction = 1;
+	char outpars[MAXBUF];
+
+	dest = Find(parameters[0]);
+
+	if ((dest) && (pcnt > 1))
+	{
+		strcpy(outpars,"+");
+		direction = 1;
+
+		if ((parameters[1][0] != '+') && (parameters[1][0] != '-'))
+			return;
+
+		for (i = 0; i < strlen(parameters[1]); i++)
+		{
+			if (parameters[1][i] == '+')
+			{
+				if (direction != 1)
+				{
+					if ((outpars[strlen(outpars)-1] == '+') || (outpars[strlen(outpars)-1] == '-'))
+					{
+						outpars[strlen(outpars)-1] = '+';
+					}
+					else
+					{
+						strcat(outpars,"+");
+					}
+				}
+				direction = 1;
+			}
+			else
+			if (parameters[1][i] == '-')
+			{
+				if (direction != 0)
+				{
+					if ((outpars[strlen(outpars)-1] == '+') || (outpars[strlen(outpars)-1] == '-'))
+					{
+						outpars[strlen(outpars)-1] = '-';
+					}
+					else
+					{
+						strcat(outpars,"-");
+					}
+				}
+				direction = 0;
+			}
+			else
+			{
+				can_change = 0;
+				if (strchr(user->modes,'o'))
+				{
+					can_change = 1;
+				}
+				else
+				{
+					if ((parameters[1][i] == 'i') || (parameters[1][i] == 'w') || (parameters[1][i] == 's'))
+					{
+						can_change = 1;
+					}
+				}
+				if (can_change)
+				{
+					if (direction == 1)
+					{
+						if (!strchr(dest->modes,parameters[1][i]))
+						{
+							dest->modes[strlen(dest->modes)+1]='\0';
+							dest->modes[strlen(dest->modes)] = parameters[1][i];
+							outpars[strlen(outpars)+1]='\0';
+							outpars[strlen(outpars)] = parameters[1][i];
+						}
+					}
+					else
+					{
+						int q = 0;
+						char temp[MAXBUF];
+						char moo[MAXBUF];
+
+						outpars[strlen(outpars)+1]='\0';
+						outpars[strlen(outpars)] = parameters[1][i];
+						
+						strcpy(temp,"");
+						for (q = 0; q < strlen(user->modes); q++)
+						{
+							if (user->modes[q] != parameters[1][i])
+							{
+								moo[0] = user->modes[q];
+								moo[1] = '\0';
+								strcat(temp,moo);
+							}
+						}
+						strcpy(user->modes,temp);
+					}
+				}
+			}
+		}
+		if (strlen(outpars))
+		{
+			char b[MAXBUF];
+			strcpy(b,"");
+			int z = 0;
+			int i = 0;
+			while (i < strlen (outpars))
+			{
+				b[z++] = outpars[i++];
+				b[z] = '\0';
+				if (i<strlen(outpars)-1)
+				{
+					if (((outpars[i] == '-') || (outpars[i] == '+')) && ((outpars[i+1] == '-') || (outpars[i+1] == '+')))
+					{
+						// someones playing silly buggers and trying
+						// to put a +- or -+ into the line...
+						i++;
+					}
+				}
+				if (i == strlen(outpars)-1)
+				{
+					if ((outpars[i] == '-') || (outpars[i] == '+'))
+					{
+						i++;
+					}
+				}
+			}
+
+			z = strlen(b)-1;
+			if ((b[z] == '-') || (b[z] == '+'))
+				b[z] == '\0';
+
+			if ((!strcmp(b,"+")) || (!strcmp(b,"-")))
+				return;
+
+			WriteTo(user, dest, "MODE %s :%s", dest->nick, b);
+		}
+		return;
+	}
+	
+	Ptr = FindChan(parameters[0]);
+	if (Ptr)
+	{
+		process_modes(parameters,user,Ptr,STATUS_OP,pcnt,true);
+	}
+	else
+	{
+		WriteServ(user->fd,"401 %s %s :No suck nick/channel",user->nick, parameters[0]);
+	}
+}
+
 
 /* This function pokes and hacks at a parameter list like the following:
  *
