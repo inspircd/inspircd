@@ -26,27 +26,29 @@
 00018         <a class="code" href="classserverrec.html#m5">hops_away</a> = 1;
 00019         <a class="code" href="classconnection.html#m13">signon</a> = time(NULL);
 00020         <a class="code" href="classserverrec.html#m7">jupiter</a> = <span class="keyword">false</span>;
-00021         <a class="code" href="classconnection.html#m1">fd</a> = 0;
-00022 }
-00023 
-00024  
-<a name="l00025"></a><a class="code" href="classserverrec.html#a2">00025</a> <a class="code" href="classserverrec.html#a2">serverrec::~serverrec</a>()
-00026 {
-00027 }
-00028 
-<a name="l00029"></a><a class="code" href="classserverrec.html#a1">00029</a> <a class="code" href="classserverrec.html#a0">serverrec::serverrec</a>(<span class="keywordtype">char</span>* n, <span class="keywordtype">long</span> ver, <span class="keywordtype">bool</span> jupe)
-00030 {
-00031         strcpy(name,n);
-00032         <a class="code" href="classconnection.html#m12">lastping</a> = time(NULL);
-00033         <a class="code" href="classserverrec.html#m2">usercount_i</a> = <a class="code" href="classserverrec.html#m3">usercount</a> = <a class="code" href="classserverrec.html#m4">opercount</a> = 0;
-00034         <a class="code" href="classserverrec.html#m6">version</a> = ver;
-00035         <a class="code" href="classserverrec.html#m5">hops_away</a> = 1;
-00036         <a class="code" href="classconnection.html#m13">signon</a> = time(NULL);
-00037         <a class="code" href="classserverrec.html#m7">jupiter</a> = jupe;
-00038         <a class="code" href="classconnection.html#m1">fd</a> = 0;
-00039 }
-00040 
-</pre></div><hr><address style="align: right;"><small>Generated on Thu Apr 8 19:12:27 2004 for InspIRCd by
+00021         <a class="code" href="classconnection.html#m0">fd</a> = 0;
+00022         <a class="code" href="classserverrec.html#m9">sync_soon</a> = <span class="keyword">false</span>;
+00023 }
+00024 
+00025  
+<a name="l00026"></a><a class="code" href="classserverrec.html#a2">00026</a> <a class="code" href="classserverrec.html#a2">serverrec::~serverrec</a>()
+00027 {
+00028 }
+00029 
+<a name="l00030"></a><a class="code" href="classserverrec.html#a1">00030</a> <a class="code" href="classserverrec.html#a0">serverrec::serverrec</a>(<span class="keywordtype">char</span>* n, <span class="keywordtype">long</span> ver, <span class="keywordtype">bool</span> jupe)
+00031 {
+00032         strcpy(name,n);
+00033         <a class="code" href="classconnection.html#m12">lastping</a> = time(NULL);
+00034         <a class="code" href="classserverrec.html#m2">usercount_i</a> = <a class="code" href="classserverrec.html#m3">usercount</a> = <a class="code" href="classserverrec.html#m4">opercount</a> = 0;
+00035         <a class="code" href="classserverrec.html#m6">version</a> = ver;
+00036         <a class="code" href="classserverrec.html#m5">hops_away</a> = 1;
+00037         <a class="code" href="classconnection.html#m13">signon</a> = time(NULL);
+00038         <a class="code" href="classserverrec.html#m7">jupiter</a> = jupe;
+00039         <a class="code" href="classconnection.html#m0">fd</a> = 0;
+00040         <a class="code" href="classserverrec.html#m9">sync_soon</a> = <span class="keyword">false</span>;
+00041 }
+00042 
+</pre></div><hr><address style="align: right;"><small>Generated on Sat Apr 17 13:31:38 2004 for InspIRCd by
 <a href="http://www.doxygen.org/index.html">
 <img src="doxygen.png" alt="doxygen" align="middle" border=0 
 width=110 height=53></a>1.3-rc3 </small></address>

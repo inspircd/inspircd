@@ -10,6 +10,9 @@
   <tr bgcolor="#f0f0f0"><td><a class="el" href="classServer.html#a21">AddCommand</a>(char *cmd, handlerfunc f, char flags, int minparams)</td><td><a class="el" href="classServer.html">Server</a></td><td><code> [virtual]</code></td></tr>
   <tr bgcolor="#f0f0f0"><td><a class="el" href="classServer.html#a20">AddExtendedMode</a>(char modechar, int type, bool requires_oper, int params_when_on, int params_when_off)</td><td><a class="el" href="classServer.html">Server</a></td><td><code> [virtual]</code></td></tr>
   <tr bgcolor="#f0f0f0"><td><a class="el" href="classclassbase.html#m0">age</a></td><td><a class="el" href="classclassbase.html">classbase</a></td><td></td></tr>
+  <tr bgcolor="#f0f0f0"><td><a class="el" href="classServer.html#a29">CallCommandHandler</a>(std::string commandname, char **parameters, int pcnt, userrec *user)</td><td><a class="el" href="classServer.html">Server</a></td><td><code> [virtual]</code></td></tr>
+  <tr bgcolor="#f0f0f0"><td><a class="el" href="classServer.html#a31">ChangeGECOS</a>(userrec *user, std::string gecos)</td><td><a class="el" href="classServer.html">Server</a></td><td><code> [virtual]</code></td></tr>
+  <tr bgcolor="#f0f0f0"><td><a class="el" href="classServer.html#a30">ChangeHost</a>(userrec *user, std::string host)</td><td><a class="el" href="classServer.html">Server</a></td><td><code> [virtual]</code></td></tr>
   <tr bgcolor="#f0f0f0"><td><a class="el" href="classServer.html#a26">ChangeUserNick</a>(userrec *user, std::string nickname)</td><td><a class="el" href="classServer.html">Server</a></td><td><code> [virtual]</code></td></tr>
   <tr bgcolor="#f0f0f0"><td><a class="el" href="classServer.html#a16">ChanMode</a>(userrec *User, chanrec *Chan)</td><td><a class="el" href="classServer.html">Server</a></td><td><code> [virtual]</code></td></tr>
   <tr bgcolor="#f0f0f0"><td><a class="el" href="classclassbase.html#a0">classbase</a>()</td><td><a class="el" href="classclassbase.html">classbase</a></td><td><code> [inline]</code></td></tr>
@@ -39,7 +42,7 @@
   <tr bgcolor="#f0f0f0"><td><a class="el" href="classServer.html#a0">Server</a>()</td><td><a class="el" href="classServer.html">Server</a></td><td></td></tr>
   <tr bgcolor="#f0f0f0"><td><a class="el" href="classclassbase.html#a1">~classbase</a>()</td><td><a class="el" href="classclassbase.html">classbase</a></td><td><code> [inline]</code></td></tr>
   <tr bgcolor="#f0f0f0"><td><a class="el" href="classServer.html#a1">~Server</a>()</td><td><a class="el" href="classServer.html">Server</a></td><td><code> [virtual]</code></td></tr>
-</table><hr><address style="align: right;"><small>Generated on Thu Apr 8 19:13:16 2004 for InspIRCd by
+</table><hr><address style="align: right;"><small>Generated on Sat Apr 17 13:31:54 2004 for InspIRCd by
 <a href="http://www.doxygen.org/index.html">
 <img src="doxygen.png" alt="doxygen" align="middle" border=0 
 width=110 height=53></a>1.3-rc3 </small></address>

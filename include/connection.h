@@ -148,11 +148,11 @@ class ircd_connector : public classbase
 };
 
 
+/** Class packet is deprecated.
+ * This declaration is preserved here to maintain documentation only.
+ */
 class packet
 {
-	/** Class packet is deprecated.
-	 * This declaration is preserved here to maintain documentation only.
-	 */
 };
 
 /** Please note: classes serverrec and userrec both inherit from class connection.
