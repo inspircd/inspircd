@@ -14,7 +14,7 @@
  * ---------------------------------------------------
  
  $Log$
- Revision 1.2  2003/01/26 23:52:59  brain
+ Revision 1.1  2003/01/26 23:52:59  brain
  Modified documentation for base classes
  Added base classes
 
@@ -47,7 +47,6 @@ typedef void (handlerfunc) (char**, int, userrec*);
 
 class command_t : public classbase
 {
- public:
 	char command[MAXBUF]; /* command name */
 	handlerfunc *handler_function; /* handler function as in typedef */
 	char flags_needed; /* user flags needed to execute the command or 0 */

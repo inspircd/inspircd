@@ -1,7 +1,7 @@
 /*
 
 $Log$
-Revision 1.2  2003/01/26 23:52:59  brain
+Revision 1.1  2003/01/26 23:52:59  brain
 Modified documentation for base classes
 Added base classes
 
@@ -24,7 +24,6 @@ Changed user and channel structs to classes (finally)
 */
 
 #include "inspircd_config.h"
-#include "base.h"
 #include <time.h>
 #include <vector>
 
@@ -34,7 +33,7 @@ Changed user and channel structs to classes (finally)
 /** Holds an entry for a ban list, exemption list, or invite list.
  * This class contains a single element in a channel list, such as a banlist.
  */
-class HostItem : public classbase
+class HostItem
 {
  public:
 	time_t set_time;
@@ -87,7 +86,7 @@ typedef vector<InviteItem>	InviteList;
  * This class represents a channel, and contains its name, modes, time created, topic, topic set time,
  * etc, and an instance of the BanList type.
  */
-class chanrec : public classbase
+class chanrec
 {
  public:
 	/** The channels name.
@@ -183,7 +182,7 @@ class chanrec : public classbase
  * a userrec and chanrec class. The uc_modes member holds a bitmask of which privilages the user
  * has on the channel, such as op, voice, etc.
  */
-class ucrec : public classbase
+class ucrec
 {
  public:
 	/** Contains a bitmask of the UCMODE_OP ... UCMODE_FOUNDER values.

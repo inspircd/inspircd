@@ -1,7 +1,7 @@
 /*
 
 $Log$
-Revision 1.2  2003/01/26 23:53:03  brain
+Revision 1.1  2003/01/26 23:53:03  brain
 Modified documentation for base classes
 Added base classes
 
@@ -28,7 +28,6 @@ serverrec::serverrec()
 	hops_away = 1;
 	connected_at = time(NULL);
 	jupiter = false;
-	fd = 0;
 }
 
  
@@ -47,7 +46,6 @@ serverrec::serverrec(char* n, int link_t,  long ver, bool jupe)
 	hops_away = 1;
 	connected_at = time(NULL);
 	jupiter = jupe;
-	fd = 0;
 }
 
 void serverrec::AddLeaf(serverrec *child)

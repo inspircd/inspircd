@@ -1,7 +1,7 @@
 /*
 
 $Log$
-Revision 1.2  2003/01/26 23:52:59  brain
+Revision 1.1  2003/01/26 23:52:59  brain
 Modified documentation for base classes
 Added base classes
 
@@ -62,7 +62,7 @@ typedef deque<string> file_cache;
  *  The four members (set by the constructor only) indicate details as to the version number
  *  of a module. A class of type Version is returned by the GetVersion method of the Module class.
  */
-class Version : public classbase
+class Version
 {
  public:
 	 const int Major, Minor, Revision, Build;
@@ -75,7 +75,7 @@ class Version : public classbase
  *  and has three read-only values, Name, Email and Nick that contain the specified values for the
  *  server where the module is running.
  */
-class Admin : public classbase
+class Admin
 {
  public:
 	 const string Name, Email, Nick;
@@ -87,7 +87,7 @@ class Admin : public classbase
  *  its methods will be called when irc server events occur. class inherited from module must be
  *  instantiated by the ModuleFactory class (see relevent section) for the plugin to be initialised.
  */
-class Module : public classbase
+class Module
 {
  public:
 	/** Default constructor
@@ -129,7 +129,7 @@ class Module : public classbase
  * output to users and other servers. All modules should instantiate at least one copy of this class,
  * and use its member functions to perform their tasks.
  */
-class Server : public classbase
+class Server
 {
  public:
 	/** Default constructor.
@@ -234,7 +234,7 @@ class Server : public classbase
  * Constructing the class using one parameter allows you to specify a path to your own configuration
  * file, otherwise, inspircd.conf is read.
  */
-class ConfigReader : public classbase
+class ConfigReader
 {
   protected:
 	/** The filename of the configuration file, as set by the constructor.
@@ -279,7 +279,7 @@ class ConfigReader : public classbase
  * Either use the constructor type with one parameter to load a file into memory
  * at construction, or use the LoadFile method to load a file.
  */
-class FileReader : public classbase
+class FileReader
 {
  file_cache fc;
  public:
@@ -324,7 +324,7 @@ class FileReader : public classbase
  * In most cases, the simple class shown in the example module m_foobar.so will suffice for most
  * modules.
  */
-class ModuleFactory : public classbase
+class ModuleFactory
 {
  public:
 	ModuleFactory() { }

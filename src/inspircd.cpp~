@@ -14,7 +14,7 @@
  * ---------------------------------------------------
  
  $Log$
- Revision 1.5  2003/01/26 23:53:03  brain
+ Revision 1.1  2003/01/26 23:53:03  brain
  Modified documentation for base classes
  Added base classes
 
@@ -302,7 +302,7 @@ struct InAddr_HashComp
 };
 
 
-typedef hash_map<string, userrec*, hash<string>, StrHashComp> user_hash;
+typedef hash_map<string, connection*, hash<string>, StrHashComp> user_hash;
 typedef hash_map<string, chanrec*, hash<string>, StrHashComp> chan_hash;
 typedef hash_map<in_addr,string*, hash<in_addr>, InAddr_HashComp> address_cache;
 typedef deque<command_t> command_table;

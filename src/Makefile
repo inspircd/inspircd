@@ -1,8 +1,6 @@
 # Insp Makefile :p
 #
-# (C) ChatSpike development team
-# Makefile by <Craig@ChatSpike.net>
-# Small modifications by <brain@ChatSpike.net>
+#
 #
 
 CC = im a cheezeball
