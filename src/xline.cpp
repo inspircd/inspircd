@@ -541,6 +541,9 @@ void apply_lines()
 	char reason[MAXBUF];
 	char host[MAXBUF];
 	
+	if ((!glines.size()) && (!klines.size()) && (!zlines.size()) && (!qlines.size()))
+		return;
+	
 	while (go_again)
 	{
 		go_again = false;
@@ -549,68 +552,57 @@ void apply_lines()
 			if (!strcasecmp(u->second->server,ServerName))
 			{
 				snprintf(host,MAXBUF,"%s@%s",u->second->ident,u->second->host);
-				char* check = matches_gline(host);
-				if (check)
+				if (glines.size())
 				{
-					WriteOpers("*** User %s matches G-Line: %s",u->second->nick,check);
-					snprintf(reason,MAXBUF,"G-Lined: %s",check);
-					kill_link(u->second,reason);
-					go_again = true;
-					break;
+					char* check = matches_gline(host);
+					if (check)
+					{
+						WriteOpers("*** User %s matches G-Line: %s",u->second->nick,check);
+						snprintf(reason,MAXBUF,"G-Lined: %s",check);
+						kill_link(u->second,reason);
+						go_again = true;
+						break;
+					}
+				}
+				if (klines.size())
+				{
+					char* check = matches_kline(host);
+					if (check)
+					{
+						WriteOpers("*** User %s matches K-Line: %s",u->second->nick,check);
+						snprintf(reason,MAXBUF,"K-Lined: %s",check);
+						kill_link(u->second,reason);
+						go_again = true;
+						break;
+					}
+				}
+				if (qlines.size())
+				{
+					char* check = matches_qline(u->second->nick);
+					if (check)
+					{
+						snprintf(reason,MAXBUF,"Matched Q-Lined nick: %s",check);
+						WriteOpers("*** Q-Lined nickname %s from %s: %s",u->second->nick,u->second->host,check);
+						WriteServ(u->second->fd,"432 %s %s :Invalid nickname: %s",u->second->nick,u->second->nick,check);
+						kill_link(u->second,reason);
+						go_again = true;
+						break;
+					}
+				}
+				if (zlines.size())
+				{
+					char* check = matches_zline(u->second->ip);
+					if (check)
+					{
+						snprintf(reason,MAXBUF,"Z-Lined: %s",check);
+						WriteOpers("*** User %s matches Z-Line: %s",u->second->nick,u->second->host,check);
+						kill_link(u->second,reason);
+						go_again = true;
+						break;
+					}
 				}
 			}
 		}
-
-		for (user_hash::const_iterator u = clientlist.begin(); u != clientlist.end(); u++)
-		{
-			if (!strcasecmp(u->second->server,ServerName))
-			{
-				snprintf(host,MAXBUF,"%s@%s",u->second->ident,u->second->host);
-				char* check = matches_kline(host);
-				if (check)
-				{
-					WriteOpers("*** User %s matches K-Line: %s",u->second->nick,check);
-					snprintf(reason,MAXBUF,"K-Lined: %s",check);
-					kill_link(u->second,reason);
-					go_again = true;
-					break;
-				}
-			}
-		}
-
-		for (user_hash::const_iterator u = clientlist.begin(); u != clientlist.end(); u++)
-		{
-			if (!strcasecmp(u->second->server,ServerName))
-			{
-				char* check = matches_qline(u->second->nick);
-				if (check)
-				{
-					snprintf(reason,MAXBUF,"Matched Q-Lined nick: %s",check);
-					WriteOpers("*** Q-Lined nickname %s from %s: %s",u->second->nick,u->second->host,check);
-					WriteServ(u->second->fd,"432 %s %s :Invalid nickname: %s",u->second->nick,u->second->nick,check);
-					kill_link(u->second,reason);
-					go_again = true;
-					break;
-				}
-			}
-		}
-
-		for (user_hash::const_iterator u = clientlist.begin(); u != clientlist.end(); u++)
-		{
-			if (!strcasecmp(u->second->server,ServerName))
-			{
-				char* check = matches_zline(u->second->ip);
-				if (check)
-				{
-					snprintf(reason,MAXBUF,"Z-Lined: %s",check);
-					WriteOpers("*** User %s matches Z-Line: %s",u->second->nick,u->second->host,check);
-					kill_link(u->second,reason);
-					go_again = true;
-					break;
-				}
-			}
-		}
-
 	}
 }
 
