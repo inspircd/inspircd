@@ -114,7 +114,7 @@ void Module::OnPacketTransmit(char *p) { }
 void Module::OnPacketReceive(char *p) { }
 void Module::OnRehash() { }
 void Module::OnServerRaw(std::string &raw, bool inbound) { }
-int Module::OnUserPreJoin(userrec* user, chanrec* chan, char* cname) { return 0; }
+int Module::OnUserPreJoin(userrec* user, chanrec* chan, const char* cname) { return 0; }
 bool Module::OnExtendedMode(userrec* user, void* target, char modechar, int type, bool mode_on, string_list &params) { }
 Version Module::GetVersion() { return Version(1,0,0,0); }
 void Module::OnOper(userrec* user) { };
@@ -142,6 +142,27 @@ void Server::SendToModeMask(std::string modes, int flags, std::string text)
 {
 	WriteMode(modes.c_str(),flags,"%s",text.c_str());
 }
+
+chanrec* Server::JoinUserToChannel(userrec* user, std::string cname, std::string key)
+{
+	return add_channel(user,cname.c_str(),key.c_str());
+}
+
+chanrec* Server::PartUserFromChannel(userrec* user, std::string cname, std::string reason)
+{
+	return del_channel(user,cname.c_str(),reason.c_str());
+}
+
+void Server::ChangeUserNick(userrec* user, std::string nickname)
+{
+	force_nickchange(user,nickname.c_str());
+}
+
+void Server::QuitUser(userrec* user, std::string reason)
+{
+	kill_link(user,reason.c_str());
+}
+
 
 void Server::Log(int level, std::string s)
 {

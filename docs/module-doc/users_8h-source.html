@@ -39,60 +39,70 @@
 00035 {
 00036  <span class="keyword">public</span>:
 <a name="l00037"></a><a class="code" href="classConnectClass.html#m0">00037</a>         <span class="keywordtype">int</span> <a class="code" href="classConnectClass.html#m0">type</a>;
-<a name="l00038"></a><a class="code" href="classConnectClass.html#m1">00038</a>         <span class="keywordtype">char</span> <a class="code" href="classConnectClass.html#m1">host</a>[MAXBUF];
-<a name="l00039"></a><a class="code" href="classConnectClass.html#m2">00039</a>         <span class="keywordtype">char</span> <a class="code" href="classConnectClass.html#m2">pass</a>[MAXBUF];
-00040 };
-00041 
-<a name="l00044"></a><a class="code" href="users_8h.html#a6">00044</a> <span class="keyword">typedef</span> std::vector&lt;Invited&gt; <a class="code" href="users_8h.html#a6">InvitedList</a>;
-00045 
-00046 
-00047 
-<a name="l00050"></a><a class="code" href="users_8h.html#a7">00050</a> <span class="keyword">typedef</span> std::vector&lt;ConnectClass&gt; <a class="code" href="users_8h.html#a7">ClassVector</a>;
-00051 
-<a name="l00058"></a><a class="code" href="classuserrec.html">00058</a> <span class="keyword">class </span><a class="code" href="classuserrec.html">userrec</a> : <span class="keyword">public</span> <a class="code" href="classconnection.html">connection</a>
-00059 {
-00060  <span class="keyword">private</span>:
-00061 
-<a name="l00064"></a><a class="code" href="classuserrec.html#o0">00064</a>         <a class="code" href="users_8h.html#a6">InvitedList</a> <a class="code" href="classuserrec.html#o0">invites</a>;
-00065  <span class="keyword">public</span>:
-00066         
-<a name="l00071"></a><a class="code" href="classuserrec.html#m0">00071</a>         <span class="keywordtype">char</span> <a class="code" href="classuserrec.html#m0">nick</a>[NICKMAX];
-00072         
-<a name="l00075"></a><a class="code" href="classuserrec.html#m1">00075</a>         <span class="keywordtype">char</span> <a class="code" href="classuserrec.html#m1">ident</a>[64];
-00076 
-<a name="l00080"></a><a class="code" href="classuserrec.html#m2">00080</a>         <span class="keywordtype">char</span> <a class="code" href="classuserrec.html#m2">dhost</a>[256];
-00081         
-<a name="l00084"></a><a class="code" href="classuserrec.html#m3">00084</a>         <span class="keywordtype">char</span> <a class="code" href="classuserrec.html#m3">fullname</a>[128];
-00085         
-<a name="l00090"></a><a class="code" href="classuserrec.html#m4">00090</a>         <span class="keywordtype">char</span> <a class="code" href="classuserrec.html#m4">modes</a>[MAXBUF];
-00091         
-<a name="l00092"></a><a class="code" href="classuserrec.html#m5">00092</a>         <a class="code" href="classucrec.html">ucrec</a> <a class="code" href="classuserrec.html#m5">chans</a>[MAXCHANS];
+<a name="l00038"></a><a class="code" href="classConnectClass.html#m1">00038</a>         <span class="keywordtype">int</span> <a class="code" href="classConnectClass.html#m1">registration_timeout</a>;
+<a name="l00039"></a><a class="code" href="classConnectClass.html#m2">00039</a>         <span class="keywordtype">char</span> <a class="code" href="classConnectClass.html#m2">host</a>[MAXBUF];
+<a name="l00040"></a><a class="code" href="classConnectClass.html#m3">00040</a>         <span class="keywordtype">char</span> <a class="code" href="classConnectClass.html#m3">pass</a>[MAXBUF];
+00041         
+<a name="l00042"></a><a class="code" href="classConnectClass.html#a0">00042</a>         <a class="code" href="classConnectClass.html#a0">ConnectClass</a>()
+00043         {
+00044                 registration_timeout = 0;
+00045                 strcpy(host,<span class="stringliteral">""</span>);
+00046                 strcpy(pass,<span class="stringliteral">""</span>);
+00047         }
+00048 };
+00049 
+<a name="l00052"></a><a class="code" href="users_8h.html#a6">00052</a> <span class="keyword">typedef</span> std::vector&lt;Invited&gt; <a class="code" href="users_8h.html#a6">InvitedList</a>;
+00053 
+00054 
+00055 
+<a name="l00058"></a><a class="code" href="users_8h.html#a7">00058</a> <span class="keyword">typedef</span> std::vector&lt;ConnectClass&gt; <a class="code" href="users_8h.html#a7">ClassVector</a>;
+00059 
+<a name="l00066"></a><a class="code" href="classuserrec.html">00066</a> <span class="keyword">class </span><a class="code" href="classuserrec.html">userrec</a> : <span class="keyword">public</span> <a class="code" href="classconnection.html">connection</a>
+00067 {
+00068  <span class="keyword">private</span>:
+00069 
+<a name="l00072"></a><a class="code" href="classuserrec.html#o0">00072</a>         <a class="code" href="users_8h.html#a6">InvitedList</a> <a class="code" href="classuserrec.html#o0">invites</a>;
+00073  <span class="keyword">public</span>:
+00074         
+<a name="l00079"></a><a class="code" href="classuserrec.html#m0">00079</a>         <span class="keywordtype">char</span> <a class="code" href="classuserrec.html#m0">nick</a>[NICKMAX];
+00080         
+<a name="l00083"></a><a class="code" href="classuserrec.html#m1">00083</a>         <span class="keywordtype">char</span> <a class="code" href="classuserrec.html#m1">ident</a>[64];
+00084 
+<a name="l00088"></a><a class="code" href="classuserrec.html#m2">00088</a>         <span class="keywordtype">char</span> <a class="code" href="classuserrec.html#m2">dhost</a>[256];
+00089         
+<a name="l00092"></a><a class="code" href="classuserrec.html#m3">00092</a>         <span class="keywordtype">char</span> <a class="code" href="classuserrec.html#m3">fullname</a>[128];
 00093         
-<a name="l00096"></a><a class="code" href="classuserrec.html#m6">00096</a>         <span class="keywordtype">char</span> <a class="code" href="classuserrec.html#m6">server</a>[256];
-00097         
-<a name="l00101"></a><a class="code" href="classuserrec.html#m7">00101</a>         <span class="keywordtype">char</span> <a class="code" href="classuserrec.html#m7">awaymsg</a>[512];
-00102         
-<a name="l00106"></a><a class="code" href="classuserrec.html#m8">00106</a>         <span class="keywordtype">char</span> <a class="code" href="classuserrec.html#m8">result</a>[256];
-00107         
-00108         <a class="code" href="classuserrec.html#a0">userrec</a>();
-00109         
-<a name="l00110"></a><a class="code" href="classuserrec.html#a1">00110</a>         <span class="keyword">virtual</span> <a class="code" href="classuserrec.html#a1">~userrec</a>() {  }
-00111         
-00116         <span class="keyword">virtual</span> <span class="keywordtype">char</span>* <a class="code" href="classuserrec.html#a2">GetFullHost</a>();
-00117         
-00123         <span class="keyword">virtual</span> <span class="keywordtype">char</span>* <a class="code" href="classuserrec.html#a3">GetFullRealHost</a>();
-00124         
-00127         <span class="keyword">virtual</span> <span class="keywordtype">bool</span> <a class="code" href="classuserrec.html#a4">IsInvited</a>(<span class="keywordtype">char</span>* channel);
-00128         
-00131         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classuserrec.html#a5">InviteTo</a>(<span class="keywordtype">char</span>* channel);
-00132         
-00137         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classuserrec.html#a6">RemoveInvite</a>(<span class="keywordtype">char</span>* channel);
+<a name="l00098"></a><a class="code" href="classuserrec.html#m4">00098</a>         <span class="keywordtype">char</span> <a class="code" href="classuserrec.html#m4">modes</a>[MAXBUF];
+00099         
+<a name="l00100"></a><a class="code" href="classuserrec.html#m5">00100</a>         <a class="code" href="classucrec.html">ucrec</a> <a class="code" href="classuserrec.html#m5">chans</a>[MAXCHANS];
+00101         
+<a name="l00104"></a><a class="code" href="classuserrec.html#m6">00104</a>         <span class="keywordtype">char</span> <a class="code" href="classuserrec.html#m6">server</a>[256];
+00105         
+<a name="l00109"></a><a class="code" href="classuserrec.html#m7">00109</a>         <span class="keywordtype">char</span> <a class="code" href="classuserrec.html#m7">awaymsg</a>[512];
+00110         
+<a name="l00114"></a><a class="code" href="classuserrec.html#m8">00114</a>         <span class="keywordtype">char</span> <a class="code" href="classuserrec.html#m8">result</a>[256];
+00115         
+<a name="l00116"></a><a class="code" href="classuserrec.html#m9">00116</a>         <span class="keywordtype">unsigned</span> <span class="keywordtype">long</span> <a class="code" href="classuserrec.html#m9">timeout</a>;
+00117 
+00118         <a class="code" href="classuserrec.html#a0">userrec</a>();
+00119         
+<a name="l00120"></a><a class="code" href="classuserrec.html#a1">00120</a>         <span class="keyword">virtual</span> <a class="code" href="classuserrec.html#a1">~userrec</a>() {  }
+00121         
+00126         <span class="keyword">virtual</span> <span class="keywordtype">char</span>* <a class="code" href="classuserrec.html#a2">GetFullHost</a>();
+00127         
+00133         <span class="keyword">virtual</span> <span class="keywordtype">char</span>* <a class="code" href="classuserrec.html#a3">GetFullRealHost</a>();
+00134         
+00137         <span class="keyword">virtual</span> <span class="keywordtype">bool</span> <a class="code" href="classuserrec.html#a4">IsInvited</a>(<span class="keywordtype">char</span>* channel);
 00138         
-00139 };
-00140 
-00141 
-00142 <span class="preprocessor">#endif</span>
-</pre></div><hr><address style="align: right;"><small>Generated on Mon Apr 5 02:03:52 2004 for InspIRCd by
+00141         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classuserrec.html#a5">InviteTo</a>(<span class="keywordtype">char</span>* channel);
+00142         
+00147         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classuserrec.html#a6">RemoveInvite</a>(<span class="keywordtype">char</span>* channel);
+00148         
+00149 };
+00150 
+00151 
+00152 <span class="preprocessor">#endif</span>
+</pre></div><hr><address style="align: right;"><small>Generated on Tue Apr 6 11:42:30 2004 for InspIRCd by
 <a href="http://www.doxygen.org/index.html">
 <img src="doxygen.png" alt="doxygen" align="middle" border=0 
 width=110 height=53></a>1.3-rc3 </small></address>

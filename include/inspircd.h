@@ -102,4 +102,8 @@ bool ModeDefined(char c, int i);
 bool ModeDefinedOper(char c, int i);
 int ModeDefinedOn(char c, int i);
 int ModeDefinedOff(char c, int i);
+chanrec* add_channel(userrec *user, const char* cn, const char* key);
+chanrec* del_channel(userrec *user, const char* cname, const char* reason);
+void force_nickchange(userrec* user,const char* newnick);
+void kill_link(userrec *user,const char* r);
 

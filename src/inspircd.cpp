@@ -1298,10 +1298,9 @@ int usercount(chanrec *c)
 /* add a channel to a user, creating the record for it if needed and linking
  * it to the user record */
 
-chanrec* add_channel(userrec *user, char* cname, char* key)
+chanrec* add_channel(userrec *user, const char* cn, const char* key)
 {
-
-	if ((!user) || (!cname))
+	if ((!user) || (!cn))
 	{
 		log(DEFAULT,"*** BUG *** add_channel was given an invalid parameter");
 		return 0;
@@ -1310,6 +1309,9 @@ chanrec* add_channel(userrec *user, char* cname, char* key)
 	int i = 0;
 	chanrec* Ptr;
 	int created = 0;
+	char cname[MAXBUF];
+
+	strncpy(cname,cn,MAXBUF);
 	
 	// we MUST declare this wherever we use FOREACH_RESULT
 	int MOD_RESULT = 0;
@@ -1482,7 +1484,7 @@ chanrec* add_channel(userrec *user, char* cname, char* key)
 /* remove a channel from a users record, and remove the record from memory
  * if the channel has become empty */
 
-chanrec* del_channel(userrec *user, char* cname, char* reason)
+chanrec* del_channel(userrec *user, const char* cname, const char* reason)
 {
 	if ((!user) || (!cname))
 	{
@@ -3155,9 +3157,13 @@ void handle_restart(char **parameters, int pcnt, userrec *user)
 }
 
 
-void kill_link(userrec *user,char* reason)
+void kill_link(userrec *user,const char* r)
 {
 	user_hash::iterator iter = clientlist.find(user->nick);
+	
+	char reason[MAXBUF];
+	
+	strncpy(reason,r,MAXBUF);
 
 	if (strlen(reason)>MAXQUIT)
 	{
@@ -4470,7 +4476,7 @@ void handle_oper(char **parameters, int pcnt, userrec *user)
 	WriteServ(user->fd,"491 %s :Invalid oper credentials",user->nick);
 	WriteOpers("*** WARNING! Failed oper attempt by %s!%s@%s!",user->nick,user->ident,user->host);
 }
-				
+
 void handle_nick(char **parameters, int pcnt, userrec *user)
 {
 	if (pcnt < 1) 
@@ -4548,6 +4554,27 @@ void handle_nick(char **parameters, int pcnt, userrec *user)
 	}
 	log(DEBUG,"exit nickchange: %s",user->nick);
 }
+
+void force_nickchange(userrec* user,const char* newnick)
+{
+	char nick[MAXBUF];
+	strcpy(nick,"");
+	
+	if (user)
+	{
+		if (newnick)
+		{
+			strncpy(nick,newnick,MAXBUF);
+		}
+		if (user->registered == 7)
+		{
+			char* pars[1];
+			pars[0] = nick;
+			handle_nick(pars,1,user);
+		}
+	}
+}
+				
 
 int process_parameters(char **command_p,char *parameters)
 {

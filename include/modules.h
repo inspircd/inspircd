@@ -184,7 +184,7 @@ class Module : public classbase
 	 * processing on the actual channel record at this point, however the channel NAME will still be passed in
 	 * char* cname, so that you could for example implement a channel blacklist or whitelist, etc.
 	 */
-	virtual int OnUserPreJoin(userrec* user, chanrec* chan, char* cname);
+	virtual int OnUserPreJoin(userrec* user, chanrec* chan, const char* cname);
 	
 	
 	/** Called whenever a user opers locally.
@@ -384,6 +384,39 @@ class Server : public classbase
   	 * user must have both modes set to receive the message.
   	 */
   	virtual void SendToModeMask(std::string modes, int flags, std::string text);
+
+	/** Forces a user to join a channel.
+	 * This is similar to svsjoin and can be used to implement redirection, etc.
+	 * On success, the return value is a valid pointer to a chanrec* of the channel the user was joined to.
+	 * On failure, the result is NULL.
+	 */
+	virtual chanrec* Server::JoinUserToChannel(userrec* user, std::string cname, std::string key);
+	
+	/** Forces a user to part a channel.
+	 * This is similar to svspart and can be used to implement redirection, etc.
+	 * Although the return value of this function is a pointer to a channel record, the returned data is
+	 * undefined and should not be read or written to. This behaviour may be changed in a future version.
+	 */
+	virtual chanrec* Server::PartUserFromChannel(userrec* user, std::string cname, std::string reason);
+	
+	/** Forces a user nickchange.
+	 * This command works similarly to SVSNICK, and can be used to implement Q-lines etc.
+	 * If you specify an invalid nickname, the nick change will be dropped and the target user will receive
+	 * the error numeric for it.
+	 */
+	virtual void ChangeUserNick(userrec* user, std::string nickname);
+	
+	/** Forces a user to quit with the specified reason.
+	 * To the user, it will appear as if they typed /QUIT themselves, except for the fact that this function
+	 * may bypass the quit prefix specified in the config file.
+	 *
+	 * WARNING!
+	 *
+	 * Once you call this function, userrec* user will immediately become INVALID. You MUST NOT write to, or
+	 * read from this pointer after calling the QuitUser method UNDER ANY CIRCUMSTANCES! The best course of
+	 * action after calling this method is to immediately bail from your handler.
+	 */
+	virtual void QuitUser(userrec* user, std::string reason);
 };
 
 /** Allows reading of values from configuration files
