@@ -438,6 +438,12 @@ class Server : public classbase
 	 * action after calling this method is to immediately bail from your handler.
 	 */
 	virtual void QuitUser(userrec* user, std::string reason);
+	
+	/**  Matches text against a glob pattern.
+	 * Uses the ircd's internal matching function to match string against a globbing pattern, e.g. *!*@*.com
+	 * Returns true if the literal successfully matches the pattern, false if otherwise.
+	 */
+	virtual bool MatchText(std::string sliteral, std::string spattern);
 };
 
 /** Allows reading of values from configuration files
@@ -449,9 +455,11 @@ class Server : public classbase
 class ConfigReader : public classbase
 {
   protected:
-	/** The filename of the configuration file, as set by the constructor.
+	/** The contents of the configuration file
+	 * This protected member should never be accessed by a module (and cannot be accessed unless the
+	 * core is changed). It will contain a pointer to the configuration file data with unneeded data
+	 * (such as comments) stripped from it.
 	 */
-	std::string fname;
 	std::stringstream *cache;
   public:
 	/** Default constructor.
