@@ -28,7 +28,8 @@ userrec::userrec()
 	strcpy(result,"");
 	for (int i = 0; i < MAXCHANS; i++)
 	{
-		chans[i].channel = NULL;
+		this->chans[i].channel = NULL;
+		this->chans[i].uc_modes = 0;
 	}
 	invites.clear();
 }

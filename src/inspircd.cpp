@@ -5589,6 +5589,12 @@ void handle_N(char token,char* params,serverrec* source,serverrec* reply, char* 
 	clientlist[nick]->port = 0; // so is this...
 	clientlist[nick]->registered = 7; // this however we need to set for them to receive messages and appear online
 	clientlist[nick]->idle_lastmsg = time(NULL); // this is unrealiable and wont actually be used locally
+	for (int i = 0; i < MAXCHANS; i++)
+	{
+ 		clientlist[tempnick]->chans[i].channel = NULL;
+ 		clientlist[tempnick]->chans[i].uc_modes = 0;
+ 	}
+
 }
 
 void handle_F(char token,char* params,serverrec* source,serverrec* reply, char* udp_host,int udp_port)
