@@ -1337,6 +1337,7 @@ void handle_oper(char **parameters, int pcnt, userrec *user)
 					/* found this oper's opertype */
 					ConfValue("type","host",j,Hostname,&config_f);
 					ChangeDisplayedHost(user,Hostname);
+					strncpy(user->oper,TypeName,NICKMAX);
 				}
 			}
 			if (!strchr(user->modes,'o'))

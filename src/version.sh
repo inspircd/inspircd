@@ -1,2 +1,2 @@
 #!sh
-echo "InspIRCd-1.0[Alpha11]"
+echo "InspIRCd-1.0[Alpha12]"

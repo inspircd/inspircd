@@ -2739,6 +2739,13 @@ void process_command(userrec *user, char* cmd)
 						cmd_found = 1;
 						return;
 					}
+					if ((cmdlist[i].flags_needed) && (!user->HasPermission(command)))
+					{
+					        log(DEBUG,"process_command: permission denied: %s %s",user->nick,command);
+						WriteServ(user->fd,"481 %s :Permission Denied- Oper type %s does not have access to command %s",user->nick,user->oper,command);
+						cmd_found = 1;
+						return;
+					}
 					/* if the command isnt USER, PASS, or NICK, and nick is empty,
 					 * deny command! */
 					if ((strncmp(command,"USER",4)) && (strncmp(command,"NICK",4)) && (strncmp(command,"PASS",4)))
