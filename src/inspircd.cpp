@@ -5362,7 +5362,7 @@ void handle_connect(char **parameters, int pcnt, userrec *user)
 		for (int j = 0; j < 255; j++) {
 			if (servers[j] == NULL) {
 				servers[j] = new serverrec;
-				servers[j]->initiator = true;
+				//servers[j]->initiator = true;
 				strcpy(servers[j]->internal_addr,Link_IPAddr);
 				servers[j]->internal_port = LinkPort;
 				strcpy(servers[j]->name,Link_ServerName);
@@ -6505,10 +6505,10 @@ void process_restricted_commands(char token,char* params,serverrec* source,serve
 
 			WriteOpers("Sending my burst now.");
 			nb_start = time(NULL);
-			if (!source->initiator)
-			{
-				DoSync(reply,udp_host,udp_port,MyKey);
-			}
+			//if (!source->initiator)
+			//{
+			//	DoSync(reply,udp_host,udp_port,MyKey);
+			//}
 			WriteOpers("Completed burst to %s (%d secs)",source->name,time(NULL)-nb_start);
 		break;
 		// anything else
@@ -6604,10 +6604,10 @@ void handle_link_packet(long theirkey, char* udp_msg, char* udp_host, int udp_po
 				if (!strcasecmp(servers[i]->internal_addr,udp_host)) {
 					servers[i]->key = atoi(params);
 					log(DEBUG,"Key for this server is now %d",servers[i]->key);
-					if (servers[i]->initiator)
-					{
+					//if (servers[i]->initiator)
+					//{
 						DoSync(serv,udp_host,udp_port,MyKey);
-					}
+					//}
 					return;
 				}
 			}
