@@ -4,7 +4,7 @@
 #include "channels.h"
 #include "modules.h"
 
-/* $ModDesc: Provides channel modes +a and +q */
+/* $ModDesc: Provides support for unreal-style oper-override */
 
 char dummyvalue[] = "on";
 
