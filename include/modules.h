@@ -8,15 +8,35 @@
 #ifndef __PLUGIN_H
 #define __PLUGIN_H
 
+// log levels
+
 #define DEBUG 10
 #define VERBOSE 20
 #define DEFAULT 30
 #define SPARSE 40
 #define NONE 50
 
+// used with OnExtendedMode() method of modules
+
 #define MT_CHANNEL 1
 #define MT_CLIENT 2
 #define MT_SERVER 3
+
+// used with OnAccessCheck() method of modules
+
+#define ACR_DEFAULT 0		// Do default action (act as if the module isnt even loaded)
+#define ACR_DENY 1		// deny the action
+#define ACR_ALLOW 2		// allow the action
+
+#define AC_KICK 0		// a user is being kicked
+#define AC_DEOP 1		// a user is being deopped
+#define AC_OP 2			// a user is being opped
+#define AC_VOICE 3		// a user is being voiced
+#define AC_DEVOICE 4		// a user is being devoiced
+#define AC_HALFOP 5		// a user is being halfopped
+#define AC_DEHALFOP 6		// a user is being dehalfopped
+#define AC_INVITE 7		// a user is being invited
+#define AC_GENERAL_MODE 8	// a user channel mode is being changed
 
 #include "dynamic.h"
 #include "base.h"
@@ -174,7 +194,7 @@ class Module : public classbase
  	 * If the mode is a channel mode, target is a chanrec*, and if it is a user mode, target is a userrec*.
  	 * You must cast this value yourself to make use of it.
 	 */
- 	virtual bool OnExtendedMode(userrec* user, void* target, char modechar, int type, bool mode_on, string_list &params);
+ 	virtual int OnExtendedMode(userrec* user, void* target, char modechar, int type, bool mode_on, string_list &params);
  	
 	/** Called whenever a user is about to join a channel, before any processing is done.
 	 * Returning any nonzero value from this function stops the process immediately, causing no
@@ -241,6 +261,29 @@ class Module : public classbase
 	 * module to generate some meaninful output.
 	 */
 	virtual int OnUserPreNick(userrec* user, std::string newnick);
+	
+	/** Called before an action which requires a channel privilage check.
+	 * This function is called before many functions which check a users status on a channel, for example
+	 * before opping a user, deopping a user, kicking a user, etc.
+	 * There are several values for access_type which indicate for what reason access is being checked.
+	 * These are:<br>
+	 * AC_KICK (0) - A user is being kicked<br>
+	 * AC_DEOP (1) - a user is being deopped<br>
+	 * AC_OP (2) - a user is being opped<br>
+	 * AC_VOICE (3) - a user is being voiced<br>
+	 * AC_DEVOICE (4) - a user is being devoiced<br>
+	 * AC_HALFOP (5) - a user is being halfopped<br>
+	 * AC_DEHALFOP (6) - a user is being dehalfopped<br>
+	 * AC_INVITE (7) - a user is being invited<br>
+	 * AC_GENERAL_MODE (8) - a user channel mode is being changed<br>
+	 * Upon returning from your function you must return either ACR_DEFAULT, to indicate the module wishes
+	 * to do nothing, or ACR_DENY where approprate to deny the action, and ACR_ALLOW where appropriate to allow
+	 * the action. Please note that in the case of some access checks (such as AC_GENERAL_MODE) access may be
+	 * denied 'upstream' causing other checks such as AC_DEOP to not be reached. Be very careful with use of the
+	 * AC_GENERAL_MODE type, as it may inadvertently override the behaviour of other modules. When the access_type
+	 * is AC_GENERAL_MODE, the destination of the mode will be NULL (as it has not yet been determined).
+	 */
+	virtual int OnAccessCheck(userrec* source,userrec* dest,chanrec* channel,int access_type);
 };
 
 
@@ -347,6 +390,10 @@ class Server : public classbase
 	 * representing the user's privilages upon the channel you specify.
 	 */
 	virtual std::string ChanMode(userrec* User, chanrec* Chan);
+	/** Checks if a user is on a channel.
+	 * This function will return true or false to indicate if user 'User' is on channel 'Chan'.
+	 */
+	virtual bool IsOnChannel(userrec* User, chanrec* Chan);
 	/** Returns the server name of the server where the module is loaded.
 	 */
 	virtual std::string GetServerName();
@@ -359,7 +406,7 @@ class Server : public classbase
 	 * server where the module is loaded.
 	 */
 	virtual Admin GetAdmin();
-	/** Adds an extended mode letter which is parsed by a module
+	/** Adds an extended mode letter which is parsed by a module.
 	 * This allows modules to add extra mode letters, e.g. +x for hostcloak.
 	 * the "type" parameter is either MT_CHANNEL, MT_CLIENT, or MT_SERVER, to
 	 * indicate wether the mode is a channel mode, a client mode, or a server mode.
@@ -379,6 +426,29 @@ class Server : public classbase
 	 */
 	virtual bool AddExtendedMode(char modechar, int type, bool requires_oper, int params_when_on, int params_when_off);
 
+	/** Adds an extended mode letter which is parsed by a module and handled in a list fashion.
+	 * This call is used to implement modes like +q and +a. The characteristics of these modes are
+	 * as follows:
+	 *
+	 * (1) They are ALWAYS on channels, not on users, therefore their type is MT_CHANNEL
+	 *
+	 * (2) They always take exactly one parameter when being added or removed
+	 *
+	 * (3) They can be set multiple times, usually on users in channels
+	 *
+	 * (4) The mode and its parameter are NOT stored in the channels modes structure
+	 *
+	 * It is down to the module handling the mode to maintain state and determine what 'items' (e.g. users,
+	 * or a banlist) have the mode set on them, and process the modes at the correct times, e.g. during access
+	 * checks on channels, etc. When the extended mode is triggered the OnExtendedMode method will be triggered
+	 * as above. Note that the target you are given will be a channel, if for example your mode is set 'on a user'
+	 * (in for example +a) you must use Server::Find to locate the user the mode is operating on.
+	 * Your mode handler may return 1 to handle the mode AND tell the core to display the mode change, e.g.
+	 * '+aaa one two three' in the case of the mode for 'two', or it may return -1 to 'eat' the mode change,
+	 * so the above example would become '+aa one three' after processing.
+	 */
+	virtual bool AddExtendedListMode(char modechar);
+	
 	/** Adds a command to the command table.
 	 * This allows modules to add extra commands into the command table. You must place a function within your
 	 * module which is is of type handlerfunc:

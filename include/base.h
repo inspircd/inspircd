@@ -39,7 +39,7 @@ class Extensible : public classbase
 {
 	/** Private data store
 	 */
-	std::map<std::string,VoidPointer> Extension_Items;
+	std::map<std::string,char*> Extension_Items;
 	
 public:
 
@@ -49,7 +49,7 @@ public:
 	 * twice, Extensible::Extend will return false in this case.
 	 * On successful extension, Extend returns true.
 	 */
-	bool Extend(std::string key, VoidPointer p);
+	bool Extend(std::string key, char* p);
 
 	/** Shrink an Extensible class.
 	 * You must provide a key name. The given key name will be removed from the classes data. If
@@ -62,7 +62,7 @@ public:
 	 * You must provide a key name, which is case sensitive. If you provide a non-existent key name,
 	 * the function returns NULL, otherwise a pointer to the item referenced by the key is returned.
 	 */
-	VoidPointer GetExt(std::string key);
+	char* GetExt(std::string key);
 };
 
 #endif

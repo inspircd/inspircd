@@ -114,7 +114,6 @@ bool userrec::HasPermission(char* command)
 				log(DEBUG,"*** HasPermission: %s is an oper of type '%s'",this->nick,this->oper);
 				ConfValue("type","classes",j,Classes,&config_f);
 				char* myclass = strtok_r(Classes," ",&savept);
-				//myclass = savept;
 				while (myclass)
 				{
 					log(DEBUG,"*** HasPermission: checking classtype '%s'",myclass);
@@ -128,7 +127,6 @@ bool userrec::HasPermission(char* command)
 							
 							
 							mycmd = strtok_r(CommandList," ",&savept2);
-							//mycmd = savept2;
 							while (mycmd)
 							{
 								if (!strcasecmp(mycmd,command))
@@ -137,12 +135,10 @@ bool userrec::HasPermission(char* command)
 									return true;
 								}
 								mycmd = strtok_r(NULL," ",&savept2);
-								//mycmd = savept2;
 							}
 						}
 					}
 					myclass = strtok_r(NULL," ",&savept);
-					//myclass = savept;
 				}
 			}
 		}

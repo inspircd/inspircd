@@ -1310,6 +1310,7 @@ chanrec* add_channel(userrec *user, const char* cn, const char* key, bool overri
 
 	if (!FindChan(cname))
 	{
+		int MOD_RESULT = 0;
 		FOREACH_RESULT(OnUserPreJoin(user,NULL,cname));
 		if (MOD_RESULT) {
 			return NULL;
@@ -1347,6 +1348,7 @@ chanrec* add_channel(userrec *user, const char* cn, const char* key, bool overri
 			// and bans (used by servers)
 			if (!override)
 			{
+				int MOD_RESULT = 0;
 				FOREACH_RESULT(OnUserPreJoin(user,Ptr,cname));
 				if (MOD_RESULT) {
 					return NULL;
@@ -1600,18 +1602,28 @@ void kick_channel(userrec *src,userrec *user, chanrec *Ptr, char* reason)
 		WriteServ(src->fd,"441 %s %s %s :They are not on that channel",src->nick, user->nick, Ptr->name);
 		return;
 	}
-	if (((cstatus(src,Ptr) < STATUS_HOP) || (cstatus(src,Ptr) < cstatus(user,Ptr))) && (!is_uline(src->server)))
-	{
-		if (cstatus(src,Ptr) == STATUS_HOP)
-		{
-			WriteServ(src->fd,"482 %s %s :You must be a channel operator",src->nick, Ptr->name);
-		}
-		else
-		{
-			WriteServ(src->fd,"482 %s %s :You must be at least a half-operator to change modes on this channel",src->nick, Ptr->name);
-		}
-		
+
+	int MOD_RESULT = 0;
+	FOREACH_RESULT(OnAccessCheck(src,user,Ptr,AC_KICK));
+	
+	if (MOD_RESULT == ACR_DENY)
 		return;
+
+	if (MOD_RESULT == ACR_DEFAULT)
+	{
+ 		if (((cstatus(src,Ptr) < STATUS_HOP) || (cstatus(src,Ptr) < cstatus(user,Ptr))) && (!is_uline(src->server)))
+		{
+			if (cstatus(src,Ptr) == STATUS_HOP)
+			{
+				WriteServ(src->fd,"482 %s %s :You must be a channel operator",src->nick, Ptr->name);
+			}
+			else
+			{
+				WriteServ(src->fd,"482 %s %s :You must be at least a half-operator to change modes on this channel",src->nick, Ptr->name);
+			}
+			
+			return;
+		}
 	}
 	
 	for (int i =0; i != MAXCHANS; i++)

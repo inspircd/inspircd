@@ -26,6 +26,7 @@ public:
 	int params_when_on;
 	int params_when_off;
 	bool needsoper;
+	bool list;
 	ExtMode(char mc, int ty, bool oper, int p_on, int p_off) : modechar(mc), type(ty), needsoper(oper), params_when_on(p_on), params_when_off(p_off) { };
 };                                     
 
@@ -42,6 +43,20 @@ bool ModeDefined(char modechar, int type)
 	{
 		log(DEBUG,"i->modechar==%c, modechar=%c, i->type=%d, type=%d",i->modechar,modechar,i->type,type);
 		if ((i->modechar == modechar) && (i->type == type))
+		{
+			return true;
+		}
+	}
+	return false;
+}
+
+bool ModeIsListMode(char modechar, int type)
+{
+	log(DEBUG,"Size of extmodes vector is %d",EMode.size());
+	for (ExtModeListIter i = EMode.begin(); i < EMode.end(); i++)
+	{
+		log(DEBUG,"i->modechar==%c, modechar=%c, i->type=%d, type=%d",i->modechar,modechar,i->type,type);
+		if ((i->modechar == modechar) && (i->type == type) && (i->list == true))
 		{
 			return true;
 		}
@@ -99,6 +114,19 @@ bool DoAddExtendedMode(char modechar, int type, bool requires_oper, int params_o
 	return true;
 }
 
+// turns a mode into a listmode
+void ModeMakeList(char modechar)
+{
+	for (ExtModeListIter i = EMode.begin(); i < EMode.end(); i++)
+	{
+		if ((i->modechar == modechar) && (i->type == MT_CHANNEL))
+		{
+			i->list = true;
+			return;
+		}
+	}
+	return;
+}
 
 // version is a simple class for holding a modules version number
 
@@ -119,7 +147,7 @@ void Module::OnPacketReceive(char *p) { }
 void Module::OnRehash() { }
 void Module::OnServerRaw(std::string &raw, bool inbound, userrec* user) { }
 int Module::OnUserPreJoin(userrec* user, chanrec* chan, const char* cname) { return 0; }
-bool Module::OnExtendedMode(userrec* user, void* target, char modechar, int type, bool mode_on, string_list &params) { return false; }
+int Module::OnExtendedMode(userrec* user, void* target, char modechar, int type, bool mode_on, string_list &params) { return false; }
 Version Module::GetVersion() { return Version(1,0,0,0); }
 void Module::OnOper(userrec* user) { };
 void Module::OnInfo(userrec* user) { };
@@ -127,6 +155,7 @@ void Module::OnWhois(userrec* source, userrec* dest) { };
 int Module::OnUserPreMessage(userrec* user,void* dest,int target_type, std::string text) { return 0; };
 int Module::OnUserPreNotice(userrec* user,void* dest,int target_type, std::string text) { return 0; };
 int Module::OnUserPreNick(userrec* user, std::string newnick) { return 0; };
+int Module::OnAccessCheck(userrec* source,userrec* dest,chanrec* channel,int access_type) { return ACR_DEFAULT; };
 
 // server is a wrapper class that provides methods to all of the C-style
 // exports in the core
@@ -297,6 +326,11 @@ std::string Server::ChanMode(userrec* User, chanrec* Chan)
 	return cmode(User,Chan);
 }
 
+bool Server::IsOnChannel(userrec* User, chanrec* Chan)
+{
+	return has_channel(User,Chan);
+}
+
 std::string Server::GetServerName()
 {
 	return getservername();
@@ -332,6 +366,14 @@ bool Server::AddExtendedMode(char modechar, int type, bool requires_oper, int pa
 		return false;
 	}
 	return DoAddExtendedMode(modechar,type,requires_oper,params_when_on,params_when_off);
+}
+
+bool Server::AddExtendedListMode(char modechar)
+{
+	bool res = DoAddExtendedMode(modechar,MT_CHANNEL,false,1,1);
+	if (res)
+		ModeMakeList(modechar);
+	return res;
 }
 
 int Server::CountUsers(chanrec* c)

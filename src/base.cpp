@@ -3,13 +3,16 @@
 #include <time.h>
 #include <map>
 #include <string>
+#include "inspircd.h"
+#include "modules.h"
 
-bool Extensible::Extend(std::string key, VoidPointer p)
+bool Extensible::Extend(std::string key, char* p)
 {
 	// only add an item if it doesnt already exist
 	if (this->Extension_Items.find(key) == this->Extension_Items.end())
 	{
-		this->Extension_Items[key] == p;
+		this->Extension_Items[key] = p;
+		log(DEBUG,"Extending object with item %s",key.c_str());
 		return true;
 	}
 	// item already exists, return false
@@ -22,17 +25,21 @@ bool Extensible::Shrink(std::string key)
 	if (this->Extension_Items.find(key) != this->Extension_Items.end())
 	{
 		this->Extension_Items.erase(this->Extension_Items.find(key));
+		log(DEBUG,"Shrinking object with item %s",key.c_str());
 		return true;
 	}
 	return false;
 }
 
-VoidPointer Extensible::GetExt(std::string key)
+char* Extensible::GetExt(std::string key)
 {
+	log(DEBUG,"Checking extension items for %s",key.c_str());
 	if (this->Extension_Items.find(key) != this->Extension_Items.end())
 	{
+		log(DEBUG,"Found item %s %s",key.c_str(),(this->Extension_Items.find(key))->second);
 		return (this->Extension_Items.find(key))->second;
 	}
+	log(DEBUG,"Cant find item %s",key.c_str());
 	return NULL;
 }
 
