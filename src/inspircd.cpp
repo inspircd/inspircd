@@ -399,6 +399,8 @@ void ReadConfig(void)
   	LogLevel = SPARSE;
   if (!strcmp(dbg,"none"))
   	LogLevel = NONE;
+  readfile(MOTD,motd);
+  log(DEBUG,"Reading message of the day");
   readfile(RULES,rules);
   log(DEBUG,"Reading connect classes");
   Classes.clear();
