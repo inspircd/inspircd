@@ -6716,7 +6716,7 @@ void DoSplit(const char* params)
 
 // removes a server. Will NOT remove its users!
 
-void RemoveServer(char* name)
+void RemoveServer(const char* name)
 {
 	bool go_again = true;
 	while (go_again)
