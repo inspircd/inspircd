@@ -4192,6 +4192,7 @@ void createcommand(char* cmd, handlerfunc f, char flags, int minparams)
 	comm.use_count = 0;
 	comm.total_bytes = 0;
 	cmdlist.push_back(comm);
+	log(DEBUG,"Added command %s (%d parameters)",cmd,minparams);
 }
 
 void SetupCommandTable(void)
