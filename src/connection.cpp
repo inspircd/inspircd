@@ -160,7 +160,7 @@ bool connection::SendPacket(char *message, char* host, int port, long ourkey)
 			int res = select(65535, &sfd, NULL, NULL, &tval);
 			cycles++;
 		}
-		while ((recvfrom(fd,&p2,sizeof(p2),0,(sockaddr*)&host_address,&host_address_size)<0) && (cycles < 10));
+		while ((recvfrom(fd,&p2,sizeof(p2),MSG_PEEK,(sockaddr*)&host_address,&host_address_size)<0) && (cycles < 10));
 		
 		if (cycles >= 10)
 		{
@@ -168,6 +168,13 @@ bool connection::SendPacket(char *message, char* host, int port, long ourkey)
 		}
 		else
 		{
+			if (p2.type != PT_ACK_ONLY)
+			{
+				log(DEFAULT,"ERROR! connection::SendPacket() received a data response and was expecting a syn!!!");
+				this->state = STATE_CLEAR;
+				return true;
+			}
+
 			if (p2.id != p.id)
 			{
 				log(DEFAULT,"ERROR! connection::SendPacket() received an ack for a packet it didnt send!");
@@ -284,6 +291,7 @@ bool connection::RecvPacket(char *message, char* host, int &prt, long &theirkey)
 	host_address.sin_family=AF_INET;
 	host_address_size=sizeof(host_address);
 
+	//int recvfrom(int s, void *buf, size_t len, int flags, struct sockaddr *from, socklen_t *fromlen);
 	if (recvfrom(fd,&p,sizeof(p),0,(sockaddr*)&host_address,&host_address_size)<0)
 	{
 		return false;
