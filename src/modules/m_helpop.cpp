@@ -18,7 +18,16 @@ void handle_helpop(char **parameters, int pcnt, userrec *user)
 	char a[MAXBUF];
 	std::string output = " ";
 
-	if (parameters[0] == "") { do_helpop(NULL,pcnt,user); }
+	if (pcnt < 1) {
+ 		do_helpop(NULL,pcnt,user);
+		return;
+   	}
+
+	// FIX by brain: make the string lowercase, ConfigReader is
+	// case sensitive
+	char* lower = parameters[0];
+	for (int t = 0; t < strlen(lower); t++)
+		lower[t] = tolower(lower[t]);
 
 	if (parameters[0][0] == '!')
 	{
