@@ -3017,6 +3017,13 @@ int loop_call(handlerfunc fn, char **parameters, int pcnt, userrec *u, int start
 		}
 	}
 
+	if (total > 10)
+	{
+		// limit the total items in a comma seperated list
+		// a phidjit bug... go figure.
+		total = 10;
+	}
+
 	for (j = 0; j < total; j++)
 	{
 		if (blog[j])
