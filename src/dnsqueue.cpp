@@ -158,7 +158,6 @@ extern user_hash clientlist;
 extern chan_hash chanlist;
 extern user_hash whowas;
 extern command_table cmdlist;
-extern address_cache IP;
 
 extern ClassVector Classes;
 
@@ -172,6 +171,14 @@ public:
 	Lookup()
 	{
 		strcpy(u,"");
+		resolver = NULL;
+	}
+
+	void Reset()
+	{
+		strcpy(u,"");
+		if (resolver)
+			delete resolver;
 		resolver = NULL;
 	}
 
@@ -204,8 +211,11 @@ public:
 				usr = Find(u);
 				if (usr)
 				{
-					log(DEBUG,"Applying hostname lookup to %s: %s",usr->nick,hostname.c_str());
-					if (hostname != "")
+					if (usr->registered == 7)
+					{
+						return true;
+					}
+					if ((hostname != "") && (usr->registered != 7))
 					{
 						strlcpy(usr->host,hostname.c_str(),MAXBUF);
 						WriteServ(usr->fd,"NOTICE Auth :Resolved your hostname: %s",hostname.c_str());
@@ -235,9 +245,7 @@ public:
 	}
 };
 
-typedef std::deque<Lookup> dns_queue;
-
-dns_queue dnsq;
+Lookup dnsq[MAXBUF];
 
 bool lookup_dns(std::string nick)
 {
@@ -248,8 +256,14 @@ bool lookup_dns(std::string nick)
 		log(DEBUG,"Queueing DNS lookup for %s",u->nick);
 		WriteServ(u->fd,"NOTICE Auth :Looking up your hostname...");
 		Lookup L(nick);
-		dnsq.push_back(L);
-		return true;
+		for (int j = 0; j < MAXBUF; j++)
+		{
+			if (!dnsq[j].GetFD())
+			{
+				dnsq[j] = L;
+				return true;
+			}
+		}
 	}
 	return false;
 }
@@ -257,16 +271,15 @@ bool lookup_dns(std::string nick)
 void dns_poll()
 {
 	// do we have items in the queue?
-	if (dnsq.size())
+	for (int j = 0; j < MAXBUF; j++)
 	{
 		// are any ready, or stale?
-		if (dnsq[0].Done() || (!dnsq[0].GetFD()))
+		if (dnsq[j].GetFD())
 		{
-			if (dnsq[0].GetFD())
+			if (dnsq[j].Done())
 			{
-				log(DEBUG,"****** DNS lookup for fd %d is complete. ******",dnsq[0].GetFD());
+				dnsq[j].Reset();
 			}
-			dnsq.pop_front();
 		}
 	}
 }
