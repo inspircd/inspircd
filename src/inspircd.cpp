@@ -2749,6 +2749,8 @@ void process_buffer(const char* cmdbuf,userrec *user)
 	{
 		return;
 	}
+	while ((cmdbuf[0] == ' ') && (strlen(cmdbuf)>0)) cmdbuf++; // strip leading spaces
+
 	strncpy(cmd,cmdbuf,MAXBUF);
 	if (!strcmp(cmd,""))
 	{
@@ -2762,6 +2764,12 @@ void process_buffer(const char* cmdbuf,userrec *user)
 	{
 		cmd[strlen(cmd)-1] = '\0';
 	}
+
+	while ((cmd[strlen(cmd)-1] == ' ') && (strlen(cmd)>0)) // strip trailing spaces
+	{
+		cmd[strlen(cmd)-1] = '\0';
+	}
+
 	if (!strcmp(cmd,""))
 	{
 		return;
