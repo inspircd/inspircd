@@ -6654,10 +6654,11 @@ void handle_amp(char token,char* params,serverrec* source,serverrec* reply, char
 	}
 }
 
+long authcookie;
+
 
 void process_restricted_commands(char token,char* params,serverrec* source,serverrec* reply, char* udp_host,char* ipaddr,int port)
 {
-	long authcookie = rand()*rand();
 	char buffer[MAXBUF];
 
 	switch(token)
@@ -6669,6 +6670,7 @@ void process_restricted_commands(char token,char* params,serverrec* source,serve
 			WriteOpers("Server %s is starting netburst.",udp_host);
 			// now broadcast this new servers address out to all servers that are linked to us,
 			// except the newcomer. They'll all attempt to connect back to it.
+			authcookie = rand()*rand();
 			snprintf(buffer,MAXBUF,"~ %d",authcookie);
 			NetSendToAll(buffer);
 		break;
