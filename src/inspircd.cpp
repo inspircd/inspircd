@@ -5180,7 +5180,7 @@ void handle_N(char token,char* params,serverrec* source,serverrec* reply, char* 
 	strncpy(clientlist[nick]->dhost, dhost,160);
 	strncpy(clientlist[nick]->server, server,256);
 	strncpy(clientlist[nick]->ident, ident,10); // +1 char to compensate for '~'
-	strncpy(clientlist[nick]->fullname, gecos,128);
+	//strncpy(clientlist[nick]->fullname, gecos,128);
 	clientlist[nick]->signon = TS;
 	clientlist[nick]->nping = 0; // this is ignored for a remote user anyway.
 	clientlist[nick]->lastping = 1;
