@@ -117,6 +117,32 @@ int usercount(chanrec *c);
 void call_handler(const char* commandname,char **parameters, int pcnt, userrec *user);
 long GetRevision();
 int loop_call(handlerfunc fn, char **parameters, int pcnt, userrec *u, int start, int end, int joins);
+void kick_channel(userrec *src,userrec *user, chanrec *Ptr, char* reason);
+void purge_empty_chans(void);
+char* Passwd(userrec *user);
+bool IsDenied(userrec *user);
+void AddWhoWas(userrec* u);
+void userlist(userrec *user,chanrec *c);
+std::string GetServerDescription(char* servername);
+int usercnt(void);
+int usercount_invisible(void);
+int usercount_opers(void);
+int usercount_unknown(void);
+long chancount(void);
+long count_servs(void);
+long servercount(void);
+long local_count();
+void ShowMOTD(userrec *user);
+void ShowRULES(userrec *user);
+int usercount(chanrec *c);
+int usercount_i(chanrec *c);
+void update_stats_l(int fd,int data_out);
+void ConnectUser(userrec *user);
+void DoSplitEveryone();
+char islast(const char* s);
+long map_count(const char* s);
+userrec* ReHashNick(char* Old, char* New);
+
 
 // mesh network functions
 
