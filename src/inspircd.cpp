@@ -6897,8 +6897,8 @@ void handle_link_packet(char* udp_msg, char* udp_host, serverrec *serv)
 	char* params = udp_msg + 2;
 	char finalparam[1024];
 	strcpy(finalparam," :xxxx");
-	if (strstr(params," :")) {
- 		strncpy(finalparam,strstr(params," :"),1024);
+	if (strstr(udp_msg," :")) {
+ 		strncpy(finalparam,strstr(udp_msg," :"),1024);
 	}
   	if (token == '-') {
   		char* cookie = strtok(params," ");
@@ -6923,6 +6923,7 @@ void handle_link_packet(char* udp_msg, char* udp_host, serverrec *serv)
 							if (!strcasecmp(me[j]->connectors[k].GetServerName().c_str(),udp_host))
       							{
       								me[j]->connectors[k].SetServerName(servername);
+      								me[j]->connectors[k].SetState(STATE_CONNECTED);
 								NetSendMyRoutingTable();
       								return;
 							}
@@ -6982,6 +6983,15 @@ void handle_link_packet(char* udp_msg, char* udp_host, serverrec *serv)
 				// send a 'diminutive' server message back...
 				snprintf(response,10240,"s %s %s :%s",ServerName,Link_SendPass,ServerDesc);
 				serv->SendPacket(response,servername);
+
+				for (int t = 0; t < serv->connectors.size(); t++)
+				{
+					if (!strcasecmp(serv->connectors[t].GetServerName().c_str(),servername))
+					{
+						serv->connectors[t].SetState(STATE_CONNECTED);
+					}
+				}
+		
 				return;
 			}
 		}
@@ -7002,9 +7012,6 @@ void handle_link_packet(char* udp_msg, char* udp_host, serverrec *serv)
 		// link with, and didnt hear an 's' or 'E' back from yet (these are the only two valid responses
 		// to an 'S' command. If we didn't recently send an 'S' to this server, theyre trying to spoof
 		// a connect, so put out an oper alert!
-		
-		
-		
 		
 		// for now, just accept all, we'll fix that later.
 		WriteOpers("%s accepted our link credentials ",servername);
@@ -7040,6 +7047,7 @@ void handle_link_packet(char* udp_msg, char* udp_host, serverrec *serv)
 							if (!strcasecmp(me[j]->connectors[k].GetServerName().c_str(),udp_host))
       							{
 								char buffer[MAXBUF];
+								me[j]->connectors[k].SetState(STATE_CONNECTED);
 								sprintf(buffer,"X 0");
 								serv->SendPacket(buffer,udp_host);
 								DoSync(me[j],udp_host);
@@ -7082,12 +7090,12 @@ void handle_link_packet(char* udp_msg, char* udp_host, serverrec *serv)
     					log(DEBUG,"Servers are: '%s' '%s'",udp_host,me[j]->connectors[x].GetServerName().c_str());
     					if (!strcasecmp(me[j]->connectors[x].GetServerName().c_str(),udp_host))
     					{
-    						log(DEBUG,"match! process restricted stuff here");
-						// found a valid ircd_connector.
-						// TODO: Fix this so it only lets servers in that are in the 
-						// STATE_CONNECTED state!!!
-      						process_restricted_commands(token,params,me[j],serv,udp_host,me[j]->connectors[x].GetServerIP(),me[j]->connectors[x].GetServerPort());
-						return;
+    						if (me[j]->connectors[x].GetState() == STATE_CONNECTED)
+    						{
+    							// found a valid ircd_connector.
+      							process_restricted_commands(token,params,me[j],serv,udp_host,me[j]->connectors[x].GetServerIP(),me[j]->connectors[x].GetServerPort());
+							return;
+						}
 					}
 				}
 			}
@@ -7453,7 +7461,8 @@ int InspIRCd(void)
 					
 					if (result)
 					{
-						log(DEBUG,"Read %d characters from socket",result);
+						if (result > 0)
+							log(DEBUG,"Read %d characters from socket",result);
 						userrec* current = count2a->second;
 						int currfd = current->fd;
 						char* l = strtok(data,"\n");
