@@ -33,7 +33,10 @@ echo "	@cp src/inspircd \$(BINPATH)" >> Makefile
 echo "" >> Makefile
 echo "config:" >> Makefile
 if [ -n "$COPY_CONF" ] ; then
-echo "	@cp conf/* \$(CONPATH)" >> Makefile
+echo "	@cp conf/inspire.motd \$(CONPATH)/inspire.motd.example" >> Makefile
+echo "	@cp conf/inspire.quotes \$(CONPATH)/inspire.quotes.example" >> Makefile
+echo "	@cp conf/inspire.rules \$(CONPATH)/inspire.rules.example" >> Makefile
+echo "	@cp docs/*.example \$(CONPATH)" >> Makefile
 else
 echo "	@echo \"*** Nothing to Be Done for make config\"" >> Makefile
 fi
