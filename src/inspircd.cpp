@@ -372,7 +372,7 @@ void readfile(file_cache &F, const char* fname)
 
 void ReadConfig(void)
 {
-  char dbg[MAXBUF],pauseval[MAXBUF],Value[MAXBUF];
+  char dbg[MAXBUF],pauseval[MAXBUF],Value[MAXBUF],timeout[MAXBUF];
   ConnectClass c;
 
   ConfValue("server","name",0,ServerName);
@@ -408,6 +408,7 @@ void ReadConfig(void)
   {
 	strcpy(Value,"");
 	ConfValue("connect","allow",i,Value);
+	ConfValue("connect","timeout",i,timeout);
 	if (strcmp(Value,""))
 	{
 		strcpy(c.host,Value);
@@ -415,6 +416,11 @@ void ReadConfig(void)
 		strcpy(Value,"");
 		ConfValue("connect","password",i,Value);
 		strcpy(c.pass,Value);
+		c.registration_timeout = 90; // default is 2 minutes
+		if (atoi(timeout)>0)
+		{
+			c.registration_timeout = atoi(timeout);
+		}
 		Classes.push_back(c);
 		log(DEBUG,"Read connect class type ALLOW, host=%s password=%s",c.host,c.pass);
 	}
@@ -3668,28 +3674,36 @@ void handle_whois(char **parameters, int pcnt, userrec *user)
 	dest = Find(parameters[0]);
 	if (dest)
 	{
-		WriteServ(user->fd,"311 %s %s %s %s * :%s",user->nick, dest->nick, dest->ident, dest->dhost, dest->fullname);
-		if ((user == dest) || (strchr(user->modes,'o')))
+		// bug found by phidjit - were able to whois an incomplete connection if it had sent a NICK or USER
+		if (dest->registered == 7)
 		{
-			WriteServ(user->fd,"378 %s %s :is connecting from *@%s",user->nick, dest->nick, dest->host);
+			WriteServ(user->fd,"311 %s %s %s %s * :%s",user->nick, dest->nick, dest->ident, dest->dhost, dest->fullname);
+			if ((user == dest) || (strchr(user->modes,'o')))
+			{
+				WriteServ(user->fd,"378 %s %s :is connecting from *@%s",user->nick, dest->nick, dest->host);
+			}
+			if (strcmp(chlist(dest),""))
+			{
+				WriteServ(user->fd,"319 %s %s :%s",user->nick, dest->nick, chlist(dest));
+			}
+			WriteServ(user->fd,"312 %s %s %s :%s",user->nick, dest->nick, dest->server, ServerDesc);
+			if (strcmp(dest->awaymsg,""))
+			{
+				WriteServ(user->fd,"301 %s %s :%s",user->nick, dest->nick, dest->awaymsg);
+			}
+			if (strchr(dest->modes,'o'))
+			{
+				WriteServ(user->fd,"313 %s %s :is an IRC operator",user->nick, dest->nick);
+			}
+			//WriteServ(user->fd,"310 %s %s :is available for help.",user->nick, dest->nick);
+			WriteServ(user->fd,"317 %s %s %d %d :seconds idle, signon time",user->nick, dest->nick, abs((dest->idle_lastmsg)-time(NULL)), dest->signon);
+			
+			WriteServ(user->fd,"318 %s %s :End of /WHOIS list.",user->nick, dest->nick);
 		}
-		if (strcmp(chlist(dest),""))
+		else
 		{
-			WriteServ(user->fd,"319 %s %s :%s",user->nick, dest->nick, chlist(dest));
+			WriteServ(user->fd,"401 %s %s :No suck nick/channel",user->nick, parameters[0]);
 		}
-		WriteServ(user->fd,"312 %s %s %s :%s",user->nick, dest->nick, dest->server, ServerDesc);
-		if (strcmp(dest->awaymsg,""))
-		{
-			WriteServ(user->fd,"301 %s %s :%s",user->nick, dest->nick, dest->awaymsg);
-		}
-		if (strchr(dest->modes,'o'))
-		{
-			WriteServ(user->fd,"313 %s %s :is an IRC operator",user->nick, dest->nick);
-		}
-		//WriteServ(user->fd,"310 %s %s :is available for help.",user->nick, dest->nick);
-		WriteServ(user->fd,"317 %s %s %d %d :seconds idle, signon time",user->nick, dest->nick, abs((dest->idle_lastmsg)-time(NULL)), dest->signon);
-		
-		WriteServ(user->fd,"318 %s %s :End of /WHOIS list.",user->nick, dest->nick);
 	}
 	else
 	{
@@ -3957,14 +3971,13 @@ void ConnectUser(userrec *user)
 
 	if (strcmp(Passwd(user),"") && (!user->haspassed))
 	{
-		Write(user->fd,"ERROR :Closing link: Invalid password");
 		kill_link(user,"Invalid password");
 		return;
 	}
 	if (IsDenied(user))
 	{
-		Write(user->fd,"ERROR :Closing link: Unauthorized connection");
 		kill_link(user,"Unauthorised connection");
+		return;
 	}
 
 	WriteServ(user->fd,"NOTICE Auth :Welcome to \002%s\002!",Network);
@@ -5259,9 +5272,15 @@ int InspIRCd(void)
 			{
 				if (count2->second)
 				{
-					strncat(count2->second->inbuf, data, result);
+				
+					// until the buffer is at 509 chars anything can be inserted into it.
+					if (strlen(count2->second->inbuf) < 509) {
+						strncat(count2->second->inbuf, data, result);
+					}
 
-					if (strlen(count2->second->inbuf) > 509) {
+					// once you reach 509 chars, only a \r or \n can be inserted,
+					// completing the line.
+					if ((strlen(count2->second->inbuf) >= 509) && ((data[0] == '\r') || (data[0] == '\n'))) {
 						count2->second->inbuf[509] = '\r';
 						count2->second->inbuf[510] = '\n';
 						count2->second->inbuf[511] = '\0';
@@ -5274,7 +5293,11 @@ int InspIRCd(void)
 							break;
 						else
 						{
-							process_buffer(count2->second);
+							if (strlen(count2->second->inbuf)<513)
+							{
+								// double check the length before processing!
+								process_buffer(count2->second);
+							}
 							break;
 						}
 					}

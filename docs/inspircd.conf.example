@@ -103,12 +103,17 @@
 #								      #
 #  Syntax is as follows:					      #
 #	<connect allow="ip number">				      #
-#	<connect allow="ip number"  password="blahblah">	      #
+#	<connect allow="ip number" password="blahblah">               #
+#       <connect allow="ip number" password="blah" timeout="10">      #
 #	<connect deny="ip number">				      #
+#                                                                     #
+#   You may optionally include timeout="x" on any alllow line, which  #
+#   specifies the amount of time given before an unknown connection   #
+#   is closed if USER/NICK/PASS are not given. This value is in secs  #
 #								      #
 
 <connect allow="196.12.*"  password="tiffany">
-<connect allow="*">
+<connect allow="*" timeout="60">
 
 <connect deny="69.254.*">
 

@@ -35,8 +35,16 @@ class ConnectClass : public classbase
 {
  public:
 	int type;
+	int registration_timeout;
 	char host[MAXBUF];
 	char pass[MAXBUF];
+	
+	ConnectClass()
+	{
+		registration_timeout = 0;
+		strcpy(host,"");
+		strcpy(pass,"");
+	}
 };
 
 /** Holds a complete list of all channels to which a user has been invited and has not yet joined.
