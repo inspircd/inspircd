@@ -28,7 +28,7 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
  
-#ifndef HAVE_STRLCPY
+#ifndef HAS_STRLCPY
 size_t strlcat(char *dst, const char *src, size_t siz)
 {
   char *d = dst;
