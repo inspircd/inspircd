@@ -576,7 +576,7 @@ echo ""
 echo "The Following Modules are avaliable:"
 echo ""
 MODLINE=""
-for module in m_*.cpp ; do
+for module in src/modules/*.cpp ; do
         mod=`perl -e '$a='$module';print substr($a,0,length($a)-3)'`
         dmod=`perl -e '$a="'$mod.so'";while (length($a)<30) { $a = "$a ";}; print $a;'`
         desc=`perl -e 'open (F, "<'$module'");local($/)=undef;$blah=<F>;$blah=~/\$ModDesc(.*)\*\//;print substr($1,13,length($1));close F;'`
