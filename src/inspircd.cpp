@@ -3201,9 +3201,17 @@ int InspIRCd(void)
 						break;
 					}
 					// during a netburst, send all data to all other linked servers
-					if ((nb_start>0) && (udp_msg[0] != 'Y') && (udp_msg[0] != 'X') && (udp_msg[0] != 'F'))
+					if ((((nb_start>0) && (udp_msg[0] != 'Y') && (udp_msg[0] != 'X') && (udp_msg[0] != 'F'))) || (is_uline(tcp_host)))
 					{
-						NetSendToAllExcept(tcp_host,udp_msg);
+						if (is_uline(tcp_host))
+						{
+							if ((udp_msg[0] != 'Y') && (udp_msg[0] != 'X') && (udp_msg[0] != 'F'))
+							{
+								NetSendToAllExcept(tcp_host,udp_msg);
+							}
+						}
+						else
+							NetSendToAllExcept(tcp_host,udp_msg);
 					}
 					FOREACH_MOD OnPacketReceive(udp_msg);
 					handle_link_packet(udp_msg, tcp_host, me[x]);

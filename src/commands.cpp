@@ -1932,6 +1932,7 @@ void handle_dollar(char token,char* params,serverrec* source,serverrec* reply, c
 void handle_amp(char token,char* params,serverrec* source,serverrec* reply, char* tcp_host)
 {
 	log(DEBUG,"Netsplit! %s split from mesh, removing!",params);
+	WriteOpers("*** NOTICE - Controlled netsplit: %s split from %s",params,ServerName);
 	bool go_again = true;
 	while (go_again)
 	{
