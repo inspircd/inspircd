@@ -68,7 +68,7 @@ extern int WHOWAS_MAX;
 extern int DieDelay;
 extern time_t startup_time;
 extern int NetBufferSize;
-int MaxWhoResults;
+extern int MaxWhoResults;
 extern time_t nb_start;
 
 extern std::vector<int> fd_reap;

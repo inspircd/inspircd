@@ -2947,6 +2947,15 @@ void DoSync(serverrec* serv, char* tcp_host)
 	{
 		snprintf(data,MAXBUF,"N %d %s %s %s %s +%s %s %s :%s",u->second->age,u->second->nick,u->second->host,u->second->dhost,u->second->ident,u->second->modes,u->second->ip,u->second->server,u->second->fullname);
 		serv->SendPacket(data,tcp_host);
+		for (int i = 0; i <= MODCOUNT; i++)
+		{
+			string_list l = modules[i]->OnUserSync(u->second);
+			for (int j = 0; j < l.size(); j++)
+			{
+				strncpy(data,l[j].c_str(),MAXBUF);
+  				serv->SendPacket(data,tcp_host);
+  			}
+  		}
 		if (strcmp(chlist(u->second),""))
 		{
 			snprintf(data,MAXBUF,"J %s %s",u->second->nick,chlist(u->second));
@@ -2958,6 +2967,15 @@ void DoSync(serverrec* serv, char* tcp_host)
 	{
 		snprintf(data,MAXBUF,"M %s +%s",c->second->name,chanmodes(c->second));
 		serv->SendPacket(data,tcp_host);
+		for (int i = 0; i <= MODCOUNT; i++)
+		{
+			string_list l = modules[i]->OnChannelSync(c->second);
+			for (int j = 0; j < l.size(); j++)
+			{
+				strncpy(data,l[j].c_str(),MAXBUF);
+  				serv->SendPacket(data,tcp_host);
+  			}
+  		}
 		if (strcmp(c->second->topic,""))
 		{
 			snprintf(data,MAXBUF,"T %d %s %s :%s",c->second->topicset,c->second->setby,c->second->name,c->second->topic);

@@ -50,6 +50,10 @@
 typedef std::deque<std::string> file_cache;
 typedef file_cache string_list;
 
+/** Holds a list of users in a channel
+ */
+typedef std::deque<userrec*> chanuserlist;
+
 
 // This #define allows us to call a method in all
 // loaded modules in a readable simple way, e.g.:
@@ -266,7 +270,7 @@ class Module : public classbase
 	 * This function is called before many functions which check a users status on a channel, for example
 	 * before opping a user, deopping a user, kicking a user, etc.
 	 * There are several values for access_type which indicate for what reason access is being checked.
-	 * These are:<br>
+	 * These are:<br><br>
 	 * AC_KICK (0) - A user is being kicked<br>
 	 * AC_DEOP (1) - a user is being deopped<br>
 	 * AC_OP (2) - a user is being opped<br>
@@ -275,7 +279,7 @@ class Module : public classbase
 	 * AC_HALFOP (5) - a user is being halfopped<br>
 	 * AC_DEHALFOP (6) - a user is being dehalfopped<br>
 	 * AC_INVITE (7) - a user is being invited<br>
-	 * AC_GENERAL_MODE (8) - a user channel mode is being changed<br>
+	 * AC_GENERAL_MODE (8) - a user channel mode is being changed<br><br>
 	 * Upon returning from your function you must return either ACR_DEFAULT, to indicate the module wishes
 	 * to do nothing, or ACR_DENY where approprate to deny the action, and ACR_ALLOW where appropriate to allow
 	 * the action. Please note that in the case of some access checks (such as AC_GENERAL_MODE) access may be
@@ -283,7 +287,21 @@ class Module : public classbase
 	 * AC_GENERAL_MODE type, as it may inadvertently override the behaviour of other modules. When the access_type
 	 * is AC_GENERAL_MODE, the destination of the mode will be NULL (as it has not yet been determined).
 	 */
+
 	virtual int OnAccessCheck(userrec* source,userrec* dest,chanrec* channel,int access_type);
+	/** Called during a netburst to sync user data.
+	 * This is called during the netburst on a per-user basis. You should use this call to up any special
+	 * user-related things which are implemented by your module, e.g. sending listmodes. You may return
+	 * multiple commands in the string_list.
+	 */
+	virtual string_list OnUserSync(userrec* user);
+
+	/** Called during a netburst to sync channel data.
+	 * This is called during the netburst on a per-channel basis. You should use this call to up any special
+	 * channel-related things which are implemented by your module, e.g. sending listmodes. You may return
+	 * multiple commands in the string_list.
+	 */
+	virtual string_list OnChannelSync(chanrec* chan);
 };
 
 
@@ -577,6 +595,12 @@ class Server : public classbase
 	 * links and must operate in this manner.
 	 */
 	virtual bool IsUlined(std::string server);
+	
+	/** Fetches the userlist of a channel. This function must be here and not a member of userrec or
+	 * chanrec due to include constraints.
+	 */
+	virtual chanuserlist Server::GetUsers(chanrec* chan);
+
 };
 
 /** Allows reading of values from configuration files

@@ -179,7 +179,7 @@ class userrec : public connection
 	 * This is done by looking up their oper type from userrec::oper, then referencing
 	 * this to their oper classes and checking the commands they can execute.
 	 */
-	virtual bool HasPermission(char* command);
+	bool HasPermission(char* command);
 	
 };
 

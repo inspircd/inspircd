@@ -18,8 +18,13 @@ class ModuleChanProtect : public Module
  
 	ModuleChanProtect()
 	{
+	
+		// here we initialise our module. Use new to create new instances of the required
+		// classes.
+		
 		Srv = new Server;
 		Conf = new ConfigReader;
+		
 		// set up our modes. We're using listmodes and not normal extmodes here.
 		// listmodes only need one parameter as everything else is assumed by the
 		// nature of the mode thats being created.
@@ -33,6 +38,7 @@ class ModuleChanProtect : public Module
 	
 	virtual void OnRehash()
 	{
+		// on a rehash we delete our classes for good measure and create them again.
 		delete Conf;
 		Conf = new ConfigReader;
 		// re-read our config options on a rehash
@@ -188,7 +194,7 @@ class ModuleChanProtect : public Module
 			{
 				if (mode_on)
    				{
-   					if (!theuser->GetExt("cm_founder_"+std::string(chan->name)))
+   					if (!theuser->GetExt("cm_protect_"+std::string(chan->name)))
    					{
 						theuser->Extend("cm_protect_"+std::string(chan->name),dummyvalue);
 						return 1;
@@ -196,7 +202,7 @@ class ModuleChanProtect : public Module
 				}
 				else
     				{
-    					if (theuser->GetExt("cm_founder_"+std::string(chan->name)))
+    					if (theuser->GetExt("cm_protect_"+std::string(chan->name)))
     					{
 						theuser->Shrink("cm_protect_"+std::string(chan->name));
 						return 1;
@@ -225,8 +231,22 @@ class ModuleChanProtect : public Module
 		return Version(1,0,0,0);
 	}
 	
-	virtual void OnUserConnect(userrec* user)
+	virtual string_list OnChannelSync(chanrec* chan)
 	{
+		chanuserlist cl = Srv->GetUsers(chan);
+		string_list commands;
+		for (int i = 0; i < cl.size(); i++)
+		{
+			if (cl[i]->GetExt("cm_founder_"+std::string(chan->name)))
+			{
+				commands.push_back("M "+std::string(chan->name)+" +q "+std::string(cl[i]->nick));
+			}
+			if (cl[i]->GetExt("cm_protect_"+std::string(chan->name)))
+			{
+				commands.push_back("M "+std::string(chan->name)+" +a "+std::string(cl[i]->nick));
+			}
+		}
+		return commands;
 	}
 
 };

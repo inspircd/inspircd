@@ -1,9 +1,93 @@
-#include "inspircd_config.h" 
-#include "channels.h"
 #include "inspircd.h"
-#include <stdio.h>
+#include "inspircd_io.h"
+#include "inspircd_util.h"
+#include "inspircd_config.h"
+#include <unistd.h>
+#include <fcntl.h>
+#include <sys/errno.h>
+#include <sys/ioctl.h>
+#include <sys/utsname.h>
+#include <cstdio>
+#include <time.h>
 #include <string>
+#ifdef GCC3
+#include <ext/hash_map>
+#else
+#include <hash_map>
+#endif
+#include <map>
+#include <sstream>
 #include <vector>
+#include <errno.h>
+#include <deque>
+#include <errno.h>
+#include <unistd.h>
+#include <sched.h>
+#include "connection.h"
+#include "users.h"
+#include "servers.h"
+#include "ctables.h"
+#include "globals.h"
+#include "modules.h"
+#include "dynamic.h"
+#include "wildcard.h"
+#include "message.h"
+#include "mode.h"
+#include "xline.h"
+
+#ifdef GCC3
+#define nspace __gnu_cxx
+#else
+#define nspace std
+#endif
+
+using namespace std;
+
+extern int MODCOUNT;
+extern vector<Module*> modules;
+extern vector<ircd_module*> factory;
+
+extern int LogLevel;
+extern char ServerName[MAXBUF];
+extern char Network[MAXBUF];
+extern char ServerDesc[MAXBUF];
+extern char AdminName[MAXBUF];
+extern char AdminEmail[MAXBUF];
+extern char AdminNick[MAXBUF];
+extern char diepass[MAXBUF];
+extern char restartpass[MAXBUF];
+extern char motd[MAXBUF];
+extern char rules[MAXBUF];
+extern char list[MAXBUF];
+extern char PrefixQuit[MAXBUF];
+extern char DieValue[MAXBUF];
+
+extern int debugging;
+extern int WHOWAS_STALE;
+extern int WHOWAS_MAX;
+extern int DieDelay;
+extern time_t startup_time;
+extern int NetBufferSize;
+int MaxWhoResults;
+extern time_t nb_start;
+
+extern std::vector<int> fd_reap;
+extern std::vector<std::string> module_names;
+
+extern char bannerBuffer[MAXBUF];
+extern int boundPortCount;
+extern int portCount;
+extern int UDPportCount;
+extern int ports[MAXSOCKS];
+extern int defaultRoute;
+
+extern std::vector<long> auth_cookies;
+extern std::stringstream config_f;
+
+extern serverrec* me[32];
+
+extern FILE *log_file;
+
 
 using namespace std;
 
@@ -46,6 +130,7 @@ void chanrec::SetCustomMode(char mode,bool mode_on)
 		this->SetCustomModeParam(mode,"",false);
 	}
 }
+
 
 void chanrec::SetCustomModeParam(char mode,char* parameter,bool mode_on)
 {
