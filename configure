@@ -399,6 +399,12 @@ echo -e "\033[0;37mOptimation Flag:\033[1;32m\t\t$OPTIMISATI"
 echo -e "\033[0;37m"
 
 echo "Writing cache file for future ./configures ..."
+
+if [ "$CONFIG_DIR" != "$ME/conf" ] ; then
+    COPY_CONF=1
+fi
+
+
 if [ -e ".config.cache" ] ; then
 	rm .config.cache
 fi
@@ -411,7 +417,7 @@ echo "NICK_LENGT=\"$NICK_LENGT\"" >> .config.cache
 echo "MAXI_MODES=\"$MAXI_MODES\"" >> .config.cache 
 echo "OPTIMITEMP=\"$OPTIMITEMP\"" >> .config.cache
 echo "OPTIMISATI=\"$OPTIMISATI\"" >> .config.cache
-
+echo "COPY_CONF=\"$COPY_CONF\"" >> .config.cache
 
 echo "Writing include/inspircd_config.h ..."
 
@@ -436,11 +442,6 @@ echo "#define MAXBUF 514">>include/inspircd_config.h
 touch include/inspircd_config.h
 
 echo "Preparing Variables for the Makefile"
-
-if [ "$CONFIG_DIR" != "$ME/conf" ] ; then
-    COPY_CONF=1
-fi
-
 
 case "$OSNAME" in
 	(FreeBSD)
