@@ -1691,11 +1691,8 @@ chanrec* del_channel(userrec *user, const char* cname, const char* reason, bool 
 					{
 						if (servers[j] != NULL)
 						{
-						if (ChanAnyOnThisServer(Ptr,servers[j]->name))
-							{
-								me[defaultRoute]->SendPacket(buffer,servers[j]->internal_addr,servers[j]->internal_port,MyKey);
-								log(DEBUG,"Sent L token (no reason)");
-							}
+							me[defaultRoute]->SendPacket(buffer,servers[j]->internal_addr,servers[j]->internal_port,MyKey);
+							log(DEBUG,"Sent L token (no reason)");
 						}
 					}
 				}
@@ -1767,7 +1764,8 @@ void kick_channel(userrec *src,userrec *user, chanrec *Ptr, char* reason)
 	for (int i =0; i != MAXCHANS; i++)
 	{
 		/* zap it from the channel list of the user */
-		if (user->chans[i].channel == Ptr)
+		if (user->chans[i].channel)
+		if (!strcasecmp(user->chans[i].channel->name,Ptr->name))
 		{
 			WriteChannel(Ptr,src,"KICK %s %s :%s",Ptr->name, user->nick, reason);
 			user->chans[i].uc_modes = 0;
@@ -3777,10 +3775,11 @@ void handle_kick(char **parameters, int pcnt, userrec *user)
 		WriteServ(user->fd,"442 %s %s :You're not on that channel!",user->nick, parameters[0]);
 		return;
 	}
+
+	char reason[MAXBUF];
 	
 	if (pcnt > 2)
 	{
-		char reason[MAXBUF];
 		strncpy(reason,parameters[2],MAXBUF);
 		if (strlen(reason)>MAXKICK)
 		{
@@ -3791,8 +3790,23 @@ void handle_kick(char **parameters, int pcnt, userrec *user)
 	}
 	else
 	{
-		kick_channel(user,u,Ptr,user->nick);
+		strcpy(reason,user->nick);
+		kick_channel(user,u,Ptr,reason);
 	}
+	
+	// this must be propogated so that channel membership is kept in step network-wide
+	
+	char buffer[MAXBUF];
+	snprintf(buffer,MAXBUF,"k %s %s %s :%s",user->nick,u->nick,Ptr->name,reason);
+	for (int j = 0; j < 255; j++)
+	{
+		if (servers[j] != NULL)
+		{
+			me[defaultRoute]->SendPacket(buffer,servers[j]->internal_addr,servers[j]->internal_port,MyKey);
+			log(DEBUG,"Sent k token");
+		}
+	}
+	
 }
 
 
@@ -6140,6 +6154,23 @@ void handle_n(char token,char* params,serverrec* source,serverrec* reply, char* 
 	}
 }
 
+// k <SOURCE> <DEST> <CHANNEL> :<REASON>
+void handle_k(char token,char* params,serverrec* source,serverrec* reply, char* udp_host,int udp_port)
+{
+	char* src = strtok(params," ");
+	char* dest = strtok(NULL," ");
+	char* channel = strtok(NULL," :");
+	char* reason = strtok(NULL,"\r\n");
+	reason++;
+	userrec* s = Find(src);
+	userrec* d = Find(dest);
+	chanrec* c = FindChan(channel);
+	if ((s) && (d) && (c))
+	{
+		kick_channel(s,d,c,reason);
+	}
+}
+
 void handle_N(char token,char* params,serverrec* source,serverrec* reply, char* udp_host,int udp_port)
 {
 	char* tm = strtok(params," ");
@@ -6264,6 +6295,10 @@ void process_restricted_commands(char token,char* params,serverrec* source,serve
 		// introduce remote client
 		case 'N':
 			handle_N(token,params,source,reply,udp_host,udp_port);
+		break;
+		// k <SOURCE> <DEST> <CHANNEL> :<REASON>
+		case 'k':
+			handle_k(token,params,source,reply,udp_host,udp_port);
 		break;
 		// n <NICK> <NEWNICK>
 		// change nickname of client -- a server should only be able to
