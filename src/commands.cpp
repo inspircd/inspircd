@@ -2279,7 +2279,7 @@ void handle_link_packet(char* udp_msg, char* tcp_host, serverrec *serv)
 			userrec* u = Find(source);
 			if (u)
 			{
-				add_channel(user,data,"",true);
+				add_channel(u,data,"",true);
 			}
 			token = udp_msg[0];
 		}
