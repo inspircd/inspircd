@@ -3386,6 +3386,10 @@ int InspIRCd(void)
 			Exit(ERROR);
 	  	}
 	}
+
+	char PID[MAXBUF];
+	ConfValue("pid","file",0,PID,&config_f);
+	WritePID(PID);
 	  
 	  
 	/* setup select call */

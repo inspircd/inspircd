@@ -67,6 +67,20 @@ void Start (void)
   printf("\033[1;37mName concept:\033[0;37m   Lord_Zathras\n\n");
 }
 
+void WritePID(std::string filename)
+{
+	ofstream outfile(filename.c_str());
+	if (outfile.is_open())
+	{
+		outfile << getpid();
+		outfile.close();
+	}
+	else
+	{
+		printf("Failed to write PID-file '%s', exiting.\n",filename.c_str());
+		Exit(0);
+	}
+}
 
 void DeadPipe(int status)
 {

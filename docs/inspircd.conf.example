@@ -238,13 +238,24 @@
 <files  motd="/home/cc/inspircd-1.0/conf/inspire.motd"
 	rules="/home/cc/inspircd-1.0/conf/inspire.rules">
 
-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-  RTFM LINE  -#-#-#-#-#-#-#-#-#-#-#-#-#-#
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-# DNS SERVER -#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 #                                                                     #
 # Define your DNS server address here. InspIRCd has its own resolver  #
 # and you must define this otherwise nobody's host will resolve. The  #
 # timeout value is in seconds.					      #
+#                                                                     #
 
 <dns server="127.0.0.1" timeout="5">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#  PID FILE  -#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+#                                                                     #
+# Define the path to the PID file here. The PID file can be used to   #
+# rehash the ircd from the shell or to terminate the ircd from the    #
+# shell using shell scripts, perl scripts etc, and to monitor the     #
+# ircd's state via cron jobs.                                         #
+#                                                                     #
+
+<pid file="/path/to/inspircd.pid">
 
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-  RTFM LINE  -#-#-#-#-#-#-#-#-#-#-#-#-#-#

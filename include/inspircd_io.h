@@ -15,6 +15,7 @@
  */
 
 #include <sstream>
+#include <string>
 
 void Exit (int); 
 void Start (void); 
@@ -29,4 +30,4 @@ int ReadConf(std::stringstream *config_f,const char* tag, const char* var, int i
 int ConfValueEnum(char* tag,std::stringstream *config);
 int EnumConf(std::stringstream *config_f,const char* tag);
 int EnumValues(std::stringstream *config, const char* tag, int index);
-
+void WritePID(std::string filename);
