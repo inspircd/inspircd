@@ -89,9 +89,9 @@ bool AllowHalfop = true;
 bool AllowProtect = true;
 bool AllowFounder = true;
 
-extern vector<Module*> modules;
+extern std::vector<Module*> modules;
 std::vector<std::string> module_names;
-extern vector<ircd_module*> factory;
+extern std::vector<ircd_module*> factory;
 std::vector<int> fd_reap;
 
 extern int MODCOUNT;
