@@ -27,8 +27,11 @@ class ModuleNoCTCP : public Module
 			{
 				if ((text.length()) && (text[0] == '\1'))
 				{
-					WriteServ(user->fd,"492 %s %s :Can't send CTCP to channel (+C set)",user->nick, c->name);
-					return 1;
+					if (strncmp(text.c_str(),"\1ACTION ",8))
+					{
+						WriteServ(user->fd,"492 %s %s :Can't send CTCP to channel (+C set)",user->nick, c->name);
+						return 1;
+					}
 				}
 			}
 		}
@@ -44,8 +47,11 @@ class ModuleNoCTCP : public Module
 			{
 				if ((text.length()) && (text[0] == '\1'))
 				{
-					WriteServ(user->fd,"492 %s %s :Can't send CTCP to channel (+C set)",user->nick, c->name);
-					return 1;
+					if (strncmp(text.c_str(),"\1ACTION ",8))
+					{
+						WriteServ(user->fd,"492 %s %s :Can't send CTCP to channel (+C set)",user->nick, c->name);
+						return 1;
+					}
 				}
 			}
 		}
