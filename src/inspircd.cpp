@@ -2243,8 +2243,10 @@ void AddClient(int socket, char* host, int port, bool iscached, char* ip)
 	if (clientlist.size() == MAXCLIENTS)
 		kill_link(clientlist[tempnick],"No more connections allowed in this class");
 		
+
 	char* r = matches_zline(ip);
-	if (r)
+        char* e = matches_exception(ip);
+	if ((r) && (!e))
 	{
 		char reason[MAXBUF];
 		snprintf(reason,MAXBUF,"Z-Lined: %s",r);
@@ -2375,23 +2377,26 @@ void FullConnectUser(userrec* user)
 
         char match_against[MAXBUF];
         snprintf(match_against,MAXBUF,"%s@%s",user->ident,user->host);
-        char* r = matches_gline(match_against);
-        if (r)
-        {
-                char reason[MAXBUF];
-                snprintf(reason,MAXBUF,"G-Lined: %s",r);
-                kill_link_silent(user,reason);
-                return;
-        }
-
-        r = matches_kline(user->host);
-        if (r)
-        {
-                char reason[MAXBUF];
-                snprintf(reason,MAXBUF,"K-Lined: %s",r);
-                kill_link_silent(user,reason);
-                return;
-        }
+	char* e = matches_exception(match_against);
+	if (!e)
+	{
+        	char* r = matches_gline(match_against);
+        	if (r)
+        	{
+                	char reason[MAXBUF];
+                	snprintf(reason,MAXBUF,"G-Lined: %s",r);
+                	kill_link_silent(user,reason);
+                	return;
+        	}
+        	r = matches_kline(user->host);
+        	if (r)
+        	{
+                	char reason[MAXBUF];
+                	snprintf(reason,MAXBUF,"K-Lined: %s",r);
+                	kill_link_silent(user,reason);
+                	return;
+	        }
+	}
 
         WriteServ(user->fd,"NOTICE Auth :Welcome to \002%s\002!",Network);
         WriteServ(user->fd,"001 %s :Welcome to the %s IRC Network %s!%s@%s",user->nick,Network,user->nick,user->ident,user->host);
@@ -2967,6 +2972,7 @@ void SetupCommandTable(void)
 	createcommand("GLINE",handle_gline,'o',1);
 	createcommand("ZLINE",handle_zline,'o',1);
 	createcommand("QLINE",handle_qline,'o',1);
+	createcommand("ELINE",handle_eline,'o',1);
 	createcommand("SERVER",handle_server,0,0);
 }
 

@@ -79,6 +79,15 @@ class GLine : public XLine
 	char hostmask[MAXBUF];
 };
 
+class ELine : public XLine
+{
+  public:
+        /** Hostmask (ident@host) to match against
+         * May contain wildcards.
+         */
+        char hostmask[MAXBUF];
+};
+
 /** ZLine class
  */
 class ZLine : public XLine
@@ -115,16 +124,19 @@ void add_gline(long duration, char* source, char* reason, char* hostmask);
 void add_qline(long duration, char* source, char* reason, char* nickname);
 void add_zline(long duration, char* source, char* reason, char* ipaddr);
 void add_kline(long duration, char* source, char* reason, char* hostmask);
+void add_eline(long duration, char* source, char* reason, char* hostmask);
 
 bool del_gline(char* hostmask);
 bool del_qline(char* nickname);
 bool del_zline(char* ipaddr);
 bool del_kline(char* hostmask);
+bool del_eline(char* hostmask);
 
 char* matches_qline(const char* nick);
 char* matches_gline(const char* host);
 char* matches_zline(const char* ipaddr);
 char* matches_kline(const char* host);
+char* matches_exception(const char* host);
 
 void expire_lines();
 void apply_lines();
@@ -133,6 +145,7 @@ void stats_k(userrec* user);
 void stats_g(userrec* user);
 void stats_q(userrec* user);
 void stats_z(userrec* user);
+void stats_e(userrec* user);
 
 void gline_set_creation_time(char* host, time_t create_time);
 void qline_set_creation_time(char* nick, time_t create_time);
@@ -144,5 +157,3 @@ bool qline_make_global(char* nickname);
 void sync_xlines(serverrec* serv, char* tcp_host);
 
 #endif
-
-

@@ -186,6 +186,7 @@ std::vector<KLine> klines;
 std::vector<GLine> glines;
 std::vector<ZLine> zlines;
 std::vector<QLine> qlines;
+std::vector<ELine> elines;
 
 // Reads the default bans from the config file.
 // only a very small number of bans are defined
@@ -222,6 +223,13 @@ void read_xline_defaults()
 		add_kline(0,"<Config>",reason,host);
 		log(DEBUG,"Read K line (badhost tag): host=%s reason=%s",host,reason);
 	}
+	for (int i = 0; i < ConfValueEnum("exception",&config_f); i++)
+	{
+		ConfValue("exception","host",i,host,&config_f);
+		ConfValue("exception","reason",i,reason,&config_f);
+		add_eline(0,"<Config>",reason,host);
+		log(DEBUG,"Read E line (exception tag): host=%s reason=%s",host,reason);
+	}
 }
 
 // adds a g:line
@@ -237,6 +245,21 @@ void add_gline(long duration, char* source, char* reason, char* hostmask)
 	item.n_matches = 0;
 	item.set_time = time(NULL);
 	glines.push_back(item);
+}
+
+// adds an e:line (exception to bans)
+
+void add_eline(long duration, char* source, char* reason, char* hostmask)
+{
+        del_eline(hostmask);
+        ELine item;
+        item.duration = duration;
+        strlcpy(item.hostmask,hostmask,MAXBUF);
+        strlcpy(item.reason,reason,MAXBUF);
+        strlcpy(item.source,source,MAXBUF);
+        item.n_matches = 0;
+        item.set_time = time(NULL);
+        elines.push_back(item);
 }
 
 // adds a q:line
@@ -299,6 +322,21 @@ bool del_gline(char* hostmask)
 		}
 	}
 	return false;
+}
+
+// deletes a e:line, returns true if the line existed and was removed
+
+bool del_eline(char* hostmask)
+{
+        for (std::vector<ELine>::iterator i = elines.begin(); i != elines.end(); i++)
+        {
+                if (!strcasecmp(hostmask,i->hostmask))
+                {
+                        elines.erase(i);
+                        return true;
+                }
+        }
+        return false;
 }
 
 // deletes a q:line, returns true if the line existed and was removed
@@ -430,6 +468,21 @@ char* matches_gline(const char* host)
 	return NULL;
 }
 
+char* matches_exception(const char* host)
+{
+	char host2[MAXBUF];
+	snprintf(host2,MAXBUF,"*@%s",host);
+        for (std::vector<ELine>::iterator i = elines.begin(); i != elines.end(); i++)
+        {
+                if ((match(host,i->hostmask)) || (match(host2,i->hostmask)))
+                {
+                        return i->reason;
+                }
+        }
+        return NULL;
+}
+
+
 void gline_set_creation_time(char* host, time_t create_time)
 {
 	for (std::vector<GLine>::iterator i = glines.begin(); i != glines.end(); i++)
@@ -521,6 +574,17 @@ void expire_lines()
 			}
 		}
 
+                for (std::vector<ELine>::iterator i = elines.begin(); i != elines.end(); i++)
+                {
+                        if ((current > (i->duration + i->set_time)) && (i->duration > 0))
+                        {
+                                WriteOpers("Expiring timed E-Line %s (set by %s %d seconds ago)",i->hostmask,i->source,i->duration);
+                                elines.erase(i);
+                                go_again = true;
+                                break;
+                        }
+                }
+
 		for (std::vector<GLine>::iterator i = glines.begin(); i != glines.end(); i++)
 		{
 			if ((current > (i->duration + i->set_time)) && (i->duration > 0))
@@ -575,6 +639,12 @@ void apply_lines()
 			if (!strcasecmp(u->second->server,ServerName))
 			{
 				snprintf(host,MAXBUF,"%s@%s",u->second->ident,u->second->host);
+				if (elines.size())
+				{
+					// ignore people matching exempts
+					if (matches_exception(host))
+						continue;
+				}
 				if (glines.size())
 				{
 					char* check = matches_gline(host);
@@ -660,5 +730,10 @@ void stats_z(userrec* user)
 	}
 }
 
-
-
+void stats_e(userrec* user)
+{
+        for (std::vector<ELine>::iterator i = elines.begin(); i != elines.end(); i++)
+        {
+                WriteServ(user->fd,"223 %s :%s %d %d %s %s",user->nick,i->hostmask,i->set_time,i->duration,i->source,i->reason);
+        }
+}

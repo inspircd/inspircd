@@ -1293,6 +1293,11 @@ void handle_stats(char **parameters, int pcnt, userrec *user)
 		stats_z(user);
 	}
 
+	if (!strcmp(parameters[0],"e"))
+	{
+		stats_e(user);
+	}
+
 	/* stats m (list number of times each command has been used, plus bytecount) */
 	if (!strcmp(parameters[0],"m"))
 	{
@@ -3158,6 +3163,34 @@ void handle_kline(char **parameters, int pcnt, userrec *user)
 		}
 	}
 	apply_lines();
+}
+
+void handle_eline(char **parameters, int pcnt, userrec *user)
+{
+        if (pcnt >= 3)
+        {
+                add_eline(duration(parameters[1]),user->nick,parameters[2],parameters[0]);
+                if (!duration(parameters[1]))
+                {
+                        WriteOpers("*** %s added permenant E-line for %s.",user->nick,parameters[0]);
+                }
+                else
+                {
+                        WriteOpers("*** %s added timed E-line for %s, expires in %d seconds.",user->nick,parameters[0],duration(parameters[1]));
+                }
+        }
+        else
+        {
+                if (del_eline(parameters[0]))
+                {
+                        WriteOpers("*** %s Removed E-line on %s.",user->nick,parameters[0]);
+                }
+                else
+                {
+                        WriteServ(user->fd,"NOTICE %s :*** E-Line %s not found in list, try /stats e.",user->nick,parameters[0]);
+                }
+        }
+	// no need to apply the lines for an eline
 }
 
 void handle_gline(char **parameters, int pcnt, userrec *user)

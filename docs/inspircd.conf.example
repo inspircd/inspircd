@@ -257,6 +257,18 @@
 
 <pid file="/path/to/inspircd.pid">
 
+#-#-#-#-#-#-#-#-#-#-#-#-#- BANLIST LIMITS #-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+#                                                                     #
+# Use these tags to customise the ban limits on a per channel basis.  #
+# the tags are read from top to bottom, and any tag found which       #
+# matches the channels name applies the banlimit to that channel.     #
+# It is advisable to put an entry with the channel as '*' at the      #
+# bottom of the list. If none are specified or no maxbans tag is      #
+# matched, the banlist size defaults to 64 entries.                   #
+#                                                                     #
+
+<banlist chan="#morons" limit="128">
+<banlist chan="*" limit="69">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-  RTFM LINE  -#-#-#-#-#-#-#-#-#-#-#-#-#-#
 #                                                                     #
@@ -353,6 +365,11 @@
 # host         -          ident@hostname (wildcards possible)         #
 # reason       -          Reason to display on disconnection          #
 #                                                                     #
+# exception lines define a hostmask that is excempt from [kzg]lines   #
+#                                                                     #
+# host         -          ident@hostname (wildcards possible)         #
+# reason       -          Reason, shown only in /stats e              #
+#                                                                     #
 
 <badip ipmask="69.69.69.69" reason="No porn here thanks.">
 
@@ -363,6 +380,8 @@
 
 <badhost host="*@hundredz.n.hundredz.o.1337.kiddies.com" reason="Too many 1337 kiddiots">
 <badhost host="*@localhost" reason="No irc from localhost!">
+
+<exception host="*@ircop.host.com" reason="Opers hostname">
 
 #-#-#-#-#-#-#-#-#-#-#-  ALIAS DEFINITIONS  -#-#-#-#-#-#-#-#-#-#-#-#-#-#
 #                                                                     #

@@ -137,8 +137,9 @@
 	line18="U  Show u-lined servers"
 	line19="P  Show online opers and their idle times"
 	line20="I  Show connect class permissions"
-	line21="-"
-	line22="Note that all /STATS use is broadcast to online IRC operators.">
+	line21="e  Show e-lines (local ban exemptions)"
+	line22="-"
+	line23="Note that all /STATS use is broadcast to online IRC operators.">
 
 <kline line1="/KLINE [user@host] {[duration] :[reason]}"
 	line2="Sets or removes a k-line (host based ban) on a host and ident mask."
