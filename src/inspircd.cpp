@@ -3174,8 +3174,14 @@ void kill_link(userrec *user,char* reason)
 		WriteCommonExcept(user,"QUIT :%s",reason);
 	}
 
-	/* push the socket on a stack of sockets due to be closed at the next opportunity */
-	fd_reap.push_back(user->fd);
+	/* push the socket on a stack of sockets due to be closed at the next opportunity
+	 * 'Client exited' is an exception to this as it means the client side has already
+	 * closed the socket, we don't need to do it.
+	 */
+	if (strcmp(reason,"Client exited"))
+	{
+		fd_reap.push_back(user->fd);
+	}
 	
 	bool do_purge = false;
 	
@@ -3281,7 +3287,7 @@ void handle_invite(char **parameters, int pcnt, userrec *user)
 	{
 		if (!c)
 		{
-			WriteServ(user->fd,"401 %s %s :No suck nick/channel",user->nick, parameters[1]);
+			WriteServ(user->fd,"401 %s %s :No such nick/channel",user->nick, parameters[1]);
 		}
 		else
 		{
@@ -4611,6 +4617,21 @@ void process_command(userrec *user, char* cmd)
 	{
 		return;
 	}
+	
+	int total_params = 0;
+	for (int q = 0; q < strlen(cmd); q++)
+	{
+		if (cmd[q] == ' ')
+			total_params++;
+	}
+	
+	// another phidjit bug...
+	if (total_params > 126)
+	{
+		kill_link(user,"Protocol violation");
+		return;
+	}
+	
 	strcpy(temp,cmd);
 
 	string tmp = cmd;
@@ -4622,6 +4643,7 @@ void process_command(userrec *user, char* cmd)
 	{
 		/* no parameters, lets skip the formalities and not chop up
 		 * the string */
+		log(DEBUG,"About to preprocess command with no params");
 		items = 0;
 		command_p[0] = NULL;
 		parameters = NULL;
@@ -4629,6 +4651,7 @@ void process_command(userrec *user, char* cmd)
 		{
 			cmd[i] = toupper(cmd[i]);
 		}
+		log(DEBUG,"Preprocess done");
 	}
 	else
 	{
@@ -4675,19 +4698,26 @@ void process_command(userrec *user, char* cmd)
 	
 	cmd_found = 0;
 	
-	log(DEBUG,"Second processing point");
-
 	if (strlen(command)>MAXCOMMAND)
 	{
-		command[MAXCOMMAND-1] = '\0';
-		WriteOpers("Possible command-flood from %s, sending excessively long commands.",user->nick);
+		kill_link(user,"Protocol violation");
+		return;
+	}
+	
+	for (int x = 0; x < strlen(command); x++)
+	{
+		if ((command[x] < 'A') || (command[x] > 'Z'))
+		{
+			kill_link(user,"Protocol violation");
+			return;
+		}
 	}
 
 	for (i = 0; i != cmdlist.size(); i++)
 	{
 		if (strcmp(cmdlist[i].command,""))
 		{
-			if (!strcmp(command, cmdlist[i].command))
+			if (strlen(command)>=(strlen(cmdlist[i].command))) if (!strncmp(command, cmdlist[i].command,MAXCOMMAND))
 			{
 				log(DEBUG,"Found matching command");
 
@@ -4728,9 +4758,9 @@ void process_command(userrec *user, char* cmd)
 						cmd_found = 1;
 						return;
 					}
-		/* if the command isnt USER, PASS, or NICK, and nick is empty,
-		 * deny command! */
-					if ((strcmp(command,"USER")) && (strcmp(command,"NICK")) && (strcmp(command,"PASS")))
+					/* if the command isnt USER, PASS, or NICK, and nick is empty,
+					 * deny command! */
+					if ((strncmp(command,"USER",4)) && (strncmp(command,"NICK",4)) && (strncmp(command,"PASS",4)))
 					{
 						if ((!isnick(user->nick)) || (user->registered != 7))
 						{
@@ -5380,7 +5410,7 @@ int InspIRCd(void)
 				{
 				
 					// until the buffer is at 509 chars anything can be inserted into it.
-					if (strlen(count2->second->inbuf) < 509) {
+					if ((strlen(count2->second->inbuf) < 509) && (data[0] != '\0')) {
 						strncat(count2->second->inbuf, data, result);
 					}
 
@@ -5390,6 +5420,8 @@ int InspIRCd(void)
 						count2->second->inbuf[509] = '\r';
 						count2->second->inbuf[510] = '\n';
 						count2->second->inbuf[511] = '\0';
+						process_buffer(count2->second);
+						break;
 					}
 
 					if (strchr(count2->second->inbuf, '\n') || strchr(count2->second->inbuf, '\r') || (strlen(count2->second->inbuf) > 509))
@@ -5399,10 +5431,14 @@ int InspIRCd(void)
 							break;
 						else
 						{
-							if (strlen(count2->second->inbuf)<513)
+							if (strlen(count2->second->inbuf)<512)
 							{
 								// double check the length before processing!
 								process_buffer(count2->second);
+							}
+							else
+							{
+								strcpy(count2->second->inbuf,"");
 							}
 							break;
 						}
