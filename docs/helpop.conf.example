@@ -128,8 +128,44 @@
 	line9="o  Show a list of all valid oper usernames and hostmasks"
 	line10="l  Show all inbound and outbound server and client connections"
 	line11="u  Show server uptime"
-	line12="-"
-	line13="Note that all /STATS use is broadcast to online IRC operators.">
+	line12="k  Show k-lines (local bans)"
+	line13="g  Show g-lines (global bans)"
+	line14="q  Show q-lines (nick mask bans)"
+	line15="Z  Show z-lines (ip mask bans)"
+	line16="-"
+	line17="Note that all /STATS use is broadcast to online IRC operators.">
+
+<kline line1="/KLINE [user@host] {[duration] :[reason]}"
+	line2="Sets or removes a k-line (host based ban) on a host and ident mask."
+	line3="You must specify at least 3 parameters to add a ban, and one"
+	line4="parameter to remove a ban (just the user@host section)."
+	line5="The duration may be specified in seconds, or in the following format"
+	line6="1y2w3d4h5m6s - meaning one year, two weeks, three days, 4 hours,"
+	line7="5 minutes and 6 seconds. All fields in this format are optional.">
+
+<zline line1="/ZLINE [ipmask] {[duration] :[reason]}"
+        line2="Sets or removes a z-line (ip based ban) on an ip range mask."
+        line3="You must specify at least 3 parameters to add a ban, and one"
+        line4="parameter to remove a ban (just the user@host section)."
+        line5="The duration may be specified in seconds, or in the following format"
+        line6="1y2w3d4h5m6s - meaning one year, two weeks, three days, 4 hours,"
+        line7="5 minutes and 6 seconds. All fields in this format are optional.">
+
+<qline line1="/QLINE [nickmask] {[duration] :[reason]}"
+        line2="Sets or removes a q-line (nick based ban) on a nick mask."
+        line3="You must specify at least 3 parameters to add a ban, and one"
+        line4="parameter to remove a ban (just the user@host section)."
+        line5="The duration may be specified in seconds, or in the following format"
+        line6="1y2w3d4h5m6s - meaning one year, two weeks, three days, 4 hours,"
+        line7="5 minutes and 6 seconds. All fields in this format are optional.">
+
+<gline line1="/GLINE [user@host] {[duration] :[reason]}"
+        line2="Sets or removes a g-line (global host based ban) on host mask."
+        line3="You must specify at least 3 parameters to add a ban, and one"
+        line4="parameter to remove a ban (just the user@host section)."
+        line5="The duration may be specified in seconds, or in the following format"
+        line6="1y2w3d4h5m6s - meaning one year, two weeks, three days, 4 hours,"
+        line7="5 minutes and 6 seconds. All fields in this format are optional.">
 
 <userhost line1="/USERHOST [nickname]"
 	line2="Returns the hostname and nickname of a user, and some other"
@@ -181,7 +217,8 @@
 <coper line1="Oper Commands"
 	line2="-------------"
 	line3="DIE      RESTART KILL    REHASH      TRACE"
-	line4="CONNECT  SQUIT   MODULES">
+	line4="CONNECT  SQUIT   MODULES KLINE       ZLINE"
+	line5="QLINE    GLINE">
 
 <die line1="/DIE [password]"
 	line2="If the correct password is provided, and you are an operator,"
