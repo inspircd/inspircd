@@ -2081,6 +2081,17 @@ void process_restricted_commands(char token,char* params,serverrec* source,serve
 			snprintf(buffer,MAXBUF,"+ %s %s %d %d",tcp_host,ipaddr,port,authcookie);
 			NetSendToAllExcept(tcp_host,buffer);
 		break;
+		// F <TS>
+		// end netburst with no mesh creation
+		case 'f':
+			WriteOpers("Server %s has completed netburst. (%d secs)",tcp_host,time(NULL)-nb_start);
+			handle_F(token,params,source,reply,tcp_host);
+			nb_start = 0;
+			// tell everyone else about the new server name so they just add it in the disconnected
+			// state
+			snprintf(buffer,MAXBUF,"u %s :%s",tcp_host,GetServerDescription(tcp_host).c_str());
+			NetSendToAllExcept(tcp_host,buffer);
+		break;
 		// X <reserved>
 		// Send netburst now
 		case 'X':
@@ -2101,12 +2112,24 @@ void handle_link_packet(char* udp_msg, char* tcp_host, serverrec *serv)
 {
 	char response[10240];
 	char token = udp_msg[0];
+
+	if (token == ':') // leading :servername or details - strip them off (services does this, sucky)
+	{
+		while (udp_msg[0] != ' ')
+			udp_msg++;
+		udp_msg++;
+		token = udp_msg[0];
+	}
+
+
 	char* params = udp_msg + 2;
 	char finalparam[1024];
 	strcpy(finalparam," :xxxx");
 	if (strstr(udp_msg," :")) {
  		strncpy(finalparam,strstr(udp_msg," :"),1024);
 	}
+	
+	
   	if (token == '-') {
   		char* cookie = strtok(params," ");
 		char* servername = strtok(NULL," ");
@@ -2284,6 +2307,73 @@ void handle_link_packet(char* udp_msg, char* tcp_host, serverrec *serv)
       							{
 								char buffer[MAXBUF];
 								me[j]->connectors[k].SetDescription(serverdesc);
+								me[j]->connectors[k].SetState(STATE_CONNECTED);
+								sprintf(buffer,"X 0");
+								serv->SendPacket(buffer,tcp_host);
+								DoSync(me[j],tcp_host);
+								NetSendMyRoutingTable();
+								return;
+							}
+						}
+					}
+					WriteOpers("\2WARNING!\2 %s sent us an authentication packet but we are not authenticating with this server right noe! Possible intrusion attempt!",tcp_host);
+					return;
+				}
+			}
+			else {
+				log(DEBUG,"Server names '%s' and '%s' don't match",Link_ServerName,servername);
+			}
+		}
+		char buffer[MAXBUF];
+		sprintf(buffer,"E :Access is denied (no matching link block)");
+		serv->SendPacket(buffer,tcp_host);
+		WriteOpers("CONNECT from %s denied, no matching link block",servername);
+		RemoveServer(tcp_host);
+		RemoveServer(servername);
+		return;
+	}
+	else
+	if (token == 'U') {
+		// U services.chatspike.net password :ChatSpike Services
+		//
+		// non-meshed link, used by services. Everything coming from a non-meshed link is auto broadcasted.
+		char* servername = strtok(params," ");
+		char* password = strtok(NULL," ");
+		char* serverdesc = finalparam+2;
+		
+		char Link_ServerName[1024];
+		char Link_IPAddr[1024];
+		char Link_Port[1024];
+		char Link_Pass[1024];
+		char Link_SendPass[1024];
+		int LinkPort = 0;
+		
+		// search for a corresponding <link> block in the config files
+		for (int i = 0; i < ConfValueEnum("link",&config_f); i++)
+		{
+			ConfValue("link","name",i,Link_ServerName,&config_f);
+			ConfValue("link","ipaddr",i,Link_IPAddr,&config_f);
+			ConfValue("link","port",i,Link_Port,&config_f);
+			ConfValue("link","recvpass",i,Link_Pass,&config_f);
+			ConfValue("link","sendpass",i,Link_SendPass,&config_f);
+			log(DEBUG,"(%d) Comparing against name='%s', ipaddr='%s', port='%s', recvpass='%s'",i,Link_ServerName,Link_IPAddr,Link_Port,Link_Pass);
+			LinkPort = atoi(Link_Port);
+			if (!strcasecmp(Link_ServerName,servername))
+   			{
+				// matching link at this end too, we're all done!
+				// at this point we must begin key exchange and insert this
+				// server into our 'active' table.
+				for (int j = 0; j < 32; j++)
+				{
+					if (me[j] != NULL)
+     					{
+     						for (int k = 0; k < me[j]->connectors.size(); k++)
+     						{
+							if (!strcasecmp(me[j]->connectors[k].GetServerName().c_str(),tcp_host))
+      							{
+								char buffer[MAXBUF];
+								me[j]->connectors[k].SetDescription(serverdesc);
+								me[j]->connectors[k].SetServerName(servername);
 								me[j]->connectors[k].SetState(STATE_CONNECTED);
 								sprintf(buffer,"X 0");
 								serv->SendPacket(buffer,tcp_host);

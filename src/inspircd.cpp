@@ -2819,7 +2819,6 @@ void DoSync(serverrec* serv, char* tcp_host)
 			serv->SendPacket(data,tcp_host);
 		}
 	}
-	// send end of sync marker: E <timestamp>
 	snprintf(data,MAXBUF,"F %d",time(NULL));
 	serv->SendPacket(data,tcp_host);
 	// ircd sends its serverlist after the end of sync here
