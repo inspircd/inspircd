@@ -14,6 +14,10 @@
 #define SPARSE 40
 #define NONE 50
 
+#define MT_CHANNEL 1
+#define MT_CLIENT 2
+#define MT_SERVER 3
+
 #include "dynamic.h"
 #include "base.h"
 #include <string>
@@ -22,7 +26,7 @@
 /** Low level definition of a FileReader classes file cache area
  */
 typedef deque<string> file_cache;
-
+typedef file_cache string_list;
 
 // This #define allows us to call a method in all
 // loaded modules in a readable simple way, e.g.:
@@ -43,7 +47,6 @@ class Version : public classbase
 	 const int Major, Minor, Revision, Build;
 	 Version(int major, int minor, int revision, int build);
 };
-
 
 /** Holds /ADMIN data
  *  This class contains the admin details of the local server. It is constructed by class Server,
@@ -134,8 +137,17 @@ class Module : public classbase
 	 * the string parameter "raw". If you do this, after your function exits it will immediately be
 	 * cut down to 510 characters plus a carriage return and linefeed.
 	 */
- 	virtual void Module::OnServerRaw(string &raw, bool inbound);
+ 	virtual void OnServerRaw(string &raw, bool inbound);
 
+	/** Called whenever an extended mode is to be processed.
+	 * The type parameter is MT_SERVER, MT_CLIENT or MT_CHANNEL, dependent on where the mode is being
+	 * changed. mode_on is set when the mode is being set, in which case params contains a list of
+	 * parameters for the mode as strings. If mode_on is false, the mode is being removed, and parameters
+	 * may contain the parameters for the mode, dependent on wether they were defined when a mode handler
+ 	 * was set up with Server::AddExtendedMode
+	 */
+ 	virtual bool OnExtendedMode(char modechar, int type, bool mode_on, string_list &params);
+	 
 };
 
 
@@ -240,6 +252,22 @@ class Server : public classbase
 	 * server where the module is loaded.
 	 */
 	virtual Admin GetAdmin();
+	/** Adds an extended mode letter which is parsed by a module
+	 * This allows modules to add extra mode letters, e.g. +x for hostcloak.
+	 * the "type" parameter is either MT_CHANNEL, MT_CLIENT, or MT_SERVER, to
+	 * indicate wether the mode is a channel mode, a client mode, or a server mode.
+	 * default_on is true if the mode is to be applied to default connections.
+	 * params_when_on is the number of modes to expect when the mode is turned on
+	 * (for type MT_CHANNEL only), e.g. with mode +b, this would have a value of 1.
+	 * the params_when_off value has a similar value to params_when_on, except it indicates
+	 * the number of parameters to expect when the mode is disabled. Modes which act in a similar
+	 * way to channel mode +l (e.g. require a parameter to enable, but not to disable) should
+	 * use this parameter. The function returns false if the mode is unavailable, and will not
+	 * attempt to allocate another character, as this will confuse users. This also means that
+	 * as only one module can claim a specific mode character, the core does not need to keep track
+	 * of which modules own which modes, which speeds up operation of the server.
+	 */
+	virtual bool AddExtendedMode(char modechar, int type, bool default_on, int params_when_on, int params_when_off);
 	 
 };
 
