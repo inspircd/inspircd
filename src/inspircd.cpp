@@ -192,6 +192,7 @@ void safedelete(userrec *p)
 		log(DEBUG,"deleting %s %s %s %s",p->nick,p->ident,p->dhost,p->fullname);
 		log(DEBUG,"safedelete(userrec*): pointer is safe to delete");
 		delete p;
+		p = NULL;
 	}
 	else
 	{
@@ -204,6 +205,7 @@ void safedelete(chanrec *p)
 	if (p)
 	{
 		delete p;
+		p = NULL;
 		log(DEBUG,"safedelete(chanrec*): pointer is safe to delete");
 	}
 	else
@@ -458,9 +460,9 @@ void NonBlocking(int s)
 {
   int flags;
   log(DEBUG,"NonBlocking: %d",s);
-  //flags = fcntl(s, F_GETFL, 0);
-  fcntl(s, F_SETFL, O_NONBLOCK);
-  //fcntl(s, F_SETFL, flags | O_NONBLOCK);
+  flags = fcntl(s, F_GETFL, 0);
+  //fcntl(s, F_SETFL, O_NONBLOCK);
+  fcntl(s, F_SETFL, flags | O_NONBLOCK);
 }
 
 
@@ -3026,13 +3028,6 @@ int loop_call(handlerfunc fn, char **parameters, int pcnt, userrec *u, int start
 		}
 	}
 
-	if (total > 10)
-	{
-		// limit the total items in a comma seperated list
-		// a phidjit bug... go figure.
-		total = 10;
-	}
-
 	for (j = 0; j < total; j++)
 	{
 		if (blog[j])
@@ -4980,7 +4975,7 @@ void SetupCommandTable(void)
 	createcommand("MODULES",handle_modules,'o',0);
 }
 
-void process_buffer(char* cmdbuf,userrec *user)
+void process_buffer(const char* cmdbuf,userrec *user)
 {
 	if (!user)
 	{
@@ -4994,6 +4989,7 @@ void process_buffer(char* cmdbuf,userrec *user)
 		log(DEFAULT,"*** BUG *** process_buffer was given an invalid parameter");
 		return;
 	}
+	log(DEBUG,"A: %s",cmdbuf);
 	if (!strcmp(cmdbuf,""))
 	{
 		return;
@@ -5003,21 +4999,25 @@ void process_buffer(char* cmdbuf,userrec *user)
 	{
 		return;
 	}
+	log(DEBUG,"B: %s",cmd);
 	if ((cmd[strlen(cmd)-1] == 13) || (cmd[strlen(cmd)-1] == 10))
 	{
 		cmd[strlen(cmd)-1] = '\0';
 	}
+	log(DEBUG,"C: %s",cmd);
 	if ((cmd[strlen(cmd)-1] == 13) || (cmd[strlen(cmd)-1] == 10))
 	{
 		cmd[strlen(cmd)-1] = '\0';
 	}
-
+	log(DEBUG,"D: %s",cmd);
 	if (!strcmp(cmd,""))
 	{
 		return;
 	}
+	log(DEBUG,"E: %s",cmd);
         log(DEBUG,"InspIRCd: processing: %s %s",user->nick,cmd);
 	tidystring(cmd);
+	log(DEBUG,"F: %s",cmd);
 	if ((user) && (cmd))
 	{
 		process_command(user,cmd);
@@ -5451,7 +5451,7 @@ int InspIRCd(void)
 	
 	while (count2 != clientlist.end())
 	{
-		char data[MAXBUF];
+		char data[10240];
 		tval.tv_usec = tval.tv_sec = 0;
 		FD_ZERO(&sfd);
 		int total_in_this_set = 0;
@@ -5515,28 +5515,63 @@ int InspIRCd(void)
 			//if (selectResult2 > 0)
 			for (user_hash::iterator count2a = xcount; count2a != endingiter; count2a++)
 			{
+				std::vector<string> datastream;
+				
+				datastream.clear();
+				
 				result = EAGAIN;
-				if ((FD_ISSET (count2a->second->fd, &sfd)) || (strlen(count2a->second->carryover)))
+				if (FD_ISSET (count2a->second->fd, &sfd))
 				{
-					//result = read(count2a->second->fd, data, 1);
-					int foo = 0;
-					NonBlocking(count2a->second->fd);
-
-					if (strlen(count2a->second->carryover))
+					memset(data, 0, 10240);
+					result = read(count2a->second->fd, data, 10240);
+					
+					if (result)
 					{
-						strncpy(data,count2a->second->carryover,MAXBUF);
-						strcpy(count2a->second->carryover,"");
-						foo = strlen(data);
+						userrec* current = count2a->second;
+						int currfd = current->fd;
+						char* l = strtok(data,"\n");
+						while (l)
+						{
+							char sanitized[10240];
+							memset(sanitized, 0, 10240);
+							int ptt = 0;
+							for (int pt = 0; pt < strlen(l); pt++)
+							{
+								if (l[pt] != '\r')
+								{
+									sanitized[ptt++] = l[pt];
+								}
+							}
+							sanitized[ptt] = '\0';
+							l = strtok(NULL,"\n");
+							if (strlen(sanitized))
+							{
+
+
+								// we're gonna re-scan to check if the nick is gone, after every
+								// command - if it has, we're gonna bail
+								bool find_again = false;
+								log(DEBUG,"\nProcess line: %s %d\n",sanitized,strlen(sanitized));
+								process_buffer(sanitized,current);
+	
+								// look for the user's record in case it's changed
+								for (user_hash::iterator c2 = clientlist.begin(); c2 != clientlist.end(); c2++)
+								{
+									if (c2->second->fd == currfd)
+									{
+										// found again, update pointer
+										current == c2->second;
+										find_again = true;
+										break;
+									}
+								}
+								if (!find_again)
+									goto label;
+
+							}
+						}
+						goto label;
 					}
-
-					if (!foo)
-					{
-     						result = read(count2a->second->fd, data, 256);
-     					}
-					else
-					{
-     						result = foo;
-     					}
 
 					if ((result == -1) && (errno != EAGAIN) && (errno != EINTR))
 					{
@@ -5544,7 +5579,6 @@ int InspIRCd(void)
 						kill_link(count2a->second,strerror(errno));
 						goto label;
 					}
-					data[result] = '\0'; // pad the data
 				}
 				// result EAGAIN means nothing read
 				if (result == EAGAIN)
@@ -5564,49 +5598,6 @@ int InspIRCd(void)
 				}
 				else if (result > 0)
 				{
-					if (count2a->second)
-					{
-					
-						char d[2];
-						d[1] = '\0';
-
-						for(int chr = 0; chr < result; chr++)
-						{
-							d[0] = data[chr];
-							
-							// until the buffer is at 509 chars anything can be inserted into it.
-							if (d[0] != '\0')
-       							{
-								strncat(count2a->second->inbuf, d, MAXBUF);
-							}
-		
-		
-							if ((d[0] == '\n') || (d[0] == '\r'))
-							{
-								char cmdbuf[MAXBUF];
-								strncpy(cmdbuf,count2a->second->inbuf,MAXBUF);
-        							strcpy(count2a->second->inbuf,"");
-        							char* x = data+chr;
-        							if ((x != NULL) && (chr < 255))
-        							{
-        								if (strlen(x))
-        								{
-										if ((x[0] == '\n') || (x[0] == '\r')) x++;
-										if ((x[0] == '\n') || (x[0] == '\r')) x++;
-										if (strlen(x))
-										{
-											strncpy(count2a->second->carryover,x,MAXBUF);
-        									}
-        								}
-        							}
-        							if (strlen(cmdbuf)>1)
-        							{
-        								process_buffer(cmdbuf,count2a->second);
-        							}
-        							goto label;
-        						}
-						}
-					}
 				}
 			}
 		}
