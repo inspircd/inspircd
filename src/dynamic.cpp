@@ -15,7 +15,7 @@ DLLManager::DLLManager(const char *fname)
 DLLManager::~DLLManager()
 {
 	// close the library if it isn't null
-	if( h!=0 )
+	if (h!=0)
     	dlclose(h);
 }
 
