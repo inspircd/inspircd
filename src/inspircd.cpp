@@ -1312,7 +1312,7 @@ chanrec* add_channel(userrec *user, const char* cn, const char* key, bool overri
 	{
 		int MOD_RESULT = 0;
 		FOREACH_RESULT(OnUserPreJoin(user,NULL,cname));
-		if (MOD_RESULT) {
+		if (MOD_RESULT == 1) {
 			return NULL;
 		}
 
@@ -1350,76 +1350,81 @@ chanrec* add_channel(userrec *user, const char* cn, const char* key, bool overri
 			{
 				int MOD_RESULT = 0;
 				FOREACH_RESULT(OnUserPreJoin(user,Ptr,cname));
-				if (MOD_RESULT) {
+				if (MOD_RESULT == 1) {
 					return NULL;
 				}
 				
-				if (strcmp(Ptr->key,""))
+				if (MOD_RESULT == 0) 
 				{
-					log(DEBUG,"add_channel: %s has key %s",Ptr->name,Ptr->key);
-					if (!key)
+					
+					if (strcmp(Ptr->key,""))
 					{
-						log(DEBUG,"add_channel: no key given in JOIN");
-						WriteServ(user->fd,"475 %s %s :Cannot join channel (Requires key)",user->nick, Ptr->name);
-						return NULL;
-					}
-					else
-					{
-						log(DEBUG,"key at %p is %s",key,key);
-						if (strcasecmp(key,Ptr->key))
+						log(DEBUG,"add_channel: %s has key %s",Ptr->name,Ptr->key);
+						if (!key)
 						{
-							log(DEBUG,"add_channel: bad key given in JOIN");
-							WriteServ(user->fd,"475 %s %s :Cannot join channel (Incorrect key)",user->nick, Ptr->name);
+							log(DEBUG,"add_channel: no key given in JOIN");
+							WriteServ(user->fd,"475 %s %s :Cannot join channel (Requires key)",user->nick, Ptr->name);
 							return NULL;
 						}
-					}
-				}
-				log(DEBUG,"add_channel: no key");
-	
-				if (Ptr->inviteonly)
-				{
-					log(DEBUG,"add_channel: channel is +i");
-					if (user->IsInvited(Ptr->name))
-					{
-						/* user was invited to channel */
-						/* there may be an optional channel NOTICE here */
-					}
-					else
-					{
-						WriteServ(user->fd,"473 %s %s :Cannot join channel (Invite only)",user->nick, Ptr->name);
-						return NULL;
-					}
-				}
-				log(DEBUG,"add_channel: channel is not +i");
-	
-				if (Ptr->limit)
-				{
-					if (usercount(Ptr) == Ptr->limit)
-					{
-						WriteServ(user->fd,"471 %s %s :Cannot join channel (Channel is full)",user->nick, Ptr->name);
-						return NULL;
-					}
-				}
-				
-				log(DEBUG,"add_channel: about to walk banlist");
-	
-				/* check user against the channel banlist */
-				if (Ptr)
-				{
-					if (Ptr->bans.size())
-					{
-						for (BanList::iterator i = Ptr->bans.begin(); i != Ptr->bans.end(); i++)
+						else
 						{
-							if (match(user->GetFullHost(),i->data))
+							log(DEBUG,"key at %p is %s",key,key);
+							if (strcasecmp(key,Ptr->key))
 							{
-								WriteServ(user->fd,"474 %s %s :Cannot join channel (You're banned)",user->nick, Ptr->name);
+								log(DEBUG,"add_channel: bad key given in JOIN");
+								WriteServ(user->fd,"475 %s %s :Cannot join channel (Incorrect key)",user->nick, Ptr->name);
 								return NULL;
 							}
 						}
 					}
-				}
+					log(DEBUG,"add_channel: no key");
+		
+					if (Ptr->inviteonly)
+					{
+						log(DEBUG,"add_channel: channel is +i");
+						if (user->IsInvited(Ptr->name))
+						{
+							/* user was invited to channel */
+							/* there may be an optional channel NOTICE here */
+						}
+						else
+						{
+							WriteServ(user->fd,"473 %s %s :Cannot join channel (Invite only)",user->nick, Ptr->name);
+							return NULL;
+						}
+					}
+					log(DEBUG,"add_channel: channel is not +i");
+		
+					if (Ptr->limit)
+					{
+						if (usercount(Ptr) == Ptr->limit)
+						{
+							WriteServ(user->fd,"471 %s %s :Cannot join channel (Channel is full)",user->nick, Ptr->name);
+							return NULL;
+						}
+					}
+					
+					log(DEBUG,"add_channel: about to walk banlist");
+		
+					/* check user against the channel banlist */
+					if (Ptr)
+					{
+						if (Ptr->bans.size())
+						{
+							for (BanList::iterator i = Ptr->bans.begin(); i != Ptr->bans.end(); i++)
+							{
+								if (match(user->GetFullHost(),i->data))
+								{
+									WriteServ(user->fd,"474 %s %s :Cannot join channel (You're banned)",user->nick, Ptr->name);
+									return NULL;
+								}
+							}
+						}
+					}
+					
+					log(DEBUG,"add_channel: bans checked");
 				
-				log(DEBUG,"add_channel: bans checked");
+				}
 				
 
 				if ((Ptr) && (user))

@@ -1046,7 +1046,7 @@ void handle_mode(char **parameters, int pcnt, userrec *user)
 
 	if ((dest) && (pcnt == 1))
 	{
-		WriteServ(user->fd,"221 %s :+%s",user->nick,user->modes);
+		WriteServ(user->fd,"221 %s :+%s",dest->nick,dest->modes);
 		return;
 	}
 
@@ -1254,10 +1254,18 @@ void handle_mode(char **parameters, int pcnt, userrec *user)
 			}
 		}
 
-		if ((cstatus(user,Ptr) < STATUS_HOP) && (Ptr))
-		{
-			WriteServ(user->fd,"482 %s %s :You must be at least a half-operator to change modes on this channel",user->nick, Ptr->name);
+		int MOD_RESULT = 0;
+		FOREACH_RESULT(OnAccessCheck(user,NULL,Ptr,AC_GENERAL_MODE));
+		
+		if (MOD_RESULT == ACR_DENY)
 			return;
+		if (MOD_RESULT == ACR_DEFAULT)
+		{
+			if ((cstatus(user,Ptr) < STATUS_HOP) && (Ptr))
+			{
+				WriteServ(user->fd,"482 %s %s :You must be at least a half-operator to change modes on this channel",user->nick, Ptr->name);
+				return;
+			}
 		}
 
 		process_modes(parameters,user,Ptr,cstatus(user,Ptr),pcnt,false,false,false);
