@@ -80,7 +80,7 @@ typedef std::vector<InviteItem>	InviteList;
  * This class represents a channel, and contains its name, modes, time created, topic, topic set time,
  * etc, and an instance of the BanList type.
  */
-class chanrec : public classbase
+class chanrec : public Extensible
 {
  public:
 	/** The channels name.

@@ -158,7 +158,7 @@ class packet : public classbase
 
 /** Please note: classes serverrec and userrec both inherit from class connection.
  */
-class connection : public classbase
+class connection : public Extensible
 {
  public:
 	/** File descriptor of the connection
