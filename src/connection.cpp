@@ -17,14 +17,6 @@ extern std::vector<ircd_module*> factory;
 
 extern int MODCOUNT;
 
-packet::packet()
-{
-}
-
-packet::~packet()
-{
-}
-
 connection::connection()
 {
 	fd = 0;
