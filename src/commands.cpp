@@ -474,6 +474,11 @@ void handle_topic(char **parameters, int pcnt, userrec *user)
 			Ptr = FindChan(parameters[0]);
 			if (Ptr)
 			{
+				if (((Ptr) && (!has_channel(user,Ptr))) && (Ptr->secret))
+				{
+					WriteServ(user->fd,"442 %s %s :You're not on that channel!",user->nick, Ptr->name);
+					return;
+				}
 				if (Ptr->topicset)
 				{
 					WriteServ(user->fd,"332 %s %s :%s", user->nick, Ptr->name, Ptr->topic);
@@ -498,6 +503,11 @@ void handle_topic(char **parameters, int pcnt, userrec *user)
 			Ptr = FindChan(parameters[0]);
 			if (Ptr)
 			{
+				if ((Ptr) && (!has_channel(user,Ptr)))
+				{
+					WriteServ(user->fd,"442 %s %s :You're not on that channel!",user->nick, Ptr->name);
+					return;
+				}
 				if ((Ptr->topiclock) && (cstatus(user,Ptr)<STATUS_HOP))
 				{
 					WriteServ(user->fd,"482 %s %s :You must be at least a half-operator to change modes on this channel", user->nick, Ptr->name);
@@ -538,7 +548,11 @@ void handle_names(char **parameters, int pcnt, userrec *user)
 	c = FindChan(parameters[0]);
 	if (c)
 	{
-		/*WriteServ(user->fd,"353 %s = %s :%s", user->nick, c->name,*/
+                if (((c) && (!has_channel(user,c))) && (c->secret))
+                {
+                      WriteServ(user->fd,"442 %s %s :You're not on that channel!",user->nick, c->name);
+                      return;
+                }
 		userlist(user,c);
 		WriteServ(user->fd,"366 %s %s :End of /NAMES list.", user->nick, c->name);
 	}
