@@ -17,7 +17,7 @@
 #include "channels.h"
 #include "modules.h"
 
-/* $ModDesc: Provides masking of user hostnames */
+/* $ModDesc: Provides support for unreal-style GLOBOPS and umode +g */
 
 Server *Srv;
 	 
