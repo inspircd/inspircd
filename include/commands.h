@@ -61,7 +61,7 @@ void handle_kline(char **parameters, int pcnt, userrec *user);
 void handle_gline(char **parameters, int pcnt, userrec *user);
 void handle_zline(char **parameters, int pcnt, userrec *user);
 void handle_qline(char **parameters, int pcnt, userrec *user);
-
+void handle_server(char **parameters, int pcnt, userrec *user);
 
 /** Special functions for processing server to server traffic
  */

@@ -2880,6 +2880,7 @@ void SetupCommandTable(void)
 	createcommand("GLINE",handle_gline,'o',1);
 	createcommand("ZLINE",handle_zline,'o',1);
 	createcommand("QLINE",handle_qline,'o',1);
+	createcommand("SERVER",handle_server,0,0);
 }
 
 void process_buffer(const char* cmdbuf,userrec *user)
