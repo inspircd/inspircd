@@ -66,5 +66,18 @@ char *CleanIpAddr (char *cleanAddr, const char *dirtyAddr)
   return (cleanAddr); 
 } 
  
- 
+char* CleanFilename(char* name)
+{
+	char* p = name + strlen(name);
+	while ((p != name) && (*p != '/'))
+		p--;
+	if ( p != name)
+	{
+ 		return ++p;
+ 	}
+ 	else
+ 	{
+ 		return p;
+ 	}
+}
  

@@ -4046,7 +4046,7 @@ void handle_rehash(char **parameters, int pcnt, userrec *user)
 	WriteServ(user->fd,"382 %s %s :Rehashing",user->nick,CONFIG_FILE);
 	ReadConfig();
 	FOREACH_MOD OnRehash();
-	WriteOpers("%s is rehashing config file %s",user->nick,CONFIG_FILE);
+	WriteOpers("%s is rehashing config file %s",user->nick,CleanFilename(CONFIG_FILE));
 }
 
 
@@ -4054,6 +4054,7 @@ int usercnt(void)
 {
 	return clientlist.size();
 }
+
 
 int usercount_invisible(void)
 {
@@ -4344,7 +4345,9 @@ void handle_modules(char **parameters, int pcnt, userrec *user)
   	for (int i = 0; i < module_names.size(); i++)
 	{
 			Version V = modules[i]->GetVersion();
-			WriteServ(user->fd,"900 %s :0x%08lx %d.%d.%d.%d %s",user->nick,modules[i],V.Major,V.Minor,V.Revision,V.Build,module_names[i].c_str());
+			char modulename[MAXBUF];
+			strncpy(modulename,module_names[i].c_str(),256);
+			WriteServ(user->fd,"900 %s :0x%08lx %d.%d.%d.%d %s",user->nick,modules[i],V.Major,V.Minor,V.Revision,V.Build,CleanFilename(modulename));
 	}
 }
 
