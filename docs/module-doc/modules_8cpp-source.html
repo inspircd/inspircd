@@ -164,8 +164,8 @@
 <a name="l00156"></a><a class="code" href="modules_8cpp.html#a43">00156</a> <span class="keyword">extern</span> <a class="code" href="modules_8cpp.html#a39">chan_hash</a> <a class="code" href="modules_8cpp.html#a43">chanlist</a>;
 <a name="l00157"></a><a class="code" href="modules_8cpp.html#a44">00157</a> <span class="keyword">extern</span> <a class="code" href="modules_8cpp.html#a38">user_hash</a> <a class="code" href="modules_8cpp.html#a44">whowas</a>;
 <a name="l00158"></a><a class="code" href="modules_8cpp.html#a45">00158</a> <span class="keyword">extern</span> <a class="code" href="modules_8cpp.html#a41">command_table</a> <a class="code" href="modules_8cpp.html#a45">cmdlist</a>;
-<a name="l00159"></a><a class="code" href="modules_8cpp.html#a46">00159</a> <span class="keyword">extern</span> <a class="code" href="modules_8h.html#a22">file_cache</a> <a class="code" href="modules_8cpp.html#a46">MOTD</a>;
-<a name="l00160"></a><a class="code" href="modules_8cpp.html#a47">00160</a> <span class="keyword">extern</span> <a class="code" href="modules_8h.html#a22">file_cache</a> <a class="code" href="modules_8cpp.html#a47">RULES</a>;
+<a name="l00159"></a><a class="code" href="modules_8cpp.html#a46">00159</a> <span class="keyword">extern</span> <a class="code" href="modules_8h.html#a26">file_cache</a> <a class="code" href="modules_8cpp.html#a46">MOTD</a>;
+<a name="l00160"></a><a class="code" href="modules_8cpp.html#a47">00160</a> <span class="keyword">extern</span> <a class="code" href="modules_8h.html#a26">file_cache</a> <a class="code" href="modules_8cpp.html#a47">RULES</a>;
 <a name="l00161"></a><a class="code" href="modules_8cpp.html#a48">00161</a> <span class="keyword">extern</span> <a class="code" href="modules_8cpp.html#a40">address_cache</a> <a class="code" href="modules_8cpp.html#a48">IP</a>;
 00162 
 00163 
@@ -310,8 +310,8 @@
 <a name="l00302"></a><a class="code" href="classModule.html#a17">00302</a> <span class="keywordtype">int</span> <a class="code" href="classModule.html#a17">Module::OnUserPreNotice</a>(<a class="code" href="classuserrec.html">userrec</a>* user,<span class="keywordtype">void</span>* dest,<span class="keywordtype">int</span> target_type, std::string text) { <span class="keywordflow">return</span> 0; };
 <a name="l00303"></a><a class="code" href="classModule.html#a18">00303</a> <span class="keywordtype">int</span> <a class="code" href="classModule.html#a18">Module::OnUserPreNick</a>(<a class="code" href="classuserrec.html">userrec</a>* user, std::string newnick) { <span class="keywordflow">return</span> 0; };
 <a name="l00304"></a><a class="code" href="classModule.html#a19">00304</a> <span class="keywordtype">int</span> <a class="code" href="classModule.html#a19">Module::OnAccessCheck</a>(<a class="code" href="classuserrec.html">userrec</a>* source,<a class="code" href="classuserrec.html">userrec</a>* dest,<a class="code" href="classchanrec.html">chanrec</a>* channel,<span class="keywordtype">int</span> access_type) { <span class="keywordflow">return</span> <a class="code" href="modules_8h.html#a8">ACR_DEFAULT</a>; };
-<a name="l00305"></a><a class="code" href="classModule.html#a20">00305</a> <a class="code" href="modules_8h.html#a23">string_list</a> <a class="code" href="classModule.html#a20">Module::OnUserSync</a>(<a class="code" href="classuserrec.html">userrec</a>* user) { <a class="code" href="modules_8h.html#a23">string_list</a> empty; <span class="keywordflow">return</span> empty; }
-<a name="l00306"></a><a class="code" href="classModule.html#a21">00306</a> <a class="code" href="modules_8h.html#a23">string_list</a> <a class="code" href="classModule.html#a21">Module::OnChannelSync</a>(<a class="code" href="classchanrec.html">chanrec</a>* chan) { <a class="code" href="modules_8h.html#a23">string_list</a> empty; <span class="keywordflow">return</span> empty; }
+<a name="l00305"></a><a class="code" href="classModule.html#a20">00305</a> <a class="code" href="modules_8h.html#a27">string_list</a> <a class="code" href="classModule.html#a20">Module::OnUserSync</a>(<a class="code" href="classuserrec.html">userrec</a>* user) { <a class="code" href="modules_8h.html#a27">string_list</a> empty; <span class="keywordflow">return</span> empty; }
+<a name="l00306"></a><a class="code" href="classModule.html#a21">00306</a> <a class="code" href="modules_8h.html#a27">string_list</a> <a class="code" href="classModule.html#a21">Module::OnChannelSync</a>(<a class="code" href="classchanrec.html">chanrec</a>* chan) { <a class="code" href="modules_8h.html#a27">string_list</a> empty; <span class="keywordflow">return</span> empty; }
 00307 
 00308 
 00309 <span class="comment">// server is a wrapper class that provides methods to all of the C-style</span>
@@ -354,9 +354,9 @@
 00346         <span class="keywordflow">return</span> del_channel(user,cname.c_str(),reason.c_str(),<span class="keyword">false</span>);
 00347 }
 00348 
-<a name="l00349"></a><a class="code" href="classServer.html#a35">00349</a> <a class="code" href="modules_8h.html#a24">chanuserlist</a> <a class="code" href="classServer.html#a35">Server::GetUsers</a>(<a class="code" href="classchanrec.html">chanrec</a>* chan)
+<a name="l00349"></a><a class="code" href="classServer.html#a35">00349</a> <a class="code" href="modules_8h.html#a28">chanuserlist</a> <a class="code" href="classServer.html#a35">Server::GetUsers</a>(<a class="code" href="classchanrec.html">chanrec</a>* chan)
 00350 {
-00351         <a class="code" href="modules_8h.html#a24">chanuserlist</a> userl;
+00351         <a class="code" href="modules_8h.html#a28">chanuserlist</a> userl;
 00352         userl.clear();
 00353         <span class="keywordflow">for</span> (user_hash::const_iterator i = <a class="code" href="modules_8cpp.html#a42">clientlist</a>.begin(); i != <a class="code" href="modules_8cpp.html#a42">clientlist</a>.end(); i++)
 00354         {
@@ -401,12 +401,12 @@
 00393 
 <a name="l00394"></a><a class="code" href="classServer.html#a23">00394</a> <span class="keywordtype">void</span> <a class="code" href="classServer.html#a23">Server::AddCommand</a>(<span class="keywordtype">char</span>* cmd, handlerfunc f, <span class="keywordtype">char</span> flags, <span class="keywordtype">int</span> minparams)
 00395 {
-00396         <a class="code" href="modules_8h.html#a26">createcommand</a>(cmd,f,flags,minparams);
+00396         <a class="code" href="modules_8h.html#a30">createcommand</a>(cmd,f,flags,minparams);
 00397 }
 00398 
 <a name="l00399"></a><a class="code" href="classServer.html#a24">00399</a> <span class="keywordtype">void</span> <a class="code" href="classServer.html#a24">Server::SendMode</a>(<span class="keywordtype">char</span> **parameters, <span class="keywordtype">int</span> pcnt, <a class="code" href="classuserrec.html">userrec</a> *user)
 00400 {
-00401         <a class="code" href="modules_8h.html#a27">server_mode</a>(parameters,pcnt,user);
+00401         <a class="code" href="modules_8h.html#a31">server_mode</a>(parameters,pcnt,user);
 00402 }
 00403 
 <a name="l00404"></a><a class="code" href="classServer.html#a4">00404</a> <span class="keywordtype">void</span> <a class="code" href="classServer.html#a4">Server::Send</a>(<span class="keywordtype">int</span> Socket, std::string s)
@@ -561,106 +561,168 @@
 <a name="l00553"></a><a class="code" href="classConfigReader.html#a0">00553</a> <a class="code" href="classConfigReader.html#a0">ConfigReader::ConfigReader</a>()
 00554 {
 00555         this-&gt;<a class="code" href="classConfigReader.html#n0">cache</a> = <span class="keyword">new</span> std::stringstream(std::stringstream::in | std::stringstream::out);
-00556         this-&gt;<a class="code" href="classConfigReader.html#n1">error</a> = LoadConf(CONFIG_FILE,this-&gt;cache);
-00557 }
-00558 
-00559 
-<a name="l00560"></a><a class="code" href="classConfigReader.html#a2">00560</a> <a class="code" href="classConfigReader.html#a2">ConfigReader::~ConfigReader</a>()
-00561 {
-00562         <span class="keywordflow">if</span> (this-&gt;<a class="code" href="classConfigReader.html#n0">cache</a>)
-00563                 <span class="keyword">delete</span> this-&gt;<a class="code" href="classConfigReader.html#n0">cache</a>;
-00564 }
-00565 
-00566 
-<a name="l00567"></a><a class="code" href="classConfigReader.html#a1">00567</a> <a class="code" href="classConfigReader.html#a0">ConfigReader::ConfigReader</a>(std::string filename)
-00568 {
-00569         this-&gt;<a class="code" href="classConfigReader.html#n0">cache</a> = <span class="keyword">new</span> std::stringstream(std::stringstream::in | std::stringstream::out);
-00570         this-&gt;<a class="code" href="classConfigReader.html#n1">error</a> = LoadConf(filename.c_str(),this-&gt;<a class="code" href="classConfigReader.html#n0">cache</a>);
-00571 };
-00572 
-<a name="l00573"></a><a class="code" href="classConfigReader.html#a3">00573</a> std::string <a class="code" href="classConfigReader.html#a3">ConfigReader::ReadValue</a>(std::string tag, std::string name, <span class="keywordtype">int</span> index)
-00574 {
-00575         <span class="keywordtype">char</span> val[MAXBUF];
-00576         <span class="keywordtype">char</span> t[MAXBUF];
-00577         <span class="keywordtype">char</span> n[MAXBUF];
-00578         strncpy(t,tag.c_str(),MAXBUF);
-00579         strncpy(n,name.c_str(),MAXBUF);
-00580         ReadConf(cache,t,n,index,val);
-00581         <span class="keywordflow">return</span> std::string(val);
-00582 }
-00583 
-00584 
-<a name="l00585"></a><a class="code" href="classConfigReader.html#a4">00585</a> <span class="keywordtype">int</span> <a class="code" href="classConfigReader.html#a4">ConfigReader::Enumerate</a>(std::string tag)
-00586 {
-00587         <span class="keywordflow">return</span> EnumConf(cache,tag.c_str());
-00588 }
-00589 
-<a name="l00590"></a><a class="code" href="classConfigReader.html#a6">00590</a> <span class="keywordtype">int</span> <a class="code" href="classConfigReader.html#a6">ConfigReader::EnumerateValues</a>(std::string tag, <span class="keywordtype">int</span> index)
-00591 {
-00592         <span class="keywordflow">return</span> EnumValues(cache, tag.c_str(), index);
-00593 }
-00594 
-<a name="l00595"></a><a class="code" href="classConfigReader.html#a5">00595</a> <span class="keywordtype">bool</span> <a class="code" href="classConfigReader.html#a5">ConfigReader::Verify</a>()
-00596 {
-00597         <span class="keywordflow">return</span> this-&gt;<a class="code" href="classConfigReader.html#n1">error</a>;
-00598 }
-00599 
-00600 
-<a name="l00601"></a><a class="code" href="classFileReader.html#a1">00601</a> <a class="code" href="classFileReader.html#a0">FileReader::FileReader</a>(std::string filename)
-00602 {
-00603         <a class="code" href="modules_8h.html#a22">file_cache</a> c;
-00604         readfile(c,filename.c_str());
-00605         this-&gt;<a class="code" href="classFileReader.html#o0">fc</a> = c;
-00606 }
-00607 
-<a name="l00608"></a><a class="code" href="classFileReader.html#a0">00608</a> <a class="code" href="classFileReader.html#a0">FileReader::FileReader</a>()
-00609 {
-00610 }
-00611 
-<a name="l00612"></a><a class="code" href="classFileReader.html#a3">00612</a> <span class="keywordtype">void</span> <a class="code" href="classFileReader.html#a3">FileReader::LoadFile</a>(std::string filename)
-00613 {
-00614         <a class="code" href="modules_8h.html#a22">file_cache</a> c;
-00615         readfile(c,filename.c_str());
-00616         this-&gt;<a class="code" href="classFileReader.html#o0">fc</a> = c;
-00617 }
-00618 
-00619 
-<a name="l00620"></a><a class="code" href="classFileReader.html#a2">00620</a> <a class="code" href="classFileReader.html#a2">FileReader::~FileReader</a>()
-00621 {
-00622 }
-00623 
-<a name="l00624"></a><a class="code" href="classFileReader.html#a4">00624</a> <span class="keywordtype">bool</span> <a class="code" href="classFileReader.html#a4">FileReader::Exists</a>()
-00625 {
-00626         <span class="keywordflow">if</span> (<a class="code" href="classFileReader.html#o0">fc</a>.size() == 0)
-00627         {
-00628                 <span class="keywordflow">return</span>(false);
-00629         }
-00630         <span class="keywordflow">else</span>
-00631         {
-00632                 <span class="keywordflow">return</span>(true);
-00633         }
-00634 }
-00635 
-<a name="l00636"></a><a class="code" href="classFileReader.html#a5">00636</a> std::string <a class="code" href="classFileReader.html#a5">FileReader::GetLine</a>(<span class="keywordtype">int</span> x)
-00637 {
-00638         <span class="keywordflow">if</span> ((x&lt;0) || (x&gt;<a class="code" href="classFileReader.html#o0">fc</a>.size()))
-00639                 <span class="keywordflow">return</span> <span class="stringliteral">""</span>;
-00640         <span class="keywordflow">return</span> <a class="code" href="classFileReader.html#o0">fc</a>[x];
-00641 }
-00642 
-<a name="l00643"></a><a class="code" href="classFileReader.html#a6">00643</a> <span class="keywordtype">int</span> <a class="code" href="classFileReader.html#a6">FileReader::FileSize</a>()
-00644 {
-00645         <span class="keywordflow">return</span> <a class="code" href="classFileReader.html#o0">fc</a>.size();
-00646 }
-00647 
-00648 
-00649 std::vector&lt;Module*&gt; <a class="code" href="modules_8cpp.html#a59">modules</a>(255);
-00650 std::vector&lt;ircd_module*&gt; <a class="code" href="modules_8cpp.html#a60">factory</a>(255);
+00556         this-&gt;<a class="code" href="classConfigReader.html#n1">readerror</a> = LoadConf(CONFIG_FILE,this-&gt;cache);
+00557         <span class="keywordflow">if</span> (!this-&gt;<a class="code" href="classConfigReader.html#n1">readerror</a>)
+00558                 this-&gt;<a class="code" href="classConfigReader.html#n2">error</a> = <a class="code" href="modules_8h.html#a25">CONF_FILE_NOT_FOUND</a>;
+00559 }
+00560 
+00561 
+<a name="l00562"></a><a class="code" href="classConfigReader.html#a2">00562</a> <a class="code" href="classConfigReader.html#a2">ConfigReader::~ConfigReader</a>()
+00563 {
+00564         <span class="keywordflow">if</span> (this-&gt;<a class="code" href="classConfigReader.html#n0">cache</a>)
+00565                 <span class="keyword">delete</span> this-&gt;<a class="code" href="classConfigReader.html#n0">cache</a>;
+00566 }
+00567 
+00568 
+<a name="l00569"></a><a class="code" href="classConfigReader.html#a1">00569</a> <a class="code" href="classConfigReader.html#a0">ConfigReader::ConfigReader</a>(std::string filename)
+00570 {
+00571         this-&gt;<a class="code" href="classConfigReader.html#n0">cache</a> = <span class="keyword">new</span> std::stringstream(std::stringstream::in | std::stringstream::out);
+00572         this-&gt;<a class="code" href="classConfigReader.html#n1">readerror</a> = LoadConf(filename.c_str(),this-&gt;<a class="code" href="classConfigReader.html#n0">cache</a>);
+00573         <span class="keywordflow">if</span> (!this-&gt;<a class="code" href="classConfigReader.html#n1">readerror</a>)
+00574                 this-&gt;<a class="code" href="classConfigReader.html#n2">error</a> = <a class="code" href="modules_8h.html#a25">CONF_FILE_NOT_FOUND</a>;
+00575 };
+00576 
+<a name="l00577"></a><a class="code" href="classConfigReader.html#a3">00577</a> std::string <a class="code" href="classConfigReader.html#a3">ConfigReader::ReadValue</a>(std::string tag, std::string name, <span class="keywordtype">int</span> index)
+00578 {
+00579         <span class="keywordtype">char</span> val[MAXBUF];
+00580         <span class="keywordtype">char</span> t[MAXBUF];
+00581         <span class="keywordtype">char</span> n[MAXBUF];
+00582         strncpy(t,tag.c_str(),MAXBUF);
+00583         strncpy(n,name.c_str(),MAXBUF);
+00584         <span class="keywordtype">int</span> res = ReadConf(cache,t,n,index,val);
+00585         <span class="keywordflow">if</span> (!res)
+00586         {
+00587                 this-&gt;<a class="code" href="classConfigReader.html#n2">error</a> = <a class="code" href="modules_8h.html#a24">CONF_VALUE_NOT_FOUND</a>;
+00588                 <span class="keywordflow">return</span> <span class="stringliteral">""</span>;
+00589         }
+00590         <span class="keywordflow">return</span> std::string(val);
+00591 }
+00592 
+<a name="l00593"></a><a class="code" href="classConfigReader.html#a4">00593</a> <span class="keywordtype">bool</span> <a class="code" href="classConfigReader.html#a4">ConfigReader::ReadFlag</a>(std::string tag, std::string name, <span class="keywordtype">int</span> index)
+00594 {
+00595         <span class="keywordtype">char</span> val[MAXBUF];
+00596         <span class="keywordtype">char</span> t[MAXBUF];
+00597         <span class="keywordtype">char</span> n[MAXBUF];
+00598         strncpy(t,tag.c_str(),MAXBUF);
+00599         strncpy(n,name.c_str(),MAXBUF);
+00600         <span class="keywordtype">int</span> res = ReadConf(cache,t,n,index,val);
+00601         <span class="keywordflow">if</span> (!res)
+00602         {
+00603                 this-&gt;<a class="code" href="classConfigReader.html#n2">error</a> = <a class="code" href="modules_8h.html#a24">CONF_VALUE_NOT_FOUND</a>;
+00604                 <span class="keywordflow">return</span> <span class="keyword">false</span>;
+00605         }
+00606         std::string s = val;
+00607         <span class="keywordflow">return</span> ((s == <span class="stringliteral">"yes"</span>) || (s == <span class="stringliteral">"YES"</span>) || (s == <span class="stringliteral">"true"</span>) || (s == <span class="stringliteral">"TRUE"</span>) || (s == <span class="stringliteral">"1"</span>));
+00608 }
+00609 
+<a name="l00610"></a><a class="code" href="classConfigReader.html#a5">00610</a> <span class="keywordtype">long</span> <a class="code" href="classConfigReader.html#a5">ConfigReader::ReadInteger</a>(std::string tag, std::string name, <span class="keywordtype">int</span> index, <span class="keywordtype">bool</span> needs_unsigned)
+00611 {
+00612         <span class="keywordtype">char</span> val[MAXBUF];
+00613         <span class="keywordtype">char</span> t[MAXBUF];
+00614         <span class="keywordtype">char</span> n[MAXBUF];
+00615         strncpy(t,tag.c_str(),MAXBUF);
+00616         strncpy(n,name.c_str(),MAXBUF);
+00617         <span class="keywordtype">int</span> res = ReadConf(cache,t,n,index,val);
+00618         <span class="keywordflow">if</span> (!res)
+00619         {
+00620                 this-&gt;<a class="code" href="classConfigReader.html#n2">error</a> = <a class="code" href="modules_8h.html#a24">CONF_VALUE_NOT_FOUND</a>;
+00621                 <span class="keywordflow">return</span> 0;
+00622         }
+00623         <span class="keywordflow">for</span> (<span class="keywordtype">int</span> i = 0; i &lt; strlen(val); i++)
+00624         {
+00625                 <span class="keywordflow">if</span> (!isdigit(val[i]))
+00626                 {
+00627                         this-&gt;<a class="code" href="classConfigReader.html#n2">error</a> = <a class="code" href="modules_8h.html#a22">CONF_NOT_A_NUMBER</a>;
+00628                         <span class="keywordflow">return</span> 0;
+00629                 }
+00630         }
+00631         <span class="keywordflow">if</span> ((needs_unsigned) &amp;&amp; (atoi(val)&lt;0))
+00632         {
+00633                 this-&gt;<a class="code" href="classConfigReader.html#n2">error</a> = <a class="code" href="modules_8h.html#a23">CONF_NOT_UNSIGNED</a>;
+00634                 <span class="keywordflow">return</span> 0;
+00635         }
+00636         <span class="keywordflow">return</span> atoi(val);
+00637 }
+00638 
+<a name="l00639"></a><a class="code" href="classConfigReader.html#a6">00639</a> <span class="keywordtype">long</span> <a class="code" href="classConfigReader.html#a6">ConfigReader::GetError</a>()
+00640 {
+00641         <span class="keywordtype">long</span> olderr = this-&gt;<a class="code" href="classConfigReader.html#n2">error</a>;
+00642         this-&gt;error = 0;
+00643         <span class="keywordflow">return</span> olderr;
+00644 }
+00645 
+00646 
+<a name="l00647"></a><a class="code" href="classConfigReader.html#a7">00647</a> <span class="keywordtype">int</span> <a class="code" href="classConfigReader.html#a7">ConfigReader::Enumerate</a>(std::string tag)
+00648 {
+00649         <span class="keywordflow">return</span> EnumConf(cache,tag.c_str());
+00650 }
 00651 
-<a name="l00652"></a><a class="code" href="modules_8cpp.html#a1">00652</a> <span class="keywordtype">int</span> <a class="code" href="modules_8cpp.html#a1">MODCOUNT</a>  = -1;
-00653 
-00654 
-</pre></div><hr><address style="align: right;"><small>Generated on Sat May 1 17:50:06 2004 for InspIRCd by
+<a name="l00652"></a><a class="code" href="classConfigReader.html#a9">00652</a> <span class="keywordtype">int</span> <a class="code" href="classConfigReader.html#a9">ConfigReader::EnumerateValues</a>(std::string tag, <span class="keywordtype">int</span> index)
+00653 {
+00654         <span class="keywordflow">return</span> EnumValues(cache, tag.c_str(), index);
+00655 }
+00656 
+<a name="l00657"></a><a class="code" href="classConfigReader.html#a8">00657</a> <span class="keywordtype">bool</span> <a class="code" href="classConfigReader.html#a8">ConfigReader::Verify</a>()
+00658 {
+00659         <span class="keywordflow">return</span> this-&gt;<a class="code" href="classConfigReader.html#n1">readerror</a>;
+00660 }
+00661 
+00662 
+<a name="l00663"></a><a class="code" href="classFileReader.html#a1">00663</a> <a class="code" href="classFileReader.html#a0">FileReader::FileReader</a>(std::string filename)
+00664 {
+00665         <a class="code" href="modules_8h.html#a26">file_cache</a> c;
+00666         readfile(c,filename.c_str());
+00667         this-&gt;<a class="code" href="classFileReader.html#o0">fc</a> = c;
+00668 }
+00669 
+<a name="l00670"></a><a class="code" href="classFileReader.html#a0">00670</a> <a class="code" href="classFileReader.html#a0">FileReader::FileReader</a>()
+00671 {
+00672 }
+00673 
+<a name="l00674"></a><a class="code" href="classFileReader.html#a3">00674</a> <span class="keywordtype">void</span> <a class="code" href="classFileReader.html#a3">FileReader::LoadFile</a>(std::string filename)
+00675 {
+00676         <a class="code" href="modules_8h.html#a26">file_cache</a> c;
+00677         readfile(c,filename.c_str());
+00678         this-&gt;<a class="code" href="classFileReader.html#o0">fc</a> = c;
+00679 }
+00680 
+00681 
+<a name="l00682"></a><a class="code" href="classFileReader.html#a2">00682</a> <a class="code" href="classFileReader.html#a2">FileReader::~FileReader</a>()
+00683 {
+00684 }
+00685 
+<a name="l00686"></a><a class="code" href="classFileReader.html#a4">00686</a> <span class="keywordtype">bool</span> <a class="code" href="classFileReader.html#a4">FileReader::Exists</a>()
+00687 {
+00688         <span class="keywordflow">if</span> (<a class="code" href="classFileReader.html#o0">fc</a>.size() == 0)
+00689         {
+00690                 <span class="keywordflow">return</span>(false);
+00691         }
+00692         <span class="keywordflow">else</span>
+00693         {
+00694                 <span class="keywordflow">return</span>(true);
+00695         }
+00696 }
+00697 
+<a name="l00698"></a><a class="code" href="classFileReader.html#a5">00698</a> std::string <a class="code" href="classFileReader.html#a5">FileReader::GetLine</a>(<span class="keywordtype">int</span> x)
+00699 {
+00700         <span class="keywordflow">if</span> ((x&lt;0) || (x&gt;<a class="code" href="classFileReader.html#o0">fc</a>.size()))
+00701                 <span class="keywordflow">return</span> <span class="stringliteral">""</span>;
+00702         <span class="keywordflow">return</span> <a class="code" href="classFileReader.html#o0">fc</a>[x];
+00703 }
+00704 
+<a name="l00705"></a><a class="code" href="classFileReader.html#a6">00705</a> <span class="keywordtype">int</span> <a class="code" href="classFileReader.html#a6">FileReader::FileSize</a>()
+00706 {
+00707         <span class="keywordflow">return</span> <a class="code" href="classFileReader.html#o0">fc</a>.size();
+00708 }
+00709 
+00710 
+00711 std::vector&lt;Module*&gt; <a class="code" href="modules_8cpp.html#a59">modules</a>(255);
+00712 std::vector&lt;ircd_module*&gt; <a class="code" href="modules_8cpp.html#a60">factory</a>(255);
+00713 
+<a name="l00714"></a><a class="code" href="modules_8cpp.html#a1">00714</a> <span class="keywordtype">int</span> <a class="code" href="modules_8cpp.html#a1">MODCOUNT</a>  = -1;
+00715 
+00716 
+</pre></div><hr><address style="align: right;"><small>Generated on Sat May 1 20:57:47 2004 for InspIRCd by
 <a href="http://www.doxygen.org/index.html">
 <img src="doxygen.png" alt="doxygen" align="middle" border=0 
 width=110 height=53></a>1.3-rc3 </small></address>

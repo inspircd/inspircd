@@ -92,7 +92,7 @@ Inheritance diagram for Server:<p><center><img src="classServer__inherit__graph.
 <tr><td>&nbsp;</td><td><font size=-1><em>Change GECOS (fullname) of a user.</em> <a href="#a33"></a><em></em></font><br><br></td></tr>
 <tr><td nowrap align=right valign=top>virtual bool&nbsp;</td><td valign=bottom><a class="el" href="classServer.html#a34">IsUlined</a> (std::string server)</td></tr>
 <tr><td>&nbsp;</td><td><font size=-1><em>Returns true if the servername you give is ulined.</em> <a href="#a34"></a><em></em></font><br><br></td></tr>
-<tr><td nowrap align=right valign=top>virtual <a class="el" href="modules_8h.html#a24">chanuserlist</a>&nbsp;</td><td valign=bottom><a class="el" href="classServer.html#a35">GetUsers</a> (<a class="el" href="classchanrec.html">chanrec</a> *chan)</td></tr>
+<tr><td nowrap align=right valign=top>virtual <a class="el" href="modules_8h.html#a28">chanuserlist</a>&nbsp;</td><td valign=bottom><a class="el" href="classServer.html#a35">GetUsers</a> (<a class="el" href="classchanrec.html">chanrec</a> *chan)</td></tr>
 <tr><td>&nbsp;</td><td><font size=-1><em>Fetches the userlist of a channel.</em> <a href="#a35"></a><em></em></font><br><br></td></tr>
 </table>
 <hr><a name="_details"></a><h2>Detailed Description</h2>
@@ -231,10 +231,10 @@ When the command is typed, the parameters will be placed into the parameters arr
 <p>
 Definition at line <a class="el" href="modules_8cpp-source.html#l00394">394</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
 <p>
-References <a class="el" href="modules_8h.html#a26">createcommand()</a>.
+References <a class="el" href="modules_8h.html#a30">createcommand()</a>.
 <p>
 <div class="fragment"><pre>00395 {
-00396         <a class="code" href="modules_8h.html#a26">createcommand</a>(cmd,f,flags,minparams);
+00396         <a class="code" href="modules_8h.html#a30">createcommand</a>(cmd,f,flags,minparams);
 00397 }
 </pre></div>    </td>
   </tr>
@@ -903,7 +903,7 @@ Definition at line <a class="el" href="modules_8cpp-source.html#l00502">502</a> 
     <td class="md">
       <table cellpadding="0" cellspacing="0" border="0">
         <tr>
-          <td class="md" nowrap valign="top"> <a class="el" href="modules_8h.html#a24">chanuserlist</a> Server::GetUsers </td>
+          <td class="md" nowrap valign="top"> <a class="el" href="modules_8h.html#a28">chanuserlist</a> Server::GetUsers </td>
           <td class="md" valign="top">(&nbsp;</td>
           <td class="md" nowrap valign="top"><a class="el" href="classchanrec.html">chanrec</a> *&nbsp;</td>
           <td class="mdname1" valign="top" nowrap>&nbsp; <em>chan</em>          </td>
@@ -932,7 +932,7 @@ Definition at line <a class="el" href="modules_8cpp-source.html#l00349">349</a> 
 References <a class="el" href="modules_8h-source.html#l00055">chanuserlist</a>, <a class="el" href="modules_8cpp-source.html#l00155">clientlist</a>, <a class="el" href="message_8h.html#a16">has_channel()</a>, and <a class="el" href="message_8h.html#a13">isnick()</a>.
 <p>
 <div class="fragment"><pre>00350 {
-00351         <a class="code" href="modules_8h.html#a24">chanuserlist</a> userl;
+00351         <a class="code" href="modules_8h.html#a28">chanuserlist</a> userl;
 00352         userl.clear();
 00353         <span class="keywordflow">for</span> (user_hash::const_iterator i = <a class="code" href="modules_8cpp.html#a42">clientlist</a>.begin(); i != <a class="code" href="modules_8cpp.html#a42">clientlist</a>.end(); i++)
 00354         {
@@ -1616,10 +1616,10 @@ The modes will originate from the server where the command was issued, however r
 <p>
 Definition at line <a class="el" href="modules_8cpp-source.html#l00399">399</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
 <p>
-References <a class="el" href="modules_8h.html#a27">server_mode()</a>.
+References <a class="el" href="modules_8h.html#a31">server_mode()</a>.
 <p>
 <div class="fragment"><pre>00400 {
-00401         <a class="code" href="modules_8h.html#a27">server_mode</a>(parameters,pcnt,user);
+00401         <a class="code" href="modules_8h.html#a31">server_mode</a>(parameters,pcnt,user);
 00402 }
 </pre></div>    </td>
   </tr>
@@ -1881,7 +1881,7 @@ Definition at line <a class="el" href="modules_8cpp-source.html#l00462">462</a> 
 </table>
 <hr>The documentation for this class was generated from the following files:<ul>
 <li><a class="el" href="modules_8h-source.html">modules.h</a><li><a class="el" href="modules_8cpp-source.html">modules.cpp</a></ul>
-<hr><address style="align: right;"><small>Generated on Sat May 1 17:50:33 2004 for InspIRCd by
+<hr><address style="align: right;"><small>Generated on Sat May 1 20:58:14 2004 for InspIRCd by
 <a href="http://www.doxygen.org/index.html">
 <img src="doxygen.png" alt="doxygen" align="middle" border=0 
 width=110 height=53></a>1.3-rc3 </small></address>

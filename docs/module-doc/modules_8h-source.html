@@ -53,10 +53,10 @@
 00045 <span class="preprocessor">#include &lt;deque&gt;</span>
 00046 <span class="preprocessor">#include &lt;sstream&gt;</span>
 00047 
-<a name="l00050"></a><a class="code" href="modules_8h.html#a22">00050</a> <span class="keyword">typedef</span> std::deque&lt;std::string&gt; <a class="code" href="modules_8h.html#a22">file_cache</a>;
-<a name="l00051"></a><a class="code" href="modules_8h.html#a23">00051</a> <span class="keyword">typedef</span> <a class="code" href="modules_8h.html#a22">file_cache</a> <a class="code" href="modules_8h.html#a23">string_list</a>;
+<a name="l00050"></a><a class="code" href="modules_8h.html#a26">00050</a> <span class="keyword">typedef</span> std::deque&lt;std::string&gt; <a class="code" href="modules_8h.html#a26">file_cache</a>;
+<a name="l00051"></a><a class="code" href="modules_8h.html#a27">00051</a> <span class="keyword">typedef</span> <a class="code" href="modules_8h.html#a26">file_cache</a> <a class="code" href="modules_8h.html#a27">string_list</a>;
 00052 
-<a name="l00055"></a><a class="code" href="modules_8h.html#a24">00055</a> <span class="keyword">typedef</span> std::deque&lt;userrec*&gt; <a class="code" href="modules_8h.html#a24">chanuserlist</a>;
+<a name="l00055"></a><a class="code" href="modules_8h.html#a28">00055</a> <span class="keyword">typedef</span> std::deque&lt;userrec*&gt; <a class="code" href="modules_8h.html#a28">chanuserlist</a>;
 00056 
 00057 
 00058 <span class="comment">// This #define allows us to call a method in all</span>
@@ -83,8 +83,8 @@
 00079 <span class="preprocessor"></span>   
 00080 <span class="comment">// *********************************************************************************************</span>
 00081 
-00082 <span class="keyword">extern</span> <span class="keywordtype">void</span> <a class="code" href="modules_8h.html#a26">createcommand</a>(<span class="keywordtype">char</span>* cmd, handlerfunc f, <span class="keywordtype">char</span> flags, <span class="keywordtype">int</span> minparams);
-00083 <span class="keyword">extern</span> <span class="keywordtype">void</span> <a class="code" href="modules_8h.html#a27">server_mode</a>(<span class="keywordtype">char</span> **parameters, <span class="keywordtype">int</span> pcnt, <a class="code" href="classuserrec.html">userrec</a> *user);
+00082 <span class="keyword">extern</span> <span class="keywordtype">void</span> <a class="code" href="modules_8h.html#a30">createcommand</a>(<span class="keywordtype">char</span>* cmd, handlerfunc f, <span class="keywordtype">char</span> flags, <span class="keywordtype">int</span> minparams);
+00083 <span class="keyword">extern</span> <span class="keywordtype">void</span> <a class="code" href="modules_8h.html#a31">server_mode</a>(<span class="keywordtype">char</span> **parameters, <span class="keywordtype">int</span> pcnt, <a class="code" href="classuserrec.html">userrec</a> *user);
 00084 
 00085 <span class="comment">// class Version holds the version information of a Module, returned</span>
 00086 <span class="comment">// by Module::GetVersion (thanks RD)</span>
@@ -147,9 +147,9 @@
 00267         <span class="keyword">virtual</span> <span class="keywordtype">int</span> <a class="code" href="classModule.html#a18">OnUserPreNick</a>(<a class="code" href="classuserrec.html">userrec</a>* user, std::string newnick);
 00268         
 00291         <span class="keyword">virtual</span> <span class="keywordtype">int</span> <a class="code" href="classModule.html#a19">OnAccessCheck</a>(<a class="code" href="classuserrec.html">userrec</a>* source,<a class="code" href="classuserrec.html">userrec</a>* dest,<a class="code" href="classchanrec.html">chanrec</a>* channel,<span class="keywordtype">int</span> access_type);
-00297         <span class="keyword">virtual</span> <a class="code" href="modules_8h.html#a23">string_list</a> <a class="code" href="classModule.html#a20">OnUserSync</a>(<a class="code" href="classuserrec.html">userrec</a>* user);
+00297         <span class="keyword">virtual</span> <a class="code" href="modules_8h.html#a27">string_list</a> <a class="code" href="classModule.html#a20">OnUserSync</a>(<a class="code" href="classuserrec.html">userrec</a>* user);
 00298 
-00304         <span class="keyword">virtual</span> <a class="code" href="modules_8h.html#a23">string_list</a> <a class="code" href="classModule.html#a21">OnChannelSync</a>(<a class="code" href="classchanrec.html">chanrec</a>* chan);
+00304         <span class="keyword">virtual</span> <a class="code" href="modules_8h.html#a27">string_list</a> <a class="code" href="classModule.html#a21">OnChannelSync</a>(<a class="code" href="classchanrec.html">chanrec</a>* chan);
 00305 };
 00306 
 00307 
@@ -207,62 +207,71 @@
 00588         
 00597         <span class="keyword">virtual</span> <span class="keywordtype">bool</span> <a class="code" href="classServer.html#a34">IsUlined</a>(std::string server);
 00598         
-00602         <span class="keyword">virtual</span> <a class="code" href="modules_8h.html#a24">chanuserlist</a> <a class="code" href="classServer.html#a35">GetUsers</a>(<a class="code" href="classchanrec.html">chanrec</a>* chan);
+00602         <span class="keyword">virtual</span> <a class="code" href="modules_8h.html#a28">chanuserlist</a> <a class="code" href="classServer.html#a35">GetUsers</a>(<a class="code" href="classchanrec.html">chanrec</a>* chan);
 00603 
 00604 };
 00605 
-<a name="l00612"></a><a class="code" href="classConfigReader.html">00612</a> <span class="keyword">class </span><a class="code" href="classConfigReader.html">ConfigReader</a> : <span class="keyword">public</span> <a class="code" href="classclassbase.html">classbase</a>
-00613 {
-00614   <span class="keyword">protected</span>:
-<a name="l00620"></a><a class="code" href="classConfigReader.html#n0">00620</a>         std::stringstream *<a class="code" href="classConfigReader.html#n0">cache</a>;
-<a name="l00623"></a><a class="code" href="classConfigReader.html#n1">00623</a>         <span class="keywordtype">bool</span> <a class="code" href="classConfigReader.html#n1">error</a>;
-00624         
-00625   <span class="keyword">public</span>:
-00630         <a class="code" href="classConfigReader.html#a0">ConfigReader</a>();                 <span class="comment">// default constructor reads ircd.conf</span>
-00634 <span class="comment"></span>        <a class="code" href="classConfigReader.html#a0">ConfigReader</a>(std::string filename);     <span class="comment">// read a module-specific config</span>
-00638 <span class="comment"></span>        <a class="code" href="classConfigReader.html#a2">~ConfigReader</a>();
-00643         std::string <a class="code" href="classConfigReader.html#a3">ReadValue</a>(std::string tag, std::string name, <span class="keywordtype">int</span> index);
-00650         <span class="keywordtype">int</span> <a class="code" href="classConfigReader.html#a4">Enumerate</a>(std::string tag);
-00655         <span class="keywordtype">bool</span> <a class="code" href="classConfigReader.html#a5">Verify</a>();
-00656 
-00662         <span class="keywordtype">int</span> <a class="code" href="classConfigReader.html#a6">EnumerateValues</a>(std::string tag, <span class="keywordtype">int</span> index);
-00663 };
-00664 
-00665 
-00666 
-<a name="l00672"></a><a class="code" href="classFileReader.html">00672</a> <span class="keyword">class </span><a class="code" href="classFileReader.html">FileReader</a> : <span class="keyword">public</span> <a class="code" href="classclassbase.html">classbase</a>
-00673 {
-<a name="l00674"></a><a class="code" href="classFileReader.html#o0">00674</a>  <a class="code" href="modules_8h.html#a22">file_cache</a> <a class="code" href="classFileReader.html#o0">fc</a>;
-00675  <span class="keyword">public</span>:
-00680          <a class="code" href="classFileReader.html#a0">FileReader</a>();
-00681 
-00687          <a class="code" href="classFileReader.html#a0">FileReader</a>(std::string filename);
-00688 
-00692          <a class="code" href="classFileReader.html#a2">~FileReader</a>();
-00693 
-00699          <span class="keywordtype">void</span> <a class="code" href="classFileReader.html#a3">LoadFile</a>(std::string filename);
-00700 
-00704          <span class="keywordtype">bool</span> <a class="code" href="classFileReader.html#a4">Exists</a>();
-00705          
-00710          std::string <a class="code" href="classFileReader.html#a5">GetLine</a>(<span class="keywordtype">int</span> x);
-00711 
-00717          <span class="keywordtype">int</span> <a class="code" href="classFileReader.html#a6">FileSize</a>();
-00718 };
+<a name="l00606"></a><a class="code" href="modules_8h.html#a22">00606</a> <span class="preprocessor">#define CONF_NOT_A_NUMBER       0x000010</span>
+<a name="l00607"></a><a class="code" href="modules_8h.html#a23">00607</a> <span class="preprocessor"></span><span class="preprocessor">#define CONF_NOT_UNSIGNED       0x000080</span>
+<a name="l00608"></a><a class="code" href="modules_8h.html#a24">00608</a> <span class="preprocessor"></span><span class="preprocessor">#define CONF_VALUE_NOT_FOUND    0x000100</span>
+<a name="l00609"></a><a class="code" href="modules_8h.html#a25">00609</a> <span class="preprocessor"></span><span class="preprocessor">#define CONF_FILE_NOT_FOUND     0x000200</span>
+00610 <span class="preprocessor"></span>
+<a name="l00617"></a><a class="code" href="classConfigReader.html">00617</a> <span class="keyword">class </span><a class="code" href="classConfigReader.html">ConfigReader</a> : <span class="keyword">public</span> <a class="code" href="classclassbase.html">classbase</a>
+00618 {
+00619   <span class="keyword">protected</span>:
+<a name="l00625"></a><a class="code" href="classConfigReader.html#n0">00625</a>         std::stringstream *<a class="code" href="classConfigReader.html#n0">cache</a>;
+<a name="l00628"></a><a class="code" href="classConfigReader.html#n1">00628</a>         <span class="keywordtype">bool</span> <a class="code" href="classConfigReader.html#n1">readerror</a>;
+<a name="l00629"></a><a class="code" href="classConfigReader.html#n2">00629</a>         <span class="keywordtype">long</span> <a class="code" href="classConfigReader.html#n2">error</a>;
+00630         
+00631   <span class="keyword">public</span>:
+00636         <a class="code" href="classConfigReader.html#a0">ConfigReader</a>();                 <span class="comment">// default constructor reads ircd.conf</span>
+00640 <span class="comment"></span>        <a class="code" href="classConfigReader.html#a0">ConfigReader</a>(std::string filename);     <span class="comment">// read a module-specific config</span>
+00644 <span class="comment"></span>        <a class="code" href="classConfigReader.html#a2">~ConfigReader</a>();
+00649         std::string <a class="code" href="classConfigReader.html#a3">ReadValue</a>(std::string tag, std::string name, <span class="keywordtype">int</span> index);
+00655         <span class="keywordtype">bool</span> <a class="code" href="classConfigReader.html#a4">ReadFlag</a>(std::string tag, std::string name, <span class="keywordtype">int</span> index);
+00664         <span class="keywordtype">long</span> <a class="code" href="classConfigReader.html#a5">ReadInteger</a>(std::string tag, std::string name, <span class="keywordtype">int</span> index, <span class="keywordtype">bool</span> needs_unsigned);
+00669         <span class="keywordtype">long</span> <a class="code" href="classConfigReader.html#a6">GetError</a>();
+00676         <span class="keywordtype">int</span> <a class="code" href="classConfigReader.html#a7">Enumerate</a>(std::string tag);
+00681         <span class="keywordtype">bool</span> <a class="code" href="classConfigReader.html#a8">Verify</a>();
+00682 
+00688         <span class="keywordtype">int</span> <a class="code" href="classConfigReader.html#a9">EnumerateValues</a>(std::string tag, <span class="keywordtype">int</span> index);
+00689 };
+00690 
+00691 
+00692 
+<a name="l00698"></a><a class="code" href="classFileReader.html">00698</a> <span class="keyword">class </span><a class="code" href="classFileReader.html">FileReader</a> : <span class="keyword">public</span> <a class="code" href="classclassbase.html">classbase</a>
+00699 {
+<a name="l00700"></a><a class="code" href="classFileReader.html#o0">00700</a>  <a class="code" href="modules_8h.html#a26">file_cache</a> <a class="code" href="classFileReader.html#o0">fc</a>;
+00701  <span class="keyword">public</span>:
+00706          <a class="code" href="classFileReader.html#a0">FileReader</a>();
+00707 
+00713          <a class="code" href="classFileReader.html#a0">FileReader</a>(std::string filename);
+00714 
+00718          <a class="code" href="classFileReader.html#a2">~FileReader</a>();
 00719 
-00720 
-<a name="l00727"></a><a class="code" href="classModuleFactory.html">00727</a> <span class="keyword">class </span><a class="code" href="classModuleFactory.html">ModuleFactory</a> : <span class="keyword">public</span> <a class="code" href="classclassbase.html">classbase</a>
-00728 {
-00729  <span class="keyword">public</span>:
-<a name="l00730"></a><a class="code" href="classModuleFactory.html#a0">00730</a>         <a class="code" href="classModuleFactory.html#a0">ModuleFactory</a>() { }
-<a name="l00731"></a><a class="code" href="classModuleFactory.html#a1">00731</a>         <span class="keyword">virtual</span> <a class="code" href="classModuleFactory.html#a1">~ModuleFactory</a>() { }
-00736         <span class="keyword">virtual</span> <a class="code" href="classModule.html">Module</a> * <a class="code" href="classModuleFactory.html#a2">CreateModule</a>() = 0;
-00737 };
-00738 
-00739 
-<a name="l00740"></a><a class="code" href="modules_8h.html#a25">00740</a> <span class="keyword">typedef</span> DLLFactory&lt;ModuleFactory&gt; <a class="code" href="modules_8h.html#a25">ircd_module</a>;
-00741 
-00742 <span class="preprocessor">#endif</span>
-</pre></div><hr><address style="align: right;"><small>Generated on Sat May 1 17:50:07 2004 for InspIRCd by
+00725          <span class="keywordtype">void</span> <a class="code" href="classFileReader.html#a3">LoadFile</a>(std::string filename);
+00726 
+00730          <span class="keywordtype">bool</span> <a class="code" href="classFileReader.html#a4">Exists</a>();
+00731          
+00736          std::string <a class="code" href="classFileReader.html#a5">GetLine</a>(<span class="keywordtype">int</span> x);
+00737 
+00743          <span class="keywordtype">int</span> <a class="code" href="classFileReader.html#a6">FileSize</a>();
+00744 };
+00745 
+00746 
+<a name="l00753"></a><a class="code" href="classModuleFactory.html">00753</a> <span class="keyword">class </span><a class="code" href="classModuleFactory.html">ModuleFactory</a> : <span class="keyword">public</span> <a class="code" href="classclassbase.html">classbase</a>
+00754 {
+00755  <span class="keyword">public</span>:
+<a name="l00756"></a><a class="code" href="classModuleFactory.html#a0">00756</a>         <a class="code" href="classModuleFactory.html#a0">ModuleFactory</a>() { }
+<a name="l00757"></a><a class="code" href="classModuleFactory.html#a1">00757</a>         <span class="keyword">virtual</span> <a class="code" href="classModuleFactory.html#a1">~ModuleFactory</a>() { }
+00762         <span class="keyword">virtual</span> <a class="code" href="classModule.html">Module</a> * <a class="code" href="classModuleFactory.html#a2">CreateModule</a>() = 0;
+00763 };
+00764 
+00765 
+<a name="l00766"></a><a class="code" href="modules_8h.html#a29">00766</a> <span class="keyword">typedef</span> DLLFactory&lt;ModuleFactory&gt; <a class="code" href="modules_8h.html#a29">ircd_module</a>;
+00767 
+00768 <span class="preprocessor">#endif</span>
+</pre></div><hr><address style="align: right;"><small>Generated on Sat May 1 20:57:47 2004 for InspIRCd by
 <a href="http://www.doxygen.org/index.html">
 <img src="doxygen.png" alt="doxygen" align="middle" border=0 
 width=110 height=53></a>1.3-rc3 </small></address>

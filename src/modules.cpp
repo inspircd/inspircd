@@ -553,7 +553,9 @@ int Server::CountUsers(chanrec* c)
 ConfigReader::ConfigReader()
 {
 	this->cache = new std::stringstream(std::stringstream::in | std::stringstream::out);
-	this->error = LoadConf(CONFIG_FILE,this->cache);
+	this->readerror = LoadConf(CONFIG_FILE,this->cache);
+	if (!this->readerror)
+		this->error = CONF_FILE_NOT_FOUND;
 }
 
 
@@ -567,7 +569,9 @@ ConfigReader::~ConfigReader()
 ConfigReader::ConfigReader(std::string filename)
 {
 	this->cache = new std::stringstream(std::stringstream::in | std::stringstream::out);
-	this->error = LoadConf(filename.c_str(),this->cache);
+	this->readerror = LoadConf(filename.c_str(),this->cache);
+	if (!this->readerror)
+		this->error = CONF_FILE_NOT_FOUND;
 };
 
 std::string ConfigReader::ReadValue(std::string tag, std::string name, int index)
@@ -577,8 +581,66 @@ std::string ConfigReader::ReadValue(std::string tag, std::string name, int index
 	char n[MAXBUF];
 	strncpy(t,tag.c_str(),MAXBUF);
 	strncpy(n,name.c_str(),MAXBUF);
-	ReadConf(cache,t,n,index,val);
+	int res = ReadConf(cache,t,n,index,val);
+	if (!res)
+	{
+		this->error = CONF_VALUE_NOT_FOUND;
+		return "";
+	}
 	return std::string(val);
+}
+
+bool ConfigReader::ReadFlag(std::string tag, std::string name, int index)
+{
+	char val[MAXBUF];
+	char t[MAXBUF];
+	char n[MAXBUF];
+	strncpy(t,tag.c_str(),MAXBUF);
+	strncpy(n,name.c_str(),MAXBUF);
+	int res = ReadConf(cache,t,n,index,val);
+	if (!res)
+	{
+		this->error = CONF_VALUE_NOT_FOUND;
+		return false;
+	}
+	std::string s = val;
+	return ((s == "yes") || (s == "YES") || (s == "true") || (s == "TRUE") || (s == "1"));
+}
+
+long ConfigReader::ReadInteger(std::string tag, std::string name, int index, bool needs_unsigned)
+{
+	char val[MAXBUF];
+	char t[MAXBUF];
+	char n[MAXBUF];
+	strncpy(t,tag.c_str(),MAXBUF);
+	strncpy(n,name.c_str(),MAXBUF);
+	int res = ReadConf(cache,t,n,index,val);
+	if (!res)
+	{
+		this->error = CONF_VALUE_NOT_FOUND;
+		return 0;
+	}
+	for (int i = 0; i < strlen(val); i++)
+	{
+		if (!isdigit(val[i]))
+		{
+			this->error = CONF_NOT_A_NUMBER;
+			return 0;
+		}
+	}
+	if ((needs_unsigned) && (atoi(val)<0))
+	{
+		this->error = CONF_NOT_UNSIGNED;
+		return 0;
+	}
+	return atoi(val);
+}
+
+long ConfigReader::GetError()
+{
+	long olderr = this->error;
+	this->error = 0;
+	return olderr;
 }
 
 
@@ -594,7 +656,7 @@ int ConfigReader::EnumerateValues(std::string tag, int index)
 
 bool ConfigReader::Verify()
 {
-	return this->error;
+	return this->readerror;
 }
 
 

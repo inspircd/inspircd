@@ -30,17 +30,24 @@ Inheritance diagram for ConfigReader:<p><center><img src="classConfigReader__inh
 <tr><td>&nbsp;</td><td><font size=-1><em>Default destructor.</em> <a href="#a2"></a><em></em></font><br><br></td></tr>
 <tr><td nowrap align=right valign=top>std::string&nbsp;</td><td valign=bottom><a class="el" href="classConfigReader.html#a3">ReadValue</a> (std::string tag, std::string name, int index)</td></tr>
 <tr><td>&nbsp;</td><td><font size=-1><em>Retrieves a value from the config file.</em> <a href="#a3"></a><em></em></font><br><br></td></tr>
-<tr><td nowrap align=right valign=top>int&nbsp;</td><td valign=bottom><a class="el" href="classConfigReader.html#a4">Enumerate</a> (std::string tag)</td></tr>
-<tr><td>&nbsp;</td><td><font size=-1><em>Counts the number of times a given tag appears in the config file.</em> <a href="#a4"></a><em></em></font><br><br></td></tr>
-<tr><td nowrap align=right valign=top>bool&nbsp;</td><td valign=bottom><a class="el" href="classConfigReader.html#a5">Verify</a> ()</td></tr>
-<tr><td>&nbsp;</td><td><font size=-1><em>Returns true if a config file is valid.</em> <a href="#a5"></a><em></em></font><br><br></td></tr>
-<tr><td nowrap align=right valign=top>int&nbsp;</td><td valign=bottom><a class="el" href="classConfigReader.html#a6">EnumerateValues</a> (std::string tag, int index)</td></tr>
-<tr><td>&nbsp;</td><td><font size=-1><em>Returns the number of items within a tag.</em> <a href="#a6"></a><em></em></font><br><br></td></tr>
+<tr><td nowrap align=right valign=top>bool&nbsp;</td><td valign=bottom><a class="el" href="classConfigReader.html#a4">ReadFlag</a> (std::string tag, std::string name, int index)</td></tr>
+<tr><td>&nbsp;</td><td><font size=-1><em>Retrieves a boolean value from the config file.</em> <a href="#a4"></a><em></em></font><br><br></td></tr>
+<tr><td nowrap align=right valign=top>long&nbsp;</td><td valign=bottom><a class="el" href="classConfigReader.html#a5">ReadInteger</a> (std::string tag, std::string name, int index, bool needs_unsigned)</td></tr>
+<tr><td>&nbsp;</td><td><font size=-1><em>Retrieves an integer value from the config file.</em> <a href="#a5"></a><em></em></font><br><br></td></tr>
+<tr><td nowrap align=right valign=top>long&nbsp;</td><td valign=bottom><a class="el" href="classConfigReader.html#a6">GetError</a> ()</td></tr>
+<tr><td>&nbsp;</td><td><font size=-1><em>Returns the last error to occur.</em> <a href="#a6"></a><em></em></font><br><br></td></tr>
+<tr><td nowrap align=right valign=top>int&nbsp;</td><td valign=bottom><a class="el" href="classConfigReader.html#a7">Enumerate</a> (std::string tag)</td></tr>
+<tr><td>&nbsp;</td><td><font size=-1><em>Counts the number of times a given tag appears in the config file.</em> <a href="#a7"></a><em></em></font><br><br></td></tr>
+<tr><td nowrap align=right valign=top>bool&nbsp;</td><td valign=bottom><a class="el" href="classConfigReader.html#a8">Verify</a> ()</td></tr>
+<tr><td>&nbsp;</td><td><font size=-1><em>Returns true if a config file is valid.</em> <a href="#a8"></a><em></em></font><br><br></td></tr>
+<tr><td nowrap align=right valign=top>int&nbsp;</td><td valign=bottom><a class="el" href="classConfigReader.html#a9">EnumerateValues</a> (std::string tag, int index)</td></tr>
+<tr><td>&nbsp;</td><td><font size=-1><em>Returns the number of items within a tag.</em> <a href="#a9"></a><em></em></font><br><br></td></tr>
 <tr><td colspan=2><br><h2>Protected Attributes</h2></td></tr>
 <tr><td nowrap align=right valign=top>std::stringstream *&nbsp;</td><td valign=bottom><a class="el" href="classConfigReader.html#n0">cache</a></td></tr>
 <tr><td>&nbsp;</td><td><font size=-1><em>The contents of the configuration file This protected member should never be accessed by a module (and cannot be accessed unless the core is changed).</em> <a href="#n0"></a><em></em></font><br><br></td></tr>
-<tr><td nowrap align=right valign=top>bool&nbsp;</td><td valign=bottom><a class="el" href="classConfigReader.html#n1">error</a></td></tr>
+<tr><td nowrap align=right valign=top>bool&nbsp;</td><td valign=bottom><a class="el" href="classConfigReader.html#n1">readerror</a></td></tr>
 <tr><td>&nbsp;</td><td><font size=-1><em>Used to store errors.</em> <a href="#n1"></a><em></em></font><br><br></td></tr>
+<tr><td nowrap align=right valign=top>long&nbsp;</td><td valign=bottom><a class="el" href="classConfigReader.html#n2">error</a></td></tr>
 </table>
 <hr><a name="_details"></a><h2>Detailed Description</h2>
 Allows reading of values from configuration files This class allows a module to read from either the main configuration file (inspircd.conf) or from a module-specified configuration file.
@@ -49,7 +56,7 @@ It may either be instantiated with one parameter or none. Constructing the class
 <p>
 
 <p>
-Definition at line <a class="el" href="modules_8h-source.html#l00612">612</a> of file <a class="el" href="modules_8h-source.html">modules.h</a>.<hr><h2>Constructor &amp; Destructor Documentation</h2>
+Definition at line <a class="el" href="modules_8h-source.html#l00617">617</a> of file <a class="el" href="modules_8h-source.html">modules.h</a>.<hr><h2>Constructor &amp; Destructor Documentation</h2>
 <a name="a0" doxytag="ConfigReader::ConfigReader"></a><p>
 <table width="100%" cellpadding="2" cellspacing="0" border="0">
   <tr>
@@ -81,12 +88,14 @@ This constructor initialises the ConfigReader class to read the inspircd.conf fi
 <p>
 Definition at line <a class="el" href="modules_8cpp-source.html#l00553">553</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
 <p>
-References <a class="el" href="modules_8h-source.html#l00620">cache</a>, and <a class="el" href="modules_8h-source.html#l00623">error</a>.
+References <a class="el" href="modules_8h-source.html#l00625">cache</a>, <a class="el" href="modules_8h-source.html#l00609">CONF_FILE_NOT_FOUND</a>, <a class="el" href="modules_8h-source.html#l00629">error</a>, and <a class="el" href="modules_8h-source.html#l00628">readerror</a>.
 <p>
 <div class="fragment"><pre>00554 {
 00555         this-&gt;<a class="code" href="classConfigReader.html#n0">cache</a> = <span class="keyword">new</span> std::stringstream(std::stringstream::in | std::stringstream::out);
-00556         this-&gt;<a class="code" href="classConfigReader.html#n1">error</a> = LoadConf(CONFIG_FILE,this-&gt;cache);
-00557 }
+00556         this-&gt;<a class="code" href="classConfigReader.html#n1">readerror</a> = LoadConf(CONFIG_FILE,this-&gt;cache);
+00557         <span class="keywordflow">if</span> (!this-&gt;<a class="code" href="classConfigReader.html#n1">readerror</a>)
+00558                 this-&gt;<a class="code" href="classConfigReader.html#n2">error</a> = <a class="code" href="modules_8h.html#a25">CONF_FILE_NOT_FOUND</a>;
+00559 }
 </pre></div>    </td>
   </tr>
 </table>
@@ -120,14 +129,16 @@ Overloaded constructor.
 <p>
 This constructor initialises the ConfigReader class to read a user-specified config file
 <p>
-Definition at line <a class="el" href="modules_8cpp-source.html#l00567">567</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
+Definition at line <a class="el" href="modules_8cpp-source.html#l00569">569</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
 <p>
-References <a class="el" href="modules_8h-source.html#l00620">cache</a>, and <a class="el" href="modules_8h-source.html#l00623">error</a>.
+References <a class="el" href="modules_8h-source.html#l00625">cache</a>, <a class="el" href="modules_8h-source.html#l00609">CONF_FILE_NOT_FOUND</a>, <a class="el" href="modules_8h-source.html#l00629">error</a>, and <a class="el" href="modules_8h-source.html#l00628">readerror</a>.
 <p>
-<div class="fragment"><pre>00568 {
-00569         this-&gt;<a class="code" href="classConfigReader.html#n0">cache</a> = <span class="keyword">new</span> std::stringstream(std::stringstream::in | std::stringstream::out);
-00570         this-&gt;<a class="code" href="classConfigReader.html#n1">error</a> = LoadConf(filename.c_str(),this-&gt;<a class="code" href="classConfigReader.html#n0">cache</a>);
-00571 };
+<div class="fragment"><pre>00570 {
+00571         this-&gt;<a class="code" href="classConfigReader.html#n0">cache</a> = <span class="keyword">new</span> std::stringstream(std::stringstream::in | std::stringstream::out);
+00572         this-&gt;<a class="code" href="classConfigReader.html#n1">readerror</a> = LoadConf(filename.c_str(),this-&gt;<a class="code" href="classConfigReader.html#n0">cache</a>);
+00573         <span class="keywordflow">if</span> (!this-&gt;<a class="code" href="classConfigReader.html#n1">readerror</a>)
+00574                 this-&gt;<a class="code" href="classConfigReader.html#n2">error</a> = <a class="code" href="modules_8h.html#a25">CONF_FILE_NOT_FOUND</a>;
+00575 };
 </pre></div>    </td>
   </tr>
 </table>
@@ -160,19 +171,19 @@ Default destructor.
 <p>
 This method destroys the ConfigReader class.
 <p>
-Definition at line <a class="el" href="modules_8cpp-source.html#l00560">560</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
+Definition at line <a class="el" href="modules_8cpp-source.html#l00562">562</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
 <p>
-References <a class="el" href="modules_8h-source.html#l00620">cache</a>.
+References <a class="el" href="modules_8h-source.html#l00625">cache</a>.
 <p>
-<div class="fragment"><pre>00561 {
-00562         <span class="keywordflow">if</span> (this-&gt;<a class="code" href="classConfigReader.html#n0">cache</a>)
-00563                 <span class="keyword">delete</span> this-&gt;<a class="code" href="classConfigReader.html#n0">cache</a>;
-00564 }
+<div class="fragment"><pre>00563 {
+00564         <span class="keywordflow">if</span> (this-&gt;<a class="code" href="classConfigReader.html#n0">cache</a>)
+00565                 <span class="keyword">delete</span> this-&gt;<a class="code" href="classConfigReader.html#n0">cache</a>;
+00566 }
 </pre></div>    </td>
   </tr>
 </table>
 <hr><h2>Member Function Documentation</h2>
-<a name="a4" doxytag="ConfigReader::Enumerate"></a><p>
+<a name="a7" doxytag="ConfigReader::Enumerate"></a><p>
 <table width="100%" cellpadding="2" cellspacing="0" border="0">
   <tr>
     <td class="md">
@@ -202,15 +213,15 @@ Counts the number of times a given tag appears in the config file.
 <p>
 This method counts the number of times a tag appears in a config file, for use where there are several tags of the same kind, e.g. with opers and connect types. It can be used with the index value of <a class="el" href="classConfigReader.html#a3">ConfigReader::ReadValue</a> to loop through all copies of a multiple instance tag.
 <p>
-Definition at line <a class="el" href="modules_8cpp-source.html#l00585">585</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
+Definition at line <a class="el" href="modules_8cpp-source.html#l00647">647</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
 <p>
-<div class="fragment"><pre>00586 {
-00587         <span class="keywordflow">return</span> EnumConf(cache,tag.c_str());
-00588 }
+<div class="fragment"><pre>00648 {
+00649         <span class="keywordflow">return</span> EnumConf(cache,tag.c_str());
+00650 }
 </pre></div>    </td>
   </tr>
 </table>
-<a name="a6" doxytag="ConfigReader::EnumerateValues"></a><p>
+<a name="a9" doxytag="ConfigReader::EnumerateValues"></a><p>
 <table width="100%" cellpadding="2" cellspacing="0" border="0">
   <tr>
     <td class="md">
@@ -249,11 +260,204 @@ Returns the number of items within a tag.
 <p>
 For example if the tag was &lt;test tag="blah" data="foo"&gt; then this function would return 2. Spaces and newlines both qualify as valid seperators between values.
 <p>
-Definition at line <a class="el" href="modules_8cpp-source.html#l00590">590</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
+Definition at line <a class="el" href="modules_8cpp-source.html#l00652">652</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
 <p>
-<div class="fragment"><pre>00591 {
-00592         <span class="keywordflow">return</span> EnumValues(cache, tag.c_str(), index);
-00593 }
+<div class="fragment"><pre>00653 {
+00654         <span class="keywordflow">return</span> EnumValues(cache, tag.c_str(), index);
+00655 }
+</pre></div>    </td>
+  </tr>
+</table>
+<a name="a6" doxytag="ConfigReader::GetError"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> long ConfigReader::GetError </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="mdname1" valign="top" nowrap>&nbsp;          </td>
+          <td class="md" valign="top">)&nbsp;</td>
+          <td class="md" nowrap></td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+Returns the last error to occur.
+<p>
+Valid errors can be found by looking in <a class="el" href="modules_8h.html">modules.h</a>. Any nonzero value indicates an error condition. A call to <a class="el" href="classConfigReader.html#a6">GetError()</a> resets the error flag back to 0.
+<p>
+Definition at line <a class="el" href="modules_8cpp-source.html#l00639">639</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
+<p>
+References <a class="el" href="modules_8h-source.html#l00629">error</a>.
+<p>
+<div class="fragment"><pre>00640 {
+00641         <span class="keywordtype">long</span> olderr = this-&gt;<a class="code" href="classConfigReader.html#n2">error</a>;
+00642         this-&gt;error = 0;
+00643         <span class="keywordflow">return</span> olderr;
+00644 }
+</pre></div>    </td>
+  </tr>
+</table>
+<a name="a4" doxytag="ConfigReader::ReadFlag"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> bool ConfigReader::ReadFlag </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="md" nowrap valign="top">std::string&nbsp;</td>
+          <td class="mdname" nowrap>&nbsp; <em>tag</em>, </td>
+        </tr>
+        <tr>
+          <td></td>
+          <td></td>
+          <td class="md" nowrap>std::string&nbsp;</td>
+          <td class="mdname" nowrap>&nbsp; <em>name</em>, </td>
+        </tr>
+        <tr>
+          <td></td>
+          <td></td>
+          <td class="md" nowrap>int&nbsp;</td>
+          <td class="mdname" nowrap>&nbsp; <em>index</em></td>
+        </tr>
+        <tr>
+          <td></td>
+          <td class="md">)&nbsp;</td>
+          <td class="md" colspan="2"></td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+Retrieves a boolean value from the config file.
+<p>
+This method retrieves a boolean value from the config file. Where multiple copies of the tag exist in the config file, index indicates which of the values to retrieve. The values "1", "yes" and "true" in the config file count as true to ReadFlag, and any other value counts as false.
+<p>
+Definition at line <a class="el" href="modules_8cpp-source.html#l00593">593</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
+<p>
+References <a class="el" href="modules_8h-source.html#l00608">CONF_VALUE_NOT_FOUND</a>, and <a class="el" href="modules_8h-source.html#l00629">error</a>.
+<p>
+<div class="fragment"><pre>00594 {
+00595         <span class="keywordtype">char</span> val[MAXBUF];
+00596         <span class="keywordtype">char</span> t[MAXBUF];
+00597         <span class="keywordtype">char</span> n[MAXBUF];
+00598         strncpy(t,tag.c_str(),MAXBUF);
+00599         strncpy(n,name.c_str(),MAXBUF);
+00600         <span class="keywordtype">int</span> res = ReadConf(cache,t,n,index,val);
+00601         <span class="keywordflow">if</span> (!res)
+00602         {
+00603                 this-&gt;<a class="code" href="classConfigReader.html#n2">error</a> = <a class="code" href="modules_8h.html#a24">CONF_VALUE_NOT_FOUND</a>;
+00604                 <span class="keywordflow">return</span> <span class="keyword">false</span>;
+00605         }
+00606         std::string s = val;
+00607         <span class="keywordflow">return</span> ((s == <span class="stringliteral">"yes"</span>) || (s == <span class="stringliteral">"YES"</span>) || (s == <span class="stringliteral">"true"</span>) || (s == <span class="stringliteral">"TRUE"</span>) || (s == <span class="stringliteral">"1"</span>));
+00608 }
+</pre></div>    </td>
+  </tr>
+</table>
+<a name="a5" doxytag="ConfigReader::ReadInteger"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> long ConfigReader::ReadInteger </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="md" nowrap valign="top">std::string&nbsp;</td>
+          <td class="mdname" nowrap>&nbsp; <em>tag</em>, </td>
+        </tr>
+        <tr>
+          <td></td>
+          <td></td>
+          <td class="md" nowrap>std::string&nbsp;</td>
+          <td class="mdname" nowrap>&nbsp; <em>name</em>, </td>
+        </tr>
+        <tr>
+          <td></td>
+          <td></td>
+          <td class="md" nowrap>int&nbsp;</td>
+          <td class="mdname" nowrap>&nbsp; <em>index</em>, </td>
+        </tr>
+        <tr>
+          <td></td>
+          <td></td>
+          <td class="md" nowrap>bool&nbsp;</td>
+          <td class="mdname" nowrap>&nbsp; <em>needs_unsigned</em></td>
+        </tr>
+        <tr>
+          <td></td>
+          <td class="md">)&nbsp;</td>
+          <td class="md" colspan="2"></td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+Retrieves an integer value from the config file.
+<p>
+This method retrieves an integer value from the config file. Where multiple copies of the tag exist in the config file, index indicates which of the values to retrieve. Any invalid integer values in the tag will cause the objects error value to be set, and any call to <a class="el" href="classConfigReader.html#a6">GetError()</a> will return CONF_INVALID_NUMBER to be returned. needs_unsigned is set if the number must be unsigned. If a signed number is placed into a tag which is specified unsigned, 0 will be returned and <a class="el" href="classConfigReader.html#a6">GetError()</a> will return CONF_NOT_UNSIGNED
+<p>
+Definition at line <a class="el" href="modules_8cpp-source.html#l00610">610</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
+<p>
+References <a class="el" href="modules_8h-source.html#l00606">CONF_NOT_A_NUMBER</a>, <a class="el" href="modules_8h-source.html#l00607">CONF_NOT_UNSIGNED</a>, <a class="el" href="modules_8h-source.html#l00608">CONF_VALUE_NOT_FOUND</a>, and <a class="el" href="modules_8h-source.html#l00629">error</a>.
+<p>
+<div class="fragment"><pre>00611 {
+00612         <span class="keywordtype">char</span> val[MAXBUF];
+00613         <span class="keywordtype">char</span> t[MAXBUF];
+00614         <span class="keywordtype">char</span> n[MAXBUF];
+00615         strncpy(t,tag.c_str(),MAXBUF);
+00616         strncpy(n,name.c_str(),MAXBUF);
+00617         <span class="keywordtype">int</span> res = ReadConf(cache,t,n,index,val);
+00618         <span class="keywordflow">if</span> (!res)
+00619         {
+00620                 this-&gt;<a class="code" href="classConfigReader.html#n2">error</a> = <a class="code" href="modules_8h.html#a24">CONF_VALUE_NOT_FOUND</a>;
+00621                 <span class="keywordflow">return</span> 0;
+00622         }
+00623         <span class="keywordflow">for</span> (<span class="keywordtype">int</span> i = 0; i &lt; strlen(val); i++)
+00624         {
+00625                 <span class="keywordflow">if</span> (!isdigit(val[i]))
+00626                 {
+00627                         this-&gt;<a class="code" href="classConfigReader.html#n2">error</a> = <a class="code" href="modules_8h.html#a22">CONF_NOT_A_NUMBER</a>;
+00628                         <span class="keywordflow">return</span> 0;
+00629                 }
+00630         }
+00631         <span class="keywordflow">if</span> ((needs_unsigned) &amp;&amp; (atoi(val)&lt;0))
+00632         {
+00633                 this-&gt;<a class="code" href="classConfigReader.html#n2">error</a> = <a class="code" href="modules_8h.html#a23">CONF_NOT_UNSIGNED</a>;
+00634                 <span class="keywordflow">return</span> 0;
+00635         }
+00636         <span class="keywordflow">return</span> atoi(val);
+00637 }
 </pre></div>    </td>
   </tr>
 </table>
@@ -302,21 +506,28 @@ Retrieves a value from the config file.
 <p>
 This method retrieves a value from the config file. Where multiple copies of the tag exist in the config file, index indicates which of the values to retrieve.
 <p>
-Definition at line <a class="el" href="modules_8cpp-source.html#l00573">573</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
+Definition at line <a class="el" href="modules_8cpp-source.html#l00577">577</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
 <p>
-<div class="fragment"><pre>00574 {
-00575         <span class="keywordtype">char</span> val[MAXBUF];
-00576         <span class="keywordtype">char</span> t[MAXBUF];
-00577         <span class="keywordtype">char</span> n[MAXBUF];
-00578         strncpy(t,tag.c_str(),MAXBUF);
-00579         strncpy(n,name.c_str(),MAXBUF);
-00580         ReadConf(cache,t,n,index,val);
-00581         <span class="keywordflow">return</span> std::string(val);
-00582 }
+References <a class="el" href="modules_8h-source.html#l00608">CONF_VALUE_NOT_FOUND</a>, and <a class="el" href="modules_8h-source.html#l00629">error</a>.
+<p>
+<div class="fragment"><pre>00578 {
+00579         <span class="keywordtype">char</span> val[MAXBUF];
+00580         <span class="keywordtype">char</span> t[MAXBUF];
+00581         <span class="keywordtype">char</span> n[MAXBUF];
+00582         strncpy(t,tag.c_str(),MAXBUF);
+00583         strncpy(n,name.c_str(),MAXBUF);
+00584         <span class="keywordtype">int</span> res = ReadConf(cache,t,n,index,val);
+00585         <span class="keywordflow">if</span> (!res)
+00586         {
+00587                 this-&gt;<a class="code" href="classConfigReader.html#n2">error</a> = <a class="code" href="modules_8h.html#a24">CONF_VALUE_NOT_FOUND</a>;
+00588                 <span class="keywordflow">return</span> <span class="stringliteral">""</span>;
+00589         }
+00590         <span class="keywordflow">return</span> std::string(val);
+00591 }
 </pre></div>    </td>
   </tr>
 </table>
-<a name="a5" doxytag="ConfigReader::Verify"></a><p>
+<a name="a8" doxytag="ConfigReader::Verify"></a><p>
 <table width="100%" cellpadding="2" cellspacing="0" border="0">
   <tr>
     <td class="md">
@@ -345,13 +556,13 @@ Returns true if a config file is valid.
 <p>
 This method is partially implemented and will only return false if the config file does not exist or could not be opened.
 <p>
-Definition at line <a class="el" href="modules_8cpp-source.html#l00595">595</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
+Definition at line <a class="el" href="modules_8cpp-source.html#l00657">657</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
 <p>
-References <a class="el" href="modules_8h-source.html#l00623">error</a>.
+References <a class="el" href="modules_8h-source.html#l00628">readerror</a>.
 <p>
-<div class="fragment"><pre>00596 {
-00597         <span class="keywordflow">return</span> this-&gt;<a class="code" href="classConfigReader.html#n1">error</a>;
-00598 }
+<div class="fragment"><pre>00658 {
+00659         <span class="keywordflow">return</span> this-&gt;<a class="code" href="classConfigReader.html#n1">readerror</a>;
+00660 }
 </pre></div>    </td>
   </tr>
 </table>
@@ -379,18 +590,44 @@ The contents of the configuration file This protected member should never be acc
 <p>
 It will contain a pointer to the configuration file data with unneeded data (such as comments) stripped from it.
 <p>
-Definition at line <a class="el" href="modules_8h-source.html#l00620">620</a> of file <a class="el" href="modules_8h-source.html">modules.h</a>.
+Definition at line <a class="el" href="modules_8h-source.html#l00625">625</a> of file <a class="el" href="modules_8h-source.html">modules.h</a>.
 <p>
-Referenced by <a class="el" href="modules_8cpp-source.html#l00553">ConfigReader()</a>, and <a class="el" href="modules_8cpp-source.html#l00560">~ConfigReader()</a>.    </td>
+Referenced by <a class="el" href="modules_8cpp-source.html#l00553">ConfigReader()</a>, and <a class="el" href="modules_8cpp-source.html#l00562">~ConfigReader()</a>.    </td>
   </tr>
 </table>
-<a name="n1" doxytag="ConfigReader::error"></a><p>
+<a name="n2" doxytag="ConfigReader::error"></a><p>
 <table width="100%" cellpadding="2" cellspacing="0" border="0">
   <tr>
     <td class="md">
       <table cellpadding="0" cellspacing="0" border="0">
         <tr>
-          <td class="md" nowrap valign="top"> bool ConfigReader::error<code> [protected]</code>
+          <td class="md" nowrap valign="top"> long ConfigReader::error<code> [protected]</code>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+
+<p>
+Definition at line <a class="el" href="modules_8h-source.html#l00629">629</a> of file <a class="el" href="modules_8h-source.html">modules.h</a>.
+<p>
+Referenced by <a class="el" href="modules_8cpp-source.html#l00553">ConfigReader()</a>, <a class="el" href="modules_8cpp-source.html#l00639">GetError()</a>, <a class="el" href="modules_8cpp-source.html#l00593">ReadFlag()</a>, <a class="el" href="modules_8cpp-source.html#l00610">ReadInteger()</a>, and <a class="el" href="modules_8cpp-source.html#l00577">ReadValue()</a>.    </td>
+  </tr>
+</table>
+<a name="n1" doxytag="ConfigReader::readerror"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> bool ConfigReader::readerror<code> [protected]</code>
       </table>
     </td>
   </tr>
@@ -407,14 +644,14 @@ Used to store errors.
 <p>
 
 <p>
-Definition at line <a class="el" href="modules_8h-source.html#l00623">623</a> of file <a class="el" href="modules_8h-source.html">modules.h</a>.
+Definition at line <a class="el" href="modules_8h-source.html#l00628">628</a> of file <a class="el" href="modules_8h-source.html">modules.h</a>.
 <p>
-Referenced by <a class="el" href="modules_8cpp-source.html#l00553">ConfigReader()</a>, and <a class="el" href="modules_8cpp-source.html#l00595">Verify()</a>.    </td>
+Referenced by <a class="el" href="modules_8cpp-source.html#l00553">ConfigReader()</a>, and <a class="el" href="modules_8cpp-source.html#l00657">Verify()</a>.    </td>
   </tr>
 </table>
 <hr>The documentation for this class was generated from the following files:<ul>
 <li><a class="el" href="modules_8h-source.html">modules.h</a><li><a class="el" href="modules_8cpp-source.html">modules.cpp</a></ul>
-<hr><address style="align: right;"><small>Generated on Sat May 1 17:50:22 2004 for InspIRCd by
+<hr><address style="align: right;"><small>Generated on Sat May 1 20:58:02 2004 for InspIRCd by
 <a href="http://www.doxygen.org/index.html">
 <img src="doxygen.png" alt="doxygen" align="middle" border=0 
 width=110 height=53></a>1.3-rc3 </small></address>

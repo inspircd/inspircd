@@ -603,6 +603,11 @@ class Server : public classbase
 
 };
 
+#define CONF_NOT_A_NUMBER	0x000010
+#define CONF_NOT_UNSIGNED	0x000080
+#define CONF_VALUE_NOT_FOUND	0x000100
+#define CONF_FILE_NOT_FOUND	0x000200
+
 /** Allows reading of values from configuration files
  * This class allows a module to read from either the main configuration file (inspircd.conf) or from
  * a module-specified configuration file. It may either be instantiated with one parameter or none.
@@ -620,7 +625,8 @@ class ConfigReader : public classbase
 	std::stringstream *cache;
 	/** Used to store errors
 	 */
-	bool error;
+	bool readerror;
+	long error;
 	
   public:
 	/** Default constructor.
@@ -641,6 +647,26 @@ class ConfigReader : public classbase
 	 * exist in the config file, index indicates which of the values to retrieve.
 	 */
 	std::string ReadValue(std::string tag, std::string name, int index);
+	/** Retrieves a boolean value from the config file.
+	 * This method retrieves a boolean value from the config file. Where multiple copies of the tag
+	 * exist in the config file, index indicates which of the values to retrieve. The values "1", "yes"
+	 * and "true" in the config file count as true to ReadFlag, and any other value counts as false.
+	 */
+	bool ReadFlag(std::string tag, std::string name, int index);
+	/** Retrieves an integer value from the config file.
+	 * This method retrieves an integer value from the config file. Where multiple copies of the tag
+	 * exist in the config file, index indicates which of the values to retrieve. Any invalid integer
+	 * values in the tag will cause the objects error value to be set, and any call to GetError() will
+	 * return CONF_INVALID_NUMBER to be returned. needs_unsigned is set if the number must be unsigned.
+	 * If a signed number is placed into a tag which is specified unsigned, 0 will be returned and GetError()
+	 * will return CONF_NOT_UNSIGNED
+	 */
+	long ReadInteger(std::string tag, std::string name, int index, bool needs_unsigned);
+	/** Returns the last error to occur.
+	 * Valid errors can be found by looking in modules.h. Any nonzero value indicates an error condition.
+	 * A call to GetError() resets the error flag back to 0.
+	 */
+	long GetError();
 	/** Counts the number of times a given tag appears in the config file.
 	 * This method counts the number of times a tag appears in a config file, for use where
 	 * there are several tags of the same kind, e.g. with opers and connect types. It can be
