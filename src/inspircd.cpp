@@ -14,8 +14,11 @@
  * ---------------------------------------------------
  
  $Log$
- Revision 1.1  2003/01/23 19:45:58  brain
- Initial revision
+ Revision 1.2  2003/01/25 20:00:45  brain
+ Added /WHOWAS
+
+ Revision 1.1.1.1  2003/01/23 19:45:58  brain
+ InspIRCd second source tree
 
  Revision 1.56  2003/01/22 20:49:16  brain
  Added FileReader file-caching class
@@ -227,6 +230,8 @@ char PrefixQuit[MAXBUF];
 char DieValue[MAXBUF];
 int debugging =  0;
 int MODCOUNT  = -1;
+int WHOWAS_STALE = 48; // default WHOWAS Entries last 2 days before they go 'stale'
+int WHOWAS_MAX = 100;  // default 100 people maximum in the WHOWAS list
 int DieDelay  =  5;
 time_t startup_time = time(NULL);
 
@@ -292,6 +297,7 @@ typedef DLLFactory<ModuleFactory> ircd_module;
 
 user_hash clientlist;
 chan_hash chanlist;
+user_hash whowas;
 command_table cmdlist;
 file_cache MOTD;
 file_cache RULES;
@@ -312,6 +318,7 @@ int usercount_i(chanrec *c);
 void update_stats_l(int fd,int data_out);
 char* Passwd(userrec *user);
 bool IsDenied(userrec *user);
+void AddWhoWas(userrec* u);
 
 
 void safedelete(userrec *p)
@@ -2519,6 +2526,7 @@ void kill_link(userrec *user,char* reason)
 	Blocking(user->fd);
 	close(user->fd);
 	NonBlocking(user->fd);
+	AddWhoWas(user);
 
 	if (iter != clientlist.end())
 	{
@@ -2768,19 +2776,62 @@ userrec* ReHashNick(char* Old, char* New)
 	return clientlist[New];
 }
 
+/* adds or updates an entry in the whowas list */
+void AddWhoWas(userrec* u)
+{
+	user_hash::iterator iter = whowas.find(u->nick);
+	userrec *a = new userrec();
+	strcpy(a->nick,u->nick);
+	strcpy(a->ident,u->ident);
+	strcpy(a->dhost,u->dhost);
+	strcpy(a->host,u->host);
+	strcpy(a->fullname,u->fullname);
+	strcpy(a->server,u->server);
+	a->signon = u->signon;
+
+	/* MAX_WHOWAS:   max number of /WHOWAS items
+	 * WHOWAS_STALE: number of hours before a WHOWAS item is marked as stale and
+	 *		 can be replaced by a newer one
+	 */
+	
+	if (iter == whowas.end())
+	{
+		if (whowas.size() == WHOWAS_MAX)
+		{
+			for (user_hash::iterator i = whowas.begin(); i != whowas.end(); i++)
+			{
+				// 3600 seconds in an hour ;)
+				if ((i->second->signon)<(time(NULL)-(WHOWAS_STALE*3600)))
+				{
+					i->second = a;
+					debug("added WHOWAS entry, purged an old record");
+					return;
+				}
+			}
+		}
+		debug("added fresh WHOWAS entry");
+		whowas[a->nick] = a;
+	}
+	else
+	{
+		debug("updated WHOWAS entry");
+		iter->second = a;
+	}
+}
+
 
 /* add a client connection to the sockets list */
 void AddClient(int socket, char* host, int port, bool iscached)
 {
-	int i;
-	int blocking = 1;
-	char resolved[MAXBUF];
-	string tempnick;
-	char tn2[MAXBUF];
-	user_hash::iterator iter;
-	
-	tempnick = ConvToStr(socket) + "-unknown";
-	sprintf(tn2,"%d-unknown",socket);
+        int i;
+        int blocking = 1;
+        char resolved[MAXBUF];
+        string tempnick;
+        char tn2[MAXBUF];
+        user_hash::iterator iter;
+
+        tempnick = ConvToStr(socket) + "-unknown";
+        sprintf(tn2,"%d-unknown",socket);
 
 	iter = clientlist.find(tempnick);
 
@@ -3059,6 +3110,7 @@ void handle_quit(char **parameters, int pcnt, userrec *user)
 	Blocking(user->fd);
 	close(user->fd);
 	NonBlocking(user->fd);
+	AddWhoWas(user);
 
 	if (iter != clientlist.end())
 	{
@@ -3396,6 +3448,31 @@ void handle_away(char **parameters, int pcnt, userrec *user)
 	}
 }
 
+void handle_whowas(char **parameters, int pcnt, userrec* user)
+{
+	user_hash::iterator i = whowas.find(parameters[0]);
+
+	if (i == whowas.end())
+	{
+		WriteServ(user->fd,"406 %s %s :There was no such nickname",user->nick,parameters[0]);
+		WriteServ(user->fd,"369 %s %s :End of WHOWAS",user->nick,parameters[0]);
+	}
+	else
+	{
+		time_t rawtime = i->second->signon;
+		tm *timeinfo;
+		char b[MAXBUF];
+		
+		timeinfo = localtime(&rawtime);
+		strcpy(b,asctime(timeinfo));
+		b[strlen(b)-1] = '\0';
+		
+		WriteServ(user->fd,"314 %s %s %s %s * :%s",user->nick,i->second->nick,i->second->ident,i->second->dhost,i->second->fullname);
+		WriteServ(user->fd,"312 %s %s %s :%s",user->nick,i->second->nick,i->second->server,b);
+		WriteServ(user->fd,"369 %s %s :End of WHOWAS",user->nick,parameters[0]);
+	}
+
+}
 
 void handle_trace(char **parameters, int pcnt, userrec *user)
 {
@@ -3923,6 +4000,7 @@ void SetupCommandTable(void)
   createcommand("INVITE",handle_invite,0,2);
   createcommand("PASS",handle_pass,0,1);
   createcommand("TRACE",handle_trace,'o',0);
+  createcommand("WHOWAS",handle_whowas,0,1);
 }
 
 void process_buffer(userrec *user)
