@@ -121,7 +121,7 @@ bool FileExists (const char* file)
 
 bool LoadConf(const char* filename, std::stringstream *target)
 {
- 	target->clear();
+	target->str("");
 	FILE* conf = fopen(filename,"r");
 	if (!FileExists(filename))
 	{
@@ -130,7 +130,6 @@ bool LoadConf(const char* filename, std::stringstream *target)
 	char buffer[MAXBUF];
 	if (conf)
 	{
-		target->clear();
 		while (!feof(conf))
 		{
 			if (fgets(buffer, MAXBUF, conf))
