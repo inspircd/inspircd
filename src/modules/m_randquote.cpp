@@ -39,7 +39,6 @@ void handle_randquote(char** parameters, int pcntl, userrec *user)
 	char buf[MAXBUF];
 
 	fsize = quotes->FileSize();
-	srand(time(NULL));
 	str = quotes->GetLine(rand() % fsize);
 
 	sprintf(buf,"NOTICE %s :%s%s%s",user->nick,prefix.c_str(),str.c_str(),suffix.c_str());
@@ -60,6 +59,8 @@ class ModuleRandQuote : public Module
 	{
 		Srv = new Server;
 		conf = new ConfigReader;
+		// Sort the Randomizer thingie..
+		srand(time(NULL));
 
 
 		q_file = conf->ReadValue("randquote","file",0);
