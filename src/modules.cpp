@@ -207,7 +207,16 @@ void Server::SendFrom(int Socket, userrec* User, std::string s)
 
 void Server::SendTo(userrec* Source, userrec* Dest, std::string s)
 {
-	WriteTo(Source,Dest,"%s",s.c_str());
+	if (!Source)
+	{
+		// if source is NULL, then the message originates from the local server
+		Write(Dest->fd,":%s %s",this->GetServerName().c_str(),s.c_str());
+	}
+	else
+	{
+		// otherwise it comes from the user specified
+		WriteTo(Source,Dest,"%s",s.c_str());
+	}
 }
 
 void Server::SendChannel(userrec* User, chanrec* Channel, std::string s,bool IncludeSender)

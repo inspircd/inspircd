@@ -55,6 +55,7 @@ class ModuleFilter : public Module
 			if (Srv->MatchText(text,pattern))
 			{
 				std::string target = "";
+				std::string reason = MyConf->ReadValue("keyword","reason",index);
 				if (target_type == TYPE_USER)
 				{
 					userrec* t = (userrec*)dest;
@@ -67,10 +68,13 @@ class ModuleFilter : public Module
 				}
 				Srv->SendOpers(std::string("FILTER: ")+std::string(user->nick)+
     						std::string(" had their message filtered, target was ")+
-    						target+": "+MyConf->ReadValue("keyword","reason",index));
+    						target+": "+reason);
 				Srv->Log(DEFAULT,std::string("FILTER: ")+std::string(user->nick)+
     						std::string(" had their message filtered, target was ")+
-    						target+": "+MyConf->ReadValue("keyword","reason",index));
+    						target+": "+reason);
+				// this form of SendTo (with the source as NuLL) sends a server notice
+				Srv->SendTo(NULL,user,"NOTICE "+std::string(user->nick)+
+    						" :Your message has been filtered and opers notified: "+reason);
 				return 1;
 			}
 		}
@@ -86,6 +90,7 @@ class ModuleFilter : public Module
 			if (Srv->MatchText(text,pattern))
 			{
 				std::string target = "";
+				std::string reason = MyConf->ReadValue("keyword","reason",index);
 				if (target_type == TYPE_USER)
 				{
 					userrec* t = (userrec*)dest;
@@ -102,6 +107,8 @@ class ModuleFilter : public Module
 				Srv->Log(DEFAULT,std::string("FILTER: ")+std::string(user->nick)+
     						std::string(" had their notice filtered, target was ")+
     						target+": "+MyConf->ReadValue("keyword","reason",index));
+				Srv->SendTo(NULL,user,"NOTICE "+std::string(user->nick)+
+    						" :Your notice has been filtered and opers notified: "+reason);
 				return 1;
 			}
 		}
