@@ -1,5 +1,3 @@
-// Globops and +g support module by C.J.Edwards
-
 #include <stdio.h>
 #include <string>
 #include "users.h"
@@ -10,34 +8,48 @@
 
 Server *Srv;
 	 
-void handle_globops(char **parameters, int pcnt, userrec *user)
+void handle_knock(char **parameters, int pcnt, userrec *user)
 {
-	std::string line = "*** GLOBOPS - From " + std::string(user->nick) + ": ";
-	for (int i = 0; i < pcnt; i++)
+	chanrec* c = Srv->FindChannel(parameters[0]);
+	std::string line = "";
+
+	for (int i = 1; i < pcnt - 1; i++)
 	{
 		line = line + std::string(parameters[i]) + " ";
 	}
-	Srv->SendToModeMask("og",WM_AND,line);
+	line = line + std::string(parameters[pcnt-1]);
+
+	if (c->IsCustomModeSet('K'))
+	{
+		WriteServ(user->fd,"480 %s :Can't KNOCK on %s, +K is set.",user->nick, c->name);
+		return;
+	}
+	if (c->inviteonly)
+	{
+		WriteChannelWithServ(Srv->GetServerName().c_str(),c,user,"NOTICE %s :User %s is KNOCKing on %s (%s)",c->name,user->nick,c->name,line.c_str());
+		WriteServ(user->fd,"NOTICE %s :KNOCKing on %s",user->nick,c->name);
+		return;
+	}
+	else
+	{
+		WriteServ(user->fd,"480 %s :Can't KNOCK on %s, channel is not invite only so knocking is pointless!",user->nick, c->name);
+		return;
+	}
 }
 
 
-class ModuleGlobops : public Module
+class ModuleKnock : public Module
 {
  public:
-	ModuleGlobops()
+	ModuleKnock()
 	{
 		Srv = new Server;
 		
-		if (!Srv->AddExtendedMode('g',MT_CLIENT,true,0,0))
-		{
-			Srv->Log(DEFAULT,"*** m_globops: ERROR, failed to allocate user mode +g!");
-			printf("Could not claim usermode +g for this module!");
-			exit(0);
-		}
-		Srv->AddCommand("GLOBOPS",handle_globops,'o',1);
+		Srv->AddExtendedMode('K',MT_CHANNEL,false,0,0);
+		Srv->AddCommand("KNOCK",handle_knock,0,2);
 	}
 	
-	virtual ~ModuleGlobops()
+	virtual ~ModuleKnock()
 	{
 		delete Srv;
 	}
@@ -50,45 +62,34 @@ class ModuleGlobops : public Module
 	virtual int OnExtendedMode(userrec* user, void* target, char modechar, int type, bool mode_on, string_list &params)
 	{
 		// check if this is our mode character...
-		if ((modechar == 'g') && (type == MT_CLIENT))
+		if ((modechar == 'K') && (type == MT_CHANNEL))
   		{
-			// we dont actually do anything with the mode in this module -
-   			// just tell the core its been claimed and is ok to give users.  			
 			return 1;
 		}
 		else
 		{
-			// this mode isn't ours, we have to bail and return 0 to not handle it.
 			return 0;
 		}
-	}
-
-	virtual void OnOper(userrec* user)
-	{
-		char* modes[2];			// only two parameters
-		modes[0] = user->nick;		// first parameter is the nick
-		modes[1] = "+g";		// second parameter is the mode
-		Srv->SendMode(modes,2,user);	// send these, forming the command "MODE <nick> +g"
 	}
 
 };
 
 // stuff down here is the module-factory stuff. For basic modules you can ignore this.
 
-class ModuleGlobopsFactory : public ModuleFactory
+class ModuleKnockFactory : public ModuleFactory
 {
  public:
-	ModuleGlobopsFactory()
+	ModuleKnockFactory()
 	{
 	}
 	
-	~ModuleGlobopsFactory()
+	~ModuleKnockFactory()
 	{
 	}
 	
 	virtual Module * CreateModule()
 	{
-		return new ModuleGlobops;
+		return new ModuleKnock;
 	}
 	
 };
@@ -96,6 +97,6 @@ class ModuleGlobopsFactory : public ModuleFactory
 
 extern "C" void * init_module( void )
 {
-	return new ModuleGlobopsFactory;
+	return new ModuleKnockFactory;
 }
 

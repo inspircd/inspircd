@@ -9,7 +9,6 @@
 class ModuleBlockColor : public Module
 {
 	Server *Srv;
-	
  public:
  
 	ModuleBlockColor()
