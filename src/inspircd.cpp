@@ -5658,13 +5658,9 @@ int InspIRCd(void)
 							count2->second->lastping = 0;
 							count2->second->nping = time(NULL)+120;
 						}
-						count2++;
-						total_in_this_set++;
 					}
-					else
-					{
-						count2++;
-					}
+					count2++;
+					total_in_this_set++;
 				}
 				else break;
 			}
