@@ -18,10 +18,54 @@
 #ifndef __CONNECTION_H__
 #define __CONNECTION_H__
 
-#define PT_SYN_ONLY 0
-#define PT_ACK_ONLY 1
-#define PT_SYN_WITH_DATA 2
-#define PT_KEY_EXCHANGE 3
+#define STATE_DISCONNECTED	0
+#define STATE_CONNECTED		1
+#define STATE_SYNC		2
+#define STATE_NOAUTH_INBOUND	3
+#define STATE_NOAUTH_OUTBOUND	4
+
+/** Each connection has one or more of these
+ * each represents ONE outbound connection to another ircd
+ * so each inbound has multiple outbounds.
+ */
+class ircd_connector : public classbase
+{
+ private:
+	/** Sockaddr of the outbound ip and port
+	 */
+	sockaddr_in addr;
+	
+	/** File descriptor of the outbound connection
+	 */
+	int fd;
+	
+	/** Server name
+	 */
+	std::string servername;
+	
+	/** Server names of servers that this server is linked to
+	 * So for A->B->C, if this was the record for B it would contain A and C
+	 * whilever both servers are connected to B.
+	 */
+	std::vector<std::string> routes;
+	
+	/** State. STATE_NOAUTH_INBOUND, STATE_NOAUTH_OUTBOUND
+	 * STATE_SYNC, STATE_DISCONNECTED, STATE_CONNECTED
+	 */
+	int state;
+	
+	bool SetHostAddress(char* host, int port);
+
+ public:
+ 
+	bool MakeOutboundConnection(char* host, int port);
+	std::string GetServerName();
+	void SetServerName(std::string serv);
+	int GetDescriptor();
+	void SetDescriptor(int fd);
+	int GetState();
+	void SetState(int state);
+};
 
 
 class packet : public classbase
@@ -35,15 +79,6 @@ class packet : public classbase
 	packet();
 	~packet();
 };
-
-class packet_buf : public classbase
-{
- public:
-	packet p;
-	char host[128];
-	int port;
-};
-
 
 
 class connection : public classbase
@@ -68,16 +103,16 @@ class connection : public classbase
 	time_t nping;
 	char internal_addr[1024];
 	int internal_port;
-	std::vector<packet_buf> buffer;
+	std::vector<ircd_connector> connectors;
 	
 	connection();
 	bool CreateListener(char* host, int p);
-	bool BeginLink(char* targethost, int port, char* password);
+	bool BeginLink(char* targethost, int port, char* password, char* servername);
 	void TerminateLink(char* targethost);
-	bool SendPacket(char *message, char* host, int port, long ourkey);
-	bool RecvPacket(char *message, char* host, int &prt, long &theirkey);
-	bool SendSYN(char* host, int port);
-	bool SendACK(char* host, int port, int reply_id);
+	bool SendPacket(char *message, char* host);
+	bool RecvPacket(char *message, char* host);
+	ircd_connector* FindHost(std::string host);
+	bool AddIncoming(int fd,char* targethost);
 	long GenKey();
 };
 

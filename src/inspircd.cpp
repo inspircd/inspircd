@@ -960,7 +960,7 @@ void ChangeName(userrec* user, const char* gecos)
 		{
 			if (strcmp(servers[j]->name,ServerName))
 			{
-				me[defaultRoute]->SendPacket(buffer,servers[j]->internal_addr,servers[j]->internal_port,MyKey);
+				me[defaultRoute]->SendPacket(buffer,servers[j]->name);
 				log(DEBUG,"Sent a token");
 			}
 		}
@@ -978,7 +978,7 @@ void ChangeDisplayedHost(userrec* user, const char* host)
 		{
 			if (strcmp(servers[j]->name,ServerName))
 			{
-				me[defaultRoute]->SendPacket(buffer,servers[j]->internal_addr,servers[j]->internal_port,MyKey);
+				me[defaultRoute]->SendPacket(buffer,servers[j]->name);
 				log(DEBUG,"Sent b token");
 			}
 		}
@@ -1021,7 +1021,7 @@ void WriteWallOps(userrec *source, bool local_only, char* text, ...)
 			{
 				if (strcmp(servers[j]->name,ServerName))
 				{
-					me[defaultRoute]->SendPacket(buffer,servers[j]->internal_addr,servers[j]->internal_port,MyKey);
+					me[defaultRoute]->SendPacket(buffer,servers[j]->name);
 					log(DEBUG,"Sent @ token");
 				}
 			}
@@ -1654,7 +1654,7 @@ chanrec* add_channel(userrec *user, const char* cn, const char* key, bool overri
 				{
 					if (servers[j] != NULL)
 					{
-						me[defaultRoute]->SendPacket(buffer,servers[j]->internal_addr,servers[j]->internal_port,MyKey);
+						me[defaultRoute]->SendPacket(buffer,servers[j]->name);
 						log(DEBUG,"Sent J token");
 					}
 				}
@@ -1726,7 +1726,7 @@ chanrec* del_channel(userrec *user, const char* cname, const char* reason, bool 
 					{
 						if (servers[j] != NULL)
 						{
-							me[defaultRoute]->SendPacket(buffer,servers[j]->internal_addr,servers[j]->internal_port,MyKey);
+							me[defaultRoute]->SendPacket(buffer,servers[j]->name);
 							log(DEBUG,"Sent L token (with reason)");
 						}
 					}
@@ -1744,7 +1744,7 @@ chanrec* del_channel(userrec *user, const char* cname, const char* reason, bool 
 					{
 						if (servers[j] != NULL)
 						{
-							me[defaultRoute]->SendPacket(buffer,servers[j]->internal_addr,servers[j]->internal_port,MyKey);
+							me[defaultRoute]->SendPacket(buffer,servers[j]->name);
 							log(DEBUG,"Sent L token (no reason)");
 						}
 					}
@@ -2678,7 +2678,7 @@ void process_modes(char **parameters,userrec* user,chanrec *chan,int status, int
 						{
 							if (strcmp(servers[j]->name,ServerName))
 							{
-								me[defaultRoute]->SendPacket(buffer,servers[j]->internal_addr,servers[j]->internal_port,MyKey);
+								me[defaultRoute]->SendPacket(buffer,servers[j]->name);
 								log(DEBUG,"Sent M token");
 							}
 						}
@@ -2700,7 +2700,7 @@ void process_modes(char **parameters,userrec* user,chanrec *chan,int status, int
 						{
 							if (strcmp(servers[j]->name,ServerName))
 							{
-								me[defaultRoute]->SendPacket(buffer,servers[j]->internal_addr,servers[j]->internal_port,MyKey);
+								me[defaultRoute]->SendPacket(buffer,servers[j]->name);
 								log(DEBUG,"Sent m token");
 							}
 						}
@@ -2995,7 +2995,7 @@ void handle_mode(char **parameters, int pcnt, userrec *user)
 				{
 					if (strcmp(servers[j]->name,ServerName))
 					{
-						me[defaultRoute]->SendPacket(buffer,servers[j]->internal_addr,servers[j]->internal_port,MyKey);
+						me[defaultRoute]->SendPacket(buffer,servers[j]->name);
 						log(DEBUG,"Sent m token");
 					}
 				}
@@ -3220,7 +3220,7 @@ void server_mode(char **parameters, int pcnt, userrec *user)
 				{
 					if (strcmp(servers[j]->name,ServerName))
 					{
-						me[defaultRoute]->SendPacket(buffer,servers[j]->internal_addr,servers[j]->internal_port,MyKey);
+						me[defaultRoute]->SendPacket(buffer,servers[j]->name);
 						log(DEBUG,"Sent m token");
 					}
 				}
@@ -3850,7 +3850,7 @@ void handle_kick(char **parameters, int pcnt, userrec *user)
 	{
 		if (servers[j] != NULL)
 		{
-			me[defaultRoute]->SendPacket(buffer,servers[j]->internal_addr,servers[j]->internal_port,MyKey);
+			me[defaultRoute]->SendPacket(buffer,servers[j]->name);
 			log(DEBUG,"Sent k token");
 		}
 	}
@@ -3921,7 +3921,7 @@ void kill_link(userrec *user,const char* r)
 			{
 				if (strcmp(servers[j]->name,ServerName))
 				{
-					me[defaultRoute]->SendPacket(buffer,servers[j]->internal_addr,servers[j]->internal_port,MyKey);
+					me[defaultRoute]->SendPacket(buffer,servers[j]->name);
 					log(DEBUG,"Sent Q token");
 				}
 			}
@@ -3979,7 +3979,7 @@ void handle_kill(char **parameters, int pcnt, userrec *user)
 				{
 					if (strcmp(servers[j]->name,ServerName))
 					{
-						me[defaultRoute]->SendPacket(buffer,servers[j]->internal_addr,servers[j]->internal_port,MyKey);
+						me[defaultRoute]->SendPacket(buffer,servers[j]->name);
 						log(DEBUG,"Sent K token");
 					}
 				}
@@ -4116,7 +4116,7 @@ void handle_invite(char **parameters, int pcnt, userrec *user)
 		{
 			if (strcmp(servers[j]->name,ServerName))
 			{
-				me[defaultRoute]->SendPacket(buffer,servers[j]->internal_addr,servers[j]->internal_port,MyKey);
+				me[defaultRoute]->SendPacket(buffer,servers[j]->name);
 				log(DEBUG,"Sent i token");
 			}
 		}
@@ -4185,7 +4185,7 @@ void handle_topic(char **parameters, int pcnt, userrec *user)
 					{
 						if (strcmp(servers[j]->name,ServerName))
 						{
-							me[defaultRoute]->SendPacket(buffer,servers[j]->internal_addr,servers[j]->internal_port,MyKey);
+							me[defaultRoute]->SendPacket(buffer,servers[j]->name);
 							log(DEBUG,"Sent t token");
 						}
 					}
@@ -4492,7 +4492,7 @@ void handle_privmsg(char **parameters, int pcnt, userrec *user)
 				{
 					if (ChanAnyOnThisServer(chan,servers[j]->name))
 					{
-						me[defaultRoute]->SendPacket(buffer,servers[j]->internal_addr,servers[j]->internal_port,MyKey);
+						me[defaultRoute]->SendPacket(buffer,servers[j]->name);
 					}
 				}
 			}
@@ -4539,7 +4539,7 @@ void handle_privmsg(char **parameters, int pcnt, userrec *user)
 						// direct write, same server
 						char buffer[MAXBUF];
 						snprintf(buffer,MAXBUF,"P %s %s :%s",user->nick,dest->nick,parameters[1]);
-						me[defaultRoute]->SendPacket(buffer,servers[j]->internal_addr,servers[j]->internal_port,MyKey);
+						me[defaultRoute]->SendPacket(buffer,servers[j]->name);
 					}
 				}
 			}
@@ -4595,7 +4595,7 @@ void handle_notice(char **parameters, int pcnt, userrec *user)
 				{
 					if (ChanAnyOnThisServer(chan,servers[j]->name))
 					{
-						me[defaultRoute]->SendPacket(buffer,servers[j]->internal_addr,servers[j]->internal_port,MyKey);
+						me[defaultRoute]->SendPacket(buffer,servers[j]->name);
 					}
 				}
 			}
@@ -4634,7 +4634,7 @@ void handle_notice(char **parameters, int pcnt, userrec *user)
 						// direct write, same server
 						char buffer[MAXBUF];
 						snprintf(buffer,MAXBUF,"V %s %s :%s",user->nick,dest->nick,parameters[1]);
-						me[defaultRoute]->SendPacket(buffer,servers[j]->internal_addr,servers[j]->internal_port,MyKey);
+						me[defaultRoute]->SendPacket(buffer,servers[j]->name);
 					}
 				}
 			}
@@ -4764,7 +4764,7 @@ void send_network_quit(const char* nick, const char* reason)
 		{
 			if (servers[j] != NULL)
 			{
-				me[defaultRoute]->SendPacket(buffer,servers[j]->internal_addr,servers[j]->internal_port,MyKey);
+				me[defaultRoute]->SendPacket(buffer,servers[j]->name);
 				log(DEBUG,"Sent Q token");
 			}
 		}
@@ -4801,7 +4801,7 @@ void handle_quit(char **parameters, int pcnt, userrec *user)
 			{
 				if (servers[j] != NULL)
 				{
-					me[defaultRoute]->SendPacket(buffer,servers[j]->internal_addr,servers[j]->internal_port,MyKey);
+					me[defaultRoute]->SendPacket(buffer,servers[j]->name);
 					log(DEBUG,"Sent Q token");
 				}
 			}
@@ -4818,7 +4818,7 @@ void handle_quit(char **parameters, int pcnt, userrec *user)
 			{
 				if (servers[j] != NULL)
 				{
-					me[defaultRoute]->SendPacket(buffer,servers[j]->internal_addr,servers[j]->internal_port,MyKey);
+					me[defaultRoute]->SendPacket(buffer,servers[j]->name);
 					log(DEBUG,"Sent Q token");
 				}
 			}
@@ -5106,7 +5106,7 @@ void ConnectUser(userrec *user)
 		{
 			if (strcmp(servers[j]->name,ServerName))
 			{
-				me[defaultRoute]->SendPacket(buffer,servers[j]->internal_addr,servers[j]->internal_port,MyKey);
+				me[defaultRoute]->SendPacket(buffer,servers[j]->name);
 				log(DEBUG,"Sent N token");
 			}
 		}
@@ -5455,13 +5455,9 @@ void handle_connect(char **parameters, int pcnt, userrec *user)
 				servers[j] = new serverrec;
 				//servers[j]->initiator = true;
 				strcpy(servers[j]->internal_addr,Link_IPAddr);
-				servers[j]->internal_port = LinkPort;
 				strcpy(servers[j]->name,Link_ServerName);
 				log(DEBUG,"Allocated new serverrec");
-				if (!me[defaultRoute]->BeginLink(Link_IPAddr,LinkPort,Link_Pass))
-				{
-					WriteServ(user->fd,"NOTICE %s :*** Failed to send auth packet to %s!",user->nick,Link_IPAddr);
-				}
+				me[defaultRoute]->BeginLink(Link_IPAddr,LinkPort,Link_Pass,Link_ServerName);
 				return;
 			}
 		}
@@ -5648,7 +5644,7 @@ void handle_nick(char **parameters, int pcnt, userrec *user)
 			{
 				if (strcmp(servers[j]->name,ServerName))
 				{
-					me[defaultRoute]->SendPacket(buffer,servers[j]->internal_addr,servers[j]->internal_port,MyKey);
+					me[defaultRoute]->SendPacket(buffer,servers[j]->name);
 					log(DEBUG,"Sent n token");
 				}
 			}
@@ -6097,51 +6093,51 @@ void process_buffer(const char* cmdbuf,userrec *user)
 	}
 }
 
-void DoSync(serverrec* serv, char* udp_host,int udp_port, long MyKey)
+void DoSync(serverrec* serv, char* udp_host)
 {
 	char data[MAXBUF];
 	// send start of sync marker: Y <timestamp>
 	// at this point the ircd receiving it starts broadcasting this netburst to all ircds
 	// except the ones its receiving it from.
 	snprintf(data,MAXBUF,"Y %d",time(NULL));
-	serv->SendPacket(data,udp_host,udp_port,MyKey);
+	serv->SendPacket(data,udp_host);
 	// send users and channels
 	for (user_hash::iterator u = clientlist.begin(); u != clientlist.end(); u++)
 	{
 		snprintf(data,MAXBUF,"N %d %s %s %s %s +%s %s :%s",u->second->age,u->second->nick,u->second->host,u->second->dhost,u->second->ident,u->second->modes,u->second->server,u->second->fullname);
-		serv->SendPacket(data,udp_host,udp_port,MyKey);
+		serv->SendPacket(data,udp_host);
 		if (strcmp(chlist(u->second),""))
 		{
 			snprintf(data,MAXBUF,"J %s %s",u->second->nick,chlist(u->second));
-			serv->SendPacket(data,udp_host,udp_port,MyKey);
+			serv->SendPacket(data,udp_host);
 		}
 	}
 	// send channel modes, topics etc...
 	for (chan_hash::iterator c = chanlist.begin(); c != chanlist.end(); c++)
 	{
 		snprintf(data,MAXBUF,"M %s +%s",c->second->name,chanmodes(c->second));
-		serv->SendPacket(data,udp_host,udp_port,MyKey);
+		serv->SendPacket(data,udp_host);
 		if (strcmp(c->second->topic,""))
 		{
 			snprintf(data,MAXBUF,"T %d %s %s :%s",c->second->topicset,c->second->setby,c->second->name,c->second->topic);
-			serv->SendPacket(data,udp_host,udp_port,MyKey);
+			serv->SendPacket(data,udp_host);
 		}
 		// send current banlist
 		
 		for (BanList::iterator b = c->second->bans.begin(); b != c->second->bans.end(); b++)
 		{
 			snprintf(data,MAXBUF,"M %s +b %s",b->set_time,c->second->name,b->data);
-			serv->SendPacket(data,udp_host,udp_port,MyKey);
+			serv->SendPacket(data,udp_host);
 		}
 	}
 	// send end of sync marker: E <timestamp>
 	snprintf(data,MAXBUF,"F %d",time(NULL));
-	serv->SendPacket(data,udp_host,udp_port,MyKey);
+	serv->SendPacket(data,udp_host);
 	// ircd sends its serverlist after the end of sync here
 }
 
 
-void handle_V(char token,char* params,serverrec* source,serverrec* reply, char* udp_host,int udp_port)
+void handle_V(char token,char* params,serverrec* source,serverrec* reply, char* udp_host)
 {
 	char* src = strtok(params," ");
 	char* dest = strtok(NULL," :");
@@ -6170,7 +6166,7 @@ void handle_V(char token,char* params,serverrec* source,serverrec* reply, char* 
 }
 
 
-void handle_P(char token,char* params,serverrec* source,serverrec* reply, char* udp_host,int udp_port)
+void handle_P(char token,char* params,serverrec* source,serverrec* reply, char* udp_host)
 {
 	char* src = strtok(params," ");
 	char* dest = strtok(NULL," :");
@@ -6198,7 +6194,7 @@ void handle_P(char token,char* params,serverrec* source,serverrec* reply, char* 
 	
 }
 
-void handle_i(char token,char* params,serverrec* source,serverrec* reply, char* udp_host,int udp_port)
+void handle_i(char token,char* params,serverrec* source,serverrec* reply, char* udp_host)
 {
 	char* nick = strtok(params," ");
 	char* from = strtok(NULL," ");
@@ -6213,7 +6209,7 @@ void handle_i(char token,char* params,serverrec* source,serverrec* reply, char* 
 	}
 }
 
-void handle_t(char token,char* params,serverrec* source,serverrec* reply, char* udp_host,int udp_port)
+void handle_t(char token,char* params,serverrec* source,serverrec* reply, char* udp_host)
 {
 	char* setby = strtok(params," ");
 	char* channel = strtok(NULL," :");
@@ -6230,7 +6226,7 @@ void handle_t(char token,char* params,serverrec* source,serverrec* reply, char* 
 }
 	
 
-void handle_T(char token,char* params,serverrec* source,serverrec* reply, char* udp_host,int udp_port)
+void handle_T(char token,char* params,serverrec* source,serverrec* reply, char* udp_host)
 {
 	char* tm = strtok(params," ");
 	char* setby = strtok(NULL," ");
@@ -6251,7 +6247,7 @@ void handle_T(char token,char* params,serverrec* source,serverrec* reply, char* 
  	}	
 }
 	
-void handle_M(char token,char* params,serverrec* source,serverrec* reply, char* udp_host,int udp_port)
+void handle_M(char token,char* params,serverrec* source,serverrec* reply, char* udp_host)
 {
 	char* pars[128];
 	char original[MAXBUF],target[MAXBUF];
@@ -6277,7 +6273,7 @@ void handle_M(char token,char* params,serverrec* source,serverrec* reply, char* 
 
 // m is modes set by users only (not servers) valid targets are channels or users.
 
-void handle_m(char token,char* params,serverrec* source,serverrec* reply, char* udp_host,int udp_port)
+void handle_m(char token,char* params,serverrec* source,serverrec* reply, char* udp_host)
 {
 	// m blah #chatspike +b *!test@*4
 	char* pars[128];
@@ -6311,7 +6307,7 @@ void handle_m(char token,char* params,serverrec* source,serverrec* reply, char* 
 }
 
 
-void handle_L(char token,char* params,serverrec* source,serverrec* reply, char* udp_host,int udp_port)
+void handle_L(char token,char* params,serverrec* source,serverrec* reply, char* udp_host)
 {
 	char* nick = strtok(params," ");
 	char* channel = strtok(NULL," :");
@@ -6331,7 +6327,7 @@ void handle_L(char token,char* params,serverrec* source,serverrec* reply, char* 
 	}
 }
 
-void handle_K(char token,char* params,serverrec* source,serverrec* reply, char* udp_host,int udp_port)
+void handle_K(char token,char* params,serverrec* source,serverrec* reply, char* udp_host)
 {
 	char* src = strtok(params," ");
 	char* nick = strtok(NULL," :");
@@ -6351,7 +6347,7 @@ void handle_K(char token,char* params,serverrec* source,serverrec* reply, char* 
 	}
 }
 
-void handle_Q(char token,char* params,serverrec* source,serverrec* reply, char* udp_host,int udp_port)
+void handle_Q(char token,char* params,serverrec* source,serverrec* reply, char* udp_host)
 {
 	char* nick = strtok(params," :");
 	char* reason = strtok(NULL,"\r\n");
@@ -6384,7 +6380,7 @@ void handle_Q(char token,char* params,serverrec* source,serverrec* reply, char* 
 	}
 }
 
-void handle_n(char token,char* params,serverrec* source,serverrec* reply, char* udp_host,int udp_port)
+void handle_n(char token,char* params,serverrec* source,serverrec* reply, char* udp_host)
 {
 	char* oldnick = strtok(params," ");
 	char* newnick = strtok(NULL," ");
@@ -6403,7 +6399,7 @@ void handle_n(char token,char* params,serverrec* source,serverrec* reply, char* 
 }
 
 // k <SOURCE> <DEST> <CHANNEL> :<REASON>
-void handle_k(char token,char* params,serverrec* source,serverrec* reply, char* udp_host,int udp_port)
+void handle_k(char token,char* params,serverrec* source,serverrec* reply, char* udp_host)
 {
 	char* src = strtok(params," ");
 	char* dest = strtok(NULL," ");
@@ -6419,7 +6415,7 @@ void handle_k(char token,char* params,serverrec* source,serverrec* reply, char* 
 	}
 }
 
-void handle_AT(char token,char* params,serverrec* source,serverrec* reply, char* udp_host,int udp_port)
+void handle_AT(char token,char* params,serverrec* source,serverrec* reply, char* udp_host)
 {
 	char* who = strtok(params," :");
 	char* text = strtok(NULL,"\r\n");
@@ -6432,7 +6428,7 @@ void handle_AT(char token,char* params,serverrec* source,serverrec* reply, char*
 }
 
 
-void handle_N(char token,char* params,serverrec* source,serverrec* reply, char* udp_host,int udp_port)
+void handle_N(char token,char* params,serverrec* source,serverrec* reply, char* udp_host)
 {
 	char* tm = strtok(params," ");
 	char* nick = strtok(NULL," ");
@@ -6483,14 +6479,14 @@ void handle_N(char token,char* params,serverrec* source,serverrec* reply, char* 
  	}
 }
 
-void handle_F(char token,char* params,serverrec* source,serverrec* reply, char* udp_host,int udp_port)
+void handle_F(char token,char* params,serverrec* source,serverrec* reply, char* udp_host)
 {
 	long tdiff = time(NULL) - atoi(params);
 	if (tdiff)
 		WriteOpers("TS split for %s -> %s: %d",source->name,reply->name,tdiff);
 }
 
-void handle_a(char token,char* params,serverrec* source,serverrec* reply, char* udp_host,int udp_port)
+void handle_a(char token,char* params,serverrec* source,serverrec* reply, char* udp_host)
 {
 	char* nick = strtok(params," :");
 	char* gecos = strtok(NULL,"\r\n");
@@ -6501,7 +6497,7 @@ void handle_a(char token,char* params,serverrec* source,serverrec* reply, char* 
 		strncpy(user->fullname,gecos,MAXBUF);
 }
 
-void handle_b(char token,char* params,serverrec* source,serverrec* reply, char* udp_host,int udp_port)
+void handle_b(char token,char* params,serverrec* source,serverrec* reply, char* udp_host)
 {
 	char* nick = strtok(params," :");
 	char* host = strtok(NULL,"\r\n");
@@ -6513,7 +6509,7 @@ void handle_b(char token,char* params,serverrec* source,serverrec* reply, char* 
 }
 
 
-void handle_J(char token,char* params,serverrec* source,serverrec* reply, char* udp_host,int udp_port)
+void handle_J(char token,char* params,serverrec* source,serverrec* reply, char* udp_host)
 {
 	// IMPORTANT NOTE
 	// The J token currently has no timestamp - this needs looking at
@@ -6565,7 +6561,7 @@ void handle_J(char token,char* params,serverrec* source,serverrec* reply, char* 
 	}
 }
 
-void process_restricted_commands(char token,char* params,serverrec* source,serverrec* reply, char* udp_host,int udp_port)
+void process_restricted_commands(char token,char* params,serverrec* source,serverrec* reply, char* udp_host)
 {
 	switch(token)
 	{
@@ -6578,7 +6574,7 @@ void process_restricted_commands(char token,char* params,serverrec* source,serve
 		// ?
   		// ping
 		case '?':
-			reply->SendPacket("!",udp_host,udp_port,MyKey);
+			reply->SendPacket("!",udp_host);
 		break;
 		// ?
   		// pong
@@ -6591,95 +6587,98 @@ void process_restricted_commands(char token,char* params,serverrec* source,serve
 		// N <TS> <NICK> <HOST> <DHOST> <IDENT> <MODES> <SERVER> :<GECOS>
 		// introduce remote client
 		case 'N':
-			handle_N(token,params,source,reply,udp_host,udp_port);
+			handle_N(token,params,source,reply,udp_host);
 		break;
 		// a <NICK> :<GECOS>
 		// change GECOS (SETNAME)
 		case 'a':
-			handle_a(token,params,source,reply,udp_host,udp_port);
+			handle_a(token,params,source,reply,udp_host);
 		break;
 		// b <NICK> :<HOST>
 		// change displayed host (SETHOST)
 		case 'b':
-			handle_b(token,params,source,reply,udp_host,udp_port);
+			handle_b(token,params,source,reply,udp_host);
 		break;
 		// t <NICK> <CHANNEL> :<TOPIC>
 		// change a channel topic
 		case 't':
-			handle_t(token,params,source,reply,udp_host,udp_port);
+			handle_t(token,params,source,reply,udp_host);
 		break;
 		// i <NICK> <CHANNEL>
 		// invite a user to a channel
 		case 'i':
-			handle_i(token,params,source,reply,udp_host,udp_port);
+			handle_i(token,params,source,reply,udp_host);
 		break;
 		// k <SOURCE> <DEST> <CHANNEL> :<REASON>
 		// kick a user from a channel
 		case 'k':
-			handle_k(token,params,source,reply,udp_host,udp_port);
+			handle_k(token,params,source,reply,udp_host);
 		break;
 		// n <NICK> <NEWNICK>
 		// change nickname of client -- a server should only be able to
 		// change the nicknames of clients that reside on it unless
 		// they are ulined.
 		case 'n':
-			handle_n(token,params,source,reply,udp_host,udp_port);
+			handle_n(token,params,source,reply,udp_host);
 		break;
 		// J <NICK> <CHANLIST>
 		// Join user to channel list, merge channel permissions
 		case 'J':
-			handle_J(token,params,source,reply,udp_host,udp_port);
+			handle_J(token,params,source,reply,udp_host);
 		break;
 		// T <TS> <CHANNEL> <TOPICSETTER> :<TOPIC>
 		// change channel topic (netburst only)
 		case 'T':
-			handle_T(token,params,source,reply,udp_host,udp_port);
+			handle_T(token,params,source,reply,udp_host);
 		break;
 		// M <TARGET> <MODES> [MODE-PARAMETERS]
 		// Server setting modes on an object
 		case 'M':
-			handle_M(token,params,source,reply,udp_host,udp_port);
+			handle_M(token,params,source,reply,udp_host);
 		break;
 		// m <SOURCE> <TARGET> <MODES> [MODE-PARAMETERS]
 		// User setting modes on an object
 		case 'm':
-			handle_m(token,params,source,reply,udp_host,udp_port);
+			handle_m(token,params,source,reply,udp_host);
 		break;
 		// P <SOURCE> <TARGET> :<TEXT>
 		// Send a private/channel message
 		case 'P':
-			handle_P(token,params,source,reply,udp_host,udp_port);
+			handle_P(token,params,source,reply,udp_host);
 		break;
 		// V <SOURCE> <TARGET> :<TEXT>
 		// Send a private/channel notice
 		case 'V':
-			handle_V(token,params,source,reply,udp_host,udp_port);
+			handle_V(token,params,source,reply,udp_host);
 		break;
 		// L <SOURCE> <CHANNEL> :<REASON>
 		// User parting a channel
 		case 'L':
-			handle_L(token,params,source,reply,udp_host,udp_port);
+			handle_L(token,params,source,reply,udp_host);
 		break;
 		// Q <SOURCE> :<REASON>
 		// user quitting
 		case 'Q':
-			handle_Q(token,params,source,reply,udp_host,udp_port);
+			handle_Q(token,params,source,reply,udp_host);
 		break;
 		// K <SOURCE> <DEST> :<REASON>
 		// remote kill
 		case 'K':
-			handle_K(token,params,source,reply,udp_host,udp_port);
+			handle_K(token,params,source,reply,udp_host);
 		break;
 		// @ <SOURCE> :<TEXT>
 		// wallops
 		case '@':
-			handle_AT(token,params,source,reply,udp_host,udp_port);
+			handle_AT(token,params,source,reply,udp_host);
 		break;
 		// F <TS>
 		// end netburst
 		case 'F':
 			WriteOpers("Server %s has completed netburst. (%d secs)",source->name,time(NULL)-nb_start);
-			handle_F(token,params,source,reply,udp_host,udp_port);
+			handle_F(token,params,source,reply,udp_host);
+			WriteOpers("Sending my netburst to %s",source->name);
+			DoSync(serv,udp_host);
+			WriteOpers("Send of netburst to %s completed",source->name);
 		break;
 		// anything else
 		default:
@@ -6689,7 +6688,7 @@ void process_restricted_commands(char token,char* params,serverrec* source,serve
 }
 
 
-void handle_link_packet(long theirkey, char* udp_msg, char* udp_host, int udp_port, serverrec *serv)
+void handle_link_packet(char* udp_msg, char* udp_host, serverrec *serv)
 {
 	char response[10240];
 	char token = udp_msg[0];
@@ -6724,63 +6723,41 @@ void handle_link_packet(long theirkey, char* udp_msg, char* udp_host, int udp_po
 			ConfValue("link","sendpass",i,Link_SendPass,&config_f);
 			log(DEBUG,"(%d) Comparing against name='%s', ipaddr='%s', port='%s', recvpass='%s'",i,Link_ServerName,Link_IPAddr,Link_Port,Link_Pass);
 			LinkPort = atoi(Link_Port);
-			if (!strcasecmp(Link_ServerName,servername)) {
-				if (!strcasecmp(Link_IPAddr,udp_host)) {
-					if (LinkPort == udp_port) {
-						// we have a matching link line -
-						// send a 'diminutive' server message back...
-						snprintf(response,10240,"s %s %s :%s",ServerName,Link_SendPass,ServerDesc);
-						serv->SendPacket(response,udp_host,udp_port,0);
-						WriteOpers("CONNECT from %s accepted, authenticating",servername);
-						for (int j = 0; j < 255; j++) {
-							if (servers[j] == NULL) {
-								servers[j] = new serverrec;
-								strcpy(servers[j]->internal_addr,udp_host);
-								strcpy(servers[j]->name,servername);
-								strcpy(servers[j]->description,serverdesc);
-								servers[j]->internal_port = udp_port;
-								// create a server record for this server
-								WriteOpers("Server %s authenticated, exchanging server keys...",servername);
-								snprintf(response,10240,"O %d",MyKey);
-								serv->SendPacket(response,udp_host,udp_port,0);
-								return;
-							}
+			if (!strcasecmp(Link_ServerName,servername))
+   			{
+				if (!strcasecmp(Link_IPAddr,udp_host))
+    				{
+					// we have a matching link line -
+					// send a 'diminutive' server message back...
+					snprintf(response,10240,"s %s %s :%s",ServerName,Link_SendPass,ServerDesc);
+					serv->SendPacket(response,udp_host);
+					WriteOpers("CONNECT from %s accepted, authenticating",servername);
+					for (int j = 0; j < 255; j++)
+     					{
+						if (servers[j] == NULL)
+						{
+							servers[j] = new serverrec;
+							strcpy(servers[j]->internal_addr,udp_host);
+							strcpy(servers[j]->name,servername);
+							strcpy(servers[j]->description,serverdesc);
+							// create a server record for this server
+							WriteOpers("Server %s authenticated, exchanging server keys...",servername);
+							snprintf(response,10240,"O %d",MyKey);
+							serv->SendPacket(response,udp_host);
+							return;
 						}
-						WriteOpers("Internal error connecting to %s, failed to create server record!",servername);
-						return;
 					}
-					else {
-						log(DEBUG,"Port numbers '%d' and '%d' don't match",LinkPort,udp_port);
-					}
-				}
-				else {
-					log(DEBUG,"IP Addresses '%s' and '%s' don't match",Link_IPAddr,udp_host);
+					WriteOpers("Internal error connecting to %s, failed to create server record!",servername);
+					return;
 				}
 			}
 			else {
 				log(DEBUG,"Server names '%s' and '%s' don't match",Link_ServerName,servername);
 			}
 		}
-		serv->SendPacket("E :Access is denied (no matching link block)",udp_host,udp_port,0);
+		serv->SendPacket("E :Access is denied (no matching link block)",udp_host);
 		WriteOpers("CONNECT from %s denied, no matching link block",servername);
 		return;
-	}
-	else
-	if (token == 'O') {
-		// if this is received, this means the server-ip that sent it said "OK" to credentials.
-		// only when a server says this do we exchange keys. The server MUST have an entry in the servers
-		// array, which is only added by an 'S' packet or BeginLink().
-		for (int i = 0; i < 255; i++) {
-			if (servers[i] != NULL) {
-				if (!strcasecmp(servers[i]->internal_addr,udp_host)) {
-					servers[i]->key = atoi(params);
-					log(DEBUG,"Key for this server is now %d",servers[i]->key);
-					DoSync(serv,udp_host,udp_port,MyKey);
-					return;
-				}
-			}
-		}
-		WriteOpers("\2WARNING!\2 Server ip %s attempted a key exchange, but is not in the authentication state! Possible intrusion attempt!",udp_host);
 	}
 	else
 	if (token == 's') {
@@ -6817,29 +6794,25 @@ void handle_link_packet(long theirkey, char* udp_msg, char* udp_host, int udp_po
 			ConfValue("link","sendpass",i,Link_SendPass,&config_f);
 			log(DEBUG,"(%d) Comparing against name='%s', ipaddr='%s', port='%s', recvpass='%s'",i,Link_ServerName,Link_IPAddr,Link_Port,Link_Pass);
 			LinkPort = atoi(Link_Port);
-			if (!strcasecmp(Link_ServerName,servername)) {
-				if (!strcasecmp(Link_IPAddr,udp_host)) {
-					if (LinkPort == udp_port) {
-						// matching link at this end too, we're all done!
-						// at this point we must begin key exchange and insert this
-						// server into our 'active' table.
-						for (int j = 0; j < 255; j++) {
-							if (servers[j] != NULL) {
-								if (!strcasecmp(servers[j]->internal_addr,udp_host)) {
-									strcpy(servers[j]->description,serverdesc);
-									WriteOpers("Server %s authenticated, exchanging server keys...",servername);
-									snprintf(response,10240,"O %d",MyKey);
-									serv->SendPacket(response,udp_host,udp_port,0);
-									return;
-								}
+			if (!strcasecmp(Link_ServerName,servername))
+   			{
+				if (!strcasecmp(Link_IPAddr,udp_host))
+				{
+					// matching link at this end too, we're all done!
+					// at this point we must begin key exchange and insert this
+					// server into our 'active' table.
+					for (int j = 0; j < 255; j++) {
+						if (servers[j] != NULL) {
+							if (!strcasecmp(servers[j]->name,udp_host)) {
+								strcpy(servers[j]->description,serverdesc);
+								WriteOpers("Server %s authenticated, exchanging server keys...",servername);
+								DoSync(serv,udp_host);
+								return;
 							}
 						}
 						WriteOpers("\2WARNING!\2 %s sent us an authentication packet but we are not authenticating with this server right noe! Possible intrusion attempt!",udp_host);
 						return;
 
-					}
-					else {
-						log(DEBUG,"Port numbers '%d' and '%d' don't match",LinkPort,udp_port);
 					}
 				}
 				else {
@@ -6850,7 +6823,7 @@ void handle_link_packet(long theirkey, char* udp_msg, char* udp_host, int udp_po
 				log(DEBUG,"Server names '%s' and '%s' don't match",Link_ServerName,servername);
 			}
 		}
-		serv->SendPacket("E :Access is denied (no matching link block)",udp_host,udp_port,0);
+		serv->SendPacket("E :Access is denied (no matching link block)",udp_host);
 		WriteOpers("CONNECT from %s denied, no matching link block",servername);
 		return;
 	}
@@ -6861,7 +6834,7 @@ void handle_link_packet(long theirkey, char* udp_msg, char* udp_host, int udp_po
 		// remove this server from any lists
 		for (int j = 0; j < 255; j++) {
 			if (servers[j] != NULL) {
-				if (!strcasecmp(servers[j]->internal_addr,udp_host)) {
+				if (!strcasecmp(servers[j]->name,udp_host)) {
 					delete servers[j];
 					return;
 				}
@@ -6875,17 +6848,17 @@ void handle_link_packet(long theirkey, char* udp_msg, char* udp_host, int udp_po
 
 		for (int j = 0; j < 255; j++) {
 			if (servers[j] != NULL) {
-				if (!strcasecmp(servers[j]->internal_addr,udp_host)) {
-					if (servers[j]->key == theirkey) {
+				if (!strcasecmp(servers[j]->name,udp_host)) {
+					if (servers[j]->haspassed) {
 						// found a valid key for this server, can process restricted stuff here
-						process_restricted_commands(token,params,servers[j],serv,udp_host,udp_port);
+						process_restricted_commands(token,params,servers[j],serv,udp_host);
 						return;
 					}
 				}
 			}
 		}
 
-		log(DEBUG,"Unrecognised token or unauthenticated host in datagram from %s:%d: %c",udp_host,udp_port,token);
+		log(DEBUG,"Unrecognised token or unauthenticated host in datagram from %s: %c",udp_host,token);
 	}
 }
 
@@ -7064,8 +7037,8 @@ int InspIRCd(void)
 		return (ERROR);
 	}
 	
+
 	length = sizeof (client);
-	int flip_flop = 0, udp_port = 0;
 	char udp_msg[MAXBUF], udp_host[MAXBUF];
 	  
 	/* main loop, this never returns */
@@ -7095,23 +7068,46 @@ int InspIRCd(void)
 			reap_counter=0;
 		}
 
+		fd_set serverfds;
+		FD_ZERO(&serverfds);
+		timeval tvs;
+		
+		for (int x = 0; x != UDPportCount; x++)
+		{
+			FD_SET(me[x]->fd, &serverfds);
+		}
+		
+		tvs.tv_usec = 0;		
+		tvs.tv_sec = 0;
+		
+		int servresult = select(32767, &serverfds, NULL, NULL, &tvs);
+		if (servresult > 0)
+		{
+			for (int x = 0; x != UDPportCount; x++)
+			{
+				if (FD_ISSET (me[x]->fd, &serverfds))
+				{
+					char remotehost[MAXBUF];
+					incomingSockfd = accept (me[x]->fd, (sockaddr *) &client, &length);
+					strncpy (remotehost,(char *) inet_ntoa (client.sin_addr),MAXBUF);
+					// add to this connections ircd_connector vector
+					me[x]->AddIncoming(incomingSockfd,remotehost);
+				}
+			}
+		}
      
 		for (int x = 0; x != UDPportCount; x++)
 		{
 			long theirkey = 0;
-			if (me[x]->RecvPacket(udp_msg, udp_host, udp_port, theirkey))
+			if (me[x]->RecvPacket(udp_msg, udp_host))
 			{
 				if (strlen(udp_msg)<1) {
-				log(DEBUG,"Invalid datagram from %s:%d:%d [route%d]",udp_host,udp_port,me[x]->port,x);
+				log(DEBUG,"Invalid string from %s [route%d]",udp_host,x);
 			}
 			else
 			{
 				FOREACH_MOD OnPacketReceive(udp_msg);
-				// Packets must go back via the route they arrived on :)
-				handle_link_packet(theirkey, udp_msg, udp_host, udp_port, me[x]);
-				// link packets can manipulate the usertable so beware of
-				// any loops here watching the user or channels hash
-				log(DEBUG,"Sync: exit 3");
+				handle_link_packet(udp_msg, udp_host, me[x]);
 				goto label;
 			}
 		}
