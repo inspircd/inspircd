@@ -101,6 +101,7 @@ class Module : public classbase
 	virtual void Module::OnPacketTransmit(char *p);
  	virtual void Module::OnPacketReceive(char *p);
  	virtual void OnRehash();
+ 	virtual void Module::OnServerRaw(string &raw, bool inbound);
 
 };
 

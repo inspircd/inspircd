@@ -33,6 +33,7 @@ void Module::OnUserPart(userrec* user, chanrec* channel) { }
 void Module::OnPacketTransmit(char *p) { }
 void Module::OnPacketReceive(char *p) { }
 void Module::OnRehash() { }
+void Module::OnServerRaw(string &raw, bool inbound) { }
 Version Module::GetVersion() { return Version(1,0,0,0); }
 
 // server is a wrapper class that provides methods to all of the C-style

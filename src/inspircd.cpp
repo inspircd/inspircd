@@ -192,12 +192,19 @@ void safedelete(chanrec *p)
 
 void chop(char* str)
 {
-	if (strlen(str) > 512)
-	{
-		str[510] = '\r';
-		str[511] = '\n';
-		str[512] = '\0';
-	}
+
+  string temp = str;
+  FOREACH_MOD OnServerRaw(temp,false);
+  const char* str2 = temp.c_str();
+  sprintf(str,"%s",str2);
+  
+
+  if (strlen(str) > 512)
+  {
+  	str[510] = '\r';
+  	str[511] = '\n';
+  	str[512] = '\0';
+  }
 }
 
 
