@@ -1,7 +1,7 @@
 [Project]
 FileName=InspIRCd.dev
 Name=InspIRCd - The Inspire Internet Relay Chat Daemon
-UnitCount=52
+UnitCount=53
 Type=1
 Ver=1
 ObjFiles=
@@ -19,7 +19,7 @@ ObjectOutput=
 OverrideOutput=0
 OverrideOutputName=InspIRCd.exe
 HostApplication=
-Folders=Headers,Modules,Source
+Folders=Headers,Modules,Modules/Misc,Modules/Oper,Modules/Server,Modules/User,Source
 CommandLine=
 IncludeVersionInfo=0
 SupportXPThemes=0
@@ -109,7 +109,7 @@ Priority=1000
 
 [Unit9]
 FileName=modules\m_randquote.cpp
-Folder=Modules
+Folder=Modules/Server
 Compile=0
 CompileCpp=1
 OverrideBuildCmd=0
@@ -119,7 +119,7 @@ Priority=1000
 
 [Unit10]
 FileName=modules\m_foobar.cpp
-Folder=Modules
+Folder=Modules/Misc
 Compile=0
 CompileCpp=1
 OverrideBuildCmd=0
@@ -129,7 +129,7 @@ Priority=1000
 
 [Unit11]
 FileName=modules\m_cloaking.cpp
-Folder=Modules
+Folder=Modules/Server
 Compile=0
 CompileCpp=1
 OverrideBuildCmd=0
@@ -308,7 +308,7 @@ Priority=1000
 [Unit27]
 FileName=modules\m_testcommand.cpp
 CompileCpp=1
-Folder=Modules
+Folder=Modules/Misc
 Compile=1
 Link=1
 Priority=1000
@@ -318,7 +318,7 @@ BuildCmd=
 [Unit28]
 FileName=modules\m_globops.cpp
 CompileCpp=1
-Folder=Modules
+Folder=Modules/Oper
 Compile=1
 Link=1
 Priority=1000
@@ -328,7 +328,7 @@ BuildCmd=
 [Unit29]
 FileName=modules\m_sapart.cpp
 CompileCpp=1
-Folder=Modules
+Folder=Modules/Oper
 Compile=1
 Link=1
 Priority=1000
@@ -338,7 +338,7 @@ BuildCmd=
 [Unit30]
 FileName=modules\m_sanick.cpp
 CompileCpp=1
-Folder=Modules
+Folder=Modules/Oper
 Compile=1
 Link=1
 Priority=1000
@@ -348,7 +348,7 @@ BuildCmd=
 [Unit31]
 FileName=modules\m_sajoin.cpp
 CompileCpp=1
-Folder=Modules
+Folder=Modules/Oper
 Compile=1
 Link=1
 Priority=1000
@@ -358,7 +358,7 @@ BuildCmd=
 [Unit32]
 FileName=modules\m_samode.cpp
 CompileCpp=1
-Folder=Modules
+Folder=Modules/Oper
 Compile=1
 Link=1
 Priority=1000
@@ -368,7 +368,7 @@ BuildCmd=
 [Unit35]
 FileName=modules\m_sethost.cpp
 CompileCpp=1
-Folder=Modules
+Folder=Modules/Oper
 Compile=1
 Link=1
 Priority=1000
@@ -378,7 +378,7 @@ BuildCmd=
 [Unit36]
 FileName=modules\m_setname.cpp
 CompileCpp=1
-Folder=Modules
+Folder=Modules/User
 Compile=1
 Link=1
 Priority=1000
@@ -388,7 +388,7 @@ BuildCmd=
 [Unit37]
 FileName=modules\m_saquit.cpp
 CompileCpp=1
-Folder=Modules
+Folder=Modules/Oper
 Compile=1
 Link=1
 Priority=1000
@@ -398,7 +398,7 @@ BuildCmd=
 [Unit38]
 FileName=modules\m_helpop.cpp
 CompileCpp=1
-Folder=Modules
+Folder=Modules/User
 Compile=1
 Link=1
 Priority=1000
@@ -408,7 +408,7 @@ BuildCmd=
 [Unit39]
 FileName=modules\m_antibottler.cpp
 CompileCpp=1
-Folder=Modules
+Folder=Modules/Server
 Compile=1
 Link=1
 Priority=1000
@@ -428,7 +428,7 @@ BuildCmd=
 [Unit33]
 FileName=modules\m_filter.cpp
 CompileCpp=1
-Folder=Modules
+Folder=Modules/Server
 Compile=1
 Link=1
 Priority=1000
@@ -438,7 +438,7 @@ BuildCmd=
 [Unit34]
 FileName=modules\m_chghost.cpp
 CompileCpp=1
-Folder=Modules
+Folder=Modules/Oper
 Compile=1
 Link=1
 Priority=1000
@@ -518,7 +518,7 @@ BuildCmd=
 [Unit48]
 FileName=modules\m_services.cpp
 CompileCpp=1
-Folder=Modules
+Folder=Modules/Server
 Compile=1
 Link=1
 Priority=1000
@@ -528,7 +528,7 @@ BuildCmd=
 [Unit49]
 FileName=modules\m_alias.cpp
 CompileCpp=1
-Folder=Modules
+Folder=Modules/Server
 Compile=1
 Link=1
 Priority=1000
@@ -548,7 +548,7 @@ BuildCmd=
 [Unit51]
 FileName=modules\m_chanprotect.cpp
 CompileCpp=1
-Folder=Modules
+Folder=Modules/Server
 Compile=1
 Link=1
 Priority=1000
@@ -558,7 +558,17 @@ BuildCmd=
 [Unit52]
 FileName=modules\m_override.cpp
 CompileCpp=1
-Folder=Modules
+Folder=Modules/Oper
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit53]
+FileName=modules\m_operchans.cpp
+CompileCpp=1
+Folder=Modules/Oper
 Compile=1
 Link=1
 Priority=1000

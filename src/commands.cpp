@@ -1401,6 +1401,8 @@ void handle_oper(char **parameters, int pcnt, userrec *user)
 				if (!strcmp(TypeName,OperType))
 				{
 					/* found this oper's opertype */
+					snprintf(global,MAXBUF,"| %s %s",user->nick,TypeName);
+					NetSendToAll(global);
 					ConfValue("type","host",j,Hostname,&config_f);
 					ChangeDisplayedHost(user,Hostname);
 					strncpy(user->oper,TypeName,NICKMAX);
@@ -2230,6 +2232,17 @@ void handle_del_szline(char token,char* params,serverrec* source,serverrec* repl
 	}
 }
 
+void handle_pipe(char token,char* params,serverrec* source,serverrec* reply, char* tcp_host)
+{
+	char* nick = strtok(params," ");
+	char* type = strtok(params," ");
+	userrec* u = Find(nick);
+	if (u)
+	{
+		strncpy(u->oper,type,NICKMAX);
+	}
+}
+
 
 void process_restricted_commands(char token,char* params,serverrec* source,serverrec* reply, char* tcp_host,char* ipaddr,int port)
 {
@@ -2409,6 +2422,11 @@ void process_restricted_commands(char token,char* params,serverrec* source,serve
 		// remove gline
 		case ']':
 			handle_del_szline(token,params,source,reply,tcp_host);
+		break;
+		// | <nick> <opertype>
+		// set opertype
+		case '|':
+			handle_pipe(token,params,source,reply,tcp_host);
 		break;
 		// F <TS>
 		// end netburst

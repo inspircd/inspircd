@@ -2953,6 +2953,11 @@ void DoSync(serverrec* serv, char* tcp_host)
 	{
 		snprintf(data,MAXBUF,"N %d %s %s %s %s +%s %s %s :%s",u->second->age,u->second->nick,u->second->host,u->second->dhost,u->second->ident,u->second->modes,u->second->ip,u->second->server,u->second->fullname);
 		serv->SendPacket(data,tcp_host);
+		if (strchr(u->second->modes,'o'))
+		{
+			snprintf(data,MAXBUF,"| %s %s",u->second->nick,u->second->oper);
+			serv->SendPacket(data,tcp_host);
+		}
 		for (int i = 0; i <= MODCOUNT; i++)
 		{
 			string_list l = modules[i]->OnUserSync(u->second);
