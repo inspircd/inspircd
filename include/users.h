@@ -17,7 +17,7 @@
 #include "inspircd_config.h" 
 #include "channels.h"
 #include "connection.h"
-
+#include "inspstring.h"
 #include <string>
  
 #ifndef __USERS_H__ 

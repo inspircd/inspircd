@@ -2,6 +2,7 @@
 #define __IN_INSPSTRING_H
 
 #include "inspircd_config.h"
+#include <cstddef>
 
 #ifndef HAS_STRLCPY
 size_t strlcpy(char *dst, const char *src, size_t siz);
