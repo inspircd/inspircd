@@ -51,7 +51,7 @@ class ModuleServices : public Module
 					// FCS - BugFix for #27 :)
 					if ((!strchr(user->modes,'r')) && (mode_on == false)) {
 						return 1;
-					} else if (strchr(user->modes,'r'))  && (mode_on == true)) {
+					} else if ((strchr(user->modes,'r')) && (mode_on == true)) {
 						return 1;
 					} else { 
 						return 0;
