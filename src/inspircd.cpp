@@ -2324,7 +2324,7 @@ void ConnectUser(userrec *user)
 	WriteOpers("*** Client connecting on port %d: %s!%s@%s",user->port,user->nick,user->ident,user->host);
 	
 	char buffer[MAXBUF];
-	snprintf(buffer,MAXBUF,"N %d %s %s %s %s +%s %s :%s",user->age,user->nick,user->host,user->dhost,user->ident,user->modes,ServerName,user->fullname);
+	snprintf(buffer,MAXBUF,"N %d %s %s %s %s +%s %s %s :%s",user->age,user->nick,user->host,user->dhost,user->ident,user->modes,user->ip,ServerName,user->fullname);
 	NetSendToAll(buffer);
 }
 
@@ -2905,7 +2905,7 @@ void DoSync(serverrec* serv, char* tcp_host)
 	// send users and channels
 	for (user_hash::iterator u = clientlist.begin(); u != clientlist.end(); u++)
 	{
-		snprintf(data,MAXBUF,"N %d %s %s %s %s +%s %s :%s",u->second->age,u->second->nick,u->second->host,u->second->dhost,u->second->ident,u->second->modes,u->second->server,u->second->fullname);
+		snprintf(data,MAXBUF,"N %d %s %s %s %s +%s %s %s :%s",u->second->age,u->second->nick,u->second->host,u->second->dhost,u->second->ident,u->second->modes,u->second->ip,u->second->server,u->second->fullname);
 		serv->SendPacket(data,tcp_host);
 		if (strcmp(chlist(u->second),""))
 		{

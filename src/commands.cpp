@@ -1790,6 +1790,7 @@ void handle_N(char token,char* params,serverrec* source,serverrec* reply, char* 
 	char* dhost = strtok(NULL," ");
 	char* ident = strtok(NULL," ");
 	char* modes = strtok(NULL," ");
+	char* ipaddr = strtok(NULL," ");
 	char* server = strtok(NULL," :");
 	char* gecos = strtok(NULL,"\r\n");
 	gecos++;
