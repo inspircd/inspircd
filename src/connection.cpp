@@ -148,10 +148,24 @@ bool connection::SendPacket(char *message, char* host, int port, long ourkey)
 		host_address.sin_family=AF_INET;
 		host_address_size=sizeof(host_address);
 	
-		if (recvfrom(fd,&p2,sizeof(p2),0,(sockaddr*)&host_address,&host_address_size)<0)
+		// wait for ack, or timeout.
+		// if reached a timeout, send again.
+		// the packet id in the ack must match that in the original packet
+		// this MUST operate in lock/step fashion!!!
+		int cycles = 0;
+		packet p2;
+		do 
 		{
-			return false;
+			fd_set sfd;
+			timeval tval;
+			tval.tv_usec = 100;
+			tval.tv_sec = 0;
+			FD_ZERO(&sfd);
+			FD_SET(fd,&sfd);
+			int res = select(65535, &sfd, NULL, NULL, &tval);
+			cycles++;
 		}
+		while ((recvfrom(fd,&p2,sizeof(p2),0,(sockaddr*)&host_address,&host_address_size)<0) && (cycles < 10));
 		
 		if (cycles >= 10)
 		{
