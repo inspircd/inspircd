@@ -4,6 +4,7 @@
 #include <sys/errno.h>
 #include <sys/ioctl.h>
 #include <sys/utsname.h>
+#include <errno.h>
 #include "inspircd.h"
 #include "modules.h"
 
@@ -128,7 +129,7 @@ bool connection::SendPacket(char *message, char* host, int port, long ourkey)
 	// returns false if the packet could not be sent (e.g. target host down)
 	if (sendto(this->fd,&p,sizeof(p),0,(sockaddr*)&host_address,sizeof(host_address))<0)
 	{
-		log(DEBUG,"sendto() failed for Connection::SendPacket() with a packet of size %d",sizeof(p));
+		log(DEBUG,"sendto() failed for Connection::SendPacket() with a packet of size %d: %s",sizeof(p),strerror(errno));
 		return false;
 	}
 	this->state = STATE_WAIT_FOR_ACK;
