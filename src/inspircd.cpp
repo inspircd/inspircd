@@ -3911,11 +3911,45 @@ void handle_kill(char **parameters, int pcnt, userrec *user)
         log(DEBUG,"kill: %s %s",parameters[0],parameters[1]);
 	if (u)
 	{
-		WriteTo(user, u, "KILL %s :%s!%s!%s (%s)", u->nick, ServerName,user->dhost,user->nick,parameters[1]);
-		// :Brain!brain@NetAdmin.chatspike.net KILL [Brain] :homer!NetAdmin.chatspike.net!Brain (test kill)
-		WriteOpers("*** Local Kill by %s: %s!%s@%s (%s)",user->nick,u->nick,u->ident,u->host,parameters[1]);
-		sprintf(killreason,"Killed (%s (%s))",user->nick,parameters[1]);
-		kill_link(u,killreason);
+		if (strcmp(ServerName,u->server))
+		{
+			// remote kill
+			WriteOpers("*** Remote kill: %s!%s@%s (%s)",user->nick,u->nick,u->ident,u->host,parameters[1]);
+			sprintf(killreason,"[%s] Killed (%s (%s))",u->server,user->nick,parameters[1]);
+			WriteCommonExcept(user,"QUIT :%s",killreason);
+			// K token must go to ALL servers!!!
+			char buffer[MAXBUF];
+				snprintf(buffer,MAXBUF,"K %s :%s",user->nick,killreason);
+			for (int j = 0; j < 255; j++)
+			{
+				if (servers[j] != NULL)
+				{
+					if (strcmp(servers[j]->name,ServerName))
+					{
+						me[defaultRoute]->SendPacket(buffer,servers[j]->internal_addr,servers[j]->internal_port,MyKey);
+						log(DEBUG,"Sent K token");
+					}
+				}
+			}
+			user_hash::iterator iter = clientlist.find(user->nick);
+			if (iter != clientlist.end())
+			{
+				log(DEBUG,"deleting user hash value %d",iter->second);
+				if ((iter->second) && (user->registered == 7)) {
+					delete iter->second;
+					}
+			clientlist.erase(iter);
+			}
+			purge_empty_chans();
+		}
+		else
+		{
+			// local kill
+			WriteTo(user, u, "KILL %s :%s!%s!%s (%s)", u->nick, ServerName,user->dhost,user->nick,parameters[1]);
+			WriteOpers("*** Local Kill by %s: %s!%s@%s (%s)",user->nick,u->nick,u->ident,u->host,parameters[1]);
+			sprintf(killreason,"Killed (%s (%s))",user->nick,parameters[1]);
+			kill_link(u,killreason);
+		}
 	}
 	else
 	{
@@ -6233,6 +6267,25 @@ void handle_L(char token,char* params,serverrec* source,serverrec* reply, char* 
 	}
 }
 
+void handle_K(char token,char* params,serverrec* source,serverrec* reply, char* udp_host,int udp_port)
+{
+	char* src = strtok(params," ");
+	char* nick = strtok(NULL," :");
+	char* reason = strtok(NULL,"\r\n");
+	reason++;
+
+	userrec* u = Find(nick);
+	userrec* user = Find(src);
+	
+	if ((user) && (u))
+	{
+		WriteTo(user, u, "KILL %s :%s!%s!%s!%s (%s)", u->nick, source->name,ServerName,user->dhost,user->nick,reason);
+		WriteOpers("*** Remote kill from %s by %s: %s!%s@%s (%s)",source->name,user->nick,u->nick,u->ident,u->host,reason);
+		snprintf(reason,MAXQUIT,"[%s] Killed (%s (%s))",source->name,user->nick,reason);
+		kill_link(u,reason);
+	}
+}
+
 void handle_Q(char token,char* params,serverrec* source,serverrec* reply, char* udp_host,int udp_port)
 {
 	char* nick = strtok(params," :");
@@ -6500,6 +6553,11 @@ void process_restricted_commands(char token,char* params,serverrec* source,serve
 		// user quitting
 		case 'Q':
 			handle_Q(token,params,source,reply,udp_host,udp_port);
+		break;
+		// K <SOURCE> :<REASON>
+		// remote kill
+		case 'K':
+			handle_K(token,params,source,reply,udp_host,udp_port);
 		break;
 		// F <TS>
 		// end netburst
