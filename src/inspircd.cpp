@@ -892,6 +892,8 @@ void NetSendToCommon(userrec* u, char* s)
 	char buffer[MAXBUF];
 	snprintf(buffer,MAXBUF,"%s",s);
 	
+	log(DEBUG,"NetSendToCommon: '%s' '%s'",u->nick,s);
+
 	for (int j = 0; j < 32; j++)
 	{
 		if (me[j] != NULL)
@@ -913,6 +915,8 @@ void NetSendToAll(char* s)
 	char buffer[MAXBUF];
 	snprintf(buffer,MAXBUF,"%s",s);
 	
+	log(DEBUG,"NetSendToAll: '%s'",target,s);
+
 	for (int j = 0; j < 32; j++)
 	{
 		if (me[j] != NULL)
@@ -931,6 +935,8 @@ void NetSendToOne(char* target,char* s)
 	char buffer[MAXBUF];
 	snprintf(buffer,MAXBUF,"%s",s);
 	
+	log(DEBUG,"NetSendToOne: '%s' '%s'",target,s);
+
 	for (int j = 0; j < 32; j++)
 	{
 		if (me[j] != NULL)
@@ -950,6 +956,8 @@ void NetSendToAllExcept(char* target,char* s)
 {
 	char buffer[MAXBUF];
 	snprintf(buffer,MAXBUF,"%s",s);
+	
+	log(DEBUG,"NetSendToAllExcept: '%s' '%s'",target,s);
 	
 	for (int j = 0; j < 32; j++)
 	{
