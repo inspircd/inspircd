@@ -3579,8 +3579,11 @@ void kill_link(userrec *user,const char* r)
 		{
 			if (servers[j] != NULL)
 			{
-				me[defaultRoute]->SendPacket(buffer,servers[j]->internal_addr,servers[j]->internal_port,MyKey);
-				log(DEBUG,"Sent Q token");
+				if (strcmp(servers[j]->name,ServerName))
+				{
+					me[defaultRoute]->SendPacket(buffer,servers[j]->internal_addr,servers[j]->internal_port,MyKey);
+					log(DEBUG,"Sent Q token");
+				}
 			}
 		}
 	}
@@ -4662,13 +4665,16 @@ void ConnectUser(userrec *user)
 	WriteOpers("*** Client connecting on port %d: %s!%s@%s",user->port,user->nick,user->ident,user->host);
 	
 	char buffer[MAXBUF];
-	snprintf(buffer,MAXBUF,"N %d %s %s %s %s %s %s :%s",user->age,user->nick,user->host,user->dhost,user->ident,user->modes,user->server,user->fullname);
+	snprintf(buffer,MAXBUF,"N %d %s %s %s %s +%s %s :%s",user->age,user->nick,user->host,user->dhost,user->ident,user->modes,ServerName,user->fullname);
 	for (int j = 0; j < 255; j++)
 	{
 		if (servers[j] != NULL)
 		{
-			me[defaultRoute]->SendPacket(buffer,servers[j]->internal_addr,servers[j]->internal_port,MyKey);
-			log(DEBUG,"Sent N token");
+			if (strcmp(servers[j]->name,ServerName))
+			{
+				me[defaultRoute]->SendPacket(buffer,servers[j]->internal_addr,servers[j]->internal_port,MyKey);
+				log(DEBUG,"Sent N token");
+			}
 		}
 	}
 
@@ -5162,8 +5168,11 @@ void handle_nick(char **parameters, int pcnt, userrec *user)
 		{
 			if (servers[j] != NULL)
 			{
-				me[defaultRoute]->SendPacket(buffer,servers[j]->internal_addr,servers[j]->internal_port,MyKey);
-				log(DEBUG,"Sent n token");
+				if (strcmp(servers[j]->name,ServerName))
+				{
+					me[defaultRoute]->SendPacket(buffer,servers[j]->internal_addr,servers[j]->internal_port,MyKey);
+					log(DEBUG,"Sent n token");
+				}
 			}
 		}
 		
@@ -5608,7 +5617,7 @@ void DoSync(serverrec* serv, char* udp_host,int udp_port, long MyKey)
 	// send users and channels
 	for (user_hash::iterator u = clientlist.begin(); u != clientlist.end(); u++)
 	{
-		snprintf(data,MAXBUF,"N %d %s %s %s %s %s %s :%s",u->second->age,u->second->nick,u->second->host,u->second->dhost,u->second->ident,u->second->modes,u->second->server,u->second->fullname);
+		snprintf(data,MAXBUF,"N %d %s %s %s %s +%s %s :%s",u->second->age,u->second->nick,u->second->host,u->second->dhost,u->second->ident,u->second->modes,u->second->server,u->second->fullname);
 		serv->SendPacket(data,udp_host,udp_port,MyKey);
 		if (strcmp(chlist(u->second),""))
 		{
@@ -5825,6 +5834,7 @@ void handle_N(char token,char* params,serverrec* source,serverrec* reply, char* 
 	char* server = strtok(NULL," :");
 	char* gecos = strtok(NULL,"\r\n");
 	gecos++;
+	modes++;
 	time_t TS = atoi(tm);
 	user_hash::iterator iter = clientlist.find(nick);
 	if (iter != clientlist.end())
