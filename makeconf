@@ -643,7 +643,7 @@ echo "Enable Channel Founder? [Channel Mode +q] [yes/no]"
 echo -e $n "[\033[1;32m$OP_FOUND\033[0;37m] -> $c"
 read cc
 if [ "$cc" ] ; then
-        OP_DEBUG=$cc
+        OP_FOUND=$cc
 fi
 
 echo "#-#-#-#-#-#-#-#-#-#-#-#-#-  SERVER OPTIONS   -#-#-#-#-#-#-#-#-#-#-#-#-#" >> makeconf.temp
