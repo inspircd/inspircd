@@ -310,7 +310,7 @@ Version Module::GetVersion() { return Version(1,0,0,0); }
 void Module::OnOper(userrec* user) { };
 void Module::OnInfo(userrec* user) { };
 void Module::OnWhois(userrec* source, userrec* dest) { };
-int Module::OnUserPreInvite(userrec* source,userrec* dest,chanrec* channel) { return 0 };
+int Module::OnUserPreInvite(userrec* source,userrec* dest,chanrec* channel) { return 0; };
 int Module::OnUserPreMessage(userrec* user,void* dest,int target_type, std::string text) { return 0; };
 int Module::OnUserPreNotice(userrec* user,void* dest,int target_type, std::string text) { return 0; };
 int Module::OnUserPreNick(userrec* user, std::string newnick) { return 0; };

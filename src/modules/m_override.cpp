@@ -57,31 +57,34 @@ class ModuleOverride : public Module
 	{
 		if (strchr(source->modes,'o'))
 		{
-			if ((Srv->ChanMode(source,channel) != "%") && (Srv->ChanMode(source,channel) != "@"))
+			if ((Srv) && (source) && (channel))
 			{
-				switch (access_type)
+				if ((Srv->ChanMode(source,channel) != "%") && (Srv->ChanMode(source,channel) != "@"))
 				{
-					case AC_KICK:
-						Srv->SendOpers("*** NOTICE: "+std::string(source->nick)+" Override-Kicked "+std::string(dest->nick)+" on "+std::string(channel->name));
-					break;
-					case AC_DEOP:
-						Srv->SendOpers("*** NOTICE: "+std::string(source->nick)+" Override-Deopped "+std::string(dest->nick)+" on "+std::string(channel->name));
-					break;
-					case AC_OP:
-						Srv->SendOpers("*** NOTICE: "+std::string(source->nick)+" Override-Opped "+std::string(dest->nick)+" on "+std::string(channel->name));
-					break;
-					case AC_VOICE:
-						Srv->SendOpers("*** NOTICE: "+std::string(source->nick)+" Override-Voiced "+std::string(dest->nick)+" on "+std::string(channel->name));
-					break;
-					case AC_DEVOICE:
-						Srv->SendOpers("*** NOTICE: "+std::string(source->nick)+" Override-Devoiced "+std::string(dest->nick)+" on "+std::string(channel->name));
-					break;
-					case AC_HALFOP:
-						Srv->SendOpers("*** NOTICE: "+std::string(source->nick)+" Override-Halfopped "+std::string(dest->nick)+" on "+std::string(channel->name));
-					break;
-					case AC_DEHALFOP:
-						Srv->SendOpers("*** NOTICE: "+std::string(source->nick)+" Override-Dehalfopped "+std::string(dest->nick)+" on "+std::string(channel->name));
-					break;
+					switch (access_type)
+					{
+						case AC_KICK:
+							Srv->SendOpers("*** NOTICE: "+std::string(source->nick)+" Override-Kicked "+std::string(dest->nick)+" on "+std::string(channel->name));
+						break;
+						case AC_DEOP:
+							Srv->SendOpers("*** NOTICE: "+std::string(source->nick)+" Override-Deopped "+std::string(dest->nick)+" on "+std::string(channel->name));
+						break;
+						case AC_OP:
+							Srv->SendOpers("*** NOTICE: "+std::string(source->nick)+" Override-Opped "+std::string(dest->nick)+" on "+std::string(channel->name));
+						break;
+						case AC_VOICE:
+							Srv->SendOpers("*** NOTICE: "+std::string(source->nick)+" Override-Voiced "+std::string(dest->nick)+" on "+std::string(channel->name));
+						break;
+						case AC_DEVOICE:
+							Srv->SendOpers("*** NOTICE: "+std::string(source->nick)+" Override-Devoiced "+std::string(dest->nick)+" on "+std::string(channel->name));
+						break;
+						case AC_HALFOP:
+							Srv->SendOpers("*** NOTICE: "+std::string(source->nick)+" Override-Halfopped "+std::string(dest->nick)+" on "+std::string(channel->name));
+						break;
+						case AC_DEHALFOP:
+							Srv->SendOpers("*** NOTICE: "+std::string(source->nick)+" Override-Dehalfopped "+std::string(dest->nick)+" on "+std::string(channel->name));
+						break;
+					}
 				}
 			}
 			return ACR_ALLOW;

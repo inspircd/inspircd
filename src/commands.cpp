@@ -435,7 +435,7 @@ void handle_invite(char **parameters, int pcnt, userrec *user)
 	int MOD_RESULT = 0;
 	FOREACH_RESULT(OnUserPreInvite(user,u,c));
 	if (MOD_RESULT == 1) {
-		return NULL;
+		return;
 	}
 
 	u->InviteTo(c->name);

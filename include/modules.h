@@ -249,7 +249,7 @@ class Module : public classbase
 	virtual void OnWhois(userrec* source, userrec* dest);
 	
 	/** Called whenever a user is about to invite another user into a channel, before any processing is done.
-	 * Returning any nonzero value from this function stops the process immediately, causing no
+	 * Returning 1 from this function stops the process immediately, causing no
 	 * output to be sent to the user by the core. If you do this you must produce your own numerics,
 	 * notices etc. This is useful for modules which may want to filter invites to channels.
 	 */
