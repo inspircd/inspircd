@@ -1830,8 +1830,9 @@ int give_ops(userrec *user,char *dest,chanrec *chan,int status)
 		log(DEFAULT,"*** BUG *** give_ops was given an invalid parameter");
 		return 0;
 	}
-	if (status != STATUS_OP)
+	if (status < STATUS_OP)
 	{
+		log(DEBUG,"%s cant give ops to %s because they nave status %d and needs %d",user->nick,dest,status,STATUS_OP);
 		WriteServ(user->fd,"482 %s %s :You're not a channel operator",user->nick, chan->name);
 		return 0;
 	}
@@ -1839,12 +1840,14 @@ int give_ops(userrec *user,char *dest,chanrec *chan,int status)
 	{
 		if (!isnick(dest))
 		{
+			log(DEFAULT,"the target nickname given to give_ops was invalid");
 			WriteServ(user->fd,"401 %s %s :No suck nick/channel",user->nick, dest);
 			return 0;
 		}
 		d = Find(dest);
 		if (!d)
 		{
+			log(DEFAULT,"the target nickname given to give_ops couldnt be found");
 			WriteServ(user->fd,"401 %s %s :No suck nick/channel",user->nick, dest);
 			return 0;
 		}
@@ -1852,17 +1855,21 @@ int give_ops(userrec *user,char *dest,chanrec *chan,int status)
 		{
 			for (int i = 0; i != MAXCHANS; i++)
 			{
-				if ((d->chans[i].channel == chan) && (chan != NULL))
+				if ((d->chans[i].channel != NULL) && (chan != NULL))
+				if (!strcasecmp(d->chans[i].channel->name,chan->name))
 				{
 					if (d->chans[i].uc_modes & UCMODE_OP)
 					{
 						/* mode already set on user, dont allow multiple */
+						log(DEFAULT,"The target user given to give_ops was already opped on the channel");
 						return 0;
 					}
 					d->chans[i].uc_modes = d->chans[i].uc_modes | UCMODE_OP;
 					log(DEBUG,"gave ops: %s %s",d->chans[i].channel->name,d->nick);
+					return 1;
 				}
 			}
+			log(DEFAULT,"The target channel given to give_ops was not in the users mode list");
 		}
 	}
 	return 1;
@@ -1900,7 +1907,8 @@ int give_hops(userrec *user,char *dest,chanrec *chan,int status)
 		{
 			for (int i = 0; i != MAXCHANS; i++)
 			{
-				if ((d->chans[i].channel == chan) && (chan != NULL))
+				if ((d->chans[i].channel != NULL) && (chan != NULL))
+				if (!strcasecmp(d->chans[i].channel->name,chan->name))
 				{
 					if (d->chans[i].uc_modes & UCMODE_HOP)
 					{
@@ -1909,6 +1917,7 @@ int give_hops(userrec *user,char *dest,chanrec *chan,int status)
 					}
 					d->chans[i].uc_modes = d->chans[i].uc_modes | UCMODE_HOP;
 					log(DEBUG,"gave h-ops: %s %s",d->chans[i].channel->name,d->nick);
+					return 1;
 				}
 			}
 		}
@@ -1948,7 +1957,8 @@ int give_voice(userrec *user,char *dest,chanrec *chan,int status)
 		{
 			for (int i = 0; i != MAXCHANS; i++)
 			{
-				if ((d->chans[i].channel == chan) && (chan != NULL))
+				if ((d->chans[i].channel != NULL) && (chan != NULL))
+				if (!strcasecmp(d->chans[i].channel->name,chan->name))
 				{
 					if (d->chans[i].uc_modes & UCMODE_VOICE)
 					{
@@ -1957,6 +1967,7 @@ int give_voice(userrec *user,char *dest,chanrec *chan,int status)
 					}
 					d->chans[i].uc_modes = d->chans[i].uc_modes | UCMODE_VOICE;
 					log(DEBUG,"gave voice: %s %s",d->chans[i].channel->name,d->nick);
+					return 1;
 				}
 			}
 		}
@@ -1974,8 +1985,9 @@ int take_ops(userrec *user,char *dest,chanrec *chan,int status)
 		log(DEFAULT,"*** BUG *** take_ops was given an invalid parameter");
 		return 0;
 	}
-	if (status != STATUS_OP)
+	if (status < STATUS_OP)
 	{
+		log(DEBUG,"%s cant give ops to %s because they have status %d and needs %d",user->nick,dest,status,STATUS_OP);
 		WriteServ(user->fd,"482 %s %s :You're not a channel operator",user->nick, chan->name);
 		return 0;
 	}
@@ -1984,11 +1996,13 @@ int take_ops(userrec *user,char *dest,chanrec *chan,int status)
 		d = Find(dest);
 		if (!isnick(dest))
 		{
+			log(DEBUG,"take_ops was given an invalid target nickname of %s",dest);
 			WriteServ(user->fd,"401 %s %s :No suck nick/channel",user->nick, dest);
 			return 0;
 		}
 		if (!d)
 		{
+			log(DEBUG,"take_ops couldnt resolve the target nickname: %s",dest);
 			WriteServ(user->fd,"401 %s %s :No suck nick/channel",user->nick, dest);
 			return 0;
 		}
@@ -1996,7 +2010,8 @@ int take_ops(userrec *user,char *dest,chanrec *chan,int status)
 		{
 			for (int i = 0; i != MAXCHANS; i++)
 			{
-				if ((d->chans[i].channel == chan) && (chan != NULL))
+				if ((d->chans[i].channel != NULL) && (chan != NULL))
+				if (!strcasecmp(d->chans[i].channel->name,chan->name))
 				{
 					if ((d->chans[i].uc_modes & UCMODE_OP) == 0)
 					{
@@ -2005,8 +2020,10 @@ int take_ops(userrec *user,char *dest,chanrec *chan,int status)
 					}
 					d->chans[i].uc_modes ^= UCMODE_OP;
 					log(DEBUG,"took ops: %s %s",d->chans[i].channel->name,d->nick);
+					return 1;
 				}
 			}
+			log(DEBUG,"take_ops couldnt locate the target channel in the target users list");
 		}
 	}
 	return 1;
@@ -2044,7 +2061,8 @@ int take_hops(userrec *user,char *dest,chanrec *chan,int status)
 		{
 			for (int i = 0; i != MAXCHANS; i++)
 			{
-				if ((d->chans[i].channel == chan) && (chan != NULL))
+				if ((d->chans[i].channel != NULL) && (chan != NULL))
+				if (!strcasecmp(d->chans[i].channel->name,chan->name))
 				{
 					if ((d->chans[i].uc_modes & UCMODE_HOP) == 0)
 					{
@@ -2053,6 +2071,7 @@ int take_hops(userrec *user,char *dest,chanrec *chan,int status)
 					}
 					d->chans[i].uc_modes ^= UCMODE_HOP;
 					log(DEBUG,"took h-ops: %s %s",d->chans[i].channel->name,d->nick);
+					return 1;
 				}
 			}
 		}
@@ -2092,7 +2111,8 @@ int take_voice(userrec *user,char *dest,chanrec *chan,int status)
 		{
 			for (int i = 0; i != MAXCHANS; i++)
 			{
-				if ((d->chans[i].channel == chan) && (chan != NULL))
+				if ((d->chans[i].channel != NULL) && (chan != NULL))
+				if (!strcasecmp(d->chans[i].channel->name,chan->name))
 				{
 					if ((d->chans[i].uc_modes & UCMODE_VOICE) == 0)
 					{
@@ -2101,6 +2121,7 @@ int take_voice(userrec *user,char *dest,chanrec *chan,int status)
 					}
 					d->chans[i].uc_modes ^= UCMODE_VOICE;
 					log(DEBUG,"took voice: %s %s",d->chans[i].channel->name,d->nick);
+					return 1;
 				}
 			}
 		}
@@ -2227,7 +2248,7 @@ void process_modes(char **parameters,userrec* user,chanrec *chan,int status, int
 		return;
 	}
 
-	log(DEBUG,"process_modes: start");
+	log(DEBUG,"process_modes: start: parameters=%d",pcnt);
 
 	strcpy(modelist,parameters[1]); /* mode list, e.g. +oo-o */
 					/* parameters[2] onwards are parameters for
@@ -2278,13 +2299,17 @@ void process_modes(char **parameters,userrec* user,chanrec *chan,int status, int
 				break;
 
 				case 'o':
+					log(DEBUG,"Ops");
 					if ((param >= pcnt)) break;
+					log(DEBUG,"Enough parameters left");
 					if (mdir == 1)
 					{
+						log(DEBUG,"calling give_ops");
 						r = give_ops(user,parameters[param++],chan,status);
 					}
 					else
 					{
+						log(DEBUG,"calling take_ops");
 						r = take_ops(user,parameters[param++],chan,status);
 					}
 					if (r)
@@ -2590,7 +2615,7 @@ void process_modes(char **parameters,userrec* user,chanrec *chan,int status, int
 		if (local)
 		{
 			log(DEBUG,"Local mode change");
-			WriteChannelLocal(chan, user, "MODE %s",outstr);
+			WriteChannelLocal(chan, user, "MODE %s %s",chan->name,outstr);
 		}
 		else
 		{
@@ -3541,7 +3566,7 @@ void merge_mode2(char **parameters, int pcnt, userrec* user)
 			return;
 		}
 
-		process_modes(parameters,user,Ptr,cstatus(user,Ptr),pcnt,false,true,true);
+		process_modes(parameters,user,Ptr,cstatus(user,Ptr),pcnt,false,false,true);
 	}
 }
 
@@ -6003,7 +6028,7 @@ void handle_M(char token,char* params,serverrec* source,serverrec* reply, char* 
 		pars[index++] = parameter;
 		parameter = strtok(NULL," ");
 	}
-	merge_mode(pars,--index);
+	merge_mode(pars,index);
 	if (FindChan(target))
 	{
 		WriteChannelLocal(FindChan(target), NULL, "MODE %s",original);
@@ -6029,11 +6054,6 @@ void handle_m(char token,char* params,serverrec* source,serverrec* reply, char* 
 		return;
 	}
 	
-	char* o = original;
-	while (o[0] != ' ')
-		o++;
-	o++;
-	
 	int index = 0;
 	
 	char* src = strtok(params," ");
@@ -6050,7 +6070,7 @@ void handle_m(char token,char* params,serverrec* source,serverrec* reply, char* 
 		}
 		
 		log(DEBUG,"Calling merge_mode2");
-		merge_mode2(pars,--index,user);
+		merge_mode2(pars,index,user);
 	}
 }
 
@@ -6225,7 +6245,7 @@ void handle_J(char token,char* params,serverrec* source,serverrec* reply, char* 
 						if (privilage == '+')
 						{
 							user->chans[i].uc_modes = user->chans[i].uc_modes | UCMODE_VOICE;
-							WriteChannelLocal(user->chans[i].channel, NULL, "MODE %s +o %s",channel,user->nick);
+							WriteChannelLocal(user->chans[i].channel, NULL, "MODE %s +v %s",channel,user->nick);
 						}
 					}
 				}
