@@ -6993,9 +6993,20 @@ void handle_link_packet(char* udp_msg, char* udp_host, serverrec *serv)
 		char* servername = strtok(params," ");
 		char* password = strtok(NULL," ");
 		char* myport = strtok(NULL," ");
+		char* revision = strtok(NULL," ");
 		char* serverdesc = finalparam+2;
+
 		WriteOpers("CONNECT from %s (%s) (their port: %d)",servername,udp_host,atoi(myport));
 		
+		if (atoi(revision) != GetRevision())
+		{
+			WriteOpers("Could not link to %s, is an incompatible version %s, our version is %d",servername,revision,GetRevision());
+			char buffer[MAXBUF];
+			sprintf(buffer,"E :Version number mismatch");
+			serv->SendPacket(buffer,udp_host);
+			return;
+		}
+
 		for (int j = 0; j < serv->connectors.size(); j++)
 		{
 			if (!strcasecmp(serv->connectors[j].GetServerName().c_str(),udp_host))
