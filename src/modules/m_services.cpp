@@ -48,14 +48,7 @@ class ModuleServices : public Module
 				// only a u-lined server may add or remove the +r mode.
 				if ((Srv->IsUlined(user->nick)) || (Srv->IsUlined(user->server)))
 				{
-					// FCS - BugFix for #27 :)
-					if ((!strchr(user->modes,'r')) && (mode_on == false)) {
-						return 1;
-					} else if ((strchr(user->modes,'r')) && (mode_on == true)) {
-						return 1;
-					} else { 
-						return 0;
-					}
+					return 1;
 				}
 				else
 				{
@@ -64,13 +57,13 @@ class ModuleServices : public Module
 			}
 			else
 			{
-				if (!strcmp(user->server,""))
+				if ((Srv->IsUlined(user->nick)) || (Srv->IsUlined(user->server)) || (!strcmp(user->server,"")))
 				{
 					return 1;
 				}
 				else
 				{
-					Srv->SendServ(user->fd,"500 "+std::string(user->nick)+" :Only a server may modify the +r user mode");
+					Srv->SendServ(user->fd,"500 "+std::string(user->nick)+" :Only a U-Lined server may modify the +r user mode");
 				}
 			}
 		}

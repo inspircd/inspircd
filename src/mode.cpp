@@ -1691,8 +1691,13 @@ void merge_mode2(char **parameters, int pcnt, userrec* user)
 		strcpy(outpars,"+");
 		direction = 1;
 
+		if ((parameters[1][0] == ':') && (strlen(parameters[1])>1))
+		{
+			// some stupid 3rd party things (such as services packages) put a colon on the mode list...
+			log(DEBUG,"Some muppet put a colon on the modelist! changed to '%s'",++parameters[1]);
+		}
 		if ((parameters[1][0] != '+') && (parameters[1][0] != '-'))
-			return;
+		return;
 
 		for (int i = 0; i < strlen(parameters[1]); i++)
 		{
@@ -1746,6 +1751,7 @@ void merge_mode2(char **parameters, int pcnt, userrec* user)
 								dmodes[strlen(dmodes)] = parameters[1][i];
 								outpars[strlen(outpars)+1]='\0';
 								outpars[strlen(outpars)] = parameters[1][i];
+								log(DEBUG,"OUTPARS='%s', DMODES='%s'",outpars,dmodes);
 							}
 						}
 					}
@@ -1783,6 +1789,7 @@ void merge_mode2(char **parameters, int pcnt, userrec* user)
 				}
 			}
 		}
+		log(DEBUG,"DONE! OUTPARS='%s', DMODES='%s'",outpars,dmodes);
 		if (strlen(outpars))
 		{
 			char b[MAXBUF];
@@ -1818,7 +1825,9 @@ void merge_mode2(char **parameters, int pcnt, userrec* user)
 			if ((!strcmp(b,"+")) || (!strcmp(b,"-")))
 				return;
 
-			WriteTo(user,dest,"MODE :%s",b);
+			// was sending 'b'
+			WriteTo(user,dest,"MODE %s :%s",dest->nick,b);
+			log(DEBUG,"Sent: :%s MODE %s",user->nick,b);
 
 			if (strlen(dmodes)>MAXMODES)
 			{
