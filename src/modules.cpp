@@ -271,8 +271,21 @@ void FileReader::LoadFile(std::string filename)
 	this->fc = c;
 }
 
+
 FileReader::~FileReader()
 {
+}
+
+bool FileReader::Exists()
+{
+	if (fc.size() == 0)
+	{
+		return(false);
+	}
+	else
+	{
+		return(true);
+	}
 }
 
 std::string FileReader::GetLine(int x)

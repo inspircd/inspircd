@@ -39,6 +39,11 @@ class ModuleRandQuote : public Module
 
 
 		quotes = new FileReader(q_file);
+		if(!quotes->Exists())
+		{
+			printf("m_randquote: QuoteFile not Found!! Please check your config.\n\n");
+			exit(0);
+		}
 	}
 	
 	virtual ~ModuleRandQuote()

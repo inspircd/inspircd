@@ -17,8 +17,7 @@
 void Exit (int); 
 void Start (void); 
 int DaemonSeed (void); 
-int CheckModule (char* module);
-int CheckConfig (void); 
+int FileExists (char* file);
 int OpenTCPSocket (void); 
 int BindSocket (int sockfd, struct sockaddr_in client, struct sockaddr_in server, int port, char* addr);
 

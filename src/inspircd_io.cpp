@@ -87,29 +87,14 @@ int DaemonSeed (void)
 
 /* Make Sure Modules Are Avaliable!
  * (BugFix By Craig.. See? I do work! :p) */
-int CheckModule (char* module)
+int FileExists (char* file)
 {
   FILE *input;
   
-  if ((input = fopen (module, "r")) == NULL) { return(FALSE); }
-  else { fclose (input); return(TRUE); }
+  if ((input = fopen (file, "r")) == NULL) { return(false); }
+  else { fclose (input); return(true); }
 }
 
-/* Make sure the config file is available */
-int CheckConfig (void)
-{
-  FILE *input;
-
-  if ((input = fopen (CONFIG_FILE, "r")) == NULL)
-    {
-      printf("ERROR: Cannot open config file: %s\nExiting...\n",CONFIG_FILE);
-      return(FALSE);
-    }
-  else
-    fclose (input);
-
-return(TRUE);
-}
 
 /* Counts the number of tags of a certain type within the config file, e.g. to enumerate opers */
 

@@ -354,6 +354,7 @@ class FileReader : public classbase
 	  * This method retrieves one line from the text file. If an empty non-NULL string is returned,
 	  * the index was out of bounds, or the line had no data on it.
 	  */
+	 bool Exists();
 	 std::string GetLine(int x);
 	 /** Returns the size of the file in lines.
 	  * This method returns the number of lines in the read file. If it is 0, no lines have been

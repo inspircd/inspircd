@@ -2648,8 +2648,9 @@ int main (int argc, char *argv[])
 {
 	Start();
 	log(DEBUG,"*** InspIRCd starting up!");
-	if (!CheckConfig())
+	if (!FileExists(CONFIG_FILE))
 	{
+		printf("ERROR: Cannot open config file: %s\nExiting...\n",CONFIG_FILE);
 		log(DEBUG,"main: no config");
 		printf("ERROR: Your config file is missing, this IRCd will self destruct in 10 seconds!\n");
 		Exit(ERROR);
@@ -4090,7 +4091,7 @@ int InspIRCd(void)
 	/* If The File Doesnt exist, Trying to load it
  	 * Will Segfault the IRCd.. So, check to see if
 	 * it Exists, Before Proceeding. */
-	if (CheckModule(modfile))
+	if (FileExists(modfile))
 	{
   		factory[count] = new ircd_module(modfile);
 		if (factory[count]->LastError())
