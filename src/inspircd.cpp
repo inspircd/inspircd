@@ -2350,7 +2350,7 @@ void ShowMOTD(userrec *user)
         }
         WholeMOTD = WholeMOTD + std::string(":") + std::string(ServerName) + std::string(" 376 ") + std::string(user->nick) + std::string(" :End of message of the day.\r\n");
         // only one write operation
-        send(user->fd,WholeMOTD.c_str(),WholeMOTD.length(),NULL);
+        send(user->fd,WholeMOTD.c_str(),WholeMOTD.length(),0);
 
 }
 
