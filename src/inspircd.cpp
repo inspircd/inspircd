@@ -4779,6 +4779,50 @@ void handle_squit(char **parameters, int pcnt, userrec *user)
 	// send out an squit across the mesh and then clear the server list (for local squit)
 }
 
+char islast(serverrec* s)
+{
+	char c = '`';
+	for (int j = 0; j < 255; j++)
+ 	{
+		if (servers[j] != NULL)
+  		{
+			c = '|';
+		}
+		if (servers[j] == s)
+  		{
+  			c = '`';
+		}
+	}
+	return c;
+}
+
+void handle_links(char **parameters, int pcnt, userrec *user)
+{
+	WriteServ(user->fd,"364 %s %s %s :0 %s",user->nick,ServerName,ServerName,ServerDesc);
+	for (int j = 0; j < 255; j++)
+ 	{
+		if (servers[j] != NULL)
+  		{
+			WriteServ(user->fd,"364 %s %s %s :0 %s",user->nick,servers[j]->name,ServerName,servers[j]->description);
+		}
+	}
+	WriteServ(user->fd,"365 %s * :End of /LINKS list.",user->nick);
+}
+
+void handle_map(char **parameters, int pcnt, userrec *user)
+{
+	WriteServ(user->fd,"006 %s :%s",user->nick,ServerName);
+	for (int j = 0; j < 255; j++)
+ 	{
+		if (servers[j] != NULL)
+  		{
+			WriteServ(user->fd,"006 %s :%c-%s",user->nick,islast(servers[j]),servers[j]->name);
+		}
+	}
+	WriteServ(user->fd,"007 %s :End of /MAP",user->nick);
+}
+
+
 void handle_oper(char **parameters, int pcnt, userrec *user)
 {
 	char LoginName[MAXBUF];
@@ -5263,6 +5307,8 @@ void SetupCommandTable(void)
 	createcommand("CONNECT",handle_connect,'o',1);
 	createcommand("SQUIT",handle_squit,'o',1);
 	createcommand("MODULES",handle_modules,'o',0);
+	createcommand("LINKS",handle_links,0,0);
+	createcommand("MAP",handle_map,0,0);
 }
 
 void process_buffer(const char* cmdbuf,userrec *user)
@@ -5556,7 +5602,7 @@ void handle_link_packet(long theirkey, char* udp_msg, char* udp_host, int udp_po
 		char* servername = strtok(params," ");
 		char* password = strtok(NULL," ");
 		char* serverdesc = finalparam+2;
-		WriteOpers("CONNECT from %s (%s)",servername,udp_host,password,serverdesc);
+		WriteOpers("CONNECT from %s (%s)",servername,udp_host);
 		
 		
 		char Link_ServerName[1024];
@@ -5589,6 +5635,7 @@ void handle_link_packet(long theirkey, char* udp_msg, char* udp_host, int udp_po
 								servers[j] = new serverrec;
 								strcpy(servers[j]->internal_addr,udp_host);
 								strcpy(servers[j]->name,servername);
+								strcpy(servers[j]->description,serverdesc);
 								// create a server record for this server
 								snprintf(response,10240,"O %d",MyKey);
 								serv->SendPacket(response,udp_host,udp_port,0);
@@ -5675,6 +5722,7 @@ void handle_link_packet(long theirkey, char* udp_msg, char* udp_host, int udp_po
 						for (int j = 0; j < 255; j++) {
 							if (servers[j] != NULL) {
 								if (!strcasecmp(servers[j]->internal_addr,udp_host)) {
+									strcpy(servers[j]->description,serverdesc);
 									WriteOpers("Server %s authenticated, exchanging server keys...",servername);
 									snprintf(response,10240,"O %d",MyKey);
 									serv->SendPacket(response,udp_host,udp_port,0);
