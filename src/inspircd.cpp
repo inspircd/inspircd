@@ -2098,6 +2098,12 @@ userrec* ReHashNick(char* Old, char* New)
 	clientlist[New] = oldnick->second;
 	clientlist.erase(oldnick);
 
+        for (long i = 0; i < MAXBUF; i++)
+        {
+		if (pending_connects[i] == std::string(Old))
+			pending_connects[i] = std::string(New);
+	}
+
 	log(DEBUG,"ReHashNick: Nick rehashed as %s",New);
 	
 	return clientlist[New];
@@ -2188,8 +2194,8 @@ void AddClient(int socket, char* host, int port, bool iscached, char* ip)
 	strncpy(clientlist[tempnick]->server, ServerName,256);
 	strncpy(clientlist[tempnick]->ident, "unknown",9);
 	clientlist[tempnick]->registered = 0;
-	clientlist[tempnick]->signon = time(NULL);
-	clientlist[tempnick]->nping = time(NULL)+240;
+	clientlist[tempnick]->signon = time(NULL)+dns_timeout;
+	clientlist[tempnick]->nping = time(NULL)+240+dns_timeout;
 	clientlist[tempnick]->lastping = 1;
 	clientlist[tempnick]->port = port;
 	strncpy(clientlist[tempnick]->ip,ip,32);
@@ -2422,21 +2428,20 @@ void HandlePendingConnects()
 {
 	for (long i = 0; i < MAXBUF; i++)
 	{
-		std::string t = pending_connects[i];
-		if (t != "")
+		if (pending_connects[i] != "")
 		{
-			userrec* a = Find(t);
+			userrec* a = Find(pending_connects[i]);
 			if (a)
 			{
 				// this user's dns is done now.
-				if ((a->dns_done) && (a->registered == 3))
+				if ((a->dns_done) && (a->registered >= 3))
 				{
 					FullConnectUser(a); // attack! attack!....
 					pending_connects[i] = "";
 					return;	// ...RUN AWAY! RUN AWAY!
 				}
 				// this users dns is NOT done, but its timed out.
-				if ((time(NULL) > a->signon+dns_timeout) && (a->registered == 3))
+				if ((time(NULL) > a->signon) && (a->registered >= 3))
 				{
 					WriteServ(a->fd,"NOTICE Auth :Failed to resolve your hostname, using your IP address instead.");
 					FullConnectUser(a);
@@ -2452,7 +2457,7 @@ void HandlePendingConnects()
 void ConnectUser(userrec *user)
 {
 	// dns is already done, things are fast. no need to wait for dns to complete just pass them straight on
-	if (user->dns_done)
+	if ((user->dns_done) && (user->registered >= 3))
 	{
 		FullConnectUser(user);
 	}
