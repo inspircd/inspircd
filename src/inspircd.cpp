@@ -267,184 +267,189 @@ void log(int level,char *text, ...)
 
 void readfile(file_cache &F, const char* fname)
 {
-  FILE* file;
-  char linebuf[MAXBUF];
-
-  log(DEBUG,"readfile: loading %s",fname);
-  F.clear();
-  file =  fopen(fname,"r");
-  if (file)
-  {
-  	while (!feof(file))
-  	{
-  		fgets(linebuf,sizeof(linebuf),file);
-  		linebuf[strlen(linebuf)-1]='\0';
-  		if (!strcmp(linebuf,""))
-  		{
-  			strcpy(linebuf,"  ");
-  		}
-  		if (!feof(file))
-  		{
-  			F.push_back(linebuf);
-  		}
-  	}
-  	fclose(file);
-  }
-  else
-  {
-	  log(DEBUG,"readfile: failed to load file: %s",fname);
-  }
-  log(DEBUG,"readfile: loaded %s, %d lines",fname,F.size());
+	FILE* file;
+	char linebuf[MAXBUF];
+	
+	log(DEBUG,"readfile: loading %s",fname);
+	F.clear();
+	file =  fopen(fname,"r");
+	if (file)
+	{
+		while (!feof(file))
+		{
+			fgets(linebuf,sizeof(linebuf),file);
+			linebuf[strlen(linebuf)-1]='\0';
+			if (!strcmp(linebuf,""))
+			{
+				strcpy(linebuf,"  ");
+			}
+			if (!feof(file))
+			{
+				F.push_back(linebuf);
+			}
+		}
+		fclose(file);
+	}
+	else
+	{
+		log(DEBUG,"readfile: failed to load file: %s",fname);
+	}
+	log(DEBUG,"readfile: loaded %s, %d lines",fname,F.size());
 }
 
 void ReadConfig(void)
 {
-  char dbg[MAXBUF],pauseval[MAXBUF],Value[MAXBUF],timeout[MAXBUF],NB[MAXBUF],flood[MAXBUF];
-  ConnectClass c;
-
-  LoadConf(CONFIG_FILE,&config_f);
-  
-  ConfValue("server","name",0,ServerName,&config_f);
-  ConfValue("server","description",0,ServerDesc,&config_f);
-  ConfValue("server","network",0,Network,&config_f);
-  ConfValue("admin","name",0,AdminName,&config_f);
-  ConfValue("admin","email",0,AdminEmail,&config_f);
-  ConfValue("admin","nick",0,AdminNick,&config_f);
-  ConfValue("files","motd",0,motd,&config_f);
-  ConfValue("files","rules",0,rules,&config_f);
-  ConfValue("power","diepass",0,diepass,&config_f);
-  ConfValue("power","pause",0,pauseval,&config_f);
-  ConfValue("power","restartpass",0,restartpass,&config_f);
-  ConfValue("options","prefixquit",0,PrefixQuit,&config_f);
-  ConfValue("die","value",0,DieValue,&config_f);
-  ConfValue("options","loglevel",0,dbg,&config_f);
-  ConfValue("options","netbuffersize",0,NB,&config_f);
-  NetBufferSize = atoi(NB);
-  if ((!NetBufferSize) || (NetBufferSize > 65535) || (NetBufferSize < 1024))
-  {
-  	log(DEFAULT,"No NetBufferSize specified or size out of range, setting to default of 10240.");
-  	NetBufferSize = 10240;
-  }
-  if (!strcmp(dbg,"debug"))
-  	LogLevel = DEBUG;
-  if (!strcmp(dbg,"verbose"))
-  	LogLevel = VERBOSE;
-  if (!strcmp(dbg,"default"))
-  	LogLevel = DEFAULT;
-  if (!strcmp(dbg,"sparse"))
-  	LogLevel = SPARSE;
-  if (!strcmp(dbg,"none"))
-  	LogLevel = NONE;
-  readfile(MOTD,motd);
-  log(DEBUG,"Reading message of the day");
-  readfile(RULES,rules);
-  log(DEBUG,"Reading connect classes");
-  Classes.clear();
-  for (int i = 0; i < ConfValueEnum("connect",&config_f); i++)
-  {
-	strcpy(Value,"");
-	ConfValue("connect","allow",i,Value,&config_f);
-	ConfValue("connect","timeout",i,timeout,&config_f);
-	ConfValue("connect","flood",i,flood,&config_f);
-	if (strcmp(Value,""))
-	{
-		strcpy(c.host,Value);
-		c.type = CC_ALLOW;
-		strcpy(Value,"");
-		ConfValue("connect","password",i,Value,&config_f);
-		strcpy(c.pass,Value);
-		c.registration_timeout = 90; // default is 2 minutes
-		c.flood = atoi(flood);
-		if (atoi(timeout)>0)
-		{
-			c.registration_timeout = atoi(timeout);
-		}
-		Classes.push_back(c);
-		log(DEBUG,"Read connect class type ALLOW, host=%s password=%s timeout=%d flood=%d",c.host,c.pass,c.registration_timeout,c.flood);
-	}
-	else
-	{
-		ConfValue("connect","deny",i,Value,&config_f);
-                strcpy(c.host,Value);
-                c.type = CC_DENY;
-		Classes.push_back(c);
-		log(DEBUG,"Read connect class type DENY, host=%s",c.host);
-	}
+	char dbg[MAXBUF],pauseval[MAXBUF],Value[MAXBUF],timeout[MAXBUF],NB[MAXBUF],flood[MAXBUF];
+	ConnectClass c;
 	
-  }
+	LoadConf(CONFIG_FILE,&config_f);
+	  
+	ConfValue("server","name",0,ServerName,&config_f);
+	ConfValue("server","description",0,ServerDesc,&config_f);
+	ConfValue("server","network",0,Network,&config_f);
+	ConfValue("admin","name",0,AdminName,&config_f);
+	ConfValue("admin","email",0,AdminEmail,&config_f);
+	ConfValue("admin","nick",0,AdminNick,&config_f);
+	ConfValue("files","motd",0,motd,&config_f);
+	ConfValue("files","rules",0,rules,&config_f);
+	ConfValue("power","diepass",0,diepass,&config_f);
+	ConfValue("power","pause",0,pauseval,&config_f);
+	ConfValue("power","restartpass",0,restartpass,&config_f);
+	ConfValue("options","prefixquit",0,PrefixQuit,&config_f);
+	ConfValue("die","value",0,DieValue,&config_f);
+	ConfValue("options","loglevel",0,dbg,&config_f);
+	ConfValue("options","netbuffersize",0,NB,&config_f);
+	NetBufferSize = atoi(NB);
+	if ((!NetBufferSize) || (NetBufferSize > 65535) || (NetBufferSize < 1024))
+	{
+		log(DEFAULT,"No NetBufferSize specified or size out of range, setting to default of 10240.");
+		NetBufferSize = 10240;
+	}
+	if (!strcmp(dbg,"debug"))
+		LogLevel = DEBUG;
+	if (!strcmp(dbg,"verbose"))
+		LogLevel = VERBOSE;
+	if (!strcmp(dbg,"default"))
+		LogLevel = DEFAULT;
+	if (!strcmp(dbg,"sparse"))
+		LogLevel = SPARSE;
+	if (!strcmp(dbg,"none"))
+		LogLevel = NONE;
+	readfile(MOTD,motd);
+	log(DEFAULT,"Reading message of the day...");
+	readfile(RULES,rules);
+	log(DEFAULT,"Reading connect classes...");
+	Classes.clear();
+	for (int i = 0; i < ConfValueEnum("connect",&config_f); i++)
+	{
+		strcpy(Value,"");
+		ConfValue("connect","allow",i,Value,&config_f);
+		ConfValue("connect","timeout",i,timeout,&config_f);
+		ConfValue("connect","flood",i,flood,&config_f);
+		if (strcmp(Value,""))
+		{
+			strcpy(c.host,Value);
+			c.type = CC_ALLOW;
+			strcpy(Value,"");
+			ConfValue("connect","password",i,Value,&config_f);
+			strcpy(c.pass,Value);
+			c.registration_timeout = 90; // default is 2 minutes
+			c.flood = atoi(flood);
+			if (atoi(timeout)>0)
+			{
+				c.registration_timeout = atoi(timeout);
+			}
+			Classes.push_back(c);
+			log(DEBUG,"Read connect class type ALLOW, host=%s password=%s timeout=%d flood=%d",c.host,c.pass,c.registration_timeout,c.flood);
+		}
+		else
+		{
+			ConfValue("connect","deny",i,Value,&config_f);
+			strcpy(c.host,Value);
+			c.type = CC_DENY;
+			Classes.push_back(c);
+			log(DEBUG,"Read connect class type DENY, host=%s",c.host);
+		}
+	
+	}
+	log(DEFAULT,"Reading K lines,Q lines and Z lines from config...");
+	read_xline_defaults();
+	log(DEFAULT,"Applying K lines, Q lines and Z lines...");
+	apply_lines();
+	log(DEFAULT,"Done reading configuration file, InspIRCd is now running.");
 }
 
 /* write formatted text to a socket, in same format as printf */
 
 void Write(int sock,char *text, ...)
 {
-  if (!text)
-  {
-  	log(DEFAULT,"*** BUG *** Write was given an invalid parameter");
-  	return;
-  }
-  char textbuffer[MAXBUF];
-  va_list argsPtr;
-  char tb[MAXBUF];
-
-  va_start (argsPtr, text);
-  vsnprintf(textbuffer, MAXBUF, text, argsPtr);
-  va_end(argsPtr);
-  sprintf(tb,"%s\r\n",textbuffer);
-  chop(tb);
-  if (sock != -1)
-  {
-	write(sock,tb,strlen(tb));
-	update_stats_l(sock,strlen(tb)); /* add one line-out to stats L for this fd */
-  }
+	if (!text)
+	{
+		log(DEFAULT,"*** BUG *** Write was given an invalid parameter");
+		return;
+	}
+	char textbuffer[MAXBUF];
+	va_list argsPtr;
+	char tb[MAXBUF];
+	
+	va_start (argsPtr, text);
+	vsnprintf(textbuffer, MAXBUF, text, argsPtr);
+	va_end(argsPtr);
+	sprintf(tb,"%s\r\n",textbuffer);
+	chop(tb);
+	if (sock != -1)
+	{
+		write(sock,tb,strlen(tb));
+		update_stats_l(sock,strlen(tb)); /* add one line-out to stats L for this fd */
+	}
 }
 
 /* write a server formatted numeric response to a single socket */
 
 void WriteServ(int sock, char* text, ...)
 {
-  if (!text)
-  {
-  	log(DEFAULT,"*** BUG *** WriteServ was given an invalid parameter");
-	return;
-  }
-  char textbuffer[MAXBUF],tb[MAXBUF];
-  va_list argsPtr;
-  va_start (argsPtr, text);
-
-  vsnprintf(textbuffer, MAXBUF, text, argsPtr);
-  va_end(argsPtr);
-  sprintf(tb,":%s %s\r\n",ServerName,textbuffer);
-  chop(tb);
-  if (sock != -1)
-  {
-	write(sock,tb,strlen(tb));
-	update_stats_l(sock,strlen(tb)); /* add one line-out to stats L for this fd */
-  }
+	if (!text)
+	{
+		log(DEFAULT,"*** BUG *** WriteServ was given an invalid parameter");
+		return;
+	}
+	char textbuffer[MAXBUF],tb[MAXBUF];
+	va_list argsPtr;
+	va_start (argsPtr, text);
+	
+	vsnprintf(textbuffer, MAXBUF, text, argsPtr);
+	va_end(argsPtr);
+	sprintf(tb,":%s %s\r\n",ServerName,textbuffer);
+	chop(tb);
+	if (sock != -1)
+	{
+		write(sock,tb,strlen(tb));
+		update_stats_l(sock,strlen(tb)); /* add one line-out to stats L for this fd */
+	}
 }
 
 /* write text from an originating user to originating user */
 
 void WriteFrom(int sock, userrec *user,char* text, ...)
 {
-  if ((!text) || (!user))
-  {
-  	log(DEFAULT,"*** BUG *** WriteFrom was given an invalid parameter");
-	return;
-  }
-  char textbuffer[MAXBUF],tb[MAXBUF];
-  va_list argsPtr;
-  va_start (argsPtr, text);
-
-  vsnprintf(textbuffer, MAXBUF, text, argsPtr);
-  va_end(argsPtr);
-  sprintf(tb,":%s!%s@%s %s\r\n",user->nick,user->ident,user->dhost,textbuffer);
-  chop(tb);
-  if (sock != -1)
-  {
-	write(sock,tb,strlen(tb));
-	update_stats_l(sock,strlen(tb)); /* add one line-out to stats L for this fd */
-  }
+	if ((!text) || (!user))
+	{
+		log(DEFAULT,"*** BUG *** WriteFrom was given an invalid parameter");
+		return;
+	}
+	char textbuffer[MAXBUF],tb[MAXBUF];
+	va_list argsPtr;
+	va_start (argsPtr, text);
+	
+	vsnprintf(textbuffer, MAXBUF, text, argsPtr);
+	va_end(argsPtr);
+	sprintf(tb,":%s!%s@%s %s\r\n",user->nick,user->ident,user->dhost,textbuffer);
+	chop(tb);
+	if (sock != -1)
+	{
+		write(sock,tb,strlen(tb));
+		update_stats_l(sock,strlen(tb)); /* add one line-out to stats L for this fd */
+	}
 }
 
 /* write text to an destination user from a source user (e.g. user privmsg) */
@@ -2015,7 +2020,7 @@ void AddWhoWas(userrec* u)
 
 
 /* add a client connection to the sockets list */
-void AddClient(int socket, char* host, int port, bool iscached)
+void AddClient(int socket, char* host, int port, bool iscached, char* ip)
 {
 	int i;
 	int blocking = 1;
@@ -2054,6 +2059,7 @@ void AddClient(int socket, char* host, int port, bool iscached)
 	clientlist[tempnick]->nping = time(NULL)+240;
 	clientlist[tempnick]->lastping = 1;
 	clientlist[tempnick]->port = port;
+	strncpy(clientlist[tempnick]->ip,ip,32);
 
 	if (iscached)
 	{
@@ -2363,6 +2369,11 @@ void force_nickchange(userrec* user,const char* newnick)
 
 	FOREACH_RESULT(OnUserPreNick(user,newnick));
 	if (MOD_RESULT) {
+		kill_link(user,"Nickname collision");
+		return;
+	}
+	if (matches_qline(newnick))
+	{
 		kill_link(user,"Nickname collision");
 		return;
 	}
@@ -2738,6 +2749,10 @@ void SetupCommandTable(void)
 	createcommand("MODULES",handle_modules,'o',0);
 	createcommand("LINKS",handle_links,0,0);
 	createcommand("MAP",handle_map,0,0);
+	createcommand("KLINE",handle_kline,'o',3);
+	createcommand("GLINE",handle_gline,'o',3);
+	createcommand("ZLINE",handle_zline,'o',3);
+	createcommand("QLINE",handle_qline,'o',3);
 }
 
 void process_buffer(const char* cmdbuf,userrec *user)
@@ -3448,7 +3463,7 @@ int InspIRCd(void)
 				}
 				else
 				{
-					AddClient(incomingSockfd, resolved, ports[count], iscached);
+					AddClient(incomingSockfd, resolved, ports[count], iscached, target);
 					log(DEBUG,"InspIRCd: adding client on port %d fd=%d",ports[count],incomingSockfd);
 				}
 				goto label;

@@ -75,7 +75,7 @@ if ((strstr(mask,"*")==0) && (strlen(literal) != strlen(mask)))
 
 }
 
-bool match(char* literal, char* mask)
+bool match(const char* literal, const char* mask)
 {
 	char L[10240];
 	char M[10240];

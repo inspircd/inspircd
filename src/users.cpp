@@ -12,7 +12,7 @@ userrec::userrec()
 {
 	// the PROPER way to do it, AVOID bzero at *ALL* costs
 	strcpy(nick,"");
-	ip = 0;
+	strcpy(ip,"127.0.0.1");
 	timeout = 0;
 	strcpy(ident,"");
 	strcpy(host,"");

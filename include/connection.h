@@ -171,7 +171,7 @@ class connection : public classbase
 	
 	/** IP of connection. Reserved for future use.
 	 */
-	long ip;
+	char ip[32];
 	
 	/** Inbuf of connection. Only used for userrec
 	 */
@@ -229,7 +229,7 @@ class connection : public classbase
 	
 	/** Unused, will be removed in a future alpha/beta
 	 */
-	char internal_addr[1024];
+	char internal_addr[MAXBUF];
 	
 	/** Unused, will be removed in a future alpha/beta
 	 */

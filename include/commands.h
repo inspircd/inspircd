@@ -57,6 +57,11 @@ void handle_links(char **parameters, int pcnt, userrec *user);
 void handle_map(char **parameters, int pcnt, userrec *user);
 void handle_oper(char **parameters, int pcnt, userrec *user);
 void handle_nick(char **parameters, int pcnt, userrec *user);
+void handle_kline(char **parameters, int pcnt, userrec *user);
+void handle_gline(char **parameters, int pcnt, userrec *user);
+void handle_zline(char **parameters, int pcnt, userrec *user);
+void handle_qline(char **parameters, int pcnt, userrec *user);
+
 
 /** Special functions for processing server to server traffic
  */

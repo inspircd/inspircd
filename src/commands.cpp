@@ -1361,6 +1361,12 @@ void handle_nick(char **parameters, int pcnt, userrec *user)
 				*parameters[0]++;
 			}
 		}
+		if (matches_qline(parameters[0]))
+		{
+			WriteOpers("*** Q-Lined nickname %s from %s!%s@%s: %s",parameters[0],user->nick,user->ident,user->host,matches_qline(parameters[0]));
+			WriteServ(user->fd,"432 %s %s :Invalid nickname: %s",user->nick,parameters[0],matches_qline(parameters[0]));
+			return;
+		}
 		if ((Find(parameters[0])) && (Find(parameters[0]) != user))
 		{
 			WriteServ(user->fd,"433 %s %s :Nickname is already in use.",user->nick,parameters[0]);
@@ -1676,6 +1682,11 @@ void handle_n(char token,char* params,serverrec* source,serverrec* reply, char* 
 			FOREACH_RESULT(OnUserPreNick(user,newnick));
 			if (MOD_RESULT) {
 				// if a module returns true, the nick change couldnt be allowed
+				kill_link(user,"Nickname collision");
+				return;
+			}
+			if (matches_qline(newnick))
+			{
 				kill_link(user,"Nickname collision");
 				return;
 			}
@@ -2603,4 +2614,22 @@ void handle_link_packet(char* udp_msg, char* tcp_host, serverrec *serv)
 		log(DEBUG,"Unrecognised token or unauthenticated host in datagram from %s: %c",tcp_host,token);
 	}
 }
+
+
+void handle_kline(char **parameters, int pcnt, userrec *user)
+{
+}
+
+void handle_gline(char **parameters, int pcnt, userrec *user)
+{
+}
+
+void handle_zline(char **parameters, int pcnt, userrec *user)
+{
+}
+
+void handle_qline(char **parameters, int pcnt, userrec *user)
+{
+}
+
 

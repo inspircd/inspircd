@@ -17,6 +17,7 @@
  */
 class XLine : public classbase
 {
+  public:
 
 	/** The time the line was added.
 	 */
@@ -40,37 +41,69 @@ class XLine : public classbase
 	
 };
 
+/** KLine class
+ */
 class KLine : public XLine
 {
+  public:
 	/** Hostmask (ident@host) to match against
 	 * May contain wildcards.
 	 */
 	char hostmask[MAXBUF];
 };
 
+/** GLine class
+ */
 class GLine : public XLine
 {
+  public:
 	/** Hostmask (ident@host) to match against
 	 * May contain wildcards.
 	 */
 	char hostmask[MAXBUF];
 };
 
+/** ZLine class
+ */
 class ZLine : public XLine
 {
+  public:
 	/** IP Address (xx.yy.zz.aa) to match against
-	 * May contain wildcards and may be CIDR
+	 * May contain wildcards.
 	 */
 	char ipaddr[MAXBUF];
 };
 
+/** QLine class
+ */
 class QLine : public XLine
 {
+  public:
 	/** Nickname to match against.
 	 * May contain wildcards.
 	 */
 	char nick[MAXBUF];
 };
+
+void read_xline_defaults();
+
+void add_gline(long duration, char* source, char* reason, char* hostmask);
+void add_qline(long duration, char* source, char* reason, char* nickname);
+void add_zline(long duration, char* source, char* reason, char* ipaddr);
+void add_kline(long duration, char* source, char* reason, char* hostmask);
+
+bool del_gline(char* hostmask);
+bool del_qline(char* nickname);
+bool del_zline(char* ipaddr);
+bool del_kline(char* hostmask);
+
+char* matches_qline(const char* nick);
+char* matches_gline(const char* host);
+char* matches_zline(const char* ipaddr);
+char* matches_kline(const char* host);
+
+void expire_lines();
+void apply_lines();
 
 #endif
 
