@@ -6597,7 +6597,7 @@ void handle_link_packet(long theirkey, char* udp_msg, char* udp_host, int udp_po
 				if (!strcasecmp(servers[i]->internal_addr,udp_host)) {
 					servers[i]->key = atoi(params);
 					log(DEBUG,"Key for this server is now %d",servers[i]->key);
-					servers[i]->sync_soon = true;
+					DoSync(serv,udp_host,udp_port,MyKey);
 					return;
 				}
 			}
@@ -6915,17 +6915,6 @@ int InspIRCd(void)
 			}
 			fd_reap.clear();
 			reap_counter=0;
-			for (int j = 0; j < 255; j++)
-			{
-				if (servers[j])
-				{
-					if (servers[j]->sync_soon)
-					{
-						servers[j]->sync_soon = false;
-						DoSync(servers[j],servers[j]->internal_addr,servers[j]->internal_port,MyKey);
-					}
-				}
-			}
 		}
 
      
