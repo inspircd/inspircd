@@ -5148,13 +5148,13 @@ void DoSync(serverrec* serv, char* udp_host,int udp_port, long MyKey)
 void handle_N(char token,char* params,serverrec* source,serverrec* reply, char* udp_host,int udp_port)
 {
 	// %d %s %s %s %s %s %s :%s
-	char g[MAXBUF];
-	strcpy(g,params);
-	char* gecos = g;
-	while ((gecos[0] != ':') && (strlen(gecos)))
-		gecos++;
-	if (strlen(gecos))
-		gecos++;
+	//char g[MAXBUF];
+	//strcpy(g,params);
+	//char* gecos = g;
+	//while ((gecos[0] != ':') && (strlen(gecos)))
+	//	gecos++;
+	//if (strlen(gecos))
+	//	gecos++;
 	char* tm = strtok(params," ");
 	char* nick = strtok(NULL," ");
 	char* host = strtok(NULL," ");
@@ -5162,7 +5162,7 @@ void handle_N(char token,char* params,serverrec* source,serverrec* reply, char* 
 	char* ident = strtok(NULL," ");
 	char* modes = strtok(NULL," ");
 	char* server = strtok(NULL," :");
-	char* junk = strtok(NULL,"\r\n");
+	char* gecos = strtok(NULL,"\r\n");
 	time_t TS = atoi(tm);
 	user_hash::iterator iter = clientlist.find(nick);
 	if (iter != clientlist.end())
@@ -5188,7 +5188,7 @@ void handle_N(char token,char* params,serverrec* source,serverrec* reply, char* 
 	strncpy(clientlist[nick]->dhost, dhost,160);
 	strncpy(clientlist[nick]->server, server,256);
 	strncpy(clientlist[nick]->ident, ident,10); // +1 char to compensate for '~'
-	//strncpy(clientlist[nick]->fullname, gecos,128);
+	strncpy(clientlist[nick]->fullname, gecos,128);
 	clientlist[nick]->signon = TS;
 	clientlist[nick]->nping = 0; // this is ignored for a remote user anyway.
 	clientlist[nick]->lastping = 1;
