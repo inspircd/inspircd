@@ -21,8 +21,31 @@
 #include "channels.h"
 #include "modules.h"
 
+Server *Srv;
+FileReader *quotes;
+
+std::string q_file;
+std::string prefix;
+std::string suffix;
+
+
 
 /* $ModDesc: Provides random Quotes on Connect. */
+
+void handle_randquote(char** parameters, int pcntl, userrec *user)
+{
+                std::string str;
+                int fsize;
+                char buf[MAXBUF];
+
+                fsize = quotes->FileSize();
+                srand(time(NULL));
+                str = quotes->GetLine(rand() % fsize);
+
+                sprintf(buf,"NOTICE %s :%s%s%s",user->nick,prefix.c_str(),str.c_str(),suffix.c_str());
+                Srv->SendServ(user->fd, buf);
+                return;
+}
 
 class ModuleRandQuote : public Module
 {
@@ -30,11 +53,6 @@ class ModuleRandQuote : public Module
 
 	 Server *Srv;
 	 ConfigReader *conf;
-	 FileReader *quotes;
-
-	 std::string q_file;
-	 std::string prefix;
-	 std::string suffix;
 	 
  public:
 	ModuleRandQuote()
@@ -59,6 +77,8 @@ class ModuleRandQuote : public Module
 			printf("m_randquote: QuoteFile not Found!! Please check your config.\n\n");
 			exit(0);
 		}
+		/* Hidden Command -- Mode clients assume /quote sends raw data to an IRCd >:D */
+		Srv->AddCommand("QUOTE",handle_randquote,0,0);
 	}
 	
 	virtual ~ModuleRandQuote()
@@ -75,17 +95,10 @@ class ModuleRandQuote : public Module
 	
 	virtual void OnUserConnect(userrec* user)
 	{
-		std::string str;
-		int fsize;
-		char buf[MAXBUF];
-
-		fsize = quotes->FileSize();
-		srand(time(NULL));
-		str = quotes->GetLine(rand() % fsize);
-			
-		sprintf(buf,"NOTICE %s :%s%s%s",user->nick,prefix.c_str(),str.c_str(),suffix.c_str());
-		Srv->SendServ(user->fd, buf);
-		return;
+		// Make a fake pointer to be passed to handle_randquote()
+		// Dont try this at home kiddies :D
+		char *rar = "RAR";
+		handle_randquote(&rar, 0, user);
 	}
 };
 
@@ -113,4 +126,3 @@ extern "C" void * init_module( void )
 {
 	return new ModuleRandQuoteFactory;
 }
-
