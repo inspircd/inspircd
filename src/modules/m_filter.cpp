@@ -56,6 +56,14 @@ class ModuleFilter : public Module
 			{
 				std::string target = "";
 				std::string reason = MyConf->ReadValue("keyword","reason",index);
+				std::string action = MyConf->ReadValue("keyword","action",index);
+				std::string operaction = MyConf->ReadValue("keyword","operaction",index);
+				std::string do_action = "none";
+
+				if (action == "")
+					action = "none";
+				if (operaction == "")
+					operaction = "none";
 				if (target_type == TYPE_USER)
 				{
 					userrec* t = (userrec*)dest;
@@ -66,15 +74,32 @@ class ModuleFilter : public Module
 					chanrec* t = (chanrec*)dest;
 					target = std::string(t->name);
 				}
-				Srv->SendOpers(std::string("FILTER: ")+std::string(user->nick)+
-    						std::string(" had their message filtered, target was ")+
-    						target+": "+reason);
+				if (strchr(user->modes,'o'))
+				{
+					do_action = operaction;
+				}
+				else
+				{
+					do_action = action;
+				}	
+				if (do_action == "block")
+	      			{	
+					Srv->SendOpers(std::string("FILTER: ")+std::string(user->nick)+
+							std::string(" had their message filtered, target was ")+
+							target+": "+reason);
+					// this form of SendTo (with the source as NuLL) sends a server notice
+					Srv->SendTo(NULL,user,"NOTICE "+std::string(user->nick)+
+							" :Your message has been filtered and opers notified: "+reason);
+				}
+
 				Srv->Log(DEFAULT,std::string("FILTER: ")+std::string(user->nick)+
     						std::string(" had their message filtered, target was ")+
     						target+": "+reason);
-				// this form of SendTo (with the source as NuLL) sends a server notice
-				Srv->SendTo(NULL,user,"NOTICE "+std::string(user->nick)+
-    						" :Your message has been filtered and opers notified: "+reason);
+
+				if (do_action == "kill")
+				{
+					Srv->QuitUser(user,reason);
+				}
 				return 1;
 			}
 		}
@@ -91,6 +116,14 @@ class ModuleFilter : public Module
 			{
 				std::string target = "";
 				std::string reason = MyConf->ReadValue("keyword","reason",index);
+				std::string action = MyConf->ReadValue("keyword","action",index);
+				std::string operaction = MyConf->ReadValue("keyword","operaction",index);
+				std::string do_action = "none";
+
+				if (action == "")
+					action = "none";
+				if (operaction == "")
+					operaction = "none";
 				if (target_type == TYPE_USER)
 				{
 					userrec* t = (userrec*)dest;
@@ -101,14 +134,30 @@ class ModuleFilter : public Module
 					chanrec* t = (chanrec*)dest;
 					target = std::string(t->name);
 				}
-				Srv->SendOpers(std::string("FILTER: ")+std::string(user->nick)+
-    						std::string(" had their notice filtered, target was ")+
-    						target+": "+MyConf->ReadValue("keyword","reason",index));
+				if (strchr(user->modes,'o'))
+				{
+					do_action = operaction;
+				}
+				else
+				{
+					do_action = action;
+				}
+				if (do_action == "block")
+	      			{	
+					Srv->SendOpers(std::string("FILTER: ")+std::string(user->nick)+
+    							std::string(" had their notice filtered, target was ")+
+    							target+": "+MyConf->ReadValue("keyword","reason",index));
+					Srv->SendTo(NULL,user,"NOTICE "+std::string(user->nick)+
+    							" :Your notice has been filtered and opers notified: "+reason);
+    				}
 				Srv->Log(DEFAULT,std::string("FILTER: ")+std::string(user->nick)+
     						std::string(" had their notice filtered, target was ")+
     						target+": "+MyConf->ReadValue("keyword","reason",index));
-				Srv->SendTo(NULL,user,"NOTICE "+std::string(user->nick)+
-    						" :Your notice has been filtered and opers notified: "+reason);
+
+				if (do_action == "kill")
+				{
+					Srv->QuitUser(user,reason);
+				}
 				return 1;
 			}
 		}

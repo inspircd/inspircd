@@ -471,6 +471,10 @@ class ConfigReader : public classbase
 	 * (such as comments) stripped from it.
 	 */
 	std::stringstream *cache;
+	/** Used to store errors
+	 */
+	bool error;
+	
   public:
 	/** Default constructor.
 	 * This constructor initialises the ConfigReader class to read the inspircd.conf file
@@ -498,7 +502,8 @@ class ConfigReader : public classbase
 	 */
 	int Enumerate(std::string tag);
 	/** Returns true if a config file is valid.
-	 * This method is unimplemented and will always return true.
+	 * This method is partially implemented and will only return false if the config
+	 * file does not exist or could not be opened.
 	 */
 	bool Verify();
 };

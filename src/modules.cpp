@@ -314,7 +314,7 @@ bool Server::AddExtendedMode(char modechar, int type, bool requires_oper, int pa
 ConfigReader::ConfigReader()
 {
 	this->cache = new std::stringstream(stringstream::in | stringstream::out);
-	LoadConf(CONFIG_FILE,this->cache);
+	this->error = LoadConf(CONFIG_FILE,this->cache);
 }
 
 
@@ -328,7 +328,7 @@ ConfigReader::~ConfigReader()
 ConfigReader::ConfigReader(std::string filename)
 {
 	this->cache = new std::stringstream(stringstream::in | stringstream::out);
-	LoadConf(filename.c_str(),this->cache);
+	this->error = LoadConf(filename.c_str(),this->cache);
 };
 
 std::string ConfigReader::ReadValue(std::string tag, std::string name, int index)
@@ -347,7 +347,7 @@ int ConfigReader::Enumerate(std::string tag)
 
 bool ConfigReader::Verify()
 {
-	return true;
+	return this->error;
 }
 
 

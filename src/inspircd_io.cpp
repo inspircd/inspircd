@@ -105,8 +105,12 @@ int DaemonSeed (void)
 
 
 /* Make Sure Modules Are Avaliable!
- * (BugFix By Craig.. See? I do work! :p) */
-int FileExists (char* file)
+ * (BugFix By Craig.. See? I do work! :p)
+ * Modified by brain, requires const char*
+ * to work with other API functions
+ */
+
+bool FileExists (const char* file)
 {
   FILE *input;
   
@@ -115,9 +119,13 @@ int FileExists (char* file)
 }
 
 
-void LoadConf(const char* filename, std::stringstream *target)
+bool LoadConf(const char* filename, std::stringstream *target)
 {
 	FILE* conf = fopen(filename,"r");
+	if (!FileExists(filename))
+	{
+		return false;
+	}
 	char buffer[MAXBUF];
 	if (conf)
 	{
@@ -138,6 +146,7 @@ void LoadConf(const char* filename, std::stringstream *target)
 		fclose(conf);
 	}
 	target->seekg(0);
+	return true;
 }
 
 /* Counts the number of tags of a certain type within the config file, e.g. to enumerate opers */
