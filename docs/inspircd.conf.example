@@ -238,6 +238,13 @@
 <files  motd="/home/cc/inspircd-1.0/conf/inspire.motd"
 	rules="/home/cc/inspircd-1.0/conf/inspire.rules">
 
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-  RTFM LINE  -#-#-#-#-#-#-#-#-#-#-#-#-#-#
+#                                                                     #
+# Define your DNS server address here. InspIRCd has its own resolver  #
+# and you must define this otherwise nobody's host will resolve. The  #
+# timeout value is in seconds.					      #
+
+<dns server="127.0.0.1" timeout="5">
 
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-  RTFM LINE  -#-#-#-#-#-#-#-#-#-#-#-#-#-#
