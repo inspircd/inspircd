@@ -571,7 +571,7 @@ void WriteFrom(int sock, userrec *user,char* text, ...)
 
 void WriteTo(userrec *source, userrec *dest,char *data, ...)
 {
-	if ((!source) || (!dest) || (!data))
+	if ((!dest) || (!data))
 	{
 		log(DEFAULT,"*** BUG *** WriteTo was given an invalid parameter");
 		return;
@@ -582,7 +582,16 @@ void WriteTo(userrec *source, userrec *dest,char *data, ...)
 	vsnprintf(textbuffer, MAXBUF, data, argsPtr);
 	va_end(argsPtr);
 	chop(tb);
-	WriteFrom(dest->fd,source,"%s",textbuffer);
+
+	// if no source given send it from the server.
+	if (!source)
+	{
+		WriteServ(dest->fd,":%s %s",ServerName,textbuffer);
+	}
+	else
+	{
+		WriteFrom(dest->fd,source,"%s",textbuffer);
+	}
 }
 
 /* write formatted text from a source user to all users on a channel
@@ -2098,13 +2107,12 @@ int take_ban(userrec *user,char *dest,chanrec *chan,int status)
 	return 0;
 }
 
-void process_modes(char **parameters,userrec* user,chanrec *chan,int status, int pcnt, bool servermode)
+void process_modes(char **parameters,userrec* user,chanrec *chan,int status, int pcnt, bool servermode, bool silent)
 {
-	if ((!parameters) || (!user)) {
+	if (!parameters) {
 		log(DEFAULT,"*** BUG *** process_modes was given an invalid parameter");
 		return;
 	}
-
 
 	char modelist[MAXBUF];
 	char outlist[MAXBUF];
@@ -2484,11 +2492,13 @@ void process_modes(char **parameters,userrec* user,chanrec *chan,int status, int
 		}
 		if (servermode)
 		{
-			WriteChannelWithServ(ServerName,chan,user,"MODE %s %s",chan->name,outstr);
+			if (!silent)
+				WriteChannelWithServ(ServerName,chan,user,"MODE %s %s",chan->name,outstr);
 		}
 		else
 		{
-			WriteChannel(chan,user,"MODE %s %s",chan->name,outstr);
+			if (!silent)
+				WriteChannel(chan,user,"MODE %s %s",chan->name,outstr);
 		}
 	}
 }
@@ -2543,6 +2553,16 @@ bool allowed_umode(char umode, char* sourcemodes,bool adding)
 
 bool process_module_umode(char umode, userrec* source, void* dest, bool adding)
 {
+	userrec s2;
+	bool faked = true;
+	if (!source)
+	{
+		strncpy(s2.nick,ServerName,NICKMAX);
+		strcpy(s2.modes,"o");
+		s2.fd = -1;
+		source = &s2;
+		faked = true;
+	}
 	string_list p;
 	p.clear();
 	if (ModeDefined(umode,MT_CLIENT))
@@ -2556,11 +2576,15 @@ bool process_module_umode(char umode, userrec* source, void* dest, bool adding)
 			}
 		}
 		log(DEBUG,"No module claims umode %c",umode);
+		if (faked)
+			source = NULL;
 		return false;
 	}
 	else
 	{
 		log(DEBUG,"*** BUG *** Non-module umode passed to process_module_umode!");
+		if (faked)
+			source = NULL;
 		return false;
 	}
 }
@@ -2785,7 +2809,7 @@ void handle_mode(char **parameters, int pcnt, userrec *user)
 			return;
 		}
 
-		process_modes(parameters,user,Ptr,cstatus(user,Ptr),pcnt,false);
+		process_modes(parameters,user,Ptr,cstatus(user,Ptr),pcnt,false,false);
 	}
 	else
 	{
@@ -2967,11 +2991,190 @@ void server_mode(char **parameters, int pcnt, userrec *user)
 	Ptr = FindChan(parameters[0]);
 	if (Ptr)
 	{
-		process_modes(parameters,user,Ptr,STATUS_OP,pcnt,true);
+		process_modes(parameters,user,Ptr,STATUS_OP,pcnt,true,false);
 	}
 	else
 	{
 		WriteServ(user->fd,"401 %s %s :No suck nick/channel",user->nick, parameters[0]);
+	}
+}
+
+
+
+void merge_mode(char **parameters, int pcnt)
+{
+	chanrec* Ptr;
+	userrec* dest;
+	int can_change,i;
+	int direction = 1;
+	char outpars[MAXBUF];
+
+	dest = Find(parameters[0]);
+	
+	// fix: ChroNiCk found this - we cant use this as debug if its null!
+	if (dest)
+	{
+		log(DEBUG,"merge_mode on %s",dest->nick);
+	}
+
+	if ((dest) && (pcnt > 1))
+	{
+		log(DEBUG,"params > 1");
+
+		char dmodes[MAXBUF];
+		strncpy(dmodes,dest->modes,MAXBUF);
+
+		strcpy(outpars,"+");
+		direction = 1;
+
+		if ((parameters[1][0] != '+') && (parameters[1][0] != '-'))
+			return;
+
+		for (i = 0; i < strlen(parameters[1]); i++)
+		{
+			if (parameters[1][i] == '+')
+			{
+				if (direction != 1)
+				{
+					if ((outpars[strlen(outpars)-1] == '+') || (outpars[strlen(outpars)-1] == '-'))
+					{
+						outpars[strlen(outpars)-1] = '+';
+					}
+					else
+					{
+						strcat(outpars,"+");
+					}
+				}
+				direction = 1;
+			}
+			else
+			if (parameters[1][i] == '-')
+			{
+				if (direction != 0)
+				{
+					if ((outpars[strlen(outpars)-1] == '+') || (outpars[strlen(outpars)-1] == '-'))
+					{
+						outpars[strlen(outpars)-1] = '-';
+					}
+					else
+					{
+						strcat(outpars,"-");
+					}
+				}
+				direction = 0;
+			}
+			else
+			{
+				log(DEBUG,"begin mode processing entry");
+				can_change = 1;
+				if (can_change)
+				{
+					if (direction == 1)
+					{
+						log(DEBUG,"umode %c being added",parameters[1][i]);
+						if ((!strchr(dmodes,parameters[1][i])) && (allowed_umode(parameters[1][i],"o",true)))
+						{
+							char umode = parameters[1][i];
+							log(DEBUG,"umode %c is an allowed umode",umode);
+							if ((process_module_umode(umode, NULL, dest, direction)) || (umode == 'i') || (umode == 's') || (umode == 'w') || (umode == 'o'))
+							{
+								dmodes[strlen(dmodes)+1]='\0';
+								dmodes[strlen(dmodes)] = parameters[1][i];
+								outpars[strlen(outpars)+1]='\0';
+								outpars[strlen(outpars)] = parameters[1][i];
+							}
+						}
+					}
+					else
+					{
+						// can only remove a mode they already have
+						log(DEBUG,"umode %c being removed",parameters[1][i]);
+						if ((allowed_umode(parameters[1][i],"o",false)) && (strchr(dmodes,parameters[1][i])))
+						{
+							char umode = parameters[1][i];
+							log(DEBUG,"umode %c is an allowed umode",umode);
+							if ((process_module_umode(umode, NULL, dest, direction)) || (umode == 'i') || (umode == 's') || (umode == 'w') || (umode == 'o'))
+							{
+								int q = 0;
+								char temp[MAXBUF];
+								char moo[MAXBUF];	
+
+								outpars[strlen(outpars)+1]='\0';
+								outpars[strlen(outpars)] = parameters[1][i];
+							
+								strcpy(temp,"");
+								for (q = 0; q < strlen(dmodes); q++)
+								{
+									if (dmodes[q] != parameters[1][i])
+									{
+										moo[0] = dmodes[q];
+										moo[1] = '\0';
+										strcat(temp,moo);
+									}
+								}
+								strcpy(dmodes,temp);
+							}
+						}
+					}
+				}
+			}
+		}
+		if (strlen(outpars))
+		{
+			char b[MAXBUF];
+			strcpy(b,"");
+			int z = 0;
+			int i = 0;
+			while (i < strlen (outpars))
+			{
+				b[z++] = outpars[i++];
+				b[z] = '\0';
+				if (i<strlen(outpars)-1)
+				{
+					if (((outpars[i] == '-') || (outpars[i] == '+')) && ((outpars[i+1] == '-') || (outpars[i+1] == '+')))
+					{
+						// someones playing silly buggers and trying
+						// to put a +- or -+ into the line...
+						i++;
+					}
+				}
+				if (i == strlen(outpars)-1)
+				{
+					if ((outpars[i] == '-') || (outpars[i] == '+'))
+					{
+						i++;
+					}
+				}
+			}
+
+			z = strlen(b)-1;
+			if ((b[z] == '-') || (b[z] == '+'))
+				b[z] == '\0';
+
+			if ((!strcmp(b,"+")) || (!strcmp(b,"-")))
+				return;
+
+			if (strlen(dmodes)>MAXMODES)
+			{
+				dmodes[MAXMODES-1] = '\0';
+			}
+			log(DEBUG,"Stripped mode line");
+			log(DEBUG,"Line dest is now %s",dmodes);
+			strncpy(dest->modes,dmodes,MAXMODES);
+
+		}
+
+		return;
+	}
+	
+	Ptr = FindChan(parameters[0]);
+	if (Ptr)
+	{
+		userrec s2;
+		strncpy(s2.nick,ServerName,NICKMAX);
+		strcpy(s2.modes,"o");
+		s2.fd = -1;
+		process_modes(parameters,&s2,Ptr,STATUS_OP,pcnt,true,true);
 	}
 }
 
@@ -5124,18 +5327,18 @@ void DoSync(serverrec* serv, char* udp_host,int udp_port, long MyKey)
 	// send channel modes, topics etc...
 	for (chan_hash::iterator c = chanlist.begin(); c != chanlist.end(); c++)
 	{
-		snprintf(data,MAXBUF,"C %s %d %s %s",c->second->name,c->second->created,c->second->setby,chanmodes(c->second));
+		snprintf(data,MAXBUF,"M %s +%s",c->second->name,chanmodes(c->second));
 		serv->SendPacket(data,udp_host,udp_port,MyKey);
 		if (strcmp(c->second->topic,""))
 		{
-			snprintf(data,MAXBUF,"T %d %s %s",c->second->topicset,c->second->name,c->second->topic);
+			snprintf(data,MAXBUF,"T %d %s %s :%s",c->second->topicset,c->second->setby,c->second->name,c->second->topic);
 		}
 		serv->SendPacket(data,udp_host,udp_port,MyKey);
 		// send current banlist
 		
 		for (BanList::iterator b = c->second->bans.begin(); b != c->second->bans.end(); b++)
 		{
-			snprintf(data,MAXBUF,"M %d %s +b %s",b->set_time,c->second->name,b->data);
+			snprintf(data,MAXBUF,"M %s +b %s",b->set_time,c->second->name,b->data);
 			serv->SendPacket(data,udp_host,udp_port,MyKey);
 		}
 	}
@@ -5144,17 +5347,32 @@ void DoSync(serverrec* serv, char* udp_host,int udp_port, long MyKey)
 	serv->SendPacket(data,udp_host,udp_port,MyKey);
 }
 
+void handle_M(char token,char* params,serverrec* source,serverrec* reply, char* udp_host,int udp_port)
+{
+	char* pars[128];
+	char original[MAXBUF],target[MAXBUF];
+	strncpy(original,params,MAXBUF);
+	int index = 0;
+	char* parameter = strtok(NULL," ");
+	strncpy(target,parameter,MAXBUF);
+	while (parameter)
+	{
+		pars[index++] = parameter;
+		parameter = strtok(NULL," ");
+	}
+	merge_mode(pars,--index);
+	if (FindChan(target))
+	{
+		WriteChannelLocal(FindChan(target), NULL, "MODE %s",original);
+	}
+	if (Find(target))
+	{
+		WriteTo(NULL,Find(target),"MODE %s",original);
+	}
+}
 
 void handle_N(char token,char* params,serverrec* source,serverrec* reply, char* udp_host,int udp_port)
 {
-	// %d %s %s %s %s %s %s :%s
-	//char g[MAXBUF];
-	//strcpy(g,params);
-	//char* gecos = g;
-	//while ((gecos[0] != ':') && (strlen(gecos)))
-	//	gecos++;
-	//if (strlen(gecos))
-	//	gecos++;
 	char* tm = strtok(params," ");
 	char* nick = strtok(NULL," ");
 	char* host = strtok(NULL," ");
@@ -5163,6 +5381,7 @@ void handle_N(char token,char* params,serverrec* source,serverrec* reply, char* 
 	char* modes = strtok(NULL," ");
 	char* server = strtok(NULL," :");
 	char* gecos = strtok(NULL,"\r\n");
+	gecos++;
 	time_t TS = atoi(tm);
 	user_hash::iterator iter = clientlist.find(nick);
 	if (iter != clientlist.end())
@@ -5267,17 +5486,14 @@ void process_restricted_commands(char token,char* params,serverrec* source,serve
 		case 'J':
 			handle_J(token,params,source,reply,udp_host,udp_port);
 		break;
-		// C <CHANNEL> <TS> <TOPICSETTER> <MODES>
-		// initialise channel (netburst only)
-		case 'C':
-		break;
-		// T <TS> <CHANNEL> <TOPIC>
+		// T <TS> <CHANNEL> <TOPICSETTER> <TOPIC>
 		// change channel topic (netburst only)
 		case 'T':
 		break;
 		// M <TS> <TARGET> <MODES> [MODE-PARAMETERS]
 		// Set modes on an object
 		case 'M':
+			handle_M(token,params,source,reply,udp_host,udp_port);
 		break;
 		// F <TS>
 		// end netburst
