@@ -6669,14 +6669,6 @@ void process_restricted_commands(char token,char* params,serverrec* source,serve
 			WriteOpers("Server %s is starting netburst.",udp_host);
 			// now broadcast this new servers address out to all servers that are linked to us,
 			// except the newcomer. They'll all attempt to connect back to it.
-
-			// give the server its authcookie.
-			snprintf(buffer,MAXBUF,"~ %d",authcookie);
-			source->SendPacket(buffer,udp_host);
-			// tell all the other servers to use this authcookie to connect back again
-			// got '+ test3.chatspike.net 7010 -2016508415' from test.chatspike.net
-			snprintf(buffer,MAXBUF,"+ %s %s %d %d",udp_host,ipaddr,port,authcookie);
-			NetSendToAllExcept(udp_host,buffer);
 		break;
 		// ~
   		// Store authcookie
@@ -6818,6 +6810,13 @@ void process_restricted_commands(char token,char* params,serverrec* source,serve
 			WriteOpers("Sending my netburst to %s",udp_host);
 			DoSync(source,udp_host);
 			WriteOpers("Send of netburst to %s completed",udp_host);
+			// give the server its authcookie.
+			snprintf(buffer,MAXBUF,"~ %d",authcookie);
+			source->SendPacket(buffer,udp_host);
+			// tell all the other servers to use this authcookie to connect back again
+			// got '+ test3.chatspike.net 7010 -2016508415' from test.chatspike.net
+			snprintf(buffer,MAXBUF,"+ %s %s %d %d",udp_host,ipaddr,port,authcookie);
+			NetSendToAllExcept(udp_host,buffer);
 			NetSendMyRoutingTable();
 		break;
 		// anything else
@@ -6842,7 +6841,9 @@ void handle_link_packet(char* udp_msg, char* udp_host, serverrec *serv)
   		char* cookie = strtok(params," ");
 		char* servername = strtok(NULL," ");
 		char* serverdesc = finalparam+2;
+
 		WriteOpers("AuthCookie CONNECT from %s (%s)",servername,udp_host);
+
 		for (int u = 0; u < auth_cookies.size(); u++)
 		{
 			if (auth_cookies[u] == atoi(cookie))
@@ -6874,6 +6875,7 @@ void handle_link_packet(char* udp_msg, char* udp_host, serverrec *serv)
 		}
 		// bad cookie, bad bad! go sit in the corner!
 		WriteOpers("Bad cookie from %s!",servername);
+		DoSplit(servername);
 		return;
   	}
   	else
