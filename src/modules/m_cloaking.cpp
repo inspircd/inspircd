@@ -39,7 +39,7 @@ class ModuleCloaking : public Module
 			memcpy(&s2,a.c_str(),sizeof(long));
 			sprintf(ra,"%.8X",seed*s2*strlen(user->host));
 			string b = Srv->GetNetworkName() + "-" + ra + a;
-			Srv->Debug("cloak: allocated "+b);
+			Srv->Log(DEBUG,"cloak: allocated "+b);
 			strcpy(user->dhost,b.c_str());
 		}
 	}

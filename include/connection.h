@@ -56,11 +56,11 @@ class connection : public classbase
 	time_t nping;
 	
 	connection();
-	bool CreateListener(char* host, int port);
+	bool CreateListener(char* host, int p);
 	bool BeginLink(char* targethost, int port, char* password);
 	void TerminateLink(char* targethost);
 	bool SendPacket(char *message, char* host, int port);
-	bool RecvPacket(char *message, char* host, int &port);
+	bool RecvPacket(char *message, char* host, int &prt);
 	bool SendSYN(char* host, int port);
 	bool SendACK(char* host, int port, int reply_id);
 	long GenKey();

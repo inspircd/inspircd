@@ -45,6 +45,7 @@
 
 using namespace std;
 
+int LogLevel = DEFAULT;
 char ServerName[MAXBUF];
 char Network[MAXBUF];
 char ServerDesc[MAXBUF];
@@ -59,11 +60,15 @@ char list[MAXBUF];
 char PrefixQuit[MAXBUF];
 char DieValue[MAXBUF];
 int debugging =  0;
-int MODCOUNT  = -1;
 int WHOWAS_STALE = 48; // default WHOWAS Entries last 2 days before they go 'stale'
 int WHOWAS_MAX = 100;  // default 100 people maximum in the WHOWAS list
 int DieDelay  =  5;
 time_t startup_time = time(NULL);
+
+extern vector<Module*> modules;
+extern vector<ircd_module*> factory;
+
+extern int MODCOUNT;
 
 template<> struct hash<in_addr>
 {
@@ -123,9 +128,8 @@ typedef hash_map<string, userrec*, hash<string>, StrHashComp> user_hash;
 typedef hash_map<string, chanrec*, hash<string>, StrHashComp> chan_hash;
 typedef hash_map<in_addr,string*, hash<in_addr>, InAddr_HashComp> address_cache;
 typedef deque<command_t> command_table;
-typedef DLLFactory<ModuleFactory> ircd_module;
 
-serverrec* me;
+serverrec* me[32];
 server_list* servers;
 
 user_hash clientlist;
@@ -135,13 +139,14 @@ command_table cmdlist;
 file_cache MOTD;
 file_cache RULES;
 address_cache IP;
-vector<Module*> modules(255);
-vector<ircd_module*> factory(255);
+
 ClassVector Classes;
 
 struct linger linger = { 0 };
 char bannerBuffer[MAXBUF];
 int boundPortCount = 0;
+int portCount = 0, UDPportCount = 0, ports[MAXSOCKS];
+int defaultRoute = 0;
 
 /* prototypes */
 
@@ -158,13 +163,13 @@ void safedelete(userrec *p)
 {
 	if (p)
 	{
-		debug("deleting %s %s %s %s",p->nick,p->ident,p->dhost,p->fullname);
-		debug("safedelete(userrec*): pointer is safe to delete");
+		log(DEBUG,"deleting %s %s %s %s",p->nick,p->ident,p->dhost,p->fullname);
+		log(DEBUG,"safedelete(userrec*): pointer is safe to delete");
 		delete p;
 	}
 	else
 	{
-		debug("safedelete(userrec*): unsafe pointer operation squished");
+		log(DEBUG,"safedelete(userrec*): unsafe pointer operation squished");
 	}
 }
 
@@ -173,11 +178,11 @@ void safedelete(chanrec *p)
 	if (p)
 	{
 		delete p;
-		debug("safedelete(chanrec*): pointer is safe to delete");
+		log(DEBUG,"safedelete(chanrec*): pointer is safe to delete");
 	}
 	else
 	{
-		debug("safedelete(chanrec*): unsafe pointer operation squished");
+		log(DEBUG,"safedelete(chanrec*): unsafe pointer operation squished");
 	}
 }
 
@@ -226,7 +231,7 @@ string getadminnick()
 	return AdminNick;
 }
 
-void debug(char *text, ...)
+void log(int level,char *text, ...)
 {
   char textbuffer[MAXBUF];
   va_list argsPtr;
@@ -234,11 +239,12 @@ void debug(char *text, ...)
   time_t rawtime;
   struct tm * timeinfo;
 
+  if (level < LogLevel)
+  	return;
+
   time(&rawtime);
   timeinfo = localtime (&rawtime);
 
-  if (debugging)
-  {
 	  f = fopen("ircd.log","a+");
 	  if (f)
 	  {
@@ -256,7 +262,6 @@ void debug(char *text, ...)
 		  printf("Can't write log file, bailing!!!");
 		  Exit(ERROR);
 	  }
-  }
 }
 
 void readfile(file_cache &F, const char* fname)
@@ -264,7 +269,7 @@ void readfile(file_cache &F, const char* fname)
   FILE* file;
   char linebuf[MAXBUF];
 
-  debug("readfile: loading %s",fname);
+  log(DEBUG,"readfile: loading %s",fname);
   F.clear();
   file =  fopen(fname,"r");
   if (file)
@@ -286,9 +291,9 @@ void readfile(file_cache &F, const char* fname)
   }
   else
   {
-	  debug("readfile: failed to load file: %s",fname);
+	  log(DEBUG,"readfile: failed to load file: %s",fname);
   }
-  debug("readfile: loaded %s, %d lines",fname,F.size());
+  log(DEBUG,"readfile: loaded %s, %d lines",fname,F.size());
 }
 
 void ReadConfig(void)
@@ -309,16 +314,19 @@ void ReadConfig(void)
   ConfValue("power","restartpass",0,restartpass);
   ConfValue("options","prefixquit",0,PrefixQuit);
   ConfValue("die","value",0,DieValue);
-  ConfValue("options","debug",0,dbg);
-  debugging = 0;
-  if (!strcmp(dbg,"on"))
-  {
-	  debugging = 1;
-  }
-  DieDelay = atoi(pauseval);
-  readfile(MOTD,motd);
+  ConfValue("options","loglevel",0,dbg);
+  if (!strcmp(dbg,"debug"))
+  	LogLevel = DEBUG;
+  if (!strcmp(dbg,"verbose"))
+  	LogLevel = VERBOSE;
+  if (!strcmp(dbg,"default"))
+  	LogLevel = DEFAULT;
+  if (!strcmp(dbg,"sparse"))
+  	LogLevel = SPARSE;
+  if (!strcmp(dbg,"none"))
+  	LogLevel = NONE;
   readfile(RULES,rules);
-  debug("Reading connect classes");
+  log(DEBUG,"Reading connect classes");
   Classes.clear();
   for (int i = 0; i < ConfValueEnum("connect"); i++)
   {
@@ -332,7 +340,7 @@ void ReadConfig(void)
 		ConfValue("connect","password",i,Value);
 		strcpy(c.pass,Value);
 		Classes.push_back(c);
-		debug("Read connect class type ALLOW, host=%s password=%s",c.host,c.pass);
+		log(DEBUG,"Read connect class type ALLOW, host=%s password=%s",c.host,c.pass);
 	}
 	else
 	{
@@ -340,7 +348,7 @@ void ReadConfig(void)
                 strcpy(c.host,Value);
                 c.type = CC_DENY;
 		Classes.push_back(c);
-		debug("Read connect class type DENY, host=%s",c.host);
+		log(DEBUG,"Read connect class type DENY, host=%s",c.host);
 	}
 	
   }
@@ -349,7 +357,7 @@ void ReadConfig(void)
 void Blocking(int s)
 {
   int flags;
-  debug("Blocking: %d",s);
+  log(DEBUG,"Blocking: %d",s);
   flags = fcntl(s, F_GETFL, 0);
   fcntl(s, F_SETFL, flags ^ O_NONBLOCK);
 }
@@ -357,7 +365,7 @@ void Blocking(int s)
 void NonBlocking(int s)
 {
   int flags;
-  debug("NonBlocking: %d",s);
+  log(DEBUG,"NonBlocking: %d",s);
   flags = fcntl(s, F_GETFL, 0);
   fcntl(s, F_SETFL, flags | O_NONBLOCK);
 }
@@ -727,7 +735,7 @@ void purge_empty_chans(void)
 					/* kill the record */
 					if (i != chanlist.end())
 					{
-						debug("del_channel: destroyed: %s",i->second->name);
+						log(DEBUG,"del_channel: destroyed: %s",i->second->name);
 						delete i->second;
 						chanlist.erase(i);
 						go_again = 1;
@@ -738,7 +746,7 @@ void purge_empty_chans(void)
 			}
 		}
 	}
-	debug("completed channel purge, killed %d",purge);
+	log(DEBUG,"completed channel purge, killed %d",purge);
 }
 
 /* returns the status character for a given user on a channel, e.g. @ for op,
@@ -817,7 +825,7 @@ char* chanmodes(chanrec *chan)
 		sprintf(foo," %d",chan->limit);
 		strcat(scratch,foo);
 	}
-	debug("chanmodes: %s %s",chan->name,scratch);
+	log(DEBUG,"chanmodes: %s %s",chan->name,scratch);
 	return scratch;
 }
 
@@ -913,7 +921,7 @@ int usercount_i(chanrec *c)
 			}
 		}
 	}
-	debug("usercount_i: %s %d",c->name,count);
+	log(DEBUG,"usercount_i: %s %d",c->name,count);
 	return count;
 }
 
@@ -934,7 +942,7 @@ int usercount(chanrec *c)
 			}
 		}
 	}
-	debug("usercount: %s %d",c->name,count);
+	log(DEBUG,"usercount: %s %d",c->name,count);
 	return count;
 }
 
@@ -957,7 +965,7 @@ chanrec* add_channel(userrec *user, char* cname, char* key)
 		cname[CHANMAX-1] = '\0';
 	}
 
-	debug("add_channel: %s %s",user->nick,cname);
+	log(DEBUG,"add_channel: %s %s",user->nick,cname);
 	
 	if ((has_channel(user,FindChan(cname))) && (FindChan(cname)))
 	{
@@ -967,7 +975,7 @@ chanrec* add_channel(userrec *user, char* cname, char* key)
 	if (!FindChan(cname))
 	{
 		/* create a new one */
-		debug("add_channel: creating: %s",cname);
+		log(DEBUG,"add_channel: creating: %s",cname);
 		{
 			chanlist[cname] = new chanrec();
 
@@ -979,7 +987,7 @@ chanrec* add_channel(userrec *user, char* cname, char* key)
 			strncpy(chanlist[cname]->setby, user->nick,NICKMAX);
 			chanlist[cname]->topicset = 0;
 			Ptr = chanlist[cname];
-			debug("add_channel: created: %s",cname);
+			log(DEBUG,"add_channel: created: %s",cname);
 			/* set created to 2 to indicate user
 			 * is the first in the channel
 			 * and should be given ops */
@@ -992,22 +1000,22 @@ chanrec* add_channel(userrec *user, char* cname, char* key)
 		Ptr = FindChan(cname);
 		if (Ptr)
 		{
-			debug("add_channel: joining to: %s",Ptr->name);
+			log(DEBUG,"add_channel: joining to: %s",Ptr->name);
 			if (strcmp(Ptr->key,""))
 			{
-				debug("add_channel: %s has key %s",Ptr->name,Ptr->key);
+				log(DEBUG,"add_channel: %s has key %s",Ptr->name,Ptr->key);
 				if (!key)
 				{
-					debug("add_channel: no key given in JOIN");
+					log(DEBUG,"add_channel: no key given in JOIN");
 					WriteServ(user->fd,"475 %s %s :Cannot join channel (Requires key)",user->nick, Ptr->name);
 					return NULL;
 				}
 				else
 				{
-					debug("key at %p is %s",key,key);
+					log(DEBUG,"key at %p is %s",key,key);
 					if (strcasecmp(key,Ptr->key))
 					{
-						debug("add_channel: bad key given in JOIN");
+						log(DEBUG,"add_channel: bad key given in JOIN");
 						WriteServ(user->fd,"475 %s %s :Cannot join channel (Incorrect key)",user->nick, Ptr->name);
 						return NULL;
 					}
@@ -1082,7 +1090,7 @@ chanrec* add_channel(userrec *user, char* cname, char* key)
 			return Ptr;
 		}
 	}
-	debug("add_channel: user channel max exceeded: %s %s",user->nick,cname);
+	log(DEBUG,"add_channel: user channel max exceeded: %s %s",user->nick,cname);
 	WriteServ(user->fd,"405 %s %s :You are on too many channels",user->nick, cname);
 	return NULL;
 }
@@ -1109,7 +1117,7 @@ chanrec* del_channel(userrec *user, char* cname, char* reason)
 	}
 
 	FOREACH_MOD OnUserPart(user,Ptr);
-	debug("del_channel: removing: %s %s",user->nick,Ptr->name);
+	log(DEBUG,"del_channel: removing: %s %s",user->nick,Ptr->name);
 	
 	for (i =0; i != MAXCHANS; i++)
 	{
@@ -1126,7 +1134,7 @@ chanrec* del_channel(userrec *user, char* cname, char* reason)
 			}
 			user->chans[i].uc_modes = 0;
 			user->chans[i].channel = NULL;
-			debug("del_channel: unlinked: %s %s",user->nick,Ptr->name);
+			log(DEBUG,"del_channel: unlinked: %s %s",user->nick,Ptr->name);
 			break;
 		}
 	}
@@ -1136,12 +1144,12 @@ chanrec* del_channel(userrec *user, char* cname, char* reason)
 	{
 		chan_hash::iterator iter = chanlist.find(Ptr->name);
 
-		debug("del_channel: destroying channel: %s",Ptr->name);
+		log(DEBUG,"del_channel: destroying channel: %s",Ptr->name);
 
 		/* kill the record */
 		if (iter != chanlist.end())
 		{
-			debug("del_channel: destroyed: %s",Ptr->name);
+			log(DEBUG,"del_channel: destroyed: %s",Ptr->name);
 			delete iter->second;
 			chanlist.erase(iter);
 		}
@@ -1159,7 +1167,7 @@ void kick_channel(userrec *src,userrec *user, chanrec *Ptr, char* reason)
 		return;
 	}
 
-	debug("kick_channel: removing: %s %s %s",user->nick,Ptr->name,src->nick);
+	log(DEBUG,"kick_channel: removing: %s %s %s",user->nick,Ptr->name,src->nick);
 
 	if (!has_channel(user,Ptr))
 	{
@@ -1188,7 +1196,7 @@ void kick_channel(userrec *src,userrec *user, chanrec *Ptr, char* reason)
 			WriteChannel(Ptr,src,"KICK %s %s :%s",Ptr->name, user->nick, reason);
 			user->chans[i].uc_modes = 0;
 			user->chans[i].channel = NULL;
-			debug("del_channel: unlinked: %s %s",user->nick,Ptr->name);
+			log(DEBUG,"del_channel: unlinked: %s %s",user->nick,Ptr->name);
 			break;
 		}
 	}
@@ -1198,12 +1206,12 @@ void kick_channel(userrec *src,userrec *user, chanrec *Ptr, char* reason)
 	{
 		chan_hash::iterator iter = chanlist.find(Ptr->name);
 
-		debug("del_channel: destroying channel: %s",Ptr->name);
+		log(DEBUG,"del_channel: destroying channel: %s",Ptr->name);
 
 		/* kill the record */
 		if (iter != chanlist.end())
 		{
-			debug("del_channel: destroyed: %s",Ptr->name);
+			log(DEBUG,"del_channel: destroyed: %s",Ptr->name);
 			delete iter->second;
 			chanlist.erase(iter);
 		}
@@ -1270,7 +1278,7 @@ int give_ops(userrec *user,char *dest,chanrec *chan,int status)
 						return 0;
 					}
 					d->chans[i].uc_modes = d->chans[i].uc_modes | UCMODE_OP;
-					debug("gave ops: %s %s",d->chans[i].channel->name,d->nick);
+					log(DEBUG,"gave ops: %s %s",d->chans[i].channel->name,d->nick);
 				}
 			}
 		}
@@ -1317,7 +1325,7 @@ int give_hops(userrec *user,char *dest,chanrec *chan,int status)
 						return 0;
 					}
 					d->chans[i].uc_modes = d->chans[i].uc_modes | UCMODE_HOP;
-					debug("gave h-ops: %s %s",d->chans[i].channel->name,d->nick);
+					log(DEBUG,"gave h-ops: %s %s",d->chans[i].channel->name,d->nick);
 				}
 			}
 		}
@@ -1364,7 +1372,7 @@ int give_voice(userrec *user,char *dest,chanrec *chan,int status)
 						return 0;
 					}
 					d->chans[i].uc_modes = d->chans[i].uc_modes | UCMODE_VOICE;
-					debug("gave voice: %s %s",d->chans[i].channel->name,d->nick);
+					log(DEBUG,"gave voice: %s %s",d->chans[i].channel->name,d->nick);
 				}
 			}
 		}
@@ -1411,7 +1419,7 @@ int take_ops(userrec *user,char *dest,chanrec *chan,int status)
 						return 0;
 					}
 					d->chans[i].uc_modes ^= UCMODE_OP;
-					debug("took ops: %s %s",d->chans[i].channel->name,d->nick);
+					log(DEBUG,"took ops: %s %s",d->chans[i].channel->name,d->nick);
 				}
 			}
 		}
@@ -1458,7 +1466,7 @@ int take_hops(userrec *user,char *dest,chanrec *chan,int status)
 						return 0;
 					}
 					d->chans[i].uc_modes ^= UCMODE_HOP;
-					debug("took h-ops: %s %s",d->chans[i].channel->name,d->nick);
+					log(DEBUG,"took h-ops: %s %s",d->chans[i].channel->name,d->nick);
 				}
 			}
 		}
@@ -1505,7 +1513,7 @@ int take_voice(userrec *user,char *dest,chanrec *chan,int status)
 						return 0;
 					}
 					d->chans[i].uc_modes ^= UCMODE_VOICE;
-					debug("took voice: %s %s",d->chans[i].channel->name,d->nick);
+					log(DEBUG,"took voice: %s %s",d->chans[i].channel->name,d->nick);
 				}
 			}
 		}
@@ -1561,7 +1569,7 @@ int add_ban(userrec *user,char *dest,chanrec *chan,int status)
 			c++;
 	if (c>1)
 		return 0;
-	debug("add_ban: %s %s",chan->name,user->nick);
+	log(DEBUG,"add_ban: %s %s",chan->name,user->nick);
 
 	TidyBan(dest);
 	for (BanList::iterator i = chan->bans.begin(); i != chan->bans.end(); i++)
@@ -1587,7 +1595,7 @@ int take_ban(userrec *user,char *dest,chanrec *chan,int status)
 		return 0;
 	}
 
-	debug("del_ban: %s %s",chan->name,user->nick);
+	log(DEBUG,"del_ban: %s %s",chan->name,user->nick);
 	for (BanList::iterator i = chan->bans.begin(); i != chan->bans.end(); i++)
 	{
 		if (!strcasecmp(i->data,dest))
@@ -1617,7 +1625,7 @@ void process_modes(char **parameters,userrec* user,chanrec *chan,int status, int
 		return;
 	}
 
-	debug("process_modes: start");
+	log(DEBUG,"process_modes: start");
 
 	strcpy(modelist,parameters[1]); /* mode list, e.g. +oo-o */
 					/* parameters[2] onwards are parameters for
@@ -1625,14 +1633,14 @@ void process_modes(char **parameters,userrec* user,chanrec *chan,int status, int
 	strcpy(outlist,"+");
 	mdir = 1;
 
-	debug("process_modes: modelist: %s",modelist);
+	log(DEBUG,"process_modes: modelist: %s",modelist);
 
 	for (ptr = 0; ptr < strlen(modelist); ptr++)
 	{
 		r = 0;
 
 		{
-			debug("process_modes: modechar: %c",modelist[ptr]);
+			log(DEBUG,"process_modes: modechar: %c",modelist[ptr]);
 			switch (modelist[ptr])
 			{
 				case '-':
@@ -2319,7 +2327,7 @@ void handle_kick(char **parameters, int pcnt, userrec *user)
 
 void handle_die(char **parameters, int pcnt, userrec *user)
 {
-        debug("die: %s",user->nick);
+        log(DEBUG,"die: %s",user->nick);
 	if (!strcmp(parameters[0],diepass))
 	{
 		WriteOpers("*** DIE command from %s!%s@%s, terminating...",user->nick,user->ident,user->host);
@@ -2334,7 +2342,7 @@ void handle_die(char **parameters, int pcnt, userrec *user)
 
 void handle_restart(char **parameters, int pcnt, userrec *user)
 {
-        debug("restart: %s",user->nick);
+        log(DEBUG,"restart: %s",user->nick);
         if (!strcmp(parameters[0],restartpass))
 	{
 	        WriteOpers("*** RESTART command from %s!%s@%s, Pretending to restart till this is finished :D",user->nick,user->ident,user->host);
@@ -2353,12 +2361,12 @@ void kill_link(userrec *user,char* reason)
 {
 	user_hash::iterator iter = clientlist.find(user->nick);
 
-	debug("kill_link: %s '%s'",user->nick,reason);
+	log(DEBUG,"kill_link: %s '%s'",user->nick,reason);
 	Write(user->fd,"ERROR :Closing link (%s@%s) [%s]",user->ident,user->host,reason);
 	fdatasync(user->fd);
 	WriteOpers("*** Client exiting: %s!%s@%s [%s]",user->nick,user->ident,user->host,reason);
 	FOREACH_MOD OnUserQuit(user);
-	debug("closing fd %d",user->fd);
+	log(DEBUG,"closing fd %d",user->fd);
 	/* bugfix, cant close() a nonblocking socket (sux!) */
 	WriteCommonExcept(user,"QUIT :%s",reason);
 	Blocking(user->fd);
@@ -2368,7 +2376,7 @@ void kill_link(userrec *user,char* reason)
 
 	if (iter != clientlist.end())
 	{
-		debug("deleting user hash value %p",iter->second);
+		log(DEBUG,"deleting user hash value %p",iter->second);
 		delete iter->second;
 		clientlist.erase(iter);
 	}
@@ -2382,7 +2390,7 @@ void handle_kill(char **parameters, int pcnt, userrec *user)
 	userrec *u = Find(parameters[0]);
 	char killreason[MAXBUF];
 	
-        debug("kill: %s %s",parameters[0],parameters[1]);
+        log(DEBUG,"kill: %s %s",parameters[0],parameters[1]);
 	if (u)
 	{
 		WriteOpers("*** Local Kill by %s: %s!%s@%s (%s)",user->nick,u->nick,u->ident,u->host,parameters[1]);
@@ -2536,7 +2544,7 @@ void handle_topic(char **parameters, int pcnt, userrec *user)
 
 void send_error(char *s)
 {
-        debug("send_error: %s",s);
+        log(DEBUG,"send_error: %s",s);
   	for (user_hash::const_iterator i = clientlist.begin(); i != clientlist.end(); i++)
 	{
 		WriteServ(i->second->fd,"NOTICE %s :%s",i->second->nick,s);
@@ -2552,7 +2560,7 @@ void Error(int status)
   signal (SIGSEGV, SIG_IGN);
   signal (SIGURG, SIG_IGN);
   signal (SIGKILL, SIG_IGN);
-  debug("*** fell down a pothole in the road to perfection ***");
+  log(DEBUG,"*** fell down a pothole in the road to perfection ***");
   send_error("Error! Segmentation fault! save meeeeeeeeeeeeee *splat!*");
   exit(status);
 }
@@ -2560,16 +2568,16 @@ void Error(int status)
 int main (int argc, char *argv[])
 {
 	Start();
-        debug("*** InspIRCd starting up!");
+        log(DEBUG,"*** InspIRCd starting up!");
 	if (!CheckConfig())
 	{
-	        debug("main: no config");
+	        log(DEBUG,"main: no config");
 		printf("ERROR: Your config file is missing, this IRCd will self destruct in 10 seconds!\n");
 		Exit(ERROR);
 	}
 	if (InspIRCd() == ERROR)
 	{
-	        debug("main: daemon function bailed");
+	        log(DEBUG,"main: daemon function bailed");
 		printf("ERROR: could not initialise. Shutting down.\n");
 		Exit(ERROR);
 	}
@@ -2592,24 +2600,24 @@ userrec* ReHashNick(char* Old, char* New)
 	user_hash::iterator newnick;
 	user_hash::iterator oldnick = clientlist.find(Old);
 
-	debug("ReHashNick: %s %s",Old,New);
+	log(DEBUG,"ReHashNick: %s %s",Old,New);
 	
 	if (!strcasecmp(Old,New))
 	{
-		debug("old nick is new nick, skipping");
+		log(DEBUG,"old nick is new nick, skipping");
 		return oldnick->second;
 	}
 	
 	if (oldnick == clientlist.end()) return NULL; /* doesnt exist */
 
-	debug("ReHashNick: Found hashed nick %s",Old);
+	log(DEBUG,"ReHashNick: Found hashed nick %s",Old);
 
 	clientlist[New] = new userrec();
 	clientlist[New] = oldnick->second;
 	/*delete oldnick->second; */
 	clientlist.erase(oldnick);
 
-	debug("ReHashNick: Nick rehashed as %s",New);
+	log(DEBUG,"ReHashNick: Nick rehashed as %s",New);
 	
 	return clientlist[New];
 }
@@ -2643,20 +2651,20 @@ void AddWhoWas(userrec* u)
 				{
 					delete i->second;
 					i->second = a;
-					debug("added WHOWAS entry, purged an old record");
+					log(DEBUG,"added WHOWAS entry, purged an old record");
 					return;
 				}
 			}
 		}
 		else
 		{
-			debug("added fresh WHOWAS entry");
+			log(DEBUG,"added fresh WHOWAS entry");
 			whowas[a->nick] = a;
 		}
 	}
 	else
 	{
-		debug("updated WHOWAS entry");
+		log(DEBUG,"updated WHOWAS entry");
 		delete iter->second;
 		iter->second = a;
 	}
@@ -2690,7 +2698,7 @@ void AddClient(int socket, char* host, int port, bool iscached)
 	clientlist[tempnick] = new userrec();
 
 	NonBlocking(socket);
-        debug("AddClient: %d %s %d",socket,host,port);
+        log(DEBUG,"AddClient: %d %s %d",socket,host,port);
 
 
 	clientlist[tempnick]->fd = socket;
@@ -2837,7 +2845,7 @@ char* chlist(userrec *user)
 	int i = 0;
 	char cmp[MAXBUF];
 
-        debug("chlist: %s",user->nick);
+        log(DEBUG,"chlist: %s",user->nick);
 	strcpy(lst,"");
 	if (!user)
 	{
@@ -2957,7 +2965,7 @@ void handle_quit(char **parameters, int pcnt, userrec *user)
 
 	if (iter != clientlist.end())
 	{
-		debug("deleting user hash value");
+		log(DEBUG,"deleting user hash value");
 		delete iter->second;
 		clientlist.erase(iter);
 	}
@@ -3053,6 +3061,7 @@ void handle_rehash(char **parameters, int pcnt, userrec *user)
 {
 	WriteServ(user->fd,"382 %s %s :Rehashing",user->nick,CONFIG_FILE);
 	ReadConfig();
+	FOREACH_MOD OnRehash();
 	WriteOpers("%s is rehashing config file %s",user->nick,CONFIG_FILE);
 }
 
@@ -3158,7 +3167,7 @@ void ConnectUser(userrec *user)
 {
 	user->registered = 7;
 	user->idle_lastmsg = time(NULL);
-        debug("ConnectUser: %s",user->nick);
+        log(DEBUG,"ConnectUser: %s",user->nick);
 
 	if (strcmp(Passwd(user),"") && (!user->haspassed))
 	{
@@ -3444,8 +3453,8 @@ void handle_stats(char **parameters, int pcnt, userrec *user)
 
 void handle_connect(char **parameters, int pcnt, userrec *user)
 {
-	WriteServ(user->fd,"NOTICE %s :*** Connecting to %s port 7000...",user->nick,parameters[0]);
-	if (!me->BeginLink(parameters[0],7000,"password"))
+	WriteServ(user->fd,"NOTICE %s :*** Connecting to %s port %s...",user->nick,parameters[0],parameters[1]);
+	if (!me[defaultRoute]->BeginLink(parameters[0],atoi(parameters[1]),"password"))
 	{
 		WriteServ(user->fd,"NOTICE %s :*** Failed to send auth packet to %s!",user->nick,parameters[0]);
 	}
@@ -3501,32 +3510,32 @@ void handle_nick(char **parameters, int pcnt, userrec *user)
 {
 	if (pcnt < 1) 
 	{
-		debug("not enough params for handle_nick");
+		log(DEBUG,"not enough params for handle_nick");
 		return;
 	}
 	if (!parameters[0])
 	{
-		debug("invalid parameter passed to handle_nick");
+		log(DEBUG,"invalid parameter passed to handle_nick");
 		return;
 	}
 	if (!strlen(parameters[0]))
 	{
-		debug("zero length new nick passed to handle_nick");
+		log(DEBUG,"zero length new nick passed to handle_nick");
 		return;
 	}
 	if (!user)
 	{
-		debug("invalid user passed to handle_nick");
+		log(DEBUG,"invalid user passed to handle_nick");
 		return;
 	}
 	if (!user->nick)
 	{
-		debug("invalid old nick passed to handle_nick");
+		log(DEBUG,"invalid old nick passed to handle_nick");
 		return;
 	}
 	if (!strcasecmp(user->nick,parameters[0]))
 	{
-		debug("old nick is new nick, skipping");
+		log(DEBUG,"old nick is new nick, skipping");
 		return;
 	}
 	else
@@ -3563,7 +3572,7 @@ void handle_nick(char **parameters, int pcnt, userrec *user)
 
 	strncpy(user->nick, parameters[0],NICKMAX);
 
-	debug("new nick set: %s",user->nick);
+	log(DEBUG,"new nick set: %s",user->nick);
 	
 	if (user->registered < 3)
 		user->registered = (user->registered | 2);
@@ -3572,7 +3581,7 @@ void handle_nick(char **parameters, int pcnt, userrec *user)
 		/* user is registered now, bit 0 = USER command, bit 1 = sent a NICK command */
 		ConnectUser(user);
 	}
-	debug("exit nickchange: %s",user->nick);
+	log(DEBUG,"exit nickchange: %s",user->nick);
 }
 
 int process_parameters(char **command_p,char *parameters)
@@ -3737,13 +3746,13 @@ void process_command(userrec *user, char* cmd)
 					user->nping = time(NULL) + 120;
 					if ((items) < cmdlist[i].min_params)
 					{
-					        debug("process_command: not enough parameters: %s %s",user->nick,command);
+					        log(DEBUG,"process_command: not enough parameters: %s %s",user->nick,command);
 						WriteServ(user->fd,"461 %s %s :Not enough parameters",user->nick,command);
 						return;
 					}
 					if ((!strchr(user->modes,cmdlist[i].flags_needed)) && (cmdlist[i].flags_needed))
 					{
-					        debug("process_command: permission denied: %s %s",user->nick,command);
+					        log(DEBUG,"process_command: permission denied: %s %s",user->nick,command);
 						WriteServ(user->fd,"481 %s :Permission Denied- You do not have the required operator privilages",user->nick);
 						cmd_found = 1;
 						return;
@@ -3754,14 +3763,14 @@ void process_command(userrec *user, char* cmd)
 					{
 						if ((!isnick(user->nick)) || (user->registered != 7))
 						{
-						        debug("process_command: not registered: %s %s",user->nick,command);
+						        log(DEBUG,"process_command: not registered: %s %s",user->nick,command);
 							WriteServ(user->fd,"451 %s :You have not registered",command);
 							return;
 						}
 					}
 					if ((user->registered == 7) || (!strcmp(command,"USER")) || (!strcmp(command,"NICK")) || (!strcmp(command,"PASS")))
 					{
-					        debug("process_command: handler: %s %s %d",user->nick,command,items);
+					        log(DEBUG,"process_command: handler: %s %s %d",user->nick,command,items);
 						if (cmdlist[i].handler_function)
 						{
 							/* ikky /stats counters */
@@ -3786,7 +3795,7 @@ void process_command(userrec *user, char* cmd)
 					}
 					else
 					{
-					        debug("process_command: not registered: %s %s",user->nick,command);
+					        log(DEBUG,"process_command: not registered: %s %s",user->nick,command);
 						WriteServ(user->fd,"451 %s :You have not registered",command);
 						return;
 					}
@@ -3797,7 +3806,7 @@ void process_command(userrec *user, char* cmd)
 	}
 	if ((!cmd_found) && (user))
 	{
-	        debug("process_command: not in table: %s %s",user->nick,command);
+	        log(DEBUG,"process_command: not in table: %s %s",user->nick,command);
 		WriteServ(user->fd,"421 %s %s :Unknown command",user->nick,command);
 	}
 }
@@ -3857,7 +3866,7 @@ void SetupCommandTable(void)
   createcommand("PASS",handle_pass,0,1);
   createcommand("TRACE",handle_trace,'o',0);
   createcommand("WHOWAS",handle_whowas,0,1);
-  createcommand("CONNECT",handle_connect,'o',1);
+  createcommand("CONNECT",handle_connect,'o',2);
   createcommand("SQUIT",handle_squit,'o',1);
 }
 
@@ -3891,35 +3900,37 @@ void process_buffer(userrec *user)
 	{
 		return;
 	}
-        debug("InspIRCd: processing: %s %s",user->nick,cmd);
+        log(DEBUG,"InspIRCd: processing: %s %s",user->nick,cmd);
 	process_command(user,cmd);
+}
+
+void handle_link_packet(char* udp_msg, char* udp_host, int udp_port, serverrec *serv)
+{
 }
 
 int InspIRCd(void)
 {
   struct sockaddr_in client, server;
-  int portCount = 0, ports[MAXSOCKS];
   char addrs[MAXBUF][255];
   int openSockfd[MAXSOCKS], incomingSockfd, result = TRUE;
   socklen_t length;
   int count = 0, scanDetectTrigger = TRUE, showBanner = FALSE;
   int selectResult = 0;
-  char *temp, configToken[MAXBUF], stuff[MAXBUF], Addr[MAXBUF];
+  char *temp, configToken[MAXBUF], stuff[MAXBUF], Addr[MAXBUF], Type[MAXBUF];
   char resolvedHost[MAXBUF];
   fd_set selectFds;
   struct timeval tv;
-  int count2;
 
-  debug("InspIRCd: startup: begin");
-  debug("$Id$");
-  if ((geteuid()) && (getuid()) == 0)
+  log(DEBUG,"InspIRCd: startup: begin");
+  log(DEBUG,"$Id$");
+  if (geteuid() == 0)
   {
 	printf("WARNING!!! You are running an irc server as ROOT!!! DO NOT DO THIS!!!\n\n");
 	Exit(ERROR);
-	debug("InspIRCd: startup: not starting with UID 0!");
+	log(DEBUG,"InspIRCd: startup: not starting with UID 0!");
   }
   SetupCommandTable();
-  debug("InspIRCd: startup: default command table set up");
+  log(DEBUG,"InspIRCd: startup: default command table set up");
 
   ReadConfig();
   if (strcmp(DieValue,"")) 
@@ -3927,20 +3938,42 @@ int InspIRCd(void)
 	printf("WARNING: %s\n\n",DieValue);
 	exit(0); 
   }  
-  debug("InspIRCd: startup: read config");
+  log(DEBUG,"InspIRCd: startup: read config");
   
+  int count2 = 0, count3 = 0;
   for (count = 0; count < ConfValueEnum("bind"); count++)
   {
 	ConfValue("bind","port",count,configToken);
 	ConfValue("bind","address",count,Addr);
-	ports[count] = atoi(configToken);
-	strcpy(addrs[count],Addr);
-	debug("InspIRCd: startup: read binding %s:%d from config",addrs[count],ports[count]);
+	ConfValue("bind","type",count,Type);
+	if (!strcmp(Type,"clients"))
+	{
+	 	ports[count2] = atoi(configToken);
+		strcpy(addrs[count2],Addr);
+		count2++;
+	}
+	else
+	{
+		char Default[MAXBUF];
+		strcpy(Default,"no");
+		ConfValue("bind","default",count,Default);
+		if (strchr(Default,'y'))
+		{
+				defaultRoute = count3;
+				log(DEBUG,"InspIRCd: startup: binding '%s:%s' is default server route",Addr,configToken);
+		}
+		me[count3] = new serverrec(ServerName,100L,false);
+		me[count3]->CreateListener(Addr,atoi(configToken));
+		count3++;
+	}
+	log(DEBUG,"InspIRCd: startup: read binding %s:%s [%s] from config",Addr,configToken, Type);
   }
-  portCount = ConfValueEnum("bind");
-  debug("InspIRCd: startup: read %d total ports",portCount);
+  portCount = count2;
+  UDPportCount = count3;
+  
+  log(DEBUG,"InspIRCd: startup: read %d total client ports and %d total server ports",portCount,UDPportCount);
 
-  debug("InspIRCd: startup: InspIRCd is now running!");
+  log(DEBUG,"InspIRCd: startup: InspIRCd is now running!");
 
   printf("\n");
   for (count = 0; count < ConfValueEnum("module"); count++)
@@ -3949,12 +3982,12 @@ int InspIRCd(void)
 	ConfValue("module","name",count,configToken);
 	sprintf(modfile,"%s/%s",MOD_PATH,configToken);
 	printf("Loading module... \033[1;37m%s\033[0;37m\n",modfile);
-	debug("InspIRCd: startup: Loading module: %s",modfile);
+	log(DEBUG,"InspIRCd: startup: Loading module: %s",modfile);
 	
   	factory[count] = new ircd_module(modfile);
 	if (factory[count]->LastError())
 	{
-		debug("Unable to load %s: %s",modfile,factory[count]->LastError());
+		log(DEBUG,"Unable to load %s: %s",modfile,factory[count]->LastError());
 		sprintf("Unable to load %s: %s\nExiting...\n",modfile,factory[count]->LastError());
 		Exit(ERROR);
 	}
@@ -3966,19 +3999,16 @@ int InspIRCd(void)
 	}
 	else
 	{
-		debug("Unable to load %s",modfile);
+		log(DEBUG,"Unable to load %s",modfile);
 		sprintf("Unable to load %s\nExiting...\n",modfile);
 		Exit(ERROR);
 	}
   }
   MODCOUNT = count - 1;
-  debug("Total loaded modules: %d",MODCOUNT+1);
+  log(DEBUG,"Total loaded modules: %d",MODCOUNT+1);
 
-  me = new serverrec(ServerName,100L,false);
   servers = new server_list;
   servers->clear();
-  
-  me->CreateListener("127.0.0.1",7000);
 
   printf("\nInspIRCd is now running!\n");
 
@@ -3986,7 +4016,7 @@ int InspIRCd(void)
   
   if (DaemonSeed() == ERROR)
   {
-     debug("InspIRCd: startup: can't daemonise");
+     log(DEBUG,"InspIRCd: startup: can't daemonise");
      printf("ERROR: could not go into daemon mode. Shutting down.\n");
      Exit(ERROR);
   }
@@ -3994,31 +4024,31 @@ int InspIRCd(void)
   
   /* setup select call */
   FD_ZERO(&selectFds);
-  debug("InspIRCd: startup: zero selects");
+  log(DEBUG,"InspIRCd: startup: zero selects");
 
   for (count = 0; count < portCount; count++)
   {
-      if ((openSockfd[boundPortCount] = OpenTCPSocket()) == ERROR)
+  	  if ((openSockfd[boundPortCount] = OpenTCPSocket()) == ERROR)
       {
-	  debug("InspIRCd: startup: bad fd %d",openSockfd[boundPortCount]);
-	  return(ERROR);
+	        log(DEBUG,"InspIRCd: startup: bad fd %d",openSockfd[boundPortCount]);
+	        return(ERROR);
       }
       if (BindSocket(openSockfd[boundPortCount],client,server,ports[count],addrs[count]) == ERROR)
       {
-	  debug("InspIRCd: startup: failed to bind port %d",ports[count]);
+	        log(DEBUG,"InspIRCd: startup: failed to bind port %d",ports[count]);
       }
       else			/* well we at least bound to one socket so we'll continue */
       {
-	  boundPortCount++;
+      		boundPortCount++;
       }
   }
 
-  debug("InspIRCd: startup: total bound ports %d",boundPortCount);
+  log(DEBUG,"InspIRCd: startup: total bound ports %d",boundPortCount);
   
   /* if we didn't bind to anything then abort */
   if (boundPortCount == 0)
   {
-     debug("InspIRCd: startup: no ports bound, bailing!");
+     log(DEBUG,"InspIRCd: startup: no ports bound, bailing!");
      return (ERROR);
   }
 
@@ -4048,9 +4078,15 @@ int InspIRCd(void)
       tv.tv_sec = 0;
       selectResult = select(MAXSOCKS, &selectFds, NULL, NULL, &tv);
 
-      if (me->RecvPacket(udp_msg, udp_host, udp_port))
+      for (int x = 0; x != UDPportCount; x++)
       {
-      	WriteOpers("UDP Link Packet: '%s' from %s:%d",udp_msg,udp_host,udp_port);
+      		if (me[x]->RecvPacket(udp_msg, udp_host, udp_port))
+        	{
+        	    FOREACH_MOD OnPacketReceive(udp_msg);
+      			WriteOpers("UDP Link Packet: '%s' from %s:%d:%d [route%d]",udp_msg,udp_host,udp_port,me[x]->port,x);
+      			// Packets must go back via the route they arrived on :)
+      			handle_link_packet(udp_msg, udp_host, udp_port, me[x]);
+      	    }
       }
 
   	for (user_hash::iterator count2 = clientlist.begin(); count2 != clientlist.end(); count2++)
@@ -4066,12 +4102,12 @@ int InspIRCd(void)
 			{
 				if (!count2->second->lastping) 
 				{
-				  	debug("InspIRCd: ping timeout: %s",count2->second->nick);
+				  	log(DEBUG,"InspIRCd: ping timeout: %s",count2->second->nick);
 					kill_link(count2->second,"Ping timeout");
 					break;
 				}
 				Write(count2->second->fd,"PING :%s",ServerName);
-			  	debug("InspIRCd: pinging: %s",count2->second->nick);
+			  	log(DEBUG,"InspIRCd: pinging: %s",count2->second->nick);
 				count2->second->lastping = 0;
 				count2->second->nping = time(NULL)+120;
 			}
@@ -4084,7 +4120,7 @@ int InspIRCd(void)
 			else
 			if (result == 0)
 			{
-			  	debug("InspIRCd: Exited: %s",count2->second->nick);
+			  	log(DEBUG,"InspIRCd: Exited: %s",count2->second->nick);
 				kill_link(count2->second,"Client exited");
 			}
 			else if (result > 0)
@@ -4139,12 +4175,12 @@ int InspIRCd(void)
 	      if (incomingSockfd < 0)
 	      {
 	        	WriteOpers("*** WARNING: Accept failed on port %d (%s)", ports[count],target);
-	        	debug("InspIRCd: accept failed: %d",ports[count]);
+	        	log(DEBUG,"InspIRCd: accept failed: %d",ports[count]);
 	        	break;
 	      }
 
 	      AddClient(incomingSockfd, resolved, ports[count], iscached);
-  	      debug("InspIRCd: adding client on port %d fd=%d",ports[count],incomingSockfd);
+  	      log(DEBUG,"InspIRCd: adding client on port %d fd=%d",ports[count],incomingSockfd);
 	      break;
 	    }
 
@@ -4155,4 +4191,5 @@ int InspIRCd(void)
   /* not reached */
   close (incomingSockfd);
 }
+
 

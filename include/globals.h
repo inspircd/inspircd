@@ -19,7 +19,7 @@
 typedef deque<string> file_cache;
 
 void WriteOpers(char* text, ...);
-void debug(char *text, ...);
+void log(int level, char *text, ...);
 void Write(int sock,char *text, ...);
 void WriteServ(int sock, char* text, ...);
 void WriteFrom(int sock, userrec *user,char* text, ...);

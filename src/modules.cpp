@@ -30,6 +30,9 @@ void Module::OnUserConnect(userrec* user) { }
 void Module::OnUserQuit(userrec* user) { }
 void Module::OnUserJoin(userrec* user, chanrec* channel) { }
 void Module::OnUserPart(userrec* user, chanrec* channel) { }
+void Module::OnPacketTransmit(char *p) { }
+void Module::OnPacketReceive(char *p) { }
+void Module::OnRehash() { }
 Version Module::GetVersion() { return Version(1,0,0,0); }
 
 // server is a wrapper class that provides methods to all of the C-style
@@ -49,9 +52,9 @@ void Server::SendOpers(string s)
 	WriteOpers("%s",s.c_str());
 }
 
-void Server::Debug(string s)
+void Server::Log(int level, string s)
 {
-	debug("%s",s.c_str());
+	log(level,"%s",s.c_str());
 }
 
 void Server::Send(int Socket, string s)
@@ -212,5 +215,11 @@ int FileReader::FileSize()
 {
 	return fc.size();
 }
+
+
+vector<Module*> modules(255);
+vector<ircd_module*> factory(255);
+
+int MODCOUNT  = -1;
 
 

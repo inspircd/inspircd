@@ -55,15 +55,28 @@
 #								      #
 #  bind address - specifies which the address which ports bind	      #	
 #  port		- opens an unused port				      #
+#  type         - can be 'clients' or 'servers'. The clients type is  #
+#                 a standard tcp based socket, the servers type is a  #
+                  UDP based connection.                               #
+#  default      - if the port type is 'servers' then this can be      #
+#                 specified. If set to 'yes', it indicates that this  #
+#                 port is the default route for all /connect commands.#
+#                 if you do not bind your default route to an         #
+#                 external ip, or all ip's, you may have connection   #
+#                 problems.                                           #
 #								      #
 #  Leaving address empty binds to all available interfaces            #
 #								      #
 #  Syntax is as follows:                                              #
-#	<bind address="ip number" port="port number">		      #
+#                                                                     #
+# <bind address="ip number" port="port" type="clients">	      	      #
+# <bind address="ip number" port="port" type="servers">	      	      #
+# <bind address="ip number" port="port" type="servers" default="yes"> #
 #								      #
 
-<bind address="" port="6667">
-<bind address="" port="7000">
+<bind address="" port="6660" type="clients">
+<bind address="" port="7000" type="servers" default="yes">
+<bind address="" port="7001" type="servers">
 
 
 #-#-#-#-#-#-#-#-#-#-  DIE/RESTART CONFIGURATION   -#-#-#-#-#-#-#-#-#-#-
@@ -189,15 +202,16 @@
 #   Settings to define which features are useable on your server.     #
 #								      #
 #  prefixquit   - a prefix for a client's quit message                #
-#  debug        - provides an in-depth log file,                      #
-#                 this should not need to be enabled                  #
+#  loglevel     - specifies what detail of messages to log in the     #
+#                 log file. You may select from debug, verbose,       #
+#                 default, sparse and none.                           #
 #  allowhalfop  - allows the +h channel mode			      #
 #  allowprotect - allows the +a channel mode			      #
 #  allowfounder - allows the +q channel mode			      #
 #								      #
 
 <options prefixquit="Quit: "
-	 debug="off"
+	 loglevel="default"
 	 allowhalfop="yes"
 	 allowprotect="yes"
 	 allowfounder="yes">

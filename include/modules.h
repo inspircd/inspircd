@@ -90,6 +90,12 @@ class Module : public classbase
 	 * and the details of the channel they have left is available in the variable chanrec *channel
 	 */
 	virtual void OnUserPart(userrec* user, chanrec* channel);
+
+
+	virtual void Module::OnPacketTransmit(char *p);
+ 	virtual void Module::OnPacketReceive(char *p);
+ 	virtual void OnRehash();
+
 };
 
 
@@ -114,11 +120,11 @@ class Server : public classbase
 	 * This method sends a server notice to all opers with the usermode +s.
 	 */
 	virtual void SendOpers(string s);
-	/** Sends a debug string.
-	 * This method writes a line of text to the debug log. If debugging is disabled
-	 * in the configuration, this command has no effect.
+	/** Writes a log string.
+	 * This method writes a line of text to the log. If the level given is lower than the
+	 * level given in the configuration, this command has no effect.
 	 */
-	virtual void Debug(string s);
+	virtual void Log(int level, string s);
 	/** Sends a line of text down a TCP/IP socket.
 	 * This method writes a line of text to an established socket, cutting it to 510 characters
 	 * plus a carriage return and linefeed if required.
@@ -304,5 +310,8 @@ class ModuleFactory : public classbase
 	 */
 	virtual Module * CreateModule() = 0;
 };
+
+
+typedef DLLFactory<ModuleFactory> ircd_module;
 
 #endif

@@ -5,6 +5,12 @@
 #include <sys/ioctl.h>
 #include <sys/utsname.h>
 #include "inspircd.h"
+#include "modules.h"
+
+extern vector<Module*> modules;
+extern vector<ircd_module*> factory;
+
+extern int MODCOUNT;
 
 packet::packet()
 {
@@ -23,11 +29,13 @@ connection::connection()
 }
 
 
-bool connection::CreateListener(char* host, int port)
+bool connection::CreateListener(char* host, int p)
 {
 	sockaddr_in host_address;
 	int flags;
 	in_addr addy;
+	int on = 0;
+	struct linger linger = { 0 };
 	
 	fd = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
 	if (fd <= 0)
@@ -49,9 +57,9 @@ bool connection::CreateListener(char* host, int port)
 		host_address.sin_addr = addy;
 	}
 
-	host_address.sin_port = htons(port);
+	host_address.sin_port = htons(p);
 
-	if (bind(fd, (sockaddr*)&host_address, sizeof(host_address))<0)
+	if (bind(fd,(sockaddr*)&host_address,sizeof(host_address))<0)
 	{
 		return false;
 	}
@@ -59,6 +67,13 @@ bool connection::CreateListener(char* host, int port)
 	// make the socket non-blocking
 	flags = fcntl(fd, F_GETFL, 0);
 	fcntl(fd, F_SETFL, flags | O_NONBLOCK);
+
+	this->port = p;
+
+    setsockopt(fd,SOL_SOCKET,SO_REUSEADDR,(const char*)&on,sizeof(on));
+    linger.l_onoff = 1;
+    linger.l_linger = 0;
+    setsockopt(fd,SOL_SOCKET,SO_LINGER,(const char*)&linger,sizeof(linger));
 
 	return true;
 }
@@ -101,6 +116,9 @@ bool connection::SendPacket(char *message, char* host, int port)
 	strcpy(p.data,message);
 	p.type = PT_SYN_WITH_DATA;
 	p.key = key;
+
+
+    FOREACH_MOD OnPacketTransmit(p.data);
 
 	// returns false if the packet could not be sent (e.g. target host down)
 	if (sendto(fd,&p,sizeof(p),0,(sockaddr*)&host_address,sizeof(host_address))<0)
@@ -195,7 +213,7 @@ long connection::GenKey()
 
 // host: in dot notation a.b.c.d
 // port: host byte order
-bool connection::RecvPacket(char *message, char* host, int &port)
+bool connection::RecvPacket(char *message, char* host, int &prt)
 {
 	// returns false if no packet waiting for receive, e.g. EAGAIN or ECONNRESET
 	sockaddr_in host_address;
@@ -216,8 +234,8 @@ bool connection::RecvPacket(char *message, char* host, int &port)
 	{
 		strcpy(message,p.data);
 		strcpy(host,inet_ntoa(host_address.sin_addr));
-		port = ntohs(host_address.sin_port);
-		SendACK(host,port,p.id);
+		prt = ntohs(host_address.sin_port);
+		SendACK(host,this->port,p.id);
 		return false;
 	}
 
@@ -225,8 +243,7 @@ bool connection::RecvPacket(char *message, char* host, int &port)
 	{
 		strcpy(message,p.data);
 		strcpy(host,inet_ntoa(host_address.sin_addr));
-		port = ntohs(host_address.sin_port);
-		SendACK(host,port,p.id);
+		prt = ntohs(host_address.sin_port);
 		return false;
 	}
 
@@ -234,8 +251,8 @@ bool connection::RecvPacket(char *message, char* host, int &port)
 	{
 		strcpy(message,p.data);
 		strcpy(host,inet_ntoa(host_address.sin_addr));
-		port = ntohs(host_address.sin_port);
-		SendACK(host,port,p.id);
+		prt = ntohs(host_address.sin_port);
+		SendACK(host,this->port,p.id);
 	}
 
 	return true;

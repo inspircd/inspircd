@@ -38,8 +38,13 @@
 #define TRUE 1
 #define FALSE 0
 #define IDENTMAX 9
-/* max sockets we can open */
 #define MAXSOCKS 64
+
+#define DEBUG 10
+#define VERBOSE 20
+#define DEFAULT 30
+#define SPARSE 40
+#define NONE 50
 
 typedef deque<string> file_cache;
 
@@ -52,7 +57,7 @@ void ReadConfig(void);
 void strlower(char *n);
 
 void WriteOpers(char* text, ...);
-void debug(char *text, ...);
+void log(int level, char *text, ...);
 void Write(int sock,char *text, ...);
 void WriteServ(int sock, char* text, ...);
 void WriteFrom(int sock, userrec *user,char* text, ...);

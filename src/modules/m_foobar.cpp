@@ -45,7 +45,7 @@ class ModuleFoobar : public Module
 		// method called when a user connects
 	
 		string b = user->nick;
-		Srv->Debug("Foobar: User connecting: " + b);
+		Srv->Log(DEBUG,"Foobar: User connecting: " + b);
 	}
 
 	virtual void OnUserQuit(userrec* user)
@@ -53,7 +53,7 @@ class ModuleFoobar : public Module
 		// method called when a user disconnects
 	
 		string b = user->nick;
-		Srv->Debug("Foobar: User quitting: " + b);
+		Srv->Log(DEBUG,"Foobar: User quitting: " + b);
 	}
 	
 	virtual void OnUserJoin(userrec* user, chanrec* channel)
@@ -62,7 +62,7 @@ class ModuleFoobar : public Module
 	
 		string c = channel->name;
 		string b = user->nick;
-		Srv->Debug("Foobar: User " + b + " joined " + c);
+		Srv->Log(DEBUG,"Foobar: User " + b + " joined " + c);
 	}
 
 	virtual void OnUserPart(userrec* user, chanrec* channel)
@@ -71,7 +71,7 @@ class ModuleFoobar : public Module
 	
 		string c = channel->name;
 		string b = user->nick;
-		Srv->Debug("Foobar: User " + b + " parted " + c);
+		Srv->Log(DEBUG,"Foobar: User " + b + " parted " + c);
 	}
 
 };
