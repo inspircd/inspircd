@@ -2,7 +2,7 @@
  *       | Inspire Internet Relay Chat Daemon |
  *       +------------------------------------+
  *
- *  Inspire is copyright (C) 2002-2003 ChatSpike-Dev.
+ *  Inspire is copyright (C) 2002-2004 ChatSpike-Dev.
  *                       E-mail:
  *                <brain@chatspike.net>
  *           	  <Craig@chatspike.net>
@@ -1248,7 +1248,7 @@ chanrec* add_channel(userrec *user, char* cname, char* key)
 
 	log(DEBUG,"add_channel: %s %s",user->nick,cname);
 	
-	if ((has_channel(user,FindChan(cname))) && (FindChan(cname)))
+	if ((FindChan(cname)) && (has_channel(user,FindChan(cname))))
 	{
 		return NULL; // already on the channel!
 	}
@@ -2086,6 +2086,7 @@ void process_modes(char **parameters,userrec* user,chanrec *chan,int status, int
 					}
 				break;
 
+
 				case 'k':
 					if ((param >= pcnt))
 						break;
@@ -2098,18 +2099,31 @@ void process_modes(char **parameters,userrec* user,chanrec *chan,int status, int
 						if (!strcmp(chan->key,""))
 						{
 							strcat(outlist,"k");
-							strcpy(outpars[pc++],parameters[param++]);
-							strcpy(chan->key,parameters[param-1]);
+							char key[MAXBUF];
+							strcpy(key,parameters[param++]);
+							if (strlen(key)>32) {
+								key[31] = '\0';
+							}
+							strcpy(outpars[pc++],key);
+							strcpy(chan->key,key);
 							k_set = true;
 						}
 					}
 					else
 					{
+						/* checks on -k are case sensitive and only accurate to the
+  						   first 32 characters */
+						char key[MAXBUF];
+						strcpy(key,parameters[param++]);
+						if (strlen(key)>32) {
+							key[31] = '\0';
+						}
 						/* only allow -k if correct key given */
-						if (strcmp(chan->key,""))
+						if (!strcmp(chan->key,key))
 						{
 							strcat(outlist,"k");
 							strcpy(chan->key,"");
+							strcpy(outpars[pc++],key);
 						}
 					}
 				break;
@@ -2240,15 +2254,28 @@ void process_modes(char **parameters,userrec* user,chanrec *chan,int status, int
 					if (ModeDefined(modechar,MT_CHANNEL))
 					{
 						log(DEBUG,"A module has claimed this mode");
-     						if ((ModeDefinedOn(modechar,MT_CHANNEL)>0) && (mdir))
+						if (param<pcnt)
 						{
-      							p.push_back(parameters[param]);
-  						}
-						if ((ModeDefinedOff(modechar,MT_CHANNEL)>0) && (!mdir))
-						{
-      							p.push_back(parameters[param]);
+     							if ((ModeDefinedOn(modechar,MT_CHANNEL)>0) && (mdir))
+							{
+      								p.push_back(parameters[param]);
+  							}
+							if ((ModeDefinedOff(modechar,MT_CHANNEL)>0) && (!mdir))
+							{
+      								p.push_back(parameters[param]);
+  							}
   						}
   						bool handled = false;
+  						if (param>=pcnt)
+  						{
+  							log(DEBUG,"Not enough parameters for module-mode %c",modechar);
+  							// we're supposed to have a parameter, but none was given... so dont handle the mode.
+  							if (((ModeDefinedOn(modechar,MT_CHANNEL)>0) && (mdir)) || ((ModeDefinedOff(modechar,MT_CHANNEL)>0) && (!mdir)))	
+  							{
+  								handled = true;
+  								param++;
+  							}
+  						}
   						for (int i = 0; i <= MODCOUNT; i++)
 						{
 							if (!handled)
@@ -2270,7 +2297,7 @@ void process_modes(char **parameters,userrec* user,chanrec *chan,int status, int
 									}
 									chan->SetCustomMode(modechar,mdir);
 									// include parameters in output if mode has them
-									if ((ModeDefinedOn(modechar,MT_CHANNEL)>0) || (ModeDefinedOff(modechar,MT_CHANNEL)>0))
+									if ((ModeDefinedOn(modechar,MT_CHANNEL)>0) && (mdir))
 									{
 										chan->SetCustomModeParam(modelist[ptr],parameters[param],mdir);
 										strcpy(outpars[pc++],parameters[param++]);

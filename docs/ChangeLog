@@ -1,3 +1,97 @@
+1.0 alpha 9.5
+
+* Added support for /connect (no sync yet!)
+* Added extra module support and improved api
+* Improved developer docs, see http://www.inspircd.org/docs/
+* FINALLY fixed crash-on-disconnect bug
+* Fixed many stability bugs
+* Fixed length and buffer overrun issues that caused user records to become corrupted without crashes (!)
+
+1.0 alpha 9
+
+* Added /WHOWAS
+* Made ircd cache message of the day in a vector (faster!)
+* Added support for multiple lines of /NAMES on large channels
+* Added hostname/ip caching to speed up connects
+* Added '/stats z'
+* Added Server class
+* Added more code to example module demonstrating use of Server class
+* Added Admin class (holds /admin info for modules)
+* Added methods to Server class
+* Added m_cloaking.so module, provides host masking
+* Added /AWAY
+* added /ISON command (for mIRC etc basic notify)
+* Added /USERS stub
+* Added /SUMMON stub
+* attemted to fix weird crash on /kill
+* added pause= value to /die and /restart in config
+* Attempted to fix closed client sessions not being detected
+* Added wildcard support
+* Added channel bans
+* Changed user and channel structs to classes (finally)
+* Fixed parameter error in QUIT code (was showing junk chars on BSD)
+* fixed some ugly pointer bugs (thanks dblack and a|KK|y!)
+* Added /INVITE command and relevent structures
+* Added CONNECT ALLOW and CONNECT DENY config tags
+* Added PASS command
+* Fixed: /LUSERS cant count :P
+* added /TRACE command
+* Implemented channel mode +m
+* Added channel modes, +k, +l, +i, +m etc
+* Added user and channel modes +i, +p, +s
+* Implemented usermode +s
+* Fixed dodgy mode glitches (the ones Craig loves to play with, awww)
+* Added code to tidy up bans (e.g. max nick length) - i blame mIRC!
+* fixed multiple /MODE +l bugs (thanks to akky and BOFH bugging meh!)
+* Fixed ident max length to 10
+* fixed random crash on kill_link (AGAIN) - was /stats
+* improved speed 10x (because i can...)
+* optimisations galore!
+* Added FileReader file-caching class
+* Changed m_randquote to use FileReader class
+* Neater source tree (binaries in bin, source in src, headers in include, etc)
+* Added /WHOWAS
+* Tidied up makefiles
+* Much nicer configure program
+* makeconf program (very nice config maker by Craig)
+
+
+1.0 alpha 8
+
+* Added Admin class (holds /admin info for modules)  
+* Added methods to Server class  
+* Added m_cloaking.so module, provides host masking  
+* Added Server class  
+* Added more code to example module demonstrating use of Server class  
+* ./configure improved by Craig (better prompts, dir creation)  
+* /stats z added detail  
+* Added '/stats z'  
+* Added hostname/ip caching to speed up connects  
+* Made ircd cache message of the day in a vector (faster!)  
+* Added support for multiple lines of /NAMES on large channels
+
+1.0 alpha 7
+
+* Added /USERHOST command 
+* Added '/STATS O' 
+* removed random debug output 
+* Fixed random crash on nickchange  
+* Fine tuned ability to handle >300 users 
+* added '/stats L' (connect-info) 
+* '/stats u' support added (server uptime) 
+* added '/stats M' command 
+* Added extra dynamic module support, new methods to Module class
+
+1.0 alpha 6
+
+* Changed command table to a vector of command_t types 
+* Dynamix module support, preliminary release 
+* Fixes random crash on nickchange 
+* Fixed wallops and command parameter counting bugs 
+* fixed "user lingering" problem in kill_link 
+* updated example config 
+* developed a simple sample module (m_foobar.so)
+
 1.0 alpha 5
 
 * Changed channel array to a hash_map similar to the one used for users, faster and more efficient
@@ -47,3 +141,9 @@
 * Fixed close() on nonblocking sockets problem
 * Added /KILL command >:)
 * Added /KICK command
+
+1.0 alpha 2
+
+* addition of /oper and several Channel Modes.
+* new config file format
+

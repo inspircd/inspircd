@@ -24,16 +24,22 @@
 #include "inspircd_io.h"
 #include "inspircd_util.h"
 
+extern FILE *log_file;
+
 void WriteOpers(char* text, ...);
 
 void Exit (int status)
 {
+  if (log_file)
+  	fclose(log_file);
   send_error("Server shutdown.");
   exit (status);
 }
 
 void Killed(int status)
 {
+  if (log_file)
+  	fclose(log_file);
   send_error("Server terminated.");
   exit(status);
 }

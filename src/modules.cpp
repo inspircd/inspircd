@@ -229,6 +229,21 @@ Admin Server::GetAdmin()
 
 bool Server::AddExtendedMode(char modechar, int type, bool default_on, int params_when_on, int params_when_off)
 {
+	if (type == MT_SERVER)
+	{
+		log(DEBUG,"*** API ERROR *** Modes of type MT_SERVER are reserved for future expansion");
+		return false;
+	}
+	if (((params_when_on>0) || (params_when_off>0)) && (type == MT_CLIENT))
+	{
+		log(DEBUG,"*** API ERROR *** Parameters on MT_CLIENT modes are not supported");
+		return false;
+	}
+	if ((params_when_on>1) || (params_when_off>1))
+	{
+		log(DEBUG,"*** API ERROR *** More than one parameter for an MT_CHANNEL mode is not yet supported");
+		return false;
+	}
 	return DoAddExtendedMode(modechar,type,default_on,params_when_on,params_when_off);
 }
 

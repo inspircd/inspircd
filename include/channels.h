@@ -7,6 +7,7 @@
 #include "base.h"
 #include <time.h>
 #include <vector>
+#include <string>
 
 #ifndef __CHANNELS_H__
 #define __CHANNELS_H__
@@ -51,6 +52,18 @@ class InviteItem : public HostItem
 };
 
 
+/** Holds a custom parameter to a module-defined channel mode
+  * e.g. for +L this would hold the channel name.
+  */
+
+class ModeParameter : public classbase
+{
+ public:
+	char mode;
+	char parameter[MAXBUF];
+	char channel[CHANMAX];
+};
+
 /** Holds a complete ban list
  */
 typedef std::vector<BanItem> 	BanList;
@@ -77,6 +90,7 @@ class chanrec : public classbase
 	 * Plugins may use this field in any way they see fit.
 	 */
 	char custom_modes[MAXMODES];     /* modes handled by modules */
+	
 	/** Channel topic.
 	 * If this is an empty string, no channel topic is set.
 	 */
@@ -141,6 +155,18 @@ class chanrec : public classbase
 	 */
 	void SetCustomModeParam(char mode,char* parameter,bool mode_on);
  
+	/** Returns true if a custom mode is set on a channel
+	  */
+	bool IsCustomModeSet(char mode);
+
+	/** Returns the parameter for a custom mode on a channel.
+	  * For example if "+L #foo" is set, and you pass this method
+	  * 'L', it will return '#foo'. If the mode is not set on the
+	  * channel, or the mode has no parameters associated with it,
+	  * it will return an empty string.
+	  */
+	std::string GetModeParameter(char mode);
+
 	/** Creates a channel record and initialises it with default values
 	 */
 	chanrec();
