@@ -125,7 +125,7 @@
 <a name="l00117"></a><a class="code" href="classModule.html#a7">00117</a> <span class="keywordtype">void</span> <a class="code" href="classModule.html#a7">Module::OnPacketTransmit</a>(<span class="keywordtype">char</span> *p) { }
 <a name="l00118"></a><a class="code" href="classModule.html#a8">00118</a> <span class="keywordtype">void</span> <a class="code" href="classModule.html#a8">Module::OnPacketReceive</a>(<span class="keywordtype">char</span> *p) { }
 <a name="l00119"></a><a class="code" href="classModule.html#a9">00119</a> <span class="keywordtype">void</span> <a class="code" href="classModule.html#a9">Module::OnRehash</a>() { }
-<a name="l00120"></a><a class="code" href="classModule.html#a10">00120</a> <span class="keywordtype">void</span> <a class="code" href="classModule.html#a10">Module::OnServerRaw</a>(std::string &amp;raw, <span class="keywordtype">bool</span> inbound) { }
+<a name="l00120"></a><a class="code" href="classModule.html#a10">00120</a> <span class="keywordtype">void</span> <a class="code" href="classModule.html#a10">Module::OnServerRaw</a>(std::string &amp;raw, <span class="keywordtype">bool</span> inbound, <a class="code" href="classuserrec.html">userrec</a>* user) { }
 <a name="l00121"></a><a class="code" href="classModule.html#a12">00121</a> <span class="keywordtype">int</span> <a class="code" href="classModule.html#a12">Module::OnUserPreJoin</a>(<a class="code" href="classuserrec.html">userrec</a>* user, <a class="code" href="classchanrec.html">chanrec</a>* chan, <span class="keyword">const</span> <span class="keywordtype">char</span>* cname) { <span class="keywordflow">return</span> 0; }
 <a name="l00122"></a><a class="code" href="classModule.html#a11">00122</a> <span class="keywordtype">bool</span> <a class="code" href="classModule.html#a11">Module::OnExtendedMode</a>(<a class="code" href="classuserrec.html">userrec</a>* user, <span class="keywordtype">void</span>* target, <span class="keywordtype">char</span> modechar, <span class="keywordtype">int</span> type, <span class="keywordtype">bool</span> mode_on, string_list &amp;params) { <span class="keywordflow">return</span> <span class="keyword">false</span>; }
 <a name="l00123"></a><a class="code" href="classModule.html#a2">00123</a> <a class="code" href="classVersion.html">Version</a> <a class="code" href="classModule.html#a2">Module::GetVersion</a>() { <span class="keywordflow">return</span> <a class="code" href="classVersion.html">Version</a>(1,0,0,0); }
@@ -450,7 +450,7 @@
 <a name="l00442"></a><a class="code" href="modules_8cpp.html#a3">00442</a> <span class="keywordtype">int</span> <a class="code" href="modules_8cpp.html#a3">MODCOUNT</a>  = -1;
 00443 
 00444 
-</pre></div><hr><address style="align: right;"><small>Generated on Sun Apr 25 00:24:05 2004 for InspIRCd by
+</pre></div><hr><address style="align: right;"><small>Generated on Thu Apr 29 16:21:46 2004 for InspIRCd by
 <a href="http://www.doxygen.org/index.html">
 <img src="doxygen.png" alt="doxygen" align="middle" border=0 
 width=110 height=53></a>1.3-rc3 </small></address>

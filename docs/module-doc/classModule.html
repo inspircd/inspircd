@@ -42,7 +42,7 @@ Inheritance diagram for Module:<p><center><img src="classModule__inherit__graph.
 <tr><td>&nbsp;</td><td><font size=-1><em>Called after a packet is received from another irc server.</em> <a href="#a8"></a><em></em></font><br><br></td></tr>
 <tr><td nowrap align=right valign=top>virtual void&nbsp;</td><td valign=bottom><a class="el" href="classModule.html#a9">OnRehash</a> ()</td></tr>
 <tr><td>&nbsp;</td><td><font size=-1><em>Called on rehash.</em> <a href="#a9"></a><em></em></font><br><br></td></tr>
-<tr><td nowrap align=right valign=top>virtual void&nbsp;</td><td valign=bottom><a class="el" href="classModule.html#a10">OnServerRaw</a> (std::string &amp;raw, bool inbound)</td></tr>
+<tr><td nowrap align=right valign=top>virtual void&nbsp;</td><td valign=bottom><a class="el" href="classModule.html#a10">OnServerRaw</a> (std::string &amp;raw, bool inbound, <a class="el" href="classuserrec.html">userrec</a> *user)</td></tr>
 <tr><td>&nbsp;</td><td><font size=-1><em>Called when a raw command is transmitted or received.</em> <a href="#a10"></a><em></em></font><br><br></td></tr>
 <tr><td nowrap align=right valign=top>virtual bool&nbsp;</td><td valign=bottom><a class="el" href="classModule.html#a11">OnExtendedMode</a> (<a class="el" href="classuserrec.html">userrec</a> *user, void *target, char modechar, int type, bool mode_on, <a class="el" href="modules_8h.html#a11">string_list</a> &amp;params)</td></tr>
 <tr><td>&nbsp;</td><td><font size=-1><em>Called whenever an extended mode is to be processed.</em> <a href="#a11"></a><em></em></font><br><br></td></tr>
@@ -439,7 +439,13 @@ Definition at line <a class="el" href="modules_8cpp-source.html#l00119">119</a> 
           <td></td>
           <td></td>
           <td class="md" nowrap>bool&nbsp;</td>
-          <td class="mdname" nowrap>&nbsp; <em>inbound</em></td>
+          <td class="mdname" nowrap>&nbsp; <em>inbound</em>, </td>
+        </tr>
+        <tr>
+          <td></td>
+          <td></td>
+          <td class="md" nowrap><a class="el" href="classuserrec.html">userrec</a> *&nbsp;</td>
+          <td class="mdname" nowrap>&nbsp; <em>user</em></td>
         </tr>
         <tr>
           <td></td>
@@ -461,7 +467,7 @@ Definition at line <a class="el" href="modules_8cpp-source.html#l00119">119</a> 
 <p>
 Called when a raw command is transmitted or received.
 <p>
-This method is the lowest level of handler available to a module. It will be called with raw data which is passing through a connected socket. If you wish, you may munge this data by changing the string parameter "raw". If you do this, after your function exits it will immediately be cut down to 510 characters plus a carriage return and linefeed.
+This method is the lowest level of handler available to a module. It will be called with raw data which is passing through a connected socket. If you wish, you may munge this data by changing the string parameter "raw". If you do this, after your function exits it will immediately be cut down to 510 characters plus a carriage return and linefeed. For INBOUND messages only (where inbound is set to true) the value of user will be the userrec of the connection sending the data. This is not possible for outbound data because the data may be being routed to multiple targets.
 <p>
 Definition at line <a class="el" href="modules_8cpp-source.html#l00120">120</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
 <p>
@@ -890,7 +896,7 @@ Definition at line <a class="el" href="modules_8cpp-source.html#l00126">126</a> 
 </table>
 <hr>The documentation for this class was generated from the following files:<ul>
 <li><a class="el" href="modules_8h-source.html">modules.h</a><li><a class="el" href="modules_8cpp-source.html">modules.cpp</a></ul>
-<hr><address style="align: right;"><small>Generated on Sun Apr 25 00:24:26 2004 for InspIRCd by
+<hr><address style="align: right;"><small>Generated on Thu Apr 29 16:22:08 2004 for InspIRCd by
 <a href="http://www.doxygen.org/index.html">
 <img src="doxygen.png" alt="doxygen" align="middle" border=0 
 width=110 height=53></a>1.3-rc3 </small></address>
