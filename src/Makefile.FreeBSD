@@ -16,5 +16,5 @@ CXXFLAGS = -I$../../include ${FLAGS}
 all: inspircd
 
 inspircd: $(OBJS)
-        $(CXX) -rdynamic $^ -o $@ $(LDLIBS)
+	$(CXX) -rdynamic $^ -o $@ $(LDLIBS)
 

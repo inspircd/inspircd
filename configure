@@ -263,7 +263,7 @@ echo "#define SYSLOG_FACILITY LOG_DAEMON" >>include/inspircd_config.h
 echo "#define SYSLOG_LEVEL LOG_NOTICE" >>include/inspircd_config.h
 echo "#define CONFIG_FILE \"$CONFIG_DIR/inspircd.conf\"" >>include/inspircd_config.h
 echo "#define MOD_PATH \"$MODULE_DIR\"" >>include/inspircd_config.h
-echo "#define VERSION \"`sh ./version.sh`\"" >>include/inspircd_config.h
+echo "#define VERSION \"`sh ./src/version.sh`\"" >>include/inspircd_config.h
 echo "#define MAXCLIENTS $MAX_CLIENT" >>include/inspircd_config.h
 echo "#define NICKMAX $NICK_LENGT" >>include/inspircd_config.h
 echo "#define CHANMAX $CHAN_LENGT" >>include/inspircd_config.h
@@ -272,26 +272,13 @@ echo "#define MAXMODES $MAXI_MODES" >>include/inspircd_config.h
 echo "#define SYSTEM \"`uname -n -s -r`\"" >>include/inspircd_config.h
 echo "#define MAXBUF 514">>include/inspircd_config.h
 
-touch inspircd_config.h
-rm -rf *.o core $MOD_PATH/*.so
-
-echo ""
-echo -e "\033[1;32mDetecting modules...\033[0;37m"
-MODLINE=""
-for module in m_*.cpp ; do
-	mod=`perl -e '$a='$module';print substr($a,0,length($a)-3)'`
-	dmod=`perl -e '$a="'$mod'";while (length($a)<30) { $a = "$a ";}; print $a;'`
-	desc=`perl -e 'open (F, "<'$module'");local($/)=undef;$blah=<F>;$blah=~/\$ModDesc(.*)\*\//;print substr($1,13,length($1));close F;'`
-	echo -e "Found \033[1;32m$dmod\033[0;37m$desc"
-        MODLINE="$mod.so $MODLINE"
-done
-echo ""
+touch include/inspircd_config.h
 
 echo -e "Writing \033[1;37m$OSNAME\033[0;37m makefile"
 
 cp -f Makefile.$OSNAME Makefile
-cp -f src/Makefile.$OSNAME src/Makefile.$OSNAME
-cp -f src/modules/Makefile.$OSNAME src/modules/Makefile.$OSNAME
+cp -f src/Makefile.$OSNAME src/Makefile
+cp -f src/modules/Makefile.$OSNAME src/modules/Makefile
 
 echo ""
 echo "Do you want to compile the IRCd binaries?"
