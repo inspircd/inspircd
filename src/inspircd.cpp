@@ -6377,6 +6377,7 @@ void handle_b(char token,char* params,serverrec* source,serverrec* reply, char* 
 void handle_plus(char token,char* params,serverrec* source,serverrec* reply, char* udp_host)
 {
 	// %s %s %d %d
+	// + test3.chatspike.net 7010 -2016508415
 	char* servername = strtok(params," ");
 	char* ipaddr = strtok(NULL," ");
 	char* ipport = strtok(NULL," ");
@@ -6441,6 +6442,7 @@ void handle_J(char token,char* params,serverrec* source,serverrec* reply, char* 
 	}
 }
 
+
 void process_restricted_commands(char token,char* params,serverrec* source,serverrec* reply, char* udp_host,char* ipaddr,int port)
 {
 	long authcookie = rand()*rand();
@@ -6460,6 +6462,7 @@ void process_restricted_commands(char token,char* params,serverrec* source,serve
 			snprintf(buffer,MAXBUF,"~ %d",authcookie);
 			source->SendPacket(buffer,udp_host);
 			// tell all the other servers to use this authcookie to connect back again
+			// got '+ test3.chatspike.net 7010 -2016508415' from test.chatspike.net
 			snprintf(buffer,MAXBUF,"+ %s %s %d %d",udp_host,ipaddr,port,authcookie);
 			NetSendToAllExcept(udp_host,buffer);
 		break;
@@ -7023,11 +7026,20 @@ int InspIRCd(void)
 			{
 				if (FD_ISSET (me[x]->fd, &serverfds))
 				{
-					char remotehost[MAXBUF];
+					char remotehost[MAXBUF],resolved[MAXBUF];
+					length = sizeof (client);
 					incomingSockfd = accept (me[x]->fd, (sockaddr *) &client, &length);
-					strncpy (remotehost,(char *) inet_ntoa (client.sin_addr),MAXBUF);
+					strncpy(remotehost,(char *)inet_ntoa(client.sin_addr),MAXBUF);
+					if(CleanAndResolve(resolved, remotehost) != TRUE)
+					{
+						strncpy(resolved,remotehost,MAXBUF);
+					}
+					log(DEBUG," ");
+					log(DEBUG," ");
+					log(DEBUG,"Resolved: '%s'",resolved);
+					log(DEBUG," ");
 					// add to this connections ircd_connector vector
-					me[x]->AddIncoming(incomingSockfd,remotehost,ntohs(client.sin_port));
+					me[x]->AddIncoming(incomingSockfd,resolved,ntohs(client.sin_port));
 				}
 			}
 		}
@@ -7250,6 +7262,7 @@ int InspIRCd(void)
 		{
 			if (FD_ISSET (openSockfd[count], &selectFds))
 			{
+				length = sizeof (client);
 				incomingSockfd = accept (openSockfd[count], (struct sockaddr *) &client, &length);
 			      
 				address_cache::iterator iter = IP.find(client.sin_addr);

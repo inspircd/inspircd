@@ -216,7 +216,7 @@ bool connection::MeshCookie(char* targethost, int port, long cookie, char* serve
 	return false;
 }
 
-bool connection::AddIncoming(int fd,char* targethost, int sourceport)
+bool connection::AddIncoming(int fd, char* targethost, int sourceport)
 {
 	char connect[MAXBUF];
 	
