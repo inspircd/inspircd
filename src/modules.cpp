@@ -125,6 +125,7 @@ void Module::OnInfo(userrec* user) { };
 void Module::OnWhois(userrec* source, userrec* dest) { };
 int Module::OnUserPreMessage(userrec* user,void* dest,int target_type, std::string text) { return 0; };
 int Module::OnUserPreNotice(userrec* user,void* dest,int target_type, std::string text) { return 0; };
+int Module::OnUserPreNick(userrec* user, std::string newnick) { return 0; };
 
 // server is a wrapper class that provides methods to all of the C-style
 // exports in the core

@@ -1374,6 +1374,13 @@ void handle_nick(char **parameters, int pcnt, userrec *user)
 
 	if (user->registered == 7)
 	{
+		int MOD_RESULT = 0;
+		FOREACH_RESULT(OnUserPreNick(user,parameters[0]));
+		if (MOD_RESULT) {
+			// if a module returns true, the nick change is silently forbidden.
+			return;
+		}
+
 		WriteCommon(user,"NICK %s",parameters[0]);
 		
 		// Q token must go to ALL servers!!!
@@ -1664,6 +1671,14 @@ void handle_n(char token,char* params,serverrec* source,serverrec* reply, char* 
 		WriteCommon(user,"NICK %s",newnick);
 		if (is_uline(tcp_host))
 		{
+			int MOD_RESULT = 0;
+			FOREACH_RESULT(OnUserPreNick(user,newnick));
+			if (MOD_RESULT) {
+				// if a module returns true, the nick change couldnt be allowed
+				kill_link(user,"Nickname collision");
+				return;
+			}
+	
 			// broadcast this because its a services thingy
 			char buffer[MAXBUF];
 			snprintf(buffer,MAXBUF,"n %s %s",user->nick,newnick);
@@ -2148,6 +2163,13 @@ void process_restricted_commands(char token,char* params,serverrec* source,serve
 
 void handle_link_packet(char* udp_msg, char* tcp_host, serverrec *serv)
 {
+	if ((!strncmp(udp_msg,"USER ",5)) || (!strncmp(udp_msg,"NICK ",5)))
+	{
+		// a user on a server port, just close their connection.
+		RemoveServer(tcp_host);
+		return;
+	}
+
 	char response[10240];
 	char token = udp_msg[0];
 	char* old = udp_msg;

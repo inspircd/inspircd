@@ -230,6 +230,15 @@ class Module : public classbase
 	 * of where the message is destined to be sent.
 	 */
 	virtual int OnUserPreNotice(userrec* user,void* dest,int target_type, std::string text);
+	
+	/** Called before any nickchange, local or remote. This can be used to implement Q-lines etc.
+	 * Please note that although you can see remote nickchanges through this function, you should
+	 * NOT make any changes to the userrec if the user is a remote user as this may cause a desnyc.
+	 * check user->server before taking any action (including returning nonzero from the method).
+	 * If your method returns nonzero, the nickchange is silently forbidden, and it is down to your
+	 * module to generate some meaninful output.
+	 */
+	virtual int OnUserPreNick(userrec* user, std::string newnick);
 };
 
 

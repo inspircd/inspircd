@@ -2356,7 +2356,15 @@ long map_count(const char* s)
 void force_nickchange(userrec* user,const char* newnick)
 {
 	char nick[MAXBUF];
+	int MOD_RESULT = 0;
+	
 	strcpy(nick,"");
+
+	FOREACH_RESULT(OnUserPreNick(user,newnick));
+	if (MOD_RESULT) {
+		kill_link(user,"Nickname collision");
+		return;
+	}
 	
 	if (user)
 	{
