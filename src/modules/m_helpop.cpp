@@ -39,12 +39,6 @@ void handle_helpop(char **parameters, int pcnt, userrec *user)
 		return;
    	}
 
-	// FIX by brain: make the string lowercase, ConfigReader is
-	// case sensitive
-	char* lower = parameters[0];
-	for (int t = 0; t < strlen(lower); t++)
-		lower[t] = tolower(lower[t]);
-
 	if (parameters[0][0] == '!')
 	{
 		// Force send to all +h users
@@ -97,11 +91,19 @@ bool do_helpop(char **parameters, int pcnt, userrec *src)
  		search++;
    	}
 
+        // FIX by brain: make the string lowercase, ConfigReader is
+        // case sensitive
+        char lower[MAXBUF];
+        strcpy(lower,search,MAXBUF);
+        for (int t = 0; t < strlen(lower); t++)
+                lower[t] = tolower(lower[t]);
+
+
 	int nlines = 0;
 	for (int i = 1; output != ""; i++)
 	{
 		snprintf(a,MAXBUF,"line%d",i);
-		output = helpop->ReadValue(search, a, 0);
+		output = helpop->ReadValue(lower, a, 0);
 		if (output != "") {
 			Srv->SendTo(NULL,src,"290 "+std::string(src->nick)+" :"+output);
 			nlines++;
