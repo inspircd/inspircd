@@ -19,7 +19,7 @@
 #include "channels.h"
 #include "modules.h"
 
-/* $ModDesc: Provides masking of user hostnames */
+/* $ModDesc: Provides masking of user hostnames in a different way to m_cloaking */
 
 class ModuleHostChange : public Module
 {
