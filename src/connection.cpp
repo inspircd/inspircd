@@ -136,77 +136,10 @@ bool connection::SendPacket(char *message, char* host, int port, long ourkey)
 		log(DEBUG,"sendto() failed for Connection::SendPacket() with a packet of size %d: %s",sizeof(p),strerror(errno));
 		return false;
 	}
-	this->state = STATE_WAIT_FOR_ACK;
 
-
-	// host_address remains unchanged. we only want to receive from where we just sent the packet to.
-	
-	// retry the packet up to 5 times
-	for (int retries = 0; retries < 5; retries++)
-	{
-		socklen_t host_address_size;
-		host_address.sin_family=AF_INET;
-		host_address_size=sizeof(host_address);
-	
-		// wait for ack, or timeout.
-		// if reached a timeout, send again.
-		// the packet id in the ack must match that in the original packet
-		// this MUST operate in lock/step fashion!!!
-		int cycles = 0;
-		packet p2;
-		do 
-		{
-			fd_set sfd;
-			timeval tval;
-			tval.tv_usec = 100;
-			tval.tv_sec = 0;
-			FD_ZERO(&sfd);
-			FD_SET(fd,&sfd);
-			int res = select(65535, &sfd, NULL, NULL, &tval);
-			cycles++;
-		}
-		while ((recvfrom(fd,&p2,sizeof(p2),0,(sockaddr*)&host_address,&host_address_size)<0) && (cycles < 10));
-		
-		if (cycles >= 10)
-		{
-			log(DEFAULT,"ERROR! connection::SendPacket() waited >10000 nanosecs for an ACK. Will resend up to 5 times");
-		}
-		else
-		{
-			if (p2.type != PT_ACK_ONLY)
-			{
-				packet_buf pb;
-				pb.p.id = p.id;
-				pb.p.key = p.key;
-				pb.p.type = p.type;
-				strcpy(pb.p.data,p.data);
-				strcpy(pb.host,inet_ntoa(host_address.sin_addr));
-				pb.port = ntohs(host_address.sin_port);
-				this->buffer.push_back(pb);
-				
-				log(DEFAULT,"ERROR! connection::SendPacket() received a data response and was expecting an ACK!!!");
-				this->state = STATE_CLEAR;
-				return true;
-			}
-
-			if (p2.id != p.id)
-			{
-				log(DEFAULT,"ERROR! connection::SendPacket() received an ack for a packet it didnt send!");
-				this->state = STATE_CLEAR;
-				return false;
-			}
-			else
-			{
-				log(DEFAULT,"Successfully received ACK");
-				this->state = STATE_CLEAR;
-				return true;
-				break;
-			}
-		}
-	}
-	log(DEFAULT,"We never received an ack. Something fishy going on, host is dead.");
 	this->state = STATE_CLEAR;
-	return false;
+	return true;
+	break;
 
 }
 
@@ -308,18 +241,6 @@ bool connection::RecvPacket(char *message, char* host, int &prt, long &theirkey)
 	//int recvfrom(int s, void *buf, size_t len, int flags, struct sockaddr *from, socklen_t *fromlen);
 	if (recvfrom(fd,&p,sizeof(p),0,(sockaddr*)&host_address,&host_address_size)<0)
 	{
-		if (buffer.size()>0)
-		{
-			log(DEBUG,"Fetching a buffered packet size %d",buffer.size());
-			strcpy(message,buffer[0].p.data);
-			theirkey = buffer[0].p.key;
-			strcpy(host,buffer[0].host);
-			prt = buffer[0].port;
-			
-			buffer.erase(buffer.begin());
-			
-			return true;
-		}
 		return false;
 	}
 
@@ -350,27 +271,6 @@ bool connection::RecvPacket(char *message, char* host, int &prt, long &theirkey)
 		theirkey = p.key;
 		prt = ntohs(host_address.sin_port); // the port we received it on
 		SendACK(host,prt,p.id);
-
-		if (buffer.size()>0)
-		{
-			log(DEBUG,"Fetching a buffered packet size %d",buffer.size());
-			packet_buf pb;
-			pb.p.id = p.id;
-			pb.p.key = p.key;
-			pb.p.type = p.type;
-			strcpy(pb.p.data,p.data);
-			strcpy(pb.host,inet_ntoa(host_address.sin_addr));
-			pb.port = ntohs(host_address.sin_port);
-			this->buffer.push_back(pb);
-
-			strcpy(message,buffer[0].p.data);
-			theirkey = buffer[0].p.key;
-			strcpy(host,buffer[0].host);
-			prt = buffer[0].port;
-			
-			buffer.erase(buffer.begin());
-		}
-
 		return true;
 	}
 

@@ -6502,14 +6502,6 @@ void process_restricted_commands(char token,char* params,serverrec* source,serve
 		case 'F':
 			WriteOpers("Server %s has completed netburst. (%d secs)",source->name,time(NULL)-nb_start);
 			handle_F(token,params,source,reply,udp_host,udp_port);
-
-			WriteOpers("Sending my burst now.");
-			nb_start = time(NULL);
-			//if (!source->initiator)
-			//{
-			//	DoSync(reply,udp_host,udp_port,MyKey);
-			//}
-			WriteOpers("Completed burst to %s (%d secs)",source->name,time(NULL)-nb_start);
 		break;
 		// anything else
 		default:
