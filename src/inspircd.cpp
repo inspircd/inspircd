@@ -2618,7 +2618,7 @@ void process_modes(char **parameters,userrec* user,chanrec *chan,int status, int
 					WriteChannelWithServ(ServerName,chan,user,"MODE %s %s",chan->name,outstr);
 					// M token for a usermode must go to all servers
 					char buffer[MAXBUF];
-					snprintf(buffer,MAXBUF,"M %s %s",ServerName,chan->name, outstr);
+					snprintf(buffer,MAXBUF,"M %s %s",chan->name, outstr);
 					for (int j = 0; j < 255; j++)
 					{
 						if (servers[j] != NULL)

@@ -37,7 +37,7 @@ void handle_samode(char **parameters, int pcnt, userrec *user)
 		result=result + std::string(" ") + std::string(parameters[n]);
 		n++;
 	}
-      Srv->SendOpers(result);
+	Srv->SendOpers(result);
 }
 
 class ModuleSaMode : public Module
