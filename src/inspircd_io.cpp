@@ -55,6 +55,11 @@ void Killed(int status)
 	if (log_file)
 		fclose(log_file);
 	send_error("Server terminated.");
+        // close down all listening sockets
+	for (int count = 0; count < boundPortCount; count++)
+	{
+		shutdown(openSockfd[count], 2);
+	}
 	exit(status);
 }
 
