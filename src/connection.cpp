@@ -19,8 +19,6 @@ extern int MODCOUNT;
 
 packet::packet()
 {
-	srand(time(NULL));
-	id = random();
 }
 
 packet::~packet()
