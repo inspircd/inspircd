@@ -399,7 +399,7 @@ if [ "$YN" != "n" ] ; then
 	echo -e "\033[1;32mCompiling...\033[0;37m"
 	echo ""
 	cd $ME
-	`$MAKEPROG`
+	$MAKEPROG
 	echo ""
         echo "Done!"
         echo ""
