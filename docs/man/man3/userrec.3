@@ -1,8 +1,8 @@
-.TH "userrec" 3 "2 May 2004" "InspIRCd" \" -*- nroff -*-
+.TH "userrec" 3 "25 Mar 2005" "InspIRCd" \" -*- nroff -*-
 .ad l
 .nh
 .SH NAME
-userrec \- Holds all information about a user This class stores all information about a user connected to the irc server. 
+userrec \- Holds all information about a user This class stores all information about a user connected to the irc server.  
 
 .PP
 .SH SYNOPSIS
@@ -24,27 +24,27 @@ Inherits \fBconnection\fP.
 .ti -1c
 .RI "virtual char * \fBGetFullHost\fP ()"
 .br
-.RI "\fIReturns the full displayed host of the user This member function returns the hostname of the user as seen by other users on the server, in nick!identhost form.\fP"
+.RI "\fIReturns the full displayed host of the user This member function returns the hostname of the user as seen by other users on the server, in nick!identhost form. \fP"
 .ti -1c
 .RI "virtual char * \fBGetFullRealHost\fP ()"
 .br
-.RI "\fIReturns the full real host of the user This member function returns the hostname of the user as seen by other users on the server, in nick!identhost form.\fP"
+.RI "\fIReturns the full real host of the user This member function returns the hostname of the user as seen by other users on the server, in nick!identhost form. \fP"
 .ti -1c
 .RI "virtual bool \fBIsInvited\fP (char *channel)"
 .br
-.RI "\fIReturns true if a user is invited to a channel.\fP"
+.RI "\fIReturns true if a user is invited to a channel. \fP"
 .ti -1c
 .RI "virtual void \fBInviteTo\fP (char *channel)"
 .br
-.RI "\fIAdds a channel to a users invite list (invites them to a channel).\fP"
+.RI "\fIAdds a channel to a users invite list (invites them to a channel). \fP"
 .ti -1c
 .RI "virtual void \fBRemoveInvite\fP (char *channel)"
 .br
-.RI "\fIRemoves a channel from a users invite list.\fP"
+.RI "\fIRemoves a channel from a users invite list. \fP"
 .ti -1c
 .RI "bool \fBHasPermission\fP (char *command)"
 .br
-.RI "\fIReturns true or false for if a user can execute a privilaged oper command.\fP"
+.RI "\fIReturns true or false for if a user can execute a privilaged oper command. \fP"
 .in -1c
 .SS "Public Attributes"
 
@@ -52,50 +52,50 @@ Inherits \fBconnection\fP.
 .ti -1c
 .RI "char \fBnick\fP [NICKMAX]"
 .br
-.RI "\fIThe users nickname.\fP"
+.RI "\fIThe users nickname. \fP"
 .ti -1c
 .RI "char \fBident\fP [64]"
 .br
-.RI "\fIThe users ident reply.\fP"
+.RI "\fIThe users ident reply. \fP"
 .ti -1c
 .RI "char \fBdhost\fP [256]"
 .br
-.RI "\fIThe host displayed to non-opers (used for cloaking etc).\fP"
+.RI "\fIThe host displayed to non-opers (used for cloaking etc). \fP"
 .ti -1c
 .RI "char \fBfullname\fP [128]"
 .br
-.RI "\fIThe users full name.\fP"
+.RI "\fIThe users full name. \fP"
 .ti -1c
 .RI "char \fBmodes\fP [MAXBUF]"
 .br
-.RI "\fIThe user's mode string.\fP"
+.RI "\fIThe user's mode string. \fP"
 .ti -1c
 .RI "\fBucrec\fP \fBchans\fP [MAXCHANS]"
 .br
 .ti -1c
 .RI "char \fBserver\fP [256]"
 .br
-.RI "\fIThe server the user is connected to.\fP"
+.RI "\fIThe server the user is connected to. \fP"
 .ti -1c
 .RI "char \fBawaymsg\fP [512]"
 .br
-.RI "\fIThe user's away message.\fP"
+.RI "\fIThe user's away message. \fP"
 .ti -1c
 .RI "char \fBresult\fP [256]"
 .br
-.RI "\fIStores the result of the last GetFullHost or GetRealHost call.\fP"
+.RI "\fIStores the result of the last GetFullHost or GetRealHost call. \fP"
 .ti -1c
 .RI "int \fBflood\fP"
 .br
-.RI "\fINumber of lines the user can place into the buffer (up to the global NetBufferSize bytes) before they are disconnected for excess flood.\fP"
+.RI "\fINumber of lines the user can place into the buffer (up to the global NetBufferSize bytes) before they are disconnected for excess flood. \fP"
 .ti -1c
 .RI "unsigned long \fBtimeout\fP"
 .br
-.RI "\fINumber of seconds this user is given to send USER/NICK If they do not send their details in this time limit they will be disconnected.\fP"
+.RI "\fINumber of seconds this user is given to send USER/NICK If they do not send their details in this time limit they will be disconnected. \fP"
 .ti -1c
 .RI "char \fBoper\fP [NICKMAX]"
 .br
-.RI "\fIThe oper type they logged in as, if they are an oper.\fP"
+.RI "\fIThe oper type they logged in as, if they are an oper. \fP"
 .in -1c
 .SS "Private Attributes"
 
@@ -103,250 +103,264 @@ Inherits \fBconnection\fP.
 .ti -1c
 .RI "\fBInvitedList\fP \fBinvites\fP"
 .br
-.RI "\fIA list of channels the user has a pending invite to.\fP"
+.RI "\fIA list of channels the user has a pending invite to. \fP"
 .in -1c
 .SH "Detailed Description"
 .PP 
-Holds all information about a user This class stores all information about a user connected to the irc server.
+Holds all information about a user This class stores all information about a user connected to the irc server. 
 
 Everything about a connection is stored here primarily, from the user's socket ID (file descriptor) through to the user's nickname and hostname. Use the Find method of the server class to locate a specific user by nickname. 
 .PP
-Definition at line 78 of file users.h.
+Definition at line 89 of file users.h.
 .SH "Constructor & Destructor Documentation"
 .PP 
 .SS "userrec::userrec ()"
 .PP
-Definition at line 13 of file users.cpp.
+Definition at line 25 of file users.cpp.
 .PP
-References connection::bytes_in, connection::bytes_out, ucrec::channel, chans, connection::cmds_in, connection::cmds_out, connection::fd, flood, connection::haspassed, connection::idle_lastmsg, invites, connection::lastping, connection::nping, connection::port, connection::registered, connection::signon, timeout, and ucrec::uc_modes.
+References awaymsg, connection::bytes_in, connection::bytes_out, ucrec::channel, chans, connection::cmds_in, connection::cmds_out, dhost, connection::fd, flood, fullname, connection::haspassed, connection::host, ident, connection::idle_lastmsg, connection::inbuf, invites, connection::ip, connection::lastping, modes, nick, connection::nping, connection::port, connection::registered, result, server, connection::signon, timeout, and ucrec::uc_modes.
 .PP
 .nf
-14 {
-15         // the PROPER way to do it, AVOID bzero at *ALL* costs
-16         strcpy(nick,'');
-17         strcpy(ip,'127.0.0.1');
-18         timeout = 0;
-19         strcpy(ident,'');
-20         strcpy(host,'');
-21         strcpy(dhost,'');
-22         strcpy(fullname,'');
-23         strcpy(modes,'');
-24         strcpy(inbuf,'');
-25         strcpy(server,'');
-26         strcpy(awaymsg,'');
-27         fd = lastping = signon = idle_lastmsg = nping = registered = 0;
-28         flood = port = bytes_in = bytes_out = cmds_in = cmds_out = 0;
-29         haspassed = false;
-30         strcpy(result,'');
-31         for (int i = 0; i < MAXCHANS; i++)
-32         {
-33                 this->chans[i].channel = NULL;
-34                 this->chans[i].uc_modes = 0;
-35         }
-36         invites.clear();
-37 }
+26 {
+27         // the PROPER way to do it, AVOID bzero at *ALL* costs
+28         strcpy(nick,'');
+29         strcpy(ip,'127.0.0.1');
+30         timeout = 0;
+31         strcpy(ident,'');
+32         strcpy(host,'');
+33         strcpy(dhost,'');
+34         strcpy(fullname,'');
+35         strcpy(modes,'');
+36         strcpy(inbuf,'');
+37         strcpy(server,'');
+38         strcpy(awaymsg,'');
+39         fd = lastping = signon = idle_lastmsg = nping = registered = 0;
+40         flood = port = bytes_in = bytes_out = cmds_in = cmds_out = 0;
+41         haspassed = false;
+42         strcpy(result,'');
+43         for (int i = 0; i < MAXCHANS; i++)
+44         {
+45                 this->chans[i].channel = NULL;
+46                 this->chans[i].uc_modes = 0;
+47         }
+48         invites.clear();
+49 }
 .fi
-.SS "virtual userrec::~userrec ()\fC [inline, virtual]\fP"
+.SS "virtual userrec::~\fBuserrec\fP ()\fC [inline, virtual]\fP"
 .PP
-Definition at line 149 of file users.h.
+Definition at line 160 of file users.h.
 .PP
 .nf
-149 {  }
+160 {  }
 .fi
 .SH "Member Function Documentation"
 .PP 
 .SS "char * userrec::GetFullHost ()\fC [virtual]\fP"
 .PP
-Returns the full displayed host of the user This member function returns the hostname of the user as seen by other users on the server, in nick!identhost form.Definition at line 41 of file users.cpp.
+Returns the full displayed host of the user This member function returns the hostname of the user as seen by other users on the server, in nick!identhost form. Definition at line 53 of file users.cpp.
 .PP
-References result.
+References dhost, ident, nick, and result.
 .PP
 .nf
-42 {
-43         sprintf(result,'%s!%s@%s',nick,ident,dhost);
-44         return result;
-45 }
+54 {
+55         snprintf(result,MAXBUF,'%s!%s@%s',nick,ident,dhost);
+56         return result;
+57 }
 .fi
 .SS "char * userrec::GetFullRealHost ()\fC [virtual]\fP"
 .PP
-Returns the full real host of the user This member function returns the hostname of the user as seen by other users on the server, in nick!identhost form.If any form of hostname cloaking is in operation, e.g. through a module, then this method will ignore it and return the true hostname.Definition at line 48 of file users.cpp.
+Returns the full real host of the user This member function returns the hostname of the user as seen by other users on the server, in nick!identhost form. If any form of hostname cloaking is in operation, e.g. through a module, then this method will ignore it and return the true hostname.Definition at line 60 of file users.cpp.
 .PP
-References result.
+References connection::host, ident, nick, and result.
 .PP
 .nf
-49 {
-50         sprintf(result,'%s!%s@%s',nick,ident,host);
-51         return result;
-52 }
+61 {
+62         snprintf(result,MAXBUF,'%s!%s@%s',nick,ident,host);
+63         return result;
+64 }
 .fi
 .SS "bool userrec::HasPermission (char * command)"
 .PP
-Returns true or false for if a user can execute a privilaged oper command.This is done by looking up their oper type from \fBuserrec::oper\fP, then referencing this to their oper classes and checking the commands they can execute.Definition at line 97 of file users.cpp.
+Returns true or false for if a user can execute a privilaged oper command. This is done by looking up their oper type from \fBuserrec::oper\fP, then referencing this to their oper classes and checking the commands they can execute.Definition at line 109 of file users.cpp.
+.PP
+References config_f, and DEBUG.
 .PP
 .nf
-98 {
-99         char TypeName[MAXBUF],Classes[MAXBUF],ClassName[MAXBUF],CommandList[MAXBUF];
-100         char* myclass;
-101         char* mycmd;
-102         char* savept;
-103         char* savept2;
-104         
-105         // are they even an oper at all?
-106         if (strchr(this->modes,'o'))
-107         {
-108                 log(DEBUG,'*** HasPermission: %s is an oper',this->nick);
-109                 for (int j =0; j < ConfValueEnum('type',&config_f); j++)
-110                 {
-111                         ConfValue('type','name',j,TypeName,&config_f);
-112                         if (!strcmp(TypeName,this->oper))
-113                         {
-114                                 log(DEBUG,'*** HasPermission: %s is an oper of type '%s'',this->nick,this->oper);
-115                                 ConfValue('type','classes',j,Classes,&config_f);
-116                                 char* myclass = strtok_r(Classes,' ',&savept);
-117                                 while (myclass)
-118                                 {
-119                                         log(DEBUG,'*** HasPermission: checking classtype '%s'',myclass);
-120                                         for (int k =0; k < ConfValueEnum('class',&config_f); k++)
-121                                         {
-122                                                 ConfValue('class','name',k,ClassName,&config_f);
-123                                                 if (!strcmp(ClassName,myclass))
-124                                                 {
-125                                                         ConfValue('class','commands',k,CommandList,&config_f);
-126                                                         log(DEBUG,'*** HasPermission: found class named %s with commands: '%s'',ClassName,CommandList);
-127                                                         
-128                                                         
-129                                                         mycmd = strtok_r(CommandList,' ',&savept2);
-130                                                         while (mycmd)
-131                                                         {
-132                                                                 if (!strcasecmp(mycmd,command))
-133                                                                 {
-134                                                                         log(DEBUG,'*** Command %s found, returning true',command);
-135                                                                         return true;
-136                                                                 }
-137                                                                 mycmd = strtok_r(NULL,' ',&savept2);
-138                                                         }
-139                                                 }
-140                                         }
-141                                         myclass = strtok_r(NULL,' ',&savept);
-142                                 }
-143                         }
-144                 }
-145         }
-146         return false;
-147 }
+110 {
+111         char TypeName[MAXBUF],Classes[MAXBUF],ClassName[MAXBUF],CommandList[MAXBUF];
+112         char* myclass;
+113         char* mycmd;
+114         char* savept;
+115         char* savept2;
+116         
+117         // are they even an oper at all?
+118         if (strchr(this->modes,'o'))
+119         {
+120                 log(DEBUG,'*** HasPermission: %s is an oper',this->nick);
+121                 for (int j =0; j < ConfValueEnum('type',&config_f); j++)
+122                 {
+123                         ConfValue('type','name',j,TypeName,&config_f);
+124                         if (!strcmp(TypeName,this->oper))
+125                         {
+126                                 log(DEBUG,'*** HasPermission: %s is an oper of type '%s'',this->nick,this->oper);
+127                                 ConfValue('type','classes',j,Classes,&config_f);
+128                                 char* myclass = strtok_r(Classes,' ',&savept);
+129                                 while (myclass)
+130                                 {
+131                                         log(DEBUG,'*** HasPermission: checking classtype '%s'',myclass);
+132                                         for (int k =0; k < ConfValueEnum('class',&config_f); k++)
+133                                         {
+134                                                 ConfValue('class','name',k,ClassName,&config_f);
+135                                                 if (!strcmp(ClassName,myclass))
+136                                                 {
+137                                                         ConfValue('class','commands',k,CommandList,&config_f);
+138                                                         log(DEBUG,'*** HasPermission: found class named %s with commands: '%s'',ClassName,CommandList);
+139                                                         
+140                                                         
+141                                                         mycmd = strtok_r(CommandList,' ',&savept2);
+142                                                         while (mycmd)
+143                                                         {
+144                                                                 if (!strcasecmp(mycmd,command))
+145                                                                 {
+146                                                                         log(DEBUG,'*** Command %s found, returning true',command);
+147                                                                         return true;
+148                                                                 }
+149                                                                 mycmd = strtok_r(NULL,' ',&savept2);
+150                                                         }
+151                                                 }
+152                                         }
+153                                         myclass = strtok_r(NULL,' ',&savept);
+154                                 }
+155                         }
+156                 }
+157         }
+158         return false;
+159 }
 .fi
 .SS "void userrec::InviteTo (char * channel)\fC [virtual]\fP"
 .PP
-Adds a channel to a users invite list (invites them to a channel).Definition at line 68 of file users.cpp.
+Adds a channel to a users invite list (invites them to a channel). Definition at line 80 of file users.cpp.
 .PP
 References Invited::channel, and invites.
 .PP
 .nf
-69 {
-70         Invited i;
-71         strcpy(i.channel,channel);
-72         invites.push_back(i);
-73 }
+81 {
+82         Invited i;
+83         strlcpy(i.channel,channel,CHANMAX);
+84         invites.push_back(i);
+85 }
 .fi
 .SS "bool userrec::IsInvited (char * channel)\fC [virtual]\fP"
 .PP
-Returns true if a user is invited to a channel.Definition at line 54 of file users.cpp.
+Returns true if a user is invited to a channel. Definition at line 66 of file users.cpp.
 .PP
 References invites.
 .PP
 .nf
-55 {
-56         for (InvitedList::iterator i = invites.begin(); i != invites.end(); i++)
-57         {
-58                 if (i->channel) {
-59                         if (!strcasecmp(i->channel,channel))
-60                         {
-61                                 return true;
-62                         }
-63                 }
-64         }
-65         return false;
-66 }
+67 {
+68         for (InvitedList::iterator i = invites.begin(); i != invites.end(); i++)
+69         {
+70                 if (i->channel) {
+71                         if (!strcasecmp(i->channel,channel))
+72                         {
+73                                 return true;
+74                         }
+75                 }
+76         }
+77         return false;
+78 }
 .fi
 .SS "void userrec::RemoveInvite (char * channel)\fC [virtual]\fP"
 .PP
-Removes a channel from a users invite list.This member function is called on successfully joining an invite only channel to which the user has previously been invited, to clear the invitation.Definition at line 75 of file users.cpp.
+Removes a channel from a users invite list. This member function is called on successfully joining an invite only channel to which the user has previously been invited, to clear the invitation.Definition at line 87 of file users.cpp.
 .PP
-References invites.
+References DEBUG, and invites.
 .PP
 .nf
-76 {
-77         log(DEBUG,'Removing invites');
-78         if (channel)
-79         {
-80                 if (invites.size())
-81                 {
-82                         for (InvitedList::iterator i = invites.begin(); i != invites.end(); i++)
-83                         {
-84                                 if (i->channel)
-85                                 {
-86                                         if (!strcasecmp(i->channel,channel))
-87                                         {
-88                                                 invites.erase(i);
-89                                                 return;
-90                                         }
-91                                 }
-92                         }
-93                 }
-94         }
-95 }
+88 {
+89         log(DEBUG,'Removing invites');
+90         if (channel)
+91         {
+92                 if (invites.size())
+93                 {
+94                         for (InvitedList::iterator i = invites.begin(); i != invites.end(); i++)
+95                         {
+96                                 if (i->channel)
+97                                 {
+98                                         if (!strcasecmp(i->channel,channel))
+99                                         {
+100                                                 invites.erase(i);
+101                                                 return;
+102                                         }
+103                                 }
+104                         }
+105                 }
+106         }
+107 }
 .fi
 .SH "Member Data Documentation"
 .PP 
-.SS "char userrec::awaymsg[512]"
+.SS "char \fBuserrec::awaymsg\fP[512]"
 .PP
-The user's away message.If this string is empty, the user is not marked as away.Definition at line 121 of file users.h.
-.SS "\fBucrec\fP userrec::chans[MAXCHANS]"
-.PP
-Definition at line 112 of file users.h.
+The user's away message. If this string is empty, the user is not marked as away.Definition at line 132 of file users.h.
 .PP
 Referenced by userrec().
-.SS "char userrec::dhost[256]"
+.SS "\fBucrec\fP \fBuserrec::chans\fP[MAXCHANS]"
 .PP
-The host displayed to non-opers (used for cloaking etc).This usually matches the value of \fBuserrec::host\fP.Definition at line 100 of file users.h.
-.SS "int userrec::flood"
-.PP
-Number of lines the user can place into the buffer (up to the global NetBufferSize bytes) before they are disconnected for excess flood.Definition at line 132 of file users.h.
+Definition at line 123 of file users.h.
 .PP
 Referenced by userrec().
-.SS "char userrec::fullname[128]"
+.SS "char \fBuserrec::dhost\fP[256]"
 .PP
-The users full name.Definition at line 104 of file users.h.
-.SS "char userrec::ident[64]"
+The host displayed to non-opers (used for cloaking etc). This usually matches the value of \fBuserrec::host\fP.Definition at line 111 of file users.h.
 .PP
-The users ident reply.Definition at line 95 of file users.h.
-.SS "\fBInvitedList\fP userrec::invites\fC [private]\fP"
+Referenced by GetFullHost(), and userrec().
+.SS "int \fBuserrec::flood\fP"
 .PP
-A list of channels the user has a pending invite to.Definition at line 84 of file users.h.
+Number of lines the user can place into the buffer (up to the global NetBufferSize bytes) before they are disconnected for excess flood. Definition at line 143 of file users.h.
+.PP
+Referenced by userrec().
+.SS "char \fBuserrec::fullname\fP[128]"
+.PP
+The users full name. Definition at line 115 of file users.h.
+.PP
+Referenced by userrec().
+.SS "char \fBuserrec::ident\fP[64]"
+.PP
+The users ident reply. Definition at line 106 of file users.h.
+.PP
+Referenced by GetFullHost(), GetFullRealHost(), and userrec().
+.SS "\fBInvitedList\fP \fBuserrec::invites\fP\fC [private]\fP"
+.PP
+A list of channels the user has a pending invite to. Definition at line 95 of file users.h.
 .PP
 Referenced by InviteTo(), IsInvited(), RemoveInvite(), and userrec().
-.SS "char userrec::modes[MAXBUF]"
+.SS "char \fBuserrec::modes\fP[MAXBUF]"
 .PP
-The user's mode string.This may contain any of the following RFC characters: o, w, s, i Your module may define other mode characters as it sees fit.Definition at line 110 of file users.h.
-.SS "char userrec::nick[NICKMAX]"
+The user's mode string. This may contain any of the following RFC characters: o, w, s, i Your module may define other mode characters as it sees fit.Definition at line 121 of file users.h.
 .PP
-The users nickname.An invalid nickname indicates an unregistered connection prior to the NICK command.Definition at line 91 of file users.h.
+Referenced by userrec().
+.SS "char \fBuserrec::nick\fP[NICKMAX]"
 .PP
-Referenced by Server::QuitUser().
-.SS "char userrec::oper[NICKMAX]"
+The users nickname. An invalid nickname indicates an unregistered connection prior to the NICK command.Definition at line 102 of file users.h.
 .PP
-The oper type they logged in as, if they are an oper.This is used to check permissions in operclasses, so that we can say 'yay' or 'nay' to any commands they issue. The value of this is the value of a valid 'type name=' tag.Definition at line 145 of file users.h.
-.SS "char userrec::result[256]"
+Referenced by ConfigReader::DumpErrors(), GetFullHost(), GetFullRealHost(), Server::QuitUser(), and userrec().
+.SS "char \fBuserrec::oper\fP[NICKMAX]"
 .PP
-Stores the result of the last GetFullHost or GetRealHost call.You may use this to increase the speed of use of this class.Definition at line 126 of file users.h.
+The oper type they logged in as, if they are an oper. This is used to check permissions in operclasses, so that we can say 'yay' or 'nay' to any commands they issue. The value of this is the value of a valid 'type name=' tag.Definition at line 156 of file users.h.
+.SS "char \fBuserrec::result\fP[256]"
 .PP
-Referenced by GetFullHost(), and GetFullRealHost().
-.SS "char userrec::server[256]"
+Stores the result of the last GetFullHost or GetRealHost call. You may use this to increase the speed of use of this class.Definition at line 137 of file users.h.
 .PP
-The server the user is connected to.Definition at line 116 of file users.h.
-.SS "unsigned long userrec::timeout"
+Referenced by GetFullHost(), GetFullRealHost(), and userrec().
+.SS "char \fBuserrec::server\fP[256]"
 .PP
-Number of seconds this user is given to send USER/NICK If they do not send their details in this time limit they will be disconnected.Definition at line 138 of file users.h.
+The server the user is connected to. Definition at line 127 of file users.h.
+.PP
+Referenced by userrec().
+.SS "unsigned long \fBuserrec::timeout\fP"
+.PP
+Number of seconds this user is given to send USER/NICK If they do not send their details in this time limit they will be disconnected. Definition at line 149 of file users.h.
 .PP
 Referenced by userrec().
 

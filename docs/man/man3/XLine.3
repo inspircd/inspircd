@@ -1,8 +1,8 @@
-.TH "XLine" 3 "2 May 2004" "InspIRCd" \" -*- nroff -*-
+.TH "XLine" 3 "25 Mar 2005" "InspIRCd" \" -*- nroff -*-
 .ad l
 .nh
 .SH NAME
-XLine \- XLine is the base class for ban lines such as G lines and K lines. 
+XLine \- XLine is the base class for ban lines such as G lines and K lines.  
 
 .PP
 .SH SYNOPSIS
@@ -20,44 +20,44 @@ Inherited by \fBGLine\fP, \fBKLine\fP, \fBQLine\fP, and \fBZLine\fP.
 .ti -1c
 .RI "time_t \fBset_time\fP"
 .br
-.RI "\fIThe time the line was added.\fP"
+.RI "\fIThe time the line was added. \fP"
 .ti -1c
 .RI "long \fBduration\fP"
 .br
-.RI "\fIThe duration of the ban, or 0 if permenant.\fP"
+.RI "\fIThe duration of the ban, or 0 if permenant. \fP"
 .ti -1c
 .RI "char \fBsource\fP [MAXBUF]"
 .br
-.RI "\fISource of the ban.\fP"
+.RI "\fISource of the ban. \fP"
 .ti -1c
 .RI "char \fBreason\fP [MAXBUF]"
 .br
-.RI "\fIReason for the ban.\fP"
+.RI "\fIReason for the ban. \fP"
 .ti -1c
 .RI "long \fBn_matches\fP"
 .br
-.RI "\fINumber of times the core matches the ban, for statistics.\fP"
+.RI "\fINumber of times the core matches the ban, for statistics. \fP"
 .in -1c
 .SH "Detailed Description"
 .PP 
-XLine is the base class for ban lines such as G lines and K lines.Definition at line 18 of file xline.h.
+XLine is the base class for ban lines such as G lines and K lines. Definition at line 34 of file xline.h.
 .SH "Member Data Documentation"
 .PP 
-.SS "long XLine::duration"
+.SS "long \fBXLine::duration\fP"
 .PP
-The duration of the ban, or 0 if permenant.Definition at line 28 of file xline.h.
-.SS "long XLine::n_matches"
+The duration of the ban, or 0 if permenant. Definition at line 44 of file xline.h.
+.SS "long \fBXLine::n_matches\fP"
 .PP
-Number of times the core matches the ban, for statistics.Definition at line 40 of file xline.h.
-.SS "char XLine::reason[MAXBUF]"
+Number of times the core matches the ban, for statistics. Definition at line 56 of file xline.h.
+.SS "char \fBXLine::reason\fP[MAXBUF]"
 .PP
-Reason for the ban.Definition at line 36 of file xline.h.
-.SS "time_t XLine::set_time"
+Reason for the ban. Definition at line 52 of file xline.h.
+.SS "time_t \fBXLine::set_time\fP"
 .PP
-The time the line was added.Definition at line 24 of file xline.h.
-.SS "char XLine::source[MAXBUF]"
+The time the line was added. Definition at line 40 of file xline.h.
+.SS "char \fBXLine::source\fP[MAXBUF]"
 .PP
-Source of the ban.This can be a servername or an oper nicknameDefinition at line 32 of file xline.h.
+Source of the ban. This can be a servername or an oper nicknameDefinition at line 48 of file xline.h.
 
 .SH "Author"
 .PP 

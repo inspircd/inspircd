@@ -1,8 +1,8 @@
-.TH "chanrec" 3 "2 May 2004" "InspIRCd" \" -*- nroff -*-
+.TH "chanrec" 3 "25 Mar 2005" "InspIRCd" \" -*- nroff -*-
 .ad l
 .nh
 .SH NAME
-chanrec \- Holds all relevent information for a channel. 
+chanrec \- Holds all relevent information for a channel.  
 
 .PP
 .SH SYNOPSIS
@@ -18,23 +18,23 @@ Inherits \fBExtensible\fP.
 .ti -1c
 .RI "void \fBSetCustomMode\fP (char mode, bool mode_on)"
 .br
-.RI "\fISets or unsets a custom mode in the channels info.\fP"
+.RI "\fISets or unsets a custom mode in the channels info. \fP"
 .ti -1c
 .RI "void \fBSetCustomModeParam\fP (char mode, char *parameter, bool mode_on)"
 .br
-.RI "\fISets or unsets the parameters for a custom mode in a channels info.\fP"
+.RI "\fISets or unsets the parameters for a custom mode in a channels info. \fP"
 .ti -1c
 .RI "bool \fBIsCustomModeSet\fP (char mode)"
 .br
-.RI "\fIReturns true if a custom mode is set on a channel.\fP"
+.RI "\fIReturns true if a custom mode is set on a channel. \fP"
 .ti -1c
 .RI "std::string \fBGetModeParameter\fP (char mode)"
 .br
-.RI "\fIReturns the parameter for a custom mode on a channel.\fP"
+.RI "\fIReturns the parameter for a custom mode on a channel. \fP"
 .ti -1c
 .RI "\fBchanrec\fP ()"
 .br
-.RI "\fICreates a channel record and initialises it with default values.\fP"
+.RI "\fICreates a channel record and initialises it with default values. \fP"
 .ti -1c
 .RI "virtual \fB~chanrec\fP ()"
 .br
@@ -45,267 +45,274 @@ Inherits \fBExtensible\fP.
 .ti -1c
 .RI "char \fBname\fP [CHANMAX]"
 .br
-.RI "\fIThe channels name.\fP"
+.RI "\fIThe channels name. \fP"
 .ti -1c
 .RI "char \fBcustom_modes\fP [MAXMODES]"
 .br
-.RI "\fICustom modes for the channel.\fP"
+.RI "\fICustom modes for the channel. \fP"
 .ti -1c
 .RI "char \fBtopic\fP [MAXBUF]"
 .br
-.RI "\fIChannel topic.\fP"
+.RI "\fIChannel topic. \fP"
 .ti -1c
 .RI "time_t \fBcreated\fP"
 .br
-.RI "\fICreation time.\fP"
+.RI "\fICreation time. \fP"
 .ti -1c
 .RI "time_t \fBtopicset\fP"
 .br
-.RI "\fITime topic was set.\fP"
+.RI "\fITime topic was set. \fP"
 .ti -1c
 .RI "char \fBsetby\fP [NICKMAX]"
 .br
-.RI "\fIThe last user to set the topic.\fP"
+.RI "\fIThe last user to set the topic. \fP"
 .ti -1c
 .RI "long \fBlimit\fP"
 .br
-.RI "\fIContains the channel user limit.\fP"
+.RI "\fIContains the channel user limit. \fP"
 .ti -1c
 .RI "char \fBkey\fP [32]"
 .br
-.RI "\fIContains the channel key.\fP"
+.RI "\fIContains the channel key. \fP"
 .ti -1c
 .RI "short int \fBtopiclock\fP"
 .br
-.RI "\fINonzero if the mode +t is set.\fP"
+.RI "\fINonzero if the mode +t is set. \fP"
 .ti -1c
 .RI "short int \fBnoexternal\fP"
 .br
-.RI "\fINonzero if the mode +n is set.\fP"
+.RI "\fINonzero if the mode +n is set. \fP"
 .ti -1c
 .RI "short int \fBinviteonly\fP"
 .br
-.RI "\fINonzero if the mode +i is set.\fP"
+.RI "\fINonzero if the mode +i is set. \fP"
 .ti -1c
 .RI "short int \fBmoderated\fP"
 .br
-.RI "\fINonzero if the mode +m is set.\fP"
+.RI "\fINonzero if the mode +m is set. \fP"
 .ti -1c
 .RI "short int \fBsecret\fP"
 .br
-.RI "\fINonzero if the mode +s is set.\fP"
+.RI "\fINonzero if the mode +s is set. \fP"
 .ti -1c
 .RI "short int \fBc_private\fP"
 .br
-.RI "\fINonzero if the mode +p is set.\fP"
+.RI "\fINonzero if the mode +p is set. \fP"
 .ti -1c
 .RI "\fBBanList\fP \fBbans\fP"
 .br
-.RI "\fIThe list of all bans set on the channel.\fP"
+.RI "\fIThe list of all bans set on the channel. \fP"
 .in -1c
 .SH "Detailed Description"
 .PP 
-Holds all relevent information for a channel.
+Holds all relevent information for a channel. 
 
 This class represents a channel, and contains its name, modes, time created, topic, topic set time, etc, and an instance of the BanList type. 
 .PP
-Definition at line 83 of file channels.h.
+Definition at line 94 of file channels.h.
 .SH "Constructor & Destructor Documentation"
 .PP 
 .SS "chanrec::chanrec ()"
 .PP
-Creates a channel record and initialises it with default values.Definition at line 96 of file channels.cpp.
+Creates a channel record and initialises it with default values. Definition at line 111 of file channels.cpp.
 .PP
-References c_private, created, inviteonly, limit, moderated, noexternal, secret, topiclock, and topicset.
+References c_private, created, custom_modes, inviteonly, key, limit, moderated, name, noexternal, secret, setby, topic, topiclock, and topicset.
 .PP
 .nf
-97 {
-98         strcpy(name,'');
-99         strcpy(custom_modes,'');
-100         strcpy(topic,'');
-101         strcpy(setby,'');
-102         strcpy(key,'');
-103         created = topicset = limit = 0;
-104         topiclock = noexternal = inviteonly = moderated = secret = c_private = false;
-105 }
+112 {
+113         strcpy(name,'');
+114         strcpy(custom_modes,'');
+115         strcpy(topic,'');
+116         strcpy(setby,'');
+117         strcpy(key,'');
+118         created = topicset = limit = 0;
+119         topiclock = noexternal = inviteonly = moderated = secret = c_private = false;
+120 }
 .fi
-.SS "virtual chanrec::~chanrec ()\fC [inline, virtual]\fP"
+.SS "virtual chanrec::~\fBchanrec\fP ()\fC [inline, virtual]\fP"
 .PP
-Definition at line 174 of file channels.h.
+Definition at line 185 of file channels.h.
 .PP
 .nf
-174 { /* stub */ }
+185 { /* stub */ }
 .fi
 .SH "Member Function Documentation"
 .PP 
 .SS "std::string chanrec::GetModeParameter (char mode)"
 .PP
-Returns the parameter for a custom mode on a channel.For example if '+L #foo' is set, and you pass this method 'L', it will return '#foo'. If the mode is not set on the channel, or the mode has no parameters associated with it, it will return an empty string.Definition at line 172 of file channels.cpp.
+Returns the parameter for a custom mode on a channel. For example if '+L #foo' is set, and you pass this method 'L', it will return '#foo'. If the mode is not set on the channel, or the mode has no parameters associated with it, it will return an empty string.Definition at line 184 of file channels.cpp.
 .PP
 References custom_mode_params.
 .PP
 .nf
-173 {
-174         if (custom_mode_params.size())
-175         {
-176                 for (vector<ModeParameter>::iterator i = custom_mode_params.begin(); i < custom_mode_params.end(); i++)
-177                 {
-178                         if ((i->mode == mode) && (!strcasecmp(this->name,i->channel)))
-179                         {
-180                                 return std::string(i->parameter);
-181                         }
-182                 }
-183         }
-184         return std::string('');
-185 }
+185 {
+186         if (custom_mode_params.size())
+187         {
+188                 for (vector<ModeParameter>::iterator i = custom_mode_params.begin(); i < custom_mode_params.end(); i++)
+189                 {
+190                         if ((i->mode == mode) && (!strcasecmp(this->name,i->channel)))
+191                         {
+192                                 return std::string(i->parameter);
+193                         }
+194                 }
+195         }
+196         return std::string('');
+197 }
 .fi
 .SS "bool chanrec::IsCustomModeSet (char mode)"
 .PP
-Returns true if a custom mode is set on a channel.Definition at line 166 of file channels.cpp.
+Returns true if a custom mode is set on a channel. Definition at line 178 of file channels.cpp.
+.PP
+References DEBUG.
 .PP
 .nf
-167 {
-168         log(DEBUG,'Checking ISCustomModeSet: %c %s',mode,this->custom_modes);
-169         return (strchr(this->custom_modes,mode) != 0);
-170 }
+179 {
+180         log(DEBUG,'Checking ISCustomModeSet: %c %s',mode,this->custom_modes);
+181         return (strchr(this->custom_modes,mode) != 0);
+182 }
 .fi
 .SS "void chanrec::SetCustomMode (char mode, bool mode_on)"
 .PP
-Sets or unsets a custom mode in the channels info.Definition at line 107 of file channels.cpp.
+Sets or unsets a custom mode in the channels info. Definition at line 122 of file channels.cpp.
 .PP
-References custom_modes, and SetCustomModeParam().
+References custom_modes, DEBUG, and SetCustomModeParam().
 .PP
 .nf
-108 {
-109         if (mode_on) {
-110                 char m[3];
-111                 m[0] = mode;
-112                 m[1] = '\0';
-113                 if (!strchr(this->custom_modes,mode))
-114                 {
-115                         strncat(custom_modes,m,MAXMODES);
-116                 }
-117                 log(DEBUG,'Custom mode %c set',mode);
-118         }
-119         else {
-120                 char temp[MAXBUF];
-121                 int count = 0;
-122                 for (int q = 0; q < strlen(custom_modes); q++) {
-123                         if (custom_modes[q] != mode) {
-124                                 temp[count++] = mode;
-125                         }
-126                 }
-127                 temp[count] = '\0';
-128                 strncpy(custom_modes,temp,MAXMODES);
-129                 log(DEBUG,'Custom mode %c removed',mode);
-130                 this->SetCustomModeParam(mode,'',false);
-131         }
-132 }
+123 {
+124         if (mode_on) {
+125                 char m[3];
+126                 m[0] = mode;
+127                 m[1] = '\0';
+128                 if (!strchr(this->custom_modes,mode))
+129                 {
+130                         strlcat(custom_modes,m,MAXMODES);
+131                 }
+132                 log(DEBUG,'Custom mode %c set',mode);
+133         }
+134         else {
+135 
+136                 std::string a = this->custom_modes;
+137                 int pos = a.find(mode);
+138                 a.erase(pos,1);
+139                 strncpy(this->custom_modes,a.c_str(),MAXMODES);
+140 
+141                 log(DEBUG,'Custom mode %c removed: modelist='%s'',mode,this->custom_modes);
+142                 this->SetCustomModeParam(mode,'',false);
+143         }
+144 }
 .fi
 .SS "void chanrec::SetCustomModeParam (char mode, char * parameter, bool mode_on)"
 .PP
-Sets or unsets the parameters for a custom mode in a channels info.Definition at line 135 of file channels.cpp.
+Sets or unsets the parameters for a custom mode in a channels info. Definition at line 147 of file channels.cpp.
 .PP
-References ModeParameter::channel, custom_mode_params, ModeParameter::mode, and ModeParameter::parameter.
+References ModeParameter::channel, custom_mode_params, DEBUG, ModeParameter::mode, and ModeParameter::parameter.
 .PP
 Referenced by SetCustomMode().
 .PP
 .nf
-136 {
-137 
-138         log(DEBUG,'SetCustomModeParam called');
-139         ModeParameter M;
-140         M.mode = mode;
-141         strcpy(M.channel,this->name);
-142         strcpy(M.parameter,parameter);
-143         if (mode_on)
-144         {
-145                 log(DEBUG,'Custom mode parameter %c %s added',mode,parameter);
-146                 custom_mode_params.push_back(M);
-147         }
-148         else
-149         {
-150                 if (custom_mode_params.size())
-151                 {
-152                         for (vector<ModeParameter>::iterator i = custom_mode_params.begin(); i < custom_mode_params.end(); i++)
-153                         {
-154                                 if ((i->mode == mode) && (!strcasecmp(this->name,i->channel)))
-155                                 {
-156                                         log(DEBUG,'Custom mode parameter %c %s removed',mode,parameter);
-157                                         custom_mode_params.erase(i);
-158                                         return;
-159                                 }
-160                         }
-161                 }
-162                 log(DEBUG,'*** BUG *** Attempt to remove non-existent mode parameter!');
-163         }
-164 }
+148 {
+149 
+150         log(DEBUG,'SetCustomModeParam called');
+151         ModeParameter M;
+152         M.mode = mode;
+153         strlcpy(M.channel,this->name,CHANMAX);
+154         strlcpy(M.parameter,parameter,MAXBUF);
+155         if (mode_on)
+156         {
+157                 log(DEBUG,'Custom mode parameter %c %s added',mode,parameter);
+158                 custom_mode_params.push_back(M);
+159         }
+160         else
+161         {
+162                 if (custom_mode_params.size())
+163                 {
+164                         for (vector<ModeParameter>::iterator i = custom_mode_params.begin(); i < custom_mode_params.end(); i++)
+165                         {
+166                                 if ((i->mode == mode) && (!strcasecmp(this->name,i->channel)))
+167                                 {
+168                                         log(DEBUG,'Custom mode parameter %c %s removed',mode,parameter);
+169                                         custom_mode_params.erase(i);
+170                                         return;
+171                                 }
+172                         }
+173                 }
+174                 log(DEBUG,'*** BUG *** Attempt to remove non-existent mode parameter!');
+175         }
+176 }
 .fi
 .SH "Member Data Documentation"
 .PP 
-.SS "\fBBanList\fP chanrec::bans"
+.SS "\fBBanList\fP \fBchanrec::bans\fP"
 .PP
-The list of all bans set on the channel.Definition at line 148 of file channels.h.
-.SS "short int chanrec::c_private"
+The list of all bans set on the channel. Definition at line 159 of file channels.h.
+.SS "short int \fBchanrec::c_private\fP"
 .PP
-Nonzero if the mode +p is set.This value cannot be set at the same time as \fBchanrec::secret\fPDefinition at line 144 of file channels.h.
-.PP
-Referenced by chanrec().
-.SS "time_t chanrec::created"
-.PP
-Creation time.Definition at line 100 of file channels.h.
+Nonzero if the mode +p is set. This value cannot be set at the same time as \fBchanrec::secret\fPDefinition at line 155 of file channels.h.
 .PP
 Referenced by chanrec().
-.SS "char chanrec::custom_modes[MAXMODES]"
+.SS "time_t \fBchanrec::created\fP"
 .PP
-Custom modes for the channel.Plugins may use this field in any way they see fit.Definition at line 92 of file channels.h.
-.PP
-Referenced by SetCustomMode().
-.SS "short int chanrec::inviteonly"
-.PP
-Nonzero if the mode +i is set.Definition at line 130 of file channels.h.
+Creation time. Definition at line 111 of file channels.h.
 .PP
 Referenced by chanrec().
-.SS "char chanrec::key[32]"
+.SS "char \fBchanrec::custom_modes\fP[MAXMODES]"
 .PP
-Contains the channel key.If this value is an empty string, there is no channel key in place.Definition at line 118 of file channels.h.
-.SS "long chanrec::limit"
+Custom modes for the channel. Plugins may use this field in any way they see fit.Definition at line 103 of file channels.h.
 .PP
-Contains the channel user limit.If this value is zero, there is no limit in place.Definition at line 113 of file channels.h.
+Referenced by chanrec(), and SetCustomMode().
+.SS "short int \fBchanrec::inviteonly\fP"
 .PP
-Referenced by chanrec().
-.SS "short int chanrec::moderated"
-.PP
-Nonzero if the mode +m is set.Definition at line 134 of file channels.h.
+Nonzero if the mode +i is set. Definition at line 141 of file channels.h.
 .PP
 Referenced by chanrec().
-.SS "char chanrec::name[CHANMAX]"
+.SS "char \fBchanrec::key\fP[32]"
 .PP
-The channels name.Definition at line 88 of file channels.h.
-.SS "short int chanrec::noexternal"
-.PP
-Nonzero if the mode +n is set.Definition at line 126 of file channels.h.
+Contains the channel key. If this value is an empty string, there is no channel key in place.Definition at line 129 of file channels.h.
 .PP
 Referenced by chanrec().
-.SS "short int chanrec::secret"
+.SS "long \fBchanrec::limit\fP"
 .PP
-Nonzero if the mode +s is set.This value cannot be set at the same time as \fBchanrec::c_private\fPDefinition at line 139 of file channels.h.
-.PP
-Referenced by chanrec().
-.SS "char chanrec::setby[NICKMAX]"
-.PP
-The last user to set the topic.If this member is an empty string, no topic was ever set.Definition at line 108 of file channels.h.
-.SS "char chanrec::topic[MAXBUF]"
-.PP
-Channel topic.If this is an empty string, no channel topic is set.Definition at line 97 of file channels.h.
-.SS "short int chanrec::topiclock"
-.PP
-Nonzero if the mode +t is set.Definition at line 122 of file channels.h.
+Contains the channel user limit. If this value is zero, there is no limit in place.Definition at line 124 of file channels.h.
 .PP
 Referenced by chanrec().
-.SS "time_t chanrec::topicset"
+.SS "short int \fBchanrec::moderated\fP"
 .PP
-Time topic was set.If no topic was ever set, this will be equal to \fBchanrec::created\fPDefinition at line 104 of file channels.h.
+Nonzero if the mode +m is set. Definition at line 145 of file channels.h.
+.PP
+Referenced by chanrec().
+.SS "char \fBchanrec::name\fP[CHANMAX]"
+.PP
+The channels name. Definition at line 99 of file channels.h.
+.PP
+Referenced by chanrec().
+.SS "short int \fBchanrec::noexternal\fP"
+.PP
+Nonzero if the mode +n is set. Definition at line 137 of file channels.h.
+.PP
+Referenced by chanrec().
+.SS "short int \fBchanrec::secret\fP"
+.PP
+Nonzero if the mode +s is set. This value cannot be set at the same time as \fBchanrec::c_private\fPDefinition at line 150 of file channels.h.
+.PP
+Referenced by chanrec().
+.SS "char \fBchanrec::setby\fP[NICKMAX]"
+.PP
+The last user to set the topic. If this member is an empty string, no topic was ever set.Definition at line 119 of file channels.h.
+.PP
+Referenced by chanrec().
+.SS "char \fBchanrec::topic\fP[MAXBUF]"
+.PP
+Channel topic. If this is an empty string, no channel topic is set.Definition at line 108 of file channels.h.
+.PP
+Referenced by chanrec().
+.SS "short int \fBchanrec::topiclock\fP"
+.PP
+Nonzero if the mode +t is set. Definition at line 133 of file channels.h.
+.PP
+Referenced by chanrec().
+.SS "time_t \fBchanrec::topicset\fP"
+.PP
+Time topic was set. If no topic was ever set, this will be equal to \fBchanrec::created\fPDefinition at line 115 of file channels.h.
 .PP
 Referenced by chanrec().
 

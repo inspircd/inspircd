@@ -1,8 +1,8 @@
-.TH "Version" 3 "2 May 2004" "InspIRCd" \" -*- nroff -*-
+.TH "Version" 3 "25 Mar 2005" "InspIRCd" \" -*- nroff -*-
 .ad l
 .nh
 .SH NAME
-Version \- Holds a module's Version information The four members (set by the constructor only) indicate details as to the version number of a module. 
+Version \- Holds a module's Version information The four members (set by the constructor only) indicate details as to the version number of a module.  
 
 .PP
 .SH SYNOPSIS
@@ -37,34 +37,34 @@ Inherits \fBclassbase\fP.
 .in -1c
 .SH "Detailed Description"
 .PP 
-Holds a module's Version information The four members (set by the constructor only) indicate details as to the version number of a module.
+Holds a module's Version information The four members (set by the constructor only) indicate details as to the version number of a module. 
 
 A class of type Version is returned by the GetVersion method of the \fBModule\fP class. 
 .PP
-Definition at line 92 of file modules.h.
+Definition at line 102 of file modules.h.
 .SH "Constructor & Destructor Documentation"
 .PP 
 .SS "Version::Version (int major, int minor, int revision, int build)"
 .PP
-Definition at line 279 of file modules.cpp.
+Definition at line 291 of file modules.cpp.
 .PP
 .nf
-279 : Major(major), Minor(minor), Revision(revision), Build(build) { };
+291 : Major(major), Minor(minor), Revision(revision), Build(build) { };
 .fi
 .SH "Member Data Documentation"
 .PP 
-.SS "const int Version::Build"
+.SS "const int \fBVersion::Build\fP"
 .PP
-Definition at line 95 of file modules.h.
-.SS "const int Version::Major"
+Definition at line 105 of file modules.h.
+.SS "const int \fBVersion::Major\fP"
 .PP
-Definition at line 95 of file modules.h.
-.SS "const int Version::Minor"
+Definition at line 105 of file modules.h.
+.SS "const int \fBVersion::Minor\fP"
 .PP
-Definition at line 95 of file modules.h.
-.SS "const int Version::Revision"
+Definition at line 105 of file modules.h.
+.SS "const int \fBVersion::Revision\fP"
 .PP
-Definition at line 95 of file modules.h.
+Definition at line 105 of file modules.h.
 
 .SH "Author"
 .PP 

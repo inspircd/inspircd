@@ -1,8 +1,8 @@
-.TH "ConnectClass" 3 "2 May 2004" "InspIRCd" \" -*- nroff -*-
+.TH "ConnectClass" 3 "25 Mar 2005" "InspIRCd" \" -*- nroff -*-
 .ad l
 .nh
 .SH NAME
-ConnectClass \- Holds information relevent to <connect allow> and <connect deny> tags in the config file. 
+ConnectClass \- Holds information relevent to <connect allow> and <connect deny> tags in the config file.  
 
 .PP
 .SH SYNOPSIS
@@ -25,58 +25,68 @@ Inherits \fBclassbase\fP.
 .ti -1c
 .RI "int \fBtype\fP"
 .br
-.RI "\fIType of line, either CC_ALLOW or CC_DENY.\fP"
+.RI "\fIType of line, either CC_ALLOW or CC_DENY. \fP"
 .ti -1c
 .RI "int \fBregistration_timeout\fP"
 .br
-.RI "\fIMax time to register the connection in seconds.\fP"
+.RI "\fIMax time to register the connection in seconds. \fP"
 .ti -1c
 .RI "int \fBflood\fP"
 .br
-.RI "\fINumber of lines in buffer before excess flood is triggered.\fP"
+.RI "\fINumber of lines in buffer before excess flood is triggered. \fP"
 .ti -1c
 .RI "char \fBhost\fP [MAXBUF]"
 .br
-.RI "\fIHost mask for this line.\fP"
+.RI "\fIHost mask for this line. \fP"
 .ti -1c
 .RI "char \fBpass\fP [MAXBUF]"
 .br
-.RI "\fI(Optional) Password for this line\fP"
+.RI "\fI(Optional) Password for this line \fP"
 .in -1c
 .SH "Detailed Description"
 .PP 
-Holds information relevent to <connect allow> and <connect deny> tags in the config file.Definition at line 34 of file users.h.
+Holds information relevent to <connect allow> and <connect deny> tags in the config file. Definition at line 45 of file users.h.
 .SH "Constructor & Destructor Documentation"
 .PP 
 .SS "ConnectClass::ConnectClass ()\fC [inline]\fP"
 .PP
-Definition at line 53 of file users.h.
+Definition at line 64 of file users.h.
+.PP
+References flood, host, pass, and registration_timeout.
 .PP
 .nf
-54         {
-55                 registration_timeout = 0;
-56                 flood = 0;
-57                 strcpy(host,'');
-58                 strcpy(pass,'');
-59         }
+65         {
+66                 registration_timeout = 0;
+67                 flood = 0;
+68                 strlcpy(host,'',MAXBUF);
+69                 strlcpy(pass,'',MAXBUF);
+70         }
 .fi
 .SH "Member Data Documentation"
 .PP 
-.SS "int ConnectClass::flood"
+.SS "int \fBConnectClass::flood\fP"
 .PP
-Number of lines in buffer before excess flood is triggered.Definition at line 45 of file users.h.
-.SS "char ConnectClass::host[MAXBUF]"
+Number of lines in buffer before excess flood is triggered. Definition at line 56 of file users.h.
 .PP
-Host mask for this line.Definition at line 48 of file users.h.
-.SS "char ConnectClass::pass[MAXBUF]"
+Referenced by ConnectClass().
+.SS "char \fBConnectClass::host\fP[MAXBUF]"
 .PP
-(Optional) Password for this lineDefinition at line 51 of file users.h.
-.SS "int ConnectClass::registration_timeout"
+Host mask for this line. Definition at line 59 of file users.h.
 .PP
-Max time to register the connection in seconds.Definition at line 42 of file users.h.
-.SS "int ConnectClass::type"
+Referenced by ConnectClass().
+.SS "char \fBConnectClass::pass\fP[MAXBUF]"
 .PP
-Type of line, either CC_ALLOW or CC_DENY.Definition at line 39 of file users.h.
+(Optional) Password for this line Definition at line 62 of file users.h.
+.PP
+Referenced by ConnectClass().
+.SS "int \fBConnectClass::registration_timeout\fP"
+.PP
+Max time to register the connection in seconds. Definition at line 53 of file users.h.
+.PP
+Referenced by ConnectClass().
+.SS "int \fBConnectClass::type\fP"
+.PP
+Type of line, either CC_ALLOW or CC_DENY. Definition at line 50 of file users.h.
 
 .SH "Author"
 .PP 

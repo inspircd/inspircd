@@ -1,8 +1,8 @@
-.TH "classbase" 3 "2 May 2004" "InspIRCd" \" -*- nroff -*-
+.TH "classbase" 3 "25 Mar 2005" "InspIRCd" \" -*- nroff -*-
 .ad l
 .nh
 .SH NAME
-classbase \- The base class for all inspircd classes. 
+classbase \- The base class for all inspircd classes.  
 
 .PP
 .SH SYNOPSIS
@@ -18,7 +18,7 @@ Inherited by \fBAdmin\fP, \fBConfigReader\fP, \fBConnectClass\fP, \fBExtensible\
 .ti -1c
 .RI "\fBclassbase\fP ()"
 .br
-.RI "\fIConstructor, Sets the object's time.\fP"
+.RI "\fIConstructor, Sets the object's time. \fP"
 .ti -1c
 .RI "\fB~classbase\fP ()"
 .br
@@ -29,32 +29,36 @@ Inherited by \fBAdmin\fP, \fBConfigReader\fP, \fBConnectClass\fP, \fBExtensible\
 .ti -1c
 .RI "time_t \fBage\fP"
 .br
-.RI "\fITime that the object was instantiated (used for TS calculation etc).\fP"
+.RI "\fITime that the object was instantiated (used for TS calculation etc). \fP"
 .in -1c
 .SH "Detailed Description"
 .PP 
-The base class for all inspircd classes.Definition at line 17 of file base.h.
+The base class for all inspircd classes. Definition at line 29 of file base.h.
 .SH "Constructor & Destructor Documentation"
 .PP 
 .SS "classbase::classbase ()\fC [inline]\fP"
 .PP
-Constructor, Sets the object's time.Definition at line 27 of file base.h.
+Constructor, Sets the object's time. Definition at line 39 of file base.h.
+.PP
+References age.
 .PP
 .nf
-27 { age = time(NULL); }
+39 { age = time(NULL); }
 .fi
-.SS "classbase::~classbase ()\fC [inline]\fP"
+.SS "classbase::~\fBclassbase\fP ()\fC [inline]\fP"
 .PP
-Definition at line 28 of file base.h.
+Definition at line 40 of file base.h.
 .PP
 .nf
-28 { }
+40 { }
 .fi
 .SH "Member Data Documentation"
 .PP 
-.SS "time_t classbase::age"
+.SS "time_t \fBclassbase::age\fP"
 .PP
-Time that the object was instantiated (used for TS calculation etc).Definition at line 22 of file base.h.
+Time that the object was instantiated (used for TS calculation etc). Definition at line 34 of file base.h.
+.PP
+Referenced by classbase().
 
 .SH "Author"
 .PP 

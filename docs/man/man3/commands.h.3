@@ -1,4 +1,4 @@
-.TH "commands.h" 3 "2 May 2004" "InspIRCd" \" -*- nroff -*-
+.TH "commands.h" 3 "25 Mar 2005" "InspIRCd" \" -*- nroff -*-
 .ad l
 .nh
 .SH NAME
@@ -29,7 +29,7 @@ commands.h \-
 .ti -1c
 .RI "void \fBhandle_join\fP (char **parameters, int pcnt, \fBuserrec\fP *user)"
 .br
-.RI "\fIThese are the handlers for user commands.\fP"
+.RI "\fIThese are the handlers for user commands. \fP"
 .ti -1c
 .RI "void \fBhandle_part\fP (char **parameters, int pcnt, \fBuserrec\fP *user)"
 .br
@@ -171,14 +171,14 @@ commands.h \-
 .ti -1c
 .RI "void \fBhandle_link_packet\fP (char *udp_msg, char *tcp_host, \fBserverrec\fP *serv)"
 .br
-.RI "\fISpecial functions for processing server to server traffic.\fP"
+.RI "\fISpecial functions for processing server to server traffic. \fP"
 .ti -1c
 .RI "void \fBprocess_restricted_commands\fP (char token, char *params, \fBserverrec\fP *source, \fBserverrec\fP *reply, char *tcp_host, char *ipaddr, int port)"
 .br
 .ti -1c
 .RI "void \fBhandle_amp\fP (char token, char *params, \fBserverrec\fP *source, \fBserverrec\fP *reply, char *tcp_host)"
 .br
-.RI "\fIThese are the handlers for server commands (tokens).\fP"
+.RI "\fIThese are the handlers for server commands (tokens). \fP"
 .ti -1c
 .RI "void \fBhandle_dollar\fP (char token, char *params, \fBserverrec\fP *source, \fBserverrec\fP *reply, char *tcp_host)"
 .br
@@ -245,7 +245,7 @@ commands.h \-
 .ti -1c
 .RI "bool \fBis_uline\fP (const char *server)"
 .br
-.RI "\fIFunctions for u:lined servers.\fP"
+.RI "\fIFunctions for u:lined servers. \fP"
 .in -1c
 .SH "Function Documentation"
 .PP 
@@ -255,7 +255,7 @@ commands.h \-
 .PP
 .SS "void handle_amp (char token, char * params, \fBserverrec\fP * source, \fBserverrec\fP * reply, char * tcp_host)"
 .PP
-These are the handlers for server commands (tokens).
+These are the handlers for server commands (tokens). 
 .SS "void handle_AT (char token, char * params, \fBserverrec\fP * source, \fBserverrec\fP * reply, char * tcp_host)"
 .PP
 .SS "void handle_away (char ** parameters, int pcnt, \fBuserrec\fP * user)"
@@ -284,7 +284,7 @@ These are the handlers for server commands (tokens).
 .PP
 .SS "void handle_join (char ** parameters, int pcnt, \fBuserrec\fP * user)"
 .PP
-These are the handlers for user commands.
+These are the handlers for user commands. 
 .SS "void handle_K (char token, char * params, \fBserverrec\fP * source, \fBserverrec\fP * reply, char * tcp_host)"
 .PP
 .SS "void handle_k (char token, char * params, \fBserverrec\fP * source, \fBserverrec\fP * reply, char * tcp_host)"
@@ -299,7 +299,7 @@ These are the handlers for user commands.
 .PP
 .SS "void handle_link_packet (char * udp_msg, char * tcp_host, \fBserverrec\fP * serv)"
 .PP
-Special functions for processing server to server traffic.
+Special functions for processing server to server traffic. 
 .SS "void handle_links (char ** parameters, int pcnt, \fBuserrec\fP * user)"
 .PP
 .SS "void handle_list (char ** parameters, int pcnt, \fBuserrec\fP * user)"
@@ -394,7 +394,7 @@ Special functions for processing server to server traffic.
 .PP
 .SS "bool is_uline (const char * server)"
 .PP
-Functions for u:lined servers.Referenced by Server::IsUlined().
+Functions for u:lined servers. Referenced by Server::IsUlined().
 .SS "void process_restricted_commands (char token, char * params, \fBserverrec\fP * source, \fBserverrec\fP * reply, char * tcp_host, char * ipaddr, int port)"
 .PP
 .SH "Author"

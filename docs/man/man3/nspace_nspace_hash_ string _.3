@@ -1,4 +1,4 @@
-.TH "nspace::nspace::hash< string >" 3 "2 May 2004" "InspIRCd" \" -*- nroff -*-
+.TH "nspace::nspace::hash< string >" 3 "25 Mar 2005" "InspIRCd" \" -*- nroff -*-
 .ad l
 .nh
 .SH NAME
@@ -20,16 +20,16 @@ nspace::nspace::hash< string > \-
 .PP 
 .SS "size_t nspace::hash< string >::operator() (const string & s) const\fC [inline]\fP"
 .PP
-Definition at line 107 of file modules.cpp.
+Definition at line 122 of file modules.cpp.
 .PP
 .nf
-108                 {
-109                         char a[MAXBUF];
-110                         static struct hash<const char *> strhash;
-111                         strcpy(a,s.c_str());
-112                         strlower(a);
-113                         return strhash(a);
-114                 }
+123                 {
+124                         char a[MAXBUF];
+125                         static struct hash<const char *> strhash;
+126                         strlcpy(a,s.c_str(),MAXBUF);
+127                         strlower(a);
+128                         return strhash(a);
+129                 }
 .fi
 
 

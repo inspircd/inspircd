@@ -1,8 +1,8 @@
-.TH "ModuleFactory" 3 "2 May 2004" "InspIRCd" \" -*- nroff -*-
+.TH "ModuleFactory" 3 "25 Mar 2005" "InspIRCd" \" -*- nroff -*-
 .ad l
 .nh
 .SH NAME
-ModuleFactory \- Instantiates classes inherited from \fBModule\fP This class creates a class inherited from type \fBModule\fP, using new. 
+ModuleFactory \- Instantiates classes inherited from \fBModule\fP This class creates a class inherited from type \fBModule\fP, using new.  
 
 .PP
 .SH SYNOPSIS
@@ -24,36 +24,36 @@ Inherits \fBclassbase\fP.
 .ti -1c
 .RI "virtual \fBModule\fP * \fBCreateModule\fP ()=0"
 .br
-.RI "\fICreates a new module.\fP"
+.RI "\fICreates a new module. \fP"
 .in -1c
 .SH "Detailed Description"
 .PP 
-Instantiates classes inherited from \fBModule\fP This class creates a class inherited from type \fBModule\fP, using new.
+Instantiates classes inherited from \fBModule\fP This class creates a class inherited from type \fBModule\fP, using new. 
 
 This is to allow for modules to create many different variants of \fBModule\fP, dependent on architecture, configuration, etc. In most cases, the simple class shown in the example module m_foobar.so will suffice for most modules. 
 .PP
-Definition at line 754 of file modules.h.
+Definition at line 785 of file modules.h.
 .SH "Constructor & Destructor Documentation"
 .PP 
 .SS "ModuleFactory::ModuleFactory ()\fC [inline]\fP"
 .PP
-Definition at line 757 of file modules.h.
+Definition at line 788 of file modules.h.
 .PP
 .nf
-757 { }
+788 { }
 .fi
-.SS "virtual ModuleFactory::~ModuleFactory ()\fC [inline, virtual]\fP"
+.SS "virtual ModuleFactory::~\fBModuleFactory\fP ()\fC [inline, virtual]\fP"
 .PP
-Definition at line 758 of file modules.h.
+Definition at line 789 of file modules.h.
 .PP
 .nf
-758 { }
+789 { }
 .fi
 .SH "Member Function Documentation"
 .PP 
 .SS "virtual \fBModule\fP* ModuleFactory::CreateModule ()\fC [pure virtual]\fP"
 .PP
-Creates a new module.Your inherited class of ModuleFactory must return a pointer to your \fBModule\fP class using this method.
+Creates a new module. Your inherited class of ModuleFactory must return a pointer to your \fBModule\fP class using this method.
 
 .SH "Author"
 .PP 

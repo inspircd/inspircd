@@ -1,4 +1,4 @@
-.TH "connection.h" 3 "2 May 2004" "InspIRCd" \" -*- nroff -*-
+.TH "connection.h" 3 "25 Mar 2005" "InspIRCd" \" -*- nroff -*-
 .ad l
 .nh
 .SH NAME
@@ -14,9 +14,9 @@ connection.h \-
 .br
 \fC#include <map>\fP
 .br
-\fC#include <sys/socket.h>\fP
-.br
 \fC#include <sys/types.h>\fP
+.br
+\fC#include <sys/socket.h>\fP
 .br
 \fC#include <netdb.h>\fP
 .br
@@ -39,15 +39,15 @@ connection.h \-
 .ti -1c
 .RI "class \fBconnection\fP"
 .br
-.RI "\fIPlease note: classes serverrec and userrec both inherit from class connection.\fP"
+.RI "\fIPlease note: classes serverrec and userrec both inherit from class connection. \fP"
 .ti -1c
 .RI "class \fBircd_connector\fP"
 .br
-.RI "\fIEach connection has one or more of these each represents ONE outbound connection to another ircd so each inbound has multiple outbounds.\fP"
+.RI "\fIEach connection has one or more of these each represents ONE outbound connection to another ircd so each inbound has multiple outbounds. \fP"
 .ti -1c
 .RI "class \fBpacket\fP"
 .br
-.RI "\fIClass packet is deprecated.\fP"
+.RI "\fIClass packet is deprecated. \fP"
 .in -1c
 .SS "Defines"
 
@@ -75,22 +75,22 @@ connection.h \-
 .PP 
 .SS "#define STATE_CONNECTED   1"
 .PP
-Definition at line 23 of file connection.h.
+Definition at line 35 of file connection.h.
 .SS "#define STATE_DISCONNECTED   0"
 .PP
-Definition at line 22 of file connection.h.
+Definition at line 34 of file connection.h.
 .SS "#define STATE_NOAUTH_INBOUND   3"
 .PP
-Definition at line 25 of file connection.h.
+Definition at line 37 of file connection.h.
 .SS "#define STATE_NOAUTH_OUTBOUND   4"
 .PP
-Definition at line 26 of file connection.h.
+Definition at line 38 of file connection.h.
 .SS "#define STATE_SERVICES   5"
 .PP
-Definition at line 27 of file connection.h.
+Definition at line 39 of file connection.h.
 .SS "#define STATE_SYNC   2"
 .PP
-Definition at line 24 of file connection.h.
+Definition at line 36 of file connection.h.
 .SH "Author"
 .PP 
 Generated automatically by Doxygen for InspIRCd from the source code.

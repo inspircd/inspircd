@@ -1,8 +1,8 @@
-.TH "Admin" 3 "2 May 2004" "InspIRCd" \" -*- nroff -*-
+.TH "Admin" 3 "25 Mar 2005" "InspIRCd" \" -*- nroff -*-
 .ad l
 .nh
 .SH NAME
-Admin \- Holds /ADMIN data This class contains the admin details of the local server. 
+Admin \- Holds /ADMIN data This class contains the admin details of the local server.  
 
 .PP
 .SH SYNOPSIS
@@ -34,31 +34,31 @@ Inherits \fBclassbase\fP.
 .in -1c
 .SH "Detailed Description"
 .PP 
-Holds /ADMIN data This class contains the admin details of the local server.
+Holds /ADMIN data This class contains the admin details of the local server. 
 
 It is constructed by class \fBServer\fP, and has three read-only values, Name, Email and Nick that contain the specified values for the server where the module is running. 
 .PP
-Definition at line 104 of file modules.h.
+Definition at line 114 of file modules.h.
 .SH "Constructor & Destructor Documentation"
 .PP 
 .SS "Admin::Admin (std::string name, std::string email, std::string nick)"
 .PP
-Definition at line 283 of file modules.cpp.
+Definition at line 295 of file modules.cpp.
 .PP
 .nf
-283 : Name(name), Email(email), Nick(nick) { };
+295 : Name(name), Email(email), Nick(nick) { };
 .fi
 .SH "Member Data Documentation"
 .PP 
-.SS "const std::string Admin::Email"
+.SS "const std::string \fBAdmin::Email\fP"
 .PP
-Definition at line 107 of file modules.h.
-.SS "const std::string Admin::Name"
+Definition at line 117 of file modules.h.
+.SS "const std::string \fBAdmin::Name\fP"
 .PP
-Definition at line 107 of file modules.h.
-.SS "const std::string Admin::Nick"
+Definition at line 117 of file modules.h.
+.SS "const std::string \fBAdmin::Nick\fP"
 .PP
-Definition at line 107 of file modules.h.
+Definition at line 117 of file modules.h.
 
 .SH "Author"
 .PP 

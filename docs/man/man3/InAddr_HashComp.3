@@ -1,4 +1,4 @@
-.TH "InAddr_HashComp" 3 "2 May 2004" "InspIRCd" \" -*- nroff -*-
+.TH "InAddr_HashComp" 3 "25 Mar 2005" "InspIRCd" \" -*- nroff -*-
 .ad l
 .nh
 .SH NAME
@@ -17,18 +17,18 @@ InAddr_HashComp \-
 .PP 
 .SS "bool InAddr_HashComp::operator() (const in_addr & s1, const in_addr & s2) const\fC [inline]\fP"
 .PP
-Definition at line 135 of file modules.cpp.
+Definition at line 150 of file modules.cpp.
 .PP
 .nf
-136         {
-137                 size_t q;
-138                 size_t p;
-139                 
-140                 memcpy(&q,&s1,sizeof(size_t));
-141                 memcpy(&p,&s2,sizeof(size_t));
-142                 
-143                 return (q == p);
-144         }
+151         {
+152                 size_t q;
+153                 size_t p;
+154                 
+155                 memcpy(&q,&s1,sizeof(size_t));
+156                 memcpy(&p,&s2,sizeof(size_t));
+157                 
+158                 return (q == p);
+159         }
 .fi
 
 

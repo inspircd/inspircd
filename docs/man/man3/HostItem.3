@@ -1,8 +1,8 @@
-.TH "HostItem" 3 "2 May 2004" "InspIRCd" \" -*- nroff -*-
+.TH "HostItem" 3 "25 Mar 2005" "InspIRCd" \" -*- nroff -*-
 .ad l
 .nh
 .SH NAME
-HostItem \- Holds an entry for a ban list, exemption list, or invite list. 
+HostItem \- Holds an entry for a ban list, exemption list, or invite list.  
 
 .PP
 .SH SYNOPSIS
@@ -39,38 +39,38 @@ Inherited by \fBBanItem\fP, \fBExemptItem\fP, and \fBInviteItem\fP.
 .in -1c
 .SH "Detailed Description"
 .PP 
-Holds an entry for a ban list, exemption list, or invite list.
+Holds an entry for a ban list, exemption list, or invite list. 
 
 This class contains a single element in a channel list, such as a banlist. 
 .PP
-Definition at line 18 of file channels.h.
+Definition at line 29 of file channels.h.
 .SH "Constructor & Destructor Documentation"
 .PP 
 .SS "HostItem::HostItem ()\fC [inline]\fP"
 .PP
-Definition at line 25 of file channels.h.
+Definition at line 36 of file channels.h.
 .PP
 .nf
-25 { /* stub */ }
+36 { /* stub */ }
 .fi
-.SS "virtual HostItem::~HostItem ()\fC [inline, virtual]\fP"
+.SS "virtual HostItem::~\fBHostItem\fP ()\fC [inline, virtual]\fP"
 .PP
-Definition at line 26 of file channels.h.
+Definition at line 37 of file channels.h.
 .PP
 .nf
-26 { /* stub */ }
+37 { /* stub */ }
 .fi
 .SH "Member Data Documentation"
 .PP 
-.SS "char HostItem::data[MAXBUF]"
+.SS "char \fBHostItem::data\fP[MAXBUF]"
 .PP
-Definition at line 23 of file channels.h.
-.SS "char HostItem::set_by[NICKMAX]"
+Definition at line 34 of file channels.h.
+.SS "char \fBHostItem::set_by\fP[NICKMAX]"
 .PP
-Definition at line 22 of file channels.h.
-.SS "time_t HostItem::set_time"
+Definition at line 33 of file channels.h.
+.SS "time_t \fBHostItem::set_time\fP"
 .PP
-Definition at line 21 of file channels.h.
+Definition at line 32 of file channels.h.
 
 .SH "Author"
 .PP 

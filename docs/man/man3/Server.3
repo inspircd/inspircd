@@ -1,8 +1,8 @@
-.TH "Server" 3 "2 May 2004" "InspIRCd" \" -*- nroff -*-
+.TH "Server" 3 "25 Mar 2005" "InspIRCd" \" -*- nroff -*-
 .ad l
 .nh
 .SH NAME
-Server \- Allows server output and query functions This class contains methods which allow a module to query the state of the irc server, and produce output to users and other servers. 
+Server \- Allows server output and query functions This class contains methods which allow a module to query the state of the irc server, and produce output to users and other servers.  
 
 .PP
 .SH SYNOPSIS
@@ -18,193 +18,193 @@ Inherits \fBclassbase\fP.
 .ti -1c
 .RI "\fBServer\fP ()"
 .br
-.RI "\fIDefault constructor.\fP"
+.RI "\fIDefault constructor. \fP"
 .ti -1c
 .RI "virtual \fB~Server\fP ()"
 .br
-.RI "\fIDefault destructor.\fP"
+.RI "\fIDefault destructor. \fP"
 .ti -1c
 .RI "virtual void \fBSendOpers\fP (std::string s)"
 .br
-.RI "\fISends text to all opers.\fP"
+.RI "\fISends text to all opers. \fP"
 .ti -1c
 .RI "virtual void \fBLog\fP (int level, std::string s)"
 .br
-.RI "\fIWrites a log string.\fP"
+.RI "\fIWrites a log string. \fP"
 .ti -1c
 .RI "virtual void \fBSend\fP (int Socket, std::string s)"
 .br
-.RI "\fISends a line of text down a TCP/IP socket.\fP"
+.RI "\fISends a line of text down a TCP/IP socket. \fP"
 .ti -1c
 .RI "virtual void \fBSendServ\fP (int Socket, std::string s)"
 .br
-.RI "\fISends text from the server to a socket.\fP"
+.RI "\fISends text from the server to a socket. \fP"
 .ti -1c
 .RI "virtual void \fBSendFrom\fP (int Socket, \fBuserrec\fP *User, std::string s)"
 .br
-.RI "\fISends text from a user to a socket.\fP"
+.RI "\fISends text from a user to a socket. \fP"
 .ti -1c
 .RI "virtual void \fBSendTo\fP (\fBuserrec\fP *Source, \fBuserrec\fP *Dest, std::string s)"
 .br
-.RI "\fISends text from a user to another user.\fP"
+.RI "\fISends text from a user to another user. \fP"
 .ti -1c
 .RI "virtual void \fBSendChannel\fP (\fBuserrec\fP *User, \fBchanrec\fP *Channel, std::string s, bool IncludeSender)"
 .br
-.RI "\fISends text from a user to a channel (mulicast).\fP"
+.RI "\fISends text from a user to a channel (mulicast). \fP"
 .ti -1c
 .RI "virtual bool \fBCommonChannels\fP (\fBuserrec\fP *u1, \fBuserrec\fP *u2)"
 .br
-.RI "\fIReturns true if two users share a common channel.\fP"
+.RI "\fIReturns true if two users share a common channel. \fP"
 .ti -1c
 .RI "virtual void \fBSendCommon\fP (\fBuserrec\fP *User, std::string text, bool IncludeSender)"
 .br
-.RI "\fISends text from a user to one or more channels (mulicast).\fP"
+.RI "\fISends text from a user to one or more channels (mulicast). \fP"
 .ti -1c
 .RI "virtual void \fBSendWallops\fP (\fBuserrec\fP *User, std::string text)"
 .br
-.RI "\fISends a WALLOPS message.\fP"
+.RI "\fISends a WALLOPS message. \fP"
 .ti -1c
 .RI "virtual bool \fBIsNick\fP (std::string nick)"
 .br
-.RI "\fIReturns true if a nick is valid.\fP"
+.RI "\fIReturns true if a nick is valid. \fP"
 .ti -1c
 .RI "virtual int \fBCountUsers\fP (\fBchanrec\fP *c)"
 .br
-.RI "\fIReturns a count of the number of users on a channel.\fP"
+.RI "\fIReturns a count of the number of users on a channel. \fP"
 .ti -1c
 .RI "virtual \fBuserrec\fP * \fBFindNick\fP (std::string nick)"
 .br
-.RI "\fIAttempts to look up a nick and return a pointer to it.\fP"
+.RI "\fIAttempts to look up a nick and return a pointer to it. \fP"
 .ti -1c
 .RI "virtual \fBchanrec\fP * \fBFindChannel\fP (std::string channel)"
 .br
-.RI "\fIAttempts to look up a channel and return a pointer to it.\fP"
+.RI "\fIAttempts to look up a channel and return a pointer to it. \fP"
 .ti -1c
 .RI "virtual std::string \fBChanMode\fP (\fBuserrec\fP *User, \fBchanrec\fP *Chan)"
 .br
-.RI "\fIAttempts to look up a user's privilages on a channel.\fP"
+.RI "\fIAttempts to look up a user's privilages on a channel. \fP"
 .ti -1c
 .RI "virtual bool \fBIsOnChannel\fP (\fBuserrec\fP *User, \fBchanrec\fP *Chan)"
 .br
-.RI "\fIChecks if a user is on a channel.\fP"
+.RI "\fIChecks if a user is on a channel. \fP"
 .ti -1c
 .RI "virtual std::string \fBGetServerName\fP ()"
 .br
-.RI "\fIReturns the server name of the server where the module is loaded.\fP"
+.RI "\fIReturns the server name of the server where the module is loaded. \fP"
 .ti -1c
 .RI "virtual std::string \fBGetNetworkName\fP ()"
 .br
-.RI "\fIReturns the network name, global to all linked servers.\fP"
+.RI "\fIReturns the network name, global to all linked servers. \fP"
 .ti -1c
 .RI "virtual \fBAdmin\fP \fBGetAdmin\fP ()"
 .br
-.RI "\fIReturns the information of the server as returned by the /ADMIN command.\fP"
+.RI "\fIReturns the information of the server as returned by the /ADMIN command. \fP"
 .ti -1c
 .RI "virtual bool \fBAddExtendedMode\fP (char modechar, int type, bool requires_oper, int params_when_on, int params_when_off)"
 .br
-.RI "\fIAdds an extended mode letter which is parsed by a module.\fP"
+.RI "\fIAdds an extended mode letter which is parsed by a module. \fP"
 .ti -1c
 .RI "virtual bool \fBAddExtendedListMode\fP (char modechar)"
 .br
-.RI "\fIAdds an extended mode letter which is parsed by a module and handled in a list fashion.\fP"
+.RI "\fIAdds an extended mode letter which is parsed by a module and handled in a list fashion. \fP"
 .ti -1c
 .RI "virtual void \fBAddCommand\fP (char *cmd, handlerfunc f, char flags, int minparams)"
 .br
-.RI "\fIAdds a command to the command table.\fP"
+.RI "\fIAdds a command to the command table. \fP"
 .ti -1c
 .RI "virtual void \fBSendMode\fP (char **parameters, int pcnt, \fBuserrec\fP *user)"
 .br
-.RI "\fISends a servermode.\fP"
+.RI "\fISends a servermode. \fP"
 .ti -1c
 .RI "virtual void \fBSendToModeMask\fP (std::string modes, int flags, std::string text)"
 .br
-.RI "\fISends to all users matching a mode mask You must specify one or more usermodes as the first parameter.\fP"
+.RI "\fISends to all users matching a mode mask You must specify one or more usermodes as the first parameter. \fP"
 .ti -1c
 .RI "virtual \fBchanrec\fP * \fBJoinUserToChannel\fP (\fBuserrec\fP *user, std::string cname, std::string key)"
 .br
-.RI "\fIForces a user to join a channel.\fP"
+.RI "\fIForces a user to join a channel. \fP"
 .ti -1c
 .RI "virtual \fBchanrec\fP * \fBPartUserFromChannel\fP (\fBuserrec\fP *user, std::string cname, std::string reason)"
 .br
-.RI "\fIForces a user to part a channel.\fP"
+.RI "\fIForces a user to part a channel. \fP"
 .ti -1c
 .RI "virtual void \fBChangeUserNick\fP (\fBuserrec\fP *user, std::string nickname)"
 .br
-.RI "\fIForces a user nickchange.\fP"
+.RI "\fIForces a user nickchange. \fP"
 .ti -1c
 .RI "virtual void \fBQuitUser\fP (\fBuserrec\fP *user, std::string reason)"
 .br
-.RI "\fIForces a user to quit with the specified reason.\fP"
+.RI "\fIForces a user to quit with the specified reason. \fP"
 .ti -1c
 .RI "virtual bool \fBMatchText\fP (std::string sliteral, std::string spattern)"
 .br
-.RI "\fIMatches text against a glob pattern.\fP"
+.RI "\fIMatches text against a glob pattern. \fP"
 .ti -1c
 .RI "virtual void \fBCallCommandHandler\fP (std::string commandname, char **parameters, int pcnt, \fBuserrec\fP *user)"
 .br
-.RI "\fICalls the handler for a command, either implemented by the core or by another module.\fP"
+.RI "\fICalls the handler for a command, either implemented by the core or by another module. \fP"
 .ti -1c
 .RI "virtual void \fBChangeHost\fP (\fBuserrec\fP *user, std::string host)"
 .br
-.RI "\fIChange displayed hostname of a user.\fP"
+.RI "\fIChange displayed hostname of a user. \fP"
 .ti -1c
 .RI "virtual void \fBChangeGECOS\fP (\fBuserrec\fP *user, std::string gecos)"
 .br
-.RI "\fIChange GECOS (fullname) of a user.\fP"
+.RI "\fIChange GECOS (fullname) of a user. \fP"
 .ti -1c
 .RI "virtual bool \fBIsUlined\fP (std::string server)"
 .br
-.RI "\fIReturns true if the servername you give is ulined.\fP"
+.RI "\fIReturns true if the servername you give is ulined. \fP"
 .ti -1c
 .RI "virtual \fBchanuserlist\fP \fBGetUsers\fP (\fBchanrec\fP *chan)"
 .br
-.RI "\fIFetches the userlist of a channel.\fP"
+.RI "\fIFetches the userlist of a channel. \fP"
 .in -1c
 .SH "Detailed Description"
 .PP 
-Allows server output and query functions This class contains methods which allow a module to query the state of the irc server, and produce output to users and other servers.
+Allows server output and query functions This class contains methods which allow a module to query the state of the irc server, and produce output to users and other servers. 
 
 All modules should instantiate at least one copy of this class, and use its member functions to perform their tasks. 
 .PP
-Definition at line 314 of file modules.h.
+Definition at line 337 of file modules.h.
 .SH "Constructor & Destructor Documentation"
 .PP 
 .SS "Server::Server ()"
 .PP
-Default constructor.Creates a Server object.Definition at line 313 of file modules.cpp.
+Default constructor. Creates a Server object.Definition at line 326 of file modules.cpp.
 .PP
 .nf
-314 {
-315 }
+327 {
+328 }
 .fi
-.SS "Server::~Server ()\fC [virtual]\fP"
+.SS "Server::~\fBServer\fP ()\fC [virtual]\fP"
 .PP
-Default destructor.Destroys a Server object.Definition at line 317 of file modules.cpp.
+Default destructor. Destroys a Server object.Definition at line 330 of file modules.cpp.
 .PP
 .nf
-318 {
-319 }
+331 {
+332 }
 .fi
 .SH "Member Function Documentation"
 .PP 
 .SS "void Server::AddCommand (char * cmd, handlerfunc f, char flags, int minparams)\fC [virtual]\fP"
 .PP
-Adds a command to the command table.This allows modules to add extra commands into the command table. You must place a function within your module which is is of type handlerfunc:
+Adds a command to the command table. This allows modules to add extra commands into the command table. You must place a function within your module which is is of type handlerfunc:
 .PP
 typedef void (handlerfunc) (char**, int, userrec*); ... void \fBhandle_kill(char **parameters, int pcnt, userrec *user)\fP
 .PP
-When the command is typed, the parameters will be placed into the parameters array (similar to argv) and the parameter count will be placed into pcnt (similar to argv). There will never be any less parameters than the 'minparams' value you specified when creating the command. The *user parameter is the class of the user which caused the command to trigger, who will always have the flag you specified in 'flags' when creating the initial command. For example to create an oper only command create the commands with flags='o'.Definition at line 394 of file modules.cpp.
+When the command is typed, the parameters will be placed into the parameters array (similar to argv) and the parameter count will be placed into pcnt (similar to argv). There will never be any less parameters than the 'minparams' value you specified when creating the command. The *user parameter is the class of the user which caused the command to trigger, who will always have the flag you specified in 'flags' when creating the initial command. For example to create an oper only command create the commands with flags='o'.Definition at line 407 of file modules.cpp.
 .PP
 References createcommand().
 .PP
 .nf
-395 {
-396         createcommand(cmd,f,flags,minparams);
-397 }
+408 {
+409         createcommand(cmd,f,flags,minparams);
+410 }
 .fi
 .SS "bool Server::AddExtendedListMode (char modechar)\fC [virtual]\fP"
 .PP
-Adds an extended mode letter which is parsed by a module and handled in a list fashion.This call is used to implement modes like +q and +a. The characteristics of these modes are as follows:
+Adds an extended mode letter which is parsed by a module and handled in a list fashion. This call is used to implement modes like +q and +a. The characteristics of these modes are as follows:
 .PP
 (1) They are ALWAYS on channels, not on users, therefore their type is MT_CHANNEL
 .PP
@@ -214,329 +214,329 @@ Adds an extended mode letter which is parsed by a module and handled in a list f
 .PP
 (4) The mode and its parameter are NOT stored in the channels modes structure
 .PP
-It is down to the module handling the mode to maintain state and determine what 'items' (e.g. users, or a banlist) have the mode set on them, and process the modes at the correct times, e.g. during access checks on channels, etc. When the extended mode is triggered the OnExtendedMode method will be triggered as above. Note that the target you are given will be a channel, if for example your mode is set 'on a user' (in for example +a) you must use Server::Find to locate the user the mode is operating on. Your mode handler may return 1 to handle the mode AND tell the core to display the mode change, e.g. '+aaa one two three' in the case of the mode for 'two', or it may return -1 to 'eat' the mode change, so the above example would become '+aa one three' after processing.Definition at line 539 of file modules.cpp.
+It is down to the module handling the mode to maintain state and determine what 'items' (e.g. users, or a banlist) have the mode set on them, and process the modes at the correct times, e.g. during access checks on channels, etc. When the extended mode is triggered the OnExtendedMode method will be triggered as above. Note that the target you are given will be a channel, if for example your mode is set 'on a user' (in for example +a) you must use Server::Find to locate the user the mode is operating on. Your mode handler may return 1 to handle the mode AND tell the core to display the mode change, e.g. '+aaa one two three' in the case of the mode for 'two', or it may return -1 to 'eat' the mode change, so the above example would become '+aa one three' after processing.Definition at line 552 of file modules.cpp.
 .PP
-References DoAddExtendedMode(), and ModeMakeList().
+References DoAddExtendedMode(), ModeMakeList(), and MT_CHANNEL.
 .PP
 .nf
-540 {
-541         bool res = DoAddExtendedMode(modechar,MT_CHANNEL,false,1,1);
-542         if (res)
-543                 ModeMakeList(modechar);
-544         return res;
-545 }
+553 {
+554         bool res = DoAddExtendedMode(modechar,MT_CHANNEL,false,1,1);
+555         if (res)
+556                 ModeMakeList(modechar);
+557         return res;
+558 }
 .fi
 .SS "bool Server::AddExtendedMode (char modechar, int type, bool requires_oper, int params_when_on, int params_when_off)\fC [virtual]\fP"
 .PP
-Adds an extended mode letter which is parsed by a module.This allows modules to add extra mode letters, e.g. +x for hostcloak. the 'type' parameter is either MT_CHANNEL, MT_CLIENT, or MT_SERVER, to indicate wether the mode is a channel mode, a client mode, or a server mode. requires_oper is used with MT_CLIENT type modes only to indicate the mode can only be set or unset by an oper. If this is used for MT_CHANNEL type modes it is ignored. params_when_on is the number of modes to expect when the mode is turned on (for type MT_CHANNEL only), e.g. with mode +k, this would have a value of 1. the params_when_off value has a similar value to params_when_on, except it indicates the number of parameters to expect when the mode is disabled. Modes which act in a similar way to channel mode +l (e.g. require a parameter to enable, but not to disable) should use this parameter. The function returns false if the mode is unavailable, and will not attempt to allocate another character, as this will confuse users. This also means that as only one module can claim a specific mode character, the core does not need to keep track of which modules own which modes, which speeds up operation of the server. In this version, a mode can have at most one parameter, attempting to use more parameters will have undefined effects.Definition at line 519 of file modules.cpp.
+Adds an extended mode letter which is parsed by a module. This allows modules to add extra mode letters, e.g. +x for hostcloak. the 'type' parameter is either MT_CHANNEL, MT_CLIENT, or MT_SERVER, to indicate wether the mode is a channel mode, a client mode, or a server mode. requires_oper is used with MT_CLIENT type modes only to indicate the mode can only be set or unset by an oper. If this is used for MT_CHANNEL type modes it is ignored. params_when_on is the number of modes to expect when the mode is turned on (for type MT_CHANNEL only), e.g. with mode +k, this would have a value of 1. the params_when_off value has a similar value to params_when_on, except it indicates the number of parameters to expect when the mode is disabled. Modes which act in a similar way to channel mode +l (e.g. require a parameter to enable, but not to disable) should use this parameter. The function returns false if the mode is unavailable, and will not attempt to allocate another character, as this will confuse users. This also means that as only one module can claim a specific mode character, the core does not need to keep track of which modules own which modes, which speeds up operation of the server. In this version, a mode can have at most one parameter, attempting to use more parameters will have undefined effects.Definition at line 532 of file modules.cpp.
 .PP
-References DoAddExtendedMode(), MT_CLIENT, and MT_SERVER.
+References DEBUG, DoAddExtendedMode(), MT_CLIENT, and MT_SERVER.
 .PP
 .nf
-520 {
-521         if (type == MT_SERVER)
-522         {
-523                 log(DEBUG,'*** API ERROR *** Modes of type MT_SERVER are reserved for future expansion');
-524                 return false;
-525         }
-526         if (((params_when_on>0) || (params_when_off>0)) && (type == MT_CLIENT))
-527         {
-528                 log(DEBUG,'*** API ERROR *** Parameters on MT_CLIENT modes are not supported');
-529                 return false;
-530         }
-531         if ((params_when_on>1) || (params_when_off>1))
-532         {
-533                 log(DEBUG,'*** API ERROR *** More than one parameter for an MT_CHANNEL mode is not yet supported');
-534                 return false;
-535         }
-536         return DoAddExtendedMode(modechar,type,requires_oper,params_when_on,params_when_off);
-537 }
+533 {
+534         if (type == MT_SERVER)
+535         {
+536                 log(DEBUG,'*** API ERROR *** Modes of type MT_SERVER are reserved for future expansion');
+537                 return false;
+538         }
+539         if (((params_when_on>0) || (params_when_off>0)) && (type == MT_CLIENT))
+540         {
+541                 log(DEBUG,'*** API ERROR *** Parameters on MT_CLIENT modes are not supported');
+542                 return false;
+543         }
+544         if ((params_when_on>1) || (params_when_off>1))
+545         {
+546                 log(DEBUG,'*** API ERROR *** More than one parameter for an MT_CHANNEL mode is not yet supported');
+547                 return false;
+548         }
+549         return DoAddExtendedMode(modechar,type,requires_oper,params_when_on,params_when_off);
+550 }
 .fi
 .SS "void Server::CallCommandHandler (std::string commandname, char ** parameters, int pcnt, \fBuserrec\fP * user)\fC [virtual]\fP"
 .PP
-Calls the handler for a command, either implemented by the core or by another module.You can use this function to trigger other commands in the ircd, such as PRIVMSG, JOIN, KICK etc, or even as a method of callback. By defining command names that are untypeable for users on irc (e.g. those which contain a  or 
+Calls the handler for a command, either implemented by the core or by another module. You can use this function to trigger other commands in the ircd, such as PRIVMSG, JOIN, KICK etc, or even as a method of callback. By defining command names that are untypeable for users on irc (e.g. those which contain a  or 
 .br
-) you may use them as callback identifiers. The first parameter to this method is the name of the command handler you wish to call, e.g. PRIVMSG. This will be a command handler previously registered by the core or wih \fBAddCommand()\fP. The second parameter is an array of parameters, and the third parameter is a count of parameters in the array. If you do not pass enough parameters to meet the minimum needed by the handler, the functiom will silently ignore it. The final parameter is the user executing the command handler, used for privilage checks, etc.Definition at line 384 of file modules.cpp.
+) you may use them as callback identifiers. The first parameter to this method is the name of the command handler you wish to call, e.g. PRIVMSG. This will be a command handler previously registered by the core or wih \fBAddCommand()\fP. The second parameter is an array of parameters, and the third parameter is a count of parameters in the array. If you do not pass enough parameters to meet the minimum needed by the handler, the functiom will silently ignore it. The final parameter is the user executing the command handler, used for privilage checks, etc.Definition at line 397 of file modules.cpp.
 .PP
 .nf
-385 {
-386         call_handler(commandname.c_str(),parameters,pcnt,user);
-387 }
+398 {
+399         call_handler(commandname.c_str(),parameters,pcnt,user);
+400 }
 .fi
 .SS "void Server::ChangeGECOS (\fBuserrec\fP * user, std::string gecos)\fC [virtual]\fP"
 .PP
-Change GECOS (fullname) of a user.You should always call this method to change a user's GECOS rather than writing directly to the fullname member of userrec, as any change applied via this method will be propogated to any linked servers.Definition at line 472 of file modules.cpp.
+Change GECOS (fullname) of a user. You should always call this method to change a user's GECOS rather than writing directly to the fullname member of userrec, as any change applied via this method will be propogated to any linked servers.Definition at line 485 of file modules.cpp.
 .PP
 References ChangeName().
 .PP
 .nf
-473 {
-474         ChangeName(user,gecos.c_str());
-475 }
+486 {
+487         ChangeName(user,gecos.c_str());
+488 }
 .fi
 .SS "void Server::ChangeHost (\fBuserrec\fP * user, std::string host)\fC [virtual]\fP"
 .PP
-Change displayed hostname of a user.You should always call this method to change a user's host rather than writing directly to the dhost member of userrec, as any change applied via this method will be propogated to any linked servers.Definition at line 467 of file modules.cpp.
+Change displayed hostname of a user. You should always call this method to change a user's host rather than writing directly to the dhost member of userrec, as any change applied via this method will be propogated to any linked servers.Definition at line 480 of file modules.cpp.
 .PP
 References ChangeDisplayedHost().
 .PP
 .nf
-468 {
-469         ChangeDisplayedHost(user,host.c_str());
-470 }
+481 {
+482         ChangeDisplayedHost(user,host.c_str());
+483 }
 .fi
 .SS "void Server::ChangeUserNick (\fBuserrec\fP * user, std::string nickname)\fC [virtual]\fP"
 .PP
-Forces a user nickchange.This command works similarly to SVSNICK, and can be used to implement Q-lines etc. If you specify an invalid nickname, the nick change will be dropped and the target user will receive the error numeric for it.Definition at line 368 of file modules.cpp.
+Forces a user nickchange. This command works similarly to SVSNICK, and can be used to implement Q-lines etc. If you specify an invalid nickname, the nick change will be dropped and the target user will receive the error numeric for it.Definition at line 381 of file modules.cpp.
 .PP
 .nf
-369 {
-370         force_nickchange(user,nickname.c_str());
-371 }
+382 {
+383         force_nickchange(user,nickname.c_str());
+384 }
 .fi
 .SS "std::string Server::ChanMode (\fBuserrec\fP * User, \fBchanrec\fP * Chan)\fC [virtual]\fP"
 .PP
-Attempts to look up a user's privilages on a channel.This function will return a string containing either @, , +, or an empty string, representing the user's privilages upon the channel you specify.Definition at line 492 of file modules.cpp.
+Attempts to look up a user's privilages on a channel. This function will return a string containing either @, , +, or an empty string, representing the user's privilages upon the channel you specify.Definition at line 505 of file modules.cpp.
 .PP
 References cmode().
 .PP
 .nf
-493 {
-494         return cmode(User,Chan);
-495 }
+506 {
+507         return cmode(User,Chan);
+508 }
 .fi
 .SS "bool Server::CommonChannels (\fBuserrec\fP * u1, \fBuserrec\fP * u2)\fC [virtual]\fP"
 .PP
-Returns true if two users share a common channel.This method is used internally by the NICK and QUIT commands, and the \fBServer::SendCommon\fP method.Definition at line 445 of file modules.cpp.
+Returns true if two users share a common channel. This method is used internally by the NICK and QUIT commands, and the \fBServer::SendCommon\fP method.Definition at line 458 of file modules.cpp.
 .PP
 References common_channels().
 .PP
 .nf
-446 {
-447         return (common_channels(u1,u2) != 0);
-448 }
+459 {
+460         return (common_channels(u1,u2) != 0);
+461 }
 .fi
 .SS "int Server::CountUsers (\fBchanrec\fP * c)\fC [virtual]\fP"
 .PP
-Returns a count of the number of users on a channel.This will NEVER be 0, as if the chanrec exists, it will have at least one user in the channel.Definition at line 547 of file modules.cpp.
+Returns a count of the number of users on a channel. This will NEVER be 0, as if the chanrec exists, it will have at least one user in the channel.Definition at line 560 of file modules.cpp.
 .PP
 .nf
-548 {
-549         return usercount(c);
-550 }
+561 {
+562         return usercount(c);
+563 }
 .fi
 .SS "\fBchanrec\fP * Server::FindChannel (std::string channel)\fC [virtual]\fP"
 .PP
-Attempts to look up a channel and return a pointer to it.This function will return NULL if the channel does not exist.Definition at line 487 of file modules.cpp.
+Attempts to look up a channel and return a pointer to it. This function will return NULL if the channel does not exist.Definition at line 500 of file modules.cpp.
 .PP
 .nf
-488 {
-489         return FindChan(channel.c_str());
-490 }
+501 {
+502         return FindChan(channel.c_str());
+503 }
 .fi
 .SS "\fBuserrec\fP * Server::FindNick (std::string nick)\fC [virtual]\fP"
 .PP
-Attempts to look up a nick and return a pointer to it.This function will return NULL if the nick does not exist.Definition at line 482 of file modules.cpp.
+Attempts to look up a nick and return a pointer to it. This function will return NULL if the nick does not exist.Definition at line 495 of file modules.cpp.
 .PP
 .nf
-483 {
-484         return Find(nick);
-485 }
+496 {
+497         return Find(nick);
+498 }
 .fi
 .SS "\fBAdmin\fP Server::GetAdmin ()\fC [virtual]\fP"
 .PP
-Returns the information of the server as returned by the /ADMIN command.See the \fBAdmin\fP class for further information of the return value. The members \fBAdmin::Nick\fP, \fBAdmin::Email\fP and \fBAdmin::Name\fP contain the information for the server where the module is loaded.Definition at line 512 of file modules.cpp.
+Returns the information of the server as returned by the /ADMIN command. See the \fBAdmin\fP class for further information of the return value. The members \fBAdmin::Nick\fP, \fBAdmin::Email\fP and \fBAdmin::Name\fP contain the information for the server where the module is loaded.Definition at line 525 of file modules.cpp.
 .PP
 .nf
-513 {
-514         return Admin(getadminname(),getadminemail(),getadminnick());
-515 }
+526 {
+527         return Admin(getadminname(),getadminemail(),getadminnick());
+528 }
 .fi
 .SS "std::string Server::GetNetworkName ()\fC [virtual]\fP"
 .PP
-Returns the network name, global to all linked servers.Definition at line 507 of file modules.cpp.
+Returns the network name, global to all linked servers. Definition at line 520 of file modules.cpp.
 .PP
 .nf
-508 {
-509         return getnetworkname();
-510 }
+521 {
+522         return getnetworkname();
+523 }
 .fi
 .SS "std::string Server::GetServerName ()\fC [virtual]\fP"
 .PP
-Returns the server name of the server where the module is loaded.Definition at line 502 of file modules.cpp.
+Returns the server name of the server where the module is loaded. Definition at line 515 of file modules.cpp.
 .PP
 .nf
-503 {
-504         return getservername();
-505 }
+516 {
+517         return getservername();
+518 }
 .fi
 .SS "\fBchanuserlist\fP Server::GetUsers (\fBchanrec\fP * chan)\fC [virtual]\fP"
 .PP
-Fetches the userlist of a channel.This function must be here and not a member of userrec or chanrec due to include constraints.Definition at line 349 of file modules.cpp.
+Fetches the userlist of a channel. This function must be here and not a member of userrec or chanrec due to include constraints.Definition at line 362 of file modules.cpp.
 .PP
 References chanuserlist, clientlist, has_channel(), and isnick().
 .PP
 .nf
-350 {
-351         chanuserlist userl;
-352         userl.clear();
-353         for (user_hash::const_iterator i = clientlist.begin(); i != clientlist.end(); i++)
-354         {
-355                 if (i->second)
-356                 {
-357                         if (has_channel(i->second,chan))
-358                         {
-359                                 if (isnick(i->second->nick))
-360                                 {
-361                                         userl.push_back(i->second);
-362                                 }
-363                         }
-364                 }
-365         }
-366         return userl;
-367 }
+363 {
+364         chanuserlist userl;
+365         userl.clear();
+366         for (user_hash::const_iterator i = clientlist.begin(); i != clientlist.end(); i++)
+367         {
+368                 if (i->second)
+369                 {
+370                         if (has_channel(i->second,chan))
+371                         {
+372                                 if (isnick(i->second->nick))
+373                                 {
+374                                         userl.push_back(i->second);
+375                                 }
+376                         }
+377                 }
+378         }
+379         return userl;
+380 }
 .fi
 .SS "bool Server::IsNick (std::string nick)\fC [virtual]\fP"
 .PP
-Returns true if a nick is valid.Nicks for unregistered connections will return false.Definition at line 477 of file modules.cpp.
+Returns true if a nick is valid. Nicks for unregistered connections will return false.Definition at line 490 of file modules.cpp.
 .PP
 References isnick().
 .PP
 .nf
-478 {
-479         return (isnick(nick.c_str()) != 0);
-480 }
+491 {
+492         return (isnick(nick.c_str()) != 0);
+493 }
 .fi
 .SS "bool Server::IsOnChannel (\fBuserrec\fP * User, \fBchanrec\fP * Chan)\fC [virtual]\fP"
 .PP
-Checks if a user is on a channel.This function will return true or false to indicate if user 'User' is on channel 'Chan'.Definition at line 497 of file modules.cpp.
+Checks if a user is on a channel. This function will return true or false to indicate if user 'User' is on channel 'Chan'.Definition at line 510 of file modules.cpp.
 .PP
 References has_channel().
 .PP
 .nf
-498 {
-499         return has_channel(User,Chan);
-500 }
+511 {
+512         return has_channel(User,Chan);
+513 }
 .fi
 .SS "bool Server::IsUlined (std::string server)\fC [virtual]\fP"
 .PP
-Returns true if the servername you give is ulined.ULined servers have extra privilages. They are allowed to change nicknames on remote servers, change modes of clients which are on remote servers and set modes of channels where there are no channel operators for that channel on the ulined server, amongst other things. Ulined server data is also broadcast across the mesh at all times as opposed to selectively messaged in the case of normal servers, as many ulined server types (such as services) do not support meshed links and must operate in this manner.Definition at line 379 of file modules.cpp.
+Returns true if the servername you give is ulined. ULined servers have extra privilages. They are allowed to change nicknames on remote servers, change modes of clients which are on remote servers and set modes of channels where there are no channel operators for that channel on the ulined server, amongst other things. Ulined server data is also broadcast across the mesh at all times as opposed to selectively messaged in the case of normal servers, as many ulined server types (such as services) do not support meshed links and must operate in this manner.Definition at line 392 of file modules.cpp.
 .PP
 References is_uline().
 .PP
 .nf
-380 {
-381         return is_uline(server.c_str());
-382 }
+393 {
+394         return is_uline(server.c_str());
+395 }
 .fi
 .SS "\fBchanrec\fP * Server::JoinUserToChannel (\fBuserrec\fP * user, std::string cname, std::string key)\fC [virtual]\fP"
 .PP
-Forces a user to join a channel.This is similar to svsjoin and can be used to implement redirection, etc. On success, the return value is a valid pointer to a chanrec* of the channel the user was joined to. On failure, the result is NULL.Definition at line 339 of file modules.cpp.
+Forces a user to join a channel. This is similar to svsjoin and can be used to implement redirection, etc. On success, the return value is a valid pointer to a chanrec* of the channel the user was joined to. On failure, the result is NULL.Definition at line 352 of file modules.cpp.
 .PP
 .nf
-340 {
-341         return add_channel(user,cname.c_str(),key.c_str(),true);
-342 }
+353 {
+354         return add_channel(user,cname.c_str(),key.c_str(),true);
+355 }
 .fi
 .SS "void Server::Log (int level, std::string s)\fC [virtual]\fP"
 .PP
-Writes a log string.This method writes a line of text to the log. If the level given is lower than the level given in the configuration, this command has no effect.Definition at line 389 of file modules.cpp.
+Writes a log string. This method writes a line of text to the log. If the level given is lower than the level given in the configuration, this command has no effect.Definition at line 402 of file modules.cpp.
 .PP
 .nf
-390 {
-391         log(level,'%s',s.c_str());
-392 }
+403 {
+404         log(level,'%s',s.c_str());
+405 }
 .fi
 .SS "bool Server::MatchText (std::string sliteral, std::string spattern)\fC [virtual]\fP"
 .PP
-Matches text against a glob pattern.Uses the ircd's internal matching function to match string against a globbing pattern, e.g. *!*@*.com Returns true if the literal successfully matches the pattern, false if otherwise.Definition at line 326 of file modules.cpp.
+Matches text against a glob pattern. Uses the ircd's internal matching function to match string against a globbing pattern, e.g. *!*@*.com Returns true if the literal successfully matches the pattern, false if otherwise.Definition at line 339 of file modules.cpp.
 .PP
 .nf
-327 {
-328         char literal[MAXBUF],pattern[MAXBUF];
-329         strncpy(literal,sliteral.c_str(),MAXBUF);
-330         strncpy(pattern,spattern.c_str(),MAXBUF);
-331         return match(literal,pattern);
-332 }
+340 {
+341         char literal[MAXBUF],pattern[MAXBUF];
+342         strlcpy(literal,sliteral.c_str(),MAXBUF);
+343         strlcpy(pattern,spattern.c_str(),MAXBUF);
+344         return match(literal,pattern);
+345 }
 .fi
 .SS "\fBchanrec\fP * Server::PartUserFromChannel (\fBuserrec\fP * user, std::string cname, std::string reason)\fC [virtual]\fP"
 .PP
-Forces a user to part a channel.This is similar to svspart and can be used to implement redirection, etc. Although the return value of this function is a pointer to a channel record, the returned data is undefined and should not be read or written to. This behaviour may be changed in a future version.Definition at line 344 of file modules.cpp.
+Forces a user to part a channel. This is similar to svspart and can be used to implement redirection, etc. Although the return value of this function is a pointer to a channel record, the returned data is undefined and should not be read or written to. This behaviour may be changed in a future version.Definition at line 357 of file modules.cpp.
 .PP
 .nf
-345 {
-346         return del_channel(user,cname.c_str(),reason.c_str(),false);
-347 }
+358 {
+359         return del_channel(user,cname.c_str(),reason.c_str(),false);
+360 }
 .fi
 .SS "void Server::QuitUser (\fBuserrec\fP * user, std::string reason)\fC [virtual]\fP"
 .PP
-Forces a user to quit with the specified reason.To the user, it will appear as if they typed /QUIT themselves, except for the fact that this function may bypass the quit prefix specified in the config file.
+Forces a user to quit with the specified reason. To the user, it will appear as if they typed /QUIT themselves, except for the fact that this function may bypass the quit prefix specified in the config file.
 .PP
 WARNING!
 .PP
-Once you call this function, userrec* user will immediately become INVALID. You MUST NOT write to, or read from this pointer after calling the QuitUser method UNDER ANY CIRCUMSTANCES! The best course of action after calling this method is to immediately bail from your handler.Definition at line 373 of file modules.cpp.
+Once you call this function, userrec* user will immediately become INVALID. You MUST NOT write to, or read from this pointer after calling the QuitUser method UNDER ANY CIRCUMSTANCES! The best course of action after calling this method is to immediately bail from your handler.Definition at line 386 of file modules.cpp.
 .PP
 References userrec::nick, and send_network_quit().
 .PP
 .nf
-374 {
-375         send_network_quit(user->nick,reason.c_str());
-376         kill_link(user,reason.c_str());
-377 }
+387 {
+388         send_network_quit(user->nick,reason.c_str());
+389         kill_link(user,reason.c_str());
+390 }
 .fi
 .SS "void Server::Send (int Socket, std::string s)\fC [virtual]\fP"
 .PP
-Sends a line of text down a TCP/IP socket.This method writes a line of text to an established socket, cutting it to 510 characters plus a carriage return and linefeed if required.Definition at line 404 of file modules.cpp.
+Sends a line of text down a TCP/IP socket. This method writes a line of text to an established socket, cutting it to 510 characters plus a carriage return and linefeed if required.Definition at line 417 of file modules.cpp.
 .PP
 .nf
-405 {
-406         Write(Socket,'%s',s.c_str());
-407 }
+418 {
+419         Write(Socket,'%s',s.c_str());
+420 }
 .fi
 .SS "void Server::SendChannel (\fBuserrec\fP * User, \fBchanrec\fP * Channel, std::string s, bool IncludeSender)\fC [virtual]\fP"
 .PP
-Sends text from a user to a channel (mulicast).This method writes a line of text to a channel, with the given user's nick/ident /host combination prepended, as used in PRIVMSG etc commands (see RFC 1459). If the IncludeSender flag is set, then the text is also sent back to the user from which it originated, as seen in MODE (see RFC 1459).Definition at line 433 of file modules.cpp.
+Sends text from a user to a channel (mulicast). This method writes a line of text to a channel, with the given user's nick/ident /host combination prepended, as used in PRIVMSG etc commands (see RFC 1459). If the IncludeSender flag is set, then the text is also sent back to the user from which it originated, as seen in MODE (see RFC 1459).Definition at line 446 of file modules.cpp.
 .PP
 .nf
-434 {
-435         if (IncludeSender)
-436         {
-437                 WriteChannel(Channel,User,'%s',s.c_str());
-438         }
-439         else
-440         {
-441                 ChanExceptSender(Channel,User,'%s',s.c_str());
-442         }
-443 }
+447 {
+448         if (IncludeSender)
+449         {
+450                 WriteChannel(Channel,User,'%s',s.c_str());
+451         }
+452         else
+453         {
+454                 ChanExceptSender(Channel,User,'%s',s.c_str());
+455         }
+456 }
 .fi
 .SS "void Server::SendCommon (\fBuserrec\fP * User, std::string text, bool IncludeSender)\fC [virtual]\fP"
 .PP
-Sends text from a user to one or more channels (mulicast).This method writes a line of text to all users which share a common channel with a given user, with the user's nick/ident/host combination prepended, as used in PRIVMSG etc commands (see RFC 1459). If the IncludeSender flag is set, then the text is also sent back to the user from which it originated, as seen in NICK (see RFC 1459). Otherwise, it is only sent to the other recipients, as seen in QUIT.Definition at line 450 of file modules.cpp.
+Sends text from a user to one or more channels (mulicast). This method writes a line of text to all users which share a common channel with a given user, with the user's nick/ident/host combination prepended, as used in PRIVMSG etc commands (see RFC 1459). If the IncludeSender flag is set, then the text is also sent back to the user from which it originated, as seen in NICK (see RFC 1459). Otherwise, it is only sent to the other recipients, as seen in QUIT.Definition at line 463 of file modules.cpp.
 .PP
 .nf
-451 {
-452         if (IncludeSender)
-453         {
-454                 WriteCommon(User,'%s',text.c_str());
-455         }
-456         else
-457         {
-458                 WriteCommonExcept(User,'%s',text.c_str());
-459         }
-460 }
+464 {
+465         if (IncludeSender)
+466         {
+467                 WriteCommon(User,'%s',text.c_str());
+468         }
+469         else
+470         {
+471                 WriteCommonExcept(User,'%s',text.c_str());
+472         }
+473 }
 .fi
 .SS "void Server::SendFrom (int Socket, \fBuserrec\fP * User, std::string s)\fC [virtual]\fP"
 .PP
-Sends text from a user to a socket.This method writes a line of text to an established socket, with the given user's nick/ident /host combination prepended, as used in PRIVSG etc commands (see RFC 1459)Definition at line 414 of file modules.cpp.
+Sends text from a user to a socket. This method writes a line of text to an established socket, with the given user's nick/ident /host combination prepended, as used in PRIVSG etc commands (see RFC 1459)Definition at line 427 of file modules.cpp.
 .PP
 .nf
-415 {
-416         WriteFrom(Socket,User,'%s',s.c_str());
-417 }
+428 {
+429         WriteFrom(Socket,User,'%s',s.c_str());
+430 }
 .fi
 .SS "void Server::SendMode (char ** parameters, int pcnt, \fBuserrec\fP * user)\fC [virtual]\fP"
 .PP
-Sends a servermode.you must format the parameters array with the target, modes and parameters for those modes.
+Sends a servermode. you must format the parameters array with the target, modes and parameters for those modes.
 .PP
 For example:
 .PP
@@ -550,36 +550,36 @@ modes[2] = user->nick;
 .PP
 Srv->SendMode(modes,3,user);
 .PP
-The modes will originate from the server where the command was issued, however responses (e.g. numerics) will be sent to the user you provide as the third parameter. You must be sure to get the number of parameters correct in the pcnt parameter otherwise you could leave your server in an unstable state!Definition at line 399 of file modules.cpp.
+The modes will originate from the server where the command was issued, however responses (e.g. numerics) will be sent to the user you provide as the third parameter. You must be sure to get the number of parameters correct in the pcnt parameter otherwise you could leave your server in an unstable state!Definition at line 412 of file modules.cpp.
 .PP
 References server_mode().
 .PP
 .nf
-400 {
-401         server_mode(parameters,pcnt,user);
-402 }
+413 {
+414         server_mode(parameters,pcnt,user);
+415 }
 .fi
 .SS "void Server::SendOpers (std::string s)\fC [virtual]\fP"
 .PP
-Sends text to all opers.This method sends a server notice to all opers with the usermode +s.Definition at line 321 of file modules.cpp.
+Sends text to all opers. This method sends a server notice to all opers with the usermode +s.Definition at line 334 of file modules.cpp.
 .PP
 .nf
-322 {
-323         WriteOpers('%s',s.c_str());
-324 }
+335 {
+336         WriteOpers('%s',s.c_str());
+337 }
 .fi
 .SS "void Server::SendServ (int Socket, std::string s)\fC [virtual]\fP"
 .PP
-Sends text from the server to a socket.This method writes a line of text to an established socket, with the servername prepended as used by numerics (see RFC 1459)Definition at line 409 of file modules.cpp.
+Sends text from the server to a socket. This method writes a line of text to an established socket, with the servername prepended as used by numerics (see RFC 1459)Definition at line 422 of file modules.cpp.
 .PP
 .nf
-410 {
-411         WriteServ(Socket,'%s',s.c_str());
-412 }
+423 {
+424         WriteServ(Socket,'%s',s.c_str());
+425 }
 .fi
 .SS "void Server::SendTo (\fBuserrec\fP * Source, \fBuserrec\fP * Dest, std::string s)\fC [virtual]\fP"
 .PP
-Sends text from a user to another user.This method writes a line of text to a user, with a user's nick/ident /host combination prepended, as used in PRIVMSG etc commands (see RFC 1459) If you specify NULL as the source, then the data will originate from the local server, e.g. instead of:
+Sends text from a user to another user. This method writes a line of text to a user, with a user's nick/ident /host combination prepended, as used in PRIVMSG etc commands (see RFC 1459) If you specify NULL as the source, then the data will originate from the local server, e.g. instead of:
 .PP
 :user!ident TEXT
 .PP
@@ -587,45 +587,45 @@ The format will become:
 .PP
 :localserver TEXT
 .PP
-Which is useful for numerics and server notices to single users, etc.Definition at line 419 of file modules.cpp.
+Which is useful for numerics and server notices to single users, etc.Definition at line 432 of file modules.cpp.
 .PP
 References connection::fd.
 .PP
 .nf
-420 {
-421         if (!Source)
-422         {
-423                 // if source is NULL, then the message originates from the local server
-424                 Write(Dest->fd,':%s %s',this->GetServerName().c_str(),s.c_str());
-425         }
-426         else
-427         {
-428                 // otherwise it comes from the user specified
-429                 WriteTo(Source,Dest,'%s',s.c_str());
-430         }
-431 }
+433 {
+434         if (!Source)
+435         {
+436                 // if source is NULL, then the message originates from the local server
+437                 Write(Dest->fd,':%s %s',this->GetServerName().c_str(),s.c_str());
+438         }
+439         else
+440         {
+441                 // otherwise it comes from the user specified
+442                 WriteTo(Source,Dest,'%s',s.c_str());
+443         }
+444 }
 .fi
 .SS "void Server::SendToModeMask (std::string modes, int flags, std::string text)\fC [virtual]\fP"
 .PP
-Sends to all users matching a mode mask You must specify one or more usermodes as the first parameter.These can be RFC specified modes such as +i, or module provided modes, including ones provided by your own module. In the second parameter you must place a flag value which indicates wether the modes you have given will be logically ANDed or OR'ed. You may use one of either WM_AND or WM_OR. for example, if you were to use:
+Sends to all users matching a mode mask You must specify one or more usermodes as the first parameter. These can be RFC specified modes such as +i, or module provided modes, including ones provided by your own module. In the second parameter you must place a flag value which indicates wether the modes you have given will be logically ANDed or OR'ed. You may use one of either WM_AND or WM_OR. for example, if you were to use:
 .PP
 Serv->SendToModeMask('xi', WM_OR, 'm00');
 .PP
-Then the text 'm00' will be sent to all users with EITHER mode x or i. Conversely if you used WM_AND, the user must have both modes set to receive the message.Definition at line 334 of file modules.cpp.
+Then the text 'm00' will be sent to all users with EITHER mode x or i. Conversely if you used WM_AND, the user must have both modes set to receive the message.Definition at line 347 of file modules.cpp.
 .PP
 .nf
-335 {
-336         WriteMode(modes.c_str(),flags,'%s',text.c_str());
-337 }
+348 {
+349         WriteMode(modes.c_str(),flags,'%s',text.c_str());
+350 }
 .fi
 .SS "void Server::SendWallops (\fBuserrec\fP * User, std::string text)\fC [virtual]\fP"
 .PP
-Sends a WALLOPS message.This method writes a WALLOPS message to all users with the +w flag, originating from the specified user.Definition at line 462 of file modules.cpp.
+Sends a WALLOPS message. This method writes a WALLOPS message to all users with the +w flag, originating from the specified user.Definition at line 475 of file modules.cpp.
 .PP
 .nf
-463 {
-464         WriteWallOps(User,false,'%s',text.c_str());
-465 }
+476 {
+477         WriteWallOps(User,false,'%s',text.c_str());
+478 }
 .fi
 
 
