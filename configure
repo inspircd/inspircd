@@ -16,6 +16,7 @@ GCCVER=`gcc -dumpversion | cut -c 1`
 CONFIG_DIR=$ME/conf
 MODULE_DIR=$ME/modules
 BINARY_DIR=$ME/bin
+INSTALL=`which install`
 OPTIMITEMP=0
 OPTIMISATI="-g"
 MAX_CLIENT_T=`ulimit -n`
@@ -83,7 +84,7 @@ fi
 
 c=""
 n=""
-if [ "`eval echo -n 'a'`" = "-n a" ] ; then
+if [ "`eval echo -e -n 'a'`" = "-n a" ] ; then
         c="\c"
 else
         n="-n"
