@@ -166,12 +166,12 @@ bool connection::BeginLink(char* targethost, int port, char* password, char* ser
 	char connect[MAXBUF];
 	
 	ircd_connector connector;
-	ircd_connector *cn = this->FindServer(servername);
+	ircd_connector *cn = this->FindHost(servername);
 
 
 	if (cn)
 	{
-		WriteOpers("CONNECT aborted: Server %s already exists from %s",servername,ServerName);
+		WriteOpers("CONNECT aborted: Server %s already exists",servername);
 		return false;
 	}
 
