@@ -6618,6 +6618,25 @@ void handle_link_packet(char* udp_msg, char* udp_host, serverrec *serv)
 			if (auth_cookies[u] == atoi(cookie))
 			{
 				WriteOpers("Allowed cookie from %s, is now part of the mesh",servername);
+
+
+				for (int j = 0; j < 32; j++)
+    				{
+					if (me[j] != NULL)
+     					{
+     						for (int k = 0; k < me[j]->connectors.size(); k++)
+     						{
+							if (!strcasecmp(me[j]->connectors[k].GetServerName().c_str(),udp_host))
+      							{
+      								me[j]->connectors[k].SetServerName(servername);
+							}
+						}
+					}
+					WriteOpers("\2WARNING!\2 %s sent us an authentication packet but we are not authenticating with this server right noe! Possible intrusion attempt!",udp_host);
+					return;
+				}
+
+
 				return;
 			}
 		}
