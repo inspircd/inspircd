@@ -27,7 +27,7 @@ class packet : public classbase
 {
  public:
  	long key;
- 	short int id;
+ 	int id;
 	short int type;
 	char data[MAXBUF];
 
@@ -51,6 +51,7 @@ class connection : public classbase
 	bool haspassed;
 	int port;
 	int registered;
+	short int state;
 	time_t lastping;
 	time_t signon;
 	time_t idle_lastmsg;

@@ -6893,7 +6893,7 @@ int InspIRCd(void)
 	{
 
 		fd_set sfd;
-		struct timeval tval;
+		timeval tval;
 		FD_ZERO(&sfd);
 
 		user_hash::iterator count2 = clientlist.begin();
