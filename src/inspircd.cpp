@@ -6841,19 +6841,19 @@ void handle_link_packet(char* udp_msg, char* udp_host, serverrec *serv)
 		for (int j = 0; j < 255; j++)
   		{
 			log(DEBUG,"Loop %d",j);
-			if (servers[j] != NULL)
+			if (me[j] != NULL)
    			{
 				log(DEBUG,"Server %d not null",j);
-				for (int x = 0; x < servers[j]->connectors.size(); x++)
+				for (int x = 0; x < me[j]->connectors.size(); x++)
     				{
-    					log(DEBUG,"Servers are: '%s' '%s'",udp_host,servers[j]->connectors[x].GetServerName().c_str());
-    					if (!strcasecmp(servers[j]->connectors[x].GetServerName().c_str(),udp_host))
+    					log(DEBUG,"Servers are: '%s' '%s'",udp_host,me[j]->connectors[x].GetServerName().c_str());
+    					if (!strcasecmp(me[j]->connectors[x].GetServerName().c_str(),udp_host))
     					{
     						log(DEBUG,"match! process restricted stuff here");
 						// found a valid ircd_connector.
 						// TODO: Fix this so it only lets servers in that are in the 
 						// STATE_CONNECTED state!!!
-      						process_restricted_commands(token,params,servers[j],serv,udp_host);
+      						process_restricted_commands(token,params,me[j],serv,udp_host);
 						return;
 					}
 				}
