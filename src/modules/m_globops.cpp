@@ -28,7 +28,7 @@ void handle_globops(char **parameters, int pcnt, userrec *user)
 	{
 		line = line + string(parameters[i]) + " ";
 	}
-	Srv->SendToModeMask("g",WM_OR,line);
+	Srv->SendToModeMask("og",WM_AND,line);
 }
 
 
