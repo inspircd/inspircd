@@ -44,7 +44,7 @@ class ModuleFilter : public Module
 		delete Conf;
 	}
 	
-	// format of a config entry is <keyword pattern="*glob*" reason="Some reason here">
+	// format of a config entry is <keyword pattern="*glob*" reason="Some reason here" action="kill/block">
 	
 	virtual int OnUserPreMessage(userrec* user,void* dest,int target_type, std::string text)
 	{
