@@ -177,6 +177,7 @@ bool connection::BeginLink(char* targethost, int port, char* password, char* ser
 			connector.SetServerName(servername);
 			sprintf(connect,"S %s %s :%s",getservername().c_str(),password,getserverdesc().c_str());
 			connector.SetState(STATE_NOAUTH_OUTBOUND);
+			connector.SetHostAndPort(targethost, port);
 			this->connectors.push_back(connector);
 			return this->SendPacket(connect, servername);
 		}
@@ -205,6 +206,7 @@ bool connection::MeshCookie(char* targethost, int port, long cookie, char* serve
 			connector.SetServerName(servername);
 			sprintf(connect,"- %d %s :%s",cookie,getservername().c_str(),getserverdesc().c_str());
 			connector.SetState(STATE_NOAUTH_OUTBOUND);
+			connector.SetHostAndPort(targethost, port);
 			this->connectors.push_back(connector);
 			return this->SendPacket(connect, servername);
 		}
@@ -224,7 +226,6 @@ bool connection::AddIncoming(int fd, char* targethost, int sourceport)
 	
 	// targethost has been turned into an ip...
 	// we dont want this as the server name.
-	connector.SetHostAndPort(targethost, sourceport);
 	connector.SetServerName(targethost);
 	connector.SetDescriptor(fd);
 	connector.SetState(STATE_NOAUTH_INBOUND);
@@ -234,7 +235,8 @@ bool connection::AddIncoming(int fd, char* targethost, int sourceport)
 	int recvbuf = 32768;
 	setsockopt(fd,SOL_SOCKET,SO_SNDBUF,(const void *)&sendbuf,sizeof(sendbuf)); 
 	setsockopt(fd,SOL_SOCKET,SO_RCVBUF,(const void *)&recvbuf,sizeof(sendbuf));
-	log(DEBUG,"connection::AddIncoming() Added connection: %s:%d",host,sourceport);
+	connector.SetHostAndPort(targethost, sourceport);
+	log(DEBUG,"connection::AddIncoming() Added connection: %s:%d",targethost,sourceport);
 	this->connectors.push_back(connector);
 	return true;
 }
