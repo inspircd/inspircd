@@ -201,7 +201,6 @@ long MyKey = C.GenKey();
 int has_channel(userrec *u, chanrec *c);
 int usercount(chanrec *c);
 int usercount_i(chanrec *c);
-void update_stats_l(int fd,int data_out);
 char* Passwd(userrec *user);
 bool IsDenied(userrec *user);
 void AddWhoWas(userrec* u);
@@ -471,7 +470,6 @@ void Write(int sock,char *text, ...)
 	if (sock != -1)
 	{
 		write(sock,tb,strlen(tb));
-		update_stats_l(sock,strlen(tb)); /* add one line-out to stats L for this fd */
 	}
 }
 
@@ -495,7 +493,6 @@ void WriteServ(int sock, char* text, ...)
 	if (sock != -1)
 	{
 		write(sock,tb,strlen(tb));
-		update_stats_l(sock,strlen(tb)); /* add one line-out to stats L for this fd */
 	}
 }
 
@@ -519,7 +516,6 @@ void WriteFrom(int sock, userrec *user,char* text, ...)
 	if (sock != -1)
 	{
 		write(sock,tb,strlen(tb));
-		update_stats_l(sock,strlen(tb)); /* add one line-out to stats L for this fd */
 	}
 }
 
@@ -1066,22 +1062,6 @@ userrec* Find(std::string nick)
 
 	return iter->second;
 }
-
-void update_stats_l(int fd,int data_out) /* add one line-out to stats L for this fd */
-{
-	for (user_hash::const_iterator i = clientlist.begin(); i != clientlist.end(); i++)
-	{
-		if (i->second)
-		{
-			if (i->second->fd == fd)
-			{
-				i->second->bytes_out+=data_out;
-				i->second->cmds_out++;
-			}
-		}
-	}
-}
-
 
 /* find a channel record by channel name and return a pointer to it */
 
@@ -2913,6 +2893,8 @@ void process_command(userrec *user, char* cmd)
 								{
 									user->bytes_in += strlen(temp);
 									user->cmds_in++;
+									user->bytes_out+=strlen(temp);
+									user->cmds_out++;
 								}
 								cmdlist[i].use_count++;
 								cmdlist[i].total_bytes+=strlen(temp);
