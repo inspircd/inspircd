@@ -27,7 +27,7 @@ class ModuleBlockColor : public Module
 			snprintf(ctext,MAXBUF,"%s",text.c_str());
 			if (c->IsCustomModeSet('c'))
 			{
-				if (strchr(ctext,'\2')) || (strchr(ctext,'\3')) || (strchr(ctext,31))
+				if ((strchr(ctext,'\2')) || (strchr(ctext,'\3')) || (strchr(ctext,31)))
 				{
 					WriteServ(user->fd,"404 %s %s :Can't send colors to channel (+c set)",user->nick, c->name);
 					return 1;
@@ -46,7 +46,7 @@ class ModuleBlockColor : public Module
 			snprintf(ctext,MAXBUF,"%s",text.c_str());
 			if (c->IsCustomModeSet('c'))
 			{
-				if (strchr(ctext,'\2')) || (strchr(ctext,'\3')) || (strchr(ctext,31))
+				if ((strchr(ctext,'\2')) || (strchr(ctext,'\3')) || (strchr(ctext,31)))
 				{
 					WriteServ(user->fd,"404 %s %s :Can't send colors to channel (+c set)",user->nick, c->name);
 					return 1;
