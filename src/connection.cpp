@@ -6,6 +6,7 @@
 #include <sys/utsname.h>
 #include <vector>
 #include <string>
+#include <deque>
 #include "inspircd.h"
 #include "modules.h"
 
@@ -256,7 +257,7 @@ bool connection::SendPacket(char *message, char* host)
 // receives a packet from any where there is data waiting, first come, first served
 // fills the message and host values with the host where the data came from.
 
-bool connection::RecvPacket(string_list &messages, char* host)
+bool connection::RecvPacket(std::deque<std::string> &messages, char* host)
 {
 	char data[32767];
 	for (int i = 0; i < this->connectors.size(); i++)

@@ -7082,14 +7082,14 @@ int InspIRCd(void)
      
 		for (int x = 0; x != UDPportCount; x++)
 		{
-			string_list msgs;
+			std::deque<std::string> msgs;
 			msgs.clear();
 			if (me[x]->RecvPacket(msgs, udp_host))
 			{
 				for (int ctr = 0; ctr < msgs.size(); ctr++)
 				{
 					char udp_msg[MAXBUF];
-					strncpy(udp_msg,MAXBUF,msgs[ctr].c_str());
+					strncpy(udp_msg,msgs[ctr].c_str(),MAXBUF);
 					if (strlen(udp_msg)<1)
      					{
 						log(DEBUG,"Invalid string from %s [route%d]",udp_host,x);
@@ -7101,7 +7101,6 @@ int InspIRCd(void)
 				goto label;
 			}
 		}
-	}
 	
 
 	while (count2 != clientlist.end())

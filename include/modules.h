@@ -30,6 +30,7 @@
 typedef std::deque<std::string> file_cache;
 typedef file_cache string_list;
 
+
 // This #define allows us to call a method in all
 // loaded modules in a readable simple way, e.g.:
 // 'FOREACH_MOD OnConnect(user);'
