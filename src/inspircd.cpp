@@ -6836,12 +6836,18 @@ void handle_link_packet(char* udp_msg, char* udp_host, serverrec *serv)
 
 		serverrec* source_server = NULL;
 
-		for (int j = 0; j < 255; j++) {
-			if (servers[j] != NULL) {
-				if (!strcasecmp(servers[j]->name,udp_host)) {
-					if (servers[j]->haspassed) {
-						// found a valid key for this server, can process restricted stuff here
-						process_restricted_commands(token,params,servers[j],serv,udp_host);
+		for (int j = 0; j < 255; j++)
+  		{
+			if (servers[j] != NULL)
+   			{
+				for (int x = 0; x < servers[j]->connectors.size(); j++)
+    				{
+    					if (servers[j]->connectors[x].GetServerName() == std::string(udp_host))
+    					{
+						// found a valid ircd_connector.
+						// TODO: Fix this so it only lets servers in that are in the 
+						// STATE_CONNECTED state!!!
+      						process_restricted_commands(token,params,servers[j],serv,udp_host);
 						return;
 					}
 				}
