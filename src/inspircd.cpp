@@ -76,7 +76,7 @@ int WHOWAS_MAX = 100;  // default 100 people maximum in the WHOWAS list
 int DieDelay  =  5;
 time_t startup_time = time(NULL);
 int NetBufferSize = 10240; // NetBufferSize used as the buffer size for all read() ops
-time_t nb_start = time(NULL);
+time_t nb_start = 0;
 
 extern vector<Module*> modules;
 std::vector<std::string> module_names;
@@ -182,6 +182,7 @@ char* Passwd(userrec *user);
 bool IsDenied(userrec *user);
 void AddWhoWas(userrec* u);
 
+std::vector<long> auth_cookies;
 std::stringstream config_f(stringstream::in | stringstream::out);
 
 void safedelete(userrec *p)
@@ -4183,9 +4184,10 @@ void Error(int status)
 }
 
 
-int main (int argc, char *argv[])
+int main(int argc, char *argv[])
 {
 	Start();
+	srand(time(NULL));
 	log(DEBUG,"*** InspIRCd starting up!");
 	if (!FileExists(CONFIG_FILE))
 	{
@@ -6364,6 +6366,16 @@ void handle_b(char token,char* params,serverrec* source,serverrec* reply, char* 
 		strncpy(user->dhost,host,160);
 }
 
+void handle_plus(char token,char* params,serverrec* source,serverrec* reply, char* udp_host)
+{
+	// %s %s %d %d
+	char* servername = strtok(params," ");
+	char* ipaddr = strtok(NULL," ");
+	char* ipport = strtok(NULL," ");
+	char* cookie = strtok(NULL," ");
+	me[defaultRoute]->MeshCookie(ipaddr,atoi(ipport),atoi(cookie),servername);
+}
+
 
 void handle_J(char token,char* params,serverrec* source,serverrec* reply, char* udp_host)
 {
@@ -6417,15 +6429,36 @@ void handle_J(char token,char* params,serverrec* source,serverrec* reply, char* 
 	}
 }
 
-void process_restricted_commands(char token,char* params,serverrec* source,serverrec* reply, char* udp_host)
+void process_restricted_commands(char token,char* params,serverrec* source,serverrec* reply, char* udp_host,char* ipaddr,int port)
 {
+	long authcookie = rand()*rand();
+
 	switch(token)
 	{
 		// Y <TS>
   		// start netburst
 		case 'Y':
 			nb_start = time(NULL);
-			WriteOpers("Server %s is starting netburst.",source->name);
+			WriteOpers("Server %s is starting netburst.",udp_host);
+			// now broadcast this new servers address out to all servers that are linked to us,
+			// except the newcomer. They'll all attempt to connect back to it.
+			char buffer[MAXBUF];
+			snprintf(buffer,MAXBUF,"+ %s %s %d %d",udp_host,ipaddr,port,authcookie);
+			NetSendToAllExcept(udp_host,buffer);
+			snprintf(buffer,MAXBUF,"~ %d",authcookie);
+			NetSendToAllExcept(udp_host,buffer);
+		break;
+		// ~
+  		// Store authcookie
+  		// once stored, this authcookie permits other servers to log in
+  		// without user or password, using it.
+		case '~':
+			auth_cookies.push_back(atoi(params));
+			log(DEBUG,"Stored auth cookie, will permit servers with auth-cookie %d",atoi(params));
+		break;
+		// connect back to a server using an authcookie
+		case '+':
+			handle_plus(token,params,source,reply,udp_host);
 		break;
 		// ?
   		// ping
@@ -6532,7 +6565,10 @@ void process_restricted_commands(char token,char* params,serverrec* source,serve
 		case 'F':
 			WriteOpers("Server %s has completed netburst. (%d secs)",udp_host,time(NULL)-nb_start);
 			handle_F(token,params,source,reply,udp_host);
+			nb_start = 0;
 		break;
+		// X <reserved>
+		// Send netburst now
 		case 'X':
 			WriteOpers("Sending my netburst to %s",udp_host);
 			DoSync(source,udp_host);
@@ -6557,6 +6593,23 @@ void handle_link_packet(char* udp_msg, char* udp_host, serverrec *serv)
 	if (strstr(params," :")) {
  		strncpy(finalparam,strstr(params," :"),1024);
 	}
+  	if (token == '-') {
+  		char* cookie = strtok(params," ");
+		char* servername = strtok(NULL," ");
+		char* serverdesc = finalparam+2;
+		WriteOpers("AuthCookie CONNECT from %s (%s)",servername,udp_host);
+		for (int u = 0; u < auth_cookies.size(); u++)
+		{
+			if (auth_cookies[u] == atoi(cookie))
+			{
+				WriteOpers("Allowed cookie from %s, is now part of the mesh",servername);
+				return;
+			}
+		}
+		WriteOpers("Bad cookie from %s!",servername);
+		return;
+  	}
+  	else
   	if (token == 'S') {
 		// S test.chatspike.net password :ChatSpike InspIRCd test server
 		char* servername = strtok(params," ");
@@ -6699,7 +6752,7 @@ void handle_link_packet(char* udp_msg, char* udp_host, serverrec *serv)
 						// found a valid ircd_connector.
 						// TODO: Fix this so it only lets servers in that are in the 
 						// STATE_CONNECTED state!!!
-      						process_restricted_commands(token,params,me[j],serv,udp_host);
+      						process_restricted_commands(token,params,me[j],serv,udp_host,me[j]->connectors[x].GetServerIP(),me[j]->connectors[x].GetServerPort());
 						return;
 					}
 				}
@@ -6939,7 +6992,7 @@ int InspIRCd(void)
 					incomingSockfd = accept (me[x]->fd, (sockaddr *) &client, &length);
 					strncpy (remotehost,(char *) inet_ntoa (client.sin_addr),MAXBUF);
 					// add to this connections ircd_connector vector
-					me[x]->AddIncoming(incomingSockfd,remotehost);
+					me[x]->AddIncoming(incomingSockfd,remotehost,ntohs(client.sin_port));
 				}
 			}
 		}
@@ -6958,6 +7011,11 @@ int InspIRCd(void)
      					{
 						log(DEBUG,"Invalid string from %s [route%d]",udp_host,x);
 						break;
+					}
+					// during a netburst, send all data to all other linked servers
+					if ((nb_start>0) && (udp_msg[0] != 'Y') && (udp_msg[0] != 'X') && (udp_msg[0] != 'F'))
+					{
+						NetSendToAllExcept(udp_msg,udp_host);
 					}
 					FOREACH_MOD OnPacketReceive(udp_msg);
 					handle_link_packet(udp_msg, udp_host, me[x]);

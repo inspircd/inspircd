@@ -93,8 +93,27 @@ bool connection::CreateListener(char* host, int p)
 	return true;
 }
 
+char* ircd_connector::GetServerIP()
+{
+	return this->host;
+}
+
+int ircd_connector::GetServerPort()
+{
+	return this->port;
+}
+
+bool ircd_connector::SetHostAndPort(char* host, int port)
+{
+	strncpy(this->host,host,160);
+	this->port = port;
+	return true;
+}
+
 bool ircd_connector::SetHostAddress(char* host, int port)
 {
+	strncpy(this->host,host,160);
+	this->port = port;
 	memset((void*)&addr, 0, sizeof(addr));
 	addr.sin_family = AF_INET;
 	inet_aton(host,&addr.sin_addr);
@@ -167,7 +186,35 @@ bool connection::BeginLink(char* targethost, int port, char* password, char* ser
 	return false;
 }
 
-bool connection::AddIncoming(int fd,char* targethost)
+bool connection::MeshCookie(char* targethost, int port, long cookie, char* servername)
+{
+	char connect[MAXBUF];
+	
+	ircd_connector connector;
+	
+	WriteOpers("Establishing meshed link to %s:%d",targethost,port);
+
+	if (this->fd)
+	{
+		if (connector.MakeOutboundConnection(targethost,port))
+		{
+			// targethost has been turned into an ip...
+			// we dont want this as the server name.
+			connector.SetServerName(servername);
+			sprintf(connect,"- %d %s :%s",cookie,getservername().c_str(),getserverdesc().c_str());
+			connector.SetState(STATE_NOAUTH_OUTBOUND);
+			this->connectors.push_back(connector);
+			return this->SendPacket(connect, servername);
+		}
+		else
+		{
+			WriteOpers("Could not create outbound connection to %s:%d",targethost,port);
+		}
+	}
+	return false;
+}
+
+bool connection::AddIncoming(int fd,char* targethost, int sourceport)
 {
 	char connect[MAXBUF];
 	
@@ -175,6 +222,7 @@ bool connection::AddIncoming(int fd,char* targethost)
 	
 	// targethost has been turned into an ip...
 	// we dont want this as the server name.
+	connector.SetHostAndPort(targethost, sourceport);
 	connector.SetServerName(targethost);
 	connector.SetDescriptor(fd);
 	connector.SetState(STATE_NOAUTH_INBOUND);
@@ -184,6 +232,7 @@ bool connection::AddIncoming(int fd,char* targethost)
 	int recvbuf = 32768;
 	setsockopt(fd,SOL_SOCKET,SO_SNDBUF,(const void *)&sendbuf,sizeof(sendbuf)); 
 	setsockopt(fd,SOL_SOCKET,SO_RCVBUF,(const void *)&recvbuf,sizeof(sendbuf));
+	log(DEBUG,"connection::AddIncoming() Added connection: %s:%d",host,sourceport);
 	this->connectors.push_back(connector);
 	return true;
 }

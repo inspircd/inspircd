@@ -36,7 +36,10 @@ class ircd_connector : public classbase
 	 */
 	sockaddr_in addr;
 	
-	/** File descriptor of the outbound connection
+	char host[MAXBUF];
+	int port;
+	
+	/** File descriptor of the connection
 	 */
 	int fd;
 	
@@ -70,6 +73,9 @@ class ircd_connector : public classbase
 	void SetDescriptor(int fd);
 	int GetState();
 	void SetState(int state);
+	char* GetServerIP();
+	int GetServerPort();
+	bool SetHostAndPort(char* host, int port);
 };
 
 
@@ -113,11 +119,12 @@ class connection : public classbase
 	connection();
 	bool CreateListener(char* host, int p);
 	bool BeginLink(char* targethost, int port, char* password, char* servername);
+	bool MeshCookie(char* targethost, int port, long cookie, char* servername);
 	void TerminateLink(char* targethost);
 	bool SendPacket(char *message, const char* host);
 	bool RecvPacket(std::deque<std::string> &messages, char* host);
 	ircd_connector* FindHost(std::string host);
-	bool AddIncoming(int fd,char* targethost);
+	bool AddIncoming(int fd,char* targethost, int sourceport);
 	long GenKey();
 };
 
