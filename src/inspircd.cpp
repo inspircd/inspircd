@@ -147,6 +147,8 @@ typedef std::deque<command_t> command_table;
 serverrec* me[32];
 serverrec* servers[255];
 
+FILE *log_file;
+
 user_hash clientlist;
 chan_hash chanlist;
 user_hash whowas;
@@ -310,7 +312,6 @@ void log(int level,char *text, ...)
 {
 	char textbuffer[MAXBUF];
 	va_list argsPtr;
-	FILE *f;
 	time_t rawtime;
 	struct tm * timeinfo;
 	if (level < LogLevel)
@@ -319,8 +320,7 @@ void log(int level,char *text, ...)
 	time(&rawtime);
 	timeinfo = localtime (&rawtime);
 
-	f = fopen("ircd.log","a+");
-	if (f)
+	if (log_file)
 	{
 		char b[MAXBUF];
 		va_start (argsPtr, text);
@@ -328,18 +328,12 @@ void log(int level,char *text, ...)
 		va_end(argsPtr);
 		strcpy(b,asctime(timeinfo));
 		b[strlen(b)-1] = ':';
-		fprintf(f,"%s %s\n",b,textbuffer);
-		fclose(f);
+		fprintf(log_file,"%s %s\n",b,textbuffer);
 		if (nofork)
 		{
 			// nofork enabled? display it on terminal too
 			printf("%s %s\n",b,textbuffer);
 		}
-	}
-	else
-	{
-		printf("Can't write log file, bailing!!!");
-		Exit(ERROR);
 	}
 }
 
@@ -2831,6 +2825,7 @@ int loop_call(handlerfunc fn, char **parameters, int pcnt, userrec *u, int start
 	return 1;
 }
 
+
 void handle_join(char **parameters, int pcnt, userrec *user)
 {
 	chanrec* Ptr;
@@ -2941,7 +2936,6 @@ void kill_link(userrec *user,char* reason)
 
 	log(DEBUG,"kill_link: %s '%s'",user->nick,reason);
 	Write(user->fd,"ERROR :Closing link (%s@%s) [%s]",user->ident,user->host,reason);
-	fdatasync(user->fd);
 	log(DEBUG,"closing fd %d",user->fd);
 
 	/* bugfix, cant close() a nonblocking socket (sux!) */
@@ -3798,14 +3792,12 @@ void ConnectUser(userrec *user)
 	if (strcmp(Passwd(user),"") && (!user->haspassed))
 	{
 		Write(user->fd,"ERROR :Closing link: Invalid password");
-		fdatasync(user->fd);
 		kill_link(user,"Invalid password");
 		return;
 	}
 	if (IsDenied(user))
 	{
 		Write(user->fd,"ERROR :Closing link: Unauthorized connection");
-		fdatasync(user->fd);
 		kill_link(user,"Unauthorised connection");
 	}
 
@@ -4826,6 +4818,13 @@ int InspIRCd(void)
   char resolvedHost[MAXBUF];
   fd_set selectFds;
   struct timeval tv;
+
+  log_file = fopen("ircd.log","a+");
+  if (!log_file)
+  {
+  	printf("ERROR: Could not write to logfile ircd.log, bailing!\n\n");
+  	Exit(ERROR);
+  }
 
   log(DEBUG,"InspIRCd: startup: begin");
   log(DEBUG,"$Id$");
