@@ -1892,6 +1892,37 @@ void process_modes(char **parameters,userrec* user,chanrec *chan,int status, int
 					chan->c_private = mdir;
 				break;
 				
+				default:
+					string_list p;
+					p.clear();
+					if (ModeDefined(modelist[ptr],MT_CHANNEL))
+					{
+						if ((ModeDefinedOn(modelist[ptr],MT_CHANNEL)>0) && (mdir))
+						{
+      						p.push_back(parameters[param]);
+  						}
+						if ((ModeDefinedOff(modelist[ptr],MT_CHANNEL)>0) && (!mdir))
+						{
+      						p.push_back(parameters[param]);
+  						}
+						for (int i = 0; i <= MODCOUNT; i++)
+     					{
+         					if (modules[i]->OnExtendedMode(user,chan,modechar,MT_CHANNEL,mdir,p))
+         					{
+         						strcat(outlist,modelist[ptr]);
+								chan->SetCustomMode(modelist[ptr],mdir);
+								// include parameters in output if mode has them
+								if ((ModeDefinedOn(modelist[ptr],MT_CHANNEL)>0) ||
+								   (ModeDefinedOff(modelist[ptr],MT_CHANNEL)>0))
+				   				{
+									chan->SetCustomModeParam(modelist[ptr],parameters[param],mdir);
+                                 	strcpy(outpars[pc++],parameters[param++]);
+                             	}
+        	 				}
+     					}
+     				}
+				break;
+				
 			}
 		}
 	}

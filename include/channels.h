@@ -133,18 +133,17 @@ class chanrec : public classbase
 	 */
 	BanList bans;
 
+	/** Sets or unsets a custom mode in the channels info
+	 */
+	SetCustomMode(char mode,bool mode_on);
+
+	/** Sets or unsets the parameterrs for a custom mode in a channels info
+	 */
+	SetCustomModeParam(char mode,char* parameter,bool mode_on);
+ 
 	/** Creates a channel record and initialises it with default values
 	 */
-	chanrec()
-	{
-		strcpy(name,"");
-		strcpy(custom_modes,"");
-		strcpy(topic,"");
-		strcpy(setby,"");
-		strcpy(key,"");
-		created = topicset = limit = 0;
-		topiclock = noexternal = inviteonly = moderated = secret = c_private = false;
-	}
+	chanrec();
 
 	virtual ~chanrec() { /* stub */ }
 };

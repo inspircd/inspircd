@@ -8,7 +8,7 @@
 CC = im a cheezeball
 
 SRC_1 = inspircd.cpp inspircd_util.cpp inspircd_io.cpp connection.cpp
-SRC_2 = dynamic.cpp users.cpp modules.cpp wildcard.cpp servers.cpp
+SRC_2 = dynamic.cpp users.cpp modules.cpp wildcard.cpp servers.cpp channels.cpp
 
 SRC = $(SRC_1) $(SRC_2)
 OBJS = $(SRC:.cpp=.o)

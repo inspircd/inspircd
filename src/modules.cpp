@@ -11,6 +11,73 @@
 #include "modules.h"
 #include "inspircd_io.h"
 
+// class type for holding an extended mode character - internal to core
+
+class ExtMode
+{
+public:
+	char modechar;
+	int type;
+	bool default_on;
+	int params_when_on;
+	int params_when_off;
+	void SetInfo(char mc, int ty, bool d_on, int p_on, int p_off) : modechar(mc), type(ty), default_on(d_on), params_when_on(p_on), params_when_off(p_off) { };
+};                                     
+
+typedef vector<ExtMode> ExtModeList;
+typedef ExtModeList::iterator ExtModeListIter;
+
+ExtModeList EMode;
+
+// returns true if an extended mode character is in use
+bool ModeDefined(char modechar, int type)
+{
+	for (ExtModeListIter i = EMode.begin(); i < EMode.end(); i++)
+	{
+		if ((i->modechar == modechar) && (i->type == type))
+		{
+			return true;
+		}
+	}
+	return false;
+}
+
+// returns number of parameters for a custom mode when it is switched on
+int ModeDefinedOn(char modechar, int type)
+{
+	for (ExtModeListIter i = EMode.begin(); i < EMode.end(); i++)
+	{
+		if ((i->modechar == modechar) && (i->type == type))
+		{
+			return i->params_when_on;
+		}
+	}
+	return 0;
+}
+
+// returns number of parameters for a custom mode when it is switched on
+int ModeDefinedOff(char modechar, int type)
+{
+	for (ExtModeListIter i = EMode.begin(); i < EMode.end(); i++)
+	{
+		if ((i->modechar == modechar) && (i->type == type))
+		{
+			return i->params_when_off;
+		}
+	}
+	return 0;
+}
+
+// returns true if an extended mode character is in use
+bool AddExtendedMode(char modechar, int type, bool default_on, int params_on, int params_off)
+{
+	ExtMode Mode;
+	Mode.SetInfo(modechar,type,default_on,params_on,params_off);
+	EMode.push_back(Mode);
+	return true;
+}
+
+
 // version is a simple class for holding a modules version number
 
 Version::Version(int major, int minor, int revision, int build) : Major(major), Minor(minor), Revision(revision), Build(build) { };
@@ -34,7 +101,7 @@ void Module::OnPacketTransmit(char *p) { }
 void Module::OnPacketReceive(char *p) { }
 void Module::OnRehash() { }
 void Module::OnServerRaw(string &raw, bool inbound) { }
-bool Module::OnExtendedMode(char modechar, int type, bool mode_on, string_list &params) { }
+bool Module::OnExtendedMode(userrec* user, chanrec* chan, char modechar, int type, bool mode_on, string_list &params) { }
 Version Module::GetVersion() { return Version(1,0,0,0); }
 
 // server is a wrapper class that provides methods to all of the C-style
@@ -150,6 +217,12 @@ Admin Server::GetAdmin()
 }
 
 
+
+bool Server::AddExtendedMode(char modechar, int type, bool default_on, int params_when_on, int params_when_off)
+{
+}
+
+
 ConfigReader::ConfigReader()
 {
 	fname = CONFIG_FILE;
@@ -161,11 +234,6 @@ ConfigReader::~ConfigReader()
 }
 
 
-bool Server::AddExtendedMode(char modechar, int type, bool default_on, int params_when_on, int params_when_off)
-{
-}
-
- 
 ConfigReader::ConfigReader(string filename) : fname(filename) { };
 
 string ConfigReader::ReadValue(string tag, string name, int index)

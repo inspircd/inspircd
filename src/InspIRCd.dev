@@ -1,7 +1,7 @@
 [Project]
 FileName=InspIRCd.dev
 Name=InspIRCd
-UnitCount=25
+UnitCount=26
 Type=1
 Ver=1
 ObjFiles=
@@ -239,6 +239,14 @@ ProductVersion=
 [Unit19]
 FileName=..\include\inspircd_io.h
 Folder=Headers
+Compile=1
+CompileCpp=1
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit26]
+FileName=channels.cpp
+Folder=Source
 Compile=1
 CompileCpp=1
 OverrideBuildCmd=0

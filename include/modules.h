@@ -145,8 +145,9 @@ class Module : public classbase
 	 * parameters for the mode as strings. If mode_on is false, the mode is being removed, and parameters
 	 * may contain the parameters for the mode, dependent on wether they were defined when a mode handler
  	 * was set up with Server::AddExtendedMode
+ 	 * If the mode is not a channel mode, chanrec* chan is null, and should not be read from or written to.
 	 */
- 	virtual bool OnExtendedMode(char modechar, int type, bool mode_on, string_list &params);
+ 	virtual bool OnExtendedMode(userrec* user, chanrec* chan, char modechar, int type, bool mode_on, string_list &params);
 	 
 };
 
@@ -265,7 +266,9 @@ class Server : public classbase
 	 * use this parameter. The function returns false if the mode is unavailable, and will not
 	 * attempt to allocate another character, as this will confuse users. This also means that
 	 * as only one module can claim a specific mode character, the core does not need to keep track
-	 * of which modules own which modes, which speeds up operation of the server.
+	 * of which modules own which modes, which speeds up operation of the server. In this version,
+	 * a mode can have at most one parameter, attempting to use more parameters will have undefined
+	 * effects.
 	 */
 	virtual bool AddExtendedMode(char modechar, int type, bool default_on, int params_when_on, int params_when_off);
 	 
