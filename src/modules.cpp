@@ -181,7 +181,7 @@ void Server::QuitUser(userrec* user, std::string reason)
 
 bool Server::IsUlined(std::string server)
 {
-	return is_uline(server.c_str())
+	return is_uline(server.c_str());
 }
 
 void Server::CallCommandHandler(std::string commandname, char** parameters, int pcnt, userrec* user)
