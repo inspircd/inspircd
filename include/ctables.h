@@ -2,7 +2,7 @@
  *       | Inspire Internet Relay Chat Daemon |
  *       +------------------------------------+
  *
- *  Inspire is copyright (C) 2002-2003 ChatSpike-Dev.
+ *  Inspire is copyright (C) 2002-2004 ChatSpike-Dev.
  *                       E-mail:
  *                <brain@chatspike.net>
  *           	  <Craig@chatspike.net>
@@ -13,6 +13,7 @@
  *
  * ---------------------------------------------------
  */
+ 
 #ifndef __CTABLES_H__
 #define __CTABLES_H__
 
