@@ -9,7 +9,6 @@
 class ModuleNoNotice : public Module
 {
 	Server *Srv;
-	
  public:
  
 	ModuleNoNotice()
