@@ -388,7 +388,7 @@ Definition at line <a class="el" href="modules_8cpp-source.html#l00296">296</a> 
 Called whenever a user types /INFO.
 <p>
 The userrec will contain the information of the user who typed the command. Modules may use this method to output their own credits in /INFO (which is the ircd's version of an about box). It is purposefully not possible to modify any info that has already been output, or halt the list. You must write a 371 numeric to the user, containing your info in the following format:<p>
-:information here
+&lt;nick&gt; :information here
 <p>
 Definition at line <a class="el" href="modules_8cpp-source.html#l00299">299</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
 <p>
@@ -759,7 +759,7 @@ Definition at line <a class="el" href="modules_8cpp-source.html#l00290">290</a> 
 <p>
 Called whenever a user is about to join a channel, before any processing is done.
 <p>
-Returning any nonzero value from this function stops the process immediately, causing no output to be sent to the user by the core. If you do this you must produce your own numerics, notices etc. This is useful for modules which may want to mimic +b, +k, +l etc.<p>
+Returning a value of 1 from this function stops the process immediately, causing no output to be sent to the user by the core. If you do this you must produce your own numerics, notices etc. This is useful for modules which may want to mimic +b, +k, +l etc. Returning -1 from this function forces the join to be allowed, bypassing restrictions such as banlists, invite, keys etc.<p>
 IMPORTANT NOTE!<p>
 If the user joins a NEW channel which does not exist yet, OnUserPreJoin will be called BEFORE the channel record is created. This will cause chanrec* chan to be NULL. There is very little you can do in form of processing on the actual channel record at this point, however the channel NAME will still be passed in char* cname, so that you could for example implement a channel blacklist or whitelist, etc.
 <p>
@@ -1049,7 +1049,7 @@ Definition at line <a class="el" href="modules_8cpp-source.html#l00300">300</a> 
 </table>
 <hr>The documentation for this class was generated from the following files:<ul>
 <li><a class="el" href="modules_8h-source.html">modules.h</a><li><a class="el" href="modules_8cpp-source.html">modules.cpp</a></ul>
-<hr><address style="align: right;"><small>Generated on Sat May 1 20:58:11 2004 for InspIRCd by
+<hr><address style="align: right;"><small>Generated on Sun May 2 00:09:41 2004 for InspIRCd by
 <a href="http://www.doxygen.org/index.html">
 <img src="doxygen.png" alt="doxygen" align="middle" border=0 
 width=110 height=53></a>1.3-rc3 </small></address>
