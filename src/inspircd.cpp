@@ -206,6 +206,44 @@ void safedelete(chanrec *p)
 }
 
 
+void tidystring(char* str)
+{
+	// strips out double spaces before a : parameter
+	char temp[MAXBUF];
+	bool go_again = true;
+	
+	while (go_again)
+	{
+		bool noparse = false;
+		int t = 0, a = 0;
+		go_again = false;
+		while (a < strlen(str))
+		{
+			if ((a<strlen(str)-1) && (noparse==false))
+			{
+				if ((str[a] == ' ') && (str[a+1] == ' '))
+				{
+					log(DEBUG,"Tidied extra space out of string: %s",str);
+					go_again = true;
+					a++;
+				}
+			}
+			
+			if (a<strlen(str)-1)
+			{
+				if ((str[a] == ' ') && (str[a+1] == ':'))
+				{
+					noparse = true;
+				}
+			}
+			
+			temp[t++] = str[a++];
+		}
+		temp[t] = '\0';
+		strncpy(str,temp,MAXBUF);
+	}
+}
+
 /* chop a string down to 512 characters and preserve linefeed (irc max
  * line length) */
 
@@ -4333,6 +4371,7 @@ void process_buffer(userrec *user)
 		return;
 	}
         log(DEBUG,"InspIRCd: processing: %s %s",user->nick,cmd);
+	tidystring(cmd);
 	process_command(user,cmd);
 }
 
