@@ -30,41 +30,50 @@
 using namespace std;
 
 extern FILE *log_file;
+extern int boundPortCount;
+extern int openSockfd[MAXSOCKS];
 
 void WriteOpers(char* text, ...);
 
 void Exit (int status)
 {
-  if (log_file)
-  	fclose(log_file);
-  send_error("Server shutdown.");
-  exit (status);
+	if (log_file)
+		fclose(log_file);
+	send_error("Server shutdown.");
+
+	// close down all listening sockets
+	for (int count = 0; count < boundPortCount; count++)
+	{
+		shutdown(openSockfd[count], 2);
+	}
+
+	exit (status);
 }
 
 void Killed(int status)
 {
-  if (log_file)
-  	fclose(log_file);
-  send_error("Server terminated.");
-  exit(status);
+	if (log_file)
+		fclose(log_file);
+	send_error("Server terminated.");
+	exit(status);
 }
 
 void Rehash(int status)
 {
-  WriteOpers("Rehashing config file %s due to SIGHUP",CONFIG_FILE);
-  ReadConfig(false,NULL);
+	WriteOpers("Rehashing config file %s due to SIGHUP",CONFIG_FILE);
+	ReadConfig(false,NULL);
 }
 
 
 
 void Start (void)
 {
-  printf("\033[1;37mInspire Internet Relay Chat Server, compiled " __DATE__ " at " __TIME__ "\n");
-  printf("(C) ChatSpike Development team.\033[0;37m\n\n");
-  printf("\033[1;37mDevelopers:\033[0;37m     Brain, FrostyCoolSlug\n");
-  printf("\033[1;37mDocumentation:\033[0;37m  FrostyCoolSlug, w00t\n");
-  printf("\033[1;37mTesters:\033[0;37m        typobox43, piggles, Lord_Zathras, CC\n");
-  printf("\033[1;37mName concept:\033[0;37m   Lord_Zathras\n\n");
+	printf("\033[1;37mInspire Internet Relay Chat Server, compiled " __DATE__ " at " __TIME__ "\n");
+	printf("(C) ChatSpike Development team.\033[0;37m\n\n");
+	printf("\033[1;37mDevelopers:\033[0;37m     Brain, FrostyCoolSlug\n");
+	printf("\033[1;37mDocumentation:\033[0;37m  FrostyCoolSlug, w00t\n");
+	printf("\033[1;37mTesters:\033[0;37m        typobox43, piggles, Lord_Zathras, CC\n");
+	printf("\033[1;37mName concept:\033[0;37m   Lord_Zathras\n\n");
 }
 
 void WritePID(std::string filename)
@@ -89,29 +98,29 @@ void DeadPipe(int status)
 
 int DaemonSeed (void)
 {
-  int childpid;
-  signal (SIGALRM, SIG_IGN);
-  signal (SIGHUP, Rehash);
-  signal (SIGPIPE, DeadPipe);
-  signal (SIGTERM, Exit);
-  signal (SIGABRT, Exit);
-  signal (SIGSEGV, Error);
-  signal (SIGURG, Exit);
-  signal (SIGKILL, Exit);
-  if ((childpid = fork ()) < 0)
-    return (ERROR);
-  else if (childpid > 0)
-    exit (0);
-  setsid ();
-  umask (007);
-  /* close stdout, stdin, stderr */
-  close(0);
-  close(1);
-  close(2);
+	int childpid;
+	signal (SIGALRM, SIG_IGN);
+	signal (SIGHUP, Rehash);
+	signal (SIGPIPE, DeadPipe);
+	signal (SIGTERM, Exit);
+	signal (SIGABRT, Exit);
+	signal (SIGSEGV, Error);
+	signal (SIGURG, Exit);
+	signal (SIGKILL, Exit);
+	if ((childpid = fork ()) < 0)
+		return (ERROR);
+	else if (childpid > 0)
+		exit (0);
+	setsid ();
+	umask (007);
+	/* close stdout, stdin, stderr */
+	close(0);
+	close(1);
+	close(2);
 
-  setpriority(PRIO_PROCESS,(int)getpid(),15); /* ircd sets to low process priority so it doesnt hog the box */
+	setpriority(PRIO_PROCESS,(int)getpid(),15); /* ircd sets to low process priority so it doesnt hog the box */
   
-  return (TRUE);
+	return (TRUE);
 }
 
 
@@ -123,10 +132,16 @@ int DaemonSeed (void)
 
 bool FileExists (const char* file)
 {
-  FILE *input;
-  
-  if ((input = fopen (file, "r")) == NULL) { return(false); }
-  else { fclose (input); return(true); }
+	FILE *input;
+	if ((input = fopen (file, "r")) == NULL)
+	{
+		return(false);
+	}
+	else
+	{
+		fclose (input);
+		return(true);
+	}
 }
 
 /* ConfProcess does the following things to a config line in the following order:
@@ -597,54 +612,51 @@ int ConfValue(char* tag, char* var, int index, char *result,std::stringstream *c
 
 
 
-/* This will bind a socket to a port. It works for UDP/TCP */
+// This will bind a socket to a port. It works for UDP/TCP
 int BindSocket (int sockfd, struct sockaddr_in client, struct sockaddr_in server, int port, char* addr)
 {
-  bzero((char *)&server,sizeof(server));
-  struct in_addr addy;
-  inet_aton(addr,&addy);
-
-  server.sin_family = AF_INET;
-  if (!strcmp(addr,""))
-  {
-	  server.sin_addr.s_addr = htonl(INADDR_ANY);
-  }
-  else
-  {
-	  server.sin_addr = addy;
-  }
-
-  server.sin_port = htons(port);
-
-  if (bind(sockfd,(struct sockaddr*)&server,sizeof(server))<0)
-  {
-    return(ERROR);
-  }
-  else
-  {
-    listen(sockfd,5);
-    return(TRUE);
-  }
+	bzero((char *)&server,sizeof(server));
+	struct in_addr addy;
+	inet_aton(addr,&addy);
+	server.sin_family = AF_INET;
+	if (!strcmp(addr,""))
+	{
+		server.sin_addr.s_addr = htonl(INADDR_ANY);
+	}
+	else
+	{
+		server.sin_addr = addy;
+	}
+	server.sin_port = htons(port);
+	if (bind(sockfd,(struct sockaddr*)&server,sizeof(server))<0)
+	{
+		return(ERROR);
+	}
+	else
+	{
+		listen(sockfd,5);
+		return(TRUE);
+	}
 }
 
 
-/* Open a TCP Socket */
+// Open a TCP Socket
 int OpenTCPSocket (void)
 {
-  int sockfd;
-  int on = 0;
-  struct linger linger = { 0 };
+	int sockfd;
+	int on = 0;
+	struct linger linger = { 0 };
   
-  if ((sockfd = socket (AF_INET, SOCK_STREAM, 0)) < 0)
-    return (ERROR);
-  else
-  {
-    setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, (const char*)&on, sizeof(on));
-    /* This is BSD compatible, setting l_onoff to 0 is *NOT* http://web.irc.org/mla/ircd-dev/msg02259.html */
-    linger.l_onoff = 1;
-    linger.l_linger = 0;
-    setsockopt(sockfd, SOL_SOCKET, SO_LINGER, (const char*)&linger,sizeof(linger));
-    return (sockfd);
-  }
+	if ((sockfd = socket (AF_INET, SOCK_STREAM, 0)) < 0)
+		return (ERROR);
+	else
+	{
+		setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, (const char*)&on, sizeof(on));
+		/* This is BSD compatible, setting l_onoff to 0 is *NOT* http://web.irc.org/mla/ircd-dev/msg02259.html */
+		linger.l_onoff = 1;
+		linger.l_linger = 0;
+		setsockopt(sockfd, SOL_SOCKET, SO_LINGER, (const char*)&linger,sizeof(linger));
+		return (sockfd);
+	}
 }
 

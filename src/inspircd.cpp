@@ -99,7 +99,7 @@ extern std::vector<ircd_module*> factory;
 std::vector<int> fd_reap;
 
 extern int MODCOUNT;
-
+int openSockfd[MAXSOCKS];
 bool nofork = false;
 
 namespace nspace
@@ -3202,7 +3202,7 @@ int InspIRCd(void)
 {
 	struct sockaddr_in client,server;
 	char addrs[MAXBUF][255];
-	int openSockfd[MAXSOCKS], incomingSockfd, result = TRUE;
+	int incomingSockfd, result = TRUE;
 	socklen_t length;
 	int count = 0;
 	int selectResult = 0, selectResult2 = 0;
