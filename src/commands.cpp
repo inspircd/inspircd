@@ -1851,6 +1851,12 @@ void handle_R(char token,char* params,serverrec* source,serverrec* reply, char* 
 {
 	char* server = strtok(params," ");
 	char* data = strtok(NULL,"\r\n");
+	if ((!data) || (!server))
+	{
+		log(DEBUG,"Someones playing silly buggers, attempting to send to a null server or send a null message (BUG?)");
+		return;
+	}
+		
 	log(DEBUG,"Forwarded packet '%s' to '%s'",data,server);
 	NetSendToOne(server,data);
 }
