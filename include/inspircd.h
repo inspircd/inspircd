@@ -88,14 +88,11 @@ void WriteFrom(int sock, userrec *user,char* text, ...);
 void WriteTo(userrec *source, userrec *dest,char *data, ...);
 void WriteChannel(chanrec* Ptr, userrec* user, char* text, ...);
 void ChanExceptSender(chanrec* Ptr, userrec* user, char* text, ...);
-int common_channels(userrec *u, userrec *u2);
 void WriteCommon(userrec *u, char* text, ...);
 void WriteCommonExcept(userrec *u, char* text, ...);
 void WriteWallOps(userrec *source, bool local_only, char* text, ...);
-int isnick(const char *n);
 userrec* Find(std::string nick);
 chanrec* FindChan(const char* chan);
-char* cmode(userrec *user, chanrec *chan);
 std::string getservername();
 std::string getserverdesc();
 std::string getnetworkname();
@@ -114,8 +111,6 @@ void kill_link(userrec *user,const char* r);
 int usercount(chanrec *c);
 void call_handler(const char* commandname,char **parameters, int pcnt, userrec *user);
 void send_network_quit(const char* nick, const char* reason);
-void ChangeName(userrec* user, const char* gecos);
-void ChangeDisplayedHost(userrec* user, const char* host);
 long GetRevision();
 
 // mesh network functions
