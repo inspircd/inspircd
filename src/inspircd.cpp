@@ -4910,7 +4910,7 @@ long chancount(void)
 
 long count_servs(void)
 {
-	c = 0;
+	int c = 0;
 	for (int j = 0; j < 255; j++)
 	{
 		if (servers[j] != NULL)
@@ -4923,6 +4923,17 @@ long servercount(void)
 {
 	return count_servs()+1;
 }
+
+long local_count()
+{
+	int c = 0;
+	for (user_hash::const_iterator i = clientlist.begin(); i != clientlist.end(); i++)
+	{
+		if ((i->second->fd) && (isnick(i->second->nick)) && (!strcasecmp(i->second->server,ServerName))) c++;
+	}
+	return c;
+}
+
 
 void handle_lusers(char **parameters, int pcnt, userrec *user)
 {
@@ -5398,16 +5409,6 @@ long map_count(serverrec* s)
 	for (user_hash::const_iterator i = clientlist.begin(); i != clientlist.end(); i++)
 	{
 		if ((i->second->fd) && (isnick(i->second->nick)) && (!strcasecmp(i->second->server,s->name))) c++;
-	}
-	return c;
-}
-
-long local_count()
-{
-	int c = 0;
-	for (user_hash::const_iterator i = clientlist.begin(); i != clientlist.end(); i++)
-	{
-		if ((i->second->fd) && (isnick(i->second->nick)) && (!strcasecmp(i->second->server,ServerName))) c++;
 	}
 	return c;
 }
