@@ -69,7 +69,7 @@ rm -rf fdscount
 
 if [ "$PERL" = "" ] ; then
 	echo "You require perl to run this program."
-	exit;
+	exit
 fi
 
 
@@ -275,6 +275,16 @@ echo "#define MAXBUF 514">>include/inspircd_config.h
 touch include/inspircd_config.h
 
 echo -e "Writing \033[1;37m$OSNAME\033[0;37m makefile"
+echo ""
+
+if exists "Makefile.$OSNAME" ; then
+	echo "Operating system supported."
+else
+	echo "Your operating system, \"$OSNAME\", is not supported!"
+	exit
+fi
+
+echo ""
 
 cp -f Makefile.$OSNAME Makefile
 cp -f src/Makefile.$OSNAME src/Makefile

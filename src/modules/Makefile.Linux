@@ -1,3 +1,8 @@
+# (C) ChatSpike development team
+# Makefile by <Craig@ChatSpike.net>
+# Small modifications by <brain@ChatSpike.net>
+#
+
 CXXFLAGS = -I../../include ${FLAGS}
 
 MODS = `/bin/ls *.cpp | sed 's/.cpp//'`
