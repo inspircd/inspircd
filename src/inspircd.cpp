@@ -948,7 +948,7 @@ void NetSendToAllAlive(char* s)
 				}
 				else
 				{
-					log(DEBUG,"%s is dead, not sending to it.",me[j]->connectors[k].GetServerName.c_str());
+					log(DEBUG,"%s is dead, not sending to it.",me[j]->connectors[k].GetServerName().c_str());
 				}
 			}
 		}
