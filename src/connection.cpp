@@ -116,7 +116,6 @@ void ircd_connector::SetServerPort(int p)
 	this->port = p;
 }
 
-
 bool ircd_connector::MakeOutboundConnection(char* host, int port)
 {
 	log(DEBUG,"MakeOutboundConnection: Original param: %s",host);
@@ -129,9 +128,10 @@ bool ircd_connector::MakeOutboundConnection(char* host, int port)
 	}
 	else
 	{
-		log(DEBUG,"MakeOutboundConnection: gethostbyname was valid, setting %s",(char *)hoste->h_addr);
-		this->SetHostAddress((char *)hoste->h_addr,port);
-		SetHostAndPort((char *)hoste->h_addr,port);
+		struct in_addr* ia = (in_addr*)hoste->h_addr;
+		log(DEBUG,"MakeOutboundConnection: gethostbyname was valid, setting %s",inet_ntoa(*ia));
+		this->SetHostAddress(inet_ntoa(*ia),port);
+		SetHostAndPort(inet_ntoa(*ia),port);
 	}
 
 	this->fd = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
