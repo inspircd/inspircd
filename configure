@@ -16,6 +16,8 @@ GCCVER=`gcc -dumpversion | cut -c 1`
 CONFIG_DIR=$ME/conf
 MODULE_DIR=$ME/modules
 BINARY_DIR=$ME/bin
+OPTIMITEMP=0
+OPTIMISATI="-g"
 MAX_CLIENT_T=`ulimit -n`
 NICK_LENGT=32
 CHAN_LENGT=64
@@ -51,12 +53,12 @@ if [ "$1" = "-update" -o "$2" = "-update" ] ; then
    case "$OSNAME" in
            (FreeBSD)
                    LDLIBS="-Ldl"
-                   FLAGS="-fPIC -frtti -O3"
+                   FLAGS="-fPIC -frtti $OPTIMISATI"
                    MAKEPROG="gmake"
                    ;;
            (*)
                    LDLIBS="-ldl"
-                   FLAGS="-fPIC -frtti -O3"
+                   FLAGS="-fPIC -frtti $OPTIMISATI"
                    MAKEPROG="make"
                    ;;
    esac
@@ -343,6 +345,42 @@ echo ""
   echo ""
 
 ###############################################################################
+# Code Optimisation?
+
+  cheeze=0
+  echo -e "Enter the Level Of Binary optimisation. This is a number between 0 and 3 (inclusive)"
+  echo -e "The InspIRCd Team will _NOT_ support any bug reports above 0."
+  echo -e "Also note, the IRCd behaviour will be different depending on this value."
+  echo -e "Please read the documentation for more information."
+  echo -e ""
+  echo -e "The Higher the number, the more optimised your binary will be. This value will default to 0"
+  echo -e "If you either a) Dont enter a number, or b) Enter a value outside the range."
+  echo -e $n "[\033[1;32m$OPTIMITEMP\033[0;37m] -> $c"
+  read cc
+  if [ -z "$cc" ] ; then
+	cc=$OPTIMITEMP
+  fi
+  case "$cc" in
+        (1)
+                OPTIMITEMP=1
+		OPTIMISATI="-O"
+                ;;
+	(2)
+		OPTIMITEMP=2
+		OPTIMISATI="-O2"
+		;;
+	(3)
+		OPTIMITEMP=3
+		OPTIMISATI="-O3"
+		;;
+	(*)
+                OPTIMITEMP=0
+                OPTIMISATI="-g"
+                ;;
+  esac
+  echo ""
+
+###############################################################################
 
 
 echo -e "\033[1;32mPre-build configuration is complete!\033[0;37m"
@@ -355,6 +393,7 @@ echo -e "\033[0;37mMax nickname length:\033[1;32m\t\t$NICK_LENGT"
 echo -e "\033[0;37mMax channel length:\033[1;32m\t\t$CHAN_LENGT"
 echo -e "\033[0;37mMax mode length:\033[1;32m\t\t$MAXI_MODES"
 echo -e "\033[0;37mGCC Version Found:\033[1;32m\t\t$GCCVER"
+echo -e "\033[0;37mOptimation Flag:\033[1;32m\t\t$OPTIMISATI"
 echo -e "\033[0;37m"
 
 echo "Writing cache file for future ./configures ..."
@@ -368,7 +407,8 @@ echo "MAX_CLIENT=\"$MAX_CLIENT\"" >> .config.cache
 echo "MAX_CHANNE=\"$MAX_CHANNE\"" >> .config.cache
 echo "NICK_LENGT=\"$NICK_LENGT\"" >> .config.cache
 echo "MAXI_MODES=\"$MAXI_MODES\"" >> .config.cache 
-
+echo "OPTIMITEMP=\"$OPTIMITEMP\"" >> .config.cache
+echo "OPTIMISATI=\"$OPTIMISATI\"" >> .config.cache
 
 
 echo "Writing include/inspircd_config.h ..."
@@ -388,6 +428,7 @@ echo "#define NICKMAX $NICK_LENGT" >>include/inspircd_config.h
 echo "#define CHANMAX $CHAN_LENGT" >>include/inspircd_config.h
 echo "#define MAXCHANS $MAX_CHANNE" >>include/inspircd_config.h
 echo "#define MAXMODES $MAXI_MODES" >>include/inspircd_config.h
+echo "#define OPTIMISATION $OPTIMITEMP" >>include/inspircd_config.h
 echo "#define SYSTEM \"`uname -n -s -r`\"" >>include/inspircd_config.h
 echo "#define MAXBUF 514">>include/inspircd_config.h
 touch include/inspircd_config.h
@@ -402,12 +443,12 @@ fi
 case "$OSNAME" in
 	(FreeBSD)
 		LDLIBS="-Ldl"
-		FLAGS="-fPIC -frtti -O3"
+		FLAGS="-fPIC -frtti $OPTIMISATI"
 		MAKEPROG="gmake"
 		;;
 	(*)
 		LDLIBS="-ldl"
-		FLAGS="-fPIC -frtti -O3"
+		FLAGS="-fPIC -frtti $OPTIMISATI"
 		MAKEPROG="make"
 		;;
 esac
