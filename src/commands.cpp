@@ -983,7 +983,7 @@ void handle_list(char **parameters, int pcnt, userrec *user)
 void handle_rehash(char **parameters, int pcnt, userrec *user)
 {
 	WriteServ(user->fd,"382 %s %s :Rehashing",user->nick,CleanFilename(CONFIG_FILE));
-	ReadConfig();
+	ReadConfig(false,user);
 	FOREACH_MOD OnRehash();
 	WriteOpers("%s is rehashing config file %s",user->nick,CleanFilename(CONFIG_FILE));
 }

@@ -50,8 +50,8 @@ void Killed(int status)
 
 void Rehash(int status)
 {
-  ReadConfig();
   WriteOpers("Rehashing config file %s due to SIGHUP",CONFIG_FILE);
+  ReadConfig(false,NULL);
 }
 
 
@@ -114,13 +114,148 @@ bool FileExists (const char* file)
   else { fclose (input); return(true); }
 }
 
+/* ConfProcess does the following things to a config line in the following order:
+ *
+ * Processes the line for syntax errors as shown below
+ *      (1) Line void of quotes or equals (a malformed, illegal tag format)
+ *      (2) Odd number of quotes on the line indicating a missing quote
+ *      (3) number of equals signs not equal to number of quotes / 2 (missing an equals sign)
+ *      (4) Spaces between the opening bracket (<) and the keyword
+ *      (5) Spaces between a keyword and an equals sign
+ *      (6) Spaces between an equals sign and a quote
+ * Removes trailing spaces
+ * Removes leading spaces
+ * Converts tabs to spaces
+ * Turns multiple spaces that are outside of quotes into single spaces
+ */
 
-bool LoadConf(const char* filename, std::stringstream *target)
+std::string ConfProcess(char* buffer, long linenumber, std::stringstream* errorstream, bool &error, std::string filename)
+{
+	long number_of_quotes = 0;
+	long number_of_equals = 0;
+	bool has_open_bracket = false;
+	bool in_quotes = false;
+	error = false;
+	if (!buffer)
+	{
+		return "";
+	}
+	// firstly clean up the line by stripping spaces from the start and end
+	while ((buffer[0] == ' ') && (strlen(buffer)>0)) buffer++;
+	while ((buffer[strlen(buffer)-1] == ' ') && (strlen(buffer)>0)) buffer[strlen(buffer)-1] = '\0';
+	// empty lines are syntactically valid
+	if (!strcmp(buffer,""))
+		return "";
+	else if (buffer[0] == '#')
+		return "";
+	for (int c = 0; c < strlen(buffer); c++)
+	{
+		if (buffer[c] == 9)
+			buffer[c] = ' ';
+		// convert all spaces that are OUTSIDE quotes into hardspace (0xA0) as this will make them easier to
+		// search and replace later :)
+		if ((!in_quotes) && (buffer[c] == ' '))
+			buffer[c] = '\xA0';
+		if ((buffer[c] == '<') && (!in_quotes))
+		{
+			has_open_bracket = true;
+			if (strlen(buffer) == 1)
+			{
+				*errorstream << "Tag without identifier at " << filename << ":" << linenumber << endl;
+				error = true;
+				return "";
+			}
+			else if ((tolower(buffer[c+1]) < 'a') || (tolower(buffer[c+1]) > 'z'))
+			{
+				*errorstream << "Invalid characters in identifier at " << filename << ":" << linenumber << endl;
+				error = true;
+				return "";
+			}
+		}
+		if (buffer[c] == '"')
+		{
+			number_of_quotes++;
+			in_quotes = (!in_quotes);
+		}
+		if ((buffer[c] == '=') && (!in_quotes))
+		{
+			number_of_equals++;
+			if (strlen(buffer) == c)
+			{
+				*errorstream << "Variable without a value at " << filename << ":" << linenumber << endl;
+				error = true;
+				return "";
+			}
+			else if (buffer[c+1] != '"')
+			{
+				*errorstream << "Variable name not followed immediately by its value at " << filename << ":" << linenumber << endl;
+				error = true;
+				return "";
+			}
+			else if (!c)
+			{
+				*errorstream << "Value without a variable (line starts with '=') at " << filename << ":" << linenumber << endl;
+				error = true;
+				return "";
+			}
+			else if (buffer[c-1] == '\xA0')
+			{
+				*errorstream << "Variable name not followed immediately by its value at " << filename << ":" << linenumber << endl;
+				error = true;
+				return "";
+			}
+		}
+	}
+	// no quotes, and no equals. something freaky.
+	if ((!number_of_quotes) || (!number_of_equals))
+	{
+		*errorstream << "Malformed tag at " << filename << ":" << linenumber << endl;
+		error = true;
+		return "";
+	}
+	// odd number of quotes. thats just wrong.
+	if ((number_of_quotes % 2) != 0)
+	{
+		*errorstream << "Missing \" at " << filename << ":" << linenumber << endl;
+		error = true;
+		return "";
+	}
+	if (number_of_equals < (number_of_quotes/2))
+	{
+		*errorstream << "Missing '=' at " << filename << ":" << linenumber << endl;
+	}
+	if (number_of_equals > (number_of_quotes/2))
+	{
+		*errorstream << "Too many '=' at " << filename << ":" << linenumber << endl;
+	}
+
+	std::string parsedata = buffer;
+	// turn multispace into single space
+	while (parsedata.find("\xA0\xA0") != std::string::npos)
+	{
+		parsedata.erase(parsedata.find("\xA0\xA0"),1);
+	}
+
+	// turn our hardspace back into softspace
+	for (int d = 0; d < parsedata.length(); d++)
+	{
+		if (parsedata[d] == '\xA0')
+			parsedata[d] = ' ';
+	}
+
+	// and we're done, the line is fine!
+	return parsedata;
+}
+
+bool LoadConf(const char* filename, std::stringstream *target, std::stringstream* errorstream)
 {
 	target->str("");
+	errorstream->str("");
+	long linenumber = 1;
 	FILE* conf = fopen(filename,"r");
 	if (!FileExists(filename))
 	{
+		*errorstream << "File " << filename << " not found." << endl;
 		return false;
 	}
 	char buffer[MAXBUF];
@@ -132,10 +267,17 @@ bool LoadConf(const char* filename, std::stringstream *target)
 			{
 				if ((!feof(conf)) && (buffer) && (strlen(buffer)))
 				{
-					if (buffer[0] != '#')
+					if ((buffer[0] != '#') && (buffer[0] != '\r')  && (buffer[0] != '\n'))
 					{
-						*target << std::string(buffer);
+						bool error = false;
+						std::string data = ConfProcess(buffer,linenumber++,errorstream,error,filename);
+						if (error)
+						{
+							return false;
+						}
+						*target << data;
 					}
+					else linenumber++;
 				}
 			}
 		}

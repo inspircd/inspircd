@@ -647,6 +647,7 @@ class ConfigReader : public classbase
 	 * (such as comments) stripped from it.
 	 */
 	std::stringstream *cache;
+	std::stringstream *errorlog;
 	/** Used to store errors
 	 */
 	bool readerror;
@@ -703,6 +704,13 @@ class ConfigReader : public classbase
 	 * file does not exist or could not be opened.
 	 */
 	bool Verify();
+	/** Dumps the list of errors in a config file to an output location. If bail is true,
+	 * then the program will abort. If bail is false and user points to a valid user
+	 * record, the error report will be spooled to the given user by means of NOTICE.
+	 * if bool is false AND user is false, the error report will be spooled to all opers
+	 * by means of a NOTICE to all opers.
+	 */
+	void DumpErrors(bool bail,userrec* user);
 
 	/** Returns the number of items within a tag.
 	 * For example if the tag was &lt;test tag="blah" data="foo"&gt; then this

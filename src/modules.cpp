@@ -566,7 +566,8 @@ int Server::CountUsers(chanrec* c)
 ConfigReader::ConfigReader()
 {
 	this->cache = new std::stringstream(std::stringstream::in | std::stringstream::out);
-	this->readerror = LoadConf(CONFIG_FILE,this->cache);
+	this->errorlog = new std::stringstream(std::stringstream::in | std::stringstream::out);
+	this->readerror = LoadConf(CONFIG_FILE,this->cache,this->errorlog);
 	if (!this->readerror)
 		this->error = CONF_FILE_NOT_FOUND;
 }
@@ -576,13 +577,16 @@ ConfigReader::~ConfigReader()
 {
 	if (this->cache)
 		delete this->cache;
+	if (this->errorlog)
+		delete this->errorlog;
 }
 
 
 ConfigReader::ConfigReader(std::string filename)
 {
 	this->cache = new std::stringstream(std::stringstream::in | std::stringstream::out);
-	this->readerror = LoadConf(filename.c_str(),this->cache);
+	this->errorlog = new std::stringstream(std::stringstream::in | std::stringstream::out);
+	this->readerror = LoadConf(filename.c_str(),this->cache,this->errorlog);
 	if (!this->readerror)
 		this->error = CONF_FILE_NOT_FOUND;
 };
@@ -654,6 +658,38 @@ long ConfigReader::GetError()
 	long olderr = this->error;
 	this->error = 0;
 	return olderr;
+}
+
+void ConfigReader::DumpErrors(bool bail, userrec* user)
+{
+        if (bail)
+        {
+                printf("There were errors in your configuration:\n%s",errorlog->str().c_str());
+                exit(0);
+        }
+        else
+        {
+                char dataline[1024];
+                if (user)
+                {
+                        WriteServ(user->fd,"NOTICE %s :There were errors in the configuration file:",user->nick);
+                        while (!errorlog->eof())
+                        {
+                                errorlog->getline(dataline,1024);
+                                WriteServ(user->fd,"NOTICE %s :%s",user->nick,dataline);
+                        }
+                }
+                else
+                {
+                        WriteOpers("There were errors in the configuration file:",user->nick);
+                        while (!errorlog->eof())
+                        {
+                                errorlog->getline(dataline,1024);
+                                WriteOpers(dataline);
+                        }
+                }
+                return;
+        }
 }
 
 

@@ -302,13 +302,45 @@ void readfile(file_cache &F, const char* fname)
 	log(DEBUG,"readfile: loaded %s, %d lines",fname,F.size());
 }
 
-void ReadConfig(void)
+void ReadConfig(bool bail, userrec* user)
 {
 	char dbg[MAXBUF],pauseval[MAXBUF],Value[MAXBUF],timeout[MAXBUF],NB[MAXBUF],flood[MAXBUF],MW[MAXBUF];
 	char AH[MAXBUF],AP[MAXBUF],AF[MAXBUF];
 	ConnectClass c;
+	std::stringstream errstr;
 	
-	LoadConf(CONFIG_FILE,&config_f);
+	if (!LoadConf(CONFIG_FILE,&config_f,&errstr))
+	{
+		errstr.seekg(0);
+		if (bail)
+		{
+			printf("There were errors in your configuration:\n%s",errstr.str().c_str());
+			exit(0);
+		}
+		else
+		{
+			char dataline[1024];
+			if (user)
+			{
+				WriteServ(user->fd,"NOTICE %s :There were errors in the configuration file:",user->nick);
+				while (!errstr.eof())
+				{
+					errstr.getline(dataline,1024);
+					WriteServ(user->fd,"NOTICE %s :%s",user->nick,dataline);
+				}
+			}
+			else
+			{
+				WriteOpers("There were errors in the configuration file:",user->nick);
+				while (!errstr.eof())
+				{
+					errstr.getline(dataline,1024);
+					WriteOpers(dataline);
+				}
+			}
+			return;
+		}
+	}
 	  
 	ConfValue("server","name",0,ServerName,&config_f);
 	ConfValue("server","description",0,ServerDesc,&config_f);
@@ -3172,7 +3204,7 @@ int InspIRCd(void)
 	SetupCommandTable();
 	log(DEBUG,"InspIRCd: startup: default command table set up");
 	
-	ReadConfig();
+	ReadConfig(true,NULL);
 	if (strcmp(DieValue,"")) 
 	{ 
 		printf("WARNING: %s\n\n",DieValue);

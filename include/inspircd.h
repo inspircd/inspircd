@@ -89,7 +89,7 @@ int InspIRCd(void);
 int InitConfig(void);
 void Error(int status);
 void send_error(char *s);
-void ReadConfig(void);
+void ReadConfig(bool bail,userrec* user);
 void strlower(char *n);
 
 void WriteOpers(char* text, ...);
