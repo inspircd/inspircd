@@ -6007,6 +6007,18 @@ void handle_m(char token,char* params,serverrec* source,serverrec* reply, char* 
 	char* pars[128];
 	char original[MAXBUF];
 	strncpy(original,params,MAXBUF);
+	
+	if (!strchr(params,' '))
+	{
+		WriteOpers("WARNING! 'm' token in data stream without any parameters! Something fishy is going on!");
+		return;
+	}
+	
+	char* o = original;
+	while (o != ' ')
+		o++;
+	o++;
+	
 	int index = 0;
 	
 	char* src = strtok(params," ");
@@ -6027,12 +6039,12 @@ void handle_m(char token,char* params,serverrec* source,serverrec* reply, char* 
 		if (FindChan(pars[0]))
 		{
 			log(DEBUG,"Target is channel");
-			WriteChannelLocal(FindChan(pars[0]), user, "MODE %s",original);
+			WriteChannelLocal(FindChan(pars[0]), user, "MODE %s",o);
 		}
 		if (Find(pars[0]))
 		{
 			log(DEBUG,"Target is nick");
-			WriteTo(user,Find(pars[0]),"MODE %s",original);
+			WriteTo(user,Find(pars[0]),"MODE %s",o);
 		}
 	}
 }
