@@ -6674,11 +6674,11 @@ void process_restricted_commands(char token,char* params,serverrec* source,serve
 		// F <TS>
 		// end netburst
 		case 'F':
-			WriteOpers("Server %s has completed netburst. (%d secs)",source->name,time(NULL)-nb_start);
+			WriteOpers("Server %s has completed netburst. (%d secs)",udp_host,time(NULL)-nb_start);
 			handle_F(token,params,source,reply,udp_host);
-			WriteOpers("Sending my netburst to %s",source->name);
-			DoSync(serv,udp_host);
-			WriteOpers("Send of netburst to %s completed",source->name);
+			WriteOpers("Sending my netburst to %s",udp_host);
+			DoSync(source,udp_host);
+			WriteOpers("Send of netburst to %s completed",udp_host);
 		break;
 		// anything else
 		default:
