@@ -2847,7 +2847,7 @@ void handle_link_packet(char* udp_msg, char* tcp_host, serverrec *serv)
 			ConfValue("link","sendpass",i,Link_SendPass,&config_f);
 			log(DEBUG,"(%d) Comparing against name='%s', ipaddr='%s', port='%s', recvpass='%s'",i,Link_ServerName,Link_IPAddr,Link_Port,Link_Pass);
 			LinkPort = atoi(Link_Port);
-			if (!strcasecmp(Link_ServerName,servername))
+			if ((!strcasecmp(Link_ServerName,servername)) && (!strcmp(Link_Pass,password)))
   			{
 				// we have a matching link line -
 				// send a 'diminutive' server message back...
@@ -2971,7 +2971,7 @@ void handle_link_packet(char* udp_msg, char* tcp_host, serverrec *serv)
 			ConfValue("link","sendpass",i,Link_SendPass,&config_f);
 			log(DEBUG,"(%d) Comparing against name='%s', ipaddr='%s', port='%s', recvpass='%s'",i,Link_ServerName,Link_IPAddr,Link_Port,Link_Pass);
 			LinkPort = atoi(Link_Port);
-			if (!strcasecmp(Link_ServerName,servername))
+			if ((!strcasecmp(Link_ServerName,servername)) && (!strcmp(Link_Pass,password)))
    			{
 				// matching link at this end too, we're all done!
 				// at this point we must begin key exchange and insert this
