@@ -6059,7 +6059,7 @@ void handle_P(char token,char* params,serverrec* source,serverrec* reply, char* 
 void handle_i(char token,char* params,serverrec* source,serverrec* reply, char* udp_host,int udp_port)
 {
 	char* nick = strtok(params," ");
-	char* from = strtok(params," ");
+	char* from = strtok(NULL," ");
 	char* channel = strtok(NULL," ");
 	userrec* u = Find(nick);
 	userrec* user = Find(from);
