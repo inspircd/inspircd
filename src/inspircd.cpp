@@ -949,6 +949,42 @@ void WriteMode(const char* modes, int flags, const char* text, ...)
 	}
 }
 
+void ChangeName(userrec* user, const char* gecos)
+{
+	strncpy(user->fullname,gecos,MAXBUF);
+	char buffer[MAXBUF];
+	snprintf(buffer,MAXBUF,"a %s :%s",user->nick,gecos);
+	for (int j = 0; j < 255; j++)
+	{
+		if (servers[j] != NULL)
+		{
+			if (strcmp(servers[j]->name,ServerName))
+			{
+				me[defaultRoute]->SendPacket(buffer,servers[j]->internal_addr,servers[j]->internal_port,MyKey);
+				log(DEBUG,"Sent a token");
+			}
+		}
+	}
+}
+
+void ChangeDisplayedHost(userrec* user, const char* host)
+{
+	strncpy(user->dhost,host,160);
+	char buffer[MAXBUF];
+	snprintf(buffer,MAXBUF,"b %s :%s",user->nick,host);
+	for (int j = 0; j < 255; j++)
+	{
+		if (servers[j] != NULL)
+		{
+			if (strcmp(servers[j]->name,ServerName))
+			{
+				me[defaultRoute]->SendPacket(buffer,servers[j]->internal_addr,servers[j]->internal_port,MyKey);
+				log(DEBUG,"Sent b token");
+			}
+		}
+	}
+}
+
 void WriteWallOps(userrec *source, bool local_only, char* text, ...)  
 {  
 	if ((!text) || (!source))
@@ -6443,6 +6479,29 @@ void handle_F(char token,char* params,serverrec* source,serverrec* reply, char* 
 		WriteOpers("TS split for %s -> %s: %d",source->name,reply->name,tdiff);
 }
 
+void handle_a(char token,char* params,serverrec* source,serverrec* reply, char* udp_host,int udp_port)
+{
+	char* nick = strtok(params," :");
+	char* gecos = strtok(NULL,"\r\n");
+	
+	userrec* user = Find(nick);
+
+	if (user)
+		strncpy(user->fullname,gecos,MAXBUF);
+}
+
+void handle_b(char token,char* params,serverrec* source,serverrec* reply, char* udp_host,int udp_port)
+{
+	char* nick = strtok(params," :");
+	char* host = strtok(NULL,"\r\n");
+	
+	userrec* user = Find(nick);
+
+	if (user)
+		strncpy(user->dhost,host,160);
+}
+
+
 void handle_J(char token,char* params,serverrec* source,serverrec* reply, char* udp_host,int udp_port)
 {
 	// IMPORTANT NOTE
@@ -6522,6 +6581,16 @@ void process_restricted_commands(char token,char* params,serverrec* source,serve
 		// introduce remote client
 		case 'N':
 			handle_N(token,params,source,reply,udp_host,udp_port);
+		break;
+		// a <NICK> :<GECOS>
+		// change GECOS (SETNAME)
+		case 'a':
+			handle_a(token,params,source,reply,udp_host,udp_port);
+		break;
+		// b <NICK> :<HOST>
+		// change displayed host (SETHOST)
+		case 'b':
+			handle_b(token,params,source,reply,udp_host,udp_port);
 		break;
 		// t <NICK> <CHANNEL> :<TOPIC>
 		// change a channel topic

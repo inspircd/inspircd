@@ -471,6 +471,20 @@ class Server : public classbase
 	 * used for privilage checks, etc.
 	 */
 	virtual void CallCommandHandler(std::string commandname, char** parameters, int pcnt, userrec* user);
+	
+	/** Change displayed hostname of a user.
+	 * You should always call this method to change a user's host rather than writing directly to the
+	 * dhost member of userrec, as any change applied via this method will be propogated to any
+	 * linked servers.
+	 */	
+	virtual void ChangeHost(userrec* user, std::string host);
+	
+	/** Change GECOS (fullname) of a user.
+	 * You should always call this method to change a user's GECOS rather than writing directly to the
+	 * fullname member of userrec, as any change applied via this method will be propogated to any
+	 * linked servers.
+	 */	
+	virtual void ChangeGECOS(userrec* user, std::string gecos);
 };
 
 /** Allows reading of values from configuration files

@@ -258,6 +258,16 @@ void Server::SendWallops(userrec* User, std::string text)
 	WriteWallOps(User,false,"%s",text.c_str());
 }
 
+void Server::ChangeHost(userrec* user, std::string host)
+{
+	ChangeDisplayedHost(user,host.c_str());
+}
+
+void Server::ChangeGECOS(userrec* user, std::string gecos)
+{
+	ChangeName(user,gecos.c_str());
+}
+
 bool Server::IsNick(std::string nick)
 {
 	return (isnick(nick.c_str()) != 0);
