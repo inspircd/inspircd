@@ -78,9 +78,9 @@ time_t startup_time = time(NULL);
 int NetBufferSize = 10240; // NetBufferSize used as the buffer size for all read() ops
 
 extern vector<Module*> modules;
-vector<string> module_names;
+std::vector<std::string> module_names;
 extern vector<ircd_module*> factory;
-vector<int> fd_reap;
+std::vector<int> fd_reap;
 
 int client_exit = 0;
 
@@ -5533,10 +5533,6 @@ int InspIRCd(void)
 			//if (selectResult2 > 0)
 			for (user_hash::iterator count2a = xcount; count2a != endingiter; count2a++)
 			{
-				std::vector<string> datastream;
-				
-				datastream.clear();
-				
 				result = EAGAIN;
 				if (FD_ISSET (count2a->second->fd, &sfd))
 				{
