@@ -18,6 +18,8 @@
 <a href="xline_8h-source.html">Go to the source code of this file.</a><table border=0 cellpadding=0 cellspacing=0>
 <tr><td></td></tr>
 <tr><td colspan=2><br><h2>Compounds</h2></td></tr>
+<tr><td class="memItemLeft" nowrap align=right valign=top>class &nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="classELine.html">ELine</a></td></tr>
+
 <tr><td class="memItemLeft" nowrap align=right valign=top>class &nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="classGLine.html">GLine</a></td></tr>
 
 <tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">GLine class. </em> <a href="classGLine.html#_details">More...</a><em><br><br></td></tr>
@@ -44,48 +46,106 @@
 
 <tr><td class="memItemLeft" nowrap align=right valign=top>void&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="xline_8h.html#a4">add_kline</a> (long duration, char *source, char *reason, char *hostmask)</td></tr>
 
-<tr><td class="memItemLeft" nowrap align=right valign=top>bool&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="xline_8h.html#a5">del_gline</a> (char *hostmask)</td></tr>
+<tr><td class="memItemLeft" nowrap align=right valign=top>void&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="xline_8h.html#a5">add_eline</a> (long duration, char *source, char *reason, char *hostmask)</td></tr>
 
-<tr><td class="memItemLeft" nowrap align=right valign=top>bool&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="xline_8h.html#a6">del_qline</a> (char *nickname)</td></tr>
+<tr><td class="memItemLeft" nowrap align=right valign=top>bool&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="xline_8h.html#a6">del_gline</a> (char *hostmask)</td></tr>
 
-<tr><td class="memItemLeft" nowrap align=right valign=top>bool&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="xline_8h.html#a7">del_zline</a> (char *ipaddr)</td></tr>
+<tr><td class="memItemLeft" nowrap align=right valign=top>bool&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="xline_8h.html#a7">del_qline</a> (char *nickname)</td></tr>
 
-<tr><td class="memItemLeft" nowrap align=right valign=top>bool&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="xline_8h.html#a8">del_kline</a> (char *hostmask)</td></tr>
+<tr><td class="memItemLeft" nowrap align=right valign=top>bool&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="xline_8h.html#a8">del_zline</a> (char *ipaddr)</td></tr>
 
-<tr><td class="memItemLeft" nowrap align=right valign=top>char *&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="xline_8h.html#a9">matches_qline</a> (const char *nick)</td></tr>
+<tr><td class="memItemLeft" nowrap align=right valign=top>bool&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="xline_8h.html#a9">del_kline</a> (char *hostmask)</td></tr>
 
-<tr><td class="memItemLeft" nowrap align=right valign=top>char *&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="xline_8h.html#a10">matches_gline</a> (const char *host)</td></tr>
+<tr><td class="memItemLeft" nowrap align=right valign=top>bool&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="xline_8h.html#a10">del_eline</a> (char *hostmask)</td></tr>
 
-<tr><td class="memItemLeft" nowrap align=right valign=top>char *&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="xline_8h.html#a11">matches_zline</a> (const char *ipaddr)</td></tr>
+<tr><td class="memItemLeft" nowrap align=right valign=top>char *&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="xline_8h.html#a11">matches_qline</a> (const char *nick)</td></tr>
 
-<tr><td class="memItemLeft" nowrap align=right valign=top>char *&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="xline_8h.html#a12">matches_kline</a> (const char *host)</td></tr>
+<tr><td class="memItemLeft" nowrap align=right valign=top>char *&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="xline_8h.html#a12">matches_gline</a> (const char *host)</td></tr>
 
-<tr><td class="memItemLeft" nowrap align=right valign=top>void&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="xline_8h.html#a13">expire_lines</a> ()</td></tr>
+<tr><td class="memItemLeft" nowrap align=right valign=top>char *&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="xline_8h.html#a13">matches_zline</a> (const char *ipaddr)</td></tr>
 
-<tr><td class="memItemLeft" nowrap align=right valign=top>void&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="xline_8h.html#a14">apply_lines</a> ()</td></tr>
+<tr><td class="memItemLeft" nowrap align=right valign=top>char *&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="xline_8h.html#a14">matches_kline</a> (const char *host)</td></tr>
 
-<tr><td class="memItemLeft" nowrap align=right valign=top>void&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="xline_8h.html#a15">stats_k</a> (<a class="el" href="classuserrec.html">userrec</a> *user)</td></tr>
+<tr><td class="memItemLeft" nowrap align=right valign=top>char *&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="xline_8h.html#a15">matches_exception</a> (const char *host)</td></tr>
 
-<tr><td class="memItemLeft" nowrap align=right valign=top>void&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="xline_8h.html#a16">stats_g</a> (<a class="el" href="classuserrec.html">userrec</a> *user)</td></tr>
+<tr><td class="memItemLeft" nowrap align=right valign=top>void&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="xline_8h.html#a16">expire_lines</a> ()</td></tr>
 
-<tr><td class="memItemLeft" nowrap align=right valign=top>void&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="xline_8h.html#a17">stats_q</a> (<a class="el" href="classuserrec.html">userrec</a> *user)</td></tr>
+<tr><td class="memItemLeft" nowrap align=right valign=top>void&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="xline_8h.html#a17">apply_lines</a> ()</td></tr>
 
-<tr><td class="memItemLeft" nowrap align=right valign=top>void&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="xline_8h.html#a18">stats_z</a> (<a class="el" href="classuserrec.html">userrec</a> *user)</td></tr>
+<tr><td class="memItemLeft" nowrap align=right valign=top>void&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="xline_8h.html#a18">stats_k</a> (<a class="el" href="classuserrec.html">userrec</a> *user)</td></tr>
 
-<tr><td class="memItemLeft" nowrap align=right valign=top>void&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="xline_8h.html#a19">gline_set_creation_time</a> (char *host, time_t create_time)</td></tr>
+<tr><td class="memItemLeft" nowrap align=right valign=top>void&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="xline_8h.html#a19">stats_g</a> (<a class="el" href="classuserrec.html">userrec</a> *user)</td></tr>
 
-<tr><td class="memItemLeft" nowrap align=right valign=top>void&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="xline_8h.html#a20">qline_set_creation_time</a> (char *nick, time_t create_time)</td></tr>
+<tr><td class="memItemLeft" nowrap align=right valign=top>void&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="xline_8h.html#a20">stats_q</a> (<a class="el" href="classuserrec.html">userrec</a> *user)</td></tr>
 
-<tr><td class="memItemLeft" nowrap align=right valign=top>void&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="xline_8h.html#a21">zline_set_creation_time</a> (char *ip, time_t create_time)</td></tr>
+<tr><td class="memItemLeft" nowrap align=right valign=top>void&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="xline_8h.html#a21">stats_z</a> (<a class="el" href="classuserrec.html">userrec</a> *user)</td></tr>
 
-<tr><td class="memItemLeft" nowrap align=right valign=top>bool&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="xline_8h.html#a22">zline_make_global</a> (char *ipaddr)</td></tr>
+<tr><td class="memItemLeft" nowrap align=right valign=top>void&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="xline_8h.html#a22">stats_e</a> (<a class="el" href="classuserrec.html">userrec</a> *user)</td></tr>
 
-<tr><td class="memItemLeft" nowrap align=right valign=top>bool&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="xline_8h.html#a23">qline_make_global</a> (char *nickname)</td></tr>
+<tr><td class="memItemLeft" nowrap align=right valign=top>void&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="xline_8h.html#a23">gline_set_creation_time</a> (char *host, time_t create_time)</td></tr>
 
-<tr><td class="memItemLeft" nowrap align=right valign=top>void&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="xline_8h.html#a24">sync_xlines</a> (<a class="el" href="classserverrec.html">serverrec</a> *serv, char *tcp_host)</td></tr>
+<tr><td class="memItemLeft" nowrap align=right valign=top>void&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="xline_8h.html#a24">qline_set_creation_time</a> (char *nick, time_t create_time)</td></tr>
+
+<tr><td class="memItemLeft" nowrap align=right valign=top>void&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="xline_8h.html#a25">zline_set_creation_time</a> (char *ip, time_t create_time)</td></tr>
+
+<tr><td class="memItemLeft" nowrap align=right valign=top>bool&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="xline_8h.html#a26">zline_make_global</a> (char *ipaddr)</td></tr>
+
+<tr><td class="memItemLeft" nowrap align=right valign=top>bool&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="xline_8h.html#a27">qline_make_global</a> (char *nickname)</td></tr>
+
+<tr><td class="memItemLeft" nowrap align=right valign=top>void&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="xline_8h.html#a28">sync_xlines</a> (<a class="el" href="classserverrec.html">serverrec</a> *serv, char *tcp_host)</td></tr>
 
 </table>
 <hr><h2>Function Documentation</h2>
+<a name="a5" doxytag="xline.h::add_eline"></a><p>
+<table class="mdTable" width="100%" cellpadding="2" cellspacing="0">
+  <tr>
+    <td class="mdRow">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> void add_eline </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="md" nowrap valign="top">long&nbsp;</td>
+          <td class="mdname" nowrap> <em>duration</em>, </td>
+        </tr>
+        <tr>
+          <td></td>
+          <td></td>
+          <td class="md" nowrap>char *&nbsp;</td>
+          <td class="mdname" nowrap> <em>source</em>, </td>
+        </tr>
+        <tr>
+          <td></td>
+          <td></td>
+          <td class="md" nowrap>char *&nbsp;</td>
+          <td class="mdname" nowrap> <em>reason</em>, </td>
+        </tr>
+        <tr>
+          <td></td>
+          <td></td>
+          <td class="md" nowrap>char *&nbsp;</td>
+          <td class="mdname" nowrap> <em>hostmask</em></td>
+        </tr>
+        <tr>
+          <td></td>
+          <td class="md">)&nbsp;</td>
+          <td class="md" colspan="2"></td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
 <a name="a1" doxytag="xline.h::add_gline"></a><p>
 <table class="mdTable" width="100%" cellpadding="2" cellspacing="0">
   <tr>
@@ -286,7 +346,7 @@
     </td>
   </tr>
 </table>
-<a name="a14" doxytag="xline.h::apply_lines"></a><p>
+<a name="a17" doxytag="xline.h::apply_lines"></a><p>
 <table class="mdTable" width="100%" cellpadding="2" cellspacing="0">
   <tr>
     <td class="mdRow">
@@ -314,7 +374,36 @@
     </td>
   </tr>
 </table>
-<a name="a5" doxytag="xline.h::del_gline"></a><p>
+<a name="a10" doxytag="xline.h::del_eline"></a><p>
+<table class="mdTable" width="100%" cellpadding="2" cellspacing="0">
+  <tr>
+    <td class="mdRow">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> bool del_eline </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="md" nowrap valign="top">char *&nbsp;</td>
+          <td class="mdname1" valign="top" nowrap> <em>hostmask</em>          </td>
+          <td class="md" valign="top">&nbsp;)&nbsp;</td>
+          <td class="md" nowrap></td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="a6" doxytag="xline.h::del_gline"></a><p>
 <table class="mdTable" width="100%" cellpadding="2" cellspacing="0">
   <tr>
     <td class="mdRow">
@@ -343,7 +432,7 @@
     </td>
   </tr>
 </table>
-<a name="a8" doxytag="xline.h::del_kline"></a><p>
+<a name="a9" doxytag="xline.h::del_kline"></a><p>
 <table class="mdTable" width="100%" cellpadding="2" cellspacing="0">
   <tr>
     <td class="mdRow">
@@ -372,7 +461,7 @@
     </td>
   </tr>
 </table>
-<a name="a6" doxytag="xline.h::del_qline"></a><p>
+<a name="a7" doxytag="xline.h::del_qline"></a><p>
 <table class="mdTable" width="100%" cellpadding="2" cellspacing="0">
   <tr>
     <td class="mdRow">
@@ -401,7 +490,7 @@
     </td>
   </tr>
 </table>
-<a name="a7" doxytag="xline.h::del_zline"></a><p>
+<a name="a8" doxytag="xline.h::del_zline"></a><p>
 <table class="mdTable" width="100%" cellpadding="2" cellspacing="0">
   <tr>
     <td class="mdRow">
@@ -430,7 +519,7 @@
     </td>
   </tr>
 </table>
-<a name="a13" doxytag="xline.h::expire_lines"></a><p>
+<a name="a16" doxytag="xline.h::expire_lines"></a><p>
 <table class="mdTable" width="100%" cellpadding="2" cellspacing="0">
   <tr>
     <td class="mdRow">
@@ -458,7 +547,7 @@
     </td>
   </tr>
 </table>
-<a name="a19" doxytag="xline.h::gline_set_creation_time"></a><p>
+<a name="a23" doxytag="xline.h::gline_set_creation_time"></a><p>
 <table class="mdTable" width="100%" cellpadding="2" cellspacing="0">
   <tr>
     <td class="mdRow">
@@ -496,7 +585,36 @@
     </td>
   </tr>
 </table>
-<a name="a10" doxytag="xline.h::matches_gline"></a><p>
+<a name="a15" doxytag="xline.h::matches_exception"></a><p>
+<table class="mdTable" width="100%" cellpadding="2" cellspacing="0">
+  <tr>
+    <td class="mdRow">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> char* matches_exception </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="md" nowrap valign="top">const char *&nbsp;</td>
+          <td class="mdname1" valign="top" nowrap> <em>host</em>          </td>
+          <td class="md" valign="top">&nbsp;)&nbsp;</td>
+          <td class="md" nowrap></td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="a12" doxytag="xline.h::matches_gline"></a><p>
 <table class="mdTable" width="100%" cellpadding="2" cellspacing="0">
   <tr>
     <td class="mdRow">
@@ -525,7 +643,7 @@
     </td>
   </tr>
 </table>
-<a name="a12" doxytag="xline.h::matches_kline"></a><p>
+<a name="a14" doxytag="xline.h::matches_kline"></a><p>
 <table class="mdTable" width="100%" cellpadding="2" cellspacing="0">
   <tr>
     <td class="mdRow">
@@ -554,7 +672,7 @@
     </td>
   </tr>
 </table>
-<a name="a9" doxytag="xline.h::matches_qline"></a><p>
+<a name="a11" doxytag="xline.h::matches_qline"></a><p>
 <table class="mdTable" width="100%" cellpadding="2" cellspacing="0">
   <tr>
     <td class="mdRow">
@@ -583,7 +701,7 @@
     </td>
   </tr>
 </table>
-<a name="a11" doxytag="xline.h::matches_zline"></a><p>
+<a name="a13" doxytag="xline.h::matches_zline"></a><p>
 <table class="mdTable" width="100%" cellpadding="2" cellspacing="0">
   <tr>
     <td class="mdRow">
@@ -612,7 +730,7 @@
     </td>
   </tr>
 </table>
-<a name="a23" doxytag="xline.h::qline_make_global"></a><p>
+<a name="a27" doxytag="xline.h::qline_make_global"></a><p>
 <table class="mdTable" width="100%" cellpadding="2" cellspacing="0">
   <tr>
     <td class="mdRow">
@@ -641,7 +759,7 @@
     </td>
   </tr>
 </table>
-<a name="a20" doxytag="xline.h::qline_set_creation_time"></a><p>
+<a name="a24" doxytag="xline.h::qline_set_creation_time"></a><p>
 <table class="mdTable" width="100%" cellpadding="2" cellspacing="0">
   <tr>
     <td class="mdRow">
@@ -707,7 +825,36 @@
     </td>
   </tr>
 </table>
-<a name="a16" doxytag="xline.h::stats_g"></a><p>
+<a name="a22" doxytag="xline.h::stats_e"></a><p>
+<table class="mdTable" width="100%" cellpadding="2" cellspacing="0">
+  <tr>
+    <td class="mdRow">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> void stats_e </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="md" nowrap valign="top"><a class="el" href="classuserrec.html">userrec</a> *&nbsp;</td>
+          <td class="mdname1" valign="top" nowrap> <em>user</em>          </td>
+          <td class="md" valign="top">&nbsp;)&nbsp;</td>
+          <td class="md" nowrap></td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="a19" doxytag="xline.h::stats_g"></a><p>
 <table class="mdTable" width="100%" cellpadding="2" cellspacing="0">
   <tr>
     <td class="mdRow">
@@ -736,7 +883,7 @@
     </td>
   </tr>
 </table>
-<a name="a15" doxytag="xline.h::stats_k"></a><p>
+<a name="a18" doxytag="xline.h::stats_k"></a><p>
 <table class="mdTable" width="100%" cellpadding="2" cellspacing="0">
   <tr>
     <td class="mdRow">
@@ -765,7 +912,7 @@
     </td>
   </tr>
 </table>
-<a name="a17" doxytag="xline.h::stats_q"></a><p>
+<a name="a20" doxytag="xline.h::stats_q"></a><p>
 <table class="mdTable" width="100%" cellpadding="2" cellspacing="0">
   <tr>
     <td class="mdRow">
@@ -794,7 +941,7 @@
     </td>
   </tr>
 </table>
-<a name="a18" doxytag="xline.h::stats_z"></a><p>
+<a name="a21" doxytag="xline.h::stats_z"></a><p>
 <table class="mdTable" width="100%" cellpadding="2" cellspacing="0">
   <tr>
     <td class="mdRow">
@@ -823,7 +970,7 @@
     </td>
   </tr>
 </table>
-<a name="a24" doxytag="xline.h::sync_xlines"></a><p>
+<a name="a28" doxytag="xline.h::sync_xlines"></a><p>
 <table class="mdTable" width="100%" cellpadding="2" cellspacing="0">
   <tr>
     <td class="mdRow">
@@ -861,7 +1008,7 @@
     </td>
   </tr>
 </table>
-<a name="a22" doxytag="xline.h::zline_make_global"></a><p>
+<a name="a26" doxytag="xline.h::zline_make_global"></a><p>
 <table class="mdTable" width="100%" cellpadding="2" cellspacing="0">
   <tr>
     <td class="mdRow">
@@ -890,7 +1037,7 @@
     </td>
   </tr>
 </table>
-<a name="a21" doxytag="xline.h::zline_set_creation_time"></a><p>
+<a name="a25" doxytag="xline.h::zline_set_creation_time"></a><p>
 <table class="mdTable" width="100%" cellpadding="2" cellspacing="0">
   <tr>
     <td class="mdRow">
@@ -928,7 +1075,7 @@
     </td>
   </tr>
 </table>
-<hr size="1"><address style="align: right;"><small>Generated on Sat Apr 2 19:27:03 2005 for InspIRCd by
+<hr size="1"><address style="align: right;"><small>Generated on Mon Apr 4 18:12:50 2005 for InspIRCd by
 <a href="http://www.doxygen.org/index.html">
 <img src="doxygen.png" alt="doxygen" align="middle" border=0 > 
 </a>1.3.3 </small></address>

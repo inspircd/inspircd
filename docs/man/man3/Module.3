@@ -1,4 +1,4 @@
-.TH "Module" 3 "2 Apr 2005" "InspIRCd" \" -*- nroff -*-
+.TH "Module" 3 "4 Apr 2005" "InspIRCd" \" -*- nroff -*-
 .ad l
 .nh
 .SH NAME
@@ -96,6 +96,10 @@ Inherits \fBclassbase\fP.
 .br
 .RI "\fICalled before any nickchange, local or remote. \fP"
 .ti -1c
+.RI "virtual void \fBOnUserPostNick\fP (\fBuserrec\fP *user, std::string oldnick)"
+.br
+.RI "\fICalled after any nickchange, local or remote. \fP"
+.ti -1c
 .RI "virtual int \fBOnAccessCheck\fP (\fBuserrec\fP *source, \fBuserrec\fP *dest, \fBchanrec\fP *channel, int access_type)"
 .br
 .RI "\fICalled before an action which requires a channel privilage check. \fP"
@@ -154,10 +158,10 @@ Returns the version number of a Module. The method should return a \fBVersion\fP
 .fi
 .SS "void Module::On005Numeric (std::string & output)\fC [virtual]\fP"
 .PP
-Called when a 005 numeric is about to be output. The module should modify the 005 numeric if needed to indicate its features.Definition at line 327 of file modules.cpp.
+Called when a 005 numeric is about to be output. The module should modify the 005 numeric if needed to indicate its features.Definition at line 328 of file modules.cpp.
 .PP
 .nf
-327 { };
+328 { };
 .fi
 .SS "int Module::OnAccessCheck (\fBuserrec\fP * source, \fBuserrec\fP * dest, \fBchanrec\fP * channel, int access_type)\fC [virtual]\fP"
 .PP
@@ -185,21 +189,21 @@ Called before an action which requires a channel privilage check. This function 
 .br
 
 .br
- Upon returning from your function you must return either ACR_DEFAULT, to indicate the module wishes to do nothing, or ACR_DENY where approprate to deny the action, and ACR_ALLOW where appropriate to allow the action. Please note that in the case of some access checks (such as AC_GENERAL_MODE) access may be denied 'upstream' causing other checks such as AC_DEOP to not be reached. Be very careful with use of the AC_GENERAL_MODE type, as it may inadvertently override the behaviour of other modules. When the access_type is AC_GENERAL_MODE, the destination of the mode will be NULL (as it has not yet been determined).Definition at line 324 of file modules.cpp.
+ Upon returning from your function you must return either ACR_DEFAULT, to indicate the module wishes to do nothing, or ACR_DENY where approprate to deny the action, and ACR_ALLOW where appropriate to allow the action. Please note that in the case of some access checks (such as AC_GENERAL_MODE) access may be denied 'upstream' causing other checks such as AC_DEOP to not be reached. Be very careful with use of the AC_GENERAL_MODE type, as it may inadvertently override the behaviour of other modules. When the access_type is AC_GENERAL_MODE, the destination of the mode will be NULL (as it has not yet been determined).Definition at line 325 of file modules.cpp.
 .PP
 References ACR_DEFAULT.
 .PP
 .nf
-324 { return ACR_DEFAULT; };
+325 { return ACR_DEFAULT; };
 .fi
 .SS "\fBstring_list\fP Module::OnChannelSync (\fBchanrec\fP * chan)\fC [virtual]\fP"
 .PP
-Called during a netburst to sync channel data. This is called during the netburst on a per-channel basis. You should use this call to up any special channel-related things which are implemented by your module, e.g. sending listmodes. You may return multiple commands in the string_list.Definition at line 326 of file modules.cpp.
+Called during a netburst to sync channel data. This is called during the netburst on a per-channel basis. You should use this call to up any special channel-related things which are implemented by your module, e.g. sending listmodes. You may return multiple commands in the string_list.Definition at line 327 of file modules.cpp.
 .PP
 References string_list.
 .PP
 .nf
-326 { string_list empty; return empty; }
+327 { string_list empty; return empty; }
 .fi
 .SS "int Module::OnExtendedMode (\fBuserrec\fP * user, void * target, char modechar, int type, bool mode_on, \fBstring_list\fP & params)\fC [virtual]\fP"
 .PP
@@ -219,17 +223,17 @@ Called whenever a user types /INFO. The userrec will contain the information of 
 .fi
 .SS "int Module::OnKill (\fBuserrec\fP * source, \fBuserrec\fP * dest, std::string reason)\fC [virtual]\fP"
 .PP
-Called when a client is disconnected by KILL. If a client is killed by a server, e.g. a nickname collision or protocol error, source is NULL. Return 1 from this function to prevent the kill, and 0 from this function to allow it as normal. If you prevent the kill no output will be sent to the client, it is down to your module to generate this information. NOTE: It is NOT advisable to stop kills which originate from servers. If you do so youre risking race conditions, desyncs and worse!Definition at line 328 of file modules.cpp.
+Called when a client is disconnected by KILL. If a client is killed by a server, e.g. a nickname collision or protocol error, source is NULL. Return 1 from this function to prevent the kill, and 0 from this function to allow it as normal. If you prevent the kill no output will be sent to the client, it is down to your module to generate this information. NOTE: It is NOT advisable to stop kills which originate from servers. If you do so youre risking race conditions, desyncs and worse!Definition at line 329 of file modules.cpp.
 .PP
 .nf
-328 { return 0; };
+329 { return 0; };
 .fi
 .SS "void Module::OnLoadModule (\fBModule\fP * mod, std::string name)\fC [virtual]\fP"
 .PP
-Called whenever a module is loaded. mod will contain a pointer to the module, and string will contain its name, for example m_widgets.so. This function is primary for dependency checking, your module may decide to enable some extra features if it sees that you have for example loaded 'm_killwidgets.so' with 'm_makewidgets.so'. It is highly recommended that modules do *NOT* bail if they cannot satisfy dependencies, but instead operate under reduced functionality, unless the dependency is absolutely neccessary (e.g. a module that extends the features of another module).Definition at line 329 of file modules.cpp.
+Called whenever a module is loaded. mod will contain a pointer to the module, and string will contain its name, for example m_widgets.so. This function is primary for dependency checking, your module may decide to enable some extra features if it sees that you have for example loaded 'm_killwidgets.so' with 'm_makewidgets.so'. It is highly recommended that modules do *NOT* bail if they cannot satisfy dependencies, but instead operate under reduced functionality, unless the dependency is absolutely neccessary (e.g. a module that extends the features of another module).Definition at line 330 of file modules.cpp.
 .PP
 .nf
-329 { };
+330 { };
 .fi
 .SS "void Module::OnOper (\fBuserrec\fP * user)\fC [virtual]\fP"
 .PP
@@ -287,6 +291,13 @@ Called when a user parts a channel. The details of the leaving user are availabl
 .nf
 309 { }
 .fi
+.SS "void Module::OnUserPostNick (\fBuserrec\fP * user, std::string oldnick)\fC [virtual]\fP"
+.PP
+Called after any nickchange, local or remote. This can be used to track users after nickchanges have been applied. Please note that although you can see remote nickchanges through this function, you should NOT make any changes to the userrec if the user is a remote user as this may cause a desnyc. check user->server before taking any action (including returning nonzero from the method). Because this method is called after the nickchange is taken place, no return values are possible to indicate forbidding of the nick change. Use OnUserPreNick for this. Definition at line 324 of file modules.cpp.
+.PP
+.nf
+324 { };
+.fi
 .SS "int Module::OnUserPreInvite (\fBuserrec\fP * source, \fBuserrec\fP * dest, \fBchanrec\fP * channel)\fC [virtual]\fP"
 .PP
 Called whenever a user is about to invite another user into a channel, before any processing is done. Returning 1 from this function stops the process immediately, causing no output to be sent to the user by the core. If you do this you must produce your own numerics, notices etc. This is useful for modules which may want to filter invites to channels.Definition at line 320 of file modules.cpp.
@@ -314,7 +325,7 @@ Called whenever a user is about to PRIVMSG A user or a channel, before any proce
 .fi
 .SS "int Module::OnUserPreNick (\fBuserrec\fP * user, std::string newnick)\fC [virtual]\fP"
 .PP
-Called before any nickchange, local or remote. This can be used to implement Q-lines etc. Please note that although you can see remote nickchanges through this function, you should NOT make any changes to the userrec if the user is a remote user as this may cause a desnyc. check user->server before taking any action (including returning nonzero from the method). If your method returns nonzero, the nickchange is silently forbidden, and it is down to your module to generate some meaninful output. You may alter the message text as you wish before relinquishing control to the next module in the chain, and if no other modules block the text this altered form of the text will be sent out to the user and possibly to other servers.Definition at line 323 of file modules.cpp.
+Called before any nickchange, local or remote. This can be used to implement Q-lines etc. Please note that although you can see remote nickchanges through this function, you should NOT make any changes to the userrec if the user is a remote user as this may cause a desnyc. check user->server before taking any action (including returning nonzero from the method). If your method returns nonzero, the nickchange is silently forbidden, and it is down to your module to generate some meaninful output.Definition at line 323 of file modules.cpp.
 .PP
 .nf
 323 { return 0; };
@@ -335,12 +346,12 @@ Called when a user quits. The details of the exiting user are available to you i
 .fi
 .SS "\fBstring_list\fP Module::OnUserSync (\fBuserrec\fP * user)\fC [virtual]\fP"
 .PP
-Called during a netburst to sync user data. This is called during the netburst on a per-user basis. You should use this call to up any special user-related things which are implemented by your module, e.g. sending listmodes. You may return multiple commands in the string_list.Definition at line 325 of file modules.cpp.
+Called during a netburst to sync user data. This is called during the netburst on a per-user basis. You should use this call to up any special user-related things which are implemented by your module, e.g. sending listmodes. You may return multiple commands in the string_list.Definition at line 326 of file modules.cpp.
 .PP
 References string_list.
 .PP
 .nf
-325 { string_list empty; return empty; }
+326 { string_list empty; return empty; }
 .fi
 .SS "void Module::OnWhois (\fBuserrec\fP * source, \fBuserrec\fP * dest)\fC [virtual]\fP"
 .PP

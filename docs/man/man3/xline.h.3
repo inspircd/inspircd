@@ -1,4 +1,4 @@
-.TH "xline.h" 3 "2 Apr 2005" "InspIRCd" \" -*- nroff -*-
+.TH "xline.h" 3 "4 Apr 2005" "InspIRCd" \" -*- nroff -*-
 .ad l
 .nh
 .SH NAME
@@ -26,6 +26,9 @@ xline.h \-
 .SS "Compounds"
 
 .in +1c
+.ti -1c
+.RI "class \fBELine\fP"
+.br
 .ti -1c
 .RI "class \fBGLine\fP"
 .br
@@ -66,6 +69,9 @@ xline.h \-
 .RI "void \fBadd_kline\fP (long duration, char *source, char *reason, char *hostmask)"
 .br
 .ti -1c
+.RI "void \fBadd_eline\fP (long duration, char *source, char *reason, char *hostmask)"
+.br
+.ti -1c
 .RI "bool \fBdel_gline\fP (char *hostmask)"
 .br
 .ti -1c
@@ -78,6 +84,9 @@ xline.h \-
 .RI "bool \fBdel_kline\fP (char *hostmask)"
 .br
 .ti -1c
+.RI "bool \fBdel_eline\fP (char *hostmask)"
+.br
+.ti -1c
 .RI "char * \fBmatches_qline\fP (const char *nick)"
 .br
 .ti -1c
@@ -88,6 +97,9 @@ xline.h \-
 .br
 .ti -1c
 .RI "char * \fBmatches_kline\fP (const char *host)"
+.br
+.ti -1c
+.RI "char * \fBmatches_exception\fP (const char *host)"
 .br
 .ti -1c
 .RI "void \fBexpire_lines\fP ()"
@@ -106,6 +118,9 @@ xline.h \-
 .br
 .ti -1c
 .RI "void \fBstats_z\fP (\fBuserrec\fP *user)"
+.br
+.ti -1c
+.RI "void \fBstats_e\fP (\fBuserrec\fP *user)"
 .br
 .ti -1c
 .RI "void \fBgline_set_creation_time\fP (char *host, time_t create_time)"
@@ -128,6 +143,8 @@ xline.h \-
 .in -1c
 .SH "Function Documentation"
 .PP 
+.SS "void add_eline (long duration, char * source, char * reason, char * hostmask)"
+.PP
 .SS "void add_gline (long duration, char * source, char * reason, char * hostmask)"
 .PP
 .SS "void add_kline (long duration, char * source, char * reason, char * hostmask)"
@@ -137,6 +154,8 @@ xline.h \-
 .SS "void add_zline (long duration, char * source, char * reason, char * ipaddr)"
 .PP
 .SS "void apply_lines ()"
+.PP
+.SS "bool del_eline (char * hostmask)"
 .PP
 .SS "bool del_gline (char * hostmask)"
 .PP
@@ -149,6 +168,8 @@ xline.h \-
 .SS "void expire_lines ()"
 .PP
 .SS "void gline_set_creation_time (char * host, time_t create_time)"
+.PP
+.SS "char* matches_exception (const char * host)"
 .PP
 .SS "char* matches_gline (const char * host)"
 .PP
@@ -163,6 +184,8 @@ xline.h \-
 .SS "void qline_set_creation_time (char * nick, time_t create_time)"
 .PP
 .SS "void read_xline_defaults ()"
+.PP
+.SS "void stats_e (\fBuserrec\fP * user)"
 .PP
 .SS "void stats_g (\fBuserrec\fP * user)"
 .PP

@@ -1,4 +1,4 @@
-.TH "commands.h" 3 "2 Apr 2005" "InspIRCd" \" -*- nroff -*-
+.TH "commands.h" 3 "4 Apr 2005" "InspIRCd" \" -*- nroff -*-
 .ad l
 .nh
 .SH NAME
@@ -166,6 +166,9 @@ commands.h \-
 .RI "void \fBhandle_qline\fP (char **parameters, int pcnt, \fBuserrec\fP *user)"
 .br
 .ti -1c
+.RI "void \fBhandle_eline\fP (char **parameters, int pcnt, \fBuserrec\fP *user)"
+.br
+.ti -1c
 .RI "void \fBhandle_server\fP (char **parameters, int pcnt, \fBuserrec\fP *user)"
 .br
 .ti -1c
@@ -267,6 +270,8 @@ These are the handlers for server commands (tokens).
 .SS "void handle_die (char ** parameters, int pcnt, \fBuserrec\fP * user)"
 .PP
 .SS "void handle_dollar (char token, char * params, \fBserverrec\fP * source, \fBserverrec\fP * reply, char * tcp_host)"
+.PP
+.SS "void handle_eline (char ** parameters, int pcnt, \fBuserrec\fP * user)"
 .PP
 .SS "void handle_F (char token, char * params, \fBserverrec\fP * source, \fBserverrec\fP * reply, char * tcp_host)"
 .PP
