@@ -2442,6 +2442,7 @@ void handle_link_packet(char* udp_msg, char* tcp_host, serverrec *serv)
       							{
 								char buffer[MAXBUF];
 								me[j]->connectors[k].SetDescription(serverdesc);
+								me[j]->connectors[k].SetState(STATE_CONNECTED);
 								sprintf(buffer,"X 0");
 								serv->SendPacket(buffer,tcp_host);
 								DoSync(me[j],tcp_host);
