@@ -70,12 +70,12 @@ typedef std::deque<userrec*> chanuserlist;
 #define FOREACH_RESULT(x) { MOD_RESULT = 0; \
 			for (int i = 0; i <= MODCOUNT; i++) { \
 			int res = modules[i]->x ; \
-			if (res) { \
+			if (res != 0) { \
 				MOD_RESULT = res; \
 				break; \
 			} \
 		} \
-   } 
+	} 
    
 // *********************************************************************************************
 
@@ -201,9 +201,10 @@ class Module : public classbase
  	virtual int OnExtendedMode(userrec* user, void* target, char modechar, int type, bool mode_on, string_list &params);
  	
 	/** Called whenever a user is about to join a channel, before any processing is done.
-	 * Returning any nonzero value from this function stops the process immediately, causing no
+	 * Returning a value of 1 from this function stops the process immediately, causing no
 	 * output to be sent to the user by the core. If you do this you must produce your own numerics,
-	 * notices etc. This is useful for modules which may want to mimic +b, +k, +l etc.
+	 * notices etc. This is useful for modules which may want to mimic +b, +k, +l etc. Returning -1 from
+	 * this function forces the join to be allowed, bypassing restrictions such as banlists, invite, keys etc.
 	 *
 	 * IMPORTANT NOTE!
 	 *
@@ -227,7 +228,7 @@ class Module : public classbase
 	 * It is purposefully not possible to modify any info that has already been output, or halt the list.
 	 * You must write a 371 numeric to the user, containing your info in the following format:
 	 *
-	 * <nick> :information here
+	 * &lt;nick&gt; :information here
 	 */
 	virtual void OnInfo(userrec* user);
 	
