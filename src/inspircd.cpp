@@ -3234,6 +3234,50 @@ void RemoveServer(const char* name)
 
 int reap_counter = 0;
 
+bool LoadModule(const char* filename)
+{
+	char modfile[MAXBUF];
+	snprintf(modfile,MAXBUF,"%s/%s",MOD_PATH,filename,&config_f);
+	log(DEBUG,"Loading module: %s",modfile);
+        if (FileExists(modfile))
+        {
+		for (int j = 0; j < module_names.size(); j++)
+		{
+			if (module_names[j] == std::string(filename))
+			{
+				log(DEFAULT,"Module %s is already loaded, cannot load a module twice!",modfile);
+				return false;
+			}
+		}
+                factory[MODCOUNT+1] = new ircd_module(modfile);
+                if (factory[MODCOUNT+1]->LastError())
+                {
+                        log(DEFAULT,"Unable to load %s: %s",modfile,factory[MODCOUNT+1]->LastError());
+			MODCOUNT--;
+			return false;
+                }
+                if (factory[MODCOUNT+1]->factory)
+                {
+                        modules[MODCOUNT+1] = factory[MODCOUNT+1]->factory->CreateModule();
+                        /* save the module and the module's classfactory, if
+                         * this isnt done, random crashes can occur :/ */
+                        module_names.push_back(filename);
+                }
+		else
+                {
+                        log(DEFAULT,"Unable to load %s",modfile);
+			return false;
+                }
+        }
+        else
+        {
+                log(DEFAULT,"InspIRCd: startup: Module Not Found %s",modfile);
+		return false;
+        }
+	MODCOUNT++;
+	return true;
+}
+
 int InspIRCd(void)
 {
 	struct sockaddr_in client,server;
@@ -3319,49 +3363,18 @@ int InspIRCd(void)
 	printf("\n");
 	
 	/* BugFix By Craig! :p */
-	count = 0;
+	MODCOUNT = -1;
 	for (count2 = 0; count2 < ConfValueEnum("module",&config_f); count2++)
 	{
-		char modfile[MAXBUF];
 		ConfValue("module","name",count2,configToken,&config_f);
-		snprintf(modfile,MAXBUF,"%s/%s",MOD_PATH,configToken,&config_f);
-		printf("Loading module... \033[1;37m%s\033[0;37m\n",modfile);
-		log(DEBUG,"InspIRCd: startup: Loading module: %s",modfile);
-		/* If The File Doesnt exist, Trying to load it
-	 	 * Will Segfault the IRCd.. So, check to see if
-		 * it Exists, Before Proceeding. */
-		if (FileExists(modfile))
+		printf("Loading module... \033[1;37m%s\033[0;37m\n",configToken);
+		if (!LoadModule(configToken))
 		{
-			factory[count] = new ircd_module(modfile);
-			if (factory[count]->LastError())
-			{
-				log(DEFAULT,"Unable to load %s: %s",modfile,factory[count]->LastError());
-				printf("Unable to load %s: %s\nExiting...\n",modfile,factory[count]->LastError());
-				Exit(ERROR);
-			}
-			if (factory[count]->factory)
-			{
-				modules[count] = factory[count]->factory->CreateModule();
-				/* save the module and the module's classfactory, if
-				 * this isnt done, random crashes can occur :/ */
-				module_names.push_back(modfile);	
-			}
-			else
-			{
-				log(DEFAULT,"Unable to load %s",modfile);
-				printf("Unable to load %s\nExiting...\n",modfile);
-				Exit(ERROR);
-			}
-			/* Increase the Count */
-			count++;
-		}
-		else
-		{
-			log(DEBUG,"InspIRCd: startup: Module Not Found %s",modfile);
-			printf("Module Not Found: \033[1;37m%s\033[0;37m, Skipping\n",modfile);
+			log(DEBUG,"Exiting due to a module loader error.");
+			printf("There was an error loading a module. View your ircd.log for details.\n");
+			Exit(0);
 		}
 	}
-	MODCOUNT = count - 1;
 	log(DEBUG,"Total loaded modules: %d",MODCOUNT+1);
 	
 	printf("\nInspIRCd is now running!\n");
