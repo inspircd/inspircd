@@ -6330,7 +6330,7 @@ void handle_N(char token,char* params,serverrec* source,serverrec* reply, char* 
 	strncpy(clientlist[nick]->host, host,160);
 	strncpy(clientlist[nick]->dhost, dhost,160);
 	strncpy(clientlist[nick]->server, server,256);
-	strncpy(clientlist[nick]->ident, ident,10); // +1 char to compensate for '~'
+	strncpy(clientlist[nick]->ident, ident,10); // +1 char to compensate for tilde
 	strncpy(clientlist[nick]->fullname, gecos,128);
 	clientlist[nick]->signon = TS;
 	clientlist[nick]->nping = 0; // this is ignored for a remote user anyway.
@@ -6381,7 +6381,11 @@ void handle_plus(char token,char* params,serverrec* source,serverrec* reply, cha
 	char* ipaddr = strtok(NULL," ");
 	char* ipport = strtok(NULL," ");
 	char* cookie = strtok(NULL," ");
+	log(DEBUG," ");
+	log(DEBUG," ");
+	log(DEBUG,"*** Connecting back to %s:%d",ipaddr,ipport);
 	me[defaultRoute]->MeshCookie(ipaddr,atoi(ipport),atoi(cookie),servername);
+	log(DEBUG," ");
 }
 
 
