@@ -4682,10 +4682,19 @@ void process_command(userrec *user, char* cmd)
 	}
 	
 	int total_params = 0;
-	for (int q = 0; q < strlen(cmd); q++)
+	if (strlen(cmd)>2)
 	{
-		if (cmd[q] == ' ')
-			total_params++;
+		for (int q = 0; q < strlen(cmd)-1; q++)
+		{
+			if ((cmd[q] == ' ') && (cmd[q+1] == ':'))
+			{
+				total_params++;
+				// found a 'trailing', we dont count them after this.
+				break;
+			}
+			if (cmd[q] == ' ')
+				total_params++;
+		}
 	}
 	
 	// another phidjit bug...

@@ -318,7 +318,7 @@ int Server::CountUsers(chanrec* c)
 
 ConfigReader::ConfigReader()
 {
-	this->cache = new std::stringstream(stringstream::in | stringstream::out);
+	this->cache = new std::stringstream(std::stringstream::in | std::stringstream::out);
 	this->error = LoadConf(CONFIG_FILE,this->cache);
 }
 
@@ -332,7 +332,7 @@ ConfigReader::~ConfigReader()
 
 ConfigReader::ConfigReader(std::string filename)
 {
-	this->cache = new std::stringstream(stringstream::in | stringstream::out);
+	this->cache = new std::stringstream(std::stringstream::in | std::stringstream::out);
 	this->error = LoadConf(filename.c_str(),this->cache);
 };
 
