@@ -315,7 +315,7 @@ bool connection::RecvPacket(char *message, char* host, int &prt, long &theirkey)
 			strcpy(host,buffer[0].host);
 			prt = buffer[0].port;
 			
-			buffer.erase(0);
+			buffer.erase(buffer.begin());
 			
 			return true;
 		}
@@ -366,7 +366,7 @@ bool connection::RecvPacket(char *message, char* host, int &prt, long &theirkey)
 			strcpy(host,buffer[0].host);
 			prt = buffer[0].port;
 			
-			buffer.erase(0);
+			buffer.erase(buffer.begin());
 		}
 
 		return true;
