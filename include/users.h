@@ -65,8 +65,8 @@ class ConnectClass : public classbase
 	{
 		registration_timeout = 0;
 		flood = 0;
-		strcpy(host,"");
-		strcpy(pass,"");
+		strlcpy(host,"",MAXBUF);
+		strlcpy(pass,"",MAXBUF);
 	}
 };
 

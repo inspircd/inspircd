@@ -52,14 +52,14 @@ userrec::userrec()
  
 char* userrec::GetFullHost()
 {
-	sprintf(result,"%s!%s@%s",nick,ident,dhost);
+	snprintf(result,MAXBUF,"%s!%s@%s",nick,ident,dhost);
 	return result;
 }
 
 
 char* userrec::GetFullRealHost()
 {
-	sprintf(result,"%s!%s@%s",nick,ident,host);
+	snprintf(result,MAXBUF,"%s!%s@%s",nick,ident,host);
 	return result;
 }
 
@@ -80,7 +80,7 @@ bool userrec::IsInvited(char* channel)
 void userrec::InviteTo(char* channel)
 {
 	Invited i;
-	strcpy(i.channel,channel);
+	strlcpy(i.channel,channel,CHANMAX);
 	invites.push_back(i);
 }
 

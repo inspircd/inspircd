@@ -163,7 +163,7 @@ void tidystring(char* str)
 			temp[t++] = str[a++];
 		}
 		temp[t] = '\0';
-		strncpy(str,temp,MAXBUF);
+		strlcpy(str,temp,MAXBUF);
 	}
 }
 
@@ -180,7 +180,7 @@ void chop(char* str)
   string temp = str;
   FOREACH_MOD OnServerRaw(temp,false,NULL);
   const char* str2 = temp.c_str();
-  sprintf(str,"%s",str2);
+  snprintf(str,MAXBUF,"%s",str2);
   
 
   if (strlen(str) >= 512)
@@ -249,7 +249,7 @@ bool hasumode(userrec* user, char mode)
 
 void ChangeName(userrec* user, const char* gecos)
 {
-	strncpy(user->fullname,gecos,MAXBUF);
+	strlcpy(user->fullname,gecos,MAXBUF);
 	char buffer[MAXBUF];
 	snprintf(buffer,MAXBUF,"a %s :%s",user->nick,gecos);
 	NetSendToAll(buffer);
@@ -257,7 +257,7 @@ void ChangeName(userrec* user, const char* gecos)
 
 void ChangeDisplayedHost(userrec* user, const char* host)
 {
-	strncpy(user->dhost,host,160);
+	strlcpy(user->dhost,host,160);
 	char buffer[MAXBUF];
 	snprintf(buffer,MAXBUF,"b %s %s",user->nick,host);
 	NetSendToAll(buffer);
@@ -434,7 +434,7 @@ void TidyBan(char *ban)
 	
 	char temp[MAXBUF],NICK[MAXBUF],IDENT[MAXBUF],HOST[MAXBUF];
 
-	strcpy(temp,ban);
+	strlcpy(temp,ban,MAXBUF);
 
 	char* pos_of_pling = strchr(temp,'!');
 	char* pos_of_at = strchr(temp,'@');
@@ -444,11 +444,11 @@ void TidyBan(char *ban)
 	pos_of_pling++;
 	pos_of_at++;
 
-	strncpy(NICK,temp,NICKMAX);
-	strncpy(IDENT,pos_of_pling,IDENTMAX+1);
-	strncpy(HOST,pos_of_at,160);
+	strlcpy(NICK,temp,NICKMAX);
+	strlcpy(IDENT,pos_of_pling,IDENTMAX+1);
+	strlcpy(HOST,pos_of_at,160);
 
-	sprintf(ban,"%s!%s@%s",NICK,IDENT,HOST);
+	snprintf(ban,MAXBUF,"%s!%s@%s",NICK,IDENT,HOST);
 }
 
 char lst[MAXBUF];
@@ -470,15 +470,15 @@ char* chlist(userrec *user)
 		{
 			if (user->chans[i].channel->name)
 			{
-				strcpy(cmp,user->chans[i].channel->name);
-				strcat(cmp," ");
+				strlcpy(cmp,user->chans[i].channel->name,MAXBUF);
+				strlcat(cmp," ",MAXBUF);
 				if (!strstr(lst,cmp))
 				{
 					if ((!user->chans[i].channel->c_private) && (!user->chans[i].channel->secret))
 					{
-						strcat(lst,cmode(user,user->chans[i].channel));
-						strcat(lst,user->chans[i].channel->name);
-						strcat(lst," ");
+						strlcat(lst,cmode(user,user->chans[i].channel),MAXBUF);
+						strlcat(lst,user->chans[i].channel->name,MAXBUF);
+						strlcat(lst," ",MAXBUF);
 					}
 				}
 			}

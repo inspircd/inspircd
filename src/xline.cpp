@@ -121,7 +121,7 @@ namespace nspace
 		{
 			char a[MAXBUF];
 			static struct hash<const char *> strhash;
-			strcpy(a,s.c_str());
+			strlcpy(a,s.c_str(),MAXBUF);
 			strlower(a);
 			return strhash(a);
 		}
@@ -135,8 +135,8 @@ struct StrHashComp
 	bool operator()(const string& s1, const string& s2) const
 	{
 		char a[MAXBUF],b[MAXBUF];
-		strcpy(a,s1.c_str());
-		strcpy(b,s2.c_str());
+		strlcpy(a,s1.c_str(),MAXBUF);
+		strlcpy(b,s2.c_str(),MAXBUF);
 		return (strcasecmp(a,b) == 0);
 	}
 
@@ -223,9 +223,9 @@ void add_gline(long duration, char* source, char* reason, char* hostmask)
 	del_gline(hostmask);
 	GLine item;
 	item.duration = duration;
-	strncpy(item.hostmask,hostmask,MAXBUF);
-	strncpy(item.reason,reason,MAXBUF);
-	strncpy(item.source,source,MAXBUF);
+	strlcpy(item.hostmask,hostmask,MAXBUF);
+	strlcpy(item.reason,reason,MAXBUF);
+	strlcpy(item.source,source,MAXBUF);
 	item.n_matches = 0;
 	item.set_time = time(NULL);
 	glines.push_back(item);
@@ -238,9 +238,9 @@ void add_qline(long duration, char* source, char* reason, char* nickname)
 	del_qline(nickname);
 	QLine item;
 	item.duration = duration;
-	strncpy(item.nick,nickname,MAXBUF);
-	strncpy(item.reason,reason,MAXBUF);
-	strncpy(item.source,source,MAXBUF);
+	strlcpy(item.nick,nickname,MAXBUF);
+	strlcpy(item.reason,reason,MAXBUF);
+	strlcpy(item.source,source,MAXBUF);
 	item.n_matches = 0;
 	item.is_global = false;
 	item.set_time = time(NULL);
@@ -254,9 +254,9 @@ void add_zline(long duration, char* source, char* reason, char* ipaddr)
 	del_zline(ipaddr);
 	ZLine item;
 	item.duration = duration;
-	strncpy(item.ipaddr,ipaddr,MAXBUF);
-	strncpy(item.reason,reason,MAXBUF);
-	strncpy(item.source,source,MAXBUF);
+	strlcpy(item.ipaddr,ipaddr,MAXBUF);
+	strlcpy(item.reason,reason,MAXBUF);
+	strlcpy(item.source,source,MAXBUF);
 	item.n_matches = 0;
 	item.is_global = false;
 	item.set_time = time(NULL);
@@ -270,9 +270,9 @@ void add_kline(long duration, char* source, char* reason, char* hostmask)
 	del_kline(hostmask);
 	KLine item;
 	item.duration = duration;
-	strncpy(item.hostmask,hostmask,MAXBUF);
-	strncpy(item.reason,reason,MAXBUF);
-	strncpy(item.source,source,MAXBUF);
+	strlcpy(item.hostmask,hostmask,MAXBUF);
+	strlcpy(item.reason,reason,MAXBUF);
+	strlcpy(item.source,source,MAXBUF);
 	item.n_matches = 0;
 	item.set_time = time(NULL);
 	klines.push_back(item);

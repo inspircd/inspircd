@@ -21,17 +21,17 @@
 void Delete(char* str,int pos)
 {
 	char moo[MAXBUF];
-	strcpy(moo,str);
+	strlcpy(moo,str,MAXBUF);
 	moo[pos] = '\0';
-	strcpy(str,moo);
-	strcat(str,moo+pos+1);
+	strlcpy(str,moo,MAXBUF);
+	strlcat(str,moo+pos+1,MAXBUF);
 }
 
 void Insert(char* substr,char* str,int pos)
 {
 	std::string a = str;
 	a.insert(pos,substr);
-	strcpy(str,a.c_str());
+	strlcpy(str,a.c_str(),MAXBUF);
 }
 
 
@@ -57,7 +57,7 @@ if ((strstr(mask,"*")==0) && (strlen(literal) != strlen(mask)))
  
    if ((mask[I]=='*') && (MWC==0))
    {
-     strcpy(OldM,mask);
+     strlcpy(OldM,mask,MAXBUF);
      
      Delete(mask,I);
      
@@ -69,7 +69,7 @@ if ((strstr(mask,"*")==0) && (strlen(literal) != strlen(mask)))
 
        Insert("?",mask,I);
      }
-     strcpy(mask,OldM);
+     strlcpy(mask,OldM,MAXBUF);
      Delete(mask,I);
      Insert("?",mask,I);
    }
@@ -96,8 +96,8 @@ bool match(const char* literal, const char* mask)
 	char L[10240];
 	char M[10240];
 	MWC = 0;
-	strncpy(L,literal,10240);
-	strncpy(M,mask,10240);
+	strlcpy(L,literal,10240);
+	strlcpy(M,mask,10240);
 	strlower(L);
 	strlower(M);
 	match2(L,M);

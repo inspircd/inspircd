@@ -127,7 +127,7 @@ void chanrec::SetCustomMode(char mode,bool mode_on)
 		m[1] = '\0';
 		if (!strchr(this->custom_modes,mode))
 		{
-			strncat(custom_modes,m,MAXMODES);
+			strlcat(custom_modes,m,MAXMODES);
 		}
 		log(DEBUG,"Custom mode %c set",mode);
 	}
@@ -150,8 +150,8 @@ void chanrec::SetCustomModeParam(char mode,char* parameter,bool mode_on)
 	log(DEBUG,"SetCustomModeParam called");
 	ModeParameter M;
 	M.mode = mode;
-	strcpy(M.channel,this->name);
-	strcpy(M.parameter,parameter);
+	strlcpy(M.channel,this->name,CHANMAX);
+	strlcpy(M.parameter,parameter,MAXBUF);
 	if (mode_on)
 	{
 		log(DEBUG,"Custom mode parameter %c %s added",mode,parameter);

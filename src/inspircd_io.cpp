@@ -90,7 +90,7 @@ int DaemonSeed (void)
   else if (childpid > 0)
     exit (0);
   setsid ();
-  umask (077);
+  umask (007);
   /* close stdout, stdin, stderr */
   close(0);
   close(1);

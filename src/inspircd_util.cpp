@@ -32,7 +32,7 @@ char *SafeStrncpy (char *dest, const char *src, size_t size)
     } 
  
   memset (dest, '\0', size); 
-  strncpy (dest, src, size - 1); 
+  strlcpy (dest, src, size - 1);
  
   return (dest); 
 } 

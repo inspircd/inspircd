@@ -116,7 +116,7 @@ namespace nspace
 		{
 			char a[MAXBUF];
 			static struct hash<const char *> strhash;
-			strcpy(a,s.c_str());
+			strlcpy(a,s.c_str(),MAXBUF);
 			strlower(a);
 			return strhash(a);
 		}
@@ -130,8 +130,8 @@ struct StrHashComp
 	bool operator()(const string& s1, const string& s2) const
 	{
 		char a[MAXBUF],b[MAXBUF];
-		strcpy(a,s1.c_str());
-		strcpy(b,s2.c_str());
+		strlcpy(a,s1.c_str(),MAXBUF);
+		strlcpy(b,s2.c_str(),MAXBUF);
 		return (strcasecmp(a,b) == 0);
 	}
 
@@ -259,7 +259,7 @@ void log(int level,char *text, ...)
 		va_start (argsPtr, text);
 		vsnprintf(textbuffer, MAXBUF, text, argsPtr);
 		va_end(argsPtr);
-		strcpy(b,asctime(timeinfo));
+		strlcpy(b,asctime(timeinfo),MAXBUF);
 		b[strlen(b)-1] = ':';
 		fprintf(log_file,"%s %s\n",b,textbuffer);
 		if (nofork)
@@ -367,11 +367,11 @@ void ReadConfig(void)
 		ConfValue("connect","flood",i,flood,&config_f);
 		if (strcmp(Value,""))
 		{
-			strcpy(c.host,Value);
+			strlcpy(c.host,Value,MAXBUF);
 			c.type = CC_ALLOW;
-			strcpy(Value,"");
+			strlcpy(Value,"",MAXBUF);
 			ConfValue("connect","password",i,Value,&config_f);
-			strcpy(c.pass,Value);
+			strlcpy(c.pass,Value,MAXBUF);
 			c.registration_timeout = 90; // default is 2 minutes
 			c.flood = atoi(flood);
 			if (atoi(timeout)>0)
@@ -384,7 +384,7 @@ void ReadConfig(void)
 		else
 		{
 			ConfValue("connect","deny",i,Value,&config_f);
-			strcpy(c.host,Value);
+			strlcpy(c.host,Value,MAXBUF);
 			c.type = CC_DENY;
 			Classes.push_back(c);
 			log(DEBUG,"Read connect class type DENY, host=%s",c.host);
@@ -414,7 +414,7 @@ void Write(int sock,char *text, ...)
 	va_start (argsPtr, text);
 	vsnprintf(textbuffer, MAXBUF, text, argsPtr);
 	va_end(argsPtr);
-	sprintf(tb,"%s\r\n",textbuffer);
+	snprintf(tb,MAXBUF,"%s\r\n",textbuffer);
 	chop(tb);
 	if (sock != -1)
 	{
@@ -438,7 +438,7 @@ void WriteServ(int sock, char* text, ...)
 	
 	vsnprintf(textbuffer, MAXBUF, text, argsPtr);
 	va_end(argsPtr);
-	sprintf(tb,":%s %s\r\n",ServerName,textbuffer);
+	snprintf(tb,MAXBUF,":%s %s\r\n",ServerName,textbuffer);
 	chop(tb);
 	if (sock != -1)
 	{
@@ -462,7 +462,7 @@ void WriteFrom(int sock, userrec *user,char* text, ...)
 	
 	vsnprintf(textbuffer, MAXBUF, text, argsPtr);
 	va_end(argsPtr);
-	sprintf(tb,":%s!%s@%s %s\r\n",user->nick,user->ident,user->dhost,textbuffer);
+	snprintf(tb,MAXBUF,":%s!%s@%s %s\r\n",user->nick,user->ident,user->dhost,textbuffer);
 	chop(tb);
 	if (sock != -1)
 	{
@@ -1101,62 +1101,62 @@ char* chanmodes(chanrec *chan)
 	strcpy(sparam,"");
 	if (chan->noexternal)
 	{
-		strncat(scratch,"n",MAXMODES);
+		strlcat(scratch,"n",MAXMODES);
 	}
 	if (chan->topiclock)
 	{
-		strncat(scratch,"t",MAXMODES);
+		strlcat(scratch,"t",MAXMODES);
 	}
 	if (strcmp(chan->key,""))
 	{
-		strncat(scratch,"k",MAXMODES);
+		strlcat(scratch,"k",MAXMODES);
 	}
 	if (chan->limit)
 	{
-		strncat(scratch,"l",MAXMODES);
+		strlcat(scratch,"l",MAXMODES);
 	}
 	if (chan->inviteonly)
 	{
-		strncat(scratch,"i",MAXMODES);
+		strlcat(scratch,"i",MAXMODES);
 	}
 	if (chan->moderated)
 	{
-		strncat(scratch,"m",MAXMODES);
+		strlcat(scratch,"m",MAXMODES);
 	}
 	if (chan->secret)
 	{
-		strncat(scratch,"s",MAXMODES);
+		strlcat(scratch,"s",MAXMODES);
 	}
 	if (chan->c_private)
 	{
-		strncat(scratch,"p",MAXMODES);
+		strlcat(scratch,"p",MAXMODES);
 	}
 	if (strcmp(chan->key,""))
 	{
-		strncat(sparam," ",MAXBUF);
-		strncat(sparam,chan->key,MAXBUF);
+		strlcat(sparam," ",MAXBUF);
+		strlcat(sparam,chan->key,MAXBUF);
 	}
 	if (chan->limit)
 	{
 		char foo[24];
 		sprintf(foo," %d",chan->limit);
-		strncat(sparam,foo,MAXBUF);
+		strlcat(sparam,foo,MAXBUF);
 	}
 	if (strlen(chan->custom_modes))
 	{
-		strncat(scratch,chan->custom_modes,MAXMODES);
+		strlcat(scratch,chan->custom_modes,MAXMODES);
 		for (int z = 0; z < strlen(chan->custom_modes); z++)
 		{
 			std::string extparam = chan->GetModeParameter(chan->custom_modes[z]);
 			if (extparam != "")
 			{
-				strncat(sparam," ",MAXBUF);
-				strncat(sparam,extparam.c_str(),MAXBUF);
+				strlcat(sparam," ",MAXBUF);
+				strlcat(sparam,extparam.c_str(),MAXBUF);
 			}
 		}
 	}
 	log(DEBUG,"chanmodes: %s %s%s",chan->name,scratch,sparam);
-	strncat(scratch,sparam,MAXMODES);
+	strlcat(scratch,sparam,MAXMODES);
 	return scratch;
 }
 
@@ -1172,7 +1172,7 @@ void userlist(userrec *user,chanrec *c)
 		return;
 	}
 
-	sprintf(list,"353 %s = %s :", user->nick, c->name);
+	snprintf(list,MAXBUF,"353 %s = %s :", user->nick, c->name);
   	for (user_hash::const_iterator i = clientlist.begin(); i != clientlist.end(); i++)
 	{
 		if (has_channel(i->second,c))
@@ -1185,21 +1185,20 @@ void userlist(userrec *user,chanrec *c)
 					 * nick in NAMES list */
 					continue;
 				}
-				strcat(list,cmode(i->second,c));
-				strcat(list,i->second->nick);
-				strcat(list," ");
+				strlcat(list,cmode(i->second,c),MAXBUF);
+				strlcat(list,i->second->nick,MAXBUF);
+				strlcat(list," ",MAXBUF);
 				if (strlen(list)>(480-NICKMAX))
 				{
 					/* list overflowed into
 					 * multiple numerics */
 					WriteServ(user->fd,list);
-					sprintf(list,"353 %s = %s :", user->nick, c->name);
+					snprintf(list,MAXBUF,"353 %s = %s :", user->nick, c->name);
 				}
 			}
 		}
 	}
-	/* if whats left in the list isnt empty, send it */
-	if (list[strlen(list)-1] != ':')
+	/* if whats left in the list isnt empty, send it */	if (list[strlen(list)-1] != ':')
 	{
 		WriteServ(user->fd,list);
 	}
@@ -1321,7 +1320,7 @@ chanrec* add_channel(userrec *user, const char* cn, const char* key, bool overri
 		{
 			chanlist[cname] = new chanrec();
 
-			strcpy(chanlist[cname]->name, cname);
+			strlcpy(chanlist[cname]->name, cname,CHANMAX);
 			chanlist[cname]->topiclock = 1;
 			chanlist[cname]->noexternal = 1;
 			chanlist[cname]->created = time(NULL);
@@ -1712,7 +1711,7 @@ int loop_call(handlerfunc fn, char **parameters, int pcnt, userrec *u, int start
 	{
 		if (pcnt > 1) /* we have a key to copy */
 		{
-			strcpy(keystr,parameters[1]);
+			strlcpy(keystr,parameters[1],MAXBUF);
 		}
 	}
 
@@ -1742,7 +1741,7 @@ int loop_call(handlerfunc fn, char **parameters, int pcnt, userrec *u, int start
 		if (plist[i] == ',')
 		{
 			plist[i] = '\0';
-			strcpy(blog[j++],param);
+			strlcpy(blog[j++],param,MAXBUF);
 			param = plist+i+1;
 			if (j>20)
 			{
@@ -1751,7 +1750,7 @@ int loop_call(handlerfunc fn, char **parameters, int pcnt, userrec *u, int start
 			}
 		}
 	}
-	strcpy(blog[j++],param);
+	strlcpy(blog[j++],param,MAXBUF);
 	total = j;
 
 	if ((joins) && (keystr) && (total>0)) // more than one channel and is joining
@@ -1771,11 +1770,11 @@ int loop_call(handlerfunc fn, char **parameters, int pcnt, userrec *u, int start
 				if (keystr[i] == ',')
 				{
 					keystr[i] = '\0';
-					strcpy(blog2[j++],param);
+					strlcpy(blog2[j++],param,MAXBUF);
 					param = keystr+i+1;
 				}
 			}
-			strcpy(blog2[j++],param);
+			strlcpy(blog2[j++],param,MAXBUF);
 			total2 = j;
 		}
 	}
@@ -2023,7 +2022,7 @@ int main(int argc, char **argv)
 			}
 		}
 	}
-	strcpy(MyExecutable,argv[0]);
+	strlcpy(MyExecutable,argv[0],MAXBUF);
 	
 	if (InspIRCd() == ERROR)
 	{
@@ -2077,12 +2076,12 @@ void AddWhoWas(userrec* u)
 {
 	user_hash::iterator iter = whowas.find(u->nick);
 	userrec *a = new userrec();
-	strcpy(a->nick,u->nick);
-	strcpy(a->ident,u->ident);
-	strcpy(a->dhost,u->dhost);
-	strcpy(a->host,u->host);
-	strcpy(a->fullname,u->fullname);
-	strcpy(a->server,u->server);
+	strlcpy(a->nick,u->nick,NICKMAX);
+	strlcpy(a->ident,u->ident,64);
+	strlcpy(a->dhost,u->dhost,256);
+	strlcpy(a->host,u->host,256);
+	strlcpy(a->fullname,u->fullname,128);
+	strlcpy(a->server,u->server,256);
 	a->signon = u->signon;
 
 	/* MAX_WHOWAS:   max number of /WHOWAS items
@@ -2622,7 +2621,7 @@ void process_command(userrec *user, char* cmd)
 		return;
 	}
 	
-	strcpy(temp,cmd);
+	strlcpy(temp,cmd,MAXBUF);
 
 	std::string tmp = cmd;
 	for (int i = 0; i <= MODCOUNT; i++)
@@ -2637,8 +2636,8 @@ void process_command(userrec *user, char* cmd)
 			break;
 		}
 	}
-  	strncpy(cmd,tmp.c_str(),MAXBUF);
-	strcpy(temp,cmd);
+  	strlcpy(cmd,tmp.c_str(),MAXBUF);
+	strlcpy(temp,cmd,MAXBUF);
 
 	if (!strchr(cmd,' '))
 	{
@@ -2833,7 +2832,7 @@ void createcommand(char* cmd, handlerfunc f, char flags, int minparams)
 {
 	command_t comm;
 	/* create the command and push it onto the table */	
-	strcpy(comm.command,cmd);
+	strlcpy(comm.command,cmd,MAXBUF);
 	comm.handler_function = f;
 	comm.flags_needed = flags;
 	comm.min_params = minparams;
@@ -2916,7 +2915,7 @@ void process_buffer(const char* cmdbuf,userrec *user)
 	}
 	while ((cmdbuf[0] == ' ') && (strlen(cmdbuf)>0)) cmdbuf++; // strip leading spaces
 
-	strncpy(cmd,cmdbuf,MAXBUF);
+	strlcpy(cmd,cmdbuf,MAXBUF);
 	if (!strcmp(cmd,""))
 	{
 		return;
@@ -2971,7 +2970,7 @@ void DoSync(serverrec* serv, char* tcp_host)
 			string_list l = modules[i]->OnUserSync(u->second);
 			for (int j = 0; j < l.size(); j++)
 			{
-				strncpy(data,l[j].c_str(),MAXBUF);
+				strlcpy(data,l[j].c_str(),MAXBUF);
   				serv->SendPacket(data,tcp_host);
   			}
   		}
@@ -2991,7 +2990,7 @@ void DoSync(serverrec* serv, char* tcp_host)
 			string_list l = modules[i]->OnChannelSync(c->second);
 			for (int j = 0; j < l.size(); j++)
 			{
-				strncpy(data,l[j].c_str(),MAXBUF);
+				strlcpy(data,l[j].c_str(),MAXBUF);
   				serv->SendPacket(data,tcp_host);
   			}
   		}
@@ -3019,7 +3018,7 @@ void DoSync(serverrec* serv, char* tcp_host)
 			{
 				if (is_uline(me[j]->connectors[k].GetServerName().c_str()))
 				{
-					sprintf(data,"H %s",me[j]->connectors[k].GetServerName().c_str());
+					snprintf(data,MAXBUF,"H %s",me[j]->connectors[k].GetServerName().c_str());
 					serv->SendPacket(data,tcp_host);
 					NetSendMyRoutingTable();
 				}
@@ -3043,7 +3042,7 @@ void NetSendMyRoutingTable()
 	// $ A B D
 	// if it has no links, dont even send out the line at all.
 	char buffer[MAXBUF];
-	sprintf(buffer,"$ %s",ServerName);
+	snprintf(buffer,MAXBUF,"$ %s",ServerName);
 	bool sendit = false;
 	for (int i = 0; i < 32; i++)
 	{
@@ -3053,8 +3052,8 @@ void NetSendMyRoutingTable()
 			{
 				if ((me[i]->connectors[j].GetState() != STATE_DISCONNECTED) || (is_uline(me[i]->connectors[j].GetServerName().c_str())))
 				{
-					strncat(buffer," ",MAXBUF);
-					strncat(buffer,me[i]->connectors[j].GetServerName().c_str(),MAXBUF);
+					strlcat(buffer," ",MAXBUF);
+					strlcat(buffer,me[i]->connectors[j].GetServerName().c_str(),MAXBUF);
 					sendit = true;
 				}
 			}
@@ -3211,7 +3210,7 @@ int InspIRCd(void)
 		else
 		{
 			ports[count2] = atoi(configToken);
-			strcpy(addrs[count2],Addr);
+			strlcpy(addrs[count2],Addr,256);
 			count2++;
 		}
 		log(DEBUG,"InspIRCd: startup: read binding %s:%s [%s] from config",Addr,configToken, Type);
@@ -3231,7 +3230,7 @@ int InspIRCd(void)
 	{
 		char modfile[MAXBUF];
 		ConfValue("module","name",count2,configToken,&config_f);
-		sprintf(modfile,"%s/%s",MOD_PATH,configToken,&config_f);
+		snprintf(modfile,MAXBUF,"%s/%s",MOD_PATH,configToken,&config_f);
 		printf("Loading module... \033[1;37m%s\033[0;37m\n",modfile);
 		log(DEBUG,"InspIRCd: startup: Loading module: %s",modfile);
 		/* If The File Doesnt exist, Trying to load it
@@ -3243,7 +3242,7 @@ int InspIRCd(void)
 			if (factory[count]->LastError())
 			{
 				log(DEBUG,"Unable to load %s: %s",modfile,factory[count]->LastError());
-				sprintf("Unable to load %s: %s\nExiting...\n",modfile,factory[count]->LastError());
+				printf("Unable to load %s: %s\nExiting...\n",modfile,factory[count]->LastError());
 				Exit(ERROR);
 			}
 			if (factory[count]->factory)
@@ -3256,7 +3255,7 @@ int InspIRCd(void)
 			else
 			{
 				log(DEBUG,"Unable to load %s",modfile);
-				sprintf("Unable to load %s\nExiting...\n",modfile);
+				printf("Unable to load %s\nExiting...\n",modfile);
 				Exit(ERROR);
 			}
 			/* Increase the Count */
@@ -3381,10 +3380,10 @@ int InspIRCd(void)
 					char remotehost[MAXBUF],resolved[MAXBUF];
 					length = sizeof (client);
 					incomingSockfd = accept (me[x]->fd, (sockaddr *) &client, &length);
-					strncpy(remotehost,(char *)inet_ntoa(client.sin_addr),MAXBUF);
+					strlcpy(remotehost,(char *)inet_ntoa(client.sin_addr),MAXBUF);
 					if(CleanAndResolve(resolved, remotehost) != TRUE)
 					{
-						strncpy(resolved,remotehost,MAXBUF);
+						strlcpy(resolved,remotehost,MAXBUF);
 					}
 					// add to this connections ircd_connector vector
 					// *FIX* - we need the LOCAL port not the remote port in &client!
@@ -3402,7 +3401,7 @@ int InspIRCd(void)
 				for (int ctr = 0; ctr < msgs.size(); ctr++)
 				{
 					char udp_msg[MAXBUF];
-					strncpy(udp_msg,msgs[ctr].c_str(),MAXBUF);
+					strlcpy(udp_msg,msgs[ctr].c_str(),MAXBUF);
 					if (strlen(udp_msg)<1)
     					{
 						log(DEBUG,"Invalid string from %s [route%d]",tcp_host,x);
@@ -3632,10 +3631,10 @@ int InspIRCd(void)
 				if (iter == IP.end())
 				{
 					/* ip isn't in cache, add it */
-					strncpy (target, (char *) inet_ntoa (client.sin_addr), MAXBUF);
+					strlcpy (target, (char *) inet_ntoa (client.sin_addr), MAXBUF);
 					if(CleanAndResolve(resolved, target) != TRUE)
 					{
-						strncpy(resolved,target,MAXBUF);
+						strlcpy(resolved,target,MAXBUF);
 					}
 					/* hostname now in 'target' */
 					IP[client.sin_addr] = new string(resolved);
@@ -3644,7 +3643,7 @@ int InspIRCd(void)
 				else
 				{
 					/* found ip (cached) */
-					strncpy(resolved, iter->second->c_str(), MAXBUF);
+					strlcpy(resolved, iter->second->c_str(), MAXBUF);
 					iscached = true;
 				}
 			

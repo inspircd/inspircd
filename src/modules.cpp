@@ -123,7 +123,7 @@ namespace nspace
 		{
 			char a[MAXBUF];
 			static struct hash<const char *> strhash;
-			strcpy(a,s.c_str());
+			strlcpy(a,s.c_str(),MAXBUF);
 			strlower(a);
 			return strhash(a);
 		}
@@ -137,8 +137,8 @@ struct StrHashComp
 	bool operator()(const string& s1, const string& s2) const
 	{
 		char a[MAXBUF],b[MAXBUF];
-		strcpy(a,s1.c_str());
-		strcpy(b,s2.c_str());
+		strlcpy(a,s1.c_str(),MAXBUF);
+		strlcpy(b,s2.c_str(),MAXBUF);
 		return (strcasecmp(a,b) == 0);
 	}
 
@@ -339,8 +339,8 @@ void Server::SendOpers(std::string s)
 bool Server::MatchText(std::string sliteral, std::string spattern)
 {
 	char literal[MAXBUF],pattern[MAXBUF];
-	strncpy(literal,sliteral.c_str(),MAXBUF);
-	strncpy(pattern,spattern.c_str(),MAXBUF);
+	strlcpy(literal,sliteral.c_str(),MAXBUF);
+	strlcpy(pattern,spattern.c_str(),MAXBUF);
 	return match(literal,pattern);
 }
 
@@ -592,8 +592,8 @@ std::string ConfigReader::ReadValue(std::string tag, std::string name, int index
 	char val[MAXBUF];
 	char t[MAXBUF];
 	char n[MAXBUF];
-	strncpy(t,tag.c_str(),MAXBUF);
-	strncpy(n,name.c_str(),MAXBUF);
+	strlcpy(t,tag.c_str(),MAXBUF);
+	strlcpy(n,name.c_str(),MAXBUF);
 	int res = ReadConf(cache,t,n,index,val);
 	if (!res)
 	{
@@ -608,8 +608,8 @@ bool ConfigReader::ReadFlag(std::string tag, std::string name, int index)
 	char val[MAXBUF];
 	char t[MAXBUF];
 	char n[MAXBUF];
-	strncpy(t,tag.c_str(),MAXBUF);
-	strncpy(n,name.c_str(),MAXBUF);
+	strlcpy(t,tag.c_str(),MAXBUF);
+	strlcpy(n,name.c_str(),MAXBUF);
 	int res = ReadConf(cache,t,n,index,val);
 	if (!res)
 	{
@@ -625,8 +625,8 @@ long ConfigReader::ReadInteger(std::string tag, std::string name, int index, boo
 	char val[MAXBUF];
 	char t[MAXBUF];
 	char n[MAXBUF];
-	strncpy(t,tag.c_str(),MAXBUF);
-	strncpy(n,name.c_str(),MAXBUF);
+	strlcpy(t,tag.c_str(),MAXBUF);
+	strlcpy(n,name.c_str(),MAXBUF);
 	int res = ReadConf(cache,t,n,index,val);
 	if (!res)
 	{

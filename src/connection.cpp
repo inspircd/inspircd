@@ -202,7 +202,7 @@ bool connection::BeginLink(char* targethost, int port, char* password, char* ser
 			// targethost has been turned into an ip...
 			// we dont want this as the server name.
 			connector.SetServerName(servername);
-			sprintf(connect,"S %s %s %d %d :%s",getservername().c_str(),password,myport,GetRevision(),getserverdesc().c_str());
+			snprintf(connect,MAXBUF,"S %s %s %d %d :%s",getservername().c_str(),password,myport,GetRevision(),getserverdesc().c_str());
 			connector.SetState(STATE_NOAUTH_OUTBOUND);
 			connector.SetHostAndPort(targethost, port);
 			this->connectors.push_back(connector);
@@ -232,7 +232,7 @@ bool connection::MeshCookie(char* targethost, int port, long cookie, char* serve
 			// targethost has been turned into an ip...
 			// we dont want this as the server name.
 			connector.SetServerName(servername);
-			sprintf(connect,"- %d %s :%s",cookie,getservername().c_str(),getserverdesc().c_str());
+			snprintf(connect,MAXBUF,"- %d %s :%s",cookie,getservername().c_str(),getserverdesc().c_str());
 			connector.SetState(STATE_NOAUTH_OUTBOUND);
 			connector.SetHostAndPort(targethost, port);
 			connector.SetState(STATE_CONNECTED);
@@ -357,7 +357,7 @@ bool connection::SendPacket(char *message, const char* host)
 	
 	if (!strchr(message,'\n'))
 	{
-		strncat(message,"\n",MAXBUF);
+		strlcat(message,"\n",MAXBUF);
 	}
 
 	if (cn)
@@ -368,7 +368,7 @@ bool connection::SendPacket(char *message, const char* host)
 		{
 			log(DEBUG,"Main route to %s is down, seeking alternative",host);
 			// fix: can only route one hop to avoid a loop
-			if (strncat(message,"R ",2))
+			if (strlcat(message,"R ",2))
 			{
 				// this route is down, we must re-route the packet through an available point in the mesh.
 				for (int k = 0; k < this->connectors.size(); k++)
@@ -452,7 +452,7 @@ bool connection::RecvPacket(std::deque<std::string> &messages, char* host)
 					if (strlen(sanitized))
 					{
 						messages.push_back(sanitized);
-						strncpy(host,this->connectors[i].GetServerName().c_str(),160);
+						strlcpy(host,this->connectors[i].GetServerName().c_str(),160);
 						log(DEBUG,"main: Connection::RecvPacket() got '%s' from %s",sanitized,host);
 						
 					}

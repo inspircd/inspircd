@@ -532,10 +532,10 @@ void process_modes(char **parameters,userrec* user,chanrec *chan,int status, int
 
 	log(DEBUG,"process_modes: start: parameters=%d",pcnt);
 
-	strcpy(modelist,parameters[1]); /* mode list, e.g. +oo-o */
-					/* parameters[2] onwards are parameters for
-					 * modes that require them :) */
-	strcpy(outlist,"+");
+	strlcpy(modelist,parameters[1],MAXBUF); /* mode list, e.g. +oo-o *
+						 * parameters[2] onwards are parameters for
+					 	 * modes that require them :) */
+	strlcpy(outlist,"+",MAXBUF);
 	mdir = 1;
 
 	log(DEBUG,"process_modes: modelist: %s",modelist);
@@ -596,8 +596,8 @@ void process_modes(char **parameters,userrec* user,chanrec *chan,int status, int
 					}
 					if (r)
 					{
-						strcat(outlist,"o");
-						strcpy(outpars[pc++],r);
+						strlcat(outlist,"o",MAXBUF);
+						strlcpy(outpars[pc++],r,MAXBUF);
 					}
 				break;
 			
@@ -613,8 +613,8 @@ void process_modes(char **parameters,userrec* user,chanrec *chan,int status, int
 					}
 					if (r)
 					{
-						strcat(outlist,"h");
-						strcpy(outpars[pc++],r);
+						strlcat(outlist,"h",MAXBUF);
+						strlcpy(outpars[pc++],r,MAXBUF);
 					}
 				break;
 			
@@ -631,8 +631,8 @@ void process_modes(char **parameters,userrec* user,chanrec *chan,int status, int
 					}
 					if (r)
 					{
-						strcat(outlist,"v");
-						strcpy(outpars[pc++],r);
+						strlcat(outlist,"v",MAXBUF);
+						strlcpy(outpars[pc++],r,MAXBUF);
 					}
 				break;
 				
@@ -648,8 +648,8 @@ void process_modes(char **parameters,userrec* user,chanrec *chan,int status, int
 					}
 					if (r)
 					{
-						strcat(outlist,"b");
-						strcpy(outpars[pc++],parameters[param-1]);
+						strlcat(outlist,"b",MAXBUF);
+						strlcpy(outpars[pc++],parameters[param-1],MAXBUF);
 					}
 				break;
 
@@ -667,12 +667,12 @@ void process_modes(char **parameters,userrec* user,chanrec *chan,int status, int
 						{
 							strcat(outlist,"k");
 							char key[MAXBUF];
-							strcpy(key,parameters[param++]);
+							strlcpy(key,parameters[param++],MAXBUF);
 							if (strlen(key)>32) {
 								key[31] = '\0';
 							}
-							strcpy(outpars[pc++],key);
-							strcpy(chan->key,key);
+							strlcpy(outpars[pc++],key,MAXBUF);
+							strlcpy(chan->key,key,MAXBUF);
 							k_set = true;
 						}
 					}
@@ -681,16 +681,16 @@ void process_modes(char **parameters,userrec* user,chanrec *chan,int status, int
 						/* checks on -k are case sensitive and only accurate to the
   						   first 32 characters */
 						char key[MAXBUF];
-						strcpy(key,parameters[param++]);
+						strlcpy(key,parameters[param++],MAXBUF);
 						if (strlen(key)>32) {
 							key[31] = '\0';
 						}
 						/* only allow -k if correct key given */
 						if (!strcmp(chan->key,key))
 						{
-							strcat(outlist,"k");
-							strcpy(chan->key,"");
-							strcpy(outpars[pc++],key);
+							strlcat(outlist,"k",MAXBUF);
+							strlcpy(chan->key,"",MAXBUF);
+							strlcpy(outpars[pc++],key,MAXBUF);
 						}
 					}
 				break;
@@ -735,8 +735,8 @@ void process_modes(char **parameters,userrec* user,chanrec *chan,int status, int
 							
 						if (chan->limit)
 						{
-							strcat(outlist,"l");
-							strcpy(outpars[pc++],parameters[param++]);
+							strlcat(outlist,"l",MAXBUF);
+							strlcpy(outpars[pc++],parameters[param++],MAXBUF);
 							l_set = true;
 						}
 					}
@@ -745,7 +745,7 @@ void process_modes(char **parameters,userrec* user,chanrec *chan,int status, int
 				case 'i':
 					if (chan->inviteonly != mdir)
 					{
-						strcat(outlist,"i");
+						strlcat(outlist,"i",MAXBUF);
 					}
 					chan->inviteonly = mdir;
 				break;
@@ -753,7 +753,7 @@ void process_modes(char **parameters,userrec* user,chanrec *chan,int status, int
 				case 't':
 					if (chan->topiclock != mdir)
 					{
-						strcat(outlist,"t");
+						strlcat(outlist,"t",MAXBUF);
 					}
 					chan->topiclock = mdir;
 				break;
@@ -761,7 +761,7 @@ void process_modes(char **parameters,userrec* user,chanrec *chan,int status, int
 				case 'n':
 					if (chan->noexternal != mdir)
 					{
-						strcat(outlist,"n");
+						strlcat(outlist,"n",MAXBUF);
 					}
 					chan->noexternal = mdir;
 				break;
@@ -769,7 +769,7 @@ void process_modes(char **parameters,userrec* user,chanrec *chan,int status, int
 				case 'm':
 					if (chan->moderated != mdir)
 					{
-						strcat(outlist,"m");
+						strlcat(outlist,"m",MAXBUF);
 					}
 					chan->moderated = mdir;
 				break;
@@ -783,11 +783,11 @@ void process_modes(char **parameters,userrec* user,chanrec *chan,int status, int
 							chan->c_private = 0;
 							if (mdir)
 							{
-								strcat(outlist,"-p+");
+								strlcat(outlist,"-p+",MAXBUF);
 							}
 							else
 							{
-								strcat(outlist,"+p-");
+								strlcat(outlist,"+p-",MAXBUF);
 							}
 						}
 					}
@@ -797,17 +797,17 @@ void process_modes(char **parameters,userrec* user,chanrec *chan,int status, int
 				case 'p':
 					if (chan->c_private != mdir)
 					{
-						strcat(outlist,"p");
+						strlcat(outlist,"p",MAXBUF);
 						if (chan->secret)
 						{
 							chan->secret = 0;
 							if (mdir)
 							{
-								strcat(outlist,"-s+");
+								strlcat(outlist,"-s+",MAXBUF);
 							}
 							else
 							{
-								strcat(outlist,"+s-");
+								strlcat(outlist,"+s-",MAXBUF);
 							}
 						}
 					}
@@ -870,9 +870,9 @@ void process_modes(char **parameters,userrec* user,chanrec *chan,int status, int
 										{
 											if (ptr>0)
 											{
-												strcat(outlist, app);
+												strlcat(outlist, app,MAXBUF);
 											}
-											strcpy(outpars[pc++],parameters[param++]);
+											strlcpy(outpars[pc++],parameters[param++],MAXBUF);
 										}
 									}
 									else
@@ -881,11 +881,11 @@ void process_modes(char **parameters,userrec* user,chanrec *chan,int status, int
 										{
 											if ((modelist[ptr-1] == '+') || (modelist[ptr-1] == '-'))
 											{
-												strcat(outlist, app);
+												strlcat(outlist, app,MAXBUF);
 											}
 											else if (!strchr(outlist,modechar))
 											{
-												strcat(outlist, app);
+												strlcat(outlist, app,MAXBUF);
 											}
 										}
 										chan->SetCustomMode(modechar,mdir);
@@ -893,7 +893,7 @@ void process_modes(char **parameters,userrec* user,chanrec *chan,int status, int
 										if ((ModeDefinedOn(modechar,MT_CHANNEL)>0) && (mdir))
 										{
 											chan->SetCustomModeParam(modelist[ptr],parameters[param],mdir);
-											strcpy(outpars[pc++],parameters[param++]);
+											strlcpy(outpars[pc++],parameters[param++],MAXBUF);
 										}
 									}
 									// break, because only one module can handle the mode.
@@ -919,11 +919,11 @@ void process_modes(char **parameters,userrec* user,chanrec *chan,int status, int
 	}
 	if (strcmp(outlist,""))
 	{
-		strcpy(outstr,outlist);
+		strlcpy(outstr,outlist,MAXBUF);
 		for (ptr = 0; ptr < pc; ptr++)
 		{
-			strcat(outstr," ");
-			strcat(outstr,outpars[ptr]);
+			strlcat(outstr," ",MAXBUF);
+			strlcat(outstr,outpars[ptr],MAXBUF);
 		}
 		if (local)
 		{
@@ -1014,7 +1014,7 @@ bool process_module_umode(char umode, userrec* source, void* dest, bool adding)
 	if (!source)
 	{
 		s2 = new userrec;
-		strncpy(s2->nick,ServerName,NICKMAX);
+		strlcpy(s2->nick,ServerName,NICKMAX);
 		strcpy(s2->modes,"o");
 		s2->fd = -1;
 		source = s2;
@@ -1075,7 +1075,7 @@ void handle_mode(char **parameters, int pcnt, userrec *user)
 	if ((dest) && (pcnt > 1))
 	{
 		char dmodes[MAXBUF];
-		strncpy(dmodes,dest->modes,MAXBUF);
+		strlcpy(dmodes,dest->modes,MAXBUF);
 		log(DEBUG,"pulled up dest user modes: %s",dmodes);
 	
 		can_change = 0;
@@ -1189,7 +1189,7 @@ void handle_mode(char **parameters, int pcnt, userrec *user)
 										strcat(temp,moo);
 									}
 								}
-								strcpy(dmodes,temp);
+								strlcpy(dmodes,temp,MAXBUF);
 							}
 						}
 					}
@@ -1199,7 +1199,7 @@ void handle_mode(char **parameters, int pcnt, userrec *user)
 		if (strlen(outpars))
 		{
 			char b[MAXBUF];
-			strcpy(b,"");
+			strlcpy(b,"",MAXBUF);
 			int z = 0;
 			int i = 0;
 			while (i < strlen (outpars))
@@ -1244,7 +1244,7 @@ void handle_mode(char **parameters, int pcnt, userrec *user)
 			}
 			log(DEBUG,"Stripped mode line");
 			log(DEBUG,"Line dest is now %s",dmodes);
-			strncpy(dest->modes,dmodes,MAXMODES);
+			strlcpy(dest->modes,dmodes,MAXMODES);
 
 		}
 
@@ -1322,7 +1322,7 @@ void server_mode(char **parameters, int pcnt, userrec *user)
 		log(DEBUG,"params > 1");
 
 		char dmodes[MAXBUF];
-		strncpy(dmodes,dest->modes,MAXBUF);
+		strlcpy(dmodes,dest->modes,MAXBUF);
 
 		strcpy(outpars,"+");
 		direction = 1;
@@ -1412,7 +1412,7 @@ void server_mode(char **parameters, int pcnt, userrec *user)
 										strcat(temp,moo);
 									}
 								}
-								strcpy(dmodes,temp);
+								strlcpy(dmodes,temp,MAXBUF);
 							}
 						}
 					}
@@ -1422,7 +1422,7 @@ void server_mode(char **parameters, int pcnt, userrec *user)
 		if (strlen(outpars))
 		{
 			char b[MAXBUF];
-			strcpy(b,"");
+			strlcpy(b,"",MAXBUF);
 			int z = 0;
 			int i = 0;
 			while (i < strlen (outpars))
@@ -1467,7 +1467,7 @@ void server_mode(char **parameters, int pcnt, userrec *user)
 			}
 			log(DEBUG,"Stripped mode line");
 			log(DEBUG,"Line dest is now %s",dmodes);
-			strncpy(dest->modes,dmodes,MAXMODES);
+			strlcpy(dest->modes,dmodes,MAXMODES);
 
 		}
 
@@ -1508,7 +1508,7 @@ void merge_mode(char **parameters, int pcnt)
 		log(DEBUG,"params > 1");
 
 		char dmodes[MAXBUF];
-		strncpy(dmodes,dest->modes,MAXBUF);
+		strlcpy(dmodes,dest->modes,MAXBUF);
 
 		strcpy(outpars,"+");
 		direction = 1;
@@ -1646,7 +1646,7 @@ void merge_mode(char **parameters, int pcnt)
 			}
 			log(DEBUG,"Stripped mode line");
 			log(DEBUG,"Line dest is now %s",dmodes);
-			strncpy(dest->modes,dmodes,MAXMODES);
+			strlcpy(dest->modes,dmodes,MAXMODES);
 
 		}
 
@@ -1657,7 +1657,7 @@ void merge_mode(char **parameters, int pcnt)
 	if (Ptr)
 	{
 		userrec s2;
-		strncpy(s2.nick,ServerName,NICKMAX);
+		strlcpy(s2.nick,ServerName,NICKMAX);
 		strcpy(s2.modes,"o");
 		s2.fd = -1;
 		process_modes(parameters,&s2,Ptr,STATUS_OP,pcnt,true,true,false);
@@ -1686,7 +1686,7 @@ void merge_mode2(char **parameters, int pcnt, userrec* user)
 		log(DEBUG,"params > 1");
 
 		char dmodes[MAXBUF];
-		strncpy(dmodes,dest->modes,MAXBUF);
+		strlcpy(dmodes,dest->modes,MAXBUF);
 
 		strcpy(outpars,"+");
 		direction = 1;
@@ -1776,7 +1776,7 @@ void merge_mode2(char **parameters, int pcnt, userrec* user)
 										strcat(temp,moo);
 									}
 								}
-								strcpy(dmodes,temp);
+								strlcpy(dmodes,temp,MAXBUF);
 							}
 						}
 					}
@@ -1826,7 +1826,7 @@ void merge_mode2(char **parameters, int pcnt, userrec* user)
 			}
 			log(DEBUG,"Stripped mode line");
 			log(DEBUG,"Line dest is now %s",dmodes);
-			strncpy(dest->modes,dmodes,MAXMODES);
+			strlcpy(dest->modes,dmodes,MAXMODES);
 
 		}
 

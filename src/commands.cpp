@@ -132,7 +132,7 @@ namespace nspace
 		{
 			char a[MAXBUF];
 			static struct hash<const char *> strhash;
-			strcpy(a,s.c_str());
+			strlcpy(a,s.c_str(),MAXBUF);
 			strlower(a);
 			return strhash(a);
 		}
@@ -146,8 +146,8 @@ struct StrHashComp
 	bool operator()(const string& s1, const string& s2) const
 	{
 		char a[MAXBUF],b[MAXBUF];
-		strcpy(a,s1.c_str());
-		strcpy(b,s2.c_str());
+		strlcpy(a,s1.c_str(),MAXBUF);
+		strlcpy(b,s2.c_str(),MAXBUF);
 		return (strcasecmp(a,b) == 0);
 	}
 
@@ -238,7 +238,7 @@ void handle_kick(char **parameters, int pcnt, userrec *user)
 	
 	if (pcnt > 2)
 	{
-		strncpy(reason,parameters[2],MAXBUF);
+		strlcpy(reason,parameters[2],MAXBUF);
 		if (strlen(reason)>MAXKICK)
 		{
 			reason[MAXKICK-1] = '\0';
@@ -248,7 +248,7 @@ void handle_kick(char **parameters, int pcnt, userrec *user)
 	}
 	else
 	{
-		strcpy(reason,user->nick);
+		strlcpy(reason,user->nick,MAXBUF);
 		kick_channel(user,u,Ptr,reason);
 	}
 	
@@ -334,7 +334,7 @@ void handle_kill(char **parameters, int pcnt, userrec *user)
 		{
 			// remote kill
 			WriteOpers("*** Remote kill by %s: %s!%s@%s (%s)",user->nick,u->nick,u->ident,u->host,parameters[1]);
-			sprintf(killreason,"[%s] Killed (%s (%s))",ServerName,user->nick,parameters[1]);
+			snprintf(killreason,MAXBUF,"[%s] Killed (%s (%s))",ServerName,user->nick,parameters[1]);
 			WriteCommonExcept(u,"QUIT :%s",killreason);
 			// K token must go to ALL servers!!!
 			char buffer[MAXBUF];
@@ -357,7 +357,7 @@ void handle_kill(char **parameters, int pcnt, userrec *user)
 			// local kill
 			WriteTo(user, u, "KILL %s :%s!%s!%s (%s)", u->nick, ServerName,user->dhost,user->nick,parameters[1]);
 			WriteOpers("*** Local Kill by %s: %s!%s@%s (%s)",user->nick,u->nick,u->ident,u->host,parameters[1]);
-			sprintf(killreason,"Killed (%s (%s))",user->nick,parameters[1]);
+			snprintf(killreason,MAXBUF,"Killed (%s (%s))",user->nick,parameters[1]);
 			kill_link(u,killreason);
 		}
 	}
@@ -490,14 +490,14 @@ void handle_topic(char **parameters, int pcnt, userrec *user)
 				}
 				
 				char topic[MAXBUF];
-				strncpy(topic,parameters[1],MAXBUF);
+				strlcpy(topic,parameters[1],MAXBUF);
 				if (strlen(topic)>MAXTOPIC)
 				{
 					topic[MAXTOPIC-1] = '\0';
 				}
 					
-				strcpy(Ptr->topic,topic);
-				strcpy(Ptr->setby,user->nick);
+				strlcpy(Ptr->topic,topic,MAXBUF);
+				strlcpy(Ptr->setby,user->nick,NICKMAX);
 				Ptr->topicset = time(NULL);
 				WriteChannel(Ptr,user,"TOPIC %s :%s",Ptr->name, Ptr->topic);
 
@@ -1003,8 +1003,8 @@ void handle_user(char **parameters, int pcnt, userrec *user)
 		else {
 			WriteServ(user->fd,"NOTICE Auth :No ident response, ident prefixed with ~");
 			strcpy(user->ident,"~"); /* we arent checking ident... but these days why bother anyway? */
-			strncat(user->ident,parameters[0],IDENTMAX);
-			strncpy(user->fullname,parameters[3],128);
+			strlcat(user->ident,parameters[0],IDENTMAX);
+			strlcpy(user->fullname,parameters[3],128);
 			user->registered = (user->registered | 1);
 		}
 	}
@@ -1024,7 +1024,7 @@ void handle_user(char **parameters, int pcnt, userrec *user)
 void handle_userhost(char **parameters, int pcnt, userrec *user)
 {
 	char Return[MAXBUF],junk[MAXBUF];
-	sprintf(Return,"302 %s :",user->nick);
+	snprintf(Return,MAXBUF,"302 %s :",user->nick);
 	for (int i = 0; i < pcnt; i++)
 	{
 		userrec *u = Find(parameters[i]);
@@ -1032,13 +1032,13 @@ void handle_userhost(char **parameters, int pcnt, userrec *user)
 		{
 			if (strchr(u->modes,'o'))
 			{
-				sprintf(junk,"%s*=+%s@%s ",u->nick,u->ident,u->host);
-				strcat(Return,junk);
+				snprintf(junk,MAXBUF,"%s*=+%s@%s ",u->nick,u->ident,u->host);
+				strlcat(Return,junk,MAXBUF);
 			}
 			else
 			{
-				sprintf(junk,"%s=+%s@%s ",u->nick,u->ident,u->host);
-				strcat(Return,junk);
+				snprintf(junk,MAXBUF,"%s=+%s@%s ",u->nick,u->ident,u->host);
+				strlcat(Return,junk,MAXBUF);
 			}
 		}
 	}
@@ -1067,12 +1067,12 @@ void handle_away(char **parameters, int pcnt, userrec *user)
 {
 	if (pcnt)
 	{
-		strcpy(user->awaymsg,parameters[0]);
+		strlcpy(user->awaymsg,parameters[0],512);
 		WriteServ(user->fd,"306 %s :You have been marked as being away",user->nick);
 	}
 	else
 	{
-		strcpy(user->awaymsg,"");
+		strlcpy(user->awaymsg,"",512);
 		WriteServ(user->fd,"305 %s :You are no longer marked as being away",user->nick);
 	}
 }
@@ -1134,7 +1134,7 @@ void handle_modules(char **parameters, int pcnt, userrec *user)
 	{
 			Version V = modules[i]->GetVersion();
 			char modulename[MAXBUF];
-			strncpy(modulename,module_names[i].c_str(),256);
+			strlcpy(modulename,module_names[i].c_str(),256);
 			WriteServ(user->fd,"900 %s :0x%08lx %d.%d.%d.%d %s",user->nick,modules[i],V.Major,V.Minor,V.Revision,V.Build,CleanFilename(modulename));
 	}
 }
@@ -1469,7 +1469,7 @@ void handle_oper(char **parameters, int pcnt, userrec *user)
 					NetSendToAll(global);
 					ConfValue("type","host",j,Hostname,&config_f);
 					ChangeDisplayedHost(user,Hostname);
-					strncpy(user->oper,TypeName,NICKMAX);
+					strlcpy(user->oper,TypeName,NICKMAX);
 				}
 			}
 			if (!strchr(user->modes,'o'))
@@ -1568,7 +1568,7 @@ void handle_nick(char **parameters, int pcnt, userrec *user)
 	if (!user) return;
 	if (!user->nick) return;
 
-	strncpy(user->nick, parameters[0],NICKMAX);
+	strlcpy(user->nick, parameters[0],NICKMAX);
 
 	log(DEBUG,"new nick set: %s",user->nick);
 	
@@ -1666,8 +1666,8 @@ void handle_t(char token,char* params,serverrec* source,serverrec* reply, char* 
 	if ((c) && (u))
 	{
 		WriteChannelLocal(c,u,"TOPIC %s :%s",c->name,topic);
-		strncpy(c->topic,topic,MAXTOPIC);
-		strncpy(c->setby,u->nick,NICKMAX);
+		strlcpy(c->topic,topic,MAXTOPIC);
+		strlcpy(c->setby,u->nick,NICKMAX);
 		c->topicset = time(NULL);
  	}	
 }
@@ -1688,8 +1688,8 @@ void handle_T(char token,char* params,serverrec* source,serverrec* reply, char* 
 		if (TS <= c->topicset)
 		{
 			WriteChannelLocal(c,NULL,"TOPIC %s :%s",c->name,topic);
-			strncpy(c->topic,topic,MAXTOPIC);
-			strncpy(c->setby,setby,NICKMAX);
+			strlcpy(c->topic,topic,MAXTOPIC);
+			strlcpy(c->setby,setby,NICKMAX);
 		}
  	}	
 }
@@ -1698,10 +1698,10 @@ void handle_M(char token,char* params,serverrec* source,serverrec* reply, char* 
 {
 	char* pars[128];
 	char original[MAXBUF],target[MAXBUF];
-	strncpy(original,params,MAXBUF);
+	strlcpy(original,params,MAXBUF);
 	int index = 0;
 	char* parameter = strtok(params," ");
-	strncpy(target,parameter,MAXBUF);
+	strlcpy(target,parameter,MAXBUF);
 	while (parameter)
 	{
 		if (parameter[0] == ':')
@@ -1728,7 +1728,7 @@ void handle_m(char token,char* params,serverrec* source,serverrec* reply, char* 
 	// m blah #chatspike +b *!test@*4
 	char* pars[128];
 	char original[MAXBUF];
-	strncpy(original,params,MAXBUF);
+	strlcpy(original,params,MAXBUF);
 	
 	if (!strchr(params,' '))
 	{
@@ -1863,7 +1863,7 @@ void handle_n(char token,char* params,serverrec* source,serverrec* reply, char* 
 		user = ReHashNick(user->nick, newnick);
 		if (!user) return;
 		if (!user->nick) return;
-		strncpy(user->nick, newnick,NICKMAX);
+		strlcpy(user->nick, newnick,NICKMAX);
 		log(DEBUG,"new nick set: %s",user->nick);
 	}
 }
@@ -1961,12 +1961,12 @@ void handle_N(char token,char* params,serverrec* source,serverrec* reply, char* 
 	// routines know to route any messages to this record away to whatever server
 	// theyre on.
 	clientlist[nick]->fd = -1;
-	strncpy(clientlist[nick]->nick, nick,NICKMAX);
-	strncpy(clientlist[nick]->host, host,160);
-	strncpy(clientlist[nick]->dhost, dhost,160);
-	strncpy(clientlist[nick]->server, server,256);
-	strncpy(clientlist[nick]->ident, ident,10); // +1 char to compensate for tilde
-	strncpy(clientlist[nick]->fullname, gecos,128);
+	strlcpy(clientlist[nick]->nick, nick,NICKMAX);
+	strlcpy(clientlist[nick]->host, host,160);
+	strlcpy(clientlist[nick]->dhost, dhost,160);
+	strlcpy(clientlist[nick]->server, server,256);
+	strlcpy(clientlist[nick]->ident, ident,10); // +1 char to compensate for tilde
+	strlcpy(clientlist[nick]->fullname, gecos,128);
 	clientlist[nick]->signon = TS;
 	clientlist[nick]->nping = 0; // this is ignored for a remote user anyway.
 	clientlist[nick]->lastping = 1;
@@ -1995,7 +1995,7 @@ void handle_a(char token,char* params,serverrec* source,serverrec* reply, char* 
 	userrec* user = Find(nick);
 
 	if (user)
-		strncpy(user->fullname,gecos,MAXBUF);
+		strlcpy(user->fullname,gecos,MAXBUF);
 }
 
 void handle_b(char token,char* params,serverrec* source,serverrec* reply, char* tcp_host)
@@ -2006,7 +2006,7 @@ void handle_b(char token,char* params,serverrec* source,serverrec* reply, char* 
 	userrec* user = Find(nick);
 
 	if (user)
-		strncpy(user->dhost,host,160);
+		strlcpy(user->dhost,host,160);
 }
 
 void handle_plus(char token,char* params,serverrec* source,serverrec* reply, char* tcp_host)
@@ -2320,7 +2320,7 @@ void handle_pipe(char token,char* params,serverrec* source,serverrec* reply, cha
 	userrec* u = Find(nick);
 	if (u)
 	{
-		strncpy(u->oper,type,NICKMAX);
+		strlcpy(u->oper,type,NICKMAX);
 	}
 }
 
@@ -2575,9 +2575,9 @@ void handle_link_packet(char* udp_msg, char* tcp_host, serverrec *serv)
 		char data[MAXBUF];
 		char source[MAXBUF];
 		char command[MAXBUF];
-		strcpy(data,udp_msg);
-		strcpy(source,src);
-		strcpy(command,comd);
+		strlcpy(data,udp_msg,512);
+		strlcpy(source,src,MAXBUF);
+		strlcpy(command,comd,MAXBUF);
 		udp_msg = old;
 		
 		// unused numeric:
@@ -2670,7 +2670,7 @@ void handle_link_packet(char* udp_msg, char* tcp_host, serverrec *serv)
 	char finalparam[1024];
 	strcpy(finalparam," :xxxx");
 	if (strstr(udp_msg," :")) {
- 		strncpy(finalparam,strstr(udp_msg," :"),1024);
+ 		strlcpy(finalparam,strstr(udp_msg," :"),1024);
 	}
 	
 	
@@ -2733,7 +2733,7 @@ void handle_link_packet(char* udp_msg, char* tcp_host, serverrec *serv)
 		{
 			WriteOpers("CONNECT aborted: Server %s already exists from %s",servername,ServerName);
 			char buffer[MAXBUF];
-			sprintf(buffer,"E :Server %s already exists!",servername);
+			snprintf(buffer,MAXBUF,"E :Server %s already exists!",servername);
 			serv->SendPacket(buffer,tcp_host);
 			RemoveServer(tcp_host);
 			return;
@@ -2922,7 +2922,7 @@ void handle_link_packet(char* udp_msg, char* tcp_host, serverrec *serv)
 								sprintf(buffer,"X 0");
 								serv->SendPacket(buffer,servername);
 								DoSync(me[j],servername);
-								sprintf(buffer,"H %s",servername);
+								snprintf(buffer,MAXBUF,"H %s",servername);
 								NetSendToAllExcept(servername,buffer);
 								WriteOpers("Non-Mesh server %s has joined the network",servername);
 								log(DEBUG,"******** SENDING MY ROUTING TABLE! *******");
@@ -2994,7 +2994,7 @@ long duration(char* str)
 		// up to 10 digits in size.
 		if ((*i >= '0') && (*i <= '9'))
 		{
-			strncat(n_field,i,10);
+			strlcat(n_field,i,10);
 		}
 		else
 		{
