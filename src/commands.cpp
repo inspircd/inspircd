@@ -91,6 +91,8 @@ extern time_t nb_start;
 
 extern bool nofork;
 
+extern time_t TIME;
+
 extern std::vector<int> fd_reap;
 extern std::vector<std::string> module_names;
 
@@ -523,7 +525,7 @@ void handle_topic(char **parameters, int pcnt, userrec *user)
 					
 				strlcpy(Ptr->topic,topic,MAXBUF);
 				strlcpy(Ptr->setby,user->nick,NICKMAX);
-				Ptr->topicset = time(NULL);
+				Ptr->topicset = TIME;
 				WriteChannel(Ptr,user,"TOPIC %s :%s",Ptr->name, Ptr->topic);
 
 				// t token must go to ALL servers!!!
@@ -567,7 +569,7 @@ void handle_privmsg(char **parameters, int pcnt, userrec *user)
 	userrec *dest;
 	chanrec *chan;
 
-	user->idle_lastmsg = time(NULL);
+	user->idle_lastmsg = TIME;
 	
 	if (loop_call(handle_privmsg,parameters,pcnt,user,0,pcnt-2,0))
 		return;
@@ -655,7 +657,7 @@ void handle_notice(char **parameters, int pcnt, userrec *user)
 	userrec *dest;
 	chanrec *chan;
 
-	user->idle_lastmsg = time(NULL);
+	user->idle_lastmsg = TIME;
 	
 	if (loop_call(handle_notice,parameters,pcnt,user,0,pcnt-2,0))
 		return;
@@ -792,7 +794,7 @@ void handle_whois(char **parameters, int pcnt, userrec *user)
 			if (!strcasecmp(user->server,dest->server))
 			{
 				// idle time and signon line can only be sent if youre on the same server (according to RFC)
-				WriteServ(user->fd,"317 %s %s %d %d :seconds idle, signon time",user->nick, dest->nick, abs((dest->idle_lastmsg)-time(NULL)), dest->signon);
+				WriteServ(user->fd,"317 %s %s %d %d :seconds idle, signon time",user->nick, dest->nick, abs((dest->idle_lastmsg)-TIME), dest->signon);
 			}
 			
 			WriteServ(user->fd,"318 %s %s :End of /WHOIS list.",user->nick, dest->nick);
@@ -1265,7 +1267,7 @@ void handle_stats(char **parameters, int pcnt, userrec *user)
 		{
 			if (strchr(i->second->modes,'o'))
 			{
-				WriteServ(user->fd,"249 %s :%s (%s@%s) Idle: %d",user->nick,i->second->nick,i->second->ident,i->second->dhost,(time(NULL) - i->second->idle_lastmsg));
+				WriteServ(user->fd,"249 %s :%s (%s@%s) Idle: %d",user->nick,i->second->nick,i->second->ident,i->second->dhost,(TIME - i->second->idle_lastmsg));
 				idx++;
 			}
 		}
@@ -1365,7 +1367,7 @@ void handle_stats(char **parameters, int pcnt, userrec *user)
 	if (!strcmp(parameters[0],"u"))
 	{
 		time_t current_time = 0;
-		current_time = time(NULL);
+		current_time = TIME;
 		time_t server_uptime = current_time - startup_time;
 		struct tm* stime;
 		stime = gmtime(&server_uptime);
@@ -1471,7 +1473,7 @@ void handle_map(char **parameters, int pcnt, userrec *user)
 	snprintf(line,MAXBUF,"006 %s :%s",user->nick,ServerName);
 	while (strlen(line) < 50)
 		strcat(line," ");
-	WriteServ(user->fd,"%s%d (%.2f%%)",line,local_count(),(float)(((float)local_count()/(float)usercnt())*100));
+	WriteServ(user->fd,"%s%d (%.2f%%)",line,local_count(),(float)(((float)local_count()/(float)registered_usercount())*100));
 	for (int j = 0; j < 32; j++)
  	{
 		if (me[j] != NULL)
@@ -1481,7 +1483,7 @@ void handle_map(char **parameters, int pcnt, userrec *user)
 				snprintf(line,MAXBUF,"006 %s :%c-%s",user->nick,islast(me[j]->connectors[k].GetServerName().c_str()),me[j]->connectors[k].GetServerName().c_str());
 				while (strlen(line) < 50)
 					strcat(line," ");
-				WriteServ(user->fd,"%s%d (%.2f%%)",line,map_count(me[j]->connectors[k].GetServerName().c_str()),(float)(((float)map_count(me[j]->connectors[k].GetServerName().c_str())/(float)usercnt())*100));
+				WriteServ(user->fd,"%s%d (%.2f%%)",line,map_count(me[j]->connectors[k].GetServerName().c_str()),(float)(((float)map_count(me[j]->connectors[k].GetServerName().c_str())/(float)registered_usercount())*100));
 			}
 		}
 	}
@@ -1772,7 +1774,7 @@ void handle_t(char token,char* params,serverrec* source,serverrec* reply, char* 
 		WriteChannelLocal(c,u,"TOPIC %s :%s",c->name,topic);
 		strlcpy(c->topic,topic,MAXTOPIC);
 		strlcpy(c->setby,u->nick,NICKMAX);
-		c->topicset = time(NULL);
+		c->topicset = TIME;
  	}	
 }
 	
@@ -2076,7 +2078,7 @@ void handle_N(char token,char* params,serverrec* source,serverrec* reply, char* 
 	clientlist[nick]->lastping = 1;
 	clientlist[nick]->port = 0; // so is this...
 	clientlist[nick]->registered = 7; // this however we need to set for them to receive messages and appear online
-	clientlist[nick]->idle_lastmsg = time(NULL); // this is unrealiable and wont actually be used locally
+	clientlist[nick]->idle_lastmsg = TIME; // this is unrealiable and wont actually be used locally
 	for (int i = 0; i < MAXCHANS; i++)
 	{
  		clientlist[nick]->chans[i].channel = NULL;
@@ -2086,7 +2088,7 @@ void handle_N(char token,char* params,serverrec* source,serverrec* reply, char* 
 
 void handle_F(char token,char* params,serverrec* source,serverrec* reply, char* tcp_host)
 {
-	long tdiff = time(NULL) - atoi(params);
+	long tdiff = TIME - atoi(params);
 	if (tdiff)
 		WriteOpers("TS split for %s -> %s: %d",source->name,reply->name,tdiff);
 }
@@ -2438,7 +2440,7 @@ void process_restricted_commands(char token,char* params,serverrec* source,serve
 		// Y <TS>
   		// start netburst
 		case 'Y':
-			nb_start = time(NULL);
+			nb_start = TIME;
 			WriteOpers("Server %s is starting netburst.",tcp_host);
 			// now broadcast this new servers address out to all servers that are linked to us,
 			// except the newcomer. They'll all attempt to connect back to it.
@@ -2616,7 +2618,7 @@ void process_restricted_commands(char token,char* params,serverrec* source,serve
 		// F <TS>
 		// end netburst
 		case 'F':
-			WriteOpers("Server %s has completed netburst. (%d secs)",tcp_host,time(NULL)-nb_start);
+			WriteOpers("Server %s has completed netburst. (%d secs)",tcp_host,TIME-nb_start);
 			handle_F(token,params,source,reply,tcp_host);
 			nb_start = 0;
 			// tell all the other servers to use this authcookie to connect back again
@@ -2631,7 +2633,7 @@ void process_restricted_commands(char token,char* params,serverrec* source,serve
 		// F <TS>
 		// end netburst with no mesh creation
 		case 'f':
-			WriteOpers("Server %s has completed netburst. (%d secs)",tcp_host,time(NULL)-nb_start);
+			WriteOpers("Server %s has completed netburst. (%d secs)",tcp_host,TIME-nb_start);
 			handle_F(token,params,source,reply,tcp_host);
 			nb_start = 0;
 			// tell everyone else about the new server name so they just add it in the disconnected
@@ -3206,7 +3208,7 @@ void handle_gline(char **parameters, int pcnt, userrec *user)
 	{
 		add_gline(duration(parameters[1]),user->nick,parameters[2],parameters[0]);
 		// # <mask> <who-set-it> <time-set> <duration> :<reason>
-		snprintf(netdata,MAXBUF,"# %s %s %ld %ld :%s",parameters[0],user->nick,time(NULL),duration(parameters[1]),parameters[2]);
+		snprintf(netdata,MAXBUF,"# %s %s %ld %ld :%s",parameters[0],user->nick,TIME,duration(parameters[1]),parameters[2]);
 		NetSendToAll(netdata);
 		if (!duration(parameters[1]))
 		{

@@ -2252,12 +2252,22 @@ void AddClient(int socket, char* host, int port, bool iscached, char* ip)
 	}
 }
 
-
+// this function counts all users connected, wether they are registered or NOT.
 int usercnt(void)
 {
 	return clientlist.size();
 }
 
+// this counts only registered users, so that the percentages in /MAP don't mess up when users are sitting in an unregistered state
+int registered_usercount(void)
+{
+        int c = 0;
+        for (user_hash::const_iterator i = clientlist.begin(); i != clientlist.end(); i++)
+        {
+                if ((i->second->fd) && (isnick(i->second->nick))) c++;
+        }
+        return c;
+}
 
 int usercount_invisible(void)
 {

@@ -139,6 +139,7 @@ void AddWhoWas(userrec* u);
 void userlist(userrec *user,chanrec *c);
 std::string GetServerDescription(char* servername);
 int usercnt(void);
+int registered_usercount(void);
 int usercount_invisible(void);
 int usercount_opers(void);
 int usercount_unknown(void);
