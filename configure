@@ -14,8 +14,6 @@
 #
 ########################################
 
-# echo -e "\033[1;37mtest\033[0;37m"
-
 echo "Configuring default values..."
 
 ME=`pwd`
@@ -28,6 +26,7 @@ NICK_LENGT=32
 CHAN_LENGT=64
 MAX_CHANNE=20
 MAXI_MODES=20
+OSNAME=`(uname -s) 2>/dev/null` || OSNAME="unknown"
 
 if [ -z $MAX_CLIENT_T ] ; then
         MAX_CLIENT_T=1024
@@ -43,7 +42,43 @@ if [ -e ".config.cache" -a -z "$CLEAN" ] ; then
     . .config.cache 
 fi
 
-OSNAME=`(uname -s) 2>/dev/null` || OSNAME="unknown"
+if [ "$1" = "-update" -o "$2" = "-update" ] ; then
+   # They wanna update their Makefile.. good for 'em
+   # Make sure .config.cache exists
+   if [ ! -e ".config.cache" ] ; then
+     echo "You have not run ./configure before. Please do this before trying to run the update script."
+     exit 0
+   fi
+   # Right, load the cache values
+   . .config.cache
+   # Check for modules
+
+   case "$OSNAME" in
+           (FreeBSD)
+                   LDLIBS="-Ldl"
+                   FLAGS="-fPIC -frtti -O3"
+                   MAKEPROG="gmake"
+                   ;;
+           (*)
+                   LDLIBS="-ldl"
+                   FLAGS="-fPIC -frtti -O3"
+                   MAKEPROG="make"
+                   ;;
+   esac
+
+   MODULES=""
+   for module in src/modules/*.cpp ; do
+           mod=`echo $module | sed 's/.cpp/.so/' | sed 's/src\/modules\///'`
+           MODULES="$MODULES $mod"
+   done
+
+   # Write the new makefile.
+   . .Makefile.inc
+   echo "Complete."
+   exit 1; 
+fi
+
+
 if [ -z $MAX_CLIENT ] ; then
         MAX_CLIENT=$MAX_CLIENT_T
 fi
