@@ -3918,6 +3918,22 @@ void handle_names(char **parameters, int pcnt, userrec *user)
 	}
 }
 
+// returns TRUE of any users on channel C occupy server 'servername'.
+
+bool ChanAnyOnThisServer(chanrec *c,char* servername)
+{
+	for (user_hash::iterator i = clientlist.begin(); i != clientlist.end(); i++)
+	{
+		if (has_channel(i->second,c))
+		{
+			if (!strcasecmp(i->second->server,servername))
+			{
+				return true;
+			}
+		}
+	}
+	return false;
+}
 
 void handle_privmsg(char **parameters, int pcnt, userrec *user)
 {
@@ -3952,6 +3968,20 @@ void handle_privmsg(char **parameters, int pcnt, userrec *user)
 			}
 			
 			ChanExceptSender(chan, user, "PRIVMSG %s :%s", chan->name, parameters[1]);
+			
+			// if any users of this channel are on remote servers, broadcast the packet
+			char buffer[MAXBUF];
+			snprintf(buffer,MAXBUF,"P %s %s :%s",user->nick,chan->name,parameters[1]);
+			for (int j = 0; j < 255; j++)
+			{
+				if (servers[j] != NULL)
+				{
+					if (ChanAnyOnThisServer(chan,servers[j]->name))
+					{
+						me[defaultRoute]->SendPacket(buffer,servers[j]->internal_addr,servers[j]->internal_port,MyKey);
+					}
+				}
+			}
 		}
 		else
 		{
@@ -3976,8 +4006,30 @@ void handle_privmsg(char **parameters, int pcnt, userrec *user)
 		if (MOD_RESULT) {
 			return;
 		}
-		
-		WriteTo(user, dest, "PRIVMSG %s :%s", dest->nick, parameters[1]);
+
+
+
+		if (!strcmp(dest->server,user->server))
+		{
+			// direct write, same server
+			WriteTo(user, dest, "PRIVMSG %s :%s", dest->nick, parameters[1]);
+		}
+		else
+		{
+			for (int j = 0; j < 255; j++)
+			{
+				if (servers[j] != NULL)
+				{
+					if (!strcasecmp(servers[j]->name,dest->server))
+					{
+						// direct write, same server
+						char buffer[MAXBUF];
+						snprintf(buffer,MAXBUF,"P %s %s :%s",user->nick,dest->nick,parameters[1]);
+						me[defaultRoute]->SendPacket(buffer,servers[j]->internal_addr,servers[j]->internal_port,MyKey);
+					}
+				}
+			}
+		}
 	}
 	else
 	{
@@ -4583,7 +4635,7 @@ void handle_whowas(char **parameters, int pcnt, userrec* user)
 
 void handle_trace(char **parameters, int pcnt, userrec *user)
 {
-  	for (user_hash::iterator i = clientlist.begin(); i != clientlist.end(); i++)
+	for (user_hash::iterator i = clientlist.begin(); i != clientlist.end(); i++)
 	{
 		if (i->second)
 		{
@@ -4757,6 +4809,7 @@ void handle_connect(char **parameters, int pcnt, userrec *user)
 			if (servers[j] == NULL) {
 				servers[j] = new serverrec;
 				strcpy(servers[j]->internal_addr,Link_IPAddr);
+				servers[j]->internal_port = LinkPort;
 				strcpy(servers[j]->name,Link_ServerName);
 				log(DEBUG,"Allocated new serverrec");
 				if (!me[defaultRoute]->BeginLink(Link_IPAddr,LinkPort,Link_Pass))
@@ -4803,7 +4856,7 @@ void handle_links(char **parameters, int pcnt, userrec *user)
  	{
 		if (servers[j] != NULL)
   		{
-			WriteServ(user->fd,"364 %s %s %s :0 %s",user->nick,servers[j]->name,ServerName,servers[j]->description);
+			WriteServ(user->fd,"364 %s %s %s :1 %s",user->nick,servers[j]->name,ServerName,servers[j]->description);
 		}
 	}
 	WriteServ(user->fd,"365 %s * :End of /LINKS list.",user->nick);
@@ -5394,6 +5447,35 @@ void DoSync(serverrec* serv, char* udp_host,int udp_port, long MyKey)
 	serv->SendPacket(data,udp_host,udp_port,MyKey);
 }
 
+void handle_P(char token,char* params,serverrec* source,serverrec* reply, char* udp_host,int udp_port)
+{
+	char* src = strtok(NULL," ");
+	char* dest = strtok(NULL," :");
+	char* text = strtok(NULL,"\r\n");
+	text++;
+	
+	userrec* user = Find(src);
+	if (user)
+	{
+		userrec* dst = Find(dest);
+		
+		if (dst)
+		{
+			WriteTo(user, dst, "PRIVMSG %s :%s", dst->nick, text);
+		}
+		else
+		{
+			chanrec* d = FindChan(dest);
+			if (d)
+			{
+				ChanExceptSender(d, user, "PRIVMSG %s :%s", d->name, text);
+			}
+		}
+	}
+	
+}
+
+
 void handle_T(char token,char* params,serverrec* source,serverrec* reply, char* udp_host,int udp_port)
 {
 	char* tm = strtok(params," ");
@@ -5573,6 +5655,11 @@ void process_restricted_commands(char token,char* params,serverrec* source,serve
 		case 'M':
 			handle_M(token,params,source,reply,udp_host,udp_port);
 		break;
+		// P <SOURCE> <TARGET> :<TEXT>
+		// Send a private/channel message
+		case 'P':
+			handle_P(token,params,source,reply,udp_host,udp_port);
+		break;
 		// F <TS>
 		// end netburst
 		case 'F':
@@ -5636,6 +5723,7 @@ void handle_link_packet(long theirkey, char* udp_msg, char* udp_host, int udp_po
 								strcpy(servers[j]->internal_addr,udp_host);
 								strcpy(servers[j]->name,servername);
 								strcpy(servers[j]->description,serverdesc);
+								servers[j]->internal_port = udp_port;
 								// create a server record for this server
 								snprintf(response,10240,"O %d",MyKey);
 								serv->SendPacket(response,udp_host,udp_port,0);
@@ -5775,7 +5863,6 @@ void handle_link_packet(long theirkey, char* udp_msg, char* udp_host, int udp_po
 					if (servers[j]->key == theirkey) {
 						// found a valid key for this server, can process restricted stuff here
 						process_restricted_commands(token,params,servers[j],serv,udp_host,udp_port);
-						log(DEBUG,"Sync: exit 2");
 						return;
 					}
 				}

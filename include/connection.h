@@ -56,6 +56,7 @@ class connection : public classbase
 	time_t idle_lastmsg;
 	time_t nping;
 	char internal_addr[1024];
+	int internal_port;
 	
 	connection();
 	bool CreateListener(char* host, int p);
