@@ -5275,7 +5275,7 @@ int InspIRCd(void)
 	printf("\n");
 	
 	/* BugFix By Craig! :p */
-	count2 = 0;
+	count = 0;
 	for (count2 = 0; count2 < ConfValueEnum("module",&config_f); count2++)
 	{
 		char modfile[MAXBUF];
