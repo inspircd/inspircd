@@ -2122,6 +2122,11 @@ void process_restricted_commands(char token,char* params,serverrec* source,serve
 		case 'Q':
 			handle_Q(token,params,source,reply,tcp_host);
 		break;
+		// H <SERVER>
+		// introduce non-meshable server (such as a services server)
+		case 'H':
+			handle_H(token,params,source,reply,tcp_host);
+		break;
 		// K <SOURCE> <DEST> :<REASON>
 		// remote kill
 		case 'K':
