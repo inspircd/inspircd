@@ -3,21 +3,11 @@
 # Small modifications by <brain@ChatSpike.net>
 #
 
-CXXFLAGS = -I../../include ${FLAGS}
+all: $(MODULES)
 
-MODS = `/bin/ls *.cpp | sed 's/.cpp//'`
-MODULES = $(MODS)
+%.so:
+	@$(MAKE) --no-print-directory TARGET=$(@:.so=)
 
-MODS2 = `/bin/ls *.cpp`
-MODULES2 = $(MODS2:.cpp=.so)
-
-main:
-	rm -f .make ; \
-	for i in $(MODULES) ; do \
-		echo "echo \"Compiling: $$i\"" >>.make ;  \
-		echo "$(CXX) $(CXXFLAGS) -shared -o $$i `echo $$i | sed 's/.so/.cpp/'`">>.make ; \
-	done ; chmod u+x .make ; ./.make
-
-
-all: main
-
+$(TARGET).so:
+	$(CC) -I../../include $(FLAGS) -shared -o $@ $(TARGET).cpp
+	@cp $(TARGET).so $(MODPATH)$(TARGET).so

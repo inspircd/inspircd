@@ -18,21 +18,20 @@ echo "CONPATH = $CONFIG_DIR" >> Makefile
 echo "MODPATH = $MODULE_DIR" >> Makefile
 echo "BINPATH = $BINARY_DIR" >> Makefile
 echo "MODULES =$MODULES" >> Makefile
-echo "MAKEARGS = 'PROGS=\${PROGS}' 'FLAGS=\${FLAGS}' 'CC=\${CC}' 'LDLIBS=\${LDLIBS}' 'MODULES=\${MODULES}'" >> Makefile
+echo "MAKEARGS = 'PROGS=\${PROGS}' 'FLAGS=\${FLAGS}' 'CC=\${CC}' 'LDLIBS=\${LDLIBS}' 'MODULES=\${MODULES}' 'MODPATH=\$(MODPATH)'" >> Makefile
 echo "" >> Makefile
 echo "all : ircd mods config" >> Makefile
 echo "" >> Makefile
 echo "mods:" >> Makefile
 echo "	\${MAKE} -C src/modules DIRNAME="src/modules" \$(MAKEARGS)" >> Makefile
-echo "	mv src/modules/*.so \$(MODPATH)" >> Makefile
 echo "" >> Makefile
 echo "ircd:" >> Makefile
 echo "	\${MAKE} -C src DIRNAME="src" \$(MAKEARGS)" >> Makefile
-echo "	cp src/inspircd \$(BINPATH)" >> Makefile
+echo "	@cp src/inspircd \$(BINPATH)" >> Makefile
 echo "" >> Makefile
 echo "config:" >> Makefile
 if [ -n "$COPY_CONF" ] ; then
-echo "	cp conf/* \$(CONPATH)" >> Makefile
+echo "	@cp conf/* \$(CONPATH)" >> Makefile
 else
 echo "	echo \"*** Nothing to Be Done for make config\"" >> Makefile
 fi
