@@ -40,6 +40,29 @@ class Extensible : public classbase
 	/** Private data store
 	 */
 	std::map<std::string,VoidPointer> Extension_Items;
+	
+public:
+
+	/** Extend an Extensible class.
+	 * You must provide a key to store the data as, and a void* to the data (typedef VoidPointer)
+	 * The data will be inserted into the map. If the data already exists, you may not insert it
+	 * twice, Extensible::Extend will return false in this case.
+	 * On successful extension, Extend returns true.
+	 */
+	bool Extend(std::string key, VoidPointer p);
+
+	/** Shrink an Extensible class.
+	 * You must provide a key name. The given key name will be removed from the classes data. If
+	 * you provide a nonexistent key (case is important) then the function will return false.
+	 * Returns true on success.
+	 */
+	bool Shrink(std::string key);
+	
+	/** Get an extension item.
+	 * You must provide a key name, which is case sensitive. If you provide a non-existent key name,
+	 * the function returns NULL, otherwise a pointer to the item referenced by the key is returned.
+	 */
+	VoidPointer GetExt(std::string key);
 };
 
 #endif

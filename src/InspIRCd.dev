@@ -1,7 +1,7 @@
 [Project]
 FileName=InspIRCd.dev
 Name=InspIRCd - The Inspire Internet Relay Chat Daemon
-UnitCount=49
+UnitCount=50
 Type=1
 Ver=1
 ObjFiles=
@@ -529,6 +529,16 @@ BuildCmd=
 FileName=modules\m_alias.cpp
 CompileCpp=1
 Folder=Modules
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit50]
+FileName=base.cpp
+CompileCpp=1
+Folder=Source
 Compile=1
 Link=1
 Priority=1000
