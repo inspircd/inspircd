@@ -285,5 +285,6 @@
 	line14="p                Make channel private (hide from /LIST)"
 	line15="s                Make channel secret (can't be used at the same time as +p)"
 	line16="O                Channel is IRCops only (can only be set by IRCops)"
-	line17="t                Only halfops and above can change the topic">
+	line17="t                Only halfops and above can change the topic"
+	line18="Q                Only U-Lined servers/nicks can kick">
 
