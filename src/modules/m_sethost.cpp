@@ -33,7 +33,7 @@ void handle_sethost(char **parameters, int pcnt, userrec *user)
 		}
 	}
 	strncpy(user->dhost,parameters[0],127);
-	Srv->SendOpers(std::string(user->nick)+" used SETHOST to change their displayed host to "+std::string(parameters[1]));
+	Srv->SendOpers(std::string(user->nick)+" used SETHOST to change their displayed host to "+std::string(parameters[0]));
 }
 
 
