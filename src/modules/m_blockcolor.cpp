@@ -15,6 +15,7 @@
  */
 
 #include <stdio.h>
+#include <sstream>
 #include "users.h"
 #include "channels.h"
 #include "modules.h"
@@ -31,6 +32,25 @@ class ModuleBlockColor : public Module
 		Srv = new Server;
 		Srv->AddExtendedMode('c',MT_CHANNEL,false,0,0);
 	}
+
+        virtual void On005Numeric(std::string &output)
+        {
+                // we don't really have a limit...
+		std::stringstream line(output);
+		std::string temp1, temp2;
+		while (!line.eof())
+		{
+			line >> temp1;
+			if (temp1.substr(0,10) == "CHANMODES=")
+			{
+				// append the chanmode to the end
+				temp1 = temp1.substr(10,temp1.length());
+				temp1 = "CHANMODES=" + temp1 + "c";
+			}
+			temp2 = temp2 + temp1 + " ";
+		}
+		output = temp2.substr(0,temp2.length()-1);
+        }
 	
 	virtual int OnUserPreMessage(userrec* user,void* dest,int target_type, std::string &text)
 	{

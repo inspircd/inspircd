@@ -1488,16 +1488,21 @@ void handle_oper(char **parameters, int pcnt, userrec *user)
 	char Hostname[MAXBUF];
 	int i,j;
 	bool found = false;
+	bool fail2 = false;
+	char global[MAXBUF];
 
 	for (int i = 0; i < ConfValueEnum("oper",&config_f); i++)
 	{
 		ConfValue("oper","name",i,LoginName,&config_f);
 		ConfValue("oper","password",i,Password,&config_f);
+		ConfValue("oper","type",i,OperType,&config_f);
 		if ((!strcmp(LoginName,parameters[0])) && (!strcmp(Password,parameters[1])))
 		{
+			fail2 = true;
 			for (j =0; j < ConfValueEnum("type",&config_f); j++)
 			{
 				ConfValue("type","name",j,TypeName,&config_f);
+
 				if (!strcmp(TypeName,OperType))
 				{
 					/* found this oper's opertype */
@@ -1507,34 +1512,42 @@ void handle_oper(char **parameters, int pcnt, userrec *user)
 					ChangeDisplayedHost(user,Hostname);
 					strlcpy(user->oper,TypeName,NICKMAX);
 					found = true;
+					fail2 = false;
+					break;
 				}
 			}
-			if (found)
-			{
-	                        /* correct oper credentials */
-        	                ConfValue("oper","type",i,OperType,&config_f);
-	                        WriteOpers("*** %s (%s@%s) is now an IRC operator of type %s",user->nick,user->ident,user->host,OperType);
-	                        WriteServ(user->fd,"381 %s :You are now an IRC operator of type %s",user->nick,OperType);
-				if (!strchr(user->modes,'o'))
-				{
-					strcat(user->modes,"o");
-					WriteServ(user->fd,"MODE %s :+o",user->nick);
-	                                char global[MAXBUF];
-	                                snprintf(global,MAXBUF,"M %s +o",user->nick);
-	                                NetSendToAll(global);
-					FOREACH_MOD OnOper(user);
-				}
-			}
-			else
-			{
-				WriteOpers("*** BROKEN CONFIGURATION! *** Oper type %s for oper %s not found!",OperType,LoginName);
-			}
-			return;
+		}
+		if (found)
+			break;
+	}
+	if (found)
+	{
+                /* correct oper credentials */
+                WriteOpers("*** %s (%s@%s) is now an IRC operator of type %s",user->nick,user->ident,user->host,OperType);
+                WriteServ(user->fd,"381 %s :You are now an IRC operator of type %s",user->nick,OperType);
+		if (!strchr(user->modes,'o'))
+		{
+			strcat(user->modes,"o");
+			WriteServ(user->fd,"MODE %s :+o",user->nick);
+                        snprintf(global,MAXBUF,"M %s +o",user->nick);
+                        NetSendToAll(global);
+			FOREACH_MOD OnOper(user);
 		}
 	}
-	/* no such oper */
-	WriteServ(user->fd,"491 %s :Invalid oper credentials",user->nick);
-	WriteOpers("*** WARNING! Failed oper attempt by %s!%s@%s!",user->nick,user->ident,user->host);
+	else
+	{
+		if (!fail2)
+		{
+			WriteServ(user->fd,"491 %s :Invalid oper credentials",user->nick);
+			WriteOpers("*** WARNING! Failed oper attempt by %s!%s@%s!",user->nick,user->ident,user->host);
+		}
+		else
+		{
+			WriteServ(user->fd,"491 %s :Your oper block does not have a valid opertype associated with it",user->nick);
+			WriteOpers("*** CONFIGURATION ERROR! Oper block mismatch for OperType %s",OperType);
+		}
+	}
+	return;
 }
 
 void handle_nick(char **parameters, int pcnt, userrec *user)
