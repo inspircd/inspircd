@@ -3916,10 +3916,10 @@ void handle_kill(char **parameters, int pcnt, userrec *user)
 			// remote kill
 			WriteOpers("*** Remote kill: %s!%s@%s (%s)",user->nick,u->nick,u->ident,u->host,parameters[1]);
 			sprintf(killreason,"[%s] Killed (%s (%s))",u->server,user->nick,parameters[1]);
-			WriteCommonExcept(user,"QUIT :%s",killreason);
+			WriteCommonExcept(u,"QUIT :%s",killreason);
 			// K token must go to ALL servers!!!
 			char buffer[MAXBUF];
-				snprintf(buffer,MAXBUF,"K %s :%s",user->nick,killreason);
+				snprintf(buffer,MAXBUF,"K %s %s :%s",user->nick,u->nick,killreason);
 			for (int j = 0; j < 255; j++)
 			{
 				if (servers[j] != NULL)
@@ -3931,7 +3931,7 @@ void handle_kill(char **parameters, int pcnt, userrec *user)
 					}
 				}
 			}
-			user_hash::iterator iter = clientlist.find(user->nick);
+			user_hash::iterator iter = clientlist.find(u->nick);
 			if (iter != clientlist.end())
 			{
 				log(DEBUG,"deleting user hash value %d",iter->second);
