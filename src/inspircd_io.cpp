@@ -143,7 +143,7 @@ std::string ConfProcess(char* buffer, long linenumber, std::stringstream* errors
 	}
 	// firstly clean up the line by stripping spaces from the start and end and converting tabs to spaces
 	for (int d = 0; d < strlen(buffer); d++)
-		if (buffer[d]) == 9)
+		if ((buffer[d]) == 9)
 			buffer[d] = ' ';
 	while ((buffer[0] == ' ') && (strlen(buffer)>0)) buffer++;
 	while ((buffer[strlen(buffer)-1] == ' ') && (strlen(buffer)>0)) buffer[strlen(buffer)-1] = '\0';
