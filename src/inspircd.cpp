@@ -2660,7 +2660,11 @@ void server_mode(char **parameters, int pcnt, userrec *user)
 
 	dest = Find(parameters[0]);
 	
-	log(DEBUG,"server_mode on %s",dest->nick);
+	// fix: ChroNiCk found this - we cant use this as debug if its null!
+	if (dest)
+	{
+		log(DEBUG,"server_mode on %s",dest->nick);
+	}
 
 	if ((dest) && (pcnt > 1))
 	{

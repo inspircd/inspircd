@@ -11,19 +11,7 @@ Server *Srv;
 
 void handle_woot(char **parameters, int pcnt, userrec *user)
 {
-	// this test command just accepts:
-	// /woot :<text>
-	// and sends <text> to all opers with +s mode.
-	// NB: The ':' is *REQUIRED* otherwise the parser will
-	// split the line into multiple parameters[]!
-	//
-	// If you want to process all the line with no leading colon, you must 
-	// implement a parser here that assembles parameters[] to match the
-	// syntax of your command - the way it is done in the core is to meet
-	// rfc-compatibility.
-	Srv->SendOpers(parameters[0]);
-	
-
+	Srv->Log(DEBUG,"woot handler");
 	// Here is a sample of how to send servermodes. Note that unless remote
 	// servers in your net are u:lined, they may reverse this, but its a
 	// quick and effective modehack.
@@ -52,7 +40,7 @@ class ModuleTestCommand : public Module
 		// 0 in the modes parameter signifies that
 		// anyone can issue the command, and the
 		// command takes only one parameter.
-		Srv->AddCommand("WOOT",handle_woot,0,1);
+		Srv->AddCommand("WOOT",handle_woot,0,0);
 
 		// Add a mode +Z for channels with no parameters		
 		Srv->AddExtendedMode('Z',MT_CHANNEL,false,1,0);
@@ -73,8 +61,7 @@ class ModuleTestCommand : public Module
 		else {
 			Srv->Log(DEBUG,"Custom mode is being taken from a channel");
 		}
-		Srv->Log(DEBUG,chan->name);
-		
+
 		// must return 1 to handle the mode!
 		return 1;
 	}
