@@ -5594,6 +5594,7 @@ int InspIRCd(void)
 				// link packets can manipulate the usertable so beware of
 				// any loops here watching the user or channels hash
 				log(DEBUG,"Sync: exit 3");
+				goto label;
 			}
 		}
 	}
@@ -5656,10 +5657,6 @@ int InspIRCd(void)
 						}
 						count2++;
 						total_in_this_set++;
-					}
-					else
-					{
-						log(DEBUG,"Not adding %s as they are remote",count2->second->nick);
 					}
 				}
 				else break;
