@@ -58,7 +58,8 @@
 #  port		- opens an unused port				      #
 #  type         - can be 'clients' or 'servers'. The clients type is  #
 #                 a standard tcp based socket, the servers type is a  #
-#                 UDP based connection.                               #
+#                 also a TCP based connection but of a different      #
+#                 format.                                             #
 #  default      - if the port type is 'servers' then this can be      #
 #                 specified. If set to 'yes', it indicates that this  #
 #                 port is the default route for all /connect commands.#
