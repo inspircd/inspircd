@@ -40,6 +40,7 @@ using namespace std;
 #include <vector>
 #include <errno.h>
 #include <deque>
+#include <errno.h>
 #include "connection.h"
 #include "users.h"
 #include "servers.h"
@@ -5228,7 +5229,7 @@ int InspIRCd(void)
 	int openSockfd[MAXSOCKS], incomingSockfd, result = TRUE;
 	socklen_t length;
 	int count = 0, scanDetectTrigger = TRUE, showBanner = FALSE;
-	int selectResult = 0;
+	int selectResult = 0, selectResult2 = 0;
 	char *temp, configToken[MAXBUF], stuff[MAXBUF], Addr[MAXBUF], Type[MAXBUF];
 	char resolvedHost[MAXBUF];
 	fd_set selectFds;
@@ -5456,96 +5457,152 @@ int InspIRCd(void)
 			}
 		}
 	}
+	
+	fd_set sfd;
+	struct timeval tval;
 
-	for (user_hash::iterator count2 = clientlist.begin(); count2 != clientlist.end(); count2++)
+	user_hash::iterator count2 = clientlist.begin();
+	
+	while (count2 != clientlist.end())
 	{
 		char data[MAXBUF];
+		tval.tv_usec = tval.tv_sec = 0;
+		FD_ZERO(&sfd);
+		int total_in_this_set = 0;
+
+		user_hash::iterator xcount = count2;
+		user_hash::iterator endingiter = count2;
 
 		if (!count2->second) break;
 		
 		if (count2->second)
 		if (count2->second->fd)
 		{
-			// registration timeout -- didnt send USER/NICK/HOST in the time specified in
-			// their connection class.
-			if ((time(NULL) > count2->second->timeout) && (count2->second->registered != 7)) 
+			// assemble up to 64 sockets into an fd_set
+			// to implement a pooling mechanism.
+			//
+			// This should be up to 64x faster than the
+			// old implementation.
+			while (total_in_this_set < 64)
 			{
-			  	log(DEBUG,"InspIRCd: registration timeout: %s",count2->second->nick);
-				kill_link(count2->second,"Registration timeout");
-				break;
-			}
-			if (((time(NULL)) > count2->second->nping) && (isnick(count2->second->nick)) && (count2->second->registered == 7))
-			{
-				if (!count2->second->lastping) 
+				if (count2 != clientlist.end())
 				{
-				  	log(DEBUG,"InspIRCd: ping timeout: %s",count2->second->nick);
-					kill_link(count2->second,"Ping timeout");
-					break;
-				}
-				Write(count2->second->fd,"PING :%s",ServerName);
-			  	log(DEBUG,"InspIRCd: pinging: %s",count2->second->nick);
-				count2->second->lastping = 0;
-				count2->second->nping = time(NULL)+120;
-			}
-			
-			result = read(count2->second->fd, data, 1);
-			// result EAGAIN means nothing read
-			if (result == EAGAIN)
-			{
-			}
-			else
-			if (result == 0)
-			{
-			  	if (count2->second)
-			  	{
-				  	log(DEBUG,"InspIRCd: Exited: %s",count2->second->nick);
-					kill_link(count2->second,"Client exited");
-					// must bail here? kill_link removes the hash, corrupting the iterator
-					log(DEBUG,"Bailing from client exit");
-					break;
-				}
-			}
-			else if (result > 0)
-			{
-				if (count2->second)
-				{
-				
-					// until the buffer is at 509 chars anything can be inserted into it.
-					if ((strlen(count2->second->inbuf) < 509) && (data[0] != '\0')) {
-						strncat(count2->second->inbuf, data, result);
-					}
-
-					// once you reach 509 chars, only a \r or \n can be inserted,
-					// completing the line.
-					if ((strlen(count2->second->inbuf) >= 509) && ((data[0] == '\r') || (data[0] == '\n'))) {
-						count2->second->inbuf[509] = '\r';
-						count2->second->inbuf[510] = '\n';
-						count2->second->inbuf[511] = '\0';
-						process_buffer(count2->second);
+					// registration timeout -- didnt send USER/NICK/HOST in the time specified in
+					// their connection class.
+					if ((time(NULL) > count2->second->timeout) && (count2->second->registered != 7)) 
+					{
+					  	log(DEBUG,"InspIRCd: registration timeout: %s",count2->second->nick);
+						kill_link(count2->second,"Registration timeout");
 						break;
 					}
-
-					if (strchr(count2->second->inbuf, '\n') || strchr(count2->second->inbuf, '\r') || (strlen(count2->second->inbuf) > 509))
+					if (((time(NULL)) > count2->second->nping) && (isnick(count2->second->nick)) && (count2->second->registered == 7))
 					{
-						/* at least one complete line is waiting to be processed */
-						if (!count2->second->fd)
-							break;
-						else
+						if (!count2->second->lastping) 
 						{
-							if (strlen(count2->second->inbuf)<512)
-							{
-								// double check the length before processing!
-								process_buffer(count2->second);
-							}
+						  	log(DEBUG,"InspIRCd: ping timeout: %s",count2->second->nick);
+							kill_link(count2->second,"Ping timeout");
+							break;
+						}
+						Write(count2->second->fd,"PING :%s",ServerName);
+					  	log(DEBUG,"InspIRCd: pinging: %s",count2->second->nick);
+						count2->second->lastping = 0;
+						count2->second->nping = time(NULL)+120;
+					}
+
+					FD_SET (count2->second->fd, &sfd);
+					count2++;
+					total_in_this_set++;
+				}
+				else break;
+			}
+   
+	       		endingiter = count2;				
+       			count2 = xcount; // roll back to where we were
+          
+			tval.tv_usec = 0;
+			tval.tv_sec = 0;
+			selectResult2 = select(total_in_this_set, &sfd, NULL, NULL, &tval);
+			
+			// now loop through all of the items in this pool if any are waiting
+			//if (selectResult2 > 0)
+			for (user_hash::iterator count2a = xcount; count2a != endingiter; count2a++)
+			{
+				result = EAGAIN;
+				if (FD_ISSET (count2a->second->fd, &sfd))
+				{
+					result = read(count2a->second->fd, data, 1);
+					if ((result == -1) && (errno != EAGAIN) && (errno != EINTR))
+					{
+						kill_link(count2a->second,strerror(errno));
+						goto label;
+					}
+				}
+				// result EAGAIN means nothing read
+				if (result == EAGAIN)
+				{
+				}
+				else
+				if (result == 0)
+				{
+				  	if (count2->second)
+				  	{
+					  	log(DEBUG,"InspIRCd: Exited: %s",count2a->second->nick);
+						kill_link(count2a->second,"Client exited");
+						// must bail here? kill_link removes the hash, corrupting the iterator
+						log(DEBUG,"Bailing from client exit");
+						goto label;
+					}
+				}
+				else if (result > 0)
+				{
+					if (count2a->second)
+					{
+					
+						// until the buffer is at 509 chars anything can be inserted into it.
+						if ((strlen(count2a->second->inbuf) < 509) && (data[0] != '\0')) {
+							strncat(count2a->second->inbuf, data, result);
+						}
+	
+						// once you reach 509 chars, only a \r or \n can be inserted,
+						// completing the line.
+						if ((strlen(count2a->second->inbuf) >= 509) && ((data[0] == '\r') || (data[0] == '\n'))) {
+							count2a->second->inbuf[509] = '\r';
+							count2a->second->inbuf[510] = '\n';
+							count2a->second->inbuf[511] = '\0';
+							process_buffer(count2a->second);
+							goto label;
+						}
+	
+						if (strchr(count2a->second->inbuf, '\n') || strchr(count2a->second->inbuf, '\r') || (strlen(count2a->second->inbuf) > 509))
+						{
+							/* at least one complete line is waiting to be processed */
+							if (!count2a->second->fd)
+								goto label;
 							else
 							{
-								strcpy(count2->second->inbuf,"");
+								if (strlen(count2a->second->inbuf)<512)
+								{
+									// double check the length before processing!
+									process_buffer(count2a->second);
+								}
+								else
+								{
+									strcpy(count2a->second->inbuf,"");
+								}
+								goto label;
 							}
-							break;
 						}
 					}
 				}
 			}
+		}
+		for (int q = 0; q < total_in_this_set; q++)
+		{
+			// there is no iterator += operator :(
+			//if (count2 != clientlist.end())
+			//{
+				count2++;
+			//}
 		}
 	}
 	
@@ -5592,6 +5649,8 @@ int InspIRCd(void)
 			}
 		}
 	}
+	label:
+	if(0) {}; // "Label must be followed by a statement"... so i gave it one.
 }
 /* not reached */
 close (incomingSockfd);

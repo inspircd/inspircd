@@ -1,7 +1,7 @@
 [Project]
 FileName=InspIRCd.dev
 Name=InspIRCd
-UnitCount=39
+UnitCount=40
 Type=1
 Ver=1
 ObjFiles=
@@ -425,6 +425,16 @@ BuildCmd=
 
 [Unit39]
 FileName=modules\m_saquit.cpp
+CompileCpp=1
+Folder=Modules
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit40]
+FileName=modules\m_helpop.cpp
 CompileCpp=1
 Folder=Modules
 Compile=1
