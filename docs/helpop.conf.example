@@ -280,7 +280,7 @@
 	line9="i                Make the channel invite only, must /INVITE users"
 	line10="k [key]          Set the channel key (password) to [key]"
 	line11="l [limit]        Set the maximum possible users to [limit]"
-	line12="m                Enable moderation. Only +vo can speak"
+	line12="m                Enable moderation. Only +vo(h) can speak"
 	line13="n                Only users who are members of the channel may message it"
 	line14="p                Make channel private (hide from /LIST)"
 	line15="s                Make channel secret (can't be used at the same time as +p)"
@@ -291,6 +291,12 @@
 	line20="C                No CTCPs allowed to the channel"
 	line21="c                mIRC colour codes blocked on the channel"
 	line22="K                No /KNOCK allowed to channel (if knock module is loaded)"
-	line23="L [channel]      If the channel is full, redirect users to [channel]">
+	line23="L [channel]      If the channel is full, redirect users to [channel]"
+	line24="N                No nickchanges while on the channel"
+	line25="-------------"
+	line26="NOTE: A large number of these modes are dependent upon server-side modules"
+	line27="being loaded by a server/network administrator. The actual modes available"
+	line28="on your network may be very different to this list. Please consult your"
+	line29="help channel if you have any questions.">
 
 

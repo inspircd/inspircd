@@ -17,7 +17,7 @@ class ModuleNoKicks : public Module
 		Srv = new Server;
 		Srv->AddExtendedMode('Q',MT_CHANNEL,false,0,0);
 	}
-	
+
 	virtual int OnAccessCheck(userrec* source,userrec* dest,chanrec* channel,int access_type)
 	{
 		if (access_type == AC_KICK)
@@ -40,6 +40,19 @@ class ModuleNoKicks : public Module
 		return ACR_DEFAULT;
 	}
 	
+	virtual int OnExtendedMode(userrec* user, void* target, char modechar, int type, bool mode_on, string_list &params)
+	{
+		// check if this is our mode character...
+		if ((modechar == 'Q') && (type == MT_CHANNEL))
+  		{
+			return 1;
+		}
+		else
+		{
+			return 0;
+		}
+	}
+
 	virtual ~ModuleNoKicks()
 	{
 		delete Srv;

@@ -4,7 +4,7 @@
 #include "channels.h"
 #include "modules.h"
 
-/* $ModDesc: Provides support for unreal-style GLOBOPS and umode +g */
+/* $ModDesc: Provides support for /KNOCK and mode +K */
 
 Server *Srv;
 	 
@@ -26,7 +26,7 @@ void handle_knock(char **parameters, int pcnt, userrec *user)
 	}
 	if (c->inviteonly)
 	{
-		WriteChannelWithServ(Srv->GetServerName().c_str(),c,user,"NOTICE %s :User %s is KNOCKing on %s (%s)",c->name,user->nick,c->name,line.c_str());
+		WriteChannelWithServ((char*)Srv->GetServerName().c_str(),c,user,"NOTICE %s :User %s is KNOCKing on %s (%s)",c->name,user->nick,c->name,line.c_str());
 		WriteServ(user->fd,"NOTICE %s :KNOCKing on %s",user->nick,c->name);
 		return;
 	}

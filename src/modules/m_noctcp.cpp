@@ -58,6 +58,19 @@ class ModuleNoCTCP : public Module
 		return 0;
 	}
 	
+	virtual int OnExtendedMode(userrec* user, void* target, char modechar, int type, bool mode_on, string_list &params)
+	{
+		// check if this is our mode character...
+		if ((modechar == 'C') && (type == MT_CHANNEL))
+  		{
+			return 1;
+		}
+		else
+		{
+			return 0;
+		}
+	}
+
 	virtual ~ModuleNoCTCP()
 	{
 		delete Srv;
