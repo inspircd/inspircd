@@ -5803,7 +5803,7 @@ void handle_n(char token,char* params,serverrec* source,serverrec* reply, char* 
 	
 	userrec* user = Find(oldnick);
 	
-	if (!user)
+	if (user)
 	{
 		WriteCommon(user,"NICK %s",newnick);
 		user = ReHashNick(user->nick, newnick);
