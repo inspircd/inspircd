@@ -11,12 +11,6 @@
 
 echo "Configuring Default Values"
 
-PERL=`which perl`
-if [ "$PERL" = "" ] ; then
-        echo "You require perl to run this program."
-        exit;
-fi
-
 ME=`pwd`
 SERV_NAME="my.server.name"
 SERV_DESC="My InspIRCd Server"
@@ -577,10 +571,9 @@ echo "The Following Modules are avaliable:"
 echo ""
 MODLINE=""
 for module in src/modules/*.cpp ; do
-        mod=`perl -e '$a='$module';print substr($a,0,length($a)-3)'`
-        dmod=`perl -e '$a="'$mod.so'";while (length($a)<30) { $a = "$a ";}; print $a;'`
-        desc=`perl -e 'open (F, "<'$module'");local($/)=undef;$blah=<F>;$blah=~/\$ModDesc(.*)\*\//;print substr($1,13,length($1));close F;'`
-        echo -e "\033[1;32m$dmod\033[0;37m$desc"
+	desc=`grep '$ModDesc:' $module | sed 's/\/\* $ModDesc://' | sed 's/\*\///'`
+        mod=`echo $module | sed 's/.cpp/.so/' | sed 's/src\/modules\///'`
+	echo -e "\033[1;32m$mod\t\t\033[0;37m$desc"
 done
 echo ""
 
