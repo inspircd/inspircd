@@ -41,6 +41,8 @@ using namespace std;
 #include <errno.h>
 #include <deque>
 #include <errno.h>
+#include <unistd.h>
+#include <sched.h>
 #include "connection.h"
 #include "users.h"
 #include "servers.h"
@@ -5842,7 +5844,7 @@ void process_command(userrec *user, char* cmd)
 		{
 			if (((command[x] < '0') || (command[x]> '9')) && (command[x] != '-'))
 			{
-				if (strchr("@!\"$%^&*(){}[]_-=+;:'#~,.<>/?\\|`",command[x]))
+				if (!strchr("@!\"$%^&*(){}[]_-=+;:'#~,.<>/?\\|`",command[x]))
 				{
 					kill_link(user,"Protocol violation (3)");
 					return;
@@ -7277,6 +7279,9 @@ int InspIRCd(void)
 	/* main loop, this never returns */
 	for (;;)
 	{
+#ifdef _POSIX_PRIORITY_SCHEDULING
+		sched_yield();
+#endif
 
 		fd_set sfd;
 		timeval tval;
@@ -7434,6 +7439,11 @@ int InspIRCd(void)
 			//if (selectResult2 > 0)
 			for (user_hash::iterator count2a = xcount; count2a != endingiter; count2a++)
 			{
+
+#ifdef _POSIX_PRIORITY_SCHEDULING
+				sched_yield();
+#endif
+
 				result = EAGAIN;
 				if ((count2a->second->fd != -1) && (FD_ISSET (count2a->second->fd, &sfd)))
 				{

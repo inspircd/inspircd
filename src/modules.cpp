@@ -15,7 +15,7 @@
 
 // class type for holding an extended mode character - internal to core
 
-class ExtMode
+class ExtMode : public classbase
 {
 public:
 	char modechar;

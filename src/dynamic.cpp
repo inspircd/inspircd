@@ -4,7 +4,7 @@
 
 
 
-DLLManager::DLLManager( const char *fname )
+DLLManager::DLLManager(const char *fname)
 {
     // Try to open the library now and get any error message.
 	
@@ -20,10 +20,7 @@ DLLManager::~DLLManager()
 }
 
 
-bool DLLManager::GetSymbol( 
-			   void **v,
-			   const char *sym_name
-			   )
+bool DLLManager::GetSymbol(void **v, const char *sym_name)
 {
 	// try extract a symbol from the library
 	// get any error message is there is any
@@ -45,10 +42,7 @@ bool DLLManager::GetSymbol(
 }
 
 
-DLLFactoryBase::DLLFactoryBase(
-			       const char *fname,
-			       const char *factory
-			       ) : DLLManager(fname)
+DLLFactoryBase::DLLFactoryBase(const char *fname, const char *factory) : DLLManager(fname)
 {
 	// try get the factory function if there is no error yet
 	

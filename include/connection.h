@@ -151,7 +151,7 @@ class ircd_connector : public classbase
 /** Class packet is deprecated.
  * This declaration is preserved here to maintain documentation only.
  */
-class packet
+class packet : public classbase
 {
 };
 

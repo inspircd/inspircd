@@ -53,13 +53,8 @@ class DLLManager
 class DLLFactoryBase : public DLLManager
 {
  public:
-	DLLFactoryBase(
-		       const char *fname,
-		       const char *func_name=0
-		       );
-		
+	DLLFactoryBase(const char *fname, const char *func_name = 0);
 	virtual ~DLLFactoryBase();
-	
 	void * (*factory_func)(void);	
 };
 
@@ -83,19 +78,15 @@ class DLLFactoryBase : public DLLManager
 // is deleted, because the DLL will get unloaded as well.
 //
 
-template <class T>
-class DLLFactory : public DLLFactoryBase
+template <class T> class DLLFactory : public DLLFactoryBase
 {
  public:
-	DLLFactory(
-		   const char *fname,
-		   const char *func_name=0
-		   ) : DLLFactoryBase( fname, func_name )
+	DLLFactory(const char *fname, const char *func_name=0) : DLLFactoryBase(fname,func_name)
 	{
-		if( factory_func )
-		  factory = (T *)factory_func();
-		else 
-		  factory = 0;
+		if (factory_func)
+			factory = (T*)factory_func();
+		else
+			factory = 0;
 	}
 	
 	~DLLFactory()
