@@ -5370,9 +5370,69 @@ void handle_connect(char **parameters, int pcnt, userrec *user)
 	}
 }
 
+void DoSplitEveryone()
+{
+	bool go_again = true;
+	while (go_again)
+	{
+		go_again = false;
+		for (int i = 0; i < 32; i++)
+		{
+			if (me[i] != NULL)
+			{
+				for (vector<ircd_connector>::iterator j = me[i]->connectors.begin(); j != me[i]->connectors.end(); j++)
+				{
+					if (strcasecmp(j->GetServerName().c_str(),ServerName))
+					{
+						j->routes.clear();
+						j->CloseConnection();
+						me[i]->connectors.erase(j);
+						go_again = true;
+						break;
+					}
+				}
+			}
+		}
+	}
+	log(DEBUG,"Removed server. Will remove clients...");
+	// iterate through the userlist and remove all users on this server.
+	// because we're dealing with a mesh, we dont have to deal with anything
+	// "down-route" from this server (nice huh)
+	go_again = true;
+	char reason[MAXBUF];
+	while (go_again)
+	{
+		go_again = false;
+		for (user_hash::const_iterator u = clientlist.begin(); u != clientlist.end(); u++)
+		{
+			if (strcasecmp(u->second->server,ServerName))
+			{
+				snprintf(reason,MAXBUF,"%s %s",ServerName,u->second->server);
+				kill_link(u->second,reason);
+				go_again = true;
+				break;
+			}
+		}
+	}
+}
+
+
+
 void handle_squit(char **parameters, int pcnt, userrec *user)
 {
 	// send out an squit across the mesh and then clear the server list (for local squit)
+	if (!pcnt)
+	{
+		WriteOpers("SQUIT command issued by %s",user->nick);
+		char buffer[MAXBUF];
+		snprintf(buffer,MAXBUF,"& %s",ServerName);
+		NetSendToAll(buffer);
+		DoSplitEveryone();
+	}
+	else
+	{
+		WriteServ(user->fd,"NOTICE :*** Remote SQUIT not supported yet.");
+	}
 }
 
 char islast(const char* s)
