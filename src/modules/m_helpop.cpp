@@ -94,7 +94,7 @@ bool do_helpop(char **parameters, int pcnt, userrec *src)
         // FIX by brain: make the string lowercase, ConfigReader is
         // case sensitive
         char lower[MAXBUF];
-        strcpy(lower,search,MAXBUF);
+        strlcpy(lower,search,MAXBUF);
         for (int t = 0; t < strlen(lower); t++)
                 lower[t] = tolower(lower[t]);
 
