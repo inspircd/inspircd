@@ -128,11 +128,13 @@ bool ircd_connector::MakeOutboundConnection(char* host, int port)
 	{
 		WriteOpers("Failed to look up hostname for %s, using as an ip address",host);
 		this->SetHostAddress(host,port);
+		SetHostAndPort(host,port);
 	}
 	else
 	{
 		WriteOpers("Found hostname for %s",host);
 		this->SetHostAddress(hoste->h_addr,port);
+		SetHostAndPort(hoste->h_addr,port);
 	}
 
 	this->fd = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
@@ -192,7 +194,7 @@ bool connection::MeshCookie(char* targethost, int port, long cookie, char* serve
 	
 	ircd_connector connector;
 	
-	WriteOpers("Establishing meshed link to %s:%d",targethost,port);
+	WriteOpers("Establishing meshed link to %s:%d",servername,port);
 
 	if (this->fd)
 	{

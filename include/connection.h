@@ -36,9 +36,6 @@ class ircd_connector : public classbase
 	 */
 	sockaddr_in addr;
 	
-	char host[MAXBUF];
-	int port;
-	
 	/** File descriptor of the connection
 	 */
 	int fd;
@@ -65,6 +62,9 @@ class ircd_connector : public classbase
 	bool SetHostAddress(char* host, int port);
 
  public:
+	char host[MAXBUF];
+	int port;
+	
  
 	bool MakeOutboundConnection(char* host, int port);
 	std::string GetServerName();

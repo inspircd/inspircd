@@ -6629,10 +6629,11 @@ void handle_link_packet(char* udp_msg, char* udp_host, serverrec *serv)
 							if (!strcasecmp(me[j]->connectors[k].GetServerName().c_str(),udp_host))
       							{
       								me[j]->connectors[k].SetServerName(servername);
+      								return;
 							}
 						}
 					}
-					WriteOpers("\2WARNING!\2 %s sent us an authentication packet but we are not authenticating with this server right noe! Possible intrusion attempt!",udp_host);
+					WriteOpers("\2WARNING!\2 %s sent us an authentication packet but we are not authenticating with this server right now! Possible intrusion attempt!",udp_host);
 					return;
 				}
 
