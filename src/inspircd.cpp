@@ -7296,18 +7296,8 @@ int InspIRCd(void)
 		FD_SET (openSockfd[count], &selectFds);
 	}
 
-	/* added timeout! select was waiting forever... wank... :/ */
-	tv.tv_usec = 0;
-
-	flip_flop++;
 	reap_counter++;
-	if (flip_flop > 10)
-	{
-		tv.tv_usec = 1;
-		flip_flop = 0;
-	}
-	
-	tv.tv_sec = 0;
+	tv.tv_usec = 1;
 	selectResult = select(MAXSOCKS, &selectFds, NULL, NULL, &tv);
 
 	/* select is reporting a waiting socket. Poll them all to find out which */
