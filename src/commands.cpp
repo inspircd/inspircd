@@ -1140,8 +1140,8 @@ void handle_stats(char **parameters, int pcnt, userrec *user)
 				WriteServ(user->fd,"249 %s :%s (%s@%s) Idle: %d",user->nick,i->second->nick,i->second->ident,i->second->dhost,(time(NULL) - i->second->idle_lastmsg));
 				idx++;
 			}
-				WriteServ(user->fd,"249 %s :%d OPER(s)",user->nick,idx);
 		}
+		WriteServ(user->fd,"249 %s :%d OPER(s)",user->nick,idx);
 	//249 [Brain] :bwoadway-monitor (~wgmon@204.152.186.58) Idle: 18
 	}
  	
