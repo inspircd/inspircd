@@ -6709,7 +6709,7 @@ void handle_link_packet(char* udp_msg, char* udp_host, serverrec *serv)
 								char buffer[MAXBUF];
 								sprintf(buffer,"X 0");
 								serv->SendPacket(buffer,udp_host);
-								DoSync(serv,udp_host);
+								DoSync(me[j],udp_host);
 								return;
 							}
 						}
