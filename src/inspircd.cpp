@@ -3514,7 +3514,6 @@ int InspIRCd(void)
 		user_hash::iterator endingiter = count2;
 
 		if (count2 == clientlist.end()) break;
-		if (!count2->second) break;
 		
 		if (count2->second)
 		if (count2->second->fd != 0)
