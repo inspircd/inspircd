@@ -8,6 +8,12 @@
 #ifndef __PLUGIN_H
 #define __PLUGIN_H
 
+#define DEBUG 10
+#define VERBOSE 20
+#define DEFAULT 30
+#define SPARSE 40
+#define NONE 50
+
 #include "dynamic.h"
 #include "base.h"
 #include <string>

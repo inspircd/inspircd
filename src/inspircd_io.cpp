@@ -105,7 +105,7 @@ int EnumConf(const char* filename, const char* tag)
 {
 	FILE *config;
 	int ptr = 0;
-	char buffer[MAXBUF], c_tag[MAXBUF], c;
+	char buffer[MAXBUF], c_tag[MAXBUF], c, lastc;
 	int in_token, in_quotes, tptr, j, idx = 0;
 	char* key;
 
@@ -118,9 +118,19 @@ int EnumConf(const char* filename, const char* tag)
 		ptr = 0;
 		in_token = 0;
 		in_quotes = 0;
+		lastc = '\0';
 		while (!feof(config))
 		{
+			lastc = c;
 			c = fgetc(config);
+			if ((c == '#') && (lastc == '\n'))
+			{
+				while ((c != '\n') && (!feof(config)))
+				{
+					lastc = c;
+					c = fgetc(config);
+				}
+			}
 			if ((c == '<') && (!in_quotes))
 			{
 				tptr = 0;
@@ -184,7 +194,7 @@ int ReadConf(const char* filename, const char* tag, const char* var, int index, 
 {
 	FILE *config;
 	int ptr = 0;
-	char buffer[MAXBUF], c_tag[MAXBUF], c;
+	char buffer[MAXBUF], c_tag[MAXBUF], c, lastc;
 	int in_token, in_quotes, tptr, j, idx = 0;
 	char* key;
 
@@ -197,9 +207,19 @@ int ReadConf(const char* filename, const char* tag, const char* var, int index, 
 		ptr = 0;
 		in_token = 0;
 		in_quotes = 0;
+		lastc = '\0';
 		while (!feof(config))
 		{
+			lastc = c;
 			c = fgetc(config);
+			if ((c == '#') && (lastc == '\n'))
+			{
+				while ((c != '\n') && (!feof(config)))
+				{
+					lastc = c;
+					c = fgetc(config);
+				}
+			}
 			if ((c == '<') && (!in_quotes))
 			{
 				tptr = 0;
