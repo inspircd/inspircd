@@ -4803,7 +4803,7 @@ void process_command(userrec *user, char* cmd)
 		{
 			if (((command[x] < '0') || (command[x]> '9')) && (command[x] != '-'))
 			{
-				if (!strchr("@!\"$%^&*(){}[]_-=+;:'#~,.<>/?\|`",command[x]))
+				if (!strchr("@!\"$%^&*(){}[]_-=+;:'#~,.<>/?\\|`",command[x]))
 				{
 					kill_link(user,"Protocol violation");
 					return;
