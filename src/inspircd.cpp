@@ -7291,7 +7291,7 @@ int InspIRCd(void)
 
 		// *FIX* Instead of closing sockets in kill_link when they receive the ERROR :blah line, we should queue
 		// them in a list, then reap the list every second or so.
-		if (reap_counter>2500)
+		if (reap_counter>300)
   		{
 			if (fd_reap.size() > 0)
    			{
