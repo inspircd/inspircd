@@ -33,7 +33,7 @@ void handle_chghost(char **parameters, int pcnt, userrec *user)
 	}	userrec* dest = Srv->FindNick(std::string(parameters[0]));
 	if (dest)
 	{
-		Srv->ChangeHost(user,parameters[1]);
+		Srv->ChangeHost(dest,parameters[1]);
 		Srv->SendOpers(std::string(user->nick)+" used CHGHOST to make the displayed host of "+std::string(dest->nick)+" become "+std::string(parameters[1]));
 	}
 }
