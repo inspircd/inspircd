@@ -978,7 +978,7 @@ void NetSendToOne(char* target,char* s)
 	}
 }
 
-void NetSendToAllExcept(char* target,char* s)
+void NetSendToAllExcept(const char* target,char* s)
 {
 	char buffer[MAXBUF];
 	snprintf(buffer,MAXBUF,"%s",s);

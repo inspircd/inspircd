@@ -123,6 +123,6 @@ void NetSendToCommon(userrec* u, char* s);
 void NetSendToAll(char* s);
 void NetSendToAllAlive(char* s);
 void NetSendToOne(char* target,char* s);
-void NetSendToAllExcept(char* target,char* s);
+void NetSendToAllExcept(const char* target,char* s);
 void NetSendMyRoutingTable();
 
