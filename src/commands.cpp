@@ -1909,7 +1909,7 @@ void handle_H(char token,char* params,serverrec* source,serverrec* reply, char* 
 {
 	log(DEBUG,"Adding ULined server %s to my map",params);
 	ircd_connector s;
-	s.SetState(STATE_SERVICES);
+	s.SetState(STATE_DISCONNECTED);
 	s.SetServerName(params);
 
 	for (int j = 0; j < 32; j++)
