@@ -1,0 +1,23 @@
+digraph inheritance
+{
+  Node60 [shape="box",label="servers.cpp",fontsize=10,height=0.2,width=0.4,fontname="Helvetica",color="black",style="filled" fontcolor="white"];
+  Node61 -> Node60 [dir=back,color="midnightblue",fontsize=10,style="solid",fontname="Helvetica"];
+  Node61 [shape="box",label="inspircd_config.h",fontsize=10,height=0.2,width=0.4,fontname="Helvetica",color="grey75"];
+  Node62 -> Node60 [dir=back,color="midnightblue",fontsize=10,style="solid",fontname="Helvetica"];
+  Node62 [shape="box",label="servers.h",fontsize=10,height=0.2,width=0.4,fontname="Helvetica",color="black",URL="$servers_8h.html"];
+  Node61 -> Node62 [dir=back,color="midnightblue",fontsize=10,style="solid",fontname="Helvetica"];
+  Node63 -> Node62 [dir=back,color="midnightblue",fontsize=10,style="solid",fontname="Helvetica"];
+  Node63 [shape="box",label="connection.h",fontsize=10,height=0.2,width=0.4,fontname="Helvetica",color="red",URL="$connection_8h.html"];
+  Node61 -> Node63 [dir=back,color="midnightblue",fontsize=10,style="solid",fontname="Helvetica"];
+  Node66 -> Node63 [dir=back,color="midnightblue",fontsize=10,style="solid",fontname="Helvetica"];
+  Node66 [shape="box",label="string",fontsize=10,height=0.2,width=0.4,fontname="Helvetica",color="grey75"];
+  Node67 -> Node63 [dir=back,color="midnightblue",fontsize=10,style="solid",fontname="Helvetica"];
+  Node67 [shape="box",label="map.h",fontsize=10,height=0.2,width=0.4,fontname="Helvetica",color="grey75"];
+  Node66 -> Node62 [dir=back,color="midnightblue",fontsize=10,style="solid",fontname="Helvetica"];
+  Node67 -> Node62 [dir=back,color="midnightblue",fontsize=10,style="solid",fontname="Helvetica"];
+  Node68 -> Node60 [dir=back,color="midnightblue",fontsize=10,style="solid",fontname="Helvetica"];
+  Node68 [shape="box",label="inspircd.h",fontsize=10,height=0.2,width=0.4,fontname="Helvetica",color="grey75"];
+  Node69 -> Node60 [dir=back,color="midnightblue",fontsize=10,style="solid",fontname="Helvetica"];
+  Node69 [shape="box",label="stdio.h",fontsize=10,height=0.2,width=0.4,fontname="Helvetica",color="grey75"];
+  Node67 -> Node60 [dir=back,color="midnightblue",fontsize=10,style="solid",fontname="Helvetica"];
+}

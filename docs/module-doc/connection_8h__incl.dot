@@ -1,0 +1,13 @@
+digraph inheritance
+{
+  Node21 [shape="box",label="connection.h",fontsize=10,height=0.2,width=0.4,fontname="Helvetica",color="black",style="filled" fontcolor="white"];
+  Node22 -> Node21 [dir=back,color="midnightblue",fontsize=10,style="solid",fontname="Helvetica"];
+  Node22 [shape="box",label="inspircd_config.h",fontsize=10,height=0.2,width=0.4,fontname="Helvetica",color="grey75"];
+  Node23 -> Node21 [dir=back,color="midnightblue",fontsize=10,style="solid",fontname="Helvetica"];
+  Node23 [shape="box",label="base.h",fontsize=10,height=0.2,width=0.4,fontname="Helvetica",color="red",URL="$base_8h.html"];
+  Node22 -> Node23 [dir=back,color="midnightblue",fontsize=10,style="solid",fontname="Helvetica"];
+  Node25 -> Node21 [dir=back,color="midnightblue",fontsize=10,style="solid",fontname="Helvetica"];
+  Node25 [shape="box",label="string",fontsize=10,height=0.2,width=0.4,fontname="Helvetica",color="grey75"];
+  Node26 -> Node21 [dir=back,color="midnightblue",fontsize=10,style="solid",fontname="Helvetica"];
+  Node26 [shape="box",label="map.h",fontsize=10,height=0.2,width=0.4,fontname="Helvetica",color="grey75"];
+}

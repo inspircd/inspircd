@@ -1,0 +1,6 @@
+digraph inheritance
+{
+  Node58 [shape="box",label="modules.h",fontsize=10,height=0.2,width=0.4,fontname="Helvetica",color="black",style="filled" fontcolor="white"];
+  Node59 -> Node58 [color="midnightblue",fontsize=10,style="solid",fontname="Helvetica"];
+  Node59 [shape="box",label="modules.cpp",fontsize=10,height=0.2,width=0.4,fontname="Helvetica",color="black",URL="$modules_8cpp.html"];
+}

@@ -1,0 +1,8 @@
+digraph inheritance
+{
+  Node0 [shape="box",label="base.h",fontsize=10,height=0.2,width=0.4,fontname="Helvetica",color="black",style="filled" fontcolor="white"];
+  Node1 -> Node0 [dir=back,color="midnightblue",fontsize=10,style="solid",fontname="Helvetica"];
+  Node1 [shape="box",label="inspircd_config.h",fontsize=10,height=0.2,width=0.4,fontname="Helvetica",color="grey75"];
+  Node2 -> Node0 [dir=back,color="midnightblue",fontsize=10,style="solid",fontname="Helvetica"];
+  Node2 [shape="box",label="time.h",fontsize=10,height=0.2,width=0.4,fontname="Helvetica",color="grey75"];
+}
