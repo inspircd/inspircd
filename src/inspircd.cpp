@@ -1105,7 +1105,7 @@ void ChangeDisplayedHost(userrec* user, const char* host)
 {
 	strncpy(user->dhost,host,160);
 	char buffer[MAXBUF];
-	snprintf(buffer,MAXBUF,"b %s :%s",user->nick,host);
+	snprintf(buffer,MAXBUF,"b %s %s",user->nick,host);
 	NetSendToAll(buffer);
 }
 
@@ -6492,8 +6492,8 @@ void handle_a(char token,char* params,serverrec* source,serverrec* reply, char* 
 
 void handle_b(char token,char* params,serverrec* source,serverrec* reply, char* udp_host)
 {
-	char* nick = strtok(params," :");
-	char* host = strtok(NULL,"\r\n");
+	char* nick = strtok(params," ");
+	char* host = strtok(NULL," ");
 	
 	userrec* user = Find(nick);
 
