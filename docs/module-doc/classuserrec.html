@@ -18,8 +18,8 @@ Inheritance diagram for userrec:<p><center><img src="classuserrec__inherit__grap
 </map>
 <center><font size="2">[<a target="top" href="graph_legend.html">legend</a>]</font></center>Collaboration diagram for userrec:<p><center><img src="classuserrec__coll__graph.gif" border="0" usemap="#userrec__coll__map" alt="Collaboration graph"></center>
 <map name="userrec__coll__map">
-<area href="classconnection.html" shape="rect" coords="132,195,201,216" alt="">
-<area href="classucrec.html" shape="rect" coords="443,195,488,216" alt="">
+<area href="classconnection.html" shape="rect" coords="136,203,205,224" alt="">
+<area href="classucrec.html" shape="rect" coords="447,203,492,224" alt="">
 </map>
 <center><font size="2">[<a target="top" href="graph_legend.html">legend</a>]</font></center><a href="classuserrec-members.html">List of all members.</a><table border=0 cellpadding=0 cellspacing=0>
 <tr><td></td></tr>
@@ -54,7 +54,8 @@ Inheritance diagram for userrec:<p><center><img src="classuserrec__inherit__grap
 <tr><td>&nbsp;</td><td><font size=-1><em>The user's away message.</em> <a href="#m7"></a><em></em></font><br><br></td></tr>
 <tr><td nowrap align=right valign=top>char&nbsp;</td><td valign=bottom><a class="el" href="classuserrec.html#m8">result</a> [256]</td></tr>
 <tr><td>&nbsp;</td><td><font size=-1><em>Stores the result of the last GetFullHost or GetRealHost call.</em> <a href="#m8"></a><em></em></font><br><br></td></tr>
-<tr><td nowrap align=right valign=top>unsigned long&nbsp;</td><td valign=bottom><a class="el" href="classuserrec.html#m9">timeout</a></td></tr>
+<tr><td nowrap align=right valign=top>char&nbsp;</td><td valign=bottom><a class="el" href="classuserrec.html#m9">carryover</a> [MAXBUF]</td></tr>
+<tr><td nowrap align=right valign=top>unsigned long&nbsp;</td><td valign=bottom><a class="el" href="classuserrec.html#m10">timeout</a></td></tr>
 <tr><td colspan=2><br><h2>Private Attributes</h2></td></tr>
 <tr><td nowrap align=right valign=top><a class="el" href="users_8h.html#a6">InvitedList</a>&nbsp;</td><td valign=bottom><a class="el" href="classuserrec.html#o0">invites</a></td></tr>
 <tr><td>&nbsp;</td><td><font size=-1><em>A list of channels the user has a pending invite to.</em> <a href="#o0"></a><em></em></font><br><br></td></tr>
@@ -96,13 +97,13 @@ Definition at line <a class="el" href="users_8h-source.html#l00066">66</a> of fi
 <p>
 Definition at line <a class="el" href="users_8cpp-source.html#l00011">11</a> of file <a class="el" href="users_8cpp-source.html">users.cpp</a>.
 <p>
-References <a class="el" href="connection_8h-source.html#l00047">connection::bytes_in</a>, <a class="el" href="connection_8h-source.html#l00048">connection::bytes_out</a>, <a class="el" href="channels_8h-source.html#l00202">ucrec::channel</a>, <a class="el" href="users_8h-source.html#l00100">chans</a>, <a class="el" href="connection_8h-source.html#l00049">connection::cmds_in</a>, <a class="el" href="connection_8h-source.html#l00050">connection::cmds_out</a>, <a class="el" href="connection_8h-source.html#l00043">connection::fd</a>, <a class="el" href="connection_8h-source.html#l00051">connection::haspassed</a>, <a class="el" href="connection_8h-source.html#l00056">connection::idle_lastmsg</a>, <a class="el" href="users_8h-source.html#l00072">invites</a>, <a class="el" href="connection_8h-source.html#l00045">connection::ip</a>, <a class="el" href="connection_8h-source.html#l00054">connection::lastping</a>, <a class="el" href="connection_8h-source.html#l00057">connection::nping</a>, <a class="el" href="connection_8h-source.html#l00052">connection::port</a>, <a class="el" href="connection_8h-source.html#l00053">connection::registered</a>, <a class="el" href="connection_8h-source.html#l00055">connection::signon</a>, and <a class="el" href="users_8h-source.html#l00116">timeout</a>.
+References <a class="el" href="connection_8h-source.html#l00047">connection::bytes_in</a>, <a class="el" href="connection_8h-source.html#l00048">connection::bytes_out</a>, <a class="el" href="channels_8h-source.html#l00202">ucrec::channel</a>, <a class="el" href="users_8h-source.html#l00100">chans</a>, <a class="el" href="connection_8h-source.html#l00049">connection::cmds_in</a>, <a class="el" href="connection_8h-source.html#l00050">connection::cmds_out</a>, <a class="el" href="connection_8h-source.html#l00043">connection::fd</a>, <a class="el" href="connection_8h-source.html#l00051">connection::haspassed</a>, <a class="el" href="connection_8h-source.html#l00056">connection::idle_lastmsg</a>, <a class="el" href="users_8h-source.html#l00072">invites</a>, <a class="el" href="connection_8h-source.html#l00045">connection::ip</a>, <a class="el" href="connection_8h-source.html#l00054">connection::lastping</a>, <a class="el" href="connection_8h-source.html#l00057">connection::nping</a>, <a class="el" href="connection_8h-source.html#l00052">connection::port</a>, <a class="el" href="connection_8h-source.html#l00053">connection::registered</a>, <a class="el" href="connection_8h-source.html#l00055">connection::signon</a>, and <a class="el" href="users_8h-source.html#l00118">timeout</a>.
 <p>
 <div class="fragment"><pre>00012 {
 00013         <span class="comment">// the PROPER way to do it, AVOID bzero at *ALL* costs</span>
 00014         strcpy(nick,<span class="stringliteral">""</span>);
 00015         <a class="code" href="classconnection.html#m3">ip</a> = 0;
-00016         <a class="code" href="classuserrec.html#m9">timeout</a> = 0;
+00016         <a class="code" href="classuserrec.html#m10">timeout</a> = 0;
 00017         strcpy(ident,<span class="stringliteral">""</span>);
 00018         strcpy(host,<span class="stringliteral">""</span>);
 00019         strcpy(dhost,<span class="stringliteral">""</span>);
@@ -151,9 +152,9 @@ References <a class="el" href="connection_8h-source.html#l00047">connection::byt
 <p>
 
 <p>
-Definition at line <a class="el" href="users_8h-source.html#l00120">120</a> of file <a class="el" href="users_8h-source.html">users.h</a>.
+Definition at line <a class="el" href="users_8h-source.html#l00122">122</a> of file <a class="el" href="users_8h-source.html">users.h</a>.
 <p>
-<div class="fragment"><pre>00120 {  }
+<div class="fragment"><pre>00122 {  }
 </pre></div>    </td>
   </tr>
 </table>
@@ -187,14 +188,14 @@ Returns the full displayed host of the user This member function returns the hos
 <p>
 
 <p>
-Definition at line <a class="el" href="users_8cpp-source.html#l00037">37</a> of file <a class="el" href="users_8cpp-source.html">users.cpp</a>.
+Definition at line <a class="el" href="users_8cpp-source.html#l00038">38</a> of file <a class="el" href="users_8cpp-source.html">users.cpp</a>.
 <p>
 References <a class="el" href="users_8h-source.html#l00114">result</a>.
 <p>
-<div class="fragment"><pre>00038 {
-00039         sprintf(result,<span class="stringliteral">"%s!%s@%s"</span>,nick,ident,dhost);
-00040         <span class="keywordflow">return</span> <a class="code" href="classuserrec.html#m8">result</a>;
-00041 }
+<div class="fragment"><pre>00039 {
+00040         sprintf(result,<span class="stringliteral">"%s!%s@%s"</span>,nick,ident,dhost);
+00041         <span class="keywordflow">return</span> <a class="code" href="classuserrec.html#m8">result</a>;
+00042 }
 </pre></div>    </td>
   </tr>
 </table>
@@ -227,14 +228,14 @@ Returns the full real host of the user This member function returns the hostname
 <p>
 If any form of hostname cloaking is in operation, e.g. through a module, then this method will ignore it and return the true hostname.
 <p>
-Definition at line <a class="el" href="users_8cpp-source.html#l00044">44</a> of file <a class="el" href="users_8cpp-source.html">users.cpp</a>.
+Definition at line <a class="el" href="users_8cpp-source.html#l00045">45</a> of file <a class="el" href="users_8cpp-source.html">users.cpp</a>.
 <p>
 References <a class="el" href="users_8h-source.html#l00114">result</a>.
 <p>
-<div class="fragment"><pre>00045 {
-00046         sprintf(result,<span class="stringliteral">"%s!%s@%s"</span>,nick,ident,host);
-00047         <span class="keywordflow">return</span> <a class="code" href="classuserrec.html#m8">result</a>;
-00048 }
+<div class="fragment"><pre>00046 {
+00047         sprintf(result,<span class="stringliteral">"%s!%s@%s"</span>,nick,ident,host);
+00048         <span class="keywordflow">return</span> <a class="code" href="classuserrec.html#m8">result</a>;
+00049 }
 </pre></div>    </td>
   </tr>
 </table>
@@ -268,15 +269,15 @@ Adds a channel to a users invite list (invites them to a channel).
 <p>
 
 <p>
-Definition at line <a class="el" href="users_8cpp-source.html#l00064">64</a> of file <a class="el" href="users_8cpp-source.html">users.cpp</a>.
+Definition at line <a class="el" href="users_8cpp-source.html#l00065">65</a> of file <a class="el" href="users_8cpp-source.html">users.cpp</a>.
 <p>
 References <a class="el" href="users_8h-source.html#l00028">Invited::channel</a>, and <a class="el" href="users_8h-source.html#l00072">invites</a>.
 <p>
-<div class="fragment"><pre>00065 {
-00066         <a class="code" href="classInvited.html">Invited</a> i;
-00067         strcpy(i.<a class="code" href="classInvited.html#m0">channel</a>,channel);
-00068         <a class="code" href="classuserrec.html#o0">invites</a>.push_back(i);
-00069 }
+<div class="fragment"><pre>00066 {
+00067         <a class="code" href="classInvited.html">Invited</a> i;
+00068         strcpy(i.<a class="code" href="classInvited.html#m0">channel</a>,channel);
+00069         <a class="code" href="classuserrec.html#o0">invites</a>.push_back(i);
+00070 }
 </pre></div>    </td>
   </tr>
 </table>
@@ -310,22 +311,22 @@ Returns true if a user is invited to a channel.
 <p>
 
 <p>
-Definition at line <a class="el" href="users_8cpp-source.html#l00050">50</a> of file <a class="el" href="users_8cpp-source.html">users.cpp</a>.
+Definition at line <a class="el" href="users_8cpp-source.html#l00051">51</a> of file <a class="el" href="users_8cpp-source.html">users.cpp</a>.
 <p>
 References <a class="el" href="users_8h-source.html#l00072">invites</a>.
 <p>
-<div class="fragment"><pre>00051 {
-00052         <span class="keywordflow">for</span> (InvitedList::iterator i = <a class="code" href="classuserrec.html#o0">invites</a>.begin(); i != <a class="code" href="classuserrec.html#o0">invites</a>.end(); i++)
-00053         {
-00054                 <span class="keywordflow">if</span> (i-&gt;channel) {
-00055                         <span class="keywordflow">if</span> (!strcasecmp(i-&gt;channel,channel))
-00056                         {
-00057                                 <span class="keywordflow">return</span> <span class="keyword">true</span>;
-00058                         }
-00059                 }
-00060         }
-00061         <span class="keywordflow">return</span> <span class="keyword">false</span>;
-00062 }
+<div class="fragment"><pre>00052 {
+00053         <span class="keywordflow">for</span> (InvitedList::iterator i = <a class="code" href="classuserrec.html#o0">invites</a>.begin(); i != <a class="code" href="classuserrec.html#o0">invites</a>.end(); i++)
+00054         {
+00055                 <span class="keywordflow">if</span> (i-&gt;channel) {
+00056                         <span class="keywordflow">if</span> (!strcasecmp(i-&gt;channel,channel))
+00057                         {
+00058                                 <span class="keywordflow">return</span> <span class="keyword">true</span>;
+00059                         }
+00060                 }
+00061         }
+00062         <span class="keywordflow">return</span> <span class="keyword">false</span>;
+00063 }
 </pre></div>    </td>
   </tr>
 </table>
@@ -359,26 +360,26 @@ Removes a channel from a users invite list.
 <p>
 This member function is called on successfully joining an invite only channel to which the user has previously been invited, to clear the invitation.
 <p>
-Definition at line <a class="el" href="users_8cpp-source.html#l00071">71</a> of file <a class="el" href="users_8cpp-source.html">users.cpp</a>.
+Definition at line <a class="el" href="users_8cpp-source.html#l00072">72</a> of file <a class="el" href="users_8cpp-source.html">users.cpp</a>.
 <p>
 References <a class="el" href="users_8h-source.html#l00072">invites</a>.
 <p>
-<div class="fragment"><pre>00072 {
-00073         log(DEBUG,<span class="stringliteral">"Removing invites"</span>);
-00074         <span class="keywordflow">if</span> (<a class="code" href="classuserrec.html#o0">invites</a>.size())
-00075         {
-00076                 <span class="keywordflow">for</span> (InvitedList::iterator i = <a class="code" href="classuserrec.html#o0">invites</a>.begin(); i != <a class="code" href="classuserrec.html#o0">invites</a>.end(); i++)
-00077                 {
-00078                         <span class="keywordflow">if</span> (i-&gt;channel) {
-00079                                 <span class="keywordflow">if</span> (!strcasecmp(i-&gt;channel,channel))
-00080                                 {
-00081                                         <a class="code" href="classuserrec.html#o0">invites</a>.erase(i);
-00082                                         <span class="keywordflow">return</span>;
-00083                                 }
-00084                         }
-00085                 }
-00086         }
-00087 }
+<div class="fragment"><pre>00073 {
+00074         log(DEBUG,<span class="stringliteral">"Removing invites"</span>);
+00075         <span class="keywordflow">if</span> (<a class="code" href="classuserrec.html#o0">invites</a>.size())
+00076         {
+00077                 <span class="keywordflow">for</span> (InvitedList::iterator i = <a class="code" href="classuserrec.html#o0">invites</a>.begin(); i != <a class="code" href="classuserrec.html#o0">invites</a>.end(); i++)
+00078                 {
+00079                         <span class="keywordflow">if</span> (i-&gt;channel) {
+00080                                 <span class="keywordflow">if</span> (!strcasecmp(i-&gt;channel,channel))
+00081                                 {
+00082                                         <a class="code" href="classuserrec.html#o0">invites</a>.erase(i);
+00083                                         <span class="keywordflow">return</span>;
+00084                                 }
+00085                         }
+00086                 }
+00087         }
+00088 }
 </pre></div>    </td>
   </tr>
 </table>
@@ -407,6 +408,30 @@ The user's away message.
 If this string is empty, the user is not marked as away.
 <p>
 Definition at line <a class="el" href="users_8h-source.html#l00109">109</a> of file <a class="el" href="users_8h-source.html">users.h</a>.    </td>
+  </tr>
+</table>
+<a name="m9" doxytag="userrec::carryover"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> char userrec::carryover[MAXBUF]
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+
+<p>
+Definition at line <a class="el" href="users_8h-source.html#l00116">116</a> of file <a class="el" href="users_8h-source.html">users.h</a>.    </td>
   </tr>
 </table>
 <a name="m5" doxytag="userrec::chans"></a><p>
@@ -538,7 +563,7 @@ A list of channels the user has a pending invite to.
 <p>
 Definition at line <a class="el" href="users_8h-source.html#l00072">72</a> of file <a class="el" href="users_8h-source.html">users.h</a>.
 <p>
-Referenced by <a class="el" href="users_8cpp-source.html#l00064">InviteTo()</a>, <a class="el" href="users_8cpp-source.html#l00050">IsInvited()</a>, <a class="el" href="users_8cpp-source.html#l00071">RemoveInvite()</a>, and <a class="el" href="users_8cpp-source.html#l00011">userrec()</a>.    </td>
+Referenced by <a class="el" href="users_8cpp-source.html#l00065">InviteTo()</a>, <a class="el" href="users_8cpp-source.html#l00051">IsInvited()</a>, <a class="el" href="users_8cpp-source.html#l00072">RemoveInvite()</a>, and <a class="el" href="users_8cpp-source.html#l00011">userrec()</a>.    </td>
   </tr>
 </table>
 <a name="m4" doxytag="userrec::modes"></a><p>
@@ -618,7 +643,7 @@ You may use this to increase the speed of use of this class.
 <p>
 Definition at line <a class="el" href="users_8h-source.html#l00114">114</a> of file <a class="el" href="users_8h-source.html">users.h</a>.
 <p>
-Referenced by <a class="el" href="users_8cpp-source.html#l00037">GetFullHost()</a>, and <a class="el" href="users_8cpp-source.html#l00044">GetFullRealHost()</a>.    </td>
+Referenced by <a class="el" href="users_8cpp-source.html#l00038">GetFullHost()</a>, and <a class="el" href="users_8cpp-source.html#l00045">GetFullRealHost()</a>.    </td>
   </tr>
 </table>
 <a name="m6" doxytag="userrec::server"></a><p>
@@ -647,7 +672,7 @@ The server the user is connected to.
 Definition at line <a class="el" href="users_8h-source.html#l00104">104</a> of file <a class="el" href="users_8h-source.html">users.h</a>.    </td>
   </tr>
 </table>
-<a name="m9" doxytag="userrec::timeout"></a><p>
+<a name="m10" doxytag="userrec::timeout"></a><p>
 <table width="100%" cellpadding="2" cellspacing="0" border="0">
   <tr>
     <td class="md">
@@ -668,14 +693,14 @@ Definition at line <a class="el" href="users_8h-source.html#l00104">104</a> of f
 <p>
 
 <p>
-Definition at line <a class="el" href="users_8h-source.html#l00116">116</a> of file <a class="el" href="users_8h-source.html">users.h</a>.
+Definition at line <a class="el" href="users_8h-source.html#l00118">118</a> of file <a class="el" href="users_8h-source.html">users.h</a>.
 <p>
 Referenced by <a class="el" href="users_8cpp-source.html#l00011">userrec()</a>.    </td>
   </tr>
 </table>
 <hr>The documentation for this class was generated from the following files:<ul>
 <li><a class="el" href="users_8h-source.html">users.h</a><li><a class="el" href="users_8cpp-source.html">users.cpp</a></ul>
-<hr><address style="align: right;"><small>Generated on Wed Apr 7 19:20:59 2004 for InspIRCd by
+<hr><address style="align: right;"><small>Generated on Thu Apr 8 19:13:23 2004 for InspIRCd by
 <a href="http://www.doxygen.org/index.html">
 <img src="doxygen.png" alt="doxygen" align="middle" border=0 
 width=110 height=53></a>1.3-rc3 </small></address>

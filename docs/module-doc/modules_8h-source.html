@@ -180,43 +180,45 @@
 00500         std::string <a class="code" href="classConfigReader.html#a3">ReadValue</a>(std::string tag, std::string name, <span class="keywordtype">int</span> index);
 00507         <span class="keywordtype">int</span> <a class="code" href="classConfigReader.html#a4">Enumerate</a>(std::string tag);
 00512         <span class="keywordtype">bool</span> <a class="code" href="classConfigReader.html#a5">Verify</a>();
-00513 };
-00514 
-00515 
-00516 
-<a name="l00522"></a><a class="code" href="classFileReader.html">00522</a> <span class="keyword">class </span><a class="code" href="classFileReader.html">FileReader</a> : <span class="keyword">public</span> <a class="code" href="classclassbase.html">classbase</a>
-00523 {
-<a name="l00524"></a><a class="code" href="classFileReader.html#o0">00524</a>  <a class="code" href="modules_8h.html#a10">file_cache</a> <a class="code" href="classFileReader.html#o0">fc</a>;
-00525  <span class="keyword">public</span>:
-00530          <a class="code" href="classFileReader.html#a0">FileReader</a>();
-00531 
-00537          <a class="code" href="classFileReader.html#a0">FileReader</a>(std::string filename);
+00513 
+00519         <span class="keywordtype">int</span> <a class="code" href="classConfigReader.html#a6">EnumerateValues</a>(std::string tag, <span class="keywordtype">int</span> index);
+00520 };
+00521 
+00522 
+00523 
+<a name="l00529"></a><a class="code" href="classFileReader.html">00529</a> <span class="keyword">class </span><a class="code" href="classFileReader.html">FileReader</a> : <span class="keyword">public</span> <a class="code" href="classclassbase.html">classbase</a>
+00530 {
+<a name="l00531"></a><a class="code" href="classFileReader.html#o0">00531</a>  <a class="code" href="modules_8h.html#a10">file_cache</a> <a class="code" href="classFileReader.html#o0">fc</a>;
+00532  <span class="keyword">public</span>:
+00537          <a class="code" href="classFileReader.html#a0">FileReader</a>();
 00538 
-00542          <a class="code" href="classFileReader.html#a2">~FileReader</a>();
-00543 
-00549          <span class="keywordtype">void</span> <a class="code" href="classFileReader.html#a3">LoadFile</a>(std::string filename);
+00544          <a class="code" href="classFileReader.html#a0">FileReader</a>(std::string filename);
+00545 
+00549          <a class="code" href="classFileReader.html#a2">~FileReader</a>();
 00550 
-00551          <span class="keywordtype">bool</span> <a class="code" href="classFileReader.html#a4">Exists</a>();
-00552          
-00557          std::string <a class="code" href="classFileReader.html#a5">GetLine</a>(<span class="keywordtype">int</span> x);
-00558 
-00564          <span class="keywordtype">int</span> <a class="code" href="classFileReader.html#a6">FileSize</a>();
-00565 };
-00566 
-00567 
-<a name="l00574"></a><a class="code" href="classModuleFactory.html">00574</a> <span class="keyword">class </span><a class="code" href="classModuleFactory.html">ModuleFactory</a> : <span class="keyword">public</span> <a class="code" href="classclassbase.html">classbase</a>
-00575 {
-00576  <span class="keyword">public</span>:
-<a name="l00577"></a><a class="code" href="classModuleFactory.html#a0">00577</a>         <a class="code" href="classModuleFactory.html#a0">ModuleFactory</a>() { }
-<a name="l00578"></a><a class="code" href="classModuleFactory.html#a1">00578</a>         <span class="keyword">virtual</span> <a class="code" href="classModuleFactory.html#a1">~ModuleFactory</a>() { }
-00583         <span class="keyword">virtual</span> <a class="code" href="classModule.html">Module</a> * <a class="code" href="classModuleFactory.html#a2">CreateModule</a>() = 0;
-00584 };
-00585 
-00586 
-<a name="l00587"></a><a class="code" href="modules_8h.html#a12">00587</a> <span class="keyword">typedef</span> DLLFactory&lt;ModuleFactory&gt; <a class="code" href="modules_8h.html#a12">ircd_module</a>;
-00588 
-00589 <span class="preprocessor">#endif</span>
-</pre></div><hr><address style="align: right;"><small>Generated on Wed Apr 7 19:20:14 2004 for InspIRCd by
+00556          <span class="keywordtype">void</span> <a class="code" href="classFileReader.html#a3">LoadFile</a>(std::string filename);
+00557 
+00561          <span class="keywordtype">bool</span> <a class="code" href="classFileReader.html#a4">Exists</a>();
+00562          
+00567          std::string <a class="code" href="classFileReader.html#a5">GetLine</a>(<span class="keywordtype">int</span> x);
+00568 
+00574          <span class="keywordtype">int</span> <a class="code" href="classFileReader.html#a6">FileSize</a>();
+00575 };
+00576 
+00577 
+<a name="l00584"></a><a class="code" href="classModuleFactory.html">00584</a> <span class="keyword">class </span><a class="code" href="classModuleFactory.html">ModuleFactory</a> : <span class="keyword">public</span> <a class="code" href="classclassbase.html">classbase</a>
+00585 {
+00586  <span class="keyword">public</span>:
+<a name="l00587"></a><a class="code" href="classModuleFactory.html#a0">00587</a>         <a class="code" href="classModuleFactory.html#a0">ModuleFactory</a>() { }
+<a name="l00588"></a><a class="code" href="classModuleFactory.html#a1">00588</a>         <span class="keyword">virtual</span> <a class="code" href="classModuleFactory.html#a1">~ModuleFactory</a>() { }
+00593         <span class="keyword">virtual</span> <a class="code" href="classModule.html">Module</a> * <a class="code" href="classModuleFactory.html#a2">CreateModule</a>() = 0;
+00594 };
+00595 
+00596 
+<a name="l00597"></a><a class="code" href="modules_8h.html#a12">00597</a> <span class="keyword">typedef</span> DLLFactory&lt;ModuleFactory&gt; <a class="code" href="modules_8h.html#a12">ircd_module</a>;
+00598 
+00599 <span class="preprocessor">#endif</span>
+</pre></div><hr><address style="align: right;"><small>Generated on Thu Apr 8 19:12:27 2004 for InspIRCd by
 <a href="http://www.doxygen.org/index.html">
 <img src="doxygen.png" alt="doxygen" align="middle" border=0 
 width=110 height=53></a>1.3-rc3 </small></address>
