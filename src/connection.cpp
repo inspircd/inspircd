@@ -42,6 +42,8 @@ bool connection::CreateListener(char* host, int p)
 	int on = 0;
 	struct linger linger = { 0 };
 	
+	this->port = p;
+	
 	fd = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 	if (fd <= 0)
 	{
@@ -120,6 +122,12 @@ bool ircd_connector::SetHostAddress(char* host, int port)
 	return true;
 }
 
+void ircd_connector::SetServerPort(int p)
+{
+	this->port = p;
+}
+
+
 bool ircd_connector::MakeOutboundConnection(char* host, int port)
 {
 	hostent* hoste = gethostbyname(host);
@@ -161,7 +169,7 @@ bool ircd_connector::MakeOutboundConnection(char* host, int port)
 }
 
 
-bool connection::BeginLink(char* targethost, int port, char* password, char* servername)
+bool connection::BeginLink(char* targethost, int port, char* password, char* servername, int myport)
 {
 	char connect[MAXBUF];
 	
@@ -174,7 +182,7 @@ bool connection::BeginLink(char* targethost, int port, char* password, char* ser
 			// targethost has been turned into an ip...
 			// we dont want this as the server name.
 			connector.SetServerName(servername);
-			sprintf(connect,"S %s %s :%s",getservername().c_str(),password,getserverdesc().c_str());
+			sprintf(connect,"S %s %s %d :%s",getservername().c_str(),password,myport,getserverdesc().c_str());
 			connector.SetState(STATE_NOAUTH_OUTBOUND);
 			connector.SetHostAndPort(targethost, port);
 			this->connectors.push_back(connector);

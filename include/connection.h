@@ -77,6 +77,7 @@ class ircd_connector : public classbase
 	std::string GetDescription();
 	void SetDescription(std::string desc);
 	int GetServerPort();
+	void SetServerPort(int p);
 	bool SetHostAndPort(char* host, int port);
 	void CloseConnection();
 };
@@ -121,7 +122,7 @@ class connection : public classbase
 	
 	connection();
 	bool CreateListener(char* host, int p);
-	bool BeginLink(char* targethost, int port, char* password, char* servername);
+	bool BeginLink(char* targethost, int port, char* password, char* servername, int myport);
 	bool MeshCookie(char* targethost, int port, long cookie, char* servername);
 	void TerminateLink(char* targethost);
 	bool SendPacket(char *message, const char* host);

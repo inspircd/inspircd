@@ -5361,7 +5361,7 @@ void handle_connect(char **parameters, int pcnt, userrec *user)
 
 	if (me[defaultRoute])
 	{
-		me[defaultRoute]->BeginLink(Link_IPAddr,LinkPort,Link_Pass,Link_ServerName);
+		me[defaultRoute]->BeginLink(Link_IPAddr,LinkPort,Link_Pass,Link_ServerName,me[defaultRoute]->port);
 		return;
 	}
 	else
@@ -6817,17 +6817,19 @@ void handle_link_packet(char* udp_msg, char* udp_host, serverrec *serv)
   	}
   	else
   	if (token == 'S') {
-		// S test.chatspike.net password :ChatSpike InspIRCd test server
+		// S test.chatspike.net password portn :ChatSpike InspIRCd test server
 		char* servername = strtok(params," ");
 		char* password = strtok(NULL," ");
+		char* myport = strtok(NULL," ");
 		char* serverdesc = finalparam+2;
-		WriteOpers("CONNECT from %s (%s)",servername,udp_host);
+		WriteOpers("CONNECT from %s (%s) (their port: %d)",servername,udp_host,atoi(myport));
 		
 		for (int j = 0; j < serv->connectors.size(); j++)
 		{
 			if (!strcasecmp(serv->connectors[j].GetServerName().c_str(),udp_host))
 			{
 				serv->connectors[j].SetServerName(servername);
+				serv->connectors[j].SetServerPort(atoi(myport));
 			}
 		}
 		
@@ -7205,7 +7207,8 @@ int InspIRCd(void)
 						strncpy(resolved,remotehost,MAXBUF);
 					}
 					// add to this connections ircd_connector vector
-					me[x]->AddIncoming(incomingSockfd,resolved,ntohs(client.sin_port));
+					// *FIX* - we need the LOCAL port not the remote port in &client!
+					me[x]->AddIncoming(incomingSockfd,resolved,me[x]->port);
 				}
 			}
 		}
