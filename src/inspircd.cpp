@@ -5069,7 +5069,7 @@ void DoSync(serverrec* serv, char* udp_host,int udp_port, long MyKey)
 	{
 		snprintf(data,MAXBUF,"C %s %d %s :%s",c->second->name,c->second->created,c->second->setby,chanmodes(c->second));
 		serv->SendPacket(data,udp_host,udp_port,MyKey);
-		if (strcmp(c->second->topic),"")
+		if (strcmp(c->second->topic,""))
 		{
 			snprintf(data,MAXBUF,"T %d %s :%s",c->second->topicset,c->second->name,c->second->topic);
 		}
