@@ -354,7 +354,7 @@ bool connection::SendPacket(char *message, const char* host)
 			}
 			char buffer[MAXBUF];
 			snprintf(buffer,MAXBUF,"& %s",host);
-			NetSendToAllAlive(buffer);
+			NetSendToAllExcept(host,buffer);
 			log(DEBUG,"There are no routes to %s, we're gonna boot the server off!",host);
 			return false;
 		}
