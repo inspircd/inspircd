@@ -3333,7 +3333,8 @@ int InspIRCd(void)
 		
 		for (int x = 0; x != UDPportCount; x++)
 		{
-			FD_SET(me[x]->fd, &serverfds);
+			if (me[x])
+				FD_SET(me[x]->fd, &serverfds);
 		}
 		
 		tvs.tv_usec = 0;		
@@ -3344,7 +3345,7 @@ int InspIRCd(void)
 		{
 			for (int x = 0; x != UDPportCount; x++)
 			{
-				if (FD_ISSET (me[x]->fd, &serverfds))
+				if ((me[x]) && (FD_ISSET (me[x]->fd, &serverfds)))
 				{
 					char remotehost[MAXBUF],resolved[MAXBUF];
 					length = sizeof (client);
@@ -3365,7 +3366,7 @@ int InspIRCd(void)
 		{
 			std::deque<std::string> msgs;
 			msgs.clear();
-			if (me[x]->RecvPacket(msgs, tcp_host))
+			if ((me[x]) && (me[x]->RecvPacket(msgs, tcp_host)))
 			{
 				for (int ctr = 0; ctr < msgs.size(); ctr++)
 				{
