@@ -3050,7 +3050,7 @@ void NetSendMyRoutingTable()
 		{
 			for (int j = 0; j < me[i]->connectors.size(); j++)
 			{
-				if (me[i]->connectors[j].GetState() != STATE_DISCONNECTED)
+				if (me[i]->connectors[j].GetState() != STATE_DISCONNECTED) || (is_uline(me[i]->connectors[j].GetServerName().c_str())))
 				{
 					strncat(buffer," ",MAXBUF);
 					strncat(buffer,me[i]->connectors[j].GetServerName().c_str(),MAXBUF);
