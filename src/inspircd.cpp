@@ -3021,6 +3021,7 @@ void DoSync(serverrec* serv, char* tcp_host)
 				{
 					sprintf(data,"H %s",me[j]->connectors[k].GetServerName().c_str());
 					serv->SendPacket(data,tcp_host);
+					NetSendMyRoutingTable();
 				}
 			}
 		}
