@@ -7,11 +7,6 @@
 #
 # $Id$
 #
-# Some shell code based on the configure script of IRC Services.
-# IRC Services is copyright (c) 1996-2002 Andrew Church. 
-# E-mail: <achurch@achurch.org>
-#
-#
 ########################################
 
 echo "Configuring default values..."
