@@ -28,7 +28,7 @@
 #include <cstdio>
 #include <time.h>
 #include <string>
-#include <hash_map>
+#include <ext/hash_map>
 #include <map>
 #include <sstream>
 #include <vector>
