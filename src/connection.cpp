@@ -289,7 +289,7 @@ bool connection::RecvPacket(char *message, char* host, int &prt, long &theirkey)
 		return false;
 	}
 
-	log(DEBUG,"connection::RecvPacket(): received packet type %d '%s'",p.type,p.data);
+	log(DEBUG,"connection::RecvPacket(): received packet type %d '%s' from '%s'",p.type,p.data,inet_ntoa(host_address.sin_addr));
 
 	if (p.type == PT_SYN_ONLY)
 	{
@@ -314,8 +314,8 @@ bool connection::RecvPacket(char *message, char* host, int &prt, long &theirkey)
 		strcpy(message,p.data);
 		strcpy(host,inet_ntoa(host_address.sin_addr));
 		theirkey = p.key;
-		prt = ntohs(host_address.sin_port);
-		SendACK(host,this->port,p.id);
+		prt = ntohs(host_address.sin_port); // the port we received it on
+		SendACK(host,prt,p.id);
 		return true;
 	}
 
