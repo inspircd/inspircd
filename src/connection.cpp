@@ -160,7 +160,7 @@ bool connection::SendPacket(char *message, char* host, int port, long ourkey)
 			int res = select(65535, &sfd, NULL, NULL, &tval);
 			cycles++;
 		}
-		while ((recvfrom(fd,&p2,sizeof(p2),0,(sockaddr*)&host_address,&host_address_size)<0) && (cycles < 10))
+		while ((recvfrom(fd,&p2,sizeof(p2),0,(sockaddr*)&host_address,&host_address_size)<0) && (cycles < 10));
 		
 		if (cycles >= 10)
 		{
