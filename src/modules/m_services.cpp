@@ -8,11 +8,9 @@
 
 /* $ModDesc: Povides support for services +r user/chan modes and more */
 
-Server *Srv;
-	 
-
 class ModuleServices : public Module
 {
+	Server *Srv; 
  public:
 	ModuleServices()
 	{
@@ -156,7 +154,7 @@ class ModuleServices : public Module
 						return 0;
 					}
 					// joining a +R channel and not identified
-					Srv->SendServ(user->fd,"477 "+std::string(user->nick)+" "+std::string(c->name)+" :You need a registered nickname to join this channel");
+					Srv->SendServ(user->fd,"477 "+std::string(user->nick)+" "+std::string(chan->name)+" :You need a registered nickname to join this channel");
 					return 1;
 				}
 			}

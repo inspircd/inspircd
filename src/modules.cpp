@@ -187,7 +187,6 @@ bool ModeDefined(char modechar, int type)
 	log(DEBUG,"Size of extmodes vector is %d",EMode.size());
 	for (ExtModeListIter i = EMode.begin(); i < EMode.end(); i++)
 	{
-		log(DEBUG,"i->modechar==%c, modechar=%c, i->type=%d, type=%d",i->modechar,modechar,i->type,type);
 		if ((i->modechar == modechar) && (i->type == type))
 		{
 			return true;
@@ -201,7 +200,6 @@ bool ModeIsListMode(char modechar, int type)
 	log(DEBUG,"Size of extmodes vector is %d",EMode.size());
 	for (ExtModeListIter i = EMode.begin(); i < EMode.end(); i++)
 	{
-		log(DEBUG,"i->modechar==%c, modechar=%c, i->type=%d, type=%d",i->modechar,modechar,i->type,type);
 		if ((i->modechar == modechar) && (i->type == type) && (i->list == true))
 		{
 			return true;
@@ -215,7 +213,6 @@ bool ModeDefinedOper(char modechar, int type)
 	log(DEBUG,"Size of extmodes vector is %d",EMode.size());
 	for (ExtModeListIter i = EMode.begin(); i < EMode.end(); i++)
 	{
-		log(DEBUG,"i->modechar==%c, modechar=%c, i->type=%d, type=%d",i->modechar,modechar,i->type,type);
 		if ((i->modechar == modechar) && (i->type == type) && (i->needsoper == true))
 		{
 			return true;
