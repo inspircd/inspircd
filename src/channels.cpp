@@ -14,11 +14,11 @@ chanrec::chanrec()
 	topiclock = noexternal = inviteonly = moderated = secret = c_private = false;
 }
 
-chanrec::SetCustomMode(char mode,bool mode_on)
+void chanrec::SetCustomMode(char mode,bool mode_on)
 {
 }
 
-chanrec::SetCustomModeParam(char mode,char* parameter,bool mode_on)
+void chanrec::SetCustomModeParam(char mode,char* parameter,bool mode_on)
 {
 }
 

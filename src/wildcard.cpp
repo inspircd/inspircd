@@ -13,7 +13,7 @@ void Delete(char* str,int pos)
 
 void Insert(char* substr,char* str,int pos)
 {
-	string a = str;
+	std::string a = str;
 	a.insert(pos,substr);
 	strcpy(str,a.c_str());
 }

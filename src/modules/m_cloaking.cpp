@@ -32,13 +32,13 @@ class ModuleCloaking : public Module
 	{
 		if (strstr(user->dhost,"."))
 		{
-			string a = strstr(user->dhost,".");
+			std::string a = strstr(user->dhost,".");
 			char ra[64];
 			long seed,s2;
 			memcpy(&seed,user->dhost,sizeof(long));
 			memcpy(&s2,a.c_str(),sizeof(long));
 			sprintf(ra,"%.8X",seed*s2*strlen(user->host));
-			string b = Srv->GetNetworkName() + "-" + ra + a;
+			std::string b = Srv->GetNetworkName() + "-" + ra + a;
 			Srv->Log(DEBUG,"cloak: allocated "+b);
 			strcpy(user->dhost,b.c_str());
 		}

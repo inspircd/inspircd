@@ -10,13 +10,13 @@
 // include the common header files
 
 #include <typeinfo>
-#include <iostream.h>
+#include <iostream>
 #include <string>
 #include <deque>
 #include "users.h"
 #include "channels.h"
 
-typedef deque<string> file_cache;
+typedef std::deque<std::string> file_cache;
 
 void WriteOpers(char* text, ...);
 void log(int level, char *text, ...);
@@ -31,14 +31,15 @@ void WriteCommon(userrec *u, char* text, ...);
 void WriteCommonExcept(userrec *u, char* text, ...);
 void WriteWallOps(userrec *source, char* text, ...);
 int isnick(const char *n);
-userrec* Find(string nick);
+userrec* Find(std::string nick);
 chanrec* FindChan(const char* chan);
 char* cmode(userrec *user, chanrec *chan);
-string getservername();
-string getnetworkname();
-string getadminname();
-string getadminemail();
-string getadminnick();
+std::string getservername();
+std::string getnetworkname();
+std::string getadminname();
+std::string getadminemail();
+std::string getadminnick();
 void readfile(file_cache &F, const char* fname);
+int ModeDefiend(char c, int i);
 
 #endif

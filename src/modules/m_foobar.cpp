@@ -44,7 +44,7 @@ class ModuleFoobar : public Module
 	{
 		// method called when a user connects
 	
-		string b = user->nick;
+		std::string b = user->nick;
 		Srv->Log(DEBUG,"Foobar: User connecting: " + b);
 	}
 
@@ -52,7 +52,7 @@ class ModuleFoobar : public Module
 	{
 		// method called when a user disconnects
 	
-		string b = user->nick;
+		std::string b = user->nick;
 		Srv->Log(DEBUG,"Foobar: User quitting: " + b);
 	}
 	
@@ -60,8 +60,8 @@ class ModuleFoobar : public Module
 	{
 		// method called when a user joins a channel
 	
-		string c = channel->name;
-		string b = user->nick;
+		std::string c = channel->name;
+		std::string b = user->nick;
 		Srv->Log(DEBUG,"Foobar: User " + b + " joined " + c);
 	}
 
@@ -69,8 +69,8 @@ class ModuleFoobar : public Module
 	{
 		// method called when a user parts a channel
 	
-		string c = channel->name;
-		string b = user->nick;
+		std::string c = channel->name;
+		std::string b = user->nick;
 		Srv->Log(DEBUG,"Foobar: User " + b + " parted " + c);
 	}
 

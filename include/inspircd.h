@@ -46,7 +46,7 @@
 #define SPARSE 40
 #define NONE 50
 
-typedef deque<string> file_cache;
+typedef std::deque<std::string> file_cache;
 
 /* prototypes */
 int InspIRCd(void);
@@ -69,14 +69,16 @@ void WriteCommon(userrec *u, char* text, ...);
 void WriteCommonExcept(userrec *u, char* text, ...);
 void WriteWallOps(userrec *source, char* text, ...);
 int isnick(const char *n);
-userrec* Find(string nick);
+userrec* Find(std::string nick);
 chanrec* FindChan(const char* chan);
 char* cmode(userrec *user, chanrec *chan);
-string getservername();
-string getserverdesc();
-string getnetworkname();
-string getadminname();
-string getadminemail();
-string getadminnick();
+std::string getservername();
+std::string getserverdesc();
+std::string getnetworkname();
+std::string getadminname();
+std::string getadminemail();
+std::string getadminnick();
 void readfile(file_cache &F, const char* fname);
-
+bool ModeDefined(char c, int i);
+bool ModeDefinedOn(char c, int i);
+bool ModeDefinedOff(char c, int i);

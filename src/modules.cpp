@@ -6,7 +6,7 @@
 
 
 #include <typeinfo>
-#include <iostream.h>
+#include <iostream>
 #include "globals.h"
 #include "modules.h"
 #include "inspircd_io.h"
@@ -21,10 +21,10 @@ public:
 	bool default_on;
 	int params_when_on;
 	int params_when_off;
-	void SetInfo(char mc, int ty, bool d_on, int p_on, int p_off) : modechar(mc), type(ty), default_on(d_on), params_when_on(p_on), params_when_off(p_off) { };
+	ExtMode(char mc, int ty, bool d_on, int p_on, int p_off) : modechar(mc), type(ty), default_on(d_on), params_when_on(p_on), params_when_off(p_off) { };
 };                                     
 
-typedef vector<ExtMode> ExtModeList;
+typedef std::vector<ExtMode> ExtModeList;
 typedef ExtModeList::iterator ExtModeListIter;
 
 ExtModeList EMode;
@@ -71,9 +71,7 @@ int ModeDefinedOff(char modechar, int type)
 // returns true if an extended mode character is in use
 bool AddExtendedMode(char modechar, int type, bool default_on, int params_on, int params_off)
 {
-	ExtMode Mode;
-	Mode.SetInfo(modechar,type,default_on,params_on,params_off);
-	EMode.push_back(Mode);
+	EMode.push_back( ExtMode (modechar,type,default_on,params_on,params_off));
 	return true;
 }
 
@@ -84,7 +82,7 @@ Version::Version(int major, int minor, int revision, int build) : Major(major), 
 
 // admin is a simple class for holding a server's administrative info
 
-Admin::Admin(string name, string email, string nick) : Name(name), Email(email), Nick(nick) { };
+Admin::Admin(std::string name, std::string email, std::string nick) : Name(name), Email(email), Nick(nick) { };
 
 //
 // Announce to the world that the Module base
@@ -100,7 +98,7 @@ void Module::OnUserPart(userrec* user, chanrec* channel) { }
 void Module::OnPacketTransmit(char *p) { }
 void Module::OnPacketReceive(char *p) { }
 void Module::OnRehash() { }
-void Module::OnServerRaw(string &raw, bool inbound) { }
+void Module::OnServerRaw(std::string &raw, bool inbound) { }
 bool Module::OnExtendedMode(userrec* user, chanrec* chan, char modechar, int type, bool mode_on, string_list &params) { }
 Version Module::GetVersion() { return Version(1,0,0,0); }
 
@@ -116,37 +114,37 @@ Server::~Server()
 {
 }
 
-void Server::SendOpers(string s)
+void Server::SendOpers(std::string s)
 {
 	WriteOpers("%s",s.c_str());
 }
 
-void Server::Log(int level, string s)
+void Server::Log(int level, std::string s)
 {
 	log(level,"%s",s.c_str());
 }
 
-void Server::Send(int Socket, string s)
+void Server::Send(int Socket, std::string s)
 {
 	Write(Socket,"%s",s.c_str());
 }
 
-void Server::SendServ(int Socket, string s)
+void Server::SendServ(int Socket, std::string s)
 {
 	WriteServ(Socket,"%s",s.c_str());
 }
 
-void Server::SendFrom(int Socket, userrec* User, string s)
+void Server::SendFrom(int Socket, userrec* User, std::string s)
 {
 	WriteFrom(Socket,User,"%s",s.c_str());
 }
 
-void Server::SendTo(userrec* Source, userrec* Dest, string s)
+void Server::SendTo(userrec* Source, userrec* Dest, std::string s)
 {
 	WriteTo(Source,Dest,"%s",s.c_str());
 }
 
-void Server::SendChannel(userrec* User, chanrec* Channel, string s,bool IncludeSender)
+void Server::SendChannel(userrec* User, chanrec* Channel, std::string s,bool IncludeSender)
 {
 	if (IncludeSender)
 	{
@@ -163,7 +161,7 @@ bool Server::CommonChannels(userrec* u1, userrec* u2)
 	return (common_channels(u1,u2) != 0);
 }
 
-void Server::SendCommon(userrec* User, string text,bool IncludeSender)
+void Server::SendCommon(userrec* User, std::string text,bool IncludeSender)
 {
 	if (IncludeSender)
 	{
@@ -175,38 +173,37 @@ void Server::SendCommon(userrec* User, string text,bool IncludeSender)
 	}
 }
 
-void Server::SendWallops(userrec* User, string text)
+void Server::SendWallops(userrec* User, std::string text)
 {
 	WriteWallOps(User,"%s",text.c_str());
 }
 
-bool Server::IsNick(string nick)
+bool Server::IsNick(std::string nick)
 {
 	return (isnick(nick.c_str()) != 0);
 }
 
-userrec* Server::FindNick(string nick)
+userrec* Server::FindNick(std::string nick)
 {
 	return Find(nick);
 }
 
-chanrec* Server::FindChannel(string channel)
+chanrec* Server::FindChannel(std::string channel)
 {
 	return FindChan(channel.c_str());
 }
 
-string Server::ChanMode(userrec* User, chanrec* Chan)
+std::string Server::ChanMode(userrec* User, chanrec* Chan)
 {
-	string mode = cmode(User,Chan);
-	return mode;
+	return cmode(User,Chan);
 }
 
-string Server::GetServerName()
+std::string Server::GetServerName()
 {
 	return getservername();
 }
 
-string Server::GetNetworkName()
+std::string Server::GetNetworkName()
 {
 	return getnetworkname();
 }
@@ -234,18 +231,17 @@ ConfigReader::~ConfigReader()
 }
 
 
-ConfigReader::ConfigReader(string filename) : fname(filename) { };
+ConfigReader::ConfigReader(std::string filename) : fname(filename) { };
 
-string ConfigReader::ReadValue(string tag, string name, int index)
+std::string ConfigReader::ReadValue(std::string tag, std::string name, int index)
 {
 	char val[MAXBUF];
 	ReadConf(fname.c_str(),tag.c_str(),name.c_str(),index,val);
-	string s = val;
-	return s;
+	return val;
 }
 
 
-int ConfigReader::Enumerate(string tag)
+int ConfigReader::Enumerate(std::string tag)
 {
 	return EnumConf(fname.c_str(),tag.c_str());
 }
@@ -257,7 +253,7 @@ bool ConfigReader::Verify()
 }
 
 
-FileReader::FileReader(string filename)
+FileReader::FileReader(std::string filename)
 {
 	file_cache c;
 	readfile(c,filename.c_str());
@@ -268,7 +264,7 @@ FileReader::FileReader()
 {
 }
 
-void FileReader::LoadFile(string filename)
+void FileReader::LoadFile(std::string filename)
 {
 	file_cache c;
 	readfile(c,filename.c_str());
@@ -279,7 +275,7 @@ FileReader::~FileReader()
 {
 }
 
-string FileReader::GetLine(int x)
+std::string FileReader::GetLine(int x)
 {
 	if ((x<0) || (x>fc.size()))
 		return "";
@@ -292,8 +288,8 @@ int FileReader::FileSize()
 }
 
 
-vector<Module*> modules(255);
-vector<ircd_module*> factory(255);
+std::vector<Module*> modules(255);
+std::vector<ircd_module*> factory(255);
 
 int MODCOUNT  = -1;
 

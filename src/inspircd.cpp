@@ -28,8 +28,8 @@
 #include <cstdio>
 #include <time.h>
 #include <string>
-#include <hash_map.h>
-#include <map.h>
+#include <hash_map>
+#include <map>
 #include <sstream>
 #include <vector>
 #include <errno.h>
@@ -70,28 +70,30 @@ extern vector<ircd_module*> factory;
 
 extern int MODCOUNT;
 
-template<> struct hash<in_addr>
+namespace __gnu_cxx
 {
-	size_t operator()(const struct in_addr &a) const
+	template<> struct __gnu_cxx::hash<in_addr>
 	{
-		size_t q;
-		memcpy(&q,&a,sizeof(size_t));
-		return q;
-	}
-};
+		size_t operator()(const struct in_addr &a) const
+		{
+			size_t q;
+			memcpy(&q,&a,sizeof(size_t));
+			return q;
+		}
+	};
 
-template<> struct hash<string>
-{
-	size_t operator()(const string &s) const
+	template<> struct __gnu_cxx::hash<string>
 	{
-		char a[MAXBUF];
-		static struct hash<const char *> strhash;
-		strcpy(a,s.c_str());
-		strlower(a);
-		return strhash(a);
-	}
-};
-	
+		size_t operator()(const string &s) const
+		{
+			char a[MAXBUF];
+			static struct hash<const char *> strhash;
+			strcpy(a,s.c_str());
+			strlower(a);
+			return strhash(a);
+		}
+	};
+}	
 
 
 struct StrHashComp
@@ -124,10 +126,10 @@ struct InAddr_HashComp
 };
 
 
-typedef hash_map<string, userrec*, hash<string>, StrHashComp> user_hash;
-typedef hash_map<string, chanrec*, hash<string>, StrHashComp> chan_hash;
-typedef hash_map<in_addr,string*, hash<in_addr>, InAddr_HashComp> address_cache;
-typedef deque<command_t> command_table;
+typedef __gnu_cxx::hash_map<std::string, userrec*, __gnu_cxx::hash<string>, StrHashComp> user_hash;
+typedef __gnu_cxx::hash_map<std::string, chanrec*, __gnu_cxx::hash<string>, StrHashComp> chan_hash;
+typedef __gnu_cxx::hash_map<in_addr,string*, __gnu_cxx::hash<in_addr>, InAddr_HashComp> address_cache;
+typedef std::deque<command_t> command_table;
 
 serverrec* me[32];
 server_list* servers;
@@ -208,67 +210,66 @@ void chop(char* str)
 }
 
 
-string getservername()
+std::string getservername()
 {
 	return ServerName;
 }
 
-string getserverdesc()
+std::string getserverdesc()
 {
 	return ServerDesc;
 }
 
-string getnetworkname()
+std::string getnetworkname()
 {
 	return Network;
 }
 
-string getadminname()
+std::string getadminname()
 {
 	return AdminName;
 }
 
-string getadminemail()
+std::string getadminemail()
 {
 	return AdminEmail;
 }
 
-string getadminnick()
+std::string getadminnick()
 {
 	return AdminNick;
 }
 
 void log(int level,char *text, ...)
 {
-  char textbuffer[MAXBUF];
-  va_list argsPtr;
-  FILE *f;
-  time_t rawtime;
-  struct tm * timeinfo;
+	char textbuffer[MAXBUF];
+	va_list argsPtr;
+	FILE *f;
+	time_t rawtime;
+	struct tm * timeinfo;
+	if (level < LogLevel)
+		return;
 
-  if (level < LogLevel)
-  	return;
+	time(&rawtime);
+	timeinfo = localtime (&rawtime);
 
-  time(&rawtime);
-  timeinfo = localtime (&rawtime);
-
-	  f = fopen("ircd.log","a+");
-	  if (f)
-	  {
-		  char b[MAXBUF];
-		  va_start (argsPtr, text);
-		  vsnprintf(textbuffer, MAXBUF, text, argsPtr);
-		  va_end(argsPtr);
-		  strcpy(b,asctime(timeinfo));
-		  b[strlen(b)-1] = ':';
-		  fprintf(f,"%s %s\n",b,textbuffer);
-		  fclose(f);
-	  }
-	  else
-	  {
-		  printf("Can't write log file, bailing!!!");
-		  Exit(ERROR);
-	  }
+	f = fopen("ircd.log","a+");
+	if (f)
+	{
+		char b[MAXBUF];
+		va_start (argsPtr, text);
+		vsnprintf(textbuffer, MAXBUF, text, argsPtr);
+		va_end(argsPtr);
+		strcpy(b,asctime(timeinfo));
+		b[strlen(b)-1] = ':';
+		fprintf(f,"%s %s\n",b,textbuffer);
+		fclose(f);
+	}
+	else
+	{
+		printf("Can't write log file, bailing!!!");
+		Exit(ERROR);
+	}
 }
 
 void readfile(file_cache &F, const char* fname)
@@ -1648,6 +1649,7 @@ void process_modes(char **parameters,userrec* user,chanrec *chan,int status, int
 
 		{
 			log(DEBUG,"process_modes: modechar: %c",modelist[ptr]);
+			char modechar = modelist[ptr];
 			switch (modelist[ptr])
 			{
 				case '-':
@@ -1906,18 +1908,18 @@ void process_modes(char **parameters,userrec* user,chanrec *chan,int status, int
       						p.push_back(parameters[param]);
   						}
 						for (int i = 0; i <= MODCOUNT; i++)
-     					{
-         					if (modules[i]->OnExtendedMode(user,chan,modechar,MT_CHANNEL,mdir,p))
-         					{
-         						strcat(outlist,modelist[ptr]);
+						{
+							if (modules[i]->OnExtendedMode(user,chan,modechar,MT_CHANNEL,mdir,p))
+							{
+								char app[] = {modechar, 0};
+								strcat(outlist, app);
 								chan->SetCustomMode(modelist[ptr],mdir);
 								// include parameters in output if mode has them
-								if ((ModeDefinedOn(modelist[ptr],MT_CHANNEL)>0) ||
-								   (ModeDefinedOff(modelist[ptr],MT_CHANNEL)>0))
-				   				{
+								if ((ModeDefinedOn(modelist[ptr],MT_CHANNEL)>0) || (ModeDefinedOff(modelist[ptr],MT_CHANNEL)>0))
+								{
 									chan->SetCustomModeParam(modelist[ptr],parameters[param],mdir);
-                                 	strcpy(outpars[pc++],parameters[param++]);
-                             	}
+									strcpy(outpars[pc++],parameters[param++]);
+								}
         	 				}
      					}
      				}
@@ -2365,11 +2367,11 @@ void handle_kick(char **parameters, int pcnt, userrec *user)
 
 void handle_die(char **parameters, int pcnt, userrec *user)
 {
-        log(DEBUG,"die: %s",user->nick);
+	log(DEBUG,"die: %s",user->nick);
 	if (!strcmp(parameters[0],diepass))
 	{
 		WriteOpers("*** DIE command from %s!%s@%s, terminating...",user->nick,user->ident,user->host);
-	        sleep(DieDelay);
+		sleep(DieDelay);
 		Exit(ERROR);
 	}
 	else
@@ -2380,18 +2382,18 @@ void handle_die(char **parameters, int pcnt, userrec *user)
 
 void handle_restart(char **parameters, int pcnt, userrec *user)
 {
-        log(DEBUG,"restart: %s",user->nick);
-        if (!strcmp(parameters[0],restartpass))
+	log(DEBUG,"restart: %s",user->nick);
+	if (!strcmp(parameters[0],restartpass))
 	{
-	        WriteOpers("*** RESTART command from %s!%s@%s, Pretending to restart till this is finished :D",user->nick,user->ident,user->host);
-	        sleep(DieDelay);
-	        Exit(ERROR);
+		WriteOpers("*** RESTART command from %s!%s@%s, Pretending to restart till this is finished :D",user->nick,user->ident,user->host);
+		sleep(DieDelay);
+		Exit(ERROR);
 		/* Will finish this later when i can be arsed :) */
-        }
-        else
+	}
+	else
 	{
-        	WriteOpers("*** Failed RESTART Command from %s!%s@%s.",user->nick,user->ident,user->host);
-        }
+		WriteOpers("*** Failed RESTART Command from %s!%s@%s.",user->nick,user->ident,user->host);
+	}
 }
 
 
@@ -2468,14 +2470,14 @@ char* Passwd(userrec *user)
 
 bool IsDenied(userrec *user)
 {
-        for (ClassVector::iterator i = Classes.begin(); i != Classes.end(); i++)
-        {
-                if (match(user->host,i->host) && (i->type == CC_DENY))
-                {
-                        return true;
-                }
-        }
-        return false;
+	for (ClassVector::iterator i = Classes.begin(); i != Classes.end(); i++)
+	{
+		if (match(user->host,i->host) && (i->type == CC_DENY))
+		{
+			return true;
+		}
+	}
+	return false;
 }
 
 
@@ -2582,7 +2584,7 @@ void handle_topic(char **parameters, int pcnt, userrec *user)
 
 void send_error(char *s)
 {
-        log(DEBUG,"send_error: %s",s);
+	log(DEBUG,"send_error: %s",s);
   	for (user_hash::const_iterator i = clientlist.begin(); i != clientlist.end(); i++)
 	{
 		WriteServ(i->second->fd,"NOTICE %s :%s",i->second->nick,s);
@@ -2591,31 +2593,31 @@ void send_error(char *s)
 
 void Error(int status)
 {
-  signal (SIGALRM, SIG_IGN);
-  signal (SIGPIPE, SIG_IGN);
-  signal (SIGTERM, SIG_IGN);
-  signal (SIGABRT, SIG_IGN);
-  signal (SIGSEGV, SIG_IGN);
-  signal (SIGURG, SIG_IGN);
-  signal (SIGKILL, SIG_IGN);
-  log(DEBUG,"*** fell down a pothole in the road to perfection ***");
-  send_error("Error! Segmentation fault! save meeeeeeeeeeeeee *splat!*");
-  exit(status);
+	signal (SIGALRM, SIG_IGN);
+	signal (SIGPIPE, SIG_IGN);
+	signal (SIGTERM, SIG_IGN);
+	signal (SIGABRT, SIG_IGN);
+	signal (SIGSEGV, SIG_IGN);
+	signal (SIGURG, SIG_IGN);
+	signal (SIGKILL, SIG_IGN);
+	log(DEBUG,"*** fell down a pothole in the road to perfection ***");
+	send_error("Error! Segmentation fault! save meeeeeeeeeeeeee *splat!*");
+	exit(status);
 }
 
 int main (int argc, char *argv[])
 {
 	Start();
-        log(DEBUG,"*** InspIRCd starting up!");
+	log(DEBUG,"*** InspIRCd starting up!");
 	if (!CheckConfig())
 	{
-	        log(DEBUG,"main: no config");
+		log(DEBUG,"main: no config");
 		printf("ERROR: Your config file is missing, this IRCd will self destruct in 10 seconds!\n");
 		Exit(ERROR);
 	}
 	if (InspIRCd() == ERROR)
 	{
-	        log(DEBUG,"main: daemon function bailed");
+		log(DEBUG,"main: daemon function bailed");
 		printf("ERROR: could not initialise. Shutting down.\n");
 		Exit(ERROR);
 	}
@@ -2712,15 +2714,15 @@ void AddWhoWas(userrec* u)
 /* add a client connection to the sockets list */
 void AddClient(int socket, char* host, int port, bool iscached)
 {
-        int i;
-        int blocking = 1;
-        char resolved[MAXBUF];
-        string tempnick;
-        char tn2[MAXBUF];
-        user_hash::iterator iter;
+	int i;
+	int blocking = 1;
+	char resolved[MAXBUF];
+	string tempnick;
+	char tn2[MAXBUF];
+	user_hash::iterator iter;
 
-        tempnick = ConvToStr(socket) + "-unknown";
-        sprintf(tn2,"%d-unknown",socket);
+	tempnick = ConvToStr(socket) + "-unknown";
+	sprintf(tn2,"%d-unknown",socket);
 
 	iter = clientlist.find(tempnick);
 
@@ -2736,7 +2738,7 @@ void AddClient(int socket, char* host, int port, bool iscached)
 	clientlist[tempnick] = new userrec();
 
 	NonBlocking(socket);
-        log(DEBUG,"AddClient: %d %s %d",socket,host,port);
+	log(DEBUG,"AddClient: %d %s %d",socket,host,port);
 
 
 	clientlist[tempnick]->fd = socket;
@@ -3013,7 +3015,7 @@ void handle_quit(char **parameters, int pcnt, userrec *user)
 
 void handle_who(char **parameters, int pcnt, userrec *user)
 {
-	chanrec* Ptr = null;
+	chanrec* Ptr = NULL;
 	
 	/* theres more to do here, but for now just close the socket */
 	if (pcnt == 1)
@@ -4078,6 +4080,7 @@ int InspIRCd(void)
   /* setup select call */
   FD_ZERO(&selectFds);
   log(DEBUG,"InspIRCd: startup: zero selects");
+  log(VERBOSE,"InspIRCd: startup: portCount = %d", portCount);
 
   for (count = 0; count < portCount; count++)
   {
@@ -4244,5 +4247,4 @@ int InspIRCd(void)
   /* not reached */
   close (incomingSockfd);
 }
-
 

@@ -53,15 +53,15 @@ class InviteItem : public HostItem
 
 /** Holds a complete ban list
  */
-typedef vector<BanItem> 	BanList;
+typedef std::vector<BanItem> 	BanList;
 
 /** Holds a complete exempt list
  */
-typedef vector<ExemptItem>	ExemptList;
+typedef std::vector<ExemptItem>	ExemptList;
 
 /** Holds a complete invite list
  */
-typedef vector<InviteItem>	InviteList;
+typedef std::vector<InviteItem>	InviteList;
 
 /** Holds all relevent information for a channel.
  * This class represents a channel, and contains its name, modes, time created, topic, topic set time,
@@ -135,11 +135,11 @@ class chanrec : public classbase
 
 	/** Sets or unsets a custom mode in the channels info
 	 */
-	SetCustomMode(char mode,bool mode_on);
+	void SetCustomMode(char mode,bool mode_on);
 
 	/** Sets or unsets the parameterrs for a custom mode in a channels info
 	 */
-	SetCustomModeParam(char mode,char* parameter,bool mode_on);
+	void SetCustomModeParam(char mode,char* parameter,bool mode_on);
  
 	/** Creates a channel record and initialises it with default values
 	 */

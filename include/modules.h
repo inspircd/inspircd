@@ -25,7 +25,7 @@
 
 /** Low level definition of a FileReader classes file cache area
  */
-typedef deque<string> file_cache;
+typedef std::deque<std::string> file_cache;
 typedef file_cache string_list;
 
 // This #define allows us to call a method in all
@@ -56,8 +56,8 @@ class Version : public classbase
 class Admin : public classbase
 {
  public:
-	 const string Name, Email, Nick;
-	 Admin(string name,string email,string nick);
+	 const std::string Name, Email, Nick;
+	 Admin(std::string name, std::string email, std::string nick);
 };
 
 /** Base class for all InspIRCd modules
@@ -137,7 +137,7 @@ class Module : public classbase
 	 * the string parameter "raw". If you do this, after your function exits it will immediately be
 	 * cut down to 510 characters plus a carriage return and linefeed.
 	 */
- 	virtual void OnServerRaw(string &raw, bool inbound);
+ 	virtual void OnServerRaw(std::string &raw, bool inbound);
 
 	/** Called whenever an extended mode is to be processed.
 	 * The type parameter is MT_SERVER, MT_CLIENT or MT_CHANNEL, dependent on where the mode is being
@@ -172,39 +172,39 @@ class Server : public classbase
 	/** Sends text to all opers.
 	 * This method sends a server notice to all opers with the usermode +s.
 	 */
-	virtual void SendOpers(string s);
+	virtual void SendOpers(std::string s);
 	/** Writes a log string.
 	 * This method writes a line of text to the log. If the level given is lower than the
 	 * level given in the configuration, this command has no effect.
 	 */
-	virtual void Log(int level, string s);
+	virtual void Log(int level, std::string s);
 	/** Sends a line of text down a TCP/IP socket.
 	 * This method writes a line of text to an established socket, cutting it to 510 characters
 	 * plus a carriage return and linefeed if required.
 	 */
-	virtual void Send(int Socket, string s);
+	virtual void Send(int Socket, std::string s);
 	/** Sends text from the server to a socket.
 	 * This method writes a line of text to an established socket, with the servername prepended
 	 * as used by numerics (see RFC 1459)
 	 */
-	virtual void SendServ(int Socket, string s);
+	virtual void SendServ(int Socket, std::string s);
 	/** Sends text from a user to a socket.
 	 * This method writes a line of text to an established socket, with the given user's nick/ident
 	 * /host combination prepended, as used in PRIVSG etc commands (see RFC 1459)
 	 */
-	virtual void SendFrom(int Socket, userrec* User, string s);
+	virtual void SendFrom(int Socket, userrec* User, std::string s);
 	/** Sends text from a user to another user.
 	 * This method writes a line of text to a user, with a user's nick/ident
 	 * /host combination prepended, as used in PRIVMSG etc commands (see RFC 1459)
 	 */
-	virtual void SendTo(userrec* Source, userrec* Dest, string s);
+	virtual void SendTo(userrec* Source, userrec* Dest, std::string s);
 	/** Sends text from a user to a channel (mulicast).
 	 * This method writes a line of text to a channel, with the given user's nick/ident
 	 * /host combination prepended, as used in PRIVMSG etc commands (see RFC 1459). If the
 	 * IncludeSender flag is set, then the text is also sent back to the user from which
 	 * it originated, as seen in MODE (see RFC 1459).
 	 */
-	virtual void SendChannel(userrec* User, chanrec* Channel, string s,bool IncludeSender);
+	virtual void SendChannel(userrec* User, chanrec* Channel, std::string s,bool IncludeSender);
 	/** Returns true if two users share a common channel.
 	 * This method is used internally by the NICK and QUIT commands, and the Server::SendCommon
 	 * method.
@@ -217,36 +217,36 @@ class Server : public classbase
 	 * back to the user from which it originated, as seen in NICK (see RFC 1459). Otherwise, it
 	 * is only sent to the other recipients, as seen in QUIT.
 	 */
-	virtual void SendCommon(userrec* User, string text,bool IncludeSender);
+	virtual void SendCommon(userrec* User, std::string text,bool IncludeSender);
 	/** Sends a WALLOPS message.
 	 * This method writes a WALLOPS message to all users with the +w flag, originating from the
 	 * specified user.
 	 */
-	virtual void SendWallops(userrec* User, string text);
+	virtual void SendWallops(userrec* User, std::string text);
 
 	/** Returns true if a nick is valid.
 	 * Nicks for unregistered connections will return false.
 	 */
-	virtual bool IsNick(string nick);
+	virtual bool IsNick(std::string nick);
 	/** Attempts to look up a nick and return a pointer to it.
 	 * This function will return NULL if the nick does not exist.
 	 */
-	virtual userrec* FindNick(string nick);
+	virtual userrec* FindNick(std::string nick);
 	/** Attempts to look up a channel and return a pointer to it.
 	 * This function will return NULL if the channel does not exist.
 	 */
-	virtual chanrec* FindChannel(string channel);
+	virtual chanrec* FindChannel(std::string channel);
 	/** Attempts to look up a user's privilages on a channel.
 	 * This function will return a string containing either @, %, +, or an empty string,
 	 * representing the user's privilages upon the channel you specify.
 	 */
-	virtual string ChanMode(userrec* User, chanrec* Chan);
+	virtual std::string ChanMode(userrec* User, chanrec* Chan);
 	/** Returns the server name of the server where the module is loaded.
 	 */
-	virtual string GetServerName();
+	virtual std::string GetServerName();
 	/** Returns the network name, global to all linked servers.
 	 */
-	virtual string GetNetworkName();
+	virtual std::string GetNetworkName();
 	/** Returns the information of the server as returned by the /ADMIN command.
 	 * See the Admin class for further information of the return value. The members
 	 * Admin::Nick, Admin::Email and Admin::Name contain the information for the
@@ -285,7 +285,7 @@ class ConfigReader : public classbase
   protected:
 	/** The filename of the configuration file, as set by the constructor.
 	 */
-	string fname;
+	std::string fname;
   public:
 	/** Default constructor.
 	 * This constructor initialises the ConfigReader class to read the inspircd.conf file
@@ -295,7 +295,7 @@ class ConfigReader : public classbase
 	/** Overloaded constructor.
 	 * This constructor initialises the ConfigReader class to read a user-specified config file
 	 */
-	ConfigReader(string filename);	// read a module-specific config
+	ConfigReader(std::string filename);	// read a module-specific config
 	/** Default destructor.
 	 * This method destroys the ConfigReader class.
 	 */
@@ -304,14 +304,14 @@ class ConfigReader : public classbase
 	 * This method retrieves a value from the config file. Where multiple copies of the tag
 	 * exist in the config file, index indicates which of the values to retrieve.
 	 */
-	string ReadValue(string tag, string name, int index);
+	std::string ReadValue(std::string tag, std::string name, int index);
 	/** Counts the number of times a given tag appears in the config file.
 	 * This method counts the number of times a tag appears in a config file, for use where
 	 * there are several tags of the same kind, e.g. with opers and connect types. It can be
 	 * used with the index value of ConfigReader::ReadValue to loop through all copies of a
 	 * multiple instance tag.
 	 */
-	int Enumerate(string tag);
+	int Enumerate(std::string tag);
 	/** Returns true if a config file is valid.
 	 * This method is unimplemented and will always return true.
 	 */
@@ -339,7 +339,7 @@ class FileReader : public classbase
 	  * and other methods to be called. If the file could not be loaded, FileReader::FileSize
 	  * returns 0.
 	  */
-	 FileReader(string filename);
+	 FileReader(std::string filename);
 	 /** Default destructor.
 	  * This deletes the memory allocated to the file.
 	  */
@@ -349,12 +349,12 @@ class FileReader : public classbase
 	  * and other methods to be called. If the file could not be loaded, FileReader::FileSize
 	  * returns 0.
 	  */
-	 void LoadFile(string filename);
+	 void LoadFile(std::string filename);
 	 /** Retrieve one line from the file.
 	  * This method retrieves one line from the text file. If an empty non-NULL string is returned,
 	  * the index was out of bounds, or the line had no data on it.
 	  */
-	 string GetLine(int x);
+	 std::string GetLine(int x);
 	 /** Returns the size of the file in lines.
 	  * This method returns the number of lines in the read file. If it is 0, no lines have been
 	  * read into memory, either because the file is empty or it does not exist, or cannot be

@@ -41,13 +41,13 @@ class ConnectClass : public classbase
 
 /** Holds a complete list of all channels to which a user has been invited and has not yet joined.
  */
-typedef vector<Invited> InvitedList;
+typedef std::vector<Invited> InvitedList;
 
 
 
 /** Holds a complete list of all allow and deny tags from the configuration file (connection classes)
  */
-typedef vector<ConnectClass> ClassVector;
+typedef std::vector<ConnectClass> ClassVector;
 
 /** Holds all information about a user
  * This class stores all information about a user connected to the irc server. Everything about a

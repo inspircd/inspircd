@@ -6,7 +6,7 @@
 #include "inspircd_config.h" 
 #include "connection.h"
 #include <string>
-#include <map.h>
+#include <map>
  
 #ifndef __SERVERS_H__ 
 #define __SERVERS_H__ 
@@ -58,7 +58,7 @@ class serverrec : public connection
 
 
 
-typedef map<string, serverrec*> server_list;
+typedef std::map<std::string, serverrec*> server_list;
 
 #endif
 

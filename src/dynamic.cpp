@@ -47,7 +47,7 @@ bool DLLManager::GetSymbol(
 
 DLLFactoryBase::DLLFactoryBase(
 			       const char *fname,
-			       const char *factory=0
+			       const char *factory
 			       ) : DLLManager(fname)
 {
 	// try get the factory function if there is no error yet

@@ -17,9 +17,9 @@ class ModuleRandQuote : public Module
 	 ConfigReader *conf;
 	 FileReader *quotes;
 
-	 string q_file;
-	 string prefix;
-	 string suffix;
+	 std::string q_file;
+	 std::string prefix;
+	 std::string suffix;
 	 
  public:
 	ModuleRandQuote()
@@ -48,7 +48,7 @@ class ModuleRandQuote : public Module
 	
 	virtual void OnUserConnect(userrec* user)
 	{
-		string str;
+		std::string str;
 		int fsize;
 		char buf[MAXBUF];
 

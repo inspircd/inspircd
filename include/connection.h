@@ -5,7 +5,7 @@
 #include "inspircd_config.h"
 #include "base.h"
 #include <string>
-#include <map.h>
+#include <map>
 #include <sys/socket.h>
 #include <sys/types.h>
 #include <netdb.h>
