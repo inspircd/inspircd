@@ -11,10 +11,9 @@
 #         This is an example of the config file for InspIRCd.          #
 #             Change the options to suit your network                  #
 #								       #
-#                 Last updated on : 24/04/2004                         #
+#                 Last updated on : 01/05/2004                         #
 #                 Written by      : CC  (cc@backchat.co.za)            #
-#                 Updated by      : Brain (brain@inspircd.org)         #
-#								       #
+#                 Updated by      : BlackDeathX (james@dreamirc.org)   #
 ########################################################################
 
 
@@ -291,6 +290,28 @@
 
 <module name="m_foobar.so">
 
+#-#-#-#-#-#-#-#-#-#-#-  FILTER  CONFIGURATION  -#-#-#-#-#-#-#-#-#-#-#-#
+#                                                                     #
+# Optional - If you specify to use the m_filter.so module, then       #
+# specfiy below the path to the filter.conf file.                     #
+
+<filter file="/path/to/inspircd/filter.conf">
+
+
+#-#-#-#-#-#-#-#-#-#-#-#-  HELPOP  CONFIGURATION  -#-#-#-#-#-#-#-#-#-#-#
+#                                                                     #
+# Optional - If you specify to use the m_helpop.so module, then       #
+# specify below the path to the helpop.conf file.                     #
+
+<helpop file="/path/to/inspircd/helpop.conf">
+
+
+#-#-#-#-#-#-#-#-#-#-  RANDOMQUOTES CONFIGURATION -#-#-#-#-#-#-#-#-#-#-#
+#                                                                     #
+# Optional - If you specify to use the m_randquotes.so module, then   #
+# specify below the path to the randquotes.conf file.                 #
+
+<randquote file="/path/to/inspircd/randquotes.conf">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-  BAN OPTIONS  -#-#-#-#-#-#-#-#-#-#-#-#-#-#
 #                                                                     #
@@ -369,4 +390,3 @@
 #                          www.inspircd.org				#
 #	 								#
 #########################################################################
-
