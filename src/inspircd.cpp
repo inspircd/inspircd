@@ -1578,7 +1578,7 @@ void kick_channel(userrec *src,userrec *user, chanrec *Ptr, char* reason)
 		}
 		else
 		{
-			WriteServ(src->fd,"482 %s %s :You must be at least a half-operator",src->nick, Ptr->name);
+			WriteServ(src->fd,"482 %s %s :You must be at least a half-operator to change modes on this channel",src->nick, Ptr->name);
 		}
 		
 		return;
@@ -1744,7 +1744,7 @@ int give_voice(userrec *user,char *dest,chanrec *chan,int status)
 	}
 	if (status < STATUS_HOP)
 	{
-		WriteServ(user->fd,"482 %s %s :You must be at least a half-operator",user->nick, chan->name);
+		WriteServ(user->fd,"482 %s %s :You must be at least a half-operator to change modes on this channel",user->nick, chan->name);
 		return 0;
 	}
 	else
@@ -1888,7 +1888,7 @@ int take_voice(userrec *user,char *dest,chanrec *chan,int status)
 	}
 	if (status < STATUS_HOP)
 	{
-		WriteServ(user->fd,"482 %s %s :You must be at least a half-operator",user->nick, chan->name);
+		WriteServ(user->fd,"482 %s %s :You must be at least a half-operator to change modes on this channel",user->nick, chan->name);
 		return 0;
 	}
 	else
@@ -2703,7 +2703,7 @@ void handle_mode(char **parameters, int pcnt, userrec *user)
 
 		if ((cstatus(user,Ptr) < STATUS_HOP) && (Ptr))
 		{
-			WriteServ(user->fd,"482 %s %s :You must be at least a half-operator",user->nick, Ptr->name);
+			WriteServ(user->fd,"482 %s %s :You must be at least a half-operator to change modes on this channel",user->nick, Ptr->name);
 			return;
 		}
 
@@ -3292,7 +3292,7 @@ void handle_invite(char **parameters, int pcnt, userrec *user)
 	{
 		if (cstatus(user,c) < STATUS_HOP)
 		{
-			WriteServ(user->fd,"482 %s %s :You must be at least a half-operator",user->nick, c->name);
+			WriteServ(user->fd,"482 %s %s :You must be at least a half-operator to change modes on this channel",user->nick, c->name);
 			return;
 		}
 
@@ -3339,7 +3339,7 @@ void handle_topic(char **parameters, int pcnt, userrec *user)
 			{
 				if ((Ptr->topiclock) && (cstatus(user,Ptr)<STATUS_HOP))
 				{
-					WriteServ(user->fd,"482 %s %s :You must be at least a half-operator", user->nick, Ptr->name);
+					WriteServ(user->fd,"482 %s %s :You must be at least a half-operator to change modes on this channel", user->nick, Ptr->name);
 					return;
 				}
 				
@@ -4669,6 +4669,8 @@ void process_command(userrec *user, char* cmd)
 	}
 	
 	cmd_found = 0;
+	
+	log(DEBUG,"Second processing point");
 
 	if (strlen(command)>MAXCOMMAND)
 	{
@@ -4682,6 +4684,8 @@ void process_command(userrec *user, char* cmd)
 		{
 			if (!strcmp(command, cmdlist[i].command))
 			{
+				log(DEBUG,"Found matching command");
+
 				if (parameters)
 				{
 					if (strcmp(parameters,""))
@@ -4702,6 +4706,8 @@ void process_command(userrec *user, char* cmd)
 				
 				if (user)
 				{
+					log(DEBUG,"Processing command");
+					
 					/* activity resets the ping pending timer */
 					user->nping = time(NULL) + 120;
 					if ((items) < cmdlist[i].min_params)
@@ -4870,7 +4876,7 @@ void process_buffer(userrec *user)
 	}
         log(DEBUG,"InspIRCd: processing: %s %s",user->nick,cmd);
 	tidystring(cmd);
-	if (user)
+	if ((user) && (cmd))
 	{
 		process_command(user,cmd);
 	}
