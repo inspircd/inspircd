@@ -3645,7 +3645,7 @@ void handle_privmsg(char **parameters, int pcnt, userrec *user)
 			
 			int MOD_RESULT = 0;
 
-			FOREACH_RESULT(OnUserPreMessage(user,chan,TYPE_USER,std::string(parameters[1])));
+			FOREACH_RESULT(OnUserPreMessage(user,chan,TYPE_CHANNEL,std::string(parameters[1])));
 			if (MOD_RESULT) {
 				return;
 			}

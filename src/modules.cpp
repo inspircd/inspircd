@@ -11,6 +11,7 @@
 #include "modules.h"
 #include "ctables.h"
 #include "inspircd_io.h"
+#include "wildcard.h"
 
 // class type for holding an extended mode character - internal to core
 
@@ -138,6 +139,14 @@ Server::~Server()
 void Server::SendOpers(std::string s)
 {
 	WriteOpers("%s",s.c_str());
+}
+
+bool Server::MatchText(std::string sliteral, std::string spattern)
+{
+	char literal[MAXBUF],pattern[MAXBUF];
+	strncpy(literal,sliteral.c_str(),MAXBUF);
+	strncpy(pattern,spattern.c_str(),MAXBUF);
+	return match(literal,pattern);
 }
 
 void Server::SendToModeMask(std::string modes, int flags, std::string text)
@@ -302,6 +311,8 @@ ConfigReader::ConfigReader()
 
 ConfigReader::~ConfigReader()
 {
+	if (this->cache)
+		delete this->cache;
 }
 
 
