@@ -141,7 +141,10 @@ std::string ConfProcess(char* buffer, long linenumber, std::stringstream* errors
 	{
 		return "";
 	}
-	// firstly clean up the line by stripping spaces from the start and end
+	// firstly clean up the line by stripping spaces from the start and end and converting tabs to spaces
+	for (int d = 0; d < strlen(buffer); d++)
+		if (buffer[d]) == 9)
+			buffer[d] = ' ';
 	while ((buffer[0] == ' ') && (strlen(buffer)>0)) buffer++;
 	while ((buffer[strlen(buffer)-1] == ' ') && (strlen(buffer)>0)) buffer[strlen(buffer)-1] = '\0';
 	// empty lines are syntactically valid
@@ -151,8 +154,6 @@ std::string ConfProcess(char* buffer, long linenumber, std::stringstream* errors
 		return "";
 	for (int c = 0; c < strlen(buffer); c++)
 	{
-		if (buffer[c] == 9)
-			buffer[c] = ' ';
 		// convert all spaces that are OUTSIDE quotes into hardspace (0xA0) as this will make them easier to
 		// search and replace later :)
 		if ((!in_quotes) && (buffer[c] == ' '))
@@ -208,7 +209,7 @@ std::string ConfProcess(char* buffer, long linenumber, std::stringstream* errors
 		}
 	}
 	// no quotes, and no equals. something freaky.
-	if ((!number_of_quotes) || (!number_of_equals))
+	if ((!number_of_quotes) || (!number_of_equals) && (strlen(buffer)>2))
 	{
 		*errorstream << "Malformed tag at " << filename << ":" << linenumber << endl;
 		error = true;
