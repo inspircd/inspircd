@@ -220,6 +220,92 @@ int EnumConf(std::stringstream *config, const char* tag)
 	return idx;
 }
 
+/* Counts the number of values within a certain tag */
+
+int EnumValues(std::stringstream *config, const char* tag, int index)
+{
+	int ptr = 0;
+	char buffer[MAXBUF], c_tag[MAXBUF], c, lastc;
+	int in_token, in_quotes, tptr, j, idx = 0;
+	char* key;
+	
+	bool correct_tag = false;
+	int num_items = 0;
+
+	const char* buf = config->str().c_str();
+	long bptr = 0;
+	long len = strlen(buf);
+	
+	ptr = 0;
+	in_token = 0;
+	in_quotes = 0;
+	lastc = '\0';
+	while (bptr<len)
+	{
+		lastc = c;
+		c = buf[bptr++];
+		if ((c == '#') && (lastc == '\n'))
+		{
+			while ((c != '\n') && (bptr<len))
+			{
+				lastc = c;
+				c = buf[bptr++];
+			}
+		}
+		if ((c == '<') && (!in_quotes))
+		{
+			tptr = 0;
+			in_token = 1;
+			do {
+				c = buf[bptr++];
+				if (c != ' ')
+				{
+					c_tag[tptr++] = c;
+					c_tag[tptr] = '\0';
+					
+					if ((!strcmp(c_tag,tag)) && (idx == index))
+					{
+						correct_tag = true;
+					}
+				}
+			} while (c != ' ');
+		}
+		if (c == '"')
+		{
+			in_quotes = (!in_quotes);
+		}
+		
+		if ( (correct_tag) && (!in_quotes) && ( (c == ' ') || (c == '\n') || (c == '\r') ) )
+		{
+			num_items++;
+		}
+		if ((c == '>') && (!in_quotes))
+		{
+			in_token = 0;
+			if (correct_tag)
+				correct_tag = false;
+			if (!strcmp(c_tag,tag))
+			{
+				/* correct tag, but wrong index */
+				idx++;
+			}
+			c_tag[0] = '\0';
+			buffer[0] = '\0';
+			ptr = 0;
+			tptr = 0;
+		}
+		if (c != '>')
+		{
+			if ((in_token) && (c != '\n') && (c != '\r'))
+			{
+				buffer[ptr++] = c;
+				buffer[ptr] = '\0';
+			}
+		}
+	}
+	return num_items+1;
+}
+
 
 
 int ConfValueEnum(char* tag, std::stringstream* config)

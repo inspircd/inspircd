@@ -28,4 +28,5 @@ int ConfValue(char* tag, char* var, int index, char *result, std::stringstream *
 int ReadConf(std::stringstream *config_f,const char* tag, const char* var, int index, char *result);
 int ConfValueEnum(char* tag,std::stringstream *config);
 int EnumConf(std::stringstream *config_f,const char* tag);
+int EnumValues(std::stringstream *config, const char* tag, int index);
 

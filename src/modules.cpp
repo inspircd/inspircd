@@ -349,6 +349,10 @@ int ConfigReader::Enumerate(std::string tag)
 	return EnumConf(cache,tag.c_str());
 }
 
+int ConfigReader::EnumerateValues(std::string tag, int index)
+{
+	return EnumValues(cache, tag.c_str(), index);
+}
 
 bool ConfigReader::Verify()
 {

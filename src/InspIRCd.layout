@@ -1,9 +1,9 @@
 [Editors]
-Focused=2
-Order=7,3,2,6,25,24,4,5,1,0,-1
+Focused=4
+Order=1,2,-1,4
 
 [Editor_0]
-Open=1
+Open=0
 Top=0
 CursorCol=20
 CursorRow=57
@@ -14,20 +14,20 @@ LeftChar=1
 Open=1
 Top=0
 CursorCol=1
-CursorRow=4808
-TopLine=4662
+CursorRow=5694
+TopLine=5640
 LeftChar=1
 
 [Editor_2]
 Open=1
-Top=1
-CursorCol=28
-CursorRow=306
-TopLine=281
+Top=0
+CursorCol=8
+CursorRow=278
+TopLine=221
 LeftChar=1
 
 [Editor_3]
-Open=1
+Open=0
 Top=0
 CursorCol=1
 CursorRow=1
@@ -36,14 +36,14 @@ LeftChar=1
 
 [Editor_4]
 Open=1
-Top=0
-CursorCol=1
-CursorRow=119
-TopLine=113
+Top=1
+CursorCol=38
+CursorRow=354
+TopLine=324
 LeftChar=1
 
 [Editor_5]
-Open=1
+Open=0
 Top=0
 CursorCol=1
 CursorRow=1
@@ -51,7 +51,7 @@ TopLine=1
 LeftChar=1
 
 [Editor_6]
-Open=1
+Open=0
 Top=0
 CursorCol=1
 CursorRow=36
@@ -59,7 +59,7 @@ TopLine=1
 LeftChar=1
 
 [Editor_7]
-Open=1
+Open=0
 Top=0
 CursorCol=20
 CursorRow=15
@@ -67,7 +67,7 @@ TopLine=6
 LeftChar=1
 
 [Editor_8]
-Open=1
+Open=0
 Top=0
 CursorCol=1
 CursorRow=33
@@ -83,7 +83,7 @@ TopLine=1
 LeftChar=1
 
 [Editor_10]
-Open=1
+Open=0
 Top=0
 CursorCol=31
 CursorRow=75
@@ -147,10 +147,10 @@ TopLine=51
 LeftChar=1
 
 [Editor_18]
-Open=0
+Open=1
 Top=0
-CursorCol=5
-CursorRow=22
+CursorCol=69
+CursorRow=31
 TopLine=1
 LeftChar=1
 
@@ -163,11 +163,11 @@ TopLine=1
 LeftChar=1
 
 [Editor_20]
-Open=0
+Open=1
 Top=0
-CursorCol=6
-CursorRow=553
-TopLine=514
+CursorCol=20
+CursorRow=517
+TopLine=472
 LeftChar=1
 
 [Editor_21]
@@ -179,7 +179,7 @@ TopLine=1
 LeftChar=1
 
 [Editor_22]
-Open=1
+Open=0
 Top=0
 CursorCol=25
 CursorRow=116
@@ -195,14 +195,14 @@ TopLine=1
 LeftChar=1
 
 [Editor_24]
-Open=1
+Open=0
 Top=0
 CursorCol=1
 CursorRow=1
 TopLine=1
 LeftChar=1
 [Editor_25]
-Open=1
+Open=0
 Top=0
 CursorCol=6
 CursorRow=10
@@ -223,14 +223,14 @@ CursorRow=34
 TopLine=1
 LeftChar=1
 [Editor_28]
-Open=0
+Open=1
 Top=0
 CursorCol=87
 CursorRow=20
 TopLine=5
 LeftChar=1
 [Editor_29]
-Open=0
+Open=1
 Top=0
 CursorCol=49
 CursorRow=9
@@ -261,11 +261,11 @@ LeftChar=1
 Open=0
 Top=0
 [Editor_34]
-Open=0
+Open=1
 Top=0
-CursorCol=26
-CursorRow=155
-TopLine=113
+CursorCol=1
+CursorRow=86
+TopLine=32
 LeftChar=1
 [Editor_35]
 Open=0

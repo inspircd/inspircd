@@ -510,6 +510,13 @@ class ConfigReader : public classbase
 	 * file does not exist or could not be opened.
 	 */
 	bool Verify();
+
+	/** Returns the number of items within a tag.
+	 * For example if the tag was &lt;test tag="blah" data="foo"&gt; then this
+	 * function would return 2. Spaces and newlines both qualify as valid seperators
+	 * between values.
+	 */
+	int EnumerateValues(std::string tag, int index);
 };
 
 
