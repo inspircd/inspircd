@@ -10,6 +10,7 @@ echo "# Small modifications by <brain@ChatSpike.net>" >> Makefile
 echo "#" >>Makefile
 echo ""
 echo "CC = g++" >> Makefile
+echo "MAKE = $MAKEPROG" >> Makefile
 echo "PROGS = inspircd" >> Makefile
 echo "FLAGS = $FLAGS" >> Makefile
 echo "LDLIBS = $LDLIBS" >> Makefile
@@ -22,11 +23,11 @@ echo "" >> Makefile
 echo "all : ircd mods config" >> Makefile
 echo "" >> Makefile
 echo "mods:" >> Makefile
-echo "	make -C src/modules DIRNAME="src/modules" \$(MAKEARGS)" >> Makefile
+echo "	\${MAKE} -C src/modules DIRNAME="src/modules" \$(MAKEARGS)" >> Makefile
 echo "	mv src/modules/*.so \$(MODPATH)" >> Makefile
 echo "" >> Makefile
 echo "ircd:" >> Makefile
-echo "	make -C src DIRNAME="src" \$(MAKEARGS)" >> Makefile
+echo "	\${MAKE} -C src DIRNAME="src" \$(MAKEARGS)" >> Makefile
 echo "	cp src/inspircd \$(BINPATH)" >> Makefile
 echo "" >> Makefile
 echo "config:" >> Makefile

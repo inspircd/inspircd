@@ -368,10 +368,12 @@ case "$OSNAME" in
 	(FreeBSD)
 		LDLIBS="-Ldl"
 		FLAGS="-fPIC -frtti -O3"
+		MAKEPROG="gmake"
 		;;
 	(*)
 		LDLIBS="-ldl"
 		FLAGS="-fPIC -frtti -O3"
+		MAKEPROG="make"
 		;;
 esac
 
@@ -397,7 +399,7 @@ if [ "$YN" != "n" ] ; then
 	echo -e "\033[1;32mCompiling...\033[0;37m"
 	echo ""
 	cd $ME
-	make
+	`$MAKEPROG`
 	echo ""
         echo "Done!"
         echo ""
