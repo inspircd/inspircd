@@ -156,6 +156,7 @@ void DoSplitEveryone();
 char islast(const char* s);
 long map_count(const char* s);
 userrec* ReHashNick(char* Old, char* New);
+long GetMaxBans(char* name);
 
 
 // mesh network functions

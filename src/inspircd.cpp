@@ -1081,6 +1081,22 @@ chanrec* FindChan(const char* chan)
 }
 
 
+long GetMaxBans(char* name)
+{
+	char CM[MAXBUF];
+	for (int count = 0; count < ConfValueEnum("banlist",&config_f); count++)
+	{
+		ConfValue("banlist","chan",count,CM,&config_f);
+		if (match(name,CM))
+		{
+			ConfValue("banlist","limit",count,CM,&config_f);
+			return atoi(CM);
+		}
+	}
+	return 64;
+}
+
+
 void purge_empty_chans(void)
 {
 	int go_again = 1, purge = 0;

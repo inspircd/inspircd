@@ -464,6 +464,14 @@ char* add_ban(userrec *user,char *dest,chanrec *chan,int status)
 			c++;
 	if (c>1)
 		return NULL;
+
+	long maxbans = GetMaxBans(chan->name);
+	if (chan->bans.size() > maxbans)
+	{
+		WriteServ(user->fd,"478 %s %s :Channel ban list for %s is full (maximum entries for this channel is %d)",user->nick, chan->name,chan->name,maxbans);
+		return NULL;
+	}
+
 	log(DEBUG,"add_ban: %s %s",chan->name,user->nick);
 
 	TidyBan(dest);
