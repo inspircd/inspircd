@@ -1061,9 +1061,16 @@ char* chanmodes(chanrec *chan)
 	}
 	if (strlen(chan->custom_modes))
 	{
-		// TODO: Tack on mode parameters here -
-		// IN ORDER OF CUSTOM_MODES!
 		strncat(scratch,chan->custom_modes,MAXMODES);
+		for (int z = 0; z < strlen(chan->custom_modes); z++)
+		{
+			std::string extparam = chan->GetModeParameter(chan->custom_modes[z]);
+			if (extparam != "")
+			{
+				strcat(sparam," ");
+				strcat(sparam,extparam.c_str());
+			}
+		}
 	}
 	log(DEBUG,"chanmodes: %s %s%s",chan->name,scratch,sparam);
 	strncat(scratch,sparam,MAXMODES);
@@ -3376,6 +3383,8 @@ void handle_privmsg(char **parameters, int pcnt, userrec *user)
 {
 	userrec *dest;
 	chanrec *chan;
+
+	user->idle_lastmsg = time(NULL);
 	
 	if (loop_call(handle_privmsg,parameters,pcnt,user,0,pcnt-2,0))
 		return;
@@ -3426,6 +3435,8 @@ void handle_notice(char **parameters, int pcnt, userrec *user)
 	userrec *dest;
 	chanrec *chan;
 
+	user->idle_lastmsg = time(NULL);
+	
 	if (loop_call(handle_notice,parameters,pcnt,user,0,pcnt-2,0))
 		return;
 	if (parameters[0][0] == '#')
@@ -4464,7 +4475,6 @@ void process_command(userrec *user, char* cmd)
 				
 				if (user)
 				{
-					user->idle_lastmsg = time(NULL);
 					/* activity resets the ping pending timer */
 					user->nping = time(NULL) + 120;
 					if ((items) < cmdlist[i].min_params)

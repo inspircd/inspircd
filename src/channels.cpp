@@ -38,6 +38,7 @@ void chanrec::SetCustomMode(char mode,bool mode_on)
 		temp[count] = '\0';
 		strncpy(custom_modes,temp,MAXMODES);
 		log(DEBUG,"Custom mode %c removed",mode);
+		this->SetCustomModeParam(mode,"",false);
 	}
 }
 
