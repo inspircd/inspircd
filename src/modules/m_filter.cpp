@@ -28,12 +28,12 @@ class ModuleFilter : public Module
 		Srv = new Server;
 		Conf = new ConfigReader;
 		std::string filterfile = Conf->ReadValue("filter","file",0);
-		if (filterfile == "")
+		MyConf = new ConfigReader(filterfile);
+		if ((filterfile == "") || (!MyConf->Verify()))
 		{
 			printf("Error, could not find <filter file=\"\"> definition in your config file!");
 			exit(0);
 		}
-		MyConf = new ConfigReader(filterfile);
 		Srv->Log(DEFAULT,std::string("m_filter: read configuration from ")+filterfile);
 	}
 	
@@ -150,14 +150,14 @@ class ModuleFilter : public Module
 		delete MyConf;
 		Conf = new ConfigReader;
 		std::string filterfile = Conf->ReadValue("filter","file",0);
-		if (filterfile == "")
+		// this automatically re-reads the configuration file into the class
+		MyConf = new ConfigReader(filterfile);
+		if ((filterfile == "")|| (!MyConf->Verify()))
 		{
 			// bail if the user forgot to create a config file
 			printf("Error, could not find <filter file=\"\"> definition in your config file!");
 			exit(0);
 		}
-		// this automatically re-reads the configuration file into the class
-		MyConf = new ConfigReader(filterfile);
 		Srv->Log(DEFAULT,std::string("m_filter: read configuration from ")+filterfile);
 	}
 	
