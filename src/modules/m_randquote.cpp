@@ -27,14 +27,16 @@ class ModuleRandQuote : public Module
 		Srv = new Server;
 		conf = new ConfigReader;
 
-		if (conf->ReadValue("randquote","file",0) == '') {
-			log(DEBUG,"m_randquote: startup: File Not Specified!, bailing!");
-			return (ERROR);
-		}
 
 		q_file = conf->ReadValue("randquote","file",0);
 		prefix = conf->ReadValue("randquote","prefix",0);
 		suffix = conf->ReadValue("randquote","suffix",0);
+
+		if (q_file == "") {
+			printf("m_randquote: Quotefile not specified.. Please check your config.");
+			exit(0);
+                }
+
 
 		quotes = new FileReader(q_file);
 	}
