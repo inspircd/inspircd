@@ -98,8 +98,6 @@ std::vector<std::string> module_names;
 extern std::vector<ircd_module*> factory;
 std::vector<int> fd_reap;
 
-std::string pending_connects[MAXBUF];
-
 extern int MODCOUNT;
 
 bool nofork = false;
@@ -2098,12 +2096,6 @@ userrec* ReHashNick(char* Old, char* New)
 	clientlist[New] = oldnick->second;
 	clientlist.erase(oldnick);
 
-        for (long i = 0; i < MAXBUF; i++)
-        {
-		if (pending_connects[i] == std::string(Old))
-			pending_connects[i] = std::string(New);
-	}
-
 	log(DEBUG,"ReHashNick: Nick rehashed as %s",New);
 	
 	return clientlist[New];
@@ -2423,36 +2415,6 @@ void FullConnectUser(userrec* user)
         NetSendToAll(buffer);
 }
 
-// handles any connects where DNS isnt done yet, times out stale dns queries on users, and lets completed queries connect.
-void HandlePendingConnects()
-{
-	for (long i = 0; i < MAXBUF; i++)
-	{
-		if (pending_connects[i] != "")
-		{
-			userrec* a = Find(pending_connects[i]);
-			if (a)
-			{
-				// this user's dns is done now.
-				if ((a->dns_done) && (a->registered >= 3))
-				{
-					FullConnectUser(a); // attack! attack!....
-					pending_connects[i] = "";
-					return;	// ...RUN AWAY! RUN AWAY!
-				}
-				// this users dns is NOT done, but its timed out.
-				if ((time(NULL) > a->signon) && (a->registered >= 3))
-				{
-					WriteServ(a->fd,"NOTICE Auth :Failed to resolve your hostname, using your IP address instead.");
-					FullConnectUser(a);
-					pending_connects[i] = "";
-					return;
-				}
-			}
-		}
-	}
-}
-
 /* shows the message of the day, and any other on-logon stuff */
 void ConnectUser(userrec *user)
 {
@@ -2460,15 +2422,6 @@ void ConnectUser(userrec *user)
 	if ((user->dns_done) && (user->registered >= 3))
 	{
 		FullConnectUser(user);
-	}
-	else
-	{
-		// add them to the pending queue
-		for (int i = 0; i < MAXBUF; i++)
-		{
-			pending_connects[i] = std::string(user->nick);
-			break;
-		}
 	}
 }
 
@@ -3448,9 +3401,6 @@ int InspIRCd(void)
 		// poll dns queue
 		dns_poll();
 
-		// handle pending connects
-		HandlePendingConnects();
-
 		user_hash::iterator count2 = clientlist.begin();
 
 		// *FIX* Instead of closing sockets in kill_link when they receive the ERROR :blah line, we should queue
@@ -3580,6 +3530,18 @@ int InspIRCd(void)
 							kill_link(count2->second,"Registration timeout");
 							goto label;
 						}
+						if ((time(NULL) > count2->second->signon) && (count2->second->registered != 7))
+						{
+								count2->second->dns_done = true;
+								FullConnectUser(count2->second);
+								goto label;
+						}
+		                                if ((count2->second->dns_done) && (count2->second->registered == 3)) // both NICK and USER... and DNS
+		                                {
+							WriteServ(count2->second->fd,"NOTICE Auth :Timed out when looking up your hostname!",ServerName);
+		                                        FullConnectUser(count2->second);
+							goto label;
+		                                }
 						if (((time(NULL)) > count2->second->nping) && (isnick(count2->second->nick)) && (count2->second->registered == 7))
 						{
 							if ((!count2->second->lastping) && (count2->second->registered == 7))

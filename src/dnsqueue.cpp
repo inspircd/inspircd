@@ -188,16 +188,19 @@ public:
 			delete resolver;
 	}
 
-	Lookup(std::string nick)
+	bool DoLookup(std::string nick)
 	{
 		userrec* usr = Find(nick);
 		if (usr)
 		{
 			log(DEBUG,"New Lookup class for %s with DNSServer set to '%s'",nick.c_str(),DNSServer);
 			resolver = new DNS(std::string(DNSServer));
-			resolver->ReverseLookup(std::string(usr->host));
+			if (!resolver->ReverseLookup(std::string(usr->host)))
+				return false;
 			strlcpy(u,nick.c_str(),NICKMAX);
+			return true;
 		}
+		return false;
 	}
 
 	bool Done()
@@ -257,14 +260,21 @@ bool lookup_dns(std::string nick)
 		// place a new user into the queue...
 		log(DEBUG,"Queueing DNS lookup for %s",u->nick);
 		WriteServ(u->fd,"NOTICE Auth :Looking up your hostname...");
-		Lookup L(nick);
-		for (int j = 0; j < MAXBUF; j++)
+		Lookup L;
+		if (L.DoLookup(nick))
 		{
-			if (!dnsq[j].GetFD())
+			for (int j = 0; j < MAXBUF; j++)
 			{
-				dnsq[j] = L;
-				return true;
+				if (!dnsq[j].GetFD())
+				{
+					dnsq[j] = L;
+					return true;
+				}
 			}
+		}
+		else
+		{
+			return false;
 		}
 	}
 	return false;

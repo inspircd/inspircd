@@ -1643,7 +1643,9 @@ void handle_nick(char **parameters, int pcnt, userrec *user)
 		user->registered = (user->registered | 2);
 		// dont attempt to look up the dns until they pick a nick... because otherwise their pointer WILL change
 		// and unless we're lucky we'll get a duff one later on.
-		lookup_dns(user->nick);
+		user->dns_done = (!lookup_dns(user->nick));
+		if (user->dns_done)
+			log(DEBUG,"Aborting dns lookup of %s because dns server experienced a failure.",user->nick);
 	}
 	if (user->registered == 3)
 	{

@@ -212,7 +212,10 @@ static int dns_send_requests(const s_header *h, const s_connection *s, const int
 		memcpy(&addr4.sin_addr,&servers4[i],sizeof(addr4.sin_addr));
 		addr4.sin_family = AF_INET;
 		addr4.sin_port = htons(DNS_PORT);
-		sendto(s->fd, payload, l + 12, 0, (sockaddr *) &addr4, sizeof(addr4));
+		if (sendto(s->fd, payload, l + 12, 0, (sockaddr *) &addr4, sizeof(addr4)) == -1)
+		{
+			return -1;
+		}
 	}
 
 	return 0;
@@ -689,10 +692,12 @@ bool DNS::ReverseLookup(std::string ip)
 {
         binip = dns_aton4(ip.c_str());
         if (binip == NULL) {
-                fprintf(stderr,"invalid IP address.\n");
-                return 2;
+                return false;
         }
         this->fd = dns_getname4(binip);
+	if (this->fd == -1)
+		return false;
+	return true;
 }
 
 bool DNS::ForwardLookup(std::string host)
