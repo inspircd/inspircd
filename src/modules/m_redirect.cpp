@@ -21,16 +21,19 @@ class ModuleRedirect : public Module
 	
 	virtual int OnExtendedMode(userrec* user, void* target, char modechar, int type, bool mode_on, string_list &params)
 	{
-		
 		if ((modechar == 'L') && (type == MT_CHANNEL))
 		{
-			chanrec* c = Srv->Findchannel(params[0]);
-			if (c)
+			if (mode_on)
 			{
-				if (c->IsCustomModeSet('L'))
+				std::string ChanToJoin = params[0];
+				chanrec* c = Srv->FindChannel(ChanToJoin);
+				if (c)
 				{
-					WriteServ(user->fd,"690 %s :Circular redirection, mode +L to %s not allowed.",user->nick,params[0].c_str());
-     					return 0;
+					if (c->IsCustomModeSet('L'))
+					{
+						WriteServ(user->fd,"690 %s :Circular redirection, mode +L to %s not allowed.",user->nick,params[0].c_str());
+     						return 0;
+					}
 				}
 			}
 			return 1;
@@ -45,9 +48,9 @@ class ModuleRedirect : public Module
 			{
 				if (chan->limit >= Srv->CountUsers(chan))
 				{
-					char* channel = chan->GetModeParameter('L');
-					WriteServ(user->fd,"470 %s :%s has become full, so you are automatically being transferred to the linked channel %s",user->nick,cname,channel);
-					Srv->JoinUserToChannel(user,channel,"");
+					std::string channel = chan->GetModeParameter('L');
+					WriteServ(user->fd,"470 %s :%s has become full, so you are automatically being transferred to the linked channel %s",user->nick,cname,channel.c_str());
+					Srv->JoinUserToChannel(user,channel.c_str(),"");
 					return 1;
 				}
 			}
