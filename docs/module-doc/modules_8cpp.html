@@ -37,12 +37,14 @@ Include dependency graph for modules.cpp:<p><center><img src="modules_8cpp__incl
 <tr><td nowrap align=right valign=top>typedef ExtModeList::iterator&nbsp;</td><td valign=bottom><a class="el" href="modules_8cpp.html#a1">ExtModeListIter</a></td></tr>
 <tr><td colspan=2><br><h2>Functions</h2></td></tr>
 <tr><td nowrap align=right valign=top>bool&nbsp;</td><td valign=bottom><a class="el" href="modules_8cpp.html#a4">ModeDefined</a> (char modechar, int type)</td></tr>
-<tr><td nowrap align=right valign=top>bool&nbsp;</td><td valign=bottom><a class="el" href="modules_8cpp.html#a5">ModeDefinedOper</a> (char modechar, int type)</td></tr>
-<tr><td nowrap align=right valign=top>int&nbsp;</td><td valign=bottom><a class="el" href="modules_8cpp.html#a6">ModeDefinedOn</a> (char modechar, int type)</td></tr>
-<tr><td nowrap align=right valign=top>int&nbsp;</td><td valign=bottom><a class="el" href="modules_8cpp.html#a7">ModeDefinedOff</a> (char modechar, int type)</td></tr>
-<tr><td nowrap align=right valign=top>bool&nbsp;</td><td valign=bottom><a class="el" href="modules_8cpp.html#a8">DoAddExtendedMode</a> (char modechar, int type, bool requires_oper, int params_on, int params_off)</td></tr>
-<tr><td nowrap align=right valign=top>std::vector&lt; <a class="el" href="classModule.html">Module</a> * &gt;&nbsp;</td><td valign=bottom><a class="el" href="modules_8cpp.html#a9">modules</a> (255)</td></tr>
-<tr><td nowrap align=right valign=top>std::vector&lt; <a class="el" href="modules_8h.html#a12">ircd_module</a> * &gt;&nbsp;</td><td valign=bottom><a class="el" href="modules_8cpp.html#a10">factory</a> (255)</td></tr>
+<tr><td nowrap align=right valign=top>bool&nbsp;</td><td valign=bottom><a class="el" href="modules_8cpp.html#a5">ModeIsListMode</a> (char modechar, int type)</td></tr>
+<tr><td nowrap align=right valign=top>bool&nbsp;</td><td valign=bottom><a class="el" href="modules_8cpp.html#a6">ModeDefinedOper</a> (char modechar, int type)</td></tr>
+<tr><td nowrap align=right valign=top>int&nbsp;</td><td valign=bottom><a class="el" href="modules_8cpp.html#a7">ModeDefinedOn</a> (char modechar, int type)</td></tr>
+<tr><td nowrap align=right valign=top>int&nbsp;</td><td valign=bottom><a class="el" href="modules_8cpp.html#a8">ModeDefinedOff</a> (char modechar, int type)</td></tr>
+<tr><td nowrap align=right valign=top>bool&nbsp;</td><td valign=bottom><a class="el" href="modules_8cpp.html#a9">DoAddExtendedMode</a> (char modechar, int type, bool requires_oper, int params_on, int params_off)</td></tr>
+<tr><td nowrap align=right valign=top>void&nbsp;</td><td valign=bottom><a class="el" href="modules_8cpp.html#a10">ModeMakeList</a> (char modechar)</td></tr>
+<tr><td nowrap align=right valign=top>std::vector&lt; <a class="el" href="classModule.html">Module</a> * &gt;&nbsp;</td><td valign=bottom><a class="el" href="modules_8cpp.html#a11">modules</a> (255)</td></tr>
+<tr><td nowrap align=right valign=top>std::vector&lt; <a class="el" href="modules_8h.html#a24">ircd_module</a> * &gt;&nbsp;</td><td valign=bottom><a class="el" href="modules_8cpp.html#a12">factory</a> (255)</td></tr>
 <tr><td colspan=2><br><h2>Variables</h2></td></tr>
 <tr><td nowrap align=right valign=top><a class="el" href="modules_8cpp.html#a0">ExtModeList</a>&nbsp;</td><td valign=bottom><a class="el" href="modules_8cpp.html#a2">EMode</a></td></tr>
 <tr><td nowrap align=right valign=top>int&nbsp;</td><td valign=bottom><a class="el" href="modules_8cpp.html#a3">MODCOUNT</a> = -1</td></tr>
@@ -69,7 +71,7 @@ Include dependency graph for modules.cpp:<p><center><img src="modules_8cpp__incl
 <p>
 
 <p>
-Definition at line <a class="el" href="modules_8cpp-source.html#l00032">32</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.    </td>
+Definition at line <a class="el" href="modules_8cpp-source.html#l00033">33</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.    </td>
   </tr>
 </table>
 <a name="a1" doxytag="modules.cpp::ExtModeListIter"></a><p>
@@ -93,13 +95,13 @@ Definition at line <a class="el" href="modules_8cpp-source.html#l00032">32</a> o
 <p>
 
 <p>
-Definition at line <a class="el" href="modules_8cpp-source.html#l00033">33</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
+Definition at line <a class="el" href="modules_8cpp-source.html#l00034">34</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
 <p>
-Referenced by <a class="el" href="modules_8cpp-source.html#l00038">ModeDefined()</a>, <a class="el" href="modules_8cpp-source.html#l00080">ModeDefinedOff()</a>, <a class="el" href="modules_8cpp-source.html#l00067">ModeDefinedOn()</a>, and <a class="el" href="modules_8cpp-source.html#l00052">ModeDefinedOper()</a>.    </td>
+Referenced by <a class="el" href="modules_8cpp-source.html#l00039">ModeDefined()</a>, <a class="el" href="modules_8cpp-source.html#l00095">ModeDefinedOff()</a>, <a class="el" href="modules_8cpp-source.html#l00082">ModeDefinedOn()</a>, <a class="el" href="modules_8cpp-source.html#l00067">ModeDefinedOper()</a>, <a class="el" href="modules_8cpp-source.html#l00053">ModeIsListMode()</a>, and <a class="el" href="modules_8cpp-source.html#l00118">ModeMakeList()</a>.    </td>
   </tr>
 </table>
 <hr><h2>Function Documentation</h2>
-<a name="a8" doxytag="modules.cpp::DoAddExtendedMode"></a><p>
+<a name="a9" doxytag="modules.cpp::DoAddExtendedMode"></a><p>
 <table width="100%" cellpadding="2" cellspacing="0" border="0">
   <tr>
     <td class="md">
@@ -154,29 +156,29 @@ Referenced by <a class="el" href="modules_8cpp-source.html#l00038">ModeDefined()
 <p>
 
 <p>
-Definition at line <a class="el" href="modules_8cpp-source.html#l00093">93</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
+Definition at line <a class="el" href="modules_8cpp-source.html#l00108">108</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
 <p>
-References <a class="el" href="modules_8cpp-source.html#l00035">EMode</a>, and <a class="el" href="modules_8cpp-source.html#l00038">ModeDefined()</a>.
+References <a class="el" href="modules_8cpp-source.html#l00036">EMode</a>, and <a class="el" href="modules_8cpp-source.html#l00039">ModeDefined()</a>.
 <p>
-Referenced by <a class="el" href="modules_8cpp-source.html#l00317">Server::AddExtendedMode()</a>.
+Referenced by <a class="el" href="modules_8cpp-source.html#l00371">Server::AddExtendedListMode()</a>, and <a class="el" href="modules_8cpp-source.html#l00351">Server::AddExtendedMode()</a>.
 <p>
-<div class="fragment"><pre>00094 {
-00095         <span class="keywordflow">if</span> (<a class="code" href="modules_8cpp.html#a4">ModeDefined</a>(modechar,type)) {
-00096                 <span class="keywordflow">return</span> <span class="keyword">false</span>;
-00097         }
-00098         <a class="code" href="modules_8cpp.html#a2">EMode</a>.push_back(<a class="code" href="classExtMode.html">ExtMode</a>(modechar,type,requires_oper,params_on,params_off));
-00099         <span class="keywordflow">return</span> <span class="keyword">true</span>;
-00100 }
+<div class="fragment"><pre>00109 {
+00110         <span class="keywordflow">if</span> (<a class="code" href="modules_8cpp.html#a4">ModeDefined</a>(modechar,type)) {
+00111                 <span class="keywordflow">return</span> <span class="keyword">false</span>;
+00112         }
+00113         <a class="code" href="modules_8cpp.html#a2">EMode</a>.push_back(<a class="code" href="classExtMode.html">ExtMode</a>(modechar,type,requires_oper,params_on,params_off));
+00114         <span class="keywordflow">return</span> <span class="keyword">true</span>;
+00115 }
 </pre></div>    </td>
   </tr>
 </table>
-<a name="a10" doxytag="modules.cpp::factory"></a><p>
+<a name="a12" doxytag="modules.cpp::factory"></a><p>
 <table width="100%" cellpadding="2" cellspacing="0" border="0">
   <tr>
     <td class="md">
       <table cellpadding="0" cellspacing="0" border="0">
         <tr>
-          <td class="md" nowrap valign="top"> std::vector&lt;<a class="el" href="modules_8h.html#a12">ircd_module</a>*&gt; factory </td>
+          <td class="md" nowrap valign="top"> std::vector&lt;<a class="el" href="modules_8h.html#a24">ircd_module</a>*&gt; factory </td>
           <td class="md" valign="top">(&nbsp;</td>
           <td class="md" nowrap valign="top">255&nbsp;</td>
           <td class="mdname1" valign="top" nowrap>&nbsp;          </td>
@@ -236,28 +238,28 @@ Referenced by <a class="el" href="modules_8cpp-source.html#l00317">Server::AddEx
 <p>
 
 <p>
-Definition at line <a class="el" href="modules_8cpp-source.html#l00038">38</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
+Definition at line <a class="el" href="modules_8cpp-source.html#l00039">39</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
 <p>
-References <a class="el" href="modules_8cpp-source.html#l00035">EMode</a>, and <a class="el" href="modules_8cpp-source.html#l00033">ExtModeListIter</a>.
+References <a class="el" href="modules_8cpp-source.html#l00036">EMode</a>, and <a class="el" href="modules_8cpp-source.html#l00034">ExtModeListIter</a>.
 <p>
-Referenced by <a class="el" href="modules_8cpp-source.html#l00093">DoAddExtendedMode()</a>.
+Referenced by <a class="el" href="modules_8cpp-source.html#l00108">DoAddExtendedMode()</a>.
 <p>
-<div class="fragment"><pre>00039 {
-00040         log(DEBUG,<span class="stringliteral">"Size of extmodes vector is %d"</span>,<a class="code" href="modules_8cpp.html#a2">EMode</a>.size());
-00041         <span class="keywordflow">for</span> (<a class="code" href="modules_8cpp.html#a1">ExtModeListIter</a> i = <a class="code" href="modules_8cpp.html#a2">EMode</a>.begin(); i &lt; <a class="code" href="modules_8cpp.html#a2">EMode</a>.end(); i++)
-00042         {
-00043                 log(DEBUG,<span class="stringliteral">"i-&gt;modechar==%c, modechar=%c, i-&gt;type=%d, type=%d"</span>,i-&gt;modechar,modechar,i-&gt;type,type);
-00044                 <span class="keywordflow">if</span> ((i-&gt;modechar == modechar) &amp;&amp; (i-&gt;type == type))
-00045                 {
-00046                         <span class="keywordflow">return</span> <span class="keyword">true</span>;
-00047                 }
-00048         }
-00049         <span class="keywordflow">return</span> <span class="keyword">false</span>;
-00050 }
+<div class="fragment"><pre>00040 {
+00041         log(DEBUG,<span class="stringliteral">"Size of extmodes vector is %d"</span>,<a class="code" href="modules_8cpp.html#a2">EMode</a>.size());
+00042         <span class="keywordflow">for</span> (<a class="code" href="modules_8cpp.html#a1">ExtModeListIter</a> i = <a class="code" href="modules_8cpp.html#a2">EMode</a>.begin(); i &lt; <a class="code" href="modules_8cpp.html#a2">EMode</a>.end(); i++)
+00043         {
+00044                 log(DEBUG,<span class="stringliteral">"i-&gt;modechar==%c, modechar=%c, i-&gt;type=%d, type=%d"</span>,i-&gt;modechar,modechar,i-&gt;type,type);
+00045                 <span class="keywordflow">if</span> ((i-&gt;modechar == modechar) &amp;&amp; (i-&gt;type == type))
+00046                 {
+00047                         <span class="keywordflow">return</span> <span class="keyword">true</span>;
+00048                 }
+00049         }
+00050         <span class="keywordflow">return</span> <span class="keyword">false</span>;
+00051 }
 </pre></div>    </td>
   </tr>
 </table>
-<a name="a7" doxytag="modules.cpp::ModeDefinedOff"></a><p>
+<a name="a8" doxytag="modules.cpp::ModeDefinedOff"></a><p>
 <table width="100%" cellpadding="2" cellspacing="0" border="0">
   <tr>
     <td class="md">
@@ -294,24 +296,24 @@ Referenced by <a class="el" href="modules_8cpp-source.html#l00093">DoAddExtended
 <p>
 
 <p>
-Definition at line <a class="el" href="modules_8cpp-source.html#l00080">80</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
+Definition at line <a class="el" href="modules_8cpp-source.html#l00095">95</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
 <p>
-References <a class="el" href="modules_8cpp-source.html#l00035">EMode</a>, and <a class="el" href="modules_8cpp-source.html#l00033">ExtModeListIter</a>.
+References <a class="el" href="modules_8cpp-source.html#l00036">EMode</a>, and <a class="el" href="modules_8cpp-source.html#l00034">ExtModeListIter</a>.
 <p>
-<div class="fragment"><pre>00081 {
-00082         <span class="keywordflow">for</span> (<a class="code" href="modules_8cpp.html#a1">ExtModeListIter</a> i = <a class="code" href="modules_8cpp.html#a2">EMode</a>.begin(); i &lt; <a class="code" href="modules_8cpp.html#a2">EMode</a>.end(); i++)
-00083         {
-00084                 <span class="keywordflow">if</span> ((i-&gt;modechar == modechar) &amp;&amp; (i-&gt;type == type))
-00085                 {
-00086                         <span class="keywordflow">return</span> i-&gt;params_when_off;
-00087                 }
-00088         }
-00089         <span class="keywordflow">return</span> 0;
-00090 }
+<div class="fragment"><pre>00096 {
+00097         <span class="keywordflow">for</span> (<a class="code" href="modules_8cpp.html#a1">ExtModeListIter</a> i = <a class="code" href="modules_8cpp.html#a2">EMode</a>.begin(); i &lt; <a class="code" href="modules_8cpp.html#a2">EMode</a>.end(); i++)
+00098         {
+00099                 <span class="keywordflow">if</span> ((i-&gt;modechar == modechar) &amp;&amp; (i-&gt;type == type))
+00100                 {
+00101                         <span class="keywordflow">return</span> i-&gt;params_when_off;
+00102                 }
+00103         }
+00104         <span class="keywordflow">return</span> 0;
+00105 }
 </pre></div>    </td>
   </tr>
 </table>
-<a name="a6" doxytag="modules.cpp::ModeDefinedOn"></a><p>
+<a name="a7" doxytag="modules.cpp::ModeDefinedOn"></a><p>
 <table width="100%" cellpadding="2" cellspacing="0" border="0">
   <tr>
     <td class="md">
@@ -348,24 +350,24 @@ References <a class="el" href="modules_8cpp-source.html#l00035">EMode</a>, and <
 <p>
 
 <p>
-Definition at line <a class="el" href="modules_8cpp-source.html#l00067">67</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
+Definition at line <a class="el" href="modules_8cpp-source.html#l00082">82</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
 <p>
-References <a class="el" href="modules_8cpp-source.html#l00035">EMode</a>, and <a class="el" href="modules_8cpp-source.html#l00033">ExtModeListIter</a>.
+References <a class="el" href="modules_8cpp-source.html#l00036">EMode</a>, and <a class="el" href="modules_8cpp-source.html#l00034">ExtModeListIter</a>.
 <p>
-<div class="fragment"><pre>00068 {
-00069         <span class="keywordflow">for</span> (<a class="code" href="modules_8cpp.html#a1">ExtModeListIter</a> i = <a class="code" href="modules_8cpp.html#a2">EMode</a>.begin(); i &lt; <a class="code" href="modules_8cpp.html#a2">EMode</a>.end(); i++)
-00070         {
-00071                 <span class="keywordflow">if</span> ((i-&gt;modechar == modechar) &amp;&amp; (i-&gt;type == type))
-00072                 {
-00073                         <span class="keywordflow">return</span> i-&gt;params_when_on;
-00074                 }
-00075         }
-00076         <span class="keywordflow">return</span> 0;
-00077 }
+<div class="fragment"><pre>00083 {
+00084         <span class="keywordflow">for</span> (<a class="code" href="modules_8cpp.html#a1">ExtModeListIter</a> i = <a class="code" href="modules_8cpp.html#a2">EMode</a>.begin(); i &lt; <a class="code" href="modules_8cpp.html#a2">EMode</a>.end(); i++)
+00085         {
+00086                 <span class="keywordflow">if</span> ((i-&gt;modechar == modechar) &amp;&amp; (i-&gt;type == type))
+00087                 {
+00088                         <span class="keywordflow">return</span> i-&gt;params_when_on;
+00089                 }
+00090         }
+00091         <span class="keywordflow">return</span> 0;
+00092 }
 </pre></div>    </td>
   </tr>
 </table>
-<a name="a5" doxytag="modules.cpp::ModeDefinedOper"></a><p>
+<a name="a6" doxytag="modules.cpp::ModeDefinedOper"></a><p>
 <table width="100%" cellpadding="2" cellspacing="0" border="0">
   <tr>
     <td class="md">
@@ -402,26 +404,130 @@ References <a class="el" href="modules_8cpp-source.html#l00035">EMode</a>, and <
 <p>
 
 <p>
-Definition at line <a class="el" href="modules_8cpp-source.html#l00052">52</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
+Definition at line <a class="el" href="modules_8cpp-source.html#l00067">67</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
 <p>
-References <a class="el" href="modules_8cpp-source.html#l00035">EMode</a>, and <a class="el" href="modules_8cpp-source.html#l00033">ExtModeListIter</a>.
+References <a class="el" href="modules_8cpp-source.html#l00036">EMode</a>, and <a class="el" href="modules_8cpp-source.html#l00034">ExtModeListIter</a>.
 <p>
-<div class="fragment"><pre>00053 {
-00054         log(DEBUG,<span class="stringliteral">"Size of extmodes vector is %d"</span>,<a class="code" href="modules_8cpp.html#a2">EMode</a>.size());
-00055         <span class="keywordflow">for</span> (<a class="code" href="modules_8cpp.html#a1">ExtModeListIter</a> i = <a class="code" href="modules_8cpp.html#a2">EMode</a>.begin(); i &lt; <a class="code" href="modules_8cpp.html#a2">EMode</a>.end(); i++)
-00056         {
-00057                 log(DEBUG,<span class="stringliteral">"i-&gt;modechar==%c, modechar=%c, i-&gt;type=%d, type=%d"</span>,i-&gt;modechar,modechar,i-&gt;type,type);
-00058                 <span class="keywordflow">if</span> ((i-&gt;modechar == modechar) &amp;&amp; (i-&gt;type == type) &amp;&amp; (i-&gt;needsoper == <span class="keyword">true</span>))
-00059                 {
-00060                         <span class="keywordflow">return</span> <span class="keyword">true</span>;
-00061                 }
-00062         }
-00063         <span class="keywordflow">return</span> <span class="keyword">false</span>;
-00064 }
+<div class="fragment"><pre>00068 {
+00069         log(DEBUG,<span class="stringliteral">"Size of extmodes vector is %d"</span>,<a class="code" href="modules_8cpp.html#a2">EMode</a>.size());
+00070         <span class="keywordflow">for</span> (<a class="code" href="modules_8cpp.html#a1">ExtModeListIter</a> i = <a class="code" href="modules_8cpp.html#a2">EMode</a>.begin(); i &lt; <a class="code" href="modules_8cpp.html#a2">EMode</a>.end(); i++)
+00071         {
+00072                 log(DEBUG,<span class="stringliteral">"i-&gt;modechar==%c, modechar=%c, i-&gt;type=%d, type=%d"</span>,i-&gt;modechar,modechar,i-&gt;type,type);
+00073                 <span class="keywordflow">if</span> ((i-&gt;modechar == modechar) &amp;&amp; (i-&gt;type == type) &amp;&amp; (i-&gt;needsoper == <span class="keyword">true</span>))
+00074                 {
+00075                         <span class="keywordflow">return</span> <span class="keyword">true</span>;
+00076                 }
+00077         }
+00078         <span class="keywordflow">return</span> <span class="keyword">false</span>;
+00079 }
 </pre></div>    </td>
   </tr>
 </table>
-<a name="a9" doxytag="modules.cpp::modules"></a><p>
+<a name="a5" doxytag="modules.cpp::ModeIsListMode"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> bool ModeIsListMode </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="md" nowrap valign="top">char&nbsp;</td>
+          <td class="mdname" nowrap>&nbsp; <em>modechar</em>, </td>
+        </tr>
+        <tr>
+          <td></td>
+          <td></td>
+          <td class="md" nowrap>int&nbsp;</td>
+          <td class="mdname" nowrap>&nbsp; <em>type</em></td>
+        </tr>
+        <tr>
+          <td></td>
+          <td class="md">)&nbsp;</td>
+          <td class="md" colspan="2"></td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+
+<p>
+Definition at line <a class="el" href="modules_8cpp-source.html#l00053">53</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
+<p>
+References <a class="el" href="modules_8cpp-source.html#l00036">EMode</a>, and <a class="el" href="modules_8cpp-source.html#l00034">ExtModeListIter</a>.
+<p>
+<div class="fragment"><pre>00054 {
+00055         log(DEBUG,<span class="stringliteral">"Size of extmodes vector is %d"</span>,<a class="code" href="modules_8cpp.html#a2">EMode</a>.size());
+00056         <span class="keywordflow">for</span> (<a class="code" href="modules_8cpp.html#a1">ExtModeListIter</a> i = <a class="code" href="modules_8cpp.html#a2">EMode</a>.begin(); i &lt; <a class="code" href="modules_8cpp.html#a2">EMode</a>.end(); i++)
+00057         {
+00058                 log(DEBUG,<span class="stringliteral">"i-&gt;modechar==%c, modechar=%c, i-&gt;type=%d, type=%d"</span>,i-&gt;modechar,modechar,i-&gt;type,type);
+00059                 <span class="keywordflow">if</span> ((i-&gt;modechar == modechar) &amp;&amp; (i-&gt;type == type) &amp;&amp; (i-&gt;list == <span class="keyword">true</span>))
+00060                 {
+00061                         <span class="keywordflow">return</span> <span class="keyword">true</span>;
+00062                 }
+00063         }
+00064         <span class="keywordflow">return</span> <span class="keyword">false</span>;
+00065 }
+</pre></div>    </td>
+  </tr>
+</table>
+<a name="a10" doxytag="modules.cpp::ModeMakeList"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> void ModeMakeList </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="md" nowrap valign="top">char&nbsp;</td>
+          <td class="mdname1" valign="top" nowrap>&nbsp; <em>modechar</em>          </td>
+          <td class="md" valign="top">)&nbsp;</td>
+          <td class="md" nowrap></td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+
+<p>
+Definition at line <a class="el" href="modules_8cpp-source.html#l00118">118</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
+<p>
+References <a class="el" href="modules_8cpp-source.html#l00036">EMode</a>, <a class="el" href="modules_8cpp-source.html#l00034">ExtModeListIter</a>, and <a class="el" href="modules_8h-source.html#l00021">MT_CHANNEL</a>.
+<p>
+Referenced by <a class="el" href="modules_8cpp-source.html#l00371">Server::AddExtendedListMode()</a>.
+<p>
+<div class="fragment"><pre>00119 {
+00120         <span class="keywordflow">for</span> (<a class="code" href="modules_8cpp.html#a1">ExtModeListIter</a> i = <a class="code" href="modules_8cpp.html#a2">EMode</a>.begin(); i &lt; <a class="code" href="modules_8cpp.html#a2">EMode</a>.end(); i++)
+00121         {
+00122                 <span class="keywordflow">if</span> ((i-&gt;modechar == modechar) &amp;&amp; (i-&gt;type == <a class="code" href="modules_8h.html#a5">MT_CHANNEL</a>))
+00123                 {
+00124                         i-&gt;list = <span class="keyword">true</span>;
+00125                         <span class="keywordflow">return</span>;
+00126                 }
+00127         }
+00128         <span class="keywordflow">return</span>;
+00129 }
+</pre></div>    </td>
+  </tr>
+</table>
+<a name="a11" doxytag="modules.cpp::modules"></a><p>
 <table width="100%" cellpadding="2" cellspacing="0" border="0">
   <tr>
     <td class="md">
@@ -472,9 +578,9 @@ References <a class="el" href="modules_8cpp-source.html#l00035">EMode</a>, and <
 <p>
 
 <p>
-Definition at line <a class="el" href="modules_8cpp-source.html#l00035">35</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
+Definition at line <a class="el" href="modules_8cpp-source.html#l00036">36</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
 <p>
-Referenced by <a class="el" href="modules_8cpp-source.html#l00093">DoAddExtendedMode()</a>, <a class="el" href="modules_8cpp-source.html#l00038">ModeDefined()</a>, <a class="el" href="modules_8cpp-source.html#l00080">ModeDefinedOff()</a>, <a class="el" href="modules_8cpp-source.html#l00067">ModeDefinedOn()</a>, and <a class="el" href="modules_8cpp-source.html#l00052">ModeDefinedOper()</a>.    </td>
+Referenced by <a class="el" href="modules_8cpp-source.html#l00108">DoAddExtendedMode()</a>, <a class="el" href="modules_8cpp-source.html#l00039">ModeDefined()</a>, <a class="el" href="modules_8cpp-source.html#l00095">ModeDefinedOff()</a>, <a class="el" href="modules_8cpp-source.html#l00082">ModeDefinedOn()</a>, <a class="el" href="modules_8cpp-source.html#l00067">ModeDefinedOper()</a>, <a class="el" href="modules_8cpp-source.html#l00053">ModeIsListMode()</a>, and <a class="el" href="modules_8cpp-source.html#l00118">ModeMakeList()</a>.    </td>
   </tr>
 </table>
 <a name="a3" doxytag="modules.cpp::MODCOUNT"></a><p>
@@ -498,10 +604,10 @@ Referenced by <a class="el" href="modules_8cpp-source.html#l00093">DoAddExtended
 <p>
 
 <p>
-Definition at line <a class="el" href="modules_8cpp-source.html#l00442">442</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.    </td>
+Definition at line <a class="el" href="modules_8cpp-source.html#l00484">484</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.    </td>
   </tr>
 </table>
-<hr><address style="align: right;"><small>Generated on Fri Apr 30 15:46:28 2004 for InspIRCd by
+<hr><address style="align: right;"><small>Generated on Sat May 1 13:39:06 2004 for InspIRCd by
 <a href="http://www.doxygen.org/index.html">
 <img src="doxygen.png" alt="doxygen" align="middle" border=0 
 width=110 height=53></a>1.3-rc3 </small></address>

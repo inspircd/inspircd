@@ -53,18 +53,320 @@ This graph shows which files directly or indirectly include this file:<p><center
 <tr><td nowrap align=right valign=top>#define&nbsp;</td><td valign=bottom><a class="el" href="modules_8h.html#a5">MT_CHANNEL</a>&nbsp;&nbsp;&nbsp;1</td></tr>
 <tr><td nowrap align=right valign=top>#define&nbsp;</td><td valign=bottom><a class="el" href="modules_8h.html#a6">MT_CLIENT</a>&nbsp;&nbsp;&nbsp;2</td></tr>
 <tr><td nowrap align=right valign=top>#define&nbsp;</td><td valign=bottom><a class="el" href="modules_8h.html#a7">MT_SERVER</a>&nbsp;&nbsp;&nbsp;3</td></tr>
-<tr><td nowrap align=right valign=top>#define&nbsp;</td><td valign=bottom><a class="el" href="modules_8h.html#a8">FOREACH_MOD</a>&nbsp;&nbsp;&nbsp;for (int i = 0; i &lt;= <a class="el" href="modules_8cpp.html#a3">MODCOUNT</a>; i++) modules[i]-&gt;</td></tr>
-<tr><td nowrap align=right valign=top>#define&nbsp;</td><td valign=bottom><a class="el" href="modules_8h.html#a9">FOREACH_RESULT</a>(x)</td></tr>
+<tr><td nowrap align=right valign=top>#define&nbsp;</td><td valign=bottom><a class="el" href="modules_8h.html#a8">ACR_DEFAULT</a>&nbsp;&nbsp;&nbsp;0</td></tr>
+<tr><td nowrap align=right valign=top>#define&nbsp;</td><td valign=bottom><a class="el" href="modules_8h.html#a9">ACR_DENY</a>&nbsp;&nbsp;&nbsp;1</td></tr>
+<tr><td nowrap align=right valign=top>#define&nbsp;</td><td valign=bottom><a class="el" href="modules_8h.html#a10">ACR_ALLOW</a>&nbsp;&nbsp;&nbsp;2</td></tr>
+<tr><td nowrap align=right valign=top>#define&nbsp;</td><td valign=bottom><a class="el" href="modules_8h.html#a11">AC_KICK</a>&nbsp;&nbsp;&nbsp;0</td></tr>
+<tr><td nowrap align=right valign=top>#define&nbsp;</td><td valign=bottom><a class="el" href="modules_8h.html#a12">AC_DEOP</a>&nbsp;&nbsp;&nbsp;1</td></tr>
+<tr><td nowrap align=right valign=top>#define&nbsp;</td><td valign=bottom><a class="el" href="modules_8h.html#a13">AC_OP</a>&nbsp;&nbsp;&nbsp;2</td></tr>
+<tr><td nowrap align=right valign=top>#define&nbsp;</td><td valign=bottom><a class="el" href="modules_8h.html#a14">AC_VOICE</a>&nbsp;&nbsp;&nbsp;3</td></tr>
+<tr><td nowrap align=right valign=top>#define&nbsp;</td><td valign=bottom><a class="el" href="modules_8h.html#a15">AC_DEVOICE</a>&nbsp;&nbsp;&nbsp;4</td></tr>
+<tr><td nowrap align=right valign=top>#define&nbsp;</td><td valign=bottom><a class="el" href="modules_8h.html#a16">AC_HALFOP</a>&nbsp;&nbsp;&nbsp;5</td></tr>
+<tr><td nowrap align=right valign=top>#define&nbsp;</td><td valign=bottom><a class="el" href="modules_8h.html#a17">AC_DEHALFOP</a>&nbsp;&nbsp;&nbsp;6</td></tr>
+<tr><td nowrap align=right valign=top>#define&nbsp;</td><td valign=bottom><a class="el" href="modules_8h.html#a18">AC_INVITE</a>&nbsp;&nbsp;&nbsp;7</td></tr>
+<tr><td nowrap align=right valign=top>#define&nbsp;</td><td valign=bottom><a class="el" href="modules_8h.html#a19">AC_GENERAL_MODE</a>&nbsp;&nbsp;&nbsp;8</td></tr>
+<tr><td nowrap align=right valign=top>#define&nbsp;</td><td valign=bottom><a class="el" href="modules_8h.html#a20">FOREACH_MOD</a>&nbsp;&nbsp;&nbsp;for (int i = 0; i &lt;= <a class="el" href="modules_8cpp.html#a3">MODCOUNT</a>; i++) modules[i]-&gt;</td></tr>
+<tr><td nowrap align=right valign=top>#define&nbsp;</td><td valign=bottom><a class="el" href="modules_8h.html#a21">FOREACH_RESULT</a>(x)</td></tr>
 <tr><td colspan=2><br><h2>Typedefs</h2></td></tr>
-<tr><td nowrap align=right valign=top>typedef std::deque&lt; std::string &gt;&nbsp;</td><td valign=bottom><a class="el" href="modules_8h.html#a10">file_cache</a></td></tr>
-<tr><td>&nbsp;</td><td><font size=-1><em>Low level definition of a <a class="el" href="classFileReader.html">FileReader</a> classes file cache area.</em> <a href="#a10"></a><em></em></font><br><br></td></tr>
-<tr><td nowrap align=right valign=top>typedef <a class="el" href="modules_8h.html#a10">file_cache</a>&nbsp;</td><td valign=bottom><a class="el" href="modules_8h.html#a11">string_list</a></td></tr>
-<tr><td nowrap align=right valign=top>typedef DLLFactory&lt; <a class="el" href="classModuleFactory.html">ModuleFactory</a> &gt;&nbsp;</td><td valign=bottom><a class="el" href="modules_8h.html#a12">ircd_module</a></td></tr>
+<tr><td nowrap align=right valign=top>typedef std::deque&lt; std::string &gt;&nbsp;</td><td valign=bottom><a class="el" href="modules_8h.html#a22">file_cache</a></td></tr>
+<tr><td>&nbsp;</td><td><font size=-1><em>Low level definition of a <a class="el" href="classFileReader.html">FileReader</a> classes file cache area.</em> <a href="#a22"></a><em></em></font><br><br></td></tr>
+<tr><td nowrap align=right valign=top>typedef <a class="el" href="modules_8h.html#a22">file_cache</a>&nbsp;</td><td valign=bottom><a class="el" href="modules_8h.html#a23">string_list</a></td></tr>
+<tr><td nowrap align=right valign=top>typedef DLLFactory&lt; <a class="el" href="classModuleFactory.html">ModuleFactory</a> &gt;&nbsp;</td><td valign=bottom><a class="el" href="modules_8h.html#a24">ircd_module</a></td></tr>
 <tr><td colspan=2><br><h2>Functions</h2></td></tr>
-<tr><td nowrap align=right valign=top>void&nbsp;</td><td valign=bottom><a class="el" href="modules_8h.html#a13">createcommand</a> (char *cmd, handlerfunc f, char flags, int minparams)</td></tr>
-<tr><td nowrap align=right valign=top>void&nbsp;</td><td valign=bottom><a class="el" href="modules_8h.html#a14">server_mode</a> (char **parameters, int pcnt, <a class="el" href="classuserrec.html">userrec</a> *user)</td></tr>
+<tr><td nowrap align=right valign=top>void&nbsp;</td><td valign=bottom><a class="el" href="modules_8h.html#a25">createcommand</a> (char *cmd, handlerfunc f, char flags, int minparams)</td></tr>
+<tr><td nowrap align=right valign=top>void&nbsp;</td><td valign=bottom><a class="el" href="modules_8h.html#a26">server_mode</a> (char **parameters, int pcnt, <a class="el" href="classuserrec.html">userrec</a> *user)</td></tr>
 </table>
 <hr><h2>Define Documentation</h2>
+<a name="a17" doxytag="modules.h::AC_DEHALFOP"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> #define AC_DEHALFOP&nbsp;&nbsp;&nbsp;6
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+
+<p>
+Definition at line <a class="el" href="modules_8h-source.html#l00037">37</a> of file <a class="el" href="modules_8h-source.html">modules.h</a>.    </td>
+  </tr>
+</table>
+<a name="a12" doxytag="modules.h::AC_DEOP"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> #define AC_DEOP&nbsp;&nbsp;&nbsp;1
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+
+<p>
+Definition at line <a class="el" href="modules_8h-source.html#l00032">32</a> of file <a class="el" href="modules_8h-source.html">modules.h</a>.    </td>
+  </tr>
+</table>
+<a name="a15" doxytag="modules.h::AC_DEVOICE"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> #define AC_DEVOICE&nbsp;&nbsp;&nbsp;4
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+
+<p>
+Definition at line <a class="el" href="modules_8h-source.html#l00035">35</a> of file <a class="el" href="modules_8h-source.html">modules.h</a>.    </td>
+  </tr>
+</table>
+<a name="a19" doxytag="modules.h::AC_GENERAL_MODE"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> #define AC_GENERAL_MODE&nbsp;&nbsp;&nbsp;8
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+
+<p>
+Definition at line <a class="el" href="modules_8h-source.html#l00039">39</a> of file <a class="el" href="modules_8h-source.html">modules.h</a>.    </td>
+  </tr>
+</table>
+<a name="a16" doxytag="modules.h::AC_HALFOP"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> #define AC_HALFOP&nbsp;&nbsp;&nbsp;5
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+
+<p>
+Definition at line <a class="el" href="modules_8h-source.html#l00036">36</a> of file <a class="el" href="modules_8h-source.html">modules.h</a>.    </td>
+  </tr>
+</table>
+<a name="a18" doxytag="modules.h::AC_INVITE"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> #define AC_INVITE&nbsp;&nbsp;&nbsp;7
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+
+<p>
+Definition at line <a class="el" href="modules_8h-source.html#l00038">38</a> of file <a class="el" href="modules_8h-source.html">modules.h</a>.    </td>
+  </tr>
+</table>
+<a name="a11" doxytag="modules.h::AC_KICK"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> #define AC_KICK&nbsp;&nbsp;&nbsp;0
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+
+<p>
+Definition at line <a class="el" href="modules_8h-source.html#l00031">31</a> of file <a class="el" href="modules_8h-source.html">modules.h</a>.    </td>
+  </tr>
+</table>
+<a name="a13" doxytag="modules.h::AC_OP"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> #define AC_OP&nbsp;&nbsp;&nbsp;2
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+
+<p>
+Definition at line <a class="el" href="modules_8h-source.html#l00033">33</a> of file <a class="el" href="modules_8h-source.html">modules.h</a>.    </td>
+  </tr>
+</table>
+<a name="a14" doxytag="modules.h::AC_VOICE"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> #define AC_VOICE&nbsp;&nbsp;&nbsp;3
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+
+<p>
+Definition at line <a class="el" href="modules_8h-source.html#l00034">34</a> of file <a class="el" href="modules_8h-source.html">modules.h</a>.    </td>
+  </tr>
+</table>
+<a name="a10" doxytag="modules.h::ACR_ALLOW"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> #define ACR_ALLOW&nbsp;&nbsp;&nbsp;2
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+
+<p>
+Definition at line <a class="el" href="modules_8h-source.html#l00029">29</a> of file <a class="el" href="modules_8h-source.html">modules.h</a>.    </td>
+  </tr>
+</table>
+<a name="a8" doxytag="modules.h::ACR_DEFAULT"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> #define ACR_DEFAULT&nbsp;&nbsp;&nbsp;0
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+
+<p>
+Definition at line <a class="el" href="modules_8h-source.html#l00027">27</a> of file <a class="el" href="modules_8h-source.html">modules.h</a>.
+<p>
+Referenced by <a class="el" href="modules_8cpp-source.html#l00158">Module::OnAccessCheck()</a>.    </td>
+  </tr>
+</table>
+<a name="a9" doxytag="modules.h::ACR_DENY"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> #define ACR_DENY&nbsp;&nbsp;&nbsp;1
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+
+<p>
+Definition at line <a class="el" href="modules_8h-source.html#l00028">28</a> of file <a class="el" href="modules_8h-source.html">modules.h</a>.    </td>
+  </tr>
+</table>
 <a name="a0" doxytag="modules.h::DEBUG"></a><p>
 <table width="100%" cellpadding="2" cellspacing="0" border="0">
   <tr>
@@ -86,7 +388,7 @@ This graph shows which files directly or indirectly include this file:<p><center
 <p>
 
 <p>
-Definition at line <a class="el" href="modules_8h-source.html#l00011">11</a> of file <a class="el" href="modules_8h-source.html">modules.h</a>.    </td>
+Definition at line <a class="el" href="modules_8h-source.html#l00013">13</a> of file <a class="el" href="modules_8h-source.html">modules.h</a>.    </td>
   </tr>
 </table>
 <a name="a2" doxytag="modules.h::DEFAULT"></a><p>
@@ -110,10 +412,10 @@ Definition at line <a class="el" href="modules_8h-source.html#l00011">11</a> of 
 <p>
 
 <p>
-Definition at line <a class="el" href="modules_8h-source.html#l00013">13</a> of file <a class="el" href="modules_8h-source.html">modules.h</a>.    </td>
+Definition at line <a class="el" href="modules_8h-source.html#l00015">15</a> of file <a class="el" href="modules_8h-source.html">modules.h</a>.    </td>
   </tr>
 </table>
-<a name="a8" doxytag="modules.h::FOREACH_MOD"></a><p>
+<a name="a20" doxytag="modules.h::FOREACH_MOD"></a><p>
 <table width="100%" cellpadding="2" cellspacing="0" border="0">
   <tr>
     <td class="md">
@@ -134,10 +436,10 @@ Definition at line <a class="el" href="modules_8h-source.html#l00013">13</a> of 
 <p>
 
 <p>
-Definition at line <a class="el" href="modules_8h-source.html#l00038">38</a> of file <a class="el" href="modules_8h-source.html">modules.h</a>.    </td>
+Definition at line <a class="el" href="modules_8h-source.html#l00058">58</a> of file <a class="el" href="modules_8h-source.html">modules.h</a>.    </td>
   </tr>
 </table>
-<a name="a9" doxytag="modules.h::FOREACH_RESULT"></a><p>
+<a name="a21" doxytag="modules.h::FOREACH_RESULT"></a><p>
 <table width="100%" cellpadding="2" cellspacing="0" border="0">
   <tr>
     <td class="md">
@@ -163,7 +465,7 @@ Definition at line <a class="el" href="modules_8h-source.html#l00038">38</a> of 
 <p>
 <b>Value:</b><div class="fragment"><pre>{ MOD_RESULT = 0; \
                         <span class="keywordflow">for</span> (<span class="keywordtype">int</span> i = 0; i &lt;= <a class="code" href="modules_8cpp.html#a3">MODCOUNT</a>; i++) { \
-                        <span class="keywordtype">int</span> res = <a class="code" href="modules_8cpp.html#a9">modules</a>[i]-&gt;x ; \
+                        <span class="keywordtype">int</span> res = <a class="code" href="modules_8cpp.html#a11">modules</a>[i]-&gt;x ; \
                         <span class="keywordflow">if</span> (res) { \
                                 MOD_RESULT = res; \
                                 <span class="keywordflow">break</span>; \
@@ -172,7 +474,7 @@ Definition at line <a class="el" href="modules_8h-source.html#l00038">38</a> of 
    }
 </pre></div>
 <p>
-Definition at line <a class="el" href="modules_8h-source.html#l00046">46</a> of file <a class="el" href="modules_8h-source.html">modules.h</a>.    </td>
+Definition at line <a class="el" href="modules_8h-source.html#l00066">66</a> of file <a class="el" href="modules_8h-source.html">modules.h</a>.    </td>
   </tr>
 </table>
 <a name="a5" doxytag="modules.h::MT_CHANNEL"></a><p>
@@ -196,7 +498,9 @@ Definition at line <a class="el" href="modules_8h-source.html#l00046">46</a> of 
 <p>
 
 <p>
-Definition at line <a class="el" href="modules_8h-source.html#l00017">17</a> of file <a class="el" href="modules_8h-source.html">modules.h</a>.    </td>
+Definition at line <a class="el" href="modules_8h-source.html#l00021">21</a> of file <a class="el" href="modules_8h-source.html">modules.h</a>.
+<p>
+Referenced by <a class="el" href="modules_8cpp-source.html#l00118">ModeMakeList()</a>.    </td>
   </tr>
 </table>
 <a name="a6" doxytag="modules.h::MT_CLIENT"></a><p>
@@ -220,9 +524,9 @@ Definition at line <a class="el" href="modules_8h-source.html#l00017">17</a> of 
 <p>
 
 <p>
-Definition at line <a class="el" href="modules_8h-source.html#l00018">18</a> of file <a class="el" href="modules_8h-source.html">modules.h</a>.
+Definition at line <a class="el" href="modules_8h-source.html#l00022">22</a> of file <a class="el" href="modules_8h-source.html">modules.h</a>.
 <p>
-Referenced by <a class="el" href="modules_8cpp-source.html#l00317">Server::AddExtendedMode()</a>.    </td>
+Referenced by <a class="el" href="modules_8cpp-source.html#l00351">Server::AddExtendedMode()</a>.    </td>
   </tr>
 </table>
 <a name="a7" doxytag="modules.h::MT_SERVER"></a><p>
@@ -246,9 +550,9 @@ Referenced by <a class="el" href="modules_8cpp-source.html#l00317">Server::AddEx
 <p>
 
 <p>
-Definition at line <a class="el" href="modules_8h-source.html#l00019">19</a> of file <a class="el" href="modules_8h-source.html">modules.h</a>.
+Definition at line <a class="el" href="modules_8h-source.html#l00023">23</a> of file <a class="el" href="modules_8h-source.html">modules.h</a>.
 <p>
-Referenced by <a class="el" href="modules_8cpp-source.html#l00317">Server::AddExtendedMode()</a>.    </td>
+Referenced by <a class="el" href="modules_8cpp-source.html#l00351">Server::AddExtendedMode()</a>.    </td>
   </tr>
 </table>
 <a name="a4" doxytag="modules.h::NONE"></a><p>
@@ -272,7 +576,7 @@ Referenced by <a class="el" href="modules_8cpp-source.html#l00317">Server::AddEx
 <p>
 
 <p>
-Definition at line <a class="el" href="modules_8h-source.html#l00015">15</a> of file <a class="el" href="modules_8h-source.html">modules.h</a>.    </td>
+Definition at line <a class="el" href="modules_8h-source.html#l00017">17</a> of file <a class="el" href="modules_8h-source.html">modules.h</a>.    </td>
   </tr>
 </table>
 <a name="a3" doxytag="modules.h::SPARSE"></a><p>
@@ -296,7 +600,7 @@ Definition at line <a class="el" href="modules_8h-source.html#l00015">15</a> of 
 <p>
 
 <p>
-Definition at line <a class="el" href="modules_8h-source.html#l00014">14</a> of file <a class="el" href="modules_8h-source.html">modules.h</a>.    </td>
+Definition at line <a class="el" href="modules_8h-source.html#l00016">16</a> of file <a class="el" href="modules_8h-source.html">modules.h</a>.    </td>
   </tr>
 </table>
 <a name="a1" doxytag="modules.h::VERBOSE"></a><p>
@@ -320,11 +624,11 @@ Definition at line <a class="el" href="modules_8h-source.html#l00014">14</a> of 
 <p>
 
 <p>
-Definition at line <a class="el" href="modules_8h-source.html#l00012">12</a> of file <a class="el" href="modules_8h-source.html">modules.h</a>.    </td>
+Definition at line <a class="el" href="modules_8h-source.html#l00014">14</a> of file <a class="el" href="modules_8h-source.html">modules.h</a>.    </td>
   </tr>
 </table>
 <hr><h2>Typedef Documentation</h2>
-<a name="a10" doxytag="modules.h::file_cache"></a><p>
+<a name="a22" doxytag="modules.h::file_cache"></a><p>
 <table width="100%" cellpadding="2" cellspacing="0" border="0">
   <tr>
     <td class="md">
@@ -347,12 +651,12 @@ Low level definition of a <a class="el" href="classFileReader.html">FileReader</
 <p>
 
 <p>
-Definition at line <a class="el" href="modules_8h-source.html#l00030">30</a> of file <a class="el" href="modules_8h-source.html">modules.h</a>.
+Definition at line <a class="el" href="modules_8h-source.html#l00050">50</a> of file <a class="el" href="modules_8h-source.html">modules.h</a>.
 <p>
-Referenced by <a class="el" href="modules_8cpp-source.html#l00391">FileReader::FileReader()</a>, and <a class="el" href="modules_8cpp-source.html#l00402">FileReader::LoadFile()</a>.    </td>
+Referenced by <a class="el" href="modules_8cpp-source.html#l00433">FileReader::FileReader()</a>, and <a class="el" href="modules_8cpp-source.html#l00444">FileReader::LoadFile()</a>.    </td>
   </tr>
 </table>
-<a name="a12" doxytag="modules.h::ircd_module"></a><p>
+<a name="a24" doxytag="modules.h::ircd_module"></a><p>
 <table width="100%" cellpadding="2" cellspacing="0" border="0">
   <tr>
     <td class="md">
@@ -373,16 +677,16 @@ Referenced by <a class="el" href="modules_8cpp-source.html#l00391">FileReader::F
 <p>
 
 <p>
-Definition at line <a class="el" href="modules_8h-source.html#l00646">646</a> of file <a class="el" href="modules_8h-source.html">modules.h</a>.    </td>
+Definition at line <a class="el" href="modules_8h-source.html#l00716">716</a> of file <a class="el" href="modules_8h-source.html">modules.h</a>.    </td>
   </tr>
 </table>
-<a name="a11" doxytag="modules.h::string_list"></a><p>
+<a name="a23" doxytag="modules.h::string_list"></a><p>
 <table width="100%" cellpadding="2" cellspacing="0" border="0">
   <tr>
     <td class="md">
       <table cellpadding="0" cellspacing="0" border="0">
         <tr>
-          <td class="md" nowrap valign="top"> typedef <a class="el" href="modules_8h.html#a10">file_cache</a> string_list
+          <td class="md" nowrap valign="top"> typedef <a class="el" href="modules_8h.html#a22">file_cache</a> string_list
       </table>
     </td>
   </tr>
@@ -397,11 +701,11 @@ Definition at line <a class="el" href="modules_8h-source.html#l00646">646</a> of
 <p>
 
 <p>
-Definition at line <a class="el" href="modules_8h-source.html#l00031">31</a> of file <a class="el" href="modules_8h-source.html">modules.h</a>.    </td>
+Definition at line <a class="el" href="modules_8h-source.html#l00051">51</a> of file <a class="el" href="modules_8h-source.html">modules.h</a>.    </td>
   </tr>
 </table>
 <hr><h2>Function Documentation</h2>
-<a name="a13" doxytag="modules.h::createcommand"></a><p>
+<a name="a25" doxytag="modules.h::createcommand"></a><p>
 <table width="100%" cellpadding="2" cellspacing="0" border="0">
   <tr>
     <td class="md">
@@ -450,10 +754,10 @@ Definition at line <a class="el" href="modules_8h-source.html#l00031">31</a> of 
 <p>
 
 <p>
-Referenced by <a class="el" href="modules_8cpp-source.html#l00197">Server::AddCommand()</a>.    </td>
+Referenced by <a class="el" href="modules_8cpp-source.html#l00226">Server::AddCommand()</a>.    </td>
   </tr>
 </table>
-<a name="a14" doxytag="modules.h::server_mode"></a><p>
+<a name="a26" doxytag="modules.h::server_mode"></a><p>
 <table width="100%" cellpadding="2" cellspacing="0" border="0">
   <tr>
     <td class="md">
@@ -496,10 +800,10 @@ Referenced by <a class="el" href="modules_8cpp-source.html#l00197">Server::AddCo
 <p>
 
 <p>
-Referenced by <a class="el" href="modules_8cpp-source.html#l00202">Server::SendMode()</a>.    </td>
+Referenced by <a class="el" href="modules_8cpp-source.html#l00231">Server::SendMode()</a>.    </td>
   </tr>
 </table>
-<hr><address style="align: right;"><small>Generated on Fri Apr 30 15:46:29 2004 for InspIRCd by
+<hr><address style="align: right;"><small>Generated on Sat May 1 13:39:07 2004 for InspIRCd by
 <a href="http://www.doxygen.org/index.html">
 <img src="doxygen.png" alt="doxygen" align="middle" border=0 
 width=110 height=53></a>1.3-rc3 </small></address>

@@ -29,14 +29,14 @@ Inheritance diagram for Extensible:<p><center><img src="classExtensible__inherit
 <center><font size="2">[<a target="top" href="graph_legend.html">legend</a>]</font></center><a href="classExtensible-members.html">List of all members.</a><table border=0 cellpadding=0 cellspacing=0>
 <tr><td></td></tr>
 <tr><td colspan=2><br><h2>Public Member Functions</h2></td></tr>
-<tr><td nowrap align=right valign=top>bool&nbsp;</td><td valign=bottom><a class="el" href="classExtensible.html#a0">Extend</a> (std::string key, <a class="el" href="base_8h.html#a0">VoidPointer</a> p)</td></tr>
+<tr><td nowrap align=right valign=top>bool&nbsp;</td><td valign=bottom><a class="el" href="classExtensible.html#a0">Extend</a> (std::string key, char *p)</td></tr>
 <tr><td>&nbsp;</td><td><font size=-1><em>Extend an Extensible class.</em> <a href="#a0"></a><em></em></font><br><br></td></tr>
 <tr><td nowrap align=right valign=top>bool&nbsp;</td><td valign=bottom><a class="el" href="classExtensible.html#a1">Shrink</a> (std::string key)</td></tr>
 <tr><td>&nbsp;</td><td><font size=-1><em>Shrink an Extensible class.</em> <a href="#a1"></a><em></em></font><br><br></td></tr>
-<tr><td nowrap align=right valign=top><a class="el" href="base_8h.html#a0">VoidPointer</a>&nbsp;</td><td valign=bottom><a class="el" href="classExtensible.html#a2">GetExt</a> (std::string key)</td></tr>
+<tr><td nowrap align=right valign=top>char *&nbsp;</td><td valign=bottom><a class="el" href="classExtensible.html#a2">GetExt</a> (std::string key)</td></tr>
 <tr><td>&nbsp;</td><td><font size=-1><em>Get an extension item.</em> <a href="#a2"></a><em></em></font><br><br></td></tr>
 <tr><td colspan=2><br><h2>Private Attributes</h2></td></tr>
-<tr><td nowrap align=right valign=top>std::map&lt; std::string, <a class="el" href="base_8h.html#a0">VoidPointer</a> &gt;&nbsp;</td><td valign=bottom><a class="el" href="classExtensible.html#o0">Extension_Items</a></td></tr>
+<tr><td nowrap align=right valign=top>std::map&lt; std::string, char * &gt;&nbsp;</td><td valign=bottom><a class="el" href="classExtensible.html#o0">Extension_Items</a></td></tr>
 <tr><td>&nbsp;</td><td><font size=-1><em>Private data store.</em> <a href="#o0"></a><em></em></font><br><br></td></tr>
 </table>
 <hr><a name="_details"></a><h2>Detailed Description</h2>
@@ -61,7 +61,7 @@ Definition at line <a class="el" href="base_8h-source.html#l00038">38</a> of fil
         <tr>
           <td></td>
           <td></td>
-          <td class="md" nowrap><a class="el" href="base_8h.html#a0">VoidPointer</a>&nbsp;</td>
+          <td class="md" nowrap>char *&nbsp;</td>
           <td class="mdname" nowrap>&nbsp; <em>p</em></td>
         </tr>
         <tr>
@@ -93,7 +93,7 @@ You must provide a key to store the data as, and a void* to the data (typedef Vo
     <td class="md">
       <table cellpadding="0" cellspacing="0" border="0">
         <tr>
-          <td class="md" nowrap valign="top"> <a class="el" href="base_8h.html#a0">VoidPointer</a> Extensible::GetExt </td>
+          <td class="md" nowrap valign="top"> char* Extensible::GetExt </td>
           <td class="md" valign="top">(&nbsp;</td>
           <td class="md" nowrap valign="top">std::string&nbsp;</td>
           <td class="mdname1" valign="top" nowrap>&nbsp; <em>key</em>          </td>
@@ -156,7 +156,7 @@ You must provide a key name. The given key name will be removed from the classes
     <td class="md">
       <table cellpadding="0" cellspacing="0" border="0">
         <tr>
-          <td class="md" nowrap valign="top"> std::map&lt;std::string,<a class="el" href="base_8h.html#a0">VoidPointer</a>&gt; Extensible::Extension_Items<code> [private]</code>
+          <td class="md" nowrap valign="top"> std::map&lt;std::string,char*&gt; Extensible::Extension_Items<code> [private]</code>
       </table>
     </td>
   </tr>
@@ -178,7 +178,7 @@ Definition at line <a class="el" href="base_8h-source.html#l00042">42</a> of fil
 </table>
 <hr>The documentation for this class was generated from the following file:<ul>
 <li><a class="el" href="base_8h-source.html">base.h</a></ul>
-<hr><address style="align: right;"><small>Generated on Fri Apr 30 15:46:38 2004 for InspIRCd by
+<hr><address style="align: right;"><small>Generated on Sat May 1 13:39:16 2004 for InspIRCd by
 <a href="http://www.doxygen.org/index.html">
 <img src="doxygen.png" alt="doxygen" align="middle" border=0 
 width=110 height=53></a>1.3-rc3 </small></address>
