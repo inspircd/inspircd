@@ -138,13 +138,13 @@ class ModuleHelpop : public Module
 			exit(0);
 		}
 
-		if ((helpop->ReadValue("nohelp",  "line1", 0) == "") || 
+		/*if ((helpop->ReadValue("nohelp",  "line1", 0) == "") || 
                     (helpop->ReadValue("nohelpo", "line1", 0) == "") ||
                     (helpop->ReadValue("start",   "line1", 0) == ""))
 		{
 			printf("m_helpop: Helpop file is missing important entries. Please check the example conf.");
 			exit(0);
-		}
+		}*/
 
 		if (!Srv->AddExtendedMode('h',MT_CLIENT,true,0,0))
 		{
