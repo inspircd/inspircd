@@ -26,7 +26,7 @@ void handle_setname(char **parameters, int pcnt, userrec *user)
 		line = line + std::string(parameters[i]);
 	}
 	line = line + std::string(parameters[pcnt-1]);
-	strncpy(user->fullname,line.c_str(),127);
+	Srv->ChangeGECOS(user,line);
 }
 
 

@@ -99,14 +99,14 @@ class ModuleCloaking : public Module
 					sprintf(ra,"%.8X",seed*s2*strlen(dest->host));
 					std::string b = Srv->GetNetworkName() + "-" + ra + a;
 					Srv->Log(DEBUG,"cloak: allocated "+b);
-					strcpy(dest->dhost,b.c_str());
+					Srv->ChangeHost(user,b);
 				}
 			}
 			else
   			{
   				// user is removing the mode, so just restore their real host
   				// and make it match the displayed one.
-  				strcpy(dest->dhost,dest->host);
+				Srv->ChangeHost(user,user->host);
 			}
 			// this mode IS ours, and we have handled it. If we chose not to handle it,
 			// for example the user cannot cloak as they have a vhost or such, then
