@@ -1513,18 +1513,22 @@ void handle_oper(char **parameters, int pcnt, userrec *user)
 	char Password[MAXBUF];
 	char OperType[MAXBUF];
 	char TypeName[MAXBUF];
-	char Hostname[MAXBUF];
+	char HostName[MAXBUF];
+	char TheHost[MAXBUF];
 	int i,j;
 	bool found = false;
 	bool fail2 = false;
 	char global[MAXBUF];
+
+	snprintf(TheHost,MAXBUF,"%s@%s",user->ident,user->host);
 
 	for (int i = 0; i < ConfValueEnum("oper",&config_f); i++)
 	{
 		ConfValue("oper","name",i,LoginName,&config_f);
 		ConfValue("oper","password",i,Password,&config_f);
 		ConfValue("oper","type",i,OperType,&config_f);
-		if ((!strcmp(LoginName,parameters[0])) && (!strcmp(Password,parameters[1])))
+		ConfValue("oper","host",i,HostName,&config_f);
+		if ((!strcmp(LoginName,parameters[0])) && (!strcmp(Password,parameters[1])) && (match(TheHost,HostName)))
 		{
 			fail2 = true;
 			for (j =0; j < ConfValueEnum("type",&config_f); j++)
@@ -1536,8 +1540,8 @@ void handle_oper(char **parameters, int pcnt, userrec *user)
 					/* found this oper's opertype */
 					snprintf(global,MAXBUF,"| %s %s",user->nick,TypeName);
 					NetSendToAll(global);
-					ConfValue("type","host",j,Hostname,&config_f);
-					ChangeDisplayedHost(user,Hostname);
+					ConfValue("type","host",j,HostName,&config_f);
+					ChangeDisplayedHost(user,HostName);
 					strlcpy(user->oper,TypeName,NICKMAX);
 					found = true;
 					fail2 = false;
@@ -1568,11 +1572,13 @@ void handle_oper(char **parameters, int pcnt, userrec *user)
 		{
 			WriteServ(user->fd,"491 %s :Invalid oper credentials",user->nick);
 			WriteOpers("*** WARNING! Failed oper attempt by %s!%s@%s!",user->nick,user->ident,user->host);
+			log(DEFAULT,"OPER: Failed oper attempt by %s!%s@%s: user, host or password did not match.",user->nick,user->ident,user->host);
 		}
 		else
 		{
 			WriteServ(user->fd,"491 %s :Your oper block does not have a valid opertype associated with it",user->nick);
 			WriteOpers("*** CONFIGURATION ERROR! Oper block mismatch for OperType %s",OperType);
+                        log(DEFAULT,"OPER: Failed oper attempt by %s!%s@%s: credentials valid, but oper type nonexistent.",user->nick,user->ident,user->host);
 		}
 	}
 	return;
