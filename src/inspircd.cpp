@@ -4184,7 +4184,7 @@ void handle_notice(char **parameters, int pcnt, userrec *user)
 
 			// if any users of this channel are on remote servers, broadcast the packet
 			char buffer[MAXBUF];
-			snprintf(buffer,MAXBUF,"O %s %s :%s",user->nick,chan->name,parameters[1]);
+			snprintf(buffer,MAXBUF,"V %s %s :%s",user->nick,chan->name,parameters[1]);
 			for (int j = 0; j < 255; j++)
 			{
 				if (servers[j] != NULL)
@@ -4229,7 +4229,7 @@ void handle_notice(char **parameters, int pcnt, userrec *user)
 					{
 						// direct write, same server
 						char buffer[MAXBUF];
-						snprintf(buffer,MAXBUF,"O %s %s :%s",user->nick,dest->nick,parameters[1]);
+						snprintf(buffer,MAXBUF,"V %s %s :%s",user->nick,dest->nick,parameters[1]);
 						me[defaultRoute]->SendPacket(buffer,servers[j]->internal_addr,servers[j]->internal_port,MyKey);
 					}
 				}
@@ -5649,7 +5649,7 @@ void DoSync(serverrec* serv, char* udp_host,int udp_port, long MyKey)
 }
 
 
-void handle_O(char token,char* params,serverrec* source,serverrec* reply, char* udp_host,int udp_port)
+void handle_V(char token,char* params,serverrec* source,serverrec* reply, char* udp_host,int udp_port)
 {
 	char* src = strtok(params," ");
 	char* dest = strtok(NULL," :");
@@ -5975,10 +5975,10 @@ void process_restricted_commands(char token,char* params,serverrec* source,serve
 		case 'P':
 			handle_P(token,params,source,reply,udp_host,udp_port);
 		break;
-		// O <SOURCE> <TARGET> :<TEXT>
+		// V <SOURCE> <TARGET> :<TEXT>
 		// Send a private/channel notice
-		case 'O':
-			handle_O(token,params,source,reply,udp_host,udp_port);
+		case 'V':
+			handle_V(token,params,source,reply,udp_host,udp_port);
 		break;
 		// L <SOURCE> <CHANNEL> :<REASON>
 		// User parting a channel
