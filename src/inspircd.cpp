@@ -5661,6 +5661,10 @@ int InspIRCd(void)
 						count2++;
 						total_in_this_set++;
 					}
+					else
+					{
+						count2++;
+					}
 				}
 				else break;
 			}
@@ -5681,6 +5685,7 @@ int InspIRCd(void)
 				result = EAGAIN;
 				if ((count2a->second->fd != -1) && (FD_ISSET (count2a->second->fd, &sfd)))
 				{
+					log(DEBUG,"Reading fd %d",count2a->second->fd);
 					memset(data, 0, 10240);
 					result = read(count2a->second->fd, data, 10240);
 					
