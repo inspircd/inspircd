@@ -55,7 +55,7 @@ class ModuleTestCommand : public Module
 		Srv->AddCommand("WOOT",handle_woot,0,1);
 
 		// Add a mode +Z for channels with no parameters		
-		Srv->AddExtendedMode('Z',MT_CHANNEL,false,0,0);
+		Srv->AddExtendedMode('Z',MT_CHANNEL,false,1,0);
 	}
 	
 	virtual bool OnExtendedMode(userrec* user, chanrec* chan, char modechar, int type, bool mode_on, string_list &params)
@@ -78,6 +78,16 @@ class ModuleTestCommand : public Module
 		
 		// must return 1 to handle the mode!
 		return 1;
+	}
+	
+	virtual void OnUserJoin(userrec* user, chanrec* channel)
+	{
+		Srv->Log(DEBUG,"OnUserJoin triggered");
+		if (channel->IsCustomModeSet('Z'))
+		{
+			std::string param = channel->GetModeParameter('Z');
+			Srv->Log(DEBUG,"Custom mode is set on this channel! Parameter="+param);
+		}
 	}
 	
 	virtual ~ModuleTestCommand()
