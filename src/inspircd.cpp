@@ -1933,6 +1933,7 @@ void kill_link(userrec *user,const char* r)
 	if (user->registered == 7) {
 		purge_empty_chans();
 	}
+	user = NULL;
 }
 
 void kill_link_silent(userrec *user,const char* r)
@@ -2213,8 +2214,6 @@ void AddClient(int socket, char* host, int port, bool iscached, char* ip)
 	clientlist[tempnick]->port = port;
 	strncpy(clientlist[tempnick]->ip,ip,32);
 
-	lookup_dns(clientlist[tempnick]);
-
 	// set the registration timeout for this user
 	unsigned long class_regtimeout = 90;
 	for (ClassVector::iterator i = Classes.begin(); i != Classes.end(); i++)
@@ -2463,11 +2462,6 @@ void HandlePendingConnects()
 					pending_connects.erase(i);
 					return;
 				}
-			}
-			else
-			{
-				pending_connects.erase(i);
-				return;
 			}
 		}
 	}
@@ -3471,9 +3465,10 @@ int InspIRCd(void)
    			{
 				for( int n = 0; n < fd_reap.size(); n++)
 				{
-					Blocking(fd_reap[n]);
+					//Blocking(fd_reap[n]);
 					close(fd_reap[n]);
-					NonBlocking(fd_reap[n]);
+					shutdown (fd_reap[n],2);
+					//NonBlocking(fd_reap[n]);
 				}
 			}
 			fd_reap.clear();

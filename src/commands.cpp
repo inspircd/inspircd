@@ -51,6 +51,7 @@
 #include "mode.h"
 #include "xline.h"
 #include "inspstring.h"
+#include "dnsqueue.h"
 
 #ifdef GCC3
 #define nspace __gnu_cxx
@@ -1638,7 +1639,12 @@ void handle_nick(char **parameters, int pcnt, userrec *user)
 	log(DEBUG,"new nick set: %s",user->nick);
 	
 	if (user->registered < 3)
+	{
 		user->registered = (user->registered | 2);
+		// dont attempt to look up the dns until they pick a nick... because otherwise their pointer WILL change
+		// and unless we're lucky we'll get a duff one later on.
+		lookup_dns(user);
+	}
 	if (user->registered == 3)
 	{
 		/* user is registered now, bit 0 = USER command, bit 1 = sent a NICK command */
