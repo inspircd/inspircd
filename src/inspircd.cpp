@@ -6736,12 +6736,8 @@ void handle_link_packet(char* udp_msg, char* udp_host, serverrec *serv)
 				// we have a matching link line -
 				// send a 'diminutive' server message back...
 				snprintf(response,10240,"s %s %s :%s",ServerName,Link_SendPass,ServerDesc);
-				serv->SendPacket(response,udp_host);
-				WriteOpers("Internal error connecting to %s, failed to create server record!",servername);
+				serv->SendPacket(response,servername);
 				return;
-			}
-			else {
-				log(DEBUG,"Server names '%s' and '%s' don't match",Link_ServerName,servername);
 			}
 		}
 		serv->SendPacket("E :Access is denied (no matching link block)",udp_host);
