@@ -3260,6 +3260,12 @@ bool IsDenied(userrec *user)
 
 void handle_pass(char **parameters, int pcnt, userrec *user)
 {
+	// Check to make sure they havnt registered -- Fix by FCS
+	if (user->registered == 7)
+	{
+		WriteServ(user->fd,"462 %s :You may not reregister",user->nick);
+		return;
+	}
 	if (!strcasecmp(parameters[0],Passwd(user)))
 	{
 		user->haspassed = true;
