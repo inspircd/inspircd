@@ -12,6 +12,9 @@
 #include "users.h"
 #include "channels.h"
 
+
+/** These are the handlers for user commands
+ */
 void handle_join(char **parameters, int pcnt, userrec *user);
 void handle_part(char **parameters, int pcnt, userrec *user);
 void handle_kick(char **parameters, int pcnt, userrec *user);
@@ -54,6 +57,36 @@ void handle_links(char **parameters, int pcnt, userrec *user);
 void handle_map(char **parameters, int pcnt, userrec *user);
 void handle_oper(char **parameters, int pcnt, userrec *user);
 void handle_nick(char **parameters, int pcnt, userrec *user);
+
+/** Special functions for processing server to server traffic
+ */
+void handle_link_packet(char* udp_msg, char* tcp_host, serverrec *serv);
+void process_restricted_commands(char token,char* params,serverrec* source,serverrec* reply, char* tcp_host,char* ipaddr,int port);
+
+/** These are the handlers for server commands (tokens)
+ */
+void handle_amp(char token,char* params,serverrec* source,serverrec* reply, char* tcp_host);
+void handle_dollar(char token,char* params,serverrec* source,serverrec* reply, char* tcp_host);
+void handle_J(char token,char* params,serverrec* source,serverrec* reply, char* tcp_host);
+void handle_R(char token,char* params,serverrec* source,serverrec* reply, char* tcp_host);
+void handle_plus(char token,char* params,serverrec* source,serverrec* reply, char* tcp_host);
+void handle_b(char token,char* params,serverrec* source,serverrec* reply, char* tcp_host);
+void handle_a(char token,char* params,serverrec* source,serverrec* reply, char* tcp_host);
+void handle_F(char token,char* params,serverrec* source,serverrec* reply, char* tcp_host);
+void handle_N(char token,char* params,serverrec* source,serverrec* reply, char* tcp_host);
+void handle_AT(char token,char* params,serverrec* source,serverrec* reply, char* tcp_host);
+void handle_k(char token,char* params,serverrec* source,serverrec* reply, char* tcp_host);
+void handle_n(char token,char* params,serverrec* source,serverrec* reply, char* tcp_host);
+void handle_Q(char token,char* params,serverrec* source,serverrec* reply, char* tcp_host);
+void handle_K(char token,char* params,serverrec* source,serverrec* reply, char* tcp_host);
+void handle_L(char token,char* params,serverrec* source,serverrec* reply, char* tcp_host);
+void handle_m(char token,char* params,serverrec* source,serverrec* reply, char* tcp_host);
+void handle_M(char token,char* params,serverrec* source,serverrec* reply, char* tcp_host);
+void handle_T(char token,char* params,serverrec* source,serverrec* reply, char* tcp_host);
+void handle_t(char token,char* params,serverrec* source,serverrec* reply, char* tcp_host);
+void handle_i(char token,char* params,serverrec* source,serverrec* reply, char* tcp_host);
+void handle_P(char token,char* params,serverrec* source,serverrec* reply, char* tcp_host);
+void handle_V(char token,char* params,serverrec* source,serverrec* reply, char* tcp_host);
 
 
 #endif

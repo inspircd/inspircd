@@ -154,5 +154,6 @@ void NetSendToAllExcept(const char* target,char* s);
 void NetSendMyRoutingTable();
 void DoSplit(const char* params);
 void RemoveServer(const char* name);
+void DoSync(serverrec* serv, char* tcp_host);
 
 
