@@ -4892,48 +4892,48 @@ void createcommand(char* cmd, handlerfunc f, char flags, int minparams)
 
 void SetupCommandTable(void)
 {
-  createcommand("USER",handle_user,0,4);
-  createcommand("NICK",handle_nick,0,1);
-  createcommand("QUIT",handle_quit,0,0);
-  createcommand("VERSION",handle_version,0,0);
-  createcommand("PING",handle_ping,0,1);
-  createcommand("PONG",handle_pong,0,1);
-  createcommand("ADMIN",handle_admin,0,0);
-  createcommand("PRIVMSG",handle_privmsg,0,2);
-  createcommand("INFO",handle_info,0,0);
-  createcommand("TIME",handle_time,0,0);
-  createcommand("WHOIS",handle_whois,0,1);
-  createcommand("WALLOPS",handle_wallops,'o',1);
-  createcommand("NOTICE",handle_notice,0,2);
-  createcommand("JOIN",handle_join,0,1);
-  createcommand("NAMES",handle_names,0,1);
-  createcommand("PART",handle_part,0,1);
-  createcommand("KICK",handle_kick,0,2);
-  createcommand("MODE",handle_mode,0,1);
-  createcommand("TOPIC",handle_topic,0,1);
-  createcommand("WHO",handle_who,0,1);
-  createcommand("MOTD",handle_motd,0,0);
-  createcommand("RULES",handle_join,0,0);
-  createcommand("OPER",handle_oper,0,2);
-  createcommand("LIST",handle_list,0,0);
-  createcommand("DIE",handle_die,'o',1);
-  createcommand("RESTART",handle_restart,'o',1);
-  createcommand("KILL",handle_kill,'o',2);
-  createcommand("REHASH",handle_rehash,'o',0);
-  createcommand("LUSERS",handle_lusers,0,0);
-  createcommand("STATS",handle_stats,0,1);
-  createcommand("USERHOST",handle_userhost,0,1);
-  createcommand("AWAY",handle_away,0,0);
-  createcommand("ISON",handle_ison,0,0);
-  createcommand("SUMMON",handle_summon,0,0);
-  createcommand("USERS",handle_users,0,0);
-  createcommand("INVITE",handle_invite,0,2);
-  createcommand("PASS",handle_pass,0,1);
-  createcommand("TRACE",handle_trace,'o',0);
-  createcommand("WHOWAS",handle_whowas,0,1);
-  createcommand("CONNECT",handle_connect,'o',1);
-  createcommand("SQUIT",handle_squit,'o',1);
-  createcommand("MODULES",handle_modules,'o',0);
+	createcommand("USER",handle_user,0,4);
+	createcommand("NICK",handle_nick,0,1);
+	createcommand("QUIT",handle_quit,0,0);
+	createcommand("VERSION",handle_version,0,0);
+	createcommand("PING",handle_ping,0,1);
+	createcommand("PONG",handle_pong,0,1);
+	createcommand("ADMIN",handle_admin,0,0);
+	createcommand("PRIVMSG",handle_privmsg,0,2);
+	createcommand("INFO",handle_info,0,0);
+	createcommand("TIME",handle_time,0,0);
+	createcommand("WHOIS",handle_whois,0,1);
+	createcommand("WALLOPS",handle_wallops,'o',1);
+	createcommand("NOTICE",handle_notice,0,2);
+	createcommand("JOIN",handle_join,0,1);
+	createcommand("NAMES",handle_names,0,1);
+	createcommand("PART",handle_part,0,1);
+	createcommand("KICK",handle_kick,0,2);
+	createcommand("MODE",handle_mode,0,1);
+	createcommand("TOPIC",handle_topic,0,1);
+	createcommand("WHO",handle_who,0,1);
+	createcommand("MOTD",handle_motd,0,0);
+	createcommand("RULES",handle_rules,0,0);
+	createcommand("OPER",handle_oper,0,2);
+	createcommand("LIST",handle_list,0,0);
+	createcommand("DIE",handle_die,'o',1);
+	createcommand("RESTART",handle_restart,'o',1);
+	createcommand("KILL",handle_kill,'o',2);
+	createcommand("REHASH",handle_rehash,'o',0);
+	createcommand("LUSERS",handle_lusers,0,0);
+	createcommand("STATS",handle_stats,0,1);
+	createcommand("USERHOST",handle_userhost,0,1);
+	createcommand("AWAY",handle_away,0,0);
+	createcommand("ISON",handle_ison,0,0);
+	createcommand("SUMMON",handle_summon,0,0);
+	createcommand("USERS",handle_users,0,0);
+	createcommand("INVITE",handle_invite,0,2);
+	createcommand("PASS",handle_pass,0,1);
+	createcommand("TRACE",handle_trace,'o',0);
+	createcommand("WHOWAS",handle_whowas,0,1);
+	createcommand("CONNECT",handle_connect,'o',1);
+	createcommand("SQUIT",handle_squit,'o',1);
+	createcommand("MODULES",handle_modules,'o',0);
 }
 
 void process_buffer(userrec *user)
@@ -5187,239 +5187,241 @@ int reap_counter = 0;
 
 int InspIRCd(void)
 {
-  struct sockaddr_in client, server;
-  char addrs[MAXBUF][255];
-  int openSockfd[MAXSOCKS], incomingSockfd, result = TRUE;
-  socklen_t length;
-  int count = 0, scanDetectTrigger = TRUE, showBanner = FALSE;
-  int selectResult = 0;
-  char *temp, configToken[MAXBUF], stuff[MAXBUF], Addr[MAXBUF], Type[MAXBUF];
-  char resolvedHost[MAXBUF];
-  fd_set selectFds;
-  struct timeval tv;
+	struct sockaddr_in client, server;
+	char addrs[MAXBUF][255];
+	int openSockfd[MAXSOCKS], incomingSockfd, result = TRUE;
+	socklen_t length;
+	int count = 0, scanDetectTrigger = TRUE, showBanner = FALSE;
+	int selectResult = 0;
+	char *temp, configToken[MAXBUF], stuff[MAXBUF], Addr[MAXBUF], Type[MAXBUF];
+	char resolvedHost[MAXBUF];
+	fd_set selectFds;
+	struct timeval tv;
 
-  log_file = fopen("ircd.log","a+");
-  if (!log_file)
-  {
-  	printf("ERROR: Could not write to logfile ircd.log, bailing!\n\n");
-  	Exit(ERROR);
-  }
-
-  log(DEBUG,"InspIRCd: startup: begin");
-  log(DEBUG,"$Id$");
-  if (geteuid() == 0)
-  {
-	printf("WARNING!!! You are running an irc server as ROOT!!! DO NOT DO THIS!!!\n\n");
-	Exit(ERROR);
-	log(DEBUG,"InspIRCd: startup: not starting with UID 0!");
-  }
-  SetupCommandTable();
-  log(DEBUG,"InspIRCd: startup: default command table set up");
-
-  ReadConfig();
-  if (strcmp(DieValue,"")) 
-  { 
-	printf("WARNING: %s\n\n",DieValue);
-	exit(0); 
-  }  
-  log(DEBUG,"InspIRCd: startup: read config");
-  
-  int count2 = 0, count3 = 0;
-  for (count = 0; count < ConfValueEnum("bind"); count++)
-  {
-	ConfValue("bind","port",count,configToken);
-	ConfValue("bind","address",count,Addr);
-	ConfValue("bind","type",count,Type);
-	if (!strcmp(Type,"servers"))
+	log_file = fopen("ircd.log","a+");
+	if (!log_file)
 	{
-                char Default[MAXBUF];
-                strcpy(Default,"no");
-                ConfValue("bind","default",count,Default);
-                if (strchr(Default,'y'))
-                {
-                                defaultRoute = count3;
-                                log(DEBUG,"InspIRCd: startup: binding '%s:%s' is default server route",Addr,configToken);
-                }
-                me[count3] = new serverrec(ServerName,100L,false);
-                me[count3]->CreateListener(Addr,atoi(configToken));
-                count3++;
+		printf("ERROR: Could not write to logfile ircd.log, bailing!\n\n");
+		Exit(ERROR);
 	}
-	else
+
+	log(DEBUG,"InspIRCd: startup: begin");
+	log(DEBUG,"$Id$");
+	if (geteuid() == 0)
 	{
-                ports[count2] = atoi(configToken);
-                strcpy(addrs[count2],Addr);
-                count2++;
+		printf("WARNING!!! You are running an irc server as ROOT!!! DO NOT DO THIS!!!\n\n");
+		Exit(ERROR);
+		log(DEBUG,"InspIRCd: startup: not starting with UID 0!");
 	}
-	log(DEBUG,"InspIRCd: startup: read binding %s:%s [%s] from config",Addr,configToken, Type);
-  }
-  portCount = count2;
-  UDPportCount = count3;
-  
-  log(DEBUG,"InspIRCd: startup: read %d total client ports and %d total server ports",portCount,UDPportCount);
+	SetupCommandTable();
+	log(DEBUG,"InspIRCd: startup: default command table set up");
+	
+	ReadConfig();
+	if (strcmp(DieValue,"")) 
+	{ 
+		printf("WARNING: %s\n\n",DieValue);
+		exit(0); 
+	}  
+	log(DEBUG,"InspIRCd: startup: read config");
+	  
+	int count2 = 0, count3 = 0;
 
-  log(DEBUG,"InspIRCd: startup: InspIRCd is now running!");
-
-  printf("\n");
-
-  /* BugFix By Craig! :p */
-  count2 = 0;
-  for (count = 0; count2 < ConfValueEnum("module"); count2++)
-  {
-	char modfile[MAXBUF];
-	ConfValue("module","name",count,configToken);
-	sprintf(modfile,"%s/%s",MOD_PATH,configToken);
-	printf("Loading module... \033[1;37m%s\033[0;37m\n",modfile);
-	log(DEBUG,"InspIRCd: startup: Loading module: %s",modfile);
-	/* If The File Doesnt exist, Trying to load it
- 	 * Will Segfault the IRCd.. So, check to see if
-	 * it Exists, Before Proceeding. */
-	if (FileExists(modfile))
+	for (count = 0; count < ConfValueEnum("bind"); count++)
 	{
-  		factory[count] = new ircd_module(modfile);
-		if (factory[count]->LastError())
+		ConfValue("bind","port",count,configToken);
+		ConfValue("bind","address",count,Addr);
+		ConfValue("bind","type",count,Type);
+		if (!strcmp(Type,"servers"))
 		{
-			log(DEBUG,"Unable to load %s: %s",modfile,factory[count]->LastError());
-			sprintf("Unable to load %s: %s\nExiting...\n",modfile,factory[count]->LastError());
-			Exit(ERROR);
-		}
-		if (factory[count]->factory)
-		{
-			modules[count] = factory[count]->factory->CreateModule();
-   			/* save the module and the module's classfactory, if
-			 * this isnt done, random crashes can occur :/ */
-			module_names.push_back(modfile);	
+			char Default[MAXBUF];
+			strcpy(Default,"no");
+			ConfValue("bind","default",count,Default);
+			if (strchr(Default,'y'))
+			{
+				defaultRoute = count3;
+				log(DEBUG,"InspIRCd: startup: binding '%s:%s' is default server route",Addr,configToken);
+			}
+			me[count3] = new serverrec(ServerName,100L,false);
+			me[count3]->CreateListener(Addr,atoi(configToken));
+			count3++;
 		}
 		else
 		{
-			log(DEBUG,"Unable to load %s",modfile);
-			sprintf("Unable to load %s\nExiting...\n",modfile);
-			Exit(ERROR);
+			ports[count2] = atoi(configToken);
+			strcpy(addrs[count2],Addr);
+			count2++;
 		}
-		/* Increase the Count */
-		count++;
+		log(DEBUG,"InspIRCd: startup: read binding %s:%s [%s] from config",Addr,configToken, Type);
+	}
+	portCount = count2;
+	UDPportCount = count3;
+	  
+	log(DEBUG,"InspIRCd: startup: read %d total client ports and %d total server ports",portCount,UDPportCount);
+	
+	log(DEBUG,"InspIRCd: startup: InspIRCd is now running!");
+	
+	printf("\n");
+	
+	/* BugFix By Craig! :p */
+	count2 = 0;
+	for (count = 0; count2 < ConfValueEnum("module"); count2++)
+	{
+		char modfile[MAXBUF];
+		ConfValue("module","name",count,configToken);
+		sprintf(modfile,"%s/%s",MOD_PATH,configToken);
+		printf("Loading module... \033[1;37m%s\033[0;37m\n",modfile);
+		log(DEBUG,"InspIRCd: startup: Loading module: %s",modfile);
+		/* If The File Doesnt exist, Trying to load it
+	 	 * Will Segfault the IRCd.. So, check to see if
+		 * it Exists, Before Proceeding. */
+		if (FileExists(modfile))
+		{
+			factory[count] = new ircd_module(modfile);
+			if (factory[count]->LastError())
+			{
+				log(DEBUG,"Unable to load %s: %s",modfile,factory[count]->LastError());
+				sprintf("Unable to load %s: %s\nExiting...\n",modfile,factory[count]->LastError());
+				Exit(ERROR);
+			}
+			if (factory[count]->factory)
+			{
+				modules[count] = factory[count]->factory->CreateModule();
+				/* save the module and the module's classfactory, if
+				 * this isnt done, random crashes can occur :/ */
+				module_names.push_back(modfile);	
+			}
+			else
+			{
+				log(DEBUG,"Unable to load %s",modfile);
+				sprintf("Unable to load %s\nExiting...\n",modfile);
+				Exit(ERROR);
+			}
+			/* Increase the Count */
+			count++;
+		}
+		else
+		{
+			log(DEBUG,"InspIRCd: startup: Module Not Found %s",modfile);
+			printf("Module Not Found: \033[1;37m%s\033[0;37m, Skipping\n",modfile);
+		}
+	}
+	MODCOUNT = count - 1;
+	log(DEBUG,"Total loaded modules: %d",MODCOUNT+1);
+	
+	printf("\nInspIRCd is now running!\n");
+	
+	startup_time = time(NULL);
+	  
+	if (nofork)
+	{
+		log(VERBOSE,"Not forking as -nofork was specified");
 	}
 	else
 	{
-		log(DEBUG,"InspIRCd: startup: Module Not Found %s",modfile);
-		printf("Module Not Found: \033[1;37m%s\033[0;37m, Skipping\n",modfile);
+		if (DaemonSeed() == ERROR)
+		{
+			log(DEBUG,"InspIRCd: startup: can't daemonise");
+	  		printf("ERROR: could not go into daemon mode. Shutting down.\n");
+			Exit(ERROR);
+	  	}
 	}
-  }
-  MODCOUNT = count - 1;
-  log(DEBUG,"Total loaded modules: %d",MODCOUNT+1);
-
-  printf("\nInspIRCd is now running!\n");
-
-  startup_time = time(NULL);
-  
-  if (nofork)
-  {
-  	log(VERBOSE,"Not forking as -nofork was specified");
-  }
-  else
-  {
-	if (DaemonSeed() == ERROR)
-	{
-		log(DEBUG,"InspIRCd: startup: can't daemonise");
-  		printf("ERROR: could not go into daemon mode. Shutting down.\n");
-		Exit(ERROR);
-  	}
-  }
-  
-  
-  /* setup select call */
-  FD_ZERO(&selectFds);
-  log(DEBUG,"InspIRCd: startup: zero selects");
-  log(VERBOSE,"InspIRCd: startup: portCount = %d", portCount);
-
-  for (count = 0; count < portCount; count++)
-  {
-  	  if ((openSockfd[boundPortCount] = OpenTCPSocket()) == ERROR)
-      {
-	        log(DEBUG,"InspIRCd: startup: bad fd %d",openSockfd[boundPortCount]);
-	        return(ERROR);
-      }
-      if (BindSocket(openSockfd[boundPortCount],client,server,ports[count],addrs[count]) == ERROR)
-      {
-	        log(DEBUG,"InspIRCd: startup: failed to bind port %d",ports[count]);
-      }
-      else			/* well we at least bound to one socket so we'll continue */
-      {
-      		boundPortCount++;
-      }
-  }
-
-  log(DEBUG,"InspIRCd: startup: total bound ports %d",boundPortCount);
-  
-  /* if we didn't bind to anything then abort */
-  if (boundPortCount == 0)
-  {
-     log(DEBUG,"InspIRCd: startup: no ports bound, bailing!");
-     return (ERROR);
-  }
-
-  length = sizeof (client);
-  int flip_flop = 0, udp_port = 0;
-  char udp_msg[MAXBUF], udp_host[MAXBUF];
-  
-  /* main loop for multiplexing/resetting */
-  for (;;)
-  {
-      /* set up select call */
-      for (count = 0; count < boundPortCount; count++)
-      {
-		FD_SET (openSockfd[count], &selectFds);
-      }
+	  
+	  
+	/* setup select call */
+	FD_ZERO(&selectFds);
+	log(DEBUG,"InspIRCd: startup: zero selects");
+	log(VERBOSE,"InspIRCd: startup: portCount = %d", portCount);
 	
-      /* added timeout! select was waiting forever... wank... :/ */
-      tv.tv_usec = 0;
-
-      flip_flop++;
-      reap_counter++;
-      if (flip_flop > 20)
-      {
-	      tv.tv_usec = 1;
-	      flip_flop = 0;
-      }
+	for (count = 0; count < portCount; count++)
+	{
+		if ((openSockfd[boundPortCount] = OpenTCPSocket()) == ERROR)
+		{
+			log(DEBUG,"InspIRCd: startup: bad fd %d",openSockfd[boundPortCount]);
+			return(ERROR);
+		}
+		if (BindSocket(openSockfd[boundPortCount],client,server,ports[count],addrs[count]) == ERROR)
+		{
+			log(DEBUG,"InspIRCd: startup: failed to bind port %d",ports[count]);
+		}
+		else	/* well we at least bound to one socket so we'll continue */
+		{
+			boundPortCount++;
+		}
+	}
+	
+	log(DEBUG,"InspIRCd: startup: total bound ports %d",boundPortCount);
+	  
+	/* if we didn't bind to anything then abort */
+	if (boundPortCount == 0)
+	{
+		log(DEBUG,"InspIRCd: startup: no ports bound, bailing!");
+		return (ERROR);
+	}
+	
+	length = sizeof (client);
+	int flip_flop = 0, udp_port = 0;
+	char udp_msg[MAXBUF], udp_host[MAXBUF];
+	  
+	/* main loop for multiplexing/resetting */
+	for (;;)
+	{
+		/* set up select call */
+		for (count = 0; count < boundPortCount; count++)
+		{
+			FD_SET (openSockfd[count], &selectFds);
+		}
+	
+		/* added timeout! select was waiting forever... wank... :/ */
+		tv.tv_usec = 0;
+	
+		flip_flop++;
+		reap_counter++;
+		if (flip_flop > 20)
+		{
+			tv.tv_usec = 1;
+			flip_flop = 0;
+		}
       
-	vector<int>::iterator niterator;
+		vector<int>::iterator niterator;
 		
 
-	// *FIX* Instead of closing sockets in kill_link when they receive the ERROR :blah line, we should queue
-	// them in a list, then reap the list every second or so.
-	if (reap_counter>5000) {
-		if (fd_reap.size() > 0) {
-			for( int n = 0; n < fd_reap.size(); n++)
-			{
-				Blocking(fd_reap[n]);
-				close(fd_reap[n]);
-				NonBlocking(fd_reap[n]);
+		// *FIX* Instead of closing sockets in kill_link when they receive the ERROR :blah line, we should queue
+		// them in a list, then reap the list every second or so.
+		if (reap_counter>5000) {
+			if (fd_reap.size() > 0) {
+				for( int n = 0; n < fd_reap.size(); n++)
+				{
+					Blocking(fd_reap[n]);
+					close(fd_reap[n]);
+					NonBlocking(fd_reap[n]);
+				}
 			}
+			fd_reap.clear();
+			reap_counter=0;
 		}
-		fd_reap.clear();
-		reap_counter=0;
-	}
 
       
-      tv.tv_sec = 0;
-      selectResult = select(MAXSOCKS, &selectFds, NULL, NULL, &tv);
-
-      for (int x = 0; x != UDPportCount; x++)
-      {
-	   long theirkey = 0;
-           if (me[x]->RecvPacket(udp_msg, udp_host, udp_port, theirkey))
-           {
-                	if (strlen(udp_msg)<1) {
-                		log(DEBUG,"Invalid datagram from %s:%d:%d [route%d]",udp_host,udp_port,me[x]->port,x);
-                	}
-                	else {
+		tv.tv_sec = 0;
+		selectResult = select(MAXSOCKS, &selectFds, NULL, NULL, &tv);
+	
+		for (int x = 0; x != UDPportCount; x++)
+		{
+			long theirkey = 0;
+			if (me[x]->RecvPacket(udp_msg, udp_host, udp_port, theirkey))
+			{
+				if (strlen(udp_msg)<1) {
+				log(DEBUG,"Invalid datagram from %s:%d:%d [route%d]",udp_host,udp_port,me[x]->port,x);
+			}
+			else
+			{
 				FOREACH_MOD OnPacketReceive(udp_msg);
 				// Packets must go back via the route they arrived on :)
 				handle_link_packet(theirkey, udp_msg, udp_host, udp_port, me[x]);
-      			}
-      	   }
-      }
+			}
+		}
+	}
 
-  	for (user_hash::iterator count2 = clientlist.begin(); count2 != clientlist.end(); count2++)
+	for (user_hash::iterator count2 = clientlist.begin(); count2 != clientlist.end(); count2++)
 	{
 		char data[MAXBUF];
 
@@ -5510,55 +5512,52 @@ int InspIRCd(void)
 			}
 		}
 	}
-
-      /* select is reporting a waiting socket. Poll them all to find out which */
-      if (selectResult > 0)
-      {
-        char target[MAXBUF], resolved[MAXBUF];
-        for (count = 0; count < boundPortCount; count++)		
-        {
-	    if (FD_ISSET (openSockfd[count], &selectFds))
-            {
-              incomingSockfd = accept (openSockfd[count], (struct sockaddr *) &client, &length);
-	      
-              address_cache::iterator iter = IP.find(client.sin_addr);
-              bool iscached = false;
-              if (iter == IP.end())
-              {
-                        /* ip isn't in cache, add it */
-                        strncpy (target, (char *) inet_ntoa (client.sin_addr), MAXBUF);
-                        if(CleanAndResolve(resolved, target) != TRUE)
-                        {
-                        	strncpy(resolved,target,MAXBUF);
-                       	}
-                        /* hostname now in 'target' */
-                        IP[client.sin_addr] = new string(resolved);
-              /* hostname in cache */
-              }
-              else
-              {
-              /* found ip (cached) */
-              strncpy(resolved, iter->second->c_str(), MAXBUF);
-              iscached = true;
-           }
-
-	      if (incomingSockfd < 0)
-	      {
-	        	WriteOpers("*** WARNING: Accept failed on port %d (%s)", ports[count],target);
-	        	log(DEBUG,"InspIRCd: accept failed: %d",ports[count]);
-	        	break;
-	      }
-
-	      AddClient(incomingSockfd, resolved, ports[count], iscached);
-  	      log(DEBUG,"InspIRCd: adding client on port %d fd=%d",ports[count],incomingSockfd);
-	      break;
-	    }
-
-	   }
-      }
-  }
-
-  /* not reached */
-  close (incomingSockfd);
+	
+	/* select is reporting a waiting socket. Poll them all to find out which */
+	if (selectResult > 0)
+	{
+		char target[MAXBUF], resolved[MAXBUF];
+		for (count = 0; count < boundPortCount; count++)		
+		{
+			if (FD_ISSET (openSockfd[count], &selectFds))
+			{
+				incomingSockfd = accept (openSockfd[count], (struct sockaddr *) &client, &length);
+			      
+				address_cache::iterator iter = IP.find(client.sin_addr);
+				bool iscached = false;
+				if (iter == IP.end())
+				{
+					/* ip isn't in cache, add it */
+					strncpy (target, (char *) inet_ntoa (client.sin_addr), MAXBUF);
+					if(CleanAndResolve(resolved, target) != TRUE)
+					{
+						strncpy(resolved,target,MAXBUF);
+					}
+					/* hostname now in 'target' */
+					IP[client.sin_addr] = new string(resolved);
+					/* hostname in cache */
+				}
+				else
+				{
+					/* found ip (cached) */
+					strncpy(resolved, iter->second->c_str(), MAXBUF);
+					iscached = true;
+				}
+			
+				if (incomingSockfd < 0)
+				{
+					WriteOpers("*** WARNING: Accept failed on port %d (%s)", ports[count],target);
+					log(DEBUG,"InspIRCd: accept failed: %d",ports[count]);
+					break;
+				}
+				AddClient(incomingSockfd, resolved, ports[count], iscached);
+				log(DEBUG,"InspIRCd: adding client on port %d fd=%d",ports[count],incomingSockfd);
+				break;
+			}
+		}
+	}
+}
+/* not reached */
+close (incomingSockfd);
 }
 

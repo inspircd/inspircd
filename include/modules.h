@@ -410,14 +410,14 @@ class Server : public classbase
 	 * On success, the return value is a valid pointer to a chanrec* of the channel the user was joined to.
 	 * On failure, the result is NULL.
 	 */
-	virtual chanrec* Server::JoinUserToChannel(userrec* user, std::string cname, std::string key);
+	virtual chanrec* JoinUserToChannel(userrec* user, std::string cname, std::string key);
 	
 	/** Forces a user to part a channel.
 	 * This is similar to svspart and can be used to implement redirection, etc.
 	 * Although the return value of this function is a pointer to a channel record, the returned data is
 	 * undefined and should not be read or written to. This behaviour may be changed in a future version.
 	 */
-	virtual chanrec* Server::PartUserFromChannel(userrec* user, std::string cname, std::string reason);
+	virtual chanrec* PartUserFromChannel(userrec* user, std::string cname, std::string reason);
 	
 	/** Forces a user nickchange.
 	 * This command works similarly to SVSNICK, and can be used to implement Q-lines etc.
@@ -499,28 +499,34 @@ class FileReader : public classbase
 	  * after constructing the class this way.
 	  */
 	 FileReader();
+
 	 /** Secondary constructor.
 	  * This method initialises the class with a file loaded into it ready for GetLine and
 	  * and other methods to be called. If the file could not be loaded, FileReader::FileSize
 	  * returns 0.
 	  */
 	 FileReader(std::string filename);
+
 	 /** Default destructor.
 	  * This deletes the memory allocated to the file.
 	  */
 	 ~FileReader();
+
 	 /** Used to load a file.
 	  * This method loads a file into the class ready for GetLine and
 	  * and other methods to be called. If the file could not be loaded, FileReader::FileSize
 	  * returns 0.
 	  */
 	 void LoadFile(std::string filename);
+
+	 bool Exists();
+	 
 	 /** Retrieve one line from the file.
 	  * This method retrieves one line from the text file. If an empty non-NULL string is returned,
 	  * the index was out of bounds, or the line had no data on it.
 	  */
-	 bool Exists();
 	 std::string GetLine(int x);
+
 	 /** Returns the size of the file in lines.
 	  * This method returns the number of lines in the read file. If it is 0, no lines have been
 	  * read into memory, either because the file is empty or it does not exist, or cannot be
