@@ -2204,7 +2204,7 @@ int take_ban(userrec *user,char *dest,chanrec *chan,int status)
 	return 0;
 }
 
-void process_modes(char **parameters,userrec* user,chanrec *chan,int status, int pcnt, bool servermode, bool silent)
+void process_modes(char **parameters,userrec* user,chanrec *chan,int status, int pcnt, bool servermode, bool silent, bool local)
 {
 	if (!parameters) {
 		log(DEFAULT,"*** BUG *** process_modes was given an invalid parameter");
@@ -2587,49 +2587,57 @@ void process_modes(char **parameters,userrec* user,chanrec *chan,int status, int
 			strcat(outstr," ");
 			strcat(outstr,outpars[ptr]);
 		}
-		if (servermode)
+		if (local)
 		{
-			if (!silent)
+			log(DEBUG,"Local mode change");
+			WriteChannelLocal(chan, user, "MODE %s",outstr);
+		}
+		else
+		{
+			if (servermode)
 			{
-				WriteChannelWithServ(ServerName,chan,user,"MODE %s %s",chan->name,outstr);
-				// M token for a usermode must go to all servers
-				char buffer[MAXBUF];
-				snprintf(buffer,MAXBUF,"M %s %s",ServerName,chan->name, outstr);
-				for (int j = 0; j < 255; j++)
+				if (!silent)
 				{
-					if (servers[j] != NULL)
+					WriteChannelWithServ(ServerName,chan,user,"MODE %s %s",chan->name,outstr);
+					// M token for a usermode must go to all servers
+					char buffer[MAXBUF];
+					snprintf(buffer,MAXBUF,"M %s %s",ServerName,chan->name, outstr);
+					for (int j = 0; j < 255; j++)
 					{
-						if (strcmp(servers[j]->name,ServerName))
+						if (servers[j] != NULL)
 						{
-							if (ChanAnyOnThisServer(chan,servers[j]->name))
+							if (strcmp(servers[j]->name,ServerName))
 							{
-								me[defaultRoute]->SendPacket(buffer,servers[j]->internal_addr,servers[j]->internal_port,MyKey);
-								log(DEBUG,"Sent M token");
+								if (ChanAnyOnThisServer(chan,servers[j]->name))
+								{
+									me[defaultRoute]->SendPacket(buffer,servers[j]->internal_addr,servers[j]->internal_port,MyKey);
+									log(DEBUG,"Sent M token");
+								}
 							}
 						}
 					}
 				}
+					
 			}
-				
-		}
-		else
-		{
-			if (!silent)
+			else
 			{
-				WriteChannel(chan,user,"MODE %s %s",chan->name,outstr);
-				// M token for a usermode must go to all servers
-				char buffer[MAXBUF];
-				snprintf(buffer,MAXBUF,"m %s %s %s",user->nick,chan->name, outstr);
-				for (int j = 0; j < 255; j++)
+				if (!silent)
 				{
-					if (servers[j] != NULL)
+					WriteChannel(chan,user,"MODE %s %s",chan->name,outstr);
+					// M token for a usermode must go to all servers
+					char buffer[MAXBUF];
+					snprintf(buffer,MAXBUF,"m %s %s %s",user->nick,chan->name, outstr);
+					for (int j = 0; j < 255; j++)
 					{
-						if (strcmp(servers[j]->name,ServerName))
+						if (servers[j] != NULL)
 						{
-							if (ChanAnyOnThisServer(chan,servers[j]->name))
+							if (strcmp(servers[j]->name,ServerName))
 							{
-								me[defaultRoute]->SendPacket(buffer,servers[j]->internal_addr,servers[j]->internal_port,MyKey);
-								log(DEBUG,"Sent m token");
+								if (ChanAnyOnThisServer(chan,servers[j]->name))
+								{
+									me[defaultRoute]->SendPacket(buffer,servers[j]->internal_addr,servers[j]->internal_port,MyKey);
+									log(DEBUG,"Sent m token");
+								}
 							}
 						}
 					}
@@ -2972,7 +2980,7 @@ void handle_mode(char **parameters, int pcnt, userrec *user)
 			return;
 		}
 
-		process_modes(parameters,user,Ptr,cstatus(user,Ptr),pcnt,false,false);
+		process_modes(parameters,user,Ptr,cstatus(user,Ptr),pcnt,false,false,false);
 	}
 	else
 	{
@@ -3169,7 +3177,7 @@ void server_mode(char **parameters, int pcnt, userrec *user)
 	Ptr = FindChan(parameters[0]);
 	if (Ptr)
 	{
-		process_modes(parameters,user,Ptr,STATUS_OP,pcnt,true,false);
+		process_modes(parameters,user,Ptr,STATUS_OP,pcnt,true,false,false);
 	}
 	else
 	{
@@ -3352,7 +3360,7 @@ void merge_mode(char **parameters, int pcnt)
 		strncpy(s2.nick,ServerName,NICKMAX);
 		strcpy(s2.modes,"o");
 		s2.fd = -1;
-		process_modes(parameters,&s2,Ptr,STATUS_OP,pcnt,true,true);
+		process_modes(parameters,&s2,Ptr,STATUS_OP,pcnt,true,true,false);
 	}
 }
 
@@ -3510,6 +3518,8 @@ void merge_mode2(char **parameters, int pcnt, userrec* user)
 			if ((!strcmp(b,"+")) || (!strcmp(b,"-")))
 				return;
 
+			WriteTo(user,dest,"MODE :%s",b);
+
 			if (strlen(dmodes)>MAXMODES)
 			{
 				dmodes[MAXMODES-1] = '\0';
@@ -3531,7 +3541,7 @@ void merge_mode2(char **parameters, int pcnt, userrec* user)
 			return;
 		}
 
-		process_modes(parameters,user,Ptr,cstatus(user,Ptr),pcnt,false,true);
+		process_modes(parameters,user,Ptr,cstatus(user,Ptr),pcnt,false,true,true);
 	}
 }
 
@@ -6041,16 +6051,6 @@ void handle_m(char token,char* params,serverrec* source,serverrec* reply, char* 
 		
 		log(DEBUG,"Calling merge_mode2");
 		merge_mode2(pars,--index,user);
-		if (FindChan(pars[0]))
-		{
-			log(DEBUG,"Target is channel");
-			WriteChannelLocal(FindChan(pars[0]), user, "MODE %s",o);
-		}
-		if (Find(pars[0]))
-		{
-			log(DEBUG,"Target is nick");
-			WriteTo(user,Find(pars[0]),"MODE %s",o);
-		}
 	}
 }
 
