@@ -5474,7 +5474,7 @@ void DoSync(serverrec* serv, char* udp_host,int udp_port, long MyKey)
 
 void handle_P(char token,char* params,serverrec* source,serverrec* reply, char* udp_host,int udp_port)
 {
-	char* src = strtok(NULL," ");
+	char* src = strtok(params," ");
 	char* dest = strtok(NULL," :");
 	char* text = strtok(NULL,"\r\n");
 	text++;
