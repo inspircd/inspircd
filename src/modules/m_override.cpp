@@ -64,7 +64,9 @@ class ModuleOverride : public Module
 		{
 			if ((Srv) && (source) && (channel))
 			{
-				if ((Srv->ChanMode(source,channel) != "%") && (Srv->ChanMode(source,channel) != "@"))
+				// Fix by brain - allow the change if they arent on channel - rely on boolean short-circuit
+				// to not check the other items in the statement if they arent on the channel
+				if ((!Srv->IsOnChannel(source,channel)) || ((Srv->ChanMode(source,channel) != "%") && (Srv->ChanMode(source,channel) != "@")))
 				{
 					switch (access_type)
 					{
