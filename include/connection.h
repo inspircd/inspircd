@@ -48,12 +48,6 @@ class ircd_connector : public classbase
 	 */
 	std::string description;
 	
-	/** Server names of servers that this server is linked to
-	 * So for A->B->C, if this was the record for B it would contain A and C
-	 * whilever both servers are connected to B.
-	 */
-	std::vector<std::string> routes;
-	
 	/** State. STATE_NOAUTH_INBOUND, STATE_NOAUTH_OUTBOUND
 	 * STATE_SYNC, STATE_DISCONNECTED, STATE_CONNECTED
 	 */
@@ -64,6 +58,12 @@ class ircd_connector : public classbase
  public:
 	char host[MAXBUF];
 	int port;
+	
+	/** Server names of servers that this server is linked to
+	 * So for A->B->C, if this was the record for B it would contain A and C
+	 * whilever both servers are connected to B.
+	 */
+	std::vector<std::string> routes;
 	
  
 	bool MakeOutboundConnection(char* host, int port);
@@ -78,6 +78,7 @@ class ircd_connector : public classbase
 	void SetDescription(std::string desc);
 	int GetServerPort();
 	bool SetHostAndPort(char* host, int port);
+	void CloseConnection();
 };
 
 

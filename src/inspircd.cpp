@@ -2819,7 +2819,6 @@ bool process_module_umode(char umode, userrec* source, void* dest, bool adding)
 	}
 	else
 	{
-		log(DEBUG,"*** BUG *** Non-module umode passed to process_module_umode!");
 		if (faked)
 		{
 			delete s2;
@@ -5450,7 +5449,7 @@ void handle_oper(char **parameters, int pcnt, userrec *user)
 				{
 					/* found this oper's opertype */
 					ConfValue("type","host",j,Hostname,&config_f);
-					strncpy(user->dhost,Hostname,256);
+					ChangeDisplayedHost(user,Hostname);
 				}
 			}
 			if (!strchr(user->modes,'o'))
@@ -6401,6 +6400,13 @@ void handle_plus(char token,char* params,serverrec* source,serverrec* reply, cha
 	log(DEBUG," ");
 }
 
+void handle_R(char token,char* params,serverrec* source,serverrec* reply, char* udp_host)
+{
+	char* server = strtok(params," ");
+	char* data = strtok(NULL,"\r\n");
+	log(DEBUG,"Forwarded packet '%s' to '%s'",data,server);
+	NetSendToOne(server,data);
+}
 
 void handle_J(char token,char* params,serverrec* source,serverrec* reply, char* udp_host)
 {
@@ -6489,6 +6495,12 @@ void process_restricted_commands(char token,char* params,serverrec* source,serve
 		// connect back to a server using an authcookie
 		case '+':
 			handle_plus(token,params,source,reply,udp_host);
+		break;
+		// R <server> <data>
+		// redirect token, send all of <data> along to the given 
+		// server as this server has been found to still have a route to it
+		case 'R':
+			handle_R(token,params,source,reply,udp_host);
 		break;
 		// ?
   		// ping
@@ -7004,7 +7016,7 @@ int InspIRCd(void)
 
 		// *FIX* Instead of closing sockets in kill_link when they receive the ERROR :blah line, we should queue
 		// them in a list, then reap the list every second or so.
-		if (reap_counter>5000)
+		if (reap_counter>2500)
   		{
 			if (fd_reap.size() > 0)
    			{
@@ -7018,6 +7030,7 @@ int InspIRCd(void)
 			fd_reap.clear();
 			reap_counter=0;
 		}
+		reap_counter++;
 
 		fd_set serverfds;
 		FD_ZERO(&serverfds);
@@ -7067,7 +7080,7 @@ int InspIRCd(void)
 					char udp_msg[MAXBUF];
 					strncpy(udp_msg,msgs[ctr].c_str(),MAXBUF);
 					if (strlen(udp_msg)<1)
-     					{
+    						{
 						log(DEBUG,"Invalid string from %s [route%d]",udp_host,x);
 						break;
 					}
@@ -7262,7 +7275,6 @@ int InspIRCd(void)
 		FD_SET (openSockfd[count], &selectFds);
 	}
 
-	reap_counter++;
 	tv.tv_usec = 1;
 	selectResult = select(MAXSOCKS, &selectFds, NULL, NULL, &tv);
 

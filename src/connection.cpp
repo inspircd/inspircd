@@ -17,7 +17,6 @@ extern std::vector<ircd_module*> factory;
 
 extern int MODCOUNT;
 
-
 packet::packet()
 {
 	srand(time(NULL));
@@ -207,6 +206,7 @@ bool connection::MeshCookie(char* targethost, int port, long cookie, char* serve
 			sprintf(connect,"- %d %s :%s",cookie,getservername().c_str(),getserverdesc().c_str());
 			connector.SetState(STATE_NOAUTH_OUTBOUND);
 			connector.SetHostAndPort(targethost, port);
+			connector.SetState(STATE_CONNECTED);
 			this->connectors.push_back(connector);
 			return this->SendPacket(connect, servername);
 		}
@@ -236,6 +236,7 @@ bool connection::AddIncoming(int fd, char* targethost, int sourceport)
 	setsockopt(fd,SOL_SOCKET,SO_SNDBUF,(const void *)&sendbuf,sizeof(sendbuf)); 
 	setsockopt(fd,SOL_SOCKET,SO_RCVBUF,(const void *)&recvbuf,sizeof(sendbuf));
 	connector.SetHostAndPort(targethost, sourceport);
+	connector.SetState(STATE_NOAUTH_INBOUND);
 	log(DEBUG,"connection::AddIncoming() Added connection: %s:%d",targethost,sourceport);
 	this->connectors.push_back(connector);
 	return true;
@@ -299,6 +300,15 @@ void ircd_connector::SetState(int state)
 	this->state = state;
 }
 
+void ircd_connector::CloseConnection()
+{
+	int flags = fcntl(this->fd, F_GETFL, 0);
+	fcntl(this->fd, F_SETFL, flags ^ O_NONBLOCK);
+	close(this->fd);
+	flags = fcntl(this->fd, F_GETFL, 0);
+	fcntl(this->fd, F_SETFL, flags | O_NONBLOCK);
+}
+
 void ircd_connector::SetDescriptor(int fd)
 {
 	this->fd = fd;
@@ -307,16 +317,42 @@ void ircd_connector::SetDescriptor(int fd)
 bool connection::SendPacket(char *message, const char* host)
 {
 	ircd_connector* cn = this->FindHost(host);
-	
+	strncat(message,"\n",MAXBUF);
+
 	if (cn)
 	{
 		log(DEBUG,"main: Connection::SendPacket() sent '%s' to %s",message,cn->GetServerName().c_str());
+		
+		if (cn->GetState() == STATE_DISCONNECTED)
+		{
+			log(DEBUG,"Main route to %s is down, seeking alternative",host);
+			// this route is down, we must re-route the packet through an available point in the mesh.
+			for (int k = 0; k < this->connectors.size(); k++)
+			{
+				// search for another point in the mesh which can 'reach' where we want to go
+				for (int m = 0; m < this->connectors[k].routes.size(); m++)
+				{
+					if (!strcasecmp(this->connectors[k].routes[m].c_str(),host))
+					{
+						log(DEBUG,"Found alternative route for packet: %s",this->connectors[k].GetServerName().c_str());
+						char buffer[MAXBUF];
+						snprintf(buffer,MAXBUF,"R %s %s",host,message);
+						this->SendPacket(buffer,this->connectors[k].GetServerName().c_str());
+						return true;
+					}
+				}
+			}
+			log(DEBUG,"ERROR: Main route to %s is down and there are no possible routes to this server!",host);
+			return false;
+		}
 
-		strncat(message,"\n",MAXBUF);
 		// returns false if the packet could not be sent (e.g. target host down)
 		if (send(cn->GetDescriptor(),message,strlen(message),0)<0)
 		{
 			log(DEBUG,"send() failed for Connection::SendPacket(): %s",strerror(errno));
+			log(DEBUG,"Disabling connector: %s",cn->GetServerName().c_str());
+			cn->CloseConnection();
+			cn->SetState(STATE_DISCONNECTED);
 			return false;
 		}
 		return true;
@@ -332,10 +368,21 @@ bool connection::RecvPacket(std::deque<std::string> &messages, char* host)
 	memset(data, 0, 32767);
 	for (int i = 0; i < this->connectors.size(); i++)
 	{
-		// returns false if the packet could not be sent (e.g. target host down)
-		int rcvsize = 0;
-		if (rcvsize = recv(this->connectors[i].GetDescriptor(),data,32767,0))
+		if (this->connectors[i].GetState() != STATE_DISCONNECTED)
 		{
+			// returns false if the packet could not be sent (e.g. target host down)
+			int rcvsize = 0;
+			rcvsize = recv(this->connectors[i].GetDescriptor(),data,32767,0);
+			if (rcvsize == -1)
+			{
+				if (errno != EAGAIN)
+				{
+					log(DEBUG,"recv() failed for Connection::RecvPacket(): %s",strerror(errno));
+					log(DEBUG,"Disabling connector: %s",this->connectors[i].GetServerName().c_str());
+					this->connectors[i].CloseConnection();
+					this->connectors[i].SetState(STATE_DISCONNECTED);
+				}
+			}
 			if (rcvsize > 0)
 			{
 				char* l = strtok(data,"\n");
