@@ -1277,26 +1277,30 @@ void handle_mode(char **parameters, int pcnt, userrec *user)
 			}
 		}
 
-		int MOD_RESULT = 0;
-		FOREACH_RESULT(OnAccessCheck(user,NULL,Ptr,AC_GENERAL_MODE));
-		
-		if (MOD_RESULT == ACR_DENY)
-			return;
-		if (MOD_RESULT == ACR_DEFAULT)
-		{
-			if ((cstatus(user,Ptr) < STATUS_HOP) && (Ptr))
-			{
-				WriteServ(user->fd,"482 %s %s :You must be at least a half-operator to change modes on this channel",user->nick, Ptr->name);
-				return;
-			}
-		}
                 if ((Ptr) && (!has_channel(user,Ptr)))
                 {
                         WriteServ(user->fd,"442 %s %s :You're not on that channel!",user->nick, Ptr->name);
                         return;
                 }
 
-		process_modes(parameters,user,Ptr,cstatus(user,Ptr),pcnt,false,false,false);
+		if (Ptr)
+		{
+			int MOD_RESULT = 0;
+			FOREACH_RESULT(OnAccessCheck(user,NULL,Ptr,AC_GENERAL_MODE));
+			
+			if (MOD_RESULT == ACR_DENY)
+				return;
+			if (MOD_RESULT == ACR_DEFAULT)
+			{
+				if (cstatus(user,Ptr) < STATUS_HOP)
+				{
+					WriteServ(user->fd,"482 %s %s :You must be at least a half-operator to change modes on this channel",user->nick, Ptr->name);
+					return;
+				}
+			}
+
+			process_modes(parameters,user,Ptr,cstatus(user,Ptr),pcnt,false,false,false);
+		}
 	}
 	else
 	{
