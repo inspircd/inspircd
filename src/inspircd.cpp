@@ -2986,6 +2986,11 @@ int loop_call(handlerfunc fn, char **parameters, int pcnt, userrec *u, int start
 			plist[i] = '\0';
 			strcpy(blog[j++],param);
 			param = plist+i+1;
+			if (j>20)
+			{
+				WriteServ(user->fd,"407 %s :Too many targets in list, message not delivered.",blog[j-1]);
+				return 1;
+			}
 		}
 	}
 	strcpy(blog[j++],param);
