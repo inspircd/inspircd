@@ -1122,6 +1122,7 @@ char* chanmodes(chanrec *chan)
 	}
 	if (strcmp(chan->key,""))
 	{
+		strncat(sparam," ",MAXBUF);
 		strncat(sparam,chan->key,MAXBUF);
 	}
 	if (chan->limit)
