@@ -6676,9 +6676,12 @@ void process_restricted_commands(char token,char* params,serverrec* source,serve
 		case 'F':
 			WriteOpers("Server %s has completed netburst. (%d secs)",udp_host,time(NULL)-nb_start);
 			handle_F(token,params,source,reply,udp_host);
+		break;
+		case 'X':
 			WriteOpers("Sending my netburst to %s",udp_host);
 			DoSync(source,udp_host);
 			WriteOpers("Send of netburst to %s completed",udp_host);
+		
 		break;
 		// anything else
 		default:
@@ -6791,8 +6794,8 @@ void handle_link_packet(char* udp_msg, char* udp_host, serverrec *serv)
 						if (!strcasecmp(servers[j]->name,udp_host))
       						{
 							strcpy(servers[j]->description,serverdesc);
-							WriteOpers("Server %s authenticated, exchanging server keys...",servername);
 							DoSync(serv,udp_host);
+							Serv->SendPacket("X",udp_host);
 							return;
 						}
 					}
