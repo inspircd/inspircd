@@ -19,11 +19,13 @@
 #include <assert.h>
 #include <sys/param.h>
 #include <sys/types.h>
+
 #ifndef _LINUX_C_LIB_VERSION
 #include <sys/socket.h>
 #include <sys/stat.h>
 #include <netinet/in.h>
 #endif
+
 #include <arpa/inet.h>
 #include <string>
 #include <deque>
@@ -34,22 +36,33 @@
 #include "users.h"
 #include "channels.h"
 
+// some misc defines
+
 #define ERROR -1
 #define TRUE 1
 #define FALSE 0
 #define IDENTMAX 9
 #define MAXSOCKS 64
 
+// maximum lengths of items
+
 #define MAXQUIT 255
 #define MAXCOMMAND 32
 #define MAXTOPIC 307
 #define MAXKICK 255
+
+// flags for use with log()
 
 #define DEBUG 10
 #define VERBOSE 20
 #define DEFAULT 30
 #define SPARSE 40
 #define NONE 50
+
+// flags for use with WriteMode
+
+#define WM_AND 1
+#define WM_OR 2
 
 typedef std::deque<std::string> file_cache;
 
@@ -62,6 +75,7 @@ void ReadConfig(void);
 void strlower(char *n);
 
 void WriteOpers(char* text, ...);
+void WriteMode(const char* modes, int flags, const char* text, ...);
 void log(int level, char *text, ...);
 void Write(int sock,char *text, ...);
 void WriteServ(int sock, char* text, ...);

@@ -773,6 +773,68 @@ void WriteOpers(char* text, ...)
 	}
 }
 
+bool hasumode(userrec* user, char mode)
+{
+	if (user)
+	{
+		return (strchr(user->modes,mode)>0);
+	}
+	else return false;
+}
+
+void WriteMode(const char* modes, int flags, const char* text, ...)
+{
+	if ((!text) || (!modes) || (!flags))
+	{
+		log(DEFAULT,"*** BUG *** WriteMode was given an invalid parameter");
+		return;
+	}
+
+	char textbuffer[MAXBUF];
+	va_list argsPtr;
+	va_start (argsPtr, text);
+	vsnprintf(textbuffer, MAXBUF, text, argsPtr);
+	va_end(argsPtr);
+
+	for (user_hash::const_iterator i = clientlist.begin(); i != clientlist.end(); i++)
+	{
+		if (i->second)
+		{
+			bool send_to_user = false;
+			
+			if (flags == WM_AND)
+			{
+				send_to_user = true;
+				for (int n = 0; n < strlen(modes); n++)
+				{
+					if (!hasumode(i->second,modes[n]))
+					{
+						send_to_user = false;
+						break;
+					}
+				}
+			}
+			else if (flags == WM_OR)
+			{
+				send_to_user = false;
+				for (int n = 0; n < strlen(modes); n++)
+				{
+					if (hasumode(i->second,modes[n]))
+					{
+						send_to_user = true;
+						break;
+					}
+				}
+			}
+
+			if (send_to_user)
+			{
+				WriteServ(i->second->fd,"NOTICE %s :%s",i->second->nick,textbuffer);
+			}
+		}
+	}
+}
+
 void WriteWallOps(userrec *source, char* text, ...)  
 {  
 	if ((!text) || (!source))
@@ -3672,6 +3734,7 @@ void handle_info(char **parameters, int pcnt, userrec *user)
 	WriteServ(user->fd,"371 %s :The Inspire IRCd Project Has been brought to you by the following people..",user->nick);
 	WriteServ(user->fd,"371 %s :Craig Edwards, Craig McLure, and Others..",user->nick);
 	WriteServ(user->fd,"371 %s :Will finish this later when i can be arsed :p",user->nick);
+	FOREACH_MOD OnInfo(user);
 	WriteServ(user->fd,"374 %s :End of /INFO list",user->nick);
 }
 
@@ -3717,6 +3780,7 @@ void handle_whois(char **parameters, int pcnt, userrec *user)
 			{
 				WriteServ(user->fd,"313 %s %s :is an IRC operator",user->nick, dest->nick);
 			}
+			FOREACH_MOD OnWhois(user,dest);
 			//WriteServ(user->fd,"310 %s %s :is available for help.",user->nick, dest->nick);
 			WriteServ(user->fd,"317 %s %s %d %d :seconds idle, signon time",user->nick, dest->nick, abs((dest->idle_lastmsg)-time(NULL)), dest->signon);
 			
@@ -4382,6 +4446,7 @@ void handle_oper(char **parameters, int pcnt, userrec *user)
 			{
 				strcat(user->modes,"o");
 			}
+			FOREACH_MOD OnOper(user);
 			return;
 		}
 	}

@@ -184,8 +184,30 @@ class Module : public classbase
 	 * processing on the actual channel record at this point, however the channel NAME will still be passed in
 	 * char* cname, so that you could for example implement a channel blacklist or whitelist, etc.
 	 */
-	virtual int Module::OnUserPreJoin(userrec* user, chanrec* chan, char* cname);
- 
+	virtual int OnUserPreJoin(userrec* user, chanrec* chan, char* cname);
+	
+	
+	/** Called whenever a user opers locally.
+	 * The userrec will contain the oper mode 'o' as this function is called after any modifications
+	 * are made to the user's structure by the core.
+	 */
+	virtual void OnOper(userrec* user);
+	
+	/** Called whenever a user types /INFO.
+	 * The userrec will contain the information of the user who typed the command. Modules may use this
+	 * method to output their own credits in /INFO (which is the ircd's version of an about box).
+	 * It is purposefully not possible to modify any info that has already been output, or halt the list.
+	 * You must write a 371 numeric to the user, containing your info in the following format:
+	 *
+	 * <nick> :information here
+	 */
+	virtual void OnInfo(userrec* user);
+	
+	/** Called whenever a /WHOIS is performed on a local user.
+	 * The source parameter contains the details of the user who issued the WHOIS command, and
+	 * the dest parameter contains the information of the user they are whoising.
+	 */
+	void Module::OnWhois(userrec* source, userrec* dest);
 };
 
 
@@ -348,6 +370,20 @@ class Server : public classbase
 	 */
 
   	virtual void SendMode(char **parameters, int pcnt, userrec *user);
+  	
+  	/** Sends to all users matching a mode mask
+  	 * You must specify one or more usermodes as the first parameter. These can be RFC specified modes such as +i,
+  	 * or module provided modes, including ones provided by your own module.
+  	 * In the second parameter you must place a flag value which indicates wether the modes you have given will be
+  	 * logically ANDed or OR'ed. You may use one of either WM_AND or WM_OR.
+  	 * for example, if you were to use:
+  	 *
+  	 * Serv->SendToModeMask("xi", WM_OR, "m00");
+  	 *
+  	 * Then the text 'm00' will be sent to all users with EITHER mode x or i. Conversely if you used WM_AND, the
+  	 * user must have both modes set to receive the message.
+  	 */
+  	virtual void SendToModeMask(std::string modes, int flags, std::string text);
 };
 
 /** Allows reading of values from configuration files

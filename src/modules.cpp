@@ -117,6 +117,9 @@ void Module::OnServerRaw(std::string &raw, bool inbound) { }
 int Module::OnUserPreJoin(userrec* user, chanrec* chan, char* cname) { return 0; }
 bool Module::OnExtendedMode(userrec* user, void* target, char modechar, int type, bool mode_on, string_list &params) { }
 Version Module::GetVersion() { return Version(1,0,0,0); }
+void Module::OnOper(userrec* user) { };
+void Module::OnInfo(userrec* user) { };
+void Module::OnWhois(userrec* source, userrec* dest) { };
 
 // server is a wrapper class that provides methods to all of the C-style
 // exports in the core
@@ -133,6 +136,11 @@ Server::~Server()
 void Server::SendOpers(std::string s)
 {
 	WriteOpers("%s",s.c_str());
+}
+
+void Server::SendToModeMask(std::string modes, int flags, std::string text)
+{
+	WriteMode(modes.c_str(),flags,"%s",text.c_str());
 }
 
 void Server::Log(int level, std::string s)
