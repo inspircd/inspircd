@@ -229,7 +229,9 @@ public:
 			}
 			else
 			{
-				usr->dns_done = true;
+				usr = Find(u);
+				if (usr)
+					usr->dns_done = true;
 				return true;
 			}
 		}
@@ -240,9 +242,7 @@ public:
 	{
 		userrec* usr = Find(u);
 		if (usr)
-		{
 			return usr->fd;
-		}
 		else return 0;
 	}
 };
@@ -283,7 +283,6 @@ void dns_poll()
 				dnsq[j].Reset();
 			}
 		}
-		else dnsq[j].Reset();
 	}
 }
 
