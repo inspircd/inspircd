@@ -5351,18 +5351,23 @@ void DoSync(serverrec* serv, char* udp_host,int udp_port, long MyKey)
 void handle_T(char token,char* params,serverrec* source,serverrec* reply, char* udp_host,int udp_port)
 {
 	char* tm = strtok(params," ");
-	char* setnick = strtok(NULL," ");
+	char* setby = strtok(NULL," ");
 	char* channel = strtok(NULL," :");
 	char* topic = strtok(NULL,"\r\n");
 	topic++;
 	time_t TS = atoi(tm);
 	chanrec* c = FindChan(channel);
+	log(DEBUG,"time='%d' setby='%s' channel='%s' topic='%s'",TS,setby,channel,topic);
 	if (c)
 	{
+		log(DEBUG,"channel found");
+		// in the case of topics and TS, the *NEWER* 
 		if (TS <= c->age)
 		{
+			log(DEBUG,"channel TS higher, replacing");
 			WriteChannelLocal(c,NULL,"TOPIC %s :%s",c->name,topic);
 			strncpy(c->topic,topic,MAXTOPIC);
+			strncpy(c->setby,setnick,NICKMAX);
 		}
  	}	
 }
@@ -5439,7 +5444,8 @@ void handle_N(char token,char* params,serverrec* source,serverrec* reply, char* 
 void handle_F(char token,char* params,serverrec* source,serverrec* reply, char* udp_host,int udp_port)
 {
 	long tdiff = time(NULL) - atoi(params);
-	WriteOpers("TS split for %s -> %s: %d",source->name,reply->name,tdiff);
+	if (tdiff)
+		WriteOpers("TS split for %s -> %s: %d",source->name,reply->name,tdiff);
 }
 
 void handle_J(char token,char* params,serverrec* source,serverrec* reply, char* udp_host,int udp_port)
