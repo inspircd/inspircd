@@ -6705,6 +6705,14 @@ void handle_link_packet(char* udp_msg, char* udp_host, serverrec *serv)
 		char* serverdesc = finalparam+2;
 		WriteOpers("CONNECT from %s (%s)",servername,udp_host);
 		
+		for (int j = 0; j < serv->connectors.size(); j++)
+		{
+			if (!strcasecmp(serv->connectors[j].GetServerName().c_str(),udp_host))
+			{
+				serv->connectors[j].SetServerName(servername);
+			}
+		}
+		
 		
 		char Link_ServerName[1024];
 		char Link_IPAddr[1024];
