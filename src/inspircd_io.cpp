@@ -62,7 +62,7 @@ void Start (void)
 {
   printf("\033[1;37mInspire Internet Relay Chat Server, compiled " __DATE__ " at " __TIME__ "\n");
   printf("(C) ChatSpike Development team.\033[0;37m\n\n");
-  printf("\033[1;37mDevelopers:\033[0;37m     Brain, FrostyCoolSlug, RD\n");
+  printf("\033[1;37mDevelopers:\033[0;37m     Brain, FrostyCoolSlug\n");
   printf("\033[1;37mDocumentation:\033[0;37m  FrostyCoolSlug, w00t\n");
   printf("\033[1;37mTesters:\033[0;37m        typobox43, piggles, Lord_Zathras, CC\n");
   printf("\033[1;37mName concept:\033[0;37m   Lord_Zathras\n\n");
@@ -400,7 +400,7 @@ int ReadConf(std::stringstream *config, const char* tag, const char* var, int in
 									key[j] = '\0';
 								}
 							}
-							strcpy(result,key);
+							strlcpy(result,key,MAXBUF);
 							return 1;
 						}
 					}

@@ -1186,7 +1186,7 @@ void handle_mode(char **parameters, int pcnt, userrec *user)
 									{
 										moo[0] = dmodes[q];
 										moo[1] = '\0';
-										strcat(temp,moo);
+										strlcat(temp,moo,MAXBUF);
 									}
 								}
 								strlcpy(dmodes,temp,MAXBUF);
@@ -1409,7 +1409,7 @@ void server_mode(char **parameters, int pcnt, userrec *user)
 									{
 										moo[0] = dmodes[q];
 										moo[1] = '\0';
-										strcat(temp,moo);
+										strlcat(temp,moo,MAXBUF);
 									}
 								}
 								strlcpy(dmodes,temp,MAXBUF);
@@ -1595,10 +1595,10 @@ void merge_mode(char **parameters, int pcnt)
 									{
 										moo[0] = dmodes[q];
 										moo[1] = '\0';
-										strcat(temp,moo);
+										strlcat(temp,moo,MAXBUF);
 									}
 								}
-								strcpy(dmodes,temp);
+								strlcpy(dmodes,temp,MAXBUF);
 							}
 						}
 					}
@@ -1773,7 +1773,7 @@ void merge_mode2(char **parameters, int pcnt, userrec* user)
 									{
 										moo[0] = dmodes[q];
 										moo[1] = '\0';
-										strcat(temp,moo);
+										strlcat(temp,moo,MAXBUF);
 									}
 								}
 								strlcpy(dmodes,temp,MAXBUF);

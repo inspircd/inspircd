@@ -1049,14 +1049,14 @@ void handle_userhost(char **parameters, int pcnt, userrec *user)
 void handle_ison(char **parameters, int pcnt, userrec *user)
 {
 	char Return[MAXBUF];
-	sprintf(Return,"303 %s :",user->nick);
+	snprintf(Return,MAXBUF,"303 %s :",user->nick);
 	for (int i = 0; i < pcnt; i++)
 	{
 		userrec *u = Find(parameters[i]);
 		if (u)
 		{
-			strcat(Return,u->nick);
-			strcat(Return," ");
+			strlcat(Return,u->nick,MAXBUF);
+			strlcat(Return," ",MAXBUF);
 		}
 	}
 	WriteServ(user->fd,Return);
@@ -1093,7 +1093,7 @@ void handle_whowas(char **parameters, int pcnt, userrec* user)
 		char b[MAXBUF];
 		
 		timeinfo = localtime(&rawtime);
-		strcpy(b,asctime(timeinfo));
+		strlcpy(b,asctime(timeinfo),MAXBUF);
 		b[strlen(b)-1] = '\0';
 		
 		WriteServ(user->fd,"314 %s %s %s %s * :%s",user->nick,i->second->nick,i->second->ident,i->second->dhost,i->second->fullname);

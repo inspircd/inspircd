@@ -1728,7 +1728,7 @@ int loop_call(handlerfunc fn, char **parameters, int pcnt, userrec *u, int start
 	{
 		if (parameters[i])
 		{
-			strcat(plist,parameters[i]);
+			strlcat(plist,parameters[i],MAXBUF);
 		}
 	}
 	
