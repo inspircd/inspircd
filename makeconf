@@ -648,7 +648,7 @@ fi
 
 echo "#-#-#-#-#-#-#-#-#-#-#-#-#-  SERVER OPTIONS   -#-#-#-#-#-#-#-#-#-#-#-#-#" >> makeconf.temp
 echo "<options  prefixquit=\"$OP_PREFIX\"" >> makeconf.temp 
-echo "          debug=\"$OP_DEBUG\"" >> makeconf.temp
+echo "          loglevel=\"$OP_DEBUG\"" >> makeconf.temp
 echo "          allowhalfop=\"$OP_HALFY\"" >> makeconf.temp
 echo "          allowprotect=\"$OP_PROTE\"" >> makeconf.temp
 echo "          allowfounder=\"$OP_FOUND\">" >> makeconf.temp
