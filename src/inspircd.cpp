@@ -851,6 +851,44 @@ void WriteOpers(char* text, ...)
 	}
 }
 
+// returns TRUE of any users on channel C occupy server 'servername'.
+
+bool ChanAnyOnThisServer(chanrec *c,char* servername)
+{
+	log(DEBUG,"ChanAnyOnThisServer");
+	for (user_hash::iterator i = clientlist.begin(); i != clientlist.end(); i++)
+	{
+		if (has_channel(i->second,c))
+		{
+			if (!strcasecmp(i->second->server,servername))
+			{
+				return true;
+			}
+		}
+	}
+	return false;
+}
+
+// returns true if user 'u' shares any common channels with any users on server 'servername'
+
+bool CommonOnThisServer(userrec* u,char* servername)
+{
+	log(DEBUG,"ChanAnyOnThisServer");
+	for (user_hash::iterator i = clientlist.begin(); i != clientlist.end(); i++)
+	{
+		if ((common_channels(u,i->second)) && (u != i->second))
+		{
+			if (!strcasecmp(i->second->server,servername))
+			{
+				return true;
+			}
+		}
+	}
+	return false;
+}
+
+
+
 bool hasumode(userrec* user, char mode)
 {
 	if (user)
@@ -1555,6 +1593,24 @@ chanrec* add_channel(userrec *user, const char* cn, const char* key, bool overri
 			}
 			user->chans[i].channel = Ptr;
 			WriteChannel(Ptr,user,"JOIN :%s",Ptr->name);
+			
+			if (!override) // we're not overriding... so this isnt part of a netburst, broadcast it.
+			{
+				// use the stamdard J token with no privilages.
+				char buffer[MAXBUF];
+				snprintf(buffer,MAXBUF,"J %s :%s",user->nick,Ptr->name);
+				for (int j = 0; j < 255; j++)
+				{
+					if (servers[j] != NULL)
+					{
+						if (ChanAnyOnThisServer(Ptr,servers[j]->name))
+						{
+							me[defaultRoute]->SendPacket(buffer,servers[j]->internal_addr,servers[j]->internal_port,MyKey);
+							log(DEBUG,"Sent J token");
+						}
+					}
+				}
+			}
 
 			log(DEBUG,"Sent JOIN to client");
 
@@ -1613,9 +1669,39 @@ chanrec* del_channel(userrec *user, const char* cname, const char* reason)
 			if (reason)
 			{
 				WriteChannel(Ptr,user,"PART %s :%s",Ptr->name, reason);
+
+				char buffer[MAXBUF];
+				snprintf(buffer,MAXBUF,"L %s %s :%s",user->nick,Ptr->name,reason);
+				for (int j = 0; j < 255; j++)
+				{
+					if (servers[j] != NULL)
+					{
+						if (ChanAnyOnThisServer(Ptr,servers[j]->name))
+						{
+							me[defaultRoute]->SendPacket(buffer,servers[j]->internal_addr,servers[j]->internal_port,MyKey);
+							log(DEBUG,"Sent L token (with reason)");
+						}
+					}
+				}
+
+				
 			}
 			else
 			{
+				char buffer[MAXBUF];
+				snprintf(buffer,MAXBUF,"L %s %s :",user->nick,Ptr->name);
+				for (int j = 0; j < 255; j++)
+				{
+					if (servers[j] != NULL)
+					{
+						if (ChanAnyOnThisServer(Ptr,servers[j]->name))
+						{
+							me[defaultRoute]->SendPacket(buffer,servers[j]->internal_addr,servers[j]->internal_port,MyKey);
+							log(DEBUG,"Sent L token (no reason)");
+						}
+					}
+				}
+			
 				WriteChannel(Ptr,user,"PART :%s",Ptr->name);
 			}
 			user->chans[i].uc_modes = 0;
@@ -3481,6 +3567,20 @@ void kill_link(userrec *user,const char* r)
 	if (user->registered == 7) {
 		FOREACH_MOD OnUserQuit(user);
 		WriteCommonExcept(user,"QUIT :%s",reason);
+
+		char buffer[MAXBUF];
+		snprintf(buffer,MAXBUF,"Q %s :%s",user->nick,reason);
+		for (int j = 0; j < 255; j++)
+		{
+			if (servers[j] != NULL)
+			{
+				if (CommonOnThisServer(user,servers[j]->name))
+				{
+					me[defaultRoute]->SendPacket(buffer,servers[j]->internal_addr,servers[j]->internal_port,MyKey);
+					log(DEBUG,"Sent Q token");
+				}
+			}
+		}
 	}
 
 	/* push the socket on a stack of sockets due to be closed at the next opportunity
@@ -3942,24 +4042,6 @@ void handle_names(char **parameters, int pcnt, userrec *user)
 	}
 }
 
-// returns TRUE of any users on channel C occupy server 'servername'.
-
-bool ChanAnyOnThisServer(chanrec *c,char* servername)
-{
-	log(DEBUG,"ChanAnyOnThisServer");
-	for (user_hash::iterator i = clientlist.begin(); i != clientlist.end(); i++)
-	{
-		if (has_channel(i->second,c))
-		{
-			if (!strcasecmp(i->second->server,servername))
-			{
-				return true;
-			}
-		}
-	}
-	return false;
-}
-
 void handle_privmsg(char **parameters, int pcnt, userrec *user)
 {
 	userrec *dest;
@@ -4095,7 +4177,21 @@ void handle_notice(char **parameters, int pcnt, userrec *user)
 				return;
 			}
 
-			WriteChannel(chan, user, "NOTICE %s :%s", chan->name, parameters[1]);
+			ChanExceptSender(chan, user, "NOTICE %s :%s", chan->name, parameters[1]);
+
+			// if any users of this channel are on remote servers, broadcast the packet
+			char buffer[MAXBUF];
+			snprintf(buffer,MAXBUF,"O %s %s :%s",user->nick,chan->name,parameters[1]);
+			for (int j = 0; j < 255; j++)
+			{
+				if (servers[j] != NULL)
+				{
+					if (ChanAnyOnThisServer(chan,servers[j]->name))
+					{
+						me[defaultRoute]->SendPacket(buffer,servers[j]->internal_addr,servers[j]->internal_port,MyKey);
+					}
+				}
+			}
 		}
 		else
 		{
@@ -4115,7 +4211,27 @@ void handle_notice(char **parameters, int pcnt, userrec *user)
 			return;
 		}
 
-		WriteTo(user, dest, "NOTICE %s :%s", dest->nick, parameters[1]);
+		if (!strcmp(dest->server,user->server))
+		{
+			// direct write, same server
+			WriteTo(user, dest, "NOTICE %s :%s", dest->nick, parameters[1]);
+		}
+		else
+		{
+			for (int j = 0; j < 255; j++)
+			{
+				if (servers[j] != NULL)
+				{
+					if (!strcasecmp(servers[j]->name,dest->server))
+					{
+						// direct write, same server
+						char buffer[MAXBUF];
+						snprintf(buffer,MAXBUF,"O %s %s :%s",user->nick,dest->nick,parameters[1]);
+						me[defaultRoute]->SendPacket(buffer,servers[j]->internal_addr,servers[j]->internal_port,MyKey);
+					}
+				}
+			}
+		}
 	}
 	else
 	{
@@ -4257,12 +4373,40 @@ void handle_quit(char **parameters, int pcnt, userrec *user)
 			Write(user->fd,"ERROR :Closing link (%s@%s) [%s]",user->ident,user->host,parameters[0]);
 			WriteOpers("*** Client exiting: %s!%s@%s [%s]",user->nick,user->ident,user->host,parameters[0]);
 			WriteCommonExcept(user,"QUIT :%s%s",PrefixQuit,parameters[0]);
+
+			char buffer[MAXBUF];
+			snprintf(buffer,MAXBUF,"Q %s :%s%s",user->nick,PrefixQuit,parameters[0]);
+			for (int j = 0; j < 255; j++)
+			{
+				if (servers[j] != NULL)
+				{
+					if (CommonOnThisServer(user,servers[j]->name))
+					{
+						me[defaultRoute]->SendPacket(buffer,servers[j]->internal_addr,servers[j]->internal_port,MyKey);
+						log(DEBUG,"Sent Q token");
+					}
+					}
+			}
 		}
 		else
 		{
 			Write(user->fd,"ERROR :Closing link (%s@%s) [QUIT]",user->ident,user->host);
 			WriteOpers("*** Client exiting: %s!%s@%s [Client exited]",user->nick,user->ident,user->host);
 			WriteCommonExcept(user,"QUIT :Client exited");
+
+			char buffer[MAXBUF];
+			snprintf(buffer,MAXBUF,"Q %s :Client exited",user->nick);
+			for (int j = 0; j < 255; j++)
+			{
+				if (servers[j] != NULL)
+				{
+					if (CommonOnThisServer(user,servers[j]->name))
+					{
+						me[defaultRoute]->SendPacket(buffer,servers[j]->internal_addr,servers[j]->internal_port,MyKey);
+						log(DEBUG,"Sent Q token");
+					}
+					}
+			}
 		}
 		FOREACH_MOD OnUserQuit(user);
 		AddWhoWas(user);
@@ -5472,6 +5616,36 @@ void DoSync(serverrec* serv, char* udp_host,int udp_port, long MyKey)
 	serv->SendPacket(data,udp_host,udp_port,MyKey);
 }
 
+
+void handle_O(char token,char* params,serverrec* source,serverrec* reply, char* udp_host,int udp_port)
+{
+	char* src = strtok(params," ");
+	char* dest = strtok(NULL," :");
+	char* text = strtok(NULL,"\r\n");
+	text++;
+	
+	userrec* user = Find(src);
+	if (user)
+	{
+		userrec* dst = Find(dest);
+		
+		if (dst)
+		{
+			WriteTo(user, dst, "NOTICE %s :%s", dst->nick, text);
+		}
+		else
+		{
+			chanrec* d = FindChan(dest);
+			if (d)
+			{
+				ChanExceptSender(d, user, "NOTICE %s :%s", d->name, text);
+			}
+		}
+	}
+	
+}
+
+
 void handle_P(char token,char* params,serverrec* source,serverrec* reply, char* udp_host,int udp_port)
 {
 	char* src = strtok(params," ");
@@ -5689,6 +5863,11 @@ void process_restricted_commands(char token,char* params,serverrec* source,serve
 		// Send a private/channel message
 		case 'P':
 			handle_P(token,params,source,reply,udp_host,udp_port);
+		break;
+		// O <SOURCE> <TARGET> :<TEXT>
+		// Send a private/channel notice
+		case 'O':
+			handle_O(token,params,source,reply,udp_host,udp_port);
 		break;
 		// F <TS>
 		// end netburst
