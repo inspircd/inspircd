@@ -560,10 +560,12 @@ void handle_privmsg(char **parameters, int pcnt, userrec *user)
 			
 			int MOD_RESULT = 0;
 
-			FOREACH_RESULT(OnUserPreMessage(user,chan,TYPE_CHANNEL,std::string(parameters[1])));
+			std::string temp = parameters[1];
+			FOREACH_RESULT(OnUserPreMessage(user,chan,TYPE_CHANNEL,temp));
 			if (MOD_RESULT) {
 				return;
 			}
+			parameters[1] = (char*)temp.c_str();
 			
 			ChanExceptSender(chan, user, "PRIVMSG %s :%s", chan->name, parameters[1]);
 			
@@ -591,10 +593,12 @@ void handle_privmsg(char **parameters, int pcnt, userrec *user)
 
 		int MOD_RESULT = 0;
 		
-		FOREACH_RESULT(OnUserPreMessage(user,dest,TYPE_USER,std::string(parameters[1])));
+		std::string temp = parameters[1];
+		FOREACH_RESULT(OnUserPreMessage(user,dest,TYPE_USER,temp));
 		if (MOD_RESULT) {
 			return;
 		}
+		parameters[1] = (char*)temp.c_str();
 
 
 
@@ -643,11 +647,13 @@ void handle_notice(char **parameters, int pcnt, userrec *user)
 			}
 
 			int MOD_RESULT = 0;
-		
-			FOREACH_RESULT(OnUserPreNotice(user,chan,TYPE_CHANNEL,std::string(parameters[1])));
+
+			std::string temp = parameters[1];
+			FOREACH_RESULT(OnUserPreNotice(user,chan,TYPE_CHANNEL,temp));
 			if (MOD_RESULT) {
 				return;
 			}
+			parameters[1] = (char*)temp.c_str();
 
 			ChanExceptSender(chan, user, "NOTICE %s :%s", chan->name, parameters[1]);
 
@@ -669,10 +675,12 @@ void handle_notice(char **parameters, int pcnt, userrec *user)
 	{
 		int MOD_RESULT = 0;
 		
-		FOREACH_RESULT(OnUserPreNotice(user,dest,TYPE_USER,std::string(parameters[1])));
+		std::string temp = parameters[1];
+		FOREACH_RESULT(OnUserPreNotice(user,dest,TYPE_USER,temp));
 		if (MOD_RESULT) {
 			return;
 		}
+		parameters[1] = (char*)temp.c_str();
 
 		if (!strcmp(dest->server,user->server))
 		{

@@ -263,7 +263,7 @@ class Module : public classbase
 	 * you must cast dest to a userrec* otherwise you must cast it to a chanrec*, this is the details
 	 * of where the message is destined to be sent.
 	 */
-	virtual int OnUserPreMessage(userrec* user,void* dest,int target_type, std::string text);
+	virtual int OnUserPreMessage(userrec* user,void* dest,int target_type, std::string &text);
 
 	/** Called whenever a user is about to NOTICE A user or a channel, before any processing is done.
 	 * Returning any nonzero value from this function stops the process immediately, causing no
@@ -272,8 +272,11 @@ class Module : public classbase
 	 * target_type can be one of TYPE_USER or TYPE_CHANNEL. If the target_type value is a user,
 	 * you must cast dest to a userrec* otherwise you must cast it to a chanrec*, this is the details
 	 * of where the message is destined to be sent.
+	 * You may alter the message text as you wish before relinquishing control to the next module
+	 * in the chain, and if no other modules block the text this altered form of the text will be sent out
+	 * to the user and possibly to other servers.
 	 */
-	virtual int OnUserPreNotice(userrec* user,void* dest,int target_type, std::string text);
+	virtual int OnUserPreNotice(userrec* user,void* dest,int target_type, std::string &text);
 	
 	/** Called before any nickchange, local or remote. This can be used to implement Q-lines etc.
 	 * Please note that although you can see remote nickchanges through this function, you should
@@ -281,6 +284,9 @@ class Module : public classbase
 	 * check user->server before taking any action (including returning nonzero from the method).
 	 * If your method returns nonzero, the nickchange is silently forbidden, and it is down to your
 	 * module to generate some meaninful output.
+	 * You may alter the message text as you wish before relinquishing control to the next module
+	 * in the chain, and if no other modules block the text this altered form of the text will be sent out
+	 * to the user and possibly to other servers.
 	 */
 	virtual int OnUserPreNick(userrec* user, std::string newnick);
 	
@@ -305,8 +311,8 @@ class Module : public classbase
 	 * AC_GENERAL_MODE type, as it may inadvertently override the behaviour of other modules. When the access_type
 	 * is AC_GENERAL_MODE, the destination of the mode will be NULL (as it has not yet been determined).
 	 */
-
 	virtual int OnAccessCheck(userrec* source,userrec* dest,chanrec* channel,int access_type);
+
 	/** Called during a netburst to sync user data.
 	 * This is called during the netburst on a per-user basis. You should use this call to up any special
 	 * user-related things which are implemented by your module, e.g. sending listmodes. You may return

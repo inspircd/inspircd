@@ -85,7 +85,7 @@ class ModuleServices : public Module
 		return 0;
 	}
 
-	virtual int OnUserPreMessage(userrec* user,void* dest,int target_type, std::string text)
+	virtual int OnUserPreMessage(userrec* user,void* dest,int target_type, std::string &text)
 	{
 		if (target_type == TYPE_CHANNEL)
 		{
@@ -120,7 +120,7 @@ class ModuleServices : public Module
 		return 0;
 	}
  	
-	virtual int OnUserPreNotice(userrec* user,void* dest,int target_type, std::string text)
+	virtual int OnUserPreNotice(userrec* user,void* dest,int target_type, std::string &text)
 	{
 		if (target_type == TYPE_CHANNEL)
 		{

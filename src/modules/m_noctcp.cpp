@@ -33,7 +33,7 @@ class ModuleNoCTCP : public Module
 		Srv->AddExtendedMode('C',MT_CHANNEL,false,0,0);
 	}
 	
-	virtual int OnUserPreMessage(userrec* user,void* dest,int target_type, std::string text)
+	virtual int OnUserPreMessage(userrec* user,void* dest,int target_type, std::string &text)
 	{
 		if (target_type == TYPE_CHANNEL)
 		{
@@ -53,7 +53,7 @@ class ModuleNoCTCP : public Module
 		return 0;
 	}
 	
-	virtual int OnUserPreNotice(userrec* user,void* dest,int target_type, std::string text)
+	virtual int OnUserPreNotice(userrec* user,void* dest,int target_type, std::string &text)
 	{
 		if (target_type == TYPE_CHANNEL)
 		{

@@ -32,7 +32,7 @@ class ModuleNoNotice : public Module
 		Srv->AddExtendedMode('T',MT_CHANNEL,false,0,0);
 	}
 	
-	virtual int OnUserPreNotice(userrec* user,void* dest,int target_type, std::string text)
+	virtual int OnUserPreNotice(userrec* user,void* dest,int target_type, std::string &text)
 	{
 		if (target_type == TYPE_CHANNEL)
 		{

@@ -62,13 +62,13 @@ class ModuleFilter : public Module
 	
 	// format of a config entry is <keyword pattern="*glob*" reason="Some reason here" action="kill/block">
 	
-	virtual int OnUserPreMessage(userrec* user,void* dest,int target_type, std::string text)
+	virtual int OnUserPreMessage(userrec* user,void* dest,int target_type, std::string &text)
 	{
-		text = text + " ";
+		std::string text2 = text + " ";
 		for (int index = 0; index < MyConf->Enumerate("keyword"); index++)
 		{
 			std::string pattern = MyConf->ReadValue("keyword","pattern",index);
-			if (Srv->MatchText(text,pattern))
+			if (Srv->MatchText(text2,pattern))
 			{
 				std::string target = "";
 				std::string reason = MyConf->ReadValue("keyword","reason",index);
@@ -111,13 +111,13 @@ class ModuleFilter : public Module
 		return 0;
 	}
 	
-	virtual int OnUserPreNotice(userrec* user,void* dest,int target_type, std::string text)
+	virtual int OnUserPreNotice(userrec* user,void* dest,int target_type, std::string &text)
 	{
-		text = text + " ";
+		std::string text2 = text + " ";
 		for (int index = 0; index < MyConf->Enumerate("keyword"); index++)
 		{
 			std::string pattern = MyConf->ReadValue("keyword","pattern",index);
-			if (Srv->MatchText(text,pattern))
+			if (Srv->MatchText(text2,pattern))
 			{
 				std::string target = "";
 				std::string reason = MyConf->ReadValue("keyword","reason",index);
