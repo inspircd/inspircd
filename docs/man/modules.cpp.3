@@ -1,0 +1,205 @@
+.TH "modules.cpp" 3 "30 Apr 2004" "InspIRCd" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+modules.cpp \- 
+.SH SYNOPSIS
+.br
+.PP
+\fC#include <typeinfo>\fP
+.br
+\fC#include <iostream>\fP
+.br
+\fC#include 'globals.h'\fP
+.br
+\fC#include 'modules.h'\fP
+.br
+\fC#include 'ctables.h'\fP
+.br
+\fC#include 'inspircd_io.h'\fP
+.br
+\fC#include 'wildcard.h'\fP
+.br
+\fC#include 'mode.h'\fP
+.br
+\fC#include 'message.h'\fP
+.br
+\fC#include 'commands.h'\fP
+.br
+
+.SS "Compounds"
+
+.in +1c
+.ti -1c
+.RI "class \fBExtMode\fP"
+.br
+.in -1c
+.SS "Typedefs"
+
+.in +1c
+.ti -1c
+.RI "typedef std::vector< \fBExtMode\fP > \fBExtModeList\fP"
+.br
+.ti -1c
+.RI "typedef ExtModeList::iterator \fBExtModeListIter\fP"
+.br
+.in -1c
+.SS "Functions"
+
+.in +1c
+.ti -1c
+.RI "bool \fBModeDefined\fP (char modechar, int type)"
+.br
+.ti -1c
+.RI "bool \fBModeDefinedOper\fP (char modechar, int type)"
+.br
+.ti -1c
+.RI "int \fBModeDefinedOn\fP (char modechar, int type)"
+.br
+.ti -1c
+.RI "int \fBModeDefinedOff\fP (char modechar, int type)"
+.br
+.ti -1c
+.RI "bool \fBDoAddExtendedMode\fP (char modechar, int type, bool requires_oper, int params_on, int params_off)"
+.br
+.ti -1c
+.RI "std::vector< \fBModule\fP * > \fBmodules\fP (255)"
+.br
+.ti -1c
+.RI "std::vector< \fBircd_module\fP * > \fBfactory\fP (255)"
+.br
+.in -1c
+.SS "Variables"
+
+.in +1c
+.ti -1c
+.RI "\fBExtModeList\fP \fBEMode\fP"
+.br
+.ti -1c
+.RI "int \fBMODCOUNT\fP = -1"
+.br
+.in -1c
+.SH "Typedef Documentation"
+.PP 
+.SS "typedef std::vector<\fBExtMode\fP> ExtModeList"
+.PP
+Definition at line 32 of file modules.cpp.
+.SS "typedef ExtModeList::iterator ExtModeListIter"
+.PP
+Definition at line 33 of file modules.cpp.
+.PP
+Referenced by ModeDefined(), ModeDefinedOff(), ModeDefinedOn(), and ModeDefinedOper().
+.SH "Function Documentation"
+.PP 
+.SS "bool DoAddExtendedMode (char modechar, int type, bool requires_oper, int params_on, int params_off)"
+.PP
+Definition at line 93 of file modules.cpp.
+.PP
+References EMode, and ModeDefined().
+.PP
+Referenced by Server::AddExtendedMode().
+.PP
+.nf
+94 {
+95         if (ModeDefined(modechar,type)) {
+96                 return false;
+97         }
+98         EMode.push_back(ExtMode(modechar,type,requires_oper,params_on,params_off));
+99         return true;
+100 }
+.fi
+.SS "std::vector<\fBircd_module\fP*> factory (255)"
+.PP
+.SS "bool ModeDefined (char modechar, int type)"
+.PP
+Definition at line 38 of file modules.cpp.
+.PP
+References EMode, and ExtModeListIter.
+.PP
+Referenced by DoAddExtendedMode().
+.PP
+.nf
+39 {
+40         log(DEBUG,'Size of extmodes vector is %d',EMode.size());
+41         for (ExtModeListIter i = EMode.begin(); i < EMode.end(); i++)
+42         {
+43                 log(DEBUG,'i->modechar==%c, modechar=%c, i->type=%d, type=%d',i->modechar,modechar,i->type,type);
+44                 if ((i->modechar == modechar) && (i->type == type))
+45                 {
+46                         return true;
+47                 }
+48         }
+49         return false;
+50 }
+.fi
+.SS "int ModeDefinedOff (char modechar, int type)"
+.PP
+Definition at line 80 of file modules.cpp.
+.PP
+References EMode, and ExtModeListIter.
+.PP
+.nf
+81 {
+82         for (ExtModeListIter i = EMode.begin(); i < EMode.end(); i++)
+83         {
+84                 if ((i->modechar == modechar) && (i->type == type))
+85                 {
+86                         return i->params_when_off;
+87                 }
+88         }
+89         return 0;
+90 }
+.fi
+.SS "int ModeDefinedOn (char modechar, int type)"
+.PP
+Definition at line 67 of file modules.cpp.
+.PP
+References EMode, and ExtModeListIter.
+.PP
+.nf
+68 {
+69         for (ExtModeListIter i = EMode.begin(); i < EMode.end(); i++)
+70         {
+71                 if ((i->modechar == modechar) && (i->type == type))
+72                 {
+73                         return i->params_when_on;
+74                 }
+75         }
+76         return 0;
+77 }
+.fi
+.SS "bool ModeDefinedOper (char modechar, int type)"
+.PP
+Definition at line 52 of file modules.cpp.
+.PP
+References EMode, and ExtModeListIter.
+.PP
+.nf
+53 {
+54         log(DEBUG,'Size of extmodes vector is %d',EMode.size());
+55         for (ExtModeListIter i = EMode.begin(); i < EMode.end(); i++)
+56         {
+57                 log(DEBUG,'i->modechar==%c, modechar=%c, i->type=%d, type=%d',i->modechar,modechar,i->type,type);
+58                 if ((i->modechar == modechar) && (i->type == type) && (i->needsoper == true))
+59                 {
+60                         return true;
+61                 }
+62         }
+63         return false;
+64 }
+.fi
+.SS "std::vector<\fBModule\fP*> modules (255)"
+.PP
+.SH "Variable Documentation"
+.PP 
+.SS "\fBExtModeList\fP EMode"
+.PP
+Definition at line 35 of file modules.cpp.
+.PP
+Referenced by DoAddExtendedMode(), ModeDefined(), ModeDefinedOff(), ModeDefinedOn(), and ModeDefinedOper().
+.SS "int MODCOUNT = -1"
+.PP
+Definition at line 442 of file modules.cpp.
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for InspIRCd from the source code.

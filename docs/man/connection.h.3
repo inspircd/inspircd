@@ -1,0 +1,96 @@
+.TH "connection.h" 3 "30 Apr 2004" "InspIRCd" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+connection.h \- 
+.SH SYNOPSIS
+.br
+.PP
+\fC#include 'inspircd_config.h'\fP
+.br
+\fC#include 'base.h'\fP
+.br
+\fC#include <string>\fP
+.br
+\fC#include <map>\fP
+.br
+\fC#include <sys/socket.h>\fP
+.br
+\fC#include <sys/types.h>\fP
+.br
+\fC#include <netdb.h>\fP
+.br
+\fC#include <netinet/in.h>\fP
+.br
+\fC#include <unistd.h>\fP
+.br
+\fC#include <errno.h>\fP
+.br
+\fC#include <time.h>\fP
+.br
+\fC#include <vector>\fP
+.br
+\fC#include <deque>\fP
+.br
+
+.SS "Compounds"
+
+.in +1c
+.ti -1c
+.RI "class \fBconnection\fP"
+.br
+.RI "\fIPlease note: classes serverrec and userrec both inherit from class connection.\fP"
+.ti -1c
+.RI "class \fBircd_connector\fP"
+.br
+.RI "\fIEach connection has one or more of these each represents ONE outbound connection to another ircd so each inbound has multiple outbounds.\fP"
+.ti -1c
+.RI "class \fBpacket\fP"
+.br
+.RI "\fIClass packet is deprecated.\fP"
+.in -1c
+.SS "Defines"
+
+.in +1c
+.ti -1c
+.RI "#define \fBSTATE_DISCONNECTED\fP   0"
+.br
+.ti -1c
+.RI "#define \fBSTATE_CONNECTED\fP   1"
+.br
+.ti -1c
+.RI "#define \fBSTATE_SYNC\fP   2"
+.br
+.ti -1c
+.RI "#define \fBSTATE_NOAUTH_INBOUND\fP   3"
+.br
+.ti -1c
+.RI "#define \fBSTATE_NOAUTH_OUTBOUND\fP   4"
+.br
+.ti -1c
+.RI "#define \fBSTATE_SERVICES\fP   5"
+.br
+.in -1c
+.SH "Define Documentation"
+.PP 
+.SS "#define STATE_CONNECTED   1"
+.PP
+Definition at line 23 of file connection.h.
+.SS "#define STATE_DISCONNECTED   0"
+.PP
+Definition at line 22 of file connection.h.
+.SS "#define STATE_NOAUTH_INBOUND   3"
+.PP
+Definition at line 25 of file connection.h.
+.SS "#define STATE_NOAUTH_OUTBOUND   4"
+.PP
+Definition at line 26 of file connection.h.
+.SS "#define STATE_SERVICES   5"
+.PP
+Definition at line 27 of file connection.h.
+.SS "#define STATE_SYNC   2"
+.PP
+Definition at line 24 of file connection.h.
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for InspIRCd from the source code.

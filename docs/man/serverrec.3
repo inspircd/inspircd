@@ -1,0 +1,176 @@
+.TH "serverrec" 3 "30 Apr 2004" "InspIRCd" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+serverrec \- A class that defines the local server or a remote server. 
+
+.PP
+.SH SYNOPSIS
+.br
+.PP
+\fC#include <servers.h>\fP
+.PP
+Inherits \fBconnection\fP.
+.PP
+.SS "Public Member Functions"
+
+.in +1c
+.ti -1c
+.RI "\fBserverrec\fP ()"
+.br
+.RI "\fIConstructor.\fP"
+.ti -1c
+.RI "\fBserverrec\fP (char *n, long ver, bool jupe)"
+.br
+.RI "\fIConstructor which initialises some of the main variables.\fP"
+.ti -1c
+.RI "\fB~serverrec\fP ()"
+.br
+.RI "\fIDestructor.\fP"
+.in -1c
+.SS "Public Attributes"
+
+.in +1c
+.ti -1c
+.RI "char \fBname\fP [MAXBUF]"
+.br
+.RI "\fIserver name\fP"
+.ti -1c
+.RI "long \fBpingtime\fP"
+.br
+.RI "\fIlast ping response (ms)\fP"
+.ti -1c
+.RI "long \fBusercount_i\fP"
+.br
+.RI "\fIinvisible users on server\fP"
+.ti -1c
+.RI "long \fBusercount\fP"
+.br
+.RI "\fInon-invisible users on server\fP"
+.ti -1c
+.RI "long \fBopercount\fP"
+.br
+.RI "\fIopers on server\fP"
+.ti -1c
+.RI "int \fBhops_away\fP"
+.br
+.RI "\fInumber of hops away (for quick access)\fP"
+.ti -1c
+.RI "long \fBversion\fP"
+.br
+.RI "\fIircd version\fP"
+.ti -1c
+.RI "bool \fBjupiter\fP"
+.br
+.RI "\fIis a JUPE server (faked to enforce a server ban)\fP"
+.ti -1c
+.RI "char \fBdescription\fP [MAXBUF]"
+.br
+.RI "\fIDescription of the server.\fP"
+.ti -1c
+.RI "bool \fBsync_soon\fP"
+.br
+.in -1c
+.SH "Detailed Description"
+.PP 
+A class that defines the local server or a remote server.Definition at line 19 of file servers.h.
+.SH "Constructor & Destructor Documentation"
+.PP 
+.SS "serverrec::serverrec ()"
+.PP
+Constructor.Definition at line 12 of file servers.cpp.
+.PP
+References connection::fd, hops_away, jupiter, connection::lastping, opercount, pingtime, connection::signon, sync_soon, usercount, usercount_i, and version.
+.PP
+.nf
+13 {
+14         strcpy(name,'');
+15         pingtime = 0;
+16         lastping = time(NULL);
+17         usercount_i = usercount = opercount = version = 0;
+18         hops_away = 1;
+19         signon = time(NULL);
+20         jupiter = false;
+21         fd = 0;
+22         sync_soon = false;
+23 }
+.fi
+.SS "serverrec::serverrec (char * n, long ver, bool jupe)"
+.PP
+Constructor which initialises some of the main variables.Definition at line 30 of file servers.cpp.
+.PP
+References connection::fd, hops_away, jupiter, connection::lastping, opercount, connection::signon, sync_soon, usercount, usercount_i, and version.
+.PP
+.nf
+31 {
+32         strcpy(name,n);
+33         lastping = time(NULL);
+34         usercount_i = usercount = opercount = 0;
+35         version = ver;
+36         hops_away = 1;
+37         signon = time(NULL);
+38         jupiter = jupe;
+39         fd = 0;
+40         sync_soon = false;
+41 }
+.fi
+.SS "serverrec::~serverrec ()"
+.PP
+Destructor.Definition at line 26 of file servers.cpp.
+.PP
+.nf
+27 {
+28 }
+.fi
+.SH "Member Data Documentation"
+.PP 
+.SS "char serverrec::description[MAXBUF]"
+.PP
+Description of the server.Definition at line 50 of file servers.h.
+.SS "int serverrec::hops_away"
+.PP
+number of hops away (for quick access)Definition at line 40 of file servers.h.
+.PP
+Referenced by serverrec().
+.SS "bool serverrec::jupiter"
+.PP
+is a JUPE server (faked to enforce a server ban)Definition at line 46 of file servers.h.
+.PP
+Referenced by serverrec().
+.SS "char serverrec::name[MAXBUF]"
+.PP
+server nameDefinition at line 25 of file servers.h.
+.SS "long serverrec::opercount"
+.PP
+opers on serverDefinition at line 37 of file servers.h.
+.PP
+Referenced by serverrec().
+.SS "long serverrec::pingtime"
+.PP
+last ping response (ms)Definition at line 28 of file servers.h.
+.PP
+Referenced by serverrec().
+.SS "bool serverrec::sync_soon"
+.PP
+Definition at line 52 of file servers.h.
+.PP
+Referenced by serverrec().
+.SS "long serverrec::usercount"
+.PP
+non-invisible users on serverDefinition at line 34 of file servers.h.
+.PP
+Referenced by serverrec().
+.SS "long serverrec::usercount_i"
+.PP
+invisible users on serverDefinition at line 31 of file servers.h.
+.PP
+Referenced by serverrec().
+.SS "long serverrec::version"
+.PP
+ircd versionDefinition at line 43 of file servers.h.
+.PP
+Referenced by serverrec().
+
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for InspIRCd from the source code.

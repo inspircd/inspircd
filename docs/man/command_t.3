@@ -1,0 +1,69 @@
+.TH "command_t" 3 "30 Apr 2004" "InspIRCd" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+command_t \- A structure that defines a command. 
+
+.PP
+.SH SYNOPSIS
+.br
+.PP
+\fC#include <ctables.h>\fP
+.PP
+Inherits \fBExtensible\fP.
+.PP
+.SS "Public Attributes"
+
+.in +1c
+.ti -1c
+.RI "char \fBcommand\fP [MAXBUF]"
+.br
+.RI "\fICommand name.\fP"
+.ti -1c
+.RI "handlerfunc * \fBhandler_function\fP"
+.br
+.RI "\fIHandler function as in typedef.\fP"
+.ti -1c
+.RI "char \fBflags_needed\fP"
+.br
+.RI "\fIUser flags needed to execute the command or 0.\fP"
+.ti -1c
+.RI "int \fBmin_params\fP"
+.br
+.RI "\fIMinimum number of parameters command takes.\fP"
+.ti -1c
+.RI "long \fBuse_count\fP"
+.br
+.RI "\fIused by /stats m\fP"
+.ti -1c
+.RI "long \fBtotal_bytes\fP"
+.br
+.RI "\fIused by /stats m\fP"
+.in -1c
+.SH "Detailed Description"
+.PP 
+A structure that defines a command.Definition at line 25 of file ctables.h.
+.SH "Member Data Documentation"
+.PP 
+.SS "char command_t::command[MAXBUF]"
+.PP
+Command name.Definition at line 30 of file ctables.h.
+.SS "char command_t::flags_needed"
+.PP
+User flags needed to execute the command or 0.Definition at line 36 of file ctables.h.
+.SS "handlerfunc* command_t::handler_function"
+.PP
+Handler function as in typedef.Definition at line 33 of file ctables.h.
+.SS "int command_t::min_params"
+.PP
+Minimum number of parameters command takes.Definition at line 39 of file ctables.h.
+.SS "long command_t::total_bytes"
+.PP
+used by /stats mDefinition at line 45 of file ctables.h.
+.SS "long command_t::use_count"
+.PP
+used by /stats mDefinition at line 42 of file ctables.h.
+
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for InspIRCd from the source code.

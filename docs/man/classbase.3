@@ -1,0 +1,61 @@
+.TH "classbase" 3 "30 Apr 2004" "InspIRCd" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+classbase \- The base class for all inspircd classes. 
+
+.PP
+.SH SYNOPSIS
+.br
+.PP
+\fC#include <base.h>\fP
+.PP
+Inherited by \fBAdmin\fP, \fBConfigReader\fP, \fBConnectClass\fP, \fBExtensible\fP, \fBExtMode\fP, \fBFileReader\fP, \fBHostItem\fP, \fBInvited\fP, \fBModeParameter\fP, \fBModule\fP, \fBModuleFactory\fP, \fBpacket\fP, \fBServer\fP, \fBVersion\fP, and \fBXLine\fP.
+.PP
+.SS "Public Member Functions"
+
+.in +1c
+.ti -1c
+.RI "\fBclassbase\fP ()"
+.br
+.RI "\fIConstructor, Sets the object's time.\fP"
+.ti -1c
+.RI "\fB~classbase\fP ()"
+.br
+.in -1c
+.SS "Public Attributes"
+
+.in +1c
+.ti -1c
+.RI "time_t \fBage\fP"
+.br
+.RI "\fITime that the object was instantiated (used for TS calculation etc).\fP"
+.in -1c
+.SH "Detailed Description"
+.PP 
+The base class for all inspircd classes.Definition at line 17 of file base.h.
+.SH "Constructor & Destructor Documentation"
+.PP 
+.SS "classbase::classbase ()\fC [inline]\fP"
+.PP
+Constructor, Sets the object's time.Definition at line 27 of file base.h.
+.PP
+.nf
+27 { age = time(NULL); }
+.fi
+.SS "classbase::~classbase ()\fC [inline]\fP"
+.PP
+Definition at line 28 of file base.h.
+.PP
+.nf
+28 { }
+.fi
+.SH "Member Data Documentation"
+.PP 
+.SS "time_t classbase::age"
+.PP
+Time that the object was instantiated (used for TS calculation etc).Definition at line 22 of file base.h.
+
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for InspIRCd from the source code.

@@ -1,0 +1,109 @@
+.TH "mode.h" 3 "30 Apr 2004" "InspIRCd" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+mode.h \- 
+.SH SYNOPSIS
+.br
+.PP
+\fC#include <typeinfo>\fP
+.br
+\fC#include <iostream>\fP
+.br
+\fC#include <string>\fP
+.br
+\fC#include <deque>\fP
+.br
+\fC#include <sstream>\fP
+.br
+\fC#include <vector>\fP
+.br
+\fC#include 'users.h'\fP
+.br
+\fC#include 'channels.h'\fP
+.br
+
+.SS "Functions"
+
+.in +1c
+.ti -1c
+.RI "char * \fBgive_ops\fP (\fBuserrec\fP *user, char *dest, \fBchanrec\fP *chan, int status)"
+.br
+.ti -1c
+.RI "char * \fBgive_hops\fP (\fBuserrec\fP *user, char *dest, \fBchanrec\fP *chan, int status)"
+.br
+.ti -1c
+.RI "char * \fBgive_voice\fP (\fBuserrec\fP *user, char *dest, \fBchanrec\fP *chan, int status)"
+.br
+.ti -1c
+.RI "char * \fBtake_ops\fP (\fBuserrec\fP *user, char *dest, \fBchanrec\fP *chan, int status)"
+.br
+.ti -1c
+.RI "char * \fBtake_hops\fP (\fBuserrec\fP *user, char *dest, \fBchanrec\fP *chan, int status)"
+.br
+.ti -1c
+.RI "char * \fBtake_voice\fP (\fBuserrec\fP *user, char *dest, \fBchanrec\fP *chan, int status)"
+.br
+.ti -1c
+.RI "char * \fBadd_ban\fP (\fBuserrec\fP *user, char *dest, \fBchanrec\fP *chan, int status)"
+.br
+.ti -1c
+.RI "char * \fBtake_ban\fP (\fBuserrec\fP *user, char *dest, \fBchanrec\fP *chan, int status)"
+.br
+.ti -1c
+.RI "void \fBprocess_modes\fP (char **parameters, \fBuserrec\fP *user, \fBchanrec\fP *chan, int status, int pcnt, bool servermode, bool silent, bool local)"
+.br
+.ti -1c
+.RI "bool \fBallowed_umode\fP (char umode, char *sourcemodes, bool adding)"
+.br
+.ti -1c
+.RI "bool \fBprocess_module_umode\fP (char umode, \fBuserrec\fP *source, void *dest, bool adding)"
+.br
+.ti -1c
+.RI "void \fBhandle_mode\fP (char **parameters, int pcnt, \fBuserrec\fP *user)"
+.br
+.ti -1c
+.RI "void \fBserver_mode\fP (char **parameters, int pcnt, \fBuserrec\fP *user)"
+.br
+.ti -1c
+.RI "void \fBmerge_mode\fP (char **parameters, int pcnt)"
+.br
+.ti -1c
+.RI "void \fBmerge_mode2\fP (char **parameters, int pcnt, \fBuserrec\fP *user)"
+.br
+.in -1c
+.SH "Function Documentation"
+.PP 
+.SS "char* add_ban (\fBuserrec\fP * user, char * dest, \fBchanrec\fP * chan, int status)"
+.PP
+.SS "bool allowed_umode (char umode, char * sourcemodes, bool adding)"
+.PP
+.SS "char* give_hops (\fBuserrec\fP * user, char * dest, \fBchanrec\fP * chan, int status)"
+.PP
+.SS "char* give_ops (\fBuserrec\fP * user, char * dest, \fBchanrec\fP * chan, int status)"
+.PP
+.SS "char* give_voice (\fBuserrec\fP * user, char * dest, \fBchanrec\fP * chan, int status)"
+.PP
+.SS "void handle_mode (char ** parameters, int pcnt, \fBuserrec\fP * user)"
+.PP
+.SS "void merge_mode (char ** parameters, int pcnt)"
+.PP
+.SS "void merge_mode2 (char ** parameters, int pcnt, \fBuserrec\fP * user)"
+.PP
+.SS "void process_modes (char ** parameters, \fBuserrec\fP * user, \fBchanrec\fP * chan, int status, int pcnt, bool servermode, bool silent, bool local)"
+.PP
+.SS "bool process_module_umode (char umode, \fBuserrec\fP * source, void * dest, bool adding)"
+.PP
+.SS "void server_mode (char ** parameters, int pcnt, \fBuserrec\fP * user)"
+.PP
+.SS "char* take_ban (\fBuserrec\fP * user, char * dest, \fBchanrec\fP * chan, int status)"
+.PP
+.SS "char* take_hops (\fBuserrec\fP * user, char * dest, \fBchanrec\fP * chan, int status)"
+.PP
+.SS "char* take_ops (\fBuserrec\fP * user, char * dest, \fBchanrec\fP * chan, int status)"
+.PP
+.SS "char* take_voice (\fBuserrec\fP * user, char * dest, \fBchanrec\fP * chan, int status)"
+.PP
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for InspIRCd from the source code.

@@ -1,0 +1,159 @@
+.TH "FileReader" 3 "30 Apr 2004" "InspIRCd" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+FileReader \- Caches a text file into memory and can be used to retrieve lines from it. 
+
+.PP
+.SH SYNOPSIS
+.br
+.PP
+\fC#include <modules.h>\fP
+.PP
+Inherits \fBclassbase\fP.
+.PP
+.SS "Public Member Functions"
+
+.in +1c
+.ti -1c
+.RI "\fBFileReader\fP ()"
+.br
+.RI "\fIDefault constructor.\fP"
+.ti -1c
+.RI "\fBFileReader\fP (std::string filename)"
+.br
+.RI "\fISecondary constructor.\fP"
+.ti -1c
+.RI "\fB~FileReader\fP ()"
+.br
+.RI "\fIDefault destructor.\fP"
+.ti -1c
+.RI "void \fBLoadFile\fP (std::string filename)"
+.br
+.RI "\fIUsed to load a file.\fP"
+.ti -1c
+.RI "bool \fBExists\fP ()"
+.br
+.RI "\fIReturns true if the file exists This function will return false if the file could not be opened.\fP"
+.ti -1c
+.RI "std::string \fBGetLine\fP (int x)"
+.br
+.RI "\fIRetrieve one line from the file.\fP"
+.ti -1c
+.RI "int \fBFileSize\fP ()"
+.br
+.RI "\fIReturns the size of the file in lines.\fP"
+.in -1c
+.SS "Private Attributes"
+
+.in +1c
+.ti -1c
+.RI "\fBfile_cache\fP \fBfc\fP"
+.br
+.in -1c
+.SH "Detailed Description"
+.PP 
+Caches a text file into memory and can be used to retrieve lines from it.
+
+This class contains methods for read-only manipulation of a text file in memory. Either use the constructor type with one parameter to load a file into memory at construction, or use the LoadFile method to load a file. 
+.PP
+Definition at line 578 of file modules.h.
+.SH "Constructor & Destructor Documentation"
+.PP 
+.SS "FileReader::FileReader ()"
+.PP
+Default constructor.This method does not load any file into memory, you must use the LoadFile method after constructing the class this way.Definition at line 398 of file modules.cpp.
+.PP
+.nf
+399 {
+400 }
+.fi
+.SS "FileReader::FileReader (std::string filename)"
+.PP
+Secondary constructor.This method initialises the class with a file loaded into it ready for GetLine and and other methods to be called. If the file could not be loaded, \fBFileReader::FileSize\fP returns 0.Definition at line 391 of file modules.cpp.
+.PP
+References fc, and file_cache.
+.PP
+.nf
+392 {
+393         file_cache c;
+394         readfile(c,filename.c_str());
+395         this->fc = c;
+396 }
+.fi
+.SS "FileReader::~FileReader ()"
+.PP
+Default destructor.This deletes the memory allocated to the file.Definition at line 410 of file modules.cpp.
+.PP
+.nf
+411 {
+412 }
+.fi
+.SH "Member Function Documentation"
+.PP 
+.SS "bool FileReader::Exists ()"
+.PP
+Returns true if the file exists This function will return false if the file could not be opened.Definition at line 414 of file modules.cpp.
+.PP
+References fc.
+.PP
+.nf
+415 {
+416         if (fc.size() == 0)
+417         {
+418                 return(false);
+419         }
+420         else
+421         {
+422                 return(true);
+423         }
+424 }
+.fi
+.SS "int FileReader::FileSize ()"
+.PP
+Returns the size of the file in lines.This method returns the number of lines in the read file. If it is 0, no lines have been read into memory, either because the file is empty or it does not exist, or cannot be opened due to permission problems.Definition at line 433 of file modules.cpp.
+.PP
+References fc.
+.PP
+.nf
+434 {
+435         return fc.size();
+436 }
+.fi
+.SS "std::string FileReader::GetLine (int x)"
+.PP
+Retrieve one line from the file.This method retrieves one line from the text file. If an empty non-NULL string is returned, the index was out of bounds, or the line had no data on it.Definition at line 426 of file modules.cpp.
+.PP
+References fc.
+.PP
+.nf
+427 {
+428         if ((x<0) || (x>fc.size()))
+429                 return '';
+430         return fc[x];
+431 }
+.fi
+.SS "void FileReader::LoadFile (std::string filename)"
+.PP
+Used to load a file.This method loads a file into the class ready for GetLine and and other methods to be called. If the file could not be loaded, \fBFileReader::FileSize\fP returns 0.Definition at line 402 of file modules.cpp.
+.PP
+References fc, and file_cache.
+.PP
+.nf
+403 {
+404         file_cache c;
+405         readfile(c,filename.c_str());
+406         this->fc = c;
+407 }
+.fi
+.SH "Member Data Documentation"
+.PP 
+.SS "\fBfile_cache\fP FileReader::fc\fC [private]\fP"
+.PP
+Definition at line 580 of file modules.h.
+.PP
+Referenced by Exists(), FileReader(), FileSize(), GetLine(), and LoadFile().
+
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for InspIRCd from the source code.

@@ -1,0 +1,288 @@
+.TH "userrec" 3 "30 Apr 2004" "InspIRCd" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+userrec \- Holds all information about a user This class stores all information about a user connected to the irc server. 
+
+.PP
+.SH SYNOPSIS
+.br
+.PP
+\fC#include <users.h>\fP
+.PP
+Inherits \fBconnection\fP.
+.PP
+.SS "Public Member Functions"
+
+.in +1c
+.ti -1c
+.RI "\fBuserrec\fP ()"
+.br
+.ti -1c
+.RI "virtual \fB~userrec\fP ()"
+.br
+.ti -1c
+.RI "virtual char * \fBGetFullHost\fP ()"
+.br
+.RI "\fIReturns the full displayed host of the user This member function returns the hostname of the user as seen by other users on the server, in nick!identhost form.\fP"
+.ti -1c
+.RI "virtual char * \fBGetFullRealHost\fP ()"
+.br
+.RI "\fIReturns the full real host of the user This member function returns the hostname of the user as seen by other users on the server, in nick!identhost form.\fP"
+.ti -1c
+.RI "virtual bool \fBIsInvited\fP (char *channel)"
+.br
+.RI "\fIReturns true if a user is invited to a channel.\fP"
+.ti -1c
+.RI "virtual void \fBInviteTo\fP (char *channel)"
+.br
+.RI "\fIAdds a channel to a users invite list (invites them to a channel).\fP"
+.ti -1c
+.RI "virtual void \fBRemoveInvite\fP (char *channel)"
+.br
+.RI "\fIRemoves a channel from a users invite list.\fP"
+.in -1c
+.SS "Public Attributes"
+
+.in +1c
+.ti -1c
+.RI "char \fBnick\fP [NICKMAX]"
+.br
+.RI "\fIThe users nickname.\fP"
+.ti -1c
+.RI "char \fBident\fP [64]"
+.br
+.RI "\fIThe users ident reply.\fP"
+.ti -1c
+.RI "char \fBdhost\fP [256]"
+.br
+.RI "\fIThe host displayed to non-opers (used for cloaking etc).\fP"
+.ti -1c
+.RI "char \fBfullname\fP [128]"
+.br
+.RI "\fIThe users full name.\fP"
+.ti -1c
+.RI "char \fBmodes\fP [MAXBUF]"
+.br
+.RI "\fIThe user's mode string.\fP"
+.ti -1c
+.RI "\fBucrec\fP \fBchans\fP [MAXCHANS]"
+.br
+.ti -1c
+.RI "char \fBserver\fP [256]"
+.br
+.RI "\fIThe server the user is connected to.\fP"
+.ti -1c
+.RI "char \fBawaymsg\fP [512]"
+.br
+.RI "\fIThe user's away message.\fP"
+.ti -1c
+.RI "char \fBresult\fP [256]"
+.br
+.RI "\fIStores the result of the last GetFullHost or GetRealHost call.\fP"
+.ti -1c
+.RI "int \fBflood\fP"
+.br
+.RI "\fINumber of lines the user can place into the buffer (up to the global NetBufferSize bytes) before they are disconnected for excess flood.\fP"
+.ti -1c
+.RI "unsigned long \fBtimeout\fP"
+.br
+.RI "\fINumber of seconds this user is given to send USER/NICK If they do not send their details in this time limit they will be disconnected.\fP"
+.in -1c
+.SS "Private Attributes"
+
+.in +1c
+.ti -1c
+.RI "\fBInvitedList\fP \fBinvites\fP"
+.br
+.RI "\fIA list of channels the user has a pending invite to.\fP"
+.in -1c
+.SH "Detailed Description"
+.PP 
+Holds all information about a user This class stores all information about a user connected to the irc server.
+
+Everything about a connection is stored here primarily, from the user's socket ID (file descriptor) through to the user's nickname and hostname. Use the Find method of the server class to locate a specific user by nickname. 
+.PP
+Definition at line 78 of file users.h.
+.SH "Constructor & Destructor Documentation"
+.PP 
+.SS "userrec::userrec ()"
+.PP
+Definition at line 11 of file users.cpp.
+.PP
+References connection::bytes_in, connection::bytes_out, ucrec::channel, chans, connection::cmds_in, connection::cmds_out, connection::fd, flood, connection::haspassed, connection::idle_lastmsg, invites, connection::lastping, connection::nping, connection::port, connection::registered, connection::signon, timeout, and ucrec::uc_modes.
+.PP
+.nf
+12 {
+13         // the PROPER way to do it, AVOID bzero at *ALL* costs
+14         strcpy(nick,'');
+15         strcpy(ip,'127.0.0.1');
+16         timeout = 0;
+17         strcpy(ident,'');
+18         strcpy(host,'');
+19         strcpy(dhost,'');
+20         strcpy(fullname,'');
+21         strcpy(modes,'');
+22         strcpy(inbuf,'');
+23         strcpy(server,'');
+24         strcpy(awaymsg,'');
+25         fd = lastping = signon = idle_lastmsg = nping = registered = 0;
+26         flood = port = bytes_in = bytes_out = cmds_in = cmds_out = 0;
+27         haspassed = false;
+28         strcpy(result,'');
+29         for (int i = 0; i < MAXCHANS; i++)
+30         {
+31                 this->chans[i].channel = NULL;
+32                 this->chans[i].uc_modes = 0;
+33         }
+34         invites.clear();
+35 }
+.fi
+.SS "virtual userrec::~userrec ()\fC [inline, virtual]\fP"
+.PP
+Definition at line 142 of file users.h.
+.PP
+.nf
+142 {  }
+.fi
+.SH "Member Function Documentation"
+.PP 
+.SS "char * userrec::GetFullHost ()\fC [virtual]\fP"
+.PP
+Returns the full displayed host of the user This member function returns the hostname of the user as seen by other users on the server, in nick!identhost form.Definition at line 39 of file users.cpp.
+.PP
+References result.
+.PP
+.nf
+40 {
+41         sprintf(result,'%s!%s@%s',nick,ident,dhost);
+42         return result;
+43 }
+.fi
+.SS "char * userrec::GetFullRealHost ()\fC [virtual]\fP"
+.PP
+Returns the full real host of the user This member function returns the hostname of the user as seen by other users on the server, in nick!identhost form.If any form of hostname cloaking is in operation, e.g. through a module, then this method will ignore it and return the true hostname.Definition at line 46 of file users.cpp.
+.PP
+References result.
+.PP
+.nf
+47 {
+48         sprintf(result,'%s!%s@%s',nick,ident,host);
+49         return result;
+50 }
+.fi
+.SS "void userrec::InviteTo (char * channel)\fC [virtual]\fP"
+.PP
+Adds a channel to a users invite list (invites them to a channel).Definition at line 66 of file users.cpp.
+.PP
+References Invited::channel, and invites.
+.PP
+.nf
+67 {
+68         Invited i;
+69         strcpy(i.channel,channel);
+70         invites.push_back(i);
+71 }
+.fi
+.SS "bool userrec::IsInvited (char * channel)\fC [virtual]\fP"
+.PP
+Returns true if a user is invited to a channel.Definition at line 52 of file users.cpp.
+.PP
+References invites.
+.PP
+.nf
+53 {
+54         for (InvitedList::iterator i = invites.begin(); i != invites.end(); i++)
+55         {
+56                 if (i->channel) {
+57                         if (!strcasecmp(i->channel,channel))
+58                         {
+59                                 return true;
+60                         }
+61                 }
+62         }
+63         return false;
+64 }
+.fi
+.SS "void userrec::RemoveInvite (char * channel)\fC [virtual]\fP"
+.PP
+Removes a channel from a users invite list.This member function is called on successfully joining an invite only channel to which the user has previously been invited, to clear the invitation.Definition at line 73 of file users.cpp.
+.PP
+References invites.
+.PP
+.nf
+74 {
+75         log(DEBUG,'Removing invites');
+76         if (channel)
+77         {
+78                 if (invites.size())
+79                 {
+80                         for (InvitedList::iterator i = invites.begin(); i != invites.end(); i++)
+81                         {
+82                                 if (i->channel)
+83                                 {
+84                                         if (!strcasecmp(i->channel,channel))
+85                                         {
+86                                                 invites.erase(i);
+87                                                 return;
+88                                         }
+89                                 }
+90                         }
+91                 }
+92         }
+93 }
+.fi
+.SH "Member Data Documentation"
+.PP 
+.SS "char userrec::awaymsg[512]"
+.PP
+The user's away message.If this string is empty, the user is not marked as away.Definition at line 121 of file users.h.
+.SS "\fBucrec\fP userrec::chans[MAXCHANS]"
+.PP
+Definition at line 112 of file users.h.
+.PP
+Referenced by userrec().
+.SS "char userrec::dhost[256]"
+.PP
+The host displayed to non-opers (used for cloaking etc).This usually matches the value of \fBuserrec::host\fP.Definition at line 100 of file users.h.
+.SS "int userrec::flood"
+.PP
+Number of lines the user can place into the buffer (up to the global NetBufferSize bytes) before they are disconnected for excess flood.Definition at line 132 of file users.h.
+.PP
+Referenced by userrec().
+.SS "char userrec::fullname[128]"
+.PP
+The users full name.Definition at line 104 of file users.h.
+.SS "char userrec::ident[64]"
+.PP
+The users ident reply.Definition at line 95 of file users.h.
+.SS "\fBInvitedList\fP userrec::invites\fC [private]\fP"
+.PP
+A list of channels the user has a pending invite to.Definition at line 84 of file users.h.
+.PP
+Referenced by InviteTo(), IsInvited(), RemoveInvite(), and userrec().
+.SS "char userrec::modes[MAXBUF]"
+.PP
+The user's mode string.This may contain any of the following RFC characters: o, w, s, i Your module may define other mode characters as it sees fit.Definition at line 110 of file users.h.
+.SS "char userrec::nick[NICKMAX]"
+.PP
+The users nickname.An invalid nickname indicates an unregistered connection prior to the NICK command.Definition at line 91 of file users.h.
+.PP
+Referenced by Server::QuitUser().
+.SS "char userrec::result[256]"
+.PP
+Stores the result of the last GetFullHost or GetRealHost call.You may use this to increase the speed of use of this class.Definition at line 126 of file users.h.
+.PP
+Referenced by GetFullHost(), and GetFullRealHost().
+.SS "char userrec::server[256]"
+.PP
+The server the user is connected to.Definition at line 116 of file users.h.
+.SS "unsigned long userrec::timeout"
+.PP
+Number of seconds this user is given to send USER/NICK If they do not send their details in this time limit they will be disconnected.Definition at line 138 of file users.h.
+.PP
+Referenced by userrec().
+
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for InspIRCd from the source code.

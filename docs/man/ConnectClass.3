@@ -1,0 +1,83 @@
+.TH "ConnectClass" 3 "30 Apr 2004" "InspIRCd" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+ConnectClass \- Holds information relevent to <connect allow> and <connect deny> tags in the config file. 
+
+.PP
+.SH SYNOPSIS
+.br
+.PP
+\fC#include <users.h>\fP
+.PP
+Inherits \fBclassbase\fP.
+.PP
+.SS "Public Member Functions"
+
+.in +1c
+.ti -1c
+.RI "\fBConnectClass\fP ()"
+.br
+.in -1c
+.SS "Public Attributes"
+
+.in +1c
+.ti -1c
+.RI "int \fBtype\fP"
+.br
+.RI "\fIType of line, either CC_ALLOW or CC_DENY.\fP"
+.ti -1c
+.RI "int \fBregistration_timeout\fP"
+.br
+.RI "\fIMax time to register the connection in seconds.\fP"
+.ti -1c
+.RI "int \fBflood\fP"
+.br
+.RI "\fINumber of lines in buffer before excess flood is triggered.\fP"
+.ti -1c
+.RI "char \fBhost\fP [MAXBUF]"
+.br
+.RI "\fIHost mask for this line.\fP"
+.ti -1c
+.RI "char \fBpass\fP [MAXBUF]"
+.br
+.RI "\fI(Optional) Password for this line\fP"
+.in -1c
+.SH "Detailed Description"
+.PP 
+Holds information relevent to <connect allow> and <connect deny> tags in the config file.Definition at line 34 of file users.h.
+.SH "Constructor & Destructor Documentation"
+.PP 
+.SS "ConnectClass::ConnectClass ()\fC [inline]\fP"
+.PP
+Definition at line 53 of file users.h.
+.PP
+.nf
+54         {
+55                 registration_timeout = 0;
+56                 flood = 0;
+57                 strcpy(host,'');
+58                 strcpy(pass,'');
+59         }
+.fi
+.SH "Member Data Documentation"
+.PP 
+.SS "int ConnectClass::flood"
+.PP
+Number of lines in buffer before excess flood is triggered.Definition at line 45 of file users.h.
+.SS "char ConnectClass::host[MAXBUF]"
+.PP
+Host mask for this line.Definition at line 48 of file users.h.
+.SS "char ConnectClass::pass[MAXBUF]"
+.PP
+(Optional) Password for this lineDefinition at line 51 of file users.h.
+.SS "int ConnectClass::registration_timeout"
+.PP
+Max time to register the connection in seconds.Definition at line 42 of file users.h.
+.SS "int ConnectClass::type"
+.PP
+Type of line, either CC_ALLOW or CC_DENY.Definition at line 39 of file users.h.
+
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for InspIRCd from the source code.
