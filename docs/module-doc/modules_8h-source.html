@@ -31,180 +31,192 @@
 00023 <span class="preprocessor">#include "<a class="code" href="ctables_8h.html">ctables.h</a>"</span>
 00024 <span class="preprocessor">#include &lt;string&gt;</span>
 00025 <span class="preprocessor">#include &lt;deque&gt;</span>
-00026 
-<a name="l00029"></a><a class="code" href="modules_8h.html#a10">00029</a> <span class="keyword">typedef</span> std::deque&lt;std::string&gt; <a class="code" href="modules_8h.html#a10">file_cache</a>;
-<a name="l00030"></a><a class="code" href="modules_8h.html#a11">00030</a> <span class="keyword">typedef</span> <a class="code" href="modules_8h.html#a10">file_cache</a> <a class="code" href="modules_8h.html#a11">string_list</a>;
-00031 
-00032 <span class="comment">// This #define allows us to call a method in all</span>
-00033 <span class="comment">// loaded modules in a readable simple way, e.g.:</span>
-00034 <span class="comment">// 'FOREACH_MOD OnConnect(user);'</span>
-00035 
-<a name="l00036"></a><a class="code" href="modules_8h.html#a8">00036</a> <span class="preprocessor">#define FOREACH_MOD for (int i = 0; i &lt;= MODCOUNT; i++) modules[i]-&gt;</span>
-00037 <span class="preprocessor"></span>
-00038 <span class="comment">// This define is similar to the one above but returns a result in MOD_RESULT.</span>
-00039 <span class="comment">// The first module to return a nonzero result is the value to be accepted,</span>
-00040 <span class="comment">// and any modules after are ignored.</span>
-00041 
-00042 <span class="comment">// *********************************************************************************************</span>
-00043 
-<a name="l00044"></a><a class="code" href="modules_8h.html#a9">00044</a> <span class="preprocessor">#define FOREACH_RESULT(x) { MOD_RESULT = 0; \</span>
-00045 <span class="preprocessor">                        for (int i = 0; i &lt;= MODCOUNT; i++) { \</span>
-00046 <span class="preprocessor">                        int res = modules[i]-&gt;x ; \</span>
-00047 <span class="preprocessor">                        if (res) { \</span>
-00048 <span class="preprocessor">                                MOD_RESULT = res; \</span>
-00049 <span class="preprocessor">                                break; \</span>
-00050 <span class="preprocessor">                        } \</span>
-00051 <span class="preprocessor">                } \</span>
-00052 <span class="preprocessor">   } </span>
-00053 <span class="preprocessor"></span>   
-00054 <span class="comment">// *********************************************************************************************</span>
-00055 
-00056 <span class="keyword">extern</span> <span class="keywordtype">void</span> <a class="code" href="modules_8h.html#a13">createcommand</a>(<span class="keywordtype">char</span>* cmd, handlerfunc f, <span class="keywordtype">char</span> flags, <span class="keywordtype">int</span> minparams);
-00057 <span class="keyword">extern</span> <span class="keywordtype">void</span> <a class="code" href="modules_8h.html#a14">server_mode</a>(<span class="keywordtype">char</span> **parameters, <span class="keywordtype">int</span> pcnt, <a class="code" href="classuserrec.html">userrec</a> *user);
-00058 
-00059 <span class="comment">// class Version holds the version information of a Module, returned</span>
-00060 <span class="comment">// by Module::GetVersion (thanks RD)</span>
-00061 
-<a name="l00066"></a><a class="code" href="classVersion.html">00066</a> <span class="keyword">class </span><a class="code" href="classVersion.html">Version</a> : <span class="keyword">public</span> <a class="code" href="classclassbase.html">classbase</a>
-00067 {
-00068  <span class="keyword">public</span>:
-<a name="l00069"></a><a class="code" href="classVersion.html#m2">00069</a>          <span class="keyword">const</span> <span class="keywordtype">int</span> <a class="code" href="classVersion.html#m0">Major</a>, <a class="code" href="classVersion.html#m1">Minor</a>, <a class="code" href="classVersion.html#m2">Revision</a>, <a class="code" href="classVersion.html#m3">Build</a>;
-00070          <a class="code" href="classVersion.html#a0">Version</a>(<span class="keywordtype">int</span> major, <span class="keywordtype">int</span> minor, <span class="keywordtype">int</span> revision, <span class="keywordtype">int</span> build);
-00071 };
-00072 
-<a name="l00078"></a><a class="code" href="classAdmin.html">00078</a> <span class="keyword">class </span><a class="code" href="classAdmin.html">Admin</a> : <span class="keyword">public</span> <a class="code" href="classclassbase.html">classbase</a>
-00079 {
-00080  <span class="keyword">public</span>:
-<a name="l00081"></a><a class="code" href="classAdmin.html#m2">00081</a>          <span class="keyword">const</span> std::string <a class="code" href="classAdmin.html#m0">Name</a>, <a class="code" href="classAdmin.html#m1">Email</a>, <a class="code" href="classAdmin.html#m2">Nick</a>;
-00082          <a class="code" href="classAdmin.html#a0">Admin</a>(std::string name, std::string email, std::string nick);
-00083 };
-00084 
-<a name="l00090"></a><a class="code" href="classModule.html">00090</a> <span class="keyword">class </span><a class="code" href="classModule.html">Module</a> : <span class="keyword">public</span> <a class="code" href="classclassbase.html">classbase</a>
-00091 {
-00092  <span class="keyword">public</span>:
-00093 
-00097         <a class="code" href="classModule.html#a0">Module</a>();
-00098 
-00102         <span class="keyword">virtual</span> <a class="code" href="classModule.html#a1">~Module</a>();
-00103 
-00108         <span class="keyword">virtual</span> <a class="code" href="classVersion.html">Version</a> <a class="code" href="classModule.html#a2">GetVersion</a>();
-00109 
-00113         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classModule.html#a3">OnUserConnect</a>(<a class="code" href="classuserrec.html">userrec</a>* user);
-00114 
-00118         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classModule.html#a4">OnUserQuit</a>(<a class="code" href="classuserrec.html">userrec</a>* user);
-00119 
-00124         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classModule.html#a5">OnUserJoin</a>(<a class="code" href="classuserrec.html">userrec</a>* user, <a class="code" href="classchanrec.html">chanrec</a>* channel);
-00125 
-00130         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classModule.html#a6">OnUserPart</a>(<a class="code" href="classuserrec.html">userrec</a>* user, <a class="code" href="classchanrec.html">chanrec</a>* channel);
-00131 
-00138         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classModule.html#a7">OnPacketTransmit</a>(<span class="keywordtype">char</span> *p);
-00139 
-00147         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classModule.html#a8">OnPacketReceive</a>(<span class="keywordtype">char</span> *p);
-00148 
-00154         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classModule.html#a9">OnRehash</a>();
-00155 
-00162         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classModule.html#a10">OnServerRaw</a>(std::string &amp;raw, <span class="keywordtype">bool</span> inbound);
-00163 
-00173         <span class="keyword">virtual</span> <span class="keywordtype">bool</span> <a class="code" href="classModule.html#a11">OnExtendedMode</a>(<a class="code" href="classuserrec.html">userrec</a>* user, <span class="keywordtype">void</span>* target, <span class="keywordtype">char</span> modechar, <span class="keywordtype">int</span> type, <span class="keywordtype">bool</span> mode_on, string_list &amp;params);
-00174         
-00187         <span class="keyword">virtual</span> <span class="keywordtype">int</span> <a class="code" href="classModule.html#a12">OnUserPreJoin</a>(<a class="code" href="classuserrec.html">userrec</a>* user, <a class="code" href="classchanrec.html">chanrec</a>* chan, <span class="keyword">const</span> <span class="keywordtype">char</span>* cname);
-00188         
+00026 <span class="preprocessor">#include &lt;sstream&gt;</span>
+00027 
+<a name="l00030"></a><a class="code" href="modules_8h.html#a10">00030</a> <span class="keyword">typedef</span> std::deque&lt;std::string&gt; <a class="code" href="modules_8h.html#a10">file_cache</a>;
+<a name="l00031"></a><a class="code" href="modules_8h.html#a11">00031</a> <span class="keyword">typedef</span> <a class="code" href="modules_8h.html#a10">file_cache</a> <a class="code" href="modules_8h.html#a11">string_list</a>;
+00032 
+00033 <span class="comment">// This #define allows us to call a method in all</span>
+00034 <span class="comment">// loaded modules in a readable simple way, e.g.:</span>
+00035 <span class="comment">// 'FOREACH_MOD OnConnect(user);'</span>
+00036 
+<a name="l00037"></a><a class="code" href="modules_8h.html#a8">00037</a> <span class="preprocessor">#define FOREACH_MOD for (int i = 0; i &lt;= MODCOUNT; i++) modules[i]-&gt;</span>
+00038 <span class="preprocessor"></span>
+00039 <span class="comment">// This define is similar to the one above but returns a result in MOD_RESULT.</span>
+00040 <span class="comment">// The first module to return a nonzero result is the value to be accepted,</span>
+00041 <span class="comment">// and any modules after are ignored.</span>
+00042 
+00043 <span class="comment">// *********************************************************************************************</span>
+00044 
+<a name="l00045"></a><a class="code" href="modules_8h.html#a9">00045</a> <span class="preprocessor">#define FOREACH_RESULT(x) { MOD_RESULT = 0; \</span>
+00046 <span class="preprocessor">                        for (int i = 0; i &lt;= MODCOUNT; i++) { \</span>
+00047 <span class="preprocessor">                        int res = modules[i]-&gt;x ; \</span>
+00048 <span class="preprocessor">                        if (res) { \</span>
+00049 <span class="preprocessor">                                MOD_RESULT = res; \</span>
+00050 <span class="preprocessor">                                break; \</span>
+00051 <span class="preprocessor">                        } \</span>
+00052 <span class="preprocessor">                } \</span>
+00053 <span class="preprocessor">   } </span>
+00054 <span class="preprocessor"></span>   
+00055 <span class="comment">// *********************************************************************************************</span>
+00056 
+00057 <span class="keyword">extern</span> <span class="keywordtype">void</span> <a class="code" href="modules_8h.html#a13">createcommand</a>(<span class="keywordtype">char</span>* cmd, handlerfunc f, <span class="keywordtype">char</span> flags, <span class="keywordtype">int</span> minparams);
+00058 <span class="keyword">extern</span> <span class="keywordtype">void</span> <a class="code" href="modules_8h.html#a14">server_mode</a>(<span class="keywordtype">char</span> **parameters, <span class="keywordtype">int</span> pcnt, <a class="code" href="classuserrec.html">userrec</a> *user);
+00059 
+00060 <span class="comment">// class Version holds the version information of a Module, returned</span>
+00061 <span class="comment">// by Module::GetVersion (thanks RD)</span>
+00062 
+<a name="l00067"></a><a class="code" href="classVersion.html">00067</a> <span class="keyword">class </span><a class="code" href="classVersion.html">Version</a> : <span class="keyword">public</span> <a class="code" href="classclassbase.html">classbase</a>
+00068 {
+00069  <span class="keyword">public</span>:
+<a name="l00070"></a><a class="code" href="classVersion.html#m2">00070</a>          <span class="keyword">const</span> <span class="keywordtype">int</span> <a class="code" href="classVersion.html#m0">Major</a>, <a class="code" href="classVersion.html#m1">Minor</a>, <a class="code" href="classVersion.html#m2">Revision</a>, <a class="code" href="classVersion.html#m3">Build</a>;
+00071          <a class="code" href="classVersion.html#a0">Version</a>(<span class="keywordtype">int</span> major, <span class="keywordtype">int</span> minor, <span class="keywordtype">int</span> revision, <span class="keywordtype">int</span> build);
+00072 };
+00073 
+<a name="l00079"></a><a class="code" href="classAdmin.html">00079</a> <span class="keyword">class </span><a class="code" href="classAdmin.html">Admin</a> : <span class="keyword">public</span> <a class="code" href="classclassbase.html">classbase</a>
+00080 {
+00081  <span class="keyword">public</span>:
+<a name="l00082"></a><a class="code" href="classAdmin.html#m2">00082</a>          <span class="keyword">const</span> std::string <a class="code" href="classAdmin.html#m0">Name</a>, <a class="code" href="classAdmin.html#m1">Email</a>, <a class="code" href="classAdmin.html#m2">Nick</a>;
+00083          <a class="code" href="classAdmin.html#a0">Admin</a>(std::string name, std::string email, std::string nick);
+00084 };
+00085 
+<a name="l00091"></a><a class="code" href="classModule.html">00091</a> <span class="keyword">class </span><a class="code" href="classModule.html">Module</a> : <span class="keyword">public</span> <a class="code" href="classclassbase.html">classbase</a>
+00092 {
+00093  <span class="keyword">public</span>:
+00094 
+00098         <a class="code" href="classModule.html#a0">Module</a>();
+00099 
+00103         <span class="keyword">virtual</span> <a class="code" href="classModule.html#a1">~Module</a>();
+00104 
+00109         <span class="keyword">virtual</span> <a class="code" href="classVersion.html">Version</a> <a class="code" href="classModule.html#a2">GetVersion</a>();
+00110 
+00114         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classModule.html#a3">OnUserConnect</a>(<a class="code" href="classuserrec.html">userrec</a>* user);
+00115 
+00119         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classModule.html#a4">OnUserQuit</a>(<a class="code" href="classuserrec.html">userrec</a>* user);
+00120 
+00125         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classModule.html#a5">OnUserJoin</a>(<a class="code" href="classuserrec.html">userrec</a>* user, <a class="code" href="classchanrec.html">chanrec</a>* channel);
+00126 
+00131         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classModule.html#a6">OnUserPart</a>(<a class="code" href="classuserrec.html">userrec</a>* user, <a class="code" href="classchanrec.html">chanrec</a>* channel);
+00132 
+00139         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classModule.html#a7">OnPacketTransmit</a>(<span class="keywordtype">char</span> *p);
+00140 
+00148         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classModule.html#a8">OnPacketReceive</a>(<span class="keywordtype">char</span> *p);
+00149 
+00155         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classModule.html#a9">OnRehash</a>();
+00156 
+00163         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classModule.html#a10">OnServerRaw</a>(std::string &amp;raw, <span class="keywordtype">bool</span> inbound);
+00164 
+00174         <span class="keyword">virtual</span> <span class="keywordtype">bool</span> <a class="code" href="classModule.html#a11">OnExtendedMode</a>(<a class="code" href="classuserrec.html">userrec</a>* user, <span class="keywordtype">void</span>* target, <span class="keywordtype">char</span> modechar, <span class="keywordtype">int</span> type, <span class="keywordtype">bool</span> mode_on, string_list &amp;params);
+00175         
+00188         <span class="keyword">virtual</span> <span class="keywordtype">int</span> <a class="code" href="classModule.html#a12">OnUserPreJoin</a>(<a class="code" href="classuserrec.html">userrec</a>* user, <a class="code" href="classchanrec.html">chanrec</a>* chan, <span class="keyword">const</span> <span class="keywordtype">char</span>* cname);
 00189         
-00194         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classModule.html#a13">OnOper</a>(<a class="code" href="classuserrec.html">userrec</a>* user);
-00195         
-00204         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classModule.html#a14">OnInfo</a>(<a class="code" href="classuserrec.html">userrec</a>* user);
-00205         
-00210         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classModule.html#a15">OnWhois</a>(<a class="code" href="classuserrec.html">userrec</a>* source, <a class="code" href="classuserrec.html">userrec</a>* dest);
-00211         
-00220         <span class="keyword">virtual</span> <span class="keywordtype">int</span> <a class="code" href="classModule.html#a16">OnUserPreMessage</a>(<a class="code" href="classuserrec.html">userrec</a>* user,<span class="keywordtype">void</span>* dest,<span class="keywordtype">int</span> target_type, std::string text);
-00221 
-00230         <span class="keyword">virtual</span> <span class="keywordtype">int</span> <a class="code" href="classModule.html#a17">OnUserPreNotice</a>(<a class="code" href="classuserrec.html">userrec</a>* user,<span class="keywordtype">void</span>* dest,<span class="keywordtype">int</span> target_type, std::string text);
-00231 };
-00232 
+00190         
+00195         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classModule.html#a13">OnOper</a>(<a class="code" href="classuserrec.html">userrec</a>* user);
+00196         
+00205         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classModule.html#a14">OnInfo</a>(<a class="code" href="classuserrec.html">userrec</a>* user);
+00206         
+00211         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classModule.html#a15">OnWhois</a>(<a class="code" href="classuserrec.html">userrec</a>* source, <a class="code" href="classuserrec.html">userrec</a>* dest);
+00212         
+00221         <span class="keyword">virtual</span> <span class="keywordtype">int</span> <a class="code" href="classModule.html#a16">OnUserPreMessage</a>(<a class="code" href="classuserrec.html">userrec</a>* user,<span class="keywordtype">void</span>* dest,<span class="keywordtype">int</span> target_type, std::string text);
+00222 
+00231         <span class="keyword">virtual</span> <span class="keywordtype">int</span> <a class="code" href="classModule.html#a17">OnUserPreNotice</a>(<a class="code" href="classuserrec.html">userrec</a>* user,<span class="keywordtype">void</span>* dest,<span class="keywordtype">int</span> target_type, std::string text);
+00232 };
 00233 
-<a name="l00239"></a><a class="code" href="classServer.html">00239</a> <span class="keyword">class </span><a class="code" href="classServer.html">Server</a> : <span class="keyword">public</span> <a class="code" href="classclassbase.html">classbase</a>
-00240 {
-00241  <span class="keyword">public</span>:
-00245         <a class="code" href="classServer.html#a0">Server</a>();
-00249         <span class="keyword">virtual</span> <a class="code" href="classServer.html#a1">~Server</a>();
-00250 
-00254         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classServer.html#a2">SendOpers</a>(std::string s);
-00259         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classServer.html#a3">Log</a>(<span class="keywordtype">int</span> level, std::string s);
-00264         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classServer.html#a4">Send</a>(<span class="keywordtype">int</span> Socket, std::string s);
-00269         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classServer.html#a5">SendServ</a>(<span class="keywordtype">int</span> Socket, std::string s);
-00274         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classServer.html#a6">SendFrom</a>(<span class="keywordtype">int</span> Socket, <a class="code" href="classuserrec.html">userrec</a>* User, std::string s);
-00279         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classServer.html#a7">SendTo</a>(<a class="code" href="classuserrec.html">userrec</a>* Source, <a class="code" href="classuserrec.html">userrec</a>* Dest, std::string s);
-00286         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classServer.html#a8">SendChannel</a>(<a class="code" href="classuserrec.html">userrec</a>* User, <a class="code" href="classchanrec.html">chanrec</a>* Channel, std::string s,<span class="keywordtype">bool</span> IncludeSender);
-00291         <span class="keyword">virtual</span> <span class="keywordtype">bool</span> <a class="code" href="classServer.html#a9">CommonChannels</a>(<a class="code" href="classuserrec.html">userrec</a>* u1, <a class="code" href="classuserrec.html">userrec</a>* u2);
-00299         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classServer.html#a10">SendCommon</a>(<a class="code" href="classuserrec.html">userrec</a>* User, std::string text,<span class="keywordtype">bool</span> IncludeSender);
-00304         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classServer.html#a11">SendWallops</a>(<a class="code" href="classuserrec.html">userrec</a>* User, std::string text);
-00305 
-00309         <span class="keyword">virtual</span> <span class="keywordtype">bool</span> <a class="code" href="classServer.html#a12">IsNick</a>(std::string nick);
-00313         <span class="keyword">virtual</span> <a class="code" href="classuserrec.html">userrec</a>* <a class="code" href="classServer.html#a13">FindNick</a>(std::string nick);
-00317         <span class="keyword">virtual</span> <a class="code" href="classchanrec.html">chanrec</a>* <a class="code" href="classServer.html#a14">FindChannel</a>(std::string channel);
-00322         <span class="keyword">virtual</span> std::string <a class="code" href="classServer.html#a15">ChanMode</a>(<a class="code" href="classuserrec.html">userrec</a>* User, <a class="code" href="classchanrec.html">chanrec</a>* Chan);
-00325         <span class="keyword">virtual</span> std::string <a class="code" href="classServer.html#a16">GetServerName</a>();
-00328         <span class="keyword">virtual</span> std::string <a class="code" href="classServer.html#a17">GetNetworkName</a>();
-00334         <span class="keyword">virtual</span> <a class="code" href="classAdmin.html">Admin</a> <a class="code" href="classServer.html#a18">GetAdmin</a>();
-00353         <span class="keyword">virtual</span> <span class="keywordtype">bool</span> <a class="code" href="classServer.html#a19">AddExtendedMode</a>(<span class="keywordtype">char</span> modechar, <span class="keywordtype">int</span> type, <span class="keywordtype">bool</span> requires_oper, <span class="keywordtype">int</span> params_when_on, <span class="keywordtype">int</span> params_when_off);
-00354 
-00369         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classServer.html#a20">AddCommand</a>(<span class="keywordtype">char</span>* cmd, handlerfunc f, <span class="keywordtype">char</span> flags, <span class="keywordtype">int</span> minparams);
-00370          
-00392         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classServer.html#a21">SendMode</a>(<span class="keywordtype">char</span> **parameters, <span class="keywordtype">int</span> pcnt, <a class="code" href="classuserrec.html">userrec</a> *user);
-00393         
-00406         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classServer.html#a22">SendToModeMask</a>(std::string modes, <span class="keywordtype">int</span> flags, std::string text);
-00407 
-00413         <span class="keyword">virtual</span> <a class="code" href="classchanrec.html">chanrec</a>* <a class="code" href="classServer.html#a23">Server::JoinUserToChannel</a>(<a class="code" href="classuserrec.html">userrec</a>* user, std::string cname, std::string key);
-00414         
-00420         <span class="keyword">virtual</span> <a class="code" href="classchanrec.html">chanrec</a>* <a class="code" href="classServer.html#a24">Server::PartUserFromChannel</a>(<a class="code" href="classuserrec.html">userrec</a>* user, std::string cname, std::string reason);
-00421         
-00427         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classServer.html#a25">ChangeUserNick</a>(<a class="code" href="classuserrec.html">userrec</a>* user, std::string nickname);
-00428         
-00439         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classServer.html#a26">QuitUser</a>(<a class="code" href="classuserrec.html">userrec</a>* user, std::string reason);
-00440 };
-00441 
-<a name="l00448"></a><a class="code" href="classConfigReader.html">00448</a> <span class="keyword">class </span><a class="code" href="classConfigReader.html">ConfigReader</a> : <span class="keyword">public</span> <a class="code" href="classclassbase.html">classbase</a>
-00449 {
-00450   <span class="keyword">protected</span>:
-<a name="l00453"></a><a class="code" href="classConfigReader.html#n0">00453</a>         std::string <a class="code" href="classConfigReader.html#n0">fname</a>;
-00454   <span class="keyword">public</span>:
-00459         <a class="code" href="classConfigReader.html#a0">ConfigReader</a>();                 <span class="comment">// default constructor reads ircd.conf</span>
-00463 <span class="comment"></span>        <a class="code" href="classConfigReader.html#a0">ConfigReader</a>(std::string filename);     <span class="comment">// read a module-specific config</span>
-00467 <span class="comment"></span>        <a class="code" href="classConfigReader.html#a2">~ConfigReader</a>();
-00472         std::string <a class="code" href="classConfigReader.html#a3">ReadValue</a>(std::string tag, std::string name, <span class="keywordtype">int</span> index);
-00479         <span class="keywordtype">int</span> <a class="code" href="classConfigReader.html#a4">Enumerate</a>(std::string tag);
-00483         <span class="keywordtype">bool</span> <a class="code" href="classConfigReader.html#a5">Verify</a>();
-00484 };
-00485 
-00486 
-00487 
-<a name="l00493"></a><a class="code" href="classFileReader.html">00493</a> <span class="keyword">class </span><a class="code" href="classFileReader.html">FileReader</a> : <span class="keyword">public</span> <a class="code" href="classclassbase.html">classbase</a>
-00494 {
-<a name="l00495"></a><a class="code" href="classFileReader.html#o0">00495</a>  <a class="code" href="modules_8h.html#a10">file_cache</a> <a class="code" href="classFileReader.html#o0">fc</a>;
-00496  <span class="keyword">public</span>:
-00501          <a class="code" href="classFileReader.html#a0">FileReader</a>();
-00507          <a class="code" href="classFileReader.html#a0">FileReader</a>(std::string filename);
-00511          <a class="code" href="classFileReader.html#a2">~FileReader</a>();
-00517          <span class="keywordtype">void</span> <a class="code" href="classFileReader.html#a3">LoadFile</a>(std::string filename);
-00522          <span class="keywordtype">bool</span> <a class="code" href="classFileReader.html#a4">Exists</a>();
-00523          std::string <a class="code" href="classFileReader.html#a5">GetLine</a>(<span class="keywordtype">int</span> x);
-00529          <span class="keywordtype">int</span> <a class="code" href="classFileReader.html#a6">FileSize</a>();
-00530 };
+00234 
+<a name="l00240"></a><a class="code" href="classServer.html">00240</a> <span class="keyword">class </span><a class="code" href="classServer.html">Server</a> : <span class="keyword">public</span> <a class="code" href="classclassbase.html">classbase</a>
+00241 {
+00242  <span class="keyword">public</span>:
+00246         <a class="code" href="classServer.html#a0">Server</a>();
+00250         <span class="keyword">virtual</span> <a class="code" href="classServer.html#a1">~Server</a>();
+00251 
+00255         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classServer.html#a2">SendOpers</a>(std::string s);
+00260         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classServer.html#a3">Log</a>(<span class="keywordtype">int</span> level, std::string s);
+00265         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classServer.html#a4">Send</a>(<span class="keywordtype">int</span> Socket, std::string s);
+00270         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classServer.html#a5">SendServ</a>(<span class="keywordtype">int</span> Socket, std::string s);
+00275         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classServer.html#a6">SendFrom</a>(<span class="keywordtype">int</span> Socket, <a class="code" href="classuserrec.html">userrec</a>* User, std::string s);
+00290         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classServer.html#a7">SendTo</a>(<a class="code" href="classuserrec.html">userrec</a>* Source, <a class="code" href="classuserrec.html">userrec</a>* Dest, std::string s);
+00297         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classServer.html#a8">SendChannel</a>(<a class="code" href="classuserrec.html">userrec</a>* User, <a class="code" href="classchanrec.html">chanrec</a>* Channel, std::string s,<span class="keywordtype">bool</span> IncludeSender);
+00302         <span class="keyword">virtual</span> <span class="keywordtype">bool</span> <a class="code" href="classServer.html#a9">CommonChannels</a>(<a class="code" href="classuserrec.html">userrec</a>* u1, <a class="code" href="classuserrec.html">userrec</a>* u2);
+00310         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classServer.html#a10">SendCommon</a>(<a class="code" href="classuserrec.html">userrec</a>* User, std::string text,<span class="keywordtype">bool</span> IncludeSender);
+00315         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classServer.html#a11">SendWallops</a>(<a class="code" href="classuserrec.html">userrec</a>* User, std::string text);
+00316 
+00320         <span class="keyword">virtual</span> <span class="keywordtype">bool</span> <a class="code" href="classServer.html#a12">IsNick</a>(std::string nick);
+00324         <span class="keyword">virtual</span> <span class="keywordtype">int</span> <a class="code" href="classServer.html#a13">CountUsers</a>(<a class="code" href="classchanrec.html">chanrec</a>* c);
+00328         <span class="keyword">virtual</span> <a class="code" href="classuserrec.html">userrec</a>* <a class="code" href="classServer.html#a14">FindNick</a>(std::string nick);
+00332         <span class="keyword">virtual</span> <a class="code" href="classchanrec.html">chanrec</a>* <a class="code" href="classServer.html#a15">FindChannel</a>(std::string channel);
+00337         <span class="keyword">virtual</span> std::string <a class="code" href="classServer.html#a16">ChanMode</a>(<a class="code" href="classuserrec.html">userrec</a>* User, <a class="code" href="classchanrec.html">chanrec</a>* Chan);
+00340         <span class="keyword">virtual</span> std::string <a class="code" href="classServer.html#a17">GetServerName</a>();
+00343         <span class="keyword">virtual</span> std::string <a class="code" href="classServer.html#a18">GetNetworkName</a>();
+00349         <span class="keyword">virtual</span> <a class="code" href="classAdmin.html">Admin</a> <a class="code" href="classServer.html#a19">GetAdmin</a>();
+00368         <span class="keyword">virtual</span> <span class="keywordtype">bool</span> <a class="code" href="classServer.html#a20">AddExtendedMode</a>(<span class="keywordtype">char</span> modechar, <span class="keywordtype">int</span> type, <span class="keywordtype">bool</span> requires_oper, <span class="keywordtype">int</span> params_when_on, <span class="keywordtype">int</span> params_when_off);
+00369 
+00384         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classServer.html#a21">AddCommand</a>(<span class="keywordtype">char</span>* cmd, handlerfunc f, <span class="keywordtype">char</span> flags, <span class="keywordtype">int</span> minparams);
+00385          
+00407         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classServer.html#a22">SendMode</a>(<span class="keywordtype">char</span> **parameters, <span class="keywordtype">int</span> pcnt, <a class="code" href="classuserrec.html">userrec</a> *user);
+00408         
+00421         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classServer.html#a23">SendToModeMask</a>(std::string modes, <span class="keywordtype">int</span> flags, std::string text);
+00422 
+00428         <span class="keyword">virtual</span> <a class="code" href="classchanrec.html">chanrec</a>* <a class="code" href="classServer.html#a24">JoinUserToChannel</a>(<a class="code" href="classuserrec.html">userrec</a>* user, std::string cname, std::string key);
+00429         
+00435         <span class="keyword">virtual</span> <a class="code" href="classchanrec.html">chanrec</a>* <a class="code" href="classServer.html#a25">PartUserFromChannel</a>(<a class="code" href="classuserrec.html">userrec</a>* user, std::string cname, std::string reason);
+00436         
+00442         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classServer.html#a26">ChangeUserNick</a>(<a class="code" href="classuserrec.html">userrec</a>* user, std::string nickname);
+00443         
+00454         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classServer.html#a27">QuitUser</a>(<a class="code" href="classuserrec.html">userrec</a>* user, std::string reason);
+00455         
+00460         <span class="keyword">virtual</span> <span class="keywordtype">bool</span> <a class="code" href="classServer.html#a28">MatchText</a>(std::string sliteral, std::string spattern);
+00461 };
+00462 
+<a name="l00469"></a><a class="code" href="classConfigReader.html">00469</a> <span class="keyword">class </span><a class="code" href="classConfigReader.html">ConfigReader</a> : <span class="keyword">public</span> <a class="code" href="classclassbase.html">classbase</a>
+00470 {
+00471   <span class="keyword">protected</span>:
+<a name="l00477"></a><a class="code" href="classConfigReader.html#n0">00477</a>         std::stringstream *<a class="code" href="classConfigReader.html#n0">cache</a>;
+<a name="l00480"></a><a class="code" href="classConfigReader.html#n1">00480</a>         <span class="keywordtype">bool</span> <a class="code" href="classConfigReader.html#n1">error</a>;
+00481         
+00482   <span class="keyword">public</span>:
+00487         <a class="code" href="classConfigReader.html#a0">ConfigReader</a>();                 <span class="comment">// default constructor reads ircd.conf</span>
+00491 <span class="comment"></span>        <a class="code" href="classConfigReader.html#a0">ConfigReader</a>(std::string filename);     <span class="comment">// read a module-specific config</span>
+00495 <span class="comment"></span>        <a class="code" href="classConfigReader.html#a2">~ConfigReader</a>();
+00500         std::string <a class="code" href="classConfigReader.html#a3">ReadValue</a>(std::string tag, std::string name, <span class="keywordtype">int</span> index);
+00507         <span class="keywordtype">int</span> <a class="code" href="classConfigReader.html#a4">Enumerate</a>(std::string tag);
+00512         <span class="keywordtype">bool</span> <a class="code" href="classConfigReader.html#a5">Verify</a>();
+00513 };
+00514 
+00515 
+00516 
+<a name="l00522"></a><a class="code" href="classFileReader.html">00522</a> <span class="keyword">class </span><a class="code" href="classFileReader.html">FileReader</a> : <span class="keyword">public</span> <a class="code" href="classclassbase.html">classbase</a>
+00523 {
+<a name="l00524"></a><a class="code" href="classFileReader.html#o0">00524</a>  <a class="code" href="modules_8h.html#a10">file_cache</a> <a class="code" href="classFileReader.html#o0">fc</a>;
+00525  <span class="keyword">public</span>:
+00530          <a class="code" href="classFileReader.html#a0">FileReader</a>();
 00531 
-00532 
-<a name="l00539"></a><a class="code" href="classModuleFactory.html">00539</a> <span class="keyword">class </span><a class="code" href="classModuleFactory.html">ModuleFactory</a> : <span class="keyword">public</span> <a class="code" href="classclassbase.html">classbase</a>
-00540 {
-00541  <span class="keyword">public</span>:
-<a name="l00542"></a><a class="code" href="classModuleFactory.html#a0">00542</a>         <a class="code" href="classModuleFactory.html#a0">ModuleFactory</a>() { }
-<a name="l00543"></a><a class="code" href="classModuleFactory.html#a1">00543</a>         <span class="keyword">virtual</span> <a class="code" href="classModuleFactory.html#a1">~ModuleFactory</a>() { }
-00548         <span class="keyword">virtual</span> <a class="code" href="classModule.html">Module</a> * <a class="code" href="classModuleFactory.html#a2">CreateModule</a>() = 0;
-00549 };
+00537          <a class="code" href="classFileReader.html#a0">FileReader</a>(std::string filename);
+00538 
+00542          <a class="code" href="classFileReader.html#a2">~FileReader</a>();
+00543 
+00549          <span class="keywordtype">void</span> <a class="code" href="classFileReader.html#a3">LoadFile</a>(std::string filename);
 00550 
-00551 
-<a name="l00552"></a><a class="code" href="modules_8h.html#a12">00552</a> <span class="keyword">typedef</span> DLLFactory&lt;ModuleFactory&gt; <a class="code" href="modules_8h.html#a12">ircd_module</a>;
-00553 
-00554 <span class="preprocessor">#endif</span>
-</pre></div><hr><address style="align: right;"><small>Generated on Tue Apr 6 21:13:19 2004 for InspIRCd by
+00551          <span class="keywordtype">bool</span> <a class="code" href="classFileReader.html#a4">Exists</a>();
+00552          
+00557          std::string <a class="code" href="classFileReader.html#a5">GetLine</a>(<span class="keywordtype">int</span> x);
+00558 
+00564          <span class="keywordtype">int</span> <a class="code" href="classFileReader.html#a6">FileSize</a>();
+00565 };
+00566 
+00567 
+<a name="l00574"></a><a class="code" href="classModuleFactory.html">00574</a> <span class="keyword">class </span><a class="code" href="classModuleFactory.html">ModuleFactory</a> : <span class="keyword">public</span> <a class="code" href="classclassbase.html">classbase</a>
+00575 {
+00576  <span class="keyword">public</span>:
+<a name="l00577"></a><a class="code" href="classModuleFactory.html#a0">00577</a>         <a class="code" href="classModuleFactory.html#a0">ModuleFactory</a>() { }
+<a name="l00578"></a><a class="code" href="classModuleFactory.html#a1">00578</a>         <span class="keyword">virtual</span> <a class="code" href="classModuleFactory.html#a1">~ModuleFactory</a>() { }
+00583         <span class="keyword">virtual</span> <a class="code" href="classModule.html">Module</a> * <a class="code" href="classModuleFactory.html#a2">CreateModule</a>() = 0;
+00584 };
+00585 
+00586 
+<a name="l00587"></a><a class="code" href="modules_8h.html#a12">00587</a> <span class="keyword">typedef</span> DLLFactory&lt;ModuleFactory&gt; <a class="code" href="modules_8h.html#a12">ircd_module</a>;
+00588 
+00589 <span class="preprocessor">#endif</span>
+</pre></div><hr><address style="align: right;"><small>Generated on Wed Apr 7 19:20:14 2004 for InspIRCd by
 <a href="http://www.doxygen.org/index.html">
 <img src="doxygen.png" alt="doxygen" align="middle" border=0 
 width=110 height=53></a>1.3-rc3 </small></address>

@@ -11,6 +11,7 @@
 <code>#include "<a class="el" href="ctables_8h-source.html">ctables.h</a>"</code><br>
 <code>#include &lt;string&gt;</code><br>
 <code>#include &lt;deque&gt;</code><br>
+<code>#include &lt;sstream&gt;</code><br>
 
 <p>
 Include dependency graph for modules.h:<p><center><img src="modules_8h__incl.gif" border="0" usemap="#modules.h_map" alt="Include dependency graph"></center>
@@ -133,7 +134,7 @@ Definition at line <a class="el" href="modules_8h-source.html#l00013">13</a> of 
 <p>
 
 <p>
-Definition at line <a class="el" href="modules_8h-source.html#l00036">36</a> of file <a class="el" href="modules_8h-source.html">modules.h</a>.    </td>
+Definition at line <a class="el" href="modules_8h-source.html#l00037">37</a> of file <a class="el" href="modules_8h-source.html">modules.h</a>.    </td>
   </tr>
 </table>
 <a name="a9" doxytag="modules.h::FOREACH_RESULT"></a><p>
@@ -171,7 +172,7 @@ Definition at line <a class="el" href="modules_8h-source.html#l00036">36</a> of 
    }
 </pre></div>
 <p>
-Definition at line <a class="el" href="modules_8h-source.html#l00044">44</a> of file <a class="el" href="modules_8h-source.html">modules.h</a>.    </td>
+Definition at line <a class="el" href="modules_8h-source.html#l00045">45</a> of file <a class="el" href="modules_8h-source.html">modules.h</a>.    </td>
   </tr>
 </table>
 <a name="a5" doxytag="modules.h::MT_CHANNEL"></a><p>
@@ -221,7 +222,7 @@ Definition at line <a class="el" href="modules_8h-source.html#l00017">17</a> of 
 <p>
 Definition at line <a class="el" href="modules_8h-source.html#l00018">18</a> of file <a class="el" href="modules_8h-source.html">modules.h</a>.
 <p>
-Referenced by <a class="el" href="modules_8cpp-source.html#l00275">Server::AddExtendedMode()</a>.    </td>
+Referenced by <a class="el" href="modules_8cpp-source.html#l00293">Server::AddExtendedMode()</a>.    </td>
   </tr>
 </table>
 <a name="a7" doxytag="modules.h::MT_SERVER"></a><p>
@@ -247,7 +248,7 @@ Referenced by <a class="el" href="modules_8cpp-source.html#l00275">Server::AddEx
 <p>
 Definition at line <a class="el" href="modules_8h-source.html#l00019">19</a> of file <a class="el" href="modules_8h-source.html">modules.h</a>.
 <p>
-Referenced by <a class="el" href="modules_8cpp-source.html#l00275">Server::AddExtendedMode()</a>.    </td>
+Referenced by <a class="el" href="modules_8cpp-source.html#l00293">Server::AddExtendedMode()</a>.    </td>
   </tr>
 </table>
 <a name="a4" doxytag="modules.h::NONE"></a><p>
@@ -346,9 +347,9 @@ Low level definition of a <a class="el" href="classFileReader.html">FileReader</
 <p>
 
 <p>
-Definition at line <a class="el" href="modules_8h-source.html#l00029">29</a> of file <a class="el" href="modules_8h-source.html">modules.h</a>.
+Definition at line <a class="el" href="modules_8h-source.html#l00030">30</a> of file <a class="el" href="modules_8h-source.html">modules.h</a>.
 <p>
-Referenced by <a class="el" href="modules_8cpp-source.html#l00329">FileReader::FileReader()</a>, and <a class="el" href="modules_8cpp-source.html#l00340">FileReader::LoadFile()</a>.    </td>
+Referenced by <a class="el" href="modules_8cpp-source.html#l00359">FileReader::FileReader()</a>, and <a class="el" href="modules_8cpp-source.html#l00370">FileReader::LoadFile()</a>.    </td>
   </tr>
 </table>
 <a name="a12" doxytag="modules.h::ircd_module"></a><p>
@@ -372,7 +373,7 @@ Referenced by <a class="el" href="modules_8cpp-source.html#l00329">FileReader::F
 <p>
 
 <p>
-Definition at line <a class="el" href="modules_8h-source.html#l00552">552</a> of file <a class="el" href="modules_8h-source.html">modules.h</a>.    </td>
+Definition at line <a class="el" href="modules_8h-source.html#l00587">587</a> of file <a class="el" href="modules_8h-source.html">modules.h</a>.    </td>
   </tr>
 </table>
 <a name="a11" doxytag="modules.h::string_list"></a><p>
@@ -396,7 +397,7 @@ Definition at line <a class="el" href="modules_8h-source.html#l00552">552</a> of
 <p>
 
 <p>
-Definition at line <a class="el" href="modules_8h-source.html#l00030">30</a> of file <a class="el" href="modules_8h-source.html">modules.h</a>.    </td>
+Definition at line <a class="el" href="modules_8h-source.html#l00031">31</a> of file <a class="el" href="modules_8h-source.html">modules.h</a>.    </td>
   </tr>
 </table>
 <hr><h2>Function Documentation</h2>
@@ -449,7 +450,7 @@ Definition at line <a class="el" href="modules_8h-source.html#l00030">30</a> of 
 <p>
 
 <p>
-Referenced by <a class="el" href="modules_8cpp-source.html#l00174">Server::AddCommand()</a>.    </td>
+Referenced by <a class="el" href="modules_8cpp-source.html#l00183">Server::AddCommand()</a>.    </td>
   </tr>
 </table>
 <a name="a14" doxytag="modules.h::server_mode"></a><p>
@@ -495,10 +496,10 @@ Referenced by <a class="el" href="modules_8cpp-source.html#l00174">Server::AddCo
 <p>
 
 <p>
-Referenced by <a class="el" href="modules_8cpp-source.html#l00179">Server::SendMode()</a>.    </td>
+Referenced by <a class="el" href="modules_8cpp-source.html#l00188">Server::SendMode()</a>.    </td>
   </tr>
 </table>
-<hr><address style="align: right;"><small>Generated on Tue Apr 6 21:13:33 2004 for InspIRCd by
+<hr><address style="align: right;"><small>Generated on Wed Apr 7 19:20:24 2004 for InspIRCd by
 <a href="http://www.doxygen.org/index.html">
 <img src="doxygen.png" alt="doxygen" align="middle" border=0 
 width=110 height=53></a>1.3-rc3 </small></address>
