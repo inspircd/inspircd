@@ -72,6 +72,9 @@ class ZLine : public XLine
 	 * May contain wildcards.
 	 */
 	char ipaddr[MAXBUF];
+	/** Set if this is a global Z:line
+	 * (e.g. it came from another server)
+	 */
 	bool is_global;
 };
 
@@ -84,6 +87,9 @@ class QLine : public XLine
 	 * May contain wildcards.
 	 */
 	char nick[MAXBUF];
+	/** Set if this is a global Z:line
+	 * (e.g. it came from another server)
+	 */
 	bool is_global;
 };
 

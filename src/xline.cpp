@@ -336,14 +336,14 @@ void sync_xlines(serverrec* serv, char* tcp_host)
 	{
 		if (i->is_global)
 		{
-			snprintf(data,MAXBUF,"{ %s %s %ld %ld :%s",i->ipaddr,i->source,i->set_time,i->duration,i->reason);
+			snprintf(data,MAXBUF,"{ %s %s %ld %ld :%s",i->nick,i->source,i->set_time,i->duration,i->reason);
 			serv->SendPacket(data,tcp_host);
 		}
 	}
 	// glines are always global, so no need to check
 	for (std::vector<GLine>::iterator i = glines.begin(); i != glines.end(); i++)
 	{
-		snprintf(data,MAXBUF,"# %s %s %ld %ld :%s",i->ipaddr,i->source,i->set_time,i->duration,i->reason);
+		snprintf(data,MAXBUF,"# %s %s %ld %ld :%s",i->hostmask,i->source,i->set_time,i->duration,i->reason);
 		serv->SendPacket(data,tcp_host);
 	}
 }
