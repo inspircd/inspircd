@@ -20,13 +20,15 @@ echo "BINPATH = $BINARY_DIR" >> Makefile
 echo "MODULES =$MODULES" >> Makefile
 echo "MAKEARGS = 'PROGS=\${PROGS}' 'FLAGS=\${FLAGS}' 'CC=\${CC}' 'LDLIBS=\${LDLIBS}' 'MODULES=\${MODULES}' 'MODPATH=\$(MODPATH)'" >> Makefile
 echo "" >> Makefile
-echo "all : ircd mods config" >> Makefile
+echo "all : ircd mods config bininst" >> Makefile
 echo "" >> Makefile
 echo "mods:" >> Makefile
 echo "	\${MAKE} -C src/modules DIRNAME="src/modules" \$(MAKEARGS)" >> Makefile
 echo "" >> Makefile
 echo "ircd:" >> Makefile
 echo "	\${MAKE} -C src DIRNAME="src" \$(MAKEARGS)" >> Makefile
+echo "" >> Makefile
+echo "bininst:" >> Makefile
 echo "	@cp src/inspircd \$(BINPATH)" >> Makefile
 echo "" >> Makefile
 echo "config:" >> Makefile
@@ -37,7 +39,7 @@ echo "	echo \"*** Nothing to Be Done for make config\"" >> Makefile
 fi
 echo "clean:" >> Makefile
 echo "	rm -rf src/*.o" >> Makefile
-echo "	rm -rf src/modules/*.o" >> Makefile
+echo "	rm -rf src/modules/*.so" >> Makefile
 echo "" >> Makefile
 echo "modclean:" >> Makefile
 echo "	rm -rf modules/*.so" >> Makefile
