@@ -34,7 +34,7 @@ class ModuleRestrictMsg : public Module
 		Srv = new Server;
 	}
 
-	virtual int OnUserPreNotice(userrec* user,void* dest,int target_type, std::string &text)
+	virtual int OnUserPreMessage(userrec* user,void* dest,int target_type, std::string &text)
 	{
 		if (target_type == TYPE_USER)
 		{
@@ -53,6 +53,11 @@ class ModuleRestrictMsg : public Module
 		}
 		// however, we must allow channel messages...
 		return 0;
+	}
+
+	virtual int OnUserPreNotice(userrec* user,void* dest,int target_type, std::string &text)
+	{
+		return this->OnUserPreMessage(user,dest,target_type,text);
 	}
 
 	virtual ~ModuleRestrictMsg()
