@@ -56,6 +56,7 @@ using namespace std;
 #include "commands.h"
 #include "xline.h"
 #include "inspstring.h"
+#include "dnsqueue.h"
 
 #ifdef GCC3
 #define nspace __gnu_cxx
@@ -77,6 +78,7 @@ char rules[MAXBUF];
 char list[MAXBUF];
 char PrefixQuit[MAXBUF];
 char DieValue[MAXBUF];
+char DNSServer[MAXBUF];
 int debugging =  0;
 int WHOWAS_STALE = 48; // default WHOWAS Entries last 2 days before they go 'stale'
 int WHOWAS_MAX = 100;  // default 100 people maximum in the WHOWAS list
@@ -369,6 +371,7 @@ void ReadConfig(bool bail, userrec* user)
 	ConfValue("options","allowhalfop",0,AH,&config_f);
 	ConfValue("options","allowprotect",0,AP,&config_f);
 	ConfValue("options","allowfounder",0,AF,&config_f);
+	ConfValue("dns","server",0,DNSServer,&config_f);
 	NetBufferSize = atoi(NB);
 	MaxWhoResults = atoi(MW);
 	AllowHalfop = ((!strcasecmp(AH,"true")) || (!strcasecmp(AH,"1")) || (!strcasecmp(AH,"yes")));
@@ -2211,6 +2214,8 @@ void AddClient(int socket, char* host, int port, bool iscached, char* ip)
 		WriteServ(socket,"NOTICE Auth :Looking up your hostname...");
 	}
 
+	lookup_dns(clientlist[tempnick]);
+
 	// set the registration timeout for this user
 	unsigned long class_regtimeout = 90;
 	for (ClassVector::iterator i = Classes.begin(); i != Classes.end(); i++)
@@ -3401,6 +3406,9 @@ int InspIRCd(void)
 		timeval tval;
 		FD_ZERO(&sfd);
 
+		// poll dns queue
+		dns_poll();
+
 		user_hash::iterator count2 = clientlist.begin();
 
 		// *FIX* Instead of closing sockets in kill_link when they receive the ERROR :blah line, we should queue
@@ -3690,26 +3698,23 @@ int InspIRCd(void)
 				length = sizeof (client);
 				incomingSockfd = accept (openSockfd[count], (struct sockaddr *) &client, &length);
 			      
-				address_cache::iterator iter = IP.find(client.sin_addr);
+				//address_cache::iterator iter = IP.find(client.sin_addr);
 				bool iscached = false;
-				if (iter == IP.end())
-				{
+				//if (iter == IP.end())
+				//{
 					/* ip isn't in cache, add it */
 					strlcpy (target, (char *) inet_ntoa (client.sin_addr), MAXBUF);
-					if(CleanAndResolve(resolved, target) != TRUE)
-					{
-						strlcpy(resolved,target,MAXBUF);
-					}
+					strlcpy (resolved, target, MAXBUF);
 					/* hostname now in 'target' */
-					IP[client.sin_addr] = new string(resolved);
+					//IP[client.sin_addr] = new string(resolved);
 					/* hostname in cache */
-				}
-				else
-				{
-					/* found ip (cached) */
-					strlcpy(resolved, iter->second->c_str(), MAXBUF);
-					iscached = true;
-				}
+				//}
+				//else
+				//{
+				//	/* found ip (cached) */
+				//	strlcpy(resolved, iter->second->c_str(), MAXBUF);
+				//	iscached = true;
+				//}
 			
 				if (incomingSockfd < 0)
 				{

@@ -41,6 +41,7 @@ userrec::userrec()
 	fd = lastping = signon = idle_lastmsg = nping = registered = 0;
 	flood = port = bytes_in = bytes_out = cmds_in = cmds_out = 0;
 	haspassed = false;
+	dns_done = false;
 	strcpy(result,"");
 	for (int i = 0; i < MAXCHANS; i++)
 	{

@@ -155,6 +155,10 @@ class userrec : public connection
 	 */
 	char oper[NICKMAX];
 
+        /** True when DNS lookups are completed.
+         */
+        bool dns_done;
+
 	userrec();
 	
 	virtual ~userrec() {  }
