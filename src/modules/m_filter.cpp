@@ -152,7 +152,7 @@ class ModuleFilter : public Module
 		std::string filterfile = Conf->ReadValue("filter","file",0);
 		// this automatically re-reads the configuration file into the class
 		MyConf = new ConfigReader(filterfile);
-		if ((filterfile == "")|| (!MyConf->Verify()))
+		if ((filterfile == "") || (!MyConf->Verify()))
 		{
 			// bail if the user forgot to create a config file
 			printf("Error, could not find <filter file=\"\"> definition in your config file!");
