@@ -548,6 +548,9 @@ class FileReader : public classbase
 	  */
 	 void LoadFile(std::string filename);
 
+	 /** Returns true if the file exists
+	  * This function will return false if the file could not be opened.
+	  */
 	 bool Exists();
 	 
 	 /** Retrieve one line from the file.
