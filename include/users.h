@@ -113,6 +113,8 @@ class userrec : public connection
 	 */
 	char result[256];
 	
+	char carryover[MAXBUF];
+	
 	unsigned long timeout;
 
 	userrec();

@@ -33,6 +33,7 @@ userrec::userrec()
 	invites.clear();
 }
 
+
  
 char* userrec::GetFullHost()
 {

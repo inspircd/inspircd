@@ -81,6 +81,8 @@ vector<string> module_names;
 extern vector<ircd_module*> factory;
 vector<int> fd_reap;
 
+int client_exit = 0;
+
 extern int MODCOUNT;
 
 bool nofork = false;
@@ -456,8 +458,9 @@ void NonBlocking(int s)
 {
   int flags;
   log(DEBUG,"NonBlocking: %d",s);
-  flags = fcntl(s, F_GETFL, 0);
-  fcntl(s, F_SETFL, flags | O_NONBLOCK);
+  //flags = fcntl(s, F_GETFL, 0);
+  fcntl(s, F_SETFL, O_NONBLOCK);
+  //fcntl(s, F_SETFL, flags | O_NONBLOCK);
 }
 
 
@@ -3225,6 +3228,8 @@ void kill_link(userrec *user,const char* r)
 	if (user->registered == 7) {
 		purge_empty_chans();
 	}
+	
+	client_exit = 1;
 }
 
 
@@ -3924,6 +3929,8 @@ void handle_quit(char **parameters, int pcnt, userrec *user)
 	if (user->registered == 7) {
 		purge_empty_chans();
 	}
+	
+	client_exit = 1;
 }
 
 void handle_who(char **parameters, int pcnt, userrec *user)
@@ -4745,7 +4752,8 @@ void process_command(userrec *user, char* cmd)
 		{
 			cmd[i] = toupper(cmd[i]);
 		}
-		log(DEBUG,"Preprocess done");
+		log(DEBUG,"Preprocess done length=%d",strlen(cmd));
+		command = cmd;
 	}
 	else
 	{
@@ -4789,6 +4797,7 @@ void process_command(userrec *user, char* cmd)
 		}
 
 	}
+	log(DEBUG,"A %d %s",strlen(cmd),cmd);
 	
 	cmd_found = 0;
 	
@@ -4797,6 +4806,8 @@ void process_command(userrec *user, char* cmd)
 		kill_link(user,"Protocol violation (2)");
 		return;
 	}
+	
+	log(DEBUG,"A %d %s",strlen(cmd),cmd);
 	
 	for (int x = 0; x < strlen(command); x++)
 	{
@@ -4973,7 +4984,7 @@ void SetupCommandTable(void)
 	createcommand("MODULES",handle_modules,'o',0);
 }
 
-void process_buffer(userrec *user)
+void process_buffer(char* cmdbuf,userrec *user)
 {
 	if (!user)
 	{
@@ -4982,16 +4993,16 @@ void process_buffer(userrec *user)
 	}
 	char cmd[MAXBUF];
 	int i;
-	if (!user->inbuf)
+	if (!cmdbuf)
 	{
 		log(DEFAULT,"*** BUG *** process_buffer was given an invalid parameter");
 		return;
 	}
-	if (!strcmp(user->inbuf,""))
+	if (!strcmp(cmdbuf,""))
 	{
 		return;
 	}
-	strncpy(cmd,user->inbuf,MAXBUF);
+	strncpy(cmd,cmdbuf,MAXBUF);
 	if (!strcmp(cmd,""))
 	{
 		return;
@@ -5004,7 +5015,7 @@ void process_buffer(userrec *user)
 	{
 		cmd[strlen(cmd)-1] = '\0';
 	}
-	strcpy(user->inbuf,"");
+
 	if (!strcmp(cmd,""))
 	{
 		return;
@@ -5509,15 +5520,35 @@ int InspIRCd(void)
 			for (user_hash::iterator count2a = xcount; count2a != endingiter; count2a++)
 			{
 				result = EAGAIN;
-				if (FD_ISSET (count2a->second->fd, &sfd))
+				if ((FD_ISSET (count2a->second->fd, &sfd)) || (strlen(count2a->second->carryover)))
 				{
-					result = read(count2a->second->fd, data, 1);
+					//result = read(count2a->second->fd, data, 1);
+					int foo = 0;
+					NonBlocking(count2a->second->fd);
+
+					if (strlen(count2a->second->carryover))
+					{
+						strncpy(data,count2a->second->carryover,MAXBUF);
+						strcpy(count2a->second->carryover,"");
+						foo = strlen(data);
+					}
+
+					if (!foo)
+					{
+     						result = read(count2a->second->fd, data, 256);
+     					}
+					else
+					{
+     						result = foo;
+     					}
+
 					if ((result == -1) && (errno != EAGAIN) && (errno != EINTR))
 					{
 						log(DEBUG,"killing: %s",count2a->second->nick);
 						kill_link(count2a->second,strerror(errno));
 						goto label;
 					}
+					data[result] = '\0'; // pad the data
 				}
 				// result EAGAIN means nothing read
 				if (result == EAGAIN)
@@ -5540,39 +5571,44 @@ int InspIRCd(void)
 					if (count2a->second)
 					{
 					
-						// until the buffer is at 509 chars anything can be inserted into it.
-						if ((strlen(count2a->second->inbuf) < 509) && (data[0] != '\0')) {
-							strncat(count2a->second->inbuf, data, result);
-						}
-	
-						// once you reach 509 chars, only a \r or \n can be inserted,
-						// completing the line.
-						if ((strlen(count2a->second->inbuf) >= 509) && ((data[0] == '\r') || (data[0] == '\n'))) {
-							count2a->second->inbuf[509] = '\r';
-							count2a->second->inbuf[510] = '\n';
-							count2a->second->inbuf[511] = '\0';
-							process_buffer(count2a->second);
-							goto label;
-						}
-	
-						if (strchr(count2a->second->inbuf, '\n') || strchr(count2a->second->inbuf, '\r') || (strlen(count2a->second->inbuf) > 509))
+						char d[2];
+						d[1] = '\0';
+
+						for(int chr = 0; chr < result; chr++)
 						{
-							/* at least one complete line is waiting to be processed */
-							if (!count2a->second->fd)
-								goto label;
-							else
-							{
-								if (strlen(count2a->second->inbuf)<512)
-								{
-									// double check the length before processing!
-									process_buffer(count2a->second);
-								}
-								else
-								{
-									strcpy(count2a->second->inbuf,"");
-								}
-								goto label;
+							d[0] = data[chr];
+							
+							// until the buffer is at 509 chars anything can be inserted into it.
+							if (d[0] != '\0')
+       							{
+								strncat(count2a->second->inbuf, d, MAXBUF);
 							}
+		
+		
+							if ((d[0] == '\n') || (d[0] == '\r'))
+							{
+								char cmdbuf[MAXBUF];
+								strncpy(cmdbuf,count2a->second->inbuf,MAXBUF);
+        							strcpy(count2a->second->inbuf,"");
+        							char* x = data+chr;
+        							if ((x != NULL) && (chr < 255))
+        							{
+        								if (strlen(x))
+        								{
+										if ((x[0] == '\n') || (x[0] == '\r')) x++;
+										if ((x[0] == '\n') || (x[0] == '\r')) x++;
+										if (strlen(x))
+										{
+											strncpy(count2a->second->carryover,x,MAXBUF);
+        									}
+        								}
+        							}
+        							if (strlen(cmdbuf)>1)
+        							{
+        								process_buffer(cmdbuf,count2a->second);
+        							}
+        							goto label;
+        						}
 						}
 					}
 				}
