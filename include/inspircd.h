@@ -119,7 +119,7 @@ void ChangeDisplayedHost(userrec* user, const char* host);
 
 // mesh network functions
 
-void NetSendToCommon(userrec* u, chanrec* c, char* s);
+void NetSendToCommon(userrec* u, char* s);
 void NetSendToAll(char* s);
 void NetSendToOne(char* target,char* s);
 void NetSendToAllExcept(char* target,char* s);

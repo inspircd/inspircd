@@ -178,6 +178,12 @@ bool connection::AddIncoming(int fd,char* targethost)
 	connector.SetServerName(targethost);
 	connector.SetDescriptor(fd);
 	connector.SetState(STATE_NOAUTH_INBOUND);
+	int flags = fcntl(fd, F_GETFL, 0);
+	fcntl(fd, F_SETFL, flags | O_NONBLOCK);
+	int sendbuf = 32768;
+	int recvbuf = 32768;
+	setsockopt(fd,SOL_SOCKET,SO_SNDBUF,(const void *)&sendbuf,sizeof(sendbuf)); 
+	setsockopt(fd,SOL_SOCKET,SO_RCVBUF,(const void *)&recvbuf,sizeof(sendbuf));
 	this->connectors.push_back(connector);
 	return true;
 }

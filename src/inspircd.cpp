@@ -877,6 +877,7 @@ bool CommonOnThisServer(userrec* u,const char* servername)
 		{
 			if (!strcasecmp(i->second->server,servername))
 			{
+				log(DEBUG,"%s is common to %s sharing with %s",i->second->nick,servername,u->nick);
 				return true;
 			}
 		}
@@ -885,7 +886,7 @@ bool CommonOnThisServer(userrec* u,const char* servername)
 }
 
 
-void NetSendToCommon(userrec* u, chanrec* c, char* s)
+void NetSendToCommon(userrec* u, char* s)
 {
 	char buffer[MAXBUF];
 	snprintf(buffer,MAXBUF,"%s",s);
@@ -4434,7 +4435,7 @@ void handle_privmsg(char **parameters, int pcnt, userrec *user)
 			// if any users of this channel are on remote servers, broadcast the packet
 			char buffer[MAXBUF];
 			snprintf(buffer,MAXBUF,"P %s %s :%s",user->nick,chan->name,parameters[1]);
-			NetSendToCommon(user,chan,buffer);
+			NetSendToCommon(user,buffer);
 		}
 		else
 		{
@@ -4518,7 +4519,7 @@ void handle_notice(char **parameters, int pcnt, userrec *user)
 			// if any users of this channel are on remote servers, broadcast the packet
 			char buffer[MAXBUF];
 			snprintf(buffer,MAXBUF,"V %s %s :%s",user->nick,chan->name,parameters[1]);
-			NetSendToCommon(user,chan,buffer);
+			NetSendToCommon(user,buffer);
 		}
 		else
 		{
@@ -6943,7 +6944,7 @@ int InspIRCd(void)
 			}
 		}
      
-		for (int x = 0; x != UDPportCount; x++)
+		for (int x = 0; x < UDPportCount; x++)
 		{
 			std::deque<std::string> msgs;
 			msgs.clear();
