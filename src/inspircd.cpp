@@ -6384,7 +6384,7 @@ void handle_plus(char token,char* params,serverrec* source,serverrec* reply, cha
 	char* cookie = strtok(NULL," ");
 	log(DEBUG," ");
 	log(DEBUG," ");
-	log(DEBUG,"*** Connecting back to %s:%d",ipaddr,ipport);
+	log(DEBUG,"*** Connecting back to %s:%d",ipaddr,atoi(ipport));
 	me[defaultRoute]->MeshCookie(ipaddr,atoi(ipport),atoi(cookie),servername);
 	log(DEBUG," ");
 }
