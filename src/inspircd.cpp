@@ -5101,12 +5101,12 @@ void handle_N(char token,char* params,serverrec* source,serverrec* reply, char* 
 {
 	log(DEBUG,"Sync: Received an 'N' packet, processing");
 	char* tm = strtok(params," ");
-	char* nick = strtok(params," ");
-	char* host = strtok(params," ");
-	char* dhost = strtok(params," ");
-	char* ident = strtok(params," ");
-	char* modes = strtok(params," ");
-	char* server = strtok(params," ");
+	char* nick = strtok(NULL," ");
+	char* host = strtok(NULL," ");
+	char* dhost = strtok(NULL," ");
+	char* ident = strtok(NULL," ");
+	char* modes = strtok(NULL," ");
+	char* server = strtok(NULL," ");
 	char* gecos = strchr(params,':') + 1;
 	time_t TS = atoi(tm);
 	user_hash::iterator iter = clientlist.find(nick);
