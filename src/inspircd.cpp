@@ -2407,7 +2407,24 @@ void ConnectUser(userrec *user)
 	v << std::string(Network);
 	std::string data005 = v.str();
 	FOREACH_MOD On005Numeric(data005);
-	WriteServ(user->fd,"005 %s %s :are supported by this server",user->nick,data005.c_str());
+	// anfl @ #ratbox, efnet reminded me that according to the RFC this cant contain more than 13 tokens per line...
+	// so i'd better split it :)
+	std::stringstream out(data005);
+	std::string token = "";
+	std::string line5 = "";
+	int token_counter = 0;
+	while (!out.eof())
+	{
+		out >> token;
+		line5 = line5 + token + " ";
+		token_counter++;
+		if ((token_counter >= 13) || (out.eof() == true))
+		{
+			WriteServ(user->fd,"005 %s %s:are supported by this server",user->nick,line5.c_str());
+			line5 = "";
+			token_counter = 0;
+		}
+	}
 	ShowMOTD(user);
 	FOREACH_MOD OnUserConnect(user);
 	WriteOpers("*** Client connecting on port %d: %s!%s@%s [%s]",user->port,user->nick,user->ident,user->host,user->ip);
