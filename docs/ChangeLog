@@ -1,0 +1,49 @@
+1.0 alpha 5
+
+* Changed channel array to a hash_map similar to the one used for users, faster and more efficient
+* Changed ./configure, no longer asks for hard channel limit (depreciated)
+* Added support for users to be disconnected once MAXUSERS is reached
+* Changed code a lot, major overhauls for C++ and STL use for added stability and speed
+* Changed entire user system to use the hash_map container type instead of an array
+* Added /TIME command
+* Added /INFO command
+* Added restart and die passwords
+* Partially implemented /RESTART command
+* Fixed amusing bug which allowed partially connected clients to issue commands under the context of other users! *gulp!* (reported again by Craig)
+* Fixed SegFault caused when doing a /who 0 or /who * whilst not in channels (Reported by Craig, Fixed by Craig :p)
+* Added /who 0 o to display online Opers (Craigs First Scratch of Code :p)
+* Fixed Typo in LUSERS (Reported by MrBOFH and CC)
+* Fixed Joining Channels withough a # bug. (Reported by MrBOFH)
+
+
+1.0 alpha 4
+
+* Fixed parameters bug discovered by Allan
+* Fixed /NICK repeating bug found by piggles.
+* Added /REHASH command
+* Added /LUSERS command
+* Added ability to kill -HUP to rehash
+* Fixed lock up after ping timeout
+* Added system to /VERSION
+* Added DNS lookups on connect (*FIXME* this needs to be asyncronous!)
+* Fixed IRCop status shown on wrong users
+* Fixed socket linger option via setsockopt (can restart faster as sockets arent in use after shutdown!)
+* Added operators can now see real userhost in WHOIS
+* Added oper-up failed msg to online opers
+* Changed layout of /motd command start numeric
+* Fixed empty channels are now purged upon user quit
+* Changed: support for WHO * as well as WHO 0 (do the same thing)
+* Fixed ability to kick users when you arent on the channel :)
+* Fixed grammatical error when halfop tries to kick an op, "You must be at least a half-operator"
+
+
+1.0 alpha 3
+
+* Fixed problem where nicks containing control codes were allowed
+* Added support so that ircd honours channel mode +n
+* Added support so that ircd honours channel mode +t
+* Fixed linefeeds in middle of line bug (reported by Craig)
+* Fixed buffer overflow in channel names (reported by Allan)
+* Fixed close() on nonblocking sockets problem
+* Added /KILL command >:)
+* Added /KICK command

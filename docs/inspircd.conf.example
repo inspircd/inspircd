@@ -1,0 +1,231 @@
+########################################################################
+#								       #
+#		      ---------------------------		       #
+#  		      InspIRCd Configuration File		       #
+#		      ---------------------------		       #
+#								       #
+##################################||####################################
+				 #||#
+##################################||####################################
+#								       #
+#         This is an example of the config file for InspIRCd.          #
+#             Change the options to suit your network                  #
+#								       #
+#                 Last updated on : 30/10/2002                         #
+#                 Written by      : CC  (cc@backchat.co.za)            #
+#								       #
+########################################################################
+
+
+
+#-#-#-#-#-#-#-#-#-#-#-#-  SERVER DESCRIPTION  -#-#-#-#-#-#-#-#-#-#-#-#-
+#								      #
+#   Here is where you enter the information about your server.        #
+#								      #
+#  Syntax is as follows:					      #
+#     <server name="server.name"				      #
+#      description="Server Description"				      #
+#      network="MyNetwork">					      #
+#								      #
+
+<server name="penguin.omega.org.za"
+        description="Waddle World"
+        network="Omega">
+
+
+#-#-#-#-#-#-#-#-#-#-#-#-   ADMIN INFORMATION   -#-#-#-#-#-#-#-#-#-#-#-#
+#								      #
+#   Describes the Server Administrator's real name, nick	      #
+#   and email address.                   			      #
+#								      #
+#  Syntax is as follows:					      #
+#	<admin name="real name"					      #
+#	       nick="nick name"					      #
+#              email="email@address.com">			      #
+#								      #
+
+<admin  name="Johnny Casino"
+        nick="CC"
+        email="cc@monkeynut.co.za">
+
+
+#-#-#-#-#-#-#-#-#-#-#-#-   PORT CONFIGURATION   -#-#-#-#-#-#-#-#-#-#-#-
+#								      #
+#   Enter the port and address bindings here.	                      #
+#								      #
+#  bind address - specifies which the address which ports bind	      #	
+#  port		- opens an unused port				      #
+#								      #
+#  Leaving address empty binds to all available interfaces            #
+#								      #
+#  Syntax is as follows:                                              #
+#	<bind address="ip number" port="port number">		      #
+#								      #
+
+<bind address="" port="6667">
+<bind address="" port="7000">
+
+
+#-#-#-#-#-#-#-#-#-#-  DIE/RESTART CONFIGURATION   -#-#-#-#-#-#-#-#-#-#-
+#                                                                     #
+#   You can configure the passwords here which you wish to use for    #
+#   the die and restart commands. Only trusted ircops who will        #
+#   need this ability should know the die and restart password.       #
+#                                                                     #
+#  Syntax is as follows:                                              #
+#       <power diepass="die password" restartpass="restart password"
+#	 pause="secs before dying">			      	      #
+#                                                                     #
+
+<power diepass="diepass" restartpass="restartpass" pause="2">
+
+
+#-#-#-#-#-#-#-#-#-#-  CONNECTIONS CONFIGURATION   -#-#-#-#-#-#-#-#-#-#-
+#								      #
+#   This is where you can configure which connections are allowed     #
+#   and denied access onto your server.				      #
+#   The password is optional.					      #
+#   You may have as many of these as you require.                     #
+#   To allow/deny all connections use a *                             #
+#								      #
+#  Syntax is as follows:					      #
+#	<connect allow="ip number">				      #
+#	<connect allow="ip number"  password="blahblah">	      #
+#	<connect deny="ip number">				      #
+#								      #
+
+<connect allow="196.12.*"  password="tiffany">
+<connect allow="*">
+
+<connect deny="69.254.*">
+
+
+#-#-#-#-#-#-#-#-#-#-#-#-  CLASS CONFIGURATION   -#-#-#-#-#-#-#-#-#-#-#-
+#								      #
+#   Classes are a group of commands which are grouped together        #
+#   and given a unique name. They used to define which commands       #
+#   are available to certain types of Operators.                      #
+#								      #
+#  Syntax is as follow:						      #
+#	<class name="name" commands="oper commands">		      #
+#								      #
+    
+<class name="Shutdown" commands="DIE RESTART REHASH">
+<class name="ServerLink" commands="CONNECT SQUIT">
+<class name="BanControl" commands="KILL GLINE KLINE ZLINE QLINE SHUN">
+<class name="OperChat" commands="WALLOPS CHATOPS">
+<class name="HostCloak" commands="SETHOST SETIDENT SETNAME">
+
+
+#-#-#-#-#-#-#-#-#-#-#-#-  OPERATOR COMPOSITION   -#-#-#-#-#-#-#-#-#-#-#
+#								      #
+#   This is where you specify which types of operators you have on    #
+#   your server, as well as the commands they are allowed to use.     #
+#   This works alongside with the classes specified above.	      #
+#								      #
+#  type name  - a name for the combined class types		      #
+#  classes    - specified above, used for flexibility for the         #
+#               server admin to decide on which operators get         #
+#		what commands					      #
+#  host	      - hostmask operators will recieve on oper-up            #
+#								      #
+#  Syntax is as follows:					      #
+#	<type name="name" classes="class name" host="oper hostmask">  #
+#								      #
+
+<type name="NetAdmin" classes="OperChat BanControl HostCloak Shutdown ServerLink" host="netadmin.omega.org.za">
+<type name="GlobalOp" classes="OperChat BanControl HostCloak ServerLink" host="ircop.omega.org.za">
+<type name="LocalOp" classes="OperChat BanControl HostCloak" host="local.omega.org.za">
+<type name="Helper" classes="HostCloak" host="helper.omega.org.za">
+
+
+#-#-#-#-#-#-#-#-#-#-#-  OPERATOR CONFIGURATION   -#-#-#-#-#-#-#-#-#-#-#
+#								      #
+#   Opers are defined here. This is a very important section.         #
+#   Remember to only make operators out of truthworthy people.        #
+#								      #
+#  name      - oper name, best to use lower-case		      #
+#  password  - password to oper-up,	              	              #
+#              encryption not yet available			      #
+#  host      - host of client allowed to oper-up, more hostmasks      #
+#              seperated by spaces, wildcards accepted	              #
+#  type      - specified above, defines the kind of operator	      #
+#								      #
+#  Syntax is as follows:                                              #
+#	<oper name="login"					      #
+#	      password="pass"					      #
+#             host="hostmask@of.oper"				      #
+#             type="oper type">					      #
+#								      #
+
+<oper   name="cc"
+	password="s3cret"
+        host="*@*"
+        type="NetAdmin">
+
+
+#-#-#-#-#-#-#-#-#-#-  MISCELLANEOUS CONFIGURATION   -#-#-#-#-#-#-#-#-#-
+#								      #
+#   These options let you define the path to your motd and rules      #
+#   files.							      #
+#								      #
+
+<files  motd="/home/cc/inspircd-1.0/conf/inspire.motd"
+	rules="/home/cc/inspircd-1.0/conf/inspire.rules">
+
+
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-  RTFM LINE  -#-#-#-#-#-#-#-#-#-#-#-#-#-#
+#                                                                     #
+#   Just remove this... Its here to make you read ALL of the config   #
+#   file options ;)                                                   #
+
+<die value="And god came down from the heavens and smote down the noob.">
+
+
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-  SERVER OPTIONS   -#-#-#-#-#-#-#-#-#-#-#-#-#
+#								      #
+#   Settings to define which features are useable on your server.     #
+#								      #
+#  prefixquit   - a prefix for a client's quit message                #
+#  debug        - provides an in-depth log file,                      #
+#                 this should not need to be enabled                  #
+#  allowhalfop  - allows the +h channel mode			      #
+#  allowprotect - allows the +a channel mode			      #
+#  allowfounder - allows the +q channel mode			      #
+#								      #
+
+<options prefixquit="Quit: "
+	 debug="off"
+	 allowhalfop="yes"
+	 allowprotect="yes"
+	 allowfounder="yes">
+
+
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-  MODULE OPTIONS   -#-#-#-#-#-#-#-#-#-#-#-#-#
+#                                                                     #
+#  These tags define which modules will be loaded on startup by your  #
+#  server. Add modules without any paths. When you make your ircd     #
+#  using the 'make' command, all compiled modules will be moved into  #
+#  the folder you specified when you ran ./configure. The module tag  #
+#  automatically looks for modules in this location.                  #
+
+<module name="m_foobar.so">
+
+
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#- YAWN  -#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+#                                                                     #
+#   You should already know what to do here :)                        #
+
+<die value="All l33t noobs must edit their configs.">
+
+
+#########################################################################
+#									#
+#		 -InspIRCd Development and Coding Team-			#
+#                          www.inspircd.org				#
+#	 								#
+#########################################################################

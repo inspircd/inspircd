@@ -1,0 +1,693 @@
+#!/bin/sh
+# InspIRCd Configuration Creator
+#
+# Copyright 2003 The ChatSpike Development Team
+# <Craig@chatspike.net>
+# <brain@chatspike.net>
+#
+# $Id$
+#
+########################################################
+
+echo "Configuring Default Values"
+
+PERL=`which perl`
+if [ "$PERL" = "" ] ; then
+        echo "You require perl to run this program."
+        exit;
+fi
+
+ME=`pwd`
+SERV_NAME="my.server.name"
+SERV_DESC="My InspIRCd Server"
+SERV_NET="MyNetwork"
+
+ADMIN_NAME="My Name"
+ADMIN_NICK="MyNick"
+ADMIN_MAIL="My@E-Mail.Address"
+
+DIE_PASS="DieNow"
+RESTART_PASS="RestartNow"
+DIE_WAIT="5"
+
+CONNECT_ALLOW="*"
+CONNECT_PASS="ServerPass"
+
+VHOST_DOMAIN="inspircd.org"
+
+OPER_NICK="Fred"
+OPER_PASS="mysecret"
+OPER_HOST="*@*"
+OPER_TYPE="NetAdmin"
+
+FILES_MOTD="$ME/conf/inspire.motd"
+FILES_RULE="$ME/conf/inspire.rules"
+
+OP_PREFIX="Quit: "
+OP_DEBUG="off"
+OP_HALFY="yes"
+OP_PROTE="yes"
+OP_FOUND="yes"
+
+rm -f makeconf.temp
+
+c=""
+n=""
+
+if [ "`eval echo -n 'a'`" = "-n a" ] ; then
+        c="\c"
+ else
+        n="-n"
+fi
+
+clear
+echo -e "'\033[1;33m####\033[0;37m:'\033[1;33m##\033[0;37m::: \033[1;33m##\033[0;37m::'\033[1;33m######\033[0;37m::'\033[1;33m########\033[0;37m::'\033[1;33m####\033[0;37m:'\033[1;33m########\033[0;37m:::'\033[1;33m######\033[0;37m::'\033[1;33m########\033[0;37m::"
+echo -e ". \033[1;33m##\033[0;37m:: \033[1;33m###\033[0;37m:: \033[1;33m##\033[0;37m:'\033[1;33m##\033[0;37m... \033[1;33m##\033[0;37m: \033[1;33m##\033[0;37m.... \033[1;33m##\033[0;37m:. \033[1;33m##\033[0;37m:: \033[1;33m##\033[0;37m.... \033[1;33m##\033[0;37m:'\033[1;33m##\033[0;37m... \033[1;33m##\033[0;37m: \033[1;33m##\033[0;37m.... \033[1;33m##\033[0;37m:"
+echo -e ": \033[1;33m##\033[0;37m:: \033[1;33m####\033[0;37m: \033[1;33m##\033[0;37m: \033[1;33m##\033[0;37m:::..:: \033[1;33m##\033[0;37m:::: \033[1;33m##\033[0;37m:: \033[1;33m##\033[0;37m:: \033[1;33m##\033[0;37m:::: \033[1;33m##\033[0;37m: \033[1;33m##\033[0;37m:::..:: \033[1;33m##\033[0;37m:::: \033[1;33m##\033[0;37m:"
+echo -e ": \033[1;33m##\033[0;37m:: \033[1;33m##\033[0;37m \033[1;33m##\033[0;37m \033[1;33m##\033[0;37m:. \033[1;33m######\033[0;37m:: \033[1;33m########\033[0;37m::: \033[1;33m##\033[0;37m:: \033[1;33m########\033[0;37m:: \033[1;33m##\033[0;37m::::::: \033[1;33m##\033[0;37m:::: \033[1;33m##\033[0;37m:"
+echo -e ": \033[1;33m##\033[0;37m:: \033[1;33m##\033[0;37m. \033[1;33m####\033[0;37m::..... \033[1;33m##\033[0;37m: \033[1;33m##\033[0;37m.....:::: \033[1;33m##\033[0;37m:: \033[1;33m##\033[0;37m.. \033[1;33m##\033[0;37m::: \033[1;33m##\033[0;37m::::::: \033[1;33m##\033[0;37m:::: \033[1;33m##\033[0;37m:"
+echo -e ": \033[1;33m##\033[0;37m:: \033[1;33m##\033[0;37m:. \033[1;33m###\033[0;37m:'\033[1;33m##\033[0;37m::: \033[1;33m##\033[0;37m: \033[1;33m##\033[0;37m::::::::: \033[1;33m##\033[0;37m:: \033[1;33m##\033[0;37m::. \033[1;33m##\033[0;37m:: \033[1;33m##\033[0;37m::: \033[1;33m##\033[0;37m: \033[1;33m##\033[0;37m:::: \033[1;33m##\033[0;37m:"
+echo -e "'\033[1;33m####\033[0;37m: \033[1;33m##\033[0;37m::. \033[1;33m##\033[0;37m:. \033[1;33m######\033[0;37m:: \033[1;33m##\033[0;37m::::::::'\033[1;33m####\033[0;37m: \033[1;33m##\033[0;37m:::. \033[1;33m##\033[0;37m:. \033[1;33m######\033[0;37m:: \033[1;33m########\033[0;37m::"
+echo -e "\033[0;37m\033[0;37m....::..::::..:::......:::..:::::::::....::..:::::..:::......:::........:::"
+echo ""
+echo -e "\033[1;37mWelcome to the inspircd.conf file maker!!"
+echo -e "\033[0;37m"
+echo -e "*** Although with most values, hitting \033[1;37m<RETURN>\033[0;37m will use the default, ***"
+echo "*** others are not like this. Where possible, Please fill in all the  ***"
+echo "*** values manually. Once complete, you *WILL* be required to edit    ***"
+echo "*** the created file manually, to ensure values are correct. Enjoy!   ***"
+echo -e "*** Between the [\033[1;32mBRACKETS\033[0;37m] will be default / example values to help   ***"
+
+echo ""
+echo ""
+
+echo "The first Part of this is the server Configuration. Here we will take"
+echo "Details, Such as the servers name, Description, and The administrators"
+echo "information. Once complete, the Screen will clear, and stage 2 will begin"
+
+echo ""
+echo "Enter Servers Name"
+echo -e $n "[\033[1;32m$SERV_NAME\033[0;37m] -> $c"
+read cc
+if [ "$cc" ] ; then
+	SERV_NAME=$cc
+fi
+
+
+echo ""
+echo "Enter Server Description"
+echo -e $n "[\033[1;32m$SERV_DESC\033[0;37m] -> $c"
+read cc
+if [ "$cc" ] ; then
+        SERV_DESC=$cc
+fi
+
+
+echo ""
+echo "Enter Your Network Name"
+echo -e $n "[\033[1;32m$SERV_NET\033[0;37m] -> $c"
+read cc
+if [ "$cc" ] ; then
+        SERV_NET=$cc
+fi
+
+
+echo ""
+echo ""
+
+echo ""
+echo "Enter Administrators Full Name"
+echo -e $n "[\033[1;32m$ADMIN_NAME\033[0;37m] -> $c"
+read cc
+if [ "$cc" ] ; then
+        ADMIN_NAME=$cc
+fi
+
+
+echo ""
+echo "Enter Administrators NickName"
+echo -e $n "[\033[1;32m$ADMIN_NICK\033[0;37m] -> $c"
+read cc
+if [ "$cc" ] ; then
+        ADMIN_NICK=$cc
+fi
+
+
+echo ""
+echo "Enter Administrators Email Address"
+echo -e $n "[\033[1;32m$ADMIN_MAIL\033[0;37m] -> $c"
+read cc
+if [ "$cc" ] ; then
+        ADMIN_MAIL=$cc
+fi
+
+
+echo "Section Complete, Writing Config File Header."
+
+###
+# Config file header Here!
+###
+
+echo "########################################################################" >> makeconf.temp
+echo "#                                                                      #" >> makeconf.temp
+echo "#                     ---------------------------                      #" >> makeconf.temp
+echo "#                     InspIRCd Configuration File                      #" >> makeconf.temp
+echo "#                     ---------------------------                      #" >> makeconf.temp
+echo "#                                                                      #" >> makeconf.temp
+echo "##################################||####################################" >> makeconf.temp
+echo "                                 #||#" >> makeconf.temp
+echo "##################################||####################################" >> makeconf.temp
+echo "#                                                                      #" >> makeconf.temp
+echo "#         This is an example of the config file for InspIRCd.          #" >> makeconf.temp
+echo "#             Change the options to suit your network                  #" >> makeconf.temp
+echo "#                                                                      #" >> makeconf.temp
+echo "#                 Written by      : makeconf (Craig@inspircd.org)      #" >> makeconf.temp
+echo "#                                                                      #" >> makeconf.temp
+echo "########################################################################" >> makeconf.temp
+echo "" >> makeconf.temp
+echo "" >> makeconf.temp
+
+###
+# Complete, server tag now
+###
+
+echo "#-#-#-#-#-#-#-#-#-#-#-#-  SERVER DESCRIPTION  -#-#-#-#-#-#-#-#-#-#-#-#-" >> makeconf.temp
+echo "<server  name=\"$SERV_NAME\"" >> makeconf.temp
+echo "         description=\"$SERV_DESC\"" >> makeconf.temp
+echo "         network=\"$SERV_NET\">" >> makeconf.temp
+echo "" >> makeconf.temp
+echo "" >> makeconf.temp
+
+###
+# Admin Tag..
+###
+
+echo "#-#-#-#-#-#-#-#-#-#-#-#-   ADMIN INFORMATION   -#-#-#-#-#-#-#-#-#-#-#-#" >> makeconf.temp
+echo "<admin  name=\"$ADMIN_NAME\"" >> makeconf.temp
+echo "        nick=\"$ADMIN_NICK\"" >> makeconf.temp
+echo "        email=\"$ADMIN_MAIL\">" >> makeconf.temp
+echo "" >> makeconf.temp
+echo "" >> makeconf.temp
+
+###
+# Complete.
+###
+
+clear
+echo "Congratulations, you have successfully Configured your Server and Administrator"
+echo "Information Correctly. Proceeding to Servers Port Configuration."
+
+echo ""
+echo ""
+
+echo "Now its time to specify which IP and ports you wish to run the IRCd on."
+echo "When asked please enter the IP Address, and ports. As a note, you may"
+echo "Leave the IP Address blank to bind to all avaliable interfaces."
+echo ""
+echo "To end, either type \"done\" as the IP, or leave the Port Blank."
+echo ""
+
+###
+# Write Config Header..
+###
+
+echo "#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-  RTFM LINE  -#-#-#-#-#-#-#-#-#-#-#-#-#-#" >> makeconf.temp
+echo "#                                                                     #" >> makeconf.temp
+echo "#   Just remove this... Its here to make you read through this file   #" >> makeconf.temp
+echo "#   properly after running \"makeconf\"                               #" >> makeconf.temp
+echo "" >> makeconf.temp
+echo "<die value=\"tut tut, someone didnt check their config file properly\">" >> makeconf.temp
+echo "" >> makeconf.temp
+echo "" >> makeconf.temp
+
+
+echo "#-#-#-#-#-#-#-#-#-#-#-#-   PORT CONFIGURATION   -#-#-#-#-#-#-#-#-#-#-#-" >> makeconf.temp
+
+###
+# Ok, done.. Proceed :)
+###
+
+BOUND_PORT=""
+ok=0
+default=0
+while [ $ok -eq 0 ] ; do
+	echo "Enter the IP"
+	echo $n "[] -> $c"
+	read cc
+	if [ "$cc" == "done" ] ; then
+		ok=1
+	else
+		BIND_IP=$cc
+	fi
+	if [ "$ok" != "1" ] ; then
+		echo -e "Ports Already Bound: \033[1;32m$BOUND_PORT\033[0;37m"
+		echo "Enter Port to Bind to $BIND_IP"
+		echo $n "[] -> $c"
+		read cc
+		if [ ! "$cc" ] ; then
+			ok=1
+		else
+			default=1
+			BOUND_PORT="$BOUND_PORT $cc"
+			echo "<bind address=\"$BIND_IP\" port=\"$cc\">" >> makeconf.temp
+		fi
+	fi
+done
+
+if [ "$default" == "0" ] ; then 
+	echo "<bind address=\"\" port=\"6667\">" >> makeconf.temp
+fi
+
+###
+# OoOok.. Finishing section
+###
+
+echo "" >> makeconf.temp
+echo "" >> makeconf.temp
+
+###
+# Finished, Port Configuration Complete :D
+###
+
+
+clear
+if [ "$default" == "0" ] ; then
+	echo "<bind address=\"\" port=\"6667\">" >> makeconf.temp
+	echo ""
+	echo ""
+fi
+echo "See? that wasnt so hard, The next bit is easier, just more important."
+
+echo ""
+echo ""
+echo "I now need you to specify Passwords which will shut down, and restart"
+echo "your server, these are _IMPORTANT_ and i will not allow you to use the"
+echo "default passwords, you must use your own."
+ok=0
+while [ $ok -eq 0 ] ; do
+	echo ""
+	echo "Enter the password to Kill the IRCd"
+	echo -e $n "[\033[1;32m$DIE_PASS\033[0;37m] -> $c"
+	read cc
+	if [ ! "$cc" ] ; then
+	        echo ""
+		echo "You _MUST_ specify your Own Password, try again."
+	else
+		DIE_PASS=$cc
+		ok=1
+	fi
+done
+
+echo ""
+echo ""
+ok=0
+while [ $ok -eq 0 ] ; do
+        echo ""
+        echo "Now Enter the Password you will use to Restart."
+        echo -e $n "[\033[1;32m$RESTART_PASS\033[0;37m] -> $c"
+        read cc
+        if [ ! "$cc" ] ; then
+                echo ""
+                echo "You _MUST_ specify your Own Password, try again."
+        else
+                RESTART_PASS=$cc
+                ok=1
+        fi
+done
+
+echo ""
+echo "Enter the Pause Between Issuing a DIE/RESTART request to the IRCd Actually doing it [in Seconds]"
+echo -e $n "[\033[1;32m$DIE_WAIT\033[0;37m] -> $c" 
+read cc
+if [ "$cc" ] ; then
+        DIE_WAIT=$cc
+fi
+
+###
+# Now Write the config.. What phun
+###
+
+echo "#-#-#-#-#-#-#-#-#-#-  DIE/RESTART CONFIGURATION   -#-#-#-#-#-#-#-#-#-#-" >> makeconf.temp
+echo "<power  diepass=\"$DIE_PASS\"" >> makeconf.temp
+echo "        restartpass=\"$RESTART_PASS\"" >> makeconf.temp
+echo "        pause=\"$DIE_WAIT\">" >> makeconf.temp
+echo "" >> makeconf.temp
+echo "" >> makeconf.temp
+
+###
+# <Insert done comment here>
+###
+clear
+echo "ok, seeing as we managed that, we have to Arrange a list of people allowed to connect :)"
+echo ""
+echo ""
+
+echo "This section allows you to Specify who is allowed Access to the IRCd. IP Addresses only Please"
+echo "Although you can choose to use wildcards if you please. The default is * with no password."
+echo "Type \"done\" at the IP Address, or leave it blank to finish, you do _NOT_ have to specify"
+echo "any passwords"
+echo ""
+
+
+###
+# Just another Friendly Header :p
+###
+
+echo "#-#-#-#-#-#-#-#-#-#-  CONNECTIONS CONFIGURATION   -#-#-#-#-#-#-#-#-#-#-" >> makeconf.temp
+
+ok=0
+default=0
+
+while [ $ok -eq 0 ] ; do 
+       echo "" 
+       echo "Enter The IP Address" 
+       echo -e $n "[\033[1;32m$CONNECT_ALLOW\033[0;37m] -> $c" 
+       read cc 
+       if [ "$cc" == "done" ] ; then 
+               ok=1 
+       elif [ ! "$cc" ] ; then 
+               ok=1 
+       else 
+               ALLOW_IP=$cc 
+       fi 
+       if [ "$ok" != "1" ] ; then 
+               echo "Enter Password [If Applicable]" 
+               echo $n "[] -> $c" 
+               read cc 
+               if [ ! "$cc" ] ; then
+	       default=1 
+                       echo "<connect allow=\"$ALLOW_IP\">" >> makeconf.temp 
+               else 
+                       echo "<connect allow=\"$ALLOW_IP\" password=\"$cc\">" >> makeconf.temp 
+               fi 
+       fi 
+done 
+if [ "$default" == "0" ] ; then
+	 echo "<connect allow=\"*\">" >> makeconf.temp
+fi
+
+###
+# Insert Line Break before deny
+###
+
+echo "" >> makeconf.temp
+
+
+###
+# Another part done
+###
+
+if [ "$default" == "0" ] ; then 
+	echo "No allow lines Specified, using defaults."
+fi
+echo ""
+echo ""
+echo "Now For the denies.. These will prevent users accessing the server, once again,"
+echo "entering nothing, or \"done\" will complete the cycle, and allow you to continue"
+echo ""
+echo "Enter the IP Address"
+ok=0
+while [ $ok -eq 0 ] ; do
+        echo -e $n "[\033[1;32m$CONNECT_ALLOW\033[0;37m] -> $c"
+        read cc
+        if [ "$cc" == "done" ] ; then
+                ok=1
+        elif [ ! "$cc" ] ; then
+                ok=1
+        else
+               echo "<connect deny=\"$cc\">" >> makeconf.temp
+        fi
+done
+
+###
+# Footer Now
+###
+
+echo "" >> makeconf.temp
+echo "" >> makeconf.temp
+
+clear
+echo "Ok, now thats finished, we come to oper Classes And Compositions. Due to the Nature"
+echo "of this, this Script will set the default tags, if you wish to change them, you will"
+echo "have to edit the Finished config manually, in most cases they shouldnt be changed."
+
+echo ""
+echo ""
+echo "Before we do that thou, i need to ask for the Domain name of your server, for example,"
+echo "chatspike.net. This will be used To generate your vhosts."
+echo -e $n "[\033[1;32m$VHOST_DOMAIN\033[0;37m] -> $c"
+read cc
+if [ "$cc" ] ; then
+        VHOST_DOMAIN=$cc
+fi
+
+echo "#-#-#-#-#-#-#-#-#-#-#-#-  CLASS CONFIGURATION   -#-#-#-#-#-#-#-#-#-#-#-" >> makeconf.temp
+echo "<class name=\"Shutdown\" commands=\"DIE RESTART REHASH\">" >> makeconf.temp
+echo "<class name=\"ServerLink\" commands=\"CONNECT SQUIT\">" >> makeconf.temp
+echo "<class name=\"BanControl\" commands=\"KILL GLINE KLINE ZLINE QLINE SHUN\">" >> makeconf.temp
+echo "<class name=\"OperChat\" commands=\"WALLOPS CHATOPS\">" >> makeconf.temp
+echo "<class name=\"HostCloak\" commands=\"SETHOST SETIDENT SETNAME\">" >> makeconf.temp
+echo "" >> makeconf.temp
+echo "" >> makeconf.temp
+echo "#-#-#-#-#-#-#-#-#-#-#-#-  OPERATOR COMPOSITION   -#-#-#-#-#-#-#-#-#-#-#" >> makeconf.temp
+echo "<type name=\"NetAdmin\" classes=\"OperChat BanControl HostCloak Shutdown ServerLink\" host=\"netadmin.$VHOST_DOMAIN\">" >> makeconf.temp
+echo "<type name=\"GlobalOp\" classes=\"OperChat BanControl HostCloak ServerLink\" host=\"ircop.$VHOST_DOMAIN\">" >> makeconf.temp
+echo "<type name=\"LocalOp\" classes=\"OperChat BanControl HostCloak\" host=\"local.$VHOST_DOMAIN\">" >> makeconf.temp
+echo "<type name=\"Helper\" classes=\"HostCloak\" host=\"helper.$VHOST_DOMAIN\">" >> makeconf.temp
+echo "" >> makeconf.temp
+echo "" >> makeconf.temp
+clear
+echo "Yay, now comes the fun Part, time to specify Opers."
+
+echo ""
+echo ""
+echo "Ok, heres the deal, gonna ask you four questions, all require answering. They are as follows:"
+echo "1) The Opers Login, This part will replace <login> in /oper <login> <password>"
+echo "2) The Opers Password, This will replace <password> in /oper <login> <password>"
+echo "3) The Opers Host, The oper must be connecting from this host for /oper to work [user@host]"
+echo "4) The Opers Class, currently all avaliable are: \"NetAdmin\", \"GlobalOp\", \"LocalOp\" and \"Helper\""
+echo ""
+echo "You may re-configure the classes later, and if you enter nothing for part one, we will proceed to the next step"
+
+
+###
+# Stolen another few lines >;)
+###
+
+echo "#-#-#-#-#-#-#-#-#-#-#-  OPERATOR CONFIGURATION   -#-#-#-#-#-#-#-#-#-#-#" >> makeconf.temp
+
+###
+# Done :p
+###
+
+ok=0
+while [ $ok -eq 0 ] ; do
+	echo "Enter the opers login name"
+	echo -e $n "[\033[1;32m$OPER_NICK\033[0;37m] -> $c"
+	read cc
+	if [ ! "$cc" ] ; then
+		ok=1
+	else
+		OPER_LOGIN=$cc
+	fi
+	if [ $ok -eq 0 ] ; then
+		ok2=0
+		while [ $ok2 -eq 0 ] ; do
+		echo "Enter the Opers Password"
+		echo -e $n "[\033[1;32m$OPER_PASS\033[0;37m] -> $c"
+		read cc
+		if [ ! "$cc" ] ; then
+			echo "You _MUST_ Enter a password"
+		else
+			OPER_PASS=$cc
+			ok2=1
+		fi
+		done
+		echo "Enter Opers Host [Format User@host]"
+		echo -e $n "[\033[1;32m$OPER_HOST\033[0;37m] -> $c"
+		read cc
+		if [ ! "$cc" ] ; then
+			OPER_HOST=$OPER_HOST
+		else
+			OPER_HOST=$cc
+		fi
+		echo "Enter Opers Type [Avaliable: NetAdmin, GlobalOp, LocalOp and Helper] CHOOSE ONLY ONE"
+		echo -e $n "[\033[1;32m$OPER_TYPE\033[0;37m] -> $c"
+		read cc
+		if [ ! "$cc" ] ; then
+			OPER_TYPE=$OPER_TYPE
+		else
+			OPER_TYPE=$cc
+		fi
+		echo "Coming for a re-run"
+
+		echo "<oper  name=\"$OPER_LOGIN\"" >> makeconf.temp
+		echo "       password=\"$OPER_PASS\"" >> makeconf.temp
+		echo "       host=\"$OPER_HOST\"" >> makeconf.temp 
+		echo "       type=\"$OPER_TYPE\">" >> makeconf.temp
+
+	fi
+done
+
+echo "" >> makeconf.temp
+echo "" >> makeconf.temp
+
+echo "#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-  RTFM LINE  -#-#-#-#-#-#-#-#-#-#-#-#-#-#" >> makeconf.temp
+echo "# You should know what to do here.. if not.. RTFM!! muahahahahaha     #" >> makeconf.temp
+echo "" >> makeconf.temp
+echo "<die value=\"And god came down from the heavens and smote down the noob.\">" >> makeconf.temp
+echo "" >> makeconf.temp
+echo "" >> makeconf.temp
+
+
+clear
+echo "Congratulations, Your Opers are configured!"
+echo ""
+echo ""
+echo "Right, i have guessed where you Message of the Day and Rules Files will be."
+echo "If these are correct, just hit return, else, type in the correct Location."
+echo ""
+echo "First The Message of the day."
+echo -e $n "[\033[1;32m$FILES_MOTD\033[0;37m] -> $c"
+read cc
+if [ "$cc" ] ; then
+	FILES_MOTD=$cc
+fi
+echo ""
+echo "Right, now the Rules file."
+echo -e $n "[\033[1;32m$FILES_RULE\033[0;37m] -> $c"
+read cc
+if [ "$cc" ] ; then
+	FILES_RULE=$cc
+fi
+
+echo "#-#-#-#-#-#-#-#-#-#-  MISCELLANEOUS CONFIGURATION   -#-#-#-#-#-#-#-#-#-" >> makeconf.temp
+echo "<files  motd=\"$FILES_MOTD\"" >> makeconf.temp
+echo "        rules=\"$FILES_RULE\">" >> makeconf.temp
+echo "" >> makeconf.temp
+echo "" >> makeconf.temp
+clear
+echo "Module Time!!"
+echo ""
+echo ""
+echo "Enter the Names of the modules you wish to load, one at a time, below."
+echo "Type in the name, hit return, type in another one, etc. Once complete, just hit return to end."
+echo ""
+echo "The Following Modules are avaliable:"
+echo ""
+MODLINE=""
+for module in m_*.cpp ; do
+        mod=`perl -e '$a='$module';print substr($a,0,length($a)-3)'`
+        dmod=`perl -e '$a="'$mod.so'";while (length($a)<30) { $a = "$a ";}; print $a;'`
+        desc=`perl -e 'open (F, "<'$module'");local($/)=undef;$blah=<F>;$blah=~/\$ModDesc(.*)\*\//;print substr($1,13,length($1));close F;'`
+        echo -e "\033[1;32m$dmod\033[0;37m$desc"
+done
+echo ""
+
+###
+# Module Header :p
+###
+
+echo "#-#-#-#-#-#-#-#-#-#-#-#-#-  MODULE OPTIONS   -#-#-#-#-#-#-#-#-#-#-#-#-#" >> makeconf.temp
+
+###
+# End header
+###
+ok=0
+while [ "$ok" -eq 0 ] ; do
+echo $n "[] -> $c"
+read cc
+if [ "$cc" ] ; then
+	echo "<module name=\"$cc\">" >> makeconf.temp
+else
+	ok=1
+fi
+done
+
+echo "" >> makeconf.temp
+echo "" >> makeconf.temp
+
+clear
+
+echo "This is it, The final set of Variables.. Then your config is complete."
+echo ""
+echo ""
+echo "These are just a few tiny Simple things, well explained.. BEGIN!"
+echo ""
+echo "Quit Prefix, This comes before all users Quits, it can be what you like."
+echo -e $n "[\033[1;32m$OP_PREFIX\033[0;37m] -> $c"
+read cc
+if [ $cc ] ; then
+	OP_PREFIX=$cc
+fi
+
+echo ""
+echo "Debug [on / off] Switch on or off Extensive IRCd loggin to ircd.log"
+echo -e $n "[\033[1;32m$OP_DEBUG\033[0;37m] -> $c"
+read cc
+if [ "$cc" ] ; then
+        OP_DEBUG=$cc
+fi
+ 
+echo ""
+echo "Enable Halfops [Channel Mode +h], [yes/no]"
+echo -e $n "[\033[1;32m$OP_HALFY\033[0;37m] -> $c"
+read cc
+if [ "$cc" ] ; then
+        OP_HALFY=$cc
+fi
+
+echo ""
+echo "Enable User Channel Protection [Channel Mode +a] [yes/no]"
+echo -e $n "[\033[1;32m$OP_PROTE\033[0;37m] -> $c"
+read cc
+if [ "$cc" ] ; then
+        OP_PROTE=$cc
+fi
+
+echo ""
+echo "Enable Channel Founder? [Channel Mode +q] [yes/no]"
+echo -e $n "[\033[1;32m$OP_FOUND\033[0;37m] -> $c"
+read cc
+if [ "$cc" ] ; then
+        OP_DEBUG=$cc
+fi
+
+echo "#-#-#-#-#-#-#-#-#-#-#-#-#-  SERVER OPTIONS   -#-#-#-#-#-#-#-#-#-#-#-#-#" >> makeconf.temp
+echo "<options  prefixquit=\"$OP_PREFIX\"" >> makeconf.temp 
+echo "          debug=\"$OP_DEBUG\"" >> makeconf.temp
+echo "          allowhalfop=\"$OP_HALFY\"" >> makeconf.temp
+echo "          allowprotect=\"$OP_PROTE\"" >> makeconf.temp
+echo "          allowfounder=\"$OP_FOUND\">" >> makeconf.temp
+echo "" >> makeconf.temp
+echo "" >> makeconf.temp
+
+ME=`pwd`
+DIR=$ME/conf/inspircd.conf
+echo ""
+echo "LAST QUESTION!!"
+echo "Where am i gonna be placed? [eg. $DIR]"
+echo -e $n "[\033[1;32m$DIR\033[0;37m] -> $c"
+read cc
+if [ "$cc" ] ; then
+ DIR=$cc
+fi
+
+echo "#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#- YAWN  -#-#-#-#-#-#-#-#-#-#-#-#-#-#-#" >> makeconf.temp
+echo "#                                                                     #" >> makeconf.temp
+echo "#   You should already know what to do here :)                        #" >> makeconf.temp
+echo "" >> makeconf.temp
+echo "<die value=\"All l33t noobs must edit their configs.\">" >> makeconf.temp
+echo "" >> makeconf.temp
+echo "" >> makeconf.temp
+echo "#########################################################################" >> makeconf.temp
+echo "#                                                                       #" >> makeconf.temp
+echo "#                -InspIRCd Development and Coding Team-                 #" >> makeconf.temp
+echo "#                          www.inspircd.org                             #" >> makeconf.temp
+echo "#                                                                       #" >> makeconf.temp
+echo "#########################################################################" >> makeconf.temp
+
+
+
+
+mv makeconf.temp $DIR

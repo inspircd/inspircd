@@ -1,0 +1,62 @@
+As this release is ALPHA, not everything is supported. Because of this, this
+document will show you the commands and modes that are supported in this
+version. All commands listed below are as listed in request for comments (RFC)
+number 1459, the original IRC documentation. Anything extra to this RFC
+(with the exception of commands for loading plugins etc) will be a loadable
+module and not implemented in the core.
+
+Unimplemented user commands:
+
+	WHOWAS
+
+Unimplimented server to server commands:
+
+	SERVER	CONNECT
+	LINKS	SQUIT
+
+Implemented commands:
+
+	NICK	 USER
+	OPER	 QUIT
+	JOIN	 MODE
+	TOPIC	 NAMES
+	LIST	 KICK
+	VERSION	 STATS
+	TIME	 ADMIN
+	INFO	 PRIVMSG
+	NOTICE	 WHO
+	WHOIS	 KILL
+	PING	 PONG
+	AWAY	 REHASH
+	RESTART	 SUMMON
+	USERS	 WALLOPS
+	USERHOST ISON
+	INVITE	 PASS
+	TRACE
+
+------------------------------------------------------------------------------
+
+CHANNEL MODES:	i,m,n,t,k,l,p,s,o,h**,v
+USER MODES:	i,w,s,o
+
+------------------------------------------------------------------------------
+
+* WARNING: In this Alpha, RESTART will not work, it will perform the same as /DIE
+  until implemented.
+
+** CHANNEL MODE h will be optional, and eventually be enabled or disabled by a stub
+   module.
+
+The following features are supported:
+
+	* Dynamic module support
+	* Object orientated architecture to save memory and increase speed
+	* Connection multiplexing, one process for all (no forking!)
+
+The following operating systems are supported:
+
+	* Linux		(i386, possibly others)
+				Tested on: RedHat, Slackware
+	* FreeBSD 	(i386, possibly others)
+				Tested on: 4.7-STABLE
+
