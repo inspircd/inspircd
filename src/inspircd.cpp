@@ -6013,21 +6013,24 @@ void handle_m(char token,char* params,serverrec* source,serverrec* reply, char* 
 	
 	if (user)
 	{
+		log(DEBUG,"Found user: %s",user->nick);
 		char* parameter = strtok(NULL," ");
-		strncpy(target,parameter,MAXBUF);
 		while (parameter)
 		{
 			pars[index++] = parameter;
 			parameter = strtok(NULL," ");
 		}
 		
+		log(DEBUG,"Calling merge_mode2");
 		merge_mode2(pars,--index,user);
 		if (FindChan(pars[0]))
 		{
+			log(DEBUG,"Target is channel");
 			WriteChannelLocal(FindChan(pars[0]), user, "MODE %s",original);
 		}
 		if (Find(pars[0]))
 		{
+			log(DEBUG,"Target is nick");
 			WriteTo(user,Find(pars[0]),"MODE %s",original);
 		}
 	}
