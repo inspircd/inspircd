@@ -731,7 +731,7 @@ int common_channels(userrec *u, userrec *u2)
 		log(DEFAULT,"*** BUG *** common_channels was given an invalid parameter");
 		return 0;
 	}
-	for (i = 0; i != MAXCHANS; i++)
+	for (int i = 0; i != MAXCHANS; i++)
 	{
 		for (z = 0; z != MAXCHANS; z++)
 		{
@@ -972,7 +972,6 @@ void strlower(char *n)
 
 int isident(const char* n)
 {
-        int i = 0;
         char v[MAXBUF];
         if (!n)
 
@@ -983,7 +982,7 @@ int isident(const char* n)
         {
                 return 0;
         }
-        for (i = 0; i != strlen(n); i++)
+        for (int i = 0; i != strlen(n); i++)
         {
                 if ((n[i] < 33) || (n[i] > 125))
                 {
@@ -1015,7 +1014,7 @@ int isnick(const char* n)
 	{
 		return 0;
 	}
-	for (i = 0; i != strlen(n); i++)
+	for (int i = 0; i != strlen(n); i++)
 	{
 		if ((n[i] < 33) || (n[i] > 125))
 		{
@@ -1130,7 +1129,7 @@ char* cmode(userrec *user, chanrec *chan)
 	}
 
 	int i;
-	for (i = 0; i != MAXCHANS; i++)
+	for (int i = 0; i != MAXCHANS; i++)
 	{
 		if ((user->chans[i].channel == chan) && (chan != NULL))
 		{
@@ -1237,8 +1236,7 @@ int cstatus(userrec *user, chanrec *chan)
 		return 0;
 	}
 
-	int i;
-	for (i = 0; i != MAXCHANS; i++)
+	for (int i = 0; i != MAXCHANS; i++)
 	{
 		if ((user->chans[i].channel == chan) && (chan != NULL))
 		{
@@ -1394,10 +1392,6 @@ chanrec* add_channel(userrec *user, const char* cn, const char* key, bool overri
 	// we MUST declare this wherever we use FOREACH_RESULT
 	int MOD_RESULT = 0;
 
-	if ((!cname) || (!user))
-	{
-		return NULL;
-	}
 	if (strlen(cname) > CHANMAX-1)
 	{
 		cname[CHANMAX-1] = '\0';
@@ -1506,12 +1500,18 @@ chanrec* add_channel(userrec *user, const char* cn, const char* key, bool overri
 				log(DEBUG,"add_channel: about to walk banlist");
 	
 				/* check user against the channel banlist */
-				for (BanList::iterator i = Ptr->bans.begin(); i != Ptr->bans.end(); i++)
+				if (Ptr)
 				{
-					if (match(user->GetFullHost(),i->data))
+					if (Ptr->bans.size())
 					{
-						WriteServ(user->fd,"474 %s %s :Cannot join channel (You're banned)",user->nick, Ptr->name);
-						return NULL;
+						for (BanList::iterator i = Ptr->bans.begin(); i != Ptr->bans.end(); i++)
+						{
+							if (match(user->GetFullHost(),i->data))
+							{
+								WriteServ(user->fd,"474 %s %s :Cannot join channel (You're banned)",user->nick, Ptr->name);
+								return NULL;
+							}
+						}
 					}
 				}
 				
@@ -1519,7 +1519,10 @@ chanrec* add_channel(userrec *user, const char* cn, const char* key, bool overri
 
 			log(DEBUG,"add_channel: bans checked");
 
-			user->RemoveInvite(Ptr->name);
+			if ((Ptr) && (user))
+			{
+				user->RemoveInvite(Ptr->name);
+			}
 
 			log(DEBUG,"add_channel: invites removed");
 			
@@ -1529,11 +1532,12 @@ chanrec* add_channel(userrec *user, const char* cn, const char* key, bool overri
 
 	log(DEBUG,"Passed channel checks");
 	
-	for (i =0; i != MAXCHANS; i++)
+	for (int i =0; i != MAXCHANS; i++)
 	{
+		log(DEBUG,"Check location %d",i);
 		if (user->chans[i].channel == NULL)
 		{
-			log(DEBUG,"Adding into their channel list");
+			log(DEBUG,"Adding into their channel list at location %d",i);
 
 			if (created == 2) 
 			{
@@ -1578,7 +1582,6 @@ chanrec* del_channel(userrec *user, const char* cname, const char* reason)
 		return NULL;
 	}
 
-	int i = 0;
 	chanrec* Ptr;
 	int created = 0;
 
@@ -1597,7 +1600,7 @@ chanrec* del_channel(userrec *user, const char* cname, const char* reason)
 	FOREACH_MOD OnUserPart(user,Ptr);
 	log(DEBUG,"del_channel: removing: %s %s",user->nick,Ptr->name);
 	
-	for (i =0; i != MAXCHANS; i++)
+	for (int i =0; i != MAXCHANS; i++)
 	{
 		/* zap it from the channel list of the user */
 		if (user->chans[i].channel == Ptr)
@@ -1672,7 +1675,7 @@ void kick_channel(userrec *src,userrec *user, chanrec *Ptr, char* reason)
 		return;
 	}
 	
-	for (i =0; i != MAXCHANS; i++)
+	for (int i =0; i != MAXCHANS; i++)
 	{
 		/* zap it from the channel list of the user */
 		if (user->chans[i].channel == Ptr)
@@ -1707,14 +1710,12 @@ void kick_channel(userrec *src,userrec *user, chanrec *Ptr, char* reason)
 
 int has_channel(userrec *u, chanrec *c)
 {
-	int i = 0;
-
 	if ((!u) || (!c))
 	{
 		log(DEFAULT,"*** BUG *** has_channel was given an invalid parameter");
 		return 0;
 	}
-	for (i =0; i != MAXCHANS; i++)
+	for (int i =0; i != MAXCHANS; i++)
 	{
 		if (u->chans[i].channel == c)
 		{
@@ -1754,7 +1755,7 @@ int give_ops(userrec *user,char *dest,chanrec *chan,int status)
 		}
 		else
 		{
-			for (i = 0; i != MAXCHANS; i++)
+			for (int i = 0; i != MAXCHANS; i++)
 			{
 				if ((d->chans[i].channel == chan) && (chan != NULL))
 				{
@@ -1802,7 +1803,7 @@ int give_hops(userrec *user,char *dest,chanrec *chan,int status)
 		}
 		else
 		{
-			for (i = 0; i != MAXCHANS; i++)
+			for (int i = 0; i != MAXCHANS; i++)
 			{
 				if ((d->chans[i].channel == chan) && (chan != NULL))
 				{
@@ -1850,7 +1851,7 @@ int give_voice(userrec *user,char *dest,chanrec *chan,int status)
 		}
 		else
 		{
-			for (i = 0; i != MAXCHANS; i++)
+			for (int i = 0; i != MAXCHANS; i++)
 			{
 				if ((d->chans[i].channel == chan) && (chan != NULL))
 				{
@@ -1898,7 +1899,7 @@ int take_ops(userrec *user,char *dest,chanrec *chan,int status)
 		}
 		else
 		{
-			for (i = 0; i != MAXCHANS; i++)
+			for (int i = 0; i != MAXCHANS; i++)
 			{
 				if ((d->chans[i].channel == chan) && (chan != NULL))
 				{
@@ -1946,7 +1947,7 @@ int take_hops(userrec *user,char *dest,chanrec *chan,int status)
 		}
 		else
 		{
-			for (i = 0; i != MAXCHANS; i++)
+			for (int i = 0; i != MAXCHANS; i++)
 			{
 				if ((d->chans[i].channel == chan) && (chan != NULL))
 				{
@@ -1994,7 +1995,7 @@ int take_voice(userrec *user,char *dest,chanrec *chan,int status)
 		}
 		else
 		{
-			for (i = 0; i != MAXCHANS; i++)
+			for (int i = 0; i != MAXCHANS; i++)
 			{
 				if ((d->chans[i].channel == chan) && (chan != NULL))
 				{
@@ -2554,14 +2555,15 @@ bool allowed_umode(char umode, char* sourcemodes,bool adding)
 
 bool process_module_umode(char umode, userrec* source, void* dest, bool adding)
 {
-	userrec s2;
-	bool faked = true;
+	userrec* s2;
+	bool faked = false;
 	if (!source)
 	{
-		strncpy(s2.nick,ServerName,NICKMAX);
-		strcpy(s2.modes,"o");
-		s2.fd = -1;
-		source = &s2;
+		s2 = new userrec;
+		strncpy(s2->nick,ServerName,NICKMAX);
+		strcpy(s2->modes,"o");
+		s2->fd = -1;
+		source = s2;
 		faked = true;
 	}
 	string_list p;
@@ -2578,14 +2580,20 @@ bool process_module_umode(char umode, userrec* source, void* dest, bool adding)
 		}
 		log(DEBUG,"No module claims umode %c",umode);
 		if (faked)
+		{
+			delete s2;
 			source = NULL;
+		}
 		return false;
 	}
 	else
 	{
 		log(DEBUG,"*** BUG *** Non-module umode passed to process_module_umode!");
 		if (faked)
+		{
+			delete s2;
 			source = NULL;
+		}
 		return false;
 	}
 }
@@ -2599,6 +2607,11 @@ void handle_mode(char **parameters, int pcnt, userrec *user)
 	char outpars[MAXBUF];
 
 	dest = Find(parameters[0]);
+
+	if (!user)
+	{
+		return;
+	}
 
 	if ((dest) && (pcnt == 1))
 	{
@@ -2636,7 +2649,7 @@ void handle_mode(char **parameters, int pcnt, userrec *user)
 		if ((parameters[1][0] != '+') && (parameters[1][0] != '-'))
 			return;
 
-		for (i = 0; i < strlen(parameters[1]); i++)
+		for (int i = 0; i < strlen(parameters[1]); i++)
 		{
 			if (parameters[1][i] == '+')
 			{
@@ -2850,7 +2863,7 @@ void server_mode(char **parameters, int pcnt, userrec *user)
 		if ((parameters[1][0] != '+') && (parameters[1][0] != '-'))
 			return;
 
-		for (i = 0; i < strlen(parameters[1]); i++)
+		for (int i = 0; i < strlen(parameters[1]); i++)
 		{
 			if (parameters[1][i] == '+')
 			{
@@ -3031,7 +3044,7 @@ void merge_mode(char **parameters, int pcnt)
 		if ((parameters[1][0] != '+') && (parameters[1][0] != '-'))
 			return;
 
-		for (i = 0; i < strlen(parameters[1]); i++)
+		for (int i = 0; i < strlen(parameters[1]); i++)
 		{
 			if (parameters[1][i] == '+')
 			{
@@ -3209,14 +3222,14 @@ int loop_call(handlerfunc fn, char **parameters, int pcnt, userrec *u, int start
 	char keystr[MAXBUF];
 	char moo[MAXBUF];
 
-	for (i = 0; i <32; i++)
+	for (int i = 0; i <32; i++)
 		strcpy(blog[i],"");
 
-	for (i = 0; i <32; i++)
+	for (int i = 0; i <32; i++)
 		strcpy(blog2[i],"");
 
 	strcpy(moo,"");
-	for (i = 0; i <10; i++)
+	for (int i = 0; i <10; i++)
 	{
 		if (!parameters[i])
 		{
@@ -3240,7 +3253,7 @@ int loop_call(handlerfunc fn, char **parameters, int pcnt, userrec *u, int start
 		return 0;
 	}
 	strcpy(plist,"");
-	for (i = start; i <= end; i++)
+	for (int i = start; i <= end; i++)
 	{
 		if (parameters[i])
 		{
@@ -3252,7 +3265,7 @@ int loop_call(handlerfunc fn, char **parameters, int pcnt, userrec *u, int start
 	param = plist;
 
 	t = strlen(plist);
-	for (i = 0; i < t; i++)
+	for (int i = 0; i < t; i++)
 	{
 		if (plist[i] == ',')
 		{
@@ -3281,7 +3294,7 @@ int loop_call(handlerfunc fn, char **parameters, int pcnt, userrec *u, int start
 			j = 0;
 			param = keystr;
 			t2 = strlen(keystr);
-			for (i = 0; i < t2; i++)
+			for (int i = 0; i < t2; i++)
 			{
 				if (keystr[i] == ',')
 				{
@@ -3895,6 +3908,12 @@ void AddClient(int socket, char* host, int port, bool iscached)
 	clientlist[tempnick]->timeout = time(NULL)+class_regtimeout;
 	clientlist[tempnick]->flood = class_flood;
 
+	for (int i = 0; i < MAXCHANS; i++)
+	{
+ 		clientlist[tempnick]->chans[i].channel = NULL;
+ 		clientlist[tempnick]->chans[i].uc_modes = 0;
+ 	}
+
 	if (clientlist.size() == MAXCLIENTS)
 		kill_link(clientlist[tempnick],"No more connections allowed in this class");
 }
@@ -3922,6 +3941,7 @@ void handle_names(char **parameters, int pcnt, userrec *user)
 
 bool ChanAnyOnThisServer(chanrec *c,char* servername)
 {
+	log(DEBUG,"ChanAnyOnThisServer");
 	for (user_hash::iterator i = clientlist.begin(); i != clientlist.end(); i++)
 	{
 		if (has_channel(i->second,c))
@@ -4112,7 +4132,7 @@ char* chlist(userrec *user)
 	{
 		return lst;
 	}
-	for (i = 0; i != MAXCHANS; i++)
+	for (int i = 0; i != MAXCHANS; i++)
 	{
 		if (user->chans[i].channel != NULL)
 		{
@@ -4248,11 +4268,11 @@ void handle_quit(char **parameters, int pcnt, userrec *user)
 	
 	if (iter != clientlist.end())
 	{
-		log(DEBUG,"deleting user hash value %d",iter->second);
-		if ((iter->second) && (user->registered == 7)) {
-			delete iter->second;
-		}
 		clientlist.erase(iter);
+		log(DEBUG,"deleting user hash value %d",iter->second);
+		//if ((user) && (user->registered == 7)) {
+			//delete user;
+		//}
 	}
 
 	if (user->registered == 7) {
@@ -4885,7 +4905,7 @@ void handle_oper(char **parameters, int pcnt, userrec *user)
 	char Hostname[MAXBUF];
 	int i,j;
 
-	for (i = 0; i < ConfValueEnum("oper",&config_f); i++)
+	for (int i = 0; i < ConfValueEnum("oper",&config_f); i++)
 	{
 		ConfValue("oper","name",i,LoginName,&config_f);
 		ConfValue("oper","password",i,Password,&config_f);
@@ -5051,7 +5071,7 @@ int process_parameters(char **command_p,char *parameters)
 		}
 	}
 	command_p[j++] = parameters;
-	for (i = 0; i <= q; i++)
+	for (int i = 0; i <= q; i++)
 	{
 		if (parameters[i] == ' ')
 		{
@@ -5142,7 +5162,7 @@ void process_command(userrec *user, char* cmd)
 		strcpy(cmd,"");
 		j = 0;
 		/* strip out extraneous linefeeds through mirc's crappy pasting (thanks Craig) */
-		for (i = 0; i < strlen(temp); i++)
+		for (int i = 0; i < strlen(temp); i++)
 		{
 			if ((temp[i] != 10) && (temp[i] != 13) && (temp[i] != 0) && (temp[i] != 7))
 			{
@@ -5156,7 +5176,7 @@ void process_command(userrec *user, char* cmd)
 		command = cmd;
 		if (strchr(cmd,' '))
 		{
-			for (i = 0; i <= strlen(cmd); i++)
+			for (int i = 0; i <= strlen(cmd); i++)
 			{
 				/* capitalise the command ONLY, leave params intact */
 				cmd[i] = toupper(cmd[i]);
@@ -5172,7 +5192,7 @@ void process_command(userrec *user, char* cmd)
 		}
 		else
 		{
-			for (i = 0; i <= strlen(cmd); i++)
+			for (int i = 0; i <= strlen(cmd); i++)
 			{
 				cmd[i] = toupper(cmd[i]);
 			}
@@ -5202,7 +5222,7 @@ void process_command(userrec *user, char* cmd)
 		}
 	}
 
-	for (i = 0; i != cmdlist.size(); i++)
+	for (int i = 0; i != cmdlist.size(); i++)
 	{
 		if (strcmp(cmdlist[i].command,""))
 		{
