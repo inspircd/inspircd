@@ -260,6 +260,7 @@ bool connection::SendPacket(char *message, char* host)
 bool connection::RecvPacket(std::deque<std::string> &messages, char* host)
 {
 	char data[32767];
+	memset(data, 0, 32767);
 	for (int i = 0; i < this->connectors.size(); i++)
 	{
 		// returns false if the packet could not be sent (e.g. target host down)
