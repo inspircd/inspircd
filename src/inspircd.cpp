@@ -5381,6 +5381,16 @@ char islast(serverrec* s)
 	return c;
 }
 
+long map_count(serverrec* s)
+{
+	int c = 0;
+	for (user_hash::const_iterator i = clientlist.begin(); i != clientlist.end(); i++)
+	{
+		if ((i->second->fd) && (isnick(i->second->nick)) && (strcasecmp(i->second->server,s->name))) c++;
+	}
+	return c;
+}
+
 void handle_links(char **parameters, int pcnt, userrec *user)
 {
 	WriteServ(user->fd,"364 %s %s %s :0 %s",user->nick,ServerName,ServerName,ServerDesc);
@@ -5401,7 +5411,11 @@ void handle_map(char **parameters, int pcnt, userrec *user)
  	{
 		if (servers[j] != NULL)
   		{
-			WriteServ(user->fd,"006 %s :%c-%s",user->nick,islast(servers[j]),servers[j]->name);
+  			char line[MAXBUF];
+			snprintf(line,MAXBUF,"006 %s :%c-%s",user->nick,islast(servers[j]),servers[j]->name);
+			while (strlen(line) < 40)
+				strcat(line," ");
+			WriteServ(user->fd,"%s%d",line,map_count(servers[j]));
 		}
 	}
 	WriteServ(user->fd,"007 %s :End of /MAP",user->nick);
@@ -6376,6 +6390,19 @@ void process_restricted_commands(char token,char* params,serverrec* source,serve
 		case 'Y':
 			nb_start = time(NULL);
 			WriteOpers("Server %s is starting netburst.",source->name);
+		break;
+		// ?
+  		// ping
+		case '?':
+			reply->SendPacket("!",udp_host,udp_port,MyKey);
+		break;
+		// ?
+  		// pong
+		case '!':
+		break;
+		// *
+  		// no operation
+		case '*':
 		break;
 		// N <TS> <NICK> <HOST> <DHOST> <IDENT> <MODES> <SERVER> :<GECOS>
 		// introduce remote client
