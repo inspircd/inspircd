@@ -1,6 +1,10 @@
 /*
 
 $Log$
+Revision 1.3  2003/01/27 00:22:53  brain
+Modified documentation
+Moved some classes below base class
+
 Revision 1.2  2003/01/26 23:52:59  brain
 Modified documentation for base classes
 Added base classes
@@ -52,7 +56,7 @@ added /ISON command (for mIRC etc basic notify)
 
 /** Holds a channel name to which a user has been invited.
  */
-class Invited
+class Invited : public classbase
 {
  public:
 	char channel[CHANMAX];
@@ -61,7 +65,7 @@ class Invited
 
 /** Holds information relevent to &lt;connect allow&gt; and &lt;connect deny&gt; tags in the config file.
  */
-class ConnectClass
+class ConnectClass : public classbase
 {
  public:
 	int type;
