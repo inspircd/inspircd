@@ -13,14 +13,14 @@
 #include "channels.h"
 
 
-int give_ops(userrec *user,char *dest,chanrec *chan,int status);
-int give_hops(userrec *user,char *dest,chanrec *chan,int status);
-int give_voice(userrec *user,char *dest,chanrec *chan,int status);
-int take_ops(userrec *user,char *dest,chanrec *chan,int status);
-int take_hops(userrec *user,char *dest,chanrec *chan,int status);
-int take_voice(userrec *user,char *dest,chanrec *chan,int status);
-int add_ban(userrec *user,char *dest,chanrec *chan,int status);
-int take_ban(userrec *user,char *dest,chanrec *chan,int status);
+char* give_ops(userrec *user,char *dest,chanrec *chan,int status);
+char* give_hops(userrec *user,char *dest,chanrec *chan,int status);
+char* give_voice(userrec *user,char *dest,chanrec *chan,int status);
+char* take_ops(userrec *user,char *dest,chanrec *chan,int status);
+char* take_hops(userrec *user,char *dest,chanrec *chan,int status);
+char* take_voice(userrec *user,char *dest,chanrec *chan,int status);
+char* add_ban(userrec *user,char *dest,chanrec *chan,int status);
+char* take_ban(userrec *user,char *dest,chanrec *chan,int status);
 void process_modes(char **parameters,userrec* user,chanrec *chan,int status, int pcnt, bool servermode, bool silent, bool local);
 bool allowed_umode(char umode, char* sourcemodes,bool adding);
 bool process_module_umode(char umode, userrec* source, void* dest, bool adding);
