@@ -328,9 +328,9 @@ char* cmode(userrec *user, chanrec *chan)
 	int i;
 	for (int i = 0; i != MAXCHANS; i++)
 	{
-		if (u->chans[i].channel)
+		if (user->chans[i].channel)
 		{
-			if ((!strcasecmp(u->chans[i].channel->name,chan->name)) && (chan != NULL))
+			if ((!strcasecmp(user->chans[i].channel->name,chan->name)) && (chan != NULL))
 			{
 				if ((user->chans[i].uc_modes & UCMODE_OP) > 0)
 				{
@@ -364,9 +364,9 @@ int cstatus(userrec *user, chanrec *chan)
 
 	for (int i = 0; i != MAXCHANS; i++)
 	{
-		if (u->chans[i].channel)
+		if (user->chans[i].channel)
 		{
-			if ((!strcasecmp(u->chans[i].channel->name,chan->name)) && (chan != NULL))
+			if ((!strcasecmp(user->chans[i].channel->name,chan->name)) && (chan != NULL))
 			{
 				if ((user->chans[i].uc_modes & UCMODE_OP) > 0)
 				{
