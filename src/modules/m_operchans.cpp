@@ -17,7 +17,7 @@ class ModuleOperChans : public Module
 		Srv = new Server;
 
 		// Add a mode +O for channels with no parameters		
-		Srv->AddExtendedMode('Z',MT_CHANNEL,false,0,0);
+		Srv->AddExtendedMode('O',MT_CHANNEL,false,0,0);
 	}
 	
 	virtual int OnExtendedMode(userrec* user, void* target, char modechar, int type, bool mode_on, string_list &params)
@@ -26,7 +26,7 @@ class ModuleOperChans : public Module
 		{
 			chanrec* chan = (chanrec*)target;
 			
-			if ((Srv->IsUlined(source->nick)) || (Srv->IsUlined(source->server)) || (!strcmp(source->server,"")) || (strchr(source->modes,'o')))
+			if ((Srv->IsUlined(user->nick)) || (Srv->IsUlined(user->server)) || (!strcmp(user->server,"")) || (strchr(user->modes,'o')))
 			{
 				return 1;
 			}
@@ -34,7 +34,7 @@ class ModuleOperChans : public Module
 			{
 				// eat the mode change, return an error
 				WriteServ(user->fd,"468 %s %s :Only servers and opers may set channel mode +O",user->nick, chan->name);
-				return -1;
+				return 0;
 			}
 	
 			// must return 1 to handle the mode!

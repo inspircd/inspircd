@@ -284,5 +284,6 @@
 	line13="n                Only users who are members of the channel may message it"
 	line14="p                Make channel private (hide from /LIST)"
 	line15="s                Make channel secret (can't be used at the same time as +p)"
-	line16="t                Only halfops and above can change the topic">
+	line16="O                Channel is IRCops only (can only be set by IRCops)"
+	line17="t                Only halfops and above can change the topic">
 
