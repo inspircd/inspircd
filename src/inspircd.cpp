@@ -6781,27 +6781,23 @@ void handle_link_packet(char* udp_msg, char* udp_host, serverrec *serv)
 			LinkPort = atoi(Link_Port);
 			if (!strcasecmp(Link_ServerName,servername))
    			{
-				if (!strcasecmp(Link_IPAddr,udp_host))
-				{
-					// matching link at this end too, we're all done!
-					// at this point we must begin key exchange and insert this
-					// server into our 'active' table.
-					for (int j = 0; j < 255; j++) {
-						if (servers[j] != NULL) {
-							if (!strcasecmp(servers[j]->name,udp_host)) {
-								strcpy(servers[j]->description,serverdesc);
-								WriteOpers("Server %s authenticated, exchanging server keys...",servername);
-								DoSync(serv,udp_host);
-								return;
-							}
+				// matching link at this end too, we're all done!
+				// at this point we must begin key exchange and insert this
+				// server into our 'active' table.
+				for (int j = 0; j < 255; j++)
+    				{
+					if (servers[j] != NULL)
+     					{
+						if (!strcasecmp(servers[j]->name,udp_host))
+      						{
+							strcpy(servers[j]->description,serverdesc);
+							WriteOpers("Server %s authenticated, exchanging server keys...",servername);
+							DoSync(serv,udp_host);
+							return;
 						}
-						WriteOpers("\2WARNING!\2 %s sent us an authentication packet but we are not authenticating with this server right noe! Possible intrusion attempt!",udp_host);
-						return;
-
 					}
-				}
-				else {
-					log(DEBUG,"IP Addresses '%s' and '%s' don't match",Link_IPAddr,udp_host);
+					WriteOpers("\2WARNING!\2 %s sent us an authentication packet but we are not authenticating with this server right noe! Possible intrusion attempt!",udp_host);
+					return;
 				}
 			}
 			else {
