@@ -5,7 +5,7 @@ number 1459, the original IRC documentation. Anything extra to this RFC
 (with the exception of commands for loading plugins etc) will be a loadable
 module and not implemented in the core.
 
-Unimplimented server to server commands:
+Implimented server to server commands:
 
 	SERVER	CONNECT
 	LINKS	SQUIT
@@ -32,15 +32,24 @@ Implemented commands:
 
 Module commands (non-rfc):
 
-        MODLIST
+	MODLIST  CHGHOST
+	GLOBOPS  HELPOP
+	KNOCK    OPERMOTD
+	QUOTE    SAJOIN
+	SAMODE   SANICK
+	SAPART   SAQUIT
+	SETNAME  SETHOST
+
 
 
 ------------------------------------------------------------------------------
 
-CHANNEL MODES:	i,m,n,t,k,l,p,s,o,h**,v,b
-USER MODES:	i,w,s,o
-MODULE MODES:
+CHANNEL MODES:	    i,m,n,t,k,l,p,s,o,h**,v,b
+USER MODES:	    i,w,s,o
+MODULE CHAN MODES:  c,G,K,C,V,Q,N,T,O,L,r,R,M,S,Z
+MODULE USER MODES:  B,G,x,g,h,r,R,W,S
 
+NOTE: Module Modes will be documented in the near future.
 
 ------------------------------------------------------------------------------
 
@@ -57,5 +66,5 @@ The following operating systems are supported:
 	* Linux		(i386, possibly others)
 				Tested on: RedHat, Slackware, Gentoo
 	* FreeBSD 	(i386, possibly others)
-				Tested on: 4.7-STABLE
+				Tested on: 4.10, 4.11, 5.0, 5.2.1
 
