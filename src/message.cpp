@@ -33,6 +33,9 @@
 #include "wildcard.h"
 #include "message.h"
 
+extern int MODCOUNT;
+extern vector<Module*> modules;
+extern vector<ircd_module*> factory;
 
 /* return 0 or 1 depending if users u and u2 share one or more common channels
  * (used by QUIT, NICK etc which arent channel specific notices) */
