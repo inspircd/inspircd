@@ -217,7 +217,7 @@ class Module : public classbase
 	 * you must cast dest to a userrec* otherwise you must cast it to a chanrec*, this is the details
 	 * of where the message is destined to be sent.
 	 */
-	virtual int OnUserPreMessage(userrec* user,void* dest,int target_type, std::String text);
+	virtual int OnUserPreMessage(userrec* user,void* dest,int target_type, std::string text);
 
 	/** Called whenever a user is about to NOTICE A user or a channel, before any processing is done.
 	 * Returning any nonzero value from this function stops the process immediately, causing no
@@ -227,7 +227,7 @@ class Module : public classbase
 	 * you must cast dest to a userrec* otherwise you must cast it to a chanrec*, this is the details
 	 * of where the message is destined to be sent.
 	 */
-	virtual int OnUserPreNotice(userrec* user,void* dest,int target_type, std::String text);
+	virtual int OnUserPreNotice(userrec* user,void* dest,int target_type, std::string text);
 };
 
 

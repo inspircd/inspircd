@@ -1,7 +1,7 @@
 [Project]
 FileName=InspIRCd.dev
 Name=InspIRCd
-UnitCount=32
+UnitCount=34
 Type=1
 Ver=1
 ObjFiles=
@@ -19,7 +19,7 @@ ObjectOutput=
 OverrideOutput=0
 OverrideOutputName=InspIRCd.exe
 HostApplication=
-Folders=Headers,Modules,Source
+Folders=Headers,Modules,"Shell Scripts etc",Source
 CommandLine=
 IncludeVersionInfo=0
 SupportXPThemes=0
@@ -361,6 +361,24 @@ CompileCpp=1
 Folder=Modules
 Compile=1
 Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit33]
+FileName=..\makeconf
+Folder=Shell Scripts etc
+Compile=0
+Link=0
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit34]
+FileName=..\configure
+Folder=Shell Scripts etc
+Compile=0
+Link=0
 Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
