@@ -32,6 +32,7 @@ connection::connection()
 	key = GenKey();
 	fd = 0;
 	state = STATE_CLEAR;
+	buffer.clear();
 }
 
 
@@ -304,7 +305,7 @@ bool connection::RecvPacket(char *message, char* host, int &prt, long &theirkey)
 	//int recvfrom(int s, void *buf, size_t len, int flags, struct sockaddr *from, socklen_t *fromlen);
 	if (recvfrom(fd,&p,sizeof(p),0,(sockaddr*)&host_address,&host_address_size)<0)
 	{
-		if (this->buffer.size() != -1)
+		if (this->buffer.length())
 		{
 			log(DEBUG,"Fetching a buffered packet");
 
@@ -348,7 +349,7 @@ bool connection::RecvPacket(char *message, char* host, int &prt, long &theirkey)
 		prt = ntohs(host_address.sin_port); // the port we received it on
 		SendACK(host,prt,p.id);
 
-		if (this->buffer.size() != -1)
+		if (this->buffer.length())
 		{
 			log(DEBUG,"Fetching a buffered packet");
 			packet_buf pb;
