@@ -23,7 +23,8 @@ Include dependency graph for modules.h:<p><center><img src="modules_8h__incl.gif
 <p>
 This graph shows which files directly or indirectly include this file:<p><center><img src="modules_8h__dep__incl.gif" border="0" usemap="#modules.hdep_map" alt="Included by dependency graph"></center>
 <map name="modules.hdep_map">
-<area href="modules_8cpp.html" shape="rect" coords="7,16,89,37" alt="">
+<area href="channels_8cpp.html" shape="rect" coords="7,16,95,37" alt="">
+<area href="modules_8cpp.html" shape="rect" coords="119,16,201,37" alt="">
 </map>
 
 <p>
@@ -65,16 +66,18 @@ This graph shows which files directly or indirectly include this file:<p><center
 <tr><td nowrap align=right valign=top>#define&nbsp;</td><td valign=bottom><a class="el" href="modules_8h.html#a17">AC_DEHALFOP</a>&nbsp;&nbsp;&nbsp;6</td></tr>
 <tr><td nowrap align=right valign=top>#define&nbsp;</td><td valign=bottom><a class="el" href="modules_8h.html#a18">AC_INVITE</a>&nbsp;&nbsp;&nbsp;7</td></tr>
 <tr><td nowrap align=right valign=top>#define&nbsp;</td><td valign=bottom><a class="el" href="modules_8h.html#a19">AC_GENERAL_MODE</a>&nbsp;&nbsp;&nbsp;8</td></tr>
-<tr><td nowrap align=right valign=top>#define&nbsp;</td><td valign=bottom><a class="el" href="modules_8h.html#a20">FOREACH_MOD</a>&nbsp;&nbsp;&nbsp;for (int i = 0; i &lt;= <a class="el" href="modules_8cpp.html#a3">MODCOUNT</a>; i++) modules[i]-&gt;</td></tr>
+<tr><td nowrap align=right valign=top>#define&nbsp;</td><td valign=bottom><a class="el" href="modules_8h.html#a20">FOREACH_MOD</a>&nbsp;&nbsp;&nbsp;for (int i = 0; i &lt;= <a class="el" href="modules_8cpp.html#a1">MODCOUNT</a>; i++) modules[i]-&gt;</td></tr>
 <tr><td nowrap align=right valign=top>#define&nbsp;</td><td valign=bottom><a class="el" href="modules_8h.html#a21">FOREACH_RESULT</a>(x)</td></tr>
 <tr><td colspan=2><br><h2>Typedefs</h2></td></tr>
 <tr><td nowrap align=right valign=top>typedef std::deque&lt; std::string &gt;&nbsp;</td><td valign=bottom><a class="el" href="modules_8h.html#a22">file_cache</a></td></tr>
 <tr><td>&nbsp;</td><td><font size=-1><em>Low level definition of a <a class="el" href="classFileReader.html">FileReader</a> classes file cache area.</em> <a href="#a22"></a><em></em></font><br><br></td></tr>
 <tr><td nowrap align=right valign=top>typedef <a class="el" href="modules_8h.html#a22">file_cache</a>&nbsp;</td><td valign=bottom><a class="el" href="modules_8h.html#a23">string_list</a></td></tr>
-<tr><td nowrap align=right valign=top>typedef DLLFactory&lt; <a class="el" href="classModuleFactory.html">ModuleFactory</a> &gt;&nbsp;</td><td valign=bottom><a class="el" href="modules_8h.html#a24">ircd_module</a></td></tr>
+<tr><td nowrap align=right valign=top>typedef std::deque&lt; <a class="el" href="classuserrec.html">userrec</a> * &gt;&nbsp;</td><td valign=bottom><a class="el" href="modules_8h.html#a24">chanuserlist</a></td></tr>
+<tr><td>&nbsp;</td><td><font size=-1><em>Holds a list of users in a channel.</em> <a href="#a24"></a><em></em></font><br><br></td></tr>
+<tr><td nowrap align=right valign=top>typedef DLLFactory&lt; <a class="el" href="classModuleFactory.html">ModuleFactory</a> &gt;&nbsp;</td><td valign=bottom><a class="el" href="modules_8h.html#a25">ircd_module</a></td></tr>
 <tr><td colspan=2><br><h2>Functions</h2></td></tr>
-<tr><td nowrap align=right valign=top>void&nbsp;</td><td valign=bottom><a class="el" href="modules_8h.html#a25">createcommand</a> (char *cmd, handlerfunc f, char flags, int minparams)</td></tr>
-<tr><td nowrap align=right valign=top>void&nbsp;</td><td valign=bottom><a class="el" href="modules_8h.html#a26">server_mode</a> (char **parameters, int pcnt, <a class="el" href="classuserrec.html">userrec</a> *user)</td></tr>
+<tr><td nowrap align=right valign=top>void&nbsp;</td><td valign=bottom><a class="el" href="modules_8h.html#a26">createcommand</a> (char *cmd, handlerfunc f, char flags, int minparams)</td></tr>
+<tr><td nowrap align=right valign=top>void&nbsp;</td><td valign=bottom><a class="el" href="modules_8h.html#a27">server_mode</a> (char **parameters, int pcnt, <a class="el" href="classuserrec.html">userrec</a> *user)</td></tr>
 </table>
 <hr><h2>Define Documentation</h2>
 <a name="a17" doxytag="modules.h::AC_DEHALFOP"></a><p>
@@ -340,7 +343,7 @@ Definition at line <a class="el" href="modules_8h-source.html#l00029">29</a> of 
 <p>
 Definition at line <a class="el" href="modules_8h-source.html#l00027">27</a> of file <a class="el" href="modules_8h-source.html">modules.h</a>.
 <p>
-Referenced by <a class="el" href="modules_8cpp-source.html#l00158">Module::OnAccessCheck()</a>.    </td>
+Referenced by <a class="el" href="modules_8cpp-source.html#l00304">Module::OnAccessCheck()</a>.    </td>
   </tr>
 </table>
 <a name="a9" doxytag="modules.h::ACR_DENY"></a><p>
@@ -421,7 +424,7 @@ Definition at line <a class="el" href="modules_8h-source.html#l00015">15</a> of 
     <td class="md">
       <table cellpadding="0" cellspacing="0" border="0">
         <tr>
-          <td class="md" nowrap valign="top"> #define FOREACH_MOD&nbsp;&nbsp;&nbsp;for (int i = 0; i &lt;= <a class="el" href="modules_8cpp.html#a3">MODCOUNT</a>; i++) modules[i]-&gt;
+          <td class="md" nowrap valign="top"> #define FOREACH_MOD&nbsp;&nbsp;&nbsp;for (int i = 0; i &lt;= <a class="el" href="modules_8cpp.html#a1">MODCOUNT</a>; i++) modules[i]-&gt;
       </table>
     </td>
   </tr>
@@ -436,7 +439,7 @@ Definition at line <a class="el" href="modules_8h-source.html#l00015">15</a> of 
 <p>
 
 <p>
-Definition at line <a class="el" href="modules_8h-source.html#l00058">58</a> of file <a class="el" href="modules_8h-source.html">modules.h</a>.    </td>
+Definition at line <a class="el" href="modules_8h-source.html#l00062">62</a> of file <a class="el" href="modules_8h-source.html">modules.h</a>.    </td>
   </tr>
 </table>
 <a name="a21" doxytag="modules.h::FOREACH_RESULT"></a><p>
@@ -464,8 +467,8 @@ Definition at line <a class="el" href="modules_8h-source.html#l00058">58</a> of 
 
 <p>
 <b>Value:</b><div class="fragment"><pre>{ MOD_RESULT = 0; \
-                        <span class="keywordflow">for</span> (<span class="keywordtype">int</span> i = 0; i &lt;= <a class="code" href="modules_8cpp.html#a3">MODCOUNT</a>; i++) { \
-                        <span class="keywordtype">int</span> res = <a class="code" href="modules_8cpp.html#a11">modules</a>[i]-&gt;x ; \
+                        <span class="keywordflow">for</span> (<span class="keywordtype">int</span> i = 0; i &lt;= <a class="code" href="modules_8cpp.html#a1">MODCOUNT</a>; i++) { \
+                        <span class="keywordtype">int</span> res = <a class="code" href="channels_8cpp.html#a2">modules</a>[i]-&gt;x ; \
                         <span class="keywordflow">if</span> (res) { \
                                 MOD_RESULT = res; \
                                 <span class="keywordflow">break</span>; \
@@ -474,7 +477,7 @@ Definition at line <a class="el" href="modules_8h-source.html#l00058">58</a> of 
    }
 </pre></div>
 <p>
-Definition at line <a class="el" href="modules_8h-source.html#l00066">66</a> of file <a class="el" href="modules_8h-source.html">modules.h</a>.    </td>
+Definition at line <a class="el" href="modules_8h-source.html#l00070">70</a> of file <a class="el" href="modules_8h-source.html">modules.h</a>.    </td>
   </tr>
 </table>
 <a name="a5" doxytag="modules.h::MT_CHANNEL"></a><p>
@@ -500,7 +503,7 @@ Definition at line <a class="el" href="modules_8h-source.html#l00066">66</a> of 
 <p>
 Definition at line <a class="el" href="modules_8h-source.html#l00021">21</a> of file <a class="el" href="modules_8h-source.html">modules.h</a>.
 <p>
-Referenced by <a class="el" href="modules_8cpp-source.html#l00118">ModeMakeList()</a>.    </td>
+Referenced by <a class="el" href="modules_8cpp-source.html#l00264">ModeMakeList()</a>.    </td>
   </tr>
 </table>
 <a name="a6" doxytag="modules.h::MT_CLIENT"></a><p>
@@ -526,7 +529,7 @@ Referenced by <a class="el" href="modules_8cpp-source.html#l00118">ModeMakeList(
 <p>
 Definition at line <a class="el" href="modules_8h-source.html#l00022">22</a> of file <a class="el" href="modules_8h-source.html">modules.h</a>.
 <p>
-Referenced by <a class="el" href="modules_8cpp-source.html#l00351">Server::AddExtendedMode()</a>.    </td>
+Referenced by <a class="el" href="modules_8cpp-source.html#l00519">Server::AddExtendedMode()</a>.    </td>
   </tr>
 </table>
 <a name="a7" doxytag="modules.h::MT_SERVER"></a><p>
@@ -552,7 +555,7 @@ Referenced by <a class="el" href="modules_8cpp-source.html#l00351">Server::AddEx
 <p>
 Definition at line <a class="el" href="modules_8h-source.html#l00023">23</a> of file <a class="el" href="modules_8h-source.html">modules.h</a>.
 <p>
-Referenced by <a class="el" href="modules_8cpp-source.html#l00351">Server::AddExtendedMode()</a>.    </td>
+Referenced by <a class="el" href="modules_8cpp-source.html#l00519">Server::AddExtendedMode()</a>.    </td>
   </tr>
 </table>
 <a name="a4" doxytag="modules.h::NONE"></a><p>
@@ -628,6 +631,34 @@ Definition at line <a class="el" href="modules_8h-source.html#l00014">14</a> of 
   </tr>
 </table>
 <hr><h2>Typedef Documentation</h2>
+<a name="a24" doxytag="modules.h::chanuserlist"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> typedef std::deque&lt;<a class="el" href="classuserrec.html">userrec</a>*&gt; chanuserlist
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+Holds a list of users in a channel.
+<p>
+
+<p>
+Definition at line <a class="el" href="modules_8h-source.html#l00055">55</a> of file <a class="el" href="modules_8h-source.html">modules.h</a>.
+<p>
+Referenced by <a class="el" href="modules_8cpp-source.html#l00349">Server::GetUsers()</a>.    </td>
+  </tr>
+</table>
 <a name="a22" doxytag="modules.h::file_cache"></a><p>
 <table width="100%" cellpadding="2" cellspacing="0" border="0">
   <tr>
@@ -653,10 +684,10 @@ Low level definition of a <a class="el" href="classFileReader.html">FileReader</
 <p>
 Definition at line <a class="el" href="modules_8h-source.html#l00050">50</a> of file <a class="el" href="modules_8h-source.html">modules.h</a>.
 <p>
-Referenced by <a class="el" href="modules_8cpp-source.html#l00433">FileReader::FileReader()</a>, and <a class="el" href="modules_8cpp-source.html#l00444">FileReader::LoadFile()</a>.    </td>
+Referenced by <a class="el" href="modules_8cpp-source.html#l00601">FileReader::FileReader()</a>, and <a class="el" href="modules_8cpp-source.html#l00612">FileReader::LoadFile()</a>.    </td>
   </tr>
 </table>
-<a name="a24" doxytag="modules.h::ircd_module"></a><p>
+<a name="a25" doxytag="modules.h::ircd_module"></a><p>
 <table width="100%" cellpadding="2" cellspacing="0" border="0">
   <tr>
     <td class="md">
@@ -677,7 +708,7 @@ Referenced by <a class="el" href="modules_8cpp-source.html#l00433">FileReader::F
 <p>
 
 <p>
-Definition at line <a class="el" href="modules_8h-source.html#l00716">716</a> of file <a class="el" href="modules_8h-source.html">modules.h</a>.    </td>
+Definition at line <a class="el" href="modules_8h-source.html#l00740">740</a> of file <a class="el" href="modules_8h-source.html">modules.h</a>.    </td>
   </tr>
 </table>
 <a name="a23" doxytag="modules.h::string_list"></a><p>
@@ -701,11 +732,13 @@ Definition at line <a class="el" href="modules_8h-source.html#l00716">716</a> of
 <p>
 
 <p>
-Definition at line <a class="el" href="modules_8h-source.html#l00051">51</a> of file <a class="el" href="modules_8h-source.html">modules.h</a>.    </td>
+Definition at line <a class="el" href="modules_8h-source.html#l00051">51</a> of file <a class="el" href="modules_8h-source.html">modules.h</a>.
+<p>
+Referenced by <a class="el" href="modules_8cpp-source.html#l00306">Module::OnChannelSync()</a>, and <a class="el" href="modules_8cpp-source.html#l00305">Module::OnUserSync()</a>.    </td>
   </tr>
 </table>
 <hr><h2>Function Documentation</h2>
-<a name="a25" doxytag="modules.h::createcommand"></a><p>
+<a name="a26" doxytag="modules.h::createcommand"></a><p>
 <table width="100%" cellpadding="2" cellspacing="0" border="0">
   <tr>
     <td class="md">
@@ -754,10 +787,10 @@ Definition at line <a class="el" href="modules_8h-source.html#l00051">51</a> of 
 <p>
 
 <p>
-Referenced by <a class="el" href="modules_8cpp-source.html#l00226">Server::AddCommand()</a>.    </td>
+Referenced by <a class="el" href="modules_8cpp-source.html#l00394">Server::AddCommand()</a>.    </td>
   </tr>
 </table>
-<a name="a26" doxytag="modules.h::server_mode"></a><p>
+<a name="a27" doxytag="modules.h::server_mode"></a><p>
 <table width="100%" cellpadding="2" cellspacing="0" border="0">
   <tr>
     <td class="md">
@@ -800,10 +833,10 @@ Referenced by <a class="el" href="modules_8cpp-source.html#l00226">Server::AddCo
 <p>
 
 <p>
-Referenced by <a class="el" href="modules_8cpp-source.html#l00231">Server::SendMode()</a>.    </td>
+Referenced by <a class="el" href="modules_8cpp-source.html#l00399">Server::SendMode()</a>.    </td>
   </tr>
 </table>
-<hr><address style="align: right;"><small>Generated on Sat May 1 13:39:07 2004 for InspIRCd by
+<hr><address style="align: right;"><small>Generated on Sat May 1 17:50:15 2004 for InspIRCd by
 <a href="http://www.doxygen.org/index.html">
 <img src="doxygen.png" alt="doxygen" align="middle" border=0 
 width=110 height=53></a>1.3-rc3 </small></address>

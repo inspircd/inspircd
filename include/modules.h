@@ -599,7 +599,7 @@ class Server : public classbase
 	/** Fetches the userlist of a channel. This function must be here and not a member of userrec or
 	 * chanrec due to include constraints.
 	 */
-	virtual chanuserlist Server::GetUsers(chanrec* chan);
+	virtual chanuserlist GetUsers(chanrec* chan);
 
 };
 
