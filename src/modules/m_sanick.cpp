@@ -6,7 +6,7 @@
 #include "channels.h"
 #include "modules.h"
 
-/* $ModDesc: Provides support for unreal-style GLOBOPS and umode +g */
+/* $ModDesc: Provides support for SANICK command */
 
 Server *Srv;
 	 
@@ -15,8 +15,11 @@ void handle_sanick(char **parameters, int pcnt, userrec *user)
 	userrec* source = Srv->FindNick(std::string(parameters[0]));
 	if (source)
 	{
-		Srv->SendOpers(std::string(user->nick)+" used SANICK to change "+std::String(dest->nick)+" to "+parameters[1]);
-		Srv->ChangeUserNick(source,std::String(parameters[1]));
+		if (Srv->IsNick(std::string(parameters[1])))
+		{
+			Srv->SendOpers(std::string(user->nick)+" used SANICK to change "+std::string(source->nick)+" to "+parameters[1]);
+			Srv->ChangeUserNick(source,std::string(parameters[1]));
+		}
 	}
 }
 

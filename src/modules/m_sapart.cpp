@@ -6,7 +6,7 @@
 #include "channels.h"
 #include "modules.h"
 
-/* $ModDesc: Provides support for unreal-style GLOBOPS and umode +g */
+/* $ModDesc: Provides support for unreal-style SAPART command */
 
 Server *Srv;
 	 
@@ -15,8 +15,8 @@ void handle_sapart(char **parameters, int pcnt, userrec *user)
 	userrec* dest = Srv->FindNick(std::string(parameters[0]));
 	if (dest)
 	{
-		Srv->SendOpers(std::string(user->nick)+" used SAPART to make "+std::String(dest->nick)+" part "+parameters[1]);
-		Srv->PartUserFromChannel(dest,std::String(parameters[1]),std::string(dest->nick));
+		Srv->SendOpers(std::string(user->nick)+" used SAPART to make "+std::string(dest->nick)+" part "+parameters[1]);
+		Srv->PartUserFromChannel(dest,std::string(parameters[1]),std::string(dest->nick));
 	}
 }
 
