@@ -3538,7 +3538,7 @@ int InspIRCd(void)
 							kill_link(count2->second,"Registration timeout");
 							goto label;
 						}
-						if ((time(NULL) > count2->second->signon) && (count2->second->registered != 7))
+						if ((time(NULL) > count2->second->signon) && (count2->second->registered == 3))
 						{
 								count2->second->dns_done = true;
 								FullConnectUser(count2->second);
@@ -3546,7 +3546,6 @@ int InspIRCd(void)
 						}
 		                                if ((count2->second->dns_done) && (count2->second->registered == 3)) // both NICK and USER... and DNS
 		                                {
-							WriteServ(count2->second->fd,"NOTICE Auth :Timed out when looking up your hostname!",ServerName);
 		                                        FullConnectUser(count2->second);
 							goto label;
 		                                }

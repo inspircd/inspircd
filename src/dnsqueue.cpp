@@ -223,6 +223,7 @@ public:
 					if ((hostname != "") && (usr->registered != 7))
 					{
 						strlcpy(usr->host,hostname.c_str(),MAXBUF);
+						strlcpy(usr->dhost,hostname.c_str(),MAXBUF);
 						WriteServ(usr->fd,"NOTICE Auth :Resolved your hostname: %s",hostname.c_str());
 						usr->dns_done = true;
 						return true;
