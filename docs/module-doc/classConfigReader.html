@@ -45,7 +45,7 @@ It may either be instantiated with one parameter or none. Constructing the class
 <p>
 
 <p>
-Definition at line <a class="el" href="modules_8h-source.html#l00428">428</a> of file <a class="el" href="modules_8h-source.html">modules.h</a>.<hr><h2>Constructor &amp; Destructor Documentation</h2>
+Definition at line <a class="el" href="modules_8h-source.html#l00448">448</a> of file <a class="el" href="modules_8h-source.html">modules.h</a>.<hr><h2>Constructor &amp; Destructor Documentation</h2>
 <a name="a0" doxytag="ConfigReader::ConfigReader"></a><p>
 <table width="100%" cellpadding="2" cellspacing="0" border="0">
   <tr>
@@ -75,13 +75,13 @@ Default constructor.
 <p>
 This constructor initialises the ConfigReader class to read the inspircd.conf file as specified when running ./configure.
 <p>
-Definition at line <a class="el" href="modules_8cpp-source.html#l00294">294</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
+Definition at line <a class="el" href="modules_8cpp-source.html#l00296">296</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
 <p>
-References <a class="el" href="modules_8h-source.html#l00433">fname</a>.
+References <a class="el" href="modules_8h-source.html#l00453">fname</a>.
 <p>
-<div class="fragment"><pre>00295 {
-00296         <a class="code" href="classConfigReader.html#n0">fname</a> = CONFIG_FILE;
-00297 }
+<div class="fragment"><pre>00297 {
+00298         <a class="code" href="classConfigReader.html#n0">fname</a> = CONFIG_FILE;
+00299 }
 </pre></div>    </td>
   </tr>
 </table>
@@ -115,9 +115,9 @@ Overloaded constructor.
 <p>
 This constructor initialises the ConfigReader class to read a user-specified config file
 <p>
-Definition at line <a class="el" href="modules_8cpp-source.html#l00305">305</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
+Definition at line <a class="el" href="modules_8cpp-source.html#l00307">307</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
 <p>
-<div class="fragment"><pre>00305 : <a class="code" href="classConfigReader.html#n0">fname</a>(filename) { };
+<div class="fragment"><pre>00307 : <a class="code" href="classConfigReader.html#n0">fname</a>(filename) { };
 </pre></div>    </td>
   </tr>
 </table>
@@ -150,10 +150,10 @@ Default destructor.
 <p>
 This method destroys the ConfigReader class.
 <p>
-Definition at line <a class="el" href="modules_8cpp-source.html#l00300">300</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
+Definition at line <a class="el" href="modules_8cpp-source.html#l00302">302</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
 <p>
-<div class="fragment"><pre>00301 {
-00302 }
+<div class="fragment"><pre>00303 {
+00304 }
 </pre></div>    </td>
   </tr>
 </table>
@@ -188,13 +188,13 @@ Counts the number of times a given tag appears in the config file.
 <p>
 This method counts the number of times a tag appears in a config file, for use where there are several tags of the same kind, e.g. with opers and connect types. It can be used with the index value of <a class="el" href="classConfigReader.html#a3">ConfigReader::ReadValue</a> to loop through all copies of a multiple instance tag.
 <p>
-Definition at line <a class="el" href="modules_8cpp-source.html#l00315">315</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
+Definition at line <a class="el" href="modules_8cpp-source.html#l00317">317</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
 <p>
-References <a class="el" href="modules_8h-source.html#l00433">fname</a>.
+References <a class="el" href="modules_8h-source.html#l00453">fname</a>.
 <p>
-<div class="fragment"><pre>00316 {
-00317         <span class="keywordflow">return</span> EnumConf(<a class="code" href="classConfigReader.html#n0">fname</a>.c_str(),tag.c_str());
-00318 }
+<div class="fragment"><pre>00318 {
+00319         <span class="keywordflow">return</span> EnumConf(<a class="code" href="classConfigReader.html#n0">fname</a>.c_str(),tag.c_str());
+00320 }
 </pre></div>    </td>
   </tr>
 </table>
@@ -243,15 +243,15 @@ Retrieves a value from the config file.
 <p>
 This method retrieves a value from the config file. Where multiple copies of the tag exist in the config file, index indicates which of the values to retrieve.
 <p>
-Definition at line <a class="el" href="modules_8cpp-source.html#l00307">307</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
+Definition at line <a class="el" href="modules_8cpp-source.html#l00309">309</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
 <p>
-References <a class="el" href="modules_8h-source.html#l00433">fname</a>.
+References <a class="el" href="modules_8h-source.html#l00453">fname</a>.
 <p>
-<div class="fragment"><pre>00308 {
-00309         <span class="keywordtype">char</span> val[MAXBUF];
-00310         ReadConf(<a class="code" href="classConfigReader.html#n0">fname</a>.c_str(),tag.c_str(),name.c_str(),index,val);
-00311         <span class="keywordflow">return</span> val;
-00312 }
+<div class="fragment"><pre>00310 {
+00311         <span class="keywordtype">char</span> val[MAXBUF];
+00312         ReadConf(<a class="code" href="classConfigReader.html#n0">fname</a>.c_str(),tag.c_str(),name.c_str(),index,val);
+00313         <span class="keywordflow">return</span> val;
+00314 }
 </pre></div>    </td>
   </tr>
 </table>
@@ -284,11 +284,11 @@ Returns true if a config file is valid.
 <p>
 This method is unimplemented and will always return true.
 <p>
-Definition at line <a class="el" href="modules_8cpp-source.html#l00321">321</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
+Definition at line <a class="el" href="modules_8cpp-source.html#l00323">323</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
 <p>
-<div class="fragment"><pre>00322 {
-00323         <span class="keywordflow">return</span> <span class="keyword">true</span>;
-00324 }
+<div class="fragment"><pre>00324 {
+00325         <span class="keywordflow">return</span> <span class="keyword">true</span>;
+00326 }
 </pre></div>    </td>
   </tr>
 </table>
@@ -316,14 +316,14 @@ The filename of the configuration file, as set by the constructor.
 <p>
 
 <p>
-Definition at line <a class="el" href="modules_8h-source.html#l00433">433</a> of file <a class="el" href="modules_8h-source.html">modules.h</a>.
+Definition at line <a class="el" href="modules_8h-source.html#l00453">453</a> of file <a class="el" href="modules_8h-source.html">modules.h</a>.
 <p>
-Referenced by <a class="el" href="modules_8cpp-source.html#l00294">ConfigReader()</a>, <a class="el" href="modules_8cpp-source.html#l00315">Enumerate()</a>, and <a class="el" href="modules_8cpp-source.html#l00307">ReadValue()</a>.    </td>
+Referenced by <a class="el" href="modules_8cpp-source.html#l00296">ConfigReader()</a>, <a class="el" href="modules_8cpp-source.html#l00317">Enumerate()</a>, and <a class="el" href="modules_8cpp-source.html#l00309">ReadValue()</a>.    </td>
   </tr>
 </table>
 <hr>The documentation for this class was generated from the following files:<ul>
 <li><a class="el" href="modules_8h-source.html">modules.h</a><li><a class="el" href="modules_8cpp-source.html">modules.cpp</a></ul>
-<hr><address style="align: right;"><small>Generated on Tue Apr 6 11:42:40 2004 for InspIRCd by
+<hr><address style="align: right;"><small>Generated on Tue Apr 6 21:13:50 2004 for InspIRCd by
 <a href="http://www.doxygen.org/index.html">
 <img src="doxygen.png" alt="doxygen" align="middle" border=0 
 width=110 height=53></a>1.3-rc3 </small></address>

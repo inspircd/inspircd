@@ -207,7 +207,7 @@ class Module : public classbase
 	 * The source parameter contains the details of the user who issued the WHOIS command, and
 	 * the dest parameter contains the information of the user they are whoising.
 	 */
-	virtual void Module::OnWhois(userrec* source, userrec* dest);
+	virtual void OnWhois(userrec* source, userrec* dest);
 	
 	/** Called whenever a user is about to PRIVMSG A user or a channel, before any processing is done.
 	 * Returning any nonzero value from this function stops the process immediately, causing no
