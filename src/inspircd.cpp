@@ -3257,6 +3257,7 @@ int InspIRCd(void)
 	if (strcmp(DieValue,"")) 
 	{ 
 		printf("WARNING: %s\n\n",DieValue);
+		log(DEFAULT,"Ut-Oh, somebody didn't read their config file: '%s'",DieValue);
 		exit(0); 
 	}  
 	log(DEBUG,"InspIRCd: startup: read config");
