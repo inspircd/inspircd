@@ -17,70 +17,36 @@
 # echo -e "\033[1;37mtest\033[0;37m"
 
 echo "Configuring default values..."
-mkdir fdscount
-echo "#include <sys/types.h>" >> fdscount/fdcounter.c
-echo "#include <sys/socket.h>" >> fdscount/fdcounter.c
-echo "main()" >> fdscount/fdcounter.c
-echo "{" >> fdscount/fdcounter.c
-echo "        int  i;" >> fdscount/fdcounter.c
-echo "        int  s;" >> fdscount/fdcounter.c
-echo "" >> fdscount/fdcounter.c
-echo "        for (i = 1; i <= 10000; i++)" >> fdscount/fdcounter.c
-echo "        {" >> fdscount/fdcounter.c
-echo "                s = socket(AF_INET, SOCK_STREAM, 0);" >> fdscount/fdcounter.c
-echo "                if (s < 0)" >> fdscount/fdcounter.c
-echo "                {" >> fdscount/fdcounter.c
-echo "                        printf(\"%i\", i + 2);" >> fdscount/fdcounter.c
-echo "                  exit(-1);" >> fdscount/fdcounter.c
-echo "                }" >> fdscount/fdcounter.c
-echo "        }" >> fdscount/fdcounter.c
-echo "}" >> fdscount/fdcounter.c
-
-echo "PROGS     = fdcounter" >> fdscount/Makefile
-echo "OBJS = fdcounter.o" >> fdscount/Makefile
-echo "" >> fdscount/Makefile
-echo "CC = gcc" >> fdscount/Makefile
-echo "CXXFLAGS = -fPIC -frtti -O" >> fdscount/Makefile
-echo "" >> fdscount/Makefile
-echo "all : \$(PROGS)" >> fdscount/Makefile
-echo "" >> fdscount/Makefile
-echo "\$(PROGS): \$(OBJS)" >> fdscount/Makefile
-echo "	\$(CXX) -rdynamic \$^ -o \$@" >> fdscount/Makefile
-echo "" >> fdscount/Makefile
-echo ".PHONY: clean" >> fdscount/Makefile
-echo "clean:" >> fdscount/Makefile
-echo "	rm -f *.o core" >> fdscount/Makefile
-
-cd fdscount
-make >> /dev/null
-cd ..
 
 ME=`pwd`
 GCCVER=`gcc -dumpversion | cut -c 1`
 CONFIG_DIR=$ME/conf
 MODULE_DIR=$ME/modules
-MAX_CLIENT=`fdscount/fdcounter`
+BINARY_DIR=$ME/bin
+MAX_CLIENT_T=`ulimit -n`
 NICK_LENGT=32
 CHAN_LENGT=64
 MAX_CHANNE=20
 MAXI_MODES=20
 
-rm -rf fdscount
-
-if [ -z $MAX_CLIENT ] ; then
-	MAX_CLIENT=1024
+if [ -z $MAX_CLIENT_T ] ; then
+        MAX_CLIENT_T=1024
         SCAN_FAILED=1
 fi
 
+
 if [ "$1" = "-clean" -o "$2" = "-clean" ] ; then
-  `rm -rf config.cache`
+  `rm -rf .config.cache`
 fi
 
-if [ -e "config.cache" -a -z "$CLEAN" ] ; then
-    . config.cache 
+if [ -e ".config.cache" -a -z "$CLEAN" ] ; then
+    . .config.cache 
 fi
 
 OSNAME=`(uname -s) 2>/dev/null` || OSNAME="unknown"
+if [ -z $MAX_CLIENT ] ; then
+        MAX_CLIENT=$MAX_CLIENT_T
+fi
 
 
 c=""
@@ -121,7 +87,7 @@ echo -e "Press \033[1;37m<RETURN>\033[0;37m to accept the default for any option
 echo -e "a new value. Please note: You will \033[1;37mHAVE\033[0;37m to read the docs"
 echo -e "dir, otherwise you won't have a config file!"
 echo ""
-echo -e "Your operating system is: \033[1;37m$OSNAME\033[0;37m (`uname -mnr`), fdmax: $MAX_CLIENT"
+echo -e "Your operating system is: \033[1;37m$OSNAME\033[0;37m (`uname -mnr`), fdmax: $MAX_CLIENT_T"
 echo ""
 
 #############################################################################
@@ -194,54 +160,82 @@ echo ""
     echo ""
 
 
-###############################################################################
-# Craigs Version 2 With Extra Cheeze :p
+##############################################################################
 
-  cheeze=0
-  echo -e "Maximum number of clients at any one time (\033[1;32m1-$MAX_CLIENT\033[0;37m)?"
-  while [ "$cheeze" -eq "0" ] ; do
+    ok=0
+    asked=1
+    echo "In what directory is the IRCd binary to be placed?"
+    while [ $ok -eq 0 ] ; do
+        echo -e $n "[\033[1;32m$BINARY_DIR\033[0;37m] -> $c"
+        if read INPUT ; then : ; else echo "" ; exit 1 ; fi
+        if [ ! "$INPUT" ] ; then
+            INPUT=$BINARY_DIR
+            default=1
+        fi
+        if echo "$INPUT" | grep -q \[\'\"\\\] ; then
+            echo 'Please use a pathname without the characters: '\'' " \'
+        elif [ ! "$NO_DIR_CHECK" -a ! -d "$INPUT" ] ; then
+            if exists "$INPUT" ; then
+                echo "$INPUT exists, but is not a directory!"
+            else
+                echo "$INPUT does not exist.  Create it?"
+                echo -e $n "[\033[1;32my\033[0;37m] $c"
+                read YN
+                if [ "$YN" != "n" ] ; then
+                    if mkdir -p "$INPUT" ; then
+                        ok=1
+                    fi
+                fi
+            fi
+            else
+            ok=1
+        fi
+    done
+    BINARY_DIR=$INPUT
+    echo ""
+
+###############################################################################
+# Craigs Version 3 With slightly less Cheeze :p
+
+cheeze=0
+echo -e "Maximum number of clients at any one time (\033[1;32m1-$MAX_CLIENT_T\033[0;37m)?"
+while [ "$cheeze" -eq "0" ] ; do
 	echo -e $n "[\033[1;32m$MAX_CLIENT\033[0;37m] -> $c"
-	read cc
-	if [ "$cc" ] ; then
-		case "$cc" in
-			[0-9]*)
-			if [ "$cc" > "$MAX_CLIENT" ] ; then
-				ASK=1
+        read cc
+
+        if [ -z "$cc" ] ; then
+		cc=$MAX_CLIENT
+	fi
+
+	case "$cc" in 
+		[0-9]*)
+			if [ "$cc" -gt "$MAX_CLIENT_T" -a -z "$SCAN_FAILED" ] ; then
+				echo -e "WARNING: Our scans have indicated that you are attempting"
+				echo -e "to use more sockets than there are avaliable. Are you sure"
+				echo -e "you wish to do this? It may cause the IRCd to malfunction [y/n]"
+				echo -e $n "[\033[1;32mn\033[0;37m] -> $c"
+				read YN
+				if [ "$YN" = "y" ] ; then
+					MAX_CLIENT=$cc
+					cheeze=1
+				else
+					echo ""
+					echo -e "Please enter the correct value (\033[1;32m1-$MAX_CLIENT_T\033[0;37m)"
+				fi
 			else
+				echo $SCAN_FAILED
+				cheeze=1
 				MAX_CLIENT=$cc
 			fi
-			cheeze=1
 			;;
-			*)
+		*)
 			echo ""
-			echo "You Must Enter a Number in this field. Please Try Again."
-			cheeze=0
+			echo "You must enter a number in this field. Please try again."
 			;;
-		esac
-	else
-		cheeze=1
-	fi
-	if [ "$cheeze" -eq "1" ] ; then
-		if [ -z "$SCAN_FAILED" ] ; then
-			if [ "$ASK" -eq "1" ] ; then
-				echo "WARNING: Our scans have indicated that you are"
-				echo "         Attempting to use more sockets than"
-				echo "         there are avaliable, do you wish to"
-				echo "         do this? [y/n]"
-				echo -e $n "[\033[1;32mn\033[0;37m] $c"
-				read YN
-				if [ "$YN" == "y" ] ; then
-					MAX_CLIENT=$cc
-				else
-                                        cheeze=0
-                                        echo ""
-                                        echo "Please Enter the Correct number of sockets:"
-				fi
-			fi
-		fi
-	fi
-  done
-  echo ""
+	esac
+done
+echo ""
+
 
 ###############################################################################
 
@@ -334,15 +328,16 @@ echo -e "\033[0;37mGCC Version Found:\033[1;32m\t\t$GCCVER"
 echo -e "\033[0;37m"
 
 echo "Writing cache file for future ./configures ..."
-if [ -e "config.cache" ] ; then
-	rm config.cache
+if [ -e ".config.cache" ] ; then
+	rm .config.cache
 fi
-echo "CONFIG_DIR=\"$CONFIG_DIR\"" >> config.cache
-echo "MODULE_DIR=\"$MODULE_DIR\"" >> config.cache
-echo "MAX_CLIENT=\"$MAX_CLIENT\"" >> config.cache
-echo "MAX_CHANNE=\"$MAX_CHANNE\"" >> config.cache
-echo "NICK_LENGT=\"$NICK_LENGT\"" >> config.cache
-echo "MAXI_MODES=\"$MAXI_MODES\"" >> config.cache 
+echo "CONFIG_DIR=\"$CONFIG_DIR\"" >> .config.cache
+echo "MODULE_DIR=\"$MODULE_DIR\"" >> .config.cache
+echo "BINARY_DIR=\"$BINARY_DIR\"" >> .config.cache
+echo "MAX_CLIENT=\"$MAX_CLIENT\"" >> .config.cache
+echo "MAX_CHANNE=\"$MAX_CHANNE\"" >> .config.cache
+echo "NICK_LENGT=\"$NICK_LENGT\"" >> .config.cache
+echo "MAXI_MODES=\"$MAXI_MODES\"" >> .config.cache 
 
 
 
@@ -365,24 +360,33 @@ echo "#define MAXCHANS $MAX_CHANNE" >>include/inspircd_config.h
 echo "#define MAXMODES $MAXI_MODES" >>include/inspircd_config.h
 echo "#define SYSTEM \"`uname -n -s -r`\"" >>include/inspircd_config.h
 echo "#define MAXBUF 514">>include/inspircd_config.h
-
 touch include/inspircd_config.h
+
+echo "Preparing Variables for the Makefile"
+
+case "$OSNAME" in
+	(FreeBSD)
+		LDLIBS="-Ldl"
+		FLAGS="-fPIC -frtti -O3"
+		;;
+	(*)
+		LDLIBS="-ldl"
+		FLAGS="-fPIC -frtti -O3"
+		;;
+esac
+
+MODULES=""
+for module in src/modules/*.cpp ; do
+        mod=`echo $module | sed 's/.cpp/.so/' | sed 's/src\/modules\///'`
+	MODULES="$MODULES $mod" 
+done
 
 echo -e "Writing \033[1;37m$OSNAME\033[0;37m makefile"
 echo ""
 
-if exists "Makefile.$OSNAME" ; then
-	echo "Operating system supported."
-else
-	echo "Your operating system, \"$OSNAME\", is not supported!"
-	exit
-fi
+. .Makefile.inc
 
 echo ""
-
-cp -f Makefile.$OSNAME Makefile
-cp -f src/Makefile.$OSNAME src/Makefile
-cp -f src/modules/Makefile.$OSNAME src/modules/Makefile
 
 echo ""
 echo "Do you want to compile the IRCd binaries?"
