@@ -72,7 +72,7 @@ if [ -z $MAX_CLIENT ] ; then
 fi
 
 if [ "$1" = "-clean" -o "$2" = "-clean" ] ; then
-  CLEAN="1"
+  `rm -rf config.cache`
 fi
 
 if [ -e "config.cache" -a -z "$CLEAN" ] ; then
@@ -198,13 +198,13 @@ echo ""
 
   cheeze=0
   echo -e "Maximum number of clients at any one time (\033[1;32m1-$MAX_CLIENT\033[0;37m)?"
-  while [ $cheeze -eq 0 ] ; do
+  while [ "$cheeze" -eq "0" ] ; do
 	echo -e $n "[\033[1;32m$MAX_CLIENT\033[0;37m] -> $c"
 	read cc
 	if [ "$cc" ] ; then
 		case "$cc" in
 			[0-9]*)
-			if [ $cc > $MAX_CLIENT ] ; then
+			if [ "$cc" > "$MAX_CLIENT" ] ; then
 				ASK=1
 			else
 				MAX_CLIENT=$cc
@@ -220,9 +220,9 @@ echo ""
 	else
 		cheeze=1
 	fi
-	if [ $cheeze -eq 1 ] ; then
-		if [ -z $SCAN_FAILED ] ; then
-			if [ $ASK -eq 1 ] ; then
+	if [ "$cheeze" -eq "1" ] ; then
+		if [ -z "$SCAN_FAILED" ] ; then
+			if [ "$ASK" -eq "1" ] ; then
 				echo "WARNING: Our scans have indicated that you are"
 				echo "         Attempting to use more sockets than"
 				echo "         there are avaliable, do you wish to"
@@ -237,8 +237,6 @@ echo ""
                                         echo "Please Enter the Correct number of sockets:"
 				fi
 			fi
-		else
-			MAX_CLIENT=$cc
 		fi
 	fi
   done
@@ -248,7 +246,7 @@ echo ""
 
   cheeze=0
   echo -e "What is the Maximum length of nicknames?"
-  while [ $cheeze -eq 0 ] ; do
+  while [ "$cheeze" -eq "0" ] ; do
         echo -e $n "[\033[1;32m$NICK_LENGT\033[0;37m] -> $c"
         read cc
         if [ "$cc" ] ; then
@@ -273,7 +271,7 @@ echo ""
 
   cheeze=0
   echo -e "What is the Maximum length of channel names?"
-  while [ $cheeze -eq 0 ] ; do
+  while [ "$cheeze" -eq "0" ] ; do
         echo -e $n "[\033[1;32m$MAX_CHANNE\033[0;37m] -> $c"
         read cc
         if [ "$cc" ] ; then
@@ -298,7 +296,7 @@ echo ""
 
   cheeze=0
   echo -e "What is the Maximum number of mode changes in one line?"
-  while [ $cheeze -eq 0 ] ; do
+  while [ "$cheeze" -eq "0" ] ; do
         echo -e $n "[\033[1;32m$MAXI_MODES\033[0;37m] -> $c"
         read cc
         if [ "$cc" ] ; then
