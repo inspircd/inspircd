@@ -139,8 +139,6 @@ bool connection::SendPacket(char *message, char* host, int port, long ourkey)
 
 	this->state = STATE_CLEAR;
 	return true;
-	break;
-
 }
 
 bool connection::SendSYN(char* host, int port)
