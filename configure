@@ -54,12 +54,12 @@ if [ "$1" = "-update" -o "$2" = "-update" ] ; then
    # Check for modules
 
    case "$OSNAME" in
-           (FreeBSD)
+           FreeBSD)
                    LDLIBS="-Ldl"
                    FLAGS="-fPIC -frtti $OPTIMISATI"
                    MAKEPROG="gmake"
                    ;;
-           (*)
+           *)
                    LDLIBS="-ldl"
                    FLAGS="-fPIC -frtti $OPTIMISATI"
                    MAKEPROG="make"
@@ -371,19 +371,19 @@ echo ""
 	cc=$OPTIMITEMP
   fi
   case "$cc" in
-        (1)
+        1)
                 OPTIMITEMP=1
 		OPTIMISATI="-O"
                 ;;
-	(2)
+	2)
 		OPTIMITEMP=2
 		OPTIMISATI="-O2"
 		;;
-	(3)
+	3)
 		OPTIMITEMP=3
 		OPTIMISATI="-O3"
 		;;
-	(*)
+	*)
                 OPTIMITEMP=0
                 OPTIMISATI="-g"
                 ;;
@@ -461,12 +461,12 @@ touch include/inspircd_config.h
 echo "Preparing Variables for the Makefile"
 
 case "$OSNAME" in
-	(FreeBSD)
+	FreeBSD)
 		LDLIBS="-Ldl"
 		FLAGS="-fPIC -frtti $OPTIMISATI"
 		MAKEPROG="gmake"
 		;;
-	(*)
+	*)
 		LDLIBS="-ldl"
 		FLAGS="-fPIC -frtti $OPTIMISATI"
 		MAKEPROG="make"
