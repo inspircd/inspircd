@@ -6349,14 +6349,10 @@ void handle_N(char token,char* params,serverrec* source,serverrec* reply, char* 
 	{
 		// nick collision
 		WriteOpers("Nickname collision: %s@%s != %s@%s",nick,server,iter->second->nick,iter->second->server);
-		if (TS >= iter->second->age)
-		{
-			char str[MAXBUF];
-			snprintf(str,MAXBUF,"Killed (Nick Collision (%s@%s < %s@%s))",nick,server,iter->second->nick,iter->second->server);
-			WriteServ(iter->second->fd, "KILL %s :%s",iter->second->nick,str);
-			// client on remote server is older than the local user, kill the local user
-			kill_link(iter->second,str);
-		}
+		char str[MAXBUF];
+		snprintf(str,MAXBUF,"Killed (Nick Collision (%s@%s < %s@%s))",nick,server,iter->second->nick,iter->second->server);
+		WriteServ(iter->second->fd, "KILL %s :%s",iter->second->nick,str);
+		kill_link(iter->second,str);
 	}
 	clientlist[nick] = new userrec();
 	// remote users have an fd of -1. This is so that our Write abstraction
@@ -6419,11 +6415,26 @@ void handle_plus(char token,char* params,serverrec* source,serverrec* reply, cha
 	char* ipaddr = strtok(NULL," ");
 	char* ipport = strtok(NULL," ");
 	char* cookie = strtok(NULL," ");
-	log(DEBUG," ");
-	log(DEBUG," ");
 	log(DEBUG,"*** Connecting back to %s:%d",ipaddr,atoi(ipport));
-	me[defaultRoute]->MeshCookie(ipaddr,atoi(ipport),atoi(cookie),servername);
-	log(DEBUG," ");
+
+
+	bool conn_already = false;
+	for (int i = 0; i < 32; i++)
+	{
+		if (me[i] != NULL)
+		{
+			for (int j = 0; j < me[i]->connectors.size(); j++)
+			{
+				if (!strcasecmp(me[i]->connectors[j].GetServerName().c_str(),servername))
+				{
+					log(DEBUG,"Already got a connection to %s:%d, ignoring +",ipaddr,atoi(ipport));
+					conn_already = true;
+				}
+			}
+		}
+	}
+	if (!conn_already)
+		me[defaultRoute]->MeshCookie(ipaddr,atoi(ipport),atoi(cookie),servername);
 }
 
 void handle_R(char token,char* params,serverrec* source,serverrec* reply, char* udp_host)
