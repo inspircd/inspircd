@@ -2998,7 +2998,7 @@ void SetupCommandTable(void)
 	createcommand("WHOWAS",handle_whowas,0,1,"<core>");
 	createcommand("CONNECT",handle_connect,'o',1,"<core>");
 	createcommand("SQUIT",handle_squit,'o',0,"<core>");
-	createcommand("MODULES",handle_modules,'o',0,"<core>");
+	createcommand("MODULES",handle_modules,0,0,"<core>");
 	createcommand("LINKS",handle_links,0,0,"<core>");
 	createcommand("MAP",handle_map,0,0,"<core>");
 	createcommand("KLINE",handle_kline,'o',1,"<core>");

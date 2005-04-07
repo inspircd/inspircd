@@ -1223,10 +1223,29 @@ void handle_modules(char **parameters, int pcnt, userrec *user)
 {
   	for (int i = 0; i < module_names.size(); i++)
 	{
-			Version V = modules[i]->GetVersion();
-			char modulename[MAXBUF];
-			strlcpy(modulename,module_names[i].c_str(),256);
-			WriteServ(user->fd,"900 %s :0x%08lx %d.%d.%d.%d %s",user->nick,modules[i],V.Major,V.Minor,V.Revision,V.Build,CleanFilename(modulename));
+		Version V = modules[i]->GetVersion();
+		char modulename[MAXBUF];
+		char flagstate[MAXBUF];
+		strcpy(flagstate,"");
+		if (V.Flags & VF_STATIC)
+			strlcat(flagstate,", static",MAXBUF);
+		if (V.Flags & VF_VENDOR)
+			strlcat(flagstate,", vendor",MAXBUF);
+		if (V.Flags & VF_COMMON)
+			strlcat(flagstate,", common",MAXBUF);
+		if (V.Flags & VF_SERVICEPROVIDER)
+			strlcat(flagstate,", service provider",MAXBUF);
+		if (!strlen(flagstate))
+			strcpy(flagstate,"  <no flags>");
+		strlcpy(modulename,module_names[i].c_str(),256);
+		if (strchr(user->modes,'o'))
+		{
+			WriteServ(user->fd,"900 %s :0x%08lx %d.%d.%d.%d %s (%s)",user->nick,modules[i],V.Major,V.Minor,V.Revision,V.Build,CleanFilename(modulename),flagstate+2);
+		}
+		else
+		{
+			WriteServ(user->fd,"900 %s :%s",user->nick,CleanFilename(modulname));
+		}
 	}
 }
 
