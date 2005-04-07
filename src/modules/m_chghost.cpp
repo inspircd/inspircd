@@ -51,7 +51,7 @@ class ModuleChgHost : public Module
 	ModuleChgHost()
 	{
 		Srv = new Server;
-		Srv->AddCommand("CHGHOST",handle_chghost,'o',2);
+		Srv->AddCommand("CHGHOST",handle_chghost,'o',2,"m_chghost.so");
 	}
 	
 	virtual ~ModuleChgHost()

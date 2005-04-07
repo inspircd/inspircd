@@ -42,7 +42,7 @@ class ModuleSetName : public Module
 	ModuleSetName()
 	{
 		Srv = new Server;
-		Srv->AddCommand("SETNAME",handle_setname,0,1);
+		Srv->AddCommand("SETNAME",handle_setname,0,1,"m_setname.so");
 	}
 	
 	virtual ~ModuleSetName()

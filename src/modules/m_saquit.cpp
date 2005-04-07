@@ -58,7 +58,7 @@ class ModuleSaquit : public Module
 	ModuleSaquit()
 	{
 		Srv = new Server;
-		Srv->AddCommand("SAQUIT",handle_saquit,'o',2);
+		Srv->AddCommand("SAQUIT",handle_saquit,'o',2,"m_saquit.so");
 	}
 	
 	virtual ~ModuleSaquit()

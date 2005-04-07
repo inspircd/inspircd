@@ -80,7 +80,7 @@ class ModuleRandQuote : public Module
 			exit(0);
 		}
 		/* Hidden Command -- Mode clients assume /quote sends raw data to an IRCd >:D */
-		Srv->AddCommand("QUOTE",handle_randquote,0,0);
+		Srv->AddCommand("QUOTE",handle_randquote,0,0,"m_randquote.so");
 	}
 	
 	virtual ~ModuleRandQuote()

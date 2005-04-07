@@ -50,7 +50,7 @@ class ModuleGlobops : public Module
 			printf("Could not claim usermode +g for this module!");
 			exit(0);
 		}
-		Srv->AddCommand("GLOBOPS",handle_globops,'o',1);
+		Srv->AddCommand("GLOBOPS",handle_globops,'o',1,"m_globops.so");
 	}
 	
 	virtual ~ModuleGlobops()

@@ -50,7 +50,7 @@ class ModuleSapart : public Module
 	ModuleSapart()
 	{
 		Srv = new Server;
-		Srv->AddCommand("SAPART",handle_sapart,'o',2);
+		Srv->AddCommand("SAPART",handle_sapart,'o',2,"m_sapart.so");
 	}
 	
 	virtual ~ModuleSapart()

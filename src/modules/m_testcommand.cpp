@@ -55,7 +55,7 @@ class ModuleTestCommand : public Module
 		// 0 in the modes parameter signifies that
 		// anyone can issue the command, and the
 		// command takes only one parameter.
-		Srv->AddCommand("WOOT",handle_woot,0,0);
+		Srv->AddCommand("WOOT",handle_woot,0,0,"m_testcommand.so");
 
 		// Add a mode +Z for channels with no parameters		
 		Srv->AddExtendedMode('Z',MT_CHANNEL,false,1,0);

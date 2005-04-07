@@ -283,6 +283,19 @@ void handle_loadmodule(char **parameters, int pcnt, userrec *user)
 	}
 }
 
+void handle_unloadmodule(char **parameters, int pcnt, userrec *user)
+{
+        if (UnloadModule(parameters[0]))
+        {
+                WriteOpers("*** MODULE UNLOADED: %s",parameters[0]);
+                WriteServ(user->fd,"973 %s %s :Module successfully unloaded.",user->nick, parameters[0]);
+        }
+        else
+        {
+                WriteServ(user->fd,"972 %s %s :Failed to unload module: %s",user->nick, parameters[0],ModuleError());
+        }
+}
+
 void handle_die(char **parameters, int pcnt, userrec *user)
 {
 	log(DEBUG,"die: %s",user->nick);

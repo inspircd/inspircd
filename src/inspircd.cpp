@@ -2920,11 +2920,12 @@ void process_command(userrec *user, char* cmd)
 }
 
 
-void createcommand(char* cmd, handlerfunc f, char flags, int minparams)
+void createcommand(char* cmd, handlerfunc f, char flags, int minparams,char* source)
 {
 	command_t comm;
 	/* create the command and push it onto the table */	
 	strlcpy(comm.command,cmd,MAXBUF);
+	strlcpy(comm.source,source,MAXBUF);
 	comm.handler_function = f;
 	comm.flags_needed = flags;
 	comm.min_params = minparams;
@@ -2934,59 +2935,80 @@ void createcommand(char* cmd, handlerfunc f, char flags, int minparams)
 	log(DEBUG,"Added command %s (%d parameters)",cmd,minparams);
 }
 
+bool removecommands(const char* source)
+{
+	bool go_again = true;
+	while (go_again)
+	{
+		go_again = false;
+		for (std::deque<command_t>::iterator i = cmdlist.begin(); i != cmdlist.end(); i++)
+		{
+			if (!strcmp(i->source,source))
+			{
+				log(DEBUG,"removecommands(%s) Removing dependent command: %s",i->source,i->command);
+				cmdlist.erase(i);
+				go_again = true;
+				break;
+			}
+		}
+	}
+	return true;
+}
+
 void SetupCommandTable(void)
 {
-	createcommand("USER",handle_user,0,4);
-	createcommand("NICK",handle_nick,0,1);
-	createcommand("QUIT",handle_quit,0,0);
-	createcommand("VERSION",handle_version,0,0);
-	createcommand("PING",handle_ping,0,1);
-	createcommand("PONG",handle_pong,0,1);
-	createcommand("ADMIN",handle_admin,0,0);
-	createcommand("PRIVMSG",handle_privmsg,0,2);
-	createcommand("INFO",handle_info,0,0);
-	createcommand("TIME",handle_time,0,0);
-	createcommand("WHOIS",handle_whois,0,1);
-	createcommand("WALLOPS",handle_wallops,'o',1);
-	createcommand("NOTICE",handle_notice,0,2);
-	createcommand("JOIN",handle_join,0,1);
-	createcommand("NAMES",handle_names,0,1);
-	createcommand("PART",handle_part,0,1);
-	createcommand("KICK",handle_kick,0,2);
-	createcommand("MODE",handle_mode,0,1);
-	createcommand("TOPIC",handle_topic,0,1);
-	createcommand("WHO",handle_who,0,1);
-	createcommand("MOTD",handle_motd,0,0);
-	createcommand("RULES",handle_rules,0,0);
-	createcommand("OPER",handle_oper,0,2);
-	createcommand("LIST",handle_list,0,0);
-	createcommand("DIE",handle_die,'o',1);
-	createcommand("RESTART",handle_restart,'o',1);
-	createcommand("KILL",handle_kill,'o',2);
-	createcommand("REHASH",handle_rehash,'o',0);
-	createcommand("LUSERS",handle_lusers,0,0);
-	createcommand("STATS",handle_stats,0,1);
-	createcommand("USERHOST",handle_userhost,0,1);
-	createcommand("AWAY",handle_away,0,0);
-	createcommand("ISON",handle_ison,0,0);
-	createcommand("SUMMON",handle_summon,0,0);
-	createcommand("USERS",handle_users,0,0);
-	createcommand("INVITE",handle_invite,0,2);
-	createcommand("PASS",handle_pass,0,1);
-	createcommand("TRACE",handle_trace,'o',0);
-	createcommand("WHOWAS",handle_whowas,0,1);
-	createcommand("CONNECT",handle_connect,'o',1);
-	createcommand("SQUIT",handle_squit,'o',0);
-	createcommand("MODULES",handle_modules,'o',0);
-	createcommand("LINKS",handle_links,0,0);
-	createcommand("MAP",handle_map,0,0);
-	createcommand("KLINE",handle_kline,'o',1);
-	createcommand("GLINE",handle_gline,'o',1);
-	createcommand("ZLINE",handle_zline,'o',1);
-	createcommand("QLINE",handle_qline,'o',1);
-	createcommand("ELINE",handle_eline,'o',1);
-	createcommand("LOADMODULE",handle_loadmodule,'o',1);
-	createcommand("SERVER",handle_server,0,0);
+	createcommand("USER",handle_user,0,4,"<core>");
+	createcommand("NICK",handle_nick,0,1,"<core>");
+	createcommand("QUIT",handle_quit,0,0,"<core>");
+	createcommand("VERSION",handle_version,0,0,"<core>");
+	createcommand("PING",handle_ping,0,1,"<core>");
+	createcommand("PONG",handle_pong,0,1,"<core>");
+	createcommand("ADMIN",handle_admin,0,0,"<core>");
+	createcommand("PRIVMSG",handle_privmsg,0,2,"<core>");
+	createcommand("INFO",handle_info,0,0,"<core>");
+	createcommand("TIME",handle_time,0,0,"<core>");
+	createcommand("WHOIS",handle_whois,0,1,"<core>");
+	createcommand("WALLOPS",handle_wallops,'o',1,"<core>");
+	createcommand("NOTICE",handle_notice,0,2,"<core>");
+	createcommand("JOIN",handle_join,0,1,"<core>");
+	createcommand("NAMES",handle_names,0,1,"<core>");
+	createcommand("PART",handle_part,0,1,"<core>");
+	createcommand("KICK",handle_kick,0,2,"<core>");
+	createcommand("MODE",handle_mode,0,1,"<core>");
+	createcommand("TOPIC",handle_topic,0,1,"<core>");
+	createcommand("WHO",handle_who,0,1,"<core>");
+	createcommand("MOTD",handle_motd,0,0,"<core>");
+	createcommand("RULES",handle_rules,0,0,"<core>");
+	createcommand("OPER",handle_oper,0,2,"<core>");
+	createcommand("LIST",handle_list,0,0,"<core>");
+	createcommand("DIE",handle_die,'o',1,"<core>");
+	createcommand("RESTART",handle_restart,'o',1,"<core>");
+	createcommand("KILL",handle_kill,'o',2,"<core>");
+	createcommand("REHASH",handle_rehash,'o',0,"<core>");
+	createcommand("LUSERS",handle_lusers,0,0,"<core>");
+	createcommand("STATS",handle_stats,0,1,"<core>");
+	createcommand("USERHOST",handle_userhost,0,1,"<core>");
+	createcommand("AWAY",handle_away,0,0,"<core>");
+	createcommand("ISON",handle_ison,0,0,"<core>");
+	createcommand("SUMMON",handle_summon,0,0,"<core>");
+	createcommand("USERS",handle_users,0,0,"<core>");
+	createcommand("INVITE",handle_invite,0,2,"<core>");
+	createcommand("PASS",handle_pass,0,1,"<core>");
+	createcommand("TRACE",handle_trace,'o',0,"<core>");
+	createcommand("WHOWAS",handle_whowas,0,1,"<core>");
+	createcommand("CONNECT",handle_connect,'o',1,"<core>");
+	createcommand("SQUIT",handle_squit,'o',0,"<core>");
+	createcommand("MODULES",handle_modules,'o',0,"<core>");
+	createcommand("LINKS",handle_links,0,0,"<core>");
+	createcommand("MAP",handle_map,0,0,"<core>");
+	createcommand("KLINE",handle_kline,'o',1,"<core>");
+	createcommand("GLINE",handle_gline,'o',1,"<core>");
+	createcommand("ZLINE",handle_zline,'o',1,"<core>");
+	createcommand("QLINE",handle_qline,'o',1,"<core>");
+	createcommand("ELINE",handle_eline,'o',1,"<core>");
+	createcommand("LOADMODULE",handle_loadmodule,'o',1,"<core>");
+	createcommand("UNLOADMODULE",handle_unloadmodule,'o',1,"<core>");
+	createcommand("SERVER",handle_server,0,0,"<core>");
 }
 
 void process_buffer(const char* cmdbuf,userrec *user)
@@ -3239,6 +3261,51 @@ char MODERR[MAXBUF];
 char* ModuleError()
 {
 	return MODERR;
+}
+
+bool UnloadModule(const char* filename)
+{
+	for (int j = 0; j != module_names.size(); j++)
+	{
+		if (module_names[j] == std::string(filename))
+		{
+			// found the module
+			log(DEBUG,"Deleting module...");
+			delete factory[j]->factory;
+			log(DEBUG,"Deleting module factory...");
+			delete factory[j];
+			log(DEBUG,"Erasing module entry...");
+			factory[j] = NULL;
+			// here we should locate ALL resources claimed by this module... and release them
+			// for example commands
+			log(DEBUG,"Erasing module vector...");
+			for (std::vector<ircd_module*>::iterator t = factory.begin(); t != factory.end(); t++)
+			{
+				if (*t == NULL)
+				{
+					factory.erase(t);
+					break;
+				}
+			}
+			log(DEBUG,"Erasing module name vector...");
+			for (std::vector<std::string>::iterator v = module_names.begin(); v != module_names.end(); v++)
+                        {
+                                if (*v == std::string(filename))
+                                {
+                                        module_names.erase(v);
+                                        break;
+                                }
+                        }
+                        log(DEBUG,"Removing dependent commands...");
+                        removecommands(filename);
+			log(DEFAULT,"Module %s unloaded",filename);
+			MODCOUNT--;
+			return true;
+		}
+	}
+	log(DEFAULT,"Module %s is not loaded, cannot unload it!",filename);
+	snprintf(MODERR,MAXBUF,"Module not loaded");
+	return false;
 }
 
 bool LoadModule(const char* filename)

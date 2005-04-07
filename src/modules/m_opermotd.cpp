@@ -58,7 +58,7 @@ class ModuleOpermotd : public Module {
 
 			Srv = new Server;
 			
-			Srv->AddCommand("OPERMOTD",do_opermotd,'o',0);
+			Srv->AddCommand("OPERMOTD",do_opermotd,'o',0,"m_opermotd.so");
 
 			opermotd = new FileReader();
 			LoadOperMOTD();

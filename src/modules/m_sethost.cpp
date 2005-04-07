@@ -48,7 +48,7 @@ class ModuleSetHost : public Module
 	ModuleSetHost()
 	{
 		Srv = new Server;
-		Srv->AddCommand("SETHOST",handle_sethost,'o',1);
+		Srv->AddCommand("SETHOST",handle_sethost,'o',1,"m_sethost.so");
 	}
 	
 	virtual ~ModuleSetHost()

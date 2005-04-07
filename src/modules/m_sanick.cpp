@@ -46,7 +46,7 @@ class ModuleSanick : public Module
 	ModuleSanick()
 	{
 		Srv = new Server;
-		Srv->AddCommand("SANICK",handle_sanick,'o',2);
+		Srv->AddCommand("SANICK",handle_sanick,'o',2,"m_sanick.so");
 	}
 	
 	virtual ~ModuleSanick()

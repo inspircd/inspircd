@@ -51,7 +51,7 @@ class ModuleSajoin : public Module
 	ModuleSajoin()
 	{
 		Srv = new Server;
-		Srv->AddCommand("SAJOIN",handle_sajoin,'o',2);
+		Srv->AddCommand("SAJOIN",handle_sajoin,'o',2,"m_sajoin.so");
 	}
 	
 	virtual ~ModuleSajoin()

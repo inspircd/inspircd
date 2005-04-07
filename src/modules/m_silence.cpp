@@ -120,7 +120,7 @@ class ModuleSilence : public Module
 	ModuleSilence()
 	{
 		Srv = new Server;
-		Srv->AddCommand("SILENCE",handle_silence,0,0);
+		Srv->AddCommand("SILENCE",handle_silence,0,0,"m_silence.so");
 	}
 
 	virtual void OnUserQuit(userrec* user)

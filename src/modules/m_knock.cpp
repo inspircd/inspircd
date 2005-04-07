@@ -62,7 +62,7 @@ class ModuleKnock : public Module
 		Srv = new Server;
 		
 		Srv->AddExtendedMode('K',MT_CHANNEL,false,0,0);
-		Srv->AddCommand("KNOCK",handle_knock,0,2);
+		Srv->AddCommand("KNOCK",handle_knock,0,2,"m_knock.so");
 	}
 
         virtual void On005Numeric(std::string &output)

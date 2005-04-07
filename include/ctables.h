@@ -44,6 +44,9 @@ class command_t : public Extensible
 	/** used by /stats m
  	 */
 	long total_bytes;
+	/** used for resource tracking between modules
+	 */
+	char source[MAXBUF];
 };
 
 #endif

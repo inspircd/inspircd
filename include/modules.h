@@ -96,7 +96,7 @@ typedef std::deque<userrec*> chanuserlist;
    
 // *********************************************************************************************
 
-extern void createcommand(char* cmd, handlerfunc f, char flags, int minparams);
+extern void createcommand(char* cmd, handlerfunc f, char flags, int minparams, char* source);
 extern void server_mode(char **parameters, int pcnt, userrec *user);
 
 // class Version holds the version information of a Module, returned
@@ -109,8 +109,8 @@ extern void server_mode(char **parameters, int pcnt, userrec *user);
 class Version : public classbase
 {
  public:
-	 const int Major, Minor, Revision, Build;
-	 Version(int major, int minor, int revision, int build);
+	 const int Major, Minor, Revision, Build, Flags;
+	 Version(int major, int minor, int revision, int build, int flags);
 };
 
 /** Holds /ADMIN data
@@ -545,8 +545,11 @@ class Server : public classbase
 	 * than the 'minparams' value you specified when creating the command. The *user parameter is the class of
 	 * the user which caused the command to trigger, who will always have the flag you specified in 'flags' when
 	 * creating the initial command. For example to create an oper only command create the commands with flags='o'.
+	 * The source parameter is used for resource tracking, and should contain the name of your module (with file
+	 * extension) e.g. "m_blarp.so". If you place the wrong identifier here, you can cause crashes if your module
+	 * is unloaded.
 	 */
-	virtual void AddCommand(char* cmd, handlerfunc f, char flags, int minparams);
+	virtual void AddCommand(char* cmd, handlerfunc f, char flags, int minparams, char* source);
 	 
  	/** Sends a servermode.
  	 * you must format the parameters array with the target, modes and parameters for those modes.

@@ -163,7 +163,7 @@ class ModuleHelpop : public Module
 		}
 
 		// Loads of comments, untill supported properly.
-		Srv->AddCommand("HELPOP",handle_helpop,0,0);
+		Srv->AddCommand("HELPOP",handle_helpop,0,0,"m_helpop.so");
 
 	}
 

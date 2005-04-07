@@ -62,9 +62,7 @@ class ModuleSaMode : public Module
 	ModuleSaMode()
 	{
 		Srv = new Server;
-                Srv->Log(DEBUG,"SAMODE: Pre-add cmd");
-		Srv->AddCommand("SAMODE",handle_samode,'o',2);
-		Srv->Log(DEBUG,"SAMODE: Post-add cmd");
+		Srv->AddCommand("SAMODE",handle_samode,'o',2,"m_samode.so");
 	}
 	
 	virtual ~ModuleSaMode()

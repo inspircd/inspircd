@@ -297,7 +297,7 @@ void ModeMakeList(char modechar)
 
 // version is a simple class for holding a modules version number
 
-Version::Version(int major, int minor, int revision, int build) : Major(major), Minor(minor), Revision(revision), Build(build) { };
+Version::Version(int major, int minor, int revision, int build, int flags) : Major(major), Minor(minor), Revision(revision), Build(build), Flags(flags) { };
 
 // admin is a simple class for holding a server's administrative info
 
@@ -417,9 +417,9 @@ void Server::Log(int level, std::string s)
 	log(level,"%s",s.c_str());
 }
 
-void Server::AddCommand(char* cmd, handlerfunc f, char flags, int minparams)
+void Server::AddCommand(char* cmd, handlerfunc f, char flags, int minparams, char* source)
 {
-	createcommand(cmd,f,flags,minparams);
+	createcommand(cmd,f,flags,minparams,source);
 }
 
 void Server::SendMode(char **parameters, int pcnt, userrec *user)
