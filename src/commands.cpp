@@ -1244,7 +1244,7 @@ void handle_modules(char **parameters, int pcnt, userrec *user)
 		}
 		else
 		{
-			WriteServ(user->fd,"900 %s :%s",user->nick,CleanFilename(modulname));
+			WriteServ(user->fd,"900 %s :%s",user->nick,CleanFilename(modulename));
 		}
 	}
 }
