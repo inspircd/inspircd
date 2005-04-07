@@ -1,4 +1,4 @@
-.TH "chanrec" 3 "4 Apr 2005" "InspIRCd" \" -*- nroff -*-
+.TH "chanrec" 3 "7 Apr 2005" "InspIRCd" \" -*- nroff -*-
 .ad l
 .nh
 .SH NAME
@@ -114,20 +114,20 @@ Definition at line 94 of file channels.h.
 .PP 
 .SS "chanrec::chanrec ()"
 .PP
-Creates a channel record and initialises it with default values. Definition at line 112 of file channels.cpp.
+Creates a channel record and initialises it with default values. Definition at line 113 of file channels.cpp.
 .PP
 References c_private, created, custom_modes, inviteonly, key, limit, moderated, name, noexternal, secret, setby, topic, topiclock, and topicset.
 .PP
 .nf
-113 {
-114         strcpy(name,'');
-115         strcpy(custom_modes,'');
-116         strcpy(topic,'');
-117         strcpy(setby,'');
-118         strcpy(key,'');
-119         created = topicset = limit = 0;
-120         topiclock = noexternal = inviteonly = moderated = secret = c_private = false;
-121 }
+114 {
+115         strcpy(name,'');
+116         strcpy(custom_modes,'');
+117         strcpy(topic,'');
+118         strcpy(setby,'');
+119         strcpy(key,'');
+120         created = topicset = limit = 0;
+121         topiclock = noexternal = inviteonly = moderated = secret = c_private = false;
+122 }
 .fi
 .SS "virtual chanrec::~\fBchanrec\fP ()\fC [inline, virtual]\fP"
 .PP
@@ -140,105 +140,105 @@ Definition at line 185 of file channels.h.
 .PP 
 .SS "std::string chanrec::GetModeParameter (char mode)"
 .PP
-Returns the parameter for a custom mode on a channel. For example if '+L #foo' is set, and you pass this method 'L', it will return '#foo'. If the mode is not set on the channel, or the mode has no parameters associated with it, it will return an empty string.Definition at line 185 of file channels.cpp.
+Returns the parameter for a custom mode on a channel. For example if '+L #foo' is set, and you pass this method 'L', it will return '#foo'. If the mode is not set on the channel, or the mode has no parameters associated with it, it will return an empty string.Definition at line 186 of file channels.cpp.
 .PP
 References custom_mode_params.
 .PP
 .nf
-186 {
-187         if (custom_mode_params.size())
-188         {
-189                 for (vector<ModeParameter>::iterator i = custom_mode_params.begin(); i < custom_mode_params.end(); i++)
-190                 {
-191                         if ((i->mode == mode) && (!strcasecmp(this->name,i->channel)))
-192                         {
-193                                 return std::string(i->parameter);
-194                         }
-195                 }
-196         }
-197         return std::string('');
-198 }
+187 {
+188         if (custom_mode_params.size())
+189         {
+190                 for (vector<ModeParameter>::iterator i = custom_mode_params.begin(); i < custom_mode_params.end(); i++)
+191                 {
+192                         if ((i->mode == mode) && (!strcasecmp(this->name,i->channel)))
+193                         {
+194                                 return std::string(i->parameter);
+195                         }
+196                 }
+197         }
+198         return std::string('');
+199 }
 .fi
 .SS "bool chanrec::IsCustomModeSet (char mode)"
 .PP
-Returns true if a custom mode is set on a channel. Definition at line 179 of file channels.cpp.
+Returns true if a custom mode is set on a channel. Definition at line 180 of file channels.cpp.
 .PP
 References DEBUG.
 .PP
 .nf
-180 {
-181         log(DEBUG,'Checking ISCustomModeSet: %c %s',mode,this->custom_modes);
-182         return (strchr(this->custom_modes,mode) != 0);
-183 }
+181 {
+182         log(DEBUG,'Checking ISCustomModeSet: %c %s',mode,this->custom_modes);
+183         return (strchr(this->custom_modes,mode) != 0);
+184 }
 .fi
 .SS "void chanrec::SetCustomMode (char mode, bool mode_on)"
 .PP
-Sets or unsets a custom mode in the channels info. Definition at line 123 of file channels.cpp.
+Sets or unsets a custom mode in the channels info. Definition at line 124 of file channels.cpp.
 .PP
 References custom_modes, DEBUG, and SetCustomModeParam().
 .PP
 .nf
-124 {
-125         if (mode_on) {
-126                 char m[3];
-127                 m[0] = mode;
-128                 m[1] = '\0';
-129                 if (!strchr(this->custom_modes,mode))
-130                 {
-131                         strlcat(custom_modes,m,MAXMODES);
-132                 }
-133                 log(DEBUG,'Custom mode %c set',mode);
-134         }
-135         else {
-136 
-137                 std::string a = this->custom_modes;
-138                 int pos = a.find(mode);
-139                 a.erase(pos,1);
-140                 strncpy(this->custom_modes,a.c_str(),MAXMODES);
-141 
-142                 log(DEBUG,'Custom mode %c removed: modelist='%s'',mode,this->custom_modes);
-143                 this->SetCustomModeParam(mode,'',false);
-144         }
-145 }
+125 {
+126         if (mode_on) {
+127                 char m[3];
+128                 m[0] = mode;
+129                 m[1] = '\0';
+130                 if (!strchr(this->custom_modes,mode))
+131                 {
+132                         strlcat(custom_modes,m,MAXMODES);
+133                 }
+134                 log(DEBUG,'Custom mode %c set',mode);
+135         }
+136         else {
+137 
+138                 std::string a = this->custom_modes;
+139                 int pos = a.find(mode);
+140                 a.erase(pos,1);
+141                 strncpy(this->custom_modes,a.c_str(),MAXMODES);
+142 
+143                 log(DEBUG,'Custom mode %c removed: modelist='%s'',mode,this->custom_modes);
+144                 this->SetCustomModeParam(mode,'',false);
+145         }
+146 }
 .fi
 .SS "void chanrec::SetCustomModeParam (char mode, char * parameter, bool mode_on)"
 .PP
-Sets or unsets the parameters for a custom mode in a channels info. Definition at line 148 of file channels.cpp.
+Sets or unsets the parameters for a custom mode in a channels info. Definition at line 149 of file channels.cpp.
 .PP
 References ModeParameter::channel, custom_mode_params, DEBUG, ModeParameter::mode, and ModeParameter::parameter.
 .PP
 Referenced by SetCustomMode().
 .PP
 .nf
-149 {
-150 
-151         log(DEBUG,'SetCustomModeParam called');
-152         ModeParameter M;
-153         M.mode = mode;
-154         strlcpy(M.channel,this->name,CHANMAX);
-155         strlcpy(M.parameter,parameter,MAXBUF);
-156         if (mode_on)
-157         {
-158                 log(DEBUG,'Custom mode parameter %c %s added',mode,parameter);
-159                 custom_mode_params.push_back(M);
-160         }
-161         else
-162         {
-163                 if (custom_mode_params.size())
-164                 {
-165                         for (vector<ModeParameter>::iterator i = custom_mode_params.begin(); i < custom_mode_params.end(); i++)
-166                         {
-167                                 if ((i->mode == mode) && (!strcasecmp(this->name,i->channel)))
-168                                 {
-169                                         log(DEBUG,'Custom mode parameter %c %s removed',mode,parameter);
-170                                         custom_mode_params.erase(i);
-171                                         return;
-172                                 }
-173                         }
-174                 }
-175                 log(DEBUG,'*** BUG *** Attempt to remove non-existent mode parameter!');
-176         }
-177 }
+150 {
+151 
+152         log(DEBUG,'SetCustomModeParam called');
+153         ModeParameter M;
+154         M.mode = mode;
+155         strlcpy(M.channel,this->name,CHANMAX);
+156         strlcpy(M.parameter,parameter,MAXBUF);
+157         if (mode_on)
+158         {
+159                 log(DEBUG,'Custom mode parameter %c %s added',mode,parameter);
+160                 custom_mode_params.push_back(M);
+161         }
+162         else
+163         {
+164                 if (custom_mode_params.size())
+165                 {
+166                         for (vector<ModeParameter>::iterator i = custom_mode_params.begin(); i < custom_mode_params.end(); i++)
+167                         {
+168                                 if ((i->mode == mode) && (!strcasecmp(this->name,i->channel)))
+169                                 {
+170                                         log(DEBUG,'Custom mode parameter %c %s removed',mode,parameter);
+171                                         custom_mode_params.erase(i);
+172                                         return;
+173                                 }
+174                         }
+175                 }
+176                 log(DEBUG,'*** BUG *** Attempt to remove non-existent mode parameter!');
+177         }
+178 }
 .fi
 .SH "Member Data Documentation"
 .PP 

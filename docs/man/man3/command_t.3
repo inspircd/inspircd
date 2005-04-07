@@ -1,4 +1,4 @@
-.TH "command_t" 3 "4 Apr 2005" "InspIRCd" \" -*- nroff -*-
+.TH "command_t" 3 "7 Apr 2005" "InspIRCd" \" -*- nroff -*-
 .ad l
 .nh
 .SH NAME
@@ -39,6 +39,10 @@ Inherits \fBExtensible\fP.
 .RI "long \fBtotal_bytes\fP"
 .br
 .RI "\fIused by /stats m \fP"
+.ti -1c
+.RI "char \fBsource\fP [MAXBUF]"
+.br
+.RI "\fIused for resource tracking between modules \fP"
 .in -1c
 .SH "Detailed Description"
 .PP 
@@ -57,6 +61,9 @@ Handler function as in typedef. Definition at line 34 of file ctables.h.
 .SS "int \fBcommand_t::min_params\fP"
 .PP
 Minimum number of parameters command takes. Definition at line 40 of file ctables.h.
+.SS "char \fBcommand_t::source\fP[MAXBUF]"
+.PP
+used for resource tracking between modules Definition at line 49 of file ctables.h.
 .SS "long \fBcommand_t::total_bytes\fP"
 .PP
 used by /stats m Definition at line 46 of file ctables.h.

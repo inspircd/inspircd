@@ -116,19 +116,19 @@ Creates a channel record and initialises it with default values.
 <p>
 
 <p>
-Definition at line <a class="el" href="channels_8cpp-source.html#l00112">112</a> of file <a class="el" href="channels_8cpp-source.html">channels.cpp</a>.
+Definition at line <a class="el" href="channels_8cpp-source.html#l00113">113</a> of file <a class="el" href="channels_8cpp-source.html">channels.cpp</a>.
 <p>
 References <a class="el" href="channels_8h-source.html#l00155">c_private</a>, <a class="el" href="channels_8h-source.html#l00111">created</a>, <a class="el" href="channels_8h-source.html#l00103">custom_modes</a>, <a class="el" href="channels_8h-source.html#l00141">inviteonly</a>, <a class="el" href="channels_8h-source.html#l00129">key</a>, <a class="el" href="channels_8h-source.html#l00124">limit</a>, <a class="el" href="channels_8h-source.html#l00145">moderated</a>, <a class="el" href="channels_8h-source.html#l00099">name</a>, <a class="el" href="channels_8h-source.html#l00137">noexternal</a>, <a class="el" href="channels_8h-source.html#l00150">secret</a>, <a class="el" href="channels_8h-source.html#l00119">setby</a>, <a class="el" href="channels_8h-source.html#l00108">topic</a>, <a class="el" href="channels_8h-source.html#l00133">topiclock</a>, and <a class="el" href="channels_8h-source.html#l00115">topicset</a>.
 <p>
-<div class="fragment"><pre>00113 {
-00114         strcpy(name,<span class="stringliteral">""</span>);
-00115         strcpy(custom_modes,<span class="stringliteral">""</span>);
-00116         strcpy(topic,<span class="stringliteral">""</span>);
-00117         strcpy(setby,<span class="stringliteral">""</span>);
-00118         strcpy(key,<span class="stringliteral">""</span>);
-00119         <a class="code" href="classchanrec.html#o3">created</a> = <a class="code" href="classchanrec.html#o4">topicset</a> = <a class="code" href="classchanrec.html#o6">limit</a> = 0;
-00120         <a class="code" href="classchanrec.html#o8">topiclock</a> = <a class="code" href="classchanrec.html#o9">noexternal</a> = <a class="code" href="classchanrec.html#o10">inviteonly</a> = <a class="code" href="classchanrec.html#o11">moderated</a> = <a class="code" href="classchanrec.html#o12">secret</a> = <a class="code" href="classchanrec.html#o13">c_private</a> = <span class="keyword">false</span>;
-00121 }
+<div class="fragment"><pre>00114 {
+00115         strcpy(name,<span class="stringliteral">""</span>);
+00116         strcpy(custom_modes,<span class="stringliteral">""</span>);
+00117         strcpy(topic,<span class="stringliteral">""</span>);
+00118         strcpy(setby,<span class="stringliteral">""</span>);
+00119         strcpy(key,<span class="stringliteral">""</span>);
+00120         <a class="code" href="classchanrec.html#o3">created</a> = <a class="code" href="classchanrec.html#o4">topicset</a> = <a class="code" href="classchanrec.html#o6">limit</a> = 0;
+00121         <a class="code" href="classchanrec.html#o8">topiclock</a> = <a class="code" href="classchanrec.html#o9">noexternal</a> = <a class="code" href="classchanrec.html#o10">inviteonly</a> = <a class="code" href="classchanrec.html#o11">moderated</a> = <a class="code" href="classchanrec.html#o12">secret</a> = <a class="code" href="classchanrec.html#o13">c_private</a> = <span class="keyword">false</span>;
+00122 }
 </pre></div>    </td>
   </tr>
 </table>
@@ -196,23 +196,23 @@ Returns the parameter for a custom mode on a channel.
 <p>
 For example if "+L #foo" is set, and you pass this method 'L', it will return '#foo'. If the mode is not set on the channel, or the mode has no parameters associated with it, it will return an empty string.
 <p>
-Definition at line <a class="el" href="channels_8cpp-source.html#l00185">185</a> of file <a class="el" href="channels_8cpp-source.html">channels.cpp</a>.
+Definition at line <a class="el" href="channels_8cpp-source.html#l00186">186</a> of file <a class="el" href="channels_8cpp-source.html">channels.cpp</a>.
 <p>
-References <a class="el" href="channels_8cpp-source.html#l00110">custom_mode_params</a>.
+References <a class="el" href="channels_8cpp-source.html#l00111">custom_mode_params</a>.
 <p>
-<div class="fragment"><pre>00186 {
-00187         <span class="keywordflow">if</span> (<a class="code" href="channels_8cpp.html#a37">custom_mode_params</a>.size())
-00188         {
-00189                 <span class="keywordflow">for</span> (vector&lt;ModeParameter&gt;::iterator i = <a class="code" href="channels_8cpp.html#a37">custom_mode_params</a>.begin(); i &lt; <a class="code" href="channels_8cpp.html#a37">custom_mode_params</a>.end(); i++)
-00190                 {
-00191                         <span class="keywordflow">if</span> ((i-&gt;mode == mode) &amp;&amp; (!strcasecmp(this-&gt;name,i-&gt;channel)))
-00192                         {
-00193                                 <span class="keywordflow">return</span> std::string(i-&gt;parameter);
-00194                         }
-00195                 }
-00196         }
-00197         <span class="keywordflow">return</span> std::string(<span class="stringliteral">""</span>);
-00198 }
+<div class="fragment"><pre>00187 {
+00188         <span class="keywordflow">if</span> (<a class="code" href="channels_8cpp.html#a38">custom_mode_params</a>.size())
+00189         {
+00190                 <span class="keywordflow">for</span> (vector&lt;ModeParameter&gt;::iterator i = <a class="code" href="channels_8cpp.html#a38">custom_mode_params</a>.begin(); i &lt; <a class="code" href="channels_8cpp.html#a38">custom_mode_params</a>.end(); i++)
+00191                 {
+00192                         <span class="keywordflow">if</span> ((i-&gt;mode == mode) &amp;&amp; (!strcasecmp(this-&gt;name,i-&gt;channel)))
+00193                         {
+00194                                 <span class="keywordflow">return</span> std::string(i-&gt;parameter);
+00195                         }
+00196                 }
+00197         }
+00198         <span class="keywordflow">return</span> std::string(<span class="stringliteral">""</span>);
+00199 }
 </pre></div>    </td>
   </tr>
 </table>
@@ -246,14 +246,14 @@ Returns true if a custom mode is set on a channel.
 <p>
 
 <p>
-Definition at line <a class="el" href="channels_8cpp-source.html#l00179">179</a> of file <a class="el" href="channels_8cpp-source.html">channels.cpp</a>.
+Definition at line <a class="el" href="channels_8cpp-source.html#l00180">180</a> of file <a class="el" href="channels_8cpp-source.html">channels.cpp</a>.
 <p>
 References <a class="el" href="modules_8h-source.html#l00023">DEBUG</a>.
 <p>
-<div class="fragment"><pre>00180 {
-00181         log(DEBUG,<span class="stringliteral">"Checking ISCustomModeSet: %c %s"</span>,mode,this-&gt;custom_modes);
-00182         <span class="keywordflow">return</span> (strchr(this-&gt;custom_modes,mode) != 0);
-00183 }
+<div class="fragment"><pre>00181 {
+00182         log(DEBUG,<span class="stringliteral">"Checking ISCustomModeSet: %c %s"</span>,mode,this-&gt;custom_modes);
+00183         <span class="keywordflow">return</span> (strchr(this-&gt;custom_modes,mode) != 0);
+00184 }
 </pre></div>    </td>
   </tr>
 </table>
@@ -296,32 +296,32 @@ Sets or unsets a custom mode in the channels info.
 <p>
 
 <p>
-Definition at line <a class="el" href="channels_8cpp-source.html#l00123">123</a> of file <a class="el" href="channels_8cpp-source.html">channels.cpp</a>.
+Definition at line <a class="el" href="channels_8cpp-source.html#l00124">124</a> of file <a class="el" href="channels_8cpp-source.html">channels.cpp</a>.
 <p>
-References <a class="el" href="channels_8h-source.html#l00103">custom_modes</a>, <a class="el" href="modules_8h-source.html#l00023">DEBUG</a>, and <a class="el" href="channels_8cpp-source.html#l00148">SetCustomModeParam()</a>.
+References <a class="el" href="channels_8h-source.html#l00103">custom_modes</a>, <a class="el" href="modules_8h-source.html#l00023">DEBUG</a>, and <a class="el" href="channels_8cpp-source.html#l00149">SetCustomModeParam()</a>.
 <p>
-<div class="fragment"><pre>00124 {
-00125         <span class="keywordflow">if</span> (mode_on) {
-00126                 <span class="keywordtype">char</span> m[3];
-00127                 m[0] = mode;
-00128                 m[1] = <span class="charliteral">'\0'</span>;
-00129                 <span class="keywordflow">if</span> (!strchr(this-&gt;custom_modes,mode))
-00130                 {
-00131                         strlcat(custom_modes,m,MAXMODES);
-00132                 }
-00133                 log(DEBUG,<span class="stringliteral">"Custom mode %c set"</span>,mode);
-00134         }
-00135         <span class="keywordflow">else</span> {
-00136 
-00137                 std::string a = this-&gt;<a class="code" href="classchanrec.html#o1">custom_modes</a>;
-00138                 <span class="keywordtype">int</span> pos = a.find(mode);
-00139                 a.erase(pos,1);
-00140                 strncpy(this-&gt;custom_modes,a.c_str(),MAXMODES);
-00141 
-00142                 log(DEBUG,<span class="stringliteral">"Custom mode %c removed: modelist='%s'"</span>,mode,this-&gt;custom_modes);
-00143                 this-&gt;<a class="code" href="classchanrec.html#a1">SetCustomModeParam</a>(mode,<span class="stringliteral">""</span>,<span class="keyword">false</span>);
-00144         }
-00145 }
+<div class="fragment"><pre>00125 {
+00126         <span class="keywordflow">if</span> (mode_on) {
+00127                 <span class="keywordtype">char</span> m[3];
+00128                 m[0] = mode;
+00129                 m[1] = <span class="charliteral">'\0'</span>;
+00130                 <span class="keywordflow">if</span> (!strchr(this-&gt;custom_modes,mode))
+00131                 {
+00132                         strlcat(custom_modes,m,MAXMODES);
+00133                 }
+00134                 log(DEBUG,<span class="stringliteral">"Custom mode %c set"</span>,mode);
+00135         }
+00136         <span class="keywordflow">else</span> {
+00137 
+00138                 std::string a = this-&gt;<a class="code" href="classchanrec.html#o1">custom_modes</a>;
+00139                 <span class="keywordtype">int</span> pos = a.find(mode);
+00140                 a.erase(pos,1);
+00141                 strncpy(this-&gt;custom_modes,a.c_str(),MAXMODES);
+00142 
+00143                 log(DEBUG,<span class="stringliteral">"Custom mode %c removed: modelist='%s'"</span>,mode,this-&gt;custom_modes);
+00144                 this-&gt;<a class="code" href="classchanrec.html#a1">SetCustomModeParam</a>(mode,<span class="stringliteral">""</span>,<span class="keyword">false</span>);
+00145         }
+00146 }
 </pre></div>    </td>
   </tr>
 </table>
@@ -370,41 +370,41 @@ Sets or unsets the parameters for a custom mode in a channels info.
 <p>
 
 <p>
-Definition at line <a class="el" href="channels_8cpp-source.html#l00148">148</a> of file <a class="el" href="channels_8cpp-source.html">channels.cpp</a>.
+Definition at line <a class="el" href="channels_8cpp-source.html#l00149">149</a> of file <a class="el" href="channels_8cpp-source.html">channels.cpp</a>.
 <p>
-References <a class="el" href="channels_8h-source.html#l00075">ModeParameter::channel</a>, <a class="el" href="channels_8cpp-source.html#l00110">custom_mode_params</a>, <a class="el" href="modules_8h-source.html#l00023">DEBUG</a>, <a class="el" href="channels_8h-source.html#l00073">ModeParameter::mode</a>, and <a class="el" href="channels_8h-source.html#l00074">ModeParameter::parameter</a>.
+References <a class="el" href="channels_8h-source.html#l00075">ModeParameter::channel</a>, <a class="el" href="channels_8cpp-source.html#l00111">custom_mode_params</a>, <a class="el" href="modules_8h-source.html#l00023">DEBUG</a>, <a class="el" href="channels_8h-source.html#l00073">ModeParameter::mode</a>, and <a class="el" href="channels_8h-source.html#l00074">ModeParameter::parameter</a>.
 <p>
-Referenced by <a class="el" href="channels_8cpp-source.html#l00123">SetCustomMode()</a>.
+Referenced by <a class="el" href="channels_8cpp-source.html#l00124">SetCustomMode()</a>.
 <p>
-<div class="fragment"><pre>00149 {
-00150 
-00151         log(DEBUG,<span class="stringliteral">"SetCustomModeParam called"</span>);
-00152         <a class="code" href="classModeParameter.html">ModeParameter</a> M;
-00153         M.<a class="code" href="classModeParameter.html#o0">mode</a> = mode;
-00154         strlcpy(M.<a class="code" href="classModeParameter.html#o2">channel</a>,this-&gt;name,CHANMAX);
-00155         strlcpy(M.<a class="code" href="classModeParameter.html#o1">parameter</a>,parameter,MAXBUF);
-00156         <span class="keywordflow">if</span> (mode_on)
-00157         {
-00158                 log(DEBUG,<span class="stringliteral">"Custom mode parameter %c %s added"</span>,mode,parameter);
-00159                 <a class="code" href="channels_8cpp.html#a37">custom_mode_params</a>.push_back(M);
-00160         }
-00161         <span class="keywordflow">else</span>
-00162         {
-00163                 <span class="keywordflow">if</span> (<a class="code" href="channels_8cpp.html#a37">custom_mode_params</a>.size())
-00164                 {
-00165                         <span class="keywordflow">for</span> (vector&lt;ModeParameter&gt;::iterator i = <a class="code" href="channels_8cpp.html#a37">custom_mode_params</a>.begin(); i &lt; <a class="code" href="channels_8cpp.html#a37">custom_mode_params</a>.end(); i++)
-00166                         {
-00167                                 <span class="keywordflow">if</span> ((i-&gt;mode == mode) &amp;&amp; (!strcasecmp(this-&gt;name,i-&gt;channel)))
-00168                                 {
-00169                                         log(DEBUG,<span class="stringliteral">"Custom mode parameter %c %s removed"</span>,mode,parameter);
-00170                                         <a class="code" href="channels_8cpp.html#a37">custom_mode_params</a>.erase(i);
-00171                                         <span class="keywordflow">return</span>;
-00172                                 }
-00173                         }
-00174                 }
-00175                 log(DEBUG,<span class="stringliteral">"*** BUG *** Attempt to remove non-existent mode parameter!"</span>);
-00176         }
-00177 }
+<div class="fragment"><pre>00150 {
+00151 
+00152         log(DEBUG,<span class="stringliteral">"SetCustomModeParam called"</span>);
+00153         <a class="code" href="classModeParameter.html">ModeParameter</a> M;
+00154         M.<a class="code" href="classModeParameter.html#o0">mode</a> = mode;
+00155         strlcpy(M.<a class="code" href="classModeParameter.html#o2">channel</a>,this-&gt;name,CHANMAX);
+00156         strlcpy(M.<a class="code" href="classModeParameter.html#o1">parameter</a>,parameter,MAXBUF);
+00157         <span class="keywordflow">if</span> (mode_on)
+00158         {
+00159                 log(DEBUG,<span class="stringliteral">"Custom mode parameter %c %s added"</span>,mode,parameter);
+00160                 <a class="code" href="channels_8cpp.html#a38">custom_mode_params</a>.push_back(M);
+00161         }
+00162         <span class="keywordflow">else</span>
+00163         {
+00164                 <span class="keywordflow">if</span> (<a class="code" href="channels_8cpp.html#a38">custom_mode_params</a>.size())
+00165                 {
+00166                         <span class="keywordflow">for</span> (vector&lt;ModeParameter&gt;::iterator i = <a class="code" href="channels_8cpp.html#a38">custom_mode_params</a>.begin(); i &lt; <a class="code" href="channels_8cpp.html#a38">custom_mode_params</a>.end(); i++)
+00167                         {
+00168                                 <span class="keywordflow">if</span> ((i-&gt;mode == mode) &amp;&amp; (!strcasecmp(this-&gt;name,i-&gt;channel)))
+00169                                 {
+00170                                         log(DEBUG,<span class="stringliteral">"Custom mode parameter %c %s removed"</span>,mode,parameter);
+00171                                         <a class="code" href="channels_8cpp.html#a38">custom_mode_params</a>.erase(i);
+00172                                         <span class="keywordflow">return</span>;
+00173                                 }
+00174                         }
+00175                 }
+00176                 log(DEBUG,<span class="stringliteral">"*** BUG *** Attempt to remove non-existent mode parameter!"</span>);
+00177         }
+00178 }
 </pre></div>    </td>
   </tr>
 </table>
@@ -460,7 +460,7 @@ This value cannot be set at the same time as <a class="el" href="classchanrec.ht
 <p>
 Definition at line <a class="el" href="channels_8h-source.html#l00155">155</a> of file <a class="el" href="channels_8h-source.html">channels.h</a>.
 <p>
-Referenced by <a class="el" href="channels_8cpp-source.html#l00112">chanrec()</a>.    </td>
+Referenced by <a class="el" href="channels_8cpp-source.html#l00113">chanrec()</a>.    </td>
   </tr>
 </table>
 <a name="o3" doxytag="chanrec::created"></a><p>
@@ -488,7 +488,7 @@ Creation time.
 <p>
 Definition at line <a class="el" href="channels_8h-source.html#l00111">111</a> of file <a class="el" href="channels_8h-source.html">channels.h</a>.
 <p>
-Referenced by <a class="el" href="channels_8cpp-source.html#l00112">chanrec()</a>.    </td>
+Referenced by <a class="el" href="channels_8cpp-source.html#l00113">chanrec()</a>.    </td>
   </tr>
 </table>
 <a name="o1" doxytag="chanrec::custom_modes"></a><p>
@@ -516,7 +516,7 @@ Plugins may use this field in any way they see fit.
 <p>
 Definition at line <a class="el" href="channels_8h-source.html#l00103">103</a> of file <a class="el" href="channels_8h-source.html">channels.h</a>.
 <p>
-Referenced by <a class="el" href="channels_8cpp-source.html#l00112">chanrec()</a>, and <a class="el" href="channels_8cpp-source.html#l00123">SetCustomMode()</a>.    </td>
+Referenced by <a class="el" href="channels_8cpp-source.html#l00113">chanrec()</a>, and <a class="el" href="channels_8cpp-source.html#l00124">SetCustomMode()</a>.    </td>
   </tr>
 </table>
 <a name="o10" doxytag="chanrec::inviteonly"></a><p>
@@ -544,7 +544,7 @@ Nonzero if the mode +i is set.
 <p>
 Definition at line <a class="el" href="channels_8h-source.html#l00141">141</a> of file <a class="el" href="channels_8h-source.html">channels.h</a>.
 <p>
-Referenced by <a class="el" href="channels_8cpp-source.html#l00112">chanrec()</a>.    </td>
+Referenced by <a class="el" href="channels_8cpp-source.html#l00113">chanrec()</a>.    </td>
   </tr>
 </table>
 <a name="o7" doxytag="chanrec::key"></a><p>
@@ -572,7 +572,7 @@ If this value is an empty string, there is no channel key in place.
 <p>
 Definition at line <a class="el" href="channels_8h-source.html#l00129">129</a> of file <a class="el" href="channels_8h-source.html">channels.h</a>.
 <p>
-Referenced by <a class="el" href="channels_8cpp-source.html#l00112">chanrec()</a>.    </td>
+Referenced by <a class="el" href="channels_8cpp-source.html#l00113">chanrec()</a>.    </td>
   </tr>
 </table>
 <a name="o6" doxytag="chanrec::limit"></a><p>
@@ -600,7 +600,7 @@ If this value is zero, there is no limit in place.
 <p>
 Definition at line <a class="el" href="channels_8h-source.html#l00124">124</a> of file <a class="el" href="channels_8h-source.html">channels.h</a>.
 <p>
-Referenced by <a class="el" href="channels_8cpp-source.html#l00112">chanrec()</a>.    </td>
+Referenced by <a class="el" href="channels_8cpp-source.html#l00113">chanrec()</a>.    </td>
   </tr>
 </table>
 <a name="o11" doxytag="chanrec::moderated"></a><p>
@@ -628,7 +628,7 @@ Nonzero if the mode +m is set.
 <p>
 Definition at line <a class="el" href="channels_8h-source.html#l00145">145</a> of file <a class="el" href="channels_8h-source.html">channels.h</a>.
 <p>
-Referenced by <a class="el" href="channels_8cpp-source.html#l00112">chanrec()</a>.    </td>
+Referenced by <a class="el" href="channels_8cpp-source.html#l00113">chanrec()</a>.    </td>
   </tr>
 </table>
 <a name="o0" doxytag="chanrec::name"></a><p>
@@ -656,7 +656,7 @@ The channels name.
 <p>
 Definition at line <a class="el" href="channels_8h-source.html#l00099">99</a> of file <a class="el" href="channels_8h-source.html">channels.h</a>.
 <p>
-Referenced by <a class="el" href="channels_8cpp-source.html#l00112">chanrec()</a>.    </td>
+Referenced by <a class="el" href="channels_8cpp-source.html#l00113">chanrec()</a>.    </td>
   </tr>
 </table>
 <a name="o9" doxytag="chanrec::noexternal"></a><p>
@@ -684,7 +684,7 @@ Nonzero if the mode +n is set.
 <p>
 Definition at line <a class="el" href="channels_8h-source.html#l00137">137</a> of file <a class="el" href="channels_8h-source.html">channels.h</a>.
 <p>
-Referenced by <a class="el" href="channels_8cpp-source.html#l00112">chanrec()</a>.    </td>
+Referenced by <a class="el" href="channels_8cpp-source.html#l00113">chanrec()</a>.    </td>
   </tr>
 </table>
 <a name="o12" doxytag="chanrec::secret"></a><p>
@@ -712,7 +712,7 @@ This value cannot be set at the same time as <a class="el" href="classchanrec.ht
 <p>
 Definition at line <a class="el" href="channels_8h-source.html#l00150">150</a> of file <a class="el" href="channels_8h-source.html">channels.h</a>.
 <p>
-Referenced by <a class="el" href="channels_8cpp-source.html#l00112">chanrec()</a>.    </td>
+Referenced by <a class="el" href="channels_8cpp-source.html#l00113">chanrec()</a>.    </td>
   </tr>
 </table>
 <a name="o5" doxytag="chanrec::setby"></a><p>
@@ -740,7 +740,7 @@ If this member is an empty string, no topic was ever set.
 <p>
 Definition at line <a class="el" href="channels_8h-source.html#l00119">119</a> of file <a class="el" href="channels_8h-source.html">channels.h</a>.
 <p>
-Referenced by <a class="el" href="channels_8cpp-source.html#l00112">chanrec()</a>.    </td>
+Referenced by <a class="el" href="channels_8cpp-source.html#l00113">chanrec()</a>.    </td>
   </tr>
 </table>
 <a name="o2" doxytag="chanrec::topic"></a><p>
@@ -768,7 +768,7 @@ If this is an empty string, no channel topic is set.
 <p>
 Definition at line <a class="el" href="channels_8h-source.html#l00108">108</a> of file <a class="el" href="channels_8h-source.html">channels.h</a>.
 <p>
-Referenced by <a class="el" href="channels_8cpp-source.html#l00112">chanrec()</a>.    </td>
+Referenced by <a class="el" href="channels_8cpp-source.html#l00113">chanrec()</a>.    </td>
   </tr>
 </table>
 <a name="o8" doxytag="chanrec::topiclock"></a><p>
@@ -796,7 +796,7 @@ Nonzero if the mode +t is set.
 <p>
 Definition at line <a class="el" href="channels_8h-source.html#l00133">133</a> of file <a class="el" href="channels_8h-source.html">channels.h</a>.
 <p>
-Referenced by <a class="el" href="channels_8cpp-source.html#l00112">chanrec()</a>.    </td>
+Referenced by <a class="el" href="channels_8cpp-source.html#l00113">chanrec()</a>.    </td>
   </tr>
 </table>
 <a name="o4" doxytag="chanrec::topicset"></a><p>
@@ -824,12 +824,12 @@ If no topic was ever set, this will be equal to <a class="el" href="classchanrec
 <p>
 Definition at line <a class="el" href="channels_8h-source.html#l00115">115</a> of file <a class="el" href="channels_8h-source.html">channels.h</a>.
 <p>
-Referenced by <a class="el" href="channels_8cpp-source.html#l00112">chanrec()</a>.    </td>
+Referenced by <a class="el" href="channels_8cpp-source.html#l00113">chanrec()</a>.    </td>
   </tr>
 </table>
 <hr>The documentation for this class was generated from the following files:<ul>
 <li><a class="el" href="channels_8h-source.html">channels.h</a><li><a class="el" href="channels_8cpp-source.html">channels.cpp</a></ul>
-<hr size="1"><address style="align: right;"><small>Generated on Mon Apr 4 18:12:50 2005 for InspIRCd by
+<hr size="1"><address style="align: right;"><small>Generated on Thu Apr 7 20:14:23 2005 for InspIRCd by
 <a href="http://www.doxygen.org/index.html">
 <img src="doxygen.png" alt="doxygen" align="middle" border=0 > 
 </a>1.3.3 </small></address>

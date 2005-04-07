@@ -1,4 +1,4 @@
-.TH "serverrec" 3 "4 Apr 2005" "InspIRCd" \" -*- nroff -*-
+.TH "serverrec" 3 "7 Apr 2005" "InspIRCd" \" -*- nroff -*-
 .ad l
 .nh
 .SH NAME
@@ -82,51 +82,51 @@ A class that defines the local server or a remote server. Definition at line 30 
 .PP 
 .SS "serverrec::serverrec ()"
 .PP
-Constructor. Definition at line 24 of file servers.cpp.
+Constructor. Definition at line 26 of file servers.cpp.
 .PP
-References connection::fd, hops_away, jupiter, connection::lastping, name, nickserv, opercount, pingtime, connection::signon, sync_soon, usercount, usercount_i, and version.
+References connection::fd, hops_away, jupiter, connection::lastping, name, nickserv, opercount, pingtime, connection::signon, sync_soon, TIME, usercount, usercount_i, and version.
 .PP
 .nf
-25 {
-26         strlcpy(name,'',256);
-27         pingtime = 0;
-28         lastping = time(NULL);
-29         usercount_i = usercount = opercount = version = 0;
-30         hops_away = 1;
-31         signon = time(NULL);
-32         jupiter = false;
-33         fd = 0;
-34         sync_soon = false;
-35         strlcpy(nickserv,'',NICKMAX);
-36 }
+27 {
+28         strlcpy(name,'',256);
+29         pingtime = 0;
+30         lastping = TIME;
+31         usercount_i = usercount = opercount = version = 0;
+32         hops_away = 1;
+33         signon = TIME;
+34         jupiter = false;
+35         fd = 0;
+36         sync_soon = false;
+37         strlcpy(nickserv,'',NICKMAX);
+38 }
 .fi
 .SS "serverrec::serverrec (char * n, long ver, bool jupe)"
 .PP
-Constructor which initialises some of the main variables. Definition at line 43 of file servers.cpp.
+Constructor which initialises some of the main variables. Definition at line 45 of file servers.cpp.
 .PP
-References connection::fd, hops_away, jupiter, connection::lastping, name, nickserv, opercount, connection::signon, sync_soon, usercount, usercount_i, and version.
+References connection::fd, hops_away, jupiter, connection::lastping, name, nickserv, opercount, connection::signon, sync_soon, TIME, usercount, usercount_i, and version.
 .PP
 .nf
-44 {
-45         strlcpy(name,n,256);
-46         lastping = time(NULL);
-47         usercount_i = usercount = opercount = 0;
-48         version = ver;
-49         hops_away = 1;
-50         signon = time(NULL);
-51         jupiter = jupe;
-52         fd = 0;
-53         sync_soon = false;
-54         strlcpy(nickserv,'',NICKMAX);
-55 }
+46 {
+47         strlcpy(name,n,256);
+48         lastping = TIME;
+49         usercount_i = usercount = opercount = 0;
+50         version = ver;
+51         hops_away = 1;
+52         signon = TIME;
+53         jupiter = jupe;
+54         fd = 0;
+55         sync_soon = false;
+56         strlcpy(nickserv,'',NICKMAX);
+57 }
 .fi
 .SS "serverrec::~\fBserverrec\fP ()"
 .PP
-Destructor. Definition at line 39 of file servers.cpp.
+Destructor. Definition at line 41 of file servers.cpp.
 .PP
 .nf
-40 {
-41 }
+42 {
+43 }
 .fi
 .SH "Member Data Documentation"
 .PP 

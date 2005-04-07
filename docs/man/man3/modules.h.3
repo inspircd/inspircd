@@ -1,4 +1,4 @@
-.TH "modules.h" 3 "4 Apr 2005" "InspIRCd" \" -*- nroff -*-
+.TH "modules.h" 3 "7 Apr 2005" "InspIRCd" \" -*- nroff -*-
 .ad l
 .nh
 .SH NAME
@@ -115,6 +115,18 @@ modules.h \-
 .RI "#define \fBAC_GENERAL_MODE\fP   8"
 .br
 .ti -1c
+.RI "#define \fBVF_STATIC\fP   1"
+.br
+.ti -1c
+.RI "#define \fBVF_VENDOR\fP   2"
+.br
+.ti -1c
+.RI "#define \fBVF_SERVICEPROVIDER\fP   4"
+.br
+.ti -1c
+.RI "#define \fBVF_COMMON\fP   8"
+.br
+.ti -1c
 .RI "#define \fBFOREACH_MOD\fP   for (int i = 0; i <= \fBMODCOUNT\fP; i++) modules[i]->"
 .br
 .ti -1c
@@ -155,7 +167,7 @@ modules.h \-
 
 .in +1c
 .ti -1c
-.RI "void \fBcreatecommand\fP (char *cmd, handlerfunc f, char flags, int minparams)"
+.RI "void \fBcreatecommand\fP (char *cmd, handlerfunc f, char flags, int minparams, char *source)"
 .br
 .ti -1c
 .RI "void \fBserver_mode\fP (char **parameters, int pcnt, \fBuserrec\fP *user)"
@@ -203,22 +215,22 @@ Referenced by Module::OnAccessCheck().
 Definition at line 38 of file modules.h.
 .SS "#define CONF_FILE_NOT_FOUND   0x000200"
 .PP
-Definition at line 667 of file modules.h.
+Definition at line 677 of file modules.h.
 .PP
 Referenced by ConfigReader::ConfigReader().
 .SS "#define CONF_NOT_A_NUMBER   0x000010"
 .PP
-Definition at line 664 of file modules.h.
+Definition at line 674 of file modules.h.
 .PP
 Referenced by ConfigReader::ReadInteger().
 .SS "#define CONF_NOT_UNSIGNED   0x000080"
 .PP
-Definition at line 665 of file modules.h.
+Definition at line 675 of file modules.h.
 .PP
 Referenced by ConfigReader::ReadInteger().
 .SS "#define CONF_VALUE_NOT_FOUND   0x000100"
 .PP
-Definition at line 666 of file modules.h.
+Definition at line 676 of file modules.h.
 .PP
 Referenced by ConfigReader::ReadFlag(), ConfigReader::ReadInteger(), and ConfigReader::ReadValue().
 .SS "#define DEBUG   10"
@@ -231,7 +243,7 @@ Referenced by Server::AddExtendedMode(), userrec::HasPermission(), chanrec::IsCu
 Definition at line 25 of file modules.h.
 .SS "#define FOREACH_MOD   for (int i = 0; i <= \fBMODCOUNT\fP; i++) modules[i]->"
 .PP
-Definition at line 72 of file modules.h.
+Definition at line 79 of file modules.h.
 .SS "#define FOREACH_RESULT(x)"
 .PP
 \fBValue:\fP.nf
@@ -246,7 +258,7 @@ Definition at line 72 of file modules.h.
         }
 .fi
 .PP
-Definition at line 80 of file modules.h.
+Definition at line 87 of file modules.h.
 .SS "#define MT_CHANNEL   1"
 .PP
 Definition at line 31 of file modules.h.
@@ -271,29 +283,43 @@ Definition at line 26 of file modules.h.
 .SS "#define VERBOSE   20"
 .PP
 Definition at line 24 of file modules.h.
+.SS "#define VF_COMMON   8"
+.PP
+Definition at line 56 of file modules.h.
+.SS "#define VF_SERVICEPROVIDER   4"
+.PP
+Definition at line 55 of file modules.h.
+.SS "#define VF_STATIC   1"
+.PP
+Definition at line 53 of file modules.h.
+.SS "#define VF_VENDOR   2"
+.PP
+Definition at line 54 of file modules.h.
+.PP
+Referenced by Module::GetVersion().
 .SH "Typedef Documentation"
 .PP 
 .SS "typedef std::deque<\fBuserrec\fP*> \fBchanuserlist\fP"
 .PP
-Holds a list of users in a channel. Definition at line 65 of file modules.h.
+Holds a list of users in a channel. Definition at line 72 of file modules.h.
 .PP
 Referenced by Server::GetUsers().
 .SS "typedef std::deque<std::string> \fBfile_cache\fP"
 .PP
-Low level definition of a \fBFileReader\fP classes file cache area. Definition at line 60 of file modules.h.
+Low level definition of a \fBFileReader\fP classes file cache area. Definition at line 67 of file modules.h.
 .PP
 Referenced by FileReader::FileReader(), and FileReader::LoadFile().
 .SS "typedef DLLFactory<\fBModuleFactory\fP> \fBircd_module\fP"
 .PP
-Definition at line 832 of file modules.h.
+Definition at line 842 of file modules.h.
 .SS "typedef \fBfile_cache\fP \fBstring_list\fP"
 .PP
-Definition at line 61 of file modules.h.
+Definition at line 68 of file modules.h.
 .PP
 Referenced by Module::OnChannelSync(), and Module::OnUserSync().
 .SH "Function Documentation"
 .PP 
-.SS "void createcommand (char * cmd, handlerfunc f, char flags, int minparams)"
+.SS "void createcommand (char * cmd, handlerfunc f, char flags, int minparams, char * source)"
 .PP
 Referenced by Server::AddCommand().
 .SS "void server_mode (char ** parameters, int pcnt, \fBuserrec\fP * user)"

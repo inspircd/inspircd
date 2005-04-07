@@ -1,4 +1,4 @@
-.TH "channels.cpp" 3 "4 Apr 2005" "InspIRCd" \" -*- nroff -*-
+.TH "channels.cpp" 3 "7 Apr 2005" "InspIRCd" \" -*- nroff -*-
 .ad l
 .nh
 .SH NAME
@@ -195,6 +195,9 @@ channels.cpp \-
 .RI "FILE * \fBlog_file\fP"
 .br
 .ti -1c
+.RI "time_t \fBTIME\fP"
+.br
+.ti -1c
 .RI "std::vector< \fBModeParameter\fP > \fBcustom_mode_params\fP"
 .br
 .in -1c
@@ -227,7 +230,7 @@ Definition at line 101 of file channels.cpp.
 Referenced by userrec::HasPermission().
 .SS "std::vector<\fBModeParameter\fP> \fBcustom_mode_params\fP"
 .PP
-Definition at line 110 of file channels.cpp.
+Definition at line 111 of file channels.cpp.
 .PP
 Referenced by chanrec::GetModeParameter(), and chanrec::SetCustomModeParam().
 .SS "int \fBdebugging\fP"
@@ -268,7 +271,7 @@ Definition at line 88 of file channels.cpp.
 Definition at line 103 of file channels.cpp.
 .SS "int \fBMODCOUNT\fP = -1"
 .PP
-Definition at line 774 of file modules.cpp.
+Definition at line 776 of file modules.cpp.
 .SS "std::vector<std::string> \fBmodule_names\fP"
 .PP
 Definition at line 92 of file channels.cpp.
@@ -311,6 +314,11 @@ Definition at line 68 of file channels.cpp.
 .SS "time_t \fBstartup_time\fP"
 .PP
 Definition at line 86 of file channels.cpp.
+.SS "time_t \fBTIME\fP"
+.PP
+Definition at line 107 of file channels.cpp.
+.PP
+Referenced by serverrec::serverrec().
 .SS "int \fBUDPportCount\fP"
 .PP
 Definition at line 96 of file channels.cpp.

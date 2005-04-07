@@ -1,4 +1,4 @@
-.TH "userrec" 3 "4 Apr 2005" "InspIRCd" \" -*- nroff -*-
+.TH "userrec" 3 "7 Apr 2005" "InspIRCd" \" -*- nroff -*-
 .ad l
 .nh
 .SH NAME
@@ -120,37 +120,37 @@ Definition at line 89 of file users.h.
 .PP 
 .SS "userrec::userrec ()"
 .PP
-Definition at line 26 of file users.cpp.
+Definition at line 28 of file users.cpp.
 .PP
 References awaymsg, connection::bytes_in, connection::bytes_out, ucrec::channel, chans, connection::cmds_in, connection::cmds_out, dhost, dns_done, connection::fd, flood, fullname, connection::haspassed, connection::host, ident, connection::idle_lastmsg, connection::inbuf, invites, connection::ip, connection::lastping, modes, nick, connection::nping, oper, connection::port, connection::registered, result, server, connection::signon, timeout, and ucrec::uc_modes.
 .PP
 .nf
-27 {
-28         // the PROPER way to do it, AVOID bzero at *ALL* costs
-29         strcpy(nick,'');
-30         strcpy(ip,'127.0.0.1');
-31         timeout = 0;
-32         strcpy(ident,'');
-33         strcpy(host,'');
-34         strcpy(dhost,'');
-35         strcpy(fullname,'');
-36         strcpy(modes,'');
-37         strcpy(inbuf,'');
-38         strcpy(server,'');
-39         strcpy(awaymsg,'');
-40         strcpy(oper,'');
-41         fd = lastping = signon = idle_lastmsg = nping = registered = 0;
-42         flood = port = bytes_in = bytes_out = cmds_in = cmds_out = 0;
-43         haspassed = false;
-44         dns_done = false;
-45         strcpy(result,'');
-46         for (int i = 0; i < MAXCHANS; i++)
-47         {
-48                 this->chans[i].channel = NULL;
-49                 this->chans[i].uc_modes = 0;
-50         }
-51         invites.clear();
-52 }
+29 {
+30         // the PROPER way to do it, AVOID bzero at *ALL* costs
+31         strcpy(nick,'');
+32         strcpy(ip,'127.0.0.1');
+33         timeout = 0;
+34         strcpy(ident,'');
+35         strcpy(host,'');
+36         strcpy(dhost,'');
+37         strcpy(fullname,'');
+38         strcpy(modes,'');
+39         strcpy(inbuf,'');
+40         strcpy(server,'');
+41         strcpy(awaymsg,'');
+42         strcpy(oper,'');
+43         fd = lastping = signon = idle_lastmsg = nping = registered = 0;
+44         flood = port = bytes_in = bytes_out = cmds_in = cmds_out = 0;
+45         haspassed = false;
+46         dns_done = false;
+47         strcpy(result,'');
+48         for (int i = 0; i < MAXCHANS; i++)
+49         {
+50                 this->chans[i].channel = NULL;
+51                 this->chans[i].uc_modes = 0;
+52         }
+53         invites.clear();
+54 }
 .fi
 .SS "virtual userrec::~\fBuserrec\fP ()\fC [inline, virtual]\fP"
 .PP
@@ -163,146 +163,146 @@ Definition at line 164 of file users.h.
 .PP 
 .SS "char * userrec::GetFullHost ()\fC [virtual]\fP"
 .PP
-Returns the full displayed host of the user This member function returns the hostname of the user as seen by other users on the server, in nick!identhost form. Definition at line 56 of file users.cpp.
+Returns the full displayed host of the user This member function returns the hostname of the user as seen by other users on the server, in nick!identhost form. Definition at line 58 of file users.cpp.
 .PP
 References dhost, ident, nick, and result.
 .PP
 .nf
-57 {
-58         snprintf(result,MAXBUF,'%s!%s@%s',nick,ident,dhost);
-59         return result;
-60 }
+59 {
+60         snprintf(result,MAXBUF,'%s!%s@%s',nick,ident,dhost);
+61         return result;
+62 }
 .fi
 .SS "char * userrec::GetFullRealHost ()\fC [virtual]\fP"
 .PP
-Returns the full real host of the user This member function returns the hostname of the user as seen by other users on the server, in nick!identhost form. If any form of hostname cloaking is in operation, e.g. through a module, then this method will ignore it and return the true hostname.Definition at line 63 of file users.cpp.
+Returns the full real host of the user This member function returns the hostname of the user as seen by other users on the server, in nick!identhost form. If any form of hostname cloaking is in operation, e.g. through a module, then this method will ignore it and return the true hostname.Definition at line 65 of file users.cpp.
 .PP
 References connection::host, ident, nick, and result.
 .PP
 .nf
-64 {
-65         snprintf(result,MAXBUF,'%s!%s@%s',nick,ident,host);
-66         return result;
-67 }
+66 {
+67         snprintf(result,MAXBUF,'%s!%s@%s',nick,ident,host);
+68         return result;
+69 }
 .fi
 .SS "bool userrec::HasPermission (char * command)"
 .PP
-Returns true or false for if a user can execute a privilaged oper command. This is done by looking up their oper type from \fBuserrec::oper\fP, then referencing this to their oper classes and checking the commands they can execute.Definition at line 112 of file users.cpp.
+Returns true or false for if a user can execute a privilaged oper command. This is done by looking up their oper type from \fBuserrec::oper\fP, then referencing this to their oper classes and checking the commands they can execute.Definition at line 114 of file users.cpp.
 .PP
 References config_f, and DEBUG.
 .PP
 .nf
-113 {
-114         char TypeName[MAXBUF],Classes[MAXBUF],ClassName[MAXBUF],CommandList[MAXBUF];
-115         char* myclass;
-116         char* mycmd;
-117         char* savept;
-118         char* savept2;
-119         
-120         // are they even an oper at all?
-121         if (strchr(this->modes,'o'))
-122         {
-123                 log(DEBUG,'*** HasPermission: %s is an oper',this->nick);
-124                 for (int j =0; j < ConfValueEnum('type',&config_f); j++)
-125                 {
-126                         ConfValue('type','name',j,TypeName,&config_f);
-127                         if (!strcmp(TypeName,this->oper))
-128                         {
-129                                 log(DEBUG,'*** HasPermission: %s is an oper of type '%s'',this->nick,this->oper);
-130                                 ConfValue('type','classes',j,Classes,&config_f);
-131                                 char* myclass = strtok_r(Classes,' ',&savept);
-132                                 while (myclass)
-133                                 {
-134                                         log(DEBUG,'*** HasPermission: checking classtype '%s'',myclass);
-135                                         for (int k =0; k < ConfValueEnum('class',&config_f); k++)
-136                                         {
-137                                                 ConfValue('class','name',k,ClassName,&config_f);
-138                                                 if (!strcmp(ClassName,myclass))
-139                                                 {
-140                                                         ConfValue('class','commands',k,CommandList,&config_f);
-141                                                         log(DEBUG,'*** HasPermission: found class named %s with commands: '%s'',ClassName,CommandList);
-142                                                         
-143                                                         
-144                                                         mycmd = strtok_r(CommandList,' ',&savept2);
-145                                                         while (mycmd)
-146                                                         {
-147                                                                 if (!strcasecmp(mycmd,command))
-148                                                                 {
-149                                                                         log(DEBUG,'*** Command %s found, returning true',command);
-150                                                                         return true;
-151                                                                 }
-152                                                                 mycmd = strtok_r(NULL,' ',&savept2);
-153                                                         }
-154                                                 }
-155                                         }
-156                                         myclass = strtok_r(NULL,' ',&savept);
-157                                 }
-158                         }
-159                 }
-160         }
-161         return false;
-162 }
+115 {
+116         char TypeName[MAXBUF],Classes[MAXBUF],ClassName[MAXBUF],CommandList[MAXBUF];
+117         char* myclass;
+118         char* mycmd;
+119         char* savept;
+120         char* savept2;
+121         
+122         // are they even an oper at all?
+123         if (strchr(this->modes,'o'))
+124         {
+125                 log(DEBUG,'*** HasPermission: %s is an oper',this->nick);
+126                 for (int j =0; j < ConfValueEnum('type',&config_f); j++)
+127                 {
+128                         ConfValue('type','name',j,TypeName,&config_f);
+129                         if (!strcmp(TypeName,this->oper))
+130                         {
+131                                 log(DEBUG,'*** HasPermission: %s is an oper of type '%s'',this->nick,this->oper);
+132                                 ConfValue('type','classes',j,Classes,&config_f);
+133                                 char* myclass = strtok_r(Classes,' ',&savept);
+134                                 while (myclass)
+135                                 {
+136                                         log(DEBUG,'*** HasPermission: checking classtype '%s'',myclass);
+137                                         for (int k =0; k < ConfValueEnum('class',&config_f); k++)
+138                                         {
+139                                                 ConfValue('class','name',k,ClassName,&config_f);
+140                                                 if (!strcmp(ClassName,myclass))
+141                                                 {
+142                                                         ConfValue('class','commands',k,CommandList,&config_f);
+143                                                         log(DEBUG,'*** HasPermission: found class named %s with commands: '%s'',ClassName,CommandList);
+144                                                         
+145                                                         
+146                                                         mycmd = strtok_r(CommandList,' ',&savept2);
+147                                                         while (mycmd)
+148                                                         {
+149                                                                 if (!strcasecmp(mycmd,command))
+150                                                                 {
+151                                                                         log(DEBUG,'*** Command %s found, returning true',command);
+152                                                                         return true;
+153                                                                 }
+154                                                                 mycmd = strtok_r(NULL,' ',&savept2);
+155                                                         }
+156                                                 }
+157                                         }
+158                                         myclass = strtok_r(NULL,' ',&savept);
+159                                 }
+160                         }
+161                 }
+162         }
+163         return false;
+164 }
 .fi
 .SS "void userrec::InviteTo (char * channel)\fC [virtual]\fP"
 .PP
-Adds a channel to a users invite list (invites them to a channel). Definition at line 83 of file users.cpp.
+Adds a channel to a users invite list (invites them to a channel). Definition at line 85 of file users.cpp.
 .PP
 References Invited::channel, and invites.
 .PP
 .nf
-84 {
-85         Invited i;
-86         strlcpy(i.channel,channel,CHANMAX);
-87         invites.push_back(i);
-88 }
+86 {
+87         Invited i;
+88         strlcpy(i.channel,channel,CHANMAX);
+89         invites.push_back(i);
+90 }
 .fi
 .SS "bool userrec::IsInvited (char * channel)\fC [virtual]\fP"
 .PP
-Returns true if a user is invited to a channel. Definition at line 69 of file users.cpp.
+Returns true if a user is invited to a channel. Definition at line 71 of file users.cpp.
 .PP
 References invites.
 .PP
 .nf
-70 {
-71         for (InvitedList::iterator i = invites.begin(); i != invites.end(); i++)
-72         {
-73                 if (i->channel) {
-74                         if (!strcasecmp(i->channel,channel))
-75                         {
-76                                 return true;
-77                         }
-78                 }
-79         }
-80         return false;
-81 }
+72 {
+73         for (InvitedList::iterator i = invites.begin(); i != invites.end(); i++)
+74         {
+75                 if (i->channel) {
+76                         if (!strcasecmp(i->channel,channel))
+77                         {
+78                                 return true;
+79                         }
+80                 }
+81         }
+82         return false;
+83 }
 .fi
 .SS "void userrec::RemoveInvite (char * channel)\fC [virtual]\fP"
 .PP
-Removes a channel from a users invite list. This member function is called on successfully joining an invite only channel to which the user has previously been invited, to clear the invitation.Definition at line 90 of file users.cpp.
+Removes a channel from a users invite list. This member function is called on successfully joining an invite only channel to which the user has previously been invited, to clear the invitation.Definition at line 92 of file users.cpp.
 .PP
 References DEBUG, and invites.
 .PP
 .nf
-91 {
-92         log(DEBUG,'Removing invites');
-93         if (channel)
-94         {
-95                 if (invites.size())
-96                 {
-97                         for (InvitedList::iterator i = invites.begin(); i != invites.end(); i++)
-98                         {
-99                                 if (i->channel)
-100                                 {
-101                                         if (!strcasecmp(i->channel,channel))
-102                                         {
-103                                                 invites.erase(i);
-104                                                 return;
-105                                         }
-106                                 }
-107                         }
-108                 }
-109         }
-110 }
+93 {
+94         log(DEBUG,'Removing invites');
+95         if (channel)
+96         {
+97                 if (invites.size())
+98                 {
+99                         for (InvitedList::iterator i = invites.begin(); i != invites.end(); i++)
+100                         {
+101                                 if (i->channel)
+102                                 {
+103                                         if (!strcasecmp(i->channel,channel))
+104                                         {
+105                                                 invites.erase(i);
+106                                                 return;
+107                                         }
+108                                 }
+109                         }
+110                 }
+111         }
+112 }
 .fi
 .SH "Member Data Documentation"
 .PP 

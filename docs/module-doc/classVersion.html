@@ -15,7 +15,7 @@ Inherits <a class="el" href="classclassbase.html">classbase</a>.
 <a href="classVersion-members.html">List of all members.</a><table border=0 cellpadding=0 cellspacing=0>
 <tr><td></td></tr>
 <tr><td colspan=2><br><h2>Public Member Functions</h2></td></tr>
-<tr><td class="memItemLeft" nowrap align=right valign=top>&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="classVersion.html#a0">Version</a> (int major, int minor, int revision, int build)</td></tr>
+<tr><td class="memItemLeft" nowrap align=right valign=top>&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="classVersion.html#a0">Version</a> (int major, int minor, int revision, int build, int flags)</td></tr>
 
 <tr><td colspan=2><br><h2>Public Attributes</h2></td></tr>
 <tr><td class="memItemLeft" nowrap align=right valign=top>const int&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="classVersion.html#o0">Major</a></td></tr>
@@ -26,6 +26,8 @@ Inherits <a class="el" href="classclassbase.html">classbase</a>.
 
 <tr><td class="memItemLeft" nowrap align=right valign=top>const int&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="classVersion.html#o3">Build</a></td></tr>
 
+<tr><td class="memItemLeft" nowrap align=right valign=top>const int&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="classVersion.html#o4">Flags</a></td></tr>
+
 </table>
 <hr><a name="_details"></a><h2>Detailed Description</h2>
 Holds a module's Version information The four members (set by the constructor only) indicate details as to the version number of a module. 
@@ -34,7 +36,7 @@ A class of type Version is returned by the GetVersion method of the <a class="el
 <p>
 
 <p>
-Definition at line <a class="el" href="modules_8h-source.html#l00102">102</a> of file <a class="el" href="modules_8h-source.html">modules.h</a>.<hr><h2>Constructor &amp; Destructor Documentation</h2>
+Definition at line <a class="el" href="modules_8h-source.html#l00109">109</a> of file <a class="el" href="modules_8h-source.html">modules.h</a>.<hr><h2>Constructor &amp; Destructor Documentation</h2>
 <a name="a0" doxytag="Version::Version"></a><p>
 <table class="mdTable" width="100%" cellpadding="2" cellspacing="0">
   <tr>
@@ -62,7 +64,13 @@ Definition at line <a class="el" href="modules_8h-source.html#l00102">102</a> of
           <td></td>
           <td></td>
           <td class="md" nowrap>int&nbsp;</td>
-          <td class="mdname" nowrap> <em>build</em></td>
+          <td class="mdname" nowrap> <em>build</em>, </td>
+        </tr>
+        <tr>
+          <td></td>
+          <td></td>
+          <td class="md" nowrap>int&nbsp;</td>
+          <td class="mdname" nowrap> <em>flags</em></td>
         </tr>
         <tr>
           <td></td>
@@ -84,9 +92,9 @@ Definition at line <a class="el" href="modules_8h-source.html#l00102">102</a> of
 <p>
 
 <p>
-Definition at line <a class="el" href="modules_8cpp-source.html#l00298">298</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
+Definition at line <a class="el" href="modules_8cpp-source.html#l00300">300</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
 <p>
-<div class="fragment"><pre>00298 : <a class="code" href="classVersion.html#o0">Major</a>(major), <a class="code" href="classVersion.html#o1">Minor</a>(minor), <a class="code" href="classVersion.html#o2">Revision</a>(revision), <a class="code" href="classVersion.html#o3">Build</a>(build) { };
+<div class="fragment"><pre>00300 : <a class="code" href="classVersion.html#o0">Major</a>(major), <a class="code" href="classVersion.html#o1">Minor</a>(minor), <a class="code" href="classVersion.html#o2">Revision</a>(revision), <a class="code" href="classVersion.html#o3">Build</a>(build), <a class="code" href="classVersion.html#o4">Flags</a>(flags) { };
 </pre></div>    </td>
   </tr>
 </table>
@@ -112,7 +120,31 @@ Definition at line <a class="el" href="modules_8cpp-source.html#l00298">298</a> 
 <p>
 
 <p>
-Definition at line <a class="el" href="modules_8h-source.html#l00105">105</a> of file <a class="el" href="modules_8h-source.html">modules.h</a>.    </td>
+Definition at line <a class="el" href="modules_8h-source.html#l00112">112</a> of file <a class="el" href="modules_8h-source.html">modules.h</a>.    </td>
+  </tr>
+</table>
+<a name="o4" doxytag="Version::Flags"></a><p>
+<table class="mdTable" width="100%" cellpadding="2" cellspacing="0">
+  <tr>
+    <td class="mdRow">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const int <a class="el" href="classVersion.html#o4">Version::Flags</a>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+
+<p>
+Definition at line <a class="el" href="modules_8h-source.html#l00112">112</a> of file <a class="el" href="modules_8h-source.html">modules.h</a>.    </td>
   </tr>
 </table>
 <a name="o0" doxytag="Version::Major"></a><p>
@@ -136,7 +168,7 @@ Definition at line <a class="el" href="modules_8h-source.html#l00105">105</a> of
 <p>
 
 <p>
-Definition at line <a class="el" href="modules_8h-source.html#l00105">105</a> of file <a class="el" href="modules_8h-source.html">modules.h</a>.    </td>
+Definition at line <a class="el" href="modules_8h-source.html#l00112">112</a> of file <a class="el" href="modules_8h-source.html">modules.h</a>.    </td>
   </tr>
 </table>
 <a name="o1" doxytag="Version::Minor"></a><p>
@@ -160,7 +192,7 @@ Definition at line <a class="el" href="modules_8h-source.html#l00105">105</a> of
 <p>
 
 <p>
-Definition at line <a class="el" href="modules_8h-source.html#l00105">105</a> of file <a class="el" href="modules_8h-source.html">modules.h</a>.    </td>
+Definition at line <a class="el" href="modules_8h-source.html#l00112">112</a> of file <a class="el" href="modules_8h-source.html">modules.h</a>.    </td>
   </tr>
 </table>
 <a name="o2" doxytag="Version::Revision"></a><p>
@@ -184,12 +216,12 @@ Definition at line <a class="el" href="modules_8h-source.html#l00105">105</a> of
 <p>
 
 <p>
-Definition at line <a class="el" href="modules_8h-source.html#l00105">105</a> of file <a class="el" href="modules_8h-source.html">modules.h</a>.    </td>
+Definition at line <a class="el" href="modules_8h-source.html#l00112">112</a> of file <a class="el" href="modules_8h-source.html">modules.h</a>.    </td>
   </tr>
 </table>
 <hr>The documentation for this class was generated from the following files:<ul>
 <li><a class="el" href="modules_8h-source.html">modules.h</a><li><a class="el" href="modules_8cpp-source.html">modules.cpp</a></ul>
-<hr size="1"><address style="align: right;"><small>Generated on Mon Apr 4 18:12:54 2005 for InspIRCd by
+<hr size="1"><address style="align: right;"><small>Generated on Thu Apr 7 20:14:27 2005 for InspIRCd by
 <a href="http://www.doxygen.org/index.html">
 <img src="doxygen.png" alt="doxygen" align="middle" border=0 > 
 </a>1.3.3 </small></address>

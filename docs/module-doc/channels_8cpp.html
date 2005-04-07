@@ -51,7 +51,7 @@
 
 <tr><td class="memItemLeft" nowrap align=right valign=top>std::vector&lt; <a class="el" href="classModule.html">Module</a> * &gt;&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="channels_8cpp.html#a2">modules</a></td></tr>
 
-<tr><td class="memItemLeft" nowrap align=right valign=top>std::vector&lt; <a class="el" href="modules_8h.html#a29">ircd_module</a> * &gt;&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="channels_8cpp.html#a3">factory</a></td></tr>
+<tr><td class="memItemLeft" nowrap align=right valign=top>std::vector&lt; <a class="el" href="modules_8h.html#a33">ircd_module</a> * &gt;&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="channels_8cpp.html#a3">factory</a></td></tr>
 
 <tr><td class="memItemLeft" nowrap align=right valign=top>int&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="channels_8cpp.html#a4">LogLevel</a></td></tr>
 
@@ -119,7 +119,9 @@
 
 <tr><td class="memItemLeft" nowrap align=right valign=top>FILE *&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="channels_8cpp.html#a36">log_file</a></td></tr>
 
-<tr><td class="memItemLeft" nowrap align=right valign=top>std::vector&lt; <a class="el" href="classModeParameter.html">ModeParameter</a> &gt;&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="channels_8cpp.html#a37">custom_mode_params</a></td></tr>
+<tr><td class="memItemLeft" nowrap align=right valign=top>time_t&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="channels_8cpp.html#a37">TIME</a></td></tr>
+
+<tr><td class="memItemLeft" nowrap align=right valign=top>std::vector&lt; <a class="el" href="classModeParameter.html">ModeParameter</a> &gt;&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="channels_8cpp.html#a38">custom_mode_params</a></td></tr>
 
 </table>
 <hr><h2>Define Documentation</h2>
@@ -154,7 +156,7 @@ Definition at line <a class="el" href="channels_8cpp-source.html#l00058">58</a> 
     <td class="mdRow">
       <table cellpadding="0" cellspacing="0" border="0">
         <tr>
-          <td class="md" nowrap valign="top"> char <a class="el" href="modules_8cpp.html#a9">AdminEmail</a>[MAXBUF]
+          <td class="md" nowrap valign="top"> char <a class="el" href="modules_8cpp.html#a10">AdminEmail</a>[MAXBUF]
       </table>
     </td>
   </tr>
@@ -178,7 +180,7 @@ Definition at line <a class="el" href="channels_8cpp-source.html#l00072">72</a> 
     <td class="mdRow">
       <table cellpadding="0" cellspacing="0" border="0">
         <tr>
-          <td class="md" nowrap valign="top"> char <a class="el" href="modules_8cpp.html#a8">AdminName</a>[MAXBUF]
+          <td class="md" nowrap valign="top"> char <a class="el" href="modules_8cpp.html#a9">AdminName</a>[MAXBUF]
       </table>
     </td>
   </tr>
@@ -202,7 +204,7 @@ Definition at line <a class="el" href="channels_8cpp-source.html#l00071">71</a> 
     <td class="mdRow">
       <table cellpadding="0" cellspacing="0" border="0">
         <tr>
-          <td class="md" nowrap valign="top"> char <a class="el" href="modules_8cpp.html#a10">AdminNick</a>[MAXBUF]
+          <td class="md" nowrap valign="top"> char <a class="el" href="modules_8cpp.html#a11">AdminNick</a>[MAXBUF]
       </table>
     </td>
   </tr>
@@ -226,7 +228,7 @@ Definition at line <a class="el" href="channels_8cpp-source.html#l00073">73</a> 
     <td class="mdRow">
       <table cellpadding="0" cellspacing="0" border="0">
         <tr>
-          <td class="md" nowrap valign="top"> std::vector&lt;long&gt; <a class="el" href="modules_8cpp.html#a33">auth_cookies</a>
+          <td class="md" nowrap valign="top"> std::vector&lt;long&gt; <a class="el" href="modules_8cpp.html#a34">auth_cookies</a>
       </table>
     </td>
   </tr>
@@ -250,7 +252,7 @@ Definition at line <a class="el" href="channels_8cpp-source.html#l00100">100</a>
     <td class="mdRow">
       <table cellpadding="0" cellspacing="0" border="0">
         <tr>
-          <td class="md" nowrap valign="top"> int <a class="el" href="modules_8cpp.html#a28">boundPortCount</a>
+          <td class="md" nowrap valign="top"> int <a class="el" href="modules_8cpp.html#a29">boundPortCount</a>
       </table>
     </td>
   </tr>
@@ -291,16 +293,16 @@ Definition at line <a class="el" href="channels_8cpp-source.html#l00094">94</a> 
 <p>
 Definition at line <a class="el" href="channels_8cpp-source.html#l00101">101</a> of file <a class="el" href="channels_8cpp-source.html">channels.cpp</a>.
 <p>
-Referenced by <a class="el" href="users_8cpp-source.html#l00112">userrec::HasPermission()</a>.    </td>
+Referenced by <a class="el" href="users_8cpp-source.html#l00114">userrec::HasPermission()</a>.    </td>
   </tr>
 </table>
-<a name="a37" doxytag="channels.cpp::custom_mode_params"></a><p>
+<a name="a38" doxytag="channels.cpp::custom_mode_params"></a><p>
 <table class="mdTable" width="100%" cellpadding="2" cellspacing="0">
   <tr>
     <td class="mdRow">
       <table cellpadding="0" cellspacing="0" border="0">
         <tr>
-          <td class="md" nowrap valign="top"> std::vector&lt;<a class="el" href="classModeParameter.html">ModeParameter</a>&gt; <a class="el" href="channels_8cpp.html#a37">custom_mode_params</a>
+          <td class="md" nowrap valign="top"> std::vector&lt;<a class="el" href="classModeParameter.html">ModeParameter</a>&gt; <a class="el" href="channels_8cpp.html#a38">custom_mode_params</a>
       </table>
     </td>
   </tr>
@@ -315,9 +317,9 @@ Referenced by <a class="el" href="users_8cpp-source.html#l00112">userrec::HasPer
 <p>
 
 <p>
-Definition at line <a class="el" href="channels_8cpp-source.html#l00110">110</a> of file <a class="el" href="channels_8cpp-source.html">channels.cpp</a>.
+Definition at line <a class="el" href="channels_8cpp-source.html#l00111">111</a> of file <a class="el" href="channels_8cpp-source.html">channels.cpp</a>.
 <p>
-Referenced by <a class="el" href="channels_8cpp-source.html#l00185">chanrec::GetModeParameter()</a>, and <a class="el" href="channels_8cpp-source.html#l00148">chanrec::SetCustomModeParam()</a>.    </td>
+Referenced by <a class="el" href="channels_8cpp-source.html#l00186">chanrec::GetModeParameter()</a>, and <a class="el" href="channels_8cpp-source.html#l00149">chanrec::SetCustomModeParam()</a>.    </td>
   </tr>
 </table>
 <a name="a18" doxytag="channels.cpp::debugging"></a><p>
@@ -326,7 +328,7 @@ Referenced by <a class="el" href="channels_8cpp-source.html#l00185">chanrec::Get
     <td class="mdRow">
       <table cellpadding="0" cellspacing="0" border="0">
         <tr>
-          <td class="md" nowrap valign="top"> int <a class="el" href="modules_8cpp.html#a18">debugging</a>
+          <td class="md" nowrap valign="top"> int <a class="el" href="modules_8cpp.html#a19">debugging</a>
       </table>
     </td>
   </tr>
@@ -350,7 +352,7 @@ Definition at line <a class="el" href="channels_8cpp-source.html#l00082">82</a> 
     <td class="mdRow">
       <table cellpadding="0" cellspacing="0" border="0">
         <tr>
-          <td class="md" nowrap valign="top"> int <a class="el" href="modules_8cpp.html#a32">defaultRoute</a>
+          <td class="md" nowrap valign="top"> int <a class="el" href="modules_8cpp.html#a33">defaultRoute</a>
       </table>
     </td>
   </tr>
@@ -374,7 +376,7 @@ Definition at line <a class="el" href="channels_8cpp-source.html#l00098">98</a> 
     <td class="mdRow">
       <table cellpadding="0" cellspacing="0" border="0">
         <tr>
-          <td class="md" nowrap valign="top"> int <a class="el" href="modules_8cpp.html#a21">DieDelay</a>
+          <td class="md" nowrap valign="top"> int <a class="el" href="modules_8cpp.html#a22">DieDelay</a>
       </table>
     </td>
   </tr>
@@ -398,7 +400,7 @@ Definition at line <a class="el" href="channels_8cpp-source.html#l00085">85</a> 
     <td class="mdRow">
       <table cellpadding="0" cellspacing="0" border="0">
         <tr>
-          <td class="md" nowrap valign="top"> char <a class="el" href="modules_8cpp.html#a11">diepass</a>[MAXBUF]
+          <td class="md" nowrap valign="top"> char <a class="el" href="modules_8cpp.html#a12">diepass</a>[MAXBUF]
       </table>
     </td>
   </tr>
@@ -422,7 +424,7 @@ Definition at line <a class="el" href="channels_8cpp-source.html#l00074">74</a> 
     <td class="mdRow">
       <table cellpadding="0" cellspacing="0" border="0">
         <tr>
-          <td class="md" nowrap valign="top"> char <a class="el" href="modules_8cpp.html#a17">DieValue</a>[MAXBUF]
+          <td class="md" nowrap valign="top"> char <a class="el" href="modules_8cpp.html#a18">DieValue</a>[MAXBUF]
       </table>
     </td>
   </tr>
@@ -446,7 +448,7 @@ Definition at line <a class="el" href="channels_8cpp-source.html#l00080">80</a> 
     <td class="mdRow">
       <table cellpadding="0" cellspacing="0" border="0">
         <tr>
-          <td class="md" nowrap valign="top"> std::vector&lt;<a class="el" href="modules_8h.html#a29">ircd_module</a>*&gt; factory
+          <td class="md" nowrap valign="top"> std::vector&lt;<a class="el" href="modules_8h.html#a33">ircd_module</a>*&gt; factory
       </table>
     </td>
   </tr>
@@ -470,7 +472,7 @@ Definition at line <a class="el" href="channels_8cpp-source.html#l00065">65</a> 
     <td class="mdRow">
       <table cellpadding="0" cellspacing="0" border="0">
         <tr>
-          <td class="md" nowrap valign="top"> std::vector&lt;int&gt; <a class="el" href="modules_8cpp.html#a26">fd_reap</a>
+          <td class="md" nowrap valign="top"> std::vector&lt;int&gt; <a class="el" href="modules_8cpp.html#a27">fd_reap</a>
       </table>
     </td>
   </tr>
@@ -494,7 +496,7 @@ Definition at line <a class="el" href="channels_8cpp-source.html#l00091">91</a> 
     <td class="mdRow">
       <table cellpadding="0" cellspacing="0" border="0">
         <tr>
-          <td class="md" nowrap valign="top"> char <a class="el" href="modules_8cpp.html#a15">list</a>[MAXBUF]
+          <td class="md" nowrap valign="top"> char <a class="el" href="modules_8cpp.html#a16">list</a>[MAXBUF]
       </table>
     </td>
   </tr>
@@ -518,7 +520,7 @@ Definition at line <a class="el" href="channels_8cpp-source.html#l00078">78</a> 
     <td class="mdRow">
       <table cellpadding="0" cellspacing="0" border="0">
         <tr>
-          <td class="md" nowrap valign="top"> FILE* <a class="el" href="modules_8cpp.html#a36">log_file</a>
+          <td class="md" nowrap valign="top"> FILE* <a class="el" href="modules_8cpp.html#a37">log_file</a>
       </table>
     </td>
   </tr>
@@ -542,7 +544,7 @@ Definition at line <a class="el" href="channels_8cpp-source.html#l00105">105</a>
     <td class="mdRow">
       <table cellpadding="0" cellspacing="0" border="0">
         <tr>
-          <td class="md" nowrap valign="top"> int <a class="el" href="modules_8cpp.html#a4">LogLevel</a>
+          <td class="md" nowrap valign="top"> int <a class="el" href="modules_8cpp.html#a5">LogLevel</a>
       </table>
     </td>
   </tr>
@@ -566,7 +568,7 @@ Definition at line <a class="el" href="channels_8cpp-source.html#l00067">67</a> 
     <td class="mdRow">
       <table cellpadding="0" cellspacing="0" border="0">
         <tr>
-          <td class="md" nowrap valign="top"> int <a class="el" href="modules_8cpp.html#a24">MaxWhoResults</a>
+          <td class="md" nowrap valign="top"> int <a class="el" href="modules_8cpp.html#a25">MaxWhoResults</a>
       </table>
     </td>
   </tr>
@@ -590,7 +592,7 @@ Definition at line <a class="el" href="channels_8cpp-source.html#l00088">88</a> 
     <td class="mdRow">
       <table cellpadding="0" cellspacing="0" border="0">
         <tr>
-          <td class="md" nowrap valign="top"> <a class="el" href="classserverrec.html">serverrec</a>* <a class="el" href="modules_8cpp.html#a35">me</a>[32]
+          <td class="md" nowrap valign="top"> <a class="el" href="classserverrec.html">serverrec</a>* <a class="el" href="modules_8cpp.html#a36">me</a>[32]
       </table>
     </td>
   </tr>
@@ -629,7 +631,7 @@ Definition at line <a class="el" href="channels_8cpp-source.html#l00103">103</a>
 <p>
 
 <p>
-Definition at line <a class="el" href="modules_8cpp-source.html#l00774">774</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.    </td>
+Definition at line <a class="el" href="modules_8cpp-source.html#l00776">776</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.    </td>
   </tr>
 </table>
 <a name="a27" doxytag="channels.cpp::module_names"></a><p>
@@ -638,7 +640,7 @@ Definition at line <a class="el" href="modules_8cpp-source.html#l00774">774</a> 
     <td class="mdRow">
       <table cellpadding="0" cellspacing="0" border="0">
         <tr>
-          <td class="md" nowrap valign="top"> std::vector&lt;std::string&gt; <a class="el" href="modules_8cpp.html#a27">module_names</a>
+          <td class="md" nowrap valign="top"> std::vector&lt;std::string&gt; <a class="el" href="modules_8cpp.html#a28">module_names</a>
       </table>
     </td>
   </tr>
@@ -686,7 +688,7 @@ Definition at line <a class="el" href="channels_8cpp-source.html#l00064">64</a> 
     <td class="mdRow">
       <table cellpadding="0" cellspacing="0" border="0">
         <tr>
-          <td class="md" nowrap valign="top"> char <a class="el" href="modules_8cpp.html#a13">motd</a>[MAXBUF]
+          <td class="md" nowrap valign="top"> char <a class="el" href="modules_8cpp.html#a14">motd</a>[MAXBUF]
       </table>
     </td>
   </tr>
@@ -710,7 +712,7 @@ Definition at line <a class="el" href="channels_8cpp-source.html#l00076">76</a> 
     <td class="mdRow">
       <table cellpadding="0" cellspacing="0" border="0">
         <tr>
-          <td class="md" nowrap valign="top"> time_t <a class="el" href="modules_8cpp.html#a25">nb_start</a>
+          <td class="md" nowrap valign="top"> time_t <a class="el" href="modules_8cpp.html#a26">nb_start</a>
       </table>
     </td>
   </tr>
@@ -734,7 +736,7 @@ Definition at line <a class="el" href="channels_8cpp-source.html#l00089">89</a> 
     <td class="mdRow">
       <table cellpadding="0" cellspacing="0" border="0">
         <tr>
-          <td class="md" nowrap valign="top"> int <a class="el" href="modules_8cpp.html#a23">NetBufferSize</a>
+          <td class="md" nowrap valign="top"> int <a class="el" href="modules_8cpp.html#a24">NetBufferSize</a>
       </table>
     </td>
   </tr>
@@ -758,7 +760,7 @@ Definition at line <a class="el" href="channels_8cpp-source.html#l00087">87</a> 
     <td class="mdRow">
       <table cellpadding="0" cellspacing="0" border="0">
         <tr>
-          <td class="md" nowrap valign="top"> char <a class="el" href="modules_8cpp.html#a6">Network</a>[MAXBUF]
+          <td class="md" nowrap valign="top"> char <a class="el" href="modules_8cpp.html#a7">Network</a>[MAXBUF]
       </table>
     </td>
   </tr>
@@ -782,7 +784,7 @@ Definition at line <a class="el" href="channels_8cpp-source.html#l00069">69</a> 
     <td class="mdRow">
       <table cellpadding="0" cellspacing="0" border="0">
         <tr>
-          <td class="md" nowrap valign="top"> int <a class="el" href="modules_8cpp.html#a29">portCount</a>
+          <td class="md" nowrap valign="top"> int <a class="el" href="modules_8cpp.html#a30">portCount</a>
       </table>
     </td>
   </tr>
@@ -806,7 +808,7 @@ Definition at line <a class="el" href="channels_8cpp-source.html#l00095">95</a> 
     <td class="mdRow">
       <table cellpadding="0" cellspacing="0" border="0">
         <tr>
-          <td class="md" nowrap valign="top"> int <a class="el" href="modules_8cpp.html#a31">ports</a>[MAXSOCKS]
+          <td class="md" nowrap valign="top"> int <a class="el" href="modules_8cpp.html#a32">ports</a>[MAXSOCKS]
       </table>
     </td>
   </tr>
@@ -830,7 +832,7 @@ Definition at line <a class="el" href="channels_8cpp-source.html#l00097">97</a> 
     <td class="mdRow">
       <table cellpadding="0" cellspacing="0" border="0">
         <tr>
-          <td class="md" nowrap valign="top"> char <a class="el" href="modules_8cpp.html#a16">PrefixQuit</a>[MAXBUF]
+          <td class="md" nowrap valign="top"> char <a class="el" href="modules_8cpp.html#a17">PrefixQuit</a>[MAXBUF]
       </table>
     </td>
   </tr>
@@ -854,7 +856,7 @@ Definition at line <a class="el" href="channels_8cpp-source.html#l00079">79</a> 
     <td class="mdRow">
       <table cellpadding="0" cellspacing="0" border="0">
         <tr>
-          <td class="md" nowrap valign="top"> char <a class="el" href="modules_8cpp.html#a12">restartpass</a>[MAXBUF]
+          <td class="md" nowrap valign="top"> char <a class="el" href="modules_8cpp.html#a13">restartpass</a>[MAXBUF]
       </table>
     </td>
   </tr>
@@ -878,7 +880,7 @@ Definition at line <a class="el" href="channels_8cpp-source.html#l00075">75</a> 
     <td class="mdRow">
       <table cellpadding="0" cellspacing="0" border="0">
         <tr>
-          <td class="md" nowrap valign="top"> char <a class="el" href="modules_8cpp.html#a14">rules</a>[MAXBUF]
+          <td class="md" nowrap valign="top"> char <a class="el" href="modules_8cpp.html#a15">rules</a>[MAXBUF]
       </table>
     </td>
   </tr>
@@ -902,7 +904,7 @@ Definition at line <a class="el" href="channels_8cpp-source.html#l00077">77</a> 
     <td class="mdRow">
       <table cellpadding="0" cellspacing="0" border="0">
         <tr>
-          <td class="md" nowrap valign="top"> char <a class="el" href="modules_8cpp.html#a7">ServerDesc</a>[MAXBUF]
+          <td class="md" nowrap valign="top"> char <a class="el" href="modules_8cpp.html#a8">ServerDesc</a>[MAXBUF]
       </table>
     </td>
   </tr>
@@ -926,7 +928,7 @@ Definition at line <a class="el" href="channels_8cpp-source.html#l00070">70</a> 
     <td class="mdRow">
       <table cellpadding="0" cellspacing="0" border="0">
         <tr>
-          <td class="md" nowrap valign="top"> char <a class="el" href="modules_8cpp.html#a5">ServerName</a>[MAXBUF]
+          <td class="md" nowrap valign="top"> char <a class="el" href="modules_8cpp.html#a6">ServerName</a>[MAXBUF]
       </table>
     </td>
   </tr>
@@ -950,7 +952,7 @@ Definition at line <a class="el" href="channels_8cpp-source.html#l00068">68</a> 
     <td class="mdRow">
       <table cellpadding="0" cellspacing="0" border="0">
         <tr>
-          <td class="md" nowrap valign="top"> time_t <a class="el" href="modules_8cpp.html#a22">startup_time</a>
+          <td class="md" nowrap valign="top"> time_t <a class="el" href="modules_8cpp.html#a23">startup_time</a>
       </table>
     </td>
   </tr>
@@ -968,13 +970,39 @@ Definition at line <a class="el" href="channels_8cpp-source.html#l00068">68</a> 
 Definition at line <a class="el" href="channels_8cpp-source.html#l00086">86</a> of file <a class="el" href="channels_8cpp-source.html">channels.cpp</a>.    </td>
   </tr>
 </table>
+<a name="a37" doxytag="channels.cpp::TIME"></a><p>
+<table class="mdTable" width="100%" cellpadding="2" cellspacing="0">
+  <tr>
+    <td class="mdRow">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> time_t <a class="el" href="users_8cpp.html#a1">TIME</a>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+
+<p>
+Definition at line <a class="el" href="channels_8cpp-source.html#l00107">107</a> of file <a class="el" href="channels_8cpp-source.html">channels.cpp</a>.
+<p>
+Referenced by <a class="el" href="servers_8cpp-source.html#l00026">serverrec::serverrec()</a>.    </td>
+  </tr>
+</table>
 <a name="a30" doxytag="channels.cpp::UDPportCount"></a><p>
 <table class="mdTable" width="100%" cellpadding="2" cellspacing="0">
   <tr>
     <td class="mdRow">
       <table cellpadding="0" cellspacing="0" border="0">
         <tr>
-          <td class="md" nowrap valign="top"> int <a class="el" href="modules_8cpp.html#a30">UDPportCount</a>
+          <td class="md" nowrap valign="top"> int <a class="el" href="modules_8cpp.html#a31">UDPportCount</a>
       </table>
     </td>
   </tr>
@@ -998,7 +1026,7 @@ Definition at line <a class="el" href="channels_8cpp-source.html#l00096">96</a> 
     <td class="mdRow">
       <table cellpadding="0" cellspacing="0" border="0">
         <tr>
-          <td class="md" nowrap valign="top"> int <a class="el" href="modules_8cpp.html#a20">WHOWAS_MAX</a>
+          <td class="md" nowrap valign="top"> int <a class="el" href="modules_8cpp.html#a21">WHOWAS_MAX</a>
       </table>
     </td>
   </tr>
@@ -1022,7 +1050,7 @@ Definition at line <a class="el" href="channels_8cpp-source.html#l00084">84</a> 
     <td class="mdRow">
       <table cellpadding="0" cellspacing="0" border="0">
         <tr>
-          <td class="md" nowrap valign="top"> int <a class="el" href="modules_8cpp.html#a19">WHOWAS_STALE</a>
+          <td class="md" nowrap valign="top"> int <a class="el" href="modules_8cpp.html#a20">WHOWAS_STALE</a>
       </table>
     </td>
   </tr>
@@ -1040,7 +1068,7 @@ Definition at line <a class="el" href="channels_8cpp-source.html#l00084">84</a> 
 Definition at line <a class="el" href="channels_8cpp-source.html#l00083">83</a> of file <a class="el" href="channels_8cpp-source.html">channels.cpp</a>.    </td>
   </tr>
 </table>
-<hr size="1"><address style="align: right;"><small>Generated on Mon Apr 4 18:12:48 2005 for InspIRCd by
+<hr size="1"><address style="align: right;"><small>Generated on Thu Apr 7 20:14:21 2005 for InspIRCd by
 <a href="http://www.doxygen.org/index.html">
 <img src="doxygen.png" alt="doxygen" align="middle" border=0 > 
 </a>1.3.3 </small></address>

@@ -116,36 +116,36 @@ Definition at line <a class="el" href="users_8h-source.html#l00089">89</a> of fi
 <p>
 
 <p>
-Definition at line <a class="el" href="users_8cpp-source.html#l00026">26</a> of file <a class="el" href="users_8cpp-source.html">users.cpp</a>.
+Definition at line <a class="el" href="users_8cpp-source.html#l00028">28</a> of file <a class="el" href="users_8cpp-source.html">users.cpp</a>.
 <p>
 References <a class="el" href="users_8h-source.html#l00132">awaymsg</a>, <a class="el" href="connection_8h-source.html#l00194">connection::bytes_in</a>, <a class="el" href="connection_8h-source.html#l00198">connection::bytes_out</a>, <a class="el" href="channels_8h-source.html#l00213">ucrec::channel</a>, <a class="el" href="users_8h-source.html#l00123">chans</a>, <a class="el" href="connection_8h-source.html#l00202">connection::cmds_in</a>, <a class="el" href="connection_8h-source.html#l00206">connection::cmds_out</a>, <a class="el" href="users_8h-source.html#l00111">dhost</a>, <a class="el" href="users_8h-source.html#l00160">dns_done</a>, <a class="el" href="connection_8h-source.html#l00178">connection::fd</a>, <a class="el" href="users_8h-source.html#l00143">flood</a>, <a class="el" href="users_8h-source.html#l00115">fullname</a>, <a class="el" href="connection_8h-source.html#l00210">connection::haspassed</a>, <a class="el" href="connection_8h-source.html#l00182">connection::host</a>, <a class="el" href="users_8h-source.html#l00106">ident</a>, <a class="el" href="connection_8h-source.html#l00236">connection::idle_lastmsg</a>, <a class="el" href="connection_8h-source.html#l00190">connection::inbuf</a>, <a class="el" href="users_8h-source.html#l00095">invites</a>, <a class="el" href="connection_8h-source.html#l00186">connection::ip</a>, <a class="el" href="connection_8h-source.html#l00228">connection::lastping</a>, <a class="el" href="users_8h-source.html#l00121">modes</a>, <a class="el" href="users_8h-source.html#l00102">nick</a>, <a class="el" href="connection_8h-source.html#l00240">connection::nping</a>, <a class="el" href="users_8h-source.html#l00156">oper</a>, <a class="el" href="connection_8h-source.html#l00216">connection::port</a>, <a class="el" href="connection_8h-source.html#l00220">connection::registered</a>, <a class="el" href="users_8h-source.html#l00137">result</a>, <a class="el" href="users_8h-source.html#l00127">server</a>, <a class="el" href="connection_8h-source.html#l00232">connection::signon</a>, <a class="el" href="users_8h-source.html#l00149">timeout</a>, and <a class="el" href="channels_8h-source.html#l00208">ucrec::uc_modes</a>.
 <p>
-<div class="fragment"><pre>00027 {
-00028         <span class="comment">// the PROPER way to do it, AVOID bzero at *ALL* costs</span>
-00029         strcpy(nick,<span class="stringliteral">""</span>);
-00030         strcpy(ip,<span class="stringliteral">"127.0.0.1"</span>);
-00031         <a class="code" href="classuserrec.html#o10">timeout</a> = 0;
-00032         strcpy(ident,<span class="stringliteral">""</span>);
-00033         strcpy(host,<span class="stringliteral">""</span>);
-00034         strcpy(dhost,<span class="stringliteral">""</span>);
-00035         strcpy(fullname,<span class="stringliteral">""</span>);
-00036         strcpy(modes,<span class="stringliteral">""</span>);
-00037         strcpy(inbuf,<span class="stringliteral">""</span>);
-00038         strcpy(server,<span class="stringliteral">""</span>);
-00039         strcpy(awaymsg,<span class="stringliteral">""</span>);
-00040         strcpy(oper,<span class="stringliteral">""</span>);
-00041         <a class="code" href="classconnection.html#o0">fd</a> = <a class="code" href="classconnection.html#o12">lastping</a> = <a class="code" href="classconnection.html#o13">signon</a> = <a class="code" href="classconnection.html#o14">idle_lastmsg</a> = <a class="code" href="classconnection.html#o15">nping</a> = <a class="code" href="classconnection.html#o10">registered</a> = 0;
-00042         <a class="code" href="classuserrec.html#o9">flood</a> = <a class="code" href="classconnection.html#o9">port</a> = <a class="code" href="classconnection.html#o4">bytes_in</a> = <a class="code" href="classconnection.html#o5">bytes_out</a> = <a class="code" href="classconnection.html#o6">cmds_in</a> = <a class="code" href="classconnection.html#o7">cmds_out</a> = 0;
-00043         <a class="code" href="classconnection.html#o8">haspassed</a> = <span class="keyword">false</span>;
-00044         <a class="code" href="classuserrec.html#o12">dns_done</a> = <span class="keyword">false</span>;
-00045         strcpy(result,<span class="stringliteral">""</span>);
-00046         <span class="keywordflow">for</span> (<span class="keywordtype">int</span> i = 0; i &lt; MAXCHANS; i++)
-00047         {
-00048                 this-&gt;<a class="code" href="classuserrec.html#o5">chans</a>[i].<a class="code" href="classucrec.html#o1">channel</a> = NULL;
-00049                 this-&gt;<a class="code" href="classuserrec.html#o5">chans</a>[i].<a class="code" href="classucrec.html#o0">uc_modes</a> = 0;
-00050         }
-00051         <a class="code" href="classuserrec.html#r0">invites</a>.clear();
-00052 }
+<div class="fragment"><pre>00029 {
+00030         <span class="comment">// the PROPER way to do it, AVOID bzero at *ALL* costs</span>
+00031         strcpy(nick,<span class="stringliteral">""</span>);
+00032         strcpy(ip,<span class="stringliteral">"127.0.0.1"</span>);
+00033         <a class="code" href="classuserrec.html#o10">timeout</a> = 0;
+00034         strcpy(ident,<span class="stringliteral">""</span>);
+00035         strcpy(host,<span class="stringliteral">""</span>);
+00036         strcpy(dhost,<span class="stringliteral">""</span>);
+00037         strcpy(fullname,<span class="stringliteral">""</span>);
+00038         strcpy(modes,<span class="stringliteral">""</span>);
+00039         strcpy(inbuf,<span class="stringliteral">""</span>);
+00040         strcpy(server,<span class="stringliteral">""</span>);
+00041         strcpy(awaymsg,<span class="stringliteral">""</span>);
+00042         strcpy(oper,<span class="stringliteral">""</span>);
+00043         <a class="code" href="classconnection.html#o0">fd</a> = <a class="code" href="classconnection.html#o12">lastping</a> = <a class="code" href="classconnection.html#o13">signon</a> = <a class="code" href="classconnection.html#o14">idle_lastmsg</a> = <a class="code" href="classconnection.html#o15">nping</a> = <a class="code" href="classconnection.html#o10">registered</a> = 0;
+00044         <a class="code" href="classuserrec.html#o9">flood</a> = <a class="code" href="classconnection.html#o9">port</a> = <a class="code" href="classconnection.html#o4">bytes_in</a> = <a class="code" href="classconnection.html#o5">bytes_out</a> = <a class="code" href="classconnection.html#o6">cmds_in</a> = <a class="code" href="classconnection.html#o7">cmds_out</a> = 0;
+00045         <a class="code" href="classconnection.html#o8">haspassed</a> = <span class="keyword">false</span>;
+00046         <a class="code" href="classuserrec.html#o12">dns_done</a> = <span class="keyword">false</span>;
+00047         strcpy(result,<span class="stringliteral">""</span>);
+00048         <span class="keywordflow">for</span> (<span class="keywordtype">int</span> i = 0; i &lt; MAXCHANS; i++)
+00049         {
+00050                 this-&gt;<a class="code" href="classuserrec.html#o5">chans</a>[i].<a class="code" href="classucrec.html#o1">channel</a> = NULL;
+00051                 this-&gt;<a class="code" href="classuserrec.html#o5">chans</a>[i].<a class="code" href="classucrec.html#o0">uc_modes</a> = 0;
+00052         }
+00053         <a class="code" href="classuserrec.html#r0">invites</a>.clear();
+00054 }
 </pre></div>    </td>
   </tr>
 </table>
@@ -212,14 +212,14 @@ Returns the full displayed host of the user This member function returns the hos
 <p>
 
 <p>
-Definition at line <a class="el" href="users_8cpp-source.html#l00056">56</a> of file <a class="el" href="users_8cpp-source.html">users.cpp</a>.
+Definition at line <a class="el" href="users_8cpp-source.html#l00058">58</a> of file <a class="el" href="users_8cpp-source.html">users.cpp</a>.
 <p>
 References <a class="el" href="users_8h-source.html#l00111">dhost</a>, <a class="el" href="users_8h-source.html#l00106">ident</a>, <a class="el" href="users_8h-source.html#l00102">nick</a>, and <a class="el" href="users_8h-source.html#l00137">result</a>.
 <p>
-<div class="fragment"><pre>00057 {
-00058         snprintf(result,MAXBUF,<span class="stringliteral">"%s!%s@%s"</span>,nick,ident,dhost);
-00059         <span class="keywordflow">return</span> <a class="code" href="classuserrec.html#o8">result</a>;
-00060 }
+<div class="fragment"><pre>00059 {
+00060         snprintf(result,MAXBUF,<span class="stringliteral">"%s!%s@%s"</span>,nick,ident,dhost);
+00061         <span class="keywordflow">return</span> <a class="code" href="classuserrec.html#o8">result</a>;
+00062 }
 </pre></div>    </td>
   </tr>
 </table>
@@ -252,14 +252,14 @@ Returns the full real host of the user This member function returns the hostname
 <p>
 If any form of hostname cloaking is in operation, e.g. through a module, then this method will ignore it and return the true hostname.
 <p>
-Definition at line <a class="el" href="users_8cpp-source.html#l00063">63</a> of file <a class="el" href="users_8cpp-source.html">users.cpp</a>.
+Definition at line <a class="el" href="users_8cpp-source.html#l00065">65</a> of file <a class="el" href="users_8cpp-source.html">users.cpp</a>.
 <p>
 References <a class="el" href="connection_8h-source.html#l00182">connection::host</a>, <a class="el" href="users_8h-source.html#l00106">ident</a>, <a class="el" href="users_8h-source.html#l00102">nick</a>, and <a class="el" href="users_8h-source.html#l00137">result</a>.
 <p>
-<div class="fragment"><pre>00064 {
-00065         snprintf(result,MAXBUF,<span class="stringliteral">"%s!%s@%s"</span>,nick,ident,host);
-00066         <span class="keywordflow">return</span> <a class="code" href="classuserrec.html#o8">result</a>;
-00067 }
+<div class="fragment"><pre>00066 {
+00067         snprintf(result,MAXBUF,<span class="stringliteral">"%s!%s@%s"</span>,nick,ident,host);
+00068         <span class="keywordflow">return</span> <a class="code" href="classuserrec.html#o8">result</a>;
+00069 }
 </pre></div>    </td>
   </tr>
 </table>
@@ -293,60 +293,60 @@ Returns true or false for if a user can execute a privilaged oper command.
 <p>
 This is done by looking up their oper type from <a class="el" href="classuserrec.html#o11">userrec::oper</a>, then referencing this to their oper classes and checking the commands they can execute.
 <p>
-Definition at line <a class="el" href="users_8cpp-source.html#l00112">112</a> of file <a class="el" href="users_8cpp-source.html">users.cpp</a>.
+Definition at line <a class="el" href="users_8cpp-source.html#l00114">114</a> of file <a class="el" href="users_8cpp-source.html">users.cpp</a>.
 <p>
 References <a class="el" href="channels_8cpp-source.html#l00101">config_f</a>, and <a class="el" href="modules_8h-source.html#l00023">DEBUG</a>.
 <p>
-<div class="fragment"><pre>00113 {
-00114         <span class="keywordtype">char</span> TypeName[MAXBUF],Classes[MAXBUF],ClassName[MAXBUF],CommandList[MAXBUF];
-00115         <span class="keywordtype">char</span>* myclass;
-00116         <span class="keywordtype">char</span>* mycmd;
-00117         <span class="keywordtype">char</span>* savept;
-00118         <span class="keywordtype">char</span>* savept2;
-00119         
-00120         <span class="comment">// are they even an oper at all?</span>
-00121         <span class="keywordflow">if</span> (strchr(this-&gt;modes,<span class="charliteral">'o'</span>))
-00122         {
-00123                 log(DEBUG,<span class="stringliteral">"*** HasPermission: %s is an oper"</span>,this-&gt;nick);
-00124                 <span class="keywordflow">for</span> (<span class="keywordtype">int</span> j =0; j &lt; ConfValueEnum(<span class="stringliteral">"type"</span>,&amp;config_f); j++)
-00125                 {
-00126                         ConfValue(<span class="stringliteral">"type"</span>,<span class="stringliteral">"name"</span>,j,TypeName,&amp;config_f);
-00127                         <span class="keywordflow">if</span> (!strcmp(TypeName,this-&gt;oper))
-00128                         {
-00129                                 log(DEBUG,<span class="stringliteral">"*** HasPermission: %s is an oper of type '%s'"</span>,this-&gt;nick,this-&gt;oper);
-00130                                 ConfValue(<span class="stringliteral">"type"</span>,<span class="stringliteral">"classes"</span>,j,Classes,&amp;config_f);
-00131                                 <span class="keywordtype">char</span>* myclass = strtok_r(Classes,<span class="stringliteral">" "</span>,&amp;savept);
-00132                                 <span class="keywordflow">while</span> (myclass)
-00133                                 {
-00134                                         log(DEBUG,<span class="stringliteral">"*** HasPermission: checking classtype '%s'"</span>,myclass);
-00135                                         <span class="keywordflow">for</span> (<span class="keywordtype">int</span> k =0; k &lt; ConfValueEnum(<span class="stringliteral">"class"</span>,&amp;config_f); k++)
-00136                                         {
-00137                                                 ConfValue(<span class="stringliteral">"class"</span>,<span class="stringliteral">"name"</span>,k,ClassName,&amp;config_f);
-00138                                                 <span class="keywordflow">if</span> (!strcmp(ClassName,myclass))
-00139                                                 {
-00140                                                         ConfValue(<span class="stringliteral">"class"</span>,<span class="stringliteral">"commands"</span>,k,CommandList,&amp;config_f);
-00141                                                         log(DEBUG,<span class="stringliteral">"*** HasPermission: found class named %s with commands: '%s'"</span>,ClassName,CommandList);
-00142                                                         
-00143                                                         
-00144                                                         mycmd = strtok_r(CommandList,<span class="stringliteral">" "</span>,&amp;savept2);
-00145                                                         <span class="keywordflow">while</span> (mycmd)
-00146                                                         {
-00147                                                                 <span class="keywordflow">if</span> (!strcasecmp(mycmd,command))
-00148                                                                 {
-00149                                                                         log(DEBUG,<span class="stringliteral">"*** Command %s found, returning true"</span>,command);
-00150                                                                         <span class="keywordflow">return</span> <span class="keyword">true</span>;
-00151                                                                 }
-00152                                                                 mycmd = strtok_r(NULL,<span class="stringliteral">" "</span>,&amp;savept2);
-00153                                                         }
-00154                                                 }
-00155                                         }
-00156                                         myclass = strtok_r(NULL,<span class="stringliteral">" "</span>,&amp;savept);
-00157                                 }
-00158                         }
-00159                 }
-00160         }
-00161         <span class="keywordflow">return</span> <span class="keyword">false</span>;
-00162 }
+<div class="fragment"><pre>00115 {
+00116         <span class="keywordtype">char</span> TypeName[MAXBUF],Classes[MAXBUF],ClassName[MAXBUF],CommandList[MAXBUF];
+00117         <span class="keywordtype">char</span>* myclass;
+00118         <span class="keywordtype">char</span>* mycmd;
+00119         <span class="keywordtype">char</span>* savept;
+00120         <span class="keywordtype">char</span>* savept2;
+00121         
+00122         <span class="comment">// are they even an oper at all?</span>
+00123         <span class="keywordflow">if</span> (strchr(this-&gt;modes,<span class="charliteral">'o'</span>))
+00124         {
+00125                 log(DEBUG,<span class="stringliteral">"*** HasPermission: %s is an oper"</span>,this-&gt;nick);
+00126                 <span class="keywordflow">for</span> (<span class="keywordtype">int</span> j =0; j &lt; ConfValueEnum(<span class="stringliteral">"type"</span>,&amp;config_f); j++)
+00127                 {
+00128                         ConfValue(<span class="stringliteral">"type"</span>,<span class="stringliteral">"name"</span>,j,TypeName,&amp;config_f);
+00129                         <span class="keywordflow">if</span> (!strcmp(TypeName,this-&gt;oper))
+00130                         {
+00131                                 log(DEBUG,<span class="stringliteral">"*** HasPermission: %s is an oper of type '%s'"</span>,this-&gt;nick,this-&gt;oper);
+00132                                 ConfValue(<span class="stringliteral">"type"</span>,<span class="stringliteral">"classes"</span>,j,Classes,&amp;config_f);
+00133                                 <span class="keywordtype">char</span>* myclass = strtok_r(Classes,<span class="stringliteral">" "</span>,&amp;savept);
+00134                                 <span class="keywordflow">while</span> (myclass)
+00135                                 {
+00136                                         log(DEBUG,<span class="stringliteral">"*** HasPermission: checking classtype '%s'"</span>,myclass);
+00137                                         <span class="keywordflow">for</span> (<span class="keywordtype">int</span> k =0; k &lt; ConfValueEnum(<span class="stringliteral">"class"</span>,&amp;config_f); k++)
+00138                                         {
+00139                                                 ConfValue(<span class="stringliteral">"class"</span>,<span class="stringliteral">"name"</span>,k,ClassName,&amp;config_f);
+00140                                                 <span class="keywordflow">if</span> (!strcmp(ClassName,myclass))
+00141                                                 {
+00142                                                         ConfValue(<span class="stringliteral">"class"</span>,<span class="stringliteral">"commands"</span>,k,CommandList,&amp;config_f);
+00143                                                         log(DEBUG,<span class="stringliteral">"*** HasPermission: found class named %s with commands: '%s'"</span>,ClassName,CommandList);
+00144                                                         
+00145                                                         
+00146                                                         mycmd = strtok_r(CommandList,<span class="stringliteral">" "</span>,&amp;savept2);
+00147                                                         <span class="keywordflow">while</span> (mycmd)
+00148                                                         {
+00149                                                                 <span class="keywordflow">if</span> (!strcasecmp(mycmd,command))
+00150                                                                 {
+00151                                                                         log(DEBUG,<span class="stringliteral">"*** Command %s found, returning true"</span>,command);
+00152                                                                         <span class="keywordflow">return</span> <span class="keyword">true</span>;
+00153                                                                 }
+00154                                                                 mycmd = strtok_r(NULL,<span class="stringliteral">" "</span>,&amp;savept2);
+00155                                                         }
+00156                                                 }
+00157                                         }
+00158                                         myclass = strtok_r(NULL,<span class="stringliteral">" "</span>,&amp;savept);
+00159                                 }
+00160                         }
+00161                 }
+00162         }
+00163         <span class="keywordflow">return</span> <span class="keyword">false</span>;
+00164 }
 </pre></div>    </td>
   </tr>
 </table>
@@ -380,15 +380,15 @@ Adds a channel to a users invite list (invites them to a channel).
 <p>
 
 <p>
-Definition at line <a class="el" href="users_8cpp-source.html#l00083">83</a> of file <a class="el" href="users_8cpp-source.html">users.cpp</a>.
+Definition at line <a class="el" href="users_8cpp-source.html#l00085">85</a> of file <a class="el" href="users_8cpp-source.html">users.cpp</a>.
 <p>
 References <a class="el" href="users_8h-source.html#l00039">Invited::channel</a>, and <a class="el" href="users_8h-source.html#l00095">invites</a>.
 <p>
-<div class="fragment"><pre>00084 {
-00085         <a class="code" href="classInvited.html">Invited</a> i;
-00086         strlcpy(i.<a class="code" href="classInvited.html#o0">channel</a>,channel,CHANMAX);
-00087         <a class="code" href="classuserrec.html#r0">invites</a>.push_back(i);
-00088 }
+<div class="fragment"><pre>00086 {
+00087         <a class="code" href="classInvited.html">Invited</a> i;
+00088         strlcpy(i.<a class="code" href="classInvited.html#o0">channel</a>,channel,CHANMAX);
+00089         <a class="code" href="classuserrec.html#r0">invites</a>.push_back(i);
+00090 }
 </pre></div>    </td>
   </tr>
 </table>
@@ -422,22 +422,22 @@ Returns true if a user is invited to a channel.
 <p>
 
 <p>
-Definition at line <a class="el" href="users_8cpp-source.html#l00069">69</a> of file <a class="el" href="users_8cpp-source.html">users.cpp</a>.
+Definition at line <a class="el" href="users_8cpp-source.html#l00071">71</a> of file <a class="el" href="users_8cpp-source.html">users.cpp</a>.
 <p>
 References <a class="el" href="users_8h-source.html#l00095">invites</a>.
 <p>
-<div class="fragment"><pre>00070 {
-00071         <span class="keywordflow">for</span> (InvitedList::iterator i = <a class="code" href="classuserrec.html#r0">invites</a>.begin(); i != <a class="code" href="classuserrec.html#r0">invites</a>.end(); i++)
-00072         {
-00073                 <span class="keywordflow">if</span> (i-&gt;channel) {
-00074                         <span class="keywordflow">if</span> (!strcasecmp(i-&gt;channel,channel))
-00075                         {
-00076                                 <span class="keywordflow">return</span> <span class="keyword">true</span>;
-00077                         }
-00078                 }
-00079         }
-00080         <span class="keywordflow">return</span> <span class="keyword">false</span>;
-00081 }
+<div class="fragment"><pre>00072 {
+00073         <span class="keywordflow">for</span> (InvitedList::iterator i = <a class="code" href="classuserrec.html#r0">invites</a>.begin(); i != <a class="code" href="classuserrec.html#r0">invites</a>.end(); i++)
+00074         {
+00075                 <span class="keywordflow">if</span> (i-&gt;channel) {
+00076                         <span class="keywordflow">if</span> (!strcasecmp(i-&gt;channel,channel))
+00077                         {
+00078                                 <span class="keywordflow">return</span> <span class="keyword">true</span>;
+00079                         }
+00080                 }
+00081         }
+00082         <span class="keywordflow">return</span> <span class="keyword">false</span>;
+00083 }
 </pre></div>    </td>
   </tr>
 </table>
@@ -471,30 +471,30 @@ Removes a channel from a users invite list.
 <p>
 This member function is called on successfully joining an invite only channel to which the user has previously been invited, to clear the invitation.
 <p>
-Definition at line <a class="el" href="users_8cpp-source.html#l00090">90</a> of file <a class="el" href="users_8cpp-source.html">users.cpp</a>.
+Definition at line <a class="el" href="users_8cpp-source.html#l00092">92</a> of file <a class="el" href="users_8cpp-source.html">users.cpp</a>.
 <p>
 References <a class="el" href="modules_8h-source.html#l00023">DEBUG</a>, and <a class="el" href="users_8h-source.html#l00095">invites</a>.
 <p>
-<div class="fragment"><pre>00091 {
-00092         log(DEBUG,<span class="stringliteral">"Removing invites"</span>);
-00093         <span class="keywordflow">if</span> (channel)
-00094         {
-00095                 <span class="keywordflow">if</span> (<a class="code" href="classuserrec.html#r0">invites</a>.size())
-00096                 {
-00097                         <span class="keywordflow">for</span> (InvitedList::iterator i = <a class="code" href="classuserrec.html#r0">invites</a>.begin(); i != <a class="code" href="classuserrec.html#r0">invites</a>.end(); i++)
-00098                         {
-00099                                 <span class="keywordflow">if</span> (i-&gt;channel)
-00100                                 {
-00101                                         <span class="keywordflow">if</span> (!strcasecmp(i-&gt;channel,channel))
-00102                                         {
-00103                                                 <a class="code" href="classuserrec.html#r0">invites</a>.erase(i);
-00104                                                 <span class="keywordflow">return</span>;
-00105                                         }
-00106                                 }
-00107                         }
-00108                 }
-00109         }
-00110 }
+<div class="fragment"><pre>00093 {
+00094         log(DEBUG,<span class="stringliteral">"Removing invites"</span>);
+00095         <span class="keywordflow">if</span> (channel)
+00096         {
+00097                 <span class="keywordflow">if</span> (<a class="code" href="classuserrec.html#r0">invites</a>.size())
+00098                 {
+00099                         <span class="keywordflow">for</span> (InvitedList::iterator i = <a class="code" href="classuserrec.html#r0">invites</a>.begin(); i != <a class="code" href="classuserrec.html#r0">invites</a>.end(); i++)
+00100                         {
+00101                                 <span class="keywordflow">if</span> (i-&gt;channel)
+00102                                 {
+00103                                         <span class="keywordflow">if</span> (!strcasecmp(i-&gt;channel,channel))
+00104                                         {
+00105                                                 <a class="code" href="classuserrec.html#r0">invites</a>.erase(i);
+00106                                                 <span class="keywordflow">return</span>;
+00107                                         }
+00108                                 }
+00109                         }
+00110                 }
+00111         }
+00112 }
 </pre></div>    </td>
   </tr>
 </table>
@@ -524,7 +524,7 @@ If this string is empty, the user is not marked as away.
 <p>
 Definition at line <a class="el" href="users_8h-source.html#l00132">132</a> of file <a class="el" href="users_8h-source.html">users.h</a>.
 <p>
-Referenced by <a class="el" href="users_8cpp-source.html#l00026">userrec()</a>.    </td>
+Referenced by <a class="el" href="users_8cpp-source.html#l00028">userrec()</a>.    </td>
   </tr>
 </table>
 <a name="o5" doxytag="userrec::chans"></a><p>
@@ -550,7 +550,7 @@ Referenced by <a class="el" href="users_8cpp-source.html#l00026">userrec()</a>. 
 <p>
 Definition at line <a class="el" href="users_8h-source.html#l00123">123</a> of file <a class="el" href="users_8h-source.html">users.h</a>.
 <p>
-Referenced by <a class="el" href="users_8cpp-source.html#l00026">userrec()</a>.    </td>
+Referenced by <a class="el" href="users_8cpp-source.html#l00028">userrec()</a>.    </td>
   </tr>
 </table>
 <a name="o2" doxytag="userrec::dhost"></a><p>
@@ -578,7 +578,7 @@ This usually matches the value of <a class="el" href="classconnection.html#o1">u
 <p>
 Definition at line <a class="el" href="users_8h-source.html#l00111">111</a> of file <a class="el" href="users_8h-source.html">users.h</a>.
 <p>
-Referenced by <a class="el" href="users_8cpp-source.html#l00056">GetFullHost()</a>, and <a class="el" href="users_8cpp-source.html#l00026">userrec()</a>.    </td>
+Referenced by <a class="el" href="users_8cpp-source.html#l00058">GetFullHost()</a>, and <a class="el" href="users_8cpp-source.html#l00028">userrec()</a>.    </td>
   </tr>
 </table>
 <a name="o12" doxytag="userrec::dns_done"></a><p>
@@ -606,7 +606,7 @@ True when <a class="el" href="classDNS.html">DNS</a> lookups are completed.
 <p>
 Definition at line <a class="el" href="users_8h-source.html#l00160">160</a> of file <a class="el" href="users_8h-source.html">users.h</a>.
 <p>
-Referenced by <a class="el" href="users_8cpp-source.html#l00026">userrec()</a>.    </td>
+Referenced by <a class="el" href="users_8cpp-source.html#l00028">userrec()</a>.    </td>
   </tr>
 </table>
 <a name="o9" doxytag="userrec::flood"></a><p>
@@ -634,7 +634,7 @@ Number of lines the user can place into the buffer (up to the global NetBufferSi
 <p>
 Definition at line <a class="el" href="users_8h-source.html#l00143">143</a> of file <a class="el" href="users_8h-source.html">users.h</a>.
 <p>
-Referenced by <a class="el" href="users_8cpp-source.html#l00026">userrec()</a>.    </td>
+Referenced by <a class="el" href="users_8cpp-source.html#l00028">userrec()</a>.    </td>
   </tr>
 </table>
 <a name="o3" doxytag="userrec::fullname"></a><p>
@@ -662,7 +662,7 @@ The users full name.
 <p>
 Definition at line <a class="el" href="users_8h-source.html#l00115">115</a> of file <a class="el" href="users_8h-source.html">users.h</a>.
 <p>
-Referenced by <a class="el" href="users_8cpp-source.html#l00026">userrec()</a>.    </td>
+Referenced by <a class="el" href="users_8cpp-source.html#l00028">userrec()</a>.    </td>
   </tr>
 </table>
 <a name="o1" doxytag="userrec::ident"></a><p>
@@ -690,7 +690,7 @@ The users ident reply.
 <p>
 Definition at line <a class="el" href="users_8h-source.html#l00106">106</a> of file <a class="el" href="users_8h-source.html">users.h</a>.
 <p>
-Referenced by <a class="el" href="users_8cpp-source.html#l00056">GetFullHost()</a>, <a class="el" href="users_8cpp-source.html#l00063">GetFullRealHost()</a>, and <a class="el" href="users_8cpp-source.html#l00026">userrec()</a>.    </td>
+Referenced by <a class="el" href="users_8cpp-source.html#l00058">GetFullHost()</a>, <a class="el" href="users_8cpp-source.html#l00065">GetFullRealHost()</a>, and <a class="el" href="users_8cpp-source.html#l00028">userrec()</a>.    </td>
   </tr>
 </table>
 <a name="r0" doxytag="userrec::invites"></a><p>
@@ -718,7 +718,7 @@ A list of channels the user has a pending invite to.
 <p>
 Definition at line <a class="el" href="users_8h-source.html#l00095">95</a> of file <a class="el" href="users_8h-source.html">users.h</a>.
 <p>
-Referenced by <a class="el" href="users_8cpp-source.html#l00083">InviteTo()</a>, <a class="el" href="users_8cpp-source.html#l00069">IsInvited()</a>, <a class="el" href="users_8cpp-source.html#l00090">RemoveInvite()</a>, and <a class="el" href="users_8cpp-source.html#l00026">userrec()</a>.    </td>
+Referenced by <a class="el" href="users_8cpp-source.html#l00085">InviteTo()</a>, <a class="el" href="users_8cpp-source.html#l00071">IsInvited()</a>, <a class="el" href="users_8cpp-source.html#l00092">RemoveInvite()</a>, and <a class="el" href="users_8cpp-source.html#l00028">userrec()</a>.    </td>
   </tr>
 </table>
 <a name="o4" doxytag="userrec::modes"></a><p>
@@ -746,7 +746,7 @@ This may contain any of the following RFC characters: o, w, s, i Your module may
 <p>
 Definition at line <a class="el" href="users_8h-source.html#l00121">121</a> of file <a class="el" href="users_8h-source.html">users.h</a>.
 <p>
-Referenced by <a class="el" href="users_8cpp-source.html#l00026">userrec()</a>.    </td>
+Referenced by <a class="el" href="users_8cpp-source.html#l00028">userrec()</a>.    </td>
   </tr>
 </table>
 <a name="o0" doxytag="userrec::nick"></a><p>
@@ -774,7 +774,7 @@ An invalid nickname indicates an unregistered connection prior to the NICK comma
 <p>
 Definition at line <a class="el" href="users_8h-source.html#l00102">102</a> of file <a class="el" href="users_8h-source.html">users.h</a>.
 <p>
-Referenced by <a class="el" href="modules_8cpp-source.html#l00674">ConfigReader::DumpErrors()</a>, <a class="el" href="users_8cpp-source.html#l00056">GetFullHost()</a>, <a class="el" href="users_8cpp-source.html#l00063">GetFullRealHost()</a>, <a class="el" href="modules_8cpp-source.html#l00397">Server::QuitUser()</a>, and <a class="el" href="users_8cpp-source.html#l00026">userrec()</a>.    </td>
+Referenced by <a class="el" href="modules_8cpp-source.html#l00676">ConfigReader::DumpErrors()</a>, <a class="el" href="users_8cpp-source.html#l00058">GetFullHost()</a>, <a class="el" href="users_8cpp-source.html#l00065">GetFullRealHost()</a>, <a class="el" href="modules_8cpp-source.html#l00399">Server::QuitUser()</a>, and <a class="el" href="users_8cpp-source.html#l00028">userrec()</a>.    </td>
   </tr>
 </table>
 <a name="o11" doxytag="userrec::oper"></a><p>
@@ -802,7 +802,7 @@ This is used to check permissions in operclasses, so that we can say 'yay' or 'n
 <p>
 Definition at line <a class="el" href="users_8h-source.html#l00156">156</a> of file <a class="el" href="users_8h-source.html">users.h</a>.
 <p>
-Referenced by <a class="el" href="users_8cpp-source.html#l00026">userrec()</a>.    </td>
+Referenced by <a class="el" href="users_8cpp-source.html#l00028">userrec()</a>.    </td>
   </tr>
 </table>
 <a name="o8" doxytag="userrec::result"></a><p>
@@ -830,7 +830,7 @@ You may use this to increase the speed of use of this class.
 <p>
 Definition at line <a class="el" href="users_8h-source.html#l00137">137</a> of file <a class="el" href="users_8h-source.html">users.h</a>.
 <p>
-Referenced by <a class="el" href="users_8cpp-source.html#l00056">GetFullHost()</a>, <a class="el" href="users_8cpp-source.html#l00063">GetFullRealHost()</a>, and <a class="el" href="users_8cpp-source.html#l00026">userrec()</a>.    </td>
+Referenced by <a class="el" href="users_8cpp-source.html#l00058">GetFullHost()</a>, <a class="el" href="users_8cpp-source.html#l00065">GetFullRealHost()</a>, and <a class="el" href="users_8cpp-source.html#l00028">userrec()</a>.    </td>
   </tr>
 </table>
 <a name="o6" doxytag="userrec::server"></a><p>
@@ -858,7 +858,7 @@ The server the user is connected to.
 <p>
 Definition at line <a class="el" href="users_8h-source.html#l00127">127</a> of file <a class="el" href="users_8h-source.html">users.h</a>.
 <p>
-Referenced by <a class="el" href="users_8cpp-source.html#l00026">userrec()</a>.    </td>
+Referenced by <a class="el" href="users_8cpp-source.html#l00028">userrec()</a>.    </td>
   </tr>
 </table>
 <a name="o10" doxytag="userrec::timeout"></a><p>
@@ -886,12 +886,12 @@ Number of seconds this user is given to send USER/NICK If they do not send their
 <p>
 Definition at line <a class="el" href="users_8h-source.html#l00149">149</a> of file <a class="el" href="users_8h-source.html">users.h</a>.
 <p>
-Referenced by <a class="el" href="users_8cpp-source.html#l00026">userrec()</a>.    </td>
+Referenced by <a class="el" href="users_8cpp-source.html#l00028">userrec()</a>.    </td>
   </tr>
 </table>
 <hr>The documentation for this class was generated from the following files:<ul>
 <li><a class="el" href="users_8h-source.html">users.h</a><li><a class="el" href="users_8cpp-source.html">users.cpp</a></ul>
-<hr size="1"><address style="align: right;"><small>Generated on Mon Apr 4 18:12:54 2005 for InspIRCd by
+<hr size="1"><address style="align: right;"><small>Generated on Thu Apr 7 20:14:27 2005 for InspIRCd by
 <a href="http://www.doxygen.org/index.html">
 <img src="doxygen.png" alt="doxygen" align="middle" border=0 > 
 </a>1.3.3 </small></address>
