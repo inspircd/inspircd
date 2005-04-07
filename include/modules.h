@@ -48,6 +48,13 @@
 #define AC_INVITE 7		// a user is being invited
 #define AC_GENERAL_MODE 8	// a user channel mode is being changed
 
+// used to define a set of behavior bits for a module
+
+#define VF_STATIC		1	// module is static, cannot be /unloadmodule'd
+#define VF_VENDOR		2	// module is a vendor module (came in the original tarball, not 3rd party)
+#define VF_SERVICEPROVIDER	4	// module provides a service to other modules (can be a dependency)
+#define VF_COMMON		8	// module needs to be common on all servers in a mesh to link
+
 #include "dynamic.h"
 #include "base.h"
 #include "ctables.h"
