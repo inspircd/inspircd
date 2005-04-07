@@ -53,7 +53,7 @@ class ModuleFoobar : public Module
 		// this method instantiates a class of type Version, and returns
 		// the modules version information using it.
 	
-		return Version(1,0,0,0);
+		return Version(1,0,0,0,0);
 	}
 	
 	virtual void OnUserConnect(userrec* user)

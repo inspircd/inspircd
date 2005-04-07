@@ -288,7 +288,7 @@ class ModuleChanProtect : public Module
 	
 	virtual Version GetVersion()
 	{
-		return Version(1,0,0,0);
+		return Version(1,0,0,0,VF_STATIC);
 	}
 	
 	virtual string_list OnChannelSync(chanrec* chan)

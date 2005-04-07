@@ -72,7 +72,7 @@ class ModuleSaMode : public Module
 	
 	virtual Version GetVersion()
 	{
-		return Version(1,0,2,1);
+		return Version(1,0,2,1,0);
 	}
 	
 	virtual void OnUserConnect(userrec* user)

@@ -61,7 +61,7 @@ class ModuleSajoin : public Module
 	
 	virtual Version GetVersion()
 	{
-		return Version(1,0,0,1);
+		return Version(1,0,0,1,0);
 	}
 	
 };
