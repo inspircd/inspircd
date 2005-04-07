@@ -41,7 +41,7 @@ class ModuleNoNickChange : public Module
 	
 	virtual Version GetVersion()
 	{
-		return Version(1,0,0,1,VF_STATIC);
+		return Version(1,0,0,1,VF_STATIC|VF_VENDOR);
 	}
 
         virtual void On005Numeric(std::string &output)

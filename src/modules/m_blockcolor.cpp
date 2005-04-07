@@ -112,7 +112,7 @@ class ModuleBlockColor : public Module
 	
 	virtual Version GetVersion()
 	{
-		return Version(1,0,0,0,VF_STATIC);
+		return Version(1,0,0,0,VF_STATIC|VF_VENDOR);
 	}
 };
 

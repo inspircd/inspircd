@@ -67,7 +67,7 @@ class ModuleRestrictMsg : public Module
 	
 	virtual Version GetVersion()
 	{
-		return Version(1,0,0,0,0);
+		return Version(1,0,0,1,VF_VENDOR);
 	}
 };
 

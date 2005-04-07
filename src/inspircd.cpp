@@ -3269,6 +3269,12 @@ bool UnloadModule(const char* filename)
 	{
 		if (module_names[j] == std::string(filename))
 		{
+			if (factory[j]->factory->GetVersion().Flags & VF_STATIC)
+			{
+				log(DEFAULT,"Failed to unload STATIC module %s",filename);
+				snprintf(MODERR,MAXBUF,"Module not unloadable (marked static)");
+				return false;
+			}
 			// found the module
 			log(DEBUG,"Deleting module...");
 			delete factory[j]->factory;

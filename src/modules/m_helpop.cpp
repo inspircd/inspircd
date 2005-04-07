@@ -201,7 +201,7 @@ class ModuleHelpop : public Module
 	
 	virtual Version GetVersion()
 	{
-		return Version(0,0,0,1,VF_STATIC);
+		return Version(0,0,0,1,VF_STATIC|VF_VENDOR);
 	}
 };
 

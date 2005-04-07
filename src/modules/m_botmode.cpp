@@ -45,7 +45,7 @@ class ModuleBotMode : public Module
 	
 	virtual Version GetVersion()
 	{
-		return Version(1,0,0,0,VF_STATIC);
+		return Version(1,0,0,0,VF_STATIC|VF_VENDOR);
 	}
 	
 	virtual int OnExtendedMode(userrec* user, void* target, char modechar, int type, bool mode_on, string_list &params)

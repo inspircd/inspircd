@@ -56,7 +56,7 @@ class ModuleHostChange : public Module
 	{
 		// returns the version number of the module to be
 		// listed in /MODULES
-		return Version(1,0,0,1,0);
+		return Version(1,0,0,1,VF_VENDOR);
 	}
 	
 	virtual void OnUserConnect(userrec* user)

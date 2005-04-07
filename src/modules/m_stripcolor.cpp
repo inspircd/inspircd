@@ -170,7 +170,7 @@ class ModuleStripColor : public Module
 	virtual Version GetVersion()
 	{
 		// This is version 2 because version 1.x is the unreleased unrealircd module
-		return Version(1,0,0,0,VF_STATIC);
+		return Version(1,0,0,0,VF_STATIC|VF_VENDOR);
 	}
 	
 };
