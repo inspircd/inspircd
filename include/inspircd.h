@@ -158,7 +158,8 @@ char islast(const char* s);
 long map_count(const char* s);
 userrec* ReHashNick(char* Old, char* New);
 long GetMaxBans(char* name);
-
+bool LoadModule(const char* filename);
+char* ModuleError();
 
 // mesh network functions
 

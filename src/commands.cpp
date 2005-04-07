@@ -270,6 +270,18 @@ void handle_kick(char **parameters, int pcnt, userrec *user)
 	NetSendToAll(buffer);
 }
 
+void handle_loadmodule(char **parameters, int pcnt, userrec *user)
+{
+	if (LoadModule(parameters[0]))
+	{
+		WriteOpers("*** NEW MODULE: %s",parameters[0]);
+		WriteServ(user->fd,"975 %s %s :Module successfully loaded.",user->nick, parameters[0]);
+	}
+	else
+	{
+		WriteServ(user->fd,"974 %s %s :Failed to load module: %s",user->nick, parameters[0],ModuleError());
+	}
+}
 
 void handle_die(char **parameters, int pcnt, userrec *user)
 {

@@ -2985,6 +2985,7 @@ void SetupCommandTable(void)
 	createcommand("ZLINE",handle_zline,'o',1);
 	createcommand("QLINE",handle_qline,'o',1);
 	createcommand("ELINE",handle_eline,'o',1);
+	createcommand("LOADMODULE",handle_loadmodule,'o',1);
 	createcommand("SERVER",handle_server,0,0);
 }
 
@@ -3233,6 +3234,12 @@ void RemoveServer(const char* name)
 
 
 int reap_counter = 0;
+char MODERR[MAXBUF];
+
+char* ModuleError()
+{
+	return MODERR;
+}
 
 bool LoadModule(const char* filename)
 {
@@ -3246,6 +3253,7 @@ bool LoadModule(const char* filename)
 			if (module_names[j] == std::string(filename))
 			{
 				log(DEFAULT,"Module %s is already loaded, cannot load a module twice!",modfile);
+				snprintf(MODERR,MAXBUF,"Module already loaded");
 				return false;
 			}
 		}
@@ -3253,6 +3261,7 @@ bool LoadModule(const char* filename)
                 if (factory[MODCOUNT+1]->LastError())
                 {
                         log(DEFAULT,"Unable to load %s: %s",modfile,factory[MODCOUNT+1]->LastError());
+			snprintf(MODERR,MAXBUF,"Loader/Linker error: %s",factory[MODCOUNT+1]->LastError());
 			MODCOUNT--;
 			return false;
                 }
@@ -3266,12 +3275,14 @@ bool LoadModule(const char* filename)
 		else
                 {
                         log(DEFAULT,"Unable to load %s",modfile);
+			snprintf(MODERR,MAXBUF,"Factory function failed!");
 			return false;
                 }
         }
         else
         {
                 log(DEFAULT,"InspIRCd: startup: Module Not Found %s",modfile);
+		snprintf(MODERR,MAXBUF,"Module file could not be found");
 		return false;
         }
 	MODCOUNT++;
@@ -3371,7 +3382,7 @@ int InspIRCd(void)
 		if (!LoadModule(configToken))
 		{
 			log(DEBUG,"Exiting due to a module loader error.");
-			printf("There was an error loading a module. View your ircd.log for details.\n");
+			printf("There was an error loading a module: %s\n",ModuleError());
 			Exit(0);
 		}
 	}
