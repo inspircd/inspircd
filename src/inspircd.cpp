@@ -3512,14 +3512,17 @@ int InspIRCd(void)
 					char remotehost[MAXBUF],resolved[MAXBUF];
 					length = sizeof (client);
 					incomingSockfd = accept (me[x]->fd, (sockaddr *) &client, &length);
-					strlcpy(remotehost,(char *)inet_ntoa(client.sin_addr),MAXBUF);
-					if(CleanAndResolve(resolved, remotehost) != TRUE)
+					if (incomingSockfd != -1)
 					{
-						strlcpy(resolved,remotehost,MAXBUF);
+						strlcpy(remotehost,(char *)inet_ntoa(client.sin_addr),MAXBUF);
+						if(CleanAndResolve(resolved, remotehost) != TRUE)
+						{
+							strlcpy(resolved,remotehost,MAXBUF);
+						}
+						// add to this connections ircd_connector vector
+						// *FIX* - we need the LOCAL port not the remote port in &client!
+						me[x]->AddIncoming(incomingSockfd,resolved,me[x]->port);
 					}
-					// add to this connections ircd_connector vector
-					// *FIX* - we need the LOCAL port not the remote port in &client!
-					me[x]->AddIncoming(incomingSockfd,resolved,me[x]->port);
 				}
 			}
 		}

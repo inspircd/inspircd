@@ -189,6 +189,7 @@ public:
 	{
 		if (resolver)
 			delete resolver;
+		resolver = NULL;
 	}
 
 	bool DoLookup(std::string nick)

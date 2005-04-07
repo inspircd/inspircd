@@ -49,6 +49,7 @@
 #include "wildcard.h"
 #include "message.h"
 #include "inspstring.h"
+#include "dns.h"
 
 using namespace std;
 
@@ -57,6 +58,9 @@ extern std::vector<Module*> modules;
 extern std::vector<ircd_module*> factory;
 
 extern time_t TIME;
+
+extern FILE *log_file;
+extern char DNSServer[MAXBUF];
 
 /* return 0 or 1 depending if users u and u2 share one or more common channels
  * (used by QUIT, NICK etc which arent channel specific notices) */
@@ -175,59 +179,51 @@ void tidystring(char* str)
 
 void chop(char* str)
 {
-  if (!str)
-  {
-  	log(DEBUG,"ERROR! Null string passed to chop()!");
-  	return;
-  }
-  string temp = str;
-  FOREACH_MOD OnServerRaw(temp,false,NULL);
-  const char* str2 = temp.c_str();
-  snprintf(str,MAXBUF,"%s",str2);
-  
-
-  if (strlen(str) >= 512)
-  {
-  	str[509] = '\r';
-  	str[510] = '\n';
-  	str[511] = '\0';
-  }
+	if (!str)
+	{
+		log(DEBUG,"ERROR! Null string passed to chop()!");
+		return;
+	}
+	string temp = str;
+	FOREACH_MOD OnServerRaw(temp,false,NULL);
+	const char* str2 = temp.c_str();
+	snprintf(str,MAXBUF,"%s",str2);
+	if (strlen(str) >= 512)
+	{
+		str[509] = '\r';
+		str[510] = '\n';
+		str[511] = '\0';
+	}
 }
 
 
 void Blocking(int s)
 {
-  int flags;
-  log(DEBUG,"Blocking: %d",s);
-  flags = fcntl(s, F_GETFL, 0);
-  fcntl(s, F_SETFL, flags ^ O_NONBLOCK);
+	int flags;
+	log(DEBUG,"Blocking: %d",s);
+	flags = fcntl(s, F_GETFL, 0);
+	fcntl(s, F_SETFL, flags ^ O_NONBLOCK);
 }
 
 void NonBlocking(int s)
 {
-  int flags;
-  log(DEBUG,"NonBlocking: %d",s);
-  flags = fcntl(s, F_GETFL, 0);
-  //fcntl(s, F_SETFL, O_NONBLOCK);
-  fcntl(s, F_SETFL, flags | O_NONBLOCK);
+	int flags;
+	log(DEBUG,"NonBlocking: %d",s);
+	flags = fcntl(s, F_GETFL, 0);
+	fcntl(s, F_SETFL, flags | O_NONBLOCK);
 }
 
 int CleanAndResolve (char *resolvedHost, const char *unresolvedHost)
 {
-  struct hostent *hostPtr = NULL;
-  struct in_addr addr;
-
-  memset (resolvedHost, '\0',MAXBUF);
-  if(unresolvedHost == NULL)
-	return(ERROR);
-  if ((inet_aton(unresolvedHost,&addr)) == 0)
-	return(ERROR);
-  hostPtr = gethostbyaddr ((char *)&addr.s_addr,sizeof(addr.s_addr),AF_INET);
-  if (hostPtr != NULL)
-  	snprintf(resolvedHost,MAXBUF,"%s",hostPtr->h_name);
-  else
-  	snprintf(resolvedHost,MAXBUF,"%s",unresolvedHost);
-  return (TRUE);
+	DNS d(DNSServer);
+	int fd = d.ReverseLookup(unresolvedHost);
+	if (fd < 1)
+		return 0;
+	time_t T = time(NULL)+1;
+	while ((!d.HasResult()) && (time(NULL)<T));
+	std::string ipaddr = d.GetResult();
+	strlcpy(resolvedHost,ipaddr.c_str(),MAXBUF);
+	return (ipaddr != "");
 }
 
 int c_count(userrec* u)
