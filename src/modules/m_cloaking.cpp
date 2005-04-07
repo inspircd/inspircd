@@ -58,7 +58,7 @@ class ModuleCloaking : public Module
 			// from a config file)
 			Srv->Log(DEFAULT,"*** m_cloaking: ERROR, failed to allocate user mode +x!");
 			printf("Could not claim usermode +x for this module!");
-			exit(0);
+			return;
 		}
 	}
 	

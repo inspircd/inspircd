@@ -42,7 +42,8 @@ class ModuleCensor : public Module
 		if ((Censorfile == "") || (!MyConf->Verify()))
 		{
 			printf("Error, could not find <censor file=\"\"> definition in your config file!");
-			exit(0);
+			log(DEFAULT,"Error, could not find <censor file=\"\"> definition in your config file!");
+			return;
 		}
 		Srv->Log(DEFAULT,std::string("m_censor: read configuration from ")+Censorfile);
 		Srv->AddExtendedMode('G',MT_CHANNEL,false,0,0);
@@ -182,7 +183,7 @@ class ModuleCensor : public Module
 		{
 			// bail if the user forgot to create a config file
 			printf("Error, could not find <censor file=\"\"> definition in your config file!");
-			exit(0);
+			log(DEFAULT,"Error, could not find <censor file=\"\"> definition in your config file!");
 		}
 		Srv->Log(DEFAULT,std::string("m_censor: read configuration from ")+Censorfile);
 	}

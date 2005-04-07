@@ -141,8 +141,8 @@ class ModuleHelpop : public Module
 		h_file = conf->ReadValue("helpop", "file", 0);
 
 		if (h_file == "") {
-			printf("m_helpop: Helpop file not Specified.");
-			exit(0);
+			log(DEFAULT,"m_helpop: Helpop file not Specified.");
+			return;
 		}
 
 		helpop = new ConfigReader(h_file);
@@ -151,15 +151,14 @@ class ModuleHelpop : public Module
                     (helpop->ReadValue("nohelpo", "line1", 0) == "") ||
                     (helpop->ReadValue("start",   "line1", 0) == ""))
 		{
-			printf("m_helpop: Helpop file is missing important entries. Please check the example conf.");
-			exit(0);
+			log(DEFAULT,"m_helpop: Helpop file is missing important entries. Please check the example conf.");
+			return;
 		}
 
 		if (!Srv->AddExtendedMode('h',MT_CLIENT,true,0,0))
 		{
 			Srv->Log(DEFAULT,"Unable to claim the +h usermode.");
-			printf("m_helpop: Unable to claim the +h usermode!");
-			exit(0);
+			return;
 		}
 
 		// Loads of comments, untill supported properly.

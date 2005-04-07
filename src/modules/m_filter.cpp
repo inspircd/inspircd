@@ -48,7 +48,8 @@ class ModuleFilter : public Module
 		if ((filterfile == "") || (!MyConf->Verify()))
 		{
 			printf("Error, could not find <filter file=\"\"> definition in your config file!");
-			exit(0);
+			log(DEFAULT,"Error, could not find <filter file=\"\"> definition in your config file!");
+			return;
 		}
 		Srv->Log(DEFAULT,std::string("m_filter: read configuration from ")+filterfile);
 	}
@@ -172,7 +173,8 @@ class ModuleFilter : public Module
 		{
 			// bail if the user forgot to create a config file
 			printf("Error, could not find <filter file=\"\"> definition in your config file!");
-			exit(0);
+			log(DEFAULT,"Error, could not find <filter file=\"\"> definition in your config file!");
+			return;
 		}
 		Srv->Log(DEFAULT,std::string("m_filter: read configuration from ")+filterfile);
 	}

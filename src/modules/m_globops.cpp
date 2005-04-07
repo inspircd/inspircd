@@ -48,9 +48,9 @@ class ModuleGlobops : public Module
 		{
 			Srv->Log(DEFAULT,"*** m_globops: ERROR, failed to allocate user mode +g!");
 			printf("Could not claim usermode +g for this module!");
-			exit(0);
+			return;
 		}
-		Srv->AddCommand("GLOBOPS",handle_globops,'o',1,"m_globops.so");
+		else Srv->AddCommand("GLOBOPS",handle_globops,'o',1,"m_globops.so");
 	}
 	
 	virtual ~ModuleGlobops()

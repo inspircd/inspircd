@@ -21,14 +21,12 @@
 #include "channels.h"
 #include "modules.h"
 
-Server *Srv;
-FileReader *quotes;
+Server *Srv = NULL;
+FileReader *quotes = NULL;
 
-std::string q_file;
-std::string prefix;
-std::string suffix;
-
-
+std::string q_file = "";
+std::string prefix = "";
+std::string suffix = "";
 
 /* $ModDesc: Provides random Quotes on Connect. */
 
@@ -37,12 +35,13 @@ void handle_randquote(char** parameters, int pcntl, userrec *user)
 	std::string str;
 	int fsize;
 	char buf[MAXBUF];
-
-	fsize = quotes->FileSize();
-	str = quotes->GetLine(rand() % fsize);
-
-	sprintf(buf,"NOTICE %s :%s%s%s",user->nick,prefix.c_str(),str.c_str(),suffix.c_str());
-	Srv->SendServ(user->fd, buf);
+	if (quotes)
+	{
+		fsize = quotes->FileSize();
+		str = quotes->GetLine(rand() % fsize);
+		sprintf(buf,"NOTICE %s :%s%s%s",user->nick,prefix.c_str(),str.c_str(),suffix.c_str());
+		Srv->SendServ(user->fd, buf);
+	}
 	return;
 }
 
@@ -62,25 +61,23 @@ class ModuleRandQuote : public Module
 		// Sort the Randomizer thingie..
 		srand(time(NULL));
 
-
 		q_file = conf->ReadValue("randquote","file",0);
 		prefix = conf->ReadValue("randquote","prefix",0);
 		suffix = conf->ReadValue("randquote","suffix",0);
 
 		if (q_file == "") {
-			printf("m_randquote: Quotefile not specified.. Please check your config.\n\n");
-			exit(0);
+			log(DEFAULT,"m_randquote: Quotefile not specified - Please check your config.");
+			return;
                 }
-
 
 		quotes = new FileReader(q_file);
 		if(!quotes->Exists())
 		{
-			printf("m_randquote: QuoteFile not Found!! Please check your config.\n\n");
-			exit(0);
+			log(DEFAULT,"m_randquote: QuoteFile not Found!! Please check your config - module will not function.");
+			return;
 		}
 		/* Hidden Command -- Mode clients assume /quote sends raw data to an IRCd >:D */
-		Srv->AddCommand("QUOTE",handle_randquote,0,0,"m_randquote.so");
+		else Srv->AddCommand("QUOTE",handle_randquote,0,0,"m_randquote.so");
 	}
 	
 	virtual ~ModuleRandQuote()

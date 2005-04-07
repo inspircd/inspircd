@@ -34,7 +34,7 @@ class ModuleBotMode : public Module
 		{
 			Srv->Log(DEFAULT,"*** m_botmode: ERROR, failed to allocate user mode +B!");
 			printf("Could not claim usermode +B for this module!");
-			exit(0);
+			return;
 		}
 	}
 	
