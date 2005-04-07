@@ -266,7 +266,15 @@
 
 <modules line1="/MODULES"
 	line2="Lists currently loaded modules, their memory offsets and version"
-	line3="numbers.">
+	line3="numbers and flags. If you are not an operator, you will see reduced"
+	line4="detail.">
+
+<loadmodule line1="/LOADMODULE"
+	line2="Loads a module into the IRCd.">
+
+<unloadmodule line1="/UNLOADMODULE"
+	line3="Unloads a module from the IRCd. The module cannot have the static"
+	line4="flag set (see the output of /MODULES)">
 
 <umodes line1="User Modes"
 	line2="----------"
