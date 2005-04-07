@@ -3326,10 +3326,56 @@ bool UnloadModule(const char* filename)
 	return false;
 }
 
+bool DirValid(char* dirandfile)
+{
+	char work[MAXBUF];
+	strlcpy(work,dirandfile,MAXBUF);
+	int p = strlen(work);
+	// we just want the dir
+	while (strlen(work))
+	{
+		if (work[p] == '/')
+		{
+			work[p] = '\0';
+			break;
+		}
+		work[p--] = '\0';
+	}
+	log(DEBUG,"Dir valid: %s",work);
+	char buffer[MAXBUF], otherdir[MAXBUF];
+	// Get the current working directory
+	if( getcwd( buffer, MAXBUF ) == NULL )
+		return false;
+	chdir(work);
+	if( getcwd( otherdir, MAXBUF ) == NULL )
+		return false;
+	chdir(buffer);
+	log(DEBUG,"Dir is really: %s",otherdir);
+	if (strlen(otherdir) >= strlen(work))
+	{
+		otherdir[strlen(work)] = '\0';
+		log(DEBUG,"Compare: '%s' -> '%s'",otherdir,work);
+		if (!strcmp(otherdir,work))
+		{
+			log(DEBUG,"Match ok");
+			return true;
+		}
+		log(DEBUG,"No match");
+		return false;
+	}
+	else return false;
+}
+
 bool LoadModule(const char* filename)
 {
 	char modfile[MAXBUF];
-	snprintf(modfile,MAXBUF,"%s/%s",MOD_PATH,filename,&config_f);
+	snprintf(modfile,MAXBUF,"%s/%s",MOD_PATH,filename);
+	if (!DirValid(modfile))
+	{
+		log(DEFAULT,"Module %s is not within the modules directory.",modfile);
+		snprintf(MODERR,MAXBUF,"Module %s is not within the modules directory.",modfile);
+		return false;
+	}
 	log(DEBUG,"Loading module: %s",modfile);
         if (FileExists(modfile))
         {
