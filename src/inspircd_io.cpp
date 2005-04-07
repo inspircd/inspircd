@@ -120,11 +120,10 @@ int DaemonSeed (void)
 		exit (0);
 	setsid ();
 	umask (007);
-	/* close stdout, stdin, stderr */
-	close(0);
-	close(1);
-	close(2);
-
+	/* close stdin, stdout, stderr */
+	freopen("/dev/null","w",stdout);
+	freopen("/dev/null","w",stderr);
+	
 	setpriority(PRIO_PROCESS,(int)getpid(),15); /* ircd sets to low process priority so it doesnt hog the box */
   
 	return (TRUE);
