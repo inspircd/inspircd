@@ -3269,7 +3269,7 @@ bool UnloadModule(const char* filename)
 	{
 		if (module_names[j] == std::string(filename))
 		{
-			if (factory[j]->factory->GetVersion().Flags & VF_STATIC)
+			if (modules[j]->GetVersion().Flags & VF_STATIC)
 			{
 				log(DEFAULT,"Failed to unload STATIC module %s",filename);
 				snprintf(MODERR,MAXBUF,"Module not unloadable (marked static)");
@@ -3277,6 +3277,9 @@ bool UnloadModule(const char* filename)
 			}
 			// found the module
 			log(DEBUG,"Deleting module...");
+			delete modules[j];
+			modules[j] = NULL;
+			log(DEBUG,"Deleting module factory pointer...");
 			delete factory[j]->factory;
 			log(DEBUG,"Deleting module factory...");
 			delete factory[j];
@@ -3302,6 +3305,15 @@ bool UnloadModule(const char* filename)
                                         break;
                                 }
                         }
+			log(DEBUG,"Erasing module pointer...");
+			for (std::vector<Module*>::iterator m = modules.begin(); m!= modules.end(); m++)
+			{
+				if (*m == NULL)
+				{
+					modules.erase(m);
+					break;
+				}
+			}
                         log(DEBUG,"Removing dependent commands...");
                         removecommands(filename);
 			log(DEFAULT,"Module %s unloaded",filename);

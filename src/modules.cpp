@@ -315,7 +315,7 @@ void Module::OnRehash() { }
 void Module::OnServerRaw(std::string &raw, bool inbound, userrec* user) { }
 int Module::OnUserPreJoin(userrec* user, chanrec* chan, const char* cname) { return 0; }
 int Module::OnExtendedMode(userrec* user, void* target, char modechar, int type, bool mode_on, string_list &params) { return false; }
-Version Module::GetVersion() { return Version(1,0,0,0); }
+Version Module::GetVersion() { return Version(1,0,0,0,VF_VENDOR); }
 void Module::OnOper(userrec* user) { };
 void Module::OnInfo(userrec* user) { };
 void Module::OnWhois(userrec* source, userrec* dest) { };
