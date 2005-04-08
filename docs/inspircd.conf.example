@@ -270,6 +270,19 @@
 <banlist chan="#morons" limit="128">
 <banlist chan="*" limit="69">
 
+#-#-#-#-#-#-#-#-#-#-#-  DISABLED COMMANDS  -#-#-#-#-#-#-#-#-#-#-#-#-#-#
+#                                                                     #
+# This tag is optional, and specifies one or more commands which are  #
+# not available to non-operators. For example you may wish to disable #
+# NICK and prevent non-opers from changing their nicknames.           #
+# Note that any disabled commands take effect only after the user has #
+# 'registered' (e.g. after the initial USER/NICK/PASS on connection)  #
+# so for example disabling NICK will not cripple your network.        #
+#                                                                     #
+#         <disabled commands="TOPIC MODE">                            #
+#                                                                     #
+
+
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-  RTFM LINE  -#-#-#-#-#-#-#-#-#-#-#-#-#-#
 #                                                                     #
 #   Just remove this... Its here to make you read ALL of the config   #
