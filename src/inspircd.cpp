@@ -318,7 +318,7 @@ void readfile(file_cache &F, const char* fname)
 void ReadConfig(bool bail, userrec* user)
 {
 	char dbg[MAXBUF],pauseval[MAXBUF],Value[MAXBUF],timeout[MAXBUF],NB[MAXBUF],flood[MAXBUF],MW[MAXBUF];
-	char AH[MAXBUF],AP[MAXBUF],AF[MAXBUF],DNT[MAXBUF];
+	char AH[MAXBUF],AP[MAXBUF],AF[MAXBUF],DNT[MAXBUF],pfreq[MAXBUF];
 	ConnectClass c;
 	std::stringstream errstr;
 	
@@ -420,6 +420,7 @@ void ReadConfig(bool bail, userrec* user)
 		ConfValue("connect","allow",i,Value,&config_f);
 		ConfValue("connect","timeout",i,timeout,&config_f);
 		ConfValue("connect","flood",i,flood,&config_f);
+		ConfValue("connect","pingfreq",i,pfreq,&config_f);
 		if (strcmp(Value,""))
 		{
 			strlcpy(c.host,Value,MAXBUF);
@@ -428,10 +429,15 @@ void ReadConfig(bool bail, userrec* user)
 			ConfValue("connect","password",i,Value,&config_f);
 			strlcpy(c.pass,Value,MAXBUF);
 			c.registration_timeout = 90; // default is 2 minutes
+			c.pingtime = 120;
 			c.flood = atoi(flood);
 			if (atoi(timeout)>0)
 			{
 				c.registration_timeout = atoi(timeout);
+			}
+			if (atoi(pfreq)>0)
+			{
+				c.pingtime = atoi(pfreq);
 			}
 			Classes.push_back(c);
 			log(DEBUG,"Read connect class type ALLOW, host=%s password=%s timeout=%d flood=%d",c.host,c.pass,c.registration_timeout,c.flood);
@@ -2287,7 +2293,6 @@ void AddClient(int socket, char* host, int port, bool iscached, char* ip)
 	strncpy(clientlist[tempnick]->ident, "unknown",9);
 	clientlist[tempnick]->registered = 0;
 	clientlist[tempnick]->signon = TIME+dns_timeout;
-	clientlist[tempnick]->nping = TIME+240+dns_timeout;
 	clientlist[tempnick]->lastping = 1;
 	clientlist[tempnick]->port = port;
 	strncpy(clientlist[tempnick]->ip,ip,32);
@@ -2302,10 +2307,12 @@ void AddClient(int socket, char* host, int port, bool iscached, char* ip)
 		{
 			class_regtimeout = (unsigned long)i->registration_timeout;
 			class_flood = i->flood;
+			clientlist[tempnick]->pingmax = i->pingtime;
 			break;
 		}
 	}
 
+	clientlist[tempnick]->nping = TIME+clientlist[tempnick]->pingmax+dns_timeout;
 	clientlist[tempnick]->timeout = TIME+class_regtimeout;
 	clientlist[tempnick]->flood = class_flood;
 
@@ -2922,7 +2929,7 @@ void process_command(userrec *user, char* cmd)
 					log(DEBUG,"Processing command");
 					
 					/* activity resets the ping pending timer */
-					user->nping = TIME + 120;
+					user->nping = TIME + user->pingmax;
 					if ((items) < cmdlist[i].min_params)
 					{
 					        log(DEBUG,"process_command: not enough parameters: %s %s",user->nick,command);
@@ -3842,7 +3849,7 @@ int InspIRCd(void)
 							Write(count2->second->fd,"PING :%s",ServerName);
 						  	log(DEBUG,"InspIRCd: pinging: %s",count2->second->nick);
 							count2->second->lastping = 0;
-							count2->second->nping = TIME+120;
+							count2->second->nping = TIME+count2->second->pingmax;	// was hard coded to 120
 						}
 					}
 					count2++;

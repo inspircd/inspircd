@@ -57,6 +57,9 @@ class ConnectClass : public classbase
 	/** Host mask for this line
 	 */
 	char host[MAXBUF];
+	/** Number of seconds between pings for this line
+	 */
+	int pingtime;
 	/** (Optional) Password for this line
 	 */
 	char pass[MAXBUF];
@@ -65,6 +68,7 @@ class ConnectClass : public classbase
 	{
 		registration_timeout = 0;
 		flood = 0;
+		pingtime = 0;
 		strlcpy(host,"",MAXBUF);
 		strlcpy(pass,"",MAXBUF);
 	}
@@ -158,6 +162,10 @@ class userrec : public connection
         /** True when DNS lookups are completed.
          */
         bool dns_done;
+
+	/** Number of seconds between PINGs for this user (set from &lt;connect:allow&gt; tag
+	 */
+	unsigned long pingmax;
 
 	userrec();
 	
