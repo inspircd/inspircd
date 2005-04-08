@@ -191,6 +191,7 @@ char MyExecutable[1024];
 int boundPortCount = 0;
 int portCount = 0, UDPportCount = 0, ports[MAXSOCKS];
 int defaultRoute = 0;
+char ModPath[MAXBUF];
 
 connection C;
 
@@ -375,6 +376,7 @@ void ReadConfig(bool bail, userrec* user)
 	ConfValue("options","allowfounder",0,AF,&config_f);
 	ConfValue("dns","server",0,DNSServer,&config_f);
 	ConfValue("dns","timeout",0,DNT,&config_f);
+	ConfValue("options","moduledir",0,ModPath,&config_f);
 	NetBufferSize = atoi(NB);
 	MaxWhoResults = atoi(MW);
 	dns_timeout = atoi(DNT);
@@ -382,6 +384,8 @@ void ReadConfig(bool bail, userrec* user)
 		dns_timeout = 5;
 	if (!strcmp(DNSServer,""))
 		strlcpy(DNSServer,"127.0.0.1",MAXBUF);
+	if (!strcmp(ModPath,""))
+		strlcpy(ModPath,MOD_PATH,MAXBUF);
 	AllowHalfop = ((!strcasecmp(AH,"true")) || (!strcasecmp(AH,"1")) || (!strcasecmp(AH,"yes")));
 	AllowProtect = ((!strcasecmp(AP,"true")) || (!strcasecmp(AP,"1")) || (!strcasecmp(AP,"yes")));
 	AllowFounder = ((!strcasecmp(AF,"true")) || (!strcasecmp(AF,"1")) || (!strcasecmp(AF,"yes")));
@@ -3445,7 +3449,7 @@ bool DirValid(char* dirandfile)
 bool LoadModule(const char* filename)
 {
 	char modfile[MAXBUF];
-	snprintf(modfile,MAXBUF,"%s/%s",MOD_PATH,filename);
+	snprintf(modfile,MAXBUF,"%s/%s",ModPath,filename);
 	if (!DirValid(modfile))
 	{
 		log(DEFAULT,"Module %s is not within the modules directory.",modfile);
