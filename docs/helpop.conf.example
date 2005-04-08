@@ -269,10 +269,10 @@
 	line3="numbers and flags. If you are not an operator, you will see reduced"
 	line4="detail.">
 
-<loadmodule line1="/LOADMODULE"
+<loadmodule line1="/LOADMODULE [filename.so]"
 	line2="Loads a module into the IRCd.">
 
-<unloadmodule line1="/UNLOADMODULE"
+<unloadmodule line1="/UNLOADMODULE [filename.so]"
 	line3="Unloads a module from the IRCd. The module cannot have the static"
 	line4="flag set (see the output of /MODULES)">
 
