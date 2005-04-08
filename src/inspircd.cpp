@@ -89,7 +89,7 @@ extern int MaxWhoResults;
 time_t nb_start = 0;
 int dns_timeout = 5;
 
-char DisbledCommands[MAXBUF];
+char DisabledCommands[MAXBUF];
 
 bool AllowHalfop = true;
 bool AllowProtect = true;
@@ -379,7 +379,7 @@ void ReadConfig(bool bail, userrec* user)
 	ConfValue("dns","server",0,DNSServer,&config_f);
 	ConfValue("dns","timeout",0,DNT,&config_f);
 	ConfValue("options","moduledir",0,ModPath,&config_f);
-        ConfValue("disabled","commands",k,DisabledCommands,&config_f);
+        ConfValue("disabled","commands",0,DisabledCommands,&config_f);
 
 	NetBufferSize = atoi(NB);
 	MaxWhoResults = atoi(MW);
@@ -2972,7 +2972,7 @@ void process_command(userrec *user, char* cmd)
 						mycmd = strtok_r(DisabledCommands," ",&savept2);
 						while (mycmd)
 						{
-							if (!strcasecmp(mycmd,SomeCommand))
+							if (!strcasecmp(mycmd,command))
 							{
 								// command is disabled!
 								WriteServ(user->fd,"421 %s %s :This command has been disabled.",user->nick,command);
