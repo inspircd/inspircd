@@ -447,6 +447,82 @@ void ReadConfig(bool bail, userrec* user)
 	log(DEFAULT,"Applying K lines, Q lines and Z lines...");
 	apply_lines();
 	log(DEFAULT,"Done reading configuration file, InspIRCd is now running.");
+	if (!bail)
+	{
+		log(DEFAULT,"Adding and removing modules due to rehash...");
+
+		std::vector<std::string> old_module_names, new_module_names, added_modules, removed_modules;
+
+		// store the old module names
+		for (std::vector<std::string>::iterator t = module_names.begin(); t != module_names.end(); t++)
+		{
+			old_module_names.push_back(*t);
+		}
+
+		// get the new module names
+		for (int count2 = 0; count2 < ConfValueEnum("module",&config_f); count2++)
+		{
+			ConfValue("module","name",count2,Value,&config_f);
+			new_module_names.push_back(Value);
+		}
+
+		// now create a list of new modules that are due to be loaded
+		// and a seperate list of modules which are due to be unloaded
+		for (std::vector<std::string>::iterator _new = new_module_names.begin(); _new != new_module_names.end(); _new++)
+		{
+			bool added = true;
+			for (std::vector<std::string>::iterator old = old_module_names.begin(); old != old_module_names.end(); old++)
+			{
+				if (*old == *_new)
+					added = false;
+			}
+			if (added)
+				added_modules.push_back(*_new);
+		}
+		for (std::vector<std::string>::iterator oldm = old_module_names.begin(); oldm != old_module_names.end(); oldm++)
+		{
+			bool removed = true;
+			for (std::vector<std::string>::iterator newm = new_module_names.begin(); newm != new_module_names.end(); newm++)
+			{
+				if (*newm == *oldm)
+					removed = false;
+			}
+			if (removed)
+				removed_modules.push_back(*oldm);
+		}
+		// now we have added_modules, a vector of modules to be loaded, and removed_modules, a vector of modules
+		// to be removed.
+		int rem = 0, add = 0;
+		if (!removed_modules.empty())
+		for (std::vector<std::string>::iterator removing = removed_modules.begin(); removing != removed_modules.end(); removing++)
+		{
+			if (UnloadModule(removing->c_str()))
+			{
+				WriteOpers("*** REHASH UNLOADED MODULE: %s",removing->c_str());
+				WriteServ(user->fd,"973 %s %s :Module %s successfully unloaded.",user->nick, removing->c_str(), removing->c_str());
+				rem++;
+			}
+			else
+			{
+				WriteServ(user->fd,"972 %s %s :Failed to unload module %s: %s",user->nick, removing->c_str(), removing->c_str(), ModuleError());
+			}
+		}
+		if (!added_modules.empty())
+		for (std::vector<std::string>::iterator adding = added_modules.begin(); adding != added_modules.end(); adding++)
+		{
+			if (LoadModule(adding->c_str()))
+			{
+				WriteOpers("*** REHASH LOADED MODULE: %s",adding->c_str());
+				WriteServ(user->fd,"975 %s %s :Module %s successfully loaded.",user->nick, adding->c_str(), adding->c_str());
+				add++;
+			}
+			else
+			{
+				WriteServ(user->fd,"974 %s %s :Failed to load module %s: %s",user->nick, adding->c_str(), adding->c_str(), ModuleError());
+			}
+		}
+		log(DEFAULT,"Successfully unloaded %d of %d modules and loaded %d of %d modules.",rem,removed_modules.size(),add,added_modules.size());
+	}
 }
 
 /* write formatted text to a socket, in same format as printf */
