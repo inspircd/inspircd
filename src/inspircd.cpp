@@ -89,6 +89,8 @@ extern int MaxWhoResults;
 time_t nb_start = 0;
 int dns_timeout = 5;
 
+char DisbledCommands[MAXBUF];
+
 bool AllowHalfop = true;
 bool AllowProtect = true;
 bool AllowFounder = true;
@@ -377,6 +379,8 @@ void ReadConfig(bool bail, userrec* user)
 	ConfValue("dns","server",0,DNSServer,&config_f);
 	ConfValue("dns","timeout",0,DNT,&config_f);
 	ConfValue("options","moduledir",0,ModPath,&config_f);
+        ConfValue("disabled","commands",k,DisabledCommands,&config_f);
+
 	NetBufferSize = atoi(NB);
 	MaxWhoResults = atoi(MW);
 	dns_timeout = atoi(DNT);
@@ -2960,6 +2964,24 @@ void process_command(userrec *user, char* cmd)
 							WriteServ(user->fd,"451 %s :You have not registered",command);
 							return;
 						}
+					}
+					if ((user->registered == 7) && (!strchr(user->modes,'o')))
+					{
+						char* mycmd;
+						char* savept2;
+						mycmd = strtok_r(DisabledCommands," ",&savept2);
+						while (mycmd)
+						{
+							if (!strcasecmp(mycmd,SomeCommand))
+							{
+								// command is disabled!
+								WriteServ(user->fd,"421 %s %s :This command has been disabled.",user->nick,command);
+								return;
+							}
+							mycmd = strtok_r(NULL," ",&savept2);
+						}
+        
+
 					}
 					if ((user->registered == 7) || (!strcmp(command,"USER")) || (!strcmp(command,"NICK")) || (!strcmp(command,"PASS")))
 					{
