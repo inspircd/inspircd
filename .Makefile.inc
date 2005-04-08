@@ -27,7 +27,7 @@ ircd:
 	${MAKE} -C src DIRNAME="src" $(MAKEARGS)
 
 bininst:
-	@cp src/inspircd $(BINPATH)
+	@-cp src/inspircd $(BINPATH)
 
 config:
 	@cp conf/inspire.motd $(CONPATH)/inspire.motd.example
