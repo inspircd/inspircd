@@ -26,6 +26,11 @@ class ModuleShowwhois : public Module {
 
 		}
 
+		virtual Version GetVersion()
+		{
+			return Version(1,0,0,3,VF_STATIC);
+		}
+
 		virtual int OnExtendedMode(userrec* user, void* target, char modechar, int type, bool mode_on, string_list& params) {
 
 			if((type == MT_CLIENT) && (modechar == 'W')) {
