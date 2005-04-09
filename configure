@@ -107,7 +107,7 @@ if [ "$1" = "-update" -o "$2" = "-update" ] ; then
         flags=`grep '$CompileFlags: ' $module | sed 's/\/\* $CompileFlags://' | sed 's/\*\///'`
         mod=`echo $module | sed 's/.cpp/.so/' | sed 's/src\/modules\///'`
 	mod2=`echo $module | sed 's/src\/modules\///'`
-        echo "$mod:" >> src/modules/Makefile
+        echo "$mod: $mod2 ../../include/modules.h ../../include/users.h ../../include/channels.h ../../include/servers.h ../../include/base.h" >> src/modules/Makefile
         echo "	\$(CC) -I../../include \$(FLAGS) -shared$flags -o $mod $mod2" >> src/modules/Makefile
 	echo "	@cp $mod \$(MODPATH)/" >> src/modules/Makefile
         echo "" >> src/modules/Makefile
@@ -552,7 +552,7 @@ for module in src/modules/*.cpp ; do
      flags=`grep '$CompileFlags: ' $module | sed 's/\/\* $CompileFlags://' | sed 's/\*\///'`
      mod=`echo $module | sed 's/.cpp/.so/' | sed 's/src\/modules\///'`
      mod2=`echo $module | sed 's/src\/modules\///'`
-     echo "$mod:" >> src/modules/Makefile
+     echo "$mod: $mod2 ../../include/modules.h ../../include/users.h ../../include/channels.h ../../include/servers.h ../../include/base.h" >> src/modules/Makefile
      echo "	\$(CC) -I../../include \$(FLAGS) -shared$flags -o $mod $mod2" >> src/modules/Makefile
      echo "	@cp $mod \$(MODPATH)/" >> src/modules/Makefile
      echo "" >> src/modules/Makefile
