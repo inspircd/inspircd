@@ -570,6 +570,12 @@ void handle_names(char **parameters, int pcnt, userrec *user)
 {
 	chanrec* c;
 
+	if (!pcnt)
+	{
+		WriteServ(user->fd,"366 %s * :End of /NAMES list.",user->nick);
+		return;
+	}
+
 	if (loop_call(handle_names,parameters,pcnt,user,0,pcnt-1,0))
 		return;
 	c = FindChan(parameters[0]);

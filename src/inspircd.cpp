@@ -3080,7 +3080,7 @@ void SetupCommandTable(void)
 	createcommand("WALLOPS",handle_wallops,'o',1,"<core>");
 	createcommand("NOTICE",handle_notice,0,2,"<core>");
 	createcommand("JOIN",handle_join,0,1,"<core>");
-	createcommand("NAMES",handle_names,0,1,"<core>");
+	createcommand("NAMES",handle_names,0,0,"<core>");
 	createcommand("PART",handle_part,0,1,"<core>");
 	createcommand("KICK",handle_kick,0,2,"<core>");
 	createcommand("MODE",handle_mode,0,1,"<core>");
