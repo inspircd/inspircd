@@ -1,3 +1,137 @@
+1.0 Beta 1
+
+* Enough optimizations to shake a very big stick at
+* Added asyncronous DNS
+* Changed /MODULES to allow simplified output for non-opers
+* Added module flags to /MODULES for opers
+* Added /UNLOADMODULE
+* Added /LOADMODULE
+* Added resource tracking for modules
+* Added extra log output for oper success and failure
+* Added hostname checking for opers (someone left it out *looks around nonchalantly*)
+* Added module API OnUserPostNick method
+* Added E:Lines and /ELINE (ban exceptions)
+* Security fixes to /MODE and /TOPIC
+* Fixed a cosmetic bug in /WHO
+* Fixed random crashes when user connecting
+* Fixed 'unlikely' crash if nick was changed before dns lookup completed
+* Fixed to actually check the password of linking servers (someone left this out too!)
+* Added error checking to make sure opertypes exist before opering a user!
+* Added 005 handling for modules
+* Added onKill event for modules
+* Added OnModuleLoad event for modules (notified of all module loading)
+* Added <disabled:commands> tag
+* Added ability to disable any command for non-opers
+* Added customizable ping frequency to <connect:allow>
+* Added optional module path to the configuration file
+* Added support for Rehashing to allow adding and removal of modules
+* Added module VersionFlags support
+* Fixed a resolver issue (weird segfault on gentoo?) in server linking
+* Changed the loglevel of some startup failure messages to DEFAULT (were DEBUG)
+* Optimized connects - motd is sent faster
+* InspIRCd now logs value of <die> to the logfile on failure
+* Added new <banlist> tags, allows dynamic banlist sizes on a per channel basis rather than hard coded or network wide
+* Fix for bug #39, m_redirect returning invalid/random value for OnUserPreJoin method of the module class
+* Added code to shutdown listening sockets on exit
+* Added pid file support, and documentation for it
+* Fixed string format vunerability, thanks again to the #ratbox people for helping find it
+* Fixed 005 numeric to only output 13 tokens per line (thanks anfl)
+* Replaced some 005 constants with their configured values
+* Fixed "error in free()" and other bugs going to open sockets
+* Config files read by the ircd are now chmod'ed 0600
+* Fixed parsing error with comments that have tabs before them
+* Added implementation of strlcpy and strlcat for systems that dont have it
+* Fixes to crash when setting the key of a channel youre not a member of
+* Fixed issue where failing modules would bail by calling exit (deprecated) -- modules should now just disable their functionality if they are missing data
+* Added GetVersion() to m_showwhois.cpp
+* m_chanprotect.so fixed to take away +q and +a when the user parts the channel (double DOH)
+* Added 005 numeric handling to most of the modules
+* Added m_hostchange module, our own homebrew implementation of the unreal pay module!
+* Added m_nicklock module, a module which allows opers to lock a user to a nickname until they quit
+* Added m_operlevels, prevents opers designated as above other opers from being killed
+* Fixed Crash bug cause by multiple declarations of 'Srv' in m_randquote.so (Bug #35)
+* Added m_remove by om, uses a force part to replace a kick to thwart auto rejoin
+* Added module to restrict channel creation to opers only (requested by [ed])
+* Added a module at request of [ed] which stops anyone messaging all but opers
+* Added m_silence.so - implementation of /SILENCE command
+* Added ./inspircd (start|stop|restart|rehash|status|cron|Cheese-Sandwich) (Happy luigiman?)
+* Made a slightly nicer method for .Makefile.inc
+* Updated ./configure to reflect the above changes.
+* Removed reference to depricated ./makeconf and updated command to exec to build the daemon.
+* Added dynamic src/modules/Makefile generation, during ./configure the script will search modules for /* $CompileFlags: */ and append any given flags to its g++ line.
+* Startup script modified to kill -9 if a kill -TERM fails.
+* Makefile will ignore if cp fails to copy the binaries.
+* Added <disabled:commands> to the example config (commented out by default!)
+* Documented /LOADMODULE and /UNLOADMODULE plus new /MODULES behaviour
+* New docs to match extra module Version class stuff, etc
+* Added new documentation for ELine class and OnUserPostNick method
+* Added DNS class to documentation
+
+1.0 alpha 12
+
+* Updated ./configure to detect GCC 3.4.x
+* Added m_showwhois.so - lets opers see when theyre WHOISed
+* Added m_opermotd.so - Gives opers an opermotd on oper-up
+* Added m_operjoin.so - Forces opers to join a given channel when they oper
+* Security audit resulting in more secure and stable code
+* Added lots of error checking to the configuration parser
+* InspIRCd now works with BOPM, please see the tutorial on our forums
+* UMODE issues with SVSMODE finally addressed, working fine again
+* Services issues addressed and fixed
+* Added generic error output to the ConfigReader class (ConfigReader::DumpErrors())
+* Fixed sys/socket.h error on earlier versions of GCC (2.95.x)
+* Redone documentation
+* Fixed mode changes (they actually work now!)
+* Module passes service names to its uplink now
+* ChanServ actually sets channel modes rather than the server!
+* NickServ actually sets umodes rather than the server!
+* Double-mode-changes no longer occur
+* User nickname registration tracking with +r works properly again
+
+1.0 Alpha 11
+
+* Added lots of bugfixes
+* Optimised, works faster, and smoother
+* Added support for non-mesh servers
+* Added services support
+* Implemented example ircservices module (working with ircservices 5)
+* Added m_services module
+* Added m_antibottler module
+* Added m_alias module
+* Added glines (local and global)
+* Added klines
+* Added qlines (local and global)
+* Added zlines (local and global)
+
+1.0 Alpha 10
+
+*  Added server linking support (tcp based mesh link)
+* Lots of stability fixes
+* Speed improvements
+* Optimisations, no longer eats cpu so much
+* GCC3 and GCC2 support
+* Even bigger module API
+* More documentation
+* m_antibottler, labels bottler bots
+* m_chghost, gives you a /chghost command
+* m_cloaking, gives you hostname cloaking and mode +x
+* m_filter, filters glob patterns on channels and private
+* m_globops, provides /GLOBOPS and mode +g support
+* m_helpop, gives /HELPOP and mode +h support
+* m_sajoin, force-join a user to a channel
+* m_sapart, force-part a user from a channel
+* m_samode, force a mode change on a user or channel
+* m_saquit, force a quit of a client without /kill
+* m_sethost, allows opers to change their hostmasks
+* m_setname, allows users to change their name
+* HELPOP documentation accessible with the helpop module loaded
+* Split the ircd into many smaller files for faster compiling
+* Improved configure and makefile phase
+* Added all oper commands (CONNECT, SQUIT etc)
+* Added remaining server->server commands such as /MAP
+* Connection pooling, uses less CPU for the same tasks as before
+* High-powered server to server link protocol unlike any other ircd
+
 1.0 alpha 9.5
 
 * Added support for /connect (no sync yet!)
