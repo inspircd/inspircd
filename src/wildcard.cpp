@@ -101,6 +101,17 @@ bool match(const char* literal, const char* mask)
 	strlcpy(M,mask,10240);
 	strlower(L);
 	strlower(M);
+	// short circuit literals
+	log(DEBUG,"Match '%s' to '%s'",L,M);
+	if ((!strchr(M,'*')) && (!strchr(M,'?')))
+	{
+		log(DEBUG,"Short circuiting literal");
+		if (!strcasecmp(L,M))
+		{
+			log(DEBUG,"Literal match");
+			return true;
+		}
+	}
 	match2(L,M);
 	return (MWC == 2);
 }
