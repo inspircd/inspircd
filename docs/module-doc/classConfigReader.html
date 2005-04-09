@@ -67,7 +67,7 @@ It may either be instantiated with one parameter or none. Constructing the class
 <p>
 
 <p>
-Definition at line <a class="el" href="modules_8h-source.html#l00685">685</a> of file <a class="el" href="modules_8h-source.html">modules.h</a>.<hr><h2>Constructor &amp; Destructor Documentation</h2>
+Definition at line <a class="el" href="modules_8h-source.html#l00683">683</a> of file <a class="el" href="modules_8h-source.html">modules.h</a>.<hr><h2>Constructor &amp; Destructor Documentation</h2>
 <a name="a0" doxytag="ConfigReader::ConfigReader"></a><p>
 <table class="mdTable" width="100%" cellpadding="2" cellspacing="0">
   <tr>
@@ -99,7 +99,7 @@ This constructor initialises the ConfigReader class to read the inspircd.conf fi
 <p>
 Definition at line <a class="el" href="modules_8cpp-source.html#l00579">579</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
 <p>
-References <a class="el" href="modules_8h-source.html#l00693">cache</a>, <a class="el" href="modules_8h-source.html#l00677">CONF_FILE_NOT_FOUND</a>, <a class="el" href="modules_8h-source.html#l00698">error</a>, <a class="el" href="modules_8h-source.html#l00694">errorlog</a>, and <a class="el" href="modules_8h-source.html#l00697">readerror</a>.
+References <a class="el" href="modules_8h-source.html#l00691">cache</a>, <a class="el" href="modules_8h-source.html#l00675">CONF_FILE_NOT_FOUND</a>, <a class="el" href="modules_8h-source.html#l00696">error</a>, <a class="el" href="modules_8h-source.html#l00692">errorlog</a>, and <a class="el" href="modules_8h-source.html#l00695">readerror</a>.
 <p>
 <div class="fragment"><pre>00580 {
 00581         this-&gt;<a class="code" href="classConfigReader.html#p0">cache</a> = <span class="keyword">new</span> std::stringstream(std::stringstream::in | std::stringstream::out);
@@ -143,7 +143,7 @@ This constructor initialises the ConfigReader class to read a user-specified con
 <p>
 Definition at line <a class="el" href="modules_8cpp-source.html#l00598">598</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
 <p>
-References <a class="el" href="modules_8h-source.html#l00693">cache</a>, <a class="el" href="modules_8h-source.html#l00677">CONF_FILE_NOT_FOUND</a>, <a class="el" href="modules_8h-source.html#l00698">error</a>, <a class="el" href="modules_8h-source.html#l00694">errorlog</a>, and <a class="el" href="modules_8h-source.html#l00697">readerror</a>.
+References <a class="el" href="modules_8h-source.html#l00691">cache</a>, <a class="el" href="modules_8h-source.html#l00675">CONF_FILE_NOT_FOUND</a>, <a class="el" href="modules_8h-source.html#l00696">error</a>, <a class="el" href="modules_8h-source.html#l00692">errorlog</a>, and <a class="el" href="modules_8h-source.html#l00695">readerror</a>.
 <p>
 <div class="fragment"><pre>00599 {
 00600         this-&gt;<a class="code" href="classConfigReader.html#p0">cache</a> = <span class="keyword">new</span> std::stringstream(std::stringstream::in | std::stringstream::out);
@@ -186,7 +186,7 @@ This method destroys the ConfigReader class.
 <p>
 Definition at line <a class="el" href="modules_8cpp-source.html#l00589">589</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
 <p>
-References <a class="el" href="modules_8h-source.html#l00693">cache</a>, and <a class="el" href="modules_8h-source.html#l00694">errorlog</a>.
+References <a class="el" href="modules_8h-source.html#l00691">cache</a>, and <a class="el" href="modules_8h-source.html#l00692">errorlog</a>.
 <p>
 <div class="fragment"><pre>00590 {
 00591         <span class="keywordflow">if</span> (this-&gt;<a class="code" href="classConfigReader.html#p0">cache</a>)
@@ -239,7 +239,7 @@ If bail is true, then the program will abort. If bail is false and user points t
 <p>
 Definition at line <a class="el" href="modules_8cpp-source.html#l00676">676</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
 <p>
-References <a class="el" href="modules_8h-source.html#l00694">errorlog</a>, <a class="el" href="connection_8h-source.html#l00178">connection::fd</a>, and <a class="el" href="users_8h-source.html#l00102">userrec::nick</a>.
+References <a class="el" href="modules_8h-source.html#l00692">errorlog</a>, <a class="el" href="connection_8h-source.html#l00178">connection::fd</a>, and <a class="el" href="users_8h-source.html#l00106">userrec::nick</a>.
 <p>
 <div class="fragment"><pre>00677 {
 00678         <span class="keywordflow">if</span> (bail)
@@ -306,7 +306,7 @@ This method counts the number of times a tag appears in a config file, for use w
 <p>
 Definition at line <a class="el" href="modules_8cpp-source.html#l00709">709</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
 <p>
-References <a class="el" href="modules_8h-source.html#l00693">cache</a>.
+References <a class="el" href="modules_8h-source.html#l00691">cache</a>.
 <p>
 <div class="fragment"><pre>00710 {
 00711         <span class="keywordflow">return</span> EnumConf(cache,tag.c_str());
@@ -355,7 +355,7 @@ For example if the tag was &lt;test tag="blah" data="foo"&gt; then this function
 <p>
 Definition at line <a class="el" href="modules_8cpp-source.html#l00714">714</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
 <p>
-References <a class="el" href="modules_8h-source.html#l00693">cache</a>.
+References <a class="el" href="modules_8h-source.html#l00691">cache</a>.
 <p>
 <div class="fragment"><pre>00715 {
 00716         <span class="keywordflow">return</span> EnumValues(cache, tag.c_str(), index);
@@ -394,7 +394,7 @@ Valid errors can be found by looking in <a class="el" href="modules_8h.html">mod
 <p>
 Definition at line <a class="el" href="modules_8cpp-source.html#l00669">669</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
 <p>
-References <a class="el" href="modules_8h-source.html#l00698">error</a>.
+References <a class="el" href="modules_8h-source.html#l00696">error</a>.
 <p>
 <div class="fragment"><pre>00670 {
 00671         <span class="keywordtype">long</span> olderr = this-&gt;<a class="code" href="classConfigReader.html#p3">error</a>;
@@ -451,7 +451,7 @@ This method retrieves a boolean value from the config file. Where multiple copie
 <p>
 Definition at line <a class="el" href="modules_8cpp-source.html#l00623">623</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
 <p>
-References <a class="el" href="modules_8h-source.html#l00693">cache</a>, <a class="el" href="modules_8h-source.html#l00676">CONF_VALUE_NOT_FOUND</a>, and <a class="el" href="modules_8h-source.html#l00698">error</a>.
+References <a class="el" href="modules_8h-source.html#l00691">cache</a>, <a class="el" href="modules_8h-source.html#l00674">CONF_VALUE_NOT_FOUND</a>, and <a class="el" href="modules_8h-source.html#l00696">error</a>.
 <p>
 <div class="fragment"><pre>00624 {
 00625         <span class="keywordtype">char</span> val[MAXBUF];
@@ -524,7 +524,7 @@ This method retrieves an integer value from the config file. Where multiple copi
 <p>
 Definition at line <a class="el" href="modules_8cpp-source.html#l00640">640</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
 <p>
-References <a class="el" href="modules_8h-source.html#l00693">cache</a>, <a class="el" href="modules_8h-source.html#l00674">CONF_NOT_A_NUMBER</a>, <a class="el" href="modules_8h-source.html#l00675">CONF_NOT_UNSIGNED</a>, <a class="el" href="modules_8h-source.html#l00676">CONF_VALUE_NOT_FOUND</a>, and <a class="el" href="modules_8h-source.html#l00698">error</a>.
+References <a class="el" href="modules_8h-source.html#l00691">cache</a>, <a class="el" href="modules_8h-source.html#l00672">CONF_NOT_A_NUMBER</a>, <a class="el" href="modules_8h-source.html#l00673">CONF_NOT_UNSIGNED</a>, <a class="el" href="modules_8h-source.html#l00674">CONF_VALUE_NOT_FOUND</a>, and <a class="el" href="modules_8h-source.html#l00696">error</a>.
 <p>
 <div class="fragment"><pre>00641 {
 00642         <span class="keywordtype">char</span> val[MAXBUF];
@@ -603,7 +603,7 @@ This method retrieves a value from the config file. Where multiple copies of the
 <p>
 Definition at line <a class="el" href="modules_8cpp-source.html#l00607">607</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
 <p>
-References <a class="el" href="modules_8h-source.html#l00693">cache</a>, <a class="el" href="modules_8h-source.html#l00676">CONF_VALUE_NOT_FOUND</a>, and <a class="el" href="modules_8h-source.html#l00698">error</a>.
+References <a class="el" href="modules_8h-source.html#l00691">cache</a>, <a class="el" href="modules_8h-source.html#l00674">CONF_VALUE_NOT_FOUND</a>, and <a class="el" href="modules_8h-source.html#l00696">error</a>.
 <p>
 <div class="fragment"><pre>00608 {
 00609         <span class="keywordtype">char</span> val[MAXBUF];
@@ -653,7 +653,7 @@ This method is partially implemented and will only return false if the config fi
 <p>
 Definition at line <a class="el" href="modules_8cpp-source.html#l00719">719</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
 <p>
-References <a class="el" href="modules_8h-source.html#l00697">readerror</a>.
+References <a class="el" href="modules_8h-source.html#l00695">readerror</a>.
 <p>
 <div class="fragment"><pre>00720 {
 00721         <span class="keywordflow">return</span> this-&gt;<a class="code" href="classConfigReader.html#p2">readerror</a>;
@@ -685,7 +685,7 @@ The contents of the configuration file This protected member should never be acc
 <p>
 It will contain a pointer to the configuration file data with unneeded data (such as comments) stripped from it.
 <p>
-Definition at line <a class="el" href="modules_8h-source.html#l00693">693</a> of file <a class="el" href="modules_8h-source.html">modules.h</a>.
+Definition at line <a class="el" href="modules_8h-source.html#l00691">691</a> of file <a class="el" href="modules_8h-source.html">modules.h</a>.
 <p>
 Referenced by <a class="el" href="modules_8cpp-source.html#l00579">ConfigReader()</a>, <a class="el" href="modules_8cpp-source.html#l00709">Enumerate()</a>, <a class="el" href="modules_8cpp-source.html#l00714">EnumerateValues()</a>, <a class="el" href="modules_8cpp-source.html#l00623">ReadFlag()</a>, <a class="el" href="modules_8cpp-source.html#l00640">ReadInteger()</a>, <a class="el" href="modules_8cpp-source.html#l00607">ReadValue()</a>, and <a class="el" href="modules_8cpp-source.html#l00589">~ConfigReader()</a>.    </td>
   </tr>
@@ -711,7 +711,7 @@ Referenced by <a class="el" href="modules_8cpp-source.html#l00579">ConfigReader(
 <p>
 
 <p>
-Definition at line <a class="el" href="modules_8h-source.html#l00698">698</a> of file <a class="el" href="modules_8h-source.html">modules.h</a>.
+Definition at line <a class="el" href="modules_8h-source.html#l00696">696</a> of file <a class="el" href="modules_8h-source.html">modules.h</a>.
 <p>
 Referenced by <a class="el" href="modules_8cpp-source.html#l00579">ConfigReader()</a>, <a class="el" href="modules_8cpp-source.html#l00669">GetError()</a>, <a class="el" href="modules_8cpp-source.html#l00623">ReadFlag()</a>, <a class="el" href="modules_8cpp-source.html#l00640">ReadInteger()</a>, and <a class="el" href="modules_8cpp-source.html#l00607">ReadValue()</a>.    </td>
   </tr>
@@ -737,7 +737,7 @@ Referenced by <a class="el" href="modules_8cpp-source.html#l00579">ConfigReader(
 <p>
 
 <p>
-Definition at line <a class="el" href="modules_8h-source.html#l00694">694</a> of file <a class="el" href="modules_8h-source.html">modules.h</a>.
+Definition at line <a class="el" href="modules_8h-source.html#l00692">692</a> of file <a class="el" href="modules_8h-source.html">modules.h</a>.
 <p>
 Referenced by <a class="el" href="modules_8cpp-source.html#l00579">ConfigReader()</a>, <a class="el" href="modules_8cpp-source.html#l00676">DumpErrors()</a>, and <a class="el" href="modules_8cpp-source.html#l00589">~ConfigReader()</a>.    </td>
   </tr>
@@ -765,14 +765,14 @@ Used to store errors.
 <p>
 
 <p>
-Definition at line <a class="el" href="modules_8h-source.html#l00697">697</a> of file <a class="el" href="modules_8h-source.html">modules.h</a>.
+Definition at line <a class="el" href="modules_8h-source.html#l00695">695</a> of file <a class="el" href="modules_8h-source.html">modules.h</a>.
 <p>
 Referenced by <a class="el" href="modules_8cpp-source.html#l00579">ConfigReader()</a>, and <a class="el" href="modules_8cpp-source.html#l00719">Verify()</a>.    </td>
   </tr>
 </table>
 <hr>The documentation for this class was generated from the following files:<ul>
 <li><a class="el" href="modules_8h-source.html">modules.h</a><li><a class="el" href="modules_8cpp-source.html">modules.cpp</a></ul>
-<hr size="1"><address style="align: right;"><small>Generated on Thu Apr 7 20:14:24 2005 for InspIRCd by
+<hr size="1"><address style="align: right;"><small>Generated on Sat Apr 9 14:38:28 2005 for InspIRCd by
 <a href="http://www.doxygen.org/index.html">
 <img src="doxygen.png" alt="doxygen" align="middle" border=0 > 
 </a>1.3.3 </small></address>

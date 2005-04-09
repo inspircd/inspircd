@@ -1,4 +1,4 @@
-.TH "ConnectClass" 3 "7 Apr 2005" "InspIRCd" \" -*- nroff -*-
+.TH "ConnectClass" 3 "9 Apr 2005" "InspIRCd" \" -*- nroff -*-
 .ad l
 .nh
 .SH NAME
@@ -39,6 +39,10 @@ Inherits \fBclassbase\fP.
 .br
 .RI "\fIHost mask for this line. \fP"
 .ti -1c
+.RI "int \fBpingtime\fP"
+.br
+.RI "\fINumber of seconds between pings for this line. \fP"
+.ti -1c
 .RI "char \fBpass\fP [MAXBUF]"
 .br
 .RI "\fI(Optional) Password for this line \fP"
@@ -50,17 +54,18 @@ Holds information relevent to <connect allow> and <connect deny> tags in the con
 .PP 
 .SS "ConnectClass::ConnectClass ()\fC [inline]\fP"
 .PP
-Definition at line 64 of file users.h.
+Definition at line 67 of file users.h.
 .PP
-References flood, host, pass, and registration_timeout.
+References flood, host, pass, pingtime, and registration_timeout.
 .PP
 .nf
-65         {
-66                 registration_timeout = 0;
-67                 flood = 0;
-68                 strlcpy(host,'',MAXBUF);
-69                 strlcpy(pass,'',MAXBUF);
-70         }
+68         {
+69                 registration_timeout = 0;
+70                 flood = 0;
+71                 pingtime = 0;
+72                 strlcpy(host,'',MAXBUF);
+73                 strlcpy(pass,'',MAXBUF);
+74         }
 .fi
 .SH "Member Data Documentation"
 .PP 
@@ -76,7 +81,12 @@ Host mask for this line. Definition at line 59 of file users.h.
 Referenced by ConnectClass().
 .SS "char \fBConnectClass::pass\fP[MAXBUF]"
 .PP
-(Optional) Password for this line Definition at line 62 of file users.h.
+(Optional) Password for this line Definition at line 65 of file users.h.
+.PP
+Referenced by ConnectClass().
+.SS "int \fBConnectClass::pingtime\fP"
+.PP
+Number of seconds between pings for this line. Definition at line 62 of file users.h.
 .PP
 Referenced by ConnectClass().
 .SS "int \fBConnectClass::registration_timeout\fP"

@@ -1,4 +1,4 @@
-.TH "ConfigReader" 3 "7 Apr 2005" "InspIRCd" \" -*- nroff -*-
+.TH "ConfigReader" 3 "9 Apr 2005" "InspIRCd" \" -*- nroff -*-
 .ad l
 .nh
 .SH NAME
@@ -84,7 +84,7 @@ Allows reading of values from configuration files This class allows a module to 
 
 It may either be instantiated with one parameter or none. Constructing the class using one parameter allows you to specify a path to your own configuration file, otherwise, inspircd.conf is read. 
 .PP
-Definition at line 685 of file modules.h.
+Definition at line 683 of file modules.h.
 .SH "Constructor & Destructor Documentation"
 .PP 
 .SS "ConfigReader::ConfigReader ()"
@@ -301,22 +301,22 @@ References readerror.
 .PP 
 .SS "std::stringstream* \fBConfigReader::cache\fP\fC [protected]\fP"
 .PP
-The contents of the configuration file This protected member should never be accessed by a module (and cannot be accessed unless the core is changed). It will contain a pointer to the configuration file data with unneeded data (such as comments) stripped from it.Definition at line 693 of file modules.h.
+The contents of the configuration file This protected member should never be accessed by a module (and cannot be accessed unless the core is changed). It will contain a pointer to the configuration file data with unneeded data (such as comments) stripped from it.Definition at line 691 of file modules.h.
 .PP
 Referenced by ConfigReader(), Enumerate(), EnumerateValues(), ReadFlag(), ReadInteger(), ReadValue(), and ~ConfigReader().
 .SS "long \fBConfigReader::error\fP\fC [protected]\fP"
 .PP
-Definition at line 698 of file modules.h.
+Definition at line 696 of file modules.h.
 .PP
 Referenced by ConfigReader(), GetError(), ReadFlag(), ReadInteger(), and ReadValue().
 .SS "std::stringstream* \fBConfigReader::errorlog\fP\fC [protected]\fP"
 .PP
-Definition at line 694 of file modules.h.
+Definition at line 692 of file modules.h.
 .PP
 Referenced by ConfigReader(), DumpErrors(), and ~ConfigReader().
 .SS "bool \fBConfigReader::readerror\fP\fC [protected]\fP"
 .PP
-Used to store errors. Definition at line 697 of file modules.h.
+Used to store errors. Definition at line 695 of file modules.h.
 .PP
 Referenced by ConfigReader(), and Verify().
 

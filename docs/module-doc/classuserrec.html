@@ -76,6 +76,9 @@ Inherits <a class="el" href="classconnection.html">connection</a>.
 <tr><td class="memItemLeft" nowrap align=right valign=top>bool&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="classuserrec.html#o12">dns_done</a></td></tr>
 
 <tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">True when <a class="el" href="classDNS.html">DNS</a> lookups are completed. </em> <a href="#o12"></a><em><br><br></td></tr>
+<tr><td class="memItemLeft" nowrap align=right valign=top>unsigned long&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="classuserrec.html#o13">pingmax</a></td></tr>
+
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Number of seconds between PINGs for this user (set from &lt;connect:allow&gt; tag. </em> <a href="#o13"></a><em><br><br></td></tr>
 <tr><td colspan=2><br><h2>Private Attributes</h2></td></tr>
 <tr><td class="memItemLeft" nowrap align=right valign=top><a class="el" href="users_8h.html#a6">InvitedList</a>&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="classuserrec.html#r0">invites</a></td></tr>
 
@@ -88,7 +91,7 @@ Everything about a connection is stored here primarily, from the user's socket I
 <p>
 
 <p>
-Definition at line <a class="el" href="users_8h-source.html#l00089">89</a> of file <a class="el" href="users_8h-source.html">users.h</a>.<hr><h2>Constructor &amp; Destructor Documentation</h2>
+Definition at line <a class="el" href="users_8h-source.html#l00093">93</a> of file <a class="el" href="users_8h-source.html">users.h</a>.<hr><h2>Constructor &amp; Destructor Documentation</h2>
 <a name="a0" doxytag="userrec::userrec"></a><p>
 <table class="mdTable" width="100%" cellpadding="2" cellspacing="0">
   <tr>
@@ -118,7 +121,7 @@ Definition at line <a class="el" href="users_8h-source.html#l00089">89</a> of fi
 <p>
 Definition at line <a class="el" href="users_8cpp-source.html#l00028">28</a> of file <a class="el" href="users_8cpp-source.html">users.cpp</a>.
 <p>
-References <a class="el" href="users_8h-source.html#l00132">awaymsg</a>, <a class="el" href="connection_8h-source.html#l00194">connection::bytes_in</a>, <a class="el" href="connection_8h-source.html#l00198">connection::bytes_out</a>, <a class="el" href="channels_8h-source.html#l00213">ucrec::channel</a>, <a class="el" href="users_8h-source.html#l00123">chans</a>, <a class="el" href="connection_8h-source.html#l00202">connection::cmds_in</a>, <a class="el" href="connection_8h-source.html#l00206">connection::cmds_out</a>, <a class="el" href="users_8h-source.html#l00111">dhost</a>, <a class="el" href="users_8h-source.html#l00160">dns_done</a>, <a class="el" href="connection_8h-source.html#l00178">connection::fd</a>, <a class="el" href="users_8h-source.html#l00143">flood</a>, <a class="el" href="users_8h-source.html#l00115">fullname</a>, <a class="el" href="connection_8h-source.html#l00210">connection::haspassed</a>, <a class="el" href="connection_8h-source.html#l00182">connection::host</a>, <a class="el" href="users_8h-source.html#l00106">ident</a>, <a class="el" href="connection_8h-source.html#l00236">connection::idle_lastmsg</a>, <a class="el" href="connection_8h-source.html#l00190">connection::inbuf</a>, <a class="el" href="users_8h-source.html#l00095">invites</a>, <a class="el" href="connection_8h-source.html#l00186">connection::ip</a>, <a class="el" href="connection_8h-source.html#l00228">connection::lastping</a>, <a class="el" href="users_8h-source.html#l00121">modes</a>, <a class="el" href="users_8h-source.html#l00102">nick</a>, <a class="el" href="connection_8h-source.html#l00240">connection::nping</a>, <a class="el" href="users_8h-source.html#l00156">oper</a>, <a class="el" href="connection_8h-source.html#l00216">connection::port</a>, <a class="el" href="connection_8h-source.html#l00220">connection::registered</a>, <a class="el" href="users_8h-source.html#l00137">result</a>, <a class="el" href="users_8h-source.html#l00127">server</a>, <a class="el" href="connection_8h-source.html#l00232">connection::signon</a>, <a class="el" href="users_8h-source.html#l00149">timeout</a>, and <a class="el" href="channels_8h-source.html#l00208">ucrec::uc_modes</a>.
+References <a class="el" href="users_8h-source.html#l00136">awaymsg</a>, <a class="el" href="connection_8h-source.html#l00194">connection::bytes_in</a>, <a class="el" href="connection_8h-source.html#l00198">connection::bytes_out</a>, <a class="el" href="channels_8h-source.html#l00213">ucrec::channel</a>, <a class="el" href="users_8h-source.html#l00127">chans</a>, <a class="el" href="connection_8h-source.html#l00202">connection::cmds_in</a>, <a class="el" href="connection_8h-source.html#l00206">connection::cmds_out</a>, <a class="el" href="users_8h-source.html#l00115">dhost</a>, <a class="el" href="users_8h-source.html#l00164">dns_done</a>, <a class="el" href="connection_8h-source.html#l00178">connection::fd</a>, <a class="el" href="users_8h-source.html#l00147">flood</a>, <a class="el" href="users_8h-source.html#l00119">fullname</a>, <a class="el" href="connection_8h-source.html#l00210">connection::haspassed</a>, <a class="el" href="connection_8h-source.html#l00182">connection::host</a>, <a class="el" href="users_8h-source.html#l00110">ident</a>, <a class="el" href="connection_8h-source.html#l00236">connection::idle_lastmsg</a>, <a class="el" href="connection_8h-source.html#l00190">connection::inbuf</a>, <a class="el" href="users_8h-source.html#l00099">invites</a>, <a class="el" href="connection_8h-source.html#l00186">connection::ip</a>, <a class="el" href="connection_8h-source.html#l00228">connection::lastping</a>, <a class="el" href="users_8h-source.html#l00125">modes</a>, <a class="el" href="users_8h-source.html#l00106">nick</a>, <a class="el" href="connection_8h-source.html#l00240">connection::nping</a>, <a class="el" href="users_8h-source.html#l00160">oper</a>, <a class="el" href="connection_8h-source.html#l00216">connection::port</a>, <a class="el" href="connection_8h-source.html#l00220">connection::registered</a>, <a class="el" href="users_8h-source.html#l00141">result</a>, <a class="el" href="users_8h-source.html#l00131">server</a>, <a class="el" href="connection_8h-source.html#l00232">connection::signon</a>, <a class="el" href="users_8h-source.html#l00153">timeout</a>, and <a class="el" href="channels_8h-source.html#l00208">ucrec::uc_modes</a>.
 <p>
 <div class="fragment"><pre>00029 {
 00030         <span class="comment">// the PROPER way to do it, AVOID bzero at *ALL* costs</span>
@@ -176,9 +179,9 @@ References <a class="el" href="users_8h-source.html#l00132">awaymsg</a>, <a clas
 <p>
 
 <p>
-Definition at line <a class="el" href="users_8h-source.html#l00164">164</a> of file <a class="el" href="users_8h-source.html">users.h</a>.
+Definition at line <a class="el" href="users_8h-source.html#l00172">172</a> of file <a class="el" href="users_8h-source.html">users.h</a>.
 <p>
-<div class="fragment"><pre>00164 {  }
+<div class="fragment"><pre>00172 {  }
 </pre></div>    </td>
   </tr>
 </table>
@@ -214,7 +217,7 @@ Returns the full displayed host of the user This member function returns the hos
 <p>
 Definition at line <a class="el" href="users_8cpp-source.html#l00058">58</a> of file <a class="el" href="users_8cpp-source.html">users.cpp</a>.
 <p>
-References <a class="el" href="users_8h-source.html#l00111">dhost</a>, <a class="el" href="users_8h-source.html#l00106">ident</a>, <a class="el" href="users_8h-source.html#l00102">nick</a>, and <a class="el" href="users_8h-source.html#l00137">result</a>.
+References <a class="el" href="users_8h-source.html#l00115">dhost</a>, <a class="el" href="users_8h-source.html#l00110">ident</a>, <a class="el" href="users_8h-source.html#l00106">nick</a>, and <a class="el" href="users_8h-source.html#l00141">result</a>.
 <p>
 <div class="fragment"><pre>00059 {
 00060         snprintf(result,MAXBUF,<span class="stringliteral">"%s!%s@%s"</span>,nick,ident,dhost);
@@ -254,7 +257,7 @@ If any form of hostname cloaking is in operation, e.g. through a module, then th
 <p>
 Definition at line <a class="el" href="users_8cpp-source.html#l00065">65</a> of file <a class="el" href="users_8cpp-source.html">users.cpp</a>.
 <p>
-References <a class="el" href="connection_8h-source.html#l00182">connection::host</a>, <a class="el" href="users_8h-source.html#l00106">ident</a>, <a class="el" href="users_8h-source.html#l00102">nick</a>, and <a class="el" href="users_8h-source.html#l00137">result</a>.
+References <a class="el" href="connection_8h-source.html#l00182">connection::host</a>, <a class="el" href="users_8h-source.html#l00110">ident</a>, <a class="el" href="users_8h-source.html#l00106">nick</a>, and <a class="el" href="users_8h-source.html#l00141">result</a>.
 <p>
 <div class="fragment"><pre>00066 {
 00067         snprintf(result,MAXBUF,<span class="stringliteral">"%s!%s@%s"</span>,nick,ident,host);
@@ -382,7 +385,7 @@ Adds a channel to a users invite list (invites them to a channel).
 <p>
 Definition at line <a class="el" href="users_8cpp-source.html#l00085">85</a> of file <a class="el" href="users_8cpp-source.html">users.cpp</a>.
 <p>
-References <a class="el" href="users_8h-source.html#l00039">Invited::channel</a>, and <a class="el" href="users_8h-source.html#l00095">invites</a>.
+References <a class="el" href="users_8h-source.html#l00039">Invited::channel</a>, and <a class="el" href="users_8h-source.html#l00099">invites</a>.
 <p>
 <div class="fragment"><pre>00086 {
 00087         <a class="code" href="classInvited.html">Invited</a> i;
@@ -424,7 +427,7 @@ Returns true if a user is invited to a channel.
 <p>
 Definition at line <a class="el" href="users_8cpp-source.html#l00071">71</a> of file <a class="el" href="users_8cpp-source.html">users.cpp</a>.
 <p>
-References <a class="el" href="users_8h-source.html#l00095">invites</a>.
+References <a class="el" href="users_8h-source.html#l00099">invites</a>.
 <p>
 <div class="fragment"><pre>00072 {
 00073         <span class="keywordflow">for</span> (InvitedList::iterator i = <a class="code" href="classuserrec.html#r0">invites</a>.begin(); i != <a class="code" href="classuserrec.html#r0">invites</a>.end(); i++)
@@ -473,7 +476,7 @@ This member function is called on successfully joining an invite only channel to
 <p>
 Definition at line <a class="el" href="users_8cpp-source.html#l00092">92</a> of file <a class="el" href="users_8cpp-source.html">users.cpp</a>.
 <p>
-References <a class="el" href="modules_8h-source.html#l00023">DEBUG</a>, and <a class="el" href="users_8h-source.html#l00095">invites</a>.
+References <a class="el" href="modules_8h-source.html#l00023">DEBUG</a>, and <a class="el" href="users_8h-source.html#l00099">invites</a>.
 <p>
 <div class="fragment"><pre>00093 {
 00094         log(DEBUG,<span class="stringliteral">"Removing invites"</span>);
@@ -522,7 +525,7 @@ The user's away message.
 <p>
 If this string is empty, the user is not marked as away.
 <p>
-Definition at line <a class="el" href="users_8h-source.html#l00132">132</a> of file <a class="el" href="users_8h-source.html">users.h</a>.
+Definition at line <a class="el" href="users_8h-source.html#l00136">136</a> of file <a class="el" href="users_8h-source.html">users.h</a>.
 <p>
 Referenced by <a class="el" href="users_8cpp-source.html#l00028">userrec()</a>.    </td>
   </tr>
@@ -548,7 +551,7 @@ Referenced by <a class="el" href="users_8cpp-source.html#l00028">userrec()</a>. 
 <p>
 
 <p>
-Definition at line <a class="el" href="users_8h-source.html#l00123">123</a> of file <a class="el" href="users_8h-source.html">users.h</a>.
+Definition at line <a class="el" href="users_8h-source.html#l00127">127</a> of file <a class="el" href="users_8h-source.html">users.h</a>.
 <p>
 Referenced by <a class="el" href="users_8cpp-source.html#l00028">userrec()</a>.    </td>
   </tr>
@@ -576,7 +579,7 @@ The host displayed to non-opers (used for cloaking etc).
 <p>
 This usually matches the value of <a class="el" href="classconnection.html#o1">userrec::host</a>.
 <p>
-Definition at line <a class="el" href="users_8h-source.html#l00111">111</a> of file <a class="el" href="users_8h-source.html">users.h</a>.
+Definition at line <a class="el" href="users_8h-source.html#l00115">115</a> of file <a class="el" href="users_8h-source.html">users.h</a>.
 <p>
 Referenced by <a class="el" href="users_8cpp-source.html#l00058">GetFullHost()</a>, and <a class="el" href="users_8cpp-source.html#l00028">userrec()</a>.    </td>
   </tr>
@@ -604,7 +607,7 @@ True when <a class="el" href="classDNS.html">DNS</a> lookups are completed.
 <p>
 
 <p>
-Definition at line <a class="el" href="users_8h-source.html#l00160">160</a> of file <a class="el" href="users_8h-source.html">users.h</a>.
+Definition at line <a class="el" href="users_8h-source.html#l00164">164</a> of file <a class="el" href="users_8h-source.html">users.h</a>.
 <p>
 Referenced by <a class="el" href="users_8cpp-source.html#l00028">userrec()</a>.    </td>
   </tr>
@@ -632,7 +635,7 @@ Number of lines the user can place into the buffer (up to the global NetBufferSi
 <p>
 
 <p>
-Definition at line <a class="el" href="users_8h-source.html#l00143">143</a> of file <a class="el" href="users_8h-source.html">users.h</a>.
+Definition at line <a class="el" href="users_8h-source.html#l00147">147</a> of file <a class="el" href="users_8h-source.html">users.h</a>.
 <p>
 Referenced by <a class="el" href="users_8cpp-source.html#l00028">userrec()</a>.    </td>
   </tr>
@@ -660,7 +663,7 @@ The users full name.
 <p>
 
 <p>
-Definition at line <a class="el" href="users_8h-source.html#l00115">115</a> of file <a class="el" href="users_8h-source.html">users.h</a>.
+Definition at line <a class="el" href="users_8h-source.html#l00119">119</a> of file <a class="el" href="users_8h-source.html">users.h</a>.
 <p>
 Referenced by <a class="el" href="users_8cpp-source.html#l00028">userrec()</a>.    </td>
   </tr>
@@ -688,7 +691,7 @@ The users ident reply.
 <p>
 
 <p>
-Definition at line <a class="el" href="users_8h-source.html#l00106">106</a> of file <a class="el" href="users_8h-source.html">users.h</a>.
+Definition at line <a class="el" href="users_8h-source.html#l00110">110</a> of file <a class="el" href="users_8h-source.html">users.h</a>.
 <p>
 Referenced by <a class="el" href="users_8cpp-source.html#l00058">GetFullHost()</a>, <a class="el" href="users_8cpp-source.html#l00065">GetFullRealHost()</a>, and <a class="el" href="users_8cpp-source.html#l00028">userrec()</a>.    </td>
   </tr>
@@ -716,7 +719,7 @@ A list of channels the user has a pending invite to.
 <p>
 
 <p>
-Definition at line <a class="el" href="users_8h-source.html#l00095">95</a> of file <a class="el" href="users_8h-source.html">users.h</a>.
+Definition at line <a class="el" href="users_8h-source.html#l00099">99</a> of file <a class="el" href="users_8h-source.html">users.h</a>.
 <p>
 Referenced by <a class="el" href="users_8cpp-source.html#l00085">InviteTo()</a>, <a class="el" href="users_8cpp-source.html#l00071">IsInvited()</a>, <a class="el" href="users_8cpp-source.html#l00092">RemoveInvite()</a>, and <a class="el" href="users_8cpp-source.html#l00028">userrec()</a>.    </td>
   </tr>
@@ -744,7 +747,7 @@ The user's mode string.
 <p>
 This may contain any of the following RFC characters: o, w, s, i Your module may define other mode characters as it sees fit.
 <p>
-Definition at line <a class="el" href="users_8h-source.html#l00121">121</a> of file <a class="el" href="users_8h-source.html">users.h</a>.
+Definition at line <a class="el" href="users_8h-source.html#l00125">125</a> of file <a class="el" href="users_8h-source.html">users.h</a>.
 <p>
 Referenced by <a class="el" href="users_8cpp-source.html#l00028">userrec()</a>.    </td>
   </tr>
@@ -772,7 +775,7 @@ The users nickname.
 <p>
 An invalid nickname indicates an unregistered connection prior to the NICK command.
 <p>
-Definition at line <a class="el" href="users_8h-source.html#l00102">102</a> of file <a class="el" href="users_8h-source.html">users.h</a>.
+Definition at line <a class="el" href="users_8h-source.html#l00106">106</a> of file <a class="el" href="users_8h-source.html">users.h</a>.
 <p>
 Referenced by <a class="el" href="modules_8cpp-source.html#l00676">ConfigReader::DumpErrors()</a>, <a class="el" href="users_8cpp-source.html#l00058">GetFullHost()</a>, <a class="el" href="users_8cpp-source.html#l00065">GetFullRealHost()</a>, <a class="el" href="modules_8cpp-source.html#l00399">Server::QuitUser()</a>, and <a class="el" href="users_8cpp-source.html#l00028">userrec()</a>.    </td>
   </tr>
@@ -800,9 +803,35 @@ The oper type they logged in as, if they are an oper.
 <p>
 This is used to check permissions in operclasses, so that we can say 'yay' or 'nay' to any commands they issue. The value of this is the value of a valid 'type name=' tag.
 <p>
-Definition at line <a class="el" href="users_8h-source.html#l00156">156</a> of file <a class="el" href="users_8h-source.html">users.h</a>.
+Definition at line <a class="el" href="users_8h-source.html#l00160">160</a> of file <a class="el" href="users_8h-source.html">users.h</a>.
 <p>
 Referenced by <a class="el" href="users_8cpp-source.html#l00028">userrec()</a>.    </td>
+  </tr>
+</table>
+<a name="o13" doxytag="userrec::pingmax"></a><p>
+<table class="mdTable" width="100%" cellpadding="2" cellspacing="0">
+  <tr>
+    <td class="mdRow">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> unsigned long <a class="el" href="classuserrec.html#o13">userrec::pingmax</a>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+Number of seconds between PINGs for this user (set from &lt;connect:allow&gt; tag. 
+<p>
+
+<p>
+Definition at line <a class="el" href="users_8h-source.html#l00168">168</a> of file <a class="el" href="users_8h-source.html">users.h</a>.    </td>
   </tr>
 </table>
 <a name="o8" doxytag="userrec::result"></a><p>
@@ -828,7 +857,7 @@ Stores the result of the last GetFullHost or GetRealHost call.
 <p>
 You may use this to increase the speed of use of this class.
 <p>
-Definition at line <a class="el" href="users_8h-source.html#l00137">137</a> of file <a class="el" href="users_8h-source.html">users.h</a>.
+Definition at line <a class="el" href="users_8h-source.html#l00141">141</a> of file <a class="el" href="users_8h-source.html">users.h</a>.
 <p>
 Referenced by <a class="el" href="users_8cpp-source.html#l00058">GetFullHost()</a>, <a class="el" href="users_8cpp-source.html#l00065">GetFullRealHost()</a>, and <a class="el" href="users_8cpp-source.html#l00028">userrec()</a>.    </td>
   </tr>
@@ -856,7 +885,7 @@ The server the user is connected to.
 <p>
 
 <p>
-Definition at line <a class="el" href="users_8h-source.html#l00127">127</a> of file <a class="el" href="users_8h-source.html">users.h</a>.
+Definition at line <a class="el" href="users_8h-source.html#l00131">131</a> of file <a class="el" href="users_8h-source.html">users.h</a>.
 <p>
 Referenced by <a class="el" href="users_8cpp-source.html#l00028">userrec()</a>.    </td>
   </tr>
@@ -884,14 +913,14 @@ Number of seconds this user is given to send USER/NICK If they do not send their
 <p>
 
 <p>
-Definition at line <a class="el" href="users_8h-source.html#l00149">149</a> of file <a class="el" href="users_8h-source.html">users.h</a>.
+Definition at line <a class="el" href="users_8h-source.html#l00153">153</a> of file <a class="el" href="users_8h-source.html">users.h</a>.
 <p>
 Referenced by <a class="el" href="users_8cpp-source.html#l00028">userrec()</a>.    </td>
   </tr>
 </table>
 <hr>The documentation for this class was generated from the following files:<ul>
 <li><a class="el" href="users_8h-source.html">users.h</a><li><a class="el" href="users_8cpp-source.html">users.cpp</a></ul>
-<hr size="1"><address style="align: right;"><small>Generated on Thu Apr 7 20:14:27 2005 for InspIRCd by
+<hr size="1"><address style="align: right;"><small>Generated on Sat Apr 9 14:38:31 2005 for InspIRCd by
 <a href="http://www.doxygen.org/index.html">
 <img src="doxygen.png" alt="doxygen" align="middle" border=0 > 
 </a>1.3.3 </small></address>

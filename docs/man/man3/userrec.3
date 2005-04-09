@@ -1,4 +1,4 @@
-.TH "userrec" 3 "7 Apr 2005" "InspIRCd" \" -*- nroff -*-
+.TH "userrec" 3 "9 Apr 2005" "InspIRCd" \" -*- nroff -*-
 .ad l
 .nh
 .SH NAME
@@ -100,6 +100,10 @@ Inherits \fBconnection\fP.
 .RI "bool \fBdns_done\fP"
 .br
 .RI "\fITrue when \fBDNS\fP lookups are completed. \fP"
+.ti -1c
+.RI "unsigned long \fBpingmax\fP"
+.br
+.RI "\fINumber of seconds between PINGs for this user (set from <connect:allow> tag. \fP"
 .in -1c
 .SS "Private Attributes"
 
@@ -115,7 +119,7 @@ Holds all information about a user This class stores all information about a use
 
 Everything about a connection is stored here primarily, from the user's socket ID (file descriptor) through to the user's nickname and hostname. Use the Find method of the server class to locate a specific user by nickname. 
 .PP
-Definition at line 89 of file users.h.
+Definition at line 93 of file users.h.
 .SH "Constructor & Destructor Documentation"
 .PP 
 .SS "userrec::userrec ()"
@@ -154,10 +158,10 @@ References awaymsg, connection::bytes_in, connection::bytes_out, ucrec::channel,
 .fi
 .SS "virtual userrec::~\fBuserrec\fP ()\fC [inline, virtual]\fP"
 .PP
-Definition at line 164 of file users.h.
+Definition at line 172 of file users.h.
 .PP
 .nf
-164 {  }
+172 {  }
 .fi
 .SH "Member Function Documentation"
 .PP 
@@ -308,72 +312,75 @@ References DEBUG, and invites.
 .PP 
 .SS "char \fBuserrec::awaymsg\fP[512]"
 .PP
-The user's away message. If this string is empty, the user is not marked as away.Definition at line 132 of file users.h.
+The user's away message. If this string is empty, the user is not marked as away.Definition at line 136 of file users.h.
 .PP
 Referenced by userrec().
 .SS "\fBucrec\fP \fBuserrec::chans\fP[MAXCHANS]"
 .PP
-Definition at line 123 of file users.h.
+Definition at line 127 of file users.h.
 .PP
 Referenced by userrec().
 .SS "char \fBuserrec::dhost\fP[256]"
 .PP
-The host displayed to non-opers (used for cloaking etc). This usually matches the value of \fBuserrec::host\fP.Definition at line 111 of file users.h.
+The host displayed to non-opers (used for cloaking etc). This usually matches the value of \fBuserrec::host\fP.Definition at line 115 of file users.h.
 .PP
 Referenced by GetFullHost(), and userrec().
 .SS "bool \fBuserrec::dns_done\fP"
 .PP
-True when \fBDNS\fP lookups are completed. Definition at line 160 of file users.h.
+True when \fBDNS\fP lookups are completed. Definition at line 164 of file users.h.
 .PP
 Referenced by userrec().
 .SS "int \fBuserrec::flood\fP"
 .PP
-Number of lines the user can place into the buffer (up to the global NetBufferSize bytes) before they are disconnected for excess flood. Definition at line 143 of file users.h.
+Number of lines the user can place into the buffer (up to the global NetBufferSize bytes) before they are disconnected for excess flood. Definition at line 147 of file users.h.
 .PP
 Referenced by userrec().
 .SS "char \fBuserrec::fullname\fP[128]"
 .PP
-The users full name. Definition at line 115 of file users.h.
+The users full name. Definition at line 119 of file users.h.
 .PP
 Referenced by userrec().
 .SS "char \fBuserrec::ident\fP[64]"
 .PP
-The users ident reply. Definition at line 106 of file users.h.
+The users ident reply. Definition at line 110 of file users.h.
 .PP
 Referenced by GetFullHost(), GetFullRealHost(), and userrec().
 .SS "\fBInvitedList\fP \fBuserrec::invites\fP\fC [private]\fP"
 .PP
-A list of channels the user has a pending invite to. Definition at line 95 of file users.h.
+A list of channels the user has a pending invite to. Definition at line 99 of file users.h.
 .PP
 Referenced by InviteTo(), IsInvited(), RemoveInvite(), and userrec().
 .SS "char \fBuserrec::modes\fP[MAXBUF]"
 .PP
-The user's mode string. This may contain any of the following RFC characters: o, w, s, i Your module may define other mode characters as it sees fit.Definition at line 121 of file users.h.
+The user's mode string. This may contain any of the following RFC characters: o, w, s, i Your module may define other mode characters as it sees fit.Definition at line 125 of file users.h.
 .PP
 Referenced by userrec().
 .SS "char \fBuserrec::nick\fP[NICKMAX]"
 .PP
-The users nickname. An invalid nickname indicates an unregistered connection prior to the NICK command.Definition at line 102 of file users.h.
+The users nickname. An invalid nickname indicates an unregistered connection prior to the NICK command.Definition at line 106 of file users.h.
 .PP
 Referenced by ConfigReader::DumpErrors(), GetFullHost(), GetFullRealHost(), Server::QuitUser(), and userrec().
 .SS "char \fBuserrec::oper\fP[NICKMAX]"
 .PP
-The oper type they logged in as, if they are an oper. This is used to check permissions in operclasses, so that we can say 'yay' or 'nay' to any commands they issue. The value of this is the value of a valid 'type name=' tag.Definition at line 156 of file users.h.
+The oper type they logged in as, if they are an oper. This is used to check permissions in operclasses, so that we can say 'yay' or 'nay' to any commands they issue. The value of this is the value of a valid 'type name=' tag.Definition at line 160 of file users.h.
 .PP
 Referenced by userrec().
+.SS "unsigned long \fBuserrec::pingmax\fP"
+.PP
+Number of seconds between PINGs for this user (set from <connect:allow> tag. Definition at line 168 of file users.h.
 .SS "char \fBuserrec::result\fP[256]"
 .PP
-Stores the result of the last GetFullHost or GetRealHost call. You may use this to increase the speed of use of this class.Definition at line 137 of file users.h.
+Stores the result of the last GetFullHost or GetRealHost call. You may use this to increase the speed of use of this class.Definition at line 141 of file users.h.
 .PP
 Referenced by GetFullHost(), GetFullRealHost(), and userrec().
 .SS "char \fBuserrec::server\fP[256]"
 .PP
-The server the user is connected to. Definition at line 127 of file users.h.
+The server the user is connected to. Definition at line 131 of file users.h.
 .PP
 Referenced by userrec().
 .SS "unsigned long \fBuserrec::timeout\fP"
 .PP
-Number of seconds this user is given to send USER/NICK If they do not send their details in this time limit they will be disconnected. Definition at line 149 of file users.h.
+Number of seconds this user is given to send USER/NICK If they do not send their details in this time limit they will be disconnected. Definition at line 153 of file users.h.
 .PP
 Referenced by userrec().
 

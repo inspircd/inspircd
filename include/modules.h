@@ -173,21 +173,19 @@ class Module : public classbase
 	virtual void OnUserPart(userrec* user, chanrec* channel);
 
 	/** Called before a packet is transmitted across the irc network between two irc servers.
-	 * The packet is represented as a char*, as it should be regarded as a buffer, and not a string.
 	 * This allows you to easily represent it in the correct ways to implement encryption, compression,
 	 * digital signatures and anything else you may want to add. This should be regarded as a pre-processor
 	 * and will be called before ANY other operations within the ircd core program.
 	 */
-	virtual void OnPacketTransmit(char *p);
+	virtual void OnPacketTransmit(std::string &data, std::string serv);
 
 	/** Called after a packet is received from another irc server.
-	 * The packet is represented as a char*, as it should be regarded as a buffer, and not a string.
 	 * This allows you to easily represent it in the correct ways to implement encryption, compression,
 	 * digital signatures and anything else you may want to add. This should be regarded as a pre-processor
 	 * and will be called immediately after the packet is received but before any other operations with the
 	 * core of the ircd.
 	 */
- 	virtual void OnPacketReceive(char *p);
+ 	virtual void OnPacketReceive(std::string &data, std::string serv);
 
 	/** Called on rehash.
 	 * This method is called prior to a /REHASH or when a SIGHUP is received from the operating

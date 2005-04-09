@@ -915,6 +915,10 @@ void NetSendToCommon(userrec* u, char* s)
 	
 	log(DEBUG,"NetSendToCommon: '%s' '%s'",u->nick,s);
 
+        std::string msg = buffer;
+        FOREACH_MOD OnPacketTransmit(msg,s);
+        strlcpy(buffer,msg.c_str(),MAXBUF);
+
 	for (int j = 0; j < 32; j++)
 	{
 		if (me[j] != NULL)
@@ -938,6 +942,10 @@ void NetSendToAll(char* s)
 	
 	log(DEBUG,"NetSendToAll: '%s'",s);
 
+        std::string msg = buffer;
+        FOREACH_MOD OnPacketTransmit(msg,s);
+        strlcpy(buffer,msg.c_str(),MAXBUF);
+
 	for (int j = 0; j < 32; j++)
 	{
 		if (me[j] != NULL)
@@ -956,6 +964,10 @@ void NetSendToAllAlive(char* s)
 	snprintf(buffer,MAXBUF,"%s",s);
 	
 	log(DEBUG,"NetSendToAllAlive: '%s'",s);
+
+        std::string msg = buffer;
+        FOREACH_MOD OnPacketTransmit(msg,s);
+        strlcpy(buffer,msg.c_str(),MAXBUF);
 
 	for (int j = 0; j < 32; j++)
 	{
@@ -984,6 +996,10 @@ void NetSendToOne(char* target,char* s)
 	
 	log(DEBUG,"NetSendToOne: '%s' '%s'",target,s);
 
+        std::string msg = buffer;
+        FOREACH_MOD OnPacketTransmit(msg,s);
+        strlcpy(buffer,msg.c_str(),MAXBUF);
+
 	for (int j = 0; j < 32; j++)
 	{
 		if (me[j] != NULL)
@@ -1006,6 +1022,10 @@ void NetSendToAllExcept(const char* target,char* s)
 	
 	log(DEBUG,"NetSendToAllExcept: '%s' '%s'",target,s);
 	
+        std::string msg = buffer;
+        FOREACH_MOD OnPacketTransmit(msg,s);
+        strlcpy(buffer,msg.c_str(),MAXBUF);
+
 	for (int j = 0; j < 32; j++)
 	{
 		if (me[j] != NULL)
@@ -3806,8 +3826,9 @@ int InspIRCd(void)
 						else
 							NetSendToAllExcept(tcp_host,udp_msg);
 					}
-					FOREACH_MOD OnPacketReceive(udp_msg);
-					handle_link_packet(udp_msg, tcp_host, me[x]);
+		                        std::string msg = udp_msg;
+		                        FOREACH_MOD OnPacketReceive(msg,tcp_host);
+		                        strlcpy(udp_msg,msg.c_str(),MAXBUF);
 				}
 				goto label;
 			}

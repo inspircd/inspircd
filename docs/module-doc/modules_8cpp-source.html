@@ -316,8 +316,8 @@
 <a name="l00309"></a><a class="code" href="classModule.html#a4">00309</a> <span class="keywordtype">void</span> <a class="code" href="classModule.html#a4">Module::OnUserQuit</a>(<a class="code" href="classuserrec.html">userrec</a>* user) { }
 <a name="l00310"></a><a class="code" href="classModule.html#a5">00310</a> <span class="keywordtype">void</span> <a class="code" href="classModule.html#a5">Module::OnUserJoin</a>(<a class="code" href="classuserrec.html">userrec</a>* user, <a class="code" href="classchanrec.html">chanrec</a>* channel) { }
 <a name="l00311"></a><a class="code" href="classModule.html#a6">00311</a> <span class="keywordtype">void</span> <a class="code" href="classModule.html#a6">Module::OnUserPart</a>(<a class="code" href="classuserrec.html">userrec</a>* user, <a class="code" href="classchanrec.html">chanrec</a>* channel) { }
-<a name="l00312"></a><a class="code" href="classModule.html#a7">00312</a> <span class="keywordtype">void</span> <a class="code" href="classModule.html#a7">Module::OnPacketTransmit</a>(<span class="keywordtype">char</span> *p) { }
-<a name="l00313"></a><a class="code" href="classModule.html#a8">00313</a> <span class="keywordtype">void</span> <a class="code" href="classModule.html#a8">Module::OnPacketReceive</a>(<span class="keywordtype">char</span> *p) { }
+<a name="l00312"></a><a class="code" href="classModule.html#a7">00312</a> <span class="keywordtype">void</span> <a class="code" href="classModule.html#a7">Module::OnPacketTransmit</a>(std::string &amp;data, std::string serv) { }
+<a name="l00313"></a><a class="code" href="classModule.html#a8">00313</a> <span class="keywordtype">void</span> <a class="code" href="classModule.html#a8">Module::OnPacketReceive</a>(std::string &amp;data, std::string serv) { }
 <a name="l00314"></a><a class="code" href="classModule.html#a9">00314</a> <span class="keywordtype">void</span> <a class="code" href="classModule.html#a9">Module::OnRehash</a>() { }
 <a name="l00315"></a><a class="code" href="classModule.html#a10">00315</a> <span class="keywordtype">void</span> <a class="code" href="classModule.html#a10">Module::OnServerRaw</a>(std::string &amp;raw, <span class="keywordtype">bool</span> inbound, <a class="code" href="classuserrec.html">userrec</a>* user) { }
 <a name="l00316"></a><a class="code" href="classModule.html#a12">00316</a> <span class="keywordtype">int</span> <a class="code" href="classModule.html#a12">Module::OnUserPreJoin</a>(<a class="code" href="classuserrec.html">userrec</a>* user, <a class="code" href="classchanrec.html">chanrec</a>* chan, <span class="keyword">const</span> <span class="keywordtype">char</span>* cname) { <span class="keywordflow">return</span> 0; }
@@ -783,7 +783,7 @@
 <a name="l00776"></a><a class="code" href="modules_8cpp.html#a1">00776</a> <span class="keywordtype">int</span> <a class="code" href="modules_8cpp.html#a1">MODCOUNT</a>  = -1;
 00777 
 00778 
-</pre></div><hr size="1"><address style="align: right;"><small>Generated on Thu Apr 7 20:14:21 2005 for InspIRCd by
+</pre></div><hr size="1"><address style="align: right;"><small>Generated on Sat Apr 9 14:38:25 2005 for InspIRCd by
 <a href="http://www.doxygen.org/index.html">
 <img src="doxygen.png" alt="doxygen" align="middle" border=0 > 
 </a>1.3.3 </small></address>

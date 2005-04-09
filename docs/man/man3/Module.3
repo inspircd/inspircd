@@ -1,4 +1,4 @@
-.TH "Module" 3 "7 Apr 2005" "InspIRCd" \" -*- nroff -*-
+.TH "Module" 3 "9 Apr 2005" "InspIRCd" \" -*- nroff -*-
 .ad l
 .nh
 .SH NAME
@@ -44,11 +44,11 @@ Inherits \fBclassbase\fP.
 .br
 .RI "\fICalled when a user parts a channel. \fP"
 .ti -1c
-.RI "virtual void \fBOnPacketTransmit\fP (char *p)"
+.RI "virtual void \fBOnPacketTransmit\fP (std::string &data, std::string serv)"
 .br
 .RI "\fICalled before a packet is transmitted across the irc network between two irc servers. \fP"
 .ti -1c
-.RI "virtual void \fBOnPacketReceive\fP (char *p)"
+.RI "virtual void \fBOnPacketReceive\fP (std::string &data, std::string serv)"
 .br
 .RI "\fICalled after a packet is received from another irc server. \fP"
 .ti -1c
@@ -244,16 +244,16 @@ Called whenever a user opers locally. The userrec will contain the oper mode 'o'
 .nf
 319 { };
 .fi
-.SS "void Module::OnPacketReceive (char * p)\fC [virtual]\fP"
+.SS "void Module::OnPacketReceive (std::string & data, std::string serv)\fC [virtual]\fP"
 .PP
-Called after a packet is received from another irc server. The packet is represented as a char*, as it should be regarded as a buffer, and not a string. This allows you to easily represent it in the correct ways to implement encryption, compression, digital signatures and anything else you may want to add. This should be regarded as a pre-processor and will be called immediately after the packet is received but before any other operations with the core of the ircd.Definition at line 313 of file modules.cpp.
+Called after a packet is received from another irc server. This allows you to easily represent it in the correct ways to implement encryption, compression, digital signatures and anything else you may want to add. This should be regarded as a pre-processor and will be called immediately after the packet is received but before any other operations with the core of the ircd.Definition at line 313 of file modules.cpp.
 .PP
 .nf
 313 { }
 .fi
-.SS "void Module::OnPacketTransmit (char * p)\fC [virtual]\fP"
+.SS "void Module::OnPacketTransmit (std::string & data, std::string serv)\fC [virtual]\fP"
 .PP
-Called before a packet is transmitted across the irc network between two irc servers. The packet is represented as a char*, as it should be regarded as a buffer, and not a string. This allows you to easily represent it in the correct ways to implement encryption, compression, digital signatures and anything else you may want to add. This should be regarded as a pre-processor and will be called before ANY other operations within the ircd core program.Definition at line 312 of file modules.cpp.
+Called before a packet is transmitted across the irc network between two irc servers. This allows you to easily represent it in the correct ways to implement encryption, compression, digital signatures and anything else you may want to add. This should be regarded as a pre-processor and will be called before ANY other operations within the ircd core program.Definition at line 312 of file modules.cpp.
 .PP
 .nf
 312 { }
