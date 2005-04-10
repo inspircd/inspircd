@@ -264,7 +264,6 @@ void handle_kick(char **parameters, int pcnt, userrec *user)
 	}
 	
 	// this must be propogated so that channel membership is kept in step network-wide
-	
 	char buffer[MAXBUF];
 	snprintf(buffer,MAXBUF,"k %s %s %s :%s",user->nick,u->nick,Ptr->name,reason);
 	NetSendToAll(buffer);
