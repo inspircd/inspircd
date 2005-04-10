@@ -27,6 +27,9 @@ Server *Srv = NULL;
 void handle_setidle(char **parameters, int pcnt, userrec *user)
 {
 	user->idle_lastmsg = time(NULL) - atoi(parameters[0]);
+	// minor tweak - we cant have signon time shorter than our idle time!
+	if (user->signon > user->idle_lastmsg)
+		user->signon = user->idle_lastmsg;
 	Srv->SendOpers(std::string(user->nick)+" used SETIDLE to set their idle time to "+std::string(parameters[0])+" seconds");
 	WriteServ(user->fd,"944 %s :Idle time set.",user->nick);
 }
