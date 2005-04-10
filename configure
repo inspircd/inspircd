@@ -144,7 +144,7 @@ echo "#include <string.h>">.test.cpp
 echo "#include <stdio.h>">>.test.cpp
 echo "int main() { char a[10]; char b[10]; strlcpy(a,b,10); printf(\"%d\\n\",9); }" >>.test.cpp
 g++ -o .test .test.cpp 2>&1
-if [ ! -e ".test" ] ; then
+if [ -e ".test" ] ; then
 	HAS_STRLCPY=1
 fi 
 rm -f .test.cpp .test
@@ -482,7 +482,7 @@ echo "#define GCC3" >>include/inspircd_config.h
 		echo "#define GCC34" >>include/inspircd_config.h
 	fi
 fi
-if [ $HAS_STRLCPY != "1" ] ; then
+if [ "$HAS_STRLCPY" -eq "1" ] ; then
 	echo "#define HAS_STRLCPY" >>include/inspircd_config.h
 fi
 echo "#define SYSLOG_FACILITY LOG_DAEMON" >>include/inspircd_config.h
