@@ -74,7 +74,7 @@ if [ "$1" = "-update" -o "$2" = "-update" ] ; then
 
    # Write the new makefile.
    for file in Makefile; do
-          echo -e "\033[0;37mWriting \033[1;32m$file\033[0;37m"
+          echo -e "\033[0mWriting \033[1;32m$file\033[0m"
           rm -f $file
           sed -e "
                   s%@MAKEPROG@%$MAKEPROG%g
@@ -86,7 +86,7 @@ if [ "$1" = "-update" -o "$2" = "-update" ] ; then
                   s%@MODULES@%$MODULES%g
           " .${file}.inc >> $file
    done
-   echo -e "\033[0;37mWriting \033[1;32msrc/modules/Makefile\033[0;37m"
+   echo -e "\033[0mWriting \033[1;32msrc/modules/Makefile\033[0m"
    rm -f src/modules/Makefile
 
    # Generate the Header..
@@ -150,28 +150,28 @@ fi
 rm -f .test.cpp .test
 
 clear
-echo -e "'\033[1;33m####\033[0;37m:'\033[1;33m##\033[0;37m::: \033[1;33m##\033[0;37m::'\033[1;33m######\033[0;37m::'\033[1;33m########\033[0;37m::'\033[1;33m####\033[0;37m:'\033[1;33m########\033[0;37m:::'\033[1;33m######\033[0;37m::'\033[1;33m########\033[0;37m::"
-echo -e ". \033[1;33m##\033[0;37m:: \033[1;33m###\033[0;37m:: \033[1;33m##\033[0;37m:'\033[1;33m##\033[0;37m... \033[1;33m##\033[0;37m: \033[1;33m##\033[0;37m.... \033[1;33m##\033[0;37m:. \033[1;33m##\033[0;37m:: \033[1;33m##\033[0;37m.... \033[1;33m##\033[0;37m:'\033[1;33m##\033[0;37m... \033[1;33m##\033[0;37m: \033[1;33m##\033[0;37m.... \033[1;33m##\033[0;37m:"
-echo -e ": \033[1;33m##\033[0;37m:: \033[1;33m####\033[0;37m: \033[1;33m##\033[0;37m: \033[1;33m##\033[0;37m:::..:: \033[1;33m##\033[0;37m:::: \033[1;33m##\033[0;37m:: \033[1;33m##\033[0;37m:: \033[1;33m##\033[0;37m:::: \033[1;33m##\033[0;37m: \033[1;33m##\033[0;37m:::..:: \033[1;33m##\033[0;37m:::: \033[1;33m##\033[0;37m:"
-echo -e ": \033[1;33m##\033[0;37m:: \033[1;33m##\033[0;37m \033[1;33m##\033[0;37m \033[1;33m##\033[0;37m:. \033[1;33m######\033[0;37m:: \033[1;33m########\033[0;37m::: \033[1;33m##\033[0;37m:: \033[1;33m########\033[0;37m:: \033[1;33m##\033[0;37m::::::: \033[1;33m##\033[0;37m:::: \033[1;33m##\033[0;37m:"
-echo -e ": \033[1;33m##\033[0;37m:: \033[1;33m##\033[0;37m. \033[1;33m####\033[0;37m::..... \033[1;33m##\033[0;37m: \033[1;33m##\033[0;37m.....:::: \033[1;33m##\033[0;37m:: \033[1;33m##\033[0;37m.. \033[1;33m##\033[0;37m::: \033[1;33m##\033[0;37m::::::: \033[1;33m##\033[0;37m:::: \033[1;33m##\033[0;37m:"
-echo -e ": \033[1;33m##\033[0;37m:: \033[1;33m##\033[0;37m:. \033[1;33m###\033[0;37m:'\033[1;33m##\033[0;37m::: \033[1;33m##\033[0;37m: \033[1;33m##\033[0;37m::::::::: \033[1;33m##\033[0;37m:: \033[1;33m##\033[0;37m::. \033[1;33m##\033[0;37m:: \033[1;33m##\033[0;37m::: \033[1;33m##\033[0;37m: \033[1;33m##\033[0;37m:::: \033[1;33m##\033[0;37m:"
-echo -e "'\033[1;33m####\033[0;37m: \033[1;33m##\033[0;37m::. \033[1;33m##\033[0;37m:. \033[1;33m######\033[0;37m:: \033[1;33m##\033[0;37m::::::::'\033[1;33m####\033[0;37m: \033[1;33m##\033[0;37m:::. \033[1;33m##\033[0;37m:. \033[1;33m######\033[0;37m:: \033[1;33m########\033[0;37m::"
-echo -e "\033[0;37m\033[0;37m....::..::::..:::......:::..:::::::::....::..:::::..:::......:::........:::"
+echo -e "'\033[1;33m####\033[0m:'\033[1;33m##\033[0m::: \033[1;33m##\033[0m::'\033[1;33m######\033[0m::'\033[1;33m########\033[0m::'\033[1;33m####\033[0m:'\033[1;33m########\033[0m:::'\033[1;33m######\033[0m::'\033[1;33m########\033[0m::"
+echo -e ". \033[1;33m##\033[0m:: \033[1;33m###\033[0m:: \033[1;33m##\033[0m:'\033[1;33m##\033[0m... \033[1;33m##\033[0m: \033[1;33m##\033[0m.... \033[1;33m##\033[0m:. \033[1;33m##\033[0m:: \033[1;33m##\033[0m.... \033[1;33m##\033[0m:'\033[1;33m##\033[0m... \033[1;33m##\033[0m: \033[1;33m##\033[0m.... \033[1;33m##\033[0m:"
+echo -e ": \033[1;33m##\033[0m:: \033[1;33m####\033[0m: \033[1;33m##\033[0m: \033[1;33m##\033[0m:::..:: \033[1;33m##\033[0m:::: \033[1;33m##\033[0m:: \033[1;33m##\033[0m:: \033[1;33m##\033[0m:::: \033[1;33m##\033[0m: \033[1;33m##\033[0m:::..:: \033[1;33m##\033[0m:::: \033[1;33m##\033[0m:"
+echo -e ": \033[1;33m##\033[0m:: \033[1;33m##\033[0m \033[1;33m##\033[0m \033[1;33m##\033[0m:. \033[1;33m######\033[0m:: \033[1;33m########\033[0m::: \033[1;33m##\033[0m:: \033[1;33m########\033[0m:: \033[1;33m##\033[0m::::::: \033[1;33m##\033[0m:::: \033[1;33m##\033[0m:"
+echo -e ": \033[1;33m##\033[0m:: \033[1;33m##\033[0m. \033[1;33m####\033[0m::..... \033[1;33m##\033[0m: \033[1;33m##\033[0m.....:::: \033[1;33m##\033[0m:: \033[1;33m##\033[0m.. \033[1;33m##\033[0m::: \033[1;33m##\033[0m::::::: \033[1;33m##\033[0m:::: \033[1;33m##\033[0m:"
+echo -e ": \033[1;33m##\033[0m:: \033[1;33m##\033[0m:. \033[1;33m###\033[0m:'\033[1;33m##\033[0m::: \033[1;33m##\033[0m: \033[1;33m##\033[0m::::::::: \033[1;33m##\033[0m:: \033[1;33m##\033[0m::. \033[1;33m##\033[0m:: \033[1;33m##\033[0m::: \033[1;33m##\033[0m: \033[1;33m##\033[0m:::: \033[1;33m##\033[0m:"
+echo -e "'\033[1;33m####\033[0m: \033[1;33m##\033[0m::. \033[1;33m##\033[0m:. \033[1;33m######\033[0m:: \033[1;33m##\033[0m::::::::'\033[1;33m####\033[0m: \033[1;33m##\033[0m:::. \033[1;33m##\033[0m:. \033[1;33m######\033[0m:: \033[1;33m########\033[0m::"
+echo -e "\033[0m\033[0m....::..::::..:::......:::..:::::::::....::..:::::..:::......:::........:::"
 echo ""
-echo -e "\033[1;37mWelcome to the InspIRCd Configuration program!"
+echo "Welcome to the InspIRCd Configuration program!"
 echo ""
 echo "*** If you are unsure of any of these values, leave it blank for    ***"
 echo "*** standard settings that will work, and your server will run      ***"
 echo "*** using them. If you are running this server as part of a         ***"
 echo "*** larger network, you must consult with your network admins       ***"
 echo "*** for the proper values to use, or server links will be unstable! ***"
-echo -e "\033[0;37m"
-echo -e "Press \033[1;37m<RETURN>\033[0;37m to accept the default for any option, or enter"
-echo -e "a new value. Please note: You will \033[1;37mHAVE\033[0;37m to read the docs"
+echo ""
+echo -e "Press \033[1m<RETURN>\033[0m to accept the default for any option, or enter"
+echo -e "a new value. Please note: You will \033[1mHAVE\033[0m to read the docs"
 echo -e "dir, otherwise you won't have a config file!"
 echo ""
-echo -e "Your operating system is: \033[1;37m$OSNAME\033[0;37m (`uname -mnr`), fdmax: $MAX_CLIENT_T"
+echo -e "Your operating system is: \033[1;32m$OSNAME\033[0m (`uname -mnr`), fdmax: $MAX_CLIENT_T"
 echo ""
 
 #############################################################################
@@ -180,7 +180,7 @@ echo ""
     asked=1
     echo "In what directory are the configuration files?"
     while [ $ok -eq 0 ] ; do
-	echo -e $n "[\033[1;32m$CONFIG_DIR\033[0;37m] -> $c"
+	echo -e $n "[\033[1;32m$CONFIG_DIR\033[0m] -> $c"
 	if read INPUT ; then : ; else echo "" ; exit 1 ; fi
 	if [ ! "$INPUT" ] ; then
 	    INPUT=$CONFIG_DIR
@@ -193,7 +193,7 @@ echo ""
 		echo "$INPUT exists, but is not a directory!"
 	    else
 		echo "$INPUT does not exist.  Create it?"
-		echo -e $n "[\033[1;32my\033[0;37m] $c"
+		echo -e $n "[\033[1;32my\033[0m] $c"
 		read YN
 		if [ "$YN" != "n" ] ; then
 		    if mkdir -p "$INPUT" ; then
@@ -215,7 +215,7 @@ echo ""
     asked=1
     echo "In What directory are the modules to be compiled to?"
     while [ $ok -eq 0 ] ; do
-        echo -e $n "[\033[1;32m$MODULE_DIR\033[0;37m] -> $c"
+        echo -e $n "[\033[1;32m$MODULE_DIR\033[0m] -> $c"
         if read INPUT ; then : ; else echo "" ; exit 1 ; fi
         if [ ! "$INPUT" ] ; then
             INPUT=$MODULE_DIR
@@ -228,7 +228,7 @@ echo ""
                 echo "$INPUT exists, but is not a directory!"
             else
                 echo "$INPUT does not exist.  Create it?"
-                echo -e $n "[\033[1;32my\033[0;37m] $c"
+                echo -e $n "[\033[1;32my\033[0m] $c"
                 read YN
                 if [ "$YN" != "n" ] ; then
                     if mkdir -p "$INPUT" ; then
@@ -250,7 +250,7 @@ echo ""
     asked=1
     echo "In what directory is the IRCd binary to be placed?"
     while [ $ok -eq 0 ] ; do
-        echo -e $n "[\033[1;32m$BINARY_DIR\033[0;37m] -> $c"
+        echo -e $n "[\033[1;32m$BINARY_DIR\033[0m] -> $c"
         if read INPUT ; then : ; else echo "" ; exit 1 ; fi
         if [ ! "$INPUT" ] ; then
             INPUT=$BINARY_DIR
@@ -263,7 +263,7 @@ echo ""
                 echo "$INPUT exists, but is not a directory!"
             else
                 echo "$INPUT does not exist.  Create it?"
-                echo -e $n "[\033[1;32my\033[0;37m] $c"
+                echo -e $n "[\033[1;32my\033[0m] $c"
                 read YN
                 if [ "$YN" != "n" ] ; then
                     if mkdir -p "$INPUT" ; then
@@ -282,9 +282,9 @@ echo ""
 # Craigs Version 3 With slightly less Cheeze :p
 
 cheeze=0
-echo -e "Maximum number of clients at any one time (\033[1;32m1-$MAX_CLIENT_T\033[0;37m)?"
+echo -e "Maximum number of clients at any one time (\033[1;32m1-$MAX_CLIENT_T\033[0m)?"
 while [ "$cheeze" -eq "0" ] ; do
-	echo -e $n "[\033[1;32m$MAX_CLIENT\033[0;37m] -> $c"
+	echo -e $n "[\033[1;32m$MAX_CLIENT\033[0m] -> $c"
         read cc
 
         if [ -z "$cc" ] ; then
@@ -297,14 +297,14 @@ while [ "$cheeze" -eq "0" ] ; do
 				echo -e "WARNING: Our scans have indicated that you are attempting"
 				echo -e "to use more sockets than there are avaliable. Are you sure"
 				echo -e "you wish to do this? It may cause the IRCd to malfunction [y/n]"
-				echo -e $n "[\033[1;32mn\033[0;37m] -> $c"
+				echo -e $n "[\033[1;32mn\033[0m] -> $c"
 				read YN
 				if [ "$YN" = "y" ] ; then
 					MAX_CLIENT=$cc
 					cheeze=1
 				else
 					echo ""
-					echo -e "Please enter the correct value (\033[1;32m1-$MAX_CLIENT_T\033[0;37m)"
+					echo -e "Please enter the correct value (\033[1;32m1-$MAX_CLIENT_T\033[0m)"
 				fi
 			else
 				echo $SCAN_FAILED
@@ -326,7 +326,7 @@ echo ""
   cheeze=0
   echo -e "What is the Maximum length of nicknames?"
   while [ "$cheeze" -eq "0" ] ; do
-        echo -e $n "[\033[1;32m$NICK_LENGT\033[0;37m] -> $c"
+        echo -e $n "[\033[1;32m$NICK_LENGT\033[0m] -> $c"
         read cc
         if [ "$cc" ] ; then
                 case "$cc" in
@@ -351,7 +351,7 @@ echo ""
   cheeze=0
   echo -e "What is the Maximum length of channel names?"
   while [ "$cheeze" -eq "0" ] ; do
-        echo -e $n "[\033[1;32m$MAX_CHANNE\033[0;37m] -> $c"
+        echo -e $n "[\033[1;32m$MAX_CHANNE\033[0m] -> $c"
         read cc
         if [ "$cc" ] ; then
                 case "$cc" in
@@ -376,7 +376,7 @@ echo ""
   cheeze=0
   echo -e "What is the Maximum number of mode changes in one line?"
   while [ "$cheeze" -eq "0" ] ; do
-        echo -e $n "[\033[1;32m$MAXI_MODES\033[0;37m] -> $c"
+        echo -e $n "[\033[1;32m$MAXI_MODES\033[0m] -> $c"
         read cc
         if [ "$cc" ] ; then
                 case "$cc" in
@@ -407,7 +407,7 @@ echo ""
   echo -e ""
   echo -e "The Higher the number, the more optimised your binary will be. This value will default to 0"
   echo -e "If you either a) Dont enter a number, or b) Enter a value outside the range."
-  echo -e $n "[\033[1;32m$OPTIMITEMP\033[0;37m] -> $c"
+  echo -e $n "[\033[1;32m$OPTIMITEMP\033[0m] -> $c"
   read cc
   if [ -z "$cc" ] ; then
 	cc=$OPTIMITEMP
@@ -435,18 +435,18 @@ echo ""
 ###############################################################################
 
 
-echo -e "\033[1;32mPre-build configuration is complete!\033[0;37m"
+echo -e "\033[1;32mPre-build configuration is complete!\033[0m"
 echo ""
-echo -e "\033[0;37mConfig path:\033[1;32m\t\t\t$CONFIG_DIR"
-echo -e "\033[0;37mModule path:\033[1;32m\t\t\t$MODULE_DIR"
-echo -e "\033[0;37mMax connections:\033[1;32m\t\t$MAX_CLIENT"
-echo -e "\033[0;37mMax User Channels\033[1;32m\t\t$MAX_CHANNE"
-echo -e "\033[0;37mMax nickname length:\033[1;32m\t\t$NICK_LENGT"
-echo -e "\033[0;37mMax channel length:\033[1;32m\t\t$CHAN_LENGT"
-echo -e "\033[0;37mMax mode length:\033[1;32m\t\t$MAXI_MODES"
-echo -e "\033[0;37mGCC Version Found:\033[1;32m\t\t$GCCVER.$GCC34"
-echo -e "\033[0;37mOptimatizaton Flag:\033[1;32m\t\t$OPTIMISATI"
-echo -e "\033[0;37m"
+echo -e "\033[0mConfig path:\033[1;32m\t\t\t$CONFIG_DIR"
+echo -e "\033[0mModule path:\033[1;32m\t\t\t$MODULE_DIR"
+echo -e "\033[0mMax connections:\033[1;32m\t\t$MAX_CLIENT"
+echo -e "\033[0mMax User Channels\033[1;32m\t\t$MAX_CHANNE"
+echo -e "\033[0mMax nickname length:\033[1;32m\t\t$NICK_LENGT"
+echo -e "\033[0mMax channel length:\033[1;32m\t\t$CHAN_LENGT"
+echo -e "\033[0mMax mode length:\033[1;32m\t\t$MAXI_MODES"
+echo -e "\033[0mGCC Version Found:\033[1;32m\t\t$GCCVER.$GCC34"
+echo -e "\033[0mOptimatizaton Flag:\033[1;32m\t\t$OPTIMISATI"
+echo -e "\033[0m"
 
 echo "Writing cache file for future ./configures ..."
 
@@ -520,7 +520,7 @@ for module in src/modules/*.cpp ; do
 done
 
 for file in Makefile inspircd; do
-	echo -e "\033[0;37mWriting \033[1;32m$file\033[0;37m"
+	echo -e "\033[0mWriting \033[1;32m$file\033[0m"
 	rm -f $file
 	sed -e "
 		s%@MAKEPROG@%$MAKEPROG%g
@@ -534,7 +534,7 @@ for file in Makefile inspircd; do
 done
 `chmod 700 inspircd`
 
-echo -e "\033[0;37mWriting \033[1;32msrc/modules/Makefile\033[0;37m"
+echo -e "\033[0mWriting \033[1;32msrc/modules/Makefile\033[0m"
 rm -f src/modules/Makefile
 
 # Generate the Header..
@@ -565,11 +565,11 @@ echo ""
 
 echo ""
 echo "Do you want to compile the IRCd binaries?"
-echo -e $n "[\033[1;32my\033[0;37m] $c"
+echo -e $n "[\033[1;32my\033[0m] $c"
 read YN
 if [ "$YN" != "n" ] ; then
 	echo ""
-	echo -e "\033[1;32mCompiling...\033[0;37m"
+	echo -e "\033[1;32mCompiling...\033[0m"
 	echo ""
 	cd $ME
 	$MAKEPROG
@@ -577,10 +577,10 @@ if [ "$YN" != "n" ] ; then
         echo "Done!"
 else
 	echo ""
-	echo -e "To build your server with these settings, please type '\033[1;32m$MAKEPROG\033[0;37m' now."
+	echo -e "To build your server with these settings, please type '\033[1;32m$MAKEPROG\033[0m' now."
 fi
 
 
 echo ""
-echo -e "*** \033[1;32mRemember to edit your configuration files!!!\033[0;37m ***"
+echo -e "*** \033[1;32mRemember to edit your configuration files!!!\033[0m ***"
 echo ""
