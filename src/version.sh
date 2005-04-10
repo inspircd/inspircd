@@ -1,2 +1,2 @@
 #!sh
-echo "InspIRCd-1.0(Beta2)"
+echo "InspIRCd-1.0(Beta3)+CVS"
