@@ -94,7 +94,7 @@ sub stop {
         if (getstatus() == 0) { print "InspIRCd is not running. (Or PID File not found)"; return 0; }
         # Get to here, we have something to kill.
         my $pid = getprocessid();
-	print "Stopping InspIRCd...\n"
+	print "Stopping InspIRCd...\n";
         system("kill -TERM $pid >/dev/null 2>&1");
 	sleep 2;
 	if (getstatus() == 1)
