@@ -89,6 +89,7 @@ public:
 	 * query is invalid for some reason, e.g. the dns server not responding.
 	 */
 	int GetFD();
+	void SetNS(std::string dnsserver);
 };
 
 #endif

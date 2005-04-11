@@ -188,11 +188,7 @@ void DNS::dns_init_2(const char* dnsserver) { /* populates servers4 struct with 
         int i;
         in_addr addr4;
         char buf[1024];
-        if (initdone == 1)
-                return;
         i4 = 0;
-
-        initdone = 1;
         srand((unsigned int) TIME);
         memset(servers4,'\0',sizeof(in_addr) * DNS_MAX);
         if (dns_aton4_s(dnsserver,&addr4) != NULL)
@@ -682,6 +678,11 @@ DNS::DNS()
 }
 
 DNS::DNS(std::string dnsserver)
+{
+	dns_init_2(dnsserver.c_str());
+}
+
+void DNS::SetNS(std::string dnsserver)
 {
 	dns_init_2(dnsserver.c_str());
 }

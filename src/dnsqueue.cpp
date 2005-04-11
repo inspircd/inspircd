@@ -168,28 +168,21 @@ extern time_t TIME;
 
 class Lookup {
 private:
-	DNS* resolver;
+	DNS resolver;
 	char u[NICKMAX];
 public:
 	Lookup()
 	{
 		strcpy(u,"");
-		resolver = NULL;
 	}
 
 	void Reset()
 	{
 		strcpy(u,"");
-		if (resolver)
-			delete resolver;
-		resolver = NULL;
 	}
 
 	~Lookup()
 	{
-		if (resolver)
-			delete resolver;
-		resolver = NULL;
 	}
 
 	bool DoLookup(std::string nick)
@@ -198,8 +191,8 @@ public:
 		if (usr)
 		{
 			log(DEBUG,"New Lookup class for %s with DNSServer set to '%s'",nick.c_str(),DNSServer);
-			resolver = new DNS(std::string(DNSServer));
-			if (!resolver->ReverseLookup(std::string(usr->host)))
+			resolver.SetNS(std::string(DNSServer));
+			if (!resolver.ReverseLookup(std::string(usr->host)))
 				return false;
 			strlcpy(u,nick.c_str(),NICKMAX);
 			return true;
@@ -210,11 +203,11 @@ public:
 	bool Done()
 	{
 		userrec* usr = NULL;
-		if (resolver->HasResult())
+		if (resolver.HasResult())
 		{
-			if (resolver->GetFD() != 0)
+			if (resolver.GetFD() != 0)
 			{
-				std::string hostname = resolver->GetResult();
+				std::string hostname = resolver.GetResult();
 				usr = Find(u);
 				if (usr)
 				{
