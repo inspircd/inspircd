@@ -3519,20 +3519,39 @@ bool LoadModule(const char* filename)
 				return false;
 			}
 		}
+		bool extended = false;
+		if (factory.size() < MODCOUNT+1)
+		{
+			factory.push_back(NULL);	// make an empty space
+			bool extended = true;
+		}
+
                 factory[MODCOUNT+1] = new ircd_module(modfile);
                 if (factory[MODCOUNT+1]->LastError())
                 {
                         log(DEFAULT,"Unable to load %s: %s",modfile,factory[MODCOUNT+1]->LastError());
 			snprintf(MODERR,MAXBUF,"Loader/Linker error: %s",factory[MODCOUNT+1]->LastError());
+			if (extended)
+				factory.erase(factory.end());
 			MODCOUNT--;
 			return false;
                 }
                 if (factory[MODCOUNT+1]->factory)
                 {
+			bool mextended = false;
+			if (modules.size() < MODCOUNT+1)
+			{
+				modules.push_back(NULL);
+				bool extended = true;
+			}
                         modules[MODCOUNT+1] = factory[MODCOUNT+1]->factory->CreateModule();
                         /* save the module and the module's classfactory, if
                          * this isnt done, random crashes can occur :/ */
                         module_names.push_back(filename);
+			if (extended)
+				factory.erase(factory.end());
+			if (mextended)
+				modules.erase(modules.end());
                 }
 		else
                 {
