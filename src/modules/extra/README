@@ -1,0 +1,7 @@
+This directory stores modules which require external libraries to compile.
+For example, m_filter_pcre requires the PCRE libraries.
+
+To compile any of these modules first ensure you have the required dependencies
+(read the online documentation at http://www.inspircd.org/wiki/) and then cp
+the .cpp file from this directory into the parent directory (src/modules/) and
+re-configure your inspircd with ./configure -update to detect the new module.
