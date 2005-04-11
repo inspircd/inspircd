@@ -33,6 +33,7 @@ extern FILE *log_file;
 extern int boundPortCount;
 extern int openSockfd[MAXSOCKS];
 extern time_t TIME;
+extern bool unlimitcore;
 
 void WriteOpers(char* text, ...);
 
@@ -126,17 +127,20 @@ int DaemonSeed (void)
 	
 	setpriority(PRIO_PROCESS,(int)getpid(),15); /* ircd sets to low process priority so it doesnt hog the box */
 
-	rlimit rl;
-	if (getrlimit(RLIMIT_CORE, &rl) == -1)
+	if (unlimitcore)
 	{
-		log(DEFAULT,"Failed to getrlimit()!");
-		return(FALSE);
-	}
-	else
-	{
-		rl.rlim_cur = rl.rlim_max;
-		if (setrlimit(RLIMIT_CORE, &rl) == -1)
-			log(DEFAULT,"setrlimit() failed, cannot increase coredump size.");
+		rlimit rl;
+		if (getrlimit(RLIMIT_CORE, &rl) == -1)
+		{
+			log(DEFAULT,"Failed to getrlimit()!");
+			return(FALSE);
+		}
+		else
+		{
+			rl.rlim_cur = rl.rlim_max;
+			if (setrlimit(RLIMIT_CORE, &rl) == -1)
+				log(DEFAULT,"setrlimit() failed, cannot increase coredump size.");
+		}
 	}
   
 	return (TRUE);

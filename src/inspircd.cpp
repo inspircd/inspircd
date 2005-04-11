@@ -103,6 +103,7 @@ std::vector<int> fd_reap;
 extern int MODCOUNT;
 int openSockfd[MAXSOCKS];
 bool nofork = false;
+bool unlimitcore = false;
 
 time_t TIME = time(NULL);
 
@@ -2180,6 +2181,9 @@ int main(int argc, char **argv)
 			}
 			if (!strcmp(argv[i],"-wait")) {
 				sleep(6);
+			}
+			if (!strcmp(argv[i],"-nolimit")) {
+				unlimitcore = true;
 			}
 		}
 	}
