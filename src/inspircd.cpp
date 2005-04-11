@@ -3414,8 +3414,6 @@ bool UnloadModule(const char* filename)
 			modules[j] = NULL;
 			log(DEBUG,"Deleting module factory pointer...");
 			delete factory[j]->factory;
-			log(DEBUG,"Deleting module factory...");
-			delete factory[j];
 			log(DEBUG,"Erasing module entry...");
 			factory[j] = NULL;
 			// here we should locate ALL resources claimed by this module... and release them
