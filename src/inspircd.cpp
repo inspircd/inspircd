@@ -3551,10 +3551,6 @@ bool LoadModule(const char* filename)
                         /* save the module and the module's classfactory, if
                          * this isnt done, random crashes can occur :/ */
                         module_names.push_back(filename);
-			if (extended)
-				factory.erase(factory.end());
-			if (mextended)
-				modules.erase(modules.end());
                 }
 		else
                 {
