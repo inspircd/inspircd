@@ -125,6 +125,19 @@ int DaemonSeed (void)
 	freopen("/dev/null","w",stderr);
 	
 	setpriority(PRIO_PROCESS,(int)getpid(),15); /* ircd sets to low process priority so it doesnt hog the box */
+
+	rlimit rl;
+	if (getrlimit(RLIMIT_CORE, &rl) == -1)
+	{
+		log(DEFAULT,"Failed to getrlimit()!");
+		return(FALSE);
+	}
+	else
+	{
+		rl.rlim_cur = rl.rlim_max;
+		if (setrlimit(RLIMIT_CORE, &rl) == -1)
+			log(DEFAULT,"setrlimit() failed, cannot increase coredump size.");
+	}
   
 	return (TRUE);
 }
