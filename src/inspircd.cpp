@@ -3396,6 +3396,48 @@ char* ModuleError()
 	return MODERR;
 }
 
+void erase_factory(int j)
+{
+	int v = 0;
+	for (std::vector<ircd_module*>::iterator t = factory.begin(); t != factory.end(); t++)
+	{
+		if (v == j)
+		{
+                	factory.erase(t);
+                 	factory.push_back(NULL);
+                 	return;
+           	}
+		v++;
+     	}
+}
+
+void erase_module(int j)
+{
+	int v = 0;
+	for (std::vector<Module*>::iterator m = modules.begin(); m!= modules.end(); m++)
+        {
+                if (v == j)
+                {
+			delete *m;
+                        modules.erase(m);
+                        modules.push_back(NULL);
+			break;
+                }
+		v++;
+        }
+	int v2 = 0;
+        for (std::vector<std::string>::iterator v = module_names.begin(); v != module_names.end(); v++)
+        {
+                if (v2 == j)
+                {
+                       module_names.erase(v);
+                       break;
+                }
+		v2++;
+        }
+
+}
+
 bool UnloadModule(const char* filename)
 {
 	for (int j = 0; j != module_names.size(); j++)
@@ -3410,43 +3452,9 @@ bool UnloadModule(const char* filename)
 			}
 			// found the module
 			log(DEBUG,"Deleting module...");
-			delete modules[j];
-			modules[j] = NULL;
-			log(DEBUG,"Deleting module factory pointer...");
-			delete factory[j]->factory;
+			erase_module(j);
 			log(DEBUG,"Erasing module entry...");
-			factory[j] = NULL;
-			// here we should locate ALL resources claimed by this module... and release them
-			// for example commands
-			log(DEBUG,"Erasing module vector...");
-			for (std::vector<ircd_module*>::iterator t = factory.begin(); t != factory.end(); t++)
-			{
-				if (*t == NULL)
-				{
-					factory.erase(t);
-					factory.push_back(NULL);
-					break;
-				}
-			}
-			log(DEBUG,"Erasing module name vector...");
-			for (std::vector<std::string>::iterator v = module_names.begin(); v != module_names.end(); v++)
-                        {
-                                if (*v == std::string(filename))
-                                {
-                                        module_names.erase(v);
-                                        break;
-                                }
-                        }
-			log(DEBUG,"Erasing module pointer...");
-			for (std::vector<Module*>::iterator m = modules.begin(); m!= modules.end(); m++)
-			{
-				if (*m == NULL)
-				{
-					modules.erase(m);
-					modules.push_back(NULL);
-					break;
-				}
-			}
+			erase_factory(j);
                         log(DEBUG,"Removing dependent commands...");
                         removecommands(filename);
 			log(DEFAULT,"Module %s unloaded",filename);
