@@ -3520,13 +3520,14 @@ bool LoadModule(const char* filename)
 			}
 		}
 		bool extended = false;
-		if (factory.size() < MODCOUNT+1)
+		while (factory.size() <= MODCOUNT+1)
 		{
 			factory.push_back(NULL);	// make an empty space
+			log(DEFAULT,"Extending factory[]");
 			bool extended = true;
 		}
-
-                factory[MODCOUNT+1] = new ircd_module(modfile);
+		ircd_module* a = new ircd_module(modfile);
+                factory[MODCOUNT+1] = a;
                 if (factory[MODCOUNT+1]->LastError())
                 {
                         log(DEFAULT,"Unable to load %s: %s",modfile,factory[MODCOUNT+1]->LastError());
@@ -3539,9 +3540,10 @@ bool LoadModule(const char* filename)
                 if (factory[MODCOUNT+1]->factory)
                 {
 			bool mextended = false;
-			if (modules.size() < MODCOUNT+1)
+			while (modules.size() < MODCOUNT+1)
 			{
 				modules.push_back(NULL);
+				log(DEFAULT,"Extending modules[]");
 				bool extended = true;
 			}
                         modules[MODCOUNT+1] = factory[MODCOUNT+1]->factory->CreateModule();
