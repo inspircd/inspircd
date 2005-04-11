@@ -3537,15 +3537,15 @@ bool LoadModule(const char* filename)
 			MODCOUNT--;
 			return false;
                 }
+                bool mextended = false;
+                while (modules.size() <= MODCOUNT+1)
+                {
+                        modules.push_back(NULL);
+                        log(DEFAULT,"Extending modules[]");
+                        bool mextended = true;
+                }
                 if (factory[MODCOUNT+1]->factory)
                 {
-			bool mextended = false;
-			while (modules.size() <= MODCOUNT+1)
-			{
-				modules.push_back(NULL);
-				log(DEFAULT,"Extending modules[]");
-				bool mextended = true;
-			}
 			Module* m = factory[MODCOUNT+1]->factory->CreateModule();
                         modules[MODCOUNT+1] = m;
                         /* save the module and the module's classfactory, if
@@ -3560,6 +3560,10 @@ bool LoadModule(const char* filename)
                 {
                         log(DEFAULT,"Unable to load %s",modfile);
 			snprintf(MODERR,MAXBUF,"Factory function failed!");
+                        if (extended)
+                                factory.erase(factory.end());
+                        if (mextended)
+                                modules.erase(modules.end());
 			return false;
                 }
         }
