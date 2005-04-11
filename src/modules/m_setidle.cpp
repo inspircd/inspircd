@@ -26,6 +26,11 @@ Server *Srv = NULL;
 	 
 void handle_setidle(char **parameters, int pcnt, userrec *user)
 {
+	if (atoi(parameters[0]) < 1)
+	{
+		WriteServ(user->fd,"943 %s :Invalid idle time.",user->nick);
+		return;
+	}
 	user->idle_lastmsg = time(NULL) - atoi(parameters[0]);
 	// minor tweak - we cant have signon time shorter than our idle time!
 	if (user->signon > user->idle_lastmsg)
