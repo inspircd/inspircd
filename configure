@@ -26,6 +26,7 @@ NICK_LENGT=32
 CHAN_LENGT=64
 MAX_CHANNE=20
 MAXI_MODES=20
+HAS_STRLCPY=0
 OSNAME=`(uname -s) 2>/dev/null` || OSNAME="unknown"
 
 if [ -z $MAX_CLIENT_T ] ; then
