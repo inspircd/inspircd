@@ -3544,9 +3544,10 @@ bool LoadModule(const char* filename)
 			{
 				modules.push_back(NULL);
 				log(DEFAULT,"Extending modules[]");
-				bool extended = true;
+				bool mextended = true;
 			}
-                        modules[MODCOUNT+1] = factory[MODCOUNT+1]->factory->CreateModule();
+			Module* m = factory[MODCOUNT+1]->factory->CreateModule();
+                        modules[MODCOUNT+1] = m;
                         /* save the module and the module's classfactory, if
                          * this isnt done, random crashes can occur :/ */
                         module_names.push_back(filename);
