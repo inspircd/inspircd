@@ -3424,6 +3424,7 @@ bool UnloadModule(const char* filename)
 				if (*t == NULL)
 				{
 					factory.erase(t);
+					factory.push_back(NULL);
 					break;
 				}
 			}
@@ -3442,6 +3443,7 @@ bool UnloadModule(const char* filename)
 				if (*m == NULL)
 				{
 					modules.erase(m);
+					modules.push_back(NULL);
 					break;
 				}
 			}
@@ -3519,30 +3521,14 @@ bool LoadModule(const char* filename)
 				return false;
 			}
 		}
-		bool extended = false;
-		while (factory.size() <= MODCOUNT+1)
-		{
-			factory.push_back(NULL);	// make an empty space
-			log(DEFAULT,"Extending factory[]");
-			bool extended = true;
-		}
 		ircd_module* a = new ircd_module(modfile);
                 factory[MODCOUNT+1] = a;
                 if (factory[MODCOUNT+1]->LastError())
                 {
                         log(DEFAULT,"Unable to load %s: %s",modfile,factory[MODCOUNT+1]->LastError());
 			snprintf(MODERR,MAXBUF,"Loader/Linker error: %s",factory[MODCOUNT+1]->LastError());
-			if (extended)
-				factory.erase(factory.end());
 			MODCOUNT--;
 			return false;
-                }
-                bool mextended = false;
-                while (modules.size() <= MODCOUNT+1)
-                {
-                        modules.push_back(NULL);
-                        log(DEFAULT,"Extending modules[]");
-                        bool mextended = true;
                 }
                 if (factory[MODCOUNT+1]->factory)
                 {
@@ -3556,10 +3542,6 @@ bool LoadModule(const char* filename)
                 {
                         log(DEFAULT,"Unable to load %s",modfile);
 			snprintf(MODERR,MAXBUF,"Factory function failed!");
-                        if (extended)
-                                factory.erase(factory.end());
-                        if (mextended)
-                                modules.erase(modules.end());
 			return false;
                 }
         }
