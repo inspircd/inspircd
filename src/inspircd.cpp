@@ -3540,7 +3540,7 @@ bool LoadModule(const char* filename)
                 if (factory[MODCOUNT+1]->factory)
                 {
 			bool mextended = false;
-			while (modules.size() < MODCOUNT+1)
+			while (modules.size() <= MODCOUNT+1)
 			{
 				modules.push_back(NULL);
 				log(DEFAULT,"Extending modules[]");
