@@ -158,13 +158,13 @@ class ModuleFilterPCRE : public Module
 				}
 				if (do_action == "block")
 	      			{	
-					Srv->SendOpers(std::string("FilterPCRE: ")+std::string(user->nick)+
+					Srv->SendOpers(std::string("Filter: ")+std::string(user->nick)+
     							std::string(" had their notice filtered, target was ")+
     							target+": "+reason);
 					Srv->SendTo(NULL,user,"NOTICE "+std::string(user->nick)+
     							" :Your notice has been filtered and opers notified: "+reason);
     				}
-				Srv->Log(DEFAULT,std::string("FilterPCRE: ")+std::string(user->nick)+
+				Srv->Log(DEFAULT,std::string("Filter: ")+std::string(user->nick)+
     						std::string(" had their notice filtered, target was ")+
     						target+": "+reason+" Action: "+do_action);
 
@@ -195,7 +195,7 @@ class ModuleFilterPCRE : public Module
 			log(DEFAULT,"Error, could not find <filter file=\"\"> definition in your config file!");
 			return;
 		}
-		Srv->Log(DEFAULT,std::string("m_Filter_pcre: read configuration from ")+filterfile);
+		Srv->Log(DEFAULT,std::string("m_filter_pcre: read configuration from ")+filterfile);
 
                 filters.clear();
                 for (int index = 0; index < MyConf->Enumerate("keyword"); index++)
