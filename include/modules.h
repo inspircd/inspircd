@@ -367,6 +367,13 @@ class Module : public classbase
 	 * module).
 	 */
 	virtual void OnLoadModule(Module* mod,std::string name);
+
+	/** Called once every five seconds for background processing.
+	 * This timer can be used to control timed features. Its period is not accurate
+	 * enough to be used as a clock, but it is gauranteed to be called at least once in
+	 * any five second period, directly from the main loop of the server.
+	 */
+	virtual void OnBackgroundTimer(time_t curtime);
 };
 
 

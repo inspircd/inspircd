@@ -54,7 +54,6 @@ char* Extensible::GetExt(std::string key)
 	log(DEBUG,"Checking extension items for %s",key.c_str());
 	if (this->Extension_Items.find(key) != this->Extension_Items.end())
 	{
-		log(DEBUG,"Found item %s %s",key.c_str(),(this->Extension_Items.find(key))->second);
 		return (this->Extension_Items.find(key))->second;
 	}
 	log(DEBUG,"Cant find item %s",key.c_str());

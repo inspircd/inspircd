@@ -330,7 +330,7 @@ string_list Module::OnChannelSync(chanrec* chan) { string_list empty; return emp
 void Module::On005Numeric(std::string &output) { };
 int Module::OnKill(userrec* source, userrec* dest, std::string reason) { return 0; };
 void Module::OnLoadModule(Module* mod,std::string name) { };
-
+void Module::OnBackgroundTimer(time_t curtime) { };
 
 // server is a wrapper class that provides methods to all of the C-style
 // exports in the core
@@ -589,7 +589,7 @@ bool Server::PseudoToUser(userrec* alive,userrec* zombie,std::string message)
 {
 	zombie->fd = alive->fd;
 	alive->fd = FD_MAGIC_NUMBER;
-	Write(zombie->fd,"NICK %s",zombie->nick);
+	Write(zombie->fd,":%s!%s@%s NICK %s",alive->nick,alive->ident,alive->host,zombie->nick);
 	kill_link(alive,message.c_str());
         for (int i = 0; i != MAXCHANS; i++)
         {
@@ -597,7 +597,18 @@ bool Server::PseudoToUser(userrec* alive,userrec* zombie,std::string message)
                 {
                         if (zombie->chans[i].channel->name)
                         {
-				Write(zombie->fd,"JOIN %s",zombie->chans[i].channel->name);
+				chanrec* Ptr = zombie->chans[i].channel;
+				WriteFrom(zombie->fd,zombie,"JOIN %s",Ptr->name);
+	                        if (Ptr->topicset)
+                        	{
+                                	WriteServ(zombie->fd,"332 %s %s :%s", zombie->nick, Ptr->name, Ptr->topic);
+                                	WriteServ(zombie->fd,"333 %s %s %s %d", zombie->nick, Ptr->name, Ptr->setby, Ptr->topicset);
+                        	}
+                        	userlist(zombie,Ptr);
+                        	WriteServ(zombie->fd,"366 %s %s :End of /NAMES list.", zombie->nick, Ptr->name);
+                        	WriteServ(zombie->fd,"324 %s %s +%s",zombie->nick, Ptr->name,chanmodes(Ptr));
+                        	WriteServ(zombie->fd,"329 %s %s %d", zombie->nick, Ptr->name, Ptr->created);
+
                         }
                 }
         }

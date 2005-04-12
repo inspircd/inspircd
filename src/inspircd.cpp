@@ -3764,6 +3764,7 @@ int InspIRCd(void)
 		if (((TIME % 5) == 0) && (!expire_run))
 		{
 			expire_lines();
+			FOREACH_MOD OnBackgroundTimer(TIME);
 			expire_run = true;
 		}
 		if ((TIME % 5) == 1)
