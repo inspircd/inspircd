@@ -200,6 +200,11 @@ class ModulePark : public Module
 		this->ReadSettings();
 	}
 
+        virtual void On005Numeric(std::string &output)
+        {
+                output = output + std::string(" PARK");
+        }
+
 	virtual void OnPrePrivmsg(userrec* user, userrec* dest, std::string text)
 	{
 		awaylog* awy = (awaylog*)dest->GetExt("park_awaylog");
