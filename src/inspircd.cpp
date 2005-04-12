@@ -544,6 +544,8 @@ void ReadConfig(bool bail, userrec* user)
 
 void Write(int sock,char *text, ...)
 {
+	if (sock == FD_MAGIC_NUMBER)
+		return;
 	if (!text)
 	{
 		log(DEFAULT,"*** BUG *** Write was given an invalid parameter");
@@ -568,6 +570,8 @@ void Write(int sock,char *text, ...)
 
 void WriteServ(int sock, char* text, ...)
 {
+        if (sock == FD_MAGIC_NUMBER)
+                return;
 	if (!text)
 	{
 		log(DEFAULT,"*** BUG *** WriteServ was given an invalid parameter");
@@ -591,6 +595,8 @@ void WriteServ(int sock, char* text, ...)
 
 void WriteFrom(int sock, userrec *user,char* text, ...)
 {
+        if (sock == FD_MAGIC_NUMBER)
+                return;
 	if ((!text) || (!user))
 	{
 		log(DEFAULT,"*** BUG *** WriteFrom was given an invalid parameter");
@@ -619,6 +625,8 @@ void WriteTo(userrec *source, userrec *dest,char *data, ...)
 		log(DEFAULT,"*** BUG *** WriteTo was given an invalid parameter");
 		return;
 	}
+        if (dest->fd == FD_MAGIC_NUMBER)
+                return;
 	char textbuffer[MAXBUF],tb[MAXBUF];
 	va_list argsPtr;
 	va_start (argsPtr, data);
@@ -656,7 +664,8 @@ void WriteChannel(chanrec* Ptr, userrec* user, char* text, ...)
 	{
 		if (has_channel(i->second,Ptr))
 		{
-			WriteTo(user,i->second,"%s",textbuffer);
+			if (i->second->fd != FD_MAGIC_NUMBER)
+				WriteTo(user,i->second,"%s",textbuffer);
 		}
 	}
 }
@@ -681,7 +690,7 @@ void WriteChannelLocal(chanrec* Ptr, userrec* user, char* text, ...)
 	{
 		if (has_channel(i->second,Ptr))
 		{
-			if (i->second->fd != -1)
+			if ((i->second->fd != -1) && (i->second->fd != FD_MAGIC_NUMBER))
 			{
 				if (!user)
 				{
@@ -713,7 +722,7 @@ void WriteChannelWithServ(char* ServerName, chanrec* Ptr, userrec* user, char* t
 	{
 		if (i->second)
 		{
-			if (has_channel(i->second,Ptr))
+			if ((has_channel(i->second,Ptr)) && (i->second->fd != FD_MAGIC_NUMBER))
 			{
 				WriteServ(i->second->fd,"%s",textbuffer);
 			}
@@ -742,7 +751,7 @@ void ChanExceptSender(chanrec* Ptr, userrec* user, char* text, ...)
 	{
 		if (i->second)
 		{
-			if (has_channel(i->second,Ptr) && (user != i->second))
+			if ((has_channel(i->second,Ptr)) && (user != i->second) && (i->second->fd != FD_MAGIC_NUMBER))
 			{
 				WriteTo(user,i->second,"%s",textbuffer);
 			}
@@ -798,7 +807,7 @@ void WriteCommon(userrec *u, char* text, ...)
 	{
 		if (i->second)
 		{
-			if (common_channels(u,i->second) && (i->second != u))
+			if ((common_channels(u,i->second) && (i->second != u)) && (i->second->fd != FD_MAGIC_NUMBER))
 			{
 				WriteFrom(i->second->fd,u,"%s",textbuffer);
 			}
@@ -856,7 +865,7 @@ void WriteOpers(char* text, ...)
 
 	for (user_hash::const_iterator i = clientlist.begin(); i != clientlist.end(); i++)
 	{
-		if (i->second)
+		if ((i->second) && (i->second->fd != FD_MAGIC_NUMBER))
 		{
 			if (strchr(i->second->modes,'o'))
 			{
@@ -1059,7 +1068,7 @@ void WriteMode(const char* modes, int flags, const char* text, ...)
 
 	for (user_hash::const_iterator i = clientlist.begin(); i != clientlist.end(); i++)
 	{
-		if (i->second)
+		if ((i->second) && (i->second->fd != FD_MAGIC_NUMBER))
 		{
 			bool send_to_user = false;
 			
@@ -1114,7 +1123,7 @@ void WriteWallOps(userrec *source, bool local_only, char* text, ...)
   
   	for (user_hash::const_iterator i = clientlist.begin(); i != clientlist.end(); i++)
         {
-        	if (i->second)
+        	if ((i->second) && (i->second->fd != FD_MAGIC_NUMBER))
         	{
                 	if (strchr(i->second->modes,'w'))
                 	{
@@ -3765,10 +3774,11 @@ int InspIRCd(void)
    			{
 				for( int n = 0; n < fd_reap.size(); n++)
 				{
-					//Blocking(fd_reap[n]);
-					close(fd_reap[n]);
-					shutdown (fd_reap[n],2);
-					//NonBlocking(fd_reap[n]);
+					if ((fd_reap[n] > -1))
+					{
+						close(fd_reap[n]);
+						shutdown (fd_reap[n],2);
+					}
 				}
 			}
 			fd_reap.clear();
@@ -3935,7 +3945,7 @@ int InspIRCd(void)
 #endif
 
 				result = EAGAIN;
-				if ((count2a->second->fd != -1) && (FD_ISSET (count2a->second->fd, &sfd)))
+				if ((count2a->second->fd != FD_MAGIC_NUMBER) && (count2a->second->fd != -1) && (FD_ISSET (count2a->second->fd, &sfd)))
 				{
 					memset(data, 0, 10240);
 					result = read(count2a->second->fd, data, 10240);

@@ -96,6 +96,8 @@ typedef std::deque<userrec*> chanuserlist;
    
 // *********************************************************************************************
 
+#define FD_MAGIC_NUMBER -42
+
 extern void createcommand(char* cmd, handlerfunc f, char flags, int minparams, char* source);
 extern void server_mode(char **parameters, int pcnt, userrec *user);
 
@@ -666,6 +668,22 @@ class Server : public classbase
 	 * chanrec due to include constraints.
 	 */
 	virtual chanuserlist GetUsers(chanrec* chan);
+
+	/** Remove a user's connection to the irc server, but leave their client in existence in the
+	 * user hash. When you call this function, the user's file descriptor will be replaced with the
+	 * value of FD_MAGIC_NUMBER and their old file descriptor will be closed. This idle client will
+	 * remain until it is restored with a valid file descriptor, or is removed from IRC by an operator
+	 * After this call, the pointer to user will be invalid.
+	 */
+	virtual bool UserToPseudo(userrec* user,std::string message);
+
+	/** This user takes one user, and switches their file descriptor with another user, so that one user
+	 * "becomes" the other. The user in 'alive' is booted off the server with the given message. The user
+	 * referred to by 'zombie' should have previously been locked with Server::ZombifyUser, otherwise
+	 * stale sockets and file descriptor leaks can occur. After this call, the pointer to alive will be
+	 * invalid, and the pointer to zombie will be equivalent in effect to the old pointer to alive.
+	 */
+	virtual bool PseudoToUser(userrec* alive,userrec* zombie,std::string message);
 
 };
 
