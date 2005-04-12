@@ -68,7 +68,7 @@ void handle_park(char **parameters, int pcnt, userrec *user)
 		awaylog* aw;
 		parkedinfo pi;
 		char msg[MAXBUF];
-		long key = random() * 12345;
+		long key = abs(random() * 12345);
 		snprintf(msg,MAXBUF,"You are now parked. To unpark use /UNPARK %s %d",user->nick,key);
 		Srv->UserToPseudo(user,std::string(msg));
 		aw = new awaylog;
