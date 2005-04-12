@@ -318,7 +318,7 @@
 	 loglevel="default"
 	 netbuffersize="10240"
          maxwho="128"
-	 noservices="0">
+	 noservices="0"
 	 allowhalfop="yes">
 
 
