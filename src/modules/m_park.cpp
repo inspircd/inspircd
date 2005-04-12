@@ -65,7 +65,7 @@ void handle_park(char **parameters, int pcnt, userrec *user)
 	}
 	else
 	{
-		awaylog* aw;
+		awaylog* aw = new awaylog;
 		parkedinfo pi;
 		char msg[MAXBUF];
 		long key = abs(random() * 12345);
