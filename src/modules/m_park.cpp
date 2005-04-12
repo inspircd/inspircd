@@ -185,6 +185,7 @@ class ModulePark : public Module
 	{
 		Srv = new Server;
 		pinfo.clear();
+		this->ReadSettings();
 		Srv->AddCommand("PARK",handle_park,0,0,"m_park.so");
 		Srv->AddCommand("UNPARK",handle_unpark,0,2,"m_park.so");
 		Srv->AddCommand("PARKSTATS",handle_parkstats,'o',0,"m_park.so");
