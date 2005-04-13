@@ -48,7 +48,7 @@ Inherits <a class="el" href="classclassbase.html">classbase</a>.
 <tr><td class="memItemLeft" nowrap align=right valign=top>virtual void&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="classModule.html#a10">OnServerRaw</a> (std::string &amp;raw, bool inbound, <a class="el" href="classuserrec.html">userrec</a> *user)</td></tr>
 
 <tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Called when a raw command is transmitted or received. </em> <a href="#a10"></a><em><br><br></td></tr>
-<tr><td class="memItemLeft" nowrap align=right valign=top>virtual int&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="classModule.html#a11">OnExtendedMode</a> (<a class="el" href="classuserrec.html">userrec</a> *user, void *target, char modechar, int type, bool mode_on, <a class="el" href="modules_8h.html#a31">string_list</a> &amp;params)</td></tr>
+<tr><td class="memItemLeft" nowrap align=right valign=top>virtual int&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="classModule.html#a11">OnExtendedMode</a> (<a class="el" href="classuserrec.html">userrec</a> *user, void *target, char modechar, int type, bool mode_on, <a class="el" href="modules_8h.html#a32">string_list</a> &amp;params)</td></tr>
 
 <tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Called whenever an extended mode is to be processed. </em> <a href="#a11"></a><em><br><br></td></tr>
 <tr><td class="memItemLeft" nowrap align=right valign=top>virtual int&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="classModule.html#a12">OnUserPreJoin</a> (<a class="el" href="classuserrec.html">userrec</a> *user, <a class="el" href="classchanrec.html">chanrec</a> *chan, const char *cname)</td></tr>
@@ -81,10 +81,10 @@ Inherits <a class="el" href="classclassbase.html">classbase</a>.
 <tr><td class="memItemLeft" nowrap align=right valign=top>virtual int&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="classModule.html#a21">OnAccessCheck</a> (<a class="el" href="classuserrec.html">userrec</a> *source, <a class="el" href="classuserrec.html">userrec</a> *dest, <a class="el" href="classchanrec.html">chanrec</a> *channel, int access_type)</td></tr>
 
 <tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Called before an action which requires a channel privilage check. </em> <a href="#a21"></a><em><br><br></td></tr>
-<tr><td class="memItemLeft" nowrap align=right valign=top>virtual <a class="el" href="modules_8h.html#a31">string_list</a>&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="classModule.html#a22">OnUserSync</a> (<a class="el" href="classuserrec.html">userrec</a> *user)</td></tr>
+<tr><td class="memItemLeft" nowrap align=right valign=top>virtual <a class="el" href="modules_8h.html#a32">string_list</a>&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="classModule.html#a22">OnUserSync</a> (<a class="el" href="classuserrec.html">userrec</a> *user)</td></tr>
 
 <tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Called during a netburst to sync user data. </em> <a href="#a22"></a><em><br><br></td></tr>
-<tr><td class="memItemLeft" nowrap align=right valign=top>virtual <a class="el" href="modules_8h.html#a31">string_list</a>&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="classModule.html#a23">OnChannelSync</a> (<a class="el" href="classchanrec.html">chanrec</a> *chan)</td></tr>
+<tr><td class="memItemLeft" nowrap align=right valign=top>virtual <a class="el" href="modules_8h.html#a32">string_list</a>&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="classModule.html#a23">OnChannelSync</a> (<a class="el" href="classchanrec.html">chanrec</a> *chan)</td></tr>
 
 <tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Called during a netburst to sync channel data. </em> <a href="#a23"></a><em><br><br></td></tr>
 <tr><td class="memItemLeft" nowrap align=right valign=top>virtual void&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="classModule.html#a24">On005Numeric</a> (std::string &amp;output)</td></tr>
@@ -96,6 +96,9 @@ Inherits <a class="el" href="classclassbase.html">classbase</a>.
 <tr><td class="memItemLeft" nowrap align=right valign=top>virtual void&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="classModule.html#a26">OnLoadModule</a> (<a class="el" href="classModule.html">Module</a> *mod, std::string name)</td></tr>
 
 <tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Called whenever a module is loaded. </em> <a href="#a26"></a><em><br><br></td></tr>
+<tr><td class="memItemLeft" nowrap align=right valign=top>virtual void&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="classModule.html#a27">OnBackgroundTimer</a> (time_t curtime)</td></tr>
+
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Called once every five seconds for background processing. </em> <a href="#a27"></a><em><br><br></td></tr>
 </table>
 <hr><a name="_details"></a><h2>Detailed Description</h2>
 Base class for all InspIRCd modules This class is the base class for InspIRCd modules. 
@@ -104,7 +107,7 @@ All modules must inherit from this class, its methods will be called when irc se
 <p>
 
 <p>
-Definition at line <a class="el" href="modules_8h-source.html#l00133">133</a> of file <a class="el" href="modules_8h-source.html">modules.h</a>.<hr><h2>Constructor &amp; Destructor Documentation</h2>
+Definition at line <a class="el" href="modules_8h-source.html#l00135">135</a> of file <a class="el" href="modules_8h-source.html">modules.h</a>.<hr><h2>Constructor &amp; Destructor Documentation</h2>
 <a name="a0" doxytag="Module::Module"></a><p>
 <table class="mdTable" width="100%" cellpadding="2" cellspacing="0">
   <tr>
@@ -320,13 +323,49 @@ References <a class="el" href="modules_8h-source.html#l00037">ACR_DEFAULT</a>.
 </pre></div>    </td>
   </tr>
 </table>
+<a name="a27" doxytag="Module::OnBackgroundTimer"></a><p>
+<table class="mdTable" width="100%" cellpadding="2" cellspacing="0">
+  <tr>
+    <td class="mdRow">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> void Module::OnBackgroundTimer </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="md" nowrap valign="top">time_t&nbsp;</td>
+          <td class="mdname1" valign="top" nowrap> <em>curtime</em>          </td>
+          <td class="md" valign="top">&nbsp;)&nbsp;</td>
+          <td class="md" nowrap><code> [virtual]</code></td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+Called once every five seconds for background processing. 
+<p>
+This timer can be used to control timed features. Its period is not accurate enough to be used as a clock, but it is gauranteed to be called at least once in any five second period, directly from the main loop of the server.
+<p>
+Definition at line <a class="el" href="modules_8cpp-source.html#l00333">333</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
+<p>
+<div class="fragment"><pre>00333 { };
+</pre></div>    </td>
+  </tr>
+</table>
 <a name="a23" doxytag="Module::OnChannelSync"></a><p>
 <table class="mdTable" width="100%" cellpadding="2" cellspacing="0">
   <tr>
     <td class="mdRow">
       <table cellpadding="0" cellspacing="0" border="0">
         <tr>
-          <td class="md" nowrap valign="top"> <a class="el" href="modules_8h.html#a31">string_list</a> Module::OnChannelSync </td>
+          <td class="md" nowrap valign="top"> <a class="el" href="modules_8h.html#a32">string_list</a> Module::OnChannelSync </td>
           <td class="md" valign="top">(&nbsp;</td>
           <td class="md" nowrap valign="top"><a class="el" href="classchanrec.html">chanrec</a> *&nbsp;</td>
           <td class="mdname1" valign="top" nowrap> <em>chan</em>          </td>
@@ -354,7 +393,7 @@ Definition at line <a class="el" href="modules_8cpp-source.html#l00329">329</a> 
 <p>
 References <a class="el" href="modules_8h-source.html#l00068">string_list</a>.
 <p>
-<div class="fragment"><pre>00329 { <a class="code" href="modules_8h.html#a31">string_list</a> empty; <span class="keywordflow">return</span> empty; }
+<div class="fragment"><pre>00329 { <a class="code" href="modules_8h.html#a32">string_list</a> empty; <span class="keywordflow">return</span> empty; }
 </pre></div>    </td>
   </tr>
 </table>
@@ -396,7 +435,7 @@ References <a class="el" href="modules_8h-source.html#l00068">string_list</a>.
         <tr>
           <td></td>
           <td></td>
-          <td class="md" nowrap><a class="el" href="modules_8h.html#a31">string_list</a> &amp;&nbsp;</td>
+          <td class="md" nowrap><a class="el" href="modules_8h.html#a32">string_list</a> &amp;&nbsp;</td>
           <td class="mdname" nowrap> <em>params</em></td>
         </tr>
         <tr>
@@ -1248,7 +1287,7 @@ Definition at line <a class="el" href="modules_8cpp-source.html#l00309">309</a> 
     <td class="mdRow">
       <table cellpadding="0" cellspacing="0" border="0">
         <tr>
-          <td class="md" nowrap valign="top"> <a class="el" href="modules_8h.html#a31">string_list</a> Module::OnUserSync </td>
+          <td class="md" nowrap valign="top"> <a class="el" href="modules_8h.html#a32">string_list</a> Module::OnUserSync </td>
           <td class="md" valign="top">(&nbsp;</td>
           <td class="md" nowrap valign="top"><a class="el" href="classuserrec.html">userrec</a> *&nbsp;</td>
           <td class="mdname1" valign="top" nowrap> <em>user</em>          </td>
@@ -1276,7 +1315,7 @@ Definition at line <a class="el" href="modules_8cpp-source.html#l00328">328</a> 
 <p>
 References <a class="el" href="modules_8h-source.html#l00068">string_list</a>.
 <p>
-<div class="fragment"><pre>00328 { <a class="code" href="modules_8h.html#a31">string_list</a> empty; <span class="keywordflow">return</span> empty; }
+<div class="fragment"><pre>00328 { <a class="code" href="modules_8h.html#a32">string_list</a> empty; <span class="keywordflow">return</span> empty; }
 </pre></div>    </td>
   </tr>
 </table>
@@ -1327,7 +1366,7 @@ Definition at line <a class="el" href="modules_8cpp-source.html#l00321">321</a> 
 </table>
 <hr>The documentation for this class was generated from the following files:<ul>
 <li><a class="el" href="modules_8h-source.html">modules.h</a><li><a class="el" href="modules_8cpp-source.html">modules.cpp</a></ul>
-<hr size="1"><address style="align: right;"><small>Generated on Sat Apr 9 14:38:29 2005 for InspIRCd by
+<hr size="1"><address style="align: right;"><small>Generated on Wed Apr 13 12:32:26 2005 for InspIRCd by
 <a href="http://www.doxygen.org/index.html">
 <img src="doxygen.png" alt="doxygen" align="middle" border=0 > 
 </a>1.3.3 </small></address>

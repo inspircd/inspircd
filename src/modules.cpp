@@ -615,6 +615,62 @@ bool Server::PseudoToUser(userrec* alive,userrec* zombie,std::string message)
 
 }
 
+void Server::AddGLine(long duration, std::string source, std::string reason, std::string hostmask)
+{
+	add_gline(duration, source.c_str(), reason.c_str(), hostmask.c_str());
+}
+
+void Server::AddQLine(long duration, std::string source, std::string reason, std::string nickname)
+{
+	add_qline(duration, source.c_str(), reason.c_str(), nickname.c_str());
+}
+
+void Server::AddZLine(long duration, std::string source, std::string reason, std::string ipaddr)
+{
+	add_zline(duration, source.c_str(), reason.c_str(), ipaddr.c_str());
+}
+
+void Server::AddKLine(long duration, std::string source, std::string reason, std::string hostmask)
+{
+	add_kline(duration, source.c_str(), reason.c_str(), hostmask.c_str());
+}
+
+void Server::AddELine(long duration, std::string source, std::string reason, std::string hostmask)
+{
+	add_eline(duration, source.c_str(), reason.c_str(), hostmask.c_str());
+}
+
+bool Server::DelGLine(std::string hostmask)
+{
+	del_gline(hostmask.c_str());
+}
+
+bool Server::DelQLine(std::string nickname)
+{
+	del_qline(nickname.c_str());
+}
+
+bool Server::DelZLine(std::string ipaddr)
+{
+	del_zline(ipaddr.c_str());
+}
+
+bool Server::DelKLine(std::string hostmask)
+{
+	del_kline(hostmask.c_str());
+}
+
+bool Server::DelELine(std::string hostmask)
+{
+	del_eline(hostmask.c_str());
+}
+
+long Server::CalcDuration(std::string delta)
+{
+	return duration(delta.c_str());
+}
+
+
 ConfigReader::ConfigReader()
 {
 	this->cache = new std::stringstream(std::stringstream::in | std::stringstream::out);

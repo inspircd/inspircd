@@ -235,7 +235,7 @@ void read_xline_defaults()
 
 // adds a g:line
 
-void add_gline(long duration, char* source, char* reason, char* hostmask)
+void add_gline(long duration, const char* source,const char* reason,const char* hostmask)
 {
 	del_gline(hostmask);
 	GLine item;
@@ -250,7 +250,7 @@ void add_gline(long duration, char* source, char* reason, char* hostmask)
 
 // adds an e:line (exception to bans)
 
-void add_eline(long duration, char* source, char* reason, char* hostmask)
+void add_eline(long duration, const char* source, const char* reason, const char* hostmask)
 {
         del_eline(hostmask);
         ELine item;
@@ -265,7 +265,7 @@ void add_eline(long duration, char* source, char* reason, char* hostmask)
 
 // adds a q:line
 
-void add_qline(long duration, char* source, char* reason, char* nickname)
+void add_qline(long duration, const char* source, const char* reason, const char* nickname)
 {
 	del_qline(nickname);
 	QLine item;
@@ -281,7 +281,7 @@ void add_qline(long duration, char* source, char* reason, char* nickname)
 
 // adds a z:line
 
-void add_zline(long duration, char* source, char* reason, char* ipaddr)
+void add_zline(long duration, const char* source, const char* reason, const char* ipaddr)
 {
 	del_zline(ipaddr);
 	ZLine item;
@@ -297,7 +297,7 @@ void add_zline(long duration, char* source, char* reason, char* ipaddr)
 
 // adds a k:line
 
-void add_kline(long duration, char* source, char* reason, char* hostmask)
+void add_kline(long duration, const char* source, const char* reason, const char* hostmask)
 {
 	del_kline(hostmask);
 	KLine item;
@@ -312,7 +312,7 @@ void add_kline(long duration, char* source, char* reason, char* hostmask)
 
 // deletes a g:line, returns true if the line existed and was removed
 
-bool del_gline(char* hostmask)
+bool del_gline(const char* hostmask)
 {
 	for (std::vector<GLine>::iterator i = glines.begin(); i != glines.end(); i++)
 	{
@@ -327,7 +327,7 @@ bool del_gline(char* hostmask)
 
 // deletes a e:line, returns true if the line existed and was removed
 
-bool del_eline(char* hostmask)
+bool del_eline(const char* hostmask)
 {
         for (std::vector<ELine>::iterator i = elines.begin(); i != elines.end(); i++)
         {
@@ -342,7 +342,7 @@ bool del_eline(char* hostmask)
 
 // deletes a q:line, returns true if the line existed and was removed
 
-bool del_qline(char* nickname)
+bool del_qline(const char* nickname)
 {
 	for (std::vector<QLine>::iterator i = qlines.begin(); i != qlines.end(); i++)
 	{
@@ -355,7 +355,7 @@ bool del_qline(char* nickname)
 	return false;
 }
 
-bool qline_make_global(char* nickname)
+bool qline_make_global(const char* nickname)
 {
 	for (std::vector<QLine>::iterator i = qlines.begin(); i != qlines.end(); i++)
 	{
@@ -368,7 +368,7 @@ bool qline_make_global(char* nickname)
 	return false;
 }
 
-bool zline_make_global(char* ipaddr)
+bool zline_make_global(const char* ipaddr)
 {
 	for (std::vector<ZLine>::iterator i = zlines.begin(); i != zlines.end(); i++)
 	{
@@ -413,7 +413,7 @@ void sync_xlines(serverrec* serv, char* tcp_host)
 
 // deletes a z:line, returns true if the line existed and was removed
 
-bool del_zline(char* ipaddr)
+bool del_zline(const char* ipaddr)
 {
 	for (std::vector<ZLine>::iterator i = zlines.begin(); i != zlines.end(); i++)
 	{
@@ -428,7 +428,7 @@ bool del_zline(char* ipaddr)
 
 // deletes a k:line, returns true if the line existed and was removed
 
-bool del_kline(char* hostmask)
+bool del_kline(const char* hostmask)
 {
 	for (std::vector<KLine>::iterator i = klines.begin(); i != klines.end(); i++)
 	{

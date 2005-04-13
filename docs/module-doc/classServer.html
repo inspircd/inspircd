@@ -120,9 +120,48 @@ Inherits <a class="el" href="classclassbase.html">classbase</a>.
 <tr><td class="memItemLeft" nowrap align=right valign=top>virtual bool&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="classServer.html#a34">IsUlined</a> (std::string server)</td></tr>
 
 <tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Returns true if the servername you give is ulined. </em> <a href="#a34"></a><em><br><br></td></tr>
-<tr><td class="memItemLeft" nowrap align=right valign=top>virtual <a class="el" href="modules_8h.html#a32">chanuserlist</a>&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="classServer.html#a35">GetUsers</a> (<a class="el" href="classchanrec.html">chanrec</a> *chan)</td></tr>
+<tr><td class="memItemLeft" nowrap align=right valign=top>virtual <a class="el" href="modules_8h.html#a33">chanuserlist</a>&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="classServer.html#a35">GetUsers</a> (<a class="el" href="classchanrec.html">chanrec</a> *chan)</td></tr>
 
 <tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Fetches the userlist of a channel. </em> <a href="#a35"></a><em><br><br></td></tr>
+<tr><td class="memItemLeft" nowrap align=right valign=top>virtual bool&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="classServer.html#a36">UserToPseudo</a> (<a class="el" href="classuserrec.html">userrec</a> *user, std::string message)</td></tr>
+
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Remove a user's connection to the irc server, but leave their client in existence in the user hash. </em> <a href="#a36"></a><em><br><br></td></tr>
+<tr><td class="memItemLeft" nowrap align=right valign=top>virtual bool&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="classServer.html#a37">PseudoToUser</a> (<a class="el" href="classuserrec.html">userrec</a> *alive, <a class="el" href="classuserrec.html">userrec</a> *zombie, std::string message)</td></tr>
+
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">This user takes one user, and switches their file descriptor with another user, so that one user "becomes" the other. </em> <a href="#a37"></a><em><br><br></td></tr>
+<tr><td class="memItemLeft" nowrap align=right valign=top>virtual void&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="classServer.html#a38">AddGLine</a> (long duration, std::string source, std::string reason, std::string hostmask)</td></tr>
+
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Adds a G-line The G-line is propogated to all of the servers in the mesh and enforced as soon as it is added. </em> <a href="#a38"></a><em><br><br></td></tr>
+<tr><td class="memItemLeft" nowrap align=right valign=top>virtual void&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="classServer.html#a39">AddQLine</a> (long duration, std::string source, std::string reason, std::string nickname)</td></tr>
+
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Adds a Q-line The Q-line is propogated to all of the servers in the mesh and enforced as soon as it is added. </em> <a href="#a39"></a><em><br><br></td></tr>
+<tr><td class="memItemLeft" nowrap align=right valign=top>virtual void&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="classServer.html#a40">AddZLine</a> (long duration, std::string source, std::string reason, std::string ipaddr)</td></tr>
+
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Adds a Z-line The Z-line is propogated to all of the servers in the mesh and enforced as soon as it is added. </em> <a href="#a40"></a><em><br><br></td></tr>
+<tr><td class="memItemLeft" nowrap align=right valign=top>virtual void&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="classServer.html#a41">AddKLine</a> (long duration, std::string source, std::string reason, std::string hostmask)</td></tr>
+
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Adds a K-line The K-line is enforced as soon as it is added. </em> <a href="#a41"></a><em><br><br></td></tr>
+<tr><td class="memItemLeft" nowrap align=right valign=top>virtual void&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="classServer.html#a42">AddELine</a> (long duration, std::string source, std::string reason, std::string hostmask)</td></tr>
+
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Adds a E-line The E-line is enforced as soon as it is added. </em> <a href="#a42"></a><em><br><br></td></tr>
+<tr><td class="memItemLeft" nowrap align=right valign=top>virtual bool&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="classServer.html#a43">DelGLine</a> (std::string hostmask)</td></tr>
+
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Deletes a G-Line from all servers on the mesh. </em> <a href="#a43"></a><em><br><br></td></tr>
+<tr><td class="memItemLeft" nowrap align=right valign=top>virtual bool&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="classServer.html#a44">DelQLine</a> (std::string nickname)</td></tr>
+
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Deletes a Q-Line from all servers on the mesh. </em> <a href="#a44"></a><em><br><br></td></tr>
+<tr><td class="memItemLeft" nowrap align=right valign=top>virtual bool&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="classServer.html#a45">DelZLine</a> (std::string ipaddr)</td></tr>
+
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Deletes a Z-Line from all servers on the mesh. </em> <a href="#a45"></a><em><br><br></td></tr>
+<tr><td class="memItemLeft" nowrap align=right valign=top>virtual bool&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="classServer.html#a46">DelKLine</a> (std::string hostmask)</td></tr>
+
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Deletes a local K-Line. </em> <a href="#a46"></a><em><br><br></td></tr>
+<tr><td class="memItemLeft" nowrap align=right valign=top>virtual bool&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="classServer.html#a47">DelELine</a> (std::string hostmask)</td></tr>
+
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Deletes a local E-Line. </em> <a href="#a47"></a><em><br><br></td></tr>
+<tr><td class="memItemLeft" nowrap align=right valign=top>virtual long&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="classServer.html#a48">CalcDuration</a> (std::string duration)</td></tr>
+
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Calculates a duration This method will take a string containing a formatted duration (e.g. </em> <a href="#a48"></a><em><br><br></td></tr>
 </table>
 <hr><a name="_details"></a><h2>Detailed Description</h2>
 Allows server output and query functions This class contains methods which allow a module to query the state of the irc server, and produce output to users and other servers. 
@@ -131,7 +170,7 @@ All modules should instantiate at least one copy of this class, and use its memb
 <p>
 
 <p>
-Definition at line <a class="el" href="modules_8h-source.html#l00376">376</a> of file <a class="el" href="modules_8h-source.html">modules.h</a>.<hr><h2>Constructor &amp; Destructor Documentation</h2>
+Definition at line <a class="el" href="modules_8h-source.html#l00385">385</a> of file <a class="el" href="modules_8h-source.html">modules.h</a>.<hr><h2>Constructor &amp; Destructor Documentation</h2>
 <a name="a0" doxytag="Server::Server"></a><p>
 <table class="mdTable" width="100%" cellpadding="2" cellspacing="0">
   <tr>
@@ -266,11 +305,72 @@ When the command is typed, the parameters will be placed into the parameters arr
 <p>
 Definition at line <a class="el" href="modules_8cpp-source.html#l00420">420</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
 <p>
-References <a class="el" href="modules_8h.html#a34">createcommand()</a>.
+References <a class="el" href="modules_8h.html#a35">createcommand()</a>.
 <p>
 <div class="fragment"><pre>00421 {
-00422         <a class="code" href="modules_8h.html#a34">createcommand</a>(cmd,f,flags,minparams,source);
+00422         <a class="code" href="modules_8h.html#a35">createcommand</a>(cmd,f,flags,minparams,source);
 00423 }
+</pre></div>    </td>
+  </tr>
+</table>
+<a name="a42" doxytag="Server::AddELine"></a><p>
+<table class="mdTable" width="100%" cellpadding="2" cellspacing="0">
+  <tr>
+    <td class="mdRow">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> void Server::AddELine </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="md" nowrap valign="top">long&nbsp;</td>
+          <td class="mdname" nowrap> <em>duration</em>, </td>
+        </tr>
+        <tr>
+          <td></td>
+          <td></td>
+          <td class="md" nowrap>std::string&nbsp;</td>
+          <td class="mdname" nowrap> <em>source</em>, </td>
+        </tr>
+        <tr>
+          <td></td>
+          <td></td>
+          <td class="md" nowrap>std::string&nbsp;</td>
+          <td class="mdname" nowrap> <em>reason</em>, </td>
+        </tr>
+        <tr>
+          <td></td>
+          <td></td>
+          <td class="md" nowrap>std::string&nbsp;</td>
+          <td class="mdname" nowrap> <em>hostmask</em></td>
+        </tr>
+        <tr>
+          <td></td>
+          <td class="md">)&nbsp;</td>
+          <td class="md" colspan="2"><code> [virtual]</code></td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+Adds a E-line The E-line is enforced as soon as it is added. 
+<p>
+The duration must be in seconds, however you can use the <a class="el" href="classServer.html#a48">Server::CalcDuration</a> method to convert durations into the 1w2d3h3m6s format used by /GLINE etc. The source is an arbitary string used to indicate who or what sent the data, usually this is the nickname of a person, or a server name. 
+<p>
+Definition at line <a class="el" href="modules_8cpp-source.html#l00638">638</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
+<p>
+References <a class="el" href="xline_8h.html#a5">add_eline()</a>, and <a class="el" href="commands_8h.html#a75">duration()</a>.
+<p>
+<div class="fragment"><pre>00639 {
+00640         <a class="code" href="xline_8h.html#a5">add_eline</a>(duration, source.c_str(), reason.c_str(), hostmask.c_str());
+00641 }
 </pre></div>    </td>
   </tr>
 </table>
@@ -401,6 +501,290 @@ References <a class="el" href="modules_8h-source.html#l00023">DEBUG</a>, <a clas
 00561         }
 00562         <span class="keywordflow">return</span> <a class="code" href="modules_8cpp.html#a57">DoAddExtendedMode</a>(modechar,type,requires_oper,params_when_on,params_when_off);
 00563 }
+</pre></div>    </td>
+  </tr>
+</table>
+<a name="a38" doxytag="Server::AddGLine"></a><p>
+<table class="mdTable" width="100%" cellpadding="2" cellspacing="0">
+  <tr>
+    <td class="mdRow">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> void Server::AddGLine </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="md" nowrap valign="top">long&nbsp;</td>
+          <td class="mdname" nowrap> <em>duration</em>, </td>
+        </tr>
+        <tr>
+          <td></td>
+          <td></td>
+          <td class="md" nowrap>std::string&nbsp;</td>
+          <td class="mdname" nowrap> <em>source</em>, </td>
+        </tr>
+        <tr>
+          <td></td>
+          <td></td>
+          <td class="md" nowrap>std::string&nbsp;</td>
+          <td class="mdname" nowrap> <em>reason</em>, </td>
+        </tr>
+        <tr>
+          <td></td>
+          <td></td>
+          <td class="md" nowrap>std::string&nbsp;</td>
+          <td class="mdname" nowrap> <em>hostmask</em></td>
+        </tr>
+        <tr>
+          <td></td>
+          <td class="md">)&nbsp;</td>
+          <td class="md" colspan="2"><code> [virtual]</code></td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+Adds a G-line The G-line is propogated to all of the servers in the mesh and enforced as soon as it is added. 
+<p>
+The duration must be in seconds, however you can use the <a class="el" href="classServer.html#a48">Server::CalcDuration</a> method to convert durations into the 1w2d3h3m6s format used by /GLINE etc. The source is an arbitary string used to indicate who or what sent the data, usually this is the nickname of a person, or a server name.
+<p>
+Definition at line <a class="el" href="modules_8cpp-source.html#l00618">618</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
+<p>
+References <a class="el" href="xline_8h.html#a1">add_gline()</a>, and <a class="el" href="commands_8h.html#a75">duration()</a>.
+<p>
+<div class="fragment"><pre>00619 {
+00620         <a class="code" href="xline_8h.html#a1">add_gline</a>(duration, source.c_str(), reason.c_str(), hostmask.c_str());
+00621 }
+</pre></div>    </td>
+  </tr>
+</table>
+<a name="a41" doxytag="Server::AddKLine"></a><p>
+<table class="mdTable" width="100%" cellpadding="2" cellspacing="0">
+  <tr>
+    <td class="mdRow">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> void Server::AddKLine </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="md" nowrap valign="top">long&nbsp;</td>
+          <td class="mdname" nowrap> <em>duration</em>, </td>
+        </tr>
+        <tr>
+          <td></td>
+          <td></td>
+          <td class="md" nowrap>std::string&nbsp;</td>
+          <td class="mdname" nowrap> <em>source</em>, </td>
+        </tr>
+        <tr>
+          <td></td>
+          <td></td>
+          <td class="md" nowrap>std::string&nbsp;</td>
+          <td class="mdname" nowrap> <em>reason</em>, </td>
+        </tr>
+        <tr>
+          <td></td>
+          <td></td>
+          <td class="md" nowrap>std::string&nbsp;</td>
+          <td class="mdname" nowrap> <em>hostmask</em></td>
+        </tr>
+        <tr>
+          <td></td>
+          <td class="md">)&nbsp;</td>
+          <td class="md" colspan="2"><code> [virtual]</code></td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+Adds a K-line The K-line is enforced as soon as it is added. 
+<p>
+The duration must be in seconds, however you can use the <a class="el" href="classServer.html#a48">Server::CalcDuration</a> method to convert durations into the 1w2d3h3m6s format used by /GLINE etc. The source is an arbitary string used to indicate who or what sent the data, usually this is the nickname of a person, or a server name. 
+<p>
+Definition at line <a class="el" href="modules_8cpp-source.html#l00633">633</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
+<p>
+References <a class="el" href="xline_8h.html#a4">add_kline()</a>, and <a class="el" href="commands_8h.html#a75">duration()</a>.
+<p>
+<div class="fragment"><pre>00634 {
+00635         <a class="code" href="xline_8h.html#a4">add_kline</a>(duration, source.c_str(), reason.c_str(), hostmask.c_str());
+00636 }
+</pre></div>    </td>
+  </tr>
+</table>
+<a name="a39" doxytag="Server::AddQLine"></a><p>
+<table class="mdTable" width="100%" cellpadding="2" cellspacing="0">
+  <tr>
+    <td class="mdRow">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> void Server::AddQLine </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="md" nowrap valign="top">long&nbsp;</td>
+          <td class="mdname" nowrap> <em>duration</em>, </td>
+        </tr>
+        <tr>
+          <td></td>
+          <td></td>
+          <td class="md" nowrap>std::string&nbsp;</td>
+          <td class="mdname" nowrap> <em>source</em>, </td>
+        </tr>
+        <tr>
+          <td></td>
+          <td></td>
+          <td class="md" nowrap>std::string&nbsp;</td>
+          <td class="mdname" nowrap> <em>reason</em>, </td>
+        </tr>
+        <tr>
+          <td></td>
+          <td></td>
+          <td class="md" nowrap>std::string&nbsp;</td>
+          <td class="mdname" nowrap> <em>nickname</em></td>
+        </tr>
+        <tr>
+          <td></td>
+          <td class="md">)&nbsp;</td>
+          <td class="md" colspan="2"><code> [virtual]</code></td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+Adds a Q-line The Q-line is propogated to all of the servers in the mesh and enforced as soon as it is added. 
+<p>
+The duration must be in seconds, however you can use the <a class="el" href="classServer.html#a48">Server::CalcDuration</a> method to convert durations into the 1w2d3h3m6s format used by /GLINE etc. The source is an arbitary string used to indicate who or what sent the data, usually this is the nickname of a person, or a server name. 
+<p>
+Definition at line <a class="el" href="modules_8cpp-source.html#l00623">623</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
+<p>
+References <a class="el" href="xline_8h.html#a2">add_qline()</a>, and <a class="el" href="commands_8h.html#a75">duration()</a>.
+<p>
+<div class="fragment"><pre>00624 {
+00625         <a class="code" href="xline_8h.html#a2">add_qline</a>(duration, source.c_str(), reason.c_str(), nickname.c_str());
+00626 }
+</pre></div>    </td>
+  </tr>
+</table>
+<a name="a40" doxytag="Server::AddZLine"></a><p>
+<table class="mdTable" width="100%" cellpadding="2" cellspacing="0">
+  <tr>
+    <td class="mdRow">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> void Server::AddZLine </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="md" nowrap valign="top">long&nbsp;</td>
+          <td class="mdname" nowrap> <em>duration</em>, </td>
+        </tr>
+        <tr>
+          <td></td>
+          <td></td>
+          <td class="md" nowrap>std::string&nbsp;</td>
+          <td class="mdname" nowrap> <em>source</em>, </td>
+        </tr>
+        <tr>
+          <td></td>
+          <td></td>
+          <td class="md" nowrap>std::string&nbsp;</td>
+          <td class="mdname" nowrap> <em>reason</em>, </td>
+        </tr>
+        <tr>
+          <td></td>
+          <td></td>
+          <td class="md" nowrap>std::string&nbsp;</td>
+          <td class="mdname" nowrap> <em>ipaddr</em></td>
+        </tr>
+        <tr>
+          <td></td>
+          <td class="md">)&nbsp;</td>
+          <td class="md" colspan="2"><code> [virtual]</code></td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+Adds a Z-line The Z-line is propogated to all of the servers in the mesh and enforced as soon as it is added. 
+<p>
+The duration must be in seconds, however you can use the <a class="el" href="classServer.html#a48">Server::CalcDuration</a> method to convert durations into the 1w2d3h3m6s format used by /GLINE etc. The source is an arbitary string used to indicate who or what sent the data, usually this is the nickname of a person, or a server name. 
+<p>
+Definition at line <a class="el" href="modules_8cpp-source.html#l00628">628</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
+<p>
+References <a class="el" href="xline_8h.html#a3">add_zline()</a>, and <a class="el" href="commands_8h.html#a75">duration()</a>.
+<p>
+<div class="fragment"><pre>00629 {
+00630         <a class="code" href="xline_8h.html#a3">add_zline</a>(duration, source.c_str(), reason.c_str(), ipaddr.c_str());
+00631 }
+</pre></div>    </td>
+  </tr>
+</table>
+<a name="a48" doxytag="Server::CalcDuration"></a><p>
+<table class="mdTable" width="100%" cellpadding="2" cellspacing="0">
+  <tr>
+    <td class="mdRow">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> long Server::CalcDuration </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="md" nowrap valign="top">std::string&nbsp;</td>
+          <td class="mdname1" valign="top" nowrap> <em>duration</em>          </td>
+          <td class="md" valign="top">&nbsp;)&nbsp;</td>
+          <td class="md" nowrap><code> [virtual]</code></td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+Calculates a duration This method will take a string containing a formatted duration (e.g. 
+<p>
+"1w2d") and return its value as a total number of seconds. This is the same function used internally by /GLINE etc to set the ban times.
+<p>
+Definition at line <a class="el" href="modules_8cpp-source.html#l00668">668</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
+<p>
+References <a class="el" href="commands_8h.html#a75">duration()</a>.
+<p>
+<div class="fragment"><pre>00669 {
+00670         <span class="keywordflow">return</span> <a class="code" href="commands_8h.html#a75">duration</a>(delta.c_str());
+00671 }
 </pre></div>    </td>
   </tr>
 </table>
@@ -745,6 +1129,206 @@ Definition at line <a class="el" href="modules_8cpp-source.html#l00573">573</a> 
 </pre></div>    </td>
   </tr>
 </table>
+<a name="a47" doxytag="Server::DelELine"></a><p>
+<table class="mdTable" width="100%" cellpadding="2" cellspacing="0">
+  <tr>
+    <td class="mdRow">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> bool Server::DelELine </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="md" nowrap valign="top">std::string&nbsp;</td>
+          <td class="mdname1" valign="top" nowrap> <em>hostmask</em>          </td>
+          <td class="md" valign="top">&nbsp;)&nbsp;</td>
+          <td class="md" nowrap><code> [virtual]</code></td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+Deletes a local E-Line. 
+<p>
+
+<p>
+Definition at line <a class="el" href="modules_8cpp-source.html#l00663">663</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
+<p>
+References <a class="el" href="xline_8h.html#a10">del_eline()</a>.
+<p>
+<div class="fragment"><pre>00664 {
+00665         <a class="code" href="xline_8h.html#a10">del_eline</a>(hostmask.c_str());
+00666 }
+</pre></div>    </td>
+  </tr>
+</table>
+<a name="a43" doxytag="Server::DelGLine"></a><p>
+<table class="mdTable" width="100%" cellpadding="2" cellspacing="0">
+  <tr>
+    <td class="mdRow">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> bool Server::DelGLine </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="md" nowrap valign="top">std::string&nbsp;</td>
+          <td class="mdname1" valign="top" nowrap> <em>hostmask</em>          </td>
+          <td class="md" valign="top">&nbsp;)&nbsp;</td>
+          <td class="md" nowrap><code> [virtual]</code></td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+Deletes a G-Line from all servers on the mesh. 
+<p>
+
+<p>
+Definition at line <a class="el" href="modules_8cpp-source.html#l00643">643</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
+<p>
+References <a class="el" href="xline_8h.html#a6">del_gline()</a>.
+<p>
+<div class="fragment"><pre>00644 {
+00645         <a class="code" href="xline_8h.html#a6">del_gline</a>(hostmask.c_str());
+00646 }
+</pre></div>    </td>
+  </tr>
+</table>
+<a name="a46" doxytag="Server::DelKLine"></a><p>
+<table class="mdTable" width="100%" cellpadding="2" cellspacing="0">
+  <tr>
+    <td class="mdRow">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> bool Server::DelKLine </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="md" nowrap valign="top">std::string&nbsp;</td>
+          <td class="mdname1" valign="top" nowrap> <em>hostmask</em>          </td>
+          <td class="md" valign="top">&nbsp;)&nbsp;</td>
+          <td class="md" nowrap><code> [virtual]</code></td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+Deletes a local K-Line. 
+<p>
+
+<p>
+Definition at line <a class="el" href="modules_8cpp-source.html#l00658">658</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
+<p>
+References <a class="el" href="xline_8h.html#a9">del_kline()</a>.
+<p>
+<div class="fragment"><pre>00659 {
+00660         <a class="code" href="xline_8h.html#a9">del_kline</a>(hostmask.c_str());
+00661 }
+</pre></div>    </td>
+  </tr>
+</table>
+<a name="a44" doxytag="Server::DelQLine"></a><p>
+<table class="mdTable" width="100%" cellpadding="2" cellspacing="0">
+  <tr>
+    <td class="mdRow">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> bool Server::DelQLine </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="md" nowrap valign="top">std::string&nbsp;</td>
+          <td class="mdname1" valign="top" nowrap> <em>nickname</em>          </td>
+          <td class="md" valign="top">&nbsp;)&nbsp;</td>
+          <td class="md" nowrap><code> [virtual]</code></td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+Deletes a Q-Line from all servers on the mesh. 
+<p>
+
+<p>
+Definition at line <a class="el" href="modules_8cpp-source.html#l00648">648</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
+<p>
+References <a class="el" href="xline_8h.html#a7">del_qline()</a>.
+<p>
+<div class="fragment"><pre>00649 {
+00650         <a class="code" href="xline_8h.html#a7">del_qline</a>(nickname.c_str());
+00651 }
+</pre></div>    </td>
+  </tr>
+</table>
+<a name="a45" doxytag="Server::DelZLine"></a><p>
+<table class="mdTable" width="100%" cellpadding="2" cellspacing="0">
+  <tr>
+    <td class="mdRow">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> bool Server::DelZLine </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="md" nowrap valign="top">std::string&nbsp;</td>
+          <td class="mdname1" valign="top" nowrap> <em>ipaddr</em>          </td>
+          <td class="md" valign="top">&nbsp;)&nbsp;</td>
+          <td class="md" nowrap><code> [virtual]</code></td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+Deletes a Z-Line from all servers on the mesh. 
+<p>
+
+<p>
+Definition at line <a class="el" href="modules_8cpp-source.html#l00653">653</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
+<p>
+References <a class="el" href="xline_8h.html#a8">del_zline()</a>.
+<p>
+<div class="fragment"><pre>00654 {
+00655         <a class="code" href="xline_8h.html#a8">del_zline</a>(ipaddr.c_str());
+00656 }
+</pre></div>    </td>
+  </tr>
+</table>
 <a name="a15" doxytag="Server::FindChannel"></a><p>
 <table class="mdTable" width="100%" cellpadding="2" cellspacing="0">
   <tr>
@@ -938,7 +1522,7 @@ Definition at line <a class="el" href="modules_8cpp-source.html#l00528">528</a> 
     <td class="mdRow">
       <table cellpadding="0" cellspacing="0" border="0">
         <tr>
-          <td class="md" nowrap valign="top"> <a class="el" href="modules_8h.html#a32">chanuserlist</a> Server::GetUsers </td>
+          <td class="md" nowrap valign="top"> <a class="el" href="modules_8h.html#a33">chanuserlist</a> Server::GetUsers </td>
           <td class="md" valign="top">(&nbsp;</td>
           <td class="md" nowrap valign="top"><a class="el" href="classchanrec.html">chanrec</a> *&nbsp;</td>
           <td class="mdname1" valign="top" nowrap> <em>chan</em>          </td>
@@ -967,7 +1551,7 @@ Definition at line <a class="el" href="modules_8cpp-source.html#l00375">375</a> 
 References <a class="el" href="modules_8h-source.html#l00072">chanuserlist</a>, <a class="el" href="modules_8cpp-source.html#l00179">clientlist</a>, <a class="el" href="message_8h.html#a16">has_channel()</a>, and <a class="el" href="message_8h.html#a13">isnick()</a>.
 <p>
 <div class="fragment"><pre>00376 {
-00377         <a class="code" href="modules_8h.html#a32">chanuserlist</a> userl;
+00377         <a class="code" href="modules_8h.html#a33">chanuserlist</a> userl;
 00378         userl.clear();
 00379         <span class="keywordflow">for</span> (user_hash::const_iterator i = <a class="code" href="modules_8cpp.html#a42">clientlist</a>.begin(); i != <a class="code" href="modules_8cpp.html#a42">clientlist</a>.end(); i++)
 00380         {
@@ -1319,6 +1903,86 @@ Definition at line <a class="el" href="modules_8cpp-source.html#l00370">370</a> 
 </pre></div>    </td>
   </tr>
 </table>
+<a name="a37" doxytag="Server::PseudoToUser"></a><p>
+<table class="mdTable" width="100%" cellpadding="2" cellspacing="0">
+  <tr>
+    <td class="mdRow">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> bool Server::PseudoToUser </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="md" nowrap valign="top"><a class="el" href="classuserrec.html">userrec</a> *&nbsp;</td>
+          <td class="mdname" nowrap> <em>alive</em>, </td>
+        </tr>
+        <tr>
+          <td></td>
+          <td></td>
+          <td class="md" nowrap><a class="el" href="classuserrec.html">userrec</a> *&nbsp;</td>
+          <td class="mdname" nowrap> <em>zombie</em>, </td>
+        </tr>
+        <tr>
+          <td></td>
+          <td></td>
+          <td class="md" nowrap>std::string&nbsp;</td>
+          <td class="mdname" nowrap> <em>message</em></td>
+        </tr>
+        <tr>
+          <td></td>
+          <td class="md">)&nbsp;</td>
+          <td class="md" colspan="2"><code> [virtual]</code></td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+This user takes one user, and switches their file descriptor with another user, so that one user "becomes" the other. 
+<p>
+The user in 'alive' is booted off the server with the given message. The user referred to by 'zombie' should have previously been locked with Server::ZombifyUser, otherwise stale sockets and file descriptor leaks can occur. After this call, the pointer to alive will be invalid, and the pointer to zombie will be equivalent in effect to the old pointer to alive.
+<p>
+Definition at line <a class="el" href="modules_8cpp-source.html#l00588">588</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
+<p>
+References <a class="el" href="channels_8h-source.html#l00213">ucrec::channel</a>, <a class="el" href="users_8h-source.html#l00127">userrec::chans</a>, <a class="el" href="channels_8h-source.html#l00111">chanrec::created</a>, <a class="el" href="connection_8h-source.html#l00178">connection::fd</a>, <a class="el" href="modules_8h-source.html#l00099">FD_MAGIC_NUMBER</a>, <a class="el" href="connection_8h-source.html#l00182">connection::host</a>, <a class="el" href="users_8h-source.html#l00110">userrec::ident</a>, <a class="el" href="channels_8h-source.html#l00099">chanrec::name</a>, <a class="el" href="users_8h-source.html#l00106">userrec::nick</a>, <a class="el" href="channels_8h-source.html#l00119">chanrec::setby</a>, <a class="el" href="channels_8h-source.html#l00108">chanrec::topic</a>, and <a class="el" href="channels_8h-source.html#l00115">chanrec::topicset</a>.
+<p>
+<div class="fragment"><pre>00589 {
+00590         zombie-&gt;<a class="code" href="classconnection.html#o0">fd</a> = alive-&gt;<a class="code" href="classconnection.html#o0">fd</a>;
+00591         alive-&gt;<a class="code" href="classconnection.html#o0">fd</a> = <a class="code" href="modules_8h.html#a26">FD_MAGIC_NUMBER</a>;
+00592         Write(zombie-&gt;<a class="code" href="classconnection.html#o0">fd</a>,<span class="stringliteral">":%s!%s@%s NICK %s"</span>,alive-&gt;<a class="code" href="classuserrec.html#o0">nick</a>,alive-&gt;<a class="code" href="classuserrec.html#o1">ident</a>,alive-&gt;<a class="code" href="classconnection.html#o1">host</a>,zombie-&gt;<a class="code" href="classuserrec.html#o0">nick</a>);
+00593         kill_link(alive,message.c_str());
+00594         <span class="keywordflow">for</span> (<span class="keywordtype">int</span> i = 0; i != MAXCHANS; i++)
+00595         {
+00596                 <span class="keywordflow">if</span> (zombie-&gt;<a class="code" href="classuserrec.html#o5">chans</a>[i].<a class="code" href="classucrec.html#o1">channel</a> != NULL)
+00597                 {
+00598                         <span class="keywordflow">if</span> (zombie-&gt;<a class="code" href="classuserrec.html#o5">chans</a>[i].<a class="code" href="classucrec.html#o1">channel</a>-&gt;<a class="code" href="classchanrec.html#o0">name</a>)
+00599                         {
+00600                                 <a class="code" href="classchanrec.html">chanrec</a>* Ptr = zombie-&gt;<a class="code" href="classuserrec.html#o5">chans</a>[i].<a class="code" href="classucrec.html#o1">channel</a>;
+00601                                 WriteFrom(zombie-&gt;<a class="code" href="classconnection.html#o0">fd</a>,zombie,<span class="stringliteral">"JOIN %s"</span>,Ptr-&gt;<a class="code" href="classchanrec.html#o0">name</a>);
+00602                                 <span class="keywordflow">if</span> (Ptr-&gt;<a class="code" href="classchanrec.html#o4">topicset</a>)
+00603                                 {
+00604                                         WriteServ(zombie-&gt;<a class="code" href="classconnection.html#o0">fd</a>,<span class="stringliteral">"332 %s %s :%s"</span>, zombie-&gt;<a class="code" href="classuserrec.html#o0">nick</a>, Ptr-&gt;<a class="code" href="classchanrec.html#o0">name</a>, Ptr-&gt;<a class="code" href="classchanrec.html#o2">topic</a>);
+00605                                         WriteServ(zombie-&gt;<a class="code" href="classconnection.html#o0">fd</a>,<span class="stringliteral">"333 %s %s %s %d"</span>, zombie-&gt;<a class="code" href="classuserrec.html#o0">nick</a>, Ptr-&gt;<a class="code" href="classchanrec.html#o0">name</a>, Ptr-&gt;<a class="code" href="classchanrec.html#o5">setby</a>, Ptr-&gt;<a class="code" href="classchanrec.html#o4">topicset</a>);
+00606                                 }
+00607                                 userlist(zombie,Ptr);
+00608                                 WriteServ(zombie-&gt;<a class="code" href="classconnection.html#o0">fd</a>,<span class="stringliteral">"366 %s %s :End of /NAMES list."</span>, zombie-&gt;<a class="code" href="classuserrec.html#o0">nick</a>, Ptr-&gt;<a class="code" href="classchanrec.html#o0">name</a>);
+00609                                 WriteServ(zombie-&gt;<a class="code" href="classconnection.html#o0">fd</a>,<span class="stringliteral">"324 %s %s +%s"</span>,zombie-&gt;<a class="code" href="classuserrec.html#o0">nick</a>, Ptr-&gt;<a class="code" href="classchanrec.html#o0">name</a>,chanmodes(Ptr));
+00610                                 WriteServ(zombie-&gt;<a class="code" href="classconnection.html#o0">fd</a>,<span class="stringliteral">"329 %s %s %d"</span>, zombie-&gt;<a class="code" href="classuserrec.html#o0">nick</a>, Ptr-&gt;<a class="code" href="classchanrec.html#o0">name</a>, Ptr-&gt;<a class="code" href="classchanrec.html#o3">created</a>);
+00611 
+00612                         }
+00613                 }
+00614         }
+00615 
+00616 }
+</pre></div>    </td>
+  </tr>
+</table>
 <a name="a29" doxytag="Server::QuitUser"></a><p>
 <table class="mdTable" width="100%" cellpadding="2" cellspacing="0">
   <tr>
@@ -1651,10 +2315,10 @@ The modes will originate from the server where the command was issued, however r
 <p>
 Definition at line <a class="el" href="modules_8cpp-source.html#l00425">425</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
 <p>
-References <a class="el" href="modules_8h.html#a35">server_mode()</a>.
+References <a class="el" href="modules_8h.html#a36">server_mode()</a>.
 <p>
 <div class="fragment"><pre>00426 {
-00427         <a class="code" href="modules_8h.html#a35">server_mode</a>(parameters,pcnt,user);
+00427         <a class="code" href="modules_8h.html#a36">server_mode</a>(parameters,pcnt,user);
 00428 }
 </pre></div>    </td>
   </tr>
@@ -1914,9 +2578,62 @@ Definition at line <a class="el" href="modules_8cpp-source.html#l00488">488</a> 
 </pre></div>    </td>
   </tr>
 </table>
+<a name="a36" doxytag="Server::UserToPseudo"></a><p>
+<table class="mdTable" width="100%" cellpadding="2" cellspacing="0">
+  <tr>
+    <td class="mdRow">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> bool Server::UserToPseudo </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="md" nowrap valign="top"><a class="el" href="classuserrec.html">userrec</a> *&nbsp;</td>
+          <td class="mdname" nowrap> <em>user</em>, </td>
+        </tr>
+        <tr>
+          <td></td>
+          <td></td>
+          <td class="md" nowrap>std::string&nbsp;</td>
+          <td class="mdname" nowrap> <em>message</em></td>
+        </tr>
+        <tr>
+          <td></td>
+          <td class="md">)&nbsp;</td>
+          <td class="md" colspan="2"><code> [virtual]</code></td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+Remove a user's connection to the irc server, but leave their client in existence in the user hash. 
+<p>
+When you call this function, the user's file descriptor will be replaced with the value of FD_MAGIC_NUMBER and their old file descriptor will be closed. This idle client will remain until it is restored with a valid file descriptor, or is removed from IRC by an operator After this call, the pointer to user will be invalid.
+<p>
+Definition at line <a class="el" href="modules_8cpp-source.html#l00579">579</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
+<p>
+References <a class="el" href="connection_8h-source.html#l00178">connection::fd</a>, <a class="el" href="modules_8h-source.html#l00099">FD_MAGIC_NUMBER</a>, <a class="el" href="connection_8h-source.html#l00182">connection::host</a>, and <a class="el" href="users_8h-source.html#l00110">userrec::ident</a>.
+<p>
+<div class="fragment"><pre>00580 {
+00581         <span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> old_fd = user-&gt;<a class="code" href="classconnection.html#o0">fd</a>;
+00582         user-&gt;<a class="code" href="classconnection.html#o0">fd</a> = <a class="code" href="modules_8h.html#a26">FD_MAGIC_NUMBER</a>;
+00583         Write(old_fd,<span class="stringliteral">"ERROR :Closing link (%s@%s) [%s]"</span>,user-&gt;<a class="code" href="classuserrec.html#o1">ident</a>,user-&gt;<a class="code" href="classconnection.html#o1">host</a>,message.c_str());
+00584         close(old_fd);
+00585         shutdown (old_fd,2);
+00586 }
+</pre></div>    </td>
+  </tr>
+</table>
 <hr>The documentation for this class was generated from the following files:<ul>
 <li><a class="el" href="modules_8h-source.html">modules.h</a><li><a class="el" href="modules_8cpp-source.html">modules.cpp</a></ul>
-<hr size="1"><address style="align: right;"><small>Generated on Sat Apr 9 14:38:30 2005 for InspIRCd by
+<hr size="1"><address style="align: right;"><small>Generated on Wed Apr 13 12:32:29 2005 for InspIRCd by
 <a href="http://www.doxygen.org/index.html">
 <img src="doxygen.png" alt="doxygen" align="middle" border=0 > 
 </a>1.3.3 </small></address>

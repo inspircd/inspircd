@@ -120,17 +120,17 @@ class QLine : public XLine
 
 void read_xline_defaults();
 
-void add_gline(long duration, char* source, char* reason, char* hostmask);
-void add_qline(long duration, char* source, char* reason, char* nickname);
-void add_zline(long duration, char* source, char* reason, char* ipaddr);
-void add_kline(long duration, char* source, char* reason, char* hostmask);
-void add_eline(long duration, char* source, char* reason, char* hostmask);
+void add_gline(long duration, const char* source, const char* reason, const char* hostmask);
+void add_qline(long duration, const char* source, const char* reason, const char* nickname);
+void add_zline(long duration, const char* source, const char* reason, const char* ipaddr);
+void add_kline(long duration, const char* source, const char* reason, const char* hostmask);
+void add_eline(long duration, const char* source, const char* reason, const char* hostmask);
 
-bool del_gline(char* hostmask);
-bool del_qline(char* nickname);
-bool del_zline(char* ipaddr);
-bool del_kline(char* hostmask);
-bool del_eline(char* hostmask);
+bool del_gline(const char* hostmask);
+bool del_qline(const char* nickname);
+bool del_zline(const char* ipaddr);
+bool del_kline(const char* hostmask);
+bool del_eline(const char* hostmask);
 
 char* matches_qline(const char* nick);
 char* matches_gline(const char* host);
@@ -151,8 +151,8 @@ void gline_set_creation_time(char* host, time_t create_time);
 void qline_set_creation_time(char* nick, time_t create_time);
 void zline_set_creation_time(char* ip, time_t create_time);
 
-bool zline_make_global(char* ipaddr);
-bool qline_make_global(char* nickname);
+bool zline_make_global(const char* ipaddr);
+bool qline_make_global(const char* nickname);
 
 void sync_xlines(serverrec* serv, char* tcp_host);
 

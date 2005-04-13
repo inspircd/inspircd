@@ -1,4 +1,4 @@
-.TH "userrec" 3 "9 Apr 2005" "InspIRCd" \" -*- nroff -*-
+.TH "userrec" 3 "13 Apr 2005" "InspIRCd" \" -*- nroff -*-
 .ad l
 .nh
 .SH NAME
@@ -319,7 +319,7 @@ Referenced by userrec().
 .PP
 Definition at line 127 of file users.h.
 .PP
-Referenced by userrec().
+Referenced by Server::PseudoToUser(), and userrec().
 .SS "char \fBuserrec::dhost\fP[256]"
 .PP
 The host displayed to non-opers (used for cloaking etc). This usually matches the value of \fBuserrec::host\fP.Definition at line 115 of file users.h.
@@ -344,7 +344,7 @@ Referenced by userrec().
 .PP
 The users ident reply. Definition at line 110 of file users.h.
 .PP
-Referenced by GetFullHost(), GetFullRealHost(), and userrec().
+Referenced by GetFullHost(), GetFullRealHost(), Server::PseudoToUser(), userrec(), and Server::UserToPseudo().
 .SS "\fBInvitedList\fP \fBuserrec::invites\fP\fC [private]\fP"
 .PP
 A list of channels the user has a pending invite to. Definition at line 99 of file users.h.
@@ -359,7 +359,7 @@ Referenced by userrec().
 .PP
 The users nickname. An invalid nickname indicates an unregistered connection prior to the NICK command.Definition at line 106 of file users.h.
 .PP
-Referenced by ConfigReader::DumpErrors(), GetFullHost(), GetFullRealHost(), Server::QuitUser(), and userrec().
+Referenced by ConfigReader::DumpErrors(), GetFullHost(), GetFullRealHost(), Server::PseudoToUser(), Server::QuitUser(), and userrec().
 .SS "char \fBuserrec::oper\fP[NICKMAX]"
 .PP
 The oper type they logged in as, if they are an oper. This is used to check permissions in operclasses, so that we can say 'yay' or 'nay' to any commands they issue. The value of this is the value of a valid 'type name=' tag.Definition at line 160 of file users.h.

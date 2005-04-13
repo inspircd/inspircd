@@ -1,4 +1,4 @@
-.TH "Module" 3 "9 Apr 2005" "InspIRCd" \" -*- nroff -*-
+.TH "Module" 3 "13 Apr 2005" "InspIRCd" \" -*- nroff -*-
 .ad l
 .nh
 .SH NAME
@@ -123,6 +123,10 @@ Inherits \fBclassbase\fP.
 .RI "virtual void \fBOnLoadModule\fP (\fBModule\fP *mod, std::string name)"
 .br
 .RI "\fICalled whenever a module is loaded. \fP"
+.ti -1c
+.RI "virtual void \fBOnBackgroundTimer\fP (time_t curtime)"
+.br
+.RI "\fICalled once every five seconds for background processing. \fP"
 .in -1c
 .SH "Detailed Description"
 .PP 
@@ -130,7 +134,7 @@ Base class for all InspIRCd modules This class is the base class for InspIRCd mo
 
 All modules must inherit from this class, its methods will be called when irc server events occur. class inherited from module must be instantiated by the \fBModuleFactory\fP class (see relevent section) for the plugin to be initialised. 
 .PP
-Definition at line 133 of file modules.h.
+Definition at line 135 of file modules.h.
 .SH "Constructor & Destructor Documentation"
 .PP 
 .SS "Module::Module ()"
@@ -197,6 +201,13 @@ References ACR_DEFAULT.
 .PP
 .nf
 327 { return ACR_DEFAULT; };
+.fi
+.SS "void Module::OnBackgroundTimer (time_t curtime)\fC [virtual]\fP"
+.PP
+Called once every five seconds for background processing. This timer can be used to control timed features. Its period is not accurate enough to be used as a clock, but it is gauranteed to be called at least once in any five second period, directly from the main loop of the server.Definition at line 333 of file modules.cpp.
+.PP
+.nf
+333 { };
 .fi
 .SS "\fBstring_list\fP Module::OnChannelSync (\fBchanrec\fP * chan)\fC [virtual]\fP"
 .PP

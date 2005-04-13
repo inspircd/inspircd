@@ -116,4 +116,8 @@ void handle_V(char token,char* params,serverrec* source,serverrec* reply, char* 
  */
 bool is_uline(const char* server);
 
+/** Other useful functions
+ */
+long duration(const char* str);
+
 #endif

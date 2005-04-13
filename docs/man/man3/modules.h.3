@@ -1,4 +1,4 @@
-.TH "modules.h" 3 "9 Apr 2005" "InspIRCd" \" -*- nroff -*-
+.TH "modules.h" 3 "13 Apr 2005" "InspIRCd" \" -*- nroff -*-
 .ad l
 .nh
 .SH NAME
@@ -133,6 +133,9 @@ modules.h \-
 .RI "#define \fBFOREACH_RESULT\fP(x)"
 .br
 .ti -1c
+.RI "#define \fBFD_MAGIC_NUMBER\fP   -42"
+.br
+.ti -1c
 .RI "#define \fBCONF_NOT_A_NUMBER\fP   0x000010"
 .br
 .ti -1c
@@ -215,22 +218,22 @@ Referenced by Module::OnAccessCheck().
 Definition at line 38 of file modules.h.
 .SS "#define CONF_FILE_NOT_FOUND   0x000200"
 .PP
-Definition at line 675 of file modules.h.
+Definition at line 772 of file modules.h.
 .PP
 Referenced by ConfigReader::ConfigReader().
 .SS "#define CONF_NOT_A_NUMBER   0x000010"
 .PP
-Definition at line 672 of file modules.h.
+Definition at line 769 of file modules.h.
 .PP
 Referenced by ConfigReader::ReadInteger().
 .SS "#define CONF_NOT_UNSIGNED   0x000080"
 .PP
-Definition at line 673 of file modules.h.
+Definition at line 770 of file modules.h.
 .PP
 Referenced by ConfigReader::ReadInteger().
 .SS "#define CONF_VALUE_NOT_FOUND   0x000100"
 .PP
-Definition at line 674 of file modules.h.
+Definition at line 771 of file modules.h.
 .PP
 Referenced by ConfigReader::ReadFlag(), ConfigReader::ReadInteger(), and ConfigReader::ReadValue().
 .SS "#define DEBUG   10"
@@ -241,6 +244,11 @@ Referenced by Server::AddExtendedMode(), userrec::HasPermission(), chanrec::IsCu
 .SS "#define DEFAULT   30"
 .PP
 Definition at line 25 of file modules.h.
+.SS "#define FD_MAGIC_NUMBER   -42"
+.PP
+Definition at line 99 of file modules.h.
+.PP
+Referenced by Server::PseudoToUser(), and Server::UserToPseudo().
 .SS "#define FOREACH_MOD   for (int i = 0; i <= \fBMODCOUNT\fP; i++) modules[i]->"
 .PP
 Definition at line 79 of file modules.h.
@@ -311,7 +319,7 @@ Low level definition of a \fBFileReader\fP classes file cache area. Definition a
 Referenced by FileReader::FileReader(), and FileReader::LoadFile().
 .SS "typedef DLLFactory<\fBModuleFactory\fP> \fBircd_module\fP"
 .PP
-Definition at line 840 of file modules.h.
+Definition at line 937 of file modules.h.
 .SS "typedef \fBfile_cache\fP \fBstring_list\fP"
 .PP
 Definition at line 68 of file modules.h.

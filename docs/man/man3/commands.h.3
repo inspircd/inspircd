@@ -1,4 +1,4 @@
-.TH "commands.h" 3 "9 Apr 2005" "InspIRCd" \" -*- nroff -*-
+.TH "commands.h" 3 "13 Apr 2005" "InspIRCd" \" -*- nroff -*-
 .ad l
 .nh
 .SH NAME
@@ -255,9 +255,16 @@ commands.h \-
 .RI "bool \fBis_uline\fP (const char *server)"
 .br
 .RI "\fIFunctions for u:lined servers. \fP"
+.ti -1c
+.RI "long \fBduration\fP (const char *str)"
+.br
+.RI "\fIOther useful functions. \fP"
 .in -1c
 .SH "Function Documentation"
 .PP 
+.SS "long duration (const char * str)"
+.PP
+Other useful functions. Referenced by Server::AddELine(), Server::AddGLine(), Server::AddKLine(), Server::AddQLine(), Server::AddZLine(), and Server::CalcDuration().
 .SS "void handle_a (char token, char * params, \fBserverrec\fP * source, \fBserverrec\fP * reply, char * tcp_host)"
 .PP
 .SS "void handle_admin (char ** parameters, int pcnt, \fBuserrec\fP * user)"

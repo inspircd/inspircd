@@ -1,4 +1,4 @@
-.TH "chanrec" 3 "9 Apr 2005" "InspIRCd" \" -*- nroff -*-
+.TH "chanrec" 3 "13 Apr 2005" "InspIRCd" \" -*- nroff -*-
 .ad l
 .nh
 .SH NAME
@@ -254,7 +254,7 @@ Referenced by chanrec().
 .PP
 Creation time. Definition at line 111 of file channels.h.
 .PP
-Referenced by chanrec().
+Referenced by chanrec(), and Server::PseudoToUser().
 .SS "char \fBchanrec::custom_modes\fP[MAXMODES]"
 .PP
 Custom modes for the channel. Plugins may use this field in any way they see fit.Definition at line 103 of file channels.h.
@@ -284,7 +284,7 @@ Referenced by chanrec().
 .PP
 The channels name. Definition at line 99 of file channels.h.
 .PP
-Referenced by chanrec().
+Referenced by chanrec(), and Server::PseudoToUser().
 .SS "short int \fBchanrec::noexternal\fP"
 .PP
 Nonzero if the mode +n is set. Definition at line 137 of file channels.h.
@@ -299,12 +299,12 @@ Referenced by chanrec().
 .PP
 The last user to set the topic. If this member is an empty string, no topic was ever set.Definition at line 119 of file channels.h.
 .PP
-Referenced by chanrec().
+Referenced by chanrec(), and Server::PseudoToUser().
 .SS "char \fBchanrec::topic\fP[MAXBUF]"
 .PP
 Channel topic. If this is an empty string, no channel topic is set.Definition at line 108 of file channels.h.
 .PP
-Referenced by chanrec().
+Referenced by chanrec(), and Server::PseudoToUser().
 .SS "short int \fBchanrec::topiclock\fP"
 .PP
 Nonzero if the mode +t is set. Definition at line 133 of file channels.h.
@@ -314,7 +314,7 @@ Referenced by chanrec().
 .PP
 Time topic was set. If no topic was ever set, this will be equal to \fBchanrec::created\fPDefinition at line 115 of file channels.h.
 .PP
-Referenced by chanrec().
+Referenced by chanrec(), and Server::PseudoToUser().
 
 .SH "Author"
 .PP 

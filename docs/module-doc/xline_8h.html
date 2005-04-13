@@ -38,25 +38,25 @@
 <tr><td colspan=2><br><h2>Functions</h2></td></tr>
 <tr><td class="memItemLeft" nowrap align=right valign=top>void&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="xline_8h.html#a0">read_xline_defaults</a> ()</td></tr>
 
-<tr><td class="memItemLeft" nowrap align=right valign=top>void&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="xline_8h.html#a1">add_gline</a> (long duration, char *source, char *reason, char *hostmask)</td></tr>
+<tr><td class="memItemLeft" nowrap align=right valign=top>void&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="xline_8h.html#a1">add_gline</a> (long duration, const char *source, const char *reason, const char *hostmask)</td></tr>
 
-<tr><td class="memItemLeft" nowrap align=right valign=top>void&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="xline_8h.html#a2">add_qline</a> (long duration, char *source, char *reason, char *nickname)</td></tr>
+<tr><td class="memItemLeft" nowrap align=right valign=top>void&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="xline_8h.html#a2">add_qline</a> (long duration, const char *source, const char *reason, const char *nickname)</td></tr>
 
-<tr><td class="memItemLeft" nowrap align=right valign=top>void&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="xline_8h.html#a3">add_zline</a> (long duration, char *source, char *reason, char *ipaddr)</td></tr>
+<tr><td class="memItemLeft" nowrap align=right valign=top>void&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="xline_8h.html#a3">add_zline</a> (long duration, const char *source, const char *reason, const char *ipaddr)</td></tr>
 
-<tr><td class="memItemLeft" nowrap align=right valign=top>void&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="xline_8h.html#a4">add_kline</a> (long duration, char *source, char *reason, char *hostmask)</td></tr>
+<tr><td class="memItemLeft" nowrap align=right valign=top>void&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="xline_8h.html#a4">add_kline</a> (long duration, const char *source, const char *reason, const char *hostmask)</td></tr>
 
-<tr><td class="memItemLeft" nowrap align=right valign=top>void&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="xline_8h.html#a5">add_eline</a> (long duration, char *source, char *reason, char *hostmask)</td></tr>
+<tr><td class="memItemLeft" nowrap align=right valign=top>void&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="xline_8h.html#a5">add_eline</a> (long duration, const char *source, const char *reason, const char *hostmask)</td></tr>
 
-<tr><td class="memItemLeft" nowrap align=right valign=top>bool&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="xline_8h.html#a6">del_gline</a> (char *hostmask)</td></tr>
+<tr><td class="memItemLeft" nowrap align=right valign=top>bool&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="xline_8h.html#a6">del_gline</a> (const char *hostmask)</td></tr>
 
-<tr><td class="memItemLeft" nowrap align=right valign=top>bool&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="xline_8h.html#a7">del_qline</a> (char *nickname)</td></tr>
+<tr><td class="memItemLeft" nowrap align=right valign=top>bool&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="xline_8h.html#a7">del_qline</a> (const char *nickname)</td></tr>
 
-<tr><td class="memItemLeft" nowrap align=right valign=top>bool&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="xline_8h.html#a8">del_zline</a> (char *ipaddr)</td></tr>
+<tr><td class="memItemLeft" nowrap align=right valign=top>bool&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="xline_8h.html#a8">del_zline</a> (const char *ipaddr)</td></tr>
 
-<tr><td class="memItemLeft" nowrap align=right valign=top>bool&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="xline_8h.html#a9">del_kline</a> (char *hostmask)</td></tr>
+<tr><td class="memItemLeft" nowrap align=right valign=top>bool&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="xline_8h.html#a9">del_kline</a> (const char *hostmask)</td></tr>
 
-<tr><td class="memItemLeft" nowrap align=right valign=top>bool&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="xline_8h.html#a10">del_eline</a> (char *hostmask)</td></tr>
+<tr><td class="memItemLeft" nowrap align=right valign=top>bool&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="xline_8h.html#a10">del_eline</a> (const char *hostmask)</td></tr>
 
 <tr><td class="memItemLeft" nowrap align=right valign=top>char *&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="xline_8h.html#a11">matches_qline</a> (const char *nick)</td></tr>
 
@@ -88,9 +88,9 @@
 
 <tr><td class="memItemLeft" nowrap align=right valign=top>void&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="xline_8h.html#a25">zline_set_creation_time</a> (char *ip, time_t create_time)</td></tr>
 
-<tr><td class="memItemLeft" nowrap align=right valign=top>bool&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="xline_8h.html#a26">zline_make_global</a> (char *ipaddr)</td></tr>
+<tr><td class="memItemLeft" nowrap align=right valign=top>bool&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="xline_8h.html#a26">zline_make_global</a> (const char *ipaddr)</td></tr>
 
-<tr><td class="memItemLeft" nowrap align=right valign=top>bool&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="xline_8h.html#a27">qline_make_global</a> (char *nickname)</td></tr>
+<tr><td class="memItemLeft" nowrap align=right valign=top>bool&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="xline_8h.html#a27">qline_make_global</a> (const char *nickname)</td></tr>
 
 <tr><td class="memItemLeft" nowrap align=right valign=top>void&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="xline_8h.html#a28">sync_xlines</a> (<a class="el" href="classserverrec.html">serverrec</a> *serv, char *tcp_host)</td></tr>
 
@@ -110,19 +110,19 @@
         <tr>
           <td></td>
           <td></td>
-          <td class="md" nowrap>char *&nbsp;</td>
+          <td class="md" nowrap>const char *&nbsp;</td>
           <td class="mdname" nowrap> <em>source</em>, </td>
         </tr>
         <tr>
           <td></td>
           <td></td>
-          <td class="md" nowrap>char *&nbsp;</td>
+          <td class="md" nowrap>const char *&nbsp;</td>
           <td class="mdname" nowrap> <em>reason</em>, </td>
         </tr>
         <tr>
           <td></td>
           <td></td>
-          <td class="md" nowrap>char *&nbsp;</td>
+          <td class="md" nowrap>const char *&nbsp;</td>
           <td class="mdname" nowrap> <em>hostmask</em></td>
         </tr>
         <tr>
@@ -143,7 +143,9 @@
     <td>
 
 <p>
-    </td>
+
+<p>
+Referenced by <a class="el" href="modules_8cpp-source.html#l00638">Server::AddELine()</a>.    </td>
   </tr>
 </table>
 <a name="a1" doxytag="xline.h::add_gline"></a><p>
@@ -160,19 +162,19 @@
         <tr>
           <td></td>
           <td></td>
-          <td class="md" nowrap>char *&nbsp;</td>
+          <td class="md" nowrap>const char *&nbsp;</td>
           <td class="mdname" nowrap> <em>source</em>, </td>
         </tr>
         <tr>
           <td></td>
           <td></td>
-          <td class="md" nowrap>char *&nbsp;</td>
+          <td class="md" nowrap>const char *&nbsp;</td>
           <td class="mdname" nowrap> <em>reason</em>, </td>
         </tr>
         <tr>
           <td></td>
           <td></td>
-          <td class="md" nowrap>char *&nbsp;</td>
+          <td class="md" nowrap>const char *&nbsp;</td>
           <td class="mdname" nowrap> <em>hostmask</em></td>
         </tr>
         <tr>
@@ -193,7 +195,9 @@
     <td>
 
 <p>
-    </td>
+
+<p>
+Referenced by <a class="el" href="modules_8cpp-source.html#l00618">Server::AddGLine()</a>.    </td>
   </tr>
 </table>
 <a name="a4" doxytag="xline.h::add_kline"></a><p>
@@ -210,19 +214,19 @@
         <tr>
           <td></td>
           <td></td>
-          <td class="md" nowrap>char *&nbsp;</td>
+          <td class="md" nowrap>const char *&nbsp;</td>
           <td class="mdname" nowrap> <em>source</em>, </td>
         </tr>
         <tr>
           <td></td>
           <td></td>
-          <td class="md" nowrap>char *&nbsp;</td>
+          <td class="md" nowrap>const char *&nbsp;</td>
           <td class="mdname" nowrap> <em>reason</em>, </td>
         </tr>
         <tr>
           <td></td>
           <td></td>
-          <td class="md" nowrap>char *&nbsp;</td>
+          <td class="md" nowrap>const char *&nbsp;</td>
           <td class="mdname" nowrap> <em>hostmask</em></td>
         </tr>
         <tr>
@@ -243,7 +247,9 @@
     <td>
 
 <p>
-    </td>
+
+<p>
+Referenced by <a class="el" href="modules_8cpp-source.html#l00633">Server::AddKLine()</a>.    </td>
   </tr>
 </table>
 <a name="a2" doxytag="xline.h::add_qline"></a><p>
@@ -260,19 +266,19 @@
         <tr>
           <td></td>
           <td></td>
-          <td class="md" nowrap>char *&nbsp;</td>
+          <td class="md" nowrap>const char *&nbsp;</td>
           <td class="mdname" nowrap> <em>source</em>, </td>
         </tr>
         <tr>
           <td></td>
           <td></td>
-          <td class="md" nowrap>char *&nbsp;</td>
+          <td class="md" nowrap>const char *&nbsp;</td>
           <td class="mdname" nowrap> <em>reason</em>, </td>
         </tr>
         <tr>
           <td></td>
           <td></td>
-          <td class="md" nowrap>char *&nbsp;</td>
+          <td class="md" nowrap>const char *&nbsp;</td>
           <td class="mdname" nowrap> <em>nickname</em></td>
         </tr>
         <tr>
@@ -293,7 +299,9 @@
     <td>
 
 <p>
-    </td>
+
+<p>
+Referenced by <a class="el" href="modules_8cpp-source.html#l00623">Server::AddQLine()</a>.    </td>
   </tr>
 </table>
 <a name="a3" doxytag="xline.h::add_zline"></a><p>
@@ -310,19 +318,19 @@
         <tr>
           <td></td>
           <td></td>
-          <td class="md" nowrap>char *&nbsp;</td>
+          <td class="md" nowrap>const char *&nbsp;</td>
           <td class="mdname" nowrap> <em>source</em>, </td>
         </tr>
         <tr>
           <td></td>
           <td></td>
-          <td class="md" nowrap>char *&nbsp;</td>
+          <td class="md" nowrap>const char *&nbsp;</td>
           <td class="mdname" nowrap> <em>reason</em>, </td>
         </tr>
         <tr>
           <td></td>
           <td></td>
-          <td class="md" nowrap>char *&nbsp;</td>
+          <td class="md" nowrap>const char *&nbsp;</td>
           <td class="mdname" nowrap> <em>ipaddr</em></td>
         </tr>
         <tr>
@@ -343,7 +351,9 @@
     <td>
 
 <p>
-    </td>
+
+<p>
+Referenced by <a class="el" href="modules_8cpp-source.html#l00628">Server::AddZLine()</a>.    </td>
   </tr>
 </table>
 <a name="a17" doxytag="xline.h::apply_lines"></a><p>
@@ -382,7 +392,7 @@
         <tr>
           <td class="md" nowrap valign="top"> bool del_eline </td>
           <td class="md" valign="top">(&nbsp;</td>
-          <td class="md" nowrap valign="top">char *&nbsp;</td>
+          <td class="md" nowrap valign="top">const char *&nbsp;</td>
           <td class="mdname1" valign="top" nowrap> <em>hostmask</em>          </td>
           <td class="md" valign="top">&nbsp;)&nbsp;</td>
           <td class="md" nowrap></td>
@@ -400,7 +410,9 @@
     <td>
 
 <p>
-    </td>
+
+<p>
+Referenced by <a class="el" href="modules_8cpp-source.html#l00663">Server::DelELine()</a>.    </td>
   </tr>
 </table>
 <a name="a6" doxytag="xline.h::del_gline"></a><p>
@@ -411,7 +423,7 @@
         <tr>
           <td class="md" nowrap valign="top"> bool del_gline </td>
           <td class="md" valign="top">(&nbsp;</td>
-          <td class="md" nowrap valign="top">char *&nbsp;</td>
+          <td class="md" nowrap valign="top">const char *&nbsp;</td>
           <td class="mdname1" valign="top" nowrap> <em>hostmask</em>          </td>
           <td class="md" valign="top">&nbsp;)&nbsp;</td>
           <td class="md" nowrap></td>
@@ -429,7 +441,9 @@
     <td>
 
 <p>
-    </td>
+
+<p>
+Referenced by <a class="el" href="modules_8cpp-source.html#l00643">Server::DelGLine()</a>.    </td>
   </tr>
 </table>
 <a name="a9" doxytag="xline.h::del_kline"></a><p>
@@ -440,7 +454,7 @@
         <tr>
           <td class="md" nowrap valign="top"> bool del_kline </td>
           <td class="md" valign="top">(&nbsp;</td>
-          <td class="md" nowrap valign="top">char *&nbsp;</td>
+          <td class="md" nowrap valign="top">const char *&nbsp;</td>
           <td class="mdname1" valign="top" nowrap> <em>hostmask</em>          </td>
           <td class="md" valign="top">&nbsp;)&nbsp;</td>
           <td class="md" nowrap></td>
@@ -458,7 +472,9 @@
     <td>
 
 <p>
-    </td>
+
+<p>
+Referenced by <a class="el" href="modules_8cpp-source.html#l00658">Server::DelKLine()</a>.    </td>
   </tr>
 </table>
 <a name="a7" doxytag="xline.h::del_qline"></a><p>
@@ -469,7 +485,7 @@
         <tr>
           <td class="md" nowrap valign="top"> bool del_qline </td>
           <td class="md" valign="top">(&nbsp;</td>
-          <td class="md" nowrap valign="top">char *&nbsp;</td>
+          <td class="md" nowrap valign="top">const char *&nbsp;</td>
           <td class="mdname1" valign="top" nowrap> <em>nickname</em>          </td>
           <td class="md" valign="top">&nbsp;)&nbsp;</td>
           <td class="md" nowrap></td>
@@ -487,7 +503,9 @@
     <td>
 
 <p>
-    </td>
+
+<p>
+Referenced by <a class="el" href="modules_8cpp-source.html#l00648">Server::DelQLine()</a>.    </td>
   </tr>
 </table>
 <a name="a8" doxytag="xline.h::del_zline"></a><p>
@@ -498,7 +516,7 @@
         <tr>
           <td class="md" nowrap valign="top"> bool del_zline </td>
           <td class="md" valign="top">(&nbsp;</td>
-          <td class="md" nowrap valign="top">char *&nbsp;</td>
+          <td class="md" nowrap valign="top">const char *&nbsp;</td>
           <td class="mdname1" valign="top" nowrap> <em>ipaddr</em>          </td>
           <td class="md" valign="top">&nbsp;)&nbsp;</td>
           <td class="md" nowrap></td>
@@ -516,7 +534,9 @@
     <td>
 
 <p>
-    </td>
+
+<p>
+Referenced by <a class="el" href="modules_8cpp-source.html#l00653">Server::DelZLine()</a>.    </td>
   </tr>
 </table>
 <a name="a16" doxytag="xline.h::expire_lines"></a><p>
@@ -738,7 +758,7 @@
         <tr>
           <td class="md" nowrap valign="top"> bool qline_make_global </td>
           <td class="md" valign="top">(&nbsp;</td>
-          <td class="md" nowrap valign="top">char *&nbsp;</td>
+          <td class="md" nowrap valign="top">const char *&nbsp;</td>
           <td class="mdname1" valign="top" nowrap> <em>nickname</em>          </td>
           <td class="md" valign="top">&nbsp;)&nbsp;</td>
           <td class="md" nowrap></td>
@@ -1016,7 +1036,7 @@
         <tr>
           <td class="md" nowrap valign="top"> bool zline_make_global </td>
           <td class="md" valign="top">(&nbsp;</td>
-          <td class="md" nowrap valign="top">char *&nbsp;</td>
+          <td class="md" nowrap valign="top">const char *&nbsp;</td>
           <td class="mdname1" valign="top" nowrap> <em>ipaddr</em>          </td>
           <td class="md" valign="top">&nbsp;)&nbsp;</td>
           <td class="md" nowrap></td>
@@ -1075,7 +1095,7 @@
     </td>
   </tr>
 </table>
-<hr size="1"><address style="align: right;"><small>Generated on Sat Apr 9 14:38:27 2005 for InspIRCd by
+<hr size="1"><address style="align: right;"><small>Generated on Wed Apr 13 12:32:20 2005 for InspIRCd by
 <a href="http://www.doxygen.org/index.html">
 <img src="doxygen.png" alt="doxygen" align="middle" border=0 > 
 </a>1.3.3 </small></address>

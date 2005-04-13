@@ -1,4 +1,4 @@
-.TH "Server" 3 "9 Apr 2005" "InspIRCd" \" -*- nroff -*-
+.TH "Server" 3 "13 Apr 2005" "InspIRCd" \" -*- nroff -*-
 .ad l
 .nh
 .SH NAME
@@ -159,6 +159,58 @@ Inherits \fBclassbase\fP.
 .RI "virtual \fBchanuserlist\fP \fBGetUsers\fP (\fBchanrec\fP *chan)"
 .br
 .RI "\fIFetches the userlist of a channel. \fP"
+.ti -1c
+.RI "virtual bool \fBUserToPseudo\fP (\fBuserrec\fP *user, std::string message)"
+.br
+.RI "\fIRemove a user's connection to the irc server, but leave their client in existence in the user hash. \fP"
+.ti -1c
+.RI "virtual bool \fBPseudoToUser\fP (\fBuserrec\fP *alive, \fBuserrec\fP *zombie, std::string message)"
+.br
+.RI "\fIThis user takes one user, and switches their file descriptor with another user, so that one user 'becomes' the other. \fP"
+.ti -1c
+.RI "virtual void \fBAddGLine\fP (long duration, std::string source, std::string reason, std::string hostmask)"
+.br
+.RI "\fIAdds a G-line The G-line is propogated to all of the servers in the mesh and enforced as soon as it is added. \fP"
+.ti -1c
+.RI "virtual void \fBAddQLine\fP (long duration, std::string source, std::string reason, std::string nickname)"
+.br
+.RI "\fIAdds a Q-line The Q-line is propogated to all of the servers in the mesh and enforced as soon as it is added. \fP"
+.ti -1c
+.RI "virtual void \fBAddZLine\fP (long duration, std::string source, std::string reason, std::string ipaddr)"
+.br
+.RI "\fIAdds a Z-line The Z-line is propogated to all of the servers in the mesh and enforced as soon as it is added. \fP"
+.ti -1c
+.RI "virtual void \fBAddKLine\fP (long duration, std::string source, std::string reason, std::string hostmask)"
+.br
+.RI "\fIAdds a K-line The K-line is enforced as soon as it is added. \fP"
+.ti -1c
+.RI "virtual void \fBAddELine\fP (long duration, std::string source, std::string reason, std::string hostmask)"
+.br
+.RI "\fIAdds a E-line The E-line is enforced as soon as it is added. \fP"
+.ti -1c
+.RI "virtual bool \fBDelGLine\fP (std::string hostmask)"
+.br
+.RI "\fIDeletes a G-Line from all servers on the mesh. \fP"
+.ti -1c
+.RI "virtual bool \fBDelQLine\fP (std::string nickname)"
+.br
+.RI "\fIDeletes a Q-Line from all servers on the mesh. \fP"
+.ti -1c
+.RI "virtual bool \fBDelZLine\fP (std::string ipaddr)"
+.br
+.RI "\fIDeletes a Z-Line from all servers on the mesh. \fP"
+.ti -1c
+.RI "virtual bool \fBDelKLine\fP (std::string hostmask)"
+.br
+.RI "\fIDeletes a local K-Line. \fP"
+.ti -1c
+.RI "virtual bool \fBDelELine\fP (std::string hostmask)"
+.br
+.RI "\fIDeletes a local E-Line. \fP"
+.ti -1c
+.RI "virtual long \fBCalcDuration\fP (std::string duration)"
+.br
+.RI "\fICalculates a duration This method will take a string containing a formatted duration (e.g. \fP"
 .in -1c
 .SH "Detailed Description"
 .PP 
@@ -166,7 +218,7 @@ Allows server output and query functions This class contains methods which allow
 
 All modules should instantiate at least one copy of this class, and use its member functions to perform their tasks. 
 .PP
-Definition at line 376 of file modules.h.
+Definition at line 385 of file modules.h.
 .SH "Constructor & Destructor Documentation"
 .PP 
 .SS "Server::Server ()"
@@ -201,6 +253,17 @@ References createcommand().
 421 {
 422         createcommand(cmd,f,flags,minparams,source);
 423 }
+.fi
+.SS "void Server::AddELine (long duration, std::string source, std::string reason, std::string hostmask)\fC [virtual]\fP"
+.PP
+Adds a E-line The E-line is enforced as soon as it is added. The duration must be in seconds, however you can use the \fBServer::CalcDuration\fP method to convert durations into the 1w2d3h3m6s format used by /GLINE etc. The source is an arbitary string used to indicate who or what sent the data, usually this is the nickname of a person, or a server name. Definition at line 638 of file modules.cpp.
+.PP
+References add_eline(), and duration().
+.PP
+.nf
+639 {
+640         add_eline(duration, source.c_str(), reason.c_str(), hostmask.c_str());
+641 }
 .fi
 .SS "bool Server::AddExtendedListMode (char modechar)\fC [virtual]\fP"
 .PP
@@ -251,6 +314,61 @@ References DEBUG, DoAddExtendedMode(), MT_CLIENT, and MT_SERVER.
 561         }
 562         return DoAddExtendedMode(modechar,type,requires_oper,params_when_on,params_when_off);
 563 }
+.fi
+.SS "void Server::AddGLine (long duration, std::string source, std::string reason, std::string hostmask)\fC [virtual]\fP"
+.PP
+Adds a G-line The G-line is propogated to all of the servers in the mesh and enforced as soon as it is added. The duration must be in seconds, however you can use the \fBServer::CalcDuration\fP method to convert durations into the 1w2d3h3m6s format used by /GLINE etc. The source is an arbitary string used to indicate who or what sent the data, usually this is the nickname of a person, or a server name.Definition at line 618 of file modules.cpp.
+.PP
+References add_gline(), and duration().
+.PP
+.nf
+619 {
+620         add_gline(duration, source.c_str(), reason.c_str(), hostmask.c_str());
+621 }
+.fi
+.SS "void Server::AddKLine (long duration, std::string source, std::string reason, std::string hostmask)\fC [virtual]\fP"
+.PP
+Adds a K-line The K-line is enforced as soon as it is added. The duration must be in seconds, however you can use the \fBServer::CalcDuration\fP method to convert durations into the 1w2d3h3m6s format used by /GLINE etc. The source is an arbitary string used to indicate who or what sent the data, usually this is the nickname of a person, or a server name. Definition at line 633 of file modules.cpp.
+.PP
+References add_kline(), and duration().
+.PP
+.nf
+634 {
+635         add_kline(duration, source.c_str(), reason.c_str(), hostmask.c_str());
+636 }
+.fi
+.SS "void Server::AddQLine (long duration, std::string source, std::string reason, std::string nickname)\fC [virtual]\fP"
+.PP
+Adds a Q-line The Q-line is propogated to all of the servers in the mesh and enforced as soon as it is added. The duration must be in seconds, however you can use the \fBServer::CalcDuration\fP method to convert durations into the 1w2d3h3m6s format used by /GLINE etc. The source is an arbitary string used to indicate who or what sent the data, usually this is the nickname of a person, or a server name. Definition at line 623 of file modules.cpp.
+.PP
+References add_qline(), and duration().
+.PP
+.nf
+624 {
+625         add_qline(duration, source.c_str(), reason.c_str(), nickname.c_str());
+626 }
+.fi
+.SS "void Server::AddZLine (long duration, std::string source, std::string reason, std::string ipaddr)\fC [virtual]\fP"
+.PP
+Adds a Z-line The Z-line is propogated to all of the servers in the mesh and enforced as soon as it is added. The duration must be in seconds, however you can use the \fBServer::CalcDuration\fP method to convert durations into the 1w2d3h3m6s format used by /GLINE etc. The source is an arbitary string used to indicate who or what sent the data, usually this is the nickname of a person, or a server name. Definition at line 628 of file modules.cpp.
+.PP
+References add_zline(), and duration().
+.PP
+.nf
+629 {
+630         add_zline(duration, source.c_str(), reason.c_str(), ipaddr.c_str());
+631 }
+.fi
+.SS "long Server::CalcDuration (std::string duration)\fC [virtual]\fP"
+.PP
+Calculates a duration This method will take a string containing a formatted duration (e.g. '1w2d') and return its value as a total number of seconds. This is the same function used internally by /GLINE etc to set the ban times.Definition at line 668 of file modules.cpp.
+.PP
+References duration().
+.PP
+.nf
+669 {
+670         return duration(delta.c_str());
+671 }
 .fi
 .SS "void Server::CallCommandHandler (std::string commandname, char ** parameters, int pcnt, \fBuserrec\fP * user)\fC [virtual]\fP"
 .PP
@@ -324,6 +442,61 @@ Returns a count of the number of users on a channel. This will NEVER be 0, as if
 574 {
 575         return usercount(c);
 576 }
+.fi
+.SS "bool Server::DelELine (std::string hostmask)\fC [virtual]\fP"
+.PP
+Deletes a local E-Line. Definition at line 663 of file modules.cpp.
+.PP
+References del_eline().
+.PP
+.nf
+664 {
+665         del_eline(hostmask.c_str());
+666 }
+.fi
+.SS "bool Server::DelGLine (std::string hostmask)\fC [virtual]\fP"
+.PP
+Deletes a G-Line from all servers on the mesh. Definition at line 643 of file modules.cpp.
+.PP
+References del_gline().
+.PP
+.nf
+644 {
+645         del_gline(hostmask.c_str());
+646 }
+.fi
+.SS "bool Server::DelKLine (std::string hostmask)\fC [virtual]\fP"
+.PP
+Deletes a local K-Line. Definition at line 658 of file modules.cpp.
+.PP
+References del_kline().
+.PP
+.nf
+659 {
+660         del_kline(hostmask.c_str());
+661 }
+.fi
+.SS "bool Server::DelQLine (std::string nickname)\fC [virtual]\fP"
+.PP
+Deletes a Q-Line from all servers on the mesh. Definition at line 648 of file modules.cpp.
+.PP
+References del_qline().
+.PP
+.nf
+649 {
+650         del_qline(nickname.c_str());
+651 }
+.fi
+.SS "bool Server::DelZLine (std::string ipaddr)\fC [virtual]\fP"
+.PP
+Deletes a Z-Line from all servers on the mesh. Definition at line 653 of file modules.cpp.
+.PP
+References del_zline().
+.PP
+.nf
+654 {
+655         del_zline(ipaddr.c_str());
+656 }
 .fi
 .SS "\fBchanrec\fP * Server::FindChannel (std::string channel)\fC [virtual]\fP"
 .PP
@@ -467,6 +640,42 @@ Forces a user to part a channel. This is similar to svspart and can be used to i
 371 {
 372         return del_channel(user,cname.c_str(),reason.c_str(),false);
 373 }
+.fi
+.SS "bool Server::PseudoToUser (\fBuserrec\fP * alive, \fBuserrec\fP * zombie, std::string message)\fC [virtual]\fP"
+.PP
+This user takes one user, and switches their file descriptor with another user, so that one user 'becomes' the other. The user in 'alive' is booted off the server with the given message. The user referred to by 'zombie' should have previously been locked with Server::ZombifyUser, otherwise stale sockets and file descriptor leaks can occur. After this call, the pointer to alive will be invalid, and the pointer to zombie will be equivalent in effect to the old pointer to alive.Definition at line 588 of file modules.cpp.
+.PP
+References ucrec::channel, userrec::chans, chanrec::created, connection::fd, FD_MAGIC_NUMBER, connection::host, userrec::ident, chanrec::name, userrec::nick, chanrec::setby, chanrec::topic, and chanrec::topicset.
+.PP
+.nf
+589 {
+590         zombie->fd = alive->fd;
+591         alive->fd = FD_MAGIC_NUMBER;
+592         Write(zombie->fd,':%s!%s@%s NICK %s',alive->nick,alive->ident,alive->host,zombie->nick);
+593         kill_link(alive,message.c_str());
+594         for (int i = 0; i != MAXCHANS; i++)
+595         {
+596                 if (zombie->chans[i].channel != NULL)
+597                 {
+598                         if (zombie->chans[i].channel->name)
+599                         {
+600                                 chanrec* Ptr = zombie->chans[i].channel;
+601                                 WriteFrom(zombie->fd,zombie,'JOIN %s',Ptr->name);
+602                                 if (Ptr->topicset)
+603                                 {
+604                                         WriteServ(zombie->fd,'332 %s %s :%s', zombie->nick, Ptr->name, Ptr->topic);
+605                                         WriteServ(zombie->fd,'333 %s %s %s %d', zombie->nick, Ptr->name, Ptr->setby, Ptr->topicset);
+606                                 }
+607                                 userlist(zombie,Ptr);
+608                                 WriteServ(zombie->fd,'366 %s %s :End of /NAMES list.', zombie->nick, Ptr->name);
+609                                 WriteServ(zombie->fd,'324 %s %s +%s',zombie->nick, Ptr->name,chanmodes(Ptr));
+610                                 WriteServ(zombie->fd,'329 %s %s %d', zombie->nick, Ptr->name, Ptr->created);
+611 
+612                         }
+613                 }
+614         }
+615 
+616 }
 .fi
 .SS "void Server::QuitUser (\fBuserrec\fP * user, std::string reason)\fC [virtual]\fP"
 .PP
@@ -626,6 +835,21 @@ Sends a WALLOPS message. This method writes a WALLOPS message to all users with 
 489 {
 490         WriteWallOps(User,false,'%s',text.c_str());
 491 }
+.fi
+.SS "bool Server::UserToPseudo (\fBuserrec\fP * user, std::string message)\fC [virtual]\fP"
+.PP
+Remove a user's connection to the irc server, but leave their client in existence in the user hash. When you call this function, the user's file descriptor will be replaced with the value of FD_MAGIC_NUMBER and their old file descriptor will be closed. This idle client will remain until it is restored with a valid file descriptor, or is removed from IRC by an operator After this call, the pointer to user will be invalid.Definition at line 579 of file modules.cpp.
+.PP
+References connection::fd, FD_MAGIC_NUMBER, connection::host, and userrec::ident.
+.PP
+.nf
+580 {
+581         unsigned int old_fd = user->fd;
+582         user->fd = FD_MAGIC_NUMBER;
+583         Write(old_fd,'ERROR :Closing link (%s@%s) [%s]',user->ident,user->host,message.c_str());
+584         close(old_fd);
+585         shutdown (old_fd,2);
+586 }
 .fi
 
 

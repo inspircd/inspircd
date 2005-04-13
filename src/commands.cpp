@@ -2362,7 +2362,7 @@ void handle_hash(char token,char* params,serverrec* source,serverrec* reply, cha
 	char* create_time = strtok(NULL," ");
 	char* duration = strtok(NULL," :");
 	char* reason = strtok(NULL,"\r\n");
-	add_gline(atoi(duration),who,reason,mask);
+	add_gline(atoi(duration),(const char*)who,(const char*)reason,(const char*)mask);
 	// we must update the creation time on this gline
 	// now that we've added it, or it wont expire at the right time.
 	gline_set_creation_time(mask,atoi(create_time));
@@ -2384,7 +2384,7 @@ void handle_dot(char token,char* params,serverrec* source,serverrec* reply, char
 	char* who = strtok(NULL," ");
 	if (mask)
 	{
-		if (del_gline(mask))
+		if (del_gline((const char*)mask))
 		{
 			if (who)
 			{
@@ -2403,7 +2403,7 @@ void handle_add_sqline(char token,char* params,serverrec* source,serverrec* repl
 	char* create_time = strtok(NULL," ");
 	char* duration = strtok(NULL," :");
 	char* reason = strtok(NULL,"\r\n");
-	add_qline(atoi(duration),who,reason,mask);
+	add_qline(atoi(duration),(const char*)who,(const char*)reason,(const char*)mask);
 	// we must update the creation time on this gline
 	// now that we've added it, or it wont expire at the right time.
 	qline_set_creation_time(mask,atoi(create_time));
@@ -2426,7 +2426,7 @@ void handle_del_sqline(char token,char* params,serverrec* source,serverrec* repl
 	char* who = strtok(NULL," ");
 	if (mask)
 	{
-		if (del_qline(mask))
+		if (del_qline((const char*)mask))
 		{
 			if (who)
 			{
@@ -2445,7 +2445,7 @@ void handle_add_szline(char token,char* params,serverrec* source,serverrec* repl
 	char* create_time = strtok(NULL," ");
 	char* duration = strtok(NULL," :");
 	char* reason = strtok(NULL,"\r\n");
-	add_zline(atoi(duration),who,reason,mask);
+	add_zline(atoi(duration),(const char*)who,(const char*)reason,(const char*)mask);
 	// we must update the creation time on this gline
 	// now that we've added it, or it wont expire at the right time.
 	zline_set_creation_time(mask,atoi(create_time));
@@ -2468,7 +2468,7 @@ void handle_del_szline(char token,char* params,serverrec* source,serverrec* repl
 	char* who = strtok(NULL," ");
 	if (mask)
 	{
-		if (del_zline(mask))
+		if (del_zline((const char*)mask))
 		{
 			if (who)
 			{
@@ -3150,14 +3150,14 @@ void handle_link_packet(char* udp_msg, char* tcp_host, serverrec *serv)
 	}
 }
 
-long duration(char* str)
+long duration(const char* str)
 {
 	char n_field[MAXBUF];
 	long total = 0;
-	char* str_end = str + strlen(str);
+	const char* str_end = str + strlen(str);
 	n_field[0] = 0;
 	
-	for (char* i = str; i < str_end; i++)
+	for (char* i = (char*)str; i < str_end; i++)
 	{
 		// if we have digits, build up a string for the value in n_field,
 		// up to 10 digits in size.

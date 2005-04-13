@@ -1,4 +1,4 @@
-.TH "connection" 3 "9 Apr 2005" "InspIRCd" \" -*- nroff -*-
+.TH "connection" 3 "13 Apr 2005" "InspIRCd" \" -*- nroff -*-
 .ad l
 .nh
 .SH NAME
@@ -204,7 +204,7 @@ With a serverrec, this is a list of all established server connections. With a u
 .PP
 File descriptor of the connection. Definition at line 178 of file connection.h.
 .PP
-Referenced by ConfigReader::DumpErrors(), Server::SendTo(), serverrec::serverrec(), and userrec::userrec().
+Referenced by ConfigReader::DumpErrors(), Server::PseudoToUser(), Server::SendTo(), serverrec::serverrec(), userrec::userrec(), and Server::UserToPseudo().
 .SS "bool \fBconnection::haspassed\fP"
 .PP
 True if server/user has authenticated, false if otherwise. Definition at line 210 of file connection.h.
@@ -214,7 +214,7 @@ Referenced by userrec::userrec().
 .PP
 Hostname of connection. Not used if this is a serverrecDefinition at line 182 of file connection.h.
 .PP
-Referenced by userrec::GetFullRealHost(), and userrec::userrec().
+Referenced by userrec::GetFullRealHost(), Server::PseudoToUser(), userrec::userrec(), and Server::UserToPseudo().
 .SS "time_t \fBconnection::idle_lastmsg\fP"
 .PP
 Time that the connection last sent data, used to calculate idle time. Definition at line 236 of file connection.h.

@@ -692,6 +692,78 @@ class Server : public classbase
 	 */
 	virtual bool PseudoToUser(userrec* alive,userrec* zombie,std::string message);
 
+	/** Adds a G-line
+	 * The G-line is propogated to all of the servers in the mesh and enforced as soon as it is added.
+	 * The duration must be in seconds, however you can use the Server::CalcDuration method to convert
+	 * durations into the 1w2d3h3m6s format used by /GLINE etc. The source is an arbitary string used
+	 * to indicate who or what sent the data, usually this is the nickname of a person, or a server
+	 * name.
+	 */
+	virtual void AddGLine(long duration, std::string source, std::string reason, std::string hostmask);
+
+        /** Adds a Q-line
+         * The Q-line is propogated to all of the servers in the mesh and enforced as soon as it is added.
+         * The duration must be in seconds, however you can use the Server::CalcDuration method to convert
+         * durations into the 1w2d3h3m6s format used by /GLINE etc. The source is an arbitary string used
+         * to indicate who or what sent the data, usually this is the nickname of a person, or a server
+         * name.
+         */
+	virtual void AddQLine(long duration, std::string source, std::string reason, std::string nickname);
+
+        /** Adds a Z-line
+         * The Z-line is propogated to all of the servers in the mesh and enforced as soon as it is added.
+         * The duration must be in seconds, however you can use the Server::CalcDuration method to convert
+         * durations into the 1w2d3h3m6s format used by /GLINE etc. The source is an arbitary string used
+         * to indicate who or what sent the data, usually this is the nickname of a person, or a server
+         * name.
+         */
+	virtual void AddZLine(long duration, std::string source, std::string reason, std::string ipaddr);
+
+        /** Adds a K-line
+         * The K-line is enforced as soon as it is added.
+         * The duration must be in seconds, however you can use the Server::CalcDuration method to convert
+         * durations into the 1w2d3h3m6s format used by /GLINE etc. The source is an arbitary string used
+         * to indicate who or what sent the data, usually this is the nickname of a person, or a server
+         * name.
+         */
+	virtual void AddKLine(long duration, std::string source, std::string reason, std::string hostmask);
+
+        /** Adds a E-line
+         * The E-line is enforced as soon as it is added.
+         * The duration must be in seconds, however you can use the Server::CalcDuration method to convert
+         * durations into the 1w2d3h3m6s format used by /GLINE etc. The source is an arbitary string used
+         * to indicate who or what sent the data, usually this is the nickname of a person, or a server
+         * name.
+         */
+	virtual void AddELine(long duration, std::string source, std::string reason, std::string hostmask);
+
+	/** Deletes a G-Line from all servers on the mesh
+	 */
+	virtual bool DelGLine(std::string hostmask);
+
+	/** Deletes a Q-Line from all servers on the mesh
+	 */
+	virtual bool DelQLine(std::string nickname);
+
+	/** Deletes a Z-Line from all servers on the mesh
+	 */
+	virtual bool DelZLine(std::string ipaddr);
+
+	/** Deletes a local K-Line
+	 */
+	virtual bool DelKLine(std::string hostmask);
+
+	/** Deletes a local E-Line
+	 */
+	virtual bool DelELine(std::string hostmask);
+
+	/** Calculates a duration
+	 * This method will take a string containing a formatted duration (e.g. "1w2d") and return its value
+	 * as a total number of seconds. This is the same function used internally by /GLINE etc to set
+	 * the ban times.
+	 */
+	virtual long CalcDuration(std::string duration);
+
 };
 
 #define CONF_NOT_A_NUMBER	0x000010

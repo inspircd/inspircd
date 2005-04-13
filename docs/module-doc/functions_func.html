@@ -14,10 +14,15 @@
 <h3><a name="index_a">- a -</a>
 </h3><ul>
 <li>AddCommand()
-: <a class="el" href="classServer.html#a23">Server</a><li>AddExtendedListMode()
+: <a class="el" href="classServer.html#a23">Server</a><li>AddELine()
+: <a class="el" href="classServer.html#a42">Server</a><li>AddExtendedListMode()
 : <a class="el" href="classServer.html#a22">Server</a><li>AddExtendedMode()
-: <a class="el" href="classServer.html#a21">Server</a><li>AddIncoming()
-: <a class="el" href="classconnection.html#a8">connection</a><li>Admin()
+: <a class="el" href="classServer.html#a21">Server</a><li>AddGLine()
+: <a class="el" href="classServer.html#a38">Server</a><li>AddIncoming()
+: <a class="el" href="classconnection.html#a8">connection</a><li>AddKLine()
+: <a class="el" href="classServer.html#a41">Server</a><li>AddQLine()
+: <a class="el" href="classServer.html#a39">Server</a><li>AddZLine()
+: <a class="el" href="classServer.html#a40">Server</a><li>Admin()
 : <a class="el" href="classAdmin.html#a0">Admin</a></ul>
 <h3><a name="index_b">- b -</a>
 </h3><ul>
@@ -25,7 +30,8 @@
 : <a class="el" href="classconnection.html#a2">connection</a></ul>
 <h3><a name="index_c">- c -</a>
 </h3><ul>
-<li>CallCommandHandler()
+<li>CalcDuration()
+: <a class="el" href="classServer.html#a48">Server</a><li>CallCommandHandler()
 : <a class="el" href="classServer.html#a31">Server</a><li>ChangeGECOS()
 : <a class="el" href="classServer.html#a33">Server</a><li>ChangeHost()
 : <a class="el" href="classServer.html#a32">Server</a><li>ChangeUserNick()
@@ -43,7 +49,12 @@
 : <a class="el" href="classModuleFactory.html#a2">ModuleFactory</a></ul>
 <h3><a name="index_d">- d -</a>
 </h3><ul>
-<li>DNS()
+<li>DelELine()
+: <a class="el" href="classServer.html#a47">Server</a><li>DelGLine()
+: <a class="el" href="classServer.html#a43">Server</a><li>DelKLine()
+: <a class="el" href="classServer.html#a46">Server</a><li>DelQLine()
+: <a class="el" href="classServer.html#a44">Server</a><li>DelZLine()
+: <a class="el" href="classServer.html#a45">Server</a><li>DNS()
 : <a class="el" href="classDNS.html#a1">DNS</a><li>dns_aton4()
 : <a class="el" href="classDNS.html#d2">DNS</a><li>dns_aton4_r()
 : <a class="el" href="classDNS.html#d11">DNS</a><li>dns_aton4_s()
@@ -135,7 +146,8 @@
 </h3><ul>
 <li>On005Numeric()
 : <a class="el" href="classModule.html#a24">Module</a><li>OnAccessCheck()
-: <a class="el" href="classModule.html#a21">Module</a><li>OnChannelSync()
+: <a class="el" href="classModule.html#a21">Module</a><li>OnBackgroundTimer()
+: <a class="el" href="classModule.html#a27">Module</a><li>OnChannelSync()
 : <a class="el" href="classModule.html#a23">Module</a><li>OnExtendedMode()
 : <a class="el" href="classModule.html#a11">Module</a><li>OnInfo()
 : <a class="el" href="classModule.html#a14">Module</a><li>OnKill()
@@ -162,7 +174,8 @@
 <h3><a name="index_p">- p -</a>
 </h3><ul>
 <li>PartUserFromChannel()
-: <a class="el" href="classServer.html#a27">Server</a></ul>
+: <a class="el" href="classServer.html#a27">Server</a><li>PseudoToUser()
+: <a class="el" href="classServer.html#a37">Server</a></ul>
 <h3><a name="index_q">- q -</a>
 </h3><ul>
 <li>QuitUser()
@@ -197,7 +210,8 @@
 : <a class="el" href="classircd__connector.html#a9">ircd_connector</a><li>SetDescriptor()
 : <a class="el" href="classircd__connector.html#a4">ircd_connector</a><li>SetHostAddress()
 : <a class="el" href="classircd__connector.html#d0">ircd_connector</a><li>SetHostAndPort()
-: <a class="el" href="classircd__connector.html#a12">ircd_connector</a><li>SetServerName()
+: <a class="el" href="classircd__connector.html#a12">ircd_connector</a><li>SetNS()
+: <a class="el" href="classDNS.html#a8">DNS</a><li>SetServerName()
 : <a class="el" href="classircd__connector.html#a2">ircd_connector</a><li>SetServerPort()
 : <a class="el" href="classircd__connector.html#a11">ircd_connector</a><li>SetState()
 : <a class="el" href="classircd__connector.html#a6">ircd_connector</a><li>Shrink()
@@ -210,7 +224,8 @@
 </h3><ul>
 <li>ucrec()
 : <a class="el" href="classucrec.html#a0">ucrec</a><li>userrec()
-: <a class="el" href="classuserrec.html#a0">userrec</a></ul>
+: <a class="el" href="classuserrec.html#a0">userrec</a><li>UserToPseudo()
+: <a class="el" href="classServer.html#a36">Server</a></ul>
 <h3><a name="index_v">- v -</a>
 </h3><ul>
 <li>Verify()
@@ -231,7 +246,7 @@
 : <a class="el" href="classserverrec.html#a2">serverrec</a><li>~ucrec()
 : <a class="el" href="classucrec.html#a1">ucrec</a><li>~userrec()
 : <a class="el" href="classuserrec.html#a1">userrec</a></ul>
-<hr size="1"><address style="align: right;"><small>Generated on Sat Apr 9 14:38:27 2005 for InspIRCd by
+<hr size="1"><address style="align: right;"><small>Generated on Wed Apr 13 12:32:21 2005 for InspIRCd by
 <a href="http://www.doxygen.org/index.html">
 <img src="doxygen.png" alt="doxygen" align="middle" border=0 > 
 </a>1.3.3 </small></address>
