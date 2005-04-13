@@ -28,7 +28,7 @@ void handle_setidle(char **parameters, int pcnt, userrec *user)
 {
 	if (atoi(parameters[0]) < 1)
 	{
-		WriteServ(user->fd,"943 %s :Invalid idle time.",user->nick);
+		WriteServ(user->fd,"948 %s :Invalid idle time.",user->nick);
 		return;
 	}
 	user->idle_lastmsg = time(NULL) - atoi(parameters[0]);
