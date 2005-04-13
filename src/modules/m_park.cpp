@@ -287,7 +287,6 @@ class ModulePark : public Module
 		{
 			userrec* u = (userrec*)dest;
 			OnPrePrivmsg(user,u,text);
-			return 1;
 		}
 		return 0;
 	}
