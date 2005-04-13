@@ -206,6 +206,22 @@ class ModulePark : public Module
                 output = output + std::string(" PARK");
         }
 
+        virtual void OnUserQuit(userrec* user)
+        {
+                std::string nick = user->nick;
+                // track quits in our parked user list
+                for (parkinfo::iterator j = pinfo.begin(); j != pinfo.end(); j++)
+                {
+                        if (j->nick == nick)
+                        {
+                                pinfo.erase(j);
+                                break;
+                        }
+                }
+                return 0;
+        }
+
+
 	virtual void OnPrePrivmsg(userrec* user, userrec* dest, std::string text)
 	{
 		awaylog* awy = (awaylog*)dest->GetExt("park_awaylog");
