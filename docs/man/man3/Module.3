@@ -127,6 +127,10 @@ Inherits \fBclassbase\fP.
 .RI "virtual void \fBOnBackgroundTimer\fP (time_t curtime)"
 .br
 .RI "\fICalled once every five seconds for background processing. \fP"
+.ti -1c
+.RI "virtual void \fBOnSendList\fP (\fBuserrec\fP *user, \fBchanrec\fP *channel, char mode)"
+.br
+.RI "\fICalled whenever a list is needed for a listmode. \fP"
 .in -1c
 .SH "Detailed Description"
 .PP 
@@ -275,6 +279,13 @@ Called on rehash. This method is called prior to a /REHASH or when a SIGHUP is r
 .PP
 .nf
 314 { }
+.fi
+.SS "void Module::OnSendList (\fBuserrec\fP * user, \fBchanrec\fP * channel, char mode)\fC [virtual]\fP"
+.PP
+Called whenever a list is needed for a listmode. For example, when a /MODE #channel +b (without any other parameters) is called, if a module was handling +b this function would be called. The function can then output any lists it wishes to. Please note that all modules will see all mode characters to provide the ability to extend each other, so please only output a list if the mode character given matches the one(s) you want to handle.Definition at line 334 of file modules.cpp.
+.PP
+.nf
+334 { };
 .fi
 .SS "void Module::OnServerRaw (std::string & raw, bool inbound, \fBuserrec\fP * user)\fC [virtual]\fP"
 .PP

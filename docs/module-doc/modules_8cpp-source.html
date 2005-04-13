@@ -338,547 +338,548 @@
 <a name="l00331"></a><a class="code" href="classModule.html#a25">00331</a> <span class="keywordtype">int</span> <a class="code" href="classModule.html#a25">Module::OnKill</a>(<a class="code" href="classuserrec.html">userrec</a>* source, <a class="code" href="classuserrec.html">userrec</a>* dest, std::string reason) { <span class="keywordflow">return</span> 0; };
 <a name="l00332"></a><a class="code" href="classModule.html#a26">00332</a> <span class="keywordtype">void</span> <a class="code" href="classModule.html#a26">Module::OnLoadModule</a>(<a class="code" href="classModule.html">Module</a>* mod,std::string name) { };
 <a name="l00333"></a><a class="code" href="classModule.html#a27">00333</a> <span class="keywordtype">void</span> <a class="code" href="classModule.html#a27">Module::OnBackgroundTimer</a>(time_t curtime) { };
-00334 
-00335 <span class="comment">// server is a wrapper class that provides methods to all of the C-style</span>
-00336 <span class="comment">// exports in the core</span>
-00337 <span class="comment">//</span>
-00338 
-<a name="l00339"></a><a class="code" href="classServer.html#a0">00339</a> <a class="code" href="classServer.html#a0">Server::Server</a>()
-00340 {
-00341 }
-00342 
-<a name="l00343"></a><a class="code" href="classServer.html#a1">00343</a> <a class="code" href="classServer.html#a1">Server::~Server</a>()
-00344 {
-00345 }
-00346 
-<a name="l00347"></a><a class="code" href="classServer.html#a2">00347</a> <span class="keywordtype">void</span> <a class="code" href="classServer.html#a2">Server::SendOpers</a>(std::string s)
-00348 {
-00349         WriteOpers(<span class="stringliteral">"%s"</span>,s.c_str());
-00350 }
-00351 
-<a name="l00352"></a><a class="code" href="classServer.html#a30">00352</a> <span class="keywordtype">bool</span> <a class="code" href="classServer.html#a30">Server::MatchText</a>(std::string sliteral, std::string spattern)
-00353 {
-00354         <span class="keywordtype">char</span> literal[MAXBUF],pattern[MAXBUF];
-00355         strlcpy(literal,sliteral.c_str(),MAXBUF);
-00356         strlcpy(pattern,spattern.c_str(),MAXBUF);
-00357         <span class="keywordflow">return</span> match(literal,pattern);
-00358 }
-00359 
-<a name="l00360"></a><a class="code" href="classServer.html#a25">00360</a> <span class="keywordtype">void</span> <a class="code" href="classServer.html#a25">Server::SendToModeMask</a>(std::string modes, <span class="keywordtype">int</span> flags, std::string text)
-00361 {
-00362         WriteMode(modes.c_str(),flags,<span class="stringliteral">"%s"</span>,text.c_str());
-00363 }
-00364 
-<a name="l00365"></a><a class="code" href="classServer.html#a26">00365</a> <a class="code" href="classchanrec.html">chanrec</a>* <a class="code" href="classServer.html#a26">Server::JoinUserToChannel</a>(<a class="code" href="classuserrec.html">userrec</a>* user, std::string cname, std::string key)
-00366 {
-00367         <span class="keywordflow">return</span> add_channel(user,cname.c_str(),key.c_str(),<span class="keyword">true</span>);
-00368 }
-00369 
-<a name="l00370"></a><a class="code" href="classServer.html#a27">00370</a> <a class="code" href="classchanrec.html">chanrec</a>* <a class="code" href="classServer.html#a27">Server::PartUserFromChannel</a>(<a class="code" href="classuserrec.html">userrec</a>* user, std::string cname, std::string reason)
-00371 {
-00372         <span class="keywordflow">return</span> del_channel(user,cname.c_str(),reason.c_str(),<span class="keyword">false</span>);
-00373 }
-00374 
-<a name="l00375"></a><a class="code" href="classServer.html#a35">00375</a> <a class="code" href="modules_8h.html#a33">chanuserlist</a> <a class="code" href="classServer.html#a35">Server::GetUsers</a>(<a class="code" href="classchanrec.html">chanrec</a>* chan)
-00376 {
-00377         <a class="code" href="modules_8h.html#a33">chanuserlist</a> userl;
-00378         userl.clear();
-00379         <span class="keywordflow">for</span> (user_hash::const_iterator i = <a class="code" href="modules_8cpp.html#a42">clientlist</a>.begin(); i != <a class="code" href="modules_8cpp.html#a42">clientlist</a>.end(); i++)
-00380         {
-00381                 <span class="keywordflow">if</span> (i-&gt;second)
-00382                 {
-00383                         <span class="keywordflow">if</span> (<a class="code" href="message_8h.html#a16">has_channel</a>(i-&gt;second,chan))
-00384                         {
-00385                                 <span class="keywordflow">if</span> (<a class="code" href="message_8h.html#a13">isnick</a>(i-&gt;second-&gt;nick))
-00386                                 {
-00387                                         userl.push_back(i-&gt;second);
-00388                                 }
-00389                         }
-00390                 }
-00391         }
-00392         <span class="keywordflow">return</span> userl;
-00393 }
-<a name="l00394"></a><a class="code" href="classServer.html#a28">00394</a> <span class="keywordtype">void</span> <a class="code" href="classServer.html#a28">Server::ChangeUserNick</a>(<a class="code" href="classuserrec.html">userrec</a>* user, std::string nickname)
-00395 {
-00396         force_nickchange(user,nickname.c_str());
-00397 }
-00398 
-<a name="l00399"></a><a class="code" href="classServer.html#a29">00399</a> <span class="keywordtype">void</span> <a class="code" href="classServer.html#a29">Server::QuitUser</a>(<a class="code" href="classuserrec.html">userrec</a>* user, std::string reason)
-00400 {
-00401         <a class="code" href="message_8h.html#a19">send_network_quit</a>(user-&gt;<a class="code" href="classuserrec.html#o0">nick</a>,reason.c_str());
-00402         kill_link(user,reason.c_str());
-00403 }
-00404 
-<a name="l00405"></a><a class="code" href="classServer.html#a34">00405</a> <span class="keywordtype">bool</span> <a class="code" href="classServer.html#a34">Server::IsUlined</a>(std::string server)
-00406 {
-00407         <span class="keywordflow">return</span> <a class="code" href="commands_8h.html#a74">is_uline</a>(server.c_str());
-00408 }
-00409 
-<a name="l00410"></a><a class="code" href="classServer.html#a31">00410</a> <span class="keywordtype">void</span> <a class="code" href="classServer.html#a31">Server::CallCommandHandler</a>(std::string commandname, <span class="keywordtype">char</span>** parameters, <span class="keywordtype">int</span> pcnt, <a class="code" href="classuserrec.html">userrec</a>* user)
-00411 {
-00412         call_handler(commandname.c_str(),parameters,pcnt,user);
-00413 }
-00414 
-<a name="l00415"></a><a class="code" href="classServer.html#a3">00415</a> <span class="keywordtype">void</span> <a class="code" href="classServer.html#a3">Server::Log</a>(<span class="keywordtype">int</span> level, std::string s)
-00416 {
-00417         log(level,<span class="stringliteral">"%s"</span>,s.c_str());
-00418 }
-00419 
-<a name="l00420"></a><a class="code" href="classServer.html#a23">00420</a> <span class="keywordtype">void</span> <a class="code" href="classServer.html#a23">Server::AddCommand</a>(<span class="keywordtype">char</span>* cmd, handlerfunc f, <span class="keywordtype">char</span> flags, <span class="keywordtype">int</span> minparams, <span class="keywordtype">char</span>* source)
-00421 {
-00422         <a class="code" href="modules_8h.html#a35">createcommand</a>(cmd,f,flags,minparams,source);
-00423 }
-00424 
-<a name="l00425"></a><a class="code" href="classServer.html#a24">00425</a> <span class="keywordtype">void</span> <a class="code" href="classServer.html#a24">Server::SendMode</a>(<span class="keywordtype">char</span> **parameters, <span class="keywordtype">int</span> pcnt, <a class="code" href="classuserrec.html">userrec</a> *user)
-00426 {
-00427         <a class="code" href="modules_8h.html#a36">server_mode</a>(parameters,pcnt,user);
-00428 }
-00429 
-<a name="l00430"></a><a class="code" href="classServer.html#a4">00430</a> <span class="keywordtype">void</span> <a class="code" href="classServer.html#a4">Server::Send</a>(<span class="keywordtype">int</span> Socket, std::string s)
-00431 {
-00432         Write(Socket,<span class="stringliteral">"%s"</span>,s.c_str());
-00433 }
-00434 
-<a name="l00435"></a><a class="code" href="classServer.html#a5">00435</a> <span class="keywordtype">void</span> <a class="code" href="classServer.html#a5">Server::SendServ</a>(<span class="keywordtype">int</span> Socket, std::string s)
-00436 {
-00437         WriteServ(Socket,<span class="stringliteral">"%s"</span>,s.c_str());
-00438 }
-00439 
-<a name="l00440"></a><a class="code" href="classServer.html#a6">00440</a> <span class="keywordtype">void</span> <a class="code" href="classServer.html#a6">Server::SendFrom</a>(<span class="keywordtype">int</span> Socket, <a class="code" href="classuserrec.html">userrec</a>* User, std::string s)
-00441 {
-00442         WriteFrom(Socket,User,<span class="stringliteral">"%s"</span>,s.c_str());
-00443 }
-00444 
-<a name="l00445"></a><a class="code" href="classServer.html#a7">00445</a> <span class="keywordtype">void</span> <a class="code" href="classServer.html#a7">Server::SendTo</a>(<a class="code" href="classuserrec.html">userrec</a>* Source, <a class="code" href="classuserrec.html">userrec</a>* Dest, std::string s)
-00446 {
-00447         <span class="keywordflow">if</span> (!Source)
-00448         {
-00449                 <span class="comment">// if source is NULL, then the message originates from the local server</span>
-00450                 Write(Dest-&gt;<a class="code" href="classconnection.html#o0">fd</a>,<span class="stringliteral">":%s %s"</span>,this-&gt;GetServerName().c_str(),s.c_str());
-00451         }
-00452         <span class="keywordflow">else</span>
-00453         {
-00454                 <span class="comment">// otherwise it comes from the user specified</span>
-00455                 WriteTo(Source,Dest,<span class="stringliteral">"%s"</span>,s.c_str());
-00456         }
-00457 }
-00458 
-<a name="l00459"></a><a class="code" href="classServer.html#a8">00459</a> <span class="keywordtype">void</span> <a class="code" href="classServer.html#a8">Server::SendChannel</a>(<a class="code" href="classuserrec.html">userrec</a>* User, <a class="code" href="classchanrec.html">chanrec</a>* Channel, std::string s,<span class="keywordtype">bool</span> IncludeSender)
-00460 {
-00461         <span class="keywordflow">if</span> (IncludeSender)
-00462         {
-00463                 WriteChannel(Channel,User,<span class="stringliteral">"%s"</span>,s.c_str());
-00464         }
-00465         <span class="keywordflow">else</span>
-00466         {
-00467                 ChanExceptSender(Channel,User,<span class="stringliteral">"%s"</span>,s.c_str());
-00468         }
-00469 }
-00470 
-<a name="l00471"></a><a class="code" href="classServer.html#a9">00471</a> <span class="keywordtype">bool</span> <a class="code" href="classServer.html#a9">Server::CommonChannels</a>(<a class="code" href="classuserrec.html">userrec</a>* u1, <a class="code" href="classuserrec.html">userrec</a>* u2)
-00472 {
-00473         <span class="keywordflow">return</span> (<a class="code" href="message_8h.html#a0">common_channels</a>(u1,u2) != 0);
-00474 }
-00475 
-<a name="l00476"></a><a class="code" href="classServer.html#a10">00476</a> <span class="keywordtype">void</span> <a class="code" href="classServer.html#a10">Server::SendCommon</a>(<a class="code" href="classuserrec.html">userrec</a>* User, std::string text,<span class="keywordtype">bool</span> IncludeSender)
-00477 {
-00478         <span class="keywordflow">if</span> (IncludeSender)
-00479         {
-00480                 WriteCommon(User,<span class="stringliteral">"%s"</span>,text.c_str());
-00481         }
-00482         <span class="keywordflow">else</span>
-00483         {
-00484                 WriteCommonExcept(User,<span class="stringliteral">"%s"</span>,text.c_str());
-00485         }
-00486 }
-00487 
-<a name="l00488"></a><a class="code" href="classServer.html#a11">00488</a> <span class="keywordtype">void</span> <a class="code" href="classServer.html#a11">Server::SendWallops</a>(<a class="code" href="classuserrec.html">userrec</a>* User, std::string text)
-00489 {
-00490         WriteWallOps(User,<span class="keyword">false</span>,<span class="stringliteral">"%s"</span>,text.c_str());
-00491 }
-00492 
-<a name="l00493"></a><a class="code" href="classServer.html#a32">00493</a> <span class="keywordtype">void</span> <a class="code" href="classServer.html#a32">Server::ChangeHost</a>(<a class="code" href="classuserrec.html">userrec</a>* user, std::string host)
-00494 {
-00495         <a class="code" href="message_8h.html#a11">ChangeDisplayedHost</a>(user,host.c_str());
-00496 }
-00497 
-<a name="l00498"></a><a class="code" href="classServer.html#a33">00498</a> <span class="keywordtype">void</span> <a class="code" href="classServer.html#a33">Server::ChangeGECOS</a>(<a class="code" href="classuserrec.html">userrec</a>* user, std::string gecos)
-00499 {
-00500         <a class="code" href="message_8h.html#a10">ChangeName</a>(user,gecos.c_str());
-00501 }
-00502 
-<a name="l00503"></a><a class="code" href="classServer.html#a12">00503</a> <span class="keywordtype">bool</span> <a class="code" href="classServer.html#a12">Server::IsNick</a>(std::string nick)
-00504 {
-00505         <span class="keywordflow">return</span> (<a class="code" href="message_8h.html#a13">isnick</a>(nick.c_str()) != 0);
-00506 }
-00507 
-<a name="l00508"></a><a class="code" href="classServer.html#a14">00508</a> <a class="code" href="classuserrec.html">userrec</a>* <a class="code" href="classServer.html#a14">Server::FindNick</a>(std::string nick)
-00509 {
-00510         <span class="keywordflow">return</span> Find(nick);
-00511 }
-00512 
-<a name="l00513"></a><a class="code" href="classServer.html#a15">00513</a> <a class="code" href="classchanrec.html">chanrec</a>* <a class="code" href="classServer.html#a15">Server::FindChannel</a>(std::string channel)
-00514 {
-00515         <span class="keywordflow">return</span> FindChan(channel.c_str());
-00516 }
-00517 
-<a name="l00518"></a><a class="code" href="classServer.html#a16">00518</a> std::string <a class="code" href="classServer.html#a16">Server::ChanMode</a>(<a class="code" href="classuserrec.html">userrec</a>* User, <a class="code" href="classchanrec.html">chanrec</a>* Chan)
-00519 {
-00520         <span class="keywordflow">return</span> <a class="code" href="message_8h.html#a14">cmode</a>(User,Chan);
-00521 }
-00522 
-<a name="l00523"></a><a class="code" href="classServer.html#a17">00523</a> <span class="keywordtype">bool</span> <a class="code" href="classServer.html#a17">Server::IsOnChannel</a>(<a class="code" href="classuserrec.html">userrec</a>* User, <a class="code" href="classchanrec.html">chanrec</a>* Chan)
-00524 {
-00525         <span class="keywordflow">return</span> <a class="code" href="message_8h.html#a16">has_channel</a>(User,Chan);
-00526 }
-00527 
-<a name="l00528"></a><a class="code" href="classServer.html#a18">00528</a> std::string <a class="code" href="classServer.html#a18">Server::GetServerName</a>()
-00529 {
-00530         <span class="keywordflow">return</span> getservername();
-00531 }
-00532 
-<a name="l00533"></a><a class="code" href="classServer.html#a19">00533</a> std::string <a class="code" href="classServer.html#a19">Server::GetNetworkName</a>()
-00534 {
-00535         <span class="keywordflow">return</span> getnetworkname();
-00536 }
-00537 
-<a name="l00538"></a><a class="code" href="classServer.html#a20">00538</a> <a class="code" href="classAdmin.html">Admin</a> <a class="code" href="classServer.html#a20">Server::GetAdmin</a>()
-00539 {
-00540         <span class="keywordflow">return</span> <a class="code" href="classAdmin.html">Admin</a>(getadminname(),getadminemail(),getadminnick());
-00541 }
-00542 
+<a name="l00334"></a><a class="code" href="classModule.html#a28">00334</a> <span class="keywordtype">void</span> <a class="code" href="classModule.html#a28">Module::OnSendList</a>(<a class="code" href="classuserrec.html">userrec</a>* user, <a class="code" href="classchanrec.html">chanrec</a>* channel, <span class="keywordtype">char</span> mode) { };
+00335 
+00336 <span class="comment">// server is a wrapper class that provides methods to all of the C-style</span>
+00337 <span class="comment">// exports in the core</span>
+00338 <span class="comment">//</span>
+00339 
+<a name="l00340"></a><a class="code" href="classServer.html#a0">00340</a> <a class="code" href="classServer.html#a0">Server::Server</a>()
+00341 {
+00342 }
+00343 
+<a name="l00344"></a><a class="code" href="classServer.html#a1">00344</a> <a class="code" href="classServer.html#a1">Server::~Server</a>()
+00345 {
+00346 }
+00347 
+<a name="l00348"></a><a class="code" href="classServer.html#a2">00348</a> <span class="keywordtype">void</span> <a class="code" href="classServer.html#a2">Server::SendOpers</a>(std::string s)
+00349 {
+00350         WriteOpers(<span class="stringliteral">"%s"</span>,s.c_str());
+00351 }
+00352 
+<a name="l00353"></a><a class="code" href="classServer.html#a30">00353</a> <span class="keywordtype">bool</span> <a class="code" href="classServer.html#a30">Server::MatchText</a>(std::string sliteral, std::string spattern)
+00354 {
+00355         <span class="keywordtype">char</span> literal[MAXBUF],pattern[MAXBUF];
+00356         strlcpy(literal,sliteral.c_str(),MAXBUF);
+00357         strlcpy(pattern,spattern.c_str(),MAXBUF);
+00358         <span class="keywordflow">return</span> match(literal,pattern);
+00359 }
+00360 
+<a name="l00361"></a><a class="code" href="classServer.html#a25">00361</a> <span class="keywordtype">void</span> <a class="code" href="classServer.html#a25">Server::SendToModeMask</a>(std::string modes, <span class="keywordtype">int</span> flags, std::string text)
+00362 {
+00363         WriteMode(modes.c_str(),flags,<span class="stringliteral">"%s"</span>,text.c_str());
+00364 }
+00365 
+<a name="l00366"></a><a class="code" href="classServer.html#a26">00366</a> <a class="code" href="classchanrec.html">chanrec</a>* <a class="code" href="classServer.html#a26">Server::JoinUserToChannel</a>(<a class="code" href="classuserrec.html">userrec</a>* user, std::string cname, std::string key)
+00367 {
+00368         <span class="keywordflow">return</span> add_channel(user,cname.c_str(),key.c_str(),<span class="keyword">true</span>);
+00369 }
+00370 
+<a name="l00371"></a><a class="code" href="classServer.html#a27">00371</a> <a class="code" href="classchanrec.html">chanrec</a>* <a class="code" href="classServer.html#a27">Server::PartUserFromChannel</a>(<a class="code" href="classuserrec.html">userrec</a>* user, std::string cname, std::string reason)
+00372 {
+00373         <span class="keywordflow">return</span> del_channel(user,cname.c_str(),reason.c_str(),<span class="keyword">false</span>);
+00374 }
+00375 
+<a name="l00376"></a><a class="code" href="classServer.html#a35">00376</a> <a class="code" href="modules_8h.html#a33">chanuserlist</a> <a class="code" href="classServer.html#a35">Server::GetUsers</a>(<a class="code" href="classchanrec.html">chanrec</a>* chan)
+00377 {
+00378         <a class="code" href="modules_8h.html#a33">chanuserlist</a> userl;
+00379         userl.clear();
+00380         <span class="keywordflow">for</span> (user_hash::const_iterator i = <a class="code" href="modules_8cpp.html#a42">clientlist</a>.begin(); i != <a class="code" href="modules_8cpp.html#a42">clientlist</a>.end(); i++)
+00381         {
+00382                 <span class="keywordflow">if</span> (i-&gt;second)
+00383                 {
+00384                         <span class="keywordflow">if</span> (<a class="code" href="message_8h.html#a16">has_channel</a>(i-&gt;second,chan))
+00385                         {
+00386                                 <span class="keywordflow">if</span> (<a class="code" href="message_8h.html#a13">isnick</a>(i-&gt;second-&gt;nick))
+00387                                 {
+00388                                         userl.push_back(i-&gt;second);
+00389                                 }
+00390                         }
+00391                 }
+00392         }
+00393         <span class="keywordflow">return</span> userl;
+00394 }
+<a name="l00395"></a><a class="code" href="classServer.html#a28">00395</a> <span class="keywordtype">void</span> <a class="code" href="classServer.html#a28">Server::ChangeUserNick</a>(<a class="code" href="classuserrec.html">userrec</a>* user, std::string nickname)
+00396 {
+00397         force_nickchange(user,nickname.c_str());
+00398 }
+00399 
+<a name="l00400"></a><a class="code" href="classServer.html#a29">00400</a> <span class="keywordtype">void</span> <a class="code" href="classServer.html#a29">Server::QuitUser</a>(<a class="code" href="classuserrec.html">userrec</a>* user, std::string reason)
+00401 {
+00402         <a class="code" href="message_8h.html#a19">send_network_quit</a>(user-&gt;<a class="code" href="classuserrec.html#o0">nick</a>,reason.c_str());
+00403         kill_link(user,reason.c_str());
+00404 }
+00405 
+<a name="l00406"></a><a class="code" href="classServer.html#a34">00406</a> <span class="keywordtype">bool</span> <a class="code" href="classServer.html#a34">Server::IsUlined</a>(std::string server)
+00407 {
+00408         <span class="keywordflow">return</span> <a class="code" href="commands_8h.html#a74">is_uline</a>(server.c_str());
+00409 }
+00410 
+<a name="l00411"></a><a class="code" href="classServer.html#a31">00411</a> <span class="keywordtype">void</span> <a class="code" href="classServer.html#a31">Server::CallCommandHandler</a>(std::string commandname, <span class="keywordtype">char</span>** parameters, <span class="keywordtype">int</span> pcnt, <a class="code" href="classuserrec.html">userrec</a>* user)
+00412 {
+00413         call_handler(commandname.c_str(),parameters,pcnt,user);
+00414 }
+00415 
+<a name="l00416"></a><a class="code" href="classServer.html#a3">00416</a> <span class="keywordtype">void</span> <a class="code" href="classServer.html#a3">Server::Log</a>(<span class="keywordtype">int</span> level, std::string s)
+00417 {
+00418         log(level,<span class="stringliteral">"%s"</span>,s.c_str());
+00419 }
+00420 
+<a name="l00421"></a><a class="code" href="classServer.html#a23">00421</a> <span class="keywordtype">void</span> <a class="code" href="classServer.html#a23">Server::AddCommand</a>(<span class="keywordtype">char</span>* cmd, handlerfunc f, <span class="keywordtype">char</span> flags, <span class="keywordtype">int</span> minparams, <span class="keywordtype">char</span>* source)
+00422 {
+00423         <a class="code" href="modules_8h.html#a35">createcommand</a>(cmd,f,flags,minparams,source);
+00424 }
+00425 
+<a name="l00426"></a><a class="code" href="classServer.html#a24">00426</a> <span class="keywordtype">void</span> <a class="code" href="classServer.html#a24">Server::SendMode</a>(<span class="keywordtype">char</span> **parameters, <span class="keywordtype">int</span> pcnt, <a class="code" href="classuserrec.html">userrec</a> *user)
+00427 {
+00428         <a class="code" href="modules_8h.html#a36">server_mode</a>(parameters,pcnt,user);
+00429 }
+00430 
+<a name="l00431"></a><a class="code" href="classServer.html#a4">00431</a> <span class="keywordtype">void</span> <a class="code" href="classServer.html#a4">Server::Send</a>(<span class="keywordtype">int</span> Socket, std::string s)
+00432 {
+00433         Write(Socket,<span class="stringliteral">"%s"</span>,s.c_str());
+00434 }
+00435 
+<a name="l00436"></a><a class="code" href="classServer.html#a5">00436</a> <span class="keywordtype">void</span> <a class="code" href="classServer.html#a5">Server::SendServ</a>(<span class="keywordtype">int</span> Socket, std::string s)
+00437 {
+00438         WriteServ(Socket,<span class="stringliteral">"%s"</span>,s.c_str());
+00439 }
+00440 
+<a name="l00441"></a><a class="code" href="classServer.html#a6">00441</a> <span class="keywordtype">void</span> <a class="code" href="classServer.html#a6">Server::SendFrom</a>(<span class="keywordtype">int</span> Socket, <a class="code" href="classuserrec.html">userrec</a>* User, std::string s)
+00442 {
+00443         WriteFrom(Socket,User,<span class="stringliteral">"%s"</span>,s.c_str());
+00444 }
+00445 
+<a name="l00446"></a><a class="code" href="classServer.html#a7">00446</a> <span class="keywordtype">void</span> <a class="code" href="classServer.html#a7">Server::SendTo</a>(<a class="code" href="classuserrec.html">userrec</a>* Source, <a class="code" href="classuserrec.html">userrec</a>* Dest, std::string s)
+00447 {
+00448         <span class="keywordflow">if</span> (!Source)
+00449         {
+00450                 <span class="comment">// if source is NULL, then the message originates from the local server</span>
+00451                 Write(Dest-&gt;<a class="code" href="classconnection.html#o0">fd</a>,<span class="stringliteral">":%s %s"</span>,this-&gt;GetServerName().c_str(),s.c_str());
+00452         }
+00453         <span class="keywordflow">else</span>
+00454         {
+00455                 <span class="comment">// otherwise it comes from the user specified</span>
+00456                 WriteTo(Source,Dest,<span class="stringliteral">"%s"</span>,s.c_str());
+00457         }
+00458 }
+00459 
+<a name="l00460"></a><a class="code" href="classServer.html#a8">00460</a> <span class="keywordtype">void</span> <a class="code" href="classServer.html#a8">Server::SendChannel</a>(<a class="code" href="classuserrec.html">userrec</a>* User, <a class="code" href="classchanrec.html">chanrec</a>* Channel, std::string s,<span class="keywordtype">bool</span> IncludeSender)
+00461 {
+00462         <span class="keywordflow">if</span> (IncludeSender)
+00463         {
+00464                 WriteChannel(Channel,User,<span class="stringliteral">"%s"</span>,s.c_str());
+00465         }
+00466         <span class="keywordflow">else</span>
+00467         {
+00468                 ChanExceptSender(Channel,User,<span class="stringliteral">"%s"</span>,s.c_str());
+00469         }
+00470 }
+00471 
+<a name="l00472"></a><a class="code" href="classServer.html#a9">00472</a> <span class="keywordtype">bool</span> <a class="code" href="classServer.html#a9">Server::CommonChannels</a>(<a class="code" href="classuserrec.html">userrec</a>* u1, <a class="code" href="classuserrec.html">userrec</a>* u2)
+00473 {
+00474         <span class="keywordflow">return</span> (<a class="code" href="message_8h.html#a0">common_channels</a>(u1,u2) != 0);
+00475 }
+00476 
+<a name="l00477"></a><a class="code" href="classServer.html#a10">00477</a> <span class="keywordtype">void</span> <a class="code" href="classServer.html#a10">Server::SendCommon</a>(<a class="code" href="classuserrec.html">userrec</a>* User, std::string text,<span class="keywordtype">bool</span> IncludeSender)
+00478 {
+00479         <span class="keywordflow">if</span> (IncludeSender)
+00480         {
+00481                 WriteCommon(User,<span class="stringliteral">"%s"</span>,text.c_str());
+00482         }
+00483         <span class="keywordflow">else</span>
+00484         {
+00485                 WriteCommonExcept(User,<span class="stringliteral">"%s"</span>,text.c_str());
+00486         }
+00487 }
+00488 
+<a name="l00489"></a><a class="code" href="classServer.html#a11">00489</a> <span class="keywordtype">void</span> <a class="code" href="classServer.html#a11">Server::SendWallops</a>(<a class="code" href="classuserrec.html">userrec</a>* User, std::string text)
+00490 {
+00491         WriteWallOps(User,<span class="keyword">false</span>,<span class="stringliteral">"%s"</span>,text.c_str());
+00492 }
+00493 
+<a name="l00494"></a><a class="code" href="classServer.html#a32">00494</a> <span class="keywordtype">void</span> <a class="code" href="classServer.html#a32">Server::ChangeHost</a>(<a class="code" href="classuserrec.html">userrec</a>* user, std::string host)
+00495 {
+00496         <a class="code" href="message_8h.html#a11">ChangeDisplayedHost</a>(user,host.c_str());
+00497 }
+00498 
+<a name="l00499"></a><a class="code" href="classServer.html#a33">00499</a> <span class="keywordtype">void</span> <a class="code" href="classServer.html#a33">Server::ChangeGECOS</a>(<a class="code" href="classuserrec.html">userrec</a>* user, std::string gecos)
+00500 {
+00501         <a class="code" href="message_8h.html#a10">ChangeName</a>(user,gecos.c_str());
+00502 }
+00503 
+<a name="l00504"></a><a class="code" href="classServer.html#a12">00504</a> <span class="keywordtype">bool</span> <a class="code" href="classServer.html#a12">Server::IsNick</a>(std::string nick)
+00505 {
+00506         <span class="keywordflow">return</span> (<a class="code" href="message_8h.html#a13">isnick</a>(nick.c_str()) != 0);
+00507 }
+00508 
+<a name="l00509"></a><a class="code" href="classServer.html#a14">00509</a> <a class="code" href="classuserrec.html">userrec</a>* <a class="code" href="classServer.html#a14">Server::FindNick</a>(std::string nick)
+00510 {
+00511         <span class="keywordflow">return</span> Find(nick);
+00512 }
+00513 
+<a name="l00514"></a><a class="code" href="classServer.html#a15">00514</a> <a class="code" href="classchanrec.html">chanrec</a>* <a class="code" href="classServer.html#a15">Server::FindChannel</a>(std::string channel)
+00515 {
+00516         <span class="keywordflow">return</span> FindChan(channel.c_str());
+00517 }
+00518 
+<a name="l00519"></a><a class="code" href="classServer.html#a16">00519</a> std::string <a class="code" href="classServer.html#a16">Server::ChanMode</a>(<a class="code" href="classuserrec.html">userrec</a>* User, <a class="code" href="classchanrec.html">chanrec</a>* Chan)
+00520 {
+00521         <span class="keywordflow">return</span> <a class="code" href="message_8h.html#a14">cmode</a>(User,Chan);
+00522 }
+00523 
+<a name="l00524"></a><a class="code" href="classServer.html#a17">00524</a> <span class="keywordtype">bool</span> <a class="code" href="classServer.html#a17">Server::IsOnChannel</a>(<a class="code" href="classuserrec.html">userrec</a>* User, <a class="code" href="classchanrec.html">chanrec</a>* Chan)
+00525 {
+00526         <span class="keywordflow">return</span> <a class="code" href="message_8h.html#a16">has_channel</a>(User,Chan);
+00527 }
+00528 
+<a name="l00529"></a><a class="code" href="classServer.html#a18">00529</a> std::string <a class="code" href="classServer.html#a18">Server::GetServerName</a>()
+00530 {
+00531         <span class="keywordflow">return</span> getservername();
+00532 }
+00533 
+<a name="l00534"></a><a class="code" href="classServer.html#a19">00534</a> std::string <a class="code" href="classServer.html#a19">Server::GetNetworkName</a>()
+00535 {
+00536         <span class="keywordflow">return</span> getnetworkname();
+00537 }
+00538 
+<a name="l00539"></a><a class="code" href="classServer.html#a20">00539</a> <a class="code" href="classAdmin.html">Admin</a> <a class="code" href="classServer.html#a20">Server::GetAdmin</a>()
+00540 {
+00541         <span class="keywordflow">return</span> <a class="code" href="classAdmin.html">Admin</a>(getadminname(),getadminemail(),getadminnick());
+00542 }
 00543 
 00544 
-<a name="l00545"></a><a class="code" href="classServer.html#a21">00545</a> <span class="keywordtype">bool</span> <a class="code" href="classServer.html#a21">Server::AddExtendedMode</a>(<span class="keywordtype">char</span> modechar, <span class="keywordtype">int</span> type, <span class="keywordtype">bool</span> requires_oper, <span class="keywordtype">int</span> params_when_on, <span class="keywordtype">int</span> params_when_off)
-00546 {
-00547         <span class="keywordflow">if</span> (type == <a class="code" href="modules_8h.html#a7">MT_SERVER</a>)
-00548         {
-00549                 log(<a class="code" href="modules_8h.html#a0">DEBUG</a>,<span class="stringliteral">"*** API ERROR *** Modes of type MT_SERVER are reserved for future expansion"</span>);
-00550                 <span class="keywordflow">return</span> <span class="keyword">false</span>;
-00551         }
-00552         <span class="keywordflow">if</span> (((params_when_on&gt;0) || (params_when_off&gt;0)) &amp;&amp; (type == <a class="code" href="modules_8h.html#a6">MT_CLIENT</a>))
-00553         {
-00554                 log(<a class="code" href="modules_8h.html#a0">DEBUG</a>,<span class="stringliteral">"*** API ERROR *** Parameters on MT_CLIENT modes are not supported"</span>);
-00555                 <span class="keywordflow">return</span> <span class="keyword">false</span>;
-00556         }
-00557         <span class="keywordflow">if</span> ((params_when_on&gt;1) || (params_when_off&gt;1))
-00558         {
-00559                 log(<a class="code" href="modules_8h.html#a0">DEBUG</a>,<span class="stringliteral">"*** API ERROR *** More than one parameter for an MT_CHANNEL mode is not yet supported"</span>);
-00560                 <span class="keywordflow">return</span> <span class="keyword">false</span>;
-00561         }
-00562         <span class="keywordflow">return</span> <a class="code" href="modules_8cpp.html#a57">DoAddExtendedMode</a>(modechar,type,requires_oper,params_when_on,params_when_off);
-00563 }
-00564 
-<a name="l00565"></a><a class="code" href="classServer.html#a22">00565</a> <span class="keywordtype">bool</span> <a class="code" href="classServer.html#a22">Server::AddExtendedListMode</a>(<span class="keywordtype">char</span> modechar)
-00566 {
-00567         <span class="keywordtype">bool</span> res = <a class="code" href="modules_8cpp.html#a57">DoAddExtendedMode</a>(modechar,<a class="code" href="modules_8h.html#a5">MT_CHANNEL</a>,<span class="keyword">false</span>,1,1);
-00568         <span class="keywordflow">if</span> (res)
-00569                 <a class="code" href="modules_8cpp.html#a58">ModeMakeList</a>(modechar);
-00570         <span class="keywordflow">return</span> res;
-00571 }
-00572 
-<a name="l00573"></a><a class="code" href="classServer.html#a13">00573</a> <span class="keywordtype">int</span> <a class="code" href="classServer.html#a13">Server::CountUsers</a>(<a class="code" href="classchanrec.html">chanrec</a>* c)
-00574 {
-00575         <span class="keywordflow">return</span> usercount(c);
-00576 }
-00577 
+00545 
+<a name="l00546"></a><a class="code" href="classServer.html#a21">00546</a> <span class="keywordtype">bool</span> <a class="code" href="classServer.html#a21">Server::AddExtendedMode</a>(<span class="keywordtype">char</span> modechar, <span class="keywordtype">int</span> type, <span class="keywordtype">bool</span> requires_oper, <span class="keywordtype">int</span> params_when_on, <span class="keywordtype">int</span> params_when_off)
+00547 {
+00548         <span class="keywordflow">if</span> (type == <a class="code" href="modules_8h.html#a7">MT_SERVER</a>)
+00549         {
+00550                 log(<a class="code" href="modules_8h.html#a0">DEBUG</a>,<span class="stringliteral">"*** API ERROR *** Modes of type MT_SERVER are reserved for future expansion"</span>);
+00551                 <span class="keywordflow">return</span> <span class="keyword">false</span>;
+00552         }
+00553         <span class="keywordflow">if</span> (((params_when_on&gt;0) || (params_when_off&gt;0)) &amp;&amp; (type == <a class="code" href="modules_8h.html#a6">MT_CLIENT</a>))
+00554         {
+00555                 log(<a class="code" href="modules_8h.html#a0">DEBUG</a>,<span class="stringliteral">"*** API ERROR *** Parameters on MT_CLIENT modes are not supported"</span>);
+00556                 <span class="keywordflow">return</span> <span class="keyword">false</span>;
+00557         }
+00558         <span class="keywordflow">if</span> ((params_when_on&gt;1) || (params_when_off&gt;1))
+00559         {
+00560                 log(<a class="code" href="modules_8h.html#a0">DEBUG</a>,<span class="stringliteral">"*** API ERROR *** More than one parameter for an MT_CHANNEL mode is not yet supported"</span>);
+00561                 <span class="keywordflow">return</span> <span class="keyword">false</span>;
+00562         }
+00563         <span class="keywordflow">return</span> <a class="code" href="modules_8cpp.html#a57">DoAddExtendedMode</a>(modechar,type,requires_oper,params_when_on,params_when_off);
+00564 }
+00565 
+<a name="l00566"></a><a class="code" href="classServer.html#a22">00566</a> <span class="keywordtype">bool</span> <a class="code" href="classServer.html#a22">Server::AddExtendedListMode</a>(<span class="keywordtype">char</span> modechar)
+00567 {
+00568         <span class="keywordtype">bool</span> res = <a class="code" href="modules_8cpp.html#a57">DoAddExtendedMode</a>(modechar,<a class="code" href="modules_8h.html#a5">MT_CHANNEL</a>,<span class="keyword">false</span>,1,1);
+00569         <span class="keywordflow">if</span> (res)
+00570                 <a class="code" href="modules_8cpp.html#a58">ModeMakeList</a>(modechar);
+00571         <span class="keywordflow">return</span> res;
+00572 }
+00573 
+<a name="l00574"></a><a class="code" href="classServer.html#a13">00574</a> <span class="keywordtype">int</span> <a class="code" href="classServer.html#a13">Server::CountUsers</a>(<a class="code" href="classchanrec.html">chanrec</a>* c)
+00575 {
+00576         <span class="keywordflow">return</span> usercount(c);
+00577 }
 00578 
-<a name="l00579"></a><a class="code" href="classServer.html#a36">00579</a> <span class="keywordtype">bool</span> <a class="code" href="classServer.html#a36">Server::UserToPseudo</a>(<a class="code" href="classuserrec.html">userrec</a>* user,std::string message)
-00580 {
-00581         <span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> old_fd = user-&gt;<a class="code" href="classconnection.html#o0">fd</a>;
-00582         user-&gt;<a class="code" href="classconnection.html#o0">fd</a> = <a class="code" href="modules_8h.html#a26">FD_MAGIC_NUMBER</a>;
-00583         Write(old_fd,<span class="stringliteral">"ERROR :Closing link (%s@%s) [%s]"</span>,user-&gt;<a class="code" href="classuserrec.html#o1">ident</a>,user-&gt;<a class="code" href="classconnection.html#o1">host</a>,message.c_str());
-00584         close(old_fd);
-00585         shutdown (old_fd,2);
-00586 }
-00587 
-<a name="l00588"></a><a class="code" href="classServer.html#a37">00588</a> <span class="keywordtype">bool</span> <a class="code" href="classServer.html#a37">Server::PseudoToUser</a>(<a class="code" href="classuserrec.html">userrec</a>* alive,<a class="code" href="classuserrec.html">userrec</a>* zombie,std::string message)
-00589 {
-00590         zombie-&gt;<a class="code" href="classconnection.html#o0">fd</a> = alive-&gt;<a class="code" href="classconnection.html#o0">fd</a>;
-00591         alive-&gt;<a class="code" href="classconnection.html#o0">fd</a> = <a class="code" href="modules_8h.html#a26">FD_MAGIC_NUMBER</a>;
-00592         Write(zombie-&gt;<a class="code" href="classconnection.html#o0">fd</a>,<span class="stringliteral">":%s!%s@%s NICK %s"</span>,alive-&gt;<a class="code" href="classuserrec.html#o0">nick</a>,alive-&gt;<a class="code" href="classuserrec.html#o1">ident</a>,alive-&gt;<a class="code" href="classconnection.html#o1">host</a>,zombie-&gt;<a class="code" href="classuserrec.html#o0">nick</a>);
-00593         kill_link(alive,message.c_str());
-00594         <span class="keywordflow">for</span> (<span class="keywordtype">int</span> i = 0; i != MAXCHANS; i++)
-00595         {
-00596                 <span class="keywordflow">if</span> (zombie-&gt;<a class="code" href="classuserrec.html#o5">chans</a>[i].<a class="code" href="classucrec.html#o1">channel</a> != NULL)
-00597                 {
-00598                         <span class="keywordflow">if</span> (zombie-&gt;<a class="code" href="classuserrec.html#o5">chans</a>[i].<a class="code" href="classucrec.html#o1">channel</a>-&gt;<a class="code" href="classchanrec.html#o0">name</a>)
-00599                         {
-00600                                 <a class="code" href="classchanrec.html">chanrec</a>* Ptr = zombie-&gt;<a class="code" href="classuserrec.html#o5">chans</a>[i].<a class="code" href="classucrec.html#o1">channel</a>;
-00601                                 WriteFrom(zombie-&gt;<a class="code" href="classconnection.html#o0">fd</a>,zombie,<span class="stringliteral">"JOIN %s"</span>,Ptr-&gt;<a class="code" href="classchanrec.html#o0">name</a>);
-00602                                 <span class="keywordflow">if</span> (Ptr-&gt;<a class="code" href="classchanrec.html#o4">topicset</a>)
-00603                                 {
-00604                                         WriteServ(zombie-&gt;<a class="code" href="classconnection.html#o0">fd</a>,<span class="stringliteral">"332 %s %s :%s"</span>, zombie-&gt;<a class="code" href="classuserrec.html#o0">nick</a>, Ptr-&gt;<a class="code" href="classchanrec.html#o0">name</a>, Ptr-&gt;<a class="code" href="classchanrec.html#o2">topic</a>);
-00605                                         WriteServ(zombie-&gt;<a class="code" href="classconnection.html#o0">fd</a>,<span class="stringliteral">"333 %s %s %s %d"</span>, zombie-&gt;<a class="code" href="classuserrec.html#o0">nick</a>, Ptr-&gt;<a class="code" href="classchanrec.html#o0">name</a>, Ptr-&gt;<a class="code" href="classchanrec.html#o5">setby</a>, Ptr-&gt;<a class="code" href="classchanrec.html#o4">topicset</a>);
-00606                                 }
-00607                                 userlist(zombie,Ptr);
-00608                                 WriteServ(zombie-&gt;<a class="code" href="classconnection.html#o0">fd</a>,<span class="stringliteral">"366 %s %s :End of /NAMES list."</span>, zombie-&gt;<a class="code" href="classuserrec.html#o0">nick</a>, Ptr-&gt;<a class="code" href="classchanrec.html#o0">name</a>);
-00609                                 WriteServ(zombie-&gt;<a class="code" href="classconnection.html#o0">fd</a>,<span class="stringliteral">"324 %s %s +%s"</span>,zombie-&gt;<a class="code" href="classuserrec.html#o0">nick</a>, Ptr-&gt;<a class="code" href="classchanrec.html#o0">name</a>,chanmodes(Ptr));
-00610                                 WriteServ(zombie-&gt;<a class="code" href="classconnection.html#o0">fd</a>,<span class="stringliteral">"329 %s %s %d"</span>, zombie-&gt;<a class="code" href="classuserrec.html#o0">nick</a>, Ptr-&gt;<a class="code" href="classchanrec.html#o0">name</a>, Ptr-&gt;<a class="code" href="classchanrec.html#o3">created</a>);
-00611 
-00612                         }
-00613                 }
-00614         }
-00615 
-00616 }
-00617 
-<a name="l00618"></a><a class="code" href="classServer.html#a38">00618</a> <span class="keywordtype">void</span> <a class="code" href="classServer.html#a38">Server::AddGLine</a>(<span class="keywordtype">long</span> duration, std::string source, std::string reason, std::string hostmask)
-00619 {
-00620         <a class="code" href="xline_8h.html#a1">add_gline</a>(<a class="code" href="commands_8h.html#a75">duration</a>, source.c_str(), reason.c_str(), hostmask.c_str());
-00621 }
-00622 
-<a name="l00623"></a><a class="code" href="classServer.html#a39">00623</a> <span class="keywordtype">void</span> <a class="code" href="classServer.html#a39">Server::AddQLine</a>(<span class="keywordtype">long</span> duration, std::string source, std::string reason, std::string nickname)
-00624 {
-00625         <a class="code" href="xline_8h.html#a2">add_qline</a>(<a class="code" href="commands_8h.html#a75">duration</a>, source.c_str(), reason.c_str(), nickname.c_str());
-00626 }
-00627 
-<a name="l00628"></a><a class="code" href="classServer.html#a40">00628</a> <span class="keywordtype">void</span> <a class="code" href="classServer.html#a40">Server::AddZLine</a>(<span class="keywordtype">long</span> duration, std::string source, std::string reason, std::string ipaddr)
-00629 {
-00630         <a class="code" href="xline_8h.html#a3">add_zline</a>(<a class="code" href="commands_8h.html#a75">duration</a>, source.c_str(), reason.c_str(), ipaddr.c_str());
-00631 }
-00632 
-<a name="l00633"></a><a class="code" href="classServer.html#a41">00633</a> <span class="keywordtype">void</span> <a class="code" href="classServer.html#a41">Server::AddKLine</a>(<span class="keywordtype">long</span> duration, std::string source, std::string reason, std::string hostmask)
-00634 {
-00635         <a class="code" href="xline_8h.html#a4">add_kline</a>(<a class="code" href="commands_8h.html#a75">duration</a>, source.c_str(), reason.c_str(), hostmask.c_str());
-00636 }
-00637 
-<a name="l00638"></a><a class="code" href="classServer.html#a42">00638</a> <span class="keywordtype">void</span> <a class="code" href="classServer.html#a42">Server::AddELine</a>(<span class="keywordtype">long</span> duration, std::string source, std::string reason, std::string hostmask)
-00639 {
-00640         <a class="code" href="xline_8h.html#a5">add_eline</a>(<a class="code" href="commands_8h.html#a75">duration</a>, source.c_str(), reason.c_str(), hostmask.c_str());
-00641 }
-00642 
-<a name="l00643"></a><a class="code" href="classServer.html#a43">00643</a> <span class="keywordtype">bool</span> <a class="code" href="classServer.html#a43">Server::DelGLine</a>(std::string hostmask)
-00644 {
-00645         <a class="code" href="xline_8h.html#a6">del_gline</a>(hostmask.c_str());
-00646 }
-00647 
-<a name="l00648"></a><a class="code" href="classServer.html#a44">00648</a> <span class="keywordtype">bool</span> <a class="code" href="classServer.html#a44">Server::DelQLine</a>(std::string nickname)
-00649 {
-00650         <a class="code" href="xline_8h.html#a7">del_qline</a>(nickname.c_str());
-00651 }
-00652 
-<a name="l00653"></a><a class="code" href="classServer.html#a45">00653</a> <span class="keywordtype">bool</span> <a class="code" href="classServer.html#a45">Server::DelZLine</a>(std::string ipaddr)
-00654 {
-00655         <a class="code" href="xline_8h.html#a8">del_zline</a>(ipaddr.c_str());
-00656 }
-00657 
-<a name="l00658"></a><a class="code" href="classServer.html#a46">00658</a> <span class="keywordtype">bool</span> <a class="code" href="classServer.html#a46">Server::DelKLine</a>(std::string hostmask)
-00659 {
-00660         <a class="code" href="xline_8h.html#a9">del_kline</a>(hostmask.c_str());
-00661 }
-00662 
-<a name="l00663"></a><a class="code" href="classServer.html#a47">00663</a> <span class="keywordtype">bool</span> <a class="code" href="classServer.html#a47">Server::DelELine</a>(std::string hostmask)
-00664 {
-00665         <a class="code" href="xline_8h.html#a10">del_eline</a>(hostmask.c_str());
-00666 }
-00667 
-<a name="l00668"></a><a class="code" href="classServer.html#a48">00668</a> <span class="keywordtype">long</span> <a class="code" href="classServer.html#a48">Server::CalcDuration</a>(std::string delta)
-00669 {
-00670         <span class="keywordflow">return</span> <a class="code" href="commands_8h.html#a75">duration</a>(delta.c_str());
-00671 }
-00672 
+00579 
+<a name="l00580"></a><a class="code" href="classServer.html#a36">00580</a> <span class="keywordtype">bool</span> <a class="code" href="classServer.html#a36">Server::UserToPseudo</a>(<a class="code" href="classuserrec.html">userrec</a>* user,std::string message)
+00581 {
+00582         <span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> old_fd = user-&gt;<a class="code" href="classconnection.html#o0">fd</a>;
+00583         user-&gt;<a class="code" href="classconnection.html#o0">fd</a> = <a class="code" href="modules_8h.html#a26">FD_MAGIC_NUMBER</a>;
+00584         Write(old_fd,<span class="stringliteral">"ERROR :Closing link (%s@%s) [%s]"</span>,user-&gt;<a class="code" href="classuserrec.html#o1">ident</a>,user-&gt;<a class="code" href="classconnection.html#o1">host</a>,message.c_str());
+00585         close(old_fd);
+00586         shutdown (old_fd,2);
+00587 }
+00588 
+<a name="l00589"></a><a class="code" href="classServer.html#a37">00589</a> <span class="keywordtype">bool</span> <a class="code" href="classServer.html#a37">Server::PseudoToUser</a>(<a class="code" href="classuserrec.html">userrec</a>* alive,<a class="code" href="classuserrec.html">userrec</a>* zombie,std::string message)
+00590 {
+00591         zombie-&gt;<a class="code" href="classconnection.html#o0">fd</a> = alive-&gt;<a class="code" href="classconnection.html#o0">fd</a>;
+00592         alive-&gt;<a class="code" href="classconnection.html#o0">fd</a> = <a class="code" href="modules_8h.html#a26">FD_MAGIC_NUMBER</a>;
+00593         Write(zombie-&gt;<a class="code" href="classconnection.html#o0">fd</a>,<span class="stringliteral">":%s!%s@%s NICK %s"</span>,alive-&gt;<a class="code" href="classuserrec.html#o0">nick</a>,alive-&gt;<a class="code" href="classuserrec.html#o1">ident</a>,alive-&gt;<a class="code" href="classconnection.html#o1">host</a>,zombie-&gt;<a class="code" href="classuserrec.html#o0">nick</a>);
+00594         kill_link(alive,message.c_str());
+00595         <span class="keywordflow">for</span> (<span class="keywordtype">int</span> i = 0; i != MAXCHANS; i++)
+00596         {
+00597                 <span class="keywordflow">if</span> (zombie-&gt;<a class="code" href="classuserrec.html#o5">chans</a>[i].<a class="code" href="classucrec.html#o1">channel</a> != NULL)
+00598                 {
+00599                         <span class="keywordflow">if</span> (zombie-&gt;<a class="code" href="classuserrec.html#o5">chans</a>[i].<a class="code" href="classucrec.html#o1">channel</a>-&gt;<a class="code" href="classchanrec.html#o0">name</a>)
+00600                         {
+00601                                 <a class="code" href="classchanrec.html">chanrec</a>* Ptr = zombie-&gt;<a class="code" href="classuserrec.html#o5">chans</a>[i].<a class="code" href="classucrec.html#o1">channel</a>;
+00602                                 WriteFrom(zombie-&gt;<a class="code" href="classconnection.html#o0">fd</a>,zombie,<span class="stringliteral">"JOIN %s"</span>,Ptr-&gt;<a class="code" href="classchanrec.html#o0">name</a>);
+00603                                 <span class="keywordflow">if</span> (Ptr-&gt;<a class="code" href="classchanrec.html#o4">topicset</a>)
+00604                                 {
+00605                                         WriteServ(zombie-&gt;<a class="code" href="classconnection.html#o0">fd</a>,<span class="stringliteral">"332 %s %s :%s"</span>, zombie-&gt;<a class="code" href="classuserrec.html#o0">nick</a>, Ptr-&gt;<a class="code" href="classchanrec.html#o0">name</a>, Ptr-&gt;<a class="code" href="classchanrec.html#o2">topic</a>);
+00606                                         WriteServ(zombie-&gt;<a class="code" href="classconnection.html#o0">fd</a>,<span class="stringliteral">"333 %s %s %s %d"</span>, zombie-&gt;<a class="code" href="classuserrec.html#o0">nick</a>, Ptr-&gt;<a class="code" href="classchanrec.html#o0">name</a>, Ptr-&gt;<a class="code" href="classchanrec.html#o5">setby</a>, Ptr-&gt;<a class="code" href="classchanrec.html#o4">topicset</a>);
+00607                                 }
+00608                                 userlist(zombie,Ptr);
+00609                                 WriteServ(zombie-&gt;<a class="code" href="classconnection.html#o0">fd</a>,<span class="stringliteral">"366 %s %s :End of /NAMES list."</span>, zombie-&gt;<a class="code" href="classuserrec.html#o0">nick</a>, Ptr-&gt;<a class="code" href="classchanrec.html#o0">name</a>);
+00610                                 WriteServ(zombie-&gt;<a class="code" href="classconnection.html#o0">fd</a>,<span class="stringliteral">"324 %s %s +%s"</span>,zombie-&gt;<a class="code" href="classuserrec.html#o0">nick</a>, Ptr-&gt;<a class="code" href="classchanrec.html#o0">name</a>,chanmodes(Ptr));
+00611                                 WriteServ(zombie-&gt;<a class="code" href="classconnection.html#o0">fd</a>,<span class="stringliteral">"329 %s %s %d"</span>, zombie-&gt;<a class="code" href="classuserrec.html#o0">nick</a>, Ptr-&gt;<a class="code" href="classchanrec.html#o0">name</a>, Ptr-&gt;<a class="code" href="classchanrec.html#o3">created</a>);
+00612 
+00613                         }
+00614                 }
+00615         }
+00616 
+00617 }
+00618 
+<a name="l00619"></a><a class="code" href="classServer.html#a38">00619</a> <span class="keywordtype">void</span> <a class="code" href="classServer.html#a38">Server::AddGLine</a>(<span class="keywordtype">long</span> duration, std::string source, std::string reason, std::string hostmask)
+00620 {
+00621         <a class="code" href="xline_8h.html#a1">add_gline</a>(<a class="code" href="commands_8h.html#a75">duration</a>, source.c_str(), reason.c_str(), hostmask.c_str());
+00622 }
+00623 
+<a name="l00624"></a><a class="code" href="classServer.html#a39">00624</a> <span class="keywordtype">void</span> <a class="code" href="classServer.html#a39">Server::AddQLine</a>(<span class="keywordtype">long</span> duration, std::string source, std::string reason, std::string nickname)
+00625 {
+00626         <a class="code" href="xline_8h.html#a2">add_qline</a>(<a class="code" href="commands_8h.html#a75">duration</a>, source.c_str(), reason.c_str(), nickname.c_str());
+00627 }
+00628 
+<a name="l00629"></a><a class="code" href="classServer.html#a40">00629</a> <span class="keywordtype">void</span> <a class="code" href="classServer.html#a40">Server::AddZLine</a>(<span class="keywordtype">long</span> duration, std::string source, std::string reason, std::string ipaddr)
+00630 {
+00631         <a class="code" href="xline_8h.html#a3">add_zline</a>(<a class="code" href="commands_8h.html#a75">duration</a>, source.c_str(), reason.c_str(), ipaddr.c_str());
+00632 }
+00633 
+<a name="l00634"></a><a class="code" href="classServer.html#a41">00634</a> <span class="keywordtype">void</span> <a class="code" href="classServer.html#a41">Server::AddKLine</a>(<span class="keywordtype">long</span> duration, std::string source, std::string reason, std::string hostmask)
+00635 {
+00636         <a class="code" href="xline_8h.html#a4">add_kline</a>(<a class="code" href="commands_8h.html#a75">duration</a>, source.c_str(), reason.c_str(), hostmask.c_str());
+00637 }
+00638 
+<a name="l00639"></a><a class="code" href="classServer.html#a42">00639</a> <span class="keywordtype">void</span> <a class="code" href="classServer.html#a42">Server::AddELine</a>(<span class="keywordtype">long</span> duration, std::string source, std::string reason, std::string hostmask)
+00640 {
+00641         <a class="code" href="xline_8h.html#a5">add_eline</a>(<a class="code" href="commands_8h.html#a75">duration</a>, source.c_str(), reason.c_str(), hostmask.c_str());
+00642 }
+00643 
+<a name="l00644"></a><a class="code" href="classServer.html#a43">00644</a> <span class="keywordtype">bool</span> <a class="code" href="classServer.html#a43">Server::DelGLine</a>(std::string hostmask)
+00645 {
+00646         <a class="code" href="xline_8h.html#a6">del_gline</a>(hostmask.c_str());
+00647 }
+00648 
+<a name="l00649"></a><a class="code" href="classServer.html#a44">00649</a> <span class="keywordtype">bool</span> <a class="code" href="classServer.html#a44">Server::DelQLine</a>(std::string nickname)
+00650 {
+00651         <a class="code" href="xline_8h.html#a7">del_qline</a>(nickname.c_str());
+00652 }
+00653 
+<a name="l00654"></a><a class="code" href="classServer.html#a45">00654</a> <span class="keywordtype">bool</span> <a class="code" href="classServer.html#a45">Server::DelZLine</a>(std::string ipaddr)
+00655 {
+00656         <a class="code" href="xline_8h.html#a8">del_zline</a>(ipaddr.c_str());
+00657 }
+00658 
+<a name="l00659"></a><a class="code" href="classServer.html#a46">00659</a> <span class="keywordtype">bool</span> <a class="code" href="classServer.html#a46">Server::DelKLine</a>(std::string hostmask)
+00660 {
+00661         <a class="code" href="xline_8h.html#a9">del_kline</a>(hostmask.c_str());
+00662 }
+00663 
+<a name="l00664"></a><a class="code" href="classServer.html#a47">00664</a> <span class="keywordtype">bool</span> <a class="code" href="classServer.html#a47">Server::DelELine</a>(std::string hostmask)
+00665 {
+00666         <a class="code" href="xline_8h.html#a10">del_eline</a>(hostmask.c_str());
+00667 }
+00668 
+<a name="l00669"></a><a class="code" href="classServer.html#a48">00669</a> <span class="keywordtype">long</span> <a class="code" href="classServer.html#a48">Server::CalcDuration</a>(std::string delta)
+00670 {
+00671         <span class="keywordflow">return</span> <a class="code" href="commands_8h.html#a75">duration</a>(delta.c_str());
+00672 }
 00673 
-<a name="l00674"></a><a class="code" href="classConfigReader.html#a0">00674</a> <a class="code" href="classConfigReader.html#a0">ConfigReader::ConfigReader</a>()
-00675 {
-00676         this-&gt;<a class="code" href="classConfigReader.html#p0">cache</a> = <span class="keyword">new</span> std::stringstream(std::stringstream::in | std::stringstream::out);
-00677         this-&gt;<a class="code" href="classConfigReader.html#p1">errorlog</a> = <span class="keyword">new</span> std::stringstream(std::stringstream::in | std::stringstream::out);
-00678         this-&gt;<a class="code" href="classConfigReader.html#p2">readerror</a> = LoadConf(CONFIG_FILE,this-&gt;cache,this-&gt;errorlog);
-00679         <span class="keywordflow">if</span> (!this-&gt;<a class="code" href="classConfigReader.html#p2">readerror</a>)
-00680                 this-&gt;<a class="code" href="classConfigReader.html#p3">error</a> = <a class="code" href="modules_8h.html#a30">CONF_FILE_NOT_FOUND</a>;
-00681 }
-00682 
+00674 
+<a name="l00675"></a><a class="code" href="classConfigReader.html#a0">00675</a> <a class="code" href="classConfigReader.html#a0">ConfigReader::ConfigReader</a>()
+00676 {
+00677         this-&gt;<a class="code" href="classConfigReader.html#p0">cache</a> = <span class="keyword">new</span> std::stringstream(std::stringstream::in | std::stringstream::out);
+00678         this-&gt;<a class="code" href="classConfigReader.html#p1">errorlog</a> = <span class="keyword">new</span> std::stringstream(std::stringstream::in | std::stringstream::out);
+00679         this-&gt;<a class="code" href="classConfigReader.html#p2">readerror</a> = LoadConf(CONFIG_FILE,this-&gt;cache,this-&gt;errorlog);
+00680         <span class="keywordflow">if</span> (!this-&gt;<a class="code" href="classConfigReader.html#p2">readerror</a>)
+00681                 this-&gt;<a class="code" href="classConfigReader.html#p3">error</a> = <a class="code" href="modules_8h.html#a30">CONF_FILE_NOT_FOUND</a>;
+00682 }
 00683 
-<a name="l00684"></a><a class="code" href="classConfigReader.html#a2">00684</a> <a class="code" href="classConfigReader.html#a2">ConfigReader::~ConfigReader</a>()
-00685 {
-00686         <span class="keywordflow">if</span> (this-&gt;<a class="code" href="classConfigReader.html#p0">cache</a>)
-00687                 <span class="keyword">delete</span> this-&gt;<a class="code" href="classConfigReader.html#p0">cache</a>;
-00688         <span class="keywordflow">if</span> (this-&gt;<a class="code" href="classConfigReader.html#p1">errorlog</a>)
-00689                 <span class="keyword">delete</span> this-&gt;<a class="code" href="classConfigReader.html#p1">errorlog</a>;
-00690 }
-00691 
+00684 
+<a name="l00685"></a><a class="code" href="classConfigReader.html#a2">00685</a> <a class="code" href="classConfigReader.html#a2">ConfigReader::~ConfigReader</a>()
+00686 {
+00687         <span class="keywordflow">if</span> (this-&gt;<a class="code" href="classConfigReader.html#p0">cache</a>)
+00688                 <span class="keyword">delete</span> this-&gt;<a class="code" href="classConfigReader.html#p0">cache</a>;
+00689         <span class="keywordflow">if</span> (this-&gt;<a class="code" href="classConfigReader.html#p1">errorlog</a>)
+00690                 <span class="keyword">delete</span> this-&gt;<a class="code" href="classConfigReader.html#p1">errorlog</a>;
+00691 }
 00692 
-<a name="l00693"></a><a class="code" href="classConfigReader.html#a1">00693</a> <a class="code" href="classConfigReader.html#a0">ConfigReader::ConfigReader</a>(std::string filename)
-00694 {
-00695         this-&gt;<a class="code" href="classConfigReader.html#p0">cache</a> = <span class="keyword">new</span> std::stringstream(std::stringstream::in | std::stringstream::out);
-00696         this-&gt;<a class="code" href="classConfigReader.html#p1">errorlog</a> = <span class="keyword">new</span> std::stringstream(std::stringstream::in | std::stringstream::out);
-00697         this-&gt;<a class="code" href="classConfigReader.html#p2">readerror</a> = LoadConf(filename.c_str(),this-&gt;<a class="code" href="classConfigReader.html#p0">cache</a>,this-&gt;<a class="code" href="classConfigReader.html#p1">errorlog</a>);
-00698         <span class="keywordflow">if</span> (!this-&gt;<a class="code" href="classConfigReader.html#p2">readerror</a>)
-00699                 this-&gt;<a class="code" href="classConfigReader.html#p3">error</a> = <a class="code" href="modules_8h.html#a30">CONF_FILE_NOT_FOUND</a>;
-00700 };
-00701 
-<a name="l00702"></a><a class="code" href="classConfigReader.html#a3">00702</a> std::string <a class="code" href="classConfigReader.html#a3">ConfigReader::ReadValue</a>(std::string tag, std::string name, <span class="keywordtype">int</span> index)
-00703 {
-00704         <span class="keywordtype">char</span> val[MAXBUF];
-00705         <span class="keywordtype">char</span> t[MAXBUF];
-00706         <span class="keywordtype">char</span> n[MAXBUF];
-00707         strlcpy(t,tag.c_str(),MAXBUF);
-00708         strlcpy(n,name.c_str(),MAXBUF);
-00709         <span class="keywordtype">int</span> res = ReadConf(<a class="code" href="classConfigReader.html#p0">cache</a>,t,n,index,val);
-00710         <span class="keywordflow">if</span> (!res)
-00711         {
-00712                 this-&gt;<a class="code" href="classConfigReader.html#p3">error</a> = <a class="code" href="modules_8h.html#a29">CONF_VALUE_NOT_FOUND</a>;
-00713                 <span class="keywordflow">return</span> <span class="stringliteral">""</span>;
-00714         }
-00715         <span class="keywordflow">return</span> std::string(val);
-00716 }
-00717 
-<a name="l00718"></a><a class="code" href="classConfigReader.html#a4">00718</a> <span class="keywordtype">bool</span> <a class="code" href="classConfigReader.html#a4">ConfigReader::ReadFlag</a>(std::string tag, std::string name, <span class="keywordtype">int</span> index)
-00719 {
-00720         <span class="keywordtype">char</span> val[MAXBUF];
-00721         <span class="keywordtype">char</span> t[MAXBUF];
-00722         <span class="keywordtype">char</span> n[MAXBUF];
-00723         strlcpy(t,tag.c_str(),MAXBUF);
-00724         strlcpy(n,name.c_str(),MAXBUF);
-00725         <span class="keywordtype">int</span> res = ReadConf(<a class="code" href="classConfigReader.html#p0">cache</a>,t,n,index,val);
-00726         <span class="keywordflow">if</span> (!res)
-00727         {
-00728                 this-&gt;<a class="code" href="classConfigReader.html#p3">error</a> = <a class="code" href="modules_8h.html#a29">CONF_VALUE_NOT_FOUND</a>;
-00729                 <span class="keywordflow">return</span> <span class="keyword">false</span>;
-00730         }
-00731         std::string s = val;
-00732         <span class="keywordflow">return</span> ((s == <span class="stringliteral">"yes"</span>) || (s == <span class="stringliteral">"YES"</span>) || (s == <span class="stringliteral">"true"</span>) || (s == <span class="stringliteral">"TRUE"</span>) || (s == <span class="stringliteral">"1"</span>));
-00733 }
-00734 
-<a name="l00735"></a><a class="code" href="classConfigReader.html#a5">00735</a> <span class="keywordtype">long</span> <a class="code" href="classConfigReader.html#a5">ConfigReader::ReadInteger</a>(std::string tag, std::string name, <span class="keywordtype">int</span> index, <span class="keywordtype">bool</span> needs_unsigned)
-00736 {
-00737         <span class="keywordtype">char</span> val[MAXBUF];
-00738         <span class="keywordtype">char</span> t[MAXBUF];
-00739         <span class="keywordtype">char</span> n[MAXBUF];
-00740         strlcpy(t,tag.c_str(),MAXBUF);
-00741         strlcpy(n,name.c_str(),MAXBUF);
-00742         <span class="keywordtype">int</span> res = ReadConf(<a class="code" href="classConfigReader.html#p0">cache</a>,t,n,index,val);
-00743         <span class="keywordflow">if</span> (!res)
-00744         {
-00745                 this-&gt;<a class="code" href="classConfigReader.html#p3">error</a> = <a class="code" href="modules_8h.html#a29">CONF_VALUE_NOT_FOUND</a>;
-00746                 <span class="keywordflow">return</span> 0;
-00747         }
-00748         <span class="keywordflow">for</span> (<span class="keywordtype">int</span> i = 0; i &lt; strlen(val); i++)
-00749         {
-00750                 <span class="keywordflow">if</span> (!isdigit(val[i]))
-00751                 {
-00752                         this-&gt;<a class="code" href="classConfigReader.html#p3">error</a> = <a class="code" href="modules_8h.html#a27">CONF_NOT_A_NUMBER</a>;
-00753                         <span class="keywordflow">return</span> 0;
-00754                 }
-00755         }
-00756         <span class="keywordflow">if</span> ((needs_unsigned) &amp;&amp; (atoi(val)&lt;0))
-00757         {
-00758                 this-&gt;<a class="code" href="classConfigReader.html#p3">error</a> = <a class="code" href="modules_8h.html#a28">CONF_NOT_UNSIGNED</a>;
-00759                 <span class="keywordflow">return</span> 0;
-00760         }
-00761         <span class="keywordflow">return</span> atoi(val);
-00762 }
-00763 
-<a name="l00764"></a><a class="code" href="classConfigReader.html#a6">00764</a> <span class="keywordtype">long</span> <a class="code" href="classConfigReader.html#a6">ConfigReader::GetError</a>()
-00765 {
-00766         <span class="keywordtype">long</span> olderr = this-&gt;<a class="code" href="classConfigReader.html#p3">error</a>;
-00767         this-&gt;error = 0;
-00768         <span class="keywordflow">return</span> olderr;
-00769 }
-00770 
-<a name="l00771"></a><a class="code" href="classConfigReader.html#a9">00771</a> <span class="keywordtype">void</span> <a class="code" href="classConfigReader.html#a9">ConfigReader::DumpErrors</a>(<span class="keywordtype">bool</span> bail, <a class="code" href="classuserrec.html">userrec</a>* user)
-00772 {
-00773         <span class="keywordflow">if</span> (bail)
-00774         {
-00775                 printf(<span class="stringliteral">"There were errors in your configuration:\n%s"</span>,<a class="code" href="classConfigReader.html#p1">errorlog</a>-&gt;str().c_str());
-00776                 exit(0);
-00777         }
-00778         <span class="keywordflow">else</span>
-00779         {
-00780                 <span class="keywordtype">char</span> dataline[1024];
-00781                 <span class="keywordflow">if</span> (user)
-00782                 {
-00783                         WriteServ(user-&gt;<a class="code" href="classconnection.html#o0">fd</a>,<span class="stringliteral">"NOTICE %s :There were errors in the configuration file:"</span>,user-&gt;<a class="code" href="classuserrec.html#o0">nick</a>);
-00784                         <span class="keywordflow">while</span> (!<a class="code" href="classConfigReader.html#p1">errorlog</a>-&gt;eof())
-00785                         {
-00786                                 <a class="code" href="classConfigReader.html#p1">errorlog</a>-&gt;getline(dataline,1024);
-00787                                 WriteServ(user-&gt;<a class="code" href="classconnection.html#o0">fd</a>,<span class="stringliteral">"NOTICE %s :%s"</span>,user-&gt;<a class="code" href="classuserrec.html#o0">nick</a>,dataline);
-00788                         }
-00789                 }
-00790                 <span class="keywordflow">else</span>
-00791                 {
-00792                         WriteOpers(<span class="stringliteral">"There were errors in the configuration file:"</span>,user-&gt;<a class="code" href="classuserrec.html#o0">nick</a>);
-00793                         <span class="keywordflow">while</span> (!<a class="code" href="classConfigReader.html#p1">errorlog</a>-&gt;eof())
-00794                         {
-00795                                 <a class="code" href="classConfigReader.html#p1">errorlog</a>-&gt;getline(dataline,1024);
-00796                                 WriteOpers(dataline);
-00797                         }
-00798                 }
-00799                 <span class="keywordflow">return</span>;
-00800         }
-00801 }
-00802 
+00693 
+<a name="l00694"></a><a class="code" href="classConfigReader.html#a1">00694</a> <a class="code" href="classConfigReader.html#a0">ConfigReader::ConfigReader</a>(std::string filename)
+00695 {
+00696         this-&gt;<a class="code" href="classConfigReader.html#p0">cache</a> = <span class="keyword">new</span> std::stringstream(std::stringstream::in | std::stringstream::out);
+00697         this-&gt;<a class="code" href="classConfigReader.html#p1">errorlog</a> = <span class="keyword">new</span> std::stringstream(std::stringstream::in | std::stringstream::out);
+00698         this-&gt;<a class="code" href="classConfigReader.html#p2">readerror</a> = LoadConf(filename.c_str(),this-&gt;<a class="code" href="classConfigReader.html#p0">cache</a>,this-&gt;<a class="code" href="classConfigReader.html#p1">errorlog</a>);
+00699         <span class="keywordflow">if</span> (!this-&gt;<a class="code" href="classConfigReader.html#p2">readerror</a>)
+00700                 this-&gt;<a class="code" href="classConfigReader.html#p3">error</a> = <a class="code" href="modules_8h.html#a30">CONF_FILE_NOT_FOUND</a>;
+00701 };
+00702 
+<a name="l00703"></a><a class="code" href="classConfigReader.html#a3">00703</a> std::string <a class="code" href="classConfigReader.html#a3">ConfigReader::ReadValue</a>(std::string tag, std::string name, <span class="keywordtype">int</span> index)
+00704 {
+00705         <span class="keywordtype">char</span> val[MAXBUF];
+00706         <span class="keywordtype">char</span> t[MAXBUF];
+00707         <span class="keywordtype">char</span> n[MAXBUF];
+00708         strlcpy(t,tag.c_str(),MAXBUF);
+00709         strlcpy(n,name.c_str(),MAXBUF);
+00710         <span class="keywordtype">int</span> res = ReadConf(<a class="code" href="classConfigReader.html#p0">cache</a>,t,n,index,val);
+00711         <span class="keywordflow">if</span> (!res)
+00712         {
+00713                 this-&gt;<a class="code" href="classConfigReader.html#p3">error</a> = <a class="code" href="modules_8h.html#a29">CONF_VALUE_NOT_FOUND</a>;
+00714                 <span class="keywordflow">return</span> <span class="stringliteral">""</span>;
+00715         }
+00716         <span class="keywordflow">return</span> std::string(val);
+00717 }
+00718 
+<a name="l00719"></a><a class="code" href="classConfigReader.html#a4">00719</a> <span class="keywordtype">bool</span> <a class="code" href="classConfigReader.html#a4">ConfigReader::ReadFlag</a>(std::string tag, std::string name, <span class="keywordtype">int</span> index)
+00720 {
+00721         <span class="keywordtype">char</span> val[MAXBUF];
+00722         <span class="keywordtype">char</span> t[MAXBUF];
+00723         <span class="keywordtype">char</span> n[MAXBUF];
+00724         strlcpy(t,tag.c_str(),MAXBUF);
+00725         strlcpy(n,name.c_str(),MAXBUF);
+00726         <span class="keywordtype">int</span> res = ReadConf(<a class="code" href="classConfigReader.html#p0">cache</a>,t,n,index,val);
+00727         <span class="keywordflow">if</span> (!res)
+00728         {
+00729                 this-&gt;<a class="code" href="classConfigReader.html#p3">error</a> = <a class="code" href="modules_8h.html#a29">CONF_VALUE_NOT_FOUND</a>;
+00730                 <span class="keywordflow">return</span> <span class="keyword">false</span>;
+00731         }
+00732         std::string s = val;
+00733         <span class="keywordflow">return</span> ((s == <span class="stringliteral">"yes"</span>) || (s == <span class="stringliteral">"YES"</span>) || (s == <span class="stringliteral">"true"</span>) || (s == <span class="stringliteral">"TRUE"</span>) || (s == <span class="stringliteral">"1"</span>));
+00734 }
+00735 
+<a name="l00736"></a><a class="code" href="classConfigReader.html#a5">00736</a> <span class="keywordtype">long</span> <a class="code" href="classConfigReader.html#a5">ConfigReader::ReadInteger</a>(std::string tag, std::string name, <span class="keywordtype">int</span> index, <span class="keywordtype">bool</span> needs_unsigned)
+00737 {
+00738         <span class="keywordtype">char</span> val[MAXBUF];
+00739         <span class="keywordtype">char</span> t[MAXBUF];
+00740         <span class="keywordtype">char</span> n[MAXBUF];
+00741         strlcpy(t,tag.c_str(),MAXBUF);
+00742         strlcpy(n,name.c_str(),MAXBUF);
+00743         <span class="keywordtype">int</span> res = ReadConf(<a class="code" href="classConfigReader.html#p0">cache</a>,t,n,index,val);
+00744         <span class="keywordflow">if</span> (!res)
+00745         {
+00746                 this-&gt;<a class="code" href="classConfigReader.html#p3">error</a> = <a class="code" href="modules_8h.html#a29">CONF_VALUE_NOT_FOUND</a>;
+00747                 <span class="keywordflow">return</span> 0;
+00748         }
+00749         <span class="keywordflow">for</span> (<span class="keywordtype">int</span> i = 0; i &lt; strlen(val); i++)
+00750         {
+00751                 <span class="keywordflow">if</span> (!isdigit(val[i]))
+00752                 {
+00753                         this-&gt;<a class="code" href="classConfigReader.html#p3">error</a> = <a class="code" href="modules_8h.html#a27">CONF_NOT_A_NUMBER</a>;
+00754                         <span class="keywordflow">return</span> 0;
+00755                 }
+00756         }
+00757         <span class="keywordflow">if</span> ((needs_unsigned) &amp;&amp; (atoi(val)&lt;0))
+00758         {
+00759                 this-&gt;<a class="code" href="classConfigReader.html#p3">error</a> = <a class="code" href="modules_8h.html#a28">CONF_NOT_UNSIGNED</a>;
+00760                 <span class="keywordflow">return</span> 0;
+00761         }
+00762         <span class="keywordflow">return</span> atoi(val);
+00763 }
+00764 
+<a name="l00765"></a><a class="code" href="classConfigReader.html#a6">00765</a> <span class="keywordtype">long</span> <a class="code" href="classConfigReader.html#a6">ConfigReader::GetError</a>()
+00766 {
+00767         <span class="keywordtype">long</span> olderr = this-&gt;<a class="code" href="classConfigReader.html#p3">error</a>;
+00768         this-&gt;error = 0;
+00769         <span class="keywordflow">return</span> olderr;
+00770 }
+00771 
+<a name="l00772"></a><a class="code" href="classConfigReader.html#a9">00772</a> <span class="keywordtype">void</span> <a class="code" href="classConfigReader.html#a9">ConfigReader::DumpErrors</a>(<span class="keywordtype">bool</span> bail, <a class="code" href="classuserrec.html">userrec</a>* user)
+00773 {
+00774         <span class="keywordflow">if</span> (bail)
+00775         {
+00776                 printf(<span class="stringliteral">"There were errors in your configuration:\n%s"</span>,<a class="code" href="classConfigReader.html#p1">errorlog</a>-&gt;str().c_str());
+00777                 exit(0);
+00778         }
+00779         <span class="keywordflow">else</span>
+00780         {
+00781                 <span class="keywordtype">char</span> dataline[1024];
+00782                 <span class="keywordflow">if</span> (user)
+00783                 {
+00784                         WriteServ(user-&gt;<a class="code" href="classconnection.html#o0">fd</a>,<span class="stringliteral">"NOTICE %s :There were errors in the configuration file:"</span>,user-&gt;<a class="code" href="classuserrec.html#o0">nick</a>);
+00785                         <span class="keywordflow">while</span> (!<a class="code" href="classConfigReader.html#p1">errorlog</a>-&gt;eof())
+00786                         {
+00787                                 <a class="code" href="classConfigReader.html#p1">errorlog</a>-&gt;getline(dataline,1024);
+00788                                 WriteServ(user-&gt;<a class="code" href="classconnection.html#o0">fd</a>,<span class="stringliteral">"NOTICE %s :%s"</span>,user-&gt;<a class="code" href="classuserrec.html#o0">nick</a>,dataline);
+00789                         }
+00790                 }
+00791                 <span class="keywordflow">else</span>
+00792                 {
+00793                         WriteOpers(<span class="stringliteral">"There were errors in the configuration file:"</span>,user-&gt;<a class="code" href="classuserrec.html#o0">nick</a>);
+00794                         <span class="keywordflow">while</span> (!<a class="code" href="classConfigReader.html#p1">errorlog</a>-&gt;eof())
+00795                         {
+00796                                 <a class="code" href="classConfigReader.html#p1">errorlog</a>-&gt;getline(dataline,1024);
+00797                                 WriteOpers(dataline);
+00798                         }
+00799                 }
+00800                 <span class="keywordflow">return</span>;
+00801         }
+00802 }
 00803 
-<a name="l00804"></a><a class="code" href="classConfigReader.html#a7">00804</a> <span class="keywordtype">int</span> <a class="code" href="classConfigReader.html#a7">ConfigReader::Enumerate</a>(std::string tag)
-00805 {
-00806         <span class="keywordflow">return</span> EnumConf(<a class="code" href="classConfigReader.html#p0">cache</a>,tag.c_str());
-00807 }
-00808 
-<a name="l00809"></a><a class="code" href="classConfigReader.html#a10">00809</a> <span class="keywordtype">int</span> <a class="code" href="classConfigReader.html#a10">ConfigReader::EnumerateValues</a>(std::string tag, <span class="keywordtype">int</span> index)
-00810 {
-00811         <span class="keywordflow">return</span> EnumValues(<a class="code" href="classConfigReader.html#p0">cache</a>, tag.c_str(), index);
-00812 }
-00813 
-<a name="l00814"></a><a class="code" href="classConfigReader.html#a8">00814</a> <span class="keywordtype">bool</span> <a class="code" href="classConfigReader.html#a8">ConfigReader::Verify</a>()
-00815 {
-00816         <span class="keywordflow">return</span> this-&gt;<a class="code" href="classConfigReader.html#p2">readerror</a>;
-00817 }
-00818 
+00804 
+<a name="l00805"></a><a class="code" href="classConfigReader.html#a7">00805</a> <span class="keywordtype">int</span> <a class="code" href="classConfigReader.html#a7">ConfigReader::Enumerate</a>(std::string tag)
+00806 {
+00807         <span class="keywordflow">return</span> EnumConf(<a class="code" href="classConfigReader.html#p0">cache</a>,tag.c_str());
+00808 }
+00809 
+<a name="l00810"></a><a class="code" href="classConfigReader.html#a10">00810</a> <span class="keywordtype">int</span> <a class="code" href="classConfigReader.html#a10">ConfigReader::EnumerateValues</a>(std::string tag, <span class="keywordtype">int</span> index)
+00811 {
+00812         <span class="keywordflow">return</span> EnumValues(<a class="code" href="classConfigReader.html#p0">cache</a>, tag.c_str(), index);
+00813 }
+00814 
+<a name="l00815"></a><a class="code" href="classConfigReader.html#a8">00815</a> <span class="keywordtype">bool</span> <a class="code" href="classConfigReader.html#a8">ConfigReader::Verify</a>()
+00816 {
+00817         <span class="keywordflow">return</span> this-&gt;<a class="code" href="classConfigReader.html#p2">readerror</a>;
+00818 }
 00819 
-<a name="l00820"></a><a class="code" href="classFileReader.html#a1">00820</a> <a class="code" href="classFileReader.html#a0">FileReader::FileReader</a>(std::string filename)
-00821 {
-00822         <a class="code" href="modules_8h.html#a31">file_cache</a> c;
-00823         readfile(c,filename.c_str());
-00824         this-&gt;<a class="code" href="classFileReader.html#r0">fc</a> = c;
-00825 }
-00826 
-<a name="l00827"></a><a class="code" href="classFileReader.html#a0">00827</a> <a class="code" href="classFileReader.html#a0">FileReader::FileReader</a>()
-00828 {
-00829 }
-00830 
-<a name="l00831"></a><a class="code" href="classFileReader.html#a3">00831</a> <span class="keywordtype">void</span> <a class="code" href="classFileReader.html#a3">FileReader::LoadFile</a>(std::string filename)
-00832 {
-00833         <a class="code" href="modules_8h.html#a31">file_cache</a> c;
-00834         readfile(c,filename.c_str());
-00835         this-&gt;<a class="code" href="classFileReader.html#r0">fc</a> = c;
-00836 }
-00837 
+00820 
+<a name="l00821"></a><a class="code" href="classFileReader.html#a1">00821</a> <a class="code" href="classFileReader.html#a0">FileReader::FileReader</a>(std::string filename)
+00822 {
+00823         <a class="code" href="modules_8h.html#a31">file_cache</a> c;
+00824         readfile(c,filename.c_str());
+00825         this-&gt;<a class="code" href="classFileReader.html#r0">fc</a> = c;
+00826 }
+00827 
+<a name="l00828"></a><a class="code" href="classFileReader.html#a0">00828</a> <a class="code" href="classFileReader.html#a0">FileReader::FileReader</a>()
+00829 {
+00830 }
+00831 
+<a name="l00832"></a><a class="code" href="classFileReader.html#a3">00832</a> <span class="keywordtype">void</span> <a class="code" href="classFileReader.html#a3">FileReader::LoadFile</a>(std::string filename)
+00833 {
+00834         <a class="code" href="modules_8h.html#a31">file_cache</a> c;
+00835         readfile(c,filename.c_str());
+00836         this-&gt;<a class="code" href="classFileReader.html#r0">fc</a> = c;
+00837 }
 00838 
-<a name="l00839"></a><a class="code" href="classFileReader.html#a2">00839</a> <a class="code" href="classFileReader.html#a2">FileReader::~FileReader</a>()
-00840 {
-00841 }
-00842 
-<a name="l00843"></a><a class="code" href="classFileReader.html#a4">00843</a> <span class="keywordtype">bool</span> <a class="code" href="classFileReader.html#a4">FileReader::Exists</a>()
-00844 {
-00845         <span class="keywordflow">if</span> (<a class="code" href="classFileReader.html#r0">fc</a>.size() == 0)
-00846         {
-00847                 <span class="keywordflow">return</span>(<span class="keyword">false</span>);
-00848         }
-00849         <span class="keywordflow">else</span>
-00850         {
-00851                 <span class="keywordflow">return</span>(<span class="keyword">true</span>);
-00852         }
-00853 }
-00854 
-<a name="l00855"></a><a class="code" href="classFileReader.html#a5">00855</a> std::string <a class="code" href="classFileReader.html#a5">FileReader::GetLine</a>(<span class="keywordtype">int</span> x)
-00856 {
-00857         <span class="keywordflow">if</span> ((x&lt;0) || (x&gt;<a class="code" href="classFileReader.html#r0">fc</a>.size()))
-00858                 <span class="keywordflow">return</span> <span class="stringliteral">""</span>;
-00859         <span class="keywordflow">return</span> <a class="code" href="classFileReader.html#r0">fc</a>[x];
-00860 }
-00861 
-<a name="l00862"></a><a class="code" href="classFileReader.html#a6">00862</a> <span class="keywordtype">int</span> <a class="code" href="classFileReader.html#a6">FileReader::FileSize</a>()
-00863 {
-00864         <span class="keywordflow">return</span> <a class="code" href="classFileReader.html#r0">fc</a>.size();
-00865 }
-00866 
+00839 
+<a name="l00840"></a><a class="code" href="classFileReader.html#a2">00840</a> <a class="code" href="classFileReader.html#a2">FileReader::~FileReader</a>()
+00841 {
+00842 }
+00843 
+<a name="l00844"></a><a class="code" href="classFileReader.html#a4">00844</a> <span class="keywordtype">bool</span> <a class="code" href="classFileReader.html#a4">FileReader::Exists</a>()
+00845 {
+00846         <span class="keywordflow">if</span> (<a class="code" href="classFileReader.html#r0">fc</a>.size() == 0)
+00847         {
+00848                 <span class="keywordflow">return</span>(<span class="keyword">false</span>);
+00849         }
+00850         <span class="keywordflow">else</span>
+00851         {
+00852                 <span class="keywordflow">return</span>(<span class="keyword">true</span>);
+00853         }
+00854 }
+00855 
+<a name="l00856"></a><a class="code" href="classFileReader.html#a5">00856</a> std::string <a class="code" href="classFileReader.html#a5">FileReader::GetLine</a>(<span class="keywordtype">int</span> x)
+00857 {
+00858         <span class="keywordflow">if</span> ((x&lt;0) || (x&gt;<a class="code" href="classFileReader.html#r0">fc</a>.size()))
+00859                 <span class="keywordflow">return</span> <span class="stringliteral">""</span>;
+00860         <span class="keywordflow">return</span> <a class="code" href="classFileReader.html#r0">fc</a>[x];
+00861 }
+00862 
+<a name="l00863"></a><a class="code" href="classFileReader.html#a6">00863</a> <span class="keywordtype">int</span> <a class="code" href="classFileReader.html#a6">FileReader::FileSize</a>()
+00864 {
+00865         <span class="keywordflow">return</span> <a class="code" href="classFileReader.html#r0">fc</a>.size();
+00866 }
 00867 
-00868 std::vector&lt;Module*&gt; <a class="code" href="modules_8cpp.html#a59">modules</a>(255);
-00869 std::vector&lt;ircd_module*&gt; <a class="code" href="modules_8cpp.html#a60">factory</a>(255);
-00870 
-<a name="l00871"></a><a class="code" href="modules_8cpp.html#a1">00871</a> <span class="keywordtype">int</span> <a class="code" href="modules_8cpp.html#a1">MODCOUNT</a>  = -1;
-00872 
+00868 
+00869 std::vector&lt;Module*&gt; <a class="code" href="modules_8cpp.html#a59">modules</a>(255);
+00870 std::vector&lt;ircd_module*&gt; <a class="code" href="modules_8cpp.html#a60">factory</a>(255);
+00871 
+<a name="l00872"></a><a class="code" href="modules_8cpp.html#a1">00872</a> <span class="keywordtype">int</span> <a class="code" href="modules_8cpp.html#a1">MODCOUNT</a>  = -1;
 00873 
-</pre></div><hr size="1"><address style="align: right;"><small>Generated on Wed Apr 13 12:32:16 2005 for InspIRCd by
+00874 
+</pre></div><hr size="1"><address style="align: right;"><small>Generated on Wed Apr 13 13:06:54 2005 for InspIRCd by
 <a href="http://www.doxygen.org/index.html">
 <img src="doxygen.png" alt="doxygen" align="middle" border=0 > 
 </a>1.3.3 </small></address>
