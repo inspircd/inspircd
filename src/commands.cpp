@@ -2759,6 +2759,10 @@ void handle_link_packet(char* udp_msg, char* tcp_host, serverrec *serv)
 		{
 			token = '*';
 		}
+		if (!strcmp(command,"PING"))
+		{
+			token = '*';
+		}
 		if (!strcmp(command,"NOTICE"))
 		{
 			snprintf(udp_msg,MAXBUF,"V %s %s",source,data);
@@ -3060,6 +3064,8 @@ void handle_link_packet(char* udp_msg, char* tcp_host, serverrec *serv)
 		char Link_Pass[1024];
 		char Link_SendPass[1024];
 		int LinkPort = 0;
+
+		log(DEBUG,"U-token linked server detected.");
 		
 		// search for a corresponding <link> block in the config files
 		for (int i = 0; i < ConfValueEnum("link",&config_f); i++)

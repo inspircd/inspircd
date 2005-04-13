@@ -3758,8 +3758,6 @@ int InspIRCd(void)
 		// we only read time() once per iteration rather than tons of times!
 		TIME = time(NULL);
 
-		//user_hash::iterator count2 = clientlist.begin();
-
 		// *FIX* Instead of closing sockets in kill_link when they receive the ERROR :blah line, we should queue
 		// them in a list, then reap the list every second or so.
 		if (((TIME % 5) == 0) && (!expire_run))
@@ -3803,6 +3801,7 @@ int InspIRCd(void)
 		// serverFds timevals went here
 		
 		tvs.tv_usec = 7000L;
+		tvs.tv_sec = 0;
 		int servresult = select(32767, &serverfds, NULL, NULL, &tvs);
 		if (servresult > 0)
 		{
@@ -3838,6 +3837,7 @@ int InspIRCd(void)
 				{
 					char udp_msg[MAXBUF];
 					strlcpy(udp_msg,msgs[ctr].c_str(),MAXBUF);
+					log(DEBUG,"Processing: %s",udp_msg);
 					if (strlen(udp_msg)<1)
     					{
 						log(DEBUG,"Invalid string from %s [route%d]",tcp_host,x);
@@ -3859,6 +3859,7 @@ int InspIRCd(void)
 		                        std::string msg = udp_msg;
 		                        FOREACH_MOD OnPacketReceive(msg,tcp_host);
 		                        strlcpy(udp_msg,msg.c_str(),MAXBUF);
+					handle_link_packet(udp_msg, tcp_host, me[x]);
 				}
 				goto label;
 			}
