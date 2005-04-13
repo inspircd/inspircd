@@ -671,6 +671,34 @@ long Server::CalcDuration(std::string delta)
 	return duration(delta.c_str());
 }
 
+bool Server::IsValidMask(std::string mask)
+{
+	const char* dest = mask.c_str();
+        if (strchr(dest,'!')==0)
+                return false;
+        if (strchr(dest,'@')==0)
+                return false;
+        for (int i = 0; i < strlen(dest); i++)
+                if (dest[i] < 32)
+                        return false;
+        for (int i = 0; i < strlen(dest); i++)
+                if (dest[i] > 126)
+                        return false;
+        int c = 0;
+        for (int i = 0; i < strlen(dest); i++)
+                if (dest[i] == '!')
+                        c++;
+        if (c>1)
+                return false;
+        c = 0;
+        for (int i = 0; i < strlen(dest); i++)
+                if (dest[i] == '@')
+                        c++;
+        if (c>1)
+                return false;
+
+	return true;
+}
 
 ConfigReader::ConfigReader()
 {

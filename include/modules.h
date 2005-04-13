@@ -774,6 +774,9 @@ class Server : public classbase
 	 */
 	virtual long CalcDuration(std::string duration);
 
+	/** Returns true if a nick!ident@host string is correctly formatted, false if otherwise.
+	 */
+	virtual bool IsValidMask(std::string mask);
 };
 
 #define CONF_NOT_A_NUMBER	0x000010
