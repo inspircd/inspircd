@@ -218,7 +218,6 @@ class ModulePark : public Module
                                 break;
                         }
                 }
-                return 0;
         }
 
 
