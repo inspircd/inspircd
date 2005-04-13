@@ -773,9 +773,39 @@ void handle_server(char **parameters, int pcnt, userrec *user)
 
 void handle_info(char **parameters, int pcnt, userrec *user)
 {
-	WriteServ(user->fd,"371 %s :The Inspire IRCd Project Has been brought to you by the following people..",user->nick);
-	WriteServ(user->fd,"371 %s :Craig Edwards, Craig McLure, and Others..",user->nick);
-	WriteServ(user->fd,"371 %s :Will finish this later when i can be arsed :p",user->nick);
+	WriteServ(user->fd,"371 %s :. o O (The Inspire Internet Relay Chat Server) O o .",user->nick);
+        WriteServ(user->fd,"371 %s : ",user->nick);
+        WriteServ(user->fd,"371 %s :Core developers: Craig Edwards (Brain)",user->nick);
+        WriteServ(user->fd,"371 %s :                 Craig McLure",user->nick);
+        WriteServ(user->fd,"371 %s : ",user->nick);
+        WriteServ(user->fd,"371 %s :Contributors:    typobox43",user->nick);
+        WriteServ(user->fd,"371 %s :                 w00t",user->nick);
+        WriteServ(user->fd,"371 %s :                 Om",user->nick);
+        WriteServ(user->fd,"371 %s :                 Jazza",user->nick);
+        WriteServ(user->fd,"371 %s : ",user->nick);
+        WriteServ(user->fd,"371 %s :Testers:         CC",user->nick);
+        WriteServ(user->fd,"371 %s :                 Piggles",user->nick);
+        WriteServ(user->fd,"371 %s :                 Foamy",user->nick);
+        WriteServ(user->fd,"371 %s :                 Hart",user->nick);
+        WriteServ(user->fd,"371 %s :                 RageD",user->nick);
+        WriteServ(user->fd,"371 %s :                 [ed]",user->nick);
+        WriteServ(user->fd,"371 %s :                 Azhrarn",user->nick);
+        WriteServ(user->fd,"371 %s :                 nenolod",user->nick);
+        WriteServ(user->fd,"371 %s :                 luigiman",user->nick);
+        WriteServ(user->fd,"371 %s :                 Chu",user->nick);
+        WriteServ(user->fd,"371 %s :                 aquanight",user->nick);
+        WriteServ(user->fd,"371 %s :                 xptek",user->nick);
+        WriteServ(user->fd,"371 %s :                 Grantlinks",user->nick);
+        WriteServ(user->fd,"371 %s :                 Rob",user->nick);
+        WriteServ(user->fd,"371 %s :                 angelic",user->nick);
+        WriteServ(user->fd,"371 %s :                 Jason",user->nick);
+        WriteServ(user->fd,"371 %s : ",user->nick);
+        WriteServ(user->fd,"371 %s :Thanks to irc-junkie and searchirc",user->nick);
+        WriteServ(user->fd,"371 %s :for the nice comments and the help",user->nick);
+        WriteServ(user->fd,"371 %s :you gave us in attracting users to",user->nick);
+        WriteServ(user->fd,"371 %s :this software.",user->nick);
+        WriteServ(user->fd,"371 %s : ",user->nick);
+        WriteServ(user->fd,"371 %s :Best experienced with: An IRC client.",user->nick);
 	FOREACH_MOD OnInfo(user);
 	WriteServ(user->fd,"374 %s :End of /INFO list",user->nick);
 }
