@@ -1235,7 +1235,8 @@ void purge_empty_chans(void)
 					if (i != chanlist.end())
 					{
 						log(DEBUG,"del_channel: destroyed: %s",i->second->name);
-						if (i->second) delete i->second;
+						if (i->second)
+							delete i->second;
 						chanlist.erase(i);
 						go_again = 1;
 						purge++;
@@ -2051,7 +2052,7 @@ void kill_link(userrec *user,const char* r)
 	if (user->registered == 7) {
 		purge_empty_chans();
 	}
-	user = NULL;
+	//user = NULL;
 }
 
 void kill_link_silent(userrec *user,const char* r)
@@ -3766,6 +3767,7 @@ int InspIRCd(void)
 			expire_lines();
 			FOREACH_MOD OnBackgroundTimer(TIME);
 			expire_run = true;
+			continue;
 		}
 		if ((TIME % 5) == 1)
 			expire_run = false;
@@ -3900,9 +3902,9 @@ int InspIRCd(void)
 						}
 						if ((TIME > count2->second->signon) && (count2->second->registered == 3))
 						{
-								count2->second->dns_done = true;
-								FullConnectUser(count2->second);
-								goto label;
+							count2->second->dns_done = true;
+							FullConnectUser(count2->second);
+							goto label;
 						}
 		                                if ((count2->second->dns_done) && (count2->second->registered == 3)) // both NICK and USER... and DNS
 		                                {
@@ -4086,7 +4088,7 @@ int InspIRCd(void)
 		}
 	}
 	label:
-	if(0) {}; // "Label must be followed by a statement"... so i gave it one.
+	if (0) {};
 }
 /* not reached */
 close (incomingSockfd);

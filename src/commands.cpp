@@ -388,8 +388,8 @@ void handle_kill(char **parameters, int pcnt, userrec *user)
 				log(DEBUG,"deleting user hash value %d",iter->second);
 				if ((iter->second) && (user->registered == 7)) {
 					delete iter->second;
-					}
-			clientlist.erase(iter);
+				}
+				clientlist.erase(iter);
 			}
 			purge_empty_chans();
 		}

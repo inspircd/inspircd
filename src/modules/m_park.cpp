@@ -46,6 +46,7 @@ parkinfo pinfo;
 long ParkMaxTime;
 long ConcurrentParks;
 long ParkMaxMsgs;
+parkedinfo pi;
 
 void handle_park(char **parameters, int pcnt, userrec *user)
 {
@@ -65,8 +66,7 @@ void handle_park(char **parameters, int pcnt, userrec *user)
 	}
 	else
 	{
-		awaylog* aw = new awaylog;
-		parkedinfo pi;
+		awaylog* aw;
 		char msg[MAXBUF];
 		long key = abs(random() * 12345);
 		snprintf(msg,MAXBUF,"You are now parked. To unpark use /UNPARK %s %d",user->nick,key);
@@ -268,9 +268,12 @@ class ModulePark : public Module
 	                        if (time(NULL) >= (j->parktime+ParkMaxTime))
 	                        {
 	                                userrec* thisnick = Srv->FindNick(j->nick);
+					// THIS MUST COME BEFORE THE QuitUser - QuitUser can
+					// create a recursive call to OnUserQuit in this module
+					// and then corrupt the pointer!
+					pinfo.erase(j);
 	                                if (thisnick)
 	                                        Srv->QuitUser(thisnick,"PARK timeout");
-	                                pinfo.erase(j);
 	                                go_again = true;
 	                                break;
 	                        }
