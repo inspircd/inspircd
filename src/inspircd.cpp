@@ -2827,17 +2827,17 @@ void process_command(userrec *user, char* cmd)
 				total_params++;
 		}
 	}
-	
+
 	// another phidjit bug...
 	if (total_params > 126)
 	{
-		//kill_link(user,"Protocol violation (1)");
-		WriteServ(user->fd,"421 %s * :Unknown command",user->nick);
+		*(strchr(cmd,' ')) = '\0';
+		WriteServ(user->fd,"421 %s %s :Too many parameters given",user->nick,cmd);
 		return;
 	}
-	
-	strlcpy(temp,cmd,MAXBUF);
 
+	strlcpy(temp,cmd,MAXBUF);
+	
 	std::string tmp = cmd;
 	for (int i = 0; i <= MODCOUNT; i++)
 	{
@@ -2915,8 +2915,7 @@ void process_command(userrec *user, char* cmd)
 	
 	if (strlen(command)>MAXCOMMAND)
 	{
-		//kill_link(user,"Protocol violation (2)");
-		WriteServ(user->fd,"421 %s * :Unknown command",user->nick);
+		WriteServ(user->fd,"421 %s %s :Command too long",user->nick,command);
 		return;
 	}
 	
@@ -2928,8 +2927,7 @@ void process_command(userrec *user, char* cmd)
 			{
 				if (strchr("@!\"$%^&*(){}[]_=+;:'#~,<>/?\\|`",command[x]))
 				{
-					//kill_link(user,"Protocol violation (3)");
-					WriteServ(user->fd,"421 %s * :Unknown command",user->nick);
+					WriteServ(user->fd,"421 %s %s :Unknown command",user->nick,command);
 					return;
 				}
 			}
@@ -3959,6 +3957,14 @@ int InspIRCd(void)
 					
 					if (result)
 					{
+						// perform a check on the raw buffer as an array (not a string!) to remove
+						// characters 0 and 7 which are illegal in the RFC - replace them with spaces.
+						// hopefully this should stop even more people whining about "Unknown command: *"
+						for (int checker = 0; checker < result; checker++)
+						{
+							if ((data[checker] == 0) || (data[checker] == 7))
+								data[checker] = ' ';
+						}
 						userrec* current = count2a->second;
 						int currfd = current->fd;
 						char* l = strtok(data,"\n");
