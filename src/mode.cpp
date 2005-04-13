@@ -1268,7 +1268,6 @@ void handle_mode(char **parameters, int pcnt, userrec *user)
 		{
 			/* just /modes #channel */
 			WriteServ(user->fd,"324 %s %s +%s",user->nick, Ptr->name, chanmodes(Ptr));
-			WriteServ(user->fd,"329 %s %s %d", user->nick, Ptr->name, Ptr->created);
 			return;
 		}
 		else
