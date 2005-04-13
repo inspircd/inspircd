@@ -365,9 +365,11 @@ void handle_kill(char **parameters, int pcnt, userrec *user)
         log(DEBUG,"kill: %s %s",parameters[0],parameters[1]);
 	if (u)
 	{
+		log(DEBUG,"into kill mechanism");
 		int MOD_RESULT = 0;
                 FOREACH_RESULT(OnKill(user,u,parameters[1]));
                 if (MOD_RESULT) {
+			log(DEBUG,"A module prevented the kill with result %d",MOD_RESULT);
                         return;
                 }
 
@@ -396,6 +398,7 @@ void handle_kill(char **parameters, int pcnt, userrec *user)
 		else
 		{
 			// local kill
+			log(DEFAULT,"LOCAL KILL: %s :%s!%s!%s (%s)", u->nick, ServerName,user->dhost,user->nick,parameters[1]);
 			WriteTo(user, u, "KILL %s :%s!%s!%s (%s)", u->nick, ServerName,user->dhost,user->nick,parameters[1]);
 			WriteOpers("*** Local Kill by %s: %s!%s@%s (%s)",user->nick,u->nick,u->ident,u->host,parameters[1]);
 			snprintf(killreason,MAXBUF,"Killed (%s (%s))",user->nick,parameters[1]);

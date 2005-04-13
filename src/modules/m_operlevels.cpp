@@ -71,8 +71,8 @@ class ModuleOperLevels : public Module
 					WriteServ(source->fd,"481 %s :Permission Denied- Oper %s is a higher level than you",source->nick,dest->nick);
 					return 1;
 				}
-				return 0;
 			}
+			return 0;
 		}
 
 };
