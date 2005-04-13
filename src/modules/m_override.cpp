@@ -188,7 +188,7 @@ class ModuleOverride : public Module
                                 {
                                         if (NoisyOverride)
                                                 WriteChannelWithServ((char*)Srv->GetServerName().c_str(),chan,user,"NOTICE %s :%s passed through your channel limit",cname,user->nick);
-                                        Srv->SendOpers("*** "+std::string(user->nick)+" used operoverride to bypass ++l on "+std::string(cname));
+                                        Srv->SendOpers("*** "+std::string(user->nick)+" used operoverride to bypass +l on "+std::string(cname));
 					return -1;
                                 }
 
