@@ -3757,7 +3757,7 @@ int InspIRCd(void)
 		// we only read time() once per iteration rather than tons of times!
 		TIME = time(NULL);
 
-		user_hash::iterator count2 = clientlist.begin();
+		//user_hash::iterator count2 = clientlist.begin();
 
 		// *FIX* Instead of closing sockets in kill_link when they receive the ERROR :blah line, we should queue
 		// them in a list, then reap the list every second or so.
@@ -3786,6 +3786,9 @@ int InspIRCd(void)
 			reap_counter=0;
 		}
 		reap_counter++;
+		
+		// fix by brain - this must be below any manipulation of the hashmap by modules
+		user_hash::iterator count2 = clientlist.begin();
 
 		FD_ZERO(&serverfds);
 		
@@ -3869,7 +3872,7 @@ int InspIRCd(void)
 		user_hash::iterator endingiter = count2;
 
 		if (count2 == clientlist.end()) break;
-		
+
 		if (count2->second)
 		if (count2->second->fd != 0)
 		{
@@ -3883,7 +3886,7 @@ int InspIRCd(void)
 				if (count2 != clientlist.end())
 				{
 					// we don't check the state of remote users.
-					if (count2->second->fd > 0)
+					if ((count2->second->fd != -1) && (count2->second->fd != FD_MAGIC_NUMBER))
 					{
 						FD_SET (count2->second->fd, &sfd);
 
