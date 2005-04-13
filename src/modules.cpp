@@ -331,6 +331,7 @@ void Module::On005Numeric(std::string &output) { };
 int Module::OnKill(userrec* source, userrec* dest, std::string reason) { return 0; };
 void Module::OnLoadModule(Module* mod,std::string name) { };
 void Module::OnBackgroundTimer(time_t curtime) { };
+void Module::OnSendList(userrec* user, chanrec* channel, char mode) { };
 
 // server is a wrapper class that provides methods to all of the C-style
 // exports in the core

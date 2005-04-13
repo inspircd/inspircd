@@ -374,6 +374,16 @@ class Module : public classbase
 	 * any five second period, directly from the main loop of the server.
 	 */
 	virtual void OnBackgroundTimer(time_t curtime);
+
+	/** Called whenever a list is needed for a listmode.
+	 * For example, when a /MODE #channel +b (without any other parameters) is called,
+	 * if a module was handling +b this function would be called. The function can then
+	 * output any lists it wishes to. Please note that all modules will see all mode
+	 * characters to provide the ability to extend each other, so please only output
+	 * a list if the mode character given matches the one(s) you want to handle.
+	 */
+	virtual void OnSendList(userrec* user, chanrec* channel, char mode);
+
 };
 
 
@@ -538,7 +548,7 @@ class Server : public classbase
 	 * so the above example would become '+aa one three' after processing.
 	 */
 	virtual bool AddExtendedListMode(char modechar);
-	
+
 	/** Adds a command to the command table.
 	 * This allows modules to add extra commands into the command table. You must place a function within your
 	 * module which is is of type handlerfunc:

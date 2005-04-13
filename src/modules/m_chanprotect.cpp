@@ -279,6 +279,35 @@ class ModuleChanProtect : public Module
 		}
 		return 0;
 	}
+
+	virtual void OnSendList(userrec* user, chanrec* channel, char mode)
+	{
+		if (mode == 'q')
+		{
+			chanuserlist cl = Srv->GetUsers(channel);
+			for (int i = 0; i < cl.size(); i++)
+			{
+				if (cl[i]->GetExt("cm_founder_"+std::string(channel->name)))
+				{
+					WriteServ(user->fd,"386 %s %s %s",user->nick, channel->name,cl[i]->nick);
+				}
+			}
+			WriteServ(user->fd,"387 %s %s :End of channel founder list",user->nick, channel->name);
+		}
+                if (mode == 'a')
+                {
+                        chanuserlist cl = Srv->GetUsers(channel);
+                        for (int i = 0; i < cl.size(); i++)
+                        {
+                                if (cl[i]->GetExt("cm_protect_"+std::string(channel->name)))
+                                {
+                                        WriteServ(user->fd,"388 %s %s %s",user->nick, channel->name,cl[i]->nick);
+                                }
+                        }
+			WriteServ(user->fd,"389 %s %s :End of channel protected user list",user->nick, channel->name);
+                }
+
+	}
 	
 	virtual ~ModuleChanProtect()
 	{

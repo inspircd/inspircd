@@ -1283,6 +1283,16 @@ void handle_mode(char **parameters, int pcnt, userrec *user)
 				WriteServ(user->fd,"368 %s %s :End of channel ban list",user->nick, Ptr->name);
 				return;
 			}
+			char* mode = parameters[1];
+			if (*mode == '+')
+				mode++;
+			if ((ModeDefined(*mode,MT_CHANNEL)) && (ModeIsListMode(*mode,MT_CHANNEL)))
+			{
+				// list of items for an extmode
+				log(DEBUG,"Calling OnSendList for all modules, list output for mode %c",*mode);
+				FOREACH_MOD OnSendList(user,Ptr,*mode);
+				return;
+			}
 		}
 
                 if ((Ptr) && (!has_channel(user,Ptr)))
