@@ -332,6 +332,7 @@ int Module::OnKill(userrec* source, userrec* dest, std::string reason) { return 
 void Module::OnLoadModule(Module* mod,std::string name) { };
 void Module::OnBackgroundTimer(time_t curtime) { };
 void Module::OnSendList(userrec* user, chanrec* channel, char mode) { };
+int Module::OnPreCommand(std::string command, char **parameters, int pcnt, userrec *user) { return 0; };
 
 // server is a wrapper class that provides methods to all of the C-style
 // exports in the core

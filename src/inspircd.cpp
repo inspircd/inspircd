@@ -3020,6 +3020,7 @@ void process_command(userrec *user, char* cmd)
 					        log(DEBUG,"process_command: handler: %s %s %d",user->nick,command,items);
 						if (cmdlist[i].handler_function)
 						{
+							
 							/* ikky /stats counters */
 							if (temp)
 							{
@@ -3032,6 +3033,12 @@ void process_command(userrec *user, char* cmd)
 								}
 								cmdlist[i].use_count++;
 								cmdlist[i].total_bytes+=strlen(temp);
+							}
+
+							int MOD_RESULT = 0;
+							FOREACH_RESULT(OnPreCommand(command,command_p,items,user));
+							if (MOD_RESULT == 1) {
+								return;
 							}
 
 							/* WARNING: nothing may come after the

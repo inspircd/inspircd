@@ -384,6 +384,17 @@ class Module : public classbase
 	 */
 	virtual void OnSendList(userrec* user, chanrec* channel, char mode);
 
+	/** Called whenever any command is about to be executed.
+	 * This event occurs for all registered commands, wether they are registered in the core,
+	 * or another module, but it will not occur for invalid commands (e.g. ones which do not
+	 * exist within the command table). By returning 1 from this method you may prevent the
+	 * command being executed. If you do this, no output is created by the core, and it is
+	 * down to your module to produce any output neccessary.
+	 * Note that unless you return 1, you should not destroy any structures (e.g. by using
+	 * Server::QuitUser) otherwise when the command's handler function executes after your
+	 * method returns, it will be passed an invalid pointer to the user object and crash!)
+	 */
+	virtual int OnPreCommand(std::string command, char **parameters, int pcnt, userrec *user);
 };
 
 
