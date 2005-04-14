@@ -232,7 +232,19 @@ class Module : public classbase
 	 */
 	virtual int OnUserPreJoin(userrec* user, chanrec* chan, const char* cname);
 	
-	
+        /** Called whenever a user is about to be kicked.
+         * Returning a value of 1 from this function stops the process immediately, causing no
+         * output to be sent to the user by the core. If you do this you must produce your own numerics,
+         * notices etc.
+         */
+	virtual int OnUserPreKick(userrec* source, userrec* user, chanrec* chan, std::string reason);
+
+	/** Called whenever a user is kicked.
+	 * If this method is called, the kick is already underway and cannot be prevented, so
+	 * to prevent a kick, please use Module::OnUserPreKick instead of this method.
+	 */
+	virtual void OnUserKick(userrec* source, userrec* user, chanrec* chan, std::string reason);
+
 	/** Called whenever a user opers locally.
 	 * The userrec will contain the oper mode 'o' as this function is called after any modifications
 	 * are made to the user's structure by the core.

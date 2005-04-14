@@ -335,6 +335,8 @@ void Module::OnSendList(userrec* user, chanrec* channel, char mode) { };
 int Module::OnPreCommand(std::string command, char **parameters, int pcnt, userrec *user) { return 0; };
 bool Module::OnCheckReady(userrec* user) { return true; };
 void Module::OnUserRegister(userrec* user) { };
+int Module::OnUserPreKick(userrec* source, userrec* user, chanrec* chan, std::string reason) { return 0; };
+void Module::OnUserKick(userrec* source, userrec* user, chanrec* chan, std::string reason) { };
 
 // server is a wrapper class that provides methods to all of the C-style
 // exports in the core

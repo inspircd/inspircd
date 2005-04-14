@@ -1780,7 +1780,6 @@ void kick_channel(userrec *src,userrec *user, chanrec *Ptr, char* reason)
 
 	int MOD_RESULT = 0;
 	FOREACH_RESULT(OnAccessCheck(src,user,Ptr,AC_KICK));
-	
 	if (MOD_RESULT == ACR_DENY)
 		return;
 
@@ -1800,7 +1799,14 @@ void kick_channel(userrec *src,userrec *user, chanrec *Ptr, char* reason)
 			return;
 		}
 	}
-	
+
+	MOD_RESULT = 0;
+	FOREACH_RESULT(OnUserPreKick(src,user,Ptr,reason));
+	if (MOD_RESULT)
+		return;
+
+	FOREACH_MOD OnUserKick(src,user,Ptr,reason);
+
 	for (int i =0; i != MAXCHANS; i++)
 	{
 		/* zap it from the channel list of the user */
@@ -1814,7 +1820,7 @@ void kick_channel(userrec *src,userrec *user, chanrec *Ptr, char* reason)
 			break;
 		}
 	}
-	
+
 	/* if there are no users left on the channel */
 	if (!usercount(Ptr))
 	{
