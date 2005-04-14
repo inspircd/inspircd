@@ -52,7 +52,7 @@
 #define ERROR -1
 #define TRUE 1
 #define FALSE 0
-#define IDENTMAX 9
+#define IDENTMAX 12
 #define MAXSOCKS 64
 
 // maximum lengths of items

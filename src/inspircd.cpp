@@ -2334,7 +2334,7 @@ void AddClient(int socket, char* host, int port, bool iscached, char* ip)
 	strncpy(clientlist[tempnick]->host, host,160);
 	strncpy(clientlist[tempnick]->dhost, host,160);
 	strncpy(clientlist[tempnick]->server, ServerName,256);
-	strncpy(clientlist[tempnick]->ident, "unknown",9);
+	strncpy(clientlist[tempnick]->ident, "unknown",12);
 	clientlist[tempnick]->registered = 0;
 	clientlist[tempnick]->signon = TIME+dns_timeout;
 	clientlist[tempnick]->lastping = 1;
@@ -3929,12 +3929,14 @@ int InspIRCd(void)
 						}
 						if ((TIME > count2->second->signon) && (count2->second->registered == 3) && (AllModulesReportReady(count2->second)))
 						{
+							log(DEBUG,"signon exceed, registered=3, and modules ready, OK");
 							count2->second->dns_done = true;
 							FullConnectUser(count2->second);
 							goto label;
 						}
 		                                if ((count2->second->dns_done) && (count2->second->registered == 3) && (AllModulesReportReady(count2->second))) // both NICK and USER... and DNS
 		                                {
+							log(DEBUG,"dns done, registered=3, and modules ready, OK");
 		                                        FullConnectUser(count2->second);
 							goto label;
 		                                }

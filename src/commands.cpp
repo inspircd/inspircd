@@ -1130,7 +1130,6 @@ void handle_user(char **parameters, int pcnt, userrec *user)
 			WriteServ(user->fd,"461 %s USER :Not enough parameters",user->nick);
 		}
 		else {
-			WriteServ(user->fd,"NOTICE Auth :No ident response, ident prefixed with ~");
 			strcpy(user->ident,"~"); /* we arent checking ident... but these days why bother anyway? */
 			strlcat(user->ident,parameters[0],IDENTMAX);
 			strlcpy(user->fullname,parameters[3],128);
@@ -1146,6 +1145,7 @@ void handle_user(char **parameters, int pcnt, userrec *user)
 	if (user->registered == 3)
 	{
 		/* user is registered now, bit 0 = USER command, bit 1 = sent a NICK command */
+		FOREACH_MOD OnUserRegister(user);
 		ConnectUser(user);
 	}
 }
@@ -1764,11 +1764,11 @@ void handle_nick(char **parameters, int pcnt, userrec *user)
 		user->dns_done = (!lookup_dns(user->nick));
 		if (user->dns_done)
 			log(DEBUG,"Aborting dns lookup of %s because dns server experienced a failure.",user->nick);
-		FOREACH_MOD OnUserRegister(user);
 	}
 	if (user->registered == 3)
 	{
 		/* user is registered now, bit 0 = USER command, bit 1 = sent a NICK command */
+		FOREACH_MOD OnUserRegister(user);
 		ConnectUser(user);
 	}
 	if (user->registered == 7)
