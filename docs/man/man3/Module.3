@@ -1,4 +1,4 @@
-.TH "Module" 3 "13 Apr 2005" "InspIRCd" \" -*- nroff -*-
+.TH "Module" 3 "14 Apr 2005" "InspIRCd" \" -*- nroff -*-
 .ad l
 .nh
 .SH NAME
@@ -68,6 +68,14 @@ Inherits \fBclassbase\fP.
 .br
 .RI "\fICalled whenever a user is about to join a channel, before any processing is done. \fP"
 .ti -1c
+.RI "virtual int \fBOnUserPreKick\fP (\fBuserrec\fP *source, \fBuserrec\fP *user, \fBchanrec\fP *chan, std::string reason)"
+.br
+.RI "\fICalled whenever a user is about to be kicked. \fP"
+.ti -1c
+.RI "virtual void \fBOnUserKick\fP (\fBuserrec\fP *source, \fBuserrec\fP *user, \fBchanrec\fP *chan, std::string reason)"
+.br
+.RI "\fICalled whenever a user is kicked. \fP"
+.ti -1c
 .RI "virtual void \fBOnOper\fP (\fBuserrec\fP *user)"
 .br
 .RI "\fICalled whenever a user opers locally. \fP"
@@ -131,6 +139,18 @@ Inherits \fBclassbase\fP.
 .RI "virtual void \fBOnSendList\fP (\fBuserrec\fP *user, \fBchanrec\fP *channel, char mode)"
 .br
 .RI "\fICalled whenever a list is needed for a listmode. \fP"
+.ti -1c
+.RI "virtual int \fBOnPreCommand\fP (std::string command, char **parameters, int pcnt, \fBuserrec\fP *user)"
+.br
+.RI "\fICalled whenever any command is about to be executed. \fP"
+.ti -1c
+.RI "virtual bool \fBOnCheckReady\fP (\fBuserrec\fP *user)"
+.br
+.RI "\fICalled to check if a user who is connecting can now be allowed to register If any modules return false for this function, the user is held in the waiting state until all modules return true. \fP"
+.ti -1c
+.RI "virtual void \fBOnUserRegister\fP (\fBuserrec\fP *user)"
+.br
+.RI "\fICalled whenever a user is about to register their connection (e.g. \fP"
 .in -1c
 .SH "Detailed Description"
 .PP 
@@ -222,6 +242,13 @@ References string_list.
 .nf
 329 { string_list empty; return empty; }
 .fi
+.SS "bool Module::OnCheckReady (\fBuserrec\fP * user)\fC [virtual]\fP"
+.PP
+Called to check if a user who is connecting can now be allowed to register If any modules return false for this function, the user is held in the waiting state until all modules return true. For example a module which implements ident lookups will continue to return false for a user until their ident lookup is completed. Note that the registration timeout for a user overrides these checks, if the registration timeout is reached, the user is disconnected even if modules report that the user is not ready to connect.Definition at line 336 of file modules.cpp.
+.PP
+.nf
+336 { return true; };
+.fi
 .SS "int Module::OnExtendedMode (\fBuserrec\fP * user, void * target, char modechar, int type, bool mode_on, \fBstring_list\fP & params)\fC [virtual]\fP"
 .PP
 Called whenever an extended mode is to be processed. The type parameter is MT_SERVER, MT_CLIENT or MT_CHANNEL, dependent on where the mode is being changed. mode_on is set when the mode is being set, in which case params contains a list of parameters for the mode as strings. If mode_on is false, the mode is being removed, and parameters may contain the parameters for the mode, dependent on wether they were defined when a mode handler was set up with \fBServer::AddExtendedMode\fP If the mode is a channel mode, target is a chanrec*, and if it is a user mode, target is a userrec*. You must cast this value yourself to make use of it.Definition at line 317 of file modules.cpp.
@@ -273,6 +300,13 @@ Called before a packet is transmitted across the irc network between two irc ser
 .nf
 312 { }
 .fi
+.SS "int Module::OnPreCommand (std::string command, char ** parameters, int pcnt, \fBuserrec\fP * user)\fC [virtual]\fP"
+.PP
+Called whenever any command is about to be executed. This event occurs for all registered commands, wether they are registered in the core, or another module, but it will not occur for invalid commands (e.g. ones which do not exist within the command table). By returning 1 from this method you may prevent the command being executed. If you do this, no output is created by the core, and it is down to your module to produce any output neccessary. Note that unless you return 1, you should not destroy any structures (e.g. by using \fBServer::QuitUser\fP) otherwise when the command's handler function executes after your method returns, it will be passed an invalid pointer to the user object and crash!)Definition at line 335 of file modules.cpp.
+.PP
+.nf
+335 { return 0; };
+.fi
 .SS "void Module::OnRehash ()\fC [virtual]\fP"
 .PP
 Called on rehash. This method is called prior to a /REHASH or when a SIGHUP is received from the operating system. You should use it to reload any files so that your module keeps in step with the rest of the application.Definition at line 314 of file modules.cpp.
@@ -308,6 +342,13 @@ Called when a user joins a channel. The details of the joining user are availabl
 .nf
 310 { }
 .fi
+.SS "void Module::OnUserKick (\fBuserrec\fP * source, \fBuserrec\fP * user, \fBchanrec\fP * chan, std::string reason)\fC [virtual]\fP"
+.PP
+Called whenever a user is kicked. If this method is called, the kick is already underway and cannot be prevented, so to prevent a kick, please use \fBModule::OnUserPreKick\fP instead of this method.Definition at line 339 of file modules.cpp.
+.PP
+.nf
+339 { };
+.fi
 .SS "void Module::OnUserPart (\fBuserrec\fP * user, \fBchanrec\fP * channel)\fC [virtual]\fP"
 .PP
 Called when a user parts a channel. The details of the leaving user are available to you in the parameter userrec *user, and the details of the channel they have left is available in the variable chanrec *channelDefinition at line 311 of file modules.cpp.
@@ -340,6 +381,13 @@ If the user joins a NEW channel which does not exist yet, OnUserPreJoin will be 
 .nf
 316 { return 0; }
 .fi
+.SS "int Module::OnUserPreKick (\fBuserrec\fP * source, \fBuserrec\fP * user, \fBchanrec\fP * chan, std::string reason)\fC [virtual]\fP"
+.PP
+Called whenever a user is about to be kicked. Returning a value of 1 from this function stops the process immediately, causing no output to be sent to the user by the core. If you do this you must produce your own numerics, notices etc. Definition at line 338 of file modules.cpp.
+.PP
+.nf
+338 { return 0; };
+.fi
 .SS "int Module::OnUserPreMessage (\fBuserrec\fP * user, void * dest, int target_type, std::string & text)\fC [virtual]\fP"
 .PP
 Called whenever a user is about to PRIVMSG A user or a channel, before any processing is done. Returning any nonzero value from this function stops the process immediately, causing no output to be sent to the user by the core. If you do this you must produce your own numerics, notices etc. This is useful for modules which may want to filter or redirect messages. target_type can be one of TYPE_USER or TYPE_CHANNEL. If the target_type value is a user, you must cast dest to a userrec* otherwise you must cast it to a chanrec*, this is the details of where the message is destined to be sent.Definition at line 323 of file modules.cpp.
@@ -367,6 +415,13 @@ Called when a user quits. The details of the exiting user are available to you i
 .PP
 .nf
 309 { }
+.fi
+.SS "void Module::OnUserRegister (\fBuserrec\fP * user)\fC [virtual]\fP"
+.PP
+Called whenever a user is about to register their connection (e.g. before the user is sent the MOTD etc). Modules can use this method if they are performing a function which must be done before the actual connection is completed (e.g. ident lookups, dnsbl lookups, etc). Note that you should NOT delete the user record here by causing a disconnection! Use OnUserConnect for that instead.Definition at line 337 of file modules.cpp.
+.PP
+.nf
+337 { };
 .fi
 .SS "\fBstring_list\fP Module::OnUserSync (\fBuserrec\fP * user)\fC [virtual]\fP"
 .PP

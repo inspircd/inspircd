@@ -54,54 +54,69 @@ Inherits <a class="el" href="classclassbase.html">classbase</a>.
 <tr><td class="memItemLeft" nowrap align=right valign=top>virtual int&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="classModule.html#a12">OnUserPreJoin</a> (<a class="el" href="classuserrec.html">userrec</a> *user, <a class="el" href="classchanrec.html">chanrec</a> *chan, const char *cname)</td></tr>
 
 <tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Called whenever a user is about to join a channel, before any processing is done. </em> <a href="#a12"></a><em><br><br></td></tr>
-<tr><td class="memItemLeft" nowrap align=right valign=top>virtual void&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="classModule.html#a13">OnOper</a> (<a class="el" href="classuserrec.html">userrec</a> *user)</td></tr>
+<tr><td class="memItemLeft" nowrap align=right valign=top>virtual int&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="classModule.html#a13">OnUserPreKick</a> (<a class="el" href="classuserrec.html">userrec</a> *source, <a class="el" href="classuserrec.html">userrec</a> *user, <a class="el" href="classchanrec.html">chanrec</a> *chan, std::string reason)</td></tr>
 
-<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Called whenever a user opers locally. </em> <a href="#a13"></a><em><br><br></td></tr>
-<tr><td class="memItemLeft" nowrap align=right valign=top>virtual void&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="classModule.html#a14">OnInfo</a> (<a class="el" href="classuserrec.html">userrec</a> *user)</td></tr>
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Called whenever a user is about to be kicked. </em> <a href="#a13"></a><em><br><br></td></tr>
+<tr><td class="memItemLeft" nowrap align=right valign=top>virtual void&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="classModule.html#a14">OnUserKick</a> (<a class="el" href="classuserrec.html">userrec</a> *source, <a class="el" href="classuserrec.html">userrec</a> *user, <a class="el" href="classchanrec.html">chanrec</a> *chan, std::string reason)</td></tr>
 
-<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Called whenever a user types /INFO. </em> <a href="#a14"></a><em><br><br></td></tr>
-<tr><td class="memItemLeft" nowrap align=right valign=top>virtual void&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="classModule.html#a15">OnWhois</a> (<a class="el" href="classuserrec.html">userrec</a> *source, <a class="el" href="classuserrec.html">userrec</a> *dest)</td></tr>
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Called whenever a user is kicked. </em> <a href="#a14"></a><em><br><br></td></tr>
+<tr><td class="memItemLeft" nowrap align=right valign=top>virtual void&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="classModule.html#a15">OnOper</a> (<a class="el" href="classuserrec.html">userrec</a> *user)</td></tr>
 
-<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Called whenever a /WHOIS is performed on a local user. </em> <a href="#a15"></a><em><br><br></td></tr>
-<tr><td class="memItemLeft" nowrap align=right valign=top>virtual int&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="classModule.html#a16">OnUserPreInvite</a> (<a class="el" href="classuserrec.html">userrec</a> *source, <a class="el" href="classuserrec.html">userrec</a> *dest, <a class="el" href="classchanrec.html">chanrec</a> *channel)</td></tr>
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Called whenever a user opers locally. </em> <a href="#a15"></a><em><br><br></td></tr>
+<tr><td class="memItemLeft" nowrap align=right valign=top>virtual void&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="classModule.html#a16">OnInfo</a> (<a class="el" href="classuserrec.html">userrec</a> *user)</td></tr>
 
-<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Called whenever a user is about to invite another user into a channel, before any processing is done. </em> <a href="#a16"></a><em><br><br></td></tr>
-<tr><td class="memItemLeft" nowrap align=right valign=top>virtual int&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="classModule.html#a17">OnUserPreMessage</a> (<a class="el" href="classuserrec.html">userrec</a> *user, void *dest, int target_type, std::string &amp;text)</td></tr>
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Called whenever a user types /INFO. </em> <a href="#a16"></a><em><br><br></td></tr>
+<tr><td class="memItemLeft" nowrap align=right valign=top>virtual void&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="classModule.html#a17">OnWhois</a> (<a class="el" href="classuserrec.html">userrec</a> *source, <a class="el" href="classuserrec.html">userrec</a> *dest)</td></tr>
 
-<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Called whenever a user is about to PRIVMSG A user or a channel, before any processing is done. </em> <a href="#a17"></a><em><br><br></td></tr>
-<tr><td class="memItemLeft" nowrap align=right valign=top>virtual int&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="classModule.html#a18">OnUserPreNotice</a> (<a class="el" href="classuserrec.html">userrec</a> *user, void *dest, int target_type, std::string &amp;text)</td></tr>
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Called whenever a /WHOIS is performed on a local user. </em> <a href="#a17"></a><em><br><br></td></tr>
+<tr><td class="memItemLeft" nowrap align=right valign=top>virtual int&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="classModule.html#a18">OnUserPreInvite</a> (<a class="el" href="classuserrec.html">userrec</a> *source, <a class="el" href="classuserrec.html">userrec</a> *dest, <a class="el" href="classchanrec.html">chanrec</a> *channel)</td></tr>
 
-<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Called whenever a user is about to NOTICE A user or a channel, before any processing is done. </em> <a href="#a18"></a><em><br><br></td></tr>
-<tr><td class="memItemLeft" nowrap align=right valign=top>virtual int&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="classModule.html#a19">OnUserPreNick</a> (<a class="el" href="classuserrec.html">userrec</a> *user, std::string newnick)</td></tr>
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Called whenever a user is about to invite another user into a channel, before any processing is done. </em> <a href="#a18"></a><em><br><br></td></tr>
+<tr><td class="memItemLeft" nowrap align=right valign=top>virtual int&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="classModule.html#a19">OnUserPreMessage</a> (<a class="el" href="classuserrec.html">userrec</a> *user, void *dest, int target_type, std::string &amp;text)</td></tr>
 
-<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Called before any nickchange, local or remote. </em> <a href="#a19"></a><em><br><br></td></tr>
-<tr><td class="memItemLeft" nowrap align=right valign=top>virtual void&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="classModule.html#a20">OnUserPostNick</a> (<a class="el" href="classuserrec.html">userrec</a> *user, std::string oldnick)</td></tr>
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Called whenever a user is about to PRIVMSG A user or a channel, before any processing is done. </em> <a href="#a19"></a><em><br><br></td></tr>
+<tr><td class="memItemLeft" nowrap align=right valign=top>virtual int&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="classModule.html#a20">OnUserPreNotice</a> (<a class="el" href="classuserrec.html">userrec</a> *user, void *dest, int target_type, std::string &amp;text)</td></tr>
 
-<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Called after any nickchange, local or remote. </em> <a href="#a20"></a><em><br><br></td></tr>
-<tr><td class="memItemLeft" nowrap align=right valign=top>virtual int&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="classModule.html#a21">OnAccessCheck</a> (<a class="el" href="classuserrec.html">userrec</a> *source, <a class="el" href="classuserrec.html">userrec</a> *dest, <a class="el" href="classchanrec.html">chanrec</a> *channel, int access_type)</td></tr>
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Called whenever a user is about to NOTICE A user or a channel, before any processing is done. </em> <a href="#a20"></a><em><br><br></td></tr>
+<tr><td class="memItemLeft" nowrap align=right valign=top>virtual int&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="classModule.html#a21">OnUserPreNick</a> (<a class="el" href="classuserrec.html">userrec</a> *user, std::string newnick)</td></tr>
 
-<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Called before an action which requires a channel privilage check. </em> <a href="#a21"></a><em><br><br></td></tr>
-<tr><td class="memItemLeft" nowrap align=right valign=top>virtual <a class="el" href="modules_8h.html#a32">string_list</a>&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="classModule.html#a22">OnUserSync</a> (<a class="el" href="classuserrec.html">userrec</a> *user)</td></tr>
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Called before any nickchange, local or remote. </em> <a href="#a21"></a><em><br><br></td></tr>
+<tr><td class="memItemLeft" nowrap align=right valign=top>virtual void&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="classModule.html#a22">OnUserPostNick</a> (<a class="el" href="classuserrec.html">userrec</a> *user, std::string oldnick)</td></tr>
 
-<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Called during a netburst to sync user data. </em> <a href="#a22"></a><em><br><br></td></tr>
-<tr><td class="memItemLeft" nowrap align=right valign=top>virtual <a class="el" href="modules_8h.html#a32">string_list</a>&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="classModule.html#a23">OnChannelSync</a> (<a class="el" href="classchanrec.html">chanrec</a> *chan)</td></tr>
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Called after any nickchange, local or remote. </em> <a href="#a22"></a><em><br><br></td></tr>
+<tr><td class="memItemLeft" nowrap align=right valign=top>virtual int&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="classModule.html#a23">OnAccessCheck</a> (<a class="el" href="classuserrec.html">userrec</a> *source, <a class="el" href="classuserrec.html">userrec</a> *dest, <a class="el" href="classchanrec.html">chanrec</a> *channel, int access_type)</td></tr>
 
-<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Called during a netburst to sync channel data. </em> <a href="#a23"></a><em><br><br></td></tr>
-<tr><td class="memItemLeft" nowrap align=right valign=top>virtual void&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="classModule.html#a24">On005Numeric</a> (std::string &amp;output)</td></tr>
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Called before an action which requires a channel privilage check. </em> <a href="#a23"></a><em><br><br></td></tr>
+<tr><td class="memItemLeft" nowrap align=right valign=top>virtual <a class="el" href="modules_8h.html#a32">string_list</a>&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="classModule.html#a24">OnUserSync</a> (<a class="el" href="classuserrec.html">userrec</a> *user)</td></tr>
 
-<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Called when a 005 numeric is about to be output. </em> <a href="#a24"></a><em><br><br></td></tr>
-<tr><td class="memItemLeft" nowrap align=right valign=top>virtual int&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="classModule.html#a25">OnKill</a> (<a class="el" href="classuserrec.html">userrec</a> *source, <a class="el" href="classuserrec.html">userrec</a> *dest, std::string reason)</td></tr>
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Called during a netburst to sync user data. </em> <a href="#a24"></a><em><br><br></td></tr>
+<tr><td class="memItemLeft" nowrap align=right valign=top>virtual <a class="el" href="modules_8h.html#a32">string_list</a>&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="classModule.html#a25">OnChannelSync</a> (<a class="el" href="classchanrec.html">chanrec</a> *chan)</td></tr>
 
-<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Called when a client is disconnected by KILL. </em> <a href="#a25"></a><em><br><br></td></tr>
-<tr><td class="memItemLeft" nowrap align=right valign=top>virtual void&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="classModule.html#a26">OnLoadModule</a> (<a class="el" href="classModule.html">Module</a> *mod, std::string name)</td></tr>
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Called during a netburst to sync channel data. </em> <a href="#a25"></a><em><br><br></td></tr>
+<tr><td class="memItemLeft" nowrap align=right valign=top>virtual void&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="classModule.html#a26">On005Numeric</a> (std::string &amp;output)</td></tr>
 
-<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Called whenever a module is loaded. </em> <a href="#a26"></a><em><br><br></td></tr>
-<tr><td class="memItemLeft" nowrap align=right valign=top>virtual void&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="classModule.html#a27">OnBackgroundTimer</a> (time_t curtime)</td></tr>
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Called when a 005 numeric is about to be output. </em> <a href="#a26"></a><em><br><br></td></tr>
+<tr><td class="memItemLeft" nowrap align=right valign=top>virtual int&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="classModule.html#a27">OnKill</a> (<a class="el" href="classuserrec.html">userrec</a> *source, <a class="el" href="classuserrec.html">userrec</a> *dest, std::string reason)</td></tr>
 
-<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Called once every five seconds for background processing. </em> <a href="#a27"></a><em><br><br></td></tr>
-<tr><td class="memItemLeft" nowrap align=right valign=top>virtual void&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="classModule.html#a28">OnSendList</a> (<a class="el" href="classuserrec.html">userrec</a> *user, <a class="el" href="classchanrec.html">chanrec</a> *channel, char mode)</td></tr>
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Called when a client is disconnected by KILL. </em> <a href="#a27"></a><em><br><br></td></tr>
+<tr><td class="memItemLeft" nowrap align=right valign=top>virtual void&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="classModule.html#a28">OnLoadModule</a> (<a class="el" href="classModule.html">Module</a> *mod, std::string name)</td></tr>
 
-<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Called whenever a list is needed for a listmode. </em> <a href="#a28"></a><em><br><br></td></tr>
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Called whenever a module is loaded. </em> <a href="#a28"></a><em><br><br></td></tr>
+<tr><td class="memItemLeft" nowrap align=right valign=top>virtual void&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="classModule.html#a29">OnBackgroundTimer</a> (time_t curtime)</td></tr>
+
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Called once every five seconds for background processing. </em> <a href="#a29"></a><em><br><br></td></tr>
+<tr><td class="memItemLeft" nowrap align=right valign=top>virtual void&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="classModule.html#a30">OnSendList</a> (<a class="el" href="classuserrec.html">userrec</a> *user, <a class="el" href="classchanrec.html">chanrec</a> *channel, char mode)</td></tr>
+
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Called whenever a list is needed for a listmode. </em> <a href="#a30"></a><em><br><br></td></tr>
+<tr><td class="memItemLeft" nowrap align=right valign=top>virtual int&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="classModule.html#a31">OnPreCommand</a> (std::string command, char **parameters, int pcnt, <a class="el" href="classuserrec.html">userrec</a> *user)</td></tr>
+
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Called whenever any command is about to be executed. </em> <a href="#a31"></a><em><br><br></td></tr>
+<tr><td class="memItemLeft" nowrap align=right valign=top>virtual bool&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="classModule.html#a32">OnCheckReady</a> (<a class="el" href="classuserrec.html">userrec</a> *user)</td></tr>
+
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Called to check if a user who is connecting can now be allowed to register If any modules return false for this function, the user is held in the waiting state until all modules return true. </em> <a href="#a32"></a><em><br><br></td></tr>
+<tr><td class="memItemLeft" nowrap align=right valign=top>virtual void&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="classModule.html#a33">OnUserRegister</a> (<a class="el" href="classuserrec.html">userrec</a> *user)</td></tr>
+
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Called whenever a user is about to register their connection (e.g. </em> <a href="#a33"></a><em><br><br></td></tr>
 </table>
 <hr><a name="_details"></a><h2>Detailed Description</h2>
 Base class for all InspIRCd modules This class is the base class for InspIRCd modules. 
@@ -219,7 +234,7 @@ References <a class="el" href="modules_8h-source.html#l00054">VF_VENDOR</a>.
 </pre></div>    </td>
   </tr>
 </table>
-<a name="a24" doxytag="Module::On005Numeric"></a><p>
+<a name="a26" doxytag="Module::On005Numeric"></a><p>
 <table class="mdTable" width="100%" cellpadding="2" cellspacing="0">
   <tr>
     <td class="mdRow">
@@ -255,7 +270,7 @@ Definition at line <a class="el" href="modules_8cpp-source.html#l00330">330</a> 
 </pre></div>    </td>
   </tr>
 </table>
-<a name="a21" doxytag="Module::OnAccessCheck"></a><p>
+<a name="a23" doxytag="Module::OnAccessCheck"></a><p>
 <table class="mdTable" width="100%" cellpadding="2" cellspacing="0">
   <tr>
     <td class="mdRow">
@@ -326,7 +341,7 @@ References <a class="el" href="modules_8h-source.html#l00037">ACR_DEFAULT</a>.
 </pre></div>    </td>
   </tr>
 </table>
-<a name="a27" doxytag="Module::OnBackgroundTimer"></a><p>
+<a name="a29" doxytag="Module::OnBackgroundTimer"></a><p>
 <table class="mdTable" width="100%" cellpadding="2" cellspacing="0">
   <tr>
     <td class="mdRow">
@@ -362,7 +377,7 @@ Definition at line <a class="el" href="modules_8cpp-source.html#l00333">333</a> 
 </pre></div>    </td>
   </tr>
 </table>
-<a name="a23" doxytag="Module::OnChannelSync"></a><p>
+<a name="a25" doxytag="Module::OnChannelSync"></a><p>
 <table class="mdTable" width="100%" cellpadding="2" cellspacing="0">
   <tr>
     <td class="mdRow">
@@ -397,6 +412,42 @@ Definition at line <a class="el" href="modules_8cpp-source.html#l00329">329</a> 
 References <a class="el" href="modules_8h-source.html#l00068">string_list</a>.
 <p>
 <div class="fragment"><pre>00329 { <a class="code" href="modules_8h.html#a32">string_list</a> empty; <span class="keywordflow">return</span> empty; }
+</pre></div>    </td>
+  </tr>
+</table>
+<a name="a32" doxytag="Module::OnCheckReady"></a><p>
+<table class="mdTable" width="100%" cellpadding="2" cellspacing="0">
+  <tr>
+    <td class="mdRow">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> bool Module::OnCheckReady </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="md" nowrap valign="top"><a class="el" href="classuserrec.html">userrec</a> *&nbsp;</td>
+          <td class="mdname1" valign="top" nowrap> <em>user</em>          </td>
+          <td class="md" valign="top">&nbsp;)&nbsp;</td>
+          <td class="md" nowrap><code> [virtual]</code></td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+Called to check if a user who is connecting can now be allowed to register If any modules return false for this function, the user is held in the waiting state until all modules return true. 
+<p>
+For example a module which implements ident lookups will continue to return false for a user until their ident lookup is completed. Note that the registration timeout for a user overrides these checks, if the registration timeout is reached, the user is disconnected even if modules report that the user is not ready to connect.
+<p>
+Definition at line <a class="el" href="modules_8cpp-source.html#l00336">336</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
+<p>
+<div class="fragment"><pre>00336 { <span class="keywordflow">return</span> <span class="keyword">true</span>; };
 </pre></div>    </td>
   </tr>
 </table>
@@ -469,7 +520,7 @@ Definition at line <a class="el" href="modules_8cpp-source.html#l00317">317</a> 
 </pre></div>    </td>
   </tr>
 </table>
-<a name="a14" doxytag="Module::OnInfo"></a><p>
+<a name="a16" doxytag="Module::OnInfo"></a><p>
 <table class="mdTable" width="100%" cellpadding="2" cellspacing="0">
   <tr>
     <td class="mdRow">
@@ -506,7 +557,7 @@ Definition at line <a class="el" href="modules_8cpp-source.html#l00320">320</a> 
 </pre></div>    </td>
   </tr>
 </table>
-<a name="a25" doxytag="Module::OnKill"></a><p>
+<a name="a27" doxytag="Module::OnKill"></a><p>
 <table class="mdTable" width="100%" cellpadding="2" cellspacing="0">
   <tr>
     <td class="mdRow">
@@ -557,7 +608,7 @@ Definition at line <a class="el" href="modules_8cpp-source.html#l00331">331</a> 
 </pre></div>    </td>
   </tr>
 </table>
-<a name="a26" doxytag="Module::OnLoadModule"></a><p>
+<a name="a28" doxytag="Module::OnLoadModule"></a><p>
 <table class="mdTable" width="100%" cellpadding="2" cellspacing="0">
   <tr>
     <td class="mdRow">
@@ -602,7 +653,7 @@ Definition at line <a class="el" href="modules_8cpp-source.html#l00332">332</a> 
 </pre></div>    </td>
   </tr>
 </table>
-<a name="a13" doxytag="Module::OnOper"></a><p>
+<a name="a15" doxytag="Module::OnOper"></a><p>
 <table class="mdTable" width="100%" cellpadding="2" cellspacing="0">
   <tr>
     <td class="mdRow">
@@ -728,6 +779,63 @@ Definition at line <a class="el" href="modules_8cpp-source.html#l00312">312</a> 
 </pre></div>    </td>
   </tr>
 </table>
+<a name="a31" doxytag="Module::OnPreCommand"></a><p>
+<table class="mdTable" width="100%" cellpadding="2" cellspacing="0">
+  <tr>
+    <td class="mdRow">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> int Module::OnPreCommand </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="md" nowrap valign="top">std::string&nbsp;</td>
+          <td class="mdname" nowrap> <em>command</em>, </td>
+        </tr>
+        <tr>
+          <td></td>
+          <td></td>
+          <td class="md" nowrap>char **&nbsp;</td>
+          <td class="mdname" nowrap> <em>parameters</em>, </td>
+        </tr>
+        <tr>
+          <td></td>
+          <td></td>
+          <td class="md" nowrap>int&nbsp;</td>
+          <td class="mdname" nowrap> <em>pcnt</em>, </td>
+        </tr>
+        <tr>
+          <td></td>
+          <td></td>
+          <td class="md" nowrap><a class="el" href="classuserrec.html">userrec</a> *&nbsp;</td>
+          <td class="mdname" nowrap> <em>user</em></td>
+        </tr>
+        <tr>
+          <td></td>
+          <td class="md">)&nbsp;</td>
+          <td class="md" colspan="2"><code> [virtual]</code></td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+Called whenever any command is about to be executed. 
+<p>
+This event occurs for all registered commands, wether they are registered in the core, or another module, but it will not occur for invalid commands (e.g. ones which do not exist within the command table). By returning 1 from this method you may prevent the command being executed. If you do this, no output is created by the core, and it is down to your module to produce any output neccessary. Note that unless you return 1, you should not destroy any structures (e.g. by using <a class="el" href="classServer.html#a29">Server::QuitUser</a>) otherwise when the command's handler function executes after your method returns, it will be passed an invalid pointer to the user object and crash!)
+<p>
+Definition at line <a class="el" href="modules_8cpp-source.html#l00335">335</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
+<p>
+<div class="fragment"><pre>00335 { <span class="keywordflow">return</span> 0; };
+</pre></div>    </td>
+  </tr>
+</table>
 <a name="a9" doxytag="Module::OnRehash"></a><p>
 <table class="mdTable" width="100%" cellpadding="2" cellspacing="0">
   <tr>
@@ -763,7 +871,7 @@ Definition at line <a class="el" href="modules_8cpp-source.html#l00314">314</a> 
 </pre></div>    </td>
   </tr>
 </table>
-<a name="a28" doxytag="Module::OnSendList"></a><p>
+<a name="a30" doxytag="Module::OnSendList"></a><p>
 <table class="mdTable" width="100%" cellpadding="2" cellspacing="0">
   <tr>
     <td class="mdRow">
@@ -946,6 +1054,63 @@ Definition at line <a class="el" href="modules_8cpp-source.html#l00310">310</a> 
 </pre></div>    </td>
   </tr>
 </table>
+<a name="a14" doxytag="Module::OnUserKick"></a><p>
+<table class="mdTable" width="100%" cellpadding="2" cellspacing="0">
+  <tr>
+    <td class="mdRow">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> void Module::OnUserKick </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="md" nowrap valign="top"><a class="el" href="classuserrec.html">userrec</a> *&nbsp;</td>
+          <td class="mdname" nowrap> <em>source</em>, </td>
+        </tr>
+        <tr>
+          <td></td>
+          <td></td>
+          <td class="md" nowrap><a class="el" href="classuserrec.html">userrec</a> *&nbsp;</td>
+          <td class="mdname" nowrap> <em>user</em>, </td>
+        </tr>
+        <tr>
+          <td></td>
+          <td></td>
+          <td class="md" nowrap><a class="el" href="classchanrec.html">chanrec</a> *&nbsp;</td>
+          <td class="mdname" nowrap> <em>chan</em>, </td>
+        </tr>
+        <tr>
+          <td></td>
+          <td></td>
+          <td class="md" nowrap>std::string&nbsp;</td>
+          <td class="mdname" nowrap> <em>reason</em></td>
+        </tr>
+        <tr>
+          <td></td>
+          <td class="md">)&nbsp;</td>
+          <td class="md" colspan="2"><code> [virtual]</code></td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+Called whenever a user is kicked. 
+<p>
+If this method is called, the kick is already underway and cannot be prevented, so to prevent a kick, please use <a class="el" href="classModule.html#a13">Module::OnUserPreKick</a> instead of this method.
+<p>
+Definition at line <a class="el" href="modules_8cpp-source.html#l00339">339</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
+<p>
+<div class="fragment"><pre>00339 { };
+</pre></div>    </td>
+  </tr>
+</table>
 <a name="a6" doxytag="Module::OnUserPart"></a><p>
 <table class="mdTable" width="100%" cellpadding="2" cellspacing="0">
   <tr>
@@ -991,7 +1156,7 @@ Definition at line <a class="el" href="modules_8cpp-source.html#l00311">311</a> 
 </pre></div>    </td>
   </tr>
 </table>
-<a name="a20" doxytag="Module::OnUserPostNick"></a><p>
+<a name="a22" doxytag="Module::OnUserPostNick"></a><p>
 <table class="mdTable" width="100%" cellpadding="2" cellspacing="0">
   <tr>
     <td class="mdRow">
@@ -1036,7 +1201,7 @@ Definition at line <a class="el" href="modules_8cpp-source.html#l00326">326</a> 
 </pre></div>    </td>
   </tr>
 </table>
-<a name="a16" doxytag="Module::OnUserPreInvite"></a><p>
+<a name="a18" doxytag="Module::OnUserPreInvite"></a><p>
 <table class="mdTable" width="100%" cellpadding="2" cellspacing="0">
   <tr>
     <td class="mdRow">
@@ -1140,7 +1305,64 @@ Definition at line <a class="el" href="modules_8cpp-source.html#l00316">316</a> 
 </pre></div>    </td>
   </tr>
 </table>
-<a name="a17" doxytag="Module::OnUserPreMessage"></a><p>
+<a name="a13" doxytag="Module::OnUserPreKick"></a><p>
+<table class="mdTable" width="100%" cellpadding="2" cellspacing="0">
+  <tr>
+    <td class="mdRow">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> int Module::OnUserPreKick </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="md" nowrap valign="top"><a class="el" href="classuserrec.html">userrec</a> *&nbsp;</td>
+          <td class="mdname" nowrap> <em>source</em>, </td>
+        </tr>
+        <tr>
+          <td></td>
+          <td></td>
+          <td class="md" nowrap><a class="el" href="classuserrec.html">userrec</a> *&nbsp;</td>
+          <td class="mdname" nowrap> <em>user</em>, </td>
+        </tr>
+        <tr>
+          <td></td>
+          <td></td>
+          <td class="md" nowrap><a class="el" href="classchanrec.html">chanrec</a> *&nbsp;</td>
+          <td class="mdname" nowrap> <em>chan</em>, </td>
+        </tr>
+        <tr>
+          <td></td>
+          <td></td>
+          <td class="md" nowrap>std::string&nbsp;</td>
+          <td class="mdname" nowrap> <em>reason</em></td>
+        </tr>
+        <tr>
+          <td></td>
+          <td class="md">)&nbsp;</td>
+          <td class="md" colspan="2"><code> [virtual]</code></td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+Called whenever a user is about to be kicked. 
+<p>
+Returning a value of 1 from this function stops the process immediately, causing no output to be sent to the user by the core. If you do this you must produce your own numerics, notices etc. 
+<p>
+Definition at line <a class="el" href="modules_8cpp-source.html#l00338">338</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
+<p>
+<div class="fragment"><pre>00338 { <span class="keywordflow">return</span> 0; };
+</pre></div>    </td>
+  </tr>
+</table>
+<a name="a19" doxytag="Module::OnUserPreMessage"></a><p>
 <table class="mdTable" width="100%" cellpadding="2" cellspacing="0">
   <tr>
     <td class="mdRow">
@@ -1197,7 +1419,7 @@ Definition at line <a class="el" href="modules_8cpp-source.html#l00323">323</a> 
 </pre></div>    </td>
   </tr>
 </table>
-<a name="a19" doxytag="Module::OnUserPreNick"></a><p>
+<a name="a21" doxytag="Module::OnUserPreNick"></a><p>
 <table class="mdTable" width="100%" cellpadding="2" cellspacing="0">
   <tr>
     <td class="mdRow">
@@ -1242,7 +1464,7 @@ Definition at line <a class="el" href="modules_8cpp-source.html#l00325">325</a> 
 </pre></div>    </td>
   </tr>
 </table>
-<a name="a18" doxytag="Module::OnUserPreNotice"></a><p>
+<a name="a20" doxytag="Module::OnUserPreNotice"></a><p>
 <table class="mdTable" width="100%" cellpadding="2" cellspacing="0">
   <tr>
     <td class="mdRow">
@@ -1335,7 +1557,43 @@ Definition at line <a class="el" href="modules_8cpp-source.html#l00309">309</a> 
 </pre></div>    </td>
   </tr>
 </table>
-<a name="a22" doxytag="Module::OnUserSync"></a><p>
+<a name="a33" doxytag="Module::OnUserRegister"></a><p>
+<table class="mdTable" width="100%" cellpadding="2" cellspacing="0">
+  <tr>
+    <td class="mdRow">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> void Module::OnUserRegister </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="md" nowrap valign="top"><a class="el" href="classuserrec.html">userrec</a> *&nbsp;</td>
+          <td class="mdname1" valign="top" nowrap> <em>user</em>          </td>
+          <td class="md" valign="top">&nbsp;)&nbsp;</td>
+          <td class="md" nowrap><code> [virtual]</code></td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+Called whenever a user is about to register their connection (e.g. 
+<p>
+before the user is sent the MOTD etc). Modules can use this method if they are performing a function which must be done before the actual connection is completed (e.g. ident lookups, dnsbl lookups, etc). Note that you should NOT delete the user record here by causing a disconnection! Use OnUserConnect for that instead.
+<p>
+Definition at line <a class="el" href="modules_8cpp-source.html#l00337">337</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
+<p>
+<div class="fragment"><pre>00337 { };
+</pre></div>    </td>
+  </tr>
+</table>
+<a name="a24" doxytag="Module::OnUserSync"></a><p>
 <table class="mdTable" width="100%" cellpadding="2" cellspacing="0">
   <tr>
     <td class="mdRow">
@@ -1373,7 +1631,7 @@ References <a class="el" href="modules_8h-source.html#l00068">string_list</a>.
 </pre></div>    </td>
   </tr>
 </table>
-<a name="a15" doxytag="Module::OnWhois"></a><p>
+<a name="a17" doxytag="Module::OnWhois"></a><p>
 <table class="mdTable" width="100%" cellpadding="2" cellspacing="0">
   <tr>
     <td class="mdRow">
@@ -1420,7 +1678,7 @@ Definition at line <a class="el" href="modules_8cpp-source.html#l00321">321</a> 
 </table>
 <hr>The documentation for this class was generated from the following files:<ul>
 <li><a class="el" href="modules_8h-source.html">modules.h</a><li><a class="el" href="modules_8cpp-source.html">modules.cpp</a></ul>
-<hr size="1"><address style="align: right;"><small>Generated on Wed Apr 13 13:07:06 2005 for InspIRCd by
+<hr size="1"><address style="align: right;"><small>Generated on Thu Apr 14 21:12:10 2005 for InspIRCd by
 <a href="http://www.doxygen.org/index.html">
 <img src="doxygen.png" alt="doxygen" align="middle" border=0 > 
 </a>1.3.3 </small></address>
