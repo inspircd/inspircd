@@ -47,7 +47,7 @@ class ModuleConnLUSERS : public Module
 	
 	virtual void OnUserConnect(userrec* user)
 	{
-		CallCommandHandler("LUSERS", NULL, 0, user);
+		Srv->CallCommandHandler("LUSERS", NULL, 0, user);
 	}
 };
 
