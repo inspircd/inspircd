@@ -35,23 +35,38 @@
 
 Server *Srv;
 
+// Ident lookups are done by attaching an RFC1413 class to the
+// userrec record using the Extensible system.
+// The RFC1413 class is written especially for this module but
+// it should be relatively standalone for anyone else who wishes
+// to have a nonblocking ident lookup in a program :)
+// the class operates on a simple state engine, each state of the
+// connection incrementing a state counter, leading through to
+// a concluding state which terminates the lookup.
+
 class RFC1413
 {
  protected:
-	int fd;
-	userrec* u;
-	sockaddr_in addr;
-	in_addr addy;
-	int state;
-	char ibuf[MAXBUF];
-	sockaddr_in sock_us;
-	sockaddr_in sock_them;
-	socklen_t uslen;
-	socklen_t themlen;
-	int nrecv;
-	time_t timeout_end;
-	bool timeout;
+	int fd;			// file descriptor
+	userrec* u;		// user record that the lookup is associated with
+	sockaddr_in addr;	// address we're connecting to
+	in_addr addy;		// binary ip address
+	int state;		// state (this class operates on a state engine)
+	char ibuf[MAXBUF];	// input buffer
+	sockaddr_in sock_us;	// our port number
+	sockaddr_in sock_them;	// their port number
+	socklen_t uslen;	// length of our port number
+	socklen_t themlen;	// length of their port number
+	int nrecv;		// how many bytes we've received
+	time_t timeout_end;	// how long until the operation times out
+	bool timeout;		// true if we've timed out and should bail
  public:
+
+	// establish an ident connection, maxtime is the time to spend trying
+	// returns true if successful, false if something was catastrophically wrong.
+	// note that failed connects are not reported here but detected in RFC1413::Poll()
+	// as the socket is nonblocking
+
 	bool Connect(userrec* user, int maxtime)
 	{
 		timeout_end = time(NULL)+maxtime;
@@ -83,6 +98,9 @@ class RFC1413
 		this->state = 1;
 		return true;
 	}
+
+	// Poll the socket to see if we have an ident result, and if we do apply it to the user.
+	// returns false if we cannot poll for some reason (e.g. timeout).
 
 	bool Poll()
 	{
@@ -182,6 +200,9 @@ class RFC1413
 		}
 	}
 
+	// returns true if the operation is completed,
+	// either due to complete request, or a timeout
+
 	bool Done()
 	{
 		return ((state == 3) || (timeout == true));
@@ -215,15 +236,22 @@ class ModuleIdent : public Module
 
 	virtual void OnUserRegister(userrec* user)
 	{
+		// when the new user connects, before they authenticate with USER/NICK/PASS, we do
+		// their ident lookup.
+
 		RFC1413* ident = new RFC1413;
 		Srv->SendServ(user->fd,"NOTICE "+std::string(user->nick)+" :*** Looking up your ident...");
 		if (ident->Connect(user,IdentTimeout))
 		{
+			// attach the object to the user record
 			user->Extend("ident_data",(char*)ident);
+			// start it off polling (always good to have a head start)
+			// because usually connect has completed by now
 			ident->Poll();
 		}
 		else
 		{
+			// something went wrong, call an irc-ambulance!
 			Srv->SendServ(user->fd,"NOTICE "+std::string(user->nick)+" :*** Could not look up your ident.");
 			delete ident;
 		}
@@ -234,14 +262,19 @@ class ModuleIdent : public Module
 		RFC1413* ident = (RFC1413*)user->GetExt("ident_data");
 		if (ident)
 		{
+			// this user has a pending ident lookup, poll it
 			ident->Poll();
+			// is it done?
 			if (ident->Done())
 			{
+				// their ident is done, zap the structures
 				Srv->Log(DEBUG,"Ident: removing ident gubbins");
 				user->Shrink("ident_data");
 				delete ident;
+				// ...and send them on their way
 				return true;
 			}
+			// nope, we hold them in this state, they dont go anywhere
 			return false;
 		}
 		return true;
@@ -258,8 +291,6 @@ class ModuleIdent : public Module
 	}
 	
 };
-
-// stuff down here is the module-factory stuff. For basic modules you can ignore this.
 
 class ModuleIdentFactory : public ModuleFactory
 {
