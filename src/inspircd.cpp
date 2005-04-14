@@ -3921,13 +3921,13 @@ int InspIRCd(void)
 							kill_link(count2->second,"Registration timeout");
 							goto label;
 						}
-						if ((TIME > count2->second->signon) && (count2->second->registered == 3) && (AllModulesReportReady(user)))
+						if ((TIME > count2->second->signon) && (count2->second->registered == 3) && (AllModulesReportReady(count2->second)))
 						{
 							count2->second->dns_done = true;
 							FullConnectUser(count2->second);
 							goto label;
 						}
-		                                if ((count2->second->dns_done) && (count2->second->registered == 3) && AllModulesReportReady(user))) // both NICK and USER... and DNS
+		                                if ((count2->second->dns_done) && (count2->second->registered == 3) && (AllModulesReportReady(count2->second))) // both NICK and USER... and DNS
 		                                {
 		                                        FullConnectUser(count2->second);
 							goto label;
