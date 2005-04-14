@@ -40,5 +40,6 @@ clean:
 
 modclean:
 	rm -rf modules/*.so
+	rm -rf src/modules/*.so
 
 squeakyclean: modclean clean
