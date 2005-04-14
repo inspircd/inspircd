@@ -35,6 +35,9 @@
 
 Server *Srv;
 
+// State engine constants. We have three states,
+// connecting, waiting for data, and finished.
+
 #define IDENT_STATE_CONNECT	1
 #define IDENT_STATE_WAITDATA	2
 #define IDENT_STATE_DONE	3
@@ -77,6 +80,7 @@ class RFC1413
 		timeout = false;
 		if ((this->fd = socket(AF_INET, SOCK_STREAM, 0)) == -1)
 		{
+			// theres been a boo-boo... no more fd's left for us, woe is me!
 			Srv->Log(DEBUG,"Ident: socket failed for: "+std::string(user->ip));
 			return false;
 		}
@@ -91,8 +95,10 @@ class RFC1413
 
 		if(connect(this->fd, (sockaddr*)&this->addr,sizeof(this->addr)) == -1)
 		{
+			// theres been an error, but EINPROGRESS just means 'right, im on it, call me later'
 			if (errno != EINPROGRESS)
 			{
+				// ... so that error isnt fatal, like the rest.
 				Srv->Log(DEBUG,"Ident: connect failed for: "+std::string(user->ip));
 	                        return false;
 			}
