@@ -169,12 +169,10 @@ class RFC1413
 									if (section)
 									{
 										while ((*section == ' ') && (strlen(section)>0)) section++; // strip leading spaces
-										if ((section[strlen(section)-1] == 13) || (section[strlen(section)-1] == 10))
-											section[strlen(section)-1] = '\0'; // strip carriage returns
-										if ((section[strlen(section)-1] == 13) || (section[strlen(section)-1] == 10))
-											section[strlen(section)-1] = '\0'; // strip linefeeds
-										while ((section[strlen(section)-1] == ' ') && (strlen(section)>0)) // strip trailing spaces
-											section[strlen(section)-1] = '\0';
+										int t = strlen(section);
+										for (int j = 0; j < t; j++)
+											if ((section[j] < 33) || (section[j]>126))
+												section[j] = '\0'; // truncate at invalid chars
 										if (strlen(section))
 										{
 											strlcpy(u->ident,section,IDENTMAX);
