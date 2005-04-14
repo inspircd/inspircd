@@ -2581,12 +2581,11 @@ void FullConnectUser(userrec* user)
 // registration timeout maximum seconds)
 bool AllModulesReportReady(userrec* user)
 {
-	for (int i = 0; i <= MODCOUNT; i++) {
+	for (int i = 0; i <= MODCOUNT; i++)
+	{
 		int res = modules[i]->OnCheckReady(user);
-			if (!res) {
+			if (!res)
 				return false;
-			}
-		}
 	}
 	return true;
 }
