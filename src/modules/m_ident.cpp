@@ -35,6 +35,10 @@
 
 Server *Srv;
 
+#define IDENT_STATE_CONNECT	1
+#define IDENT_STATE_WAITDATA	2
+#define IDENT_STATE_DONE	3
+
 // Ident lookups are done by attaching an RFC1413 class to the
 // userrec record using the Extensible system.
 // The RFC1413 class is written especially for this module but
@@ -95,7 +99,7 @@ class RFC1413
                 }
 		Srv->Log(DEBUG,"Ident: successful connect associated with user "+std::string(user->nick));
 		this->u = user;
-		this->state = 1;
+		this->state = IDENT_STATE_CONNECT;
 		return true;
 	}
 
@@ -112,12 +116,16 @@ class RFC1413
 		}
 		pollfd polls;
 		polls.fd = this->fd;
-		if (state == 1)
+		if (state == IDENT_STATE_CONNECT)
 		{
+			// during state IDENT_STATE_CONNECT (leading up to the connect)
+			// we're watching for writeability
 			polls.events = POLLOUT;
 		}
 		else
 		{
+			// the rest of the time we're waiting for data
+			// back on the socket, or a socket close
 			polls.events = POLLIN;
 		}
 		int ret = poll(&polls,1,1);
@@ -126,24 +134,24 @@ class RFC1413
 		{
 			switch (this->state)
 			{
-				case 1:
+				case IDENT_STATE_CONNECT:
 					Srv->Log(DEBUG,"*** IDENT IN STATE 1");
 					uslen = sizeof(sock_us);
 					themlen = sizeof(sock_them);
 					if ((getsockname(this->u->fd,(sockaddr*)&sock_us,&uslen) || getpeername(this->u->fd, (sockaddr*)&sock_them, &themlen)))
 					{
 						Srv->Log(DEBUG,"Ident: failed to get socket names, bailing to state 3");
-						state = 3;
+						state = IDENT_STATE_DONE;
 					}
 					else
 					{
 						// send the request in the following format: theirsocket,oursocket
 						Write(this->fd,"%d,%d",ntohs(sock_them.sin_port),ntohs(sock_us.sin_port));
 						Srv->Log(DEBUG,"Sent ident request, moving to state 2");
-						state = 2;
+						state = IDENT_STATE_WAITDATA;
 					}
 				break;
-				case 2:
+				case IDENT_STATE_WAITDATA:
 					Srv->Log(DEBUG,"*** IDENT IN STATE 2");
 					nrecv = recv(this->fd,ibuf,sizeof(ibuf),0);
 					if (nrecv > 0)
@@ -185,10 +193,10 @@ class RFC1413
 							}
 							section = strtok_r(NULL,":",&savept);
 						}
-						state = 3;
+						state = IDENT_STATE_DONE;
 					}
 				break;
-				case 3:
+				case IDENT_STATE_DONE:
 					Srv->Log(DEBUG,"Ident lookup is complete!");
 				break;
 				default:
