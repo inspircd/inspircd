@@ -1764,6 +1764,7 @@ void handle_nick(char **parameters, int pcnt, userrec *user)
 		user->dns_done = (!lookup_dns(user->nick));
 		if (user->dns_done)
 			log(DEBUG,"Aborting dns lookup of %s because dns server experienced a failure.",user->nick);
+		FOREACH_MOD OnUserRegister(userrec* user);
 	}
 	if (user->registered == 3)
 	{

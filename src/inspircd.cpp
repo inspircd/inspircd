@@ -2575,11 +2575,27 @@ void FullConnectUser(userrec* user)
         NetSendToAll(buffer);
 }
 
+
+// this returns 1 when all modules are satisfied that the user should be allowed onto the irc server
+// (until this returns true, a user will block in the waiting state, waiting to connect up to the
+// registration timeout maximum seconds)
+bool AllModulesReportReady(userrec* user)
+{
+	for (int i = 0; i <= MODCOUNT; i++) {
+		int res = modules[i]->OnCheckReady(user);
+			if (!res) {
+				return false;
+			}
+		}
+	}
+	return true;
+}
+
 /* shows the message of the day, and any other on-logon stuff */
 void ConnectUser(userrec *user)
 {
 	// dns is already done, things are fast. no need to wait for dns to complete just pass them straight on
-	if ((user->dns_done) && (user->registered >= 3))
+	if ((user->dns_done) && (user->registered >= 3) && (AllModulesReportReady(user)))
 	{
 		FullConnectUser(user);
 	}
@@ -3906,13 +3922,13 @@ int InspIRCd(void)
 							kill_link(count2->second,"Registration timeout");
 							goto label;
 						}
-						if ((TIME > count2->second->signon) && (count2->second->registered == 3))
+						if ((TIME > count2->second->signon) && (count2->second->registered == 3) && (AllModulesReportReady(user)))
 						{
 							count2->second->dns_done = true;
 							FullConnectUser(count2->second);
 							goto label;
 						}
-		                                if ((count2->second->dns_done) && (count2->second->registered == 3)) // both NICK and USER... and DNS
+		                                if ((count2->second->dns_done) && (count2->second->registered == 3) && AllModulesReportReady(user))) // both NICK and USER... and DNS
 		                                {
 		                                        FullConnectUser(count2->second);
 							goto label;

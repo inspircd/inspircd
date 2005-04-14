@@ -395,6 +395,25 @@ class Module : public classbase
 	 * method returns, it will be passed an invalid pointer to the user object and crash!)
 	 */
 	virtual int OnPreCommand(std::string command, char **parameters, int pcnt, userrec *user);
+
+	/** Called to check if a user who is connecting can now be allowed to register
+	 * If any modules return false for this function, the user is held in the waiting
+	 * state until all modules return true. For example a module which implements ident
+	 * lookups will continue to return false for a user until their ident lookup is completed.
+	 * Note that the registration timeout for a user overrides these checks, if the registration
+	 * timeout is reached, the user is disconnected even if modules report that the user is
+	 * not ready to connect.
+	 */
+	virtual bool OnCheckReady(userrec* user);
+
+	/** Called whenever a user is about to register their connection (e.g. before the user
+	 * is sent the MOTD etc). Modules can use this method if they are performing a function
+	 * which must be done before the actual connection is completed (e.g. ident lookups,
+	 * dnsbl lookups, etc).
+	 * Note that you should NOT delete the user record here by causing a disconnection!
+	 * Use OnUserConnect for that instead.
+	 */
+	virtual void OnUserRegister(userrec* user);
 };
 
 
