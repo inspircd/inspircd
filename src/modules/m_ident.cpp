@@ -16,28 +16,234 @@
 
 #include <stdio.h>
 #include <string>
+#include <stdlib.h>
+#include <time.h>
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <sys/time.h>
+#include <string.h>
+#include <unistd.h>
+#include <errno.h>
+#include <fcntl.h>
+#include <poll.h>
 #include "users.h"
 #include "channels.h"
 #include "modules.h"
+#include "inspircd.h"
 
 /* $ModDesc: Provides support for RFC 1413 ident lookups */
 
 Server *Srv;
-	 
+
+class RFC1413
+{
+ protected:
+	int fd;
+	userrec* u;
+	sockaddr_in addr;
+	in_addr addy;
+	int state;
+	char ibuf[MAXBUF];
+	sockaddr_in sock_us;
+	sockaddr_in sock_them;
+	socklen_t uslen;
+	socklen_t themlen;
+	int nrecv;
+	time_t timeout_end;
+	bool timeout;
+ public:
+	bool Connect(userrec* user, int maxtime)
+	{
+		timeout_end = time(NULL)+maxtime;
+		timeout = false;
+		if ((this->fd = socket(AF_INET, SOCK_STREAM, 0)) == -1)
+		{
+			Srv->Log(DEBUG,"Ident: socket failed for: "+std::string(user->ip));
+			return false;
+		}
+		inet_aton(user->ip,&addy);
+		addr.sin_family = AF_INET;
+		addr.sin_addr = addy;
+		addr.sin_port = htons(113);
+
+                int flags;
+                flags = fcntl(this->fd, F_GETFL, 0);
+                fcntl(this->fd, F_SETFL, flags | O_NONBLOCK);
+
+		if(connect(this->fd, (sockaddr*)&this->addr,sizeof(this->addr)) == -1)
+		{
+			if (errno != EINPROGRESS)
+			{
+				Srv->Log(DEBUG,"Ident: connect failed for: "+std::string(user->ip));
+	                        return false;
+			}
+                }
+		Srv->Log(DEBUG,"Ident: successful connect associated with user "+std::string(user->nick));
+		this->u = user;
+		this->state = 1;
+		return true;
+	}
+
+	bool Poll()
+	{
+		if (time(NULL) > timeout_end)
+		{
+			timeout = true;
+			Srv->SendServ(u->fd,"NOTICE "+std::string(u->nick)+" :*** Could not find your ident, using "+std::string(u->ident)+" instead.");
+			return false;
+		}
+		pollfd polls;
+		polls.fd = this->fd;
+		if (state == 1)
+		{
+			polls.events = POLLOUT;
+		}
+		else
+		{
+			polls.events = POLLIN;
+		}
+		int ret = poll(&polls,1,1);
+
+		if (ret > 0)
+		{
+			switch (this->state)
+			{
+				case 1:
+					Srv->Log(DEBUG,"*** IDENT IN STATE 1");
+					uslen = sizeof(sock_us);
+					themlen = sizeof(sock_them);
+					if ((getsockname(this->u->fd,(sockaddr*)&sock_us,&uslen) || getpeername(this->u->fd, (sockaddr*)&sock_them, &themlen)))
+					{
+						Srv->Log(DEBUG,"Ident: failed to get socket names, bailing to state 3");
+						state = 3;
+					}
+					else
+					{
+						// send the request in the following format: theirsocket,oursocket
+						Write(this->fd,"%d,%d",ntohs(sock_them.sin_port),ntohs(sock_us.sin_port));
+						Srv->Log(DEBUG,"Sent ident request, moving to state 2");
+						state = 2;
+					}
+				break;
+				case 2:
+					Srv->Log(DEBUG,"*** IDENT IN STATE 2");
+					nrecv = recv(this->fd,ibuf,sizeof(ibuf),0);
+					if (nrecv > 0)
+					{
+						// we have the response line in the following format:
+						// 6193, 23 : USERID : UNIX : stjohns
+						// 6195, 23 : ERROR : NO-USER
+						ibuf[nrecv] = '\0';
+						Srv->Log(DEBUG,"Received ident response: "+std::string(ibuf));
+						close(this->fd);
+						shutdown(this->fd,2);
+						char* savept;
+						char* section = strtok_r(ibuf,":",&savept);
+						while (section)
+						{
+							if (strstr(section,"USERID"))
+							{
+								section = strtok_r(NULL,":",&savept);
+								if (section)
+								{
+									// ID type, usually UNIX or OTHER... we dont want it, so read the next token
+									section = strtok_r(NULL,":",&savept);
+									if (section)
+									{
+										while ((*section == ' ') && (strlen(section)>0)) section++; // strip leading spaces
+										if ((section[strlen(section)-1] == 13) || (section[strlen(section)-1] == 10))
+											section[strlen(section)-1] = '\0'; // strip carriage returns
+										if ((section[strlen(section)-1] == 13) || (section[strlen(section)-1] == 10))
+											section[strlen(section)-1] = '\0'; // strip linefeeds
+										while ((section[strlen(section)-1] == ' ') && (strlen(section)>0)) // strip trailing spaces
+											section[strlen(section)-1] = '\0';
+										if (strlen(section))
+										{
+											strlcpy(u->ident,section,IDENTMAX);
+											Srv->Log(DEBUG,"IDENT SET: "+std::string(u->ident));
+											Srv->SendServ(u->fd,"NOTICE "+std::string(u->nick)+" :*** Found your ident: "+std::string(u->ident));
+										}
+										break;
+									}
+								}
+							}
+							section = strtok_r(NULL,":",&savept);
+						}
+						state = 3;
+					}
+				break;
+				case 3:
+					Srv->Log(DEBUG,"Ident lookup is complete!");
+				break;
+				default:
+					Srv->Log(DEBUG,"Ident: invalid ident state!!!");
+				break;
+			}
+		}
+	}
+
+	bool Done()
+	{
+		return ((state == 3) || (timeout == true));
+	}
+};
+
 class ModuleIdent : public Module
 {
+
+	ConfigReader* Conf;
+	int IdentTimeout;
+
  public:
+	void ReadSettings()
+	{
+		Conf = new ConfigReader;
+		IdentTimeout = Conf->ReadInteger("ident","timeout",0,true);
+		delete Conf;
+	}
+
 	ModuleIdent()
 	{
 		Srv = new Server;
+		ReadSettings();
+	}
+
+	virtual void OnRehash()
+	{
+		ReadSettings();
 	}
 
 	virtual void OnUserRegister(userrec* user)
 	{
+		RFC1413* ident = new RFC1413;
+		Srv->SendServ(user->fd,"NOTICE "+std::string(user->nick)+" :*** Looking up your ident...");
+		if (ident->Connect(user,IdentTimeout))
+		{
+			user->Extend("ident_data",(char*)ident);
+			ident->Poll();
+		}
+		else
+		{
+			Srv->SendServ(user->fd,"NOTICE "+std::string(user->nick)+" :*** Could not look up your ident.");
+			delete ident;
+		}
 	}
 
-	virtual bool OnUserReady(userrec* user)
+	virtual bool OnCheckReady(userrec* user)
 	{
+		RFC1413* ident = (RFC1413*)user->GetExt("ident_data");
+		if (ident)
+		{
+			ident->Poll();
+			if (ident->Done())
+			{
+				Srv->Log(DEBUG,"Ident: removing ident gubbins");
+				user->Shrink("ident_data");
+				delete ident;
+				return true;
+			}
+			return false;
+		}
 		return true;
 	}
 	
