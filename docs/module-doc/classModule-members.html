@@ -13,19 +13,28 @@
   <tr class="memlist"><td><a class="el" href="classModule.html#a26">On005Numeric</a>(std::string &amp;output)</td><td><a class="el" href="classModule.html">Module</a></td><td><code> [virtual]</code></td></tr>
   <tr class="memlist"><td><a class="el" href="classModule.html#a23">OnAccessCheck</a>(userrec *source, userrec *dest, chanrec *channel, int access_type)</td><td><a class="el" href="classModule.html">Module</a></td><td><code> [virtual]</code></td></tr>
   <tr class="memlist"><td><a class="el" href="classModule.html#a29">OnBackgroundTimer</a>(time_t curtime)</td><td><a class="el" href="classModule.html">Module</a></td><td><code> [virtual]</code></td></tr>
+  <tr class="memlist"><td><a class="el" href="classModule.html#a41">OnChangeLocalUserGECOS</a>(userrec *user, std::string newhost)</td><td><a class="el" href="classModule.html">Module</a></td><td><code> [virtual]</code></td></tr>
+  <tr class="memlist"><td><a class="el" href="classModule.html#a40">OnChangeLocalUserHost</a>(userrec *user, std::string newhost)</td><td><a class="el" href="classModule.html">Module</a></td><td><code> [virtual]</code></td></tr>
   <tr class="memlist"><td><a class="el" href="classModule.html#a25">OnChannelSync</a>(chanrec *chan)</td><td><a class="el" href="classModule.html">Module</a></td><td><code> [virtual]</code></td></tr>
+  <tr class="memlist"><td><a class="el" href="classModule.html#a38">OnCheckBan</a>(userrec *user, chanrec *chan)</td><td><a class="el" href="classModule.html">Module</a></td><td><code> [virtual]</code></td></tr>
+  <tr class="memlist"><td><a class="el" href="classModule.html#a35">OnCheckInvite</a>(userrec *user, chanrec *chan)</td><td><a class="el" href="classModule.html">Module</a></td><td><code> [virtual]</code></td></tr>
+  <tr class="memlist"><td><a class="el" href="classModule.html#a36">OnCheckKey</a>(userrec *user, chanrec *chan, std::string keygiven)</td><td><a class="el" href="classModule.html">Module</a></td><td><code> [virtual]</code></td></tr>
+  <tr class="memlist"><td><a class="el" href="classModule.html#a37">OnCheckLimit</a>(userrec *user, chanrec *chan)</td><td><a class="el" href="classModule.html">Module</a></td><td><code> [virtual]</code></td></tr>
   <tr class="memlist"><td><a class="el" href="classModule.html#a32">OnCheckReady</a>(userrec *user)</td><td><a class="el" href="classModule.html">Module</a></td><td><code> [virtual]</code></td></tr>
   <tr class="memlist"><td><a class="el" href="classModule.html#a11">OnExtendedMode</a>(userrec *user, void *target, char modechar, int type, bool mode_on, string_list &amp;params)</td><td><a class="el" href="classModule.html">Module</a></td><td><code> [virtual]</code></td></tr>
   <tr class="memlist"><td><a class="el" href="classModule.html#a16">OnInfo</a>(userrec *user)</td><td><a class="el" href="classModule.html">Module</a></td><td><code> [virtual]</code></td></tr>
   <tr class="memlist"><td><a class="el" href="classModule.html#a27">OnKill</a>(userrec *source, userrec *dest, std::string reason)</td><td><a class="el" href="classModule.html">Module</a></td><td><code> [virtual]</code></td></tr>
   <tr class="memlist"><td><a class="el" href="classModule.html#a28">OnLoadModule</a>(Module *mod, std::string name)</td><td><a class="el" href="classModule.html">Module</a></td><td><code> [virtual]</code></td></tr>
+  <tr class="memlist"><td><a class="el" href="classModule.html#a42">OnLocalTopicChange</a>(userrec *user, chanrec *chan, std::string topic)</td><td><a class="el" href="classModule.html">Module</a></td><td><code> [virtual]</code></td></tr>
   <tr class="memlist"><td><a class="el" href="classModule.html#a15">OnOper</a>(userrec *user)</td><td><a class="el" href="classModule.html">Module</a></td><td><code> [virtual]</code></td></tr>
   <tr class="memlist"><td><a class="el" href="classModule.html#a8">OnPacketReceive</a>(std::string &amp;data, std::string serv)</td><td><a class="el" href="classModule.html">Module</a></td><td><code> [virtual]</code></td></tr>
   <tr class="memlist"><td><a class="el" href="classModule.html#a7">OnPacketTransmit</a>(std::string &amp;data, std::string serv)</td><td><a class="el" href="classModule.html">Module</a></td><td><code> [virtual]</code></td></tr>
   <tr class="memlist"><td><a class="el" href="classModule.html#a31">OnPreCommand</a>(std::string command, char **parameters, int pcnt, userrec *user)</td><td><a class="el" href="classModule.html">Module</a></td><td><code> [virtual]</code></td></tr>
+  <tr class="memlist"><td><a class="el" href="classModule.html#a34">OnRawMode</a>(userrec *user, char mode, std::string param, bool adding, int pcnt)</td><td><a class="el" href="classModule.html">Module</a></td><td><code> [virtual]</code></td></tr>
   <tr class="memlist"><td><a class="el" href="classModule.html#a9">OnRehash</a>()</td><td><a class="el" href="classModule.html">Module</a></td><td><code> [virtual]</code></td></tr>
   <tr class="memlist"><td><a class="el" href="classModule.html#a30">OnSendList</a>(userrec *user, chanrec *channel, char mode)</td><td><a class="el" href="classModule.html">Module</a></td><td><code> [virtual]</code></td></tr>
   <tr class="memlist"><td><a class="el" href="classModule.html#a10">OnServerRaw</a>(std::string &amp;raw, bool inbound, userrec *user)</td><td><a class="el" href="classModule.html">Module</a></td><td><code> [virtual]</code></td></tr>
+  <tr class="memlist"><td><a class="el" href="classModule.html#a39">OnStats</a>(char symbol)</td><td><a class="el" href="classModule.html">Module</a></td><td><code> [virtual]</code></td></tr>
   <tr class="memlist"><td><a class="el" href="classModule.html#a3">OnUserConnect</a>(userrec *user)</td><td><a class="el" href="classModule.html">Module</a></td><td><code> [virtual]</code></td></tr>
   <tr class="memlist"><td><a class="el" href="classModule.html#a5">OnUserJoin</a>(userrec *user, chanrec *channel)</td><td><a class="el" href="classModule.html">Module</a></td><td><code> [virtual]</code></td></tr>
   <tr class="memlist"><td><a class="el" href="classModule.html#a14">OnUserKick</a>(userrec *source, userrec *user, chanrec *chan, std::string reason)</td><td><a class="el" href="classModule.html">Module</a></td><td><code> [virtual]</code></td></tr>
@@ -43,7 +52,7 @@
   <tr class="memlist"><td><a class="el" href="classModule.html#a17">OnWhois</a>(userrec *source, userrec *dest)</td><td><a class="el" href="classModule.html">Module</a></td><td><code> [virtual]</code></td></tr>
   <tr class="memlist"><td><a class="el" href="classclassbase.html#a1">~classbase</a>()</td><td><a class="el" href="classclassbase.html">classbase</a></td><td><code> [inline]</code></td></tr>
   <tr class="memlist"><td><a class="el" href="classModule.html#a1">~Module</a>()</td><td><a class="el" href="classModule.html">Module</a></td><td><code> [virtual]</code></td></tr>
-</table><hr size="1"><address style="align: right;"><small>Generated on Fri Apr 15 14:50:51 2005 for InspIRCd by
+</table><hr size="1"><address style="align: right;"><small>Generated on Fri Apr 15 19:30:23 2005 for InspIRCd by
 <a href="http://www.doxygen.org/index.html">
 <img src="doxygen.png" alt="doxygen" align="middle" border=0 > 
 </a>1.3.3 </small></address>

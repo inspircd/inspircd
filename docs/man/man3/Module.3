@@ -151,6 +151,42 @@ Inherits \fBclassbase\fP.
 .RI "virtual void \fBOnUserRegister\fP (\fBuserrec\fP *user)"
 .br
 .RI "\fICalled whenever a user is about to register their connection (e.g. \fP"
+.ti -1c
+.RI "virtual int \fBOnRawMode\fP (\fBuserrec\fP *user, char mode, std::string param, bool adding, int pcnt)"
+.br
+.RI "\fICalled whenever a mode character is processed. \fP"
+.ti -1c
+.RI "virtual int \fBOnCheckInvite\fP (\fBuserrec\fP *user, \fBchanrec\fP *chan)"
+.br
+.RI "\fICalled whenever a user joins a channel, to determine if invite checks should go ahead or not. \fP"
+.ti -1c
+.RI "virtual int \fBOnCheckKey\fP (\fBuserrec\fP *user, \fBchanrec\fP *chan, std::string keygiven)"
+.br
+.RI "\fICalled whenever a user joins a channel, to determine if key checks should go ahead or not. \fP"
+.ti -1c
+.RI "virtual int \fBOnCheckLimit\fP (\fBuserrec\fP *user, \fBchanrec\fP *chan)"
+.br
+.RI "\fICalled whenever a user joins a channel, to determine if channel limit checks should go ahead or not. \fP"
+.ti -1c
+.RI "virtual int \fBOnCheckBan\fP (\fBuserrec\fP *user, \fBchanrec\fP *chan)"
+.br
+.RI "\fICalled whenever a user joins a channel, to determine if banlist checks should go ahead or not. \fP"
+.ti -1c
+.RI "virtual void \fBOnStats\fP (char symbol)"
+.br
+.RI "\fICalled on all /STATS commands This method is triggered for all /STATS use, including stats symbols handled by the core. \fP"
+.ti -1c
+.RI "virtual int \fBOnChangeLocalUserHost\fP (\fBuserrec\fP *user, std::string newhost)"
+.br
+.RI "\fICalled whenever a change of a local users displayed host is attempted. \fP"
+.ti -1c
+.RI "virtual int \fBOnChangeLocalUserGECOS\fP (\fBuserrec\fP *user, std::string newhost)"
+.br
+.RI "\fICalled whenever a change of a local users GECOS (fullname field) is attempted. \fP"
+.ti -1c
+.RI "virtual int \fBOnLocalTopicChange\fP (\fBuserrec\fP *user, \fBchanrec\fP *chan, std::string topic)"
+.br
+.RI "\fICalled whenever a topic is changed by a local user. \fP"
 .in -1c
 .SH "Detailed Description"
 .PP 
@@ -233,6 +269,20 @@ Called once every five seconds for background processing. This timer can be used
 .nf
 333 { };
 .fi
+.SS "int Module::OnChangeLocalUserGECOS (\fBuserrec\fP * user, std::string newhost)\fC [virtual]\fP"
+.PP
+Called whenever a change of a local users GECOS (fullname field) is attempted. return 1 to deny the name change, or 0 to allow it.Definition at line 347 of file modules.cpp.
+.PP
+.nf
+347 { return 0; };
+.fi
+.SS "int Module::OnChangeLocalUserHost (\fBuserrec\fP * user, std::string newhost)\fC [virtual]\fP"
+.PP
+Called whenever a change of a local users displayed host is attempted. Return 1 to deny the host change, or 0 to allow it.Definition at line 346 of file modules.cpp.
+.PP
+.nf
+346 { return 0; };
+.fi
 .SS "\fBstring_list\fP Module::OnChannelSync (\fBchanrec\fP * chan)\fC [virtual]\fP"
 .PP
 Called during a netburst to sync channel data. This is called during the netburst on a per-channel basis. You should use this call to up any special channel-related things which are implemented by your module, e.g. sending listmodes. You may return multiple commands in the string_list.Definition at line 329 of file modules.cpp.
@@ -241,6 +291,34 @@ References string_list.
 .PP
 .nf
 329 { string_list empty; return empty; }
+.fi
+.SS "int Module::OnCheckBan (\fBuserrec\fP * user, \fBchanrec\fP * chan)\fC [virtual]\fP"
+.PP
+Called whenever a user joins a channel, to determine if banlist checks should go ahead or not. This method will always be called for each join, wether or not the user actually matches a channel ban, and determines the outcome of an if statement around the whole section of ban checking code. return 1 to explicitly allow the join to go ahead or 0 to ignore the event. Definition at line 344 of file modules.cpp.
+.PP
+.nf
+344 { return 0; };
+.fi
+.SS "int Module::OnCheckInvite (\fBuserrec\fP * user, \fBchanrec\fP * chan)\fC [virtual]\fP"
+.PP
+Called whenever a user joins a channel, to determine if invite checks should go ahead or not. This method will always be called for each join, wether or not the channel is actually +i, and determines the outcome of an if statement around the whole section of invite checking code. return 1 to explicitly allow the join to go ahead or 0 to ignore the event.Definition at line 341 of file modules.cpp.
+.PP
+.nf
+341 { return 0; };
+.fi
+.SS "int Module::OnCheckKey (\fBuserrec\fP * user, \fBchanrec\fP * chan, std::string keygiven)\fC [virtual]\fP"
+.PP
+Called whenever a user joins a channel, to determine if key checks should go ahead or not. This method will always be called for each join, wether or not the channel is actually +k, and determines the outcome of an if statement around the whole section of key checking code. if the user specified no key, the keygiven string will be a valid but empty value. return 1 to explicitly allow the join to go ahead or 0 to ignore the event. Definition at line 342 of file modules.cpp.
+.PP
+.nf
+342 { return 0; };
+.fi
+.SS "int Module::OnCheckLimit (\fBuserrec\fP * user, \fBchanrec\fP * chan)\fC [virtual]\fP"
+.PP
+Called whenever a user joins a channel, to determine if channel limit checks should go ahead or not. This method will always be called for each join, wether or not the channel is actually +l, and determines the outcome of an if statement around the whole section of channel limit checking code. return 1 to explicitly allow the join to go ahead or 0 to ignore the event. Definition at line 343 of file modules.cpp.
+.PP
+.nf
+343 { return 0; };
 .fi
 .SS "bool Module::OnCheckReady (\fBuserrec\fP * user)\fC [virtual]\fP"
 .PP
@@ -279,6 +357,13 @@ Called whenever a module is loaded. mod will contain a pointer to the module, an
 .nf
 332 { };
 .fi
+.SS "int Module::OnLocalTopicChange (\fBuserrec\fP * user, \fBchanrec\fP * chan, std::string topic)\fC [virtual]\fP"
+.PP
+Called whenever a topic is changed by a local user. Return 1 to deny the topic change, or 0 to allow it.Definition at line 348 of file modules.cpp.
+.PP
+.nf
+348 { return 0; };
+.fi
 .SS "void Module::OnOper (\fBuserrec\fP * user)\fC [virtual]\fP"
 .PP
 Called whenever a user opers locally. The userrec will contain the oper mode 'o' as this function is called after any modifications are made to the user's structure by the core.Definition at line 319 of file modules.cpp.
@@ -307,6 +392,13 @@ Called whenever any command is about to be executed. This event occurs for all r
 .nf
 335 { return 0; };
 .fi
+.SS "int Module::OnRawMode (\fBuserrec\fP * user, char mode, std::string param, bool adding, int pcnt)\fC [virtual]\fP"
+.PP
+Called whenever a mode character is processed. Return 1 from this function to block the mode character from being processed entirely, so that you may perform your own code instead. Note that this method allows you to override modes defined by other modes, but this is NOT RECOMMENDED!Definition at line 340 of file modules.cpp.
+.PP
+.nf
+340 { return 0; };
+.fi
 .SS "void Module::OnRehash ()\fC [virtual]\fP"
 .PP
 Called on rehash. This method is called prior to a /REHASH or when a SIGHUP is received from the operating system. You should use it to reload any files so that your module keeps in step with the rest of the application.Definition at line 314 of file modules.cpp.
@@ -327,6 +419,13 @@ Called when a raw command is transmitted or received. This method is the lowest 
 .PP
 .nf
 315 { }
+.fi
+.SS "void Module::OnStats (char symbol)\fC [virtual]\fP"
+.PP
+Called on all /STATS commands This method is triggered for all /STATS use, including stats symbols handled by the core. Definition at line 345 of file modules.cpp.
+.PP
+.nf
+345 { };
 .fi
 .SS "void Module::OnUserConnect (\fBuserrec\fP * user)\fC [virtual]\fP"
 .PP
