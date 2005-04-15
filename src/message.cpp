@@ -363,6 +363,7 @@ char* cmode(userrec *user, chanrec *chan)
 			}
 		}
 	}
+	return "";
 }
 
 /* returns the status value for a given user on a channel, e.g. STATUS_OP for
@@ -399,6 +400,7 @@ int cstatus(userrec *user, chanrec *chan)
 			}
 		}
 	}
+	return STATUS_NORMAL;
 }
 
 /* returns 1 if user u has channel c in their record, 0 if not */
