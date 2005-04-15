@@ -138,7 +138,7 @@ class ModuleChanFilter : public Module
 					{
 						if (*i == params[0])
 						{
-							WriteServ(user->fd,"937 %s %s :The word %s is already on the spamfilter list",user->nick, chan->name,i->c_str());
+							WriteServ(user->fd,"937 %s %s :The word %s is already on the spamfilter list",user->nick, chan->name,params[0]);
 							return -1;
 						}
 					}
