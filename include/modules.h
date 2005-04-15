@@ -426,6 +426,62 @@ class Module : public classbase
 	 * Use OnUserConnect for that instead.
 	 */
 	virtual void OnUserRegister(userrec* user);
+
+	/** Called whenever a mode character is processed.
+	 * Return 1 from this function to block the mode character from being processed entirely,
+	 * so that you may perform your own code instead. Note that this method allows you to override
+	 * modes defined by other modes, but this is NOT RECOMMENDED!
+	 */
+	virtual int OnRawMode(userrec* user, char mode, std::string param, bool adding, int pcnt);
+
+	/** Called whenever a user joins a channel, to determine if invite checks should go ahead or not.
+	 * This method will always be called for each join, wether or not the channel is actually +i, and
+	 * determines the outcome of an if statement around the whole section of invite checking code.
+	 * return 1 to explicitly allow the join to go ahead or 0 to ignore the event.
+	 */
+	virtual int OnCheckInvite(userrec* user, chanrec* chan);
+
+        /** Called whenever a user joins a channel, to determine if key checks should go ahead or not.
+         * This method will always be called for each join, wether or not the channel is actually +k, and
+         * determines the outcome of an if statement around the whole section of key checking code.
+	 * if the user specified no key, the keygiven string will be a valid but empty value.
+         * return 1 to explicitly allow the join to go ahead or 0 to ignore the event.
+         */
+	virtual int OnCheckKey(userrec* user, chanrec* chan, std::string keygiven);
+
+        /** Called whenever a user joins a channel, to determine if channel limit checks should go ahead or not.
+         * This method will always be called for each join, wether or not the channel is actually +l, and
+         * determines the outcome of an if statement around the whole section of channel limit checking code.
+         * return 1 to explicitly allow the join to go ahead or 0 to ignore the event.
+         */
+	virtual int OnCheckLimit(userrec* user, chanrec* chan);
+
+        /** Called whenever a user joins a channel, to determine if banlist checks should go ahead or not.
+         * This method will always be called for each join, wether or not the user actually matches a channel ban, and
+         * determines the outcome of an if statement around the whole section of ban checking code.
+         * return 1 to explicitly allow the join to go ahead or 0 to ignore the event.
+         */
+	virtual int OnCheckBan(userrec* user, chanrec* chan);
+
+	/** Called on all /STATS commands
+	 * This method is triggered for all /STATS use, including stats symbols handled by the core.
+	 */
+	virtual void OnStats(char symbol);
+
+	/** Called whenever a change of a local users displayed host is attempted.
+	 * Return 1 to deny the host change, or 0 to allow it.
+	 */
+	virtual int OnChangeLocalUserHost(userrec* user, std::string newhost);
+
+	/** Called whenever a change of a local users GECOS (fullname field) is attempted.
+	 * return 1 to deny the name change, or 0 to allow it.
+	 */
+	virtual int OnChangeLocalUserGECOS(userrec* user, std::string newhost); 
+
+	/** Called whenever a topic is changed by a local user.
+	 * Return 1 to deny the topic change, or 0 to allow it.
+	 */
+	virtual int OnLocalTopicChange(userrec* user, chanrec* chan, std::string topic);
 };
 
 

@@ -556,6 +556,7 @@ void process_modes(char **parameters,userrec* user,chanrec *chan,int status, int
 
 		{
 			log(DEBUG,"process_modes: modechar: %c",modelist[ptr]);
+
 			char modechar = modelist[ptr];
 			switch (modelist[ptr])
 			{
@@ -596,13 +597,25 @@ void process_modes(char **parameters,userrec* user,chanrec *chan,int status, int
 					log(DEBUG,"Enough parameters left");
 					if (mdir == 1)
 					{
-						log(DEBUG,"calling give_ops");
-						r = give_ops(user,parameters[param++],chan,status);
+						MOD_RESULT = 0;
+						FOREACH_RESULT(OnRawMode(user, 'o', parameters[param], true, 1));
+						if (!MOD_RESULT)
+						{
+							log(DEBUG,"calling give_ops");
+							r = give_ops(user,parameters[param++],chan,status);
+						}
+						else param++;
 					}
 					else
 					{
-						log(DEBUG,"calling take_ops");
-						r = take_ops(user,parameters[param++],chan,status);
+                                                MOD_RESULT = 0;
+                                                FOREACH_RESULT(OnRawMode(user, 'o', parameters[param], false, 1));
+                                                if (!MOD_RESULT)
+                                                {
+							log(DEBUG,"calling take_ops");
+							r = take_ops(user,parameters[param++],chan,status);
+						}
+						else param++;
 					}
 					if (r)
 					{
@@ -615,11 +628,23 @@ void process_modes(char **parameters,userrec* user,chanrec *chan,int status, int
 					if (((param >= pcnt)) || (!AllowHalfop)) break;
 					if (mdir == 1)
 					{
-						r = give_hops(user,parameters[param++],chan,status);
+                                                MOD_RESULT = 0;
+                                                FOREACH_RESULT(OnRawMode(user, 'h', parameters[param], true, 1));
+                                                if (!MOD_RESULT)
+                                                {
+							r = give_hops(user,parameters[param++],chan,status);
+						}
+						else param++;
 					}
 					else
 					{
-						r = take_hops(user,parameters[param++],chan,status);
+                                                MOD_RESULT = 0;
+                                                FOREACH_RESULT(OnRawMode(user, 'h', parameters[param], false, 1));
+                                                if (!MOD_RESULT)
+                                                {
+							r = take_hops(user,parameters[param++],chan,status);
+						}
+						else param++;
 					}
 					if (r)
 					{
@@ -633,11 +658,23 @@ void process_modes(char **parameters,userrec* user,chanrec *chan,int status, int
 					if ((param >= pcnt)) break;
 					if (mdir == 1)
 					{
-						r = give_voice(user,parameters[param++],chan,status);
+                                                MOD_RESULT = 0;
+                                                FOREACH_RESULT(OnRawMode(user, 'v', parameters[param], true, 1));
+                                                if (!MOD_RESULT)
+                                                {
+							r = give_voice(user,parameters[param++],chan,status);
+						}
+						else param++;
 					}
 					else
 					{
-						r = take_voice(user,parameters[param++],chan,status);
+                                                MOD_RESULT = 0;
+                                                FOREACH_RESULT(OnRawMode(user, 'v', parameters[param], false, 1));
+                                                if (!MOD_RESULT)
+                                                {
+							r = take_voice(user,parameters[param++],chan,status);
+						}
+						else param++;
 					}
 					if (r)
 					{
@@ -650,11 +687,23 @@ void process_modes(char **parameters,userrec* user,chanrec *chan,int status, int
 					if ((param >= pcnt)) break;
 					if (mdir == 1)
 					{
-						r = add_ban(user,parameters[param++],chan,status);
+                                                MOD_RESULT = 0;
+                                                FOREACH_RESULT(OnRawMode(user, 'b', parameters[param], true, 1));
+                                                if (!MOD_RESULT)
+                                                {
+							r = add_ban(user,parameters[param++],chan,status);
+						}
+						else param++;
 					}
 					else
 					{
-						r = take_ban(user,parameters[param++],chan,status);
+                                                MOD_RESULT = 0;
+                                                FOREACH_RESULT(OnRawMode(user, 'b', parameters[param], false, 1));
+                                                if (!MOD_RESULT)
+                                                {
+							r = take_ban(user,parameters[param++],chan,status);
+						}
+						else param++;
 					}
 					if (r)
 					{
@@ -675,15 +724,21 @@ void process_modes(char **parameters,userrec* user,chanrec *chan,int status, int
 						
 						if (!strcmp(chan->key,""))
 						{
-							strcat(outlist,"k");
-							char key[MAXBUF];
-							strlcpy(key,parameters[param++],MAXBUF);
-							if (strlen(key)>32) {
-								key[31] = '\0';
+							MOD_RESULT = 0;
+							FOREACH_RESULT(OnRawMode(user, 'k', parameters[param], true, 1));
+							if (!MOD_RESULT)
+							{
+								strcat(outlist,"k");
+								char key[MAXBUF];
+								strlcpy(key,parameters[param++],MAXBUF);
+								if (strlen(key)>32) {
+									key[31] = '\0';
+								}
+								strlcpy(outpars[pc++],key,MAXBUF);
+								strlcpy(chan->key,key,MAXBUF);
+								k_set = true;
 							}
-							strlcpy(outpars[pc++],key,MAXBUF);
-							strlcpy(chan->key,key,MAXBUF);
-							k_set = true;
+							else param++;
 						}
 					}
 					else
@@ -691,27 +746,39 @@ void process_modes(char **parameters,userrec* user,chanrec *chan,int status, int
 						/* checks on -k are case sensitive and only accurate to the
   						   first 32 characters */
 						char key[MAXBUF];
-						strlcpy(key,parameters[param++],MAXBUF);
-						if (strlen(key)>32) {
-							key[31] = '\0';
-						}
-						/* only allow -k if correct key given */
-						if (!strcmp(chan->key,key))
+						MOD_RESULT = 0;
+						FOREACH_RESULT(OnRawMode(user, 'k', parameters[param], false, 1));
+						if (!MOD_RESULT)
 						{
-							strlcat(outlist,"k",MAXBUF);
-							strlcpy(chan->key,"",MAXBUF);
-							strlcpy(outpars[pc++],key,MAXBUF);
+							strlcpy(key,parameters[param++],MAXBUF);
+							if (strlen(key)>32)
+							{
+								key[31] = '\0';
+							}
+							/* only allow -k if correct key given */
+							if (!strcmp(chan->key,key))
+							{
+								strlcat(outlist,"k",MAXBUF);
+								strlcpy(chan->key,"",MAXBUF);
+								strlcpy(outpars[pc++],key,MAXBUF);
+							}
 						}
+						else param++;
 					}
 				break;
 				
 				case 'l':
 					if (mdir == 0)
 					{
-						if (chan->limit)
-						{
-							strcat(outlist,"l");
-							chan->limit = 0;
+                                                MOD_RESULT = 0;
+                                                FOREACH_RESULT(OnRawMode(user, 'l', "", false, 0));
+                                                if (!MOD_RESULT)
+                                                {
+							if (chan->limit)
+							{
+								strcat(outlist,"l");
+								chan->limit = 0;
+							}
 						}
 					}
 					
@@ -736,12 +803,18 @@ void process_modes(char **parameters,userrec* user,chanrec *chan,int status, int
 
 						if (invalid)
 							break;
-						
-						chan->limit = atoi(parameters[param]);
-						
-						// reported by mech: large values cause underflow
-						if (chan->limit < 0)
-							chan->limit = 0x7FFFFF;
+
+                                                MOD_RESULT = 0;
+                                                FOREACH_RESULT(OnRawMode(user, 'l', parameters[param], true, 1));
+                                                if (!MOD_RESULT)
+                                                {
+	
+							chan->limit = atoi(parameters[param]);
+							
+							// reported by mech: large values cause underflow
+							if (chan->limit < 0)
+								chan->limit = 0x7FFFFF;
+						}
 							
 						if (chan->limit)
 						{
@@ -753,75 +826,105 @@ void process_modes(char **parameters,userrec* user,chanrec *chan,int status, int
 				break;
 				
 				case 'i':
-					if (chan->inviteonly != mdir)
-					{
-						strlcat(outlist,"i",MAXBUF);
+                                        MOD_RESULT = 0;
+                                        FOREACH_RESULT(OnRawMode(user, 'i', "", mdir, 0));
+                                        if (!MOD_RESULT)
+                                        {
+						if (chan->inviteonly != mdir)
+						{
+							strlcat(outlist,"i",MAXBUF);
+						}
+						chan->inviteonly = mdir;
 					}
-					chan->inviteonly = mdir;
 				break;
 				
 				case 't':
-					if (chan->topiclock != mdir)
-					{
-						strlcat(outlist,"t",MAXBUF);
+                                        MOD_RESULT = 0;
+                                        FOREACH_RESULT(OnRawMode(user, 't', "", mdir, 0));
+                                        if (!MOD_RESULT)
+                                        {
+						if (chan->topiclock != mdir)
+						{
+							strlcat(outlist,"t",MAXBUF);
+						}
+						chan->topiclock = mdir;
 					}
-					chan->topiclock = mdir;
 				break;
 				
 				case 'n':
-					if (chan->noexternal != mdir)
-					{
-						strlcat(outlist,"n",MAXBUF);
+                                        MOD_RESULT = 0;
+                                        FOREACH_RESULT(OnRawMode(user, 'n', "", mdir, 0));
+                                        if (!MOD_RESULT)
+                                        {
+						if (chan->noexternal != mdir)
+						{
+							strlcat(outlist,"n",MAXBUF);
+						}
+						chan->noexternal = mdir;
 					}
-					chan->noexternal = mdir;
 				break;
 				
 				case 'm':
-					if (chan->moderated != mdir)
-					{
-						strlcat(outlist,"m",MAXBUF);
+                                        MOD_RESULT = 0;
+                                        FOREACH_RESULT(OnRawMode(user, 'm', "", mdir, 0));
+                                        if (!MOD_RESULT)
+                                        {
+						if (chan->moderated != mdir)
+						{
+							strlcat(outlist,"m",MAXBUF);
+						}
+						chan->moderated = mdir;
 					}
-					chan->moderated = mdir;
 				break;
 				
 				case 's':
-					if (chan->secret != mdir)
-					{
-						strcat(outlist,"s");
-						if (chan->c_private)
+                                        MOD_RESULT = 0;
+                                        FOREACH_RESULT(OnRawMode(user, 's', "", mdir, 0));
+                                        if (!MOD_RESULT)
+                                        {
+						if (chan->secret != mdir)
 						{
-							chan->c_private = 0;
-							if (mdir)
+							strcat(outlist,"s");
+							if (chan->c_private)
 							{
-								strlcat(outlist,"-p+",MAXBUF);
-							}
-							else
-							{
-								strlcat(outlist,"+p-",MAXBUF);
+								chan->c_private = 0;
+								if (mdir)
+								{
+									strlcat(outlist,"-p+",MAXBUF);
+								}
+								else
+								{
+									strlcat(outlist,"+p-",MAXBUF);
+								}
 							}
 						}
+						chan->secret = mdir;
 					}
-					chan->secret = mdir;
 				break;
 				
 				case 'p':
-					if (chan->c_private != mdir)
-					{
-						strlcat(outlist,"p",MAXBUF);
-						if (chan->secret)
+                                        MOD_RESULT = 0;
+                                        FOREACH_RESULT(OnRawMode(user, 'p', "", mdir, 0));
+                                        if (!MOD_RESULT)
+                                        {
+						if (chan->c_private != mdir)
 						{
-							chan->secret = 0;
-							if (mdir)
+							strlcat(outlist,"p",MAXBUF);
+							if (chan->secret)
 							{
-								strlcat(outlist,"-s+",MAXBUF);
-							}
-							else
-							{
-								strlcat(outlist,"+s-",MAXBUF);
+								chan->secret = 0;
+								if (mdir)
+								{
+									strlcat(outlist,"-s+",MAXBUF);
+								}
+								else
+								{
+									strlcat(outlist,"+s-",MAXBUF);
+								}
 							}
 						}
+						chan->c_private = mdir;
 					}
-					chan->c_private = mdir;
 				break;
 				
 				default:
@@ -861,56 +964,69 @@ void process_modes(char **parameters,userrec* user,chanrec *chan,int status, int
   								param++;
   							}
   						}
-  						for (int i = 0; i <= MODCOUNT; i++)
-						{
-							if (!handled)
+
+						// BIG ASS IDIOTIC CODER WARNING!
+						// Using OnRawMode on another modules mode's behavour 
+						// will confuse the crap out of admins! just because you CAN
+						// do it, doesnt mean you SHOULD!
+	                                        MOD_RESULT = 0;
+						std::string para = "";
+						if (p.size())
+							para = p[0];
+        	                                FOREACH_RESULT(OnRawMode(user, modechar, para, mdir, pcnt));
+                	                        if (!MOD_RESULT)
+                        	                {
+  							for (int i = 0; i <= MODCOUNT; i++)
 							{
-								int t = modules[i]->OnExtendedMode(user,chan,modechar,MT_CHANNEL,mdir,p);
-								if (t != 0)
+								if (!handled)
 								{
-									log(DEBUG,"OnExtendedMode returned nonzero for a module");
-									char app[] = {modechar, 0};
-									if (ModeIsListMode(modechar,MT_CHANNEL))
+									int t = modules[i]->OnExtendedMode(user,chan,modechar,MT_CHANNEL,mdir,p);
+									if (t != 0)
 									{
-										if (t == -1)
+										log(DEBUG,"OnExtendedMode returned nonzero for a module");
+										char app[] = {modechar, 0};
+										if (ModeIsListMode(modechar,MT_CHANNEL))
 										{
-											pc++;
+											if (t == -1)
+											{
+												pc++;
+											}
+											else
+											{
+												if (ptr>0)
+												{
+													strlcat(outlist, app,MAXBUF);
+												}
+												strlcpy(outpars[pc++],parameters[param++],MAXBUF);
+											}
 										}
 										else
 										{
 											if (ptr>0)
 											{
-												strlcat(outlist, app,MAXBUF);
+												if ((modelist[ptr-1] == '+') || (modelist[ptr-1] == '-'))
+												{
+													strlcat(outlist, app,MAXBUF);
+												}
+												else if (!strchr(outlist,modechar))
+												{
+													strlcat(outlist, app,MAXBUF);
+												}
 											}
-											strlcpy(outpars[pc++],parameters[param++],MAXBUF);
-										}
-									}
-									else
-									{
-										if (ptr>0)
-										{
-											if ((modelist[ptr-1] == '+') || (modelist[ptr-1] == '-'))
+											chan->SetCustomMode(modechar,mdir);
+											// include parameters in output if mode has them
+											if ((ModeDefinedOn(modechar,MT_CHANNEL)>0) && (mdir))
 											{
-												strlcat(outlist, app,MAXBUF);
-											}
-											else if (!strchr(outlist,modechar))
-											{
-												strlcat(outlist, app,MAXBUF);
+												chan->SetCustomModeParam(modelist[ptr],parameters[param],mdir);
+												strlcpy(outpars[pc++],parameters[param++],MAXBUF);
 											}
 										}
-										chan->SetCustomMode(modechar,mdir);
-										// include parameters in output if mode has them
-										if ((ModeDefinedOn(modechar,MT_CHANNEL)>0) && (mdir))
-										{
-											chan->SetCustomModeParam(modelist[ptr],parameters[param],mdir);
-											strlcpy(outpars[pc++],parameters[param++],MAXBUF);
-										}
-									}
-									// break, because only one module can handle the mode.
-									handled = true;
-        		 					}
-        	 					}
-     						}
+										// break, because only one module can handle the mode.
+										handled = true;
+       	 		 						}
+       	 	 						}
+	     						}
+						}
      					}
 					else
 					{
@@ -1273,25 +1389,30 @@ void handle_mode(char **parameters, int pcnt, userrec *user)
 		else
 		if (pcnt == 2)
 		{
-			if ((!strcmp(parameters[1],"+b")) || (!strcmp(parameters[1],"b")))
-			{
-
-				for (BanList::iterator i = Ptr->bans.begin(); i != Ptr->bans.end(); i++)
-				{
-					WriteServ(user->fd,"367 %s %s %s %s %d",user->nick, Ptr->name, i->data, i->set_by, i->set_time);
-				}
-				WriteServ(user->fd,"368 %s %s :End of channel ban list",user->nick, Ptr->name);
-				return;
-			}
 			char* mode = parameters[1];
 			if (*mode == '+')
 				mode++;
-			if ((ModeDefined(*mode,MT_CHANNEL)) && (ModeIsListMode(*mode,MT_CHANNEL)))
-			{
-				// list of items for an extmode
-				log(DEBUG,"Calling OnSendList for all modules, list output for mode %c",*mode);
-				FOREACH_MOD OnSendList(user,Ptr,*mode);
-				return;
+			int MOD_RESULT = 0;
+                        FOREACH_RESULT(OnRawMode(user, *mode, "", false, 0));
+                        if (!MOD_RESULT)
+                        {
+				if (*mode == 'b')
+				{
+
+					for (BanList::iterator i = Ptr->bans.begin(); i != Ptr->bans.end(); i++)
+					{
+						WriteServ(user->fd,"367 %s %s %s %s %d",user->nick, Ptr->name, i->data, i->set_by, i->set_time);
+					}
+					WriteServ(user->fd,"368 %s %s :End of channel ban list",user->nick, Ptr->name);
+					return;
+				}
+				if ((ModeDefined(*mode,MT_CHANNEL)) && (ModeIsListMode(*mode,MT_CHANNEL)))
+				{
+					// list of items for an extmode
+					log(DEBUG,"Calling OnSendList for all modules, list output for mode %c",*mode);
+					FOREACH_MOD OnSendList(user,Ptr,*mode);
+					return;
+				}
 			}
 		}
 

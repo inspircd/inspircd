@@ -337,6 +337,15 @@ bool Module::OnCheckReady(userrec* user) { return true; };
 void Module::OnUserRegister(userrec* user) { };
 int Module::OnUserPreKick(userrec* source, userrec* user, chanrec* chan, std::string reason) { return 0; };
 void Module::OnUserKick(userrec* source, userrec* user, chanrec* chan, std::string reason) { };
+int Module::OnRawMode(userrec* user, char mode, std::string param, bool adding, int pcnt) { return 0; };
+int Module::OnCheckInvite(userrec* user, chanrec* chan) { return 0; };
+int Module::OnCheckKey(userrec* user, chanrec* chan, std::string keygiven) { return 0; };
+int Module::OnCheckLimit(userrec* user, chanrec* chan) { return 0; };
+int Module::OnCheckBan(userrec* user, chanrec* chan) { return 0; };
+void Module::OnStats(char symbol) { };
+int Module::OnChangeLocalUserHost(userrec* user, std::string newhost) { return 0; };
+int Module::OnChangeLocalUserGECOS(userrec* user, std::string newhost) { return 0; };
+int Module::OnLocalTopicChange(userrec* user, chanrec* chan, std::string topic) { return 0; };
 
 // server is a wrapper class that provides methods to all of the C-style
 // exports in the core

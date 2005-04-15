@@ -542,14 +542,22 @@ void handle_topic(char **parameters, int pcnt, userrec *user)
 					WriteServ(user->fd,"482 %s %s :You must be at least a half-operator to change modes on this channel", user->nick, Ptr->name);
 					return;
 				}
-				
+
 				char topic[MAXBUF];
 				strlcpy(topic,parameters[1],MAXBUF);
 				if (strlen(topic)>MAXTOPIC)
 				{
 					topic[MAXTOPIC-1] = '\0';
 				}
-					
+
+                                if (!strcasecmp(user->server,ServerName))
+                                {
+                                        int MOD_RESULT = 0;
+                                        FOREACH_RESULT(OnLocalTopicChange(user,Ptr,topic));
+                                        if (MOD_RESULT)
+                                                return;
+                                }
+
 				strlcpy(Ptr->topic,topic,MAXBUF);
 				strlcpy(Ptr->setby,user->nick,NICKMAX);
 				Ptr->topicset = TIME;
@@ -1300,6 +1308,8 @@ void handle_stats(char **parameters, int pcnt, userrec *user)
 		parameters[0][1] = '\0';
 	}
 
+
+	FOREACH_MOD OnStats(*parameters[0]);
 
 	if (!strcasecmp(parameters[0],"c"))
 	{

@@ -57,6 +57,8 @@ extern int MODCOUNT;
 extern std::vector<Module*> modules;
 extern std::vector<ircd_module*> factory;
 
+extern char ServerName[MAXBUF];
+
 extern time_t TIME;
 
 extern FILE *log_file;
@@ -248,6 +250,13 @@ bool hasumode(userrec* user, char mode)
 
 void ChangeName(userrec* user, const char* gecos)
 {
+	if (!strcasecmp(user->server,ServerName))
+	{
+		int MOD_RESULT = 0;
+		FOREACH_RESULT(OnChangeLocalUserGECOS(user,gecos));
+		if (MOD_RESULT)
+			return;
+	}
 	strlcpy(user->fullname,gecos,MAXBUF);
 	char buffer[MAXBUF];
 	snprintf(buffer,MAXBUF,"a %s :%s",user->nick,gecos);
@@ -256,6 +265,13 @@ void ChangeName(userrec* user, const char* gecos)
 
 void ChangeDisplayedHost(userrec* user, const char* host)
 {
+        if (!strcasecmp(user->server,ServerName))
+        {
+                int MOD_RESULT = 0;
+                FOREACH_RESULT(OnChangeLocalUserHost(user,host));
+                if (MOD_RESULT)
+                        return;
+        }
 	strlcpy(user->dhost,host,160);
 	char buffer[MAXBUF];
 	snprintf(buffer,MAXBUF,"b %s %s",user->nick,host);
