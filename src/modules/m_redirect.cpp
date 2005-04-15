@@ -82,7 +82,7 @@ class ModuleRedirect : public Module
 		{
 			if (chan->IsCustomModeSet('L'))
 			{
-				if (chan->limit >= Srv->CountUsers(chan))
+				if (Srv->CountUsers(chan) >= chan->limit)
 				{
 					std::string channel = chan->GetModeParameter('L');
 					WriteServ(user->fd,"470 %s :%s has become full, so you are automatically being transferred to the linked channel %s",user->nick,cname,channel.c_str());
