@@ -1567,7 +1567,7 @@ chanrec* add_channel(userrec *user, const char* cn, const char* key, bool overri
 		
 					if (Ptr->limit)
 					{
-						if (usercount(Ptr) == Ptr->limit)
+						if (usercount(Ptr) >= Ptr->limit)
 						{
 							WriteServ(user->fd,"471 %s %s :Cannot join channel (Channel is full)",user->nick, Ptr->name);
 							return NULL;
