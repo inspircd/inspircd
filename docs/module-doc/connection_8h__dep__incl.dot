@@ -1,8 +1,0 @@
-digraph inheritance
-{
-  Node27 [shape="box",label="connection.h",fontsize=10,height=0.2,width=0.4,fontname="Helvetica",color="black",style="filled" fontcolor="white"];
-  Node28 -> Node27 [color="midnightblue",fontsize=10,style="solid",fontname="Helvetica"];
-  Node28 [shape="box",label="servers.h",fontsize=10,height=0.2,width=0.4,fontname="Helvetica",color="red",URL="$servers_8h.html"];
-  Node30 -> Node27 [color="midnightblue",fontsize=10,style="solid",fontname="Helvetica"];
-  Node30 [shape="box",label="users.h",fontsize=10,height=0.2,width=0.4,fontname="Helvetica",color="red",URL="$users_8h.html"];
-}
