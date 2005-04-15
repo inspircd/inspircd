@@ -161,13 +161,6 @@ class ircd_connector : public Extensible
 };
 
 
-/** Class packet is deprecated.
- * This declaration is preserved here to maintain documentation only.
- */
-class packet : public classbase
-{
-};
-
 /** Please note: classes serverrec and userrec both inherit from class connection.
  */
 class connection : public Extensible
