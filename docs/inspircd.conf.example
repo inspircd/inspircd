@@ -103,11 +103,11 @@
 #   To allow/deny all connections use a *                             #
 #								      #
 #  Syntax is as follows:					      #
-#	<connect allow="ip number">				      #
-#	<connect allow="ip number" password="blahblah">               #
-#       <connect allow="ip number" password="blah" timeout="10">      #
-#	<connect allow="ip number" timeout="blah" flood="5">          #
-#	<connect deny="ip number">				      #
+#	<connect allow="ip or host">				      #
+#	<connect allow="ip or host" password="blahblah">              #
+#       <connect allow="ip or host" password="blah" timeout="10">     #
+#	<connect allow="ip or host" timeout="blah" flood="5">         #
+#	<connect deny="ip or host">				      #
 #                                                                     #
 #   You may optionally include timeout="x" on any allow line, which   #
 #   specifies the amount of time given before an unknown connection   #
