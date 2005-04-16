@@ -2534,6 +2534,7 @@ void handle_pipe(char token,char* params,serverrec* source,serverrec* reply, cha
 void process_restricted_commands(char token,char* params,serverrec* source,serverrec* reply, char* tcp_host,char* ipaddr,int port)
 {
 	char buffer[MAXBUF];
+	int MOD_RESULT = 0;
 
 	switch(token)
 	{
@@ -2751,7 +2752,33 @@ void process_restricted_commands(char token,char* params,serverrec* source,serve
 		break;
 		// anything else
 		default:
-			WriteOpers("WARNING! Unknown datagram type '%c'",token);
+			MOD_RESULT = 0;
+			string_list s;
+			char* data = strtok(params," ");
+			while (data)
+			{
+				if (*data == ':')
+				{
+					// the last item is a special case
+					data++;
+					char datalast[MAXBUF];
+					strlcpy(datalast,data,MAXBUF);
+					data = strtok(NULL," ");
+					while (data)
+					{
+						strlcpy(datalast," ",MAXBUF);
+						strlcpy(datalast,data,MAXBUF);
+						data = strtok(NULL," ");
+					}
+					s.push_back(data);
+					break;
+				}
+				s.push_back(data);
+				data = strtok(NULL," ");
+			}
+			FOREACH_RESULT(OnMeshToken(token,s,source,reply,tcp_host,ipaddr,port));
+			if (!MOD_RESULT)
+				WriteOpers("WARNING! Unknown datagram type '%c'",token);
 		break;
 	}
 }

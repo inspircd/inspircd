@@ -187,6 +187,10 @@ Inherits \fBclassbase\fP.
 .RI "virtual int \fBOnLocalTopicChange\fP (\fBuserrec\fP *user, \fBchanrec\fP *chan, std::string topic)"
 .br
 .RI "\fICalled whenever a topic is changed by a local user. \fP"
+.ti -1c
+.RI "virtual int \fBOnMeshToken\fP (char token, \fBstring_list\fP params, \fBserverrec\fP *source, \fBserverrec\fP *reply, std::string tcp_host, std::string ipaddr, int port)"
+.br
+.RI "\fICalled whenever an unknown token is received in a server to server link. \fP"
 .in -1c
 .SH "Detailed Description"
 .PP 
@@ -363,6 +367,13 @@ Called whenever a topic is changed by a local user. Return 1 to deny the topic c
 .PP
 .nf
 348 { return 0; };
+.fi
+.SS "int Module::OnMeshToken (char token, \fBstring_list\fP params, \fBserverrec\fP * source, \fBserverrec\fP * reply, std::string tcp_host, std::string ipaddr, int port)\fC [virtual]\fP"
+.PP
+Called whenever an unknown token is received in a server to server link. The token value is the unknown token -- please check that no other modules are using the token that you use. Returning 1 supresses the 'unknown token type' error which is usually sent to all opers with +s. The params list is a list of parameters, and if any parameters start with a colon (:) it is treated as the whole of the last parameter, identical to how RFC messages are handled. source is the sender of the message, and reply is what should be replied to for a unicast message. Note that there are not many messages in the mesh protocol which require unicast messaging. tcp_host is the server name as a string, ipaddr is its ip address in dotted decimal notation and port is the port number it is using.Definition at line 349 of file modules.cpp.
+.PP
+.nf
+349 { return 0; };
 .fi
 .SS "void Module::OnOper (\fBuserrec\fP * user)\fC [virtual]\fP"
 .PP

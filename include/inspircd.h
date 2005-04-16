@@ -170,8 +170,8 @@ void NetSendToAllAlive(char* s);
 void NetSendToOne(char* target,char* s);
 void NetSendToAllExcept(const char* target,char* s);
 void NetSendMyRoutingTable();
+bool ChanAnyOnThisServer(chanrec *c,char* servername);
+bool CommonOnThisServer(userrec* u,const char* servername);
 void DoSplit(const char* params);
 void RemoveServer(const char* name);
 void DoSync(serverrec* serv, char* tcp_host);
-
-

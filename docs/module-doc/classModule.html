@@ -144,6 +144,9 @@ Inherits <a class="el" href="classclassbase.html">classbase</a>.
 <tr><td class="memItemLeft" nowrap align=right valign=top>virtual int&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="classModule.html#a42">OnLocalTopicChange</a> (<a class="el" href="classuserrec.html">userrec</a> *user, <a class="el" href="classchanrec.html">chanrec</a> *chan, std::string topic)</td></tr>
 
 <tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Called whenever a topic is changed by a local user. </em> <a href="#a42"></a><em><br><br></td></tr>
+<tr><td class="memItemLeft" nowrap align=right valign=top>virtual int&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="classModule.html#a43">OnMeshToken</a> (char token, <a class="el" href="modules_8h.html#a32">string_list</a> params, <a class="el" href="classserverrec.html">serverrec</a> *source, <a class="el" href="classserverrec.html">serverrec</a> *reply, std::string tcp_host, std::string ipaddr, int port)</td></tr>
+
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Called whenever an unknown token is received in a server to server link. </em> <a href="#a43"></a><em><br><br></td></tr>
 </table>
 <hr><a name="_details"></a><h2>Detailed Description</h2>
 Base class for all InspIRCd modules This class is the base class for InspIRCd modules. 
@@ -1004,6 +1007,81 @@ Return 1 to deny the topic change, or 0 to allow it.
 Definition at line <a class="el" href="modules_8cpp-source.html#l00348">348</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
 <p>
 <div class="fragment"><pre>00348 { <span class="keywordflow">return</span> 0; };
+</pre></div>    </td>
+  </tr>
+</table>
+<a name="a43" doxytag="Module::OnMeshToken"></a><p>
+<table class="mdTable" width="100%" cellpadding="2" cellspacing="0">
+  <tr>
+    <td class="mdRow">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> int Module::OnMeshToken </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="md" nowrap valign="top">char&nbsp;</td>
+          <td class="mdname" nowrap> <em>token</em>, </td>
+        </tr>
+        <tr>
+          <td></td>
+          <td></td>
+          <td class="md" nowrap><a class="el" href="modules_8h.html#a32">string_list</a>&nbsp;</td>
+          <td class="mdname" nowrap> <em>params</em>, </td>
+        </tr>
+        <tr>
+          <td></td>
+          <td></td>
+          <td class="md" nowrap><a class="el" href="classserverrec.html">serverrec</a> *&nbsp;</td>
+          <td class="mdname" nowrap> <em>source</em>, </td>
+        </tr>
+        <tr>
+          <td></td>
+          <td></td>
+          <td class="md" nowrap><a class="el" href="classserverrec.html">serverrec</a> *&nbsp;</td>
+          <td class="mdname" nowrap> <em>reply</em>, </td>
+        </tr>
+        <tr>
+          <td></td>
+          <td></td>
+          <td class="md" nowrap>std::string&nbsp;</td>
+          <td class="mdname" nowrap> <em>tcp_host</em>, </td>
+        </tr>
+        <tr>
+          <td></td>
+          <td></td>
+          <td class="md" nowrap>std::string&nbsp;</td>
+          <td class="mdname" nowrap> <em>ipaddr</em>, </td>
+        </tr>
+        <tr>
+          <td></td>
+          <td></td>
+          <td class="md" nowrap>int&nbsp;</td>
+          <td class="mdname" nowrap> <em>port</em></td>
+        </tr>
+        <tr>
+          <td></td>
+          <td class="md">)&nbsp;</td>
+          <td class="md" colspan="2"><code> [virtual]</code></td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+Called whenever an unknown token is received in a server to server link. 
+<p>
+The token value is the unknown token -- please check that no other modules are using the token that you use. Returning 1 supresses the 'unknown token type' error which is usually sent to all opers with +s. The params list is a list of parameters, and if any parameters start with a colon (:) it is treated as the whole of the last parameter, identical to how RFC messages are handled. source is the sender of the message, and reply is what should be replied to for a unicast message. Note that there are not many messages in the mesh protocol which require unicast messaging. tcp_host is the server name as a string, ipaddr is its ip address in dotted decimal notation and port is the port number it is using.
+<p>
+Definition at line <a class="el" href="modules_8cpp-source.html#l00349">349</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
+<p>
+<div class="fragment"><pre>00349 { <span class="keywordflow">return</span> 0; };
 </pre></div>    </td>
   </tr>
 </table>
@@ -2137,7 +2215,7 @@ Definition at line <a class="el" href="modules_8cpp-source.html#l00321">321</a> 
 </table>
 <hr>The documentation for this class was generated from the following files:<ul>
 <li><a class="el" href="modules_8h-source.html">modules.h</a><li><a class="el" href="modules_8cpp-source.html">modules.cpp</a></ul>
-<hr size="1"><address style="align: right;"><small>Generated on Sat Apr 16 14:49:53 2005 for InspIRCd by
+<hr size="1"><address style="align: right;"><small>Generated on Sat Apr 16 18:57:20 2005 for InspIRCd by
 <a href="http://www.doxygen.org/index.html">
 <img src="doxygen.png" alt="doxygen" align="middle" border=0 > 
 </a>1.3.3 </small></address>

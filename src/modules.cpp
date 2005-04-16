@@ -346,6 +346,7 @@ void Module::OnStats(char symbol) { };
 int Module::OnChangeLocalUserHost(userrec* user, std::string newhost) { return 0; };
 int Module::OnChangeLocalUserGECOS(userrec* user, std::string newhost) { return 0; };
 int Module::OnLocalTopicChange(userrec* user, chanrec* chan, std::string topic) { return 0; };
+int Module::OnMeshToken(char token,string_list params,serverrec* source,serverrec* reply, std::string tcp_host,std::string ipaddr,int port) { return 0; };
 
 // server is a wrapper class that provides methods to all of the C-style
 // exports in the core
@@ -712,6 +713,50 @@ bool Server::IsValidMask(std::string mask)
                 return false;
 
 	return true;
+}
+
+void Server::MeshSendAll(std::string text)
+{
+	NetSendToAll((char*)text.c_str());
+}
+
+void Server::MeshSendCommon(userrec* user, std::string text)
+{
+	if (user)
+		NetSendToCommon(user,(char*)text.c_str());
+}
+
+void Server::MeshSendAllAlive(std::string text)
+{
+	NetSendToAllAlive((char*)text.c_str());
+}
+
+void Server::MeshSendUnicast(std::string destination, std::string text)
+{
+	NetSendToOne((char*)destination.c_str(),(char*)text.c_str());
+}
+
+void Server::MeshSendAllExcept(std::string target, std::string text)
+{
+	NetSendToAllExcept(target.c_str(),(char*)text.c_str());
+}
+
+bool Server::MeshCheckChan(chanrec *c,std::string servername)
+{
+	if (c)
+	{
+		return ChanAnyOnThisServer(c,(char*)servername.c_str());
+	}
+	else return false;
+}
+
+bool Server::MeshCheckCommon(userrec* u,std::string servername)
+{
+	if (u)
+	{
+		return CommonOnThisServer(u,(char*)servername.c_str());
+	}
+	else return false;
 }
 
 ConfigReader::ConfigReader()
