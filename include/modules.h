@@ -432,7 +432,7 @@ class Module : public classbase
 	 * so that you may perform your own code instead. Note that this method allows you to override
 	 * modes defined by other modes, but this is NOT RECOMMENDED!
 	 */
-	virtual int OnRawMode(userrec* user, char mode, std::string param, bool adding, int pcnt);
+	virtual int OnRawMode(userrec* user, chanrec* chan, char mode, std::string param, bool adding, int pcnt);
 
 	/** Called whenever a user joins a channel, to determine if invite checks should go ahead or not.
 	 * This method will always be called for each join, wether or not the channel is actually +i, and

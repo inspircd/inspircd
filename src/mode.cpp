@@ -598,7 +598,7 @@ void process_modes(char **parameters,userrec* user,chanrec *chan,int status, int
 					if (mdir == 1)
 					{
 						MOD_RESULT = 0;
-						FOREACH_RESULT(OnRawMode(user, 'o', parameters[param], true, 1));
+						FOREACH_RESULT(OnRawMode(user, chan, 'o', parameters[param], true, 1));
 						if (!MOD_RESULT)
 						{
 							log(DEBUG,"calling give_ops");
@@ -609,7 +609,7 @@ void process_modes(char **parameters,userrec* user,chanrec *chan,int status, int
 					else
 					{
                                                 MOD_RESULT = 0;
-                                                FOREACH_RESULT(OnRawMode(user, 'o', parameters[param], false, 1));
+                                                FOREACH_RESULT(OnRawMode(user, chan, 'o', parameters[param], false, 1));
                                                 if (!MOD_RESULT)
                                                 {
 							log(DEBUG,"calling take_ops");
@@ -629,7 +629,7 @@ void process_modes(char **parameters,userrec* user,chanrec *chan,int status, int
 					if (mdir == 1)
 					{
                                                 MOD_RESULT = 0;
-                                                FOREACH_RESULT(OnRawMode(user, 'h', parameters[param], true, 1));
+                                                FOREACH_RESULT(OnRawMode(user, chan, 'h', parameters[param], true, 1));
                                                 if (!MOD_RESULT)
                                                 {
 							r = give_hops(user,parameters[param++],chan,status);
@@ -639,7 +639,7 @@ void process_modes(char **parameters,userrec* user,chanrec *chan,int status, int
 					else
 					{
                                                 MOD_RESULT = 0;
-                                                FOREACH_RESULT(OnRawMode(user, 'h', parameters[param], false, 1));
+                                                FOREACH_RESULT(OnRawMode(user, chan, 'h', parameters[param], false, 1));
                                                 if (!MOD_RESULT)
                                                 {
 							r = take_hops(user,parameters[param++],chan,status);
@@ -659,7 +659,7 @@ void process_modes(char **parameters,userrec* user,chanrec *chan,int status, int
 					if (mdir == 1)
 					{
                                                 MOD_RESULT = 0;
-                                                FOREACH_RESULT(OnRawMode(user, 'v', parameters[param], true, 1));
+                                                FOREACH_RESULT(OnRawMode(user, chan, 'v', parameters[param], true, 1));
                                                 if (!MOD_RESULT)
                                                 {
 							r = give_voice(user,parameters[param++],chan,status);
@@ -669,7 +669,7 @@ void process_modes(char **parameters,userrec* user,chanrec *chan,int status, int
 					else
 					{
                                                 MOD_RESULT = 0;
-                                                FOREACH_RESULT(OnRawMode(user, 'v', parameters[param], false, 1));
+                                                FOREACH_RESULT(OnRawMode(user, chan, 'v', parameters[param], false, 1));
                                                 if (!MOD_RESULT)
                                                 {
 							r = take_voice(user,parameters[param++],chan,status);
@@ -688,7 +688,7 @@ void process_modes(char **parameters,userrec* user,chanrec *chan,int status, int
 					if (mdir == 1)
 					{
                                                 MOD_RESULT = 0;
-                                                FOREACH_RESULT(OnRawMode(user, 'b', parameters[param], true, 1));
+                                                FOREACH_RESULT(OnRawMode(user, chan, 'b', parameters[param], true, 1));
                                                 if (!MOD_RESULT)
                                                 {
 							r = add_ban(user,parameters[param++],chan,status);
@@ -698,7 +698,7 @@ void process_modes(char **parameters,userrec* user,chanrec *chan,int status, int
 					else
 					{
                                                 MOD_RESULT = 0;
-                                                FOREACH_RESULT(OnRawMode(user, 'b', parameters[param], false, 1));
+                                                FOREACH_RESULT(OnRawMode(user, chan, 'b', parameters[param], false, 1));
                                                 if (!MOD_RESULT)
                                                 {
 							r = take_ban(user,parameters[param++],chan,status);
@@ -725,7 +725,7 @@ void process_modes(char **parameters,userrec* user,chanrec *chan,int status, int
 						if (!strcmp(chan->key,""))
 						{
 							MOD_RESULT = 0;
-							FOREACH_RESULT(OnRawMode(user, 'k', parameters[param], true, 1));
+							FOREACH_RESULT(OnRawMode(user, chan, 'k', parameters[param], true, 1));
 							if (!MOD_RESULT)
 							{
 								strcat(outlist,"k");
@@ -747,7 +747,7 @@ void process_modes(char **parameters,userrec* user,chanrec *chan,int status, int
   						   first 32 characters */
 						char key[MAXBUF];
 						MOD_RESULT = 0;
-						FOREACH_RESULT(OnRawMode(user, 'k', parameters[param], false, 1));
+						FOREACH_RESULT(OnRawMode(user, chan, 'k', parameters[param], false, 1));
 						if (!MOD_RESULT)
 						{
 							strlcpy(key,parameters[param++],MAXBUF);
@@ -771,7 +771,7 @@ void process_modes(char **parameters,userrec* user,chanrec *chan,int status, int
 					if (mdir == 0)
 					{
                                                 MOD_RESULT = 0;
-                                                FOREACH_RESULT(OnRawMode(user, 'l', "", false, 0));
+                                                FOREACH_RESULT(OnRawMode(user, chan, 'l', "", false, 0));
                                                 if (!MOD_RESULT)
                                                 {
 							if (chan->limit)
@@ -805,7 +805,7 @@ void process_modes(char **parameters,userrec* user,chanrec *chan,int status, int
 							break;
 
                                                 MOD_RESULT = 0;
-                                                FOREACH_RESULT(OnRawMode(user, 'l', parameters[param], true, 1));
+                                                FOREACH_RESULT(OnRawMode(user, chan, 'l', parameters[param], true, 1));
                                                 if (!MOD_RESULT)
                                                 {
 	
@@ -827,7 +827,7 @@ void process_modes(char **parameters,userrec* user,chanrec *chan,int status, int
 				
 				case 'i':
                                         MOD_RESULT = 0;
-                                        FOREACH_RESULT(OnRawMode(user, 'i', "", mdir, 0));
+                                        FOREACH_RESULT(OnRawMode(user, chan, 'i', "", mdir, 0));
                                         if (!MOD_RESULT)
                                         {
 						if (chan->inviteonly != mdir)
@@ -840,7 +840,7 @@ void process_modes(char **parameters,userrec* user,chanrec *chan,int status, int
 				
 				case 't':
                                         MOD_RESULT = 0;
-                                        FOREACH_RESULT(OnRawMode(user, 't', "", mdir, 0));
+                                        FOREACH_RESULT(OnRawMode(user, chan, 't', "", mdir, 0));
                                         if (!MOD_RESULT)
                                         {
 						if (chan->topiclock != mdir)
@@ -853,7 +853,7 @@ void process_modes(char **parameters,userrec* user,chanrec *chan,int status, int
 				
 				case 'n':
                                         MOD_RESULT = 0;
-                                        FOREACH_RESULT(OnRawMode(user, 'n', "", mdir, 0));
+                                        FOREACH_RESULT(OnRawMode(user, chan, 'n', "", mdir, 0));
                                         if (!MOD_RESULT)
                                         {
 						if (chan->noexternal != mdir)
@@ -866,7 +866,7 @@ void process_modes(char **parameters,userrec* user,chanrec *chan,int status, int
 				
 				case 'm':
                                         MOD_RESULT = 0;
-                                        FOREACH_RESULT(OnRawMode(user, 'm', "", mdir, 0));
+                                        FOREACH_RESULT(OnRawMode(user, chan, 'm', "", mdir, 0));
                                         if (!MOD_RESULT)
                                         {
 						if (chan->moderated != mdir)
@@ -879,7 +879,7 @@ void process_modes(char **parameters,userrec* user,chanrec *chan,int status, int
 				
 				case 's':
                                         MOD_RESULT = 0;
-                                        FOREACH_RESULT(OnRawMode(user, 's', "", mdir, 0));
+                                        FOREACH_RESULT(OnRawMode(user, chan, 's', "", mdir, 0));
                                         if (!MOD_RESULT)
                                         {
 						if (chan->secret != mdir)
@@ -904,7 +904,7 @@ void process_modes(char **parameters,userrec* user,chanrec *chan,int status, int
 				
 				case 'p':
                                         MOD_RESULT = 0;
-                                        FOREACH_RESULT(OnRawMode(user, 'p', "", mdir, 0));
+                                        FOREACH_RESULT(OnRawMode(user, chan, 'p', "", mdir, 0));
                                         if (!MOD_RESULT)
                                         {
 						if (chan->c_private != mdir)
@@ -973,7 +973,7 @@ void process_modes(char **parameters,userrec* user,chanrec *chan,int status, int
 						std::string para = "";
 						if (p.size())
 							para = p[0];
-        	                                FOREACH_RESULT(OnRawMode(user, modechar, para, mdir, pcnt));
+        	                                FOREACH_RESULT(OnRawMode(user, chan, modechar, para, mdir, pcnt));
                 	                        if (!MOD_RESULT)
                         	                {
   							for (int i = 0; i <= MODCOUNT; i++)
@@ -1393,7 +1393,7 @@ void handle_mode(char **parameters, int pcnt, userrec *user)
 			if (*mode == '+')
 				mode++;
 			int MOD_RESULT = 0;
-                        FOREACH_RESULT(OnRawMode(user, *mode, "", false, 0));
+                        FOREACH_RESULT(OnRawMode(user, Ptr, *mode, "", false, 0));
                         if (!MOD_RESULT)
                         {
 				if (*mode == 'b')

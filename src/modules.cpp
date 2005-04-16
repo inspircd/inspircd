@@ -337,7 +337,7 @@ bool Module::OnCheckReady(userrec* user) { return true; };
 void Module::OnUserRegister(userrec* user) { };
 int Module::OnUserPreKick(userrec* source, userrec* user, chanrec* chan, std::string reason) { return 0; };
 void Module::OnUserKick(userrec* source, userrec* user, chanrec* chan, std::string reason) { };
-int Module::OnRawMode(userrec* user, char mode, std::string param, bool adding, int pcnt) { return 0; };
+int Module::OnRawMode(userrec* user, chanrec* chan, char mode, std::string param, bool adding, int pcnt) { return 0; };
 int Module::OnCheckInvite(userrec* user, chanrec* chan) { return 0; };
 int Module::OnCheckKey(userrec* user, chanrec* chan, std::string keygiven) { return 0; };
 int Module::OnCheckLimit(userrec* user, chanrec* chan) { return 0; };
