@@ -117,7 +117,7 @@ Inherits <a class="el" href="classclassbase.html">classbase</a>.
 <tr><td class="memItemLeft" nowrap align=right valign=top>virtual void&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="classModule.html#a33">OnUserRegister</a> (<a class="el" href="classuserrec.html">userrec</a> *user)</td></tr>
 
 <tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Called whenever a user is about to register their connection (e.g. </em> <a href="#a33"></a><em><br><br></td></tr>
-<tr><td class="memItemLeft" nowrap align=right valign=top>virtual int&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="classModule.html#a34">OnRawMode</a> (<a class="el" href="classuserrec.html">userrec</a> *user, char mode, std::string param, bool adding, int pcnt)</td></tr>
+<tr><td class="memItemLeft" nowrap align=right valign=top>virtual int&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="classModule.html#a34">OnRawMode</a> (<a class="el" href="classuserrec.html">userrec</a> *user, <a class="el" href="classchanrec.html">chanrec</a> *chan, char mode, std::string param, bool adding, int pcnt)</td></tr>
 
 <tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Called whenever a mode character is processed. </em> <a href="#a34"></a><em><br><br></td></tr>
 <tr><td class="memItemLeft" nowrap align=right valign=top>virtual int&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="classModule.html#a35">OnCheckInvite</a> (<a class="el" href="classuserrec.html">userrec</a> *user, <a class="el" href="classchanrec.html">chanrec</a> *chan)</td></tr>
@@ -1204,6 +1204,12 @@ Definition at line <a class="el" href="modules_8cpp-source.html#l00335">335</a> 
         <tr>
           <td></td>
           <td></td>
+          <td class="md" nowrap><a class="el" href="classchanrec.html">chanrec</a> *&nbsp;</td>
+          <td class="mdname" nowrap> <em>chan</em>, </td>
+        </tr>
+        <tr>
+          <td></td>
+          <td></td>
           <td class="md" nowrap>char&nbsp;</td>
           <td class="mdname" nowrap> <em>mode</em>, </td>
         </tr>
@@ -2131,7 +2137,7 @@ Definition at line <a class="el" href="modules_8cpp-source.html#l00321">321</a> 
 </table>
 <hr>The documentation for this class was generated from the following files:<ul>
 <li><a class="el" href="modules_8h-source.html">modules.h</a><li><a class="el" href="modules_8cpp-source.html">modules.cpp</a></ul>
-<hr size="1"><address style="align: right;"><small>Generated on Fri Apr 15 19:30:23 2005 for InspIRCd by
+<hr size="1"><address style="align: right;"><small>Generated on Sat Apr 16 14:49:53 2005 for InspIRCd by
 <a href="http://www.doxygen.org/index.html">
 <img src="doxygen.png" alt="doxygen" align="middle" border=0 > 
 </a>1.3.3 </small></address>

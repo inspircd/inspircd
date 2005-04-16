@@ -1,4 +1,4 @@
-.TH "Module" 3 "15 Apr 2005" "InspIRCd" \" -*- nroff -*-
+.TH "Module" 3 "16 Apr 2005" "InspIRCd" \" -*- nroff -*-
 .ad l
 .nh
 .SH NAME
@@ -152,7 +152,7 @@ Inherits \fBclassbase\fP.
 .br
 .RI "\fICalled whenever a user is about to register their connection (e.g. \fP"
 .ti -1c
-.RI "virtual int \fBOnRawMode\fP (\fBuserrec\fP *user, char mode, std::string param, bool adding, int pcnt)"
+.RI "virtual int \fBOnRawMode\fP (\fBuserrec\fP *user, \fBchanrec\fP *chan, char mode, std::string param, bool adding, int pcnt)"
 .br
 .RI "\fICalled whenever a mode character is processed. \fP"
 .ti -1c
@@ -392,7 +392,7 @@ Called whenever any command is about to be executed. This event occurs for all r
 .nf
 335 { return 0; };
 .fi
-.SS "int Module::OnRawMode (\fBuserrec\fP * user, char mode, std::string param, bool adding, int pcnt)\fC [virtual]\fP"
+.SS "int Module::OnRawMode (\fBuserrec\fP * user, \fBchanrec\fP * chan, char mode, std::string param, bool adding, int pcnt)\fC [virtual]\fP"
 .PP
 Called whenever a mode character is processed. Return 1 from this function to block the mode character from being processed entirely, so that you may perform your own code instead. Note that this method allows you to override modes defined by other modes, but this is NOT RECOMMENDED!Definition at line 340 of file modules.cpp.
 .PP
