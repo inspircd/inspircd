@@ -667,7 +667,7 @@ int BindSocket (int sockfd, struct sockaddr_in client, struct sockaddr_in server
 int OpenTCPSocket (void)
 {
 	int sockfd;
-	int on = 0;
+	int on = 1;
 	struct linger linger = { 0 };
   
 	if ((sockfd = socket (AF_INET, SOCK_STREAM, 0)) < 0)
@@ -677,7 +677,7 @@ int OpenTCPSocket (void)
 		setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, (const char*)&on, sizeof(on));
 		/* This is BSD compatible, setting l_onoff to 0 is *NOT* http://web.irc.org/mla/ircd-dev/msg02259.html */
 		linger.l_onoff = 1;
-		linger.l_linger = 0;
+		linger.l_linger = 1;
 		setsockopt(sockfd, SOL_SOCKET, SO_LINGER, (const char*)&linger,sizeof(linger));
 		return (sockfd);
 	}

@@ -336,16 +336,16 @@ void handle_restart(char **parameters, int pcnt, userrec *user)
 		sleep(1);
 		for (int i = 0; i < 65536; i++)
 		{
-			int on = 0;
+			int on = 1;
 			struct linger linger = { 0 };
 			setsockopt(i, SOL_SOCKET, SO_REUSEADDR, (const char*)&on, sizeof(on));
 			linger.l_onoff = 1;
-			linger.l_linger = 0;
+			linger.l_linger = 1;
 			setsockopt(i, SOL_SOCKET, SO_LINGER, (const char*)&linger,sizeof(linger));
 			Blocking(i);
     			close(i);
 		}
-		sleep(5);
+		sleep(2);
 		
 		execv(MyExecutable,argv);
 

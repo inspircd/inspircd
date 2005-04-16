@@ -61,7 +61,7 @@ bool connection::CreateListener(char* host, int p)
 
 	setsockopt(fd,SOL_SOCKET,SO_REUSEADDR,(const char*)&on,sizeof(on));
 	linger.l_onoff = 1;
-	linger.l_linger = 0;
+	linger.l_linger = 1;
 	setsockopt(fd,SOL_SOCKET,SO_LINGER,(const char*)&linger,sizeof(linger));
 	
 	// attempt to increase socket sendq and recvq as high as its possible
