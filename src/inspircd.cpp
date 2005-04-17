@@ -3302,7 +3302,7 @@ void DoSync(serverrec* serv, char* tcp_host)
 		
 		for (BanList::iterator b = c->second->bans.begin(); b != c->second->bans.end(); b++)
 		{
-			snprintf(data,MAXBUF,"M %s +b %s",b->set_time,c->second->name,b->data);
+			snprintf(data,MAXBUF,"M %s +b %s",c->second->name,b->data);
 			serv->SendPacket(data,tcp_host);
 		}
 	}
