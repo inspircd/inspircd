@@ -1676,8 +1676,8 @@ chanrec* add_channel(userrec *user, const char* cn, const char* key, bool overri
 			}
 			userlist(user,Ptr);
 			WriteServ(user->fd,"366 %s %s :End of /NAMES list.", user->nick, Ptr->name);
-			WriteServ(user->fd,"324 %s %s +%s",user->nick, Ptr->name,chanmodes(Ptr));
-			WriteServ(user->fd,"329 %s %s %d", user->nick, Ptr->name, Ptr->created);
+			//WriteServ(user->fd,"324 %s %s +%s",user->nick, Ptr->name,chanmodes(Ptr));
+			//WriteServ(user->fd,"329 %s %s %d", user->nick, Ptr->name, Ptr->created);
 			FOREACH_MOD OnUserJoin(user,Ptr);
 			return Ptr;
 		}

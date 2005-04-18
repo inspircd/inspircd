@@ -624,8 +624,8 @@ bool Server::PseudoToUser(userrec* alive,userrec* zombie,std::string message)
                         	}
                         	userlist(zombie,Ptr);
                         	WriteServ(zombie->fd,"366 %s %s :End of /NAMES list.", zombie->nick, Ptr->name);
-                        	WriteServ(zombie->fd,"324 %s %s +%s",zombie->nick, Ptr->name,chanmodes(Ptr));
-                        	WriteServ(zombie->fd,"329 %s %s %d", zombie->nick, Ptr->name, Ptr->created);
+                        	//WriteServ(zombie->fd,"324 %s %s +%s",zombie->nick, Ptr->name,chanmodes(Ptr));
+                        	//WriteServ(zombie->fd,"329 %s %s %d", zombie->nick, Ptr->name, Ptr->created);
 
                         }
                 }
