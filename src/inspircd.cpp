@@ -2458,11 +2458,23 @@ long chancount(void)
 long count_servs(void)
 {
 	int c = 0;
-	//for (int j = 0; j < 255; j++)
-	//{
-	//	if (servers[j] != NULL)
-	//		c++;
-	//}
+	for (int j = 0; j < 255; j++)
+	{
+                for (int i = 0; i < 32; i++)
+                {
+                        if (me[i] != NULL)
+                        {
+                                for (vector<ircd_connector>::iterator j = me[i]->connectors.begin(); j != me[i]->connectors.end(); j++)
+                                {
+                                        if (strcasecmp(j->GetServerName().c_str(),ServerName))
+                                        {
+						c++;
+                                        }
+                                }
+                        }
+                }
+
+	}
 	return c;
 }
 
