@@ -463,7 +463,7 @@ void ReadConfig(bool bail, userrec* user)
 	read_xline_defaults();
 	log(DEFAULT,"Applying K lines, Q lines and Z lines...");
 	apply_lines();
-	log(DEFAULT,"Done reading configuration file, InspIRCd is now running.");
+	log(DEFAULT,"Done reading configuration file, InspIRCd is now starting.");
 	if (!bail)
 	{
 		log(DEFAULT,"Adding and removing modules due to rehash...");
@@ -3684,7 +3684,7 @@ int InspIRCd(void)
 			if (!me[count3]->CreateListener(Addr,atoi(configToken)))
 			{
 				log(DEFAULT,"Warning: Failed to bind port %d",atoi(configToken));
-				printf("Warning: Failed to bind port %d",atoi(configToken));
+				printf("Warning: Failed to bind port %d\n",atoi(configToken));
 			}
 			else
 			{
@@ -3716,7 +3716,7 @@ int InspIRCd(void)
 		if (!LoadModule(configToken))
 		{
 			log(DEBUG,"Exiting due to a module loader error.");
-			printf("There was an error loading a module: %s\n",ModuleError());
+			printf("\nThere was an error loading a module: %s\n",ModuleError());
 			Exit(0);
 		}
 	}
@@ -3726,8 +3726,8 @@ int InspIRCd(void)
 	  
 	char PID[MAXBUF];
 	ConfValue("pid","file",0,PID,&config_f);
+	// write once here, to try it out and make sure its ok
 	WritePID(PID);
-	  
 	  
 	/* setup select call */
 	FD_ZERO(&selectFds);
@@ -3757,7 +3757,7 @@ int InspIRCd(void)
 	if (boundPortCount == 0)
 	{
 		log(DEFAULT,"InspIRCd: startup: no ports bound, bailing!");
-		printf("ERROR: Was not able to bind any of %d ports! Please check your configuration.\r\n", portCount);
+		printf("\nERROR: Was not able to bind any of %d ports! Please check your configuration.\n\n", portCount);
 		return (ERROR);
 	}
 	
@@ -3777,6 +3777,8 @@ int InspIRCd(void)
                         Exit(ERROR);
                 }
         }
+
+	WritePID(PID);
 
 	length = sizeof (client);
 	char udp_msg[MAXBUF], tcp_host[MAXBUF];

@@ -109,6 +109,7 @@ int DaemonSeed (void)
 		exit (0);
 	setsid ();
 	umask (007);
+	printf("InspIRCd PID: %d\n",getpid());
 	/* close stdin, stdout, stderr */
 	freopen("/dev/null","w",stdout);
 	freopen("/dev/null","w",stderr);
