@@ -3683,7 +3683,8 @@ int InspIRCd(void)
 			me[count3] = new serverrec(ServerName,100L,false);
 			if (!me[count3]->CreateListener(Addr,atoi(configToken)))
 			{
-				log(DEFAULT,"Error! Failed to bind port %d",atoi(configToken));
+				log(DEFAULT,"Warning: Failed to bind port %d",atoi(configToken));
+				printf("Warning: Failed to bind port %d",atoi(configToken));
 			}
 			else
 			{
@@ -3702,8 +3703,7 @@ int InspIRCd(void)
 	UDPportCount = count3;
 	  
 	log(DEBUG,"InspIRCd: startup: read %d total client ports and %d total server ports",portCount,UDPportCount);
-	
-	log(DEBUG,"InspIRCd: startup: InspIRCd is now running!");
+	log(DEBUG,"InspIRCd: startup: InspIRCd is now starting!");
 	
 	printf("\n");
 	
@@ -3722,24 +3722,8 @@ int InspIRCd(void)
 	}
 	log(DEBUG,"Total loaded modules: %d",MODCOUNT+1);
 	
-	printf("\nInspIRCd is now running!\n");
-	
 	startup_time = time(NULL);
 	  
-	if (nofork)
-	{
-		log(VERBOSE,"Not forking as -nofork was specified");
-	}
-	else
-	{
-		if (DaemonSeed() == ERROR)
-		{
-			log(DEFAULT,"InspIRCd: startup: can't daemonise");
-	  		printf("ERROR: could not go into daemon mode. Shutting down.\n");
-			Exit(ERROR);
-	  	}
-	}
-
 	char PID[MAXBUF];
 	ConfValue("pid","file",0,PID,&config_f);
 	WritePID(PID);
@@ -3773,9 +3757,26 @@ int InspIRCd(void)
 	if (boundPortCount == 0)
 	{
 		log(DEFAULT,"InspIRCd: startup: no ports bound, bailing!");
+		printf("ERROR: Was not able to bind any of %d ports! Please check your configuration.\r\n", portCount);
 		return (ERROR);
 	}
 	
+
+        printf("\nInspIRCd is now running!\n");
+
+        if (nofork)
+        {
+                log(VERBOSE,"Not forking as -nofork was specified");
+        }
+        else
+        {
+                if (DaemonSeed() == ERROR)
+                {
+                        log(DEFAULT,"InspIRCd: startup: can't daemonise");
+                        printf("ERROR: could not go into daemon mode. Shutting down.\n");
+                        Exit(ERROR);
+                }
+        }
 
 	length = sizeof (client);
 	char udp_msg[MAXBUF], tcp_host[MAXBUF];
