@@ -3166,6 +3166,8 @@ void handle_link_packet(char* udp_msg, char* tcp_host, serverrec *serv)
 								me[j]->connectors[k].SetState(STATE_SERVICES);
 								sprintf(buffer,"X 0");
 								serv->SendPacket(buffer,servername);
+								sprintf(buffer,"s %s %s %lu :%s",ServerName,Link_SendPass,LinkPort,ServerDesc);
+								serv->SendPacket(buffer,servername);
 								DoSync(me[j],servername);
 								snprintf(buffer,MAXBUF,"H %s",servername);
 								NetSendToAllExcept(servername,buffer);
