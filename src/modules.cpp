@@ -148,6 +148,8 @@ struct StrHashComp
 		char a[MAXBUF],b[MAXBUF];
 		strlcpy(a,s1.c_str(),MAXBUF);
 		strlcpy(b,s2.c_str(),MAXBUF);
+                strlower(a);
+                strlower(b);
 		return (strcasecmp(a,b) == 0);
 	}
 
