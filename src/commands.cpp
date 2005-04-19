@@ -1490,7 +1490,7 @@ void handle_connect(char **parameters, int pcnt, userrec *user)
 	char Link_Pass[1024];
 	int LinkPort;
 	bool found = false;
-	
+
 	for (int i = 0; i < ConfValueEnum("link",&config_f); i++)
 	{
 		if (!found)
@@ -3082,7 +3082,7 @@ void handle_link_packet(char* udp_msg, char* tcp_host, serverrec *serv)
 		char Link_Pass[1024];
 		char Link_SendPass[1024];
 		int LinkPort = 0;
-		
+
 		// search for a corresponding <link> block in the config files
 		for (int i = 0; i < ConfValueEnum("link",&config_f); i++)
 		{
@@ -3150,6 +3150,26 @@ void handle_link_packet(char* udp_msg, char* tcp_host, serverrec *serv)
 		int LinkPort = 0;
 
 		log(DEBUG,"U-token linked server detected.");
+
+		
+                for (int j = 0; j < 32; j++)
+                {
+                        if (me[j] != NULL)
+                        {
+                                for (int k = 0; k < me[j]->connectors.size(); k++)
+                                {
+                                        if (!strcasecmp(me[j]->connectors[k].GetServerName().c_str(),servername))
+                                        {
+				                char buffer[MAXBUF];
+				                sprintf(buffer,"E :Access is denied (Server exists in the mesh)");
+				                serv->SendPacket(buffer,tcp_host);
+				                WriteOpers("CONNECT from %s denied, \"%s\" already exists!",tcp_host,servername);
+				                RemoveServer(tcp_host);
+						return;
+					}
+				}
+			}
+		}
 		
 		// search for a corresponding <link> block in the config files
 		for (int i = 0; i < ConfValueEnum("link",&config_f); i++)
