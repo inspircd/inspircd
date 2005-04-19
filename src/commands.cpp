@@ -1967,12 +1967,24 @@ void handle_m(char token,char* params,serverrec* source,serverrec* reply, char* 
 
 void handle_L(char token,char* params,serverrec* source,serverrec* reply, char* tcp_host)
 {
-	char* nick = strtok(params," ");
-	char* channel = strtok(NULL," :");
-	char* reason = strtok(NULL,"\r\n");
+	char* nick = NULL;
+	char* channel = NULL;
+	char* reason = NULL;
+	if (strchr(params,':'))
+	{
+		nick = strtok(params," ");
+		channel = strtok(NULL," :");
+		reason = strtok(NULL,"\r\n");
+		reason++;
+	}
+	else
+	{
+		nick = strtok(params," ");
+		channel = strtok(NULL,"\r\n");
+		reason = "";
+	}
 	userrec* user = Find(nick);
-	reason++;
-	if (user)
+	if ((user) && (channel) && (reason))
 	{
 		if (strcmp(reason,""))
 		{
