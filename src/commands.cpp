@@ -1970,23 +1970,25 @@ void handle_L(char token,char* params,serverrec* source,serverrec* reply, char* 
 	char* nick = NULL;
 	char* channel = NULL;
 	char* reason = NULL;
-	if (strchr(params,':'))
-	{
-		nick = strtok(params," ");
-		channel = strtok(NULL," :");
-		reason = strtok(NULL,"\r\n");
-		reason++;
-	}
-	else
+	log(DEBUG,"L TOKEN PARS: '%s'",params);
+	if (strstr(params,":#"))
 	{
 		nick = strtok(params," ");
 		channel = strtok(NULL,"\r\n");
+		channel++;
 		reason = "";
 	}
+	else
+        {
+                nick = strtok(params," ");
+                channel = strtok(NULL," :");
+                reason = strtok(NULL,"\r\n");
+                reason++;
+        }
 	userrec* user = Find(nick);
 	if ((user) && (channel) && (reason))
 	{
-		if (strcmp(reason,""))
+		if ((!reason) && (*reason != '\0'))
 		{
 			del_channel(user,channel,reason,true);
 		}
