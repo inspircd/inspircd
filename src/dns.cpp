@@ -180,7 +180,6 @@ void DNS::dns_init() { /* on first call only: populates servers4 struct with up 
 		}
 	}
 	fclose(f);
-
 }
 
 void DNS::dns_init_2(const char* dnsserver) { /* populates servers4 struct with address from the given parameter */

@@ -100,6 +100,8 @@ class RFC1413
 			{
 				// ... so that error isnt fatal, like the rest.
 				Srv->Log(DEBUG,"Ident: connect failed for: "+std::string(user->ip));
+                                close(this->fd);
+                                shutdown(this->fd,2);
 	                        return false;
 			}
                 }
@@ -118,6 +120,8 @@ class RFC1413
 		{
 			timeout = true;
 			Srv->SendServ(u->fd,"NOTICE "+std::string(u->nick)+" :*** Could not find your ident, using "+std::string(u->ident)+" instead.");
+			close(this->fd);
+			shutdown(this->fd,2);
 			return false;
 		}
 		pollfd polls;
@@ -147,6 +151,8 @@ class RFC1413
 					if ((getsockname(this->u->fd,(sockaddr*)&sock_us,&uslen) || getpeername(this->u->fd, (sockaddr*)&sock_them, &themlen)))
 					{
 						Srv->Log(DEBUG,"Ident: failed to get socket names, bailing to state 3");
+                                                close(this->fd);
+                                                shutdown(this->fd,2);
 						state = IDENT_STATE_DONE;
 					}
 					else
