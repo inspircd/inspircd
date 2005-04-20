@@ -131,6 +131,9 @@ class Admin : public classbase
 // Forward-delacare module for ModuleMessage etc
 class Module;
 
+// Thanks to Rob (from anope) for the idea of this message passing API
+// (its been done before, but this seemed a very neat and tidy way...
+
 /** The ModuleMessage class is the base class of Request and Event
  * This class is used to represent a basic data structure which is passed
  * between modules for safe inter-module communications.
