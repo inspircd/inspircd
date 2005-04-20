@@ -69,6 +69,8 @@ class RFC1413
 	bool timeout;		// true if we've timed out and should bail
  public:
 
+	// The destructor makes damn sure the socket is freed :)
+
 	~RFC1413()
 	{
 		if (this->fd != -1)
@@ -157,7 +159,6 @@ class RFC1413
 			switch (this->state)
 			{
 				case IDENT_STATE_CONNECT:
-					Srv->Log(DEBUG,"*** IDENT IN STATE 1");
 					uslen = sizeof(sock_us);
 					themlen = sizeof(sock_them);
 					if ((getsockname(this->u->fd,(sockaddr*)&sock_us,&uslen) || getpeername(this->u->fd, (sockaddr*)&sock_them, &themlen)))
@@ -177,7 +178,6 @@ class RFC1413
 					}
 				break;
 				case IDENT_STATE_WAITDATA:
-					Srv->Log(DEBUG,"*** IDENT IN STATE 2");
 					nrecv = recv(this->fd,ibuf,sizeof(ibuf),0);
 					if (nrecv > 0)
 					{
