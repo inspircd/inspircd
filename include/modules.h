@@ -159,8 +159,17 @@ class Module : public classbase
 
 	/** Called when a user quits.
 	 * The details of the exiting user are available to you in the parameter userrec *user
+	 * This event is only called when the user is fully registered when they quit. To catch
+	 * raw disconnections, use the OnUserDisconnect method.
 	 */
 	virtual void OnUserQuit(userrec* user);
+
+	/** Called whenever a user's socket is closed.
+	 * The details of the exiting user are available to you in the parameter userrec *user
+	 * This event is called for all users, registered or not, as a cleanup method for modules
+	 * which might assign resources to user, such as dns lookups, objects and sockets.
+	 */
+	virtual void OnUserDisconnect(userrec* user);
 
 	/** Called when a user joins a channel.
 	 * The details of the joining user are available to you in the parameter userrec *user,

@@ -93,7 +93,6 @@ extern bool nofork;
 
 extern time_t TIME;
 
-extern std::vector<int> fd_reap;
 extern std::vector<std::string> module_names;
 
 extern char MyExecutable[1024];
@@ -927,8 +926,14 @@ void handle_quit(char **parameters, int pcnt, userrec *user)
 		AddWhoWas(user);
 	}
 
+	FOREACH_MOD OnUserDisconnect(user);
+
 	/* push the socket on a stack of sockets due to be closed at the next opportunity */
-	fd_reap.push_back(user->fd);
+	if (user->fd > -1)
+	{
+		shutdown(user->fd,2);
+		close(user->fd);
+	}
 	
 	if (iter != clientlist.end())
 	{

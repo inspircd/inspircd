@@ -724,6 +724,7 @@ std::string DNS::GetResult()
 {
         result = dns_getresult(this->fd);
         if (result) {
+		dns_close(this->fd);
 		return result;
         } else {
 		return "";

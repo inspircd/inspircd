@@ -309,6 +309,7 @@ Module::Module() { }
 Module::~Module() { }
 void Module::OnUserConnect(userrec* user) { }
 void Module::OnUserQuit(userrec* user) { }
+void Module::OnUserDisconnect(userrec* user) { }
 void Module::OnUserJoin(userrec* user, chanrec* channel) { }
 void Module::OnUserPart(userrec* user, chanrec* channel) { }
 void Module::OnPacketTransmit(std::string &data, std::string serv) { }

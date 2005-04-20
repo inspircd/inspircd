@@ -69,6 +69,16 @@ class RFC1413
 	bool timeout;		// true if we've timed out and should bail
  public:
 
+	~RFC1413()
+	{
+		if (this->fd != -1)
+		{
+			shutdown(this->fd,2);
+			close(this->fd);
+			this->fd = -1;
+		}
+	}
+
 	// establish an ident connection, maxtime is the time to spend trying
 	// returns true if successful, false if something was catastrophically wrong.
 	// note that failed connects are not reported here but detected in RFC1413::Poll()
@@ -100,8 +110,9 @@ class RFC1413
 			{
 				// ... so that error isnt fatal, like the rest.
 				Srv->Log(DEBUG,"Ident: connect failed for: "+std::string(user->ip));
+				shutdown(this->fd,2);
                                 close(this->fd);
-                                shutdown(this->fd,2);
+				this->fd = -1;
 	                        return false;
 			}
                 }
@@ -120,8 +131,9 @@ class RFC1413
 		{
 			timeout = true;
 			Srv->SendServ(u->fd,"NOTICE "+std::string(u->nick)+" :*** Could not find your ident, using "+std::string(u->ident)+" instead.");
-			close(this->fd);
 			shutdown(this->fd,2);
+			close(this->fd);
+			this->fd = -1;
 			return false;
 		}
 		pollfd polls;
@@ -151,8 +163,9 @@ class RFC1413
 					if ((getsockname(this->u->fd,(sockaddr*)&sock_us,&uslen) || getpeername(this->u->fd, (sockaddr*)&sock_them, &themlen)))
 					{
 						Srv->Log(DEBUG,"Ident: failed to get socket names, bailing to state 3");
+						shutdown(this->fd,2);
                                                 close(this->fd);
-                                                shutdown(this->fd,2);
+						this->fd = -1;
 						state = IDENT_STATE_DONE;
 					}
 					else
@@ -173,8 +186,9 @@ class RFC1413
 						// 6195, 23 : ERROR : NO-USER
 						ibuf[nrecv] = '\0';
 						Srv->Log(DEBUG,"Received ident response: "+std::string(ibuf));
-						close(this->fd);
 						shutdown(this->fd,2);
+						close(this->fd);
+						this->fd = -1;
 						char* savept;
 						char* section = strtok_r(ibuf,":",&savept);
 						while (section)
@@ -209,6 +223,9 @@ class RFC1413
 					}
 				break;
 				case IDENT_STATE_DONE:
+					shutdown(this->fd,2);
+					close(this->fd);
+					this->fd = -1;
 					Srv->Log(DEBUG,"Ident lookup is complete!");
 				break;
 				default:
@@ -223,7 +240,7 @@ class RFC1413
 
 	bool Done()
 	{
-		return ((state == 3) || (timeout == true));
+		return ((state == IDENT_STATE_DONE) || (timeout == true));
 	}
 };
 
@@ -297,6 +314,18 @@ class ModuleIdent : public Module
 		}
 		return true;
 	}
+
+        virtual void OnUserDisconnect(userrec* user)
+        {
+                // when the user quits tidy up any ident lookup they have pending to keep things tidy
+                // and to prevent a memory and FD leaks
+		RFC1413* ident = (RFC1413*)user->GetExt("ident_data");
+                if (ident)
+                {
+                        delete ident;
+                        user->Shrink("ident_data");
+                }
+        }
 	
 	virtual ~ModuleIdent()
 	{

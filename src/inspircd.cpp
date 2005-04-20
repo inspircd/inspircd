@@ -98,7 +98,6 @@ bool AllowFounder = true;
 extern std::vector<Module*> modules;
 std::vector<std::string> module_names;
 extern std::vector<ircd_module*> factory;
-std::vector<int> fd_reap;
 
 extern int MODCOUNT;
 int openSockfd[MAXSOCKS];
@@ -2049,11 +2048,13 @@ void kill_link(userrec *user,const char* r)
 		NetSendToAll(buffer);
 	}
 
-	/* push the socket on a stack of sockets due to be closed at the next opportunity
-	 * 'Client exited' is an exception to this as it means the client side has already
-	 * closed the socket, we don't need to do it.
-	 */
-	fd_reap.push_back(user->fd);
+	FOREACH_MOD OnUserDisconnect(user);
+
+	if (user->fd > -1)
+	{
+		shutdown(user->fd,2);
+		close(user->fd);
+	}
 	
 	bool do_purge = false;
 	
@@ -2105,11 +2106,13 @@ void kill_link_silent(userrec *user,const char* r)
 		NetSendToAll(buffer);
 	}
 
-	/* push the socket on a stack of sockets due to be closed at the next opportunity
-	 * 'Client exited' is an exception to this as it means the client side has already
-	 * closed the socket, we don't need to do it.
-	 */
-	fd_reap.push_back(user->fd);
+	FOREACH_MOD OnUserDisconnect(user);
+
+        if (user->fd > -1)
+        {
+                shutdown(user->fd,2);
+                close(user->fd);
+        }
 	
 	bool do_purge = false;
 	
@@ -3448,7 +3451,6 @@ void RemoveServer(const char* name)
 }
 
 
-int reap_counter = 0;
 char MODERR[MAXBUF];
 
 char* ModuleError()
@@ -3822,23 +3824,6 @@ int InspIRCd(void)
 		}
 		if ((TIME % 5) == 1)
 			expire_run = false;
-		if (reap_counter>300)
-  		{
-			if (fd_reap.size() > 0)
-   			{
-				for( int n = 0; n < fd_reap.size(); n++)
-				{
-					if ((fd_reap[n] > -1))
-					{
-						close(fd_reap[n]);
-						shutdown (fd_reap[n],2);
-					}
-				}
-			}
-			fd_reap.clear();
-			reap_counter=0;
-		}
-		reap_counter++;
 		
 		// fix by brain - this must be below any manipulation of the hashmap by modules
 		user_hash::iterator count2 = clientlist.begin();
