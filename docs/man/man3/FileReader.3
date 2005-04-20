@@ -1,4 +1,4 @@
-.TH "FileReader" 3 "16 Apr 2005" "InspIRCd" \" -*- nroff -*-
+.TH "FileReader" 3 "20 Apr 2005" "InspIRCd" \" -*- nroff -*-
 .ad l
 .nh
 .SH NAME
@@ -57,100 +57,100 @@ Caches a text file into memory and can be used to retrieve lines from it.
 
 This class contains methods for read-only manipulation of a text file in memory. Either use the constructor type with one parameter to load a file into memory at construction, or use the LoadFile method to load a file. 
 .PP
-Definition at line 1033 of file modules.h.
+Definition at line 1161 of file modules.h.
 .SH "Constructor & Destructor Documentation"
 .PP 
 .SS "FileReader::FileReader ()"
 .PP
-Default constructor. This method does not load any file into memory, you must use the LoadFile method after constructing the class this way.Definition at line 915 of file modules.cpp.
+Default constructor. This method does not load any file into memory, you must use the LoadFile method after constructing the class this way.Definition at line 986 of file modules.cpp.
 .PP
 .nf
-916 {
-917 }
+987 {
+988 }
 .fi
 .SS "FileReader::FileReader (std::string filename)"
 .PP
-Secondary constructor. This method initialises the class with a file loaded into it ready for GetLine and and other methods to be called. If the file could not be loaded, \fBFileReader::FileSize\fP returns 0.Definition at line 908 of file modules.cpp.
+Secondary constructor. This method initialises the class with a file loaded into it ready for GetLine and and other methods to be called. If the file could not be loaded, \fBFileReader::FileSize\fP returns 0.Definition at line 979 of file modules.cpp.
 .PP
 References fc, and file_cache.
 .PP
 .nf
-909 {
-910         file_cache c;
-911         readfile(c,filename.c_str());
-912         this->fc = c;
-913 }
+980 {
+981         file_cache c;
+982         readfile(c,filename.c_str());
+983         this->fc = c;
+984 }
 .fi
 .SS "FileReader::~\fBFileReader\fP ()"
 .PP
-Default destructor. This deletes the memory allocated to the file.Definition at line 927 of file modules.cpp.
+Default destructor. This deletes the memory allocated to the file.Definition at line 998 of file modules.cpp.
 .PP
 .nf
-928 {
-929 }
+999 {
+1000 }
 .fi
 .SH "Member Function Documentation"
 .PP 
 .SS "bool FileReader::Exists ()"
 .PP
-Returns true if the file exists This function will return false if the file could not be opened. Definition at line 931 of file modules.cpp.
+Returns true if the file exists This function will return false if the file could not be opened. Definition at line 1002 of file modules.cpp.
 .PP
 References fc.
 .PP
 .nf
-932 {
-933         if (fc.size() == 0)
-934         {
-935                 return(false);
-936         }
-937         else
-938         {
-939                 return(true);
-940         }
-941 }
+1003 {
+1004         if (fc.size() == 0)
+1005         {
+1006                 return(false);
+1007         }
+1008         else
+1009         {
+1010                 return(true);
+1011         }
+1012 }
 .fi
 .SS "int FileReader::FileSize ()"
 .PP
-Returns the size of the file in lines. This method returns the number of lines in the read file. If it is 0, no lines have been read into memory, either because the file is empty or it does not exist, or cannot be opened due to permission problems.Definition at line 950 of file modules.cpp.
+Returns the size of the file in lines. This method returns the number of lines in the read file. If it is 0, no lines have been read into memory, either because the file is empty or it does not exist, or cannot be opened due to permission problems.Definition at line 1021 of file modules.cpp.
 .PP
 References fc.
 .PP
 .nf
-951 {
-952         return fc.size();
-953 }
+1022 {
+1023         return fc.size();
+1024 }
 .fi
 .SS "std::string FileReader::GetLine (int x)"
 .PP
-Retrieve one line from the file. This method retrieves one line from the text file. If an empty non-NULL string is returned, the index was out of bounds, or the line had no data on it.Definition at line 943 of file modules.cpp.
+Retrieve one line from the file. This method retrieves one line from the text file. If an empty non-NULL string is returned, the index was out of bounds, or the line had no data on it.Definition at line 1014 of file modules.cpp.
 .PP
 References fc.
 .PP
 .nf
-944 {
-945         if ((x<0) || (x>fc.size()))
-946                 return '';
-947         return fc[x];
-948 }
+1015 {
+1016         if ((x<0) || (x>fc.size()))
+1017                 return '';
+1018         return fc[x];
+1019 }
 .fi
 .SS "void FileReader::LoadFile (std::string filename)"
 .PP
-Used to load a file. This method loads a file into the class ready for GetLine and and other methods to be called. If the file could not be loaded, \fBFileReader::FileSize\fP returns 0.Definition at line 919 of file modules.cpp.
+Used to load a file. This method loads a file into the class ready for GetLine and and other methods to be called. If the file could not be loaded, \fBFileReader::FileSize\fP returns 0.Definition at line 990 of file modules.cpp.
 .PP
 References fc, and file_cache.
 .PP
 .nf
-920 {
-921         file_cache c;
-922         readfile(c,filename.c_str());
-923         this->fc = c;
-924 }
+991 {
+992         file_cache c;
+993         readfile(c,filename.c_str());
+994         this->fc = c;
+995 }
 .fi
 .SH "Member Data Documentation"
 .PP 
 .SS "\fBfile_cache\fP \fBFileReader::fc\fP\fC [private]\fP"
 .PP
-Definition at line 1035 of file modules.h.
+Definition at line 1163 of file modules.h.
 .PP
 Referenced by Exists(), FileReader(), FileSize(), GetLine(), and LoadFile().
 

@@ -305,6 +305,59 @@ Version::Version(int major, int minor, int revision, int build, int flags) : Maj
 
 Admin::Admin(std::string name, std::string email, std::string nick) : Name(name), Email(email), Nick(nick) { };
 
+Request::Request(char* anydata, Module* src, Module* dst) : data(anydata), source(src), dest(dst) { };
+
+char* Request::GetData()
+{
+        return this->data;
+}
+
+Module* Request::GetSource()
+{
+        return this->source;
+}
+
+Module* Request::GetDest()
+{
+        return this->dest;
+}
+
+char* Request::Send()
+{
+        if (this->dest)
+        {
+                return dest->OnRequest(this);
+        }
+        else
+        {
+                return NULL;
+        }
+}
+
+Event::Event(char* anydata, Module* src, std::string eventid) : data(anydata), source(src), id(eventid) { };
+
+char* Event::GetData()
+{
+        return this->data;
+}
+
+Module* Event::GetSource()
+{
+        return this->source;
+}
+
+char* Event::Send()
+{
+        FOREACH_MOD OnEvent(this);
+        return NULL;
+}
+
+std::string Event::GetEventID()
+{
+        return this->id;
+}
+
+
 Module::Module() { }
 Module::~Module() { }
 void Module::OnUserConnect(userrec* user) { }
@@ -350,6 +403,9 @@ int Module::OnChangeLocalUserHost(userrec* user, std::string newhost) { return 0
 int Module::OnChangeLocalUserGECOS(userrec* user, std::string newhost) { return 0; };
 int Module::OnLocalTopicChange(userrec* user, chanrec* chan, std::string topic) { return 0; };
 int Module::OnMeshToken(char token,string_list params,serverrec* source,serverrec* reply, std::string tcp_host,std::string ipaddr,int port) { return 0; };
+void Module::OnEvent(Event* event) { return; };
+char* Module::OnRequest(Request* request) { return NULL; };
+
 
 // server is a wrapper class that provides methods to all of the C-style
 // exports in the core
@@ -760,6 +816,18 @@ bool Server::MeshCheckCommon(userrec* u,std::string servername)
 		return CommonOnThisServer(u,(char*)servername.c_str());
 	}
 	else return false;
+}
+
+Module* Server::FindModule(std::string name)
+{
+	for (int i = 0; i <= MODCOUNT; i++)
+	{
+		if (module_names[i] == name)
+		{
+			return modules[i];
+		}
+	}
+	return NULL;
 }
 
 ConfigReader::ConfigReader()

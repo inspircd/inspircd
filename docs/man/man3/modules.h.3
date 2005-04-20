@@ -1,4 +1,4 @@
-.TH "modules.h" 3 "16 Apr 2005" "InspIRCd" \" -*- nroff -*-
+.TH "modules.h" 3 "20 Apr 2005" "InspIRCd" \" -*- nroff -*-
 .ad l
 .nh
 .SH NAME
@@ -31,6 +31,10 @@ modules.h \-
 .br
 .RI "\fIAllows reading of values from configuration files This class allows a module to read from either the main configuration file (inspircd.conf) or from a module-specified configuration file. \fP"
 .ti -1c
+.RI "class \fBEvent\fP"
+.br
+.RI "\fIThe Event class is a unicast message directed at all modules. \fP"
+.ti -1c
 .RI "class \fBFileReader\fP"
 .br
 .RI "\fICaches a text file into memory and can be used to retrieve lines from it. \fP"
@@ -42,6 +46,14 @@ modules.h \-
 .RI "class \fBModuleFactory\fP"
 .br
 .RI "\fIInstantiates classes inherited from \fBModule\fP This class creates a class inherited from type \fBModule\fP, using new. \fP"
+.ti -1c
+.RI "class \fBModuleMessage\fP"
+.br
+.RI "\fIThe ModuleMessage class is the base class of \fBRequest\fP and \fBEvent\fP This class is used to represent a basic data structure which is passed between modules for safe inter-module communications. \fP"
+.ti -1c
+.RI "class \fBRequest\fP"
+.br
+.RI "\fIThe Request class is a unicast message directed at a given module. \fP"
 .ti -1c
 .RI "class \fBServer\fP"
 .br
@@ -218,22 +230,22 @@ Referenced by Module::OnAccessCheck().
 Definition at line 38 of file modules.h.
 .SS "#define CONF_FILE_NOT_FOUND   0x000200"
 .PP
-Definition at line 935 of file modules.h.
+Definition at line 1063 of file modules.h.
 .PP
 Referenced by ConfigReader::ConfigReader().
 .SS "#define CONF_NOT_A_NUMBER   0x000010"
 .PP
-Definition at line 932 of file modules.h.
+Definition at line 1060 of file modules.h.
 .PP
 Referenced by ConfigReader::ReadInteger().
 .SS "#define CONF_NOT_UNSIGNED   0x000080"
 .PP
-Definition at line 933 of file modules.h.
+Definition at line 1061 of file modules.h.
 .PP
 Referenced by ConfigReader::ReadInteger().
 .SS "#define CONF_VALUE_NOT_FOUND   0x000100"
 .PP
-Definition at line 934 of file modules.h.
+Definition at line 1062 of file modules.h.
 .PP
 Referenced by ConfigReader::ReadFlag(), ConfigReader::ReadInteger(), and ConfigReader::ReadValue().
 .SS "#define DEBUG   10"
@@ -252,6 +264,8 @@ Referenced by Server::PseudoToUser(), and Server::UserToPseudo().
 .SS "#define FOREACH_MOD   for (int i = 0; i <= \fBMODCOUNT\fP; i++) modules[i]->"
 .PP
 Definition at line 79 of file modules.h.
+.PP
+Referenced by Event::Send().
 .SS "#define FOREACH_RESULT(x)"
 .PP
 \fBValue:\fP.nf
@@ -319,7 +333,7 @@ Low level definition of a \fBFileReader\fP classes file cache area. Definition a
 Referenced by FileReader::FileReader(), and FileReader::LoadFile().
 .SS "typedef DLLFactory<\fBModuleFactory\fP> \fBircd_module\fP"
 .PP
-Definition at line 1101 of file modules.h.
+Definition at line 1229 of file modules.h.
 .SS "typedef \fBfile_cache\fP \fBstring_list\fP"
 .PP
 Definition at line 68 of file modules.h.

@@ -127,6 +127,104 @@ class Admin : public classbase
 	 Admin(std::string name, std::string email, std::string nick);
 };
 
+
+// Forward-delacare module for ModuleMessage etc
+class Module;
+
+/** The ModuleMessage class is the base class of Request and Event
+ * This class is used to represent a basic data structure which is passed
+ * between modules for safe inter-module communications.
+ */
+class ModuleMessage : public classbase
+{
+ public:
+        /** This class is pure virtual and must be inherited.
+         */
+        virtual char* Send() = 0;
+};
+
+/** The Request class is a unicast message directed at a given module.
+ * When this class is properly instantiated it may be sent to a module
+ * using the Send() method, which will call the given module's OnRequest
+ * method with this class as its parameter.
+ */
+class Request : public ModuleMessage
+{
+ protected:
+        /** This member holds a pointer to arbitary data set by the emitter of the message
+         */
+        char* data;
+        /** This is a pointer to the sender of the message, which can be used to
+         * directly trigger events, or to create a reply.
+         */
+        Module* source;
+        /** The single destination of the Request
+         */
+        Module* dest;
+ public:
+        /** Create a new Request
+         */
+        Request(char* anydata, Module* src, Module* dst);
+        /** Fetch the Request data
+         */
+        char* GetData();
+        /** Fetch the request source
+         */
+        Module* GetSource();
+        /** Fetch the request destination (should be 'this' in the receiving module)
+         */
+        Module* GetDest();
+        /** Send the Request.
+         * Upon returning the result will be arbitary data returned by the module you
+         * sent the request to. It is up to your module to know what this data is and
+         * how to deal with it.
+         */
+        char* Send();
+};
+
+
+/** The Event class is a unicast message directed at all modules.
+ * When the class is properly instantiated it may be sent to all modules
+ * using the Send() method, which will trigger the OnEvent method in
+ * all modules passing the object as its parameter.
+ */
+class Event : public ModuleMessage
+{
+ protected:
+        /** This member holds a pointer to arbitary data set by the emitter of the message
+         */
+        char* data;
+        /** This is a pointer to the sender of the message, which can be used to
+         * directly trigger events, or to create a reply.
+         */
+        Module* source;
+        /** The event identifier.
+         * This is arbitary text which should be used to distinguish
+         * one type of event from another.
+         */
+        std::string id;
+ public:
+        /** Create a new Event
+         */
+        Event(char* anydata, Module* src, std::string eventid);
+        /** Get the Event data
+         */
+        char* GetData();
+        /** Get the event Source
+         */
+        Module* GetSource();
+        /** Get the event ID.
+         * Use this to determine the event type for safe casting of the data
+         */
+        std::string GetEventID();
+        /** Send the Event.
+         * The return result of an Event::Send() will always be NULL as
+         * no replies are expected.
+         */
+        char* Send();
+};
+
+
 /** Base class for all InspIRCd modules
  *  This class is the base class for InspIRCd modules. All modules must inherit from this class,
  *  its methods will be called when irc server events occur. class inherited from module must be
@@ -503,6 +601,21 @@ class Module : public classbase
 	 * notation and port is the port number it is using.
 	 */
 	virtual int OnMeshToken(char token,string_list params,serverrec* source,serverrec* reply, std::string tcp_host,std::string ipaddr,int port);
+
+	/** Called whenever an Event class is sent to all module by another module.
+	 * Please see the documentation of Event::Send() for further information. The Event sent can
+	 * always be assumed to be non-NULL, you should *always* check the value of Event::GetEventID()
+	 * before doing anything to the event data, and you should *not* change the event data in any way!
+	 */
+	virtual void OnEvent(Event* event);
+
+	/** Called whenever a Request class is sent to your module by another module.
+	 * Please see the documentation of Request::Send() for further information. The Request sent
+	 * can always be assumed to be non-NULL, you should not change the request object or its data.
+	 * Your method may return arbitary data in the char* result which the requesting module
+	 * may be able to use for pre-determined purposes (e.g. the results of an SQL query, etc).
+	 */
+	virtual char* OnRequest(Request* request);
 };
 
 
@@ -935,6 +1048,12 @@ class Server : public classbase
 	 * This is used internally by Server::MeshSendCommon. You should very rarely need to use it.
 	 */
 	virtual bool MeshCheckCommon(userrec* u,std::string servername);
+
+	/** This function finds a module by name.
+	 * You must provide the filename of the module. If the module cannot be found (is not loaded)
+	 * the function will return NULL.
+	 */
+	virtual Module* FindModule(std::string name);
 };
 
 
