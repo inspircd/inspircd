@@ -60,7 +60,7 @@ class ModuleSQLAuth : public Module
 		killreason = Conf->ReadValue("sqlauth","killreason",0);	// reason to give when access is denied to a user (put your reg details here)
 		encryption = Conf->ReadValue("sqlauth","encryption",0);	// name of sql function used to encrypt password, e.g. "md5" or "passwd".
 									// define, but leave blank if no encryption is to be used.
-		WallOperFail = Conf->ReadBool("sqlauth","verbose",0);	// set to 1 if failed connects should be reported to operators
+		WallOperFail = Conf->ReadFlag("sqlauth","verbose",0);	// set to 1 if failed connects should be reported to operators
 		allowpattern = Conf->ReadValue("sqlauth","allowpattern",0); 	// allow nicks matching the pattern without requiring auth
 		delete Conf;
 		SQLModule = Srv->FindModule("m_sql.so");
@@ -82,7 +82,7 @@ class ModuleSQLAuth : public Module
 
 	virtual void OnUserRegister(userrec* user)
 	{
-		if (allowpattern != "") && (Srv->MatchText(user->nick,allowpattern))
+		if ((allowpattern != "") && (Srv->MatchText(user->nick,allowpattern)))
 			return;
 		
 		if (!CheckCredentials(user->nick,user->password))
