@@ -23,7 +23,7 @@
 #include "modules.h"
 
 /* $ModDesc: m_filter with regexps */
-/* $CompileFlags: -I/usr/local/include -L/usr/local/lib/mysql -L/usr/lib/mysql -lmysqlclient */
+/* $CompileFlags: -I/usr/local/include -I/usr/include -L/usr/local/lib -L/usr/lib -lmysqlclient */
 
 /** SQLConnection represents one mysql session.
  * Each session has its own persistent connection to the database.
@@ -40,17 +40,21 @@ class SQLConnection
 	std::string pass;
 	std::string db;
 	std::map<std::string,std::string> thisrow;
+	bool Enabled;
+	long id;
 
  public:
 
 	// This constructor creates an SQLConnection object with the given credentials, and creates the underlying
 	// MYSQL struct, but does not connect yet.
-	SQLConnection(std::string thishost, std::string thisuser, std::string thispass, std::string thisdb)
+	SQLConnection(std::string thishost, std::string thisuser, std::string thispass, std::string thisdb, long myid)
 	{
+		this->Enabled = true;
 		this->host = thishost;
 		this->user = thisuser;
 		this->pass = thispass;
 		this->db = thisdb;
+		this->id = myid;
 		mysql_init(&connection);
 	}
 
@@ -133,37 +137,103 @@ class SQLConnection
 		return mysql_error(&connection);
 	}
 
+	long GetID()
+	{
+		return id;
+	}
+
+	std::string GetHost()
+	{
+		return host;
+	}
+
+	void Enable()
+	{
+		Enabled = true;
+	}
+
+	void Disable()
+	{
+		Enabled = false;
+	}
+
+	bool IsEnabled()
+	{
+		return Enabled;
+	}
+
 	~SQLConnection()
 	{
 		mysql_close(&connection);
 	}
 };
 
+typedef std::vector<SQLConnection> ConnectionList;
 
 class ModuleSQL : public Module
 {
 	Server *Srv;
 	ConfigReader *Conf;
+	ConnectionList Connections;
  
  public:
+	void ConnectDatabases()
+	{
+		for (ConnectionList::iterator i = Connections.begin(); i != Connections.end(); i++)
+		{
+			i->Enable();
+			if (i->Connect())
+			{
+				Srv->Log(DEFAULT,"SQL: Successfully connected database "+i->GetHost());
+			}
+			else
+			{
+				Srv->Log(DEFAULT,"SQL: Failed to connect database "+i->GetHost()+": Error: "+i->GetError());
+				i->Disable();
+			}
+		}
+	}
+
+	void LoadDatabases(ConfigReader* Conf)
+	{
+		Srv->Log(DEFAULT,"SQL: Loading database settings");
+		Connections.clear();
+		for (int j =0; j < Conf->Enumerate("database"); j++)
+		{
+			std::string db = Conf->ReadValue("database","name",j);
+			std::string user = Conf->ReadValue("database","username",j);
+			std::string pass = Conf->ReadValue("database","password",j);
+			std::string host = Conf->ReadValue("database","hostname",j);
+			std::string id = Conf->ReadValue("database","id",j);
+			if ((db != "") && (host != "") && (user != "") && (id != "") && (pass != ""))
+			{
+				SQLConnection ThisSQL(host,user,pass,db,atoi(id.c_str()));
+				Srv->Log(DEFAULT,"Loaded database: "+ThisSQL.GetHost());
+				Connections.push_back(ThisSQL);
+			}
+		}
+		ConnectDatabases();
+	}
+
 	ModuleSQL()
 	{
+		Srv = new Server();
+		Conf = new ConfigReader();
+		LoadDatabases(Conf);
 	}
 	
 	virtual ~ModuleSQL()
 	{
-	}
-	
-	virtual int OnUserPreMessage(userrec* user,void* dest,int target_type, std::string &text)
-	{
-	}
-	
-	virtual int OnUserPreNotice(userrec* user,void* dest,int target_type, std::string &text)
-	{
+		Connections.clear();
+		delete Conf;
+		delete Srv;
 	}
 	
 	virtual void OnRehash()
 	{
+		delete Conf;
+		Conf = new ConfigReader();
+		LoadDatabases(Conf);
 	}
 	
 	virtual Version GetVersion()
