@@ -1,0 +1,140 @@
+.TH "Event" 3 "20 Apr 2005" "InspIRCd" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+Event \- The Event class is a unicast message directed at all modules.  
+
+.PP
+.SH SYNOPSIS
+.br
+.PP
+\fC#include <modules.h>\fP
+.PP
+Inherits \fBModuleMessage\fP.
+.PP
+.SS "Public Member Functions"
+
+.in +1c
+.ti -1c
+.RI "\fBEvent\fP (char *anydata, \fBModule\fP *src, std::string eventid)"
+.br
+.RI "\fICreate a new Event. \fP"
+.ti -1c
+.RI "char * \fBGetData\fP ()"
+.br
+.RI "\fIGet the Event data. \fP"
+.ti -1c
+.RI "\fBModule\fP * \fBGetSource\fP ()"
+.br
+.RI "\fIGet the event Source. \fP"
+.ti -1c
+.RI "std::string \fBGetEventID\fP ()"
+.br
+.RI "\fIGet the event ID. \fP"
+.ti -1c
+.RI "char * \fBSend\fP ()"
+.br
+.RI "\fISend the Event. \fP"
+.in -1c
+.SS "Protected Attributes"
+
+.in +1c
+.ti -1c
+.RI "char * \fBdata\fP"
+.br
+.RI "\fIThis member holds a pointer to arbitary data set by the emitter of the message. \fP"
+.ti -1c
+.RI "\fBModule\fP * \fBsource\fP"
+.br
+.RI "\fIThis is a pointer to the sender of the message, which can be used to directly trigger events, or to create a reply. \fP"
+.ti -1c
+.RI "std::string \fBid\fP"
+.br
+.RI "\fIThe event identifier. \fP"
+.in -1c
+.SH "Detailed Description"
+.PP 
+The Event class is a unicast message directed at all modules. 
+
+When the class is properly instantiated it may be sent to all modules using the \fBSend()\fP method, which will trigger the OnEvent method in all modules passing the object as its parameter. 
+.PP
+Definition at line 191 of file modules.h.
+.SH "Constructor & Destructor Documentation"
+.PP 
+.SS "Event::Event (char * anydata, \fBModule\fP * src, std::string eventid)"
+.PP
+Create a new Event. Definition at line 337 of file modules.cpp.
+.PP
+.nf
+337 : data(anydata), source(src), id(eventid) { };
+.fi
+.SH "Member Function Documentation"
+.PP 
+.SS "char * Event::GetData ()"
+.PP
+Get the Event data. Definition at line 339 of file modules.cpp.
+.PP
+References data.
+.PP
+.nf
+340 {
+341         return this->data;
+342 }
+.fi
+.SS "std::string Event::GetEventID ()"
+.PP
+Get the event ID. Use this to determine the event type for safe casting of the data Definition at line 355 of file modules.cpp.
+.PP
+References id.
+.PP
+.nf
+356 {
+357         return this->id;
+358 }
+.fi
+.SS "\fBModule\fP * Event::GetSource ()"
+.PP
+Get the event Source. Definition at line 344 of file modules.cpp.
+.PP
+References source.
+.PP
+.nf
+345 {
+346         return this->source;
+347 }
+.fi
+.SS "char * Event::Send ()\fC [virtual]\fP"
+.PP
+Send the Event. The return result of an \fBEvent::Send()\fP will always be NULL as no replies are expected. Implements \fBModuleMessage\fP.
+.PP
+Definition at line 349 of file modules.cpp.
+.PP
+References FOREACH_MOD.
+.PP
+.nf
+350 {
+351         FOREACH_MOD OnEvent(this);
+352         return NULL;
+353 }
+.fi
+.SH "Member Data Documentation"
+.PP 
+.SS "char* \fBEvent::data\fP\fC [protected]\fP"
+.PP
+This member holds a pointer to arbitary data set by the emitter of the message. Definition at line 196 of file modules.h.
+.PP
+Referenced by GetData().
+.SS "std::string \fBEvent::id\fP\fC [protected]\fP"
+.PP
+The event identifier. This is arbitary text which should be used to distinguish one type of event from another. Definition at line 205 of file modules.h.
+.PP
+Referenced by GetEventID().
+.SS "\fBModule\fP* \fBEvent::source\fP\fC [protected]\fP"
+.PP
+This is a pointer to the sender of the message, which can be used to directly trigger events, or to create a reply. Definition at line 200 of file modules.h.
+.PP
+Referenced by GetSource().
+
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for InspIRCd from the source code.
