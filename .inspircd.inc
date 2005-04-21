@@ -15,6 +15,8 @@
 #               I HATE PERL.. kthxbye
 # ---------------------------------------------------
 
+$ENV{"LD_LIBRARY_PATH"} = $ENV{"LD_LIBRARY_PATH"} . ":/usr/local/lib/mysql:/usr/lib/mysql";
+
 my $conffile = "@CONFIG_DIR@/inspircd.conf";
 my $binpath = "@BINARY_DIR@/inspircd";
 
