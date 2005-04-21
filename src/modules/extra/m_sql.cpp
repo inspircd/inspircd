@@ -21,6 +21,7 @@
 #include "users.h"
 #include "channels.h"
 #include "modules.h"
+#include "m_sql.h"
 
 /* $ModDesc: m_filter with regexps */
 /* $CompileFlags: -I/usr/local/include -I/usr/include -L/usr/local/lib/mysql -L/usr/lib/mysql -lmysqlclient */
@@ -213,6 +214,71 @@ class ModuleSQL : public Module
 			}
 		}
 		ConnectDatabases();
+	}
+
+	void ResultType(SQLRequest *r, SQLResult *res)
+	{
+		for (ConnectionList::iterator i = Connections.begin(); i != Connections.end(); i++)
+		{
+			if ((i->GetID() == r->GetConnID()) && (i->Enabled()))
+			{
+				bool xr = i->QueryResult(r->GetQuery());
+				if (!xr)
+				{
+					res->SetType(SQL_ERROR);
+					res->SetError(r->GetError());
+					return;
+				}
+			}
+		}
+	}
+
+	void CountType(SQLRequest *r, SQLResult* res)
+	{
+		for (ConnectionList::iterator i = Connections.begin(); i != Connections.end(); i++)
+		{
+			if ((i->GetID() == r->GetConnID()) && (i->Enabled()))
+			{
+				res->SetType(SQL_COUNT);
+				res->SetCount(i->QueryCount(r->GetQuery()));
+				return;
+			}
+		}
+	}
+
+	void RowType(SQLRequest *r, SQLResult* res)
+	{
+		for (ConnectionList::iterator i = Connections.begin(); i != Connections.end(); i++)
+		{
+			if ((i->GetID() == r->GetConnID()) && (i->Enabled()))
+			{
+				std::map<std::string,std::string> row = i->GetRow();
+				res->SetRow(row);
+				res->SetType(SQL_ROW);
+				if (!row.size())
+					res->SetType(SQL_END);
+				return;
+			}
+		}
+	}
+
+	char* OnRequest(Request* request)
+	{
+		SQLResult Result = new SQLResult();
+		SQLRequest *r = (SQLRequest*)request;
+		switch (r->GetRequest())
+		{
+			case SQL_RESULT:
+				ResultType(r,Result);
+			break;
+			case SQL_COUNT:
+				CountType(r,Result);
+			break;
+			case SQL_ROW:
+				RowType(r,Result);
+			break;
+		}
+		return Result;
 	}
 
 	ModuleSQL()
