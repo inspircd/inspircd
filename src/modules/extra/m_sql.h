@@ -14,7 +14,7 @@
 // so that we can neatly pass information around the
 // system.
 
-class SQLRequest : public Request
+class SQLRequest
 {
  protected:
 	long conn_id;
@@ -26,7 +26,7 @@ class SQLRequest : public Request
 		conn_id = id;
 	}
 
-	long GetConnID(long id)
+	long GetConnID()
 	{
 		return conn_id;
 	}
@@ -36,7 +36,7 @@ class SQLRequest : public Request
 		request_type = t;
 	}
 
-	int GetQueryType(int t)
+	int GetQueryType()
 	{
 		return request_type;
 	}
@@ -54,7 +54,7 @@ class SQLRequest : public Request
 
 // Upon completion, an SQLRequest returns an SQLResponse.
 
-class SQLResponse
+class SQLResult
 {
  protected:
 	int resptype;
@@ -86,7 +86,7 @@ class SQLResponse
 
 	int GetType()
 	{
-		return restype;
+		return resptype;
 	}
 
 	std::string GetError()

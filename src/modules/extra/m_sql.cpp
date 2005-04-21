@@ -220,13 +220,13 @@ class ModuleSQL : public Module
 	{
 		for (ConnectionList::iterator i = Connections.begin(); i != Connections.end(); i++)
 		{
-			if ((i->GetID() == r->GetConnID()) && (i->Enabled()))
+			if ((i->GetID() == r->GetConnID()) && (i->IsEnabled()))
 			{
 				bool xr = i->QueryResult(r->GetQuery());
 				if (!xr)
 				{
 					res->SetType(SQL_ERROR);
-					res->SetError(r->GetError());
+					res->SetError(i->GetError());
 					return;
 				}
 			}
@@ -237,7 +237,7 @@ class ModuleSQL : public Module
 	{
 		for (ConnectionList::iterator i = Connections.begin(); i != Connections.end(); i++)
 		{
-			if ((i->GetID() == r->GetConnID()) && (i->Enabled()))
+			if ((i->GetID() == r->GetConnID()) && (i->IsEnabled()))
 			{
 				res->SetType(SQL_COUNT);
 				res->SetCount(i->QueryCount(r->GetQuery()));
@@ -250,7 +250,7 @@ class ModuleSQL : public Module
 	{
 		for (ConnectionList::iterator i = Connections.begin(); i != Connections.end(); i++)
 		{
-			if ((i->GetID() == r->GetConnID()) && (i->Enabled()))
+			if ((i->GetID() == r->GetConnID()) && (i->IsEnabled()))
 			{
 				std::map<std::string,std::string> row = i->GetRow();
 				res->SetRow(row);
@@ -264,21 +264,25 @@ class ModuleSQL : public Module
 
 	char* OnRequest(Request* request)
 	{
-		SQLResult Result = new SQLResult();
-		SQLRequest *r = (SQLRequest*)request;
-		switch (r->GetRequest())
+		if (request)
 		{
-			case SQL_RESULT:
-				ResultType(r,Result);
-			break;
-			case SQL_COUNT:
-				CountType(r,Result);
-			break;
-			case SQL_ROW:
-				RowType(r,Result);
-			break;
+			SQLResult* Result = new SQLResult();
+			SQLRequest *r = (SQLRequest*)request->GetData();
+			switch (r->GetQueryType())
+			{
+				case SQL_RESULT:
+					ResultType(r,Result);
+				break;
+				case SQL_COUNT:
+					CountType(r,Result);
+				break;
+				case SQL_ROW:
+					RowType(r,Result);
+				break;
+			}
+			return (char*)Result;
 		}
-		return Result;
+		return NULL;
 	}
 
 	ModuleSQL()
