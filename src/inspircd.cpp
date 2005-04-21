@@ -3718,7 +3718,7 @@ int InspIRCd(void)
 		if (!LoadModule(configToken))
 		{
 			log(DEBUG,"Exiting due to a module loader error.");
-			printf("\nThere was an error loading a module: %s\n",ModuleError());
+			printf("\nThere was an error loading a module: %s\n\nYou might want to do './inspircd start' instead of 'bin/inspircd'\n\n",ModuleError());
 			Exit(0);
 		}
 	}
