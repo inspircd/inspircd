@@ -23,7 +23,7 @@
 #include "modules.h"
 #include "m_sql.h"
 
-/* $ModDesc: m_filter with regexps */
+/* $ModDesc: SQL Service Provider module for all other m_sql* modules */
 /* $CompileFlags: -I/usr/local/include -I/usr/include -L/usr/local/lib/mysql -L/usr/lib/mysql -lmysqlclient */
 
 /** SQLConnection represents one mysql session.
