@@ -32,7 +32,7 @@
 #include "inspircd.h"
 #include "m_sql.h"
 
-/* $ModDesc: An SQL test module */
+/* $ModDesc: Allow/Deny connections based upon an arbitary SQL table */
 
 Server *Srv;
 
@@ -44,6 +44,8 @@ class ModuleSQLAuth : public Module
 	std::string passfield;
 	std::string encryption;
 	std::string killreason;
+	std::string allowpattern;
+	bool WallOperFail;
 	unsigned long dbid;
 	Module* SQLModule;
 
@@ -58,6 +60,8 @@ class ModuleSQLAuth : public Module
 		killreason = Conf->ReadValue("sqlauth","killreason",0);	// reason to give when access is denied to a user (put your reg details here)
 		encryption = Conf->ReadValue("sqlauth","encryption",0);	// name of sql function used to encrypt password, e.g. "md5" or "passwd".
 									// define, but leave blank if no encryption is to be used.
+		WallOperFail = Conf->ReadBool("sqlauth","verbose",0);	// set to 1 if failed connects should be reported to operators
+		allowpattern = Conf->ReadValue("sqlauth","allowpattern",0); 	// allow nicks matching the pattern without requiring auth
 		delete Conf;
 		SQLModule = Srv->FindModule("m_sql.so");
 		if (!SQLModule)
@@ -78,8 +82,13 @@ class ModuleSQLAuth : public Module
 
 	virtual void OnUserRegister(userrec* user)
 	{
+		if (allowpattern != "") && (Srv->MatchText(user->nick,allowpattern))
+			return;
+		
 		if (!CheckCredentials(user->nick,user->password))
 		{
+			if (WallOperFail)
+				WriteOpers("Forbidden connection from %s!%s@%s (invalid login/password)",user->nick,user->ident,user->host);
 			Srv->QuitUser(user,killreason);
 		}
 	}
@@ -92,8 +101,24 @@ class ModuleSQLAuth : public Module
 		if (!SQLModule)
 			return false;
 
+		// sanitize the password (we dont want any mysql insertion exploits!)
+		std::string temp = "";
+		for (int q = 0; q < password.length(); q++)
+		{
+			if (password[q] == '\'')
+			{
+				temp = temp + "\'";
+			}
+			else if (password[q] == '"')
+			{
+				temp = temp + "\\\"";
+			}
+			else temp = temp + password[q];
+		}
+		password = temp;
+
 		// Create a request containing the SQL query and send it to m_sql.so
-		SQLRequest* query = new SQLRequest(SQL_RESULT,1,"SELECT * FROM "+usertable+" WHERE "+userfield+"='"+username+"' AND "+passfield+"="+encmethod+"('"+password+"')");
+		SQLRequest* query = new SQLRequest(SQL_RESULT,dbid,"SELECT * FROM "+usertable+" WHERE "+userfield+"='"+username+"' AND "+passfield+"="+encryption+"('"+password+"')");
 		Request queryrequest((char*)query, this, SQLModule);
 		SQLResult* result = (SQLResult*)queryrequest.Send();
 
@@ -103,14 +128,14 @@ class ModuleSQLAuth : public Module
 
 			// if we did, this means we may now request a row... there should be only one row for each user, so,
 			// we don't need to loop to fetch multiple rows.
-			SQLRequest* rowrequest = new SQLRequest(SQL_ROW,1,"");
+			SQLRequest* rowrequest = new SQLRequest(SQL_ROW,dbid,"");
 			Request rowquery((char*)rowrequest, this, SQLModule);
 			SQLResult* rowresult = (SQLResult*)rowquery.Send();
 
 			// did we get a row? If we did, we can now do something with the fields
 			if (rowresult->GetType() == SQL_ROW)
 			{
-				if (rowrequest->GetField(userfield) == username)
+				if (rowresult->GetField(userfield) == username)
 				{
 					// because the query directly asked for the password hash, we do not need to check it -
 					// if it didnt match it wont be returned in the first place from the SELECT.
@@ -133,7 +158,7 @@ class ModuleSQLAuth : public Module
 			found = false;
 		}
 		query->SetQueryType(SQL_DONE);
-		query->SetConnID(1);
+		query->SetConnID(dbid);
 		Request donerequest((char*)query, this, SQLModule);
 		donerequest.Send();
 		delete query;
