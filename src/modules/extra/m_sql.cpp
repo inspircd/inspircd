@@ -229,6 +229,8 @@ class ModuleSQL : public Module
 					res->SetError(i->GetError());
 					return;
 				}
+				res->SetType(SQL_OK);
+				return;
 			}
 		}
 	}
@@ -246,17 +248,34 @@ class ModuleSQL : public Module
 		}
 	}
 
+	void DoneType(SQLRequest *r, SQLResult* res)
+	{
+		for (ConnectionList::iterator i = Connections.begin(); i != Connections.end(); i++)
+		{
+			if ((i->GetID() == r->GetConnID()) && (i->IsEnabled()))
+			{
+				res->SetType(SQL_DONE);
+				if (!i->QueryDone())
+					res->SetType(SQL_ERROR);
+			}
+		}
+	}
+
 	void RowType(SQLRequest *r, SQLResult* res)
 	{
 		for (ConnectionList::iterator i = Connections.begin(); i != Connections.end(); i++)
 		{
 			if ((i->GetID() == r->GetConnID()) && (i->IsEnabled()))
 			{
+				log(DEBUG,"*** FOUND MATCHING ROW");
 				std::map<std::string,std::string> row = i->GetRow();
 				res->SetRow(row);
 				res->SetType(SQL_ROW);
 				if (!row.size())
+				{
+					log(DEBUG,"ROW SIZE IS 0");
 					res->SetType(SQL_END);
+				}
 				return;
 			}
 		}
@@ -278,6 +297,9 @@ class ModuleSQL : public Module
 				break;
 				case SQL_ROW:
 					RowType(r,Result);
+				break;
+				case SQL_DONE:
+					DoneType(r,Result);
 				break;
 			}
 			return (char*)Result;

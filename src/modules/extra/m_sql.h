@@ -9,6 +9,8 @@
 #define SQL_ROW    3
 #define SQL_ERROR  4
 #define SQL_END    5
+#define SQL_DONE   6
+#define SQL_OK     7
 
 // SQLRequest is inherited from a basic Request object
 // so that we can neatly pass information around the
@@ -21,6 +23,13 @@ class SQLRequest
 	int request_type;
 	std::string thisquery;
  public:
+	SQLRequest(int qt, long cid, std::string query)
+	{
+		this->SetQueryType(qt);
+		this->SetConnID(cid);
+		this->SetQuery(query);
+	}
+
 	void SetConnID(long id)
 	{
 		conn_id = id;
