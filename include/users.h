@@ -167,6 +167,12 @@ class userrec : public connection
 	 */
 	unsigned long pingmax;
 
+	/** Password specified by the user when they registered.
+	 * This is stored even if the <connect> block doesnt need a password, so that
+	 * modules may check it.
+	 */
+	char password[MAXBUF];
+
 	userrec();
 	
 	virtual ~userrec() {  }

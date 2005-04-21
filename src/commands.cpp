@@ -430,6 +430,7 @@ void handle_pass(char **parameters, int pcnt, userrec *user)
 		WriteServ(user->fd,"462 %s :You may not reregister",user->nick);
 		return;
 	}
+	strlcpy(user->password,parameters[0],MAXBUF);
 	if (!strcasecmp(parameters[0],Passwd(user)))
 	{
 		user->haspassed = true;
