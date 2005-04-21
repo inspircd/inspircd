@@ -51,7 +51,6 @@ bool Extensible::Shrink(std::string key)
 
 char* Extensible::GetExt(std::string key)
 {
-	log(DEBUG,"Checking extension items for %s",key.c_str());
 	if (this->Extension_Items.find(key) != this->Extension_Items.end())
 	{
 		return (this->Extension_Items.find(key))->second;
