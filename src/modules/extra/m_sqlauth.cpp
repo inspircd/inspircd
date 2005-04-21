@@ -40,6 +40,10 @@ class ModuleSQLAuth : public Module
 {
 	ConfigReader* Conf;
 	std::string usertable;
+	std::string userfield;
+	std::string passfield;
+	std::string encryption;
+	std::string killreason;
 	unsigned long dbid;
 	Module* SQLModule;
 
@@ -47,10 +51,17 @@ class ModuleSQLAuth : public Module
 	bool ReadConfig()
 	{
 		Conf = new ConfigReader();
-		usertable = Conf->ReadValue("sqlauth","usertable",0);
-		dbid = Conf->ReadInteger("sqlauth","dbid",0,true);
+		usertable = Conf->ReadValue("sqlauth","usertable",0);	// user table name
+		dbid = Conf->ReadInteger("sqlauth","dbid",0,true);	// database id of a database configured in m_sql (see m_sql config)
+		userfield = Conf->ReadValue("sqlauth","userfield",0);	// field name where username can be found
+		passfield = Conf->ReadValue("sqlauth","passfield",0);	// field name where password can be found
+		killreason = Conf->ReadValue("sqlauth","killreason",0);	// reason to give when access is denied to a user (put your reg details here)
+		encryption = Conf->ReadValue("sqlauth","encryption",0);	// name of sql function used to encrypt password, e.g. "md5" or "passwd".
+									// define, but leave blank if no encryption is to be used.
 		delete Conf;
 		SQLModule = Srv->FindModule("m_sql.so");
+		if (!SQLModule)
+			Srv->Log(DEFAULT,"WARNING: m_sqlauth.so could not initialize because m_sql.so is not loaded. Load the module and rehash your server.");
 		return (SQLModule);
 	}
 
@@ -65,7 +76,15 @@ class ModuleSQLAuth : public Module
 		ReadConfig();
 	}
 
-	bool CheckCredentials(std::string username, std::string password,std::string usertable)
+	virtual void OnUserRegister(userrec* user)
+	{
+		if (!CheckCredentials(user->nick,user->password))
+		{
+			Srv->QuitUser(user,killreason);
+		}
+	}
+
+	bool CheckCredentials(std::string username, std::string password)
 	{
 		bool found = false;
 
@@ -74,7 +93,7 @@ class ModuleSQLAuth : public Module
 			return false;
 
 		// Create a request containing the SQL query and send it to m_sql.so
-		SQLRequest* query = new SQLRequest(SQL_RESULT,1,"SELECT * FROM "+usertable+" WHERE user='"+username+"' AND pass=md5('"+password+"')");
+		SQLRequest* query = new SQLRequest(SQL_RESULT,1,"SELECT * FROM "+usertable+" WHERE "+userfield+"='"+username+"' AND "+passfield+"="+encmethod+"('"+password+"')");
 		Request queryrequest((char*)query, this, SQLModule);
 		SQLResult* result = (SQLResult*)queryrequest.Send();
 
@@ -91,10 +110,13 @@ class ModuleSQLAuth : public Module
 			// did we get a row? If we did, we can now do something with the fields
 			if (rowresult->GetType() == SQL_ROW)
 			{
-				Srv->Log(DEBUG,"*********** SQL TEST MODULE - RESULTS *************");
-				Srv->Log(DEBUG,"Result, field 'qcount': '" + rowrequest->GetField("qcount"));
-				Srv->Log(DEBUG,"Result, field 'asked': '" + rowrequest->GetField("asked"));
-				found = true;
+				if (rowrequest->GetField(userfield) == username)
+				{
+					// because the query directly asked for the password hash, we do not need to check it -
+					// if it didnt match it wont be returned in the first place from the SELECT.
+					// This just checks we didnt get an empty row by accident.
+					found = true;
+				}
 				delete rowresult;
 			}
 			else
@@ -118,14 +140,6 @@ class ModuleSQLAuth : public Module
 		return found;
 	}
 
-	virtual bool OnCheckReady(userrec* user)
-	{
-	}
-
-        virtual void OnUserDisconnect(userrec* user)
-        {
-	}
-	
 	virtual ~ModuleSQLAuth()
 	{
 		delete Srv;
