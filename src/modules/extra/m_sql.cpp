@@ -70,9 +70,7 @@ class SQLConnection
 	// multiple rows.
 	bool QueryResult(std::string query)
 	{
-		char escaped_query[query.length()+1];
-		mysql_real_escape_string(&connection, escaped_query, query.c_str(), query.length());
-		int r = mysql_query(&connection, escaped_query);
+		int r = mysql_query(&connection, query.c_str());
 		if (!r)
 		{
 			res = mysql_use_result(&connection);
@@ -84,9 +82,7 @@ class SQLConnection
 	// the number of effected rows is returned in the return value.
 	unsigned long QueryCount(std::string query)
 	{
-		char escaped_query[query.length()+1];
-		mysql_real_escape_string(&connection, escaped_query, query.c_str(), query.length());
-	        int r = mysql_query(&connection, escaped_query);
+	        int r = mysql_query(&connection, query.c_str());
 	        if (!r)
 	        {
 	                res = mysql_store_result(&connection);
