@@ -23,7 +23,7 @@
 #include "modules.h"
 
 /* $ModDesc: m_filter with regexps */
-/* $CompileFlags: -I/usr/local/include -I/usr/include -L/usr/local/lib -L/usr/lib -lmysqlclient */
+/* $CompileFlags: -I/usr/local/include -I/usr/include -L/usr/local/lib/mysql -L/usr/lib/mysql -lmysqlclient */
 
 /** SQLConnection represents one mysql session.
  * Each session has its own persistent connection to the database.
