@@ -159,10 +159,6 @@ class SQLConnection
 		return Enabled;
 	}
 
-	~SQLConnection()
-	{
-		mysql_close(&connection);
-	}
 };
 
 typedef std::vector<SQLConnection> ConnectionList;
@@ -195,6 +191,7 @@ class ModuleSQL : public Module
 	{
 		Srv->Log(DEFAULT,"SQL: Loading database settings");
 		Connections.clear();
+		Srv->Log(DEBUG,"Cleared connections");
 		for (int j =0; j < Conf->Enumerate("database"); j++)
 		{
 			std::string db = Conf->ReadValue("database","name",j);
@@ -202,11 +199,13 @@ class ModuleSQL : public Module
 			std::string pass = Conf->ReadValue("database","password",j);
 			std::string host = Conf->ReadValue("database","hostname",j);
 			std::string id = Conf->ReadValue("database","id",j);
+			Srv->Log(DEBUG,"Read database settings");
 			if ((db != "") && (host != "") && (user != "") && (id != "") && (pass != ""))
 			{
 				SQLConnection ThisSQL(host,user,pass,db,atoi(id.c_str()));
 				Srv->Log(DEFAULT,"Loaded database: "+ThisSQL.GetHost());
 				Connections.push_back(ThisSQL);
+				Srv->Log(DEBUG,"Pushed back connection");
 			}
 		}
 		ConnectDatabases();
