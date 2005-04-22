@@ -405,7 +405,7 @@ int Module::OnLocalTopicChange(userrec* user, chanrec* chan, std::string topic) 
 int Module::OnMeshToken(char token,string_list params,serverrec* source,serverrec* reply, std::string tcp_host,std::string ipaddr,int port) { return 0; };
 void Module::OnEvent(Event* event) { return; };
 char* Module::OnRequest(Request* request) { return NULL; };
-
+int Module::OnOperCompare(std::string password, std::string input) { return 0; };
 
 // server is a wrapper class that provides methods to all of the C-style
 // exports in the core

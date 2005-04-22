@@ -1605,7 +1605,16 @@ bool is_uline(const char* server)
 	}
 	return false;
 }
-
+int operstrcmp(char* data,char* input)
+{
+	int MOD_RESULT = 0;
+	FOREACH_RESULT(OnOperCompare(data,input))
+	if (MOD_RESULT == 1)
+		return 0;
+	if (MOD_RESULT == -1)
+		return 1;
+	return strcmp(data,input);
+}
 
 void handle_oper(char **parameters, int pcnt, userrec *user)
 {
@@ -1628,7 +1637,7 @@ void handle_oper(char **parameters, int pcnt, userrec *user)
 		ConfValue("oper","password",i,Password,&config_f);
 		ConfValue("oper","type",i,OperType,&config_f);
 		ConfValue("oper","host",i,HostName,&config_f);
-		if ((!strcmp(LoginName,parameters[0])) && (!strcmp(Password,parameters[1])) && (match(TheHost,HostName)))
+		if ((!strcmp(LoginName,parameters[0])) && (!operstrcmp(Password,parameters[1])) && (match(TheHost,HostName)))
 		{
 			fail2 = true;
 			for (j =0; j < ConfValueEnum("type",&config_f); j++)

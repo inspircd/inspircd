@@ -619,6 +619,14 @@ class Module : public classbase
 	 * may be able to use for pre-determined purposes (e.g. the results of an SQL query, etc).
 	 */
 	virtual char* OnRequest(Request* request);
+
+	/** Called whenever an oper password is to be compared to what a user has input.
+	 * The password field (from the config file) is in 'password' and is to be compared against
+	 * 'input'. This method allows for encryption of oper passwords and much more besides.
+	 * You should return a nonzero value if you want to allow the comparison or zero if you wish
+	 * to do nothing.
+	 */
+	virtual int OnOperCompare(std::string password, std::string input);
 };
 
 
