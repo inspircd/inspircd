@@ -136,9 +136,42 @@ void ircd_connector::SetServerPort(int p)
 	this->port = p;
 }
 
+void ircd_connector::AddBuffer(char a)
+{
+	if (a != '\r')
+		ircdbuffer = ircdbuffer + a;
+}
+
+bool ircd_connector::BufferIsComplete()
+{
+	if (ircdbuffer.length())
+	{
+		return (ircdbuffer[ircdbuffer.length()-1] == '\n');
+	}
+	return false;
+}
+
+void ircd_connector::ClearBuffer()
+{
+	ircdbuffer = "";
+}
+
+std::string ircd_connector::GetBuffer()
+{
+	if (ircdbuffer.length() < 510)
+	{
+		return ircdbuffer;
+	}
+	else
+	{
+		return ircdbuffer.substr(510);
+	}
+}
+
 bool ircd_connector::MakeOutboundConnection(char* host, int port)
 {
 	log(DEBUG,"MakeOutboundConnection: Original param: %s",host);
+	ClearBuffer();
 	hostent* hoste = gethostbyname(host);
 	if (!hoste)
 	{
@@ -415,15 +448,15 @@ bool connection::SendPacket(char *message, const char* host)
 
 bool connection::RecvPacket(std::deque<std::string> &messages, char* host)
 {
-	char data[32767];
-	memset(data, 0, 32767);
+	char data[4096];
+	memset(data, 0, 4096);
 	for (int i = 0; i < this->connectors.size(); i++)
 	{
 		if (this->connectors[i].GetState() != STATE_DISCONNECTED)
 		{
 			// returns false if the packet could not be sent (e.g. target host down)
 			int rcvsize = 0;
-			rcvsize = recv(this->connectors[i].GetDescriptor(),data,32767,0);
+			rcvsize = recv(this->connectors[i].GetDescriptor(),data,1,0);
 			if (rcvsize == -1)
 			{
 				if (errno != EAGAIN)
@@ -436,45 +469,15 @@ bool connection::RecvPacket(std::deque<std::string> &messages, char* host)
 			}
 			if (rcvsize > 0)
 			{
-				if ((data[rcvsize-1] != '\r') && (data[rcvsize-1] != '\n'))
+				this->connectors[i].AddBuffer(data[0]);
+				if (this->connectors[i].BufferIsComplete())
 				{
-					char foo = ' ';
-					while ((foo != '\n') && (rcvsize < 32767))
-					{
-						int x = recv(this->connectors[i].GetDescriptor(),(void*)&foo,1,0);
-						if ((x == -1) && (errno != EAGAIN))
-							break;
-						if ((x) && (rcvsize < 32767))
-						{
-							data[rcvsize] = foo;
-							data[++rcvsize] = '\0';
-						}
-					}
+					messages.push_back(this->connectors[i].GetBuffer().c_str());
+					strlcpy(host,this->connectors[i].GetServerName().c_str(),160);
+					log(DEBUG,"main: Connection::RecvPacket() got '%s' from %s",this->connectors[i].GetBuffer().c_str(),host);
+					this->connectors[i].ClearBuffer();
+					return true;
 				}
-				char* l = strtok(data,"\n");
-				while (l)
-				{
-					char sanitized[32767];
-					memset(sanitized, 0, 32767);
-					int ptt = 0;
-					for (int pt = 0; pt < strlen(l); pt++)
-					{
-						if (l[pt] != '\r')
-						{
-							sanitized[ptt++] = l[pt];
-						}
-					}
-					sanitized[ptt] = '\0';
-					if (strlen(sanitized))
-					{
-						messages.push_back(sanitized);
-						strlcpy(host,this->connectors[i].GetServerName().c_str(),160);
-						log(DEBUG,"main: Connection::RecvPacket() got '%s' from %s",sanitized,host);
-						
-					}
-					l = strtok(NULL,"\n");
-				}
-				return true;
 			}
 		}
 	}

@@ -78,6 +78,10 @@ class ircd_connector : public Extensible
 	 */
 	bool SetHostAddress(char* host, int port);
 
+	/** IRCD Buffer for input characters, holds one line
+	 */
+	std::string ircdbuffer;
+
  public:
  
 	/** When MakeOutboundConnection is called, these public members are
@@ -158,6 +162,11 @@ class ircd_connector : public Extensible
 	 * This function call updates no other data.
 	 */
 	void CloseConnection();
+
+	void AddBuffer(char a);
+	bool BufferIsComplete();
+	void ClearBuffer();
+	std::string GetBuffer();
 };
 
 
