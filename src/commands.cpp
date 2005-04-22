@@ -2825,8 +2825,14 @@ void handle_link_packet(char* udp_msg, char* tcp_host, serverrec *serv)
 	}
 
 	char response[10240];
+	char old2[MAXBUF];
 	char token = udp_msg[0];
 	char* old = udp_msg;
+
+	if ((token != ':') && (strlen(udp_msg)>1) && (udp_msg[1] != ' '))
+	{
+		WriteOpers("*** Discarded %d chars illegal data from %s",strlen(udp_msg),tcp_host);
+	}
 
 	if (token == ':') // leading :servername or details - strip them off (services does this, sucky)
 	{
@@ -2936,7 +2942,6 @@ void handle_link_packet(char* udp_msg, char* tcp_host, serverrec *serv)
 		}
 		
 	}
-
 
 	char* params = udp_msg + 2;
 	char finalparam[1024];

@@ -436,6 +436,21 @@ bool connection::RecvPacket(std::deque<std::string> &messages, char* host)
 			}
 			if (rcvsize > 0)
 			{
+				if ((data[rcvsize-1] != '\r') && (data[rcvsize-1] != '\n'))
+				{
+					char foo = ' ';
+					while ((foo != '\n') && (rcvsize < 32767))
+					{
+						int x = recv(this->connectors[i].GetDescriptor(),(void*)&foo,1,0);
+						if ((x == -1) && (errno != EAGAIN))
+							break;
+						if ((x) && (rcvsize < 32767))
+						{
+							data[rcvsize] = foo;
+							data[++rcvsize] = '\0';
+						}
+					}
+				}
 				char* l = strtok(data,"\n");
 				while (l)
 				{
