@@ -77,7 +77,7 @@ class ModuleSQLLog : public Module
 	long InsertNick(std::string nick)
 	{
 		long nid = -1;
-                SQLRequest* query = new SQLRequest(SQL_RESULT,dbid,"SELECT id,nick FROM ircd_log_actors WHERE actor='"+nick+"'");
+                SQLRequest* query = new SQLRequest(SQL_RESULT,dbid,"SELECT id,actor FROM ircd_log_actors WHERE actor='"+nick+"'");
                 Request queryrequest((char*)query, this, SQLModule);
                 SQLResult* result = (SQLResult*)queryrequest.Send();
                 if (result->GetType() == SQL_OK)
@@ -87,7 +87,7 @@ class ModuleSQLLog : public Module
                         SQLResult* rowresult = (SQLResult*)rowquery.Send();
                         if (rowresult->GetType() == SQL_ROW)
                         {
-                                nid = atoi(rowresult->GetField("id"));
+                                nid = atoi(rowresult->GetField("id").c_str());
                                 delete rowresult;
                         }
                         delete rowrequest;
@@ -116,7 +116,7 @@ class ModuleSQLLog : public Module
 		return nid;
 	}
 
-	void InsertEntry(long category,long nickid,long hostid,long sourceid,unsigned long date);
+	void InsertEntry(long category,long nickid,long hostid,long sourceid,unsigned long date)
 	{
 		char querybuffer[MAXBUF];
 		snprintf(querybuffer,MAXBUF,"INSERT INTO ircd_log VALUES('',%d,%d,%d,%d,%lu)",category,nickid,hostid,sourceid,date);
@@ -147,7 +147,7 @@ class ModuleSQLLog : public Module
                         SQLResult* rowresult = (SQLResult*)rowquery.Send();
                         if (rowresult->GetType() == SQL_ROW)
                         {
-                                hid = atoi(rowresult->GetField("id"));
+                                hid = atoi(rowresult->GetField("id").c_str());
                                 delete rowresult;
                         }
                         delete rowrequest;
@@ -180,7 +180,7 @@ class ModuleSQLLog : public Module
 	{
 		// is the sql module loaded? If not, we don't attempt to do anything.
 		if (!SQLModule)
-			return false;
+			return;
 
 		long nickid = InsertNick(nick);
 		long sourceid = InsertNick(source);
@@ -191,6 +191,41 @@ class ModuleSQLLog : public Module
 	virtual void OnOper(userrec* user)
 	{
 		AddLogEntry(LT_OPER,user->nick,user->host,user->server);
+	}
+
+	virtual int OnKill(userrec* source, userrec* dest, std::string reason)
+	{
+		AddLogEntry(LT_KILL,user->nick,user->host,source->nick);
+		return 0;
+	}
+
+	virtual int OnMeshToken(char token,string_list params,serverrec* source,serverrec* reply, std::string tcp_host,std::string ipaddr,int port)
+	{
+		if ((token == 'U') || (token == 's') || (token == 'S'))
+			AddLogEntry(LT_SERVLINK,tcp_host,ipaddr,Srv->GetServerName());
+		return 0;
+	}
+
+	virtual int OnPreCommand(std::string command, char **parameters, int pcnt, userrec *user)
+	{
+		if ((command == "GLINE") || (command == "KLINE") || (command == "ELINE") || (command == "ZLINE"))
+			AddLogEntry(LT_XLINE,user->nick,parameters[0],user->server);
+		return 0;
+	}
+
+	virtual void OnUserConnect(userrec* user)
+	{
+		AddLogEntry(LT_CONNECT,user->nick,user->host,user->server);
+	}
+
+	virtual void OnUserQuit(userrec* user)
+	{
+		AddLogEntry(LT_DISCONNECT,user->nick,user->host,user->server);
+	}
+
+	virtual void OnLoadModule(Module* mod,std::string name)
+	{
+		AddLogEntry(LT_LOADMODULE,name,Srv->GetServerName(),Srv->GetServerName());
 	}
 
 	virtual ~ModuleSQLLog()
