@@ -3865,7 +3865,7 @@ int InspIRCd(void)
 			}
 		}
      
-		for (int x = 0; x < UDPportCount; x++)
+		for (int cycle = 0; cycle < 4; cycle++)	for (int x = 0; x < UDPportCount; x++)
 		{
 			std::deque<std::string> msgs;
 			msgs.clear();
