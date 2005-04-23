@@ -14,7 +14,7 @@ CREATE TABLE ircd_log (
   nick bigint(20) default NULL,
   host bigint(20) default NULL,
   source bigint(20) default NULL,
-  date bigint(20) NOT NULL default '0',
+  dtime bigint(20) NOT NULL default '0',
   PRIMARY KEY  (id)
 ) TYPE=MyISAM;
 
