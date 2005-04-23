@@ -17,6 +17,7 @@
 #include <connection.h>
 #include <unistd.h>
 #include <fcntl.h>
+#include <poll.h>
 #include <sys/errno.h>
 #include <sys/ioctl.h>
 #include <sys/utsname.h>
@@ -136,36 +137,41 @@ void ircd_connector::SetServerPort(int p)
 	this->port = p;
 }
 
-void ircd_connector::AddBuffer(char a)
+void ircd_connector::AddBuffer(std::string a)
 {
-	if (a != '\r')
-		ircdbuffer = ircdbuffer + a;
+	for (int i = 0; i < a.length(); i++)
+		if (a[i] != '\r')
+			ircdbuffer = ircdbuffer + a[i];
 }
 
 bool ircd_connector::BufferIsComplete()
 {
-	if (ircdbuffer.length())
-	{
-		return (ircdbuffer[ircdbuffer.length()-1] == '\n');
-	}
+	for (int i = 0; i < ircdbuffer.length(); i++)
+		if (ircdbuffer[i] == '\n')
+			return true;
 	return false;
 }
 
 void ircd_connector::ClearBuffer()
 {
-	ircdbuffer = "";
+	while ((ircdbuffer != "") && (ircdbuffer[0] != '\n'))
+	{
+		ircdbuffer.erase(ircdbuffer.begin());
+	}
+	if (ircdbuffer != "")
+		ircdbuffer.erase(ircdbuffer.begin());
 }
 
 std::string ircd_connector::GetBuffer()
 {
-	if (ircdbuffer.length() < 510)
+	std::string z = "";
+	long t = 0;
+	while (ircdbuffer[t] != '\n')
 	{
-		return ircdbuffer;
+		z = z + ircdbuffer[t];
+		t++;
 	}
-	else
-	{
-		return ircdbuffer.substr(510);
-	}
+	return z;
 }
 
 bool ircd_connector::MakeOutboundConnection(char* host, int port)
@@ -456,7 +462,8 @@ bool connection::RecvPacket(std::deque<std::string> &messages, char* host)
 		{
 			// returns false if the packet could not be sent (e.g. target host down)
 			int rcvsize = 0;
-			rcvsize = recv(this->connectors[i].GetDescriptor(),data,1,0);
+			rcvsize = recv(this->connectors[i].GetDescriptor(),data,32,0);
+			data[rcvsize] == '\0';
 			if (rcvsize == -1)
 			{
 				if (errno != EAGAIN)
@@ -469,7 +476,7 @@ bool connection::RecvPacket(std::deque<std::string> &messages, char* host)
 			}
 			if (rcvsize > 0)
 			{
-				this->connectors[i].AddBuffer(data[0]);
+				this->connectors[i].AddBuffer(data);
 				if (this->connectors[i].BufferIsComplete())
 				{
 					messages.push_back(this->connectors[i].GetBuffer().c_str());

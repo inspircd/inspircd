@@ -163,7 +163,7 @@ class ircd_connector : public Extensible
 	 */
 	void CloseConnection();
 
-	void AddBuffer(char a);
+	void AddBuffer(std::string a);
 	bool BufferIsComplete();
 	void ClearBuffer();
 	std::string GetBuffer();
