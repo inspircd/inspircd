@@ -195,7 +195,7 @@ class ModuleSQLLog : public Module
 
 	virtual int OnKill(userrec* source, userrec* dest, std::string reason)
 	{
-		AddLogEntry(LT_KILL,user->nick,user->host,source->nick);
+		AddLogEntry(LT_KILL,dest->nick,dest->host,source->nick);
 		return 0;
 	}
 
