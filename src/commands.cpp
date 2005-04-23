@@ -2212,9 +2212,14 @@ void handle_N(char token,char* params,serverrec* source,serverrec* reply, char* 
 	clientlist[nick]->idle_lastmsg = TIME; // this is unrealiable and wont actually be used locally
 	for (int i = 0; i < MAXCHANS; i++)
 	{
- 		clientlist[nick]->chans[i].channel = NULL;
- 		clientlist[nick]->chans[i].uc_modes = 0;
- 	}
+		clientlist[nick]->chans[i].channel = NULL;
+		clientlist[nick]->chans[i].uc_modes = 0;
+	}
+	FOREACH_MOD OnGlobalConnect(clientlist[nick]);
+	if (strchr(clientlist[nick]->modes,'o'))
+	{
+		FOREACH_MOD OnGlobalOper(clientlist[nick]);
+	}
 }
 
 void handle_F(char token,char* params,serverrec* source,serverrec* reply, char* tcp_host)

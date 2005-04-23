@@ -627,6 +627,20 @@ class Module : public classbase
 	 * to do nothing.
 	 */
 	virtual int OnOperCompare(std::string password, std::string input);
+
+	/** Called whenever a user is given usermode +o, anywhere on the network.
+	 * You cannot override this and prevent it from happening as it is already happened and
+	 * such a task must be performed by another server. You can however bounce modes by sending
+	 * servermodes out to reverse mode changes.
+	 */
+	virtual void OnGlobalOper(userrec* user);
+
+	/**  Called whenever a user connects, anywhere on the network.
+	 * This event is informational only. You should not change any user information in this
+	 * event. To do so, use the OnUserConnect method to change the state of local users.
+	 */
+	virtual void OnGlobalConnect(userrec* user);
+
 };
 
 

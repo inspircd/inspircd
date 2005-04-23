@@ -1288,6 +1288,10 @@ void handle_mode(char **parameters, int pcnt, userrec *user)
 								dmodes[strlen(dmodes)] = parameters[1][i];
 								outpars[strlen(outpars)+1]='\0';
 								outpars[strlen(outpars)] = parameters[1][i];
+								if (parameters[1][i] == 'o')
+								{
+									FOREACH_MOD OnGlobalOper(dest);
+								}
 							}
 						}
 					}
