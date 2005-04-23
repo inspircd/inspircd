@@ -193,6 +193,11 @@ class ModuleSQLLog : public Module
 		AddLogEntry(LT_OPER,user->nick,user->host,user->server);
 	}
 
+	virtual void OnGlobalOper(userrec* user)
+	{
+		AddLogEntry(LT_OPER,user->nick,user->host,user->server);
+	}
+
 	virtual int OnKill(userrec* source, userrec* dest, std::string reason)
 	{
 		AddLogEntry(LT_KILL,dest->nick,dest->host,source->nick);
@@ -214,6 +219,11 @@ class ModuleSQLLog : public Module
 	}
 
 	virtual void OnUserConnect(userrec* user)
+	{
+		AddLogEntry(LT_CONNECT,user->nick,user->host,user->server);
+	}
+
+	virtual void OnGlobalConnect(userrec* user)
 	{
 		AddLogEntry(LT_CONNECT,user->nick,user->host,user->server);
 	}
