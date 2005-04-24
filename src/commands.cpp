@@ -905,8 +905,8 @@ void handle_quit(char **parameters, int pcnt, userrec *user)
 				reason[MAXQUIT-1] = '\0';
 			}
 
-			Write(user->fd,"ERROR :Closing link (%s@%s) [%s]",user->ident,user->host,parameters[0]);
-			WriteOpers("*** Client exiting: %s!%s@%s [%s]",user->nick,user->ident,user->host,parameters[0]);
+			Write(user->fd,"ERROR :Closing link (%s@%s) [%s%s]",user->ident,user->host,PrefixQuit,parameters[0]);
+			WriteOpers("*** Client exiting: %s!%s@%s [%s%s]",user->nick,user->ident,user->host,PrefixQuit,parameters[0]);
 			WriteCommonExcept(user,"QUIT :%s%s",PrefixQuit,parameters[0]);
 
 			char buffer[MAXBUF];
