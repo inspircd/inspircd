@@ -41,7 +41,7 @@
 #define LT_FLOOD	7
 #define LT_LOADMODULE	8
 
-/* $ModDesc: Allow/Deny connections based upon an arbitary SQL table */
+/* $ModDesc: Logs network-wide data to an SQL database */
 
 Server *Srv;
 
