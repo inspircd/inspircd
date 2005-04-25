@@ -17,14 +17,14 @@
 
 #include <stdio.h>
 #include <string>
-#include <mysql/mysql.h>
+#include <mysql.h>
 #include "users.h"
 #include "channels.h"
 #include "modules.h"
 #include "m_sql.h"
 
 /* $ModDesc: SQL Service Provider module for all other m_sql* modules */
-/* $CompileFlags: -I/usr/local/include -I/usr/include -L/usr/local/lib/mysql -L/usr/lib/mysql -lmysqlclient */
+/* $CompileFlags: -I/usr/local/include/mysql -I/usr/include/mysql -I/usr/local/include -I/usr/include -L/usr/local/lib/mysql -L/usr/lib/mysql -L/usr/local/lib -lmysqlclient */
 
 /** SQLConnection represents one mysql session.
  * Each session has its own persistent connection to the database.
