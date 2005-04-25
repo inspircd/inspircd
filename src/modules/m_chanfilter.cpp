@@ -84,12 +84,16 @@ class ModuleChanFilter : public Module
 
         virtual int ProcessMessages(userrec* user,chanrec* chan,std::string &text)
         {
+		char buffer[MAXBUF];
+		strlcpy(buffer,text.c_str(),MAXBUF);
+		for (int j = 0; j < strlen(buffer); j++)
+			buffer[j] = tolower(buffer[j]);
 		SpamList* spamlist = (SpamList*)chan->GetExt("spam_list");
 		if (spamlist)
 		{
 			for (SpamList::iterator i = spamlist->begin(); i != spamlist->end(); i++)
 			{
-				if (strcasestr(text.c_str(),i->c_str()))
+				if (strstr(text.c_str(),i->c_str()))
 				{
 					WriteServ(user->fd,"936 %s %s :Your message contained a censored word, and was blocked",user->nick, chan->name);
 					return 1;
@@ -122,6 +126,10 @@ class ModuleChanFilter : public Module
 		if ((modechar == 'g') && (type == MT_CHANNEL))
 		{
 			chanrec* chan = (chanrec*)target;
+
+			for (int j = 0; j < strlen(params[0]); j++)
+				params[0][j] = tolower(params[0][j]);
+
 			std::string param = params[0];
 		
 			if (mode_on)
