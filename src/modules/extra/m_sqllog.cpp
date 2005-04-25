@@ -214,7 +214,9 @@ class ModuleSQLLog : public Module
 	virtual int OnPreCommand(std::string command, char **parameters, int pcnt, userrec *user)
 	{
 		if ((command == "GLINE") || (command == "KLINE") || (command == "ELINE") || (command == "ZLINE"))
-			AddLogEntry(LT_XLINE,user->nick,parameters[0],user->server);
+		{
+			AddLogEntry(LT_XLINE,user->nick,command[0]+std::string(":")+std::string(parameters[0]),user->server);
+		}
 		return 0;
 	}
 
