@@ -115,7 +115,7 @@ class ModuleSQLOper : public Module
 		username = temp;
 
 		// Create a request containing the SQL query and send it to m_sql.so
-		SQLRequest* query = new SQLRequest(SQL_RESULT,dbid,"SELECT username,password,type FROM ircd_opers WHERE username='"+username+"' AND password=md5('"+password+"')");
+		SQLRequest* query = new SQLRequest(SQL_RESULT,dbid,"SELECT username,password,hostname,type FROM ircd_opers WHERE username='"+username+"' AND password=md5('"+password+"')");
 		Request queryrequest((char*)query, this, SQLModule);
 		SQLResult* result = (SQLResult*)queryrequest.Send();
 
@@ -139,7 +139,8 @@ class ModuleSQLOper : public Module
 		                        for (int j =0; j < Conf->Enumerate("type"); j++)
 		                        {
 		                                std::string TypeName = Conf->ReadValue("type","name",j);
-		                                if (TypeName == rowresult->GetField("type"))
+						std::string pattern = std::string(user->ident) + "@" + std::string(user->host);
+		                                if ((TypeName == rowresult->GetField("type")) && (Srv->MatchText(pattern,rowresult->GetField("hostname"))));
 		                                {
 		                                        /* found this oper's opertype */
 							Srv->MeshSendAll("| "+std::string(user->nick)+" "+TypeName);

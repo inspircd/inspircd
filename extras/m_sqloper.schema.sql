@@ -12,6 +12,7 @@ CREATE TABLE ircd_opers (
   id bigint(20) NOT NULL auto_increment,
   username text,
   password text,
+  hostname text,
   type text,
   PRIMARY KEY  (id)
 ) TYPE=MyISAM;
