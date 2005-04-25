@@ -127,7 +127,7 @@ class ModuleChanFilter : public Module
 		{
 			chanrec* chan = (chanrec*)target;
 
-			for (int j = 0; j < strlen(params[0]); j++)
+			for (int j = 0; j < params[0].length(); j++)
 				params[0][j] = tolower(params[0][j]);
 
 			std::string param = params[0];
