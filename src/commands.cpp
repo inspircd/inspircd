@@ -2439,6 +2439,7 @@ void handle_hash(char token,char* params,serverrec* source,serverrec* reply, cha
 	char* create_time = strtok(NULL," ");
 	char* duration = strtok(NULL," :");
 	char* reason = strtok(NULL,"\r\n");
+	reason++;
 	add_gline(atoi(duration),(const char*)who,(const char*)reason,(const char*)mask);
 	// we must update the creation time on this gline
 	// now that we've added it, or it wont expire at the right time.
@@ -2480,6 +2481,7 @@ void handle_add_sqline(char token,char* params,serverrec* source,serverrec* repl
 	char* create_time = strtok(NULL," ");
 	char* duration = strtok(NULL," :");
 	char* reason = strtok(NULL,"\r\n");
+	reason++;
 	add_qline(atoi(duration),(const char*)who,(const char*)reason,(const char*)mask);
 	// we must update the creation time on this gline
 	// now that we've added it, or it wont expire at the right time.
@@ -2522,6 +2524,7 @@ void handle_add_szline(char token,char* params,serverrec* source,serverrec* repl
 	char* create_time = strtok(NULL," ");
 	char* duration = strtok(NULL," :");
 	char* reason = strtok(NULL,"\r\n");
+	reason++;
 	add_zline(atoi(duration),(const char*)who,(const char*)reason,(const char*)mask);
 	// we must update the creation time on this gline
 	// now that we've added it, or it wont expire at the right time.
