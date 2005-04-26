@@ -277,7 +277,7 @@ void log(int level,char *text, ...)
 		vsnprintf(textbuffer, MAXBUF, text, argsPtr);
 		va_end(argsPtr);
 		strlcpy(b,asctime(timeinfo),MAXBUF);
-		b[strlen(b)-1] = ':';
+		b[24] = ':';	// we know this is the end of the time string
 		fprintf(log_file,"%s %s\n",b,textbuffer);
 		if (nofork)
 		{
@@ -316,7 +316,7 @@ void readfile(file_cache &F, const char* fname)
 	{
 		log(DEBUG,"readfile: failed to load file: %s",fname);
 	}
-	log(DEBUG,"readfile: loaded %s, %d lines",fname,F.size());
+	log(DEBUG,"readfile: loaded %s, %lu lines",fname,(unsigned long)F.size());
 }
 
 void ReadConfig(bool bail, userrec* user)
@@ -446,7 +446,7 @@ void ReadConfig(bool bail, userrec* user)
 				c.pingtime = atoi(pfreq);
 			}
 			Classes.push_back(c);
-			log(DEBUG,"Read connect class type ALLOW, host=%s password=%s timeout=%d flood=%d",c.host,c.pass,c.registration_timeout,c.flood);
+			log(DEBUG,"Read connect class type ALLOW, host=%s password=%s timeout=%lu flood=%lu",c.host,c.pass,(unsigned long)c.registration_timeout,(unsigned long)c.flood);
 		}
 		else
 		{
@@ -537,7 +537,7 @@ void ReadConfig(bool bail, userrec* user)
 				WriteServ(user->fd,"974 %s %s :Failed to load module %s: %s",user->nick, adding->c_str(), adding->c_str(), ModuleError());
 			}
 		}
-		log(DEFAULT,"Successfully unloaded %d of %d modules and loaded %d of %d modules.",rem,removed_modules.size(),add,added_modules.size());
+		log(DEFAULT,"Successfully unloaded %lu of %lu modules and loaded %lu of %lu modules.",(unsigned long)rem,(unsigned long)removed_modules.size(),(unsigned long)add,(unsigned long)added_modules.size());
 	}
 }
 
@@ -1336,7 +1336,7 @@ void purge_empty_chans(userrec* u)
 			}
 		}
 	}
-	log(DEBUG,"completed channel purge, killed %d",purge);
+	log(DEBUG,"completed channel purge, killed %lu",(unsigned long)purge);
 }
 
 
@@ -1394,13 +1394,13 @@ char* chanmodes(chanrec *chan)
 	if (chan->limit)
 	{
 		char foo[24];
-		sprintf(foo," %d",chan->limit);
+		sprintf(foo," %lu",(unsigned long)chan->limit);
 		strlcat(sparam,foo,MAXBUF);
 	}
-	if (strlen(chan->custom_modes))
+	if (*chan->custom_modes)
 	{
 		strlcat(scratch,chan->custom_modes,MAXMODES);
-		for (int z = 0; z < strlen(chan->custom_modes); z++)
+		for (int z = 0; chan->custom_modes[z] != 0; z++)
 		{
 			std::string extparam = chan->GetModeParameter(chan->custom_modes[z]);
 			if (extparam != "")
@@ -1492,7 +1492,7 @@ int usercount_i(chanrec *c)
 			}
 		}
 	}
-	log(DEBUG,"usercount_i: %s %d",c->name,count);
+	log(DEBUG,"usercount_i: %s %lu",c->name,(unsigned long)count);
 	return count;
 }
 
@@ -1505,7 +1505,7 @@ int usercount(chanrec *c)
 		return 0;
 	}
 	int count = c->GetUserCounter();
-	log(DEBUG,"usercount: %s %d",c->name,count);
+	log(DEBUG,"usercount: %s %lu",c->name,(unsigned long)count);
 	return count;
 }
 
@@ -1739,12 +1739,12 @@ chanrec* add_channel(userrec *user, const char* cn, const char* key, bool overri
 			if (Ptr->topicset)
 			{
 				WriteServ(user->fd,"332 %s %s :%s", user->nick, Ptr->name, Ptr->topic);
-				WriteServ(user->fd,"333 %s %s %s %d", user->nick, Ptr->name, Ptr->setby, Ptr->topicset);
+				WriteServ(user->fd,"333 %s %s %s %lu", user->nick, Ptr->name, Ptr->setby, (unsigned long)Ptr->topicset);
 			}
 			userlist(user,Ptr);
 			WriteServ(user->fd,"366 %s %s :End of /NAMES list.", user->nick, Ptr->name);
 			//WriteServ(user->fd,"324 %s %s +%s",user->nick, Ptr->name,chanmodes(Ptr));
-			//WriteServ(user->fd,"329 %s %s %d", user->nick, Ptr->name, Ptr->created);
+			//WriteServ(user->fd,"329 %s %s %lu", user->nick, Ptr->name, (unsigned long)Ptr->created);
 			FOREACH_MOD OnUserJoin(user,Ptr);
 			return Ptr;
 		}
@@ -2105,7 +2105,7 @@ void kill_link(userrec *user,const char* r)
 
 	log(DEBUG,"kill_link: %s '%s'",user->nick,reason);
 	Write(user->fd,"ERROR :Closing link (%s@%s) [%s]",user->ident,user->host,reason);
-	log(DEBUG,"closing fd %d",user->fd);
+	log(DEBUG,"closing fd %lu",(unsigned long)user->fd);
 
 	/* bugfix, cant close() a nonblocking socket (sux!) */
 	if (user->registered == 7) {
@@ -2133,7 +2133,7 @@ void kill_link(userrec *user,const char* r)
 
 	if (iter != clientlist.end())
 	{
-		log(DEBUG,"deleting user hash value %d",iter->second);
+		log(DEBUG,"deleting user hash value %lu",(unsigned long)iter->second);
 		if ((iter->second) && (user->registered == 7)) {
 			if (iter->second) delete iter->second;
 		}
@@ -2161,7 +2161,7 @@ void kill_link_silent(userrec *user,const char* r)
 
 	log(DEBUG,"kill_link: %s '%s'",user->nick,reason);
 	Write(user->fd,"ERROR :Closing link (%s@%s) [%s]",user->ident,user->host,reason);
-	log(DEBUG,"closing fd %d",user->fd);
+	log(DEBUG,"closing fd %lu",(unsigned long)user->fd);
 
 	/* bugfix, cant close() a nonblocking socket (sux!) */
 	if (user->registered == 7) {
@@ -2184,7 +2184,7 @@ void kill_link_silent(userrec *user,const char* r)
 	
 	if (iter != clientlist.end())
 	{
-		log(DEBUG,"deleting user hash value %d",iter->second);
+		log(DEBUG,"deleting user hash value %lu",(unsigned long)iter->second);
 		if ((iter->second) && (user->registered == 7)) {
 			if (iter->second) delete iter->second;
 		}
@@ -2312,7 +2312,7 @@ template<typename T> inline string ConvToStr(const T &in)
 
 userrec* ReHashNick(char* Old, char* New)
 {
-	user_hash::iterator newnick;
+	//user_hash::iterator newnick;
 	user_hash::iterator oldnick = clientlist.find(Old);
 
 	log(DEBUG,"ReHashNick: %s %s",Old,New);
@@ -2393,7 +2393,7 @@ void AddClient(int socket, char* host, int port, bool iscached, char* ip)
 	user_hash::iterator iter;
 
 	tempnick = ConvToStr(socket) + "-unknown";
-	sprintf(tn2,"%d-unknown",socket);
+	sprintf(tn2,"%lu-unknown",(unsigned long)socket);
 
 	iter = clientlist.find(tempnick);
 
@@ -2409,7 +2409,7 @@ void AddClient(int socket, char* host, int port, bool iscached, char* ip)
 	clientlist[tempnick] = new userrec();
 
 	NonBlocking(socket);
-	log(DEBUG,"AddClient: %d %s %d %s",socket,host,port,ip);
+	log(DEBUG,"AddClient: %lu %s %d %s",(unsigned long)socket,host,port,ip);
 
 	clientlist[tempnick]->fd = socket;
 	strncpy(clientlist[tempnick]->nick, tn2,NICKMAX);
@@ -2664,10 +2664,10 @@ void FullConnectUser(userrec* user)
         }
         ShowMOTD(user);
         FOREACH_MOD OnUserConnect(user);
-        WriteOpers("*** Client connecting on port %d: %s!%s@%s [%s]",user->port,user->nick,user->ident,user->host,user->ip);
+        WriteOpers("*** Client connecting on port %lu: %s!%s@%s [%s]",(unsigned long)user->port,user->nick,user->ident,user->host,user->ip);
 
         char buffer[MAXBUF];
-	snprintf(buffer,MAXBUF,"N %d %s %s %s %s +%s %s %s :%s",user->age,user->nick,user->host,user->dhost,user->ident,user->modes,user->ip,ServerName,user->fullname);
+	snprintf(buffer,MAXBUF,"N %lu %s %s %s %s +%s %s %s :%s",(unsigned long)user->age,user->nick,user->host,user->dhost,user->ident,user->modes,user->ip,ServerName,user->fullname);
         NetSendToAll(buffer);
 }
 
@@ -2707,7 +2707,7 @@ void handle_version(char **parameters, int pcnt, userrec *user)
 	v2 = strtok_r(s1," ",&savept);
 	s1 = savept;
 	
-	WriteServ(user->fd,"351 %s :%s Rev. %s %s :%s (O=%d)",user->nick,VERSION,v2,ServerName,SYSTEM,OPTIMISATION);
+	WriteServ(user->fd,"351 %s :%s Rev. %s %s :%s (O=%lu)",user->nick,VERSION,v2,ServerName,SYSTEM,(unsigned long)OPTIMISATION);
 }
 
 
@@ -2975,7 +2975,6 @@ void process_command(userrec *user, char* cmd)
 		{
 			cmd[i] = toupper(cmd[i]);
 		}
-		log(DEBUG,"Preprocess done length=%d",strlen(cmd));
 		command = cmd;
 	}
 	else
@@ -3126,7 +3125,7 @@ void process_command(userrec *user, char* cmd)
 					}
 					if ((user->registered == 7) || (!strcmp(command,"USER")) || (!strcmp(command,"NICK")) || (!strcmp(command,"PASS")))
 					{
-					        log(DEBUG,"process_command: handler: %s %s %d",user->nick,command,items);
+					        log(DEBUG,"process_command: handler: %s %s %lu",user->nick,command,(unsigned long)items);
 						if (cmdlist[i].handler_function)
 						{
 							
@@ -3189,7 +3188,7 @@ void createcommand(char* cmd, handlerfunc f, char flags, int minparams,char* sou
 	comm.use_count = 0;
 	comm.total_bytes = 0;
 	cmdlist.push_back(comm);
-	log(DEBUG,"Added command %s (%d parameters)",cmd,minparams);
+	log(DEBUG,"Added command %s (%lu parameters)",cmd,(unsigned long)minparams);
 }
 
 bool removecommands(const char* source)
@@ -3325,12 +3324,12 @@ void DoSync(serverrec* serv, char* tcp_host)
 	// send start of sync marker: Y <timestamp>
 	// at this point the ircd receiving it starts broadcasting this netburst to all ircds
 	// except the ones its receiving it from.
-	snprintf(data,MAXBUF,"Y %d",TIME);
+	snprintf(data,MAXBUF,"Y %lu",(unsigned long)TIME);
 	serv->SendPacket(data,tcp_host);
 	// send users and channels
 	for (user_hash::iterator u = clientlist.begin(); u != clientlist.end(); u++)
 	{
-		snprintf(data,MAXBUF,"N %d %s %s %s %s +%s %s %s :%s",u->second->age,u->second->nick,u->second->host,u->second->dhost,u->second->ident,u->second->modes,u->second->ip,u->second->server,u->second->fullname);
+		snprintf(data,MAXBUF,"N %lu %s %s %s %s +%s %s %s :%s",(unsigned long)u->second->age,u->second->nick,u->second->host,u->second->dhost,u->second->ident,u->second->modes,u->second->ip,u->second->server,u->second->fullname);
 		serv->SendPacket(data,tcp_host);
 		if (strchr(u->second->modes,'o'))
 		{
@@ -3368,7 +3367,7 @@ void DoSync(serverrec* serv, char* tcp_host)
   		}
 		if (strcmp(c->second->topic,""))
 		{
-			snprintf(data,MAXBUF,"T %d %s %s :%s",c->second->topicset,c->second->setby,c->second->name,c->second->topic);
+			snprintf(data,MAXBUF,"T %lu %s %s :%s",(unsigned long)c->second->topicset,c->second->setby,c->second->name,c->second->topic);
 			serv->SendPacket(data,tcp_host);
 		}
 		// send current banlist
@@ -3398,7 +3397,7 @@ void DoSync(serverrec* serv, char* tcp_host)
 		}
 	}
 
-	snprintf(data,MAXBUF,"F %d",TIME);
+	snprintf(data,MAXBUF,"F %lu",(unsigned long)TIME);
 	serv->SendPacket(data,tcp_host);
 	log(DEBUG,"Sent sync");
 	// ircd sends its serverlist after the end of sync here
@@ -3744,8 +3743,8 @@ int InspIRCd(void)
 			me[serverportcount] = new serverrec(ServerName,100L,false);
 			if (!me[serverportcount]->CreateListener(Addr,atoi(configToken)))
 			{
-				log(DEFAULT,"Warning: Failed to bind port %d",atoi(configToken));
-				printf("Warning: Failed to bind port %d\n",atoi(configToken));
+				log(DEFAULT,"Warning: Failed to bind port %lu",(unsigned long)atoi(configToken));
+				printf("Warning: Failed to bind port %lu\n",(unsigned long)atoi(configToken));
 			}
 			else
 			{
@@ -3763,7 +3762,7 @@ int InspIRCd(void)
 	portCount = clientportcount;
 	UDPportCount = serverportcount;
 	  
-	log(DEBUG,"InspIRCd: startup: read %d total client ports and %d total server ports",portCount,UDPportCount);
+	log(DEBUG,"InspIRCd: startup: read %lu total client ports and %lu total server ports",(unsigned long)portCount,(unsigned long)UDPportCount);
 	log(DEBUG,"InspIRCd: startup: InspIRCd is now starting!");
 	
 	printf("\n");
@@ -3781,7 +3780,7 @@ int InspIRCd(void)
 			Exit(0);
 		}
 	}
-	log(DEBUG,"Total loaded modules: %d",MODCOUNT+1);
+	log(DEBUG,"Total loaded modules: %lu",(unsigned long)MODCOUNT+1);
 	
 	startup_time = time(NULL);
 	  
@@ -3793,18 +3792,18 @@ int InspIRCd(void)
 	/* setup select call */
 	FD_ZERO(&selectFds);
 	log(DEBUG,"InspIRCd: startup: zero selects");
-	log(VERBOSE,"InspIRCd: startup: portCount = %d", portCount);
+	log(VERBOSE,"InspIRCd: startup: portCount = %lu", (unsigned long)portCount);
 	
 	for (count = 0; count < portCount; count++)
 	{
 		if ((openSockfd[boundPortCount] = OpenTCPSocket()) == ERROR)
 		{
-			log(DEBUG,"InspIRCd: startup: bad fd %d",openSockfd[boundPortCount]);
+			log(DEBUG,"InspIRCd: startup: bad fd %lu",(unsigned long)openSockfd[boundPortCount]);
 			return(ERROR);
 		}
 		if (BindSocket(openSockfd[boundPortCount],client,server,ports[count],addrs[count]) == ERROR)
 		{
-			log(DEFAULT,"InspIRCd: startup: failed to bind port %d",ports[count]);
+			log(DEFAULT,"InspIRCd: startup: failed to bind port %lu",(unsigned long)ports[count]);
 		}
 		else	/* well we at least bound to one socket so we'll continue */
 		{
@@ -3812,13 +3811,13 @@ int InspIRCd(void)
 		}
 	}
 	
-	log(DEBUG,"InspIRCd: startup: total bound ports %d",boundPortCount);
+	log(DEBUG,"InspIRCd: startup: total bound ports %lu",(unsigned long)boundPortCount);
 	  
 	/* if we didn't bind to anything then abort */
 	if (boundPortCount == 0)
 	{
 		log(DEFAULT,"InspIRCd: startup: no ports bound, bailing!");
-		printf("\nERROR: Was not able to bind any of %d ports! Please check your configuration.\n\n", portCount);
+		printf("\nERROR: Was not able to bind any of %lu ports! Please check your configuration.\n\n", (unsigned long)portCount);
 		return (ERROR);
 	}
 	
@@ -3934,9 +3933,9 @@ int InspIRCd(void)
 				{
 					strlcpy(udp_msg,msgs[ctr].c_str(),MAXBUF);
 					log(DEBUG,"Processing: %s",udp_msg);
-					if (strlen(udp_msg)<1)
+					if (!udp_msg[0])
     					{
-						log(DEBUG,"Invalid string from %s [route%d]",tcp_host,x);
+						log(DEBUG,"Invalid string from %s [route%lu]",tcp_host,(unsigned long)x);
 						break;
 					}
 					// during a netburst, send all data to all other linked servers
@@ -4090,7 +4089,7 @@ int InspIRCd(void)
 								}
 							}
 							sanitized[ptt] = '\0';
-							if (strlen(sanitized))
+							if (*sanitized)
 							{
 
 
@@ -4182,13 +4181,13 @@ int InspIRCd(void)
 			
 				if (incomingSockfd < 0)
 				{
-					WriteOpers("*** WARNING: Accept failed on port %d (%s)", ports[count],target);
-					log(DEBUG,"InspIRCd: accept failed: %d",ports[count]);
+					WriteOpers("*** WARNING: Accept failed on port %lu (%s)",(unsigned long)ports[count],target);
+					log(DEBUG,"InspIRCd: accept failed: %lu",(unsigned long)ports[count]);
 				}
 				else
 				{
 					AddClient(incomingSockfd, resolved, ports[count], false, inet_ntoa (client.sin_addr));
-					log(DEBUG,"InspIRCd: adding client on port %d fd=%d",ports[count],incomingSockfd);
+					log(DEBUG,"InspIRCd: adding client on port %lu fd=%lu",(unsigned long)ports[count],(unsigned long)incomingSockfd);
 				}
 				goto label;
 			}
