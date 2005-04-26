@@ -132,7 +132,7 @@ void call_handler(const char* commandname,char **parameters, int pcnt, userrec *
 long GetRevision();
 int loop_call(handlerfunc fn, char **parameters, int pcnt, userrec *u, int start, int end, int joins);
 void kick_channel(userrec *src,userrec *user, chanrec *Ptr, char* reason);
-void purge_empty_chans(void);
+void purge_empty_chans(userrec* user);
 char* Passwd(userrec *user);
 bool IsDenied(userrec *user);
 void AddWhoWas(userrec* u);

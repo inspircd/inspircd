@@ -1219,34 +1219,38 @@ long GetMaxBans(char* name)
 }
 
 
-void purge_empty_chans(void)
+void purge_empty_chans(userrec* u)
 {
+
 	int go_again = 1, purge = 0;
-	
-	while (go_again)
+
+	// firstly decrement the count on each channel
+	for (int f = 0; f < MAXCHANS; f++)
+		if (u->chans[f].channel)
+			u->chans[f].channel->DecUserCounter();
+
+	for (int i = 0; i < MAXCHANS; i++)
 	{
-		go_again = 0;
-		for (chan_hash::iterator i = chanlist.begin(); i != chanlist.end(); i++)
+		if (u->chans[i].channel)
 		{
-			if (i->second) {
-				if (!usercount(i->second))
+			if (!usercount(u->chans[i].channel))
+			{
+				chan_hash::iterator i2 = chanlist.find(u->chans[i].channel->name);
+				/* kill the record */
+				if (i2 != chanlist.end())
 				{
-					/* kill the record */
-					if (i != chanlist.end())
-					{
-						log(DEBUG,"del_channel: destroyed: %s",i->second->name);
-						if (i->second)
-							delete i->second;
-						chanlist.erase(i);
-						go_again = 1;
-						purge++;
-						break;
-					}
+					log(DEBUG,"del_channel: destroyed: %s",i2->second->name);
+					if (i2->second)
+						delete i2->second;
+					chanlist.erase(i2);
+					go_again = 1;
+					purge++;
+					u->chans[i].channel = NULL;
 				}
-				else
-				{
-					log(DEBUG,"skipped purge for %s",i->second->name);
-				}
+			}
+			else
+			{
+				log(DEBUG,"skipped purge for %s",u->chans[i].channel->name);
 			}
 		}
 	}
@@ -1413,28 +1417,12 @@ int usercount_i(chanrec *c)
 
 int usercount(chanrec *c)
 {
-	int count = 0;
-	
 	if (!c)
 	{
 		log(DEFAULT,"*** BUG *** usercount was given an invalid parameter");
 		return 0;
 	}
-
-	strcpy(list,"");
-  	for (user_hash::const_iterator i = clientlist.begin(); i != clientlist.end(); i++)
-	{
-		if (i->second)
-		{
-			if (has_channel(i->second,c))
-			{
-				if ((isnick(i->second->nick)) && (i->second->registered == 7))
-				{
-					count++;
-				}
-			}
-		}
-	}
+	int count = c->GetUserCounter();
 	log(DEBUG,"usercount: %s %d",c->name,count);
 	return count;
 }
@@ -1645,6 +1633,7 @@ chanrec* add_channel(userrec *user, const char* cn, const char* key, bool overri
 				user->chans[index].uc_modes = 0;
 			}
 			user->chans[index].channel = Ptr;
+			Ptr->IncUserCounter();
 			WriteChannel(Ptr,user,"JOIN :%s",Ptr->name);
 			
 			if (!override) // we're not overriding... so this isnt part of a netburst, broadcast it.
@@ -1745,6 +1734,8 @@ chanrec* del_channel(userrec *user, const char* cname, const char* reason, bool 
 			break;
 		}
 	}
+
+	Ptr->DecUserCounter();
 	
 	/* if there are no users left on the channel */
 	if (!usercount(Ptr))
@@ -1827,6 +1818,8 @@ void kick_channel(userrec *src,userrec *user, chanrec *Ptr, char* reason)
 			break;
 		}
 	}
+
+	Ptr->DecUserCounter();
 
 	/* if there are no users left on the channel */
 	if (!usercount(Ptr))
@@ -2063,7 +2056,7 @@ void kill_link(userrec *user,const char* r)
 	}
 
 	if (user->registered == 7) {
-		purge_empty_chans();
+		purge_empty_chans(user);
 	}
 	//user = NULL;
 }
@@ -2114,7 +2107,7 @@ void kill_link_silent(userrec *user,const char* r)
 	}
 
 	if (user->registered == 7) {
-		purge_empty_chans();
+		purge_empty_chans(user);
 	}
 }
 

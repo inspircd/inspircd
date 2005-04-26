@@ -101,6 +101,10 @@ class chanrec : public Extensible
 	 * Plugins may use this field in any way they see fit.
 	 */
 	char custom_modes[MAXMODES];     /* modes handled by modules */
+
+	/** Count of users on the channel used for fast user counting
+	 */
+	long users;
 	
 	/** Channel topic.
 	 * If this is an empty string, no channel topic is set.
@@ -177,6 +181,11 @@ class chanrec : public Extensible
 	  * it will return an empty string.
 	  */
 	std::string GetModeParameter(char mode);
+
+	void IncUserCounter();
+	void DecUserCounter();
+	long GetUserCounter();
+
 
 	/** Creates a channel record and initialises it with default values
 	 */

@@ -117,7 +117,7 @@ chanrec::chanrec()
 	strcpy(topic,"");
 	strcpy(setby,"");
 	strcpy(key,"");
-	created = topicset = limit = 0;
+	created = topicset = limit = users = 0;
 	topiclock = noexternal = inviteonly = moderated = secret = c_private = false;
 }
 
@@ -196,4 +196,22 @@ std::string chanrec::GetModeParameter(char mode)
 		}
 	}
 	return std::string("");
+}
+
+void chanrec::IncUserCounter()
+{
+	this->users++;
+	log(DEBUG,"Incremented channel user count for %s to %lu",name,(unsigned long)users);
+}
+
+void chanrec::DecUserCounter()
+{
+	if (this->users > 0)
+		this->users--;
+	log(DEBUG,"Decremented channel user count for %s to %lu",name,(unsigned long)users);
+}
+
+long chanrec::GetUserCounter()
+{
+	return (this->users);
 }

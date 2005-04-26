@@ -385,12 +385,13 @@ void handle_kill(char **parameters, int pcnt, userrec *user)
 			if (iter != clientlist.end())
 			{
 				log(DEBUG,"deleting user hash value %d",iter->second);
-				if ((iter->second) && (user->registered == 7)) {
-					delete iter->second;
-				}
 				clientlist.erase(iter);
 			}
-			purge_empty_chans();
+			if (u->registered == 7)
+			{
+				purge_empty_chans(u);
+			}
+			delete u;
 		}
 		else
 		{
@@ -934,14 +935,10 @@ void handle_quit(char **parameters, int pcnt, userrec *user)
 	if (iter != clientlist.end())
 	{
 		clientlist.erase(iter);
-		log(DEBUG,"deleting user hash value %d",iter->second);
-		//if ((user) && (user->registered == 7)) {
-			//delete user;
-		//}
 	}
 
 	if (user->registered == 7) {
-		purge_empty_chans();
+		purge_empty_chans(user);
 	}
 }
 
@@ -2048,13 +2045,13 @@ void handle_Q(char token,char* params,serverrec* source,serverrec* reply, char* 
 		if (iter != clientlist.end())
 		{
 			log(DEBUG,"deleting user hash value %d",iter->second);
-			if ((iter->second) && (user->registered == 7)) {
-				delete iter->second;
-			}
 			clientlist.erase(iter);
 		}
 
-		purge_empty_chans();
+		if (user->registered == 7)
+		{
+			purge_empty_chans(user);
+		}
 	}
 }
 
