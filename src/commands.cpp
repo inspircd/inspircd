@@ -3140,8 +3140,6 @@ void handle_link_packet(char* udp_msg, char* tcp_host, serverrec *serv)
 							}
 						}
 					}
-					WriteOpers("\2WARNING!\2 %s sent us an authentication packet but we are not authenticating with this server right noe! Possible intrusion attempt!",tcp_host);
-					return;
 				}
 			}
 			else {
@@ -3172,7 +3170,7 @@ void handle_link_packet(char* udp_msg, char* tcp_host, serverrec *serv)
 		char Link_SendPass[1024];
 		int LinkPort = 0;
 
-		log(DEBUG,"U-token linked server detected.");
+		log(DEBUG,"U-token linked server detected.\n\nservername='%s' password='%s'\n\n",servername,password);
 
 		
                 for (int j = 0; j < 32; j++)
@@ -3218,6 +3216,7 @@ void handle_link_packet(char* udp_msg, char* tcp_host, serverrec *serv)
 							if (!strcasecmp(me[j]->connectors[k].GetServerName().c_str(),tcp_host))
       							{
           							char buffer[MAXBUF];
+								log(DEBUG,"Found matching link block");
 								me[j]->connectors[k].SetDescription(serverdesc);
 								me[j]->connectors[k].SetServerName(servername);
 								me[j]->connectors[k].SetState(STATE_SERVICES);
@@ -3235,14 +3234,13 @@ void handle_link_packet(char* udp_msg, char* tcp_host, serverrec *serv)
 							}
 						}
 					}
-					WriteOpers("\2WARNING!\2 %s sent us an authentication packet but we are not authenticating with this server right noe! Possible intrusion attempt!",tcp_host);
-					return;
 				}
 			}
 			else {
 				log(DEBUG,"Server names '%s' and '%s' don't match",Link_ServerName,servername);
 			}
 		}
+		log(DEBUG,"No matching link block found");
 		char buffer[MAXBUF];
 		sprintf(buffer,"E :Access is denied (no matching link block)");
 		serv->SendPacket(buffer,tcp_host);

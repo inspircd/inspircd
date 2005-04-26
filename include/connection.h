@@ -27,6 +27,7 @@
 #include <time.h>
 #include <vector>
 #include <deque>
+#include <sstream>
 
 #ifndef __CONNECTION_H__
 #define __CONNECTION_H__
@@ -78,11 +79,13 @@ class ircd_connector : public Extensible
 	 */
 	bool SetHostAddress(char* host, int port);
 
-	/** IRCD Buffer for input characters, holds one line
-	 */
-	std::string ircdbuffer;
 
  public:
+
+        /** IRCD Buffer for input characters, holds one line
+         */
+        std::string ircdbuffer;
+
  
 	/** When MakeOutboundConnection is called, these public members are
  	 * filled with the details passed to the function, for future

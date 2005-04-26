@@ -24,6 +24,7 @@
 #include <vector>
 #include <string>
 #include <deque>
+#include <sstream>
 #include "inspircd.h"
 #include "modules.h"
 #include "inspstring.h"
@@ -139,9 +140,14 @@ void ircd_connector::SetServerPort(int p)
 
 void ircd_connector::AddBuffer(std::string a)
 {
+	std::string b = "";
 	for (int i = 0; i < a.length(); i++)
 		if (a[i] != '\r')
-			ircdbuffer = ircdbuffer + a[i];
+			b = b + a[i];
+
+	std::stringstream stream(ircdbuffer);
+	stream << b;
+	ircdbuffer = stream.str();
 }
 
 bool ircd_connector::BufferIsComplete()
@@ -154,24 +160,23 @@ bool ircd_connector::BufferIsComplete()
 
 void ircd_connector::ClearBuffer()
 {
-	while ((ircdbuffer != "") && (ircdbuffer[0] != '\n'))
-	{
-		ircdbuffer.erase(ircdbuffer.begin());
-	}
-	if (ircdbuffer != "")
-		ircdbuffer.erase(ircdbuffer.begin());
+	ircdbuffer = "";
 }
 
 std::string ircd_connector::GetBuffer()
 {
-	std::string z = "";
-	long t = 0;
-	while (ircdbuffer[t] != '\n')
-	{
-		z = z + ircdbuffer[t];
-		t++;
-	}
-	return z;
+	char* line = (char*)ircdbuffer.c_str();
+	char ret[MAXBUF];
+	std::stringstream* stream = new std::stringstream(std::stringstream::in | std::stringstream::out);
+	*stream << ircdbuffer;
+	stream->getline(ret,MAXBUF);
+	while ((*line != '\n') && (strlen(line)))
+		line++;
+	if ((*line == '\n') || (*line == '\r'))
+		line++;
+	ircdbuffer = line;
+	delete stream;
+	return ret;
 }
 
 bool ircd_connector::MakeOutboundConnection(char* newhost, int newport)
@@ -406,7 +411,7 @@ bool connection::SendPacket(char *message, const char* sendhost)
 		{
 			log(DEBUG,"Main route to %s is down, seeking alternative",host);
 			// fix: can only route one hop to avoid a loop
-			if (strncmp(message,"R ",2))
+			if (!strncmp(message,"R ",2))
 			{
 				// this route is down, we must re-route the packet through an available point in the mesh.
 				for (int k = 0; k < this->connectors.size(); k++)
@@ -460,7 +465,7 @@ bool connection::RecvPacket(std::deque<std::string> &messages, char* recvhost)
 		{
 			// returns false if the packet could not be sent (e.g. target host down)
 			int rcvsize = 0;
-			rcvsize = recv(this->connectors[i].GetDescriptor(),data,32,0);
+			rcvsize = recv(this->connectors[i].GetDescriptor(),data,4096,0);
 			data[rcvsize] = '\0';
 			if (rcvsize == -1)
 			{
@@ -472,15 +477,19 @@ bool connection::RecvPacket(std::deque<std::string> &messages, char* recvhost)
 					this->connectors[i].SetState(STATE_DISCONNECTED);
 				}
 			}
+			int pushed = 0;
 			if (rcvsize > 0)
 			{
 				this->connectors[i].AddBuffer(data);
 				if (this->connectors[i].BufferIsComplete())
 				{
-					messages.push_back(this->connectors[i].GetBuffer().c_str());
-					strlcpy(host,this->connectors[i].GetServerName().c_str(),160);
-					log(DEBUG,"main: Connection::RecvPacket() got '%s' from %s",this->connectors[i].GetBuffer().c_str(),recvhost);
-					this->connectors[i].ClearBuffer();
+					while (this->connectors[i].BufferIsComplete())
+					{
+						std::string text = this->connectors[i].GetBuffer();
+						messages.push_back(text.c_str());
+						strlcpy(recvhost,this->connectors[i].GetServerName().c_str(),160);
+						log(DEBUG,"main: Connection::RecvPacket() %d:%s->%s",pushed++,recvhost,text.c_str()); 
+					}
 					return true;
 				}
 			}
