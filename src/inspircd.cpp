@@ -1235,7 +1235,7 @@ void strlower(char *n)
 	{
 		return;
 	}
-	for (int i = 0; i != strlen(n); i++)
+	for (int i = 0; n[i] != 0; i++)
 	{
 		n[i] = tolower(n[i]);
 		if (n[i] == '[')
