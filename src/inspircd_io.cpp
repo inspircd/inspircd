@@ -63,12 +63,13 @@ void Rehash(int status)
 
 void Start (void)
 {
-	printf("\033[1mInspire Internet Relay Chat Server, compiled " __DATE__ " at " __TIME__ "\n");
-	printf("(C) ChatSpike Development team.\033[0;37m\n\n");
-	printf("Developers:\033[1m     Brain, FrostyCoolSlug\n");
-	printf("Documentation:\033[1m  FrostyCoolSlug, w00t\n");
-	printf("Testers:\033[1m        typobox43, piggles, Lord_Zathras, CC\n");
-	printf("Name concept:\033[1m   Lord_Zathras\n\n");
+	// \033[1;32m$config{OSNAME}\033[0m
+	printf("\033[1;32mInspire Internet Relay Chat Server, compiled " __DATE__ " at " __TIME__ "\n");
+	printf("(C) ChatSpike Development team.\033[0m\n\n");
+	printf("Developers:\033[1;32m     Brain, FrostyCoolSlug\033[0m\n");
+	printf("Documentation:\033[1;32m  FrostyCoolSlug, w00t\033[0m\n");
+	printf("Testers:\033[1;32m        typobox43, piggles, Lord_Zathras, CC\033[0m\n");
+	printf("Name concept:\033[1;32m   Lord_Zathras\033[0m\n\n");
 }
 
 void WritePID(std::string filename)

@@ -3772,7 +3772,7 @@ int InspIRCd(void)
 	for (count = 0; count < ConfValueEnum("module",&config_f); count++)
 	{
 		ConfValue("module","name",count,configToken,&config_f);
-		printf("Loading module... \033[1;37m%s\033[0;37m\n",configToken);
+		printf("Loading module... \033[1;32m%s\033[0m\n",configToken);
 		if (!LoadModule(configToken))
 		{
 			log(DEBUG,"Exiting due to a module loader error.");
