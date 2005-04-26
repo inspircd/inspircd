@@ -57,12 +57,12 @@ if [ "$1" = "-update" -o "$2" = "-update" ] ; then
    case "$OSNAME" in
            FreeBSD)
                    LDLIBS="-Ldl"
-                   FLAGS="-fPIC -frtti $OPTIMISATI -Wcomment -Wformat -Wunused -Wshadow -Werror"
+                   FLAGS="-fPIC -frtti $OPTIMISATI -Wcomment -Wformat -Wunused -Wshadow -Werror -Wswitch -Wchar-subscripts -Wparentheses"
                    MAKEPROG="gmake"
                    ;;
            *)
                    LDLIBS="-ldl"
-                   FLAGS="-fPIC -frtti $OPTIMISATI -Wcomment -Wformat -Wunused -Wshadow -Werror"
+                   FLAGS="-fPIC -frtti $OPTIMISATI -Wcomment -Wformat -Wunused -Wshadow -Werror -Wswitch -Wchar-subscripts -Wparentheses"
                    MAKEPROG="make"
                    ;;
    esac

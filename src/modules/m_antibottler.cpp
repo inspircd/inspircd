@@ -53,10 +53,10 @@ class ModuleAntiBottler : public Module
 			{
 				for (int j = 0; j < strlen(data); j++)
 				{
-					if (data[j] = ':')
+					if (data[j] == ':')
 						break;
 						
-					if (data[j] = '"')
+					if (data[j] == '"')
 					{
 						not_bottler = true;
 					}
