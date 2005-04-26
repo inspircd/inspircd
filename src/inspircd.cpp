@@ -662,19 +662,13 @@ void WriteChannel(chanrec* Ptr, userrec* user, char* text, ...)
 	vsnprintf(textbuffer, MAXBUF, text, argsPtr);
 	va_end(argsPtr);
 
-        for (int i = 0; i < MAXCHANS; i++)
-        {
-                if (user->chans[i].channel == Ptr)
-                {
-			std::vector<char*> *ulist = user->chans[i].channel->GetUsers();
-			for (int j = 0; j < ulist->size(); j++)
-			{
-				char* o = (*ulist)[j];
-				userrec* otheruser = (userrec*)o;
-				if (otheruser->fd != FD_MAGIC_NUMBER)
-					WriteTo(user,otheruser,"%s",textbuffer);
-			}
-		}
+	std::vector<char*> *ulist = Ptr->GetUsers();
+	for (int j = 0; j < ulist->size(); j++)
+	{
+		char* o = (*ulist)[j];
+		userrec* otheruser = (userrec*)o;
+		if (otheruser->fd != FD_MAGIC_NUMBER)
+			WriteTo(user,otheruser,"%s",textbuffer);
 	}
 
 
@@ -705,39 +699,23 @@ void WriteChannelLocal(chanrec* Ptr, userrec* user, char* text, ...)
 	vsnprintf(textbuffer, MAXBUF, text, argsPtr);
 	va_end(argsPtr);
 
-        for (int i = 0; i < MAXCHANS; i++)
+        std::vector<char*> *ulist = Ptr->GetUsers();
+        for (int j = 0; j < ulist->size(); j++)
         {
-                if (user->chans[i].channel == Ptr)
-                {
-                        std::vector<char*> *ulist = user->chans[i].channel->GetUsers();
-                        for (int j = 0; j < ulist->size(); j++)
-                        {
-                                char* o = (*ulist)[j];
-                                userrec* otheruser = (userrec*)o;
-                                if ((otheruser->fd != FD_MAGIC_NUMBER) && (otheruser->fd != -1))
-                                        WriteTo(user,otheruser,"%s",textbuffer);
-                        }
-                }
+                char* o = (*ulist)[j];
+                userrec* otheruser = (userrec*)o;
+                if ((otheruser->fd != FD_MAGIC_NUMBER) && (otheruser->fd != -1) && (otheruser != user))
+		{
+			if (!user)
+			{
+				WriteServ(otheruser->fd,"%s",textbuffer);
+			}
+			else
+			{
+                        	WriteTo(user,otheruser,"%s",textbuffer);
+			}
+		}
         }
-
-
-	//for (user_hash::const_iterator i = clientlist.begin(); i != clientlist.end(); i++)
-	//{
-	//	if (has_channel(i->second,Ptr))
-	//	{
-	//		if ((i->second->fd != -1) && (i->second->fd != FD_MAGIC_NUMBER))
-	//		{
-	//			if (!user)
-	//			{
-	//				WriteServ(i->second->fd,"%s",textbuffer);
-	//			}
-	//			else
-	//			{
-	//				WriteTo(user,i->second,"%s",textbuffer);
-	//			}
-	//		}	
-	//	}
-	//}
 }
 
 
@@ -755,22 +733,14 @@ void WriteChannelWithServ(char* ServName, chanrec* Ptr, userrec* user, char* tex
 	va_end(argsPtr);
 
 
-        for (int i = 0; i < MAXCHANS; i++)
+        std::vector<char*> *ulist = Ptr->GetUsers();
+        for (int j = 0; j < ulist->size(); j++)
         {
-                if (user->chans[i].channel == Ptr)
-                {
-                        std::vector<char*> *ulist = user->chans[i].channel->GetUsers();
-                        for (int j = 0; j < ulist->size(); j++)
-                        {
-                                char* o = (*ulist)[j];
-                                userrec* otheruser = (userrec*)o;
-                                if (otheruser->fd != FD_MAGIC_NUMBER)
-                                        WriteServ(otheruser->fd,"%s",textbuffer);
-                        }
-                }
+                char* o = (*ulist)[j];
+                userrec* otheruser = (userrec*)o;
+                if (otheruser->fd != FD_MAGIC_NUMBER)
+                        WriteServ(otheruser->fd,"%s",textbuffer);
         }
-
-
 
 	//for (user_hash::const_iterator i = clientlist.begin(); i != clientlist.end(); i++)
 	//{
@@ -801,31 +771,14 @@ void ChanExceptSender(chanrec* Ptr, userrec* user, char* text, ...)
 	vsnprintf(textbuffer, MAXBUF, text, argsPtr);
 	va_end(argsPtr);
 
-        for (int i = 0; i < MAXCHANS; i++)
+        std::vector<char*> *ulist = Ptr->GetUsers();
+        for (int j = 0; j < ulist->size(); j++)
         {
-                if (user->chans[i].channel == Ptr)
-                {
-                        std::vector<char*> *ulist = user->chans[i].channel->GetUsers();
-                        for (int j = 0; j < ulist->size(); j++)
-                        {
-                                char* o = (*ulist)[j];
-                                userrec* otheruser = (userrec*)o;
-                                if ((otheruser->fd != FD_MAGIC_NUMBER) && (user != otheruser))
-                                        WriteFrom(otheruser->fd,user,"%s",textbuffer);
-                        }
-                }
+                char* o = (*ulist)[j];
+                userrec* otheruser = (userrec*)o;
+                if ((otheruser->fd != FD_MAGIC_NUMBER) && (user != otheruser))
+                        WriteFrom(otheruser->fd,user,"%s",textbuffer);
         }
-
-	//for (user_hash::const_iterator i = clientlist.begin(); i != clientlist.end(); i++)
-	//{
-	//	if (i->second)
-	//	{
-	//		if ((has_channel(i->second,Ptr)) && (user != i->second) && (i->second->fd != FD_MAGIC_NUMBER))
-	//		{
-	//			WriteTo(user,i->second,"%s",textbuffer);
-	//		}
-	//	}
-	//}
 }
 
 
