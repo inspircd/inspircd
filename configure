@@ -307,11 +307,11 @@ sub dir_check {
 sub getosflags {
   if ($config{OSNAME} eq "FreeBSD") {
     $config{LDLIBS} = "-Ldl";
-    $config{FLAGS}  = "-fPIC -frtti $OPTIMISATI -Wcomment -Wformat -Wunused -Wshadow -Werror -Wswitch -Wchar-subscripts -Wparentheses -Woverloaded-virtual";
+    $config{FLAGS}  = "-fPIC -frtti $OPTIMISATI -Woverloaded-virtual";
     $config{MAKEPROG} = "gmake";
   } else {
     $config{LDLIBS} = "-ldl";
-    $config{FLAGS}  = "-fPIC -frtti $OPTIMISATI -Wcomment -Wformat -Wunused -Wshadow -Werror -Wswitch -Wchar-subscripts -Wparentheses -Woverloaded-virtual";
+    $config{FLAGS}  = "-fPIC -frtti $OPTIMISATI -Woverloaded-virtual";
     $config{MAKEPROG} = "make";
   }
 }
