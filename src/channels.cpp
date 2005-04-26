@@ -119,6 +119,7 @@ chanrec::chanrec()
 	strcpy(key,"");
 	created = topicset = limit = users = 0;
 	topiclock = noexternal = inviteonly = moderated = secret = c_private = false;
+	internal_userlist.clear();
 }
 
 void chanrec::SetCustomMode(char mode,bool mode_on)
@@ -214,4 +215,29 @@ void chanrec::DecUserCounter()
 long chanrec::GetUserCounter()
 {
 	return (this->users);
+}
+
+void chanrec::AddUser(char* castuser)
+{
+	internal_userlist.push_back(castuser);
+	log(DEBUG,"Added casted user to channel's internal list");
+}
+
+void chanrec::DelUser(char* castuser)
+{
+	for (std::vector<char*>::iterator a = internal_userlist.begin(); a < internal_userlist.end(); a++)
+	{
+		if (*a == castuser)
+		{
+			log(DEBUG,"Removed casted user from channel's internal list");
+			internal_userlist.erase(a);
+			return;
+		}
+	}
+	log(DEBUG,"BUG BUG BUG! Attempt to remove an uncasted user from the internal list of %s!",name);
+}
+
+std::vector<char*> *chanrec::GetUsers()
+{
+	return &internal_userlist;
 }

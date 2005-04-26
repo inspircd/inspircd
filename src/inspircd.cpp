@@ -661,14 +661,31 @@ void WriteChannel(chanrec* Ptr, userrec* user, char* text, ...)
 	va_start (argsPtr, text);
 	vsnprintf(textbuffer, MAXBUF, text, argsPtr);
 	va_end(argsPtr);
-	for (user_hash::const_iterator i = clientlist.begin(); i != clientlist.end(); i++)
-	{
-		if (has_channel(i->second,Ptr))
-		{
-			if (i->second->fd != FD_MAGIC_NUMBER)
-				WriteTo(user,i->second,"%s",textbuffer);
+
+        for (int i = 0; i < MAXCHANS; i++)
+        {
+                if (user->chans[i].channel == Ptr)
+                {
+			std::vector<char*> *ulist = user->chans[i].channel->GetUsers();
+			for (int j = 0; j < ulist->size(); j++)
+			{
+				char* o = (*ulist)[j];
+				userrec* otheruser = (userrec*)o;
+				if (otheruser->fd != FD_MAGIC_NUMBER)
+					WriteTo(user,otheruser,"%s",textbuffer);
+			}
 		}
 	}
+
+
+	//for (user_hash::const_iterator i = clientlist.begin(); i != clientlist.end(); i++)
+	//{
+	//	if (has_channel(i->second,Ptr))
+	//	{
+	//		if (i->second->fd != FD_MAGIC_NUMBER)
+	//			WriteTo(user,i->second,"%s",textbuffer);
+	//	}
+	//}
 }
 
 /* write formatted text from a source user to all users on a channel
@@ -687,23 +704,40 @@ void WriteChannelLocal(chanrec* Ptr, userrec* user, char* text, ...)
 	va_start (argsPtr, text);
 	vsnprintf(textbuffer, MAXBUF, text, argsPtr);
 	va_end(argsPtr);
-	for (user_hash::const_iterator i = clientlist.begin(); i != clientlist.end(); i++)
-	{
-		if (has_channel(i->second,Ptr))
-		{
-			if ((i->second->fd != -1) && (i->second->fd != FD_MAGIC_NUMBER))
-			{
-				if (!user)
-				{
-					WriteServ(i->second->fd,"%s",textbuffer);
-				}
-				else
-				{
-					WriteTo(user,i->second,"%s",textbuffer);
-				}
-			}	
-		}
-	}
+
+        for (int i = 0; i < MAXCHANS; i++)
+        {
+                if (user->chans[i].channel == Ptr)
+                {
+                        std::vector<char*> *ulist = user->chans[i].channel->GetUsers();
+                        for (int j = 0; j < ulist->size(); j++)
+                        {
+                                char* o = (*ulist)[j];
+                                userrec* otheruser = (userrec*)o;
+                                if ((otheruser->fd != FD_MAGIC_NUMBER) && (otheruser->fd != -1))
+                                        WriteTo(user,otheruser,"%s",textbuffer);
+                        }
+                }
+        }
+
+
+	//for (user_hash::const_iterator i = clientlist.begin(); i != clientlist.end(); i++)
+	//{
+	//	if (has_channel(i->second,Ptr))
+	//	{
+	//		if ((i->second->fd != -1) && (i->second->fd != FD_MAGIC_NUMBER))
+	//		{
+	//			if (!user)
+	//			{
+	//				WriteServ(i->second->fd,"%s",textbuffer);
+	//			}
+	//			else
+	//			{
+	//				WriteTo(user,i->second,"%s",textbuffer);
+	//			}
+	//		}	
+	//	}
+	//}
 }
 
 
@@ -719,16 +753,35 @@ void WriteChannelWithServ(char* ServName, chanrec* Ptr, userrec* user, char* tex
 	va_start (argsPtr, text);
 	vsnprintf(textbuffer, MAXBUF, text, argsPtr);
 	va_end(argsPtr);
-	for (user_hash::const_iterator i = clientlist.begin(); i != clientlist.end(); i++)
-	{
-		if (i->second)
-		{
-			if ((has_channel(i->second,Ptr)) && (i->second->fd != FD_MAGIC_NUMBER))
-			{
-				WriteServ(i->second->fd,"%s",textbuffer);
-			}
-		}
-	}
+
+
+        for (int i = 0; i < MAXCHANS; i++)
+        {
+                if (user->chans[i].channel == Ptr)
+                {
+                        std::vector<char*> *ulist = user->chans[i].channel->GetUsers();
+                        for (int j = 0; j < ulist->size(); j++)
+                        {
+                                char* o = (*ulist)[j];
+                                userrec* otheruser = (userrec*)o;
+                                if (otheruser->fd != FD_MAGIC_NUMBER)
+                                        WriteServ(otheruser->fd,"%s",textbuffer);
+                        }
+                }
+        }
+
+
+
+	//for (user_hash::const_iterator i = clientlist.begin(); i != clientlist.end(); i++)
+	//{
+	//	if (i->second)
+	//	{
+	//		if ((has_channel(i->second,Ptr)) && (i->second->fd != FD_MAGIC_NUMBER))
+	//		{
+	//			WriteServ(i->second->fd,"%s",textbuffer);
+	//		}
+	//	}
+	//}
 }
 
 
@@ -748,16 +801,31 @@ void ChanExceptSender(chanrec* Ptr, userrec* user, char* text, ...)
 	vsnprintf(textbuffer, MAXBUF, text, argsPtr);
 	va_end(argsPtr);
 
-	for (user_hash::const_iterator i = clientlist.begin(); i != clientlist.end(); i++)
-	{
-		if (i->second)
-		{
-			if ((has_channel(i->second,Ptr)) && (user != i->second) && (i->second->fd != FD_MAGIC_NUMBER))
-			{
-				WriteTo(user,i->second,"%s",textbuffer);
-			}
-		}
-	}
+        for (int i = 0; i < MAXCHANS; i++)
+        {
+                if (user->chans[i].channel == Ptr)
+                {
+                        std::vector<char*> *ulist = user->chans[i].channel->GetUsers();
+                        for (int j = 0; j < ulist->size(); j++)
+                        {
+                                char* o = (*ulist)[j];
+                                userrec* otheruser = (userrec*)o;
+                                if ((otheruser->fd != FD_MAGIC_NUMBER) && (user != otheruser))
+                                        WriteFrom(otheruser->fd,user,"%s",textbuffer);
+                        }
+                }
+        }
+
+	//for (user_hash::const_iterator i = clientlist.begin(); i != clientlist.end(); i++)
+	//{
+	//	if (i->second)
+	//	{
+	//		if ((has_channel(i->second,Ptr)) && (user != i->second) && (i->second->fd != FD_MAGIC_NUMBER))
+	//		{
+	//			WriteTo(user,i->second,"%s",textbuffer);
+	//		}
+	//	}
+	//}
 }
 
 
@@ -804,16 +872,30 @@ void WriteCommon(userrec *u, char* text, ...)
 
 	WriteFrom(u->fd,u,"%s",textbuffer);
 
-	for (user_hash::const_iterator i = clientlist.begin(); i != clientlist.end(); i++)
-	{
-		if (i->second)
-		{
-			if ((common_channels(u,i->second) && (i->second != u)) && (i->second->fd != FD_MAGIC_NUMBER))
-			{
-				WriteFrom(i->second->fd,u,"%s",textbuffer);
-			}
-		}
-	}
+        for (int i = 0; i < MAXCHANS; i++)
+        {
+                if (u->chans[i].channel)
+                {
+                        std::vector<char*> *ulist = u->chans[i].channel->GetUsers();
+                        for (int j = 0; j < ulist->size(); j++)
+                        {
+                                char* o = (*ulist)[j];
+                                userrec* otheruser = (userrec*)o;
+                                WriteFrom(otheruser->fd,u,"%s",textbuffer);
+                        }
+                }
+        }
+
+	//for (user_hash::const_iterator i = clientlist.begin(); i != clientlist.end(); i++)
+	//{
+	//	if (i->second)
+	//	{
+	//		if ((common_channels(u,i->second) && (i->second != u)) && (i->second->fd != FD_MAGIC_NUMBER))
+	//		{
+	//			WriteFrom(i->second->fd,u,"%s",textbuffer);
+	//		}
+	//	}
+	//}
 }
 
 /* write a formatted string to all users who share at least one common
@@ -838,16 +920,31 @@ void WriteCommonExcept(userrec *u, char* text, ...)
 	vsnprintf(textbuffer, MAXBUF, text, argsPtr);
 	va_end(argsPtr);
 
-	for (user_hash::const_iterator i = clientlist.begin(); i != clientlist.end(); i++)
-	{
-		if (i->second)
-		{
-			if ((common_channels(u,i->second)) && (u != i->second))
-			{
-				WriteFrom(i->second->fd,u,"%s",textbuffer);
-			}
-		}
-	}
+        for (int i = 0; i < MAXCHANS; i++)
+        {
+                if (u->chans[i].channel)
+                {
+                        std::vector<char*> *ulist = u->chans[i].channel->GetUsers();
+                        for (int j = 0; j < ulist->size(); j++)
+                        {
+                                char* o = (*ulist)[j];
+                                userrec* otheruser = (userrec*)o;
+				if (u != otheruser)
+	                                WriteFrom(otheruser->fd,u,"%s",textbuffer);
+                        }
+                }
+        }
+
+	//for (user_hash::const_iterator i = clientlist.begin(); i != clientlist.end(); i++)
+	//{
+	//	if (i->second)
+	//	{
+	//		if ((common_channels(u,i->second)) && (u != i->second))
+	//		{
+	//			WriteFrom(i->second->fd,u,"%s",textbuffer);
+	//		}
+	//	}
+	//}
 }
 
 void WriteOpers(char* text, ...)
@@ -886,16 +983,27 @@ void WriteOpers(char* text, ...)
 bool ChanAnyOnThisServer(chanrec *c,char* servername)
 {
 	log(DEBUG,"ChanAnyOnThisServer");
-	for (user_hash::iterator i = clientlist.begin(); i != clientlist.end(); i++)
-	{
-		if (has_channel(i->second,c))
-		{
-			if (!strcasecmp(i->second->server,servername))
-			{
-				return true;
-			}
-		}
-	}
+
+        std::vector<char*> *ulist = c->GetUsers();
+        for (int j = 0; j < ulist->size(); j++)
+        {
+                char* o = (*ulist)[j];
+                userrec* user = (userrec*)o;
+                if (!strcasecmp(user->server,servername))
+			return true;
+        }
+	return false;
+
+	//for (user_hash::iterator i = clientlist.begin(); i != clientlist.end(); i++)
+	//{
+	//	if (has_channel(i->second,c))
+	//	{
+	//		if (!strcasecmp(i->second->server,servername))
+	//		{
+	//			return true;
+	//		}
+	//	}
+	//}
 	return false;
 }
 
@@ -904,18 +1012,35 @@ bool ChanAnyOnThisServer(chanrec *c,char* servername)
 bool CommonOnThisServer(userrec* u,const char* servername)
 {
 	log(DEBUG,"ChanAnyOnThisServer");
-	for (user_hash::iterator i = clientlist.begin(); i != clientlist.end(); i++)
-	{
-		if ((common_channels(u,i->second)) && (u != i->second))
-		{
-			if (!strcasecmp(i->second->server,servername))
-			{
-				log(DEBUG,"%s is common to %s sharing with %s",i->second->nick,servername,u->nick);
-				return true;
-			}
-		}
-	}
+
+        for (int i = 0; i < MAXCHANS; i++)
+        {
+                if (u->chans[i].channel)
+                {
+                        std::vector<char*> *ulist = u->chans[i].channel->GetUsers();
+                        for (int j = 0; j < ulist->size(); j++)
+                        {
+                                char* o = (*ulist)[j];
+                                userrec* user = (userrec*)o;
+                                if (!strcasecmp(user->server,servername))
+					return true;
+                        }
+                }
+        }
 	return false;
+
+	//for (user_hash::iterator i = clientlist.begin(); i != clientlist.end(); i++)
+	//{
+	//	if ((common_channels(u,i->second)) && (u != i->second))
+	//	{
+	//		if (!strcasecmp(i->second->server,servername))
+	//		{
+	//			log(DEBUG,"%s is common to %s sharing with %s",i->second->nick,servername,u->nick);
+	//			return true;
+	//		}
+	//	}
+	//}
+	//return false;
 }
 
 
@@ -1227,7 +1352,10 @@ void purge_empty_chans(userrec* u)
 	// firstly decrement the count on each channel
 	for (int f = 0; f < MAXCHANS; f++)
 		if (u->chans[f].channel)
+		{
 			u->chans[f].channel->DecUserCounter();
+			u->chans[f].channel->DelUser((char*)u);
+		}
 
 	for (int i = 0; i < MAXCHANS; i++)
 	{
@@ -1634,6 +1762,7 @@ chanrec* add_channel(userrec *user, const char* cn, const char* key, bool overri
 			}
 			user->chans[index].channel = Ptr;
 			Ptr->IncUserCounter();
+			Ptr->AddUser((char*)user);
 			WriteChannel(Ptr,user,"JOIN :%s",Ptr->name);
 			
 			if (!override) // we're not overriding... so this isnt part of a netburst, broadcast it.
@@ -1736,6 +1865,7 @@ chanrec* del_channel(userrec *user, const char* cname, const char* reason, bool 
 	}
 
 	Ptr->DecUserCounter();
+	Ptr->DelUser((char*)user);
 	
 	/* if there are no users left on the channel */
 	if (!usercount(Ptr))
@@ -1820,6 +1950,7 @@ void kick_channel(userrec *src,userrec *user, chanrec *Ptr, char* reason)
 	}
 
 	Ptr->DecUserCounter();
+	Ptr->DelUser((char*)user);
 
 	/* if there are no users left on the channel */
 	if (!usercount(Ptr))

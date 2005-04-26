@@ -105,6 +105,11 @@ class chanrec : public Extensible
 	/** Count of users on the channel used for fast user counting
 	 */
 	long users;
+
+	/** User list (casted to char*'s to stop forward declaration stuff)
+	 * (chicken and egg scenario!)
+	 */
+	std::vector<char*> internal_userlist;
 	
 	/** Channel topic.
 	 * If this is an empty string, no channel topic is set.
@@ -186,6 +191,9 @@ class chanrec : public Extensible
 	void DecUserCounter();
 	long GetUserCounter();
 
+	void AddUser(char* castuser);
+	void DelUser(char* castuser);
+	std::vector<char*> *GetUsers();
 
 	/** Creates a channel record and initialises it with default values
 	 */
