@@ -110,11 +110,10 @@ int DaemonSeed (void)
 	setsid ();
 	umask (007);
 	printf("InspIRCd PID: %d\n",getpid());
-	/* close stdin, stdout, stderr */
 	freopen("/dev/null","w",stdout);
 	freopen("/dev/null","w",stderr);
 	
-	setpriority(PRIO_PROCESS,(int)getpid(),15); /* ircd sets to low process priority so it doesnt hog the box */
+	setpriority(PRIO_PROCESS,(int)getpid(),15);
 
 	if (unlimitcore)
 	{

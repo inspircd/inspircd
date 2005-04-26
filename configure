@@ -424,9 +424,9 @@ EOF
   {
     $flags = getcompilerflags("src/modules/m_".$i.".cpp");
     print FILEHANDLE <<EOCHEESE;
-$i.so: $i.cpp ../../include/modules.h ../../include/users.h ../../include/channels.h ../../include/servers.h ../../include/base.h
-	\$(CC) -I../../include \$(FLAGS) -shared $flags -o $i.so $i.cpp
-	\@cp $i.so \$(MODPATH)/
+m_$i.so: m_$i.cpp ../../include/modules.h ../../include/users.h ../../include/channels.h ../../include/servers.h ../../include/base.h
+	\$(CC) -I../../include \$(FLAGS) -shared $flags -o m_$i.so m_$i.cpp
+	\@cp m_$i.so \$(MODPATH)/
 
 EOCHEESE
   }

@@ -559,11 +559,11 @@ void Write(int sock,char *text, ...)
 	va_start (argsPtr, text);
 	vsnprintf(textbuffer, MAXBUF, text, argsPtr);
 	va_end(argsPtr);
-	snprintf(tb,MAXBUF,"%s\r\n",textbuffer);
+	int bytes = snprintf(tb,MAXBUF,"%s\r\n",textbuffer);
 	chop(tb);
 	if (sock != -1)
 	{
-		write(sock,tb,strlen(tb));
+		write(sock,tb,bytes > 514 ? 514 : bytes);
 	}
 }
 
@@ -584,11 +584,11 @@ void WriteServ(int sock, char* text, ...)
 	
 	vsnprintf(textbuffer, MAXBUF, text, argsPtr);
 	va_end(argsPtr);
-	snprintf(tb,MAXBUF,":%s %s\r\n",ServerName,textbuffer);
+	int bytes = snprintf(tb,MAXBUF,":%s %s\r\n",ServerName,textbuffer);
 	chop(tb);
 	if (sock != -1)
 	{
-		write(sock,tb,strlen(tb));
+		write(sock,tb,bytes > 514 ? 514 : bytes);
 	}
 }
 
@@ -609,11 +609,11 @@ void WriteFrom(int sock, userrec *user,char* text, ...)
 	
 	vsnprintf(textbuffer, MAXBUF, text, argsPtr);
 	va_end(argsPtr);
-	snprintf(tb,MAXBUF,":%s!%s@%s %s\r\n",user->nick,user->ident,user->dhost,textbuffer);
+	int bytes = snprintf(tb,MAXBUF,":%s!%s@%s %s\r\n",user->nick,user->ident,user->dhost,textbuffer);
 	chop(tb);
 	if (sock != -1)
 	{
-		write(sock,tb,strlen(tb));
+		write(sock,tb,bytes > 514 ? 514 : bytes);
 	}
 }
 
@@ -1144,6 +1144,7 @@ void WriteMode(const char* modes, int flags, const char* text, ...)
 	va_start (argsPtr, text);
 	vsnprintf(textbuffer, MAXBUF, text, argsPtr);
 	va_end(argsPtr);
+	int modelen = strlen(modes);
 
 	for (user_hash::const_iterator i = clientlist.begin(); i != clientlist.end(); i++)
 	{
@@ -1154,7 +1155,7 @@ void WriteMode(const char* modes, int flags, const char* text, ...)
 			if (flags == WM_AND)
 			{
 				send_to_user = true;
-				for (int n = 0; n < strlen(modes); n++)
+				for (int n = 0; n < modelen; n++)
 				{
 					if (!hasumode(i->second,modes[n]))
 					{
@@ -1166,7 +1167,7 @@ void WriteMode(const char* modes, int flags, const char* text, ...)
 			else if (flags == WM_OR)
 			{
 				send_to_user = false;
-				for (int n = 0; n < strlen(modes); n++)
+				for (int n = 0; n < modelen; n++)
 				{
 					if (hasumode(i->second,modes[n]))
 					{
