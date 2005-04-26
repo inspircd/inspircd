@@ -106,27 +106,29 @@
 00165 
 <a name="l00168"></a><a class="code" href="classuserrec.html#o13">00168</a>         <span class="keywordtype">unsigned</span> <span class="keywordtype">long</span> <a class="code" href="classuserrec.html#o13">pingmax</a>;
 00169 
-00170         <a class="code" href="classuserrec.html#a0">userrec</a>();
-00171         
-<a name="l00172"></a><a class="code" href="classuserrec.html#a1">00172</a>         <span class="keyword">virtual</span> <a class="code" href="classuserrec.html#a1">~userrec</a>() {  }
-00173         
-00178         <span class="keyword">virtual</span> <span class="keywordtype">char</span>* <a class="code" href="classuserrec.html#a2">GetFullHost</a>();
+<a name="l00174"></a><a class="code" href="classuserrec.html#o14">00174</a>         <span class="keywordtype">char</span> <a class="code" href="classuserrec.html#o14">password</a>[MAXBUF];
+00175 
+00176         <a class="code" href="classuserrec.html#a0">userrec</a>();
+00177         
+<a name="l00178"></a><a class="code" href="classuserrec.html#a1">00178</a>         <span class="keyword">virtual</span> <a class="code" href="classuserrec.html#a1">~userrec</a>() {  }
 00179         
-00185         <span class="keyword">virtual</span> <span class="keywordtype">char</span>* <a class="code" href="classuserrec.html#a3">GetFullRealHost</a>();
-00186         
-00189         <span class="keyword">virtual</span> <span class="keywordtype">bool</span> <a class="code" href="classuserrec.html#a4">IsInvited</a>(<span class="keywordtype">char</span>* channel);
-00190         
-00193         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classuserrec.html#a5">InviteTo</a>(<span class="keywordtype">char</span>* channel);
-00194         
-00199         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classuserrec.html#a6">RemoveInvite</a>(<span class="keywordtype">char</span>* channel);
+00184         <span class="keyword">virtual</span> <span class="keywordtype">char</span>* <a class="code" href="classuserrec.html#a2">GetFullHost</a>();
+00185         
+00191         <span class="keyword">virtual</span> <span class="keywordtype">char</span>* <a class="code" href="classuserrec.html#a3">GetFullRealHost</a>();
+00192         
+00195         <span class="keyword">virtual</span> <span class="keywordtype">bool</span> <a class="code" href="classuserrec.html#a4">IsInvited</a>(<span class="keywordtype">char</span>* channel);
+00196         
+00199         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classuserrec.html#a5">InviteTo</a>(<span class="keywordtype">char</span>* channel);
 00200         
-00205         <span class="keywordtype">bool</span> <a class="code" href="classuserrec.html#a7">HasPermission</a>(<span class="keywordtype">char</span>* command);
+00205         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classuserrec.html#a6">RemoveInvite</a>(<span class="keywordtype">char</span>* channel);
 00206         
-00207 };
-00208 
-00209 
-00210 <span class="preprocessor">#endif</span>
-</pre></div><hr size="1"><address style="align: right;"><small>Generated on Wed Apr 20 15:46:56 2005 for InspIRCd by
+00211         <span class="keywordtype">bool</span> <a class="code" href="classuserrec.html#a7">HasPermission</a>(<span class="keywordtype">char</span>* command);
+00212         
+00213 };
+00214 
+00215 
+00216 <span class="preprocessor">#endif</span>
+</pre></div><hr size="1"><address style="align: right;"><small>Generated on Tue Apr 26 17:11:44 2005 for InspIRCd by
 <a href="http://www.doxygen.org/index.html">
 <img src="doxygen.png" alt="doxygen" align="middle" border=0 > 
 </a>1.3.3 </small></address>

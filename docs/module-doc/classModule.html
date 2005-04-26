@@ -156,6 +156,15 @@ Inherits <a class="el" href="classclassbase.html">classbase</a>.
 <tr><td class="memItemLeft" nowrap align=right valign=top>virtual char *&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="classModule.html#a46">OnRequest</a> (<a class="el" href="classRequest.html">Request</a> *request)</td></tr>
 
 <tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Called whenever a <a class="el" href="classRequest.html">Request</a> class is sent to your module by another module. </em> <a href="#a46"></a><em><br><br></td></tr>
+<tr><td class="memItemLeft" nowrap align=right valign=top>virtual int&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="classModule.html#a47">OnOperCompare</a> (std::string password, std::string input)</td></tr>
+
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Called whenever an oper password is to be compared to what a user has input. </em> <a href="#a47"></a><em><br><br></td></tr>
+<tr><td class="memItemLeft" nowrap align=right valign=top>virtual void&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="classModule.html#a48">OnGlobalOper</a> (<a class="el" href="classuserrec.html">userrec</a> *user)</td></tr>
+
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Called whenever a user is given usermode +o, anywhere on the network. </em> <a href="#a48"></a><em><br><br></td></tr>
+<tr><td class="memItemLeft" nowrap align=right valign=top>virtual void&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="classModule.html#a49">OnGlobalConnect</a> (<a class="el" href="classuserrec.html">userrec</a> *user)</td></tr>
+
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Called whenever a user connects, anywhere on the network. </em> <a href="#a49"></a><em><br><br></td></tr>
 </table>
 <hr><a name="_details"></a><h2>Detailed Description</h2>
 Base class for all InspIRCd modules This class is the base class for InspIRCd modules. 
@@ -164,7 +173,7 @@ All modules must inherit from this class, its methods will be called when irc se
 <p>
 
 <p>
-Definition at line <a class="el" href="modules_8h-source.html#l00233">233</a> of file <a class="el" href="modules_8h-source.html">modules.h</a>.<hr><h2>Constructor &amp; Destructor Documentation</h2>
+Definition at line <a class="el" href="modules_8h-source.html#l00236">236</a> of file <a class="el" href="modules_8h-source.html">modules.h</a>.<hr><h2>Constructor &amp; Destructor Documentation</h2>
 <a name="a0" doxytag="Module::Module"></a><p>
 <table class="mdTable" width="100%" cellpadding="2" cellspacing="0">
   <tr>
@@ -871,6 +880,78 @@ Definition at line <a class="el" href="modules_8cpp-source.html#l00373">373</a> 
 </pre></div>    </td>
   </tr>
 </table>
+<a name="a49" doxytag="Module::OnGlobalConnect"></a><p>
+<table class="mdTable" width="100%" cellpadding="2" cellspacing="0">
+  <tr>
+    <td class="mdRow">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> void Module::OnGlobalConnect </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="md" nowrap valign="top"><a class="el" href="classuserrec.html">userrec</a> *&nbsp;</td>
+          <td class="mdname1" valign="top" nowrap> <em>user</em>          </td>
+          <td class="md" valign="top">&nbsp;)&nbsp;</td>
+          <td class="md" nowrap><code> [virtual]</code></td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+Called whenever a user connects, anywhere on the network. 
+<p>
+This event is informational only. You should not change any user information in this event. To do so, use the OnUserConnect method to change the state of local users.
+<p>
+Definition at line <a class="el" href="modules_8cpp-source.html#l00410">410</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
+<p>
+<div class="fragment"><pre>00410 { };
+</pre></div>    </td>
+  </tr>
+</table>
+<a name="a48" doxytag="Module::OnGlobalOper"></a><p>
+<table class="mdTable" width="100%" cellpadding="2" cellspacing="0">
+  <tr>
+    <td class="mdRow">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> void Module::OnGlobalOper </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="md" nowrap valign="top"><a class="el" href="classuserrec.html">userrec</a> *&nbsp;</td>
+          <td class="mdname1" valign="top" nowrap> <em>user</em>          </td>
+          <td class="md" valign="top">&nbsp;)&nbsp;</td>
+          <td class="md" nowrap><code> [virtual]</code></td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+Called whenever a user is given usermode +o, anywhere on the network. 
+<p>
+You cannot override this and prevent it from happening as it is already happened and such a task must be performed by another server. You can however bounce modes by sending servermodes out to reverse mode changes.
+<p>
+Definition at line <a class="el" href="modules_8cpp-source.html#l00409">409</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
+<p>
+<div class="fragment"><pre>00409 { };
+</pre></div>    </td>
+  </tr>
+</table>
 <a name="a17" doxytag="Module::OnInfo"></a><p>
 <table class="mdTable" width="100%" cellpadding="2" cellspacing="0">
   <tr>
@@ -1163,6 +1244,51 @@ The userrec will contain the oper mode 'o' as this function is called after any 
 Definition at line <a class="el" href="modules_8cpp-source.html#l00375">375</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
 <p>
 <div class="fragment"><pre>00375 { };
+</pre></div>    </td>
+  </tr>
+</table>
+<a name="a47" doxytag="Module::OnOperCompare"></a><p>
+<table class="mdTable" width="100%" cellpadding="2" cellspacing="0">
+  <tr>
+    <td class="mdRow">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> int Module::OnOperCompare </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="md" nowrap valign="top">std::string&nbsp;</td>
+          <td class="mdname" nowrap> <em>password</em>, </td>
+        </tr>
+        <tr>
+          <td></td>
+          <td></td>
+          <td class="md" nowrap>std::string&nbsp;</td>
+          <td class="mdname" nowrap> <em>input</em></td>
+        </tr>
+        <tr>
+          <td></td>
+          <td class="md">)&nbsp;</td>
+          <td class="md" colspan="2"><code> [virtual]</code></td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+Called whenever an oper password is to be compared to what a user has input. 
+<p>
+The password field (from the config file) is in 'password' and is to be compared against 'input'. This method allows for encryption of oper passwords and much more besides. You should return a nonzero value if you want to allow the comparison or zero if you wish to do nothing.
+<p>
+Definition at line <a class="el" href="modules_8cpp-source.html#l00408">408</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
+<p>
+<div class="fragment"><pre>00408 { <span class="keywordflow">return</span> 0; };
 </pre></div>    </td>
   </tr>
 </table>
@@ -2334,7 +2460,7 @@ Definition at line <a class="el" href="modules_8cpp-source.html#l00377">377</a> 
 </table>
 <hr>The documentation for this class was generated from the following files:<ul>
 <li><a class="el" href="modules_8h-source.html">modules.h</a><li><a class="el" href="modules_8cpp-source.html">modules.cpp</a></ul>
-<hr size="1"><address style="align: right;"><small>Generated on Wed Apr 20 15:47:06 2005 for InspIRCd by
+<hr size="1"><address style="align: right;"><small>Generated on Tue Apr 26 17:11:49 2005 for InspIRCd by
 <a href="http://www.doxygen.org/index.html">
 <img src="doxygen.png" alt="doxygen" align="middle" border=0 > 
 </a>1.3.3 </small></address>

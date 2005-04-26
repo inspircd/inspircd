@@ -1,4 +1,4 @@
-.TH "userrec" 3 "20 Apr 2005" "InspIRCd" \" -*- nroff -*-
+.TH "userrec" 3 "26 Apr 2005" "InspIRCd" \" -*- nroff -*-
 .ad l
 .nh
 .SH NAME
@@ -104,6 +104,10 @@ Inherits \fBconnection\fP.
 .RI "unsigned long \fBpingmax\fP"
 .br
 .RI "\fINumber of seconds between PINGs for this user (set from <connect:allow> tag. \fP"
+.ti -1c
+.RI "char \fBpassword\fP [MAXBUF]"
+.br
+.RI "\fIPassword specified by the user when they registered. \fP"
 .in -1c
 .SS "Private Attributes"
 
@@ -158,10 +162,10 @@ References awaymsg, connection::bytes_in, connection::bytes_out, ucrec::channel,
 .fi
 .SS "virtual userrec::~\fBuserrec\fP ()\fC [inline, virtual]\fP"
 .PP
-Definition at line 172 of file users.h.
+Definition at line 178 of file users.h.
 .PP
 .nf
-172 {  }
+178 {  }
 .fi
 .SH "Member Function Documentation"
 .PP 
@@ -198,54 +202,53 @@ References config_f, and DEBUG.
 .nf
 115 {
 116         char TypeName[MAXBUF],Classes[MAXBUF],ClassName[MAXBUF],CommandList[MAXBUF];
-117         char* myclass;
-118         char* mycmd;
-119         char* savept;
-120         char* savept2;
-121         
-122         // are they even an oper at all?
-123         if (strchr(this->modes,'o'))
-124         {
-125                 log(DEBUG,'*** HasPermission: %s is an oper',this->nick);
-126                 for (int j =0; j < ConfValueEnum('type',&config_f); j++)
-127                 {
-128                         ConfValue('type','name',j,TypeName,&config_f);
-129                         if (!strcmp(TypeName,this->oper))
-130                         {
-131                                 log(DEBUG,'*** HasPermission: %s is an oper of type '%s'',this->nick,this->oper);
-132                                 ConfValue('type','classes',j,Classes,&config_f);
-133                                 char* myclass = strtok_r(Classes,' ',&savept);
-134                                 while (myclass)
-135                                 {
-136                                         log(DEBUG,'*** HasPermission: checking classtype '%s'',myclass);
-137                                         for (int k =0; k < ConfValueEnum('class',&config_f); k++)
-138                                         {
-139                                                 ConfValue('class','name',k,ClassName,&config_f);
-140                                                 if (!strcmp(ClassName,myclass))
-141                                                 {
-142                                                         ConfValue('class','commands',k,CommandList,&config_f);
-143                                                         log(DEBUG,'*** HasPermission: found class named %s with commands: '%s'',ClassName,CommandList);
+117         char* mycmd;
+118         char* savept;
+119         char* savept2;
+120         
+121         // are they even an oper at all?
+122         if (strchr(this->modes,'o'))
+123         {
+124                 log(DEBUG,'*** HasPermission: %s is an oper',this->nick);
+125                 for (int j =0; j < ConfValueEnum('type',&config_f); j++)
+126                 {
+127                         ConfValue('type','name',j,TypeName,&config_f);
+128                         if (!strcmp(TypeName,this->oper))
+129                         {
+130                                 log(DEBUG,'*** HasPermission: %s is an oper of type '%s'',this->nick,this->oper);
+131                                 ConfValue('type','classes',j,Classes,&config_f);
+132                                 char* myclass = strtok_r(Classes,' ',&savept);
+133                                 while (myclass)
+134                                 {
+135                                         log(DEBUG,'*** HasPermission: checking classtype '%s'',myclass);
+136                                         for (int k =0; k < ConfValueEnum('class',&config_f); k++)
+137                                         {
+138                                                 ConfValue('class','name',k,ClassName,&config_f);
+139                                                 if (!strcmp(ClassName,myclass))
+140                                                 {
+141                                                         ConfValue('class','commands',k,CommandList,&config_f);
+142                                                         log(DEBUG,'*** HasPermission: found class named %s with commands: '%s'',ClassName,CommandList);
+143                                                         
 144                                                         
-145                                                         
-146                                                         mycmd = strtok_r(CommandList,' ',&savept2);
-147                                                         while (mycmd)
-148                                                         {
-149                                                                 if (!strcasecmp(mycmd,command))
-150                                                                 {
-151                                                                         log(DEBUG,'*** Command %s found, returning true',command);
-152                                                                         return true;
-153                                                                 }
-154                                                                 mycmd = strtok_r(NULL,' ',&savept2);
-155                                                         }
-156                                                 }
-157                                         }
-158                                         myclass = strtok_r(NULL,' ',&savept);
-159                                 }
-160                         }
-161                 }
-162         }
-163         return false;
-164 }
+145                                                         mycmd = strtok_r(CommandList,' ',&savept2);
+146                                                         while (mycmd)
+147                                                         {
+148                                                                 if (!strcasecmp(mycmd,command))
+149                                                                 {
+150                                                                         log(DEBUG,'*** Command %s found, returning true',command);
+151                                                                         return true;
+152                                                                 }
+153                                                                 mycmd = strtok_r(NULL,' ',&savept2);
+154                                                         }
+155                                                 }
+156                                         }
+157                                         myclass = strtok_r(NULL,' ',&savept);
+158                                 }
+159                         }
+160                 }
+161         }
+162         return false;
+163 }
 .fi
 .SS "void userrec::InviteTo (char * channel)\fC [virtual]\fP"
 .PP
@@ -365,6 +368,9 @@ Referenced by ConfigReader::DumpErrors(), GetFullHost(), GetFullRealHost(), Serv
 The oper type they logged in as, if they are an oper. This is used to check permissions in operclasses, so that we can say 'yay' or 'nay' to any commands they issue. The value of this is the value of a valid 'type name=' tag.Definition at line 160 of file users.h.
 .PP
 Referenced by userrec().
+.SS "char \fBuserrec::password\fP[MAXBUF]"
+.PP
+Password specified by the user when they registered. This is stored even if the  block doesnt need a password, so that modules may check it.Definition at line 174 of file users.h.
 .SS "unsigned long \fBuserrec::pingmax\fP"
 .PP
 Number of seconds between PINGs for this user (set from <connect:allow> tag. Definition at line 168 of file users.h.

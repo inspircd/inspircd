@@ -39,11 +39,11 @@
 <a name="l00035"></a><a class="code" href="classDNS.html">00035</a> <span class="keyword">class </span><a class="code" href="classDNS.html">DNS</a>
 00036 {
 00037 <span class="keyword">private</span>:
-<a name="l00038"></a><a class="code" href="classDNS.html#r0">00038</a>         <span class="keywordtype">char</span> *<a class="code" href="classDNS.html#r0">result</a>;
-<a name="l00039"></a><a class="code" href="classDNS.html#r1">00039</a>         in_addr *<a class="code" href="classDNS.html#r1">binip</a>;
-<a name="l00040"></a><a class="code" href="classDNS.html#r2">00040</a>         <span class="keywordtype">int</span> <a class="code" href="classDNS.html#r2">t</a>,<a class="code" href="classDNS.html#r3">i</a>;
+<a name="l00038"></a><a class="code" href="classDNS.html#r0">00038</a>         in_addr *<a class="code" href="classDNS.html#r0">binip</a>;
+<a name="l00039"></a><a class="code" href="classDNS.html#r1">00039</a>         <span class="keywordtype">char</span>* <a class="code" href="classDNS.html#r1">result</a>;
+<a name="l00040"></a><a class="code" href="classDNS.html#r2">00040</a>         <span class="keywordtype">int</span> <a class="code" href="classDNS.html#r2">t</a>;
 00041         <span class="keywordtype">void</span> <a class="code" href="classDNS.html#d0">dns_init</a>();
-<a name="l00042"></a><a class="code" href="classDNS.html#r4">00042</a>         <span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> <a class="code" href="classDNS.html#r4">fd</a>;
+<a name="l00042"></a><a class="code" href="classDNS.html#r3">00042</a>         <span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> <a class="code" href="classDNS.html#r3">fd</a>;
 00043         <span class="keywordtype">void</span> <a class="code" href="classDNS.html#d1">dns_init_2</a>(<span class="keyword">const</span> <span class="keywordtype">char</span>* dnsserver);
 00044         in_addr *<a class="code" href="classDNS.html#d2">dns_aton4</a>(<span class="keyword">const</span> <span class="keywordtype">char</span> * <span class="keyword">const</span> ipstring);
 00045         <span class="keywordtype">char</span> *<a class="code" href="classDNS.html#d3">dns_ntoa4</a>(<span class="keyword">const</span> in_addr * <span class="keyword">const</span> ip);
@@ -70,7 +70,7 @@
 00093 };
 00094 
 00095 <span class="preprocessor">#endif</span>
-</pre></div><hr size="1"><address style="align: right;"><small>Generated on Wed Apr 20 15:46:54 2005 for InspIRCd by
+</pre></div><hr size="1"><address style="align: right;"><small>Generated on Tue Apr 26 17:11:43 2005 for InspIRCd by
 <a href="http://www.doxygen.org/index.html">
 <img src="doxygen.png" alt="doxygen" align="middle" border=0 > 
 </a>1.3.3 </small></address>

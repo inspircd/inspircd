@@ -27,10 +27,28 @@ Inherits <a class="el" href="classExtensible.html">Extensible</a>.
 <tr><td class="memItemLeft" nowrap align=right valign=top>std::string&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="classchanrec.html#a3">GetModeParameter</a> (char mode)</td></tr>
 
 <tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Returns the parameter for a custom mode on a channel. </em> <a href="#a3"></a><em><br><br></td></tr>
-<tr><td class="memItemLeft" nowrap align=right valign=top>&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="classchanrec.html#a4">chanrec</a> ()</td></tr>
+<tr><td class="memItemLeft" nowrap align=right valign=top>void&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="classchanrec.html#a4">IncUserCounter</a> ()</td></tr>
 
-<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Creates a channel record and initialises it with default values. </em> <a href="#a4"></a><em><br><br></td></tr>
-<tr><td class="memItemLeft" nowrap align=right valign=top>virtual&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="classchanrec.html#a5">~chanrec</a> ()</td></tr>
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Increment the channel "user counter" The channel user counter is a reference counter which holds the number of users on the channel. </em> <a href="#a4"></a><em><br><br></td></tr>
+<tr><td class="memItemLeft" nowrap align=right valign=top>void&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="classchanrec.html#a5">DecUserCounter</a> ()</td></tr>
+
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Decrement the channel "user counter" The channel user counter is a reference counter which holds the number of users on the channel. </em> <a href="#a5"></a><em><br><br></td></tr>
+<tr><td class="memItemLeft" nowrap align=right valign=top>long&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="classchanrec.html#a6">GetUserCounter</a> ()</td></tr>
+
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Obtain the channel "user counter" This returns the channel reference counter, which is initialized to 0 when the channel is created and incremented/decremented upon joins, parts quits and kicks. </em> <a href="#a6"></a><em><br><br></td></tr>
+<tr><td class="memItemLeft" nowrap align=right valign=top>void&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="classchanrec.html#a7">AddUser</a> (char *castuser)</td></tr>
+
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Add a user pointer to the internal reference list The data inserted into the reference list is a table as it is an arbitary pointer compared to other users by its memory address, as this is a very fast 32 or 64 bit integer comparison. </em> <a href="#a7"></a><em><br><br></td></tr>
+<tr><td class="memItemLeft" nowrap align=right valign=top>void&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="classchanrec.html#a8">DelUser</a> (char *castuser)</td></tr>
+
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Delete a user pointer to the internal reference list The data removed from the reference list is a table as it is an arbitary pointer compared to other users by its memory address, as this is a very fast 32 or 64 bit integer comparison. </em> <a href="#a8"></a><em><br><br></td></tr>
+<tr><td class="memItemLeft" nowrap align=right valign=top>std::vector&lt; char * &gt; *&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="classchanrec.html#a9">GetUsers</a> ()</td></tr>
+
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Obrain the internal reference list The internal reference list contains a list of userrec* cast to char*. </em> <a href="#a9"></a><em><br><br></td></tr>
+<tr><td class="memItemLeft" nowrap align=right valign=top>&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="classchanrec.html#a10">chanrec</a> ()</td></tr>
+
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Creates a channel record and initialises it with default values. </em> <a href="#a10"></a><em><br><br></td></tr>
+<tr><td class="memItemLeft" nowrap align=right valign=top>virtual&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="classchanrec.html#a11">~chanrec</a> ()</td></tr>
 
 <tr><td colspan=2><br><h2>Public Attributes</h2></td></tr>
 <tr><td class="memItemLeft" nowrap align=right valign=top>char&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="classchanrec.html#o0">name</a> [CHANMAX]</td></tr>
@@ -39,45 +57,51 @@ Inherits <a class="el" href="classExtensible.html">Extensible</a>.
 <tr><td class="memItemLeft" nowrap align=right valign=top>char&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="classchanrec.html#o1">custom_modes</a> [MAXMODES]</td></tr>
 
 <tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Custom modes for the channel. </em> <a href="#o1"></a><em><br><br></td></tr>
-<tr><td class="memItemLeft" nowrap align=right valign=top>char&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="classchanrec.html#o2">topic</a> [MAXBUF]</td></tr>
+<tr><td class="memItemLeft" nowrap align=right valign=top>long&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="classchanrec.html#o2">users</a></td></tr>
 
-<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Channel topic. </em> <a href="#o2"></a><em><br><br></td></tr>
-<tr><td class="memItemLeft" nowrap align=right valign=top>time_t&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="classchanrec.html#o3">created</a></td></tr>
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Count of users on the channel used for fast user counting. </em> <a href="#o2"></a><em><br><br></td></tr>
+<tr><td class="memItemLeft" nowrap align=right valign=top>std::vector&lt; char * &gt;&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="classchanrec.html#o3">internal_userlist</a></td></tr>
 
-<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Creation time. </em> <a href="#o3"></a><em><br><br></td></tr>
-<tr><td class="memItemLeft" nowrap align=right valign=top>time_t&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="classchanrec.html#o4">topicset</a></td></tr>
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">User list (casted to char*'s to stop forward declaration stuff) (chicken and egg scenario!). </em> <a href="#o3"></a><em><br><br></td></tr>
+<tr><td class="memItemLeft" nowrap align=right valign=top>char&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="classchanrec.html#o4">topic</a> [MAXBUF]</td></tr>
 
-<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Time topic was set. </em> <a href="#o4"></a><em><br><br></td></tr>
-<tr><td class="memItemLeft" nowrap align=right valign=top>char&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="classchanrec.html#o5">setby</a> [NICKMAX]</td></tr>
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Channel topic. </em> <a href="#o4"></a><em><br><br></td></tr>
+<tr><td class="memItemLeft" nowrap align=right valign=top>time_t&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="classchanrec.html#o5">created</a></td></tr>
 
-<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">The last user to set the topic. </em> <a href="#o5"></a><em><br><br></td></tr>
-<tr><td class="memItemLeft" nowrap align=right valign=top>long&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="classchanrec.html#o6">limit</a></td></tr>
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Creation time. </em> <a href="#o5"></a><em><br><br></td></tr>
+<tr><td class="memItemLeft" nowrap align=right valign=top>time_t&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="classchanrec.html#o6">topicset</a></td></tr>
 
-<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Contains the channel user limit. </em> <a href="#o6"></a><em><br><br></td></tr>
-<tr><td class="memItemLeft" nowrap align=right valign=top>char&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="classchanrec.html#o7">key</a> [32]</td></tr>
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Time topic was set. </em> <a href="#o6"></a><em><br><br></td></tr>
+<tr><td class="memItemLeft" nowrap align=right valign=top>char&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="classchanrec.html#o7">setby</a> [NICKMAX]</td></tr>
 
-<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Contains the channel key. </em> <a href="#o7"></a><em><br><br></td></tr>
-<tr><td class="memItemLeft" nowrap align=right valign=top>short int&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="classchanrec.html#o8">topiclock</a></td></tr>
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">The last user to set the topic. </em> <a href="#o7"></a><em><br><br></td></tr>
+<tr><td class="memItemLeft" nowrap align=right valign=top>long&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="classchanrec.html#o8">limit</a></td></tr>
 
-<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Nonzero if the mode +t is set. </em> <a href="#o8"></a><em><br><br></td></tr>
-<tr><td class="memItemLeft" nowrap align=right valign=top>short int&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="classchanrec.html#o9">noexternal</a></td></tr>
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Contains the channel user limit. </em> <a href="#o8"></a><em><br><br></td></tr>
+<tr><td class="memItemLeft" nowrap align=right valign=top>char&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="classchanrec.html#o9">key</a> [32]</td></tr>
 
-<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Nonzero if the mode +n is set. </em> <a href="#o9"></a><em><br><br></td></tr>
-<tr><td class="memItemLeft" nowrap align=right valign=top>short int&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="classchanrec.html#o10">inviteonly</a></td></tr>
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Contains the channel key. </em> <a href="#o9"></a><em><br><br></td></tr>
+<tr><td class="memItemLeft" nowrap align=right valign=top>short int&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="classchanrec.html#o10">topiclock</a></td></tr>
 
-<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Nonzero if the mode +i is set. </em> <a href="#o10"></a><em><br><br></td></tr>
-<tr><td class="memItemLeft" nowrap align=right valign=top>short int&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="classchanrec.html#o11">moderated</a></td></tr>
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Nonzero if the mode +t is set. </em> <a href="#o10"></a><em><br><br></td></tr>
+<tr><td class="memItemLeft" nowrap align=right valign=top>short int&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="classchanrec.html#o11">noexternal</a></td></tr>
 
-<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Nonzero if the mode +m is set. </em> <a href="#o11"></a><em><br><br></td></tr>
-<tr><td class="memItemLeft" nowrap align=right valign=top>short int&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="classchanrec.html#o12">secret</a></td></tr>
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Nonzero if the mode +n is set. </em> <a href="#o11"></a><em><br><br></td></tr>
+<tr><td class="memItemLeft" nowrap align=right valign=top>short int&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="classchanrec.html#o12">inviteonly</a></td></tr>
 
-<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Nonzero if the mode +s is set. </em> <a href="#o12"></a><em><br><br></td></tr>
-<tr><td class="memItemLeft" nowrap align=right valign=top>short int&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="classchanrec.html#o13">c_private</a></td></tr>
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Nonzero if the mode +i is set. </em> <a href="#o12"></a><em><br><br></td></tr>
+<tr><td class="memItemLeft" nowrap align=right valign=top>short int&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="classchanrec.html#o13">moderated</a></td></tr>
 
-<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Nonzero if the mode +p is set. </em> <a href="#o13"></a><em><br><br></td></tr>
-<tr><td class="memItemLeft" nowrap align=right valign=top><a class="el" href="channels_8h.html#a5">BanList</a>&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="classchanrec.html#o14">bans</a></td></tr>
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Nonzero if the mode +m is set. </em> <a href="#o13"></a><em><br><br></td></tr>
+<tr><td class="memItemLeft" nowrap align=right valign=top>short int&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="classchanrec.html#o14">secret</a></td></tr>
 
-<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">The list of all bans set on the channel. </em> <a href="#o14"></a><em><br><br></td></tr>
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Nonzero if the mode +s is set. </em> <a href="#o14"></a><em><br><br></td></tr>
+<tr><td class="memItemLeft" nowrap align=right valign=top>short int&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="classchanrec.html#o15">c_private</a></td></tr>
+
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Nonzero if the mode +p is set. </em> <a href="#o15"></a><em><br><br></td></tr>
+<tr><td class="memItemLeft" nowrap align=right valign=top><a class="el" href="channels_8h.html#a5">BanList</a>&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="classchanrec.html#o16">bans</a></td></tr>
+
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">The list of all bans set on the channel. </em> <a href="#o16"></a><em><br><br></td></tr>
 </table>
 <hr><a name="_details"></a><h2>Detailed Description</h2>
 Holds all relevent information for a channel. 
@@ -87,7 +111,7 @@ This class represents a channel, and contains its name, modes, time created, top
 
 <p>
 Definition at line <a class="el" href="channels_8h-source.html#l00094">94</a> of file <a class="el" href="channels_8h-source.html">channels.h</a>.<hr><h2>Constructor &amp; Destructor Documentation</h2>
-<a name="a4" doxytag="chanrec::chanrec"></a><p>
+<a name="a10" doxytag="chanrec::chanrec"></a><p>
 <table class="mdTable" width="100%" cellpadding="2" cellspacing="0">
   <tr>
     <td class="mdRow">
@@ -118,7 +142,7 @@ Creates a channel record and initialises it with default values.
 <p>
 Definition at line <a class="el" href="channels_8cpp-source.html#l00113">113</a> of file <a class="el" href="channels_8cpp-source.html">channels.cpp</a>.
 <p>
-References <a class="el" href="channels_8h-source.html#l00155">c_private</a>, <a class="el" href="channels_8h-source.html#l00111">created</a>, <a class="el" href="channels_8h-source.html#l00103">custom_modes</a>, <a class="el" href="channels_8h-source.html#l00141">inviteonly</a>, <a class="el" href="channels_8h-source.html#l00129">key</a>, <a class="el" href="channels_8h-source.html#l00124">limit</a>, <a class="el" href="channels_8h-source.html#l00145">moderated</a>, <a class="el" href="channels_8h-source.html#l00099">name</a>, <a class="el" href="channels_8h-source.html#l00137">noexternal</a>, <a class="el" href="channels_8h-source.html#l00150">secret</a>, <a class="el" href="channels_8h-source.html#l00119">setby</a>, <a class="el" href="channels_8h-source.html#l00108">topic</a>, <a class="el" href="channels_8h-source.html#l00133">topiclock</a>, and <a class="el" href="channels_8h-source.html#l00115">topicset</a>.
+References <a class="el" href="channels_8h-source.html#l00164">c_private</a>, <a class="el" href="channels_8h-source.html#l00120">created</a>, <a class="el" href="channels_8h-source.html#l00103">custom_modes</a>, <a class="el" href="channels_8h-source.html#l00112">internal_userlist</a>, <a class="el" href="channels_8h-source.html#l00150">inviteonly</a>, <a class="el" href="channels_8h-source.html#l00138">key</a>, <a class="el" href="channels_8h-source.html#l00133">limit</a>, <a class="el" href="channels_8h-source.html#l00154">moderated</a>, <a class="el" href="channels_8h-source.html#l00099">name</a>, <a class="el" href="channels_8h-source.html#l00146">noexternal</a>, <a class="el" href="channels_8h-source.html#l00159">secret</a>, <a class="el" href="channels_8h-source.html#l00128">setby</a>, <a class="el" href="channels_8h-source.html#l00117">topic</a>, <a class="el" href="channels_8h-source.html#l00142">topiclock</a>, <a class="el" href="channels_8h-source.html#l00124">topicset</a>, and <a class="el" href="channels_8h-source.html#l00107">users</a>.
 <p>
 <div class="fragment"><pre>00114 {
 00115         strcpy(name,<span class="stringliteral">""</span>);
@@ -126,13 +150,14 @@ References <a class="el" href="channels_8h-source.html#l00155">c_private</a>, <a
 00117         strcpy(topic,<span class="stringliteral">""</span>);
 00118         strcpy(setby,<span class="stringliteral">""</span>);
 00119         strcpy(key,<span class="stringliteral">""</span>);
-00120         <a class="code" href="classchanrec.html#o3">created</a> = <a class="code" href="classchanrec.html#o4">topicset</a> = <a class="code" href="classchanrec.html#o6">limit</a> = 0;
-00121         <a class="code" href="classchanrec.html#o8">topiclock</a> = <a class="code" href="classchanrec.html#o9">noexternal</a> = <a class="code" href="classchanrec.html#o10">inviteonly</a> = <a class="code" href="classchanrec.html#o11">moderated</a> = <a class="code" href="classchanrec.html#o12">secret</a> = <a class="code" href="classchanrec.html#o13">c_private</a> = <span class="keyword">false</span>;
-00122 }
+00120         <a class="code" href="classchanrec.html#o5">created</a> = <a class="code" href="classchanrec.html#o6">topicset</a> = <a class="code" href="classchanrec.html#o8">limit</a> = <a class="code" href="classchanrec.html#o2">users</a> = 0;
+00121         <a class="code" href="classchanrec.html#o10">topiclock</a> = <a class="code" href="classchanrec.html#o11">noexternal</a> = <a class="code" href="classchanrec.html#o12">inviteonly</a> = <a class="code" href="classchanrec.html#o13">moderated</a> = <a class="code" href="classchanrec.html#o14">secret</a> = <a class="code" href="classchanrec.html#o15">c_private</a> = <span class="keyword">false</span>;
+00122         <a class="code" href="classchanrec.html#o3">internal_userlist</a>.clear();
+00123 }
 </pre></div>    </td>
   </tr>
 </table>
-<a name="a5" doxytag="chanrec::~chanrec"></a><p>
+<a name="a11" doxytag="chanrec::~chanrec"></a><p>
 <table class="mdTable" width="100%" cellpadding="2" cellspacing="0">
   <tr>
     <td class="mdRow">
@@ -159,13 +184,144 @@ References <a class="el" href="channels_8h-source.html#l00155">c_private</a>, <a
 <p>
 
 <p>
-Definition at line <a class="el" href="channels_8h-source.html#l00185">185</a> of file <a class="el" href="channels_8h-source.html">channels.h</a>.
+Definition at line <a class="el" href="channels_8h-source.html#l00240">240</a> of file <a class="el" href="channels_8h-source.html">channels.h</a>.
 <p>
-<div class="fragment"><pre>00185 { <span class="comment">/* stub */</span> }
+<div class="fragment"><pre>00240 { <span class="comment">/* stub */</span> }
 </pre></div>    </td>
   </tr>
 </table>
 <hr><h2>Member Function Documentation</h2>
+<a name="a7" doxytag="chanrec::AddUser"></a><p>
+<table class="mdTable" width="100%" cellpadding="2" cellspacing="0">
+  <tr>
+    <td class="mdRow">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> void chanrec::AddUser </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="md" nowrap valign="top">char *&nbsp;</td>
+          <td class="mdname1" valign="top" nowrap> <em>castuser</em>          </td>
+          <td class="md" valign="top">&nbsp;)&nbsp;</td>
+          <td class="md" nowrap></td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+Add a user pointer to the internal reference list The data inserted into the reference list is a table as it is an arbitary pointer compared to other users by its memory address, as this is a very fast 32 or 64 bit integer comparison. 
+<p>
+
+<p>
+Definition at line <a class="el" href="channels_8cpp-source.html#l00220">220</a> of file <a class="el" href="channels_8cpp-source.html">channels.cpp</a>.
+<p>
+References <a class="el" href="modules_8h-source.html#l00023">DEBUG</a>, and <a class="el" href="channels_8h-source.html#l00112">internal_userlist</a>.
+<p>
+<div class="fragment"><pre>00221 {
+00222         <a class="code" href="classchanrec.html#o3">internal_userlist</a>.push_back(castuser);
+00223         log(DEBUG,<span class="stringliteral">"Added casted user to channel's internal list"</span>);
+00224 }
+</pre></div>    </td>
+  </tr>
+</table>
+<a name="a5" doxytag="chanrec::DecUserCounter"></a><p>
+<table class="mdTable" width="100%" cellpadding="2" cellspacing="0">
+  <tr>
+    <td class="mdRow">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> void chanrec::DecUserCounter </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="mdname1" valign="top" nowrap>          </td>
+          <td class="md" valign="top">&nbsp;)&nbsp;</td>
+          <td class="md" nowrap></td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+Decrement the channel "user counter" The channel user counter is a reference counter which holds the number of users on the channel. 
+<p>
+If it decremented to 0 then the channel is removed from the system. Modules may alter the reference count to hold channels open which have no users and would normally be deleted once empty.
+<p>
+Definition at line <a class="el" href="channels_8cpp-source.html#l00208">208</a> of file <a class="el" href="channels_8cpp-source.html">channels.cpp</a>.
+<p>
+References <a class="el" href="modules_8h-source.html#l00023">DEBUG</a>, <a class="el" href="channels_8h-source.html#l00099">name</a>, and <a class="el" href="channels_8h-source.html#l00107">users</a>.
+<p>
+<div class="fragment"><pre>00209 {
+00210         <span class="keywordflow">if</span> (this-&gt;<a class="code" href="classchanrec.html#o2">users</a> &gt; 0)
+00211                 this-&gt;<a class="code" href="classchanrec.html#o2">users</a>--;
+00212         log(DEBUG,<span class="stringliteral">"Decremented channel user count for %s to %lu"</span>,name,(<span class="keywordtype">unsigned</span> <span class="keywordtype">long</span>)users);
+00213 }
+</pre></div>    </td>
+  </tr>
+</table>
+<a name="a8" doxytag="chanrec::DelUser"></a><p>
+<table class="mdTable" width="100%" cellpadding="2" cellspacing="0">
+  <tr>
+    <td class="mdRow">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> void chanrec::DelUser </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="md" nowrap valign="top">char *&nbsp;</td>
+          <td class="mdname1" valign="top" nowrap> <em>castuser</em>          </td>
+          <td class="md" valign="top">&nbsp;)&nbsp;</td>
+          <td class="md" nowrap></td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+Delete a user pointer to the internal reference list The data removed from the reference list is a table as it is an arbitary pointer compared to other users by its memory address, as this is a very fast 32 or 64 bit integer comparison. 
+<p>
+
+<p>
+Definition at line <a class="el" href="channels_8cpp-source.html#l00226">226</a> of file <a class="el" href="channels_8cpp-source.html">channels.cpp</a>.
+<p>
+References <a class="el" href="modules_8h-source.html#l00023">DEBUG</a>, <a class="el" href="channels_8h-source.html#l00112">internal_userlist</a>, and <a class="el" href="channels_8h-source.html#l00099">name</a>.
+<p>
+<div class="fragment"><pre>00227 {
+00228         <span class="keywordflow">for</span> (std::vector&lt;char*&gt;::iterator a = <a class="code" href="classchanrec.html#o3">internal_userlist</a>.begin(); a &lt; <a class="code" href="classchanrec.html#o3">internal_userlist</a>.end(); a++)
+00229         {
+00230                 <span class="keywordflow">if</span> (*a == castuser)
+00231                 {
+00232                         log(DEBUG,<span class="stringliteral">"Removed casted user from channel's internal list"</span>);
+00233                         <a class="code" href="classchanrec.html#o3">internal_userlist</a>.erase(a);
+00234                         <span class="keywordflow">return</span>;
+00235                 }
+00236         }
+00237         log(DEBUG,<span class="stringliteral">"BUG BUG BUG! Attempt to remove an uncasted user from the internal list of %s!"</span>,name);
+00238 }
+</pre></div>    </td>
+  </tr>
+</table>
 <a name="a3" doxytag="chanrec::GetModeParameter"></a><p>
 <table class="mdTable" width="100%" cellpadding="2" cellspacing="0">
   <tr>
@@ -196,23 +352,141 @@ Returns the parameter for a custom mode on a channel.
 <p>
 For example if "+L #foo" is set, and you pass this method 'L', it will return '#foo'. If the mode is not set on the channel, or the mode has no parameters associated with it, it will return an empty string.
 <p>
-Definition at line <a class="el" href="channels_8cpp-source.html#l00186">186</a> of file <a class="el" href="channels_8cpp-source.html">channels.cpp</a>.
+Definition at line <a class="el" href="channels_8cpp-source.html#l00187">187</a> of file <a class="el" href="channels_8cpp-source.html">channels.cpp</a>.
 <p>
 References <a class="el" href="channels_8cpp-source.html#l00111">custom_mode_params</a>.
 <p>
-<div class="fragment"><pre>00187 {
-00188         <span class="keywordflow">if</span> (<a class="code" href="channels_8cpp.html#a38">custom_mode_params</a>.size())
-00189         {
-00190                 <span class="keywordflow">for</span> (vector&lt;ModeParameter&gt;::iterator i = <a class="code" href="channels_8cpp.html#a38">custom_mode_params</a>.begin(); i &lt; <a class="code" href="channels_8cpp.html#a38">custom_mode_params</a>.end(); i++)
-00191                 {
-00192                         <span class="keywordflow">if</span> ((i-&gt;mode == mode) &amp;&amp; (!strcasecmp(this-&gt;name,i-&gt;channel)))
-00193                         {
-00194                                 <span class="keywordflow">return</span> std::string(i-&gt;parameter);
-00195                         }
-00196                 }
-00197         }
-00198         <span class="keywordflow">return</span> std::string(<span class="stringliteral">""</span>);
-00199 }
+<div class="fragment"><pre>00188 {
+00189         <span class="keywordflow">if</span> (<a class="code" href="channels_8cpp.html#a38">custom_mode_params</a>.size())
+00190         {
+00191                 <span class="keywordflow">for</span> (vector&lt;ModeParameter&gt;::iterator i = <a class="code" href="channels_8cpp.html#a38">custom_mode_params</a>.begin(); i &lt; <a class="code" href="channels_8cpp.html#a38">custom_mode_params</a>.end(); i++)
+00192                 {
+00193                         <span class="keywordflow">if</span> ((i-&gt;mode == mode) &amp;&amp; (!strcasecmp(this-&gt;name,i-&gt;channel)))
+00194                         {
+00195                                 <span class="keywordflow">return</span> std::string(i-&gt;parameter);
+00196                         }
+00197                 }
+00198         }
+00199         <span class="keywordflow">return</span> std::string(<span class="stringliteral">""</span>);
+00200 }
+</pre></div>    </td>
+  </tr>
+</table>
+<a name="a6" doxytag="chanrec::GetUserCounter"></a><p>
+<table class="mdTable" width="100%" cellpadding="2" cellspacing="0">
+  <tr>
+    <td class="mdRow">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> long chanrec::GetUserCounter </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="mdname1" valign="top" nowrap>          </td>
+          <td class="md" valign="top">&nbsp;)&nbsp;</td>
+          <td class="md" nowrap></td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+Obtain the channel "user counter" This returns the channel reference counter, which is initialized to 0 when the channel is created and incremented/decremented upon joins, parts quits and kicks. 
+<p>
+
+<p>
+Definition at line <a class="el" href="channels_8cpp-source.html#l00215">215</a> of file <a class="el" href="channels_8cpp-source.html">channels.cpp</a>.
+<p>
+References <a class="el" href="channels_8h-source.html#l00107">users</a>.
+<p>
+<div class="fragment"><pre>00216 {
+00217         <span class="keywordflow">return</span> (this-&gt;<a class="code" href="classchanrec.html#o2">users</a>);
+00218 }
+</pre></div>    </td>
+  </tr>
+</table>
+<a name="a9" doxytag="chanrec::GetUsers"></a><p>
+<table class="mdTable" width="100%" cellpadding="2" cellspacing="0">
+  <tr>
+    <td class="mdRow">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> std::vector&lt; char * &gt; * chanrec::GetUsers </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="mdname1" valign="top" nowrap>          </td>
+          <td class="md" valign="top">&nbsp;)&nbsp;</td>
+          <td class="md" nowrap></td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+Obrain the internal reference list The internal reference list contains a list of userrec* cast to char*. 
+<p>
+These are used for rapid comparison to determine channel membership for PRIVMSG, NOTICE, QUIT, PART etc. The resulting pointer to the vector should be considered readonly and only modified via AddUser and DelUser.
+<p>
+Definition at line <a class="el" href="channels_8cpp-source.html#l00240">240</a> of file <a class="el" href="channels_8cpp-source.html">channels.cpp</a>.
+<p>
+References <a class="el" href="channels_8h-source.html#l00112">internal_userlist</a>.
+<p>
+<div class="fragment"><pre>00241 {
+00242         <span class="keywordflow">return</span> &amp;<a class="code" href="classchanrec.html#o3">internal_userlist</a>;
+00243 }
+</pre></div>    </td>
+  </tr>
+</table>
+<a name="a4" doxytag="chanrec::IncUserCounter"></a><p>
+<table class="mdTable" width="100%" cellpadding="2" cellspacing="0">
+  <tr>
+    <td class="mdRow">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> void chanrec::IncUserCounter </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="mdname1" valign="top" nowrap>          </td>
+          <td class="md" valign="top">&nbsp;)&nbsp;</td>
+          <td class="md" nowrap></td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+Increment the channel "user counter" The channel user counter is a reference counter which holds the number of users on the channel. 
+<p>
+If it decremented to 0 then the channel is removed from the system.
+<p>
+Definition at line <a class="el" href="channels_8cpp-source.html#l00202">202</a> of file <a class="el" href="channels_8cpp-source.html">channels.cpp</a>.
+<p>
+References <a class="el" href="modules_8h-source.html#l00023">DEBUG</a>, <a class="el" href="channels_8h-source.html#l00099">name</a>, and <a class="el" href="channels_8h-source.html#l00107">users</a>.
+<p>
+<div class="fragment"><pre>00203 {
+00204         this-&gt;<a class="code" href="classchanrec.html#o2">users</a>++;
+00205         log(DEBUG,<span class="stringliteral">"Incremented channel user count for %s to %lu"</span>,name,(<span class="keywordtype">unsigned</span> <span class="keywordtype">long</span>)users);
+00206 }
 </pre></div>    </td>
   </tr>
 </table>
@@ -246,14 +520,14 @@ Returns true if a custom mode is set on a channel.
 <p>
 
 <p>
-Definition at line <a class="el" href="channels_8cpp-source.html#l00180">180</a> of file <a class="el" href="channels_8cpp-source.html">channels.cpp</a>.
+Definition at line <a class="el" href="channels_8cpp-source.html#l00181">181</a> of file <a class="el" href="channels_8cpp-source.html">channels.cpp</a>.
 <p>
 References <a class="el" href="modules_8h-source.html#l00023">DEBUG</a>.
 <p>
-<div class="fragment"><pre>00181 {
-00182         log(DEBUG,<span class="stringliteral">"Checking ISCustomModeSet: %c %s"</span>,mode,this-&gt;custom_modes);
-00183         <span class="keywordflow">return</span> (strchr(this-&gt;custom_modes,mode) != 0);
-00184 }
+<div class="fragment"><pre>00182 {
+00183         log(DEBUG,<span class="stringliteral">"Checking ISCustomModeSet: %c %s"</span>,mode,this-&gt;custom_modes);
+00184         <span class="keywordflow">return</span> (strchr(this-&gt;custom_modes,mode) != 0);
+00185 }
 </pre></div>    </td>
   </tr>
 </table>
@@ -296,32 +570,32 @@ Sets or unsets a custom mode in the channels info.
 <p>
 
 <p>
-Definition at line <a class="el" href="channels_8cpp-source.html#l00124">124</a> of file <a class="el" href="channels_8cpp-source.html">channels.cpp</a>.
+Definition at line <a class="el" href="channels_8cpp-source.html#l00125">125</a> of file <a class="el" href="channels_8cpp-source.html">channels.cpp</a>.
 <p>
-References <a class="el" href="channels_8h-source.html#l00103">custom_modes</a>, <a class="el" href="modules_8h-source.html#l00023">DEBUG</a>, and <a class="el" href="channels_8cpp-source.html#l00149">SetCustomModeParam()</a>.
+References <a class="el" href="channels_8h-source.html#l00103">custom_modes</a>, <a class="el" href="modules_8h-source.html#l00023">DEBUG</a>, and <a class="el" href="channels_8cpp-source.html#l00150">SetCustomModeParam()</a>.
 <p>
-<div class="fragment"><pre>00125 {
-00126         <span class="keywordflow">if</span> (mode_on) {
-00127                 <span class="keywordtype">char</span> m[3];
-00128                 m[0] = mode;
-00129                 m[1] = <span class="charliteral">'\0'</span>;
-00130                 <span class="keywordflow">if</span> (!strchr(this-&gt;custom_modes,mode))
-00131                 {
-00132                         strlcat(custom_modes,m,MAXMODES);
-00133                 }
-00134                 log(DEBUG,<span class="stringliteral">"Custom mode %c set"</span>,mode);
-00135         }
-00136         <span class="keywordflow">else</span> {
-00137 
-00138                 std::string a = this-&gt;<a class="code" href="classchanrec.html#o1">custom_modes</a>;
-00139                 <span class="keywordtype">int</span> pos = a.find(mode);
-00140                 a.erase(pos,1);
-00141                 strncpy(this-&gt;custom_modes,a.c_str(),MAXMODES);
-00142 
-00143                 log(DEBUG,<span class="stringliteral">"Custom mode %c removed: modelist='%s'"</span>,mode,this-&gt;custom_modes);
-00144                 this-&gt;<a class="code" href="classchanrec.html#a1">SetCustomModeParam</a>(mode,<span class="stringliteral">""</span>,<span class="keyword">false</span>);
-00145         }
-00146 }
+<div class="fragment"><pre>00126 {
+00127         <span class="keywordflow">if</span> (mode_on) {
+00128                 <span class="keywordtype">char</span> m[3];
+00129                 m[0] = mode;
+00130                 m[1] = <span class="charliteral">'\0'</span>;
+00131                 <span class="keywordflow">if</span> (!strchr(this-&gt;custom_modes,mode))
+00132                 {
+00133                         strlcat(custom_modes,m,MAXMODES);
+00134                 }
+00135                 log(DEBUG,<span class="stringliteral">"Custom mode %c set"</span>,mode);
+00136         }
+00137         <span class="keywordflow">else</span> {
+00138 
+00139                 std::string a = this-&gt;<a class="code" href="classchanrec.html#o1">custom_modes</a>;
+00140                 <span class="keywordtype">int</span> pos = a.find(mode);
+00141                 a.erase(pos,1);
+00142                 strncpy(this-&gt;custom_modes,a.c_str(),MAXMODES);
+00143 
+00144                 log(DEBUG,<span class="stringliteral">"Custom mode %c removed: modelist='%s'"</span>,mode,this-&gt;custom_modes);
+00145                 this-&gt;<a class="code" href="classchanrec.html#a1">SetCustomModeParam</a>(mode,<span class="stringliteral">""</span>,<span class="keyword">false</span>);
+00146         }
+00147 }
 </pre></div>    </td>
   </tr>
 </table>
@@ -370,52 +644,52 @@ Sets or unsets the parameters for a custom mode in a channels info.
 <p>
 
 <p>
-Definition at line <a class="el" href="channels_8cpp-source.html#l00149">149</a> of file <a class="el" href="channels_8cpp-source.html">channels.cpp</a>.
+Definition at line <a class="el" href="channels_8cpp-source.html#l00150">150</a> of file <a class="el" href="channels_8cpp-source.html">channels.cpp</a>.
 <p>
 References <a class="el" href="channels_8h-source.html#l00075">ModeParameter::channel</a>, <a class="el" href="channels_8cpp-source.html#l00111">custom_mode_params</a>, <a class="el" href="modules_8h-source.html#l00023">DEBUG</a>, <a class="el" href="channels_8h-source.html#l00073">ModeParameter::mode</a>, and <a class="el" href="channels_8h-source.html#l00074">ModeParameter::parameter</a>.
 <p>
-Referenced by <a class="el" href="channels_8cpp-source.html#l00124">SetCustomMode()</a>.
+Referenced by <a class="el" href="channels_8cpp-source.html#l00125">SetCustomMode()</a>.
 <p>
-<div class="fragment"><pre>00150 {
-00151 
-00152         log(DEBUG,<span class="stringliteral">"SetCustomModeParam called"</span>);
-00153         <a class="code" href="classModeParameter.html">ModeParameter</a> M;
-00154         M.<a class="code" href="classModeParameter.html#o0">mode</a> = mode;
-00155         strlcpy(M.<a class="code" href="classModeParameter.html#o2">channel</a>,this-&gt;name,CHANMAX);
-00156         strlcpy(M.<a class="code" href="classModeParameter.html#o1">parameter</a>,parameter,MAXBUF);
-00157         <span class="keywordflow">if</span> (mode_on)
-00158         {
-00159                 log(DEBUG,<span class="stringliteral">"Custom mode parameter %c %s added"</span>,mode,parameter);
-00160                 <a class="code" href="channels_8cpp.html#a38">custom_mode_params</a>.push_back(M);
-00161         }
-00162         <span class="keywordflow">else</span>
-00163         {
-00164                 <span class="keywordflow">if</span> (<a class="code" href="channels_8cpp.html#a38">custom_mode_params</a>.size())
-00165                 {
-00166                         <span class="keywordflow">for</span> (vector&lt;ModeParameter&gt;::iterator i = <a class="code" href="channels_8cpp.html#a38">custom_mode_params</a>.begin(); i &lt; <a class="code" href="channels_8cpp.html#a38">custom_mode_params</a>.end(); i++)
-00167                         {
-00168                                 <span class="keywordflow">if</span> ((i-&gt;mode == mode) &amp;&amp; (!strcasecmp(this-&gt;name,i-&gt;channel)))
-00169                                 {
-00170                                         log(DEBUG,<span class="stringliteral">"Custom mode parameter %c %s removed"</span>,mode,parameter);
-00171                                         <a class="code" href="channels_8cpp.html#a38">custom_mode_params</a>.erase(i);
-00172                                         <span class="keywordflow">return</span>;
-00173                                 }
-00174                         }
-00175                 }
-00176                 log(DEBUG,<span class="stringliteral">"*** BUG *** Attempt to remove non-existent mode parameter!"</span>);
-00177         }
-00178 }
+<div class="fragment"><pre>00151 {
+00152 
+00153         log(DEBUG,<span class="stringliteral">"SetCustomModeParam called"</span>);
+00154         <a class="code" href="classModeParameter.html">ModeParameter</a> M;
+00155         M.<a class="code" href="classModeParameter.html#o0">mode</a> = mode;
+00156         strlcpy(M.<a class="code" href="classModeParameter.html#o2">channel</a>,this-&gt;name,CHANMAX);
+00157         strlcpy(M.<a class="code" href="classModeParameter.html#o1">parameter</a>,parameter,MAXBUF);
+00158         <span class="keywordflow">if</span> (mode_on)
+00159         {
+00160                 log(DEBUG,<span class="stringliteral">"Custom mode parameter %c %s added"</span>,mode,parameter);
+00161                 <a class="code" href="channels_8cpp.html#a38">custom_mode_params</a>.push_back(M);
+00162         }
+00163         <span class="keywordflow">else</span>
+00164         {
+00165                 <span class="keywordflow">if</span> (<a class="code" href="channels_8cpp.html#a38">custom_mode_params</a>.size())
+00166                 {
+00167                         <span class="keywordflow">for</span> (vector&lt;ModeParameter&gt;::iterator i = <a class="code" href="channels_8cpp.html#a38">custom_mode_params</a>.begin(); i &lt; <a class="code" href="channels_8cpp.html#a38">custom_mode_params</a>.end(); i++)
+00168                         {
+00169                                 <span class="keywordflow">if</span> ((i-&gt;mode == mode) &amp;&amp; (!strcasecmp(this-&gt;name,i-&gt;channel)))
+00170                                 {
+00171                                         log(DEBUG,<span class="stringliteral">"Custom mode parameter %c %s removed"</span>,mode,parameter);
+00172                                         <a class="code" href="channels_8cpp.html#a38">custom_mode_params</a>.erase(i);
+00173                                         <span class="keywordflow">return</span>;
+00174                                 }
+00175                         }
+00176                 }
+00177                 log(DEBUG,<span class="stringliteral">"*** BUG *** Attempt to remove non-existent mode parameter!"</span>);
+00178         }
+00179 }
 </pre></div>    </td>
   </tr>
 </table>
 <hr><h2>Member Data Documentation</h2>
-<a name="o14" doxytag="chanrec::bans"></a><p>
+<a name="o16" doxytag="chanrec::bans"></a><p>
 <table class="mdTable" width="100%" cellpadding="2" cellspacing="0">
   <tr>
     <td class="mdRow">
       <table cellpadding="0" cellspacing="0" border="0">
         <tr>
-          <td class="md" nowrap valign="top"> <a class="el" href="channels_8h.html#a5">BanList</a> <a class="el" href="classchanrec.html#o14">chanrec::bans</a>
+          <td class="md" nowrap valign="top"> <a class="el" href="channels_8h.html#a5">BanList</a> <a class="el" href="classchanrec.html#o16">chanrec::bans</a>
       </table>
     </td>
   </tr>
@@ -432,16 +706,16 @@ The list of all bans set on the channel.
 <p>
 
 <p>
-Definition at line <a class="el" href="channels_8h-source.html#l00159">159</a> of file <a class="el" href="channels_8h-source.html">channels.h</a>.    </td>
+Definition at line <a class="el" href="channels_8h-source.html#l00168">168</a> of file <a class="el" href="channels_8h-source.html">channels.h</a>.    </td>
   </tr>
 </table>
-<a name="o13" doxytag="chanrec::c_private"></a><p>
+<a name="o15" doxytag="chanrec::c_private"></a><p>
 <table class="mdTable" width="100%" cellpadding="2" cellspacing="0">
   <tr>
     <td class="mdRow">
       <table cellpadding="0" cellspacing="0" border="0">
         <tr>
-          <td class="md" nowrap valign="top"> short int <a class="el" href="classchanrec.html#o13">chanrec::c_private</a>
+          <td class="md" nowrap valign="top"> short int <a class="el" href="classchanrec.html#o15">chanrec::c_private</a>
       </table>
     </td>
   </tr>
@@ -456,20 +730,20 @@ Definition at line <a class="el" href="channels_8h-source.html#l00159">159</a> o
 <p>
 Nonzero if the mode +p is set. 
 <p>
-This value cannot be set at the same time as <a class="el" href="classchanrec.html#o12">chanrec::secret</a>
+This value cannot be set at the same time as <a class="el" href="classchanrec.html#o14">chanrec::secret</a>
 <p>
-Definition at line <a class="el" href="channels_8h-source.html#l00155">155</a> of file <a class="el" href="channels_8h-source.html">channels.h</a>.
+Definition at line <a class="el" href="channels_8h-source.html#l00164">164</a> of file <a class="el" href="channels_8h-source.html">channels.h</a>.
 <p>
 Referenced by <a class="el" href="channels_8cpp-source.html#l00113">chanrec()</a>.    </td>
   </tr>
 </table>
-<a name="o3" doxytag="chanrec::created"></a><p>
+<a name="o5" doxytag="chanrec::created"></a><p>
 <table class="mdTable" width="100%" cellpadding="2" cellspacing="0">
   <tr>
     <td class="mdRow">
       <table cellpadding="0" cellspacing="0" border="0">
         <tr>
-          <td class="md" nowrap valign="top"> time_t <a class="el" href="classchanrec.html#o3">chanrec::created</a>
+          <td class="md" nowrap valign="top"> time_t <a class="el" href="classchanrec.html#o5">chanrec::created</a>
       </table>
     </td>
   </tr>
@@ -486,7 +760,7 @@ Creation time.
 <p>
 
 <p>
-Definition at line <a class="el" href="channels_8h-source.html#l00111">111</a> of file <a class="el" href="channels_8h-source.html">channels.h</a>.
+Definition at line <a class="el" href="channels_8h-source.html#l00120">120</a> of file <a class="el" href="channels_8h-source.html">channels.h</a>.
 <p>
 Referenced by <a class="el" href="channels_8cpp-source.html#l00113">chanrec()</a>.    </td>
   </tr>
@@ -516,16 +790,44 @@ Plugins may use this field in any way they see fit.
 <p>
 Definition at line <a class="el" href="channels_8h-source.html#l00103">103</a> of file <a class="el" href="channels_8h-source.html">channels.h</a>.
 <p>
-Referenced by <a class="el" href="channels_8cpp-source.html#l00113">chanrec()</a>, and <a class="el" href="channels_8cpp-source.html#l00124">SetCustomMode()</a>.    </td>
+Referenced by <a class="el" href="channels_8cpp-source.html#l00113">chanrec()</a>, and <a class="el" href="channels_8cpp-source.html#l00125">SetCustomMode()</a>.    </td>
   </tr>
 </table>
-<a name="o10" doxytag="chanrec::inviteonly"></a><p>
+<a name="o3" doxytag="chanrec::internal_userlist"></a><p>
 <table class="mdTable" width="100%" cellpadding="2" cellspacing="0">
   <tr>
     <td class="mdRow">
       <table cellpadding="0" cellspacing="0" border="0">
         <tr>
-          <td class="md" nowrap valign="top"> short int <a class="el" href="classchanrec.html#o10">chanrec::inviteonly</a>
+          <td class="md" nowrap valign="top"> std::vector&lt;char*&gt; <a class="el" href="classchanrec.html#o3">chanrec::internal_userlist</a>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+User list (casted to char*'s to stop forward declaration stuff) (chicken and egg scenario!). 
+<p>
+
+<p>
+Definition at line <a class="el" href="channels_8h-source.html#l00112">112</a> of file <a class="el" href="channels_8h-source.html">channels.h</a>.
+<p>
+Referenced by <a class="el" href="channels_8cpp-source.html#l00220">AddUser()</a>, <a class="el" href="channels_8cpp-source.html#l00113">chanrec()</a>, <a class="el" href="channels_8cpp-source.html#l00226">DelUser()</a>, and <a class="el" href="channels_8cpp-source.html#l00240">GetUsers()</a>.    </td>
+  </tr>
+</table>
+<a name="o12" doxytag="chanrec::inviteonly"></a><p>
+<table class="mdTable" width="100%" cellpadding="2" cellspacing="0">
+  <tr>
+    <td class="mdRow">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> short int <a class="el" href="classchanrec.html#o12">chanrec::inviteonly</a>
       </table>
     </td>
   </tr>
@@ -542,18 +844,18 @@ Nonzero if the mode +i is set.
 <p>
 
 <p>
-Definition at line <a class="el" href="channels_8h-source.html#l00141">141</a> of file <a class="el" href="channels_8h-source.html">channels.h</a>.
+Definition at line <a class="el" href="channels_8h-source.html#l00150">150</a> of file <a class="el" href="channels_8h-source.html">channels.h</a>.
 <p>
 Referenced by <a class="el" href="channels_8cpp-source.html#l00113">chanrec()</a>.    </td>
   </tr>
 </table>
-<a name="o7" doxytag="chanrec::key"></a><p>
+<a name="o9" doxytag="chanrec::key"></a><p>
 <table class="mdTable" width="100%" cellpadding="2" cellspacing="0">
   <tr>
     <td class="mdRow">
       <table cellpadding="0" cellspacing="0" border="0">
         <tr>
-          <td class="md" nowrap valign="top"> char <a class="el" href="classchanrec.html#o7">chanrec::key</a>[32]
+          <td class="md" nowrap valign="top"> char <a class="el" href="classchanrec.html#o9">chanrec::key</a>[32]
       </table>
     </td>
   </tr>
@@ -570,18 +872,18 @@ Contains the channel key.
 <p>
 If this value is an empty string, there is no channel key in place.
 <p>
-Definition at line <a class="el" href="channels_8h-source.html#l00129">129</a> of file <a class="el" href="channels_8h-source.html">channels.h</a>.
+Definition at line <a class="el" href="channels_8h-source.html#l00138">138</a> of file <a class="el" href="channels_8h-source.html">channels.h</a>.
 <p>
 Referenced by <a class="el" href="channels_8cpp-source.html#l00113">chanrec()</a>.    </td>
   </tr>
 </table>
-<a name="o6" doxytag="chanrec::limit"></a><p>
+<a name="o8" doxytag="chanrec::limit"></a><p>
 <table class="mdTable" width="100%" cellpadding="2" cellspacing="0">
   <tr>
     <td class="mdRow">
       <table cellpadding="0" cellspacing="0" border="0">
         <tr>
-          <td class="md" nowrap valign="top"> long <a class="el" href="classchanrec.html#o6">chanrec::limit</a>
+          <td class="md" nowrap valign="top"> long <a class="el" href="classchanrec.html#o8">chanrec::limit</a>
       </table>
     </td>
   </tr>
@@ -598,18 +900,18 @@ Contains the channel user limit.
 <p>
 If this value is zero, there is no limit in place.
 <p>
-Definition at line <a class="el" href="channels_8h-source.html#l00124">124</a> of file <a class="el" href="channels_8h-source.html">channels.h</a>.
+Definition at line <a class="el" href="channels_8h-source.html#l00133">133</a> of file <a class="el" href="channels_8h-source.html">channels.h</a>.
 <p>
 Referenced by <a class="el" href="channels_8cpp-source.html#l00113">chanrec()</a>.    </td>
   </tr>
 </table>
-<a name="o11" doxytag="chanrec::moderated"></a><p>
+<a name="o13" doxytag="chanrec::moderated"></a><p>
 <table class="mdTable" width="100%" cellpadding="2" cellspacing="0">
   <tr>
     <td class="mdRow">
       <table cellpadding="0" cellspacing="0" border="0">
         <tr>
-          <td class="md" nowrap valign="top"> short int <a class="el" href="classchanrec.html#o11">chanrec::moderated</a>
+          <td class="md" nowrap valign="top"> short int <a class="el" href="classchanrec.html#o13">chanrec::moderated</a>
       </table>
     </td>
   </tr>
@@ -626,7 +928,7 @@ Nonzero if the mode +m is set.
 <p>
 
 <p>
-Definition at line <a class="el" href="channels_8h-source.html#l00145">145</a> of file <a class="el" href="channels_8h-source.html">channels.h</a>.
+Definition at line <a class="el" href="channels_8h-source.html#l00154">154</a> of file <a class="el" href="channels_8h-source.html">channels.h</a>.
 <p>
 Referenced by <a class="el" href="channels_8cpp-source.html#l00113">chanrec()</a>.    </td>
   </tr>
@@ -656,16 +958,16 @@ The channels name.
 <p>
 Definition at line <a class="el" href="channels_8h-source.html#l00099">99</a> of file <a class="el" href="channels_8h-source.html">channels.h</a>.
 <p>
-Referenced by <a class="el" href="channels_8cpp-source.html#l00113">chanrec()</a>, and <a class="el" href="modules_8cpp-source.html#l00663">Server::PseudoToUser()</a>.    </td>
+Referenced by <a class="el" href="channels_8cpp-source.html#l00113">chanrec()</a>, <a class="el" href="channels_8cpp-source.html#l00208">DecUserCounter()</a>, <a class="el" href="channels_8cpp-source.html#l00226">DelUser()</a>, <a class="el" href="channels_8cpp-source.html#l00202">IncUserCounter()</a>, and <a class="el" href="modules_8cpp-source.html#l00665">Server::PseudoToUser()</a>.    </td>
   </tr>
 </table>
-<a name="o9" doxytag="chanrec::noexternal"></a><p>
+<a name="o11" doxytag="chanrec::noexternal"></a><p>
 <table class="mdTable" width="100%" cellpadding="2" cellspacing="0">
   <tr>
     <td class="mdRow">
       <table cellpadding="0" cellspacing="0" border="0">
         <tr>
-          <td class="md" nowrap valign="top"> short int <a class="el" href="classchanrec.html#o9">chanrec::noexternal</a>
+          <td class="md" nowrap valign="top"> short int <a class="el" href="classchanrec.html#o11">chanrec::noexternal</a>
       </table>
     </td>
   </tr>
@@ -682,18 +984,18 @@ Nonzero if the mode +n is set.
 <p>
 
 <p>
-Definition at line <a class="el" href="channels_8h-source.html#l00137">137</a> of file <a class="el" href="channels_8h-source.html">channels.h</a>.
+Definition at line <a class="el" href="channels_8h-source.html#l00146">146</a> of file <a class="el" href="channels_8h-source.html">channels.h</a>.
 <p>
 Referenced by <a class="el" href="channels_8cpp-source.html#l00113">chanrec()</a>.    </td>
   </tr>
 </table>
-<a name="o12" doxytag="chanrec::secret"></a><p>
+<a name="o14" doxytag="chanrec::secret"></a><p>
 <table class="mdTable" width="100%" cellpadding="2" cellspacing="0">
   <tr>
     <td class="mdRow">
       <table cellpadding="0" cellspacing="0" border="0">
         <tr>
-          <td class="md" nowrap valign="top"> short int <a class="el" href="classchanrec.html#o12">chanrec::secret</a>
+          <td class="md" nowrap valign="top"> short int <a class="el" href="classchanrec.html#o14">chanrec::secret</a>
       </table>
     </td>
   </tr>
@@ -708,20 +1010,20 @@ Referenced by <a class="el" href="channels_8cpp-source.html#l00113">chanrec()</a
 <p>
 Nonzero if the mode +s is set. 
 <p>
-This value cannot be set at the same time as <a class="el" href="classchanrec.html#o13">chanrec::c_private</a>
+This value cannot be set at the same time as <a class="el" href="classchanrec.html#o15">chanrec::c_private</a>
 <p>
-Definition at line <a class="el" href="channels_8h-source.html#l00150">150</a> of file <a class="el" href="channels_8h-source.html">channels.h</a>.
+Definition at line <a class="el" href="channels_8h-source.html#l00159">159</a> of file <a class="el" href="channels_8h-source.html">channels.h</a>.
 <p>
 Referenced by <a class="el" href="channels_8cpp-source.html#l00113">chanrec()</a>.    </td>
   </tr>
 </table>
-<a name="o5" doxytag="chanrec::setby"></a><p>
+<a name="o7" doxytag="chanrec::setby"></a><p>
 <table class="mdTable" width="100%" cellpadding="2" cellspacing="0">
   <tr>
     <td class="mdRow">
       <table cellpadding="0" cellspacing="0" border="0">
         <tr>
-          <td class="md" nowrap valign="top"> char <a class="el" href="classchanrec.html#o5">chanrec::setby</a>[NICKMAX]
+          <td class="md" nowrap valign="top"> char <a class="el" href="classchanrec.html#o7">chanrec::setby</a>[NICKMAX]
       </table>
     </td>
   </tr>
@@ -738,18 +1040,18 @@ The last user to set the topic.
 <p>
 If this member is an empty string, no topic was ever set.
 <p>
-Definition at line <a class="el" href="channels_8h-source.html#l00119">119</a> of file <a class="el" href="channels_8h-source.html">channels.h</a>.
+Definition at line <a class="el" href="channels_8h-source.html#l00128">128</a> of file <a class="el" href="channels_8h-source.html">channels.h</a>.
 <p>
-Referenced by <a class="el" href="channels_8cpp-source.html#l00113">chanrec()</a>, and <a class="el" href="modules_8cpp-source.html#l00663">Server::PseudoToUser()</a>.    </td>
+Referenced by <a class="el" href="channels_8cpp-source.html#l00113">chanrec()</a>, and <a class="el" href="modules_8cpp-source.html#l00665">Server::PseudoToUser()</a>.    </td>
   </tr>
 </table>
-<a name="o2" doxytag="chanrec::topic"></a><p>
+<a name="o4" doxytag="chanrec::topic"></a><p>
 <table class="mdTable" width="100%" cellpadding="2" cellspacing="0">
   <tr>
     <td class="mdRow">
       <table cellpadding="0" cellspacing="0" border="0">
         <tr>
-          <td class="md" nowrap valign="top"> char <a class="el" href="classchanrec.html#o2">chanrec::topic</a>[MAXBUF]
+          <td class="md" nowrap valign="top"> char <a class="el" href="classchanrec.html#o4">chanrec::topic</a>[MAXBUF]
       </table>
     </td>
   </tr>
@@ -766,18 +1068,18 @@ Channel topic.
 <p>
 If this is an empty string, no channel topic is set.
 <p>
-Definition at line <a class="el" href="channels_8h-source.html#l00108">108</a> of file <a class="el" href="channels_8h-source.html">channels.h</a>.
+Definition at line <a class="el" href="channels_8h-source.html#l00117">117</a> of file <a class="el" href="channels_8h-source.html">channels.h</a>.
 <p>
-Referenced by <a class="el" href="channels_8cpp-source.html#l00113">chanrec()</a>, and <a class="el" href="modules_8cpp-source.html#l00663">Server::PseudoToUser()</a>.    </td>
+Referenced by <a class="el" href="channels_8cpp-source.html#l00113">chanrec()</a>, and <a class="el" href="modules_8cpp-source.html#l00665">Server::PseudoToUser()</a>.    </td>
   </tr>
 </table>
-<a name="o8" doxytag="chanrec::topiclock"></a><p>
+<a name="o10" doxytag="chanrec::topiclock"></a><p>
 <table class="mdTable" width="100%" cellpadding="2" cellspacing="0">
   <tr>
     <td class="mdRow">
       <table cellpadding="0" cellspacing="0" border="0">
         <tr>
-          <td class="md" nowrap valign="top"> short int <a class="el" href="classchanrec.html#o8">chanrec::topiclock</a>
+          <td class="md" nowrap valign="top"> short int <a class="el" href="classchanrec.html#o10">chanrec::topiclock</a>
       </table>
     </td>
   </tr>
@@ -794,18 +1096,18 @@ Nonzero if the mode +t is set.
 <p>
 
 <p>
-Definition at line <a class="el" href="channels_8h-source.html#l00133">133</a> of file <a class="el" href="channels_8h-source.html">channels.h</a>.
+Definition at line <a class="el" href="channels_8h-source.html#l00142">142</a> of file <a class="el" href="channels_8h-source.html">channels.h</a>.
 <p>
 Referenced by <a class="el" href="channels_8cpp-source.html#l00113">chanrec()</a>.    </td>
   </tr>
 </table>
-<a name="o4" doxytag="chanrec::topicset"></a><p>
+<a name="o6" doxytag="chanrec::topicset"></a><p>
 <table class="mdTable" width="100%" cellpadding="2" cellspacing="0">
   <tr>
     <td class="mdRow">
       <table cellpadding="0" cellspacing="0" border="0">
         <tr>
-          <td class="md" nowrap valign="top"> time_t <a class="el" href="classchanrec.html#o4">chanrec::topicset</a>
+          <td class="md" nowrap valign="top"> time_t <a class="el" href="classchanrec.html#o6">chanrec::topicset</a>
       </table>
     </td>
   </tr>
@@ -820,16 +1122,44 @@ Referenced by <a class="el" href="channels_8cpp-source.html#l00113">chanrec()</a
 <p>
 Time topic was set. 
 <p>
-If no topic was ever set, this will be equal to <a class="el" href="classchanrec.html#o3">chanrec::created</a>
+If no topic was ever set, this will be equal to <a class="el" href="classchanrec.html#o5">chanrec::created</a>
 <p>
-Definition at line <a class="el" href="channels_8h-source.html#l00115">115</a> of file <a class="el" href="channels_8h-source.html">channels.h</a>.
+Definition at line <a class="el" href="channels_8h-source.html#l00124">124</a> of file <a class="el" href="channels_8h-source.html">channels.h</a>.
 <p>
-Referenced by <a class="el" href="channels_8cpp-source.html#l00113">chanrec()</a>, and <a class="el" href="modules_8cpp-source.html#l00663">Server::PseudoToUser()</a>.    </td>
+Referenced by <a class="el" href="channels_8cpp-source.html#l00113">chanrec()</a>, and <a class="el" href="modules_8cpp-source.html#l00665">Server::PseudoToUser()</a>.    </td>
+  </tr>
+</table>
+<a name="o2" doxytag="chanrec::users"></a><p>
+<table class="mdTable" width="100%" cellpadding="2" cellspacing="0">
+  <tr>
+    <td class="mdRow">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> long <a class="el" href="classchanrec.html#o2">chanrec::users</a>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+Count of users on the channel used for fast user counting. 
+<p>
+
+<p>
+Definition at line <a class="el" href="channels_8h-source.html#l00107">107</a> of file <a class="el" href="channels_8h-source.html">channels.h</a>.
+<p>
+Referenced by <a class="el" href="channels_8cpp-source.html#l00113">chanrec()</a>, <a class="el" href="channels_8cpp-source.html#l00208">DecUserCounter()</a>, <a class="el" href="channels_8cpp-source.html#l00215">GetUserCounter()</a>, and <a class="el" href="channels_8cpp-source.html#l00202">IncUserCounter()</a>.    </td>
   </tr>
 </table>
 <hr>The documentation for this class was generated from the following files:<ul>
 <li><a class="el" href="channels_8h-source.html">channels.h</a><li><a class="el" href="channels_8cpp-source.html">channels.cpp</a></ul>
-<hr size="1"><address style="align: right;"><small>Generated on Wed Apr 20 15:47:00 2005 for InspIRCd by
+<hr size="1"><address style="align: right;"><small>Generated on Tue Apr 26 17:11:47 2005 for InspIRCd by
 <a href="http://www.doxygen.org/index.html">
 <img src="doxygen.png" alt="doxygen" align="middle" border=0 > 
 </a>1.3.3 </small></address>

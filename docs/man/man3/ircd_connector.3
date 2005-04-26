@@ -1,4 +1,4 @@
-.TH "ircd_connector" 3 "20 Apr 2005" "InspIRCd" \" -*- nroff -*-
+.TH "ircd_connector" 3 "26 Apr 2005" "InspIRCd" \" -*- nroff -*-
 .ad l
 .nh
 .SH NAME
@@ -16,7 +16,7 @@ Inherits \fBExtensible\fP.
 
 .in +1c
 .ti -1c
-.RI "bool \fBMakeOutboundConnection\fP (char *\fBhost\fP, int \fBport\fP)"
+.RI "bool \fBMakeOutboundConnection\fP (char *newhost, int newport)"
 .br
 .RI "\fICreate an outbound connection to a listening socket. \fP"
 .ti -1c
@@ -64,17 +64,33 @@ Inherits \fBExtensible\fP.
 .br
 .RI "\fISet the port used by this connection. \fP"
 .ti -1c
-.RI "bool \fBSetHostAndPort\fP (char *\fBhost\fP, int \fBport\fP)"
+.RI "bool \fBSetHostAndPort\fP (char *newhost, int newport)"
 .br
 .RI "\fISet both the host and the port in one operation for this connection. \fP"
 .ti -1c
 .RI "void \fBCloseConnection\fP ()"
 .br
 .RI "\fIClose the connection by calling close() on its file descriptor This function call updates no other data. \fP"
+.ti -1c
+.RI "void \fBAddBuffer\fP (std::string a)"
+.br
+.ti -1c
+.RI "bool \fBBufferIsComplete\fP ()"
+.br
+.ti -1c
+.RI "void \fBClearBuffer\fP ()"
+.br
+.ti -1c
+.RI "std::string \fBGetBuffer\fP ()"
+.br
 .in -1c
 .SS "Public Attributes"
 
 .in +1c
+.ti -1c
+.RI "std::string \fBircdbuffer\fP"
+.br
+.RI "\fIIRCD Buffer for input characters, holds one line. \fP"
 .ti -1c
 .RI "char \fBhost\fP [MAXBUF]"
 .br
@@ -126,12 +142,20 @@ Each connection has one or more of these each represents ONE outbound connection
 
 A listening socket that accepts server type connections is represented by one class serverrec. Class serverrec will instantiate several objects of type ircd_connector to represent each established connection, inbound or outbound. So, to determine all linked servers you must walk through all the serverrecs that the core defines, and in each one iterate through until you find connection(s) relating to the server you want information on. The core and module API provide functions for this. 
 .PP
-Definition at line 53 of file connection.h.
+Definition at line 54 of file connection.h.
 .SH "Member Function Documentation"
 .PP 
+.SS "void ircd_connector::AddBuffer (std::string a)"
+.PP
+.SS "bool ircd_connector::BufferIsComplete ()"
+.PP
+.SS "void ircd_connector::ClearBuffer ()"
+.PP
 .SS "void ircd_connector::CloseConnection ()"
 .PP
 Close the connection by calling close() on its file descriptor This function call updates no other data. 
+.SS "std::string ircd_connector::GetBuffer ()"
+.PP
 .SS "std::string ircd_connector::GetDescription ()"
 .PP
 Get the server description of this connection. 
@@ -150,7 +174,7 @@ Get the port number being used for this connection If the connection is outbound
 .SS "int ircd_connector::GetState ()"
 .PP
 Get the state flags for this connection. 
-.SS "bool ircd_connector::MakeOutboundConnection (char * host, int port)"
+.SS "bool ircd_connector::MakeOutboundConnection (char * newhost, int newport)"
 .PP
 Create an outbound connection to a listening socket. 
 .SS "void ircd_connector::SetDescription (std::string desc)"
@@ -162,7 +186,7 @@ Set the file descriptor for this connection.
 .SS "bool ircd_connector::SetHostAddress (char * host, int port)\fC [private]\fP"
 .PP
 PRIVATE function to set the host address and port to connect to. 
-.SS "bool ircd_connector::SetHostAndPort (char * host, int port)"
+.SS "bool ircd_connector::SetHostAndPort (char * newhost, int newport)"
 .PP
 Set both the host and the port in one operation for this connection. 
 .SS "void ircd_connector::SetServerName (std::string serv)"
@@ -178,28 +202,31 @@ Set the state flags for this connection.
 .PP 
 .SS "sockaddr_in \fBircd_connector::addr\fP\fC [private]\fP"
 .PP
-Sockaddr of the outbound ip and port. Definition at line 58 of file connection.h.
+Sockaddr of the outbound ip and port. Definition at line 59 of file connection.h.
 .SS "std::string \fBircd_connector::description\fP\fC [private]\fP"
 .PP
-\fBServer\fP 'GECOS'. Definition at line 70 of file connection.h.
+\fBServer\fP 'GECOS'. Definition at line 71 of file connection.h.
 .SS "int \fBircd_connector::fd\fP\fC [private]\fP"
 .PP
-File descriptor of the connection. Definition at line 62 of file connection.h.
+File descriptor of the connection. Definition at line 63 of file connection.h.
 .SS "char \fBircd_connector::host\fP[MAXBUF]"
 .PP
-When MakeOutboundConnection is called, these public members are filled with the details passed to the function, for future reference. Definition at line 87 of file connection.h.
+When MakeOutboundConnection is called, these public members are filled with the details passed to the function, for future reference. Definition at line 94 of file connection.h.
+.SS "std::string \fBircd_connector::ircdbuffer\fP"
+.PP
+IRCD Buffer for input characters, holds one line. Definition at line 87 of file connection.h.
 .SS "int \fBircd_connector::port\fP"
 .PP
-When MakeOutboundConnection is called, these public members are filled with the details passed to the function, for future reference. Definition at line 93 of file connection.h.
+When MakeOutboundConnection is called, these public members are filled with the details passed to the function, for future reference. Definition at line 100 of file connection.h.
 .SS "std::vector<std::string> \fBircd_connector::routes\fP"
 .PP
-\fBServer\fP names of servers that this server is linked to So for A->B->C, if this was the record for B it would contain A and C whilever both servers are connected to B. Definition at line 99 of file connection.h.
+\fBServer\fP names of servers that this server is linked to So for A->B->C, if this was the record for B it would contain A and C whilever both servers are connected to B. Definition at line 106 of file connection.h.
 .SS "std::string \fBircd_connector::servername\fP\fC [private]\fP"
 .PP
-\fBServer\fP name. Definition at line 66 of file connection.h.
+\fBServer\fP name. Definition at line 67 of file connection.h.
 .SS "int \fBircd_connector::state\fP\fC [private]\fP"
 .PP
-State. STATE_NOAUTH_INBOUND, STATE_NOAUTH_OUTBOUND STATE_SYNC, STATE_DISCONNECTED, STATE_CONNECTEDDefinition at line 75 of file connection.h.
+State. STATE_NOAUTH_INBOUND, STATE_NOAUTH_OUTBOUND STATE_SYNC, STATE_DISCONNECTED, STATE_CONNECTEDDefinition at line 76 of file connection.h.
 
 .SH "Author"
 .PP 

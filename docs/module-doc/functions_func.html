@@ -13,7 +13,8 @@
 <p>
 <h3><a name="index_a">- a -</a>
 </h3><ul>
-<li>AddCommand()
+<li>AddBuffer()
+: <a class="el" href="classircd__connector.html#a14">ircd_connector</a><li>AddCommand()
 : <a class="el" href="classServer.html#a23">Server</a><li>AddELine()
 : <a class="el" href="classServer.html#a42">Server</a><li>AddExtendedListMode()
 : <a class="el" href="classServer.html#a22">Server</a><li>AddExtendedMode()
@@ -21,13 +22,15 @@
 : <a class="el" href="classServer.html#a38">Server</a><li>AddIncoming()
 : <a class="el" href="classconnection.html#a8">connection</a><li>AddKLine()
 : <a class="el" href="classServer.html#a41">Server</a><li>AddQLine()
-: <a class="el" href="classServer.html#a39">Server</a><li>AddZLine()
+: <a class="el" href="classServer.html#a39">Server</a><li>AddUser()
+: <a class="el" href="classchanrec.html#a7">chanrec</a><li>AddZLine()
 : <a class="el" href="classServer.html#a40">Server</a><li>Admin()
 : <a class="el" href="classAdmin.html#a0">Admin</a></ul>
 <h3><a name="index_b">- b -</a>
 </h3><ul>
 <li>BeginLink()
-: <a class="el" href="classconnection.html#a2">connection</a></ul>
+: <a class="el" href="classconnection.html#a2">connection</a><li>BufferIsComplete()
+: <a class="el" href="classircd__connector.html#a15">ircd_connector</a></ul>
 <h3><a name="index_c">- c -</a>
 </h3><ul>
 <li>CalcDuration()
@@ -37,8 +40,9 @@
 : <a class="el" href="classServer.html#a32">Server</a><li>ChangeUserNick()
 : <a class="el" href="classServer.html#a28">Server</a><li>ChanMode()
 : <a class="el" href="classServer.html#a16">Server</a><li>chanrec()
-: <a class="el" href="classchanrec.html#a4">chanrec</a><li>classbase()
-: <a class="el" href="classclassbase.html#a0">classbase</a><li>CloseConnection()
+: <a class="el" href="classchanrec.html#a10">chanrec</a><li>classbase()
+: <a class="el" href="classclassbase.html#a0">classbase</a><li>ClearBuffer()
+: <a class="el" href="classircd__connector.html#a16">ircd_connector</a><li>CloseConnection()
 : <a class="el" href="classircd__connector.html#a13">ircd_connector</a><li>CommonChannels()
 : <a class="el" href="classServer.html#a9">Server</a><li>ConfigReader()
 : <a class="el" href="classConfigReader.html#a1">ConfigReader</a><li>ConnectClass()
@@ -49,11 +53,13 @@
 : <a class="el" href="classModuleFactory.html#a2">ModuleFactory</a></ul>
 <h3><a name="index_d">- d -</a>
 </h3><ul>
-<li>DelELine()
+<li>DecUserCounter()
+: <a class="el" href="classchanrec.html#a5">chanrec</a><li>DelELine()
 : <a class="el" href="classServer.html#a47">Server</a><li>DelGLine()
 : <a class="el" href="classServer.html#a43">Server</a><li>DelKLine()
 : <a class="el" href="classServer.html#a46">Server</a><li>DelQLine()
-: <a class="el" href="classServer.html#a44">Server</a><li>DelZLine()
+: <a class="el" href="classServer.html#a44">Server</a><li>DelUser()
+: <a class="el" href="classchanrec.html#a8">chanrec</a><li>DelZLine()
 : <a class="el" href="classServer.html#a45">Server</a><li>DNS()
 : <a class="el" href="classDNS.html#a1">DNS</a><li>dns_aton4()
 : <a class="el" href="classDNS.html#d2">DNS</a><li>dns_aton4_r()
@@ -94,7 +100,8 @@
 </h3><ul>
 <li>GenKey()
 : <a class="el" href="classconnection.html#a9">connection</a><li>GetAdmin()
-: <a class="el" href="classServer.html#a20">Server</a><li>GetData()
+: <a class="el" href="classServer.html#a20">Server</a><li>GetBuffer()
+: <a class="el" href="classircd__connector.html#a17">ircd_connector</a><li>GetData()
 : <a class="el" href="classEvent.html#a1">Event</a>, <a class="el" href="classRequest.html#a1">Request</a><li>GetDescription()
 : <a class="el" href="classircd__connector.html#a8">ircd_connector</a><li>GetDescriptor()
 : <a class="el" href="classircd__connector.html#a3">ircd_connector</a><li>GetDest()
@@ -113,8 +120,9 @@
 : <a class="el" href="classServer.html#a18">Server</a>, <a class="el" href="classircd__connector.html#a1">ircd_connector</a><li>GetServerPort()
 : <a class="el" href="classircd__connector.html#a10">ircd_connector</a><li>GetSource()
 : <a class="el" href="classEvent.html#a2">Event</a>, <a class="el" href="classRequest.html#a2">Request</a><li>GetState()
-: <a class="el" href="classircd__connector.html#a5">ircd_connector</a><li>GetUsers()
-: <a class="el" href="classServer.html#a35">Server</a><li>GetVersion()
+: <a class="el" href="classircd__connector.html#a5">ircd_connector</a><li>GetUserCounter()
+: <a class="el" href="classchanrec.html#a6">chanrec</a><li>GetUsers()
+: <a class="el" href="classServer.html#a35">Server</a>, <a class="el" href="classchanrec.html#a9">chanrec</a><li>GetVersion()
 : <a class="el" href="classModule.html#a2">Module</a></ul>
 <h3><a name="index_h">- h -</a>
 </h3><ul>
@@ -124,7 +132,8 @@
 : <a class="el" href="classHostItem.html#a0">HostItem</a></ul>
 <h3><a name="index_i">- i -</a>
 </h3><ul>
-<li>InviteTo()
+<li>IncUserCounter()
+: <a class="el" href="classchanrec.html#a4">chanrec</a><li>InviteTo()
 : <a class="el" href="classuserrec.html#a5">userrec</a><li>IsCustomModeSet()
 : <a class="el" href="classchanrec.html#a2">chanrec</a><li>IsInvited()
 : <a class="el" href="classuserrec.html#a4">userrec</a><li>IsNick()
@@ -171,13 +180,16 @@
 : <a class="el" href="classModule.html#a38">Module</a><li>OnCheckReady()
 : <a class="el" href="classModule.html#a33">Module</a><li>OnEvent()
 : <a class="el" href="classModule.html#a45">Module</a><li>OnExtendedMode()
-: <a class="el" href="classModule.html#a12">Module</a><li>OnInfo()
+: <a class="el" href="classModule.html#a12">Module</a><li>OnGlobalConnect()
+: <a class="el" href="classModule.html#a49">Module</a><li>OnGlobalOper()
+: <a class="el" href="classModule.html#a48">Module</a><li>OnInfo()
 : <a class="el" href="classModule.html#a17">Module</a><li>OnKill()
 : <a class="el" href="classModule.html#a28">Module</a><li>OnLoadModule()
 : <a class="el" href="classModule.html#a29">Module</a><li>OnLocalTopicChange()
 : <a class="el" href="classModule.html#a43">Module</a><li>OnMeshToken()
 : <a class="el" href="classModule.html#a44">Module</a><li>OnOper()
-: <a class="el" href="classModule.html#a16">Module</a><li>OnPacketReceive()
+: <a class="el" href="classModule.html#a16">Module</a><li>OnOperCompare()
+: <a class="el" href="classModule.html#a47">Module</a><li>OnPacketReceive()
 : <a class="el" href="classModule.html#a9">Module</a><li>OnPacketTransmit()
 : <a class="el" href="classModule.html#a8">Module</a><li>OnPreCommand()
 : <a class="el" href="classModule.html#a32">Module</a><li>OnRawMode()
@@ -268,7 +280,7 @@
 <h3><a name="index_~">- ~ -</a>
 </h3><ul>
 <li>~chanrec()
-: <a class="el" href="classchanrec.html#a5">chanrec</a><li>~classbase()
+: <a class="el" href="classchanrec.html#a11">chanrec</a><li>~classbase()
 : <a class="el" href="classclassbase.html#a1">classbase</a><li>~ConfigReader()
 : <a class="el" href="classConfigReader.html#a2">ConfigReader</a><li>~DNS()
 : <a class="el" href="classDNS.html#a2">DNS</a><li>~FileReader()
@@ -280,7 +292,7 @@
 : <a class="el" href="classserverrec.html#a2">serverrec</a><li>~ucrec()
 : <a class="el" href="classucrec.html#a1">ucrec</a><li>~userrec()
 : <a class="el" href="classuserrec.html#a1">userrec</a></ul>
-<hr size="1"><address style="align: right;"><small>Generated on Wed Apr 20 15:47:00 2005 for InspIRCd by
+<hr size="1"><address style="align: right;"><small>Generated on Tue Apr 26 17:11:46 2005 for InspIRCd by
 <a href="http://www.doxygen.org/index.html">
 <img src="doxygen.png" alt="doxygen" align="middle" border=0 > 
 </a>1.3.3 </small></address>

@@ -1,4 +1,4 @@
-.TH "connection" 3 "20 Apr 2005" "InspIRCd" \" -*- nroff -*-
+.TH "connection" 3 "26 Apr 2005" "InspIRCd" \" -*- nroff -*-
 .ad l
 .nh
 .SH NAME
@@ -30,7 +30,7 @@ Inherited by \fBserverrec\fP, and \fBuserrec\fP.
 .br
 .RI "\fIBegin an outbound link to another ircd at targethost. \fP"
 .ti -1c
-.RI "bool \fBMeshCookie\fP (char *targethost, int \fBport\fP, long cookie, char *servername)"
+.RI "bool \fBMeshCookie\fP (char *targethost, int \fBport\fP, unsigned long cookie, char *servername)"
 .br
 .RI "\fIBegin an outbound mesh link to another ircd on a network you are already an authenticated member of. \fP"
 .ti -1c
@@ -140,7 +140,7 @@ Inherited by \fBserverrec\fP, and \fBuserrec\fP.
 .in -1c
 .SH "Detailed Description"
 .PP 
-Please note: classes serverrec and userrec both inherit from class connection. Definition at line 166 of file connection.h.
+Please note: classes serverrec and userrec both inherit from class connection. Definition at line 178 of file connection.h.
 .SH "Constructor & Destructor Documentation"
 .PP 
 .SS "connection::connection ()"
@@ -163,7 +163,7 @@ Find the \fBircd_connector\fP oject related to a certain servername given in 'ho
 .SS "long connection::GenKey ()"
 .PP
 This function is deprecated and may be removed in a later alpha/beta. 
-.SS "bool connection::MeshCookie (char * targethost, int port, long cookie, char * servername)"
+.SS "bool connection::MeshCookie (char * targethost, int port, unsigned long cookie, char * servername)"
 .PP
 Begin an outbound mesh link to another ircd on a network you are already an authenticated member of. 
 .SS "bool connection::RecvPacket (std::deque< std::string > & messages, char * host)"
@@ -179,91 +179,91 @@ Terminate a link to 'targethost' by calling the \fBircd_connector::CloseConnecti
 .PP 
 .SS "long \fBconnection::bytes_in\fP"
 .PP
-Stats counter for bytes inbound. Definition at line 187 of file connection.h.
+Stats counter for bytes inbound. Definition at line 199 of file connection.h.
 .PP
 Referenced by userrec::userrec().
 .SS "long \fBconnection::bytes_out\fP"
 .PP
-Stats counter for bytes outbound. Definition at line 191 of file connection.h.
+Stats counter for bytes outbound. Definition at line 203 of file connection.h.
 .PP
 Referenced by userrec::userrec().
 .SS "long \fBconnection::cmds_in\fP"
 .PP
-Stats counter for commands inbound. Definition at line 195 of file connection.h.
+Stats counter for commands inbound. Definition at line 207 of file connection.h.
 .PP
 Referenced by userrec::userrec().
 .SS "long \fBconnection::cmds_out\fP"
 .PP
-Stats counter for commands outbound. Definition at line 199 of file connection.h.
+Stats counter for commands outbound. Definition at line 211 of file connection.h.
 .PP
 Referenced by userrec::userrec().
 .SS "std::vector<\fBircd_connector\fP> \fBconnection::connectors\fP"
 .PP
-With a serverrec, this is a list of all established server connections. With a userrec this is unused.Definition at line 246 of file connection.h.
+With a serverrec, this is a list of all established server connections. With a userrec this is unused.Definition at line 258 of file connection.h.
 .SS "int \fBconnection::fd\fP"
 .PP
-File descriptor of the connection. Definition at line 171 of file connection.h.
+File descriptor of the connection. Definition at line 183 of file connection.h.
 .PP
 Referenced by ConfigReader::DumpErrors(), Server::PseudoToUser(), Server::SendTo(), serverrec::serverrec(), userrec::userrec(), and Server::UserToPseudo().
 .SS "bool \fBconnection::haspassed\fP"
 .PP
-True if server/user has authenticated, false if otherwise. Definition at line 203 of file connection.h.
+True if server/user has authenticated, false if otherwise. Definition at line 215 of file connection.h.
 .PP
 Referenced by userrec::userrec().
 .SS "char \fBconnection::host\fP[256]"
 .PP
-Hostname of connection. Not used if this is a serverrecDefinition at line 175 of file connection.h.
+Hostname of connection. Not used if this is a serverrecDefinition at line 187 of file connection.h.
 .PP
 Referenced by userrec::GetFullRealHost(), Server::PseudoToUser(), userrec::userrec(), and Server::UserToPseudo().
 .SS "time_t \fBconnection::idle_lastmsg\fP"
 .PP
-Time that the connection last sent data, used to calculate idle time. Definition at line 229 of file connection.h.
+Time that the connection last sent data, used to calculate idle time. Definition at line 241 of file connection.h.
 .PP
 Referenced by userrec::userrec().
 .SS "char \fBconnection::inbuf\fP[MAXBUF]"
 .PP
-Inbuf of connection. Only used for userrecDefinition at line 183 of file connection.h.
+Inbuf of connection. Only used for userrecDefinition at line 195 of file connection.h.
 .PP
 Referenced by userrec::userrec().
 .SS "char \fBconnection::internal_addr\fP[MAXBUF]"
 .PP
-Unused, will be removed in a future alpha/beta. Definition at line 237 of file connection.h.
+Unused, will be removed in a future alpha/beta. Definition at line 249 of file connection.h.
 .SS "int \fBconnection::internal_port\fP"
 .PP
-Unused, will be removed in a future alpha/beta. Definition at line 241 of file connection.h.
+Unused, will be removed in a future alpha/beta. Definition at line 253 of file connection.h.
 .SS "char \fBconnection::ip\fP[32]"
 .PP
-IP of connection. Reserved for future use.Definition at line 179 of file connection.h.
+IP of connection. Reserved for future use.Definition at line 191 of file connection.h.
 .PP
 Referenced by userrec::userrec().
 .SS "time_t \fBconnection::lastping\fP"
 .PP
-Time the connection was last pinged. Definition at line 221 of file connection.h.
+Time the connection was last pinged. Definition at line 233 of file connection.h.
 .PP
 Referenced by serverrec::serverrec(), and userrec::userrec().
 .SS "time_t \fBconnection::nping\fP"
 .PP
-Used by PING checks with clients. Definition at line 233 of file connection.h.
+Used by PING checks with clients. Definition at line 245 of file connection.h.
 .PP
 Referenced by userrec::userrec().
 .SS "int \fBconnection::port\fP"
 .PP
-Port number For a userrec, this is the port they connected to the network on. For a serverrec this is the current listening port of the serverrec object.Definition at line 209 of file connection.h.
+Port number For a userrec, this is the port they connected to the network on. For a serverrec this is the current listening port of the serverrec object.Definition at line 221 of file connection.h.
 .PP
 Referenced by userrec::userrec().
 .SS "int \fBconnection::registered\fP"
 .PP
-Used by userrec to indicate the registration status of the connection. Definition at line 213 of file connection.h.
+Used by userrec to indicate the registration status of the connection. Definition at line 225 of file connection.h.
 .PP
 Referenced by userrec::userrec().
 .SS "time_t \fBconnection::signon\fP"
 .PP
-Time the connection was created, set in the constructor. Definition at line 225 of file connection.h.
+Time the connection was created, set in the constructor. Definition at line 237 of file connection.h.
 .PP
 Referenced by serverrec::serverrec(), and userrec::userrec().
 .SS "short int \fBconnection::state\fP"
 .PP
-Reserved for future use. Definition at line 217 of file connection.h.
+Reserved for future use. Definition at line 229 of file connection.h.
 
 .SH "Author"
 .PP 

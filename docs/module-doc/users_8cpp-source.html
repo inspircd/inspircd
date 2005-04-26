@@ -121,57 +121,56 @@
 <a name="l00114"></a><a class="code" href="classuserrec.html#a7">00114</a> <span class="keywordtype">bool</span> <a class="code" href="classuserrec.html#a7">userrec::HasPermission</a>(<span class="keywordtype">char</span>* command)
 00115 {
 00116         <span class="keywordtype">char</span> TypeName[MAXBUF],Classes[MAXBUF],ClassName[MAXBUF],CommandList[MAXBUF];
-00117         <span class="keywordtype">char</span>* myclass;
-00118         <span class="keywordtype">char</span>* mycmd;
-00119         <span class="keywordtype">char</span>* savept;
-00120         <span class="keywordtype">char</span>* savept2;
-00121         
-00122         <span class="comment">// are they even an oper at all?</span>
-00123         <span class="keywordflow">if</span> (strchr(this-&gt;modes,<span class="charliteral">'o'</span>))
-00124         {
-00125                 log(<a class="code" href="modules_8h.html#a0">DEBUG</a>,<span class="stringliteral">"*** HasPermission: %s is an oper"</span>,this-&gt;nick);
-00126                 <span class="keywordflow">for</span> (<span class="keywordtype">int</span> j =0; j &lt; ConfValueEnum(<span class="stringliteral">"type"</span>,&amp;<a class="code" href="channels_8cpp.html#a34">config_f</a>); j++)
-00127                 {
-00128                         ConfValue(<span class="stringliteral">"type"</span>,<span class="stringliteral">"name"</span>,j,TypeName,&amp;<a class="code" href="channels_8cpp.html#a34">config_f</a>);
-00129                         <span class="keywordflow">if</span> (!strcmp(TypeName,this-&gt;oper))
-00130                         {
-00131                                 log(<a class="code" href="modules_8h.html#a0">DEBUG</a>,<span class="stringliteral">"*** HasPermission: %s is an oper of type '%s'"</span>,this-&gt;nick,this-&gt;oper);
-00132                                 ConfValue(<span class="stringliteral">"type"</span>,<span class="stringliteral">"classes"</span>,j,Classes,&amp;<a class="code" href="channels_8cpp.html#a34">config_f</a>);
-00133                                 <span class="keywordtype">char</span>* myclass = strtok_r(Classes,<span class="stringliteral">" "</span>,&amp;savept);
-00134                                 <span class="keywordflow">while</span> (myclass)
-00135                                 {
-00136                                         log(<a class="code" href="modules_8h.html#a0">DEBUG</a>,<span class="stringliteral">"*** HasPermission: checking classtype '%s'"</span>,myclass);
-00137                                         <span class="keywordflow">for</span> (<span class="keywordtype">int</span> k =0; k &lt; ConfValueEnum(<span class="stringliteral">"class"</span>,&amp;<a class="code" href="channels_8cpp.html#a34">config_f</a>); k++)
-00138                                         {
-00139                                                 ConfValue(<span class="stringliteral">"class"</span>,<span class="stringliteral">"name"</span>,k,ClassName,&amp;<a class="code" href="channels_8cpp.html#a34">config_f</a>);
-00140                                                 <span class="keywordflow">if</span> (!strcmp(ClassName,myclass))
-00141                                                 {
-00142                                                         ConfValue(<span class="stringliteral">"class"</span>,<span class="stringliteral">"commands"</span>,k,CommandList,&amp;<a class="code" href="channels_8cpp.html#a34">config_f</a>);
-00143                                                         log(<a class="code" href="modules_8h.html#a0">DEBUG</a>,<span class="stringliteral">"*** HasPermission: found class named %s with commands: '%s'"</span>,ClassName,CommandList);
+00117         <span class="keywordtype">char</span>* mycmd;
+00118         <span class="keywordtype">char</span>* savept;
+00119         <span class="keywordtype">char</span>* savept2;
+00120         
+00121         <span class="comment">// are they even an oper at all?</span>
+00122         <span class="keywordflow">if</span> (strchr(this-&gt;modes,<span class="charliteral">'o'</span>))
+00123         {
+00124                 log(<a class="code" href="modules_8h.html#a0">DEBUG</a>,<span class="stringliteral">"*** HasPermission: %s is an oper"</span>,this-&gt;nick);
+00125                 <span class="keywordflow">for</span> (<span class="keywordtype">int</span> j =0; j &lt; ConfValueEnum(<span class="stringliteral">"type"</span>,&amp;<a class="code" href="channels_8cpp.html#a34">config_f</a>); j++)
+00126                 {
+00127                         ConfValue(<span class="stringliteral">"type"</span>,<span class="stringliteral">"name"</span>,j,TypeName,&amp;<a class="code" href="channels_8cpp.html#a34">config_f</a>);
+00128                         <span class="keywordflow">if</span> (!strcmp(TypeName,this-&gt;oper))
+00129                         {
+00130                                 log(<a class="code" href="modules_8h.html#a0">DEBUG</a>,<span class="stringliteral">"*** HasPermission: %s is an oper of type '%s'"</span>,this-&gt;nick,this-&gt;oper);
+00131                                 ConfValue(<span class="stringliteral">"type"</span>,<span class="stringliteral">"classes"</span>,j,Classes,&amp;<a class="code" href="channels_8cpp.html#a34">config_f</a>);
+00132                                 <span class="keywordtype">char</span>* myclass = strtok_r(Classes,<span class="stringliteral">" "</span>,&amp;savept);
+00133                                 <span class="keywordflow">while</span> (myclass)
+00134                                 {
+00135                                         log(<a class="code" href="modules_8h.html#a0">DEBUG</a>,<span class="stringliteral">"*** HasPermission: checking classtype '%s'"</span>,myclass);
+00136                                         <span class="keywordflow">for</span> (<span class="keywordtype">int</span> k =0; k &lt; ConfValueEnum(<span class="stringliteral">"class"</span>,&amp;<a class="code" href="channels_8cpp.html#a34">config_f</a>); k++)
+00137                                         {
+00138                                                 ConfValue(<span class="stringliteral">"class"</span>,<span class="stringliteral">"name"</span>,k,ClassName,&amp;<a class="code" href="channels_8cpp.html#a34">config_f</a>);
+00139                                                 <span class="keywordflow">if</span> (!strcmp(ClassName,myclass))
+00140                                                 {
+00141                                                         ConfValue(<span class="stringliteral">"class"</span>,<span class="stringliteral">"commands"</span>,k,CommandList,&amp;<a class="code" href="channels_8cpp.html#a34">config_f</a>);
+00142                                                         log(<a class="code" href="modules_8h.html#a0">DEBUG</a>,<span class="stringliteral">"*** HasPermission: found class named %s with commands: '%s'"</span>,ClassName,CommandList);
+00143                                                         
 00144                                                         
-00145                                                         
-00146                                                         mycmd = strtok_r(CommandList,<span class="stringliteral">" "</span>,&amp;savept2);
-00147                                                         <span class="keywordflow">while</span> (mycmd)
-00148                                                         {
-00149                                                                 <span class="keywordflow">if</span> (!strcasecmp(mycmd,command))
-00150                                                                 {
-00151                                                                         log(<a class="code" href="modules_8h.html#a0">DEBUG</a>,<span class="stringliteral">"*** Command %s found, returning true"</span>,command);
-00152                                                                         <span class="keywordflow">return</span> <span class="keyword">true</span>;
-00153                                                                 }
-00154                                                                 mycmd = strtok_r(NULL,<span class="stringliteral">" "</span>,&amp;savept2);
-00155                                                         }
-00156                                                 }
-00157                                         }
-00158                                         myclass = strtok_r(NULL,<span class="stringliteral">" "</span>,&amp;savept);
-00159                                 }
-00160                         }
-00161                 }
-00162         }
-00163         <span class="keywordflow">return</span> <span class="keyword">false</span>;
-00164 }
+00145                                                         mycmd = strtok_r(CommandList,<span class="stringliteral">" "</span>,&amp;savept2);
+00146                                                         <span class="keywordflow">while</span> (mycmd)
+00147                                                         {
+00148                                                                 <span class="keywordflow">if</span> (!strcasecmp(mycmd,command))
+00149                                                                 {
+00150                                                                         log(<a class="code" href="modules_8h.html#a0">DEBUG</a>,<span class="stringliteral">"*** Command %s found, returning true"</span>,command);
+00151                                                                         <span class="keywordflow">return</span> <span class="keyword">true</span>;
+00152                                                                 }
+00153                                                                 mycmd = strtok_r(NULL,<span class="stringliteral">" "</span>,&amp;savept2);
+00154                                                         }
+00155                                                 }
+00156                                         }
+00157                                         myclass = strtok_r(NULL,<span class="stringliteral">" "</span>,&amp;savept);
+00158                                 }
+00159                         }
+00160                 }
+00161         }
+00162         <span class="keywordflow">return</span> <span class="keyword">false</span>;
+00163 }
+00164 
 00165 
-00166 
-</pre></div><hr size="1"><address style="align: right;"><small>Generated on Wed Apr 20 15:46:56 2005 for InspIRCd by
+</pre></div><hr size="1"><address style="align: right;"><small>Generated on Tue Apr 26 17:11:44 2005 for InspIRCd by
 <a href="http://www.doxygen.org/index.html">
 <img src="doxygen.png" alt="doxygen" align="middle" border=0 > 
 </a>1.3.3 </small></address>

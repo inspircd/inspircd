@@ -1,4 +1,4 @@
-.TH "Module" 3 "20 Apr 2005" "InspIRCd" \" -*- nroff -*-
+.TH "Module" 3 "26 Apr 2005" "InspIRCd" \" -*- nroff -*-
 .ad l
 .nh
 .SH NAME
@@ -203,6 +203,18 @@ Inherits \fBclassbase\fP.
 .RI "virtual char * \fBOnRequest\fP (\fBRequest\fP *request)"
 .br
 .RI "\fICalled whenever a \fBRequest\fP class is sent to your module by another module. \fP"
+.ti -1c
+.RI "virtual int \fBOnOperCompare\fP (std::string password, std::string input)"
+.br
+.RI "\fICalled whenever an oper password is to be compared to what a user has input. \fP"
+.ti -1c
+.RI "virtual void \fBOnGlobalOper\fP (\fBuserrec\fP *user)"
+.br
+.RI "\fICalled whenever a user is given usermode +o, anywhere on the network. \fP"
+.ti -1c
+.RI "virtual void \fBOnGlobalConnect\fP (\fBuserrec\fP *user)"
+.br
+.RI "\fICalled whenever a user connects, anywhere on the network. \fP"
 .in -1c
 .SH "Detailed Description"
 .PP 
@@ -210,7 +222,7 @@ Base class for all InspIRCd modules This class is the base class for InspIRCd mo
 
 All modules must inherit from this class, its methods will be called when irc server events occur. class inherited from module must be instantiated by the \fBModuleFactory\fP class (see relevent section) for the plugin to be initialised. 
 .PP
-Definition at line 233 of file modules.h.
+Definition at line 236 of file modules.h.
 .SH "Constructor & Destructor Documentation"
 .PP 
 .SS "Module::Module ()"
@@ -357,6 +369,20 @@ Called whenever an extended mode is to be processed. The type parameter is MT_SE
 .nf
 373 { return false; }
 .fi
+.SS "void Module::OnGlobalConnect (\fBuserrec\fP * user)\fC [virtual]\fP"
+.PP
+Called whenever a user connects, anywhere on the network. This event is informational only. You should not change any user information in this event. To do so, use the OnUserConnect method to change the state of local users.Definition at line 410 of file modules.cpp.
+.PP
+.nf
+410 { };
+.fi
+.SS "void Module::OnGlobalOper (\fBuserrec\fP * user)\fC [virtual]\fP"
+.PP
+Called whenever a user is given usermode +o, anywhere on the network. You cannot override this and prevent it from happening as it is already happened and such a task must be performed by another server. You can however bounce modes by sending servermodes out to reverse mode changes.Definition at line 409 of file modules.cpp.
+.PP
+.nf
+409 { };
+.fi
 .SS "void Module::OnInfo (\fBuserrec\fP * user)\fC [virtual]\fP"
 .PP
 Called whenever a user types /INFO. The userrec will contain the information of the user who typed the command. Modules may use this method to output their own credits in /INFO (which is the ircd's version of an about box). It is purposefully not possible to modify any info that has already been output, or halt the list. You must write a 371 numeric to the user, containing your info in the following format:
@@ -400,6 +426,13 @@ Called whenever a user opers locally. The userrec will contain the oper mode 'o'
 .PP
 .nf
 375 { };
+.fi
+.SS "int Module::OnOperCompare (std::string password, std::string input)\fC [virtual]\fP"
+.PP
+Called whenever an oper password is to be compared to what a user has input. The password field (from the config file) is in 'password' and is to be compared against 'input'. This method allows for encryption of oper passwords and much more besides. You should return a nonzero value if you want to allow the comparison or zero if you wish to do nothing.Definition at line 408 of file modules.cpp.
+.PP
+.nf
+408 { return 0; };
 .fi
 .SS "void Module::OnPacketReceive (std::string & data, std::string serv)\fC [virtual]\fP"
 .PP

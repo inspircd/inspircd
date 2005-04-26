@@ -80,66 +80,82 @@
 00096  <span class="keyword">public</span>:
 <a name="l00099"></a><a class="code" href="classchanrec.html#o0">00099</a>         <span class="keywordtype">char</span> <a class="code" href="classchanrec.html#o0">name</a>[CHANMAX]; <span class="comment">/* channel name */</span>
 <a name="l00103"></a><a class="code" href="classchanrec.html#o1">00103</a>         <span class="keywordtype">char</span> <a class="code" href="classchanrec.html#o1">custom_modes</a>[MAXMODES];     <span class="comment">/* modes handled by modules */</span>
-00104         
-<a name="l00108"></a><a class="code" href="classchanrec.html#o2">00108</a>         <span class="keywordtype">char</span> <a class="code" href="classchanrec.html#o2">topic</a>[MAXBUF];
-<a name="l00111"></a><a class="code" href="classchanrec.html#o3">00111</a>         time_t <a class="code" href="classchanrec.html#o3">created</a>;
-<a name="l00115"></a><a class="code" href="classchanrec.html#o4">00115</a>         time_t <a class="code" href="classchanrec.html#o4">topicset</a>;
-<a name="l00119"></a><a class="code" href="classchanrec.html#o5">00119</a>         <span class="keywordtype">char</span> <a class="code" href="classchanrec.html#o5">setby</a>[NICKMAX];
-00120 
-<a name="l00124"></a><a class="code" href="classchanrec.html#o6">00124</a>         <span class="keywordtype">long</span> <a class="code" href="classchanrec.html#o6">limit</a>;
-00125         
-<a name="l00129"></a><a class="code" href="classchanrec.html#o7">00129</a>         <span class="keywordtype">char</span> <a class="code" href="classchanrec.html#o7">key</a>[32];
-00130         
-<a name="l00133"></a><a class="code" href="classchanrec.html#o8">00133</a>         <span class="keywordtype">short</span> <span class="keywordtype">int</span> <a class="code" href="classchanrec.html#o8">topiclock</a>;
+00104 
+<a name="l00107"></a><a class="code" href="classchanrec.html#o2">00107</a>         <span class="keywordtype">long</span> <a class="code" href="classchanrec.html#o2">users</a>;
+00108 
+<a name="l00112"></a><a class="code" href="classchanrec.html#o3">00112</a>         std::vector&lt;char*&gt; <a class="code" href="classchanrec.html#o3">internal_userlist</a>;
+00113         
+<a name="l00117"></a><a class="code" href="classchanrec.html#o4">00117</a>         <span class="keywordtype">char</span> <a class="code" href="classchanrec.html#o4">topic</a>[MAXBUF];
+<a name="l00120"></a><a class="code" href="classchanrec.html#o5">00120</a>         time_t <a class="code" href="classchanrec.html#o5">created</a>;
+<a name="l00124"></a><a class="code" href="classchanrec.html#o6">00124</a>         time_t <a class="code" href="classchanrec.html#o6">topicset</a>;
+<a name="l00128"></a><a class="code" href="classchanrec.html#o7">00128</a>         <span class="keywordtype">char</span> <a class="code" href="classchanrec.html#o7">setby</a>[NICKMAX];
+00129 
+<a name="l00133"></a><a class="code" href="classchanrec.html#o8">00133</a>         <span class="keywordtype">long</span> <a class="code" href="classchanrec.html#o8">limit</a>;
 00134         
-<a name="l00137"></a><a class="code" href="classchanrec.html#o9">00137</a>         <span class="keywordtype">short</span> <span class="keywordtype">int</span> <a class="code" href="classchanrec.html#o9">noexternal</a>;
-00138         
-<a name="l00141"></a><a class="code" href="classchanrec.html#o10">00141</a>         <span class="keywordtype">short</span> <span class="keywordtype">int</span> <a class="code" href="classchanrec.html#o10">inviteonly</a>;
-00142         
-<a name="l00145"></a><a class="code" href="classchanrec.html#o11">00145</a>         <span class="keywordtype">short</span> <span class="keywordtype">int</span> <a class="code" href="classchanrec.html#o11">moderated</a>;
-00146         
-<a name="l00150"></a><a class="code" href="classchanrec.html#o12">00150</a>         <span class="keywordtype">short</span> <span class="keywordtype">int</span> <a class="code" href="classchanrec.html#o12">secret</a>;
+<a name="l00138"></a><a class="code" href="classchanrec.html#o9">00138</a>         <span class="keywordtype">char</span> <a class="code" href="classchanrec.html#o9">key</a>[32];
+00139         
+<a name="l00142"></a><a class="code" href="classchanrec.html#o10">00142</a>         <span class="keywordtype">short</span> <span class="keywordtype">int</span> <a class="code" href="classchanrec.html#o10">topiclock</a>;
+00143         
+<a name="l00146"></a><a class="code" href="classchanrec.html#o11">00146</a>         <span class="keywordtype">short</span> <span class="keywordtype">int</span> <a class="code" href="classchanrec.html#o11">noexternal</a>;
+00147         
+<a name="l00150"></a><a class="code" href="classchanrec.html#o12">00150</a>         <span class="keywordtype">short</span> <span class="keywordtype">int</span> <a class="code" href="classchanrec.html#o12">inviteonly</a>;
 00151         
-<a name="l00155"></a><a class="code" href="classchanrec.html#o13">00155</a>         <span class="keywordtype">short</span> <span class="keywordtype">int</span> <a class="code" href="classchanrec.html#o13">c_private</a>;
-00156         
-<a name="l00159"></a><a class="code" href="classchanrec.html#o14">00159</a>         <a class="code" href="channels_8h.html#a5">BanList</a> <a class="code" href="classchanrec.html#o14">bans</a>;
+<a name="l00154"></a><a class="code" href="classchanrec.html#o13">00154</a>         <span class="keywordtype">short</span> <span class="keywordtype">int</span> <a class="code" href="classchanrec.html#o13">moderated</a>;
+00155         
+<a name="l00159"></a><a class="code" href="classchanrec.html#o14">00159</a>         <span class="keywordtype">short</span> <span class="keywordtype">int</span> <a class="code" href="classchanrec.html#o14">secret</a>;
 00160         
-00163         <span class="keywordtype">void</span> <a class="code" href="classchanrec.html#a0">SetCustomMode</a>(<span class="keywordtype">char</span> mode,<span class="keywordtype">bool</span> mode_on);
-00164 
-00167         <span class="keywordtype">void</span> <a class="code" href="classchanrec.html#a1">SetCustomModeParam</a>(<span class="keywordtype">char</span> mode,<span class="keywordtype">char</span>* parameter,<span class="keywordtype">bool</span> mode_on);
-00168  
-00171         <span class="keywordtype">bool</span> <a class="code" href="classchanrec.html#a2">IsCustomModeSet</a>(<span class="keywordtype">char</span> mode);
-00172 
-00179         std::string <a class="code" href="classchanrec.html#a3">GetModeParameter</a>(<span class="keywordtype">char</span> mode);
-00180 
-00183         <a class="code" href="classchanrec.html#a4">chanrec</a>();
-00184 
-<a name="l00185"></a><a class="code" href="classchanrec.html#a5">00185</a>         <span class="keyword">virtual</span> <a class="code" href="classchanrec.html#a5">~chanrec</a>() { <span class="comment">/* stub */</span> }
-00186 };
-00187 
-00188 <span class="comment">/* used to hold a channel and a users modes on that channel, e.g. +v, +h, +o</span>
-00189 <span class="comment"> * needs to come AFTER struct chanrec */</span>
-00190 
-<a name="l00191"></a><a class="code" href="channels_8h.html#a0">00191</a> <span class="preprocessor">#define UCMODE_OP      1</span>
-<a name="l00192"></a><a class="code" href="channels_8h.html#a1">00192</a> <span class="preprocessor"></span><span class="preprocessor">#define UCMODE_VOICE   2</span>
-<a name="l00193"></a><a class="code" href="channels_8h.html#a2">00193</a> <span class="preprocessor"></span><span class="preprocessor">#define UCMODE_HOP     4</span>
-<a name="l00194"></a><a class="code" href="channels_8h.html#a3">00194</a> <span class="preprocessor"></span><span class="preprocessor">#define UCMODE_PROTECT 8</span>
-<a name="l00195"></a><a class="code" href="channels_8h.html#a4">00195</a> <span class="preprocessor"></span><span class="preprocessor">#define UCMODE_FOUNDER 16</span>
-00196 <span class="preprocessor"></span> 
-<a name="l00202"></a><a class="code" href="classucrec.html">00202</a> <span class="keyword">class </span><a class="code" href="classucrec.html">ucrec</a> : <span class="keyword">public</span> <a class="code" href="classclassbase.html">classbase</a>
-00203 {
-00204  <span class="keyword">public</span>:
-<a name="l00208"></a><a class="code" href="classucrec.html#o0">00208</a>         <span class="keywordtype">long</span> <a class="code" href="classucrec.html#o0">uc_modes</a>;
-00209         
-<a name="l00213"></a><a class="code" href="classucrec.html#o1">00213</a>         <a class="code" href="classchanrec.html">chanrec</a> *<a class="code" href="classucrec.html#o1">channel</a>;
-00214 
-<a name="l00215"></a><a class="code" href="classucrec.html#a0">00215</a>         <a class="code" href="classucrec.html#a0">ucrec</a>() { <span class="comment">/* stub */</span> }
-<a name="l00216"></a><a class="code" href="classucrec.html#a1">00216</a>         <span class="keyword">virtual</span> <a class="code" href="classucrec.html#a1">~ucrec</a>() { <span class="comment">/* stub */</span> }
-00217 };
-00218 
-00219 <span class="preprocessor">#endif</span>
-00220 <span class="preprocessor"></span>
-</pre></div><hr size="1"><address style="align: right;"><small>Generated on Wed Apr 20 15:46:53 2005 for InspIRCd by
+<a name="l00164"></a><a class="code" href="classchanrec.html#o15">00164</a>         <span class="keywordtype">short</span> <span class="keywordtype">int</span> <a class="code" href="classchanrec.html#o15">c_private</a>;
+00165         
+<a name="l00168"></a><a class="code" href="classchanrec.html#o16">00168</a>         <a class="code" href="channels_8h.html#a5">BanList</a> <a class="code" href="classchanrec.html#o16">bans</a>;
+00169         
+00172         <span class="keywordtype">void</span> <a class="code" href="classchanrec.html#a0">SetCustomMode</a>(<span class="keywordtype">char</span> mode,<span class="keywordtype">bool</span> mode_on);
+00173 
+00176         <span class="keywordtype">void</span> <a class="code" href="classchanrec.html#a1">SetCustomModeParam</a>(<span class="keywordtype">char</span> mode,<span class="keywordtype">char</span>* parameter,<span class="keywordtype">bool</span> mode_on);
+00177  
+00180         <span class="keywordtype">bool</span> <a class="code" href="classchanrec.html#a2">IsCustomModeSet</a>(<span class="keywordtype">char</span> mode);
+00181 
+00188         std::string <a class="code" href="classchanrec.html#a3">GetModeParameter</a>(<span class="keywordtype">char</span> mode);
+00189 
+00195         <span class="keywordtype">void</span> <a class="code" href="classchanrec.html#a4">IncUserCounter</a>();
+00196 
+00204         <span class="keywordtype">void</span> <a class="code" href="classchanrec.html#a5">DecUserCounter</a>();
+00205 
+00211         <span class="keywordtype">long</span> <a class="code" href="classchanrec.html#a6">GetUserCounter</a>();
+00212 
+00218         <span class="keywordtype">void</span> <a class="code" href="classchanrec.html#a7">AddUser</a>(<span class="keywordtype">char</span>* castuser);
+00219 
+00225         <span class="keywordtype">void</span> <a class="code" href="classchanrec.html#a8">DelUser</a>(<span class="keywordtype">char</span>* castuser);
+00226 
+00234         std::vector&lt;char*&gt; *<a class="code" href="classchanrec.html#a9">GetUsers</a>();
+00235 
+00238         <a class="code" href="classchanrec.html#a10">chanrec</a>();
+00239 
+<a name="l00240"></a><a class="code" href="classchanrec.html#a11">00240</a>         <span class="keyword">virtual</span> <a class="code" href="classchanrec.html#a11">~chanrec</a>() { <span class="comment">/* stub */</span> }
+00241 };
+00242 
+00243 <span class="comment">/* used to hold a channel and a users modes on that channel, e.g. +v, +h, +o</span>
+00244 <span class="comment"> * needs to come AFTER struct chanrec */</span>
+00245 
+<a name="l00246"></a><a class="code" href="channels_8h.html#a0">00246</a> <span class="preprocessor">#define UCMODE_OP      1</span>
+<a name="l00247"></a><a class="code" href="channels_8h.html#a1">00247</a> <span class="preprocessor"></span><span class="preprocessor">#define UCMODE_VOICE   2</span>
+<a name="l00248"></a><a class="code" href="channels_8h.html#a2">00248</a> <span class="preprocessor"></span><span class="preprocessor">#define UCMODE_HOP     4</span>
+<a name="l00249"></a><a class="code" href="channels_8h.html#a3">00249</a> <span class="preprocessor"></span><span class="preprocessor">#define UCMODE_PROTECT 8</span>
+<a name="l00250"></a><a class="code" href="channels_8h.html#a4">00250</a> <span class="preprocessor"></span><span class="preprocessor">#define UCMODE_FOUNDER 16</span>
+00251 <span class="preprocessor"></span> 
+<a name="l00257"></a><a class="code" href="classucrec.html">00257</a> <span class="keyword">class </span><a class="code" href="classucrec.html">ucrec</a> : <span class="keyword">public</span> <a class="code" href="classclassbase.html">classbase</a>
+00258 {
+00259  <span class="keyword">public</span>:
+<a name="l00263"></a><a class="code" href="classucrec.html#o0">00263</a>         <span class="keywordtype">long</span> <a class="code" href="classucrec.html#o0">uc_modes</a>;
+00264         
+<a name="l00268"></a><a class="code" href="classucrec.html#o1">00268</a>         <a class="code" href="classchanrec.html">chanrec</a> *<a class="code" href="classucrec.html#o1">channel</a>;
+00269 
+<a name="l00270"></a><a class="code" href="classucrec.html#a0">00270</a>         <a class="code" href="classucrec.html#a0">ucrec</a>() { <span class="comment">/* stub */</span> }
+<a name="l00271"></a><a class="code" href="classucrec.html#a1">00271</a>         <span class="keyword">virtual</span> <a class="code" href="classucrec.html#a1">~ucrec</a>() { <span class="comment">/* stub */</span> }
+00272 };
+00273 
+00274 <span class="preprocessor">#endif</span>
+00275 <span class="preprocessor"></span>
+</pre></div><hr size="1"><address style="align: right;"><small>Generated on Tue Apr 26 17:11:43 2005 for InspIRCd by
 <a href="http://www.doxygen.org/index.html">
 <img src="doxygen.png" alt="doxygen" align="middle" border=0 > 
 </a>1.3.3 </small></address>

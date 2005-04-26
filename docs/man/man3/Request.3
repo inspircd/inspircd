@@ -1,4 +1,4 @@
-.TH "Request" 3 "20 Apr 2005" "InspIRCd" \" -*- nroff -*-
+.TH "Request" 3 "26 Apr 2005" "InspIRCd" \" -*- nroff -*-
 .ad l
 .nh
 .SH NAME
@@ -58,7 +58,7 @@ The Request class is a unicast message directed at a given module.
 
 When this class is properly instantiated it may be sent to a module using the \fBSend()\fP method, which will call the given module's OnRequest method with this class as its parameter. 
 .PP
-Definition at line 151 of file modules.h.
+Definition at line 154 of file modules.h.
 .SH "Constructor & Destructor Documentation"
 .PP 
 .SS "Request::Request (char * anydata, \fBModule\fP * src, \fBModule\fP * dst)"
@@ -127,17 +127,17 @@ References dest, and Module::OnRequest().
 .PP 
 .SS "char* \fBRequest::data\fP\fC [protected]\fP"
 .PP
-This member holds a pointer to arbitary data set by the emitter of the message. Definition at line 156 of file modules.h.
+This member holds a pointer to arbitary data set by the emitter of the message. Definition at line 159 of file modules.h.
 .PP
 Referenced by GetData().
 .SS "\fBModule\fP* \fBRequest::dest\fP\fC [protected]\fP"
 .PP
-The single destination of the Request. Definition at line 163 of file modules.h.
+The single destination of the Request. Definition at line 166 of file modules.h.
 .PP
 Referenced by GetDest(), and Send().
 .SS "\fBModule\fP* \fBRequest::source\fP\fC [protected]\fP"
 .PP
-This is a pointer to the sender of the message, which can be used to directly trigger events, or to create a reply. Definition at line 160 of file modules.h.
+This is a pointer to the sender of the message, which can be used to directly trigger events, or to create a reply. Definition at line 163 of file modules.h.
 .PP
 Referenced by GetSource().
 
