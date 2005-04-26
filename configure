@@ -1,0 +1,457 @@
+#!/usr/bin/perl
+# InspIRCd Configuration Script
+#
+# Copyright 2003 The ChatSpike Development Team
+# <brain@chatspike.net>
+# <Craig@chatspike.net>
+#
+# [14:21] Brain: <matrix impression> i know perl-fu!
+#
+# $Id$
+#
+########################################
+
+
+$this = $ENV{PWD};                                              # PWD, Regardless.
+@modlist = ();                                                  # Declare for Module List..
+%config = ();                                                   # Initiate Configuration Hash..
+$config{ME}                 = $ENV{PWD};                        # Present Working Directory
+$config{CONFIG_DIR}         = $ENV{PWD}."/conf";                # Configuration Directory
+$config{MODULE_DIR}         = $ENV{PWD}."/modules";             # Modules Directory
+$config{BINARY_DIR}         = $ENV{PWD}."/bin";                 # Binary Directory
+$config{OPTIMITEMP}         = "0";                              # Default Optimisation Value
+$config{OPTIMISATI}         = "-g";                             # Optimisation Flag
+$config{NICK_LENGT}         = "32";                             # Default Nick Length
+$config{CHAN_LENGT}         = "64";                             # Default Channel Name Length
+$config{MAX_CHANNE}         = "20";                             # Default Max. Channels per user..
+$config{MAXI_MODES}         = "20";                             # Default Max. Number of Modes set at once.
+$config{HAS_STRLCPY}        = "false";                          # strlcpy Check.
+chomp($config{MAX_CLIENT_T} = `sh -c \"ulimit -n\"`);           # FD Limit
+chomp($config{GCCVER}       = `gcc -dumpversion | cut -c 1`);   # Major GCC Version
+chomp($config{GCC34}        = `gcc -dumpversion | cut -c 3`);   # Minor GCC Version
+chomp($config{OSNAME}       = `uname -s`);                      # Operating System Name
+
+if (!$config{OSNAME}) {
+  $config{OSNAME} = "Unknown";                                  # For use when uname fails.
+}
+
+if (!$config{MAX_CLIENT_T}) { 
+  $config{MAX_CLIENT_T} = 1024;                                 # Set a reasonable 'Default'
+  $fd_scan_fail = "true";                                       # Used Later
+}
+
+# Get and Set some important vars..
+getosflags();
+getmodules();
+
+my $arg = $ARGV[0];	                                        # Do Some Argument Checks..
+if ($arg eq "-clean") { `rm -rf .config.cache`; }               # Remove the config.cache file.
+
+if ($arg eq "-update") {
+  # Does the cache file exist?
+  if (!getcache()) {
+    # No, No it doesn't.. *BASH*
+    print "You have not run ./configure before. Please do this before trying to run the update script.\n";
+    exit 0;
+  } else {
+    # We've Loaded the cache file and all our variables..
+    print "Updating Files..\n";
+    writefiles();
+    print "Complete.\n";
+    exit;
+  }
+}
+
+getcache();							 # Load the config.cache file.
+
+if (!$config{MAX_CLIENT}) { 
+  # If the cache hasn't set the max clients, copy the variable of MAX_CLIENT_T, this
+  # allows us to keep _T for testing purposes. (ie. "Are you sure you want to go
+  # higher than the found value" :))
+  $config{MAX_CLIENT} = $config{MAX_CLIENT_T};
+}
+
+# Perform the strlcpy() test..
+open(STRLCPY, ">.test.cpp");
+print STRLCPY "#include <string.h>
+#include <stdio.h>
+int main() { char a[10]; char b[10]; strlcpy(a,b,10); printf(\"%d\\n\",9); }\n";
+close(STRLCPY);
+
+# Build the Binary..
+system("g++ -o .test .test.cpp 2>&1");
+
+# Was the build succesful?
+if (-e ".test") {
+  $config{HAS_STRLCPY} = "true";
+  system("rm -f .test .test.cpp");
+}
+
+################################################################################
+#                          BEGIN INTERACTIVE PART                              #
+################################################################################
+
+# Clear the Screen..
+system("clear");
+# Display Splash Logo..
+show_splash();
+chomp($wholeos = `uname -mnr`);
+
+# Display Introduction Message..
+print "
+Welcome to the InspIRCd Configuration program!
+
+*** If you are unsure of any of these values, leave it blank for    ***
+*** standard settings that will work, and your server will run      ***
+*** using them. If you are running this server as part of a         ***
+*** larger network, you must consult with your network admins       ***
+*** for the proper values to use, or server links will be unstable! ***
+
+Press \033[1m<RETURN>\033[0m to accept the default for any option, or enter
+a new value. Please note: You will \033[1mHAVE\033[0m to read the docs
+dir, otherwise you won't have a config file!
+
+Your operating system is: \033[1;32m$config{OSNAME}\033[0m ($wholeos), fdmax: $config{MAX_CLIENT_T}\n\n";
+
+# Directory Settings..
+dir_check("are the configuration files", "CONFIG_DIR");
+dir_check("are the modules to be compiled to", "MODULE_DIR");
+dir_check("is the IRCd binary to be placed", "BINARY_DIR");
+
+# File Descriptor Settings..
+my $continue = 0;
+while (!$continue) {
+  print "Maximum number of clients at any one time ($config{MAX_CLIENT_T})\n";
+  print "[\033[1;32m$config{MAX_CLIENT}\033[0m] -> ";
+  chomp($var = <STDIN>);
+  if ($var eq "") { $var = $config{MAX_CLIENT}; }
+  if ($var =~ /^\d+$/) {
+    if (($var > $config{MAX_CLIENT_T}) && ($fd_scan_failed ne true)) {
+      # Client has entered a larger number than the 'discovered' value
+      # Confirm.
+      print "WARNING: Our scans have indicated that you are attempting
+to use more sockets than there are avaliable. Are you sure
+you wish to do this? It may cause the IRCd to malfunction [y/n]
+[\033[1;32mn\033[0m] -> $c";
+      chomp($tmp = <STDIN>);
+      if ($tmp ne "y") {
+        print "Please enter the correct value.\n\n";
+        next;
+      }
+    }
+  } else {
+    print "You must enter a number in this field. Please try again.\n\n";
+    next;
+  }
+  # If we get here, we should be good to go.
+  $config{MAX_CLIENT} = $var;
+  $continue = 1;
+  print "\n";
+}
+
+my $continue = 0;
+while (!$continue) {
+  print "What is the Maximum length of nicknames?\n";
+  print "[\033[1;32m$config{NICK_LENGT}\033[0m] -> ";
+  chomp($var = <STDIN>);
+  if ($var eq "") { $var = $config{NICK_LENGT}; }
+  if ($var =~ /^\d+$/) {
+    # We don't care what the number is, set it and be on our way.
+    $config{NICK_LENGT} = $var;
+    $continue = 1;
+    print "\n";
+  } else {
+    print "You must enter a number in this field. Please try again.\n\n";
+  }
+}
+
+my $continue = 0;
+while (!$continue) {
+  print "What is the Maximum number of mode changes in one line?\n";
+  print "[\033[1;32m$config{MAXI_MODES}\033[0m] -> ";
+  chomp($var = <STDIN>);
+  if ($var eq "") { $var = $config{MAXI_MODES}; }
+  if ($var =~ /^\d+$/) {
+    # We don't care what the number is, set it and be on our way.
+    $config{MAXI_MODES} = $var;
+    $continue = 1;
+    print "\n";
+  } else {
+    print "You must enter a number in this field. Please try again.\n\n";
+  }
+}
+
+# Code Optimisation
+print "Enter the Level Of Binary optimisation. This is a number between 0 and 3 (inclusive)
+The InspIRCd Team will _NOT_ support any bug reports above 0.
+Also note, the IRCd behaviour will be different depending on this value.
+Please read the documentation for more information.
+
+The Higher the number, the more optimised your binary will be. This value will default to 0
+If you either a) Dont enter a number, or b) Enter a value outside the range.\n";
+print "[\033[1;32m0\033[0m] -> ";
+chomp($var = <STDIN>);
+if ($var == 1) {
+  $config{OPTIMITEMP} = 1;
+  $config{OPTIMISATI} = "-O";
+} elsif ($var == 2) {
+  $config{OPTIMITEMP} = 2;
+  $config{OPTIMISATI} = "-O2";
+} elsif ($var == 3) {
+  $config{OPTIMITEMP} = 3;
+  $config{OPTIMISATI} = "-O3";
+} else {
+  $config{OPTIMITEMP} = 0;
+  $config{OPTIMISATI} = "-g";
+}
+
+print "\n\033[1;32mPre-build configuration is complete!\033[0m\n\n";
+print "\033[0mConfig path:\033[1;32m\t\t\t$config{CONFIG_DIR}\n";
+print "\033[0mModule path:\033[1;32m\t\t\t$config{MODULE_DIR}\n";
+print "\033[0mMax connections:\033[1;32m\t\t$config{MAX_CLIENT}\n";
+print "\033[0mMax User Channels\033[1;32m\t\t$config{MAX_CHANNE}\n";
+print "\033[0mMax nickname length:\033[1;32m\t\t$config{NICK_LENGT}\n";
+print "\033[0mMax channel length:\033[1;32m\t\t$config{CHAN_LENGT}\n";
+print "\033[0mMax mode length:\033[1;32m\t\t$config{MAXI_MODES}\n";
+print "\033[0mGCC Version Found:\033[1;32m\t\t$config{GCCVER}.$config{GCC34}\n";
+print "\033[0mOptimatizaton Flag:\033[1;32m\t\t$config{OPTIMISATI}\033[0m\n\n";
+
+makecache();
+writefiles();
+
+print "\n\n";
+print "To build your server with these settings, please type '\033[1;32m$config{MAKEPROG}\033[0m' now.\n";
+print "*** \033[1;32mRemember to edit your configuration files!!!\033[0m ***\n\n\n";
+
+################################################################################
+#                              HELPER FUNCTIONS                                #
+################################################################################
+sub getcache {
+  # Retrieves the .config.cache file, and loads values into the main config hash.
+  open(CACHE, ".config.cache") or return undef;
+  while (<CACHE>) {
+    chomp;
+
+    # Ignore Blank lines, and comments..
+    next if /^\s*$/;
+    next if /^\s*#/;
+
+    my ($key, $value) = split("=", $_);
+    $value =~ /^\"(.*)\"$/;
+    # Do something with data here!
+    $config{$key} = $1;
+  }
+  close(CONFIG);
+  return "true";
+}
+
+sub makecache {
+  # Dump the contents of %config
+  print "Writing \033[1;32mcache file\033[0m for future ./configures ...\n";
+  open(FILEHANDLE, ">.config.cache");
+  foreach $key (keys %config)
+  {
+    print FILEHANDLE "$key=\"$config{$key}\"\n";
+  }
+  close(FILEHANDLE);
+}
+
+sub dir_check {
+  my ($desc, $hash_key) = @_;
+  my $complete = 0;
+  while (!$complete) {
+    print "In what directory $desc?\n";
+    print "[\033[1;32m$config{$hash_key}\033[0m] -> ";
+    chomp($var = <STDIN>);
+    if ($var eq "") { $var = $config{$hash_key}; }
+    if (substr($var,0,1) ne "/")
+    {
+	# Assume relative Path was given.. fill in the rest.
+	$var = $this . "/$var";
+    }
+    if (substr($var, 0, 1) eq "~") {
+	# Convert it to a full path..
+	
+	$var = $this . substr(1,0);
+    } 
+    if (! -e $var) {
+      print "$var does not exist. Create it?\n[\033[1;32my\033[0m] ";
+      chomp($tmp = <STDIN>);
+      if (($tmp eq "") || ($tmp = "y")) {
+        # Attempt to Create the Dir..
+        $chk = system("mkdir -p \"$var\" >> /dev/null 2>&1") / 256;
+        if ($chk != 0) {
+          print "Unable to create directory. ($var)\n\n";
+          # Restart Loop..
+          next;
+        }
+      } else {
+        # They said they don't want to create, and we can't install there.
+        print "\n\n";
+        next;
+      }
+    } else {
+      if (!is_dir($var)) {
+        # Target exists, but is not a directory.
+        print "File $var exists, but is not a directory.\n\n";
+        next;
+      }
+    }
+    # Either Dir Exists, or was created fine.
+    $config{$hash_key} = $var;
+    $complete = 1;
+    print "\n";
+  }
+}
+
+sub getosflags {
+  if ($config{OSNAME} eq "FreeBSD") {
+    $config{LDLIBS} = "-Ldl";
+    $config{FLAGS}  = "-fPIC -frtti $OPTIMISATI -Wcomment -Wformat -Wunused -Wshadow -Werror -Wswitch -Wchar-subscripts -Wparentheses -Woverloaded-virtual";
+    $config{MAKEPROG} = "gmake";
+  } else {
+    $config{LDLIBS} = "-ldl";
+    $config{FLAGS}  = "-fPIC -frtti $OPTIMISATI -Wcomment -Wformat -Wunused -Wshadow -Werror -Wswitch -Wchar-subscripts -Wparentheses -Woverloaded-virtual";
+    $config{MAKEPROG} = "make";
+  }
+}
+
+sub is_dir {
+  my ($path) = @_;
+  if (chdir($path)) {
+    chdir($this);
+    return 1;
+  } else {
+    # Just in case..
+    chdir($this);
+    return 0;
+  }
+}
+
+sub getmodules {
+  my $i = 0;
+  opendir(DIRHANDLE, "src/modules");
+  foreach $name (sort readdir(DIRHANDLE)) {
+    if ($name =~ /^m_(.+)\.cpp$/)
+    {
+      $modlist[$i++] = $1;
+    }
+  }
+  closedir(DIRHANDLE);
+}
+
+sub writefiles {
+
+  print "Writing \033[1;32minspircd_config.h\033[0m\n";
+  # First File.. inspircd_config.h
+  chomp(my $incos = `uname -n -s -r`);
+  chomp(my $version = `sh ./src/version.sh`);
+  open(FILEHANDLE, "> include/inspircd_config.h");
+  print FILEHANDLE <<EOF;
+/* Auto generated by configure, do not modify! */
+#define SYSLOG_FACILITY LOG_DAEMON
+#define SYSLOG_LEVEL LOG_NOTICE
+#define CONFIG_FILE "$config{CONFIG_DIR}/inspircd.conf"
+#define MOD_PATH "$config{MODULE_DIR}"
+#define VERSION "$version"
+#define MAXCLIENTS $config{MAX_CLIENT}
+#define NICKMAX $config{NICK_LENGT}
+#define CHANMAX $config{CHAN_LENGT}
+#define MAXCHANS $config{MAX_CHANNE}
+#define MAXMODES $config{MAXI_MODES}
+#define OPTIMISATION $config{OPTIMITEMP}
+#define SYSTEM "$incos"
+#define MAXBUF 514
+EOF
+
+  if ($config{GCCVER} == 3) {
+    print FILEHANDLE "#define GCC3\n";
+    if ($config{GCC34} > 3) {
+      print FILEHANDLE "#define GCC34\n";
+    }
+  }
+  if ($config{HAS_STRLCPY} eq "true") {
+    print FILEHANDLE "#define HAS_STRLCPY\n";
+  }
+  close(FILEHANDLE);
+
+  # Now the Makefile..
+  print "Writing \033[1;32mMakefile\033[0m\n";
+  my $makefile = "";
+  open(FILEHANDLE, ".Makefile.inc");
+  while (<FILEHANDLE>) {
+    $makefile .= $_;
+  }
+  # Create a Modules List..
+  my $modules = "";
+  foreach $i (@modlist)
+  {
+    $modules .= "m_".$i.".so ";
+  }
+  chomp($modules);   # Remove Redundant whitespace..
+  $makefile =~ s/\@MAKEPROG\@/$config{MAKEPROG}/;
+  $makefile =~ s/\@FLAGS\@/$config{FLAGS}/;
+  $makefile =~ s/\@LDLIBS\@/$config{LDLIBS}/;
+  $makefile =~ s/\@CONFIG_DIR\@/$config{CONFIG_DIR}/;
+  $makefile =~ s/\@MODULE_DIR\@/$config{MODULE_DIR}/;
+  $makefile =~ s/\@BINARY_DIR\@/$config{BINARY_DIR}/;
+  $makefile =~ s/\@MODULES\@/$modules/;
+
+  open(FILEHANDLE, ">Makefile");
+  print FILEHANDLE $makefile;
+  close(FILEHANDLE);
+
+  # Modules Makefile..
+  print "Writing \033[1;32msrc/modules/Makefile\033[0m\n";
+  open(FILEHANDLE, ">src/modules/Makefile");
+  print FILEHANDLE <<EOF;
+# (C) ChatSpike development team
+# Makefile by <Craig@ChatSpike.net>
+# Many Thanks to Andrew Church <achurch@achurch.org>
+#    for assisting with making this work right.
+#
+# Automatically Generated by ./configure to add a modules
+# please run ./configure --update
+
+all: \$(MODULES)
+
+EOF
+
+  # Create a Modules List..
+  my $modules = "";
+  my $flags = "";
+  foreach $i (@modlist)
+  {
+    $flags = getcompilerflags("src/modules/m_".$i.".cpp");
+    print FILEHANDLE <<EOCHEESE;
+$i.so: $i.cpp ../../include/modules.h ../../include/users.h ../../include/channels.h ../../include/servers.h ../../include/base.h
+	\$(CC) -I../../include \$(FLAGS) -shared $flags -o $i.so $i.cpp
+	\@cp $i.so \$(MODPATH)/
+
+EOCHEESE
+  }
+}
+
+sub getcompilerflags {
+  my ($file) = @_;
+  open(FLAGS, $file);
+  while (<FLAGS>) {
+    if ($_ =~ /^\/\* \$CompileFlags: (.+) \*\/$/) {
+      close(FLAGS);
+      return $1;
+    }
+  }
+  close(FLAGS);
+  return undef;
+}
+
+sub show_splash {
+  print "'\033[1;33m####\033[0m:'\033[1;33m##\033[0m::: \033[1;33m##\033[0m::'\033[1;33m######\033[0m::'\033[1;33m########\033[0m::'\033[1;33m####\033[0m:'\033[1;33m########\033[0m:::'\033[1;33m######\033[0m::'\033[1;33m########\033[0m::\n";
+  print ". \033[1;33m##\033[0m:: \033[1;33m###\033[0m:: \033[1;33m##\033[0m:'\033[1;33m##\033[0m... \033[1;33m##\033[0m: \033[1;33m##\033[0m.... \033[1;33m##\033[0m:. \033[1;33m##\033[0m:: \033[1;33m##\033[0m.... \033[1;33m##\033[0m:'\033[1;33m##\033[0m... \033[1;33m##\033[0m: \033[1;33m##\033[0m.... \033[1;33m##\033[0m:\n";
+  print ": \033[1;33m##\033[0m:: \033[1;33m####\033[0m: \033[1;33m##\033[0m: \033[1;33m##\033[0m:::..:: \033[1;33m##\033[0m:::: \033[1;33m##\033[0m:: \033[1;33m##\033[0m:: \033[1;33m##\033[0m:::: \033[1;33m##\033[0m: \033[1;33m##\033[0m:::..:: \033[1;33m##\033[0m:::: \033[1;33m##\033[0m:\n";
+  print ": \033[1;33m##\033[0m:: \033[1;33m##\033[0m \033[1;33m##\033[0m \033[1;33m##\033[0m:. \033[1;33m######\033[0m:: \033[1;33m########\033[0m::: \033[1;33m##\033[0m:: \033[1;33m########\033[0m:: \033[1;33m##\033[0m::::::: \033[1;33m##\033[0m:::: \033[1;33m##\033[0m:\n";
+  print ": \033[1;33m##\033[0m:: \033[1;33m##\033[0m. \033[1;33m####\033[0m::..... \033[1;33m##\033[0m: \033[1;33m##\033[0m.....:::: \033[1;33m##\033[0m:: \033[1;33m##\033[0m.. \033[1;33m##\033[0m::: \033[1;33m##\033[0m::::::: \033[1;33m##\033[0m:::: \033[1;33m##\033[0m:\n";
+  print ": \033[1;33m##\033[0m:: \033[1;33m##\033[0m:. \033[1;33m###\033[0m:'\033[1;33m##\033[0m::: \033[1;33m##\033[0m: \033[1;33m##\033[0m::::::::: \033[1;33m##\033[0m:: \033[1;33m##\033[0m::. \033[1;33m##\033[0m:: \033[1;33m##\033[0m::: \033[1;33m##\033[0m: \033[1;33m##\033[0m:::: \033[1;33m##\033[0m:\n";
+  print "'\033[1;33m####\033[0m: \033[1;33m##\033[0m::. \033[1;33m##\033[0m:. \033[1;33m######\033[0m:: \033[1;33m##\033[0m::::::::'\033[1;33m####\033[0m: \033[1;33m##\033[0m:::. \033[1;33m##\033[0m:. \033[1;33m######\033[0m:: \033[1;33m########\033[0m::\n";
+  print "\033[0m\033[0m....::..::::..:::......:::..:::::::::....::..:::::..:::......:::........:::\n\n";
+}
