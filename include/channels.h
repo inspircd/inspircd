@@ -187,12 +187,50 @@ class chanrec : public Extensible
 	  */
 	std::string GetModeParameter(char mode);
 
+	/** Increment the channel "user counter"
+	 * The channel user counter is a reference counter which
+	 * holds the number of users on the channel. If it decremented
+	 * to 0 then the channel is removed from the system.
+	 */
 	void IncUserCounter();
+
+	/** Decrement the channel "user counter"
+         * The channel user counter is a reference counter which
+         * holds the number of users on the channel. If it decremented
+         * to 0 then the channel is removed from the system.
+	 * Modules may alter the reference count to hold channels open
+	 * which have no users and would normally be deleted once empty.
+	 */
 	void DecUserCounter();
+
+	/** Obtain the channel "user counter"
+	 * This returns the channel reference counter, which is initialized
+	 * to 0 when the channel is created and incremented/decremented
+	 * upon joins, parts quits and kicks.
+	 */
 	long GetUserCounter();
 
+	/** Add a user pointer to the internal reference list
+	 * The data inserted into the reference list is a table as it is
+	 * an arbitary pointer compared to other users by its memory address,
+	 * as this is a very fast 32 or 64 bit integer comparison.
+	 */
 	void AddUser(char* castuser);
+
+        /** Delete a user pointer to the internal reference list
+         * The data removed from the reference list is a table as it is
+         * an arbitary pointer compared to other users by its memory address,
+         * as this is a very fast 32 or 64 bit integer comparison.
+         */
 	void DelUser(char* castuser);
+
+	/** Obrain the internal reference list
+	 * The internal reference list contains a list of userrec*
+	 * cast to char*. These are used for rapid comparison to determine
+	 * channel membership for PRIVMSG, NOTICE, QUIT, PART etc.
+	 * The resulting pointer to the vector should be considered
+	 * readonly and only modified via AddUser and DelUser.
+	 */
 	std::vector<char*> *GetUsers();
 
 	/** Creates a channel record and initialises it with default values
