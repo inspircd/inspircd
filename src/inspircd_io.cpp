@@ -63,7 +63,6 @@ void Rehash(int status)
 
 void Start (void)
 {
-	// \033[1;32m$config{OSNAME}\033[0m
 	printf("\033[1;32mInspire Internet Relay Chat Server, compiled " __DATE__ " at " __TIME__ "\n");
 	printf("(C) ChatSpike Development team.\033[0m\n\n");
 	printf("Developers:\033[1;32m     Brain, FrostyCoolSlug\033[0m\n");
@@ -110,7 +109,7 @@ int DaemonSeed (void)
 		exit (0);
 	setsid ();
 	umask (007);
-	printf("InspIRCd PID: %d\n",getpid());
+	printf("InspIRCd Process ID: \033[1;32m%lu\033[0m\n",(unsigned long)getpid());
 	freopen("/dev/null","w",stdout);
 	freopen("/dev/null","w",stderr);
 	
