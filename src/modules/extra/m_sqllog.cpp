@@ -100,26 +100,26 @@ class ModuleSQLLog : public Module
                 delete query;
 		if (nid < 1)
 		{
-			SQLRequest* query = new SQLRequest(SQL_COUNT,dbid,"INSERT INTO ircd_log_actors VALUES('','"+nick+"')");
-			Request queryrequest((char*)query, this, SQLModule);
-			SQLResult* result = (SQLResult*)queryrequest.Send();
-	                if (result->GetType() == SQL_ERROR)
+			SQLRequest* query2 = new SQLRequest(SQL_COUNT,dbid,"INSERT INTO ircd_log_actors VALUES('','"+nick+"')");
+			Request queryrequest2((char*)query2, this, SQLModule);
+			SQLResult* result2 = (SQLResult*)queryrequest2.Send();
+	                if (result2->GetType() == SQL_ERROR)
 	                {
-	                        Srv->Log(DEFAULT,"SQL log error: " + result->GetError());
+	                        Srv->Log(DEFAULT,"SQL log error: " + result2->GetError());
 	                }
-			if (result)
+			if (result2)
 				delete result;
-			if (query)
-				delete query;
+			if (query2)
+				delete query2;
 			nid = InsertNick(nick);
 		}
 		return nid;
 	}
 
-	void InsertEntry(long category,long nickid,long hostid,long sourceid,unsigned long date)
+	void InsertEntry(unsigned long category,unsigned long nickid,unsigned long hostid,unsigned long sourceid,unsigned long date)
 	{
 		char querybuffer[MAXBUF];
-		snprintf(querybuffer,MAXBUF,"INSERT INTO ircd_log VALUES('',%d,%d,%d,%d,%lu)",category,nickid,hostid,sourceid,date);
+		snprintf(querybuffer,MAXBUF,"INSERT INTO ircd_log VALUES('',%lu,%lu,%lu,%lu,%lu)",(unsigned long)category,(unsigned long)nickid,(unsigned long)hostid,(unsigned long)sourceid,(unsigned long)date);
 		SQLRequest* query = new SQLRequest(SQL_COUNT,dbid,querybuffer);
 		Request queryrequest((char*)query, this, SQLModule);
 		SQLResult* result = (SQLResult*)queryrequest.Send();
@@ -160,17 +160,17 @@ class ModuleSQLLog : public Module
                 delete query;
                 if (hid < 1)
                 {
-                        SQLRequest* query = new SQLRequest(SQL_COUNT,dbid,"INSERT INTO ircd_log_hosts VALUES('','"+host+"')");
-                        Request queryrequest((char*)query, this, SQLModule);
-                        SQLResult* result = (SQLResult*)queryrequest.Send();
-        	        if (result->GetType() == SQL_ERROR)
+                        SQLRequest* query2 = new SQLRequest(SQL_COUNT,dbid,"INSERT INTO ircd_log_hosts VALUES('','"+host+"')");
+                        Request queryrequest2((char*)query2, this, SQLModule);
+                        SQLResult* result2 = (SQLResult*)queryrequest2.Send();
+        	        if (result2->GetType() == SQL_ERROR)
 	                {
-	                        Srv->Log(DEFAULT,"SQL log error: " + result->GetError());
+	                        Srv->Log(DEFAULT,"SQL log error: " + result2->GetError());
 	                }
                         if (result)
-                                delete result;
+                                delete result2;
 			if (query)
-				delete query;
+				delete query2;
                         hid = InsertHost(host);
                 }
                 return hid;
@@ -185,7 +185,7 @@ class ModuleSQLLog : public Module
 		long nickid = InsertNick(nick);
 		long sourceid = InsertNick(source);
 		long hostid = InsertHost(host);
-		InsertEntry(category,nickid,hostid,sourceid,time(NULL));
+		InsertEntry((unsigned)category,(unsigned)nickid,(unsigned)hostid,(unsigned)sourceid,(unsigned long)time(NULL));
 	}
 
 	virtual void OnOper(userrec* user)

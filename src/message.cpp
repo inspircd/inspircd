@@ -69,9 +69,6 @@ extern char DNSServer[MAXBUF];
 
 int common_channels(userrec *u, userrec *u2)
 {
-	int i = 0;
-	int z = 0;
-
 	if ((!u) || (!u2))
 	{
 		log(DEFAULT,"*** BUG *** common_channels was given an invalid parameter");
@@ -79,7 +76,7 @@ int common_channels(userrec *u, userrec *u2)
 	}
 	for (int i = 0; i != MAXCHANS; i++)
 	{
-		for (z = 0; z != MAXCHANS; z++)
+		for (int z = 0; z != MAXCHANS; z++)
 		{
 			if ((u->chans[i].channel != NULL) && (u2->chans[z].channel != NULL))
 			{
@@ -282,7 +279,6 @@ void ChangeDisplayedHost(userrec* user, const char* host)
 
 int isident(const char* n)
 {
-        char v[MAXBUF];
         if (!n)
 
         {
@@ -310,8 +306,6 @@ int isident(const char* n)
 
 int isnick(const char* n)
 {
-	int i = 0;
-	char v[MAXBUF];
 	if (!n)
 	{
 		return 0;
@@ -355,8 +349,6 @@ char* cmode(userrec *user, chanrec *chan)
 		log(DEFAULT,"*** BUG *** cmode was given an invalid parameter");
 		return "";
 	}
-
-	int i;
 	for (int i = 0; i != MAXCHANS; i++)
 	{
 		if (user->chans[i].channel)
@@ -472,9 +464,7 @@ char lst[MAXBUF];
 
 char* chlist(userrec *user)
 {
-	int i = 0;
 	char cmp[MAXBUF];
-
         log(DEBUG,"chlist: %s",user->nick);
 	strcpy(lst,"");
 	if (!user)

@@ -340,8 +340,7 @@ int EnumConf(std::stringstream *config, const char* tag)
 {
 	int ptr = 0;
 	char buffer[MAXBUF], c_tag[MAXBUF], c, lastc;
-	int in_token, in_quotes, tptr, j, idx = 0;
-	char* key;
+	int in_token, in_quotes, tptr, idx = 0;
 
 	const char* buf = config->str().c_str();
 	long bptr = 0;
@@ -411,8 +410,7 @@ int EnumValues(std::stringstream *config, const char* tag, int index)
 {
 	int ptr = 0;
 	char buffer[MAXBUF], c_tag[MAXBUF], c, lastc;
-	int in_token, in_quotes, tptr, j, idx = 0;
-	char* key;
+	int in_token, in_quotes, tptr, idx = 0;
 	
 	bool correct_tag = false;
 	int num_items = 0;

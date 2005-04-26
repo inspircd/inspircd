@@ -68,8 +68,8 @@ void handle_park(char **parameters, int pcnt, userrec *user)
 	{
 		awaylog* aw;
 		char msg[MAXBUF];
-		long key = abs(random() * 12345);
-		snprintf(msg,MAXBUF,"You are now parked. To unpark use /UNPARK %s %d",user->nick,key);
+		unsigned long key = abs(random() * 12345);
+		snprintf(msg,MAXBUF,"You are now parked. To unpark use /UNPARK %s %lu",user->nick,key);
 		Srv->UserToPseudo(user,std::string(msg));
 		aw = new awaylog;
 		user->Extend("park_awaylog",(char*)aw);
@@ -84,7 +84,7 @@ void handle_park(char **parameters, int pcnt, userrec *user)
 void handle_parkstats(char **parameters, int pcnt, userrec *user)
 {
 	char status[MAXBUF];
-	snprintf(status,MAXBUF,"NOTICE %s :There are a total of %d parked clients on this server, with a maximum of %d parked sessions allowed per user.",user->nick,pinfo.size(),ConcurrentParks);
+	snprintf(status,MAXBUF,"NOTICE %s :There are a total of %lu parked clients on this server, with a maximum of %lu parked sessions allowed per user.",user->nick,(unsigned long)pinfo.size(),(unsigned long)ConcurrentParks);
 	Srv->SendServ(user->fd,status);
 }
 

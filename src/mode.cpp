@@ -84,7 +84,6 @@ extern time_t TIME;
 char* give_ops(userrec *user,char *dest,chanrec *chan,int status)
 {
 	userrec *d;
-	int i;
 	
 	if ((!user) || (!dest) || (!chan))
 	{
@@ -148,7 +147,6 @@ char* give_ops(userrec *user,char *dest,chanrec *chan,int status)
 char* give_hops(userrec *user,char *dest,chanrec *chan,int status)
 {
 	userrec *d;
-	int i;
 	
 	if ((!user) || (!dest) || (!chan))
 	{
@@ -205,7 +203,6 @@ char* give_hops(userrec *user,char *dest,chanrec *chan,int status)
 char* give_voice(userrec *user,char *dest,chanrec *chan,int status)
 {
 	userrec *d;
-	int i;
 	
 	if ((!user) || (!dest) || (!chan))
 	{
@@ -262,7 +259,6 @@ char* give_voice(userrec *user,char *dest,chanrec *chan,int status)
 char* take_ops(userrec *user,char *dest,chanrec *chan,int status)
 {
 	userrec *d;
-	int i;
 	
 	if ((!user) || (!dest) || (!chan))
 	{
@@ -322,7 +318,6 @@ char* take_ops(userrec *user,char *dest,chanrec *chan,int status)
 char* take_hops(userrec *user,char *dest,chanrec *chan,int status)
 {
 	userrec *d;
-	int i;
 	
 	if ((!user) || (!dest) || (!chan))
 	{
@@ -379,7 +374,6 @@ char* take_hops(userrec *user,char *dest,chanrec *chan,int status)
 char* take_voice(userrec *user,char *dest,chanrec *chan,int status)
 {
 	userrec *d;
-	int i;
 	
 	if ((!user) || (!dest) || (!chan))
 	{
@@ -1181,7 +1175,7 @@ void handle_mode(char **parameters, int pcnt, userrec *user)
 {
 	chanrec* Ptr;
 	userrec* dest;
-	int can_change,i;
+	int can_change;
 	int direction = 1;
 	char outpars[MAXBUF];
 
@@ -1356,7 +1350,7 @@ void handle_mode(char **parameters, int pcnt, userrec *user)
 
 			z = strlen(b)-1;
 			if ((b[z] == '-') || (b[z] == '+'))
-				b[z] == '\0';
+				b[z] = '\0';
 
 			if ((!strcmp(b,"+")) || (!strcmp(b,"-")))
 				return;
@@ -1459,7 +1453,7 @@ void server_mode(char **parameters, int pcnt, userrec *user)
 {
 	chanrec* Ptr;
 	userrec* dest;
-	int can_change,i;
+	int can_change;
 	int direction = 1;
 	char outpars[MAXBUF];
 
@@ -1603,7 +1597,7 @@ void server_mode(char **parameters, int pcnt, userrec *user)
 
 			z = strlen(b)-1;
 			if ((b[z] == '-') || (b[z] == '+'))
-				b[z] == '\0';
+				b[z] = '\0';
 
 			if ((!strcmp(b,"+")) || (!strcmp(b,"-")))
 				return;
@@ -1645,7 +1639,7 @@ void merge_mode(char **parameters, int pcnt)
 {
 	chanrec* Ptr;
 	userrec* dest;
-	int can_change,i;
+	int can_change;
 	int direction = 1;
 	char outpars[MAXBUF];
 
@@ -1789,7 +1783,7 @@ void merge_mode(char **parameters, int pcnt)
 
 			z = strlen(b)-1;
 			if ((b[z] == '-') || (b[z] == '+'))
-				b[z] == '\0';
+				b[z] = '\0';
 
 			if ((!strcmp(b,"+")) || (!strcmp(b,"-")))
 				return;
@@ -1823,7 +1817,7 @@ void merge_mode2(char **parameters, int pcnt, userrec* user)
 {
 	chanrec* Ptr;
 	userrec* dest;
-	int can_change,i;
+	int can_change;
 	int direction = 1;
 	char outpars[MAXBUF];
 
@@ -1974,7 +1968,7 @@ void merge_mode2(char **parameters, int pcnt, userrec* user)
 
 			z = strlen(b)-1;
 			if ((b[z] == '-') || (b[z] == '+'))
-				b[z] == '\0';
+				b[z] = '\0';
 
 			if ((!strcmp(b,"+")) || (!strcmp(b,"-")))
 				return;

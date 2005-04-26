@@ -35,9 +35,9 @@ struct dns_ip4list {
 class DNS
 {
 private:
-	char *result;
 	in_addr *binip;
-	int t,i;
+	char* result;
+	int t;
 	void dns_init();
 	unsigned int fd;
 	void dns_init_2(const char* dnsserver);

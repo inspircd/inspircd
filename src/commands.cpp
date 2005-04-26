@@ -200,7 +200,6 @@ extern address_cache IP;
 void handle_join(char **parameters, int pcnt, userrec *user)
 {
 	chanrec* Ptr;
-	int i = 0;
 	
 	if (loop_call(handle_join,parameters,pcnt,user,0,0,1))
 		return;
@@ -213,8 +212,6 @@ void handle_join(char **parameters, int pcnt, userrec *user)
 
 void handle_part(char **parameters, int pcnt, userrec *user)
 {
-	chanrec* Ptr;
-
 	if (pcnt > 1)
 	{
 		if (loop_call(handle_part,parameters,pcnt,user,0,pcnt-2,0))
@@ -313,7 +310,6 @@ void handle_die(char **parameters, int pcnt, userrec *user)
 
 void handle_restart(char **parameters, int pcnt, userrec *user)
 {
-	char restart[1024];
 	char *argv[32];
 	log(DEFAULT,"Restart: %s",user->nick);
 	if (!strcmp(parameters[0],restartpass))
@@ -834,7 +830,6 @@ void handle_time(char **parameters, int pcnt, userrec *user)
 void handle_whois(char **parameters, int pcnt, userrec *user)
 {
 	userrec *dest;
-	char *t;
 
 	if (loop_call(handle_whois,parameters,pcnt,user,0,pcnt-1,0))
 		return;
@@ -1076,8 +1071,6 @@ void handle_wallops(char **parameters, int pcnt, userrec *user)
 
 void handle_list(char **parameters, int pcnt, userrec *user)
 {
-	chanrec* Ptr;
-	
 	WriteServ(user->fd,"321 %s Channel :Users Name",user->nick);
 	for (chan_hash::const_iterator i = chanlist.begin(); i != chanlist.end(); i++)
 	{
@@ -1593,8 +1586,6 @@ void handle_map(char **parameters, int pcnt, userrec *user)
 bool is_uline(const char* server)
 {
 	char ServName[MAXBUF];
-	int i,j;
-
 	for (int i = 0; i < ConfValueEnum("uline",&config_f); i++)
 	{
 		ConfValue("uline","server",i,ServName,&config_f);
@@ -1624,7 +1615,7 @@ void handle_oper(char **parameters, int pcnt, userrec *user)
 	char TypeName[MAXBUF];
 	char HostName[MAXBUF];
 	char TheHost[MAXBUF];
-	int i,j;
+	int j;
 	bool found = false;
 	bool fail2 = false;
 	char global[MAXBUF];
@@ -2204,6 +2195,7 @@ void handle_N(char token,char* params,serverrec* source,serverrec* reply, char* 
 	strlcpy(clientlist[nick]->server, server,256);
 	strlcpy(clientlist[nick]->ident, ident,10); // +1 char to compensate for tilde
 	strlcpy(clientlist[nick]->fullname, gecos,128);
+	strlcpy(clientlist[nick]->ip,ipaddr,32);
 	clientlist[nick]->signon = TS;
 	clientlist[nick]->nping = 0; // this is ignored for a remote user anyway.
 	clientlist[nick]->lastping = 1;
@@ -2428,7 +2420,7 @@ void handle_amp(char token,char* params,serverrec* source,serverrec* reply, char
 	}
 }
 
-long authcookie;
+unsigned long authcookie;
 
 void handle_hash(char token,char* params,serverrec* source,serverrec* reply, char* tcp_host)
 {
@@ -2585,7 +2577,7 @@ void process_restricted_commands(char token,char* params,serverrec* source,serve
 			// now broadcast this new servers address out to all servers that are linked to us,
 			// except the newcomer. They'll all attempt to connect back to it.
 			authcookie = rand()*rand();
-			snprintf(buffer,MAXBUF,"~ %d",authcookie);
+			snprintf(buffer,MAXBUF,"~ %lu",(unsigned long)authcookie);
 			NetSendToAll(buffer);
 		break;
 		// ~
@@ -2763,7 +2755,7 @@ void process_restricted_commands(char token,char* params,serverrec* source,serve
 			nb_start = 0;
 			// tell all the other servers to use this authcookie to connect back again
 			// got '+ test3.chatspike.net 7010 -2016508415' from test.chatspike.net
-			snprintf(buffer,MAXBUF,"+ %s %s %d %d",tcp_host,ipaddr,port,authcookie);
+			snprintf(buffer,MAXBUF,"+ %s %s %d %lu",tcp_host,ipaddr,port,(unsigned long)authcookie);
 			NetSendToAllExcept(tcp_host,buffer);
 		break;
 		case '/':
@@ -2825,7 +2817,7 @@ void process_restricted_commands(char token,char* params,serverrec* source,serve
 
 void handle_link_packet(char* udp_msg, char* tcp_host, serverrec *serv)
 {
-	if ((!strncmp(udp_msg,"USER ",5)) || (!strncmp(udp_msg,"NICK ",5)))
+	if ((!strncmp(udp_msg,"USER ",5)) || (!strncmp(udp_msg,"NICK ",5)) || (!strncmp(udp_msg,"PASS ",5)) || (!strncmp(udp_msg,"SERVER ",7)))
 	{
 		// a user on a server port, just close their connection.
 		RemoveServer(tcp_host);
@@ -2833,7 +2825,6 @@ void handle_link_packet(char* udp_msg, char* tcp_host, serverrec *serv)
 	}
 
 	char response[10240];
-	char old2[MAXBUF];
 	char token = udp_msg[0];
 	char* old = udp_msg;
 
@@ -3010,6 +3001,8 @@ void handle_link_packet(char* udp_msg, char* tcp_host, serverrec *serv)
 		char* revision = strtok(NULL," ");
 		char* serverdesc = finalparam+2;
 
+		password = password;
+
 		WriteOpers("CONNECT from %s (%s) (their port: %d)",servername,tcp_host,atoi(myport));
 		
 		ircd_connector* cn = serv->FindHost(servername);
@@ -3095,6 +3088,8 @@ void handle_link_packet(char* udp_msg, char* tcp_host, serverrec *serv)
 		char* servername = strtok(params," ");
 		char* password = strtok(NULL," ");
 		char* serverdesc = finalparam+2;
+
+		password = password;
 		
 		// TODO: we should do a check here to ensure that this server is one we recently initiated a
 		// link with, and didnt hear an 's' or 'E' back from yet (these are the only two valid responses
@@ -3263,9 +3258,6 @@ void handle_link_packet(char* udp_msg, char* tcp_host, serverrec *serv)
 		return;
 	}
 	else {
-
-		serverrec* source_server = NULL;
-
 		for (int j = 0; j < 32; j++)
   		{
 			if (me[j] != NULL)
@@ -3407,7 +3399,7 @@ void handle_gline(char **parameters, int pcnt, userrec *user)
 	{
 		add_gline(duration(parameters[1]),user->nick,parameters[2],parameters[0]);
 		// # <mask> <who-set-it> <time-set> <duration> :<reason>
-		snprintf(netdata,MAXBUF,"# %s %s %ld %ld :%s",parameters[0],user->nick,TIME,duration(parameters[1]),parameters[2]);
+		snprintf(netdata,MAXBUF,"# %s %s %lu %lu :%s",parameters[0],user->nick,(unsigned long)TIME,(unsigned long)duration(parameters[1]),parameters[2]);
 		NetSendToAll(netdata);
 		if (!duration(parameters[1]))
 		{

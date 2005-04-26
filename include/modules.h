@@ -76,7 +76,7 @@ typedef std::deque<userrec*> chanuserlist;
 // loaded modules in a readable simple way, e.g.:
 // 'FOREACH_MOD OnConnect(user);'
 
-#define FOREACH_MOD for (int i = 0; i <= MODCOUNT; i++) modules[i]->
+#define FOREACH_MOD for (int _i = 0; _i <= MODCOUNT; _i++) modules[_i]->
 
 // This define is similar to the one above but returns a result in MOD_RESULT.
 // The first module to return a nonzero result is the value to be accepted,
@@ -85,8 +85,8 @@ typedef std::deque<userrec*> chanuserlist;
 // *********************************************************************************************
 
 #define FOREACH_RESULT(x) { MOD_RESULT = 0; \
-			for (int i = 0; i <= MODCOUNT; i++) { \
-			int res = modules[i]->x ; \
+			for (int _i = 0; _i <= MODCOUNT; _i++) { \
+			int res = modules[_i]->x ; \
 			if (res != 0) { \
 				MOD_RESULT = res; \
 				break; \

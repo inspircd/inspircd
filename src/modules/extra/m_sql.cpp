@@ -56,7 +56,9 @@ class SQLConnection
 		this->pass = thispass;
 		this->db = thisdb;
 		this->id = myid;
+		unsigned int timeout = 1;
 		mysql_init(&connection);
+		mysql_options(&connection,MYSQL_OPT_CONNECT_TIMEOUT,(char*)&timeout);
 	}
 
 	// This method connects to the database using the credentials supplied to the constructor, and returns
@@ -187,18 +189,18 @@ class ModuleSQL : public Module
 		}
 	}
 
-	void LoadDatabases(ConfigReader* Conf)
+	void LoadDatabases(ConfigReader* ThisConf)
 	{
 		Srv->Log(DEFAULT,"SQL: Loading database settings");
 		Connections.clear();
 		Srv->Log(DEBUG,"Cleared connections");
-		for (int j =0; j < Conf->Enumerate("database"); j++)
+		for (int j =0; j < ThisConf->Enumerate("database"); j++)
 		{
-			std::string db = Conf->ReadValue("database","name",j);
-			std::string user = Conf->ReadValue("database","username",j);
-			std::string pass = Conf->ReadValue("database","password",j);
-			std::string host = Conf->ReadValue("database","hostname",j);
-			std::string id = Conf->ReadValue("database","id",j);
+			std::string db = ThisConf->ReadValue("database","name",j);
+			std::string user = ThisConf->ReadValue("database","username",j);
+			std::string pass = ThisConf->ReadValue("database","password",j);
+			std::string host = ThisConf->ReadValue("database","hostname",j);
+			std::string id = ThisConf->ReadValue("database","id",j);
 			Srv->Log(DEBUG,"Read database settings");
 			if ((db != "") && (host != "") && (user != "") && (id != "") && (pass != ""))
 			{

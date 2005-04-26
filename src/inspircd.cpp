@@ -220,9 +220,9 @@ long GetRevision()
 	char Revision[] = "$Revision$";
 	char *s1 = Revision;
 	char *savept;
-	char *v1 = strtok_r(s1," ",&savept);
-	s1 = savept;
 	char *v2 = strtok_r(s1," ",&savept);
+	s1 = savept;
+	v2 = strtok_r(s1," ",&savept);
 	s1 = savept;
 	return (long)(atof(v2)*10000);
 }
@@ -707,7 +707,7 @@ void WriteChannelLocal(chanrec* Ptr, userrec* user, char* text, ...)
 }
 
 
-void WriteChannelWithServ(char* ServerName, chanrec* Ptr, userrec* user, char* text, ...)
+void WriteChannelWithServ(char* ServName, chanrec* Ptr, userrec* user, char* text, ...)
 {
 	if ((!Ptr) || (!user) || (!text))
 	{
@@ -1115,7 +1115,6 @@ void WriteWallOps(userrec *source, bool local_only, char* text, ...)
 		return;
 	}
 
-        int i = 0;  
         char textbuffer[MAXBUF];  
         va_list argsPtr;  
         va_start (argsPtr, text);  
@@ -1379,7 +1378,6 @@ void userlist(userrec *user,chanrec *c)
 
 int usercount_i(chanrec *c)
 {
-	int i = 0;
 	int count = 0;
 	
 	if (!c)
@@ -1415,7 +1413,6 @@ int usercount_i(chanrec *c)
 
 int usercount(chanrec *c)
 {
-	int i = 0;
 	int count = 0;
 	
 	if (!c)
@@ -1454,7 +1451,6 @@ chanrec* add_channel(userrec *user, const char* cn, const char* key, bool overri
 		return 0;
 	}
 
-	int i = 0;
 	chanrec* Ptr;
 	int created = 0;
 	char cname[MAXBUF];
@@ -1479,7 +1475,7 @@ chanrec* add_channel(userrec *user, const char* cn, const char* key, bool overri
 
 	if (!FindChan(cname))
 	{
-		int MOD_RESULT = 0;
+		MOD_RESULT = 0;
 		FOREACH_RESULT(OnUserPreJoin(user,NULL,cname));
 		if (MOD_RESULT == 1) {
 			return NULL;
@@ -1518,7 +1514,7 @@ chanrec* add_channel(userrec *user, const char* cn, const char* key, bool overri
 			if ((!override) || (!strcasecmp(user->server,ServerName)))
 			{
 				log(DEBUG,"Not overriding...");
-				int MOD_RESULT = 0;
+				MOD_RESULT = 0;
 				FOREACH_RESULT(OnUserPreJoin(user,Ptr,cname));
 				if (MOD_RESULT == 1) {
 					return NULL;
@@ -1528,7 +1524,7 @@ chanrec* add_channel(userrec *user, const char* cn, const char* key, bool overri
 				if (!MOD_RESULT) 
 				{
 					log(DEBUG,"add_channel: checking key, invite, etc");
-					int MOD_RESULT = 0;
+					MOD_RESULT = 0;
 					FOREACH_RESULT(OnCheckKey(user, Ptr, key ? key : ""));
 					if (MOD_RESULT == 0)
 					{
@@ -1632,23 +1628,23 @@ chanrec* add_channel(userrec *user, const char* cn, const char* key, bool overri
 
 	log(DEBUG,"Passed channel checks");
 	
-	for (int i =0; i != MAXCHANS; i++)
+	for (int index =0; index != MAXCHANS; index++)
 	{
-		log(DEBUG,"Check location %d",i);
-		if (user->chans[i].channel == NULL)
+		log(DEBUG,"Check location %d",index);
+		if (user->chans[index].channel == NULL)
 		{
-			log(DEBUG,"Adding into their channel list at location %d",i);
+			log(DEBUG,"Adding into their channel list at location %d",index);
 
 			if (created == 2) 
 			{
 				/* first user in is given ops */
-				user->chans[i].uc_modes = UCMODE_OP;
+				user->chans[index].uc_modes = UCMODE_OP;
 			}
 			else
 			{
-				user->chans[i].uc_modes = 0;
+				user->chans[index].uc_modes = 0;
 			}
-			user->chans[i].channel = Ptr;
+			user->chans[index].channel = Ptr;
 			WriteChannel(Ptr,user,"JOIN :%s",Ptr->name);
 			
 			if (!override) // we're not overriding... so this isnt part of a netburst, broadcast it.
@@ -1698,7 +1694,6 @@ chanrec* del_channel(userrec *user, const char* cname, const char* reason, bool 
 	}
 
 	chanrec* Ptr;
-	int created = 0;
 
 	if ((!cname) || (!user))
 	{
@@ -1776,9 +1771,6 @@ void kick_channel(userrec *src,userrec *user, chanrec *Ptr, char* reason)
 		log(DEFAULT,"*** BUG *** kick_channel was given an invalid parameter");
 		return;
 	}
-
-	int i = 0;
-	int created = 0;
 
 	if ((!Ptr) || (!user) || (!src))
 	{
@@ -1881,7 +1873,7 @@ int loop_call(handlerfunc fn, char **parameters, int pcnt, userrec *u, int start
 	char *pars[32];
 	char blog[32][MAXBUF];
 	char blog2[32][MAXBUF];
-	int i = 0, j = 0, q = 0, total = 0, t = 0, t2 = 0, total2 = 0;
+	int j = 0, q = 0, total = 0, t = 0, t2 = 0, total2 = 0;
 	char keystr[MAXBUF];
 	char moo[MAXBUF];
 
@@ -2056,8 +2048,6 @@ void kill_link(userrec *user,const char* r)
 		close(user->fd);
 	}
 	
-	bool do_purge = false;
-	
 	if (user->registered == 7) {
 		WriteOpers("*** Client exiting: %s!%s@%s [%s]",user->nick,user->ident,user->host,reason);
 		AddWhoWas(user);
@@ -2113,8 +2103,6 @@ void kill_link_silent(userrec *user,const char* r)
                 shutdown(user->fd,2);
                 close(user->fd);
         }
-	
-	bool do_purge = false;
 	
 	if (iter != clientlist.end())
 	{
@@ -2322,9 +2310,6 @@ void AddWhoWas(userrec* u)
 /* add a client connection to the sockets list */
 void AddClient(int socket, char* host, int port, bool iscached, char* ip)
 {
-	int i;
-	int blocking = 1;
-	char resolved[MAXBUF];
 	string tempnick;
 	char tn2[MAXBUF];
 	user_hash::iterator iter;
@@ -2639,9 +2624,9 @@ void handle_version(char **parameters, int pcnt, userrec *user)
 
 	char *s1 = Revision;
 	char *savept;
-	char *v1 = strtok_r(s1," ",&savept);
-	s1 = savept;
 	char *v2 = strtok_r(s1," ",&savept);
+	s1 = savept;
+	v2 = strtok_r(s1," ",&savept);
 	s1 = savept;
 	
 	WriteServ(user->fd,"351 %s :%s Rev. %s %s :%s (O=%d)",user->nick,VERSION,v2,ServerName,SYSTEM,OPTIMISATION);
@@ -2788,10 +2773,8 @@ void force_nickchange(userrec* user,const char* newnick)
 
 int process_parameters(char **command_p,char *parameters)
 {
-	int i = 0;
 	int j = 0;
-	int q = 0;
-	q = strlen(parameters);
+	int q = strlen(parameters);
 	if (!q)
 	{
 		/* no parameters, command_p invalid! */
@@ -2842,7 +2825,7 @@ void process_command(userrec *user, char* cmd)
 	char *command;
 	char *command_p[127];
 	char p[MAXBUF], temp[MAXBUF];
-	int i, j, items, cmd_found;
+	int j, items, cmd_found;
 
 	for (int i = 0; i < 127; i++)
 		command_p[i] = NULL;
@@ -3215,7 +3198,6 @@ void process_buffer(const char* cmdbuf,userrec *user)
 		return;
 	}
 	char cmd[MAXBUF];
-	int i;
 	if (!cmdbuf)
 	{
 		log(DEFAULT,"*** BUG *** process_buffer was given an invalid parameter");
@@ -3475,17 +3457,17 @@ void erase_factory(int j)
 
 void erase_module(int j)
 {
-	int v = 0;
+	int v1 = 0;
 	for (std::vector<Module*>::iterator m = modules.begin(); m!= modules.end(); m++)
         {
-                if (v == j)
+                if (v1 == j)
                 {
 			delete *m;
                         modules.erase(m);
                         modules.push_back(NULL);
 			break;
                 }
-		v++;
+		v1++;
         }
 	int v2 = 0;
         for (std::vector<std::string>::iterator v = module_names.begin(); v != module_names.end(); v++)
@@ -3633,8 +3615,7 @@ int InspIRCd(void)
 	socklen_t length;
 	int count = 0;
 	int selectResult = 0, selectResult2 = 0;
-	char *temp, configToken[MAXBUF], stuff[MAXBUF], Addr[MAXBUF], Type[MAXBUF];
-	char resolvedHost[MAXBUF];
+	char configToken[MAXBUF], Addr[MAXBUF], Type[MAXBUF];
 	fd_set selectFds;
 	timeval tv;
 
@@ -3664,8 +3645,8 @@ int InspIRCd(void)
 		exit(0); 
 	}  
 	log(DEBUG,"InspIRCd: startup: read config");
-	  
-	int count2 = 0, count3 = 0;
+
+	int clientportcount = 0, serverportcount = 0;
 
 	for (count = 0; count < ConfValueEnum("bind",&config_f); count++)
 	{
@@ -3679,30 +3660,30 @@ int InspIRCd(void)
 			ConfValue("bind","default",count,Default,&config_f);
 			if (strchr(Default,'y'))
 			{
-				defaultRoute = count3;
+				defaultRoute = serverportcount;
 				log(DEBUG,"InspIRCd: startup: binding '%s:%s' is default server route",Addr,configToken);
 			}
-			me[count3] = new serverrec(ServerName,100L,false);
-			if (!me[count3]->CreateListener(Addr,atoi(configToken)))
+			me[serverportcount] = new serverrec(ServerName,100L,false);
+			if (!me[serverportcount]->CreateListener(Addr,atoi(configToken)))
 			{
 				log(DEFAULT,"Warning: Failed to bind port %d",atoi(configToken));
 				printf("Warning: Failed to bind port %d\n",atoi(configToken));
 			}
 			else
 			{
-				count3++;
+				serverportcount++;
 			}
 		}
 		else
 		{
-			ports[count2] = atoi(configToken);
-			strlcpy(addrs[count2],Addr,256);
-			count2++;
+			ports[clientportcount] = atoi(configToken);
+			strlcpy(addrs[clientportcount],Addr,256);
+			clientportcount++;
 		}
 		log(DEBUG,"InspIRCd: startup: read binding %s:%s [%s] from config",Addr,configToken, Type);
 	}
-	portCount = count2;
-	UDPportCount = count3;
+	portCount = clientportcount;
+	UDPportCount = serverportcount;
 	  
 	log(DEBUG,"InspIRCd: startup: read %d total client ports and %d total server ports",portCount,UDPportCount);
 	log(DEBUG,"InspIRCd: startup: InspIRCd is now starting!");
@@ -3711,9 +3692,9 @@ int InspIRCd(void)
 	
 	/* BugFix By Craig! :p */
 	MODCOUNT = -1;
-	for (count2 = 0; count2 < ConfValueEnum("module",&config_f); count2++)
+	for (count = 0; count < ConfValueEnum("module",&config_f); count++)
 	{
-		ConfValue("module","name",count2,configToken,&config_f);
+		ConfValue("module","name",count,configToken,&config_f);
 		printf("Loading module... \033[1;37m%s\033[0;37m\n",configToken);
 		if (!LoadModule(configToken))
 		{
@@ -3783,7 +3764,7 @@ int InspIRCd(void)
 	WritePID(PID);
 
 	length = sizeof (client);
-	char udp_msg[MAXBUF], tcp_host[MAXBUF];
+	char udp_msg[MAXBUF],tcp_host[MAXBUF];
 
         fd_set serverfds;
         timeval tvs;
@@ -3873,7 +3854,6 @@ int InspIRCd(void)
 			{
 				for (int ctr = 0; ctr < msgs.size(); ctr++)
 				{
-					char udp_msg[MAXBUF];
 					strlcpy(udp_msg,msgs[ctr].c_str(),MAXBUF);
 					log(DEBUG,"Processing: %s",udp_msg);
 					if (strlen(udp_msg)<1)

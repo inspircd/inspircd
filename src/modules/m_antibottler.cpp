@@ -63,7 +63,7 @@ class ModuleAntiBottler : public Module
 				}
 				// Bug Fix (#14) -- FCS
 				if (!strlen(data)) return;				
-				char *user = strtok(data," ");
+				strtok(data," ");
 				if (!strlen(data)) return;
 				char *ident = strtok(NULL," ");
 				if (!strlen(data)) return;

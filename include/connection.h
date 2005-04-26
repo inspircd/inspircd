@@ -105,7 +105,7 @@ class ircd_connector : public Extensible
 
 	/** Create an outbound connection to a listening socket
 	 */ 
-	bool MakeOutboundConnection(char* host, int port);
+	bool MakeOutboundConnection(char* newhost, int newport);
 	
 	/** Return the servername on this established connection
 	 */
@@ -156,7 +156,7 @@ class ircd_connector : public Extensible
 	
 	/** Set both the host and the port in one operation for this connection
 	 */
-	bool SetHostAndPort(char* host, int port);
+	bool SetHostAndPort(char* newhost, int newport);
 	
 	/** Close the connection by calling close() on its file descriptor
 	 * This function call updates no other data.
@@ -268,7 +268,7 @@ class connection : public Extensible
 	
 	/** Begin an outbound mesh link to another ircd on a network you are already an authenticated member of
 	 */
-	bool MeshCookie(char* targethost, int port, long cookie, char* servername);
+	bool MeshCookie(char* targethost, int port, unsigned long cookie, char* servername);
 	
 	/** Terminate a link to 'targethost' by calling the ircd_connector::CloseConnection method.
 	 */

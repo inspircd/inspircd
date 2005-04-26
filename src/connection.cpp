@@ -44,7 +44,7 @@ connection::connection()
 }
 
 
-bool connection::CreateListener(char* host, int p)
+bool connection::CreateListener(char* newhost, int p)
 {
 	sockaddr_in host_address;
 	int flags;
@@ -76,13 +76,13 @@ bool connection::CreateListener(char* host, int p)
 
 	host_address.sin_family = AF_INET;
 
-	if (!strcmp(host,""))
+	if (!strcmp(newhost,""))
 	{
 		host_address.sin_addr.s_addr = htonl(INADDR_ANY);
 	}
 	else
 	{
-  		inet_aton(host,&addy);
+  		inet_aton(newhost,&addy);
 		host_address.sin_addr = addy;
 	}
 
@@ -114,17 +114,17 @@ int ircd_connector::GetServerPort()
 	return this->port;
 }
 
-bool ircd_connector::SetHostAndPort(char* host, int port)
+bool ircd_connector::SetHostAndPort(char* newhost, int newport)
 {
-	strncpy(this->host,host,160);
-	this->port = port;
+	strncpy(this->host,newhost,160);
+	this->port = newport;
 	return true;
 }
 
-bool ircd_connector::SetHostAddress(char* host, int port)
+bool ircd_connector::SetHostAddress(char* newhost, int newport)
 {
-	strncpy(this->host,host,160);
-	this->port = port;
+	strncpy(this->host,newhost,160);
+	this->port = newport;
 	memset((void*)&addr, 0, sizeof(addr));
 	addr.sin_family = AF_INET;
 	inet_aton(host,&addr.sin_addr);
@@ -174,23 +174,23 @@ std::string ircd_connector::GetBuffer()
 	return z;
 }
 
-bool ircd_connector::MakeOutboundConnection(char* host, int port)
+bool ircd_connector::MakeOutboundConnection(char* newhost, int newport)
 {
-	log(DEBUG,"MakeOutboundConnection: Original param: %s",host);
+	log(DEBUG,"MakeOutboundConnection: Original param: %s",newhost);
 	ClearBuffer();
-	hostent* hoste = gethostbyname(host);
+	hostent* hoste = gethostbyname(newhost);
 	if (!hoste)
 	{
-		log(DEBUG,"MakeOutboundConnection: gethostbyname was NULL, setting %s",host);
-		this->SetHostAddress(host,port);
-		SetHostAndPort(host,port);
+		log(DEBUG,"MakeOutboundConnection: gethostbyname was NULL, setting %s",newhost);
+		this->SetHostAddress(newhost,newport);
+		SetHostAndPort(newhost,newport);
 	}
 	else
 	{
 		struct in_addr* ia = (in_addr*)hoste->h_addr;
 		log(DEBUG,"MakeOutboundConnection: gethostbyname was valid, setting %s",inet_ntoa(*ia));
-		this->SetHostAddress(inet_ntoa(*ia),port);
-		SetHostAndPort(inet_ntoa(*ia),port);
+		this->SetHostAddress(inet_ntoa(*ia),newport);
+		SetHostAndPort(inet_ntoa(*ia),newport);
 	}
 
 	this->fd = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
@@ -220,7 +220,7 @@ bool ircd_connector::MakeOutboundConnection(char* host, int port)
 }
 
 
-bool connection::BeginLink(char* targethost, int port, char* password, char* servername, int myport)
+bool connection::BeginLink(char* targethost, int newport, char* password, char* servername, int myport)
 {
 	char connect[MAXBUF];
 	
@@ -237,44 +237,44 @@ bool connection::BeginLink(char* targethost, int port, char* password, char* ser
 	
 	if (this->fd)
 	{
-		if (connector.MakeOutboundConnection(targethost,port))
+		if (connector.MakeOutboundConnection(targethost,newport))
 		{
 			// targethost has been turned into an ip...
 			// we dont want this as the server name.
 			connector.SetServerName(servername);
-			snprintf(connect,MAXBUF,"S %s %s %d %d :%s",getservername().c_str(),password,myport,GetRevision(),getserverdesc().c_str());
+			snprintf(connect,MAXBUF,"S %s %s %lu %lu :%s",getservername().c_str(),password,(unsigned long)myport,(unsigned long)GetRevision(),getserverdesc().c_str());
 			connector.SetState(STATE_NOAUTH_OUTBOUND);
-			connector.SetHostAndPort(targethost, port);
+			connector.SetHostAndPort(targethost, newport);
 			this->connectors.push_back(connector);
 			return this->SendPacket(connect, servername);
 		}
 		else
 		{
 			connector.SetState(STATE_DISCONNECTED);
-			WriteOpers("Could not create outbound connection to %s:%d",targethost,port);
+			WriteOpers("Could not create outbound connection to %s:%d",targethost,newport);
 		}
 	}
 	return false;
 }
 
-bool connection::MeshCookie(char* targethost, int port, long cookie, char* servername)
+bool connection::MeshCookie(char* targethost, int newport, unsigned long cookie, char* servername)
 {
 	char connect[MAXBUF];
 	
 	ircd_connector connector;
 	
-	WriteOpers("Establishing meshed link to %s:%d",servername,port);
+	WriteOpers("Establishing meshed link to %s:%d",servername,newport);
 
 	if (this->fd)
 	{
-		if (connector.MakeOutboundConnection(targethost,port))
+		if (connector.MakeOutboundConnection(targethost,newport))
 		{
 			// targethost has been turned into an ip...
 			// we dont want this as the server name.
 			connector.SetServerName(servername);
-			snprintf(connect,MAXBUF,"- %d %s :%s",cookie,getservername().c_str(),getserverdesc().c_str());
+			snprintf(connect,MAXBUF,"- %lu %s :%s",cookie,getservername().c_str(),getserverdesc().c_str());
 			connector.SetState(STATE_NOAUTH_OUTBOUND);
-			connector.SetHostAndPort(targethost, port);
+			connector.SetHostAndPort(targethost, newport);
 			connector.SetState(STATE_CONNECTED);
 			this->connectors.push_back(connector);
 			return this->SendPacket(connect, servername);
@@ -282,29 +282,27 @@ bool connection::MeshCookie(char* targethost, int port, long cookie, char* serve
 		else
 		{
 			connector.SetState(STATE_DISCONNECTED);
-			WriteOpers("Could not create outbound connection to %s:%d",targethost,port);
+			WriteOpers("Could not create outbound connection to %s:%d",targethost,newport);
 		}
 	}
 	return false;
 }
 
-bool connection::AddIncoming(int fd, char* targethost, int sourceport)
+bool connection::AddIncoming(int newfd, char* targethost, int sourceport)
 {
-	char connect[MAXBUF];
-	
 	ircd_connector connector;
 	
 	// targethost has been turned into an ip...
 	// we dont want this as the server name.
 	connector.SetServerName(targethost);
-	connector.SetDescriptor(fd);
+	connector.SetDescriptor(newfd);
 	connector.SetState(STATE_NOAUTH_INBOUND);
-	int flags = fcntl(fd, F_GETFL, 0);
-	fcntl(fd, F_SETFL, flags | O_NONBLOCK);
+	int flags = fcntl(newfd, F_GETFL, 0);
+	fcntl(newfd, F_SETFL, flags | O_NONBLOCK);
 	int sendbuf = 32768;
 	int recvbuf = 32768;
-	setsockopt(fd,SOL_SOCKET,SO_SNDBUF,(const void *)&sendbuf,sizeof(sendbuf)); 
-	setsockopt(fd,SOL_SOCKET,SO_RCVBUF,(const void *)&recvbuf,sizeof(sendbuf));
+	setsockopt(newfd,SOL_SOCKET,SO_SNDBUF,(const void *)&sendbuf,sizeof(sendbuf)); 
+	setsockopt(newfd,SOL_SOCKET,SO_RCVBUF,(const void *)&recvbuf,sizeof(sendbuf));
 	connector.SetHostAndPort(targethost, sourceport);
 	connector.SetState(STATE_NOAUTH_INBOUND);
 	log(DEBUG,"connection::AddIncoming() Added connection: %s:%d",targethost,sourceport);
@@ -321,11 +319,11 @@ void connection::TerminateLink(char* targethost)
 
 
 // Returns a pointer to the connector for 'host'
-ircd_connector* connection::FindHost(std::string host)
+ircd_connector* connection::FindHost(std::string findhost)
 {
 	for (int i = 0; i < this->connectors.size(); i++)
 	{
-		if (this->connectors[i].GetServerName() == host)
+		if (this->connectors[i].GetServerName() == findhost)
 		{
 			return &this->connectors[i];
 		}
@@ -365,9 +363,9 @@ int ircd_connector::GetState()
 }
 
 
-void ircd_connector::SetState(int state)
+void ircd_connector::SetState(int newstate)
 {
-	this->state = state;
+	this->state = newstate;
 	if (state == STATE_DISCONNECTED)
 	{
 		NetSendMyRoutingTable();
@@ -383,17 +381,17 @@ void ircd_connector::CloseConnection()
 	fcntl(this->fd, F_SETFL, flags | O_NONBLOCK);
 }
 
-void ircd_connector::SetDescriptor(int fd)
+void ircd_connector::SetDescriptor(int newfd)
 {
-	this->fd = fd;
+	this->fd = newfd;
 }
 
-bool connection::SendPacket(char *message, const char* host)
+bool connection::SendPacket(char *message, const char* sendhost)
 {
-	if ((!message) || (!host))
+	if ((!message) || (!sendhost))
 		return true;
 
-	ircd_connector* cn = this->FindHost(host);
+	ircd_connector* cn = this->FindHost(sendhost);
 	
 	if (!strchr(message,'\n'))
 	{
@@ -408,7 +406,7 @@ bool connection::SendPacket(char *message, const char* host)
 		{
 			log(DEBUG,"Main route to %s is down, seeking alternative",host);
 			// fix: can only route one hop to avoid a loop
-			if (strlcat(message,"R ",2))
+			if (strncmp(message,"R ",2))
 			{
 				// this route is down, we must re-route the packet through an available point in the mesh.
 				for (int k = 0; k < this->connectors.size(); k++)
@@ -416,11 +414,11 @@ bool connection::SendPacket(char *message, const char* host)
 					// search for another point in the mesh which can 'reach' where we want to go
 					for (int m = 0; m < this->connectors[k].routes.size(); m++)
 					{
-						if (!strcasecmp(this->connectors[k].routes[m].c_str(),host))
+						if (!strcasecmp(this->connectors[k].routes[m].c_str(),sendhost))
 						{
 							log(DEBUG,"Found alternative route for packet: %s",this->connectors[k].GetServerName().c_str());
 							char buffer[MAXBUF];
-							snprintf(buffer,MAXBUF,"R %s %s",host,message);
+							snprintf(buffer,MAXBUF,"R %s %s",sendhost,message);
 							this->SendPacket(buffer,this->connectors[k].GetServerName().c_str());
 							return true;
 						}
@@ -428,10 +426,10 @@ bool connection::SendPacket(char *message, const char* host)
 				}
 			}
 			char buffer[MAXBUF];
-			snprintf(buffer,MAXBUF,"& %s",host);
-			NetSendToAllExcept(host,buffer);
-			log(DEBUG,"There are no routes to %s, we're gonna boot the server off!",host);
-			DoSplit(host);
+			snprintf(buffer,MAXBUF,"& %s",sendhost);
+			NetSendToAllExcept(sendhost,buffer);
+			log(DEBUG,"There are no routes to %s, we're gonna boot the server off!",sendhost);
+			DoSplit(sendhost);
 			return false;
 		}
 
@@ -443,7 +441,7 @@ bool connection::SendPacket(char *message, const char* host)
 			cn->CloseConnection();
 			cn->SetState(STATE_DISCONNECTED);
 			// retry the packet along a new route so either arrival OR failure are gauranteed (bugfix)
-			return this->SendPacket(message,host);
+			return this->SendPacket(message,sendhost);
 		}
 		return true;
 	}
@@ -452,7 +450,7 @@ bool connection::SendPacket(char *message, const char* host)
 // receives a packet from any where there is data waiting, first come, first served
 // fills the message and host values with the host where the data came from.
 
-bool connection::RecvPacket(std::deque<std::string> &messages, char* host)
+bool connection::RecvPacket(std::deque<std::string> &messages, char* recvhost)
 {
 	char data[4096];
 	memset(data, 0, 4096);
@@ -463,7 +461,7 @@ bool connection::RecvPacket(std::deque<std::string> &messages, char* host)
 			// returns false if the packet could not be sent (e.g. target host down)
 			int rcvsize = 0;
 			rcvsize = recv(this->connectors[i].GetDescriptor(),data,32,0);
-			data[rcvsize] == '\0';
+			data[rcvsize] = '\0';
 			if (rcvsize == -1)
 			{
 				if (errno != EAGAIN)
@@ -481,7 +479,7 @@ bool connection::RecvPacket(std::deque<std::string> &messages, char* host)
 				{
 					messages.push_back(this->connectors[i].GetBuffer().c_str());
 					strlcpy(host,this->connectors[i].GetServerName().c_str(),160);
-					log(DEBUG,"main: Connection::RecvPacket() got '%s' from %s",this->connectors[i].GetBuffer().c_str(),host);
+					log(DEBUG,"main: Connection::RecvPacket() got '%s' from %s",this->connectors[i].GetBuffer().c_str(),recvhost);
 					this->connectors[i].ClearBuffer();
 					return true;
 				}

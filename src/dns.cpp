@@ -182,11 +182,9 @@ void DNS::dns_init() { /* on first call only: populates servers4 struct with up 
 	fclose(f);
 }
 
-void DNS::dns_init_2(const char* dnsserver) { /* populates servers4 struct with address from the given parameter */
-        FILE *f;
-        int i;
+void DNS::dns_init_2(const char* dnsserver)
+{
         in_addr addr4;
-        char buf[1024];
         i4 = 0;
         srand((unsigned int) TIME);
         memset(servers4,'\0',sizeof(in_addr) * DNS_MAX);
@@ -195,7 +193,8 @@ void DNS::dns_init_2(const char* dnsserver) { /* populates servers4 struct with 
 }
 
 
-static int dns_send_requests(const s_header *h, const s_connection *s, const int l) { /* send DNS query */
+static int dns_send_requests(const s_header *h, const s_connection *s, const int l)
+{
 	int i;
 	sockaddr_in addr4;
 	unsigned char payload[sizeof(s_header)];
@@ -445,39 +444,39 @@ int DNS::dns_getname4(const in_addr *ip) { /* build, add and send PTR query; ret
 }
 
 char* DNS::dns_ntoa4(const in_addr * const ip) { /* numeric to ascii: convert 4part IP addr struct to static string */
-	static char result[256];
-	return dns_ntoa4_s(ip,result);
+	static char r[256];
+	return dns_ntoa4_s(ip,r);
 }
 
 char* DNS::dns_ntoa4_r(const in_addr *ip) { /* numeric to ascii (reentrant): convert 4part IP addr struct to new string */
-	char *result;
-	result = new char[256];
-	return dns_ntoa4_s(ip,result);
+	char *r;
+	r = new char[256];
+	return dns_ntoa4_s(ip,r);
 }
 
-char* DNS::dns_ntoa4_s(const in_addr *ip, char *result) { /* numeric to ascii (buffered): convert 4part IP addr struct to given string */
+char* DNS::dns_ntoa4_s(const in_addr *ip, char *r) { /* numeric to ascii (buffered): convert 4part IP addr struct to given string */
 	unsigned char *m;
 	m = (unsigned char *)&ip->s_addr;
-	sprintf(result,"%d.%d.%d.%d",m[0],m[1],m[2],m[3]);
-	return result;
+	sprintf(r,"%d.%d.%d.%d",m[0],m[1],m[2],m[3]);
+	return r;
 }
 
-char* DNS::dns_getresult(const int fd) { /* retrieve result of DNS query */
-	static char result[RESULTSIZE];
-	return dns_getresult_s(fd,result);
+char* DNS::dns_getresult(const int cfd) { /* retrieve result of DNS query */
+	static char r[RESULTSIZE];
+	return dns_getresult_s(cfd,r);
 }
 
-char* DNS::dns_getresult_r(const int fd) { /* retrieve result of DNS query (reentrant) */
-	char *result;
-	result = new char[RESULTSIZE];
-	if(dns_getresult_s(fd,result) == NULL) {
-		delete result;
+char* DNS::dns_getresult_r(const int cfd) { /* retrieve result of DNS query (reentrant) */
+	char *r;
+	r = new char[RESULTSIZE];
+	if(dns_getresult_s(cfd,r) == NULL) {
+		delete r;
 		return NULL;
 	}
-	return result;
+	return r;
 }
 
-char* DNS::dns_getresult_s(const int fd, char *result) { /* retrieve result of DNS query (buffered) */
+char* DNS::dns_getresult_s(const int cfd, char *res) { /* retrieve result of DNS query (buffered) */
 	s_header h;
 	s_connection *c, *prev;
 	int l,i,q,curanswer,o;
@@ -485,15 +484,15 @@ char* DNS::dns_getresult_s(const int fd, char *result) { /* retrieve result of D
 	unsigned char buffer[sizeof(s_header)];
 	unsigned short p;
 
-	if (result)
+	if (res)
 	{
-		result[0] = 0;
+		res[0] = 0;
 	}
 
 	prev = NULL;
 	c = connection_head;
 	while (c != NULL) { /* find query in list of open queries */
-		if (c->fd == fd)
+		if (c->fd == cfd)
 			break;
 		prev = c;
 		c = c->next;
@@ -603,21 +602,21 @@ char* DNS::dns_getresult_s(const int fd, char *result) { /* retrieve result of D
 					if (h.payload[i] == 0)
 						q = 1;
 					else {
-						result[o] = '\0';
+						res[o] = '\0';
 						if (o != 0)
-							result[o++] = '.';
-						memcpy(&result[o],&h.payload[i + 1],h.payload[i]);
+							res[o++] = '.';
+						memcpy(&res[o],&h.payload[i + 1],h.payload[i]);
 						o += h.payload[i];
 						i += h.payload[i] + 1;
 					}
 				}
 			}
-			result[o] = '\0';
+			res[o] = '\0';
 			break;
 		case DNS_QRY_A:
 			if (c->want_list) {
-				dns_ip4list *alist = (dns_ip4list *) result; /* we have to trust that this is aligned */
-				while ((char *)alist - (char *)result < 700) {
+				dns_ip4list *alist = (dns_ip4list *) res; /* we have to trust that this is aligned */
+				while ((char *)alist - (char *)res < 700) {
 					if (rr.type != DNS_QRY_A)
 						break;
 					if (rr._class != 1)
@@ -663,12 +662,12 @@ char* DNS::dns_getresult_s(const int fd, char *result) { /* retrieve result of D
 			break;
 		default:
 		defaultcase:
-			memcpy(result,&h.payload[i],rr.rdlength);
-			result[rr.rdlength] = '\0';
+			memcpy(res,&h.payload[i],rr.rdlength);
+			res[rr.rdlength] = '\0';
 			break;
 	}
 	delete c;
-	return result;
+	return res;
 }
 
 DNS::DNS()

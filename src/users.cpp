@@ -114,7 +114,6 @@ void userrec::RemoveInvite(char* channel)
 bool userrec::HasPermission(char* command)
 {
 	char TypeName[MAXBUF],Classes[MAXBUF],ClassName[MAXBUF],CommandList[MAXBUF];
-	char* myclass;
 	char* mycmd;
 	char* savept;
 	char* savept2;
