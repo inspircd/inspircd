@@ -48,6 +48,11 @@ void handle_tban(char **parameters, int pcnt, userrec *user)
 		std::string cm = Srv->ChanMode(user,channel);
 		if ((cm == "%") || (cm == "@"))
 		{
+			if (!Srv->IsValidMask(parameters[2]))
+			{
+				Srv->SendServ(user->fd,"NOTICE "+std::string(user->nick)+" :Invalid ban mask");
+				return;
+			}
 			for (timedbans::iterator i = TimedBanList.begin(); i < TimedBanList.end(); i++)
 			{
 				if ((!strcasecmp(i->mask.c_str(),parameters[2])) && (!strcasecmp(i->channel.c_str(),parameters[0])))
@@ -94,11 +99,13 @@ class ModuleTimedBans : public Module
 	{
 		Srv = new Server;
 		Srv->AddCommand("TBAN",handle_tban,0,3,"m_timedbans.so");
+		TimedBanList.clear();
 	}
 	
 	virtual ~ModuleTimedBans()
 	{
 		delete Srv;
+		TimedBanList.clear();
 	}
 
 	virtual void OnBackgroundTimer(time_t curtime)
