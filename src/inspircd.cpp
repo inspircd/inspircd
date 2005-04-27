@@ -2083,6 +2083,10 @@ void kill_link(userrec *user,const char* r)
 		AddWhoWas(user);
 	}
 
+        if (user->registered == 7) {
+                purge_empty_chans(user);
+        }
+
 	if (iter != clientlist.end())
 	{
 		log(DEBUG,"deleting user hash value %lu",(unsigned long)iter->second);
@@ -2091,12 +2095,6 @@ void kill_link(userrec *user,const char* r)
 		}
 		clientlist.erase(iter);
 	}
-
-	if (user->registered == 7) {
-		purge_empty_chans(user);
-	}
-	delete user;
-	//user = NULL;
 }
 
 void kill_link_silent(userrec *user,const char* r)
@@ -2134,6 +2132,10 @@ void kill_link_silent(userrec *user,const char* r)
                 shutdown(user->fd,2);
                 close(user->fd);
         }
+
+        if (user->registered == 7) {
+                purge_empty_chans(user);
+        }
 	
 	if (iter != clientlist.end())
 	{
@@ -2143,11 +2145,6 @@ void kill_link_silent(userrec *user,const char* r)
 		}
 		clientlist.erase(iter);
 	}
-
-	if (user->registered == 7) {
-		purge_empty_chans(user);
-	}
-	delete user;
 }
 
 
@@ -3002,8 +2999,6 @@ void process_command(userrec *user, char* cmd)
 		{
 			if (strlen(command)>=(strlen(cmdlist[i].command))) if (!strncmp(command, cmdlist[i].command,MAXCOMMAND))
 			{
-				log(DEBUG,"Found matching command");
-
 				if (parameters)
 				{
 					if (parameters[0])
@@ -3024,8 +3019,6 @@ void process_command(userrec *user, char* cmd)
 				
 				if (user)
 				{
-					log(DEBUG,"Processing command");
-					
 					/* activity resets the ping pending timer */
 					user->nping = TIME + user->pingmax;
 					if ((items) < cmdlist[i].min_params)
@@ -3079,7 +3072,6 @@ void process_command(userrec *user, char* cmd)
 					}
 					if ((user->registered == 7) || (!strncmp(command,"USER",4)) || (!strncmp(command,"NICK",4)) || (!strncmp(command,"PASS",4)))
 					{
-					        log(DEBUG,"process_command: handler: %s %s %lu",user->nick,command,(unsigned long)items);
 						if (cmdlist[i].handler_function)
 						{
 							
@@ -3113,7 +3105,6 @@ void process_command(userrec *user, char* cmd)
 					}
 					else
 					{
-					        log(DEBUG,"process_command: not registered: %s %s",user->nick,command);
 						WriteServ(user->fd,"451 %s :You have not registered",command);
 						return;
 					}
@@ -3124,7 +3115,6 @@ void process_command(userrec *user, char* cmd)
 	}
 	if ((!cmd_found) && (user))
 	{
-	        log(DEBUG,"process_command: not in table: %s %s",user->nick,command);
 		WriteServ(user->fd,"421 %s %s :Unknown command",user->nick,command);
 	}
 }
@@ -3266,7 +3256,7 @@ void process_buffer(const char* cmdbuf,userrec *user)
 	{
 		return;
 	}
-        log(DEBUG,"InspIRCd: processing: %s %s",user->nick,cmd);
+        log(DEBUG,"CMDIN: %s %s",user->nick,cmd);
 	tidystring(cmd);
 	if ((user) && (cmd))
 	{
@@ -3561,7 +3551,6 @@ bool DirValid(char* dirandfile)
 		}
 		work[p--] = '\0';
 	}
-	log(DEBUG,"Dir valid: %s",work);
 	char buffer[MAXBUF], otherdir[MAXBUF];
 	// Get the current working directory
 	if( getcwd( buffer, MAXBUF ) == NULL )
@@ -3570,17 +3559,13 @@ bool DirValid(char* dirandfile)
 	if( getcwd( otherdir, MAXBUF ) == NULL )
 		return false;
 	chdir(buffer);
-	log(DEBUG,"Dir is really: %s",otherdir);
 	if (strlen(otherdir) >= strlen(work))
 	{
 		otherdir[strlen(work)] = '\0';
-		log(DEBUG,"Compare: '%s' -> '%s'",otherdir,work);
 		if (!strcmp(otherdir,work))
 		{
-			log(DEBUG,"Match ok");
 			return true;
 		}
-		log(DEBUG,"No match");
 		return false;
 	}
 	else return false;
@@ -3661,8 +3646,7 @@ int InspIRCd(void)
 		Exit(ERROR);
 	}
 
-	log(DEBUG,"InspIRCd: startup: begin");
-	log(DEBUG,"$Id$");
+	log(DEFAULT,"$Id$");
 	if (geteuid() == 0)
 	{
 		printf("WARNING!!! You are running an irc server as ROOT!!! DO NOT DO THIS!!!\n\n");
@@ -3733,12 +3717,12 @@ int InspIRCd(void)
 		printf("Loading module... \033[1;32m%s\033[0m\n",configToken);
 		if (!LoadModule(configToken))
 		{
-			log(DEBUG,"Exiting due to a module loader error.");
+			log(DEFAULT,"Exiting due to a module loader error.");
 			printf("\nThere was an error loading a module: %s\n\nYou might want to do './inspircd start' instead of 'bin/inspircd'\n\n",ModuleError());
 			Exit(0);
 		}
 	}
-	log(DEBUG,"Total loaded modules: %lu",(unsigned long)MODCOUNT+1);
+	log(DEFAULT,"Total loaded modules: %lu",(unsigned long)MODCOUNT+1);
 	
 	startup_time = time(NULL);
 	  

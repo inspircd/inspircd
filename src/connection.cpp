@@ -147,6 +147,7 @@ void ircd_connector::AddBuffer(std::string a)
 
 	std::stringstream stream(ircdbuffer);
 	stream << b;
+	log(DEBUG,"AddBuffer: %s",b.c_str());
 	ircdbuffer = stream.str();
 }
 
