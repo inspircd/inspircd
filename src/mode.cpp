@@ -1355,7 +1355,7 @@ void handle_mode(char **parameters, int pcnt, userrec *user)
 			if ((b[z] == '-') || (b[z] == '+'))
 				b[z] = '\0';
 
-			if ((!strcmp(b,"+")) || (!strcmp(b,"-")))
+			if ((!b[0]) || (!strcmp(b,"+")) || (!strcmp(b,"-")))
 				return;
 
 			WriteTo(user, dest, "MODE %s :%s", dest->nick, b);
