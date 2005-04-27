@@ -632,6 +632,7 @@ void WriteFrom(int sock, userrec *user,char* text, ...)
 	chop(tb);
 	if (sock != -1)
 	{
+		log(DEBUG,"DATAOUT: %s",tb);
 		write(sock,tb,bytes > 514 ? 514 : bytes);
 	}
 }
