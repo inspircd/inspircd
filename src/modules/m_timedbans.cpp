@@ -34,7 +34,7 @@ class TimedBan
  public:
 	std::string channel;
 	std::string mask;
-	std::string expire;
+	time_t expire;
 };
 
 typedef std::vector<TimedBan> timedbans;
@@ -48,11 +48,24 @@ void handle_tban(char **parameters, int pcnt, userrec *user)
 		std::string cm = Srv->ChanMode(user,channel);
 		if ((cm == "%") || (cm == "@"))
 		{
+			for (timedbans::iterator i = TimedBanList.begin(); i < TimedBanList.end(); i++)
+			{
+				if ((!strcasecmp(i->mask.c_str(),parameters[2])) && (!strcasecmp(i->channel.c_str(),parameters[0])))
+				{
+					Srv->SendServ(user->fd,"NOTICE "+std::string(user->nick)+" :The ban "+std::string(parameters[2])+" is already on the banlist of "+std::string(parameters[0]));
+					return;
+				}
+			}
 			TimedBan T;
 			std::string channelname = parameters[0];
-			unsigned long expire = Srv->Duration(parameters[1]) + time(NULL);
+			unsigned long expire = Srv->CalcDuration(parameters[1]) + time(NULL);
+			if (Srv->CalcDuration(parameters[1]) < 1)
+			{
+				Srv->SendServ(user->fd,"NOTICE "+std::string(user->nick)+" :Invalid ban time");
+				return;
+			}
 			char duration[MAXBUF];
-			snprintf(duration,MAXBUF,"%lu",Srv->Duration(parameters[1]));
+			snprintf(duration,MAXBUF,"%lu",Srv->CalcDuration(parameters[1]));
 			std::string mask = parameters[2];
 			char *setban[3];
 			setban[0] = parameters[0];
@@ -65,9 +78,11 @@ void handle_tban(char **parameters, int pcnt, userrec *user)
 			T.mask = mask;
 			T.expire = expire;
 			TimedBanList.push_back(T);
-			Srv->SendChannelServerNotice(Srv->GetServerName(),channel,std::string(user->nick)+" added a timed ban on "+mask+" lasting for "+std::string(duration)+" seconds.");
+			Srv->SendChannelServerNotice(Srv->GetServerName(),channel,"NOTICE "+std::string(channel->name)+" :"+std::string(user->nick)+" added a timed ban on "+mask+" lasting for "+std::string(duration)+" seconds.");
+			return;
 		}
 		else WriteServ(user->fd,"482 %s %s :You must be at least a half-operator to change modes on this channel",user->nick, channel->name);
+		return;
 	}
 	WriteServ(user->fd,"401 %s %s :No such channel",user->nick, parameters[0]);
 }
@@ -94,18 +109,26 @@ class ModuleTimedBans : public Module
 			again = false;
 			for (timedbans::iterator i = TimedBanList.begin(); i < TimedBanList.end(); i++)
 			{
-				if (i->expire >= curtime)
+				if (curtime > i->expire)
 				{
 					chanrec* cr = Srv->FindChannel(i->channel);
 					again = true;
 					if (cr)
 					{
 						char *setban[3];
-						setban[0] = i->channel.c_str();
+						setban[0] = (char*)i->channel.c_str();
 						setban[1] = "-b";
-						setban[2] = i->mask.c_str();
-						Srv->SendMode(setban,3,NULL);
-						Srv->SendChannelServerNotice(Srv->GetServerName(),channel,"Timed ban on "+i->mask+" expired.");
+						setban[2] = (char*)i->mask.c_str();
+						// kludge alert!
+						// ::SendMode expects a userrec* to send the numeric replies
+						// back to, so we create it a fake user that isnt in the user
+						// hash and set its descriptor to FD_MAGIC_NUMBER so the data
+						// falls into the abyss :p
+						userrec* temp = new userrec;
+						temp->fd = FD_MAGIC_NUMBER;
+						Srv->SendMode(setban,3,temp);
+						delete temp;
+						Srv->SendChannelServerNotice(Srv->GetServerName(),cr,"NOTICE "+std::string(cr->name)+" :Timed ban on "+i->mask+" expired.");
 					}
 					TimedBanList.erase(i);
 					break;
