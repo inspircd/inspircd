@@ -437,24 +437,25 @@ char* add_ban(userrec *user,char *dest,chanrec *chan,int status)
 	BanItem b;
 	if ((!user) || (!dest) || (!chan))
 		return NULL;
+	int l = strlen(dest);
 	if (strchr(dest,'!')==0)
 		return NULL;
 	if (strchr(dest,'@')==0)
 		return NULL;
-	for (int i = 0; i < strlen(dest); i++)
+	for (int i = 0; i < l; i++)
 		if (dest[i] < 32)
 			return NULL;
-	for (int i = 0; i < strlen(dest); i++)
+	for (int i = 0; i < l; i++)
 		if (dest[i] > 126)
 			return NULL;
 	int c = 0;
-	for (int i = 0; i < strlen(dest); i++)
+	for (int i = 0; i < l; i++)
 		if (dest[i] == '!')
 			c++;
 	if (c>1)
 		return NULL;
 	c = 0;
-	for (int i = 0; i < strlen(dest); i++)
+	for (int i = 0; i < l; i++)
 		if (dest[i] == '@')
 			c++;
 	if (c>1)
@@ -544,7 +545,8 @@ void process_modes(char **parameters,userrec* user,chanrec *chan,int status, int
 
 	log(DEBUG,"process_modes: modelist: %s",modelist);
 
-	for (ptr = 0; ptr < strlen(modelist); ptr++)
+	int len = strlen(modelist);
+	for (ptr = 0; ptr < len; ptr++)
 	{
 		r = NULL;
 
@@ -557,9 +559,10 @@ void process_modes(char **parameters,userrec* user,chanrec *chan,int status, int
 				case '-':
 					if (mdir != 0)
 					{
-						if ((outlist[strlen(outlist)-1] == '+') || (outlist[strlen(outlist)-1] == '-'))
+						int t = strlen(outlist)-1;
+						if ((outlist[t] == '+') || (outlist[t] == '-'))
 						{
-							outlist[strlen(outlist)-1] = '-';
+							outlist[t] = '-';
 						}
 						else
 						{
@@ -573,9 +576,10 @@ void process_modes(char **parameters,userrec* user,chanrec *chan,int status, int
 				case '+':
 					if (mdir != 1)
 					{
-						if ((outlist[strlen(outlist)-1] == '+') || (outlist[strlen(outlist)-1] == '-'))
+						int t = strlen(outlist)-1;
+						if ((outlist[t] == '+') || (outlist[t] == '-'))
 						{
-							outlist[strlen(outlist)-1] = '+';
+							outlist[t] = '+';
 						}
 						else
 						{
@@ -724,10 +728,7 @@ void process_modes(char **parameters,userrec* user,chanrec *chan,int status, int
 							{
 								strcat(outlist,"k");
 								char key[MAXBUF];
-								strlcpy(key,parameters[param++],MAXBUF);
-								if (strlen(key)>32) {
-									key[31] = '\0';
-								}
+								strlcpy(key,parameters[param++],32);
 								strlcpy(outpars[pc++],key,MAXBUF);
 								strlcpy(chan->key,key,MAXBUF);
 								k_set = true;
@@ -744,11 +745,7 @@ void process_modes(char **parameters,userrec* user,chanrec *chan,int status, int
 						FOREACH_RESULT(OnRawMode(user, chan, 'k', parameters[param], false, 1));
 						if (!MOD_RESULT)
 						{
-							strlcpy(key,parameters[param++],MAXBUF);
-							if (strlen(key)>32)
-							{
-								key[31] = '\0';
-							}
+							strlcpy(key,parameters[param++],32);
 							/* only allow -k if correct key given */
 							if (!strcmp(chan->key,key))
 							{
@@ -783,7 +780,7 @@ void process_modes(char **parameters,userrec* user,chanrec *chan,int status, int
 							break;
 						
 						bool invalid = false;
-						for (int i = 0; i < strlen(parameters[param]); i++)
+						for (int i = 0; parameters[param][i] != 0; i++)
 						{
 							if ((parameters[param][i] < '0') || (parameters[param][i] > '9'))
 							{
@@ -1033,11 +1030,13 @@ void process_modes(char **parameters,userrec* user,chanrec *chan,int status, int
 	}
 
 	/* this ensures only the *valid* modes are sent out onto the network */
-	while ((outlist[strlen(outlist)-1] == '-') || (outlist[strlen(outlist)-1] == '+'))
+	int xt = strlen(outlist)-1;
+	while ((outlist[xt] == '-') || (outlist[xt] == '+'))
 	{
-		outlist[strlen(outlist)-1] = '\0';
+		outlist[xt] = '\0';
+		xt = strlen(outlist)-1;
 	}
-	if (strcmp(outlist,""))
+	if (outlist[0])
 	{
 		strlcpy(outstr,outlist,MAXBUF);
 		for (ptr = 0; ptr < pc; ptr++)
@@ -1222,15 +1221,16 @@ void handle_mode(char **parameters, int pcnt, userrec *user)
 		if ((parameters[1][0] != '+') && (parameters[1][0] != '-'))
 			return;
 
-		for (int i = 0; i < strlen(parameters[1]); i++)
+		for (int i = 0; parameters[1][i] != 0; i++)
 		{
 			if (parameters[1][i] == '+')
 			{
 				if (direction != 1)
 				{
-					if ((outpars[strlen(outpars)-1] == '+') || (outpars[strlen(outpars)-1] == '-'))
+					int t = strlen(outpars)-1;
+					if ((outpars[t] == '+') || (outpars[t] == '-'))
 					{
-						outpars[strlen(outpars)-1] = '+';
+						outpars[t] = '+';
 					}
 					else
 					{
@@ -1244,9 +1244,10 @@ void handle_mode(char **parameters, int pcnt, userrec *user)
 			{
 				if (direction != 0)
 				{
-					if ((outpars[strlen(outpars)-1] == '+') || (outpars[strlen(outpars)-1] == '-'))
+					int t = strlen(outpars)-1;
+					if ((outpars[t] == '+') || (outpars[t] == '-'))
 					{
-						outpars[strlen(outpars)-1] = '-';
+						outpars[t] = '-';
 					}
 					else
 					{
@@ -1278,10 +1279,12 @@ void handle_mode(char **parameters, int pcnt, userrec *user)
 							char umode = parameters[1][i];
 							if ((process_module_umode(umode, user, dest, direction)) || (umode == 'i') || (umode == 's') || (umode == 'w') || (umode == 'o'))
 							{
-								dmodes[strlen(dmodes)+1]='\0';
-								dmodes[strlen(dmodes)] = parameters[1][i];
-								outpars[strlen(outpars)+1]='\0';
-								outpars[strlen(outpars)] = parameters[1][i];
+								int q = strlen(dmodes);
+								int r = strlen(outpars);
+								dmodes[q+1]='\0';
+								dmodes[q] = parameters[1][i];
+								outpars[r+1]='\0';
+								outpars[r] = parameters[1][i];
 								if (parameters[1][i] == 'o')
 								{
 									FOREACH_MOD OnGlobalOper(dest);
@@ -1300,11 +1303,12 @@ void handle_mode(char **parameters, int pcnt, userrec *user)
 								char temp[MAXBUF];	
 								char moo[MAXBUF];	
 
-								outpars[strlen(outpars)+1]='\0';
-								outpars[strlen(outpars)] = parameters[1][i];
+								int r = strlen(outpars);
+								outpars[r+1]='\0';
+								outpars[r] = parameters[1][i];
 							
 								strcpy(temp,"");
-								for (q = 0; q < strlen(dmodes); q++)
+								for (q = 0; dmodes[q] != 0; q++)
 								{
 									if (dmodes[q] != parameters[1][i])
 									{
@@ -1323,7 +1327,7 @@ void handle_mode(char **parameters, int pcnt, userrec *user)
 				}
 			}
 		}
-		if (strlen(outpars))
+		if (outpars[0])
 		{
 			char b[MAXBUF];
 			strlcpy(b,"",MAXBUF);
@@ -1481,15 +1485,16 @@ void server_mode(char **parameters, int pcnt, userrec *user)
 		if ((parameters[1][0] != '+') && (parameters[1][0] != '-'))
 			return;
 
-		for (int i = 0; i < strlen(parameters[1]); i++)
+		for (int i = 0; parameters[1][i] != 0; i++)
 		{
 			if (parameters[1][i] == '+')
 			{
 				if (direction != 1)
 				{
-					if ((outpars[strlen(outpars)-1] == '+') || (outpars[strlen(outpars)-1] == '-'))
+					int t = strlen(outpars)-1;
+					if ((outpars[t] == '+') || (outpars[t] == '-'))
 					{
-						outpars[strlen(outpars)-1] = '+';
+						outpars[t] = '+';
 					}
 					else
 					{
@@ -1503,9 +1508,10 @@ void server_mode(char **parameters, int pcnt, userrec *user)
 			{
 				if (direction != 0)
 				{
-					if ((outpars[strlen(outpars)-1] == '+') || (outpars[strlen(outpars)-1] == '-'))
+					int t = strlen(outpars)-1;
+					if ((outpars[t] == '+') || (outpars[t] == '-'))
 					{
-						outpars[strlen(outpars)-1] = '-';
+						outpars[t] = '-';
 					}
 					else
 					{
@@ -1529,10 +1535,12 @@ void server_mode(char **parameters, int pcnt, userrec *user)
 							log(DEBUG,"umode %c is an allowed umode",umode);
 							if ((process_module_umode(umode, user, dest, direction)) || (umode == 'i') || (umode == 's') || (umode == 'w') || (umode == 'o'))
 							{
-								dmodes[strlen(dmodes)+1]='\0';
-								dmodes[strlen(dmodes)] = parameters[1][i];
-								outpars[strlen(outpars)+1]='\0';
-								outpars[strlen(outpars)] = parameters[1][i];
+								int v1 = strlen(dmodes);
+								int v2 = strlen(outpars);
+								dmodes[v1+1]='\0';
+								dmodes[v1] = parameters[1][i];
+								outpars[v2+1]='\0';
+								outpars[v2] = parameters[1][i];
 							}
 						}
 					}
@@ -1550,11 +1558,12 @@ void server_mode(char **parameters, int pcnt, userrec *user)
 								char temp[MAXBUF];
 								char moo[MAXBUF];	
 
-								outpars[strlen(outpars)+1]='\0';
-								outpars[strlen(outpars)] = parameters[1][i];
+								int v1 = strlen(outpars);
+								outpars[v1+1]='\0';
+								outpars[v1] = parameters[1][i];
 							
 								strcpy(temp,"");
-								for (q = 0; q < strlen(dmodes); q++)
+								for (q = 0; dmodes[q] != 0; q++)
 								{
 									if (dmodes[q] != parameters[1][i])
 									{
@@ -1570,7 +1579,7 @@ void server_mode(char **parameters, int pcnt, userrec *user)
 				}
 			}
 		}
-		if (strlen(outpars))
+		if (outpars[0])
 		{
 			char b[MAXBUF];
 			strlcpy(b,"",MAXBUF);
@@ -1667,15 +1676,16 @@ void merge_mode(char **parameters, int pcnt)
 		if ((parameters[1][0] != '+') && (parameters[1][0] != '-'))
 			return;
 
-		for (int i = 0; i < strlen(parameters[1]); i++)
+		for (int i = 0; parameters[1][0] != 0; i++)
 		{
 			if (parameters[1][i] == '+')
 			{
 				if (direction != 1)
 				{
-					if ((outpars[strlen(outpars)-1] == '+') || (outpars[strlen(outpars)-1] == '-'))
+					int t = strlen(outpars)-1;
+					if ((outpars[t] == '+') || (outpars[t] == '-'))
 					{
-						outpars[strlen(outpars)-1] = '+';
+						outpars[t] = '+';
 					}
 					else
 					{
@@ -1689,9 +1699,10 @@ void merge_mode(char **parameters, int pcnt)
 			{
 				if (direction != 0)
 				{
-					if ((outpars[strlen(outpars)-1] == '+') || (outpars[strlen(outpars)-1] == '-'))
+					int t = strlen(outpars)-1;
+					if ((outpars[t] == '+') || (outpars[t] == '-'))
 					{
-						outpars[strlen(outpars)-1] = '-';
+						outpars[t] = '-';
 					}
 					else
 					{
@@ -1715,10 +1726,12 @@ void merge_mode(char **parameters, int pcnt)
 							log(DEBUG,"umode %c is an allowed umode",umode);
 							if ((process_module_umode(umode, NULL, dest, direction)) || (umode == 'i') || (umode == 's') || (umode == 'w') || (umode == 'o'))
 							{
-								dmodes[strlen(dmodes)+1]='\0';
-								dmodes[strlen(dmodes)] = parameters[1][i];
-								outpars[strlen(outpars)+1]='\0';
-								outpars[strlen(outpars)] = parameters[1][i];
+								int v1 = strlen(dmodes);
+								int v2 = strlen(outpars);
+								dmodes[v1+1]='\0';
+								dmodes[v1] = parameters[1][i];
+								outpars[v2+1]='\0';
+								outpars[v2] = parameters[1][i];
 							}
 						}
 					}
@@ -1736,11 +1749,12 @@ void merge_mode(char **parameters, int pcnt)
 								char temp[MAXBUF];
 								char moo[MAXBUF];	
 
-								outpars[strlen(outpars)+1]='\0';
-								outpars[strlen(outpars)] = parameters[1][i];
+								int v1 = strlen(outpars);
+								outpars[v1+1]='\0';
+								outpars[v1] = parameters[1][i];
 							
 								strcpy(temp,"");
-								for (q = 0; q < strlen(dmodes); q++)
+								for (q = 0; dmodes[q] != 0; q++)
 								{
 									if (dmodes[q] != parameters[1][i])
 									{
@@ -1756,7 +1770,7 @@ void merge_mode(char **parameters, int pcnt)
 				}
 			}
 		}
-		if (strlen(outpars))
+		if (outpars[0])
 		{
 			char b[MAXBUF];
 			strcpy(b,"");
@@ -1850,15 +1864,16 @@ void merge_mode2(char **parameters, int pcnt, userrec* user)
 		if ((parameters[1][0] != '+') && (parameters[1][0] != '-'))
 		return;
 
-		for (int i = 0; i < strlen(parameters[1]); i++)
+		for (int i = 0; parameters[1][i] != 0; i++)
 		{
 			if (parameters[1][i] == '+')
 			{
 				if (direction != 1)
 				{
-					if ((outpars[strlen(outpars)-1] == '+') || (outpars[strlen(outpars)-1] == '-'))
+					int t = strlen(outpars)-1;
+					if ((outpars[t] == '+') || (outpars[t] == '-'))
 					{
-						outpars[strlen(outpars)-1] = '+';
+						outpars[t] = '+';
 					}
 					else
 					{
@@ -1872,9 +1887,10 @@ void merge_mode2(char **parameters, int pcnt, userrec* user)
 			{
 				if (direction != 0)
 				{
-					if ((outpars[strlen(outpars)-1] == '+') || (outpars[strlen(outpars)-1] == '-'))
+					int t = strlen(outpars)-1;
+					if ((outpars[t] == '+') || (outpars[t] == '-'))
 					{
-						outpars[strlen(outpars)-1] = '-';
+						outpars[t] = '-';
 					}
 					else
 					{
@@ -1898,10 +1914,12 @@ void merge_mode2(char **parameters, int pcnt, userrec* user)
 							log(DEBUG,"umode %c is an allowed umode",umode);
 							if ((process_module_umode(umode, NULL, dest, direction)) || (umode == 'i') || (umode == 's') || (umode == 'w') || (umode == 'o'))
 							{
-								dmodes[strlen(dmodes)+1]='\0';
-								dmodes[strlen(dmodes)] = parameters[1][i];
-								outpars[strlen(outpars)+1]='\0';
-								outpars[strlen(outpars)] = parameters[1][i];
+								int v1 = strlen(dmodes);
+								int v2 = strlen(outpars);
+								dmodes[v1+1]='\0';
+								dmodes[v1] = parameters[1][i];
+								outpars[v2+1]='\0';
+								outpars[v2] = parameters[1][i];
 								log(DEBUG,"OUTPARS='%s', DMODES='%s'",outpars,dmodes);
 							}
 						}
@@ -1920,11 +1938,12 @@ void merge_mode2(char **parameters, int pcnt, userrec* user)
 								char temp[MAXBUF];
 								char moo[MAXBUF];	
 
-								outpars[strlen(outpars)+1]='\0';
-								outpars[strlen(outpars)] = parameters[1][i];
+								int v1 = strlen(outpars);
+								outpars[v1+1]='\0';
+								outpars[v1] = parameters[1][i];
 							
 								strcpy(temp,"");
-								for (q = 0; q < strlen(dmodes); q++)
+								for (q = 0; dmodes[q] != 0; q++)
 								{
 									if (dmodes[q] != parameters[1][i])
 									{
@@ -1941,7 +1960,7 @@ void merge_mode2(char **parameters, int pcnt, userrec* user)
 			}
 		}
 		log(DEBUG,"DONE! OUTPARS='%s', DMODES='%s'",outpars,dmodes);
-		if (strlen(outpars))
+		if (outpars[0])
 		{
 			char b[MAXBUF];
 			strcpy(b,"");
