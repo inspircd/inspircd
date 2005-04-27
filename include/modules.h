@@ -680,6 +680,10 @@ class Server : public classbase
 	 * as used by numerics (see RFC 1459)
 	 */
 	virtual void SendServ(int Socket, std::string s);
+	/** Writes text to a channel, but from a server, including all.
+	 * This can be used to send server notices to a group of users.
+	 */
+	virtual void SendChannelServerNotice(std::string ServName, chanrec* Channel, std::string text);
 	/** Sends text from a user to a socket.
 	 * This method writes a line of text to an established socket, with the given user's nick/ident
 	 * /host combination prepended, as used in PRIVSG etc commands (see RFC 1459)

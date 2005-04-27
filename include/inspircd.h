@@ -105,7 +105,7 @@ void WriteCommon(userrec *u, char* text, ...);
 void WriteCommonExcept(userrec *u, char* text, ...);
 void WriteWallOps(userrec *source, bool local_only, char* text, ...);
 void WriteChannelLocal(chanrec* Ptr, userrec* user, char* text, ...);
-void WriteChannelWithServ(char* ServerName, chanrec* Ptr, userrec* user, char* text, ...);
+void WriteChannelWithServ(char* ServerName, chanrec* Ptr, char* text, ...);
 char* chanmodes(chanrec *chan);
 userrec* Find(std::string nick);
 chanrec* FindChan(const char* chan);
