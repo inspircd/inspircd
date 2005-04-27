@@ -2095,6 +2095,7 @@ void kill_link(userrec *user,const char* r)
 	if (user->registered == 7) {
 		purge_empty_chans(user);
 	}
+	delete user;
 	//user = NULL;
 }
 
@@ -2146,6 +2147,7 @@ void kill_link_silent(userrec *user,const char* r)
 	if (user->registered == 7) {
 		purge_empty_chans(user);
 	}
+	delete user;
 }
 
 
@@ -3801,14 +3803,14 @@ int InspIRCd(void)
 
         fd_set serverfds;
         timeval tvs;
-        tvs.tv_usec = 7000L;
+        tvs.tv_usec = 10000L;
         tvs.tv_sec = 0;
 	tv.tv_sec = 0;
-	tv.tv_usec = 7000L;
+	tv.tv_usec = 10000L;
         char data[10240];
 	timeval tval;
 	fd_set sfd;
-        tval.tv_usec = 7000L;
+        tval.tv_usec = 10000L;
         tval.tv_sec = 0;
         int total_in_this_set = 0;
 	int v = 0;
@@ -3852,7 +3854,7 @@ int InspIRCd(void)
 		
 		// serverFds timevals went here
 		
-		tvs.tv_usec = 7000L;
+		tvs.tv_usec = 30000L;
 		tvs.tv_sec = 0;
 		int servresult = select(32767, &serverfds, NULL, NULL, &tvs);
 		if (servresult > 0)
@@ -3879,7 +3881,7 @@ int InspIRCd(void)
 			}
 		}
      
-		for (int cycle = 0; cycle < 4; cycle++)	for (int x = 0; x < UDPportCount; x++)
+		for (int x = 0; x < UDPportCount; x++)
 		{
 			std::deque<std::string> msgs;
 			msgs.clear();
@@ -3992,7 +3994,7 @@ int InspIRCd(void)
 
 			// tvals defined here
 
-			tval.tv_usec = 7000L;
+			tval.tv_usec = 1000L;
 			selectResult2 = select(65535, &sfd, NULL, NULL, &tval);
 			
 			// now loop through all of the items in this pool if any are waiting
@@ -4104,13 +4106,13 @@ int InspIRCd(void)
 		}
 		for (int q = 0; q < total_in_this_set; q++)
 		{
-			// there is no iterator += operator :(
-			//if (count2 != clientlist.end())
-			//{
-				count2++;
-			//}
+			count2++;
 		}
 	}
+
+#ifdef _POSIX_PRIORITY_SCHEDULING
+        sched_yield();
+#endif
 	
 	// set up select call
 	for (count = 0; count < boundPortCount; count++)
@@ -4118,7 +4120,7 @@ int InspIRCd(void)
 		FD_SET (openSockfd[count], &selectFds);
 	}
 
-	tv.tv_usec = 7000L;
+	tv.tv_usec = 30000L;
 	selectResult = select(MAXSOCKS, &selectFds, NULL, NULL, &tv);
 
 	/* select is reporting a waiting socket. Poll them all to find out which */
@@ -4151,6 +4153,9 @@ int InspIRCd(void)
 	}
 	label:
 	if (0) {};
+#ifdef _POSIX_PRIORITY_SCHEDULING
+        sched_yield();
+#endif
 }
 /* not reached */
 close (incomingSockfd);

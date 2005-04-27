@@ -453,18 +453,11 @@ chanuserlist Server::GetUsers(chanrec* chan)
 {
 	chanuserlist userl;
 	userl.clear();
-  	for (user_hash::const_iterator i = clientlist.begin(); i != clientlist.end(); i++)
+	std::vector<char*> *list = chan->GetUsers();
+  	for (std::vector<char*>::iterator i = list->begin(); i != list->end(); i++)
 	{
-		if (i->second)
-		{
-			if (has_channel(i->second,chan))
-			{
-				if (isnick(i->second->nick))
-				{
-					userl.push_back(i->second);
-				}
-			}
-		}
+		char* o = *i;
+		userl.push_back((userrec*)o);
 	}
 	return userl;
 }

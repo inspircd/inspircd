@@ -47,13 +47,15 @@ int I,I2;
 if (MWC)
 	return true;
 
-if ((strstr(mask,"*")==0) && (strlen(literal) != strlen(mask)))
+int lenliteral = strlen(literal);
+
+if ((strchr(mask,'*')==0) && (lenliteral != (strlen(mask))))
 	return 0;
  I=0;
  I2=0;
  while (I < strlen(mask))
  {
-   if (I2 >= strlen(literal))
+   if (I2 >= lenliteral)
 	   return 0;
  
    if ((mask[I]=='*') && (MWC==0))
@@ -87,7 +89,7 @@ if ((strstr(mask,"*")==0) && (strlen(literal) != strlen(mask)))
    I++;
    I2++;
  }
- if (strlen(literal)==strlen(mask))
+ if (lenliteral==strlen(mask))
 		 MWC=2;
 
 }

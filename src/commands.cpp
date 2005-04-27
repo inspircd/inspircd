@@ -940,6 +940,7 @@ void handle_quit(char **parameters, int pcnt, userrec *user)
 	if (user->registered == 7) {
 		purge_empty_chans(user);
 	}
+	delete user;
 }
 
 void handle_who(char **parameters, int pcnt, userrec *user)
@@ -2055,6 +2056,7 @@ void handle_Q(char token,char* params,serverrec* source,serverrec* reply, char* 
 		{
 			purge_empty_chans(user);
 		}
+		delete user;
 	}
 }
 
