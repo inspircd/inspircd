@@ -19,100 +19,75 @@
 #include "inspircd.h"
 #include "inspstring.h"
 
-void Delete(char* str,int pos)
+// Wed 27 Apr 2005 - Brain
+// I've taken our our old wildcard routine -
+// although comprehensive, it was topheavy and very
+// slow, and ate masses of cpu when doing lots of
+// comparisons. This is the 'de-facto' routine used
+// by many, nobody really knows who wrote it first
+// or what license its under, i've seen examples of it
+// (unattributed to any author) all over the 'net.
+// For now, we'll just consider this public domain.
+
+int wildcmp(char *wild, char *string)
 {
-	char moo[MAXBUF];
-	strlcpy(moo,str,MAXBUF);
-	moo[pos] = '\0';
-	strlcpy(str,moo,MAXBUF);
-	strlcat(str,moo+pos+1,MAXBUF);
+	char *cp, *mp;
+	while ((*string) && (*wild != '*'))
+	{
+		if ((*wild != *string) && (*wild != '?'))
+		{
+			return 0;
+		}
+		wild++;
+		string++;
+	}
+
+	while (*string)
+	{
+		if (*wild == '*')
+		{
+			if (!*++wild)
+			{
+				return 1;
+			}
+			mp = wild;
+			cp = string+1;
+		}
+		else
+		if ((*wild == *string) || (*wild == '?'))
+		{
+			wild++;
+			string++;
+		}
+		else
+		{
+			wild = mp;
+			string = cp++;
+		}
+
+	}
+
+	while (*wild == '*')
+	{
+		wild++;
+	}
+
+	return !*wild;
 }
 
-void Insert(char* substr,char* str,int pos)
-{
-	std::string a = str;
-	a.insert(pos,substr);
-	strlcpy(str,a.c_str(),MAXBUF);
-}
-
-
-int MWC = 0;
-
-bool match2(char* literal,char* mask)
-{
-
-char OldM[MAXBUF];
-int I,I2;
-
-if (MWC)
-	return true;
-
-int lenliteral = strlen(literal);
-
-if ((strchr(mask,'*')==0) && (lenliteral != (strlen(mask))))
-	return 0;
- I=0;
- I2=0;
- while (I < strlen(mask))
- {
-   if (I2 >= lenliteral)
-	   return 0;
- 
-   if ((mask[I]=='*') && (MWC==0))
-   {
-     strlcpy(OldM,mask,MAXBUF);
-     
-     Delete(mask,I);
-     
-     while (strlen(mask)<255)
-     {
-       match2(literal,mask);
-       if (MWC==2)
-	       return 1;
-
-       Insert("?",mask,I);
-     }
-     strlcpy(mask,OldM,MAXBUF);
-     Delete(mask,I);
-     Insert("?",mask,I);
-   }
-   if (mask[I]=='?')
-   {
-     I++;
-     I2++;
-     continue;
-   }
-   if (mask[I] != literal[I2])
-	   return 0;
-   if (MWC)
-	   return 1;
-   I++;
-   I2++;
- }
- if (lenliteral==strlen(mask))
-		 MWC=2;
-
-}
+// This wrapper function is required to convert both
+// strings to 'scandanavian lowercase' and make copies
+// of them to a safe location. It also ensures we don't
+// bite off more than we can chew with the length of
+// the string.
 
 bool match(const char* literal, const char* mask)
 {
-	char L[10240];
-	char M[10240];
-	MWC = 0;
+	static char L[10240];
+	static char M[10240];
 	strlcpy(L,literal,10240);
 	strlcpy(M,mask,10240);
 	strlower(L);
 	strlower(M);
-	// short circuit literals
-	log(DEBUG,"Match '%s' to '%s'",L,M);
-	if ((!strchr(M,'*')) && (!strchr(M,'?')))
-	{
-		if (!strcasecmp(L,M))
-		{
-			return true;
-		}
-	}
-	match2(L,M);
-	return (MWC == 2);
+	return wildcmp(M,L);
 }
-
