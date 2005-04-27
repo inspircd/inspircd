@@ -94,14 +94,14 @@ char* give_ops(userrec *user,char *dest,chanrec *chan,int status)
 	if (!isnick(dest))
 	{
 		log(DEFAULT,"the target nickname given to give_ops was invalid");
-		WriteServ(user->fd,"401 %s %s :No suck nick/channel",user->nick, dest);
+		WriteServ(user->fd,"401 %s %s :No such nick/channel",user->nick, dest);
 		return NULL;
 	}
 	d = Find(dest);
 	if (!d)
 	{
 		log(DEFAULT,"the target nickname given to give_ops couldnt be found");
-		WriteServ(user->fd,"401 %s %s :No suck nick/channel",user->nick, dest);
+		WriteServ(user->fd,"401 %s %s :No such nick/channel",user->nick, dest);
 		return NULL;
 	}
 	else
@@ -157,12 +157,12 @@ char* give_hops(userrec *user,char *dest,chanrec *chan,int status)
 	d = Find(dest);
 	if (!isnick(dest))
 	{
-		WriteServ(user->fd,"401 %s %s :No suck nick/channel",user->nick, dest);
+		WriteServ(user->fd,"401 %s %s :No such nick/channel",user->nick, dest);
 		return NULL;
 	}
 	if (!d)
 	{
-		WriteServ(user->fd,"401 %s %s :No suck nick/channel",user->nick, dest);
+		WriteServ(user->fd,"401 %s %s :No such nick/channel",user->nick, dest);
 		return NULL;
 	}
 	else
@@ -213,12 +213,12 @@ char* give_voice(userrec *user,char *dest,chanrec *chan,int status)
 	d = Find(dest);
 	if (!isnick(dest))
 	{
-		WriteServ(user->fd,"401 %s %s :No suck nick/channel",user->nick, dest);
+		WriteServ(user->fd,"401 %s %s :No such nick/channel",user->nick, dest);
 		return NULL;
 	}
 	if (!d)
 	{
-		WriteServ(user->fd,"401 %s %s :No suck nick/channel",user->nick, dest);
+		WriteServ(user->fd,"401 %s %s :No such nick/channel",user->nick, dest);
 		return NULL;
 	}
 	else
@@ -270,13 +270,13 @@ char* take_ops(userrec *user,char *dest,chanrec *chan,int status)
 	if (!isnick(dest))
 	{
 		log(DEBUG,"take_ops was given an invalid target nickname of %s",dest);
-		WriteServ(user->fd,"401 %s %s :No suck nick/channel",user->nick, dest);
+		WriteServ(user->fd,"401 %s %s :No such nick/channel",user->nick, dest);
 		return NULL;
 	}
 	if (!d)
 	{
 		log(DEBUG,"take_ops couldnt resolve the target nickname: %s",dest);
-		WriteServ(user->fd,"401 %s %s :No suck nick/channel",user->nick, dest);
+		WriteServ(user->fd,"401 %s %s :No such nick/channel",user->nick, dest);
 		return NULL;
 	}
 	else
@@ -328,12 +328,12 @@ char* take_hops(userrec *user,char *dest,chanrec *chan,int status)
 	d = Find(dest);
 	if (!isnick(dest))
 	{
-		WriteServ(user->fd,"401 %s %s :No suck nick/channel",user->nick, dest);
+		WriteServ(user->fd,"401 %s %s :No such nick/channel",user->nick, dest);
 		return NULL;
 	}
 	if (!d)
 	{
-		WriteServ(user->fd,"401 %s %s :No suck nick/channel",user->nick, dest);
+		WriteServ(user->fd,"401 %s %s :No such nick/channel",user->nick, dest);
 		return NULL;
 	}
 	else
@@ -384,12 +384,12 @@ char* take_voice(userrec *user,char *dest,chanrec *chan,int status)
 	d = Find(dest);
 	if (!isnick(dest))
 	{
-		WriteServ(user->fd,"401 %s %s :No suck nick/channel",user->nick, dest);
+		WriteServ(user->fd,"401 %s %s :No such nick/channel",user->nick, dest);
 		return NULL;
 	}
 	if (!d)
 	{
-		WriteServ(user->fd,"401 %s %s :No suck nick/channel",user->nick, dest);
+		WriteServ(user->fd,"401 %s %s :No such nick/channel",user->nick, dest);
 		return NULL;
 	}
 	else
@@ -1055,7 +1055,7 @@ void process_modes(char **parameters,userrec* user,chanrec *chan,int status, int
 			{
 				if (!silent)
 				{
-					WriteChannelWithServ(ServerName,chan,user,"MODE %s %s",chan->name,outstr);
+					WriteChannelWithServ(ServerName,chan,"MODE %s %s",chan->name,outstr);
 					// M token for a usermode must go to all servers
 					char buffer[MAXBUF];
 					snprintf(buffer,MAXBUF,"M %s %s",chan->name, outstr);
@@ -1449,7 +1449,7 @@ void handle_mode(char **parameters, int pcnt, userrec *user)
 	}
 	else
 	{
-		WriteServ(user->fd,"401 %s %s :No suck nick/channel",user->nick, parameters[0]);
+		WriteServ(user->fd,"401 %s %s :No such nick/channel",user->nick, parameters[0]);
 	}
 }
 
@@ -1641,7 +1641,7 @@ void server_mode(char **parameters, int pcnt, userrec *user)
 	}
 	else
 	{
-		WriteServ(user->fd,"401 %s %s :No suck nick/channel",user->nick, parameters[0]);
+		WriteServ(user->fd,"401 %s %s :No such nick/channel",user->nick, parameters[0]);
 	}
 }
 

@@ -233,7 +233,7 @@ void handle_kick(char **parameters, int pcnt, userrec *user)
 
 	if ((!u) || (!Ptr))
 	{
-		WriteServ(user->fd,"401 %s %s :No suck nick/channel",user->nick, parameters[0]);
+		WriteServ(user->fd,"401 %s %s :No such nick/channel",user->nick, parameters[0]);
 		return;
 	}
 	
@@ -405,7 +405,7 @@ void handle_kill(char **parameters, int pcnt, userrec *user)
 	}
 	else
 	{
-		WriteServ(user->fd,"401 %s %s :No suck nick/channel",user->nick, parameters[0]);
+		WriteServ(user->fd,"401 %s %s :No such nick/channel",user->nick, parameters[0]);
 	}
 }
 
@@ -519,7 +519,7 @@ void handle_topic(char **parameters, int pcnt, userrec *user)
 			}
 			else
 			{
-				WriteServ(user->fd,"401 %s %s :No suck nick/channel",user->nick, parameters[0]);
+				WriteServ(user->fd,"401 %s %s :No such nick/channel",user->nick, parameters[0]);
 			}
 		}
 		return;
@@ -569,7 +569,7 @@ void handle_topic(char **parameters, int pcnt, userrec *user)
 			}
 			else
 			{
-				WriteServ(user->fd,"401 %s %s :No suck nick/channel",user->nick, parameters[0]);
+				WriteServ(user->fd,"401 %s %s :No such nick/channel",user->nick, parameters[0]);
 			}
 		}
 	}
@@ -600,7 +600,7 @@ void handle_names(char **parameters, int pcnt, userrec *user)
 	}
 	else
 	{
-		WriteServ(user->fd,"401 %s %s :No suck nick/channel",user->nick, parameters[0]);
+		WriteServ(user->fd,"401 %s %s :No such nick/channel",user->nick, parameters[0]);
 	}
 }
 
@@ -648,7 +648,7 @@ void handle_privmsg(char **parameters, int pcnt, userrec *user)
 		else
 		{
 			/* no such nick/channel */
-			WriteServ(user->fd,"401 %s %s :No suck nick/channel",user->nick, parameters[0]);
+			WriteServ(user->fd,"401 %s %s :No such nick/channel",user->nick, parameters[0]);
 		}
 		return;
 	}
@@ -688,7 +688,7 @@ void handle_privmsg(char **parameters, int pcnt, userrec *user)
 	else
 	{
 		/* no such nick/channel */
-		WriteServ(user->fd,"401 %s %s :No suck nick/channel",user->nick, parameters[0]);
+		WriteServ(user->fd,"401 %s %s :No such nick/channel",user->nick, parameters[0]);
 	}
 }
 
@@ -736,7 +736,7 @@ void handle_notice(char **parameters, int pcnt, userrec *user)
 		else
 		{
 			/* no such nick/channel */
-			WriteServ(user->fd,"401 %s %s :No suck nick/channel",user->nick, parameters[0]);
+			WriteServ(user->fd,"401 %s %s :No such nick/channel",user->nick, parameters[0]);
 		}
 		return;
 	}
@@ -768,7 +768,7 @@ void handle_notice(char **parameters, int pcnt, userrec *user)
 	else
 	{
 		/* no such nick/channel */
-		WriteServ(user->fd,"401 %s %s :No suck nick/channel",user->nick, parameters[0]);
+		WriteServ(user->fd,"401 %s %s :No such nick/channel",user->nick, parameters[0]);
 	}
 }
 
@@ -870,13 +870,13 @@ void handle_whois(char **parameters, int pcnt, userrec *user)
 		}
 		else
 		{
-			WriteServ(user->fd,"401 %s %s :No suck nick/channel",user->nick, parameters[0]);
+			WriteServ(user->fd,"401 %s %s :No such nick/channel",user->nick, parameters[0]);
 		}
 	}
 	else
 	{
 		/* no such nick/channel */
-		WriteServ(user->fd,"401 %s %s :No suck nick/channel",user->nick, parameters[0]);
+		WriteServ(user->fd,"401 %s %s :No such nick/channel",user->nick, parameters[0]);
 	}
 }
 
@@ -1012,7 +1012,7 @@ void handle_who(char **parameters, int pcnt, userrec *user)
 			}
 			else
 			{
-				WriteServ(user->fd,"401 %s %s :No suck nick/channel",user->nick, parameters[0]);
+				WriteServ(user->fd,"401 %s %s :No such nick/channel",user->nick, parameters[0]);
 			}
 		}
 		else

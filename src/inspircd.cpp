@@ -728,9 +728,9 @@ void WriteChannelLocal(chanrec* Ptr, userrec* user, char* text, ...)
 }
 
 
-void WriteChannelWithServ(char* ServName, chanrec* Ptr, userrec* user, char* text, ...)
+void WriteChannelWithServ(char* ServName, chanrec* Ptr, char* text, ...)
 {
-	if ((!Ptr) || (!user) || (!text))
+	if ((!Ptr) || (!text))
 	{
 		log(DEFAULT,"*** BUG *** WriteChannelWithServ was given an invalid parameter");
 		return;
