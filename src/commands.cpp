@@ -1279,7 +1279,7 @@ void handle_modules(char **parameters, int pcnt, userrec *user)
 			strlcat(flagstate,", common",MAXBUF);
 		if (V.Flags & VF_SERVICEPROVIDER)
 			strlcat(flagstate,", service provider",MAXBUF);
-		if (!strlen(flagstate))
+		if (!flagstate[0])
 			strcpy(flagstate,"  <no flags>");
 		strlcpy(modulename,module_names[i].c_str(),256);
 		if (strchr(user->modes,'o'))
@@ -1309,7 +1309,7 @@ void handle_stats(char **parameters, int pcnt, userrec *user)
 
 	FOREACH_MOD OnStats(*parameters[0]);
 
-	if (!strcasecmp(parameters[0],"c"))
+	if (*parameters[0] == 'c')
 	{
 		for (int i = 0; i < ConfValueEnum("link",&config_f); i++)
 		{
@@ -1321,7 +1321,7 @@ void handle_stats(char **parameters, int pcnt, userrec *user)
 		}
 	}
 	
-	if (!strcasecmp(parameters[0],"i"))
+	if (*parameters[0] == 'i')
 	{
 		int idx = 0;
 		for (ClassVector::iterator i = Classes.begin(); i != Classes.end(); i++)
@@ -1331,7 +1331,7 @@ void handle_stats(char **parameters, int pcnt, userrec *user)
 		}
 	}
 	
-	if (!strcasecmp(parameters[0],"y"))
+	if (*parameters[0] == 'y')
 	{
 		int idx = 0;
 		for (ClassVector::iterator i = Classes.begin(); i != Classes.end(); i++)
@@ -1341,7 +1341,7 @@ void handle_stats(char **parameters, int pcnt, userrec *user)
 		}
 	}
 
-	if (!strcmp(parameters[0],"U"))
+	if (*parameters[0] == 'U')
 	{
 		for (int i = 0; i < ConfValueEnum("uline",&config_f); i++)
 		{
@@ -1350,7 +1350,7 @@ void handle_stats(char **parameters, int pcnt, userrec *user)
 		}
 	}
 	
-	if (!strcmp(parameters[0],"P"))
+	if (*parameters[0] == 'P')
 	{
 		int idx = 0;
 	  	for (user_hash::iterator i = clientlist.begin(); i != clientlist.end(); i++)
@@ -1365,33 +1365,33 @@ void handle_stats(char **parameters, int pcnt, userrec *user)
 	//249 [Brain] :bwoadway-monitor (~wgmon@204.152.186.58) Idle: 18
 	}
  	
-	if (!strcmp(parameters[0],"k"))
+	if (*parameters[0] == 'k')
 	{
 		stats_k(user);
 	}
 
-	if (!strcmp(parameters[0],"g"))
+	if (*parameters[0] == 'g')
 	{
 		stats_g(user);
 	}
 
-	if (!strcmp(parameters[0],"q"))
+	if (*parameters[0] == 'q')
 	{
 		stats_q(user);
 	}
 
-	if (!strcmp(parameters[0],"Z"))
+	if (*parameters[0] == 'Z')
 	{
 		stats_z(user);
 	}
 
-	if (!strcmp(parameters[0],"e"))
+	if (*parameters[0] == 'e')
 	{
 		stats_e(user);
 	}
 
 	/* stats m (list number of times each command has been used, plus bytecount) */
-	if (!strcmp(parameters[0],"m"))
+	if (*parameters[0] == 'm')
 	{
 		for (int i = 0; i < cmdlist.size(); i++)
 		{
@@ -1408,7 +1408,7 @@ void handle_stats(char **parameters, int pcnt, userrec *user)
 	}
 
 	/* stats z (debug and memory info) */
-	if (!strcmp(parameters[0],"z"))
+	if (*parameters[0] == 'z')
 	{
 		WriteServ(user->fd,"249 %s :Users(HASH_MAP) %d (%d bytes, %d buckets)",user->nick,clientlist.size(),clientlist.size()*sizeof(userrec),clientlist.bucket_count());
 		WriteServ(user->fd,"249 %s :Channels(HASH_MAP) %d (%d bytes, %d buckets)",user->nick,chanlist.size(),chanlist.size()*sizeof(chanrec),chanlist.bucket_count());
@@ -1421,7 +1421,7 @@ void handle_stats(char **parameters, int pcnt, userrec *user)
 	}
 	
 	/* stats o */
-	if (!strcmp(parameters[0],"o"))
+	if (*parameters[0] == 'o')
 	{
 		for (int i = 0; i < ConfValueEnum("oper",&config_f); i++)
 		{
@@ -1436,7 +1436,7 @@ void handle_stats(char **parameters, int pcnt, userrec *user)
 	}
 	
 	/* stats l (show user I/O stats) */
-	if (!strcmp(parameters[0],"l"))
+	if (*parameters[0] == 'l')
 	{
 		WriteServ(user->fd,"211 %s :server:port nick bytes_in cmds_in bytes_out cmds_out",user->nick);
 	  	for (user_hash::iterator i = clientlist.begin(); i != clientlist.end(); i++)
@@ -1454,7 +1454,7 @@ void handle_stats(char **parameters, int pcnt, userrec *user)
 	}
 	
 	/* stats u (show server uptime) */
-	if (!strcmp(parameters[0],"u"))
+	if (*parameters[0] == 'u')
 	{
 		time_t current_time = 0;
 		current_time = TIME;
@@ -1602,6 +1602,7 @@ int operstrcmp(char* data,char* input)
 		return 0;
 	if (MOD_RESULT == -1)
 		return 1;
+	log(DEBUG,"strcmp fallback: '%s' '%s' %d",data,input,strcmp(data,input));
 	return strcmp(data,input);
 }
 
@@ -1695,7 +1696,7 @@ void handle_nick(char **parameters, int pcnt, userrec *user)
 		log(DEBUG,"invalid parameter passed to handle_nick");
 		return;
 	}
-	if (!strlen(parameters[0]))
+	if (!parameters[0][0])
 	{
 		log(DEBUG,"zero length new nick passed to handle_nick");
 		return;
