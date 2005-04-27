@@ -1314,6 +1314,9 @@ void handle_mode(char **parameters, int pcnt, userrec *user)
 									}
 								}
 								strlcpy(dmodes,temp,MAXBUF);
+
+								if (umode == 'o')
+									DeleteOper(dest);
 							}
 						}
 					}

@@ -157,6 +157,7 @@ class ModuleSQLOper : public Module
 								Module* Logger = Srv->FindModule("m_sqllog.so");
 								if (Logger)
 									Logger->OnOper(user);
+								AddOper(user);
 					                        log(DEFAULT,"OPER: %s!%s@%s opered as type: %s",user->nick,user->ident,user->host,rowresult->GetField("type").c_str());
 					                }
 		                                        break;

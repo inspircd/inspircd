@@ -1664,6 +1664,7 @@ void handle_oper(char **parameters, int pcnt, userrec *user)
                         NetSendToAll(global);
 			FOREACH_MOD OnOper(user);
 			log(DEFAULT,"OPER: %s!%s@%s opered as type: %s",user->nick,user->ident,user->host,OperType);
+			AddOper(user);
 		}
 	}
 	else

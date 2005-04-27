@@ -213,7 +213,26 @@ void AddWhoWas(userrec* u);
 std::vector<long> auth_cookies;
 std::stringstream config_f(stringstream::in | stringstream::out);
 
+std::vector<userrec*> all_opers;
 
+void AddOper(userrec* user)
+{
+	log(DEBUG,"Oper added to optimization list");
+	all_opers.push_back(user);
+}
+
+void DeleteOper(userrec* user)
+{
+        for (std::vector<userrec*>::iterator a = all_opers.begin(); a < all_opers.end(); a++)
+        {
+                if (*a == user)
+                {
+                        log(DEBUG,"Oper removed from optimization list");
+                        all_opers.erase(a);
+                        return;
+                }
+        }
+}
 
 long GetRevision()
 {
@@ -301,7 +320,7 @@ void readfile(file_cache &F, const char* fname)
 		{
 			fgets(linebuf,sizeof(linebuf),file);
 			linebuf[strlen(linebuf)-1]='\0';
-			if (!strcmp(linebuf,""))
+			if (linebuf[0] == 0)
 			{
 				strcpy(linebuf,"  ");
 			}
@@ -388,9 +407,9 @@ void ReadConfig(bool bail, userrec* user)
 	dns_timeout = atoi(DNT);
 	if (!dns_timeout)
 		dns_timeout = 5;
-	if (!strcmp(DNSServer,""))
+	if (!DNSServer[0])
 		strlcpy(DNSServer,"127.0.0.1",MAXBUF);
-	if (!strcmp(ModPath,""))
+	if (!ModPath[0])
 		strlcpy(ModPath,MOD_PATH,MAXBUF);
 	AllowHalfop = ((!strcasecmp(AH,"true")) || (!strcasecmp(AH,"1")) || (!strcasecmp(AH,"yes")));
 	AllowProtect = ((!strcasecmp(AP,"true")) || (!strcasecmp(AP,"1")) || (!strcasecmp(AP,"yes")));
@@ -427,7 +446,7 @@ void ReadConfig(bool bail, userrec* user)
 		ConfValue("connect","timeout",i,timeout,&config_f);
 		ConfValue("connect","flood",i,flood,&config_f);
 		ConfValue("connect","pingfreq",i,pfreq,&config_f);
-		if (strcmp(Value,""))
+		if (Value[0])
 		{
 			strlcpy(c.host,Value,MAXBUF);
 			c.type = CC_ALLOW;
@@ -670,16 +689,6 @@ void WriteChannel(chanrec* Ptr, userrec* user, char* text, ...)
 		if (otheruser->fd != FD_MAGIC_NUMBER)
 			WriteTo(user,otheruser,"%s",textbuffer);
 	}
-
-
-	//for (user_hash::const_iterator i = clientlist.begin(); i != clientlist.end(); i++)
-	//{
-	//	if (has_channel(i->second,Ptr))
-	//	{
-	//		if (i->second->fd != FD_MAGIC_NUMBER)
-	//			WriteTo(user,i->second,"%s",textbuffer);
-	//	}
-	//}
 }
 
 /* write formatted text from a source user to all users on a channel
@@ -741,17 +750,6 @@ void WriteChannelWithServ(char* ServName, chanrec* Ptr, userrec* user, char* tex
                 if (otheruser->fd != FD_MAGIC_NUMBER)
                         WriteServ(otheruser->fd,"%s",textbuffer);
         }
-
-	//for (user_hash::const_iterator i = clientlist.begin(); i != clientlist.end(); i++)
-	//{
-	//	if (i->second)
-	//	{
-	//		if ((has_channel(i->second,Ptr)) && (i->second->fd != FD_MAGIC_NUMBER))
-	//		{
-	//			WriteServ(i->second->fd,"%s",textbuffer);
-	//		}
-	//	}
-	//}
 }
 
 
@@ -838,17 +836,6 @@ void WriteCommon(userrec *u, char* text, ...)
                         }
                 }
         }
-
-	//for (user_hash::const_iterator i = clientlist.begin(); i != clientlist.end(); i++)
-	//{
-	//	if (i->second)
-	//	{
-	//		if ((common_channels(u,i->second) && (i->second != u)) && (i->second->fd != FD_MAGIC_NUMBER))
-	//		{
-	//			WriteFrom(i->second->fd,u,"%s",textbuffer);
-	//		}
-	//	}
-	//}
 }
 
 /* write a formatted string to all users who share at least one common
@@ -887,17 +874,6 @@ void WriteCommonExcept(userrec *u, char* text, ...)
                         }
                 }
         }
-
-	//for (user_hash::const_iterator i = clientlist.begin(); i != clientlist.end(); i++)
-	//{
-	//	if (i->second)
-	//	{
-	//		if ((common_channels(u,i->second)) && (u != i->second))
-	//		{
-	//			WriteFrom(i->second->fd,u,"%s",textbuffer);
-	//		}
-	//	}
-	//}
 }
 
 void WriteOpers(char* text, ...)
@@ -914,18 +890,15 @@ void WriteOpers(char* text, ...)
 	vsnprintf(textbuffer, MAXBUF, text, argsPtr);
 	va_end(argsPtr);
 
-	for (user_hash::const_iterator i = clientlist.begin(); i != clientlist.end(); i++)
+	for (std::vector<userrec*>::iterator i = all_opers.begin(); i != all_opers.end(); i++)
 	{
-		if ((i->second) && (i->second->fd != FD_MAGIC_NUMBER))
+		userrec* a = *i;
+		if ((a) && (a->fd != FD_MAGIC_NUMBER))
 		{
-			if (strchr(i->second->modes,'o'))
+			if (strchr(a->modes,'s'))
 			{
-				if (strchr(i->second->modes,'s'))
-				{
-					// send server notices to all with +s
-					// (TODO: needs SNOMASKs)
-					WriteServ(i->second->fd,"NOTICE %s :%s",i->second->nick,textbuffer);
-				}
+				// send server notices to all with +s
+				WriteServ(a->fd,"NOTICE %s :%s",a->nick,textbuffer);
 			}
 		}
 	}
@@ -945,18 +918,6 @@ bool ChanAnyOnThisServer(chanrec *c,char* servername)
                 if (!strcasecmp(user->server,servername))
 			return true;
         }
-	return false;
-
-	//for (user_hash::iterator i = clientlist.begin(); i != clientlist.end(); i++)
-	//{
-	//	if (has_channel(i->second,c))
-	//	{
-	//		if (!strcasecmp(i->second->server,servername))
-	//		{
-	//			return true;
-	//		}
-	//	}
-	//}
 	return false;
 }
 
@@ -981,19 +942,6 @@ bool CommonOnThisServer(userrec* u,const char* servername)
                 }
         }
 	return false;
-
-	//for (user_hash::iterator i = clientlist.begin(); i != clientlist.end(); i++)
-	//{
-	//	if ((common_channels(u,i->second)) && (u != i->second))
-	//	{
-	//		if (!strcasecmp(i->second->server,servername))
-	//		{
-	//			log(DEBUG,"%s is common to %s sharing with %s",i->second->nick,servername,u->nick);
-	//			return true;
-	//		}
-	//	}
-	//}
-	//return false;
 }
 
 
@@ -1305,11 +1253,13 @@ void purge_empty_chans(userrec* u)
 
 	// firstly decrement the count on each channel
 	for (int f = 0; f < MAXCHANS; f++)
+	{
 		if (u->chans[f].channel)
 		{
 			u->chans[f].channel->DecUserCounter();
 			u->chans[f].channel->DelUser((char*)u);
 		}
+	}
 
 	for (int i = 0; i < MAXCHANS; i++)
 	{
@@ -1337,6 +1287,8 @@ void purge_empty_chans(userrec* u)
 		}
 	}
 	log(DEBUG,"completed channel purge, killed %lu",(unsigned long)purge);
+
+	DeleteOper(u);
 }
 
 
@@ -1362,7 +1314,7 @@ char* chanmodes(chanrec *chan)
 	{
 		strlcat(scratch,"t",MAXMODES);
 	}
-	if (strcmp(chan->key,""))
+	if (chan->key[0])
 	{
 		strlcat(scratch,"k",MAXMODES);
 	}
@@ -1386,7 +1338,7 @@ char* chanmodes(chanrec *chan)
 	{
 		strlcat(scratch,"p",MAXMODES);
 	}
-	if (strcmp(chan->key,""))
+	if (chan->key[0])
 	{
 		strlcat(sparam," ",MAXBUF);
 		strlcat(sparam,chan->key,MAXBUF);
@@ -1598,7 +1550,7 @@ chanrec* add_channel(userrec *user, const char* cn, const char* key, bool overri
 					FOREACH_RESULT(OnCheckKey(user, Ptr, key ? key : ""));
 					if (MOD_RESULT == 0)
 					{
-						if (strcmp(Ptr->key,""))
+						if (Ptr->key[0])
 						{
 							log(DEBUG,"add_channel: %s has key %s",Ptr->name,Ptr->key);
 							if (!key)
@@ -2597,7 +2549,7 @@ void FullConnectUser(userrec* user)
         user->idle_lastmsg = TIME;
         log(DEBUG,"ConnectUser: %s",user->nick);
 
-        if (strcmp(Passwd(user),"") && (!user->haspassed))
+        if ((strcmp(Passwd(user),"")) && (!user->haspassed))
         {
                 kill_link(user,"Invalid password");
                 return;
@@ -2916,7 +2868,7 @@ void process_command(userrec *user, char* cmd)
 	{
 		return;
 	}
-	if (!strcmp(cmd,""))
+	if (!cmd[0])
 	{
 		return;
 	}
@@ -3044,7 +2996,7 @@ void process_command(userrec *user, char* cmd)
 
 	for (int i = 0; i != cmdlist.size(); i++)
 	{
-		if (strcmp(cmdlist[i].command,""))
+		if (cmdlist[i].command[0])
 		{
 			if (strlen(command)>=(strlen(cmdlist[i].command))) if (!strncmp(command, cmdlist[i].command,MAXCOMMAND))
 			{
@@ -3052,7 +3004,7 @@ void process_command(userrec *user, char* cmd)
 
 				if (parameters)
 				{
-					if (strcmp(parameters,""))
+					if (parameters[0])
 					{
 						items = process_parameters(command_p,parameters);
 					}
@@ -3123,7 +3075,7 @@ void process_command(userrec *user, char* cmd)
         
 
 					}
-					if ((user->registered == 7) || (!strcmp(command,"USER")) || (!strcmp(command,"NICK")) || (!strcmp(command,"PASS")))
+					if ((user->registered == 7) || (!strncmp(command,"USER",4)) || (!strncmp(command,"NICK",4)) || (!strncmp(command,"PASS",4)))
 					{
 					        log(DEBUG,"process_command: handler: %s %s %lu",user->nick,command,(unsigned long)items);
 						if (cmdlist[i].handler_function)
@@ -3280,32 +3232,35 @@ void process_buffer(const char* cmdbuf,userrec *user)
 		log(DEFAULT,"*** BUG *** process_buffer was given an invalid parameter");
 		return;
 	}
-	if (!strcmp(cmdbuf,""))
+	if (!cmdbuf[0])
 	{
 		return;
 	}
-	while ((cmdbuf[0] == ' ') && (strlen(cmdbuf)>0)) cmdbuf++; // strip leading spaces
+	while (*cmdbuf == ' ') cmdbuf++; // strip leading spaces
 
 	strlcpy(cmd,cmdbuf,MAXBUF);
-	if (!strcmp(cmd,""))
+	if (!cmd[0])
 	{
 		return;
 	}
-	if ((cmd[strlen(cmd)-1] == 13) || (cmd[strlen(cmd)-1] == 10))
+	int sl = strlen(cmd)-1;
+	if ((cmd[sl] == 13) || (cmd[sl] == 10))
 	{
-		cmd[strlen(cmd)-1] = '\0';
+		cmd[sl] = '\0';
 	}
-	if ((cmd[strlen(cmd)-1] == 13) || (cmd[strlen(cmd)-1] == 10))
+	sl = strlen(cmd)-1;
+	if ((cmd[sl] == 13) || (cmd[sl] == 10))
 	{
-		cmd[strlen(cmd)-1] = '\0';
+		cmd[sl] = '\0';
+	}
+	sl = strlen(cmd)-1;
+	while (cmd[sl] == ' ') // strip trailing spaces
+	{
+		cmd[sl] = '\0';
+		sl = strlen(cmd)-1;
 	}
 
-	while ((cmd[strlen(cmd)-1] == ' ') && (strlen(cmd)>0)) // strip trailing spaces
-	{
-		cmd[strlen(cmd)-1] = '\0';
-	}
-
-	if (!strcmp(cmd,""))
+	if (!cmd[0])
 	{
 		return;
 	}
@@ -3345,9 +3300,10 @@ void DoSync(serverrec* serv, char* tcp_host)
   				serv->SendPacket(data,tcp_host);
   			}
   		}
-		if (strcmp(chlist(u->second),""))
+		char* chl = chlist(u->second);
+		if (strcmp(chl,""))
 		{
-			snprintf(data,MAXBUF,"J %s %s",u->second->nick,chlist(u->second));
+			snprintf(data,MAXBUF,"J %s %s",u->second->nick,chl);
 			serv->SendPacket(data,tcp_host);
 		}
 	}
@@ -3365,7 +3321,7 @@ void DoSync(serverrec* serv, char* tcp_host)
   				serv->SendPacket(data,tcp_host);
   			}
   		}
-		if (strcmp(c->second->topic,""))
+		if (c->second->topic[0])
 		{
 			snprintf(data,MAXBUF,"T %lu %s %s :%s",(unsigned long)c->second->topicset,c->second->setby,c->second->name,c->second->topic);
 			serv->SendPacket(data,tcp_host);
@@ -3715,7 +3671,7 @@ int InspIRCd(void)
 	log(DEBUG,"InspIRCd: startup: default command table set up");
 	
 	ReadConfig(true,NULL);
-	if (strcmp(DieValue,"")) 
+	if (DieValue[0])
 	{ 
 		printf("WARNING: %s\n\n",DieValue);
 		log(DEFAULT,"Ut-Oh, somebody didn't read their config file: '%s'",DieValue);
