@@ -782,7 +782,7 @@ void process_modes(char **parameters,userrec* user,chanrec *chan,int status, int
 							break;
 						
 						bool invalid = false;
-						for (int i = 0; parameters[param][i] != 0; i++)
+						for (int i = 0; i < strlen(parameters[param]); i++)
 						{
 							if ((parameters[param][i] < '0') || (parameters[param][i] > '9'))
 							{
@@ -1223,8 +1223,10 @@ void handle_mode(char **parameters, int pcnt, userrec *user)
 		if ((parameters[1][0] != '+') && (parameters[1][0] != '-'))
 			return;
 
-		for (int i = 0; parameters[1][i] != 0; i++)
+		for (int i = 0; i < strlen(parameters[1]); i++)
 		{
+			if (parameters[1][i] == ' ')
+				continue;
 			if (parameters[1][i] == '+')
 			{
 				if (direction != 1)
@@ -1310,7 +1312,7 @@ void handle_mode(char **parameters, int pcnt, userrec *user)
 								outpars[r] = parameters[1][i];
 							
 								strcpy(temp,"");
-								for (q = 0; dmodes[q] != 0; q++)
+								for (q = 0; q < strlen(dmodes); q++)
 								{
 									if (dmodes[q] != parameters[1][i])
 									{
@@ -1487,8 +1489,10 @@ void server_mode(char **parameters, int pcnt, userrec *user)
 		if ((parameters[1][0] != '+') && (parameters[1][0] != '-'))
 			return;
 
-		for (int i = 0; parameters[1][i] != 0; i++)
+		for (int i = 0; i < strlen(parameters[1]); i++)
 		{
+                        if (parameters[1][i] == ' ')
+                                continue;
 			if (parameters[1][i] == '+')
 			{
 				if (direction != 1)
@@ -1565,7 +1569,7 @@ void server_mode(char **parameters, int pcnt, userrec *user)
 								outpars[v1] = parameters[1][i];
 							
 								strcpy(temp,"");
-								for (q = 0; dmodes[q] != 0; q++)
+								for (q = 0; q < strlen(dmodes); q++)
 								{
 									if (dmodes[q] != parameters[1][i])
 									{
@@ -1678,8 +1682,10 @@ void merge_mode(char **parameters, int pcnt)
 		if ((parameters[1][0] != '+') && (parameters[1][0] != '-'))
 			return;
 
-		for (int i = 0; parameters[1][0] != 0; i++)
+		for (int i = 0; i < strlen(parameters[1]); i++)
 		{
+                        if (parameters[1][i] == ' ')
+                                continue;
 			if (parameters[1][i] == '+')
 			{
 				if (direction != 1)
@@ -1756,7 +1762,7 @@ void merge_mode(char **parameters, int pcnt)
 								outpars[v1] = parameters[1][i];
 							
 								strcpy(temp,"");
-								for (q = 0; dmodes[q] != 0; q++)
+								for (q = 0; q < strlen(dmodes); q++)
 								{
 									if (dmodes[q] != parameters[1][i])
 									{
@@ -1845,7 +1851,7 @@ void merge_mode2(char **parameters, int pcnt, userrec* user)
 	// fix: ChroNiCk found this - we cant use this as debug if its null!
 	if (dest)
 	{
-		log(DEBUG,"merge_mode on %s",dest->nick);
+		log(DEBUG,"merge_mode2 on %s",dest->nick);
 	}
 
 	if ((dest) && (pcnt > 1))
@@ -1866,8 +1872,10 @@ void merge_mode2(char **parameters, int pcnt, userrec* user)
 		if ((parameters[1][0] != '+') && (parameters[1][0] != '-'))
 		return;
 
-		for (int i = 0; parameters[1][i] != 0; i++)
+		for (int i = 0; i < strlen(parameters[1]); i++)
 		{
+                        if (parameters[1][i] == ' ')
+                                continue;
 			if (parameters[1][i] == '+')
 			{
 				if (direction != 1)
@@ -1945,7 +1953,7 @@ void merge_mode2(char **parameters, int pcnt, userrec* user)
 								outpars[v1] = parameters[1][i];
 							
 								strcpy(temp,"");
-								for (q = 0; dmodes[q] != 0; q++)
+								for (q = 0; q < strlen(dmodes); q++)
 								{
 									if (dmodes[q] != parameters[1][i])
 									{
