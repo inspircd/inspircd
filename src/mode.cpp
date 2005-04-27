@@ -546,6 +546,8 @@ void process_modes(char **parameters,userrec* user,chanrec *chan,int status, int
 	log(DEBUG,"process_modes: modelist: %s",modelist);
 
 	int len = strlen(modelist);
+	while (modelist[len-1] == ' ')
+		modelist[--len] = '\0';
 	for (ptr = 0; ptr < len; ptr++)
 	{
 		r = NULL;

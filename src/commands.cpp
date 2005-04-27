@@ -1756,7 +1756,7 @@ void handle_nick(char **parameters, int pcnt, userrec *user)
 
 		WriteCommon(user,"NICK %s",parameters[0]);
 		
-		// Q token must go to ALL servers!!!
+		// N token must go to ALL servers!!!
 		char buffer[MAXBUF];
 		snprintf(buffer,MAXBUF,"n %s %s",user->nick,parameters[0]);
 		NetSendToAll(buffer);
@@ -2066,10 +2066,9 @@ void handle_n(char token,char* params,serverrec* source,serverrec* reply, char* 
 	char* newnick = strtok(NULL," ");
 	
 	userrec* user = Find(oldnick);
-	
+
 	if (user)
 	{
-		WriteCommon(user,"NICK %s",newnick);
 		if (is_uline(tcp_host))
 		{
 			int MOD_RESULT = 0;
@@ -2088,8 +2087,9 @@ void handle_n(char token,char* params,serverrec* source,serverrec* reply, char* 
 			// broadcast this because its a services thingy
 			char buffer[MAXBUF];
 			snprintf(buffer,MAXBUF,"n %s %s",user->nick,newnick);
-			NetSendToAll(buffer);
+			NetSendToAllExcept(tcp_host,buffer);
 		}
+		WriteCommon(user,"NICK %s",newnick);
 		user = ReHashNick(user->nick, newnick);
 		if (!user) return;
 		if (!user->nick) return;
