@@ -833,7 +833,7 @@ void WriteCommon(userrec *u, char* text, ...)
                         {
                                 char* o = (*ulist)[j];
                                 userrec* otheruser = (userrec*)o;
-				log(DEBUG,"WriteCommon: Sending to: %s",otheruser->nick);
+				log(DEBUG,"WriteCommon: Sending to: (%d)%s",otheruser->fd,otheruser->nick);
                                 WriteFrom(otheruser->fd,u,"%s",textbuffer);
                         }
                 }
