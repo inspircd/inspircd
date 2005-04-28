@@ -410,9 +410,9 @@ bool connection::SendPacket(char *message, const char* sendhost)
 		
 		if (cn->GetState() == STATE_DISCONNECTED)
 		{
-			log(DEBUG,"Main route to %s is down, seeking alternative",host);
+			log(DEBUG,"Main route to %s is down, seeking alternative",sendhost);
 			// fix: can only route one hop to avoid a loop
-			if (!strncmp(message,"R ",2))
+			if (strncmp(message,"R ",2))
 			{
 				// this route is down, we must re-route the packet through an available point in the mesh.
 				for (int k = 0; k < this->connectors.size(); k++)
