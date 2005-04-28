@@ -2689,7 +2689,7 @@ std::string GetVersionString()
         v2 = strtok_r(s1," ",&savept);
         s1 = savept;
 	snprintf(versiondata,MAXBUF,"%s Rev. %s %s :%s (O=%lu)",VERSION,v2,ServerName,SYSTEM,(unsigned long)OPTIMISATION);
-	
+	return versiondata;
 }
 
 void handle_version(char **parameters, int pcnt, userrec *user)
