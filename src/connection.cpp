@@ -266,6 +266,21 @@ bool connection::BeginLink(char* targethost, int newport, char* password, char* 
 	return false;
 }
 
+void ircd_connector::SetVersionString(std::string newversion)
+{
+	log(DEBUG,"Set version of %s to %s",this->servername.c_str(),newversion.c_str());
+	this->version = newversion;
+}
+
+std::string ircd_connector::GetVersionString()
+{
+	if (this->version == "")
+	{
+		return "(No version available for "+this->servername+")";
+	}
+	else return this->version;
+}
+
 bool connection::MeshCookie(char* targethost, int newport, unsigned long cookie, char* servername)
 {
 	char connect[MAXBUF];

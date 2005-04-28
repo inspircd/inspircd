@@ -1830,6 +1830,13 @@ void handle_nick(char **parameters, int pcnt, userrec *user)
 }
 
 
+void handle_v(char token,char* params,serverrec* source,serverrec* reply, char* tcp_host)
+{
+	char* servername = strtok(params," ");
+	char* versionstr = strtok(NULL,"\r\n");
+	ircd_connector* cn = reply->FindHost(servername);
+	cn->SetVersionString(servername);
+}
 
 void handle_V(char token,char* params,serverrec* source,serverrec* reply, char* tcp_host)
 {
@@ -2721,6 +2728,10 @@ void process_restricted_commands(char token,char* params,serverrec* source,serve
 		// Send a private/channel notice
 		case 'V':
 			handle_V(token,params,source,reply,tcp_host);
+		break;
+		// v <servername> <arbitary version string>
+		case 'v':
+			handle_v(token,params,source,reply,tcp_host);
 		break;
 		// L <SOURCE> <CHANNEL> :<REASON>
 		// User parting a channel

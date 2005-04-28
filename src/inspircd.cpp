@@ -2678,18 +2678,45 @@ void ConnectUser(userrec *user)
 	}
 }
 
+std::string GetVersionString()
+{
+        char Revision[] = "$Revision$";
+	char versiondata[MAXBUF];
+        char *s1 = Revision;
+        char *savept;
+        char *v2 = strtok_r(s1," ",&savept);
+        s1 = savept;
+        v2 = strtok_r(s1," ",&savept);
+        s1 = savept;
+	snprintf(versiondata,MAXBUF,"%s Rev. %s %s :%s (O=%lu)",VERSION,v2,ServerName,SYSTEM,(unsigned long)OPTIMISATION);
+	
+}
+
 void handle_version(char **parameters, int pcnt, userrec *user)
 {
-	char Revision[] = "$Revision$";
-
-	char *s1 = Revision;
-	char *savept;
-	char *v2 = strtok_r(s1," ",&savept);
-	s1 = savept;
-	v2 = strtok_r(s1," ",&savept);
-	s1 = savept;
-	
-	WriteServ(user->fd,"351 %s :%s Rev. %s %s :%s (O=%lu)",user->nick,VERSION,v2,ServerName,SYSTEM,(unsigned long)OPTIMISATION);
+	if (!pcnt)
+	{
+		WriteServ(user->fd,"351 %s :%s",user->nick,GetVersionString().c_str());
+	}
+	else
+	{
+                for (int j = 0; j < 32; j++)
+                {
+                        if (me[j] != NULL)
+                        {
+                                for (int x = 0; x < me[j]->connectors.size(); x++)
+                                {
+                                        if (match(me[j]->connectors[x].GetServerName().c_str(),parameters[0]))
+                                        {
+						WriteServ(user->fd,"351 %s :%s",user->nick,me[j]->connectors[x].GetVersionString().c_str());
+						return;
+					}
+				}
+			}
+		}
+		WriteServ(user->fd,"402 %s %s :No such server",user->nick,parameters[0]);
+	}
+	return;
 }
 
 
@@ -3308,6 +3335,7 @@ void DoSync(serverrec* serv, char* tcp_host)
 
 	NetSendMyRoutingTable();
 
+	// send all routing table and uline voodoo. The ordering of these commands is IMPORTANT!
         for (int j = 0; j < 32; j++)
         {
                 if (me[j] != NULL)
@@ -3323,6 +3351,11 @@ void DoSync(serverrec* serv, char* tcp_host)
                 }
         }
 
+	// send our version for the remote side to cache
+	snprintf(data,MAXBUF,"v %s %s",ServerName,GetVersionString().c_str());
+	serv->SendPacket(data,tcp_host);
+
+	// sync the users and channels, give the modules a look-in.
 	for (user_hash::iterator u = clientlist.begin(); u != clientlist.end(); u++)
 	{
 		snprintf(data,MAXBUF,"N %lu %s %s %s %s +%s %s %s :%s",(unsigned long)u->second->age,u->second->nick,u->second->host,u->second->dhost,u->second->ident,u->second->modes,u->second->ip,u->second->server,u->second->fullname);

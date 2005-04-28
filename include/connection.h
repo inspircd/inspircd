@@ -79,6 +79,7 @@ class ircd_connector : public Extensible
 	 */
 	bool SetHostAddress(char* host, int port);
 
+	std::string version;
 
  public:
 
@@ -172,6 +173,9 @@ class ircd_connector : public Extensible
 	bool BufferIsComplete();
 	void ClearBuffer();
 	std::string GetBuffer();
+
+        void SetVersionString(std::string newversion);
+        std::string GetVersionString();
 };
 
 
@@ -302,8 +306,8 @@ class connection : public Extensible
 	/** This function is deprecated and may be removed in a later alpha/beta
 	 */
 	long GenKey();
+
 };
 
 
 #endif
-
