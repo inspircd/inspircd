@@ -850,6 +850,12 @@ void WriteCommon(userrec *u, char* text, ...)
                         }
                 }
         }
+	// if the user was not in any channels, no users will receive the text. Make sure the user
+	// receives their OWN message for WriteCommon
+	if (!already_sent.size())
+	{
+		WriteFrom(u->fd,u,"%s",textbuffer);
+	}
 }
 
 /* write a formatted string to all users who share at least one common
