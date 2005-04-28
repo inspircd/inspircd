@@ -166,18 +166,21 @@ void ircd_connector::ClearBuffer()
 
 std::string ircd_connector::GetBuffer()
 {
-	char* line = (char*)ircdbuffer.c_str();
-	char ret[MAXBUF];
-	std::stringstream* stream = new std::stringstream(std::stringstream::in | std::stringstream::out);
-	*stream << ircdbuffer;
-	stream->getline(ret,MAXBUF);
-	while ((*line != '\n') && (strlen(line)))
-		line++;
-	if ((*line == '\n') || (*line == '\r'))
-		line++;
-	ircdbuffer = line;
-	delete stream;
-	return ret;
+	// Fix by Brain 28th Apr 2005
+	// seems my stringstream code isnt liked by linux
+	// EVEN THOUGH IT IS CORRECT! Fixed by using a different
+	// (SLOWER) algorithm...
+        char* line = (char*)ircdbuffer.c_str();
+        std::string ret = "";
+        while ((*line != '\n') && (strlen(line)))
+        {
+                ret = ret + *line;
+                line++;
+        }
+        if ((*line == '\n') || (*line == '\r'))
+                line++;
+        ircdbuffer = line;
+        return ret;
 }
 
 bool ircd_connector::MakeOutboundConnection(char* newhost, int newport)
