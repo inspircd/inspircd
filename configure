@@ -375,13 +375,6 @@ EOF
   }
   close(FILEHANDLE);
 
-  # Now the Makefile..
-  print "Writing \033[1;32mMakefile\033[0m\n";
-  my $makefile = "";
-  open(FILEHANDLE, ".Makefile.inc");
-  while (<FILEHANDLE>) {
-    $makefile .= $_;
-  }
   # Create a Modules List..
   my $modules = "";
   foreach $i (@modlist)
@@ -389,17 +382,41 @@ EOF
     $modules .= "m_".$i.".so ";
   }
   chomp($modules);   # Remove Redundant whitespace..
-  $makefile =~ s/\@MAKEPROG\@/$config{MAKEPROG}/;
-  $makefile =~ s/\@FLAGS\@/$config{FLAGS}/;
-  $makefile =~ s/\@LDLIBS\@/$config{LDLIBS}/;
-  $makefile =~ s/\@CONFIG_DIR\@/$config{CONFIG_DIR}/;
-  $makefile =~ s/\@MODULE_DIR\@/$config{MODULE_DIR}/;
-  $makefile =~ s/\@BINARY_DIR\@/$config{BINARY_DIR}/;
-  $makefile =~ s/\@MODULES\@/$modules/;
 
-  open(FILEHANDLE, ">Makefile");
-  print FILEHANDLE $makefile;
-  close(FILEHANDLE);
+
+  # Write all .in files.
+  my $tmp = "";
+  my $file = "";
+  opendir(DIRHANDLE, $this);
+  foreach $name (sort readdir(DIRHANDLE)) {
+    if ($name =~ /^\.(.+)\.inc$/)
+    {
+      $file = $1;
+      # All .name.inc files need parsing!
+      $tmp = "";
+      open(FILEHANDLE, ".$file.inc");
+      while (<FILEHANDLE>) {
+        $tmp .= $_;
+      }
+      close(FILEHANDLE);
+
+      $tmp =~ s/\@MAKEPROG\@/$config{MAKEPROG}/;
+      $tmp =~ s/\@FLAGS\@/$config{FLAGS}/;
+      $tmp =~ s/\@LDLIBS\@/$config{LDLIBS}/;
+      $tmp =~ s/\@CONFIG_DIR\@/$config{CONFIG_DIR}/;
+      $tmp =~ s/\@MODULE_DIR\@/$config{MODULE_DIR}/;
+      $tmp =~ s/\@BINARY_DIR\@/$config{BINARY_DIR}/;
+      $tmp =~ s/\@MODULES\@/$modules/;
+
+      print "Writing \033[1;32m$file\033[0m\n";
+      open(FILEHANDLE, ">$file");
+      print FILEHANDLE $tmp;
+    }
+  }
+  closedir(DIRHANDLE);
+
+  # Make inspircd executable!
+  chmod 0744, 'inspircd';
 
   # Modules Makefile..
   print "Writing \033[1;32msrc/modules/Makefile\033[0m\n";
