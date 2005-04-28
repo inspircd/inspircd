@@ -1551,6 +1551,7 @@ void handle_squit(char **parameters, int pcnt, userrec *user)
 		}
 		bool have_this_server = true;
 		int n_count = 0;
+		server_to_squit = "";
 		while (have_this_server)
 		{
 			have_this_server = false;
@@ -1564,6 +1565,7 @@ void handle_squit(char **parameters, int pcnt, userrec *user)
                                         	{
                                                 	// found a valid ircd_connector.
 							have_this_server = true;
+							server_to_squit = me[j]->connectors[x].GetServerName().c_str();
 							break;
                                         	}
                                 	}
@@ -1571,12 +1573,12 @@ void handle_squit(char **parameters, int pcnt, userrec *user)
        	        	}
 			if (have_this_server)
 			{
-				WriteOpers("SQUIT command issued by %s to remove %s from the mesh",user->nick,parameters[0]);
-				WriteServ(user->fd,"NOTICE %s :*** Removing remote server %s.",user->nick,parameters[0]);
+				WriteOpers("SQUIT command issued by %s to remove %s from the mesh",user->nick,server_to_squit.c_str());
+				WriteServ(user->fd,"NOTICE %s :*** Removing remote server %s.",user->nick,server_to_squit.c_str());
 				char buffer[MAXBUF];
-				snprintf(buffer,MAXBUF,"& %s",parameters[0]);
+				snprintf(buffer,MAXBUF,"& %s",server_to_squit.c_str());
 				NetSendToAll(buffer);
-				DoSplit(parameters[0]);
+				DoSplit(server_to_squit.c_str());
 				n_count++;
 			}
 		}
