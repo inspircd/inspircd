@@ -197,7 +197,7 @@
 # name      - The name is the canocial name of the server, it does    #
 #             not have to resolve - but it is expected to be sent in  #
 #             the remote servers connection info.                     #
-# ipaddr    - Valid ip address for remote server.                     #
+# ipaddr    - Valid host or ip address for remote server. *           #
 # port      - Valid listening UDP port for remote server.             #
 # sendpass  - Password to send to create an outbound connection to    #
 #             this server.                                            #
@@ -212,15 +212,21 @@
 # that server to operoverride modes. This should only be used for     #
 # services and protected oper servers!                                #
 #                                                                     #
+# IMPORTANT NOTE: When specifying the ip address and/or host, the     #
+# server software will prioritize RESOLVED hostnames above ip         #
+# addresses, so for example if your target server resolves to a.b.com #
+# you MUST put a.b.com into your link block, and NOT the IP address   #
+# of a.b.com. The system uses reverse resolution.                     #
+#                                                                     #
 
 <link name="hub.penguin.org"
-	ipaddr="12.34.56.78"
+	ipaddr="penguin.box.com"
 	port="7000"
 	sendpass="outgoing!password"
 	recvpass="incoming!password">
 
 <link name="services.antarctic.com"
-	ipaddr="98.76.54.32"
+	ipaddr="localhost"
 	port="7000"
 	sendpass="penguins"
 	recvpass="polarbears">
