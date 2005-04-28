@@ -1835,7 +1835,7 @@ void handle_v(char token,char* params,serverrec* source,serverrec* reply, char* 
 	char* servername = strtok(params," ");
 	char* versionstr = strtok(NULL,"\r\n");
 	ircd_connector* cn = reply->FindHost(servername);
-	cn->SetVersionString(servername);
+	cn->SetVersionString(versionstr);
 }
 
 void handle_V(char token,char* params,serverrec* source,serverrec* reply, char* tcp_host)
