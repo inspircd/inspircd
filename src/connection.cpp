@@ -410,16 +410,19 @@ bool connection::SendPacket(char *message, const char* sendhost)
 		
 		if (cn->GetState() == STATE_DISCONNECTED)
 		{
-			log(DEBUG,"Main route to %s is down, seeking alternative",sendhost);
+			log(DEBUG,"\n\n\n\nMain route to %s is down, seeking alternative\n\n\n\n",sendhost);
 			// fix: can only route one hop to avoid a loop
 			if (strncmp(message,"R ",2))
 			{
+				log(DEBUG,"Not a double reroute");
 				// this route is down, we must re-route the packet through an available point in the mesh.
 				for (int k = 0; k < this->connectors.size(); k++)
 				{
+					log(DEBUG,"Check connector %d: %s",k,this->connectors[k].GetServerName().c_str());
 					// search for another point in the mesh which can 'reach' where we want to go
 					for (int m = 0; m < this->connectors[k].routes.size(); m++)
 					{
+						log(DEBUG,"Check connector %d: %s route %s",k,this->connectors[k].GetServerName().c_str(),this->connectors[k].routes[m].c_str());
 						if (!strcasecmp(this->connectors[k].routes[m].c_str(),sendhost))
 						{
 							log(DEBUG,"Found alternative route for packet: %s",this->connectors[k].GetServerName().c_str());
@@ -434,7 +437,7 @@ bool connection::SendPacket(char *message, const char* sendhost)
 			char buffer[MAXBUF];
 			snprintf(buffer,MAXBUF,"& %s",sendhost);
 			NetSendToAllExcept(sendhost,buffer);
-			log(DEBUG,"There are no routes to %s, we're gonna boot the server off!",sendhost);
+			log(DEBUG,"\n\nThere are no routes to %s, we're gonna boot the server off!\n\n",sendhost);
 			DoSplit(sendhost);
 			return false;
 		}
