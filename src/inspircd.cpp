@@ -3305,6 +3305,23 @@ void DoSync(serverrec* serv, char* tcp_host)
 	snprintf(data,MAXBUF,"Y %lu",(unsigned long)TIME);
 	serv->SendPacket(data,tcp_host);
 	// send users and channels
+
+        for (int j = 0; j < 32; j++)
+        {
+                if (me[j] != NULL)
+                {
+                        for (int k = 0; k < me[j]->connectors.size(); k++)
+                        {
+                                if (is_uline(me[j]->connectors[k].GetServerName().c_str()))
+                                {
+                                        snprintf(data,MAXBUF,"H %s",me[j]->connectors[k].GetServerName().c_str());
+                                        serv->SendPacket(data,tcp_host);
+                                        NetSendMyRoutingTable();
+                                }
+                        }
+                }
+        }
+
 	for (user_hash::iterator u = clientlist.begin(); u != clientlist.end(); u++)
 	{
 		snprintf(data,MAXBUF,"N %lu %s %s %s %s +%s %s %s :%s",(unsigned long)u->second->age,u->second->nick,u->second->host,u->second->dhost,u->second->ident,u->second->modes,u->second->ip,u->second->server,u->second->fullname);
@@ -3359,22 +3376,6 @@ void DoSync(serverrec* serv, char* tcp_host)
 	}
 	// sync global zlines, glines, etc
 	sync_xlines(serv,tcp_host);
-
-	for (int j = 0; j < 32; j++)
-	{
-		if (me[j] != NULL)
-		{
-			for (int k = 0; k < me[j]->connectors.size(); k++)
-			{
-				if (is_uline(me[j]->connectors[k].GetServerName().c_str()))
-				{
-					snprintf(data,MAXBUF,"H %s",me[j]->connectors[k].GetServerName().c_str());
-					serv->SendPacket(data,tcp_host);
-					NetSendMyRoutingTable();
-				}
-			}
-		}
-	}
 
 	snprintf(data,MAXBUF,"F %lu",(unsigned long)TIME);
 	serv->SendPacket(data,tcp_host);
