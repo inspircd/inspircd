@@ -82,7 +82,9 @@ class ircd_connector : public Extensible
 
  public:
 
-        /** IRCD Buffer for input characters, holds one line
+        /** IRCD Buffer for input characters, holds as many lines as are
+	 * pending - Note that the final line may not be complete and should
+	 * only be read when there is a \n seperator.
          */
         std::string ircdbuffer;
 
