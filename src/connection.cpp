@@ -476,7 +476,7 @@ bool connection::RecvPacket(std::deque<std::string> &messages, char* recvhost)
 			// check if theres any data on this socket
 			// if not, continue onwards to the next.
 			pollfd polls;
-			polls.fd = this->fd;
+			polls.fd = this->connectors[i].GetDescriptor();
 			polls.events = POLLIN;
 			int ret = poll(&polls,1,1);
 			if (ret <= 0) continue;
