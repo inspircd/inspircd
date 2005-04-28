@@ -3306,6 +3306,8 @@ void DoSync(serverrec* serv, char* tcp_host)
 	serv->SendPacket(data,tcp_host);
 	// send users and channels
 
+	NetSendMyRoutingTable();
+
         for (int j = 0; j < 32; j++)
         {
                 if (me[j] != NULL)
@@ -3316,7 +3318,6 @@ void DoSync(serverrec* serv, char* tcp_host)
                                 {
                                         snprintf(data,MAXBUF,"H %s",me[j]->connectors[k].GetServerName().c_str());
                                         serv->SendPacket(data,tcp_host);
-                                        NetSendMyRoutingTable();
                                 }
                         }
                 }
