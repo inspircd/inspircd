@@ -1538,39 +1538,51 @@ void handle_squit(char **parameters, int pcnt, userrec *user)
 	}
 	else
 	{
+		if (!strcasecmp("*",parameters[0]))
+		{
+			WriteServ(user->fd,"NOTICE %s :*** You cannot issue an SQUIT this wide! If this is REALLY what you want, use a less wide mask.",user->nick);
+			WriteOpers("*** WARNING! %s tried to SQUIT all servers at once!",user->nick);
+			return;
+		}
 		if (!strcasecmp(ServerName,parameters[0]))
 		{
 			WriteServ(user->fd,"NOTICE %s :*** To take the local server out of the mesh, just use /SQUIT with no parameters instead.",user->nick);
 			return;
 		}
-		bool have_this_server = false;
-                for (int j = 0; j < 32; j++)
-                {
-                        if (me[j] != NULL)
-                        {
-                                for (int x = 0; x < me[j]->connectors.size(); x++)
-                                {
-                                        if (!strcasecmp(me[j]->connectors[x].GetServerName().c_str(),parameters[0]))
-                                        {
-                                                // found a valid ircd_connector.
-						have_this_server = true;
-						break;
-                                        }
-                                }
-                        }
-                }
-		if (have_this_server)
+		bool have_this_server = true;
+		int n_count = 0;
+		while (have_this_server)
 		{
-			WriteOpers("SQUIT command issued by %s to remove %s from the mesh",user->nick,parameters[0]);
-			WriteServ(user->fd,"NOTICE %s :*** Removing remote server %s.",user->nick,parameters[0]);
-			char buffer[MAXBUF];
-			snprintf(buffer,MAXBUF,"& %s",parameters[0]);
-			NetSendToAll(buffer);
-			DoSplit(parameters[0]);
+			have_this_server = false;
+                	for (int j = 0; j < 32; j++)
+                	{
+                        	if (me[j] != NULL)
+                        	{
+                                	for (int x = 0; x < me[j]->connectors.size(); x++)
+                                	{
+                                        	if (match(me[j]->connectors[x].GetServerName().c_str(),parameters[0]))
+                                        	{
+                                                	// found a valid ircd_connector.
+							have_this_server = true;
+							break;
+                                        	}
+                                	}
+       	                	}
+       	        	}
+			if (have_this_server)
+			{
+				WriteOpers("SQUIT command issued by %s to remove %s from the mesh",user->nick,parameters[0]);
+				WriteServ(user->fd,"NOTICE %s :*** Removing remote server %s.",user->nick,parameters[0]);
+				char buffer[MAXBUF];
+				snprintf(buffer,MAXBUF,"& %s",parameters[0]);
+				NetSendToAll(buffer);
+				DoSplit(parameters[0]);
+				n_count++;
+			}
 		}
-		else
+		if (!n_count)
 		{
-			WriteServ(user->fd,"NOTICE %s :*** No such server exists in the mesh.",user->nick);
+			WriteServ(user->fd,"402 %s %s :Your pattern did not match any servers.",user->nick,parameters[0]);
 		}
 	}
 }
