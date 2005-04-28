@@ -1551,7 +1551,7 @@ void handle_squit(char **parameters, int pcnt, userrec *user)
 		}
 		bool have_this_server = true;
 		int n_count = 0;
-		server_to_squit = "";
+		std::string server_to_squit = "";
 		while (have_this_server)
 		{
 			have_this_server = false;
