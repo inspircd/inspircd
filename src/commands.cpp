@@ -1538,7 +1538,42 @@ void handle_squit(char **parameters, int pcnt, userrec *user)
 	}
 	else
 	{
-		WriteServ(user->fd,"NOTICE :*** Remote SQUIT not supported yet.");
+		if (!strcasecmp(ServerName,parameters[0]))
+		{
+			WriteServ(user->fd,"NOTICE %s :*** To take the local server out of the mesh, just use /SQUIT with no parameters instead.",user->nick);
+			return;
+		}
+		bool have_this_server = false;
+                for (int j = 0; j < 32; j++)
+                {
+                        if (me[j] != NULL)
+                        {
+                                for (int x = 0; x < me[j]->connectors.size(); x++)
+                                {
+                                        if (!strcasecmp(me[j]->connectors[x].GetServerName().c_str(),parameters[0]))
+                                        {
+                                                if ((me[j]->connectors[x].GetState() == STATE_CONNECTED) || (me[j]->connectors[x].GetState() == STATE_SERVICES))
+                                                {
+                                                        // found a valid ircd_connector.
+							have_this_server = true;
+                                                        return;
+                                                }
+                                        }
+                                }
+                        }
+                }
+		if (have_this_server)
+		{
+			WriteOpers("SQUIT command issued by %s to remove %s from the mesh",user->nick,parameters[0]);
+			char buffer[MAXBUF];
+			snprintf(buffer,MAXBUF,"& %s",parameters[0]);
+			NetSendToAll(buffer);
+			DoSplit(parameters[0]);
+		}
+		else
+		{
+			WriteServ(user->fd,"NOTICE %s :*** No such server exists in the mesh.",user->nick);
+		}
 	}
 }
 
