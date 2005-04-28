@@ -472,6 +472,15 @@ bool connection::RecvPacket(std::deque<std::string> &messages, char* recvhost)
 		{
 			// returns false if the packet could not be sent (e.g. target host down)
 			int rcvsize = 0;
+
+			// check if theres any data on this socket
+			// if not, continue onwards to the next.
+			pollfd polls;
+			polls.fd = this->fd;
+			polls.events = POLLIN;
+			int ret = poll(&polls,1,1);
+			if (ret <= 0) continue;
+
 			rcvsize = recv(this->connectors[i].GetDescriptor(),data,4096,0);
 			data[rcvsize] = '\0';
 			if (rcvsize == -1)
