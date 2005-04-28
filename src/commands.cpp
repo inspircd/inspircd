@@ -1552,12 +1552,9 @@ void handle_squit(char **parameters, int pcnt, userrec *user)
                                 {
                                         if (!strcasecmp(me[j]->connectors[x].GetServerName().c_str(),parameters[0]))
                                         {
-                                                if ((me[j]->connectors[x].GetState() == STATE_CONNECTED) || (me[j]->connectors[x].GetState() == STATE_SERVICES))
-                                                {
-                                                        // found a valid ircd_connector.
-							have_this_server = true;
-                                                        return;
-                                                }
+                                                // found a valid ircd_connector.
+						have_this_server = true;
+                                                return;
                                         }
                                 }
                         }
