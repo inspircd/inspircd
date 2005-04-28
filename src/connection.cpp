@@ -490,9 +490,12 @@ bool connection::RecvPacket(std::deque<std::string> &messages, char* recvhost)
 					while (this->connectors[i].BufferIsComplete())
 					{
 						std::string text = this->connectors[i].GetBuffer();
-						messages.push_back(text.c_str());
-						strlcpy(recvhost,this->connectors[i].GetServerName().c_str(),160);
-						log(DEBUG,"main: Connection::RecvPacket() %d:%s->%s",pushed++,recvhost,text.c_str()); 
+						if (text != "")
+						{
+							messages.push_back(text.c_str());
+							strlcpy(recvhost,this->connectors[i].GetServerName().c_str(),160);
+							log(DEBUG,"main: Connection::RecvPacket() %d:%s->%s",pushed++,recvhost,text.c_str()); 
+						}
 					}
 					return true;
 				}
