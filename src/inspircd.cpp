@@ -632,7 +632,6 @@ void WriteFrom(int sock, userrec *user,char* text, ...)
 	chop(tb);
 	if (sock != -1)
 	{
-		log(DEBUG,"DATAOUT: %s",tb);
 		write(sock,tb,bytes > 514 ? 514 : bytes);
 	}
 }
@@ -822,7 +821,8 @@ void WriteCommon(userrec *u, char* text, ...)
 	vsnprintf(textbuffer, MAXBUF, text, argsPtr);
 	va_end(argsPtr);
 
-	WriteFrom(u->fd,u,"%s",textbuffer);
+	// FIX: Stops a message going to the same person more than once
+	std::vector<int> already_sent;
 
         for (int i = 0; i < MAXCHANS; i++)
         {
@@ -833,8 +833,20 @@ void WriteCommon(userrec *u, char* text, ...)
                         {
                                 char* o = (*ulist)[j];
                                 userrec* otheruser = (userrec*)o;
-				log(DEBUG,"WriteCommon: Sending to: (%d)%s",otheruser->fd,otheruser->nick);
-                                WriteFrom(otheruser->fd,u,"%s",textbuffer);
+				bool do_send = true;
+				for (int t = 0; t < already_sent.size(); t++)
+				{
+					if (already_sent[t] == otheruser->fd)
+					{
+						do_send = false;
+						break;
+					}
+				}
+				if (do_send)
+				{
+					already_sent.push_back(otheruser->fd);
+                                	WriteFrom(otheruser->fd,u,"%s",textbuffer);
+				}
                         }
                 }
         }
@@ -862,6 +874,8 @@ void WriteCommonExcept(userrec *u, char* text, ...)
 	vsnprintf(textbuffer, MAXBUF, text, argsPtr);
 	va_end(argsPtr);
 
+	std::vector<int> already_sent;
+
         for (int i = 0; i < MAXCHANS; i++)
         {
                 if (u->chans[i].channel)
@@ -872,7 +886,22 @@ void WriteCommonExcept(userrec *u, char* text, ...)
                                 char* o = (*ulist)[j];
                                 userrec* otheruser = (userrec*)o;
 				if (u != otheruser)
-	                                WriteFrom(otheruser->fd,u,"%s",textbuffer);
+				{
+                                	bool do_send = true;
+                                	for (int t = 0; t < already_sent.size(); t++)
+                                	{
+                                        	if (already_sent[t] == otheruser->fd)
+                                        	{
+                                                	do_send = false;
+                                                	break;
+                                        	}
+                                	}
+                                	if (do_send)
+	                                {
+        	                                already_sent.push_back(otheruser->fd);
+		                                WriteFrom(otheruser->fd,u,"%s",textbuffer);
+					}
+				}
                         }
                 }
         }
