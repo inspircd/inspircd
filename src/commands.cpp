@@ -1554,7 +1554,7 @@ void handle_squit(char **parameters, int pcnt, userrec *user)
                                         {
                                                 // found a valid ircd_connector.
 						have_this_server = true;
-                                                return;
+						break;
                                         }
                                 }
                         }
@@ -1562,6 +1562,7 @@ void handle_squit(char **parameters, int pcnt, userrec *user)
 		if (have_this_server)
 		{
 			WriteOpers("SQUIT command issued by %s to remove %s from the mesh",user->nick,parameters[0]);
+			WriteServ(user->fd,"NOTICE %s :*** Removing remote server %s.",user->nick,parameters[0]);
 			char buffer[MAXBUF];
 			snprintf(buffer,MAXBUF,"& %s",parameters[0]);
 			NetSendToAll(buffer);
