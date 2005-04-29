@@ -1292,6 +1292,7 @@ void handle_modules(char **parameters, int pcnt, userrec *user)
 			WriteServ(user->fd,"900 %s :%s",user->nick,CleanFilename(modulename));
 		}
 	}
+	WriteServ(user->fd,"901 %s :End of MODULES list",user->nick);
 }
 
 void handle_stats(char **parameters, int pcnt, userrec *user)
