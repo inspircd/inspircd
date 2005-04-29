@@ -4090,6 +4090,8 @@ int InspIRCd(void)
 							}
 							else
 							{
+								WriteOpers("*** Excess flood from %s",current->ip);
+								log(DEFAULT,"Excess flood from: %s",current->ip);
 								add_zline(120,ServerName,"Flood from unregistered connection",current->ip);
 								apply_lines();
 							}
