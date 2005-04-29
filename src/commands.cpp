@@ -1849,8 +1849,20 @@ void handle_v(char token,char* params,serverrec* source,serverrec* reply, char* 
 {
 	char* servername = strtok(params," ");
 	char* versionstr = strtok(NULL,"\r\n");
-	ircd_connector* cn = reply->FindHost(servername);
-	cn->SetVersionString(versionstr);
+
+        for (int j = 0; j < 32; j++)
+        {
+                if (me[j] != NULL)
+                {
+                        for (int x = 0; x < me[j]->connectors.size(); x++)
+                        {
+                                if (match(me[j]->connectors[x].GetServerName().c_str(),servername))
+                                {
+					me[j]->connectors[x].SetVersionString(versionstr);
+				}
+			}
+		}
+	}
 }
 
 void handle_V(char token,char* params,serverrec* source,serverrec* reply, char* tcp_host)
