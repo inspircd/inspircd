@@ -1863,18 +1863,25 @@ void handle_V(char token,char* params,serverrec* source,serverrec* reply, char* 
 	userrec* user = Find(src);
 	if (user)
 	{
-		userrec* dst = Find(dest);
-		
-		if (dst)
+		// notice all - only issuable by a server
+		if (strcmp(dest,"*"))
 		{
-			WriteTo(user, dst, "NOTICE %s :%s", dst->nick, text);
+			NoticeAll(user,true,"%s",text);
 		}
 		else
 		{
-			chanrec* d = FindChan(dest);
-			if (d)
+			userrec* dst = Find(dest);	
+			if (dst)
 			{
-				ChanExceptSender(d, user, "NOTICE %s :%s", d->name, text);
+				WriteTo(user, dst, "NOTICE %s :%s", dst->nick, text);
+			}
+			else
+			{
+				chanrec* d = FindChan(dest);
+				if (d)
+				{
+					ChanExceptSender(d, user, "NOTICE %s :%s", d->name, text);
+				}
 			}
 		}
 	}

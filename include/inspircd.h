@@ -161,6 +161,7 @@ long GetMaxBans(char* name);
 bool LoadModule(const char* filename);
 bool UnloadModule(const char* filename);
 char* ModuleError();
+void NoticeAll(userrec *source, bool local_only, char* text, ...);
 
 // mesh network functions
 

@@ -341,7 +341,7 @@ void readfile(file_cache &F, const char* fname)
 void ReadConfig(bool bail, userrec* user)
 {
 	char dbg[MAXBUF],pauseval[MAXBUF],Value[MAXBUF],timeout[MAXBUF],NB[MAXBUF],flood[MAXBUF],MW[MAXBUF];
-	char AH[MAXBUF],AP[MAXBUF],AF[MAXBUF],DNT[MAXBUF],pfreq[MAXBUF];
+	char AH[MAXBUF],AP[MAXBUF],AF[MAXBUF],DNT[MAXBUF],pfreq[MAXBUF],thold[MAXBUF];
 	ConnectClass c;
 	std::stringstream errstr;
 	
@@ -446,6 +446,7 @@ void ReadConfig(bool bail, userrec* user)
 		ConfValue("connect","timeout",i,timeout,&config_f);
 		ConfValue("connect","flood",i,flood,&config_f);
 		ConfValue("connect","pingfreq",i,pfreq,&config_f);
+		ConfValue("connect","threshold",i,thold,&config_f);
 		if (Value[0])
 		{
 			strlcpy(c.host,Value,MAXBUF);
@@ -456,6 +457,11 @@ void ReadConfig(bool bail, userrec* user)
 			c.registration_timeout = 90; // default is 2 minutes
 			c.pingtime = 120;
 			c.flood = atoi(flood);
+			c.threshold = 5;
+			if (atoi(thold)>0)
+			{
+				c.threshold = atoi(thold);
+			}
 			if (atoi(timeout)>0)
 			{
 				c.registration_timeout = atoi(timeout);
@@ -1170,6 +1176,37 @@ void WriteMode(const char* modes, int flags, const char* text, ...)
 	}
 }
 
+
+void NoticeAll(userrec *source, bool local_only, char* text, ...)
+{
+        if ((!text) || (!source))
+        {
+                log(DEFAULT,"*** BUG *** WriteOpers was given an invalid parameter");
+                return;
+        }
+
+        char textbuffer[MAXBUF];
+        va_list argsPtr;
+        va_start (argsPtr, text);
+        vsnprintf(textbuffer, MAXBUF, text, argsPtr);
+        va_end(argsPtr);
+
+        for (user_hash::const_iterator i = clientlist.begin(); i != clientlist.end(); i++)
+        {
+                if ((i->second) && (i->second->fd != FD_MAGIC_NUMBER))
+                {
+			WriteFrom(i->second->fd,source,"NOTICE $* :%s",textbuffer);
+                }
+        }
+
+        if (!local_only)
+        {
+                char buffer[MAXBUF];
+                snprintf(buffer,MAXBUF,"V %s * :%s",source->nick,textbuffer);
+                NetSendToAll(buffer);
+        }
+
+}
 
 void WriteWallOps(userrec *source, bool local_only, char* text, ...)  
 {  
@@ -2414,6 +2451,7 @@ void AddClient(int socket, char* host, int port, bool iscached, char* ip)
 	// set the registration timeout for this user
 	unsigned long class_regtimeout = 90;
 	int class_flood = 0;
+	long class_threshold = 5;
 
 	for (ClassVector::iterator i = Classes.begin(); i != Classes.end(); i++)
 	{
@@ -2422,6 +2460,7 @@ void AddClient(int socket, char* host, int port, bool iscached, char* ip)
 			class_regtimeout = (unsigned long)i->registration_timeout;
 			class_flood = i->flood;
 			clientlist[tempnick]->pingmax = i->pingtime;
+			class_threshold = i->threshold;
 			break;
 		}
 	}
@@ -2429,6 +2468,7 @@ void AddClient(int socket, char* host, int port, bool iscached, char* ip)
 	clientlist[tempnick]->nping = TIME+clientlist[tempnick]->pingmax+dns_timeout;
 	clientlist[tempnick]->timeout = TIME+class_regtimeout;
 	clientlist[tempnick]->flood = class_flood;
+	clientlist[tempnick]->threshold = class_threshold;
 
 	for (int i = 0; i < MAXCHANS; i++)
 	{
@@ -4081,7 +4121,23 @@ int InspIRCd(void)
 						userrec* current = count2a->second;
 						int currfd = current->fd;
 						int floodlines = 0;
-						current->AddBuffer(data);
+						// add the data to the users buffer
+						if (!current->AddBuffer(data))
+						{
+							// AddBuffer returned false, theres too much data in the user's buffer and theyre up to no good.
+                                                        if (current->registered == 7)
+                                                        {
+                                                                kill_link(current,"RecvQ exceeded");
+                                                        }
+                                                        else
+                                                        {
+                                                                WriteOpers("*** Excess flood from %s",current->ip);
+                                                                log(DEFAULT,"Excess flood from: %s",current->ip);
+                                                                add_zline(120,ServerName,"Flood from unregistered connection",current->ip);
+                                                                apply_lines();
+                                                        }
+                                                        goto label;
+						}
 						if (current->recvq.length() > NetBufferSize)
 						{
 							if (current->registered == 7)
@@ -4103,7 +4159,7 @@ int InspIRCd(void)
 							floodlines++;
 							if (TIME > current->reset_due)
 							{
-								current->reset_due = TIME+3;
+								current->reset_due = TIME + current->threshold;
 								current->lines_in = 0;
 							}
 							current->lines_in++;

@@ -63,12 +63,17 @@ class ConnectClass : public classbase
 	/** (Optional) Password for this line
 	 */
 	char pass[MAXBUF];
+
+	/** Threshold value for flood disconnect
+	 */
+	long threshold;
 	
 	ConnectClass()
 	{
 		registration_timeout = 0;
 		flood = 0;
 		pingtime = 0;
+		threshold = 0;
 		strlcpy(host,"",MAXBUF);
 		strlcpy(pass,"",MAXBUF);
 	}
@@ -183,6 +188,7 @@ class userrec : public connection
 	 */
 	long lines_in;
 	time_t reset_due;
+	long threshold;
 
 	userrec();
 	
@@ -221,7 +227,7 @@ class userrec : public connection
 	 */
 	bool HasPermission(char* command);
 
-	void userrec::AddBuffer(std::string a);
+	bool userrec::AddBuffer(std::string a);
 	bool userrec::BufferIsReady();
 	void userrec::ClearBuffer();
 	std::string userrec::GetBuffer();

@@ -288,6 +288,12 @@ void add_zline(long duration, const char* source, const char* reason, const char
 	del_zline(ipaddr);
 	ZLine item;
 	item.duration = duration;
+	if (strchr(ipaddr,'@'))
+	{
+		while (*ipaddr != '@')
+			ipaddr++;
+		ipaddr++;
+	}
 	strlcpy(item.ipaddr,ipaddr,MAXBUF);
 	strlcpy(item.reason,reason,MAXBUF);
 	strlcpy(item.source,source,MAXBUF);

@@ -166,7 +166,7 @@ bool userrec::HasPermission(char* command)
 }
 
 
-void userrec::AddBuffer(std::string a)
+bool userrec::AddBuffer(std::string a)
 {
         std::string b = "";
         for (int i = 0; i < a.length(); i++)
@@ -175,6 +175,16 @@ void userrec::AddBuffer(std::string a)
         std::stringstream stream(recvq);
         stream << b;
         recvq = stream.str();
+	int i = 0;
+	// count the size of the first line in the buffer.
+	while (i < recvq.length())
+	{
+		if (recvq[i++] == '\n')
+			break;
+	}
+	// return false if we've had more than 600 characters WITHOUT
+	// a carriage return (this is BAD, drop the socket)
+	return (i < 600);
 }
 
 bool userrec::BufferIsReady()
