@@ -4068,8 +4068,6 @@ int InspIRCd(void)
 					result = read(count2a->second->fd, data, 65535);
 					if (result)
 					{
-						if (result > 0)
-							data[result] = '\0';
 						// perform a check on the raw buffer as an array (not a string!) to remove
 						// characters 0 and 7 which are illegal in the RFC - replace them with spaces.
 						// hopefully this should stop even more people whining about "Unknown command: *"
@@ -4078,11 +4076,26 @@ int InspIRCd(void)
 							if ((data[checker] == 0) || (data[checker] == 7))
 								data[checker] = ' ';
 						}
+						if (result > 0)
+							data[result] = '\0';
 						userrec* current = count2a->second;
 						int currfd = current->fd;
-						//char* l = strtok(data,"\n");
 						int floodlines = 0;
 						current->AddBuffer(data);
+						if (current->recvq.length() > NetBufferSize)
+						{
+							if (current->registered == 7)
+							{
+								kill_link(current,"RecvQ exceeded");
+								goto label;
+							}
+							else
+							{
+								add_zline(120,ServerName,"Flood from unregistered connection",current->ip);
+								apply_lines();
+								goto label;
+							}
+						}
 						// while there are complete lines to process...
 						while (current->BufferIsReady())
 						{
@@ -4094,19 +4107,15 @@ int InspIRCd(void)
 								kill_link(current,"Excess flood");
 								goto label;
 							}
-							char sanitized[NetBufferSize];
-							memset(sanitized, 0, NetBufferSize);
+							char sanitized[MAXBUF];
 							// use GetBuffer to copy single lines into the sanitized string
 							strlcpy(sanitized,current->GetBuffer().c_str(),MAXBUF);
 							if (*sanitized)
 							{
-
-
 								// we're gonna re-scan to check if the nick is gone, after every
 								// command - if it has, we're gonna bail
 								bool find_again = false;
 								process_buffer(sanitized,current);
-	
 								// look for the user's record in case it's changed
 								for (user_hash::iterator c2 = clientlist.begin(); c2 != clientlist.end(); c2++)
 								{
@@ -4122,7 +4131,6 @@ int InspIRCd(void)
 									goto label;
 
 							}
-							//l = strtok(NULL,"\n");
 						}
 						goto label;
 					}
