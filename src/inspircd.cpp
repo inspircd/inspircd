@@ -4087,14 +4087,13 @@ int InspIRCd(void)
 							if (current->registered == 7)
 							{
 								kill_link(current,"RecvQ exceeded");
-								goto label;
 							}
 							else
 							{
 								add_zline(120,ServerName,"Flood from unregistered connection",current->ip);
 								apply_lines();
-								goto label;
 							}
+							goto label;
 						}
 						// while there are complete lines to process...
 						while (current->BufferIsReady())
@@ -4102,9 +4101,17 @@ int InspIRCd(void)
 							floodlines++;
 							if ((floodlines > current->flood) && (current->flood != 0))
 							{
-							  	log(DEFAULT,"Excess flood from: %s!%s@%s",current->nick,current->ident,current->host);
-							  	WriteOpers("*** Excess flood from: %s!%s@%s",current->nick,current->ident,current->host);
-								kill_link(current,"Excess flood");
+								if (current->registered == 7)
+								{
+								  	log(DEFAULT,"Excess flood from: %s!%s@%s",current->nick,current->ident,current->host);
+								  	WriteOpers("*** Excess flood from: %s!%s@%s",current->nick,current->ident,current->host);
+									kill_link(current,"Excess flood");
+								}
+								else
+								{
+	                                                                add_zline(120,ServerName,"Flood from unregistered connection",current->ip);
+        	                                                        apply_lines();
+								}
 								goto label;
 							}
 							char sanitized[MAXBUF];
