@@ -179,6 +179,11 @@ class userrec : public connection
 	 */
 	std::string recvq;
 
+	/** Flood counters
+	 */
+	long lines_in;
+	time_t reset_due;
+
 	userrec();
 	
 	virtual ~userrec() {  }

@@ -4101,6 +4101,18 @@ int InspIRCd(void)
 						while (current->BufferIsReady())
 						{
 							floodlines++;
+							if (TIME > current->reset_due)
+							{
+								current->reset_due = TIME+3;
+								current->lines_in = 0;
+							}
+							current->lines_in++;
+							if (current->lines_in > current->flood)
+							{
+								log(DEFAULT,"Excess flood from: %s!%s@%s",current->nick,current->ident,current->host);
+								WriteOpers("*** Excess flood from: %s!%s@%s",current->nick,current->ident,current->host);
+								kill_link(current,"Excess flood");
+							}
 							if ((floodlines > current->flood) && (current->flood != 0))
 							{
 								if (current->registered == 7)

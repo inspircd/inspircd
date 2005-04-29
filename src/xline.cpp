@@ -663,7 +663,7 @@ void apply_lines()
 					char* check = matches_gline(host);
 					if (check)
 					{
-						WriteOpers("*** User %s matches G-Line: %s",u->registered == 7 ? u->second->nick:"<unknown>",check);
+						WriteOpers("*** User %s matches G-Line: %s",u->second->registered == 7 ? u->second->nick:"<unknown>",check);
 						snprintf(reason,MAXBUF,"G-Lined: %s",check);
 						kill_link(u->second,reason);
 						go_again = true;
@@ -675,7 +675,7 @@ void apply_lines()
 					char* check = matches_kline(host);
 					if (check)
 					{
-						WriteOpers("*** User %s matches K-Line: %s",u->registered == 7 ? u->second->nick:"<unknown>",check);
+						WriteOpers("*** User %s matches K-Line: %s",u->second->registered == 7 ? u->second->nick:"<unknown>",check);
 						snprintf(reason,MAXBUF,"K-Lined: %s",check);
 						kill_link(u->second,reason);
 						go_again = true;
@@ -688,7 +688,7 @@ void apply_lines()
 					if (check)
 					{
 						snprintf(reason,MAXBUF,"Matched Q-Lined nick: %s",check);
-						WriteOpers("*** Q-Lined nickname %s from %s: %s",u->registered == 7 ? u->second->nick:"<unknown>",u->second->host,check);
+						WriteOpers("*** Q-Lined nickname %s from %s: %s",u->second->registered == 7 ? u->second->nick:"<unknown>",u->second->host,check);
 						kill_link(u->second,reason);
 						go_again = true;
 						break;
@@ -700,7 +700,7 @@ void apply_lines()
 					if (check)
 					{
 						snprintf(reason,MAXBUF,"Z-Lined: %s",check);
-						WriteOpers("*** User %s matches Z-Line: %s",u->registered == 7 ? u->second->nick:"<unknown>",u->second->host,check);
+						WriteOpers("*** User %s matches Z-Line: %s",u->second->registered == 7 ? u->second->nick:"<unknown>",u->second->host,check);
 						kill_link(u->second,reason);
 						go_again = true;
 						break;
