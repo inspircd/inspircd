@@ -40,6 +40,8 @@ userrec::userrec()
 	strcpy(server,"");
 	strcpy(awaymsg,"");
 	strcpy(oper,"");
+	reset_due = TIME;
+	lines_in = 0;
 	fd = lastping = signon = idle_lastmsg = nping = registered = 0;
 	flood = port = bytes_in = bytes_out = cmds_in = cmds_out = 0;
 	haspassed = false;

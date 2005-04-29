@@ -4112,6 +4112,7 @@ int InspIRCd(void)
 								log(DEFAULT,"Excess flood from: %s!%s@%s",current->nick,current->ident,current->host);
 								WriteOpers("*** Excess flood from: %s!%s@%s",current->nick,current->ident,current->host);
 								kill_link(current,"Excess flood");
+								goto label;
 							}
 							if ((floodlines > current->flood) && (current->flood != 0))
 							{
@@ -4130,7 +4131,15 @@ int InspIRCd(void)
 							}
 							char sanitized[MAXBUF];
 							// use GetBuffer to copy single lines into the sanitized string
-							strlcpy(sanitized,current->GetBuffer().c_str(),MAXBUF);
+							std::string single_line = current->GetBuffer();
+							if (single_line.length()>512)
+							{
+								log(DEFAULT,"Excess flood from: %s!%s@%s",current->nick,current->ident,current->host);
+								WriteOpers("*** Excess flood from: %s!%s@%s",current->nick,current->ident,current->host);
+								kill_link(current,"Excess flood");
+								goto label;
+							}
+							strlcpy(sanitized,single_line.c_str(),MAXBUF);
 							if (*sanitized)
 							{
 								// we're gonna re-scan to check if the nick is gone, after every
