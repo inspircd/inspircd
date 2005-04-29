@@ -3863,7 +3863,7 @@ int InspIRCd(void)
         tvs.tv_sec = 0;
 	tv.tv_sec = 0;
 	tv.tv_usec = 10000L;
-        char data[10240];
+        char data[65535];
 	timeval tval;
 	fd_set sfd;
         tval.tv_usec = 10000L;
@@ -4065,11 +4065,11 @@ int InspIRCd(void)
 				result = EAGAIN;
 				if ((count2a->second->fd != FD_MAGIC_NUMBER) && (count2a->second->fd != -1) && (FD_ISSET (count2a->second->fd, &sfd)))
 				{
-					memset(data, 0, 10240);
-					result = read(count2a->second->fd, data, 10240);
-					
+					result = read(count2a->second->fd, data, 65535);
 					if (result)
 					{
+						if (result > 0)
+							data[result] = '\0';
 						// perform a check on the raw buffer as an array (not a string!) to remove
 						// characters 0 and 7 which are illegal in the RFC - replace them with spaces.
 						// hopefully this should stop even more people whining about "Unknown command: *"
@@ -4080,9 +4080,11 @@ int InspIRCd(void)
 						}
 						userrec* current = count2a->second;
 						int currfd = current->fd;
-						char* l = strtok(data,"\n");
+						//char* l = strtok(data,"\n");
 						int floodlines = 0;
-						while (l)
+						current->AddBuffer(data);
+						// while there are complete lines to process...
+						while (current->BufferIsReady())
 						{
 							floodlines++;
 							if ((floodlines > current->flood) && (current->flood != 0))
@@ -4094,15 +4096,8 @@ int InspIRCd(void)
 							}
 							char sanitized[NetBufferSize];
 							memset(sanitized, 0, NetBufferSize);
-							int ptt = 0;
-							for (int pt = 0; pt < strlen(l); pt++)
-							{
-								if (l[pt] != '\r')
-								{
-									sanitized[ptt++] = l[pt];
-								}
-							}
-							sanitized[ptt] = '\0';
+							// use GetBuffer to copy single lines into the sanitized string
+							strlcpy(sanitized,current->GetBuffer().c_str(),MAXBUF);
 							if (*sanitized)
 							{
 
@@ -4127,7 +4122,7 @@ int InspIRCd(void)
 									goto label;
 
 							}
-							l = strtok(NULL,"\n");
+							//l = strtok(NULL,"\n");
 						}
 						goto label;
 					}

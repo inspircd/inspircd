@@ -173,6 +173,12 @@ class userrec : public connection
 	 */
 	char password[MAXBUF];
 
+	/** User's receive queue.
+	 * Lines from the IRCd awaiting processing are stored here.
+	 * Upgraded april 2005, old system a bit hairy.
+	 */
+	std::string recvq;
+
 	userrec();
 	
 	virtual ~userrec() {  }
@@ -209,6 +215,11 @@ class userrec : public connection
 	 * this to their oper classes and checking the commands they can execute.
 	 */
 	bool HasPermission(char* command);
+
+	void userrec::AddBuffer(std::string a);
+	bool userrec::BufferIsReady();
+	void userrec::ClearBuffer();
+	std::string userrec::GetBuffer();
 	
 };
 

@@ -44,6 +44,7 @@ userrec::userrec()
 	flood = port = bytes_in = bytes_out = cmds_in = cmds_out = 0;
 	haspassed = false;
 	dns_done = false;
+	recvq = "";
 	strcpy(result,"");
 	for (int i = 0; i < MAXCHANS; i++)
 	{
@@ -162,4 +163,44 @@ bool userrec::HasPermission(char* command)
 	return false;
 }
 
+
+void userrec::AddBuffer(std::string a)
+{
+        std::string b = "";
+        for (int i = 0; i < a.length(); i++)
+                if ((a[i] != '\r') && (a[i] != '\0') && (a[i] != 7))
+                        b = b + a[i];
+        std::stringstream stream(recvq);
+        stream << b;
+        recvq = stream.str();
+}
+
+bool userrec::BufferIsReady()
+{
+        for (int i = 0; i < recvq.length(); i++)
+		if (recvq[i] == '\n')
+			return true;
+        return false;
+}
+
+void userrec::ClearBuffer()
+{
+        recvq = "";
+}
+
+std::string userrec::GetBuffer()
+{
+	log(DEBUG,"GetBuffer\n%s\n",recvq.c_str());
+        char* line = (char*)recvq.c_str();
+        std::string ret = "";
+        while ((*line != '\n') && (strlen(line)))
+        {
+                ret = ret + *line;
+                line++;
+        }
+        if ((*line == '\n') || (*line == '\r'))
+                line++;
+        recvq = line;
+        return ret;
+}
 
