@@ -39,6 +39,23 @@ extern int MODCOUNT;
 
 extern time_t TIME;
 
+
+/**
+ * The InspIRCd mesh network is maintained by a tree of objects which reference *themselves*.
+ * Every local server has an array of 32 *serverrecs, known as me[]. Each of these represents
+ * a local listening port, and is not null if the user has opened a listening port on the server.
+ * It is assumed nobody will ever want to open more than 32 listening server ports at any one
+ * time (i mean come on, why would you want more, the ircd works fine with ONE).
+ * Each me[] entry has multiple classes within it of type ircd_connector. These are stored in a vector
+ * and each represents a server linked via this socket. If the connection was created outbound,
+ * the connection is bound to the default ip address by using me[defaultRoute] (defaultRoute being
+ * a global variable which indicates the default server to make connections on). If the connection
+ * was created inbound, it is attached to the port the connection came in on. There may be as many
+ * ircd_connector objects as needed in each me[] entry. Each ircd_connector implements the specifics
+ * of an ircd connection in the mesh, however each ircd may have multiple ircd_connector connections
+ * to it, to maintain the mesh link.
+ */
+
 connection::connection()
 {
 	fd = 0;
@@ -274,11 +291,7 @@ void ircd_connector::SetVersionString(std::string newversion)
 
 std::string ircd_connector::GetVersionString()
 {
-	if (this->version == "")
-	{
-		return "(No version available for "+this->servername+")";
-	}
-	else return this->version;
+	return this->version;
 }
 
 bool connection::MeshCookie(char* targethost, int newport, unsigned long cookie, char* servername)

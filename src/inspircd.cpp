@@ -2746,6 +2746,12 @@ void handle_version(char **parameters, int pcnt, userrec *user)
 	}
 	else
 	{
+		if (match(ServerName,parameters[0]))
+		{
+			WriteServ(user->fd,"351 %s :%s",user->nick,GetVersionString().c_str());
+			return;
+		}
+		bool displayed = false, found = false;
                 for (int j = 0; j < 32; j++)
                 {
                         if (me[j] != NULL)
@@ -2754,11 +2760,20 @@ void handle_version(char **parameters, int pcnt, userrec *user)
                                 {
                                         if (match(me[j]->connectors[x].GetServerName().c_str(),parameters[0]))
                                         {
-						WriteServ(user->fd,"351 %s :%s",user->nick,me[j]->connectors[x].GetVersionString().c_str());
-						return;
+						found = true;
+						if ((me[j]->connectors[x].GetVersionString() != "") && (!displayed))
+						{
+							displayed = true;
+							WriteServ(user->fd,"351 %s :%s",user->nick,me[j]->connectors[x].GetVersionString().c_str());
+						}
 					}
 				}
 			}
+		}
+		if ((!displayed) && (found))
+		{
+			WriteServ(user->fd,"402 %s %s :Server %s has no version information",user->nick,parameters[0],parameters[0]);
+			return;
 		}
 		WriteServ(user->fd,"402 %s %s :No such server",user->nick,parameters[0]);
 	}
