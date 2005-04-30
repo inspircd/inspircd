@@ -405,6 +405,8 @@ char* Module::OnRequest(Request* request) { return NULL; };
 int Module::OnOperCompare(std::string password, std::string input) { return 0; };
 void Module::OnGlobalOper(userrec* user) { };
 void Module::OnGlobalConnect(userrec* user) { };
+int Module::OnAddBan(userrec* source, chanrec* channel,std::string banmask) { return 0; };
+int Module::OnDelBan(userrec* source, chanrec* channel,std::string banmask) { return 0; };
 
 // server is a wrapper class that provides methods to all of the C-style
 // exports in the core

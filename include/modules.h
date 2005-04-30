@@ -641,6 +641,15 @@ class Module : public classbase
 	 */
 	virtual void OnGlobalConnect(userrec* user);
 
+	/** Called whenever a ban is added to a channel's list.
+	 * Return a non-zero value to 'eat' the mode change and prevent the ban from being added.
+	 */
+	virtual int OnAddBan(userrec* source, chanrec* channel,std::string banmask);
+
+	/** Called whenever a ban is removed from a channel's list.
+	 * Return a non-zero value to 'eat' the mode change and prevent the ban from being removed.
+	 */
+	virtual int OnDelBan(userrec* source, chanrec* channel,std::string banmask);
 };
 
 

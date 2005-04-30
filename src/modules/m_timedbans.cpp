@@ -108,6 +108,19 @@ class ModuleTimedBans : public Module
 		TimedBanList.clear();
 	}
 
+	virtual int OnDelBan(userrec* source, chanrec* chan, std::string banmask)
+	{
+                for (timedbans::iterator i = TimedBanList.begin(); i < TimedBanList.end(); i++)
+                {
+                        if (!strcasecmp(banmask.c_str(),i->mask.c_str()))
+                        {
+                                TimedBanList.erase(i);
+                                break;
+                        }
+                }
+		return 0;
+	}
+
 	virtual void OnBackgroundTimer(time_t curtime)
 	{
 		bool again = true;
@@ -122,6 +135,7 @@ class ModuleTimedBans : public Module
 					again = true;
 					if (cr)
 					{
+						Srv->SendChannelServerNotice(Srv->GetServerName(),cr,"NOTICE "+std::string(cr->name)+" :Timed ban on "+i->mask+" expired.");
 						char *setban[3];
 						setban[0] = (char*)i->channel.c_str();
 						setban[1] = "-b";
@@ -135,9 +149,8 @@ class ModuleTimedBans : public Module
 						temp->fd = FD_MAGIC_NUMBER;
 						Srv->SendMode(setban,3,temp);
 						delete temp;
-						Srv->SendChannelServerNotice(Srv->GetServerName(),cr,"NOTICE "+std::string(cr->name)+" :Timed ban on "+i->mask+" expired.");
 					}
-					TimedBanList.erase(i);
+					// we used to delete the item here, but we dont need to as the servermode above does it for us,
 					break;
 				}
 			}

@@ -470,6 +470,11 @@ char* add_ban(userrec *user,char *dest,chanrec *chan,int status)
 
 	log(DEBUG,"add_ban: %s %s",chan->name,user->nick);
 
+	int MOD_RESULT = 0;
+	FOREACH_RESULT(OnAddBan(user,chan,dest));
+	if (MOD_RESULT)
+		return NULL;
+
 	TidyBan(dest);
 	for (BanList::iterator i = chan->bans.begin(); i != chan->bans.end(); i++)
 	{
@@ -499,6 +504,10 @@ char* take_ban(userrec *user,char *dest,chanrec *chan,int status)
 	{
 		if (!strcasecmp(i->data,dest))
 		{
+		        int MOD_RESULT = 0;
+		        FOREACH_RESULT(OnDelBan(user,chan,dest));
+		        if (MOD_RESULT)
+		                return NULL;
 			chan->bans.erase(i);
 			return dest;
 		}
