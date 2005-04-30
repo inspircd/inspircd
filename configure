@@ -430,7 +430,7 @@ EOF
   open(FILEHANDLE, ">src/modules/Makefile");
   print FILEHANDLE <<EOF;
 # (C) ChatSpike development team
-# Makefile by <Craig@ChatSpike.net>
+# Makefile by <Craig\@ChatSpike.net>
 # Many Thanks to Andrew Church <achurch@achurch.org>
 #    for assisting with making this work right.
 #
