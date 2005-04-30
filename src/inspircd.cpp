@@ -197,10 +197,6 @@ int portCount = 0, UDPportCount = 0, ports[MAXSOCKS];
 int defaultRoute = 0;
 char ModPath[MAXBUF];
 
-connection C;
-
-long MyKey = C.GenKey();
-
 /* prototypes */
 
 int has_channel(userrec *u, chanrec *c);
@@ -947,6 +943,41 @@ void WriteOpers(char* text, ...)
 	}
 }
 
+void NoticeAllOpers(userrec *source, bool local_only, char* text, ...)
+{
+        if ((!text) || (!source))
+        {
+                log(DEFAULT,"*** BUG *** NoticeAllOpers was given an invalid parameter");
+                return;
+        }
+
+        char textbuffer[MAXBUF];
+        va_list argsPtr;
+        va_start (argsPtr, text);
+        vsnprintf(textbuffer, MAXBUF, text, argsPtr);
+        va_end(argsPtr);
+
+        for (std::vector<userrec*>::iterator i = all_opers.begin(); i != all_opers.end(); i++)
+        {
+                userrec* a = *i;
+                if ((a) && (a->fd != FD_MAGIC_NUMBER))
+                {
+                        if (strchr(a->modes,'s'))
+                        {
+                                // send server notices to all with +s
+                                WriteServ(a->fd,"NOTICE %s :*** Notice From %s: %s",a->nick,source->nick,textbuffer);
+                        }
+                }
+        }
+
+        if (!local_only)
+        {
+                char buffer[MAXBUF];
+                snprintf(buffer,MAXBUF,"V %s @* :%s",source->nick,textbuffer);
+                NetSendToAll(buffer);
+        }
+}
+
 // returns TRUE of any users on channel C occupy server 'servername'.
 
 bool ChanAnyOnThisServer(chanrec *c,char* servername)
@@ -1181,7 +1212,7 @@ void NoticeAll(userrec *source, bool local_only, char* text, ...)
 {
         if ((!text) || (!source))
         {
-                log(DEFAULT,"*** BUG *** WriteOpers was given an invalid parameter");
+                log(DEFAULT,"*** BUG *** NoticeAll was given an invalid parameter");
                 return;
         }
 

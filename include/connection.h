@@ -79,6 +79,8 @@ class ircd_connector : public Extensible
 	 */
 	bool SetHostAddress(char* host, int port);
 
+	/** This string holds the ircd's version response
+	 */
 	std::string version;
 
  public:
@@ -169,12 +171,36 @@ class ircd_connector : public Extensible
 	 */
 	void CloseConnection();
 
+	/** This method adds text to the ircd connection's buffer
+	 * There is no limitation on how much text of what line width may
+	 * be added to this buffer. It is the sending server's responsibility
+	 * to ensure sent data is kept within reasonable quanities.
+	 */
 	void AddBuffer(std::string a);
+
+	/** This method returns true if the buffer contains at least one
+	 * carriage return character, e.g. one line can be read from the
+	 * buffer successfully.
+	 */
 	bool BufferIsComplete();
+
+	/** This method clears the server's buffer by setting it to an empty string.
+	 */
 	void ClearBuffer();
+
+	/** This method retrieves the first string from the tail end of the
+	 * buffer and advances the tail end of the buffer past the returned
+	 * string, in a similar manner to strtok().
+	 */
 	std::string GetBuffer();
 
+	/** This method sets the version string of the remote server
+	 */
         void SetVersionString(std::string newversion);
+
+	/** This method returns the version string of the remote server.
+	 * If the server has no version string an empty string is returned.
+	 */
         std::string GetVersionString();
 };
 
@@ -303,10 +329,6 @@ class connection : public Extensible
 	 */
 	bool AddIncoming(int fd,char* targethost, int sourceport);
 	
-	/** This function is deprecated and may be removed in a later alpha/beta
-	 */
-	long GenKey();
-
 };
 
 

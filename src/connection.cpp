@@ -546,8 +546,3 @@ bool connection::RecvPacket(std::deque<std::string> &messages, char* recvhost)
 	return false;
 }
 
-long connection::GenKey()
-{
-	return (random()*time(NULL));
-}
-

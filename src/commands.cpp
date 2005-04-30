@@ -1876,9 +1876,13 @@ void handle_V(char token,char* params,serverrec* source,serverrec* reply, char* 
 	if (user)
 	{
 		// notice all - only issuable by a server
-		if (!strcmp(dest,"*"))
+                if (!strcmp(dest,"*"))
+                {
+                        NoticeAll(user,true,"%s",text);
+                }
+		if (!strcmp(dest,"@*"))
 		{
-			NoticeAll(user,true,"%s",text);
+			NoticeAllOpers(user,true,"%s",text);
 		}
 		else
 		{

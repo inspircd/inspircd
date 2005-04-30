@@ -227,10 +227,32 @@ class userrec : public connection
 	 */
 	bool HasPermission(char* command);
 
-	bool userrec::AddBuffer(std::string a);
-	bool userrec::BufferIsReady();
-	void userrec::ClearBuffer();
-	std::string userrec::GetBuffer();
+	/** This method adds data to the buffer of the user.
+	 * The buffer can grow to any size within limits of the available memory,
+	 * managed by the size of a std::string, however if any individual line in
+	 * the buffer grows over 600 bytes in length (which is 88 chars over the
+	 * RFC-specified limit per line) then the method will return false and the
+	 * text will not be inserted.
+	 */
+	bool AddBuffer(std::string a);
+
+	/** This method returns true if the buffer contains at least one carriage return
+	 * character (e.g. one complete line may be read)
+	 */
+	bool BufferIsReady();
+
+	/** This function clears the entire buffer by setting it to an empty string.
+	 */
+	void ClearBuffer();
+
+	/** This method returns the first available string at the tail end of the buffer
+	 * and advances the tail end of the buffer past the string. This means it is
+	 * a one way operation in a similar way to strtok(), and multiple calls return
+	 * multiple lines if they are available. The results of this function if there
+	 * are no lines to be read are unknown, always use BufferIsReady() to check if
+	 * it is ok to read the buffer before calling GetBuffer().
+	 */
+	std::string GetBuffer();
 	
 };
 
