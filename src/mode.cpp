@@ -506,6 +506,56 @@ char* take_ban(userrec *user,char *dest,chanrec *chan,int status)
 	return NULL;
 }
 
+// tidies up redundant modes, e.g. +nt-nt+i becomes +-+i,
+// a section further down the chain tidies up the +-+- crap.
+std::string compress_modes(std::string modes,bool channelmodes)
+{
+	int counts[127];
+	bool active[127];
+	int delta = 1;
+	memset(counts,0,sizeof(counts));
+	memset(active,0,sizeof(active));
+	log(DEBUG,"compress_modes: %s",modes.c_str());
+	for (int i = 0; i < modes.length(); i++)
+	{
+		if ((modes[i] == '+') || (modes[i] == '-'))
+			continue;
+		if (channelmodes)
+		{
+			if ((strchr("itnmsp",modes[i])) || ((ModeDefined(modes[i],MT_CHANNEL)) && (ModeDefinedOn(modes[i],MT_CHANNEL)==0) && (ModeDefinedOff(modes[i],MT_CHANNEL)==0)))
+			{
+				log(DEBUG,"Tidy mode %c",modes[i]);
+				counts[(unsigned int)modes[i]]++;
+				active[(unsigned int)modes[i]] = true;
+			}
+		}
+		else
+		{
+			log(DEBUG,"Tidy mode %c",modes[i]);
+			counts[(unsigned int)modes[i]]++;
+			active[(unsigned int)modes[i]] = true;
+		}
+	}
+	for (int j = 65; j < 127; j++)
+	{
+		if ((counts[j] > 1) && (active[j] == true))
+		{
+			static char v[2];
+			v[0] = (unsigned char)j;
+			v[1] = '\0';
+			std::string::size_type pos = modes.find(std::string(v));
+			if (pos != std::string::npos)
+			{
+				log(DEBUG,"all occurances of mode %c to be deleted...",(unsigned char)j);
+				while (modes.find(std::string(v)) != std::string::npos)
+					modes.erase(modes.find(std::string(v)),1);
+				log(DEBUG,"New mode line: %s",modes.c_str());
+			}
+		}
+	}
+	return modes;
+}
+
 void process_modes(char **parameters,userrec* user,chanrec *chan,int status, int pcnt, bool servermode, bool silent, bool local)
 {
 	if (!parameters) {
@@ -522,7 +572,7 @@ void process_modes(char **parameters,userrec* user,chanrec *chan,int status, int
 	int ptr = 0;
 	int mdir = 1;
 	char* r = NULL;
-	bool k_set = false, l_set = false;
+	bool k_set = false, l_set = false, previously_set_l = false, previously_unset_l = false, previously_set_k = false, previously_unset_k = false;
 
 	if (pcnt < 2)
 	{
@@ -544,6 +594,9 @@ void process_modes(char **parameters,userrec* user,chanrec *chan,int status, int
 	mdir = 1;
 
 	log(DEBUG,"process_modes: modelist: %s",modelist);
+
+	std::string tidied = compress_modes(modelist,true);
+	strlcpy(modelist,tidied.c_str(),MAXBUF);
 
 	int len = strlen(modelist);
 	while (modelist[len-1] == ' ')
@@ -721,6 +774,10 @@ void process_modes(char **parameters,userrec* user,chanrec *chan,int status, int
 					{
 						if (k_set)
 							break;
+
+						if (previously_unset_k)
+							break;
+						previously_set_k = true;
 						
 						if (!strcmp(chan->key,""))
 						{
@@ -742,6 +799,10 @@ void process_modes(char **parameters,userrec* user,chanrec *chan,int status, int
 					{
 						/* checks on -k are case sensitive and only accurate to the
   						   first 32 characters */
+						if (previously_set_k)
+							break;
+						previously_unset_k = true;
+
 						char key[MAXBUF];
 						MOD_RESULT = 0;
 						FOREACH_RESULT(OnRawMode(user, chan, 'k', parameters[param], false, 1));
@@ -763,6 +824,9 @@ void process_modes(char **parameters,userrec* user,chanrec *chan,int status, int
 				case 'l':
 					if (mdir == 0)
 					{
+						if (previously_set_l)
+							break;
+						previously_unset_l = true;
                                                 MOD_RESULT = 0;
                                                 FOREACH_RESULT(OnRawMode(user, chan, 'l', "", false, 0));
                                                 if (!MOD_RESULT)
@@ -780,7 +844,9 @@ void process_modes(char **parameters,userrec* user,chanrec *chan,int status, int
 					{
 						if (l_set)
 							break;
-						
+						if (previously_unset_l)
+							break;
+						previously_set_l = true;
 						bool invalid = false;
 						for (int i = 0; i < strlen(parameters[param]); i++)
 						{
@@ -1195,10 +1261,13 @@ void handle_mode(char **parameters, int pcnt, userrec *user)
 
 	if ((dest) && (pcnt > 1))
 	{
+		std::string tidied = compress_modes(parameters[1],false);
+		parameters[1] = (char*)tidied.c_str();
+
 		char dmodes[MAXBUF];
 		strlcpy(dmodes,dest->modes,MAXBUF);
 		log(DEBUG,"pulled up dest user modes: %s",dmodes);
-	
+
 		can_change = 0;
 		if (user != dest)
 		{
@@ -1478,7 +1547,8 @@ void server_mode(char **parameters, int pcnt, userrec *user)
 
 	if ((dest) && (pcnt > 1))
 	{
-		log(DEBUG,"params > 1");
+                std::string tidied = compress_modes(parameters[1],false);
+                parameters[1] = (char*)tidied.c_str();
 
 		char dmodes[MAXBUF];
 		strlcpy(dmodes,dest->modes,MAXBUF);
@@ -1671,7 +1741,8 @@ void merge_mode(char **parameters, int pcnt)
 
 	if ((dest) && (pcnt > 1))
 	{
-		log(DEBUG,"params > 1");
+                std::string tidied = compress_modes(parameters[1],false);
+                parameters[1] = (char*)tidied.c_str();
 
 		char dmodes[MAXBUF];
 		strlcpy(dmodes,dest->modes,MAXBUF);
@@ -1856,7 +1927,8 @@ void merge_mode2(char **parameters, int pcnt, userrec* user)
 
 	if ((dest) && (pcnt > 1))
 	{
-		log(DEBUG,"params > 1");
+                std::string tidied = compress_modes(parameters[1],false);
+                parameters[1] = (char*)tidied.c_str();
 
 		char dmodes[MAXBUF];
 		strlcpy(dmodes,dest->modes,MAXBUF);

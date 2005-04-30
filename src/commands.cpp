@@ -1856,7 +1856,7 @@ void handle_v(char token,char* params,serverrec* source,serverrec* reply, char* 
                 {
                         for (int x = 0; x < me[j]->connectors.size(); x++)
                         {
-                                if (match(me[j]->connectors[x].GetServerName().c_str(),servername))
+                                if (!strcasecmp(me[j]->connectors[x].GetServerName().c_str(),servername))
                                 {
 					me[j]->connectors[x].SetVersionString(versionstr);
 				}
