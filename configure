@@ -41,7 +41,6 @@ if (!$config{MAX_CLIENT_T}) {
 }
 
 # Get and Set some important vars..
-getosflags();
 getmodules();
 
 my $arg = $ARGV[0];	                                        # Do Some Argument Checks..
@@ -56,13 +55,16 @@ if ($arg eq "-update") {
   } else {
     # We've Loaded the cache file and all our variables..
     print "Updating Files..\n";
+    getosflags();
     writefiles();
     print "Complete.\n";
     exit;
   }
 }
 
-getcache();							 # Load the config.cache file.
+
+getcache();
+getosflags();
 
 if (!$config{MAX_CLIENT}) { 
   # If the cache hasn't set the max clients, copy the variable of MAX_CLIENT_T, this
