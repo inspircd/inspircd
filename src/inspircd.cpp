@@ -176,6 +176,11 @@ typedef nspace::hash_map<std::string, chanrec*, nspace::hash<string>, StrHashCom
 typedef nspace::hash_map<in_addr,string*, nspace::hash<in_addr>, InAddr_HashComp> address_cache;
 typedef std::deque<command_t> command_table;
 
+// This table references users by file descriptor.
+// its an array to make it VERY fast, as all lookups are referenced
+// by an integer, meaning there is no need for a scan/search operation.
+userrec* fd_ref_table[65536];
+
 serverrec* me[32];
 
 FILE *log_file;
@@ -584,7 +589,15 @@ void Write(int sock,char *text, ...)
 	chop(tb);
 	if (sock != -1)
 	{
-		write(sock,tb,bytes > 514 ? 514 : bytes);
+		int MOD_RESULT = 0;
+		FOREACH_RESULT(OnRawSocketWrite(sock,tb,bytes > 514 ? 514 : bytes));
+		if (!MOD_RESULT)
+			write(sock,tb,bytes > 514 ? 514 : bytes);
+		if (fd_ref_table[sock])
+		{
+			fd_ref_table[sock]->bytes_out += (bytes > 514 ? 514 : bytes);
+			fd_ref_table[sock]->cmds_out++;
+		}
 	}
 }
 
@@ -609,7 +622,15 @@ void WriteServ(int sock, char* text, ...)
 	chop(tb);
 	if (sock != -1)
 	{
-		write(sock,tb,bytes > 514 ? 514 : bytes);
+                int MOD_RESULT = 0;
+                FOREACH_RESULT(OnRawSocketWrite(sock,tb,bytes > 514 ? 514 : bytes));
+                if (!MOD_RESULT)
+                        write(sock,tb,bytes > 514 ? 514 : bytes);
+                if (fd_ref_table[sock])
+                {
+                        fd_ref_table[sock]->bytes_out += (bytes > 514 ? 514 : bytes);
+                        fd_ref_table[sock]->cmds_out++;
+                }
 	}
 }
 
@@ -634,7 +655,15 @@ void WriteFrom(int sock, userrec *user,char* text, ...)
 	chop(tb);
 	if (sock != -1)
 	{
-		write(sock,tb,bytes > 514 ? 514 : bytes);
+                int MOD_RESULT = 0;
+                FOREACH_RESULT(OnRawSocketWrite(sock,tb,bytes > 514 ? 514 : bytes));
+                if (!MOD_RESULT)
+                        write(sock,tb,bytes > 514 ? 514 : bytes);
+                if (fd_ref_table[sock])
+                {
+                        fd_ref_table[sock]->bytes_out += (bytes > 514 ? 514 : bytes);
+                        fd_ref_table[sock]->cmds_out++;
+                }
 	}
 }
 
@@ -1889,7 +1918,7 @@ chanrec* del_channel(userrec *user, const char* cname, const char* reason, bool 
 		if (iter != chanlist.end())
 		{
 			log(DEBUG,"del_channel: destroyed: %s",Ptr->name);
-			if (iter->second) delete iter->second;
+			delete Ptr;
 			chanlist.erase(iter);
 		}
 	}
@@ -1974,7 +2003,7 @@ void kick_channel(userrec *src,userrec *user, chanrec *Ptr, char* reason)
 		if (iter != chanlist.end())
 		{
 			log(DEBUG,"del_channel: destroyed: %s",Ptr->name);
-			if (iter->second) delete iter->second;
+			delete Ptr;
 			chanlist.erase(iter);
 		}
 	}
@@ -2164,7 +2193,6 @@ void kill_link(userrec *user,const char* r)
 	Write(user->fd,"ERROR :Closing link (%s@%s) [%s]",user->ident,user->host,reason);
 	log(DEBUG,"closing fd %lu",(unsigned long)user->fd);
 
-	/* bugfix, cant close() a nonblocking socket (sux!) */
 	if (user->registered == 7) {
 		FOREACH_MOD OnUserQuit(user);
 		WriteCommonExcept(user,"QUIT :%s",reason);
@@ -2179,6 +2207,7 @@ void kill_link(userrec *user,const char* r)
 
 	if (user->fd > -1)
 	{
+		FOREACH_MOD OnRawSocketClose(user->fd);
 		shutdown(user->fd,2);
 		close(user->fd);
 	}
@@ -2194,10 +2223,10 @@ void kill_link(userrec *user,const char* r)
 
 	if (iter != clientlist.end())
 	{
-		log(DEBUG,"deleting user hash value %lu",(unsigned long)iter->second);
-		if ((iter->second) && (user->registered == 7)) {
-			if (iter->second) delete iter->second;
-		}
+		log(DEBUG,"deleting user hash value %lu",(unsigned long)user);
+		if (user->fd > -1)
+			fd_ref_table[user->fd] = NULL;
+		delete user;
 		clientlist.erase(iter);
 	}
 }
@@ -2219,7 +2248,6 @@ void kill_link_silent(userrec *user,const char* r)
 	Write(user->fd,"ERROR :Closing link (%s@%s) [%s]",user->ident,user->host,reason);
 	log(DEBUG,"closing fd %lu",(unsigned long)user->fd);
 
-	/* bugfix, cant close() a nonblocking socket (sux!) */
 	if (user->registered == 7) {
 		FOREACH_MOD OnUserQuit(user);
 		WriteCommonExcept(user,"QUIT :%s",reason);
@@ -2234,6 +2262,7 @@ void kill_link_silent(userrec *user,const char* r)
 
         if (user->fd > -1)
         {
+		FOREACH_MOD OnRawSocketClose(user->fd);
                 shutdown(user->fd,2);
                 close(user->fd);
         }
@@ -2244,10 +2273,10 @@ void kill_link_silent(userrec *user,const char* r)
 	
 	if (iter != clientlist.end())
 	{
-		log(DEBUG,"deleting user hash value %lu",(unsigned long)iter->second);
-		if ((iter->second) && (user->registered == 7)) {
-			if (iter->second) delete iter->second;
-		}
+		log(DEBUG,"deleting user hash value %lu",(unsigned long)user);
+                if (user->fd > -1)
+                        fd_ref_table[user->fd] = NULL;
+		delete user;
 		clientlist.erase(iter);
 	}
 }
@@ -2522,6 +2551,7 @@ void AddClient(int socket, char* host, int port, bool iscached, char* ip)
 			kill_link(clientlist[tempnick],reason);
 		}
 	}
+	fd_ref_table[socket] = clientlist[tempnick];
 }
 
 // this function counts all users connected, wether they are registered or NOT.
@@ -3228,13 +3258,6 @@ void process_command(userrec *user, char* cmd)
 							/* ikky /stats counters */
 							if (temp)
 							{
-								if (user)
-								{
-									user->bytes_in += strlen(temp);
-									user->cmds_in++;
-									user->bytes_out+=strlen(temp);
-									user->cmds_out++;
-								}
 								cmdlist[i].use_count++;
 								cmdlist[i].total_bytes+=strlen(temp);
 							}
@@ -4071,8 +4094,12 @@ int InspIRCd(void)
 
 		if (count2 == clientlist.end()) break;
 
+		userrec* curr = NULL;
+
 		if (count2->second)
-		if (count2->second->fd != 0)
+			curr = count2->second;
+
+		if ((curr) && (curr->fd != 0))
 		{
 			// assemble up to 64 sockets into an fd_set
 			// to implement a pooling mechanism.
@@ -4083,44 +4110,45 @@ int InspIRCd(void)
 			{
 				if (count2 != clientlist.end())
 				{
+					curr = count2->second;
 					// we don't check the state of remote users.
-					if ((count2->second->fd != -1) && (count2->second->fd != FD_MAGIC_NUMBER))
+					if ((curr->fd != -1) && (curr->fd != FD_MAGIC_NUMBER))
 					{
-						FD_SET (count2->second->fd, &sfd);
+						FD_SET (curr->fd, &sfd);
 
 						// registration timeout -- didnt send USER/NICK/HOST in the time specified in
 						// their connection class.
-						if ((TIME > count2->second->timeout) && (count2->second->registered != 7)) 
+						if ((TIME > curr->timeout) && (curr->registered != 7)) 
 						{
-						  	log(DEBUG,"InspIRCd: registration timeout: %s",count2->second->nick);
-							kill_link(count2->second,"Registration timeout");
+						  	log(DEBUG,"InspIRCd: registration timeout: %s",curr->nick);
+							kill_link(curr,"Registration timeout");
 							goto label;
 						}
-						if ((TIME > count2->second->signon) && (count2->second->registered == 3) && (AllModulesReportReady(count2->second)))
+						if ((TIME > curr->signon) && (curr->registered == 3) && (AllModulesReportReady(curr)))
 						{
 							log(DEBUG,"signon exceed, registered=3, and modules ready, OK");
-							count2->second->dns_done = true;
-							FullConnectUser(count2->second);
+							curr->dns_done = true;
+							FullConnectUser(curr);
 							goto label;
 						}
-		                                if ((count2->second->dns_done) && (count2->second->registered == 3) && (AllModulesReportReady(count2->second))) // both NICK and USER... and DNS
+		                                if ((curr->dns_done) && (curr->registered == 3) && (AllModulesReportReady(curr))) // both NICK and USER... and DNS
 		                                {
 							log(DEBUG,"dns done, registered=3, and modules ready, OK");
-		                                        FullConnectUser(count2->second);
+		                                        FullConnectUser(curr);
 							goto label;
 		                                }
-						if ((TIME > count2->second->nping) && (isnick(count2->second->nick)) && (count2->second->registered == 7))
+						if ((TIME > curr->nping) && (isnick(curr->nick)) && (curr->registered == 7))
 						{
-							if ((!count2->second->lastping) && (count2->second->registered == 7))
+							if ((!curr->lastping) && (curr->registered == 7))
 							{
-							  	log(DEBUG,"InspIRCd: ping timeout: %s",count2->second->nick);
-								kill_link(count2->second,"Ping timeout");
+							  	log(DEBUG,"InspIRCd: ping timeout: %s",curr->nick);
+								kill_link(curr,"Ping timeout");
 								goto label;
 							}
-							Write(count2->second->fd,"PING :%s",ServerName);
-						  	log(DEBUG,"InspIRCd: pinging: %s",count2->second->nick);
-							count2->second->lastping = 0;
-							count2->second->nping = TIME+count2->second->pingmax;	// was hard coded to 120
+							Write(curr->fd,"PING :%s",ServerName);
+						  	log(DEBUG,"InspIRCd: pinging: %s",curr->nick);
+							curr->lastping = 0;
+							curr->nping = TIME+curr->pingmax;	// was hard coded to 120
 						}
 					}
 					count2++;
@@ -4140,18 +4168,28 @@ int InspIRCd(void)
 			selectResult2 = select(65535, &sfd, NULL, NULL, &tval);
 			
 			// now loop through all of the items in this pool if any are waiting
-			//if (selectResult2 > 0)
+			if (selectResult2 > 0)
 			for (user_hash::iterator count2a = xcount; count2a != endingiter; count2a++)
 			{
 
 #ifdef _POSIX_PRIORITY_SCHEDULING
 				sched_yield();
 #endif
-
+				userrec* cu = count2a->second;
 				result = EAGAIN;
-				if ((count2a->second->fd != FD_MAGIC_NUMBER) && (count2a->second->fd != -1) && (FD_ISSET (count2a->second->fd, &sfd)))
+				if ((cu->fd != FD_MAGIC_NUMBER) && (cu->fd != -1) && (FD_ISSET (cu->fd, &sfd)))
 				{
-					result = read(count2a->second->fd, data, 65535);
+					log(DEBUG,"Data waiting on socket %d",cu->fd);
+			                int MOD_RESULT = 0;
+					int result2 = 0;
+			                FOREACH_RESULT(OnRawSocketRead(cu->fd,data,65535,result2));
+				        if (!MOD_RESULT)
+					{
+						result = read(cu->fd, data, 65535);
+					}
+					else result = result2;
+					log(DEBUG,"Read result: %d",result);
+	
 					if (result)
 					{
 						// perform a check on the raw buffer as an array (not a string!) to remove
@@ -4164,7 +4202,7 @@ int InspIRCd(void)
 						}
 						if (result > 0)
 							data[result] = '\0';
-						userrec* current = count2a->second;
+						userrec* current = cu;
 						int currfd = current->fd;
 						int floodlines = 0;
 						// add the data to the users buffer
@@ -4234,6 +4272,8 @@ int InspIRCd(void)
 							char sanitized[MAXBUF];
 							// use GetBuffer to copy single lines into the sanitized string
 							std::string single_line = current->GetBuffer();
+                                                        current->bytes_in += single_line.length();
+                                                        current->cmds_in++;
 							if (single_line.length()>512)
 							{
 								log(DEFAULT,"Excess flood from: %s!%s@%s",current->nick,current->ident,current->host);
@@ -4246,20 +4286,10 @@ int InspIRCd(void)
 							{
 								// we're gonna re-scan to check if the nick is gone, after every
 								// command - if it has, we're gonna bail
-								bool find_again = false;
 								process_buffer(sanitized,current);
-								// look for the user's record in case it's changed
-								for (user_hash::iterator c2 = clientlist.begin(); c2 != clientlist.end(); c2++)
-								{
-									if (c2->second->fd == currfd)
-									{
-										// found again, update pointer
-										current == c2->second;
-										find_again = true;
-										break;
-									}
-								}
-								if (!find_again)
+								// look for the user's record in case it's changed... if theyve quit,
+								// we cant do anything more with their buffer, so bail.
+								if (!fd_ref_table[currfd])
 									goto label;
 
 							}
@@ -4269,8 +4299,8 @@ int InspIRCd(void)
 
 					if ((result == -1) && (errno != EAGAIN) && (errno != EINTR))
 					{
-						log(DEBUG,"killing: %s",count2a->second->nick);
-						kill_link(count2a->second,strerror(errno));
+						log(DEBUG,"killing: %s",cu->nick);
+						kill_link(cu,strerror(errno));
 						goto label;
 					}
 				}
@@ -4283,8 +4313,8 @@ int InspIRCd(void)
 				{
 				  	if (count2->second)
 				  	{
-					  	log(DEBUG,"InspIRCd: Exited: %s",count2a->second->nick);
-						kill_link(count2a->second,"Client exited");
+					  	log(DEBUG,"InspIRCd: Exited: %s",cu->nick);
+						kill_link(cu,"Client exited");
 						// must bail here? kill_link removes the hash, corrupting the iterator
 						log(DEBUG,"Bailing from client exit");
 						goto label;
@@ -4335,6 +4365,7 @@ int InspIRCd(void)
 				}
 				else
 				{
+					FOREACH_MOD OnRawSocketAccept(incomingSockfd, resolved, ports[count]);
 					AddClient(incomingSockfd, resolved, ports[count], false, inet_ntoa (client.sin_addr));
 					log(DEBUG,"InspIRCd: adding client on port %lu fd=%lu",(unsigned long)ports[count],(unsigned long)incomingSockfd);
 				}

@@ -197,6 +197,12 @@ extern file_cache RULES;
 extern address_cache IP;
 
 
+// This table references users by file descriptor.
+// its an array to make it VERY fast, as all lookups are referenced
+// by an integer, meaning there is no need for a scan/search operation.
+extern userrec* fd_ref_table[65536];
+
+
 void handle_join(char **parameters, int pcnt, userrec *user)
 {
 	chanrec* Ptr;
@@ -391,6 +397,8 @@ void handle_kill(char **parameters, int pcnt, userrec *user)
 			{
 				purge_empty_chans(u);
 			}
+	                if (u->fd > -1)
+        	                fd_ref_table[u->fd] = NULL;
 			delete u;
 		}
 		else
@@ -940,6 +948,8 @@ void handle_quit(char **parameters, int pcnt, userrec *user)
 	if (user->registered == 7) {
 		purge_empty_chans(user);
 	}
+        if (user->fd > -1)
+                fd_ref_table[user->fd] = NULL;
 	delete user;
 }
 

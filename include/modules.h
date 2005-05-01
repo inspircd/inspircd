@@ -650,6 +650,39 @@ class Module : public classbase
 	 * Return a non-zero value to 'eat' the mode change and prevent the ban from being removed.
 	 */
 	virtual int OnDelBan(userrec* source, chanrec* channel,std::string banmask);
+
+	/** Called immediately after any  connection is accepted. This is intended for raw socket
+	 * processing (e.g. modules which wrap the tcp connection within another library) and provides
+	 * no information relating to a user record as the connection has not been assigned yet.
+	 * There are no return values from this call as all modules get an opportunity if required to
+	 * process the connection.
+	 */
+	virtual void OnRawSocketAccept(int fd, std::string ip, int localport);
+
+	/** Called immediately before any write() operation on a user's socket in the core. Because
+	 * this event is a low level event no user information is associated with it. It is intended
+	 * for use by modules which may wrap connections within another API such as SSL for example.
+	 * return a non-zero result if you have handled the write operation, in which case the core
+	 * will not call write().
+	 */
+	virtual int OnRawSocketWrite(int fd, char* buffer, int count);
+
+	/** Called immediately before any socket is closed. When this event is called, shutdown()
+	 * has not yet been called on the socket.
+	 */
+	virtual void OnRawSocketClose(int fd);
+
+	/** Called immediately before any read() operation on a client socket in the core.
+	 * This occurs AFTER the select() or poll() so there is always data waiting to be read
+	 * when this event occurs.
+	 * Your event should return 1 if it has handled the reading itself, which prevents the core
+	 * just using read(). You should place any data read into buffer, up to but NOT GREATER THAN
+	 * the value of count. The value of readresult must be identical to an actual result that might
+	 * be returned from the read() system call, for example, number of bytes read upon success,
+	 * 0 upon EOF or closed socket, and -1 for error. If your function returns a nonzero value,
+	 * you MUST set readresult.
+	 */
+	virtual int OnRawSocketRead(int fd, char* buffer, unsigned int count, int &readresult);
 };
 
 

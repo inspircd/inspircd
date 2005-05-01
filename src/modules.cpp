@@ -355,58 +355,63 @@ std::string Event::GetEventID()
 }
 
 
-Module::Module() { }
-Module::~Module() { }
-void Module::OnUserConnect(userrec* user) { }
-void Module::OnUserQuit(userrec* user) { }
-void Module::OnUserDisconnect(userrec* user) { }
-void Module::OnUserJoin(userrec* user, chanrec* channel) { }
-void Module::OnUserPart(userrec* user, chanrec* channel) { }
-void Module::OnPacketTransmit(std::string &data, std::string serv) { }
-void Module::OnPacketReceive(std::string &data, std::string serv) { }
-void Module::OnRehash() { }
-void Module::OnServerRaw(std::string &raw, bool inbound, userrec* user) { }
-int Module::OnUserPreJoin(userrec* user, chanrec* chan, const char* cname) { return 0; }
-int Module::OnExtendedMode(userrec* user, void* target, char modechar, int type, bool mode_on, string_list &params) { return false; }
-Version Module::GetVersion() { return Version(1,0,0,0,VF_VENDOR); }
-void Module::OnOper(userrec* user) { };
-void Module::OnInfo(userrec* user) { };
-void Module::OnWhois(userrec* source, userrec* dest) { };
-int Module::OnUserPreInvite(userrec* source,userrec* dest,chanrec* channel) { return 0; };
-int Module::OnUserPreMessage(userrec* user,void* dest,int target_type, std::string &text) { return 0; };
-int Module::OnUserPreNotice(userrec* user,void* dest,int target_type, std::string &text) { return 0; };
-int Module::OnUserPreNick(userrec* user, std::string newnick) { return 0; };
-void Module::OnUserPostNick(userrec* user, std::string oldnick) { };
-int Module::OnAccessCheck(userrec* source,userrec* dest,chanrec* channel,int access_type) { return ACR_DEFAULT; };
-string_list Module::OnUserSync(userrec* user) { string_list empty; return empty; }
-string_list Module::OnChannelSync(chanrec* chan) { string_list empty; return empty; }
-void Module::On005Numeric(std::string &output) { };
-int Module::OnKill(userrec* source, userrec* dest, std::string reason) { return 0; };
-void Module::OnLoadModule(Module* mod,std::string name) { };
-void Module::OnBackgroundTimer(time_t curtime) { };
-void Module::OnSendList(userrec* user, chanrec* channel, char mode) { };
-int Module::OnPreCommand(std::string command, char **parameters, int pcnt, userrec *user) { return 0; };
-bool Module::OnCheckReady(userrec* user) { return true; };
-void Module::OnUserRegister(userrec* user) { };
-int Module::OnUserPreKick(userrec* source, userrec* user, chanrec* chan, std::string reason) { return 0; };
-void Module::OnUserKick(userrec* source, userrec* user, chanrec* chan, std::string reason) { };
-int Module::OnRawMode(userrec* user, chanrec* chan, char mode, std::string param, bool adding, int pcnt) { return 0; };
-int Module::OnCheckInvite(userrec* user, chanrec* chan) { return 0; };
-int Module::OnCheckKey(userrec* user, chanrec* chan, std::string keygiven) { return 0; };
-int Module::OnCheckLimit(userrec* user, chanrec* chan) { return 0; };
-int Module::OnCheckBan(userrec* user, chanrec* chan) { return 0; };
-void Module::OnStats(char symbol) { };
-int Module::OnChangeLocalUserHost(userrec* user, std::string newhost) { return 0; };
-int Module::OnChangeLocalUserGECOS(userrec* user, std::string newhost) { return 0; };
-int Module::OnLocalTopicChange(userrec* user, chanrec* chan, std::string topic) { return 0; };
-int Module::OnMeshToken(char token,string_list params,serverrec* source,serverrec* reply, std::string tcp_host,std::string ipaddr,int port) { return 0; };
-void Module::OnEvent(Event* event) { return; };
-char* Module::OnRequest(Request* request) { return NULL; };
-int Module::OnOperCompare(std::string password, std::string input) { return 0; };
-void Module::OnGlobalOper(userrec* user) { };
-void Module::OnGlobalConnect(userrec* user) { };
-int Module::OnAddBan(userrec* source, chanrec* channel,std::string banmask) { return 0; };
-int Module::OnDelBan(userrec* source, chanrec* channel,std::string banmask) { return 0; };
+// These declarations define the behavours of the base class Module (which does nothing at all)
+		Module::Module() { }
+		Module::~Module() { }
+void		Module::OnUserConnect(userrec* user) { }
+void		Module::OnUserQuit(userrec* user) { }
+void		Module::OnUserDisconnect(userrec* user) { }
+void		Module::OnUserJoin(userrec* user, chanrec* channel) { }
+void		Module::OnUserPart(userrec* user, chanrec* channel) { }
+void		Module::OnPacketTransmit(std::string &data, std::string serv) { }
+void		Module::OnPacketReceive(std::string &data, std::string serv) { }
+void		Module::OnRehash() { }
+void		Module::OnServerRaw(std::string &raw, bool inbound, userrec* user) { }
+int		Module::OnUserPreJoin(userrec* user, chanrec* chan, const char* cname) { return 0; }
+int		Module::OnExtendedMode(userrec* user, void* target, char modechar, int type, bool mode_on, string_list &params) { return false; }
+Version		Module::GetVersion() { return Version(1,0,0,0,VF_VENDOR); }
+void		Module::OnOper(userrec* user) { };
+void		Module::OnInfo(userrec* user) { };
+void		Module::OnWhois(userrec* source, userrec* dest) { };
+int		Module::OnUserPreInvite(userrec* source,userrec* dest,chanrec* channel) { return 0; };
+int		Module::OnUserPreMessage(userrec* user,void* dest,int target_type, std::string &text) { return 0; };
+int		Module::OnUserPreNotice(userrec* user,void* dest,int target_type, std::string &text) { return 0; };
+int		Module::OnUserPreNick(userrec* user, std::string newnick) { return 0; };
+void		Module::OnUserPostNick(userrec* user, std::string oldnick) { };
+int		Module::OnAccessCheck(userrec* source,userrec* dest,chanrec* channel,int access_type) { return ACR_DEFAULT; };
+string_list	Module::OnUserSync(userrec* user) { string_list empty; return empty; }
+string_list	Module::OnChannelSync(chanrec* chan) { string_list empty; return empty; }
+void		Module::On005Numeric(std::string &output) { };
+int		Module::OnKill(userrec* source, userrec* dest, std::string reason) { return 0; };
+void		Module::OnLoadModule(Module* mod,std::string name) { };
+void		Module::OnBackgroundTimer(time_t curtime) { };
+void		Module::OnSendList(userrec* user, chanrec* channel, char mode) { };
+int		Module::OnPreCommand(std::string command, char **parameters, int pcnt, userrec *user) { return 0; };
+bool		Module::OnCheckReady(userrec* user) { return true; };
+void		Module::OnUserRegister(userrec* user) { };
+int		Module::OnUserPreKick(userrec* source, userrec* user, chanrec* chan, std::string reason) { return 0; };
+void		Module::OnUserKick(userrec* source, userrec* user, chanrec* chan, std::string reason) { };
+int		Module::OnRawMode(userrec* user, chanrec* chan, char mode, std::string param, bool adding, int pcnt) { return 0; };
+int		Module::OnCheckInvite(userrec* user, chanrec* chan) { return 0; };
+int		Module::OnCheckKey(userrec* user, chanrec* chan, std::string keygiven) { return 0; };
+int		Module::OnCheckLimit(userrec* user, chanrec* chan) { return 0; };
+int		Module::OnCheckBan(userrec* user, chanrec* chan) { return 0; };
+void		Module::OnStats(char symbol) { };
+int		Module::OnChangeLocalUserHost(userrec* user, std::string newhost) { return 0; };
+int		Module::OnChangeLocalUserGECOS(userrec* user, std::string newhost) { return 0; };
+int		Module::OnLocalTopicChange(userrec* user, chanrec* chan, std::string topic) { return 0; };
+int		Module::OnMeshToken(char token,string_list params,serverrec* source,serverrec* reply, std::string tcp_host,std::string ipaddr,int port) { return 0; };
+void		Module::OnEvent(Event* event) { return; };
+char*		Module::OnRequest(Request* request) { return NULL; };
+int		Module::OnOperCompare(std::string password, std::string input) { return 0; };
+void		Module::OnGlobalOper(userrec* user) { };
+void		Module::OnGlobalConnect(userrec* user) { };
+int		Module::OnAddBan(userrec* source, chanrec* channel,std::string banmask) { return 0; };
+int		Module::OnDelBan(userrec* source, chanrec* channel,std::string banmask) { return 0; };
+void		Module::OnRawSocketAccept(int fd, std::string ip, int localport) { };
+int		Module::OnRawSocketWrite(int fd, char* buffer, int count) { return 0; };
+void		Module::OnRawSocketClose(int fd) { };
+int		Module::OnRawSocketRead(int fd, char* buffer, unsigned int count, int &readresult) { return 0; };
 
 // server is a wrapper class that provides methods to all of the C-style
 // exports in the core
