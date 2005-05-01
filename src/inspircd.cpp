@@ -2482,7 +2482,17 @@ void AddClient(int socket, char* host, int port, bool iscached, char* ip)
 
 	iter = clientlist.find(tempnick);
 
-	if (iter != clientlist.end()) return;
+	// fix by brain.
+	// as these nicknames are 'RFC impossible', we can be sure nobody is going to be
+	// using one as a registered connection. As theyre per fd, we can also safely assume
+	// that we wont have collisions. Therefore, if the nick exists in the list, its only
+	// used by a dead socket, erase the iterator so that the new client may reclaim it.
+	// this was probably the cause of 'server ignores me when i hammer it with reconnects'
+	// issue in earlier alphas/betas
+	if (iter != clientlist.end())
+	{
+		clientlist.erase(iter);
+	}
 
 	/*
 	 * It is OK to access the value here this way since we know
@@ -2537,7 +2547,23 @@ void AddClient(int socket, char* host, int port, bool iscached, char* ip)
  	}
 
 	if (clientlist.size() == MAXCLIENTS)
+	{
 		kill_link(clientlist[tempnick],"No more connections allowed in this class");
+		return;
+	}
+
+	// this is done as a safety check to keep the file descriptors within range of fd_ref_table.
+	// its a pretty big but for the moment valid assumption:
+	// file descriptors are handed out starting at 0, and are recycled as theyre freed.
+	// therefore if there is ever an fd over 65535, 65536 clients must be connected to the
+	// irc server at once (or the irc server otherwise initiating this many connections, files etc)
+	// which for the time being is a physical impossibility (even the largest networks dont have more
+	// than about 10,000 users on ONE server!)
+	if (socket > 65535)
+	{
+		kill_link(clientlist[tempnick],"Server is full");
+		return;
+	}
 		
 
         char* e = matches_exception(ip);
@@ -2549,6 +2575,7 @@ void AddClient(int socket, char* host, int port, bool iscached, char* ip)
 			char reason[MAXBUF];
 			snprintf(reason,MAXBUF,"Z-Lined: %s",r);
 			kill_link(clientlist[tempnick],reason);
+			return;
 		}
 	}
 	fd_ref_table[socket] = clientlist[tempnick];
@@ -4289,6 +4316,8 @@ int InspIRCd(void)
 								process_buffer(sanitized,current);
 								// look for the user's record in case it's changed... if theyve quit,
 								// we cant do anything more with their buffer, so bail.
+								// there used to be an ugly, slow loop here. Now we have a reference
+								// table, life is much easier (and FASTER)
 								if (!fd_ref_table[currfd])
 									goto label;
 

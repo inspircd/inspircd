@@ -110,7 +110,7 @@ sub debug {
 
 
 sub stop {
-        if (getstatus() == 0) { print "InspIRCd is not running. (Or PID File not found)"; return 0; }
+        if (getstatus() == 0) { print "InspIRCd is not running. (Or PID File not found)\n"; return 0; }
         # Get to here, we have something to kill.
         my $pid = getprocessid();
 	print "Stopping InspIRCd...\n";
@@ -126,7 +126,7 @@ sub stop {
 
 
 sub getpidfile {
-	open INFILE, "<  $conffile" or die "Couldn't open $conffile";
+	open INFILE, "<  $conffile" or die "Couldn't open $conffile\n";
 	my(@lines) = <INFILE>;
 	close INFILE;
 	chomp(@lines);
