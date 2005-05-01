@@ -107,6 +107,7 @@ extern serverrec* me[32];
 
 extern FILE *log_file;
 
+extern userrec* fd_ref_table[65536];
 
 namespace nspace
 {
@@ -587,6 +588,11 @@ bool Server::IsNick(std::string nick)
 userrec* Server::FindNick(std::string nick)
 {
 	return Find(nick);
+}
+
+userrec* Server::FindDescriptor(int socket)
+{
+	return (socket < 65536 ? fd_ref_table[socket] : NULL);
 }
 
 chanrec* Server::FindChannel(std::string channel)

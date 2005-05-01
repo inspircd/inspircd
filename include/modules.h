@@ -784,6 +784,10 @@ class Server : public classbase
 	 * This function will return NULL if the nick does not exist.
 	 */
 	virtual userrec* FindNick(std::string nick);
+	/** Attempts to look up a nick using the file descriptor associated with that nick.
+	 * This function will return NULL if the file descriptor is not associated with a valid user.
+	 */
+	virtual userrec* FindDescriptor(int socket);
 	/** Attempts to look up a channel and return a pointer to it.
 	 * This function will return NULL if the channel does not exist.
 	 */
