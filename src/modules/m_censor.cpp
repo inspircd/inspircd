@@ -94,7 +94,7 @@ class ModuleCensor : public Module
 	{
 		if ((pattern != "") && (text != ""))
 		{
-			while (strstr(text.c_str(),pattern.c_str()))
+			while (text.find(pattern) != std::string::npos)
 			{
 				int pos = text.find(pattern);
 				text.erase(pos,pattern.length());
@@ -111,7 +111,7 @@ class ModuleCensor : public Module
 		for (int index = 0; index < MyConf->Enumerate("badword"); index++)
 		{
 			std::string pattern = MyConf->ReadValue("badword","text",index);
-			if (strstr(text.c_str(),pattern.c_str()))
+			if (text.find(pattern) != std::string::npos)
 			{
 				std::string replace = MyConf->ReadValue("badword","replace",index);
 
@@ -130,8 +130,6 @@ class ModuleCensor : public Module
 				{
 					this->ReplaceLine(text,pattern,replace);
 				}
-				
-				return 0;
 			}
 		}
 		return 0;
@@ -143,7 +141,7 @@ class ModuleCensor : public Module
 		for (int index = 0; index < MyConf->Enumerate("badword"); index++)
 		{
 			std::string pattern = MyConf->ReadValue("badword","text",index);
-			if (strstr(text.c_str(),pattern.c_str()))
+			if (text.find(pattern) != std::string::npos)
 			{
 				std::string replace = MyConf->ReadValue("badword","replace",index);
 
@@ -162,8 +160,6 @@ class ModuleCensor : public Module
 				{
 					this->ReplaceLine(text,pattern,replace);
 				}
-				
-				return 0;
 			}
 		}
 		return 0;
