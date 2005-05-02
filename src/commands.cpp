@@ -196,6 +196,7 @@ extern file_cache MOTD;
 extern file_cache RULES;
 extern address_cache IP;
 
+extern std::vector<userrec*> all_opers;
 
 // This table references users by file descriptor.
 // its an array to make it VERY fast, as all lookups are referenced
@@ -1038,7 +1039,8 @@ void handle_who(char **parameters, int pcnt, userrec *user)
 					strncat(tmp, "H" ,9);
 				}
 				if (strchr(u->modes,'o')) { strncat(tmp, "*" ,9); }
-				WriteServ(user->fd,"352 %s %s %s %s %s %s %s :0 %s",user->nick, u->nick, u->ident, u->dhost, u->server, u->nick, tmp, u->fullname);
+				WriteServ(user->fd,"352 %s %s %s %s %s %s %s :0 %s",user->nick, u->chans[0].channel ? u->chans[0].channel->name
+                                : "*", u->ident, u->dhost, u->server, u->nick, tmp, u->fullname);
 			}
 			WriteServ(user->fd,"315 %s %s :End of /WHO list.",user->nick, parameters[0]);
 		}
@@ -1047,24 +1049,19 @@ void handle_who(char **parameters, int pcnt, userrec *user)
 	{
                 if ((!strcmp(parameters[0],"0")) || (!strcmp(parameters[0],"*")) && (!strcmp(parameters[1],"o")))
                 {
-		  	for (user_hash::const_iterator i = clientlist.begin(); i != clientlist.end(); i++)
+		  	for (std::vector<userrec*>::iterator i = all_opers.begin(); i != all_opers.end(); i++)
                         {
-                                if ((common_channels(user,i->second)) && (isnick(i->second->nick)))
-                                {
-                                        if (strchr(i->second->modes,'o'))
-                                        {
-						// If i were a rich man.. I wouldn't need to me making these bugfixes..
-						// But i'm a poor bastard with nothing better to do.
-						strcpy(tmp, "");
-						if (strcmp(i->second->awaymsg, "")) {
-							strncat(tmp, "G" ,9);
-						} else {
-							strncat(tmp, "H" ,9);
-						}
-
-                                                WriteServ(user->fd,"352 %s %s %s %s %s %s %s* :0 %s",user->nick, user->nick, i->second->ident, i->second->dhost, i->second->server, i->second->nick, tmp, i->second->fullname);
-                                        }
-                                }
+				// If i were a rich man.. I wouldn't need to me making these bugfixes..
+				// But i'm a poor bastard with nothing better to do.
+				userrec* oper = *i;
+				strcpy(tmp, "");
+				if (strcmp(oper->awaymsg, "")) {
+					strncat(tmp, "G" ,9);
+				} else {
+					strncat(tmp, "H" ,9);
+				}
+                                WriteServ(user->fd,"352 %s %s %s %s %s %s %s* :0 %s", user->nick, oper->chans[0].channel ? oper->chans[0].channel->name 
+				: "*", oper->ident, oper->dhost, oper->server, oper->nick, tmp, oper->fullname);
                         }
                         WriteServ(user->fd,"315 %s %s :End of /WHO list.",user->nick, parameters[0]);
                         return;
