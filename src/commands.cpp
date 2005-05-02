@@ -39,6 +39,11 @@
 #include <errno.h>
 #include <unistd.h>
 #include <sched.h>
+#include <sys/types.h>
+#include <sys/time.h>
+#include <sys/resource.h>
+#define   RUSAGE_SELF     0
+#define   RUSAGE_CHILDREN     -1
 #include "connection.h"
 #include "users.h"
 #include "servers.h"
@@ -204,7 +209,6 @@ extern std::vector<userrec*> all_opers;
 extern userrec* fd_ref_table[65536];
 
 extern int statsAccept,statsRefused,statsUnknown,statsCollisions,statsDns,statsDnsGood,statsDnsBad,statsConnects,statsSent,statsRecv;
-
 
 void handle_join(char **parameters, int pcnt, userrec *user)
 {
@@ -1421,6 +1425,7 @@ void handle_stats(char **parameters, int pcnt, userrec *user)
 	/* stats z (debug and memory info) */
 	if (*parameters[0] == 'z')
 	{
+		rusage R;
 		WriteServ(user->fd,"249 %s :Users(HASH_MAP) %d (%d bytes, %d buckets)",user->nick,clientlist.size(),clientlist.size()*sizeof(userrec),clientlist.bucket_count());
 		WriteServ(user->fd,"249 %s :Channels(HASH_MAP) %d (%d bytes, %d buckets)",user->nick,chanlist.size(),chanlist.size()*sizeof(chanrec),chanlist.bucket_count());
 		WriteServ(user->fd,"249 %s :Commands(VECTOR) %d (%d bytes)",user->nick,cmdlist.size(),cmdlist.size()*sizeof(command_t));
@@ -1429,6 +1434,14 @@ void handle_stats(char **parameters, int pcnt, userrec *user)
 		WriteServ(user->fd,"249 %s :Modules(VECTOR) %d (%d)",user->nick,modules.size(),modules.size()*sizeof(Module));
 		WriteServ(user->fd,"249 %s :ClassFactories(VECTOR) %d (%d)",user->nick,factory.size(),factory.size()*sizeof(ircd_module));
 		WriteServ(user->fd,"249 %s :Ports(STATIC_ARRAY) %d",user->nick,boundPortCount);
+		if (!getrusage(RUSAGE_SELF,&R))
+		{
+			WriteServ(user->fd,"249 %s :Total allocation: %luK (0x%lx)",user->nick,R.ru_maxrss,R.ru_maxrss);
+			WriteServ(user->fd,"249 %s :Signals:          %lu  (0x%lx)",user->nick,R.ru_nsignals,R.ru_nsignals);
+			WriteServ(user->fd,"249 %s :Page faults:      %lu  (0x%lx)",user->nick,R.ru_majflt,R.ru_majflt);
+			WriteServ(user->fd,"249 %s :Swaps:            %lu  (0x%lx)",user->nick,R.ru_nswap,R.ru_nswap);
+			WriteServ(user->fd,"249 %s :Context Switches: %lu  (0x%lx)",user->nick,R.ru_nvcsw+R.ru_nivcsw,R.ru_nvcsw+R.ru_nivcsw);
+		}
 	}
 
 	if (*parameters[0] == 'T')
