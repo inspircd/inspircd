@@ -590,12 +590,12 @@ void Write(int sock,char *text, ...)
 	if (sock != -1)
 	{
 		int MOD_RESULT = 0;
-		FOREACH_RESULT(OnRawSocketWrite(sock,tb,bytes > 514 ? 514 : bytes));
+		FOREACH_RESULT(OnRawSocketWrite(sock,tb,bytes > 512 ? 512 : bytes));
 		if (!MOD_RESULT)
-			write(sock,tb,bytes > 514 ? 514 : bytes);
+			write(sock,tb,bytes > 512 ? 512 : bytes);
 		if (fd_ref_table[sock])
 		{
-			fd_ref_table[sock]->bytes_out += (bytes > 514 ? 514 : bytes);
+			fd_ref_table[sock]->bytes_out += (bytes > 512 ? 512 : bytes);
 			fd_ref_table[sock]->cmds_out++;
 		}
 	}
@@ -623,12 +623,12 @@ void WriteServ(int sock, char* text, ...)
 	if (sock != -1)
 	{
                 int MOD_RESULT = 0;
-                FOREACH_RESULT(OnRawSocketWrite(sock,tb,bytes > 514 ? 514 : bytes));
+                FOREACH_RESULT(OnRawSocketWrite(sock,tb,bytes > 512 ? 512 : bytes));
                 if (!MOD_RESULT)
-                        write(sock,tb,bytes > 514 ? 514 : bytes);
+                        write(sock,tb,bytes > 512 ? 512 : bytes);
                 if (fd_ref_table[sock])
                 {
-                        fd_ref_table[sock]->bytes_out += (bytes > 514 ? 514 : bytes);
+                        fd_ref_table[sock]->bytes_out += (bytes > 512 ? 512 : bytes);
                         fd_ref_table[sock]->cmds_out++;
                 }
 	}
@@ -656,12 +656,12 @@ void WriteFrom(int sock, userrec *user,char* text, ...)
 	if (sock != -1)
 	{
                 int MOD_RESULT = 0;
-                FOREACH_RESULT(OnRawSocketWrite(sock,tb,bytes > 514 ? 514 : bytes));
+                FOREACH_RESULT(OnRawSocketWrite(sock,tb,bytes > 512 ? 512 : bytes));
                 if (!MOD_RESULT)
-                        write(sock,tb,bytes > 514 ? 514 : bytes);
+                        write(sock,tb,bytes > 512 ? 512 : bytes);
                 if (fd_ref_table[sock])
                 {
-                        fd_ref_table[sock]->bytes_out += (bytes > 514 ? 514 : bytes);
+                        fd_ref_table[sock]->bytes_out += (bytes > 512 ? 512 : bytes);
                         fd_ref_table[sock]->cmds_out++;
                 }
 	}

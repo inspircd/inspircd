@@ -187,11 +187,12 @@ void chop(char* str)
 	FOREACH_MOD OnServerRaw(temp,false,NULL);
 	const char* str2 = temp.c_str();
 	snprintf(str,MAXBUF,"%s",str2);
-	if (strlen(str) >= 512)
+	if (strlen(str) >= 511)
 	{
-		str[509] = '\r';
-		str[510] = '\n';
-		str[511] = '\0';
+		str[510] = '\r';
+		str[511] = '\n';
+		str[512] = '\0';
+		log(DEBUG,"Excess line chopped.");
 	}
 }
 
