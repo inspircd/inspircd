@@ -63,7 +63,7 @@ void Rehash(int status)
 
 void Start (void)
 {
-	printf("\033[1;32mInspire Internet Relay Chat Server, compiled " __DATE__ " at " __TIME__ "\n");
+	printf("\033[1;32mInspire Internet Relay Chat Server, compiled %s at %s\n",__DATE__,__TIME__);
 	printf("(C) ChatSpike Development team.\033[0m\n\n");
 	printf("Developers:\033[1;32m     Brain, FrostyCoolSlug\033[0m\n");
 	printf("Documentation:\033[1;32m  FrostyCoolSlug, w00t\033[0m\n");

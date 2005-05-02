@@ -31,7 +31,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include <poll.h>
 #include "dns.h"
 
-static const char tagstring[] = "$Id$";
+extern int statsAccept,statsRefused,statsUnknown,statsCollisions,statsDns,statsDnsGood,statsDnsBad,statsConnects,statsSent,statsRecv;
 
 #define max(a,b) (a > b ? a : b)
 #define DNS_MAX              8                    /* max number of nameservers used */
@@ -691,6 +691,7 @@ DNS::~DNS()
 
 bool DNS::ReverseLookup(std::string ip)
 {
+	statsDns++;
         binip = dns_aton4(ip.c_str());
         if (binip == NULL) {
                 return false;
@@ -723,9 +724,11 @@ std::string DNS::GetResult()
 {
         result = dns_getresult(this->fd);
         if (result) {
+		statsDnsGood++;
 		dns_close(this->fd);
 		return result;
         } else {
+		statsDnsBad++;
 		return "";
 	}
 }

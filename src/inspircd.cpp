@@ -181,6 +181,8 @@ typedef std::deque<command_t> command_table;
 // by an integer, meaning there is no need for a scan/search operation.
 userrec* fd_ref_table[65536];
 
+int statsAccept = 0, statsRefused = 0, statsUnknown = 0, statsCollisions = 0, statsDns = 0, statsDnsGood = 0, statsDnsBad = 0, statsConnects = 0, statsSent= 0, statsRecv = 0;
+
 serverrec* me[32];
 
 FILE *log_file;
@@ -598,6 +600,7 @@ void Write(int sock,char *text, ...)
 			fd_ref_table[sock]->bytes_out += (bytes > 512 ? 512 : bytes);
 			fd_ref_table[sock]->cmds_out++;
 		}
+		statsSent += (bytes > 512 ? 512 : bytes);
 	}
 }
 
@@ -631,6 +634,7 @@ void WriteServ(int sock, char* text, ...)
                         fd_ref_table[sock]->bytes_out += (bytes > 512 ? 512 : bytes);
                         fd_ref_table[sock]->cmds_out++;
                 }
+		statsSent += (bytes > 512 ? 512 : bytes);
 	}
 }
 
@@ -664,6 +668,7 @@ void WriteFrom(int sock, userrec *user,char* text, ...)
                         fd_ref_table[sock]->bytes_out += (bytes > 512 ? 512 : bytes);
                         fd_ref_table[sock]->cmds_out++;
                 }
+		statsSent += (bytes > 512 ? 512 : bytes);
 	}
 }
 
@@ -2709,6 +2714,7 @@ void ShowRULES(userrec *user)
 /* shows the message of the day, and any other on-logon stuff */
 void FullConnectUser(userrec* user)
 {
+	statsConnects++;
         user->registered = 7;
         user->idle_lastmsg = TIME;
         log(DEBUG,"ConnectUser: %s",user->nick);
@@ -2982,11 +2988,13 @@ void force_nickchange(userrec* user,const char* newnick)
 
 	FOREACH_RESULT(OnUserPreNick(user,newnick));
 	if (MOD_RESULT) {
+		statsCollisions++;
 		kill_link(user,"Nickname collision");
 		return;
 	}
 	if (matches_qline(newnick))
 	{
+		statsCollisions++;
 		kill_link(user,"Nickname collision");
 		return;
 	}
@@ -3193,6 +3201,7 @@ void process_command(userrec *user, char* cmd)
 			{
 				if (strchr("@!\"$%^&*(){}[]_=+;:'#~,<>/?\\|`",command[x]))
 				{
+					statsUnknown++;
 					WriteServ(user->fd,"421 %s %s :Unknown command",user->nick,command);
 					return;
 				}
@@ -3315,6 +3324,7 @@ void process_command(userrec *user, char* cmd)
 	}
 	if ((!cmd_found) && (user))
 	{
+		statsUnknown++;
 		WriteServ(user->fd,"421 %s %s :Unknown command",user->nick,command);
 	}
 }
@@ -4155,6 +4165,7 @@ int InspIRCd(void)
 						{
 							log(DEBUG,"signon exceed, registered=3, and modules ready, OK");
 							curr->dns_done = true;
+							statsDnsBad++;
 							FullConnectUser(curr);
 							goto label;
 						}
@@ -4219,6 +4230,7 @@ int InspIRCd(void)
 	
 					if (result)
 					{
+						statsRecv += result;
 						// perform a check on the raw buffer as an array (not a string!) to remove
 						// characters 0 and 7 which are illegal in the RFC - replace them with spaces.
 						// hopefully this should stop even more people whining about "Unknown command: *"
@@ -4391,10 +4403,12 @@ int InspIRCd(void)
 				{
 					WriteOpers("*** WARNING: Accept failed on port %lu (%s)",(unsigned long)ports[count],target);
 					log(DEBUG,"InspIRCd: accept failed: %lu",(unsigned long)ports[count]);
+					statsRefused++;
 				}
 				else
 				{
 					FOREACH_MOD OnRawSocketAccept(incomingSockfd, resolved, ports[count]);
+					statsAccept++;
 					AddClient(incomingSockfd, resolved, ports[count], false, inet_ntoa (client.sin_addr));
 					log(DEBUG,"InspIRCd: adding client on port %lu fd=%lu",(unsigned long)ports[count],(unsigned long)incomingSockfd);
 				}

@@ -125,7 +125,7 @@ chanrec::chanrec()
 void chanrec::SetCustomMode(char mode,bool mode_on)
 {
 	if (mode_on) {
-		char m[3];
+		static char m[3];
 		m[0] = mode;
 		m[1] = '\0';
 		if (!strchr(this->custom_modes,mode))

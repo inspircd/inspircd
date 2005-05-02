@@ -203,6 +203,8 @@ extern std::vector<userrec*> all_opers;
 // by an integer, meaning there is no need for a scan/search operation.
 extern userrec* fd_ref_table[65536];
 
+extern int statsAccept,statsRefused,statsUnknown,statsCollisions,statsDns,statsDnsGood,statsDnsBad,statsConnects,statsSent,statsRecv;
+
 
 void handle_join(char **parameters, int pcnt, userrec *user)
 {
@@ -976,11 +978,11 @@ void handle_who(char **parameters, int pcnt, userrec *user)
 						// Bug Fix #29
 						strcpy(tmp, "");
 						if (strcmp(i->second->awaymsg, "")) {
-							strncat(tmp, "G", 9);
+							strlcat(tmp, "G", 9);
 						} else {
-							strncat(tmp, "H", 9);
+							strlcat(tmp, "H", 9);
 						}
-						if (strchr(i->second->modes,'o')) { strncat(tmp, "*", 9); }
+						if (strchr(i->second->modes,'o')) { strlcat(tmp, "*", 9); }
 						WriteServ(user->fd,"352 %s %s %s %s %s %s %s :0 %s",user->nick, Ptr ? Ptr->name : "*", i->second->ident, i->second->dhost, i->second->server, i->second->nick, tmp, i->second->fullname);
 						n_list++;
 						if (n_list > MaxWhoResults)
@@ -1010,12 +1012,12 @@ void handle_who(char **parameters, int pcnt, userrec *user)
 						// Fix Bug #29 - Part 2..
 						strcpy(tmp, "");
 						if (strcmp(i->second->awaymsg, "")) {
-							strncat(tmp, "G", 9);
+							strlcat(tmp, "G", 9);
 						} else {
-							strncat(tmp, "H", 9);
+							strlcat(tmp, "H", 9);
 						}
-						if (strchr(i->second->modes,'o')) { strncat(tmp, "*", 9); }
-						strcat(tmp, cmode(i->second, Ptr));
+						if (strchr(i->second->modes,'o')) { strlcat(tmp, "*", 9); }
+						strlcat(tmp, cmode(i->second, Ptr),5);
 						WriteServ(user->fd,"352 %s %s %s %s %s %s %s :0 %s",user->nick, Ptr->name, i->second->ident, i->second->dhost, i->second->server, i->second->nick, tmp, i->second->fullname);
 					}
 				}
@@ -1034,11 +1036,11 @@ void handle_who(char **parameters, int pcnt, userrec *user)
 				// Bug Fix #29 -- Part 29..
 				strcpy(tmp, "");
 				if (strcmp(u->awaymsg, "")) {
-					strncat(tmp, "G" ,9);
+					strlcat(tmp, "G" ,9);
 				} else {
-					strncat(tmp, "H" ,9);
+					strlcat(tmp, "H" ,9);
 				}
-				if (strchr(u->modes,'o')) { strncat(tmp, "*" ,9); }
+				if (strchr(u->modes,'o')) { strlcat(tmp, "*" ,9); }
 				WriteServ(user->fd,"352 %s %s %s %s %s %s %s :0 %s",user->nick, u->chans[0].channel ? u->chans[0].channel->name
                                 : "*", u->ident, u->dhost, u->server, u->nick, tmp, u->fullname);
 			}
@@ -1056,9 +1058,9 @@ void handle_who(char **parameters, int pcnt, userrec *user)
 				userrec* oper = *i;
 				strcpy(tmp, "");
 				if (strcmp(oper->awaymsg, "")) {
-					strncat(tmp, "G" ,9);
+					strlcat(tmp, "G" ,9);
 				} else {
-					strncat(tmp, "H" ,9);
+					strlcat(tmp, "H" ,9);
 				}
                                 WriteServ(user->fd,"352 %s %s %s %s %s %s %s* :0 %s", user->nick, oper->chans[0].channel ? oper->chans[0].channel->name 
 				: "*", oper->ident, oper->dhost, oper->server, oper->nick, tmp, oper->fullname);
@@ -1427,6 +1429,16 @@ void handle_stats(char **parameters, int pcnt, userrec *user)
 		WriteServ(user->fd,"249 %s :Modules(VECTOR) %d (%d)",user->nick,modules.size(),modules.size()*sizeof(Module));
 		WriteServ(user->fd,"249 %s :ClassFactories(VECTOR) %d (%d)",user->nick,factory.size(),factory.size()*sizeof(ircd_module));
 		WriteServ(user->fd,"249 %s :Ports(STATIC_ARRAY) %d",user->nick,boundPortCount);
+	}
+
+	if (*parameters[0] == 'T')
+	{
+		WriteServ(user->fd,"249 Brain :accepts %d refused %d",statsAccept,statsRefused);
+		WriteServ(user->fd,"249 Brain :unknown commands %d",statsUnknown);
+		WriteServ(user->fd,"249 Brain :nick collisions %d",statsCollisions);
+		WriteServ(user->fd,"249 Brain :dns requests %d succeeded %d failed %d",statsDns,statsDnsGood,statsDnsBad);
+		WriteServ(user->fd,"249 Brain :connections %d",statsConnects);
+		WriteServ(user->fd,"249 Brain :bytes sent %dK recv %dK",(statsSent / 1024),(statsRecv / 1024));
 	}
 	
 	/* stats o */
@@ -2160,11 +2172,13 @@ void handle_n(char token,char* params,serverrec* source,serverrec* reply, char* 
 			FOREACH_RESULT(OnUserPreNick(user,newnick));
 			if (MOD_RESULT) {
 				// if a module returns true, the nick change couldnt be allowed
+				statsCollisions++;
 				kill_link(user,"Nickname collision");
 				return;
 			}
 			if (matches_qline(newnick))
 			{
+				statsCollisions++;
 				kill_link(user,"Nickname collision");
 				return;
 			}
@@ -2265,6 +2279,7 @@ void handle_N(char token,char* params,serverrec* source,serverrec* reply, char* 
 	if (iter != clientlist.end())
 	{
 		// nick collision
+		statsCollisions++;
 		WriteOpers("Nickname collision: %s@%s != %s@%s",nick,server,iter->second->nick,iter->second->server);
 		char str[MAXBUF];
 		snprintf(str,MAXBUF,"Killed (Nick Collision (%s@%s < %s@%s))",nick,server,iter->second->nick,iter->second->server);
@@ -3112,7 +3127,7 @@ void handle_link_packet(char* udp_msg, char* tcp_host, serverrec *serv)
 		{
 			WriteOpers("CONNECT aborted: Could not link to %s, is an incompatible version %s, our version is %d",servername,revision,GetRevision());
 			char buffer[MAXBUF];
-			sprintf(buffer,"E :Version number mismatch");
+			snprintf(buffer,MAXBUF,"E :Version number mismatch");
 			serv->SendPacket(buffer,tcp_host);
 			RemoveServer(tcp_host);
 			RemoveServer(servername);
@@ -3166,7 +3181,7 @@ void handle_link_packet(char* udp_msg, char* tcp_host, serverrec *serv)
 			}
 		}
 		char buffer[MAXBUF];
-		sprintf(buffer,"E :Access is denied (no matching link block)");
+		snprintf(buffer,MAXBUF,"E :Access is denied (no matching link block)");
 		serv->SendPacket(buffer,tcp_host);
 		WriteOpers("CONNECT from %s denied, no matching link block",servername);
 		RemoveServer(tcp_host);
@@ -3223,7 +3238,7 @@ void handle_link_packet(char* udp_msg, char* tcp_host, serverrec *serv)
 								char buffer[MAXBUF];
 								me[j]->connectors[k].SetDescription(serverdesc);
 								me[j]->connectors[k].SetState(STATE_CONNECTED);
-								sprintf(buffer,"X 0");
+								snprintf(buffer,MAXBUF,"X 0");
 								serv->SendPacket(buffer,tcp_host);
 								DoSync(me[j],tcp_host);
 								NetSendMyRoutingTable();
@@ -3238,7 +3253,7 @@ void handle_link_packet(char* udp_msg, char* tcp_host, serverrec *serv)
 			}
 		}
 		char buffer[MAXBUF];
-		sprintf(buffer,"E :Access is denied (no matching link block)");
+		snprintf(buffer,MAXBUF,"E :Access is denied (no matching link block)");
 		serv->SendPacket(buffer,tcp_host);
 		WriteOpers("CONNECT from %s denied, no matching link block",servername);
 		RemoveServer(tcp_host);
@@ -3273,7 +3288,7 @@ void handle_link_packet(char* udp_msg, char* tcp_host, serverrec *serv)
                                         if (!strcasecmp(me[j]->connectors[k].GetServerName().c_str(),servername))
                                         {
 				                char buffer[MAXBUF];
-				                sprintf(buffer,"E :Access is denied (Server exists in the mesh)");
+				                snprintf(buffer,MAXBUF,"E :Access is denied (Server exists in the mesh)");
 				                serv->SendPacket(buffer,tcp_host);
 				                WriteOpers("CONNECT from %s denied, \"%s\" already exists!",tcp_host,servername);
 				                RemoveServer(tcp_host);
@@ -3311,9 +3326,9 @@ void handle_link_packet(char* udp_msg, char* tcp_host, serverrec *serv)
 								me[j]->connectors[k].SetDescription(serverdesc);
 								me[j]->connectors[k].SetServerName(servername);
 								me[j]->connectors[k].SetState(STATE_SERVICES);
-								sprintf(buffer,"X 0");
+								snprintf(buffer,MAXBUF,"X 0");
 								serv->SendPacket(buffer,servername);
-								sprintf(buffer,"s %s %s %lu :%s",ServerName,Link_SendPass,LinkPort,ServerDesc);
+								snprintf(buffer,MAXBUF,"s %s %s %lu :%s",ServerName,Link_SendPass,LinkPort,ServerDesc);
 								serv->SendPacket(buffer,servername);
 								DoSync(me[j],servername);
 								snprintf(buffer,MAXBUF,"H %s",servername);
@@ -3333,7 +3348,7 @@ void handle_link_packet(char* udp_msg, char* tcp_host, serverrec *serv)
 		}
 		log(DEBUG,"No matching link block found");
 		char buffer[MAXBUF];
-		sprintf(buffer,"E :Access is denied (no matching link block)");
+		snprintf(buffer,MAXBUF,"E :Access is denied (no matching link block)");
 		serv->SendPacket(buffer,tcp_host);
 		WriteOpers("CONNECT from %s denied, no matching link block",servername);
 		RemoveServer(tcp_host);
