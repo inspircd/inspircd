@@ -1444,12 +1444,14 @@ void handle_mode(char **parameters, int pcnt, userrec *user)
 			if ((!b[0]) || (!strcmp(b,"+")) || (!strcmp(b,"-")))
 				return;
 
-			WriteTo(user, dest, "MODE %s :%s", dest->nick, b);
-
-			// M token for a usermode must go to all servers
-			char buffer[MAXBUF];
-			snprintf(buffer,MAXBUF,"m %s %s %s",user->nick, dest->nick, b);
-			NetSendToAll(buffer);
+			if (strcmp(b,""))
+			{
+				WriteTo(user, dest, "MODE %s :%s", dest->nick, b);
+				// M token for a usermode must go to all servers
+				char buffer[MAXBUF];
+				snprintf(buffer,MAXBUF,"m %s %s %s",user->nick, dest->nick, b);
+				NetSendToAll(buffer);
+			}
 
 			if (strlen(dmodes)>MAXMODES)
 			{
@@ -1696,15 +1698,17 @@ void server_mode(char **parameters, int pcnt, userrec *user)
 			if ((b[z] == '-') || (b[z] == '+'))
 				b[z] = '\0';
 
-			if ((!strcmp(b,"+")) || (!strcmp(b,"-")))
+			if ((!b[0]) || (!strcmp(b,"+")) || (!strcmp(b,"-")))
 				return;
 
-			WriteTo(user, dest, "MODE %s :%s", dest->nick, b);
-
-			// M token for a usermode must go to all servers
-			char buffer[MAXBUF];
-			snprintf(buffer,MAXBUF,"m %s %s %s",user->nick, dest->nick, b);
-			NetSendToAll(buffer);
+			if (strcmp(b,""))
+			{
+				WriteTo(user, dest, "MODE %s :%s", dest->nick, b);
+				// M token for a usermode must go to all servers
+				char buffer[MAXBUF];
+				snprintf(buffer,MAXBUF,"m %s %s %s",user->nick, dest->nick, b);
+				NetSendToAll(buffer);
+			}
 			
 			if (strlen(dmodes)>MAXMODES)
 			{
