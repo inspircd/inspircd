@@ -69,6 +69,13 @@ class ModuleChanProtect : public Module
 	                output = temp2.substr(0,temp2.length()-1);
         }
 
+	virtual void OnUserKick(userrec* source, userrec* user, chanrec* chan, std::string reason)
+	{
+		// FIX: when someone gets kicked from a channel we must remove their Extensibles!
+		user->Shrink("cm_founder_"+std::string(chan->name));
+		user->Shrink("cm_protect_"+std::string(chan->name));
+	}
+
 	virtual void OnUserPart(userrec* user, chanrec* channel)
 	{
 		// FIX: when someone parts a channel we must remove their Extensibles!
