@@ -65,7 +65,7 @@ class ModuleServices : public Module
 			if (type == MT_CHANNEL)
 			{
 				// only a u-lined server may add or remove the +r mode.
-				if ((Srv->IsUlined(user->nick)) || (Srv->IsUlined(user->server)))
+				if ((Srv->IsUlined(user->nick)) || (Srv->IsUlined(user->server)) || (!strcmp(user->server,"")))
 				{
 					return 1;
 				}
