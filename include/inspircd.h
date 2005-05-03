@@ -85,7 +85,7 @@ typedef std::deque<std::string> file_cache;
 typedef void (handlerfunc) (char**, int, userrec*);
 
 /* prototypes */
-int InspIRCd(void);
+int InspIRCd(char** argv, int argc);
 int InitConfig(void);
 void Error(int status);
 void send_error(char *s);
