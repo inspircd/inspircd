@@ -2061,7 +2061,7 @@ void handle_M(char token,char* params,serverrec* source,serverrec* reply, char* 
 		pars[index++] = parameter;
 		parameter = strtok(NULL," ");
 	}
-	log(DEBUG,"*** MODE: %s %s",pars[0],pars[1]);
+	log(DEBUG,"*** MODE: '%s %s'",pars[0],pars[1]);
 	merge_mode(pars,index);
 	if (FindChan(target))
 	{
@@ -2114,7 +2114,8 @@ void handle_m(char token,char* params,serverrec* source,serverrec* reply, char* 
 		}
 		
 		log(DEBUG,"Calling merge_mode2");
-		merge_mode2(pars,index,user);
+		if (index)
+			merge_mode2(pars,index,user);
 	}
 }
 
@@ -3197,7 +3198,7 @@ void handle_link_packet(char* udp_msg, char* tcp_host, serverrec *serv)
 		char* serverdesc = finalparam+2;
 
 	        if ((!cookie) || (!servername) || (!serverdesc))
-			break;
+			return;
 
 
 		WriteOpers("AuthCookie CONNECT from %s (%s)",servername,tcp_host);
@@ -3247,9 +3248,7 @@ void handle_link_packet(char* udp_msg, char* tcp_host, serverrec *serv)
 		char* serverdesc = finalparam+2;
 
                 if ((!servername) || (!password) || (!myport) || (!revision) || (!serverdesc))
-                        break;
-
-		password = password;
+                        return;
 
 		WriteOpers("CONNECT from %s (%s) (their port: %d)",servername,tcp_host,atoi(myport));
 		
@@ -3413,7 +3412,7 @@ void handle_link_packet(char* udp_msg, char* tcp_host, serverrec *serv)
 		char* serverdesc = finalparam+2;
 
                 if ((!password) || (!servername) || (!serverdesc))
-                        break;
+                        return;
 		
 		char Link_ServerName[1024];
 		char Link_IPAddr[1024];

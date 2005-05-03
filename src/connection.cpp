@@ -509,7 +509,7 @@ bool connection::RecvPacket(std::deque<std::string> &messages, char* recvhost)
 			int ret = poll(&polls,1,1);
 			if (ret <= 0) continue;
 
-			rcvsize = recv(this->connectors[i].GetDescriptor(),data,4096,0);
+			rcvsize = recv(this->connectors[i].GetDescriptor(),data,4090,0);
 			data[rcvsize] = '\0';
 			if (rcvsize == -1)
 			{
