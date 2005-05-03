@@ -111,7 +111,7 @@ class ModuleServices : public Module
 			chanrec* c = (chanrec*)dest;
 			if ((c->IsCustomModeSet('M')) && (!strchr(user->modes,'r')))
 			{
-				if ((Srv->IsUlined(user->nick)) || (Srv->IsUlined(user->server)) || (!strcmp(user->server,""))
+				if ((Srv->IsUlined(user->nick)) || (Srv->IsUlined(user->server)) || (!strcmp(user->server,"")))
 				{
 					// user is ulined, can speak regardless
 					return 0;
