@@ -2860,7 +2860,10 @@ void handle_version(char **parameters, int pcnt, userrec *user)
 			WriteServ(user->fd,"402 %s %s :Server %s has no version information",user->nick,parameters[0],parameters[0]);
 			return;
 		}
-		WriteServ(user->fd,"402 %s %s :No such server",user->nick,parameters[0]);
+		if (!found)
+		{
+			WriteServ(user->fd,"402 %s %s :No such server",user->nick,parameters[0]);
+		}
 	}
 	return;
 }
