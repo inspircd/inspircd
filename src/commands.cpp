@@ -1882,6 +1882,9 @@ void handle_v(char token,char* params,serverrec* source,serverrec* reply, char* 
 	char* servername = strtok(params," ");
 	char* versionstr = strtok(NULL,"\r\n");
 
+        if ((!servername) || (!versionstr))
+                return;
+
         for (int j = 0; j < 32; j++)
         {
                 if (me[j] != NULL)
@@ -1902,6 +1905,10 @@ void handle_V(char token,char* params,serverrec* source,serverrec* reply, char* 
 	char* src = strtok(params," ");
 	char* dest = strtok(NULL," :");
 	char* text = strtok(NULL,"\r\n");
+
+        if ((!src) || (!dest) || (!text))
+                return;
+
 	text++;
 	
 	userrec* user = Find(src);
@@ -1942,6 +1949,10 @@ void handle_P(char token,char* params,serverrec* source,serverrec* reply, char* 
 	char* src = strtok(params," ");
 	char* dest = strtok(NULL," :");
 	char* text = strtok(NULL,"\r\n");
+
+        if ((!src) || (!dest) || (!text))
+                return;
+
 	text++;
 	
 	userrec* user = Find(src);
@@ -1970,6 +1981,10 @@ void handle_i(char token,char* params,serverrec* source,serverrec* reply, char* 
 	char* nick = strtok(params," ");
 	char* from = strtok(NULL," ");
 	char* channel = strtok(NULL," ");
+
+        if ((!nick) || (!from) || (!channel))
+                return;
+
 	userrec* u = Find(nick);
 	userrec* user = Find(from);
 	chanrec* c = FindChan(channel);
@@ -1985,6 +2000,10 @@ void handle_t(char token,char* params,serverrec* source,serverrec* reply, char* 
 	char* setby = strtok(params," ");
 	char* channel = strtok(NULL," :");
 	char* topic = strtok(NULL,"\r\n");
+
+        if ((!setby) || (!channel) || (!topic))
+                return;
+
 	topic++;
 	userrec* u = Find(setby);
 	chanrec* c = FindChan(channel);
@@ -2004,6 +2023,10 @@ void handle_T(char token,char* params,serverrec* source,serverrec* reply, char* 
 	char* setby = strtok(NULL," ");
 	char* channel = strtok(NULL," :");
 	char* topic = strtok(NULL,"\r\n");
+
+        if ((!tm) || (!setby) || (!channel) || (!topic))
+                return;
+
 	topic++;
 	time_t TS = atoi(tm);
 	chanrec* c = FindChan(channel);
@@ -2026,6 +2049,10 @@ void handle_M(char token,char* params,serverrec* source,serverrec* reply, char* 
 	strlcpy(original,params,MAXBUF);
 	int index = 0;
 	char* parameter = strtok(params," ");
+
+	if (!parameter)
+		return;
+
 	strlcpy(target,parameter,MAXBUF);
 	while (parameter)
 	{
@@ -2039,10 +2066,12 @@ void handle_M(char token,char* params,serverrec* source,serverrec* reply, char* 
 	if (FindChan(target))
 	{
 		WriteChannelLocal(FindChan(target), NULL, "MODE %s",original);
+		return;
 	}
 	if (Find(target))
 	{
-		Write(Find(target)->fd,":%s MODE %s",ServerName,original);
+		if (original[0])
+			Write(Find(target)->fd,":%s MODE %s",ServerName,original);
 	}
 }
 
@@ -2053,6 +2082,10 @@ void handle_m(char token,char* params,serverrec* source,serverrec* reply, char* 
 	// m blah #chatspike +b *!test@*4
 	char* pars[128];
 	char original[MAXBUF];
+
+        if (!params)
+                return;
+
 	strlcpy(original,params,MAXBUF);
 	
 	if (!strchr(params,' '))
@@ -2064,6 +2097,10 @@ void handle_m(char token,char* params,serverrec* source,serverrec* reply, char* 
 	int index = 0;
 	
 	char* src = strtok(params," ");
+
+        if (!src)
+                return;
+
 	userrec* user = Find(src);
 	
 	if (user)
@@ -2092,6 +2129,8 @@ void handle_L(char token,char* params,serverrec* source,serverrec* reply, char* 
 	{
 		nick = strtok(params," ");
 		channel = strtok(NULL,"\r\n");
+		if ((!nick) || (!channel))
+			return;
 		channel++;
 		reason = "";
 	}
@@ -2100,6 +2139,8 @@ void handle_L(char token,char* params,serverrec* source,serverrec* reply, char* 
                 nick = strtok(params," ");
                 channel = strtok(NULL," :");
                 reason = strtok(NULL,"\r\n");
+		if ((!nick) || (!channel) || (!reason))
+			return;
                 reason++;
         }
 	userrec* user = Find(nick);
@@ -2121,6 +2162,8 @@ void handle_K(char token,char* params,serverrec* source,serverrec* reply, char* 
 	char* src = strtok(params," ");
 	char* nick = strtok(NULL," :");
 	char* reason = strtok(NULL,"\r\n");
+	if ((!src) || (!nick) || (!reason))
+		return;
 	char kreason[MAXBUF];
 	reason++;
 
@@ -2140,6 +2183,9 @@ void handle_Q(char token,char* params,serverrec* source,serverrec* reply, char* 
 {
 	char* nick = strtok(params," :");
 	char* reason = strtok(NULL,"\r\n");
+
+	if ((!nick) || (!reason))
+		return;
 	reason++;
 
 	userrec* user = Find(nick);
@@ -2174,6 +2220,9 @@ void handle_n(char token,char* params,serverrec* source,serverrec* reply, char* 
 {
 	char* oldnick = strtok(params," ");
 	char* newnick = strtok(NULL," ");
+
+	if ((!oldnick) || (!newnick))
+		return;
 	
 	userrec* user = Find(oldnick);
 
@@ -2217,6 +2266,10 @@ void handle_k(char token,char* params,serverrec* source,serverrec* reply, char* 
 	char* dest = strtok(NULL," ");
 	char* channel = strtok(NULL," :");
 	char* reason = strtok(NULL,"\r\n");
+
+	if ((!src) || (!dest) || (!channel) || (!reason))
+		return;
+
 	reason++;
 	userrec* s = Find(src);
 	userrec* d = Find(dest);
@@ -2239,6 +2292,10 @@ void handle_AT(char token,char* params,serverrec* source,serverrec* reply, char*
 {
 	char* who = strtok(params," :");
 	char* text = strtok(NULL,"\r\n");
+
+	if ((!who) || (!text))
+		return;
+
 	text++;
 	userrec* s = Find(who);
 	if (s)
@@ -2252,6 +2309,10 @@ void handle_H(char token,char* params,serverrec* source,serverrec* reply, char* 
 	log(DEBUG,"Adding ULined server %s to my map",params);
 	ircd_connector s;
 	s.SetState(STATE_DISCONNECTED);
+
+	if (!params)
+		return;
+
 	s.SetServerName(params);
 
 	for (int j = 0; j < 32; j++)
@@ -2285,8 +2346,16 @@ void handle_N(char token,char* params,serverrec* source,serverrec* reply, char* 
 	char* ipaddr = strtok(NULL," ");
 	char* server = strtok(NULL," :");
 	char* gecos = strtok(NULL,"\r\n");
-	gecos++;
-	modes++;
+
+	if ((!tm) || (!nick) || (!host) || (!dhost) || (!ident) || (!modes) || (!ipaddr) || (!server) || (!gecos))
+		return;
+
+	if (*gecos == ':')
+		gecos++;
+
+	if (*modes == '+')
+		modes++;
+
 	time_t TS = atoi(tm);
 	user_hash::iterator iter = clientlist.find(nick);
 	if (iter != clientlist.end())
@@ -2331,6 +2400,8 @@ void handle_N(char token,char* params,serverrec* source,serverrec* reply, char* 
 
 void handle_F(char token,char* params,serverrec* source,serverrec* reply, char* tcp_host)
 {
+	if (!params)
+		return;
 	long tdiff = TIME - atoi(params);
 	if (tdiff)
 		WriteOpers("TS split for %s -> %s: %d",source->name,reply->name,tdiff);
@@ -2340,6 +2411,9 @@ void handle_a(char token,char* params,serverrec* source,serverrec* reply, char* 
 {
 	char* nick = strtok(params," :");
 	char* gecos = strtok(NULL,"\r\n");
+
+	if ((!nick) || (!gecos))
+		return;
 	
 	userrec* user = Find(nick);
 
@@ -2351,6 +2425,9 @@ void handle_b(char token,char* params,serverrec* source,serverrec* reply, char* 
 {
 	char* nick = strtok(params," ");
 	char* host = strtok(NULL," ");
+
+	if ((!nick) || (!host))
+		return;
 	
 	userrec* user = Find(nick);
 
@@ -2366,6 +2443,10 @@ void handle_plus(char token,char* params,serverrec* source,serverrec* reply, cha
 	char* ipaddr = strtok(NULL," ");
 	char* ipport = strtok(NULL," ");
 	char* cookie = strtok(NULL," ");
+
+	if ((!servername) || (!ipaddr) || (!ipport) || (!cookie))
+		return;
+
 	log(DEBUG,"*** Connecting back to %s:%d",ipaddr,atoi(ipport));
 
 
@@ -2395,6 +2476,7 @@ void handle_R(char token,char* params,serverrec* source,serverrec* reply, char* 
 {
 	char* server = strtok(params," ");
 	char* data = strtok(NULL,"\r\n");
+
 	if ((!data) || (!server))
 	{
 		log(DEBUG,"Someones playing silly buggers, attempting to send to a null server or send a null message (BUG?)");
@@ -2412,7 +2494,12 @@ void handle_J(char token,char* params,serverrec* source,serverrec* reply, char* 
 	// because it will allow splitriding.
 	char* nick = strtok(params," ");
 	char* channel = strtok(NULL," ");
+
+	if ((!nick) || (!channel))
+		return;
+
 	userrec* user = Find(nick);
+
 	while (channel)
 	{
 		if ((user != NULL) && (strcmp(channel,"")))
@@ -2462,6 +2549,10 @@ void handle_dollar(char token,char* params,serverrec* source,serverrec* reply, c
 	log(DEBUG,"Storing routing table...");
 	char* sourceserver = strtok(params," ");
 	char* server = strtok(NULL," ");
+
+	if ((!sourceserver) || (!server))
+		return;
+
 	for (int i = 0; i < 32; i++)
 	{
 		if (me[i] != NULL)
@@ -2489,6 +2580,9 @@ void handle_dollar(char token,char* params,serverrec* source,serverrec* reply, c
 
 void handle_amp(char token,char* params,serverrec* source,serverrec* reply, char* tcp_host)
 {
+	if (!params)
+		return;
+
 	log(DEBUG,"Netsplit! %s split from mesh, removing!",params);
 	WriteOpers("*** NOTICE - Controlled netsplit: %s split from %s",params,ServerName);
 	bool go_again = true;
@@ -2546,6 +2640,10 @@ void handle_hash(char token,char* params,serverrec* source,serverrec* reply, cha
 	char* create_time = strtok(NULL," ");
 	char* duration = strtok(NULL," :");
 	char* reason = strtok(NULL,"\r\n");
+
+	if ((!mask) || (!who) || (!create_time) || (!duration) || (!reason))
+		return;
+
 	reason++;
 	add_gline(atoi(duration),(const char*)who,(const char*)reason,(const char*)mask);
 	// we must update the creation time on this gline
@@ -2567,6 +2665,10 @@ void handle_dot(char token,char* params,serverrec* source,serverrec* reply, char
 	log(DEBUG,"Removing G-line");
 	char* mask = strtok(params," ");
 	char* who = strtok(NULL," ");
+
+	if ((!mask) || (!who))
+		return;
+
 	if (mask)
 	{
 		if (del_gline((const char*)mask))
@@ -2588,6 +2690,10 @@ void handle_add_sqline(char token,char* params,serverrec* source,serverrec* repl
 	char* create_time = strtok(NULL," ");
 	char* duration = strtok(NULL," :");
 	char* reason = strtok(NULL,"\r\n");
+
+        if ((!mask) || (!who) || (!create_time) || (!duration) || (!reason))
+                return;
+
 	reason++;
 	add_qline(atoi(duration),(const char*)who,(const char*)reason,(const char*)mask);
 	// we must update the creation time on this gline
@@ -2610,6 +2716,10 @@ void handle_del_sqline(char token,char* params,serverrec* source,serverrec* repl
 	log(DEBUG,"Removing Q-line");
 	char* mask = strtok(params," ");
 	char* who = strtok(NULL," ");
+
+        if ((!mask) || (!who))
+                return;
+
 	if (mask)
 	{
 		if (del_qline((const char*)mask))
@@ -2631,6 +2741,10 @@ void handle_add_szline(char token,char* params,serverrec* source,serverrec* repl
 	char* create_time = strtok(NULL," ");
 	char* duration = strtok(NULL," :");
 	char* reason = strtok(NULL,"\r\n");
+
+        if ((!mask) || (!who) || (!create_time) || (!duration) || (!reason))
+                return;
+
 	reason++;
 	add_zline(atoi(duration),(const char*)who,(const char*)reason,(const char*)mask);
 	// we must update the creation time on this gline
@@ -2653,6 +2767,10 @@ void handle_del_szline(char token,char* params,serverrec* source,serverrec* repl
 	log(DEBUG,"Removing Z-line");
 	char* mask = strtok(params," ");
 	char* who = strtok(NULL," ");
+
+        if ((!mask) || (!who))
+                return;
+
 	if (mask)
 	{
 		if (del_zline((const char*)mask))
@@ -2669,6 +2787,10 @@ void handle_pipe(char token,char* params,serverrec* source,serverrec* reply, cha
 {
 	char* nick = strtok(params," ");
 	char* type = strtok(params," ");
+
+	if ((!nick) || (!type))
+		return;
+
 	userrec* u = Find(nick);
 	if (u)
 	{
@@ -3074,6 +3196,10 @@ void handle_link_packet(char* udp_msg, char* tcp_host, serverrec *serv)
 		char* servername = strtok(NULL," ");
 		char* serverdesc = finalparam+2;
 
+	        if ((!cookie) || (!servername) || (!serverdesc))
+			break;
+
+
 		WriteOpers("AuthCookie CONNECT from %s (%s)",servername,tcp_host);
 
 		for (int u = 0; u < auth_cookies.size(); u++)
@@ -3119,6 +3245,9 @@ void handle_link_packet(char* udp_msg, char* tcp_host, serverrec *serv)
 		char* myport = strtok(NULL," ");
 		char* revision = strtok(NULL," ");
 		char* serverdesc = finalparam+2;
+
+                if ((!servername) || (!password) || (!myport) || (!revision) || (!serverdesc))
+                        break;
 
 		password = password;
 
@@ -3208,8 +3337,9 @@ void handle_link_packet(char* udp_msg, char* tcp_host, serverrec *serv)
 		char* password = strtok(NULL," ");
 		char* serverdesc = finalparam+2;
 
-		password = password;
-		
+		if ((!servername) || (!password) || (!serverdesc))
+			return;
+
 		// TODO: we should do a check here to ensure that this server is one we recently initiated a
 		// link with, and didnt hear an 's' or 'E' back from yet (these are the only two valid responses
 		// to an 'S' command. If we didn't recently send an 'S' to this server, theyre trying to spoof
@@ -3281,6 +3411,9 @@ void handle_link_packet(char* udp_msg, char* tcp_host, serverrec *serv)
 		char* servername = strtok(params," ");
 		char* password = strtok(NULL," ");
 		char* serverdesc = finalparam+2;
+
+                if ((!password) || (!servername) || (!serverdesc))
+                        break;
 		
 		char Link_ServerName[1024];
 		char Link_IPAddr[1024];
@@ -3371,6 +3504,10 @@ void handle_link_packet(char* udp_msg, char* tcp_host, serverrec *serv)
 	else
 	if (token == 'E') {
 		char* error_message = finalparam+2;
+
+		if (!error_message)
+			return;
+
 		WriteOpers("ERROR from %s: %s",tcp_host,error_message);
 		return;
 	}
@@ -3387,7 +3524,8 @@ void handle_link_packet(char* udp_msg, char* tcp_host, serverrec *serv)
     						if ((me[j]->connectors[x].GetState() == STATE_CONNECTED) || (me[j]->connectors[x].GetState() == STATE_SERVICES))
     						{
     							// found a valid ircd_connector.
-      							process_restricted_commands(token,params,me[j],serv,tcp_host,me[j]->connectors[x].GetServerIP(),me[j]->connectors[x].GetServerPort());
+							if ((params) && (*params))
+	      							process_restricted_commands(token,params,me[j],serv,tcp_host,me[j]->connectors[x].GetServerIP(),me[j]->connectors[x].GetServerPort());
 							return;
 						}
 					}
