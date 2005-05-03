@@ -2339,7 +2339,7 @@ void Error(int status)
 }
 
 
-int main(int argc, char **argv)
+int main(int argc, char** argv)
 {
 	Start();
 	srand(time(NULL));
@@ -2367,7 +2367,7 @@ int main(int argc, char **argv)
 	}
 	strlcpy(MyExecutable,argv[0],MAXBUF);
 	
-	if (InspIRCd() == ERROR)
+	if (InspIRCd(argv,argc) == ERROR)
 	{
 		log(DEFAULT,"main: daemon function bailed");
 		printf("ERROR: could not initialise. Shutting down.\n");
@@ -3776,6 +3776,32 @@ bool DirValid(char* dirandfile)
 	else return false;
 }
 
+std::string GetFullProgDir(char** argv, int argc)
+{
+	char work[MAXBUF];
+	strlcpy(work,argv[0],MAXBUF);
+	int p = strlen(work);
+	// we just want the dir
+	while (strlen(work))
+	{
+		if (work[p] == '/')
+		{
+			work[p] = '\0';
+			break;
+		}
+		work[p--] = '\0';
+	}
+	char buffer[MAXBUF], otherdir[MAXBUF];
+	// Get the current working directory
+	if( getcwd( buffer, MAXBUF ) == NULL )
+		return "";
+	chdir(work);
+	if( getcwd( otherdir, MAXBUF ) == NULL )
+		return "";
+	chdir(buffer);
+	return otherdir;
+}
+
 bool LoadModule(const char* filename)
 {
 	char modfile[MAXBUF];
@@ -3832,7 +3858,7 @@ bool LoadModule(const char* filename)
 	return true;
 }
 
-int InspIRCd(void)
+int InspIRCd(char** argv, int argc)
 {
 	struct sockaddr_in client,server;
 	char addrs[MAXBUF][255];
@@ -3844,12 +3870,14 @@ int InspIRCd(void)
 	fd_set selectFds;
 	timeval tv;
 
-	log_file = fopen("ircd.log","a+");
+	std::string logpath = GetFullProgDir(argv,argc) + "/ircd.log";
+	log_file = fopen(logpath.c_str(),"a+");
 	if (!log_file)
 	{
-		printf("ERROR: Could not write to logfile ircd.log, bailing!\n\n");
+		printf("ERROR: Could not write to logfile %s, bailing!\n\n",logpath.c_str());
 		Exit(ERROR);
 	}
+	printf("Logging to %s...\n",logpath.c_str());
 
 	log(DEFAULT,"$Id$");
 	if (geteuid() == 0)
