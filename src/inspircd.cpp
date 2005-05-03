@@ -4031,7 +4031,7 @@ int InspIRCd(char** argv, int argc)
         tvs.tv_sec = 0;
 	tv.tv_sec = 0;
 	tv.tv_usec = 10000L;
-        char data[65535];
+        char data[65536];
 	timeval tval;
 	fd_set sfd;
         tval.tv_usec = 10000L;
