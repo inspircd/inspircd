@@ -4125,6 +4125,9 @@ int InspIRCd(void)
 
 		if ((curr) && (curr->fd != 0))
 		{
+#ifdef _POSIX_PRIORITY_SCHEDULING
+        sched_yield();
+#endif
 			// assemble up to 64 sockets into an fd_set
 			// to implement a pooling mechanism.
 			//
@@ -4214,7 +4217,6 @@ int InspIRCd(void)
 					}
 					else result = result2;
 					log(DEBUG,"Read result: %d",result);
-	
 					if (result)
 					{
 						statsRecv += result;
@@ -4407,6 +4409,7 @@ int InspIRCd(void)
 	if (0) {};
 #ifdef _POSIX_PRIORITY_SCHEDULING
         sched_yield();
+	sched_yield();
 #endif
 }
 /* not reached */
