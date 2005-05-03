@@ -473,7 +473,6 @@ void Server::ChangeUserNick(userrec* user, std::string nickname)
 
 void Server::QuitUser(userrec* user, std::string reason)
 {
-	send_network_quit(user->nick,reason.c_str());
 	kill_link(user,reason.c_str());
 }
 
