@@ -2087,12 +2087,15 @@ void merge_mode2(char **parameters, int pcnt, userrec* user)
 			if ((b[z] == '-') || (b[z] == '+'))
 				b[z] = '\0';
 
-			if ((!strcmp(b,"+")) || (!strcmp(b,"-")))
-				return;
 
-			// was sending 'b'
-			WriteTo(user,dest,"MODE %s :%s",dest->nick,b);
-			log(DEBUG,"Sent: :%s MODE %s",user->nick,b);
+                        if ((!b[0]) || (!strcmp(b,"+")) || (!strcmp(b,"-")))
+                                return;
+
+                        if (strcmp(b,""))
+                        {
+				WriteTo(user,dest,"MODE %s :%s",dest->nick,b);
+				log(DEBUG,"Sent: :%s MODE %s",user->nick,b);
+			}
 
 			if (strlen(dmodes)>MAXMODES)
 			{
@@ -2101,7 +2104,6 @@ void merge_mode2(char **parameters, int pcnt, userrec* user)
 			log(DEBUG,"Stripped mode line");
 			log(DEBUG,"Line dest is now %s",dmodes);
 			strlcpy(dest->modes,dmodes,MAXMODES);
-
 		}
 
 		return;
