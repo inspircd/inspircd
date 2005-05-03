@@ -218,6 +218,8 @@ std::stringstream config_f(stringstream::in | stringstream::out);
 
 std::vector<userrec*> all_opers;
 
+static char already_sent[65536];
+
 void AddOper(userrec* user)
 {
 	log(DEBUG,"Oper added to optimization list");
@@ -858,7 +860,9 @@ void WriteCommon(userrec *u, char* text, ...)
 	va_end(argsPtr);
 
 	// FIX: Stops a message going to the same person more than once
-	std::vector<int> already_sent;
+	bzero(&already_sent,65536);
+
+	bool sent_to_at_least_one = false;
 
         for (int i = 0; i < MAXCHANS; i++)
         {
@@ -869,26 +873,18 @@ void WriteCommon(userrec *u, char* text, ...)
                         {
                                 char* o = (*ulist)[j];
                                 userrec* otheruser = (userrec*)o;
-				bool do_send = true;
-				for (int t = 0; t < already_sent.size(); t++)
+				if (!already_sent[otheruser->fd])
 				{
-					if (already_sent[t] == otheruser->fd)
-					{
-						do_send = false;
-						break;
-					}
-				}
-				if (do_send)
-				{
-					already_sent.push_back(otheruser->fd);
+					already_sent[otheruser->fd] = 1;
                                 	WriteFrom(otheruser->fd,u,"%s",textbuffer);
+					sent_to_at_least_one = true;
 				}
                         }
                 }
         }
 	// if the user was not in any channels, no users will receive the text. Make sure the user
 	// receives their OWN message for WriteCommon
-	if (!already_sent.size())
+	if (!sent_to_at_least_one)
 	{
 		WriteFrom(u->fd,u,"%s",textbuffer);
 	}
@@ -916,7 +912,7 @@ void WriteCommonExcept(userrec *u, char* text, ...)
 	vsnprintf(textbuffer, MAXBUF, text, argsPtr);
 	va_end(argsPtr);
 
-	std::vector<int> already_sent;
+        bzero(&already_sent,65536);
 
         for (int i = 0; i < MAXCHANS; i++)
         {
@@ -929,18 +925,9 @@ void WriteCommonExcept(userrec *u, char* text, ...)
                                 userrec* otheruser = (userrec*)o;
 				if (u != otheruser)
 				{
-                                	bool do_send = true;
-                                	for (int t = 0; t < already_sent.size(); t++)
-                                	{
-                                        	if (already_sent[t] == otheruser->fd)
-                                        	{
-                                                	do_send = false;
-                                                	break;
-                                        	}
-                                	}
-                                	if (do_send)
+                                	if (!already_sent[otheruser->fd])
 	                                {
-        	                                already_sent.push_back(otheruser->fd);
+        	                                already_sent[otheruser->fd] = 1;
 		                                WriteFrom(otheruser->fd,u,"%s",textbuffer);
 					}
 				}
