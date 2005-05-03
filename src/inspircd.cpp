@@ -2702,7 +2702,6 @@ void ShowRULES(userrec *user)
 void FullConnectUser(userrec* user)
 {
 	statsConnects++;
-        user->registered = 7;
         user->idle_lastmsg = TIME;
         log(DEBUG,"ConnectUser: %s",user->nick);
 
@@ -2740,6 +2739,9 @@ void FullConnectUser(userrec* user)
 	        }
 	}
 
+	// fix by brain: move this below the xline checks to prevent spurious quits going onto the net that dont belong
+	user->registered = 7;
+
         WriteServ(user->fd,"NOTICE Auth :Welcome to \002%s\002!",Network);
         WriteServ(user->fd,"001 %s :Welcome to the %s IRC Network %s!%s@%s",user->nick,Network,user->nick,user->ident,user->host);
         WriteServ(user->fd,"002 %s :Your host is %s, running version %s",user->nick,ServerName,VERSION);
@@ -2772,12 +2774,14 @@ void FullConnectUser(userrec* user)
                 }
         }
         ShowMOTD(user);
-        FOREACH_MOD OnUserConnect(user);
-        WriteOpers("*** Client connecting on port %lu: %s!%s@%s [%s]",(unsigned long)user->port,user->nick,user->ident,user->host,user->ip);
 
         char buffer[MAXBUF];
 	snprintf(buffer,MAXBUF,"N %lu %s %s %s %s +%s %s %s :%s",(unsigned long)user->age,user->nick,user->host,user->dhost,user->ident,user->modes,user->ip,ServerName,user->fullname);
         NetSendToAll(buffer);
+
+	// fix by brain: these should be AFTER the N token, so other servers know what the HELL we're on about... :)
+	FOREACH_MOD OnUserConnect(user);
+	WriteOpers("*** Client connecting on port %lu: %s!%s@%s [%s]",(unsigned long)user->port,user->nick,user->ident,user->host,user->ip);
 }
 
 
