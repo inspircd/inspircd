@@ -591,7 +591,7 @@ void Write(int sock,char *text, ...)
 	va_end(argsPtr);
 	int bytes = snprintf(tb,MAXBUF,"%s\r\n",textbuffer);
 	chop(tb);
-	if (sock != -1)
+	if ((sock != -1) && (sock != FD_MAGIC_NUMBER))
 	{
 		int MOD_RESULT = 0;
 		FOREACH_RESULT(OnRawSocketWrite(sock,tb,bytes > 512 ? 512 : bytes));
@@ -625,7 +625,7 @@ void WriteServ(int sock, char* text, ...)
 	va_end(argsPtr);
 	int bytes = snprintf(tb,MAXBUF,":%s %s\r\n",ServerName,textbuffer);
 	chop(tb);
-	if (sock != -1)
+	if ((sock != -1) && (sock != FD_MAGIC_NUMBER))
 	{
                 int MOD_RESULT = 0;
                 FOREACH_RESULT(OnRawSocketWrite(sock,tb,bytes > 512 ? 512 : bytes));
@@ -659,7 +659,7 @@ void WriteFrom(int sock, userrec *user,char* text, ...)
 	va_end(argsPtr);
 	int bytes = snprintf(tb,MAXBUF,":%s!%s@%s %s\r\n",user->nick,user->ident,user->dhost,textbuffer);
 	chop(tb);
-	if (sock != -1)
+	if ((sock != -1) && (sock != FD_MAGIC_NUMBER))
 	{
                 int MOD_RESULT = 0;
                 FOREACH_RESULT(OnRawSocketWrite(sock,tb,bytes > 512 ? 512 : bytes));
@@ -873,7 +873,7 @@ void WriteCommon(userrec *u, char* text, ...)
                         {
                                 char* o = (*ulist)[j];
                                 userrec* otheruser = (userrec*)o;
-				if (!already_sent[otheruser->fd])
+				if ((otheruser->fd > 0) && (!already_sent[otheruser->fd]))
 				{
 					already_sent[otheruser->fd] = 1;
                                 	WriteFrom(otheruser->fd,u,"%s",textbuffer);
@@ -925,7 +925,7 @@ void WriteCommonExcept(userrec *u, char* text, ...)
                                 userrec* otheruser = (userrec*)o;
 				if (u != otheruser)
 				{
-                                	if (!already_sent[otheruser->fd])
+                                	if ((otheruser->fd > 0) && (!already_sent[otheruser->fd]))
 	                                {
         	                                already_sent[otheruser->fd] = 1;
 		                                WriteFrom(otheruser->fd,u,"%s",textbuffer);
