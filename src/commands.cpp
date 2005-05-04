@@ -2861,6 +2861,9 @@ void process_restricted_commands(char token,char* params,serverrec* source,serve
   		// no operation
 		case '*':
 		break;
+		// no operation - reserved to prevent services issues
+		case ':':
+		break;
 		// N <TS> <NICK> <HOST> <DHOST> <IDENT> <MODES> <SERVER> :<GECOS>
 		// introduce remote client
 		case 'N':
