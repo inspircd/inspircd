@@ -2831,6 +2831,20 @@ void handle_version(char **parameters, int pcnt, userrec *user)
 	}
 	else
 	{
+		if (!strcmp(parameters[0],"*"))
+		{
+			for (int j = 0; j < 32; j++)
+			{
+				if (me[j] != NULL)
+				{
+					for (int x = 0; x < me[j]->connectors.size(); x++)
+					{
+						WriteServ(user->fd,"351 %s :Server %d:%d (%s): %s",user->nick,j,x,me[j]->connectors[x].GetServerName().c_str(),me[j]->connectors[x].GetVersionString().c_str());
+					}
+				}
+			}
+			return;
+		}
 		if (match(ServerName,parameters[0]))
 		{
 			WriteServ(user->fd,"351 %s :%s",user->nick,GetVersionString().c_str());

@@ -1057,7 +1057,8 @@ void process_modes(char **parameters,userrec* user,chanrec *chan,int status, int
 										{
 											if (t == -1)
 											{
-												pc++;
+												//pc++;
+												param++;
 											}
 											else
 											{

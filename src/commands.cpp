@@ -1896,6 +1896,7 @@ void handle_v(char token,char* params,serverrec* source,serverrec* reply, char* 
                                 if (!strcasecmp(me[j]->connectors[x].GetServerName().c_str(),servername))
                                 {
 					me[j]->connectors[x].SetVersionString(versionstr);
+					WriteOpers("Server '%s' (%d:%d) announces itself as version '%s'",me[j]->connectors[x].GetServerName().c_str(),j,x,me[j]->connectors[x].GetVersionString().c_str());
 				}
 			}
 		}
