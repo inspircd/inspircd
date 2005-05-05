@@ -463,7 +463,7 @@ void TidyBan(char *ban)
 
 char lst[MAXBUF];
 
-char* chlist(userrec *user)
+char* chlist(userrec *user,userrec* source)
 {
 	char cmp[MAXBUF];
         log(DEBUG,"chlist: %s",user->nick);
@@ -482,7 +482,8 @@ char* chlist(userrec *user)
 				strlcat(cmp," ",MAXBUF);
 				if (!strstr(lst,cmp))
 				{
-					if ((!user->chans[i].channel->c_private) && (!user->chans[i].channel->secret))
+					// if the channel is NOT private/secret, OR the source user is on the channel
+					if (((!user->chans[i].channel->c_private) && (!user->chans[i].channel->secret)) || (has_channel(source,user->chans[i].channel)))
 					{
 						strlcat(lst,cmode(user,user->chans[i].channel),MAXBUF);
 						strlcat(lst,user->chans[i].channel->name,MAXBUF);

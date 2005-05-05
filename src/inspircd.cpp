@@ -3534,7 +3534,7 @@ void DoSync(serverrec* serv, char* tcp_host)
   				serv->SendPacket(data,tcp_host);
   			}
   		}
-		char* chl = chlist(u->second);
+		char* chl = chlist(u->second,u->second);
 		if (strcmp(chl,""))
 		{
 			snprintf(data,MAXBUF,"J %s %s",u->second->nick,chl);

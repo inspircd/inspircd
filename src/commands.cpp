@@ -862,9 +862,10 @@ void handle_whois(char **parameters, int pcnt, userrec *user)
 			{
 				WriteServ(user->fd,"378 %s %s :is connecting from *@%s",user->nick, dest->nick, dest->host);
 			}
-			if (strcmp(chlist(dest),""))
+			char* cl = chlist(dest,user);
+			if (strcmp(cl,""))
 			{
-				WriteServ(user->fd,"319 %s %s :%s",user->nick, dest->nick, chlist(dest));
+				WriteServ(user->fd,"319 %s %s :%s",user->nick, dest->nick, cl);
 			}
 			WriteServ(user->fd,"312 %s %s %s :%s",user->nick, dest->nick, dest->server, GetServerDescription(dest->server).c_str());
 			if (strcmp(dest->awaymsg,""))
@@ -1087,7 +1088,8 @@ void handle_list(char **parameters, int pcnt, userrec *user)
 	WriteServ(user->fd,"321 %s Channel :Users Name",user->nick);
 	for (chan_hash::const_iterator i = chanlist.begin(); i != chanlist.end(); i++)
 	{
-		if ((!i->second->c_private) && (!i->second->secret))
+		// if the channel is not private/secret, OR the user is on the channel anyway
+		if (((!i->second->c_private) && (!i->second->secret)) || (has_channel(user,i->second)))
 		{
 			WriteServ(user->fd,"322 %s %s %d :[+%s] %s",user->nick,i->second->name,usercount_i(i->second),chanmodes(i->second),i->second->topic);
 		}
