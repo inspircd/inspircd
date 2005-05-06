@@ -4370,8 +4370,6 @@ int InspIRCd(char** argv, int argc)
 								// there used to be an ugly, slow loop here. Now we have a reference
 								// table, life is much easier (and FASTER)
 								userrec* new_comp = fd_ref_table[currfd];
-								if (old_comp != new_comp)
-									log(DEBUG,"Bailing, old_comp != new_comp");
 								if ((currfd < 0) || (!fd_ref_table[currfd]) || (old_comp != new_comp))
 									goto label;
 
