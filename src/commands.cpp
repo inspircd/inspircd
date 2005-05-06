@@ -654,6 +654,12 @@ void handle_privmsg(char **parameters, int pcnt, userrec *user)
 				return;
 			}
 			parameters[1] = (char*)temp.c_str();
+
+			if (temp == "")
+			{
+				WriteServ(user->fd,"412 %s No text to send", user->nick);
+				return;
+			}
 			
 			ChanExceptSender(chan, user, "PRIVMSG %s :%s", chan->name, parameters[1]);
 			
@@ -742,6 +748,12 @@ void handle_notice(char **parameters, int pcnt, userrec *user)
 				return;
 			}
 			parameters[1] = (char*)temp.c_str();
+
+                        if (temp == "")
+                        {
+                                WriteServ(user->fd,"412 %s No text to send", user->nick);
+                                return;
+                        }
 
 			ChanExceptSender(chan, user, "NOTICE %s :%s", chan->name, parameters[1]);
 
