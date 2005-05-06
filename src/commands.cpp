@@ -1681,6 +1681,10 @@ void handle_map(char **parameters, int pcnt, userrec *user)
 
 bool is_uline(const char* server)
 {
+	if (!server)
+		return false;
+	if (!(*server))
+		return true;
 	char ServName[MAXBUF];
 	for (int i = 0; i < ConfValueEnum("uline",&config_f); i++)
 	{
