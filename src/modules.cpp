@@ -672,17 +672,20 @@ bool Server::UserToPseudo(userrec* user,std::string message)
 {
 	unsigned int old_fd = user->fd;
 	user->fd = FD_MAGIC_NUMBER;
+	user->ClearBuffer();
 	Write(old_fd,"ERROR :Closing link (%s@%s) [%s]",user->ident,user->host,message.c_str());
+	shutdown(old_fd,2);
 	close(old_fd);
-	shutdown (old_fd,2);
 }
 
 bool Server::PseudoToUser(userrec* alive,userrec* zombie,std::string message)
 {
 	zombie->fd = alive->fd;
 	alive->fd = FD_MAGIC_NUMBER;
+	alive->ClearBuffer();
 	Write(zombie->fd,":%s!%s@%s NICK %s",alive->nick,alive->ident,alive->host,zombie->nick);
 	kill_link(alive,message.c_str());
+	fd_ref_table[zombie->fd] = zombie;
         for (int i = 0; i != MAXCHANS; i++)
         {
                 if (zombie->chans[i].channel != NULL)
@@ -698,8 +701,6 @@ bool Server::PseudoToUser(userrec* alive,userrec* zombie,std::string message)
                         	}
                         	userlist(zombie,Ptr);
                         	WriteServ(zombie->fd,"366 %s %s :End of /NAMES list.", zombie->nick, Ptr->name);
-                        	//WriteServ(zombie->fd,"324 %s %s +%s",zombie->nick, Ptr->name,chanmodes(Ptr));
-                        	//WriteServ(zombie->fd,"329 %s %s %d", zombie->nick, Ptr->name, Ptr->created);
 
                         }
                 }

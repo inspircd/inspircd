@@ -202,6 +202,8 @@ void userrec::ClearBuffer()
 
 std::string userrec::GetBuffer()
 {
+	if (recvq == "")
+		return "";
         char* line = (char*)recvq.c_str();
         std::string ret = "";
         while ((*line != '\n') && (strlen(line)))
