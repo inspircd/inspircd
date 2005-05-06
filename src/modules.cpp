@@ -446,7 +446,7 @@ void Server::SendToModeMask(std::string modes, int flags, std::string text)
 
 chanrec* Server::JoinUserToChannel(userrec* user, std::string cname, std::string key)
 {
-	return add_channel(user,cname.c_str(),key.c_str(),true);
+	return add_channel(user,cname.c_str(),key.c_str(),false);
 }
 
 chanrec* Server::PartUserFromChannel(userrec* user, std::string cname, std::string reason)
