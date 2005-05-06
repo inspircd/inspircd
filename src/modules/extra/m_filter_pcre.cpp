@@ -89,7 +89,6 @@ class ModuleFilterPCRE : public Module
 	{
 		for (int index = 0; index < filters.size(); index++)
 		{
-			log(DEFAULT,"Match regexp %d: returned %d",index,pcre_exec(filters[index],NULL,text.c_str(),text.length(),0,0,NULL,0));
 			if (pcre_exec(filters[index],NULL,text.c_str(),text.length(),0,0,NULL,0) > -1)
 			{
 				std::string target = "";
