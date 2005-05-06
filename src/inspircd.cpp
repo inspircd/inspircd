@@ -4361,7 +4361,6 @@ int InspIRCd(char** argv, int argc)
 							strlcpy(sanitized,single_line.c_str(),MAXBUF);
 							if (*sanitized)
 							{
-								log(DEBUG,"ref in: %lu",fd_ref_table[currfd]);
 								userrec* old_comp = fd_ref_table[currfd];
 								// we're gonna re-scan to check if the nick is gone, after every
 								// command - if it has, we're gonna bail
@@ -4371,7 +4370,6 @@ int InspIRCd(char** argv, int argc)
 								// there used to be an ugly, slow loop here. Now we have a reference
 								// table, life is much easier (and FASTER)
 								userrec* new_comp = fd_ref_table[currfd];
-								log(DEBUG,"ref out: %lu",fd_ref_table[currfd]);
 								if (old_comp != new_comp)
 									log(DEBUG,"Bailing, old_comp != new_comp");
 								if ((currfd < 0) || (!fd_ref_table[currfd]) || (old_comp != new_comp))
