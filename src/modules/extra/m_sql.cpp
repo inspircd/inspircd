@@ -29,6 +29,11 @@
 /** SQLConnection represents one mysql session.
  * Each session has its own persistent connection to the database.
  */
+
+#if !defined(MYSQL_VERSION_ID) || MYSQL_VERSION_ID<32224
+#define mysql_field_count mysql_num_fields
+#endif
+
 class SQLConnection
 {
  protected:
