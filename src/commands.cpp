@@ -901,12 +901,14 @@ void handle_whois(char **parameters, int pcnt, userrec *user)
 		else
 		{
 			WriteServ(user->fd,"401 %s %s :No such nick/channel",user->nick, parameters[0]);
+			WriteServ(user->fd,"318 %s %s :End of /WHOIS list.",user->nick, parameters[0]);
 		}
 	}
 	else
 	{
 		/* no such nick/channel */
 		WriteServ(user->fd,"401 %s %s :No such nick/channel",user->nick, parameters[0]);
+		WriteServ(user->fd,"318 %s %s :End of /WHOIS list.",user->nick, parameters[0]);
 	}
 }
 
