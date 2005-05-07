@@ -1,4 +1,4 @@
-.TH "ircd_connector" 3 "26 Apr 2005" "InspIRCd" \" -*- nroff -*-
+.TH "ircd_connector" 3 "7 May 2005" "InspIRCd" \" -*- nroff -*-
 .ad l
 .nh
 .SH NAME
@@ -74,15 +74,27 @@ Inherits \fBExtensible\fP.
 .ti -1c
 .RI "void \fBAddBuffer\fP (std::string a)"
 .br
+.RI "\fIThis method adds text to the ircd connection's buffer There is no limitation on how much text of what line width may be added to this buffer. \fP"
 .ti -1c
 .RI "bool \fBBufferIsComplete\fP ()"
 .br
+.RI "\fIThis method returns true if the buffer contains at least one carriage return character, e.g. \fP"
 .ti -1c
 .RI "void \fBClearBuffer\fP ()"
 .br
+.RI "\fIThis method clears the server's buffer by setting it to an empty string. \fP"
 .ti -1c
 .RI "std::string \fBGetBuffer\fP ()"
 .br
+.RI "\fIThis method retrieves the first string from the tail end of the buffer and advances the tail end of the buffer past the returned string, in a similar manner to strtok(). \fP"
+.ti -1c
+.RI "void \fBSetVersionString\fP (std::string newversion)"
+.br
+.RI "\fIThis method sets the version string of the remote server. \fP"
+.ti -1c
+.RI "std::string \fBGetVersionString\fP ()"
+.br
+.RI "\fIThis method returns the version string of the remote server. \fP"
 .in -1c
 .SS "Public Attributes"
 
@@ -90,7 +102,9 @@ Inherits \fBExtensible\fP.
 .ti -1c
 .RI "std::string \fBircdbuffer\fP"
 .br
-.RI "\fIIRCD Buffer for input characters, holds one line. \fP"
+.RI "\fIIRCD Buffer for input characters, holds as many lines as are pending - Note that the final line may not be complete and should only be read when there is a 
+.br
+ seperator. \fP"
 .ti -1c
 .RI "char \fBhost\fP [MAXBUF]"
 .br
@@ -135,6 +149,10 @@ Inherits \fBExtensible\fP.
 .RI "int \fBstate\fP"
 .br
 .RI "\fIState. \fP"
+.ti -1c
+.RI "std::string \fBversion\fP"
+.br
+.RI "\fIThis string holds the ircd's version response. \fP"
 .in -1c
 .SH "Detailed Description"
 .PP 
@@ -147,15 +165,19 @@ Definition at line 54 of file connection.h.
 .PP 
 .SS "void ircd_connector::AddBuffer (std::string a)"
 .PP
+This method adds text to the ircd connection's buffer There is no limitation on how much text of what line width may be added to this buffer. It is the sending server's responsibility to ensure sent data is kept within reasonable quanities.
 .SS "bool ircd_connector::BufferIsComplete ()"
 .PP
+This method returns true if the buffer contains at least one carriage return character, e.g. one line can be read from the buffer successfully.
 .SS "void ircd_connector::ClearBuffer ()"
 .PP
+This method clears the server's buffer by setting it to an empty string. 
 .SS "void ircd_connector::CloseConnection ()"
 .PP
 Close the connection by calling close() on its file descriptor This function call updates no other data. 
 .SS "std::string ircd_connector::GetBuffer ()"
 .PP
+This method retrieves the first string from the tail end of the buffer and advances the tail end of the buffer past the returned string, in a similar manner to strtok(). 
 .SS "std::string ircd_connector::GetDescription ()"
 .PP
 Get the server description of this connection. 
@@ -174,6 +196,9 @@ Get the port number being used for this connection If the connection is outbound
 .SS "int ircd_connector::GetState ()"
 .PP
 Get the state flags for this connection. 
+.SS "std::string ircd_connector::GetVersionString ()"
+.PP
+This method returns the version string of the remote server. If the server has no version string an empty string is returned.
 .SS "bool ircd_connector::MakeOutboundConnection (char * newhost, int newport)"
 .PP
 Create an outbound connection to a listening socket. 
@@ -198,6 +223,9 @@ Set the port used by this connection.
 .SS "void ircd_connector::SetState (int state)"
 .PP
 Set the state flags for this connection. 
+.SS "void ircd_connector::SetVersionString (std::string newversion)"
+.PP
+This method sets the version string of the remote server. 
 .SH "Member Data Documentation"
 .PP 
 .SS "sockaddr_in \fBircd_connector::addr\fP\fC [private]\fP"
@@ -211,22 +239,27 @@ Sockaddr of the outbound ip and port. Definition at line 59 of file connection.h
 File descriptor of the connection. Definition at line 63 of file connection.h.
 .SS "char \fBircd_connector::host\fP[MAXBUF]"
 .PP
-When MakeOutboundConnection is called, these public members are filled with the details passed to the function, for future reference. Definition at line 94 of file connection.h.
+When MakeOutboundConnection is called, these public members are filled with the details passed to the function, for future reference. Definition at line 99 of file connection.h.
 .SS "std::string \fBircd_connector::ircdbuffer\fP"
 .PP
-IRCD Buffer for input characters, holds one line. Definition at line 87 of file connection.h.
+IRCD Buffer for input characters, holds as many lines as are pending - Note that the final line may not be complete and should only be read when there is a 
+.br
+ seperator. Definition at line 92 of file connection.h.
 .SS "int \fBircd_connector::port\fP"
 .PP
-When MakeOutboundConnection is called, these public members are filled with the details passed to the function, for future reference. Definition at line 100 of file connection.h.
+When MakeOutboundConnection is called, these public members are filled with the details passed to the function, for future reference. Definition at line 105 of file connection.h.
 .SS "std::vector<std::string> \fBircd_connector::routes\fP"
 .PP
-\fBServer\fP names of servers that this server is linked to So for A->B->C, if this was the record for B it would contain A and C whilever both servers are connected to B. Definition at line 106 of file connection.h.
+\fBServer\fP names of servers that this server is linked to So for A->B->C, if this was the record for B it would contain A and C whilever both servers are connected to B. Definition at line 111 of file connection.h.
 .SS "std::string \fBircd_connector::servername\fP\fC [private]\fP"
 .PP
 \fBServer\fP name. Definition at line 67 of file connection.h.
 .SS "int \fBircd_connector::state\fP\fC [private]\fP"
 .PP
 State. STATE_NOAUTH_INBOUND, STATE_NOAUTH_OUTBOUND STATE_SYNC, STATE_DISCONNECTED, STATE_CONNECTEDDefinition at line 76 of file connection.h.
+.SS "std::string \fBircd_connector::version\fP\fC [private]\fP"
+.PP
+This string holds the ircd's version response. Definition at line 84 of file connection.h.
 
 .SH "Author"
 .PP 

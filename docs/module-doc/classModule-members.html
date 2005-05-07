@@ -12,6 +12,7 @@
   <tr class="memlist"><td><a class="el" href="classModule.html#a0">Module</a>()</td><td><a class="el" href="classModule.html">Module</a></td><td></td></tr>
   <tr class="memlist"><td><a class="el" href="classModule.html#a27">On005Numeric</a>(std::string &amp;output)</td><td><a class="el" href="classModule.html">Module</a></td><td><code> [virtual]</code></td></tr>
   <tr class="memlist"><td><a class="el" href="classModule.html#a24">OnAccessCheck</a>(userrec *source, userrec *dest, chanrec *channel, int access_type)</td><td><a class="el" href="classModule.html">Module</a></td><td><code> [virtual]</code></td></tr>
+  <tr class="memlist"><td><a class="el" href="classModule.html#a50">OnAddBan</a>(userrec *source, chanrec *channel, std::string banmask)</td><td><a class="el" href="classModule.html">Module</a></td><td><code> [virtual]</code></td></tr>
   <tr class="memlist"><td><a class="el" href="classModule.html#a30">OnBackgroundTimer</a>(time_t curtime)</td><td><a class="el" href="classModule.html">Module</a></td><td><code> [virtual]</code></td></tr>
   <tr class="memlist"><td><a class="el" href="classModule.html#a42">OnChangeLocalUserGECOS</a>(userrec *user, std::string newhost)</td><td><a class="el" href="classModule.html">Module</a></td><td><code> [virtual]</code></td></tr>
   <tr class="memlist"><td><a class="el" href="classModule.html#a41">OnChangeLocalUserHost</a>(userrec *user, std::string newhost)</td><td><a class="el" href="classModule.html">Module</a></td><td><code> [virtual]</code></td></tr>
@@ -21,6 +22,7 @@
   <tr class="memlist"><td><a class="el" href="classModule.html#a37">OnCheckKey</a>(userrec *user, chanrec *chan, std::string keygiven)</td><td><a class="el" href="classModule.html">Module</a></td><td><code> [virtual]</code></td></tr>
   <tr class="memlist"><td><a class="el" href="classModule.html#a38">OnCheckLimit</a>(userrec *user, chanrec *chan)</td><td><a class="el" href="classModule.html">Module</a></td><td><code> [virtual]</code></td></tr>
   <tr class="memlist"><td><a class="el" href="classModule.html#a33">OnCheckReady</a>(userrec *user)</td><td><a class="el" href="classModule.html">Module</a></td><td><code> [virtual]</code></td></tr>
+  <tr class="memlist"><td><a class="el" href="classModule.html#a51">OnDelBan</a>(userrec *source, chanrec *channel, std::string banmask)</td><td><a class="el" href="classModule.html">Module</a></td><td><code> [virtual]</code></td></tr>
   <tr class="memlist"><td><a class="el" href="classModule.html#a45">OnEvent</a>(Event *event)</td><td><a class="el" href="classModule.html">Module</a></td><td><code> [virtual]</code></td></tr>
   <tr class="memlist"><td><a class="el" href="classModule.html#a12">OnExtendedMode</a>(userrec *user, void *target, char modechar, int type, bool mode_on, string_list &amp;params)</td><td><a class="el" href="classModule.html">Module</a></td><td><code> [virtual]</code></td></tr>
   <tr class="memlist"><td><a class="el" href="classModule.html#a49">OnGlobalConnect</a>(userrec *user)</td><td><a class="el" href="classModule.html">Module</a></td><td><code> [virtual]</code></td></tr>
@@ -36,6 +38,10 @@
   <tr class="memlist"><td><a class="el" href="classModule.html#a8">OnPacketTransmit</a>(std::string &amp;data, std::string serv)</td><td><a class="el" href="classModule.html">Module</a></td><td><code> [virtual]</code></td></tr>
   <tr class="memlist"><td><a class="el" href="classModule.html#a32">OnPreCommand</a>(std::string command, char **parameters, int pcnt, userrec *user)</td><td><a class="el" href="classModule.html">Module</a></td><td><code> [virtual]</code></td></tr>
   <tr class="memlist"><td><a class="el" href="classModule.html#a35">OnRawMode</a>(userrec *user, chanrec *chan, char mode, std::string param, bool adding, int pcnt)</td><td><a class="el" href="classModule.html">Module</a></td><td><code> [virtual]</code></td></tr>
+  <tr class="memlist"><td><a class="el" href="classModule.html#a52">OnRawSocketAccept</a>(int fd, std::string ip, int localport)</td><td><a class="el" href="classModule.html">Module</a></td><td><code> [virtual]</code></td></tr>
+  <tr class="memlist"><td><a class="el" href="classModule.html#a54">OnRawSocketClose</a>(int fd)</td><td><a class="el" href="classModule.html">Module</a></td><td><code> [virtual]</code></td></tr>
+  <tr class="memlist"><td><a class="el" href="classModule.html#a55">OnRawSocketRead</a>(int fd, char *buffer, unsigned int count, int &amp;readresult)</td><td><a class="el" href="classModule.html">Module</a></td><td><code> [virtual]</code></td></tr>
+  <tr class="memlist"><td><a class="el" href="classModule.html#a53">OnRawSocketWrite</a>(int fd, char *buffer, int count)</td><td><a class="el" href="classModule.html">Module</a></td><td><code> [virtual]</code></td></tr>
   <tr class="memlist"><td><a class="el" href="classModule.html#a10">OnRehash</a>()</td><td><a class="el" href="classModule.html">Module</a></td><td><code> [virtual]</code></td></tr>
   <tr class="memlist"><td><a class="el" href="classModule.html#a46">OnRequest</a>(Request *request)</td><td><a class="el" href="classModule.html">Module</a></td><td><code> [virtual]</code></td></tr>
   <tr class="memlist"><td><a class="el" href="classModule.html#a31">OnSendList</a>(userrec *user, chanrec *channel, char mode)</td><td><a class="el" href="classModule.html">Module</a></td><td><code> [virtual]</code></td></tr>
@@ -59,7 +65,7 @@
   <tr class="memlist"><td><a class="el" href="classModule.html#a18">OnWhois</a>(userrec *source, userrec *dest)</td><td><a class="el" href="classModule.html">Module</a></td><td><code> [virtual]</code></td></tr>
   <tr class="memlist"><td><a class="el" href="classclassbase.html#a1">~classbase</a>()</td><td><a class="el" href="classclassbase.html">classbase</a></td><td><code> [inline]</code></td></tr>
   <tr class="memlist"><td><a class="el" href="classModule.html#a1">~Module</a>()</td><td><a class="el" href="classModule.html">Module</a></td><td><code> [virtual]</code></td></tr>
-</table><hr size="1"><address style="align: right;"><small>Generated on Tue Apr 26 17:11:49 2005 for InspIRCd by
+</table><hr size="1"><address style="align: right;"><small>Generated on Sat May 7 15:34:26 2005 for InspIRCd by
 <a href="http://www.doxygen.org/index.html">
 <img src="doxygen.png" alt="doxygen" align="middle" border=0 > 
 </a>1.3.3 </small></address>

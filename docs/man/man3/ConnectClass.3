@@ -1,4 +1,4 @@
-.TH "ConnectClass" 3 "26 Apr 2005" "InspIRCd" \" -*- nroff -*-
+.TH "ConnectClass" 3 "7 May 2005" "InspIRCd" \" -*- nroff -*-
 .ad l
 .nh
 .SH NAME
@@ -46,6 +46,10 @@ Inherits \fBclassbase\fP.
 .RI "char \fBpass\fP [MAXBUF]"
 .br
 .RI "\fI(Optional) Password for this line \fP"
+.ti -1c
+.RI "long \fBthreshold\fP"
+.br
+.RI "\fIThreshold value for flood disconnect. \fP"
 .in -1c
 .SH "Detailed Description"
 .PP 
@@ -54,18 +58,19 @@ Holds information relevent to <connect allow> and <connect deny> tags in the con
 .PP 
 .SS "ConnectClass::ConnectClass ()\fC [inline]\fP"
 .PP
-Definition at line 67 of file users.h.
+Definition at line 71 of file users.h.
 .PP
-References flood, host, pass, pingtime, and registration_timeout.
+References flood, host, pass, pingtime, registration_timeout, and threshold.
 .PP
 .nf
-68         {
-69                 registration_timeout = 0;
-70                 flood = 0;
-71                 pingtime = 0;
-72                 strlcpy(host,'',MAXBUF);
-73                 strlcpy(pass,'',MAXBUF);
-74         }
+72         {
+73                 registration_timeout = 0;
+74                 flood = 0;
+75                 pingtime = 0;
+76                 threshold = 0;
+77                 strlcpy(host,'',MAXBUF);
+78                 strlcpy(pass,'',MAXBUF);
+79         }
 .fi
 .SH "Member Data Documentation"
 .PP 
@@ -92,6 +97,11 @@ Referenced by ConnectClass().
 .SS "int \fBConnectClass::registration_timeout\fP"
 .PP
 Max time to register the connection in seconds. Definition at line 53 of file users.h.
+.PP
+Referenced by ConnectClass().
+.SS "long \fBConnectClass::threshold\fP"
+.PP
+Threshold value for flood disconnect. Definition at line 69 of file users.h.
 .PP
 Referenced by ConnectClass().
 .SS "int \fBConnectClass::type\fP"

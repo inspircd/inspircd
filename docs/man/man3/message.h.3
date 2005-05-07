@@ -1,4 +1,4 @@
-.TH "message.h" 3 "26 Apr 2005" "InspIRCd" \" -*- nroff -*-
+.TH "message.h" 3 "7 May 2005" "InspIRCd" \" -*- nroff -*-
 .ad l
 .nh
 .SH NAME
@@ -81,7 +81,7 @@ message.h \-
 .RI "void \fBTidyBan\fP (char *ban)"
 .br
 .ti -1c
-.RI "char * \fBchlist\fP (\fBuserrec\fP *user)"
+.RI "char * \fBchlist\fP (\fBuserrec\fP *user, \fBuserrec\fP *source)"
 .br
 .ti -1c
 .RI "void \fBsend_network_quit\fP (const char *nick, const char *reason)"
@@ -99,7 +99,7 @@ Referenced by Server::ChangeHost().
 .SS "void ChangeName (\fBuserrec\fP * user, const char * gecos)"
 .PP
 Referenced by Server::ChangeGECOS().
-.SS "char* chlist (\fBuserrec\fP * user)"
+.SS "char* chlist (\fBuserrec\fP * user, \fBuserrec\fP * source)"
 .PP
 .SS "void chop (char * str)"
 .PP
@@ -115,14 +115,14 @@ Referenced by Server::CommonChannels().
 .PP
 .SS "int has_channel (\fBuserrec\fP * u, \fBchanrec\fP * c)"
 .PP
-Referenced by Server::GetUsers(), and Server::IsOnChannel().
+Referenced by Server::IsOnChannel().
 .SS "bool hasumode (\fBuserrec\fP * user, char mode)"
 .PP
 .SS "int isident (const char * n)"
 .PP
 .SS "int isnick (const char * n)"
 .PP
-Referenced by Server::GetUsers(), and Server::IsNick().
+Referenced by Server::IsNick().
 .SS "void NonBlocking (int s)"
 .PP
 .SS "void safedelete (\fBuserrec\fP * p)"
@@ -131,7 +131,6 @@ Referenced by Server::GetUsers(), and Server::IsNick().
 .PP
 .SS "void send_network_quit (const char * nick, const char * reason)"
 .PP
-Referenced by Server::QuitUser().
 .SS "void TidyBan (char * ban)"
 .PP
 .SS "void tidystring (char * str)"

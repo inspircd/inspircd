@@ -1,4 +1,4 @@
-.TH "chanrec" 3 "26 Apr 2005" "InspIRCd" \" -*- nroff -*-
+.TH "chanrec" 3 "7 May 2005" "InspIRCd" \" -*- nroff -*-
 .ad l
 .nh
 .SH NAME
@@ -254,6 +254,8 @@ Obrain the internal reference list The internal reference list contains a list o
 .PP
 References internal_userlist.
 .PP
+Referenced by Server::GetUsers().
+.PP
 .nf
 241 {
 242         return &internal_userlist;
@@ -292,7 +294,7 @@ References custom_modes, DEBUG, and SetCustomModeParam().
 .nf
 126 {
 127         if (mode_on) {
-128                 char m[3];
+128                 static char m[3];
 129                 m[0] = mode;
 130                 m[1] = '\0';
 131                 if (!strchr(this->custom_modes,mode))

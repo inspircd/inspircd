@@ -1,4 +1,4 @@
-.TH "channels.cpp" 3 "26 Apr 2005" "InspIRCd" \" -*- nroff -*-
+.TH "channels.cpp" 3 "7 May 2005" "InspIRCd" \" -*- nroff -*-
 .ad l
 .nh
 .SH NAME
@@ -257,6 +257,8 @@ Definition at line 91 of file channels.cpp.
 .SS "char \fBlist\fP[MAXBUF]"
 .PP
 Definition at line 78 of file channels.cpp.
+.PP
+Referenced by Server::GetUsers().
 .SS "FILE* \fBlog_file\fP"
 .PP
 Definition at line 105 of file channels.cpp.
@@ -271,7 +273,7 @@ Definition at line 88 of file channels.cpp.
 Definition at line 103 of file channels.cpp.
 .SS "int \fBMODCOUNT\fP = -1"
 .PP
-Definition at line 1032 of file modules.cpp.
+Definition at line 1048 of file modules.cpp.
 .PP
 Referenced by Server::FindModule().
 .SS "std::vector<std::string> \fBmodule_names\fP"
@@ -324,7 +326,7 @@ Definition at line 86 of file channels.cpp.
 .PP
 Definition at line 107 of file channels.cpp.
 .PP
-Referenced by serverrec::serverrec().
+Referenced by serverrec::serverrec(), and userrec::userrec().
 .SS "int \fBUDPportCount\fP"
 .PP
 Definition at line 96 of file channels.cpp.
