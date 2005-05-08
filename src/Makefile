@@ -2,7 +2,7 @@
 #
 # (C) ChatSpike development team
 # Makefile by <Craig@ChatSpike.net>
-# Small modifications by <brain@ChatSpike.net>
+# Makefile version 2 (dynamically linked core) by <brain@inspircd.org>
 #
 
 CC = im a cheezeball
