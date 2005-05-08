@@ -49,6 +49,11 @@ class ModuleUserIP : public Module
 		Srv = new Server;
 		Srv->AddCommand("USERIP",handle_userip,'o',1,"m_Userip.so");
 	}
+
+        virtual void On005Numeric(std::string &output)
+        {
+		output = output + std::string(" USERIP");
+        }
 	
 	virtual ~ModuleUserIP()
 	{
