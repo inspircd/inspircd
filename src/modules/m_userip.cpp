@@ -27,7 +27,7 @@ Server *Srv;
 void handle_userip(char **parameters, int pcnt, userrec *user)
 {
         char Return[MAXBUF],junk[MAXBUF];
-        snprintf(Return,MAXBUF,"302 %s :",user->nick);
+        snprintf(Return,MAXBUF,"340 %s :",user->nick);
         for (int i = 0; i < pcnt; i++)
         {
                 userrec *u = Find(parameters[i]);
@@ -47,7 +47,7 @@ class ModuleUserIP : public Module
 	ModuleUserIP()
 	{
 		Srv = new Server;
-		Srv->AddCommand("USERIP",handle_UserIP,'o',1,"m_Userip.so");
+		Srv->AddCommand("USERIP",handle_userip,'o',1,"m_Userip.so");
 	}
 	
 	virtual ~ModuleUserIP()
