@@ -872,7 +872,7 @@ void handle_whois(char **parameters, int pcnt, userrec *user)
 			WriteServ(user->fd,"311 %s %s %s %s * :%s",user->nick, dest->nick, dest->ident, dest->dhost, dest->fullname);
 			if ((user == dest) || (strchr(user->modes,'o')))
 			{
-				WriteServ(user->fd,"378 %s %s :is connecting from *@%s",user->nick, dest->nick, dest->host);
+				WriteServ(user->fd,"378 %s %s :is connecting from *@%s %s",user->nick, dest->nick, dest->host, dest->ip);
 			}
 			char* cl = chlist(dest,user);
 			if (strcmp(cl,""))
