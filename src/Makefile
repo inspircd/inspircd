@@ -11,57 +11,57 @@ CXXFLAGS = -I$../include ${FLAGS}
 
 all: inspircd
 
-inspircd: inspircd.cpp libchannels.so libmode.so libxline.so libinspstring.so libasyncdns.so libbase.so libinspircdutil.so libinspircdio.so libconnection.so libmessage.so libcommands.so libdnsqueue.so libdynamic.so libusers.so libmodules.so libwildcard.so libservers.so
-	$(CXX) -I../include $(FLAGS) -rdynamic -L. inspircd.cpp -o inspircd $(LDLIBS) libchannels.so libmode.so libxline.so libinspstring.so libasyncdns.so libbase.so libinspircdutil.so libinspircdio.so libconnection.so libmessage.so libcommands.so libdnsqueue.so libdynamic.so libusers.so libmodules.so libwildcard.so libservers.so
+inspircd: inspircd.cpp libIRCDchannels.so libIRCDmode.so libIRCDxline.so libIRCDstring.so libIRCDasyncdns.so libIRCDbase.so libIRCDutil.so libIRCDio.so libIRCDconnection.so libIRCDmessage.so libIRCDcommands.so libIRCDdnsqueue.so libIRCDdynamic.so libIRCDusers.so libIRCDmodules.so libIRCDwildcard.so libIRCDservers.so
+	$(CXX) -I../include $(FLAGS) -rdynamic -L. inspircd.cpp -o inspircd $(LDLIBS) libIRCDchannels.so libIRCDmode.so libIRCDxline.so libIRCDstring.so libIRCDasyncdns.so libIRCDbase.so libIRCDutil.so libIRCDio.so libIRCDconnection.so libIRCDmessage.so libIRCDcommands.so libIRCDdnsqueue.so libIRCDdynamic.so libIRCDusers.so libIRCDmodules.so libIRCDwildcard.so libIRCDservers.so
 
-libchannels.so: channels.cpp ../include/base.h ../include/channels.h ../include/inspircd.h
-	$(CC) -I../include $(FLAGS) -shared -o libchannels.so channels.cpp
+libIRCDchannels.so: channels.cpp ../include/base.h ../include/channels.h ../include/inspircd.h
+	$(CC) -I../include $(FLAGS) -shared -o libIRCDchannels.so channels.cpp
 
-libmode.so: mode.cpp ../include/base.h ../include/mode.h ../include/inspircd.h
-	$(CC) -I../include $(FLAGS) -shared -o libmode.so mode.cpp
+libIRCDmode.so: mode.cpp ../include/base.h ../include/mode.h ../include/inspircd.h
+	$(CC) -I../include $(FLAGS) -shared -o libIRCDmode.so mode.cpp
 
-libxline.so: xline.cpp ../include/base.h ../include/xline.h ../include/inspircd.h
-	$(CC) -I../include $(FLAGS) -shared -o libxline.so xline.cpp
+libIRCDxline.so: xline.cpp ../include/base.h ../include/xline.h ../include/inspircd.h
+	$(CC) -I../include $(FLAGS) -shared -o libIRCDxline.so xline.cpp
 
-libinspstring.so: inspstring.cpp ../include/base.h ../include/inspstring.h ../include/inspircd.h
-	$(CC) -I../include $(FLAGS) -shared -o libinspstring.so inspstring.cpp
+libIRCDstring.so: inspstring.cpp ../include/base.h ../include/inspstring.h ../include/inspircd.h
+	$(CC) -I../include $(FLAGS) -shared -o libIRCDinspstring.so inspstring.cpp
 
-libasyncdns.so: dns.cpp ../include/base.h ../include/dns.h ../include/inspircd.h
-	$(CC) -I../include $(FLAGS) -shared -o libasyncdns.so dns.cpp
+libIRCDasyncdns.so: dns.cpp ../include/base.h ../include/dns.h ../include/inspircd.h
+	$(CC) -I../include $(FLAGS) -shared -o libIRCDasyncdns.so dns.cpp
 
-libbase.so: base.cpp ../include/base.h
-	$(CC) -I../include $(FLAGS) -shared -o libbase.so base.cpp
+libIRCDbase.so: base.cpp ../include/base.h
+	$(CC) -I../include $(FLAGS) -shared -o libIRCDbase.so base.cpp
 
-libinspircdutil.so: inspircd_util.cpp ../include/base.h ../include/inspircd_util.h ../include/inspircd.h
-	$(CC) -I../include $(FLAGS) -shared -o libinspircdutil.so inspircd_util.cpp
+libIRCDutil.so: inspircd_util.cpp ../include/base.h ../include/inspircd_util.h ../include/inspircd.h
+	$(CC) -I../include $(FLAGS) -shared -o libIRCDinspircdutil.so inspircd_util.cpp
 
-libinspircdio.so: inspircd_io.cpp ../include/base.h ../include/inspircd_io.h ../include/inspircd.h
-	$(CC) -I../include $(FLAGS) -shared -o libinspircdio.so inspircd_io.cpp
+libIRCDio.so: inspircd_io.cpp ../include/base.h ../include/inspircd_io.h ../include/inspircd.h
+	$(CC) -I../include $(FLAGS) -shared -o libIRCDinspircdio.so inspircd_io.cpp
 
-libconnection.so: connection.cpp ../include/base.h ../include/connection.h ../include/inspircd.h
-	$(CC) -I../include $(FLAGS) -shared -o libconnection.so connection.cpp
+libIRCDconnection.so: connection.cpp ../include/base.h ../include/connection.h ../include/inspircd.h
+	$(CC) -I../include $(FLAGS) -shared -o libIRCDconnection.so connection.cpp
 
-libmessage.so: message.cpp ../include/base.h ../include/message.h ../include/inspircd.h
-	$(CC) -I../include $(FLAGS) -shared -o libmessage.so message.cpp
+libIRCDmessage.so: message.cpp ../include/base.h ../include/message.h ../include/inspircd.h
+	$(CC) -I../include $(FLAGS) -shared -o libIRCDmessage.so message.cpp
 
-libcommands.so: commands.cpp ../include/base.h ../include/commands.h ../include/inspircd.h
-	$(CC) -I../include $(FLAGS) -shared -o libcommands.so commands.cpp
+libIRCDcommands.so: commands.cpp ../include/base.h ../include/commands.h ../include/inspircd.h
+	$(CC) -I../include $(FLAGS) -shared -o libIRCDcommands.so commands.cpp
 
-libdnsqueue.so: dnsqueue.cpp ../include/base.h ../include/dnsqueue.h ../include/inspircd.h
-	$(CC) -I../include $(FLAGS) -shared -o libdnsqueue.so dnsqueue.cpp
+libIRCDdnsqueue.so: dnsqueue.cpp ../include/base.h ../include/dnsqueue.h ../include/inspircd.h
+	$(CC) -I../include $(FLAGS) -shared -o libIRCDdnsqueue.so dnsqueue.cpp
 
-libdynamic.so: dynamic.cpp ../include/base.h ../include/dynamic.h ../include/inspircd.h
-	$(CC) -I../include $(FLAGS) -shared -o libdynamic.so dynamic.cpp
+libIRCDdynamic.so: dynamic.cpp ../include/base.h ../include/dynamic.h ../include/inspircd.h
+	$(CC) -I../include $(FLAGS) -shared -o libIRCDdynamic.so dynamic.cpp
 
-libusers.so: users.cpp ../include/base.h ../include/users.h ../include/inspircd.h
-	$(CC) -I../include $(FLAGS) -shared -o libusers.so users.cpp
+libIRCDusers.so: users.cpp ../include/base.h ../include/users.h ../include/inspircd.h
+	$(CC) -I../include $(FLAGS) -shared -o libIRCDusers.so users.cpp
 
-libmodules.so: modules.cpp ../include/base.h ../include/modules.h ../include/inspircd.h
-	$(CC) -I../include $(FLAGS) -shared -o libmodules.so modules.cpp
+libIRCDmodules.so: modules.cpp ../include/base.h ../include/modules.h ../include/inspircd.h
+	$(CC) -I../include $(FLAGS) -shared -o libIRCDmodules.so modules.cpp
 
-libwildcard.so: wildcard.cpp ../include/base.h ../include/wildcard.h ../include/inspircd.h
-	$(CC) -I../include $(FLAGS) -shared -o libwildcard.so wildcard.cpp
+libIRCDwildcard.so: wildcard.cpp ../include/base.h ../include/wildcard.h ../include/inspircd.h
+	$(CC) -I../include $(FLAGS) -shared -o libIRCDwildcard.so wildcard.cpp
 
-libservers.so: servers.cpp ../include/base.h ../include/servers.h ../include/inspircd.h
-	$(CC) -I../include $(FLAGS) -shared -o libservers.so servers.cpp
+libIRCDservers.so: servers.cpp ../include/base.h ../include/servers.h ../include/inspircd.h
+	$(CC) -I../include $(FLAGS) -shared -o libIRCDservers.so servers.cpp
 
