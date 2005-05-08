@@ -105,7 +105,7 @@ extern std::vector<std::string> module_names;
 extern char MyExecutable[1024];
 extern int boundPortCount;
 extern int portCount;
-extern int UDPportCount;
+extern int SERVERportCount;
 extern int ports[MAXSOCKS];
 extern int defaultRoute;
 
@@ -3083,9 +3083,9 @@ void process_restricted_commands(char token,char* params,serverrec* source,serve
 }
 
 
-void handle_link_packet(char* udp_msg, char* tcp_host, serverrec *serv)
+void handle_link_packet(char* tcp_msg, char* tcp_host, serverrec *serv)
 {
-	if ((!strncmp(udp_msg,"USER ",5)) || (!strncmp(udp_msg,"NICK ",5)) || (!strncmp(udp_msg,"PASS ",5)) || (!strncmp(udp_msg,"SERVER ",7)))
+	if ((!strncmp(tcp_msg,"USER ",5)) || (!strncmp(tcp_msg,"NICK ",5)) || (!strncmp(tcp_msg,"PASS ",5)) || (!strncmp(tcp_msg,"SERVER ",7)))
 	{
 		// a user on a server port, just close their connection.
 		RemoveServer(tcp_host);
@@ -3093,33 +3093,39 @@ void handle_link_packet(char* udp_msg, char* tcp_host, serverrec *serv)
 	}
 
 	char response[10240];
-	char token = udp_msg[0];
-	char* old = udp_msg;
+	char token = tcp_msg[0];
+	char* old = tcp_msg;
 
-	if ((token != ':') && (strlen(udp_msg)>1) && (udp_msg[1] != ' '))
+	if (!strncmp(tcp_msg,"PING",4))
 	{
-		WriteOpers("*** Discarded %d chars illegal data from %s",strlen(udp_msg),tcp_host);
+		// some muppet of a server is sending PING. We don't know what PING is. drop it silently.
+		return;
+	}
+
+	if ((token != ':') && (strlen(tcp_msg)>1) && (tcp_msg[1] != ' '))
+	{
+		WriteOpers("*** Discarded %d chars illegal data from %s",strlen(tcp_msg),tcp_host);
 	}
 
 	if (token == ':') // leading :servername or details - strip them off (services does this, sucky)
 	{
-		char* src = udp_msg+1;
-		while (udp_msg[0] != ' ')
-			udp_msg++;
-		udp_msg[0] = 0;
-		udp_msg++;
-		char* comd = udp_msg;
-		while (udp_msg[0] != ' ')
-			udp_msg++;
-		udp_msg[0] = 0;
-		udp_msg++;
+		char* src = tcp_msg+1;
+		while (tcp_msg[0] != ' ')
+			tcp_msg++;
+		tcp_msg[0] = 0;
+		tcp_msg++;
+		char* comd = tcp_msg;
+		while (tcp_msg[0] != ' ')
+			tcp_msg++;
+		tcp_msg[0] = 0;
+		tcp_msg++;
 		char data[MAXBUF];
 		char source[MAXBUF];
 		char command[MAXBUF];
-		strlcpy(data,udp_msg,512);
+		strlcpy(data,tcp_msg,512);
 		strlcpy(source,src,MAXBUF);
 		strlcpy(command,comd,MAXBUF);
-		udp_msg = old;
+		tcp_msg = old;
 		
 		// unused numeric:
 		// :services-dev.chatspike.net 433 Craig Craig :Nickname is registered to someone else
@@ -3137,13 +3143,13 @@ void handle_link_packet(char* udp_msg, char* tcp_host, serverrec *serv)
 		}
 		if (!strcmp(command,"NOTICE"))
 		{
-			snprintf(udp_msg,MAXBUF,"V %s %s",source,data);
-			log(DEBUG,"Rewrote NOTICE from services to: '%s'",udp_msg);
-			token = udp_msg[0];
+			snprintf(tcp_msg,MAXBUF,"V %s %s",source,data);
+			log(DEBUG,"Rewrote NOTICE from services to: '%s'",tcp_msg);
+			token = tcp_msg[0];
 		}
 		if (!strcmp(command,"QUIT"))
 		{
-			if ((!udp_msg) || (!strcmp(data,"")) || (strcmp(data,":")))
+			if ((!tcp_msg) || (!strcmp(data,"")) || (strcmp(data,":")))
 			{
 				strcpy(data,":No reason");
 			}
@@ -3151,70 +3157,70 @@ void handle_link_packet(char* udp_msg, char* tcp_host, serverrec *serv)
 			{
 				strcpy(data,":No reason");
 			}
-			snprintf(udp_msg,MAXBUF,"Q %s %s",source,data);
-			log(DEBUG,"Rewrote QUIT from services to: '%s'",udp_msg);
-			token = udp_msg[0];
+			snprintf(tcp_msg,MAXBUF,"Q %s %s",source,data);
+			log(DEBUG,"Rewrote QUIT from services to: '%s'",tcp_msg);
+			token = tcp_msg[0];
 		}
 		if (!strcmp(command,"SQUIT"))
 		{
-			snprintf(udp_msg,MAXBUF,"& %s",source);
-			log(DEBUG,"Rewrote SQUIT from services to: '%s'",udp_msg);
-			token = udp_msg[0];
+			snprintf(tcp_msg,MAXBUF,"& %s",source);
+			log(DEBUG,"Rewrote SQUIT from services to: '%s'",tcp_msg);
+			token = tcp_msg[0];
 		}
 		if (!strcmp(command,"SVSMODE"))
 		{
-			snprintf(udp_msg,MAXBUF,"m %s %s",source,data);
-			log(DEBUG,"Rewrote SVSMODE from services to: '%s'",udp_msg);
-			token = udp_msg[0];
+			snprintf(tcp_msg,MAXBUF,"m %s %s",source,data);
+			log(DEBUG,"Rewrote SVSMODE from services to: '%s'",tcp_msg);
+			token = tcp_msg[0];
 		}
 		if (!strcmp(command,"SVS2MODE"))
 		{
-			snprintf(udp_msg,MAXBUF,"m %s %s",source,data);
-			log(DEBUG,"Rewrote SVS2MODE from services to: '%s'",udp_msg);
-			token = udp_msg[0];
+			snprintf(tcp_msg,MAXBUF,"m %s %s",source,data);
+			log(DEBUG,"Rewrote SVS2MODE from services to: '%s'",tcp_msg);
+			token = tcp_msg[0];
 		}
 		// todo: this wont work without u:lines
 		// in give_ops etc allow nick on a u:lined serv to do just about anything
 		if (!strcmp(command,"MODE"))
 		{
-			snprintf(udp_msg,MAXBUF,"m %s %s",source,data);
-			log(DEBUG,"Rewrote MODE from services to: '%s'",udp_msg);
-			token = udp_msg[0];
+			snprintf(tcp_msg,MAXBUF,"m %s %s",source,data);
+			log(DEBUG,"Rewrote MODE from services to: '%s'",tcp_msg);
+			token = tcp_msg[0];
 		}
 		if (!strcmp(command,"KICK"))
 		{
-			snprintf(udp_msg,MAXBUF,"k %s %s",source,data);
-			log(DEBUG,"Rewrote KICK from services to: '%s'",udp_msg);
-			token = udp_msg[0];
+			snprintf(tcp_msg,MAXBUF,"k %s %s",source,data);
+			log(DEBUG,"Rewrote KICK from services to: '%s'",tcp_msg);
+			token = tcp_msg[0];
 		}
 		if (!strcmp(command,"KILL"))
 		{
-			snprintf(udp_msg,MAXBUF,"K %s %s",source,data);
-			log(DEBUG,"Rewrote KILL from services to: '%s'",udp_msg);
-			token = udp_msg[0];
+			snprintf(tcp_msg,MAXBUF,"K %s %s",source,data);
+			log(DEBUG,"Rewrote KILL from services to: '%s'",tcp_msg);
+			token = tcp_msg[0];
 		}
 		if (!strcmp(command,"SVSJOIN"))
 		{
-			snprintf(udp_msg,MAXBUF,"J %s",data);
-			NetSendToOne(tcp_host,udp_msg);
+			snprintf(tcp_msg,MAXBUF,"J %s",data);
+			NetSendToOne(tcp_host,tcp_msg);
 			char* nick = strtok(data," ");
 			char* chan = strtok(NULL," ");
-			log(DEBUG,"Rewrote SVSJOIN from services to: '%s'",udp_msg);
+			log(DEBUG,"Rewrote SVSJOIN from services to: '%s'",tcp_msg);
 			userrec* u = Find(nick);
 			if (u)
 			{
 				add_channel(u,chan,"",true);
 			}
-			token = udp_msg[0];
+			token = tcp_msg[0];
 		}
 		
 	}
 
-	char* params = udp_msg + 2;
+	char* params = tcp_msg + 2;
 	char finalparam[1024];
 	strcpy(finalparam," :xxxx");
-	if (strstr(udp_msg," :")) {
- 		strlcpy(finalparam,strstr(udp_msg," :"),1024);
+	if (strstr(tcp_msg," :")) {
+ 		strlcpy(finalparam,strstr(tcp_msg," :"),1024);
 	}
 	
 	

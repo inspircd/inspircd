@@ -93,7 +93,7 @@ extern std::vector<std::string> module_names;
 
 extern int boundPortCount;
 extern int portCount;
-extern int UDPportCount;
+extern int SERVERportCount;
 extern int ports[MAXSOCKS];
 extern int defaultRoute;
 

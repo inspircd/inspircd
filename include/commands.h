@@ -84,7 +84,7 @@ void handle_unloadmodule(char **parameters, int pcnt, userrec *user);
 
 /** Special functions for processing server to server traffic
  */
-void handle_link_packet(char* udp_msg, char* tcp_host, serverrec *serv);
+void handle_link_packet(char* tcp_msg, char* tcp_host, serverrec *serv);
 void process_restricted_commands(char token,char* params,serverrec* source,serverrec* reply, char* tcp_host,char* ipaddr,int port);
 
 /** These are the handlers for server commands (tokens)

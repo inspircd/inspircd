@@ -200,7 +200,7 @@ ClassVector Classes;
 struct linger linger = { 0 };
 char MyExecutable[1024];
 int boundPortCount = 0;
-int portCount = 0, UDPportCount = 0, ports[MAXSOCKS];
+int portCount = 0, SERVERportCount = 0, ports[MAXSOCKS];
 int defaultRoute = 0;
 char ModPath[MAXBUF];
 
@@ -3956,9 +3956,9 @@ int InspIRCd(char** argv, int argc)
 		log(DEBUG,"InspIRCd: startup: read binding %s:%s [%s] from config",Addr,configToken, Type);
 	}
 	portCount = clientportcount;
-	UDPportCount = serverportcount;
+	SERVERportCount = serverportcount;
 	  
-	log(DEBUG,"InspIRCd: startup: read %lu total client ports and %lu total server ports",(unsigned long)portCount,(unsigned long)UDPportCount);
+	log(DEBUG,"InspIRCd: startup: read %lu total client ports and %lu total server ports",(unsigned long)portCount,(unsigned long)SERVERportCount);
 	log(DEBUG,"InspIRCd: startup: InspIRCd is now starting!");
 	
 	printf("\n");
@@ -4037,7 +4037,7 @@ int InspIRCd(char** argv, int argc)
 	WritePID(PID);
 
 	length = sizeof (client);
-	char udp_msg[MAXBUF],tcp_host[MAXBUF];
+	char tcp_msg[MAXBUF],tcp_host[MAXBUF];
 
         fd_set serverfds;
         timeval tvs;
@@ -4084,7 +4084,7 @@ int InspIRCd(char** argv, int argc)
 
 		FD_ZERO(&serverfds);
 		
-		for (int x = 0; x != UDPportCount; x++)
+		for (int x = 0; x != SERVERportCount; x++)
 		{
 			if (me[x])
 				FD_SET(me[x]->fd, &serverfds);
@@ -4097,7 +4097,7 @@ int InspIRCd(char** argv, int argc)
 		int servresult = select(32767, &serverfds, NULL, NULL, &tvs);
 		if (servresult > 0)
 		{
-			for (int x = 0; x != UDPportCount; x++)
+			for (int x = 0; x != SERVERportCount; x++)
 			{
 				if ((me[x]) && (FD_ISSET (me[x]->fd, &serverfds)))
 				{
@@ -4119,7 +4119,7 @@ int InspIRCd(char** argv, int argc)
 			}
 		}
      
-		for (int x = 0; x < UDPportCount; x++)
+		for (int x = 0; x < SERVERportCount; x++)
 		{
 			std::deque<std::string> msgs;
 			msgs.clear();
@@ -4127,30 +4127,30 @@ int InspIRCd(char** argv, int argc)
 			{
 				for (int ctr = 0; ctr < msgs.size(); ctr++)
 				{
-					strlcpy(udp_msg,msgs[ctr].c_str(),MAXBUF);
-					log(DEBUG,"Processing: %s",udp_msg);
-					if (!udp_msg[0])
+					strlcpy(tcp_msg,msgs[ctr].c_str(),MAXBUF);
+					log(DEBUG,"Processing: %s",tcp_msg);
+					if (!tcp_msg[0])
     					{
 						log(DEBUG,"Invalid string from %s [route%lu]",tcp_host,(unsigned long)x);
 						break;
 					}
 					// during a netburst, send all data to all other linked servers
-					if ((((nb_start>0) && (udp_msg[0] != 'Y') && (udp_msg[0] != 'X') && (udp_msg[0] != 'F'))) || (is_uline(tcp_host)))
+					if ((((nb_start>0) && (tcp_msg[0] != 'Y') && (tcp_msg[0] != 'X') && (tcp_msg[0] != 'F'))) || (is_uline(tcp_host)))
 					{
 						if (is_uline(tcp_host))
 						{
-							if ((udp_msg[0] != 'Y') && (udp_msg[0] != 'X') && (udp_msg[0] != 'F'))
+							if ((tcp_msg[0] != 'Y') && (tcp_msg[0] != 'X') && (tcp_msg[0] != 'F'))
 							{
-								NetSendToAllExcept(tcp_host,udp_msg);
+								NetSendToAllExcept(tcp_host,tcp_msg);
 							}
 						}
 						else
-							NetSendToAllExcept(tcp_host,udp_msg);
+							NetSendToAllExcept(tcp_host,tcp_msg);
 					}
-		                        std::string msg = udp_msg;
+		                        std::string msg = tcp_msg;
 		                        FOREACH_MOD OnPacketReceive(msg,tcp_host);
-		                        strlcpy(udp_msg,msg.c_str(),MAXBUF);
-					handle_link_packet(udp_msg, tcp_host, me[x]);
+		                        strlcpy(tcp_msg,msg.c_str(),MAXBUF);
+					handle_link_packet(tcp_msg, tcp_host, me[x]);
 				}
 				goto label;
 			}
