@@ -2196,9 +2196,9 @@ void handle_K(char token,char* params,serverrec* source,serverrec* reply, char* 
 	
 	if ((user) && (u))
 	{
-		WriteTo(user, u, "KILL %s :%s!%s!%s!%s (%s)", u->nick, source->name, ServerName, user->dhost,user->nick,reason);
-		WriteOpers("*** Remote kill from %s by %s: %s!%s@%s (%s)",source->name,user->nick,u->nick,u->ident,u->host,reason);
-		snprintf(kreason,MAXBUF,"[%s] Killed (From: '%s' (%s))",source->name,user->nick,reason);
+		WriteTo(user, u, "KILL %s :%s!%s!%s!%s (%s)", u->nick, tcp_host, ServerName, user->dhost,user->nick,reason);
+		WriteOpers("*** Remote kill from %s by %s: %s!%s@%s (%s)",tcp_host,user->nick,u->nick,u->ident,u->host,reason);
+		snprintf(kreason,MAXBUF,"[%s] Killed (From: '%s' (%s))",tcp_host,user->nick,reason);
 		kill_link(u,kreason);
 	}
 }
