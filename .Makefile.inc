@@ -27,6 +27,7 @@ ircd:
 	${MAKE} -C src DIRNAME="src" $(MAKEARGS)
 
 bininst:
+	@-cp src/*.so $(BINPATH)
 	@-cp src/inspircd $(BINPATH)
 
 config:

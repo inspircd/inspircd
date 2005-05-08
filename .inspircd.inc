@@ -15,10 +15,10 @@
 #               I HATE PERL.. kthxbye
 # ---------------------------------------------------
 
-$ENV{"LD_LIBRARY_PATH"} = $ENV{"LD_LIBRARY_PATH"} . ":/usr/local/lib/mysql:/usr/lib/mysql";
-
 my $conffile = "@CONFIG_DIR@/inspircd.conf";
 my $binpath = "@BINARY_DIR@";
+
+$ENV{"LD_LIBRARY_PATH"} = $ENV{"LD_LIBRARY_PATH"} . ":/usr/local/lib/mysql:/usr/lib/mysql:$binpath";
 
 # Lets see what they want to do.. Set the variable (Cause i'm a lazy coder)
 my $arg = $ARGV[0];
