@@ -24,7 +24,7 @@ libIRCDxline.so: xline.cpp ../include/base.h ../include/xline.h ../include/inspi
 	$(CC) -I../include $(FLAGS) -shared -o libIRCDxline.so xline.cpp
 
 libIRCDstring.so: inspstring.cpp ../include/base.h ../include/inspstring.h ../include/inspircd.h
-	$(CC) -I../include $(FLAGS) -shared -o libIRCDinspstring.so inspstring.cpp
+	$(CC) -I../include $(FLAGS) -shared -o libIRCDstring.so inspstring.cpp
 
 libIRCDasyncdns.so: dns.cpp ../include/base.h ../include/dns.h ../include/inspircd.h
 	$(CC) -I../include $(FLAGS) -shared -o libIRCDasyncdns.so dns.cpp
@@ -33,10 +33,10 @@ libIRCDbase.so: base.cpp ../include/base.h
 	$(CC) -I../include $(FLAGS) -shared -o libIRCDbase.so base.cpp
 
 libIRCDutil.so: inspircd_util.cpp ../include/base.h ../include/inspircd_util.h ../include/inspircd.h
-	$(CC) -I../include $(FLAGS) -shared -o libIRCDinspircdutil.so inspircd_util.cpp
+	$(CC) -I../include $(FLAGS) -shared -o libIRCDutil.so inspircd_util.cpp
 
 libIRCDio.so: inspircd_io.cpp ../include/base.h ../include/inspircd_io.h ../include/inspircd.h
-	$(CC) -I../include $(FLAGS) -shared -o libIRCDinspircdio.so inspircd_io.cpp
+	$(CC) -I../include $(FLAGS) -shared -o libIRCDio.so inspircd_io.cpp
 
 libIRCDconnection.so: connection.cpp ../include/base.h ../include/connection.h ../include/inspircd.h
 	$(CC) -I../include $(FLAGS) -shared -o libIRCDconnection.so connection.cpp
