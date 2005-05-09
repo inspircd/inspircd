@@ -42,9 +42,11 @@ clean:
 	rm -rf src/*.so
 	rm -rf src/inspircd
 	rm -rf src/modules/*.so
+	rm -rf src/modules/*.o
 
 modclean:
 	rm -rf modules/*.so
 	rm -rf src/modules/*.so
+	rm -rf src/modules/*.o
 
 squeakyclean: modclean clean
