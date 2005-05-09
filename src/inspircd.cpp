@@ -220,6 +220,8 @@ std::vector<userrec*> all_opers;
 
 static char already_sent[65536];
 
+char lowermap[255];
+
 void AddOper(userrec* user)
 {
 	log(DEBUG,"Oper added to optimization list");
@@ -1305,19 +1307,10 @@ void WriteWallOps(userrec *source, bool local_only, char* text, ...)
 
 void strlower(char *n)
 {
-	if (!n)
+	if (n)
 	{
-		return;
-	}
-	for (int i = 0; n[i] != 0; i++)
-	{
-		n[i] = tolower(n[i]);
-		if (n[i] == '[')
-			n[i] = '{';
-		if (n[i] == ']')
-			n[i] = '}';
-		if (n[i] == '\\')
-			n[i] = '|';
+		for (char* t = n; *t; t++)
+			*t = lowermap[*t];
 	}
 }
 
@@ -2367,6 +2360,17 @@ int main(int argc, char** argv)
 	}
 	strlcpy(MyExecutable,argv[0],MAXBUF);
 	
+	// initialize the lowercase mapping table
+	for (int cn = 0; cn < 256; cn++)
+		lowermap[cn] = cn;
+	// lowercase the uppercase chars
+	for (int cn = 65; cn < 91; cn++)
+		lowermap[cn] = tolower(cn);
+	// now replace the specific chars for scandanavian comparison
+	lowermap['['] = '{';
+	lowermap[']'] = '}';
+	lowermap['\\'] = '|';
+
 	if (InspIRCd(argv,argc) == ERROR)
 	{
 		log(DEFAULT,"main: daemon function bailed");
