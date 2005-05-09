@@ -192,11 +192,11 @@ std::string chanrec::GetModeParameter(char mode)
 		{
 			if ((i->mode == mode) && (!strcasecmp(this->name,i->channel)))
 			{
-				return std::string(i->parameter);
+				return i->parameter;
 			}
 		}
 	}
-	return std::string("");
+	return "";
 }
 
 void chanrec::IncUserCounter()

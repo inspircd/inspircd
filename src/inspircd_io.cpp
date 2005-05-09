@@ -512,7 +512,7 @@ int ReadConf(std::stringstream *config, const char* tag, const char* var, int in
 
 	const char* buf = config->str().c_str();
 	long bptr = 0;
-	long len = strlen(buf);
+	long len = config->str().length();
 	
 	ptr = 0;
 	in_token = 0;

@@ -2669,18 +2669,22 @@ long local_count()
 
 void ShowMOTD(userrec *user)
 {
+	char buf[65536];
         std::string WholeMOTD = "";
         if (!MOTD.size())
         {
                 WriteServ(user->fd,"422 %s :Message of the day file is missing.",user->nick);
                 return;
         }
-        WholeMOTD = std::string(":") + std::string(ServerName) + std::string(" 375 ") + std::string(user->nick) + std::string(" :- ") + std::string(ServerName) + " message of the day\r\n";
+        snprintf(buf,65535,":%s 375 %s :- %s message of the day\r\n", ServerName, user->nick, ServerName);
+	WholeMOTD = WholeMOTD + buf;
         for (int i = 0; i != MOTD.size(); i++)
         {
-                WholeMOTD = WholeMOTD + std::string(":") + std::string(ServerName) + std::string(" 372 ") + std::string(user->nick) + std::string(" :- ") + MOTD[i] + std::string("\r\n");
+		snprintf(buf,65535,":%s 372 %s :- %s\r\n", ServerName, user->nick, MOTD[i].c_str());
+                WholeMOTD = WholeMOTD + buf;
         }
-        WholeMOTD = WholeMOTD + std::string(":") + std::string(ServerName) + std::string(" 376 ") + std::string(user->nick) + std::string(" :End of message of the day.\r\n");
+	snprintf(buf,65535,":%s 376 %s :End of message of the day.\r\n", ServerName, user->nick);
+        WholeMOTD = WholeMOTD + buf;
         // only one write operation
         send(user->fd,WholeMOTD.c_str(),WholeMOTD.length(),0);
 	statsSent += WholeMOTD.length();
@@ -2755,7 +2759,7 @@ void FullConnectUser(userrec* user)
         v << "MESHED WALLCHOPS MODES=13 CHANTYPES=# PREFIX=(ohv)@%+ MAP SAFELIST MAXCHANNELS=" << MAXCHANS;
         v << " MAXBANS=60 NICKLEN=" << NICKMAX;
         v << " TOPICLEN=307 KICKLEN=307 MAXTARGETS=20 AWAYLEN=307 CHANMODES=ohvb,k,l,psmnti NETWORK=";
-        v << std::string(Network);
+        v << Network;
         std::string data005 = v.str();
         FOREACH_MOD On005Numeric(data005);
         // anfl @ #ratbox, efnet reminded me that according to the RFC this cant contain more than 13 tokens per line...
@@ -3738,9 +3742,10 @@ void erase_module(int j)
 
 bool UnloadModule(const char* filename)
 {
+	std::string filename_str = filename;
 	for (int j = 0; j != module_names.size(); j++)
 	{
-		if (module_names[j] == std::string(filename))
+		if (module_names[j] == filename_str)
 		{
 			if (modules[j]->GetVersion().Flags & VF_STATIC)
 			{
@@ -3830,6 +3835,7 @@ bool LoadModule(const char* filename)
 {
 	char modfile[MAXBUF];
 	snprintf(modfile,MAXBUF,"%s/%s",ModPath,filename);
+	std::string filename_str = filename;
 	if (!DirValid(modfile))
 	{
 		log(DEFAULT,"Module %s is not within the modules directory.",modfile);
@@ -3841,7 +3847,7 @@ bool LoadModule(const char* filename)
         {
 		for (int j = 0; j < module_names.size(); j++)
 		{
-			if (module_names[j] == std::string(filename))
+			if (module_names[j] == filename_str)
 			{
 				log(DEFAULT,"Module %s is already loaded, cannot load a module twice!",modfile);
 				snprintf(MODERR,MAXBUF,"Module already loaded");

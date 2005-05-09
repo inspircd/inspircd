@@ -193,8 +193,8 @@ public:
 		if (usr)
 		{
 			log(DEBUG,"New Lookup class for %s with DNSServer set to '%s'",nick.c_str(),DNSServer);
-			resolver.SetNS(std::string(DNSServer));
-			if (!resolver.ReverseLookup(std::string(usr->host)))
+			resolver.SetNS(DNSServer);
+			if (!resolver.ReverseLookup(usr->host))
 				return false;
 			strlcpy(u,nick.c_str(),NICKMAX);
 			return true;

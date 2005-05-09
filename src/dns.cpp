@@ -722,7 +722,7 @@ int DNS::GetFD()
 
 std::string DNS::GetResult()
 {
-        result = dns_getresult(this->fd);
+	result = dns_getresult(this->fd);
         if (result) {
 		statsDnsGood++;
 		dns_close(this->fd);

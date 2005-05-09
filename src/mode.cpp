@@ -552,12 +552,13 @@ std::string compress_modes(std::string modes,bool channelmodes)
 			static char v[2];
 			v[0] = (unsigned char)j;
 			v[1] = '\0';
-			std::string::size_type pos = modes.find(std::string(v));
+			std::string mode_str = v;
+			std::string::size_type pos = modes.find(mode_str);
 			if (pos != std::string::npos)
 			{
 				log(DEBUG,"all occurances of mode %c to be deleted...",(unsigned char)j);
-				while (modes.find(std::string(v)) != std::string::npos)
-					modes.erase(modes.find(std::string(v)),1);
+				while (modes.find(mode_str) != std::string::npos)
+					modes.erase(modes.find(mode_str),1);
 				log(DEBUG,"New mode line: %s",modes.c_str());
 			}
 		}

@@ -889,7 +889,7 @@ std::string ConfigReader::ReadValue(std::string tag, std::string name, int index
 		this->error = CONF_VALUE_NOT_FOUND;
 		return "";
 	}
-	return std::string(val);
+	return val;
 }
 
 bool ConfigReader::ReadFlag(std::string tag, std::string name, int index)
