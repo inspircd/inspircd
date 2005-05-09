@@ -15,8 +15,9 @@ LDLIBS = @LDLIBS@
 CONPATH = @CONFIG_DIR@
 MODPATH = @MODULE_DIR@
 BINPATH = @BINARY_DIR@
+LIBPATH = @LIBRARY_DIR@
 MODULES = @MODULES@
-MAKEARGS = 'PROGS=${PROGS}' 'FLAGS=${FLAGS}' 'CC=${CC}' 'LDLIBS=${LDLIBS}' 'MODULES=${MODULES}' 'MODPATH=$(MODPATH)'
+MAKEARGS = 'PROGS=${PROGS}' 'FLAGS=${FLAGS}' 'CC=${CC}' 'LDLIBS=${LDLIBS}' 'MODULES=${MODULES}' 'MODPATH=$(MODPATH)' 'LIBPATH=$(LIBPATH)'
 
 all : ircd mods config bininst
 
@@ -27,7 +28,7 @@ ircd:
 	${MAKE} -C src DIRNAME="src" $(MAKEARGS)
 
 bininst:
-	@-cp src/*.so $(BINPATH)
+	@-cp src/*.so $(LIBPATH)
 	@-cp src/inspircd $(BINPATH)
 
 config:

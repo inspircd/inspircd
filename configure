@@ -12,24 +12,25 @@
 ########################################
 
 
-$this = $ENV{PWD};                                              # PWD, Regardless.
-@modlist = ();                                                  # Declare for Module List..
-%config = ();                                                   # Initiate Configuration Hash..
-$config{ME}                 = $ENV{PWD};                        # Present Working Directory
-$config{CONFIG_DIR}         = $ENV{PWD}."/conf";                # Configuration Directory
-$config{MODULE_DIR}         = $ENV{PWD}."/modules";             # Modules Directory
-$config{BINARY_DIR}         = $ENV{PWD}."/bin";                 # Binary Directory
-$config{OPTIMITEMP}         = "0";                              # Default Optimisation Value
-$config{OPTIMISATI}         = "-g";                             # Optimisation Flag
-$config{NICK_LENGT}         = "32";                             # Default Nick Length
-$config{CHAN_LENGT}         = "64";                             # Default Channel Name Length
-$config{MAX_CHANNE}         = "20";                             # Default Max. Channels per user..
-$config{MAXI_MODES}         = "20";                             # Default Max. Number of Modes set at once.
-$config{HAS_STRLCPY}        = "false";                          # strlcpy Check.
-chomp($config{MAX_CLIENT_T} = `sh -c \"ulimit -n\"`);           # FD Limit
-chomp($config{GCCVER}       = `gcc -dumpversion | cut -c 1`);   # Major GCC Version
-chomp($config{GCC34}        = `gcc -dumpversion | cut -c 3`);   # Minor GCC Version
-chomp($config{OSNAME}       = `uname -s`);                      # Operating System Name
+$this = resolve_directory($ENV{PWD});						# PWD, Regardless.
+@modlist = ();                                                  		# Declare for Module List..
+%config = ();                                                   		# Initiate Configuration Hash..
+$config{ME}                 = resolve_directory($ENV{PWD});			# Present Working Directory
+$config{CONFIG_DIR}         = resolve_directory($ENV{PWD}."/conf");		# Configuration Directory
+$config{MODULE_DIR}         = resolve_directory($ENV{PWD}."/modules");		# Modules Directory
+$config{BINARY_DIR}         = resolve_directory($ENV{PWD}."/bin");		# Binary Directory
+$config{LIBRARY_DIR}        = resolve_directory($ENV{PWD}."/lib");		# Library Directory
+$config{OPTIMITEMP}         = "0";                              		# Default Optimisation Value
+$config{OPTIMISATI}         = "-g";                             		# Optimisation Flag
+$config{NICK_LENGT}         = "32";                             		# Default Nick Length
+$config{CHAN_LENGT}         = "64";                             		# Default Channel Name Length
+$config{MAX_CHANNE}         = "20";                             		# Default Max. Channels per user..
+$config{MAXI_MODES}         = "20";                             		# Default Max. Number of Modes set at once.
+$config{HAS_STRLCPY}        = "false";                          		# strlcpy Check.
+chomp($config{MAX_CLIENT_T} = `sh -c \"ulimit -n\"`);           		# FD Limit
+chomp($config{GCCVER}       = `gcc -dumpversion | cut -c 1`);   		# Major GCC Version
+chomp($config{GCC34}        = `gcc -dumpversion | cut -c 3`);   		# Minor GCC Version
+chomp($config{OSNAME}       = `uname -s`);                      		# Operating System Name
 
 if (!$config{OSNAME}) {
   $config{OSNAME} = "Unknown";                                  # For use when uname fails.
@@ -119,6 +120,7 @@ Your operating system is: \033[1;32m$config{OSNAME}\033[0m ($wholeos), fdmax: $c
 dir_check("are the configuration files", "CONFIG_DIR");
 dir_check("are the modules to be compiled to", "MODULE_DIR");
 dir_check("is the IRCd binary to be placed", "BINARY_DIR");
+dir_check("are the IRCd libraries to be placed", "LIBRARY_DIR");
 
 # File Descriptor Settings..
 my $continue = 0;
@@ -266,20 +268,20 @@ sub dir_check {
     print "[\033[1;32m$config{$hash_key}\033[0m] -> ";
     chomp($var = <STDIN>);
     if ($var eq "") { $var = $config{$hash_key}; }
+    if ($var =~ /^\~\/(.+)$/) {
+	# Convert it to a full path..
+	$var = resolve_directory($ENV{HOME} . "/" . $1);
+    }
     if (substr($var,0,1) ne "/")
     {
-	# Assume relative Path was given.. fill in the rest.
-	$var = $this . "/$var";
+        # Assume relative Path was given.. fill in the rest.
+        $var = $this . "/$var";
     }
-    if (substr($var, 0, 1) eq "~") {
-	# Convert it to a full path..
-	
-	$var = $this . substr(1,0);
-    } 
+    $var = resolve_directory($var); 
     if (! -e $var) {
       print "$var does not exist. Create it?\n[\033[1;32my\033[0m] ";
       chomp($tmp = <STDIN>);
-      if (($tmp eq "") || ($tmp = "y")) {
+      if (($tmp eq "") || ($tmp =~ /^y/i)) {
         # Attempt to Create the Dir..
         $chk = system("mkdir -p \"$var\" >> /dev/null 2>&1") / 256;
         if ($chk != 0) {
@@ -415,6 +417,7 @@ EOF
       $tmp =~ s/\@CONFIG_DIR\@/$config{CONFIG_DIR}/;
       $tmp =~ s/\@MODULE_DIR\@/$config{MODULE_DIR}/;
       $tmp =~ s/\@BINARY_DIR\@/$config{BINARY_DIR}/;
+      $tmp =~ s/\@LIBRARY_DIR\@/$config{LIBRARY_DIR}/;
       $tmp =~ s/\@MODULES\@/$modules/;
 
       print "Writing \033[1;32m$file\033[0m\n";
@@ -480,4 +483,18 @@ sub show_splash {
   print ": \033[1;33m##\033[0m:: \033[1;33m##\033[0m:. \033[1;33m###\033[0m:'\033[1;33m##\033[0m::: \033[1;33m##\033[0m: \033[1;33m##\033[0m::::::::: \033[1;33m##\033[0m:: \033[1;33m##\033[0m::. \033[1;33m##\033[0m:: \033[1;33m##\033[0m::: \033[1;33m##\033[0m: \033[1;33m##\033[0m:::: \033[1;33m##\033[0m:\n";
   print "'\033[1;33m####\033[0m: \033[1;33m##\033[0m::. \033[1;33m##\033[0m:. \033[1;33m######\033[0m:: \033[1;33m##\033[0m::::::::'\033[1;33m####\033[0m: \033[1;33m##\033[0m:::. \033[1;33m##\033[0m:. \033[1;33m######\033[0m:: \033[1;33m########\033[0m::\n";
   print "\033[0m\033[0m....::..::::..:::......:::..:::::::::....::..:::::..:::......:::........:::\n\n";
+}
+
+sub resolve_directory {
+	use File::Spec;
+	return File::Spec->rel2abs($_[0]);
+
+	#my $dir = $_[0];
+	#my $old_dir = "";
+	#my $real_dir = "";
+	#getpwd($old_dir);
+	#chdir($dir);
+	#getpwd($real_dir);
+	#chdir($old_dir);
+	#return $real_dir;
 }
