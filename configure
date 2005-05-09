@@ -456,6 +456,7 @@ EOF
 m_$i.so: m_$i.cpp ../../include/modules.h ../../include/users.h ../../include/channels.h ../../include/servers.h ../../include/base.h
 	\$(CC) -I../../include \$(FLAGS) -shared $flags -o m_$i.so m_$i.cpp
 	\@cp m_$i.so \$(MODPATH)/
+	\@chmod 0700 \$(MODPATH)/m_$i.so
 
 EOCHEESE
   }

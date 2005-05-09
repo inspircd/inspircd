@@ -30,6 +30,8 @@ ircd:
 bininst:
 	@-cp src/*.so $(LIBPATH)
 	@-cp src/inspircd $(BINPATH)
+	@chmod 0700 $(BINPATH)/inspircd
+	@chmod 0700 $(LIBPATH)/*.so
 
 config:
 	@cp conf/inspire.motd $(CONPATH)/inspire.motd.example
