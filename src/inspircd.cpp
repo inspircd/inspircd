@@ -1499,32 +1499,31 @@ void userlist(userrec *user,chanrec *c)
 	}
 
 	snprintf(list,MAXBUF,"353 %s = %s :", user->nick, c->name);
-  	for (user_hash::const_iterator i = clientlist.begin(); i != clientlist.end(); i++)
+
+        std::vector<char*> *ulist = c->GetUsers();
+  	for (int i = 0; i < ulist->size(); i++)
 	{
-		if (has_channel(i->second,c))
+		char* o = (*ulist)[i];
+		userrec* otheruser = (userrec*)o;
+		if ((!has_channel(user,c)) && (strchr(otheruser->modes,'i')))
 		{
-			if (isnick(i->second->nick))
-			{
-				if ((!has_channel(i->second,c)) && (strchr(i->second->modes,'i')))
-				{
-					/* user is +i, and source not on the channel, does not show
-					 * nick in NAMES list */
-					continue;
-				}
-				strlcat(list,cmode(i->second,c),MAXBUF);
-				strlcat(list,i->second->nick,MAXBUF);
-				strlcat(list," ",MAXBUF);
-				if (strlen(list)>(480-NICKMAX))
-				{
-					/* list overflowed into
-					 * multiple numerics */
-					WriteServ(user->fd,"%s",list);
-					snprintf(list,MAXBUF,"353 %s = %s :", user->nick, c->name);
-				}
-			}
+			/* user is +i, and source not on the channel, does not show
+			 * nick in NAMES list */
+			continue;
+		}
+		strlcat(list,cmode(otheruser,c),MAXBUF);
+		strlcat(list,otheruser->nick,MAXBUF);
+		strlcat(list," ",MAXBUF);
+		if (strlen(list)>(480-NICKMAX))
+		{
+			/* list overflowed into
+			 * multiple numerics */
+			WriteServ(user->fd,"%s",list);
+			snprintf(list,MAXBUF,"353 %s = %s :", user->nick, c->name);
 		}
 	}
-	/* if whats left in the list isnt empty, send it */	if (list[strlen(list)-1] != ':')
+	/* if whats left in the list isnt empty, send it */
+	if (list[strlen(list)-1] != ':')
 	{
 		WriteServ(user->fd,"%s",list);
 	}
@@ -4287,6 +4286,7 @@ int InspIRCd(char** argv, int argc)
 						int currfd = current->fd;
 						int floodlines = 0;
 						// add the data to the users buffer
+						if (result > 0)
 						if (!current->AddBuffer(data))
 						{
 							// AddBuffer returned false, theres too much data in the user's buffer and theyre up to no good.
