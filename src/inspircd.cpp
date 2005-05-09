@@ -4191,7 +4191,7 @@ int InspIRCd(char** argv, int argc)
 			//
 			// This should be up to 64x faster than the
 			// old implementation.
-			while (total_in_this_set < 64)
+			while (total_in_this_set < 1024)
 			{
 				if (count2 != clientlist.end())
 				{
