@@ -23,6 +23,11 @@
 #include <sys/errno.h>
 #include <sys/ioctl.h>
 #include <sys/utsname.h>
+#ifdef USE_KQUEUE
+#include <sys/types.h>
+#include <sys/event.h>
+#include <sys/time.h>
+#endif
 #include <cstdio>
 #include <time.h>
 #include <string>
@@ -67,6 +72,10 @@
 #endif
 
 using namespace std;
+
+#ifdef USE_KQUEUE
+extern int kq;
+#endif
 
 extern int MODCOUNT;
 extern std::vector<Module*> modules;
@@ -960,8 +969,17 @@ void handle_quit(char **parameters, int pcnt, userrec *user)
 	/* push the socket on a stack of sockets due to be closed at the next opportunity */
 	if (user->fd > -1)
 	{
-		shutdown(user->fd,2);
-		close(user->fd);
+#ifdef USE_KQUEUE
+                struct kevent ke;
+                EV_SET(&ke, user->fd, EVFILT_READ, EV_DELETE, 0, 0, NULL);
+                int i = kevent(kq, &ke, 1, 0, 0, NULL);
+                if (i == -1)
+                {
+                        log(DEBUG,"kqueue: Failed to remove user from queue!");
+                }
+#endif
+                shutdown(user->fd,2);
+                close(user->fd);
 	}
 	
 	if (iter != clientlist.end())

@@ -23,6 +23,11 @@
 #include <sys/errno.h>
 #include <sys/ioctl.h>
 #include <sys/utsname.h>
+#ifdef USE_KQUEUE
+#include <sys/types.h>
+#include <sys/event.h>
+#include <sys/time.h>
+#endif
 #include <cstdio>
 #include <time.h>
 #include <string>
@@ -60,6 +65,10 @@
 #endif
 
 using namespace std;
+
+#ifdef USE_KQUEUE
+extern int kq;
+#endif
 
 extern int MODCOUNT;
 extern std::vector<Module*> modules;
@@ -674,8 +683,17 @@ bool Server::UserToPseudo(userrec* user,std::string message)
 	user->fd = FD_MAGIC_NUMBER;
 	user->ClearBuffer();
 	Write(old_fd,"ERROR :Closing link (%s@%s) [%s]",user->ident,user->host,message.c_str());
-	shutdown(old_fd,2);
-	close(old_fd);
+#ifdef USE_KQUEUE
+        struct kevent ke;
+        EV_SET(&ke, old_fd, EVFILT_READ, EV_DELETE, 0, 0, NULL);
+        int i = kevent(kq, &ke, 1, 0, 0, NULL);
+        if (i == -1)
+        {
+                log(DEBUG,"kqueue: Failed to remove user from queue!");
+        }
+#endif
+        shutdown(old_fd,2);
+        close(old_fd);
 }
 
 bool Server::PseudoToUser(userrec* alive,userrec* zombie,std::string message)

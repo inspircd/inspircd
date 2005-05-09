@@ -27,6 +27,11 @@ using namespace std;
 #include <sys/errno.h>
 #include <sys/ioctl.h>
 #include <sys/utsname.h>
+#ifdef USE_KQUEUE
+#include <sys/types.h>
+#include <sys/event.h>
+#include <sys/time.h>
+#endif
 #include <cstdio>
 #include <time.h>
 #include <string>
@@ -105,6 +110,10 @@ bool nofork = false;
 bool unlimitcore = false;
 
 time_t TIME = time(NULL);
+
+#ifdef USE_KQUEUE
+int kq;
+#endif
 
 namespace nspace
 {
@@ -2192,8 +2201,17 @@ void kill_link(userrec *user,const char* r)
 	if (user->fd > -1)
 	{
 		FOREACH_MOD OnRawSocketClose(user->fd);
-		shutdown(user->fd,2);
-		close(user->fd);
+#ifdef USE_KQUEUE
+		struct kevent ke;
+		EV_SET(&ke, user->fd, EVFILT_READ, EV_DELETE, 0, 0, NULL);
+		int i = kevent(kq, &ke, 1, 0, 0, NULL);
+		if (i == -1)
+		{
+			log(DEBUG,"kqueue: Failed to remove user from queue!");
+		}
+#endif
+                shutdown(user->fd,2);
+                close(user->fd);
 	}
 	
 	if (user->registered == 7) {
@@ -2247,6 +2265,15 @@ void kill_link_silent(userrec *user,const char* r)
         if (user->fd > -1)
         {
 		FOREACH_MOD OnRawSocketClose(user->fd);
+#ifdef USE_KQUEUE
+                struct kevent ke;
+                EV_SET(&ke, user->fd, EVFILT_READ, EV_DELETE, 0, 0, NULL);
+                int i = kevent(kq, &ke, 1, 0, 0, NULL);
+                if (i == -1)
+                {
+                        log(DEBUG,"kqueue: Failed to remove user from queue!");
+                }
+#endif
                 shutdown(user->fd,2);
                 close(user->fd);
         }
@@ -2369,6 +2396,16 @@ int main(int argc, char** argv)
 	lowermap['['] = '{';
 	lowermap[']'] = '}';
 	lowermap['\\'] = '|';
+
+#ifdef USE_KQUEUE
+	kq = kqueue();
+	if (kq == -1)
+	{
+		log(DEFAULT,"main: kqueue() failed!");
+		printf("ERROR: could not initialise kqueue event system. Shutting down.\n");
+		Exit(ERROR);
+	}
+#endif
 
 	if (InspIRCd(argv,argc) == ERROR)
 	{
@@ -2574,6 +2611,17 @@ void AddClient(int socket, char* host, int port, bool iscached, char* ip)
 		}
 	}
 	fd_ref_table[socket] = clientlist[tempnick];
+
+#ifdef USE_KQUEUE
+	struct kevent ke;
+	EV_SET(&ke, socket, EVFILT_READ, EV_ADD, 0, 0, NULL);
+        int i = kevent(kq, &ke, 1, 0, 0, NULL);
+        if (i == -1)
+        {
+                log(DEBUG,"kqueue: Failed to add user to queue!");
+        }
+
+#endif
 }
 
 // this function counts all users connected, wether they are registered or NOT.
@@ -4165,10 +4213,10 @@ int InspIRCd(char** argv, int argc)
 			}
 		}
 	
-
 	while (count2 != clientlist.end())
 	{
 		FD_ZERO(&sfd);
+
 		total_in_this_set = 0;
 
 		user_hash::iterator xcount = count2;
@@ -4191,6 +4239,7 @@ int InspIRCd(char** argv, int argc)
 			//
 			// This should be up to 64x faster than the
 			// old implementation.
+#ifndef USE_KQUEUE
 			while (total_in_this_set < 1024)
 			{
 				if (count2 != clientlist.end())
@@ -4242,14 +4291,78 @@ int InspIRCd(char** argv, int argc)
 				}
 				else break;
 			}
-   
 	       		endingiter = count2;
        			count2 = xcount; // roll back to where we were
+#else
+			// KQUEUE: We don't go through a loop to fill the fd_set so instead we must manually do this loop every now and again.
+			// TODO: We dont need to do all this EVERY loop iteration, tone down the visits to this if we're using kqueue.
+			while (count2 != clientlist.end())
+			{
+				if (count2 != clientlist.end())
+				{
+                	                curr = count2->second;
+        	                        // we don't check the state of remote users.
+	                                if ((curr->fd != -1) && (curr->fd != FD_MAGIC_NUMBER))
+					{
+	                                        // registration timeout -- didnt send USER/NICK/HOST in the time specified in
+	                                        // their connection class.
+	                                        if ((TIME > curr->timeout) && (curr->registered != 7))
+	                                        {
+	                                                log(DEBUG,"InspIRCd: registration timeout: %s",curr->nick);
+	                                                kill_link(curr,"Registration timeout");
+        	                                        goto label;
+	       	                                }
+	       	                                if ((TIME > curr->signon) && (curr->registered == 3) && (AllModulesReportReady(curr)))
+	       	                                {
+	                                                log(DEBUG,"signon exceed, registered=3, and modules ready, OK");
+        	                                        curr->dns_done = true;
+	                                                statsDnsBad++;
+	                                                FullConnectUser(curr);
+	                                                goto label;
+        	                                }
+	                                        if ((curr->dns_done) && (curr->registered == 3) && (AllModulesReportReady(curr)))
+        	                                {
+	                                                log(DEBUG,"dns done, registered=3, and modules ready, OK");
+	                                                FullConnectUser(curr);
+	                                                goto label;
+	                                        }
+						if ((TIME > curr->nping) && (isnick(curr->nick)) && (curr->registered == 7))
+						{
+	                                         	if ((!curr->lastping) && (curr->registered == 7))
+	                                        	{
+	                                        	        log(DEBUG,"InspIRCd: ping timeout: %s",curr->nick);
+	                                        	        kill_link(curr,"Ping timeout");
+	                                        	        goto label;
+		                                       	}
+		                                       	Write(curr->fd,"PING :%s",ServerName);
+	                                        	log(DEBUG,"InspIRCd: pinging: %s",curr->nick);
+	                                        	curr->lastping = 0;
+	                                                curr->nping = TIME+curr->pingmax;       // was hard coded to 120
+						}
+					}
+				}
+				else break;
+				count2++;
+			}
+			// increment the counter right to the end of the list, as kqueue processes everything in one go
+#endif
         
         		v = 0;
 
-			// tvals defined here
-
+#ifdef USE_KQUEUE
+			struct kevent ke;
+			int fd_to_process = 0;
+			struct timespec ts;
+			ts.tv_sec = 0;
+			ts.tv_nsec = 1000L;
+			// for now, we only read 1 event. We could read soooo many more :)
+			int i = kevent(kq, NULL, 0, &ke, 1, &ts);
+			if (i > 0)
+			{
+				log(DEBUG,"kevent call: kq=%d, i=%d",kq,i);
+				// KQUEUE: kevent gives us ONE fd which is ready to have something done to it. Do something to it.
+				userrec* cu = fd_ref_table[ke.ident];
+#else
 			tval.tv_usec = 1000L;
 			selectResult2 = select(65535, &sfd, NULL, NULL, &tval);
 			
@@ -4257,13 +4370,21 @@ int InspIRCd(char** argv, int argc)
 			if (selectResult2 > 0)
 			for (user_hash::iterator count2a = xcount; count2a != endingiter; count2a++)
 			{
+				// SELECT: we have to iterate...
+				userrec* cu = count2a->second;
+#endif
 
 #ifdef _POSIX_PRIORITY_SCHEDULING
 				sched_yield();
 #endif
-				userrec* cu = count2a->second;
 				result = EAGAIN;
+#ifdef USE_KQUEUE
+				// KQUEUE: We already know we have a valid FD. No checks needed.
+				if ((cu->fd != FD_MAGIC_NUMBER) && (cu->fd != -1))
+#else
+				// SELECT: We don't know if our FD is valid.
 				if ((cu->fd != FD_MAGIC_NUMBER) && (cu->fd != -1) && (FD_ISSET (cu->fd, &sfd)))
+#endif
 				{
 					log(DEBUG,"Data waiting on socket %d",cu->fd);
 			                int MOD_RESULT = 0;
