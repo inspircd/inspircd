@@ -454,7 +454,7 @@ EOF
     $flags = getcompilerflags("src/modules/m_".$i.".cpp");
     print FILEHANDLE <<EOCHEESE;
 m_$i.so: m_$i.cpp ../../include/modules.h ../../include/users.h ../../include/channels.h ../../include/servers.h ../../include/base.h
-	\$(CC) -I../../include \$(FLAGS) $flags -export-dynamic -c m_$i.cpp
+	\$(CC) -pipe -I../../include \$(FLAGS) $flags -export-dynamic -c m_$i.cpp
 	\$(CC) \$(FLAGS) -shared $flags -o m_$i.so m_$i.o
 	cp m_$i.so \$(MODPATH)/
 	chmod 0700 \$(MODPATH)/m_$i.so
