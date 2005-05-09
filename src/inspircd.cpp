@@ -4294,6 +4294,7 @@ int InspIRCd(char** argv, int argc)
 	       		endingiter = count2;
        			count2 = xcount; // roll back to where we were
 #else
+			dns_poll();
 			// KQUEUE: We don't go through a loop to fill the fd_set so instead we must manually do this loop every now and again.
 			// TODO: We dont need to do all this EVERY loop iteration, tone down the visits to this if we're using kqueue.
 			while (count2 != clientlist.end())
@@ -4314,7 +4315,7 @@ int InspIRCd(char** argv, int argc)
 	       	                                }
 	       	                                if ((TIME > curr->signon) && (curr->registered == 3) && (AllModulesReportReady(curr)))
 	       	                                {
-	                                                log(DEBUG,"signon exceed, registered=3, and modules ready, OK");
+	                                                log(DEBUG,"signon exceed, registered=3, and modules ready, OK: %d %d",TIME,curr->signon);
         	                                        curr->dns_done = true;
 	                                                statsDnsBad++;
 	                                                FullConnectUser(curr);

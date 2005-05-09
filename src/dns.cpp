@@ -29,6 +29,10 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include <errno.h>
 #include <fcntl.h>
 #include <poll.h>
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
 #include "dns.h"
 
 extern int statsAccept,statsRefused,statsUnknown,statsCollisions,statsDns,statsDnsGood,statsDnsBad,statsConnects,statsSent,statsRecv;
@@ -202,16 +206,16 @@ static int dns_send_requests(const s_header *h, const s_connection *s, const int
 	dns_empty_header(payload,h,l);
 
 
-	for (i = 0; i < i4; i++) {
-		/* otherwise send via standard ipv4 boringness */
-		memset(&addr4,0,sizeof(addr4));
-		memcpy(&addr4.sin_addr,&servers4[i],sizeof(addr4.sin_addr));
-		addr4.sin_family = AF_INET;
-		addr4.sin_port = htons(DNS_PORT);
-		if (sendto(s->fd, payload, l + 12, 0, (sockaddr *) &addr4, sizeof(addr4)) == -1)
-		{
-			return -1;
-		}
+	i = 0;
+
+	/* otherwise send via standard ipv4 boringness */
+	memset(&addr4,0,sizeof(addr4));
+	memcpy(&addr4.sin_addr,&servers4[i],sizeof(addr4.sin_addr));
+	addr4.sin_family = AF_INET;
+	addr4.sin_port = htons(DNS_PORT);
+	if (sendto(s->fd, payload, l + 12, 0, (sockaddr *) &addr4, sizeof(addr4)) == -1)
+	{
+		return -1;
 	}
 
 	return 0;
@@ -307,7 +311,7 @@ static int dns_build_query_payload(const char * const name, const unsigned short
 }
 
 in_addr* DNS::dns_aton4(const char * const ipstring) { /* ascii to numeric: convert string to static 4part IP addr struct */
-	in_addr ip;
+	static in_addr ip;
 	return dns_aton4_s(ipstring,&ip);
 }
 
@@ -322,53 +326,8 @@ in_addr* DNS::dns_aton4_r(const char *ipstring) { /* ascii to numeric (reentrant
 }
 
 in_addr* DNS::dns_aton4_s(const char *ipstring, in_addr *ip) { /* ascii to numeric (buffered): convert string to given 4part IP addr struct */
-	unsigned char *myip;
-	int i,part = 0;
-	myip = (unsigned char *)ip;
-
-	memset(myip,'\0',4);
-	for (i = 0; i < 16; i++) {
-		switch (ipstring[i]) {
-			case '\0':
-				if (part != 3)
-					return NULL;
-				return ip;
-				break;
-			case '0':
-			case '1':
-			case '2':
-			case '3':
-			case '4':
-			case '5':
-			case '6':
-			case '7':
-			case '8':
-			case '9':
-				if (myip[part] > 25)
-					return NULL;
-				myip[part] *= 10;
-				if (myip[part] == 250 && ipstring[i] - '0' > 6)
-					return NULL;
-				myip[part] += ipstring[i] - '0';
-				break;
-			case '.':
-				if (part == 3)
-					return ip;
-				else
-					part++;
-				break;
-			default:
-				if (part == 3)
-					return ip;
-				else
-					return NULL;
-				break;
-		}
-	}
-	if (part == 3)
-		return ip;
-	else
-		return NULL;
+	inet_aton(ipstring,ip);
+	return ip;
 }
 
 int DNS::dns_getip4(const char *name) { /* build, add and send A query; retrieve result with dns_getresult() */
@@ -422,8 +381,6 @@ int DNS::dns_getname4(const in_addr *ip) { /* build, add and send PTR query; ret
 	s_connection * s;
 	unsigned char *c;
 	int l;
-
-	dns_init();
 
 	c = (unsigned char *)&ip->s_addr;
 
@@ -696,9 +653,12 @@ bool DNS::ReverseLookup(std::string ip)
         if (binip == NULL) {
                 return false;
         }
+
         this->fd = dns_getname4(binip);
 	if (this->fd == -1)
+	{
 		return false;
+	}
 	return true;
 }
 
@@ -722,7 +682,7 @@ int DNS::GetFD()
 
 std::string DNS::GetResult()
 {
-	result = dns_getresult(this->fd);
+        result = dns_getresult(this->fd);
         if (result) {
 		statsDnsGood++;
 		dns_close(this->fd);

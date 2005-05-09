@@ -193,8 +193,8 @@ public:
 		if (usr)
 		{
 			log(DEBUG,"New Lookup class for %s with DNSServer set to '%s'",nick.c_str(),DNSServer);
-			resolver.SetNS(DNSServer);
-			if (!resolver.ReverseLookup(usr->host))
+			resolver.SetNS(std::string(DNSServer));
+			if (!resolver.ReverseLookup(std::string(usr->host)))
 				return false;
 			strlcpy(u,nick.c_str(),NICKMAX);
 			return true;
@@ -210,6 +210,7 @@ public:
 			if (resolver.GetFD() != 0)
 			{
 				std::string hostname = resolver.GetResult();
+				log(DEBUG,"RESULT! %s",hostname.c_str());
 				usr = Find(u);
 				if (usr)
 				{
@@ -307,4 +308,3 @@ void dns_poll()
 				max_fd_alloc = p;
 
 }
-
