@@ -109,7 +109,7 @@ int openSockfd[MAXSOCKS];
 bool nofork = false;
 bool unlimitcore = false;
 
-time_t TIME = time(NULL);
+time_t TIME = time(NULL), OLDTIME = time(NULL);
 
 #ifdef USE_KQUEUE
 int kq, lkq, skq;
@@ -4069,7 +4069,9 @@ int InspIRCd(char** argv, int argc)
 	WritePID(PID);
 	  
 	/* setup select call */
+#ifndef USE_KQUEUE
 	FD_ZERO(&selectFds);
+#endif
 	log(DEBUG,"InspIRCd: startup: zero selects");
 	log(VERBOSE,"InspIRCd: startup: portCount = %lu", (unsigned long)portCount);
 	
@@ -4188,7 +4190,7 @@ int InspIRCd(char** argv, int argc)
         tval.tv_usec = 10000L;
         tval.tv_sec = 0;
         int total_in_this_set = 0;
-	int i = 0, v = 0, j = 0;
+	int i = 0, v = 0, j = 0, cycle_iter = 0;
 	bool expire_run = false;
 	  
 	/* main loop, this never returns */
@@ -4197,12 +4199,17 @@ int InspIRCd(char** argv, int argc)
 #ifdef _POSIX_PRIORITY_SCHEDULING
 		sched_yield();
 #endif
-                // poll dns queue
-                dns_poll();
+#ifndef USE_KQUEUE
 		FD_ZERO(&sfd);
+#endif
 
 		// we only read time() once per iteration rather than tons of times!
+		OLDTIME = TIME;
 		TIME = time(NULL);
+
+		// poll dns queue
+		if (TIME != OLDTIME)
+			dns_poll();
 
 		// *FIX* Instead of closing sockets in kill_link when they receive the ERROR :blah line, we should queue
 		// them in a list, then reap the list every second or so.
@@ -4305,7 +4312,9 @@ int InspIRCd(char** argv, int argc)
 	
 	while (count2 != clientlist.end())
 	{
+#ifndef USE_KQUEUE
 		FD_ZERO(&sfd);
+#endif
 
 		total_in_this_set = 0;
 
@@ -4384,11 +4393,12 @@ int InspIRCd(char** argv, int argc)
 	       		endingiter = count2;
        			count2 = xcount; // roll back to where we were
 #else
-			dns_poll();
 			// KQUEUE: We don't go through a loop to fill the fd_set so instead we must manually do this loop every now and again.
 			// TODO: We dont need to do all this EVERY loop iteration, tone down the visits to this if we're using kqueue.
-			while (count2 != clientlist.end())
+			cycle_iter++;
+			if (cycle_iter > 10) while (count2 != clientlist.end())
 			{
+				cycle_iter = 0;
 				if (count2 != clientlist.end())
 				{
                 	                curr = count2->second;
