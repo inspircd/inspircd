@@ -112,7 +112,7 @@ bool unlimitcore = false;
 time_t TIME = time(NULL);
 
 #ifdef USE_KQUEUE
-int kq, lkq;
+int kq, lkq, skq;
 #endif
 
 namespace nspace
@@ -4121,7 +4121,8 @@ int InspIRCd(char** argv, int argc)
 #ifdef USE_KQUEUE
         kq = kqueue();
 	lkq = kqueue();
-        if ((kq == -1) || (lkq == -1))
+	skq = kqueue();
+        if ((kq == -1) || (lkq == -1) || (skq == -1))
         {
                 log(DEFAULT,"main: kqueue() failed!");
                 printf("ERROR: could not initialise kqueue event system. Shutting down.\n");
@@ -4144,6 +4145,23 @@ int InspIRCd(char** argv, int argc)
 			printf("ERROR: could not initialise listening sockets in kqueue. Shutting down.\n");
 	        }
 	}
+        for (int t = 0; t != SERVERportCount; t++)
+        {
+                struct kevent ke;
+                if (me[t])
+                {
+			log(DEBUG,"kqueue: Add listening SERVER socket to events, kq=%d socket=%d",skq,me[t]->fd);
+	                EV_SET(&ke, me[t]->fd, EVFILT_READ, EV_ADD, 0, 5, NULL);
+	                int i = kevent(skq, &ke, 1, 0, 0, NULL);
+	                if (i == -1)
+	                {
+	                        log(DEFAULT,"main: add server listen ports to kqueue failed!");
+	                        printf("ERROR: could not initialise listening server sockets in kqueue. Shutting down.\n");
+	                }
+		}
+        }
+
+
 #else
 	log(DEFAULT,"Using standard select socket engine.");
 #endif
@@ -4200,16 +4218,25 @@ int InspIRCd(char** argv, int argc)
 		// fix by brain - this must be below any manipulation of the hashmap by modules
 		user_hash::iterator count2 = clientlist.begin();
 
+#ifdef USE_KQUEUE
+		ts.tv_sec = 0;
+		ts.tv_nsec = 30000L;
+		i = kevent(skq, NULL, 0, &ke, 1, &ts);
+		if (i > 0)
+		{
+		        log(DEBUG,"kqueue: Listening server socket event, i=%d, ke.ident=%d",i,ke.ident);
+		        for (int x = 0; x != SERVERportCount; x++)
+		        {
+		                if ((me[x]) && (ke.ident == me[x]->fd))
+		                {
+
+#else
 		FD_ZERO(&serverfds);
-		
 		for (int x = 0; x != SERVERportCount; x++)
 		{
 			if (me[x])
 				FD_SET(me[x]->fd, &serverfds);
 		}
-		
-		// serverFds timevals went here
-		
 		tvs.tv_usec = 30000L;
 		tvs.tv_sec = 0;
 		int servresult = select(32767, &serverfds, NULL, NULL, &tvs);
@@ -4219,6 +4246,7 @@ int InspIRCd(char** argv, int argc)
 			{
 				if ((me[x]) && (FD_ISSET (me[x]->fd, &serverfds)))
 				{
+#endif
 					char remotehost[MAXBUF],resolved[MAXBUF];
 					length = sizeof (client);
 					incomingSockfd = accept (me[x]->fd, (sockaddr *) &client, &length);
