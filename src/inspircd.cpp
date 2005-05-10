@@ -2397,16 +2397,6 @@ int main(int argc, char** argv)
 	lowermap[']'] = '}';
 	lowermap['\\'] = '|';
 
-#ifdef USE_KQUEUE
-	kq = kqueue();
-	if (kq == -1)
-	{
-		log(DEFAULT,"main: kqueue() failed!");
-		printf("ERROR: could not initialise kqueue event system. Shutting down.\n");
-		Exit(ERROR);
-	}
-#endif
-
 	if (InspIRCd(argv,argc) == ERROR)
 	{
 		log(DEFAULT,"main: daemon function bailed");
@@ -2614,10 +2604,42 @@ void AddClient(int socket, char* host, int port, bool iscached, char* ip)
 
 #ifdef USE_KQUEUE
 	struct kevent ke;
+	memset(&ke,0,sizeof(struct kevent));
+	log(DEBUG,"kqueue: Add user to events, kq=%d socket=%d",kq,socket);
 	EV_SET(&ke, socket, EVFILT_READ, EV_ADD, 0, 0, NULL);
         int i = kevent(kq, &ke, 1, 0, 0, NULL);
         if (i == -1)
         {
+		switch (errno)
+		{
+			case EACCES:
+				log(DEBUG,"kqueue: EACCES");
+			break;
+			case EFAULT:
+				log(DEBUG,"kqueue: EFAULT");
+			break;
+			case EBADF:
+				log(DEBUG,"kqueue: EBADF=%d",ke.ident);
+			break;
+			case EINTR:
+				log(DEBUG,"kqueue: EINTR");
+			break;
+			case EINVAL:
+				log(DEBUG,"kqueue: EINVAL");
+			break;
+			case ENOENT:
+				log(DEBUG,"kqueue: ENOENT");
+			break;
+			case ENOMEM:
+				log(DEBUG,"kqueue: ENOMEM");
+			break;
+			case ESRCH:
+				log(DEBUG,"kqueue: ESRCH");
+			break;
+			default:
+				log(DEBUG,"kqueue: UNKNOWN!");
+			break;
+		}
                 log(DEBUG,"kqueue: Failed to add user to queue!");
         }
 
@@ -4091,6 +4113,16 @@ int InspIRCd(char** argv, int argc)
                 }
         }
 
+	// BUGFIX: We cannot initialize this before forking, as the kqueue data is not inherited by child processes!
+#ifdef USE_KQUEUE
+        kq = kqueue();
+        if (kq == -1)
+        {
+                log(DEFAULT,"main: kqueue() failed!");
+                printf("ERROR: could not initialise kqueue event system. Shutting down.\n");
+                Exit(ERROR);
+        }
+#endif
 	WritePID(PID);
 
 	length = sizeof (client);

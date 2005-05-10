@@ -99,10 +99,7 @@ int DaemonSeed (void)
 	signal (SIGHUP, Rehash);
 	signal (SIGPIPE, DeadPipe);
 	signal (SIGTERM, Exit);
-	signal (SIGABRT, Exit);
 	signal (SIGSEGV, Error);
-	signal (SIGURG, Exit);
-	signal (SIGKILL, Exit);
 	if ((childpid = fork ()) < 0)
 		return (ERROR);
 	else if (childpid > 0)
