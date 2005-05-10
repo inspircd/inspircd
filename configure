@@ -127,6 +127,10 @@ if ($config{OSNAME} =~ /BSD$/) {
 	if (yesno(0,"You are running a BSD operating system.\nWould you like to enable kqueue support?\nPlease be aware that kqueue support is\nEXPERIMENTAL and not gauranteed to work properly.\nIf you are unsure, answer no.\n\nEnable kqueue?")) {
 		$config{USE_KQUEUE} = "true";
 	}
+	else
+	{
+		$config{USE_KQUEUE} = "false";
+	}
 }
 
 # File Descriptor Settings..
