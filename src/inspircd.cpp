@@ -112,7 +112,7 @@ bool unlimitcore = false;
 time_t TIME = time(NULL);
 
 #ifdef USE_KQUEUE
-int kq;
+int kq, lkq;
 #endif
 
 namespace nspace
@@ -2604,7 +2604,6 @@ void AddClient(int socket, char* host, int port, bool iscached, char* ip)
 
 #ifdef USE_KQUEUE
 	struct kevent ke;
-	memset(&ke,0,sizeof(struct kevent));
 	log(DEBUG,"kqueue: Add user to events, kq=%d socket=%d",kq,socket);
 	EV_SET(&ke, socket, EVFILT_READ, EV_ADD, 0, 0, NULL);
         int i = kevent(kq, &ke, 1, 0, 0, NULL);
@@ -4121,18 +4120,43 @@ int InspIRCd(char** argv, int argc)
 	// BUGFIX: We cannot initialize this before forking, as the kqueue data is not inherited by child processes!
 #ifdef USE_KQUEUE
         kq = kqueue();
-        if (kq == -1)
+	lkq = kqueue();
+        if ((kq == -1) || (lkq == -1))
         {
                 log(DEFAULT,"main: kqueue() failed!");
                 printf("ERROR: could not initialise kqueue event system. Shutting down.\n");
                 Exit(ERROR);
         }
 #endif
+
+
+#ifdef USE_KQUEUE
+	log(DEFAULT,"kqueue socket engine is enabled. Filling listen list.");
+	for (count = 0; count < boundPortCount; count++)
+	{
+	        struct kevent ke;
+	        log(DEBUG,"kqueue: Add listening socket to events, kq=%d socket=%d",lkq,openSockfd[count]);
+	        EV_SET(&ke, openSockfd[count], EVFILT_READ, EV_ADD, 0, 5, NULL);
+	        int i = kevent(lkq, &ke, 1, 0, 0, NULL);
+	        if (i == -1)
+	        {
+			log(DEFAULT,"main: add listen ports to kqueue failed!");
+			printf("ERROR: could not initialise listening sockets in kqueue. Shutting down.\n");
+	        }
+	}
+#else
+	log(DEFAULT,"Using standard select socket engine.");
+#endif
+
 	WritePID(PID);
 
 	length = sizeof (client);
 	char tcp_msg[MAXBUF],tcp_host[MAXBUF];
 
+#ifdef USE_KQUEUE
+        struct kevent ke;
+        struct timespec ts;
+#endif
         fd_set serverfds;
         timeval tvs;
         tvs.tv_usec = 10000L;
@@ -4145,7 +4169,7 @@ int InspIRCd(char** argv, int argc)
         tval.tv_usec = 10000L;
         tval.tv_sec = 0;
         int total_in_this_set = 0;
-	int v = 0;
+	int i = 0, v = 0;
 	bool expire_run = false;
 	  
 	/* main loop, this never returns */
@@ -4388,9 +4412,6 @@ int InspIRCd(char** argv, int argc)
         		v = 0;
 
 #ifdef USE_KQUEUE
-			struct kevent ke;
-			int fd_to_process = 0;
-			struct timespec ts;
 			ts.tv_sec = 0;
 			ts.tv_nsec = 1000L;
 			// for now, we only read 1 event. We could read soooo many more :)
@@ -4589,6 +4610,7 @@ int InspIRCd(char** argv, int argc)
         sched_yield();
 #endif
 	
+#ifndef USE_KQUEUE
 	// set up select call
 	for (count = 0; count < boundPortCount; count++)
 	{
@@ -4601,11 +4623,27 @@ int InspIRCd(char** argv, int argc)
 	/* select is reporting a waiting socket. Poll them all to find out which */
 	if (selectResult > 0)
 	{
-		char target[MAXBUF], resolved[MAXBUF];
-		for (count = 0; count < boundPortCount; count++)		
+		for (count = 0; count < boundPortCount; count++)
 		{
 			if (FD_ISSET (openSockfd[count], &selectFds))
 			{
+#else
+	ts.tv_sec = 0;
+	ts.tv_nsec = 30000L;
+	i = kevent(lkq, NULL, 0, &ke, 1, &ts);
+	if (i > 0)
+	{
+		log(DEBUG,"kqueue: Listening socket event, i=%d, ke.ident=%d",i,ke.ident);
+		// this isnt as efficient as it could be, we could create a reference table
+		// to reference bound ports by fd, but this isnt a big bottleneck as the actual
+		// number of listening ports on the average ircd is a small number (less than 20)
+		// compared to the number of clients (possibly over 2000)
+		for (count = 0; count < boundPortCount; count++)
+		{
+			if (ke.ident == openSockfd[count])
+			{
+#endif
+				char target[MAXBUF], resolved[MAXBUF];
 				length = sizeof (client);
 				incomingSockfd = accept (openSockfd[count], (struct sockaddr *) &client, &length);
 			      
