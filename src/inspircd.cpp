@@ -2896,7 +2896,12 @@ std::string GetVersionString()
         s1 = savept;
         v2 = strtok_r(s1," ",&savept);
         s1 = savept;
-	snprintf(versiondata,MAXBUF,"%s Rev. %s %s :%s (O=%lu)",VERSION,v2,ServerName,SYSTEM,(unsigned long)OPTIMISATION);
+#ifdef USE_KQUEUE
+	char socketengine[] = "kqueue";
+#else
+	char socketengine[] = "select";
+#endif
+	snprintf(versiondata,MAXBUF,"%s Rev. %s %s :%s (O=%lu) [SE=%s]",VERSION,v2,ServerName,SYSTEM,(unsigned long)OPTIMISATION,socketengine);
 	return versiondata;
 }
 
