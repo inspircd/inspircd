@@ -4173,6 +4173,7 @@ int InspIRCd(char** argv, int argc)
 
 #ifdef USE_KQUEUE
         struct kevent ke;
+	struct kevent ke_list[33];
         struct timespec ts;
 #endif
         fd_set serverfds;
@@ -4187,7 +4188,7 @@ int InspIRCd(char** argv, int argc)
         tval.tv_usec = 10000L;
         tval.tv_sec = 0;
         int total_in_this_set = 0;
-	int i = 0, v = 0;
+	int i = 0, v = 0, j = 0;
 	bool expire_run = false;
 	  
 	/* main loop, this never returns */
@@ -4658,8 +4659,8 @@ int InspIRCd(char** argv, int argc)
 #else
 	ts.tv_sec = 0;
 	ts.tv_nsec = 30000L;
-	i = kevent(lkq, NULL, 0, &ke, 1, &ts);
-	if (i > 0)
+	i = kevent(lkq, NULL, 0, ke_list, 32, &ts);
+	if (i > 0) for (j = 0; j < i; j++)
 	{
 		log(DEBUG,"kqueue: Listening socket event, i=%d, ke.ident=%d",i,ke.ident);
 		// this isnt as efficient as it could be, we could create a reference table
@@ -4668,7 +4669,7 @@ int InspIRCd(char** argv, int argc)
 		// compared to the number of clients (possibly over 2000)
 		for (count = 0; count < boundPortCount; count++)
 		{
-			if (ke.ident == openSockfd[count])
+			if (ke_list[j].ident == openSockfd[count])
 			{
 #endif
 				char target[MAXBUF], resolved[MAXBUF];
@@ -4691,7 +4692,7 @@ int InspIRCd(char** argv, int argc)
 					AddClient(incomingSockfd, resolved, ports[count], false, inet_ntoa (client.sin_addr));
 					log(DEBUG,"InspIRCd: adding client on port %lu fd=%lu",(unsigned long)ports[count],(unsigned long)incomingSockfd);
 				}
-				goto label;
+				//goto label;
 			}
 		}
 	}
