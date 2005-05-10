@@ -4561,14 +4561,18 @@ int InspIRCd(char** argv, int argc)
 				else
 				if (result == 0)
 				{
+#ifndef USE_KQUEUE
 				  	if (count2->second)
 				  	{
+#endif
 					  	log(DEBUG,"InspIRCd: Exited: %s",cu->nick);
 						kill_link(cu,"Client exited");
 						// must bail here? kill_link removes the hash, corrupting the iterator
 						log(DEBUG,"Bailing from client exit");
 						goto label;
+#ifndef USE_KQUEUE
 					}
+#endif
 				}
 				else if (result > 0)
 				{
