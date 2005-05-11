@@ -220,6 +220,14 @@ std::string userrec::GetBuffer()
 
 void userrec::AddWriteBuf(std::string data)
 {
+	if (this->GetWriteError() != "")
+		return;
+	if (sendq.length() + data.length() > this->sendqmax)
+	{
+		WriteOpers("*** User %s SendQ of %d exceeds connect class maximum of %d",this->nick,sendq.length() + data.length(),sendq.length());
+		this->SetWriteError("SendQ exceeded");
+		return;
+	}
         std::stringstream stream;
         stream << sendq << data;
         sendq = stream.str();

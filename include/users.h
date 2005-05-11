@@ -67,6 +67,10 @@ class ConnectClass : public classbase
 	/** Threshold value for flood disconnect
 	 */
 	long threshold;
+
+	/** Maximum size of sendq for users in this class
+	 */
+	long sendqmax;
 	
 	ConnectClass()
 	{
@@ -74,6 +78,7 @@ class ConnectClass : public classbase
 		flood = 0;
 		pingtime = 0;
 		threshold = 0;
+		sendqmax = 0;
 		strlcpy(host,"",MAXBUF);
 		strlcpy(pass,"",MAXBUF);
 	}
@@ -198,6 +203,10 @@ class userrec : public connection
 	/* Write error string
 	 */
 	std::string WriteError;
+
+	/** Maximum size this user's sendq can become
+	 */
+	long sendqmax;
 
 	userrec();
 	

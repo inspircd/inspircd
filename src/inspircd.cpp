@@ -357,7 +357,7 @@ void readfile(file_cache &F, const char* fname)
 void ReadConfig(bool bail, userrec* user)
 {
 	char dbg[MAXBUF],pauseval[MAXBUF],Value[MAXBUF],timeout[MAXBUF],NB[MAXBUF],flood[MAXBUF],MW[MAXBUF];
-	char AH[MAXBUF],AP[MAXBUF],AF[MAXBUF],DNT[MAXBUF],pfreq[MAXBUF],thold[MAXBUF];
+	char AH[MAXBUF],AP[MAXBUF],AF[MAXBUF],DNT[MAXBUF],pfreq[MAXBUF],thold[MAXBUF],sqmax[MAXBUF];
 	ConnectClass c;
 	std::stringstream errstr;
 	
@@ -463,6 +463,7 @@ void ReadConfig(bool bail, userrec* user)
 		ConfValue("connect","flood",i,flood,&config_f);
 		ConfValue("connect","pingfreq",i,pfreq,&config_f);
 		ConfValue("connect","threshold",i,thold,&config_f);
+		ConfValue("connect","sendq",i,sqmax,&config_f);
 		if (Value[0])
 		{
 			strlcpy(c.host,Value,MAXBUF);
@@ -474,9 +475,14 @@ void ReadConfig(bool bail, userrec* user)
 			c.pingtime = 120;
 			c.flood = atoi(flood);
 			c.threshold = 5;
+			c.sendqmax = 131072;
 			if (atoi(thold)>0)
 			{
 				c.threshold = atoi(thold);
+			}
+			if (atoi(sqmax)>0)
+			{
+				c.sendqmax = atoi(sqmax);
 			}
 			if (atoi(timeout)>0)
 			{
@@ -582,11 +588,15 @@ void ReadConfig(bool bail, userrec* user)
 	}
 }
 
-/* write formatted text to a socket, in same format as printf */
+/* write formatted text to a socket, in same format as printf
+ * New in 1.0 Beta 5 - Nothing is written directly to a users fd any more.
+ * Instead, data builds up in the users sendq and each time around the mainloop
+ * this data is flushed to the user's socket (see userrec::FlushWriteBuf).
+ */
 
 void Write(int sock,char *text, ...)
 {
-	if (sock == FD_MAGIC_NUMBER)
+	if (sock < 0)
 		return;
 	if (!text)
 	{
@@ -603,24 +613,21 @@ void Write(int sock,char *text, ...)
 	va_end(argsPtr);
 	int bytes = snprintf(tb,MAXBUF,"%s\r\n",textbuffer);
 	chop(tb);
-	if ((sock != -1) && (sock != FD_MAGIC_NUMBER))
+	if (fd_ref_table[sock])
 	{
-		if (fd_ref_table[sock])
-		{
-			int MOD_RESULT = 0;
-			FOREACH_RESULT(OnRawSocketWrite(sock,tb,bytes));
-			fd_ref_table[sock]->AddWriteBuf(tb);
-			statsSent += bytes;
-		}
-		else log(DEFAULT,"ERROR! attempted write to a user with no fd_ref_table entry!!!");
+		int MOD_RESULT = 0;
+		FOREACH_RESULT(OnRawSocketWrite(sock,tb,bytes));
+		fd_ref_table[sock]->AddWriteBuf(tb);
+		statsSent += bytes;
 	}
+	else log(DEFAULT,"ERROR! attempted write to a user with no fd_ref_table entry!!!");
 }
 
 /* write a server formatted numeric response to a single socket */
 
 void WriteServ(int sock, char* text, ...)
 {
-        if (sock == FD_MAGIC_NUMBER)
+        if (sock < 0)
                 return;
 	if (!text)
 	{
@@ -636,24 +643,21 @@ void WriteServ(int sock, char* text, ...)
 	va_end(argsPtr);
 	int bytes = snprintf(tb,MAXBUF,":%s %s\r\n",ServerName,textbuffer);
 	chop(tb);
-	if ((sock != -1) && (sock != FD_MAGIC_NUMBER))
-	{
-                if (fd_ref_table[sock])
-                {
-                        int MOD_RESULT = 0;
-                        FOREACH_RESULT(OnRawSocketWrite(sock,tb,bytes));
-                        fd_ref_table[sock]->AddWriteBuf(tb);
-			statsSent += bytes;
-                }
-		else log(DEFAULT,"ERROR! attempted write to a user with no fd_ref_table entry!!!");
-	}
+        if (fd_ref_table[sock])
+        {
+                int MOD_RESULT = 0;
+                FOREACH_RESULT(OnRawSocketWrite(sock,tb,bytes));
+                fd_ref_table[sock]->AddWriteBuf(tb);
+		statsSent += bytes;
+        }
+	else log(DEFAULT,"ERROR! attempted write to a user with no fd_ref_table entry!!!");
 }
 
 /* write text from an originating user to originating user */
 
 void WriteFrom(int sock, userrec *user,char* text, ...)
 {
-        if (sock == FD_MAGIC_NUMBER)
+        if (sock < 0)
                 return;
 	if ((!text) || (!user))
 	{
@@ -669,17 +673,14 @@ void WriteFrom(int sock, userrec *user,char* text, ...)
 	va_end(argsPtr);
 	int bytes = snprintf(tb,MAXBUF,":%s!%s@%s %s\r\n",user->nick,user->ident,user->dhost,textbuffer);
 	chop(tb);
-	if ((sock != -1) && (sock != FD_MAGIC_NUMBER))
-	{
-                if (fd_ref_table[sock])
-                {
-                        int MOD_RESULT = 0;
-                        FOREACH_RESULT(OnRawSocketWrite(sock,tb,bytes));
-                        fd_ref_table[sock]->AddWriteBuf(tb);
-			statsSent += bytes;
-                }
-		else log(DEFAULT,"ERROR! attempted write to a user with no fd_ref_table entry!!!");
-	}
+        if (fd_ref_table[sock])
+        {
+                int MOD_RESULT = 0;
+                FOREACH_RESULT(OnRawSocketWrite(sock,tb,bytes));
+                fd_ref_table[sock]->AddWriteBuf(tb);
+		statsSent += bytes;
+        }
+	else log(DEFAULT,"ERROR! attempted write to a user with no fd_ref_table entry!!!");
 }
 
 /* write text to an destination user from a source user (e.g. user privmsg) */
@@ -2538,6 +2539,7 @@ void AddClient(int socket, char* host, int port, bool iscached, char* ip)
 	unsigned long class_regtimeout = 90;
 	int class_flood = 0;
 	long class_threshold = 5;
+	long class_sqmax = 131072;	// 128kb
 
 	for (ClassVector::iterator i = Classes.begin(); i != Classes.end(); i++)
 	{
@@ -2547,6 +2549,7 @@ void AddClient(int socket, char* host, int port, bool iscached, char* ip)
 			class_flood = i->flood;
 			clientlist[tempnick]->pingmax = i->pingtime;
 			class_threshold = i->threshold;
+			class_sqmax = i->sendqmax;
 			break;
 		}
 	}
@@ -2555,6 +2558,7 @@ void AddClient(int socket, char* host, int port, bool iscached, char* ip)
 	clientlist[tempnick]->timeout = TIME+class_regtimeout;
 	clientlist[tempnick]->flood = class_flood;
 	clientlist[tempnick]->threshold = class_threshold;
+	clientlist[tempnick]->sendqmax = class_sqmax;
 
 	for (int i = 0; i < MAXCHANS; i++)
 	{

@@ -107,6 +107,8 @@
 #	<connect allow="ip or host" password="blahblah">              #
 #       <connect allow="ip or host" password="blah" timeout="10">     #
 #	<connect allow="ip or host" timeout="blah" flood="5">         #
+#       <connect allow="ip or host" threshold="8" pingfreq="120">     #
+#       <connect allow="ip or host" sendq="99999">                    #
 #	<connect deny="ip or host">				      #
 #                                                                     #
 #   You may optionally include timeout="x" on any allow line, which   #
@@ -116,11 +118,24 @@
 #   You may also optionally include a flood="x" line which indicates  #
 #   the number of lines a user may place into their buffer at once    #
 #   before they are disconnected for excess flood. The default is to  #
-#   DISABLE this feature. A recommended value is 10.                  #
-
+#   DISABLE this feature. A recommended value is 10. A counter is     #
+#   maintained for each user which is reset every 'threshold' seconds #
+#   and specifying this threshold value with threshold="X" indicates  #
+#   how often the counter is reset. For example, with flood="5" and   #
+#   threshold="8", the user may not send more than 5 lines in 8 secs. #
+#                                                                     #
+#   You may optionally specify the sendq size and ping frequency of   #
+#   each connect:allow line using the pingfreq="X" and sendq="X"      #
+#   settings as shown in the full example below.                      #
+#   The ping frequency is specified in seconds, and the sendq size    #
+#   in bytes. It is recommended, although not enforced, that you      #
+#   should never set your sendq size to less than 8k. Send Queues are #
+#   dynamically allocated and can grow as needed up to the maximum    #
+#   size specified.                                                   #
+#                                                                     #
 
 <connect allow="196.12.*"  password="secret">
-<connect allow="*" timeout="60" flood="10">
+<connect allow="*" timeout="60" flood="10" timeout="60" pingfreq="120" sendq="131072">
 
 <connect deny="69.254.*">
 
