@@ -4207,9 +4207,7 @@ int InspIRCd(char** argv, int argc)
 		OLDTIME = TIME;
 		TIME = time(NULL);
 
-		// poll dns queue
-		if (TIME != OLDTIME)
-			dns_poll();
+		dns_poll();
 
 		// *FIX* Instead of closing sockets in kill_link when they receive the ERROR :blah line, we should queue
 		// them in a list, then reap the list every second or so.
