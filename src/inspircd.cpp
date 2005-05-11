@@ -1384,7 +1384,6 @@ void purge_empty_chans(userrec* u)
 	{
 		if (u->chans[f].channel)
 		{
-			u->chans[f].channel->DecUserCounter();
 			u->chans[f].channel->DelUser((char*)u);
 		}
 	}
@@ -1897,7 +1896,6 @@ chanrec* del_channel(userrec *user, const char* cname, const char* reason, bool 
 		}
 	}
 
-	Ptr->DecUserCounter();
 	Ptr->DelUser((char*)user);
 	
 	/* if there are no users left on the channel */
@@ -1982,7 +1980,6 @@ void kick_channel(userrec *src,userrec *user, chanrec *Ptr, char* reason)
 		}
 	}
 
-	Ptr->DecUserCounter();
 	Ptr->DelUser((char*)user);
 
 	/* if there are no users left on the channel */

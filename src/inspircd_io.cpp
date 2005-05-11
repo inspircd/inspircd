@@ -87,17 +87,13 @@ void WritePID(std::string filename)
 	}
 }
 
-void DeadPipe(int status)
-{
-  signal (SIGPIPE, DeadPipe);
-}
 
 int DaemonSeed (void)
 {
 	int childpid;
 	signal (SIGALRM, SIG_IGN);
 	signal (SIGHUP, Rehash);
-	signal (SIGPIPE, DeadPipe);
+	signal (SIGPIPE, SIG_IGN);
 	signal (SIGTERM, Exit);
 	signal (SIGSEGV, Error);
 	if ((childpid = fork ()) < 0)

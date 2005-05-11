@@ -201,20 +201,15 @@ std::string chanrec::GetModeParameter(char mode)
 
 void chanrec::IncUserCounter()
 {
-	this->users++;
-	log(DEBUG,"Incremented channel user count for %s to %lu",name,(unsigned long)users);
 }
 
 void chanrec::DecUserCounter()
 {
-	if (this->users > 0)
-		this->users--;
-	log(DEBUG,"Decremented channel user count for %s to %lu",name,(unsigned long)users);
 }
 
 long chanrec::GetUserCounter()
 {
-	return (this->users);
+	return (this->internal_userlist.size());
 }
 
 void chanrec::AddUser(char* castuser)
