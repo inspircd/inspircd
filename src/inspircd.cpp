@@ -596,6 +596,7 @@ void Write(int sock,char *text, ...)
 	char textbuffer[MAXBUF];
 	va_list argsPtr;
 	char tb[MAXBUF];
+	int res;
 	
 	va_start (argsPtr, text);
 	vsnprintf(textbuffer, MAXBUF, text, argsPtr);
@@ -604,16 +605,14 @@ void Write(int sock,char *text, ...)
 	chop(tb);
 	if ((sock != -1) && (sock != FD_MAGIC_NUMBER))
 	{
-		int MOD_RESULT = 0;
-		FOREACH_RESULT(OnRawSocketWrite(sock,tb,bytes > 512 ? 512 : bytes));
-		if (!MOD_RESULT)
-			write(sock,tb,bytes > 512 ? 512 : bytes);
 		if (fd_ref_table[sock])
 		{
-			fd_ref_table[sock]->bytes_out += (bytes > 512 ? 512 : bytes);
-			fd_ref_table[sock]->cmds_out++;
+			int MOD_RESULT = 0;
+			FOREACH_RESULT(OnRawSocketWrite(sock,tb,bytes));
+			fd_ref_table[sock]->AddWriteBuf(tb);
+			statsSent += bytes;
 		}
-		statsSent += (bytes > 512 ? 512 : bytes);
+		else log(DEFAULT,"ERROR! attempted write to a user with no fd_ref_table entry!!!");
 	}
 }
 
@@ -629,6 +628,7 @@ void WriteServ(int sock, char* text, ...)
 		return;
 	}
 	char textbuffer[MAXBUF],tb[MAXBUF];
+	int res;
 	va_list argsPtr;
 	va_start (argsPtr, text);
 	
@@ -638,16 +638,14 @@ void WriteServ(int sock, char* text, ...)
 	chop(tb);
 	if ((sock != -1) && (sock != FD_MAGIC_NUMBER))
 	{
-                int MOD_RESULT = 0;
-                FOREACH_RESULT(OnRawSocketWrite(sock,tb,bytes > 512 ? 512 : bytes));
-                if (!MOD_RESULT)
-                        write(sock,tb,bytes > 512 ? 512 : bytes);
                 if (fd_ref_table[sock])
                 {
-                        fd_ref_table[sock]->bytes_out += (bytes > 512 ? 512 : bytes);
-                        fd_ref_table[sock]->cmds_out++;
+                        int MOD_RESULT = 0;
+                        FOREACH_RESULT(OnRawSocketWrite(sock,tb,bytes));
+                        fd_ref_table[sock]->AddWriteBuf(tb);
+			statsSent += bytes;
                 }
-		statsSent += (bytes > 512 ? 512 : bytes);
+		else log(DEFAULT,"ERROR! attempted write to a user with no fd_ref_table entry!!!");
 	}
 }
 
@@ -664,6 +662,7 @@ void WriteFrom(int sock, userrec *user,char* text, ...)
 	}
 	char textbuffer[MAXBUF],tb[MAXBUF];
 	va_list argsPtr;
+	int res;
 	va_start (argsPtr, text);
 	
 	vsnprintf(textbuffer, MAXBUF, text, argsPtr);
@@ -672,16 +671,14 @@ void WriteFrom(int sock, userrec *user,char* text, ...)
 	chop(tb);
 	if ((sock != -1) && (sock != FD_MAGIC_NUMBER))
 	{
-                int MOD_RESULT = 0;
-                FOREACH_RESULT(OnRawSocketWrite(sock,tb,bytes > 512 ? 512 : bytes));
-                if (!MOD_RESULT)
-                        write(sock,tb,bytes > 512 ? 512 : bytes);
                 if (fd_ref_table[sock])
                 {
-                        fd_ref_table[sock]->bytes_out += (bytes > 512 ? 512 : bytes);
-                        fd_ref_table[sock]->cmds_out++;
+                        int MOD_RESULT = 0;
+                        FOREACH_RESULT(OnRawSocketWrite(sock,tb,bytes));
+                        fd_ref_table[sock]->AddWriteBuf(tb);
+			statsSent += bytes;
                 }
-		statsSent += (bytes > 512 ? 512 : bytes);
+		else log(DEFAULT,"ERROR! attempted write to a user with no fd_ref_table entry!!!");
 	}
 }
 
@@ -2752,7 +2749,7 @@ void ShowMOTD(userrec *user)
 	snprintf(buf,65535,":%s 376 %s :End of message of the day.\r\n", ServerName, user->nick);
         WholeMOTD = WholeMOTD + buf;
         // only one write operation
-        send(user->fd,WholeMOTD.c_str(),WholeMOTD.length(),0);
+        user->AddWriteBuf(WholeMOTD);
 	statsSent += WholeMOTD.length();
 }
 
@@ -4342,6 +4339,14 @@ int InspIRCd(char** argv, int argc)
 					// we don't check the state of remote users.
 					if ((curr->fd != -1) && (curr->fd != FD_MAGIC_NUMBER))
 					{
+						curr->FlushWriteBuf();
+						if (curr->GetWriteError() != "")
+						{
+							log(DEBUG,"InspIRCd: write error: %s",curr->GetWriteError().c_str());
+							kill_link(curr,curr->GetWriteError().c_str());
+							goto label;
+						}
+
 						FD_SET (curr->fd, &sfd);
 
 						// registration timeout -- didnt send USER/NICK/HOST in the time specified in
@@ -4400,6 +4405,15 @@ int InspIRCd(char** argv, int argc)
         	                        // we don't check the state of remote users.
 	                                if ((curr->fd != -1) && (curr->fd != FD_MAGIC_NUMBER))
 					{
+
+                                                curr->FlushWriteBuf();
+                                                if (curr->GetWriteError() != "")
+                                                {
+                                                        log(DEBUG,"InspIRCd: write error: %s",curr->GetWriteError().c_str());
+                                                        kill_link(curr,curr->GetWriteError().c_str());
+                                                        goto label;
+                                                }
+
 	                                        // registration timeout -- didnt send USER/NICK/HOST in the time specified in
 	                                        // their connection class.
 	                                        if ((TIME > curr->timeout) && (curr->registered != 7))

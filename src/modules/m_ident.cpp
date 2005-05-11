@@ -54,19 +54,20 @@ Server *Srv;
 class RFC1413
 {
  protected:
-	int fd;			// file descriptor
-	userrec* u;		// user record that the lookup is associated with
-	sockaddr_in addr;	// address we're connecting to
-	in_addr addy;		// binary ip address
-	int state;		// state (this class operates on a state engine)
-	char ibuf[MAXBUF];	// input buffer
-	sockaddr_in sock_us;	// our port number
-	sockaddr_in sock_them;	// their port number
-	socklen_t uslen;	// length of our port number
-	socklen_t themlen;	// length of their port number
-	int nrecv;		// how many bytes we've received
-	time_t timeout_end;	// how long until the operation times out
-	bool timeout;		// true if we've timed out and should bail
+	int fd;			 // file descriptor
+	userrec* u;		 // user record that the lookup is associated with
+	sockaddr_in addr;	 // address we're connecting to
+	in_addr addy;		 // binary ip address
+	int state;		 // state (this class operates on a state engine)
+	char ibuf[MAXBUF];	 // input buffer
+	sockaddr_in sock_us;	 // our port number
+	sockaddr_in sock_them;	 // their port number
+	socklen_t uslen;	 // length of our port number
+	socklen_t themlen;	 // length of their port number
+	int nrecv;		 // how many bytes we've received
+	time_t timeout_end;	 // how long until the operation times out
+	bool timeout;		 // true if we've timed out and should bail
+	char ident_request[128]; // buffer used to make up the request string
  public:
 
 	// The destructor makes damn sure the socket is freed :)
@@ -172,7 +173,8 @@ class RFC1413
 					else
 					{
 						// send the request in the following format: theirsocket,oursocket
-						Write(this->fd,"%d,%d",ntohs(sock_them.sin_port),ntohs(sock_us.sin_port));
+						snprintf(ident_request,127,"%d,%d\r\n",ntohs(sock_them.sin_port),ntohs(sock_us.sin_port));
+						send(this->fd,ident_request,strlen(ident_request),0);
 						Srv->Log(DEBUG,"Sent ident request, moving to state 2");
 						state = IDENT_STATE_WAITDATA;
 					}

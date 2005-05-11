@@ -47,6 +47,7 @@ userrec::userrec()
 	haspassed = false;
 	dns_done = false;
 	recvq = "";
+	sendq = "";
 	strcpy(result,"");
 	for (int i = 0; i < MAXCHANS; i++)
 	{
@@ -217,3 +218,45 @@ std::string userrec::GetBuffer()
         return ret;
 }
 
+void userrec::AddWriteBuf(std::string data)
+{
+        std::stringstream stream;
+        stream << sendq << data;
+        sendq = stream.str();
+}
+
+// send AS MUCH OF THE USERS SENDQ as we are able to (might not be all of it)
+void userrec::FlushWriteBuf()
+{
+	if (sendq.length())
+	{
+		char* tb = (char*)this->sendq.c_str();
+		int n_sent = write(this->fd,tb,this->sendq.length());
+		if (n_sent == -1)
+		{
+			this->SetWriteError(strerror(errno));
+		}
+		else
+		{
+			// advance the queue
+			tb += n_sent;
+			this->sendq = tb;
+			// update the user's stats counters
+			this->bytes_out += n_sent;
+			this->cmds_out++;
+		}
+	}
+}
+
+void userrec::SetWriteError(std::string error)
+{
+	log(DEBUG,"Setting error string for %s to '%s'",this->nick,error.c_str());
+	// don't try to set the error twice, its already set take the first string.
+	if (this->WriteError == "")
+		this->WriteError = error;
+}
+
+std::string userrec::GetWriteError()
+{
+	return this->WriteError;
+}

@@ -184,11 +184,20 @@ class userrec : public connection
 	 */
 	std::string recvq;
 
+	/** User's send queue.
+	 * Lines waiting to be sent are stored here until their buffer is flushed.
+	 */
+	std::string sendq;
+
 	/** Flood counters
 	 */
 	long lines_in;
 	time_t reset_due;
 	long threshold;
+
+	/* Write error string
+	 */
+	std::string WriteError;
 
 	userrec();
 	
@@ -253,7 +262,22 @@ class userrec : public connection
 	 * it is ok to read the buffer before calling GetBuffer().
 	 */
 	std::string GetBuffer();
-	
+
+	/** Sets the write error for a connection. This is done because the actual disconnect
+	 * of a client may occur at an inopportune time such as half way through /LIST output.
+	 * The WriteErrors of clients are checked at a more ideal time (in the mainloop) and
+	 * errored clients purged.
+	 */
+	void SetWriteError(std::string error);
+
+	/** Returns the write error which last occured on this connection or an empty string
+	 * if none occured.
+	 */
+	std::string GetWriteError();
+
+	void AddWriteBuf(std::string data);
+	void FlushWriteBuf();
+
 };
 
 
