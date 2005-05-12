@@ -224,7 +224,7 @@ void userrec::AddWriteBuf(std::string data)
 		return;
 	if (sendq.length() + data.length() > this->sendqmax)
 	{
-		WriteOpers("*** User %s SendQ of %d exceeds connect class maximum of %d",this->nick,sendq.length() + data.length(),sendq.length());
+		WriteOpers("*** User %s SendQ of %d exceeds connect class maximum of %d",this->nick,sendq.length() + data.length(),this->sendqmax);
 		this->SetWriteError("SendQ exceeded");
 		return;
 	}
