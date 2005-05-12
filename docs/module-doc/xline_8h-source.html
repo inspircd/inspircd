@@ -44,7 +44,7 @@
 00041         
 <a name="l00044"></a><a class="code" href="classXLine.html#o1">00044</a>         <span class="keywordtype">long</span> <a class="code" href="classXLine.html#o1">duration</a>;
 00045         
-<a name="l00048"></a><a class="code" href="classXLine.html#o2">00048</a>         <span class="keywordtype">char</span> <a class="code" href="classXLine.html#o2">source</a>[MAXBUF];
+<a name="l00048"></a><a class="code" href="classXLine.html#o2">00048</a>         <span class="keywordtype">char</span> <a class="code" href="classXLine.html#o2">source</a>[256];
 00049         
 <a name="l00052"></a><a class="code" href="classXLine.html#o3">00052</a>         <span class="keywordtype">char</span> <a class="code" href="classXLine.html#o3">reason</a>[MAXBUF];
 00053         
@@ -55,32 +55,32 @@
 <a name="l00062"></a><a class="code" href="classKLine.html">00062</a> <span class="keyword">class </span><a class="code" href="classKLine.html">KLine</a> : <span class="keyword">public</span> <a class="code" href="classXLine.html">XLine</a>
 00063 {
 00064   <span class="keyword">public</span>:
-<a name="l00068"></a><a class="code" href="classKLine.html#o0">00068</a>         <span class="keywordtype">char</span> <a class="code" href="classKLine.html#o0">hostmask</a>[MAXBUF];
+<a name="l00068"></a><a class="code" href="classKLine.html#o0">00068</a>         <span class="keywordtype">char</span> <a class="code" href="classKLine.html#o0">hostmask</a>[200];
 00069 };
 00070 
 <a name="l00073"></a><a class="code" href="classGLine.html">00073</a> <span class="keyword">class </span><a class="code" href="classGLine.html">GLine</a> : <span class="keyword">public</span> <a class="code" href="classXLine.html">XLine</a>
 00074 {
 00075   <span class="keyword">public</span>:
-<a name="l00079"></a><a class="code" href="classGLine.html#o0">00079</a>         <span class="keywordtype">char</span> <a class="code" href="classGLine.html#o0">hostmask</a>[MAXBUF];
+<a name="l00079"></a><a class="code" href="classGLine.html#o0">00079</a>         <span class="keywordtype">char</span> <a class="code" href="classGLine.html#o0">hostmask</a>[200];
 00080 };
 00081 
 <a name="l00082"></a><a class="code" href="classELine.html">00082</a> <span class="keyword">class </span><a class="code" href="classELine.html">ELine</a> : <span class="keyword">public</span> <a class="code" href="classXLine.html">XLine</a>
 00083 {
 00084   <span class="keyword">public</span>:
-<a name="l00088"></a><a class="code" href="classELine.html#o0">00088</a>         <span class="keywordtype">char</span> <a class="code" href="classELine.html#o0">hostmask</a>[MAXBUF];
+<a name="l00088"></a><a class="code" href="classELine.html#o0">00088</a>         <span class="keywordtype">char</span> <a class="code" href="classELine.html#o0">hostmask</a>[200];
 00089 };
 00090 
 <a name="l00093"></a><a class="code" href="classZLine.html">00093</a> <span class="keyword">class </span><a class="code" href="classZLine.html">ZLine</a> : <span class="keyword">public</span> <a class="code" href="classXLine.html">XLine</a>
 00094 {
 00095   <span class="keyword">public</span>:
-<a name="l00099"></a><a class="code" href="classZLine.html#o0">00099</a>         <span class="keywordtype">char</span> <a class="code" href="classZLine.html#o0">ipaddr</a>[MAXBUF];
+<a name="l00099"></a><a class="code" href="classZLine.html#o0">00099</a>         <span class="keywordtype">char</span> <a class="code" href="classZLine.html#o0">ipaddr</a>[40];
 <a name="l00103"></a><a class="code" href="classZLine.html#o1">00103</a>         <span class="keywordtype">bool</span> <a class="code" href="classZLine.html#o1">is_global</a>;
 00104 };
 00105 
 <a name="l00108"></a><a class="code" href="classQLine.html">00108</a> <span class="keyword">class </span><a class="code" href="classQLine.html">QLine</a> : <span class="keyword">public</span> <a class="code" href="classXLine.html">XLine</a>
 00109 {
 00110   <span class="keyword">public</span>:
-<a name="l00114"></a><a class="code" href="classQLine.html#o0">00114</a>         <span class="keywordtype">char</span> <a class="code" href="classQLine.html#o0">nick</a>[MAXBUF];
+<a name="l00114"></a><a class="code" href="classQLine.html#o0">00114</a>         <span class="keywordtype">char</span> <a class="code" href="classQLine.html#o0">nick</a>[64];
 <a name="l00118"></a><a class="code" href="classQLine.html#o1">00118</a>         <span class="keywordtype">bool</span> <a class="code" href="classQLine.html#o1">is_global</a>;
 00119 };
 00120 
@@ -123,7 +123,7 @@
 00157 <span class="keywordtype">void</span> <a class="code" href="xline_8h.html#a28">sync_xlines</a>(<a class="code" href="classserverrec.html">serverrec</a>* serv, <span class="keywordtype">char</span>* tcp_host);
 00158 
 00159 <span class="preprocessor">#endif</span>
-</pre></div><hr size="1"><address style="align: right;"><small>Generated on Thu May 12 02:25:14 2005 for InspIRCd by
+</pre></div><hr size="1"><address style="align: right;"><small>Generated on Thu May 12 22:58:59 2005 for InspIRCd by
 <a href="http://www.doxygen.org/index.html">
 <img src="doxygen.png" alt="doxygen" align="middle" border=0 > 
 </a>1.3.3 </small></address>

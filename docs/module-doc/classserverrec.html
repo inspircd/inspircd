@@ -95,15 +95,15 @@ Constructor.
 <p>
 Definition at line <a class="el" href="servers_8cpp-source.html#l00026">26</a> of file <a class="el" href="servers_8cpp-source.html">servers.cpp</a>.
 <p>
-References <a class="el" href="connection_8h-source.html#l00215">connection::fd</a>, <a class="el" href="servers_8h-source.html#l00051">hops_away</a>, <a class="el" href="servers_8h-source.html#l00057">jupiter</a>, <a class="el" href="connection_8h-source.html#l00265">connection::lastping</a>, <a class="el" href="servers_8h-source.html#l00036">name</a>, <a class="el" href="servers_8h-source.html#l00065">nickserv</a>, <a class="el" href="servers_8h-source.html#l00048">opercount</a>, <a class="el" href="servers_8h-source.html#l00039">pingtime</a>, <a class="el" href="connection_8h-source.html#l00269">connection::signon</a>, <a class="el" href="servers_8h-source.html#l00067">sync_soon</a>, <a class="el" href="channels_8cpp-source.html#l00107">TIME</a>, <a class="el" href="servers_8h-source.html#l00045">usercount</a>, <a class="el" href="servers_8h-source.html#l00042">usercount_i</a>, and <a class="el" href="servers_8h-source.html#l00054">version</a>.
+References <a class="el" href="connection_8h-source.html#l00215">connection::fd</a>, <a class="el" href="servers_8h-source.html#l00051">hops_away</a>, <a class="el" href="servers_8h-source.html#l00057">jupiter</a>, <a class="el" href="connection_8h-source.html#l00257">connection::lastping</a>, <a class="el" href="servers_8h-source.html#l00036">name</a>, <a class="el" href="servers_8h-source.html#l00065">nickserv</a>, <a class="el" href="servers_8h-source.html#l00048">opercount</a>, <a class="el" href="servers_8h-source.html#l00039">pingtime</a>, <a class="el" href="connection_8h-source.html#l00261">connection::signon</a>, <a class="el" href="servers_8h-source.html#l00067">sync_soon</a>, <a class="el" href="channels_8cpp-source.html#l00107">TIME</a>, <a class="el" href="servers_8h-source.html#l00045">usercount</a>, <a class="el" href="servers_8h-source.html#l00042">usercount_i</a>, and <a class="el" href="servers_8h-source.html#l00054">version</a>.
 <p>
 <div class="fragment"><pre>00027 {
 00028         strlcpy(name,<span class="stringliteral">""</span>,256);
 00029         <a class="code" href="classserverrec.html#o1">pingtime</a> = 0;
-00030         <a class="code" href="classconnection.html#o12">lastping</a> = <a class="code" href="channels_8cpp.html#a37">TIME</a>;
+00030         <a class="code" href="classconnection.html#o10">lastping</a> = <a class="code" href="channels_8cpp.html#a37">TIME</a>;
 00031         <a class="code" href="classserverrec.html#o2">usercount_i</a> = <a class="code" href="classserverrec.html#o3">usercount</a> = <a class="code" href="classserverrec.html#o4">opercount</a> = <a class="code" href="classserverrec.html#o6">version</a> = 0;
 00032         <a class="code" href="classserverrec.html#o5">hops_away</a> = 1;
-00033         <a class="code" href="classconnection.html#o13">signon</a> = <a class="code" href="channels_8cpp.html#a37">TIME</a>;
+00033         <a class="code" href="classconnection.html#o11">signon</a> = <a class="code" href="channels_8cpp.html#a37">TIME</a>;
 00034         <a class="code" href="classserverrec.html#o7">jupiter</a> = <span class="keyword">false</span>;
 00035         <a class="code" href="classconnection.html#o0">fd</a> = 0;
 00036         <a class="code" href="classserverrec.html#o10">sync_soon</a> = <span class="keyword">false</span>;
@@ -159,15 +159,15 @@ Constructor which initialises some of the main variables.
 <p>
 Definition at line <a class="el" href="servers_8cpp-source.html#l00045">45</a> of file <a class="el" href="servers_8cpp-source.html">servers.cpp</a>.
 <p>
-References <a class="el" href="connection_8h-source.html#l00215">connection::fd</a>, <a class="el" href="servers_8h-source.html#l00051">hops_away</a>, <a class="el" href="servers_8h-source.html#l00057">jupiter</a>, <a class="el" href="connection_8h-source.html#l00265">connection::lastping</a>, <a class="el" href="servers_8h-source.html#l00036">name</a>, <a class="el" href="servers_8h-source.html#l00065">nickserv</a>, <a class="el" href="servers_8h-source.html#l00048">opercount</a>, <a class="el" href="connection_8h-source.html#l00269">connection::signon</a>, <a class="el" href="servers_8h-source.html#l00067">sync_soon</a>, <a class="el" href="channels_8cpp-source.html#l00107">TIME</a>, <a class="el" href="servers_8h-source.html#l00045">usercount</a>, <a class="el" href="servers_8h-source.html#l00042">usercount_i</a>, and <a class="el" href="servers_8h-source.html#l00054">version</a>.
+References <a class="el" href="connection_8h-source.html#l00215">connection::fd</a>, <a class="el" href="servers_8h-source.html#l00051">hops_away</a>, <a class="el" href="servers_8h-source.html#l00057">jupiter</a>, <a class="el" href="connection_8h-source.html#l00257">connection::lastping</a>, <a class="el" href="servers_8h-source.html#l00036">name</a>, <a class="el" href="servers_8h-source.html#l00065">nickserv</a>, <a class="el" href="servers_8h-source.html#l00048">opercount</a>, <a class="el" href="connection_8h-source.html#l00261">connection::signon</a>, <a class="el" href="servers_8h-source.html#l00067">sync_soon</a>, <a class="el" href="channels_8cpp-source.html#l00107">TIME</a>, <a class="el" href="servers_8h-source.html#l00045">usercount</a>, <a class="el" href="servers_8h-source.html#l00042">usercount_i</a>, and <a class="el" href="servers_8h-source.html#l00054">version</a>.
 <p>
 <div class="fragment"><pre>00046 {
 00047         strlcpy(name,n,256);
-00048         <a class="code" href="classconnection.html#o12">lastping</a> = <a class="code" href="channels_8cpp.html#a37">TIME</a>;
+00048         <a class="code" href="classconnection.html#o10">lastping</a> = <a class="code" href="channels_8cpp.html#a37">TIME</a>;
 00049         <a class="code" href="classserverrec.html#o2">usercount_i</a> = <a class="code" href="classserverrec.html#o3">usercount</a> = <a class="code" href="classserverrec.html#o4">opercount</a> = 0;
 00050         <a class="code" href="classserverrec.html#o6">version</a> = ver;
 00051         <a class="code" href="classserverrec.html#o5">hops_away</a> = 1;
-00052         <a class="code" href="classconnection.html#o13">signon</a> = <a class="code" href="channels_8cpp.html#a37">TIME</a>;
+00052         <a class="code" href="classconnection.html#o11">signon</a> = <a class="code" href="channels_8cpp.html#a37">TIME</a>;
 00053         <a class="code" href="classserverrec.html#o7">jupiter</a> = jupe;
 00054         <a class="code" href="classconnection.html#o0">fd</a> = 0;
 00055         <a class="code" href="classserverrec.html#o10">sync_soon</a> = <span class="keyword">false</span>;
@@ -519,7 +519,7 @@ Referenced by <a class="el" href="servers_8cpp-source.html#l00026">serverrec()</
 </table>
 <hr>The documentation for this class was generated from the following files:<ul>
 <li><a class="el" href="servers_8h-source.html">servers.h</a><li><a class="el" href="servers_8cpp-source.html">servers.cpp</a></ul>
-<hr size="1"><address style="align: right;"><small>Generated on Thu May 12 02:25:28 2005 for InspIRCd by
+<hr size="1"><address style="align: right;"><small>Generated on Thu May 12 22:59:06 2005 for InspIRCd by
 <a href="http://www.doxygen.org/index.html">
 <img src="doxygen.png" alt="doxygen" align="middle" border=0 > 
 </a>1.3.3 </small></address>

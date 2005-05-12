@@ -16,7 +16,7 @@ Inherits \fBXLine\fP.
 
 .in +1c
 .ti -1c
-.RI "char \fBnick\fP [MAXBUF]"
+.RI "char \fBnick\fP [64]"
 .br
 .RI "\fINickname to match against. \fP"
 .ti -1c
@@ -32,7 +32,7 @@ QLine class. Definition at line 108 of file xline.h.
 .SS "bool \fBQLine::is_global\fP"
 .PP
 Set if this is a global Z:line (e.g. it came from another server)Definition at line 118 of file xline.h.
-.SS "char \fBQLine::nick\fP[MAXBUF]"
+.SS "char \fBQLine::nick\fP[64]"
 .PP
 Nickname to match against. May contain wildcards.Definition at line 114 of file xline.h.
 

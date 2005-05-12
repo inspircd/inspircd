@@ -26,7 +26,7 @@ Inherits \fBclassbase\fP.
 
 .in +1c
 .ti -1c
-.RI "long \fBuc_modes\fP"
+.RI "char \fBuc_modes\fP"
 .br
 .RI "\fIContains a bitmask of the UCMODE_OP ... \fP"
 .ti -1c
@@ -40,33 +40,33 @@ Holds a user's modes on a channel This class associates a users privilages with 
 
 The uc_modes member holds a bitmask of which privilages the user has on the channel, such as op, voice, etc. 
 .PP
-Definition at line 257 of file channels.h.
+Definition at line 222 of file channels.h.
 .SH "Constructor & Destructor Documentation"
 .PP 
 .SS "ucrec::ucrec ()\fC [inline]\fP"
 .PP
-Definition at line 270 of file channels.h.
+Definition at line 235 of file channels.h.
 .PP
 .nf
-270 { /* stub */ }
+235 { /* stub */ }
 .fi
 .SS "virtual ucrec::~\fBucrec\fP ()\fC [inline, virtual]\fP"
 .PP
-Definition at line 271 of file channels.h.
+Definition at line 236 of file channels.h.
 .PP
 .nf
-271 { /* stub */ }
+236 { /* stub */ }
 .fi
 .SH "Member Data Documentation"
 .PP 
 .SS "\fBchanrec\fP* \fBucrec::channel\fP"
 .PP
-Points to the channel record where the given modes apply. If the record is not in use, this value will be NULL.Definition at line 268 of file channels.h.
+Points to the channel record where the given modes apply. If the record is not in use, this value will be NULL.Definition at line 233 of file channels.h.
 .PP
 Referenced by Server::PseudoToUser(), and userrec::userrec().
-.SS "long \fBucrec::uc_modes\fP"
+.SS "char \fBucrec::uc_modes\fP"
 .PP
-Contains a bitmask of the UCMODE_OP ... UCMODE_FOUNDER values. If this value is zero, the user has no privilages upon the channel.Definition at line 263 of file channels.h.
+Contains a bitmask of the UCMODE_OP ... UCMODE_FOUNDER values. If this value is zero, the user has no privilages upon the channel.Definition at line 228 of file channels.h.
 .PP
 Referenced by userrec::userrec().
 

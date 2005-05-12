@@ -26,7 +26,7 @@ Inherited by \fBELine\fP, \fBGLine\fP, \fBKLine\fP, \fBQLine\fP, and \fBZLine\fP
 .br
 .RI "\fIThe duration of the ban, or 0 if permenant. \fP"
 .ti -1c
-.RI "char \fBsource\fP [MAXBUF]"
+.RI "char \fBsource\fP [256]"
 .br
 .RI "\fISource of the ban. \fP"
 .ti -1c
@@ -55,7 +55,7 @@ Reason for the ban. Definition at line 52 of file xline.h.
 .SS "time_t \fBXLine::set_time\fP"
 .PP
 The time the line was added. Definition at line 40 of file xline.h.
-.SS "char \fBXLine::source\fP[MAXBUF]"
+.SS "char \fBXLine::source\fP[256]"
 .PP
 Source of the ban. This can be a servername or an oper nicknameDefinition at line 48 of file xline.h.
 

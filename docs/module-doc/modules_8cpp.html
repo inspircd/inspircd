@@ -67,30 +67,34 @@
  in_addr, string *, nspace::hash&lt;<br>
  in_addr &gt;, <a class="el" href="structInAddr__HashComp.html">InAddr_HashComp</a> &gt;&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="modules_8cpp.html#a41">address_cache</a></td></tr>
 
-<tr><td class="memItemLeft" nowrap align=right valign=top>typedef std::deque&lt; <a class="el" href="classcommand__t.html">command_t</a> &gt;&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="modules_8cpp.html#a42">command_table</a></td></tr>
+<tr><td class="memItemLeft" nowrap align=right valign=top>typedef nspace::hash_map&lt;<br>
+ std::string, <a class="el" href="classWhoWasUser.html">WhoWasUser</a> *,<br>
+ nspace::hash&lt; string &gt;, <a class="el" href="structStrHashComp.html">StrHashComp</a> &gt;&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="modules_8cpp.html#a42">whowas_hash</a></td></tr>
 
-<tr><td class="memItemLeft" nowrap align=right valign=top>typedef std::vector&lt; <a class="el" href="classExtMode.html">ExtMode</a> &gt;&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="modules_8cpp.html#a50">ExtModeList</a></td></tr>
+<tr><td class="memItemLeft" nowrap align=right valign=top>typedef std::deque&lt; <a class="el" href="classcommand__t.html">command_t</a> &gt;&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="modules_8cpp.html#a43">command_table</a></td></tr>
 
-<tr><td class="memItemLeft" nowrap align=right valign=top>typedef ExtModeList::iterator&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="modules_8cpp.html#a51">ExtModeListIter</a></td></tr>
+<tr><td class="memItemLeft" nowrap align=right valign=top>typedef std::vector&lt; <a class="el" href="classExtMode.html">ExtMode</a> &gt;&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="modules_8cpp.html#a51">ExtModeList</a></td></tr>
+
+<tr><td class="memItemLeft" nowrap align=right valign=top>typedef ExtModeList::iterator&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="modules_8cpp.html#a52">ExtModeListIter</a></td></tr>
 
 <tr><td colspan=2><br><h2>Functions</h2></td></tr>
-<tr><td class="memItemLeft" nowrap align=right valign=top>bool&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="modules_8cpp.html#a53">ModeDefined</a> (char modechar, int type)</td></tr>
+<tr><td class="memItemLeft" nowrap align=right valign=top>bool&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="modules_8cpp.html#a54">ModeDefined</a> (char modechar, int type)</td></tr>
 
-<tr><td class="memItemLeft" nowrap align=right valign=top>bool&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="modules_8cpp.html#a54">ModeIsListMode</a> (char modechar, int type)</td></tr>
+<tr><td class="memItemLeft" nowrap align=right valign=top>bool&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="modules_8cpp.html#a55">ModeIsListMode</a> (char modechar, int type)</td></tr>
 
-<tr><td class="memItemLeft" nowrap align=right valign=top>bool&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="modules_8cpp.html#a55">ModeDefinedOper</a> (char modechar, int type)</td></tr>
+<tr><td class="memItemLeft" nowrap align=right valign=top>bool&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="modules_8cpp.html#a56">ModeDefinedOper</a> (char modechar, int type)</td></tr>
 
-<tr><td class="memItemLeft" nowrap align=right valign=top>int&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="modules_8cpp.html#a56">ModeDefinedOn</a> (char modechar, int type)</td></tr>
+<tr><td class="memItemLeft" nowrap align=right valign=top>int&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="modules_8cpp.html#a57">ModeDefinedOn</a> (char modechar, int type)</td></tr>
 
-<tr><td class="memItemLeft" nowrap align=right valign=top>int&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="modules_8cpp.html#a57">ModeDefinedOff</a> (char modechar, int type)</td></tr>
+<tr><td class="memItemLeft" nowrap align=right valign=top>int&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="modules_8cpp.html#a58">ModeDefinedOff</a> (char modechar, int type)</td></tr>
 
-<tr><td class="memItemLeft" nowrap align=right valign=top>bool&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="modules_8cpp.html#a58">DoAddExtendedMode</a> (char modechar, int type, bool requires_oper, int params_on, int params_off)</td></tr>
+<tr><td class="memItemLeft" nowrap align=right valign=top>bool&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="modules_8cpp.html#a59">DoAddExtendedMode</a> (char modechar, int type, bool requires_oper, int params_on, int params_off)</td></tr>
 
-<tr><td class="memItemLeft" nowrap align=right valign=top>void&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="modules_8cpp.html#a59">ModeMakeList</a> (char modechar)</td></tr>
+<tr><td class="memItemLeft" nowrap align=right valign=top>void&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="modules_8cpp.html#a60">ModeMakeList</a> (char modechar)</td></tr>
 
-<tr><td class="memItemLeft" nowrap align=right valign=top>std::vector&lt; <a class="el" href="classModule.html">Module</a> * &gt;&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="modules_8cpp.html#a60">modules</a> (255)</td></tr>
+<tr><td class="memItemLeft" nowrap align=right valign=top>std::vector&lt; <a class="el" href="classModule.html">Module</a> * &gt;&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="modules_8cpp.html#a61">modules</a> (255)</td></tr>
 
-<tr><td class="memItemLeft" nowrap align=right valign=top>std::vector&lt; <a class="el" href="modules_8h.html#a34">ircd_module</a> * &gt;&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="modules_8cpp.html#a61">factory</a> (255)</td></tr>
+<tr><td class="memItemLeft" nowrap align=right valign=top>std::vector&lt; <a class="el" href="modules_8h.html#a34">ircd_module</a> * &gt;&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="modules_8cpp.html#a62">factory</a> (255)</td></tr>
 
 <tr><td colspan=2><br><h2>Variables</h2></td></tr>
 <tr><td class="memItemLeft" nowrap align=right valign=top>int&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="modules_8cpp.html#a1">MODCOUNT</a> = -1</td></tr>
@@ -169,21 +173,21 @@
 
 <tr><td class="memItemLeft" nowrap align=right valign=top><a class="el" href="classuserrec.html">userrec</a> *&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="modules_8cpp.html#a38">fd_ref_table</a> [65536]</td></tr>
 
-<tr><td class="memItemLeft" nowrap align=right valign=top><a class="el" href="modules_8cpp.html#a39">user_hash</a>&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="modules_8cpp.html#a43">clientlist</a></td></tr>
+<tr><td class="memItemLeft" nowrap align=right valign=top><a class="el" href="modules_8cpp.html#a39">user_hash</a>&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="modules_8cpp.html#a44">clientlist</a></td></tr>
 
-<tr><td class="memItemLeft" nowrap align=right valign=top><a class="el" href="modules_8cpp.html#a40">chan_hash</a>&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="modules_8cpp.html#a44">chanlist</a></td></tr>
+<tr><td class="memItemLeft" nowrap align=right valign=top><a class="el" href="modules_8cpp.html#a40">chan_hash</a>&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="modules_8cpp.html#a45">chanlist</a></td></tr>
 
-<tr><td class="memItemLeft" nowrap align=right valign=top><a class="el" href="modules_8cpp.html#a39">user_hash</a>&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="modules_8cpp.html#a45">whowas</a></td></tr>
+<tr><td class="memItemLeft" nowrap align=right valign=top><a class="el" href="modules_8cpp.html#a42">whowas_hash</a>&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="modules_8cpp.html#a46">whowas</a></td></tr>
 
-<tr><td class="memItemLeft" nowrap align=right valign=top><a class="el" href="modules_8cpp.html#a42">command_table</a>&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="modules_8cpp.html#a46">cmdlist</a></td></tr>
+<tr><td class="memItemLeft" nowrap align=right valign=top><a class="el" href="modules_8cpp.html#a43">command_table</a>&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="modules_8cpp.html#a47">cmdlist</a></td></tr>
 
-<tr><td class="memItemLeft" nowrap align=right valign=top><a class="el" href="modules_8h.html#a31">file_cache</a>&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="modules_8cpp.html#a47">MOTD</a></td></tr>
+<tr><td class="memItemLeft" nowrap align=right valign=top><a class="el" href="modules_8h.html#a31">file_cache</a>&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="modules_8cpp.html#a48">MOTD</a></td></tr>
 
-<tr><td class="memItemLeft" nowrap align=right valign=top><a class="el" href="modules_8h.html#a31">file_cache</a>&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="modules_8cpp.html#a48">RULES</a></td></tr>
+<tr><td class="memItemLeft" nowrap align=right valign=top><a class="el" href="modules_8h.html#a31">file_cache</a>&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="modules_8cpp.html#a49">RULES</a></td></tr>
 
-<tr><td class="memItemLeft" nowrap align=right valign=top><a class="el" href="modules_8cpp.html#a41">address_cache</a>&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="modules_8cpp.html#a49">IP</a></td></tr>
+<tr><td class="memItemLeft" nowrap align=right valign=top><a class="el" href="modules_8cpp.html#a41">address_cache</a>&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="modules_8cpp.html#a50">IP</a></td></tr>
 
-<tr><td class="memItemLeft" nowrap align=right valign=top><a class="el" href="modules_8cpp.html#a50">ExtModeList</a>&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="modules_8cpp.html#a52">EMode</a></td></tr>
+<tr><td class="memItemLeft" nowrap align=right valign=top><a class="el" href="modules_8cpp.html#a51">ExtModeList</a>&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="modules_8cpp.html#a53">EMode</a></td></tr>
 
 </table>
 <hr><h2>Define Documentation</h2>
@@ -260,13 +264,13 @@ Definition at line <a class="el" href="modules_8cpp-source.html#l00187">187</a> 
 Definition at line <a class="el" href="modules_8cpp-source.html#l00186">186</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.    </td>
   </tr>
 </table>
-<a name="a42" doxytag="modules.cpp::command_table"></a><p>
+<a name="a43" doxytag="modules.cpp::command_table"></a><p>
 <table class="mdTable" width="100%" cellpadding="2" cellspacing="0">
   <tr>
     <td class="mdRow">
       <table cellpadding="0" cellspacing="0" border="0">
         <tr>
-          <td class="md" nowrap valign="top"> typedef std::deque&lt;<a class="el" href="classcommand__t.html">command_t</a>&gt; <a class="el" href="modules_8cpp.html#a42">command_table</a>
+          <td class="md" nowrap valign="top"> typedef std::deque&lt;<a class="el" href="classcommand__t.html">command_t</a>&gt; <a class="el" href="modules_8cpp.html#a43">command_table</a>
       </table>
     </td>
   </tr>
@@ -281,16 +285,16 @@ Definition at line <a class="el" href="modules_8cpp-source.html#l00186">186</a> 
 <p>
 
 <p>
-Definition at line <a class="el" href="modules_8cpp-source.html#l00188">188</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.    </td>
+Definition at line <a class="el" href="modules_8cpp-source.html#l00189">189</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.    </td>
   </tr>
 </table>
-<a name="a50" doxytag="modules.cpp::ExtModeList"></a><p>
+<a name="a51" doxytag="modules.cpp::ExtModeList"></a><p>
 <table class="mdTable" width="100%" cellpadding="2" cellspacing="0">
   <tr>
     <td class="mdRow">
       <table cellpadding="0" cellspacing="0" border="0">
         <tr>
-          <td class="md" nowrap valign="top"> typedef std::vector&lt;<a class="el" href="classExtMode.html">ExtMode</a>&gt; <a class="el" href="modules_8cpp.html#a50">ExtModeList</a>
+          <td class="md" nowrap valign="top"> typedef std::vector&lt;<a class="el" href="classExtMode.html">ExtMode</a>&gt; <a class="el" href="modules_8cpp.html#a51">ExtModeList</a>
       </table>
     </td>
   </tr>
@@ -305,16 +309,16 @@ Definition at line <a class="el" href="modules_8cpp-source.html#l00188">188</a> 
 <p>
 
 <p>
-Definition at line <a class="el" href="modules_8cpp-source.html#l00214">214</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.    </td>
+Definition at line <a class="el" href="modules_8cpp-source.html#l00215">215</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.    </td>
   </tr>
 </table>
-<a name="a51" doxytag="modules.cpp::ExtModeListIter"></a><p>
+<a name="a52" doxytag="modules.cpp::ExtModeListIter"></a><p>
 <table class="mdTable" width="100%" cellpadding="2" cellspacing="0">
   <tr>
     <td class="mdRow">
       <table cellpadding="0" cellspacing="0" border="0">
         <tr>
-          <td class="md" nowrap valign="top"> typedef ExtModeList::iterator <a class="el" href="modules_8cpp.html#a51">ExtModeListIter</a>
+          <td class="md" nowrap valign="top"> typedef ExtModeList::iterator <a class="el" href="modules_8cpp.html#a52">ExtModeListIter</a>
       </table>
     </td>
   </tr>
@@ -329,9 +333,9 @@ Definition at line <a class="el" href="modules_8cpp-source.html#l00214">214</a> 
 <p>
 
 <p>
-Definition at line <a class="el" href="modules_8cpp-source.html#l00215">215</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
+Definition at line <a class="el" href="modules_8cpp-source.html#l00216">216</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
 <p>
-Referenced by <a class="el" href="modules_8cpp-source.html#l00221">ModeDefined()</a>, <a class="el" href="modules_8cpp-source.html#l00271">ModeDefinedOff()</a>, <a class="el" href="modules_8cpp-source.html#l00258">ModeDefinedOn()</a>, <a class="el" href="modules_8cpp-source.html#l00245">ModeDefinedOper()</a>, <a class="el" href="modules_8cpp-source.html#l00233">ModeIsListMode()</a>, and <a class="el" href="modules_8cpp-source.html#l00294">ModeMakeList()</a>.    </td>
+Referenced by <a class="el" href="modules_8cpp-source.html#l00222">ModeDefined()</a>, <a class="el" href="modules_8cpp-source.html#l00272">ModeDefinedOff()</a>, <a class="el" href="modules_8cpp-source.html#l00259">ModeDefinedOn()</a>, <a class="el" href="modules_8cpp-source.html#l00246">ModeDefinedOper()</a>, <a class="el" href="modules_8cpp-source.html#l00234">ModeIsListMode()</a>, and <a class="el" href="modules_8cpp-source.html#l00295">ModeMakeList()</a>.    </td>
   </tr>
 </table>
 <a name="a39" doxytag="modules.cpp::user_hash"></a><p>
@@ -358,8 +362,32 @@ Referenced by <a class="el" href="modules_8cpp-source.html#l00221">ModeDefined()
 Definition at line <a class="el" href="modules_8cpp-source.html#l00185">185</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.    </td>
   </tr>
 </table>
+<a name="a42" doxytag="modules.cpp::whowas_hash"></a><p>
+<table class="mdTable" width="100%" cellpadding="2" cellspacing="0">
+  <tr>
+    <td class="mdRow">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> typedef nspace::hash_map&lt;std::string, <a class="el" href="classWhoWasUser.html">WhoWasUser</a>*, nspace::hash&lt;string&gt;, <a class="el" href="structStrHashComp.html">StrHashComp</a>&gt; <a class="el" href="modules_8cpp.html#a42">whowas_hash</a>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+
+<p>
+Definition at line <a class="el" href="modules_8cpp-source.html#l00188">188</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.    </td>
+  </tr>
+</table>
 <hr><h2>Function Documentation</h2>
-<a name="a58" doxytag="modules.cpp::DoAddExtendedMode"></a><p>
+<a name="a59" doxytag="modules.cpp::DoAddExtendedMode"></a><p>
 <table class="mdTable" width="100%" cellpadding="2" cellspacing="0">
   <tr>
     <td class="mdRow">
@@ -414,23 +442,23 @@ Definition at line <a class="el" href="modules_8cpp-source.html#l00185">185</a> 
 <p>
 
 <p>
-Definition at line <a class="el" href="modules_8cpp-source.html#l00284">284</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
+Definition at line <a class="el" href="modules_8cpp-source.html#l00285">285</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
 <p>
-References <a class="el" href="modules_8cpp-source.html#l00218">EMode</a>, and <a class="el" href="modules_8cpp-source.html#l00221">ModeDefined()</a>.
+References <a class="el" href="modules_8cpp-source.html#l00219">EMode</a>, and <a class="el" href="modules_8cpp-source.html#l00222">ModeDefined()</a>.
 <p>
-Referenced by <a class="el" href="modules_8cpp-source.html#l00666">Server::AddExtendedListMode()</a>, and <a class="el" href="modules_8cpp-source.html#l00638">Server::AddExtendedMode()</a>.
+Referenced by <a class="el" href="modules_8cpp-source.html#l00667">Server::AddExtendedListMode()</a>, and <a class="el" href="modules_8cpp-source.html#l00639">Server::AddExtendedMode()</a>.
 <p>
-<div class="fragment"><pre>00285 {
-00286         <span class="keywordflow">if</span> (<a class="code" href="modules_8cpp.html#a53">ModeDefined</a>(modechar,type)) {
-00287                 <span class="keywordflow">return</span> <span class="keyword">false</span>;
-00288         }
-00289         <a class="code" href="modules_8cpp.html#a52">EMode</a>.push_back(<a class="code" href="classExtMode.html">ExtMode</a>(modechar,type,requires_oper,params_on,params_off));
-00290         <span class="keywordflow">return</span> <span class="keyword">true</span>;
-00291 }
+<div class="fragment"><pre>00286 {
+00287         <span class="keywordflow">if</span> (<a class="code" href="modules_8cpp.html#a54">ModeDefined</a>(modechar,type)) {
+00288                 <span class="keywordflow">return</span> <span class="keyword">false</span>;
+00289         }
+00290         <a class="code" href="modules_8cpp.html#a53">EMode</a>.push_back(<a class="code" href="classExtMode.html">ExtMode</a>(modechar,type,requires_oper,params_on,params_off));
+00291         <span class="keywordflow">return</span> <span class="keyword">true</span>;
+00292 }
 </pre></div>    </td>
   </tr>
 </table>
-<a name="a61" doxytag="modules.cpp::factory"></a><p>
+<a name="a62" doxytag="modules.cpp::factory"></a><p>
 <table class="mdTable" width="100%" cellpadding="2" cellspacing="0">
   <tr>
     <td class="mdRow">
@@ -459,7 +487,7 @@ Referenced by <a class="el" href="modules_8cpp-source.html#l00666">Server::AddEx
     </td>
   </tr>
 </table>
-<a name="a53" doxytag="modules.cpp::ModeDefined"></a><p>
+<a name="a54" doxytag="modules.cpp::ModeDefined"></a><p>
 <table class="mdTable" width="100%" cellpadding="2" cellspacing="0">
   <tr>
     <td class="mdRow">
@@ -496,26 +524,26 @@ Referenced by <a class="el" href="modules_8cpp-source.html#l00666">Server::AddEx
 <p>
 
 <p>
-Definition at line <a class="el" href="modules_8cpp-source.html#l00221">221</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
+Definition at line <a class="el" href="modules_8cpp-source.html#l00222">222</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
 <p>
-References <a class="el" href="modules_8cpp-source.html#l00218">EMode</a>, and <a class="el" href="modules_8cpp-source.html#l00215">ExtModeListIter</a>.
+References <a class="el" href="modules_8cpp-source.html#l00219">EMode</a>, and <a class="el" href="modules_8cpp-source.html#l00216">ExtModeListIter</a>.
 <p>
-Referenced by <a class="el" href="modules_8cpp-source.html#l00284">DoAddExtendedMode()</a>.
+Referenced by <a class="el" href="modules_8cpp-source.html#l00285">DoAddExtendedMode()</a>.
 <p>
-<div class="fragment"><pre>00222 {
-00223         <span class="keywordflow">for</span> (<a class="code" href="modules_8cpp.html#a51">ExtModeListIter</a> i = <a class="code" href="modules_8cpp.html#a52">EMode</a>.begin(); i &lt; <a class="code" href="modules_8cpp.html#a52">EMode</a>.end(); i++)
-00224         {
-00225                 <span class="keywordflow">if</span> ((i-&gt;modechar == modechar) &amp;&amp; (i-&gt;type == type))
-00226                 {
-00227                         <span class="keywordflow">return</span> <span class="keyword">true</span>;
-00228                 }
-00229         }
-00230         <span class="keywordflow">return</span> <span class="keyword">false</span>;
-00231 }
+<div class="fragment"><pre>00223 {
+00224         <span class="keywordflow">for</span> (<a class="code" href="modules_8cpp.html#a52">ExtModeListIter</a> i = <a class="code" href="modules_8cpp.html#a53">EMode</a>.begin(); i &lt; <a class="code" href="modules_8cpp.html#a53">EMode</a>.end(); i++)
+00225         {
+00226                 <span class="keywordflow">if</span> ((i-&gt;modechar == modechar) &amp;&amp; (i-&gt;type == type))
+00227                 {
+00228                         <span class="keywordflow">return</span> <span class="keyword">true</span>;
+00229                 }
+00230         }
+00231         <span class="keywordflow">return</span> <span class="keyword">false</span>;
+00232 }
 </pre></div>    </td>
   </tr>
 </table>
-<a name="a57" doxytag="modules.cpp::ModeDefinedOff"></a><p>
+<a name="a58" doxytag="modules.cpp::ModeDefinedOff"></a><p>
 <table class="mdTable" width="100%" cellpadding="2" cellspacing="0">
   <tr>
     <td class="mdRow">
@@ -552,24 +580,24 @@ Referenced by <a class="el" href="modules_8cpp-source.html#l00284">DoAddExtended
 <p>
 
 <p>
-Definition at line <a class="el" href="modules_8cpp-source.html#l00271">271</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
+Definition at line <a class="el" href="modules_8cpp-source.html#l00272">272</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
 <p>
-References <a class="el" href="modules_8cpp-source.html#l00218">EMode</a>, and <a class="el" href="modules_8cpp-source.html#l00215">ExtModeListIter</a>.
+References <a class="el" href="modules_8cpp-source.html#l00219">EMode</a>, and <a class="el" href="modules_8cpp-source.html#l00216">ExtModeListIter</a>.
 <p>
-<div class="fragment"><pre>00272 {
-00273         <span class="keywordflow">for</span> (<a class="code" href="modules_8cpp.html#a51">ExtModeListIter</a> i = <a class="code" href="modules_8cpp.html#a52">EMode</a>.begin(); i &lt; <a class="code" href="modules_8cpp.html#a52">EMode</a>.end(); i++)
-00274         {
-00275                 <span class="keywordflow">if</span> ((i-&gt;modechar == modechar) &amp;&amp; (i-&gt;type == type))
-00276                 {
-00277                         <span class="keywordflow">return</span> i-&gt;params_when_off;
-00278                 }
-00279         }
-00280         <span class="keywordflow">return</span> 0;
-00281 }
+<div class="fragment"><pre>00273 {
+00274         <span class="keywordflow">for</span> (<a class="code" href="modules_8cpp.html#a52">ExtModeListIter</a> i = <a class="code" href="modules_8cpp.html#a53">EMode</a>.begin(); i &lt; <a class="code" href="modules_8cpp.html#a53">EMode</a>.end(); i++)
+00275         {
+00276                 <span class="keywordflow">if</span> ((i-&gt;modechar == modechar) &amp;&amp; (i-&gt;type == type))
+00277                 {
+00278                         <span class="keywordflow">return</span> i-&gt;params_when_off;
+00279                 }
+00280         }
+00281         <span class="keywordflow">return</span> 0;
+00282 }
 </pre></div>    </td>
   </tr>
 </table>
-<a name="a56" doxytag="modules.cpp::ModeDefinedOn"></a><p>
+<a name="a57" doxytag="modules.cpp::ModeDefinedOn"></a><p>
 <table class="mdTable" width="100%" cellpadding="2" cellspacing="0">
   <tr>
     <td class="mdRow">
@@ -606,24 +634,24 @@ References <a class="el" href="modules_8cpp-source.html#l00218">EMode</a>, and <
 <p>
 
 <p>
-Definition at line <a class="el" href="modules_8cpp-source.html#l00258">258</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
+Definition at line <a class="el" href="modules_8cpp-source.html#l00259">259</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
 <p>
-References <a class="el" href="modules_8cpp-source.html#l00218">EMode</a>, and <a class="el" href="modules_8cpp-source.html#l00215">ExtModeListIter</a>.
+References <a class="el" href="modules_8cpp-source.html#l00219">EMode</a>, and <a class="el" href="modules_8cpp-source.html#l00216">ExtModeListIter</a>.
 <p>
-<div class="fragment"><pre>00259 {
-00260         <span class="keywordflow">for</span> (<a class="code" href="modules_8cpp.html#a51">ExtModeListIter</a> i = <a class="code" href="modules_8cpp.html#a52">EMode</a>.begin(); i &lt; <a class="code" href="modules_8cpp.html#a52">EMode</a>.end(); i++)
-00261         {
-00262                 <span class="keywordflow">if</span> ((i-&gt;modechar == modechar) &amp;&amp; (i-&gt;type == type))
-00263                 {
-00264                         <span class="keywordflow">return</span> i-&gt;params_when_on;
-00265                 }
-00266         }
-00267         <span class="keywordflow">return</span> 0;
-00268 }
+<div class="fragment"><pre>00260 {
+00261         <span class="keywordflow">for</span> (<a class="code" href="modules_8cpp.html#a52">ExtModeListIter</a> i = <a class="code" href="modules_8cpp.html#a53">EMode</a>.begin(); i &lt; <a class="code" href="modules_8cpp.html#a53">EMode</a>.end(); i++)
+00262         {
+00263                 <span class="keywordflow">if</span> ((i-&gt;modechar == modechar) &amp;&amp; (i-&gt;type == type))
+00264                 {
+00265                         <span class="keywordflow">return</span> i-&gt;params_when_on;
+00266                 }
+00267         }
+00268         <span class="keywordflow">return</span> 0;
+00269 }
 </pre></div>    </td>
   </tr>
 </table>
-<a name="a55" doxytag="modules.cpp::ModeDefinedOper"></a><p>
+<a name="a56" doxytag="modules.cpp::ModeDefinedOper"></a><p>
 <table class="mdTable" width="100%" cellpadding="2" cellspacing="0">
   <tr>
     <td class="mdRow">
@@ -660,24 +688,24 @@ References <a class="el" href="modules_8cpp-source.html#l00218">EMode</a>, and <
 <p>
 
 <p>
-Definition at line <a class="el" href="modules_8cpp-source.html#l00245">245</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
+Definition at line <a class="el" href="modules_8cpp-source.html#l00246">246</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
 <p>
-References <a class="el" href="modules_8cpp-source.html#l00218">EMode</a>, and <a class="el" href="modules_8cpp-source.html#l00215">ExtModeListIter</a>.
+References <a class="el" href="modules_8cpp-source.html#l00219">EMode</a>, and <a class="el" href="modules_8cpp-source.html#l00216">ExtModeListIter</a>.
 <p>
-<div class="fragment"><pre>00246 {
-00247         <span class="keywordflow">for</span> (<a class="code" href="modules_8cpp.html#a51">ExtModeListIter</a> i = <a class="code" href="modules_8cpp.html#a52">EMode</a>.begin(); i &lt; <a class="code" href="modules_8cpp.html#a52">EMode</a>.end(); i++)
-00248         {
-00249                 <span class="keywordflow">if</span> ((i-&gt;modechar == modechar) &amp;&amp; (i-&gt;type == type) &amp;&amp; (i-&gt;needsoper == <span class="keyword">true</span>))
-00250                 {
-00251                         <span class="keywordflow">return</span> <span class="keyword">true</span>;
-00252                 }
-00253         }
-00254         <span class="keywordflow">return</span> <span class="keyword">false</span>;
-00255 }
+<div class="fragment"><pre>00247 {
+00248         <span class="keywordflow">for</span> (<a class="code" href="modules_8cpp.html#a52">ExtModeListIter</a> i = <a class="code" href="modules_8cpp.html#a53">EMode</a>.begin(); i &lt; <a class="code" href="modules_8cpp.html#a53">EMode</a>.end(); i++)
+00249         {
+00250                 <span class="keywordflow">if</span> ((i-&gt;modechar == modechar) &amp;&amp; (i-&gt;type == type) &amp;&amp; (i-&gt;needsoper == <span class="keyword">true</span>))
+00251                 {
+00252                         <span class="keywordflow">return</span> <span class="keyword">true</span>;
+00253                 }
+00254         }
+00255         <span class="keywordflow">return</span> <span class="keyword">false</span>;
+00256 }
 </pre></div>    </td>
   </tr>
 </table>
-<a name="a54" doxytag="modules.cpp::ModeIsListMode"></a><p>
+<a name="a55" doxytag="modules.cpp::ModeIsListMode"></a><p>
 <table class="mdTable" width="100%" cellpadding="2" cellspacing="0">
   <tr>
     <td class="mdRow">
@@ -714,24 +742,24 @@ References <a class="el" href="modules_8cpp-source.html#l00218">EMode</a>, and <
 <p>
 
 <p>
-Definition at line <a class="el" href="modules_8cpp-source.html#l00233">233</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
+Definition at line <a class="el" href="modules_8cpp-source.html#l00234">234</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
 <p>
-References <a class="el" href="modules_8cpp-source.html#l00218">EMode</a>, and <a class="el" href="modules_8cpp-source.html#l00215">ExtModeListIter</a>.
+References <a class="el" href="modules_8cpp-source.html#l00219">EMode</a>, and <a class="el" href="modules_8cpp-source.html#l00216">ExtModeListIter</a>.
 <p>
-<div class="fragment"><pre>00234 {
-00235         <span class="keywordflow">for</span> (<a class="code" href="modules_8cpp.html#a51">ExtModeListIter</a> i = <a class="code" href="modules_8cpp.html#a52">EMode</a>.begin(); i &lt; <a class="code" href="modules_8cpp.html#a52">EMode</a>.end(); i++)
-00236         {
-00237                 <span class="keywordflow">if</span> ((i-&gt;modechar == modechar) &amp;&amp; (i-&gt;type == type) &amp;&amp; (i-&gt;list == <span class="keyword">true</span>))
-00238                 {
-00239                         <span class="keywordflow">return</span> <span class="keyword">true</span>;
-00240                 }
-00241         }
-00242         <span class="keywordflow">return</span> <span class="keyword">false</span>;
-00243 }
+<div class="fragment"><pre>00235 {
+00236         <span class="keywordflow">for</span> (<a class="code" href="modules_8cpp.html#a52">ExtModeListIter</a> i = <a class="code" href="modules_8cpp.html#a53">EMode</a>.begin(); i &lt; <a class="code" href="modules_8cpp.html#a53">EMode</a>.end(); i++)
+00237         {
+00238                 <span class="keywordflow">if</span> ((i-&gt;modechar == modechar) &amp;&amp; (i-&gt;type == type) &amp;&amp; (i-&gt;list == <span class="keyword">true</span>))
+00239                 {
+00240                         <span class="keywordflow">return</span> <span class="keyword">true</span>;
+00241                 }
+00242         }
+00243         <span class="keywordflow">return</span> <span class="keyword">false</span>;
+00244 }
 </pre></div>    </td>
   </tr>
 </table>
-<a name="a59" doxytag="modules.cpp::ModeMakeList"></a><p>
+<a name="a60" doxytag="modules.cpp::ModeMakeList"></a><p>
 <table class="mdTable" width="100%" cellpadding="2" cellspacing="0">
   <tr>
     <td class="mdRow">
@@ -759,27 +787,27 @@ References <a class="el" href="modules_8cpp-source.html#l00218">EMode</a>, and <
 <p>
 
 <p>
-Definition at line <a class="el" href="modules_8cpp-source.html#l00294">294</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
+Definition at line <a class="el" href="modules_8cpp-source.html#l00295">295</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
 <p>
-References <a class="el" href="modules_8cpp-source.html#l00218">EMode</a>, <a class="el" href="modules_8cpp-source.html#l00215">ExtModeListIter</a>, and <a class="el" href="modules_8h-source.html#l00031">MT_CHANNEL</a>.
+References <a class="el" href="modules_8cpp-source.html#l00219">EMode</a>, <a class="el" href="modules_8cpp-source.html#l00216">ExtModeListIter</a>, and <a class="el" href="modules_8h-source.html#l00031">MT_CHANNEL</a>.
 <p>
-Referenced by <a class="el" href="modules_8cpp-source.html#l00666">Server::AddExtendedListMode()</a>.
+Referenced by <a class="el" href="modules_8cpp-source.html#l00667">Server::AddExtendedListMode()</a>.
 <p>
-<div class="fragment"><pre>00295 {
-00296         <span class="keywordflow">for</span> (<a class="code" href="modules_8cpp.html#a51">ExtModeListIter</a> i = <a class="code" href="modules_8cpp.html#a52">EMode</a>.begin(); i &lt; <a class="code" href="modules_8cpp.html#a52">EMode</a>.end(); i++)
-00297         {
-00298                 <span class="keywordflow">if</span> ((i-&gt;modechar == modechar) &amp;&amp; (i-&gt;type == <a class="code" href="modules_8h.html#a5">MT_CHANNEL</a>))
-00299                 {
-00300                         i-&gt;list = <span class="keyword">true</span>;
-00301                         <span class="keywordflow">return</span>;
-00302                 }
-00303         }
-00304         <span class="keywordflow">return</span>;
-00305 }
+<div class="fragment"><pre>00296 {
+00297         <span class="keywordflow">for</span> (<a class="code" href="modules_8cpp.html#a52">ExtModeListIter</a> i = <a class="code" href="modules_8cpp.html#a53">EMode</a>.begin(); i &lt; <a class="code" href="modules_8cpp.html#a53">EMode</a>.end(); i++)
+00298         {
+00299                 <span class="keywordflow">if</span> ((i-&gt;modechar == modechar) &amp;&amp; (i-&gt;type == <a class="code" href="modules_8h.html#a5">MT_CHANNEL</a>))
+00300                 {
+00301                         i-&gt;list = <span class="keyword">true</span>;
+00302                         <span class="keywordflow">return</span>;
+00303                 }
+00304         }
+00305         <span class="keywordflow">return</span>;
+00306 }
 </pre></div>    </td>
   </tr>
 </table>
-<a name="a60" doxytag="modules.cpp::modules"></a><p>
+<a name="a61" doxytag="modules.cpp::modules"></a><p>
 <table class="mdTable" width="100%" cellpadding="2" cellspacing="0">
   <tr>
     <td class="mdRow">
@@ -929,13 +957,37 @@ Definition at line <a class="el" href="modules_8cpp-source.html#l00112">112</a> 
 Definition at line <a class="el" href="modules_8cpp-source.html#l00106">106</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.    </td>
   </tr>
 </table>
-<a name="a44" doxytag="modules.cpp::chanlist"></a><p>
+<a name="a45" doxytag="modules.cpp::chanlist"></a><p>
 <table class="mdTable" width="100%" cellpadding="2" cellspacing="0">
   <tr>
     <td class="mdRow">
       <table cellpadding="0" cellspacing="0" border="0">
         <tr>
-          <td class="md" nowrap valign="top"> <a class="el" href="modules_8cpp.html#a40">chan_hash</a> <a class="el" href="modules_8cpp.html#a44">chanlist</a>
+          <td class="md" nowrap valign="top"> <a class="el" href="modules_8cpp.html#a40">chan_hash</a> <a class="el" href="modules_8cpp.html#a45">chanlist</a>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+
+<p>
+Definition at line <a class="el" href="modules_8cpp-source.html#l00193">193</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.    </td>
+  </tr>
+</table>
+<a name="a44" doxytag="modules.cpp::clientlist"></a><p>
+<table class="mdTable" width="100%" cellpadding="2" cellspacing="0">
+  <tr>
+    <td class="mdRow">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> <a class="el" href="modules_8cpp.html#a39">user_hash</a> <a class="el" href="modules_8cpp.html#a44">clientlist</a>
       </table>
     </td>
   </tr>
@@ -953,13 +1005,13 @@ Definition at line <a class="el" href="modules_8cpp-source.html#l00106">106</a> 
 Definition at line <a class="el" href="modules_8cpp-source.html#l00192">192</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.    </td>
   </tr>
 </table>
-<a name="a43" doxytag="modules.cpp::clientlist"></a><p>
+<a name="a47" doxytag="modules.cpp::cmdlist"></a><p>
 <table class="mdTable" width="100%" cellpadding="2" cellspacing="0">
   <tr>
     <td class="mdRow">
       <table cellpadding="0" cellspacing="0" border="0">
         <tr>
-          <td class="md" nowrap valign="top"> <a class="el" href="modules_8cpp.html#a39">user_hash</a> <a class="el" href="modules_8cpp.html#a43">clientlist</a>
+          <td class="md" nowrap valign="top"> <a class="el" href="modules_8cpp.html#a43">command_table</a> <a class="el" href="modules_8cpp.html#a47">cmdlist</a>
       </table>
     </td>
   </tr>
@@ -974,31 +1026,7 @@ Definition at line <a class="el" href="modules_8cpp-source.html#l00192">192</a> 
 <p>
 
 <p>
-Definition at line <a class="el" href="modules_8cpp-source.html#l00191">191</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.    </td>
-  </tr>
-</table>
-<a name="a46" doxytag="modules.cpp::cmdlist"></a><p>
-<table class="mdTable" width="100%" cellpadding="2" cellspacing="0">
-  <tr>
-    <td class="mdRow">
-      <table cellpadding="0" cellspacing="0" border="0">
-        <tr>
-          <td class="md" nowrap valign="top"> <a class="el" href="modules_8cpp.html#a42">command_table</a> <a class="el" href="modules_8cpp.html#a46">cmdlist</a>
-      </table>
-    </td>
-  </tr>
-</table>
-<table cellspacing=5 cellpadding=0 border=0>
-  <tr>
-    <td>
-      &nbsp;
-    </td>
-    <td>
-
-<p>
-
-<p>
-Definition at line <a class="el" href="modules_8cpp-source.html#l00194">194</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.    </td>
+Definition at line <a class="el" href="modules_8cpp-source.html#l00195">195</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.    </td>
   </tr>
 </table>
 <a name="a35" doxytag="modules.cpp::config_f"></a><p>
@@ -1145,13 +1173,13 @@ Definition at line <a class="el" href="modules_8cpp-source.html#l00086">86</a> o
 Definition at line <a class="el" href="modules_8cpp-source.html#l00092">92</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.    </td>
   </tr>
 </table>
-<a name="a52" doxytag="modules.cpp::EMode"></a><p>
+<a name="a53" doxytag="modules.cpp::EMode"></a><p>
 <table class="mdTable" width="100%" cellpadding="2" cellspacing="0">
   <tr>
     <td class="mdRow">
       <table cellpadding="0" cellspacing="0" border="0">
         <tr>
-          <td class="md" nowrap valign="top"> <a class="el" href="modules_8cpp.html#a50">ExtModeList</a> <a class="el" href="modules_8cpp.html#a52">EMode</a>
+          <td class="md" nowrap valign="top"> <a class="el" href="modules_8cpp.html#a51">ExtModeList</a> <a class="el" href="modules_8cpp.html#a53">EMode</a>
       </table>
     </td>
   </tr>
@@ -1166,9 +1194,9 @@ Definition at line <a class="el" href="modules_8cpp-source.html#l00092">92</a> o
 <p>
 
 <p>
-Definition at line <a class="el" href="modules_8cpp-source.html#l00218">218</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
+Definition at line <a class="el" href="modules_8cpp-source.html#l00219">219</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
 <p>
-Referenced by <a class="el" href="modules_8cpp-source.html#l00284">DoAddExtendedMode()</a>, <a class="el" href="modules_8cpp-source.html#l00221">ModeDefined()</a>, <a class="el" href="modules_8cpp-source.html#l00271">ModeDefinedOff()</a>, <a class="el" href="modules_8cpp-source.html#l00258">ModeDefinedOn()</a>, <a class="el" href="modules_8cpp-source.html#l00245">ModeDefinedOper()</a>, <a class="el" href="modules_8cpp-source.html#l00233">ModeIsListMode()</a>, and <a class="el" href="modules_8cpp-source.html#l00294">ModeMakeList()</a>.    </td>
+Referenced by <a class="el" href="modules_8cpp-source.html#l00285">DoAddExtendedMode()</a>, <a class="el" href="modules_8cpp-source.html#l00222">ModeDefined()</a>, <a class="el" href="modules_8cpp-source.html#l00272">ModeDefinedOff()</a>, <a class="el" href="modules_8cpp-source.html#l00259">ModeDefinedOn()</a>, <a class="el" href="modules_8cpp-source.html#l00246">ModeDefinedOper()</a>, <a class="el" href="modules_8cpp-source.html#l00234">ModeIsListMode()</a>, and <a class="el" href="modules_8cpp-source.html#l00295">ModeMakeList()</a>.    </td>
   </tr>
 </table>
 <a name="a3" doxytag="modules.cpp::factory"></a><p>
@@ -1242,16 +1270,16 @@ Definition at line <a class="el" href="modules_8cpp-source.html#l00103">103</a> 
 <p>
 Definition at line <a class="el" href="modules_8cpp-source.html#l00119">119</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
 <p>
-Referenced by <a class="el" href="modules_8cpp-source.html#l00601">Server::FindDescriptor()</a>, and <a class="el" href="modules_8cpp-source.html#l00699">Server::PseudoToUser()</a>.    </td>
+Referenced by <a class="el" href="modules_8cpp-source.html#l00602">Server::FindDescriptor()</a>, and <a class="el" href="modules_8cpp-source.html#l00700">Server::PseudoToUser()</a>.    </td>
   </tr>
 </table>
-<a name="a49" doxytag="modules.cpp::IP"></a><p>
+<a name="a50" doxytag="modules.cpp::IP"></a><p>
 <table class="mdTable" width="100%" cellpadding="2" cellspacing="0">
   <tr>
     <td class="mdRow">
       <table cellpadding="0" cellspacing="0" border="0">
         <tr>
-          <td class="md" nowrap valign="top"> <a class="el" href="modules_8cpp.html#a41">address_cache</a> <a class="el" href="modules_8cpp.html#a49">IP</a>
+          <td class="md" nowrap valign="top"> <a class="el" href="modules_8cpp.html#a41">address_cache</a> <a class="el" href="modules_8cpp.html#a50">IP</a>
       </table>
     </td>
   </tr>
@@ -1266,7 +1294,7 @@ Referenced by <a class="el" href="modules_8cpp-source.html#l00601">Server::FindD
 <p>
 
 <p>
-Definition at line <a class="el" href="modules_8cpp-source.html#l00197">197</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.    </td>
+Definition at line <a class="el" href="modules_8cpp-source.html#l00198">198</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.    </td>
   </tr>
 </table>
 <a name="a16" doxytag="modules.cpp::list"></a><p>
@@ -1410,7 +1438,7 @@ Definition at line <a class="el" href="modules_8cpp-source.html#l00115">115</a> 
 <p>
 
 <p>
-Definition at line <a class="el" href="modules_8cpp-source.html#l01066">1066</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.    </td>
+Definition at line <a class="el" href="modules_8cpp-source.html#l01067">1067</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.    </td>
   </tr>
 </table>
 <a name="a28" doxytag="modules.cpp::module_names"></a><p>
@@ -1461,13 +1489,13 @@ Definition at line <a class="el" href="modules_8cpp-source.html#l00104">104</a> 
 Definition at line <a class="el" href="modules_8cpp-source.html#l00074">74</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.    </td>
   </tr>
 </table>
-<a name="a47" doxytag="modules.cpp::MOTD"></a><p>
+<a name="a48" doxytag="modules.cpp::MOTD"></a><p>
 <table class="mdTable" width="100%" cellpadding="2" cellspacing="0">
   <tr>
     <td class="mdRow">
       <table cellpadding="0" cellspacing="0" border="0">
         <tr>
-          <td class="md" nowrap valign="top"> <a class="el" href="modules_8h.html#a31">file_cache</a> <a class="el" href="modules_8cpp.html#a47">MOTD</a>
+          <td class="md" nowrap valign="top"> <a class="el" href="modules_8h.html#a31">file_cache</a> <a class="el" href="modules_8cpp.html#a48">MOTD</a>
       </table>
     </td>
   </tr>
@@ -1482,7 +1510,7 @@ Definition at line <a class="el" href="modules_8cpp-source.html#l00074">74</a> o
 <p>
 
 <p>
-Definition at line <a class="el" href="modules_8cpp-source.html#l00195">195</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.    </td>
+Definition at line <a class="el" href="modules_8cpp-source.html#l00196">196</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.    </td>
   </tr>
 </table>
 <a name="a14" doxytag="modules.cpp::motd"></a><p>
@@ -1677,13 +1705,13 @@ Definition at line <a class="el" href="modules_8cpp-source.html#l00091">91</a> o
 Definition at line <a class="el" href="modules_8cpp-source.html#l00087">87</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.    </td>
   </tr>
 </table>
-<a name="a48" doxytag="modules.cpp::RULES"></a><p>
+<a name="a49" doxytag="modules.cpp::RULES"></a><p>
 <table class="mdTable" width="100%" cellpadding="2" cellspacing="0">
   <tr>
     <td class="mdRow">
       <table cellpadding="0" cellspacing="0" border="0">
         <tr>
-          <td class="md" nowrap valign="top"> <a class="el" href="modules_8h.html#a31">file_cache</a> <a class="el" href="modules_8cpp.html#a48">RULES</a>
+          <td class="md" nowrap valign="top"> <a class="el" href="modules_8h.html#a31">file_cache</a> <a class="el" href="modules_8cpp.html#a49">RULES</a>
       </table>
     </td>
   </tr>
@@ -1698,7 +1726,7 @@ Definition at line <a class="el" href="modules_8cpp-source.html#l00087">87</a> o
 <p>
 
 <p>
-Definition at line <a class="el" href="modules_8cpp-source.html#l00196">196</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.    </td>
+Definition at line <a class="el" href="modules_8cpp-source.html#l00197">197</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.    </td>
   </tr>
 </table>
 <a name="a15" doxytag="modules.cpp::rules"></a><p>
@@ -1845,13 +1873,13 @@ Definition at line <a class="el" href="modules_8cpp-source.html#l00098">98</a> o
 Definition at line <a class="el" href="modules_8cpp-source.html#l00077">77</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.    </td>
   </tr>
 </table>
-<a name="a45" doxytag="modules.cpp::whowas"></a><p>
+<a name="a46" doxytag="modules.cpp::whowas"></a><p>
 <table class="mdTable" width="100%" cellpadding="2" cellspacing="0">
   <tr>
     <td class="mdRow">
       <table cellpadding="0" cellspacing="0" border="0">
         <tr>
-          <td class="md" nowrap valign="top"> <a class="el" href="modules_8cpp.html#a39">user_hash</a> <a class="el" href="modules_8cpp.html#a45">whowas</a>
+          <td class="md" nowrap valign="top"> <a class="el" href="modules_8cpp.html#a42">whowas_hash</a> <a class="el" href="modules_8cpp.html#a46">whowas</a>
       </table>
     </td>
   </tr>
@@ -1866,7 +1894,7 @@ Definition at line <a class="el" href="modules_8cpp-source.html#l00077">77</a> o
 <p>
 
 <p>
-Definition at line <a class="el" href="modules_8cpp-source.html#l00193">193</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.    </td>
+Definition at line <a class="el" href="modules_8cpp-source.html#l00194">194</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.    </td>
   </tr>
 </table>
 <a name="a21" doxytag="modules.cpp::WHOWAS_MAX"></a><p>
@@ -1917,7 +1945,7 @@ Definition at line <a class="el" href="modules_8cpp-source.html#l00096">96</a> o
 Definition at line <a class="el" href="modules_8cpp-source.html#l00095">95</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.    </td>
   </tr>
 </table>
-<hr size="1"><address style="align: right;"><small>Generated on Thu May 12 02:25:16 2005 for InspIRCd by
+<hr size="1"><address style="align: right;"><small>Generated on Thu May 12 22:59:00 2005 for InspIRCd by
 <a href="http://www.doxygen.org/index.html">
 <img src="doxygen.png" alt="doxygen" align="middle" border=0 > 
 </a>1.3.3 </small></address>

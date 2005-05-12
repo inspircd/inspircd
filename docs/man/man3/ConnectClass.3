@@ -23,7 +23,7 @@ Inherits \fBclassbase\fP.
 
 .in +1c
 .ti -1c
-.RI "int \fBtype\fP"
+.RI "char \fBtype\fP"
 .br
 .RI "\fIType of line, either CC_ALLOW or CC_DENY. \fP"
 .ti -1c
@@ -47,7 +47,7 @@ Inherits \fBclassbase\fP.
 .br
 .RI "\fI(Optional) Password for this line \fP"
 .ti -1c
-.RI "long \fBthreshold\fP"
+.RI "int \fBthreshold\fP"
 .br
 .RI "\fIThreshold value for flood disconnect. \fP"
 .ti -1c
@@ -119,12 +119,12 @@ Referenced by ConnectClass().
 Maximum size of sendq for users in this class (bytes). Definition at line 73 of file users.h.
 .PP
 Referenced by ConnectClass().
-.SS "long \fBConnectClass::threshold\fP"
+.SS "int \fBConnectClass::threshold\fP"
 .PP
 Threshold value for flood disconnect. Definition at line 69 of file users.h.
 .PP
 Referenced by ConnectClass().
-.SS "int \fBConnectClass::type\fP"
+.SS "char \fBConnectClass::type\fP"
 .PP
 Type of line, either CC_ALLOW or CC_DENY. Definition at line 50 of file users.h.
 

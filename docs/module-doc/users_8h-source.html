@@ -48,14 +48,14 @@
 <a name="l00045"></a><a class="code" href="classConnectClass.html">00045</a> <span class="keyword">class </span><a class="code" href="classConnectClass.html">ConnectClass</a> : <span class="keyword">public</span> <a class="code" href="classclassbase.html">classbase</a>
 00046 {
 00047  <span class="keyword">public</span>:
-<a name="l00050"></a><a class="code" href="classConnectClass.html#o0">00050</a>         <span class="keywordtype">int</span> <a class="code" href="classConnectClass.html#o0">type</a>;
+<a name="l00050"></a><a class="code" href="classConnectClass.html#o0">00050</a>         <span class="keywordtype">char</span> <a class="code" href="classConnectClass.html#o0">type</a>;
 <a name="l00053"></a><a class="code" href="classConnectClass.html#o1">00053</a>         <span class="keywordtype">int</span> <a class="code" href="classConnectClass.html#o1">registration_timeout</a>;
 <a name="l00056"></a><a class="code" href="classConnectClass.html#o2">00056</a>         <span class="keywordtype">int</span> <a class="code" href="classConnectClass.html#o2">flood</a>;
 <a name="l00059"></a><a class="code" href="classConnectClass.html#o3">00059</a>         <span class="keywordtype">char</span> <a class="code" href="classConnectClass.html#o3">host</a>[MAXBUF];
 <a name="l00062"></a><a class="code" href="classConnectClass.html#o4">00062</a>         <span class="keywordtype">int</span> <a class="code" href="classConnectClass.html#o4">pingtime</a>;
 <a name="l00065"></a><a class="code" href="classConnectClass.html#o5">00065</a>         <span class="keywordtype">char</span> <a class="code" href="classConnectClass.html#o5">pass</a>[MAXBUF];
 00066 
-<a name="l00069"></a><a class="code" href="classConnectClass.html#o6">00069</a>         <span class="keywordtype">long</span> <a class="code" href="classConnectClass.html#o6">threshold</a>;
+<a name="l00069"></a><a class="code" href="classConnectClass.html#o6">00069</a>         <span class="keywordtype">int</span> <a class="code" href="classConnectClass.html#o6">threshold</a>;
 00070 
 <a name="l00073"></a><a class="code" href="classConnectClass.html#o7">00073</a>         <span class="keywordtype">long</span> <a class="code" href="classConnectClass.html#o7">sendqmax</a>;
 00074 
@@ -89,9 +89,9 @@
 00116         
 <a name="l00121"></a><a class="code" href="classuserrec.html#o0">00121</a>         <span class="keywordtype">char</span> <a class="code" href="classuserrec.html#o0">nick</a>[NICKMAX];
 00122         
-<a name="l00125"></a><a class="code" href="classuserrec.html#o1">00125</a>         <span class="keywordtype">char</span> <a class="code" href="classuserrec.html#o1">ident</a>[64];
+<a name="l00125"></a><a class="code" href="classuserrec.html#o1">00125</a>         <span class="keywordtype">char</span> <a class="code" href="classuserrec.html#o1">ident</a>[16];
 00126 
-<a name="l00130"></a><a class="code" href="classuserrec.html#o2">00130</a>         <span class="keywordtype">char</span> <a class="code" href="classuserrec.html#o2">dhost</a>[256];
+<a name="l00130"></a><a class="code" href="classuserrec.html#o2">00130</a>         <span class="keywordtype">char</span> <a class="code" href="classuserrec.html#o2">dhost</a>[160];
 00131         
 <a name="l00134"></a><a class="code" href="classuserrec.html#o3">00134</a>         <span class="keywordtype">char</span> <a class="code" href="classuserrec.html#o3">fullname</a>[128];
 00135         
@@ -107,13 +107,13 @@
 00157         
 <a name="l00162"></a><a class="code" href="classuserrec.html#o9">00162</a>         <span class="keywordtype">int</span> <a class="code" href="classuserrec.html#o9">flood</a>;
 00163         
-<a name="l00168"></a><a class="code" href="classuserrec.html#o10">00168</a>         <span class="keywordtype">unsigned</span> <span class="keywordtype">long</span> <a class="code" href="classuserrec.html#o10">timeout</a>;
+<a name="l00168"></a><a class="code" href="classuserrec.html#o10">00168</a>         <span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> <a class="code" href="classuserrec.html#o10">timeout</a>;
 00169         
 <a name="l00175"></a><a class="code" href="classuserrec.html#o11">00175</a>         <span class="keywordtype">char</span> <a class="code" href="classuserrec.html#o11">oper</a>[NICKMAX];
 00176 
 <a name="l00179"></a><a class="code" href="classuserrec.html#o12">00179</a>         <span class="keywordtype">bool</span> <a class="code" href="classuserrec.html#o12">dns_done</a>;
 00180 
-<a name="l00183"></a><a class="code" href="classuserrec.html#o13">00183</a>         <span class="keywordtype">unsigned</span> <span class="keywordtype">long</span> <a class="code" href="classuserrec.html#o13">pingmax</a>;
+<a name="l00183"></a><a class="code" href="classuserrec.html#o13">00183</a>         <span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> <a class="code" href="classuserrec.html#o13">pingmax</a>;
 00184 
 <a name="l00189"></a><a class="code" href="classuserrec.html#o14">00189</a>         <span class="keywordtype">char</span> <a class="code" href="classuserrec.html#o14">password</a>[MAXBUF];
 00190 
@@ -121,7 +121,7 @@
 00196 
 <a name="l00200"></a><a class="code" href="classuserrec.html#o16">00200</a>         std::string <a class="code" href="classuserrec.html#o16">sendq</a>;
 00201 
-<a name="l00204"></a><a class="code" href="classuserrec.html#o17">00204</a>         <span class="keywordtype">long</span> <a class="code" href="classuserrec.html#o17">lines_in</a>;
+<a name="l00204"></a><a class="code" href="classuserrec.html#o17">00204</a>         <span class="keywordtype">int</span> <a class="code" href="classuserrec.html#o17">lines_in</a>;
 <a name="l00205"></a><a class="code" href="classuserrec.html#o18">00205</a>         time_t <a class="code" href="classuserrec.html#o18">reset_due</a>;
 <a name="l00206"></a><a class="code" href="classuserrec.html#o19">00206</a>         <span class="keywordtype">long</span> <a class="code" href="classuserrec.html#o19">threshold</a>;
 00207 
@@ -167,9 +167,20 @@
 00310 
 00311 };
 00312 
-00313 
-00314 <span class="preprocessor">#endif</span>
-</pre></div><hr size="1"><address style="align: right;"><small>Generated on Thu May 12 02:25:14 2005 for InspIRCd by
+<a name="l00315"></a><a class="code" href="classWhoWasUser.html">00315</a> <span class="keyword">class </span><a class="code" href="classWhoWasUser.html">WhoWasUser</a>
+00316 {
+00317  <span class="keyword">public</span>:
+<a name="l00318"></a><a class="code" href="classWhoWasUser.html#o0">00318</a>         <span class="keywordtype">char</span> <a class="code" href="classWhoWasUser.html#o0">nick</a>[NICKMAX];
+<a name="l00319"></a><a class="code" href="classWhoWasUser.html#o1">00319</a>         <span class="keywordtype">char</span> <a class="code" href="classWhoWasUser.html#o1">ident</a>[16];
+<a name="l00320"></a><a class="code" href="classWhoWasUser.html#o2">00320</a>         <span class="keywordtype">char</span> <a class="code" href="classWhoWasUser.html#o2">dhost</a>[160];
+<a name="l00321"></a><a class="code" href="classWhoWasUser.html#o3">00321</a>         <span class="keywordtype">char</span> <a class="code" href="classWhoWasUser.html#o3">host</a>[160];
+<a name="l00322"></a><a class="code" href="classWhoWasUser.html#o4">00322</a>         <span class="keywordtype">char</span> <a class="code" href="classWhoWasUser.html#o4">fullname</a>[128];
+<a name="l00323"></a><a class="code" href="classWhoWasUser.html#o5">00323</a>         <span class="keywordtype">char</span> <a class="code" href="classWhoWasUser.html#o5">server</a>[256];
+<a name="l00324"></a><a class="code" href="classWhoWasUser.html#o6">00324</a>         time_t <a class="code" href="classWhoWasUser.html#o6">signon</a>;
+00325 };
+00326 
+00327 <span class="preprocessor">#endif</span>
+</pre></div><hr size="1"><address style="align: right;"><small>Generated on Thu May 12 22:58:59 2005 for InspIRCd by
 <a href="http://www.doxygen.org/index.html">
 <img src="doxygen.png" alt="doxygen" align="middle" border=0 > 
 </a>1.3.3 </small></address>

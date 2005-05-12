@@ -86,11 +86,11 @@ Inherits \fBconnection\fP.
 .br
 .RI "\fIThe users nickname. \fP"
 .ti -1c
-.RI "char \fBident\fP [64]"
+.RI "char \fBident\fP [16]"
 .br
 .RI "\fIThe users ident reply. \fP"
 .ti -1c
-.RI "char \fBdhost\fP [256]"
+.RI "char \fBdhost\fP [160]"
 .br
 .RI "\fIThe host displayed to non-opers (used for cloaking etc). \fP"
 .ti -1c
@@ -121,7 +121,7 @@ Inherits \fBconnection\fP.
 .br
 .RI "\fINumber of lines the user can place into the buffer (up to the global NetBufferSize bytes) before they are disconnected for excess flood. \fP"
 .ti -1c
-.RI "unsigned long \fBtimeout\fP"
+.RI "unsigned int \fBtimeout\fP"
 .br
 .RI "\fINumber of seconds this user is given to send USER/NICK If they do not send their details in this time limit they will be disconnected. \fP"
 .ti -1c
@@ -133,7 +133,7 @@ Inherits \fBconnection\fP.
 .br
 .RI "\fITrue when \fBDNS\fP lookups are completed. \fP"
 .ti -1c
-.RI "unsigned long \fBpingmax\fP"
+.RI "unsigned int \fBpingmax\fP"
 .br
 .RI "\fINumber of seconds between PINGs for this user (set from <connect:allow> tag. \fP"
 .ti -1c
@@ -149,7 +149,7 @@ Inherits \fBconnection\fP.
 .br
 .RI "\fIUser's send queue. \fP"
 .ti -1c
-.RI "long \fBlines_in\fP"
+.RI "int \fBlines_in\fP"
 .br
 .RI "\fIFlood counters. \fP"
 .ti -1c
@@ -191,7 +191,7 @@ Definition at line 108 of file users.h.
 .PP
 Definition at line 28 of file users.cpp.
 .PP
-References awaymsg, connection::bytes_in, connection::bytes_out, ucrec::channel, chans, connection::cmds_in, connection::cmds_out, dhost, dns_done, connection::fd, flood, fullname, connection::haspassed, connection::host, ident, connection::idle_lastmsg, connection::inbuf, invites, connection::ip, connection::lastping, lines_in, modes, nick, connection::nping, oper, connection::port, recvq, connection::registered, reset_due, result, sendq, server, connection::signon, TIME, timeout, and ucrec::uc_modes.
+References awaymsg, connection::bytes_in, connection::bytes_out, ucrec::channel, chans, connection::cmds_in, connection::cmds_out, dhost, dns_done, connection::fd, flood, fullname, connection::haspassed, connection::host, ident, connection::idle_lastmsg, invites, connection::ip, connection::lastping, lines_in, modes, nick, connection::nping, oper, connection::port, recvq, connection::registered, reset_due, result, sendq, server, connection::signon, TIME, timeout, and ucrec::uc_modes.
 .PP
 .nf
 29 {
@@ -204,26 +204,25 @@ References awaymsg, connection::bytes_in, connection::bytes_out, ucrec::channel,
 36         strcpy(dhost,'');
 37         strcpy(fullname,'');
 38         strcpy(modes,'');
-39         strcpy(inbuf,'');
-40         strcpy(server,'');
-41         strcpy(awaymsg,'');
-42         strcpy(oper,'');
-43         reset_due = TIME;
-44         lines_in = 0;
-45         fd = lastping = signon = idle_lastmsg = nping = registered = 0;
-46         flood = port = bytes_in = bytes_out = cmds_in = cmds_out = 0;
-47         haspassed = false;
-48         dns_done = false;
-49         recvq = '';
-50         sendq = '';
-51         strcpy(result,'');
-52         for (int i = 0; i < MAXCHANS; i++)
-53         {
-54                 this->chans[i].channel = NULL;
-55                 this->chans[i].uc_modes = 0;
-56         }
-57         invites.clear();
-58 }
+39         strcpy(server,'');
+40         strcpy(awaymsg,'');
+41         strcpy(oper,'');
+42         reset_due = TIME;
+43         lines_in = 0;
+44         fd = lastping = signon = idle_lastmsg = nping = registered = 0;
+45         flood = port = bytes_in = bytes_out = cmds_in = cmds_out = 0;
+46         haspassed = false;
+47         dns_done = false;
+48         recvq = '';
+49         sendq = '';
+50         strcpy(result,'');
+51         for (int i = 0; i < MAXCHANS; i++)
+52         {
+53                 this->chans[i].channel = NULL;
+54                 this->chans[i].uc_modes = 0;
+55         }
+56         invites.clear();
+57 }
 .fi
 .SS "virtual userrec::~\fBuserrec\fP ()\fC [inline, virtual]\fP"
 .PP
@@ -236,305 +235,305 @@ Definition at line 222 of file users.h.
 .PP 
 .SS "bool userrec::AddBuffer (std::string a)"
 .PP
-This method adds data to the buffer of the user. The buffer can grow to any size within limits of the available memory, managed by the size of a std::string, however if any individual line in the buffer grows over 600 bytes in length (which is 88 chars over the RFC-specified limit per line) then the method will return false and the text will not be inserted.Definition at line 170 of file users.cpp.
+This method adds data to the buffer of the user. The buffer can grow to any size within limits of the available memory, managed by the size of a std::string, however if any individual line in the buffer grows over 600 bytes in length (which is 88 chars over the RFC-specified limit per line) then the method will return false and the text will not be inserted.Definition at line 169 of file users.cpp.
 .PP
 References recvq, recvqmax, and SetWriteError().
 .PP
 .nf
-171 {
-172         std::string b = '';
-173         for (int i = 0; i < a.length(); i++)
-174                 if ((a[i] != '\r') && (a[i] != '\0') && (a[i] != 7))
-175                         b = b + a[i];
-176         std::stringstream stream(recvq);
-177         stream << b;
-178         recvq = stream.str();
-179         int i = 0;
-180         // count the size of the first line in the buffer.
-181         while (i < recvq.length())
-182         {
-183                 if (recvq[i++] == '\n')
-184                         break;
-185         }
-186         if (recvq.length() > this->recvqmax)
-187         {
-188                 this->SetWriteError('RecvQ exceeded');
-189                 WriteOpers('*** User %s RecvQ of %d exceeds connect class maximum of %d',this->nick,recvq.length(),this->recvqmax);
-190         }
-191         // return false if we've had more than 600 characters WITHOUT
-192         // a carriage return (this is BAD, drop the socket)
-193         return (i < 600);
-194 }
+170 {
+171         std::string b = '';
+172         for (int i = 0; i < a.length(); i++)
+173                 if ((a[i] != '\r') && (a[i] != '\0') && (a[i] != 7))
+174                         b = b + a[i];
+175         std::stringstream stream(recvq);
+176         stream << b;
+177         recvq = stream.str();
+178         int i = 0;
+179         // count the size of the first line in the buffer.
+180         while (i < recvq.length())
+181         {
+182                 if (recvq[i++] == '\n')
+183                         break;
+184         }
+185         if (recvq.length() > this->recvqmax)
+186         {
+187                 this->SetWriteError('RecvQ exceeded');
+188                 WriteOpers('*** User %s RecvQ of %d exceeds connect class maximum of %d',this->nick,recvq.length(),this->recvqmax);
+189         }
+190         // return false if we've had more than 600 characters WITHOUT
+191         // a carriage return (this is BAD, drop the socket)
+192         return (i < 600);
+193 }
 .fi
 .SS "void userrec::AddWriteBuf (std::string data)"
 .PP
-Adds to the user's write buffer. You may add any amount of text up to this users sendq value, if you exceed the sendq value, \fBSetWriteError()\fP will be called to set the users error string to 'SendQ exceeded', and further buffer adds will be dropped.Definition at line 226 of file users.cpp.
+Adds to the user's write buffer. You may add any amount of text up to this users sendq value, if you exceed the sendq value, \fBSetWriteError()\fP will be called to set the users error string to 'SendQ exceeded', and further buffer adds will be dropped.Definition at line 225 of file users.cpp.
 .PP
 References GetWriteError(), sendq, sendqmax, and SetWriteError().
 .PP
 .nf
-227 {
-228         if (this->GetWriteError() != '')
-229                 return;
-230         if (sendq.length() + data.length() > this->sendqmax)
-231         {
-232                 WriteOpers('*** User %s SendQ of %d exceeds connect class maximum of %d',this->nick,sendq.length() + data.length(),this->sendqmax);
-233                 this->SetWriteError('SendQ exceeded');
-234                 return;
-235         }
-236         std::stringstream stream;
-237         stream << sendq << data;
-238         sendq = stream.str();
-239 }
+226 {
+227         if (this->GetWriteError() != '')
+228                 return;
+229         if (sendq.length() + data.length() > this->sendqmax)
+230         {
+231                 WriteOpers('*** User %s SendQ of %d exceeds connect class maximum of %d',this->nick,sendq.length() + data.length(),this->sendqmax);
+232                 this->SetWriteError('SendQ exceeded');
+233                 return;
+234         }
+235         std::stringstream stream;
+236         stream << sendq << data;
+237         sendq = stream.str();
+238 }
 .fi
 .SS "bool userrec::BufferIsReady ()"
 .PP
-This method returns true if the buffer contains at least one carriage return character (e.g. one complete line may be read)Definition at line 196 of file users.cpp.
+This method returns true if the buffer contains at least one carriage return character (e.g. one complete line may be read)Definition at line 195 of file users.cpp.
 .PP
 References recvq.
 .PP
 .nf
-197 {
-198         for (int i = 0; i < recvq.length(); i++)
-199                 if (recvq[i] == '\n')
-200                         return true;
-201         return false;
-202 }
+196 {
+197         for (int i = 0; i < recvq.length(); i++)
+198                 if (recvq[i] == '\n')
+199                         return true;
+200         return false;
+201 }
 .fi
 .SS "void userrec::ClearBuffer ()"
 .PP
-This function clears the entire buffer by setting it to an empty string. Definition at line 204 of file users.cpp.
+This function clears the entire buffer by setting it to an empty string. Definition at line 203 of file users.cpp.
 .PP
 References recvq.
 .PP
 Referenced by Server::PseudoToUser(), and Server::UserToPseudo().
 .PP
 .nf
-205 {
-206         recvq = '';
-207 }
+204 {
+205         recvq = '';
+206 }
 .fi
 .SS "void userrec::FlushWriteBuf ()"
 .PP
-Flushes as much of the user's buffer to the file descriptor as possible. This function may not always flush the entire buffer, rather instead as much of it as it possibly can. If the send() call fails to send the entire buffer, the buffer position is advanced forwards and the rest of the data sent at the next call to this method.Definition at line 242 of file users.cpp.
+Flushes as much of the user's buffer to the file descriptor as possible. This function may not always flush the entire buffer, rather instead as much of it as it possibly can. If the send() call fails to send the entire buffer, the buffer position is advanced forwards and the rest of the data sent at the next call to this method.Definition at line 241 of file users.cpp.
 .PP
 References connection::bytes_out, connection::cmds_out, sendq, and SetWriteError().
 .PP
 .nf
-243 {
-244         if (sendq.length())
-245         {
-246                 char* tb = (char*)this->sendq.c_str();
-247                 int n_sent = write(this->fd,tb,this->sendq.length());
-248                 if (n_sent == -1)
-249                 {
-250                         this->SetWriteError(strerror(errno));
-251                 }
-252                 else
-253                 {
-254                         // advance the queue
-255                         tb += n_sent;
-256                         this->sendq = tb;
-257                         // update the user's stats counters
-258                         this->bytes_out += n_sent;
-259                         this->cmds_out++;
-260                 }
-261         }
-262 }
+242 {
+243         if (sendq.length())
+244         {
+245                 char* tb = (char*)this->sendq.c_str();
+246                 int n_sent = write(this->fd,tb,this->sendq.length());
+247                 if (n_sent == -1)
+248                 {
+249                         this->SetWriteError(strerror(errno));
+250                 }
+251                 else
+252                 {
+253                         // advance the queue
+254                         tb += n_sent;
+255                         this->sendq = tb;
+256                         // update the user's stats counters
+257                         this->bytes_out += n_sent;
+258                         this->cmds_out++;
+259                 }
+260         }
+261 }
 .fi
 .SS "std::string userrec::GetBuffer ()"
 .PP
-This method returns the first available string at the tail end of the buffer and advances the tail end of the buffer past the string. This means it is a one way operation in a similar way to strtok(), and multiple calls return multiple lines if they are available. The results of this function if there are no lines to be read are unknown, always use \fBBufferIsReady()\fP to check if it is ok to read the buffer before calling \fBGetBuffer()\fP.Definition at line 209 of file users.cpp.
+This method returns the first available string at the tail end of the buffer and advances the tail end of the buffer past the string. This means it is a one way operation in a similar way to strtok(), and multiple calls return multiple lines if they are available. The results of this function if there are no lines to be read are unknown, always use \fBBufferIsReady()\fP to check if it is ok to read the buffer before calling \fBGetBuffer()\fP.Definition at line 208 of file users.cpp.
 .PP
 References recvq.
 .PP
 .nf
-210 {
-211         if (recvq == '')
-212                 return '';
-213         char* line = (char*)recvq.c_str();
-214         std::string ret = '';
-215         while ((*line != '\n') && (strlen(line)))
-216         {
-217                 ret = ret + *line;
-218                 line++;
-219         }
-220         if ((*line == '\n') || (*line == '\r'))
-221                 line++;
-222         recvq = line;
-223         return ret;
-224 }
+209 {
+210         if (recvq == '')
+211                 return '';
+212         char* line = (char*)recvq.c_str();
+213         std::string ret = '';
+214         while ((*line != '\n') && (strlen(line)))
+215         {
+216                 ret = ret + *line;
+217                 line++;
+218         }
+219         if ((*line == '\n') || (*line == '\r'))
+220                 line++;
+221         recvq = line;
+222         return ret;
+223 }
 .fi
 .SS "char * userrec::GetFullHost ()\fC [virtual]\fP"
 .PP
-Returns the full displayed host of the user This member function returns the hostname of the user as seen by other users on the server, in nick!identhost form. Definition at line 62 of file users.cpp.
+Returns the full displayed host of the user This member function returns the hostname of the user as seen by other users on the server, in nick!identhost form. Definition at line 61 of file users.cpp.
 .PP
 References dhost, ident, nick, and result.
 .PP
 .nf
-63 {
-64         snprintf(result,MAXBUF,'%s!%s@%s',nick,ident,dhost);
-65         return result;
-66 }
+62 {
+63         snprintf(result,MAXBUF,'%s!%s@%s',nick,ident,dhost);
+64         return result;
+65 }
 .fi
 .SS "char * userrec::GetFullRealHost ()\fC [virtual]\fP"
 .PP
-Returns the full real host of the user This member function returns the hostname of the user as seen by other users on the server, in nick!identhost form. If any form of hostname cloaking is in operation, e.g. through a module, then this method will ignore it and return the true hostname.Definition at line 69 of file users.cpp.
+Returns the full real host of the user This member function returns the hostname of the user as seen by other users on the server, in nick!identhost form. If any form of hostname cloaking is in operation, e.g. through a module, then this method will ignore it and return the true hostname.Definition at line 68 of file users.cpp.
 .PP
 References connection::host, ident, nick, and result.
 .PP
 .nf
-70 {
-71         snprintf(result,MAXBUF,'%s!%s@%s',nick,ident,host);
-72         return result;
-73 }
+69 {
+70         snprintf(result,MAXBUF,'%s!%s@%s',nick,ident,host);
+71         return result;
+72 }
 .fi
 .SS "std::string userrec::GetWriteError ()"
 .PP
-Returns the write error which last occured on this connection or an empty string if none occured. Definition at line 272 of file users.cpp.
+Returns the write error which last occured on this connection or an empty string if none occured. Definition at line 271 of file users.cpp.
 .PP
 References WriteError.
 .PP
 Referenced by AddWriteBuf().
 .PP
 .nf
-273 {
-274         return this->WriteError;
-275 }
+272 {
+273         return this->WriteError;
+274 }
 .fi
 .SS "bool userrec::HasPermission (char * command)"
 .PP
-Returns true or false for if a user can execute a privilaged oper command. This is done by looking up their oper type from \fBuserrec::oper\fP, then referencing this to their oper classes and checking the commands they can execute.Definition at line 118 of file users.cpp.
+Returns true or false for if a user can execute a privilaged oper command. This is done by looking up their oper type from \fBuserrec::oper\fP, then referencing this to their oper classes and checking the commands they can execute.Definition at line 117 of file users.cpp.
 .PP
 References config_f, and DEBUG.
 .PP
 .nf
-119 {
-120         char TypeName[MAXBUF],Classes[MAXBUF],ClassName[MAXBUF],CommandList[MAXBUF];
-121         char* mycmd;
-122         char* savept;
-123         char* savept2;
-124         
-125         // are they even an oper at all?
-126         if (strchr(this->modes,'o'))
-127         {
-128                 log(DEBUG,'*** HasPermission: %s is an oper',this->nick);
-129                 for (int j =0; j < ConfValueEnum('type',&config_f); j++)
-130                 {
-131                         ConfValue('type','name',j,TypeName,&config_f);
-132                         if (!strcmp(TypeName,this->oper))
-133                         {
-134                                 log(DEBUG,'*** HasPermission: %s is an oper of type '%s'',this->nick,this->oper);
-135                                 ConfValue('type','classes',j,Classes,&config_f);
-136                                 char* myclass = strtok_r(Classes,' ',&savept);
-137                                 while (myclass)
-138                                 {
-139                                         log(DEBUG,'*** HasPermission: checking classtype '%s'',myclass);
-140                                         for (int k =0; k < ConfValueEnum('class',&config_f); k++)
-141                                         {
-142                                                 ConfValue('class','name',k,ClassName,&config_f);
-143                                                 if (!strcmp(ClassName,myclass))
-144                                                 {
-145                                                         ConfValue('class','commands',k,CommandList,&config_f);
-146                                                         log(DEBUG,'*** HasPermission: found class named %s with commands: '%s'',ClassName,CommandList);
+118 {
+119         char TypeName[MAXBUF],Classes[MAXBUF],ClassName[MAXBUF],CommandList[MAXBUF];
+120         char* mycmd;
+121         char* savept;
+122         char* savept2;
+123         
+124         // are they even an oper at all?
+125         if (strchr(this->modes,'o'))
+126         {
+127                 log(DEBUG,'*** HasPermission: %s is an oper',this->nick);
+128                 for (int j =0; j < ConfValueEnum('type',&config_f); j++)
+129                 {
+130                         ConfValue('type','name',j,TypeName,&config_f);
+131                         if (!strcmp(TypeName,this->oper))
+132                         {
+133                                 log(DEBUG,'*** HasPermission: %s is an oper of type '%s'',this->nick,this->oper);
+134                                 ConfValue('type','classes',j,Classes,&config_f);
+135                                 char* myclass = strtok_r(Classes,' ',&savept);
+136                                 while (myclass)
+137                                 {
+138                                         log(DEBUG,'*** HasPermission: checking classtype '%s'',myclass);
+139                                         for (int k =0; k < ConfValueEnum('class',&config_f); k++)
+140                                         {
+141                                                 ConfValue('class','name',k,ClassName,&config_f);
+142                                                 if (!strcmp(ClassName,myclass))
+143                                                 {
+144                                                         ConfValue('class','commands',k,CommandList,&config_f);
+145                                                         log(DEBUG,'*** HasPermission: found class named %s with commands: '%s'',ClassName,CommandList);
+146                                                         
 147                                                         
-148                                                         
-149                                                         mycmd = strtok_r(CommandList,' ',&savept2);
-150                                                         while (mycmd)
-151                                                         {
-152                                                                 if (!strcasecmp(mycmd,command))
-153                                                                 {
-154                                                                         log(DEBUG,'*** Command %s found, returning true',command);
-155                                                                         return true;
-156                                                                 }
-157                                                                 mycmd = strtok_r(NULL,' ',&savept2);
-158                                                         }
-159                                                 }
-160                                         }
-161                                         myclass = strtok_r(NULL,' ',&savept);
-162                                 }
-163                         }
-164                 }
-165         }
-166         return false;
-167 }
+148                                                         mycmd = strtok_r(CommandList,' ',&savept2);
+149                                                         while (mycmd)
+150                                                         {
+151                                                                 if (!strcasecmp(mycmd,command))
+152                                                                 {
+153                                                                         log(DEBUG,'*** Command %s found, returning true',command);
+154                                                                         return true;
+155                                                                 }
+156                                                                 mycmd = strtok_r(NULL,' ',&savept2);
+157                                                         }
+158                                                 }
+159                                         }
+160                                         myclass = strtok_r(NULL,' ',&savept);
+161                                 }
+162                         }
+163                 }
+164         }
+165         return false;
+166 }
 .fi
 .SS "void userrec::InviteTo (char * channel)\fC [virtual]\fP"
 .PP
-Adds a channel to a users invite list (invites them to a channel). Definition at line 89 of file users.cpp.
+Adds a channel to a users invite list (invites them to a channel). Definition at line 88 of file users.cpp.
 .PP
 References Invited::channel, and invites.
 .PP
 .nf
-90 {
-91         Invited i;
-92         strlcpy(i.channel,channel,CHANMAX);
-93         invites.push_back(i);
-94 }
+89 {
+90         Invited i;
+91         strlcpy(i.channel,channel,CHANMAX);
+92         invites.push_back(i);
+93 }
 .fi
 .SS "bool userrec::IsInvited (char * channel)\fC [virtual]\fP"
 .PP
-Returns true if a user is invited to a channel. Definition at line 75 of file users.cpp.
+Returns true if a user is invited to a channel. Definition at line 74 of file users.cpp.
 .PP
 References invites.
 .PP
 .nf
-76 {
-77         for (InvitedList::iterator i = invites.begin(); i != invites.end(); i++)
-78         {
-79                 if (i->channel) {
-80                         if (!strcasecmp(i->channel,channel))
-81                         {
-82                                 return true;
-83                         }
-84                 }
-85         }
-86         return false;
-87 }
+75 {
+76         for (InvitedList::iterator i = invites.begin(); i != invites.end(); i++)
+77         {
+78                 if (i->channel) {
+79                         if (!strcasecmp(i->channel,channel))
+80                         {
+81                                 return true;
+82                         }
+83                 }
+84         }
+85         return false;
+86 }
 .fi
 .SS "void userrec::RemoveInvite (char * channel)\fC [virtual]\fP"
 .PP
-Removes a channel from a users invite list. This member function is called on successfully joining an invite only channel to which the user has previously been invited, to clear the invitation.Definition at line 96 of file users.cpp.
+Removes a channel from a users invite list. This member function is called on successfully joining an invite only channel to which the user has previously been invited, to clear the invitation.Definition at line 95 of file users.cpp.
 .PP
 References DEBUG, and invites.
 .PP
 .nf
-97 {
-98         log(DEBUG,'Removing invites');
-99         if (channel)
-100         {
-101                 if (invites.size())
-102                 {
-103                         for (InvitedList::iterator i = invites.begin(); i != invites.end(); i++)
-104                         {
-105                                 if (i->channel)
-106                                 {
-107                                         if (!strcasecmp(i->channel,channel))
-108                                         {
-109                                                 invites.erase(i);
-110                                                 return;
-111                                         }
-112                                 }
-113                         }
-114                 }
-115         }
-116 }
+96 {
+97         log(DEBUG,'Removing invites');
+98         if (channel)
+99         {
+100                 if (invites.size())
+101                 {
+102                         for (InvitedList::iterator i = invites.begin(); i != invites.end(); i++)
+103                         {
+104                                 if (i->channel)
+105                                 {
+106                                         if (!strcasecmp(i->channel,channel))
+107                                         {
+108                                                 invites.erase(i);
+109                                                 return;
+110                                         }
+111                                 }
+112                         }
+113                 }
+114         }
+115 }
 .fi
 .SS "void userrec::SetWriteError (std::string error)"
 .PP
-Sets the write error for a connection. This is done because the actual disconnect of a client may occur at an inopportune time such as half way through /LIST output. The WriteErrors of clients are checked at a more ideal time (in the mainloop) and errored clients purged.Definition at line 264 of file users.cpp.
+Sets the write error for a connection. This is done because the actual disconnect of a client may occur at an inopportune time such as half way through /LIST output. The WriteErrors of clients are checked at a more ideal time (in the mainloop) and errored clients purged.Definition at line 263 of file users.cpp.
 .PP
 References DEBUG, and WriteError.
 .PP
 Referenced by AddBuffer(), AddWriteBuf(), and FlushWriteBuf().
 .PP
 .nf
-265 {
-266         log(DEBUG,'Setting error string for %s to '%s'',this->nick,error.c_str());
-267         // don't try to set the error twice, its already set take the first string.
-268         if (this->WriteError == '')
-269                 this->WriteError = error;
-270 }
+264 {
+265         log(DEBUG,'Setting error string for %s to '%s'',this->nick,error.c_str());
+266         // don't try to set the error twice, its already set take the first string.
+267         if (this->WriteError == '')
+268                 this->WriteError = error;
+269 }
 .fi
 .SH "Member Data Documentation"
 .PP 
@@ -548,7 +547,7 @@ Referenced by userrec().
 Definition at line 142 of file users.h.
 .PP
 Referenced by Server::PseudoToUser(), and userrec().
-.SS "char \fBuserrec::dhost\fP[256]"
+.SS "char \fBuserrec::dhost\fP[160]"
 .PP
 The host displayed to non-opers (used for cloaking etc). This usually matches the value of \fBuserrec::host\fP.Definition at line 130 of file users.h.
 .PP
@@ -568,7 +567,7 @@ Referenced by userrec().
 The users full name. Definition at line 134 of file users.h.
 .PP
 Referenced by userrec().
-.SS "char \fBuserrec::ident\fP[64]"
+.SS "char \fBuserrec::ident\fP[16]"
 .PP
 The users ident reply. Definition at line 125 of file users.h.
 .PP
@@ -578,7 +577,7 @@ Referenced by GetFullHost(), GetFullRealHost(), Server::PseudoToUser(), userrec(
 A list of channels the user has a pending invite to. Definition at line 114 of file users.h.
 .PP
 Referenced by InviteTo(), IsInvited(), RemoveInvite(), and userrec().
-.SS "long \fBuserrec::lines_in\fP"
+.SS "int \fBuserrec::lines_in\fP"
 .PP
 Flood counters. Definition at line 204 of file users.h.
 .PP
@@ -601,7 +600,7 @@ Referenced by userrec().
 .SS "char \fBuserrec::password\fP[MAXBUF]"
 .PP
 Password specified by the user when they registered. This is stored even if the  block doesnt need a password, so that modules may check it.Definition at line 189 of file users.h.
-.SS "unsigned long \fBuserrec::pingmax\fP"
+.SS "unsigned int \fBuserrec::pingmax\fP"
 .PP
 Number of seconds between PINGs for this user (set from <connect:allow> tag. Definition at line 183 of file users.h.
 .SS "std::string \fBuserrec::recvq\fP"
@@ -642,7 +641,7 @@ Referenced by userrec().
 .SS "long \fBuserrec::threshold\fP"
 .PP
 Definition at line 206 of file users.h.
-.SS "unsigned long \fBuserrec::timeout\fP"
+.SS "unsigned int \fBuserrec::timeout\fP"
 .PP
 Number of seconds this user is given to send USER/NICK If they do not send their details in this time limit they will be disconnected. Definition at line 168 of file users.h.
 .PP

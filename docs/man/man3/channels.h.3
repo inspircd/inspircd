@@ -53,6 +53,24 @@ channels.h \-
 
 .in +1c
 .ti -1c
+.RI "#define \fBCM_TOPICLOCK\fP   1"
+.br
+.ti -1c
+.RI "#define \fBCM_NOEXTERNAL\fP   2"
+.br
+.ti -1c
+.RI "#define \fBCM_INVITEONLY\fP   4"
+.br
+.ti -1c
+.RI "#define \fBCM_MODERATED\fP   8"
+.br
+.ti -1c
+.RI "#define \fBCM_SECRET\fP   16"
+.br
+.ti -1c
+.RI "#define \fBCM_PRIVATE\fP   32"
+.br
+.ti -1c
 .RI "#define \fBUCMODE_OP\fP   1"
 .br
 .ti -1c
@@ -86,32 +104,50 @@ channels.h \-
 .in -1c
 .SH "Define Documentation"
 .PP 
+.SS "#define CM_INVITEONLY   4"
+.PP
+Definition at line 28 of file channels.h.
+.SS "#define CM_MODERATED   8"
+.PP
+Definition at line 29 of file channels.h.
+.SS "#define CM_NOEXTERNAL   2"
+.PP
+Definition at line 27 of file channels.h.
+.SS "#define CM_PRIVATE   32"
+.PP
+Definition at line 31 of file channels.h.
+.SS "#define CM_SECRET   16"
+.PP
+Definition at line 30 of file channels.h.
+.SS "#define CM_TOPICLOCK   1"
+.PP
+Definition at line 26 of file channels.h.
 .SS "#define UCMODE_FOUNDER   16"
 .PP
-Definition at line 250 of file channels.h.
+Definition at line 215 of file channels.h.
 .SS "#define UCMODE_HOP   4"
 .PP
-Definition at line 248 of file channels.h.
+Definition at line 213 of file channels.h.
 .SS "#define UCMODE_OP   1"
 .PP
-Definition at line 246 of file channels.h.
+Definition at line 211 of file channels.h.
 .SS "#define UCMODE_PROTECT   8"
 .PP
-Definition at line 249 of file channels.h.
+Definition at line 214 of file channels.h.
 .SS "#define UCMODE_VOICE   2"
 .PP
-Definition at line 247 of file channels.h.
+Definition at line 212 of file channels.h.
 .SH "Typedef Documentation"
 .PP 
 .SS "typedef std::vector<\fBBanItem\fP> \fBBanList\fP"
 .PP
-Holds a complete ban list. Definition at line 80 of file channels.h.
+Holds a complete ban list. Definition at line 87 of file channels.h.
 .SS "typedef std::vector<\fBExemptItem\fP> \fBExemptList\fP"
 .PP
-Holds a complete exempt list. Definition at line 84 of file channels.h.
+Holds a complete exempt list. Definition at line 91 of file channels.h.
 .SS "typedef std::vector<\fBInviteItem\fP> \fBInviteList\fP"
 .PP
-Holds a complete invite list. Definition at line 88 of file channels.h.
+Holds a complete invite list. Definition at line 95 of file channels.h.
 .SH "Author"
 .PP 
 Generated automatically by Doxygen for InspIRCd from the source code.

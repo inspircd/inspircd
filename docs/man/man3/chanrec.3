@@ -32,14 +32,6 @@ Inherits \fBExtensible\fP.
 .br
 .RI "\fIReturns the parameter for a custom mode on a channel. \fP"
 .ti -1c
-.RI "void \fBIncUserCounter\fP ()"
-.br
-.RI "\fIIncrement the channel 'user counter' The channel user counter is a reference counter which holds the number of users on the channel. \fP"
-.ti -1c
-.RI "void \fBDecUserCounter\fP ()"
-.br
-.RI "\fIDecrement the channel 'user counter' The channel user counter is a reference counter which holds the number of users on the channel. \fP"
-.ti -1c
 .RI "long \fBGetUserCounter\fP ()"
 .br
 .RI "\fIObtain the channel 'user counter' This returns the channel reference counter, which is initialized to 0 when the channel is created and incremented/decremented upon joins, parts quits and kicks. \fP"
@@ -75,10 +67,6 @@ Inherits \fBExtensible\fP.
 .br
 .RI "\fICustom modes for the channel. \fP"
 .ti -1c
-.RI "long \fBusers\fP"
-.br
-.RI "\fICount of users on the channel used for fast user counting. \fP"
-.ti -1c
 .RI "std::vector< char * > \fBinternal_userlist\fP"
 .br
 .RI "\fIUser list (casted to char*'s to stop forward declaration stuff) (chicken and egg scenario!). \fP"
@@ -99,7 +87,7 @@ Inherits \fBExtensible\fP.
 .br
 .RI "\fIThe last user to set the topic. \fP"
 .ti -1c
-.RI "long \fBlimit\fP"
+.RI "short int \fBlimit\fP"
 .br
 .RI "\fIContains the channel user limit. \fP"
 .ti -1c
@@ -107,29 +95,9 @@ Inherits \fBExtensible\fP.
 .br
 .RI "\fIContains the channel key. \fP"
 .ti -1c
-.RI "short int \fBtopiclock\fP"
+.RI "char \fBbinarymodes\fP"
 .br
-.RI "\fINonzero if the mode +t is set. \fP"
-.ti -1c
-.RI "short int \fBnoexternal\fP"
-.br
-.RI "\fINonzero if the mode +n is set. \fP"
-.ti -1c
-.RI "short int \fBinviteonly\fP"
-.br
-.RI "\fINonzero if the mode +i is set. \fP"
-.ti -1c
-.RI "short int \fBmoderated\fP"
-.br
-.RI "\fINonzero if the mode +m is set. \fP"
-.ti -1c
-.RI "short int \fBsecret\fP"
-.br
-.RI "\fINonzero if the mode +s is set. \fP"
-.ti -1c
-.RI "short int \fBc_private\fP"
-.br
-.RI "\fINonzero if the mode +p is set. \fP"
+.RI "\fIContains a bitmask of the CM_* builtin (RFC) binary mode symbols. \fP"
 .ti -1c
 .RI "\fBBanList\fP \fBbans\fP"
 .br
@@ -141,14 +109,14 @@ Holds all relevent information for a channel.
 
 This class represents a channel, and contains its name, modes, time created, topic, topic set time, etc, and an instance of the BanList type. 
 .PP
-Definition at line 94 of file channels.h.
+Definition at line 101 of file channels.h.
 .SH "Constructor & Destructor Documentation"
 .PP 
 .SS "chanrec::chanrec ()"
 .PP
 Creates a channel record and initialises it with default values. Definition at line 113 of file channels.cpp.
 .PP
-References c_private, created, custom_modes, internal_userlist, inviteonly, key, limit, moderated, name, noexternal, secret, setby, topic, topiclock, topicset, and users.
+References binarymodes, created, custom_modes, internal_userlist, key, limit, name, setby, topic, and topicset.
 .PP
 .nf
 114 {
@@ -157,59 +125,51 @@ References c_private, created, custom_modes, internal_userlist, inviteonly, key,
 117         strcpy(topic,'');
 118         strcpy(setby,'');
 119         strcpy(key,'');
-120         created = topicset = limit = users = 0;
-121         topiclock = noexternal = inviteonly = moderated = secret = c_private = false;
+120         created = topicset = limit = 0;
+121         binarymodes = 0;
 122         internal_userlist.clear();
 123 }
 .fi
 .SS "virtual chanrec::~\fBchanrec\fP ()\fC [inline, virtual]\fP"
 .PP
-Definition at line 240 of file channels.h.
+Definition at line 205 of file channels.h.
 .PP
 .nf
-240 { /* stub */ }
+205 { /* stub */ }
 .fi
 .SH "Member Function Documentation"
 .PP 
 .SS "void chanrec::AddUser (char * castuser)"
 .PP
-Add a user pointer to the internal reference list The data inserted into the reference list is a table as it is an arbitary pointer compared to other users by its memory address, as this is a very fast 32 or 64 bit integer comparison. Definition at line 215 of file channels.cpp.
+Add a user pointer to the internal reference list The data inserted into the reference list is a table as it is an arbitary pointer compared to other users by its memory address, as this is a very fast 32 or 64 bit integer comparison. Definition at line 207 of file channels.cpp.
 .PP
 References DEBUG, and internal_userlist.
 .PP
 .nf
-216 {
-217         internal_userlist.push_back(castuser);
-218         log(DEBUG,'Added casted user to channel's internal list');
-219 }
-.fi
-.SS "void chanrec::DecUserCounter ()"
-.PP
-Decrement the channel 'user counter' The channel user counter is a reference counter which holds the number of users on the channel. If it decremented to 0 then the channel is removed from the system. Modules may alter the reference count to hold channels open which have no users and would normally be deleted once empty.Definition at line 206 of file channels.cpp.
-.PP
-.nf
-207 {
-208 }
+208 {
+209         internal_userlist.push_back(castuser);
+210         log(DEBUG,'Added casted user to channel's internal list');
+211 }
 .fi
 .SS "void chanrec::DelUser (char * castuser)"
 .PP
-Delete a user pointer to the internal reference list The data removed from the reference list is a table as it is an arbitary pointer compared to other users by its memory address, as this is a very fast 32 or 64 bit integer comparison. Definition at line 221 of file channels.cpp.
+Delete a user pointer to the internal reference list The data removed from the reference list is a table as it is an arbitary pointer compared to other users by its memory address, as this is a very fast 32 or 64 bit integer comparison. Definition at line 213 of file channels.cpp.
 .PP
 References DEBUG, internal_userlist, and name.
 .PP
 .nf
-222 {
-223         for (std::vector<char*>::iterator a = internal_userlist.begin(); a < internal_userlist.end(); a++)
-224         {
-225                 if (*a == castuser)
-226                 {
-227                         log(DEBUG,'Removed casted user from channel's internal list');
-228                         internal_userlist.erase(a);
-229                         return;
-230                 }
-231         }
-232         log(DEBUG,'BUG BUG BUG! Attempt to remove an uncasted user from the internal list of %s!',name);
-233 }
+214 {
+215         for (std::vector<char*>::iterator a = internal_userlist.begin(); a < internal_userlist.end(); a++)
+216         {
+217                 if (*a == castuser)
+218                 {
+219                         log(DEBUG,'Removed casted user from channel's internal list');
+220                         internal_userlist.erase(a);
+221                         return;
+222                 }
+223         }
+224         log(DEBUG,'BUG BUG BUG! Attempt to remove an uncasted user from the internal list of %s!',name);
+225 }
 .fi
 .SS "std::string chanrec::GetModeParameter (char mode)"
 .PP
@@ -234,35 +194,27 @@ References custom_mode_params.
 .fi
 .SS "long chanrec::GetUserCounter ()"
 .PP
-Obtain the channel 'user counter' This returns the channel reference counter, which is initialized to 0 when the channel is created and incremented/decremented upon joins, parts quits and kicks. Definition at line 210 of file channels.cpp.
+Obtain the channel 'user counter' This returns the channel reference counter, which is initialized to 0 when the channel is created and incremented/decremented upon joins, parts quits and kicks. Definition at line 202 of file channels.cpp.
 .PP
 References internal_userlist.
 .PP
 .nf
-211 {
-212         return (this->internal_userlist.size());
-213 }
+203 {
+204         return (this->internal_userlist.size());
+205 }
 .fi
 .SS "std::vector< char * > * chanrec::GetUsers ()"
 .PP
-Obrain the internal reference list The internal reference list contains a list of userrec* cast to char*. These are used for rapid comparison to determine channel membership for PRIVMSG, NOTICE, QUIT, PART etc. The resulting pointer to the vector should be considered readonly and only modified via AddUser and DelUser.Definition at line 235 of file channels.cpp.
+Obrain the internal reference list The internal reference list contains a list of userrec* cast to char*. These are used for rapid comparison to determine channel membership for PRIVMSG, NOTICE, QUIT, PART etc. The resulting pointer to the vector should be considered readonly and only modified via AddUser and DelUser.Definition at line 227 of file channels.cpp.
 .PP
 References internal_userlist.
 .PP
 Referenced by Server::GetUsers().
 .PP
 .nf
-236 {
-237         return &internal_userlist;
-238 }
-.fi
-.SS "void chanrec::IncUserCounter ()"
-.PP
-Increment the channel 'user counter' The channel user counter is a reference counter which holds the number of users on the channel. If it decremented to 0 then the channel is removed from the system.Definition at line 202 of file channels.cpp.
-.PP
-.nf
-203 {
-204 }
+228 {
+229         return &internal_userlist;
+230 }
 .fi
 .SS "bool chanrec::IsCustomModeSet (char mode)"
 .PP
@@ -349,87 +301,57 @@ Referenced by SetCustomMode().
 .PP 
 .SS "\fBBanList\fP \fBchanrec::bans\fP"
 .PP
-The list of all bans set on the channel. Definition at line 168 of file channels.h.
-.SS "short int \fBchanrec::c_private\fP"
+The list of all bans set on the channel. Definition at line 149 of file channels.h.
+.SS "char \fBchanrec::binarymodes\fP"
 .PP
-Nonzero if the mode +p is set. This value cannot be set at the same time as \fBchanrec::secret\fPDefinition at line 164 of file channels.h.
+Contains a bitmask of the CM_* builtin (RFC) binary mode symbols. Definition at line 145 of file channels.h.
 .PP
 Referenced by chanrec().
 .SS "time_t \fBchanrec::created\fP"
 .PP
-Creation time. Definition at line 120 of file channels.h.
+Creation time. Definition at line 123 of file channels.h.
 .PP
 Referenced by chanrec().
 .SS "char \fBchanrec::custom_modes\fP[MAXMODES]"
 .PP
-Custom modes for the channel. Plugins may use this field in any way they see fit.Definition at line 103 of file channels.h.
+Custom modes for the channel. Plugins may use this field in any way they see fit.Definition at line 110 of file channels.h.
 .PP
 Referenced by chanrec(), and SetCustomMode().
 .SS "std::vector<char*> \fBchanrec::internal_userlist\fP"
 .PP
-User list (casted to char*'s to stop forward declaration stuff) (chicken and egg scenario!). Definition at line 112 of file channels.h.
+User list (casted to char*'s to stop forward declaration stuff) (chicken and egg scenario!). Definition at line 115 of file channels.h.
 .PP
 Referenced by AddUser(), chanrec(), DelUser(), GetUserCounter(), and GetUsers().
-.SS "short int \fBchanrec::inviteonly\fP"
-.PP
-Nonzero if the mode +i is set. Definition at line 150 of file channels.h.
-.PP
-Referenced by chanrec().
 .SS "char \fBchanrec::key\fP[32]"
 .PP
-Contains the channel key. If this value is an empty string, there is no channel key in place.Definition at line 138 of file channels.h.
+Contains the channel key. If this value is an empty string, there is no channel key in place.Definition at line 141 of file channels.h.
 .PP
 Referenced by chanrec().
-.SS "long \fBchanrec::limit\fP"
+.SS "short int \fBchanrec::limit\fP"
 .PP
-Contains the channel user limit. If this value is zero, there is no limit in place.Definition at line 133 of file channels.h.
-.PP
-Referenced by chanrec().
-.SS "short int \fBchanrec::moderated\fP"
-.PP
-Nonzero if the mode +m is set. Definition at line 154 of file channels.h.
+Contains the channel user limit. If this value is zero, there is no limit in place.Definition at line 136 of file channels.h.
 .PP
 Referenced by chanrec().
 .SS "char \fBchanrec::name\fP[CHANMAX]"
 .PP
-The channels name. Definition at line 99 of file channels.h.
+The channels name. Definition at line 106 of file channels.h.
 .PP
 Referenced by chanrec(), DelUser(), and Server::PseudoToUser().
-.SS "short int \fBchanrec::noexternal\fP"
-.PP
-Nonzero if the mode +n is set. Definition at line 146 of file channels.h.
-.PP
-Referenced by chanrec().
-.SS "short int \fBchanrec::secret\fP"
-.PP
-Nonzero if the mode +s is set. This value cannot be set at the same time as \fBchanrec::c_private\fPDefinition at line 159 of file channels.h.
-.PP
-Referenced by chanrec().
 .SS "char \fBchanrec::setby\fP[NICKMAX]"
 .PP
-The last user to set the topic. If this member is an empty string, no topic was ever set.Definition at line 128 of file channels.h.
+The last user to set the topic. If this member is an empty string, no topic was ever set.Definition at line 131 of file channels.h.
 .PP
 Referenced by chanrec(), and Server::PseudoToUser().
 .SS "char \fBchanrec::topic\fP[MAXBUF]"
 .PP
-Channel topic. If this is an empty string, no channel topic is set.Definition at line 117 of file channels.h.
+Channel topic. If this is an empty string, no channel topic is set.Definition at line 120 of file channels.h.
 .PP
 Referenced by chanrec(), and Server::PseudoToUser().
-.SS "short int \fBchanrec::topiclock\fP"
-.PP
-Nonzero if the mode +t is set. Definition at line 142 of file channels.h.
-.PP
-Referenced by chanrec().
 .SS "time_t \fBchanrec::topicset\fP"
 .PP
-Time topic was set. If no topic was ever set, this will be equal to \fBchanrec::created\fPDefinition at line 124 of file channels.h.
+Time topic was set. If no topic was ever set, this will be equal to \fBchanrec::created\fPDefinition at line 127 of file channels.h.
 .PP
 Referenced by chanrec(), and Server::PseudoToUser().
-.SS "long \fBchanrec::users\fP"
-.PP
-Count of users on the channel used for fast user counting. Definition at line 107 of file channels.h.
-.PP
-Referenced by chanrec().
 
 .SH "Author"
 .PP 

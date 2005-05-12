@@ -89,213 +89,213 @@ Definition at line 1147 of file modules.h.
 .PP 
 .SS "ConfigReader::ConfigReader ()"
 .PP
-Default constructor. This constructor initialises the ConfigReader class to read the inspircd.conf file as specified when running ./configure.Definition at line 869 of file modules.cpp.
+Default constructor. This constructor initialises the ConfigReader class to read the inspircd.conf file as specified when running ./configure.Definition at line 870 of file modules.cpp.
 .PP
 References cache, CONF_FILE_NOT_FOUND, error, errorlog, and readerror.
 .PP
 .nf
-870 {
-871         this->cache = new std::stringstream(std::stringstream::in | std::stringstream::out);
-872         this->errorlog = new std::stringstream(std::stringstream::in | std::stringstream::out);
-873         this->readerror = LoadConf(CONFIG_FILE,this->cache,this->errorlog);
-874         if (!this->readerror)
-875                 this->error = CONF_FILE_NOT_FOUND;
-876 }
+871 {
+872         this->cache = new std::stringstream(std::stringstream::in | std::stringstream::out);
+873         this->errorlog = new std::stringstream(std::stringstream::in | std::stringstream::out);
+874         this->readerror = LoadConf(CONFIG_FILE,this->cache,this->errorlog);
+875         if (!this->readerror)
+876                 this->error = CONF_FILE_NOT_FOUND;
+877 }
 .fi
 .SS "ConfigReader::ConfigReader (std::string filename)"
 .PP
-Overloaded constructor. This constructor initialises the ConfigReader class to read a user-specified config fileDefinition at line 888 of file modules.cpp.
+Overloaded constructor. This constructor initialises the ConfigReader class to read a user-specified config fileDefinition at line 889 of file modules.cpp.
 .PP
 References cache, CONF_FILE_NOT_FOUND, error, errorlog, and readerror.
 .PP
 .nf
-889 {
-890         this->cache = new std::stringstream(std::stringstream::in | std::stringstream::out);
-891         this->errorlog = new std::stringstream(std::stringstream::in | std::stringstream::out);
-892         this->readerror = LoadConf(filename.c_str(),this->cache,this->errorlog);
-893         if (!this->readerror)
-894                 this->error = CONF_FILE_NOT_FOUND;
-895 };
+890 {
+891         this->cache = new std::stringstream(std::stringstream::in | std::stringstream::out);
+892         this->errorlog = new std::stringstream(std::stringstream::in | std::stringstream::out);
+893         this->readerror = LoadConf(filename.c_str(),this->cache,this->errorlog);
+894         if (!this->readerror)
+895                 this->error = CONF_FILE_NOT_FOUND;
+896 };
 .fi
 .SS "ConfigReader::~\fBConfigReader\fP ()"
 .PP
-Default destructor. This method destroys the ConfigReader class.Definition at line 879 of file modules.cpp.
+Default destructor. This method destroys the ConfigReader class.Definition at line 880 of file modules.cpp.
 .PP
 References cache, and errorlog.
 .PP
 .nf
-880 {
-881         if (this->cache)
-882                 delete this->cache;
-883         if (this->errorlog)
-884                 delete this->errorlog;
-885 }
+881 {
+882         if (this->cache)
+883                 delete this->cache;
+884         if (this->errorlog)
+885                 delete this->errorlog;
+886 }
 .fi
 .SH "Member Function Documentation"
 .PP 
 .SS "void ConfigReader::DumpErrors (bool bail, \fBuserrec\fP * user)"
 .PP
-Dumps the list of errors in a config file to an output location. If bail is true, then the program will abort. If bail is false and user points to a valid user record, the error report will be spooled to the given user by means of NOTICE. if bool is false AND user is false, the error report will be spooled to all opers by means of a NOTICE to all opers.Definition at line 966 of file modules.cpp.
+Dumps the list of errors in a config file to an output location. If bail is true, then the program will abort. If bail is false and user points to a valid user record, the error report will be spooled to the given user by means of NOTICE. if bool is false AND user is false, the error report will be spooled to all opers by means of a NOTICE to all opers.Definition at line 967 of file modules.cpp.
 .PP
 References errorlog, connection::fd, and userrec::nick.
 .PP
 .nf
-967 {
-968         if (bail)
-969         {
-970                 printf('There were errors in your configuration:\n%s',errorlog->str().c_str());
-971                 exit(0);
-972         }
-973         else
-974         {
-975                 char dataline[1024];
-976                 if (user)
-977                 {
-978                         WriteServ(user->fd,'NOTICE %s :There were errors in the configuration file:',user->nick);
-979                         while (!errorlog->eof())
-980                         {
-981                                 errorlog->getline(dataline,1024);
-982                                 WriteServ(user->fd,'NOTICE %s :%s',user->nick,dataline);
-983                         }
-984                 }
-985                 else
-986                 {
-987                         WriteOpers('There were errors in the configuration file:',user->nick);
-988                         while (!errorlog->eof())
-989                         {
-990                                 errorlog->getline(dataline,1024);
-991                                 WriteOpers(dataline);
-992                         }
-993                 }
-994                 return;
-995         }
-996 }
+968 {
+969         if (bail)
+970         {
+971                 printf('There were errors in your configuration:\n%s',errorlog->str().c_str());
+972                 exit(0);
+973         }
+974         else
+975         {
+976                 char dataline[1024];
+977                 if (user)
+978                 {
+979                         WriteServ(user->fd,'NOTICE %s :There were errors in the configuration file:',user->nick);
+980                         while (!errorlog->eof())
+981                         {
+982                                 errorlog->getline(dataline,1024);
+983                                 WriteServ(user->fd,'NOTICE %s :%s',user->nick,dataline);
+984                         }
+985                 }
+986                 else
+987                 {
+988                         WriteOpers('There were errors in the configuration file:',user->nick);
+989                         while (!errorlog->eof())
+990                         {
+991                                 errorlog->getline(dataline,1024);
+992                                 WriteOpers(dataline);
+993                         }
+994                 }
+995                 return;
+996         }
+997 }
 .fi
 .SS "int ConfigReader::Enumerate (std::string tag)"
 .PP
-Counts the number of times a given tag appears in the config file. This method counts the number of times a tag appears in a config file, for use where there are several tags of the same kind, e.g. with opers and connect types. It can be used with the index value of \fBConfigReader::ReadValue\fP to loop through all copies of a multiple instance tag.Definition at line 999 of file modules.cpp.
+Counts the number of times a given tag appears in the config file. This method counts the number of times a tag appears in a config file, for use where there are several tags of the same kind, e.g. with opers and connect types. It can be used with the index value of \fBConfigReader::ReadValue\fP to loop through all copies of a multiple instance tag.Definition at line 1000 of file modules.cpp.
 .PP
 References cache.
 .PP
 .nf
-1000 {
-1001         return EnumConf(cache,tag.c_str());
-1002 }
+1001 {
+1002         return EnumConf(cache,tag.c_str());
+1003 }
 .fi
 .SS "int ConfigReader::EnumerateValues (std::string tag, int index)"
 .PP
-Returns the number of items within a tag. For example if the tag was <test tag='blah' data='foo'> then this function would return 2. Spaces and newlines both qualify as valid seperators between values.Definition at line 1004 of file modules.cpp.
+Returns the number of items within a tag. For example if the tag was <test tag='blah' data='foo'> then this function would return 2. Spaces and newlines both qualify as valid seperators between values.Definition at line 1005 of file modules.cpp.
 .PP
 References cache.
 .PP
 .nf
-1005 {
-1006         return EnumValues(cache, tag.c_str(), index);
-1007 }
+1006 {
+1007         return EnumValues(cache, tag.c_str(), index);
+1008 }
 .fi
 .SS "long ConfigReader::GetError ()"
 .PP
-Returns the last error to occur. Valid errors can be found by looking in \fBmodules.h\fP. Any nonzero value indicates an error condition. A call to \fBGetError()\fP resets the error flag back to 0.Definition at line 959 of file modules.cpp.
+Returns the last error to occur. Valid errors can be found by looking in \fBmodules.h\fP. Any nonzero value indicates an error condition. A call to \fBGetError()\fP resets the error flag back to 0.Definition at line 960 of file modules.cpp.
 .PP
 References error.
 .PP
 .nf
-960 {
-961         long olderr = this->error;
-962         this->error = 0;
-963         return olderr;
-964 }
+961 {
+962         long olderr = this->error;
+963         this->error = 0;
+964         return olderr;
+965 }
 .fi
 .SS "bool ConfigReader::ReadFlag (std::string tag, std::string name, int index)"
 .PP
-Retrieves a boolean value from the config file. This method retrieves a boolean value from the config file. Where multiple copies of the tag exist in the config file, index indicates which of the values to retrieve. The values '1', 'yes' and 'true' in the config file count as true to ReadFlag, and any other value counts as false.Definition at line 913 of file modules.cpp.
+Retrieves a boolean value from the config file. This method retrieves a boolean value from the config file. Where multiple copies of the tag exist in the config file, index indicates which of the values to retrieve. The values '1', 'yes' and 'true' in the config file count as true to ReadFlag, and any other value counts as false.Definition at line 914 of file modules.cpp.
 .PP
 References cache, CONF_VALUE_NOT_FOUND, and error.
 .PP
 .nf
-914 {
-915         char val[MAXBUF];
-916         char t[MAXBUF];
-917         char n[MAXBUF];
-918         strlcpy(t,tag.c_str(),MAXBUF);
-919         strlcpy(n,name.c_str(),MAXBUF);
-920         int res = ReadConf(cache,t,n,index,val);
-921         if (!res)
-922         {
-923                 this->error = CONF_VALUE_NOT_FOUND;
-924                 return false;
-925         }
-926         std::string s = val;
-927         return ((s == 'yes') || (s == 'YES') || (s == 'true') || (s == 'TRUE') || (s == '1'));
-928 }
+915 {
+916         char val[MAXBUF];
+917         char t[MAXBUF];
+918         char n[MAXBUF];
+919         strlcpy(t,tag.c_str(),MAXBUF);
+920         strlcpy(n,name.c_str(),MAXBUF);
+921         int res = ReadConf(cache,t,n,index,val);
+922         if (!res)
+923         {
+924                 this->error = CONF_VALUE_NOT_FOUND;
+925                 return false;
+926         }
+927         std::string s = val;
+928         return ((s == 'yes') || (s == 'YES') || (s == 'true') || (s == 'TRUE') || (s == '1'));
+929 }
 .fi
 .SS "long ConfigReader::ReadInteger (std::string tag, std::string name, int index, bool needs_unsigned)"
 .PP
-Retrieves an integer value from the config file. This method retrieves an integer value from the config file. Where multiple copies of the tag exist in the config file, index indicates which of the values to retrieve. Any invalid integer values in the tag will cause the objects error value to be set, and any call to \fBGetError()\fP will return CONF_INVALID_NUMBER to be returned. needs_unsigned is set if the number must be unsigned. If a signed number is placed into a tag which is specified unsigned, 0 will be returned and \fBGetError()\fP will return CONF_NOT_UNSIGNEDDefinition at line 930 of file modules.cpp.
+Retrieves an integer value from the config file. This method retrieves an integer value from the config file. Where multiple copies of the tag exist in the config file, index indicates which of the values to retrieve. Any invalid integer values in the tag will cause the objects error value to be set, and any call to \fBGetError()\fP will return CONF_INVALID_NUMBER to be returned. needs_unsigned is set if the number must be unsigned. If a signed number is placed into a tag which is specified unsigned, 0 will be returned and \fBGetError()\fP will return CONF_NOT_UNSIGNEDDefinition at line 931 of file modules.cpp.
 .PP
 References cache, CONF_NOT_A_NUMBER, CONF_NOT_UNSIGNED, CONF_VALUE_NOT_FOUND, and error.
 .PP
 .nf
-931 {
-932         char val[MAXBUF];
-933         char t[MAXBUF];
-934         char n[MAXBUF];
-935         strlcpy(t,tag.c_str(),MAXBUF);
-936         strlcpy(n,name.c_str(),MAXBUF);
-937         int res = ReadConf(cache,t,n,index,val);
-938         if (!res)
-939         {
-940                 this->error = CONF_VALUE_NOT_FOUND;
-941                 return 0;
-942         }
-943         for (int i = 0; i < strlen(val); i++)
-944         {
-945                 if (!isdigit(val[i]))
-946                 {
-947                         this->error = CONF_NOT_A_NUMBER;
-948                         return 0;
-949                 }
-950         }
-951         if ((needs_unsigned) && (atoi(val)<0))
-952         {
-953                 this->error = CONF_NOT_UNSIGNED;
-954                 return 0;
-955         }
-956         return atoi(val);
-957 }
+932 {
+933         char val[MAXBUF];
+934         char t[MAXBUF];
+935         char n[MAXBUF];
+936         strlcpy(t,tag.c_str(),MAXBUF);
+937         strlcpy(n,name.c_str(),MAXBUF);
+938         int res = ReadConf(cache,t,n,index,val);
+939         if (!res)
+940         {
+941                 this->error = CONF_VALUE_NOT_FOUND;
+942                 return 0;
+943         }
+944         for (int i = 0; i < strlen(val); i++)
+945         {
+946                 if (!isdigit(val[i]))
+947                 {
+948                         this->error = CONF_NOT_A_NUMBER;
+949                         return 0;
+950                 }
+951         }
+952         if ((needs_unsigned) && (atoi(val)<0))
+953         {
+954                 this->error = CONF_NOT_UNSIGNED;
+955                 return 0;
+956         }
+957         return atoi(val);
+958 }
 .fi
 .SS "std::string ConfigReader::ReadValue (std::string tag, std::string name, int index)"
 .PP
-Retrieves a value from the config file. This method retrieves a value from the config file. Where multiple copies of the tag exist in the config file, index indicates which of the values to retrieve.Definition at line 897 of file modules.cpp.
+Retrieves a value from the config file. This method retrieves a value from the config file. Where multiple copies of the tag exist in the config file, index indicates which of the values to retrieve.Definition at line 898 of file modules.cpp.
 .PP
 References cache, CONF_VALUE_NOT_FOUND, and error.
 .PP
 .nf
-898 {
-899         char val[MAXBUF];
-900         char t[MAXBUF];
-901         char n[MAXBUF];
-902         strlcpy(t,tag.c_str(),MAXBUF);
-903         strlcpy(n,name.c_str(),MAXBUF);
-904         int res = ReadConf(cache,t,n,index,val);
-905         if (!res)
-906         {
-907                 this->error = CONF_VALUE_NOT_FOUND;
-908                 return '';
-909         }
-910         return val;
-911 }
+899 {
+900         char val[MAXBUF];
+901         char t[MAXBUF];
+902         char n[MAXBUF];
+903         strlcpy(t,tag.c_str(),MAXBUF);
+904         strlcpy(n,name.c_str(),MAXBUF);
+905         int res = ReadConf(cache,t,n,index,val);
+906         if (!res)
+907         {
+908                 this->error = CONF_VALUE_NOT_FOUND;
+909                 return '';
+910         }
+911         return val;
+912 }
 .fi
 .SS "bool ConfigReader::Verify ()"
 .PP
-Returns true if a config file is valid. This method is partially implemented and will only return false if the config file does not exist or could not be opened.Definition at line 1009 of file modules.cpp.
+Returns true if a config file is valid. This method is partially implemented and will only return false if the config file does not exist or could not be opened.Definition at line 1010 of file modules.cpp.
 .PP
 References readerror.
 .PP
 .nf
-1010 {
-1011         return this->readerror;
-1012 }
+1011 {
+1012         return this->readerror;
+1013 }
 .fi
 .SH "Member Data Documentation"
 .PP 

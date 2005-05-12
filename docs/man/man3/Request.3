@@ -63,65 +63,65 @@ Definition at line 154 of file modules.h.
 .PP 
 .SS "Request::Request (char * anydata, \fBModule\fP * src, \fBModule\fP * dst)"
 .PP
-Create a new Request. Definition at line 315 of file modules.cpp.
+Create a new Request. Definition at line 316 of file modules.cpp.
 .PP
 .nf
-315 : data(anydata), source(src), dest(dst) { };
+316 : data(anydata), source(src), dest(dst) { };
 .fi
 .SH "Member Function Documentation"
 .PP 
 .SS "char * Request::GetData ()"
 .PP
-Fetch the Request data. Definition at line 317 of file modules.cpp.
+Fetch the Request data. Definition at line 318 of file modules.cpp.
 .PP
 References data.
 .PP
 .nf
-318 {
-319         return this->data;
-320 }
+319 {
+320         return this->data;
+321 }
 .fi
 .SS "\fBModule\fP * Request::GetDest ()"
 .PP
-Fetch the request destination (should be 'this' in the receiving module). Definition at line 327 of file modules.cpp.
+Fetch the request destination (should be 'this' in the receiving module). Definition at line 328 of file modules.cpp.
 .PP
 References dest.
 .PP
 .nf
-328 {
-329         return this->dest;
-330 }
+329 {
+330         return this->dest;
+331 }
 .fi
 .SS "\fBModule\fP * Request::GetSource ()"
 .PP
-Fetch the request source. Definition at line 322 of file modules.cpp.
+Fetch the request source. Definition at line 323 of file modules.cpp.
 .PP
 References source.
 .PP
 .nf
-323 {
-324         return this->source;
-325 }
+324 {
+325         return this->source;
+326 }
 .fi
 .SS "char * Request::Send ()\fC [virtual]\fP"
 .PP
 Send the Request. Upon returning the result will be arbitary data returned by the module you sent the request to. It is up to your module to know what this data is and how to deal with it. Implements \fBModuleMessage\fP.
 .PP
-Definition at line 332 of file modules.cpp.
+Definition at line 333 of file modules.cpp.
 .PP
 References dest, and Module::OnRequest().
 .PP
 .nf
-333 {
-334         if (this->dest)
-335         {
-336                 return dest->OnRequest(this);
-337         }
-338         else
-339         {
-340                 return NULL;
-341         }
-342 }
+334 {
+335         if (this->dest)
+336         {
+337                 return dest->OnRequest(this);
+338         }
+339         else
+340         {
+341                 return NULL;
+342         }
+343 }
 .fi
 .SH "Member Data Documentation"
 .PP 

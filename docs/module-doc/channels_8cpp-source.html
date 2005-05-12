@@ -117,16 +117,16 @@
 00110 
 <a name="l00111"></a><a class="code" href="channels_8cpp.html#a38">00111</a> std::vector&lt;ModeParameter&gt; <a class="code" href="channels_8cpp.html#a38">custom_mode_params</a>;
 00112 
-<a name="l00113"></a><a class="code" href="classchanrec.html#a10">00113</a> <a class="code" href="classchanrec.html#a10">chanrec::chanrec</a>()
+<a name="l00113"></a><a class="code" href="classchanrec.html#a8">00113</a> <a class="code" href="classchanrec.html#a8">chanrec::chanrec</a>()
 00114 {
 00115         strcpy(<a class="code" href="classchanrec.html#o0">name</a>,<span class="stringliteral">""</span>);
 00116         strcpy(<a class="code" href="classchanrec.html#o1">custom_modes</a>,<span class="stringliteral">""</span>);
-00117         strcpy(<a class="code" href="classchanrec.html#o4">topic</a>,<span class="stringliteral">""</span>);
-00118         strcpy(<a class="code" href="classchanrec.html#o7">setby</a>,<span class="stringliteral">""</span>);
-00119         strcpy(<a class="code" href="classchanrec.html#o9">key</a>,<span class="stringliteral">""</span>);
-00120         <a class="code" href="classchanrec.html#o5">created</a> = <a class="code" href="classchanrec.html#o6">topicset</a> = <a class="code" href="classchanrec.html#o8">limit</a> = <a class="code" href="classchanrec.html#o2">users</a> = 0;
-00121         <a class="code" href="classchanrec.html#o10">topiclock</a> = <a class="code" href="classchanrec.html#o11">noexternal</a> = <a class="code" href="classchanrec.html#o12">inviteonly</a> = <a class="code" href="classchanrec.html#o13">moderated</a> = <a class="code" href="classchanrec.html#o14">secret</a> = <a class="code" href="classchanrec.html#o15">c_private</a> = <span class="keyword">false</span>;
-00122         <a class="code" href="classchanrec.html#o3">internal_userlist</a>.clear();
+00117         strcpy(<a class="code" href="classchanrec.html#o3">topic</a>,<span class="stringliteral">""</span>);
+00118         strcpy(<a class="code" href="classchanrec.html#o6">setby</a>,<span class="stringliteral">""</span>);
+00119         strcpy(<a class="code" href="classchanrec.html#o8">key</a>,<span class="stringliteral">""</span>);
+00120         <a class="code" href="classchanrec.html#o4">created</a> = <a class="code" href="classchanrec.html#o5">topicset</a> = <a class="code" href="classchanrec.html#o7">limit</a> = 0;
+00121         <a class="code" href="classchanrec.html#o9">binarymodes</a> = 0;
+00122         <a class="code" href="classchanrec.html#o2">internal_userlist</a>.clear();
 00123 }
 00124 
 <a name="l00125"></a><a class="code" href="classchanrec.html#a0">00125</a> <span class="keywordtype">void</span> <a class="code" href="classchanrec.html#a0">chanrec::SetCustomMode</a>(<span class="keywordtype">char</span> mode,<span class="keywordtype">bool</span> mode_on)
@@ -206,44 +206,36 @@
 00199         <span class="keywordflow">return</span> <span class="stringliteral">""</span>;
 00200 }
 00201 
-<a name="l00202"></a><a class="code" href="classchanrec.html#a4">00202</a> <span class="keywordtype">void</span> <a class="code" href="classchanrec.html#a4">chanrec::IncUserCounter</a>()
+<a name="l00202"></a><a class="code" href="classchanrec.html#a4">00202</a> <span class="keywordtype">long</span> <a class="code" href="classchanrec.html#a4">chanrec::GetUserCounter</a>()
 00203 {
-00204 }
-00205 
-<a name="l00206"></a><a class="code" href="classchanrec.html#a5">00206</a> <span class="keywordtype">void</span> <a class="code" href="classchanrec.html#a5">chanrec::DecUserCounter</a>()
-00207 {
-00208 }
-00209 
-<a name="l00210"></a><a class="code" href="classchanrec.html#a6">00210</a> <span class="keywordtype">long</span> <a class="code" href="classchanrec.html#a6">chanrec::GetUserCounter</a>()
-00211 {
-00212         <span class="keywordflow">return</span> (this-&gt;<a class="code" href="classchanrec.html#o3">internal_userlist</a>.size());
-00213 }
-00214 
-<a name="l00215"></a><a class="code" href="classchanrec.html#a7">00215</a> <span class="keywordtype">void</span> <a class="code" href="classchanrec.html#a7">chanrec::AddUser</a>(<span class="keywordtype">char</span>* castuser)
-00216 {
-00217         <a class="code" href="classchanrec.html#o3">internal_userlist</a>.push_back(castuser);
-00218         log(<a class="code" href="modules_8h.html#a0">DEBUG</a>,<span class="stringliteral">"Added casted user to channel's internal list"</span>);
-00219 }
-00220 
-<a name="l00221"></a><a class="code" href="classchanrec.html#a8">00221</a> <span class="keywordtype">void</span> <a class="code" href="classchanrec.html#a8">chanrec::DelUser</a>(<span class="keywordtype">char</span>* castuser)
-00222 {
-00223         <span class="keywordflow">for</span> (std::vector&lt;char*&gt;::iterator a = <a class="code" href="classchanrec.html#o3">internal_userlist</a>.begin(); a &lt; <a class="code" href="classchanrec.html#o3">internal_userlist</a>.end(); a++)
-00224         {
-00225                 <span class="keywordflow">if</span> (*a == castuser)
-00226                 {
-00227                         log(<a class="code" href="modules_8h.html#a0">DEBUG</a>,<span class="stringliteral">"Removed casted user from channel's internal list"</span>);
-00228                         <a class="code" href="classchanrec.html#o3">internal_userlist</a>.erase(a);
-00229                         <span class="keywordflow">return</span>;
-00230                 }
-00231         }
-00232         log(<a class="code" href="modules_8h.html#a0">DEBUG</a>,<span class="stringliteral">"BUG BUG BUG! Attempt to remove an uncasted user from the internal list of %s!"</span>,<a class="code" href="classchanrec.html#o0">name</a>);
-00233 }
-00234 
-<a name="l00235"></a><a class="code" href="classchanrec.html#a9">00235</a> std::vector&lt;char*&gt; *<a class="code" href="classchanrec.html#a9">chanrec::GetUsers</a>()
-00236 {
-00237         <span class="keywordflow">return</span> &amp;<a class="code" href="classchanrec.html#o3">internal_userlist</a>;
-00238 }
-</pre></div><hr size="1"><address style="align: right;"><small>Generated on Thu May 12 02:25:11 2005 for InspIRCd by
+00204         <span class="keywordflow">return</span> (this-&gt;<a class="code" href="classchanrec.html#o2">internal_userlist</a>.size());
+00205 }
+00206 
+<a name="l00207"></a><a class="code" href="classchanrec.html#a5">00207</a> <span class="keywordtype">void</span> <a class="code" href="classchanrec.html#a5">chanrec::AddUser</a>(<span class="keywordtype">char</span>* castuser)
+00208 {
+00209         <a class="code" href="classchanrec.html#o2">internal_userlist</a>.push_back(castuser);
+00210         log(<a class="code" href="modules_8h.html#a0">DEBUG</a>,<span class="stringliteral">"Added casted user to channel's internal list"</span>);
+00211 }
+00212 
+<a name="l00213"></a><a class="code" href="classchanrec.html#a6">00213</a> <span class="keywordtype">void</span> <a class="code" href="classchanrec.html#a6">chanrec::DelUser</a>(<span class="keywordtype">char</span>* castuser)
+00214 {
+00215         <span class="keywordflow">for</span> (std::vector&lt;char*&gt;::iterator a = <a class="code" href="classchanrec.html#o2">internal_userlist</a>.begin(); a &lt; <a class="code" href="classchanrec.html#o2">internal_userlist</a>.end(); a++)
+00216         {
+00217                 <span class="keywordflow">if</span> (*a == castuser)
+00218                 {
+00219                         log(<a class="code" href="modules_8h.html#a0">DEBUG</a>,<span class="stringliteral">"Removed casted user from channel's internal list"</span>);
+00220                         <a class="code" href="classchanrec.html#o2">internal_userlist</a>.erase(a);
+00221                         <span class="keywordflow">return</span>;
+00222                 }
+00223         }
+00224         log(<a class="code" href="modules_8h.html#a0">DEBUG</a>,<span class="stringliteral">"BUG BUG BUG! Attempt to remove an uncasted user from the internal list of %s!"</span>,<a class="code" href="classchanrec.html#o0">name</a>);
+00225 }
+00226 
+<a name="l00227"></a><a class="code" href="classchanrec.html#a7">00227</a> std::vector&lt;char*&gt; *<a class="code" href="classchanrec.html#a7">chanrec::GetUsers</a>()
+00228 {
+00229         <span class="keywordflow">return</span> &amp;<a class="code" href="classchanrec.html#o2">internal_userlist</a>;
+00230 }
+</pre></div><hr size="1"><address style="align: right;"><small>Generated on Thu May 12 22:58:57 2005 for InspIRCd by
 <a href="http://www.doxygen.org/index.html">
 <img src="doxygen.png" alt="doxygen" align="middle" border=0 > 
 </a>1.3.3 </small></address>
