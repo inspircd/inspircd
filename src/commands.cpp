@@ -473,7 +473,7 @@ void handle_invite(char **parameters, int pcnt, userrec *user)
 		}
 		else
 		{
-			if (c->inviteonly)
+			if (c->binarymodes & CM_INVITEONLY)
 			{
 				WriteServ(user->fd,"401 %s %s :No such nick/channel",user->nick, parameters[0]);
 			}
@@ -482,7 +482,7 @@ void handle_invite(char **parameters, int pcnt, userrec *user)
 		return;
 	}
 
-	if (c->inviteonly)
+	if (c->binarymodes & CM_INVITEONLY)
 	{
 		if (cstatus(user,c) < STATUS_HOP)
 		{
@@ -528,7 +528,7 @@ void handle_topic(char **parameters, int pcnt, userrec *user)
 			Ptr = FindChan(parameters[0]);
 			if (Ptr)
 			{
-				if (((Ptr) && (!has_channel(user,Ptr))) && (Ptr->secret))
+				if (((Ptr) && (!has_channel(user,Ptr))) && (Ptr->binarymodes & CM_SECRET))
 				{
 					WriteServ(user->fd,"442 %s %s :You're not on that channel!",user->nick, Ptr->name);
 					return;
@@ -562,7 +562,7 @@ void handle_topic(char **parameters, int pcnt, userrec *user)
 					WriteServ(user->fd,"442 %s %s :You're not on that channel!",user->nick, Ptr->name);
 					return;
 				}
-				if ((Ptr->topiclock) && (cstatus(user,Ptr)<STATUS_HOP))
+				if ((Ptr->binarymodes & CM_TOPICLOCK) && (cstatus(user,Ptr)<STATUS_HOP))
 				{
 					WriteServ(user->fd,"482 %s %s :You must be at least a half-operator to change modes on this channel", user->nick, Ptr->name);
 					return;
@@ -616,7 +616,7 @@ void handle_names(char **parameters, int pcnt, userrec *user)
 	c = FindChan(parameters[0]);
 	if (c)
 	{
-                if (((c) && (!has_channel(user,c))) && (c->secret))
+                if (((c) && (!has_channel(user,c))) && (c->binarymodes & CM_SECRET))
                 {
                       WriteServ(user->fd,"442 %s %s :You're not on that channel!",user->nick, c->name);
                       return;
@@ -644,12 +644,12 @@ void handle_privmsg(char **parameters, int pcnt, userrec *user)
 		chan = FindChan(parameters[0]);
 		if (chan)
 		{
-			if ((chan->noexternal) && (!has_channel(user,chan)))
+			if ((chan->binarymodes & CM_NOEXTERNAL) && (!has_channel(user,chan)))
 			{
 				WriteServ(user->fd,"404 %s %s :Cannot send to channel (no external messages)", user->nick, chan->name);
 				return;
 			}
-			if ((chan->moderated) && (cstatus(user,chan)<STATUS_VOICE))
+			if ((chan->binarymodes & CM_MODERATED) && (cstatus(user,chan)<STATUS_VOICE))
 			{
 				WriteServ(user->fd,"404 %s %s :Cannot send to channel (+m)", user->nick, chan->name);
 				return;
@@ -738,12 +738,12 @@ void handle_notice(char **parameters, int pcnt, userrec *user)
 		chan = FindChan(parameters[0]);
 		if (chan)
 		{
-			if ((chan->noexternal) && (!has_channel(user,chan)))
+			if ((chan->binarymodes & CM_NOEXTERNAL) && (!has_channel(user,chan)))
 			{
 				WriteServ(user->fd,"404 %s %s :Cannot send to channel (no external messages)", user->nick, chan->name);
 				return;
 			}
-			if ((chan->moderated) && (cstatus(user,chan)<STATUS_VOICE))
+			if ((chan->binarymodes & CM_MODERATED) && (cstatus(user,chan)<STATUS_VOICE))
 			{
 				WriteServ(user->fd,"404 %s %s :Cannot send to channel (+m)", user->nick, chan->name);
 				return;
@@ -1121,7 +1121,7 @@ void handle_list(char **parameters, int pcnt, userrec *user)
 	for (chan_hash::const_iterator i = chanlist.begin(); i != chanlist.end(); i++)
 	{
 		// if the channel is not private/secret, OR the user is on the channel anyway
-		if (((!i->second->c_private) && (!i->second->secret)) || (has_channel(user,i->second)))
+		if (((!(i->second->binarymodes & CM_PRIVATE)) && (!(i->second->binarymodes & CM_SECRET))) || (has_channel(user,i->second)))
 		{
 			WriteServ(user->fd,"322 %s %s %d :[+%s] %s",user->nick,i->second->name,usercount_i(i->second),chanmodes(i->second),i->second->topic);
 		}
@@ -2421,7 +2421,7 @@ void handle_N(char token,char* params,serverrec* source,serverrec* reply, char* 
 	strlcpy(clientlist[nick]->server, server,256);
 	strlcpy(clientlist[nick]->ident, ident,10); // +1 char to compensate for tilde
 	strlcpy(clientlist[nick]->fullname, gecos,128);
-	strlcpy(clientlist[nick]->ip,ipaddr,32);
+	strlcpy(clientlist[nick]->ip,ipaddr,16);
 	clientlist[nick]->signon = TS;
 	clientlist[nick]->nping = 0; // this is ignored for a remote user anyway.
 	clientlist[nick]->lastping = 1;

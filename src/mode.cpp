@@ -882,7 +882,7 @@ void process_modes(char **parameters,userrec* user,chanrec *chan,int status, int
 							
 							// reported by mech: large values cause underflow
 							if (chan->limit < 0)
-								chan->limit = 0x7FFFFF;
+								chan->limit = 0x7FFF;
 						}
 							
 						if (chan->limit)
@@ -899,11 +899,16 @@ void process_modes(char **parameters,userrec* user,chanrec *chan,int status, int
                                         FOREACH_RESULT(OnRawMode(user, chan, 'i', "", mdir, 0));
                                         if (!MOD_RESULT)
                                         {
-						if (chan->inviteonly != mdir)
+						if (mdir)
 						{
-							strlcat(outlist,"i",MAXBUF);
+							if (!(chan->binarymodes & CM_INVITEONLY)) strlcat(outlist,"i",MAXBUF);
+							chan->binarymodes |= CM_INVITEONLY;
 						}
-						chan->inviteonly = mdir;
+						else
+						{
+							if (chan->binarymodes & CM_INVITEONLY) strlcat(outlist,"i",MAXBUF);
+							chan->binarymodes &= ~CM_INVITEONLY;
+						}
 					}
 				break;
 				
@@ -912,11 +917,16 @@ void process_modes(char **parameters,userrec* user,chanrec *chan,int status, int
                                         FOREACH_RESULT(OnRawMode(user, chan, 't', "", mdir, 0));
                                         if (!MOD_RESULT)
                                         {
-						if (chan->topiclock != mdir)
-						{
-							strlcat(outlist,"t",MAXBUF);
-						}
-						chan->topiclock = mdir;
+						if (mdir)
+                                                {
+							if (!(chan->binarymodes & CM_TOPICLOCK)) strlcat(outlist,"t",MAXBUF);
+                                                        chan->binarymodes |= CM_TOPICLOCK;
+                                                }
+                                                else
+                                                {
+							if (chan->binarymodes & CM_NOEXTERNAL) strlcat(outlist,"t",MAXBUF);
+                                                        chan->binarymodes &= ~CM_TOPICLOCK;
+                                                }
 					}
 				break;
 				
@@ -925,11 +935,16 @@ void process_modes(char **parameters,userrec* user,chanrec *chan,int status, int
                                         FOREACH_RESULT(OnRawMode(user, chan, 'n', "", mdir, 0));
                                         if (!MOD_RESULT)
                                         {
-						if (chan->noexternal != mdir)
-						{
-							strlcat(outlist,"n",MAXBUF);
-						}
-						chan->noexternal = mdir;
+                                                if (mdir)
+                                                {
+							if (!(chan->binarymodes & CM_NOEXTERNAL)) strlcat(outlist,"n",MAXBUF);
+                                                        chan->binarymodes |= CM_NOEXTERNAL;
+                                                }
+                                                else
+                                                {
+							if (chan->binarymodes & CM_NOEXTERNAL) strlcat(outlist,"n",MAXBUF);
+                                                        chan->binarymodes &= ~CM_NOEXTERNAL;
+                                                }
 					}
 				break;
 				
@@ -938,11 +953,16 @@ void process_modes(char **parameters,userrec* user,chanrec *chan,int status, int
                                         FOREACH_RESULT(OnRawMode(user, chan, 'm', "", mdir, 0));
                                         if (!MOD_RESULT)
                                         {
-						if (chan->moderated != mdir)
-						{
-							strlcat(outlist,"m",MAXBUF);
-						}
-						chan->moderated = mdir;
+                                                if (mdir)
+                                                {
+                                                        if (!(chan->binarymodes & CM_MODERATED)) strlcat(outlist,"m",MAXBUF);
+                                                        chan->binarymodes |= CM_MODERATED;
+                                                }
+                                                else
+                                                {
+                                                        if (chan->binarymodes & CM_MODERATED) strlcat(outlist,"m",MAXBUF);
+                                                        chan->binarymodes &= ~CM_MODERATED;
+                                                }
 					}
 				break;
 				
@@ -951,23 +971,24 @@ void process_modes(char **parameters,userrec* user,chanrec *chan,int status, int
                                         FOREACH_RESULT(OnRawMode(user, chan, 's', "", mdir, 0));
                                         if (!MOD_RESULT)
                                         {
-						if (chan->secret != mdir)
-						{
-							strcat(outlist,"s");
-							if (chan->c_private)
-							{
-								chan->c_private = 0;
-								if (mdir)
-								{
-									strlcat(outlist,"-p+",MAXBUF);
-								}
-								else
-								{
-									strlcat(outlist,"+p-",MAXBUF);
-								}
-							}
-						}
-						chan->secret = mdir;
+                                                if (mdir)
+                                                {
+                                                        if (!(chan->binarymodes & CM_SECRET)) strlcat(outlist,"s",MAXBUF);
+                                                        chan->binarymodes |= CM_SECRET;
+                                                        if (chan->binarymodes & CM_PRIVATE)
+                                                        {
+                                                                chan->binarymodes &= ~CM_PRIVATE;
+                                                                if (mdir)
+                                                                {
+                                                                        strlcat(outlist,"-p+",MAXBUF);
+                                                                }
+                                                        }
+                                                }
+                                                else
+                                                {
+                                                        if (chan->binarymodes & CM_SECRET) strlcat(outlist,"s",MAXBUF);
+                                                        chan->binarymodes &= ~CM_SECRET;
+                                                }
 					}
 				break;
 				
@@ -976,23 +997,24 @@ void process_modes(char **parameters,userrec* user,chanrec *chan,int status, int
                                         FOREACH_RESULT(OnRawMode(user, chan, 'p', "", mdir, 0));
                                         if (!MOD_RESULT)
                                         {
-						if (chan->c_private != mdir)
-						{
-							strlcat(outlist,"p",MAXBUF);
-							if (chan->secret)
-							{
-								chan->secret = 0;
-								if (mdir)
-								{
-									strlcat(outlist,"-s+",MAXBUF);
-								}
-								else
-								{
-									strlcat(outlist,"+s-",MAXBUF);
-								}
-							}
-						}
-						chan->c_private = mdir;
+                                                if (mdir)
+                                                {
+                                                        if (!(chan->binarymodes & CM_PRIVATE)) strlcat(outlist,"p",MAXBUF);
+                                                        chan->binarymodes |= CM_PRIVATE;
+                                                        if (chan->binarymodes & CM_SECRET)
+                                                        {
+                                                                chan->binarymodes &= ~CM_SECRET;
+                                                                if (mdir)
+                                                                {
+                                                                        strlcat(outlist,"-s+",MAXBUF);
+                                                                }
+                                                        }
+                                                }
+                                                else
+                                                {
+                                                        if (chan->binarymodes & CM_PRIVATE) strlcat(outlist,"p",MAXBUF);
+                                                        chan->binarymodes &= ~CM_PRIVATE;
+                                                }
 					}
 				break;
 				

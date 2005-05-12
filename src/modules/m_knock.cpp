@@ -40,7 +40,7 @@ void handle_knock(char **parameters, int pcnt, userrec *user)
 		WriteServ(user->fd,"480 %s :Can't KNOCK on %s, +K is set.",user->nick, c->name);
 		return;
 	}
-	if (c->inviteonly)
+	if (c->binarymodes & CM_INVITEONLY)
 	{
 		WriteChannelWithServ((char*)Srv->GetServerName().c_str(),c,"NOTICE %s :User %s is KNOCKing on %s (%s)",c->name,user->nick,c->name,line.c_str());
 		WriteServ(user->fd,"NOTICE %s :KNOCKing on %s",user->nick,c->name);

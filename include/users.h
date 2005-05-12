@@ -47,7 +47,7 @@ class ConnectClass : public classbase
  public:
 	/** Type of line, either CC_ALLOW or CC_DENY
 	 */
-	int type;
+	char type;
 	/** Max time to register the connection in seconds
 	 */
 	int registration_timeout;
@@ -66,7 +66,7 @@ class ConnectClass : public classbase
 
 	/** Threshold value for flood disconnect
 	 */
-	long threshold;
+	int threshold;
 
 	/** Maximum size of sendq for users in this class (bytes)
 	 */
@@ -122,12 +122,12 @@ class userrec : public connection
 	
 	/** The users ident reply.
 	 */
-	char ident[64];
+	char ident[16];
 
 	/** The host displayed to non-opers (used for cloaking etc).
 	 * This usually matches the value of userrec::host.
 	 */
-	char dhost[256];
+	char dhost[160];
 	
 	/** The users full name.
 	 */
@@ -165,7 +165,7 @@ class userrec : public connection
 	 * If they do not send their details in this time limit they
 	 * will be disconnected
 	 */
-	unsigned long timeout;
+	unsigned int timeout;
 	
 	/** The oper type they logged in as, if they are an oper.
 	 * This is used to check permissions in operclasses, so that
@@ -180,7 +180,7 @@ class userrec : public connection
 
 	/** Number of seconds between PINGs for this user (set from &lt;connect:allow&gt; tag
 	 */
-	unsigned long pingmax;
+	unsigned int pingmax;
 
 	/** Password specified by the user when they registered.
 	 * This is stored even if the <connect> block doesnt need a password, so that
@@ -201,7 +201,7 @@ class userrec : public connection
 
 	/** Flood counters
 	 */
-	long lines_in;
+	int lines_in;
 	time_t reset_due;
 	long threshold;
 

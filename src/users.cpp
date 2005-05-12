@@ -36,7 +36,6 @@ userrec::userrec()
 	strcpy(dhost,"");
 	strcpy(fullname,"");
 	strcpy(modes,"");
-	strcpy(inbuf,"");
 	strcpy(server,"");
 	strcpy(awaymsg,"");
 	strcpy(oper,"");

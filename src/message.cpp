@@ -483,7 +483,7 @@ char* chlist(userrec *user,userrec* source)
 				if (!strstr(lst,cmp))
 				{
 					// if the channel is NOT private/secret, OR the source user is on the channel
-					if (((!user->chans[i].channel->c_private) && (!user->chans[i].channel->secret)) || (has_channel(source,user->chans[i].channel)))
+					if (((!(user->chans[i].channel->binarymodes & CM_PRIVATE)) && (!(user->chans[i].channel->binarymodes & CM_SECRET))) || (has_channel(source,user->chans[i].channel)))
 					{
 						strlcat(lst,cmode(user,user->chans[i].channel),MAXBUF);
 						strlcat(lst,user->chans[i].channel->name,MAXBUF);

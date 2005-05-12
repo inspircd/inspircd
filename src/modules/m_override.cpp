@@ -165,7 +165,7 @@ class ModuleOverride : public Module
 		{
 			if (chan)
 			{
-				if ((chan->inviteonly) && (CanOverride(user,"INVITE")))
+				if ((chan->binarymodes & CM_INVITEONLY) && (CanOverride(user,"INVITE")))
 				{
 					if (NoisyOverride)
 					{

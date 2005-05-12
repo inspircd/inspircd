@@ -216,15 +216,11 @@ class connection : public Extensible
 	
 	/** Hostname of connection. Not used if this is a serverrec
 	 */
-	char host[256];
+	char host[160];
 	
-	/** IP of connection. Reserved for future use.
+	/** IP of connection.
 	 */
-	char ip[32];
-	
-	/** Inbuf of connection. Only used for userrec
-	 */
-	char inbuf[MAXBUF];
+	char ip[16];
 	
 	/** Stats counter for bytes inbound
 	 */
@@ -254,11 +250,7 @@ class connection : public Extensible
 	
 	/** Used by userrec to indicate the registration status of the connection
 	 */
-	int registered;
-	
-	/** Reserved for future use
-	 */
-	short int state;
+	short int registered;
 	
 	/** Time the connection was last pinged
 	 */
@@ -276,13 +268,9 @@ class connection : public Extensible
 	 */
 	time_t nping;
 	
-	/** Unused, will be removed in a future alpha/beta
-	 */
-	char internal_addr[MAXBUF];
+	//char internal_addr[MAXBUF];
 	
-	/** Unused, will be removed in a future alpha/beta
-	 */
-	int internal_port;
+	//int internal_port;
 
 	/** With a serverrec, this is a list of all established server connections.
 	 * With a userrec this is unused.

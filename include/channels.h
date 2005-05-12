@@ -23,6 +23,13 @@
 #ifndef __CHANNELS_H__
 #define __CHANNELS_H__
 
+#define CM_TOPICLOCK 1
+#define CM_NOEXTERNAL 2
+#define CM_INVITEONLY 4
+#define CM_MODERATED 8
+#define CM_SECRET 16
+#define CM_PRIVATE 32
+
 /** Holds an entry for a ban list, exemption list, or invite list.
  * This class contains a single element in a channel list, such as a banlist.
  */
@@ -102,10 +109,6 @@ class chanrec : public Extensible
 	 */
 	char custom_modes[MAXMODES];     /* modes handled by modules */
 
-	/** Count of users on the channel used for fast user counting
-	 */
-	long users;
-
 	/** User list (casted to char*'s to stop forward declaration stuff)
 	 * (chicken and egg scenario!)
 	 */
@@ -130,38 +133,16 @@ class chanrec : public Extensible
 	/** Contains the channel user limit.
 	 * If this value is zero, there is no limit in place.
 	 */
-	long limit;
+	short int limit;
 	
 	/** Contains the channel key.
 	 * If this value is an empty string, there is no channel key in place.
 	 */
 	char key[32];
 	
-	/** Nonzero if the mode +t is set.
+	/** Contains a bitmask of the CM_* builtin (RFC) binary mode symbols
 	 */
-	short int topiclock;
-	
-	/** Nonzero if the mode +n is set.
-	 */
-	short int noexternal;
-	
-	/** Nonzero if the mode +i is set.
-	 */
-	short int inviteonly;
-	
-	/** Nonzero if the mode +m is set.
-	 */
-	short int moderated;
-	
-	/** Nonzero if the mode +s is set.
-	 * This value cannot be set at the same time as chanrec::c_private
-	 */
-	short int secret;
-	
-	/** Nonzero if the mode +p is set.
-	 * This value cannot be set at the same time as chanrec::secret
-	 */
-	short int c_private;
+	char binarymodes;
 	
 	/** The list of all bans set on the channel.
 	 */
@@ -260,7 +241,7 @@ class ucrec : public classbase
 	/** Contains a bitmask of the UCMODE_OP ... UCMODE_FOUNDER values.
 	 * If this value is zero, the user has no privilages upon the channel.
 	 */
-	long uc_modes;
+	char uc_modes;
 	
 	/** Points to the channel record where the given modes apply.
 	 * If the record is not in use, this value will be NULL.

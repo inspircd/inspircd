@@ -117,8 +117,8 @@ chanrec::chanrec()
 	strcpy(topic,"");
 	strcpy(setby,"");
 	strcpy(key,"");
-	created = topicset = limit = users = 0;
-	topiclock = noexternal = inviteonly = moderated = secret = c_private = false;
+	created = topicset = limit = 0;
+	binarymodes = 0;
 	internal_userlist.clear();
 }
 

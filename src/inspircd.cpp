@@ -1437,11 +1437,11 @@ char* chanmodes(chanrec *chan)
 
 	strcpy(scratch,"");
 	strcpy(sparam,"");
-	if (chan->noexternal)
+	if (chan->binarymodes & CM_NOEXTERNAL)
 	{
 		strlcat(scratch,"n",MAXMODES);
 	}
-	if (chan->topiclock)
+	if (chan->binarymodes & CM_TOPICLOCK)
 	{
 		strlcat(scratch,"t",MAXMODES);
 	}
@@ -1453,19 +1453,19 @@ char* chanmodes(chanrec *chan)
 	{
 		strlcat(scratch,"l",MAXMODES);
 	}
-	if (chan->inviteonly)
+	if (chan->binarymodes & CM_INVITEONLY)
 	{
 		strlcat(scratch,"i",MAXMODES);
 	}
-	if (chan->moderated)
+	if (chan->binarymodes & CM_MODERATED)
 	{
 		strlcat(scratch,"m",MAXMODES);
 	}
-	if (chan->secret)
+	if (chan->binarymodes & CM_SECRET)
 	{
 		strlcat(scratch,"s",MAXMODES);
 	}
-	if (chan->c_private)
+	if (chan->binarymodes & CM_PRIVATE)
 	{
 		strlcat(scratch,"p",MAXMODES);
 	}
@@ -1639,8 +1639,7 @@ chanrec* add_channel(userrec *user, const char* cn, const char* key, bool overri
 			chanlist[cname] = new chanrec();
 
 			strlcpy(chanlist[cname]->name, cname,CHANMAX);
-			chanlist[cname]->topiclock = 1;
-			chanlist[cname]->noexternal = 1;
+			chanlist[cname]->binarymodes = CM_TOPICLOCK | CM_NOEXTERNAL;
 			chanlist[cname]->created = TIME;
 			strcpy(chanlist[cname]->topic, "");
 			strncpy(chanlist[cname]->setby, user->nick,NICKMAX);
@@ -1705,7 +1704,7 @@ chanrec* add_channel(userrec *user, const char* cn, const char* key, bool overri
 					FOREACH_RESULT(OnCheckInvite(user, Ptr));
 					if (MOD_RESULT == 0)
 					{
-						if (Ptr->inviteonly)
+						if (Ptr->binarymodes & CM_INVITEONLY)
 						{
 							log(DEBUG,"add_channel: channel is +i");
 							if (user->IsInvited(Ptr->name))
@@ -2450,9 +2449,9 @@ void AddWhoWas(userrec* u)
 	user_hash::iterator iter = whowas.find(u->nick);
 	userrec *a = new userrec();
 	strlcpy(a->nick,u->nick,NICKMAX);
-	strlcpy(a->ident,u->ident,64);
-	strlcpy(a->dhost,u->dhost,256);
-	strlcpy(a->host,u->host,256);
+	strlcpy(a->ident,u->ident,15);
+	strlcpy(a->dhost,u->dhost,160);
+	strlcpy(a->host,u->host,160);
 	strlcpy(a->fullname,u->fullname,128);
 	strlcpy(a->server,u->server,256);
 	a->signon = u->signon;
@@ -2541,12 +2540,12 @@ void AddClient(int socket, char* host, int port, bool iscached, char* ip)
 	strncpy(clientlist[tempnick]->host, host,160);
 	strncpy(clientlist[tempnick]->dhost, host,160);
 	strncpy(clientlist[tempnick]->server, ServerName,256);
-	strncpy(clientlist[tempnick]->ident, "unknown",12);
+	strncpy(clientlist[tempnick]->ident, "unknown",15);
 	clientlist[tempnick]->registered = 0;
 	clientlist[tempnick]->signon = TIME+dns_timeout;
 	clientlist[tempnick]->lastping = 1;
 	clientlist[tempnick]->port = port;
-	strncpy(clientlist[tempnick]->ip,ip,32);
+	strncpy(clientlist[tempnick]->ip,ip,16);
 
 	// set the registration timeout for this user
 	unsigned long class_regtimeout = 90;
