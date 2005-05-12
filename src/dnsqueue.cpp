@@ -254,7 +254,7 @@ public:
 	}
 };
 
-Lookup dnsq[MAXBUF];
+Lookup dnsq[255];
 
 bool lookup_dns(std::string nick)
 {
@@ -267,7 +267,7 @@ bool lookup_dns(std::string nick)
 		Lookup L;
 		if (L.DoLookup(nick))
 		{
-			for (int j = 0; j < MAXBUF; j++)
+			for (int j = 0; j < 255; j++)
 			{
 				if (!dnsq[j].GetFD())
 				{
@@ -276,7 +276,7 @@ bool lookup_dns(std::string nick)
 				}
 			}
 			// calculate the maximum value, this saves cpu time later
-			for (int p = 0; p < MAXBUF; p++)
+			for (int p = 0; p < 255; p++)
 				if (dnsq[p].GetFD())
 					max_fd_alloc = p;
 		}
@@ -304,7 +304,7 @@ void dns_poll()
 	}
 	// looks like someones freed an item, recalculate end of list.
 	if ((!dnsq[max_fd_alloc].GetFD()) && (max_fd_alloc != 0))
-		for (int p = 0; p < MAXBUF; p++)
+		for (int p = 0; p < 255; p++)
 			if (dnsq[p].GetFD())
 				max_fd_alloc = p;
 

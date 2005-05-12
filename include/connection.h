@@ -73,7 +73,7 @@ class ircd_connector : public Extensible
 	/** State. STATE_NOAUTH_INBOUND, STATE_NOAUTH_OUTBOUND
 	 * STATE_SYNC, STATE_DISCONNECTED, STATE_CONNECTED
 	 */
-	int state;
+	char state;
 	
 	/** PRIVATE function to set the host address and port to connect to
 	 */
@@ -250,7 +250,7 @@ class connection : public Extensible
 	
 	/** Used by userrec to indicate the registration status of the connection
 	 */
-	short int registered;
+	char registered;
 	
 	/** Time the connection was last pinged
 	 */
@@ -268,10 +268,6 @@ class connection : public Extensible
 	 */
 	time_t nping;
 	
-	//char internal_addr[MAXBUF];
-	
-	//int internal_port;
-
 	/** With a serverrec, this is a list of all established server connections.
 	 * With a userrec this is unused.
 	 */
