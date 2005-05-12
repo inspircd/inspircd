@@ -2229,9 +2229,9 @@ void kill_link(userrec *user,const char* r)
 		log(DEBUG,"deleting user hash value %lu",(unsigned long)user);
 		if (user->fd > -1)
 			fd_ref_table[user->fd] = NULL;
-		delete user;
 		clientlist.erase(iter);
 	}
+	delete user;
 }
 
 void kill_link_silent(userrec *user,const char* r)
@@ -2288,9 +2288,9 @@ void kill_link_silent(userrec *user,const char* r)
 		log(DEBUG,"deleting user hash value %lu",(unsigned long)user);
                 if (user->fd > -1)
                         fd_ref_table[user->fd] = NULL;
-		delete user;
 		clientlist.erase(iter);
 	}
+	delete user;
 }
 
 
@@ -2435,8 +2435,8 @@ userrec* ReHashNick(char* Old, char* New)
 
 	log(DEBUG,"ReHashNick: Found hashed nick %s",Old);
 
-	clientlist[New] = new userrec();
-	clientlist[New] = oldnick->second;
+	userrec* olduser = oldnick->second;
+	clientlist[New] = olduser;
 	clientlist.erase(oldnick);
 
 	log(DEBUG,"ReHashNick: Nick rehashed as %s",New);
@@ -2464,19 +2464,24 @@ void AddWhoWas(userrec* u)
 	
 	if (iter == whowas.end())
 	{
-		if (whowas.size() == WHOWAS_MAX)
+		if (whowas.size() >= WHOWAS_MAX)
 		{
 			for (user_hash::iterator i = whowas.begin(); i != whowas.end(); i++)
 			{
 				// 3600 seconds in an hour ;)
 				if ((i->second->signon)<(TIME-(WHOWAS_STALE*3600)))
 				{
+					// delete the old one
 					if (i->second) delete i->second;
+					// replace with new one
 					i->second = a;
 					log(DEBUG,"added WHOWAS entry, purged an old record");
 					return;
 				}
 			}
+			// no space left and user doesnt exist. Don't leave ram in use!
+			log(DEBUG,"Not able to update whowas (list at WHOWAS_MAX entries and trying to add new?), freeing excess ram");
+			delete a;
 		}
 		else
 		{
@@ -2514,6 +2519,8 @@ void AddClient(int socket, char* host, int port, bool iscached, char* ip)
 	// issue in earlier alphas/betas
 	if (iter != clientlist.end())
 	{
+		userrec* goner = iter->second;
+		delete goner;
 		clientlist.erase(iter);
 	}
 
@@ -2588,7 +2595,7 @@ void AddClient(int socket, char* host, int port, bool iscached, char* ip)
 	// irc server at once (or the irc server otherwise initiating this many connections, files etc)
 	// which for the time being is a physical impossibility (even the largest networks dont have more
 	// than about 10,000 users on ONE server!)
-	if (socket > 65535)
+	if (socket > 65534)
 	{
 		kill_link(clientlist[tempnick],"Server is full");
 		return;
