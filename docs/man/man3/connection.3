@@ -1,4 +1,4 @@
-.TH "connection" 3 "7 May 2005" "InspIRCd" \" -*- nroff -*-
+.TH "connection" 3 "12 May 2005" "InspIRCd" \" -*- nroff -*-
 .ad l
 .nh
 .SH NAME
@@ -179,7 +179,7 @@ Referenced by userrec::userrec().
 .PP
 Stats counter for bytes outbound. Definition at line 235 of file connection.h.
 .PP
-Referenced by userrec::userrec().
+Referenced by userrec::FlushWriteBuf(), and userrec::userrec().
 .SS "long \fBconnection::cmds_in\fP"
 .PP
 Stats counter for commands inbound. Definition at line 239 of file connection.h.
@@ -189,7 +189,7 @@ Referenced by userrec::userrec().
 .PP
 Stats counter for commands outbound. Definition at line 243 of file connection.h.
 .PP
-Referenced by userrec::userrec().
+Referenced by userrec::FlushWriteBuf(), and userrec::userrec().
 .SS "std::vector<\fBircd_connector\fP> \fBconnection::connectors\fP"
 .PP
 With a serverrec, this is a list of all established server connections. With a userrec this is unused.Definition at line 290 of file connection.h.

@@ -221,9 +221,9 @@ Default constructor creates a module class.
 <p>
 
 <p>
-Definition at line <a class="el" href="modules_8cpp-source.html#l00360">360</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
+Definition at line <a class="el" href="modules_8cpp-source.html#l00369">369</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
 <p>
-<div class="fragment"><pre>00360 { }
+<div class="fragment"><pre>00369 { }
 </pre></div>    </td>
   </tr>
 </table>
@@ -256,9 +256,9 @@ Default destructor destroys a module class.
 <p>
 
 <p>
-Definition at line <a class="el" href="modules_8cpp-source.html#l00361">361</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
+Definition at line <a class="el" href="modules_8cpp-source.html#l00370">370</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
 <p>
-<div class="fragment"><pre>00361 { }
+<div class="fragment"><pre>00370 { }
 </pre></div>    </td>
   </tr>
 </table>
@@ -292,11 +292,11 @@ Returns the version number of a Module.
 <p>
 The method should return a <a class="el" href="classVersion.html">Version</a> object with its version information assigned via <a class="el" href="classVersion.html#a0">Version::Version</a>
 <p>
-Definition at line <a class="el" href="modules_8cpp-source.html#l00373">373</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
+Definition at line <a class="el" href="modules_8cpp-source.html#l00382">382</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
 <p>
 References <a class="el" href="modules_8h-source.html#l00054">VF_VENDOR</a>.
 <p>
-<div class="fragment"><pre>00373 { <span class="keywordflow">return</span> <a class="code" href="classVersion.html">Version</a>(1,0,0,0,VF_VENDOR); }
+<div class="fragment"><pre>00382 { <span class="keywordflow">return</span> <a class="code" href="classVersion.html">Version</a>(1,0,0,0,VF_VENDOR); }
 </pre></div>    </td>
   </tr>
 </table>
@@ -330,9 +330,9 @@ Called when a 005 numeric is about to be output.
 <p>
 The module should modify the 005 numeric if needed to indicate its features.
 <p>
-Definition at line <a class="el" href="modules_8cpp-source.html#l00385">385</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
+Definition at line <a class="el" href="modules_8cpp-source.html#l00394">394</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
 <p>
-<div class="fragment"><pre>00385 { };
+<div class="fragment"><pre>00394 { };
 </pre></div>    </td>
   </tr>
 </table>
@@ -399,11 +399,11 @@ This function is called before many functions which check a users status on a ch
 <br>
  Upon returning from your function you must return either ACR_DEFAULT, to indicate the module wishes to do nothing, or ACR_DENY where approprate to deny the action, and ACR_ALLOW where appropriate to allow the action. Please note that in the case of some access checks (such as AC_GENERAL_MODE) access may be denied 'upstream' causing other checks such as AC_DEOP to not be reached. Be very careful with use of the AC_GENERAL_MODE type, as it may inadvertently override the behaviour of other modules. When the access_type is AC_GENERAL_MODE, the destination of the mode will be NULL (as it has not yet been determined).
 <p>
-Definition at line <a class="el" href="modules_8cpp-source.html#l00382">382</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
+Definition at line <a class="el" href="modules_8cpp-source.html#l00391">391</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
 <p>
 References <a class="el" href="modules_8h-source.html#l00037">ACR_DEFAULT</a>.
 <p>
-<div class="fragment"><pre>00382 { <span class="keywordflow">return</span> <a class="code" href="modules_8h.html#a8">ACR_DEFAULT</a>; };
+<div class="fragment"><pre>00391 { <span class="keywordflow">return</span> <a class="code" href="modules_8h.html#a8">ACR_DEFAULT</a>; };
 </pre></div>    </td>
   </tr>
 </table>
@@ -452,9 +452,9 @@ Called whenever a ban is added to a channel's list.
 <p>
 Return a non-zero value to 'eat' the mode change and prevent the ban from being added.
 <p>
-Definition at line <a class="el" href="modules_8cpp-source.html#l00410">410</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
+Definition at line <a class="el" href="modules_8cpp-source.html#l00419">419</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
 <p>
-<div class="fragment"><pre>00410 { <span class="keywordflow">return</span> 0; };
+<div class="fragment"><pre>00419 { <span class="keywordflow">return</span> 0; };
 </pre></div>    </td>
   </tr>
 </table>
@@ -488,9 +488,9 @@ Called once every five seconds for background processing.
 <p>
 This timer can be used to control timed features. Its period is not accurate enough to be used as a clock, but it is gauranteed to be called at least once in any five second period, directly from the main loop of the server.
 <p>
-Definition at line <a class="el" href="modules_8cpp-source.html#l00388">388</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
+Definition at line <a class="el" href="modules_8cpp-source.html#l00397">397</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
 <p>
-<div class="fragment"><pre>00388 { };
+<div class="fragment"><pre>00397 { };
 </pre></div>    </td>
   </tr>
 </table>
@@ -533,9 +533,9 @@ Called whenever a change of a local users GECOS (fullname field) is attempted.
 <p>
 return 1 to deny the name change, or 0 to allow it.
 <p>
-Definition at line <a class="el" href="modules_8cpp-source.html#l00402">402</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
+Definition at line <a class="el" href="modules_8cpp-source.html#l00411">411</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
 <p>
-<div class="fragment"><pre>00402 { <span class="keywordflow">return</span> 0; };
+<div class="fragment"><pre>00411 { <span class="keywordflow">return</span> 0; };
 </pre></div>    </td>
   </tr>
 </table>
@@ -578,9 +578,9 @@ Called whenever a change of a local users displayed host is attempted.
 <p>
 Return 1 to deny the host change, or 0 to allow it.
 <p>
-Definition at line <a class="el" href="modules_8cpp-source.html#l00401">401</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
+Definition at line <a class="el" href="modules_8cpp-source.html#l00410">410</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
 <p>
-<div class="fragment"><pre>00401 { <span class="keywordflow">return</span> 0; };
+<div class="fragment"><pre>00410 { <span class="keywordflow">return</span> 0; };
 </pre></div>    </td>
   </tr>
 </table>
@@ -614,11 +614,11 @@ Called during a netburst to sync channel data.
 <p>
 This is called during the netburst on a per-channel basis. You should use this call to up any special channel-related things which are implemented by your module, e.g. sending listmodes. You may return multiple commands in the string_list.
 <p>
-Definition at line <a class="el" href="modules_8cpp-source.html#l00384">384</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
+Definition at line <a class="el" href="modules_8cpp-source.html#l00393">393</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
 <p>
 References <a class="el" href="modules_8h-source.html#l00068">string_list</a>.
 <p>
-<div class="fragment"><pre>00384 { <a class="code" href="modules_8h.html#a32">string_list</a> empty; <span class="keywordflow">return</span> empty; }
+<div class="fragment"><pre>00393 { <a class="code" href="modules_8h.html#a32">string_list</a> empty; <span class="keywordflow">return</span> empty; }
 </pre></div>    </td>
   </tr>
 </table>
@@ -661,9 +661,9 @@ Called whenever a user joins a channel, to determine if banlist checks should go
 <p>
 This method will always be called for each join, wether or not the user actually matches a channel ban, and determines the outcome of an if statement around the whole section of ban checking code. return 1 to explicitly allow the join to go ahead or 0 to ignore the event. 
 <p>
-Definition at line <a class="el" href="modules_8cpp-source.html#l00399">399</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
+Definition at line <a class="el" href="modules_8cpp-source.html#l00408">408</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
 <p>
-<div class="fragment"><pre>00399 { <span class="keywordflow">return</span> 0; };
+<div class="fragment"><pre>00408 { <span class="keywordflow">return</span> 0; };
 </pre></div>    </td>
   </tr>
 </table>
@@ -706,9 +706,9 @@ Called whenever a user joins a channel, to determine if invite checks should go 
 <p>
 This method will always be called for each join, wether or not the channel is actually +i, and determines the outcome of an if statement around the whole section of invite checking code. return 1 to explicitly allow the join to go ahead or 0 to ignore the event.
 <p>
-Definition at line <a class="el" href="modules_8cpp-source.html#l00396">396</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
+Definition at line <a class="el" href="modules_8cpp-source.html#l00405">405</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
 <p>
-<div class="fragment"><pre>00396 { <span class="keywordflow">return</span> 0; };
+<div class="fragment"><pre>00405 { <span class="keywordflow">return</span> 0; };
 </pre></div>    </td>
   </tr>
 </table>
@@ -757,9 +757,9 @@ Called whenever a user joins a channel, to determine if key checks should go ahe
 <p>
 This method will always be called for each join, wether or not the channel is actually +k, and determines the outcome of an if statement around the whole section of key checking code. if the user specified no key, the keygiven string will be a valid but empty value. return 1 to explicitly allow the join to go ahead or 0 to ignore the event. 
 <p>
-Definition at line <a class="el" href="modules_8cpp-source.html#l00397">397</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
+Definition at line <a class="el" href="modules_8cpp-source.html#l00406">406</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
 <p>
-<div class="fragment"><pre>00397 { <span class="keywordflow">return</span> 0; };
+<div class="fragment"><pre>00406 { <span class="keywordflow">return</span> 0; };
 </pre></div>    </td>
   </tr>
 </table>
@@ -802,9 +802,9 @@ Called whenever a user joins a channel, to determine if channel limit checks sho
 <p>
 This method will always be called for each join, wether or not the channel is actually +l, and determines the outcome of an if statement around the whole section of channel limit checking code. return 1 to explicitly allow the join to go ahead or 0 to ignore the event. 
 <p>
-Definition at line <a class="el" href="modules_8cpp-source.html#l00398">398</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
+Definition at line <a class="el" href="modules_8cpp-source.html#l00407">407</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
 <p>
-<div class="fragment"><pre>00398 { <span class="keywordflow">return</span> 0; };
+<div class="fragment"><pre>00407 { <span class="keywordflow">return</span> 0; };
 </pre></div>    </td>
   </tr>
 </table>
@@ -838,9 +838,9 @@ Called to check if a user who is connecting can now be allowed to register If an
 <p>
 For example a module which implements ident lookups will continue to return false for a user until their ident lookup is completed. Note that the registration timeout for a user overrides these checks, if the registration timeout is reached, the user is disconnected even if modules report that the user is not ready to connect.
 <p>
-Definition at line <a class="el" href="modules_8cpp-source.html#l00391">391</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
+Definition at line <a class="el" href="modules_8cpp-source.html#l00400">400</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
 <p>
-<div class="fragment"><pre>00391 { <span class="keywordflow">return</span> <span class="keyword">true</span>; };
+<div class="fragment"><pre>00400 { <span class="keywordflow">return</span> <span class="keyword">true</span>; };
 </pre></div>    </td>
   </tr>
 </table>
@@ -889,9 +889,9 @@ Called whenever a ban is removed from a channel's list.
 <p>
 Return a non-zero value to 'eat' the mode change and prevent the ban from being removed.
 <p>
-Definition at line <a class="el" href="modules_8cpp-source.html#l00411">411</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
+Definition at line <a class="el" href="modules_8cpp-source.html#l00420">420</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
 <p>
-<div class="fragment"><pre>00411 { <span class="keywordflow">return</span> 0; };
+<div class="fragment"><pre>00420 { <span class="keywordflow">return</span> 0; };
 </pre></div>    </td>
   </tr>
 </table>
@@ -925,9 +925,9 @@ Called whenever an <a class="el" href="classEvent.html">Event</a> class is sent 
 <p>
 Please see the documentation of <a class="el" href="classEvent.html#a4">Event::Send()</a> for further information. The <a class="el" href="classEvent.html">Event</a> sent can always be assumed to be non-NULL, you should *always* check the value of <a class="el" href="classEvent.html#a3">Event::GetEventID()</a> before doing anything to the event data, and you should *not* change the event data in any way!
 <p>
-Definition at line <a class="el" href="modules_8cpp-source.html#l00405">405</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
+Definition at line <a class="el" href="modules_8cpp-source.html#l00414">414</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
 <p>
-<div class="fragment"><pre>00405 { <span class="keywordflow">return</span>; };
+<div class="fragment"><pre>00414 { <span class="keywordflow">return</span>; };
 </pre></div>    </td>
   </tr>
 </table>
@@ -994,9 +994,9 @@ Called whenever an extended mode is to be processed.
 <p>
 The type parameter is MT_SERVER, MT_CLIENT or MT_CHANNEL, dependent on where the mode is being changed. mode_on is set when the mode is being set, in which case params contains a list of parameters for the mode as strings. If mode_on is false, the mode is being removed, and parameters may contain the parameters for the mode, dependent on wether they were defined when a mode handler was set up with <a class="el" href="classServer.html#a23">Server::AddExtendedMode</a> If the mode is a channel mode, target is a chanrec*, and if it is a user mode, target is a userrec*. You must cast this value yourself to make use of it.
 <p>
-Definition at line <a class="el" href="modules_8cpp-source.html#l00372">372</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
+Definition at line <a class="el" href="modules_8cpp-source.html#l00381">381</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
 <p>
-<div class="fragment"><pre>00372 { <span class="keywordflow">return</span> <span class="keyword">false</span>; }
+<div class="fragment"><pre>00381 { <span class="keywordflow">return</span> <span class="keyword">false</span>; }
 </pre></div>    </td>
   </tr>
 </table>
@@ -1030,9 +1030,9 @@ Called whenever a user connects, anywhere on the network.
 <p>
 This event is informational only. You should not change any user information in this event. To do so, use the OnUserConnect method to change the state of local users.
 <p>
-Definition at line <a class="el" href="modules_8cpp-source.html#l00409">409</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
+Definition at line <a class="el" href="modules_8cpp-source.html#l00418">418</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
 <p>
-<div class="fragment"><pre>00409 { };
+<div class="fragment"><pre>00418 { };
 </pre></div>    </td>
   </tr>
 </table>
@@ -1066,9 +1066,9 @@ Called whenever a user is given usermode +o, anywhere on the network.
 <p>
 You cannot override this and prevent it from happening as it is already happened and such a task must be performed by another server. You can however bounce modes by sending servermodes out to reverse mode changes.
 <p>
-Definition at line <a class="el" href="modules_8cpp-source.html#l00408">408</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
+Definition at line <a class="el" href="modules_8cpp-source.html#l00417">417</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
 <p>
-<div class="fragment"><pre>00408 { };
+<div class="fragment"><pre>00417 { };
 </pre></div>    </td>
   </tr>
 </table>
@@ -1103,9 +1103,9 @@ Called whenever a user types /INFO.
 The userrec will contain the information of the user who typed the command. Modules may use this method to output their own credits in /INFO (which is the ircd's version of an about box). It is purposefully not possible to modify any info that has already been output, or halt the list. You must write a 371 numeric to the user, containing your info in the following format:<p>
 &lt;nick&gt; :information here
 <p>
-Definition at line <a class="el" href="modules_8cpp-source.html#l00375">375</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
+Definition at line <a class="el" href="modules_8cpp-source.html#l00384">384</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
 <p>
-<div class="fragment"><pre>00375 { };
+<div class="fragment"><pre>00384 { };
 </pre></div>    </td>
   </tr>
 </table>
@@ -1154,9 +1154,9 @@ Called when a client is disconnected by KILL.
 <p>
 If a client is killed by a server, e.g. a nickname collision or protocol error, source is NULL. Return 1 from this function to prevent the kill, and 0 from this function to allow it as normal. If you prevent the kill no output will be sent to the client, it is down to your module to generate this information. NOTE: It is NOT advisable to stop kills which originate from servers. If you do so youre risking race conditions, desyncs and worse!
 <p>
-Definition at line <a class="el" href="modules_8cpp-source.html#l00386">386</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
+Definition at line <a class="el" href="modules_8cpp-source.html#l00395">395</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
 <p>
-<div class="fragment"><pre>00386 { <span class="keywordflow">return</span> 0; };
+<div class="fragment"><pre>00395 { <span class="keywordflow">return</span> 0; };
 </pre></div>    </td>
   </tr>
 </table>
@@ -1199,9 +1199,9 @@ Called whenever a module is loaded.
 <p>
 mod will contain a pointer to the module, and string will contain its name, for example m_widgets.so. This function is primary for dependency checking, your module may decide to enable some extra features if it sees that you have for example loaded "m_killwidgets.so" with "m_makewidgets.so". It is highly recommended that modules do *NOT* bail if they cannot satisfy dependencies, but instead operate under reduced functionality, unless the dependency is absolutely neccessary (e.g. a module that extends the features of another module).
 <p>
-Definition at line <a class="el" href="modules_8cpp-source.html#l00387">387</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
+Definition at line <a class="el" href="modules_8cpp-source.html#l00396">396</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
 <p>
-<div class="fragment"><pre>00387 { };
+<div class="fragment"><pre>00396 { };
 </pre></div>    </td>
   </tr>
 </table>
@@ -1250,9 +1250,9 @@ Called whenever a topic is changed by a local user.
 <p>
 Return 1 to deny the topic change, or 0 to allow it.
 <p>
-Definition at line <a class="el" href="modules_8cpp-source.html#l00403">403</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
+Definition at line <a class="el" href="modules_8cpp-source.html#l00412">412</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
 <p>
-<div class="fragment"><pre>00403 { <span class="keywordflow">return</span> 0; };
+<div class="fragment"><pre>00412 { <span class="keywordflow">return</span> 0; };
 </pre></div>    </td>
   </tr>
 </table>
@@ -1325,9 +1325,9 @@ Called whenever an unknown token is received in a server to server link.
 <p>
 The token value is the unknown token -- please check that no other modules are using the token that you use. Returning 1 supresses the 'unknown token type' error which is usually sent to all opers with +s. The params list is a list of parameters, and if any parameters start with a colon (:) it is treated as the whole of the last parameter, identical to how RFC messages are handled. source is the sender of the message, and reply is what should be replied to for a unicast message. Note that there are not many messages in the mesh protocol which require unicast messaging. tcp_host is the server name as a string, ipaddr is its ip address in dotted decimal notation and port is the port number it is using.
 <p>
-Definition at line <a class="el" href="modules_8cpp-source.html#l00404">404</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
+Definition at line <a class="el" href="modules_8cpp-source.html#l00413">413</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
 <p>
-<div class="fragment"><pre>00404 { <span class="keywordflow">return</span> 0; };
+<div class="fragment"><pre>00413 { <span class="keywordflow">return</span> 0; };
 </pre></div>    </td>
   </tr>
 </table>
@@ -1361,9 +1361,9 @@ Called whenever a user opers locally.
 <p>
 The userrec will contain the oper mode 'o' as this function is called after any modifications are made to the user's structure by the core.
 <p>
-Definition at line <a class="el" href="modules_8cpp-source.html#l00374">374</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
+Definition at line <a class="el" href="modules_8cpp-source.html#l00383">383</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
 <p>
-<div class="fragment"><pre>00374 { };
+<div class="fragment"><pre>00383 { };
 </pre></div>    </td>
   </tr>
 </table>
@@ -1406,9 +1406,9 @@ Called whenever an oper password is to be compared to what a user has input.
 <p>
 The password field (from the config file) is in 'password' and is to be compared against 'input'. This method allows for encryption of oper passwords and much more besides. You should return a nonzero value if you want to allow the comparison or zero if you wish to do nothing.
 <p>
-Definition at line <a class="el" href="modules_8cpp-source.html#l00407">407</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
+Definition at line <a class="el" href="modules_8cpp-source.html#l00416">416</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
 <p>
-<div class="fragment"><pre>00407 { <span class="keywordflow">return</span> 0; };
+<div class="fragment"><pre>00416 { <span class="keywordflow">return</span> 0; };
 </pre></div>    </td>
   </tr>
 </table>
@@ -1451,9 +1451,9 @@ Called after a packet is received from another irc server.
 <p>
 This allows you to easily represent it in the correct ways to implement encryption, compression, digital signatures and anything else you may want to add. This should be regarded as a pre-processor and will be called immediately after the packet is received but before any other operations with the core of the ircd.
 <p>
-Definition at line <a class="el" href="modules_8cpp-source.html#l00368">368</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
+Definition at line <a class="el" href="modules_8cpp-source.html#l00377">377</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
 <p>
-<div class="fragment"><pre>00368 { }
+<div class="fragment"><pre>00377 { }
 </pre></div>    </td>
   </tr>
 </table>
@@ -1496,9 +1496,9 @@ Called before a packet is transmitted across the irc network between two irc ser
 <p>
 This allows you to easily represent it in the correct ways to implement encryption, compression, digital signatures and anything else you may want to add. This should be regarded as a pre-processor and will be called before ANY other operations within the ircd core program.
 <p>
-Definition at line <a class="el" href="modules_8cpp-source.html#l00367">367</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
+Definition at line <a class="el" href="modules_8cpp-source.html#l00376">376</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
 <p>
-<div class="fragment"><pre>00367 { }
+<div class="fragment"><pre>00376 { }
 </pre></div>    </td>
   </tr>
 </table>
@@ -1553,9 +1553,9 @@ Called whenever any command is about to be executed.
 <p>
 This event occurs for all registered commands, wether they are registered in the core, or another module, but it will not occur for invalid commands (e.g. ones which do not exist within the command table). By returning 1 from this method you may prevent the command being executed. If you do this, no output is created by the core, and it is down to your module to produce any output neccessary. Note that unless you return 1, you should not destroy any structures (e.g. by using <a class="el" href="classServer.html#a31">Server::QuitUser</a>) otherwise when the command's handler function executes after your method returns, it will be passed an invalid pointer to the user object and crash!)
 <p>
-Definition at line <a class="el" href="modules_8cpp-source.html#l00390">390</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
+Definition at line <a class="el" href="modules_8cpp-source.html#l00399">399</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
 <p>
-<div class="fragment"><pre>00390 { <span class="keywordflow">return</span> 0; };
+<div class="fragment"><pre>00399 { <span class="keywordflow">return</span> 0; };
 </pre></div>    </td>
   </tr>
 </table>
@@ -1622,9 +1622,9 @@ Called whenever a mode character is processed.
 <p>
 Return 1 from this function to block the mode character from being processed entirely, so that you may perform your own code instead. Note that this method allows you to override modes defined by other modes, but this is NOT RECOMMENDED!
 <p>
-Definition at line <a class="el" href="modules_8cpp-source.html#l00395">395</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
+Definition at line <a class="el" href="modules_8cpp-source.html#l00404">404</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
 <p>
-<div class="fragment"><pre>00395 { <span class="keywordflow">return</span> 0; };
+<div class="fragment"><pre>00404 { <span class="keywordflow">return</span> 0; };
 </pre></div>    </td>
   </tr>
 </table>
@@ -1673,9 +1673,9 @@ Called immediately after any connection is accepted.
 <p>
 This is intended for raw socket processing (e.g. modules which wrap the tcp connection within another library) and provides no information relating to a user record as the connection has not been assigned yet. There are no return values from this call as all modules get an opportunity if required to process the connection.
 <p>
-Definition at line <a class="el" href="modules_8cpp-source.html#l00412">412</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
+Definition at line <a class="el" href="modules_8cpp-source.html#l00421">421</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
 <p>
-<div class="fragment"><pre>00412 { };
+<div class="fragment"><pre>00421 { };
 </pre></div>    </td>
   </tr>
 </table>
@@ -1709,9 +1709,9 @@ Called immediately before any socket is closed.
 <p>
 When this event is called, shutdown() has not yet been called on the socket.
 <p>
-Definition at line <a class="el" href="modules_8cpp-source.html#l00414">414</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
+Definition at line <a class="el" href="modules_8cpp-source.html#l00423">423</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
 <p>
-<div class="fragment"><pre>00414 { };
+<div class="fragment"><pre>00423 { };
 </pre></div>    </td>
   </tr>
 </table>
@@ -1766,9 +1766,9 @@ Called immediately before any read() operation on a client socket in the core.
 <p>
 This occurs AFTER the select() or poll() so there is always data waiting to be read when this event occurs. Your event should return 1 if it has handled the reading itself, which prevents the core just using read(). You should place any data read into buffer, up to but NOT GREATER THAN the value of count. The value of readresult must be identical to an actual result that might be returned from the read() system call, for example, number of bytes read upon success, 0 upon EOF or closed socket, and -1 for error. If your function returns a nonzero value, you MUST set readresult.
 <p>
-Definition at line <a class="el" href="modules_8cpp-source.html#l00415">415</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
+Definition at line <a class="el" href="modules_8cpp-source.html#l00424">424</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
 <p>
-<div class="fragment"><pre>00415 { <span class="keywordflow">return</span> 0; };
+<div class="fragment"><pre>00424 { <span class="keywordflow">return</span> 0; };
 </pre></div>    </td>
   </tr>
 </table>
@@ -1817,9 +1817,9 @@ Called immediately before any write() operation on a user's socket in the core.
 <p>
 Because this event is a low level event no user information is associated with it. It is intended for use by modules which may wrap connections within another API such as SSL for example. return a non-zero result if you have handled the write operation, in which case the core will not call write().
 <p>
-Definition at line <a class="el" href="modules_8cpp-source.html#l00413">413</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
+Definition at line <a class="el" href="modules_8cpp-source.html#l00422">422</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
 <p>
-<div class="fragment"><pre>00413 { <span class="keywordflow">return</span> 0; };
+<div class="fragment"><pre>00422 { <span class="keywordflow">return</span> 0; };
 </pre></div>    </td>
   </tr>
 </table>
@@ -1852,9 +1852,9 @@ Called on rehash.
 <p>
 This method is called prior to a /REHASH or when a SIGHUP is received from the operating system. You should use it to reload any files so that your module keeps in step with the rest of the application.
 <p>
-Definition at line <a class="el" href="modules_8cpp-source.html#l00369">369</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
+Definition at line <a class="el" href="modules_8cpp-source.html#l00378">378</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
 <p>
-<div class="fragment"><pre>00369 { }
+<div class="fragment"><pre>00378 { }
 </pre></div>    </td>
   </tr>
 </table>
@@ -1888,11 +1888,11 @@ Called whenever a <a class="el" href="classRequest.html">Request</a> class is se
 <p>
 Please see the documentation of <a class="el" href="classRequest.html#a4">Request::Send()</a> for further information. The <a class="el" href="classRequest.html">Request</a> sent can always be assumed to be non-NULL, you should not change the request object or its data. Your method may return arbitary data in the char* result which the requesting module may be able to use for pre-determined purposes (e.g. the results of an SQL query, etc).
 <p>
-Definition at line <a class="el" href="modules_8cpp-source.html#l00406">406</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
+Definition at line <a class="el" href="modules_8cpp-source.html#l00415">415</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
 <p>
-Referenced by <a class="el" href="modules_8cpp-source.html#l00323">Request::Send()</a>.
+Referenced by <a class="el" href="modules_8cpp-source.html#l00332">Request::Send()</a>.
 <p>
-<div class="fragment"><pre>00406 { <span class="keywordflow">return</span> NULL; };
+<div class="fragment"><pre>00415 { <span class="keywordflow">return</span> NULL; };
 </pre></div>    </td>
   </tr>
 </table>
@@ -1941,9 +1941,9 @@ Called whenever a list is needed for a listmode.
 <p>
 For example, when a /MODE #channel +b (without any other parameters) is called, if a module was handling +b this function would be called. The function can then output any lists it wishes to. Please note that all modules will see all mode characters to provide the ability to extend each other, so please only output a list if the mode character given matches the one(s) you want to handle.
 <p>
-Definition at line <a class="el" href="modules_8cpp-source.html#l00389">389</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
+Definition at line <a class="el" href="modules_8cpp-source.html#l00398">398</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
 <p>
-<div class="fragment"><pre>00389 { };
+<div class="fragment"><pre>00398 { };
 </pre></div>    </td>
   </tr>
 </table>
@@ -1992,9 +1992,9 @@ Called when a raw command is transmitted or received.
 <p>
 This method is the lowest level of handler available to a module. It will be called with raw data which is passing through a connected socket. If you wish, you may munge this data by changing the string parameter "raw". If you do this, after your function exits it will immediately be cut down to 510 characters plus a carriage return and linefeed. For INBOUND messages only (where inbound is set to true) the value of user will be the userrec of the connection sending the data. This is not possible for outbound data because the data may be being routed to multiple targets.
 <p>
-Definition at line <a class="el" href="modules_8cpp-source.html#l00370">370</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
+Definition at line <a class="el" href="modules_8cpp-source.html#l00379">379</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
 <p>
-<div class="fragment"><pre>00370 { }
+<div class="fragment"><pre>00379 { }
 </pre></div>    </td>
   </tr>
 </table>
@@ -2028,9 +2028,9 @@ Called on all /STATS commands This method is triggered for all /STATS use, inclu
 <p>
 
 <p>
-Definition at line <a class="el" href="modules_8cpp-source.html#l00400">400</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
+Definition at line <a class="el" href="modules_8cpp-source.html#l00409">409</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
 <p>
-<div class="fragment"><pre>00400 { };
+<div class="fragment"><pre>00409 { };
 </pre></div>    </td>
   </tr>
 </table>
@@ -2064,9 +2064,9 @@ Called when a user connects.
 <p>
 The details of the connecting user are available to you in the parameter userrec *user
 <p>
-Definition at line <a class="el" href="modules_8cpp-source.html#l00362">362</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
+Definition at line <a class="el" href="modules_8cpp-source.html#l00371">371</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
 <p>
-<div class="fragment"><pre>00362 { }
+<div class="fragment"><pre>00371 { }
 </pre></div>    </td>
   </tr>
 </table>
@@ -2100,9 +2100,9 @@ Called whenever a user's socket is closed.
 <p>
 The details of the exiting user are available to you in the parameter userrec *user This event is called for all users, registered or not, as a cleanup method for modules which might assign resources to user, such as dns lookups, objects and sockets.
 <p>
-Definition at line <a class="el" href="modules_8cpp-source.html#l00364">364</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
+Definition at line <a class="el" href="modules_8cpp-source.html#l00373">373</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
 <p>
-<div class="fragment"><pre>00364 { }
+<div class="fragment"><pre>00373 { }
 </pre></div>    </td>
   </tr>
 </table>
@@ -2145,9 +2145,9 @@ Called when a user joins a channel.
 <p>
 The details of the joining user are available to you in the parameter userrec *user, and the details of the channel they have joined is available in the variable chanrec *channel
 <p>
-Definition at line <a class="el" href="modules_8cpp-source.html#l00365">365</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
+Definition at line <a class="el" href="modules_8cpp-source.html#l00374">374</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
 <p>
-<div class="fragment"><pre>00365 { }
+<div class="fragment"><pre>00374 { }
 </pre></div>    </td>
   </tr>
 </table>
@@ -2202,9 +2202,9 @@ Called whenever a user is kicked.
 <p>
 If this method is called, the kick is already underway and cannot be prevented, so to prevent a kick, please use <a class="el" href="classModule.html#a14">Module::OnUserPreKick</a> instead of this method.
 <p>
-Definition at line <a class="el" href="modules_8cpp-source.html#l00394">394</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
+Definition at line <a class="el" href="modules_8cpp-source.html#l00403">403</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
 <p>
-<div class="fragment"><pre>00394 { };
+<div class="fragment"><pre>00403 { };
 </pre></div>    </td>
   </tr>
 </table>
@@ -2247,9 +2247,9 @@ Called when a user parts a channel.
 <p>
 The details of the leaving user are available to you in the parameter userrec *user, and the details of the channel they have left is available in the variable chanrec *channel
 <p>
-Definition at line <a class="el" href="modules_8cpp-source.html#l00366">366</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
+Definition at line <a class="el" href="modules_8cpp-source.html#l00375">375</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
 <p>
-<div class="fragment"><pre>00366 { }
+<div class="fragment"><pre>00375 { }
 </pre></div>    </td>
   </tr>
 </table>
@@ -2292,9 +2292,9 @@ Called after any nickchange, local or remote.
 <p>
 This can be used to track users after nickchanges have been applied. Please note that although you can see remote nickchanges through this function, you should NOT make any changes to the userrec if the user is a remote user as this may cause a desnyc. check user-&gt;server before taking any action (including returning nonzero from the method). Because this method is called after the nickchange is taken place, no return values are possible to indicate forbidding of the nick change. Use OnUserPreNick for this. 
 <p>
-Definition at line <a class="el" href="modules_8cpp-source.html#l00381">381</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
+Definition at line <a class="el" href="modules_8cpp-source.html#l00390">390</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
 <p>
-<div class="fragment"><pre>00381 { };
+<div class="fragment"><pre>00390 { };
 </pre></div>    </td>
   </tr>
 </table>
@@ -2343,9 +2343,9 @@ Called whenever a user is about to invite another user into a channel, before an
 <p>
 Returning 1 from this function stops the process immediately, causing no output to be sent to the user by the core. If you do this you must produce your own numerics, notices etc. This is useful for modules which may want to filter invites to channels.
 <p>
-Definition at line <a class="el" href="modules_8cpp-source.html#l00377">377</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
+Definition at line <a class="el" href="modules_8cpp-source.html#l00386">386</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
 <p>
-<div class="fragment"><pre>00377 { <span class="keywordflow">return</span> 0; };
+<div class="fragment"><pre>00386 { <span class="keywordflow">return</span> 0; };
 </pre></div>    </td>
   </tr>
 </table>
@@ -2396,9 +2396,9 @@ Returning a value of 1 from this function stops the process immediately, causing
 IMPORTANT NOTE!<p>
 If the user joins a NEW channel which does not exist yet, OnUserPreJoin will be called BEFORE the channel record is created. This will cause chanrec* chan to be NULL. There is very little you can do in form of processing on the actual channel record at this point, however the channel NAME will still be passed in char* cname, so that you could for example implement a channel blacklist or whitelist, etc.
 <p>
-Definition at line <a class="el" href="modules_8cpp-source.html#l00371">371</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
+Definition at line <a class="el" href="modules_8cpp-source.html#l00380">380</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
 <p>
-<div class="fragment"><pre>00371 { <span class="keywordflow">return</span> 0; }
+<div class="fragment"><pre>00380 { <span class="keywordflow">return</span> 0; }
 </pre></div>    </td>
   </tr>
 </table>
@@ -2453,9 +2453,9 @@ Called whenever a user is about to be kicked.
 <p>
 Returning a value of 1 from this function stops the process immediately, causing no output to be sent to the user by the core. If you do this you must produce your own numerics, notices etc. 
 <p>
-Definition at line <a class="el" href="modules_8cpp-source.html#l00393">393</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
+Definition at line <a class="el" href="modules_8cpp-source.html#l00402">402</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
 <p>
-<div class="fragment"><pre>00393 { <span class="keywordflow">return</span> 0; };
+<div class="fragment"><pre>00402 { <span class="keywordflow">return</span> 0; };
 </pre></div>    </td>
   </tr>
 </table>
@@ -2510,9 +2510,9 @@ Called whenever a user is about to PRIVMSG A user or a channel, before any proce
 <p>
 Returning any nonzero value from this function stops the process immediately, causing no output to be sent to the user by the core. If you do this you must produce your own numerics, notices etc. This is useful for modules which may want to filter or redirect messages. target_type can be one of TYPE_USER or TYPE_CHANNEL. If the target_type value is a user, you must cast dest to a userrec* otherwise you must cast it to a chanrec*, this is the details of where the message is destined to be sent.
 <p>
-Definition at line <a class="el" href="modules_8cpp-source.html#l00378">378</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
+Definition at line <a class="el" href="modules_8cpp-source.html#l00387">387</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
 <p>
-<div class="fragment"><pre>00378 { <span class="keywordflow">return</span> 0; };
+<div class="fragment"><pre>00387 { <span class="keywordflow">return</span> 0; };
 </pre></div>    </td>
   </tr>
 </table>
@@ -2555,9 +2555,9 @@ Called before any nickchange, local or remote.
 <p>
 This can be used to implement Q-lines etc. Please note that although you can see remote nickchanges through this function, you should NOT make any changes to the userrec if the user is a remote user as this may cause a desnyc. check user-&gt;server before taking any action (including returning nonzero from the method). If your method returns nonzero, the nickchange is silently forbidden, and it is down to your module to generate some meaninful output.
 <p>
-Definition at line <a class="el" href="modules_8cpp-source.html#l00380">380</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
+Definition at line <a class="el" href="modules_8cpp-source.html#l00389">389</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
 <p>
-<div class="fragment"><pre>00380 { <span class="keywordflow">return</span> 0; };
+<div class="fragment"><pre>00389 { <span class="keywordflow">return</span> 0; };
 </pre></div>    </td>
   </tr>
 </table>
@@ -2612,9 +2612,9 @@ Called whenever a user is about to NOTICE A user or a channel, before any proces
 <p>
 Returning any nonzero value from this function stops the process immediately, causing no output to be sent to the user by the core. If you do this you must produce your own numerics, notices etc. This is useful for modules which may want to filter or redirect messages. target_type can be one of TYPE_USER or TYPE_CHANNEL. If the target_type value is a user, you must cast dest to a userrec* otherwise you must cast it to a chanrec*, this is the details of where the message is destined to be sent. You may alter the message text as you wish before relinquishing control to the next module in the chain, and if no other modules block the text this altered form of the text will be sent out to the user and possibly to other servers.
 <p>
-Definition at line <a class="el" href="modules_8cpp-source.html#l00379">379</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
+Definition at line <a class="el" href="modules_8cpp-source.html#l00388">388</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
 <p>
-<div class="fragment"><pre>00379 { <span class="keywordflow">return</span> 0; };
+<div class="fragment"><pre>00388 { <span class="keywordflow">return</span> 0; };
 </pre></div>    </td>
   </tr>
 </table>
@@ -2648,9 +2648,9 @@ Called when a user quits.
 <p>
 The details of the exiting user are available to you in the parameter userrec *user This event is only called when the user is fully registered when they quit. To catch raw disconnections, use the OnUserDisconnect method.
 <p>
-Definition at line <a class="el" href="modules_8cpp-source.html#l00363">363</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
+Definition at line <a class="el" href="modules_8cpp-source.html#l00372">372</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
 <p>
-<div class="fragment"><pre>00363 { }
+<div class="fragment"><pre>00372 { }
 </pre></div>    </td>
   </tr>
 </table>
@@ -2684,9 +2684,9 @@ Called whenever a user is about to register their connection (e.g.
 <p>
 before the user is sent the MOTD etc). Modules can use this method if they are performing a function which must be done before the actual connection is completed (e.g. ident lookups, dnsbl lookups, etc). Note that you should NOT delete the user record here by causing a disconnection! Use OnUserConnect for that instead.
 <p>
-Definition at line <a class="el" href="modules_8cpp-source.html#l00392">392</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
+Definition at line <a class="el" href="modules_8cpp-source.html#l00401">401</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
 <p>
-<div class="fragment"><pre>00392 { };
+<div class="fragment"><pre>00401 { };
 </pre></div>    </td>
   </tr>
 </table>
@@ -2720,11 +2720,11 @@ Called during a netburst to sync user data.
 <p>
 This is called during the netburst on a per-user basis. You should use this call to up any special user-related things which are implemented by your module, e.g. sending listmodes. You may return multiple commands in the string_list.
 <p>
-Definition at line <a class="el" href="modules_8cpp-source.html#l00383">383</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
+Definition at line <a class="el" href="modules_8cpp-source.html#l00392">392</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
 <p>
 References <a class="el" href="modules_8h-source.html#l00068">string_list</a>.
 <p>
-<div class="fragment"><pre>00383 { <a class="code" href="modules_8h.html#a32">string_list</a> empty; <span class="keywordflow">return</span> empty; }
+<div class="fragment"><pre>00392 { <a class="code" href="modules_8h.html#a32">string_list</a> empty; <span class="keywordflow">return</span> empty; }
 </pre></div>    </td>
   </tr>
 </table>
@@ -2767,15 +2767,15 @@ Called whenever a /WHOIS is performed on a local user.
 <p>
 The source parameter contains the details of the user who issued the WHOIS command, and the dest parameter contains the information of the user they are whoising.
 <p>
-Definition at line <a class="el" href="modules_8cpp-source.html#l00376">376</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
+Definition at line <a class="el" href="modules_8cpp-source.html#l00385">385</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
 <p>
-<div class="fragment"><pre>00376 { };
+<div class="fragment"><pre>00385 { };
 </pre></div>    </td>
   </tr>
 </table>
 <hr>The documentation for this class was generated from the following files:<ul>
 <li><a class="el" href="modules_8h-source.html">modules.h</a><li><a class="el" href="modules_8cpp-source.html">modules.cpp</a></ul>
-<hr size="1"><address style="align: right;"><small>Generated on Sat May 7 15:34:26 2005 for InspIRCd by
+<hr size="1"><address style="align: right;"><small>Generated on Thu May 12 02:25:24 2005 for InspIRCd by
 <a href="http://www.doxygen.org/index.html">
 <img src="doxygen.png" alt="doxygen" align="middle" border=0 > 
 </a>1.3.3 </small></address>

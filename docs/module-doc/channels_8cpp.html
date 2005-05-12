@@ -105,7 +105,7 @@
 
 <tr><td class="memItemLeft" nowrap align=right valign=top>int&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="channels_8cpp.html#a29">portCount</a></td></tr>
 
-<tr><td class="memItemLeft" nowrap align=right valign=top>int&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="channels_8cpp.html#a30">UDPportCount</a></td></tr>
+<tr><td class="memItemLeft" nowrap align=right valign=top>int&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="channels_8cpp.html#a30">SERVERportCount</a></td></tr>
 
 <tr><td class="memItemLeft" nowrap align=right valign=top>int&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="channels_8cpp.html#a31">ports</a> [MAXSOCKS]</td></tr>
 
@@ -293,7 +293,7 @@ Definition at line <a class="el" href="channels_8cpp-source.html#l00094">94</a> 
 <p>
 Definition at line <a class="el" href="channels_8cpp-source.html#l00101">101</a> of file <a class="el" href="channels_8cpp-source.html">channels.cpp</a>.
 <p>
-Referenced by <a class="el" href="users_8cpp-source.html#l00117">userrec::HasPermission()</a>.    </td>
+Referenced by <a class="el" href="users_8cpp-source.html#l00118">userrec::HasPermission()</a>.    </td>
   </tr>
 </table>
 <a name="a38" doxytag="channels.cpp::custom_mode_params"></a><p>
@@ -513,7 +513,7 @@ Definition at line <a class="el" href="channels_8cpp-source.html#l00091">91</a> 
 <p>
 Definition at line <a class="el" href="channels_8cpp-source.html#l00078">78</a> of file <a class="el" href="channels_8cpp-source.html">channels.cpp</a>.
 <p>
-Referenced by <a class="el" href="modules_8cpp-source.html#l00457">Server::GetUsers()</a>.    </td>
+Referenced by <a class="el" href="modules_8cpp-source.html#l00466">Server::GetUsers()</a>.    </td>
   </tr>
 </table>
 <a name="a36" doxytag="channels.cpp::log_file"></a><p>
@@ -633,9 +633,9 @@ Definition at line <a class="el" href="channels_8cpp-source.html#l00103">103</a>
 <p>
 
 <p>
-Definition at line <a class="el" href="modules_8cpp-source.html#l01048">1048</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
+Definition at line <a class="el" href="modules_8cpp-source.html#l01066">1066</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
 <p>
-Referenced by <a class="el" href="modules_8cpp-source.html#l00839">Server::FindModule()</a>.    </td>
+Referenced by <a class="el" href="modules_8cpp-source.html#l00857">Server::FindModule()</a>.    </td>
   </tr>
 </table>
 <a name="a27" doxytag="channels.cpp::module_names"></a><p>
@@ -661,7 +661,7 @@ Referenced by <a class="el" href="modules_8cpp-source.html#l00839">Server::FindM
 <p>
 Definition at line <a class="el" href="channels_8cpp-source.html#l00092">92</a> of file <a class="el" href="channels_8cpp-source.html">channels.cpp</a>.
 <p>
-Referenced by <a class="el" href="modules_8cpp-source.html#l00839">Server::FindModule()</a>.    </td>
+Referenced by <a class="el" href="modules_8cpp-source.html#l00857">Server::FindModule()</a>.    </td>
   </tr>
 </table>
 <a name="a2" doxytag="channels.cpp::modules"></a><p>
@@ -687,7 +687,7 @@ Referenced by <a class="el" href="modules_8cpp-source.html#l00839">Server::FindM
 <p>
 Definition at line <a class="el" href="channels_8cpp-source.html#l00064">64</a> of file <a class="el" href="channels_8cpp-source.html">channels.cpp</a>.
 <p>
-Referenced by <a class="el" href="modules_8cpp-source.html#l00839">Server::FindModule()</a>.    </td>
+Referenced by <a class="el" href="modules_8cpp-source.html#l00857">Server::FindModule()</a>.    </td>
   </tr>
 </table>
 <a name="a13" doxytag="channels.cpp::motd"></a><p>
@@ -954,6 +954,30 @@ Definition at line <a class="el" href="channels_8cpp-source.html#l00070">70</a> 
 Definition at line <a class="el" href="channels_8cpp-source.html#l00068">68</a> of file <a class="el" href="channels_8cpp-source.html">channels.cpp</a>.    </td>
   </tr>
 </table>
+<a name="a30" doxytag="channels.cpp::SERVERportCount"></a><p>
+<table class="mdTable" width="100%" cellpadding="2" cellspacing="0">
+  <tr>
+    <td class="mdRow">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> int <a class="el" href="modules_8cpp.html#a31">SERVERportCount</a>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+
+<p>
+Definition at line <a class="el" href="channels_8cpp-source.html#l00096">96</a> of file <a class="el" href="channels_8cpp-source.html">channels.cpp</a>.    </td>
+  </tr>
+</table>
 <a name="a22" doxytag="channels.cpp::startup_time"></a><p>
 <table class="mdTable" width="100%" cellpadding="2" cellspacing="0">
   <tr>
@@ -1004,30 +1028,6 @@ Definition at line <a class="el" href="channels_8cpp-source.html#l00107">107</a>
 Referenced by <a class="el" href="servers_8cpp-source.html#l00026">serverrec::serverrec()</a>, and <a class="el" href="users_8cpp-source.html#l00028">userrec::userrec()</a>.    </td>
   </tr>
 </table>
-<a name="a30" doxytag="channels.cpp::UDPportCount"></a><p>
-<table class="mdTable" width="100%" cellpadding="2" cellspacing="0">
-  <tr>
-    <td class="mdRow">
-      <table cellpadding="0" cellspacing="0" border="0">
-        <tr>
-          <td class="md" nowrap valign="top"> int <a class="el" href="modules_8cpp.html#a31">UDPportCount</a>
-      </table>
-    </td>
-  </tr>
-</table>
-<table cellspacing=5 cellpadding=0 border=0>
-  <tr>
-    <td>
-      &nbsp;
-    </td>
-    <td>
-
-<p>
-
-<p>
-Definition at line <a class="el" href="channels_8cpp-source.html#l00096">96</a> of file <a class="el" href="channels_8cpp-source.html">channels.cpp</a>.    </td>
-  </tr>
-</table>
 <a name="a20" doxytag="channels.cpp::WHOWAS_MAX"></a><p>
 <table class="mdTable" width="100%" cellpadding="2" cellspacing="0">
   <tr>
@@ -1076,7 +1076,7 @@ Definition at line <a class="el" href="channels_8cpp-source.html#l00084">84</a> 
 Definition at line <a class="el" href="channels_8cpp-source.html#l00083">83</a> of file <a class="el" href="channels_8cpp-source.html">channels.cpp</a>.    </td>
   </tr>
 </table>
-<hr size="1"><address style="align: right;"><small>Generated on Sat May 7 15:34:21 2005 for InspIRCd by
+<hr size="1"><address style="align: right;"><small>Generated on Thu May 12 02:25:14 2005 for InspIRCd by
 <a href="http://www.doxygen.org/index.html">
 <img src="doxygen.png" alt="doxygen" align="middle" border=0 > 
 </a>1.3.3 </small></address>

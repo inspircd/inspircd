@@ -94,9 +94,9 @@ Create a new Event.
 <p>
 
 <p>
-Definition at line <a class="el" href="modules_8cpp-source.html#l00335">335</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
+Definition at line <a class="el" href="modules_8cpp-source.html#l00344">344</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
 <p>
-<div class="fragment"><pre>00335 : <a class="code" href="classEvent.html#p0">data</a>(anydata), <a class="code" href="classEvent.html#p1">source</a>(src), <a class="code" href="classEvent.html#p2">id</a>(eventid) { };
+<div class="fragment"><pre>00344 : <a class="code" href="classEvent.html#p0">data</a>(anydata), <a class="code" href="classEvent.html#p1">source</a>(src), <a class="code" href="classEvent.html#p2">id</a>(eventid) { };
 </pre></div>    </td>
   </tr>
 </table>
@@ -130,13 +130,13 @@ Get the Event data.
 <p>
 
 <p>
-Definition at line <a class="el" href="modules_8cpp-source.html#l00337">337</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
+Definition at line <a class="el" href="modules_8cpp-source.html#l00346">346</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
 <p>
 References <a class="el" href="modules_8h-source.html#l00199">data</a>.
 <p>
-<div class="fragment"><pre>00338 {
-00339         <span class="keywordflow">return</span> this-&gt;<a class="code" href="classEvent.html#p0">data</a>;
-00340 }
+<div class="fragment"><pre>00347 {
+00348         <span class="keywordflow">return</span> this-&gt;<a class="code" href="classEvent.html#p0">data</a>;
+00349 }
 </pre></div>    </td>
   </tr>
 </table>
@@ -169,13 +169,13 @@ Get the event ID.
 <p>
 Use this to determine the event type for safe casting of the data 
 <p>
-Definition at line <a class="el" href="modules_8cpp-source.html#l00353">353</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
+Definition at line <a class="el" href="modules_8cpp-source.html#l00362">362</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
 <p>
 References <a class="el" href="modules_8h-source.html#l00208">id</a>.
 <p>
-<div class="fragment"><pre>00354 {
-00355         <span class="keywordflow">return</span> this-&gt;<a class="code" href="classEvent.html#p2">id</a>;
-00356 }
+<div class="fragment"><pre>00363 {
+00364         <span class="keywordflow">return</span> this-&gt;<a class="code" href="classEvent.html#p2">id</a>;
+00365 }
 </pre></div>    </td>
   </tr>
 </table>
@@ -208,13 +208,13 @@ Get the event Source.
 <p>
 
 <p>
-Definition at line <a class="el" href="modules_8cpp-source.html#l00342">342</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
+Definition at line <a class="el" href="modules_8cpp-source.html#l00351">351</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
 <p>
 References <a class="el" href="modules_8h-source.html#l00203">source</a>.
 <p>
-<div class="fragment"><pre>00343 {
-00344         <span class="keywordflow">return</span> this-&gt;<a class="code" href="classEvent.html#p1">source</a>;
-00345 }
+<div class="fragment"><pre>00352 {
+00353         <span class="keywordflow">return</span> this-&gt;<a class="code" href="classEvent.html#p1">source</a>;
+00354 }
 </pre></div>    </td>
   </tr>
 </table>
@@ -249,14 +249,14 @@ The return result of an <a class="el" href="classEvent.html#a4">Event::Send()</a
 <p>
 Implements <a class="el" href="classModuleMessage.html#a0">ModuleMessage</a>.
 <p>
-Definition at line <a class="el" href="modules_8cpp-source.html#l00347">347</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
+Definition at line <a class="el" href="modules_8cpp-source.html#l00356">356</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
 <p>
 References <a class="el" href="modules_8h-source.html#l00079">FOREACH_MOD</a>.
 <p>
-<div class="fragment"><pre>00348 {
-00349         <a class="code" href="modules_8h.html#a24">FOREACH_MOD</a> OnEvent(<span class="keyword">this</span>);
-00350         <span class="keywordflow">return</span> NULL;
-00351 }
+<div class="fragment"><pre>00357 {
+00358         <a class="code" href="modules_8h.html#a24">FOREACH_MOD</a> OnEvent(<span class="keyword">this</span>);
+00359         <span class="keywordflow">return</span> NULL;
+00360 }
 </pre></div>    </td>
   </tr>
 </table>
@@ -286,7 +286,7 @@ This member holds a pointer to arbitary data set by the emitter of the message.
 <p>
 Definition at line <a class="el" href="modules_8h-source.html#l00199">199</a> of file <a class="el" href="modules_8h-source.html">modules.h</a>.
 <p>
-Referenced by <a class="el" href="modules_8cpp-source.html#l00337">GetData()</a>.    </td>
+Referenced by <a class="el" href="modules_8cpp-source.html#l00346">GetData()</a>.    </td>
   </tr>
 </table>
 <a name="p2" doxytag="Event::id"></a><p>
@@ -314,7 +314,7 @@ This is arbitary text which should be used to distinguish one type of event from
 <p>
 Definition at line <a class="el" href="modules_8h-source.html#l00208">208</a> of file <a class="el" href="modules_8h-source.html">modules.h</a>.
 <p>
-Referenced by <a class="el" href="modules_8cpp-source.html#l00353">GetEventID()</a>.    </td>
+Referenced by <a class="el" href="modules_8cpp-source.html#l00362">GetEventID()</a>.    </td>
   </tr>
 </table>
 <a name="p1" doxytag="Event::source"></a><p>
@@ -342,12 +342,12 @@ This is a pointer to the sender of the message, which can be used to directly tr
 <p>
 Definition at line <a class="el" href="modules_8h-source.html#l00203">203</a> of file <a class="el" href="modules_8h-source.html">modules.h</a>.
 <p>
-Referenced by <a class="el" href="modules_8cpp-source.html#l00342">GetSource()</a>.    </td>
+Referenced by <a class="el" href="modules_8cpp-source.html#l00351">GetSource()</a>.    </td>
   </tr>
 </table>
 <hr>The documentation for this class was generated from the following files:<ul>
 <li><a class="el" href="modules_8h-source.html">modules.h</a><li><a class="el" href="modules_8cpp-source.html">modules.cpp</a></ul>
-<hr size="1"><address style="align: right;"><small>Generated on Sat May 7 15:34:24 2005 for InspIRCd by
+<hr size="1"><address style="align: right;"><small>Generated on Thu May 12 02:25:20 2005 for InspIRCd by
 <a href="http://www.doxygen.org/index.html">
 <img src="doxygen.png" alt="doxygen" align="middle" border=0 > 
 </a>1.3.3 </small></address>

@@ -1,4 +1,4 @@
-.TH "channels.cpp" 3 "7 May 2005" "InspIRCd" \" -*- nroff -*-
+.TH "channels.cpp" 3 "12 May 2005" "InspIRCd" \" -*- nroff -*-
 .ad l
 .nh
 .SH NAME
@@ -174,7 +174,7 @@ channels.cpp \-
 .RI "int \fBportCount\fP"
 .br
 .ti -1c
-.RI "int \fBUDPportCount\fP"
+.RI "int \fBSERVERportCount\fP"
 .br
 .ti -1c
 .RI "int \fBports\fP [MAXSOCKS]"
@@ -273,7 +273,7 @@ Definition at line 88 of file channels.cpp.
 Definition at line 103 of file channels.cpp.
 .SS "int \fBMODCOUNT\fP = -1"
 .PP
-Definition at line 1048 of file modules.cpp.
+Definition at line 1066 of file modules.cpp.
 .PP
 Referenced by Server::FindModule().
 .SS "std::vector<std::string> \fBmodule_names\fP"
@@ -319,6 +319,9 @@ Definition at line 70 of file channels.cpp.
 .SS "char \fBServerName\fP[MAXBUF]"
 .PP
 Definition at line 68 of file channels.cpp.
+.SS "int \fBSERVERportCount\fP"
+.PP
+Definition at line 96 of file channels.cpp.
 .SS "time_t \fBstartup_time\fP"
 .PP
 Definition at line 86 of file channels.cpp.
@@ -327,9 +330,6 @@ Definition at line 86 of file channels.cpp.
 Definition at line 107 of file channels.cpp.
 .PP
 Referenced by serverrec::serverrec(), and userrec::userrec().
-.SS "int \fBUDPportCount\fP"
-.PP
-Definition at line 96 of file channels.cpp.
 .SS "int \fBWHOWAS_MAX\fP"
 .PP
 Definition at line 84 of file channels.cpp.

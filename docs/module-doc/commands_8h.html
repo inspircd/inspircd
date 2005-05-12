@@ -119,7 +119,7 @@
 
 <tr><td class="memItemLeft" nowrap align=right valign=top>void&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="commands_8h.html#a49">handle_unloadmodule</a> (char **parameters, int pcnt, <a class="el" href="classuserrec.html">userrec</a> *user)</td></tr>
 
-<tr><td class="memItemLeft" nowrap align=right valign=top>void&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="commands_8h.html#a50">handle_link_packet</a> (char *udp_msg, char *tcp_host, <a class="el" href="classserverrec.html">serverrec</a> *serv)</td></tr>
+<tr><td class="memItemLeft" nowrap align=right valign=top>void&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="commands_8h.html#a50">handle_link_packet</a> (char *tcp_msg, char *tcp_host, <a class="el" href="classserverrec.html">serverrec</a> *serv)</td></tr>
 
 <tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Special functions for processing server to server traffic. </em> <a href="#a50"></a><em><br><br></td></tr>
 <tr><td class="memItemLeft" nowrap align=right valign=top>void&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="commands_8h.html#a51">process_restricted_commands</a> (char token, char *params, <a class="el" href="classserverrec.html">serverrec</a> *source, <a class="el" href="classserverrec.html">serverrec</a> *reply, char *tcp_host, char *ipaddr, int port)</td></tr>
@@ -207,7 +207,7 @@ Other useful functions.
 <p>
 
 <p>
-Referenced by <a class="el" href="modules_8cpp-source.html#l00731">Server::AddELine()</a>, <a class="el" href="modules_8cpp-source.html#l00711">Server::AddGLine()</a>, <a class="el" href="modules_8cpp-source.html#l00726">Server::AddKLine()</a>, <a class="el" href="modules_8cpp-source.html#l00716">Server::AddQLine()</a>, <a class="el" href="modules_8cpp-source.html#l00721">Server::AddZLine()</a>, and <a class="el" href="modules_8cpp-source.html#l00761">Server::CalcDuration()</a>.    </td>
+Referenced by <a class="el" href="modules_8cpp-source.html#l00749">Server::AddELine()</a>, <a class="el" href="modules_8cpp-source.html#l00729">Server::AddGLine()</a>, <a class="el" href="modules_8cpp-source.html#l00744">Server::AddKLine()</a>, <a class="el" href="modules_8cpp-source.html#l00734">Server::AddQLine()</a>, <a class="el" href="modules_8cpp-source.html#l00739">Server::AddZLine()</a>, and <a class="el" href="modules_8cpp-source.html#l00779">Server::CalcDuration()</a>.    </td>
   </tr>
 </table>
 <a name="a58" doxytag="commands.h::handle_a"></a><p>
@@ -1411,7 +1411,7 @@ These are the handlers for user commands.
           <td class="md" nowrap valign="top"> void handle_link_packet </td>
           <td class="md" valign="top">(&nbsp;</td>
           <td class="md" nowrap valign="top">char *&nbsp;</td>
-          <td class="mdname" nowrap> <em>udp_msg</em>, </td>
+          <td class="mdname" nowrap> <em>tcp_msg</em>, </td>
         </tr>
         <tr>
           <td></td>
@@ -3722,7 +3722,7 @@ Functions for u:lined servers.
 <p>
 
 <p>
-Referenced by <a class="el" href="modules_8cpp-source.html#l00479">Server::IsUlined()</a>.    </td>
+Referenced by <a class="el" href="modules_8cpp-source.html#l00488">Server::IsUlined()</a>.    </td>
   </tr>
 </table>
 <a name="a51" doxytag="commands.h::process_restricted_commands"></a><p>
@@ -3793,7 +3793,7 @@ Referenced by <a class="el" href="modules_8cpp-source.html#l00479">Server::IsUli
     </td>
   </tr>
 </table>
-<hr size="1"><address style="align: right;"><small>Generated on Sat May 7 15:34:22 2005 for InspIRCd by
+<hr size="1"><address style="align: right;"><small>Generated on Thu May 12 02:25:15 2005 for InspIRCd by
 <a href="http://www.doxygen.org/index.html">
 <img src="doxygen.png" alt="doxygen" align="middle" border=0 > 
 </a>1.3.3 </small></address>

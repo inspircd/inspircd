@@ -1,4 +1,4 @@
-.TH "Event" 3 "7 May 2005" "InspIRCd" \" -*- nroff -*-
+.TH "Event" 3 "12 May 2005" "InspIRCd" \" -*- nroff -*-
 .ad l
 .nh
 .SH NAME
@@ -63,59 +63,59 @@ Definition at line 194 of file modules.h.
 .PP 
 .SS "Event::Event (char * anydata, \fBModule\fP * src, std::string eventid)"
 .PP
-Create a new Event. Definition at line 335 of file modules.cpp.
+Create a new Event. Definition at line 344 of file modules.cpp.
 .PP
 .nf
-335 : data(anydata), source(src), id(eventid) { };
+344 : data(anydata), source(src), id(eventid) { };
 .fi
 .SH "Member Function Documentation"
 .PP 
 .SS "char * Event::GetData ()"
 .PP
-Get the Event data. Definition at line 337 of file modules.cpp.
+Get the Event data. Definition at line 346 of file modules.cpp.
 .PP
 References data.
 .PP
 .nf
-338 {
-339         return this->data;
-340 }
+347 {
+348         return this->data;
+349 }
 .fi
 .SS "std::string Event::GetEventID ()"
 .PP
-Get the event ID. Use this to determine the event type for safe casting of the data Definition at line 353 of file modules.cpp.
+Get the event ID. Use this to determine the event type for safe casting of the data Definition at line 362 of file modules.cpp.
 .PP
 References id.
 .PP
 .nf
-354 {
-355         return this->id;
-356 }
+363 {
+364         return this->id;
+365 }
 .fi
 .SS "\fBModule\fP * Event::GetSource ()"
 .PP
-Get the event Source. Definition at line 342 of file modules.cpp.
+Get the event Source. Definition at line 351 of file modules.cpp.
 .PP
 References source.
 .PP
 .nf
-343 {
-344         return this->source;
-345 }
+352 {
+353         return this->source;
+354 }
 .fi
 .SS "char * Event::Send ()\fC [virtual]\fP"
 .PP
 Send the Event. The return result of an \fBEvent::Send()\fP will always be NULL as no replies are expected. Implements \fBModuleMessage\fP.
 .PP
-Definition at line 347 of file modules.cpp.
+Definition at line 356 of file modules.cpp.
 .PP
 References FOREACH_MOD.
 .PP
 .nf
-348 {
-349         FOREACH_MOD OnEvent(this);
-350         return NULL;
-351 }
+357 {
+358         FOREACH_MOD OnEvent(this);
+359         return NULL;
+360 }
 .fi
 .SH "Member Data Documentation"
 .PP 

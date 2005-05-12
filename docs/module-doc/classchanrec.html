@@ -221,14 +221,14 @@ Add a user pointer to the internal reference list The data inserted into the ref
 <p>
 
 <p>
-Definition at line <a class="el" href="channels_8cpp-source.html#l00220">220</a> of file <a class="el" href="channels_8cpp-source.html">channels.cpp</a>.
+Definition at line <a class="el" href="channels_8cpp-source.html#l00215">215</a> of file <a class="el" href="channels_8cpp-source.html">channels.cpp</a>.
 <p>
 References <a class="el" href="modules_8h-source.html#l00023">DEBUG</a>, and <a class="el" href="channels_8h-source.html#l00112">internal_userlist</a>.
 <p>
-<div class="fragment"><pre>00221 {
-00222         <a class="code" href="classchanrec.html#o3">internal_userlist</a>.push_back(castuser);
-00223         log(DEBUG,<span class="stringliteral">"Added casted user to channel's internal list"</span>);
-00224 }
+<div class="fragment"><pre>00216 {
+00217         <a class="code" href="classchanrec.html#o3">internal_userlist</a>.push_back(castuser);
+00218         log(DEBUG,<span class="stringliteral">"Added casted user to channel's internal list"</span>);
+00219 }
 </pre></div>    </td>
   </tr>
 </table>
@@ -261,15 +261,10 @@ Decrement the channel "user counter" The channel user counter is a reference cou
 <p>
 If it decremented to 0 then the channel is removed from the system. Modules may alter the reference count to hold channels open which have no users and would normally be deleted once empty.
 <p>
-Definition at line <a class="el" href="channels_8cpp-source.html#l00208">208</a> of file <a class="el" href="channels_8cpp-source.html">channels.cpp</a>.
+Definition at line <a class="el" href="channels_8cpp-source.html#l00206">206</a> of file <a class="el" href="channels_8cpp-source.html">channels.cpp</a>.
 <p>
-References <a class="el" href="modules_8h-source.html#l00023">DEBUG</a>, <a class="el" href="channels_8h-source.html#l00099">name</a>, and <a class="el" href="channels_8h-source.html#l00107">users</a>.
-<p>
-<div class="fragment"><pre>00209 {
-00210         <span class="keywordflow">if</span> (this-&gt;<a class="code" href="classchanrec.html#o2">users</a> &gt; 0)
-00211                 this-&gt;<a class="code" href="classchanrec.html#o2">users</a>--;
-00212         log(DEBUG,<span class="stringliteral">"Decremented channel user count for %s to %lu"</span>,name,(<span class="keywordtype">unsigned</span> <span class="keywordtype">long</span>)users);
-00213 }
+<div class="fragment"><pre>00207 {
+00208 }
 </pre></div>    </td>
   </tr>
 </table>
@@ -303,22 +298,22 @@ Delete a user pointer to the internal reference list The data removed from the r
 <p>
 
 <p>
-Definition at line <a class="el" href="channels_8cpp-source.html#l00226">226</a> of file <a class="el" href="channels_8cpp-source.html">channels.cpp</a>.
+Definition at line <a class="el" href="channels_8cpp-source.html#l00221">221</a> of file <a class="el" href="channels_8cpp-source.html">channels.cpp</a>.
 <p>
 References <a class="el" href="modules_8h-source.html#l00023">DEBUG</a>, <a class="el" href="channels_8h-source.html#l00112">internal_userlist</a>, and <a class="el" href="channels_8h-source.html#l00099">name</a>.
 <p>
-<div class="fragment"><pre>00227 {
-00228         <span class="keywordflow">for</span> (std::vector&lt;char*&gt;::iterator a = <a class="code" href="classchanrec.html#o3">internal_userlist</a>.begin(); a &lt; <a class="code" href="classchanrec.html#o3">internal_userlist</a>.end(); a++)
-00229         {
-00230                 <span class="keywordflow">if</span> (*a == castuser)
-00231                 {
-00232                         log(DEBUG,<span class="stringliteral">"Removed casted user from channel's internal list"</span>);
-00233                         <a class="code" href="classchanrec.html#o3">internal_userlist</a>.erase(a);
-00234                         <span class="keywordflow">return</span>;
-00235                 }
-00236         }
-00237         log(DEBUG,<span class="stringliteral">"BUG BUG BUG! Attempt to remove an uncasted user from the internal list of %s!"</span>,name);
-00238 }
+<div class="fragment"><pre>00222 {
+00223         <span class="keywordflow">for</span> (std::vector&lt;char*&gt;::iterator a = <a class="code" href="classchanrec.html#o3">internal_userlist</a>.begin(); a &lt; <a class="code" href="classchanrec.html#o3">internal_userlist</a>.end(); a++)
+00224         {
+00225                 <span class="keywordflow">if</span> (*a == castuser)
+00226                 {
+00227                         log(DEBUG,<span class="stringliteral">"Removed casted user from channel's internal list"</span>);
+00228                         <a class="code" href="classchanrec.html#o3">internal_userlist</a>.erase(a);
+00229                         <span class="keywordflow">return</span>;
+00230                 }
+00231         }
+00232         log(DEBUG,<span class="stringliteral">"BUG BUG BUG! Attempt to remove an uncasted user from the internal list of %s!"</span>,name);
+00233 }
 </pre></div>    </td>
   </tr>
 </table>
@@ -363,11 +358,11 @@ References <a class="el" href="channels_8cpp-source.html#l00111">custom_mode_par
 00192                 {
 00193                         <span class="keywordflow">if</span> ((i-&gt;mode == mode) &amp;&amp; (!strcasecmp(this-&gt;name,i-&gt;channel)))
 00194                         {
-00195                                 <span class="keywordflow">return</span> std::string(i-&gt;parameter);
+00195                                 <span class="keywordflow">return</span> i-&gt;parameter;
 00196                         }
 00197                 }
 00198         }
-00199         <span class="keywordflow">return</span> std::string(<span class="stringliteral">""</span>);
+00199         <span class="keywordflow">return</span> <span class="stringliteral">""</span>;
 00200 }
 </pre></div>    </td>
   </tr>
@@ -401,13 +396,13 @@ Obtain the channel "user counter" This returns the channel reference counter, wh
 <p>
 
 <p>
-Definition at line <a class="el" href="channels_8cpp-source.html#l00215">215</a> of file <a class="el" href="channels_8cpp-source.html">channels.cpp</a>.
+Definition at line <a class="el" href="channels_8cpp-source.html#l00210">210</a> of file <a class="el" href="channels_8cpp-source.html">channels.cpp</a>.
 <p>
-References <a class="el" href="channels_8h-source.html#l00107">users</a>.
+References <a class="el" href="channels_8h-source.html#l00112">internal_userlist</a>.
 <p>
-<div class="fragment"><pre>00216 {
-00217         <span class="keywordflow">return</span> (this-&gt;<a class="code" href="classchanrec.html#o2">users</a>);
-00218 }
+<div class="fragment"><pre>00211 {
+00212         <span class="keywordflow">return</span> (this-&gt;<a class="code" href="classchanrec.html#o3">internal_userlist</a>.size());
+00213 }
 </pre></div>    </td>
   </tr>
 </table>
@@ -440,15 +435,15 @@ Obrain the internal reference list The internal reference list contains a list o
 <p>
 These are used for rapid comparison to determine channel membership for PRIVMSG, NOTICE, QUIT, PART etc. The resulting pointer to the vector should be considered readonly and only modified via AddUser and DelUser.
 <p>
-Definition at line <a class="el" href="channels_8cpp-source.html#l00240">240</a> of file <a class="el" href="channels_8cpp-source.html">channels.cpp</a>.
+Definition at line <a class="el" href="channels_8cpp-source.html#l00235">235</a> of file <a class="el" href="channels_8cpp-source.html">channels.cpp</a>.
 <p>
 References <a class="el" href="channels_8h-source.html#l00112">internal_userlist</a>.
 <p>
-Referenced by <a class="el" href="modules_8cpp-source.html#l00457">Server::GetUsers()</a>.
+Referenced by <a class="el" href="modules_8cpp-source.html#l00466">Server::GetUsers()</a>.
 <p>
-<div class="fragment"><pre>00241 {
-00242         <span class="keywordflow">return</span> &amp;<a class="code" href="classchanrec.html#o3">internal_userlist</a>;
-00243 }
+<div class="fragment"><pre>00236 {
+00237         <span class="keywordflow">return</span> &amp;<a class="code" href="classchanrec.html#o3">internal_userlist</a>;
+00238 }
 </pre></div>    </td>
   </tr>
 </table>
@@ -483,12 +478,8 @@ If it decremented to 0 then the channel is removed from the system.
 <p>
 Definition at line <a class="el" href="channels_8cpp-source.html#l00202">202</a> of file <a class="el" href="channels_8cpp-source.html">channels.cpp</a>.
 <p>
-References <a class="el" href="modules_8h-source.html#l00023">DEBUG</a>, <a class="el" href="channels_8h-source.html#l00099">name</a>, and <a class="el" href="channels_8h-source.html#l00107">users</a>.
-<p>
 <div class="fragment"><pre>00203 {
-00204         this-&gt;<a class="code" href="classchanrec.html#o2">users</a>++;
-00205         log(DEBUG,<span class="stringliteral">"Incremented channel user count for %s to %lu"</span>,name,(<span class="keywordtype">unsigned</span> <span class="keywordtype">long</span>)users);
-00206 }
+00204 }
 </pre></div>    </td>
   </tr>
 </table>
@@ -820,7 +811,7 @@ User list (casted to char*'s to stop forward declaration stuff) (chicken and egg
 <p>
 Definition at line <a class="el" href="channels_8h-source.html#l00112">112</a> of file <a class="el" href="channels_8h-source.html">channels.h</a>.
 <p>
-Referenced by <a class="el" href="channels_8cpp-source.html#l00220">AddUser()</a>, <a class="el" href="channels_8cpp-source.html#l00113">chanrec()</a>, <a class="el" href="channels_8cpp-source.html#l00226">DelUser()</a>, and <a class="el" href="channels_8cpp-source.html#l00240">GetUsers()</a>.    </td>
+Referenced by <a class="el" href="channels_8cpp-source.html#l00215">AddUser()</a>, <a class="el" href="channels_8cpp-source.html#l00113">chanrec()</a>, <a class="el" href="channels_8cpp-source.html#l00221">DelUser()</a>, <a class="el" href="channels_8cpp-source.html#l00210">GetUserCounter()</a>, and <a class="el" href="channels_8cpp-source.html#l00235">GetUsers()</a>.    </td>
   </tr>
 </table>
 <a name="o12" doxytag="chanrec::inviteonly"></a><p>
@@ -960,7 +951,7 @@ The channels name.
 <p>
 Definition at line <a class="el" href="channels_8h-source.html#l00099">99</a> of file <a class="el" href="channels_8h-source.html">channels.h</a>.
 <p>
-Referenced by <a class="el" href="channels_8cpp-source.html#l00113">chanrec()</a>, <a class="el" href="channels_8cpp-source.html#l00208">DecUserCounter()</a>, <a class="el" href="channels_8cpp-source.html#l00226">DelUser()</a>, <a class="el" href="channels_8cpp-source.html#l00202">IncUserCounter()</a>, and <a class="el" href="modules_8cpp-source.html#l00681">Server::PseudoToUser()</a>.    </td>
+Referenced by <a class="el" href="channels_8cpp-source.html#l00113">chanrec()</a>, <a class="el" href="channels_8cpp-source.html#l00221">DelUser()</a>, and <a class="el" href="modules_8cpp-source.html#l00699">Server::PseudoToUser()</a>.    </td>
   </tr>
 </table>
 <a name="o11" doxytag="chanrec::noexternal"></a><p>
@@ -1044,7 +1035,7 @@ If this member is an empty string, no topic was ever set.
 <p>
 Definition at line <a class="el" href="channels_8h-source.html#l00128">128</a> of file <a class="el" href="channels_8h-source.html">channels.h</a>.
 <p>
-Referenced by <a class="el" href="channels_8cpp-source.html#l00113">chanrec()</a>, and <a class="el" href="modules_8cpp-source.html#l00681">Server::PseudoToUser()</a>.    </td>
+Referenced by <a class="el" href="channels_8cpp-source.html#l00113">chanrec()</a>, and <a class="el" href="modules_8cpp-source.html#l00699">Server::PseudoToUser()</a>.    </td>
   </tr>
 </table>
 <a name="o4" doxytag="chanrec::topic"></a><p>
@@ -1072,7 +1063,7 @@ If this is an empty string, no channel topic is set.
 <p>
 Definition at line <a class="el" href="channels_8h-source.html#l00117">117</a> of file <a class="el" href="channels_8h-source.html">channels.h</a>.
 <p>
-Referenced by <a class="el" href="channels_8cpp-source.html#l00113">chanrec()</a>, and <a class="el" href="modules_8cpp-source.html#l00681">Server::PseudoToUser()</a>.    </td>
+Referenced by <a class="el" href="channels_8cpp-source.html#l00113">chanrec()</a>, and <a class="el" href="modules_8cpp-source.html#l00699">Server::PseudoToUser()</a>.    </td>
   </tr>
 </table>
 <a name="o10" doxytag="chanrec::topiclock"></a><p>
@@ -1128,7 +1119,7 @@ If no topic was ever set, this will be equal to <a class="el" href="classchanrec
 <p>
 Definition at line <a class="el" href="channels_8h-source.html#l00124">124</a> of file <a class="el" href="channels_8h-source.html">channels.h</a>.
 <p>
-Referenced by <a class="el" href="channels_8cpp-source.html#l00113">chanrec()</a>, and <a class="el" href="modules_8cpp-source.html#l00681">Server::PseudoToUser()</a>.    </td>
+Referenced by <a class="el" href="channels_8cpp-source.html#l00113">chanrec()</a>, and <a class="el" href="modules_8cpp-source.html#l00699">Server::PseudoToUser()</a>.    </td>
   </tr>
 </table>
 <a name="o2" doxytag="chanrec::users"></a><p>
@@ -1156,12 +1147,12 @@ Count of users on the channel used for fast user counting.
 <p>
 Definition at line <a class="el" href="channels_8h-source.html#l00107">107</a> of file <a class="el" href="channels_8h-source.html">channels.h</a>.
 <p>
-Referenced by <a class="el" href="channels_8cpp-source.html#l00113">chanrec()</a>, <a class="el" href="channels_8cpp-source.html#l00208">DecUserCounter()</a>, <a class="el" href="channels_8cpp-source.html#l00215">GetUserCounter()</a>, and <a class="el" href="channels_8cpp-source.html#l00202">IncUserCounter()</a>.    </td>
+Referenced by <a class="el" href="channels_8cpp-source.html#l00113">chanrec()</a>.    </td>
   </tr>
 </table>
 <hr>The documentation for this class was generated from the following files:<ul>
 <li><a class="el" href="channels_8h-source.html">channels.h</a><li><a class="el" href="channels_8cpp-source.html">channels.cpp</a></ul>
-<hr size="1"><address style="align: right;"><small>Generated on Sat May 7 15:34:23 2005 for InspIRCd by
+<hr size="1"><address style="align: right;"><small>Generated on Thu May 12 02:25:18 2005 for InspIRCd by
 <a href="http://www.doxygen.org/index.html">
 <img src="doxygen.png" alt="doxygen" align="middle" border=0 > 
 </a>1.3.3 </small></address>

@@ -1,4 +1,4 @@
-.TH "StrHashComp" 3 "7 May 2005" "InspIRCd" \" -*- nroff -*-
+.TH "StrHashComp" 3 "12 May 2005" "InspIRCd" \" -*- nroff -*-
 .ad l
 .nh
 .SH NAME
@@ -17,17 +17,17 @@ StrHashComp \-
 .PP 
 .SS "bool StrHashComp::operator() (const string & s1, const string & s2) const\fC [inline]\fP"
 .PP
-Definition at line 147 of file modules.cpp.
+Definition at line 156 of file modules.cpp.
 .PP
 .nf
-148         {
-149                 char a[MAXBUF],b[MAXBUF];
-150                 strlcpy(a,s1.c_str(),MAXBUF);
-151                 strlcpy(b,s2.c_str(),MAXBUF);
-152                 strlower(a);
-153                 strlower(b);
-154                 return (strcasecmp(a,b) == 0);
-155         }
+157         {
+158                 char a[MAXBUF],b[MAXBUF];
+159                 strlcpy(a,s1.c_str(),MAXBUF);
+160                 strlcpy(b,s2.c_str(),MAXBUF);
+161                 strlower(a);
+162                 strlower(b);
+163                 return (strcasecmp(a,b) == 0);
+164         }
 .fi
 
 

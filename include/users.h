@@ -293,7 +293,19 @@ class userrec : public connection
 	 */
 	std::string GetWriteError();
 
+	/** Adds to the user's write buffer.
+	 * You may add any amount of text up to this users sendq value, if you exceed the
+	 * sendq value, SetWriteError() will be called to set the users error string to
+	 * "SendQ exceeded", and further buffer adds will be dropped.
+	 */
 	void AddWriteBuf(std::string data);
+
+	/** Flushes as much of the user's buffer to the file descriptor as possible.
+	 * This function may not always flush the entire buffer, rather instead as much of it
+	 * as it possibly can. If the send() call fails to send the entire buffer, the buffer
+	 * position is advanced forwards and the rest of the data sent at the next call to
+	 * this method.
+	 */
 	void FlushWriteBuf();
 
 };

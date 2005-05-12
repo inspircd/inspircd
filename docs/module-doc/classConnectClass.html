@@ -39,6 +39,12 @@ Inherits <a class="el" href="classclassbase.html">classbase</a>.
 <tr><td class="memItemLeft" nowrap align=right valign=top>long&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="classConnectClass.html#o6">threshold</a></td></tr>
 
 <tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Threshold value for flood disconnect. </em> <a href="#o6"></a><em><br><br></td></tr>
+<tr><td class="memItemLeft" nowrap align=right valign=top>long&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="classConnectClass.html#o7">sendqmax</a></td></tr>
+
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Maximum size of sendq for users in this class (bytes). </em> <a href="#o7"></a><em><br><br></td></tr>
+<tr><td class="memItemLeft" nowrap align=right valign=top>long&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="classConnectClass.html#o8">recvqmax</a></td></tr>
+
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Maximum size of recvq for users in this class (bytes). </em> <a href="#o8"></a><em><br><br></td></tr>
 </table>
 <hr><a name="_details"></a><h2>Detailed Description</h2>
 Holds information relevent to &lt;connect allow&gt; and &lt;connect deny&gt; tags in the config file. 
@@ -73,18 +79,20 @@ Definition at line <a class="el" href="users_8h-source.html#l00045">45</a> of fi
 <p>
 
 <p>
-Definition at line <a class="el" href="users_8h-source.html#l00071">71</a> of file <a class="el" href="users_8h-source.html">users.h</a>.
+Definition at line <a class="el" href="users_8h-source.html#l00079">79</a> of file <a class="el" href="users_8h-source.html">users.h</a>.
 <p>
-References <a class="el" href="users_8h-source.html#l00056">flood</a>, <a class="el" href="users_8h-source.html#l00059">host</a>, <a class="el" href="users_8h-source.html#l00065">pass</a>, <a class="el" href="users_8h-source.html#l00062">pingtime</a>, <a class="el" href="users_8h-source.html#l00053">registration_timeout</a>, and <a class="el" href="users_8h-source.html#l00069">threshold</a>.
+References <a class="el" href="users_8h-source.html#l00056">flood</a>, <a class="el" href="users_8h-source.html#l00059">host</a>, <a class="el" href="users_8h-source.html#l00065">pass</a>, <a class="el" href="users_8h-source.html#l00062">pingtime</a>, <a class="el" href="users_8h-source.html#l00077">recvqmax</a>, <a class="el" href="users_8h-source.html#l00053">registration_timeout</a>, <a class="el" href="users_8h-source.html#l00073">sendqmax</a>, and <a class="el" href="users_8h-source.html#l00069">threshold</a>.
 <p>
-<div class="fragment"><pre>00072         {
-00073                 <a class="code" href="classConnectClass.html#o1">registration_timeout</a> = 0;
-00074                 <a class="code" href="classConnectClass.html#o2">flood</a> = 0;
-00075                 <a class="code" href="classConnectClass.html#o4">pingtime</a> = 0;
-00076                 <a class="code" href="classConnectClass.html#o6">threshold</a> = 0;
-00077                 strlcpy(host,<span class="stringliteral">""</span>,MAXBUF);
-00078                 strlcpy(pass,<span class="stringliteral">""</span>,MAXBUF);
-00079         }
+<div class="fragment"><pre>00080         {
+00081                 <a class="code" href="classConnectClass.html#o1">registration_timeout</a> = 0;
+00082                 <a class="code" href="classConnectClass.html#o2">flood</a> = 0;
+00083                 <a class="code" href="classConnectClass.html#o4">pingtime</a> = 0;
+00084                 <a class="code" href="classConnectClass.html#o6">threshold</a> = 0;
+00085                 <a class="code" href="classConnectClass.html#o7">sendqmax</a> = 0;
+00086                 <a class="code" href="classConnectClass.html#o8">recvqmax</a> = 0;
+00087                 strlcpy(host,<span class="stringliteral">""</span>,MAXBUF);
+00088                 strlcpy(pass,<span class="stringliteral">""</span>,MAXBUF);
+00089         }
 </pre></div>    </td>
   </tr>
 </table>
@@ -114,7 +122,7 @@ Number of lines in buffer before excess flood is triggered.
 <p>
 Definition at line <a class="el" href="users_8h-source.html#l00056">56</a> of file <a class="el" href="users_8h-source.html">users.h</a>.
 <p>
-Referenced by <a class="el" href="users_8h-source.html#l00071">ConnectClass()</a>.    </td>
+Referenced by <a class="el" href="users_8h-source.html#l00079">ConnectClass()</a>.    </td>
   </tr>
 </table>
 <a name="o3" doxytag="ConnectClass::host"></a><p>
@@ -142,7 +150,7 @@ Host mask for this line.
 <p>
 Definition at line <a class="el" href="users_8h-source.html#l00059">59</a> of file <a class="el" href="users_8h-source.html">users.h</a>.
 <p>
-Referenced by <a class="el" href="users_8h-source.html#l00071">ConnectClass()</a>.    </td>
+Referenced by <a class="el" href="users_8h-source.html#l00079">ConnectClass()</a>.    </td>
   </tr>
 </table>
 <a name="o5" doxytag="ConnectClass::pass"></a><p>
@@ -170,7 +178,7 @@ Referenced by <a class="el" href="users_8h-source.html#l00071">ConnectClass()</a
 <p>
 Definition at line <a class="el" href="users_8h-source.html#l00065">65</a> of file <a class="el" href="users_8h-source.html">users.h</a>.
 <p>
-Referenced by <a class="el" href="users_8h-source.html#l00071">ConnectClass()</a>.    </td>
+Referenced by <a class="el" href="users_8h-source.html#l00079">ConnectClass()</a>.    </td>
   </tr>
 </table>
 <a name="o4" doxytag="ConnectClass::pingtime"></a><p>
@@ -198,7 +206,35 @@ Number of seconds between pings for this line.
 <p>
 Definition at line <a class="el" href="users_8h-source.html#l00062">62</a> of file <a class="el" href="users_8h-source.html">users.h</a>.
 <p>
-Referenced by <a class="el" href="users_8h-source.html#l00071">ConnectClass()</a>.    </td>
+Referenced by <a class="el" href="users_8h-source.html#l00079">ConnectClass()</a>.    </td>
+  </tr>
+</table>
+<a name="o8" doxytag="ConnectClass::recvqmax"></a><p>
+<table class="mdTable" width="100%" cellpadding="2" cellspacing="0">
+  <tr>
+    <td class="mdRow">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> long <a class="el" href="classConnectClass.html#o8">ConnectClass::recvqmax</a>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+Maximum size of recvq for users in this class (bytes). 
+<p>
+
+<p>
+Definition at line <a class="el" href="users_8h-source.html#l00077">77</a> of file <a class="el" href="users_8h-source.html">users.h</a>.
+<p>
+Referenced by <a class="el" href="users_8h-source.html#l00079">ConnectClass()</a>.    </td>
   </tr>
 </table>
 <a name="o1" doxytag="ConnectClass::registration_timeout"></a><p>
@@ -226,7 +262,35 @@ Max time to register the connection in seconds.
 <p>
 Definition at line <a class="el" href="users_8h-source.html#l00053">53</a> of file <a class="el" href="users_8h-source.html">users.h</a>.
 <p>
-Referenced by <a class="el" href="users_8h-source.html#l00071">ConnectClass()</a>.    </td>
+Referenced by <a class="el" href="users_8h-source.html#l00079">ConnectClass()</a>.    </td>
+  </tr>
+</table>
+<a name="o7" doxytag="ConnectClass::sendqmax"></a><p>
+<table class="mdTable" width="100%" cellpadding="2" cellspacing="0">
+  <tr>
+    <td class="mdRow">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> long <a class="el" href="classConnectClass.html#o7">ConnectClass::sendqmax</a>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+Maximum size of sendq for users in this class (bytes). 
+<p>
+
+<p>
+Definition at line <a class="el" href="users_8h-source.html#l00073">73</a> of file <a class="el" href="users_8h-source.html">users.h</a>.
+<p>
+Referenced by <a class="el" href="users_8h-source.html#l00079">ConnectClass()</a>.    </td>
   </tr>
 </table>
 <a name="o6" doxytag="ConnectClass::threshold"></a><p>
@@ -254,7 +318,7 @@ Threshold value for flood disconnect.
 <p>
 Definition at line <a class="el" href="users_8h-source.html#l00069">69</a> of file <a class="el" href="users_8h-source.html">users.h</a>.
 <p>
-Referenced by <a class="el" href="users_8h-source.html#l00071">ConnectClass()</a>.    </td>
+Referenced by <a class="el" href="users_8h-source.html#l00079">ConnectClass()</a>.    </td>
   </tr>
 </table>
 <a name="o0" doxytag="ConnectClass::type"></a><p>
@@ -285,7 +349,7 @@ Definition at line <a class="el" href="users_8h-source.html#l00050">50</a> of fi
 </table>
 <hr>The documentation for this class was generated from the following file:<ul>
 <li><a class="el" href="users_8h-source.html">users.h</a></ul>
-<hr size="1"><address style="align: right;"><small>Generated on Sat May 7 15:34:24 2005 for InspIRCd by
+<hr size="1"><address style="align: right;"><small>Generated on Thu May 12 02:25:19 2005 for InspIRCd by
 <a href="http://www.doxygen.org/index.html">
 <img src="doxygen.png" alt="doxygen" align="middle" border=0 > 
 </a>1.3.3 </small></address>

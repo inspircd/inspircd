@@ -1,4 +1,4 @@
-.TH "chanrec" 3 "7 May 2005" "InspIRCd" \" -*- nroff -*-
+.TH "chanrec" 3 "12 May 2005" "InspIRCd" \" -*- nroff -*-
 .ad l
 .nh
 .SH NAME
@@ -173,48 +173,43 @@ Definition at line 240 of file channels.h.
 .PP 
 .SS "void chanrec::AddUser (char * castuser)"
 .PP
-Add a user pointer to the internal reference list The data inserted into the reference list is a table as it is an arbitary pointer compared to other users by its memory address, as this is a very fast 32 or 64 bit integer comparison. Definition at line 220 of file channels.cpp.
+Add a user pointer to the internal reference list The data inserted into the reference list is a table as it is an arbitary pointer compared to other users by its memory address, as this is a very fast 32 or 64 bit integer comparison. Definition at line 215 of file channels.cpp.
 .PP
 References DEBUG, and internal_userlist.
 .PP
 .nf
-221 {
-222         internal_userlist.push_back(castuser);
-223         log(DEBUG,'Added casted user to channel's internal list');
-224 }
+216 {
+217         internal_userlist.push_back(castuser);
+218         log(DEBUG,'Added casted user to channel's internal list');
+219 }
 .fi
 .SS "void chanrec::DecUserCounter ()"
 .PP
-Decrement the channel 'user counter' The channel user counter is a reference counter which holds the number of users on the channel. If it decremented to 0 then the channel is removed from the system. Modules may alter the reference count to hold channels open which have no users and would normally be deleted once empty.Definition at line 208 of file channels.cpp.
-.PP
-References DEBUG, name, and users.
+Decrement the channel 'user counter' The channel user counter is a reference counter which holds the number of users on the channel. If it decremented to 0 then the channel is removed from the system. Modules may alter the reference count to hold channels open which have no users and would normally be deleted once empty.Definition at line 206 of file channels.cpp.
 .PP
 .nf
-209 {
-210         if (this->users > 0)
-211                 this->users--;
-212         log(DEBUG,'Decremented channel user count for %s to %lu',name,(unsigned long)users);
-213 }
+207 {
+208 }
 .fi
 .SS "void chanrec::DelUser (char * castuser)"
 .PP
-Delete a user pointer to the internal reference list The data removed from the reference list is a table as it is an arbitary pointer compared to other users by its memory address, as this is a very fast 32 or 64 bit integer comparison. Definition at line 226 of file channels.cpp.
+Delete a user pointer to the internal reference list The data removed from the reference list is a table as it is an arbitary pointer compared to other users by its memory address, as this is a very fast 32 or 64 bit integer comparison. Definition at line 221 of file channels.cpp.
 .PP
 References DEBUG, internal_userlist, and name.
 .PP
 .nf
-227 {
-228         for (std::vector<char*>::iterator a = internal_userlist.begin(); a < internal_userlist.end(); a++)
-229         {
-230                 if (*a == castuser)
-231                 {
-232                         log(DEBUG,'Removed casted user from channel's internal list');
-233                         internal_userlist.erase(a);
-234                         return;
-235                 }
-236         }
-237         log(DEBUG,'BUG BUG BUG! Attempt to remove an uncasted user from the internal list of %s!',name);
-238 }
+222 {
+223         for (std::vector<char*>::iterator a = internal_userlist.begin(); a < internal_userlist.end(); a++)
+224         {
+225                 if (*a == castuser)
+226                 {
+227                         log(DEBUG,'Removed casted user from channel's internal list');
+228                         internal_userlist.erase(a);
+229                         return;
+230                 }
+231         }
+232         log(DEBUG,'BUG BUG BUG! Attempt to remove an uncasted user from the internal list of %s!',name);
+233 }
 .fi
 .SS "std::string chanrec::GetModeParameter (char mode)"
 .PP
@@ -230,48 +225,44 @@ References custom_mode_params.
 192                 {
 193                         if ((i->mode == mode) && (!strcasecmp(this->name,i->channel)))
 194                         {
-195                                 return std::string(i->parameter);
+195                                 return i->parameter;
 196                         }
 197                 }
 198         }
-199         return std::string('');
+199         return '';
 200 }
 .fi
 .SS "long chanrec::GetUserCounter ()"
 .PP
-Obtain the channel 'user counter' This returns the channel reference counter, which is initialized to 0 when the channel is created and incremented/decremented upon joins, parts quits and kicks. Definition at line 215 of file channels.cpp.
+Obtain the channel 'user counter' This returns the channel reference counter, which is initialized to 0 when the channel is created and incremented/decremented upon joins, parts quits and kicks. Definition at line 210 of file channels.cpp.
 .PP
-References users.
+References internal_userlist.
 .PP
 .nf
-216 {
-217         return (this->users);
-218 }
+211 {
+212         return (this->internal_userlist.size());
+213 }
 .fi
 .SS "std::vector< char * > * chanrec::GetUsers ()"
 .PP
-Obrain the internal reference list The internal reference list contains a list of userrec* cast to char*. These are used for rapid comparison to determine channel membership for PRIVMSG, NOTICE, QUIT, PART etc. The resulting pointer to the vector should be considered readonly and only modified via AddUser and DelUser.Definition at line 240 of file channels.cpp.
+Obrain the internal reference list The internal reference list contains a list of userrec* cast to char*. These are used for rapid comparison to determine channel membership for PRIVMSG, NOTICE, QUIT, PART etc. The resulting pointer to the vector should be considered readonly and only modified via AddUser and DelUser.Definition at line 235 of file channels.cpp.
 .PP
 References internal_userlist.
 .PP
 Referenced by Server::GetUsers().
 .PP
 .nf
-241 {
-242         return &internal_userlist;
-243 }
+236 {
+237         return &internal_userlist;
+238 }
 .fi
 .SS "void chanrec::IncUserCounter ()"
 .PP
 Increment the channel 'user counter' The channel user counter is a reference counter which holds the number of users on the channel. If it decremented to 0 then the channel is removed from the system.Definition at line 202 of file channels.cpp.
 .PP
-References DEBUG, name, and users.
-.PP
 .nf
 203 {
-204         this->users++;
-205         log(DEBUG,'Incremented channel user count for %s to %lu',name,(unsigned long)users);
-206 }
+204 }
 .fi
 .SS "bool chanrec::IsCustomModeSet (char mode)"
 .PP
@@ -378,7 +369,7 @@ Referenced by chanrec(), and SetCustomMode().
 .PP
 User list (casted to char*'s to stop forward declaration stuff) (chicken and egg scenario!). Definition at line 112 of file channels.h.
 .PP
-Referenced by AddUser(), chanrec(), DelUser(), and GetUsers().
+Referenced by AddUser(), chanrec(), DelUser(), GetUserCounter(), and GetUsers().
 .SS "short int \fBchanrec::inviteonly\fP"
 .PP
 Nonzero if the mode +i is set. Definition at line 150 of file channels.h.
@@ -403,7 +394,7 @@ Referenced by chanrec().
 .PP
 The channels name. Definition at line 99 of file channels.h.
 .PP
-Referenced by chanrec(), DecUserCounter(), DelUser(), IncUserCounter(), and Server::PseudoToUser().
+Referenced by chanrec(), DelUser(), and Server::PseudoToUser().
 .SS "short int \fBchanrec::noexternal\fP"
 .PP
 Nonzero if the mode +n is set. Definition at line 146 of file channels.h.
@@ -438,7 +429,7 @@ Referenced by chanrec(), and Server::PseudoToUser().
 .PP
 Count of users on the channel used for fast user counting. Definition at line 107 of file channels.h.
 .PP
-Referenced by chanrec(), DecUserCounter(), GetUserCounter(), and IncUserCounter().
+Referenced by chanrec().
 
 .SH "Author"
 .PP 
