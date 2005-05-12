@@ -108,7 +108,7 @@
 #       <connect allow="ip or host" password="blah" timeout="10">     #
 #	<connect allow="ip or host" timeout="blah" flood="5">         #
 #       <connect allow="ip or host" threshold="8" pingfreq="120">     #
-#       <connect allow="ip or host" sendq="99999">                    #
+#       <connect allow="ip or host" sendq="99999" revcq="696969">     #
 #	<connect deny="ip or host">				      #
 #                                                                     #
 #   You may optionally include timeout="x" on any allow line, which   #
@@ -133,9 +133,22 @@
 #   dynamically allocated and can grow as needed up to the maximum    #
 #   size specified.                                                   #
 #                                                                     #
+#   The optional recvq value is the maximum size which users in this  #
+#   group may grow their receive queue to. This is recommended to be  #
+#   kept pretty low compared to the sendq, as users will always       #
+#   recieve more than they send in normal circumstances. The default  #
+#   if not specified is 4096.                                         #
+#                                                                     #
+#   IMPORTANT NOTE, CALL THE CONFUSION POLICE!                        #
+#   The sendq is the data waiting to be sent TO THE USER.             #
+#   The recvq is the data being received FROM THE USER.               #
+#   The names sendq and recvq are from the SERVER'S PERSPECTIVE not   #
+#   that of the user... Just to clear up any confusion or complaints  #
+#   that these are backwards :p                                       #
+#                                                                     #
 
 <connect allow="196.12.*"  password="secret">
-<connect allow="*" timeout="60" flood="10" timeout="60" pingfreq="120" sendq="262144">
+<connect allow="*" timeout="60" flood="10" timeout="60" pingfreq="120" sendq="262144" recvq="4096">
 
 <connect deny="69.254.*">
 

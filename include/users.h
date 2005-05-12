@@ -68,9 +68,13 @@ class ConnectClass : public classbase
 	 */
 	long threshold;
 
-	/** Maximum size of sendq for users in this class
+	/** Maximum size of sendq for users in this class (bytes)
 	 */
 	long sendqmax;
+
+	/** Maximum size of recvq for users in this class (bytes)
+	 */
+	long recvqmax;
 	
 	ConnectClass()
 	{
@@ -79,6 +83,7 @@ class ConnectClass : public classbase
 		pingtime = 0;
 		threshold = 0;
 		sendqmax = 0;
+		recvqmax = 0;
 		strlcpy(host,"",MAXBUF);
 		strlcpy(pass,"",MAXBUF);
 	}
@@ -207,6 +212,10 @@ class userrec : public connection
 	/** Maximum size this user's sendq can become
 	 */
 	long sendqmax;
+
+	/** Maximum size this user's recvq can become
+	 */
+	long recvqmax;
 
 	userrec();
 	

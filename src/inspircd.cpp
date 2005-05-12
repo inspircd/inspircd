@@ -357,7 +357,7 @@ void readfile(file_cache &F, const char* fname)
 void ReadConfig(bool bail, userrec* user)
 {
 	char dbg[MAXBUF],pauseval[MAXBUF],Value[MAXBUF],timeout[MAXBUF],NB[MAXBUF],flood[MAXBUF],MW[MAXBUF];
-	char AH[MAXBUF],AP[MAXBUF],AF[MAXBUF],DNT[MAXBUF],pfreq[MAXBUF],thold[MAXBUF],sqmax[MAXBUF];
+	char AH[MAXBUF],AP[MAXBUF],AF[MAXBUF],DNT[MAXBUF],pfreq[MAXBUF],thold[MAXBUF],sqmax[MAXBUF],rqmax[MAXBUF];
 	ConnectClass c;
 	std::stringstream errstr;
 	
@@ -464,6 +464,7 @@ void ReadConfig(bool bail, userrec* user)
 		ConfValue("connect","pingfreq",i,pfreq,&config_f);
 		ConfValue("connect","threshold",i,thold,&config_f);
 		ConfValue("connect","sendq",i,sqmax,&config_f);
+		ConfValue("connect","recvq",i,rqmax,&config_f);
 		if (Value[0])
 		{
 			strlcpy(c.host,Value,MAXBUF);
@@ -476,6 +477,7 @@ void ReadConfig(bool bail, userrec* user)
 			c.flood = atoi(flood);
 			c.threshold = 5;
 			c.sendqmax = 262144; // 256k
+			c.recvqmax = 4096;   // 4k
 			if (atoi(thold)>0)
 			{
 				c.threshold = atoi(thold);
@@ -483,6 +485,10 @@ void ReadConfig(bool bail, userrec* user)
 			if (atoi(sqmax)>0)
 			{
 				c.sendqmax = atoi(sqmax);
+			}
+			if (atoi(rqmax)>0)
+			{
+				c.recvqmax = atoi(rqmax);
 			}
 			if (atoi(timeout)>0)
 			{
@@ -2540,6 +2546,7 @@ void AddClient(int socket, char* host, int port, bool iscached, char* ip)
 	int class_flood = 0;
 	long class_threshold = 5;
 	long class_sqmax = 262144;	// 256kb
+	long class_rqmax = 4096;	// 4k
 
 	for (ClassVector::iterator i = Classes.begin(); i != Classes.end(); i++)
 	{
@@ -2550,6 +2557,7 @@ void AddClient(int socket, char* host, int port, bool iscached, char* ip)
 			clientlist[tempnick]->pingmax = i->pingtime;
 			class_threshold = i->threshold;
 			class_sqmax = i->sendqmax;
+			class_rqmax = i->recvqmax;
 			break;
 		}
 	}
@@ -2559,6 +2567,7 @@ void AddClient(int socket, char* host, int port, bool iscached, char* ip)
 	clientlist[tempnick]->flood = class_flood;
 	clientlist[tempnick]->threshold = class_threshold;
 	clientlist[tempnick]->sendqmax = class_sqmax;
+	clientlist[tempnick]->recvqmax = class_rqmax;
 
 	for (int i = 0; i < MAXCHANS; i++)
 	{
