@@ -135,7 +135,7 @@
 #                                                                     #
 
 <connect allow="196.12.*"  password="secret">
-<connect allow="*" timeout="60" flood="10" timeout="60" pingfreq="120" sendq="131072">
+<connect allow="*" timeout="60" flood="10" timeout="60" pingfreq="120" sendq="262144">
 
 <connect deny="69.254.*">
 

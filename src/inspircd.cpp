@@ -475,7 +475,7 @@ void ReadConfig(bool bail, userrec* user)
 			c.pingtime = 120;
 			c.flood = atoi(flood);
 			c.threshold = 5;
-			c.sendqmax = 131072;
+			c.sendqmax = 262144; // 256k
 			if (atoi(thold)>0)
 			{
 				c.threshold = atoi(thold);
@@ -2539,7 +2539,7 @@ void AddClient(int socket, char* host, int port, bool iscached, char* ip)
 	unsigned long class_regtimeout = 90;
 	int class_flood = 0;
 	long class_threshold = 5;
-	long class_sqmax = 131072;	// 128kb
+	long class_sqmax = 262144;	// 256kb
 
 	for (ClassVector::iterator i = Classes.begin(); i != Classes.end(); i++)
 	{
