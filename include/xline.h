@@ -45,7 +45,7 @@ class XLine : public classbase
 	
 	/** Source of the ban. This can be a servername or an oper nickname
 	 */
-	char source[MAXBUF];
+	char source[256];
 	
 	/** Reason for the ban
 	 */
@@ -65,7 +65,7 @@ class KLine : public XLine
 	/** Hostmask (ident@host) to match against
 	 * May contain wildcards.
 	 */
-	char hostmask[MAXBUF];
+	char hostmask[200];
 };
 
 /** GLine class
@@ -76,7 +76,7 @@ class GLine : public XLine
 	/** Hostmask (ident@host) to match against
 	 * May contain wildcards.
 	 */
-	char hostmask[MAXBUF];
+	char hostmask[200];
 };
 
 class ELine : public XLine
@@ -85,7 +85,7 @@ class ELine : public XLine
         /** Hostmask (ident@host) to match against
          * May contain wildcards.
          */
-        char hostmask[MAXBUF];
+        char hostmask[200];
 };
 
 /** ZLine class
@@ -96,7 +96,7 @@ class ZLine : public XLine
 	/** IP Address (xx.yy.zz.aa) to match against
 	 * May contain wildcards.
 	 */
-	char ipaddr[MAXBUF];
+	char ipaddr[40];
 	/** Set if this is a global Z:line
 	 * (e.g. it came from another server)
 	 */
@@ -111,7 +111,7 @@ class QLine : public XLine
 	/** Nickname to match against.
 	 * May contain wildcards.
 	 */
-	char nick[MAXBUF];
+	char nick[64];
 	/** Set if this is a global Z:line
 	 * (e.g. it came from another server)
 	 */

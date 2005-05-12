@@ -310,5 +310,18 @@ class userrec : public connection
 
 };
 
+/** A lightweight userrec used by WHOWAS
+ */
+class WhoWasUser
+{
+ public:
+	char nick[NICKMAX];
+	char ident[16];
+	char dhost[160];
+	char host[160];
+	char fullname[128];
+	char server[256];
+	time_t signon;
+};
 
 #endif

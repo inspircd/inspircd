@@ -168,22 +168,6 @@ class chanrec : public Extensible
 	  */
 	std::string GetModeParameter(char mode);
 
-	/** Increment the channel "user counter"
-	 * The channel user counter is a reference counter which
-	 * holds the number of users on the channel. If it decremented
-	 * to 0 then the channel is removed from the system.
-	 */
-	void IncUserCounter();
-
-	/** Decrement the channel "user counter"
-         * The channel user counter is a reference counter which
-         * holds the number of users on the channel. If it decremented
-         * to 0 then the channel is removed from the system.
-	 * Modules may alter the reference count to hold channels open
-	 * which have no users and would normally be deleted once empty.
-	 */
-	void DecUserCounter();
-
 	/** Obtain the channel "user counter"
 	 * This returns the channel reference counter, which is initialized
 	 * to 0 when the channel is created and incremented/decremented

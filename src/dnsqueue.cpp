@@ -154,11 +154,12 @@ struct InAddr_HashComp
 typedef nspace::hash_map<std::string, userrec*, nspace::hash<string>, StrHashComp> user_hash;
 typedef nspace::hash_map<std::string, chanrec*, nspace::hash<string>, StrHashComp> chan_hash;
 typedef nspace::hash_map<in_addr,string*, nspace::hash<in_addr>, InAddr_HashComp> address_cache;
+typedef nspace::hash_map<std::string, WhoWasUser*, nspace::hash<string>, StrHashComp> whowas_hash;
 typedef std::deque<command_t> command_table;
 
 extern user_hash clientlist;
 extern chan_hash chanlist;
-extern user_hash whowas;
+extern whowas_hash whowas;
 extern command_table cmdlist;
 
 extern ClassVector Classes;

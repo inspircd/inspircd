@@ -172,12 +172,13 @@ struct InAddr_HashComp
 typedef nspace::hash_map<std::string, userrec*, nspace::hash<string>, StrHashComp> user_hash;
 typedef nspace::hash_map<std::string, chanrec*, nspace::hash<string>, StrHashComp> chan_hash;
 typedef nspace::hash_map<in_addr,string*, nspace::hash<in_addr>, InAddr_HashComp> address_cache;
+typedef nspace::hash_map<std::string, WhoWasUser*, nspace::hash<string>, StrHashComp> whowas_hash;
 typedef std::deque<command_t> command_table;
 
 
 extern user_hash clientlist;
 extern chan_hash chanlist;
-extern user_hash whowas;
+extern whowas_hash whowas;
 extern command_table cmdlist;
 extern file_cache MOTD;
 extern file_cache RULES;
@@ -242,9 +243,9 @@ void add_gline(long duration, const char* source,const char* reason,const char* 
 	del_gline(hostmask);
 	GLine item;
 	item.duration = duration;
-	strlcpy(item.hostmask,hostmask,MAXBUF);
+	strlcpy(item.hostmask,hostmask,199);
 	strlcpy(item.reason,reason,MAXBUF);
-	strlcpy(item.source,source,MAXBUF);
+	strlcpy(item.source,source,255);
 	item.n_matches = 0;
 	item.set_time = TIME;
 	glines.push_back(item);
@@ -257,9 +258,9 @@ void add_eline(long duration, const char* source, const char* reason, const char
         del_eline(hostmask);
         ELine item;
         item.duration = duration;
-        strlcpy(item.hostmask,hostmask,MAXBUF);
+        strlcpy(item.hostmask,hostmask,199);
         strlcpy(item.reason,reason,MAXBUF);
-        strlcpy(item.source,source,MAXBUF);
+        strlcpy(item.source,source,255);
         item.n_matches = 0;
         item.set_time = TIME;
         elines.push_back(item);
@@ -272,9 +273,9 @@ void add_qline(long duration, const char* source, const char* reason, const char
 	del_qline(nickname);
 	QLine item;
 	item.duration = duration;
-	strlcpy(item.nick,nickname,MAXBUF);
+	strlcpy(item.nick,nickname,63);
 	strlcpy(item.reason,reason,MAXBUF);
-	strlcpy(item.source,source,MAXBUF);
+	strlcpy(item.source,source,255);
 	item.n_matches = 0;
 	item.is_global = false;
 	item.set_time = TIME;
@@ -294,9 +295,9 @@ void add_zline(long duration, const char* source, const char* reason, const char
 			ipaddr++;
 		ipaddr++;
 	}
-	strlcpy(item.ipaddr,ipaddr,MAXBUF);
+	strlcpy(item.ipaddr,ipaddr,39);
 	strlcpy(item.reason,reason,MAXBUF);
-	strlcpy(item.source,source,MAXBUF);
+	strlcpy(item.source,source,255);
 	item.n_matches = 0;
 	item.is_global = false;
 	item.set_time = TIME;
@@ -310,9 +311,9 @@ void add_kline(long duration, const char* source, const char* reason, const char
 	del_kline(hostmask);
 	KLine item;
 	item.duration = duration;
-	strlcpy(item.hostmask,hostmask,MAXBUF);
+	strlcpy(item.hostmask,hostmask,200);
 	strlcpy(item.reason,reason,MAXBUF);
-	strlcpy(item.source,source,MAXBUF);
+	strlcpy(item.source,source,255);
 	item.n_matches = 0;
 	item.set_time = TIME;
 	klines.push_back(item);

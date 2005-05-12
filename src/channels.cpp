@@ -199,14 +199,6 @@ std::string chanrec::GetModeParameter(char mode)
 	return "";
 }
 
-void chanrec::IncUserCounter()
-{
-}
-
-void chanrec::DecUserCounter()
-{
-}
-
 long chanrec::GetUserCounter()
 {
 	return (this->internal_userlist.size());

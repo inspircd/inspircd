@@ -183,6 +183,7 @@ struct InAddr_HashComp
 typedef nspace::hash_map<std::string, userrec*, nspace::hash<string>, StrHashComp> user_hash;
 typedef nspace::hash_map<std::string, chanrec*, nspace::hash<string>, StrHashComp> chan_hash;
 typedef nspace::hash_map<in_addr,string*, nspace::hash<in_addr>, InAddr_HashComp> address_cache;
+typedef nspace::hash_map<std::string, WhoWasUser*, nspace::hash<string>, StrHashComp> whowas_hash;
 typedef std::deque<command_t> command_table;
 
 // This table references users by file descriptor.
@@ -198,7 +199,7 @@ FILE *log_file;
 
 user_hash clientlist;
 chan_hash chanlist;
-user_hash whowas;
+whowas_hash whowas;
 command_table cmdlist;
 file_cache MOTD;
 file_cache RULES;
@@ -1796,7 +1797,6 @@ chanrec* add_channel(userrec *user, const char* cn, const char* key, bool overri
 				user->chans[index].uc_modes = 0;
 			}
 			user->chans[index].channel = Ptr;
-			Ptr->IncUserCounter();
 			Ptr->AddUser((char*)user);
 			WriteChannel(Ptr,user,"JOIN :%s",Ptr->name);
 			
@@ -2446,8 +2446,8 @@ userrec* ReHashNick(char* Old, char* New)
 /* adds or updates an entry in the whowas list */
 void AddWhoWas(userrec* u)
 {
-	user_hash::iterator iter = whowas.find(u->nick);
-	userrec *a = new userrec();
+	whowas_hash::iterator iter = whowas.find(u->nick);
+	WhoWasUser *a = new WhoWasUser();
 	strlcpy(a->nick,u->nick,NICKMAX);
 	strlcpy(a->ident,u->ident,15);
 	strlcpy(a->dhost,u->dhost,160);
@@ -2465,7 +2465,7 @@ void AddWhoWas(userrec* u)
 	{
 		if (whowas.size() >= WHOWAS_MAX)
 		{
-			for (user_hash::iterator i = whowas.begin(); i != whowas.end(); i++)
+			for (whowas_hash::iterator i = whowas.begin(); i != whowas.end(); i++)
 			{
 				// 3600 seconds in an hour ;)
 				if ((i->second->signon)<(TIME-(WHOWAS_STALE*3600)))
