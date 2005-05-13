@@ -807,6 +807,9 @@ class Server : public classbase
 	/** Returns the network name, global to all linked servers.
 	 */
 	virtual std::string GetNetworkName();
+	/** Returns the server description string of the local server
+	 */
+	virtual std::string GetServerDescription();
 	/** Returns the information of the server as returned by the /ADMIN command.
 	 * See the Admin class for further information of the return value. The members
 	 * Admin::Nick, Admin::Email and Admin::Name contain the information for the

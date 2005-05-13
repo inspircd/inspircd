@@ -629,6 +629,11 @@ std::string Server::GetNetworkName()
 	return getnetworkname();
 }
 
+std::string Server::GetServerDescription()
+{
+	return getserverdesc();
+}
+
 Admin Server::GetAdmin()
 {
 	return Admin(getadminname(),getadminemail(),getadminnick());
