@@ -24,6 +24,32 @@ server is a U-type link (see the tokens below for an explaination). The translat
     * KILL - Translated to K
     * SVSJOIN - Translated to J 
 
+IMPORTANT NOTE: Where the prefix on these commands is confused with a uniqueness sum (see below) the uniqueness sum for the command is set to '*' 
+which is a wildcard sum and is always accepted by all servers.
+
+--------------------------------------------------------------------------------
+Uniqueness Sums
+
+Each command on the mesh is prefixed by a 'uniqueness sum' which is a random sequence (usually of 7 or 8 characters) which identifies that command. 
+Each server should keep a queue of the most recent commands sums, and should store up to 128 of the sums. When there are 128 sums in the list the 
+oldest should be removed from the list and the newest put into the list in its place, keeping constant 'rotation' of sums. The current implementation 
+simply generates the sums via the rand() function, there is no documented system for creating these uniqueness values, it is up to the person 
+implementing the system how these fields are generated, so long as there is minimal chance of a collision with other active sums on the network.
+
+If any server receives a command with a sum which is already in its list (no matter what the source of the command within the mesh is, to compensate 
+for redirect tokens, see below in the command specification) then the entire command is to be silently dropped without any attempt at processing.
+
+The sum value '*' should not be used, and is a special value which should cause all connected servers to always allow the command. Services servers 
+which do not directly support the mesh protocol, and must have their commands rewritten, may generate commands which have this sum.
+
+To avoid confusing parsers which are designed to process 'standard' irc server to server communication, each uniqueness sum is prefixed with a : 
+symbol. For example:
+
+:uniqueness-sum TOKEN param param :final param
+
+This makes it a simple matter to fetch the uniqueness sum from the 'source' field in the software's API, and process the rest of the data within the 
+parameters array, or however your software passes its data. 
+
 --------------------------------------------------------------------------------
 Mesh Tokens
 --------------------------------------------------------------------------------
