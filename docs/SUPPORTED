@@ -1,10 +1,3 @@
-As this release is ALPHA, not everything is supported. Because of this, this
-document will show you the commands and modes that are supported in this
-version. All commands listed below are as listed in request for comments (RFC)
-number 1459, the original IRC documentation. Anything extra to this RFC
-(with the exception of commands for loading plugins etc) will be a loadable
-module and not implemented in the core.
-
 Implimented server to server commands:
 
 	SERVER	CONNECT
@@ -32,24 +25,25 @@ Implemented commands:
 
 Module commands (non-rfc):
 
-	MODLIST  CHGHOST
-	GLOBOPS  HELPOP
-	KNOCK    OPERMOTD
-	QUOTE    SAJOIN
-	SAMODE   SANICK
-	SAPART   SAQUIT
-	SETNAME  SETHOST
-
-
+	MODLIST   CHGHOST
+	GLOBOPS   HELPOP
+	KNOCK     OPERMOTD
+	QUOTE     SAJOIN
+	SAMODE    SANICK
+	SAPART    SAQUIT
+	SETNAME   SETHOST
+	PARKSTATS PARK
+	SETIDLE   TBAN
 
 ------------------------------------------------------------------------------
 
 CHANNEL MODES:	    i,m,n,t,k,l,p,s,o,h**,v,b
 USER MODES:	    i,w,s,o
-MODULE CHAN MODES:  c,G,K,C,V,Q,N,T,O,L,r,R,M,S,Z
+MODULE CHAN MODES:  c,G,K,C,V,Q,N,T,O,L,r,R,M,S,Z,g
 MODULE USER MODES:  B,G,x,g,h,r,R,W,S
 
-NOTE: Module Modes will be documented in the near future.
+	Documentation for all modes and commands may be found on the wiki:
+	http://www.inspircd.org/wiki/
 
 ------------------------------------------------------------------------------
 
@@ -64,7 +58,13 @@ The following features are supported:
 The following operating systems are supported:
 
 	* Linux		(i386, possibly others)
-				Tested on: RedHat, Slackware, Gentoo
+				Tested on: RedHat, Slackware, Gentoo, SELinux, Debian
 	* FreeBSD 	(i386, possibly others)
-				Tested on: 4.10, 4.11, 5.0, 5.2.1
+				Tested on: 4.10, 4.11, 5.0, 5.2.1, 5.3, 5.4
 
+* FreeBSD users may make use of performance enhancements built into InspIRCd.
+
+
+The following compilers are supported:
+
+	* GCC		(2.95, 2.96, 3.0, 3.1, 3.2, 3.3, 3.4, 4.0)

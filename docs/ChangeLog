@@ -1,3 +1,187 @@
+1.0 Beta 4
+
+    * Fixed configure bug resulting in osflags being called BEFORE getcache (Making it redundant.)
+    * Fixed output of src/modules/Makefile saying it was made by Craig.net tongue.gif
+    * Updated for test gcc4 compatibility
+    * Added support back for ./inspircd
+    * Added a line to automatically chmod ./inspircd to 0744 ('Last Second Save!')
+    * configure now supports any future .file.inc includes (Yes, i can see into the future)
+    * Updated makefile
+    * New Perl ./configure
+    * Added -Woverloaded-virtual to catch annoying module typos
+    * Fixed to always look for the ircd.log within the bin/ dir
+    * Fixed to not spool the error log after ./inspircd debug
+    * Sanity checks for fd_ref in addclient
+    * Fixed 'server ignores me forever if i throttle the server with connections' bug
+    * Debugging now allowed from ./inspircd (./inspircd debug)
+    * Added LD_LIBRARY_PATH hacks/kludges to the .inspircd.inc file to make it find libmysql in funny situations
+    * Added final documentation for inspircd Beta 4
+    * Added important note relating to ip addresses in <link:ipaddr>
+    * Added schema for m_sqllog.so
+    * Added m_sqloper, allows storage of opers within a mysql database
+    * Commented new functions
+    * Major *MAJOR* optimizations by double-referencing channels to users (never need to scan the entire user hash again except in very rare circumstances)
+    * Added channel 'counter', increases speed of quits, parts, kicks
+    * commented some users and connections code
+    * added remote @* notice
+    * Added remote versioning
+    * Fixed dicky buffer (due to cleanup the wrong variable was being used)
+    * Services speedups for stupid buffered i/o uplinks
+    * Added server input buffers (for systems that decide buffering is fun)
+    * Major code tidyup (-W)
+    * Fixed some flood checking
+    * added noticeall
+    * Added a Server:: method to send server notices to channels
+    * Added explicit oper tracking in a vector of userrec* pointers, optimizes sending out oper notices
+    * Fixed: +s and +p channels wouldn't be synched correctly
+    * Fixed: +s and +p never show in whois even when you're a member of them
+    * Fixed: +s and +p never show in list even if you're a member of them
+    * Added Server::FindDescriptor
+    * Added and tested fd crossreference table - improves speed a lot, and fixes one of the /STATS chars which has been broken a while
+    * Added OnAddBan and OnDelBan module api calls, and fixed glitch which required them in m_timedbans module
+    * Added OnOperCompare function to override strcmp in password check for /oper
+    * Added module message passing architecture
+    * Added a few anti-flood features
+    * Updated buffering, faster and more sensible (old code sucks)
+    * Added password field
+    * Removed some debug output
+    * Added /stats T
+    * Empty but non-null string passed to is_uline now returns true
+    * Added numeric 318 to /WHOIS when nick is not found (end of whois should still be there as its a list response)
+    * Added numeric 412 "no text to send"
+    * Changed to handle : as a NOP token so that 'assuming' inspircd knows RFC commands wont cause tons of errors
+    * Fix to a mode parsing bug (eating wrong version of parameter?)
+    * fixed warning of redefinition of RUSAGE_SELF
+    * Fix annoying off-by-one error in connection::RecvPacket
+    * Added more fault tolerance to server links
+    * Added new /stats z
+    * Fixes to /who output
+    * Added mode 'compression', stops abuse with modes like: +s-s+s-s+s-s
+    * Test fixes for /version strings not being set in burst
+    * Fixed a reversed strcmp
+    * Added 901 numeric - end of modules list
+    * Added support for /SQUIT <mask> and checks against /SQUIT *
+    * Changed remote kill reason text
+    * Fixed strange leading ":" on remote Z/K/G lines
+    * Fixed so that quitprefixes are shown in client exit notices
+    * Added global oper monitoring through modules and global connect monitoring through modules
+    * Fixed weird issues when anope sends large amounts of text at once to the uplink
+    * Fixed dodgy poll()
+    * Added new and improved GetBuffer function based on research on crappy redhat 7.3
+    * Fixed park crash bug #63 reported by ViaraiX
+    * Reordered some on-connect network stuff to stop services being so confused
+    * Extra safety checks to avoid trying to write() remote users
+    * Optimized WriteCommon and WriteCommonExcept
+    * Fixed weird line wrapping bug with extremely long lines
+    * Made xline notices neater when notifying of unknown connections
+    * Fixed WriteCommon not writing to the source user when not on any channels
+    * Changed "is now running" message to AFTER port bind checks
+    * Added PID reporting and testing before daemonize
+    * Changed startup ascii to green. Elphaba would be so proud tongue.gif
+    * Fix to prevent empty umodes
+    * Fixed empty modes from nickserv
+    * Optimized modes (removed strlens etc)
+    * Fixed empty modes issue that emerged after dodgy code was corrected
+    * Fixed services not being informed of force joins
+    * Fix to prevent quits being sent onto the network for nonexistent users
+    * Added faster wildcard checking routines
+    * Fix for bug #62 (replaces only occur once per line in m_censor)
+    * m_chanfilter now works on gcc 2.95.x again.
+    * m_chanprotect fixed to remove privilages upon kick
+    * Fixed WriteChannelWithServ
+    * Added module which provides MD5 encryption for oper passwords plus /mkpasswd
+    * Added another check for 'NoServerUline' type thing in m_services.
+    * Added Check for 'NoServer' when +r ing a channel in m_services.
+    * Added m_timedbans (timed bans module for channel ops/halfops)
+    * Added m_sql, module to provide sql db access to other modules
+    * Added m_sqlauth - allows authorizing of connections via an arbitary mysql table with a username and password field
+    * Added m_sqllog - allows you to log your irc information to an sql database
+    * Added m_sqloper, allows storage of opers within a mysql database
+
+1.0 Beta 3
+
+Added rm -rf src/modules/*.so to make modclean
+Added module message passing architecture
+added Module::OnMeshToken
+added Server::MeshSendAll
+added Server::MeshSendCommon
+added Server::MeshSendAllAlive
+added Server::MeshSendUnicast
+added Server::MeshSendAllExcept
+added Server::MeshCheckChan
+added Server::MeshCheckCommon
+added Server::FindModule
+added New docs for API
+added Module::OnRawMode
+added Module::OnCheckInvite
+added Module::OnCheckKey
+added Module::OnCheckLimit
+added Module::OnCheckBan
+added Module::OnStats
+added Module::OnChangeLocalUserHost
+added Module::OnChangeLocalUserGECOS
+added Module::OnLocalTopicChange
+Added Server::AddGLine
+Added Server::AddKLine
+Added Server::AddZLine
+Added Server::AddQLine
+Added Server::AddELine
+Added Server::DelGLine
+Added Server::DelKLine
+Added Server::DelZLine
+Added Server::DelQLine
+Added Server::DelELine
+Added Server::Duration
+Fixed /LUSERS server count
+Updated documentation of <connect> tags at request of Strike
+Fixed somebody putting double closing tags, nullifying the effect of allowhalfop in the example conf
+Removed deprecated class 'packet'
+Fixed Dns free() errors
+Added ability for modules to hold users in a 'holding pattern' while they do stuff on connect
+Added OnUserDisconnect method to modules.* to fix fd leak in m_ident.cpp
+Added the m_chanfilter module, implements chanmode +g which allows channel specific badwords (YAY)
+Added Module::OnSendList
+Added m_conn_lusers.so: Sends /LUSERS on connect
+Added m_ident.so: nonblocking ident lookup module
+Fixed /kill bug in m_operlevels (couldnt kill non-opers)
+Changed m_override: Fine-grained control over what can be overridden by whom
+Added m_park, user parking to keep ops during a ping timeout (suggested by Ib3N)
+Fixed limit checking in core and m_redirect.so
+Added m_setidle, allows opers to set their idle times
+Added Module::OnBackgroundTimer method, ticks approximately every 5 seconds
+Yet more optimizations!
+Added 'server already exists' check for u-type links
+Fixed bug when ordering a bot to leave using anope services
+Fixed anope module sending L tokens with 2 instead of 3 params (made code more tolerant instead of changing module)
+Fixed broken server/server handshake for U-type server links (services)
+Fixed strhashcomp to forbid matching scandanvian nicks properly eg. [Brain] and {Brain}
+Fixed lingering (SO_REUSEADDR was being set to 0?)
+Added Module::OnCheckReady and Module::OnUserRegister
+Updated /INFO
+Fixed to allow server to server traffic again (DOH)
+Added PID reporting and testing before daemonize
+Changed "is now running" message to AFTER port bind checks
+Fixed strange join behavior reported by w00t (mirc requesting MODE immediately after JOIN)
+Fixed bug #47 reported (and suggested fix) by Om
+Fixed bug where if channel limit was lower than the user count users could still join, but not if it was equal
+Added Module::OnUserKick and Module::OnUserPreKick
+Added Server::PseudoToUser and Server::UserToPseudo
+Made setrlimit a commandline option
+Removed some old uneeded code
+Made cmode and chanmode more safe
+Fixed a double free in dnsqueue.cpp
+Fixed a resolver issue (weird segfault on gentoo?) in server linking
+Double 367 numeric glitch fixed
+Added Server::IsValidHostMask
+Added getrlimit/setrlimit to set process limits to allow a core dump
+Removed some logging from wildcard.cpp
+
+1.0 Beta 2
+
+* Added a lot of small fixes based on feedback of beta 1
+* Fixed compile issues on freebsd due to an icky shellscript expression that failed to detect strlcat
+* Added more advanced m_override.cpp module due to user request (thanks Rob)
+
 1.0 Beta 1
 
 * Enough optimizations to shake a very big stick at
