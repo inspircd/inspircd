@@ -322,7 +322,7 @@
 #   Just remove this... Its here to make you read ALL of the config   #
 #   file options ;)                                                   #
 
-<die value="And god came down from the heavens and smote down the noob.">
+<die value="<die value="You should probably edit your config *PROPERLY* and try again.">">
 
 
 
@@ -364,8 +364,217 @@
 #  using the 'make' command, all compiled modules will be moved into  #
 #  the folder you specified when you ran ./configure. The module tag  #
 #  automatically looks for modules in this location.                  #
+#  If you attempt to load a module outside of this location, either   #
+#  in the config, or via /LOADMODULE, you will receive an error.      #
+#                                                                     #
+#  By default, ALL modules are commented out. You must uncomment them #
+#  or add lines to your config to load modules.                       #
 
-<module name="m_foobar.so">
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Foobar module - does nothing
+#<module name="m_foobar.so">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Chanprotect module: gives +q and +a channel modes
+#<module name="m_chanprotect.so">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Globops module: gives /GLOBOPS and usermode +g
+#<module name="m_globops.so">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Noinvite module: Gives channel mode +V
+#<module name="m_noinvite.so">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Oper MD5 module: Allows MD5 hashed oper passwords
+#<module name="m_opermd5.so">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Restricted channels module: Allows only opers to create channels
+#<module name="m_restrictchans.so">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Services support module: Adds several usermodes such as +R and +M
+#<module name="m_services.so">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Userip module: Adds the /USERIP command
+#<module name="m_userip.so">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Alias module: Allows you to define server-side command aliases
+#<module name="m_alias.so">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# CHGHOST module: Adds the /CHGHOST command
+#<module name="m_chghost.so">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# HELPOP module: Provides the /HELPOP command
+#<module name="m_helpop.so">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# No kicks module: Adds the +Q channel mode
+#<module name="m_nokicks.so">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Oper MOTD module: Provides support for seperate message of the day
+# on oper-up
+#<module name="m_opermotd.so">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Restrict message module: Allows users to only message opers
+#<module name="m_restrictmsg.so">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Sethost module: Adds the /SETHOST command
+#<module name="m_sethost.so">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Antibottler module: Labels bottler leech bots
+#<module name="m_antibottler.so">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Cloaking module: Adds usermode +x and cloaking support
+#<module name="m_cloaking.so">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Hostchange module: Allows a different style of cloaking
+#<module name="m_hostchange.so">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# No nicks module: Adds the +N channel mode
+#<module name="m_nonicks.so">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Override module: Adds support for oper override
+#<module name="m_override.so">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# SAJOIN module: Adds the /SAJOIN command
+#<module name="m_sajoin.so">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Set Idle module: Adds a command for opers to change their
+# idle time (mainly a toy)
+#<module name="m_setidle.so">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Block colour module: Adds the +c channel mode
+#<module name="m_blockcolor.so">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Conn-Lusers: Shows the LUSERS output on connect
+#<module name="m_conn_lusers.so">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Ident: Provides RFC 1413 ident lookup support
+#<module name="m_ident.so">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# No Notice module: adds the channel mode +T
+#<module name="m_nonotice.so">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Parking module: Adds parking support and /PARK and /UNPARK
+#<module name="m_park.so">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# SAMODE module: Adds the oper /SAMODE command
+#<module name="m_samode.so">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# SETNAME module: Adds the /SETNAME command
+#<module name="m_setname.so">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Botmode module: Adds the user mode +B
+#<module name="m_botmode.so">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Filter module: Provides glob-based message filtering
+#<module name="m_filter.so">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Knock module: adds the /KNOCK command and +K channel mode
+#<module name="m_knock.so">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Oper channels mode: Adds the +O channel mode
+#<module name="m_operchans.so">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Random Quote module: provides a random quote on connect
+#<module name="m_randquote.so">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# SANICK module: Allows opers to change user's nicks
+#<module name="m_sanick.so">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Show Whois module: Adds the +W usermode which allows opers
+# to see when they are whois'ed
+#<module name="m_showwhois.so">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Strip colour module: Adds the channel mode +S
+#<module name="m_stripcolor.so">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Censor module: Adds the channel mode +G
+#<module name="m_censor.so">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Nick locking module: Adds the oper-only /NICKLOCK command
+#<module name="m_nicklock.so">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Oper Join module: Forces opers to join a channel on oper-up
+#<module name="m_operjoin.so">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Redirect module: Adds channel redirection (mode +L)
+#<module name="m_redirect.so">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# SAPART module: Adds the oper /SAPART command
+#<module name="m_sapart.so">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# SILENCE module: Adds support for /SILENCE
+#<module name="m_silence.so">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Test command module: Does nothing significant
+#<module name="m_testcommand.so">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Channel filter module: Allows channel-op defined message
+# filtering using simple string matches (channel mode +g)
+#<module name="m_chanfilter.so">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# No ctcp module: Adds the channel mode +C to block CTCPs
+#<module name="m_noctcp.so">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Oper levels module: Gives each oper a level and prevents
+# actions being taken against higher level opers
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+#<module name="m_operlevels.so">
+# Remove module: Adds the /REMOVE command which is a peaceful
+# alternative to /KICK
+#<module name="m_remove.so">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# SAQUIT module: Adds the oper /SAQUIT command (abusable!!!)
+#<module name="m_saquit.so">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Timed bans module: Adds timed bans and the /TBAN command
+#<module name="m_timedbans.so">
 
 #-#-#-#-#-#-#-#-#-#-#-  FILTER  CONFIGURATION  -#-#-#-#-#-#-#-#-#-#-#-#
 #                                                                     #
@@ -388,7 +597,7 @@
 # Optional - If you specify to use the m_randquotes.so module, then   #
 # specify below the path to the randquotes.conf file.                 #
 
-<randquote file="/path/to/inspircd/randquotes.conf">
+# <randquote file="/path/to/inspircd/randquotes.conf">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-  BAN OPTIONS  -#-#-#-#-#-#-#-#-#-#-#-#-#-#
 #                                                                     #
@@ -464,7 +673,7 @@
 #                                                                     #
 #   You should already know what to do here :)                        #
 
-<die value="All l33t noobs must edit their configs.">
+<die value="You should probably edit your config *PROPERLY* and try again.">
 
 
 #########################################################################
