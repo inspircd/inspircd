@@ -399,7 +399,7 @@ void sync_xlines(serverrec* serv, char* tcp_host)
 	{
 		if (i->is_global)
 		{
-			snprintf(data,MAXBUF,"} %s %s %lu %lu :%s",i->ipaddr,i->source,(unsigned long)i->set_time,(unsigned long)i->duration,i->reason);
+			snprintf(data,MAXBUF,"%s } %s %s %lu %lu :%s",CreateSum().c_str(),i->ipaddr,i->source,(unsigned long)i->set_time,(unsigned long)i->duration,i->reason);
 			serv->SendPacket(data,tcp_host);
 		}
 	}
@@ -407,14 +407,14 @@ void sync_xlines(serverrec* serv, char* tcp_host)
 	{
 		if (i->is_global)
 		{
-			snprintf(data,MAXBUF,"{ %s %s %lu %lu :%s",i->nick,i->source,(unsigned long)i->set_time,(unsigned long)i->duration,i->reason);
+			snprintf(data,MAXBUF,"%s { %s %s %lu %lu :%s",CreateSum().c_str(),i->nick,i->source,(unsigned long)i->set_time,(unsigned long)i->duration,i->reason);
 			serv->SendPacket(data,tcp_host);
 		}
 	}
 	// glines are always global, so no need to check
 	for (std::vector<GLine>::iterator i = glines.begin(); i != glines.end(); i++)
 	{
-		snprintf(data,MAXBUF,"# %s %s %lu %lu :%s",i->hostmask,i->source,(unsigned long)i->set_time,(unsigned long)i->duration,i->reason);
+		snprintf(data,MAXBUF,"%s # %s %s %lu %lu :%s",CreateSum().c_str(),i->hostmask,i->source,(unsigned long)i->set_time,(unsigned long)i->duration,i->reason);
 		serv->SendPacket(data,tcp_host);
 	}
 }

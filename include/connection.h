@@ -39,6 +39,8 @@
 #define STATE_NOAUTH_OUTBOUND	4
 #define STATE_SERVICES		5
 
+std::string CreateSum();
+
 /** Each connection has one or more of these
  * each represents ONE outbound connection to another ircd
  * so each inbound has multiple outbounds. A listening socket
@@ -302,7 +304,7 @@ class connection : public Extensible
 	 * If no data is available this function returns false.
 	 * This function will automatically close broken links and reroute pathways, generating split messages on the network.
 	 */
-	bool RecvPacket(std::deque<std::string> &messages, char* host);
+	bool RecvPacket(std::deque<std::string> &messages, char* host, std::deque<std::string> &sums);
 	
 	/** Find the ircd_connector oject related to a certain servername given in 'host'
 	 */

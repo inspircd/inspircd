@@ -35,6 +35,8 @@ using namespace std;
 extern std::vector<Module*> modules;
 extern std::vector<ircd_module*> factory;
 
+std::deque<std::string> xsums;
+
 extern int MODCOUNT;
 
 extern time_t TIME;
@@ -55,6 +57,19 @@ extern time_t TIME;
  * of an ircd connection in the mesh, however each ircd may have multiple ircd_connector connections
  * to it, to maintain the mesh link.
  */
+
+char* xsumtable = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+
+// creates a random id for a line for detection of duplicate messages
+std::string CreateSum()
+{
+	char sum[9];
+	sum[0] = ':';
+	sum[8] = '\0';
+	for(int q = 1; q < 8; q++)
+		sum[q] = xsumtable[rand()%52];
+	return sum;
+}
 
 connection::connection()
 {
@@ -487,10 +502,27 @@ bool connection::SendPacket(char *message, const char* sendhost)
 	}
 }
 
+bool already_have_sum(std::string sum)
+{
+	for (int i = 0; i < xsums.size(); i++)
+	{
+		if (xsums[i] == sum)
+		{
+			return true;
+		}
+	}
+	if (xsums.size() >= 128)
+	{
+		xsums.pop_front();
+	}
+	xsums.push_back(sum);
+	return false;
+}
+
 // receives a packet from any where there is data waiting, first come, first served
 // fills the message and host values with the host where the data came from.
 
-bool connection::RecvPacket(std::deque<std::string> &messages, char* recvhost)
+bool connection::RecvPacket(std::deque<std::string> &messages, char* recvhost,std::deque<std::string> &sums)
 {
 	char data[65536];
 	memset(data, 0, 65536);
@@ -532,9 +564,35 @@ bool connection::RecvPacket(std::deque<std::string> &messages, char* recvhost)
 						std::string text = this->connectors[i].GetBuffer();
 						if (text != "")
 						{
+							if ((text[0] == ':') && (text.find(" ") != std::string::npos))
+							{
+								std::string orig = text;
+								log(DEBUG,"Original: %s",text.c_str());
+								std::string sum = text.substr(1,text.find(" ")-1);
+								text = text.substr(text.find(" ")+1,text.length());
+								std::string possible_token = text.substr(1,text.find(" ")-1);
+								if (possible_token.length() > 1)
+								{
+									sums.push_back("*");
+									text = orig;
+									log(DEBUG,"Non-mesh, non-tokenized string passed up the chain");
+								}
+								else
+								{
+									log(DEBUG,"Packet sum: '%s'",sum.c_str());
+									if ((already_have_sum(sum)) && (sum != "*"))
+									{
+										// we don't accept dupes
+										log(DEBUG,"Duplicate packet sum %s from server %s dropped",sum.c_str(),this->connectors[i].GetServerName().c_str());
+										continue;
+									}
+									sums.push_back(sum.c_str());
+								}
+							}
+							else sums.push_back("*");
 							messages.push_back(text.c_str());
 							strlcpy(recvhost,this->connectors[i].GetServerName().c_str(),160);
-							log(DEBUG,"main: Connection::RecvPacket() %d:%s->%s",pushed++,recvhost,text.c_str()); 
+							log(DEBUG,"Connection::RecvPacket() %d:%s->%s",pushed++,recvhost,text.c_str()); 
 						}
 					}
 					return true;

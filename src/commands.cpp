@@ -1918,7 +1918,7 @@ void handle_nick(char **parameters, int pcnt, userrec *user)
 }
 
 
-void handle_v(char token,char* params,serverrec* source,serverrec* reply, char* tcp_host)
+void handle_v(char token,char* params,serverrec* source,serverrec* reply, char* tcp_host, char* tcp_sum)
 {
 	char* servername = strtok(params," ");
 	char* versionstr = strtok(NULL,"\r\n");
@@ -1942,7 +1942,7 @@ void handle_v(char token,char* params,serverrec* source,serverrec* reply, char* 
 	}
 }
 
-void handle_V(char token,char* params,serverrec* source,serverrec* reply, char* tcp_host)
+void handle_V(char token,char* params,serverrec* source,serverrec* reply, char* tcp_host, char* tcp_sum)
 {
 	char* src = strtok(params," ");
 	char* dest = strtok(NULL," :");
@@ -1986,7 +1986,7 @@ void handle_V(char token,char* params,serverrec* source,serverrec* reply, char* 
 }
 
 
-void handle_P(char token,char* params,serverrec* source,serverrec* reply, char* tcp_host)
+void handle_P(char token,char* params,serverrec* source,serverrec* reply, char* tcp_host, char* tcp_sum)
 {
 	char* src = strtok(params," ");
 	char* dest = strtok(NULL," :");
@@ -2018,7 +2018,7 @@ void handle_P(char token,char* params,serverrec* source,serverrec* reply, char* 
 	
 }
 
-void handle_i(char token,char* params,serverrec* source,serverrec* reply, char* tcp_host)
+void handle_i(char token,char* params,serverrec* source,serverrec* reply, char* tcp_host, char* tcp_sum)
 {
 	char* nick = strtok(params," ");
 	char* from = strtok(NULL," ");
@@ -2037,7 +2037,7 @@ void handle_i(char token,char* params,serverrec* source,serverrec* reply, char* 
 	}
 }
 
-void handle_t(char token,char* params,serverrec* source,serverrec* reply, char* tcp_host)
+void handle_t(char token,char* params,serverrec* source,serverrec* reply, char* tcp_host, char* tcp_sum)
 {
 	char* setby = strtok(params," ");
 	char* channel = strtok(NULL," :");
@@ -2059,7 +2059,7 @@ void handle_t(char token,char* params,serverrec* source,serverrec* reply, char* 
 }
 	
 
-void handle_T(char token,char* params,serverrec* source,serverrec* reply, char* tcp_host)
+void handle_T(char token,char* params,serverrec* source,serverrec* reply, char* tcp_host, char* tcp_sum)
 {
 	char* tm = strtok(params," ");
 	char* setby = strtok(NULL," ");
@@ -2084,7 +2084,7 @@ void handle_T(char token,char* params,serverrec* source,serverrec* reply, char* 
  	}	
 }
 	
-void handle_M(char token,char* params,serverrec* source,serverrec* reply, char* tcp_host)
+void handle_M(char token,char* params,serverrec* source,serverrec* reply, char* tcp_host, char* tcp_sum)
 {
 	char* pars[128];
 	char original[MAXBUF],target[MAXBUF];
@@ -2119,7 +2119,7 @@ void handle_M(char token,char* params,serverrec* source,serverrec* reply, char* 
 
 // m is modes set by users only (not servers) valid targets are channels or users.
 
-void handle_m(char token,char* params,serverrec* source,serverrec* reply, char* tcp_host)
+void handle_m(char token,char* params,serverrec* source,serverrec* reply, char* tcp_host, char* tcp_sum)
 {
 	// m blah #chatspike +b *!test@*4
 	char* pars[128];
@@ -2162,7 +2162,7 @@ void handle_m(char token,char* params,serverrec* source,serverrec* reply, char* 
 }
 
 
-void handle_L(char token,char* params,serverrec* source,serverrec* reply, char* tcp_host)
+void handle_L(char token,char* params,serverrec* source,serverrec* reply, char* tcp_host, char* tcp_sum)
 {
 	char* nick = NULL;
 	char* channel = NULL;
@@ -2200,7 +2200,7 @@ void handle_L(char token,char* params,serverrec* source,serverrec* reply, char* 
 	}
 }
 
-void handle_K(char token,char* params,serverrec* source,serverrec* reply, char* tcp_host)
+void handle_K(char token,char* params,serverrec* source,serverrec* reply, char* tcp_host, char* tcp_sum)
 {
 	char* src = strtok(params," ");
 	char* nick = strtok(NULL," :");
@@ -2222,7 +2222,7 @@ void handle_K(char token,char* params,serverrec* source,serverrec* reply, char* 
 	}
 }
 
-void handle_Q(char token,char* params,serverrec* source,serverrec* reply, char* tcp_host)
+void handle_Q(char token,char* params,serverrec* source,serverrec* reply, char* tcp_host, char* tcp_sum)
 {
 	char* nick = strtok(params," :");
 	char* reason = strtok(NULL,"\r\n");
@@ -2259,7 +2259,7 @@ void handle_Q(char token,char* params,serverrec* source,serverrec* reply, char* 
 	}
 }
 
-void handle_n(char token,char* params,serverrec* source,serverrec* reply, char* tcp_host)
+void handle_n(char token,char* params,serverrec* source,serverrec* reply, char* tcp_host, char* tcp_sum)
 {
 	char* oldnick = strtok(params," ");
 	char* newnick = strtok(NULL," ");
@@ -2291,7 +2291,7 @@ void handle_n(char token,char* params,serverrec* source,serverrec* reply, char* 
 			// broadcast this because its a services thingy
 			char buffer[MAXBUF];
 			snprintf(buffer,MAXBUF,"n %s %s",user->nick,newnick);
-			NetSendToAllExcept(tcp_host,buffer);
+			NetSendToAllExcept_WithSum(tcp_host,buffer,tcp_sum);
 		}
 		WriteCommon(user,"NICK %s",newnick);
 		user = ReHashNick(user->nick, newnick);
@@ -2303,7 +2303,7 @@ void handle_n(char token,char* params,serverrec* source,serverrec* reply, char* 
 }
 
 // k <SOURCE> <DEST> <CHANNEL> :<REASON>
-void handle_k(char token,char* params,serverrec* source,serverrec* reply, char* tcp_host)
+void handle_k(char token,char* params,serverrec* source,serverrec* reply, char* tcp_host, char* tcp_sum)
 {
 	char* src = strtok(params," ");
 	char* dest = strtok(NULL," ");
@@ -2331,7 +2331,7 @@ void handle_k(char token,char* params,serverrec* source,serverrec* reply, char* 
 	}
 }
 
-void handle_AT(char token,char* params,serverrec* source,serverrec* reply, char* tcp_host)
+void handle_AT(char token,char* params,serverrec* source,serverrec* reply, char* tcp_host, char* tcp_sum)
 {
 	char* who = strtok(params," :");
 	char* text = strtok(NULL,"\r\n");
@@ -2347,7 +2347,7 @@ void handle_AT(char token,char* params,serverrec* source,serverrec* reply, char*
 	}
 }
 
-void handle_H(char token,char* params,serverrec* source,serverrec* reply, char* tcp_host)
+void handle_H(char token,char* params,serverrec* source,serverrec* reply, char* tcp_host, char* tcp_sum)
 {
 	log(DEBUG,"Adding ULined server %s to my map",params);
 	ircd_connector s;
@@ -2378,7 +2378,7 @@ void handle_H(char token,char* params,serverrec* source,serverrec* reply, char* 
 	WriteOpers("Non-Mesh server %s has joined the network",params);
 }
 
-void handle_N(char token,char* params,serverrec* source,serverrec* reply, char* tcp_host)
+void handle_N(char token,char* params,serverrec* source,serverrec* reply, char* tcp_host, char* tcp_sum)
 {
 	char* tm = strtok(params," ");
 	char* nick = strtok(NULL," ");
@@ -2441,7 +2441,7 @@ void handle_N(char token,char* params,serverrec* source,serverrec* reply, char* 
 	}
 }
 
-void handle_F(char token,char* params,serverrec* source,serverrec* reply, char* tcp_host)
+void handle_F(char token,char* params,serverrec* source,serverrec* reply, char* tcp_host, char* tcp_sum)
 {
 	if (!params)
 		return;
@@ -2450,7 +2450,7 @@ void handle_F(char token,char* params,serverrec* source,serverrec* reply, char* 
 		WriteOpers("TS split for %s -> %s: %d",source->name,reply->name,tdiff);
 }
 
-void handle_a(char token,char* params,serverrec* source,serverrec* reply, char* tcp_host)
+void handle_a(char token,char* params,serverrec* source,serverrec* reply, char* tcp_host, char* tcp_sum)
 {
 	char* nick = strtok(params," :");
 	char* gecos = strtok(NULL,"\r\n");
@@ -2464,7 +2464,7 @@ void handle_a(char token,char* params,serverrec* source,serverrec* reply, char* 
 		strlcpy(user->fullname,gecos,MAXBUF);
 }
 
-void handle_b(char token,char* params,serverrec* source,serverrec* reply, char* tcp_host)
+void handle_b(char token,char* params,serverrec* source,serverrec* reply, char* tcp_host, char* tcp_sum)
 {
 	char* nick = strtok(params," ");
 	char* host = strtok(NULL," ");
@@ -2478,7 +2478,7 @@ void handle_b(char token,char* params,serverrec* source,serverrec* reply, char* 
 		strlcpy(user->dhost,host,160);
 }
 
-void handle_plus(char token,char* params,serverrec* source,serverrec* reply, char* tcp_host)
+void handle_plus(char token,char* params,serverrec* source,serverrec* reply, char* tcp_host, char* tcp_sum)
 {
 	// %s %s %d %d
 	// + test3.chatspike.net 7010 -2016508415
@@ -2515,7 +2515,7 @@ void handle_plus(char token,char* params,serverrec* source,serverrec* reply, cha
 		me[defaultRoute]->MeshCookie(ipaddr,atoi(ipport),atoi(cookie),servername);
 }
 
-void handle_R(char token,char* params,serverrec* source,serverrec* reply, char* tcp_host)
+void handle_R(char token,char* params,serverrec* source,serverrec* reply, char* tcp_host, char* tcp_sum)
 {
 	char* server = strtok(params," ");
 	char* data = strtok(NULL,"\r\n");
@@ -2530,11 +2530,8 @@ void handle_R(char token,char* params,serverrec* source,serverrec* reply, char* 
 	NetSendToOne(server,data);
 }
 
-void handle_J(char token,char* params,serverrec* source,serverrec* reply, char* tcp_host)
+void handle_J(char token,char* params,serverrec* source,serverrec* reply, char* tcp_host, char* tcp_sum)
 {
-	// IMPORTANT NOTE
-	// The J token currently has no timestamp - this needs looking at
-	// because it will allow splitriding.
 	char* nick = strtok(params," ");
 	char* channel = strtok(NULL," ");
 
@@ -2587,7 +2584,7 @@ void handle_J(char token,char* params,serverrec* source,serverrec* reply, char* 
 	}
 }
 
-void handle_dollar(char token,char* params,serverrec* source,serverrec* reply, char* tcp_host)
+void handle_dollar(char token,char* params,serverrec* source,serverrec* reply, char* tcp_host, char* tcp_sum)
 {
 	log(DEBUG,"Storing routing table...");
 	char* sourceserver = strtok(params," ");
@@ -2621,7 +2618,7 @@ void handle_dollar(char token,char* params,serverrec* source,serverrec* reply, c
 	log(DEBUG,"Warning! routing table received from nonexistent server!");
 }
 
-void handle_amp(char token,char* params,serverrec* source,serverrec* reply, char* tcp_host)
+void handle_amp(char token,char* params,serverrec* source,serverrec* reply, char* tcp_host, char* tcp_sum)
 {
 	if (!params)
 		return;
@@ -2674,7 +2671,7 @@ void handle_amp(char token,char* params,serverrec* source,serverrec* reply, char
 
 unsigned long authcookie;
 
-void handle_hash(char token,char* params,serverrec* source,serverrec* reply, char* tcp_host)
+void handle_hash(char token,char* params,serverrec* source,serverrec* reply, char* tcp_host, char* tcp_sum)
 {
 	// # <mask> <who-set-it> <time-set> <duration> :<reason>
 	log(DEBUG,"Adding G-line");
@@ -2703,7 +2700,7 @@ void handle_hash(char token,char* params,serverrec* source,serverrec* reply, cha
 	apply_lines();
 }
 
-void handle_dot(char token,char* params,serverrec* source,serverrec* reply, char* tcp_host)
+void handle_dot(char token,char* params,serverrec* source,serverrec* reply, char* tcp_host, char* tcp_sum)
 {
 	log(DEBUG,"Removing G-line");
 	char* mask = strtok(params," ");
@@ -2724,7 +2721,7 @@ void handle_dot(char token,char* params,serverrec* source,serverrec* reply, char
 	}
 }
 
-void handle_add_sqline(char token,char* params,serverrec* source,serverrec* reply, char* tcp_host)
+void handle_add_sqline(char token,char* params,serverrec* source,serverrec* reply, char* tcp_host, char* tcp_sum)
 {
 	// { <mask> <who-set-it> <time-set> <duration> :<reason>
 	log(DEBUG,"Adding Q-line");
@@ -2754,7 +2751,7 @@ void handle_add_sqline(char token,char* params,serverrec* source,serverrec* repl
 	apply_lines();
 }
 
-void handle_del_sqline(char token,char* params,serverrec* source,serverrec* reply, char* tcp_host)
+void handle_del_sqline(char token,char* params,serverrec* source,serverrec* reply, char* tcp_host, char* tcp_sum)
 {
 	log(DEBUG,"Removing Q-line");
 	char* mask = strtok(params," ");
@@ -2775,7 +2772,7 @@ void handle_del_sqline(char token,char* params,serverrec* source,serverrec* repl
 	}
 }
 
-void handle_add_szline(char token,char* params,serverrec* source,serverrec* reply, char* tcp_host)
+void handle_add_szline(char token,char* params,serverrec* source,serverrec* reply, char* tcp_host, char* tcp_sum)
 {
 	// } <mask> <who-set-it> <time-set> <duration> :<reason>
 	log(DEBUG,"Adding Z-line");
@@ -2805,7 +2802,7 @@ void handle_add_szline(char token,char* params,serverrec* source,serverrec* repl
 	apply_lines();
 }
 
-void handle_del_szline(char token,char* params,serverrec* source,serverrec* reply, char* tcp_host)
+void handle_del_szline(char token,char* params,serverrec* source,serverrec* reply, char* tcp_host, char* tcp_sum)
 {
 	log(DEBUG,"Removing Z-line");
 	char* mask = strtok(params," ");
@@ -2826,7 +2823,7 @@ void handle_del_szline(char token,char* params,serverrec* source,serverrec* repl
 	}
 }
 
-void handle_pipe(char token,char* params,serverrec* source,serverrec* reply, char* tcp_host)
+void handle_pipe(char token,char* params,serverrec* source,serverrec* reply, char* tcp_host, char* tcp_sum)
 {
 	char* nick = strtok(params," ");
 	char* type = strtok(params," ");
@@ -2842,7 +2839,7 @@ void handle_pipe(char token,char* params,serverrec* source,serverrec* reply, cha
 }
 
 
-void process_restricted_commands(char token,char* params,serverrec* source,serverrec* reply, char* tcp_host,char* ipaddr,int port)
+void process_restricted_commands(char token,char* params,serverrec* source,serverrec* reply, char* tcp_host,char* ipaddr,int port,char* tcp_sum)
 {
 	char buffer[MAXBUF];
 	int MOD_RESULT = 0;
@@ -2858,7 +2855,7 @@ void process_restricted_commands(char token,char* params,serverrec* source,serve
 			// except the newcomer. They'll all attempt to connect back to it.
 			authcookie = rand()*rand();
 			snprintf(buffer,MAXBUF,"~ %lu",(unsigned long)authcookie);
-			NetSendToAll(buffer);
+			NetSendToAll_WithSum(buffer,tcp_sum);
 		break;
 		// ~
   		// Store authcookie
@@ -2870,22 +2867,22 @@ void process_restricted_commands(char token,char* params,serverrec* source,serve
 		break;
 		// connect back to a server using an authcookie
 		case '+':
-			handle_plus(token,params,source,reply,tcp_host);
+			handle_plus(token,params,source,reply,tcp_host,tcp_sum);
 		break;
 		// routing table
 		case '$':
-			handle_dollar(token,params,source,reply,tcp_host);
+			handle_dollar(token,params,source,reply,tcp_host,tcp_sum);
 		break;
 		// node unreachable - we cant route to a server, sooooo we slit it off.
 		// servers can generate these for themselves for an squit.
 		case '&':
-			handle_amp(token,params,source,reply,tcp_host);
+			handle_amp(token,params,source,reply,tcp_host,tcp_sum);
 		break;
 		// R <server> <data>
 		// redirect token, send all of <data> along to the given 
 		// server as this server has been found to still have a route to it
 		case 'R':
-			handle_R(token,params,source,reply,tcp_host);
+			handle_R(token,params,source,reply,tcp_host,tcp_sum);
 		break;
 		// ?
   		// ping
@@ -2906,144 +2903,144 @@ void process_restricted_commands(char token,char* params,serverrec* source,serve
 		// N <TS> <NICK> <HOST> <DHOST> <IDENT> <MODES> <SERVER> :<GECOS>
 		// introduce remote client
 		case 'N':
-			handle_N(token,params,source,reply,tcp_host);
+			handle_N(token,params,source,reply,tcp_host,tcp_sum);
 		break;
 		// a <NICK> :<GECOS>
 		// change GECOS (SETNAME)
 		case 'a':
-			handle_a(token,params,source,reply,tcp_host);
+			handle_a(token,params,source,reply,tcp_host,tcp_sum);
 		break;
 		// b <NICK> :<HOST>
 		// change displayed host (SETHOST)
 		case 'b':
-			handle_b(token,params,source,reply,tcp_host);
+			handle_b(token,params,source,reply,tcp_host,tcp_sum);
 		break;
 		// t <NICK> <CHANNEL> :<TOPIC>
 		// change a channel topic
 		case 't':
-			handle_t(token,params,source,reply,tcp_host);
+			handle_t(token,params,source,reply,tcp_host,tcp_sum);
 		break;
 		// i <NICK> <CHANNEL>
 		// invite a user to a channel
 		case 'i':
-			handle_i(token,params,source,reply,tcp_host);
+			handle_i(token,params,source,reply,tcp_host,tcp_sum);
 		break;
 		// k <SOURCE> <DEST> <CHANNEL> :<REASON>
 		// kick a user from a channel
 		case 'k':
-			handle_k(token,params,source,reply,tcp_host);
+			handle_k(token,params,source,reply,tcp_host,tcp_sum);
 		break;
 		// n <NICK> <NEWNICK>
 		// change nickname of client -- a server should only be able to
 		// change the nicknames of clients that reside on it unless
 		// they are ulined.
 		case 'n':
-			handle_n(token,params,source,reply,tcp_host);
+			handle_n(token,params,source,reply,tcp_host,tcp_sum);
 		break;
 		// J <NICK> <CHANLIST>
 		// Join user to channel list, merge channel permissions
 		case 'J':
-			handle_J(token,params,source,reply,tcp_host);
+			handle_J(token,params,source,reply,tcp_host,tcp_sum);
 		break;
 		// T <TS> <CHANNEL> <TOPICSETTER> :<TOPIC>
 		// change channel topic (netburst only)
 		case 'T':
-			handle_T(token,params,source,reply,tcp_host);
+			handle_T(token,params,source,reply,tcp_host,tcp_sum);
 		break;
 		// M <TARGET> <MODES> [MODE-PARAMETERS]
 		// Server setting modes on an object
 		case 'M':
-			handle_M(token,params,source,reply,tcp_host);
+			handle_M(token,params,source,reply,tcp_host,tcp_sum);
 		break;
 		// m <SOURCE> <TARGET> <MODES> [MODE-PARAMETERS]
 		// User setting modes on an object
 		case 'm':
-			handle_m(token,params,source,reply,tcp_host);
+			handle_m(token,params,source,reply,tcp_host,tcp_sum);
 		break;
 		// P <SOURCE> <TARGET> :<TEXT>
 		// Send a private/channel message
 		case 'P':
-			handle_P(token,params,source,reply,tcp_host);
+			handle_P(token,params,source,reply,tcp_host,tcp_sum);
 		break;
 		// V <SOURCE> <TARGET> :<TEXT>
 		// Send a private/channel notice
 		case 'V':
-			handle_V(token,params,source,reply,tcp_host);
+			handle_V(token,params,source,reply,tcp_host,tcp_sum);
 		break;
 		// v <servername> <arbitary version string>
 		case 'v':
-			handle_v(token,params,source,reply,tcp_host);
+			handle_v(token,params,source,reply,tcp_host,tcp_sum);
 		break;
 		// L <SOURCE> <CHANNEL> :<REASON>
 		// User parting a channel
 		case 'L':
-			handle_L(token,params,source,reply,tcp_host);
+			handle_L(token,params,source,reply,tcp_host,tcp_sum);
 		break;
 		// Q <SOURCE> :<REASON>
 		// user quitting
 		case 'Q':
-			handle_Q(token,params,source,reply,tcp_host);
+			handle_Q(token,params,source,reply,tcp_host,tcp_sum);
 		break;
 		// H <SERVER>
 		// introduce non-meshable server (such as a services server)
 		case 'H':
-			handle_H(token,params,source,reply,tcp_host);
+			handle_H(token,params,source,reply,tcp_host,tcp_sum);
 		break;
 		// K <SOURCE> <DEST> :<REASON>
 		// remote kill
 		case 'K':
-			handle_K(token,params,source,reply,tcp_host);
+			handle_K(token,params,source,reply,tcp_host,tcp_sum);
 		break;
 		// @ <SOURCE> :<TEXT>
 		// wallops
 		case '@':
-			handle_AT(token,params,source,reply,tcp_host);
+			handle_AT(token,params,source,reply,tcp_host,tcp_sum);
 		break;
 		// # <mask> <who-set-it> <time-set> <duration> :<reason>
 		// add gline
 		case '#':
-			handle_hash(token,params,source,reply,tcp_host);
+			handle_hash(token,params,source,reply,tcp_host,tcp_sum);
 		break;
 		// . <mask> <who>
 		// remove gline
 		case '.':
-			handle_dot(token,params,source,reply,tcp_host);
+			handle_dot(token,params,source,reply,tcp_host,tcp_sum);
 		break;
 		// # <mask> <who-set-it> <time-set> <duration> :<reason>
 		// add gline
 		case '{':
-			handle_add_sqline(token,params,source,reply,tcp_host);
+			handle_add_sqline(token,params,source,reply,tcp_host,tcp_sum);
 		break;
 		// . <mask> <who>
 		// remove gline
 		case '[':
-			handle_del_sqline(token,params,source,reply,tcp_host);
+			handle_del_sqline(token,params,source,reply,tcp_host,tcp_sum);
 		break;
 		// # <mask> <who-set-it> <time-set> <duration> :<reason>
 		// add gline
 		case '}':
-			handle_add_szline(token,params,source,reply,tcp_host);
+			handle_add_szline(token,params,source,reply,tcp_host,tcp_sum);
 		break;
 		// . <mask> <who>
 		// remove gline
 		case ']':
-			handle_del_szline(token,params,source,reply,tcp_host);
+			handle_del_szline(token,params,source,reply,tcp_host,tcp_sum);
 		break;
 		// | <nick> <opertype>
 		// set opertype
 		case '|':
-			handle_pipe(token,params,source,reply,tcp_host);
+			handle_pipe(token,params,source,reply,tcp_host,tcp_sum);
 		break;
 		// F <TS>
 		// end netburst
 		case 'F':
 			WriteOpers("Server %s has completed netburst. (%d secs)",tcp_host,TIME-nb_start);
-			handle_F(token,params,source,reply,tcp_host);
+			handle_F(token,params,source,reply,tcp_host,tcp_sum);
 			nb_start = 0;
 			// tell all the other servers to use this authcookie to connect back again
 			// got '+ test3.chatspike.net 7010 -2016508415' from test.chatspike.net
 			snprintf(buffer,MAXBUF,"+ %s %s %d %lu",tcp_host,ipaddr,port,(unsigned long)authcookie);
-			NetSendToAllExcept(tcp_host,buffer);
+			NetSendToAllExcept_WithSum(tcp_host,buffer,tcp_sum);
 		break;
 		case '/':
 			WriteOpers("Server %s is IRCServices-based server (assumes-SVSMODE) - Nickname Services: %s",tcp_host,params);
@@ -3053,12 +3050,12 @@ void process_restricted_commands(char token,char* params,serverrec* source,serve
 		// end netburst with no mesh creation
 		case 'f':
 			WriteOpers("Server %s has completed netburst. (%d secs)",tcp_host,TIME-nb_start);
-			handle_F(token,params,source,reply,tcp_host);
+			handle_F(token,params,source,reply,tcp_host,tcp_sum);
 			nb_start = 0;
 			// tell everyone else about the new server name so they just add it in the disconnected
 			// state
 			snprintf(buffer,MAXBUF,"u %s :%s",tcp_host,GetServerDescription(tcp_host).c_str());
-			NetSendToAllExcept(tcp_host,buffer);
+			NetSendToAllExcept_WithSum(tcp_host,buffer,tcp_sum);
 		break;
 		// X <reserved>
 		// Send netburst now
@@ -3102,7 +3099,7 @@ void process_restricted_commands(char token,char* params,serverrec* source,serve
 }
 
 
-void handle_link_packet(char* tcp_msg, char* tcp_host, serverrec *serv)
+void handle_link_packet(char* tcp_msg, char* tcp_host, serverrec *serv,char* tcp_sum)
 {
 	if ((!strncmp(tcp_msg,"USER ",5)) || (!strncmp(tcp_msg,"NICK ",5)) || (!strncmp(tcp_msg,"PASS ",5)) || (!strncmp(tcp_msg,"SERVER ",7)))
 	{
@@ -3358,7 +3355,7 @@ void handle_link_packet(char* tcp_msg, char* tcp_host, serverrec *serv)
   			{
 				// we have a matching link line -
 				// send a 'diminutive' server message back...
-				snprintf(response,10240,"s %s %s :%s",ServerName,Link_SendPass,ServerDesc);
+				snprintf(response,10240,"%s s %s %s :%s",CreateSum().c_str(),ServerName,Link_SendPass,ServerDesc);
 				serv->SendPacket(response,servername);
 
 				for (int t = 0; t < serv->connectors.size(); t++)
@@ -3431,7 +3428,7 @@ void handle_link_packet(char* tcp_msg, char* tcp_host, serverrec *serv)
 								char buffer[MAXBUF];
 								me[j]->connectors[k].SetDescription(serverdesc);
 								me[j]->connectors[k].SetState(STATE_CONNECTED);
-								snprintf(buffer,MAXBUF,"X 0");
+								snprintf(buffer,MAXBUF,"%s X 0",CreateSum().c_str());
 								serv->SendPacket(buffer,tcp_host);
 								DoSync(me[j],tcp_host);
 								NetSendMyRoutingTable();
@@ -3522,9 +3519,9 @@ void handle_link_packet(char* tcp_msg, char* tcp_host, serverrec *serv)
 								me[j]->connectors[k].SetDescription(serverdesc);
 								me[j]->connectors[k].SetServerName(servername);
 								me[j]->connectors[k].SetState(STATE_SERVICES);
-								snprintf(buffer,MAXBUF,"X 0");
+								snprintf(buffer,MAXBUF,"%s X 0",CreateSum().c_str());
 								serv->SendPacket(buffer,servername);
-								snprintf(buffer,MAXBUF,"s %s %s %lu :%s",ServerName,Link_SendPass,LinkPort,ServerDesc);
+								snprintf(buffer,MAXBUF,"%s s %s %s %lu :%s",CreateSum().c_str(),ServerName,Link_SendPass,LinkPort,ServerDesc);
 								serv->SendPacket(buffer,servername);
 								DoSync(me[j],servername);
 								snprintf(buffer,MAXBUF,"H %s",servername);
@@ -3575,7 +3572,7 @@ void handle_link_packet(char* tcp_msg, char* tcp_host, serverrec *serv)
     						{
     							// found a valid ircd_connector.
 							if ((params) && (*params))
-	      							process_restricted_commands(token,params,me[j],serv,tcp_host,me[j]->connectors[x].GetServerIP(),me[j]->connectors[x].GetServerPort());
+	      							process_restricted_commands(token,params,me[j],serv,tcp_host,me[j]->connectors[x].GetServerIP(),me[j]->connectors[x].GetServerPort(),tcp_sum);
 							return;
 						}
 					}

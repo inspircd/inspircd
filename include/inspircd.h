@@ -168,9 +168,11 @@ void NoticeAllOpers(userrec *source, bool local_only, char* text, ...);
 
 void NetSendToCommon(userrec* u, char* s);
 void NetSendToAll(char* s);
+void NetSendToAll_WithSum(char* s,char* u);
 void NetSendToAllAlive(char* s);
 void NetSendToOne(char* target,char* s);
 void NetSendToAllExcept(const char* target,char* s);
+void NetSendToAllExcept_WithSum(const char* target,char* s,char* u);
 void NetSendMyRoutingTable();
 bool ChanAnyOnThisServer(chanrec *c,char* servername);
 bool CommonOnThisServer(userrec* u,const char* servername);

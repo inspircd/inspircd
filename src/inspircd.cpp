@@ -1059,8 +1059,8 @@ bool CommonOnThisServer(userrec* u,const char* servername)
 void NetSendToCommon(userrec* u, char* s)
 {
 	char buffer[MAXBUF];
-	snprintf(buffer,MAXBUF,"%s",s);
-	
+	snprintf(buffer,MAXBUF,"%s %s",CreateSum().c_str(),s);
+
 	log(DEBUG,"NetSendToCommon: '%s' '%s'",u->nick,s);
 
         std::string msg = buffer;
@@ -1086,7 +1086,7 @@ void NetSendToCommon(userrec* u, char* s)
 void NetSendToAll(char* s)
 {
 	char buffer[MAXBUF];
-	snprintf(buffer,MAXBUF,"%s",s);
+	snprintf(buffer,MAXBUF,"%s %s",CreateSum().c_str(),s);
 	
 	log(DEBUG,"NetSendToAll: '%s'",s);
 
@@ -1106,10 +1106,33 @@ void NetSendToAll(char* s)
 	}
 }
 
+void NetSendToAll_WithSum(char* s,char* u)
+{
+        char buffer[MAXBUF];
+        snprintf(buffer,MAXBUF,":%s %s",u,s);
+
+        log(DEBUG,"NetSendToAll: '%s'",s);
+
+        std::string msg = buffer;
+        FOREACH_MOD OnPacketTransmit(msg,s);
+        strlcpy(buffer,msg.c_str(),MAXBUF);
+
+        for (int j = 0; j < 32; j++)
+        {
+                if (me[j] != NULL)
+                {
+                        for (int k = 0; k < me[j]->connectors.size(); k++)
+                        {
+                                me[j]->SendPacket(buffer,me[j]->connectors[k].GetServerName().c_str());
+                        }
+                }
+        }
+}
+
 void NetSendToAllAlive(char* s)
 {
 	char buffer[MAXBUF];
-	snprintf(buffer,MAXBUF,"%s",s);
+        snprintf(buffer,MAXBUF,"%s %s",CreateSum().c_str(),s);
 	
 	log(DEBUG,"NetSendToAllAlive: '%s'",s);
 
@@ -1140,7 +1163,7 @@ void NetSendToAllAlive(char* s)
 void NetSendToOne(char* target,char* s)
 {
 	char buffer[MAXBUF];
-	snprintf(buffer,MAXBUF,"%s",s);
+        snprintf(buffer,MAXBUF,"%s %s",CreateSum().c_str(),s);
 	
 	log(DEBUG,"NetSendToOne: '%s' '%s'",target,s);
 
@@ -1166,7 +1189,7 @@ void NetSendToOne(char* target,char* s)
 void NetSendToAllExcept(const char* target,char* s)
 {
 	char buffer[MAXBUF];
-	snprintf(buffer,MAXBUF,"%s",s);
+        snprintf(buffer,MAXBUF,"%s %s",CreateSum().c_str(),s);
 	
 	log(DEBUG,"NetSendToAllExcept: '%s' '%s'",target,s);
 	
@@ -1186,6 +1209,32 @@ void NetSendToAllExcept(const char* target,char* s)
 				}
 			}
 		}
+	}
+}
+
+void NetSendToAllExcept_WithSum(const char* target,char* s,char* u)
+{
+        char buffer[MAXBUF];
+        snprintf(buffer,MAXBUF,":%s %s",u,s);
+
+        log(DEBUG,"NetSendToAllExcept: '%s' '%s'",target,s);
+
+        std::string msg = buffer;
+        FOREACH_MOD OnPacketTransmit(msg,s);
+        strlcpy(buffer,msg.c_str(),MAXBUF);
+
+        for (int j = 0; j < 32; j++)
+        {
+                if (me[j] != NULL)
+                {
+                        for (int k = 0; k < me[j]->connectors.size(); k++)
+                        {
+                                if (strcasecmp(me[j]->connectors[k].GetServerName().c_str(),target))
+                                {
+                                        me[j]->SendPacket(buffer,me[j]->connectors[k].GetServerName().c_str());
+                                }
+                        }
+                }
 	}
 }
 
@@ -3583,7 +3632,7 @@ void DoSync(serverrec* serv, char* tcp_host)
 	// send start of sync marker: Y <timestamp>
 	// at this point the ircd receiving it starts broadcasting this netburst to all ircds
 	// except the ones its receiving it from.
-	snprintf(data,MAXBUF,"Y %lu",(unsigned long)TIME);
+	snprintf(data,MAXBUF,"%s Y %lu",CreateSum().c_str(),(unsigned long)TIME);
 	serv->SendPacket(data,tcp_host);
 	// send users and channels
 
@@ -3598,7 +3647,7 @@ void DoSync(serverrec* serv, char* tcp_host)
                         {
                                 if (is_uline(me[j]->connectors[k].GetServerName().c_str()))
                                 {
-                                        snprintf(data,MAXBUF,"H %s",me[j]->connectors[k].GetServerName().c_str());
+                                        snprintf(data,MAXBUF,"%s H %s",CreateSum().c_str(),me[j]->connectors[k].GetServerName().c_str());
                                         serv->SendPacket(data,tcp_host);
                                 }
                         }
@@ -3606,17 +3655,17 @@ void DoSync(serverrec* serv, char* tcp_host)
         }
 
 	// send our version for the remote side to cache
-	snprintf(data,MAXBUF,"v %s %s",ServerName,GetVersionString().c_str());
+	snprintf(data,MAXBUF,"%s v %s %s",CreateSum().c_str(),ServerName,GetVersionString().c_str());
 	serv->SendPacket(data,tcp_host);
 
 	// sync the users and channels, give the modules a look-in.
 	for (user_hash::iterator u = clientlist.begin(); u != clientlist.end(); u++)
 	{
-		snprintf(data,MAXBUF,"N %lu %s %s %s %s +%s %s %s :%s",(unsigned long)u->second->age,u->second->nick,u->second->host,u->second->dhost,u->second->ident,u->second->modes,u->second->ip,u->second->server,u->second->fullname);
+		snprintf(data,MAXBUF,"%s N %lu %s %s %s %s +%s %s %s :%s",CreateSum().c_str(),(unsigned long)u->second->age,u->second->nick,u->second->host,u->second->dhost,u->second->ident,u->second->modes,u->second->ip,u->second->server,u->second->fullname);
 		serv->SendPacket(data,tcp_host);
 		if (strchr(u->second->modes,'o'))
 		{
-			snprintf(data,MAXBUF,"| %s %s",u->second->nick,u->second->oper);
+			snprintf(data,MAXBUF,"%s | %s %s",CreateSum().c_str(),u->second->nick,u->second->oper);
 			serv->SendPacket(data,tcp_host);
 		}
 		for (int i = 0; i <= MODCOUNT; i++)
@@ -3624,14 +3673,14 @@ void DoSync(serverrec* serv, char* tcp_host)
 			string_list l = modules[i]->OnUserSync(u->second);
 			for (int j = 0; j < l.size(); j++)
 			{
-				strlcpy(data,l[j].c_str(),MAXBUF);
+				snprintf(data,MAXBUF,"%s %s",CreateSum().c_str(),l[j].c_str());
   				serv->SendPacket(data,tcp_host);
   			}
   		}
 		char* chl = chlist(u->second,u->second);
 		if (strcmp(chl,""))
 		{
-			snprintf(data,MAXBUF,"J %s %s",u->second->nick,chl);
+			snprintf(data,MAXBUF,"%s J %s %s",CreateSum().c_str(),u->second->nick,chl);
 			serv->SendPacket(data,tcp_host);
 		}
 	}
@@ -3645,27 +3694,27 @@ void DoSync(serverrec* serv, char* tcp_host)
 			string_list l = modules[i]->OnChannelSync(c->second);
 			for (int j = 0; j < l.size(); j++)
 			{
-				strlcpy(data,l[j].c_str(),MAXBUF);
+				snprintf(data,MAXBUF,"%s %s",CreateSum().c_str(),l[j].c_str());
   				serv->SendPacket(data,tcp_host);
   			}
   		}
 		if (c->second->topic[0])
 		{
-			snprintf(data,MAXBUF,"T %lu %s %s :%s",(unsigned long)c->second->topicset,c->second->setby,c->second->name,c->second->topic);
+			snprintf(data,MAXBUF,"%s T %lu %s %s :%s",CreateSum().c_str(),(unsigned long)c->second->topicset,c->second->setby,c->second->name,c->second->topic);
 			serv->SendPacket(data,tcp_host);
 		}
 		// send current banlist
 		
 		for (BanList::iterator b = c->second->bans.begin(); b != c->second->bans.end(); b++)
 		{
-			snprintf(data,MAXBUF,"M %s +b %s",c->second->name,b->data);
+			snprintf(data,MAXBUF,"%s M %s +b %s",CreateSum().c_str(),c->second->name,b->data);
 			serv->SendPacket(data,tcp_host);
 		}
 	}
 	// sync global zlines, glines, etc
 	sync_xlines(serv,tcp_host);
 
-	snprintf(data,MAXBUF,"F %lu",(unsigned long)TIME);
+	snprintf(data,MAXBUF,"%s F %lu",CreateSum().c_str(),(unsigned long)TIME);
 	serv->SendPacket(data,tcp_host);
 	log(DEBUG,"Sent sync");
 	// ircd sends its serverlist after the end of sync here
@@ -4184,7 +4233,7 @@ int InspIRCd(char** argv, int argc)
 	WritePID(PID);
 
 	length = sizeof (client);
-	char tcp_msg[MAXBUF],tcp_host[MAXBUF];
+	char tcp_msg[MAXBUF],tcp_host[MAXBUF],tcp_sum[MAXBUF];
 
 #ifdef USE_KQUEUE
         struct kevent ke;
@@ -4287,12 +4336,15 @@ int InspIRCd(char** argv, int argc)
 		for (int x = 0; x < SERVERportCount; x++)
 		{
 			std::deque<std::string> msgs;
+			std::deque<std::string> sums;
 			msgs.clear();
-			if ((me[x]) && (me[x]->RecvPacket(msgs, tcp_host)))
+			sums.clear();
+			if ((me[x]) && (me[x]->RecvPacket(msgs, tcp_host, sums)))
 			{
 				for (int ctr = 0; ctr < msgs.size(); ctr++)
 				{
 					strlcpy(tcp_msg,msgs[ctr].c_str(),MAXBUF);
+					strlcpy(tcp_sum,msgs[ctr].c_str(),MAXBUF);
 					log(DEBUG,"Processing: %s",tcp_msg);
 					if (!tcp_msg[0])
     					{
@@ -4306,16 +4358,16 @@ int InspIRCd(char** argv, int argc)
 						{
 							if ((tcp_msg[0] != 'Y') && (tcp_msg[0] != 'X') && (tcp_msg[0] != 'F'))
 							{
-								NetSendToAllExcept(tcp_host,tcp_msg);
+								NetSendToAllExcept_WithSum(tcp_host,tcp_msg,tcp_sum);
 							}
 						}
 						else
-							NetSendToAllExcept(tcp_host,tcp_msg);
+							NetSendToAllExcept_WithSum(tcp_host,tcp_msg,tcp_sum);
 					}
 		                        std::string msg = tcp_msg;
 		                        FOREACH_MOD OnPacketReceive(msg,tcp_host);
 		                        strlcpy(tcp_msg,msg.c_str(),MAXBUF);
-					handle_link_packet(tcp_msg, tcp_host, me[x]);
+					handle_link_packet(tcp_msg, tcp_host, me[x], tcp_sum);
 				}
 				goto label;
 			}
