@@ -93,6 +93,23 @@ if (!$fail)
 	close(STRLCPY);
 }
 
+$has_kqueue = 0;
+$fail = 0;
+open(KQUEUE, "</usr/include/sys/event.h") or $fail = 1;
+if (!$fail)
+{
+        while (chomp($line = <KQUEUE>))
+        {
+                # try and find the delcaration of:
+		# int kqueue(void);
+		if (($line =~ /int(\0x9|\s)+kqueue(\0x9|\s)+\(/) || ($line =~ /int(\0x9|\s)+kqueue\(/))
+		{
+			$has_kqueue = 1;
+		}
+	}
+	close(KQUEUE);
+}
+
 ################################################################################
 #                          BEGIN INTERACTIVE PART                              #
 ################################################################################
@@ -125,8 +142,8 @@ dir_check("are the modules to be compiled to", "MODULE_DIR");
 dir_check("is the IRCd binary to be placed", "BINARY_DIR");
 dir_check("are the IRCd libraries to be placed", "LIBRARY_DIR");
 
-if ($config{OSNAME} =~ /BSD$/) {
-	yesno(USE_KQUEUE,"You are running a BSD operating system.\nWould you like to enable kqueue support?\nPlease be aware that kqueue support is\nEXPERIMENTAL and not gauranteed to work properly.\nIf you are unsure, answer no.\n\nEnable kqueue?");
+if ($has_kqueue) {
+	yesno(USE_KQUEUE,"You are running a BSD operating system, and kqueue\nwas detected. Would you like to enable kqueue support?\nPlease be aware that kqueue support is\nEXPERIMENTAL and not gauranteed to work properly.\nIf you are unsure, answer no.\n\nEnable kqueue?");
 }
 
 # File Descriptor Settings..
