@@ -51,6 +51,7 @@
 #include "commands.h"
 #include "xline.h"
 #include "inspstring.h"
+#include "helperfuncs.h"
 
 using namespace std;
 

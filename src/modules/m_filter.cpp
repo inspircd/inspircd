@@ -23,6 +23,7 @@
 #include "users.h"
 #include "channels.h"
 #include "modules.h"
+#include "helperfuncs.h"
 
 /* $ModDesc: An enhanced version of the unreal m_filter.so used by chatspike.net */
 

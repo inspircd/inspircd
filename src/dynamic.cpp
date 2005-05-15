@@ -18,6 +18,7 @@
 #include <dlfcn.h>
 #include "dynamic.h"
 #include "inspstring.h"
+#include "helperfuncs.h"
 
 DLLManager::DLLManager(const char *fname)
 {

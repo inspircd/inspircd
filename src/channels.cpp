@@ -51,6 +51,7 @@
 #include "mode.h"
 #include "xline.h"
 #include "inspstring.h"
+#include "helperfuncs.h"
 
 #ifdef GCC3
 #define nspace __gnu_cxx

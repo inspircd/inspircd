@@ -21,6 +21,7 @@
 #include <string>
 #include "inspircd.h"
 #include "modules.h"
+#include "helperfuncs.h"
 
 extern time_t TIME;
 

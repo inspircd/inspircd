@@ -24,6 +24,7 @@
 #include "users.h"
 #include "channels.h"
 #include "modules.h"
+#include "helperfuncs.h"
 
 /* $ModDesc: m_filter with regexps */
 /* $CompileFlags: -I/usr/local/include -L/usr/local/lib -lpcre */

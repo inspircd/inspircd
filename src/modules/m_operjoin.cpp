@@ -3,6 +3,7 @@
 #include "users.h"
 #include "channels.h"
 #include "modules.h"
+#include "helperfuncs.h"
 
 /* $ModDesc: Forces opers to join a specified channel on oper-up */
 

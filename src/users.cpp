@@ -20,6 +20,7 @@
 #include "inspircd.h"
 #include <stdio.h>
 #include "inspstring.h"
+#include "helperfuncs.h"
 
 extern std::stringstream config_f;
 

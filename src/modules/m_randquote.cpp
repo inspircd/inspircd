@@ -20,6 +20,7 @@
 #include "users.h"
 #include "channels.h"
 #include "modules.h"
+#include "helperfuncs.h"
 
 Server *Srv = NULL;
 FileReader *quotes = NULL;

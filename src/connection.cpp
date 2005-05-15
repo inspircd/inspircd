@@ -28,6 +28,7 @@
 #include "inspircd.h"
 #include "modules.h"
 #include "inspstring.h"
+#include "helperfuncs.h"
 
 using namespace std;
 

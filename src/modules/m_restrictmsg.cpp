@@ -20,6 +20,7 @@
 #include "users.h"
 #include "channels.h"
 #include "modules.h"
+#include "helperfuncs.h"
 
 /* $ModDesc: Forbids users from messaging each other. Users may still message opers and opers may message other opers. */
 

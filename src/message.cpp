@@ -50,6 +50,7 @@
 #include "message.h"
 #include "inspstring.h"
 #include "dns.h"
+#include "helperfuncs.h"
 
 using namespace std;
 

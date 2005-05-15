@@ -20,6 +20,7 @@
 #include "users.h"
 #include "channels.h"
 #include "modules.h"
+#include "helperfuncs.h"
 
 /* $ModDesc: Provides channel-specific censor lists (like mode +G but varies from channel to channel) */
 

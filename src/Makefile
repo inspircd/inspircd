@@ -9,10 +9,14 @@ CC = im a cheezeball
 
 CXXFLAGS = -I$../include ${FLAGS}
 
-all: libIRCDchannels.so libIRCDmode.so libIRCDxline.so libIRCDstring.so libIRCDasyncdns.so libIRCDbase.so libIRCDutil.so libIRCDio.so libIRCDconnection.so libIRCDmessage.so libIRCDcommands.so libIRCDdnsqueue.so libIRCDdynamic.so libIRCDusers.so libIRCDmodules.so libIRCDwildcard.so libIRCDservers.so inspircd
+all: libIRCDchannels.so libIRCDmode.so libIRCDxline.so libIRCDstring.so libIRCDasyncdns.so libIRCDbase.so libIRCDutil.so libIRCDio.so libIRCDconnection.so libIRCDmessage.so libIRCDcommands.so libIRCDdnsqueue.so libIRCDdynamic.so libIRCDusers.so libIRCDmodules.so libIRCDwildcard.so libIRCDservers.so libIRCDhelper.so inspircd
 
 inspircd: inspircd.cpp ../include/base.h ../include/channels.h ../include/inspircd.h ../include/channels.h ../include/globals.h ../include/inspircd_config.h
-	$(CXX) -I../include $(FLAGS) -rdynamic -L. inspircd.cpp -o inspircd $(LDLIBS) libIRCDchannels.so libIRCDmode.so libIRCDxline.so libIRCDstring.so libIRCDasyncdns.so libIRCDbase.so libIRCDutil.so libIRCDio.so libIRCDconnection.so libIRCDmessage.so libIRCDcommands.so libIRCDdnsqueue.so libIRCDdynamic.so libIRCDusers.so libIRCDmodules.so libIRCDwildcard.so libIRCDservers.so
+	$(CXX) -I../include $(FLAGS) -rdynamic -L. inspircd.cpp -o inspircd $(LDLIBS) libIRCDchannels.so libIRCDmode.so libIRCDxline.so libIRCDstring.so libIRCDasyncdns.so libIRCDbase.so libIRCDutil.so libIRCDio.so libIRCDconnection.so libIRCDmessage.so libIRCDcommands.so libIRCDdnsqueue.so libIRCDdynamic.so libIRCDusers.so libIRCDmodules.so libIRCDwildcard.so libIRCDservers.so libIRCDhelper.so
+
+libIRCDhelper.so: helperfuncs.cpp ../include/base.h ../include/helperfuncs.h ../include/inspircd.h ../include/users.h ../include/globals.h ../include/inspircd_config.h
+	$(CC) -pipe -I../include $(FLAGS) -export-dynamic -c helperfuncs.cpp
+	$(CC) -shared -o libIRCDhelper.so helperfuncs.o
 
 libIRCDchannels.so: channels.cpp ../include/base.h ../include/channels.h ../include/inspircd.h ../include/users.h ../include/globals.h ../include/inspircd_config.h
 	$(CC) -pipe -I../include $(FLAGS) -export-dynamic -c channels.cpp

@@ -19,6 +19,7 @@
 #include "users.h"
 #include "channels.h"
 #include "modules.h"
+#include "helperfuncs.h"
 
 /* $ModDesc: Provides support for unreal-style channel mode +c */
 

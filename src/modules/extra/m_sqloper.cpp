@@ -30,6 +30,7 @@
 #include "channels.h"
 #include "modules.h"
 #include "inspircd.h"
+#include "helperfuncs.h"
 #include "m_sql.h"
 
 /* $ModDesc: Allows storage of oper credentials in an SQL table */

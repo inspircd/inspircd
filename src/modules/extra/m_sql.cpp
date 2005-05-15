@@ -21,6 +21,7 @@
 #include "users.h"
 #include "channels.h"
 #include "modules.h"
+#include "helperfuncs.h"
 #include "m_sql.h"
 
 /* $ModDesc: SQL Service Provider module for all other m_sql* modules */

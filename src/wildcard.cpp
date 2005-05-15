@@ -17,6 +17,7 @@
 #include <string>
 #include "inspircd_config.h"
 #include "inspircd.h"
+#include "helperfuncs.h"
 #include "inspstring.h"
 
 // Wed 27 Apr 2005 - Brain

@@ -20,6 +20,7 @@
 #include <stdio.h>
 #include <map>
 #include "inspstring.h"
+#include "helperfuncs.h"
 
 extern time_t TIME;
 
