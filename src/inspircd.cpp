@@ -92,9 +92,9 @@ bool AllowHalfop = true;
 bool AllowProtect = true;
 bool AllowFounder = true;
 
-extern std::vector<Module*> modules;
-std::vector<std::string> module_names;
-extern std::vector<ircd_module*> factory;
+extern std::vector<Module*, __single_client_alloc> modules;
+std::vector<std::string, __single_client_alloc> module_names;
+extern std::vector<ircd_module*, __single_client_alloc> factory;
 
 extern int MODCOUNT;
 int openSockfd[MAXSOCKS];
@@ -107,11 +107,11 @@ time_t TIME = time(NULL), OLDTIME = time(NULL);
 int kq, lkq, skq;
 #endif
 
-typedef nspace::hash_map<std::string, userrec*, nspace::hash<string>, irc::StrHashComp> user_hash;
-typedef nspace::hash_map<std::string, chanrec*, nspace::hash<string>, irc::StrHashComp> chan_hash;
-typedef nspace::hash_map<in_addr,string*, nspace::hash<in_addr>, irc::InAddr_HashComp> address_cache;
-typedef nspace::hash_map<std::string, WhoWasUser*, nspace::hash<string>, irc::StrHashComp> whowas_hash;
-typedef std::deque<command_t> command_table;
+typedef nspace::hash_map<std::string, userrec*, nspace::hash<string>, irc::StrHashComp, __single_client_alloc> user_hash;
+typedef nspace::hash_map<std::string, chanrec*, nspace::hash<string>, irc::StrHashComp, __single_client_alloc> chan_hash;
+typedef nspace::hash_map<in_addr,string*, nspace::hash<in_addr>, irc::InAddr_HashComp, __single_client_alloc> address_cache;
+typedef nspace::hash_map<std::string, WhoWasUser*, nspace::hash<string>, irc::StrHashComp, __single_client_alloc> whowas_hash;
+typedef std::deque<command_t, __single_client_alloc> command_table;
 
 // This table references users by file descriptor.
 // its an array to make it VERY fast, as all lookups are referenced
@@ -153,7 +153,7 @@ void AddWhoWas(userrec* u);
 std::vector<long> auth_cookies;
 std::stringstream config_f(stringstream::in | stringstream::out);
 
-std::vector<userrec*> all_opers;
+std::vector<userrec*, __single_client_alloc> all_opers;
 
 char lowermap[255];
 
