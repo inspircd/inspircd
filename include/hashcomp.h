@@ -19,6 +19,17 @@
 
 #include "inspircd_config.h"
 
+/**
+ * This file contains classes and templates that deal
+ * with the comparison and hashing of 'irc strings'.
+ * An 'irc string' is a string which compares in a
+ * case insensitive manner, and as per RFC 1459 will
+ * treat [ identical to {, ] identical to }, and \
+ * as identical to |. Our hashing functions are designed
+ * to accept std::string and compare/hash them in an irc
+ * type way, irc::string is a seperate class type currently.
+ */
+
 #ifdef GCC3
 #include <ext/hash_map>
 #else

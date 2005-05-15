@@ -82,12 +82,9 @@ size_t nspace::hash<string>::operator()(const string &s) const
 
 bool irc::StrHashComp::operator()(const std::string& s1, const std::string& s2) const
 {
-        char a[MAXBUF],b[MAXBUF];
-        strlcpy(a,s1.c_str(),MAXBUF);
-        strlcpy(b,s2.c_str(),MAXBUF);
-        strlower(a);
-        strlower(b);
-        return (strcasecmp(a,b) == 0);
+	irc::string a = s1.c_str();
+	irc::string b = s2.c_str();
+        return (a == b);
 }
 
 bool irc::InAddr_HashComp::operator()(const in_addr &s1, const in_addr &s2) const
