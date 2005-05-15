@@ -53,27 +53,61 @@ namespace nspace
         };
 }
 
+/** This class returns true if two strings match.
+ * Case sensitivity is ignored, and the RFC 'character set'
+ * is adhered to
+ */
 struct StrHashComp
 {
-
+	/** The operator () does the actual comparison in hash_map
+	 */
         bool operator()(const string& s1, const string& s2) const;
 };
 
+/** This class returns true if two in_addr structs match.
+ * Checking is done by copying both into a size_t then doing a
+ * numeric comparison of the two.
+ */
 struct InAddr_HashComp
 {
+	/** The operator () does the actual comparison in hash_map
+	 */
         bool operator()(const in_addr &s1, const in_addr &s2) const;
 };
 
+/** The irc namespace contains a number of helper classes.
+ */
 namespace irc
 {
+	/** The irc_char_traits class is used for RFC-style comparison of strings.
+	 * This class is used to implement irc::string, a case-insensitive, RFC-
+	 * comparing string class.
+	 */
 	struct irc_char_traits : std::char_traits<char> {
-		  static bool eq(char c1st, char c2nd);
-		  static bool ne(char c1st, char c2nd);
-		  static bool lt(char c1st, char c2nd);
-		  static int compare(const char* str1, const char* str2, size_t n);
-		  static const char* find(const char* s1, int  n, char c);
+
+		/** Check if two chars match
+		 */
+		static bool eq(char c1st, char c2nd);
+
+		/** Check if two chars do NOT match
+		 */
+		static bool ne(char c1st, char c2nd);
+
+		/** Check if one char is less than another
+		 */
+		static bool lt(char c1st, char c2nd);
+
+		/** Compare two strings of size n
+		 */
+		static int compare(const char* str1, const char* str2, size_t n);
+
+		/** Find a char within a string up to position n
+ 		 */
+		static const char* find(const char* s1, int  n, char c);
 	};
 
+	/** This typedef declares irc::string based upon irc_char_traits
+	 */
 	typedef basic_string<char, irc_char_traits, allocator<char> > string;
 }
 
