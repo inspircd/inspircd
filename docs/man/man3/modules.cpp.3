@@ -74,16 +74,16 @@ modules.cpp \-
 
 .in +1c
 .ti -1c
-.RI "typedef nspace::hash_map< std::string, \fBuserrec\fP *, nspace::hash< string >, \fBStrHashComp\fP > \fBuser_hash\fP"
+.RI "typedef nspace::hash_map< std::string, \fBuserrec\fP *, nspace::hash< string >, \fBirc::StrHashComp\fP > \fBuser_hash\fP"
 .br
 .ti -1c
-.RI "typedef nspace::hash_map< std::string, \fBchanrec\fP *, nspace::hash< string >, \fBStrHashComp\fP > \fBchan_hash\fP"
+.RI "typedef nspace::hash_map< std::string, \fBchanrec\fP *, nspace::hash< string >, \fBirc::StrHashComp\fP > \fBchan_hash\fP"
 .br
 .ti -1c
-.RI "typedef nspace::hash_map< in_addr, string *, nspace::hash< in_addr >, \fBInAddr_HashComp\fP > \fBaddress_cache\fP"
+.RI "typedef nspace::hash_map< in_addr, string *, nspace::hash< in_addr >, \fBirc::InAddr_HashComp\fP > \fBaddress_cache\fP"
 .br
 .ti -1c
-.RI "typedef nspace::hash_map< std::string, \fBWhoWasUser\fP *, nspace::hash< string >, \fBStrHashComp\fP > \fBwhowas_hash\fP"
+.RI "typedef nspace::hash_map< std::string, \fBWhoWasUser\fP *, nspace::hash< string >, \fBirc::StrHashComp\fP > \fBwhowas_hash\fP"
 .br
 .ti -1c
 .RI "typedef std::deque< \fBcommand_t\fP > \fBcommand_table\fP"
@@ -270,10 +270,10 @@ modules.cpp \-
 .in -1c
 .SH "Typedef Documentation"
 .PP 
-.SS "typedef nspace::hash_map<in_addr,string*, nspace::hash<in_addr>, \fBInAddr_HashComp\fP> \fBaddress_cache\fP"
+.SS "typedef nspace::hash_map<in_addr,string*, nspace::hash<in_addr>, \fBirc::InAddr_HashComp\fP> \fBaddress_cache\fP"
 .PP
 Definition at line 111 of file modules.cpp.
-.SS "typedef nspace::hash_map<std::string, \fBchanrec\fP*, nspace::hash<string>, \fBStrHashComp\fP> \fBchan_hash\fP"
+.SS "typedef nspace::hash_map<std::string, \fBchanrec\fP*, nspace::hash<string>, \fBirc::StrHashComp\fP> \fBchan_hash\fP"
 .PP
 Definition at line 110 of file modules.cpp.
 .SS "typedef std::deque<\fBcommand_t\fP> \fBcommand_table\fP"
@@ -287,10 +287,10 @@ Definition at line 139 of file modules.cpp.
 Definition at line 140 of file modules.cpp.
 .PP
 Referenced by ModeDefined(), ModeDefinedOff(), ModeDefinedOn(), ModeDefinedOper(), ModeIsListMode(), and ModeMakeList().
-.SS "typedef nspace::hash_map<std::string, \fBuserrec\fP*, nspace::hash<string>, \fBStrHashComp\fP> \fBuser_hash\fP"
+.SS "typedef nspace::hash_map<std::string, \fBuserrec\fP*, nspace::hash<string>, \fBirc::StrHashComp\fP> \fBuser_hash\fP"
 .PP
 Definition at line 109 of file modules.cpp.
-.SS "typedef nspace::hash_map<std::string, \fBWhoWasUser\fP*, nspace::hash<string>, \fBStrHashComp\fP> \fBwhowas_hash\fP"
+.SS "typedef nspace::hash_map<std::string, \fBWhoWasUser\fP*, nspace::hash<string>, \fBirc::StrHashComp\fP> \fBwhowas_hash\fP"
 .PP
 Definition at line 112 of file modules.cpp.
 .SH "Function Documentation"
