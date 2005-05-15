@@ -32,22 +32,14 @@
 
 using namespace std;
 
-#ifdef GCC34
-size_t hash<in_addr>::operator()(const struct in_addr &a) const
-#else
 size_t nspace::hash<in_addr>::operator()(const struct in_addr &a) const
-#endif
 {
         size_t q;
         memcpy(&q,&a,sizeof(size_t));
         return q;
 }
 
-#ifdef GCC34
-size_t hash<string>::operator()(const string &s) const
-#else
 size_t nspace::hash<string>::operator()(const string &s) const
-#endif
 {
         char a[MAXBUF];
         static struct hash<const char *> strhash;
