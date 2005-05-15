@@ -1,4 +1,4 @@
-.TH "channels.cpp" 3 "13 May 2005" "InspIRCd" \" -*- nroff -*-
+.TH "channels.cpp" 3 "15 May 2005" "InspIRCd" \" -*- nroff -*-
 .ad l
 .nh
 .SH NAME
@@ -16,15 +16,11 @@ channels.cpp \-
 .br
 \fC#include <unistd.h>\fP
 .br
-\fC#include <fcntl.h>\fP
-.br
 \fC#include <sys/errno.h>\fP
 .br
 \fC#include <sys/ioctl.h>\fP
 .br
 \fC#include <sys/utsname.h>\fP
-.br
-\fC#include <cstdio>\fP
 .br
 \fC#include <time.h>\fP
 .br
@@ -38,11 +34,7 @@ channels.cpp \-
 .br
 \fC#include <vector>\fP
 .br
-\fC#include <errno.h>\fP
-.br
 \fC#include <deque>\fP
-.br
-\fC#include <sched.h>\fP
 .br
 \fC#include 'connection.h'\fP
 .br
@@ -67,6 +59,8 @@ channels.cpp \-
 \fC#include 'xline.h'\fP
 .br
 \fC#include 'inspstring.h'\fP
+.br
+\fC#include 'helperfuncs.h'\fP
 .br
 
 .SS "Namespaces"
@@ -205,137 +199,137 @@ channels.cpp \-
 .PP 
 .SS "#define nspace   std"
 .PP
-Definition at line 58 of file channels.cpp.
+Definition at line 53 of file channels.cpp.
 .SH "Variable Documentation"
 .PP 
 .SS "char \fBAdminEmail\fP[MAXBUF]"
 .PP
-Definition at line 72 of file channels.cpp.
+Definition at line 67 of file channels.cpp.
 .SS "char \fBAdminName\fP[MAXBUF]"
 .PP
-Definition at line 71 of file channels.cpp.
+Definition at line 66 of file channels.cpp.
 .SS "char \fBAdminNick\fP[MAXBUF]"
 .PP
-Definition at line 73 of file channels.cpp.
+Definition at line 68 of file channels.cpp.
 .SS "std::vector<long> \fBauth_cookies\fP"
 .PP
-Definition at line 100 of file channels.cpp.
+Definition at line 95 of file channels.cpp.
 .SS "int \fBboundPortCount\fP"
 .PP
-Definition at line 94 of file channels.cpp.
+Definition at line 89 of file channels.cpp.
 .SS "std::stringstream \fBconfig_f\fP"
 .PP
-Definition at line 101 of file channels.cpp.
+Definition at line 96 of file channels.cpp.
 .PP
 Referenced by userrec::HasPermission().
 .SS "std::vector<\fBModeParameter\fP> \fBcustom_mode_params\fP"
 .PP
-Definition at line 111 of file channels.cpp.
+Definition at line 106 of file channels.cpp.
 .PP
 Referenced by chanrec::GetModeParameter(), and chanrec::SetCustomModeParam().
 .SS "int \fBdebugging\fP"
 .PP
-Definition at line 82 of file channels.cpp.
+Definition at line 77 of file channels.cpp.
 .SS "int \fBdefaultRoute\fP"
 .PP
-Definition at line 98 of file channels.cpp.
+Definition at line 93 of file channels.cpp.
 .SS "int \fBDieDelay\fP"
 .PP
-Definition at line 85 of file channels.cpp.
+Definition at line 80 of file channels.cpp.
 .SS "char \fBdiepass\fP[MAXBUF]"
 .PP
-Definition at line 74 of file channels.cpp.
+Definition at line 69 of file channels.cpp.
 .SS "char \fBDieValue\fP[MAXBUF]"
 .PP
-Definition at line 80 of file channels.cpp.
+Definition at line 75 of file channels.cpp.
 .SS "std::vector<\fBircd_module\fP*> factory"
 .PP
-Definition at line 65 of file channels.cpp.
+Definition at line 60 of file channels.cpp.
 .SS "std::vector<int> \fBfd_reap\fP"
 .PP
-Definition at line 91 of file channels.cpp.
+Definition at line 86 of file channels.cpp.
 .SS "char \fBlist\fP[MAXBUF]"
 .PP
-Definition at line 78 of file channels.cpp.
+Definition at line 73 of file channels.cpp.
 .PP
 Referenced by Server::GetUsers().
 .SS "FILE* \fBlog_file\fP"
 .PP
-Definition at line 105 of file channels.cpp.
+Definition at line 100 of file channels.cpp.
 .SS "int \fBLogLevel\fP"
 .PP
-Definition at line 67 of file channels.cpp.
+Definition at line 62 of file channels.cpp.
 .SS "int \fBMaxWhoResults\fP"
 .PP
-Definition at line 88 of file channels.cpp.
+Definition at line 83 of file channels.cpp.
 .SS "\fBserverrec\fP* \fBme\fP[32]"
 .PP
-Definition at line 103 of file channels.cpp.
+Definition at line 98 of file channels.cpp.
 .SS "int \fBMODCOUNT\fP = -1"
 .PP
-Definition at line 1067 of file modules.cpp.
+Definition at line 996 of file modules.cpp.
 .PP
 Referenced by Server::FindModule().
 .SS "std::vector<std::string> \fBmodule_names\fP"
 .PP
-Definition at line 92 of file channels.cpp.
+Definition at line 87 of file channels.cpp.
 .PP
 Referenced by Server::FindModule().
 .SS "std::vector<\fBModule\fP*> modules"
 .PP
-Definition at line 64 of file channels.cpp.
+Definition at line 59 of file channels.cpp.
 .PP
 Referenced by Server::FindModule().
 .SS "char \fBmotd\fP[MAXBUF]"
 .PP
-Definition at line 76 of file channels.cpp.
+Definition at line 71 of file channels.cpp.
 .SS "time_t \fBnb_start\fP"
 .PP
-Definition at line 89 of file channels.cpp.
+Definition at line 84 of file channels.cpp.
 .SS "int \fBNetBufferSize\fP"
 .PP
-Definition at line 87 of file channels.cpp.
+Definition at line 82 of file channels.cpp.
 .SS "char \fBNetwork\fP[MAXBUF]"
 .PP
-Definition at line 69 of file channels.cpp.
+Definition at line 64 of file channels.cpp.
 .SS "int \fBportCount\fP"
 .PP
-Definition at line 95 of file channels.cpp.
+Definition at line 90 of file channels.cpp.
 .SS "int \fBports\fP[MAXSOCKS]"
 .PP
-Definition at line 97 of file channels.cpp.
+Definition at line 92 of file channels.cpp.
 .SS "char \fBPrefixQuit\fP[MAXBUF]"
 .PP
-Definition at line 79 of file channels.cpp.
+Definition at line 74 of file channels.cpp.
 .SS "char \fBrestartpass\fP[MAXBUF]"
 .PP
-Definition at line 75 of file channels.cpp.
+Definition at line 70 of file channels.cpp.
 .SS "char \fBrules\fP[MAXBUF]"
 .PP
-Definition at line 77 of file channels.cpp.
+Definition at line 72 of file channels.cpp.
 .SS "char \fBServerDesc\fP[MAXBUF]"
 .PP
-Definition at line 70 of file channels.cpp.
+Definition at line 65 of file channels.cpp.
 .SS "char \fBServerName\fP[MAXBUF]"
 .PP
-Definition at line 68 of file channels.cpp.
+Definition at line 63 of file channels.cpp.
 .SS "int \fBSERVERportCount\fP"
 .PP
-Definition at line 96 of file channels.cpp.
+Definition at line 91 of file channels.cpp.
 .SS "time_t \fBstartup_time\fP"
 .PP
-Definition at line 86 of file channels.cpp.
+Definition at line 81 of file channels.cpp.
 .SS "time_t \fBTIME\fP"
 .PP
-Definition at line 107 of file channels.cpp.
+Definition at line 102 of file channels.cpp.
 .PP
 Referenced by serverrec::serverrec(), and userrec::userrec().
 .SS "int \fBWHOWAS_MAX\fP"
 .PP
-Definition at line 84 of file channels.cpp.
+Definition at line 79 of file channels.cpp.
 .SS "int \fBWHOWAS_STALE\fP"
 .PP
-Definition at line 83 of file channels.cpp.
+Definition at line 78 of file channels.cpp.
 .SH "Author"
 .PP 
 Generated automatically by Doxygen for InspIRCd from the source code.

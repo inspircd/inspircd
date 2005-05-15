@@ -1,4 +1,4 @@
-.TH "users.h" 3 "13 May 2005" "InspIRCd" \" -*- nroff -*-
+.TH "users.h" 3 "15 May 2005" "InspIRCd" \" -*- nroff -*-
 .ad l
 .nh
 .SH NAME
@@ -99,6 +99,8 @@ Holds a complete list of all allow and deny tags from the configuration file (co
 .SS "typedef std::vector<\fBInvited\fP> \fBInvitedList\fP"
 .PP
 Holds a complete list of all channels to which a user has been invited and has not yet joined. Definition at line 94 of file users.h.
+.PP
+Referenced by userrec::GetInviteList().
 .SH "Author"
 .PP 
 Generated automatically by Doxygen for InspIRCd from the source code.

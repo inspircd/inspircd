@@ -1,10 +1,12 @@
-.TH "nspace::nspace::hash< in_addr >" 3 "13 May 2005" "InspIRCd" \" -*- nroff -*-
+.TH "nspace::nspace::hash< in_addr >" 3 "15 May 2005" "InspIRCd" \" -*- nroff -*-
 .ad l
 .nh
 .SH NAME
 nspace::nspace::hash< in_addr > \- 
 .SH SYNOPSIS
 .br
+.PP
+\fC#include <hashcomp.h>\fP
 .PP
 .SS "Public Member Functions"
 
@@ -18,17 +20,8 @@ nspace::nspace::hash< in_addr > \-
 
 .SH "Member Function Documentation"
 .PP 
-.SS "size_t nspace::hash< in_addr >::operator() (const struct in_addr & a) const\fC [inline]\fP"
+.SS "size_t nspace::hash< in_addr >::operator() (const struct in_addr & a) const"
 .PP
-Definition at line 129 of file modules.cpp.
-.PP
-.nf
-130                 {
-131                         size_t q;
-132                         memcpy(&q,&a,sizeof(size_t));
-133                         return q;
-134                 }
-.fi
 
 
 .SH "Author"

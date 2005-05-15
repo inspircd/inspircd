@@ -1,4 +1,4 @@
-.TH "ircd_connector" 3 "13 May 2005" "InspIRCd" \" -*- nroff -*-
+.TH "ircd_connector" 3 "15 May 2005" "InspIRCd" \" -*- nroff -*-
 .ad l
 .nh
 .SH NAME
@@ -160,7 +160,7 @@ Each connection has one or more of these each represents ONE outbound connection
 
 A listening socket that accepts server type connections is represented by one class serverrec. Class serverrec will instantiate several objects of type ircd_connector to represent each established connection, inbound or outbound. So, to determine all linked servers you must walk through all the serverrecs that the core defines, and in each one iterate through until you find connection(s) relating to the server you want information on. The core and module API provide functions for this. 
 .PP
-Definition at line 54 of file connection.h.
+Definition at line 56 of file connection.h.
 .SH "Member Function Documentation"
 .PP 
 .SS "void ircd_connector::AddBuffer (std::string a)"
@@ -230,36 +230,36 @@ This method sets the version string of the remote server.
 .PP 
 .SS "sockaddr_in \fBircd_connector::addr\fP\fC [private]\fP"
 .PP
-Sockaddr of the outbound ip and port. Definition at line 59 of file connection.h.
+Sockaddr of the outbound ip and port. Definition at line 61 of file connection.h.
 .SS "std::string \fBircd_connector::description\fP\fC [private]\fP"
 .PP
-\fBServer\fP 'GECOS'. Definition at line 71 of file connection.h.
+\fBServer\fP 'GECOS'. Definition at line 73 of file connection.h.
 .SS "int \fBircd_connector::fd\fP\fC [private]\fP"
 .PP
-File descriptor of the connection. Definition at line 63 of file connection.h.
+File descriptor of the connection. Definition at line 65 of file connection.h.
 .SS "char \fBircd_connector::host\fP[MAXBUF]"
 .PP
-When MakeOutboundConnection is called, these public members are filled with the details passed to the function, for future reference. Definition at line 99 of file connection.h.
+When MakeOutboundConnection is called, these public members are filled with the details passed to the function, for future reference. Definition at line 101 of file connection.h.
 .SS "std::string \fBircd_connector::ircdbuffer\fP"
 .PP
 IRCD Buffer for input characters, holds as many lines as are pending - Note that the final line may not be complete and should only be read when there is a 
 .br
- seperator. Definition at line 92 of file connection.h.
+ seperator. Definition at line 94 of file connection.h.
 .SS "int \fBircd_connector::port\fP"
 .PP
-When MakeOutboundConnection is called, these public members are filled with the details passed to the function, for future reference. Definition at line 105 of file connection.h.
+When MakeOutboundConnection is called, these public members are filled with the details passed to the function, for future reference. Definition at line 107 of file connection.h.
 .SS "std::vector<std::string> \fBircd_connector::routes\fP"
 .PP
-\fBServer\fP names of servers that this server is linked to So for A->B->C, if this was the record for B it would contain A and C whilever both servers are connected to B. Definition at line 111 of file connection.h.
+\fBServer\fP names of servers that this server is linked to So for A->B->C, if this was the record for B it would contain A and C whilever both servers are connected to B. Definition at line 113 of file connection.h.
 .SS "std::string \fBircd_connector::servername\fP\fC [private]\fP"
 .PP
-\fBServer\fP name. Definition at line 67 of file connection.h.
+\fBServer\fP name. Definition at line 69 of file connection.h.
 .SS "char \fBircd_connector::state\fP\fC [private]\fP"
 .PP
-State. STATE_NOAUTH_INBOUND, STATE_NOAUTH_OUTBOUND STATE_SYNC, STATE_DISCONNECTED, STATE_CONNECTEDDefinition at line 76 of file connection.h.
+State. STATE_NOAUTH_INBOUND, STATE_NOAUTH_OUTBOUND STATE_SYNC, STATE_DISCONNECTED, STATE_CONNECTEDDefinition at line 78 of file connection.h.
 .SS "std::string \fBircd_connector::version\fP\fC [private]\fP"
 .PP
-This string holds the ircd's version response. Definition at line 84 of file connection.h.
+This string holds the ircd's version response. Definition at line 86 of file connection.h.
 
 .SH "Author"
 .PP 

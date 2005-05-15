@@ -1,10 +1,12 @@
-.TH "nspace::nspace::hash< string >" 3 "13 May 2005" "InspIRCd" \" -*- nroff -*-
+.TH "nspace::nspace::hash< string >" 3 "15 May 2005" "InspIRCd" \" -*- nroff -*-
 .ad l
 .nh
 .SH NAME
 nspace::nspace::hash< string > \- 
 .SH SYNOPSIS
 .br
+.PP
+\fC#include <hashcomp.h>\fP
 .PP
 .SS "Public Member Functions"
 
@@ -18,19 +20,8 @@ nspace::nspace::hash< string > \-
 
 .SH "Member Function Documentation"
 .PP 
-.SS "size_t nspace::hash< string >::operator() (const string & s) const\fC [inline]\fP"
+.SS "size_t nspace::hash< string >::operator() (const string & s) const"
 .PP
-Definition at line 142 of file modules.cpp.
-.PP
-.nf
-143                 {
-144                         char a[MAXBUF];
-145                         static struct hash<const char *> strhash;
-146                         strlcpy(a,s.c_str(),MAXBUF);
-147                         strlower(a);
-148                         return strhash(a);
-149                 }
-.fi
 
 
 .SH "Author"

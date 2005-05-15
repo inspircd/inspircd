@@ -1,4 +1,4 @@
-.TH "Request" 3 "13 May 2005" "InspIRCd" \" -*- nroff -*-
+.TH "Request" 3 "15 May 2005" "InspIRCd" \" -*- nroff -*-
 .ad l
 .nh
 .SH NAME
@@ -63,65 +63,65 @@ Definition at line 154 of file modules.h.
 .PP 
 .SS "Request::Request (char * anydata, \fBModule\fP * src, \fBModule\fP * dst)"
 .PP
-Create a new Request. Definition at line 316 of file modules.cpp.
+Create a new Request. Definition at line 240 of file modules.cpp.
 .PP
 .nf
-316 : data(anydata), source(src), dest(dst) { };
+240 : data(anydata), source(src), dest(dst) { };
 .fi
 .SH "Member Function Documentation"
 .PP 
 .SS "char * Request::GetData ()"
 .PP
-Fetch the Request data. Definition at line 318 of file modules.cpp.
+Fetch the Request data. Definition at line 242 of file modules.cpp.
 .PP
 References data.
 .PP
 .nf
-319 {
-320         return this->data;
-321 }
+243 {
+244         return this->data;
+245 }
 .fi
 .SS "\fBModule\fP * Request::GetDest ()"
 .PP
-Fetch the request destination (should be 'this' in the receiving module). Definition at line 328 of file modules.cpp.
+Fetch the request destination (should be 'this' in the receiving module). Definition at line 252 of file modules.cpp.
 .PP
 References dest.
 .PP
 .nf
-329 {
-330         return this->dest;
-331 }
+253 {
+254         return this->dest;
+255 }
 .fi
 .SS "\fBModule\fP * Request::GetSource ()"
 .PP
-Fetch the request source. Definition at line 323 of file modules.cpp.
+Fetch the request source. Definition at line 247 of file modules.cpp.
 .PP
 References source.
 .PP
 .nf
-324 {
-325         return this->source;
-326 }
+248 {
+249         return this->source;
+250 }
 .fi
 .SS "char * Request::Send ()\fC [virtual]\fP"
 .PP
 Send the Request. Upon returning the result will be arbitary data returned by the module you sent the request to. It is up to your module to know what this data is and how to deal with it. Implements \fBModuleMessage\fP.
 .PP
-Definition at line 333 of file modules.cpp.
+Definition at line 257 of file modules.cpp.
 .PP
 References dest, and Module::OnRequest().
 .PP
 .nf
-334 {
-335         if (this->dest)
-336         {
-337                 return dest->OnRequest(this);
-338         }
-339         else
-340         {
-341                 return NULL;
-342         }
-343 }
+258 {
+259         if (this->dest)
+260         {
+261                 return dest->OnRequest(this);
+262         }
+263         else
+264         {
+265                 return NULL;
+266         }
+267 }
 .fi
 .SH "Member Data Documentation"
 .PP 
