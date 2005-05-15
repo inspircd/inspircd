@@ -64,8 +64,9 @@ if ($arg eq "-update") {
   }
 }
 
-
+print "Checking for cache from previous configure...\n";
 getcache();
+print "Checking operating system version...\n";
 getosflags();
 
 if (!$config{MAX_CLIENT}) { 
@@ -75,6 +76,7 @@ if (!$config{MAX_CLIENT}) {
   $config{MAX_CLIENT} = $config{MAX_CLIENT_T};
 }
 
+printf "Checking if strlcpy exists... ";
 # Perform the strlcpy() test..
 $config{HAS_STRLCPY} = "false";
 my $fail = 0;
@@ -92,7 +94,10 @@ if (!$fail)
 	}
 	close(STRLCPY);
 }
+print "yes\n" if $config{HAS_STRLCPY} eq "true";
+print "no\n" if $config{HAS_STRLCPY} eq "false";
 
+printf "Checking if kqueue exists... ";
 $has_kqueue = 0;
 $fail = 0;
 open(KQUEUE, "</usr/include/sys/event.h") or $fail = 1;
@@ -109,6 +114,8 @@ if (!$fail)
 	}
 	close(KQUEUE);
 }
+print "yes\n" if $has_kqueue == 1;
+print "no\n" if $has_kqueue == 0;
 
 ################################################################################
 #                          BEGIN INTERACTIVE PART                              #
