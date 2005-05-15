@@ -30,6 +30,35 @@
 #define nspace std
 #endif
 
+/******************************************************
+ *
+ * The hash functions of InspIRCd are the centrepoint
+ * of the entire system. If these functions are
+ * inefficient or wasteful, the whole program suffers
+ * as a result. A lot of C programmers in the ircd
+ * scene spend a lot of time debating (arguing) about
+ * the best way to write hash functions to hash irc
+ * nicknames, channels etc.
+ * We are lucky as C++ developers as hash_map does
+ * a lot of this for us. It does intellegent memory
+ * requests, bucketing, search functions, insertion
+ * and deletion etc. All we have to do is write some
+ * overloaded comparison and hash value operators which
+ * cause it to act in an irc-like way. The features we
+ * add to the standard hash_map are:
+ *
+ * Case insensitivity: The hash_map will be case
+ * insensitive.
+ *
+ * Scandanavian Comparisons: The characters [, ], \ will
+ * be considered the lowercase of {, } and |.
+ *
+ * This file also contains hashing methods for hashing
+ * in_addr structs, we use this if we want to cache IP
+ * addresses.
+ *
+ ******************************************************/
+
 using namespace std;
 
 size_t nspace::hash<in_addr>::operator()(const struct in_addr &a) const
