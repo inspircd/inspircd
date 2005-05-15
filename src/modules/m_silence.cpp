@@ -21,6 +21,7 @@
 #include "channels.h"
 #include "modules.h"
 #include "helperfuncs.h"
+#include "hashcomp.h"
 
 /* $ModDesc: Provides support for the /SILENCE command */
 
@@ -66,7 +67,9 @@ void handle_silence(char **parameters, int pcnt, userrec *user)
                 	        	for (silencelist::iterator i = sl->begin(); i != sl->end(); i++)
                		         	{
 						// search through for the item
-               	                        	if (!strcasecmp(i->c_str(),nick))
+						irc::string listitem = i->c_str();
+						irc::string target = nick;
+						if (listitem == target)
                	                        	{
                	                                	sl->erase(i);
 							WriteServ(user->fd,"950 %s %s :Removed %s!*@* from silence list",user->nick, user->nick,nick);
@@ -98,7 +101,9 @@ void handle_silence(char **parameters, int pcnt, userrec *user)
 			// add the nick to it -- silence only takes nicks for some reason even though its list shows masks
 			for (silencelist::iterator n = sl->begin(); n != sl->end();  n++)
 			{
-				if (!strcasecmp(n->c_str(),nick))
+				irc::string listitem = n->c_str();
+				irc::string target = nick;
+				if (listitem == target)
 				{
 					WriteServ(user->fd,"952 %s %s :%s is already on your silence list",user->nick, user->nick,nick);
 					return;
@@ -156,7 +161,9 @@ class ModuleSilence : public Module
 			{
 				for (silencelist::const_iterator c = sl->begin(); c != sl->end(); c++)
 				{
-					if (!strcasecmp(c->c_str(),user->nick))
+                                        irc::string listitem = c->c_str();
+                                        irc::string target = user->nick;
+                                        if (listitem == target)
 					{
 						return 1;
 					}
@@ -176,7 +183,9 @@ class ModuleSilence : public Module
                         {
                                 for (silencelist::const_iterator c = sl->begin(); c != sl->end(); c++)
                                 {
-                                        if (!strcasecmp(c->c_str(),user->nick))
+                                        irc::string listitem = c->c_str();
+                                        irc::string target = user->nick;
+                                        if (listitem == target)
                                         {
                                                 return 1;
                                         }

@@ -27,6 +27,7 @@
 #include "channels.h"
 #include "modules.h"
 #include "helperfuncs.h"
+#include "hashcomp.h"
 
 Server *Srv;
 	 
@@ -56,7 +57,11 @@ void handle_tban(char **parameters, int pcnt, userrec *user)
 			}
 			for (timedbans::iterator i = TimedBanList.begin(); i < TimedBanList.end(); i++)
 			{
-				if ((!strcasecmp(i->mask.c_str(),parameters[2])) && (!strcasecmp(i->channel.c_str(),parameters[0])))
+                                irc::string listitem = i->mask.c_str();
+                                irc::string target = parameters[2];
+				irc::string listchan = i->channel.c_str();
+				irc::string targetchan = parameters[0];
+				if ((listitem == target) && (listchan == targetchan))
 				{
 					Srv->SendServ(user->fd,"NOTICE "+std::string(user->nick)+" :The ban "+std::string(parameters[2])+" is already on the banlist of "+std::string(parameters[0]));
 					return;
@@ -113,7 +118,9 @@ class ModuleTimedBans : public Module
 	{
                 for (timedbans::iterator i = TimedBanList.begin(); i < TimedBanList.end(); i++)
                 {
-                        if (!strcasecmp(banmask.c_str(),i->mask.c_str()))
+                        irc::string listitem = banmask.c_str();
+                        irc::string target = i->mask.c_str();
+                        if (listitem == target)
                         {
                                 TimedBanList.erase(i);
                                 break;

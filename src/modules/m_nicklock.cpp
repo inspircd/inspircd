@@ -20,6 +20,7 @@
 #include "channels.h"
 #include "modules.h"
 #include "helperfuncs.h"
+#include "hashcomp.h"
 
 /* $ModDesc: Provides the NICKLOCK command, allows an oper to chage a users nick and lock them to it until they quit */
 
@@ -39,7 +40,9 @@ void handle_nicklock(char **parameters, int pcnt, userrec *user)
 		}
 		if (Srv->IsNick(std::string(parameters[1])))
 		{
-			if (!strcasecmp(user->server,Srv->GetServerName().c_str()))
+			irc::string server = user->server;
+			irc::string me = Srv->GetServerName().c_str();
+			if (server == me)
 			{
 				// give them a lock flag
 				Srv->SendOpers(std::string(user->nick)+" used NICKLOCK to change and hold "+std::string(parameters[0])+" to "+parameters[1]);

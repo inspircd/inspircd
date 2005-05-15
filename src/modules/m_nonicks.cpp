@@ -20,6 +20,7 @@
 #include "channels.h"
 #include "modules.h"
 #include "helperfuncs.h"
+#include "hashcomp.h"
 
 /* $ModDesc: Provides support for unreal-style GLOBOPS and umode +g */
 
@@ -66,7 +67,9 @@ class ModuleNoNickChange : public Module
 	
 	virtual int OnUserPreNick(userrec* user, std::string newnick)
 	{
-		if (!strcasecmp(user->server,Srv->GetServerName().c_str()))
+		irc::string server = user->server;
+		irc::string me = Srv->GetServerName().c_str();
+		if (server == me)
 		{
 			for (int i =0; i != MAXCHANS; i++)
 			{
