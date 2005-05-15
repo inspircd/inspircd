@@ -1,3 +1,19 @@
+/*       +------------------------------------+
+ *       | Inspire Internet Relay Chat Daemon |
+ *       +------------------------------------+
+ *
+ *  Inspire is copyright (C) 2002-2004 ChatSpike-Dev.
+ *                       E-mail:
+ *                <brain@chatspike.net>
+ *                <Craig@chatspike.net>
+ *
+ * Written by Craig Edwards, Craig McLure, and others.
+ * This program is free but copyrighted software; see
+ *            the file COPYING for details.
+ *
+ * ---------------------------------------------------
+ */
+
 #include "inspircd.h"
 #include "inspircd_io.h"
 #include "inspircd_util.h"
@@ -5,14 +21,6 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <sys/errno.h>
-#include <sys/ioctl.h>
-#include <sys/utsname.h>
-#ifdef USE_KQUEUE
-#include <sys/types.h>
-#include <sys/event.h>
-#include <sys/time.h>
-#endif
-#include <cstdio>
 #include <time.h>
 #include <string>
 #ifdef GCC3
@@ -20,14 +28,10 @@
 #else
 #include <hash_map>
 #endif
-#include <map>
 #include <sstream>
 #include <vector>
-#include <errno.h>
 #include <deque>
-#include <errno.h>
-#include <unistd.h>
-#include <sched.h>
+#include <stdarg.h>
 #include "connection.h"
 #include "users.h"
 #include "servers.h"
@@ -46,54 +50,20 @@
 
 using namespace std;
 
-#ifdef USE_KQUEUE
-extern int kq;
-#endif
-
 extern int MODCOUNT;
 extern std::vector<Module*> modules;
-extern std::vector<ircd_module*> factory;
 
 extern time_t TIME;
-
 extern bool nofork;
-
 extern char lowermap[255];
-
-extern int LogLevel;
 extern char ServerName[MAXBUF];
 extern char Network[MAXBUF];
 extern char ServerDesc[MAXBUF];
-extern char AdminName[MAXBUF];
-extern char AdminEmail[MAXBUF];
-extern char AdminNick[MAXBUF];
-extern char diepass[MAXBUF];
-extern char restartpass[MAXBUF];
-extern char motd[MAXBUF];
-extern char rules[MAXBUF];
 extern char list[MAXBUF];
-extern char PrefixQuit[MAXBUF];
-extern char DieValue[MAXBUF];
 
 extern int debugging;
-extern int WHOWAS_STALE;
-extern int WHOWAS_MAX;
-extern int DieDelay;
-extern time_t startup_time;
-extern int NetBufferSize;
-extern int MaxWhoResults;
-extern time_t nb_start;
+extern int LogLevel;
 
-extern std::vector<int> fd_reap;
-extern std::vector<std::string> module_names;
-
-extern int boundPortCount;
-extern int portCount;
-extern int SERVERportCount;
-extern int ports[MAXSOCKS];
-extern int defaultRoute;
-
-extern std::vector<long> auth_cookies;
 extern std::stringstream config_f;
 
 extern serverrec* me[32];
@@ -108,21 +78,15 @@ extern std::vector<userrec*> all_opers;
 
 extern ClassVector Classes;
 
-
 typedef nspace::hash_map<std::string, userrec*, nspace::hash<string>, StrHashComp> user_hash;
 typedef nspace::hash_map<std::string, chanrec*, nspace::hash<string>, StrHashComp> chan_hash;
-typedef nspace::hash_map<in_addr,string*, nspace::hash<in_addr>, InAddr_HashComp> address_cache;
-typedef nspace::hash_map<std::string, WhoWasUser*, nspace::hash<string>, StrHashComp> whowas_hash;
 typedef std::deque<command_t> command_table;
-
 
 extern user_hash clientlist;
 extern chan_hash chanlist;
-extern whowas_hash whowas;
 extern command_table cmdlist;
 extern file_cache MOTD;
 extern file_cache RULES;
-extern address_cache IP;
 
 void log(int level,char *text, ...)
 {

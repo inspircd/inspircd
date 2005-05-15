@@ -23,7 +23,6 @@ using namespace std;
 #include "inspircd_util.h"
 #include "inspircd_config.h"
 #include <unistd.h>
-#include <fcntl.h>
 #include <sys/errno.h>
 #include <sys/ioctl.h>
 #include <sys/utsname.h>
@@ -38,11 +37,7 @@ using namespace std;
 #include <map>
 #include <sstream>
 #include <vector>
-#include <errno.h>
 #include <deque>
-#include <errno.h>
-#include <unistd.h>
-#include <sched.h>
 #include "connection.h"
 #include "users.h"
 #include "servers.h"
@@ -57,7 +52,6 @@ using namespace std;
 #include "xline.h"
 #include "inspstring.h"
 #include "dnsqueue.h"
-#include <stdlib.h>
 #include <time.h>
 #include <sys/types.h>
 #include <sys/socket.h>
@@ -65,10 +59,6 @@ using namespace std;
 #include <sys/time.h>
 #include <netinet/in.h>
 #include <string.h>
-#include <unistd.h>
-#include <stdio.h>
-#include <errno.h>
-#include <fcntl.h>
 #include "dns.h"
 #include "helperfuncs.h"
 #include "hashcomp.h"

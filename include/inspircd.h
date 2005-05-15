@@ -16,18 +16,12 @@
 
 #include <string>
 #include <stdio.h>
-#include <syslog.h>
-#include <stdlib.h>
 #include <unistd.h>
 #include <signal.h>
 #include <time.h>
 #include <netdb.h>
 #include <string.h>
-#include <ctype.h>
 #include <errno.h>
-#include <stdarg.h>
-#include <assert.h>
-#include <sys/param.h>
 #include <sys/types.h>
 
 #ifndef _LINUX_C_LIB_VERSION

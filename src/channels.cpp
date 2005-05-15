@@ -19,11 +19,9 @@
 #include "inspircd_util.h"
 #include "inspircd_config.h"
 #include <unistd.h>
-#include <fcntl.h>
 #include <sys/errno.h>
 #include <sys/ioctl.h>
 #include <sys/utsname.h>
-#include <cstdio>
 #include <time.h>
 #include <string>
 #ifdef GCC3
@@ -34,11 +32,7 @@
 #include <map>
 #include <sstream>
 #include <vector>
-#include <errno.h>
 #include <deque>
-#include <errno.h>
-#include <unistd.h>
-#include <sched.h>
 #include "connection.h"
 #include "users.h"
 #include "servers.h"

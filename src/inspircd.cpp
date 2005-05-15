@@ -32,7 +32,6 @@ using namespace std;
 #include <sys/event.h>
 #include <sys/time.h>
 #endif
-#include <cstdio>
 #include <time.h>
 #include <string>
 #ifdef GCC3
@@ -43,10 +42,7 @@ using namespace std;
 #include <map>
 #include <sstream>
 #include <vector>
-#include <errno.h>
 #include <deque>
-#include <errno.h>
-#include <unistd.h>
 #include <sched.h>
 #include "connection.h"
 #include "users.h"
