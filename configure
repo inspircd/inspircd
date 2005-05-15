@@ -143,7 +143,7 @@ dir_check("is the IRCd binary to be placed", "BINARY_DIR");
 dir_check("are the IRCd libraries to be placed", "LIBRARY_DIR");
 
 if ($has_kqueue) {
-	yesno(USE_KQUEUE,"You are running a BSD operating system, and kqueue\nwas detected. Would you like to enable kqueue support?\nPlease be aware that kqueue support is\nEXPERIMENTAL and not gauranteed to work properly.\nIf you are unsure, answer no.\n\nEnable kqueue?");
+	yesno(USE_KQUEUE,"You are running a BSD operating system, and kqueue\nwas detected. Would you like to enable kqueue support?\nIf you are unsure, answer no.\n\nEnable kqueue?");
 }
 
 # File Descriptor Settings..
