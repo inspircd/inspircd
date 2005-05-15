@@ -1,5 +1,7 @@
 // operjoin module by typobox43
 
+using namespace std;
+
 #include "users.h"
 #include "channels.h"
 #include "modules.h"

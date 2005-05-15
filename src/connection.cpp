@@ -14,6 +14,8 @@
  * ---------------------------------------------------
  */
 
+using namespace std;
+
 #include <connection.h>
 #include <unistd.h>
 #include <fcntl.h>
@@ -30,13 +32,11 @@
 #include "inspstring.h"
 #include "helperfuncs.h"
 
-using namespace std;
 
+extern std::vector<Module*, __single_client_alloc> modules;
+extern std::vector<ircd_module*, __single_client_alloc> factory;
 
-extern std::vector<Module*> modules;
-extern std::vector<ircd_module*> factory;
-
-std::deque<std::string> xsums;
+std::deque<std::string, __single_client_alloc> xsums;
 
 extern int MODCOUNT;
 

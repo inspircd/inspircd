@@ -14,6 +14,8 @@
  * ---------------------------------------------------
  */
 
+using namespace std;
+
 #include <sys/time.h>
 #include <sys/resource.h>
 #include <sys/types.h>
@@ -27,8 +29,6 @@
 #include "inspircd_util.h"
 #include "inspstring.h"
 #include "helperfuncs.h"
-
-using namespace std;
 
 extern FILE *log_file;
 extern int boundPortCount;

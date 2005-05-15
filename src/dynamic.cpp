@@ -14,6 +14,8 @@
  * ---------------------------------------------------
  */
 
+using namespace std;
+
 #include "globals.h"
 #include <dlfcn.h>
 #include "dynamic.h"

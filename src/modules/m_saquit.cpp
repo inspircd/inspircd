@@ -14,6 +14,8 @@
  * ---------------------------------------------------
  */
 
+using namespace std;
+
 /*
  * SAQUIT module for InspIRCd
  *  Author: w00t

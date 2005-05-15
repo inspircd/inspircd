@@ -14,6 +14,8 @@
  * ---------------------------------------------------
  */
 
+using namespace std;
+
 /*
  * SAMODE module for InspIRCd
  *  Co authored by Brain and w00t

@@ -14,6 +14,8 @@
  * ---------------------------------------------------
  */
 
+using namespace std;
+
 // Hostname cloaking (+x mode) module for inspircd.
 // version 1.0.0.1 by brain (C. J. Edwards) Mar 2004.
 //

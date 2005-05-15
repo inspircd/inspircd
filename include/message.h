@@ -31,8 +31,6 @@
 int common_channels(userrec *u, userrec *u2);
 void chop(char* str);
 void tidystring(char* str);
-void safedelete(chanrec *p);
-void safedelete(userrec *p);
 void Blocking(int s);
 void NonBlocking(int s);
 int CleanAndResolve (char *resolvedHost, const char *unresolvedHost);

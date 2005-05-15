@@ -14,6 +14,8 @@
  * ---------------------------------------------------
  */
 
+using namespace std;
+
 #include <string>
 #include "inspircd.h"
 #include "hashcomp.h"

@@ -14,6 +14,8 @@
  * ---------------------------------------------------
  */
 
+using namespace std;
+
 #include "inspircd.h"
 #include "inspircd_io.h"
 #include "inspircd_util.h"
@@ -51,8 +53,6 @@
 #include "inspstring.h"
 #include "helperfuncs.h"
 #include "hashcomp.h"
-
-using namespace std;
 
 #ifdef USE_KQUEUE
 extern int kq;
@@ -391,8 +391,8 @@ chanuserlist Server::GetUsers(chanrec* chan)
 {
 	chanuserlist userl;
 	userl.clear();
-	std::vector<char*> *list = chan->GetUsers();
-  	for (std::vector<char*>::iterator i = list->begin(); i != list->end(); i++)
+	std::vector<char*, __single_client_alloc> *list = chan->GetUsers();
+  	for (std::vector<char*, __single_client_alloc>::iterator i = list->begin(); i != list->end(); i++)
 	{
 		char* o = *i;
 		userl.push_back((userrec*)o);
@@ -989,8 +989,8 @@ int FileReader::FileSize()
 }
 
 
-std::vector<Module*> modules(255);
-std::vector<ircd_module*> factory(255);
+std::vector<Module*, __single_client_alloc> modules(255);
+std::vector<ircd_module*, __single_client_alloc> factory(255);
 
 int MODCOUNT  = -1;
 

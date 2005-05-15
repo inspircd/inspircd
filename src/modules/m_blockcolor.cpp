@@ -14,6 +14,8 @@
  * ---------------------------------------------------
  */
 
+using namespace std;
+
 #include <stdio.h>
 #include <sstream>
 #include "users.h"

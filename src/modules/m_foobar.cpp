@@ -14,6 +14,8 @@
  * ---------------------------------------------------
  */
 
+using namespace std;
+
 #include "users.h"
 #include "channels.h"
 #include "modules.h"

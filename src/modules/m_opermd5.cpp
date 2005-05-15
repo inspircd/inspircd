@@ -16,6 +16,8 @@
 
 /* $ModDesc: Allows for MD5 encrypted oper passwords */
 
+using namespace std;
+
 #include <stdio.h>
 #include "users.h"
 #include "channels.h"

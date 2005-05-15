@@ -14,6 +14,8 @@
  * ---------------------------------------------------
  */
 
+using namespace std;
+
 // Message and notice filtering using regex patterns
 // a module based on the original work done by Craig Edwards in 2003
 // for the chatspike network.

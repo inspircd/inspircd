@@ -14,12 +14,9 @@
  * ---------------------------------------------------
  */
 
-/* $ModDesc: Adds timed bans */
+using namespace std;
 
-/*
- * ToDo:
- *   Err... not a lot really.
- */ 
+/* $ModDesc: Adds timed bans */
 
 #include <stdio.h>
 #include <vector>

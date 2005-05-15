@@ -1,3 +1,5 @@
+using namespace std;
+
 // showwhois module by typobox43
 
 #include "users.h"

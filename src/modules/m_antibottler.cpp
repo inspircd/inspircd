@@ -13,6 +13,7 @@
  *
  * ---------------------------------------------------
  */
+using namespace std;
 
 #include "users.h"
 #include "channels.h"

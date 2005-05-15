@@ -1,6 +1,8 @@
 #ifndef __M_SQL_H__
 #define __M_SQL_H__
 
+using namespace std;
+
 #include <string>
 #include <vector>
 

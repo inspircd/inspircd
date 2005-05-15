@@ -1,5 +1,7 @@
 // opermotd module by typobox43
 
+using namespace std;
+
 #include <stdio.h>
 #include "users.h"
 #include "channels.h"

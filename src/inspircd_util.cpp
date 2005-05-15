@@ -14,6 +14,8 @@
  * ---------------------------------------------------
  */
 
+using namespace std;
+
 #include "inspircd.h" 
 #include "inspircd_io.h" 
 #include "inspircd_util.h" 

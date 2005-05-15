@@ -14,6 +14,8 @@
  * ---------------------------------------------------
  */
 
+using namespace std;
+
 #include "inspircd.h"
 #include "inspircd_io.h"
 #include "inspircd_util.h"
@@ -46,8 +48,6 @@
 #include "inspstring.h"
 #include "helperfuncs.h"
 #include "hashcomp.h"
-
-using namespace std;
 
 extern int MODCOUNT;
 extern std::vector<Module*, __single_client_alloc> modules;

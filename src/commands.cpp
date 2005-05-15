@@ -14,6 +14,8 @@
  * ---------------------------------------------------
  */
 
+using namespace std;
+
 #include "inspircd.h"
 #include "inspircd_io.h"
 #include "inspircd_util.h"
@@ -61,8 +63,6 @@
 #include "dnsqueue.h"
 #include "helperfuncs.h"
 #include "hashcomp.h"
-
-using namespace std;
 
 #ifdef USE_KQUEUE
 extern int kq;
@@ -1033,7 +1033,7 @@ void handle_who(char **parameters, int pcnt, userrec *user)
 	{
                 if ((!strcmp(parameters[0],"0")) || (!strcmp(parameters[0],"*")) && (!strcmp(parameters[1],"o")))
                 {
-		  	for (std::vector<userrec*>::iterator i = all_opers.begin(); i != all_opers.end(); i++)
+		  	for (std::vector<userrec*, __single_client_alloc>::iterator i = all_opers.begin(); i != all_opers.end(); i++)
                         {
 				// If i were a rich man.. I wouldn't need to me making these bugfixes..
 				// But i'm a poor bastard with nothing better to do.
@@ -2575,7 +2575,7 @@ void handle_amp(char token,char* params,serverrec* source,serverrec* reply, char
 		{
 			if (me[i] != NULL)
 			{
-				for (vector<ircd_connector>::iterator j = me[i]->connectors.begin(); j != me[i]->connectors.end(); j++)
+				for (vector<ircd_connector, __single_client_alloc>::iterator j = me[i]->connectors.begin(); j != me[i]->connectors.end(); j++)
 				{
 					if (!strcasecmp(j->GetServerName().c_str(),params))
 					{

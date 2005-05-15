@@ -14,6 +14,8 @@
  * ---------------------------------------------------
  */
 
+using namespace std;
+
 #include "inspircd_config.h" 
 #include "channels.h"
 #include "users.h"

@@ -14,6 +14,8 @@
  * ---------------------------------------------------
  */
 
+using namespace std;
+
 #include "inspircd.h"
 #include "inspircd_io.h"
 #include "inspircd_util.h"
@@ -46,11 +48,9 @@
 #include "dns.h"
 #include "helperfuncs.h"
 
-using namespace std;
-
 extern int MODCOUNT;
-extern std::vector<Module*> modules;
-extern std::vector<ircd_module*> factory;
+extern std::vector<Module*, __single_client_alloc> modules;
+extern std::vector<ircd_module*, __single_client_alloc> factory;
 
 extern char ServerName[MAXBUF];
 
@@ -86,36 +86,6 @@ int common_channels(userrec *u, userrec *u2)
 		}
 	}
 	return 0;
-}
-
-
-void safedelete(userrec *p)
-{
-	if (p)
-	{
-		log(DEBUG,"deleting %s %s %s %s",p->nick,p->ident,p->dhost,p->fullname);
-		log(DEBUG,"safedelete(userrec*): pointer is safe to delete");
-		delete p;
-		p = NULL;
-	}
-	else
-	{
-		log(DEBUG,"safedelete(userrec*): unsafe pointer operation squished");
-	}
-}
-
-void safedelete(chanrec *p)
-{
-	if (p)
-	{
-		delete p;
-		p = NULL;
-		log(DEBUG,"safedelete(chanrec*): pointer is safe to delete");
-	}
-	else
-	{
-		log(DEBUG,"safedelete(chanrec*): unsafe pointer operation squished");
-	}
 }
 
 

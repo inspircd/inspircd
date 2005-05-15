@@ -14,6 +14,8 @@
  * ---------------------------------------------------
  */
 
+using namespace std;
+
 // Globops and +g support module by C.J.Edwards
 
 #include <stdio.h>

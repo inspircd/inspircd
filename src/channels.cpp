@@ -14,6 +14,8 @@
  * ---------------------------------------------------
  */
 
+using namespace std;
+
 #include "inspircd.h"
 #include "inspircd_io.h"
 #include "inspircd_util.h"
@@ -53,11 +55,9 @@
 #define nspace std
 #endif
 
-using namespace std;
-
 extern int MODCOUNT;
-extern std::vector<Module*> modules;
-extern std::vector<ircd_module*> factory;
+extern std::vector<Module*, __single_client_alloc> modules;
+extern std::vector<ircd_module*, __single_client_alloc> factory;
 
 extern int LogLevel;
 extern char ServerName[MAXBUF];
@@ -83,8 +83,7 @@ extern int NetBufferSize;
 int MaxWhoResults;
 extern time_t nb_start;
 
-extern std::vector<int> fd_reap;
-extern std::vector<std::string> module_names;
+extern std::vector<std::string, __single_client_alloc> module_names;
 
 extern int boundPortCount;
 extern int portCount;
@@ -103,7 +102,7 @@ extern time_t TIME;
 
 using namespace std;
 
-std::vector<ModeParameter> custom_mode_params;
+std::vector<ModeParameter, __single_client_alloc> custom_mode_params;
 
 chanrec::chanrec()
 {
@@ -159,7 +158,7 @@ void chanrec::SetCustomModeParam(char mode,char* parameter,bool mode_on)
 	{
 		if (custom_mode_params.size())
 		{
-			for (vector<ModeParameter>::iterator i = custom_mode_params.begin(); i < custom_mode_params.end(); i++)
+			for (vector<ModeParameter, __single_client_alloc>::iterator i = custom_mode_params.begin(); i < custom_mode_params.end(); i++)
 			{
 				if ((i->mode == mode) && (!strcasecmp(this->name,i->channel)))
 				{
@@ -183,7 +182,7 @@ std::string chanrec::GetModeParameter(char mode)
 {
 	if (custom_mode_params.size())
 	{
-		for (vector<ModeParameter>::iterator i = custom_mode_params.begin(); i < custom_mode_params.end(); i++)
+		for (vector<ModeParameter, __single_client_alloc>::iterator i = custom_mode_params.begin(); i < custom_mode_params.end(); i++)
 		{
 			if ((i->mode == mode) && (!strcasecmp(this->name,i->channel)))
 			{
@@ -207,7 +206,7 @@ void chanrec::AddUser(char* castuser)
 
 void chanrec::DelUser(char* castuser)
 {
-	for (std::vector<char*>::iterator a = internal_userlist.begin(); a < internal_userlist.end(); a++)
+	for (std::vector<char*, __single_client_alloc>::iterator a = internal_userlist.begin(); a < internal_userlist.end(); a++)
 	{
 		if (*a == castuser)
 		{
@@ -219,7 +218,7 @@ void chanrec::DelUser(char* castuser)
 	log(DEBUG,"BUG BUG BUG! Attempt to remove an uncasted user from the internal list of %s!",name);
 }
 
-std::vector<char*> *chanrec::GetUsers()
+std::vector<char*, __single_client_alloc> *chanrec::GetUsers()
 {
 	return &internal_userlist;
 }

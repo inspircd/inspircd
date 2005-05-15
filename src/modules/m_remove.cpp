@@ -1,6 +1,8 @@
 /* Support for a dancer-style /remove command, an alternative to /kick to try and avoid auto-rejoin-on-kick scripts */
 /* Written by Om, 25-03-05 */
 
+using namespace std;
+
 #include <stdio.h>
 #include <string>
 #include "users.h"

@@ -14,6 +14,8 @@
  * ---------------------------------------------------
  */
 
+using namespace std;
+
 #include "inspircd.h"
 #include "inspircd_io.h"
 #include "inspircd_util.h"
@@ -47,8 +49,6 @@
 #include "inspstring.h"
 #include "helperfuncs.h"
 #include "hashcomp.h"
-
-using namespace std;
 
 extern int MODCOUNT;
 extern std::vector<Module*, __single_client_alloc> modules;
@@ -283,7 +283,7 @@ void WriteChannel(chanrec* Ptr, userrec* user, char* text, ...)
         vsnprintf(textbuffer, MAXBUF, text, argsPtr);
         va_end(argsPtr);
 
-        std::vector<char*> *ulist = Ptr->GetUsers();
+        std::vector<char*, __single_client_alloc> *ulist = Ptr->GetUsers();
         for (int j = 0; j < ulist->size(); j++)
         {
                 char* o = (*ulist)[j];
@@ -310,7 +310,7 @@ void WriteChannelLocal(chanrec* Ptr, userrec* user, char* text, ...)
         vsnprintf(textbuffer, MAXBUF, text, argsPtr);
         va_end(argsPtr);
 
-        std::vector<char*> *ulist = Ptr->GetUsers();
+        std::vector<char*, __single_client_alloc> *ulist = Ptr->GetUsers();
         for (int j = 0; j < ulist->size(); j++)
         {
                 char* o = (*ulist)[j];
@@ -343,7 +343,7 @@ void WriteChannelWithServ(char* ServName, chanrec* Ptr, char* text, ...)
         va_end(argsPtr);
 
 
-        std::vector<char*> *ulist = Ptr->GetUsers();
+        std::vector<char*, __single_client_alloc> *ulist = Ptr->GetUsers();
         for (int j = 0; j < ulist->size(); j++)
         {
                 char* o = (*ulist)[j];
@@ -369,7 +369,7 @@ void ChanExceptSender(chanrec* Ptr, userrec* user, char* text, ...)
         vsnprintf(textbuffer, MAXBUF, text, argsPtr);
         va_end(argsPtr);
 
-        std::vector<char*> *ulist = Ptr->GetUsers();
+        std::vector<char*, __single_client_alloc> *ulist = Ptr->GetUsers();
         for (int j = 0; j < ulist->size(); j++)
         {
                 char* o = (*ulist)[j];
@@ -428,7 +428,7 @@ void WriteCommon(userrec *u, char* text, ...)
         {
                 if (u->chans[i].channel)
                 {
-                        std::vector<char*> *ulist = u->chans[i].channel->GetUsers();
+                        std::vector<char*, __single_client_alloc> *ulist = u->chans[i].channel->GetUsers();
                         for (int j = 0; j < ulist->size(); j++)
                         {
                                 char* o = (*ulist)[j];
@@ -478,7 +478,7 @@ void WriteCommonExcept(userrec *u, char* text, ...)
         {
                 if (u->chans[i].channel)
                 {
-                        std::vector<char*> *ulist = u->chans[i].channel->GetUsers();
+                        std::vector<char*, __single_client_alloc> *ulist = u->chans[i].channel->GetUsers();
                         for (int j = 0; j < ulist->size(); j++)
                         {
                                 char* o = (*ulist)[j];
@@ -510,7 +510,7 @@ void WriteOpers(char* text, ...)
         vsnprintf(textbuffer, MAXBUF, text, argsPtr);
         va_end(argsPtr);
 
-        for (std::vector<userrec*>::iterator i = all_opers.begin(); i != all_opers.end(); i++)
+        for (std::vector<userrec*, __single_client_alloc>::iterator i = all_opers.begin(); i != all_opers.end(); i++)
         {
                 userrec* a = *i;
                 if ((a) && (a->fd != FD_MAGIC_NUMBER))
@@ -538,7 +538,7 @@ void NoticeAllOpers(userrec *source, bool local_only, char* text, ...)
         vsnprintf(textbuffer, MAXBUF, text, argsPtr);
         va_end(argsPtr);
 
-        for (std::vector<userrec*>::iterator i = all_opers.begin(); i != all_opers.end(); i++)
+        for (std::vector<userrec*,__single_client_alloc>::iterator i = all_opers.begin(); i != all_opers.end(); i++)
         {
                 userrec* a = *i;
                 if ((a) && (a->fd != FD_MAGIC_NUMBER))
@@ -564,7 +564,7 @@ bool ChanAnyOnThisServer(chanrec *c,char* servername)
 {
         log(DEBUG,"ChanAnyOnThisServer");
 
-        std::vector<char*> *ulist = c->GetUsers();
+        std::vector<char*, __single_client_alloc> *ulist = c->GetUsers();
         for (int j = 0; j < ulist->size(); j++)
         {
                 char* o = (*ulist)[j];
@@ -585,7 +585,7 @@ bool CommonOnThisServer(userrec* u,const char* servername)
         {
                 if (u->chans[i].channel)
                 {
-                        std::vector<char*> *ulist = u->chans[i].channel->GetUsers();
+                        std::vector<char*, __single_client_alloc> *ulist = u->chans[i].channel->GetUsers();
                         for (int j = 0; j < ulist->size(); j++)
                         {
                                 char* o = (*ulist)[j];
@@ -1102,7 +1102,7 @@ void userlist(userrec *user,chanrec *c)
 
         snprintf(list,MAXBUF,"353 %s = %s :", user->nick, c->name);
 
-        std::vector<char*> *ulist = c->GetUsers();
+        std::vector<char*, __single_client_alloc> *ulist = c->GetUsers();
         for (int i = 0; i < ulist->size(); i++)
         {
                 char* o = (*ulist)[i];
