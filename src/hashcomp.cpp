@@ -30,6 +30,9 @@
 #define nspace std
 #endif
 
+// from helperfuncs.cpp
+extern char lowermap[255];
+
 /******************************************************
  *
  * The hash functions of InspIRCd are the centrepoint
@@ -98,3 +101,56 @@ bool InAddr_HashComp::operator()(const in_addr &s1, const in_addr &s2) const
         return (q == p);
 }
 
+/******************************************************
+ *
+ * This is the implementation of our special irc::string
+ * class which is a case-insensitive equivalent to
+ * std::string which is not only case-insensitive but
+ * can also do scandanavian comparisons, e.g. { = [, etc.
+ *
+ * This class depends on the global 'lowermap' which is
+ * initialized at startup by inspircd.cpp, and contains
+ * the 'scandanavian' casemappings for fast irc compare.
+ *
+ ******************************************************/
+
+bool irc::irc_char_traits::eq(char c1st, char c2nd)
+{
+	return lowermap[c1st] == lowermap[c2nd];
+}
+
+bool irc::irc_char_traits::ne(char c1st, char c2nd)
+{
+	return lowermap[c1st] != lowermap[c2nd];
+}
+
+bool irc::irc_char_traits::lt(char c1st, char c2nd)
+{
+	return lowermap[c1st] < lowermap[c2nd];
+}
+
+int irc::irc_char_traits::compare(const char* str1, const char* str2, size_t n)
+{
+	for(int i = 0; i < n; i++)
+	{
+		if(lowermap[*str1] > lowermap[*str2])
+       	        	return 1;
+
+		if(lowermap[*str1] < lowermap[*str2])
+	               	return -1;
+
+	        if(*str1 == 0 || *str2 == 0)
+	              	return 0;
+
+	       	str1++;
+		str2++;
+	}
+	return 0;
+}
+
+const char* irc::irc_char_traits::find(const char* s1, int  n, char c)
+{
+	while(n-- > 0 && lowermap[*s1] != lowermap[c])
+		s1++;
+	return s1;
+}

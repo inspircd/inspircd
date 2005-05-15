@@ -53,7 +53,6 @@ namespace nspace
         };
 }
 
-
 struct StrHashComp
 {
 
@@ -65,6 +64,17 @@ struct InAddr_HashComp
         bool operator()(const in_addr &s1, const in_addr &s2) const;
 };
 
+namespace irc
+{
+	struct irc_char_traits : std::char_traits<char> {
+		  static bool eq(char c1st, char c2nd);
+		  static bool ne(char c1st, char c2nd);
+		  static bool lt(char c1st, char c2nd);
+		  static int compare(const char* str1, const char* str2, size_t n);
+		  static const char* find(const char* s1, int  n, char c);
+	};
 
+	typedef basic_string<char, irc_char_traits, allocator<char> > string;
+}
 
 #endif
