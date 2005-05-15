@@ -53,32 +53,35 @@ namespace nspace
         };
 }
 
-/** This class returns true if two strings match.
- * Case sensitivity is ignored, and the RFC 'character set'
- * is adhered to
- */
-struct StrHashComp
-{
-	/** The operator () does the actual comparison in hash_map
-	 */
-        bool operator()(const string& s1, const string& s2) const;
-};
-
-/** This class returns true if two in_addr structs match.
- * Checking is done by copying both into a size_t then doing a
- * numeric comparison of the two.
- */
-struct InAddr_HashComp
-{
-	/** The operator () does the actual comparison in hash_map
-	 */
-        bool operator()(const in_addr &s1, const in_addr &s2) const;
-};
-
 /** The irc namespace contains a number of helper classes.
  */
 namespace irc
 {
+
+	/** This class returns true if two strings match.
+	 * Case sensitivity is ignored, and the RFC 'character set'
+	 * is adhered to
+	 */
+	struct StrHashComp
+	{
+		/** The operator () does the actual comparison in hash_map
+		 */
+	        bool operator()(const std::string& s1, const std::string& s2) const;
+	};
+
+
+	/** This class returns true if two in_addr structs match.
+	 * Checking is done by copying both into a size_t then doing a
+	 * numeric comparison of the two.
+	 */
+	struct InAddr_HashComp
+	{
+		/** The operator () does the actual comparison in hash_map
+		 */
+	        bool operator()(const in_addr &s1, const in_addr &s2) const;
+	};
+
+
 	/** The irc_char_traits class is used for RFC-style comparison of strings.
 	 * This class is used to implement irc::string, a case-insensitive, RFC-
 	 * comparing string class.

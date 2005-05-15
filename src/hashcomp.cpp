@@ -80,7 +80,7 @@ size_t nspace::hash<string>::operator()(const string &s) const
         return strhash(a);
 }
 
-bool StrHashComp::operator()(const string& s1, const string& s2) const
+bool irc::StrHashComp::operator()(const std::string& s1, const std::string& s2) const
 {
         char a[MAXBUF],b[MAXBUF];
         strlcpy(a,s1.c_str(),MAXBUF);
@@ -90,7 +90,7 @@ bool StrHashComp::operator()(const string& s1, const string& s2) const
         return (strcasecmp(a,b) == 0);
 }
 
-bool InAddr_HashComp::operator()(const in_addr &s1, const in_addr &s2) const
+bool irc::InAddr_HashComp::operator()(const in_addr &s1, const in_addr &s2) const
 {
         size_t q;
         size_t p;

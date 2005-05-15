@@ -72,10 +72,10 @@ extern std::vector<int> fd_reap;
 
 extern int MODCOUNT;
 
-typedef nspace::hash_map<std::string, userrec*, nspace::hash<string>, StrHashComp> user_hash;
-typedef nspace::hash_map<std::string, chanrec*, nspace::hash<string>, StrHashComp> chan_hash;
-typedef nspace::hash_map<in_addr,string*, nspace::hash<in_addr>, InAddr_HashComp> address_cache;
-typedef nspace::hash_map<std::string, WhoWasUser*, nspace::hash<string>, StrHashComp> whowas_hash;
+typedef nspace::hash_map<std::string, userrec*, nspace::hash<string>, irc::StrHashComp> user_hash;
+typedef nspace::hash_map<std::string, chanrec*, nspace::hash<string>, irc::StrHashComp> chan_hash;
+typedef nspace::hash_map<in_addr,string*, nspace::hash<in_addr>, irc::InAddr_HashComp> address_cache;
+typedef nspace::hash_map<std::string, WhoWasUser*, nspace::hash<string>, irc::StrHashComp> whowas_hash;
 typedef std::deque<command_t> command_table;
 
 extern user_hash clientlist;
