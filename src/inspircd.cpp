@@ -3553,7 +3553,7 @@ void SetupCommandTable(void)
 	createcommand("ISON",handle_ison,0,0,"<core>");
 	createcommand("SUMMON",handle_summon,0,0,"<core>");
 	createcommand("USERS",handle_users,0,0,"<core>");
-	createcommand("INVITE",handle_invite,0,2,"<core>");
+	createcommand("INVITE",handle_invite,0,0,"<core>");
 	createcommand("PASS",handle_pass,0,1,"<core>");
 	createcommand("TRACE",handle_trace,'o',0,"<core>");
 	createcommand("WHOWAS",handle_whowas,0,1,"<core>");

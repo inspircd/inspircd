@@ -308,6 +308,9 @@ class userrec : public connection
 	 */
 	void FlushWriteBuf();
 
+	/** Returns the list of channels this user has been invited to but has not yet joined.
+	 */
+	InvitedList* GetInviteList();
 };
 
 /** A lightweight userrec used by WHOWAS

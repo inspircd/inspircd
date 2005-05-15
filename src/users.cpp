@@ -85,6 +85,11 @@ bool userrec::IsInvited(char* channel)
 	return false;
 }
 
+InvitedList* userrec::GetInviteList()
+{
+	return &invites;
+}
+
 void userrec::InviteTo(char* channel)
 {
 	Invited i;

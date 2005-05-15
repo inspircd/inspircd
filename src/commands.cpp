@@ -463,59 +463,75 @@ void handle_pass(char **parameters, int pcnt, userrec *user)
 
 void handle_invite(char **parameters, int pcnt, userrec *user)
 {
-	userrec* u = Find(parameters[0]);
-	chanrec* c = FindChan(parameters[1]);
-
-	if ((!c) || (!u))
+	if (pcnt == 2)
 	{
-		if (!c)
+		userrec* u = Find(parameters[0]);
+		chanrec* c = FindChan(parameters[1]);
+
+		if ((!c) || (!u))
 		{
-			WriteServ(user->fd,"401 %s %s :No such nick/channel",user->nick, parameters[1]);
-		}
-		else
-		{
-			if (c->binarymodes & CM_INVITEONLY)
+			if (!c)
 			{
-				WriteServ(user->fd,"401 %s %s :No such nick/channel",user->nick, parameters[0]);
+				WriteServ(user->fd,"401 %s %s :No such nick/channel",user->nick, parameters[1]);
 			}
-		}
+			else
+			{
+				if (c->binarymodes & CM_INVITEONLY)
+				{
+					WriteServ(user->fd,"401 %s %s :No such nick/channel",user->nick, parameters[0]);
+				}
+			}
 
-		return;
-	}
-
-	if (c->binarymodes & CM_INVITEONLY)
-	{
-		if (cstatus(user,c) < STATUS_HOP)
-		{
-			WriteServ(user->fd,"482 %s %s :You must be at least a half-operator to change modes on this channel",user->nick, c->name);
 			return;
 		}
-	}
-	if (has_channel(u,c))
- 	{
- 		WriteServ(user->fd,"443 %s %s %s :Is already on channel %s",user->nick,u->nick,c->name,c->name);
- 		return;
-	}
-	if (!has_channel(user,c))
- 	{
-		WriteServ(user->fd,"442 %s %s :You're not on that channel!",user->nick, c->name);
-  		return;
-	}
 
-	int MOD_RESULT = 0;
-	FOREACH_RESULT(OnUserPreInvite(user,u,c));
-	if (MOD_RESULT == 1) {
-		return;
-	}
+		if (c->binarymodes & CM_INVITEONLY)
+		{
+			if (cstatus(user,c) < STATUS_HOP)
+			{
+				WriteServ(user->fd,"482 %s %s :You must be at least a half-operator to change modes on this channel",user->nick, c->name);
+				return;
+			}
+		}
+		if (has_channel(u,c))
+	 	{
+	 		WriteServ(user->fd,"443 %s %s %s :Is already on channel %s",user->nick,u->nick,c->name,c->name);
+	 		return;
+		}
+		if (!has_channel(user,c))
+	 	{
+			WriteServ(user->fd,"442 %s %s :You're not on that channel!",user->nick, c->name);
+	  		return;
+		}
 
-	u->InviteTo(c->name);
-	WriteFrom(u->fd,user,"INVITE %s :%s",u->nick,c->name);
-	WriteServ(user->fd,"341 %s %s %s",user->nick,u->nick,c->name);
+		int MOD_RESULT = 0;
+		FOREACH_RESULT(OnUserPreInvite(user,u,c));
+		if (MOD_RESULT == 1) {
+			return;
+		}
+
+		u->InviteTo(c->name);
+		WriteFrom(u->fd,user,"INVITE %s :%s",u->nick,c->name);
+		WriteServ(user->fd,"341 %s %s %s",user->nick,u->nick,c->name);
 	
-	// i token must go to ALL servers!!!
-	char buffer[MAXBUF];
-	snprintf(buffer,MAXBUF,"i %s %s %s",u->nick,user->nick,c->name);
-	NetSendToAll(buffer);
+		// i token must go to ALL servers!!!
+		char buffer[MAXBUF];
+		snprintf(buffer,MAXBUF,"i %s %s %s",u->nick,user->nick,c->name);
+		NetSendToAll(buffer);
+	}
+	else
+	{
+		// pinched from ircu - invite with not enough parameters shows channels
+		// youve been invited to but haven't joined yet.
+		InvitedList* il = user->GetInviteList();
+		for (InvitedList::iterator i = il->begin(); i != il->end(); i++)
+		{
+		        if (i->channel) {
+				WriteServ(user->fd,"346 %s :%s",user->nick,i->channel);
+		        }
+		}
+		WriteServ(user->fd,"347 %s :End of INVITE list",user->nick);
+	}
 }
 
 void handle_topic(char **parameters, int pcnt, userrec *user)
