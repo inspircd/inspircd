@@ -1,0 +1,36 @@
+.TH "irc::InAddr_HashComp" 3 "15 May 2005" "InspIRCd" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+irc::InAddr_HashComp \- This class returns true if two in_addr structs match.  
+
+.PP
+.SH SYNOPSIS
+.br
+.PP
+\fC#include <hashcomp.h>\fP
+.PP
+.SS "Public Member Functions"
+
+.in +1c
+.ti -1c
+.RI "bool \fBoperator()\fP (const in_addr &s1, const in_addr &s2) const"
+.br
+.RI "\fIThe operator () does the actual comparison in hash_map. \fP"
+.in -1c
+.SH "Detailed Description"
+.PP 
+This class returns true if two in_addr structs match. 
+
+Checking is done by copying both into a size_t then doing a numeric comparison of the two.
+.PP
+Definition at line 77 of file hashcomp.h.
+.SH "Member Function Documentation"
+.PP 
+.SS "bool irc::InAddr_HashComp::operator() (const in_addr & s1, const in_addr & s2) const"
+.PP
+The operator () does the actual comparison in hash_map. 
+
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for InspIRCd from the source code.

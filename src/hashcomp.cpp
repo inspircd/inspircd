@@ -31,7 +31,7 @@
 #endif
 
 // from helperfuncs.cpp
-extern char lowermap[255];
+extern const char lowermap[255];
 
 /******************************************************
  *
