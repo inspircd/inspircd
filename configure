@@ -76,19 +76,21 @@ if (!$config{MAX_CLIENT}) {
 }
 
 # Perform the strlcpy() test..
-open(STRLCPY, ">.test.cpp");
-print STRLCPY "#include <string.h>
-#include <stdio.h>
-int main() { char a[10]; char b[10]; strlcpy(a,b,10); printf(\"%d\\n\",9); }\n";
-close(STRLCPY);
-
-# Build the Binary..
-system("g++ -o .test .test.cpp 2>&1");
-
-# Was the build succesful?
-if (-e ".test") {
-  $config{HAS_STRLCPY} = "true";
-  system("rm -f .test .test.cpp");
+$config{HAS_STRLCPY} = "false";
+my $fail = 0;
+open(STRLCPY, "</usr/include/string.h") or $fail = 1;
+if (!$fail)
+{
+	while (chomp($line = <STRLCPY>))
+	{
+		# try and find the delcaration of:
+		# size_t strlcpy(...)
+		if (($line =~ /size_t(\0x9|\s)+strlcpy(\0x9|\s)+\(/) || ($line =~ /size_t(\0x9|\s)+strlcpy\(/))
+		{
+			$config{HAS_STRLCPY} = "true";
+		}
+	}
+	close(STRLCPY);
 }
 
 ################################################################################
