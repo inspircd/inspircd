@@ -40,6 +40,7 @@ config:
 	@cp docs/*.example $(CONPATH)
 clean:
 	rm -rf src/*.so
+	rm -rf src/*.o
 	rm -rf src/inspircd
 	rm -rf src/modules/*.so
 	rm -rf src/modules/*.o
