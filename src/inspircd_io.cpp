@@ -637,7 +637,7 @@ int BindSocket (int sockfd, struct sockaddr_in client, struct sockaddr_in server
 	}
 	else
 	{
-		listen(sockfd,5);
+		listen(sockfd,SOMAXCONN);
 		return(TRUE);
 	}
 }
