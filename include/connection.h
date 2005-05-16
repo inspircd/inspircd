@@ -110,7 +110,7 @@ class ircd_connector : public Extensible
 	 * So for A->B->C, if this was the record for B it would contain A and C
 	 * whilever both servers are connected to B.
 	 */
-	std::vector<std::string, __single_client_alloc> routes;
+	std::vector<std::string> routes;
 	
 
 	/** Create an outbound connection to a listening socket
@@ -273,7 +273,7 @@ class connection : public Extensible
 	/** With a serverrec, this is a list of all established server connections.
 	 * With a userrec this is unused.
 	 */
-	std::vector<ircd_connector, __single_client_alloc> connectors;
+	std::vector<ircd_connector> connectors;
 	
 	/** Default constructor
 	 */

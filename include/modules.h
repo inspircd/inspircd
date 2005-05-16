@@ -69,7 +69,7 @@ typedef file_cache string_list;
 
 /** Holds a list of users in a channel
  */
-typedef std::deque<userrec*, __single_client_alloc> chanuserlist;
+typedef std::deque<userrec*> chanuserlist;
 
 
 // This #define allows us to call a method in all

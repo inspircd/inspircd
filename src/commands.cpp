@@ -69,8 +69,8 @@ extern int kq;
 #endif
 
 extern int MODCOUNT;
-extern std::vector<Module*, __single_client_alloc> modules;
-extern std::vector<ircd_module*, __single_client_alloc> factory;
+extern std::vector<Module*> modules;
+extern std::vector<ircd_module*> factory;
 
 extern int LogLevel;
 extern char ServerName[MAXBUF];
@@ -100,7 +100,7 @@ extern bool nofork;
 
 extern time_t TIME;
 
-extern std::vector<std::string, __single_client_alloc> module_names;
+extern std::vector<std::string> module_names;
 
 extern char MyExecutable[1024];
 extern int boundPortCount;
@@ -124,11 +124,11 @@ const long duration_d = duration_h * 24;
 const long duration_w = duration_d * 7;
 const long duration_y = duration_w * 52;
 
-typedef nspace::hash_map<std::string, userrec*, nspace::hash<string>, irc::StrHashComp, __single_client_alloc> user_hash;
-typedef nspace::hash_map<std::string, chanrec*, nspace::hash<string>, irc::StrHashComp, __single_client_alloc> chan_hash;
-typedef nspace::hash_map<in_addr,string*, nspace::hash<in_addr>, irc::InAddr_HashComp, __single_client_alloc> address_cache;
-typedef nspace::hash_map<std::string, WhoWasUser*, nspace::hash<string>, irc::StrHashComp, __single_client_alloc> whowas_hash;
-typedef std::deque<command_t, __single_client_alloc> command_table;
+typedef nspace::hash_map<std::string, userrec*, nspace::hash<string>, irc::StrHashComp> user_hash;
+typedef nspace::hash_map<std::string, chanrec*, nspace::hash<string>, irc::StrHashComp> chan_hash;
+typedef nspace::hash_map<in_addr,string*, nspace::hash<in_addr>, irc::InAddr_HashComp> address_cache;
+typedef nspace::hash_map<std::string, WhoWasUser*, nspace::hash<string>, irc::StrHashComp> whowas_hash;
+typedef std::deque<command_t> command_table;
 
 
 extern user_hash clientlist;
@@ -139,7 +139,7 @@ extern file_cache MOTD;
 extern file_cache RULES;
 extern address_cache IP;
 
-extern std::vector<userrec*, __single_client_alloc> all_opers;
+extern std::vector<userrec*> all_opers;
 
 // This table references users by file descriptor.
 // its an array to make it VERY fast, as all lookups are referenced
@@ -1033,7 +1033,7 @@ void handle_who(char **parameters, int pcnt, userrec *user)
 	{
                 if ((!strcmp(parameters[0],"0")) || (!strcmp(parameters[0],"*")) && (!strcmp(parameters[1],"o")))
                 {
-		  	for (std::vector<userrec*, __single_client_alloc>::iterator i = all_opers.begin(); i != all_opers.end(); i++)
+		  	for (std::vector<userrec*>::iterator i = all_opers.begin(); i != all_opers.end(); i++)
                         {
 				// If i were a rich man.. I wouldn't need to me making these bugfixes..
 				// But i'm a poor bastard with nothing better to do.
@@ -2575,7 +2575,7 @@ void handle_amp(char token,char* params,serverrec* source,serverrec* reply, char
 		{
 			if (me[i] != NULL)
 			{
-				for (vector<ircd_connector, __single_client_alloc>::iterator j = me[i]->connectors.begin(); j != me[i]->connectors.end(); j++)
+				for (vector<ircd_connector>::iterator j = me[i]->connectors.begin(); j != me[i]->connectors.end(); j++)
 				{
 					if (!strcasecmp(j->GetServerName().c_str(),params))
 					{

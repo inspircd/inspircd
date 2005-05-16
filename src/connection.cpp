@@ -33,10 +33,10 @@ using namespace std;
 #include "helperfuncs.h"
 
 
-extern std::vector<Module*, __single_client_alloc> modules;
-extern std::vector<ircd_module*, __single_client_alloc> factory;
+extern std::vector<Module*> modules;
+extern std::vector<ircd_module*> factory;
 
-std::deque<std::string, __single_client_alloc> xsums;
+std::deque<std::string> xsums;
 
 extern int MODCOUNT;
 

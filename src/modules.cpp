@@ -59,8 +59,8 @@ extern int kq;
 #endif
 
 extern int MODCOUNT;
-extern std::vector<Module*, __single_client_alloc> modules;
-extern std::vector<ircd_module*, __single_client_alloc> factory;
+extern std::vector<Module*> modules;
+extern std::vector<ircd_module*> factory;
 
 extern time_t TIME;
 
@@ -88,7 +88,7 @@ extern int NetBufferSize;
 extern int MaxWhoResults;
 extern time_t nb_start;
 
-extern std::vector<std::string, __single_client_alloc> module_names;
+extern std::vector<std::string> module_names;
 
 extern int boundPortCount;
 extern int portCount;
@@ -105,11 +105,11 @@ extern FILE *log_file;
 
 extern userrec* fd_ref_table[65536];
 
-typedef nspace::hash_map<std::string, userrec*, nspace::hash<string>, irc::StrHashComp, __single_client_alloc> user_hash;
-typedef nspace::hash_map<std::string, chanrec*, nspace::hash<string>, irc::StrHashComp, __single_client_alloc> chan_hash;
-typedef nspace::hash_map<in_addr,string*, nspace::hash<in_addr>, irc::InAddr_HashComp, __single_client_alloc> address_cache;
-typedef nspace::hash_map<std::string, WhoWasUser*, nspace::hash<string>, irc::StrHashComp, __single_client_alloc> whowas_hash;
-typedef std::deque<command_t, __single_client_alloc> command_table;
+typedef nspace::hash_map<std::string, userrec*, nspace::hash<string>, irc::StrHashComp> user_hash;
+typedef nspace::hash_map<std::string, chanrec*, nspace::hash<string>, irc::StrHashComp> chan_hash;
+typedef nspace::hash_map<in_addr,string*, nspace::hash<in_addr>, irc::InAddr_HashComp> address_cache;
+typedef nspace::hash_map<std::string, WhoWasUser*, nspace::hash<string>, irc::StrHashComp> whowas_hash;
+typedef std::deque<command_t> command_table;
 
 
 extern user_hash clientlist;
@@ -135,7 +135,7 @@ public:
 	ExtMode(char mc, int ty, bool oper, int p_on, int p_off) : modechar(mc), type(ty), needsoper(oper), params_when_on(p_on), params_when_off(p_off) { };
 };                                     
 
-typedef std::vector<ExtMode, __single_client_alloc> ExtModeList;
+typedef std::vector<ExtMode> ExtModeList;
 typedef ExtModeList::iterator ExtModeListIter;
 
 
@@ -391,8 +391,8 @@ chanuserlist Server::GetUsers(chanrec* chan)
 {
 	chanuserlist userl;
 	userl.clear();
-	std::vector<char*, __single_client_alloc> *list = chan->GetUsers();
-  	for (std::vector<char*, __single_client_alloc>::iterator i = list->begin(); i != list->end(); i++)
+	std::vector<char*> *list = chan->GetUsers();
+  	for (std::vector<char*>::iterator i = list->begin(); i != list->end(); i++)
 	{
 		char* o = *i;
 		userl.push_back((userrec*)o);
@@ -989,8 +989,8 @@ int FileReader::FileSize()
 }
 
 
-std::vector<Module*, __single_client_alloc> modules(255);
-std::vector<ircd_module*, __single_client_alloc> factory(255);
+std::vector<Module*> modules(255);
+std::vector<ircd_module*> factory(255);
 
 int MODCOUNT  = -1;
 

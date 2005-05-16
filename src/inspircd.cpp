@@ -92,9 +92,9 @@ bool AllowHalfop = true;
 bool AllowProtect = true;
 bool AllowFounder = true;
 
-extern std::vector<Module*, __single_client_alloc> modules;
-std::vector<std::string, __single_client_alloc> module_names;
-extern std::vector<ircd_module*, __single_client_alloc> factory;
+extern std::vector<Module*> modules;
+std::vector<std::string> module_names;
+extern std::vector<ircd_module*> factory;
 
 extern int MODCOUNT;
 int openSockfd[MAXSOCKS];
@@ -107,11 +107,11 @@ time_t TIME = time(NULL), OLDTIME = time(NULL);
 int kq, lkq, skq;
 #endif
 
-typedef nspace::hash_map<std::string, userrec*, nspace::hash<string>, irc::StrHashComp, __single_client_alloc> user_hash;
-typedef nspace::hash_map<std::string, chanrec*, nspace::hash<string>, irc::StrHashComp, __single_client_alloc> chan_hash;
-typedef nspace::hash_map<in_addr,string*, nspace::hash<in_addr>, irc::InAddr_HashComp, __single_client_alloc> address_cache;
-typedef nspace::hash_map<std::string, WhoWasUser*, nspace::hash<string>, irc::StrHashComp, __single_client_alloc> whowas_hash;
-typedef std::deque<command_t, __single_client_alloc> command_table;
+typedef nspace::hash_map<std::string, userrec*, nspace::hash<string>, irc::StrHashComp> user_hash;
+typedef nspace::hash_map<std::string, chanrec*, nspace::hash<string>, irc::StrHashComp> chan_hash;
+typedef nspace::hash_map<in_addr,string*, nspace::hash<in_addr>, irc::InAddr_HashComp> address_cache;
+typedef nspace::hash_map<std::string, WhoWasUser*, nspace::hash<string>, irc::StrHashComp> whowas_hash;
+typedef std::deque<command_t> command_table;
 
 // This table references users by file descriptor.
 // its an array to make it VERY fast, as all lookups are referenced
@@ -153,7 +153,7 @@ void AddWhoWas(userrec* u);
 std::vector<long> auth_cookies;
 std::stringstream config_f(stringstream::in | stringstream::out);
 
-std::vector<userrec*, __single_client_alloc> all_opers;
+std::vector<userrec*> all_opers;
 
 char lowermap[255];
 
@@ -165,7 +165,7 @@ void AddOper(userrec* user)
 
 void DeleteOper(userrec* user)
 {
-        for (std::vector<userrec*, __single_client_alloc>::iterator a = all_opers.begin(); a < all_opers.end(); a++)
+        for (std::vector<userrec*>::iterator a = all_opers.begin(); a < all_opers.end(); a++)
         {
                 if (*a == user)
                 {
@@ -385,10 +385,10 @@ void ReadConfig(bool bail, userrec* user)
 	{
 		log(DEFAULT,"Adding and removing modules due to rehash...");
 
-		std::vector<std::string, __single_client_alloc> old_module_names, new_module_names, added_modules, removed_modules;
+		std::vector<std::string> old_module_names, new_module_names, added_modules, removed_modules;
 
 		// store the old module names
-		for (std::vector<std::string, __single_client_alloc>::iterator t = module_names.begin(); t != module_names.end(); t++)
+		for (std::vector<std::string>::iterator t = module_names.begin(); t != module_names.end(); t++)
 		{
 			old_module_names.push_back(*t);
 		}
@@ -402,10 +402,10 @@ void ReadConfig(bool bail, userrec* user)
 
 		// now create a list of new modules that are due to be loaded
 		// and a seperate list of modules which are due to be unloaded
-		for (std::vector<std::string, __single_client_alloc>::iterator _new = new_module_names.begin(); _new != new_module_names.end(); _new++)
+		for (std::vector<std::string>::iterator _new = new_module_names.begin(); _new != new_module_names.end(); _new++)
 		{
 			bool added = true;
-			for (std::vector<std::string, __single_client_alloc>::iterator old = old_module_names.begin(); old != old_module_names.end(); old++)
+			for (std::vector<std::string>::iterator old = old_module_names.begin(); old != old_module_names.end(); old++)
 			{
 				if (*old == *_new)
 					added = false;
@@ -413,10 +413,10 @@ void ReadConfig(bool bail, userrec* user)
 			if (added)
 				added_modules.push_back(*_new);
 		}
-		for (std::vector<std::string, __single_client_alloc>::iterator oldm = old_module_names.begin(); oldm != old_module_names.end(); oldm++)
+		for (std::vector<std::string>::iterator oldm = old_module_names.begin(); oldm != old_module_names.end(); oldm++)
 		{
 			bool removed = true;
-			for (std::vector<std::string, __single_client_alloc>::iterator newm = new_module_names.begin(); newm != new_module_names.end(); newm++)
+			for (std::vector<std::string>::iterator newm = new_module_names.begin(); newm != new_module_names.end(); newm++)
 			{
 				if (*newm == *oldm)
 					removed = false;
@@ -428,7 +428,7 @@ void ReadConfig(bool bail, userrec* user)
 		// to be removed.
 		int rem = 0, add = 0;
 		if (!removed_modules.empty())
-		for (std::vector<std::string, __single_client_alloc>::iterator removing = removed_modules.begin(); removing != removed_modules.end(); removing++)
+		for (std::vector<std::string>::iterator removing = removed_modules.begin(); removing != removed_modules.end(); removing++)
 		{
 			if (UnloadModule(removing->c_str()))
 			{
@@ -442,7 +442,7 @@ void ReadConfig(bool bail, userrec* user)
 			}
 		}
 		if (!added_modules.empty())
-		for (std::vector<std::string, __single_client_alloc>::iterator adding = added_modules.begin(); adding != added_modules.end(); adding++)
+		for (std::vector<std::string>::iterator adding = added_modules.begin(); adding != added_modules.end(); adding++)
 		{
 			if (LoadModule(adding->c_str()))
 			{
@@ -1668,7 +1668,7 @@ void DoSplitEveryone()
 		{
 			if (me[i] != NULL)
 			{
-				for (vector<ircd_connector, __single_client_alloc>::iterator j = me[i]->connectors.begin(); j != me[i]->connectors.end(); j++)
+				for (vector<ircd_connector>::iterator j = me[i]->connectors.begin(); j != me[i]->connectors.end(); j++)
 				{
 					if (strcasecmp(j->GetServerName().c_str(),ServerName))
 					{
@@ -2267,7 +2267,7 @@ void DoSplit(const char* params)
 		{
 			if (me[i] != NULL)
 			{
-				for (vector<ircd_connector, __single_client_alloc>::iterator j = me[i]->connectors.begin(); j != me[i]->connectors.end(); j++)
+				for (vector<ircd_connector>::iterator j = me[i]->connectors.begin(); j != me[i]->connectors.end(); j++)
 				{
 					if (!strcasecmp(j->GetServerName().c_str(),params))
 					{
@@ -2315,7 +2315,7 @@ void RemoveServer(const char* name)
 		{
 			if (me[i] != NULL)
 			{
-				for (vector<ircd_connector, __single_client_alloc>::iterator j = me[i]->connectors.begin(); j != me[i]->connectors.end(); j++)
+				for (vector<ircd_connector>::iterator j = me[i]->connectors.begin(); j != me[i]->connectors.end(); j++)
 				{
 					if (!strcasecmp(j->GetServerName().c_str(),name))
 					{
@@ -2342,7 +2342,7 @@ char* ModuleError()
 void erase_factory(int j)
 {
 	int v = 0;
-	for (std::vector<ircd_module*, __single_client_alloc>::iterator t = factory.begin(); t != factory.end(); t++)
+	for (std::vector<ircd_module*>::iterator t = factory.begin(); t != factory.end(); t++)
 	{
 		if (v == j)
 		{
@@ -2357,7 +2357,7 @@ void erase_factory(int j)
 void erase_module(int j)
 {
 	int v1 = 0;
-	for (std::vector<Module*, __single_client_alloc>::iterator m = modules.begin(); m!= modules.end(); m++)
+	for (std::vector<Module*>::iterator m = modules.begin(); m!= modules.end(); m++)
         {
                 if (v1 == j)
                 {
@@ -2369,7 +2369,7 @@ void erase_module(int j)
 		v1++;
         }
 	int v2 = 0;
-        for (std::vector<std::string, __single_client_alloc>::iterator v = module_names.begin(); v != module_names.end(); v++)
+        for (std::vector<std::string>::iterator v = module_names.begin(); v != module_names.end(); v++)
         {
                 if (v2 == j)
                 {

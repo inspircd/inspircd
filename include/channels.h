@@ -84,15 +84,15 @@ class ModeParameter : public classbase
 
 /** Holds a complete ban list
  */
-typedef std::vector<BanItem, __single_client_alloc> 	BanList;
+typedef std::vector<BanItem> 	BanList;
 
 /** Holds a complete exempt list
  */
-typedef std::vector<ExemptItem, __single_client_alloc>	ExemptList;
+typedef std::vector<ExemptItem>	ExemptList;
 
 /** Holds a complete invite list
  */
-typedef std::vector<InviteItem, __single_client_alloc>	InviteList;
+typedef std::vector<InviteItem>	InviteList;
 
 /** Holds all relevent information for a channel.
  * This class represents a channel, and contains its name, modes, time created, topic, topic set time,
@@ -112,7 +112,7 @@ class chanrec : public Extensible
 	/** User list (casted to char*'s to stop forward declaration stuff)
 	 * (chicken and egg scenario!)
 	 */
-	std::vector<char*, __single_client_alloc> internal_userlist;
+	std::vector<char*> internal_userlist;
 	
 	/** Channel topic.
 	 * If this is an empty string, no channel topic is set.
@@ -196,7 +196,7 @@ class chanrec : public Extensible
 	 * The resulting pointer to the vector should be considered
 	 * readonly and only modified via AddUser and DelUser.
 	 */
-	std::vector<char*, __single_client_alloc> *GetUsers();
+	std::vector<char*> *GetUsers();
 
 	/** Creates a channel record and initialises it with default values
 	 */

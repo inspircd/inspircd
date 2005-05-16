@@ -48,9 +48,9 @@ using namespace std;
 #include "helperfuncs.h"
 
 extern int MODCOUNT;
-extern std::vector<Module*, __single_client_alloc> modules;
-extern std::vector<ircd_module*, __single_client_alloc> factory;
-extern std::vector<std::string, __single_client_alloc> module_names;
+extern std::vector<Module*> modules;
+extern std::vector<ircd_module*> factory;
+extern std::vector<std::string> module_names;
 
 
 extern int LogLevel;
