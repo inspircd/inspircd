@@ -2855,49 +2855,45 @@ int InspIRCd(char** argv, int argc)
 			}
 		}
      
+		std::deque<std::string> msgs;
+		std::deque<std::string> sums;
 		for (int x = 0; x < SERVERportCount; x++)
 		{
-			std::deque<std::string> msgs;
-			std::deque<std::string> sums;
-			msgs.clear();
 			sums.clear();
-			if (me[x])
+			msgs.clear();
+			while ((me[x]) && (me[x]->RecvPacket(msgs, tcp_host, sums))) // returns 0 or more lines (can be multiple lines!)
 			{
-				sums.clear();
-				msgs.clear();
-				while (me[x]->RecvPacket(msgs, tcp_host, sums))
+				for (int ctr = 0; ctr < msgs.size(); ctr++)
 				{
-					for (int ctr = 0; ctr < msgs.size(); ctr++)
-					{
-						strlcpy(tcp_msg,msgs[ctr].c_str(),MAXBUF);
-						strlcpy(tcp_sum,msgs[ctr].c_str(),MAXBUF);
-						log(DEBUG,"Processing: %s",tcp_msg);
-						if (!tcp_msg[0])
-    						{
-							log(DEBUG,"Invalid string from %s [route%lu]",tcp_host,(unsigned long)x);
-							break;
-						}
-						// during a netburst, send all data to all other linked servers
-						if ((((nb_start>0) && (tcp_msg[0] != 'Y') && (tcp_msg[0] != 'X') && (tcp_msg[0] != 'F'))) || (is_uline(tcp_host)))
-						{
-							if (is_uline(tcp_host))
-							{
-								if ((tcp_msg[0] != 'Y') && (tcp_msg[0] != 'X') && (tcp_msg[0] != 'F'))
-								{
-									NetSendToAllExcept_WithSum(tcp_host,tcp_msg,tcp_sum);
-								}
-							}
-							else
-								NetSendToAllExcept_WithSum(tcp_host,tcp_msg,tcp_sum);
-						}
-			                        std::string msg = tcp_msg;
-			                        FOREACH_MOD OnPacketReceive(msg,tcp_host);
-			                        strlcpy(tcp_msg,msg.c_str(),MAXBUF);
-						if (me[x])
-							handle_link_packet(tcp_msg, tcp_host, me[x], tcp_sum);
+					strlcpy(tcp_msg,msgs[ctr].c_str(),MAXBUF);
+					strlcpy(tcp_sum,msgs[ctr].c_str(),MAXBUF);
+					log(DEBUG,"Processing: %s",tcp_msg);
+					if (!tcp_msg[0])
+   					{
+						log(DEBUG,"Invalid string from %s [route%lu]",tcp_host,(unsigned long)x);
+						break;
 					}
-					//goto label;
+					// during a netburst, send all data to all other linked servers
+					if ((((nb_start>0) && (tcp_msg[0] != 'Y') && (tcp_msg[0] != 'X') && (tcp_msg[0] != 'F'))) || (is_uline(tcp_host)))
+					{
+						if (is_uline(tcp_host))
+						{
+							if ((tcp_msg[0] != 'Y') && (tcp_msg[0] != 'X') && (tcp_msg[0] != 'F'))
+							{
+								NetSendToAllExcept_WithSum(tcp_host,tcp_msg,tcp_sum);
+							}
+						}
+						else
+							NetSendToAllExcept_WithSum(tcp_host,tcp_msg,tcp_sum);
+					}
+		                        std::string msg = tcp_msg;
+		                        FOREACH_MOD OnPacketReceive(msg,tcp_host);
+		                        strlcpy(tcp_msg,msg.c_str(),MAXBUF);
+					if (me[x])
+						handle_link_packet(tcp_msg, tcp_host, me[x], tcp_sum);
 				}
+                		        sums.clear();	// we're done, clear the list for the next operation
+		                        msgs.clear();
 			}
 		}
 	

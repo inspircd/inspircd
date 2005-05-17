@@ -75,10 +75,48 @@ class serverrec : public connection
 	/** Destructor
 	 */
 	~serverrec();
-	
+
+        /** With a serverrec, this is a list of all established server connections.
+         */
+        std::vector<ircd_connector> connectors;
+
+
+        /** Create a listening socket on 'host' using port number 'p'
+         */
+        bool CreateListener(char* host, int p);
+
+        /** Begin an outbound link to another ircd at targethost.
+         */
+        bool BeginLink(char* targethost, int port, char* password, char* servername, int myport);
+
+        /** Begin an outbound mesh link to another ircd on a network you are already an authenticated member of
+         */
+        bool MeshCookie(char* targethost, int port, unsigned long cookie, char* servername);
+
+        /** Terminate a link to 'targethost' by calling the ircd_connector::CloseConnection method.
+         */
+        void TerminateLink(char* targethost);
+
+        /** Send a message to a server by name, if the server is unavailable directly route the packet via another server
+         * If the server still cannot be reached after attempting to route the message remotely, returns false.
+         */
+        bool SendPacket(char *message, const char* host);
+
+        /** Returns the next available packet and returns true if data is available. Writes the servername the data came from to 'host'.
+         * If no data is available this function returns false.
+         * This function will automatically close broken links and reroute pathways, generating split messages on the network.
+         */
+        bool RecvPacket(std::deque<std::string> &messages, char* host, std::deque<std::string> &sums);
+
+        /** Find the ircd_connector oject related to a certain servername given in 'host'
+         */
+        ircd_connector* FindHost(std::string host);
+
+        /** Add an incoming connection to the connection pool.
+         * (reserved for core use)
+         */
+        bool AddIncoming(int fd,char* targethost, int sourceport);	
 };
-
-
 
 #endif
 

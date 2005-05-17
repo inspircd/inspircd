@@ -74,7 +74,7 @@ libIRCDdynamic.so: dynamic.cpp ../include/base.h ../include/dynamic.h ../include
 	$(CC) -pipe -I../include $(FLAGS) -export-dynamic -c dynamic.cpp
 	$(CC) -shared -o libIRCDdynamic.so dynamic.o
 
-libIRCDusers.so: users.cpp ../include/base.h ../include/users.h ../include/inspircd.h ../include/channels.h ../include/users.h ../include/globals.h ../include/inspircd_config.h
+libIRCDusers.so: users.cpp ../include/base.h ../include/users.h ../include/inspircd.h ../include/channels.h ../include/users.h ../include/globals.h ../include/inspircd_config.h ../include/connection.h
 	$(CC) -pipe -I../include $(FLAGS) -export-dynamic -c users.cpp
 	$(CC) -shared -o libIRCDusers.so users.o
 
@@ -86,7 +86,7 @@ libIRCDwildcard.so: wildcard.cpp ../include/base.h ../include/wildcard.h ../incl
 	$(CC) -pipe -I../include $(FLAGS) -export-dynamic -c wildcard.cpp
 	$(CC) -shared -o libIRCDwildcard.so wildcard.o
 
-libIRCDservers.so: servers.cpp ../include/base.h ../include/servers.h ../include/inspircd.h ../include/channels.h ../include/users.h ../include/globals.h ../include/inspircd_config.h
+libIRCDservers.so: servers.cpp ../include/base.h ../include/servers.h ../include/inspircd.h ../include/channels.h ../include/users.h ../include/globals.h ../include/inspircd_config.h ../include/connection.h
 	$(CC) -pipe -I../include $(FLAGS) -export-dynamic -c servers.cpp
 	$(CC) -shared -o libIRCDservers.so servers.o
 
