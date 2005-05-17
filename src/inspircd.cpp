@@ -2861,37 +2861,43 @@ int InspIRCd(char** argv, int argc)
 			std::deque<std::string> sums;
 			msgs.clear();
 			sums.clear();
-			if ((me[x]) && (me[x]->RecvPacket(msgs, tcp_host, sums)))
+			if (me[x])
 			{
-				for (int ctr = 0; ctr < msgs.size(); ctr++)
+				sums.clear();
+				msgs.clear();
+				while (me[x]->RecvPacket(msgs, tcp_host, sums))
 				{
-					strlcpy(tcp_msg,msgs[ctr].c_str(),MAXBUF);
-					strlcpy(tcp_sum,msgs[ctr].c_str(),MAXBUF);
-					log(DEBUG,"Processing: %s",tcp_msg);
-					if (!tcp_msg[0])
-    					{
-						log(DEBUG,"Invalid string from %s [route%lu]",tcp_host,(unsigned long)x);
-						break;
-					}
-					// during a netburst, send all data to all other linked servers
-					if ((((nb_start>0) && (tcp_msg[0] != 'Y') && (tcp_msg[0] != 'X') && (tcp_msg[0] != 'F'))) || (is_uline(tcp_host)))
+					for (int ctr = 0; ctr < msgs.size(); ctr++)
 					{
-						if (is_uline(tcp_host))
-						{
-							if ((tcp_msg[0] != 'Y') && (tcp_msg[0] != 'X') && (tcp_msg[0] != 'F'))
-							{
-								NetSendToAllExcept_WithSum(tcp_host,tcp_msg,tcp_sum);
-							}
+						strlcpy(tcp_msg,msgs[ctr].c_str(),MAXBUF);
+						strlcpy(tcp_sum,msgs[ctr].c_str(),MAXBUF);
+						log(DEBUG,"Processing: %s",tcp_msg);
+						if (!tcp_msg[0])
+    						{
+							log(DEBUG,"Invalid string from %s [route%lu]",tcp_host,(unsigned long)x);
+							break;
 						}
-						else
-							NetSendToAllExcept_WithSum(tcp_host,tcp_msg,tcp_sum);
+						// during a netburst, send all data to all other linked servers
+						if ((((nb_start>0) && (tcp_msg[0] != 'Y') && (tcp_msg[0] != 'X') && (tcp_msg[0] != 'F'))) || (is_uline(tcp_host)))
+						{
+							if (is_uline(tcp_host))
+							{
+								if ((tcp_msg[0] != 'Y') && (tcp_msg[0] != 'X') && (tcp_msg[0] != 'F'))
+								{
+									NetSendToAllExcept_WithSum(tcp_host,tcp_msg,tcp_sum);
+								}
+							}
+							else
+								NetSendToAllExcept_WithSum(tcp_host,tcp_msg,tcp_sum);
+						}
+			                        std::string msg = tcp_msg;
+			                        FOREACH_MOD OnPacketReceive(msg,tcp_host);
+			                        strlcpy(tcp_msg,msg.c_str(),MAXBUF);
+						if (me[x])
+							handle_link_packet(tcp_msg, tcp_host, me[x], tcp_sum);
 					}
-		                        std::string msg = tcp_msg;
-		                        FOREACH_MOD OnPacketReceive(msg,tcp_host);
-		                        strlcpy(tcp_msg,msg.c_str(),MAXBUF);
-					handle_link_packet(tcp_msg, tcp_host, me[x], tcp_sum);
+					//goto label;
 				}
-				goto label;
 			}
 		}
 	
@@ -2913,6 +2919,9 @@ int InspIRCd(char** argv, int argc)
 		if (count2->second)
 			curr = count2->second;
 
+		if ((long)curr == -1)
+			goto label;
+
 		if ((curr) && (curr->fd != 0))
 		{
 #ifdef _POSIX_PRIORITY_SCHEDULING
@@ -2929,8 +2938,11 @@ int InspIRCd(char** argv, int argc)
 				if (count2 != clientlist.end())
 				{
 					curr = count2->second;
+					if ((long)curr == -1)
+						goto label;
+					int currfd = curr->fd;
 					// we don't check the state of remote users.
-					if ((curr->fd != -1) && (curr->fd != FD_MAGIC_NUMBER))
+					if ((currfd != -1) && (currfd != FD_MAGIC_NUMBER))
 					{
 						curr->FlushWriteBuf();
 						if (curr->GetWriteError() != "")
@@ -2956,13 +2968,15 @@ int InspIRCd(char** argv, int argc)
 							curr->dns_done = true;
 							statsDnsBad++;
 							FullConnectUser(curr);
-							goto label;
+                                                        if (fd_ref_table[currfd] != curr) // something changed, bail pronto
+                                                                goto label;
 						}
 		                                if ((curr->dns_done) && (curr->registered == 3) && (AllModulesReportReady(curr))) // both NICK and USER... and DNS
 		                                {
 							log(DEBUG,"dns done, registered=3, and modules ready, OK");
 		                                        FullConnectUser(curr);
-							goto label;
+                                                        if (fd_ref_table[currfd] != curr) // something changed, bail pronto
+                                                                goto label;
 		                                }
 						if ((TIME > curr->nping) && (isnick(curr->nick)) && (curr->registered == 7))
 						{
@@ -2995,8 +3009,11 @@ int InspIRCd(char** argv, int argc)
 				if (count2 != clientlist.end())
 				{
                 	                curr = count2->second;
+                                        if ((long)curr == -1)
+                                                goto label;
+					int currfd = curr->fd;
         	                        // we don't check the state of remote users.
-	                                if ((curr->fd != -1) && (curr->fd != FD_MAGIC_NUMBER))
+	                                if ((currfd != -1) && (currfd != FD_MAGIC_NUMBER))
 					{
 
                                                 curr->FlushWriteBuf();
@@ -3013,7 +3030,8 @@ int InspIRCd(char** argv, int argc)
 	                                        {
 	                                                log(DEBUG,"InspIRCd: registration timeout: %s",curr->nick);
 	                                                kill_link(curr,"Registration timeout");
-        	                                        goto label;
+							goto label;
+
 	       	                                }
 	       	                                if ((TIME > curr->signon) && (curr->registered == 3) && (AllModulesReportReady(curr)))
 	       	                                {
@@ -3021,13 +3039,15 @@ int InspIRCd(char** argv, int argc)
         	                                        curr->dns_done = true;
 	                                                statsDnsBad++;
 	                                                FullConnectUser(curr);
-	                                                goto label;
+                                                        if (fd_ref_table[currfd] != curr) // something changed, bail pronto
+                                                                goto label;
         	                                }
 	                                        if ((curr->dns_done) && (curr->registered == 3) && (AllModulesReportReady(curr)))
         	                                {
 	                                                log(DEBUG,"dns done, registered=3, and modules ready, OK");
 	                                                FullConnectUser(curr);
-	                                                goto label;
+                                                        if (fd_ref_table[currfd] != curr) // something changed, bail pronto
+                                                                goto label;
 	                                        }
 						if ((TIME > curr->nping) && (isnick(curr->nick)) && (curr->registered == 7))
 						{
@@ -3219,7 +3239,8 @@ int InspIRCd(char** argv, int argc)
 
 							}
 						}
-						goto label;
+						if ((currfd < 0) || (!fd_ref_table[currfd]))
+							goto label;
 					}
 
 					if ((result == -1) && (errno != EAGAIN) && (errno != EINTR))
@@ -3334,7 +3355,6 @@ int InspIRCd(char** argv, int argc)
 					AddClient(incomingSockfd, resolved, ports[count], false, inet_ntoa (client.sin_addr));
 					log(DEBUG,"InspIRCd: adding client on port %lu fd=%lu",(unsigned long)ports[count],(unsigned long)incomingSockfd);
 				}
-				//goto label;
 			}
 		}
 	}
