@@ -36,7 +36,7 @@ using namespace std;
 
 #ifdef USE_EPOLL
 #include <sys/epoll.h>
-#define EP_DELAY 35
+#define EP_DELAY 50
 #endif
 
 #include <time.h>
@@ -2795,7 +2795,7 @@ int InspIRCd(char** argv, int argc)
 		user_hash::iterator count2 = clientlist.begin();
 
 #ifdef USE_EPOLL
-		i = epoll_wait(sep, event, 1, EP_DELAY*2);
+		i = epoll_wait(sep, event, 1, EP_DELAY);
 #ifdef _POSIX_PRIORITY_SCHEDULING
                                 sched_yield();
 #endif
@@ -3302,7 +3302,7 @@ int InspIRCd(char** argv, int argc)
 #ifdef _POSIX_PRIORITY_SCHEDULING
                                 sched_yield();
 #endif
-	i = epoll_wait(lep, event, 32, EP_DELAY*2);
+	i = epoll_wait(lep, event, 32, EP_DELAY);
 #ifdef _POSIX_PRIORITY_SCHEDULING
                                 sched_yield();
 #endif
