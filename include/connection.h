@@ -226,19 +226,19 @@ class connection : public Extensible
 	
 	/** Stats counter for bytes inbound
 	 */
-	long bytes_in;
+	int bytes_in;
 
 	/** Stats counter for bytes outbound
 	 */
-	long bytes_out;
+	int bytes_out;
 
 	/** Stats counter for commands inbound
 	 */
-	long cmds_in;
+	int cmds_in;
 
 	/** Stats counter for commands outbound
 	 */
-	long cmds_out;
+	int cmds_out;
 
 	/** True if server/user has authenticated, false if otherwise
 	 */
