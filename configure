@@ -28,6 +28,7 @@ $config{MAX_CHANNE}         = "20";                             		# Default Max.
 $config{MAXI_MODES}         = "20";                             		# Default Max. Number of Modes set at once.
 $config{HAS_STRLCPY}        = "false";                          		# strlcpy Check.
 $config{USE_KQUEUE}         = "n";						# kqueue enabled
+$config{USE_EPOLL}          = "n";						# epoll enabled
 chomp($config{MAX_CLIENT_T} = `sh -c \"ulimit -n\"`);           		# FD Limit
 chomp($config{GCCVER}       = `gcc -dumpversion | cut -c 1`);   		# Major GCC Version
 chomp($config{GCC34}        = `gcc -dumpversion | cut -c 3`);   		# Minor GCC Version
@@ -117,6 +118,26 @@ if (!$fail)
 print "yes\n" if $has_kqueue == 1;
 print "no\n" if $has_kqueue == 0;
 
+printf "Checking if epoll exists... ";
+$has_epoll = 0;
+$fail = 0;
+open(EPOLL, "</usr/include/sys/epoll.h") or $fail = 1;
+if (!$fail)
+{
+	while (chomp($line = <EPOLL>))
+	{
+		# try and find the declaration of:
+		# extern int epoll_create (int __size) __THROW;
+		if (($line =~ /int(\0x9|\s)+epoll_create(\0x9|\s)+\(/) || ($line =~ /int(\0x9|\s)+epoll_create\(/))
+		{
+			$has_epoll = 1;
+		}
+	}
+	close(EPOLL);
+}
+print "yes\n" if $has_epoll == 1;
+print "no\n" if $has_epoll == 0;
+
 ################################################################################
 #                          BEGIN INTERACTIVE PART                              #
 ################################################################################
@@ -151,6 +172,9 @@ dir_check("are the IRCd libraries to be placed", "LIBRARY_DIR");
 
 if ($has_kqueue) {
 	yesno(USE_KQUEUE,"You are running a BSD operating system, and kqueue\nwas detected. Would you like to enable kqueue support?\nIf you are unsure, answer no.\n\nEnable kqueue?");
+}
+if ($has_epoll) {
+	yesno(USE_EPOLL,"You are running a linux operating system, and epoll\nwas detected. Would you like to enable epoll support?\nIf you are unsure, answer no.\n\nEnable epoll?");
 }
 
 # File Descriptor Settings..
@@ -421,6 +445,14 @@ EOF
   }
   if ($config{USE_KQUEUE} eq "y") {
     print FILEHANDLE "#define USE_KQUEUE\n";
+  }
+  if ($config{USE_EPOLL} eq "y") {
+    print FILEHANDLE "#define USE_EPOLL\n";
+  }
+  # user didn't choose either epoll or select for their OS.
+  # default them to USE_SELECT (ewwy puke puke)
+  if (($config{USE_EPOLL} eq "n") && ($config{USE_KQUEUE} eq "n")) {
+    print FILEHANDLE "#define USE_SELECT\n";
   }
   close(FILEHANDLE);
 

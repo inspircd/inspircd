@@ -27,11 +27,18 @@ using namespace std;
 #include <sys/errno.h>
 #include <sys/ioctl.h>
 #include <sys/utsname.h>
+
 #ifdef USE_KQUEUE
 #include <sys/types.h>
 #include <sys/event.h>
 #include <sys/time.h>
 #endif
+
+#ifdef USE_EPOLL
+#include <sys/epoll.h>
+#define EP_DELAY 10
+#endif
+
 #include <time.h>
 #include <string>
 #ifdef GCC3
@@ -105,6 +112,10 @@ time_t TIME = time(NULL), OLDTIME = time(NULL);
 
 #ifdef USE_KQUEUE
 int kq, lkq, skq;
+#endif
+
+#ifdef USE_EPOLL
+int ep, lep, sep;
 #endif
 
 typedef nspace::hash_map<std::string, userrec*, nspace::hash<string>, irc::StrHashComp> user_hash;
@@ -1077,6 +1088,16 @@ void kill_link(userrec *user,const char* r)
 			log(DEBUG,"kqueue: Failed to remove user from queue!");
 		}
 #endif
+#ifdef USE_EPOLL
+		struct epoll_event ev;
+		ev.events = EPOLLIN | EPOLLET;
+		ev.data.fd = user->fd;
+		int i = epoll_ctl(ep, EPOLL_CTL_DEL, user->fd, &ev);
+		if (i < 0)
+		{
+		        log(DEBUG,"epoll: List deletion failure!");
+		}
+#endif
                 shutdown(user->fd,2);
                 close(user->fd);
 	}
@@ -1139,6 +1160,16 @@ void kill_link_silent(userrec *user,const char* r)
                 if (i == -1)
                 {
                         log(DEBUG,"kqueue: Failed to remove user from queue!");
+                }
+#endif
+#ifdef USE_EPOLL
+                struct epoll_event ev;
+                ev.events = EPOLLIN | EPOLLET;
+                ev.data.fd = user->fd;
+                int i = epoll_ctl(ep, EPOLL_CTL_DEL, user->fd, &ev);
+                if (i < 0)
+                {
+                        log(DEBUG,"epoll: List deletion failure!");
                 }
 #endif
                 shutdown(user->fd,2);
@@ -1417,6 +1448,17 @@ void AddClient(int socket, char* host, int port, bool iscached, char* ip)
 	}
 	fd_ref_table[socket] = clientlist[tempnick];
 
+#ifdef USE_EPOLL
+	struct epoll_event ev;
+	log(DEBUG,"epoll: Adduser to events, ep=%d socket=%d",ep,socket);
+	ev.events = EPOLLIN | EPOLLET;
+	ev.data.fd = socket;
+	int i = epoll_ctl(ep, EPOLL_CTL_ADD, socket, &ev);
+	if (i < 0)
+	{
+		log(DEBUG,"epoll: List insertion failure!");
+	}
+#endif
 #ifdef USE_KQUEUE
 	struct kevent ke;
 	log(DEBUG,"kqueue: Add user to events, kq=%d socket=%d",kq,socket);
@@ -1424,37 +1466,7 @@ void AddClient(int socket, char* host, int port, bool iscached, char* ip)
         int i = kevent(kq, &ke, 1, 0, 0, NULL);
         if (i == -1)
         {
-		switch (errno)
-		{
-			case EACCES:
-				log(DEBUG,"kqueue: EACCES");
-			break;
-			case EFAULT:
-				log(DEBUG,"kqueue: EFAULT");
-			break;
-			case EBADF:
-				log(DEBUG,"kqueue: EBADF=%d",ke.ident);
-			break;
-			case EINTR:
-				log(DEBUG,"kqueue: EINTR");
-			break;
-			case EINVAL:
-				log(DEBUG,"kqueue: EINVAL");
-			break;
-			case ENOENT:
-				log(DEBUG,"kqueue: ENOENT");
-			break;
-			case ENOMEM:
-				log(DEBUG,"kqueue: ENOMEM");
-			break;
-			case ESRCH:
-				log(DEBUG,"kqueue: ESRCH");
-			break;
-			default:
-				log(DEBUG,"kqueue: UNKNOWN!");
-			break;
-		}
-                log(DEBUG,"kqueue: Failed to add user to queue!");
+                log(DEBUG,"kqueue: List insertion failure!");
         }
 
 #endif
@@ -1569,8 +1581,12 @@ std::string GetVersionString()
         s1 = savept;
 #ifdef USE_KQUEUE
 	char socketengine[] = "kqueue";
-#else
+#endif
+#ifdef USE_SELECT
 	char socketengine[] = "select";
+#endif
+#ifdef USE_EPOLL
+	char socketengine[] = "epoll";
 #endif
 	snprintf(versiondata,MAXBUF,"%s Rev. %s %s :%s (O=%lu) [SE=%s]",VERSION,v2,ServerName,SYSTEM,(unsigned long)OPTIMISATION,socketengine);
 	return versiondata;
@@ -2638,7 +2654,50 @@ int InspIRCd(char** argv, int argc)
         }
 #endif
 
+#ifdef USE_EPOLL
+	ep = epoll_create(MAXCLIENTS);
+	lep = epoll_create(32);
+	sep = epoll_create(128);
+	if ((ep == -1) || (lep == -1) || (sep == -1))
+	{
+		log(DEFAULT,"main: epoll_create() failed!");
+		printf("ERROR: could not initialise epoll event system. Shutting down.\n");
+		Exit(ERROR);
+	}
+#endif
 
+#ifdef USE_EPOLL
+	log(DEFAULT,"epoll socket engine is enabled. Filling listen list. boundPortcount=%d",boundPortCount);
+	for (count = 0; count < boundPortCount; count++)
+	{
+		struct epoll_event ev;
+		log(DEBUG,"epoll: Add listening socket to events, ep=%d socket=%d",lep,openSockfd[count]);
+		ev.events = EPOLLIN | EPOLLET;
+		ev.data.fd = openSockfd[count];
+		int i = epoll_ctl(lep, EPOLL_CTL_ADD, openSockfd[count], &ev);
+		if (i < 0)
+		{
+			log(DEFAULT,"main: add listen ports, epoll_ctl failed!");
+			printf("ERROR: could not initialise listening sockets in epoll list. Shutting down.\n");
+			Exit(ERROR);
+		}
+		
+	}
+	for (int t = 0; t != SERVERportCount; t++)
+	{
+		struct epoll_event ev;
+		log(DEBUG,"epoll: Add listening server socket to events, ep=%d socket=%d",sep,me[t]->fd);
+		ev.events = EPOLLIN | EPOLLET;
+		ev.data.fd = me[t]->fd;
+		int i = epoll_ctl(sep, EPOLL_CTL_ADD, me[t]->fd, &ev);
+		if (i == -1)
+		{
+			log(DEFAULT,"main: add server listen ports, epoll_ctl failed!");
+			printf("ERROR: could not initialise server listening sockets in epoll list. Shutting down.\n");
+			Exit(ERROR);
+		}
+	}
+#else
 #ifdef USE_KQUEUE
 	log(DEFAULT,"kqueue socket engine is enabled. Filling listen list.");
 	for (count = 0; count < boundPortCount; count++)
@@ -2651,6 +2710,7 @@ int InspIRCd(char** argv, int argc)
 	        {
 			log(DEFAULT,"main: add listen ports to kqueue failed!");
 			printf("ERROR: could not initialise listening sockets in kqueue. Shutting down.\n");
+			Exit(ERROR);
 	        }
 	}
         for (int t = 0; t != SERVERportCount; t++)
@@ -2665,6 +2725,7 @@ int InspIRCd(char** argv, int argc)
 	                {
 	                        log(DEFAULT,"main: add server listen ports to kqueue failed!");
 	                        printf("ERROR: could not initialise listening server sockets in kqueue. Shutting down.\n");
+				Exit(ERROR);
 	                }
 		}
         }
@@ -2672,6 +2733,7 @@ int InspIRCd(char** argv, int argc)
 
 #else
 	log(DEFAULT,"Using standard select socket engine.");
+#endif
 #endif
 
 	WritePID(PID);
@@ -2683,6 +2745,9 @@ int InspIRCd(char** argv, int argc)
         struct kevent ke;
 	struct kevent ke_list[33];
         struct timespec ts;
+#endif
+#ifdef USE_EPOLL
+	struct epoll_event event[33];
 #endif
         fd_set serverfds;
         timeval tvs;
@@ -2705,10 +2770,9 @@ int InspIRCd(char** argv, int argc)
 #ifdef _POSIX_PRIORITY_SCHEDULING
 		sched_yield();
 #endif
-#ifndef USE_KQUEUE
+#ifdef USE_SELECT
 		FD_ZERO(&sfd);
 #endif
-
 		// we only read time() once per iteration rather than tons of times!
 		OLDTIME = TIME;
 		TIME = time(NULL);
@@ -2730,6 +2794,16 @@ int InspIRCd(char** argv, int argc)
 		// fix by brain - this must be below any manipulation of the hashmap by modules
 		user_hash::iterator count2 = clientlist.begin();
 
+#ifdef USE_EPOLL
+		i = epoll_wait(sep, event, 1, EP_DELAY);
+		if (i > 0)
+		{
+			log(DEBUG,"epoll: Listening server socket event, i=%d, event.data.fd=%d",i,event[0].data.fd);
+			for (int x = 0; x != SERVERportCount; x++)
+			{
+				if ((me[x]) && (event[0].data.fd == me[x]->fd))
+				{
+#endif
 #ifdef USE_KQUEUE
 		ts.tv_sec = 0;
 		ts.tv_nsec = 30000L;
@@ -2742,7 +2816,8 @@ int InspIRCd(char** argv, int argc)
 		                if ((me[x]) && (ke.ident == me[x]->fd))
 		                {
 
-#else
+#endif
+#ifdef USE_SELECT
 		FD_ZERO(&serverfds);
 		for (int x = 0; x != SERVERportCount; x++)
 		{
@@ -2819,7 +2894,7 @@ int InspIRCd(char** argv, int argc)
 	
 	while (count2 != clientlist.end())
 	{
-#ifndef USE_KQUEUE
+#ifdef USE_SELECT
 		FD_ZERO(&sfd);
 #endif
 
@@ -2845,7 +2920,7 @@ int InspIRCd(char** argv, int argc)
 			//
 			// This should be up to 64x faster than the
 			// old implementation.
-#ifndef USE_KQUEUE
+#ifdef USE_SELECT
 			while (total_in_this_set < 1024)
 			{
 				if (count2 != clientlist.end())
@@ -2908,10 +2983,10 @@ int InspIRCd(char** argv, int argc)
 	       		endingiter = count2;
        			count2 = xcount; // roll back to where we were
 #else
-			// KQUEUE: We don't go through a loop to fill the fd_set so instead we must manually do this loop every now and again.
+			// KQUEUE and EPOLL: We don't go through a loop to fill the fd_set so instead we must manually do this loop every now and again.
 			// TODO: We dont need to do all this EVERY loop iteration, tone down the visits to this if we're using kqueue.
 			cycle_iter++;
-			if (cycle_iter > 10) while (count2 != clientlist.end())
+			if (cycle_iter > 20) while (count2 != clientlist.end())
 			{
 				cycle_iter = 0;
 				if (count2 != clientlist.end())
@@ -2973,7 +3048,14 @@ int InspIRCd(char** argv, int argc)
 #endif
         
         		v = 0;
-
+#ifdef USE_EPOLL
+			int i = epoll_wait(ep, event, 1, EP_DELAY);
+			if (i > 0)
+			{
+				log(DEBUG,"epoll_wait call: ep=%d, i=%d",ep,i);
+				// EPOLL: we asked epoll_wait for ONE fd which is ready. Do something.
+				userrec* cu = fd_ref_table[event[0].data.fd];
+#endif
 #ifdef USE_KQUEUE
 			ts.tv_sec = 0;
 			ts.tv_nsec = 1000L;
@@ -2984,7 +3066,8 @@ int InspIRCd(char** argv, int argc)
 				log(DEBUG,"kevent call: kq=%d, i=%d",kq,i);
 				// KQUEUE: kevent gives us ONE fd which is ready to have something done to it. Do something to it.
 				userrec* cu = fd_ref_table[ke.ident];
-#else
+#endif
+#ifdef USE_SELECT
 			tval.tv_usec = 1000L;
 			selectResult2 = select(65535, &sfd, NULL, NULL, &tval);
 			
@@ -3000,10 +3083,15 @@ int InspIRCd(char** argv, int argc)
 				sched_yield();
 #endif
 				result = EAGAIN;
+#ifdef USE_EPOLL
+				// EPOLL: We already know we have a valid FD. No checks needed.
+				if ((cu->fd != FD_MAGIC_NUMBER) && (cu->fd != -1))
+#endif
 #ifdef USE_KQUEUE
 				// KQUEUE: We already know we have a valid FD. No checks needed.
 				if ((cu->fd != FD_MAGIC_NUMBER) && (cu->fd != -1))
-#else
+#endif
+#ifdef USE_SELECT
 				// SELECT: We don't know if our FD is valid.
 				if ((cu->fd != FD_MAGIC_NUMBER) && (cu->fd != -1) && (FD_ISSET (cu->fd, &sfd)))
 #endif
@@ -3145,7 +3233,7 @@ int InspIRCd(char** argv, int argc)
 				else
 				if (result == 0)
 				{
-#ifndef USE_KQUEUE
+#ifdef USE_SELECT
 				  	if (count2->second)
 				  	{
 #endif
@@ -3154,7 +3242,7 @@ int InspIRCd(char** argv, int argc)
 						// must bail here? kill_link removes the hash, corrupting the iterator
 						log(DEBUG,"Bailing from client exit");
 						goto label;
-#ifndef USE_KQUEUE
+#ifdef USE_SELECT
 					}
 #endif
 				}
@@ -3173,7 +3261,7 @@ int InspIRCd(char** argv, int argc)
         sched_yield();
 #endif
 	
-#ifndef USE_KQUEUE
+#ifdef USE_SELECT
 	// set up select call
 	for (count = 0; count < boundPortCount; count++)
 	{
@@ -3190,13 +3278,14 @@ int InspIRCd(char** argv, int argc)
 		{
 			if (FD_ISSET (openSockfd[count], &selectFds))
 			{
-#else
+#endif
+#ifdef USE_KQUEUE
 	ts.tv_sec = 0;
 	ts.tv_nsec = 30000L;
 	i = kevent(lkq, NULL, 0, ke_list, 32, &ts);
 	if (i > 0) for (j = 0; j < i; j++)
 	{
-		log(DEBUG,"kqueue: Listening socket event, i=%d, ke.ident=%d",i,ke.ident);
+		log(DEBUG,"kqueue: Listening socket event, i=%d, ke.ident=%d",i,ke_list[j].ident);
 		// this isnt as efficient as it could be, we could create a reference table
 		// to reference bound ports by fd, but this isnt a big bottleneck as the actual
 		// number of listening ports on the average ircd is a small number (less than 20)
@@ -3204,6 +3293,16 @@ int InspIRCd(char** argv, int argc)
 		for (count = 0; count < boundPortCount; count++)
 		{
 			if (ke_list[j].ident == openSockfd[count])
+			{
+#endif
+#ifdef USE_EPOLL
+	i = epoll_wait(lep, event, 32, EP_DELAY);
+	if (i > 0) for (j = 0; j < i; j++)
+	{
+		log(DEBUG,"epoll: Listening socket event, i=%d,events[j].data.fd=%d",i,event[j].data.fd);
+		for (count = 0; count < boundPortCount; count++)
+		{
+			if (event[j].data.fd == openSockfd[count])
 			{
 #endif
 				char target[MAXBUF], resolved[MAXBUF];

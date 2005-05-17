@@ -22,11 +22,17 @@ using namespace std;
 #include "inspircd_config.h"
 #include <unistd.h>
 #include <sys/errno.h>
+
 #ifdef USE_KQUEUE
 #include <sys/types.h>
 #include <sys/event.h>
 #include <sys/time.h>
 #endif
+
+#ifdef USE_EPOLL
+#include <sys/epoll.h>
+#endif
+
 #include <time.h>
 #include <string>
 #ifdef GCC3
@@ -56,6 +62,10 @@ using namespace std;
 
 #ifdef USE_KQUEUE
 extern int kq;
+#endif
+
+#ifdef USE_EPOLL
+int ep;
 #endif
 
 extern int MODCOUNT;
@@ -621,6 +631,17 @@ bool Server::UserToPseudo(userrec* user,std::string message)
                 log(DEBUG,"kqueue: Failed to remove user from queue!");
         }
 #endif
+#ifdef USE_EPOLL
+        struct epoll_event ev;
+        ev.events = EPOLLIN | EPOLLET;
+        ev.data.fd = old_fd;
+        int i = epoll_ctl(ep, EPOLL_CTL_DEL, old_fd, &ev);
+        if (i < 0)
+        {
+                log(DEBUG,"epoll: List deletion failure!");
+        }
+#endif
+
         shutdown(old_fd,2);
         close(old_fd);
 }

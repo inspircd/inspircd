@@ -24,11 +24,17 @@ using namespace std;
 #include <sys/errno.h>
 #include <sys/ioctl.h>
 #include <sys/utsname.h>
+
 #ifdef USE_KQUEUE
 #include <sys/types.h>
 #include <sys/event.h>
 #include <sys/time.h>
 #endif
+
+#ifdef USE_EPOLL
+#include <sys/epoll.h>
+#endif
+
 #include <cstdio>
 #include <time.h>
 #include <string>
@@ -66,6 +72,10 @@ using namespace std;
 
 #ifdef USE_KQUEUE
 extern int kq;
+#endif
+
+#ifdef USE_EPOLL
+int ep;
 #endif
 
 extern int MODCOUNT;
@@ -919,6 +929,16 @@ void handle_quit(char **parameters, int pcnt, userrec *user)
                 if (i == -1)
                 {
                         log(DEBUG,"kqueue: Failed to remove user from queue!");
+                }
+#endif
+#ifdef USE_EPOLL
+                struct epoll_event ev;
+                ev.events = EPOLLIN | EPOLLET;
+                ev.data.fd = user->fd;
+                int i = epoll_ctl(ep, EPOLL_CTL_DEL, user->fd, &ev);
+                if (i < 0)
+                {
+                        log(DEBUG,"epoll: List deletion failure!");
                 }
 #endif
                 shutdown(user->fd,2);
