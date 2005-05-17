@@ -171,10 +171,10 @@ dir_check("is the IRCd binary to be placed", "BINARY_DIR");
 dir_check("are the IRCd libraries to be placed", "LIBRARY_DIR");
 
 if ($has_kqueue) {
-	yesno(USE_KQUEUE,"You are running a BSD operating system, and kqueue\nwas detected. Would you like to enable kqueue support?\nIf you are unsure, answer no.\n\nEnable kqueue?");
+	yesno(USE_KQUEUE,"You are running a BSD operating system, and kqueue\nwas detected. Would you like to enable kqueue support?\nIf you are unsure, answer yes.\n\nEnable kqueue?");
 }
 if ($has_epoll) {
-	yesno(USE_EPOLL,"You are running a linux operating system, and epoll\nwas detected. Would you like to enable epoll support?\nIf you are unsure, answer no.\n\nEnable epoll?");
+	yesno(USE_EPOLL,"You are running a linux operating system, and epoll\nwas detected. Would you like to enable epoll support?\nIf you are unsure, answer yes.\n\nEnable epoll?");
 }
 
 # File Descriptor Settings..
