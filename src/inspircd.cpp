@@ -2704,7 +2704,7 @@ int InspIRCd(char** argv, int argc)
 	{
 	        struct kevent ke;
 	        log(DEBUG,"kqueue: Add listening socket to events, kq=%d socket=%d",lkq,openSockfd[count]);
-	        EV_SET(&ke, openSockfd[count], EVFILT_READ, EV_ADD, 0, SOMAXCONN, NULL);
+	        EV_SET(&ke, openSockfd[count], EVFILT_READ, EV_ADD, 0, 32, NULL);
 	        int i = kevent(lkq, &ke, 1, 0, 0, NULL);
 	        if (i == -1)
 	        {
@@ -2719,7 +2719,7 @@ int InspIRCd(char** argv, int argc)
                 if (me[t])
                 {
 			log(DEBUG,"kqueue: Add listening SERVER socket to events, kq=%d socket=%d",skq,me[t]->fd);
-	                EV_SET(&ke, me[t]->fd, EVFILT_READ, EV_ADD, 0, SOMAXCONN, NULL);
+	                EV_SET(&ke, me[t]->fd, EVFILT_READ, EV_ADD, 0, 32, NULL);
 	                int i = kevent(skq, &ke, 1, 0, 0, NULL);
 	                if (i == -1)
 	                {

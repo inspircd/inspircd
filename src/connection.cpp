@@ -133,7 +133,7 @@ bool connection::CreateListener(char* newhost, int p)
 
 	this->port = p;
 
-	listen(this->fd,SOMAXCONN);
+	listen(this->fd,32);
 
 	return true;
 }
