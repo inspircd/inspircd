@@ -35,6 +35,7 @@ extern int boundPortCount;
 extern int openSockfd[MAXSOCKS];
 extern time_t TIME;
 extern bool unlimitcore;
+extern int MaxConn;
 
 void WriteOpers(char* text, ...);
 
@@ -637,7 +638,7 @@ int BindSocket (int sockfd, struct sockaddr_in client, struct sockaddr_in server
 	}
 	else
 	{
-		listen(sockfd,32);
+		listen(sockfd, MaxConn);
 		return(TRUE);
 	}
 }

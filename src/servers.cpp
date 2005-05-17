@@ -35,6 +35,7 @@ using namespace std;
 #include "connection.h"
 
 extern time_t TIME;
+extern int MaxConn;
 
 std::deque<std::string> xsums;
 
@@ -128,7 +129,7 @@ bool serverrec::CreateListener(char* newhost, int p)
 
         this->port = p;
 
-        listen(this->fd,32);
+        listen(this->fd, MaxConn);
 
         return true;
 }

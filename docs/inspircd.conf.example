@@ -347,12 +347,26 @@
 #                  spam vector or means of flooding an ircd. The      #
 #                  default is 128, it is not recommended to raise it  #
 #                  above 1024. Values up to 65535 are permitted.      #
+#  somaxconn     - The maximum number of sockets that may be waiting  #
+#                  in the accept queue. This usually allows the ircd  #
+#                  to soak up more connections in a shorter space of  #
+#                  time when increased but please be aware there is a #
+#                  system defined maximum value to this, the same way #
+#                  there is a system defined maximum number of file   #
+#                  descriptors. Some systems may only allow this to   #
+#                  be up to 5 (ugh) while others such as FreeBSD will #
+#                  default to a much nicer 128.                       #
+#  moduledir     - This optional value indicates a runtime change of  #
+#                  the location where modules are to be found. This   #
+#                  does not add a supplementary directory. There can  #
+#                  only be one module path.                           #
 
 <options prefixquit="Quit: "
 	 loglevel="default"
 	 netbuffersize="10240"
          maxwho="128"
 	 noservices="0"
+         somaxconn="128"
 	 allowhalfop="yes">
 
 

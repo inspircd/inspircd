@@ -88,7 +88,8 @@ int WHOWAS_STALE = 48; // default WHOWAS Entries last 2 days before they go 'sta
 int WHOWAS_MAX = 100;  // default 100 people maximum in the WHOWAS list
 int DieDelay  =  5;
 time_t startup_time = time(NULL);
-int NetBufferSize = 10240; // NetBufferSize used as the buffer size for all read() ops
+int NetBufferSize = 10240;	// NetBufferSize used as the buffer size for all read() ops
+int MaxConn = SOMAXCONN;	// size of accept() backlog (128 by default on *BSD)
 extern int MaxWhoResults;
 time_t nb_start = 0;
 int dns_timeout = 5;
@@ -232,7 +233,7 @@ std::string getadminnick()
 
 void ReadConfig(bool bail, userrec* user)
 {
-	char dbg[MAXBUF],pauseval[MAXBUF],Value[MAXBUF],timeout[MAXBUF],NB[MAXBUF],flood[MAXBUF],MW[MAXBUF];
+	char dbg[MAXBUF],pauseval[MAXBUF],Value[MAXBUF],timeout[MAXBUF],NB[MAXBUF],flood[MAXBUF],MW[MAXBUF],MCON[MAXBUF];
 	char AH[MAXBUF],AP[MAXBUF],AF[MAXBUF],DNT[MAXBUF],pfreq[MAXBUF],thold[MAXBUF],sqmax[MAXBUF],rqmax[MAXBUF];
 	ConnectClass c;
 	std::stringstream errstr;
@@ -293,12 +294,18 @@ void ReadConfig(bool bail, userrec* user)
 	ConfValue("dns","timeout",0,DNT,&config_f);
 	ConfValue("options","moduledir",0,ModPath,&config_f);
         ConfValue("disabled","commands",0,DisabledCommands,&config_f);
+	ConfValue("options","somaxconn",0,MCON,&config_f);
 
+	MaxConn = atoi(MCON);
+	if (MaxConn > SOMAXCONN)
+		log(DEFAULT,"WARNING: <options:somaxconn> value may be higher than the system-defined SOMAXCONN value!");
 	NetBufferSize = atoi(NB);
 	MaxWhoResults = atoi(MW);
 	dns_timeout = atoi(DNT);
 	if (!dns_timeout)
 		dns_timeout = 5;
+	if (!MaxConn)
+		MaxConn = SOMAXCONN;
 	if (!DNSServer[0])
 		strlcpy(DNSServer,"127.0.0.1",MAXBUF);
 	if (!ModPath[0])
@@ -2704,7 +2711,7 @@ int InspIRCd(char** argv, int argc)
 	{
 	        struct kevent ke;
 	        log(DEBUG,"kqueue: Add listening socket to events, kq=%d socket=%d",lkq,openSockfd[count]);
-	        EV_SET(&ke, openSockfd[count], EVFILT_READ, EV_ADD, 0, 32, NULL);
+	        EV_SET(&ke, openSockfd[count], EVFILT_READ, EV_ADD, 0, MaxConn, NULL);
 	        int i = kevent(lkq, &ke, 1, 0, 0, NULL);
 	        if (i == -1)
 	        {
@@ -2719,7 +2726,7 @@ int InspIRCd(char** argv, int argc)
                 if (me[t])
                 {
 			log(DEBUG,"kqueue: Add listening SERVER socket to events, kq=%d socket=%d",skq,me[t]->fd);
-	                EV_SET(&ke, me[t]->fd, EVFILT_READ, EV_ADD, 0, 32, NULL);
+	                EV_SET(&ke, me[t]->fd, EVFILT_READ, EV_ADD, 0, MaxConn, NULL);
 	                int i = kevent(skq, &ke, 1, 0, 0, NULL);
 	                if (i == -1)
 	                {
