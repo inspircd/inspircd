@@ -619,7 +619,7 @@ int ConfValue(char* tag, char* var, int index, char *result,std::stringstream *c
 // This will bind a socket to a port. It works for UDP/TCP
 int BindSocket (int sockfd, struct sockaddr_in client, struct sockaddr_in server, int port, char* addr)
 {
-	bzero((char *)&server,sizeof(server));
+	memcpy((char *)&server,0,sizeof(server));
 	struct in_addr addy;
 	inet_aton(addr,&addy);
 	server.sin_family = AF_INET;
