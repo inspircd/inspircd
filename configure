@@ -438,7 +438,7 @@ sub writefiles {
 EOF
 
   if ($config{OSNAME} =~ /SunOS/) {
-    print FILEHANDLE "#define IS_SOLARIS";
+    print FILEHANDLE "#define IS_SOLARIS\n";
   }
   if ($config{GCCVER} > 3) {
     print FILEHANDLE "#define GCC3\n";
