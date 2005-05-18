@@ -420,7 +420,7 @@ void WriteCommon(userrec *u, char* text, ...)
         va_end(argsPtr);
 
         // FIX: Stops a message going to the same person more than once
-        bzero(&already_sent,65536);
+        memset(&already_sent,0,65536);
 
         bool sent_to_at_least_one = false;
 
@@ -472,7 +472,7 @@ void WriteCommonExcept(userrec *u, char* text, ...)
         vsnprintf(textbuffer, MAXBUF, text, argsPtr);
         va_end(argsPtr);
 
-        bzero(&already_sent,65536);
+        memset(&already_sent,0,65536);
 
         for (int i = 0; i < MAXCHANS; i++)
         {
