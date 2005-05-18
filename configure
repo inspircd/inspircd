@@ -437,7 +437,7 @@ sub writefiles {
 #define MAXBUF 514
 EOF
 
-  if ($config{OSNAME} eq "SunOS")
+  if ($config{OSNAME} eq "SunOS") {
     print FILENAME "#define IS_SOLARIS";
   }
   if ($config{GCCVER} > 3) {
