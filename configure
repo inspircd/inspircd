@@ -32,7 +32,7 @@ $config{USE_EPOLL}          = "y";						# epoll enabled
 chomp($config{MAX_CLIENT_T} = `sh -c \"ulimit -n\"`);           		# FD Limit
 chomp($config{GCCVER}       = `gcc -dumpversion | cut -c 1`);   		# Major GCC Version
 chomp($config{GCC34}        = `gcc -dumpversion | cut -c 3`);   		# Minor GCC Version
-chomp($config{OSNAME}       = `uname -s`);                      		# Operating System Name
+chomp($config{OSNAME}       = `/bin/uname -s`);                      		# Operating System Name
 
 if (!$config{OSNAME}) {
   $config{OSNAME} = "Unknown";                                  # For use when uname fails.
@@ -383,7 +383,7 @@ sub getosflags {
     $config{FLAGS}  = "-fPIC -frtti $OPTIMISATI -Woverloaded-virtual $config{OPTIMISATI}";
     $config{MAKEPROG} = "make";
   }
-  if ($config{OSNAME} eq "SunOS") {
+  if ($config{OSNAME} =~ /SunOS/) {
     # solaris/sunos needs these
     $config{LDLIBS} = $config{LDLIBS} . " -lsocket -lnsl";
   }
@@ -437,7 +437,7 @@ sub writefiles {
 #define MAXBUF 514
 EOF
 
-  if ($config{OSNAME} eq "SunOS") {
+  if ($config{OSNAME} =~ /SunOS/) {
     print FILENAME "#define IS_SOLARIS";
   }
   if ($config{GCCVER} > 3) {
