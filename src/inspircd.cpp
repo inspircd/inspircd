@@ -3105,12 +3105,7 @@ int InspIRCd(char** argv, int argc)
 			
 			// now loop through all of the items in this pool if any are waiting
 			if ((selectResult2 > 0) && (xcount != clientlist.end()))
-#ifdef IS_SOLARIS
-			// on solaris, we cycle the entire list. Something is b0rked about referencing it by count2a.
-			for (user_hash::iterator count2a = clientlist.begin(); count2a != clientlist.end(); count2a++)
-#else
 			for (user_hash::iterator count2a = xcount; count2a != endingiter; count2a++)
-#endif
 			{
 				// SELECT: we have to iterate...
 				if (count2a == clientlist.end())
