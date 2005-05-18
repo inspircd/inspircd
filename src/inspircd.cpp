@@ -2803,9 +2803,6 @@ int InspIRCd(char** argv, int argc)
 
 #ifdef USE_EPOLL
 		i = epoll_wait(sep, event, 1, EP_DELAY);
-#ifdef _POSIX_PRIORITY_SCHEDULING
-                                sched_yield();
-#endif
 		if (i > 0)
 		{
 			log(DEBUG,"epoll: Listening server socket event, i=%d, event.data.fd=%d",i,event[0].data.fd);
@@ -3323,13 +3320,7 @@ int InspIRCd(char** argv, int argc)
 			{
 #endif
 #ifdef USE_EPOLL
-#ifdef _POSIX_PRIORITY_SCHEDULING
-                                sched_yield();
-#endif
 	i = epoll_wait(lep, event, 32, EP_DELAY);
-#ifdef _POSIX_PRIORITY_SCHEDULING
-                                sched_yield();
-#endif
 	if (i > 0) for (j = 0; j < i; j++)
 	{
 		log(DEBUG,"epoll: Listening socket event, i=%d,events[j].data.fd=%d",i,event[j].data.fd);
