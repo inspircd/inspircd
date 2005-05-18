@@ -388,7 +388,8 @@ sub getosflags {
     # socket = bsd sockets api
     # nsl = dns stuff
     # rt = POSIX realtime extensions
-    $config{LDLIBS} = $config{LDLIBS} . " -lsocket -lnsl -lrt";
+    # resolv = inet_aton only (why isnt this in nsl?!)
+    $config{LDLIBS} = $config{LDLIBS} . " -lsocket -lnsl -lrt -lresolv";
   }
 }
 
