@@ -2833,7 +2833,11 @@ int InspIRCd(char** argv, int argc)
 		}
 		tvs.tv_usec = 30000L;
 		tvs.tv_sec = 0;
+#ifdef IS_SOLARIS
+		int servresult = select(1024, &serverfds, NULL, NULL, &tvs);
+#else
 		int servresult = select(32767, &serverfds, NULL, NULL, &tvs);
+#endif
 		if (servresult > 0)
 		{
 			for (int x = 0; x != SERVERportCount; x++)
@@ -2969,7 +2973,7 @@ int InspIRCd(char** argv, int argc)
 							statsDnsBad++;
 							FullConnectUser(curr);
                                                         if (fd_ref_table[currfd] != curr) // something changed, bail pronto
-                                                                goto label;
+								goto label;                                                        
 						}
 		                                if ((curr->dns_done) && (curr->registered == 3) && (AllModulesReportReady(curr))) // both NICK and USER... and DNS
 		                                {
@@ -3091,14 +3095,26 @@ int InspIRCd(char** argv, int argc)
 				userrec* cu = fd_ref_table[ke.ident];
 #endif
 #ifdef USE_SELECT
+			tval.tv_sec = 0;
 			tval.tv_usec = 1000L;
+#ifdef IS_SOLARIS
+			selectResult2 = select(1024, &sfd, NULL, NULL, &tval);
+#else
 			selectResult2 = select(65535, &sfd, NULL, NULL, &tval);
+#endif
 			
 			// now loop through all of the items in this pool if any are waiting
-			if (selectResult2 > 0)
+			if ((selectResult2 > 0) && (xcount != clientlist.end()))
+#ifdef IS_SOLARIS
+			// on solaris, we cycle the entire list. Something is b0rked about referencing it by count2a.
+			for (user_hash::iterator count2a = clientlist.begin(); count2a != clientlist.end(); count2a++)
+#else
 			for (user_hash::iterator count2a = xcount; count2a != endingiter; count2a++)
+#endif
 			{
 				// SELECT: we have to iterate...
+				if (count2a == clientlist.end())
+					break;
 				userrec* cu = count2a->second;
 #endif
 
@@ -3239,7 +3255,9 @@ int InspIRCd(char** argv, int argc)
 
 							}
 						}
+#ifndef IS_SOLARIS
 						if ((currfd < 0) || (!fd_ref_table[currfd]))
+#endif
 							goto label;
 					}
 
