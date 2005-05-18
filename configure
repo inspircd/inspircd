@@ -438,11 +438,7 @@ sub writefiles {
 EOF
 
   if ($config{OSNAME} =~ /SunOS/) {
-    print "MOO!\n";
-    print FILENAME "#define IS_SOLARIS";
-  }
-  else {
-    print "NO MOO :( ->'" . $config{OSNAME} . "'\n";
+    print FILEHANDLE "#define IS_SOLARIS";
   }
   if ($config{GCCVER} > 3) {
     print FILEHANDLE "#define GCC3\n";
