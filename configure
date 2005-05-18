@@ -12,10 +12,10 @@
 ########################################
 
 
-$this = resolve_directory($ENV{PWD});						# PWD, Regardless.
+$this = resolve_directory(`pwd`);						# PWD, Regardless.
 @modlist = ();                                                  		# Declare for Module List..
 %config = ();                                                   		# Initiate Configuration Hash..
-$config{ME}                 = resolve_directory($ENV{PWD});			# Present Working Directory
+$config{ME}                 = resolve_directory(`pwd`);				# Present Working Directory
 $config{CONFIG_DIR}         = resolve_directory($config{ME}."/conf");		# Configuration Directory
 $config{MODULE_DIR}         = resolve_directory($config{ME}."/modules");	# Modules Directory
 $config{BINARY_DIR}         = resolve_directory($config{ME}."/bin");		# Binary Directory
