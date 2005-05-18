@@ -383,6 +383,10 @@ sub getosflags {
     $config{FLAGS}  = "-fPIC -frtti $OPTIMISATI -Woverloaded-virtual $config{OPTIMISATI}";
     $config{MAKEPROG} = "make";
   }
+  if ($config{OSNAME} eq "SunOS") {
+    # solaris/sunos needs these
+    $config{LDLIBS} = $config{LDLIBS} . " -lsocket -lnsl";
+  }
 }
 
 sub is_dir {
@@ -433,6 +437,9 @@ sub writefiles {
 #define MAXBUF 514
 EOF
 
+  if ($config{OSNAME} eq "SunOS")
+    print FILENAME "#define IS_SOLARIS";
+  }
   if ($config{GCCVER} > 3) {
     print FILEHANDLE "#define GCC3\n";
     print FILEHANDLE "#define GCC34\n";
