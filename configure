@@ -385,7 +385,10 @@ sub getosflags {
   }
   if ($config{OSNAME} =~ /SunOS/) {
     # solaris/sunos needs these
-    $config{LDLIBS} = $config{LDLIBS} . " -lsocket -lnsl";
+    # socket = bsd sockets api
+    # nsl = dns stuff
+    # rt = POSIX realtime extensions
+    $config{LDLIBS} = $config{LDLIBS} . " -lsocket -lnsl -lrt";
   }
 }
 
