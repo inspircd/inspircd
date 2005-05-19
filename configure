@@ -35,7 +35,10 @@ chomp($config{GCC34}        = `gcc -dumpversion | cut -c 3`);   		# Minor GCC Ve
 chomp($config{OSNAME}       = `/bin/uname -s`);                      		# Operating System Name
 
 if (!$config{OSNAME}) {
-  $config{OSNAME} = "Unknown";                                  # For use when uname fails.
+  chomp($config{OSNAME}       = `uname -s`);
+  if (!$config{OSNAME}) {
+	$config{OSNAME} = "Unknown";
+  }
 }
 
 if (!$config{MAX_CLIENT_T}) { 
