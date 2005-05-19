@@ -36,11 +36,11 @@ chomp($config{OSNAME}       = `/bin/uname`);                      		# Operating 
 
 print "OSN: '" . $config{OSNAME} . "'\n";
 
-if (!$config{OSNAME}) {
+if ((!$config{OSNAME}) || ($config{OSNAME} eq "")) {
   print "Running 2nd uname\n";
   chomp($config{OSNAME} = `/usr/bin/uname`);
   print "OSN: '" . $config{OSNAME} . "'\n";
-  if (!$config{OSNAME}) {
+  if ((!$config{OSNAME}) || ($config{OSNAME} eq "")){
 	$config{OSNAME} = "Unknown";
   }
 }
