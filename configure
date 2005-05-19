@@ -38,7 +38,7 @@ print "OSN: '" . $config{OSNAME} . "'\n";
 
 if (!$config{OSNAME}) {
   chomp($config{OSNAME} = `/usr/bin/uname`);
-  if ($config{OSNAME}) {
+  if (!$config{OSNAME}) {
 	$config{OSNAME} = "Unknown";
   }
 }
