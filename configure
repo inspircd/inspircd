@@ -509,6 +509,7 @@ EOF
       }
       close(FILEHANDLE);
 
+      $tmp =~ s/\@CC\@/$config{CC}/;
       $tmp =~ s/\@MAKEPROG\@/$config{MAKEPROG}/;
       $tmp =~ s/\@FLAGS\@/$config{FLAGS}/;
       $tmp =~ s/\@LDLIBS\@/$config{LDLIBS}/;
