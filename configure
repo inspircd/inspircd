@@ -385,6 +385,8 @@ sub getosflags {
     $config{MAKEPROG} = "gmake";
     if ($config{OSNAME} eq "OpenBSD") {
 	$config{CC} = "eg++";
+	chomp($config{GCCVER}       = `eg++ -dumpversion | cut -c 1`); # we must redo these if we change
+	chomp($config{GCC34}        = `eg++ -dumpversion | cut -c 3`); # the compiler path
     }
   } else {
     $config{LDLIBS} = "-ldl";
