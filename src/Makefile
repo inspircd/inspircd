@@ -12,7 +12,7 @@ CXXFLAGS = -I$../include ${FLAGS}
 all: libIRCDhash.so libIRCDchannels.so libIRCDmode.so libIRCDxline.so libIRCDstring.so libIRCDasyncdns.so libIRCDbase.so libIRCDutil.so libIRCDio.so libIRCDconnection.so libIRCDmessage.so libIRCDcommands.so libIRCDdnsqueue.so libIRCDdynamic.so libIRCDusers.so libIRCDmodules.so libIRCDwildcard.so libIRCDservers.so libIRCDhelper.so inspircd
 
 inspircd: inspircd.cpp ../include/base.h ../include/channels.h ../include/inspircd.h ../include/channels.h ../include/globals.h ../include/inspircd_config.h
-	$(CXX) -I../include $(FLAGS) -rdynamic -L. inspircd.cpp -o inspircd $(LDLIBS) libIRCDchannels.so libIRCDmode.so libIRCDxline.so libIRCDstring.so libIRCDasyncdns.so libIRCDbase.so libIRCDutil.so libIRCDio.so libIRCDconnection.so libIRCDmessage.so libIRCDcommands.so libIRCDdnsqueue.so libIRCDdynamic.so libIRCDusers.so libIRCDmodules.so libIRCDwildcard.so libIRCDservers.so libIRCDhelper.so libIRCDhash.so
+	$(CC) -I../include $(FLAGS) -rdynamic -L. inspircd.cpp -o inspircd $(LDLIBS) libIRCDchannels.so libIRCDmode.so libIRCDxline.so libIRCDstring.so libIRCDasyncdns.so libIRCDbase.so libIRCDutil.so libIRCDio.so libIRCDconnection.so libIRCDmessage.so libIRCDcommands.so libIRCDdnsqueue.so libIRCDdynamic.so libIRCDusers.so libIRCDmodules.so libIRCDwildcard.so libIRCDservers.so libIRCDhelper.so libIRCDhash.so
 
 libIRCDhash.so: hashcomp.cpp ../include/base.h ../include/hashcomp.h ../include/inspircd.h ../include/users.h ../include/globals.h ../include/inspircd_config.h
 	$(CC) -pipe -I../include $(FLAGS) -export-dynamic -c hashcomp.cpp
