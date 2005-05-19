@@ -7,7 +7,7 @@
 # Small modifications by <brain@ChatSpike.net>
 #
 
-CC = g++
+CC = @CC@
 MAKE = @MAKEPROG@
 PROGS = inspircd
 FLAGS = @FLAGS@
