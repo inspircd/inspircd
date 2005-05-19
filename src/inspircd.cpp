@@ -1081,6 +1081,8 @@ void kill_link(userrec *user,const char* r)
 		NetSendToAll(buffer);
 	}
 
+	user->FlushWriteBuf();
+
 	FOREACH_MOD OnUserDisconnect(user);
 
 	if (user->fd > -1)
@@ -1108,15 +1110,14 @@ void kill_link(userrec *user,const char* r)
                 shutdown(user->fd,2);
                 close(user->fd);
 	}
-	
-	if (user->registered == 7) {
+
+	// this must come before the WriteOpers so that it doesnt try to fill their buffer with anything
+	// if they were an oper with +s.
+        if (user->registered == 7) {
+                purge_empty_chans(user);
 		WriteOpers("*** Client exiting: %s!%s@%s [%s]",user->nick,user->ident,user->host,reason);
 		AddWhoWas(user);
 	}
-
-        if (user->registered == 7) {
-                purge_empty_chans(user);
-        }
 
 	if (iter != clientlist.end())
 	{
@@ -1144,6 +1145,8 @@ void kill_link_silent(userrec *user,const char* r)
 	log(DEBUG,"kill_link: %s '%s'",user->nick,reason);
 	Write(user->fd,"ERROR :Closing link (%s@%s) [%s]",user->ident,user->host,reason);
 	log(DEBUG,"closing fd %lu",(unsigned long)user->fd);
+
+	user->FlushWriteBuf();
 
 	if (user->registered == 7) {
 		FOREACH_MOD OnUserQuit(user);
