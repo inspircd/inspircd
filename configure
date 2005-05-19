@@ -296,6 +296,9 @@ writefiles();
 print "\n\n";
 print "To build your server with these settings, please type '\033[1;32m$config{MAKEPROG}\033[0m' now.\n";
 print "*** \033[1;32mRemember to edit your configuration files!!!\033[0m ***\n\n\n";
+if (($config{OSNAME} eq "OpenBSD") && ($config{CC} ne "eg++")) {
+	print "\033[1;32mWARNING!\033[0m You are running OpenBSD but you are using the base gcc package\nrather than eg++. This compile will most likely fail, but i'm letting you\ngo ahead with it anyway, just in case i'm wrong :-)\n";
+}
 
 ################################################################################
 #                              HELPER FUNCTIONS                                #
@@ -384,9 +387,15 @@ sub getosflags {
     $config{FLAGS}  = "-fPIC -frtti $OPTIMISATI -Woverloaded-virtual $config{OPTIMISATI}";
     $config{MAKEPROG} = "gmake";
     if ($config{OSNAME} eq "OpenBSD") {
-	$config{CC} = "eg++";
-	chomp($config{GCCVER}       = `eg++ -dumpversion | cut -c 1`); # we must redo these if we change
-	chomp($config{GCC34}        = `eg++ -dumpversion | cut -c 3`); # the compiler path
+	chomp($foo = `eg++ -dumpversion | cut -c 1`);
+	# theyre running the package version of gcc (eg++)... detect it and set up its version numbers.
+	# if theyre not running this, configure lets the build continue but they probably wont manage to
+	# compile as this standard version is 2.95.3!
+	if ($foo ne "") {
+		$config{CC} = "eg++";
+		chomp($config{GCCVER}       = `eg++ -dumpversion | cut -c 1`); # we must redo these if we change
+		chomp($config{GCC34}        = `eg++ -dumpversion | cut -c 3`); # the compiler path
+	}
     }
   } else {
     $config{LDLIBS} = "-ldl";
