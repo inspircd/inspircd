@@ -374,7 +374,7 @@ sub dir_check {
 }
 
 sub getosflags {
-  if ($config{OSNAME} eq "FreeBSD") {
+  if ($config{OSNAME} =~ /BSD$/) {
     $config{LDLIBS} = "-Ldl";
     $config{FLAGS}  = "-fPIC -frtti $OPTIMISATI -Woverloaded-virtual $config{OPTIMISATI}";
     $config{MAKEPROG} = "gmake";
