@@ -34,12 +34,8 @@ chomp($config{GCCVER}       = `gcc -dumpversion | cut -c 1`);   		# Major GCC Ve
 chomp($config{GCC34}        = `gcc -dumpversion | cut -c 3`);   		# Minor GCC Version
 chomp($config{OSNAME}       = `/bin/uname`);                      		# Operating System Name
 
-print "OSN: '" . $config{OSNAME} . "'\n";
-
 if ((!$config{OSNAME}) || ($config{OSNAME} eq "")) {
-  print "Running 2nd uname\n";
   chomp($config{OSNAME} = `/usr/bin/uname`);
-  print "OSN: '" . $config{OSNAME} . "'\n";
   if ((!$config{OSNAME}) || ($config{OSNAME} eq "")){
 	$config{OSNAME} = "Unknown";
   }
