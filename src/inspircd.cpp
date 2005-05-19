@@ -3253,10 +3253,7 @@ int InspIRCd(char** argv, int argc)
 
 							}
 						}
-#ifndef IS_SOLARIS
-						if ((currfd < 0) || (!fd_ref_table[currfd]))
-#endif
-							goto label;
+						goto label;
 					}
 
 					if ((result == -1) && (errno != EAGAIN) && (errno != EINTR))
