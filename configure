@@ -37,7 +37,9 @@ chomp($config{OSNAME}       = `/bin/uname`);                      		# Operating 
 print "OSN: '" . $config{OSNAME} . "'\n";
 
 if (!$config{OSNAME}) {
+  print "Running 2nd uname\n";
   chomp($config{OSNAME} = `/usr/bin/uname`);
+  print "OSN: '" . $config{OSNAME} . "'\n";
   if (!$config{OSNAME}) {
 	$config{OSNAME} = "Unknown";
   }
