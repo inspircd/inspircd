@@ -29,14 +29,14 @@ $config{MAXI_MODES}         = "20";                             		# Default Max.
 $config{HAS_STRLCPY}        = "false";                          		# strlcpy Check.
 $config{USE_KQUEUE}         = "y";						# kqueue enabled
 $config{USE_EPOLL}          = "y";						# epoll enabled
-$config{STATIC_LINK}	    = "no";
+$config{STATIC_LINK}	    = "no";						# are doing static modules?
 chomp($config{MAX_CLIENT_T} = `sh -c \"ulimit -n\"`);           		# FD Limit
 chomp($config{GCCVER}       = `gcc -dumpversion | cut -c 1`);   		# Major GCC Version
 chomp($config{GCC34}        = `gcc -dumpversion | cut -c 3`);   		# Minor GCC Version
 chomp($config{OSNAME}       = `/bin/uname`);                      		# Operating System Name
 $config{CC} 		    = "g++";						# C++ compiler
-$config{MAKEORDER}	    = "ircd mods config bininst";
-$config{STATICLIBS}         = "";
+$config{MAKEORDER}	    = "ircd mods config bininst";			# build order
+$config{STATICLIBS}         = "";						# library archive path
 
 if ((!$config{OSNAME}) || ($config{OSNAME} eq "")) {
   chomp($config{OSNAME} = `/usr/bin/uname`);
@@ -308,7 +308,13 @@ if (($config{OSNAME} eq "OpenBSD") && ($config{CC} ne "eg++")) {
 	print "\033[1;32mWARNING!\033[0m You are running OpenBSD but you are using the base gcc package\nrather than eg++. This compile will most likely fail, but i'm letting you\ngo ahead with it anyway, just in case i'm wrong :-)\n";
 }
 if ($config{OSNAME} =~ /CYGWIN/) {
-	print "\033[1;32mWARNING!\033[0m CYGWIN does not properly support shared modules,\nso modules are unavailable on this platform.\nThe modules will build as .o files but will not be available for use.\nYou will be able to run the core ircd file (inspircd.exe) as normal.\n";
+	print <<FOO;
+\033[1;32mWARNING!\033[0m CYGWIN does not properly support shared modules,
+so modules will be compiled statically into the core of the ircd. The modules
+will act like they are being loaded from disk and being unloaded from RAM,
+however they are in fact being enabled and disabled similar to features in
+other ircds.
+FOO
 }
 
 ################################################################################
