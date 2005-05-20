@@ -31,7 +31,8 @@
 	line6="KICK     MODE    TOPIC   WHO         MOTD"
 	line7="RULES    OPER    LIST    LUSERS      STATS"
 	line8="USERHOST AWAY    ISON    SUMMON      USERS"
-	line9="INVITE   PASS    WHOWAS  LINKS       MAP">
+	line9="INVITE   PASS    WHOWAS  LINKS       MAP"
+	line10="COMMANDS MODULES">
 
 <user line1="/USER [ident] [local host] [remote host] :[GECOS]"
 	line2="This command is used by your client to register your irc session."
@@ -241,6 +242,9 @@
 <restart line1="/RESTART [password]"
 	line2="If the correct password is provided, and you are an operator,"
 	line3="This command will restart the local server.">
+
+<commands line1="/COMMANDS"
+	line2="Shows all currently available commands.">
 
 <kill line1="/KILL [user] [reason]"
 	line2="This command will disconnect a user from IRC with the given"
