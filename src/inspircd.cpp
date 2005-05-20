@@ -2836,11 +2836,7 @@ int InspIRCd(char** argv, int argc)
 		}
 		tvs.tv_usec = 30000L;
 		tvs.tv_sec = 0;
-#ifdef IS_SOLARIS
-		int servresult = select(1024, &serverfds, NULL, NULL, &tvs);
-#else
-		int servresult = select(32767, &serverfds, NULL, NULL, &tvs);
-#endif
+		int servresult = select(FD_SETSIZE, &serverfds, NULL, NULL, &tvs);
 		if (servresult > 0)
 		{
 			for (int x = 0; x != SERVERportCount; x++)
@@ -3100,12 +3096,7 @@ int InspIRCd(char** argv, int argc)
 #ifdef USE_SELECT
 			tval.tv_sec = 0;
 			tval.tv_usec = 1000L;
-#ifdef IS_SOLARIS
-			selectResult2 = select(1024, &sfd, NULL, NULL, &tval);
-#else
-			selectResult2 = select(65535, &sfd, NULL, NULL, &tval);
-#endif
-			
+			selectResult2 = select(FD_SETSIZE, &sfd, NULL, NULL, &tval);
 			// now loop through all of the items in this pool if any are waiting
 			if ((selectResult2 > 0) && (xcount != clientlist.end()))
 			for (user_hash::iterator count2a = xcount; count2a != endingiter; count2a++)
