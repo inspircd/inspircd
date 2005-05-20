@@ -2440,17 +2440,25 @@ bool UnloadModule(const char* filename)
 bool LoadModule(const char* filename)
 {
 	char modfile[MAXBUF];
+#ifdef STATIC_LINK
+	snprintf(modfile,MAXBUF,"%s",filename);
+#else
 	snprintf(modfile,MAXBUF,"%s/%s",ModPath,filename);
+#endif
 	std::string filename_str = filename;
+#ifndef STATIC_LINK
 	if (!DirValid(modfile))
 	{
 		log(DEFAULT,"Module %s is not within the modules directory.",modfile);
 		snprintf(MODERR,MAXBUF,"Module %s is not within the modules directory.",modfile);
 		return false;
 	}
+#endif
 	log(DEBUG,"Loading module: %s",modfile);
+#ifndef STATIC_LINK
         if (FileExists(modfile))
         {
+#endif
 		for (int j = 0; j < module_names.size(); j++)
 		{
 			if (module_names[j] == filename_str)
@@ -2483,6 +2491,7 @@ bool LoadModule(const char* filename)
 			snprintf(MODERR,MAXBUF,"Factory function failed!");
 			return false;
                 }
+#ifndef STATIC_LINK
         }
         else
         {
@@ -2490,6 +2499,7 @@ bool LoadModule(const char* filename)
 		snprintf(MODERR,MAXBUF,"Module file could not be found");
 		return false;
         }
+#endif
 	MODCOUNT++;
 	return true;
 }

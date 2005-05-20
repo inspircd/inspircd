@@ -18,6 +18,9 @@
 #ifndef __DLL_H
 #define __DLL_H
 
+typedef void * (initfunc) (void);
+
+#include "inspircd_config.h"
 
 class DLLManager
 {
@@ -26,7 +29,11 @@ class DLLManager
 	virtual ~DLLManager();
 
 
+#ifdef STATIC_LINK
+	bool GetSymbol( initfunc* &v, const char *sym_name );
+#else
 	bool GetSymbol( void **, const char *sym_name );
+#endif
 
 	const char *LastError() 
 	{
@@ -35,7 +42,10 @@ class DLLManager
 	
  protected:
 	void *h;
-	const char *err;
+	char *err;
+#ifdef STATIC_LINK
+	char staticname[1024];
+#endif
 };
 
 
@@ -44,7 +54,11 @@ class DLLFactoryBase : public DLLManager
  public:
 	DLLFactoryBase(const char *fname, const char *func_name = 0);
 	virtual ~DLLFactoryBase();
+#ifdef STATIC_LINK
+	initfunc *factory_func;
+#else
 	void * (*factory_func)(void);	
+#endif
 };
 
 

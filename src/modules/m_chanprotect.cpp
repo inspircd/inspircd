@@ -24,7 +24,7 @@ using namespace std;
 
 /* $ModDesc: Provides channel modes +a and +q */
 
-char dummyvalue[] = "on";
+char fakevalue[] = "on";
 
 class ModuleChanProtect : public Module
 {
@@ -107,7 +107,7 @@ class ModuleChanProtect : public Module
 				// this way is best as it adds data thats accessible to other modules
 				// (so long as you document your code properly) without breaking anything
 				// because its encapsulated neatly in a map.
-				if (user->Extend("cm_founder_"+std::string(channel->name),dummyvalue))
+				if (user->Extend("cm_founder_"+std::string(channel->name),fakevalue))
 				{
 					Srv->Log(DEBUG,"Marked user "+std::string(user->nick)+" as founder for "+std::string(channel->name));
 				}
@@ -222,7 +222,7 @@ class ModuleChanProtect : public Module
    				{
    					if (!theuser->GetExt("cm_founder_"+std::string(chan->name)))
    					{
-						theuser->Extend("cm_founder_"+std::string(chan->name),dummyvalue);
+						theuser->Extend("cm_founder_"+std::string(chan->name),fakevalue);
 						return 1;
 					}
 				}
@@ -265,7 +265,7 @@ class ModuleChanProtect : public Module
    				{
    					if (!theuser->GetExt("cm_protect_"+std::string(chan->name)))
    					{
-						theuser->Extend("cm_protect_"+std::string(chan->name),dummyvalue);
+						theuser->Extend("cm_protect_"+std::string(chan->name),fakevalue);
 						return 1;
 					}
 				}

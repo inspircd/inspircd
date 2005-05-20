@@ -29,11 +29,14 @@ $config{MAXI_MODES}         = "20";                             		# Default Max.
 $config{HAS_STRLCPY}        = "false";                          		# strlcpy Check.
 $config{USE_KQUEUE}         = "y";						# kqueue enabled
 $config{USE_EPOLL}          = "y";						# epoll enabled
+$config{STATIC_LINK}	    = "no";
 chomp($config{MAX_CLIENT_T} = `sh -c \"ulimit -n\"`);           		# FD Limit
 chomp($config{GCCVER}       = `gcc -dumpversion | cut -c 1`);   		# Major GCC Version
 chomp($config{GCC34}        = `gcc -dumpversion | cut -c 3`);   		# Minor GCC Version
 chomp($config{OSNAME}       = `/bin/uname`);                      		# Operating System Name
 $config{CC} 		    = "g++";						# C++ compiler
+$config{MAKEORDER}	    = "ircd mods config bininst";
+$config{STATICLIBS}         = "";
 
 if ((!$config{OSNAME}) || ($config{OSNAME} eq "")) {
   chomp($config{OSNAME} = `/usr/bin/uname`);
@@ -292,7 +295,8 @@ print "\033[0mMax channel length:\033[1;32m\t\t$config{CHAN_LENGT}\n";
 print "\033[0mMax mode length:\033[1;32m\t\t$config{MAXI_MODES}\n";
 print "\033[0mGCC Version Found:\033[1;32m\t\t$config{GCCVER}.$config{GCC34}\n";
 print "\033[0mOptimatizaton Flag:\033[1;32m\t\t$config{OPTIMISATI}\033[0m\n";
-print "\033[0mCompiler program:\033[1;32m\t\t$config{CC}\033[0m\n\n";
+print "\033[0mCompiler program:\033[1;32m\t\t$config{CC}\033[0m\n";
+print "\033[0mStatic modules:\033[1;32m\t\t\t$config{STATIC_LINK}\033[0m\n\n";
 
 makecache();
 writefiles();
@@ -412,6 +416,9 @@ sub getosflags {
        $config{FLAGS}  = "-frtti $OPTIMISATI -Woverloaded-virtual $config{OPTIMISATI}";
        $config{LDLIBS} = "";
        $config{MAKEPROG} = "/usr/bin/make";
+       $config{MAKEORDER} = "mods ircd config bininst";
+       $config{STATICLIBS} = "modules/mods.a";
+       $config{STATIC_LINK} = "yes";
     }
   }
   if ($config{OSNAME} =~ /SunOS/) {
@@ -442,7 +449,10 @@ sub getmodules {
   foreach $name (sort readdir(DIRHANDLE)) {
     if ($name =~ /^m_(.+)\.cpp$/)
     {
-      $modlist[$i++] = $1;
+      $mod = $1;
+      if ($mod !~ /_static$/) {
+	      $modlist[$i++] = $mod;
+      }
     }
   }
   closedir(DIRHANDLE);
@@ -474,6 +484,9 @@ EOF
 
   if ($config{OSNAME} =~ /SunOS/) {
     print FILEHANDLE "#define IS_SOLARIS\n";
+  }
+  if ($config{STATIC_LINK} eq "yes") {
+    print FILEHANDLE "#define STATIC_LINK\n";
   }
   if ($config{GCCVER} > 3) {
     print FILEHANDLE "#define GCC3\n";
@@ -553,6 +566,8 @@ EOF
       $tmp =~ s/\@LIBRARY_DIR\@/$config{LIBRARY_DIR}/;
       $tmp =~ s/\@MODULES\@/$modules/;
       $tmp =~ s/\@EXECUTABLE\@/$exe/;
+      $tmp =~ s/\@MAKEORDER\@/$config{MAKEORDER}/;
+      $tmp =~ s/\@STATICLIBS\@/$config{STATICLIBS}/;
 
       print "Writing \033[1;32m$file\033[0m\n";
       open(FILEHANDLE, ">$file");
@@ -573,6 +588,7 @@ EOF
 	write_dynamic_makefile();
   }
 
+
   # Modules Makefile..
   print "Writing \033[1;32msrc/modules/Makefile\033[0m\n";
   open(FILEHANDLE, ">src/modules/Makefile");
@@ -592,18 +608,50 @@ EOF
   # Create a Modules List..
   my $modules = "";
   my $flags = "";
+  if ($config{OSNAME} =~ /CYGWIN/) {
+     open(MODLIST,">include/modlist.h");
+     print MODLIST <<HEADER;
+// Generated automatically by configure. DO NOT EDIT!
+
+#ifndef __SYMBOLS__H_CONFIGURED__
+#define __SYMBOLS__H_CONFIGURED__
+
+HEADER
+     foreach $i (@modlist) {
+	if ($i !~ /_static$/) {
+	        print MODLIST "extern \"C\" void * $i\_init (void);\n";
+	}
+     }
+     print MODLIST "\nstruct {const char *name; initfunc *value; } modsyms[] = {\n";
+  }
   foreach $i (@modlist)
   {
-    $flags = getcompilerflags("src/modules/m_".$i.".cpp");
-    if ($config{OSNAME} =~ /CYGWIN/) {
-       print FILEHANDLE <<EOCHEESE;
-m_$i.o: m_$i.cpp ../../include/modules.h ../../include/users.h ../../include/channels.h ../../include/servers.h ../../include/base.h
-	\$(CC) -pipe -I../../include \$(FLAGS) $flags -export-dynamic -c m_$i.cpp
+    if ($i !~ /_static$/) {
+     $flags = getcompilerflags("src/modules/m_".$i.".cpp");
+     if ($config{OSNAME} =~ /CYGWIN/) {
+        print FILEHANDLE <<EOCHEESE;
+m_$i.o: m_$i\_static.cpp ../../include/modules.h ../../include/users.h ../../include/channels.h ../../include/servers.h ../../include/base.h
+	\$(CC) -pipe -I../../include \$(FLAGS) $flags -export-dynamic -c m_$i\_static.cpp
+	mv m_$i\_static.o ../m_$i.o
 
 EOCHEESE
-    }
-    else {
-        print FILEHANDLE <<EOCHEESE;
+        print "Configuring module [\033[1;32mm_$i.so\033[0m] for static linking... ";
+        open(MODULE,"<src/modules/m_".$i.".cpp") or die("Could not open m_".$i.".cpp");
+        open(MUNGED,">src/modules/m_".$i."_static.cpp") or die("Could not create m_".$i."_static.cpp");
+        while (chomp($a = <MODULE>)) { 
+		$a =~ s/init_module/$i\_init/g;
+		$a =~ s/Srv/$i\Srv/g;
+		print MUNGED "$a\n";
+        }
+        close(MODULE);
+        close(MUNGED);
+        print MODLIST <<EOENT;
+{"m_$i.so",\&$i\_init},
+EOENT
+        print "done\n";
+     }
+     else {
+         print FILEHANDLE <<EOCHEESE;
 m_$i.so: m_$i.cpp ../../include/modules.h ../../include/users.h ../../include/channels.h ../../include/servers.h ../../include/base.h
 	\$(CC) -pipe -I../../include \$(FLAGS) $flags -export-dynamic -c m_$i.cpp
 	\$(CC) \$(FLAGS) -shared $flags -o m_$i.so m_$i.o
@@ -611,7 +659,12 @@ m_$i.so: m_$i.cpp ../../include/modules.h ../../include/users.h ../../include/ch
 	chmod 0700 \$(MODPATH)/m_$i.so
 
 EOCHEESE
-     }
+      }
+   }
+  }
+  if ($config{OSNAME} =~ /CYGWIN/) {
+     print MODLIST "{0}};\n\n#endif\n";
+     close(MODLIST);
   }
 }
 
@@ -673,10 +726,10 @@ CC = im a cheezeball
 
 CXXFLAGS = -I../include \${FLAGS}
 
-all: hashcomp.o channels.o mode.o xline.o inspstring.o dns.o base.o inspircd_util.o inspircd_io.o connection.o message.o commands.o dnsqueue.o dynamic.o users.o modules.o wildcard.o servers.o helperfuncs.o inspircd.exe
+all: hashcomp.o channels.o mode.o xline.o inspstring.o dns.o base.o inspircd_util.o inspircd_io.o connection.o message.o commands.o dnsqueue.o dynamic.o users.o modules.o wildcard.o servers.o helperfuncs.o \$(MODULES) inspircd.exe
 
 inspircd.exe: inspircd.cpp ../include/base.h ../include/channels.h ../include/inspircd.h ../include/channels.h ../include/globals.h ../include/inspircd_config.h
-	\$(CC) -I../include \$(FLAGS) inspircd.cpp -o inspircd.exe \$(LDLIBS) channels.o mode.o xline.o inspstring.o dns.o base.o inspircd_util.o inspircd_io.o connection.o message.o commands.o dnsqueue.o dynamic.o users.o modules.o wildcard.o servers.o helperfuncs.o hashcomp.o
+	\$(CC) -I../include \$(FLAGS) inspircd.cpp -o inspircd.exe \$(LDLIBS) channels.o mode.o xline.o inspstring.o dns.o base.o inspircd_util.o inspircd_io.o connection.o message.o commands.o dnsqueue.o dynamic.o users.o modules.o wildcard.o servers.o helperfuncs.o hashcomp.o \$(MODULES)
 
 hashcomp.o: hashcomp.cpp ../include/base.h ../include/hashcomp.h ../include/inspircd.h ../include/users.h ../include/globals.h ../include/inspircd_config.h
 	\$(CC) -pipe -I../include \$(FLAGS) -export-dynamic -c hashcomp.cpp
