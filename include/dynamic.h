@@ -25,17 +25,17 @@ typedef void * (initfunc) (void);
 class DLLManager
 {
  public:
-	DLLManager( const char *fname );
+	DLLManager(char *fname);
 	virtual ~DLLManager();
 
 
 #ifdef STATIC_LINK
-	bool GetSymbol( initfunc* &v, const char *sym_name );
+	bool GetSymbol( initfunc* &v, char *sym_name );
 #else
-	bool GetSymbol( void **, const char *sym_name );
+	bool GetSymbol( void **, char *sym_name );
 #endif
 
-	const char *LastError() 
+	char *LastError() 
 	{
 		 return err;
 	}
@@ -52,7 +52,7 @@ class DLLManager
 class DLLFactoryBase : public DLLManager
 {
  public:
-	DLLFactoryBase(const char *fname, const char *func_name = 0);
+	DLLFactoryBase(char *fname, char *func_name = 0);
 	virtual ~DLLFactoryBase();
 #ifdef STATIC_LINK
 	initfunc *factory_func;
@@ -65,7 +65,7 @@ class DLLFactoryBase : public DLLManager
 template <class T> class DLLFactory : public DLLFactoryBase
 {
  public:
-	DLLFactory(const char *fname, const char *func_name=0) : DLLFactoryBase(fname,func_name)
+	DLLFactory(char *fname, char *func_name=0) : DLLFactoryBase(fname,func_name)
 	{
 		if (factory_func)
 			factory = (T*)factory_func();

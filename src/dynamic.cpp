@@ -29,7 +29,7 @@ using namespace std;
 #include "inspstring.h"
 #include "helperfuncs.h"
 
-DLLManager::DLLManager(const char *fname)
+DLLManager::DLLManager(char *fname)
 {
 #ifdef STATIC_LINK
 	this->staticname[0] = '\0';
@@ -50,7 +50,7 @@ DLLManager::DLLManager(const char *fname)
     // Try to open the library now and get any error message.
 	
 	h = dlopen( fname, RTLD_NOW );
-	err = dlerror();
+	err = (char*)dlerror();
 #endif
 }
 
@@ -67,7 +67,7 @@ DLLManager::~DLLManager()
 
 #ifdef STATIC_LINK
 
-bool DLLManager::GetSymbol(initfunc* &v, const char *sym_name)
+bool DLLManager::GetSymbol(initfunc* &v, char *sym_name)
 {
 	log(DEBUG,"Symbol search...");
 	for (int j = 0; modsyms[j].name; j++)
@@ -86,7 +86,7 @@ bool DLLManager::GetSymbol(initfunc* &v, const char *sym_name)
 
 #else
 
-bool DLLManager::GetSymbol(void **v, const char *sym_name)
+bool DLLManager::GetSymbol(void **v, char *sym_name)
 {
 	// try extract a symbol from the library
 	// get any error message is there is any
@@ -94,7 +94,7 @@ bool DLLManager::GetSymbol(void **v, const char *sym_name)
 	if(h != 0)
 	{
 		*v = dlsym( h, sym_name );
-		err = dlerror();
+		err = (char*)dlerror();
 		if( err == 0 )
 			return true;
 	    	else
@@ -108,7 +108,7 @@ bool DLLManager::GetSymbol(void **v, const char *sym_name)
 
 #endif
 
-DLLFactoryBase::DLLFactoryBase(const char *fname, const char *factory) : DLLManager(fname)
+DLLFactoryBase::DLLFactoryBase(char *fname, char *factory) : DLLManager(fname)
 {
 	// try get the factory function if there is no error yet
 	
