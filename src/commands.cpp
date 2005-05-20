@@ -189,11 +189,11 @@ void handle_part(char **parameters, int pcnt, userrec *user)
 
 void handle_commands(char **parameters, int pcnt, userrec *user)
 {
-	for (int i = 0; i < command_table.size(); i++)
+	for (int i = 0; i < cmdlist.size(); i++)
 	{
-		WriteServ(user->fd,"902 %s :%s %s %d",user->nick,command_table[i].command,command_table[i].source,command_table[i].min_params);
+		WriteServ(user->fd,"902 %s :%s %s %d",user->nick,cmdlist[i].command,cmdlist[i].source,cmdlist[i].min_params);
 	}
-	WriteServ(user->fd,"903 %s :End of COMMANDS list");
+	WriteServ(user->fd,"903 %s :End of COMMANDS list",user->nick);
 }
 
 void handle_kick(char **parameters, int pcnt, userrec *user)
