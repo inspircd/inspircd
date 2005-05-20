@@ -18,6 +18,7 @@
 my $conffile = "@CONFIG_DIR@/inspircd.conf";
 my $binpath = "@BINARY_DIR@";
 my $libpath = "@LIBRARY_DIR@";
+my $executable = "@EXECUTABLE@";
 
 $ENV{"LD_LIBRARY_PATH"} = $ENV{"LD_LIBRARY_PATH"} . ":/usr/local/lib/mysql:/usr/lib/mysql:$libpath";
 
@@ -83,7 +84,7 @@ sub start {
         # Check to see its not 'running' already.
         if (getstatus() == 1) { print "InspIRCd is already running.\n"; return 0; }
         # If we are still alive here.. Try starting the IRCd..
-        system("$binpath/inspircd");
+        system("$binpath/$executable");
         sleep 1;
         if (getstatus() == 0) {
                 print "InspIRCd Seemingly not started, Log follows:\n";
@@ -98,7 +99,7 @@ sub debug {
         # Check to see its not 'running' already.
         if (getstatus() == 1) { print "InspIRCd is already running.\n"; return 0; }
         # If we are still alive here.. Try starting the IRCd..
-        system("gdb --args $binpath/inspircd -nofork -debug");
+        system("gdb --args $binpath/$executable -nofork -debug");
 }
 
 
