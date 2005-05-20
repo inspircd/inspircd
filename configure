@@ -112,7 +112,7 @@ if (!$fail)
         {
                 # try and find the delcaration of:
 		# int kqueue(void);
-		if (($line =~ /int(\0x9|\s)+kqueue(\0x9|\s)+\(/) || ($line =~ /int(\0x9|\s)+kqueue\(/))
+		if ($line =~ /int(\0x9|\s)+kqueue/)
 		{
 			$has_kqueue = 1;
 		}
