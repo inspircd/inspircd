@@ -92,7 +92,7 @@ if (!$fail)
 	{
 		# try and find the delcaration of:
 		# size_t strlcpy(...)
-		if (($line =~ /size_t(\0x9|\s)+strlcpy(\0x9|\s)+\(/) || ($line =~ /size_t(\0x9|\s)+strlcpy\(/))
+		if ($line =~ /size_t(\0x9|\s)+strlcpy/)
 		{
 			$config{HAS_STRLCPY} = "true";
 		}
