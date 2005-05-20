@@ -117,9 +117,9 @@ DLLFactoryBase::DLLFactoryBase(char *fname, char *factory) : DLLManager(fname)
 	if(LastError() == 0)
 	{
 #ifdef STATIC_LINK
-		GetSymbol( factory_func, factory ? factory : "init_module" );
+		GetSymbol( factory_func, factory ? factory : (char*)"init_module" );
 #else
-		GetSymbol( (void **)&factory_func, factory ? factory : "init_module" );
+		GetSymbol( (void **)&factory_func, factory ? factory : (char*)"init_module" );
 #endif
 	}
 }
