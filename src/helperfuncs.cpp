@@ -1490,6 +1490,7 @@ void SetupCommandTable(void)
         createcommand("LOADMODULE",handle_loadmodule,'o',1,"<core>");
         createcommand("UNLOADMODULE",handle_unloadmodule,'o',1,"<core>");
         createcommand("SERVER",handle_server,0,0,"<core>");
+	createcommand("COMMANDS",handle_commands,0,0,"<core>");
 }
 
 bool DirValid(char* dirandfile)

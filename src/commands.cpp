@@ -187,6 +187,15 @@ void handle_part(char **parameters, int pcnt, userrec *user)
 	}
 }
 
+void handle_commands(char **parameters, int pcnt, userrec *user)
+{
+	for (int i = 0; i < command_table.size(); i++)
+	{
+		WriteServ(user->fd,"902 %s :%s %s",user->nick,command_table[i].command,command_table[i].source);
+	}
+	WriteServ(user->fd,"903 %s :End of COMMANDS list");
+}
+
 void handle_kick(char **parameters, int pcnt, userrec *user)
 {
 	chanrec* Ptr = FindChan(parameters[0]);

@@ -81,6 +81,7 @@ void handle_eline(char **parameters, int pcnt, userrec *user);
 void handle_server(char **parameters, int pcnt, userrec *user);
 void handle_loadmodule(char **parameters, int pcnt, userrec *user);
 void handle_unloadmodule(char **parameters, int pcnt, userrec *user);
+void handle_commands(char **parameters, int pcnt, userrec *user);
 
 /** Special functions for processing server to server traffic
  */
