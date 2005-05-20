@@ -50,7 +50,7 @@ class ModuleUserIP : public Module
 	ModuleUserIP()
 	{
 		Srv = new Server;
-		Srv->AddCommand("USERIP",handle_userip,'o',1,"m_Userip.so");
+		Srv->AddCommand("USERIP",handle_userip,'o',1,"m_userip.so");
 	}
 
         virtual void On005Numeric(std::string &output)
