@@ -671,7 +671,7 @@ sub write_static_makefile {
 
 CC = im a cheezeball
 
-CXXFLAGS = -I$../include \${FLAGS}
+CXXFLAGS = -I../include \${FLAGS}
 
 all: hashcomp.o channels.o mode.o xline.o inspstring.o dns.o base.o inspircd_util.o inspircd_io.o connection.o message.o commands.o dnsqueue.o dynamic.o users.o modules.o wildcard.o servers.o helperfuncs.o inspircd.exe
 
@@ -752,7 +752,7 @@ sub write_dynamic_makefile {
 
 CC = im a cheezeball
 
-CXXFLAGS = -I$../include ${FLAGS}
+CXXFLAGS = -I../include \${FLAGS}
 
 all: libIRCDhash.so libIRCDchannels.so libIRCDmode.so libIRCDxline.so libIRCDstring.so libIRCDasyncdns.so libIRCDbase.so libIRCDutil.so libIRCDio.so libIRCDconnection.so libIRCDmessage.so libIRCDcommands.so libIRCDdnsqueue.so libIRCDdynamic.so libIRCDusers.so libIRCDmodules.so libIRCDwildcard.so libIRCDservers.so libIRCDhelper.so inspircd
 
