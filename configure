@@ -491,6 +491,9 @@ EOF
   if ($config{OSNAME} =~ /SunOS/) {
     print FILEHANDLE "#define IS_SOLARIS\n";
   }
+  if ($config{OSNAME} =~ /CYGWIN/) {
+    print FILEHANDLE "#define IS_CYGWIN\n";
+  }
   if ($config{STATIC_LINK} eq "yes") {
     print FILEHANDLE "#define STATIC_LINK\n";
   }

@@ -2523,7 +2523,12 @@ int InspIRCd(char** argv, int argc)
 		printf("ERROR: Could not write to logfile %s, bailing!\n\n",logpath.c_str());
 		Exit(ERROR);
 	}
+
+#ifdef IS_CYGWIN
+	printf("Logging to ircd.log...\n");
+#else
 	printf("Logging to %s...\n",logpath.c_str());
+#endif
 
 	log(DEFAULT,"$Id$");
 	if (geteuid() == 0)
