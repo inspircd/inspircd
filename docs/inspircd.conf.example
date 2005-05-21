@@ -590,6 +590,11 @@
 # Timed bans module: Adds timed bans and the /TBAN command
 #<module name="m_timedbans.so">
 
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Oper modes module: Allows you to specify modes to add/remove on oper
+#<module name="m_opermodes.so">
+
+
 #-#-#-#-#-#-#-#-#-#-#-  FILTER  CONFIGURATION  -#-#-#-#-#-#-#-#-#-#-#-#
 #                                                                     #
 # Optional - If you specify to use the m_filter.so module, then       #
