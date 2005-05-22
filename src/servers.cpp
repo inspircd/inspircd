@@ -157,7 +157,7 @@ bool serverrec::BeginLink(char* targethost, int newport, char* password, char* s
                         // targethost has been turned into an ip...
                         // we dont want this as the server name.
                         connector.SetServerName(servername);
-                        snprintf(connect,MAXBUF,"S %s %s %lu %lu :%s",getservername().c_str(),password,(unsigned long)myport,(unsigned long)GetRevision(),getserverdesc().c_str());
+                        snprintf(connect,MAXBUF,"S %s %s %lu %s :%s",getservername().c_str(),password,(unsigned long)myport,GetRevision().c_str(),getserverdesc().c_str());
                         connector.SetState(STATE_NOAUTH_OUTBOUND);
                         connector.SetHostAndPort(targethost, newport);
                         this->connectors.push_back(connector);

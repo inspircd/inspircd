@@ -3283,9 +3283,9 @@ void handle_link_packet(char* tcp_msg, char* tcp_host, serverrec *serv,char* tcp
 			return;
 		}
 
-		if (atoi(revision) != GetRevision())
+		if (std::string(revision) != GetRevision())
 		{
-			WriteOpers("CONNECT aborted: Could not link to %s, is an incompatible version %s, our version is %d",servername,revision,GetRevision());
+			WriteOpers("CONNECT aborted: Could not link to %s, is an incompatible version %s, our version is %s",servername,revision,GetRevision().c_str());
 			char buffer[MAXBUF];
 			snprintf(buffer,MAXBUF,"E :Version number mismatch");
 			serv->SendPacket(buffer,tcp_host);

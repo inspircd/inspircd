@@ -188,7 +188,7 @@ void DeleteOper(userrec* user)
         }
 }
 
-long GetRevision()
+std::string GetRevision()
 {
 	char Revision[] = "$Revision$";
 	char *s1 = Revision;
@@ -197,7 +197,7 @@ long GetRevision()
 	s1 = savept;
 	v2 = strtok_r(s1," ",&savept);
 	s1 = savept;
-	return (long)(atof(v2)*10000);
+	return std::string(v2);
 }
 
 
