@@ -392,7 +392,12 @@ bool serverrec::RecvPacket(std::deque<std::string> &messages, char* recvhost,std
                         int pushed = 0;
                         if (rcvsize > 0)
                         {
-                                this->connectors[i].AddBuffer(data);
+                                if (!this->connectors[i].AddBuffer(data))
+				{
+					WriteOpers("*** Read buffer for %s exceeds maximum, closing connection!",this->connectors[i].GetServerName().c_str());
+					this->connectors[i].CloseConnection();
+					this->connectors[i].SetState(STATE_DISCONNECTED);
+				}
                                 if (this->connectors[i].BufferIsComplete())
                                 {
                                         while (this->connectors[i].BufferIsComplete())

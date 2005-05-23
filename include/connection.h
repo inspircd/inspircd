@@ -185,11 +185,10 @@ class ircd_connector : public Extensible
 	void CloseConnection();
 
 	/** This method adds text to the ircd connection's buffer
-	 * There is no limitation on how much text of what line width may
-	 * be added to this buffer. It is the sending server's responsibility
-	 * to ensure sent data is kept within reasonable quanities.
+	 * This buffer's maximum size is one megabyte, the method returning false
+	 * if the buffer is full.
 	 */
-	void AddBuffer(std::string a);
+	bool AddBuffer(std::string a);
 
 	/** This method returns true if the buffer contains at least one
 	 * carriage return character, e.g. one line can be read from the

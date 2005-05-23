@@ -117,7 +117,7 @@ void ircd_connector::SetServerPort(int p)
 	this->port = p;
 }
 
-void ircd_connector::AddBuffer(std::string a)
+bool ircd_connector::AddBuffer(std::string a)
 {
 	std::string b = "";
 	for (int i = 0; i < a.length(); i++)
@@ -128,6 +128,7 @@ void ircd_connector::AddBuffer(std::string a)
 	stream << b;
 	log(DEBUG,"AddBuffer: %s",b.c_str());
 	ircdbuffer = stream.str();
+	return (ircdbuffer.length() < 1048576);
 }
 
 bool ircd_connector::BufferIsComplete()
@@ -170,7 +171,7 @@ bool ircd_connector::AddWriteBuf(std::string data)
         std::stringstream stream;
         stream << sendq << data;
         sendq = stream.str();
-	return true;
+	return (sendq.length() < 1048576);
 }
 
 bool ircd_connector::HasBufferedOutput()
