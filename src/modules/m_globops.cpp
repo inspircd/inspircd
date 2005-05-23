@@ -80,15 +80,6 @@ class ModuleGlobops : public Module
 			return 0;
 		}
 	}
-
-	virtual void OnOper(userrec* user)
-	{
-		char* modes[2];			// only two parameters
-		modes[0] = user->nick;		// first parameter is the nick
-		modes[1] = "+g";		// second parameter is the mode
-		Srv->SendMode(modes,2,user);	// send these, forming the command "MODE <nick> +g"
-	}
-
 };
 
 // stuff down here is the module-factory stuff. For basic modules you can ignore this.
