@@ -61,7 +61,7 @@ userrec::userrec()
 
 void userrec::CloseSocket()
 {
-	shutdown(this->fd);
+	shutdown(this->fd,2);
 	close(this->fd);
 }
  
@@ -75,7 +75,7 @@ int userrec::ReadData(void* buffer, size_t size)
 {
 	if (this->fd > -1)
 	{
-		return read(this->fd, buffer, size)
+		return read(this->fd, buffer, size);
 	}
 	else return 0;
 }
