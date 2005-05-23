@@ -2631,6 +2631,7 @@ void handle_amp(char token,char* params,serverrec* source,serverrec* reply, char
 			}
 		}
 	}
+	log(DEBUG,"Done with netsplit.");
 }
 
 unsigned long authcookie;

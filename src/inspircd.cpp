@@ -2913,6 +2913,11 @@ int InspIRCd(char** argv, int argc)
 		                        strlcpy(tcp_msg,msg.c_str(),MAXBUF);
 					if (me[x])
 						handle_link_packet(tcp_msg, tcp_host, me[x], tcp_sum);
+					if (!me[x]->FindHost(tcp_host))
+					{
+						log(DEBUG,"Connector gone, bailing!");
+						goto label;
+					}
 				}
                 		        sums.clear();	// we're done, clear the list for the next operation
 		                        msgs.clear();
