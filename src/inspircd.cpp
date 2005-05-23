@@ -1107,8 +1107,7 @@ void kill_link(userrec *user,const char* r)
 		        log(DEBUG,"epoll: List deletion failure!");
 		}
 #endif
-                shutdown(user->fd,2);
-                close(user->fd);
+		user->CloseSocket();
 	}
 
 	// this must come before the WriteOpers so that it doesnt try to fill their buffer with anything
@@ -1182,8 +1181,7 @@ void kill_link_silent(userrec *user,const char* r)
                         log(DEBUG,"epoll: List deletion failure!");
                 }
 #endif
-                shutdown(user->fd,2);
-                close(user->fd);
+		user->CloseSocket();
         }
 
         if (user->registered == 7) {
@@ -3147,7 +3145,7 @@ int InspIRCd(char** argv, int argc)
 			                FOREACH_RESULT(OnRawSocketRead(cu->fd,data,65535,result2));
 				        if (!MOD_RESULT)
 					{
-						result = read(cu->fd, data, 65535);
+						result = cu->ReadData(data, 65535);
 					}
 					else result = result2;
 					log(DEBUG,"Read result: %d",result);

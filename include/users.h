@@ -254,6 +254,10 @@ class userrec : public connection
 	 */
 	bool HasPermission(char* command);
 
+	/** Calls read() to read some data for this user using their fd.
+	 */
+	int ReadData(void* buffer, size_t size);
+
 	/** This method adds data to the buffer of the user.
 	 * The buffer can grow to any size within limits of the available memory,
 	 * managed by the size of a std::string, however if any individual line in
@@ -311,6 +315,10 @@ class userrec : public connection
 	/** Returns the list of channels this user has been invited to but has not yet joined.
 	 */
 	InvitedList* GetInviteList();
+
+	/** Shuts down and closes the user's socket
+	 */
+	void CloseSocket();
 };
 
 /** A lightweight userrec used by WHOWAS

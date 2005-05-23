@@ -59,12 +59,25 @@ userrec::userrec()
 	invites.clear();
 }
 
-
+void userrec::CloseSocket()
+{
+	shutdown(this->fd);
+	close(this->fd);
+}
  
 char* userrec::GetFullHost()
 {
 	snprintf(result,MAXBUF,"%s!%s@%s",nick,ident,dhost);
 	return result;
+}
+
+int userrec::ReadData(void* buffer, size_t size)
+{
+	if (this->fd > -1)
+	{
+		return read(this->fd, buffer, size)
+	}
+	else return 0;
 }
 
 

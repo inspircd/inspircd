@@ -303,13 +303,7 @@ void handle_restart(char **parameters, int pcnt, userrec *user)
 		sleep(1);
 		for (int i = 0; i < 65536; i++)
 		{
-			int on = 1;
-			struct linger linger = { 0 };
-			setsockopt(i, SOL_SOCKET, SO_REUSEADDR, (const char*)&on, sizeof(on));
-			linger.l_onoff = 1;
-			linger.l_linger = 1;
-			setsockopt(i, SOL_SOCKET, SO_LINGER, (const char*)&linger,sizeof(linger));
-			Blocking(i);
+			shutdown(i,2);
     			close(i);
 		}
 		sleep(2);
@@ -950,8 +944,7 @@ void handle_quit(char **parameters, int pcnt, userrec *user)
                         log(DEBUG,"epoll: List deletion failure!");
                 }
 #endif
-                shutdown(user->fd,2);
-                close(user->fd);
+		user->CloseSocket();
 	}
 	
 	if (iter != clientlist.end())
