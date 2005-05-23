@@ -85,6 +85,14 @@ class ircd_connector : public Extensible
 	 */
 	std::string version;
 
+	/** SendQ of the outbound connector, does not have a limit
+	 */
+	std::string sendq;
+
+	/** Write error of connection
+	 */
+	std::string WriteError;
+
  public:
 
         /** IRCD Buffer for input characters, holds as many lines as are
@@ -111,7 +119,10 @@ class ircd_connector : public Extensible
 	 * whilever both servers are connected to B.
 	 */
 	std::vector<std::string> routes;
-	
+
+	/** Constructor clears the sendq and initialises the fd to -1
+	 */
+	ircd_connector();	
 
 	/** Create an outbound connection to a listening socket
 	 */ 
@@ -204,6 +215,28 @@ class ircd_connector : public Extensible
 	 * If the server has no version string an empty string is returned.
 	 */
         std::string GetVersionString();
+
+	/** Adds data to the connection's sendQ to be flushed later
+	 * Fails if there is an error pending on the connection.
+	 */
+	bool AddWriteBuf(std::string data);
+
+	/** Flushes as much of the data from the buffer as possible,
+	 * and advances the queue pointer to what is left.
+	 */
+	bool FlushWriteBuf();
+
+	/** Sets the error string for this connection
+	 */
+	void SetWriteError(std::string error);
+
+	/** Gets the error string for this connection
+	 */
+	std::string GetWriteError();
+
+	/** Returns true if there is data to be written that hasn't been sent yet
+	 */
+	bool HasBufferedOutput();
 };
 
 

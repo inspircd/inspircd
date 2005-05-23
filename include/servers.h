@@ -116,6 +116,10 @@ class serverrec : public connection
          * (reserved for core use)
          */
         bool AddIncoming(int fd,char* targethost, int sourceport);	
+
+	/** Flushes all data waiting to be written for all of this server's connections
+	 */
+	void FlushWriteBuffers();
 };
 
 #endif

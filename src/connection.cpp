@@ -72,9 +72,17 @@ std::string CreateSum()
 
 connection::connection()
 {
-	fd = 0;
+	fd = -1;
 }
 
+
+ircd_connector::ircd_connector()
+{
+	fd = -1;
+	port = 0;
+        sendq = "";
+        WriteError = "";
+}
 
 char* ircd_connector::GetServerIP()
 {
@@ -153,6 +161,59 @@ std::string ircd_connector::GetBuffer()
         ircdbuffer = line;
         return ret;
 }
+
+bool ircd_connector::AddWriteBuf(std::string data)
+{
+	log(DEBUG,"connector::AddWriteBuf(%s)",data.c_str());
+        if (this->GetWriteError() != "")
+                return false;
+        std::stringstream stream;
+        stream << sendq << data;
+        sendq = stream.str();
+	return true;
+}
+
+bool ircd_connector::HasBufferedOutput()
+{
+	return (sendq.length() > 0);
+}
+
+// send AS MUCH OF THE USERS SENDQ as we are able to (might not be all of it)
+bool ircd_connector::FlushWriteBuf()
+{
+	log(DEBUG,"connector::FlushWriteBuf()");
+        if (sendq.length())
+        {
+                char* tb = (char*)this->sendq.c_str();
+                int n_sent = write(this->fd,tb,this->sendq.length());
+                if (n_sent == -1)
+                {
+                        this->SetWriteError(strerror(errno));
+			return false;
+                }
+                else
+                {
+			log(DEBUG,"Wrote %d chars to socket",n_sent);
+                        // advance the queue
+                        tb += n_sent;
+                        this->sendq = tb;
+			return true;
+                }
+        }
+	return true;
+}
+
+void ircd_connector::SetWriteError(std::string error)
+{
+        if (this->WriteError == "")
+                this->WriteError = error;
+}
+
+std::string ircd_connector::GetWriteError()
+{
+        return this->WriteError;
+}
+
 
 bool ircd_connector::MakeOutboundConnection(char* newhost, int newport)
 {
@@ -255,11 +316,8 @@ void ircd_connector::SetState(int newstate)
 
 void ircd_connector::CloseConnection()
 {
-	int flags = fcntl(this->fd, F_GETFL, 0);
-	fcntl(this->fd, F_SETFL, flags ^ O_NONBLOCK);
+	shutdown(this->fd,2);
 	close(this->fd);
-	flags = fcntl(this->fd, F_GETFL, 0);
-	fcntl(this->fd, F_SETFL, flags | O_NONBLOCK);
 }
 
 void ircd_connector::SetDescriptor(int newfd)

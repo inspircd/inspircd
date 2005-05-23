@@ -2881,6 +2881,8 @@ int InspIRCd(char** argv, int argc)
 		std::deque<std::string> sums;
 		for (int x = 0; x < SERVERportCount; x++)
 		{
+			if (me[x])
+				me[x]->FlushWriteBuffers();
 			sums.clear();
 			msgs.clear();
 			while ((me[x]) && (me[x]->RecvPacket(msgs, tcp_host, sums))) // returns 0 or more lines (can be multiple lines!)

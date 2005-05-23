@@ -246,6 +246,23 @@ ircd_connector* serverrec::FindHost(std::string findhost)
         return NULL;
 }
 
+void serverrec::FlushWriteBuffers()
+{
+	for (int i = 0; i < this->connectors.size(); i++)
+	{
+                if (this->connectors[i].HasBufferedOutput())
+                {
+			if (!this->connectors[i].FlushWriteBuf())
+			{
+				// if we're here the write() caused an error, we cannot proceed
+				WriteOpers("*** Lost single connection to %s, link inactive and retrying: %s",this->connectors[i].GetServerName().c_str(),this->connectors[i].GetWriteError().c_str());
+				this->connectors[i].CloseConnection();
+	                        this->connectors[i].SetState(STATE_DISCONNECTED);
+			}
+                }
+	}
+}
+
 bool serverrec::SendPacket(char *message, const char* sendhost)
 {
         if ((!message) || (!sendhost))
@@ -264,7 +281,6 @@ bool serverrec::SendPacket(char *message, const char* sendhost)
 
                 if (cn->GetState() == STATE_DISCONNECTED)
                 {
-                        log(DEBUG,"\n\n\n\nMain route to %s is down, seeking alternative\n\n\n\n",sendhost);
                         // fix: can only route one hop to avoid a loop
                         if (strncmp(message,"R ",2))
                         {
@@ -289,22 +305,35 @@ bool serverrec::SendPacket(char *message, const char* sendhost)
                         }
                         char buffer[MAXBUF];
                         snprintf(buffer,MAXBUF,"& %s",sendhost);
+			WriteOpers("*** All connections to %s lost.",sendhost);
                         NetSendToAllExcept(sendhost,buffer);
-                        log(DEBUG,"\n\nThere are no routes to %s, we're gonna boot the server off!\n\n",sendhost);
                         DoSplit(sendhost);
                         return false;
                 }
 
                 // returns false if the packet could not be sent (e.g. target host down)
-                if (send(cn->GetDescriptor(),message,strlen(message),0)<0)
+                if (!cn->AddWriteBuf(message))
                 {
-                        log(DEBUG,"send() failed for serverrec::SendPacket(): %s",strerror(errno));
+			// if we're here, there was an error pending, and the send cannot proceed
+                        log(DEBUG,"cn->AddWriteBuf() failed for serverrec::SendPacket(): %s",cn->GetWriteError().c_str());
                         log(DEBUG,"Disabling connector: %s",cn->GetServerName().c_str());
                         cn->CloseConnection();
                         cn->SetState(STATE_DISCONNECTED);
+			WriteOpers("*** Lost single connection to %s, link inactive and retrying: %s",cn->GetServerName().c_str(),cn->GetWriteError().c_str());
                         // retry the packet along a new route so either arrival OR failure are gauranteed (bugfix)
                         return this->SendPacket(message,sendhost);
                 }
+		if (!cn->FlushWriteBuf())
+		{
+			// if we're here the write() caused an error, we cannot proceed
+			log(DEBUG,"cn->FlushWriteBuf() failed for serverrec::SendPacket(): %s",cn->GetWriteError().c_str());
+			log(DEBUG,"Disabling connector: %s",cn->GetServerName().c_str());
+			cn->CloseConnection();
+			cn->SetState(STATE_DISCONNECTED);
+			WriteOpers("*** Lost single connection to %s, link inactive and retrying: %s",cn->GetServerName().c_str(),cn->GetWriteError().c_str());
+			// retry the packet along a new route so either arrival OR failure are gauranteed
+			return this->SendPacket(message,sendhost);
+		}
                 return true;
         }
 }
