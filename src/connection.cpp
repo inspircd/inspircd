@@ -170,6 +170,8 @@ bool ircd_connector::AddWriteBuf(std::string data)
 	log(DEBUG,"connector::AddWriteBuf(%s)",data.c_str());
         if (this->GetWriteError() != "")
                 return false;
+	if (this->GetState() == STATE_DISCONNECTED)
+		return false;
         std::stringstream stream;
         stream << sendq << data;
         sendq = stream.str();
