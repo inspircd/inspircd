@@ -371,6 +371,10 @@ void ircd_connector::SetState(int newstate)
 
 void ircd_connector::CloseConnection()
 {
+	log(DEBUG,"Closing connection");
+	// flush the queues
+	this->sendq = "";
+	this->ircdbuffer = "";
 	shutdown(this->fd,2);
 	close(this->fd);
 }
