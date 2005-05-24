@@ -17,71 +17,95 @@ Inheritance diagram for ircd_connector:<p><center><img src="classircd__connector
 </map>
 <center><font size="2">[<a target="top" href="graph_legend.html">legend</a>]</font></center>Collaboration diagram for ircd_connector:<p><center><img src="classircd__connector__coll__graph.gif" border="0" usemap="#ircd__connector__coll__map" alt="Collaboration graph"></center>
 <map name="ircd__connector__coll__map">
-<area href="classExtensible.html" shape="rect" coords="7,7,90,34" alt="">
+<area href="classExtensible.html" shape="rect" coords="37,8,120,34" alt="">
 </map>
 <center><font size="2">[<a target="top" href="graph_legend.html">legend</a>]</font></center><a href="classircd__connector-members.html">List of all members.</a><table border=0 cellpadding=0 cellspacing=0>
 <tr><td></td></tr>
 <tr><td colspan=2><br><h2>Public Member Functions</h2></td></tr>
-<tr><td class="memItemLeft" nowrap align=right valign=top>bool&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="classircd__connector.html#a0">MakeOutboundConnection</a> (char *newhost, int newport)</td></tr>
+<tr><td class="memItemLeft" nowrap align=right valign=top>&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="classircd__connector.html#a0">ircd_connector</a> ()</td></tr>
 
-<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Create an outbound connection to a listening socket. </em> <a href="#a0"></a><em><br><br></td></tr>
-<tr><td class="memItemLeft" nowrap align=right valign=top>std::string&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="classircd__connector.html#a1">GetServerName</a> ()</td></tr>
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Constructor clears the sendq and initialises the fd to -1. </em> <a href="#a0"></a><em><br><br></td></tr>
+<tr><td class="memItemLeft" nowrap align=right valign=top>bool&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="classircd__connector.html#a1">MakeOutboundConnection</a> (char *newhost, int newport)</td></tr>
 
-<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Return the servername on this established connection. </em> <a href="#a1"></a><em><br><br></td></tr>
-<tr><td class="memItemLeft" nowrap align=right valign=top>void&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="classircd__connector.html#a2">SetServerName</a> (std::string serv)</td></tr>
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Create an outbound connection to a listening socket. </em> <a href="#a1"></a><em><br><br></td></tr>
+<tr><td class="memItemLeft" nowrap align=right valign=top>std::string&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="classircd__connector.html#a2">GetServerName</a> ()</td></tr>
 
-<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Set the server name of this connection. </em> <a href="#a2"></a><em><br><br></td></tr>
-<tr><td class="memItemLeft" nowrap align=right valign=top>int&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="classircd__connector.html#a3">GetDescriptor</a> ()</td></tr>
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Return the servername on this established connection. </em> <a href="#a2"></a><em><br><br></td></tr>
+<tr><td class="memItemLeft" nowrap align=right valign=top>void&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="classircd__connector.html#a3">SetServerName</a> (std::string serv)</td></tr>
 
-<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Get the file descriptor associated with this connection. </em> <a href="#a3"></a><em><br><br></td></tr>
-<tr><td class="memItemLeft" nowrap align=right valign=top>void&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="classircd__connector.html#a4">SetDescriptor</a> (int <a class="el" href="classircd__connector.html#r1">fd</a>)</td></tr>
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Set the server name of this connection. </em> <a href="#a3"></a><em><br><br></td></tr>
+<tr><td class="memItemLeft" nowrap align=right valign=top>int&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="classircd__connector.html#a4">GetDescriptor</a> ()</td></tr>
 
-<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Set the file descriptor for this connection. </em> <a href="#a4"></a><em><br><br></td></tr>
-<tr><td class="memItemLeft" nowrap align=right valign=top>int&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="classircd__connector.html#a5">GetState</a> ()</td></tr>
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Get the file descriptor associated with this connection. </em> <a href="#a4"></a><em><br><br></td></tr>
+<tr><td class="memItemLeft" nowrap align=right valign=top>void&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="classircd__connector.html#a5">SetDescriptor</a> (int <a class="el" href="classircd__connector.html#r1">fd</a>)</td></tr>
 
-<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Get the state flags for this connection. </em> <a href="#a5"></a><em><br><br></td></tr>
-<tr><td class="memItemLeft" nowrap align=right valign=top>void&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="classircd__connector.html#a6">SetState</a> (int <a class="el" href="classircd__connector.html#r4">state</a>)</td></tr>
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Set the file descriptor for this connection. </em> <a href="#a5"></a><em><br><br></td></tr>
+<tr><td class="memItemLeft" nowrap align=right valign=top>int&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="classircd__connector.html#a6">GetState</a> ()</td></tr>
 
-<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Set the state flags for this connection. </em> <a href="#a6"></a><em><br><br></td></tr>
-<tr><td class="memItemLeft" nowrap align=right valign=top>char *&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="classircd__connector.html#a7">GetServerIP</a> ()</td></tr>
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Get the state flags for this connection. </em> <a href="#a6"></a><em><br><br></td></tr>
+<tr><td class="memItemLeft" nowrap align=right valign=top>void&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="classircd__connector.html#a7">SetState</a> (int <a class="el" href="classircd__connector.html#r4">state</a>)</td></tr>
 
-<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Get the ip address (not servername) associated with this connection. </em> <a href="#a7"></a><em><br><br></td></tr>
-<tr><td class="memItemLeft" nowrap align=right valign=top>std::string&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="classircd__connector.html#a8">GetDescription</a> ()</td></tr>
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Set the state flags for this connection. </em> <a href="#a7"></a><em><br><br></td></tr>
+<tr><td class="memItemLeft" nowrap align=right valign=top>char *&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="classircd__connector.html#a8">GetServerIP</a> ()</td></tr>
 
-<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Get the server description of this connection. </em> <a href="#a8"></a><em><br><br></td></tr>
-<tr><td class="memItemLeft" nowrap align=right valign=top>void&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="classircd__connector.html#a9">SetDescription</a> (std::string desc)</td></tr>
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Get the ip address (not servername) associated with this connection. </em> <a href="#a8"></a><em><br><br></td></tr>
+<tr><td class="memItemLeft" nowrap align=right valign=top>std::string&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="classircd__connector.html#a9">GetDescription</a> ()</td></tr>
 
-<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Set the server description of this connection. </em> <a href="#a9"></a><em><br><br></td></tr>
-<tr><td class="memItemLeft" nowrap align=right valign=top>int&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="classircd__connector.html#a10">GetServerPort</a> ()</td></tr>
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Get the server description of this connection. </em> <a href="#a9"></a><em><br><br></td></tr>
+<tr><td class="memItemLeft" nowrap align=right valign=top>void&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="classircd__connector.html#a10">SetDescription</a> (std::string desc)</td></tr>
 
-<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Get the port number being used for this connection If the connection is outbound this will be the remote port otherwise it will be the local port, so it can always be gautanteed as open at the address given in <a class="el" href="classircd__connector.html#a7">GetServerIP()</a>. </em> <a href="#a10"></a><em><br><br></td></tr>
-<tr><td class="memItemLeft" nowrap align=right valign=top>void&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="classircd__connector.html#a11">SetServerPort</a> (int p)</td></tr>
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Set the server description of this connection. </em> <a href="#a10"></a><em><br><br></td></tr>
+<tr><td class="memItemLeft" nowrap align=right valign=top>int&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="classircd__connector.html#a11">GetServerPort</a> ()</td></tr>
 
-<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Set the port used by this connection. </em> <a href="#a11"></a><em><br><br></td></tr>
-<tr><td class="memItemLeft" nowrap align=right valign=top>bool&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="classircd__connector.html#a12">SetHostAndPort</a> (char *newhost, int newport)</td></tr>
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Get the port number being used for this connection If the connection is outbound this will be the remote port otherwise it will be the local port, so it can always be gautanteed as open at the address given in <a class="el" href="classircd__connector.html#a8">GetServerIP()</a>. </em> <a href="#a11"></a><em><br><br></td></tr>
+<tr><td class="memItemLeft" nowrap align=right valign=top>void&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="classircd__connector.html#a12">SetServerPort</a> (int p)</td></tr>
 
-<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Set both the host and the port in one operation for this connection. </em> <a href="#a12"></a><em><br><br></td></tr>
-<tr><td class="memItemLeft" nowrap align=right valign=top>void&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="classircd__connector.html#a13">CloseConnection</a> ()</td></tr>
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Set the port used by this connection. </em> <a href="#a12"></a><em><br><br></td></tr>
+<tr><td class="memItemLeft" nowrap align=right valign=top>bool&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="classircd__connector.html#a13">SetHostAndPort</a> (char *newhost, int newport)</td></tr>
 
-<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Close the connection by calling close() on its file descriptor This function call updates no other data. </em> <a href="#a13"></a><em><br><br></td></tr>
-<tr><td class="memItemLeft" nowrap align=right valign=top>void&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="classircd__connector.html#a14">AddBuffer</a> (std::string a)</td></tr>
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Set both the host and the port in one operation for this connection. </em> <a href="#a13"></a><em><br><br></td></tr>
+<tr><td class="memItemLeft" nowrap align=right valign=top>void&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="classircd__connector.html#a14">CloseConnection</a> ()</td></tr>
 
-<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">This method adds text to the ircd connection's buffer There is no limitation on how much text of what line width may be added to this buffer. </em> <a href="#a14"></a><em><br><br></td></tr>
-<tr><td class="memItemLeft" nowrap align=right valign=top>bool&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="classircd__connector.html#a15">BufferIsComplete</a> ()</td></tr>
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Close the connection by calling close() on its file descriptor This function call updates no other data. </em> <a href="#a14"></a><em><br><br></td></tr>
+<tr><td class="memItemLeft" nowrap align=right valign=top>bool&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="classircd__connector.html#a15">AddBuffer</a> (std::string a)</td></tr>
 
-<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">This method returns true if the buffer contains at least one carriage return character, e.g. </em> <a href="#a15"></a><em><br><br></td></tr>
-<tr><td class="memItemLeft" nowrap align=right valign=top>void&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="classircd__connector.html#a16">ClearBuffer</a> ()</td></tr>
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">This method adds text to the ircd connection's buffer This buffer's maximum size is one megabyte, the method returning false if the buffer is full. </em> <a href="#a15"></a><em><br><br></td></tr>
+<tr><td class="memItemLeft" nowrap align=right valign=top>bool&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="classircd__connector.html#a16">BufferIsComplete</a> ()</td></tr>
 
-<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">This method clears the server's buffer by setting it to an empty string. </em> <a href="#a16"></a><em><br><br></td></tr>
-<tr><td class="memItemLeft" nowrap align=right valign=top>std::string&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="classircd__connector.html#a17">GetBuffer</a> ()</td></tr>
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">This method returns true if the buffer contains at least one carriage return character, e.g. </em> <a href="#a16"></a><em><br><br></td></tr>
+<tr><td class="memItemLeft" nowrap align=right valign=top>void&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="classircd__connector.html#a17">ClearBuffer</a> ()</td></tr>
 
-<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">This method retrieves the first string from the tail end of the buffer and advances the tail end of the buffer past the returned string, in a similar manner to strtok(). </em> <a href="#a17"></a><em><br><br></td></tr>
-<tr><td class="memItemLeft" nowrap align=right valign=top>void&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="classircd__connector.html#a18">SetVersionString</a> (std::string newversion)</td></tr>
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">This method clears the server's buffer by setting it to an empty string. </em> <a href="#a17"></a><em><br><br></td></tr>
+<tr><td class="memItemLeft" nowrap align=right valign=top>std::string&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="classircd__connector.html#a18">GetBuffer</a> ()</td></tr>
 
-<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">This method sets the version string of the remote server. </em> <a href="#a18"></a><em><br><br></td></tr>
-<tr><td class="memItemLeft" nowrap align=right valign=top>std::string&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="classircd__connector.html#a19">GetVersionString</a> ()</td></tr>
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">This method retrieves the first string from the tail end of the buffer and advances the tail end of the buffer past the returned string, in a similar manner to strtok(). </em> <a href="#a18"></a><em><br><br></td></tr>
+<tr><td class="memItemLeft" nowrap align=right valign=top>void&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="classircd__connector.html#a19">SetVersionString</a> (std::string newversion)</td></tr>
 
-<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">This method returns the version string of the remote server. </em> <a href="#a19"></a><em><br><br></td></tr>
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">This method sets the version string of the remote server. </em> <a href="#a19"></a><em><br><br></td></tr>
+<tr><td class="memItemLeft" nowrap align=right valign=top>std::string&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="classircd__connector.html#a20">GetVersionString</a> ()</td></tr>
+
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">This method returns the version string of the remote server. </em> <a href="#a20"></a><em><br><br></td></tr>
+<tr><td class="memItemLeft" nowrap align=right valign=top>bool&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="classircd__connector.html#a21">AddWriteBuf</a> (std::string data)</td></tr>
+
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Adds data to the connection's sendQ to be flushed later Fails if there is an error pending on the connection. </em> <a href="#a21"></a><em><br><br></td></tr>
+<tr><td class="memItemLeft" nowrap align=right valign=top>bool&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="classircd__connector.html#a22">FlushWriteBuf</a> ()</td></tr>
+
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Flushes as much of the data from the buffer as possible, and advances the queue pointer to what is left. </em> <a href="#a22"></a><em><br><br></td></tr>
+<tr><td class="memItemLeft" nowrap align=right valign=top>void&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="classircd__connector.html#a23">SetWriteError</a> (std::string error)</td></tr>
+
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Sets the error string for this connection. </em> <a href="#a23"></a><em><br><br></td></tr>
+<tr><td class="memItemLeft" nowrap align=right valign=top>std::string&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="classircd__connector.html#a24">GetWriteError</a> ()</td></tr>
+
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Gets the error string for this connection. </em> <a href="#a24"></a><em><br><br></td></tr>
+<tr><td class="memItemLeft" nowrap align=right valign=top>bool&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="classircd__connector.html#a25">HasBufferedOutput</a> ()</td></tr>
+
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Returns true if there is data to be written that hasn't been sent yet. </em> <a href="#a25"></a><em><br><br></td></tr>
+<tr><td class="memItemLeft" nowrap align=right valign=top>bool&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="classircd__connector.html#a26">CheckPing</a> ()</td></tr>
+
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Checks if the connection replied to its last ping, and if it did sends another and returns true, if not, returns false. </em> <a href="#a26"></a><em><br><br></td></tr>
+<tr><td class="memItemLeft" nowrap align=right valign=top>void&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="classircd__connector.html#a27">ResetPing</a> ()</td></tr>
+
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Resets the ping counter. </em> <a href="#a27"></a><em><br><br></td></tr>
 <tr><td colspan=2><br><h2>Public Attributes</h2></td></tr>
 <tr><td class="memItemLeft" nowrap align=right valign=top>std::string&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="classircd__connector.html#o0">ircdbuffer</a></td></tr>
 
@@ -119,6 +143,18 @@ Inheritance diagram for ircd_connector:<p><center><img src="classircd__connector
 <tr><td class="memItemLeft" nowrap align=right valign=top>std::string&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="classircd__connector.html#r5">version</a></td></tr>
 
 <tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">This string holds the ircd's version response. </em> <a href="#r5"></a><em><br><br></td></tr>
+<tr><td class="memItemLeft" nowrap align=right valign=top>std::string&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="classircd__connector.html#r6">sendq</a></td></tr>
+
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">SendQ of the outbound connector, does not have a limit. </em> <a href="#r6"></a><em><br><br></td></tr>
+<tr><td class="memItemLeft" nowrap align=right valign=top>std::string&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="classircd__connector.html#r7">WriteError</a></td></tr>
+
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Write error of connection. </em> <a href="#r7"></a><em><br><br></td></tr>
+<tr><td class="memItemLeft" nowrap align=right valign=top>time_t&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="classircd__connector.html#r8">nextping</a></td></tr>
+
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Time this connection was last pinged. </em> <a href="#r8"></a><em><br><br></td></tr>
+<tr><td class="memItemLeft" nowrap align=right valign=top>bool&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="classircd__connector.html#r9">replied</a></td></tr>
+
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Did this connection reply to its last ping? </em> <a href="#r9"></a><em><br><br></td></tr>
 </table>
 <hr><a name="_details"></a><h2>Detailed Description</h2>
 Each connection has one or more of these each represents ONE outbound connection to another ircd so each inbound has multiple outbounds. 
@@ -127,14 +163,45 @@ A listening socket that accepts server type connections is represented by one cl
 <p>
 
 <p>
-Definition at line <a class="el" href="connection_8h-source.html#l00056">56</a> of file <a class="el" href="connection_8h-source.html">connection.h</a>.<hr><h2>Member Function Documentation</h2>
-<a name="a14" doxytag="ircd_connector::AddBuffer"></a><p>
+Definition at line <a class="el" href="connection_8h-source.html#l00056">56</a> of file <a class="el" href="connection_8h-source.html">connection.h</a>.<hr><h2>Constructor &amp; Destructor Documentation</h2>
+<a name="a0" doxytag="ircd_connector::ircd_connector"></a><p>
 <table class="mdTable" width="100%" cellpadding="2" cellspacing="0">
   <tr>
     <td class="mdRow">
       <table cellpadding="0" cellspacing="0" border="0">
         <tr>
-          <td class="md" nowrap valign="top"> void ircd_connector::AddBuffer </td>
+          <td class="md" nowrap valign="top"> ircd_connector::ircd_connector </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="mdname1" valign="top" nowrap>          </td>
+          <td class="md" valign="top">&nbsp;)&nbsp;</td>
+          <td class="md" nowrap></td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+Constructor clears the sendq and initialises the fd to -1. 
+<p>
+    </td>
+  </tr>
+</table>
+<hr><h2>Member Function Documentation</h2>
+<a name="a15" doxytag="ircd_connector::AddBuffer"></a><p>
+<table class="mdTable" width="100%" cellpadding="2" cellspacing="0">
+  <tr>
+    <td class="mdRow">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> bool ircd_connector::AddBuffer </td>
           <td class="md" valign="top">(&nbsp;</td>
           <td class="md" nowrap valign="top">std::string&nbsp;</td>
           <td class="mdname1" valign="top" nowrap> <em>a</em>          </td>
@@ -154,12 +221,45 @@ Definition at line <a class="el" href="connection_8h-source.html#l00056">56</a> 
     <td>
 
 <p>
-This method adds text to the ircd connection's buffer There is no limitation on how much text of what line width may be added to this buffer. 
+This method adds text to the ircd connection's buffer This buffer's maximum size is one megabyte, the method returning false if the buffer is full. 
 <p>
-It is the sending server's responsibility to ensure sent data is kept within reasonable quanities.    </td>
+    </td>
   </tr>
 </table>
-<a name="a15" doxytag="ircd_connector::BufferIsComplete"></a><p>
+<a name="a21" doxytag="ircd_connector::AddWriteBuf"></a><p>
+<table class="mdTable" width="100%" cellpadding="2" cellspacing="0">
+  <tr>
+    <td class="mdRow">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> bool ircd_connector::AddWriteBuf </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="md" nowrap valign="top">std::string&nbsp;</td>
+          <td class="mdname1" valign="top" nowrap> <em>data</em>          </td>
+          <td class="md" valign="top">&nbsp;)&nbsp;</td>
+          <td class="md" nowrap></td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+Adds data to the connection's sendQ to be flushed later Fails if there is an error pending on the connection. 
+<p>
+
+<p>
+Referenced by <a class="el" href="servers_8cpp-source.html#l00275">serverrec::SendPacket()</a>.    </td>
+  </tr>
+</table>
+<a name="a16" doxytag="ircd_connector::BufferIsComplete"></a><p>
 <table class="mdTable" width="100%" cellpadding="2" cellspacing="0">
   <tr>
     <td class="mdRow">
@@ -189,7 +289,37 @@ This method returns true if the buffer contains at least one carriage return cha
 one line can be read from the buffer successfully.    </td>
   </tr>
 </table>
-<a name="a16" doxytag="ircd_connector::ClearBuffer"></a><p>
+<a name="a26" doxytag="ircd_connector::CheckPing"></a><p>
+<table class="mdTable" width="100%" cellpadding="2" cellspacing="0">
+  <tr>
+    <td class="mdRow">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> bool ircd_connector::CheckPing </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="mdname1" valign="top" nowrap>          </td>
+          <td class="md" valign="top">&nbsp;)&nbsp;</td>
+          <td class="md" nowrap></td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+Checks if the connection replied to its last ping, and if it did sends another and returns true, if not, returns false. 
+<p>
+    </td>
+  </tr>
+</table>
+<a name="a17" doxytag="ircd_connector::ClearBuffer"></a><p>
 <table class="mdTable" width="100%" cellpadding="2" cellspacing="0">
   <tr>
     <td class="mdRow">
@@ -219,7 +349,7 @@ This method clears the server's buffer by setting it to an empty string.
     </td>
   </tr>
 </table>
-<a name="a13" doxytag="ircd_connector::CloseConnection"></a><p>
+<a name="a14" doxytag="ircd_connector::CloseConnection"></a><p>
 <table class="mdTable" width="100%" cellpadding="2" cellspacing="0">
   <tr>
     <td class="mdRow">
@@ -246,10 +376,44 @@ This method clears the server's buffer by setting it to an empty string.
 <p>
 Close the connection by calling close() on its file descriptor This function call updates no other data. 
 <p>
+
+<p>
+Referenced by <a class="el" href="servers_8cpp-source.html#l00275">serverrec::SendPacket()</a>.    </td>
+  </tr>
+</table>
+<a name="a22" doxytag="ircd_connector::FlushWriteBuf"></a><p>
+<table class="mdTable" width="100%" cellpadding="2" cellspacing="0">
+  <tr>
+    <td class="mdRow">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> bool ircd_connector::FlushWriteBuf </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="mdname1" valign="top" nowrap>          </td>
+          <td class="md" valign="top">&nbsp;)&nbsp;</td>
+          <td class="md" nowrap></td>
+        </tr>
+
+      </table>
     </td>
   </tr>
 </table>
-<a name="a17" doxytag="ircd_connector::GetBuffer"></a><p>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+Flushes as much of the data from the buffer as possible, and advances the queue pointer to what is left. 
+<p>
+
+<p>
+Referenced by <a class="el" href="servers_8cpp-source.html#l00275">serverrec::SendPacket()</a>.    </td>
+  </tr>
+</table>
+<a name="a18" doxytag="ircd_connector::GetBuffer"></a><p>
 <table class="mdTable" width="100%" cellpadding="2" cellspacing="0">
   <tr>
     <td class="mdRow">
@@ -279,7 +443,7 @@ This method retrieves the first string from the tail end of the buffer and advan
     </td>
   </tr>
 </table>
-<a name="a8" doxytag="ircd_connector::GetDescription"></a><p>
+<a name="a9" doxytag="ircd_connector::GetDescription"></a><p>
 <table class="mdTable" width="100%" cellpadding="2" cellspacing="0">
   <tr>
     <td class="mdRow">
@@ -309,7 +473,7 @@ Get the server description of this connection.
     </td>
   </tr>
 </table>
-<a name="a3" doxytag="ircd_connector::GetDescriptor"></a><p>
+<a name="a4" doxytag="ircd_connector::GetDescriptor"></a><p>
 <table class="mdTable" width="100%" cellpadding="2" cellspacing="0">
   <tr>
     <td class="mdRow">
@@ -339,7 +503,7 @@ Get the file descriptor associated with this connection.
     </td>
   </tr>
 </table>
-<a name="a7" doxytag="ircd_connector::GetServerIP"></a><p>
+<a name="a8" doxytag="ircd_connector::GetServerIP"></a><p>
 <table class="mdTable" width="100%" cellpadding="2" cellspacing="0">
   <tr>
     <td class="mdRow">
@@ -369,7 +533,7 @@ Get the ip address (not servername) associated with this connection.
     </td>
   </tr>
 </table>
-<a name="a1" doxytag="ircd_connector::GetServerName"></a><p>
+<a name="a2" doxytag="ircd_connector::GetServerName"></a><p>
 <table class="mdTable" width="100%" cellpadding="2" cellspacing="0">
   <tr>
     <td class="mdRow">
@@ -396,10 +560,12 @@ Get the ip address (not servername) associated with this connection.
 <p>
 Return the servername on this established connection. 
 <p>
-    </td>
+
+<p>
+Referenced by <a class="el" href="servers_8cpp-source.html#l00275">serverrec::SendPacket()</a>.    </td>
   </tr>
 </table>
-<a name="a10" doxytag="ircd_connector::GetServerPort"></a><p>
+<a name="a11" doxytag="ircd_connector::GetServerPort"></a><p>
 <table class="mdTable" width="100%" cellpadding="2" cellspacing="0">
   <tr>
     <td class="mdRow">
@@ -424,12 +590,12 @@ Return the servername on this established connection.
     <td>
 
 <p>
-Get the port number being used for this connection If the connection is outbound this will be the remote port otherwise it will be the local port, so it can always be gautanteed as open at the address given in <a class="el" href="classircd__connector.html#a7">GetServerIP()</a>. 
+Get the port number being used for this connection If the connection is outbound this will be the remote port otherwise it will be the local port, so it can always be gautanteed as open at the address given in <a class="el" href="classircd__connector.html#a8">GetServerIP()</a>. 
 <p>
     </td>
   </tr>
 </table>
-<a name="a5" doxytag="ircd_connector::GetState"></a><p>
+<a name="a6" doxytag="ircd_connector::GetState"></a><p>
 <table class="mdTable" width="100%" cellpadding="2" cellspacing="0">
   <tr>
     <td class="mdRow">
@@ -456,10 +622,12 @@ Get the port number being used for this connection If the connection is outbound
 <p>
 Get the state flags for this connection. 
 <p>
-    </td>
+
+<p>
+Referenced by <a class="el" href="servers_8cpp-source.html#l00275">serverrec::SendPacket()</a>.    </td>
   </tr>
 </table>
-<a name="a19" doxytag="ircd_connector::GetVersionString"></a><p>
+<a name="a20" doxytag="ircd_connector::GetVersionString"></a><p>
 <table class="mdTable" width="100%" cellpadding="2" cellspacing="0">
   <tr>
     <td class="mdRow">
@@ -489,7 +657,69 @@ This method returns the version string of the remote server.
 If the server has no version string an empty string is returned.    </td>
   </tr>
 </table>
-<a name="a0" doxytag="ircd_connector::MakeOutboundConnection"></a><p>
+<a name="a24" doxytag="ircd_connector::GetWriteError"></a><p>
+<table class="mdTable" width="100%" cellpadding="2" cellspacing="0">
+  <tr>
+    <td class="mdRow">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> std::string ircd_connector::GetWriteError </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="mdname1" valign="top" nowrap>          </td>
+          <td class="md" valign="top">&nbsp;)&nbsp;</td>
+          <td class="md" nowrap></td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+Gets the error string for this connection. 
+<p>
+
+<p>
+Referenced by <a class="el" href="servers_8cpp-source.html#l00275">serverrec::SendPacket()</a>.    </td>
+  </tr>
+</table>
+<a name="a25" doxytag="ircd_connector::HasBufferedOutput"></a><p>
+<table class="mdTable" width="100%" cellpadding="2" cellspacing="0">
+  <tr>
+    <td class="mdRow">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> bool ircd_connector::HasBufferedOutput </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="mdname1" valign="top" nowrap>          </td>
+          <td class="md" valign="top">&nbsp;)&nbsp;</td>
+          <td class="md" nowrap></td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+Returns true if there is data to be written that hasn't been sent yet. 
+<p>
+    </td>
+  </tr>
+</table>
+<a name="a1" doxytag="ircd_connector::MakeOutboundConnection"></a><p>
 <table class="mdTable" width="100%" cellpadding="2" cellspacing="0">
   <tr>
     <td class="mdRow">
@@ -526,10 +756,42 @@ If the server has no version string an empty string is returned.    </td>
 <p>
 Create an outbound connection to a listening socket. 
 <p>
+
+<p>
+Referenced by <a class="el" href="servers_8cpp-source.html#l00138">serverrec::BeginLink()</a>, and <a class="el" href="servers_8cpp-source.html#l00176">serverrec::MeshCookie()</a>.    </td>
+  </tr>
+</table>
+<a name="a27" doxytag="ircd_connector::ResetPing"></a><p>
+<table class="mdTable" width="100%" cellpadding="2" cellspacing="0">
+  <tr>
+    <td class="mdRow">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> void ircd_connector::ResetPing </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="mdname1" valign="top" nowrap>          </td>
+          <td class="md" valign="top">&nbsp;)&nbsp;</td>
+          <td class="md" nowrap></td>
+        </tr>
+
+      </table>
     </td>
   </tr>
 </table>
-<a name="a9" doxytag="ircd_connector::SetDescription"></a><p>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+Resets the ping counter. 
+<p>
+    </td>
+  </tr>
+</table>
+<a name="a10" doxytag="ircd_connector::SetDescription"></a><p>
 <table class="mdTable" width="100%" cellpadding="2" cellspacing="0">
   <tr>
     <td class="mdRow">
@@ -560,7 +822,7 @@ Set the server description of this connection.
     </td>
   </tr>
 </table>
-<a name="a4" doxytag="ircd_connector::SetDescriptor"></a><p>
+<a name="a5" doxytag="ircd_connector::SetDescriptor"></a><p>
 <table class="mdTable" width="100%" cellpadding="2" cellspacing="0">
   <tr>
     <td class="mdRow">
@@ -588,7 +850,9 @@ Set the server description of this connection.
 <p>
 Set the file descriptor for this connection. 
 <p>
-    </td>
+
+<p>
+Referenced by <a class="el" href="servers_8cpp-source.html#l00207">serverrec::AddIncoming()</a>.    </td>
   </tr>
 </table>
 <a name="d0" doxytag="ircd_connector::SetHostAddress"></a><p>
@@ -631,7 +895,7 @@ PRIVATE function to set the host address and port to connect to.
     </td>
   </tr>
 </table>
-<a name="a12" doxytag="ircd_connector::SetHostAndPort"></a><p>
+<a name="a13" doxytag="ircd_connector::SetHostAndPort"></a><p>
 <table class="mdTable" width="100%" cellpadding="2" cellspacing="0">
   <tr>
     <td class="mdRow">
@@ -668,10 +932,12 @@ PRIVATE function to set the host address and port to connect to.
 <p>
 Set both the host and the port in one operation for this connection. 
 <p>
-    </td>
+
+<p>
+Referenced by <a class="el" href="servers_8cpp-source.html#l00207">serverrec::AddIncoming()</a>, <a class="el" href="servers_8cpp-source.html#l00138">serverrec::BeginLink()</a>, and <a class="el" href="servers_8cpp-source.html#l00176">serverrec::MeshCookie()</a>.    </td>
   </tr>
 </table>
-<a name="a2" doxytag="ircd_connector::SetServerName"></a><p>
+<a name="a3" doxytag="ircd_connector::SetServerName"></a><p>
 <table class="mdTable" width="100%" cellpadding="2" cellspacing="0">
   <tr>
     <td class="mdRow">
@@ -699,10 +965,12 @@ Set both the host and the port in one operation for this connection.
 <p>
 Set the server name of this connection. 
 <p>
-    </td>
+
+<p>
+Referenced by <a class="el" href="servers_8cpp-source.html#l00207">serverrec::AddIncoming()</a>, <a class="el" href="servers_8cpp-source.html#l00138">serverrec::BeginLink()</a>, and <a class="el" href="servers_8cpp-source.html#l00176">serverrec::MeshCookie()</a>.    </td>
   </tr>
 </table>
-<a name="a11" doxytag="ircd_connector::SetServerPort"></a><p>
+<a name="a12" doxytag="ircd_connector::SetServerPort"></a><p>
 <table class="mdTable" width="100%" cellpadding="2" cellspacing="0">
   <tr>
     <td class="mdRow">
@@ -733,7 +1001,7 @@ Set the port used by this connection.
     </td>
   </tr>
 </table>
-<a name="a6" doxytag="ircd_connector::SetState"></a><p>
+<a name="a7" doxytag="ircd_connector::SetState"></a><p>
 <table class="mdTable" width="100%" cellpadding="2" cellspacing="0">
   <tr>
     <td class="mdRow">
@@ -761,10 +1029,12 @@ Set the port used by this connection.
 <p>
 Set the state flags for this connection. 
 <p>
-    </td>
+
+<p>
+Referenced by <a class="el" href="servers_8cpp-source.html#l00207">serverrec::AddIncoming()</a>, <a class="el" href="servers_8cpp-source.html#l00138">serverrec::BeginLink()</a>, <a class="el" href="servers_8cpp-source.html#l00176">serverrec::MeshCookie()</a>, and <a class="el" href="servers_8cpp-source.html#l00275">serverrec::SendPacket()</a>.    </td>
   </tr>
 </table>
-<a name="a18" doxytag="ircd_connector::SetVersionString"></a><p>
+<a name="a19" doxytag="ircd_connector::SetVersionString"></a><p>
 <table class="mdTable" width="100%" cellpadding="2" cellspacing="0">
   <tr>
     <td class="mdRow">
@@ -791,6 +1061,37 @@ Set the state flags for this connection.
 
 <p>
 This method sets the version string of the remote server. 
+<p>
+    </td>
+  </tr>
+</table>
+<a name="a23" doxytag="ircd_connector::SetWriteError"></a><p>
+<table class="mdTable" width="100%" cellpadding="2" cellspacing="0">
+  <tr>
+    <td class="mdRow">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> void ircd_connector::SetWriteError </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="md" nowrap valign="top">std::string&nbsp;</td>
+          <td class="mdname1" valign="top" nowrap> <em>error</em>          </td>
+          <td class="md" valign="top">&nbsp;)&nbsp;</td>
+          <td class="md" nowrap></td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+Sets the error string for this connection. 
 <p>
     </td>
   </tr>
@@ -897,7 +1198,7 @@ When MakeOutboundConnection is called, these public members are filled with the 
 <p>
 
 <p>
-Definition at line <a class="el" href="connection_8h-source.html#l00101">101</a> of file <a class="el" href="connection_8h-source.html">connection.h</a>.    </td>
+Definition at line <a class="el" href="connection_8h-source.html#l00117">117</a> of file <a class="el" href="connection_8h-source.html">connection.h</a>.    </td>
   </tr>
 </table>
 <a name="o0" doxytag="ircd_connector::ircdbuffer"></a><p>
@@ -924,7 +1225,33 @@ IRCD Buffer for input characters, holds as many lines as are pending - Note that
 <p>
 
 <p>
-Definition at line <a class="el" href="connection_8h-source.html#l00094">94</a> of file <a class="el" href="connection_8h-source.html">connection.h</a>.    </td>
+Definition at line <a class="el" href="connection_8h-source.html#l00110">110</a> of file <a class="el" href="connection_8h-source.html">connection.h</a>.    </td>
+  </tr>
+</table>
+<a name="r8" doxytag="ircd_connector::nextping"></a><p>
+<table class="mdTable" width="100%" cellpadding="2" cellspacing="0">
+  <tr>
+    <td class="mdRow">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> time_t <a class="el" href="classircd__connector.html#r8">ircd_connector::nextping</a><code> [private]</code>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+Time this connection was last pinged. 
+<p>
+
+<p>
+Definition at line <a class="el" href="connection_8h-source.html#l00098">98</a> of file <a class="el" href="connection_8h-source.html">connection.h</a>.    </td>
   </tr>
 </table>
 <a name="o2" doxytag="ircd_connector::port"></a><p>
@@ -950,7 +1277,33 @@ When MakeOutboundConnection is called, these public members are filled with the 
 <p>
 
 <p>
-Definition at line <a class="el" href="connection_8h-source.html#l00107">107</a> of file <a class="el" href="connection_8h-source.html">connection.h</a>.    </td>
+Definition at line <a class="el" href="connection_8h-source.html#l00123">123</a> of file <a class="el" href="connection_8h-source.html">connection.h</a>.    </td>
+  </tr>
+</table>
+<a name="r9" doxytag="ircd_connector::replied"></a><p>
+<table class="mdTable" width="100%" cellpadding="2" cellspacing="0">
+  <tr>
+    <td class="mdRow">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> bool <a class="el" href="classircd__connector.html#r9">ircd_connector::replied</a><code> [private]</code>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+Did this connection reply to its last ping? 
+<p>
+
+<p>
+Definition at line <a class="el" href="connection_8h-source.html#l00102">102</a> of file <a class="el" href="connection_8h-source.html">connection.h</a>.    </td>
   </tr>
 </table>
 <a name="o3" doxytag="ircd_connector::routes"></a><p>
@@ -976,7 +1329,33 @@ Definition at line <a class="el" href="connection_8h-source.html#l00107">107</a>
 <p>
 
 <p>
-Definition at line <a class="el" href="connection_8h-source.html#l00113">113</a> of file <a class="el" href="connection_8h-source.html">connection.h</a>.    </td>
+Definition at line <a class="el" href="connection_8h-source.html#l00129">129</a> of file <a class="el" href="connection_8h-source.html">connection.h</a>.    </td>
+  </tr>
+</table>
+<a name="r6" doxytag="ircd_connector::sendq"></a><p>
+<table class="mdTable" width="100%" cellpadding="2" cellspacing="0">
+  <tr>
+    <td class="mdRow">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> std::string <a class="el" href="classircd__connector.html#r6">ircd_connector::sendq</a><code> [private]</code>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+SendQ of the outbound connector, does not have a limit. 
+<p>
+
+<p>
+Definition at line <a class="el" href="connection_8h-source.html#l00090">90</a> of file <a class="el" href="connection_8h-source.html">connection.h</a>.    </td>
   </tr>
 </table>
 <a name="r2" doxytag="ircd_connector::servername"></a><p>
@@ -1057,9 +1436,35 @@ This string holds the ircd's version response.
 Definition at line <a class="el" href="connection_8h-source.html#l00086">86</a> of file <a class="el" href="connection_8h-source.html">connection.h</a>.    </td>
   </tr>
 </table>
+<a name="r7" doxytag="ircd_connector::WriteError"></a><p>
+<table class="mdTable" width="100%" cellpadding="2" cellspacing="0">
+  <tr>
+    <td class="mdRow">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> std::string <a class="el" href="classircd__connector.html#r7">ircd_connector::WriteError</a><code> [private]</code>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+Write error of connection. 
+<p>
+
+<p>
+Definition at line <a class="el" href="connection_8h-source.html#l00094">94</a> of file <a class="el" href="connection_8h-source.html">connection.h</a>.    </td>
+  </tr>
+</table>
 <hr>The documentation for this class was generated from the following file:<ul>
 <li><a class="el" href="connection_8h-source.html">connection.h</a></ul>
-<hr size="1"><address style="align: right;"><small>Generated on Sun May 15 18:38:31 2005 for InspIRCd by
+<hr size="1"><address style="align: right;"><small>Generated on Tue May 24 02:32:15 2005 for InspIRCd by
 <a href="http://www.doxygen.org/index.html">
 <img src="doxygen.png" alt="doxygen" align="middle" border=0 > 
 </a>1.3.3 </small></address>

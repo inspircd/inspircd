@@ -1,4 +1,4 @@
-.TH "message.h" 3 "15 May 2005" "InspIRCd" \" -*- nroff -*-
+.TH "message.h" 3 "24 May 2005" "InspIRCd" \" -*- nroff -*-
 .ad l
 .nh
 .SH NAME
@@ -34,12 +34,6 @@ message.h \-
 .br
 .ti -1c
 .RI "void \fBtidystring\fP (char *str)"
-.br
-.ti -1c
-.RI "void \fBsafedelete\fP (\fBchanrec\fP *p)"
-.br
-.ti -1c
-.RI "void \fBsafedelete\fP (\fBuserrec\fP *p)"
 .br
 .ti -1c
 .RI "void \fBBlocking\fP (int s)"
@@ -124,10 +118,6 @@ Referenced by Server::IsOnChannel().
 .PP
 Referenced by Server::IsNick().
 .SS "void NonBlocking (int s)"
-.PP
-.SS "void safedelete (\fBuserrec\fP * p)"
-.PP
-.SS "void safedelete (\fBchanrec\fP * p)"
 .PP
 .SS "void send_network_quit (const char * nick, const char * reason)"
 .PP

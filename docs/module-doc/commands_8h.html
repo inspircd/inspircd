@@ -132,65 +132,67 @@ This graph shows which files directly or indirectly include this file:<p><center
 
 <tr><td class="memItemLeft" nowrap align=right valign=top>void&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="commands_8h.html#a49">handle_unloadmodule</a> (char **parameters, int pcnt, <a class="el" href="classuserrec.html">userrec</a> *user)</td></tr>
 
-<tr><td class="memItemLeft" nowrap align=right valign=top>void&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="commands_8h.html#a50">handle_link_packet</a> (char *tcp_msg, char *tcp_host, <a class="el" href="classserverrec.html">serverrec</a> *serv, char *tcp_sum)</td></tr>
+<tr><td class="memItemLeft" nowrap align=right valign=top>void&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="commands_8h.html#a50">handle_commands</a> (char **parameters, int pcnt, <a class="el" href="classuserrec.html">userrec</a> *user)</td></tr>
 
-<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Special functions for processing server to server traffic. </em> <a href="#a50"></a><em><br><br></td></tr>
-<tr><td class="memItemLeft" nowrap align=right valign=top>void&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="commands_8h.html#a51">process_restricted_commands</a> (char token, char *params, <a class="el" href="classserverrec.html">serverrec</a> *source, <a class="el" href="classserverrec.html">serverrec</a> *reply, char *tcp_host, char *ipaddr, int port, char *tcp_sum)</td></tr>
+<tr><td class="memItemLeft" nowrap align=right valign=top>void&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="commands_8h.html#a51">handle_link_packet</a> (char *tcp_msg, char *tcp_host, <a class="el" href="classserverrec.html">serverrec</a> *serv, char *tcp_sum)</td></tr>
 
-<tr><td class="memItemLeft" nowrap align=right valign=top>void&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="commands_8h.html#a52">handle_amp</a> (char token, char *params, <a class="el" href="classserverrec.html">serverrec</a> *source, <a class="el" href="classserverrec.html">serverrec</a> *reply, char *tcp_host, char *tcp_sum)</td></tr>
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Special functions for processing server to server traffic. </em> <a href="#a51"></a><em><br><br></td></tr>
+<tr><td class="memItemLeft" nowrap align=right valign=top>void&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="commands_8h.html#a52">process_restricted_commands</a> (char token, char *params, <a class="el" href="classserverrec.html">serverrec</a> *source, <a class="el" href="classserverrec.html">serverrec</a> *reply, char *tcp_host, char *ipaddr, int port, char *tcp_sum)</td></tr>
 
-<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">These are the handlers for server commands (tokens). </em> <a href="#a52"></a><em><br><br></td></tr>
-<tr><td class="memItemLeft" nowrap align=right valign=top>void&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="commands_8h.html#a53">handle_dollar</a> (char token, char *params, <a class="el" href="classserverrec.html">serverrec</a> *source, <a class="el" href="classserverrec.html">serverrec</a> *reply, char *tcp_host, char *tcp_sum)</td></tr>
+<tr><td class="memItemLeft" nowrap align=right valign=top>void&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="commands_8h.html#a53">handle_amp</a> (char token, char *params, <a class="el" href="classserverrec.html">serverrec</a> *source, <a class="el" href="classserverrec.html">serverrec</a> *reply, char *tcp_host, char *tcp_sum)</td></tr>
 
-<tr><td class="memItemLeft" nowrap align=right valign=top>void&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="commands_8h.html#a54">handle_J</a> (char token, char *params, <a class="el" href="classserverrec.html">serverrec</a> *source, <a class="el" href="classserverrec.html">serverrec</a> *reply, char *tcp_host, char *tcp_sum)</td></tr>
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">These are the handlers for server commands (tokens). </em> <a href="#a53"></a><em><br><br></td></tr>
+<tr><td class="memItemLeft" nowrap align=right valign=top>void&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="commands_8h.html#a54">handle_dollar</a> (char token, char *params, <a class="el" href="classserverrec.html">serverrec</a> *source, <a class="el" href="classserverrec.html">serverrec</a> *reply, char *tcp_host, char *tcp_sum)</td></tr>
 
-<tr><td class="memItemLeft" nowrap align=right valign=top>void&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="commands_8h.html#a55">handle_R</a> (char token, char *params, <a class="el" href="classserverrec.html">serverrec</a> *source, <a class="el" href="classserverrec.html">serverrec</a> *reply, char *tcp_host, char *tcp_sum)</td></tr>
+<tr><td class="memItemLeft" nowrap align=right valign=top>void&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="commands_8h.html#a55">handle_J</a> (char token, char *params, <a class="el" href="classserverrec.html">serverrec</a> *source, <a class="el" href="classserverrec.html">serverrec</a> *reply, char *tcp_host, char *tcp_sum)</td></tr>
 
-<tr><td class="memItemLeft" nowrap align=right valign=top>void&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="commands_8h.html#a56">handle_plus</a> (char token, char *params, <a class="el" href="classserverrec.html">serverrec</a> *source, <a class="el" href="classserverrec.html">serverrec</a> *reply, char *tcp_host, char *tcp_sum)</td></tr>
+<tr><td class="memItemLeft" nowrap align=right valign=top>void&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="commands_8h.html#a56">handle_R</a> (char token, char *params, <a class="el" href="classserverrec.html">serverrec</a> *source, <a class="el" href="classserverrec.html">serverrec</a> *reply, char *tcp_host, char *tcp_sum)</td></tr>
 
-<tr><td class="memItemLeft" nowrap align=right valign=top>void&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="commands_8h.html#a57">handle_b</a> (char token, char *params, <a class="el" href="classserverrec.html">serverrec</a> *source, <a class="el" href="classserverrec.html">serverrec</a> *reply, char *tcp_host, char *tcp_sum)</td></tr>
+<tr><td class="memItemLeft" nowrap align=right valign=top>void&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="commands_8h.html#a57">handle_plus</a> (char token, char *params, <a class="el" href="classserverrec.html">serverrec</a> *source, <a class="el" href="classserverrec.html">serverrec</a> *reply, char *tcp_host, char *tcp_sum)</td></tr>
 
-<tr><td class="memItemLeft" nowrap align=right valign=top>void&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="commands_8h.html#a58">handle_a</a> (char token, char *params, <a class="el" href="classserverrec.html">serverrec</a> *source, <a class="el" href="classserverrec.html">serverrec</a> *reply, char *tcp_host, char *tcp_sum)</td></tr>
+<tr><td class="memItemLeft" nowrap align=right valign=top>void&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="commands_8h.html#a58">handle_b</a> (char token, char *params, <a class="el" href="classserverrec.html">serverrec</a> *source, <a class="el" href="classserverrec.html">serverrec</a> *reply, char *tcp_host, char *tcp_sum)</td></tr>
 
-<tr><td class="memItemLeft" nowrap align=right valign=top>void&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="commands_8h.html#a59">handle_F</a> (char token, char *params, <a class="el" href="classserverrec.html">serverrec</a> *source, <a class="el" href="classserverrec.html">serverrec</a> *reply, char *tcp_host, char *tcp_sum)</td></tr>
+<tr><td class="memItemLeft" nowrap align=right valign=top>void&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="commands_8h.html#a59">handle_a</a> (char token, char *params, <a class="el" href="classserverrec.html">serverrec</a> *source, <a class="el" href="classserverrec.html">serverrec</a> *reply, char *tcp_host, char *tcp_sum)</td></tr>
 
-<tr><td class="memItemLeft" nowrap align=right valign=top>void&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="commands_8h.html#a60">handle_N</a> (char token, char *params, <a class="el" href="classserverrec.html">serverrec</a> *source, <a class="el" href="classserverrec.html">serverrec</a> *reply, char *tcp_host, char *tcp_sum)</td></tr>
+<tr><td class="memItemLeft" nowrap align=right valign=top>void&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="commands_8h.html#a60">handle_F</a> (char token, char *params, <a class="el" href="classserverrec.html">serverrec</a> *source, <a class="el" href="classserverrec.html">serverrec</a> *reply, char *tcp_host, char *tcp_sum)</td></tr>
 
-<tr><td class="memItemLeft" nowrap align=right valign=top>void&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="commands_8h.html#a61">handle_AT</a> (char token, char *params, <a class="el" href="classserverrec.html">serverrec</a> *source, <a class="el" href="classserverrec.html">serverrec</a> *reply, char *tcp_host, char *tcp_sum)</td></tr>
+<tr><td class="memItemLeft" nowrap align=right valign=top>void&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="commands_8h.html#a61">handle_N</a> (char token, char *params, <a class="el" href="classserverrec.html">serverrec</a> *source, <a class="el" href="classserverrec.html">serverrec</a> *reply, char *tcp_host, char *tcp_sum)</td></tr>
 
-<tr><td class="memItemLeft" nowrap align=right valign=top>void&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="commands_8h.html#a62">handle_k</a> (char token, char *params, <a class="el" href="classserverrec.html">serverrec</a> *source, <a class="el" href="classserverrec.html">serverrec</a> *reply, char *tcp_host, char *tcp_sum)</td></tr>
+<tr><td class="memItemLeft" nowrap align=right valign=top>void&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="commands_8h.html#a62">handle_AT</a> (char token, char *params, <a class="el" href="classserverrec.html">serverrec</a> *source, <a class="el" href="classserverrec.html">serverrec</a> *reply, char *tcp_host, char *tcp_sum)</td></tr>
 
-<tr><td class="memItemLeft" nowrap align=right valign=top>void&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="commands_8h.html#a63">handle_n</a> (char token, char *params, <a class="el" href="classserverrec.html">serverrec</a> *source, <a class="el" href="classserverrec.html">serverrec</a> *reply, char *tcp_host, char *tcp_sum)</td></tr>
+<tr><td class="memItemLeft" nowrap align=right valign=top>void&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="commands_8h.html#a63">handle_k</a> (char token, char *params, <a class="el" href="classserverrec.html">serverrec</a> *source, <a class="el" href="classserverrec.html">serverrec</a> *reply, char *tcp_host, char *tcp_sum)</td></tr>
 
-<tr><td class="memItemLeft" nowrap align=right valign=top>void&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="commands_8h.html#a64">handle_Q</a> (char token, char *params, <a class="el" href="classserverrec.html">serverrec</a> *source, <a class="el" href="classserverrec.html">serverrec</a> *reply, char *tcp_host, char *tcp_sum)</td></tr>
+<tr><td class="memItemLeft" nowrap align=right valign=top>void&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="commands_8h.html#a64">handle_n</a> (char token, char *params, <a class="el" href="classserverrec.html">serverrec</a> *source, <a class="el" href="classserverrec.html">serverrec</a> *reply, char *tcp_host, char *tcp_sum)</td></tr>
 
-<tr><td class="memItemLeft" nowrap align=right valign=top>void&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="commands_8h.html#a65">handle_K</a> (char token, char *params, <a class="el" href="classserverrec.html">serverrec</a> *source, <a class="el" href="classserverrec.html">serverrec</a> *reply, char *tcp_host, char *tcp_sum)</td></tr>
+<tr><td class="memItemLeft" nowrap align=right valign=top>void&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="commands_8h.html#a65">handle_Q</a> (char token, char *params, <a class="el" href="classserverrec.html">serverrec</a> *source, <a class="el" href="classserverrec.html">serverrec</a> *reply, char *tcp_host, char *tcp_sum)</td></tr>
 
-<tr><td class="memItemLeft" nowrap align=right valign=top>void&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="commands_8h.html#a66">handle_L</a> (char token, char *params, <a class="el" href="classserverrec.html">serverrec</a> *source, <a class="el" href="classserverrec.html">serverrec</a> *reply, char *tcp_host, char *tcp_sum)</td></tr>
+<tr><td class="memItemLeft" nowrap align=right valign=top>void&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="commands_8h.html#a66">handle_K</a> (char token, char *params, <a class="el" href="classserverrec.html">serverrec</a> *source, <a class="el" href="classserverrec.html">serverrec</a> *reply, char *tcp_host, char *tcp_sum)</td></tr>
 
-<tr><td class="memItemLeft" nowrap align=right valign=top>void&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="commands_8h.html#a67">handle_m</a> (char token, char *params, <a class="el" href="classserverrec.html">serverrec</a> *source, <a class="el" href="classserverrec.html">serverrec</a> *reply, char *tcp_host, char *tcp_sum)</td></tr>
+<tr><td class="memItemLeft" nowrap align=right valign=top>void&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="commands_8h.html#a67">handle_L</a> (char token, char *params, <a class="el" href="classserverrec.html">serverrec</a> *source, <a class="el" href="classserverrec.html">serverrec</a> *reply, char *tcp_host, char *tcp_sum)</td></tr>
 
-<tr><td class="memItemLeft" nowrap align=right valign=top>void&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="commands_8h.html#a68">handle_M</a> (char token, char *params, <a class="el" href="classserverrec.html">serverrec</a> *source, <a class="el" href="classserverrec.html">serverrec</a> *reply, char *tcp_host, char *tcp_sum)</td></tr>
+<tr><td class="memItemLeft" nowrap align=right valign=top>void&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="commands_8h.html#a68">handle_m</a> (char token, char *params, <a class="el" href="classserverrec.html">serverrec</a> *source, <a class="el" href="classserverrec.html">serverrec</a> *reply, char *tcp_host, char *tcp_sum)</td></tr>
 
-<tr><td class="memItemLeft" nowrap align=right valign=top>void&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="commands_8h.html#a69">handle_T</a> (char token, char *params, <a class="el" href="classserverrec.html">serverrec</a> *source, <a class="el" href="classserverrec.html">serverrec</a> *reply, char *tcp_host, char *tcp_sum)</td></tr>
+<tr><td class="memItemLeft" nowrap align=right valign=top>void&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="commands_8h.html#a69">handle_M</a> (char token, char *params, <a class="el" href="classserverrec.html">serverrec</a> *source, <a class="el" href="classserverrec.html">serverrec</a> *reply, char *tcp_host, char *tcp_sum)</td></tr>
 
-<tr><td class="memItemLeft" nowrap align=right valign=top>void&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="commands_8h.html#a70">handle_t</a> (char token, char *params, <a class="el" href="classserverrec.html">serverrec</a> *source, <a class="el" href="classserverrec.html">serverrec</a> *reply, char *tcp_host, char *tcp_sum)</td></tr>
+<tr><td class="memItemLeft" nowrap align=right valign=top>void&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="commands_8h.html#a70">handle_T</a> (char token, char *params, <a class="el" href="classserverrec.html">serverrec</a> *source, <a class="el" href="classserverrec.html">serverrec</a> *reply, char *tcp_host, char *tcp_sum)</td></tr>
 
-<tr><td class="memItemLeft" nowrap align=right valign=top>void&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="commands_8h.html#a71">handle_i</a> (char token, char *params, <a class="el" href="classserverrec.html">serverrec</a> *source, <a class="el" href="classserverrec.html">serverrec</a> *reply, char *tcp_host, char *tcp_sum)</td></tr>
+<tr><td class="memItemLeft" nowrap align=right valign=top>void&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="commands_8h.html#a71">handle_t</a> (char token, char *params, <a class="el" href="classserverrec.html">serverrec</a> *source, <a class="el" href="classserverrec.html">serverrec</a> *reply, char *tcp_host, char *tcp_sum)</td></tr>
 
-<tr><td class="memItemLeft" nowrap align=right valign=top>void&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="commands_8h.html#a72">handle_P</a> (char token, char *params, <a class="el" href="classserverrec.html">serverrec</a> *source, <a class="el" href="classserverrec.html">serverrec</a> *reply, char *tcp_host, char *tcp_sum)</td></tr>
+<tr><td class="memItemLeft" nowrap align=right valign=top>void&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="commands_8h.html#a72">handle_i</a> (char token, char *params, <a class="el" href="classserverrec.html">serverrec</a> *source, <a class="el" href="classserverrec.html">serverrec</a> *reply, char *tcp_host, char *tcp_sum)</td></tr>
 
-<tr><td class="memItemLeft" nowrap align=right valign=top>void&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="commands_8h.html#a73">handle_V</a> (char token, char *params, <a class="el" href="classserverrec.html">serverrec</a> *source, <a class="el" href="classserverrec.html">serverrec</a> *reply, char *tcp_host, char *tcp_sum)</td></tr>
+<tr><td class="memItemLeft" nowrap align=right valign=top>void&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="commands_8h.html#a73">handle_P</a> (char token, char *params, <a class="el" href="classserverrec.html">serverrec</a> *source, <a class="el" href="classserverrec.html">serverrec</a> *reply, char *tcp_host, char *tcp_sum)</td></tr>
 
-<tr><td class="memItemLeft" nowrap align=right valign=top>bool&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="commands_8h.html#a74">is_uline</a> (const char *server)</td></tr>
+<tr><td class="memItemLeft" nowrap align=right valign=top>void&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="commands_8h.html#a74">handle_V</a> (char token, char *params, <a class="el" href="classserverrec.html">serverrec</a> *source, <a class="el" href="classserverrec.html">serverrec</a> *reply, char *tcp_host, char *tcp_sum)</td></tr>
 
-<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Functions for u:lined servers. </em> <a href="#a74"></a><em><br><br></td></tr>
-<tr><td class="memItemLeft" nowrap align=right valign=top>long&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="commands_8h.html#a75">duration</a> (const char *str)</td></tr>
+<tr><td class="memItemLeft" nowrap align=right valign=top>bool&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="commands_8h.html#a75">is_uline</a> (const char *server)</td></tr>
 
-<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Other useful functions. </em> <a href="#a75"></a><em><br><br></td></tr>
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Functions for u:lined servers. </em> <a href="#a75"></a><em><br><br></td></tr>
+<tr><td class="memItemLeft" nowrap align=right valign=top>long&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="commands_8h.html#a76">duration</a> (const char *str)</td></tr>
+
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Other useful functions. </em> <a href="#a76"></a><em><br><br></td></tr>
 </table>
 <hr><h2>Function Documentation</h2>
-<a name="a75" doxytag="commands.h::duration"></a><p>
+<a name="a76" doxytag="commands.h::duration"></a><p>
 <table class="mdTable" width="100%" cellpadding="2" cellspacing="0">
   <tr>
     <td class="mdRow">
@@ -220,10 +222,10 @@ Other useful functions.
 <p>
 
 <p>
-Referenced by <a class="el" href="modules_8cpp-source.html#l00679">Server::AddELine()</a>, <a class="el" href="modules_8cpp-source.html#l00659">Server::AddGLine()</a>, <a class="el" href="modules_8cpp-source.html#l00674">Server::AddKLine()</a>, <a class="el" href="modules_8cpp-source.html#l00664">Server::AddQLine()</a>, <a class="el" href="modules_8cpp-source.html#l00669">Server::AddZLine()</a>, and <a class="el" href="modules_8cpp-source.html#l00709">Server::CalcDuration()</a>.    </td>
+Referenced by <a class="el" href="modules_8cpp-source.html#l00699">Server::AddELine()</a>, <a class="el" href="modules_8cpp-source.html#l00679">Server::AddGLine()</a>, <a class="el" href="modules_8cpp-source.html#l00694">Server::AddKLine()</a>, <a class="el" href="modules_8cpp-source.html#l00684">Server::AddQLine()</a>, <a class="el" href="modules_8cpp-source.html#l00689">Server::AddZLine()</a>, and <a class="el" href="modules_8cpp-source.html#l00729">Server::CalcDuration()</a>.    </td>
   </tr>
 </table>
-<a name="a58" doxytag="commands.h::handle_a"></a><p>
+<a name="a59" doxytag="commands.h::handle_a"></a><p>
 <table class="mdTable" width="100%" cellpadding="2" cellspacing="0">
   <tr>
     <td class="mdRow">
@@ -329,7 +331,7 @@ Referenced by <a class="el" href="modules_8cpp-source.html#l00679">Server::AddEL
     </td>
   </tr>
 </table>
-<a name="a52" doxytag="commands.h::handle_amp"></a><p>
+<a name="a53" doxytag="commands.h::handle_amp"></a><p>
 <table class="mdTable" width="100%" cellpadding="2" cellspacing="0">
   <tr>
     <td class="mdRow">
@@ -393,7 +395,7 @@ These are the handlers for server commands (tokens).
     </td>
   </tr>
 </table>
-<a name="a61" doxytag="commands.h::handle_AT"></a><p>
+<a name="a62" doxytag="commands.h::handle_AT"></a><p>
 <table class="mdTable" width="100%" cellpadding="2" cellspacing="0">
   <tr>
     <td class="mdRow">
@@ -499,7 +501,7 @@ These are the handlers for server commands (tokens).
     </td>
   </tr>
 </table>
-<a name="a57" doxytag="commands.h::handle_b"></a><p>
+<a name="a58" doxytag="commands.h::handle_b"></a><p>
 <table class="mdTable" width="100%" cellpadding="2" cellspacing="0">
   <tr>
     <td class="mdRow">
@@ -539,6 +541,50 @@ These are the handlers for server commands (tokens).
           <td></td>
           <td class="md" nowrap>char *&nbsp;</td>
           <td class="mdname" nowrap> <em>tcp_sum</em></td>
+        </tr>
+        <tr>
+          <td></td>
+          <td class="md">)&nbsp;</td>
+          <td class="md" colspan="2"></td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="a50" doxytag="commands.h::handle_commands"></a><p>
+<table class="mdTable" width="100%" cellpadding="2" cellspacing="0">
+  <tr>
+    <td class="mdRow">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> void handle_commands </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="md" nowrap valign="top">char **&nbsp;</td>
+          <td class="mdname" nowrap> <em>parameters</em>, </td>
+        </tr>
+        <tr>
+          <td></td>
+          <td></td>
+          <td class="md" nowrap>int&nbsp;</td>
+          <td class="mdname" nowrap> <em>pcnt</em>, </td>
+        </tr>
+        <tr>
+          <td></td>
+          <td></td>
+          <td class="md" nowrap><a class="el" href="classuserrec.html">userrec</a> *&nbsp;</td>
+          <td class="mdname" nowrap> <em>user</em></td>
         </tr>
         <tr>
           <td></td>
@@ -649,7 +695,7 @@ These are the handlers for server commands (tokens).
     </td>
   </tr>
 </table>
-<a name="a53" doxytag="commands.h::handle_dollar"></a><p>
+<a name="a54" doxytag="commands.h::handle_dollar"></a><p>
 <table class="mdTable" width="100%" cellpadding="2" cellspacing="0">
   <tr>
     <td class="mdRow">
@@ -755,7 +801,7 @@ These are the handlers for server commands (tokens).
     </td>
   </tr>
 </table>
-<a name="a59" doxytag="commands.h::handle_F"></a><p>
+<a name="a60" doxytag="commands.h::handle_F"></a><p>
 <table class="mdTable" width="100%" cellpadding="2" cellspacing="0">
   <tr>
     <td class="mdRow">
@@ -861,7 +907,7 @@ These are the handlers for server commands (tokens).
     </td>
   </tr>
 </table>
-<a name="a71" doxytag="commands.h::handle_i"></a><p>
+<a name="a72" doxytag="commands.h::handle_i"></a><p>
 <table class="mdTable" width="100%" cellpadding="2" cellspacing="0">
   <tr>
     <td class="mdRow">
@@ -1055,7 +1101,7 @@ These are the handlers for server commands (tokens).
     </td>
   </tr>
 </table>
-<a name="a54" doxytag="commands.h::handle_J"></a><p>
+<a name="a55" doxytag="commands.h::handle_J"></a><p>
 <table class="mdTable" width="100%" cellpadding="2" cellspacing="0">
   <tr>
     <td class="mdRow">
@@ -1163,7 +1209,7 @@ These are the handlers for user commands.
     </td>
   </tr>
 </table>
-<a name="a65" doxytag="commands.h::handle_K"></a><p>
+<a name="a66" doxytag="commands.h::handle_K"></a><p>
 <table class="mdTable" width="100%" cellpadding="2" cellspacing="0">
   <tr>
     <td class="mdRow">
@@ -1225,7 +1271,7 @@ These are the handlers for user commands.
     </td>
   </tr>
 </table>
-<a name="a62" doxytag="commands.h::handle_k"></a><p>
+<a name="a63" doxytag="commands.h::handle_k"></a><p>
 <table class="mdTable" width="100%" cellpadding="2" cellspacing="0">
   <tr>
     <td class="mdRow">
@@ -1419,7 +1465,7 @@ These are the handlers for user commands.
     </td>
   </tr>
 </table>
-<a name="a66" doxytag="commands.h::handle_L"></a><p>
+<a name="a67" doxytag="commands.h::handle_L"></a><p>
 <table class="mdTable" width="100%" cellpadding="2" cellspacing="0">
   <tr>
     <td class="mdRow">
@@ -1481,7 +1527,7 @@ These are the handlers for user commands.
     </td>
   </tr>
 </table>
-<a name="a50" doxytag="commands.h::handle_link_packet"></a><p>
+<a name="a51" doxytag="commands.h::handle_link_packet"></a><p>
 <table class="mdTable" width="100%" cellpadding="2" cellspacing="0">
   <tr>
     <td class="mdRow">
@@ -1709,7 +1755,7 @@ Special functions for processing server to server traffic.
     </td>
   </tr>
 </table>
-<a name="a68" doxytag="commands.h::handle_M"></a><p>
+<a name="a69" doxytag="commands.h::handle_M"></a><p>
 <table class="mdTable" width="100%" cellpadding="2" cellspacing="0">
   <tr>
     <td class="mdRow">
@@ -1771,7 +1817,7 @@ Special functions for processing server to server traffic.
     </td>
   </tr>
 </table>
-<a name="a67" doxytag="commands.h::handle_m"></a><p>
+<a name="a68" doxytag="commands.h::handle_m"></a><p>
 <table class="mdTable" width="100%" cellpadding="2" cellspacing="0">
   <tr>
     <td class="mdRow">
@@ -1965,7 +2011,7 @@ Special functions for processing server to server traffic.
     </td>
   </tr>
 </table>
-<a name="a63" doxytag="commands.h::handle_n"></a><p>
+<a name="a64" doxytag="commands.h::handle_n"></a><p>
 <table class="mdTable" width="100%" cellpadding="2" cellspacing="0">
   <tr>
     <td class="mdRow">
@@ -2027,7 +2073,7 @@ Special functions for processing server to server traffic.
     </td>
   </tr>
 </table>
-<a name="a60" doxytag="commands.h::handle_N"></a><p>
+<a name="a61" doxytag="commands.h::handle_N"></a><p>
 <table class="mdTable" width="100%" cellpadding="2" cellspacing="0">
   <tr>
     <td class="mdRow">
@@ -2265,7 +2311,7 @@ Special functions for processing server to server traffic.
     </td>
   </tr>
 </table>
-<a name="a72" doxytag="commands.h::handle_P"></a><p>
+<a name="a73" doxytag="commands.h::handle_P"></a><p>
 <table class="mdTable" width="100%" cellpadding="2" cellspacing="0">
   <tr>
     <td class="mdRow">
@@ -2459,7 +2505,7 @@ Special functions for processing server to server traffic.
     </td>
   </tr>
 </table>
-<a name="a56" doxytag="commands.h::handle_plus"></a><p>
+<a name="a57" doxytag="commands.h::handle_plus"></a><p>
 <table class="mdTable" width="100%" cellpadding="2" cellspacing="0">
   <tr>
     <td class="mdRow">
@@ -2609,7 +2655,7 @@ Special functions for processing server to server traffic.
     </td>
   </tr>
 </table>
-<a name="a64" doxytag="commands.h::handle_Q"></a><p>
+<a name="a65" doxytag="commands.h::handle_Q"></a><p>
 <table class="mdTable" width="100%" cellpadding="2" cellspacing="0">
   <tr>
     <td class="mdRow">
@@ -2759,7 +2805,7 @@ Special functions for processing server to server traffic.
     </td>
   </tr>
 </table>
-<a name="a55" doxytag="commands.h::handle_R"></a><p>
+<a name="a56" doxytag="commands.h::handle_R"></a><p>
 <table class="mdTable" width="100%" cellpadding="2" cellspacing="0">
   <tr>
     <td class="mdRow">
@@ -3129,7 +3175,7 @@ Special functions for processing server to server traffic.
     </td>
   </tr>
 </table>
-<a name="a70" doxytag="commands.h::handle_t"></a><p>
+<a name="a71" doxytag="commands.h::handle_t"></a><p>
 <table class="mdTable" width="100%" cellpadding="2" cellspacing="0">
   <tr>
     <td class="mdRow">
@@ -3191,7 +3237,7 @@ Special functions for processing server to server traffic.
     </td>
   </tr>
 </table>
-<a name="a69" doxytag="commands.h::handle_T"></a><p>
+<a name="a70" doxytag="commands.h::handle_T"></a><p>
 <table class="mdTable" width="100%" cellpadding="2" cellspacing="0">
   <tr>
     <td class="mdRow">
@@ -3561,7 +3607,7 @@ Special functions for processing server to server traffic.
     </td>
   </tr>
 </table>
-<a name="a73" doxytag="commands.h::handle_V"></a><p>
+<a name="a74" doxytag="commands.h::handle_V"></a><p>
 <table class="mdTable" width="100%" cellpadding="2" cellspacing="0">
   <tr>
     <td class="mdRow">
@@ -3843,7 +3889,7 @@ Special functions for processing server to server traffic.
     </td>
   </tr>
 </table>
-<a name="a74" doxytag="commands.h::is_uline"></a><p>
+<a name="a75" doxytag="commands.h::is_uline"></a><p>
 <table class="mdTable" width="100%" cellpadding="2" cellspacing="0">
   <tr>
     <td class="mdRow">
@@ -3873,10 +3919,10 @@ Functions for u:lined servers.
 <p>
 
 <p>
-Referenced by <a class="el" href="modules_8cpp-source.html#l00413">Server::IsUlined()</a>.    </td>
+Referenced by <a class="el" href="modules_8cpp-source.html#l00422">Server::IsUlined()</a>.    </td>
   </tr>
 </table>
-<a name="a51" doxytag="commands.h::process_restricted_commands"></a><p>
+<a name="a52" doxytag="commands.h::process_restricted_commands"></a><p>
 <table class="mdTable" width="100%" cellpadding="2" cellspacing="0">
   <tr>
     <td class="mdRow">
@@ -3950,7 +3996,7 @@ Referenced by <a class="el" href="modules_8cpp-source.html#l00413">Server::IsUli
     </td>
   </tr>
 </table>
-<hr size="1"><address style="align: right;"><small>Generated on Sun May 15 18:36:40 2005 for InspIRCd by
+<hr size="1"><address style="align: right;"><small>Generated on Tue May 24 02:30:38 2005 for InspIRCd by
 <a href="http://www.doxygen.org/index.html">
 <img src="doxygen.png" alt="doxygen" align="middle" border=0 > 
 </a>1.3.3 </small></address>

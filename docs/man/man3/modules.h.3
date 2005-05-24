@@ -1,4 +1,4 @@
-.TH "modules.h" 3 "15 May 2005" "InspIRCd" \" -*- nroff -*-
+.TH "modules.h" 3 "24 May 2005" "InspIRCd" \" -*- nroff -*-
 .ad l
 .nh
 .SH NAME
@@ -252,7 +252,7 @@ Referenced by ConfigReader::ReadFlag(), ConfigReader::ReadInteger(), and ConfigR
 .PP
 Definition at line 23 of file modules.h.
 .PP
-Referenced by Server::AddExtendedMode(), chanrec::AddUser(), chanrec::DelUser(), userrec::HasPermission(), chanrec::IsCustomModeSet(), userrec::RemoveInvite(), chanrec::SetCustomMode(), chanrec::SetCustomModeParam(), userrec::SetWriteError(), and Server::UserToPseudo().
+Referenced by Server::AddExtendedMode(), serverrec::AddIncoming(), chanrec::AddUser(), chanrec::DelUser(), userrec::HasPermission(), chanrec::IsCustomModeSet(), serverrec::RecvPacket(), userrec::RemoveInvite(), serverrec::SendPacket(), chanrec::SetCustomMode(), chanrec::SetCustomModeParam(), userrec::SetWriteError(), and Server::UserToPseudo().
 .SS "#define DEFAULT   30"
 .PP
 Definition at line 25 of file modules.h.

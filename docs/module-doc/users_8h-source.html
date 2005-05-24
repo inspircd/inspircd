@@ -149,39 +149,43 @@
 00250         
 00255         <span class="keywordtype">bool</span> <a class="code" href="classuserrec.html#a7">HasPermission</a>(<span class="keywordtype">char</span>* command);
 00256 
-00264         <span class="keywordtype">bool</span> <a class="code" href="classuserrec.html#a8">AddBuffer</a>(std::string a);
-00265 
-00269         <span class="keywordtype">bool</span> <a class="code" href="classuserrec.html#a9">BufferIsReady</a>();
-00270 
-00273         <span class="keywordtype">void</span> <a class="code" href="classuserrec.html#a10">ClearBuffer</a>();
+00259         <span class="keywordtype">int</span> <a class="code" href="classuserrec.html#a8">ReadData</a>(<span class="keywordtype">void</span>* buffer, size_t size);
+00260 
+00268         <span class="keywordtype">bool</span> <a class="code" href="classuserrec.html#a9">AddBuffer</a>(std::string a);
+00269 
+00273         <span class="keywordtype">bool</span> <a class="code" href="classuserrec.html#a10">BufferIsReady</a>();
 00274 
-00282         std::string <a class="code" href="classuserrec.html#a11">GetBuffer</a>();
-00283 
-00289         <span class="keywordtype">void</span> <a class="code" href="classuserrec.html#a12">SetWriteError</a>(std::string error);
-00290 
-00294         std::string <a class="code" href="classuserrec.html#a13">GetWriteError</a>();
-00295 
-00301         <span class="keywordtype">void</span> <a class="code" href="classuserrec.html#a14">AddWriteBuf</a>(std::string data);
-00302 
-00309         <span class="keywordtype">void</span> <a class="code" href="classuserrec.html#a15">FlushWriteBuf</a>();
-00310 
-00313         <a class="code" href="users_8h.html#a6">InvitedList</a>* <a class="code" href="classuserrec.html#a16">GetInviteList</a>();
-00314 };
-00315 
-<a name="l00318"></a><a class="code" href="classWhoWasUser.html">00318</a> <span class="keyword">class </span><a class="code" href="classWhoWasUser.html">WhoWasUser</a>
-00319 {
-00320  <span class="keyword">public</span>:
-<a name="l00321"></a><a class="code" href="classWhoWasUser.html#o0">00321</a>         <span class="keywordtype">char</span> <a class="code" href="classWhoWasUser.html#o0">nick</a>[NICKMAX];
-<a name="l00322"></a><a class="code" href="classWhoWasUser.html#o1">00322</a>         <span class="keywordtype">char</span> <a class="code" href="classWhoWasUser.html#o1">ident</a>[16];
-<a name="l00323"></a><a class="code" href="classWhoWasUser.html#o2">00323</a>         <span class="keywordtype">char</span> <a class="code" href="classWhoWasUser.html#o2">dhost</a>[160];
-<a name="l00324"></a><a class="code" href="classWhoWasUser.html#o3">00324</a>         <span class="keywordtype">char</span> <a class="code" href="classWhoWasUser.html#o3">host</a>[160];
-<a name="l00325"></a><a class="code" href="classWhoWasUser.html#o4">00325</a>         <span class="keywordtype">char</span> <a class="code" href="classWhoWasUser.html#o4">fullname</a>[128];
-<a name="l00326"></a><a class="code" href="classWhoWasUser.html#o5">00326</a>         <span class="keywordtype">char</span> <a class="code" href="classWhoWasUser.html#o5">server</a>[256];
-<a name="l00327"></a><a class="code" href="classWhoWasUser.html#o6">00327</a>         time_t <a class="code" href="classWhoWasUser.html#o6">signon</a>;
-00328 };
-00329 
-00330 <span class="preprocessor">#endif</span>
-</pre></div><hr size="1"><address style="align: right;"><small>Generated on Sun May 15 18:36:03 2005 for InspIRCd by
+00277         <span class="keywordtype">void</span> <a class="code" href="classuserrec.html#a11">ClearBuffer</a>();
+00278 
+00286         std::string <a class="code" href="classuserrec.html#a12">GetBuffer</a>();
+00287 
+00293         <span class="keywordtype">void</span> <a class="code" href="classuserrec.html#a13">SetWriteError</a>(std::string error);
+00294 
+00298         std::string <a class="code" href="classuserrec.html#a14">GetWriteError</a>();
+00299 
+00305         <span class="keywordtype">void</span> <a class="code" href="classuserrec.html#a15">AddWriteBuf</a>(std::string data);
+00306 
+00313         <span class="keywordtype">void</span> <a class="code" href="classuserrec.html#a16">FlushWriteBuf</a>();
+00314 
+00317         <a class="code" href="users_8h.html#a6">InvitedList</a>* <a class="code" href="classuserrec.html#a17">GetInviteList</a>();
+00318 
+00321         <span class="keywordtype">void</span> <a class="code" href="classuserrec.html#a18">CloseSocket</a>();
+00322 };
+00323 
+<a name="l00326"></a><a class="code" href="classWhoWasUser.html">00326</a> <span class="keyword">class </span><a class="code" href="classWhoWasUser.html">WhoWasUser</a>
+00327 {
+00328  <span class="keyword">public</span>:
+<a name="l00329"></a><a class="code" href="classWhoWasUser.html#o0">00329</a>         <span class="keywordtype">char</span> <a class="code" href="classWhoWasUser.html#o0">nick</a>[NICKMAX];
+<a name="l00330"></a><a class="code" href="classWhoWasUser.html#o1">00330</a>         <span class="keywordtype">char</span> <a class="code" href="classWhoWasUser.html#o1">ident</a>[16];
+<a name="l00331"></a><a class="code" href="classWhoWasUser.html#o2">00331</a>         <span class="keywordtype">char</span> <a class="code" href="classWhoWasUser.html#o2">dhost</a>[160];
+<a name="l00332"></a><a class="code" href="classWhoWasUser.html#o3">00332</a>         <span class="keywordtype">char</span> <a class="code" href="classWhoWasUser.html#o3">host</a>[160];
+<a name="l00333"></a><a class="code" href="classWhoWasUser.html#o4">00333</a>         <span class="keywordtype">char</span> <a class="code" href="classWhoWasUser.html#o4">fullname</a>[128];
+<a name="l00334"></a><a class="code" href="classWhoWasUser.html#o5">00334</a>         <span class="keywordtype">char</span> <a class="code" href="classWhoWasUser.html#o5">server</a>[256];
+<a name="l00335"></a><a class="code" href="classWhoWasUser.html#o6">00335</a>         time_t <a class="code" href="classWhoWasUser.html#o6">signon</a>;
+00336 };
+00337 
+00338 <span class="preprocessor">#endif</span>
+</pre></div><hr size="1"><address style="align: right;"><small>Generated on Tue May 24 02:30:07 2005 for InspIRCd by
 <a href="http://www.doxygen.org/index.html">
 <img src="doxygen.png" alt="doxygen" align="middle" border=0 > 
 </a>1.3.3 </small></address>

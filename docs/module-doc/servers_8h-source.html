@@ -54,14 +54,32 @@
 00071         <a class="code" href="classserverrec.html#a0">serverrec</a>();
 00074         <a class="code" href="classserverrec.html#a0">serverrec</a>(<span class="keywordtype">char</span>* n, <span class="keywordtype">long</span> ver, <span class="keywordtype">bool</span> jupe);
 00077         <a class="code" href="classserverrec.html#a2">~serverrec</a>();
-00078         
-00079 };
-00080 
-00081 
+00078 
+<a name="l00081"></a><a class="code" href="classserverrec.html#o11">00081</a>         std::vector&lt;ircd_connector&gt; <a class="code" href="classserverrec.html#o11">connectors</a>;
 00082 
-00083 <span class="preprocessor">#endif</span>
-00084 <span class="preprocessor"></span>
-</pre></div><hr size="1"><address style="align: right;"><small>Generated on Sun May 15 18:36:02 2005 for InspIRCd by
+00083 
+00086         <span class="keywordtype">bool</span> <a class="code" href="classserverrec.html#a3">CreateListener</a>(<span class="keywordtype">char</span>* host, <span class="keywordtype">int</span> p);
+00087 
+00090         <span class="keywordtype">bool</span> <a class="code" href="classserverrec.html#a4">BeginLink</a>(<span class="keywordtype">char</span>* targethost, <span class="keywordtype">int</span> port, <span class="keywordtype">char</span>* password, <span class="keywordtype">char</span>* servername, <span class="keywordtype">int</span> myport);
+00091 
+00094         <span class="keywordtype">bool</span> <a class="code" href="classserverrec.html#a5">MeshCookie</a>(<span class="keywordtype">char</span>* targethost, <span class="keywordtype">int</span> port, <span class="keywordtype">unsigned</span> <span class="keywordtype">long</span> cookie, <span class="keywordtype">char</span>* servername);
+00095 
+00098         <span class="keywordtype">void</span> <a class="code" href="classserverrec.html#a6">TerminateLink</a>(<span class="keywordtype">char</span>* targethost);
+00099 
+00103         <span class="keywordtype">bool</span> <a class="code" href="classserverrec.html#a7">SendPacket</a>(<span class="keywordtype">char</span> *message, <span class="keyword">const</span> <span class="keywordtype">char</span>* host);
+00104 
+00109         <span class="keywordtype">bool</span> <a class="code" href="classserverrec.html#a8">RecvPacket</a>(std::deque&lt;std::string&gt; &amp;messages, <span class="keywordtype">char</span>* host, std::deque&lt;std::string&gt; &amp;sums);
+00110 
+00113         <a class="code" href="classircd__connector.html">ircd_connector</a>* <a class="code" href="classserverrec.html#a9">FindHost</a>(std::string host);
+00114 
+00118         <span class="keywordtype">bool</span> <a class="code" href="classserverrec.html#a10">AddIncoming</a>(<span class="keywordtype">int</span> fd,<span class="keywordtype">char</span>* targethost, <span class="keywordtype">int</span> sourceport);      
+00119 
+00122         <span class="keywordtype">void</span> <a class="code" href="classserverrec.html#a11">FlushWriteBuffers</a>();
+00123 };
+00124 
+00125 <span class="preprocessor">#endif</span>
+00126 <span class="preprocessor"></span>
+</pre></div><hr size="1"><address style="align: right;"><small>Generated on Tue May 24 02:30:06 2005 for InspIRCd by
 <a href="http://www.doxygen.org/index.html">
 <img src="doxygen.png" alt="doxygen" align="middle" border=0 > 
 </a>1.3.3 </small></address>

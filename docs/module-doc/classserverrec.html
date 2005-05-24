@@ -18,7 +18,7 @@ Inheritance diagram for serverrec:<p><center><img src="classserverrec__inherit__
 </map>
 <center><font size="2">[<a target="top" href="graph_legend.html">legend</a>]</font></center>Collaboration diagram for serverrec:<p><center><img src="classserverrec__coll__graph.gif" border="0" usemap="#serverrec__coll__map" alt="Collaboration graph"></center>
 <map name="serverrec__coll__map">
-<area href="classconnection.html" shape="rect" coords="237,173,322,200" alt="">
+<area href="classconnection.html" shape="rect" coords="210,249,296,275" alt="">
 </map>
 <center><font size="2">[<a target="top" href="graph_legend.html">legend</a>]</font></center><a href="classserverrec-members.html">List of all members.</a><table border=0 cellpadding=0 cellspacing=0>
 <tr><td></td></tr>
@@ -32,6 +32,33 @@ Inheritance diagram for serverrec:<p><center><img src="classserverrec__inherit__
 <tr><td class="memItemLeft" nowrap align=right valign=top>&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="classserverrec.html#a2">~serverrec</a> ()</td></tr>
 
 <tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Destructor. </em> <a href="#a2"></a><em><br><br></td></tr>
+<tr><td class="memItemLeft" nowrap align=right valign=top>bool&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="classserverrec.html#a3">CreateListener</a> (char *<a class="el" href="classconnection.html#o1">host</a>, int p)</td></tr>
+
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Create a listening socket on 'host' using port number 'p'. </em> <a href="#a3"></a><em><br><br></td></tr>
+<tr><td class="memItemLeft" nowrap align=right valign=top>bool&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="classserverrec.html#a4">BeginLink</a> (char *targethost, int <a class="el" href="classconnection.html#o8">port</a>, char *password, char *servername, int myport)</td></tr>
+
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Begin an outbound link to another ircd at targethost. </em> <a href="#a4"></a><em><br><br></td></tr>
+<tr><td class="memItemLeft" nowrap align=right valign=top>bool&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="classserverrec.html#a5">MeshCookie</a> (char *targethost, int <a class="el" href="classconnection.html#o8">port</a>, unsigned long cookie, char *servername)</td></tr>
+
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Begin an outbound mesh link to another ircd on a network you are already an authenticated member of. </em> <a href="#a5"></a><em><br><br></td></tr>
+<tr><td class="memItemLeft" nowrap align=right valign=top>void&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="classserverrec.html#a6">TerminateLink</a> (char *targethost)</td></tr>
+
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Terminate a link to 'targethost' by calling the <a class="el" href="classircd__connector.html#a14">ircd_connector::CloseConnection</a> method. </em> <a href="#a6"></a><em><br><br></td></tr>
+<tr><td class="memItemLeft" nowrap align=right valign=top>bool&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="classserverrec.html#a7">SendPacket</a> (char *message, const char *<a class="el" href="classconnection.html#o1">host</a>)</td></tr>
+
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Send a message to a server by name, if the server is unavailable directly route the packet via another server If the server still cannot be reached after attempting to route the message remotely, returns false. </em> <a href="#a7"></a><em><br><br></td></tr>
+<tr><td class="memItemLeft" nowrap align=right valign=top>bool&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="classserverrec.html#a8">RecvPacket</a> (std::deque&lt; std::string &gt; &amp;messages, char *<a class="el" href="classconnection.html#o1">host</a>, std::deque&lt; std::string &gt; &amp;sums)</td></tr>
+
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Returns the next available packet and returns true if data is available. </em> <a href="#a8"></a><em><br><br></td></tr>
+<tr><td class="memItemLeft" nowrap align=right valign=top><a class="el" href="classircd__connector.html">ircd_connector</a> *&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="classserverrec.html#a9">FindHost</a> (std::string <a class="el" href="classconnection.html#o1">host</a>)</td></tr>
+
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Find the <a class="el" href="classircd__connector.html">ircd_connector</a> oject related to a certain servername given in 'host'. </em> <a href="#a9"></a><em><br><br></td></tr>
+<tr><td class="memItemLeft" nowrap align=right valign=top>bool&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="classserverrec.html#a10">AddIncoming</a> (int <a class="el" href="classconnection.html#o0">fd</a>, char *targethost, int sourceport)</td></tr>
+
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Add an incoming connection to the connection pool. </em> <a href="#a10"></a><em><br><br></td></tr>
+<tr><td class="memItemLeft" nowrap align=right valign=top>void&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="classserverrec.html#a11">FlushWriteBuffers</a> ()</td></tr>
+
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Flushes all data waiting to be written for all of this server's connections. </em> <a href="#a11"></a><em><br><br></td></tr>
 <tr><td colspan=2><br><h2>Public Attributes</h2></td></tr>
 <tr><td class="memItemLeft" nowrap align=right valign=top>char&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="classserverrec.html#o0">name</a> [MAXBUF]</td></tr>
 
@@ -65,6 +92,9 @@ Inheritance diagram for serverrec:<p><center><img src="classserverrec__inherit__
 <tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Holds nickserv's name on U:lined (services) servers (this is a kludge for ircservices which ASSUMES things :/). </em> <a href="#o9"></a><em><br><br></td></tr>
 <tr><td class="memItemLeft" nowrap align=right valign=top>bool&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="classserverrec.html#o10">sync_soon</a></td></tr>
 
+<tr><td class="memItemLeft" nowrap align=right valign=top>std::vector&lt; <a class="el" href="classircd__connector.html">ircd_connector</a> &gt;&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="classserverrec.html#o11">connectors</a></td></tr>
+
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">With a serverrec, this is a list of all established server connections. </em> <a href="#o11"></a><em><br><br></td></tr>
 </table>
 <hr><a name="_details"></a><h2>Detailed Description</h2>
 A class that defines the local server or a remote server. 
@@ -101,22 +131,23 @@ Constructor.
 <p>
 
 <p>
-Definition at line <a class="el" href="servers_8cpp-source.html#l00027">27</a> of file <a class="el" href="servers_8cpp-source.html">servers.cpp</a>.
+Definition at line <a class="el" href="servers_8cpp-source.html#l00042">42</a> of file <a class="el" href="servers_8cpp-source.html">servers.cpp</a>.
 <p>
-References <a class="el" href="connection_8h-source.html#l00217">connection::fd</a>, <a class="el" href="servers_8h-source.html#l00051">hops_away</a>, <a class="el" href="servers_8h-source.html#l00057">jupiter</a>, <a class="el" href="connection_8h-source.html#l00259">connection::lastping</a>, <a class="el" href="servers_8h-source.html#l00036">name</a>, <a class="el" href="servers_8h-source.html#l00065">nickserv</a>, <a class="el" href="servers_8h-source.html#l00048">opercount</a>, <a class="el" href="servers_8h-source.html#l00039">pingtime</a>, <a class="el" href="connection_8h-source.html#l00263">connection::signon</a>, <a class="el" href="servers_8h-source.html#l00067">sync_soon</a>, <a class="el" href="channels_8cpp-source.html#l00102">TIME</a>, <a class="el" href="servers_8h-source.html#l00045">usercount</a>, <a class="el" href="servers_8h-source.html#l00042">usercount_i</a>, and <a class="el" href="servers_8h-source.html#l00054">version</a>.
+References <a class="el" href="servers_8h-source.html#l00081">connectors</a>, <a class="el" href="connection_8h-source.html#l00266">connection::fd</a>, <a class="el" href="servers_8h-source.html#l00051">hops_away</a>, <a class="el" href="servers_8h-source.html#l00057">jupiter</a>, <a class="el" href="connection_8h-source.html#l00308">connection::lastping</a>, <a class="el" href="servers_8h-source.html#l00036">name</a>, <a class="el" href="servers_8h-source.html#l00065">nickserv</a>, <a class="el" href="servers_8h-source.html#l00048">opercount</a>, <a class="el" href="servers_8h-source.html#l00039">pingtime</a>, <a class="el" href="connection_8h-source.html#l00312">connection::signon</a>, <a class="el" href="servers_8h-source.html#l00067">sync_soon</a>, <a class="el" href="channels_8cpp-source.html#l00101">TIME</a>, <a class="el" href="servers_8h-source.html#l00045">usercount</a>, <a class="el" href="servers_8h-source.html#l00042">usercount_i</a>, and <a class="el" href="servers_8h-source.html#l00054">version</a>.
 <p>
-<div class="fragment"><pre>00028 {
-00029         strlcpy(name,<span class="stringliteral">""</span>,256);
-00030         <a class="code" href="classserverrec.html#o1">pingtime</a> = 0;
-00031         <a class="code" href="classconnection.html#o10">lastping</a> = <a class="code" href="channels_8cpp.html#a37">TIME</a>;
-00032         <a class="code" href="classserverrec.html#o2">usercount_i</a> = <a class="code" href="classserverrec.html#o3">usercount</a> = <a class="code" href="classserverrec.html#o4">opercount</a> = <a class="code" href="classserverrec.html#o6">version</a> = 0;
-00033         <a class="code" href="classserverrec.html#o5">hops_away</a> = 1;
-00034         <a class="code" href="classconnection.html#o11">signon</a> = <a class="code" href="channels_8cpp.html#a37">TIME</a>;
-00035         <a class="code" href="classserverrec.html#o7">jupiter</a> = <span class="keyword">false</span>;
-00036         <a class="code" href="classconnection.html#o0">fd</a> = 0;
-00037         <a class="code" href="classserverrec.html#o10">sync_soon</a> = <span class="keyword">false</span>;
-00038         strlcpy(nickserv,<span class="stringliteral">""</span>,NICKMAX);
-00039 }
+<div class="fragment"><pre>00043 {
+00044         strlcpy(name,<span class="stringliteral">""</span>,256);
+00045         <a class="code" href="classserverrec.html#o1">pingtime</a> = 0;
+00046         <a class="code" href="classconnection.html#o10">lastping</a> = <a class="code" href="channels_8cpp.html#a36">TIME</a>;
+00047         <a class="code" href="classserverrec.html#o2">usercount_i</a> = <a class="code" href="classserverrec.html#o3">usercount</a> = <a class="code" href="classserverrec.html#o4">opercount</a> = <a class="code" href="classserverrec.html#o6">version</a> = 0;
+00048         <a class="code" href="classserverrec.html#o5">hops_away</a> = 1;
+00049         <a class="code" href="classconnection.html#o11">signon</a> = <a class="code" href="channels_8cpp.html#a36">TIME</a>;
+00050         <a class="code" href="classserverrec.html#o7">jupiter</a> = <span class="keyword">false</span>;
+00051         <a class="code" href="classconnection.html#o0">fd</a> = 0;
+00052         <a class="code" href="classserverrec.html#o10">sync_soon</a> = <span class="keyword">false</span>;
+00053         strlcpy(nickserv,<span class="stringliteral">""</span>,NICKMAX);
+00054         <a class="code" href="classserverrec.html#o11">connectors</a>.clear();
+00055 }
 </pre></div>    </td>
   </tr>
 </table>
@@ -165,22 +196,23 @@ Constructor which initialises some of the main variables.
 <p>
 
 <p>
-Definition at line <a class="el" href="servers_8cpp-source.html#l00046">46</a> of file <a class="el" href="servers_8cpp-source.html">servers.cpp</a>.
+Definition at line <a class="el" href="servers_8cpp-source.html#l00062">62</a> of file <a class="el" href="servers_8cpp-source.html">servers.cpp</a>.
 <p>
-References <a class="el" href="connection_8h-source.html#l00217">connection::fd</a>, <a class="el" href="servers_8h-source.html#l00051">hops_away</a>, <a class="el" href="servers_8h-source.html#l00057">jupiter</a>, <a class="el" href="connection_8h-source.html#l00259">connection::lastping</a>, <a class="el" href="servers_8h-source.html#l00036">name</a>, <a class="el" href="servers_8h-source.html#l00065">nickserv</a>, <a class="el" href="servers_8h-source.html#l00048">opercount</a>, <a class="el" href="connection_8h-source.html#l00263">connection::signon</a>, <a class="el" href="servers_8h-source.html#l00067">sync_soon</a>, <a class="el" href="channels_8cpp-source.html#l00102">TIME</a>, <a class="el" href="servers_8h-source.html#l00045">usercount</a>, <a class="el" href="servers_8h-source.html#l00042">usercount_i</a>, and <a class="el" href="servers_8h-source.html#l00054">version</a>.
+References <a class="el" href="servers_8h-source.html#l00081">connectors</a>, <a class="el" href="connection_8h-source.html#l00266">connection::fd</a>, <a class="el" href="servers_8h-source.html#l00051">hops_away</a>, <a class="el" href="servers_8h-source.html#l00057">jupiter</a>, <a class="el" href="connection_8h-source.html#l00308">connection::lastping</a>, <a class="el" href="servers_8h-source.html#l00036">name</a>, <a class="el" href="servers_8h-source.html#l00065">nickserv</a>, <a class="el" href="servers_8h-source.html#l00048">opercount</a>, <a class="el" href="connection_8h-source.html#l00312">connection::signon</a>, <a class="el" href="servers_8h-source.html#l00067">sync_soon</a>, <a class="el" href="channels_8cpp-source.html#l00101">TIME</a>, <a class="el" href="servers_8h-source.html#l00045">usercount</a>, <a class="el" href="servers_8h-source.html#l00042">usercount_i</a>, and <a class="el" href="servers_8h-source.html#l00054">version</a>.
 <p>
-<div class="fragment"><pre>00047 {
-00048         strlcpy(name,n,256);
-00049         <a class="code" href="classconnection.html#o10">lastping</a> = <a class="code" href="channels_8cpp.html#a37">TIME</a>;
-00050         <a class="code" href="classserverrec.html#o2">usercount_i</a> = <a class="code" href="classserverrec.html#o3">usercount</a> = <a class="code" href="classserverrec.html#o4">opercount</a> = 0;
-00051         <a class="code" href="classserverrec.html#o6">version</a> = ver;
-00052         <a class="code" href="classserverrec.html#o5">hops_away</a> = 1;
-00053         <a class="code" href="classconnection.html#o11">signon</a> = <a class="code" href="channels_8cpp.html#a37">TIME</a>;
-00054         <a class="code" href="classserverrec.html#o7">jupiter</a> = jupe;
-00055         <a class="code" href="classconnection.html#o0">fd</a> = 0;
-00056         <a class="code" href="classserverrec.html#o10">sync_soon</a> = <span class="keyword">false</span>;
-00057         strlcpy(nickserv,<span class="stringliteral">""</span>,NICKMAX);
-00058 }
+<div class="fragment"><pre>00063 {
+00064         strlcpy(name,n,256);
+00065         <a class="code" href="classconnection.html#o10">lastping</a> = <a class="code" href="channels_8cpp.html#a36">TIME</a>;
+00066         <a class="code" href="classserverrec.html#o2">usercount_i</a> = <a class="code" href="classserverrec.html#o3">usercount</a> = <a class="code" href="classserverrec.html#o4">opercount</a> = 0;
+00067         <a class="code" href="classserverrec.html#o6">version</a> = ver;
+00068         <a class="code" href="classserverrec.html#o5">hops_away</a> = 1;
+00069         <a class="code" href="classconnection.html#o11">signon</a> = <a class="code" href="channels_8cpp.html#a36">TIME</a>;
+00070         <a class="code" href="classserverrec.html#o7">jupiter</a> = jupe;
+00071         <a class="code" href="classconnection.html#o0">fd</a> = 0;
+00072         <a class="code" href="classserverrec.html#o10">sync_soon</a> = <span class="keyword">false</span>;
+00073         strlcpy(nickserv,<span class="stringliteral">""</span>,NICKMAX);
+00074         <a class="code" href="classserverrec.html#o11">connectors</a>.clear();
+00075 }
 </pre></div>    </td>
   </tr>
 </table>
@@ -213,14 +245,812 @@ Destructor.
 <p>
 
 <p>
-Definition at line <a class="el" href="servers_8cpp-source.html#l00042">42</a> of file <a class="el" href="servers_8cpp-source.html">servers.cpp</a>.
+Definition at line <a class="el" href="servers_8cpp-source.html#l00058">58</a> of file <a class="el" href="servers_8cpp-source.html">servers.cpp</a>.
 <p>
-<div class="fragment"><pre>00043 {
-00044 }
+<div class="fragment"><pre>00059 {
+00060 }
+</pre></div>    </td>
+  </tr>
+</table>
+<hr><h2>Member Function Documentation</h2>
+<a name="a10" doxytag="serverrec::AddIncoming"></a><p>
+<table class="mdTable" width="100%" cellpadding="2" cellspacing="0">
+  <tr>
+    <td class="mdRow">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> bool serverrec::AddIncoming </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="md" nowrap valign="top">int&nbsp;</td>
+          <td class="mdname" nowrap> <em>fd</em>, </td>
+        </tr>
+        <tr>
+          <td></td>
+          <td></td>
+          <td class="md" nowrap>char *&nbsp;</td>
+          <td class="mdname" nowrap> <em>targethost</em>, </td>
+        </tr>
+        <tr>
+          <td></td>
+          <td></td>
+          <td class="md" nowrap>int&nbsp;</td>
+          <td class="mdname" nowrap> <em>sourceport</em></td>
+        </tr>
+        <tr>
+          <td></td>
+          <td class="md">)&nbsp;</td>
+          <td class="md" colspan="2"></td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+Add an incoming connection to the connection pool. 
+<p>
+(reserved for core use) 
+<p>
+Definition at line <a class="el" href="servers_8cpp-source.html#l00207">207</a> of file <a class="el" href="servers_8cpp-source.html">servers.cpp</a>.
+<p>
+References <a class="el" href="servers_8h-source.html#l00081">connectors</a>, <a class="el" href="modules_8h-source.html#l00023">DEBUG</a>, <a class="el" href="classircd__connector.html#a5">ircd_connector::SetDescriptor()</a>, <a class="el" href="classircd__connector.html#a13">ircd_connector::SetHostAndPort()</a>, <a class="el" href="classircd__connector.html#a3">ircd_connector::SetServerName()</a>, <a class="el" href="classircd__connector.html#a7">ircd_connector::SetState()</a>, and <a class="el" href="connection_8h-source.html#l00038">STATE_NOAUTH_INBOUND</a>.
+<p>
+<div class="fragment"><pre>00208 {
+00209         <a class="code" href="classircd__connector.html">ircd_connector</a> connector;
+00210 
+00211         <span class="comment">// targethost has been turned into an ip...</span>
+00212         <span class="comment">// we dont want this as the server name.</span>
+00213         connector.<a class="code" href="classircd__connector.html#a3">SetServerName</a>(targethost);
+00214         connector.<a class="code" href="classircd__connector.html#a5">SetDescriptor</a>(newfd);
+00215         connector.<a class="code" href="classircd__connector.html#a7">SetState</a>(STATE_NOAUTH_INBOUND);
+00216         <span class="keywordtype">int</span> flags = fcntl(newfd, F_GETFL, 0);
+00217         fcntl(newfd, F_SETFL, flags | O_NONBLOCK);
+00218         <span class="keywordtype">int</span> sendbuf = 32768;
+00219         <span class="keywordtype">int</span> recvbuf = 32768;
+00220         setsockopt(newfd,SOL_SOCKET,SO_SNDBUF,(<span class="keyword">const</span> <span class="keywordtype">void</span> *)&amp;sendbuf,<span class="keyword">sizeof</span>(sendbuf));
+00221         setsockopt(newfd,SOL_SOCKET,SO_RCVBUF,(<span class="keyword">const</span> <span class="keywordtype">void</span> *)&amp;recvbuf,<span class="keyword">sizeof</span>(sendbuf));
+00222         connector.<a class="code" href="classircd__connector.html#a13">SetHostAndPort</a>(targethost, sourceport);
+00223         connector.<a class="code" href="classircd__connector.html#a7">SetState</a>(STATE_NOAUTH_INBOUND);
+00224         log(DEBUG,<span class="stringliteral">"serverrec::AddIncoming() Added connection: %s:%d"</span>,targethost,sourceport);
+00225         this-&gt;<a class="code" href="classserverrec.html#o11">connectors</a>.push_back(connector);
+00226         <span class="keywordflow">return</span> <span class="keyword">true</span>;
+00227 }
+</pre></div>    </td>
+  </tr>
+</table>
+<a name="a4" doxytag="serverrec::BeginLink"></a><p>
+<table class="mdTable" width="100%" cellpadding="2" cellspacing="0">
+  <tr>
+    <td class="mdRow">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> bool serverrec::BeginLink </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="md" nowrap valign="top">char *&nbsp;</td>
+          <td class="mdname" nowrap> <em>targethost</em>, </td>
+        </tr>
+        <tr>
+          <td></td>
+          <td></td>
+          <td class="md" nowrap>int&nbsp;</td>
+          <td class="mdname" nowrap> <em>port</em>, </td>
+        </tr>
+        <tr>
+          <td></td>
+          <td></td>
+          <td class="md" nowrap>char *&nbsp;</td>
+          <td class="mdname" nowrap> <em>password</em>, </td>
+        </tr>
+        <tr>
+          <td></td>
+          <td></td>
+          <td class="md" nowrap>char *&nbsp;</td>
+          <td class="mdname" nowrap> <em>servername</em>, </td>
+        </tr>
+        <tr>
+          <td></td>
+          <td></td>
+          <td class="md" nowrap>int&nbsp;</td>
+          <td class="mdname" nowrap> <em>myport</em></td>
+        </tr>
+        <tr>
+          <td></td>
+          <td class="md">)&nbsp;</td>
+          <td class="md" colspan="2"></td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+Begin an outbound link to another ircd at targethost. 
+<p>
+
+<p>
+Definition at line <a class="el" href="servers_8cpp-source.html#l00138">138</a> of file <a class="el" href="servers_8cpp-source.html">servers.cpp</a>.
+<p>
+References <a class="el" href="servers_8h-source.html#l00081">connectors</a>, <a class="el" href="connection_8h-source.html#l00266">connection::fd</a>, <a class="el" href="servers_8cpp-source.html#l00237">FindHost()</a>, <a class="el" href="classircd__connector.html#a1">ircd_connector::MakeOutboundConnection()</a>, <a class="el" href="servers_8cpp-source.html#l00275">SendPacket()</a>, <a class="el" href="classircd__connector.html#a13">ircd_connector::SetHostAndPort()</a>, <a class="el" href="classircd__connector.html#a3">ircd_connector::SetServerName()</a>, <a class="el" href="classircd__connector.html#a7">ircd_connector::SetState()</a>, <a class="el" href="connection_8h-source.html#l00035">STATE_DISCONNECTED</a>, and <a class="el" href="connection_8h-source.html#l00039">STATE_NOAUTH_OUTBOUND</a>.
+<p>
+<div class="fragment"><pre>00139 {
+00140         <span class="keywordtype">char</span> connect[MAXBUF];
+00141 
+00142         <a class="code" href="classircd__connector.html">ircd_connector</a> connector;
+00143         <a class="code" href="classircd__connector.html">ircd_connector</a> *cn = this-&gt;<a class="code" href="classserverrec.html#a9">FindHost</a>(servername);
+00144 
+00145 
+00146         <span class="keywordflow">if</span> (cn)
+00147         {
+00148                 WriteOpers(<span class="stringliteral">"CONNECT aborted: Server %s already exists"</span>,servername);
+00149                 <span class="keywordflow">return</span> <span class="keyword">false</span>;
+00150         }
+00151 
+00152 
+00153         <span class="keywordflow">if</span> (this-&gt;<a class="code" href="classconnection.html#o0">fd</a>)
+00154         {
+00155                 <span class="keywordflow">if</span> (connector.<a class="code" href="classircd__connector.html#a1">MakeOutboundConnection</a>(targethost,newport))
+00156                 {
+00157                         <span class="comment">// targethost has been turned into an ip...</span>
+00158                         <span class="comment">// we dont want this as the server name.</span>
+00159                         connector.<a class="code" href="classircd__connector.html#a3">SetServerName</a>(servername);
+00160                         snprintf(connect,MAXBUF,<span class="stringliteral">"S %s %s %lu %s :%s"</span>,getservername().c_str(),password,(<span class="keywordtype">unsigned</span> <span class="keywordtype">long</span>)myport,GetRevision().c_str(),getserverdesc().c_str());
+00161                         connector.<a class="code" href="classircd__connector.html#a7">SetState</a>(STATE_NOAUTH_OUTBOUND);
+00162                         connector.<a class="code" href="classircd__connector.html#a13">SetHostAndPort</a>(targethost, newport);
+00163                         this-&gt;<a class="code" href="classserverrec.html#o11">connectors</a>.push_back(connector);
+00164                         <span class="keywordflow">return</span> this-&gt;<a class="code" href="classserverrec.html#a7">SendPacket</a>(connect, servername);
+00165                 }
+00166                 <span class="keywordflow">else</span>
+00167                 {
+00168                         connector.<a class="code" href="classircd__connector.html#a7">SetState</a>(STATE_DISCONNECTED);
+00169                         WriteOpers(<span class="stringliteral">"Could not create outbound connection to %s:%d"</span>,targethost,newport);
+00170                 }
+00171         }
+00172         <span class="keywordflow">return</span> <span class="keyword">false</span>;
+00173 }
+</pre></div>    </td>
+  </tr>
+</table>
+<a name="a3" doxytag="serverrec::CreateListener"></a><p>
+<table class="mdTable" width="100%" cellpadding="2" cellspacing="0">
+  <tr>
+    <td class="mdRow">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> bool serverrec::CreateListener </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="md" nowrap valign="top">char *&nbsp;</td>
+          <td class="mdname" nowrap> <em>host</em>, </td>
+        </tr>
+        <tr>
+          <td></td>
+          <td></td>
+          <td class="md" nowrap>int&nbsp;</td>
+          <td class="mdname" nowrap> <em>p</em></td>
+        </tr>
+        <tr>
+          <td></td>
+          <td class="md">)&nbsp;</td>
+          <td class="md" colspan="2"></td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+Create a listening socket on 'host' using port number 'p'. 
+<p>
+
+<p>
+Definition at line <a class="el" href="servers_8cpp-source.html#l00077">77</a> of file <a class="el" href="servers_8cpp-source.html">servers.cpp</a>.
+<p>
+References <a class="el" href="connection_8h-source.html#l00266">connection::fd</a>, <a class="el" href="servers_8cpp-source.html#l00038">MaxConn</a>, and <a class="el" href="connection_8h-source.html#l00300">connection::port</a>.
+<p>
+<div class="fragment"><pre>00078 {
+00079         sockaddr_in host_address;
+00080         <span class="keywordtype">int</span> flags;
+00081         in_addr addy;
+00082         <span class="keywordtype">int</span> on = 0;
+00083         <span class="keyword">struct </span>linger linger = { 0 };
+00084 
+00085         this-&gt;<a class="code" href="classconnection.html#o8">port</a> = p;
+00086 
+00087         <a class="code" href="classconnection.html#o0">fd</a> = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+00088         <span class="keywordflow">if</span> (<a class="code" href="classconnection.html#o0">fd</a> &lt;= 0)
+00089         {
+00090                 <span class="keywordflow">return</span> <span class="keyword">false</span>;
+00091         }
+00092 
+00093         setsockopt(fd,SOL_SOCKET,SO_REUSEADDR,(<span class="keyword">const</span> <span class="keywordtype">char</span>*)&amp;on,<span class="keyword">sizeof</span>(on));
+00094         linger.l_onoff = 1;
+00095         linger.l_linger = 1;
+00096         setsockopt(fd,SOL_SOCKET,SO_LINGER,(<span class="keyword">const</span> <span class="keywordtype">char</span>*)&amp;linger,<span class="keyword">sizeof</span>(linger));
+00097 
+00098         <span class="comment">// attempt to increase socket sendq and recvq as high as its possible</span>
+00099         <span class="comment">// to get them on linux.</span>
+00100         <span class="keywordtype">int</span> sendbuf = 32768;
+00101         <span class="keywordtype">int</span> recvbuf = 32768;
+00102         setsockopt(fd,SOL_SOCKET,SO_SNDBUF,(<span class="keyword">const</span> <span class="keywordtype">void</span> *)&amp;sendbuf,<span class="keyword">sizeof</span>(sendbuf));
+00103         setsockopt(fd,SOL_SOCKET,SO_RCVBUF,(<span class="keyword">const</span> <span class="keywordtype">void</span> *)&amp;recvbuf,<span class="keyword">sizeof</span>(sendbuf));
+00104 
+00105         memset((<span class="keywordtype">void</span>*)&amp;host_address, 0, <span class="keyword">sizeof</span>(host_address));
+00106 
+00107         host_address.sin_family = AF_INET;
+00108 
+00109         <span class="keywordflow">if</span> (!strcmp(newhost,<span class="stringliteral">""</span>))
+00110         {
+00111                 host_address.sin_addr.s_addr = htonl(INADDR_ANY);
+00112         }
+00113         <span class="keywordflow">else</span>
+00114         {
+00115                 inet_aton(newhost,&amp;addy);
+00116                 host_address.sin_addr = addy;
+00117         }
+00118 
+00119         host_address.sin_port = htons(p);
+00120 
+00121         <span class="keywordflow">if</span> (bind(fd,(sockaddr*)&amp;host_address,<span class="keyword">sizeof</span>(host_address))&lt;0)
+00122         {
+00123                 <span class="keywordflow">return</span> <span class="keyword">false</span>;
+00124         }
+00125 
+00126         <span class="comment">// make the socket non-blocking</span>
+00127         flags = fcntl(fd, F_GETFL, 0);
+00128         fcntl(fd, F_SETFL, flags | O_NONBLOCK);
+00129 
+00130         this-&gt;<a class="code" href="classconnection.html#o8">port</a> = p;
+00131 
+00132         listen(this-&gt;fd, MaxConn);
+00133 
+00134         <span class="keywordflow">return</span> <span class="keyword">true</span>;
+00135 }
+</pre></div>    </td>
+  </tr>
+</table>
+<a name="a9" doxytag="serverrec::FindHost"></a><p>
+<table class="mdTable" width="100%" cellpadding="2" cellspacing="0">
+  <tr>
+    <td class="mdRow">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> <a class="el" href="classircd__connector.html">ircd_connector</a> * serverrec::FindHost </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="md" nowrap valign="top">std::string&nbsp;</td>
+          <td class="mdname1" valign="top" nowrap> <em>host</em>          </td>
+          <td class="md" valign="top">&nbsp;)&nbsp;</td>
+          <td class="md" nowrap></td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+Find the <a class="el" href="classircd__connector.html">ircd_connector</a> oject related to a certain servername given in 'host'. 
+<p>
+
+<p>
+Definition at line <a class="el" href="servers_8cpp-source.html#l00237">237</a> of file <a class="el" href="servers_8cpp-source.html">servers.cpp</a>.
+<p>
+References <a class="el" href="servers_8h-source.html#l00081">connectors</a>.
+<p>
+Referenced by <a class="el" href="servers_8cpp-source.html#l00138">BeginLink()</a>, and <a class="el" href="servers_8cpp-source.html#l00275">SendPacket()</a>.
+<p>
+<div class="fragment"><pre>00238 {
+00239         <span class="keywordflow">for</span> (<span class="keywordtype">int</span> i = 0; i &lt; this-&gt;<a class="code" href="classserverrec.html#o11">connectors</a>.size(); i++)
+00240         {
+00241                 <span class="keywordflow">if</span> (this-&gt;<a class="code" href="classserverrec.html#o11">connectors</a>[i].GetServerName() == findhost)
+00242                 {
+00243                         <span class="keywordflow">return</span> &amp;this-&gt;<a class="code" href="classserverrec.html#o11">connectors</a>[i];
+00244                 }
+00245         }
+00246         <span class="keywordflow">return</span> NULL;
+00247 }
+</pre></div>    </td>
+  </tr>
+</table>
+<a name="a11" doxytag="serverrec::FlushWriteBuffers"></a><p>
+<table class="mdTable" width="100%" cellpadding="2" cellspacing="0">
+  <tr>
+    <td class="mdRow">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> void serverrec::FlushWriteBuffers </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="mdname1" valign="top" nowrap>          </td>
+          <td class="md" valign="top">&nbsp;)&nbsp;</td>
+          <td class="md" nowrap></td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+Flushes all data waiting to be written for all of this server's connections. 
+<p>
+
+<p>
+Definition at line <a class="el" href="servers_8cpp-source.html#l00249">249</a> of file <a class="el" href="servers_8cpp-source.html">servers.cpp</a>.
+<p>
+References <a class="el" href="servers_8h-source.html#l00081">connectors</a>, and <a class="el" href="connection_8h-source.html#l00035">STATE_DISCONNECTED</a>.
+<p>
+<div class="fragment"><pre>00250 {
+00251         <span class="keywordflow">for</span> (<span class="keywordtype">int</span> i = 0; i &lt; this-&gt;<a class="code" href="classserverrec.html#o11">connectors</a>.size(); i++)
+00252         {
+00253                 <span class="keywordflow">if</span> (this-&gt;<a class="code" href="classserverrec.html#o11">connectors</a>[i].GetState() != <a class="code" href="connection_8h.html#a0">STATE_DISCONNECTED</a>)
+00254                 {
+00255                         <span class="keywordflow">if</span> (!this-&gt;<a class="code" href="classserverrec.html#o11">connectors</a>[i].CheckPing())
+00256                         {
+00257                                 WriteOpers(<span class="stringliteral">"*** Lost single connection to %s: Ping timeout"</span>,this-&gt;connectors[i].GetServerName().c_str());
+00258                                 this-&gt;<a class="code" href="classserverrec.html#o11">connectors</a>[i].CloseConnection();
+00259                                 this-&gt;<a class="code" href="classserverrec.html#o11">connectors</a>[i].SetState(STATE_DISCONNECTED);
+00260                         }
+00261                 }
+00262                 <span class="keywordflow">if</span> (this-&gt;<a class="code" href="classserverrec.html#o11">connectors</a>[i].HasBufferedOutput())
+00263                 {
+00264                         <span class="keywordflow">if</span> (!this-&gt;<a class="code" href="classserverrec.html#o11">connectors</a>[i].FlushWriteBuf())
+00265                         {
+00266                                 <span class="comment">// if we're here the write() caused an error, we cannot proceed</span>
+00267                                 WriteOpers(<span class="stringliteral">"*** Lost single connection to %s, link inactive and retrying: %s"</span>,this-&gt;connectors[i].GetServerName().c_str(),this-&gt;<a class="code" href="classserverrec.html#o11">connectors</a>[i].GetWriteError().c_str());
+00268                                 this-&gt;<a class="code" href="classserverrec.html#o11">connectors</a>[i].CloseConnection();
+00269                                 this-&gt;<a class="code" href="classserverrec.html#o11">connectors</a>[i].SetState(STATE_DISCONNECTED);
+00270                         }
+00271                 }
+00272         }
+00273 }
+</pre></div>    </td>
+  </tr>
+</table>
+<a name="a5" doxytag="serverrec::MeshCookie"></a><p>
+<table class="mdTable" width="100%" cellpadding="2" cellspacing="0">
+  <tr>
+    <td class="mdRow">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> bool serverrec::MeshCookie </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="md" nowrap valign="top">char *&nbsp;</td>
+          <td class="mdname" nowrap> <em>targethost</em>, </td>
+        </tr>
+        <tr>
+          <td></td>
+          <td></td>
+          <td class="md" nowrap>int&nbsp;</td>
+          <td class="mdname" nowrap> <em>port</em>, </td>
+        </tr>
+        <tr>
+          <td></td>
+          <td></td>
+          <td class="md" nowrap>unsigned long&nbsp;</td>
+          <td class="mdname" nowrap> <em>cookie</em>, </td>
+        </tr>
+        <tr>
+          <td></td>
+          <td></td>
+          <td class="md" nowrap>char *&nbsp;</td>
+          <td class="mdname" nowrap> <em>servername</em></td>
+        </tr>
+        <tr>
+          <td></td>
+          <td class="md">)&nbsp;</td>
+          <td class="md" colspan="2"></td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+Begin an outbound mesh link to another ircd on a network you are already an authenticated member of. 
+<p>
+
+<p>
+Definition at line <a class="el" href="servers_8cpp-source.html#l00176">176</a> of file <a class="el" href="servers_8cpp-source.html">servers.cpp</a>.
+<p>
+References <a class="el" href="servers_8h-source.html#l00081">connectors</a>, <a class="el" href="connection_8h-source.html#l00266">connection::fd</a>, <a class="el" href="classircd__connector.html#a1">ircd_connector::MakeOutboundConnection()</a>, <a class="el" href="servers_8cpp-source.html#l00275">SendPacket()</a>, <a class="el" href="classircd__connector.html#a13">ircd_connector::SetHostAndPort()</a>, <a class="el" href="classircd__connector.html#a3">ircd_connector::SetServerName()</a>, <a class="el" href="classircd__connector.html#a7">ircd_connector::SetState()</a>, <a class="el" href="connection_8h-source.html#l00036">STATE_CONNECTED</a>, <a class="el" href="connection_8h-source.html#l00035">STATE_DISCONNECTED</a>, and <a class="el" href="connection_8h-source.html#l00039">STATE_NOAUTH_OUTBOUND</a>.
+<p>
+<div class="fragment"><pre>00177 {
+00178         <span class="keywordtype">char</span> connect[MAXBUF];
+00179 
+00180         <a class="code" href="classircd__connector.html">ircd_connector</a> connector;
+00181 
+00182         WriteOpers(<span class="stringliteral">"Establishing meshed link to %s:%d"</span>,servername,newport);
+00183 
+00184         <span class="keywordflow">if</span> (this-&gt;<a class="code" href="classconnection.html#o0">fd</a>)
+00185         {
+00186                 <span class="keywordflow">if</span> (connector.<a class="code" href="classircd__connector.html#a1">MakeOutboundConnection</a>(targethost,newport))
+00187                 {
+00188                         <span class="comment">// targethost has been turned into an ip...</span>
+00189                         <span class="comment">// we dont want this as the server name.</span>
+00190                         connector.<a class="code" href="classircd__connector.html#a3">SetServerName</a>(servername);
+00191                         snprintf(connect,MAXBUF,<span class="stringliteral">"- %lu %s :%s"</span>,cookie,getservername().c_str(),getserverdesc().c_str());
+00192                         connector.<a class="code" href="classircd__connector.html#a7">SetState</a>(STATE_NOAUTH_OUTBOUND);
+00193                         connector.<a class="code" href="classircd__connector.html#a13">SetHostAndPort</a>(targethost, newport);
+00194                         connector.<a class="code" href="classircd__connector.html#a7">SetState</a>(STATE_CONNECTED);
+00195                         this-&gt;<a class="code" href="classserverrec.html#o11">connectors</a>.push_back(connector);
+00196                         <span class="keywordflow">return</span> this-&gt;<a class="code" href="classserverrec.html#a7">SendPacket</a>(connect, servername);
+00197                 }
+00198                 <span class="keywordflow">else</span>
+00199                 {
+00200                         connector.<a class="code" href="classircd__connector.html#a7">SetState</a>(STATE_DISCONNECTED);
+00201                         WriteOpers(<span class="stringliteral">"Could not create outbound connection to %s:%d"</span>,targethost,newport);
+00202                 }
+00203         }
+00204         <span class="keywordflow">return</span> <span class="keyword">false</span>;
+00205 }
+</pre></div>    </td>
+  </tr>
+</table>
+<a name="a8" doxytag="serverrec::RecvPacket"></a><p>
+<table class="mdTable" width="100%" cellpadding="2" cellspacing="0">
+  <tr>
+    <td class="mdRow">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> bool serverrec::RecvPacket </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="md" nowrap valign="top">std::deque&lt; std::string &gt; &amp;&nbsp;</td>
+          <td class="mdname" nowrap> <em>messages</em>, </td>
+        </tr>
+        <tr>
+          <td></td>
+          <td></td>
+          <td class="md" nowrap>char *&nbsp;</td>
+          <td class="mdname" nowrap> <em>host</em>, </td>
+        </tr>
+        <tr>
+          <td></td>
+          <td></td>
+          <td class="md" nowrap>std::deque&lt; std::string &gt; &amp;&nbsp;</td>
+          <td class="mdname" nowrap> <em>sums</em></td>
+        </tr>
+        <tr>
+          <td></td>
+          <td class="md">)&nbsp;</td>
+          <td class="md" colspan="2"></td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+Returns the next available packet and returns true if data is available. 
+<p>
+Writes the servername the data came from to 'host'. If no data is available this function returns false. This function will automatically close broken links and reroute pathways, generating split messages on the network. 
+<p>
+Definition at line <a class="el" href="servers_8cpp-source.html#l00370">370</a> of file <a class="el" href="servers_8cpp-source.html">servers.cpp</a>.
+<p>
+References <a class="el" href="servers_8cpp-source.html#l00350">already_have_sum()</a>, <a class="el" href="servers_8h-source.html#l00081">connectors</a>, <a class="el" href="modules_8h-source.html#l00023">DEBUG</a>, and <a class="el" href="connection_8h-source.html#l00035">STATE_DISCONNECTED</a>.
+<p>
+<div class="fragment"><pre>00371 {
+00372         <span class="keywordtype">char</span> data[65536];
+00373         memset(data, 0, 65536);
+00374         <span class="keywordflow">for</span> (<span class="keywordtype">int</span> i = 0; i &lt; this-&gt;<a class="code" href="classserverrec.html#o11">connectors</a>.size(); i++)
+00375         {
+00376                 <span class="keywordflow">if</span> (this-&gt;<a class="code" href="classserverrec.html#o11">connectors</a>[i].GetState() != <a class="code" href="connection_8h.html#a0">STATE_DISCONNECTED</a>)
+00377                 {
+00378                         <span class="comment">// returns false if the packet could not be sent (e.g. target host down)</span>
+00379                         <span class="keywordtype">int</span> rcvsize = 0;
+00380 
+00381                         <span class="comment">// check if theres any data on this socket</span>
+00382                         <span class="comment">// if not, continue onwards to the next.</span>
+00383                         pollfd polls;
+00384                         polls.fd = this-&gt;<a class="code" href="classserverrec.html#o11">connectors</a>[i].GetDescriptor();
+00385                         polls.events = POLLIN;
+00386                         <span class="keywordtype">int</span> ret = poll(&amp;polls,1,1);
+00387                         <span class="keywordflow">if</span> (ret &lt;= 0) <span class="keywordflow">continue</span>;
+00388 
+00389                         rcvsize = recv(this-&gt;connectors[i].GetDescriptor(),data,65000,0);
+00390                         data[rcvsize] = <span class="charliteral">'\0'</span>;
+00391                         <span class="keywordflow">if</span> (rcvsize == -1)
+00392                         {
+00393                                 <span class="keywordflow">if</span> (errno != EAGAIN)
+00394                                 {
+00395                                         log(DEBUG,<span class="stringliteral">"recv() failed for serverrec::RecvPacket(): %s"</span>,strerror(errno));
+00396                                         log(DEBUG,<span class="stringliteral">"Disabling connector: %s"</span>,this-&gt;connectors[i].GetServerName().c_str());
+00397                                         this-&gt;<a class="code" href="classserverrec.html#o11">connectors</a>[i].CloseConnection();
+00398                                         this-&gt;<a class="code" href="classserverrec.html#o11">connectors</a>[i].SetState(STATE_DISCONNECTED);
+00399                                 }
+00400                         }
+00401                         <span class="keywordtype">int</span> pushed = 0;
+00402                         <span class="keywordflow">if</span> (rcvsize &gt; 0)
+00403                         {
+00404                                 <span class="keywordflow">if</span> (!this-&gt;<a class="code" href="classserverrec.html#o11">connectors</a>[i].AddBuffer(data))
+00405                                 {
+00406                                         WriteOpers(<span class="stringliteral">"*** Read buffer for %s exceeds maximum, closing connection!"</span>,this-&gt;connectors[i].GetServerName().c_str());
+00407                                         this-&gt;<a class="code" href="classserverrec.html#o11">connectors</a>[i].CloseConnection();
+00408                                         this-&gt;<a class="code" href="classserverrec.html#o11">connectors</a>[i].SetState(STATE_DISCONNECTED);
+00409                                 }
+00410                                 <span class="keywordflow">if</span> (this-&gt;<a class="code" href="classserverrec.html#o11">connectors</a>[i].BufferIsComplete())
+00411                                 {
+00412                                         this-&gt;<a class="code" href="classserverrec.html#o11">connectors</a>[i].ResetPing();
+00413                                         <span class="keywordflow">while</span> (this-&gt;<a class="code" href="classserverrec.html#o11">connectors</a>[i].BufferIsComplete())
+00414                                         {
+00415                                                 std::string text = this-&gt;<a class="code" href="classserverrec.html#o11">connectors</a>[i].GetBuffer();
+00416                                                 <span class="keywordflow">if</span> (text != <span class="stringliteral">""</span>)
+00417                                                 {
+00418                                                         <span class="keywordflow">if</span> ((text[0] == <span class="charliteral">':'</span>) &amp;&amp; (text.find(<span class="stringliteral">" "</span>) != std::string::npos))
+00419                                                         {
+00420                                                                 std::string orig = text;
+00421                                                                 log(DEBUG,<span class="stringliteral">"Original: %s"</span>,text.c_str());
+00422                                                                 std::string sum = text.substr(1,text.find(<span class="stringliteral">" "</span>)-1);
+00423                                                                 text = text.substr(text.find(<span class="stringliteral">" "</span>)+1,text.length());
+00424                                                                 std::string possible_token = text.substr(1,text.find(<span class="stringliteral">" "</span>)-1);
+00425                                                                 <span class="keywordflow">if</span> (possible_token.length() &gt; 1)
+00426                                                                 {
+00427                                                                         sums.push_back(<span class="stringliteral">"*"</span>);
+00428                                                                         text = orig;
+00429                                                                         log(DEBUG,<span class="stringliteral">"Non-mesh, non-tokenized string passed up the chain"</span>);
+00430                                                                 }
+00431                                                                 <span class="keywordflow">else</span>
+00432                                                                 {
+00433                                                                         log(DEBUG,<span class="stringliteral">"Packet sum: '%s'"</span>,sum.c_str());
+00434                                                                         <span class="keywordflow">if</span> ((<a class="code" href="servers_8cpp.html#a3">already_have_sum</a>(sum)) &amp;&amp; (sum != <span class="stringliteral">"*"</span>))
+00435                                                                         {
+00436                                                                                 <span class="comment">// we don't accept dupes</span>
+00437                                                                                 <span class="keywordflow">continue</span>;
+00438                                                                         }
+00439                                                                         sums.push_back(sum.c_str());
+00440                                                                 }
+00441                                                         }
+00442                                                         <span class="keywordflow">else</span> sums.push_back(<span class="stringliteral">"*"</span>);
+00443                                                         messages.push_back(text.c_str());
+00444                                                         strlcpy(recvhost,this-&gt;connectors[i].GetServerName().c_str(),160);
+00445                                                         log(DEBUG,<span class="stringliteral">"serverrec::RecvPacket() %d:%s-&gt;%s"</span>,pushed++,recvhost,text.c_str());
+00446                                                 }
+00447                                         }
+00448                                         <span class="keywordflow">return</span> <span class="keyword">true</span>;
+00449                                 }
+00450                         }
+00451                 }
+00452         }
+00453         <span class="comment">// nothing new yet -- message and host will be undefined</span>
+00454         <span class="keywordflow">return</span> <span class="keyword">false</span>;
+00455 }
+</pre></div>    </td>
+  </tr>
+</table>
+<a name="a7" doxytag="serverrec::SendPacket"></a><p>
+<table class="mdTable" width="100%" cellpadding="2" cellspacing="0">
+  <tr>
+    <td class="mdRow">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> bool serverrec::SendPacket </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="md" nowrap valign="top">char *&nbsp;</td>
+          <td class="mdname" nowrap> <em>message</em>, </td>
+        </tr>
+        <tr>
+          <td></td>
+          <td></td>
+          <td class="md" nowrap>const char *&nbsp;</td>
+          <td class="mdname" nowrap> <em>host</em></td>
+        </tr>
+        <tr>
+          <td></td>
+          <td class="md">)&nbsp;</td>
+          <td class="md" colspan="2"></td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+Send a message to a server by name, if the server is unavailable directly route the packet via another server If the server still cannot be reached after attempting to route the message remotely, returns false. 
+<p>
+
+<p>
+Definition at line <a class="el" href="servers_8cpp-source.html#l00275">275</a> of file <a class="el" href="servers_8cpp-source.html">servers.cpp</a>.
+<p>
+References <a class="el" href="classircd__connector.html#a21">ircd_connector::AddWriteBuf()</a>, <a class="el" href="classircd__connector.html#a14">ircd_connector::CloseConnection()</a>, <a class="el" href="servers_8h-source.html#l00081">connectors</a>, <a class="el" href="modules_8h-source.html#l00023">DEBUG</a>, <a class="el" href="servers_8cpp-source.html#l00237">FindHost()</a>, <a class="el" href="classircd__connector.html#a22">ircd_connector::FlushWriteBuf()</a>, <a class="el" href="classircd__connector.html#a2">ircd_connector::GetServerName()</a>, <a class="el" href="classircd__connector.html#a6">ircd_connector::GetState()</a>, <a class="el" href="classircd__connector.html#a24">ircd_connector::GetWriteError()</a>, <a class="el" href="classircd__connector.html#a7">ircd_connector::SetState()</a>, and <a class="el" href="connection_8h-source.html#l00035">STATE_DISCONNECTED</a>.
+<p>
+Referenced by <a class="el" href="servers_8cpp-source.html#l00138">BeginLink()</a>, and <a class="el" href="servers_8cpp-source.html#l00176">MeshCookie()</a>.
+<p>
+<div class="fragment"><pre>00276 {
+00277         <span class="keywordflow">if</span> ((!message) || (!sendhost))
+00278                 <span class="keywordflow">return</span> <span class="keyword">true</span>;
+00279 
+00280         <a class="code" href="classircd__connector.html">ircd_connector</a>* cn = this-&gt;<a class="code" href="classserverrec.html#a9">FindHost</a>(sendhost);
+00281 
+00282         <span class="keywordflow">if</span> (!strchr(message,<span class="charliteral">'\n'</span>))
+00283         {
+00284                 strlcat(message,<span class="stringliteral">"\n"</span>,MAXBUF);
+00285         }
+00286 
+00287         <span class="keywordflow">if</span> (cn)
+00288         {
+00289                 log(DEBUG,<span class="stringliteral">"main: serverrec::SendPacket() sent '%s' to %s"</span>,message,cn-&gt;<a class="code" href="classircd__connector.html#a2">GetServerName</a>().c_str());
+00290 
+00291                 <span class="keywordflow">if</span> (cn-&gt;<a class="code" href="classircd__connector.html#a6">GetState</a>() == <a class="code" href="connection_8h.html#a0">STATE_DISCONNECTED</a>)
+00292                 {
+00293                         <span class="comment">// fix: can only route one hop to avoid a loop</span>
+00294                         <span class="keywordflow">if</span> (strncmp(message,<span class="stringliteral">"R "</span>,2))
+00295                         {
+00296                                 log(DEBUG,<span class="stringliteral">"Not a double reroute"</span>);
+00297                                 <span class="comment">// this route is down, we must re-route the packet through an available point in the mesh.</span>
+00298                                 <span class="keywordflow">for</span> (<span class="keywordtype">int</span> k = 0; k &lt; this-&gt;<a class="code" href="classserverrec.html#o11">connectors</a>.size(); k++)
+00299                                 {
+00300                                         log(DEBUG,<span class="stringliteral">"Check connector %d: %s"</span>,k,this-&gt;connectors[k].GetServerName().c_str());
+00301                                         <span class="comment">// search for another point in the mesh which can 'reach' where we want to go</span>
+00302                                         <span class="keywordflow">for</span> (<span class="keywordtype">int</span> m = 0; m &lt; this-&gt;<a class="code" href="classserverrec.html#o11">connectors</a>[k].routes.size(); m++)
+00303                                         {
+00304                                                 <span class="keywordflow">if</span> (!strcasecmp(this-&gt;connectors[k].routes[m].c_str(),sendhost))
+00305                                                 {
+00306                                                         log(DEBUG,<span class="stringliteral">"Found alternative route for packet: %s"</span>,this-&gt;connectors[k].GetServerName().c_str());
+00307                                                         <span class="keywordtype">char</span> buffer[MAXBUF];
+00308                                                         snprintf(buffer,MAXBUF,<span class="stringliteral">"R %s %s"</span>,sendhost,message);
+00309                                                         this-&gt;<a class="code" href="classserverrec.html#a7">SendPacket</a>(buffer,this-&gt;connectors[k].GetServerName().c_str());
+00310                                                         <span class="keywordflow">return</span> <span class="keyword">true</span>;
+00311                                                 }
+00312                                         }
+00313                                 }
+00314                         }
+00315                         <span class="keywordtype">char</span> buffer[MAXBUF];
+00316                         snprintf(buffer,MAXBUF,<span class="stringliteral">"&amp; %s"</span>,sendhost);
+00317                         WriteOpers(<span class="stringliteral">"*** All connections to %s lost."</span>,sendhost);
+00318                         NetSendToAllExcept(sendhost,buffer);
+00319                         DoSplit(sendhost);
+00320                         <span class="keywordflow">return</span> <span class="keyword">false</span>;
+00321                 }
+00322 
+00323                 <span class="comment">// returns false if the packet could not be sent (e.g. target host down)</span>
+00324                 <span class="keywordflow">if</span> (!cn-&gt;<a class="code" href="classircd__connector.html#a21">AddWriteBuf</a>(message))
+00325                 {
+00326                         <span class="comment">// if we're here, there was an error pending, and the send cannot proceed</span>
+00327                         log(DEBUG,<span class="stringliteral">"cn-&gt;AddWriteBuf() failed for serverrec::SendPacket(): %s"</span>,cn-&gt;<a class="code" href="classircd__connector.html#a24">GetWriteError</a>().c_str());
+00328                         log(DEBUG,<span class="stringliteral">"Disabling connector: %s"</span>,cn-&gt;<a class="code" href="classircd__connector.html#a2">GetServerName</a>().c_str());
+00329                         cn-&gt;<a class="code" href="classircd__connector.html#a14">CloseConnection</a>();
+00330                         cn-&gt;<a class="code" href="classircd__connector.html#a7">SetState</a>(STATE_DISCONNECTED);
+00331                         WriteOpers(<span class="stringliteral">"*** Lost single connection to %s, link inactive and retrying: %s"</span>,cn-&gt;<a class="code" href="classircd__connector.html#a2">GetServerName</a>().c_str(),cn-&gt;<a class="code" href="classircd__connector.html#a24">GetWriteError</a>().c_str());
+00332                         <span class="comment">// retry the packet along a new route so either arrival OR failure are gauranteed (bugfix)</span>
+00333                         <span class="keywordflow">return</span> this-&gt;<a class="code" href="classserverrec.html#a7">SendPacket</a>(message,sendhost);
+00334                 }
+00335                 <span class="keywordflow">if</span> (!cn-&gt;<a class="code" href="classircd__connector.html#a22">FlushWriteBuf</a>())
+00336                 {
+00337                         <span class="comment">// if we're here the write() caused an error, we cannot proceed</span>
+00338                         log(DEBUG,<span class="stringliteral">"cn-&gt;FlushWriteBuf() failed for serverrec::SendPacket(): %s"</span>,cn-&gt;<a class="code" href="classircd__connector.html#a24">GetWriteError</a>().c_str());
+00339                         log(DEBUG,<span class="stringliteral">"Disabling connector: %s"</span>,cn-&gt;<a class="code" href="classircd__connector.html#a2">GetServerName</a>().c_str());
+00340                         cn-&gt;<a class="code" href="classircd__connector.html#a14">CloseConnection</a>();
+00341                         cn-&gt;<a class="code" href="classircd__connector.html#a7">SetState</a>(STATE_DISCONNECTED);
+00342                         WriteOpers(<span class="stringliteral">"*** Lost single connection to %s, link inactive and retrying: %s"</span>,cn-&gt;<a class="code" href="classircd__connector.html#a2">GetServerName</a>().c_str(),cn-&gt;<a class="code" href="classircd__connector.html#a24">GetWriteError</a>().c_str());
+00343                         <span class="comment">// retry the packet along a new route so either arrival OR failure are gauranteed</span>
+00344                         <span class="keywordflow">return</span> this-&gt;<a class="code" href="classserverrec.html#a7">SendPacket</a>(message,sendhost);
+00345                 }
+00346                 <span class="keywordflow">return</span> <span class="keyword">true</span>;
+00347         }
+00348 }
+</pre></div>    </td>
+  </tr>
+</table>
+<a name="a6" doxytag="serverrec::TerminateLink"></a><p>
+<table class="mdTable" width="100%" cellpadding="2" cellspacing="0">
+  <tr>
+    <td class="mdRow">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> void serverrec::TerminateLink </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="md" nowrap valign="top">char *&nbsp;</td>
+          <td class="mdname1" valign="top" nowrap> <em>targethost</em>          </td>
+          <td class="md" valign="top">&nbsp;)&nbsp;</td>
+          <td class="md" nowrap></td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+Terminate a link to 'targethost' by calling the <a class="el" href="classircd__connector.html#a14">ircd_connector::CloseConnection</a> method. 
+<p>
+
+<p>
+Definition at line <a class="el" href="servers_8cpp-source.html#l00229">229</a> of file <a class="el" href="servers_8cpp-source.html">servers.cpp</a>.
+<p>
+<div class="fragment"><pre>00230 {
+00231         <span class="comment">// this locates the targethost in the serverrec::connectors vector of the class,</span>
+00232         <span class="comment">// and terminates it by sending it an SQUIT token and closing its descriptor.</span>
+00233         <span class="comment">// TerminateLink with a null string causes a terminate of ALL links</span>
+00234 }
 </pre></div>    </td>
   </tr>
 </table>
 <hr><h2>Member Data Documentation</h2>
+<a name="o11" doxytag="serverrec::connectors"></a><p>
+<table class="mdTable" width="100%" cellpadding="2" cellspacing="0">
+  <tr>
+    <td class="mdRow">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> std::vector&lt;<a class="el" href="classircd__connector.html">ircd_connector</a>&gt; <a class="el" href="classserverrec.html#o11">serverrec::connectors</a>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+With a serverrec, this is a list of all established server connections. 
+<p>
+
+<p>
+Definition at line <a class="el" href="servers_8h-source.html#l00081">81</a> of file <a class="el" href="servers_8h-source.html">servers.h</a>.
+<p>
+Referenced by <a class="el" href="servers_8cpp-source.html#l00207">AddIncoming()</a>, <a class="el" href="servers_8cpp-source.html#l00138">BeginLink()</a>, <a class="el" href="servers_8cpp-source.html#l00237">FindHost()</a>, <a class="el" href="servers_8cpp-source.html#l00249">FlushWriteBuffers()</a>, <a class="el" href="servers_8cpp-source.html#l00176">MeshCookie()</a>, <a class="el" href="servers_8cpp-source.html#l00370">RecvPacket()</a>, <a class="el" href="servers_8cpp-source.html#l00275">SendPacket()</a>, and <a class="el" href="servers_8cpp-source.html#l00042">serverrec()</a>.    </td>
+  </tr>
+</table>
 <a name="o8" doxytag="serverrec::description"></a><p>
 <table class="mdTable" width="100%" cellpadding="2" cellspacing="0">
   <tr>
@@ -272,7 +1102,7 @@ number of hops away (for quick access)
 <p>
 Definition at line <a class="el" href="servers_8h-source.html#l00051">51</a> of file <a class="el" href="servers_8h-source.html">servers.h</a>.
 <p>
-Referenced by <a class="el" href="servers_8cpp-source.html#l00027">serverrec()</a>.    </td>
+Referenced by <a class="el" href="servers_8cpp-source.html#l00042">serverrec()</a>.    </td>
   </tr>
 </table>
 <a name="o7" doxytag="serverrec::jupiter"></a><p>
@@ -300,7 +1130,7 @@ is a JUPE server (faked to enforce a server ban)
 <p>
 Definition at line <a class="el" href="servers_8h-source.html#l00057">57</a> of file <a class="el" href="servers_8h-source.html">servers.h</a>.
 <p>
-Referenced by <a class="el" href="servers_8cpp-source.html#l00027">serverrec()</a>.    </td>
+Referenced by <a class="el" href="servers_8cpp-source.html#l00042">serverrec()</a>.    </td>
   </tr>
 </table>
 <a name="o0" doxytag="serverrec::name"></a><p>
@@ -328,7 +1158,7 @@ server name
 <p>
 Definition at line <a class="el" href="servers_8h-source.html#l00036">36</a> of file <a class="el" href="servers_8h-source.html">servers.h</a>.
 <p>
-Referenced by <a class="el" href="servers_8cpp-source.html#l00027">serverrec()</a>.    </td>
+Referenced by <a class="el" href="servers_8cpp-source.html#l00042">serverrec()</a>.    </td>
   </tr>
 </table>
 <a name="o9" doxytag="serverrec::nickserv"></a><p>
@@ -356,7 +1186,7 @@ Holds nickserv's name on U:lined (services) servers (this is a kludge for ircser
 <p>
 Definition at line <a class="el" href="servers_8h-source.html#l00065">65</a> of file <a class="el" href="servers_8h-source.html">servers.h</a>.
 <p>
-Referenced by <a class="el" href="servers_8cpp-source.html#l00027">serverrec()</a>.    </td>
+Referenced by <a class="el" href="servers_8cpp-source.html#l00042">serverrec()</a>.    </td>
   </tr>
 </table>
 <a name="o4" doxytag="serverrec::opercount"></a><p>
@@ -384,7 +1214,7 @@ opers on server
 <p>
 Definition at line <a class="el" href="servers_8h-source.html#l00048">48</a> of file <a class="el" href="servers_8h-source.html">servers.h</a>.
 <p>
-Referenced by <a class="el" href="servers_8cpp-source.html#l00027">serverrec()</a>.    </td>
+Referenced by <a class="el" href="servers_8cpp-source.html#l00042">serverrec()</a>.    </td>
   </tr>
 </table>
 <a name="o1" doxytag="serverrec::pingtime"></a><p>
@@ -412,7 +1242,7 @@ last ping response (ms)
 <p>
 Definition at line <a class="el" href="servers_8h-source.html#l00039">39</a> of file <a class="el" href="servers_8h-source.html">servers.h</a>.
 <p>
-Referenced by <a class="el" href="servers_8cpp-source.html#l00027">serverrec()</a>.    </td>
+Referenced by <a class="el" href="servers_8cpp-source.html#l00042">serverrec()</a>.    </td>
   </tr>
 </table>
 <a name="o10" doxytag="serverrec::sync_soon"></a><p>
@@ -438,7 +1268,7 @@ Referenced by <a class="el" href="servers_8cpp-source.html#l00027">serverrec()</
 <p>
 Definition at line <a class="el" href="servers_8h-source.html#l00067">67</a> of file <a class="el" href="servers_8h-source.html">servers.h</a>.
 <p>
-Referenced by <a class="el" href="servers_8cpp-source.html#l00027">serverrec()</a>.    </td>
+Referenced by <a class="el" href="servers_8cpp-source.html#l00042">serverrec()</a>.    </td>
   </tr>
 </table>
 <a name="o3" doxytag="serverrec::usercount"></a><p>
@@ -466,7 +1296,7 @@ non-invisible users on server
 <p>
 Definition at line <a class="el" href="servers_8h-source.html#l00045">45</a> of file <a class="el" href="servers_8h-source.html">servers.h</a>.
 <p>
-Referenced by <a class="el" href="servers_8cpp-source.html#l00027">serverrec()</a>.    </td>
+Referenced by <a class="el" href="servers_8cpp-source.html#l00042">serverrec()</a>.    </td>
   </tr>
 </table>
 <a name="o2" doxytag="serverrec::usercount_i"></a><p>
@@ -494,7 +1324,7 @@ invisible users on server
 <p>
 Definition at line <a class="el" href="servers_8h-source.html#l00042">42</a> of file <a class="el" href="servers_8h-source.html">servers.h</a>.
 <p>
-Referenced by <a class="el" href="servers_8cpp-source.html#l00027">serverrec()</a>.    </td>
+Referenced by <a class="el" href="servers_8cpp-source.html#l00042">serverrec()</a>.    </td>
   </tr>
 </table>
 <a name="o6" doxytag="serverrec::version"></a><p>
@@ -522,12 +1352,12 @@ ircd version
 <p>
 Definition at line <a class="el" href="servers_8h-source.html#l00054">54</a> of file <a class="el" href="servers_8h-source.html">servers.h</a>.
 <p>
-Referenced by <a class="el" href="servers_8cpp-source.html#l00027">serverrec()</a>.    </td>
+Referenced by <a class="el" href="servers_8cpp-source.html#l00042">serverrec()</a>.    </td>
   </tr>
 </table>
 <hr>The documentation for this class was generated from the following files:<ul>
 <li><a class="el" href="servers_8h-source.html">servers.h</a><li><a class="el" href="servers_8cpp-source.html">servers.cpp</a></ul>
-<hr size="1"><address style="align: right;"><small>Generated on Sun May 15 18:39:02 2005 for InspIRCd by
+<hr size="1"><address style="align: right;"><small>Generated on Tue May 24 02:32:39 2005 for InspIRCd by
 <a href="http://www.doxygen.org/index.html">
 <img src="doxygen.png" alt="doxygen" align="middle" border=0 > 
 </a>1.3.3 </small></address>

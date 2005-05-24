@@ -1,4 +1,4 @@
-.TH "commands.h" 3 "15 May 2005" "InspIRCd" \" -*- nroff -*-
+.TH "commands.h" 3 "24 May 2005" "InspIRCd" \" -*- nroff -*-
 .ad l
 .nh
 .SH NAME
@@ -178,6 +178,9 @@ commands.h \-
 .RI "void \fBhandle_unloadmodule\fP (char **parameters, int pcnt, \fBuserrec\fP *user)"
 .br
 .ti -1c
+.RI "void \fBhandle_commands\fP (char **parameters, int pcnt, \fBuserrec\fP *user)"
+.br
+.ti -1c
 .RI "void \fBhandle_link_packet\fP (char *tcp_msg, char *tcp_host, \fBserverrec\fP *serv, char *tcp_sum)"
 .br
 .RI "\fISpecial functions for processing server to server traffic. \fP"
@@ -277,6 +280,8 @@ These are the handlers for server commands (tokens).
 .SS "void handle_away (char ** parameters, int pcnt, \fBuserrec\fP * user)"
 .PP
 .SS "void handle_b (char token, char * params, \fBserverrec\fP * source, \fBserverrec\fP * reply, char * tcp_host, char * tcp_sum)"
+.PP
+.SS "void handle_commands (char ** parameters, int pcnt, \fBuserrec\fP * user)"
 .PP
 .SS "void handle_connect (char ** parameters, int pcnt, \fBuserrec\fP * user)"
 .PP

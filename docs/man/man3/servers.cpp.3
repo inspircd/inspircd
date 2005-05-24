@@ -1,4 +1,4 @@
-.TH "servers.cpp" 3 "15 May 2005" "InspIRCd" \" -*- nroff -*-
+.TH "servers.cpp" 3 "24 May 2005" "InspIRCd" \" -*- nroff -*-
 .ad l
 .nh
 .SH NAME
@@ -12,7 +12,25 @@ servers.cpp \-
 .br
 \fC#include 'inspircd.h'\fP
 .br
-\fC#include <stdio.h>\fP
+\fC#include <unistd.h>\fP
+.br
+\fC#include <fcntl.h>\fP
+.br
+\fC#include <poll.h>\fP
+.br
+\fC#include <sys/errno.h>\fP
+.br
+\fC#include <sys/ioctl.h>\fP
+.br
+\fC#include <sys/utsname.h>\fP
+.br
+\fC#include <vector>\fP
+.br
+\fC#include <string>\fP
+.br
+\fC#include <deque>\fP
+.br
+\fC#include <sstream>\fP
 .br
 \fC#include <map>\fP
 .br
@@ -20,19 +38,71 @@ servers.cpp \-
 .br
 \fC#include 'helperfuncs.h'\fP
 .br
+\fC#include 'connection.h'\fP
+.br
 
+.SS "Functions"
+
+.in +1c
+.ti -1c
+.RI "bool \fBalready_have_sum\fP (std::string sum)"
+.br
+.in -1c
 .SS "Variables"
 
 .in +1c
 .ti -1c
 .RI "time_t \fBTIME\fP"
 .br
+.ti -1c
+.RI "int \fBMaxConn\fP"
+.br
+.ti -1c
+.RI "std::deque< std::string > \fBxsums\fP"
+.br
 .in -1c
+.SH "Function Documentation"
+.PP 
+.SS "bool already_have_sum (std::string sum)"
+.PP
+Definition at line 350 of file servers.cpp.
+.PP
+References xsums.
+.PP
+Referenced by serverrec::RecvPacket().
+.PP
+.nf
+351 {
+352         for (int i = 0; i < xsums.size(); i++)
+353         {
+354                 if (xsums[i] == sum)
+355                 {
+356                         return true;
+357                 }
+358         }
+359         if (xsums.size() >= 128)
+360         {
+361                 xsums.pop_front();
+362         }
+363         xsums.push_back(sum);
+364         return false;
+365 }
+.fi
 .SH "Variable Documentation"
 .PP 
+.SS "int \fBMaxConn\fP"
+.PP
+Definition at line 38 of file servers.cpp.
+.PP
+Referenced by serverrec::CreateListener().
 .SS "time_t \fBTIME\fP"
 .PP
-Definition at line 25 of file servers.cpp.
+Definition at line 37 of file servers.cpp.
+.SS "std::deque<std::string> \fBxsums\fP"
+.PP
+Definition at line 40 of file servers.cpp.
+.PP
+Referenced by already_have_sum().
 .SH "Author"
 .PP 
 Generated automatically by Doxygen for InspIRCd from the source code.

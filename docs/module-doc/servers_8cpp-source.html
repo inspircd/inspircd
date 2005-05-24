@@ -21,50 +21,447 @@
 00014 <span class="comment"> * ---------------------------------------------------</span>
 00015 <span class="comment"> */</span>
 00016 
-00017 <span class="preprocessor">#include "inspircd_config.h"</span> 
-00018 <span class="preprocessor">#include "<a class="code" href="servers_8h.html">servers.h</a>"</span>
-00019 <span class="preprocessor">#include "inspircd.h"</span>
-00020 <span class="preprocessor">#include &lt;stdio.h&gt;</span>
-00021 <span class="preprocessor">#include &lt;map&gt;</span>
-00022 <span class="preprocessor">#include "inspstring.h"</span>
-00023 <span class="preprocessor">#include "helperfuncs.h"</span>
-00024 
-<a name="l00025"></a><a class="code" href="servers_8cpp.html#a0">00025</a> <span class="keyword">extern</span> time_t <a class="code" href="channels_8cpp.html#a37">TIME</a>;
-00026 
-<a name="l00027"></a><a class="code" href="classserverrec.html#a0">00027</a> <a class="code" href="classserverrec.html#a0">serverrec::serverrec</a>()
-00028 {
-00029         strlcpy(<a class="code" href="classserverrec.html#o0">name</a>,<span class="stringliteral">""</span>,256);
-00030         <a class="code" href="classserverrec.html#o1">pingtime</a> = 0;
-00031         <a class="code" href="classconnection.html#o10">lastping</a> = <a class="code" href="channels_8cpp.html#a37">TIME</a>;
-00032         <a class="code" href="classserverrec.html#o2">usercount_i</a> = <a class="code" href="classserverrec.html#o3">usercount</a> = <a class="code" href="classserverrec.html#o4">opercount</a> = <a class="code" href="classserverrec.html#o6">version</a> = 0;
-00033         <a class="code" href="classserverrec.html#o5">hops_away</a> = 1;
-00034         <a class="code" href="classconnection.html#o11">signon</a> = <a class="code" href="channels_8cpp.html#a37">TIME</a>;
-00035         <a class="code" href="classserverrec.html#o7">jupiter</a> = <span class="keyword">false</span>;
-00036         <a class="code" href="classconnection.html#o0">fd</a> = 0;
-00037         <a class="code" href="classserverrec.html#o10">sync_soon</a> = <span class="keyword">false</span>;
-00038         strlcpy(<a class="code" href="classserverrec.html#o9">nickserv</a>,<span class="stringliteral">""</span>,NICKMAX);
-00039 }
-00040 
-00041  
-<a name="l00042"></a><a class="code" href="classserverrec.html#a2">00042</a> <a class="code" href="classserverrec.html#a2">serverrec::~serverrec</a>()
+00017 <span class="keyword">using</span> <span class="keyword">namespace </span>std;
+00018 
+00019 <span class="preprocessor">#include "inspircd_config.h"</span> 
+00020 <span class="preprocessor">#include "<a class="code" href="servers_8h.html">servers.h</a>"</span>
+00021 <span class="preprocessor">#include "inspircd.h"</span>
+00022 <span class="preprocessor">#include &lt;unistd.h&gt;</span>
+00023 <span class="preprocessor">#include &lt;fcntl.h&gt;</span>
+00024 <span class="preprocessor">#include &lt;poll.h&gt;</span>
+00025 <span class="preprocessor">#include &lt;sys/errno.h&gt;</span>
+00026 <span class="preprocessor">#include &lt;sys/ioctl.h&gt;</span>
+00027 <span class="preprocessor">#include &lt;sys/utsname.h&gt;</span>
+00028 <span class="preprocessor">#include &lt;vector&gt;</span>
+00029 <span class="preprocessor">#include &lt;string&gt;</span>
+00030 <span class="preprocessor">#include &lt;deque&gt;</span>
+00031 <span class="preprocessor">#include &lt;sstream&gt;</span>
+00032 <span class="preprocessor">#include &lt;map&gt;</span>
+00033 <span class="preprocessor">#include "inspstring.h"</span>
+00034 <span class="preprocessor">#include "helperfuncs.h"</span>
+00035 <span class="preprocessor">#include "<a class="code" href="connection_8h.html">connection.h</a>"</span>
+00036 
+<a name="l00037"></a><a class="code" href="servers_8cpp.html#a0">00037</a> <span class="keyword">extern</span> time_t <a class="code" href="channels_8cpp.html#a36">TIME</a>;
+<a name="l00038"></a><a class="code" href="servers_8cpp.html#a1">00038</a> <span class="keyword">extern</span> <span class="keywordtype">int</span> <a class="code" href="servers_8cpp.html#a1">MaxConn</a>;
+00039 
+<a name="l00040"></a><a class="code" href="servers_8cpp.html#a2">00040</a> std::deque&lt;std::string&gt; <a class="code" href="servers_8cpp.html#a2">xsums</a>;
+00041 
+<a name="l00042"></a><a class="code" href="classserverrec.html#a0">00042</a> <a class="code" href="classserverrec.html#a0">serverrec::serverrec</a>()
 00043 {
-00044 }
-00045 
-<a name="l00046"></a><a class="code" href="classserverrec.html#a1">00046</a> <a class="code" href="classserverrec.html#a0">serverrec::serverrec</a>(<span class="keywordtype">char</span>* n, <span class="keywordtype">long</span> ver, <span class="keywordtype">bool</span> jupe)
-00047 {
-00048         strlcpy(<a class="code" href="classserverrec.html#o0">name</a>,n,256);
-00049         <a class="code" href="classconnection.html#o10">lastping</a> = <a class="code" href="channels_8cpp.html#a37">TIME</a>;
-00050         <a class="code" href="classserverrec.html#o2">usercount_i</a> = <a class="code" href="classserverrec.html#o3">usercount</a> = <a class="code" href="classserverrec.html#o4">opercount</a> = 0;
-00051         <a class="code" href="classserverrec.html#o6">version</a> = ver;
-00052         <a class="code" href="classserverrec.html#o5">hops_away</a> = 1;
-00053         <a class="code" href="classconnection.html#o11">signon</a> = <a class="code" href="channels_8cpp.html#a37">TIME</a>;
-00054         <a class="code" href="classserverrec.html#o7">jupiter</a> = jupe;
-00055         <a class="code" href="classconnection.html#o0">fd</a> = 0;
-00056         <a class="code" href="classserverrec.html#o10">sync_soon</a> = <span class="keyword">false</span>;
-00057         strlcpy(<a class="code" href="classserverrec.html#o9">nickserv</a>,<span class="stringliteral">""</span>,NICKMAX);
-00058 }
-00059 
-</pre></div><hr size="1"><address style="align: right;"><small>Generated on Sun May 15 18:36:02 2005 for InspIRCd by
+00044         strlcpy(<a class="code" href="classserverrec.html#o0">name</a>,<span class="stringliteral">""</span>,256);
+00045         <a class="code" href="classserverrec.html#o1">pingtime</a> = 0;
+00046         <a class="code" href="classconnection.html#o10">lastping</a> = <a class="code" href="channels_8cpp.html#a36">TIME</a>;
+00047         <a class="code" href="classserverrec.html#o2">usercount_i</a> = <a class="code" href="classserverrec.html#o3">usercount</a> = <a class="code" href="classserverrec.html#o4">opercount</a> = <a class="code" href="classserverrec.html#o6">version</a> = 0;
+00048         <a class="code" href="classserverrec.html#o5">hops_away</a> = 1;
+00049         <a class="code" href="classconnection.html#o11">signon</a> = <a class="code" href="channels_8cpp.html#a36">TIME</a>;
+00050         <a class="code" href="classserverrec.html#o7">jupiter</a> = <span class="keyword">false</span>;
+00051         <a class="code" href="classconnection.html#o0">fd</a> = 0;
+00052         <a class="code" href="classserverrec.html#o10">sync_soon</a> = <span class="keyword">false</span>;
+00053         strlcpy(<a class="code" href="classserverrec.html#o9">nickserv</a>,<span class="stringliteral">""</span>,NICKMAX);
+00054         <a class="code" href="classserverrec.html#o11">connectors</a>.clear();
+00055 }
+00056 
+00057  
+<a name="l00058"></a><a class="code" href="classserverrec.html#a2">00058</a> <a class="code" href="classserverrec.html#a2">serverrec::~serverrec</a>()
+00059 {
+00060 }
+00061 
+<a name="l00062"></a><a class="code" href="classserverrec.html#a1">00062</a> <a class="code" href="classserverrec.html#a0">serverrec::serverrec</a>(<span class="keywordtype">char</span>* n, <span class="keywordtype">long</span> ver, <span class="keywordtype">bool</span> jupe)
+00063 {
+00064         strlcpy(<a class="code" href="classserverrec.html#o0">name</a>,n,256);
+00065         <a class="code" href="classconnection.html#o10">lastping</a> = <a class="code" href="channels_8cpp.html#a36">TIME</a>;
+00066         <a class="code" href="classserverrec.html#o2">usercount_i</a> = <a class="code" href="classserverrec.html#o3">usercount</a> = <a class="code" href="classserverrec.html#o4">opercount</a> = 0;
+00067         <a class="code" href="classserverrec.html#o6">version</a> = ver;
+00068         <a class="code" href="classserverrec.html#o5">hops_away</a> = 1;
+00069         <a class="code" href="classconnection.html#o11">signon</a> = <a class="code" href="channels_8cpp.html#a36">TIME</a>;
+00070         <a class="code" href="classserverrec.html#o7">jupiter</a> = jupe;
+00071         <a class="code" href="classconnection.html#o0">fd</a> = 0;
+00072         <a class="code" href="classserverrec.html#o10">sync_soon</a> = <span class="keyword">false</span>;
+00073         strlcpy(<a class="code" href="classserverrec.html#o9">nickserv</a>,<span class="stringliteral">""</span>,NICKMAX);
+00074         <a class="code" href="classserverrec.html#o11">connectors</a>.clear();
+00075 }
+00076 
+<a name="l00077"></a><a class="code" href="classserverrec.html#a3">00077</a> <span class="keywordtype">bool</span> <a class="code" href="classserverrec.html#a3">serverrec::CreateListener</a>(<span class="keywordtype">char</span>* newhost, <span class="keywordtype">int</span> p)
+00078 {
+00079         sockaddr_in host_address;
+00080         <span class="keywordtype">int</span> flags;
+00081         in_addr addy;
+00082         <span class="keywordtype">int</span> on = 0;
+00083         <span class="keyword">struct </span>linger linger = { 0 };
+00084 
+00085         this-&gt;<a class="code" href="classconnection.html#o8">port</a> = p;
+00086 
+00087         <a class="code" href="classconnection.html#o0">fd</a> = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+00088         <span class="keywordflow">if</span> (<a class="code" href="classconnection.html#o0">fd</a> &lt;= 0)
+00089         {
+00090                 <span class="keywordflow">return</span> <span class="keyword">false</span>;
+00091         }
+00092 
+00093         setsockopt(<a class="code" href="classconnection.html#o0">fd</a>,SOL_SOCKET,SO_REUSEADDR,(<span class="keyword">const</span> <span class="keywordtype">char</span>*)&amp;on,<span class="keyword">sizeof</span>(on));
+00094         linger.l_onoff = 1;
+00095         linger.l_linger = 1;
+00096         setsockopt(<a class="code" href="classconnection.html#o0">fd</a>,SOL_SOCKET,SO_LINGER,(<span class="keyword">const</span> <span class="keywordtype">char</span>*)&amp;linger,<span class="keyword">sizeof</span>(linger));
+00097 
+00098         <span class="comment">// attempt to increase socket sendq and recvq as high as its possible</span>
+00099         <span class="comment">// to get them on linux.</span>
+00100         <span class="keywordtype">int</span> sendbuf = 32768;
+00101         <span class="keywordtype">int</span> recvbuf = 32768;
+00102         setsockopt(<a class="code" href="classconnection.html#o0">fd</a>,SOL_SOCKET,SO_SNDBUF,(<span class="keyword">const</span> <span class="keywordtype">void</span> *)&amp;sendbuf,<span class="keyword">sizeof</span>(sendbuf));
+00103         setsockopt(<a class="code" href="classconnection.html#o0">fd</a>,SOL_SOCKET,SO_RCVBUF,(<span class="keyword">const</span> <span class="keywordtype">void</span> *)&amp;recvbuf,<span class="keyword">sizeof</span>(sendbuf));
+00104 
+00105         memset((<span class="keywordtype">void</span>*)&amp;host_address, 0, <span class="keyword">sizeof</span>(host_address));
+00106 
+00107         host_address.sin_family = AF_INET;
+00108 
+00109         <span class="keywordflow">if</span> (!strcmp(newhost,<span class="stringliteral">""</span>))
+00110         {
+00111                 host_address.sin_addr.s_addr = htonl(INADDR_ANY);
+00112         }
+00113         <span class="keywordflow">else</span>
+00114         {
+00115                 inet_aton(newhost,&amp;addy);
+00116                 host_address.sin_addr = addy;
+00117         }
+00118 
+00119         host_address.sin_port = htons(p);
+00120 
+00121         <span class="keywordflow">if</span> (bind(<a class="code" href="classconnection.html#o0">fd</a>,(sockaddr*)&amp;host_address,<span class="keyword">sizeof</span>(host_address))&lt;0)
+00122         {
+00123                 <span class="keywordflow">return</span> <span class="keyword">false</span>;
+00124         }
+00125 
+00126         <span class="comment">// make the socket non-blocking</span>
+00127         flags = fcntl(<a class="code" href="classconnection.html#o0">fd</a>, F_GETFL, 0);
+00128         fcntl(<a class="code" href="classconnection.html#o0">fd</a>, F_SETFL, flags | O_NONBLOCK);
+00129 
+00130         this-&gt;<a class="code" href="classconnection.html#o8">port</a> = p;
+00131 
+00132         listen(this-&gt;fd, <a class="code" href="servers_8cpp.html#a1">MaxConn</a>);
+00133 
+00134         <span class="keywordflow">return</span> <span class="keyword">true</span>;
+00135 }
+00136 
+00137 
+<a name="l00138"></a><a class="code" href="classserverrec.html#a4">00138</a> <span class="keywordtype">bool</span> <a class="code" href="classserverrec.html#a4">serverrec::BeginLink</a>(<span class="keywordtype">char</span>* targethost, <span class="keywordtype">int</span> newport, <span class="keywordtype">char</span>* password, <span class="keywordtype">char</span>* servername, <span class="keywordtype">int</span> myport)
+00139 {
+00140         <span class="keywordtype">char</span> connect[MAXBUF];
+00141 
+00142         <a class="code" href="classircd__connector.html">ircd_connector</a> connector;
+00143         <a class="code" href="classircd__connector.html">ircd_connector</a> *cn = this-&gt;<a class="code" href="classserverrec.html#a9">FindHost</a>(servername);
+00144 
+00145 
+00146         <span class="keywordflow">if</span> (cn)
+00147         {
+00148                 WriteOpers(<span class="stringliteral">"CONNECT aborted: Server %s already exists"</span>,servername);
+00149                 <span class="keywordflow">return</span> <span class="keyword">false</span>;
+00150         }
+00151 
+00152 
+00153         <span class="keywordflow">if</span> (this-&gt;<a class="code" href="classconnection.html#o0">fd</a>)
+00154         {
+00155                 <span class="keywordflow">if</span> (connector.<a class="code" href="classircd__connector.html#a1">MakeOutboundConnection</a>(targethost,newport))
+00156                 {
+00157                         <span class="comment">// targethost has been turned into an ip...</span>
+00158                         <span class="comment">// we dont want this as the server name.</span>
+00159                         connector.<a class="code" href="classircd__connector.html#a3">SetServerName</a>(servername);
+00160                         snprintf(connect,MAXBUF,<span class="stringliteral">"S %s %s %lu %s :%s"</span>,getservername().c_str(),password,(<span class="keywordtype">unsigned</span> <span class="keywordtype">long</span>)myport,GetRevision().c_str(),getserverdesc().c_str());
+00161                         connector.<a class="code" href="classircd__connector.html#a7">SetState</a>(<a class="code" href="connection_8h.html#a4">STATE_NOAUTH_OUTBOUND</a>);
+00162                         connector.<a class="code" href="classircd__connector.html#a13">SetHostAndPort</a>(targethost, newport);
+00163                         this-&gt;<a class="code" href="classserverrec.html#o11">connectors</a>.push_back(connector);
+00164                         <span class="keywordflow">return</span> this-&gt;<a class="code" href="classserverrec.html#a7">SendPacket</a>(connect, servername);
+00165                 }
+00166                 <span class="keywordflow">else</span>
+00167                 {
+00168                         connector.<a class="code" href="classircd__connector.html#a7">SetState</a>(<a class="code" href="connection_8h.html#a0">STATE_DISCONNECTED</a>);
+00169                         WriteOpers(<span class="stringliteral">"Could not create outbound connection to %s:%d"</span>,targethost,newport);
+00170                 }
+00171         }
+00172         <span class="keywordflow">return</span> <span class="keyword">false</span>;
+00173 }
+00174 
+00175 
+<a name="l00176"></a><a class="code" href="classserverrec.html#a5">00176</a> <span class="keywordtype">bool</span> <a class="code" href="classserverrec.html#a5">serverrec::MeshCookie</a>(<span class="keywordtype">char</span>* targethost, <span class="keywordtype">int</span> newport, <span class="keywordtype">unsigned</span> <span class="keywordtype">long</span> cookie, <span class="keywordtype">char</span>* servername)
+00177 {
+00178         <span class="keywordtype">char</span> connect[MAXBUF];
+00179 
+00180         <a class="code" href="classircd__connector.html">ircd_connector</a> connector;
+00181 
+00182         WriteOpers(<span class="stringliteral">"Establishing meshed link to %s:%d"</span>,servername,newport);
+00183 
+00184         <span class="keywordflow">if</span> (this-&gt;<a class="code" href="classconnection.html#o0">fd</a>)
+00185         {
+00186                 <span class="keywordflow">if</span> (connector.<a class="code" href="classircd__connector.html#a1">MakeOutboundConnection</a>(targethost,newport))
+00187                 {
+00188                         <span class="comment">// targethost has been turned into an ip...</span>
+00189                         <span class="comment">// we dont want this as the server name.</span>
+00190                         connector.<a class="code" href="classircd__connector.html#a3">SetServerName</a>(servername);
+00191                         snprintf(connect,MAXBUF,<span class="stringliteral">"- %lu %s :%s"</span>,cookie,getservername().c_str(),getserverdesc().c_str());
+00192                         connector.<a class="code" href="classircd__connector.html#a7">SetState</a>(<a class="code" href="connection_8h.html#a4">STATE_NOAUTH_OUTBOUND</a>);
+00193                         connector.<a class="code" href="classircd__connector.html#a13">SetHostAndPort</a>(targethost, newport);
+00194                         connector.<a class="code" href="classircd__connector.html#a7">SetState</a>(<a class="code" href="connection_8h.html#a1">STATE_CONNECTED</a>);
+00195                         this-&gt;<a class="code" href="classserverrec.html#o11">connectors</a>.push_back(connector);
+00196                         <span class="keywordflow">return</span> this-&gt;<a class="code" href="classserverrec.html#a7">SendPacket</a>(connect, servername);
+00197                 }
+00198                 <span class="keywordflow">else</span>
+00199                 {
+00200                         connector.<a class="code" href="classircd__connector.html#a7">SetState</a>(<a class="code" href="connection_8h.html#a0">STATE_DISCONNECTED</a>);
+00201                         WriteOpers(<span class="stringliteral">"Could not create outbound connection to %s:%d"</span>,targethost,newport);
+00202                 }
+00203         }
+00204         <span class="keywordflow">return</span> <span class="keyword">false</span>;
+00205 }
+00206 
+<a name="l00207"></a><a class="code" href="classserverrec.html#a10">00207</a> <span class="keywordtype">bool</span> <a class="code" href="classserverrec.html#a10">serverrec::AddIncoming</a>(<span class="keywordtype">int</span> newfd, <span class="keywordtype">char</span>* targethost, <span class="keywordtype">int</span> sourceport)
+00208 {
+00209         <a class="code" href="classircd__connector.html">ircd_connector</a> connector;
+00210 
+00211         <span class="comment">// targethost has been turned into an ip...</span>
+00212         <span class="comment">// we dont want this as the server name.</span>
+00213         connector.<a class="code" href="classircd__connector.html#a3">SetServerName</a>(targethost);
+00214         connector.<a class="code" href="classircd__connector.html#a5">SetDescriptor</a>(newfd);
+00215         connector.<a class="code" href="classircd__connector.html#a7">SetState</a>(<a class="code" href="connection_8h.html#a3">STATE_NOAUTH_INBOUND</a>);
+00216         <span class="keywordtype">int</span> flags = fcntl(newfd, F_GETFL, 0);
+00217         fcntl(newfd, F_SETFL, flags | O_NONBLOCK);
+00218         <span class="keywordtype">int</span> sendbuf = 32768;
+00219         <span class="keywordtype">int</span> recvbuf = 32768;
+00220         setsockopt(newfd,SOL_SOCKET,SO_SNDBUF,(<span class="keyword">const</span> <span class="keywordtype">void</span> *)&amp;sendbuf,<span class="keyword">sizeof</span>(sendbuf));
+00221         setsockopt(newfd,SOL_SOCKET,SO_RCVBUF,(<span class="keyword">const</span> <span class="keywordtype">void</span> *)&amp;recvbuf,<span class="keyword">sizeof</span>(sendbuf));
+00222         connector.<a class="code" href="classircd__connector.html#a13">SetHostAndPort</a>(targethost, sourceport);
+00223         connector.<a class="code" href="classircd__connector.html#a7">SetState</a>(<a class="code" href="connection_8h.html#a3">STATE_NOAUTH_INBOUND</a>);
+00224         log(<a class="code" href="modules_8h.html#a0">DEBUG</a>,<span class="stringliteral">"serverrec::AddIncoming() Added connection: %s:%d"</span>,targethost,sourceport);
+00225         this-&gt;<a class="code" href="classserverrec.html#o11">connectors</a>.push_back(connector);
+00226         <span class="keywordflow">return</span> <span class="keyword">true</span>;
+00227 }
+00228 
+<a name="l00229"></a><a class="code" href="classserverrec.html#a6">00229</a> <span class="keywordtype">void</span> <a class="code" href="classserverrec.html#a6">serverrec::TerminateLink</a>(<span class="keywordtype">char</span>* targethost)
+00230 {
+00231         <span class="comment">// this locates the targethost in the serverrec::connectors vector of the class,</span>
+00232         <span class="comment">// and terminates it by sending it an SQUIT token and closing its descriptor.</span>
+00233         <span class="comment">// TerminateLink with a null string causes a terminate of ALL links</span>
+00234 }
+00235 
+00236 <span class="comment">// Returns a pointer to the connector for 'host'</span>
+<a name="l00237"></a><a class="code" href="classserverrec.html#a9">00237</a> <a class="code" href="classircd__connector.html">ircd_connector</a>* <a class="code" href="classserverrec.html#a9">serverrec::FindHost</a>(std::string findhost)
+00238 {
+00239         <span class="keywordflow">for</span> (<span class="keywordtype">int</span> i = 0; i &lt; this-&gt;<a class="code" href="classserverrec.html#o11">connectors</a>.size(); i++)
+00240         {
+00241                 <span class="keywordflow">if</span> (this-&gt;<a class="code" href="classserverrec.html#o11">connectors</a>[i].GetServerName() == findhost)
+00242                 {
+00243                         <span class="keywordflow">return</span> &amp;this-&gt;<a class="code" href="classserverrec.html#o11">connectors</a>[i];
+00244                 }
+00245         }
+00246         <span class="keywordflow">return</span> NULL;
+00247 }
+00248 
+<a name="l00249"></a><a class="code" href="classserverrec.html#a11">00249</a> <span class="keywordtype">void</span> <a class="code" href="classserverrec.html#a11">serverrec::FlushWriteBuffers</a>()
+00250 {
+00251         <span class="keywordflow">for</span> (<span class="keywordtype">int</span> i = 0; i &lt; this-&gt;<a class="code" href="classserverrec.html#o11">connectors</a>.size(); i++)
+00252         {
+00253                 <span class="keywordflow">if</span> (this-&gt;<a class="code" href="classserverrec.html#o11">connectors</a>[i].GetState() != <a class="code" href="connection_8h.html#a0">STATE_DISCONNECTED</a>)
+00254                 {
+00255                         <span class="keywordflow">if</span> (!this-&gt;<a class="code" href="classserverrec.html#o11">connectors</a>[i].CheckPing())
+00256                         {
+00257                                 WriteOpers(<span class="stringliteral">"*** Lost single connection to %s: Ping timeout"</span>,this-&gt;connectors[i].GetServerName().c_str());
+00258                                 this-&gt;<a class="code" href="classserverrec.html#o11">connectors</a>[i].CloseConnection();
+00259                                 this-&gt;<a class="code" href="classserverrec.html#o11">connectors</a>[i].SetState(<a class="code" href="connection_8h.html#a0">STATE_DISCONNECTED</a>);
+00260                         }
+00261                 }
+00262                 <span class="keywordflow">if</span> (this-&gt;<a class="code" href="classserverrec.html#o11">connectors</a>[i].HasBufferedOutput())
+00263                 {
+00264                         <span class="keywordflow">if</span> (!this-&gt;<a class="code" href="classserverrec.html#o11">connectors</a>[i].FlushWriteBuf())
+00265                         {
+00266                                 <span class="comment">// if we're here the write() caused an error, we cannot proceed</span>
+00267                                 WriteOpers(<span class="stringliteral">"*** Lost single connection to %s, link inactive and retrying: %s"</span>,this-&gt;connectors[i].GetServerName().c_str(),this-&gt;<a class="code" href="classserverrec.html#o11">connectors</a>[i].GetWriteError().c_str());
+00268                                 this-&gt;<a class="code" href="classserverrec.html#o11">connectors</a>[i].CloseConnection();
+00269                                 this-&gt;<a class="code" href="classserverrec.html#o11">connectors</a>[i].SetState(<a class="code" href="connection_8h.html#a0">STATE_DISCONNECTED</a>);
+00270                         }
+00271                 }
+00272         }
+00273 }
+00274 
+<a name="l00275"></a><a class="code" href="classserverrec.html#a7">00275</a> <span class="keywordtype">bool</span> <a class="code" href="classserverrec.html#a7">serverrec::SendPacket</a>(<span class="keywordtype">char</span> *message, <span class="keyword">const</span> <span class="keywordtype">char</span>* sendhost)
+00276 {
+00277         <span class="keywordflow">if</span> ((!message) || (!sendhost))
+00278                 <span class="keywordflow">return</span> <span class="keyword">true</span>;
+00279 
+00280         <a class="code" href="classircd__connector.html">ircd_connector</a>* cn = this-&gt;<a class="code" href="classserverrec.html#a9">FindHost</a>(sendhost);
+00281 
+00282         <span class="keywordflow">if</span> (!strchr(message,<span class="charliteral">'\n'</span>))
+00283         {
+00284                 strlcat(message,<span class="stringliteral">"\n"</span>,MAXBUF);
+00285         }
+00286 
+00287         <span class="keywordflow">if</span> (cn)
+00288         {
+00289                 log(<a class="code" href="modules_8h.html#a0">DEBUG</a>,<span class="stringliteral">"main: serverrec::SendPacket() sent '%s' to %s"</span>,message,cn-&gt;<a class="code" href="classircd__connector.html#a2">GetServerName</a>().c_str());
+00290 
+00291                 <span class="keywordflow">if</span> (cn-&gt;<a class="code" href="classircd__connector.html#a6">GetState</a>() == <a class="code" href="connection_8h.html#a0">STATE_DISCONNECTED</a>)
+00292                 {
+00293                         <span class="comment">// fix: can only route one hop to avoid a loop</span>
+00294                         <span class="keywordflow">if</span> (strncmp(message,<span class="stringliteral">"R "</span>,2))
+00295                         {
+00296                                 log(<a class="code" href="modules_8h.html#a0">DEBUG</a>,<span class="stringliteral">"Not a double reroute"</span>);
+00297                                 <span class="comment">// this route is down, we must re-route the packet through an available point in the mesh.</span>
+00298                                 <span class="keywordflow">for</span> (<span class="keywordtype">int</span> k = 0; k &lt; this-&gt;<a class="code" href="classserverrec.html#o11">connectors</a>.size(); k++)
+00299                                 {
+00300                                         log(<a class="code" href="modules_8h.html#a0">DEBUG</a>,<span class="stringliteral">"Check connector %d: %s"</span>,k,this-&gt;connectors[k].GetServerName().c_str());
+00301                                         <span class="comment">// search for another point in the mesh which can 'reach' where we want to go</span>
+00302                                         <span class="keywordflow">for</span> (<span class="keywordtype">int</span> m = 0; m &lt; this-&gt;<a class="code" href="classserverrec.html#o11">connectors</a>[k].routes.size(); m++)
+00303                                         {
+00304                                                 <span class="keywordflow">if</span> (!strcasecmp(this-&gt;connectors[k].routes[m].c_str(),sendhost))
+00305                                                 {
+00306                                                         log(<a class="code" href="modules_8h.html#a0">DEBUG</a>,<span class="stringliteral">"Found alternative route for packet: %s"</span>,this-&gt;connectors[k].GetServerName().c_str());
+00307                                                         <span class="keywordtype">char</span> buffer[MAXBUF];
+00308                                                         snprintf(buffer,MAXBUF,<span class="stringliteral">"R %s %s"</span>,sendhost,message);
+00309                                                         this-&gt;<a class="code" href="classserverrec.html#a7">SendPacket</a>(buffer,this-&gt;connectors[k].GetServerName().c_str());
+00310                                                         <span class="keywordflow">return</span> <span class="keyword">true</span>;
+00311                                                 }
+00312                                         }
+00313                                 }
+00314                         }
+00315                         <span class="keywordtype">char</span> buffer[MAXBUF];
+00316                         snprintf(buffer,MAXBUF,<span class="stringliteral">"&amp; %s"</span>,sendhost);
+00317                         WriteOpers(<span class="stringliteral">"*** All connections to %s lost."</span>,sendhost);
+00318                         NetSendToAllExcept(sendhost,buffer);
+00319                         DoSplit(sendhost);
+00320                         <span class="keywordflow">return</span> <span class="keyword">false</span>;
+00321                 }
+00322 
+00323                 <span class="comment">// returns false if the packet could not be sent (e.g. target host down)</span>
+00324                 <span class="keywordflow">if</span> (!cn-&gt;<a class="code" href="classircd__connector.html#a21">AddWriteBuf</a>(message))
+00325                 {
+00326                         <span class="comment">// if we're here, there was an error pending, and the send cannot proceed</span>
+00327                         log(<a class="code" href="modules_8h.html#a0">DEBUG</a>,<span class="stringliteral">"cn-&gt;AddWriteBuf() failed for serverrec::SendPacket(): %s"</span>,cn-&gt;<a class="code" href="classircd__connector.html#a24">GetWriteError</a>().c_str());
+00328                         log(<a class="code" href="modules_8h.html#a0">DEBUG</a>,<span class="stringliteral">"Disabling connector: %s"</span>,cn-&gt;<a class="code" href="classircd__connector.html#a2">GetServerName</a>().c_str());
+00329                         cn-&gt;<a class="code" href="classircd__connector.html#a14">CloseConnection</a>();
+00330                         cn-&gt;<a class="code" href="classircd__connector.html#a7">SetState</a>(<a class="code" href="connection_8h.html#a0">STATE_DISCONNECTED</a>);
+00331                         WriteOpers(<span class="stringliteral">"*** Lost single connection to %s, link inactive and retrying: %s"</span>,cn-&gt;<a class="code" href="classircd__connector.html#a2">GetServerName</a>().c_str(),cn-&gt;<a class="code" href="classircd__connector.html#a24">GetWriteError</a>().c_str());
+00332                         <span class="comment">// retry the packet along a new route so either arrival OR failure are gauranteed (bugfix)</span>
+00333                         <span class="keywordflow">return</span> this-&gt;<a class="code" href="classserverrec.html#a7">SendPacket</a>(message,sendhost);
+00334                 }
+00335                 <span class="keywordflow">if</span> (!cn-&gt;<a class="code" href="classircd__connector.html#a22">FlushWriteBuf</a>())
+00336                 {
+00337                         <span class="comment">// if we're here the write() caused an error, we cannot proceed</span>
+00338                         log(<a class="code" href="modules_8h.html#a0">DEBUG</a>,<span class="stringliteral">"cn-&gt;FlushWriteBuf() failed for serverrec::SendPacket(): %s"</span>,cn-&gt;<a class="code" href="classircd__connector.html#a24">GetWriteError</a>().c_str());
+00339                         log(<a class="code" href="modules_8h.html#a0">DEBUG</a>,<span class="stringliteral">"Disabling connector: %s"</span>,cn-&gt;<a class="code" href="classircd__connector.html#a2">GetServerName</a>().c_str());
+00340                         cn-&gt;<a class="code" href="classircd__connector.html#a14">CloseConnection</a>();
+00341                         cn-&gt;<a class="code" href="classircd__connector.html#a7">SetState</a>(<a class="code" href="connection_8h.html#a0">STATE_DISCONNECTED</a>);
+00342                         WriteOpers(<span class="stringliteral">"*** Lost single connection to %s, link inactive and retrying: %s"</span>,cn-&gt;<a class="code" href="classircd__connector.html#a2">GetServerName</a>().c_str(),cn-&gt;<a class="code" href="classircd__connector.html#a24">GetWriteError</a>().c_str());
+00343                         <span class="comment">// retry the packet along a new route so either arrival OR failure are gauranteed</span>
+00344                         <span class="keywordflow">return</span> this-&gt;<a class="code" href="classserverrec.html#a7">SendPacket</a>(message,sendhost);
+00345                 }
+00346                 <span class="keywordflow">return</span> <span class="keyword">true</span>;
+00347         }
+00348 }
+00349 
+<a name="l00350"></a><a class="code" href="servers_8cpp.html#a3">00350</a> <span class="keywordtype">bool</span> <a class="code" href="servers_8cpp.html#a3">already_have_sum</a>(std::string sum)
+00351 {
+00352         <span class="keywordflow">for</span> (<span class="keywordtype">int</span> i = 0; i &lt; <a class="code" href="servers_8cpp.html#a2">xsums</a>.size(); i++)
+00353         {
+00354                 <span class="keywordflow">if</span> (<a class="code" href="servers_8cpp.html#a2">xsums</a>[i] == sum)
+00355                 {
+00356                         <span class="keywordflow">return</span> <span class="keyword">true</span>;
+00357                 }
+00358         }
+00359         <span class="keywordflow">if</span> (<a class="code" href="servers_8cpp.html#a2">xsums</a>.size() &gt;= 128)
+00360         {
+00361                 <a class="code" href="servers_8cpp.html#a2">xsums</a>.pop_front();
+00362         }
+00363         <a class="code" href="servers_8cpp.html#a2">xsums</a>.push_back(sum);
+00364         <span class="keywordflow">return</span> <span class="keyword">false</span>;
+00365 }
+00366 
+00367 <span class="comment">// receives a packet from any where there is data waiting, first come, first served</span>
+00368 <span class="comment">// fills the message and host values with the host where the data came from.</span>
+00369 
+<a name="l00370"></a><a class="code" href="classserverrec.html#a8">00370</a> <span class="keywordtype">bool</span> <a class="code" href="classserverrec.html#a8">serverrec::RecvPacket</a>(std::deque&lt;std::string&gt; &amp;messages, <span class="keywordtype">char</span>* recvhost,std::deque&lt;std::string&gt; &amp;sums)
+00371 {
+00372         <span class="keywordtype">char</span> data[65536];
+00373         memset(data, 0, 65536);
+00374         <span class="keywordflow">for</span> (<span class="keywordtype">int</span> i = 0; i &lt; this-&gt;<a class="code" href="classserverrec.html#o11">connectors</a>.size(); i++)
+00375         {
+00376                 <span class="keywordflow">if</span> (this-&gt;<a class="code" href="classserverrec.html#o11">connectors</a>[i].GetState() != <a class="code" href="connection_8h.html#a0">STATE_DISCONNECTED</a>)
+00377                 {
+00378                         <span class="comment">// returns false if the packet could not be sent (e.g. target host down)</span>
+00379                         <span class="keywordtype">int</span> rcvsize = 0;
+00380 
+00381                         <span class="comment">// check if theres any data on this socket</span>
+00382                         <span class="comment">// if not, continue onwards to the next.</span>
+00383                         pollfd polls;
+00384                         polls.fd = this-&gt;<a class="code" href="classserverrec.html#o11">connectors</a>[i].GetDescriptor();
+00385                         polls.events = POLLIN;
+00386                         <span class="keywordtype">int</span> ret = poll(&amp;polls,1,1);
+00387                         <span class="keywordflow">if</span> (ret &lt;= 0) <span class="keywordflow">continue</span>;
+00388 
+00389                         rcvsize = recv(this-&gt;connectors[i].GetDescriptor(),data,65000,0);
+00390                         data[rcvsize] = <span class="charliteral">'\0'</span>;
+00391                         <span class="keywordflow">if</span> (rcvsize == -1)
+00392                         {
+00393                                 <span class="keywordflow">if</span> (errno != EAGAIN)
+00394                                 {
+00395                                         log(<a class="code" href="modules_8h.html#a0">DEBUG</a>,<span class="stringliteral">"recv() failed for serverrec::RecvPacket(): %s"</span>,strerror(errno));
+00396                                         log(<a class="code" href="modules_8h.html#a0">DEBUG</a>,<span class="stringliteral">"Disabling connector: %s"</span>,this-&gt;connectors[i].GetServerName().c_str());
+00397                                         this-&gt;<a class="code" href="classserverrec.html#o11">connectors</a>[i].CloseConnection();
+00398                                         this-&gt;<a class="code" href="classserverrec.html#o11">connectors</a>[i].SetState(<a class="code" href="connection_8h.html#a0">STATE_DISCONNECTED</a>);
+00399                                 }
+00400                         }
+00401                         <span class="keywordtype">int</span> pushed = 0;
+00402                         <span class="keywordflow">if</span> (rcvsize &gt; 0)
+00403                         {
+00404                                 <span class="keywordflow">if</span> (!this-&gt;<a class="code" href="classserverrec.html#o11">connectors</a>[i].AddBuffer(data))
+00405                                 {
+00406                                         WriteOpers(<span class="stringliteral">"*** Read buffer for %s exceeds maximum, closing connection!"</span>,this-&gt;connectors[i].GetServerName().c_str());
+00407                                         this-&gt;<a class="code" href="classserverrec.html#o11">connectors</a>[i].CloseConnection();
+00408                                         this-&gt;<a class="code" href="classserverrec.html#o11">connectors</a>[i].SetState(<a class="code" href="connection_8h.html#a0">STATE_DISCONNECTED</a>);
+00409                                 }
+00410                                 <span class="keywordflow">if</span> (this-&gt;<a class="code" href="classserverrec.html#o11">connectors</a>[i].BufferIsComplete())
+00411                                 {
+00412                                         this-&gt;<a class="code" href="classserverrec.html#o11">connectors</a>[i].ResetPing();
+00413                                         <span class="keywordflow">while</span> (this-&gt;<a class="code" href="classserverrec.html#o11">connectors</a>[i].BufferIsComplete())
+00414                                         {
+00415                                                 std::string text = this-&gt;<a class="code" href="classserverrec.html#o11">connectors</a>[i].GetBuffer();
+00416                                                 <span class="keywordflow">if</span> (text != <span class="stringliteral">""</span>)
+00417                                                 {
+00418                                                         <span class="keywordflow">if</span> ((text[0] == <span class="charliteral">':'</span>) &amp;&amp; (text.find(<span class="stringliteral">" "</span>) != std::string::npos))
+00419                                                         {
+00420                                                                 std::string orig = text;
+00421                                                                 log(<a class="code" href="modules_8h.html#a0">DEBUG</a>,<span class="stringliteral">"Original: %s"</span>,text.c_str());
+00422                                                                 std::string sum = text.substr(1,text.find(<span class="stringliteral">" "</span>)-1);
+00423                                                                 text = text.substr(text.find(<span class="stringliteral">" "</span>)+1,text.length());
+00424                                                                 std::string possible_token = text.substr(1,text.find(<span class="stringliteral">" "</span>)-1);
+00425                                                                 <span class="keywordflow">if</span> (possible_token.length() &gt; 1)
+00426                                                                 {
+00427                                                                         sums.push_back(<span class="stringliteral">"*"</span>);
+00428                                                                         text = orig;
+00429                                                                         log(<a class="code" href="modules_8h.html#a0">DEBUG</a>,<span class="stringliteral">"Non-mesh, non-tokenized string passed up the chain"</span>);
+00430                                                                 }
+00431                                                                 <span class="keywordflow">else</span>
+00432                                                                 {
+00433                                                                         log(<a class="code" href="modules_8h.html#a0">DEBUG</a>,<span class="stringliteral">"Packet sum: '%s'"</span>,sum.c_str());
+00434                                                                         <span class="keywordflow">if</span> ((<a class="code" href="servers_8cpp.html#a3">already_have_sum</a>(sum)) &amp;&amp; (sum != <span class="stringliteral">"*"</span>))
+00435                                                                         {
+00436                                                                                 <span class="comment">// we don't accept dupes</span>
+00437                                                                                 <span class="keywordflow">continue</span>;
+00438                                                                         }
+00439                                                                         sums.push_back(sum.c_str());
+00440                                                                 }
+00441                                                         }
+00442                                                         <span class="keywordflow">else</span> sums.push_back(<span class="stringliteral">"*"</span>);
+00443                                                         messages.push_back(text.c_str());
+00444                                                         strlcpy(recvhost,this-&gt;connectors[i].GetServerName().c_str(),160);
+00445                                                         log(<a class="code" href="modules_8h.html#a0">DEBUG</a>,<span class="stringliteral">"serverrec::RecvPacket() %d:%s-&gt;%s"</span>,pushed++,recvhost,text.c_str());
+00446                                                 }
+00447                                         }
+00448                                         <span class="keywordflow">return</span> <span class="keyword">true</span>;
+00449                                 }
+00450                         }
+00451                 }
+00452         }
+00453         <span class="comment">// nothing new yet -- message and host will be undefined</span>
+00454         <span class="keywordflow">return</span> <span class="keyword">false</span>;
+00455 }
+00456 
+</pre></div><hr size="1"><address style="align: right;"><small>Generated on Tue May 24 02:30:06 2005 for InspIRCd by
 <a href="http://www.doxygen.org/index.html">
 <img src="doxygen.png" alt="doxygen" align="middle" border=0 > 
 </a>1.3.3 </small></address>

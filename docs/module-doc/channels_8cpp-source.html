@@ -21,47 +21,47 @@
 00014 <span class="comment"> * ---------------------------------------------------</span>
 00015 <span class="comment"> */</span>
 00016 
-00017 <span class="preprocessor">#include "inspircd.h"</span>
-00018 <span class="preprocessor">#include "inspircd_io.h"</span>
-00019 <span class="preprocessor">#include "inspircd_util.h"</span>
-00020 <span class="preprocessor">#include "inspircd_config.h"</span>
-00021 <span class="preprocessor">#include &lt;unistd.h&gt;</span>
-00022 <span class="preprocessor">#include &lt;sys/errno.h&gt;</span>
-00023 <span class="preprocessor">#include &lt;sys/ioctl.h&gt;</span>
-00024 <span class="preprocessor">#include &lt;sys/utsname.h&gt;</span>
-00025 <span class="preprocessor">#include &lt;time.h&gt;</span>
-00026 <span class="preprocessor">#include &lt;string&gt;</span>
-00027 <span class="preprocessor">#ifdef GCC3</span>
-00028 <span class="preprocessor"></span><span class="preprocessor">#include &lt;ext/hash_map&gt;</span>
-00029 <span class="preprocessor">#else</span>
-00030 <span class="preprocessor"></span><span class="preprocessor">#include &lt;hash_map&gt;</span>
-00031 <span class="preprocessor">#endif</span>
-00032 <span class="preprocessor"></span><span class="preprocessor">#include &lt;map&gt;</span>
-00033 <span class="preprocessor">#include &lt;sstream&gt;</span>
-00034 <span class="preprocessor">#include &lt;vector&gt;</span>
-00035 <span class="preprocessor">#include &lt;deque&gt;</span>
-00036 <span class="preprocessor">#include "<a class="code" href="connection_8h.html">connection.h</a>"</span>
-00037 <span class="preprocessor">#include "<a class="code" href="users_8h.html">users.h</a>"</span>
-00038 <span class="preprocessor">#include "<a class="code" href="servers_8h.html">servers.h</a>"</span>
-00039 <span class="preprocessor">#include "<a class="code" href="ctables_8h.html">ctables.h</a>"</span>
-00040 <span class="preprocessor">#include "globals.h"</span>
-00041 <span class="preprocessor">#include "<a class="code" href="modules_8h.html">modules.h</a>"</span>
-00042 <span class="preprocessor">#include "dynamic.h"</span>
-00043 <span class="preprocessor">#include "wildcard.h"</span>
-00044 <span class="preprocessor">#include "<a class="code" href="message_8h.html">message.h</a>"</span>
-00045 <span class="preprocessor">#include "<a class="code" href="mode_8h.html">mode.h</a>"</span>
-00046 <span class="preprocessor">#include "<a class="code" href="xline_8h.html">xline.h</a>"</span>
-00047 <span class="preprocessor">#include "inspstring.h"</span>
-00048 <span class="preprocessor">#include "helperfuncs.h"</span>
-00049 
-00050 <span class="preprocessor">#ifdef GCC3</span>
-00051 <span class="preprocessor"></span><span class="preprocessor">#define nspace __gnu_cxx</span>
-00052 <span class="preprocessor"></span><span class="preprocessor">#else</span>
-<a name="l00053"></a><a class="code" href="channels_8cpp.html#a0">00053</a> <span class="preprocessor"></span><span class="preprocessor">#define nspace std</span>
-00054 <span class="preprocessor"></span><span class="preprocessor">#endif</span>
-00055 <span class="preprocessor"></span>
-00056 <span class="keyword">using</span> <span class="keyword">namespace </span>std;
-00057 
+00017 <span class="keyword">using</span> <span class="keyword">namespace </span>std;
+00018 
+00019 <span class="preprocessor">#include "inspircd.h"</span>
+00020 <span class="preprocessor">#include "inspircd_io.h"</span>
+00021 <span class="preprocessor">#include "inspircd_util.h"</span>
+00022 <span class="preprocessor">#include "inspircd_config.h"</span>
+00023 <span class="preprocessor">#include &lt;unistd.h&gt;</span>
+00024 <span class="preprocessor">#include &lt;sys/errno.h&gt;</span>
+00025 <span class="preprocessor">#include &lt;sys/ioctl.h&gt;</span>
+00026 <span class="preprocessor">#include &lt;sys/utsname.h&gt;</span>
+00027 <span class="preprocessor">#include &lt;time.h&gt;</span>
+00028 <span class="preprocessor">#include &lt;string&gt;</span>
+00029 <span class="preprocessor">#ifdef GCC3</span>
+00030 <span class="preprocessor"></span><span class="preprocessor">#include &lt;ext/hash_map&gt;</span>
+00031 <span class="preprocessor">#else</span>
+00032 <span class="preprocessor"></span><span class="preprocessor">#include &lt;hash_map&gt;</span>
+00033 <span class="preprocessor">#endif</span>
+00034 <span class="preprocessor"></span><span class="preprocessor">#include &lt;map&gt;</span>
+00035 <span class="preprocessor">#include &lt;sstream&gt;</span>
+00036 <span class="preprocessor">#include &lt;vector&gt;</span>
+00037 <span class="preprocessor">#include &lt;deque&gt;</span>
+00038 <span class="preprocessor">#include "<a class="code" href="connection_8h.html">connection.h</a>"</span>
+00039 <span class="preprocessor">#include "<a class="code" href="users_8h.html">users.h</a>"</span>
+00040 <span class="preprocessor">#include "<a class="code" href="servers_8h.html">servers.h</a>"</span>
+00041 <span class="preprocessor">#include "<a class="code" href="ctables_8h.html">ctables.h</a>"</span>
+00042 <span class="preprocessor">#include "globals.h"</span>
+00043 <span class="preprocessor">#include "<a class="code" href="modules_8h.html">modules.h</a>"</span>
+00044 <span class="preprocessor">#include "dynamic.h"</span>
+00045 <span class="preprocessor">#include "wildcard.h"</span>
+00046 <span class="preprocessor">#include "<a class="code" href="message_8h.html">message.h</a>"</span>
+00047 <span class="preprocessor">#include "<a class="code" href="mode_8h.html">mode.h</a>"</span>
+00048 <span class="preprocessor">#include "<a class="code" href="xline_8h.html">xline.h</a>"</span>
+00049 <span class="preprocessor">#include "inspstring.h"</span>
+00050 <span class="preprocessor">#include "helperfuncs.h"</span>
+00051 
+00052 <span class="preprocessor">#ifdef GCC3</span>
+00053 <span class="preprocessor"></span><span class="preprocessor">#define nspace __gnu_cxx</span>
+00054 <span class="preprocessor"></span><span class="preprocessor">#else</span>
+<a name="l00055"></a><a class="code" href="channels_8cpp.html#a0">00055</a> <span class="preprocessor"></span><span class="preprocessor">#define nspace std</span>
+00056 <span class="preprocessor"></span><span class="preprocessor">#endif</span>
+00057 <span class="preprocessor"></span>
 00058 <span class="keyword">extern</span> <span class="keywordtype">int</span> <a class="code" href="modules_8cpp.html#a1">MODCOUNT</a>;
 <a name="l00059"></a><a class="code" href="channels_8cpp.html#a2">00059</a> <span class="keyword">extern</span> std::vector&lt;Module*&gt; <a class="code" href="channels_8cpp.html#a2">modules</a>;
 <a name="l00060"></a><a class="code" href="channels_8cpp.html#a3">00060</a> <span class="keyword">extern</span> std::vector&lt;ircd_module*&gt; <a class="code" href="channels_8cpp.html#a3">factory</a>;
@@ -90,147 +90,146 @@
 <a name="l00083"></a><a class="code" href="channels_8cpp.html#a24">00083</a> <span class="keywordtype">int</span> <a class="code" href="channels_8cpp.html#a24">MaxWhoResults</a>;
 <a name="l00084"></a><a class="code" href="channels_8cpp.html#a25">00084</a> <span class="keyword">extern</span> time_t <a class="code" href="channels_8cpp.html#a25">nb_start</a>;
 00085 
-<a name="l00086"></a><a class="code" href="channels_8cpp.html#a26">00086</a> <span class="keyword">extern</span> std::vector&lt;int&gt; <a class="code" href="channels_8cpp.html#a26">fd_reap</a>;
-<a name="l00087"></a><a class="code" href="channels_8cpp.html#a27">00087</a> <span class="keyword">extern</span> std::vector&lt;std::string&gt; <a class="code" href="channels_8cpp.html#a27">module_names</a>;
-00088 
-<a name="l00089"></a><a class="code" href="channels_8cpp.html#a28">00089</a> <span class="keyword">extern</span> <span class="keywordtype">int</span> <a class="code" href="channels_8cpp.html#a28">boundPortCount</a>;
-<a name="l00090"></a><a class="code" href="channels_8cpp.html#a29">00090</a> <span class="keyword">extern</span> <span class="keywordtype">int</span> <a class="code" href="channels_8cpp.html#a29">portCount</a>;
-<a name="l00091"></a><a class="code" href="channels_8cpp.html#a30">00091</a> <span class="keyword">extern</span> <span class="keywordtype">int</span> <a class="code" href="channels_8cpp.html#a30">SERVERportCount</a>;
-<a name="l00092"></a><a class="code" href="channels_8cpp.html#a31">00092</a> <span class="keyword">extern</span> <span class="keywordtype">int</span> <a class="code" href="channels_8cpp.html#a31">ports</a>[MAXSOCKS];
-<a name="l00093"></a><a class="code" href="channels_8cpp.html#a32">00093</a> <span class="keyword">extern</span> <span class="keywordtype">int</span> <a class="code" href="channels_8cpp.html#a32">defaultRoute</a>;
-00094 
-<a name="l00095"></a><a class="code" href="channels_8cpp.html#a33">00095</a> <span class="keyword">extern</span> std::vector&lt;long&gt; <a class="code" href="channels_8cpp.html#a33">auth_cookies</a>;
-<a name="l00096"></a><a class="code" href="channels_8cpp.html#a34">00096</a> <span class="keyword">extern</span> std::stringstream <a class="code" href="channels_8cpp.html#a34">config_f</a>;
-00097 
-<a name="l00098"></a><a class="code" href="channels_8cpp.html#a35">00098</a> <span class="keyword">extern</span> <a class="code" href="classserverrec.html">serverrec</a>* <a class="code" href="channels_8cpp.html#a35">me</a>[32];
-00099 
-<a name="l00100"></a><a class="code" href="channels_8cpp.html#a36">00100</a> <span class="keyword">extern</span> FILE *<a class="code" href="channels_8cpp.html#a36">log_file</a>;
-00101 
-<a name="l00102"></a><a class="code" href="channels_8cpp.html#a37">00102</a> <span class="keyword">extern</span> time_t <a class="code" href="channels_8cpp.html#a37">TIME</a>;
-00103 
-00104 <span class="keyword">using</span> <span class="keyword">namespace </span>std;
-00105 
-<a name="l00106"></a><a class="code" href="channels_8cpp.html#a38">00106</a> std::vector&lt;ModeParameter&gt; <a class="code" href="channels_8cpp.html#a38">custom_mode_params</a>;
-00107 
-<a name="l00108"></a><a class="code" href="classchanrec.html#a8">00108</a> <a class="code" href="classchanrec.html#a8">chanrec::chanrec</a>()
-00109 {
-00110         strcpy(<a class="code" href="classchanrec.html#o0">name</a>,<span class="stringliteral">""</span>);
-00111         strcpy(<a class="code" href="classchanrec.html#o1">custom_modes</a>,<span class="stringliteral">""</span>);
-00112         strcpy(<a class="code" href="classchanrec.html#o3">topic</a>,<span class="stringliteral">""</span>);
-00113         strcpy(<a class="code" href="classchanrec.html#o6">setby</a>,<span class="stringliteral">""</span>);
-00114         strcpy(<a class="code" href="classchanrec.html#o8">key</a>,<span class="stringliteral">""</span>);
-00115         <a class="code" href="classchanrec.html#o4">created</a> = <a class="code" href="classchanrec.html#o5">topicset</a> = <a class="code" href="classchanrec.html#o7">limit</a> = 0;
-00116         <a class="code" href="classchanrec.html#o9">binarymodes</a> = 0;
-00117         <a class="code" href="classchanrec.html#o2">internal_userlist</a>.clear();
-00118 }
-00119 
-<a name="l00120"></a><a class="code" href="classchanrec.html#a0">00120</a> <span class="keywordtype">void</span> <a class="code" href="classchanrec.html#a0">chanrec::SetCustomMode</a>(<span class="keywordtype">char</span> mode,<span class="keywordtype">bool</span> mode_on)
-00121 {
-00122         <span class="keywordflow">if</span> (mode_on) {
-00123                 <span class="keyword">static</span> <span class="keywordtype">char</span> m[3];
-00124                 m[0] = mode;
-00125                 m[1] = <span class="charliteral">'\0'</span>;
-00126                 <span class="keywordflow">if</span> (!strchr(this-&gt;custom_modes,mode))
-00127                 {
-00128                         strlcat(<a class="code" href="classchanrec.html#o1">custom_modes</a>,m,MAXMODES);
-00129                 }
-00130                 log(<a class="code" href="modules_8h.html#a0">DEBUG</a>,<span class="stringliteral">"Custom mode %c set"</span>,mode);
-00131         }
-00132         <span class="keywordflow">else</span> {
-00133 
-00134                 std::string a = this-&gt;<a class="code" href="classchanrec.html#o1">custom_modes</a>;
-00135                 <span class="keywordtype">int</span> pos = a.find(mode);
-00136                 a.erase(pos,1);
-00137                 strncpy(this-&gt;custom_modes,a.c_str(),MAXMODES);
-00138 
-00139                 log(<a class="code" href="modules_8h.html#a0">DEBUG</a>,<span class="stringliteral">"Custom mode %c removed: modelist='%s'"</span>,mode,this-&gt;custom_modes);
-00140                 this-&gt;<a class="code" href="classchanrec.html#a1">SetCustomModeParam</a>(mode,<span class="stringliteral">""</span>,<span class="keyword">false</span>);
-00141         }
-00142 }
+<a name="l00086"></a><a class="code" href="channels_8cpp.html#a26">00086</a> <span class="keyword">extern</span> std::vector&lt;std::string&gt; <a class="code" href="channels_8cpp.html#a26">module_names</a>;
+00087 
+<a name="l00088"></a><a class="code" href="channels_8cpp.html#a27">00088</a> <span class="keyword">extern</span> <span class="keywordtype">int</span> <a class="code" href="channels_8cpp.html#a27">boundPortCount</a>;
+<a name="l00089"></a><a class="code" href="channels_8cpp.html#a28">00089</a> <span class="keyword">extern</span> <span class="keywordtype">int</span> <a class="code" href="channels_8cpp.html#a28">portCount</a>;
+<a name="l00090"></a><a class="code" href="channels_8cpp.html#a29">00090</a> <span class="keyword">extern</span> <span class="keywordtype">int</span> <a class="code" href="channels_8cpp.html#a29">SERVERportCount</a>;
+<a name="l00091"></a><a class="code" href="channels_8cpp.html#a30">00091</a> <span class="keyword">extern</span> <span class="keywordtype">int</span> <a class="code" href="channels_8cpp.html#a30">ports</a>[MAXSOCKS];
+<a name="l00092"></a><a class="code" href="channels_8cpp.html#a31">00092</a> <span class="keyword">extern</span> <span class="keywordtype">int</span> <a class="code" href="channels_8cpp.html#a31">defaultRoute</a>;
+00093 
+<a name="l00094"></a><a class="code" href="channels_8cpp.html#a32">00094</a> <span class="keyword">extern</span> std::vector&lt;long&gt; <a class="code" href="channels_8cpp.html#a32">auth_cookies</a>;
+<a name="l00095"></a><a class="code" href="channels_8cpp.html#a33">00095</a> <span class="keyword">extern</span> std::stringstream <a class="code" href="channels_8cpp.html#a33">config_f</a>;
+00096 
+<a name="l00097"></a><a class="code" href="channels_8cpp.html#a34">00097</a> <span class="keyword">extern</span> <a class="code" href="classserverrec.html">serverrec</a>* <a class="code" href="channels_8cpp.html#a34">me</a>[32];
+00098 
+<a name="l00099"></a><a class="code" href="channels_8cpp.html#a35">00099</a> <span class="keyword">extern</span> FILE *<a class="code" href="channels_8cpp.html#a35">log_file</a>;
+00100 
+<a name="l00101"></a><a class="code" href="channels_8cpp.html#a36">00101</a> <span class="keyword">extern</span> time_t <a class="code" href="channels_8cpp.html#a36">TIME</a>;
+00102 
+00103 <span class="keyword">using</span> <span class="keyword">namespace </span>std;
+00104 
+<a name="l00105"></a><a class="code" href="channels_8cpp.html#a37">00105</a> std::vector&lt;ModeParameter&gt; <a class="code" href="channels_8cpp.html#a37">custom_mode_params</a>;
+00106 
+<a name="l00107"></a><a class="code" href="classchanrec.html#a8">00107</a> <a class="code" href="classchanrec.html#a8">chanrec::chanrec</a>()
+00108 {
+00109         strcpy(<a class="code" href="classchanrec.html#o0">name</a>,<span class="stringliteral">""</span>);
+00110         strcpy(<a class="code" href="classchanrec.html#o1">custom_modes</a>,<span class="stringliteral">""</span>);
+00111         strcpy(<a class="code" href="classchanrec.html#o3">topic</a>,<span class="stringliteral">""</span>);
+00112         strcpy(<a class="code" href="classchanrec.html#o6">setby</a>,<span class="stringliteral">""</span>);
+00113         strcpy(<a class="code" href="classchanrec.html#o8">key</a>,<span class="stringliteral">""</span>);
+00114         <a class="code" href="classchanrec.html#o4">created</a> = <a class="code" href="classchanrec.html#o5">topicset</a> = <a class="code" href="classchanrec.html#o7">limit</a> = 0;
+00115         <a class="code" href="classchanrec.html#o9">binarymodes</a> = 0;
+00116         <a class="code" href="classchanrec.html#o2">internal_userlist</a>.clear();
+00117 }
+00118 
+<a name="l00119"></a><a class="code" href="classchanrec.html#a0">00119</a> <span class="keywordtype">void</span> <a class="code" href="classchanrec.html#a0">chanrec::SetCustomMode</a>(<span class="keywordtype">char</span> mode,<span class="keywordtype">bool</span> mode_on)
+00120 {
+00121         <span class="keywordflow">if</span> (mode_on) {
+00122                 <span class="keyword">static</span> <span class="keywordtype">char</span> m[3];
+00123                 m[0] = mode;
+00124                 m[1] = <span class="charliteral">'\0'</span>;
+00125                 <span class="keywordflow">if</span> (!strchr(this-&gt;custom_modes,mode))
+00126                 {
+00127                         strlcat(<a class="code" href="classchanrec.html#o1">custom_modes</a>,m,MAXMODES);
+00128                 }
+00129                 log(<a class="code" href="modules_8h.html#a0">DEBUG</a>,<span class="stringliteral">"Custom mode %c set"</span>,mode);
+00130         }
+00131         <span class="keywordflow">else</span> {
+00132 
+00133                 std::string a = this-&gt;<a class="code" href="classchanrec.html#o1">custom_modes</a>;
+00134                 <span class="keywordtype">int</span> pos = a.find(mode);
+00135                 a.erase(pos,1);
+00136                 strncpy(this-&gt;custom_modes,a.c_str(),MAXMODES);
+00137 
+00138                 log(<a class="code" href="modules_8h.html#a0">DEBUG</a>,<span class="stringliteral">"Custom mode %c removed: modelist='%s'"</span>,mode,this-&gt;custom_modes);
+00139                 this-&gt;<a class="code" href="classchanrec.html#a1">SetCustomModeParam</a>(mode,<span class="stringliteral">""</span>,<span class="keyword">false</span>);
+00140         }
+00141 }
+00142 
 00143 
-00144 
-<a name="l00145"></a><a class="code" href="classchanrec.html#a1">00145</a> <span class="keywordtype">void</span> <a class="code" href="classchanrec.html#a1">chanrec::SetCustomModeParam</a>(<span class="keywordtype">char</span> mode,<span class="keywordtype">char</span>* parameter,<span class="keywordtype">bool</span> mode_on)
-00146 {
-00147 
-00148         log(<a class="code" href="modules_8h.html#a0">DEBUG</a>,<span class="stringliteral">"SetCustomModeParam called"</span>);
-00149         <a class="code" href="classModeParameter.html">ModeParameter</a> M;
-00150         M.<a class="code" href="classModeParameter.html#o0">mode</a> = mode;
-00151         strlcpy(M.<a class="code" href="classModeParameter.html#o2">channel</a>,this-&gt;name,CHANMAX);
-00152         strlcpy(M.<a class="code" href="classModeParameter.html#o1">parameter</a>,parameter,MAXBUF);
-00153         <span class="keywordflow">if</span> (mode_on)
-00154         {
-00155                 log(<a class="code" href="modules_8h.html#a0">DEBUG</a>,<span class="stringliteral">"Custom mode parameter %c %s added"</span>,mode,parameter);
-00156                 <a class="code" href="channels_8cpp.html#a38">custom_mode_params</a>.push_back(M);
-00157         }
-00158         <span class="keywordflow">else</span>
-00159         {
-00160                 <span class="keywordflow">if</span> (<a class="code" href="channels_8cpp.html#a38">custom_mode_params</a>.size())
-00161                 {
-00162                         <span class="keywordflow">for</span> (vector&lt;ModeParameter&gt;::iterator i = <a class="code" href="channels_8cpp.html#a38">custom_mode_params</a>.begin(); i &lt; <a class="code" href="channels_8cpp.html#a38">custom_mode_params</a>.end(); i++)
-00163                         {
-00164                                 <span class="keywordflow">if</span> ((i-&gt;mode == mode) &amp;&amp; (!strcasecmp(this-&gt;name,i-&gt;channel)))
-00165                                 {
-00166                                         log(<a class="code" href="modules_8h.html#a0">DEBUG</a>,<span class="stringliteral">"Custom mode parameter %c %s removed"</span>,mode,parameter);
-00167                                         <a class="code" href="channels_8cpp.html#a38">custom_mode_params</a>.erase(i);
-00168                                         <span class="keywordflow">return</span>;
-00169                                 }
-00170                         }
-00171                 }
-00172                 log(<a class="code" href="modules_8h.html#a0">DEBUG</a>,<span class="stringliteral">"*** BUG *** Attempt to remove non-existent mode parameter!"</span>);
-00173         }
-00174 }
-00175 
-<a name="l00176"></a><a class="code" href="classchanrec.html#a2">00176</a> <span class="keywordtype">bool</span> <a class="code" href="classchanrec.html#a2">chanrec::IsCustomModeSet</a>(<span class="keywordtype">char</span> mode)
-00177 {
-00178         log(<a class="code" href="modules_8h.html#a0">DEBUG</a>,<span class="stringliteral">"Checking ISCustomModeSet: %c %s"</span>,mode,this-&gt;custom_modes);
-00179         <span class="keywordflow">return</span> (strchr(this-&gt;custom_modes,mode) != 0);
-00180 }
-00181 
-<a name="l00182"></a><a class="code" href="classchanrec.html#a3">00182</a> std::string <a class="code" href="classchanrec.html#a3">chanrec::GetModeParameter</a>(<span class="keywordtype">char</span> mode)
-00183 {
-00184         <span class="keywordflow">if</span> (<a class="code" href="channels_8cpp.html#a38">custom_mode_params</a>.size())
-00185         {
-00186                 <span class="keywordflow">for</span> (vector&lt;ModeParameter&gt;::iterator i = <a class="code" href="channels_8cpp.html#a38">custom_mode_params</a>.begin(); i &lt; <a class="code" href="channels_8cpp.html#a38">custom_mode_params</a>.end(); i++)
-00187                 {
-00188                         <span class="keywordflow">if</span> ((i-&gt;mode == mode) &amp;&amp; (!strcasecmp(this-&gt;name,i-&gt;channel)))
-00189                         {
-00190                                 <span class="keywordflow">return</span> i-&gt;parameter;
-00191                         }
-00192                 }
-00193         }
-00194         <span class="keywordflow">return</span> <span class="stringliteral">""</span>;
-00195 }
-00196 
-<a name="l00197"></a><a class="code" href="classchanrec.html#a4">00197</a> <span class="keywordtype">long</span> <a class="code" href="classchanrec.html#a4">chanrec::GetUserCounter</a>()
-00198 {
-00199         <span class="keywordflow">return</span> (this-&gt;<a class="code" href="classchanrec.html#o2">internal_userlist</a>.size());
-00200 }
-00201 
-<a name="l00202"></a><a class="code" href="classchanrec.html#a5">00202</a> <span class="keywordtype">void</span> <a class="code" href="classchanrec.html#a5">chanrec::AddUser</a>(<span class="keywordtype">char</span>* castuser)
-00203 {
-00204         <a class="code" href="classchanrec.html#o2">internal_userlist</a>.push_back(castuser);
-00205         log(<a class="code" href="modules_8h.html#a0">DEBUG</a>,<span class="stringliteral">"Added casted user to channel's internal list"</span>);
-00206 }
-00207 
-<a name="l00208"></a><a class="code" href="classchanrec.html#a6">00208</a> <span class="keywordtype">void</span> <a class="code" href="classchanrec.html#a6">chanrec::DelUser</a>(<span class="keywordtype">char</span>* castuser)
-00209 {
-00210         <span class="keywordflow">for</span> (std::vector&lt;char*&gt;::iterator a = <a class="code" href="classchanrec.html#o2">internal_userlist</a>.begin(); a &lt; <a class="code" href="classchanrec.html#o2">internal_userlist</a>.end(); a++)
-00211         {
-00212                 <span class="keywordflow">if</span> (*a == castuser)
-00213                 {
-00214                         log(<a class="code" href="modules_8h.html#a0">DEBUG</a>,<span class="stringliteral">"Removed casted user from channel's internal list"</span>);
-00215                         <a class="code" href="classchanrec.html#o2">internal_userlist</a>.erase(a);
-00216                         <span class="keywordflow">return</span>;
-00217                 }
-00218         }
-00219         log(<a class="code" href="modules_8h.html#a0">DEBUG</a>,<span class="stringliteral">"BUG BUG BUG! Attempt to remove an uncasted user from the internal list of %s!"</span>,<a class="code" href="classchanrec.html#o0">name</a>);
-00220 }
-00221 
-<a name="l00222"></a><a class="code" href="classchanrec.html#a7">00222</a> std::vector&lt;char*&gt; *<a class="code" href="classchanrec.html#a7">chanrec::GetUsers</a>()
-00223 {
-00224         <span class="keywordflow">return</span> &amp;<a class="code" href="classchanrec.html#o2">internal_userlist</a>;
-00225 }
-</pre></div><hr size="1"><address style="align: right;"><small>Generated on Sun May 15 18:36:01 2005 for InspIRCd by
+<a name="l00144"></a><a class="code" href="classchanrec.html#a1">00144</a> <span class="keywordtype">void</span> <a class="code" href="classchanrec.html#a1">chanrec::SetCustomModeParam</a>(<span class="keywordtype">char</span> mode,<span class="keywordtype">char</span>* parameter,<span class="keywordtype">bool</span> mode_on)
+00145 {
+00146 
+00147         log(<a class="code" href="modules_8h.html#a0">DEBUG</a>,<span class="stringliteral">"SetCustomModeParam called"</span>);
+00148         <a class="code" href="classModeParameter.html">ModeParameter</a> M;
+00149         M.<a class="code" href="classModeParameter.html#o0">mode</a> = mode;
+00150         strlcpy(M.<a class="code" href="classModeParameter.html#o2">channel</a>,this-&gt;name,CHANMAX);
+00151         strlcpy(M.<a class="code" href="classModeParameter.html#o1">parameter</a>,parameter,MAXBUF);
+00152         <span class="keywordflow">if</span> (mode_on)
+00153         {
+00154                 log(<a class="code" href="modules_8h.html#a0">DEBUG</a>,<span class="stringliteral">"Custom mode parameter %c %s added"</span>,mode,parameter);
+00155                 <a class="code" href="channels_8cpp.html#a37">custom_mode_params</a>.push_back(M);
+00156         }
+00157         <span class="keywordflow">else</span>
+00158         {
+00159                 <span class="keywordflow">if</span> (<a class="code" href="channels_8cpp.html#a37">custom_mode_params</a>.size())
+00160                 {
+00161                         <span class="keywordflow">for</span> (vector&lt;ModeParameter&gt;::iterator i = <a class="code" href="channels_8cpp.html#a37">custom_mode_params</a>.begin(); i &lt; <a class="code" href="channels_8cpp.html#a37">custom_mode_params</a>.end(); i++)
+00162                         {
+00163                                 <span class="keywordflow">if</span> ((i-&gt;mode == mode) &amp;&amp; (!strcasecmp(this-&gt;name,i-&gt;channel)))
+00164                                 {
+00165                                         log(<a class="code" href="modules_8h.html#a0">DEBUG</a>,<span class="stringliteral">"Custom mode parameter %c %s removed"</span>,mode,parameter);
+00166                                         <a class="code" href="channels_8cpp.html#a37">custom_mode_params</a>.erase(i);
+00167                                         <span class="keywordflow">return</span>;
+00168                                 }
+00169                         }
+00170                 }
+00171                 log(<a class="code" href="modules_8h.html#a0">DEBUG</a>,<span class="stringliteral">"*** BUG *** Attempt to remove non-existent mode parameter!"</span>);
+00172         }
+00173 }
+00174 
+<a name="l00175"></a><a class="code" href="classchanrec.html#a2">00175</a> <span class="keywordtype">bool</span> <a class="code" href="classchanrec.html#a2">chanrec::IsCustomModeSet</a>(<span class="keywordtype">char</span> mode)
+00176 {
+00177         log(<a class="code" href="modules_8h.html#a0">DEBUG</a>,<span class="stringliteral">"Checking ISCustomModeSet: %c %s"</span>,mode,this-&gt;custom_modes);
+00178         <span class="keywordflow">return</span> (strchr(this-&gt;custom_modes,mode) != 0);
+00179 }
+00180 
+<a name="l00181"></a><a class="code" href="classchanrec.html#a3">00181</a> std::string <a class="code" href="classchanrec.html#a3">chanrec::GetModeParameter</a>(<span class="keywordtype">char</span> mode)
+00182 {
+00183         <span class="keywordflow">if</span> (<a class="code" href="channels_8cpp.html#a37">custom_mode_params</a>.size())
+00184         {
+00185                 <span class="keywordflow">for</span> (vector&lt;ModeParameter&gt;::iterator i = <a class="code" href="channels_8cpp.html#a37">custom_mode_params</a>.begin(); i &lt; <a class="code" href="channels_8cpp.html#a37">custom_mode_params</a>.end(); i++)
+00186                 {
+00187                         <span class="keywordflow">if</span> ((i-&gt;mode == mode) &amp;&amp; (!strcasecmp(this-&gt;name,i-&gt;channel)))
+00188                         {
+00189                                 <span class="keywordflow">return</span> i-&gt;parameter;
+00190                         }
+00191                 }
+00192         }
+00193         <span class="keywordflow">return</span> <span class="stringliteral">""</span>;
+00194 }
+00195 
+<a name="l00196"></a><a class="code" href="classchanrec.html#a4">00196</a> <span class="keywordtype">long</span> <a class="code" href="classchanrec.html#a4">chanrec::GetUserCounter</a>()
+00197 {
+00198         <span class="keywordflow">return</span> (this-&gt;<a class="code" href="classchanrec.html#o2">internal_userlist</a>.size());
+00199 }
+00200 
+<a name="l00201"></a><a class="code" href="classchanrec.html#a5">00201</a> <span class="keywordtype">void</span> <a class="code" href="classchanrec.html#a5">chanrec::AddUser</a>(<span class="keywordtype">char</span>* castuser)
+00202 {
+00203         <a class="code" href="classchanrec.html#o2">internal_userlist</a>.push_back(castuser);
+00204         log(<a class="code" href="modules_8h.html#a0">DEBUG</a>,<span class="stringliteral">"Added casted user to channel's internal list"</span>);
+00205 }
+00206 
+<a name="l00207"></a><a class="code" href="classchanrec.html#a6">00207</a> <span class="keywordtype">void</span> <a class="code" href="classchanrec.html#a6">chanrec::DelUser</a>(<span class="keywordtype">char</span>* castuser)
+00208 {
+00209         <span class="keywordflow">for</span> (std::vector&lt;char*&gt;::iterator a = <a class="code" href="classchanrec.html#o2">internal_userlist</a>.begin(); a &lt; <a class="code" href="classchanrec.html#o2">internal_userlist</a>.end(); a++)
+00210         {
+00211                 <span class="keywordflow">if</span> (*a == castuser)
+00212                 {
+00213                         log(<a class="code" href="modules_8h.html#a0">DEBUG</a>,<span class="stringliteral">"Removed casted user from channel's internal list"</span>);
+00214                         <a class="code" href="classchanrec.html#o2">internal_userlist</a>.erase(a);
+00215                         <span class="keywordflow">return</span>;
+00216                 }
+00217         }
+00218         log(<a class="code" href="modules_8h.html#a0">DEBUG</a>,<span class="stringliteral">"BUG BUG BUG! Attempt to remove an uncasted user from the internal list of %s!"</span>,<a class="code" href="classchanrec.html#o0">name</a>);
+00219 }
+00220 
+<a name="l00221"></a><a class="code" href="classchanrec.html#a7">00221</a> std::vector&lt;char*&gt; *<a class="code" href="classchanrec.html#a7">chanrec::GetUsers</a>()
+00222 {
+00223         <span class="keywordflow">return</span> &amp;<a class="code" href="classchanrec.html#o2">internal_userlist</a>;
+00224 }
+</pre></div><hr size="1"><address style="align: right;"><small>Generated on Tue May 24 02:30:01 2005 for InspIRCd by
 <a href="http://www.doxygen.org/index.html">
 <img src="doxygen.png" alt="doxygen" align="middle" border=0 > 
 </a>1.3.3 </small></address>

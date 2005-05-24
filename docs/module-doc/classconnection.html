@@ -19,7 +19,8 @@ Inheritance diagram for connection:<p><center><img src="classconnection__inherit
 </map>
 <center><font size="2">[<a target="top" href="graph_legend.html">legend</a>]</font></center>Collaboration diagram for connection:<p><center><img src="classconnection__coll__graph.gif" border="0" usemap="#connection__coll__map" alt="Collaboration graph"></center>
 <map name="connection__coll__map">
-<area href="classExtensible.html" shape="rect" coords="52,8,134,34" alt="">
+<area href="classExtensible.html" shape="rect" coords="86,237,169,264" alt="">
+<area href="classclassbase.html" shape="rect" coords="69,98,149,125" alt="">
 </map>
 <center><font size="2">[<a target="top" href="graph_legend.html">legend</a>]</font></center><a href="classconnection-members.html">List of all members.</a><table border=0 cellpadding=0 cellspacing=0>
 <tr><td></td></tr>
@@ -27,30 +28,6 @@ Inheritance diagram for connection:<p><center><img src="classconnection__inherit
 <tr><td class="memItemLeft" nowrap align=right valign=top>&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="classconnection.html#a0">connection</a> ()</td></tr>
 
 <tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Default constructor. </em> <a href="#a0"></a><em><br><br></td></tr>
-<tr><td class="memItemLeft" nowrap align=right valign=top>bool&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="classconnection.html#a1">CreateListener</a> (char *<a class="el" href="classconnection.html#o1">host</a>, int p)</td></tr>
-
-<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Create a listening socket on 'host' using port number 'p'. </em> <a href="#a1"></a><em><br><br></td></tr>
-<tr><td class="memItemLeft" nowrap align=right valign=top>bool&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="classconnection.html#a2">BeginLink</a> (char *targethost, int <a class="el" href="classconnection.html#o8">port</a>, char *password, char *servername, int myport)</td></tr>
-
-<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Begin an outbound link to another ircd at targethost. </em> <a href="#a2"></a><em><br><br></td></tr>
-<tr><td class="memItemLeft" nowrap align=right valign=top>bool&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="classconnection.html#a3">MeshCookie</a> (char *targethost, int <a class="el" href="classconnection.html#o8">port</a>, unsigned long cookie, char *servername)</td></tr>
-
-<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Begin an outbound mesh link to another ircd on a network you are already an authenticated member of. </em> <a href="#a3"></a><em><br><br></td></tr>
-<tr><td class="memItemLeft" nowrap align=right valign=top>void&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="classconnection.html#a4">TerminateLink</a> (char *targethost)</td></tr>
-
-<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Terminate a link to 'targethost' by calling the <a class="el" href="classircd__connector.html#a13">ircd_connector::CloseConnection</a> method. </em> <a href="#a4"></a><em><br><br></td></tr>
-<tr><td class="memItemLeft" nowrap align=right valign=top>bool&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="classconnection.html#a5">SendPacket</a> (char *message, const char *<a class="el" href="classconnection.html#o1">host</a>)</td></tr>
-
-<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Send a message to a server by name, if the server is unavailable directly route the packet via another server If the server still cannot be reached after attempting to route the message remotely, returns false. </em> <a href="#a5"></a><em><br><br></td></tr>
-<tr><td class="memItemLeft" nowrap align=right valign=top>bool&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="classconnection.html#a6">RecvPacket</a> (std::deque&lt; std::string &gt; &amp;messages, char *<a class="el" href="classconnection.html#o1">host</a>, std::deque&lt; std::string &gt; &amp;sums)</td></tr>
-
-<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Returns the next available packet and returns true if data is available. </em> <a href="#a6"></a><em><br><br></td></tr>
-<tr><td class="memItemLeft" nowrap align=right valign=top><a class="el" href="classircd__connector.html">ircd_connector</a> *&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="classconnection.html#a7">FindHost</a> (std::string <a class="el" href="classconnection.html#o1">host</a>)</td></tr>
-
-<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Find the <a class="el" href="classircd__connector.html">ircd_connector</a> oject related to a certain servername given in 'host'. </em> <a href="#a7"></a><em><br><br></td></tr>
-<tr><td class="memItemLeft" nowrap align=right valign=top>bool&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="classconnection.html#a8">AddIncoming</a> (int <a class="el" href="classconnection.html#o0">fd</a>, char *targethost, int sourceport)</td></tr>
-
-<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Add an incoming connection to the connection pool. </em> <a href="#a8"></a><em><br><br></td></tr>
 <tr><td colspan=2><br><h2>Public Attributes</h2></td></tr>
 <tr><td class="memItemLeft" nowrap align=right valign=top>int&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="classconnection.html#o0">fd</a></td></tr>
 
@@ -61,16 +38,16 @@ Inheritance diagram for connection:<p><center><img src="classconnection__inherit
 <tr><td class="memItemLeft" nowrap align=right valign=top>char&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="classconnection.html#o2">ip</a> [16]</td></tr>
 
 <tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">IP of connection. </em> <a href="#o2"></a><em><br><br></td></tr>
-<tr><td class="memItemLeft" nowrap align=right valign=top>long&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="classconnection.html#o3">bytes_in</a></td></tr>
+<tr><td class="memItemLeft" nowrap align=right valign=top>int&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="classconnection.html#o3">bytes_in</a></td></tr>
 
 <tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Stats counter for bytes inbound. </em> <a href="#o3"></a><em><br><br></td></tr>
-<tr><td class="memItemLeft" nowrap align=right valign=top>long&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="classconnection.html#o4">bytes_out</a></td></tr>
+<tr><td class="memItemLeft" nowrap align=right valign=top>int&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="classconnection.html#o4">bytes_out</a></td></tr>
 
 <tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Stats counter for bytes outbound. </em> <a href="#o4"></a><em><br><br></td></tr>
-<tr><td class="memItemLeft" nowrap align=right valign=top>long&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="classconnection.html#o5">cmds_in</a></td></tr>
+<tr><td class="memItemLeft" nowrap align=right valign=top>int&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="classconnection.html#o5">cmds_in</a></td></tr>
 
 <tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Stats counter for commands inbound. </em> <a href="#o5"></a><em><br><br></td></tr>
-<tr><td class="memItemLeft" nowrap align=right valign=top>long&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="classconnection.html#o6">cmds_out</a></td></tr>
+<tr><td class="memItemLeft" nowrap align=right valign=top>int&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="classconnection.html#o6">cmds_out</a></td></tr>
 
 <tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Stats counter for commands outbound. </em> <a href="#o6"></a><em><br><br></td></tr>
 <tr><td class="memItemLeft" nowrap align=right valign=top>bool&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="classconnection.html#o7">haspassed</a></td></tr>
@@ -94,16 +71,13 @@ Inheritance diagram for connection:<p><center><img src="classconnection__inherit
 <tr><td class="memItemLeft" nowrap align=right valign=top>time_t&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="classconnection.html#o13">nping</a></td></tr>
 
 <tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Used by PING checks with clients. </em> <a href="#o13"></a><em><br><br></td></tr>
-<tr><td class="memItemLeft" nowrap align=right valign=top>std::vector&lt; <a class="el" href="classircd__connector.html">ircd_connector</a> &gt;&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="classconnection.html#o14">connectors</a></td></tr>
-
-<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">With a serverrec, this is a list of all established server connections. </em> <a href="#o14"></a><em><br><br></td></tr>
 </table>
 <hr><a name="_details"></a><h2>Detailed Description</h2>
 Please note: classes serverrec and userrec both inherit from class connection. 
 <p>
 
 <p>
-Definition at line <a class="el" href="connection_8h-source.html#l00212">212</a> of file <a class="el" href="connection_8h-source.html">connection.h</a>.<hr><h2>Constructor &amp; Destructor Documentation</h2>
+Definition at line <a class="el" href="connection_8h-source.html#l00261">261</a> of file <a class="el" href="connection_8h-source.html">connection.h</a>.<hr><h2>Constructor &amp; Destructor Documentation</h2>
 <a name="a0" doxytag="connection::connection"></a><p>
 <table class="mdTable" width="100%" cellpadding="2" cellspacing="0">
   <tr>
@@ -134,351 +108,6 @@ Default constructor.
     </td>
   </tr>
 </table>
-<hr><h2>Member Function Documentation</h2>
-<a name="a8" doxytag="connection::AddIncoming"></a><p>
-<table class="mdTable" width="100%" cellpadding="2" cellspacing="0">
-  <tr>
-    <td class="mdRow">
-      <table cellpadding="0" cellspacing="0" border="0">
-        <tr>
-          <td class="md" nowrap valign="top"> bool connection::AddIncoming </td>
-          <td class="md" valign="top">(&nbsp;</td>
-          <td class="md" nowrap valign="top">int&nbsp;</td>
-          <td class="mdname" nowrap> <em>fd</em>, </td>
-        </tr>
-        <tr>
-          <td></td>
-          <td></td>
-          <td class="md" nowrap>char *&nbsp;</td>
-          <td class="mdname" nowrap> <em>targethost</em>, </td>
-        </tr>
-        <tr>
-          <td></td>
-          <td></td>
-          <td class="md" nowrap>int&nbsp;</td>
-          <td class="mdname" nowrap> <em>sourceport</em></td>
-        </tr>
-        <tr>
-          <td></td>
-          <td class="md">)&nbsp;</td>
-          <td class="md" colspan="2"></td>
-        </tr>
-
-      </table>
-    </td>
-  </tr>
-</table>
-<table cellspacing=5 cellpadding=0 border=0>
-  <tr>
-    <td>
-      &nbsp;
-    </td>
-    <td>
-
-<p>
-Add an incoming connection to the connection pool. 
-<p>
-(reserved for core use)    </td>
-  </tr>
-</table>
-<a name="a2" doxytag="connection::BeginLink"></a><p>
-<table class="mdTable" width="100%" cellpadding="2" cellspacing="0">
-  <tr>
-    <td class="mdRow">
-      <table cellpadding="0" cellspacing="0" border="0">
-        <tr>
-          <td class="md" nowrap valign="top"> bool connection::BeginLink </td>
-          <td class="md" valign="top">(&nbsp;</td>
-          <td class="md" nowrap valign="top">char *&nbsp;</td>
-          <td class="mdname" nowrap> <em>targethost</em>, </td>
-        </tr>
-        <tr>
-          <td></td>
-          <td></td>
-          <td class="md" nowrap>int&nbsp;</td>
-          <td class="mdname" nowrap> <em>port</em>, </td>
-        </tr>
-        <tr>
-          <td></td>
-          <td></td>
-          <td class="md" nowrap>char *&nbsp;</td>
-          <td class="mdname" nowrap> <em>password</em>, </td>
-        </tr>
-        <tr>
-          <td></td>
-          <td></td>
-          <td class="md" nowrap>char *&nbsp;</td>
-          <td class="mdname" nowrap> <em>servername</em>, </td>
-        </tr>
-        <tr>
-          <td></td>
-          <td></td>
-          <td class="md" nowrap>int&nbsp;</td>
-          <td class="mdname" nowrap> <em>myport</em></td>
-        </tr>
-        <tr>
-          <td></td>
-          <td class="md">)&nbsp;</td>
-          <td class="md" colspan="2"></td>
-        </tr>
-
-      </table>
-    </td>
-  </tr>
-</table>
-<table cellspacing=5 cellpadding=0 border=0>
-  <tr>
-    <td>
-      &nbsp;
-    </td>
-    <td>
-
-<p>
-Begin an outbound link to another ircd at targethost. 
-<p>
-    </td>
-  </tr>
-</table>
-<a name="a1" doxytag="connection::CreateListener"></a><p>
-<table class="mdTable" width="100%" cellpadding="2" cellspacing="0">
-  <tr>
-    <td class="mdRow">
-      <table cellpadding="0" cellspacing="0" border="0">
-        <tr>
-          <td class="md" nowrap valign="top"> bool connection::CreateListener </td>
-          <td class="md" valign="top">(&nbsp;</td>
-          <td class="md" nowrap valign="top">char *&nbsp;</td>
-          <td class="mdname" nowrap> <em>host</em>, </td>
-        </tr>
-        <tr>
-          <td></td>
-          <td></td>
-          <td class="md" nowrap>int&nbsp;</td>
-          <td class="mdname" nowrap> <em>p</em></td>
-        </tr>
-        <tr>
-          <td></td>
-          <td class="md">)&nbsp;</td>
-          <td class="md" colspan="2"></td>
-        </tr>
-
-      </table>
-    </td>
-  </tr>
-</table>
-<table cellspacing=5 cellpadding=0 border=0>
-  <tr>
-    <td>
-      &nbsp;
-    </td>
-    <td>
-
-<p>
-Create a listening socket on 'host' using port number 'p'. 
-<p>
-    </td>
-  </tr>
-</table>
-<a name="a7" doxytag="connection::FindHost"></a><p>
-<table class="mdTable" width="100%" cellpadding="2" cellspacing="0">
-  <tr>
-    <td class="mdRow">
-      <table cellpadding="0" cellspacing="0" border="0">
-        <tr>
-          <td class="md" nowrap valign="top"> <a class="el" href="classircd__connector.html">ircd_connector</a>* connection::FindHost </td>
-          <td class="md" valign="top">(&nbsp;</td>
-          <td class="md" nowrap valign="top">std::string&nbsp;</td>
-          <td class="mdname1" valign="top" nowrap> <em>host</em>          </td>
-          <td class="md" valign="top">&nbsp;)&nbsp;</td>
-          <td class="md" nowrap></td>
-        </tr>
-
-      </table>
-    </td>
-  </tr>
-</table>
-<table cellspacing=5 cellpadding=0 border=0>
-  <tr>
-    <td>
-      &nbsp;
-    </td>
-    <td>
-
-<p>
-Find the <a class="el" href="classircd__connector.html">ircd_connector</a> oject related to a certain servername given in 'host'. 
-<p>
-    </td>
-  </tr>
-</table>
-<a name="a3" doxytag="connection::MeshCookie"></a><p>
-<table class="mdTable" width="100%" cellpadding="2" cellspacing="0">
-  <tr>
-    <td class="mdRow">
-      <table cellpadding="0" cellspacing="0" border="0">
-        <tr>
-          <td class="md" nowrap valign="top"> bool connection::MeshCookie </td>
-          <td class="md" valign="top">(&nbsp;</td>
-          <td class="md" nowrap valign="top">char *&nbsp;</td>
-          <td class="mdname" nowrap> <em>targethost</em>, </td>
-        </tr>
-        <tr>
-          <td></td>
-          <td></td>
-          <td class="md" nowrap>int&nbsp;</td>
-          <td class="mdname" nowrap> <em>port</em>, </td>
-        </tr>
-        <tr>
-          <td></td>
-          <td></td>
-          <td class="md" nowrap>unsigned long&nbsp;</td>
-          <td class="mdname" nowrap> <em>cookie</em>, </td>
-        </tr>
-        <tr>
-          <td></td>
-          <td></td>
-          <td class="md" nowrap>char *&nbsp;</td>
-          <td class="mdname" nowrap> <em>servername</em></td>
-        </tr>
-        <tr>
-          <td></td>
-          <td class="md">)&nbsp;</td>
-          <td class="md" colspan="2"></td>
-        </tr>
-
-      </table>
-    </td>
-  </tr>
-</table>
-<table cellspacing=5 cellpadding=0 border=0>
-  <tr>
-    <td>
-      &nbsp;
-    </td>
-    <td>
-
-<p>
-Begin an outbound mesh link to another ircd on a network you are already an authenticated member of. 
-<p>
-    </td>
-  </tr>
-</table>
-<a name="a6" doxytag="connection::RecvPacket"></a><p>
-<table class="mdTable" width="100%" cellpadding="2" cellspacing="0">
-  <tr>
-    <td class="mdRow">
-      <table cellpadding="0" cellspacing="0" border="0">
-        <tr>
-          <td class="md" nowrap valign="top"> bool connection::RecvPacket </td>
-          <td class="md" valign="top">(&nbsp;</td>
-          <td class="md" nowrap valign="top">std::deque&lt; std::string &gt; &amp;&nbsp;</td>
-          <td class="mdname" nowrap> <em>messages</em>, </td>
-        </tr>
-        <tr>
-          <td></td>
-          <td></td>
-          <td class="md" nowrap>char *&nbsp;</td>
-          <td class="mdname" nowrap> <em>host</em>, </td>
-        </tr>
-        <tr>
-          <td></td>
-          <td></td>
-          <td class="md" nowrap>std::deque&lt; std::string &gt; &amp;&nbsp;</td>
-          <td class="mdname" nowrap> <em>sums</em></td>
-        </tr>
-        <tr>
-          <td></td>
-          <td class="md">)&nbsp;</td>
-          <td class="md" colspan="2"></td>
-        </tr>
-
-      </table>
-    </td>
-  </tr>
-</table>
-<table cellspacing=5 cellpadding=0 border=0>
-  <tr>
-    <td>
-      &nbsp;
-    </td>
-    <td>
-
-<p>
-Returns the next available packet and returns true if data is available. 
-<p>
-Writes the servername the data came from to 'host'. If no data is available this function returns false. This function will automatically close broken links and reroute pathways, generating split messages on the network.    </td>
-  </tr>
-</table>
-<a name="a5" doxytag="connection::SendPacket"></a><p>
-<table class="mdTable" width="100%" cellpadding="2" cellspacing="0">
-  <tr>
-    <td class="mdRow">
-      <table cellpadding="0" cellspacing="0" border="0">
-        <tr>
-          <td class="md" nowrap valign="top"> bool connection::SendPacket </td>
-          <td class="md" valign="top">(&nbsp;</td>
-          <td class="md" nowrap valign="top">char *&nbsp;</td>
-          <td class="mdname" nowrap> <em>message</em>, </td>
-        </tr>
-        <tr>
-          <td></td>
-          <td></td>
-          <td class="md" nowrap>const char *&nbsp;</td>
-          <td class="mdname" nowrap> <em>host</em></td>
-        </tr>
-        <tr>
-          <td></td>
-          <td class="md">)&nbsp;</td>
-          <td class="md" colspan="2"></td>
-        </tr>
-
-      </table>
-    </td>
-  </tr>
-</table>
-<table cellspacing=5 cellpadding=0 border=0>
-  <tr>
-    <td>
-      &nbsp;
-    </td>
-    <td>
-
-<p>
-Send a message to a server by name, if the server is unavailable directly route the packet via another server If the server still cannot be reached after attempting to route the message remotely, returns false. 
-<p>
-    </td>
-  </tr>
-</table>
-<a name="a4" doxytag="connection::TerminateLink"></a><p>
-<table class="mdTable" width="100%" cellpadding="2" cellspacing="0">
-  <tr>
-    <td class="mdRow">
-      <table cellpadding="0" cellspacing="0" border="0">
-        <tr>
-          <td class="md" nowrap valign="top"> void connection::TerminateLink </td>
-          <td class="md" valign="top">(&nbsp;</td>
-          <td class="md" nowrap valign="top">char *&nbsp;</td>
-          <td class="mdname1" valign="top" nowrap> <em>targethost</em>          </td>
-          <td class="md" valign="top">&nbsp;)&nbsp;</td>
-          <td class="md" nowrap></td>
-        </tr>
-
-      </table>
-    </td>
-  </tr>
-</table>
-<table cellspacing=5 cellpadding=0 border=0>
-  <tr>
-    <td>
-      &nbsp;
-    </td>
-    <td>
-
-<p>
-Terminate a link to 'targethost' by calling the <a class="el" href="classircd__connector.html#a13">ircd_connector::CloseConnection</a> method. 
-<p>
-    </td>
-  </tr>
-</table>
 <hr><h2>Member Data Documentation</h2>
 <a name="o3" doxytag="connection::bytes_in"></a><p>
 <table class="mdTable" width="100%" cellpadding="2" cellspacing="0">
@@ -486,7 +115,7 @@ Terminate a link to 'targethost' by calling the <a class="el" href="classircd__c
     <td class="mdRow">
       <table cellpadding="0" cellspacing="0" border="0">
         <tr>
-          <td class="md" nowrap valign="top"> long <a class="el" href="classconnection.html#o3">connection::bytes_in</a>
+          <td class="md" nowrap valign="top"> int <a class="el" href="classconnection.html#o3">connection::bytes_in</a>
       </table>
     </td>
   </tr>
@@ -503,9 +132,9 @@ Stats counter for bytes inbound.
 <p>
 
 <p>
-Definition at line <a class="el" href="connection_8h-source.html#l00229">229</a> of file <a class="el" href="connection_8h-source.html">connection.h</a>.
+Definition at line <a class="el" href="connection_8h-source.html#l00278">278</a> of file <a class="el" href="connection_8h-source.html">connection.h</a>.
 <p>
-Referenced by <a class="el" href="users_8cpp-source.html#l00029">userrec::userrec()</a>.    </td>
+Referenced by <a class="el" href="users_8cpp-source.html#l00031">userrec::userrec()</a>.    </td>
   </tr>
 </table>
 <a name="o4" doxytag="connection::bytes_out"></a><p>
@@ -514,7 +143,7 @@ Referenced by <a class="el" href="users_8cpp-source.html#l00029">userrec::userre
     <td class="mdRow">
       <table cellpadding="0" cellspacing="0" border="0">
         <tr>
-          <td class="md" nowrap valign="top"> long <a class="el" href="classconnection.html#o4">connection::bytes_out</a>
+          <td class="md" nowrap valign="top"> int <a class="el" href="classconnection.html#o4">connection::bytes_out</a>
       </table>
     </td>
   </tr>
@@ -531,9 +160,9 @@ Stats counter for bytes outbound.
 <p>
 
 <p>
-Definition at line <a class="el" href="connection_8h-source.html#l00233">233</a> of file <a class="el" href="connection_8h-source.html">connection.h</a>.
+Definition at line <a class="el" href="connection_8h-source.html#l00282">282</a> of file <a class="el" href="connection_8h-source.html">connection.h</a>.
 <p>
-Referenced by <a class="el" href="users_8cpp-source.html#l00247">userrec::FlushWriteBuf()</a>, and <a class="el" href="users_8cpp-source.html#l00029">userrec::userrec()</a>.    </td>
+Referenced by <a class="el" href="users_8cpp-source.html#l00262">userrec::FlushWriteBuf()</a>, and <a class="el" href="users_8cpp-source.html#l00031">userrec::userrec()</a>.    </td>
   </tr>
 </table>
 <a name="o5" doxytag="connection::cmds_in"></a><p>
@@ -542,7 +171,7 @@ Referenced by <a class="el" href="users_8cpp-source.html#l00247">userrec::FlushW
     <td class="mdRow">
       <table cellpadding="0" cellspacing="0" border="0">
         <tr>
-          <td class="md" nowrap valign="top"> long <a class="el" href="classconnection.html#o5">connection::cmds_in</a>
+          <td class="md" nowrap valign="top"> int <a class="el" href="classconnection.html#o5">connection::cmds_in</a>
       </table>
     </td>
   </tr>
@@ -559,9 +188,9 @@ Stats counter for commands inbound.
 <p>
 
 <p>
-Definition at line <a class="el" href="connection_8h-source.html#l00237">237</a> of file <a class="el" href="connection_8h-source.html">connection.h</a>.
+Definition at line <a class="el" href="connection_8h-source.html#l00286">286</a> of file <a class="el" href="connection_8h-source.html">connection.h</a>.
 <p>
-Referenced by <a class="el" href="users_8cpp-source.html#l00029">userrec::userrec()</a>.    </td>
+Referenced by <a class="el" href="users_8cpp-source.html#l00031">userrec::userrec()</a>.    </td>
   </tr>
 </table>
 <a name="o6" doxytag="connection::cmds_out"></a><p>
@@ -570,7 +199,7 @@ Referenced by <a class="el" href="users_8cpp-source.html#l00029">userrec::userre
     <td class="mdRow">
       <table cellpadding="0" cellspacing="0" border="0">
         <tr>
-          <td class="md" nowrap valign="top"> long <a class="el" href="classconnection.html#o6">connection::cmds_out</a>
+          <td class="md" nowrap valign="top"> int <a class="el" href="classconnection.html#o6">connection::cmds_out</a>
       </table>
     </td>
   </tr>
@@ -587,35 +216,9 @@ Stats counter for commands outbound.
 <p>
 
 <p>
-Definition at line <a class="el" href="connection_8h-source.html#l00241">241</a> of file <a class="el" href="connection_8h-source.html">connection.h</a>.
+Definition at line <a class="el" href="connection_8h-source.html#l00290">290</a> of file <a class="el" href="connection_8h-source.html">connection.h</a>.
 <p>
-Referenced by <a class="el" href="users_8cpp-source.html#l00247">userrec::FlushWriteBuf()</a>, and <a class="el" href="users_8cpp-source.html#l00029">userrec::userrec()</a>.    </td>
-  </tr>
-</table>
-<a name="o14" doxytag="connection::connectors"></a><p>
-<table class="mdTable" width="100%" cellpadding="2" cellspacing="0">
-  <tr>
-    <td class="mdRow">
-      <table cellpadding="0" cellspacing="0" border="0">
-        <tr>
-          <td class="md" nowrap valign="top"> std::vector&lt;<a class="el" href="classircd__connector.html">ircd_connector</a>&gt; <a class="el" href="classconnection.html#o14">connection::connectors</a>
-      </table>
-    </td>
-  </tr>
-</table>
-<table cellspacing=5 cellpadding=0 border=0>
-  <tr>
-    <td>
-      &nbsp;
-    </td>
-    <td>
-
-<p>
-With a serverrec, this is a list of all established server connections. 
-<p>
-With a userrec this is unused.
-<p>
-Definition at line <a class="el" href="connection_8h-source.html#l00276">276</a> of file <a class="el" href="connection_8h-source.html">connection.h</a>.    </td>
+Referenced by <a class="el" href="users_8cpp-source.html#l00262">userrec::FlushWriteBuf()</a>, and <a class="el" href="users_8cpp-source.html#l00031">userrec::userrec()</a>.    </td>
   </tr>
 </table>
 <a name="o0" doxytag="connection::fd"></a><p>
@@ -641,9 +244,9 @@ File descriptor of the connection.
 <p>
 
 <p>
-Definition at line <a class="el" href="connection_8h-source.html#l00217">217</a> of file <a class="el" href="connection_8h-source.html">connection.h</a>.
+Definition at line <a class="el" href="connection_8h-source.html#l00266">266</a> of file <a class="el" href="connection_8h-source.html">connection.h</a>.
 <p>
-Referenced by <a class="el" href="modules_8cpp-source.html#l00896">ConfigReader::DumpErrors()</a>, <a class="el" href="modules_8cpp-source.html#l00629">Server::PseudoToUser()</a>, <a class="el" href="modules_8cpp-source.html#l00453">Server::SendTo()</a>, <a class="el" href="servers_8cpp-source.html#l00027">serverrec::serverrec()</a>, <a class="el" href="users_8cpp-source.html#l00029">userrec::userrec()</a>, and <a class="el" href="modules_8cpp-source.html#l00610">Server::UserToPseudo()</a>.    </td>
+Referenced by <a class="el" href="servers_8cpp-source.html#l00138">serverrec::BeginLink()</a>, <a class="el" href="servers_8cpp-source.html#l00077">serverrec::CreateListener()</a>, <a class="el" href="modules_8cpp-source.html#l00916">ConfigReader::DumpErrors()</a>, <a class="el" href="servers_8cpp-source.html#l00176">serverrec::MeshCookie()</a>, <a class="el" href="modules_8cpp-source.html#l00649">Server::PseudoToUser()</a>, <a class="el" href="users_8cpp-source.html#l00074">userrec::ReadData()</a>, <a class="el" href="modules_8cpp-source.html#l00462">Server::SendTo()</a>, <a class="el" href="servers_8cpp-source.html#l00042">serverrec::serverrec()</a>, <a class="el" href="users_8cpp-source.html#l00031">userrec::userrec()</a>, and <a class="el" href="modules_8cpp-source.html#l00619">Server::UserToPseudo()</a>.    </td>
   </tr>
 </table>
 <a name="o7" doxytag="connection::haspassed"></a><p>
@@ -669,9 +272,9 @@ True if server/user has authenticated, false if otherwise.
 <p>
 
 <p>
-Definition at line <a class="el" href="connection_8h-source.html#l00245">245</a> of file <a class="el" href="connection_8h-source.html">connection.h</a>.
+Definition at line <a class="el" href="connection_8h-source.html#l00294">294</a> of file <a class="el" href="connection_8h-source.html">connection.h</a>.
 <p>
-Referenced by <a class="el" href="users_8cpp-source.html#l00029">userrec::userrec()</a>.    </td>
+Referenced by <a class="el" href="users_8cpp-source.html#l00031">userrec::userrec()</a>.    </td>
   </tr>
 </table>
 <a name="o1" doxytag="connection::host"></a><p>
@@ -697,9 +300,9 @@ Hostname of connection.
 <p>
 Not used if this is a serverrec
 <p>
-Definition at line <a class="el" href="connection_8h-source.html#l00221">221</a> of file <a class="el" href="connection_8h-source.html">connection.h</a>.
+Definition at line <a class="el" href="connection_8h-source.html#l00270">270</a> of file <a class="el" href="connection_8h-source.html">connection.h</a>.
 <p>
-Referenced by <a class="el" href="users_8cpp-source.html#l00069">userrec::GetFullRealHost()</a>, <a class="el" href="modules_8cpp-source.html#l00629">Server::PseudoToUser()</a>, <a class="el" href="users_8cpp-source.html#l00029">userrec::userrec()</a>, and <a class="el" href="modules_8cpp-source.html#l00610">Server::UserToPseudo()</a>.    </td>
+Referenced by <a class="el" href="users_8cpp-source.html#l00084">userrec::GetFullRealHost()</a>, <a class="el" href="modules_8cpp-source.html#l00649">Server::PseudoToUser()</a>, <a class="el" href="users_8cpp-source.html#l00031">userrec::userrec()</a>, and <a class="el" href="modules_8cpp-source.html#l00619">Server::UserToPseudo()</a>.    </td>
   </tr>
 </table>
 <a name="o12" doxytag="connection::idle_lastmsg"></a><p>
@@ -725,9 +328,9 @@ Time that the connection last sent data, used to calculate idle time.
 <p>
 
 <p>
-Definition at line <a class="el" href="connection_8h-source.html#l00267">267</a> of file <a class="el" href="connection_8h-source.html">connection.h</a>.
+Definition at line <a class="el" href="connection_8h-source.html#l00316">316</a> of file <a class="el" href="connection_8h-source.html">connection.h</a>.
 <p>
-Referenced by <a class="el" href="users_8cpp-source.html#l00029">userrec::userrec()</a>.    </td>
+Referenced by <a class="el" href="users_8cpp-source.html#l00031">userrec::userrec()</a>.    </td>
   </tr>
 </table>
 <a name="o2" doxytag="connection::ip"></a><p>
@@ -753,9 +356,9 @@ IP of connection.
 <p>
 
 <p>
-Definition at line <a class="el" href="connection_8h-source.html#l00225">225</a> of file <a class="el" href="connection_8h-source.html">connection.h</a>.
+Definition at line <a class="el" href="connection_8h-source.html#l00274">274</a> of file <a class="el" href="connection_8h-source.html">connection.h</a>.
 <p>
-Referenced by <a class="el" href="users_8cpp-source.html#l00029">userrec::userrec()</a>.    </td>
+Referenced by <a class="el" href="users_8cpp-source.html#l00031">userrec::userrec()</a>.    </td>
   </tr>
 </table>
 <a name="o10" doxytag="connection::lastping"></a><p>
@@ -781,9 +384,9 @@ Time the connection was last pinged.
 <p>
 
 <p>
-Definition at line <a class="el" href="connection_8h-source.html#l00259">259</a> of file <a class="el" href="connection_8h-source.html">connection.h</a>.
+Definition at line <a class="el" href="connection_8h-source.html#l00308">308</a> of file <a class="el" href="connection_8h-source.html">connection.h</a>.
 <p>
-Referenced by <a class="el" href="servers_8cpp-source.html#l00027">serverrec::serverrec()</a>, and <a class="el" href="users_8cpp-source.html#l00029">userrec::userrec()</a>.    </td>
+Referenced by <a class="el" href="servers_8cpp-source.html#l00042">serverrec::serverrec()</a>, and <a class="el" href="users_8cpp-source.html#l00031">userrec::userrec()</a>.    </td>
   </tr>
 </table>
 <a name="o13" doxytag="connection::nping"></a><p>
@@ -809,9 +412,9 @@ Used by PING checks with clients.
 <p>
 
 <p>
-Definition at line <a class="el" href="connection_8h-source.html#l00271">271</a> of file <a class="el" href="connection_8h-source.html">connection.h</a>.
+Definition at line <a class="el" href="connection_8h-source.html#l00320">320</a> of file <a class="el" href="connection_8h-source.html">connection.h</a>.
 <p>
-Referenced by <a class="el" href="users_8cpp-source.html#l00029">userrec::userrec()</a>.    </td>
+Referenced by <a class="el" href="users_8cpp-source.html#l00031">userrec::userrec()</a>.    </td>
   </tr>
 </table>
 <a name="o8" doxytag="connection::port"></a><p>
@@ -837,9 +440,9 @@ Port number For a userrec, this is the port they connected to the network on.
 <p>
 For a serverrec this is the current listening port of the serverrec object.
 <p>
-Definition at line <a class="el" href="connection_8h-source.html#l00251">251</a> of file <a class="el" href="connection_8h-source.html">connection.h</a>.
+Definition at line <a class="el" href="connection_8h-source.html#l00300">300</a> of file <a class="el" href="connection_8h-source.html">connection.h</a>.
 <p>
-Referenced by <a class="el" href="users_8cpp-source.html#l00029">userrec::userrec()</a>.    </td>
+Referenced by <a class="el" href="servers_8cpp-source.html#l00077">serverrec::CreateListener()</a>, and <a class="el" href="users_8cpp-source.html#l00031">userrec::userrec()</a>.    </td>
   </tr>
 </table>
 <a name="o9" doxytag="connection::registered"></a><p>
@@ -865,9 +468,9 @@ Used by userrec to indicate the registration status of the connection.
 <p>
 
 <p>
-Definition at line <a class="el" href="connection_8h-source.html#l00255">255</a> of file <a class="el" href="connection_8h-source.html">connection.h</a>.
+Definition at line <a class="el" href="connection_8h-source.html#l00304">304</a> of file <a class="el" href="connection_8h-source.html">connection.h</a>.
 <p>
-Referenced by <a class="el" href="users_8cpp-source.html#l00029">userrec::userrec()</a>.    </td>
+Referenced by <a class="el" href="users_8cpp-source.html#l00031">userrec::userrec()</a>.    </td>
   </tr>
 </table>
 <a name="o11" doxytag="connection::signon"></a><p>
@@ -893,14 +496,14 @@ Time the connection was created, set in the constructor.
 <p>
 
 <p>
-Definition at line <a class="el" href="connection_8h-source.html#l00263">263</a> of file <a class="el" href="connection_8h-source.html">connection.h</a>.
+Definition at line <a class="el" href="connection_8h-source.html#l00312">312</a> of file <a class="el" href="connection_8h-source.html">connection.h</a>.
 <p>
-Referenced by <a class="el" href="servers_8cpp-source.html#l00027">serverrec::serverrec()</a>, and <a class="el" href="users_8cpp-source.html#l00029">userrec::userrec()</a>.    </td>
+Referenced by <a class="el" href="servers_8cpp-source.html#l00042">serverrec::serverrec()</a>, and <a class="el" href="users_8cpp-source.html#l00031">userrec::userrec()</a>.    </td>
   </tr>
 </table>
 <hr>The documentation for this class was generated from the following file:<ul>
 <li><a class="el" href="connection_8h-source.html">connection.h</a></ul>
-<hr size="1"><address style="align: right;"><small>Generated on Sun May 15 18:38:01 2005 for InspIRCd by
+<hr size="1"><address style="align: right;"><small>Generated on Tue May 24 02:31:49 2005 for InspIRCd by
 <a href="http://www.doxygen.org/index.html">
 <img src="doxygen.png" alt="doxygen" align="middle" border=0 > 
 </a>1.3.3 </small></address>

@@ -26,73 +26,88 @@
 00019 <span class="preprocessor"></span>
 00020 <span class="preprocessor">#include "inspircd_config.h"</span>
 00021 
-00022 <span class="preprocessor">#ifdef GCC3</span>
-00023 <span class="preprocessor"></span><span class="preprocessor">#include &lt;ext/hash_map&gt;</span>
-00024 <span class="preprocessor">#else</span>
-00025 <span class="preprocessor"></span><span class="preprocessor">#include &lt;hash_map&gt;</span>
-00026 <span class="preprocessor">#endif</span>
-00027 <span class="preprocessor"></span>
-00028 <span class="preprocessor">#ifdef GCC3</span>
-<a name="l00029"></a><a class="code" href="hashcomp_8h.html#a0">00029</a> <span class="preprocessor"></span><span class="preprocessor">#define nspace __gnu_cxx</span>
-00030 <span class="preprocessor"></span><span class="preprocessor">#else</span>
-00031 <span class="preprocessor"></span><span class="preprocessor">#define nspace std</span>
-00032 <span class="preprocessor"></span><span class="preprocessor">#endif</span>
-00033 <span class="preprocessor"></span>
-00034 <span class="keyword">using</span> <span class="keyword">namespace </span>std;
-00035 
-<a name="l00036"></a><a class="code" href="namespacenspace.html">00036</a> <span class="keyword">namespace </span><a class="code" href="channels_8cpp.html#a0">nspace</a>
-00037 {
-00038 <span class="preprocessor">#ifdef GCC34</span>
-00039 <span class="preprocessor"></span>        <span class="keyword">template</span>&lt;&gt; <span class="keyword">struct </span>hash&lt;in_addr&gt;
-00040 #else
-<a name="l00041"></a><a class="code" href="structnspace_1_1nspace_1_1hash_3_01in__addr_01_4.html">00041</a>         template&lt;&gt; struct <a class="code" href="channels_8cpp.html#a0">nspace</a>::hash&lt;in_addr&gt;
-00042 #endif
-00043         {
-00044                 size_t operator()(<span class="keyword">const</span> <span class="keyword">struct</span> in_addr &amp;a) <span class="keyword">const</span>;
-00045         };
-00046 <span class="preprocessor">#ifdef GCC34</span>
-00047 <span class="preprocessor"></span>        <span class="keyword">template</span>&lt;&gt; <span class="keyword">struct </span>hash&lt;<a class="code" href="namespaceirc.html#a0">string</a>&gt;
-00048 #else
-<a name="l00049"></a><a class="code" href="structnspace_1_1nspace_1_1hash_3_01string_01_4.html">00049</a>         template&lt;&gt; struct <a class="code" href="channels_8cpp.html#a0">nspace</a>::hash&lt;string&gt;
-00050 #endif
-00051         {
-00052                 size_t operator()(<span class="keyword">const</span> <a class="code" href="namespaceirc.html#a0">string</a> &amp;s) <span class="keyword">const</span>;
-00053         };
-00054 }
-00055 
-<a name="l00058"></a><a class="code" href="namespaceirc.html">00058</a> <span class="keyword">namespace </span>irc
-00059 {
-00060 
-<a name="l00065"></a><a class="code" href="structirc_1_1StrHashComp.html">00065</a>         <span class="keyword">struct </span><a class="code" href="structirc_1_1StrHashComp.html">StrHashComp</a>
+00022 <span class="comment">/*******************************************************</span>
+00023 <span class="comment"> * This file contains classes and templates that deal</span>
+00024 <span class="comment"> * with the comparison and hashing of 'irc strings'.</span>
+00025 <span class="comment"> * An 'irc string' is a string which compares in a</span>
+00026 <span class="comment"> * case insensitive manner, and as per RFC 1459 will</span>
+00027 <span class="comment"> * treat [ identical to {, ] identical to }, and \</span>
+00028 <span class="comment"> * as identical to |.</span>
+00029 <span class="comment"> *</span>
+00030 <span class="comment"> * Our hashing functions are designed  to accept</span>
+00031 <span class="comment"> * std::string and compare/hash them as type irc::string</span>
+00032 <span class="comment"> * by converting them internally. This makes them</span>
+00033 <span class="comment"> * backwards compatible with other code which is not</span>
+00034 <span class="comment"> * aware of irc::string.</span>
+00035 <span class="comment"> *******************************************************/</span>
+00036 
+00037 <span class="preprocessor">#ifdef GCC3</span>
+00038 <span class="preprocessor"></span><span class="preprocessor">#include &lt;ext/hash_map&gt;</span>
+00039 <span class="preprocessor">#else</span>
+00040 <span class="preprocessor"></span><span class="preprocessor">#include &lt;hash_map&gt;</span>
+00041 <span class="preprocessor">#endif</span>
+00042 <span class="preprocessor"></span>
+00043 <span class="preprocessor">#ifdef GCC3</span>
+<a name="l00044"></a><a class="code" href="hashcomp_8h.html#a0">00044</a> <span class="preprocessor"></span><span class="preprocessor">#define nspace __gnu_cxx</span>
+00045 <span class="preprocessor"></span><span class="preprocessor">#else</span>
+00046 <span class="preprocessor"></span><span class="preprocessor">#define nspace std</span>
+00047 <span class="preprocessor"></span><span class="preprocessor">#endif</span>
+00048 <span class="preprocessor"></span>
+00049 <span class="keyword">using</span> <span class="keyword">namespace </span>std;
+00050 
+<a name="l00051"></a><a class="code" href="namespacenspace.html">00051</a> <span class="keyword">namespace </span><a class="code" href="channels_8cpp.html#a0">nspace</a>
+00052 {
+00053 <span class="preprocessor">#ifdef GCC34</span>
+00054 <span class="preprocessor"></span>        <span class="keyword">template</span>&lt;&gt; <span class="keyword">struct </span>hash&lt;in_addr&gt;
+00055 #else
+<a name="l00056"></a><a class="code" href="structnspace_1_1nspace_1_1hash_3_01in__addr_01_4.html">00056</a>         template&lt;&gt; struct <a class="code" href="channels_8cpp.html#a0">nspace</a>::hash&lt;in_addr&gt;
+00057 #endif
+00058         {
+00059                 size_t operator()(<span class="keyword">const</span> <span class="keyword">struct</span> in_addr &amp;a) <span class="keyword">const</span>;
+00060         };
+00061 <span class="preprocessor">#ifdef GCC34</span>
+00062 <span class="preprocessor"></span>        <span class="keyword">template</span>&lt;&gt; <span class="keyword">struct </span>hash&lt;<a class="code" href="namespaceirc.html#a0">string</a>&gt;
+00063 #else
+<a name="l00064"></a><a class="code" href="structnspace_1_1nspace_1_1hash_3_01string_01_4.html">00064</a>         template&lt;&gt; struct <a class="code" href="channels_8cpp.html#a0">nspace</a>::hash&lt;string&gt;
+00065 #endif
 00066         {
-00069                 <span class="keywordtype">bool</span> <a class="code" href="structirc_1_1StrHashComp.html#a0">operator()</a>(<span class="keyword">const</span> std::string&amp; s1, <span class="keyword">const</span> std::string&amp; s2) <span class="keyword">const</span>;
-00070         };
-00071 
-00072 
-<a name="l00077"></a><a class="code" href="structirc_1_1InAddr__HashComp.html">00077</a>         <span class="keyword">struct </span><a class="code" href="structirc_1_1InAddr__HashComp.html">InAddr_HashComp</a>
-00078         {
-00081                 <span class="keywordtype">bool</span> <a class="code" href="structirc_1_1InAddr__HashComp.html#a0">operator()</a>(<span class="keyword">const</span> in_addr &amp;s1, <span class="keyword">const</span> in_addr &amp;s2) <span class="keyword">const</span>;
-00082         };
-00083 
-00084 
-<a name="l00089"></a><a class="code" href="structirc_1_1irc__char__traits.html">00089</a>         <span class="keyword">struct </span><a class="code" href="structirc_1_1irc__char__traits.html">irc_char_traits</a> : std::char_traits&lt;char&gt; {
-00090 
-00093                 <span class="keyword">static</span> <span class="keywordtype">bool</span> <a class="code" href="structirc_1_1irc__char__traits.html#e0">eq</a>(<span class="keywordtype">char</span> c1st, <span class="keywordtype">char</span> c2nd);
-00094 
-00097                 <span class="keyword">static</span> <span class="keywordtype">bool</span> <a class="code" href="structirc_1_1irc__char__traits.html#e1">ne</a>(<span class="keywordtype">char</span> c1st, <span class="keywordtype">char</span> c2nd);
+00067                 size_t operator()(<span class="keyword">const</span> <a class="code" href="namespaceirc.html#a0">string</a> &amp;s) <span class="keyword">const</span>;
+00068         };
+00069 }
+00070 
+<a name="l00073"></a><a class="code" href="namespaceirc.html">00073</a> <span class="keyword">namespace </span>irc
+00074 {
+00075 
+<a name="l00080"></a><a class="code" href="structirc_1_1StrHashComp.html">00080</a>         <span class="keyword">struct </span><a class="code" href="structirc_1_1StrHashComp.html">StrHashComp</a>
+00081         {
+00084                 <span class="keywordtype">bool</span> <a class="code" href="structirc_1_1StrHashComp.html#a0">operator()</a>(<span class="keyword">const</span> std::string&amp; s1, <span class="keyword">const</span> std::string&amp; s2) <span class="keyword">const</span>;
+00085         };
+00086 
+00087 
+<a name="l00092"></a><a class="code" href="structirc_1_1InAddr__HashComp.html">00092</a>         <span class="keyword">struct </span><a class="code" href="structirc_1_1InAddr__HashComp.html">InAddr_HashComp</a>
+00093         {
+00096                 <span class="keywordtype">bool</span> <a class="code" href="structirc_1_1InAddr__HashComp.html#a0">operator()</a>(<span class="keyword">const</span> in_addr &amp;s1, <span class="keyword">const</span> in_addr &amp;s2) <span class="keyword">const</span>;
+00097         };
 00098 
-00101                 <span class="keyword">static</span> <span class="keywordtype">bool</span> <a class="code" href="structirc_1_1irc__char__traits.html#e2">lt</a>(<span class="keywordtype">char</span> c1st, <span class="keywordtype">char</span> c2nd);
-00102 
-00105                 <span class="keyword">static</span> <span class="keywordtype">int</span> <a class="code" href="structirc_1_1irc__char__traits.html#e3">compare</a>(<span class="keyword">const</span> <span class="keywordtype">char</span>* str1, <span class="keyword">const</span> <span class="keywordtype">char</span>* str2, size_t n);
-00106 
-00109                 <span class="keyword">static</span> <span class="keyword">const</span> <span class="keywordtype">char</span>* <a class="code" href="structirc_1_1irc__char__traits.html#e4">find</a>(<span class="keyword">const</span> <span class="keywordtype">char</span>* s1, <span class="keywordtype">int</span>  n, <span class="keywordtype">char</span> c);
-00110         };
-00111 
-<a name="l00114"></a><a class="code" href="namespaceirc.html#a0">00114</a>         <span class="keyword">typedef</span> basic_string&lt;char, irc_char_traits, allocator&lt;char&gt; &gt; <a class="code" href="namespaceirc.html#a0">string</a>;
-00115 }
-00116 
-00117 <span class="preprocessor">#endif</span>
-</pre></div><hr size="1"><address style="align: right;"><small>Generated on Sun May 15 18:36:01 2005 for InspIRCd by
+00099 
+<a name="l00104"></a><a class="code" href="structirc_1_1irc__char__traits.html">00104</a>         <span class="keyword">struct </span><a class="code" href="structirc_1_1irc__char__traits.html">irc_char_traits</a> : std::char_traits&lt;char&gt; {
+00105 
+00108                 <span class="keyword">static</span> <span class="keywordtype">bool</span> <a class="code" href="structirc_1_1irc__char__traits.html#e0">eq</a>(<span class="keywordtype">char</span> c1st, <span class="keywordtype">char</span> c2nd);
+00109 
+00112                 <span class="keyword">static</span> <span class="keywordtype">bool</span> <a class="code" href="structirc_1_1irc__char__traits.html#e1">ne</a>(<span class="keywordtype">char</span> c1st, <span class="keywordtype">char</span> c2nd);
+00113 
+00116                 <span class="keyword">static</span> <span class="keywordtype">bool</span> <a class="code" href="structirc_1_1irc__char__traits.html#e2">lt</a>(<span class="keywordtype">char</span> c1st, <span class="keywordtype">char</span> c2nd);
+00117 
+00120                 <span class="keyword">static</span> <span class="keywordtype">int</span> <a class="code" href="structirc_1_1irc__char__traits.html#e3">compare</a>(<span class="keyword">const</span> <span class="keywordtype">char</span>* str1, <span class="keyword">const</span> <span class="keywordtype">char</span>* str2, size_t n);
+00121 
+00124                 <span class="keyword">static</span> <span class="keyword">const</span> <span class="keywordtype">char</span>* <a class="code" href="structirc_1_1irc__char__traits.html#e4">find</a>(<span class="keyword">const</span> <span class="keywordtype">char</span>* s1, <span class="keywordtype">int</span>  n, <span class="keywordtype">char</span> c);
+00125         };
+00126 
+<a name="l00129"></a><a class="code" href="namespaceirc.html#a0">00129</a>         <span class="keyword">typedef</span> basic_string&lt;char, irc_char_traits, allocator&lt;char&gt; &gt; <a class="code" href="namespaceirc.html#a0">string</a>;
+00130 }
+00131 
+00132 <span class="preprocessor">#endif</span>
+</pre></div><hr size="1"><address style="align: right;"><small>Generated on Tue May 24 02:30:02 2005 for InspIRCd by
 <a href="http://www.doxygen.org/index.html">
 <img src="doxygen.png" alt="doxygen" align="middle" border=0 > 
 </a>1.3.3 </small></address>
