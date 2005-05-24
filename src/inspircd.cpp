@@ -2517,6 +2517,26 @@ bool LoadModule(const char* filename)
 	return true;
 }
 
+
+void GotServer(std::string name)
+{
+        for (int j = 0; j < 32; j++)
+        {
+                if (me[j] != NULL)
+                {
+                        for (int k = 0; k < me[j]->connectors.size(); k++)
+                        {
+				if (name == me[j]->connectors.GetServerName())
+				{
+					return true;
+				}
+                        }
+                }
+        }
+	return false;
+}
+
+
 int InspIRCd(char** argv, int argc)
 {
 	struct sockaddr_in client,server;
@@ -2826,7 +2846,7 @@ int InspIRCd(char** argv, int argc)
 				char Link_ServerName[MAXBUF],Link_AConn[MAXBUF];
 				ConfValue("link","name",i,Link_ServerName,&config_f);
 				ConfValue("link","autoconnect",i,Link_AConn,&config_f);
-				if (Link_AConn[0])
+				if (Link_AConn[0]) && (!GotServer(Link_ServerName))
 				{
 					autoconnects::iterator a = autoconns.find(Link_ServerName);
 					if (a != autoconns.end())
