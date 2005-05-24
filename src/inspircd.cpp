@@ -2518,7 +2518,7 @@ bool LoadModule(const char* filename)
 }
 
 
-void GotServer(std::string name)
+bool GotServer(std::string name)
 {
         for (int j = 0; j < 32; j++)
         {
@@ -2526,7 +2526,7 @@ void GotServer(std::string name)
                 {
                         for (int k = 0; k < me[j]->connectors.size(); k++)
                         {
-				if (name == me[j]->connectors.GetServerName())
+				if (name == me[j]->connectors[k].GetServerName())
 				{
 					return true;
 				}
@@ -2846,9 +2846,9 @@ int InspIRCd(char** argv, int argc)
 				char Link_ServerName[MAXBUF],Link_AConn[MAXBUF];
 				ConfValue("link","name",i,Link_ServerName,&config_f);
 				ConfValue("link","autoconnect",i,Link_AConn,&config_f);
-				if (Link_AConn[0]) && (!GotServer(Link_ServerName))
+				if ((Link_AConn[0]) && (!GotServer(Link_ServerName)))
 				{
-					autoconnects::iterator a = autoconns.find(Link_ServerName);
+					autoconnects::iterator a = autoconns.find(std::string(Link_ServerName));
 					if (a != autoconns.end())
 					{
 						if (TIME > a->second)
