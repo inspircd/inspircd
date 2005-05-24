@@ -32,7 +32,7 @@ using namespace std;
 #include "inspstring.h"
 #include "helperfuncs.h"
 
-
+extern bool has_been_netsplit;
 extern std::vector<Module*> modules;
 extern std::vector<ircd_module*> factory;
 
@@ -200,6 +200,7 @@ bool ircd_connector::CheckPing()
 				this->CloseConnection();
 				this->SetState(STATE_DISCONNECTED);
 				WriteOpers("*** Ping timeout on link to %s (more routes may remain)",this->GetServerName().c_str());
+				has_been_netsplit = true;
 				return false;
 			}
 		}

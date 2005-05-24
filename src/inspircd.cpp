@@ -119,6 +119,8 @@ int kq, lkq, skq;
 int ep, lep, sep;
 #endif
 
+bool has_been_netsplit = false;
+
 typedef nspace::hash_map<std::string, userrec*, nspace::hash<string>, irc::StrHashComp> user_hash;
 typedef nspace::hash_map<std::string, chanrec*, nspace::hash<string>, irc::StrHashComp> chan_hash;
 typedef nspace::hash_map<in_addr,string*, nspace::hash<in_addr>, irc::InAddr_HashComp> address_cache;
@@ -1742,6 +1744,7 @@ void DoSplitEveryone()
 			}
 		}
 	}
+	has_been_netsplit = true;
 }
 
 
@@ -2341,6 +2344,7 @@ void DoSplit(const char* params)
 			}
 		}
 	}
+	has_been_netsplit = true;
 }
 
 // removes a server. Will NOT remove its users!
@@ -2940,6 +2944,7 @@ int InspIRCd(char** argv, int argc)
 			msgs.clear();
 			while ((me[x]) && (me[x]->RecvPacket(msgs, tcp_host, sums))) // returns 0 or more lines (can be multiple lines!)
 			{
+				has_been_netsplit = false;
 				for (int ctr = 0; ctr < msgs.size(); ctr++)
 				{
 					strlcpy(tcp_msg,msgs[ctr].c_str(),MAXBUF);
@@ -2974,8 +2979,14 @@ int InspIRCd(char** argv, int argc)
 						goto label;
 					}
 				}
-                		        sums.clear();	// we're done, clear the list for the next operation
-		                        msgs.clear();
+               		        sums.clear();	// we're done, clear the list for the next operation
+	                        msgs.clear();
+				// theres been a netsplit, its unsafe to mess with the iterators!
+				if (has_been_netsplit)
+				{
+					log(DEBUG,"Iterator modified, bailing");
+					goto label;
+				}
 			}
 		}
 	

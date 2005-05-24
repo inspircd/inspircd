@@ -36,7 +36,10 @@ using namespace std;
 
 extern time_t TIME;
 extern int MaxConn;
+
 extern serverrec* me[32];
+
+extern bool has_been_netsplit;
 
 std::deque<std::string> xsums;
 
@@ -308,6 +311,7 @@ void serverrec::FlushWriteBuffers()
 					WriteOpers("*** Server %s is no longer routable, disconnecting.",this->connectors[i].GetServerName().c_str());
 					DoSplit(this->connectors[i].GetServerName().c_str());
 				}
+				has_been_netsplit = true;
 			}
 		}
                 if (this->connectors[i].HasBufferedOutput())
@@ -323,6 +327,7 @@ void serverrec::FlushWriteBuffers()
                                         WriteOpers("*** Server %s is no longer routable, disconnecting.",this->connectors[i].GetServerName().c_str());
                                         DoSplit(this->connectors[i].GetServerName().c_str());
                                 }
+				has_been_netsplit = true;
 			}
                 }
 	}
@@ -457,6 +462,7 @@ bool serverrec::RecvPacket(std::deque<std::string> &messages, char* recvhost,std
                 	                        WriteOpers("*** Server %s is no longer routable, disconnecting.",this->connectors[i].GetServerName().c_str());
         	                                DoSplit(this->connectors[i].GetServerName().c_str());
 	                                }
+					has_been_netsplit = true;
                                 }
                         }
                         int pushed = 0;
@@ -472,6 +478,7 @@ bool serverrec::RecvPacket(std::deque<std::string> &messages, char* recvhost,std
                 	                        WriteOpers("*** Server %s is no longer routable, disconnecting.",this->connectors[i].GetServerName().c_str());
         	                                DoSplit(this->connectors[i].GetServerName().c_str());
 	                                }
+					has_been_netsplit = true;
 				}
                                 if (this->connectors[i].BufferIsComplete())
                                 {
