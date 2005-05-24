@@ -253,10 +253,16 @@ void serverrec::FlushWriteBuffers()
 	for (int i = 0; i < this->connectors.size(); i++)
 	{
 		// don't try and ping a NOAUTH_OUTBOUND state, its not authed yet!
-		if (this->connectors[i].GetState() != STATE_NOAUTH_OUTBOUND)
+		if ((this->connectors[i].GetState() == STATE_NOAUTH_OUTBOUND) && (TIME > this->connectors[i].age+30))
 		{
 			// however if we reach this timer its connected timed out :)
 			WriteOpers("*** Connection to %s timed out",this->connectors[i].GetServerName().c_str());
+			DoSplit(this->connectors[i].GetServerName().c_str());
+			return;
+		}
+		else if ((this->connectors[i].GetState() == STATE_NOAUTH_INBOUND) && (TIME > this->connectors[i].age+30))
+		{
+			WriteOpers("*** Connection from %s timed out",this->connectors[i].GetServerName().c_str());
 			DoSplit(this->connectors[i].GetServerName().c_str());
 			return;
 		}

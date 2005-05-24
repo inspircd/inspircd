@@ -1662,7 +1662,8 @@ void handle_map(char **parameters, int pcnt, userrec *user)
   		{
 			for (int k = 0; k < me[j]->connectors.size(); k++)
 			{
-				snprintf(line,MAXBUF,"006 %s :%c%c%s",user->nick,islast(me[j]->connectors[k].GetServerName().c_str()),me[j]->connectors[k].GetState() == STATE_CONNECTED ? '-' : '*',me[j]->connectors[k].GetServerName().c_str());
+				int state = me[j]->connectors[k].GetState();
+				snprintf(line,MAXBUF,"006 %s :%c%s%s",user->nick,islast(me[j]->connectors[k].GetServerName().c_str()),state == STATE_NOAUTH_INBOUND || state == STATE_NOAUTH_OUTBOUND ? "-*" : "--", me[j]->connectors[k].GetServerName().c_str());
 				while (strlen(line) < 50)
 					strcat(line," ");
 				WriteServ(user->fd,"%s%d (%.2f%%)",line,map_count(me[j]->connectors[k].GetServerName().c_str()),(float)(((float)map_count(me[j]->connectors[k].GetServerName().c_str())/(float)registered_usercount())*100));
