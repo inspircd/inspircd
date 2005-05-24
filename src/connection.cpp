@@ -216,7 +216,6 @@ void ircd_connector::ResetPing()
 // send AS MUCH OF THE USERS SENDQ as we are able to (might not be all of it)
 bool ircd_connector::FlushWriteBuf()
 {
-	log(DEBUG,"connector::FlushWriteBuf()");
 	if (this->GetState() == STATE_NOAUTH_OUTBOUND)
 	{
 		// if the outbound socket hasnt connected yet... return true and don't
@@ -231,7 +230,7 @@ bool ircd_connector::FlushWriteBuf()
 		// this falls through and sends any waiting data, which can put it into the
 		// connected state.
 	}
-        if (sendq.length())
+        if ((sendq.length()) && (this->GetState() != STATE_DISCONNECTED))
         {
                 char* tb = (char*)this->sendq.c_str();
                 int n_sent = write(this->fd,tb,this->sendq.length());
