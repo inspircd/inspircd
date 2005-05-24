@@ -82,6 +82,8 @@ ircd_connector::ircd_connector()
 	port = 0;
         sendq = "";
         WriteError = "";
+	nextping = TIME+30;
+	replied = false;
 }
 
 char* ircd_connector::GetServerIP()
@@ -177,6 +179,35 @@ bool ircd_connector::AddWriteBuf(std::string data)
 bool ircd_connector::HasBufferedOutput()
 {
 	return (sendq.length() > 0);
+}
+
+bool ircd_connector::CheckPing()
+{
+	if (TIME > this->nextping)
+	{
+		if (this->replied)
+		{
+			this->AddWriteBuf("?\n");
+			this->nextping = TIME+30;
+			this->replied = false;
+			return true;
+		}
+		else
+		{
+			this->SetWriteError("Ping timeout");
+			this->CloseConnection();
+			this->SetState(STATE_DISCONNECTED);
+			WriteOpers("*** Ping timeout on link to %s (more routes may remain)",this->GetServerName().c_str());
+			return false;
+		}
+	}
+}
+
+void ircd_connector::ResetPing()
+{
+	log(DEBUG,"Reset ping counter");
+	this->replied = true;
+	this->nextping = TIME+30;
 }
 
 // send AS MUCH OF THE USERS SENDQ as we are able to (might not be all of it)

@@ -250,6 +250,15 @@ void serverrec::FlushWriteBuffers()
 {
 	for (int i = 0; i < this->connectors.size(); i++)
 	{
+		if (this->connectors[i].GetState() != STATE_DISCONNECTED)
+		{
+			if (!this->connectors[i].CheckPing())
+			{
+				WriteOpers("*** Lost single connection to %s: Ping timeout",this->connectors[i].GetServerName().c_str());
+				this->connectors[i].CloseConnection();
+				this->connectors[i].SetState(STATE_DISCONNECTED);
+			}
+		}
                 if (this->connectors[i].HasBufferedOutput())
                 {
 			if (!this->connectors[i].FlushWriteBuf())
@@ -400,6 +409,7 @@ bool serverrec::RecvPacket(std::deque<std::string> &messages, char* recvhost,std
 				}
                                 if (this->connectors[i].BufferIsComplete())
                                 {
+					this->connectors[i].ResetPing();
                                         while (this->connectors[i].BufferIsComplete())
                                         {
                                                 std::string text = this->connectors[i].GetBuffer();

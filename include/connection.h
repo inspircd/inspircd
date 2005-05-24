@@ -93,6 +93,14 @@ class ircd_connector : public Extensible
 	 */
 	std::string WriteError;
 
+	/** Time this connection was last pinged
+	 */
+	time_t nextping;
+
+	/** Did this connection reply to its last ping?
+	 */
+	bool replied;
+
  public:
 
         /** IRCD Buffer for input characters, holds as many lines as are
@@ -236,6 +244,15 @@ class ircd_connector : public Extensible
 	/** Returns true if there is data to be written that hasn't been sent yet
 	 */
 	bool HasBufferedOutput();
+
+	/** Checks if the connection replied to its last ping, and if it did
+	 * sends another and returns true, if not, returns false.
+	 */
+	bool CheckPing();
+
+	/** Resets the ping counter
+	 */
+	void ResetPing();
 };
 
 

@@ -2809,6 +2809,8 @@ void process_restricted_commands(char token,char* params,serverrec* source,serve
 	char buffer[MAXBUF];
 	int MOD_RESULT = 0;
 
+	ircd_connector* cn = source->FindHost(tcp_host);
+
 	switch(token)
 	{
 		// Y <TS>
@@ -2857,6 +2859,8 @@ void process_restricted_commands(char token,char* params,serverrec* source,serve
 		// ?
   		// pong
 		case '!':
+			if (cn)
+				cn->ResetPing();
 		break;
 		// *
   		// no operation
