@@ -667,6 +667,7 @@ EOENT
 m_$i.so: m_$i.cpp ../../include/modules.h ../../include/users.h ../../include/channels.h ../../include/servers.h ../../include/base.h
 	\$(CC) -pipe -I../../include \$(FLAGS) $flags -export-dynamic -c m_$i.cpp
 	\$(CC) \$(FLAGS) -shared $flags -o m_$i.so m_$i.o
+	@-rm -f \$(MODPATH)/m_$i.so
 	cp m_$i.so \$(MODPATH)/
 	chmod 0700 \$(MODPATH)/m_$i.so
 
