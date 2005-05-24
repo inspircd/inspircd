@@ -36,6 +36,7 @@ using namespace std;
 
 extern time_t TIME;
 extern int MaxConn;
+extern serverrec* me[32];
 
 std::deque<std::string> xsums;
 
@@ -230,7 +231,7 @@ bool serverrec::AddIncoming(int newfd, char* targethost, int sourceport)
 void serverrec::TerminateLink(char* targethost)
 {
         // this locates the targethost in the serverrec::connectors vector of the class,
-        // and terminates it by sending it an SQUIT token and closing its descriptor.
+       // and terminates it by sending it an SQUIT token and closing its descriptor.
         // TerminateLink with a null string causes a terminate of ALL links
 }
 
@@ -246,6 +247,36 @@ ircd_connector* serverrec::FindHost(std::string findhost)
         }
         return NULL;
 }
+
+
+// Checks to see if we can still reach a server at all (e.g. is it in ANY routing table?)
+bool IsRoutable(std::string servername)
+{
+	for (int x = 0; x < 32; x++) if (me[x])
+	{
+        	ircd_connector* cn = me[x]->FindHost(servername.c_str());
+        	if (cn)
+        	{
+                	if (cn->GetState() == STATE_DISCONNECTED)
+                	{
+                        	for (int k = 0; k < me[x]->connectors.size(); k++)
+                        	{
+                                	for (int m = 0; m < me[x]->connectors[k].routes.size(); m++)
+                                	{
+                                        	if (!strcasecmp(me[x]->connectors[k].routes[m].c_str(),servername.c_str()))
+                                        	{
+                                                	return true;
+                                        	}
+                                	}
+                        	}
+       	                	return false;
+       	        	}
+			else return true;
+		}
+	}
+	return false;
+}
+
 
 void serverrec::FlushWriteBuffers()
 {
@@ -272,6 +303,11 @@ void serverrec::FlushWriteBuffers()
 				WriteOpers("*** Lost single connection to %s: Ping timeout",this->connectors[i].GetServerName().c_str());
 				this->connectors[i].CloseConnection();
 				this->connectors[i].SetState(STATE_DISCONNECTED);
+				if (!IsRoutable(this->connectors[i].GetServerName()))
+				{
+					WriteOpers("*** Server %s is no longer routable, disconnecting.",this->connectors[i].GetServerName().c_str());
+					DoSplit(this->connectors[i].GetServerName().c_str());
+				}
 			}
 		}
                 if (this->connectors[i].HasBufferedOutput())
@@ -282,6 +318,11 @@ void serverrec::FlushWriteBuffers()
 				WriteOpers("*** Lost single connection to %s, link inactive and retrying: %s",this->connectors[i].GetServerName().c_str(),this->connectors[i].GetWriteError().c_str());
 				this->connectors[i].CloseConnection();
 	                        this->connectors[i].SetState(STATE_DISCONNECTED);
+                                if (!IsRoutable(this->connectors[i].GetServerName()))
+                                {
+                                        WriteOpers("*** Server %s is no longer routable, disconnecting.",this->connectors[i].GetServerName().c_str());
+                                        DoSplit(this->connectors[i].GetServerName().c_str());
+                                }
 			}
                 }
 	}
@@ -411,6 +452,11 @@ bool serverrec::RecvPacket(std::deque<std::string> &messages, char* recvhost,std
                                         log(DEBUG,"Disabling connector: %s",this->connectors[i].GetServerName().c_str());
                                         this->connectors[i].CloseConnection();
                                         this->connectors[i].SetState(STATE_DISCONNECTED);
+                                	if (!IsRoutable(this->connectors[i].GetServerName()))
+                        	        {
+                	                        WriteOpers("*** Server %s is no longer routable, disconnecting.",this->connectors[i].GetServerName().c_str());
+        	                                DoSplit(this->connectors[i].GetServerName().c_str());
+	                                }
                                 }
                         }
                         int pushed = 0;
@@ -421,6 +467,11 @@ bool serverrec::RecvPacket(std::deque<std::string> &messages, char* recvhost,std
 					WriteOpers("*** Read buffer for %s exceeds maximum, closing connection!",this->connectors[i].GetServerName().c_str());
 					this->connectors[i].CloseConnection();
 					this->connectors[i].SetState(STATE_DISCONNECTED);
+                                	if (!IsRoutable(this->connectors[i].GetServerName()))
+                        	        {
+                	                        WriteOpers("*** Server %s is no longer routable, disconnecting.",this->connectors[i].GetServerName().c_str());
+        	                                DoSplit(this->connectors[i].GetServerName().c_str());
+	                                }
 				}
                                 if (this->connectors[i].BufferIsComplete())
                                 {
