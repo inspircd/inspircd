@@ -235,19 +235,22 @@ bool ircd_connector::FlushWriteBuf()
         {
                 char* tb = (char*)this->sendq.c_str();
                 int n_sent = write(this->fd,tb,this->sendq.length());
-                if (n_sent == -1)
-                {
-                        this->SetWriteError(strerror(errno));
-			return false;
-                }
-                else
-                {
-			log(DEBUG,"Wrote %d chars to socket",n_sent);
-                        // advance the queue
-                        tb += n_sent;
-                        this->sendq = tb;
-			return true;
-                }
+		if (n_sent != 0)
+		{
+                	if (n_sent == -1)
+                	{
+                        	this->SetWriteError(strerror(errno));
+				return false;
+                	}
+                	else
+                	{
+				log(DEBUG,"Wrote %d chars to socket",n_sent);
+                        	// advance the queue
+       	                	tb += n_sent;
+       	                	this->sendq = tb;
+				return true;
+	                }
+		}
         }
 	return true;
 }
