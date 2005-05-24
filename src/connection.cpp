@@ -82,7 +82,7 @@ ircd_connector::ircd_connector()
 	port = 0;
         sendq = "";
         WriteError = "";
-	nextping = TIME+30;
+	nextping = TIME+120;
 	replied = false;
 }
 
@@ -188,7 +188,7 @@ bool ircd_connector::CheckPing()
 		if (this->replied)
 		{
 			this->AddWriteBuf("?\n");
-			this->nextping = TIME+30;
+			this->nextping = TIME+120;
 			this->replied = false;
 			return true;
 		}
@@ -207,7 +207,7 @@ void ircd_connector::ResetPing()
 {
 	log(DEBUG,"Reset ping counter");
 	this->replied = true;
-	this->nextping = TIME+30;
+	this->nextping = TIME+120;
 }
 
 // send AS MUCH OF THE USERS SENDQ as we are able to (might not be all of it)
