@@ -2821,6 +2821,25 @@ int InspIRCd(char** argv, int argc)
 		// them in a list, then reap the list every second or so.
 		if (((TIME % 5) == 0) && (!expire_run))
 		{
+			for (int i = 0; i < ConfValueEnum("link",&config_f); i++)
+			{
+				char Link_ServerName[MAXBUF],Link_AConn[MAXBUF];
+				ConfValue("link","name",i,Link_ServerName,&config_f);
+				ConfValue("link","autoconnect",i,Link_AConn,&config_f);
+				if (Link_AConn[0])
+				{
+					autoconnects::iterator a = autoconns.find(Link_ServerName);
+					if (a != autoconns.end())
+					{
+						if (TIME > a->second)
+						{
+							ConnectServer(Link_ServerName,NULL);
+							a->second = TIME + atoi(Link_AConn);
+						}
+					}
+				}
+			}
+
 			expire_lines();
 			FOREACH_MOD OnBackgroundTimer(TIME);
 			expire_run = true;
