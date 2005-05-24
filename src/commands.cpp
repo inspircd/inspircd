@@ -2866,7 +2866,7 @@ void process_restricted_commands(char token,char* params,serverrec* source,serve
   		// ping
 		case '?':
                         snprintf(buffer,MAXBUF,":%s !",CreateSum().c_str());
-                        serv->SendPacket(buffer,tcp_host);
+                        reply->SendPacket(buffer,tcp_host);
 		break;
 		// ?
   		// pong
