@@ -161,6 +161,8 @@ bool serverrec::BeginLink(char* targethost, int newport, char* password, char* s
                         connector.SetState(STATE_NOAUTH_OUTBOUND);
                         connector.SetHostAndPort(targethost, newport);
                         this->connectors.push_back(connector);
+			// this packet isn't actually sent until the socket connects -- the STATE_NOAUTH_OUTBOUND state
+			// queues outbound data until the socket is polled as writeable (e.g. the connection is established)
                         return this->SendPacket(connect, servername);
                 }
                 else
@@ -250,7 +252,15 @@ void serverrec::FlushWriteBuffers()
 {
 	for (int i = 0; i < this->connectors.size(); i++)
 	{
-		if (this->connectors[i].GetState() != STATE_DISCONNECTED)
+		// don't try and ping a NOAUTH_OUTBOUND state, its not authed yet!
+		if (this->connectors[i].GetState() != STATE_NOAUTH_OUTBOUND)
+		{
+			// however if we reach this timer its connected timed out :)
+			WriteOpers("*** Connection to %s timed out",this->connectors[i].GetServerName().c_str());
+			DoSplit(this->connectors[i].GetServerName().c_str());
+			return;
+		}
+		else if (this->connectors[i].GetState() != STATE_DISCONNECTED)
 		{
 			if (!this->connectors[i].CheckPing())
 			{

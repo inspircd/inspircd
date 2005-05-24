@@ -1513,50 +1513,60 @@ void handle_stats(char **parameters, int pcnt, userrec *user)
 	
 }
 
+
+void ConnectServer(char* servermask,userrec* user)
+{
+        char Link_ServerName[1024];
+        char Link_IPAddr[1024];
+        char Link_Port[1024];
+        char Link_Pass[1024];
+        int LinkPort;
+        bool found = false;
+
+        for (int i = 0; i < ConfValueEnum("link",&config_f); i++)
+        {
+                if (!found)
+                {
+                        ConfValue("link","name",i,Link_ServerName,&config_f);
+                        ConfValue("link","ipaddr",i,Link_IPAddr,&config_f);
+                        ConfValue("link","port",i,Link_Port,&config_f);
+                        ConfValue("link","sendpass",i,Link_Pass,&config_f);
+                        LinkPort = atoi(Link_Port);
+                        if (match(Link_ServerName,servermask)) {
+                                found = true;
+                                break;
+                        }
+                }
+        }
+
+        if (!found) {
+		if (user)
+	                WriteServ(user->fd,"NOTICE %s :*** Failed to connect to %s: No servers matching this pattern are configured for linking.",user->nick,servermask);
+                return;
+        }
+
+	if (user)
+	{
+	        WriteServ(user->fd,"NOTICE %s :*** Connecting to %s (%s) port %s...",user->nick,Link_ServerName,Link_IPAddr,Link_Port);
+	}
+	else WriteOpers("*** Autoconnecting to %s (%s) port %s...",Link_ServerName,Link_IPAddr,Link_Port);
+
+        if (me[defaultRoute])
+        {
+                me[defaultRoute]->BeginLink(Link_IPAddr,LinkPort,Link_Pass,Link_ServerName,me[defaultRoute]->port);
+                return;
+        }
+        else
+        {
+		if (user)
+	                WriteServ(user->fd,"NOTICE %s :No default route is defined for server connections on this server. You must define a server connection to be default route so that sockets can be bound to it.",user->nick);
+        }
+}
+
+
 void handle_connect(char **parameters, int pcnt, userrec *user)
 {
-	char Link_ServerName[1024];
-	char Link_IPAddr[1024];
-	char Link_Port[1024];
-	char Link_Pass[1024];
-	int LinkPort;
-	bool found = false;
-
-	for (int i = 0; i < ConfValueEnum("link",&config_f); i++)
-	{
-		if (!found)
-		{
-			ConfValue("link","name",i,Link_ServerName,&config_f);
-			ConfValue("link","ipaddr",i,Link_IPAddr,&config_f);
-			ConfValue("link","port",i,Link_Port,&config_f);
-			ConfValue("link","sendpass",i,Link_Pass,&config_f);
-			log(DEBUG,"(%d) Comparing against name='%s', ipaddr='%s', port='%s', recvpass='%s'",i,Link_ServerName,Link_IPAddr,Link_Port,Link_Pass);
-			LinkPort = atoi(Link_Port);
-			if (match(Link_ServerName,parameters[0])) {
-				found = true;
-				break;
-			}
-		}
-	}
-	
-	if (!found) {
-		WriteServ(user->fd,"NOTICE %s :*** Failed to connect to %s: No servers matching this pattern are configured for linking.",user->nick,parameters[0]);
-		return;
-	}
-	
-	// TODO: Perform a check here to stop a server being linked twice!
-
-	WriteServ(user->fd,"NOTICE %s :*** Connecting to %s (%s) port %s...",user->nick,Link_ServerName,Link_IPAddr,Link_Port);
-
-	if (me[defaultRoute])
-	{
-		me[defaultRoute]->BeginLink(Link_IPAddr,LinkPort,Link_Pass,Link_ServerName,me[defaultRoute]->port);
-		return;
-	}
-	else
-	{
-		WriteServ(user->fd,"NOTICE %s :No default route is defined for server connections on this server. You must define a server connection to be default route so that sockets can be bound to it.",user->nick);
-	}
+	ConnectServer(parameters[0],user);
 }
 
 void handle_squit(char **parameters, int pcnt, userrec *user)
@@ -1652,7 +1662,7 @@ void handle_map(char **parameters, int pcnt, userrec *user)
   		{
 			for (int k = 0; k < me[j]->connectors.size(); k++)
 			{
-				snprintf(line,MAXBUF,"006 %s :%c-%s",user->nick,islast(me[j]->connectors[k].GetServerName().c_str()),me[j]->connectors[k].GetServerName().c_str());
+				snprintf(line,MAXBUF,"006 %s :%c%c%s",user->nick,islast(me[j]->connectors[k].GetServerName().c_str()),me[j]->connectors[k].GetState() == STATE_CONNECTED ? '-' : '*',me[j]->connectors[k].GetServerName().c_str());
 				while (strlen(line) < 50)
 					strcat(line," ");
 				WriteServ(user->fd,"%s%d (%.2f%%)",line,map_count(me[j]->connectors[k].GetServerName().c_str()),(float)(((float)map_count(me[j]->connectors[k].GetServerName().c_str())/(float)registered_usercount())*100));

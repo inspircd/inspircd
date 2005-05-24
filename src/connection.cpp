@@ -194,11 +194,14 @@ bool ircd_connector::CheckPing()
 		}
 		else
 		{
-			this->SetWriteError("Ping timeout");
-			this->CloseConnection();
-			this->SetState(STATE_DISCONNECTED);
-			WriteOpers("*** Ping timeout on link to %s (more routes may remain)",this->GetServerName().c_str());
-			return false;
+			if (this->GetState() == STATE_CONNECTED)
+			{
+				this->SetWriteError("Ping timeout");
+				this->CloseConnection();
+				this->SetState(STATE_DISCONNECTED);
+				WriteOpers("*** Ping timeout on link to %s (more routes may remain)",this->GetServerName().c_str());
+				return false;
+			}
 		}
 	}
 }
@@ -214,6 +217,18 @@ void ircd_connector::ResetPing()
 bool ircd_connector::FlushWriteBuf()
 {
 	log(DEBUG,"connector::FlushWriteBuf()");
+	if (this->GetState() == STATE_NOAUTH_OUTBOUND)
+	{
+		// if the outbound socket hasnt connected yet... return true and don't
+		// actually do anything until it IS connected. This should probably
+		// have a timeout somewhere, 10 secs should suffice. ;-)
+                pollfd polls;
+                polls.fd = this->fd;
+                polls.events = POLLOUT;
+                int ret = poll(&polls,1,1);
+		if (ret < 1)
+			return true;
+	}
         if (sendq.length())
         {
                 char* tb = (char*)this->sendq.c_str();
@@ -269,14 +284,17 @@ bool ircd_connector::MakeOutboundConnection(char* newhost, int newport)
 	this->fd = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 	if (this->fd >= 0)
 	{
-		if(connect(this->fd, (sockaddr*)&this->addr,sizeof(this->addr)))
-		{
-			WriteOpers("connect() failed for %s",host);
-			RemoveServer(this->servername.c_str());
-			return false;
-		}
 		int flags = fcntl(this->fd, F_GETFL, 0);
 		fcntl(this->fd, F_SETFL, flags | O_NONBLOCK);
+		if(connect(this->fd, (sockaddr*)&this->addr,sizeof(this->addr)) == -1)
+		{
+			if (errno != EINPROGRESS)
+			{
+				WriteOpers("connect() failed for %s",host);
+				RemoveServer(this->servername.c_str());
+				return false;
+			}
+		}
 		int sendbuf = 32768;
 		int recvbuf = 32768;
 		setsockopt(this->fd,SOL_SOCKET,SO_SNDBUF,(const void *)&sendbuf,sizeof(sendbuf)); 

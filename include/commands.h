@@ -121,4 +121,8 @@ bool is_uline(const char* server);
  */
 long duration(const char* str);
 
+/** Server connect creation
+ */
+void ConnectServer(char* servermask, userrec* user);
+
 #endif

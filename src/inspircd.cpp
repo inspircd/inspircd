@@ -124,6 +124,7 @@ typedef nspace::hash_map<std::string, chanrec*, nspace::hash<string>, irc::StrHa
 typedef nspace::hash_map<in_addr,string*, nspace::hash<in_addr>, irc::InAddr_HashComp> address_cache;
 typedef nspace::hash_map<std::string, WhoWasUser*, nspace::hash<string>, irc::StrHashComp> whowas_hash;
 typedef std::deque<command_t> command_table;
+typedef std::map<std::string,time_t> autoconnects;
 
 // This table references users by file descriptor.
 // its an array to make it VERY fast, as all lookups are referenced
@@ -140,6 +141,7 @@ user_hash clientlist;
 chan_hash chanlist;
 whowas_hash whowas;
 command_table cmdlist;
+autoconnects autoconns;
 file_cache MOTD;
 file_cache RULES;
 address_cache IP;
@@ -398,6 +400,19 @@ void ReadConfig(bool bail, userrec* user)
 	read_xline_defaults();
 	log(DEFAULT,"Applying K lines, Q lines and Z lines...");
 	apply_lines();
+
+        for (int i = 0; i < ConfValueEnum("link",&config_f); i++)
+        {
+		char Link_ServerName[MAXBUF],Link_AConn[MAXBUF];
+                ConfValue("link","name",i,Link_ServerName,&config_f);
+                ConfValue("link","autoconnect",i,Link_AConn,&config_f);
+		if (strcmp(Link_AConn,""))
+		{
+			autoconns[std::string(Link_ServerName)] = atoi(Link_AConn) + time(NULL);
+		}
+        }
+
+
 	log(DEFAULT,"Done reading configuration file, InspIRCd is now starting.");
 	if (!bail)
 	{
