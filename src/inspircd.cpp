@@ -2979,14 +2979,7 @@ int InspIRCd(char** argv, int argc)
 						goto label;
 					}
 				}
-               		        sums.clear();	// we're done, clear the list for the next operation
-	                        msgs.clear();
-				// theres been a netsplit, its unsafe to mess with the iterators!
-				if (has_been_netsplit)
-				{
-					log(DEBUG,"Iterator modified, bailing");
-					goto label;
-				}
+				goto label;
 			}
 		}
 	
