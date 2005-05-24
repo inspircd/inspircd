@@ -2943,7 +2943,7 @@ int InspIRCd(char** argv, int argc)
 				for (int ctr = 0; ctr < msgs.size(); ctr++)
 				{
 					strlcpy(tcp_msg,msgs[ctr].c_str(),MAXBUF);
-					strlcpy(tcp_sum,msgs[ctr].c_str(),MAXBUF);
+					strlcpy(tcp_sum,sums[ctr].c_str(),MAXBUF);
 					log(DEBUG,"Processing: %s",tcp_msg);
 					if (!tcp_msg[0])
    					{
