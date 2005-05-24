@@ -193,7 +193,6 @@ bool serverrec::MeshCookie(char* targethost, int newport, unsigned long cookie, 
                         snprintf(connect,MAXBUF,"- %lu %s :%s",cookie,getservername().c_str(),getserverdesc().c_str());
                         connector.SetState(STATE_NOAUTH_OUTBOUND);
                         connector.SetHostAndPort(targethost, newport);
-                        connector.SetState(STATE_CONNECTED);
                         this->connectors.push_back(connector);
                         return this->SendPacket(connect, servername);
                 }

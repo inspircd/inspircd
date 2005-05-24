@@ -228,6 +228,8 @@ bool ircd_connector::FlushWriteBuf()
                 int ret = poll(&polls,1,1);
 		if (ret < 1)
 			return true;
+		// this falls through and sends any waiting data, which can put it into the
+		// connected state.
 	}
         if (sendq.length())
         {

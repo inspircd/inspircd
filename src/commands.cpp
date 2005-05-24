@@ -3288,6 +3288,7 @@ void handle_link_packet(char* tcp_msg, char* tcp_host, serverrec *serv,char* tcp
 			char buffer[MAXBUF];
 			snprintf(buffer,MAXBUF,"E :Server %s already exists!",servername);
 			serv->SendPacket(buffer,tcp_host);
+			serv->FlushWriteBuffers();
 			RemoveServer(tcp_host);
 			return;
 		}
@@ -3298,6 +3299,7 @@ void handle_link_packet(char* tcp_msg, char* tcp_host, serverrec *serv,char* tcp
 			char buffer[MAXBUF];
 			snprintf(buffer,MAXBUF,"E :Version number mismatch");
 			serv->SendPacket(buffer,tcp_host);
+			serv->FlushWriteBuffers();
 			RemoveServer(tcp_host);
 			RemoveServer(servername);
 			return;
@@ -3352,6 +3354,7 @@ void handle_link_packet(char* tcp_msg, char* tcp_host, serverrec *serv,char* tcp
 		char buffer[MAXBUF];
 		snprintf(buffer,MAXBUF,"E :Access is denied (no matching link block)");
 		serv->SendPacket(buffer,tcp_host);
+		serv->FlushWriteBuffers();
 		WriteOpers("CONNECT from %s denied, no matching link block",servername);
 		RemoveServer(tcp_host);
 		RemoveServer(servername);
@@ -3425,6 +3428,7 @@ void handle_link_packet(char* tcp_msg, char* tcp_host, serverrec *serv,char* tcp
 		char buffer[MAXBUF];
 		snprintf(buffer,MAXBUF,"E :Access is denied (no matching link block)");
 		serv->SendPacket(buffer,tcp_host);
+		serv->FlushWriteBuffers();
 		WriteOpers("CONNECT from %s denied, no matching link block",servername);
 		RemoveServer(tcp_host);
 		RemoveServer(servername);
@@ -3463,6 +3467,7 @@ void handle_link_packet(char* tcp_msg, char* tcp_host, serverrec *serv,char* tcp
 				                char buffer[MAXBUF];
 				                snprintf(buffer,MAXBUF,"E :Access is denied (Server exists in the mesh)");
 				                serv->SendPacket(buffer,tcp_host);
+						serv->FlushWriteBuffers();
 				                WriteOpers("CONNECT from %s denied, \"%s\" already exists!",tcp_host,servername);
 				                RemoveServer(tcp_host);
 						return;
@@ -3523,6 +3528,7 @@ void handle_link_packet(char* tcp_msg, char* tcp_host, serverrec *serv,char* tcp
 		char buffer[MAXBUF];
 		snprintf(buffer,MAXBUF,"E :Access is denied (no matching link block)");
 		serv->SendPacket(buffer,tcp_host);
+		serv->FlushWriteBuffers();
 		WriteOpers("CONNECT from %s denied, no matching link block",servername);
 		RemoveServer(tcp_host);
 		RemoveServer(servername);
