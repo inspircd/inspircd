@@ -401,6 +401,7 @@ void ReadConfig(bool bail, userrec* user)
 	log(DEFAULT,"Applying K lines, Q lines and Z lines...");
 	apply_lines();
 
+	autoconns.clear();
         for (int i = 0; i < ConfValueEnum("link",&config_f); i++)
         {
 		char Link_ServerName[MAXBUF],Link_AConn[MAXBUF];
