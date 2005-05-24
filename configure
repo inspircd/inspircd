@@ -22,7 +22,7 @@ $config{BINARY_DIR}         = resolve_directory($config{ME}."/bin");		# Binary D
 $config{LIBRARY_DIR}        = resolve_directory($config{ME}."/lib");		# Library Directory
 $config{OPTIMITEMP}         = "0";                              		# Default Optimisation Value
 $config{OPTIMISATI}         = "-g";                             		# Optimisation Flag
-$config{NICK_LENGT}         = "32";                             		# Default Nick Length
+$config{NICK_LENGT}         = "31";                             		# Default Nick Length
 $config{CHAN_LENGT}         = "64";                             		# Default Channel Name Length
 $config{MAX_CHANNE}         = "20";                             		# Default Max. Channels per user..
 $config{MAXI_MODES}         = "20";                             		# Default Max. Number of Modes set at once.
@@ -240,6 +240,9 @@ while (!$continue) {
     print "You must enter a number in this field. Please try again.\n\n";
   }
 }
+
+# Because of the terminating null char we must increment this by one
+$config{NICK_LENGT}++;
 
 my $continue = 0;
 while (!$continue) {
