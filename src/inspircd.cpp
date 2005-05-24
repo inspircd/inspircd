@@ -1132,7 +1132,9 @@ void kill_link(userrec *user,const char* r)
 	// if they were an oper with +s.
         if (user->registered == 7) {
                 purge_empty_chans(user);
-		WriteOpers("*** Client exiting: %s!%s@%s [%s]",user->nick,user->ident,user->host,reason);
+		// fix by brain: only show local quits because we only show local connects (it just makes SENSE)
+		if (!strcmp(user->server,getservername.c_str()))
+			WriteOpers("*** Client exiting: %s!%s@%s [%s]",user->nick,user->ident,user->host,reason);
 		AddWhoWas(user);
 	}
 
