@@ -16,19 +16,6 @@
 
 using namespace std;
 
-// Hostname ModesOnOper (+x mode) module for inspircd.
-// version 1.0.0.1 by brain (C. J. Edwards) Mar 2004.
-//
-// When loaded this module will automatically set the
-// +x mode on all connecting clients.
-//
-// Setting +x on a client causes the module to change the
-// dhost entry (displayed host) for each user who has the
-// mode, ModesOnOper their host. Unlike unreal, the algorithm
-// is non-reversible as uncloaked hosts are passed along
-// the server->server link, and all encoding of hosts is
-// done locally on the server by this module.
-
 #include <stdio.h>
 #include "users.h"
 #include "channels.h"
