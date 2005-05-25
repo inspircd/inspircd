@@ -235,7 +235,7 @@ while (!$continue) {
   print "What is the Maximum length of nicknames?\n";
   print "[\033[1;32m$config{NICK_LENGT}\033[0m] -> ";
   chomp($var = <STDIN>);
-  if ($var eq "") { $var = $config{NICK_LENGT}; }
+  if ($var eq "") { $var = $config{NICK_LENGT}; } else { $var++; }
   if ($var =~ /^\d+$/) {
     # We don't care what the number is, set it and be on our way.
     $config{NICK_LENGT} = $var;
@@ -245,9 +245,6 @@ while (!$continue) {
     print "You must enter a number in this field. Please try again.\n\n";
   }
 }
-
-# Because of the terminating null char we must increment this by one
-$config{NICK_LENGT}++;
 
 my $continue = 0;
 while (!$continue) {
