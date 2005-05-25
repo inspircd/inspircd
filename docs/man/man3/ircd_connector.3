@@ -78,7 +78,7 @@ Inherits \fBExtensible\fP.
 .ti -1c
 .RI "bool \fBAddBuffer\fP (std::string a)"
 .br
-.RI "\fIThis method adds text to the ircd connection's buffer This buffer's maximum size is one megabyte, the method returning false if the buffer is full. \fP"
+.RI "\fIThis method adds text to the ircd connection's buffer. \fP"
 .ti -1c
 .RI "bool \fBBufferIsComplete\fP ()"
 .br
@@ -102,7 +102,7 @@ Inherits \fBExtensible\fP.
 .ti -1c
 .RI "bool \fBAddWriteBuf\fP (std::string data)"
 .br
-.RI "\fIAdds data to the connection's sendQ to be flushed later Fails if there is an error pending on the connection. \fP"
+.RI "\fIAdds data to the connection's sendQ to be flushed later. \fP"
 .ti -1c
 .RI "bool \fBFlushWriteBuf\fP ()"
 .br
@@ -218,16 +218,52 @@ Constructor clears the sendq and initialises the fd to -1.
 .PP 
 .SS "bool ircd_connector::AddBuffer (std::string a)"
 .PP
-This method adds text to the ircd connection's buffer This buffer's maximum size is one megabyte, the method returning false if the buffer is full. 
+This method adds text to the ircd connection's buffer. \fBParameters:\fP
+.RS 4
+\fIa\fP The text to add to the buffer up to a maximum size of 1MB
+.RE
+.PP
+This buffer's maximum size is one megabyte, the method returning false if the buffer is full.
+.PP
+\fBReturns:\fP
+.RS 4
+True on success, false if the buffer is full or the connection is down
+.RE
+.PP
+
 .SS "bool ircd_connector::AddWriteBuf (std::string data)"
 .PP
-Adds data to the connection's sendQ to be flushed later Fails if there is an error pending on the connection. Referenced by serverrec::SendPacket().
+Adds data to the connection's sendQ to be flushed later. \fBParameters:\fP
+.RS 4
+\fIdata\fP The data to add to the write buffer
+.RE
+.PP
+Fails if there is an error pending on the connection.
+.PP
+\fBReturns:\fP
+.RS 4
+True on success, false if the connection is down or the buffer is full
+.RE
+.PP
+Referenced by serverrec::SendPacket().
 .SS "bool ircd_connector::BufferIsComplete ()"
 .PP
 This method returns true if the buffer contains at least one carriage return character, e.g. one line can be read from the buffer successfully.
+.PP
+\fBReturns:\fP
+.RS 4
+True if there is at least one complete line waiting to be processed
+.RE
+.PP
+
 .SS "bool ircd_connector::CheckPing ()"
 .PP
-Checks if the connection replied to its last ping, and if it did sends another and returns true, if not, returns false. 
+Checks if the connection replied to its last ping, and if it did sends another and returns true, if not, returns false. \fBReturns:\fP
+.RS 4
+True if the server is still replying to pings
+.RE
+.PP
+
 .SS "void ircd_connector::ClearBuffer ()"
 .PP
 This method clears the server's buffer by setting it to an empty string. 
@@ -236,37 +272,89 @@ This method clears the server's buffer by setting it to an empty string.
 Close the connection by calling close() on its file descriptor This function call updates no other data. Referenced by serverrec::SendPacket().
 .SS "bool ircd_connector::FlushWriteBuf ()"
 .PP
-Flushes as much of the data from the buffer as possible, and advances the queue pointer to what is left. Referenced by serverrec::SendPacket().
+Flushes as much of the data from the buffer as possible, and advances the queue pointer to what is left. \fBReturns:\fP
+.RS 4
+True if the flush succeeded, false if the connection is down
+.RE
+.PP
+Referenced by serverrec::SendPacket().
 .SS "std::string ircd_connector::GetBuffer ()"
 .PP
-This method retrieves the first string from the tail end of the buffer and advances the tail end of the buffer past the returned string, in a similar manner to strtok(). 
+This method retrieves the first string from the tail end of the buffer and advances the tail end of the buffer past the returned string, in a similar manner to strtok(). \fBReturns:\fP
+.RS 4
+The first line of the buffer up to a carriage return
+.RE
+.PP
+
 .SS "std::string ircd_connector::GetDescription ()"
 .PP
-Get the server description of this connection. 
+Get the server description of this connection. \fBReturns:\fP
+.RS 4
+The description (GECOS) of this connection
+.RE
+.PP
+
 .SS "int ircd_connector::GetDescriptor ()"
 .PP
-Get the file descriptor associated with this connection. 
+Get the file descriptor associated with this connection. \fBReturns:\fP
+.RS 4
+The file descriptor associated with this connection
+.RE
+.PP
+
 .SS "char* ircd_connector::GetServerIP ()"
 .PP
-Get the ip address (not servername) associated with this connection. 
+Get the ip address (not servername) associated with this connection. \fBReturns:\fP
+.RS 4
+The connections IP address in dotted decimal form
+.RE
+.PP
+
 .SS "std::string ircd_connector::GetServerName ()"
 .PP
 Return the servername on this established connection. Referenced by serverrec::SendPacket().
 .SS "int ircd_connector::GetServerPort ()"
 .PP
-Get the port number being used for this connection If the connection is outbound this will be the remote port otherwise it will be the local port, so it can always be gautanteed as open at the address given in \fBGetServerIP()\fP. 
+Get the port number being used for this connection If the connection is outbound this will be the remote port otherwise it will be the local port, so it can always be gautanteed as open at the address given in \fBGetServerIP()\fP. \fBReturns:\fP
+.RS 4
+The port number of this connection
+.RE
+.PP
+
 .SS "int ircd_connector::GetState ()"
 .PP
-Get the state flags for this connection. Referenced by IsRoutable(), and serverrec::SendPacket().
+Get the state flags for this connection. \fBReturns:\fP
+.RS 4
+The state flags associated with this connection
+.RE
+.PP
+Referenced by IsRoutable(), and serverrec::SendPacket().
 .SS "std::string ircd_connector::GetVersionString ()"
 .PP
 This method returns the version string of the remote server. If the server has no version string an empty string is returned.
+.PP
+\fBReturns:\fP
+.RS 4
+The version text of this connection
+.RE
+.PP
+
 .SS "std::string ircd_connector::GetWriteError ()"
 .PP
-Gets the error string for this connection. Referenced by serverrec::SendPacket().
+Gets the error string for this connection. \fBReturns:\fP
+.RS 4
+The last error to occur or an empty string
+.RE
+.PP
+Referenced by serverrec::SendPacket().
 .SS "bool ircd_connector::HasBufferedOutput ()"
 .PP
-Returns true if there is data to be written that hasn't been sent yet. 
+Returns true if there is data to be written that hasn't been sent yet. \fBReturns:\fP
+.RS 4
+True if the buffer is not empty
+.RE
+.PP
+
 .SS "bool ircd_connector::MakeOutboundConnection (char * newhost, int newport)"
 .PP
 Create an outbound connection to a listening socket. Referenced by serverrec::BeginLink(), and serverrec::MeshCookie().
@@ -275,31 +363,78 @@ Create an outbound connection to a listening socket. Referenced by serverrec::Be
 Resets the ping counter. 
 .SS "void ircd_connector::SetDescription (std::string desc)"
 .PP
-Set the server description of this connection. 
+Set the server description of this connection. \fBParameters:\fP
+.RS 4
+\fIdesc\fP The description (GECOS) of this connection to be set
+.RE
+.PP
+
 .SS "void ircd_connector::SetDescriptor (int fd)"
 .PP
-Set the file descriptor for this connection. Referenced by serverrec::AddIncoming().
+Set the file descriptor for this connection. \fBParameters:\fP
+.RS 4
+\fIfd\fP The file descriptor to associate with the connection
+.RE
+.PP
+Referenced by serverrec::AddIncoming().
 .SS "bool ircd_connector::SetHostAddress (char * host, int port)\fC [private]\fP"
 .PP
 PRIVATE function to set the host address and port to connect to. 
 .SS "bool ircd_connector::SetHostAndPort (char * newhost, int newport)"
 .PP
-Set both the host and the port in one operation for this connection. Referenced by serverrec::AddIncoming(), serverrec::BeginLink(), and serverrec::MeshCookie().
+Set both the host and the port in one operation for this connection. \fBParameters:\fP
+.RS 4
+\fInewhost\fP The hostname to set for this connection 
+.br
+\fInewport\fP The port number to set for this connection 
+.RE
+.PP
+\fBReturns:\fP
+.RS 4
+True on success, false on failure
+.RE
+.PP
+Referenced by serverrec::AddIncoming(), serverrec::BeginLink(), and serverrec::MeshCookie().
 .SS "void ircd_connector::SetServerName (std::string serv)"
 .PP
-Set the server name of this connection. Referenced by serverrec::AddIncoming(), serverrec::BeginLink(), and serverrec::MeshCookie().
+Set the server name of this connection. \fBParameters:\fP
+.RS 4
+\fIserv\fP The server name to set
+.RE
+.PP
+Referenced by serverrec::AddIncoming(), serverrec::BeginLink(), and serverrec::MeshCookie().
 .SS "void ircd_connector::SetServerPort (int p)"
 .PP
-Set the port used by this connection. 
+Set the port used by this connection. \fBParameters:\fP
+.RS 4
+\fIp\fP The port number to set for this connection
+.RE
+.PP
+
 .SS "void ircd_connector::SetState (int state)"
 .PP
-Set the state flags for this connection. Referenced by serverrec::AddIncoming(), serverrec::BeginLink(), serverrec::MeshCookie(), and serverrec::SendPacket().
+Set the state flags for this connection. \fBParameters:\fP
+.RS 4
+\fIstate\fP The state flags to set for this connection
+.RE
+.PP
+Referenced by serverrec::AddIncoming(), serverrec::BeginLink(), serverrec::MeshCookie(), and serverrec::SendPacket().
 .SS "void ircd_connector::SetVersionString (std::string newversion)"
 .PP
-This method sets the version string of the remote server. 
+This method sets the version string of the remote server. \fBParameters:\fP
+.RS 4
+\fInewversion\fP The version string to set
+.RE
+.PP
+
 .SS "void ircd_connector::SetWriteError (std::string error)"
 .PP
-Sets the error string for this connection. 
+Sets the error string for this connection. \fBParameters:\fP
+.RS 4
+\fIerror\fP The error string to set
+.RE
+.PP
+
 .SH "Member Data Documentation"
 .PP 
 .SS "sockaddr_in \fBircd_connector::addr\fP\fC [private]\fP"

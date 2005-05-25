@@ -103,50 +103,50 @@
 00146         
 <a name="l00149"></a><a class="code" href="classchanrec.html#o10">00149</a>         <a class="code" href="channels_8h.html#a11">BanList</a> <a class="code" href="classchanrec.html#o10">bans</a>;
 00150         
-00153         <span class="keywordtype">void</span> <a class="code" href="classchanrec.html#a0">SetCustomMode</a>(<span class="keywordtype">char</span> mode,<span class="keywordtype">bool</span> mode_on);
-00154 
-00157         <span class="keywordtype">void</span> <a class="code" href="classchanrec.html#a1">SetCustomModeParam</a>(<span class="keywordtype">char</span> mode,<span class="keywordtype">char</span>* parameter,<span class="keywordtype">bool</span> mode_on);
-00158  
-00161         <span class="keywordtype">bool</span> <a class="code" href="classchanrec.html#a2">IsCustomModeSet</a>(<span class="keywordtype">char</span> mode);
-00162 
-00169         std::string <a class="code" href="classchanrec.html#a3">GetModeParameter</a>(<span class="keywordtype">char</span> mode);
-00170 
-00176         <span class="keywordtype">long</span> <a class="code" href="classchanrec.html#a4">GetUserCounter</a>();
-00177 
-00183         <span class="keywordtype">void</span> <a class="code" href="classchanrec.html#a5">AddUser</a>(<span class="keywordtype">char</span>* castuser);
-00184 
-00190         <span class="keywordtype">void</span> <a class="code" href="classchanrec.html#a6">DelUser</a>(<span class="keywordtype">char</span>* castuser);
-00191 
-00199         std::vector&lt;char*&gt; *<a class="code" href="classchanrec.html#a7">GetUsers</a>();
-00200 
-00203         <a class="code" href="classchanrec.html#a8">chanrec</a>();
-00204 
-<a name="l00205"></a><a class="code" href="classchanrec.html#a9">00205</a>         <span class="keyword">virtual</span> <a class="code" href="classchanrec.html#a9">~chanrec</a>() { <span class="comment">/* stub */</span> }
-00206 };
-00207 
-00208 <span class="comment">/* used to hold a channel and a users modes on that channel, e.g. +v, +h, +o</span>
-00209 <span class="comment"> * needs to come AFTER struct chanrec */</span>
-00210 
-<a name="l00211"></a><a class="code" href="channels_8h.html#a6">00211</a> <span class="preprocessor">#define UCMODE_OP      1</span>
-<a name="l00212"></a><a class="code" href="channels_8h.html#a7">00212</a> <span class="preprocessor"></span><span class="preprocessor">#define UCMODE_VOICE   2</span>
-<a name="l00213"></a><a class="code" href="channels_8h.html#a8">00213</a> <span class="preprocessor"></span><span class="preprocessor">#define UCMODE_HOP     4</span>
-<a name="l00214"></a><a class="code" href="channels_8h.html#a9">00214</a> <span class="preprocessor"></span><span class="preprocessor">#define UCMODE_PROTECT 8</span>
-<a name="l00215"></a><a class="code" href="channels_8h.html#a10">00215</a> <span class="preprocessor"></span><span class="preprocessor">#define UCMODE_FOUNDER 16</span>
-00216 <span class="preprocessor"></span> 
-<a name="l00222"></a><a class="code" href="classucrec.html">00222</a> <span class="keyword">class </span><a class="code" href="classucrec.html">ucrec</a> : <span class="keyword">public</span> <a class="code" href="classclassbase.html">classbase</a>
-00223 {
-00224  <span class="keyword">public</span>:
-<a name="l00228"></a><a class="code" href="classucrec.html#o0">00228</a>         <span class="keywordtype">char</span> <a class="code" href="classucrec.html#o0">uc_modes</a>;
-00229         
-<a name="l00233"></a><a class="code" href="classucrec.html#o1">00233</a>         <a class="code" href="classchanrec.html">chanrec</a> *<a class="code" href="classucrec.html#o1">channel</a>;
-00234 
-<a name="l00235"></a><a class="code" href="classucrec.html#a0">00235</a>         <a class="code" href="classucrec.html#a0">ucrec</a>() { <span class="comment">/* stub */</span> }
-<a name="l00236"></a><a class="code" href="classucrec.html#a1">00236</a>         <span class="keyword">virtual</span> <a class="code" href="classucrec.html#a1">~ucrec</a>() { <span class="comment">/* stub */</span> }
-00237 };
-00238 
-00239 <span class="preprocessor">#endif</span>
-00240 <span class="preprocessor"></span>
-</pre></div><hr size="1"><address style="align: right;"><small>Generated on Wed May 25 21:42:12 2005 for InspIRCd by
+00155         <span class="keywordtype">void</span> <a class="code" href="classchanrec.html#a0">SetCustomMode</a>(<span class="keywordtype">char</span> mode,<span class="keywordtype">bool</span> mode_on);
+00156 
+00162         <span class="keywordtype">void</span> <a class="code" href="classchanrec.html#a1">SetCustomModeParam</a>(<span class="keywordtype">char</span> mode,<span class="keywordtype">char</span>* parameter,<span class="keywordtype">bool</span> mode_on);
+00163  
+00168         <span class="keywordtype">bool</span> <a class="code" href="classchanrec.html#a2">IsCustomModeSet</a>(<span class="keywordtype">char</span> mode);
+00169 
+00180         std::string <a class="code" href="classchanrec.html#a3">GetModeParameter</a>(<span class="keywordtype">char</span> mode);
+00181 
+00189         <span class="keywordtype">long</span> <a class="code" href="classchanrec.html#a4">GetUserCounter</a>();
+00190 
+00198         <span class="keywordtype">void</span> <a class="code" href="classchanrec.html#a5">AddUser</a>(<span class="keywordtype">char</span>* castuser);
+00199 
+00207         <span class="keywordtype">void</span> <a class="code" href="classchanrec.html#a6">DelUser</a>(<span class="keywordtype">char</span>* castuser);
+00208 
+00218         std::vector&lt;char*&gt; *<a class="code" href="classchanrec.html#a7">GetUsers</a>();
+00219 
+00222         <a class="code" href="classchanrec.html#a8">chanrec</a>();
+00223 
+<a name="l00224"></a><a class="code" href="classchanrec.html#a9">00224</a>         <span class="keyword">virtual</span> <a class="code" href="classchanrec.html#a9">~chanrec</a>() { <span class="comment">/* stub */</span> }
+00225 };
+00226 
+00227 <span class="comment">/* used to hold a channel and a users modes on that channel, e.g. +v, +h, +o</span>
+00228 <span class="comment"> * needs to come AFTER struct chanrec */</span>
+00229 
+<a name="l00230"></a><a class="code" href="channels_8h.html#a6">00230</a> <span class="preprocessor">#define UCMODE_OP      1</span>
+<a name="l00231"></a><a class="code" href="channels_8h.html#a7">00231</a> <span class="preprocessor"></span><span class="preprocessor">#define UCMODE_VOICE   2</span>
+<a name="l00232"></a><a class="code" href="channels_8h.html#a8">00232</a> <span class="preprocessor"></span><span class="preprocessor">#define UCMODE_HOP     4</span>
+<a name="l00233"></a><a class="code" href="channels_8h.html#a9">00233</a> <span class="preprocessor"></span><span class="preprocessor">#define UCMODE_PROTECT 8</span>
+<a name="l00234"></a><a class="code" href="channels_8h.html#a10">00234</a> <span class="preprocessor"></span><span class="preprocessor">#define UCMODE_FOUNDER 16</span>
+00235 <span class="preprocessor"></span> 
+<a name="l00241"></a><a class="code" href="classucrec.html">00241</a> <span class="keyword">class </span><a class="code" href="classucrec.html">ucrec</a> : <span class="keyword">public</span> <a class="code" href="classclassbase.html">classbase</a>
+00242 {
+00243  <span class="keyword">public</span>:
+<a name="l00247"></a><a class="code" href="classucrec.html#o0">00247</a>         <span class="keywordtype">char</span> <a class="code" href="classucrec.html#o0">uc_modes</a>;
+00248         
+<a name="l00252"></a><a class="code" href="classucrec.html#o1">00252</a>         <a class="code" href="classchanrec.html">chanrec</a> *<a class="code" href="classucrec.html#o1">channel</a>;
+00253 
+<a name="l00254"></a><a class="code" href="classucrec.html#a0">00254</a>         <a class="code" href="classucrec.html#a0">ucrec</a>() { <span class="comment">/* stub */</span> }
+<a name="l00255"></a><a class="code" href="classucrec.html#a1">00255</a>         <span class="keyword">virtual</span> <a class="code" href="classucrec.html#a1">~ucrec</a>() { <span class="comment">/* stub */</span> }
+00256 };
+00257 
+00258 <span class="preprocessor">#endif</span>
+00259 <span class="preprocessor"></span>
+</pre></div><hr size="1"><address style="align: right;"><small>Generated on Wed May 25 22:02:04 2005 for InspIRCd by
 <a href="http://www.doxygen.org/index.html">
 <img src="doxygen.png" alt="doxygen" align="middle" border=0 > 
 </a>1.3.3 </small></address>

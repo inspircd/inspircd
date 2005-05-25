@@ -133,7 +133,7 @@ Constructor.
 <p>
 Definition at line <a class="el" href="servers_8cpp-source.html#l00046">46</a> of file <a class="el" href="servers_8cpp-source.html">servers.cpp</a>.
 <p>
-References <a class="el" href="servers_8h-source.html#l00081">connectors</a>, <a class="el" href="connection_8h-source.html#l00266">connection::fd</a>, <a class="el" href="servers_8h-source.html#l00051">hops_away</a>, <a class="el" href="servers_8h-source.html#l00057">jupiter</a>, <a class="el" href="connection_8h-source.html#l00308">connection::lastping</a>, <a class="el" href="servers_8h-source.html#l00036">name</a>, <a class="el" href="servers_8h-source.html#l00065">nickserv</a>, <a class="el" href="servers_8h-source.html#l00048">opercount</a>, <a class="el" href="servers_8h-source.html#l00039">pingtime</a>, <a class="el" href="connection_8h-source.html#l00312">connection::signon</a>, <a class="el" href="servers_8h-source.html#l00067">sync_soon</a>, <a class="el" href="channels_8cpp-source.html#l00101">TIME</a>, <a class="el" href="servers_8h-source.html#l00045">usercount</a>, <a class="el" href="servers_8h-source.html#l00042">usercount_i</a>, and <a class="el" href="servers_8h-source.html#l00054">version</a>.
+References <a class="el" href="servers_8h-source.html#l00081">connectors</a>, <a class="el" href="connection_8h-source.html#l00301">connection::fd</a>, <a class="el" href="servers_8h-source.html#l00051">hops_away</a>, <a class="el" href="servers_8h-source.html#l00057">jupiter</a>, <a class="el" href="connection_8h-source.html#l00343">connection::lastping</a>, <a class="el" href="servers_8h-source.html#l00036">name</a>, <a class="el" href="servers_8h-source.html#l00065">nickserv</a>, <a class="el" href="servers_8h-source.html#l00048">opercount</a>, <a class="el" href="servers_8h-source.html#l00039">pingtime</a>, <a class="el" href="connection_8h-source.html#l00347">connection::signon</a>, <a class="el" href="servers_8h-source.html#l00067">sync_soon</a>, <a class="el" href="channels_8cpp-source.html#l00101">TIME</a>, <a class="el" href="servers_8h-source.html#l00045">usercount</a>, <a class="el" href="servers_8h-source.html#l00042">usercount_i</a>, and <a class="el" href="servers_8h-source.html#l00054">version</a>.
 <p>
 <div class="fragment"><pre>00047 {
 00048         strlcpy(name,<span class="stringliteral">""</span>,256);
@@ -198,7 +198,7 @@ Constructor which initialises some of the main variables.
 <p>
 Definition at line <a class="el" href="servers_8cpp-source.html#l00066">66</a> of file <a class="el" href="servers_8cpp-source.html">servers.cpp</a>.
 <p>
-References <a class="el" href="servers_8h-source.html#l00081">connectors</a>, <a class="el" href="connection_8h-source.html#l00266">connection::fd</a>, <a class="el" href="servers_8h-source.html#l00051">hops_away</a>, <a class="el" href="servers_8h-source.html#l00057">jupiter</a>, <a class="el" href="connection_8h-source.html#l00308">connection::lastping</a>, <a class="el" href="servers_8h-source.html#l00036">name</a>, <a class="el" href="servers_8h-source.html#l00065">nickserv</a>, <a class="el" href="servers_8h-source.html#l00048">opercount</a>, <a class="el" href="connection_8h-source.html#l00312">connection::signon</a>, <a class="el" href="servers_8h-source.html#l00067">sync_soon</a>, <a class="el" href="channels_8cpp-source.html#l00101">TIME</a>, <a class="el" href="servers_8h-source.html#l00045">usercount</a>, <a class="el" href="servers_8h-source.html#l00042">usercount_i</a>, and <a class="el" href="servers_8h-source.html#l00054">version</a>.
+References <a class="el" href="servers_8h-source.html#l00081">connectors</a>, <a class="el" href="connection_8h-source.html#l00301">connection::fd</a>, <a class="el" href="servers_8h-source.html#l00051">hops_away</a>, <a class="el" href="servers_8h-source.html#l00057">jupiter</a>, <a class="el" href="connection_8h-source.html#l00343">connection::lastping</a>, <a class="el" href="servers_8h-source.html#l00036">name</a>, <a class="el" href="servers_8h-source.html#l00065">nickserv</a>, <a class="el" href="servers_8h-source.html#l00048">opercount</a>, <a class="el" href="connection_8h-source.html#l00347">connection::signon</a>, <a class="el" href="servers_8h-source.html#l00067">sync_soon</a>, <a class="el" href="channels_8cpp-source.html#l00101">TIME</a>, <a class="el" href="servers_8h-source.html#l00045">usercount</a>, <a class="el" href="servers_8h-source.html#l00042">usercount_i</a>, and <a class="el" href="servers_8h-source.html#l00054">version</a>.
 <p>
 <div class="fragment"><pre>00067 {
 00068         strlcpy(name,n,256);
@@ -384,7 +384,7 @@ Begin an outbound link to another ircd at targethost.
 <p>
 Definition at line <a class="el" href="servers_8cpp-source.html#l00142">142</a> of file <a class="el" href="servers_8cpp-source.html">servers.cpp</a>.
 <p>
-References <a class="el" href="servers_8h-source.html#l00081">connectors</a>, <a class="el" href="connection_8h-source.html#l00266">connection::fd</a>, <a class="el" href="servers_8cpp-source.html#l00242">FindHost()</a>, <a class="el" href="classircd__connector.html#a1">ircd_connector::MakeOutboundConnection()</a>, <a class="el" href="servers_8cpp-source.html#l00336">SendPacket()</a>, <a class="el" href="classircd__connector.html#a13">ircd_connector::SetHostAndPort()</a>, <a class="el" href="classircd__connector.html#a3">ircd_connector::SetServerName()</a>, <a class="el" href="classircd__connector.html#a7">ircd_connector::SetState()</a>, <a class="el" href="connection_8h-source.html#l00035">STATE_DISCONNECTED</a>, and <a class="el" href="connection_8h-source.html#l00039">STATE_NOAUTH_OUTBOUND</a>.
+References <a class="el" href="servers_8h-source.html#l00081">connectors</a>, <a class="el" href="connection_8h-source.html#l00301">connection::fd</a>, <a class="el" href="servers_8cpp-source.html#l00242">FindHost()</a>, <a class="el" href="classircd__connector.html#a1">ircd_connector::MakeOutboundConnection()</a>, <a class="el" href="servers_8cpp-source.html#l00336">SendPacket()</a>, <a class="el" href="classircd__connector.html#a13">ircd_connector::SetHostAndPort()</a>, <a class="el" href="classircd__connector.html#a3">ircd_connector::SetServerName()</a>, <a class="el" href="classircd__connector.html#a7">ircd_connector::SetState()</a>, <a class="el" href="connection_8h-source.html#l00035">STATE_DISCONNECTED</a>, and <a class="el" href="connection_8h-source.html#l00039">STATE_NOAUTH_OUTBOUND</a>.
 <p>
 <div class="fragment"><pre>00143 {
 00144         <span class="keywordtype">char</span> connect[MAXBUF];
@@ -467,7 +467,7 @@ Create a listening socket on 'host' using port number 'p'.
 <p>
 Definition at line <a class="el" href="servers_8cpp-source.html#l00081">81</a> of file <a class="el" href="servers_8cpp-source.html">servers.cpp</a>.
 <p>
-References <a class="el" href="connection_8h-source.html#l00266">connection::fd</a>, <a class="el" href="servers_8cpp-source.html#l00038">MaxConn</a>, and <a class="el" href="connection_8h-source.html#l00300">connection::port</a>.
+References <a class="el" href="connection_8h-source.html#l00301">connection::fd</a>, <a class="el" href="servers_8cpp-source.html#l00038">MaxConn</a>, and <a class="el" href="connection_8h-source.html#l00335">connection::port</a>.
 <p>
 <div class="fragment"><pre>00082 {
 00083         sockaddr_in host_address;
@@ -718,7 +718,7 @@ Begin an outbound mesh link to another ircd on a network you are already an auth
 <p>
 Definition at line <a class="el" href="servers_8cpp-source.html#l00182">182</a> of file <a class="el" href="servers_8cpp-source.html">servers.cpp</a>.
 <p>
-References <a class="el" href="servers_8h-source.html#l00081">connectors</a>, <a class="el" href="connection_8h-source.html#l00266">connection::fd</a>, <a class="el" href="classircd__connector.html#a1">ircd_connector::MakeOutboundConnection()</a>, <a class="el" href="servers_8cpp-source.html#l00336">SendPacket()</a>, <a class="el" href="classircd__connector.html#a13">ircd_connector::SetHostAndPort()</a>, <a class="el" href="classircd__connector.html#a3">ircd_connector::SetServerName()</a>, <a class="el" href="classircd__connector.html#a7">ircd_connector::SetState()</a>, <a class="el" href="connection_8h-source.html#l00035">STATE_DISCONNECTED</a>, and <a class="el" href="connection_8h-source.html#l00039">STATE_NOAUTH_OUTBOUND</a>.
+References <a class="el" href="servers_8h-source.html#l00081">connectors</a>, <a class="el" href="connection_8h-source.html#l00301">connection::fd</a>, <a class="el" href="classircd__connector.html#a1">ircd_connector::MakeOutboundConnection()</a>, <a class="el" href="servers_8cpp-source.html#l00336">SendPacket()</a>, <a class="el" href="classircd__connector.html#a13">ircd_connector::SetHostAndPort()</a>, <a class="el" href="classircd__connector.html#a3">ircd_connector::SetServerName()</a>, <a class="el" href="classircd__connector.html#a7">ircd_connector::SetState()</a>, <a class="el" href="connection_8h-source.html#l00035">STATE_DISCONNECTED</a>, and <a class="el" href="connection_8h-source.html#l00039">STATE_NOAUTH_OUTBOUND</a>.
 <p>
 <div class="fragment"><pre>00183 {
 00184         <span class="keywordtype">char</span> connect[MAXBUF];
@@ -1396,7 +1396,7 @@ Referenced by <a class="el" href="servers_8cpp-source.html#l00046">serverrec()</
 </table>
 <hr>The documentation for this class was generated from the following files:<ul>
 <li><a class="el" href="servers_8h-source.html">servers.h</a><li><a class="el" href="servers_8cpp-source.html">servers.cpp</a></ul>
-<hr size="1"><address style="align: right;"><small>Generated on Wed May 25 21:43:33 2005 for InspIRCd by
+<hr size="1"><address style="align: right;"><small>Generated on Wed May 25 22:03:25 2005 for InspIRCd by
 <a href="http://www.doxygen.org/index.html">
 <img src="doxygen.png" alt="doxygen" align="middle" border=0 > 
 </a>1.3.3 </small></address>

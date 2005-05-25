@@ -84,7 +84,7 @@ Inherited by \fBserverrec\fP, and \fBuserrec\fP.
 .in -1c
 .SH "Detailed Description"
 .PP 
-Please note: classes serverrec and userrec both inherit from class connection. Definition at line 261 of file connection.h.
+Please note: classes serverrec and userrec both inherit from class connection. Definition at line 296 of file connection.h.
 .SH "Constructor & Destructor Documentation"
 .PP 
 .SS "connection::connection ()"
@@ -94,72 +94,72 @@ Default constructor.
 .PP 
 .SS "int \fBconnection::bytes_in\fP"
 .PP
-Stats counter for bytes inbound. Definition at line 278 of file connection.h.
+Stats counter for bytes inbound. Definition at line 313 of file connection.h.
 .PP
 Referenced by userrec::userrec().
 .SS "int \fBconnection::bytes_out\fP"
 .PP
-Stats counter for bytes outbound. Definition at line 282 of file connection.h.
+Stats counter for bytes outbound. Definition at line 317 of file connection.h.
 .PP
 Referenced by userrec::FlushWriteBuf(), and userrec::userrec().
 .SS "int \fBconnection::cmds_in\fP"
 .PP
-Stats counter for commands inbound. Definition at line 286 of file connection.h.
+Stats counter for commands inbound. Definition at line 321 of file connection.h.
 .PP
 Referenced by userrec::userrec().
 .SS "int \fBconnection::cmds_out\fP"
 .PP
-Stats counter for commands outbound. Definition at line 290 of file connection.h.
+Stats counter for commands outbound. Definition at line 325 of file connection.h.
 .PP
 Referenced by userrec::FlushWriteBuf(), and userrec::userrec().
 .SS "int \fBconnection::fd\fP"
 .PP
-File descriptor of the connection. Definition at line 266 of file connection.h.
+File descriptor of the connection. Definition at line 301 of file connection.h.
 .PP
 Referenced by serverrec::BeginLink(), serverrec::CreateListener(), ConfigReader::DumpErrors(), serverrec::MeshCookie(), Server::PseudoToUser(), userrec::ReadData(), Server::SendTo(), serverrec::serverrec(), userrec::userrec(), and Server::UserToPseudo().
 .SS "bool \fBconnection::haspassed\fP"
 .PP
-True if server/user has authenticated, false if otherwise. Definition at line 294 of file connection.h.
+True if server/user has authenticated, false if otherwise. Definition at line 329 of file connection.h.
 .PP
 Referenced by userrec::userrec().
 .SS "char \fBconnection::host\fP[160]"
 .PP
-Hostname of connection. Not used if this is a serverrecDefinition at line 270 of file connection.h.
+Hostname of connection. Not used if this is a serverrecDefinition at line 305 of file connection.h.
 .PP
 Referenced by userrec::GetFullRealHost(), Server::PseudoToUser(), userrec::userrec(), and Server::UserToPseudo().
 .SS "time_t \fBconnection::idle_lastmsg\fP"
 .PP
-Time that the connection last sent data, used to calculate idle time. Definition at line 316 of file connection.h.
+Time that the connection last sent data, used to calculate idle time. Definition at line 351 of file connection.h.
 .PP
 Referenced by userrec::userrec().
 .SS "char \fBconnection::ip\fP[16]"
 .PP
-IP of connection. Definition at line 274 of file connection.h.
+IP of connection. Definition at line 309 of file connection.h.
 .PP
 Referenced by userrec::userrec().
 .SS "time_t \fBconnection::lastping\fP"
 .PP
-Time the connection was last pinged. Definition at line 308 of file connection.h.
+Time the connection was last pinged. Definition at line 343 of file connection.h.
 .PP
 Referenced by serverrec::serverrec(), and userrec::userrec().
 .SS "time_t \fBconnection::nping\fP"
 .PP
-Used by PING checks with clients. Definition at line 320 of file connection.h.
+Used by PING checks with clients. Definition at line 355 of file connection.h.
 .PP
 Referenced by userrec::userrec().
 .SS "int \fBconnection::port\fP"
 .PP
-Port number For a userrec, this is the port they connected to the network on. For a serverrec this is the current listening port of the serverrec object.Definition at line 300 of file connection.h.
+Port number For a userrec, this is the port they connected to the network on. For a serverrec this is the current listening port of the serverrec object.Definition at line 335 of file connection.h.
 .PP
 Referenced by serverrec::CreateListener(), and userrec::userrec().
 .SS "char \fBconnection::registered\fP"
 .PP
-Used by userrec to indicate the registration status of the connection. Definition at line 304 of file connection.h.
+Used by userrec to indicate the registration status of the connection. Definition at line 339 of file connection.h.
 .PP
 Referenced by userrec::userrec().
 .SS "time_t \fBconnection::signon\fP"
 .PP
-Time the connection was created, set in the constructor. Definition at line 312 of file connection.h.
+Time the connection was created, set in the constructor. Definition at line 347 of file connection.h.
 .PP
 Referenced by serverrec::serverrec(), and userrec::userrec().
 

@@ -40,10 +40,10 @@ Inheritance diagram for chanrec:<p><center><img src="classchanrec__inherit__grap
 <tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Obtain the channel "user counter" This returns the channel reference counter, which is initialized to 0 when the channel is created and incremented/decremented upon joins, parts quits and kicks. </em> <a href="#a4"></a><em><br><br></td></tr>
 <tr><td class="memItemLeft" nowrap align=right valign=top>void&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="classchanrec.html#a5">AddUser</a> (char *castuser)</td></tr>
 
-<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Add a user pointer to the internal reference list The data inserted into the reference list is a table as it is an arbitary pointer compared to other users by its memory address, as this is a very fast 32 or 64 bit integer comparison. </em> <a href="#a5"></a><em><br><br></td></tr>
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Add a user pointer to the internal reference list. </em> <a href="#a5"></a><em><br><br></td></tr>
 <tr><td class="memItemLeft" nowrap align=right valign=top>void&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="classchanrec.html#a6">DelUser</a> (char *castuser)</td></tr>
 
-<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Delete a user pointer to the internal reference list The data removed from the reference list is a table as it is an arbitary pointer compared to other users by its memory address, as this is a very fast 32 or 64 bit integer comparison. </em> <a href="#a6"></a><em><br><br></td></tr>
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Delete a user pointer to the internal reference list. </em> <a href="#a6"></a><em><br><br></td></tr>
 <tr><td class="memItemLeft" nowrap align=right valign=top>std::vector&lt; char * &gt; *&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="classchanrec.html#a7">GetUsers</a> ()</td></tr>
 
 <tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Obrain the internal reference list The internal reference list contains a list of userrec* cast to char*. </em> <a href="#a7"></a><em><br><br></td></tr>
@@ -168,9 +168,9 @@ References <a class="el" href="channels_8h-source.html#l00145">binarymodes</a>, 
 <p>
 
 <p>
-Definition at line <a class="el" href="channels_8h-source.html#l00205">205</a> of file <a class="el" href="channels_8h-source.html">channels.h</a>.
+Definition at line <a class="el" href="channels_8h-source.html#l00224">224</a> of file <a class="el" href="channels_8h-source.html">channels.h</a>.
 <p>
-<div class="fragment"><pre>00205 { <span class="comment">/* stub */</span> }
+<div class="fragment"><pre>00224 { <span class="comment">/* stub */</span> }
 </pre></div>    </td>
   </tr>
 </table>
@@ -201,9 +201,14 @@ Definition at line <a class="el" href="channels_8h-source.html#l00205">205</a> o
     <td>
 
 <p>
-Add a user pointer to the internal reference list The data inserted into the reference list is a table as it is an arbitary pointer compared to other users by its memory address, as this is a very fast 32 or 64 bit integer comparison. 
+Add a user pointer to the internal reference list. 
 <p>
-
+<dl compact><dt><b>Parameters:</b></dt><dd>
+  <table border="0" cellspacing="2" cellpadding="0">
+    <tr><td valign=top><em>castuser</em>&nbsp;</td><td>This should be a pointer to a userrec, casted to char*</td></tr>
+  </table>
+</dl>
+The data inserted into the reference list is a table as it is an arbitary pointer compared to other users by its memory address, as this is a very fast 32 or 64 bit integer comparison.
 <p>
 Definition at line <a class="el" href="channels_8cpp-source.html#l00201">201</a> of file <a class="el" href="channels_8cpp-source.html">channels.cpp</a>.
 <p>
@@ -242,9 +247,14 @@ References <a class="el" href="modules_8h-source.html#l00023">DEBUG</a>, and <a 
     <td>
 
 <p>
-Delete a user pointer to the internal reference list The data removed from the reference list is a table as it is an arbitary pointer compared to other users by its memory address, as this is a very fast 32 or 64 bit integer comparison. 
+Delete a user pointer to the internal reference list. 
 <p>
-
+<dl compact><dt><b>Parameters:</b></dt><dd>
+  <table border="0" cellspacing="2" cellpadding="0">
+    <tr><td valign=top><em>castuser</em>&nbsp;</td><td>This should be a pointer to a userrec, casted to char*</td></tr>
+  </table>
+</dl>
+The data removed from the reference list is a table as it is an arbitary pointer compared to other users by its memory address, as this is a very fast 32 or 64 bit integer comparison. 
 <p>
 Definition at line <a class="el" href="channels_8cpp-source.html#l00207">207</a> of file <a class="el" href="channels_8cpp-source.html">channels.cpp</a>.
 <p>
@@ -293,7 +303,14 @@ References <a class="el" href="modules_8h-source.html#l00023">DEBUG</a>, <a clas
 <p>
 Returns the parameter for a custom mode on a channel. 
 <p>
-For example if "+L #foo" is set, and you pass this method 'L', it will return '#foo'. If the mode is not set on the channel, or the mode has no parameters associated with it, it will return an empty string.
+<dl compact><dt><b>Parameters:</b></dt><dd>
+  <table border="0" cellspacing="2" cellpadding="0">
+    <tr><td valign=top><em>mode</em>&nbsp;</td><td>The mode character you wish to query</td></tr>
+  </table>
+</dl>
+For example if "+L #foo" is set, and you pass this method 'L', it will return '#foo'. If the mode is not set on the channel, or the mode has no parameters associated with it, it will return an empty string.<p>
+<dl compact><dt><b>Returns:</b></dt><dd>The parameter for this mode is returned, or an empty string</dd></dl>
+
 <p>
 Definition at line <a class="el" href="channels_8cpp-source.html#l00181">181</a> of file <a class="el" href="channels_8cpp-source.html">channels.cpp</a>.
 <p>
@@ -342,6 +359,7 @@ References <a class="el" href="channels_8cpp-source.html#l00105">custom_mode_par
 <p>
 Obtain the channel "user counter" This returns the channel reference counter, which is initialized to 0 when the channel is created and incremented/decremented upon joins, parts quits and kicks. 
 <p>
+<dl compact><dt><b>Returns:</b></dt><dd>The number of users on this channel</dd></dl>
 
 <p>
 Definition at line <a class="el" href="channels_8cpp-source.html#l00196">196</a> of file <a class="el" href="channels_8cpp-source.html">channels.cpp</a>.
@@ -381,7 +399,9 @@ References <a class="el" href="channels_8h-source.html#l00115">internal_userlist
 <p>
 Obrain the internal reference list The internal reference list contains a list of userrec* cast to char*. 
 <p>
-These are used for rapid comparison to determine channel membership for PRIVMSG, NOTICE, QUIT, PART etc. The resulting pointer to the vector should be considered readonly and only modified via AddUser and DelUser.
+These are used for rapid comparison to determine channel membership for PRIVMSG, NOTICE, QUIT, PART etc. The resulting pointer to the vector should be considered readonly and only modified via AddUser and DelUser.<p>
+<dl compact><dt><b>Returns:</b></dt><dd>This function returns a vector of userrec pointers, each of which has been casted to char* to prevent circular references</dd></dl>
+
 <p>
 Definition at line <a class="el" href="channels_8cpp-source.html#l00221">221</a> of file <a class="el" href="channels_8cpp-source.html">channels.cpp</a>.
 <p>
@@ -423,6 +443,12 @@ Referenced by <a class="el" href="modules_8cpp-source.html#l00400">Server::GetUs
 <p>
 Returns true if a custom mode is set on a channel. 
 <p>
+<dl compact><dt><b>Parameters:</b></dt><dd>
+  <table border="0" cellspacing="2" cellpadding="0">
+    <tr><td valign=top><em>mode</em>&nbsp;</td><td>The mode character you wish to query </td></tr>
+  </table>
+</dl>
+<dl compact><dt><b>Returns:</b></dt><dd>True if the custom mode is set, false if otherwise</dd></dl>
 
 <p>
 Definition at line <a class="el" href="channels_8cpp-source.html#l00175">175</a> of file <a class="el" href="channels_8cpp-source.html">channels.cpp</a>.
@@ -473,6 +499,12 @@ References <a class="el" href="modules_8h-source.html#l00023">DEBUG</a>.
 <p>
 Sets or unsets a custom mode in the channels info. 
 <p>
+<dl compact><dt><b>Parameters:</b></dt><dd>
+  <table border="0" cellspacing="2" cellpadding="0">
+    <tr><td valign=top><em>mode</em>&nbsp;</td><td>The mode character to set or unset </td></tr>
+    <tr><td valign=top><em>mode_on</em>&nbsp;</td><td>True if you want to set the mode or false if you want to remove it</td></tr>
+  </table>
+</dl>
 
 <p>
 Definition at line <a class="el" href="channels_8cpp-source.html#l00119">119</a> of file <a class="el" href="channels_8cpp-source.html">channels.cpp</a>.
@@ -547,6 +579,13 @@ References <a class="el" href="channels_8h-source.html#l00110">custom_modes</a>,
 <p>
 Sets or unsets the parameters for a custom mode in a channels info. 
 <p>
+<dl compact><dt><b>Parameters:</b></dt><dd>
+  <table border="0" cellspacing="2" cellpadding="0">
+    <tr><td valign=top><em>mode</em>&nbsp;</td><td>The mode character to set or unset </td></tr>
+    <tr><td valign=top><em>parameter</em>&nbsp;</td><td>The parameter string to associate with this mode character </td></tr>
+    <tr><td valign=top><em>mode_on</em>&nbsp;</td><td>True if you want to set the mode or false if you want to remove it</td></tr>
+  </table>
+</dl>
 
 <p>
 Definition at line <a class="el" href="channels_8cpp-source.html#l00144">144</a> of file <a class="el" href="channels_8cpp-source.html">channels.cpp</a>.
@@ -896,7 +935,7 @@ Referenced by <a class="el" href="channels_8cpp-source.html#l00107">chanrec()</a
 </table>
 <hr>The documentation for this class was generated from the following files:<ul>
 <li><a class="el" href="channels_8h-source.html">channels.h</a><li><a class="el" href="channels_8cpp-source.html">channels.cpp</a></ul>
-<hr size="1"><address style="align: right;"><small>Generated on Wed May 25 21:42:57 2005 for InspIRCd by
+<hr size="1"><address style="align: right;"><small>Generated on Wed May 25 22:02:48 2005 for InspIRCd by
 <a href="http://www.doxygen.org/index.html">
 <img src="doxygen.png" alt="doxygen" align="middle" border=0 > 
 </a>1.3.3 </small></address>
