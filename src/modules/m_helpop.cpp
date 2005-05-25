@@ -139,25 +139,8 @@ class ModuleHelpop : public Module
 	ModuleHelpop()
 	{
 		Srv  = new Server;
-		conf = new ConfigReader;
 
-		h_file = conf->ReadValue("helpop", "file", 0);
-
-		if (h_file == "") {
-			log(DEFAULT,"m_helpop: Helpop file not Specified.");
-			return;
-		}
-
-		helpop = new ConfigReader(h_file);
-
-		if ((helpop->ReadValue("nohelp",  "line1", 0) == "") || 
-                    (helpop->ReadValue("nohelpo", "line1", 0) == "") ||
-                    (helpop->ReadValue("start",   "line1", 0) == ""))
-		{
-			log(DEFAULT,"m_helpop: Helpop file is missing important entries. Please check the example conf.");
-			return;
-		}
-
+		ReadConfig();
 		if (!Srv->AddExtendedMode('h',MT_CLIENT,true,0,0))
 		{
 			Srv->Log(DEFAULT,"Unable to claim the +h usermode.");
@@ -166,6 +149,35 @@ class ModuleHelpop : public Module
 
 		// Loads of comments, untill supported properly.
 		Srv->AddCommand("HELPOP",handle_helpop,0,0,"m_helpop.so");
+	}
+
+	virtual void ReadConfig()
+        {
+		conf = new ConfigReader;
+                h_file = conf->ReadValue("helpop", "file", 0);
+
+                if (h_file == "") {
+                        log(DEFAULT,"m_helpop: Helpop file not Specified.");
+                        return;
+                }
+
+                helpop = new ConfigReader(h_file);
+                if ((helpop->ReadValue("nohelp",  "line1", 0) == "") ||
+                    (helpop->ReadValue("nohelpo", "line1", 0) == "") ||
+                    (helpop->ReadValue("start",   "line1", 0) == ""))
+                {
+                        log(DEFAULT,"m_helpop: Helpop file is missing important entries. Please check the example conf.");
+                        return;
+                }
+        }
+
+
+	virtual void OnRehash()
+	{
+		delete conf;
+		delete helpop;
+
+		ReadConfig();
 
 	}
 
