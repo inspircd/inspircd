@@ -66,6 +66,8 @@ if ($arg eq "-update") {
     # We've Loaded the cache file and all our variables..
     print "Updating Files..\n";
     getosflags();
+    $has_epoll = $config{HAS_EPOLL};
+    $has_kqueue = $config{HAS_KQUEUE};
     writefiles();
     print "Complete.\n";
     exit;
@@ -148,6 +150,9 @@ print "no\n" if $has_epoll == 0;
 if ($config{OSNAME} =~ /CYGWIN/) {
 	$config{HAS_STRLCPY} = "true";
 }
+
+$config{HAS_EPOLL} = $has_epoll;
+$config{HAS_KQUEUE} = $has_kqueue; 
 
 ################################################################################
 #                          BEGIN INTERACTIVE PART                              #
