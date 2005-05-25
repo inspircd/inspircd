@@ -601,7 +601,11 @@ bool CommonOnThisServer(userrec* u,const char* servername)
 void NetSendToCommon(userrec* u, char* s)
 {
         char buffer[MAXBUF];
-        snprintf(buffer,MAXBUF,"%s %s",CreateSum().c_str(),s);
+	if (*s == ':')
+	{
+			snprintf(buffer,MAXBUF,"%s",s);
+	}
+	else snprintf(buffer,MAXBUF,"%s %s",CreateSum().c_str(),s);
 
         log(DEBUG,"NetSendToCommon: '%s' '%s'",u->nick,s);
 
@@ -628,7 +632,11 @@ void NetSendToCommon(userrec* u, char* s)
 void NetSendToAll(char* s)
 {
         char buffer[MAXBUF];
-        snprintf(buffer,MAXBUF,"%s %s",CreateSum().c_str(),s);
+        if (*s == ':')
+        {
+                        snprintf(buffer,MAXBUF,"%s",s);
+        }
+        else snprintf(buffer,MAXBUF,"%s %s",CreateSum().c_str(),s);
 
         log(DEBUG,"NetSendToAll: '%s'",s);
 
@@ -652,7 +660,11 @@ void NetSendToAll(char* s)
 void NetSendToAll_WithSum(char* s,char* u)
 {
         char buffer[MAXBUF];
-        snprintf(buffer,MAXBUF,":%s %s",u,s);
+        if (*s == ':')
+        {
+                        snprintf(buffer,MAXBUF,"%s",s);
+        }
+        else snprintf(buffer,MAXBUF,":%s %s",u,s);
 
         log(DEBUG,"NetSendToAll: '%s'",s);
 
@@ -675,7 +687,11 @@ void NetSendToAll_WithSum(char* s,char* u)
 void NetSendToAllAlive(char* s)
 {
         char buffer[MAXBUF];
-        snprintf(buffer,MAXBUF,"%s %s",CreateSum().c_str(),s);
+        if (*s == ':')
+        {
+                        snprintf(buffer,MAXBUF,"%s",s);
+        }
+        else snprintf(buffer,MAXBUF,"%s %s",CreateSum().c_str(),s);
 
         log(DEBUG,"NetSendToAllAlive: '%s'",s);
 
@@ -706,7 +722,11 @@ void NetSendToAllAlive(char* s)
 void NetSendToOne(char* target,char* s)
 {
         char buffer[MAXBUF];
-        snprintf(buffer,MAXBUF,"%s %s",CreateSum().c_str(),s);
+        if (*s == ':')
+        {
+                        snprintf(buffer,MAXBUF,"%s",s);
+        }
+        else snprintf(buffer,MAXBUF,"%s %s",CreateSum().c_str(),s);
 
         log(DEBUG,"NetSendToOne: '%s' '%s'",target,s);
 
@@ -732,7 +752,11 @@ void NetSendToOne(char* target,char* s)
 void NetSendToAllExcept(const char* target,char* s)
 {
         char buffer[MAXBUF];
-        snprintf(buffer,MAXBUF,"%s %s",CreateSum().c_str(),s);
+        if (*s == ':')
+        {
+                        snprintf(buffer,MAXBUF,"%s",s);
+        }
+        else snprintf(buffer,MAXBUF,"%s %s",CreateSum().c_str(),s);
 
         log(DEBUG,"NetSendToAllExcept: '%s' '%s'",target,s);
 
@@ -758,7 +782,11 @@ void NetSendToAllExcept(const char* target,char* s)
 void NetSendToAllExcept_WithSum(const char* target,char* s,char* u)
 {
         char buffer[MAXBUF];
-        snprintf(buffer,MAXBUF,":%s %s",u,s);
+        if (*s == ':')
+        {
+                        snprintf(buffer,MAXBUF,"%s",s);
+        }
+        else snprintf(buffer,MAXBUF,":%s %s",u,s);
 
         log(DEBUG,"NetSendToAllExcept: '%s' '%s'",target,s);
 
