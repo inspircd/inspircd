@@ -107,6 +107,11 @@ class ModuleChanProtect : public Module
 				// this way is best as it adds data thats accessible to other modules
 				// (so long as you document your code properly) without breaking anything
 				// because its encapsulated neatly in a map.
+
+				// Change requested by katsklaw... when the first in is set to get founder,
+				// to make it clearer that +q has been given, send that one user the +q notice
+				// so that their client's syncronization and their sanity are left intact.
+				WriteServ(user->fd,"MODE %s +q %s",channel->name,user->nick);
 				if (user->Extend("cm_founder_"+std::string(channel->name),fakevalue))
 				{
 					Srv->Log(DEBUG,"Marked user "+std::string(user->nick)+" as founder for "+std::string(channel->name));
