@@ -256,7 +256,7 @@ Adds data to the connection's sendQ to be flushed later Fails if there is an err
 <p>
 
 <p>
-Referenced by <a class="el" href="servers_8cpp-source.html#l00275">serverrec::SendPacket()</a>.    </td>
+Referenced by <a class="el" href="servers_8cpp-source.html#l00336">serverrec::SendPacket()</a>.    </td>
   </tr>
 </table>
 <a name="a16" doxytag="ircd_connector::BufferIsComplete"></a><p>
@@ -378,7 +378,7 @@ Close the connection by calling close() on its file descriptor This function cal
 <p>
 
 <p>
-Referenced by <a class="el" href="servers_8cpp-source.html#l00275">serverrec::SendPacket()</a>.    </td>
+Referenced by <a class="el" href="servers_8cpp-source.html#l00336">serverrec::SendPacket()</a>.    </td>
   </tr>
 </table>
 <a name="a22" doxytag="ircd_connector::FlushWriteBuf"></a><p>
@@ -410,7 +410,7 @@ Flushes as much of the data from the buffer as possible, and advances the queue 
 <p>
 
 <p>
-Referenced by <a class="el" href="servers_8cpp-source.html#l00275">serverrec::SendPacket()</a>.    </td>
+Referenced by <a class="el" href="servers_8cpp-source.html#l00336">serverrec::SendPacket()</a>.    </td>
   </tr>
 </table>
 <a name="a18" doxytag="ircd_connector::GetBuffer"></a><p>
@@ -562,7 +562,7 @@ Return the servername on this established connection.
 <p>
 
 <p>
-Referenced by <a class="el" href="servers_8cpp-source.html#l00275">serverrec::SendPacket()</a>.    </td>
+Referenced by <a class="el" href="servers_8cpp-source.html#l00336">serverrec::SendPacket()</a>.    </td>
   </tr>
 </table>
 <a name="a11" doxytag="ircd_connector::GetServerPort"></a><p>
@@ -624,7 +624,7 @@ Get the state flags for this connection.
 <p>
 
 <p>
-Referenced by <a class="el" href="servers_8cpp-source.html#l00275">serverrec::SendPacket()</a>.    </td>
+Referenced by <a class="el" href="servers_8cpp-source.html#l00256">IsRoutable()</a>, and <a class="el" href="servers_8cpp-source.html#l00336">serverrec::SendPacket()</a>.    </td>
   </tr>
 </table>
 <a name="a20" doxytag="ircd_connector::GetVersionString"></a><p>
@@ -686,7 +686,7 @@ Gets the error string for this connection.
 <p>
 
 <p>
-Referenced by <a class="el" href="servers_8cpp-source.html#l00275">serverrec::SendPacket()</a>.    </td>
+Referenced by <a class="el" href="servers_8cpp-source.html#l00336">serverrec::SendPacket()</a>.    </td>
   </tr>
 </table>
 <a name="a25" doxytag="ircd_connector::HasBufferedOutput"></a><p>
@@ -758,7 +758,7 @@ Create an outbound connection to a listening socket.
 <p>
 
 <p>
-Referenced by <a class="el" href="servers_8cpp-source.html#l00138">serverrec::BeginLink()</a>, and <a class="el" href="servers_8cpp-source.html#l00176">serverrec::MeshCookie()</a>.    </td>
+Referenced by <a class="el" href="servers_8cpp-source.html#l00142">serverrec::BeginLink()</a>, and <a class="el" href="servers_8cpp-source.html#l00182">serverrec::MeshCookie()</a>.    </td>
   </tr>
 </table>
 <a name="a27" doxytag="ircd_connector::ResetPing"></a><p>
@@ -852,7 +852,7 @@ Set the file descriptor for this connection.
 <p>
 
 <p>
-Referenced by <a class="el" href="servers_8cpp-source.html#l00207">serverrec::AddIncoming()</a>.    </td>
+Referenced by <a class="el" href="servers_8cpp-source.html#l00212">serverrec::AddIncoming()</a>.    </td>
   </tr>
 </table>
 <a name="d0" doxytag="ircd_connector::SetHostAddress"></a><p>
@@ -934,7 +934,7 @@ Set both the host and the port in one operation for this connection.
 <p>
 
 <p>
-Referenced by <a class="el" href="servers_8cpp-source.html#l00207">serverrec::AddIncoming()</a>, <a class="el" href="servers_8cpp-source.html#l00138">serverrec::BeginLink()</a>, and <a class="el" href="servers_8cpp-source.html#l00176">serverrec::MeshCookie()</a>.    </td>
+Referenced by <a class="el" href="servers_8cpp-source.html#l00212">serverrec::AddIncoming()</a>, <a class="el" href="servers_8cpp-source.html#l00142">serverrec::BeginLink()</a>, and <a class="el" href="servers_8cpp-source.html#l00182">serverrec::MeshCookie()</a>.    </td>
   </tr>
 </table>
 <a name="a3" doxytag="ircd_connector::SetServerName"></a><p>
@@ -967,7 +967,7 @@ Set the server name of this connection.
 <p>
 
 <p>
-Referenced by <a class="el" href="servers_8cpp-source.html#l00207">serverrec::AddIncoming()</a>, <a class="el" href="servers_8cpp-source.html#l00138">serverrec::BeginLink()</a>, and <a class="el" href="servers_8cpp-source.html#l00176">serverrec::MeshCookie()</a>.    </td>
+Referenced by <a class="el" href="servers_8cpp-source.html#l00212">serverrec::AddIncoming()</a>, <a class="el" href="servers_8cpp-source.html#l00142">serverrec::BeginLink()</a>, and <a class="el" href="servers_8cpp-source.html#l00182">serverrec::MeshCookie()</a>.    </td>
   </tr>
 </table>
 <a name="a12" doxytag="ircd_connector::SetServerPort"></a><p>
@@ -1031,7 +1031,7 @@ Set the state flags for this connection.
 <p>
 
 <p>
-Referenced by <a class="el" href="servers_8cpp-source.html#l00207">serverrec::AddIncoming()</a>, <a class="el" href="servers_8cpp-source.html#l00138">serverrec::BeginLink()</a>, <a class="el" href="servers_8cpp-source.html#l00176">serverrec::MeshCookie()</a>, and <a class="el" href="servers_8cpp-source.html#l00275">serverrec::SendPacket()</a>.    </td>
+Referenced by <a class="el" href="servers_8cpp-source.html#l00212">serverrec::AddIncoming()</a>, <a class="el" href="servers_8cpp-source.html#l00142">serverrec::BeginLink()</a>, <a class="el" href="servers_8cpp-source.html#l00182">serverrec::MeshCookie()</a>, and <a class="el" href="servers_8cpp-source.html#l00336">serverrec::SendPacket()</a>.    </td>
   </tr>
 </table>
 <a name="a19" doxytag="ircd_connector::SetVersionString"></a><p>
@@ -1464,7 +1464,7 @@ Definition at line <a class="el" href="connection_8h-source.html#l00094">94</a> 
 </table>
 <hr>The documentation for this class was generated from the following file:<ul>
 <li><a class="el" href="connection_8h-source.html">connection.h</a></ul>
-<hr size="1"><address style="align: right;"><small>Generated on Tue May 24 02:32:15 2005 for InspIRCd by
+<hr size="1"><address style="align: right;"><small>Generated on Wed May 25 21:43:19 2005 for InspIRCd by
 <a href="http://www.doxygen.org/index.html">
 <img src="doxygen.png" alt="doxygen" align="middle" border=0 > 
 </a>1.3.3 </small></address>

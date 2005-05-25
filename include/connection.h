@@ -141,34 +141,42 @@ class ircd_connector : public Extensible
 	std::string GetServerName();
 	
 	/** Set the server name of this connection
+	 * @param serv The server name to set
 	 */
 	void SetServerName(std::string serv);
 	
 	/** Get the file descriptor associated with this connection
+	 * @return The file descriptor associated with this connection
 	 */
 	int GetDescriptor();
 	
 	/** Set the file descriptor for this connection
+	 * @param fd The file descriptor to associate with the connection
 	 */
 	void SetDescriptor(int fd);
 	
 	/** Get the state flags for this connection
+	 * @return The state flags associated with this connection
 	 */
 	int GetState();
 	
 	/** Set the state flags for this connection
+	 * @param state The state flags to set for this connection
 	 */
 	void SetState(int state);
 	
 	/** Get the ip address (not servername) associated with this connection
+	 * @return The connections IP address in dotted decimal form
 	 */
 	char* GetServerIP();
 	
 	/** Get the server description of this connection
+	 * @return The description (GECOS) of this connection
 	 */
 	std::string GetDescription();
 	
 	/** Set the server description of this connection
+	 * @param desc The description (GECOS) of this connection to be set
 	 */
 	void SetDescription(std::string desc);
 	
@@ -176,14 +184,20 @@ class ircd_connector : public Extensible
 	 * If the connection is outbound this will be the remote port
 	 * otherwise it will be the local port, so it can always be
 	 * gautanteed as open at the address given in GetServerIP().
+	 *
+	 * @return The port number of this connection
 	 */
 	int GetServerPort();
 	
 	/** Set the port used by this connection
+	 * @param p The port number to set for this connection
 	 */
 	void SetServerPort(int p);
 	
 	/** Set both the host and the port in one operation for this connection
+	 * @param newhost The hostname to set for this connection
+	 * @param newport The port number to set for this connection
+	 * @return True on success, false on failure
 	 */
 	bool SetHostAndPort(char* newhost, int newport);
 	
@@ -193,14 +207,20 @@ class ircd_connector : public Extensible
 	void CloseConnection();
 
 	/** This method adds text to the ircd connection's buffer
+	 * @param a The text to add to the buffer up to a maximum size of 1MB
+	 *
 	 * This buffer's maximum size is one megabyte, the method returning false
 	 * if the buffer is full.
+	 *
+	 * @return True on success, false if the buffer is full or the connection is down
 	 */
 	bool AddBuffer(std::string a);
 
 	/** This method returns true if the buffer contains at least one
 	 * carriage return character, e.g. one line can be read from the
 	 * buffer successfully.
+	 *
+	 * @return True if there is at least one complete line waiting to be processed
 	 */
 	bool BufferIsComplete();
 
@@ -211,42 +231,57 @@ class ircd_connector : public Extensible
 	/** This method retrieves the first string from the tail end of the
 	 * buffer and advances the tail end of the buffer past the returned
 	 * string, in a similar manner to strtok().
+	 *
+	 * @return The first line of the buffer up to a carriage return
 	 */
 	std::string GetBuffer();
 
 	/** This method sets the version string of the remote server
+	 * @param newversion The version string to set
 	 */
         void SetVersionString(std::string newversion);
 
 	/** This method returns the version string of the remote server.
 	 * If the server has no version string an empty string is returned.
+	 *
+	 * @return The version text of this connection
 	 */
         std::string GetVersionString();
 
-	/** Adds data to the connection's sendQ to be flushed later
+	/** Adds data to the connection's sendQ to be flushed later.
+	 * @param data The data to add to the write buffer
+	 *
 	 * Fails if there is an error pending on the connection.
+	 *
+	 * @return True on success, false if the connection is down or the buffer is full
 	 */
 	bool AddWriteBuf(std::string data);
 
 	/** Flushes as much of the data from the buffer as possible,
 	 * and advances the queue pointer to what is left.
+	 *
+	 * @return True if the flush succeeded, false if the connection is down
 	 */
 	bool FlushWriteBuf();
 
 	/** Sets the error string for this connection
+	 * @param error The error string to set
 	 */
 	void SetWriteError(std::string error);
 
 	/** Gets the error string for this connection
+	 * @return The last error to occur or an empty string
 	 */
 	std::string GetWriteError();
 
 	/** Returns true if there is data to be written that hasn't been sent yet
+	 * @return True if the buffer is not empty
 	 */
 	bool HasBufferedOutput();
 
 	/** Checks if the connection replied to its last ping, and if it did
 	 * sends another and returns true, if not, returns false.
+	 * @return True if the server is still replying to pings
 	 */
 	bool CheckPing();
 

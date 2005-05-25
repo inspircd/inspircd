@@ -1,4 +1,4 @@
-.TH "channels.cpp" 3 "24 May 2005" "InspIRCd" \" -*- nroff -*-
+.TH "channels.cpp" 3 "25 May 2005" "InspIRCd" \" -*- nroff -*-
 .ad l
 .nh
 .SH NAME
@@ -259,6 +259,8 @@ Definition at line 83 of file channels.cpp.
 .SS "\fBserverrec\fP* \fBme\fP[32]"
 .PP
 Definition at line 97 of file channels.cpp.
+.PP
+Referenced by IsRoutable().
 .SS "int \fBMODCOUNT\fP = -1"
 .PP
 Definition at line 1016 of file modules.cpp.
@@ -317,7 +319,7 @@ Definition at line 81 of file channels.cpp.
 .PP
 Definition at line 101 of file channels.cpp.
 .PP
-Referenced by serverrec::serverrec(), and userrec::userrec().
+Referenced by serverrec::FlushWriteBuffers(), serverrec::serverrec(), and userrec::userrec().
 .SS "int \fBWHOWAS_MAX\fP"
 .PP
 Definition at line 79 of file channels.cpp.

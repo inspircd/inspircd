@@ -1,4 +1,4 @@
-.TH "ircd_connector" 3 "24 May 2005" "InspIRCd" \" -*- nroff -*-
+.TH "ircd_connector" 3 "25 May 2005" "InspIRCd" \" -*- nroff -*-
 .ad l
 .nh
 .SH NAME
@@ -257,7 +257,7 @@ Return the servername on this established connection. Referenced by serverrec::S
 Get the port number being used for this connection If the connection is outbound this will be the remote port otherwise it will be the local port, so it can always be gautanteed as open at the address given in \fBGetServerIP()\fP. 
 .SS "int ircd_connector::GetState ()"
 .PP
-Get the state flags for this connection. Referenced by serverrec::SendPacket().
+Get the state flags for this connection. Referenced by IsRoutable(), and serverrec::SendPacket().
 .SS "std::string ircd_connector::GetVersionString ()"
 .PP
 This method returns the version string of the remote server. If the server has no version string an empty string is returned.

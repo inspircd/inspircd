@@ -1,4 +1,4 @@
-.TH "Extensible" 3 "24 May 2005" "InspIRCd" \" -*- nroff -*-
+.TH "Extensible" 3 "25 May 2005" "InspIRCd" \" -*- nroff -*-
 .ad l
 .nh
 .SH NAME
@@ -49,13 +49,49 @@ Definition at line 50 of file base.h.
 .PP 
 .SS "bool Extensible::Extend (std::string key, char * p)"
 .PP
-Extend an Extensible class. You must provide a key to store the data as, and a void* to the data (typedef VoidPointer) The data will be inserted into the map. If the data already exists, you may not insert it twice, \fBExtensible::Extend\fP will return false in this case. On successful extension, Extend returns true.
+Extend an Extensible class. \fBParameters:\fP
+.RS 4
+\fIkey\fP The key parameter is an arbitary string which identifies the extension data 
+.br
+\fIp\fP This parameter is a pointer to any data you wish to associate with the object
+.RE
+.PP
+You must provide a key to store the data as, and a void* to the data (typedef VoidPointer) The data will be inserted into the map. If the data already exists, you may not insert it twice, \fBExtensible::Extend\fP will return false in this case.
+.PP
+\fBReturns:\fP
+.RS 4
+Returns true on success, false if otherwise
+.RE
+.PP
+
 .SS "char* Extensible::GetExt (std::string key)"
 .PP
-Get an extension item. You must provide a key name, which is case sensitive. If you provide a non-existent key name, the function returns NULL, otherwise a pointer to the item referenced by the key is returned.
+Get an extension item. \fBParameters:\fP
+.RS 4
+\fIkey\fP The key parameter is an arbitary string which identifies the extension data
+.RE
+.PP
+\fBReturns:\fP
+.RS 4
+If you provide a non-existent key name, the function returns NULL, otherwise a pointer to the item referenced by the key is returned.
+.RE
+.PP
+
 .SS "bool Extensible::Shrink (std::string key)"
 .PP
-Shrink an Extensible class. You must provide a key name. The given key name will be removed from the classes data. If you provide a nonexistent key (case is important) then the function will return false. Returns true on success.
+Shrink an Extensible class. \fBParameters:\fP
+.RS 4
+\fIkey\fP The key parameter is an arbitary string which identifies the extension data
+.RE
+.PP
+You must provide a key name. The given key name will be removed from the classes data. If you provide a nonexistent key (case is important) then the function will return false.
+.PP
+\fBReturns:\fP
+.RS 4
+Returns true on success.
+.RE
+.PP
+
 .SH "Member Data Documentation"
 .PP 
 .SS "std::map<std::string,char*> \fBExtensible::Extension_Items\fP\fC [private]\fP"

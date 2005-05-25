@@ -56,23 +56,34 @@ class Extensible : public classbase
 public:
 
 	/** Extend an Extensible class.
+	 *
+	 * @param key The key parameter is an arbitary string which identifies the extension data
+	 * @param p This parameter is a pointer to any data you wish to associate with the object
+	 *
 	 * You must provide a key to store the data as, and a void* to the data (typedef VoidPointer)
 	 * The data will be inserted into the map. If the data already exists, you may not insert it
 	 * twice, Extensible::Extend will return false in this case.
-	 * On successful extension, Extend returns true.
+	 *
+	 * @return Returns true on success, false if otherwise
 	 */
 	bool Extend(std::string key, char* p);
 
 	/** Shrink an Extensible class.
+	 *
+	 * @param key The key parameter is an arbitary string which identifies the extension data
+	 *
 	 * You must provide a key name. The given key name will be removed from the classes data. If
 	 * you provide a nonexistent key (case is important) then the function will return false.
-	 * Returns true on success.
+	 *
+	 * @return Returns true on success.
 	 */
 	bool Shrink(std::string key);
 	
 	/** Get an extension item.
-	 * You must provide a key name, which is case sensitive. If you provide a non-existent key name,
-	 * the function returns NULL, otherwise a pointer to the item referenced by the key is returned.
+	 *
+	 * @param key The key parameter is an arbitary string which identifies the extension data
+	 *
+	 * @return If you provide a non-existent key name, the function returns NULL, otherwise a pointer to the item referenced by the key is returned.
 	 */
 	char* GetExt(std::string key);
 };

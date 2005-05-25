@@ -1,4 +1,4 @@
-.TH "servers.cpp" 3 "24 May 2005" "InspIRCd" \" -*- nroff -*-
+.TH "servers.cpp" 3 "25 May 2005" "InspIRCd" \" -*- nroff -*-
 .ad l
 .nh
 .SH NAME
@@ -45,6 +45,9 @@ servers.cpp \-
 
 .in +1c
 .ti -1c
+.RI "bool \fBIsRoutable\fP (std::string servername)"
+.br
+.ti -1c
 .RI "bool \fBalready_have_sum\fP (std::string sum)"
 .br
 .in -1c
@@ -58,6 +61,12 @@ servers.cpp \-
 .RI "int \fBMaxConn\fP"
 .br
 .ti -1c
+.RI "\fBserverrec\fP * \fBme\fP [32]"
+.br
+.ti -1c
+.RI "bool \fBhas_been_netsplit\fP"
+.br
+.ti -1c
 .RI "std::deque< std::string > \fBxsums\fP"
 .br
 .in -1c
@@ -65,42 +74,85 @@ servers.cpp \-
 .PP 
 .SS "bool already_have_sum (std::string sum)"
 .PP
-Definition at line 350 of file servers.cpp.
+Definition at line 411 of file servers.cpp.
 .PP
 References xsums.
 .PP
 Referenced by serverrec::RecvPacket().
 .PP
 .nf
-351 {
-352         for (int i = 0; i < xsums.size(); i++)
-353         {
-354                 if (xsums[i] == sum)
-355                 {
-356                         return true;
-357                 }
-358         }
-359         if (xsums.size() >= 128)
-360         {
-361                 xsums.pop_front();
-362         }
-363         xsums.push_back(sum);
-364         return false;
-365 }
+412 {
+413         for (int i = 0; i < xsums.size(); i++)
+414         {
+415                 if (xsums[i] == sum)
+416                 {
+417                         return true;
+418                 }
+419         }
+420         if (xsums.size() >= 128)
+421         {
+422                 xsums.pop_front();
+423         }
+424         xsums.push_back(sum);
+425         return false;
+426 }
+.fi
+.SS "bool IsRoutable (std::string servername)"
+.PP
+Definition at line 256 of file servers.cpp.
+.PP
+References serverrec::connectors, serverrec::FindHost(), ircd_connector::GetState(), me, and STATE_DISCONNECTED.
+.PP
+Referenced by serverrec::FlushWriteBuffers(), and serverrec::RecvPacket().
+.PP
+.nf
+257 {
+258         for (int x = 0; x < 32; x++) if (me[x])
+259         {
+260                 ircd_connector* cn = me[x]->FindHost(servername.c_str());
+261                 if (cn)
+262                 {
+263                         if (cn->GetState() == STATE_DISCONNECTED)
+264                         {
+265                                 for (int k = 0; k < me[x]->connectors.size(); k++)
+266                                 {
+267                                         for (int m = 0; m < me[x]->connectors[k].routes.size(); m++)
+268                                         {
+269                                                 if (!strcasecmp(me[x]->connectors[k].routes[m].c_str(),servername.c_str()))
+270                                                 {
+271                                                         return true;
+272                                                 }
+273                                         }
+274                                 }
+275                                 return false;
+276                         }
+277                         else return true;
+278                 }
+279         }
+280         return false;
+281 }
 .fi
 .SH "Variable Documentation"
 .PP 
+.SS "bool \fBhas_been_netsplit\fP"
+.PP
+Definition at line 42 of file servers.cpp.
+.PP
+Referenced by serverrec::FlushWriteBuffers(), and serverrec::RecvPacket().
 .SS "int \fBMaxConn\fP"
 .PP
 Definition at line 38 of file servers.cpp.
 .PP
 Referenced by serverrec::CreateListener().
+.SS "\fBserverrec\fP* \fBme\fP[32]"
+.PP
+Definition at line 40 of file servers.cpp.
 .SS "time_t \fBTIME\fP"
 .PP
 Definition at line 37 of file servers.cpp.
 .SS "std::deque<std::string> \fBxsums\fP"
 .PP
-Definition at line 40 of file servers.cpp.
+Definition at line 44 of file servers.cpp.
 .PP
 Referenced by already_have_sum().
 .SH "Author"

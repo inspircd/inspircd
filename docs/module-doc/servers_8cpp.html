@@ -34,18 +34,24 @@ Include dependency graph for servers.cpp:<p><center><img src="servers_8cpp__incl
 <a href="servers_8cpp-source.html">Go to the source code of this file.</a><table border=0 cellpadding=0 cellspacing=0>
 <tr><td></td></tr>
 <tr><td colspan=2><br><h2>Functions</h2></td></tr>
-<tr><td class="memItemLeft" nowrap align=right valign=top>bool&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="servers_8cpp.html#a3">already_have_sum</a> (std::string sum)</td></tr>
+<tr><td class="memItemLeft" nowrap align=right valign=top>bool&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="servers_8cpp.html#a5">IsRoutable</a> (std::string servername)</td></tr>
+
+<tr><td class="memItemLeft" nowrap align=right valign=top>bool&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="servers_8cpp.html#a6">already_have_sum</a> (std::string sum)</td></tr>
 
 <tr><td colspan=2><br><h2>Variables</h2></td></tr>
 <tr><td class="memItemLeft" nowrap align=right valign=top>time_t&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="servers_8cpp.html#a0">TIME</a></td></tr>
 
 <tr><td class="memItemLeft" nowrap align=right valign=top>int&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="servers_8cpp.html#a1">MaxConn</a></td></tr>
 
-<tr><td class="memItemLeft" nowrap align=right valign=top>std::deque&lt; std::string &gt;&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="servers_8cpp.html#a2">xsums</a></td></tr>
+<tr><td class="memItemLeft" nowrap align=right valign=top><a class="el" href="classserverrec.html">serverrec</a> *&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="servers_8cpp.html#a2">me</a> [32]</td></tr>
+
+<tr><td class="memItemLeft" nowrap align=right valign=top>bool&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="servers_8cpp.html#a3">has_been_netsplit</a></td></tr>
+
+<tr><td class="memItemLeft" nowrap align=right valign=top>std::deque&lt; std::string &gt;&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="servers_8cpp.html#a4">xsums</a></td></tr>
 
 </table>
 <hr><h2>Function Documentation</h2>
-<a name="a3" doxytag="servers.cpp::already_have_sum"></a><p>
+<a name="a6" doxytag="servers.cpp::already_have_sum"></a><p>
 <table class="mdTable" width="100%" cellpadding="2" cellspacing="0">
   <tr>
     <td class="mdRow">
@@ -73,31 +79,119 @@ Include dependency graph for servers.cpp:<p><center><img src="servers_8cpp__incl
 <p>
 
 <p>
-Definition at line <a class="el" href="servers_8cpp-source.html#l00350">350</a> of file <a class="el" href="servers_8cpp-source.html">servers.cpp</a>.
+Definition at line <a class="el" href="servers_8cpp-source.html#l00411">411</a> of file <a class="el" href="servers_8cpp-source.html">servers.cpp</a>.
 <p>
-References <a class="el" href="servers_8cpp-source.html#l00040">xsums</a>.
+References <a class="el" href="servers_8cpp-source.html#l00044">xsums</a>.
 <p>
-Referenced by <a class="el" href="servers_8cpp-source.html#l00370">serverrec::RecvPacket()</a>.
+Referenced by <a class="el" href="servers_8cpp-source.html#l00431">serverrec::RecvPacket()</a>.
 <p>
-<div class="fragment"><pre>00351 {
-00352         <span class="keywordflow">for</span> (<span class="keywordtype">int</span> i = 0; i &lt; <a class="code" href="servers_8cpp.html#a2">xsums</a>.size(); i++)
-00353         {
-00354                 <span class="keywordflow">if</span> (<a class="code" href="servers_8cpp.html#a2">xsums</a>[i] == sum)
-00355                 {
-00356                         <span class="keywordflow">return</span> <span class="keyword">true</span>;
-00357                 }
-00358         }
-00359         <span class="keywordflow">if</span> (<a class="code" href="servers_8cpp.html#a2">xsums</a>.size() &gt;= 128)
-00360         {
-00361                 <a class="code" href="servers_8cpp.html#a2">xsums</a>.pop_front();
-00362         }
-00363         <a class="code" href="servers_8cpp.html#a2">xsums</a>.push_back(sum);
-00364         <span class="keywordflow">return</span> <span class="keyword">false</span>;
-00365 }
+<div class="fragment"><pre>00412 {
+00413         <span class="keywordflow">for</span> (<span class="keywordtype">int</span> i = 0; i &lt; <a class="code" href="servers_8cpp.html#a4">xsums</a>.size(); i++)
+00414         {
+00415                 <span class="keywordflow">if</span> (<a class="code" href="servers_8cpp.html#a4">xsums</a>[i] == sum)
+00416                 {
+00417                         <span class="keywordflow">return</span> <span class="keyword">true</span>;
+00418                 }
+00419         }
+00420         <span class="keywordflow">if</span> (<a class="code" href="servers_8cpp.html#a4">xsums</a>.size() &gt;= 128)
+00421         {
+00422                 <a class="code" href="servers_8cpp.html#a4">xsums</a>.pop_front();
+00423         }
+00424         <a class="code" href="servers_8cpp.html#a4">xsums</a>.push_back(sum);
+00425         <span class="keywordflow">return</span> <span class="keyword">false</span>;
+00426 }
+</pre></div>    </td>
+  </tr>
+</table>
+<a name="a5" doxytag="servers.cpp::IsRoutable"></a><p>
+<table class="mdTable" width="100%" cellpadding="2" cellspacing="0">
+  <tr>
+    <td class="mdRow">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> bool IsRoutable </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="md" nowrap valign="top">std::string&nbsp;</td>
+          <td class="mdname1" valign="top" nowrap> <em>servername</em>          </td>
+          <td class="md" valign="top">&nbsp;)&nbsp;</td>
+          <td class="md" nowrap></td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+
+<p>
+Definition at line <a class="el" href="servers_8cpp-source.html#l00256">256</a> of file <a class="el" href="servers_8cpp-source.html">servers.cpp</a>.
+<p>
+References <a class="el" href="servers_8h-source.html#l00081">serverrec::connectors</a>, <a class="el" href="servers_8cpp-source.html#l00242">serverrec::FindHost()</a>, <a class="el" href="classircd__connector.html#a6">ircd_connector::GetState()</a>, <a class="el" href="channels_8cpp-source.html#l00097">me</a>, and <a class="el" href="connection_8h-source.html#l00035">STATE_DISCONNECTED</a>.
+<p>
+Referenced by <a class="el" href="servers_8cpp-source.html#l00284">serverrec::FlushWriteBuffers()</a>, and <a class="el" href="servers_8cpp-source.html#l00431">serverrec::RecvPacket()</a>.
+<p>
+<div class="fragment"><pre>00257 {
+00258         <span class="keywordflow">for</span> (<span class="keywordtype">int</span> x = 0; x &lt; 32; x++) <span class="keywordflow">if</span> (<a class="code" href="channels_8cpp.html#a34">me</a>[x])
+00259         {
+00260                 <a class="code" href="classircd__connector.html">ircd_connector</a>* cn = <a class="code" href="channels_8cpp.html#a34">me</a>[x]-&gt;<a class="code" href="classserverrec.html#a9">FindHost</a>(servername.c_str());
+00261                 <span class="keywordflow">if</span> (cn)
+00262                 {
+00263                         <span class="keywordflow">if</span> (cn-&gt;<a class="code" href="classircd__connector.html#a6">GetState</a>() == <a class="code" href="connection_8h.html#a0">STATE_DISCONNECTED</a>)
+00264                         {
+00265                                 <span class="keywordflow">for</span> (<span class="keywordtype">int</span> k = 0; k &lt; <a class="code" href="channels_8cpp.html#a34">me</a>[x]-&gt;<a class="code" href="classserverrec.html#o11">connectors</a>.size(); k++)
+00266                                 {
+00267                                         <span class="keywordflow">for</span> (<span class="keywordtype">int</span> m = 0; m &lt; <a class="code" href="channels_8cpp.html#a34">me</a>[x]-&gt;<a class="code" href="classserverrec.html#o11">connectors</a>[k].routes.size(); m++)
+00268                                         {
+00269                                                 <span class="keywordflow">if</span> (!strcasecmp(me[x]-&gt;connectors[k].routes[m].c_str(),servername.c_str()))
+00270                                                 {
+00271                                                         <span class="keywordflow">return</span> <span class="keyword">true</span>;
+00272                                                 }
+00273                                         }
+00274                                 }
+00275                                 <span class="keywordflow">return</span> <span class="keyword">false</span>;
+00276                         }
+00277                         <span class="keywordflow">else</span> <span class="keywordflow">return</span> <span class="keyword">true</span>;
+00278                 }
+00279         }
+00280         <span class="keywordflow">return</span> <span class="keyword">false</span>;
+00281 }
 </pre></div>    </td>
   </tr>
 </table>
 <hr><h2>Variable Documentation</h2>
+<a name="a3" doxytag="servers.cpp::has_been_netsplit"></a><p>
+<table class="mdTable" width="100%" cellpadding="2" cellspacing="0">
+  <tr>
+    <td class="mdRow">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> bool <a class="el" href="servers_8cpp.html#a3">has_been_netsplit</a>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+
+<p>
+Definition at line <a class="el" href="servers_8cpp-source.html#l00042">42</a> of file <a class="el" href="servers_8cpp-source.html">servers.cpp</a>.
+<p>
+Referenced by <a class="el" href="servers_8cpp-source.html#l00284">serverrec::FlushWriteBuffers()</a>, and <a class="el" href="servers_8cpp-source.html#l00431">serverrec::RecvPacket()</a>.    </td>
+  </tr>
+</table>
 <a name="a1" doxytag="servers.cpp::MaxConn"></a><p>
 <table class="mdTable" width="100%" cellpadding="2" cellspacing="0">
   <tr>
@@ -121,7 +215,31 @@ Referenced by <a class="el" href="servers_8cpp-source.html#l00370">serverrec::Re
 <p>
 Definition at line <a class="el" href="servers_8cpp-source.html#l00038">38</a> of file <a class="el" href="servers_8cpp-source.html">servers.cpp</a>.
 <p>
-Referenced by <a class="el" href="servers_8cpp-source.html#l00077">serverrec::CreateListener()</a>.    </td>
+Referenced by <a class="el" href="servers_8cpp-source.html#l00081">serverrec::CreateListener()</a>.    </td>
+  </tr>
+</table>
+<a name="a2" doxytag="servers.cpp::me"></a><p>
+<table class="mdTable" width="100%" cellpadding="2" cellspacing="0">
+  <tr>
+    <td class="mdRow">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> <a class="el" href="classserverrec.html">serverrec</a>* <a class="el" href="servers_8cpp.html#a2">me</a>[32]
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+
+<p>
+Definition at line <a class="el" href="servers_8cpp-source.html#l00040">40</a> of file <a class="el" href="servers_8cpp-source.html">servers.cpp</a>.    </td>
   </tr>
 </table>
 <a name="a0" doxytag="servers.cpp::TIME"></a><p>
@@ -148,13 +266,13 @@ Referenced by <a class="el" href="servers_8cpp-source.html#l00077">serverrec::Cr
 Definition at line <a class="el" href="servers_8cpp-source.html#l00037">37</a> of file <a class="el" href="servers_8cpp-source.html">servers.cpp</a>.    </td>
   </tr>
 </table>
-<a name="a2" doxytag="servers.cpp::xsums"></a><p>
+<a name="a4" doxytag="servers.cpp::xsums"></a><p>
 <table class="mdTable" width="100%" cellpadding="2" cellspacing="0">
   <tr>
     <td class="mdRow">
       <table cellpadding="0" cellspacing="0" border="0">
         <tr>
-          <td class="md" nowrap valign="top"> std::deque&lt;std::string&gt; <a class="el" href="servers_8cpp.html#a2">xsums</a>
+          <td class="md" nowrap valign="top"> std::deque&lt;std::string&gt; <a class="el" href="servers_8cpp.html#a4">xsums</a>
       </table>
     </td>
   </tr>
@@ -169,12 +287,12 @@ Definition at line <a class="el" href="servers_8cpp-source.html#l00037">37</a> o
 <p>
 
 <p>
-Definition at line <a class="el" href="servers_8cpp-source.html#l00040">40</a> of file <a class="el" href="servers_8cpp-source.html">servers.cpp</a>.
+Definition at line <a class="el" href="servers_8cpp-source.html#l00044">44</a> of file <a class="el" href="servers_8cpp-source.html">servers.cpp</a>.
 <p>
-Referenced by <a class="el" href="servers_8cpp-source.html#l00350">already_have_sum()</a>.    </td>
+Referenced by <a class="el" href="servers_8cpp-source.html#l00411">already_have_sum()</a>.    </td>
   </tr>
 </table>
-<hr size="1"><address style="align: right;"><small>Generated on Tue May 24 02:31:15 2005 for InspIRCd by
+<hr size="1"><address style="align: right;"><small>Generated on Wed May 25 21:42:46 2005 for InspIRCd by
 <a href="http://www.doxygen.org/index.html">
 <img src="doxygen.png" alt="doxygen" align="middle" border=0 > 
 </a>1.3.3 </small></address>

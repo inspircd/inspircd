@@ -149,22 +149,33 @@ class chanrec : public Extensible
 	BanList bans;
 	
 	/** Sets or unsets a custom mode in the channels info
+	 * @param mode The mode character to set or unset
+	 * @param mode_on True if you want to set the mode or false if you want to remove it
 	 */
 	void SetCustomMode(char mode,bool mode_on);
 
 	/** Sets or unsets the parameters for a custom mode in a channels info
+	 * @param mode The mode character to set or unset
+	 * @param parameter The parameter string to associate with this mode character
+	 * @param mode_on True if you want to set the mode or false if you want to remove it
 	 */
 	void SetCustomModeParam(char mode,char* parameter,bool mode_on);
  
 	/** Returns true if a custom mode is set on a channel
+	  * @param mode The mode character you wish to query
+	  * @return True if the custom mode is set, false if otherwise
 	  */
 	bool IsCustomModeSet(char mode);
 
 	/** Returns the parameter for a custom mode on a channel.
+	  * @param mode The mode character you wish to query
+	  *
 	  * For example if "+L #foo" is set, and you pass this method
 	  * 'L', it will return '#foo'. If the mode is not set on the
 	  * channel, or the mode has no parameters associated with it,
 	  * it will return an empty string.
+	  *
+	  * @return The parameter for this mode is returned, or an empty string
 	  */
 	std::string GetModeParameter(char mode);
 
@@ -172,10 +183,14 @@ class chanrec : public Extensible
 	 * This returns the channel reference counter, which is initialized
 	 * to 0 when the channel is created and incremented/decremented
 	 * upon joins, parts quits and kicks.
+	 *
+	 * @return The number of users on this channel
 	 */
 	long GetUserCounter();
 
 	/** Add a user pointer to the internal reference list
+	 * @param castuser This should be a pointer to a userrec, casted to char*
+	 *
 	 * The data inserted into the reference list is a table as it is
 	 * an arbitary pointer compared to other users by its memory address,
 	 * as this is a very fast 32 or 64 bit integer comparison.
@@ -183,6 +198,8 @@ class chanrec : public Extensible
 	void AddUser(char* castuser);
 
         /** Delete a user pointer to the internal reference list
+	 * @param castuser This should be a pointer to a userrec, casted to char*
+	 *
          * The data removed from the reference list is a table as it is
          * an arbitary pointer compared to other users by its memory address,
          * as this is a very fast 32 or 64 bit integer comparison.
@@ -195,6 +212,8 @@ class chanrec : public Extensible
 	 * channel membership for PRIVMSG, NOTICE, QUIT, PART etc.
 	 * The resulting pointer to the vector should be considered
 	 * readonly and only modified via AddUser and DelUser.
+	 *
+	 * @return This function returns a vector of userrec pointers, each of which has been casted to char* to prevent circular references
 	 */
 	std::vector<char*> *GetUsers();
 

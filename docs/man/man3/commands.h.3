@@ -1,4 +1,4 @@
-.TH "commands.h" 3 "24 May 2005" "InspIRCd" \" -*- nroff -*-
+.TH "commands.h" 3 "25 May 2005" "InspIRCd" \" -*- nroff -*-
 .ad l
 .nh
 .SH NAME
@@ -262,9 +262,16 @@ commands.h \-
 .RI "long \fBduration\fP (const char *str)"
 .br
 .RI "\fIOther useful functions. \fP"
+.ti -1c
+.RI "void \fBConnectServer\fP (char *servermask, \fBuserrec\fP *user)"
+.br
+.RI "\fI\fBServer\fP connect creation. \fP"
 .in -1c
 .SH "Function Documentation"
 .PP 
+.SS "void ConnectServer (char * servermask, \fBuserrec\fP * user)"
+.PP
+\fBServer\fP connect creation. 
 .SS "long duration (const char * str)"
 .PP
 Other useful functions. Referenced by Server::AddELine(), Server::AddGLine(), Server::AddKLine(), Server::AddQLine(), Server::AddZLine(), and Server::CalcDuration().

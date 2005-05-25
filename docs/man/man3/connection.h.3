@@ -1,4 +1,4 @@
-.TH "connection.h" 3 "24 May 2005" "InspIRCd" \" -*- nroff -*-
+.TH "connection.h" 3 "25 May 2005" "InspIRCd" \" -*- nroff -*-
 .ad l
 .nh
 .SH NAME
@@ -81,23 +81,21 @@ connection.h \-
 .SS "#define STATE_CONNECTED   1"
 .PP
 Definition at line 36 of file connection.h.
-.PP
-Referenced by serverrec::MeshCookie().
 .SS "#define STATE_DISCONNECTED   0"
 .PP
 Definition at line 35 of file connection.h.
 .PP
-Referenced by serverrec::BeginLink(), serverrec::FlushWriteBuffers(), serverrec::MeshCookie(), serverrec::RecvPacket(), and serverrec::SendPacket().
+Referenced by serverrec::BeginLink(), serverrec::FlushWriteBuffers(), IsRoutable(), serverrec::MeshCookie(), serverrec::RecvPacket(), and serverrec::SendPacket().
 .SS "#define STATE_NOAUTH_INBOUND   3"
 .PP
 Definition at line 38 of file connection.h.
 .PP
-Referenced by serverrec::AddIncoming().
+Referenced by serverrec::AddIncoming(), and serverrec::FlushWriteBuffers().
 .SS "#define STATE_NOAUTH_OUTBOUND   4"
 .PP
 Definition at line 39 of file connection.h.
 .PP
-Referenced by serverrec::BeginLink(), and serverrec::MeshCookie().
+Referenced by serverrec::BeginLink(), serverrec::FlushWriteBuffers(), and serverrec::MeshCookie().
 .SS "#define STATE_SERVICES   5"
 .PP
 Definition at line 40 of file connection.h.

@@ -1,4 +1,4 @@
-.TH "serverrec" 3 "24 May 2005" "InspIRCd" \" -*- nroff -*-
+.TH "serverrec" 3 "25 May 2005" "InspIRCd" \" -*- nroff -*-
 .ad l
 .nh
 .SH NAME
@@ -122,468 +122,507 @@ A class that defines the local server or a remote server. Definition at line 30 
 .PP 
 .SS "serverrec::serverrec ()"
 .PP
-Constructor. Definition at line 42 of file servers.cpp.
+Constructor. Definition at line 46 of file servers.cpp.
 .PP
 References connectors, connection::fd, hops_away, jupiter, connection::lastping, name, nickserv, opercount, pingtime, connection::signon, sync_soon, TIME, usercount, usercount_i, and version.
 .PP
 .nf
-43 {
-44         strlcpy(name,'',256);
-45         pingtime = 0;
-46         lastping = TIME;
-47         usercount_i = usercount = opercount = version = 0;
-48         hops_away = 1;
-49         signon = TIME;
-50         jupiter = false;
-51         fd = 0;
-52         sync_soon = false;
-53         strlcpy(nickserv,'',NICKMAX);
-54         connectors.clear();
-55 }
+47 {
+48         strlcpy(name,'',256);
+49         pingtime = 0;
+50         lastping = TIME;
+51         usercount_i = usercount = opercount = version = 0;
+52         hops_away = 1;
+53         signon = TIME;
+54         jupiter = false;
+55         fd = 0;
+56         sync_soon = false;
+57         strlcpy(nickserv,'',NICKMAX);
+58         connectors.clear();
+59 }
 .fi
 .SS "serverrec::serverrec (char * n, long ver, bool jupe)"
 .PP
-Constructor which initialises some of the main variables. Definition at line 62 of file servers.cpp.
+Constructor which initialises some of the main variables. Definition at line 66 of file servers.cpp.
 .PP
 References connectors, connection::fd, hops_away, jupiter, connection::lastping, name, nickserv, opercount, connection::signon, sync_soon, TIME, usercount, usercount_i, and version.
 .PP
 .nf
-63 {
-64         strlcpy(name,n,256);
-65         lastping = TIME;
-66         usercount_i = usercount = opercount = 0;
-67         version = ver;
-68         hops_away = 1;
-69         signon = TIME;
-70         jupiter = jupe;
-71         fd = 0;
-72         sync_soon = false;
-73         strlcpy(nickserv,'',NICKMAX);
-74         connectors.clear();
-75 }
+67 {
+68         strlcpy(name,n,256);
+69         lastping = TIME;
+70         usercount_i = usercount = opercount = 0;
+71         version = ver;
+72         hops_away = 1;
+73         signon = TIME;
+74         jupiter = jupe;
+75         fd = 0;
+76         sync_soon = false;
+77         strlcpy(nickserv,'',NICKMAX);
+78         connectors.clear();
+79 }
 .fi
 .SS "serverrec::~\fBserverrec\fP ()"
 .PP
-Destructor. Definition at line 58 of file servers.cpp.
+Destructor. Definition at line 62 of file servers.cpp.
 .PP
 .nf
-59 {
-60 }
+63 {
+64 }
 .fi
 .SH "Member Function Documentation"
 .PP 
 .SS "bool serverrec::AddIncoming (int fd, char * targethost, int sourceport)"
 .PP
-Add an incoming connection to the connection pool. (reserved for core use) Definition at line 207 of file servers.cpp.
+Add an incoming connection to the connection pool. (reserved for core use) Definition at line 212 of file servers.cpp.
 .PP
 References connectors, DEBUG, ircd_connector::SetDescriptor(), ircd_connector::SetHostAndPort(), ircd_connector::SetServerName(), ircd_connector::SetState(), and STATE_NOAUTH_INBOUND.
 .PP
 .nf
-208 {
-209         ircd_connector connector;
-210 
-211         // targethost has been turned into an ip...
-212         // we dont want this as the server name.
-213         connector.SetServerName(targethost);
-214         connector.SetDescriptor(newfd);
-215         connector.SetState(STATE_NOAUTH_INBOUND);
-216         int flags = fcntl(newfd, F_GETFL, 0);
-217         fcntl(newfd, F_SETFL, flags | O_NONBLOCK);
-218         int sendbuf = 32768;
-219         int recvbuf = 32768;
-220         setsockopt(newfd,SOL_SOCKET,SO_SNDBUF,(const void *)&sendbuf,sizeof(sendbuf));
-221         setsockopt(newfd,SOL_SOCKET,SO_RCVBUF,(const void *)&recvbuf,sizeof(sendbuf));
-222         connector.SetHostAndPort(targethost, sourceport);
-223         connector.SetState(STATE_NOAUTH_INBOUND);
-224         log(DEBUG,'serverrec::AddIncoming() Added connection: %s:%d',targethost,sourceport);
-225         this->connectors.push_back(connector);
-226         return true;
-227 }
+213 {
+214         ircd_connector connector;
+215 
+216         // targethost has been turned into an ip...
+217         // we dont want this as the server name.
+218         connector.SetServerName(targethost);
+219         connector.SetDescriptor(newfd);
+220         connector.SetState(STATE_NOAUTH_INBOUND);
+221         int flags = fcntl(newfd, F_GETFL, 0);
+222         fcntl(newfd, F_SETFL, flags | O_NONBLOCK);
+223         int sendbuf = 32768;
+224         int recvbuf = 32768;
+225         setsockopt(newfd,SOL_SOCKET,SO_SNDBUF,(const void *)&sendbuf,sizeof(sendbuf));
+226         setsockopt(newfd,SOL_SOCKET,SO_RCVBUF,(const void *)&recvbuf,sizeof(sendbuf));
+227         connector.SetHostAndPort(targethost, sourceport);
+228         connector.SetState(STATE_NOAUTH_INBOUND);
+229         log(DEBUG,'serverrec::AddIncoming() Added connection: %s:%d',targethost,sourceport);
+230         this->connectors.push_back(connector);
+231         return true;
+232 }
 .fi
 .SS "bool serverrec::BeginLink (char * targethost, int port, char * password, char * servername, int myport)"
 .PP
-Begin an outbound link to another ircd at targethost. Definition at line 138 of file servers.cpp.
+Begin an outbound link to another ircd at targethost. Definition at line 142 of file servers.cpp.
 .PP
 References connectors, connection::fd, FindHost(), ircd_connector::MakeOutboundConnection(), SendPacket(), ircd_connector::SetHostAndPort(), ircd_connector::SetServerName(), ircd_connector::SetState(), STATE_DISCONNECTED, and STATE_NOAUTH_OUTBOUND.
 .PP
 .nf
-139 {
-140         char connect[MAXBUF];
-141 
-142         ircd_connector connector;
-143         ircd_connector *cn = this->FindHost(servername);
-144 
+143 {
+144         char connect[MAXBUF];
 145 
-146         if (cn)
-147         {
-148                 WriteOpers('CONNECT aborted: Server %s already exists',servername);
-149                 return false;
-150         }
-151 
-152 
-153         if (this->fd)
-154         {
-155                 if (connector.MakeOutboundConnection(targethost,newport))
-156                 {
-157                         // targethost has been turned into an ip...
-158                         // we dont want this as the server name.
-159                         connector.SetServerName(servername);
-160                         snprintf(connect,MAXBUF,'S %s %s %lu %s :%s',getservername().c_str(),password,(unsigned long)myport,GetRevision().c_str(),getserverdesc().c_str());
-161                         connector.SetState(STATE_NOAUTH_OUTBOUND);
-162                         connector.SetHostAndPort(targethost, newport);
-163                         this->connectors.push_back(connector);
-164                         return this->SendPacket(connect, servername);
-165                 }
-166                 else
-167                 {
-168                         connector.SetState(STATE_DISCONNECTED);
-169                         WriteOpers('Could not create outbound connection to %s:%d',targethost,newport);
-170                 }
-171         }
-172         return false;
-173 }
+146         ircd_connector connector;
+147         ircd_connector *cn = this->FindHost(servername);
+148 
+149 
+150         if (cn)
+151         {
+152                 WriteOpers('CONNECT aborted: Server %s already exists',servername);
+153                 return false;
+154         }
+155 
+156 
+157         if (this->fd)
+158         {
+159                 if (connector.MakeOutboundConnection(targethost,newport))
+160                 {
+161                         // targethost has been turned into an ip...
+162                         // we dont want this as the server name.
+163                         connector.SetServerName(servername);
+164                         snprintf(connect,MAXBUF,'S %s %s %lu %s :%s',getservername().c_str(),password,(unsigned long)myport,GetRevision().c_str(),getserverdesc().c_str());
+165                         connector.SetState(STATE_NOAUTH_OUTBOUND);
+166                         connector.SetHostAndPort(targethost, newport);
+167                         this->connectors.push_back(connector);
+168                         // this packet isn't actually sent until the socket connects -- the STATE_NOAUTH_OUTBOUND state
+169                         // queues outbound data until the socket is polled as writeable (e.g. the connection is established)
+170                         return this->SendPacket(connect, servername);
+171                 }
+172                 else
+173                 {
+174                         connector.SetState(STATE_DISCONNECTED);
+175                         WriteOpers('Could not create outbound connection to %s:%d',targethost,newport);
+176                 }
+177         }
+178         return false;
+179 }
 .fi
 .SS "bool serverrec::CreateListener (char * host, int p)"
 .PP
-Create a listening socket on 'host' using port number 'p'. Definition at line 77 of file servers.cpp.
+Create a listening socket on 'host' using port number 'p'. Definition at line 81 of file servers.cpp.
 .PP
 References connection::fd, MaxConn, and connection::port.
 .PP
 .nf
-78 {
-79         sockaddr_in host_address;
-80         int flags;
-81         in_addr addy;
-82         int on = 0;
-83         struct linger linger = { 0 };
-84 
-85         this->port = p;
-86 
-87         fd = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
-88         if (fd <= 0)
-89         {
-90                 return false;
-91         }
-92 
-93         setsockopt(fd,SOL_SOCKET,SO_REUSEADDR,(const char*)&on,sizeof(on));
-94         linger.l_onoff = 1;
-95         linger.l_linger = 1;
-96         setsockopt(fd,SOL_SOCKET,SO_LINGER,(const char*)&linger,sizeof(linger));
-97 
-98         // attempt to increase socket sendq and recvq as high as its possible
-99         // to get them on linux.
-100         int sendbuf = 32768;
-101         int recvbuf = 32768;
-102         setsockopt(fd,SOL_SOCKET,SO_SNDBUF,(const void *)&sendbuf,sizeof(sendbuf));
-103         setsockopt(fd,SOL_SOCKET,SO_RCVBUF,(const void *)&recvbuf,sizeof(sendbuf));
-104 
-105         memset((void*)&host_address, 0, sizeof(host_address));
-106 
-107         host_address.sin_family = AF_INET;
+82 {
+83         sockaddr_in host_address;
+84         int flags;
+85         in_addr addy;
+86         int on = 0;
+87         struct linger linger = { 0 };
+88 
+89         this->port = p;
+90 
+91         fd = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+92         if (fd <= 0)
+93         {
+94                 return false;
+95         }
+96 
+97         setsockopt(fd,SOL_SOCKET,SO_REUSEADDR,(const char*)&on,sizeof(on));
+98         linger.l_onoff = 1;
+99         linger.l_linger = 1;
+100         setsockopt(fd,SOL_SOCKET,SO_LINGER,(const char*)&linger,sizeof(linger));
+101 
+102         // attempt to increase socket sendq and recvq as high as its possible
+103         // to get them on linux.
+104         int sendbuf = 32768;
+105         int recvbuf = 32768;
+106         setsockopt(fd,SOL_SOCKET,SO_SNDBUF,(const void *)&sendbuf,sizeof(sendbuf));
+107         setsockopt(fd,SOL_SOCKET,SO_RCVBUF,(const void *)&recvbuf,sizeof(sendbuf));
 108 
-109         if (!strcmp(newhost,''))
-110         {
-111                 host_address.sin_addr.s_addr = htonl(INADDR_ANY);
-112         }
-113         else
+109         memset((void*)&host_address, 0, sizeof(host_address));
+110 
+111         host_address.sin_family = AF_INET;
+112 
+113         if (!strcmp(newhost,''))
 114         {
-115                 inet_aton(newhost,&addy);
-116                 host_address.sin_addr = addy;
-117         }
-118 
-119         host_address.sin_port = htons(p);
-120 
-121         if (bind(fd,(sockaddr*)&host_address,sizeof(host_address))<0)
-122         {
-123                 return false;
-124         }
-125 
-126         // make the socket non-blocking
-127         flags = fcntl(fd, F_GETFL, 0);
-128         fcntl(fd, F_SETFL, flags | O_NONBLOCK);
+115                 host_address.sin_addr.s_addr = htonl(INADDR_ANY);
+116         }
+117         else
+118         {
+119                 inet_aton(newhost,&addy);
+120                 host_address.sin_addr = addy;
+121         }
+122 
+123         host_address.sin_port = htons(p);
+124 
+125         if (bind(fd,(sockaddr*)&host_address,sizeof(host_address))<0)
+126         {
+127                 return false;
+128         }
 129 
-130         this->port = p;
-131 
-132         listen(this->fd, MaxConn);
+130         // make the socket non-blocking
+131         flags = fcntl(fd, F_GETFL, 0);
+132         fcntl(fd, F_SETFL, flags | O_NONBLOCK);
 133 
-134         return true;
-135 }
+134         this->port = p;
+135 
+136         listen(this->fd, MaxConn);
+137 
+138         return true;
+139 }
 .fi
 .SS "\fBircd_connector\fP * serverrec::FindHost (std::string host)"
 .PP
-Find the \fBircd_connector\fP oject related to a certain servername given in 'host'. Definition at line 237 of file servers.cpp.
+Find the \fBircd_connector\fP oject related to a certain servername given in 'host'. Definition at line 242 of file servers.cpp.
 .PP
 References connectors.
 .PP
-Referenced by BeginLink(), and SendPacket().
+Referenced by BeginLink(), IsRoutable(), and SendPacket().
 .PP
 .nf
-238 {
-239         for (int i = 0; i < this->connectors.size(); i++)
-240         {
-241                 if (this->connectors[i].GetServerName() == findhost)
-242                 {
-243                         return &this->connectors[i];
-244                 }
-245         }
-246         return NULL;
-247 }
+243 {
+244         for (int i = 0; i < this->connectors.size(); i++)
+245         {
+246                 if (this->connectors[i].GetServerName() == findhost)
+247                 {
+248                         return &this->connectors[i];
+249                 }
+250         }
+251         return NULL;
+252 }
 .fi
 .SS "void serverrec::FlushWriteBuffers ()"
 .PP
-Flushes all data waiting to be written for all of this server's connections. Definition at line 249 of file servers.cpp.
+Flushes all data waiting to be written for all of this server's connections. Definition at line 284 of file servers.cpp.
 .PP
-References connectors, and STATE_DISCONNECTED.
+References connectors, has_been_netsplit, IsRoutable(), STATE_DISCONNECTED, STATE_NOAUTH_INBOUND, STATE_NOAUTH_OUTBOUND, and TIME.
 .PP
 .nf
-250 {
-251         for (int i = 0; i < this->connectors.size(); i++)
-252         {
-253                 if (this->connectors[i].GetState() != STATE_DISCONNECTED)
-254                 {
-255                         if (!this->connectors[i].CheckPing())
-256                         {
-257                                 WriteOpers('*** Lost single connection to %s: Ping timeout',this->connectors[i].GetServerName().c_str());
-258                                 this->connectors[i].CloseConnection();
-259                                 this->connectors[i].SetState(STATE_DISCONNECTED);
-260                         }
-261                 }
-262                 if (this->connectors[i].HasBufferedOutput())
-263                 {
-264                         if (!this->connectors[i].FlushWriteBuf())
-265                         {
-266                                 // if we're here the write() caused an error, we cannot proceed
-267                                 WriteOpers('*** Lost single connection to %s, link inactive and retrying: %s',this->connectors[i].GetServerName().c_str(),this->connectors[i].GetWriteError().c_str());
-268                                 this->connectors[i].CloseConnection();
-269                                 this->connectors[i].SetState(STATE_DISCONNECTED);
-270                         }
-271                 }
-272         }
-273 }
+285 {
+286         for (int i = 0; i < this->connectors.size(); i++)
+287         {
+288                 // don't try and ping a NOAUTH_OUTBOUND state, its not authed yet!
+289                 if ((this->connectors[i].GetState() == STATE_NOAUTH_OUTBOUND) && (TIME > this->connectors[i].age+30))
+290                 {
+291                         // however if we reach this timer its connected timed out :)
+292                         WriteOpers('*** Connection to %s timed out',this->connectors[i].GetServerName().c_str());
+293                         DoSplit(this->connectors[i].GetServerName().c_str());
+294                         return;
+295                 }
+296                 else if ((this->connectors[i].GetState() == STATE_NOAUTH_INBOUND) && (TIME > this->connectors[i].age+30))
+297                 {
+298                         WriteOpers('*** Connection from %s timed out',this->connectors[i].GetServerName().c_str());
+299                         DoSplit(this->connectors[i].GetServerName().c_str());
+300                         return;
+301                 }
+302                 else if (this->connectors[i].GetState() != STATE_DISCONNECTED)
+303                 {
+304                         if (!this->connectors[i].CheckPing())
+305                         {
+306                                 WriteOpers('*** Lost single connection to %s: Ping timeout',this->connectors[i].GetServerName().c_str());
+307                                 this->connectors[i].CloseConnection();
+308                                 this->connectors[i].SetState(STATE_DISCONNECTED);
+309                                 if (!IsRoutable(this->connectors[i].GetServerName()))
+310                                 {
+311                                         WriteOpers('*** Server %s is no longer routable, disconnecting.',this->connectors[i].GetServerName().c_str());
+312                                         DoSplit(this->connectors[i].GetServerName().c_str());
+313                                 }
+314                                 has_been_netsplit = true;
+315                         }
+316                 }
+317                 if (this->connectors[i].HasBufferedOutput())
+318                 {
+319                         if (!this->connectors[i].FlushWriteBuf())
+320                         {
+321                                 // if we're here the write() caused an error, we cannot proceed
+322                                 WriteOpers('*** Lost single connection to %s, link inactive and retrying: %s',this->connectors[i].GetServerName().c_str(),this->connectors[i].GetWriteError().c_str());
+323                                 this->connectors[i].CloseConnection();
+324                                 this->connectors[i].SetState(STATE_DISCONNECTED);
+325                                 if (!IsRoutable(this->connectors[i].GetServerName()))
+326                                 {
+327                                         WriteOpers('*** Server %s is no longer routable, disconnecting.',this->connectors[i].GetServerName().c_str());
+328                                         DoSplit(this->connectors[i].GetServerName().c_str());
+329                                 }
+330                                 has_been_netsplit = true;
+331                         }
+332                 }
+333         }
+334 }
 .fi
 .SS "bool serverrec::MeshCookie (char * targethost, int port, unsigned long cookie, char * servername)"
 .PP
-Begin an outbound mesh link to another ircd on a network you are already an authenticated member of. Definition at line 176 of file servers.cpp.
+Begin an outbound mesh link to another ircd on a network you are already an authenticated member of. Definition at line 182 of file servers.cpp.
 .PP
-References connectors, connection::fd, ircd_connector::MakeOutboundConnection(), SendPacket(), ircd_connector::SetHostAndPort(), ircd_connector::SetServerName(), ircd_connector::SetState(), STATE_CONNECTED, STATE_DISCONNECTED, and STATE_NOAUTH_OUTBOUND.
+References connectors, connection::fd, ircd_connector::MakeOutboundConnection(), SendPacket(), ircd_connector::SetHostAndPort(), ircd_connector::SetServerName(), ircd_connector::SetState(), STATE_DISCONNECTED, and STATE_NOAUTH_OUTBOUND.
 .PP
 .nf
-177 {
-178         char connect[MAXBUF];
-179 
-180         ircd_connector connector;
-181 
-182         WriteOpers('Establishing meshed link to %s:%d',servername,newport);
-183 
-184         if (this->fd)
-185         {
-186                 if (connector.MakeOutboundConnection(targethost,newport))
-187                 {
-188                         // targethost has been turned into an ip...
-189                         // we dont want this as the server name.
-190                         connector.SetServerName(servername);
-191                         snprintf(connect,MAXBUF,'- %lu %s :%s',cookie,getservername().c_str(),getserverdesc().c_str());
-192                         connector.SetState(STATE_NOAUTH_OUTBOUND);
-193                         connector.SetHostAndPort(targethost, newport);
-194                         connector.SetState(STATE_CONNECTED);
-195                         this->connectors.push_back(connector);
-196                         return this->SendPacket(connect, servername);
-197                 }
-198                 else
-199                 {
-200                         connector.SetState(STATE_DISCONNECTED);
-201                         WriteOpers('Could not create outbound connection to %s:%d',targethost,newport);
+183 {
+184         char connect[MAXBUF];
+185 
+186         ircd_connector connector;
+187 
+188         WriteOpers('Establishing meshed link to %s:%d',servername,newport);
+189 
+190         if (this->fd)
+191         {
+192                 if (connector.MakeOutboundConnection(targethost,newport))
+193                 {
+194                         // targethost has been turned into an ip...
+195                         // we dont want this as the server name.
+196                         connector.SetServerName(servername);
+197                         snprintf(connect,MAXBUF,'- %lu %s :%s',cookie,getservername().c_str(),getserverdesc().c_str());
+198                         connector.SetState(STATE_NOAUTH_OUTBOUND);
+199                         connector.SetHostAndPort(targethost, newport);
+200                         this->connectors.push_back(connector);
+201                         return this->SendPacket(connect, servername);
 202                 }
-203         }
-204         return false;
-205 }
+203                 else
+204                 {
+205                         connector.SetState(STATE_DISCONNECTED);
+206                         WriteOpers('Could not create outbound connection to %s:%d',targethost,newport);
+207                 }
+208         }
+209         return false;
+210 }
 .fi
 .SS "bool serverrec::RecvPacket (std::deque< std::string > & messages, char * host, std::deque< std::string > & sums)"
 .PP
-Returns the next available packet and returns true if data is available. Writes the servername the data came from to 'host'. If no data is available this function returns false. This function will automatically close broken links and reroute pathways, generating split messages on the network. Definition at line 370 of file servers.cpp.
+Returns the next available packet and returns true if data is available. Writes the servername the data came from to 'host'. If no data is available this function returns false. This function will automatically close broken links and reroute pathways, generating split messages on the network. Definition at line 431 of file servers.cpp.
 .PP
-References already_have_sum(), connectors, DEBUG, and STATE_DISCONNECTED.
+References already_have_sum(), connectors, DEBUG, has_been_netsplit, IsRoutable(), and STATE_DISCONNECTED.
 .PP
 .nf
-371 {
-372         char data[65536];
-373         memset(data, 0, 65536);
-374         for (int i = 0; i < this->connectors.size(); i++)
-375         {
-376                 if (this->connectors[i].GetState() != STATE_DISCONNECTED)
-377                 {
-378                         // returns false if the packet could not be sent (e.g. target host down)
-379                         int rcvsize = 0;
-380 
-381                         // check if theres any data on this socket
-382                         // if not, continue onwards to the next.
-383                         pollfd polls;
-384                         polls.fd = this->connectors[i].GetDescriptor();
-385                         polls.events = POLLIN;
-386                         int ret = poll(&polls,1,1);
-387                         if (ret <= 0) continue;
-388 
-389                         rcvsize = recv(this->connectors[i].GetDescriptor(),data,65000,0);
-390                         data[rcvsize] = '\0';
-391                         if (rcvsize == -1)
-392                         {
-393                                 if (errno != EAGAIN)
-394                                 {
-395                                         log(DEBUG,'recv() failed for serverrec::RecvPacket(): %s',strerror(errno));
-396                                         log(DEBUG,'Disabling connector: %s',this->connectors[i].GetServerName().c_str());
-397                                         this->connectors[i].CloseConnection();
-398                                         this->connectors[i].SetState(STATE_DISCONNECTED);
-399                                 }
-400                         }
-401                         int pushed = 0;
-402                         if (rcvsize > 0)
-403                         {
-404                                 if (!this->connectors[i].AddBuffer(data))
-405                                 {
-406                                         WriteOpers('*** Read buffer for %s exceeds maximum, closing connection!',this->connectors[i].GetServerName().c_str());
-407                                         this->connectors[i].CloseConnection();
-408                                         this->connectors[i].SetState(STATE_DISCONNECTED);
-409                                 }
-410                                 if (this->connectors[i].BufferIsComplete())
-411                                 {
-412                                         this->connectors[i].ResetPing();
-413                                         while (this->connectors[i].BufferIsComplete())
-414                                         {
-415                                                 std::string text = this->connectors[i].GetBuffer();
-416                                                 if (text != '')
-417                                                 {
-418                                                         if ((text[0] == ':') && (text.find(' ') != std::string::npos))
-419                                                         {
-420                                                                 std::string orig = text;
-421                                                                 log(DEBUG,'Original: %s',text.c_str());
-422                                                                 std::string sum = text.substr(1,text.find(' ')-1);
-423                                                                 text = text.substr(text.find(' ')+1,text.length());
-424                                                                 std::string possible_token = text.substr(1,text.find(' ')-1);
-425                                                                 if (possible_token.length() > 1)
-426                                                                 {
-427                                                                         sums.push_back('*');
-428                                                                         text = orig;
-429                                                                         log(DEBUG,'Non-mesh, non-tokenized string passed up the chain');
-430                                                                 }
-431                                                                 else
-432                                                                 {
-433                                                                         log(DEBUG,'Packet sum: '%s'',sum.c_str());
-434                                                                         if ((already_have_sum(sum)) && (sum != '*'))
-435                                                                         {
-436                                                                                 // we don't accept dupes
-437                                                                                 continue;
-438                                                                         }
-439                                                                         sums.push_back(sum.c_str());
-440                                                                 }
-441                                                         }
-442                                                         else sums.push_back('*');
-443                                                         messages.push_back(text.c_str());
-444                                                         strlcpy(recvhost,this->connectors[i].GetServerName().c_str(),160);
-445                                                         log(DEBUG,'serverrec::RecvPacket() %d:%s->%s',pushed++,recvhost,text.c_str());
-446                                                 }
-447                                         }
-448                                         return true;
-449                                 }
-450                         }
-451                 }
-452         }
-453         // nothing new yet -- message and host will be undefined
-454         return false;
-455 }
+432 {
+433         char data[65536];
+434         memset(data, 0, 65536);
+435         for (int i = 0; i < this->connectors.size(); i++)
+436         {
+437                 if (this->connectors[i].GetState() != STATE_DISCONNECTED)
+438                 {
+439                         // returns false if the packet could not be sent (e.g. target host down)
+440                         int rcvsize = 0;
+441 
+442                         // check if theres any data on this socket
+443                         // if not, continue onwards to the next.
+444                         pollfd polls;
+445                         polls.fd = this->connectors[i].GetDescriptor();
+446                         polls.events = POLLIN;
+447                         int ret = poll(&polls,1,1);
+448                         if (ret <= 0) continue;
+449 
+450                         rcvsize = recv(this->connectors[i].GetDescriptor(),data,65000,0);
+451                         data[rcvsize] = '\0';
+452                         if (rcvsize == -1)
+453                         {
+454                                 if (errno != EAGAIN)
+455                                 {
+456                                         log(DEBUG,'recv() failed for serverrec::RecvPacket(): %s',strerror(errno));
+457                                         log(DEBUG,'Disabling connector: %s',this->connectors[i].GetServerName().c_str());
+458                                         this->connectors[i].CloseConnection();
+459                                         this->connectors[i].SetState(STATE_DISCONNECTED);
+460                                         if (!IsRoutable(this->connectors[i].GetServerName()))
+461                                         {
+462                                                 WriteOpers('*** Server %s is no longer routable, disconnecting.',this->connectors[i].GetServerName().c_str());
+463                                                 DoSplit(this->connectors[i].GetServerName().c_str());
+464                                         }
+465                                         has_been_netsplit = true;
+466                                 }
+467                         }
+468                         int pushed = 0;
+469                         if (rcvsize > 0)
+470                         {
+471                                 if (!this->connectors[i].AddBuffer(data))
+472                                 {
+473                                         WriteOpers('*** Read buffer for %s exceeds maximum, closing connection!',this->connectors[i].GetServerName().c_str());
+474                                         this->connectors[i].CloseConnection();
+475                                         this->connectors[i].SetState(STATE_DISCONNECTED);
+476                                         if (!IsRoutable(this->connectors[i].GetServerName()))
+477                                         {
+478                                                 WriteOpers('*** Server %s is no longer routable, disconnecting.',this->connectors[i].GetServerName().c_str());
+479                                                 DoSplit(this->connectors[i].GetServerName().c_str());
+480                                         }
+481                                         has_been_netsplit = true;
+482                                 }
+483                                 if (this->connectors[i].BufferIsComplete())
+484                                 {
+485                                         this->connectors[i].ResetPing();
+486                                         while (this->connectors[i].BufferIsComplete())
+487                                         {
+488                                                 std::string text = this->connectors[i].GetBuffer();
+489                                                 if (text != '')
+490                                                 {
+491                                                         if ((text[0] == ':') && (text.find(' ') != std::string::npos))
+492                                                         {
+493                                                                 std::string orig = text;
+494                                                                 log(DEBUG,'Original: %s',text.c_str());
+495                                                                 std::string sum = text.substr(1,text.find(' ')-1);
+496                                                                 text = text.substr(text.find(' ')+1,text.length());
+497                                                                 std::string possible_token = text.substr(1,text.find(' ')-1);
+498                                                                 if (possible_token.length() > 1)
+499                                                                 {
+500                                                                         sums.push_back('*');
+501                                                                         text = orig;
+502                                                                         log(DEBUG,'Non-mesh, non-tokenized string passed up the chain');
+503                                                                 }
+504                                                                 else
+505                                                                 {
+506                                                                         log(DEBUG,'Packet sum: '%s'',sum.c_str());
+507                                                                         if ((already_have_sum(sum)) && (sum != '*'))
+508                                                                         {
+509                                                                                 // we don't accept dupes
+510                                                                                 continue;
+511                                                                         }
+512                                                                         sums.push_back(sum.c_str());
+513                                                                 }
+514                                                         }
+515                                                         else sums.push_back('*');
+516                                                         messages.push_back(text.c_str());
+517                                                         strlcpy(recvhost,this->connectors[i].GetServerName().c_str(),160);
+518                                                         log(DEBUG,'serverrec::RecvPacket() %d:%s->%s',pushed++,recvhost,text.c_str());
+519                                                 }
+520                                         }
+521                                         return true;
+522                                 }
+523                         }
+524                 }
+525         }
+526         // nothing new yet -- message and host will be undefined
+527         return false;
+528 }
 .fi
 .SS "bool serverrec::SendPacket (char * message, const char * host)"
 .PP
-Send a message to a server by name, if the server is unavailable directly route the packet via another server If the server still cannot be reached after attempting to route the message remotely, returns false. Definition at line 275 of file servers.cpp.
+Send a message to a server by name, if the server is unavailable directly route the packet via another server If the server still cannot be reached after attempting to route the message remotely, returns false. Definition at line 336 of file servers.cpp.
 .PP
 References ircd_connector::AddWriteBuf(), ircd_connector::CloseConnection(), connectors, DEBUG, FindHost(), ircd_connector::FlushWriteBuf(), ircd_connector::GetServerName(), ircd_connector::GetState(), ircd_connector::GetWriteError(), ircd_connector::SetState(), and STATE_DISCONNECTED.
 .PP
 Referenced by BeginLink(), and MeshCookie().
 .PP
 .nf
-276 {
-277         if ((!message) || (!sendhost))
-278                 return true;
-279 
-280         ircd_connector* cn = this->FindHost(sendhost);
-281 
-282         if (!strchr(message,'\n'))
-283         {
-284                 strlcat(message,'\n',MAXBUF);
-285         }
-286 
-287         if (cn)
-288         {
-289                 log(DEBUG,'main: serverrec::SendPacket() sent '%s' to %s',message,cn->GetServerName().c_str());
-290 
-291                 if (cn->GetState() == STATE_DISCONNECTED)
-292                 {
-293                         // fix: can only route one hop to avoid a loop
-294                         if (strncmp(message,'R ',2))
-295                         {
-296                                 log(DEBUG,'Not a double reroute');
-297                                 // this route is down, we must re-route the packet through an available point in the mesh.
-298                                 for (int k = 0; k < this->connectors.size(); k++)
-299                                 {
-300                                         log(DEBUG,'Check connector %d: %s',k,this->connectors[k].GetServerName().c_str());
-301                                         // search for another point in the mesh which can 'reach' where we want to go
-302                                         for (int m = 0; m < this->connectors[k].routes.size(); m++)
-303                                         {
-304                                                 if (!strcasecmp(this->connectors[k].routes[m].c_str(),sendhost))
-305                                                 {
-306                                                         log(DEBUG,'Found alternative route for packet: %s',this->connectors[k].GetServerName().c_str());
-307                                                         char buffer[MAXBUF];
-308                                                         snprintf(buffer,MAXBUF,'R %s %s',sendhost,message);
-309                                                         this->SendPacket(buffer,this->connectors[k].GetServerName().c_str());
-310                                                         return true;
-311                                                 }
-312                                         }
-313                                 }
-314                         }
-315                         char buffer[MAXBUF];
-316                         snprintf(buffer,MAXBUF,'& %s',sendhost);
-317                         WriteOpers('*** All connections to %s lost.',sendhost);
-318                         NetSendToAllExcept(sendhost,buffer);
-319                         DoSplit(sendhost);
-320                         return false;
-321                 }
-322 
-323                 // returns false if the packet could not be sent (e.g. target host down)
-324                 if (!cn->AddWriteBuf(message))
-325                 {
-326                         // if we're here, there was an error pending, and the send cannot proceed
-327                         log(DEBUG,'cn->AddWriteBuf() failed for serverrec::SendPacket(): %s',cn->GetWriteError().c_str());
-328                         log(DEBUG,'Disabling connector: %s',cn->GetServerName().c_str());
-329                         cn->CloseConnection();
-330                         cn->SetState(STATE_DISCONNECTED);
-331                         WriteOpers('*** Lost single connection to %s, link inactive and retrying: %s',cn->GetServerName().c_str(),cn->GetWriteError().c_str());
-332                         // retry the packet along a new route so either arrival OR failure are gauranteed (bugfix)
-333                         return this->SendPacket(message,sendhost);
-334                 }
-335                 if (!cn->FlushWriteBuf())
-336                 {
-337                         // if we're here the write() caused an error, we cannot proceed
-338                         log(DEBUG,'cn->FlushWriteBuf() failed for serverrec::SendPacket(): %s',cn->GetWriteError().c_str());
-339                         log(DEBUG,'Disabling connector: %s',cn->GetServerName().c_str());
-340                         cn->CloseConnection();
-341                         cn->SetState(STATE_DISCONNECTED);
-342                         WriteOpers('*** Lost single connection to %s, link inactive and retrying: %s',cn->GetServerName().c_str(),cn->GetWriteError().c_str());
-343                         // retry the packet along a new route so either arrival OR failure are gauranteed
-344                         return this->SendPacket(message,sendhost);
-345                 }
-346                 return true;
-347         }
-348 }
+337 {
+338         if ((!message) || (!sendhost))
+339                 return true;
+340 
+341         ircd_connector* cn = this->FindHost(sendhost);
+342 
+343         if (!strchr(message,'\n'))
+344         {
+345                 strlcat(message,'\n',MAXBUF);
+346         }
+347 
+348         if (cn)
+349         {
+350                 log(DEBUG,'main: serverrec::SendPacket() sent '%s' to %s',message,cn->GetServerName().c_str());
+351 
+352                 if (cn->GetState() == STATE_DISCONNECTED)
+353                 {
+354                         // fix: can only route one hop to avoid a loop
+355                         if (strncmp(message,'R ',2))
+356                         {
+357                                 log(DEBUG,'Not a double reroute');
+358                                 // this route is down, we must re-route the packet through an available point in the mesh.
+359                                 for (int k = 0; k < this->connectors.size(); k++)
+360                                 {
+361                                         log(DEBUG,'Check connector %d: %s',k,this->connectors[k].GetServerName().c_str());
+362                                         // search for another point in the mesh which can 'reach' where we want to go
+363                                         for (int m = 0; m < this->connectors[k].routes.size(); m++)
+364                                         {
+365                                                 if (!strcasecmp(this->connectors[k].routes[m].c_str(),sendhost))
+366                                                 {
+367                                                         log(DEBUG,'Found alternative route for packet: %s',this->connectors[k].GetServerName().c_str());
+368                                                         char buffer[MAXBUF];
+369                                                         snprintf(buffer,MAXBUF,'R %s %s',sendhost,message);
+370                                                         this->SendPacket(buffer,this->connectors[k].GetServerName().c_str());
+371                                                         return true;
+372                                                 }
+373                                         }
+374                                 }
+375                         }
+376                         char buffer[MAXBUF];
+377                         snprintf(buffer,MAXBUF,'& %s',sendhost);
+378                         WriteOpers('*** All connections to %s lost.',sendhost);
+379                         NetSendToAllExcept(sendhost,buffer);
+380                         DoSplit(sendhost);
+381                         return false;
+382                 }
+383 
+384                 // returns false if the packet could not be sent (e.g. target host down)
+385                 if (!cn->AddWriteBuf(message))
+386                 {
+387                         // if we're here, there was an error pending, and the send cannot proceed
+388                         log(DEBUG,'cn->AddWriteBuf() failed for serverrec::SendPacket(): %s',cn->GetWriteError().c_str());
+389                         log(DEBUG,'Disabling connector: %s',cn->GetServerName().c_str());
+390                         cn->CloseConnection();
+391                         cn->SetState(STATE_DISCONNECTED);
+392                         WriteOpers('*** Lost single connection to %s, link inactive and retrying: %s',cn->GetServerName().c_str(),cn->GetWriteError().c_str());
+393                         // retry the packet along a new route so either arrival OR failure are gauranteed (bugfix)
+394                         return this->SendPacket(message,sendhost);
+395                 }
+396                 if (!cn->FlushWriteBuf())
+397                 {
+398                         // if we're here the write() caused an error, we cannot proceed
+399                         log(DEBUG,'cn->FlushWriteBuf() failed for serverrec::SendPacket(): %s',cn->GetWriteError().c_str());
+400                         log(DEBUG,'Disabling connector: %s',cn->GetServerName().c_str());
+401                         cn->CloseConnection();
+402                         cn->SetState(STATE_DISCONNECTED);
+403                         WriteOpers('*** Lost single connection to %s, link inactive and retrying: %s',cn->GetServerName().c_str(),cn->GetWriteError().c_str());
+404                         // retry the packet along a new route so either arrival OR failure are gauranteed
+405                         return this->SendPacket(message,sendhost);
+406                 }
+407                 return true;
+408         }
+409 }
 .fi
 .SS "void serverrec::TerminateLink (char * targethost)"
 .PP
-Terminate a link to 'targethost' by calling the \fBircd_connector::CloseConnection\fP method. Definition at line 229 of file servers.cpp.
+Terminate a link to 'targethost' by calling the \fBircd_connector::CloseConnection\fP method. Definition at line 234 of file servers.cpp.
 .PP
 .nf
-230 {
-231         // this locates the targethost in the serverrec::connectors vector of the class,
-232         // and terminates it by sending it an SQUIT token and closing its descriptor.
-233         // TerminateLink with a null string causes a terminate of ALL links
-234 }
+235 {
+236         // this locates the targethost in the serverrec::connectors vector of the class,
+237        // and terminates it by sending it an SQUIT token and closing its descriptor.
+238         // TerminateLink with a null string causes a terminate of ALL links
+239 }
 .fi
 .SH "Member Data Documentation"
 .PP 
@@ -591,7 +630,7 @@ Terminate a link to 'targethost' by calling the \fBircd_connector::CloseConnecti
 .PP
 With a serverrec, this is a list of all established server connections. Definition at line 81 of file servers.h.
 .PP
-Referenced by AddIncoming(), BeginLink(), FindHost(), FlushWriteBuffers(), MeshCookie(), RecvPacket(), SendPacket(), and serverrec().
+Referenced by AddIncoming(), BeginLink(), FindHost(), FlushWriteBuffers(), IsRoutable(), MeshCookie(), RecvPacket(), SendPacket(), and serverrec().
 .SS "char \fBserverrec::description\fP[MAXBUF]"
 .PP
 Description of the server. Definition at line 61 of file servers.h.
