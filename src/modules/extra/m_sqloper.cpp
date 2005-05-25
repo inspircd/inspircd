@@ -148,7 +148,8 @@ class ModuleSQLOper : public Module
 		                                        /* found this oper's opertype */
 							Srv->MeshSendAll("| "+std::string(user->nick)+" "+TypeName);
 							std::string HostName = Conf->ReadValue("type","host",j);
-		                                        Srv->ChangeHost(user,HostName);
+							if (HostName != "")
+			                                        Srv->ChangeHost(user,HostName);
 		                                        strlcpy(user->oper,TypeName.c_str(),NICKMAX);
 							WriteOpers("*** %s (%s@%s) is now an IRC operator of type %s",user->nick,user->ident,user->host,rowresult->GetField("type").c_str());
 							WriteServ(user->fd,"381 %s :You are now an IRC operator of type %s",user->nick,rowresult->GetField("type").c_str());

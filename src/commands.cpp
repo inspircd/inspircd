@@ -1737,7 +1737,8 @@ void handle_oper(char **parameters, int pcnt, userrec *user)
 					snprintf(global,MAXBUF,"| %s %s",user->nick,TypeName);
 					NetSendToAll(global);
 					ConfValue("type","host",j,HostName,&config_f);
-					ChangeDisplayedHost(user,HostName);
+					if (*HostName)
+						ChangeDisplayedHost(user,HostName);
 					strlcpy(user->oper,TypeName,NICKMAX);
 					found = true;
 					fail2 = false;
