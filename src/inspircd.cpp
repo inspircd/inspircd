@@ -2042,21 +2042,18 @@ void process_command(userrec *user, char* cmd)
 					}
 					if ((user->registered == 7) && (!strchr(user->modes,'o')))
 					{
-						char* mycmd;
-						char* savept2;
-						mycmd = strtok_r(DisabledCommands," ",&savept2);
-						while (mycmd)
+						std::stringstream dcmds(DisabledCommands);
+						while (!dcmds.eof())
 						{
-							if (!strcasecmp(mycmd,command))
+							std::string thiscmd;
+							dcmds >> thiscmd;
+							if (!strcasecmp(thiscmd.c_str(),command))
 							{
 								// command is disabled!
 								WriteServ(user->fd,"421 %s %s :This command has been disabled.",user->nick,command);
 								return;
 							}
-							mycmd = strtok_r(NULL," ",&savept2);
 						}
-        
-
 					}
 					if ((user->registered == 7) || (!strncmp(command,"USER",4)) || (!strncmp(command,"NICK",4)) || (!strncmp(command,"PASS",4)))
 					{
