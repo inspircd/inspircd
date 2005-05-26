@@ -6,3 +6,6 @@ m_sqlauth.cpp
 m_sqllog.cpp
 m_sqloper.cpp
 m_servicecore.cpp
+*.so
+*.o
+
