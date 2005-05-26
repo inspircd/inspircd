@@ -1,0 +1,8 @@
+*_static.cpp
+m_filter_pcre.cpp
+m_sql.cpp
+m_sql.h
+m_sqlauth.cpp
+m_sqllog.cpp
+m_sqloper.cpp
+m_servicecore.cpp
