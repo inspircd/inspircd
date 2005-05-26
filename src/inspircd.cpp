@@ -516,9 +516,9 @@ chanrec* add_channel(userrec *user, const char* cn, const char* key, bool overri
 	// we MUST declare this wherever we use FOREACH_RESULT
 	int MOD_RESULT = 0;
 
-	if (strlen(cname) > CHANMAX-1)
+	if (strlen(cname) > CHANMAX)
 	{
-		cname[CHANMAX-1] = '\0';
+		cname[CHANMAX] = '\0';
 	}
 
 	log(DEBUG,"add_channel: %s %s",user->nick,cname);
