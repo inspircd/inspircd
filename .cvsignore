@@ -2,3 +2,5 @@
 *.so
 Makefile
 .config.cache
+inspircd
+inspircd.pid
