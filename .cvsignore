@@ -1,0 +1,4 @@
+*_static.cpp
+*.so
+Makefile
+.config.cache
