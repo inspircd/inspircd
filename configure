@@ -188,9 +188,11 @@ dir_check("are the IRCd libraries to be placed", "LIBRARY_DIR");
 
 if ($has_kqueue) {
 	yesno(USE_KQUEUE,"You are running a BSD operating system, and kqueue\nwas detected. Would you like to enable kqueue support?\nThis is likely to increase performance.\nIf you are unsure, answer yes.\n\nEnable kqueue?");
+	print "\n";
 }
 if ($has_epoll) {
 	yesno(USE_EPOLL,"You are running a Linux 2.6+ operating system, and epoll\nwas detected. Would you like to enable epoll support?\nThis is likely to increase performance.\nIf you are unsure, answer yes.\n\nEnable epoll?");
+	print "\n";
 }
 $chose_hiperf = (($config{USE_EPOLL} eq "y") || ($config{USE_KQUEUE} eq "y"));
 if (!$chose_hiperf)
