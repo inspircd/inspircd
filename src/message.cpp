@@ -280,7 +280,7 @@ int isnick(const char* n)
 	{
 		return 0;
 	}
-	if (strlen(n) > NICKMAX-1)
+	if (strlen(n) > NICKMAX)
 	{
 		return 0;
 	}
