@@ -386,6 +386,10 @@
 #                                                                     #
 #  By default, ALL modules are commented out. You must uncomment them #
 #  or add lines to your config to load modules.                       #
+#                                                                     #
+#  WINDOWS USERS PLEASE NOTE: You can still load these modules! They  #
+#  are incorporated into the executable and can be loaded and removed #
+#  similarly to if they were in a ramdisk.                            #
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Foobar module - does nothing
