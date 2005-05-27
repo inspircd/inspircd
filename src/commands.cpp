@@ -991,7 +991,7 @@ void handle_who(char **parameters, int pcnt, userrec *user)
 						n_list++;
 						if (n_list > MaxWhoResults)
 						{
-							WriteServ(user->fd,"557 %s WHO :Command aborted: More results than configured limit",user->nick);
+							WriteServ(user->fd,"523 %s WHO :Command aborted: More results than configured limit",user->nick);
 							break;
 						}
 					}
@@ -1030,7 +1030,7 @@ void handle_who(char **parameters, int pcnt, userrec *user)
                                                 n_list++;
                                                 if (n_list > MaxWhoResults)
                                                 {
-                                                        WriteServ(user->fd,"557 %s WHO :Command aborted: More results than configured limit",user->nick);
+                                                        WriteServ(user->fd,"523 %s WHO :Command aborted: More results than configured limit",user->nick);
                                                         break;
                                                 }
 
