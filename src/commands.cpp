@@ -528,7 +528,7 @@ void handle_topic(char **parameters, int pcnt, userrec *user)
 				strlcpy(topic,parameters[1],MAXBUF);
 				if (strlen(topic)>MAXTOPIC)
 				{
-					topic[MAXTOPIC-1] = '\0';
+					topic[MAXTOPIC] = '\0';
 				}
 
                                 if (!strcasecmp(user->server,ServerName))
@@ -990,7 +990,10 @@ void handle_who(char **parameters, int pcnt, userrec *user)
 						WriteServ(user->fd,"352 %s %s %s %s %s %s %s :0 %s",user->nick, Ptr ? Ptr->name : "*", i->second->ident, i->second->dhost, i->second->server, i->second->nick, tmp, i->second->fullname);
 						n_list++;
 						if (n_list > MaxWhoResults)
+						{
+							WriteServ(user->fd,"557 %s WHO :Command aborted: More results than configured limit",user->nick);
 							break;
+						}
 					}
 				}
 			}
@@ -1009,6 +1012,7 @@ void handle_who(char **parameters, int pcnt, userrec *user)
 			Ptr = FindChan(parameters[0]);
 			if (Ptr)
 			{
+				int n_list = 0;
 			  	for (user_hash::const_iterator i = clientlist.begin(); i != clientlist.end(); i++)
 				{
 					if ((has_channel(i->second,Ptr)) && (isnick(i->second->nick)))
@@ -1023,6 +1027,13 @@ void handle_who(char **parameters, int pcnt, userrec *user)
 						if (strchr(i->second->modes,'o')) { strlcat(tmp, "*", 9); }
 						strlcat(tmp, cmode(i->second, Ptr),5);
 						WriteServ(user->fd,"352 %s %s %s %s %s %s %s :0 %s",user->nick, Ptr->name, i->second->ident, i->second->dhost, i->second->server, i->second->nick, tmp, i->second->fullname);
+                                                n_list++;
+                                                if (n_list > MaxWhoResults)
+                                                {
+                                                        WriteServ(user->fd,"557 %s WHO :Command aborted: More results than configured limit",user->nick);
+                                                        break;
+                                                }
+
 					}
 				}
 				WriteServ(user->fd,"315 %s %s :End of /WHO list.",user->nick, parameters[0]);
