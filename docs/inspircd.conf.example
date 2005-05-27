@@ -11,7 +11,7 @@
 #         This is an example of the config file for InspIRCd.          #
 #             Change the options to suit your network                  #
 #								       #
-#                 Last updated on : 05/24/2005                         #
+#                 Last updated on : 05/27/2005                         #
 #                 Written by      : CC  (cc@backchat.co.za)            #
 #                 Updated by      : katsklaw (katsklaw@gmail.com)      #
 ########################################################################
@@ -44,9 +44,9 @@
 #              email="email@address.com">			      #
 #								      #
 
-<admin  name="Johnny Casino"
-        nick="CC"
-        email="cc@monkeynut.co.za">
+<admin  name="Johnny English"
+        nick="MI5"
+        email="MI5@the.best.secret.agent">
 
 
 #-#-#-#-#-#-#-#-#-#-#-#-   PORT CONFIGURATION   -#-#-#-#-#-#-#-#-#-#-#-
@@ -148,7 +148,7 @@
 #                                                                     #
 
 <connect allow="196.12.*"  password="secret">
-<connect allow="*" timeout="60" flood="10" timeout="60" pingfreq="120" sendq="262144" recvq="4096">
+<connect allow="*" timeout="60" flood="10" threshold="60" pingfreq="120" sendq="262144" recvq="4096">
 
 <connect deny="69.254.*">
 
@@ -180,8 +180,9 @@
 #  classes    - specified above, used for flexibility for the         #
 #               server admin to decide on which operators get         #
 #		what commands					      #
-#  host	      - hostmask operators will recieve on oper-up            #
-#								      #
+#  host	      - hostmask operators will recieve on oper-up.           #
+#(optional)							      #
+#                                                                     #
 #  Syntax is as follows:					      #
 #	<type name="name" classes="class name" host="oper hostmask">  #
 #								      #
@@ -199,7 +200,9 @@
 #								      #
 #  name      - oper name, best to use lower-case		      #
 #  password  - password to oper-up,	              	              #
-#              encryption not yet available			      #
+#              encryption not supported by inspircd. However, there   #
+#              are modules that allow for oper password encryption.   #		      
+#                                                                     #
 #  host      - host of client allowed to oper-up, more hostmasks      #
 #              seperated by spaces, wildcards accepted	              #
 #  type      - specified above, defines the kind of operator	      #
@@ -211,7 +214,7 @@
 #             type="oper type">					      #
 #								      #
 
-<oper   name="cc"
+<oper   name="katsklaw"
 	password="s3cret"
         host="*@*"
         type="NetAdmin">
@@ -265,15 +268,14 @@
 <uline server="services.antarctic.com">
 
 
-
 #-#-#-#-#-#-#-#-#-#-  MISCELLANEOUS CONFIGURATION  -#-#-#-#-#-#-#-#-#-#
 #								      #
 #   These options let you define the path to your motd and rules      #
 #   files.							      #
 #								      #
 
-<files  motd="/home/cc/inspircd-1.0/conf/inspire.motd"
-	rules="/home/cc/inspircd-1.0/conf/inspire.rules">
+<files  motd="/home/cc/inspircd/conf/inspire.motd"
+	rules="/home/cc/inspircd/conf/inspire.rules">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-# DNS SERVER -#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 #                                                                     #
@@ -414,6 +416,10 @@
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Restricted channels module: Allows only opers to create channels
 #<module name="m_restrictchans.so">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Deny Channels: Deny Channels from being used by users
+#<module name="m_denychans.so"> 
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Services support module: Adds several usermodes such as +R and +M
@@ -582,9 +588,9 @@
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Oper levels module: Gives each oper a level and prevents
 # actions being taken against higher level opers
+#<module name="m_operlevels.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-#<module name="m_operlevels.so">
 # Remove module: Adds the /REMOVE command which is a peaceful
 # alternative to /KICK
 #<module name="m_remove.so">
