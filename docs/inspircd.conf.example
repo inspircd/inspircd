@@ -11,7 +11,7 @@
 #         This is an example of the config file for InspIRCd.          #
 #             Change the options to suit your network                  #
 #								       #
-#                 Last updated on : 05/27/2005                         #
+#                 Last updated on : 05/28/2005                         #
 #                 Written by      : CC  (cc@backchat.co.za)            #
 #                 Updated by      : katsklaw (katsklaw@gmail.com)      #
 ########################################################################
@@ -387,7 +387,9 @@
 #  in the config, or via /LOADMODULE, you will receive an error.      #
 #                                                                     #
 #  By default, ALL modules are commented out. You must uncomment them #
-#  or add lines to your config to load modules.                       #
+#  or add lines to your config to load modules. Please refer to       #
+#  http://www.inspircd.org/wiki/Modules_List for a list of modules and#
+#  each modules link for any additional conf tags they require.       #
 #                                                                     #
 #  WINDOWS USERS PLEASE NOTE: You can still load these modules! They  #
 #  are incorporated into the executable and can be loaded and removed #
