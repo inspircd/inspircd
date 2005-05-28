@@ -16,8 +16,8 @@
 
 using namespace std;
 
-#include "globals.h"
 #include "inspircd_config.h"
+#include "globals.h"
 #include "dynamic.h"
 
 #ifndef STATIC_LINK

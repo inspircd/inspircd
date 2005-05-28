@@ -16,6 +16,7 @@
 
 using namespace std;
 
+#include "inspircd_config.h"
 #include "inspircd.h" 
 #include "inspircd_io.h" 
 #include "inspircd_util.h" 

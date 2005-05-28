@@ -16,6 +16,7 @@
 
 using namespace std;
 
+#include "inspircd_config.h"
 #include <sys/time.h>
 #include <sys/resource.h>
 #include <sys/types.h>

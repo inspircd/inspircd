@@ -16,7 +16,8 @@
 
 using namespace std;
 
-#include <connection.h>
+#include "inspircd.h"
+#include "connection.h"
 #include <unistd.h>
 #include <fcntl.h>
 #include <poll.h>
@@ -27,7 +28,6 @@ using namespace std;
 #include <string>
 #include <deque>
 #include <sstream>
-#include "inspircd.h"
 #include "modules.h"
 #include "inspstring.h"
 #include "helperfuncs.h"

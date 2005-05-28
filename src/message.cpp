@@ -16,10 +16,10 @@
 
 using namespace std;
 
+#include "inspircd_config.h"
 #include "inspircd.h"
 #include "inspircd_io.h"
 #include "inspircd_util.h"
-#include "inspircd_config.h"
 #include <unistd.h>
 #include <fcntl.h>
 #include <sys/errno.h>

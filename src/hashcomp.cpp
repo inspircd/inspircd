@@ -16,8 +16,8 @@
 
 using namespace std;
 
-#include <string>
 #include "inspircd.h"
+#include <string>
 #include "hashcomp.h"
 #include "helperfuncs.h"
 #ifdef GCC3

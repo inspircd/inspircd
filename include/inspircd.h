@@ -14,6 +14,7 @@
  * ---------------------------------------------------
  */
 
+#include "inspircd_config.h"
 #include <string>
 #include <stdio.h>
 #include <unistd.h>
@@ -34,7 +35,6 @@
 #include <string>
 #include <deque>
 
-#include "inspircd_config.h"
 #include "inspircd_io.h"
 #include "inspircd_util.h"
 #include "users.h"

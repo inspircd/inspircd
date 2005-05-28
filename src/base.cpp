@@ -14,8 +14,8 @@
  * ---------------------------------------------------
  */
 
+#include "inspircd_config.h"
 #include "base.h"
-#include "inspircd_config.h" 
 #include <time.h>
 #include <map>
 #include <string>
