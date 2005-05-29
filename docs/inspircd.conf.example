@@ -94,6 +94,23 @@
 <power diepass="diepass" restartpass="restartpass" pause="2">
 
 
+=-=-=-=-=-=-=-=-=-=-  INCLUDE CONFIGURATION  -=-=-=-=-=-=-=-=-=-=-=-=-=
+#                                                                     #
+# This optional tag allows you to include another config file         #
+# allowing you to keep your configuration tidy. The configuration     #
+# file you include will be treated as part of the configuration file  #
+# which includes it, in simple terms the inclusion is transparent.    #
+#                                                                     #
+# All paths to config files are relative to the directory of the main #
+# config file inspircd.conf, unless the filename starts with a forward#
+# slash (/) in which case it is treated as an absolute path.          #
+#                                                                     #
+# Syntax is as follows:                                               #
+#       <include="file.conf">                                         #
+#                                                                     #
+# A perfect example of an included conf file is helpop.conf           #
+#<include="helpop.conf">
+
 #-#-#-#-#-#-#-#-#-#-  CONNECTIONS CONFIGURATION   -#-#-#-#-#-#-#-#-#-#-
 #								      #
 #   This is where you can configure which connections are allowed     #
@@ -628,7 +645,8 @@
 # Optional - If you specify to use the m_helpop.so module, then       #
 # specify below the path to the helpop.conf file.                     #
 
-<helpop file="/path/to/inspircd/helpop.conf">
+<die value="If you used the helpop include above then do *NOT* use this tag.">
+#<helpop file="/path/to/inspircd/helpop.conf">
 
 
 #-#-#-#-#-#-#-#-#-#-  RANDOMQUOTES CONFIGURATION -#-#-#-#-#-#-#-#-#-#-#
