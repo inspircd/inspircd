@@ -15,16 +15,17 @@
 #               I HATE PERL.. kthxbye
 # ---------------------------------------------------
 
-my $conffile = "@CONFIG_DIR@/inspircd.conf";
+my $confpath = "@CONFIG_DIR@/";
 my $binpath = "@BINARY_DIR@";
 my $libpath = "@LIBRARY_DIR@";
 my $executable = "@EXECUTABLE@";
+my @filesparsed;
 
 $ENV{"LD_LIBRARY_PATH"} = $ENV{"LD_LIBRARY_PATH"} . ":/usr/local/lib/mysql:/usr/lib/mysql:$libpath";
 
 # Lets see what they want to do.. Set the variable (Cause i'm a lazy coder)
 my $arg = $ARGV[0];
-getpidfile();
+getpidfile($confpath."inspircd.conf");
 
 if ($arg eq "start") { start(); exit(); }
 if ($arg eq "debug") { debug(); exit(); }
@@ -118,21 +119,72 @@ sub stop {
         print "InspIRCd Stopped.\n";
 }
 
+# GetPidfile Version 2 - Now With Include Support..
+# I beg for months for include support in insp, then.. 
+# when it is added, it comes around and BITES ME IN THE ASS,
+# because i then have to code support into this script.. Evil.
 
 sub getpidfile {
-	open INFILE, "<  $conffile" or die "Couldn't open $conffile\n";
-	my(@lines) = <INFILE>;
-	close INFILE;
-	chomp(@lines);
+  my ($file) = @_;
+  # Before we start, do we have a PID already? (Should never occur)
+  if ($pid ne "") {
+    return;
+  }
+  # Are We using a relative path?
+  if ($file !~ /^\//) {
+    # Convert it to a full path..
+    $file = $confpath . $file;
+  }
 
-	foreach $i (@lines) {
-	    $i =~ s/[^=]+=\s(.*)/\1/;
-	}
+  # Have we checked this file before?
+  for (my $i = 0; $i < $filesparsed; $i++) {
+    if ($filesparsed[$i] eq $file) {
+      # Already Parsed, Possible recursive loop..
+      return;
+    }
+  }
+  
+  # If we get here, Mark as 'Read'
+  $filesparsed[$filesparsed] = $file;
 
-	my $tmp = join("",@lines);
-	$tmp =~ /<pid file=\"(\S+)\">/i;
+  # Open the File..
+  open INFILE, "< $file" or die "Unable to Open file $file\n";
+  # Grab entire file contents..
+  my(@lines) = <INFILE>;
+  # Close the file
+  close INFILE;
 
-	$pidfile = $1;
+  # Clean up the file, no newlines etc..
+  chomp(@lines);
+  foreach $i (@lines) {
+    $i =~ s/[^=]+=\s(.*)/\1/;
+  }
+  my $tmp = join("",@lines);
+
+  # Does this file have a pid?
+  if ($tmp =~ /<pid file=\"(\S+)\">/i) {
+    # Set the PID file and return.
+    $pidfile = $1;
+    return;
+  }
+
+  # If we get here, NO PID FILE! -- Check for includes (Seeing as we will eventually return,
+  # The while (1) is safe.)
+  while (1) {
+    if ($tmp =~ s/\<include file=\"(.+?)\"\>//i)
+    {
+      # Decend into that file, and check for PIDs.. (that sounds like an STD ;/)
+      getpidfile($1);
+      # Was a PID found?
+      if ($pidfile ne "") {
+        # Yes, Return.
+        return;
+      }
+    } else {
+      # End of includes / No includes found.
+      return;
+    }
+  }
 }
 
 sub getstatus {
@@ -154,3 +206,4 @@ sub getprocessid {
 	close PIDFILE;
 	return $pid;
 }
+
