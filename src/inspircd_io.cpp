@@ -355,6 +355,13 @@ bool LoadConf(const char* filename, std::stringstream *target, std::stringstream
 								std::string newstuff = merge.str();
 								*target << newstuff;
 							}
+							else
+							{
+								// the error propogates up to its parent recursively
+								// causing the config reader to bail at the top level.
+								fclose(conf);
+								return false;
+							}
 						}
 						else
 						{
