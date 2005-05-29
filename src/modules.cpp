@@ -72,6 +72,8 @@ extern int MODCOUNT;
 extern std::vector<Module*> modules;
 extern std::vector<ircd_module*> factory;
 
+extern std::vector<std::string> include_stack;
+
 extern time_t TIME;
 
 extern int LogLevel;
@@ -818,6 +820,7 @@ Module* Server::FindModule(std::string name)
 
 ConfigReader::ConfigReader()
 {
+	include_stack.clear();
 	this->cache = new std::stringstream(std::stringstream::in | std::stringstream::out);
 	this->errorlog = new std::stringstream(std::stringstream::in | std::stringstream::out);
 	this->readerror = LoadConf(CONFIG_FILE,this->cache,this->errorlog);

@@ -120,6 +120,7 @@ int ep, lep, sep;
 #endif
 
 bool has_been_netsplit = false;
+extern std::vector<std::string> include_stack;
 
 typedef nspace::hash_map<std::string, userrec*, nspace::hash<string>, irc::StrHashComp> user_hash;
 typedef nspace::hash_map<std::string, chanrec*, nspace::hash<string>, irc::StrHashComp> chan_hash;
@@ -263,6 +264,7 @@ void ReadConfig(bool bail, userrec* user)
 	char AH[MAXBUF],AP[MAXBUF],AF[MAXBUF],DNT[MAXBUF],pfreq[MAXBUF],thold[MAXBUF],sqmax[MAXBUF],rqmax[MAXBUF];
 	ConnectClass c;
 	std::stringstream errstr;
+	include_stack.clear();
 	
 	if (!LoadConf(CONFIG_FILE,&config_f,&errstr))
 	{

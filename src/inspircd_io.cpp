@@ -37,6 +37,7 @@ extern int openSockfd[MAXSOCKS];
 extern time_t TIME;
 extern bool unlimitcore;
 extern int MaxConn;
+std::vector<std::string> include_stack;
 
 void WriteOpers(char* text, ...);
 
@@ -298,6 +299,15 @@ bool LoadConf(const char* filename, std::stringstream *target, std::stringstream
 	}
 	// Fix the chmod of the file to restrict it to the current user and group
 	chmod(filename,0600);
+	for (int t = 0; t < include_stack.size(); t++)
+	{
+		if (std::string(filename) == include_stack[t])
+		{
+			*errorstream << "File " << filename << " is included recursively (looped inclusion)." << endl;
+			return false;
+		}
+	}
+	include_stack.push_back(filename);
 	// now open it
 	FILE* conf = fopen(filename,"r");
 	char buffer[MAXBUF];
@@ -314,6 +324,7 @@ bool LoadConf(const char* filename, std::stringstream *target, std::stringstream
 						if (!strncmp(buffer,"<include file=\"",15))
 						{
 							char* buf = buffer;
+							char confpath[10240],newconf[10240];
 							// include file directive
 							buf += 15;	// advance to filename
 							for (int j = 0; j < strlen(buffer); j++)
@@ -325,13 +336,25 @@ bool LoadConf(const char* filename, std::stringstream *target, std::stringstream
 								}
 							}
 							log(DEFAULT,"Opening included file '%s'",buf);
+							if (*buf != '/')
+							{
+								strlcpy(confpath,CONFIG_FILE,10240);
+								if (strstr(confpath,"/inspircd.conf"))
+								{
+									// leaves us with just the path
+									*(strstr(confpath,"/inspircd.conf")) = '\0';
+								}
+								snprintf(newconf,10240,"%s/%s",confpath,buf);
+							}
+							else snprintf(newconf,10240,"%s",buf);
 							std::stringstream merge(stringstream::in | stringstream::out);
 							// recursively call LoadConf and get the new data, use the same errorstream
-							LoadConf(buf, &merge, errorstream);
-							// append &merge to the end of the file
-							std::string newstuff = merge.str();
-							// append the new stuff to the end of the line
-							*target << newstuff;
+							if (LoadConf(newconf, &merge, errorstream))
+							{
+								// append to the end of the file
+								std::string newstuff = merge.str();
+								*target << newstuff;
+							}
 						}
 						else
 						{
