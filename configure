@@ -475,6 +475,16 @@ other ircds.
 FOO
 }
 
+if ($config{GCCVER} < "3") {
+	print <<FOO2;
+\033[1;32mWARNING!\033[0m You are attempting to compile InspIRCd on GCC 2.x!
+GCC 2.x series compilers only had partial (read as broken) C++ support, and
+your compile will most likely fail horribly! If you have any problems, do NOT
+report them to the bugtracker or forums without first upgrading your compiler
+to a newer 3.x or 4.x (or whatever is available currently) version.
+FOO2
+}
+
 ################################################################################
 #                              HELPER FUNCTIONS                                #
 ################################################################################
