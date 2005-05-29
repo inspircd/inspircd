@@ -327,8 +327,10 @@ bool LoadConf(const char* filename, std::stringstream *target, std::stringstream
 							char confpath[10240],newconf[10240];
 							// include file directive
 							buf += 15;	// advance to filename
-							for (int j = 0; j < strlen(buffer); j++)
+							for (int j = 0; j < strlen(buf); j++)
 							{
+								if (buf[j] == '\\')
+									buf[j] = '/';
 								if (buf[j] == '"')
 								{
 									buf[j] = '\0';
