@@ -120,3 +120,8 @@ void AddOper(userrec* user);
 void DeleteOper(userrec* user);
 
 void handle_version(char **parameters, int pcnt, userrec *user);
+
+// userrec optimization stuff
+
+void AddServerName(std::string servername);
+const char* FindServerNamePtr(std::string servername);

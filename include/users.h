@@ -146,7 +146,7 @@ class userrec : public connection
 	
 	/** The server the user is connected to.
 	 */
-	char server[256];
+	char* server;
 	
 	/** The user's away message.
 	 * If this string is empty, the user is not marked as away.
@@ -325,10 +325,10 @@ class WhoWasUser
 {
  public:
 	char nick[NICKMAX];
-	char ident[16];
+	char ident[IDENTMAX+1];
 	char dhost[160];
 	char host[160];
-	char fullname[128];
+	char fullname[MAXGECOS+1];
 	char server[256];
 	time_t signon;
 };

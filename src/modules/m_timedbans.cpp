@@ -152,6 +152,7 @@ class ModuleTimedBans : public Module
 						// falls into the abyss :p
 						userrec* temp = new userrec;
 						temp->fd = FD_MAGIC_NUMBER;
+						temp->server = "";
 						Srv->SendMode(setban,3,temp);
 						delete temp;
 					}

@@ -2406,7 +2406,7 @@ void handle_N(char token,char* params,serverrec* source,serverrec* reply, char* 
 	strlcpy(clientlist[nick]->nick, nick,NICKMAX);
 	strlcpy(clientlist[nick]->host, host,160);
 	strlcpy(clientlist[nick]->dhost, dhost,160);
-	strlcpy(clientlist[nick]->server, server,256);
+	clientlist[nick]->server = (char*)FindServerNamePtr(server);
 	strlcpy(clientlist[nick]->ident, ident,IDENTMAX); // +1 char to compensate for tilde
 	strlcpy(clientlist[nick]->fullname, gecos,MAXGECOS);
 	strlcpy(clientlist[nick]->ip,ipaddr,16);
@@ -3262,6 +3262,7 @@ void handle_link_packet(char* tcp_msg, char* tcp_host, serverrec *serv,char* tcp
       								me[j]->connectors[k].SetServerName(servername);
 								me[j]->connectors[k].SetDescription(serverdesc);
 								me[j]->connectors[k].SetState(STATE_CONNECTED);
+								AddServerName(servername);
 								NetSendMyRoutingTable();
       								return;
 							}
@@ -3328,7 +3329,6 @@ void handle_link_packet(char* tcp_msg, char* tcp_host, serverrec *serv,char* tcp
 			}
 		}
 		
-		
 		char Link_ServerName[1024];
 		char Link_IPAddr[1024];
 		char Link_Port[1024];
@@ -3358,6 +3358,7 @@ void handle_link_packet(char* tcp_msg, char* tcp_host, serverrec *serv,char* tcp
 					if (!strcasecmp(serv->connectors[t].GetServerName().c_str(),servername))
 					{
 						serv->connectors[t].SetState(STATE_CONNECTED);
+						AddServerName(servername);
 					}
 				}
 		
@@ -3424,6 +3425,7 @@ void handle_link_packet(char* tcp_msg, char* tcp_host, serverrec *serv,char* tcp
 								char buffer[MAXBUF];
 								me[j]->connectors[k].SetDescription(serverdesc);
 								me[j]->connectors[k].SetState(STATE_CONNECTED);
+								AddServerName(servername);
 								snprintf(buffer,MAXBUF,"%s X 0",CreateSum().c_str());
 								serv->SendPacket(buffer,tcp_host);
 								DoSync(me[j],tcp_host);
@@ -3517,6 +3519,7 @@ void handle_link_packet(char* tcp_msg, char* tcp_host, serverrec *serv,char* tcp
 								me[j]->connectors[k].SetDescription(serverdesc);
 								me[j]->connectors[k].SetServerName(servername);
 								me[j]->connectors[k].SetState(STATE_SERVICES);
+								AddServerName(servername);
 								snprintf(buffer,MAXBUF,"%s X 0",CreateSum().c_str());
 								serv->SendPacket(buffer,servername);
 								snprintf(buffer,MAXBUF,"%s s %s %s %lu :%s",CreateSum().c_str(),ServerName,Link_SendPass,LinkPort,ServerDesc);

@@ -25,6 +25,7 @@ using namespace std;
 #include "helperfuncs.h"
 
 extern std::stringstream config_f;
+extern char ServerName[MAXBUF];
 
 extern time_t TIME;
 
@@ -39,7 +40,7 @@ userrec::userrec()
 	strcpy(dhost,"");
 	strcpy(fullname,"");
 	strcpy(modes,"");
-	strcpy(server,"");
+	server = (char*)FindServerNamePtr(ServerName);
 	strcpy(awaymsg,"");
 	strcpy(oper,"");
 	reset_due = TIME;
@@ -50,7 +51,6 @@ userrec::userrec()
 	dns_done = false;
 	recvq = "";
 	sendq = "";
-	strcpy(result,"");
 	for (int i = 0; i < MAXCHANS; i++)
 	{
 		this->chans[i].channel = NULL;

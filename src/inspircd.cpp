@@ -127,6 +127,7 @@ typedef nspace::hash_map<in_addr,string*, nspace::hash<in_addr>, irc::InAddr_Has
 typedef nspace::hash_map<std::string, WhoWasUser*, nspace::hash<string>, irc::StrHashComp> whowas_hash;
 typedef std::deque<command_t> command_table;
 typedef std::map<std::string,time_t> autoconnects;
+typedef std::vector<std::string> servernamelist;
 
 // This table references users by file descriptor.
 // its an array to make it VERY fast, as all lookups are referenced
@@ -149,6 +150,7 @@ file_cache RULES;
 address_cache IP;
 
 ClassVector Classes;
+servernamelist servernames;
 
 struct linger linger = { 0 };
 char MyExecutable[1024];
@@ -177,6 +179,26 @@ void AddOper(userrec* user)
 {
 	log(DEBUG,"Oper added to optimization list");
 	all_opers.push_back(user);
+}
+
+void AddServerName(std::string servername)
+{
+	for (servernamelist::iterator a = servernames.begin(); a < servernames.end(); a++)
+	{
+		if (*a == servername)
+			return;
+	}
+	servernames.push_back(servername);
+}
+
+const char* FindServerNamePtr(std::string servername)
+{
+	for (servernamelist::iterator a = servernames.begin(); a < servernames.end(); a++)
+	{
+		if (*a == servername)
+			return a->c_str();
+	}
+	return "";
 }
 
 void DeleteOper(userrec* user)
@@ -1397,16 +1419,16 @@ void AddClient(int socket, char* host, int port, bool iscached, char* ip)
 	log(DEBUG,"AddClient: %lu %s %d %s",(unsigned long)socket,host,port,ip);
 
 	clientlist[tempnick]->fd = socket;
-	strncpy(clientlist[tempnick]->nick, tn2,NICKMAX);
-	strncpy(clientlist[tempnick]->host, host,160);
-	strncpy(clientlist[tempnick]->dhost, host,160);
-	strncpy(clientlist[tempnick]->server, ServerName,256);
-	strncpy(clientlist[tempnick]->ident, "unknown",IDENTMAX);
+	strlcpy(clientlist[tempnick]->nick, tn2,NICKMAX);
+	strlcpy(clientlist[tempnick]->host, host,160);
+	strlcpy(clientlist[tempnick]->dhost, host,160);
+	clientlist[tempnick]->server = (char*)FindServerNamePtr(ServerName);
+	strlcpy(clientlist[tempnick]->ident, "unknown",IDENTMAX);
 	clientlist[tempnick]->registered = 0;
 	clientlist[tempnick]->signon = TIME+dns_timeout;
 	clientlist[tempnick]->lastping = 1;
 	clientlist[tempnick]->port = port;
-	strncpy(clientlist[tempnick]->ip,ip,16);
+	strlcpy(clientlist[tempnick]->ip,ip,16);
 
 	// set the registration timeout for this user
 	unsigned long class_regtimeout = 90;
@@ -2585,6 +2607,8 @@ int InspIRCd(char** argv, int argc)
 		exit(0); 
 	}  
 	log(DEBUG,"InspIRCd: startup: read config");
+
+	AddServerName(ServerName);
 
 	int clientportcount = 0, serverportcount = 0;
 
