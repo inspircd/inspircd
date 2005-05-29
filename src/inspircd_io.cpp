@@ -311,13 +311,38 @@ bool LoadConf(const char* filename, std::stringstream *target, std::stringstream
 				{
 					if ((buffer[0] != '#') && (buffer[0] != '\r')  && (buffer[0] != '\n'))
 					{
-						bool error = false;
-						std::string data = ConfProcess(buffer,linenumber++,errorstream,error,filename);
-						if (error)
+						if (!strncmp(buffer,"<include file=\"",15))
 						{
-							return false;
+							char* buf = buffer;
+							// include file directive
+							buf += 15;	// advance to filename
+							for (int j = 0; j < strlen(buffer); j++)
+							{
+								if (buf[j] == '"')
+								{
+									buf[j] = '\0';
+									break;
+								}
+							}
+							log(DEFAULT,"Opening included file '%s'",buf);
+							std::stringstream merge(stringstream::in | stringstream::out);
+							// recursively call LoadConf and get the new data, use the same errorstream
+							LoadConf(buf, &merge, errorstream);
+							// append &merge to the end of the file
+							std::string newstuff = merge.str();
+							// append the new stuff to the end of the line
+							*target << newstuff;
 						}
-						*target << data;
+						else
+						{
+							bool error = false;
+							std::string data = ConfProcess(buffer,linenumber++,errorstream,error,filename);
+							if (error)
+							{
+								return false;
+							}
+							*target << data;
+						}
 					}
 					else linenumber++;
 				}
