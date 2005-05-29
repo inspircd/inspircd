@@ -462,6 +462,21 @@ bool serverrec::RecvPacket(std::deque<std::string> &messages, char* recvhost,std
 
                         rcvsize = recv(this->connectors[i].GetDescriptor(),data,65000,0);
                         data[rcvsize] = '\0';
+			if (rcvsize == 0)
+			{
+				log(DEBUG,"recv() failed for serverrec::RecvPacket(): EOF");
+                                log(DEBUG,"Disabling connector: %s",this->connectors[i].GetServerName().c_str());
+                                this->connectors[i].CloseConnection();
+                                this->connectors[i].SetState(STATE_DISCONNECTED);
+                                if (!IsRoutable(this->connectors[i].GetServerName()))
+                                {
+					WriteOpers("*** Server %s is no longer routable, disconnecting (EOF)",this->connectors[i].GetServerName().c_str());
+					snprintf(buffer,MAXBUF,"& %s",this->connectors[i].GetServerName().c_str());
+					NetSendToAllExcept(this->connectors[i].GetServerName().c_str(),buffer);
+					DoSplit(this->connectors[i].GetServerName().c_str());
+				}
+				has_been_netsplit = true;
+			}
                         if (rcvsize == -1)
                         {
                                 if (errno != EAGAIN)
