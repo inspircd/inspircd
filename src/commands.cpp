@@ -2286,6 +2286,11 @@ void handle_n(char token,char* params,serverrec* source,serverrec* reply, char* 
 		if (!user->nick) return;
 		strlcpy(user->nick, newnick,NICKMAX);
 		log(DEBUG,"new nick set: %s",user->nick);
+	        if (user->registered == 7)
+	        {
+	                FOREACH_MOD OnUserPostNick(user,oldnick);
+	        }
+
 	}
 }
 

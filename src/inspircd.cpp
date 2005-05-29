@@ -1607,6 +1607,7 @@ void FullConnectUser(userrec* user)
 
 	// fix by brain: these should be AFTER the N token, so other servers know what the HELL we're on about... :)
 	FOREACH_MOD OnUserConnect(user);
+	FOREACH_MOD OnGlobalConnect(user);
 	WriteOpers("*** Client connecting on port %lu: %s!%s@%s [%s]",(unsigned long)user->port,user->nick,user->ident,user->host,user->ip);
 }
 
