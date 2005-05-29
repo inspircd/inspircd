@@ -46,15 +46,8 @@
 #define ERROR -1
 #define TRUE 1
 #define FALSE 0
-#define IDENTMAX 12
 #define MAXSOCKS 64
-
-// maximum lengths of items
-
-#define MAXQUIT 255
 #define MAXCOMMAND 32
-#define MAXTOPIC 307
-#define MAXKICK 255
 
 // flags for use with log()
 

@@ -122,7 +122,7 @@ class userrec : public connection
 	
 	/** The users ident reply.
 	 */
-	char ident[16];
+	char ident[MAXIDENT+1];
 
 	/** The host displayed to non-opers (used for cloaking etc).
 	 * This usually matches the value of userrec::host.
@@ -131,7 +131,7 @@ class userrec : public connection
 	
 	/** The users full name.
 	 */
-	char fullname[128];
+	char fullname[MAXGECOS+1];
 	
 	/** The user's mode string.
 	 * This may contain any of the following RFC characters: o, w, s, i
@@ -148,12 +148,7 @@ class userrec : public connection
 	/** The user's away message.
 	 * If this string is empty, the user is not marked as away.
 	 */
-	char awaymsg[512];
-	
-	/** Stores the result of the last GetFullHost or GetRealHost call.
-	 * You may use this to increase the speed of use of this class.
-	 */
-	char result[256];
+	char awaymsg[MAXAWAY+1];
 	
 	/** Number of lines the user can place into the buffer
 	 * (up to the global NetBufferSize bytes) before they

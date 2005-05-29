@@ -37,6 +37,12 @@ chomp($config{OSNAME}       = `/bin/uname`);                      		# Operating 
 $config{CC} 		    = "g++";						# C++ compiler
 $config{MAKEORDER}	    = "ircd mods config bininst";			# build order
 $config{STATICLIBS}         = "";						# library archive path
+$config{MAX_IDENT}          = "12";						# max ident size
+$config{MAX_QUIT}           = "255";						# max quit message size
+$config{MAX_TOPIC}          = "307";						# max topic size
+$config{MAX_KICK}           = "255";						# max kick message size
+$config{MAX_GECOS}          = "128";						# max GECOS size
+$config{MAX_AWAY}           = "200";						# max AWAY size
 
 if ((!$config{OSNAME}) || ($config{OSNAME} eq "")) {
   chomp($config{OSNAME} = `/usr/bin/uname`);
@@ -201,6 +207,14 @@ if (!$chose_hiperf)
 	print "not to enable one. Defaulting to select() engine.\n\n";
 }
 
+print "\nThe following questions will ask you for various figures relating\n";
+print "To your IRCd install. Please note that these should usually be left\n";
+print "as defaults unless you have a real reason to change them. If they\n";
+print "changed, then the values must be identical on all servers on your\n";
+print "network, or malfunctions and/or crashes may occur, with the exception\n";
+print "of the 'maximum number of clients' setting which may be different on\n";
+print "different servers on the network.\n\n";
+
 # File Descriptor Settings..
 my $continue = 0;
 while (!$continue) {
@@ -248,7 +262,7 @@ while (!$continue) {
   }
 }
 
-my $continue = 0;
+$continue = 0;
 while (!$continue) {
   print "What is the maximum length of channel names?\n";
   print "[\033[1;32m$config{CHAN_LENGT}\033[0m] -> ";
@@ -264,7 +278,7 @@ while (!$continue) {
   }
 }
 
-my $continue = 0;
+$continue = 0;
 while (!$continue) {
   print "What is the maximum number of channels a user may join at any one time?\n";
   print "[\033[1;32m$config{MAX_CHANNE}\033[0m] -> ";
@@ -280,8 +294,7 @@ while (!$continue) {
   }
 }
 
-
-my $continue = 0;
+$continue = 0;
 while (!$continue) {
   print "What is the maximum number of mode changes in one line?\n";
   print "[\033[1;32m$config{MAXI_MODES}\033[0m] -> ";
@@ -297,14 +310,113 @@ while (!$continue) {
   }
 }
 
-# Code Optimisation
-print "Enter the Level Of Binary optimisation. This is a number between 0 and 3 (inclusive)
-The InspIRCd Team will _NOT_ support any bug reports above 0.
-Also note, the IRCd behaviour will be different depending on this value.
-Please read the documentation for more information.
+$continue = 0;
+while (!$continue) {
+  print "What is the maximum length of an ident (username)?\n";
+  print "[\033[1;32m$config{MAX_IDENT}\033[0m] -> ";
+  chomp($var = <STDIN>);
+  if ($var eq "") { $var = $config{MAX_IDENT}; }
+  if ($var =~ /^\d+$/) {
+    # We don't care what the number is, set it and be on our way.
+    $config{MAX_IDENT} = $var;
+    $continue = 1;
+    print "\n";
+  } else {
+    print "You must enter a number in this field. Please try again.\n\n";
+  }
+}
 
-The Higher the number, the more optimised your binary will be. This value will default to 0
-If you either a) Dont enter a number, or b) Enter a value outside the range.\n";
+$continue = 0;
+while (!$continue) {
+  print "What is the maximum length of a quit message?\n";
+  print "[\033[1;32m$config{MAX_QUIT}\033[0m] -> ";
+  chomp($var = <STDIN>);
+  if ($var eq "") { $var = $config{MAX_QUIT}; }
+  if ($var =~ /^\d+$/) {
+    # We don't care what the number is, set it and be on our way.
+    $config{MAX_QUIT} = $var;
+    $continue = 1;
+    print "\n";
+  } else {
+    print "You must enter a number in this field. Please try again.\n\n";
+  }
+}
+
+$continue = 0;
+while (!$continue) {
+  print "What is the maximum length of a channel topic?\n";
+  print "[\033[1;32m$config{MAX_TOPIC}\033[0m] -> ";
+  chomp($var = <STDIN>);
+  if ($var eq "") { $var = $config{MAX_TOPIC}; }
+  if ($var =~ /^\d+$/) {
+    # We don't care what the number is, set it and be on our way.
+    $config{MAX_TOPIC} = $var;
+    $continue = 1;
+    print "\n";
+  } else {
+    print "You must enter a number in this field. Please try again.\n\n";
+  }
+}
+
+$continue = 0;
+while (!$continue) {
+  print "What is the maximum length of a kick message?\n";
+  print "[\033[1;32m$config{MAX_KICK}\033[0m] -> ";
+  chomp($var = <STDIN>);
+  if ($var eq "") { $var = $config{MAX_KICK}; }
+  if ($var =~ /^\d+$/) {
+    # We don't care what the number is, set it and be on our way.
+    $config{MAX_KICK} = $var;
+    $continue = 1;
+    print "\n";
+  } else {
+    print "You must enter a number in this field. Please try again.\n\n";
+  }
+}
+
+$continue = 0;
+while (!$continue) {
+  print "What is the maximum length of a GECOS (real name) field?\n";
+  print "[\033[1;32m$config{MAX_GECOS}\033[0m] -> ";
+  chomp($var = <STDIN>);
+  if ($var eq "") { $var = $config{MAX_GECOS}; }
+  if ($var =~ /^\d+$/) {
+    # We don't care what the number is, set it and be on our way.
+    $config{MAX_GECOS} = $var;
+    $continue = 1;
+    print "\n";
+  } else {
+    print "You must enter a number in this field. Please try again.\n\n";
+  }
+}
+
+$continue = 0;
+while (!$continue) {
+  print "What is the maximum length of an away message?\n";
+  print "[\033[1;32m$config{MAX_AWAY}\033[0m] -> ";
+  chomp($var = <STDIN>);
+  if ($var eq "") { $var = $config{MAX_AWAY}; }
+  if ($var =~ /^\d+$/) {
+    # We don't care what the number is, set it and be on our way.
+    $config{MAX_AWAY} = $var;
+    $continue = 1;
+    print "\n";
+  } else {
+    print "You must enter a number in this field. Please try again.\n\n";
+  }
+}
+
+# Code Optimisation
+print "Enter the Level Of Binary optimisation. This is a number between 0 and 3.
+The InspIRCd Team will NOT support any bug reports above 0. Also note,
+the IRCd behaviour will be different depending on this value. Please
+read the documentation for more information.
+
+The higher the number, the more optimised your binary will be. This
+value will default to 0 if you either don't enter a number, or enter
+a value outside the range.
+
+As always, if you are unsure, just press enter and accept the default.\n\n";
 print "[\033[1;32m$config{OPTIMITEMP}\033[0m] -> ";
 chomp($var = <STDIN>);
 if ($var eq "") {
@@ -329,10 +441,16 @@ print "\n\033[1;32mPre-build configuration is complete!\033[0m\n\n";
 print "\033[0mConfig path:\033[1;32m\t\t\t$config{CONFIG_DIR}\n";
 print "\033[0mModule path:\033[1;32m\t\t\t$config{MODULE_DIR}\n";
 print "\033[0mMax connections:\033[1;32m\t\t$config{MAX_CLIENT}\n";
-print "\033[0mMax User Channels\033[1;32m\t\t$config{MAX_CHANNE}\n";
+print "\033[0mMax User Channels:\033[1;32m\t\t$config{MAX_CHANNE}\n";
 print "\033[0mMax nickname length:\033[1;32m\t\t$config{NICK_LENGT}\n";
 print "\033[0mMax channel length:\033[1;32m\t\t$config{CHAN_LENGT}\n";
 print "\033[0mMax mode length:\033[1;32m\t\t$config{MAXI_MODES}\n";
+print "\033[0mMax ident length:\033[1;32m\t\t$config{MAX_IDENT}\n";
+print "\033[0mMax quit length:\033[1;32m\t\t$config{MAX_QUIT}\n";
+print "\033[0mMax topic length:\033[1;32m\t\t$config{MAX_TOPIC}\n";
+print "\033[0mMax kick length:\033[1;32m\t\t$config{MAX_KICK}\n";
+print "\033[0mMax name length:\033[1;32m\t\t$config{MAX_GECOS}\n";
+print "\033[0mMax away length:\033[1;32m\t\t$config{MAX_AWAY}\n";
 print "\033[0mGCC Version Found:\033[1;32m\t\t$config{GCCVER}.$config{GCC34}\n";
 print "\033[0mOptimatizaton Flag:\033[1;32m\t\t$config{OPTIMISATI}\033[0m\n";
 print "\033[0mCompiler program:\033[1;32m\t\t$config{CC}\033[0m\n";
@@ -526,6 +644,12 @@ sub writefiles {
 #define CHANMAX $CL
 #define MAXCHANS $config{MAX_CHANNE}
 #define MAXMODES $config{MAXI_MODES}
+#define IDENTMAX $config{MAX_IDENT}
+#define MAXQUIT $config{MAX_QUIT}
+#define MAXTOPIC $config{MAX_TOPIC}
+#define MAXKICK $config{MAX_KICK}
+#define MAXGECOS $config{MAX_GECOS}
+#define MAXAWAY $config{MAX_AWAY}
 #define OPTIMISATION $config{OPTIMITEMP}
 #define SYSTEM "$incos"
 #define MAXBUF 514

@@ -1310,10 +1310,10 @@ void AddWhoWas(userrec* u)
 	whowas_hash::iterator iter = whowas.find(u->nick);
 	WhoWasUser *a = new WhoWasUser();
 	strlcpy(a->nick,u->nick,NICKMAX);
-	strlcpy(a->ident,u->ident,15);
+	strlcpy(a->ident,u->ident,IDENTMAX);
 	strlcpy(a->dhost,u->dhost,160);
 	strlcpy(a->host,u->host,160);
-	strlcpy(a->fullname,u->fullname,128);
+	strlcpy(a->fullname,u->fullname,MAXGECOS);
 	strlcpy(a->server,u->server,256);
 	a->signon = u->signon;
 
@@ -1401,7 +1401,7 @@ void AddClient(int socket, char* host, int port, bool iscached, char* ip)
 	strncpy(clientlist[tempnick]->host, host,160);
 	strncpy(clientlist[tempnick]->dhost, host,160);
 	strncpy(clientlist[tempnick]->server, ServerName,256);
-	strncpy(clientlist[tempnick]->ident, "unknown",15);
+	strncpy(clientlist[tempnick]->ident, "unknown",IDENTMAX);
 	clientlist[tempnick]->registered = 0;
 	clientlist[tempnick]->signon = TIME+dns_timeout;
 	clientlist[tempnick]->lastping = 1;

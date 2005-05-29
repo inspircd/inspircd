@@ -326,7 +326,7 @@ void serverrec::FlushWriteBuffers()
 			}
 			has_been_netsplit = true;
 		}
-		if (this->connectors[i].HasBufferedOutput())
+		if ((this->connectors[i].HasBufferedOutput()) && (this->connectors[i].GetState() != STATE_DISCONNECTED))
                 {
 			if (!this->connectors[i].FlushWriteBuf())
 			{

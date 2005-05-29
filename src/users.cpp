@@ -67,6 +67,7 @@ void userrec::CloseSocket()
  
 char* userrec::GetFullHost()
 {
+	static char result[MAXBUF];
 	snprintf(result,MAXBUF,"%s!%s@%s",nick,ident,dhost);
 	return result;
 }
@@ -83,8 +84,9 @@ int userrec::ReadData(void* buffer, size_t size)
 
 char* userrec::GetFullRealHost()
 {
-	snprintf(result,MAXBUF,"%s!%s@%s",nick,ident,host);
-	return result;
+	static char fresult[MAXBUF];
+	snprintf(fresult,MAXBUF,"%s!%s@%s",nick,ident,host);
+	return fresult;
 }
 
 bool userrec::IsInvited(char* channel)
