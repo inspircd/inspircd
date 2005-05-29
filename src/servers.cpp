@@ -273,6 +273,7 @@ bool IsRoutable(std::string servername)
 
 void serverrec::FlushWriteBuffers()
 {
+	char buffer[MAXBUF];
 	for (int i = 0; i < this->connectors.size(); i++)
 	{
 		// don't try and ping a NOAUTH_OUTBOUND state, its not authed yet!
