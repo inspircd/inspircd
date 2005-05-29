@@ -1228,7 +1228,7 @@ bool process_module_umode(char umode, userrec* source, void* dest, bool adding)
 	{
 		s2 = new userrec;
 		strlcpy(s2->nick,ServerName,NICKMAX);
-		strcpy(s2->modes,"o");
+		strcpy(s2->modes,"o",52);
 		s2->fd = -1;
 		source = s2;
 		faked = true;
@@ -1291,7 +1291,7 @@ void handle_mode(char **parameters, int pcnt, userrec *user)
 		parameters[1] = (char*)tidied.c_str();
 
 		char dmodes[MAXBUF];
-		strlcpy(dmodes,dest->modes,MAXBUF);
+		strlcpy(dmodes,dest->modes,52);
 		log(DEBUG,"pulled up dest user modes: %s",dmodes);
 
 		can_change = 0;
@@ -1416,7 +1416,7 @@ void handle_mode(char **parameters, int pcnt, userrec *user)
 										strlcat(temp,moo,MAXBUF);
 									}
 								}
-								strlcpy(dmodes,temp,MAXBUF);
+								strlcpy(dmodes,temp,52);
 
 								if (umode == 'o')
 									DeleteOper(dest);
@@ -1476,7 +1476,7 @@ void handle_mode(char **parameters, int pcnt, userrec *user)
 			}
 			log(DEBUG,"Stripped mode line");
 			log(DEBUG,"Line dest is now %s",dmodes);
-			strlcpy(dest->modes,dmodes,MAXMODES);
+			strlcpy(dest->modes,dmodes,52);
 
 		}
 
@@ -1579,7 +1579,7 @@ void server_mode(char **parameters, int pcnt, userrec *user)
                 parameters[1] = (char*)tidied.c_str();
 
 		char dmodes[MAXBUF];
-		strlcpy(dmodes,dest->modes,MAXBUF);
+		strlcpy(dmodes,dest->modes,52);
 
 		strcpy(outpars,"+");
 		direction = 1;
@@ -1676,7 +1676,7 @@ void server_mode(char **parameters, int pcnt, userrec *user)
 										strlcat(temp,moo,MAXBUF);
 									}
 								}
-								strlcpy(dmodes,temp,MAXBUF);
+								strlcpy(dmodes,temp,52);
 							}
 						}
 					}
@@ -1775,7 +1775,7 @@ void merge_mode(char **parameters, int pcnt)
                 parameters[1] = (char*)tidied.c_str();
 
 		char dmodes[MAXBUF];
-		strlcpy(dmodes,dest->modes,MAXBUF);
+		strlcpy(dmodes,dest->modes,52);
 
 		strcpy(outpars,"+");
 		direction = 1;
@@ -1872,7 +1872,7 @@ void merge_mode(char **parameters, int pcnt)
 										strlcat(temp,moo,MAXBUF);
 									}
 								}
-								strlcpy(dmodes,temp,MAXBUF);
+								strlcpy(dmodes,temp,52);
 							}
 						}
 					}
@@ -1961,7 +1961,7 @@ void merge_mode2(char **parameters, int pcnt, userrec* user)
                 parameters[1] = (char*)tidied.c_str();
 
 		char dmodes[MAXBUF];
-		strlcpy(dmodes,dest->modes,MAXBUF);
+		strlcpy(dmodes,dest->modes,52);
 
 		strcpy(outpars,"+");
 		direction = 1;
@@ -2064,7 +2064,7 @@ void merge_mode2(char **parameters, int pcnt, userrec* user)
 										strlcat(temp,moo,MAXBUF);
 									}
 								}
-								strlcpy(dmodes,temp,MAXBUF);
+								strlcpy(dmodes,temp,52);
 							}
 						}
 					}
