@@ -16,6 +16,7 @@
 
 using namespace std;
 
+#include "inspircd_config.h"
 #include "inspircd.h"
 #include <string>
 #include "hashcomp.h"

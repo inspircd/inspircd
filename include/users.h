@@ -122,7 +122,7 @@ class userrec : public connection
 	
 	/** The users ident reply.
 	 */
-	char ident[MAXIDENT+1];
+	char ident[IDENTMAX+1];
 
 	/** The host displayed to non-opers (used for cloaking etc).
 	 * This usually matches the value of userrec::host.
@@ -136,8 +136,11 @@ class userrec : public connection
 	/** The user's mode string.
 	 * This may contain any of the following RFC characters: o, w, s, i
 	 * Your module may define other mode characters as it sees fit.
+	 * it is limited to length 54, as there can only be a maximum of 52
+	 * user modes (26 upper, 26 lower case) a null terminating char, and
+	 * an optional + character.
 	 */
-	char modes[MAXBUF];
+	char modes[54];
 	
 	ucrec chans[MAXCHANS];
 	
