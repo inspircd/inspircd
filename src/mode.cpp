@@ -1228,7 +1228,7 @@ bool process_module_umode(char umode, userrec* source, void* dest, bool adding)
 	{
 		s2 = new userrec;
 		strlcpy(s2->nick,ServerName,NICKMAX);
-		strcpy(s2->modes,"o",52);
+		strlcpy(s2->modes,"o",52);
 		s2->fd = -1;
 		source = s2;
 		faked = true;
