@@ -286,6 +286,20 @@ std::string ConfProcess(char* buffer, long linenumber, std::stringstream* errors
 	return parsedata;
 }
 
+int fgets_safe(char* buffer, size_t maxsize, FILE* &file)
+{
+	char c_read = '\0';
+	unsigned int bufptr = 0;
+	while ((!feof(file)) && (c_read != '\n') && (c_read != '\r') && (bufptr < maxsize))
+	{
+		c_read = fgetc(file);
+		if ((c_read != '\n') && (c_read != '\r'))
+			buffer[bufptr++] = c_read;
+	}
+	buffer[bufptr] = '\0';
+	return bufptr;
+}
+
 bool LoadConf(const char* filename, std::stringstream *target, std::stringstream* errorstream)
 {
 	target->str("");
@@ -315,7 +329,7 @@ bool LoadConf(const char* filename, std::stringstream *target, std::stringstream
 	{
 		while (!feof(conf))
 		{
-			if (fgets(buffer, MAXBUF, conf))
+			if (fgets_safe(buffer, MAXBUF, conf))
 			{
 				if ((!feof(conf)) && (buffer) && (strlen(buffer)))
 				{
