@@ -255,29 +255,19 @@ ircd_connector* serverrec::FindHost(std::string findhost)
 // Checks to see if we can still reach a server at all (e.g. is it in ANY routing table?)
 bool IsRoutable(std::string servername)
 {
-	for (int x = 0; x < 32; x++) if (me[x])
+	int c = 0;
+	for (int x = 0; x < 32; x++)
+	if (me[x])
 	{
-        	ircd_connector* cn = me[x]->FindHost(servername.c_str());
-        	if (cn)
+        	for (int i = 0; i < me[x]->connectors.size(); i++)
         	{
-                	if (cn->GetState() == STATE_DISCONNECTED)
+                	if ((me[x]->connectors[i].GetServerName() == servername) && (me[x]->connectors[i].GetState() != STATE_DISCONNECTED))
                 	{
-                        	for (int k = 0; k < me[x]->connectors.size(); k++)
-                        	{
-                                	for (int m = 0; m < me[x]->connectors[k].routes.size(); m++)
-                                	{
-                                        	if (!strcasecmp(me[x]->connectors[k].routes[m].c_str(),servername.c_str()))
-                                        	{
-                                                	return true;
-                                        	}
-                                	}
-                        	}
-       	                	return false;
+                        	c++;
        	        	}
-			else return true;
-		}
+	        }
 	}
-	return false;
+	return (c != 0);
 }
 
 
@@ -290,16 +280,20 @@ void serverrec::FlushWriteBuffers()
 		{
 			// however if we reach this timer its connected timed out :)
 			WriteOpers("*** Connection to %s timed out",this->connectors[i].GetServerName().c_str());
+                        snprintf(buffer,MAXBUF,"& %s",this->connectors[i].GetServerName().c_str());
+                        NetSendToAllExcept(this->connectors[i].GetServerName().c_str(),buffer);
 			DoSplit(this->connectors[i].GetServerName().c_str());
 			return;
 		}
-		else if ((this->connectors[i].GetState() == STATE_NOAUTH_INBOUND) && (TIME > this->connectors[i].age+30))
+		if ((this->connectors[i].GetState() == STATE_NOAUTH_INBOUND) && (TIME > this->connectors[i].age+30))
 		{
 			WriteOpers("*** Connection from %s timed out",this->connectors[i].GetServerName().c_str());
+                        snprintf(buffer,MAXBUF,"& %s",this->connectors[i].GetServerName().c_str());
+                        NetSendToAllExcept(this->connectors[i].GetServerName().c_str(),buffer);
 			DoSplit(this->connectors[i].GetServerName().c_str());
 			return;
 		}
-		else if (this->connectors[i].GetState() != STATE_DISCONNECTED)
+		if (this->connectors[i].GetState() != STATE_DISCONNECTED)
 		{
 			if (!this->connectors[i].CheckPing())
 			{
@@ -309,12 +303,29 @@ void serverrec::FlushWriteBuffers()
 				if (!IsRoutable(this->connectors[i].GetServerName()))
 				{
 					WriteOpers("*** Server %s is no longer routable, disconnecting.",this->connectors[i].GetServerName().c_str());
+                                        snprintf(buffer,MAXBUF,"& %s",this->connectors[i].GetServerName().c_str());
+                                        NetSendToAllExcept(this->connectors[i].GetServerName().c_str(),buffer);
 					DoSplit(this->connectors[i].GetServerName().c_str());
 				}
 				has_been_netsplit = true;
 			}
 		}
-                if (this->connectors[i].HasBufferedOutput())
+		if ((this->connectors[i].GetWriteError() !="") && (this->connectors[i].GetState() != STATE_DISCONNECTED))
+		{
+			// if we're here the write() caused an error, we cannot proceed
+			WriteOpers("*** Lost single connection to %s, link inactive and retrying: %s",this->connectors[i].GetServerName().c_str(),this->connectors[i].GetWriteError().c_str());
+			this->connectors[i].CloseConnection();
+			this->connectors[i].SetState(STATE_DISCONNECTED);
+			if (!IsRoutable(this->connectors[i].GetServerName()))
+			{
+				WriteOpers("*** Server %s is no longer routable, disconnecting.",this->connectors[i].GetServerName().c_str());
+                                snprintf(buffer,MAXBUF,"& %s",this->connectors[i].GetServerName().c_str());
+                                NetSendToAllExcept(this->connectors[i].GetServerName().c_str(),buffer);
+				DoSplit(this->connectors[i].GetServerName().c_str());
+			}
+			has_been_netsplit = true;
+		}
+		if (this->connectors[i].HasBufferedOutput())
                 {
 			if (!this->connectors[i].FlushWriteBuf())
 			{
@@ -325,7 +336,9 @@ void serverrec::FlushWriteBuffers()
                                 if (!IsRoutable(this->connectors[i].GetServerName()))
                                 {
                                         WriteOpers("*** Server %s is no longer routable, disconnecting.",this->connectors[i].GetServerName().c_str());
-                                        DoSplit(this->connectors[i].GetServerName().c_str());
+                                        snprintf(buffer,MAXBUF,"& %s",this->connectors[i].GetServerName().c_str());
+                                        NetSendToAllExcept(this->connectors[i].GetServerName().c_str(),buffer);
+                                     	DoSplit(this->connectors[i].GetServerName().c_str());
                                 }
 				has_been_netsplit = true;
 			}
@@ -430,7 +443,7 @@ bool already_have_sum(std::string sum)
 
 bool serverrec::RecvPacket(std::deque<std::string> &messages, char* recvhost,std::deque<std::string> &sums)
 {
-        char data[65536];
+        char data[65536],buffer[MAXBUF];
         memset(data, 0, 65536);
         for (int i = 0; i < this->connectors.size(); i++)
         {
@@ -460,7 +473,9 @@ bool serverrec::RecvPacket(std::deque<std::string> &messages, char* recvhost,std
                                 	if (!IsRoutable(this->connectors[i].GetServerName()))
                         	        {
                 	                        WriteOpers("*** Server %s is no longer routable, disconnecting.",this->connectors[i].GetServerName().c_str());
-        	                                DoSplit(this->connectors[i].GetServerName().c_str());
+						snprintf(buffer,MAXBUF,"& %s",this->connectors[i].GetServerName().c_str());
+						NetSendToAllExcept(this->connectors[i].GetServerName().c_str(),buffer);
+						DoSplit(this->connectors[i].GetServerName().c_str());
 	                                }
 					has_been_netsplit = true;
                                 }
@@ -476,6 +491,8 @@ bool serverrec::RecvPacket(std::deque<std::string> &messages, char* recvhost,std
                                 	if (!IsRoutable(this->connectors[i].GetServerName()))
                         	        {
                 	                        WriteOpers("*** Server %s is no longer routable, disconnecting.",this->connectors[i].GetServerName().c_str());
+                                                snprintf(buffer,MAXBUF,"& %s",this->connectors[i].GetServerName().c_str());
+						NetSendToAllExcept(this->connectors[i].GetServerName().c_str(),buffer);
         	                                DoSplit(this->connectors[i].GetServerName().c_str());
 	                                }
 					has_been_netsplit = true;
