@@ -1163,7 +1163,7 @@ void handle_user(char **parameters, int pcnt, userrec *user)
 		}
 		else {
 			strcpy(user->ident,"~"); /* we arent checking ident... but these days why bother anyway? */
-			strlcat(user->ident,parameters[0],IDENTMAX);
+			strlcat(user->ident,parameters[0],IDENTMAX+1);
 			strlcpy(user->fullname,parameters[3],MAXGECOS);
 			user->registered = (user->registered | 1);
 		}
@@ -2407,7 +2407,7 @@ void handle_N(char token,char* params,serverrec* source,serverrec* reply, char* 
 	strlcpy(clientlist[nick]->host, host,160);
 	strlcpy(clientlist[nick]->dhost, dhost,160);
 	clientlist[nick]->server = (char*)FindServerNamePtr(server);
-	strlcpy(clientlist[nick]->ident, ident,IDENTMAX); // +1 char to compensate for tilde
+	strlcpy(clientlist[nick]->ident, ident,IDENTMAX+1); // +1 char to compensate for tilde
 	strlcpy(clientlist[nick]->fullname, gecos,MAXGECOS);
 	strlcpy(clientlist[nick]->ip,ipaddr,16);
 	clientlist[nick]->signon = TS;

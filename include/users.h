@@ -121,8 +121,9 @@ class userrec : public connection
 	char nick[NICKMAX];
 	
 	/** The users ident reply.
+	 * Two characters are added to the user-defined limit to compensate for the tilde etc.
 	 */
-	char ident[IDENTMAX+1];
+	char ident[IDENTMAX+2];
 
 	/** The host displayed to non-opers (used for cloaking etc).
 	 * This usually matches the value of userrec::host.
