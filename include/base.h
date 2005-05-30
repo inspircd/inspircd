@@ -88,9 +88,6 @@ public:
 	char* GetExt(std::string key);
 };
 
-const int bitfields[]		=	{1,2,4,8,16,32,64,128};
-const int inverted_bitfields[]	=	{~1,~2,~4,~8,~16,~32,~64,~128};
-
 /** BoolSet is a utility class designed to hold eight bools in a bitmask.
  * Use BoolSet::Set and BoolSet::Get to set and get bools in the bitmask,
  * and Unset and Invert for special operations upon them.

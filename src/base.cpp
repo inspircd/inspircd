@@ -23,6 +23,9 @@
 #include "modules.h"
 #include "helperfuncs.h"
 
+const int bitfields[]           =       {1,2,4,8,16,32,64,128};
+const int inverted_bitfields[]  =       {~1,~2,~4,~8,~16,~32,~64,~128};
+
 extern time_t TIME;
 
 bool Extensible::Extend(std::string key, char* p)

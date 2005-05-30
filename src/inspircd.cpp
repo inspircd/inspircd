@@ -2684,7 +2684,7 @@ int InspIRCd(char** argv, int argc)
 	WritePID(PID);
 	  
 	/* setup select call */
-#ifndef USE_KQUEUE
+#ifdef USE_SELECT
 	FD_ZERO(&selectFds);
 #endif
 	log(DEBUG,"InspIRCd: startup: zero selects");
