@@ -1,4 +1,4 @@
-.TH "channels.cpp" 3 "25 May 2005" "InspIRCd" \" -*- nroff -*-
+.TH "channels.cpp" 3 "30 May 2005" "InspIRCd" \" -*- nroff -*-
 .ad l
 .nh
 .SH NAME
@@ -6,13 +6,13 @@ channels.cpp \-
 .SH SYNOPSIS
 .br
 .PP
+\fC#include 'inspircd_config.h'\fP
+.br
 \fC#include 'inspircd.h'\fP
 .br
 \fC#include 'inspircd_io.h'\fP
 .br
 \fC#include 'inspircd_util.h'\fP
-.br
-\fC#include 'inspircd_config.h'\fP
 .br
 \fC#include <unistd.h>\fP
 .br
@@ -263,7 +263,7 @@ Definition at line 97 of file channels.cpp.
 Referenced by IsRoutable().
 .SS "int \fBMODCOUNT\fP = -1"
 .PP
-Definition at line 1016 of file modules.cpp.
+Definition at line 1019 of file modules.cpp.
 .PP
 Referenced by Server::FindModule().
 .SS "std::vector<std::string> \fBmodule_names\fP"
@@ -309,6 +309,8 @@ Definition at line 65 of file channels.cpp.
 .SS "char \fBServerName\fP[MAXBUF]"
 .PP
 Definition at line 63 of file channels.cpp.
+.PP
+Referenced by userrec::userrec().
 .SS "int \fBSERVERportCount\fP"
 .PP
 Definition at line 90 of file channels.cpp.

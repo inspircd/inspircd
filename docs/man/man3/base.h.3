@@ -1,4 +1,4 @@
-.TH "base.h" 3 "25 May 2005" "InspIRCd" \" -*- nroff -*-
+.TH "base.h" 3 "30 May 2005" "InspIRCd" \" -*- nroff -*-
 .ad l
 .nh
 .SH NAME
@@ -19,6 +19,10 @@ base.h \-
 
 .in +1c
 .ti -1c
+.RI "class \fBBoolSet\fP"
+.br
+.RI "\fIBoolSet is a utility class designed to hold eight bools in a bitmask. \fP"
+.ti -1c
 .RI "class \fBclassbase\fP"
 .br
 .RI "\fIThe base class for all inspircd classes. \fP"
@@ -34,11 +38,29 @@ base.h \-
 .RI "typedef void * \fBVoidPointer\fP"
 .br
 .in -1c
+.SS "Variables"
+
+.in +1c
+.ti -1c
+.RI "const int \fBbitfields\fP [] = {1,2,4,8,16,32,64,128}"
+.br
+.ti -1c
+.RI "const int \fBinverted_bitfields\fP [] = {~1,~2,~4,~8,~16,~32,~64,~128}"
+.br
+.in -1c
 .SH "Typedef Documentation"
 .PP 
 .SS "typedef void* \fBVoidPointer\fP"
 .PP
 Definition at line 25 of file base.h.
+.SH "Variable Documentation"
+.PP 
+.SS "const int \fBbitfields\fP[] = {1,2,4,8,16,32,64,128}"
+.PP
+Definition at line 91 of file base.h.
+.SS "const int \fBinverted_bitfields\fP[] = {~1,~2,~4,~8,~16,~32,~64,~128}"
+.PP
+Definition at line 92 of file base.h.
 .SH "Author"
 .PP 
 Generated automatically by Doxygen for InspIRCd from the source code.

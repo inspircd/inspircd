@@ -16,13 +16,13 @@ Collaboration diagram for WhoWasUser:<p><center><img src="classWhoWasUser__coll_
 <tr><td colspan=2><br><h2>Public Attributes</h2></td></tr>
 <tr><td class="memItemLeft" nowrap align=right valign=top>char&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="classWhoWasUser.html#o0">nick</a> [NICKMAX]</td></tr>
 
-<tr><td class="memItemLeft" nowrap align=right valign=top>char&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="classWhoWasUser.html#o1">ident</a> [16]</td></tr>
+<tr><td class="memItemLeft" nowrap align=right valign=top>char&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="classWhoWasUser.html#o1">ident</a> [IDENTMAX+1]</td></tr>
 
 <tr><td class="memItemLeft" nowrap align=right valign=top>char&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="classWhoWasUser.html#o2">dhost</a> [160]</td></tr>
 
 <tr><td class="memItemLeft" nowrap align=right valign=top>char&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="classWhoWasUser.html#o3">host</a> [160]</td></tr>
 
-<tr><td class="memItemLeft" nowrap align=right valign=top>char&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="classWhoWasUser.html#o4">fullname</a> [128]</td></tr>
+<tr><td class="memItemLeft" nowrap align=right valign=top>char&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="classWhoWasUser.html#o4">fullname</a> [MAXGECOS+1]</td></tr>
 
 <tr><td class="memItemLeft" nowrap align=right valign=top>char&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="classWhoWasUser.html#o5">server</a> [256]</td></tr>
 
@@ -34,7 +34,7 @@ A lightweight userrec used by WHOWAS.
 <p>
 
 <p>
-Definition at line <a class="el" href="users_8h-source.html#l00326">326</a> of file <a class="el" href="users_8h-source.html">users.h</a>.<hr><h2>Member Data Documentation</h2>
+Definition at line <a class="el" href="users_8h-source.html#l00325">325</a> of file <a class="el" href="users_8h-source.html">users.h</a>.<hr><h2>Member Data Documentation</h2>
 <a name="o2" doxytag="WhoWasUser::dhost"></a><p>
 <table class="mdTable" width="100%" cellpadding="2" cellspacing="0">
   <tr>
@@ -56,7 +56,7 @@ Definition at line <a class="el" href="users_8h-source.html#l00326">326</a> of f
 <p>
 
 <p>
-Definition at line <a class="el" href="users_8h-source.html#l00331">331</a> of file <a class="el" href="users_8h-source.html">users.h</a>.    </td>
+Definition at line <a class="el" href="users_8h-source.html#l00330">330</a> of file <a class="el" href="users_8h-source.html">users.h</a>.    </td>
   </tr>
 </table>
 <a name="o4" doxytag="WhoWasUser::fullname"></a><p>
@@ -65,7 +65,7 @@ Definition at line <a class="el" href="users_8h-source.html#l00331">331</a> of f
     <td class="mdRow">
       <table cellpadding="0" cellspacing="0" border="0">
         <tr>
-          <td class="md" nowrap valign="top"> char <a class="el" href="classWhoWasUser.html#o4">WhoWasUser::fullname</a>[128]
+          <td class="md" nowrap valign="top"> char <a class="el" href="classWhoWasUser.html#o4">WhoWasUser::fullname</a>[MAXGECOS+1]
       </table>
     </td>
   </tr>
@@ -80,7 +80,7 @@ Definition at line <a class="el" href="users_8h-source.html#l00331">331</a> of f
 <p>
 
 <p>
-Definition at line <a class="el" href="users_8h-source.html#l00333">333</a> of file <a class="el" href="users_8h-source.html">users.h</a>.    </td>
+Definition at line <a class="el" href="users_8h-source.html#l00332">332</a> of file <a class="el" href="users_8h-source.html">users.h</a>.    </td>
   </tr>
 </table>
 <a name="o3" doxytag="WhoWasUser::host"></a><p>
@@ -104,7 +104,7 @@ Definition at line <a class="el" href="users_8h-source.html#l00333">333</a> of f
 <p>
 
 <p>
-Definition at line <a class="el" href="users_8h-source.html#l00332">332</a> of file <a class="el" href="users_8h-source.html">users.h</a>.    </td>
+Definition at line <a class="el" href="users_8h-source.html#l00331">331</a> of file <a class="el" href="users_8h-source.html">users.h</a>.    </td>
   </tr>
 </table>
 <a name="o1" doxytag="WhoWasUser::ident"></a><p>
@@ -113,7 +113,7 @@ Definition at line <a class="el" href="users_8h-source.html#l00332">332</a> of f
     <td class="mdRow">
       <table cellpadding="0" cellspacing="0" border="0">
         <tr>
-          <td class="md" nowrap valign="top"> char <a class="el" href="classWhoWasUser.html#o1">WhoWasUser::ident</a>[16]
+          <td class="md" nowrap valign="top"> char <a class="el" href="classWhoWasUser.html#o1">WhoWasUser::ident</a>[IDENTMAX+1]
       </table>
     </td>
   </tr>
@@ -128,7 +128,7 @@ Definition at line <a class="el" href="users_8h-source.html#l00332">332</a> of f
 <p>
 
 <p>
-Definition at line <a class="el" href="users_8h-source.html#l00330">330</a> of file <a class="el" href="users_8h-source.html">users.h</a>.    </td>
+Definition at line <a class="el" href="users_8h-source.html#l00329">329</a> of file <a class="el" href="users_8h-source.html">users.h</a>.    </td>
   </tr>
 </table>
 <a name="o0" doxytag="WhoWasUser::nick"></a><p>
@@ -152,7 +152,7 @@ Definition at line <a class="el" href="users_8h-source.html#l00330">330</a> of f
 <p>
 
 <p>
-Definition at line <a class="el" href="users_8h-source.html#l00329">329</a> of file <a class="el" href="users_8h-source.html">users.h</a>.    </td>
+Definition at line <a class="el" href="users_8h-source.html#l00328">328</a> of file <a class="el" href="users_8h-source.html">users.h</a>.    </td>
   </tr>
 </table>
 <a name="o5" doxytag="WhoWasUser::server"></a><p>
@@ -176,7 +176,7 @@ Definition at line <a class="el" href="users_8h-source.html#l00329">329</a> of f
 <p>
 
 <p>
-Definition at line <a class="el" href="users_8h-source.html#l00334">334</a> of file <a class="el" href="users_8h-source.html">users.h</a>.    </td>
+Definition at line <a class="el" href="users_8h-source.html#l00333">333</a> of file <a class="el" href="users_8h-source.html">users.h</a>.    </td>
   </tr>
 </table>
 <a name="o6" doxytag="WhoWasUser::signon"></a><p>
@@ -200,12 +200,12 @@ Definition at line <a class="el" href="users_8h-source.html#l00334">334</a> of f
 <p>
 
 <p>
-Definition at line <a class="el" href="users_8h-source.html#l00335">335</a> of file <a class="el" href="users_8h-source.html">users.h</a>.    </td>
+Definition at line <a class="el" href="users_8h-source.html#l00334">334</a> of file <a class="el" href="users_8h-source.html">users.h</a>.    </td>
   </tr>
 </table>
 <hr>The documentation for this class was generated from the following file:<ul>
 <li><a class="el" href="users_8h-source.html">users.h</a></ul>
-<hr size="1"><address style="align: right;"><small>Generated on Wed May 25 22:03:31 2005 for InspIRCd by
+<hr size="1"><address style="align: right;"><small>Generated on Mon May 30 05:17:45 2005 for InspIRCd by
 <a href="http://www.doxygen.org/index.html">
 <img src="doxygen.png" alt="doxygen" align="middle" border=0 > 
 </a>1.3.3 </small></address>

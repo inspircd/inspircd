@@ -1,4 +1,4 @@
-.TH "ExtMode" 3 "25 May 2005" "InspIRCd" \" -*- nroff -*-
+.TH "ExtMode" 3 "30 May 2005" "InspIRCd" \" -*- nroff -*-
 .ad l
 .nh
 .SH NAME
@@ -41,41 +41,41 @@ Inherits \fBclassbase\fP.
 .PP 
 .SS "ExtMode::ExtMode (char mc, int ty, bool oper, int p_on, int p_off)\fC [inline]\fP"
 .PP
-Definition at line 145 of file modules.cpp.
+Definition at line 147 of file modules.cpp.
 .PP
 References modechar, needsoper, params_when_off, params_when_on, and type.
 .PP
 .nf
-145 : modechar(mc), type(ty), needsoper(oper), params_when_on(p_on), params_when_off(p_off) { };
+147 : modechar(mc), type(ty), needsoper(oper), params_when_on(p_on), params_when_off(p_off) { };
 .fi
 .SH "Member Data Documentation"
 .PP 
 .SS "bool \fBExtMode::list\fP"
 .PP
-Definition at line 144 of file modules.cpp.
+Definition at line 146 of file modules.cpp.
 .SS "char \fBExtMode::modechar\fP"
-.PP
-Definition at line 139 of file modules.cpp.
-.PP
-Referenced by ExtMode().
-.SS "bool \fBExtMode::needsoper\fP"
-.PP
-Definition at line 143 of file modules.cpp.
-.PP
-Referenced by ExtMode().
-.SS "int \fBExtMode::params_when_off\fP"
-.PP
-Definition at line 142 of file modules.cpp.
-.PP
-Referenced by ExtMode().
-.SS "int \fBExtMode::params_when_on\fP"
 .PP
 Definition at line 141 of file modules.cpp.
 .PP
 Referenced by ExtMode().
+.SS "bool \fBExtMode::needsoper\fP"
+.PP
+Definition at line 145 of file modules.cpp.
+.PP
+Referenced by ExtMode().
+.SS "int \fBExtMode::params_when_off\fP"
+.PP
+Definition at line 144 of file modules.cpp.
+.PP
+Referenced by ExtMode().
+.SS "int \fBExtMode::params_when_on\fP"
+.PP
+Definition at line 143 of file modules.cpp.
+.PP
+Referenced by ExtMode().
 .SS "int \fBExtMode::type\fP"
 .PP
-Definition at line 140 of file modules.cpp.
+Definition at line 142 of file modules.cpp.
 .PP
 Referenced by ExtMode().
 

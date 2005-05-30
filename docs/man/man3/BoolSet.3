@@ -1,0 +1,138 @@
+.TH "BoolSet" 3 "30 May 2005" "InspIRCd" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+BoolSet \- BoolSet is a utility class designed to hold eight bools in a bitmask.  
+
+.PP
+.SH SYNOPSIS
+.br
+.PP
+\fC#include <base.h>\fP
+.PP
+.SS "Public Member Functions"
+
+.in +1c
+.ti -1c
+.RI "\fBBoolSet\fP ()"
+.br
+.RI "\fIThe default constructor initializes the BoolSet to all values unset. \fP"
+.ti -1c
+.RI "\fBBoolSet\fP (char bitmask)"
+.br
+.RI "\fIThis constructor copies the default bitmask from a char. \fP"
+.ti -1c
+.RI "void \fBSet\fP (int number)"
+.br
+.RI "\fIThe Set method sets one bool in the set. \fP"
+.ti -1c
+.RI "bool \fBGet\fP (int number)"
+.br
+.RI "\fIThe Get method returns the value of one bool in the set. \fP"
+.ti -1c
+.RI "void \fBUnset\fP (int number)"
+.br
+.RI "\fIThe Unset method unsets one value in the set. \fP"
+.ti -1c
+.RI "void \fBInvert\fP (int number)"
+.br
+.RI "\fIThe Unset method inverts (flips) one value in the set. \fP"
+.ti -1c
+.RI "bool \fBoperator==\fP (\fBBoolSet\fP other)"
+.br
+.RI "\fICompare two BoolSets. \fP"
+.ti -1c
+.RI "\fBBoolSet\fP \fBoperator|\fP (\fBBoolSet\fP other)"
+.br
+.RI "\fIOR two BoolSets together. \fP"
+.ti -1c
+.RI "\fBBoolSet\fP \fBoperator &\fP (\fBBoolSet\fP other)"
+.br
+.RI "\fIAND two BoolSets together. \fP"
+.ti -1c
+.RI "bool \fBoperator=\fP (\fBBoolSet\fP other)"
+.br
+.RI "\fIAssign one BoolSet to another. \fP"
+.in -1c
+.SS "Private Attributes"
+
+.in +1c
+.ti -1c
+.RI "char \fBbits\fP"
+.br
+.in -1c
+.SH "Detailed Description"
+.PP 
+BoolSet is a utility class designed to hold eight bools in a bitmask. 
+
+Use \fBBoolSet::Set\fP and \fBBoolSet::Get\fP to set and get bools in the bitmask, and Unset and Invert for special operations upon them. 
+.PP
+Definition at line 98 of file base.h.
+.SH "Constructor & Destructor Documentation"
+.PP 
+.SS "BoolSet::BoolSet ()"
+.PP
+The default constructor initializes the BoolSet to all values unset. 
+.SS "BoolSet::BoolSet (char bitmask)"
+.PP
+This constructor copies the default bitmask from a char. 
+.SH "Member Function Documentation"
+.PP 
+.SS "bool BoolSet::Get (int number)"
+.PP
+The Get method returns the value of one bool in the set. \fBParameters:\fP
+.RS 4
+\fInumber\fP The number of the item to retrieve. This must be between 0 and 7.
+.RE
+.PP
+\fBReturns:\fP
+.RS 4
+True if the item is set, false if it is unset.
+.RE
+.PP
+
+.SS "void BoolSet::Invert (int number)"
+.PP
+The Unset method inverts (flips) one value in the set. \fBParameters:\fP
+.RS 4
+\fInumber\fP The number of the item to invert. This must be between 0 and 7.
+.RE
+.PP
+
+.SS "\fBBoolSet\fP BoolSet::operator & (\fBBoolSet\fP other)"
+.PP
+AND two BoolSets together. 
+.SS "bool BoolSet::operator= (\fBBoolSet\fP other)"
+.PP
+Assign one BoolSet to another. 
+.SS "bool BoolSet::operator== (\fBBoolSet\fP other)"
+.PP
+Compare two BoolSets. 
+.SS "\fBBoolSet\fP BoolSet::operator| (\fBBoolSet\fP other)"
+.PP
+OR two BoolSets together. 
+.SS "void BoolSet::Set (int number)"
+.PP
+The Set method sets one bool in the set. \fBParameters:\fP
+.RS 4
+\fInumber\fP The number of the item to set. This must be between 0 and 7.
+.RE
+.PP
+
+.SS "void BoolSet::Unset (int number)"
+.PP
+The Unset method unsets one value in the set. \fBParameters:\fP
+.RS 4
+\fInumber\fP The number of the item to set. This must be between 0 and 7.
+.RE
+.PP
+
+.SH "Member Data Documentation"
+.PP 
+.SS "char \fBBoolSet::bits\fP\fC [private]\fP"
+.PP
+Definition at line 100 of file base.h.
+
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for InspIRCd from the source code.

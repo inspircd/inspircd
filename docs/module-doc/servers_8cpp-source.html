@@ -262,279 +262,312 @@
 00255 <span class="comment">// Checks to see if we can still reach a server at all (e.g. is it in ANY routing table?)</span>
 <a name="l00256"></a><a class="code" href="servers_8cpp.html#a5">00256</a> <span class="keywordtype">bool</span> <a class="code" href="servers_8cpp.html#a5">IsRoutable</a>(std::string servername)
 00257 {
-00258         <span class="keywordflow">for</span> (<span class="keywordtype">int</span> x = 0; x &lt; 32; x++) <span class="keywordflow">if</span> (<a class="code" href="channels_8cpp.html#a34">me</a>[x])
-00259         {
-00260                 <a class="code" href="classircd__connector.html">ircd_connector</a>* cn = <a class="code" href="channels_8cpp.html#a34">me</a>[x]-&gt;<a class="code" href="classserverrec.html#a9">FindHost</a>(servername.c_str());
-00261                 <span class="keywordflow">if</span> (cn)
-00262                 {
-00263                         <span class="keywordflow">if</span> (cn-&gt;<a class="code" href="classircd__connector.html#a6">GetState</a>() == <a class="code" href="connection_8h.html#a0">STATE_DISCONNECTED</a>)
-00264                         {
-00265                                 <span class="keywordflow">for</span> (<span class="keywordtype">int</span> k = 0; k &lt; <a class="code" href="channels_8cpp.html#a34">me</a>[x]-&gt;<a class="code" href="classserverrec.html#o11">connectors</a>.size(); k++)
-00266                                 {
-00267                                         <span class="keywordflow">for</span> (<span class="keywordtype">int</span> m = 0; m &lt; <a class="code" href="channels_8cpp.html#a34">me</a>[x]-&gt;<a class="code" href="classserverrec.html#o11">connectors</a>[k].routes.size(); m++)
-00268                                         {
-00269                                                 <span class="keywordflow">if</span> (!strcasecmp(<a class="code" href="channels_8cpp.html#a34">me</a>[x]-&gt;connectors[k].routes[m].c_str(),servername.c_str()))
-00270                                                 {
-00271                                                         <span class="keywordflow">return</span> <span class="keyword">true</span>;
-00272                                                 }
-00273                                         }
-00274                                 }
-00275                                 <span class="keywordflow">return</span> <span class="keyword">false</span>;
-00276                         }
-00277                         <span class="keywordflow">else</span> <span class="keywordflow">return</span> <span class="keyword">true</span>;
-00278                 }
-00279         }
-00280         <span class="keywordflow">return</span> <span class="keyword">false</span>;
-00281 }
-00282 
-00283 
-<a name="l00284"></a><a class="code" href="classserverrec.html#a11">00284</a> <span class="keywordtype">void</span> <a class="code" href="classserverrec.html#a11">serverrec::FlushWriteBuffers</a>()
-00285 {
-00286         <span class="keywordflow">for</span> (<span class="keywordtype">int</span> i = 0; i &lt; this-&gt;<a class="code" href="classserverrec.html#o11">connectors</a>.size(); i++)
-00287         {
-00288                 <span class="comment">// don't try and ping a NOAUTH_OUTBOUND state, its not authed yet!</span>
-00289                 <span class="keywordflow">if</span> ((this-&gt;<a class="code" href="classserverrec.html#o11">connectors</a>[i].GetState() == <a class="code" href="connection_8h.html#a4">STATE_NOAUTH_OUTBOUND</a>) &amp;&amp; (<a class="code" href="channels_8cpp.html#a36">TIME</a> &gt; this-&gt;<a class="code" href="classserverrec.html#o11">connectors</a>[i].age+30))
+00258         <span class="keywordtype">int</span> c = 0;
+00259         <span class="keywordflow">for</span> (<span class="keywordtype">int</span> x = 0; x &lt; 32; x++)
+00260         <span class="keywordflow">if</span> (<a class="code" href="channels_8cpp.html#a34">me</a>[x])
+00261         {
+00262                 <span class="keywordflow">for</span> (<span class="keywordtype">int</span> i = 0; i &lt; <a class="code" href="channels_8cpp.html#a34">me</a>[x]-&gt;<a class="code" href="classserverrec.html#o11">connectors</a>.size(); i++)
+00263                 {
+00264                         <span class="keywordflow">if</span> ((<a class="code" href="channels_8cpp.html#a34">me</a>[x]-&gt;<a class="code" href="classserverrec.html#o11">connectors</a>[i].GetServerName() == servername) &amp;&amp; (<a class="code" href="channels_8cpp.html#a34">me</a>[x]-&gt;<a class="code" href="classserverrec.html#o11">connectors</a>[i].GetState() != <a class="code" href="connection_8h.html#a0">STATE_DISCONNECTED</a>))
+00265                         {
+00266                                 c++;
+00267                         }
+00268                 }
+00269         }
+00270         <span class="keywordflow">return</span> (c != 0);
+00271 }
+00272 
+00273 
+<a name="l00274"></a><a class="code" href="classserverrec.html#a11">00274</a> <span class="keywordtype">void</span> <a class="code" href="classserverrec.html#a11">serverrec::FlushWriteBuffers</a>()
+00275 {
+00276         <span class="keywordtype">char</span> buffer[MAXBUF];
+00277         <span class="keywordflow">for</span> (<span class="keywordtype">int</span> i = 0; i &lt; this-&gt;<a class="code" href="classserverrec.html#o11">connectors</a>.size(); i++)
+00278         {
+00279                 <span class="comment">// don't try and ping a NOAUTH_OUTBOUND state, its not authed yet!</span>
+00280                 <span class="keywordflow">if</span> ((this-&gt;<a class="code" href="classserverrec.html#o11">connectors</a>[i].GetState() == <a class="code" href="connection_8h.html#a4">STATE_NOAUTH_OUTBOUND</a>) &amp;&amp; (<a class="code" href="channels_8cpp.html#a36">TIME</a> &gt; this-&gt;<a class="code" href="classserverrec.html#o11">connectors</a>[i].age+30))
+00281                 {
+00282                         <span class="comment">// however if we reach this timer its connected timed out :)</span>
+00283                         WriteOpers(<span class="stringliteral">"*** Connection to %s timed out"</span>,this-&gt;connectors[i].GetServerName().c_str());
+00284                         snprintf(buffer,MAXBUF,<span class="stringliteral">"&amp; %s"</span>,this-&gt;connectors[i].GetServerName().c_str());
+00285                         NetSendToAllExcept(this-&gt;connectors[i].GetServerName().c_str(),buffer);
+00286                         DoSplit(this-&gt;connectors[i].GetServerName().c_str());
+00287                         <span class="keywordflow">return</span>;
+00288                 }
+00289                 <span class="keywordflow">if</span> ((this-&gt;connectors[i].GetState() == <a class="code" href="connection_8h.html#a3">STATE_NOAUTH_INBOUND</a>) &amp;&amp; (<a class="code" href="channels_8cpp.html#a36">TIME</a> &gt; this-&gt;connectors[i].age+30))
 00290                 {
-00291                         <span class="comment">// however if we reach this timer its connected timed out :)</span>
-00292                         WriteOpers(<span class="stringliteral">"*** Connection to %s timed out"</span>,this-&gt;connectors[i].GetServerName().c_str());
-00293                         DoSplit(this-&gt;connectors[i].GetServerName().c_str());
-00294                         <span class="keywordflow">return</span>;
-00295                 }
-00296                 <span class="keywordflow">else</span> <span class="keywordflow">if</span> ((this-&gt;connectors[i].GetState() == <a class="code" href="connection_8h.html#a3">STATE_NOAUTH_INBOUND</a>) &amp;&amp; (<a class="code" href="channels_8cpp.html#a36">TIME</a> &gt; this-&gt;connectors[i].age+30))
-00297                 {
-00298                         WriteOpers(<span class="stringliteral">"*** Connection from %s timed out"</span>,this-&gt;connectors[i].GetServerName().c_str());
-00299                         DoSplit(this-&gt;connectors[i].GetServerName().c_str());
-00300                         <span class="keywordflow">return</span>;
-00301                 }
-00302                 <span class="keywordflow">else</span> <span class="keywordflow">if</span> (this-&gt;connectors[i].GetState() != <a class="code" href="connection_8h.html#a0">STATE_DISCONNECTED</a>)
-00303                 {
-00304                         <span class="keywordflow">if</span> (!this-&gt;connectors[i].CheckPing())
-00305                         {
-00306                                 WriteOpers(<span class="stringliteral">"*** Lost single connection to %s: Ping timeout"</span>,this-&gt;connectors[i].GetServerName().c_str());
-00307                                 this-&gt;connectors[i].CloseConnection();
-00308                                 this-&gt;connectors[i].SetState(<a class="code" href="connection_8h.html#a0">STATE_DISCONNECTED</a>);
-00309                                 <span class="keywordflow">if</span> (!<a class="code" href="servers_8cpp.html#a5">IsRoutable</a>(this-&gt;connectors[i].GetServerName()))
-00310                                 {
-00311                                         WriteOpers(<span class="stringliteral">"*** Server %s is no longer routable, disconnecting."</span>,this-&gt;connectors[i].GetServerName().c_str());
-00312                                         DoSplit(this-&gt;connectors[i].GetServerName().c_str());
-00313                                 }
-00314                                 <a class="code" href="servers_8cpp.html#a3">has_been_netsplit</a> = <span class="keyword">true</span>;
-00315                         }
-00316                 }
-00317                 <span class="keywordflow">if</span> (this-&gt;connectors[i].HasBufferedOutput())
-00318                 {
-00319                         <span class="keywordflow">if</span> (!this-&gt;connectors[i].FlushWriteBuf())
-00320                         {
-00321                                 <span class="comment">// if we're here the write() caused an error, we cannot proceed</span>
-00322                                 WriteOpers(<span class="stringliteral">"*** Lost single connection to %s, link inactive and retrying: %s"</span>,this-&gt;connectors[i].GetServerName().c_str(),this-&gt;connectors[i].GetWriteError().c_str());
-00323                                 this-&gt;connectors[i].CloseConnection();
-00324                                 this-&gt;connectors[i].SetState(<a class="code" href="connection_8h.html#a0">STATE_DISCONNECTED</a>);
-00325                                 <span class="keywordflow">if</span> (!<a class="code" href="servers_8cpp.html#a5">IsRoutable</a>(this-&gt;connectors[i].GetServerName()))
-00326                                 {
-00327                                         WriteOpers(<span class="stringliteral">"*** Server %s is no longer routable, disconnecting."</span>,this-&gt;connectors[i].GetServerName().c_str());
-00328                                         DoSplit(this-&gt;connectors[i].GetServerName().c_str());
-00329                                 }
-00330                                 <a class="code" href="servers_8cpp.html#a3">has_been_netsplit</a> = <span class="keyword">true</span>;
-00331                         }
-00332                 }
-00333         }
-00334 }
-00335 
-<a name="l00336"></a><a class="code" href="classserverrec.html#a7">00336</a> <span class="keywordtype">bool</span> <a class="code" href="classserverrec.html#a7">serverrec::SendPacket</a>(<span class="keywordtype">char</span> *message, <span class="keyword">const</span> <span class="keywordtype">char</span>* sendhost)
-00337 {
-00338         <span class="keywordflow">if</span> ((!message) || (!sendhost))
-00339                 <span class="keywordflow">return</span> <span class="keyword">true</span>;
-00340 
-00341         <a class="code" href="classircd__connector.html">ircd_connector</a>* cn = this-&gt;<a class="code" href="classserverrec.html#a9">FindHost</a>(sendhost);
-00342 
-00343         <span class="keywordflow">if</span> (!strchr(message,<span class="charliteral">'\n'</span>))
-00344         {
-00345                 strlcat(message,<span class="stringliteral">"\n"</span>,MAXBUF);
-00346         }
-00347 
-00348         <span class="keywordflow">if</span> (cn)
-00349         {
-00350                 log(<a class="code" href="modules_8h.html#a0">DEBUG</a>,<span class="stringliteral">"main: serverrec::SendPacket() sent '%s' to %s"</span>,message,cn-&gt;<a class="code" href="classircd__connector.html#a2">GetServerName</a>().c_str());
-00351 
-00352                 <span class="keywordflow">if</span> (cn-&gt;<a class="code" href="classircd__connector.html#a6">GetState</a>() == <a class="code" href="connection_8h.html#a0">STATE_DISCONNECTED</a>)
-00353                 {
-00354                         <span class="comment">// fix: can only route one hop to avoid a loop</span>
-00355                         <span class="keywordflow">if</span> (strncmp(message,<span class="stringliteral">"R "</span>,2))
-00356                         {
-00357                                 log(<a class="code" href="modules_8h.html#a0">DEBUG</a>,<span class="stringliteral">"Not a double reroute"</span>);
-00358                                 <span class="comment">// this route is down, we must re-route the packet through an available point in the mesh.</span>
-00359                                 <span class="keywordflow">for</span> (<span class="keywordtype">int</span> k = 0; k &lt; this-&gt;<a class="code" href="classserverrec.html#o11">connectors</a>.size(); k++)
-00360                                 {
-00361                                         log(<a class="code" href="modules_8h.html#a0">DEBUG</a>,<span class="stringliteral">"Check connector %d: %s"</span>,k,this-&gt;connectors[k].GetServerName().c_str());
-00362                                         <span class="comment">// search for another point in the mesh which can 'reach' where we want to go</span>
-00363                                         <span class="keywordflow">for</span> (<span class="keywordtype">int</span> m = 0; m &lt; this-&gt;<a class="code" href="classserverrec.html#o11">connectors</a>[k].routes.size(); m++)
-00364                                         {
-00365                                                 <span class="keywordflow">if</span> (!strcasecmp(this-&gt;connectors[k].routes[m].c_str(),sendhost))
-00366                                                 {
-00367                                                         log(<a class="code" href="modules_8h.html#a0">DEBUG</a>,<span class="stringliteral">"Found alternative route for packet: %s"</span>,this-&gt;connectors[k].GetServerName().c_str());
-00368                                                         <span class="keywordtype">char</span> buffer[MAXBUF];
-00369                                                         snprintf(buffer,MAXBUF,<span class="stringliteral">"R %s %s"</span>,sendhost,message);
-00370                                                         this-&gt;<a class="code" href="classserverrec.html#a7">SendPacket</a>(buffer,this-&gt;connectors[k].GetServerName().c_str());
-00371                                                         <span class="keywordflow">return</span> <span class="keyword">true</span>;
-00372                                                 }
-00373                                         }
-00374                                 }
-00375                         }
-00376                         <span class="keywordtype">char</span> buffer[MAXBUF];
-00377                         snprintf(buffer,MAXBUF,<span class="stringliteral">"&amp; %s"</span>,sendhost);
-00378                         WriteOpers(<span class="stringliteral">"*** All connections to %s lost."</span>,sendhost);
-00379                         NetSendToAllExcept(sendhost,buffer);
-00380                         DoSplit(sendhost);
-00381                         <span class="keywordflow">return</span> <span class="keyword">false</span>;
-00382                 }
-00383 
-00384                 <span class="comment">// returns false if the packet could not be sent (e.g. target host down)</span>
-00385                 <span class="keywordflow">if</span> (!cn-&gt;<a class="code" href="classircd__connector.html#a21">AddWriteBuf</a>(message))
-00386                 {
-00387                         <span class="comment">// if we're here, there was an error pending, and the send cannot proceed</span>
-00388                         log(<a class="code" href="modules_8h.html#a0">DEBUG</a>,<span class="stringliteral">"cn-&gt;AddWriteBuf() failed for serverrec::SendPacket(): %s"</span>,cn-&gt;<a class="code" href="classircd__connector.html#a24">GetWriteError</a>().c_str());
-00389                         log(<a class="code" href="modules_8h.html#a0">DEBUG</a>,<span class="stringliteral">"Disabling connector: %s"</span>,cn-&gt;<a class="code" href="classircd__connector.html#a2">GetServerName</a>().c_str());
-00390                         cn-&gt;<a class="code" href="classircd__connector.html#a14">CloseConnection</a>();
-00391                         cn-&gt;<a class="code" href="classircd__connector.html#a7">SetState</a>(<a class="code" href="connection_8h.html#a0">STATE_DISCONNECTED</a>);
-00392                         WriteOpers(<span class="stringliteral">"*** Lost single connection to %s, link inactive and retrying: %s"</span>,cn-&gt;<a class="code" href="classircd__connector.html#a2">GetServerName</a>().c_str(),cn-&gt;<a class="code" href="classircd__connector.html#a24">GetWriteError</a>().c_str());
-00393                         <span class="comment">// retry the packet along a new route so either arrival OR failure are gauranteed (bugfix)</span>
-00394                         <span class="keywordflow">return</span> this-&gt;<a class="code" href="classserverrec.html#a7">SendPacket</a>(message,sendhost);
-00395                 }
-00396                 <span class="keywordflow">if</span> (!cn-&gt;<a class="code" href="classircd__connector.html#a22">FlushWriteBuf</a>())
-00397                 {
-00398                         <span class="comment">// if we're here the write() caused an error, we cannot proceed</span>
-00399                         log(<a class="code" href="modules_8h.html#a0">DEBUG</a>,<span class="stringliteral">"cn-&gt;FlushWriteBuf() failed for serverrec::SendPacket(): %s"</span>,cn-&gt;<a class="code" href="classircd__connector.html#a24">GetWriteError</a>().c_str());
-00400                         log(<a class="code" href="modules_8h.html#a0">DEBUG</a>,<span class="stringliteral">"Disabling connector: %s"</span>,cn-&gt;<a class="code" href="classircd__connector.html#a2">GetServerName</a>().c_str());
-00401                         cn-&gt;<a class="code" href="classircd__connector.html#a14">CloseConnection</a>();
-00402                         cn-&gt;<a class="code" href="classircd__connector.html#a7">SetState</a>(<a class="code" href="connection_8h.html#a0">STATE_DISCONNECTED</a>);
-00403                         WriteOpers(<span class="stringliteral">"*** Lost single connection to %s, link inactive and retrying: %s"</span>,cn-&gt;<a class="code" href="classircd__connector.html#a2">GetServerName</a>().c_str(),cn-&gt;<a class="code" href="classircd__connector.html#a24">GetWriteError</a>().c_str());
-00404                         <span class="comment">// retry the packet along a new route so either arrival OR failure are gauranteed</span>
-00405                         <span class="keywordflow">return</span> this-&gt;<a class="code" href="classserverrec.html#a7">SendPacket</a>(message,sendhost);
-00406                 }
-00407                 <span class="keywordflow">return</span> <span class="keyword">true</span>;
-00408         }
-00409 }
-00410 
-<a name="l00411"></a><a class="code" href="servers_8cpp.html#a6">00411</a> <span class="keywordtype">bool</span> <a class="code" href="servers_8cpp.html#a6">already_have_sum</a>(std::string sum)
-00412 {
-00413         <span class="keywordflow">for</span> (<span class="keywordtype">int</span> i = 0; i &lt; <a class="code" href="servers_8cpp.html#a4">xsums</a>.size(); i++)
-00414         {
-00415                 <span class="keywordflow">if</span> (<a class="code" href="servers_8cpp.html#a4">xsums</a>[i] == sum)
-00416                 {
-00417                         <span class="keywordflow">return</span> <span class="keyword">true</span>;
-00418                 }
-00419         }
-00420         <span class="keywordflow">if</span> (<a class="code" href="servers_8cpp.html#a4">xsums</a>.size() &gt;= 128)
-00421         {
-00422                 <a class="code" href="servers_8cpp.html#a4">xsums</a>.pop_front();
-00423         }
-00424         <a class="code" href="servers_8cpp.html#a4">xsums</a>.push_back(sum);
-00425         <span class="keywordflow">return</span> <span class="keyword">false</span>;
-00426 }
-00427 
-00428 <span class="comment">// receives a packet from any where there is data waiting, first come, first served</span>
-00429 <span class="comment">// fills the message and host values with the host where the data came from.</span>
-00430 
-<a name="l00431"></a><a class="code" href="classserverrec.html#a8">00431</a> <span class="keywordtype">bool</span> <a class="code" href="classserverrec.html#a8">serverrec::RecvPacket</a>(std::deque&lt;std::string&gt; &amp;messages, <span class="keywordtype">char</span>* recvhost,std::deque&lt;std::string&gt; &amp;sums)
-00432 {
-00433         <span class="keywordtype">char</span> data[65536];
-00434         memset(data, 0, 65536);
-00435         <span class="keywordflow">for</span> (<span class="keywordtype">int</span> i = 0; i &lt; this-&gt;<a class="code" href="classserverrec.html#o11">connectors</a>.size(); i++)
-00436         {
-00437                 <span class="keywordflow">if</span> (this-&gt;<a class="code" href="classserverrec.html#o11">connectors</a>[i].GetState() != <a class="code" href="connection_8h.html#a0">STATE_DISCONNECTED</a>)
-00438                 {
-00439                         <span class="comment">// returns false if the packet could not be sent (e.g. target host down)</span>
-00440                         <span class="keywordtype">int</span> rcvsize = 0;
+00291                         WriteOpers(<span class="stringliteral">"*** Connection from %s timed out"</span>,this-&gt;connectors[i].GetServerName().c_str());
+00292                         snprintf(buffer,MAXBUF,<span class="stringliteral">"&amp; %s"</span>,this-&gt;connectors[i].GetServerName().c_str());
+00293                         NetSendToAllExcept(this-&gt;connectors[i].GetServerName().c_str(),buffer);
+00294                         DoSplit(this-&gt;connectors[i].GetServerName().c_str());
+00295                         <span class="keywordflow">return</span>;
+00296                 }
+00297                 <span class="keywordflow">if</span> (this-&gt;connectors[i].GetState() != <a class="code" href="connection_8h.html#a0">STATE_DISCONNECTED</a>)
+00298                 {
+00299                         <span class="keywordflow">if</span> (!this-&gt;connectors[i].CheckPing())
+00300                         {
+00301                                 WriteOpers(<span class="stringliteral">"*** Lost single connection to %s: Ping timeout"</span>,this-&gt;connectors[i].GetServerName().c_str());
+00302                                 this-&gt;connectors[i].CloseConnection();
+00303                                 this-&gt;connectors[i].SetState(<a class="code" href="connection_8h.html#a0">STATE_DISCONNECTED</a>);
+00304                                 <span class="keywordflow">if</span> (!<a class="code" href="servers_8cpp.html#a5">IsRoutable</a>(this-&gt;connectors[i].GetServerName()))
+00305                                 {
+00306                                         WriteOpers(<span class="stringliteral">"*** Server %s is no longer routable, disconnecting."</span>,this-&gt;connectors[i].GetServerName().c_str());
+00307                                         snprintf(buffer,MAXBUF,<span class="stringliteral">"&amp; %s"</span>,this-&gt;connectors[i].GetServerName().c_str());
+00308                                         NetSendToAllExcept(this-&gt;connectors[i].GetServerName().c_str(),buffer);
+00309                                         DoSplit(this-&gt;connectors[i].GetServerName().c_str());
+00310                                 }
+00311                                 <a class="code" href="servers_8cpp.html#a3">has_been_netsplit</a> = <span class="keyword">true</span>;
+00312                         }
+00313                 }
+00314                 <span class="keywordflow">if</span> ((this-&gt;connectors[i].GetWriteError() !=<span class="stringliteral">""</span>) &amp;&amp; (this-&gt;connectors[i].GetState() != <a class="code" href="connection_8h.html#a0">STATE_DISCONNECTED</a>))
+00315                 {
+00316                         <span class="comment">// if we're here the write() caused an error, we cannot proceed</span>
+00317                         WriteOpers(<span class="stringliteral">"*** Lost single connection to %s, link inactive and retrying: %s"</span>,this-&gt;connectors[i].GetServerName().c_str(),this-&gt;connectors[i].GetWriteError().c_str());
+00318                         this-&gt;connectors[i].CloseConnection();
+00319                         this-&gt;connectors[i].SetState(<a class="code" href="connection_8h.html#a0">STATE_DISCONNECTED</a>);
+00320                         <span class="keywordflow">if</span> (!<a class="code" href="servers_8cpp.html#a5">IsRoutable</a>(this-&gt;connectors[i].GetServerName()))
+00321                         {
+00322                                 WriteOpers(<span class="stringliteral">"*** Server %s is no longer routable, disconnecting."</span>,this-&gt;connectors[i].GetServerName().c_str());
+00323                                 snprintf(buffer,MAXBUF,<span class="stringliteral">"&amp; %s"</span>,this-&gt;connectors[i].GetServerName().c_str());
+00324                                 NetSendToAllExcept(this-&gt;connectors[i].GetServerName().c_str(),buffer);
+00325                                 DoSplit(this-&gt;connectors[i].GetServerName().c_str());
+00326                         }
+00327                         <a class="code" href="servers_8cpp.html#a3">has_been_netsplit</a> = <span class="keyword">true</span>;
+00328                 }
+00329                 <span class="keywordflow">if</span> ((this-&gt;connectors[i].HasBufferedOutput()) &amp;&amp; (this-&gt;connectors[i].GetState() != <a class="code" href="connection_8h.html#a0">STATE_DISCONNECTED</a>))
+00330                 {
+00331                         <span class="keywordflow">if</span> (!this-&gt;connectors[i].FlushWriteBuf())
+00332                         {
+00333                                 <span class="comment">// if we're here the write() caused an error, we cannot proceed</span>
+00334                                 WriteOpers(<span class="stringliteral">"*** Lost single connection to %s, link inactive and retrying: %s"</span>,this-&gt;connectors[i].GetServerName().c_str(),this-&gt;connectors[i].GetWriteError().c_str());
+00335                                 this-&gt;connectors[i].CloseConnection();
+00336                                 this-&gt;connectors[i].SetState(<a class="code" href="connection_8h.html#a0">STATE_DISCONNECTED</a>);
+00337                                 <span class="keywordflow">if</span> (!<a class="code" href="servers_8cpp.html#a5">IsRoutable</a>(this-&gt;connectors[i].GetServerName()))
+00338                                 {
+00339                                         WriteOpers(<span class="stringliteral">"*** Server %s is no longer routable, disconnecting."</span>,this-&gt;connectors[i].GetServerName().c_str());
+00340                                         snprintf(buffer,MAXBUF,<span class="stringliteral">"&amp; %s"</span>,this-&gt;connectors[i].GetServerName().c_str());
+00341                                         NetSendToAllExcept(this-&gt;connectors[i].GetServerName().c_str(),buffer);
+00342                                         DoSplit(this-&gt;connectors[i].GetServerName().c_str());
+00343                                 }
+00344                                 <a class="code" href="servers_8cpp.html#a3">has_been_netsplit</a> = <span class="keyword">true</span>;
+00345                         }
+00346                 }
+00347         }
+00348 }
+00349 
+<a name="l00350"></a><a class="code" href="classserverrec.html#a7">00350</a> <span class="keywordtype">bool</span> <a class="code" href="classserverrec.html#a7">serverrec::SendPacket</a>(<span class="keywordtype">char</span> *message, <span class="keyword">const</span> <span class="keywordtype">char</span>* sendhost)
+00351 {
+00352         <span class="keywordflow">if</span> ((!message) || (!sendhost))
+00353                 <span class="keywordflow">return</span> <span class="keyword">true</span>;
+00354 
+00355         <a class="code" href="classircd__connector.html">ircd_connector</a>* cn = this-&gt;<a class="code" href="classserverrec.html#a9">FindHost</a>(sendhost);
+00356 
+00357         <span class="keywordflow">if</span> (!strchr(message,<span class="charliteral">'\n'</span>))
+00358         {
+00359                 strlcat(message,<span class="stringliteral">"\n"</span>,MAXBUF);
+00360         }
+00361 
+00362         <span class="keywordflow">if</span> (cn)
+00363         {
+00364                 log(<a class="code" href="modules_8h.html#a0">DEBUG</a>,<span class="stringliteral">"main: serverrec::SendPacket() sent '%s' to %s"</span>,message,cn-&gt;<a class="code" href="classircd__connector.html#a2">GetServerName</a>().c_str());
+00365 
+00366                 <span class="keywordflow">if</span> (cn-&gt;<a class="code" href="classircd__connector.html#a6">GetState</a>() == <a class="code" href="connection_8h.html#a0">STATE_DISCONNECTED</a>)
+00367                 {
+00368                         <span class="comment">// fix: can only route one hop to avoid a loop</span>
+00369                         <span class="keywordflow">if</span> (strncmp(message,<span class="stringliteral">"R "</span>,2))
+00370                         {
+00371                                 log(<a class="code" href="modules_8h.html#a0">DEBUG</a>,<span class="stringliteral">"Not a double reroute"</span>);
+00372                                 <span class="comment">// this route is down, we must re-route the packet through an available point in the mesh.</span>
+00373                                 <span class="keywordflow">for</span> (<span class="keywordtype">int</span> k = 0; k &lt; this-&gt;<a class="code" href="classserverrec.html#o11">connectors</a>.size(); k++)
+00374                                 {
+00375                                         log(<a class="code" href="modules_8h.html#a0">DEBUG</a>,<span class="stringliteral">"Check connector %d: %s"</span>,k,this-&gt;connectors[k].GetServerName().c_str());
+00376                                         <span class="comment">// search for another point in the mesh which can 'reach' where we want to go</span>
+00377                                         <span class="keywordflow">for</span> (<span class="keywordtype">int</span> m = 0; m &lt; this-&gt;<a class="code" href="classserverrec.html#o11">connectors</a>[k].routes.size(); m++)
+00378                                         {
+00379                                                 <span class="keywordflow">if</span> (!strcasecmp(this-&gt;connectors[k].routes[m].c_str(),sendhost))
+00380                                                 {
+00381                                                         log(<a class="code" href="modules_8h.html#a0">DEBUG</a>,<span class="stringliteral">"Found alternative route for packet: %s"</span>,this-&gt;connectors[k].GetServerName().c_str());
+00382                                                         <span class="keywordtype">char</span> buffer[MAXBUF];
+00383                                                         snprintf(buffer,MAXBUF,<span class="stringliteral">"R %s %s"</span>,sendhost,message);
+00384                                                         this-&gt;<a class="code" href="classserverrec.html#a7">SendPacket</a>(buffer,this-&gt;connectors[k].GetServerName().c_str());
+00385                                                         <span class="keywordflow">return</span> <span class="keyword">true</span>;
+00386                                                 }
+00387                                         }
+00388                                 }
+00389                         }
+00390                         <span class="keywordtype">char</span> buffer[MAXBUF];
+00391                         snprintf(buffer,MAXBUF,<span class="stringliteral">"&amp; %s"</span>,sendhost);
+00392                         WriteOpers(<span class="stringliteral">"*** All connections to %s lost."</span>,sendhost);
+00393                         NetSendToAllExcept(sendhost,buffer);
+00394                         DoSplit(sendhost);
+00395                         <span class="keywordflow">return</span> <span class="keyword">false</span>;
+00396                 }
+00397 
+00398                 <span class="comment">// returns false if the packet could not be sent (e.g. target host down)</span>
+00399                 <span class="keywordflow">if</span> (!cn-&gt;<a class="code" href="classircd__connector.html#a21">AddWriteBuf</a>(message))
+00400                 {
+00401                         <span class="comment">// if we're here, there was an error pending, and the send cannot proceed</span>
+00402                         log(<a class="code" href="modules_8h.html#a0">DEBUG</a>,<span class="stringliteral">"cn-&gt;AddWriteBuf() failed for serverrec::SendPacket(): %s"</span>,cn-&gt;<a class="code" href="classircd__connector.html#a24">GetWriteError</a>().c_str());
+00403                         log(<a class="code" href="modules_8h.html#a0">DEBUG</a>,<span class="stringliteral">"Disabling connector: %s"</span>,cn-&gt;<a class="code" href="classircd__connector.html#a2">GetServerName</a>().c_str());
+00404                         cn-&gt;<a class="code" href="classircd__connector.html#a14">CloseConnection</a>();
+00405                         cn-&gt;<a class="code" href="classircd__connector.html#a7">SetState</a>(<a class="code" href="connection_8h.html#a0">STATE_DISCONNECTED</a>);
+00406                         WriteOpers(<span class="stringliteral">"*** Lost single connection to %s, link inactive and retrying: %s"</span>,cn-&gt;<a class="code" href="classircd__connector.html#a2">GetServerName</a>().c_str(),cn-&gt;<a class="code" href="classircd__connector.html#a24">GetWriteError</a>().c_str());
+00407                         <span class="comment">// retry the packet along a new route so either arrival OR failure are gauranteed (bugfix)</span>
+00408                         <span class="keywordflow">return</span> this-&gt;<a class="code" href="classserverrec.html#a7">SendPacket</a>(message,sendhost);
+00409                 }
+00410                 <span class="keywordflow">if</span> (!cn-&gt;<a class="code" href="classircd__connector.html#a22">FlushWriteBuf</a>())
+00411                 {
+00412                         <span class="comment">// if we're here the write() caused an error, we cannot proceed</span>
+00413                         log(<a class="code" href="modules_8h.html#a0">DEBUG</a>,<span class="stringliteral">"cn-&gt;FlushWriteBuf() failed for serverrec::SendPacket(): %s"</span>,cn-&gt;<a class="code" href="classircd__connector.html#a24">GetWriteError</a>().c_str());
+00414                         log(<a class="code" href="modules_8h.html#a0">DEBUG</a>,<span class="stringliteral">"Disabling connector: %s"</span>,cn-&gt;<a class="code" href="classircd__connector.html#a2">GetServerName</a>().c_str());
+00415                         cn-&gt;<a class="code" href="classircd__connector.html#a14">CloseConnection</a>();
+00416                         cn-&gt;<a class="code" href="classircd__connector.html#a7">SetState</a>(<a class="code" href="connection_8h.html#a0">STATE_DISCONNECTED</a>);
+00417                         WriteOpers(<span class="stringliteral">"*** Lost single connection to %s, link inactive and retrying: %s"</span>,cn-&gt;<a class="code" href="classircd__connector.html#a2">GetServerName</a>().c_str(),cn-&gt;<a class="code" href="classircd__connector.html#a24">GetWriteError</a>().c_str());
+00418                         <span class="comment">// retry the packet along a new route so either arrival OR failure are gauranteed</span>
+00419                         <span class="keywordflow">return</span> this-&gt;<a class="code" href="classserverrec.html#a7">SendPacket</a>(message,sendhost);
+00420                 }
+00421                 <span class="keywordflow">return</span> <span class="keyword">true</span>;
+00422         }
+00423 }
+00424 
+<a name="l00425"></a><a class="code" href="servers_8cpp.html#a6">00425</a> <span class="keywordtype">bool</span> <a class="code" href="servers_8cpp.html#a6">already_have_sum</a>(std::string sum)
+00426 {
+00427         <span class="keywordflow">for</span> (<span class="keywordtype">int</span> i = 0; i &lt; <a class="code" href="servers_8cpp.html#a4">xsums</a>.size(); i++)
+00428         {
+00429                 <span class="keywordflow">if</span> (<a class="code" href="servers_8cpp.html#a4">xsums</a>[i] == sum)
+00430                 {
+00431                         <span class="keywordflow">return</span> <span class="keyword">true</span>;
+00432                 }
+00433         }
+00434         <span class="keywordflow">if</span> (<a class="code" href="servers_8cpp.html#a4">xsums</a>.size() &gt;= 128)
+00435         {
+00436                 <a class="code" href="servers_8cpp.html#a4">xsums</a>.pop_front();
+00437         }
+00438         <a class="code" href="servers_8cpp.html#a4">xsums</a>.push_back(sum);
+00439         <span class="keywordflow">return</span> <span class="keyword">false</span>;
+00440 }
 00441 
-00442                         <span class="comment">// check if theres any data on this socket</span>
-00443                         <span class="comment">// if not, continue onwards to the next.</span>
-00444                         pollfd polls;
-00445                         polls.fd = this-&gt;<a class="code" href="classserverrec.html#o11">connectors</a>[i].GetDescriptor();
-00446                         polls.events = POLLIN;
-00447                         <span class="keywordtype">int</span> ret = poll(&amp;polls,1,1);
-00448                         <span class="keywordflow">if</span> (ret &lt;= 0) <span class="keywordflow">continue</span>;
-00449 
-00450                         rcvsize = recv(this-&gt;connectors[i].GetDescriptor(),data,65000,0);
-00451                         data[rcvsize] = <span class="charliteral">'\0'</span>;
-00452                         <span class="keywordflow">if</span> (rcvsize == -1)
-00453                         {
-00454                                 <span class="keywordflow">if</span> (errno != EAGAIN)
-00455                                 {
-00456                                         log(<a class="code" href="modules_8h.html#a0">DEBUG</a>,<span class="stringliteral">"recv() failed for serverrec::RecvPacket(): %s"</span>,strerror(errno));
-00457                                         log(<a class="code" href="modules_8h.html#a0">DEBUG</a>,<span class="stringliteral">"Disabling connector: %s"</span>,this-&gt;connectors[i].GetServerName().c_str());
-00458                                         this-&gt;<a class="code" href="classserverrec.html#o11">connectors</a>[i].CloseConnection();
-00459                                         this-&gt;<a class="code" href="classserverrec.html#o11">connectors</a>[i].SetState(<a class="code" href="connection_8h.html#a0">STATE_DISCONNECTED</a>);
-00460                                         <span class="keywordflow">if</span> (!<a class="code" href="servers_8cpp.html#a5">IsRoutable</a>(this-&gt;connectors[i].GetServerName()))
-00461                                         {
-00462                                                 WriteOpers(<span class="stringliteral">"*** Server %s is no longer routable, disconnecting."</span>,this-&gt;connectors[i].GetServerName().c_str());
-00463                                                 DoSplit(this-&gt;connectors[i].GetServerName().c_str());
-00464                                         }
-00465                                         <a class="code" href="servers_8cpp.html#a3">has_been_netsplit</a> = <span class="keyword">true</span>;
-00466                                 }
-00467                         }
-00468                         <span class="keywordtype">int</span> pushed = 0;
-00469                         <span class="keywordflow">if</span> (rcvsize &gt; 0)
-00470                         {
-00471                                 <span class="keywordflow">if</span> (!this-&gt;<a class="code" href="classserverrec.html#o11">connectors</a>[i].AddBuffer(data))
-00472                                 {
-00473                                         WriteOpers(<span class="stringliteral">"*** Read buffer for %s exceeds maximum, closing connection!"</span>,this-&gt;connectors[i].GetServerName().c_str());
-00474                                         this-&gt;<a class="code" href="classserverrec.html#o11">connectors</a>[i].CloseConnection();
-00475                                         this-&gt;<a class="code" href="classserverrec.html#o11">connectors</a>[i].SetState(<a class="code" href="connection_8h.html#a0">STATE_DISCONNECTED</a>);
-00476                                         <span class="keywordflow">if</span> (!<a class="code" href="servers_8cpp.html#a5">IsRoutable</a>(this-&gt;connectors[i].GetServerName()))
-00477                                         {
-00478                                                 WriteOpers(<span class="stringliteral">"*** Server %s is no longer routable, disconnecting."</span>,this-&gt;connectors[i].GetServerName().c_str());
-00479                                                 DoSplit(this-&gt;connectors[i].GetServerName().c_str());
-00480                                         }
-00481                                         <a class="code" href="servers_8cpp.html#a3">has_been_netsplit</a> = <span class="keyword">true</span>;
-00482                                 }
-00483                                 <span class="keywordflow">if</span> (this-&gt;<a class="code" href="classserverrec.html#o11">connectors</a>[i].BufferIsComplete())
+00442 <span class="comment">// receives a packet from any where there is data waiting, first come, first served</span>
+00443 <span class="comment">// fills the message and host values with the host where the data came from.</span>
+00444 
+<a name="l00445"></a><a class="code" href="classserverrec.html#a8">00445</a> <span class="keywordtype">bool</span> <a class="code" href="classserverrec.html#a8">serverrec::RecvPacket</a>(std::deque&lt;std::string&gt; &amp;messages, <span class="keywordtype">char</span>* recvhost,std::deque&lt;std::string&gt; &amp;sums)
+00446 {
+00447         <span class="keywordtype">char</span> data[65536],buffer[MAXBUF];
+00448         memset(data, 0, 65536);
+00449         <span class="keywordflow">for</span> (<span class="keywordtype">int</span> i = 0; i &lt; this-&gt;<a class="code" href="classserverrec.html#o11">connectors</a>.size(); i++)
+00450         {
+00451                 <span class="keywordflow">if</span> (this-&gt;<a class="code" href="classserverrec.html#o11">connectors</a>[i].GetState() != <a class="code" href="connection_8h.html#a0">STATE_DISCONNECTED</a>)
+00452                 {
+00453                         <span class="comment">// returns false if the packet could not be sent (e.g. target host down)</span>
+00454                         <span class="keywordtype">int</span> rcvsize = 0;
+00455 
+00456                         <span class="comment">// check if theres any data on this socket</span>
+00457                         <span class="comment">// if not, continue onwards to the next.</span>
+00458                         pollfd polls;
+00459                         polls.fd = this-&gt;<a class="code" href="classserverrec.html#o11">connectors</a>[i].GetDescriptor();
+00460                         polls.events = POLLIN;
+00461                         <span class="keywordtype">int</span> ret = poll(&amp;polls,1,1);
+00462                         <span class="keywordflow">if</span> (ret &lt;= 0) <span class="keywordflow">continue</span>;
+00463 
+00464                         rcvsize = recv(this-&gt;connectors[i].GetDescriptor(),data,65000,0);
+00465                         data[rcvsize] = <span class="charliteral">'\0'</span>;
+00466                         <span class="keywordflow">if</span> (rcvsize == 0)
+00467                         {
+00468                                 log(<a class="code" href="modules_8h.html#a0">DEBUG</a>,<span class="stringliteral">"recv() failed for serverrec::RecvPacket(): EOF"</span>);
+00469                                 log(<a class="code" href="modules_8h.html#a0">DEBUG</a>,<span class="stringliteral">"Disabling connector: %s"</span>,this-&gt;connectors[i].GetServerName().c_str());
+00470                                 this-&gt;<a class="code" href="classserverrec.html#o11">connectors</a>[i].CloseConnection();
+00471                                 this-&gt;<a class="code" href="classserverrec.html#o11">connectors</a>[i].SetState(<a class="code" href="connection_8h.html#a0">STATE_DISCONNECTED</a>);
+00472                                 <span class="keywordflow">if</span> (!<a class="code" href="servers_8cpp.html#a5">IsRoutable</a>(this-&gt;connectors[i].GetServerName()))
+00473                                 {
+00474                                         WriteOpers(<span class="stringliteral">"*** Server %s is no longer routable, disconnecting (EOF)"</span>,this-&gt;connectors[i].GetServerName().c_str());
+00475                                         snprintf(buffer,MAXBUF,<span class="stringliteral">"&amp; %s"</span>,this-&gt;connectors[i].GetServerName().c_str());
+00476                                         NetSendToAllExcept(this-&gt;connectors[i].GetServerName().c_str(),buffer);
+00477                                         DoSplit(this-&gt;connectors[i].GetServerName().c_str());
+00478                                 }
+00479                                 <a class="code" href="servers_8cpp.html#a3">has_been_netsplit</a> = <span class="keyword">true</span>;
+00480                         }
+00481                         <span class="keywordflow">if</span> (rcvsize == -1)
+00482                         {
+00483                                 <span class="keywordflow">if</span> (errno != EAGAIN)
 00484                                 {
-00485                                         this-&gt;<a class="code" href="classserverrec.html#o11">connectors</a>[i].ResetPing();
-00486                                         <span class="keywordflow">while</span> (this-&gt;<a class="code" href="classserverrec.html#o11">connectors</a>[i].BufferIsComplete())
-00487                                         {
-00488                                                 std::string text = this-&gt;<a class="code" href="classserverrec.html#o11">connectors</a>[i].GetBuffer();
-00489                                                 <span class="keywordflow">if</span> (text != <span class="stringliteral">""</span>)
-00490                                                 {
-00491                                                         <span class="keywordflow">if</span> ((text[0] == <span class="charliteral">':'</span>) &amp;&amp; (text.find(<span class="stringliteral">" "</span>) != std::string::npos))
-00492                                                         {
-00493                                                                 std::string orig = text;
-00494                                                                 log(<a class="code" href="modules_8h.html#a0">DEBUG</a>,<span class="stringliteral">"Original: %s"</span>,text.c_str());
-00495                                                                 std::string sum = text.substr(1,text.find(<span class="stringliteral">" "</span>)-1);
-00496                                                                 text = text.substr(text.find(<span class="stringliteral">" "</span>)+1,text.length());
-00497                                                                 std::string possible_token = text.substr(1,text.find(<span class="stringliteral">" "</span>)-1);
-00498                                                                 <span class="keywordflow">if</span> (possible_token.length() &gt; 1)
-00499                                                                 {
-00500                                                                         sums.push_back(<span class="stringliteral">"*"</span>);
-00501                                                                         text = orig;
-00502                                                                         log(<a class="code" href="modules_8h.html#a0">DEBUG</a>,<span class="stringliteral">"Non-mesh, non-tokenized string passed up the chain"</span>);
-00503                                                                 }
-00504                                                                 <span class="keywordflow">else</span>
-00505                                                                 {
-00506                                                                         log(<a class="code" href="modules_8h.html#a0">DEBUG</a>,<span class="stringliteral">"Packet sum: '%s'"</span>,sum.c_str());
-00507                                                                         <span class="keywordflow">if</span> ((<a class="code" href="servers_8cpp.html#a6">already_have_sum</a>(sum)) &amp;&amp; (sum != <span class="stringliteral">"*"</span>))
-00508                                                                         {
-00509                                                                                 <span class="comment">// we don't accept dupes</span>
-00510                                                                                 <span class="keywordflow">continue</span>;
-00511                                                                         }
-00512                                                                         sums.push_back(sum.c_str());
-00513                                                                 }
-00514                                                         }
-00515                                                         <span class="keywordflow">else</span> sums.push_back(<span class="stringliteral">"*"</span>);
-00516                                                         messages.push_back(text.c_str());
-00517                                                         strlcpy(recvhost,this-&gt;connectors[i].GetServerName().c_str(),160);
-00518                                                         log(<a class="code" href="modules_8h.html#a0">DEBUG</a>,<span class="stringliteral">"serverrec::RecvPacket() %d:%s-&gt;%s"</span>,pushed++,recvhost,text.c_str());
-00519                                                 }
-00520                                         }
-00521                                         <span class="keywordflow">return</span> <span class="keyword">true</span>;
-00522                                 }
-00523                         }
-00524                 }
-00525         }
-00526         <span class="comment">// nothing new yet -- message and host will be undefined</span>
-00527         <span class="keywordflow">return</span> <span class="keyword">false</span>;
-00528 }
-00529 
-</pre></div><hr size="1"><address style="align: right;"><small>Generated on Wed May 25 22:02:05 2005 for InspIRCd by
+00485                                         log(<a class="code" href="modules_8h.html#a0">DEBUG</a>,<span class="stringliteral">"recv() failed for serverrec::RecvPacket(): %s"</span>,strerror(errno));
+00486                                         log(<a class="code" href="modules_8h.html#a0">DEBUG</a>,<span class="stringliteral">"Disabling connector: %s"</span>,this-&gt;connectors[i].GetServerName().c_str());
+00487                                         this-&gt;<a class="code" href="classserverrec.html#o11">connectors</a>[i].CloseConnection();
+00488                                         this-&gt;<a class="code" href="classserverrec.html#o11">connectors</a>[i].SetState(<a class="code" href="connection_8h.html#a0">STATE_DISCONNECTED</a>);
+00489                                         <span class="keywordflow">if</span> (!<a class="code" href="servers_8cpp.html#a5">IsRoutable</a>(this-&gt;connectors[i].GetServerName()))
+00490                                         {
+00491                                                 WriteOpers(<span class="stringliteral">"*** Server %s is no longer routable, disconnecting."</span>,this-&gt;connectors[i].GetServerName().c_str());
+00492                                                 snprintf(buffer,MAXBUF,<span class="stringliteral">"&amp; %s"</span>,this-&gt;connectors[i].GetServerName().c_str());
+00493                                                 NetSendToAllExcept(this-&gt;connectors[i].GetServerName().c_str(),buffer);
+00494                                                 DoSplit(this-&gt;connectors[i].GetServerName().c_str());
+00495                                         }
+00496                                         <a class="code" href="servers_8cpp.html#a3">has_been_netsplit</a> = <span class="keyword">true</span>;
+00497                                 }
+00498                         }
+00499                         <span class="keywordtype">int</span> pushed = 0;
+00500                         <span class="keywordflow">if</span> (rcvsize &gt; 0)
+00501                         {
+00502                                 <span class="keywordflow">if</span> (!this-&gt;<a class="code" href="classserverrec.html#o11">connectors</a>[i].AddBuffer(data))
+00503                                 {
+00504                                         WriteOpers(<span class="stringliteral">"*** Read buffer for %s exceeds maximum, closing connection!"</span>,this-&gt;connectors[i].GetServerName().c_str());
+00505                                         this-&gt;<a class="code" href="classserverrec.html#o11">connectors</a>[i].CloseConnection();
+00506                                         this-&gt;<a class="code" href="classserverrec.html#o11">connectors</a>[i].SetState(<a class="code" href="connection_8h.html#a0">STATE_DISCONNECTED</a>);
+00507                                         <span class="keywordflow">if</span> (!<a class="code" href="servers_8cpp.html#a5">IsRoutable</a>(this-&gt;connectors[i].GetServerName()))
+00508                                         {
+00509                                                 WriteOpers(<span class="stringliteral">"*** Server %s is no longer routable, disconnecting."</span>,this-&gt;connectors[i].GetServerName().c_str());
+00510                                                 snprintf(buffer,MAXBUF,<span class="stringliteral">"&amp; %s"</span>,this-&gt;connectors[i].GetServerName().c_str());
+00511                                                 NetSendToAllExcept(this-&gt;connectors[i].GetServerName().c_str(),buffer);
+00512                                                 DoSplit(this-&gt;connectors[i].GetServerName().c_str());
+00513                                         }
+00514                                         <a class="code" href="servers_8cpp.html#a3">has_been_netsplit</a> = <span class="keyword">true</span>;
+00515                                 }
+00516                                 <span class="keywordflow">if</span> (this-&gt;<a class="code" href="classserverrec.html#o11">connectors</a>[i].BufferIsComplete())
+00517                                 {
+00518                                         this-&gt;<a class="code" href="classserverrec.html#o11">connectors</a>[i].ResetPing();
+00519                                         <span class="keywordflow">while</span> (this-&gt;<a class="code" href="classserverrec.html#o11">connectors</a>[i].BufferIsComplete())
+00520                                         {
+00521                                                 std::string text = this-&gt;<a class="code" href="classserverrec.html#o11">connectors</a>[i].GetBuffer();
+00522                                                 <span class="keywordflow">if</span> (text != <span class="stringliteral">""</span>)
+00523                                                 {
+00524                                                         <span class="keywordflow">if</span> ((text[0] == <span class="charliteral">':'</span>) &amp;&amp; (text.find(<span class="stringliteral">" "</span>) != std::string::npos))
+00525                                                         {
+00526                                                                 std::string orig = text;
+00527                                                                 log(<a class="code" href="modules_8h.html#a0">DEBUG</a>,<span class="stringliteral">"Original: %s"</span>,text.c_str());
+00528                                                                 std::string sum = text.substr(1,text.find(<span class="stringliteral">" "</span>)-1);
+00529                                                                 text = text.substr(text.find(<span class="stringliteral">" "</span>)+1,text.length());
+00530                                                                 std::string possible_token = text.substr(1,text.find(<span class="stringliteral">" "</span>)-1);
+00531                                                                 <span class="keywordflow">if</span> (possible_token.length() &gt; 1)
+00532                                                                 {
+00533                                                                         sums.push_back(<span class="stringliteral">"*"</span>);
+00534                                                                         text = orig;
+00535                                                                         log(<a class="code" href="modules_8h.html#a0">DEBUG</a>,<span class="stringliteral">"Non-mesh, non-tokenized string passed up the chain"</span>);
+00536                                                                 }
+00537                                                                 <span class="keywordflow">else</span>
+00538                                                                 {
+00539                                                                         log(<a class="code" href="modules_8h.html#a0">DEBUG</a>,<span class="stringliteral">"Packet sum: '%s'"</span>,sum.c_str());
+00540                                                                         <span class="keywordflow">if</span> ((<a class="code" href="servers_8cpp.html#a6">already_have_sum</a>(sum)) &amp;&amp; (sum != <span class="stringliteral">"*"</span>))
+00541                                                                         {
+00542                                                                                 <span class="comment">// we don't accept dupes</span>
+00543                                                                                 <span class="keywordflow">continue</span>;
+00544                                                                         }
+00545                                                                         sums.push_back(sum.c_str());
+00546                                                                 }
+00547                                                         }
+00548                                                         <span class="keywordflow">else</span> sums.push_back(<span class="stringliteral">"*"</span>);
+00549                                                         messages.push_back(text.c_str());
+00550                                                         strlcpy(recvhost,this-&gt;connectors[i].GetServerName().c_str(),160);
+00551                                                         log(<a class="code" href="modules_8h.html#a0">DEBUG</a>,<span class="stringliteral">"serverrec::RecvPacket() %d:%s-&gt;%s"</span>,pushed++,recvhost,text.c_str());
+00552                                                 }
+00553                                         }
+00554                                         <span class="keywordflow">return</span> <span class="keyword">true</span>;
+00555                                 }
+00556                         }
+00557                 }
+00558         }
+00559         <span class="comment">// nothing new yet -- message and host will be undefined</span>
+00560         <span class="keywordflow">return</span> <span class="keyword">false</span>;
+00561 }
+00562 
+</pre></div><hr size="1"><address style="align: right;"><small>Generated on Mon May 30 05:15:21 2005 for InspIRCd by
 <a href="http://www.doxygen.org/index.html">
 <img src="doxygen.png" alt="doxygen" align="middle" border=0 > 
 </a>1.3.3 </small></address>

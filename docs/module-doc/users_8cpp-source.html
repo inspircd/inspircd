@@ -32,32 +32,32 @@
 00025 <span class="preprocessor">#include "helperfuncs.h"</span>
 00026 
 <a name="l00027"></a><a class="code" href="users_8cpp.html#a0">00027</a> <span class="keyword">extern</span> std::stringstream <a class="code" href="channels_8cpp.html#a33">config_f</a>;
-00028 
-<a name="l00029"></a><a class="code" href="users_8cpp.html#a1">00029</a> <span class="keyword">extern</span> time_t <a class="code" href="channels_8cpp.html#a36">TIME</a>;
-00030 
-<a name="l00031"></a><a class="code" href="classuserrec.html#a0">00031</a> <a class="code" href="classuserrec.html#a0">userrec::userrec</a>()
-00032 {
-00033         <span class="comment">// the PROPER way to do it, AVOID bzero at *ALL* costs</span>
-00034         strcpy(<a class="code" href="classuserrec.html#o0">nick</a>,<span class="stringliteral">""</span>);
-00035         strcpy(<a class="code" href="classconnection.html#o2">ip</a>,<span class="stringliteral">"127.0.0.1"</span>);
-00036         <a class="code" href="classuserrec.html#o10">timeout</a> = 0;
-00037         strcpy(<a class="code" href="classuserrec.html#o1">ident</a>,<span class="stringliteral">""</span>);
-00038         strcpy(<a class="code" href="classconnection.html#o1">host</a>,<span class="stringliteral">""</span>);
-00039         strcpy(<a class="code" href="classuserrec.html#o2">dhost</a>,<span class="stringliteral">""</span>);
-00040         strcpy(<a class="code" href="classuserrec.html#o3">fullname</a>,<span class="stringliteral">""</span>);
-00041         strcpy(<a class="code" href="classuserrec.html#o4">modes</a>,<span class="stringliteral">""</span>);
-00042         strcpy(<a class="code" href="classuserrec.html#o6">server</a>,<span class="stringliteral">""</span>);
-00043         strcpy(<a class="code" href="classuserrec.html#o7">awaymsg</a>,<span class="stringliteral">""</span>);
-00044         strcpy(<a class="code" href="classuserrec.html#o11">oper</a>,<span class="stringliteral">""</span>);
-00045         <a class="code" href="classuserrec.html#o18">reset_due</a> = <a class="code" href="channels_8cpp.html#a36">TIME</a>;
-00046         <a class="code" href="classuserrec.html#o17">lines_in</a> = 0;
-00047         <a class="code" href="classconnection.html#o0">fd</a> = <a class="code" href="classconnection.html#o10">lastping</a> = <a class="code" href="classconnection.html#o11">signon</a> = <a class="code" href="classconnection.html#o12">idle_lastmsg</a> = <a class="code" href="classconnection.html#o13">nping</a> = <a class="code" href="classconnection.html#o9">registered</a> = 0;
-00048         <a class="code" href="classuserrec.html#o9">flood</a> = <a class="code" href="classconnection.html#o8">port</a> = <a class="code" href="classconnection.html#o3">bytes_in</a> = <a class="code" href="classconnection.html#o4">bytes_out</a> = <a class="code" href="classconnection.html#o5">cmds_in</a> = <a class="code" href="classconnection.html#o6">cmds_out</a> = 0;
-00049         <a class="code" href="classconnection.html#o7">haspassed</a> = <span class="keyword">false</span>;
-00050         <a class="code" href="classuserrec.html#o12">dns_done</a> = <span class="keyword">false</span>;
-00051         <a class="code" href="classuserrec.html#o15">recvq</a> = <span class="stringliteral">""</span>;
-00052         <a class="code" href="classuserrec.html#o16">sendq</a> = <span class="stringliteral">""</span>;
-00053         strcpy(<a class="code" href="classuserrec.html#o8">result</a>,<span class="stringliteral">""</span>);
+<a name="l00028"></a><a class="code" href="users_8cpp.html#a1">00028</a> <span class="keyword">extern</span> <span class="keywordtype">char</span> <a class="code" href="channels_8cpp.html#a5">ServerName</a>[MAXBUF];
+00029 
+<a name="l00030"></a><a class="code" href="users_8cpp.html#a2">00030</a> <span class="keyword">extern</span> time_t <a class="code" href="channels_8cpp.html#a36">TIME</a>;
+00031 
+<a name="l00032"></a><a class="code" href="classuserrec.html#a0">00032</a> <a class="code" href="classuserrec.html#a0">userrec::userrec</a>()
+00033 {
+00034         <span class="comment">// the PROPER way to do it, AVOID bzero at *ALL* costs</span>
+00035         strcpy(<a class="code" href="classuserrec.html#o0">nick</a>,<span class="stringliteral">""</span>);
+00036         strcpy(<a class="code" href="classconnection.html#o2">ip</a>,<span class="stringliteral">"127.0.0.1"</span>);
+00037         <a class="code" href="classuserrec.html#o9">timeout</a> = 0;
+00038         strcpy(<a class="code" href="classuserrec.html#o1">ident</a>,<span class="stringliteral">""</span>);
+00039         strcpy(<a class="code" href="classconnection.html#o1">host</a>,<span class="stringliteral">""</span>);
+00040         strcpy(<a class="code" href="classuserrec.html#o2">dhost</a>,<span class="stringliteral">""</span>);
+00041         strcpy(<a class="code" href="classuserrec.html#o3">fullname</a>,<span class="stringliteral">""</span>);
+00042         strcpy(<a class="code" href="classuserrec.html#o4">modes</a>,<span class="stringliteral">""</span>);
+00043         <a class="code" href="classuserrec.html#o6">server</a> = (<span class="keywordtype">char</span>*)FindServerNamePtr(<a class="code" href="channels_8cpp.html#a5">ServerName</a>);
+00044         strcpy(<a class="code" href="classuserrec.html#o7">awaymsg</a>,<span class="stringliteral">""</span>);
+00045         strcpy(<a class="code" href="classuserrec.html#o10">oper</a>,<span class="stringliteral">""</span>);
+00046         <a class="code" href="classuserrec.html#o17">reset_due</a> = <a class="code" href="channels_8cpp.html#a36">TIME</a>;
+00047         <a class="code" href="classuserrec.html#o16">lines_in</a> = 0;
+00048         <a class="code" href="classconnection.html#o0">fd</a> = <a class="code" href="classconnection.html#o10">lastping</a> = <a class="code" href="classconnection.html#o11">signon</a> = <a class="code" href="classconnection.html#o12">idle_lastmsg</a> = <a class="code" href="classconnection.html#o13">nping</a> = <a class="code" href="classconnection.html#o9">registered</a> = 0;
+00049         <a class="code" href="classuserrec.html#o8">flood</a> = <a class="code" href="classconnection.html#o8">port</a> = <a class="code" href="classconnection.html#o3">bytes_in</a> = <a class="code" href="classconnection.html#o4">bytes_out</a> = <a class="code" href="classconnection.html#o5">cmds_in</a> = <a class="code" href="classconnection.html#o6">cmds_out</a> = 0;
+00050         <a class="code" href="classconnection.html#o7">haspassed</a> = <span class="keyword">false</span>;
+00051         <a class="code" href="classuserrec.html#o11">dns_done</a> = <span class="keyword">false</span>;
+00052         <a class="code" href="classuserrec.html#o14">recvq</a> = <span class="stringliteral">""</span>;
+00053         <a class="code" href="classuserrec.html#o15">sendq</a> = <span class="stringliteral">""</span>;
 00054         <span class="keywordflow">for</span> (<span class="keywordtype">int</span> i = 0; i &lt; MAXCHANS; i++)
 00055         {
 00056                 this-&gt;<a class="code" href="classuserrec.html#o5">chans</a>[i].<a class="code" href="classucrec.html#o1">channel</a> = NULL;
@@ -74,233 +74,235 @@
 00067  
 <a name="l00068"></a><a class="code" href="classuserrec.html#a2">00068</a> <span class="keywordtype">char</span>* <a class="code" href="classuserrec.html#a2">userrec::GetFullHost</a>()
 00069 {
-00070         snprintf(<a class="code" href="classuserrec.html#o8">result</a>,MAXBUF,<span class="stringliteral">"%s!%s@%s"</span>,<a class="code" href="classuserrec.html#o0">nick</a>,<a class="code" href="classuserrec.html#o1">ident</a>,<a class="code" href="classuserrec.html#o2">dhost</a>);
-00071         <span class="keywordflow">return</span> <a class="code" href="classuserrec.html#o8">result</a>;
-00072 }
-00073 
-<a name="l00074"></a><a class="code" href="classuserrec.html#a8">00074</a> <span class="keywordtype">int</span> <a class="code" href="classuserrec.html#a8">userrec::ReadData</a>(<span class="keywordtype">void</span>* buffer, size_t size)
-00075 {
-00076         <span class="keywordflow">if</span> (this-&gt;<a class="code" href="classconnection.html#o0">fd</a> &gt; -1)
-00077         {
-00078                 <span class="keywordflow">return</span> read(this-&gt;fd, buffer, size);
-00079         }
-00080         <span class="keywordflow">else</span> <span class="keywordflow">return</span> 0;
-00081 }
-00082 
+00070         <span class="keyword">static</span> <span class="keywordtype">char</span> result[MAXBUF];
+00071         snprintf(result,MAXBUF,<span class="stringliteral">"%s!%s@%s"</span>,<a class="code" href="classuserrec.html#o0">nick</a>,<a class="code" href="classuserrec.html#o1">ident</a>,<a class="code" href="classuserrec.html#o2">dhost</a>);
+00072         <span class="keywordflow">return</span> result;
+00073 }
+00074 
+<a name="l00075"></a><a class="code" href="classuserrec.html#a8">00075</a> <span class="keywordtype">int</span> <a class="code" href="classuserrec.html#a8">userrec::ReadData</a>(<span class="keywordtype">void</span>* buffer, size_t size)
+00076 {
+00077         <span class="keywordflow">if</span> (this-&gt;<a class="code" href="classconnection.html#o0">fd</a> &gt; -1)
+00078         {
+00079                 <span class="keywordflow">return</span> read(this-&gt;fd, buffer, size);
+00080         }
+00081         <span class="keywordflow">else</span> <span class="keywordflow">return</span> 0;
+00082 }
 00083 
-<a name="l00084"></a><a class="code" href="classuserrec.html#a3">00084</a> <span class="keywordtype">char</span>* <a class="code" href="classuserrec.html#a3">userrec::GetFullRealHost</a>()
-00085 {
-00086         snprintf(<a class="code" href="classuserrec.html#o8">result</a>,MAXBUF,<span class="stringliteral">"%s!%s@%s"</span>,<a class="code" href="classuserrec.html#o0">nick</a>,<a class="code" href="classuserrec.html#o1">ident</a>,<a class="code" href="classconnection.html#o1">host</a>);
-00087         <span class="keywordflow">return</span> <a class="code" href="classuserrec.html#o8">result</a>;
-00088 }
-00089 
-<a name="l00090"></a><a class="code" href="classuserrec.html#a4">00090</a> <span class="keywordtype">bool</span> <a class="code" href="classuserrec.html#a4">userrec::IsInvited</a>(<span class="keywordtype">char</span>* channel)
-00091 {
-00092         <span class="keywordflow">for</span> (InvitedList::iterator i = <a class="code" href="classuserrec.html#r0">invites</a>.begin(); i != <a class="code" href="classuserrec.html#r0">invites</a>.end(); i++)
-00093         {
-00094                 <span class="keywordflow">if</span> (i-&gt;channel) {
-00095                         <span class="keywordflow">if</span> (!strcasecmp(i-&gt;channel,channel))
-00096                         {
-00097                                 <span class="keywordflow">return</span> <span class="keyword">true</span>;
-00098                         }
-00099                 }
-00100         }
-00101         <span class="keywordflow">return</span> <span class="keyword">false</span>;
-00102 }
-00103 
-<a name="l00104"></a><a class="code" href="classuserrec.html#a17">00104</a> <a class="code" href="users_8h.html#a6">InvitedList</a>* <a class="code" href="classuserrec.html#a17">userrec::GetInviteList</a>()
-00105 {
-00106         <span class="keywordflow">return</span> &amp;<a class="code" href="classuserrec.html#r0">invites</a>;
-00107 }
-00108 
-<a name="l00109"></a><a class="code" href="classuserrec.html#a5">00109</a> <span class="keywordtype">void</span> <a class="code" href="classuserrec.html#a5">userrec::InviteTo</a>(<span class="keywordtype">char</span>* channel)
-00110 {
-00111         <a class="code" href="classInvited.html">Invited</a> i;
-00112         strlcpy(i.<a class="code" href="classInvited.html#o0">channel</a>,channel,CHANMAX);
-00113         <a class="code" href="classuserrec.html#r0">invites</a>.push_back(i);
-00114 }
-00115 
-<a name="l00116"></a><a class="code" href="classuserrec.html#a6">00116</a> <span class="keywordtype">void</span> <a class="code" href="classuserrec.html#a6">userrec::RemoveInvite</a>(<span class="keywordtype">char</span>* channel)
-00117 {
-00118         log(<a class="code" href="modules_8h.html#a0">DEBUG</a>,<span class="stringliteral">"Removing invites"</span>);
-00119         <span class="keywordflow">if</span> (channel)
-00120         {
-00121                 <span class="keywordflow">if</span> (<a class="code" href="classuserrec.html#r0">invites</a>.size())
-00122                 {
-00123                         <span class="keywordflow">for</span> (InvitedList::iterator i = <a class="code" href="classuserrec.html#r0">invites</a>.begin(); i != <a class="code" href="classuserrec.html#r0">invites</a>.end(); i++)
-00124                         {
-00125                                 <span class="keywordflow">if</span> (i-&gt;channel)
-00126                                 {
-00127                                         <span class="keywordflow">if</span> (!strcasecmp(i-&gt;channel,channel))
-00128                                         {
-00129                                                 <a class="code" href="classuserrec.html#r0">invites</a>.erase(i);
-00130                                                 <span class="keywordflow">return</span>;
-00131                                         }
-00132                                 }
-00133                         }
-00134                 }
-00135         }
-00136 }
-00137 
-<a name="l00138"></a><a class="code" href="classuserrec.html#a7">00138</a> <span class="keywordtype">bool</span> <a class="code" href="classuserrec.html#a7">userrec::HasPermission</a>(<span class="keywordtype">char</span>* command)
-00139 {
-00140         <span class="keywordtype">char</span> TypeName[MAXBUF],Classes[MAXBUF],ClassName[MAXBUF],CommandList[MAXBUF];
-00141         <span class="keywordtype">char</span>* mycmd;
-00142         <span class="keywordtype">char</span>* savept;
-00143         <span class="keywordtype">char</span>* savept2;
-00144         
-00145         <span class="comment">// are they even an oper at all?</span>
-00146         <span class="keywordflow">if</span> (strchr(this-&gt;modes,<span class="charliteral">'o'</span>))
-00147         {
-00148                 log(<a class="code" href="modules_8h.html#a0">DEBUG</a>,<span class="stringliteral">"*** HasPermission: %s is an oper"</span>,this-&gt;nick);
-00149                 <span class="keywordflow">for</span> (<span class="keywordtype">int</span> j =0; j &lt; ConfValueEnum(<span class="stringliteral">"type"</span>,&amp;<a class="code" href="channels_8cpp.html#a33">config_f</a>); j++)
-00150                 {
-00151                         ConfValue(<span class="stringliteral">"type"</span>,<span class="stringliteral">"name"</span>,j,TypeName,&amp;<a class="code" href="channels_8cpp.html#a33">config_f</a>);
-00152                         <span class="keywordflow">if</span> (!strcmp(TypeName,this-&gt;oper))
-00153                         {
-00154                                 log(<a class="code" href="modules_8h.html#a0">DEBUG</a>,<span class="stringliteral">"*** HasPermission: %s is an oper of type '%s'"</span>,this-&gt;nick,this-&gt;oper);
-00155                                 ConfValue(<span class="stringliteral">"type"</span>,<span class="stringliteral">"classes"</span>,j,Classes,&amp;<a class="code" href="channels_8cpp.html#a33">config_f</a>);
-00156                                 <span class="keywordtype">char</span>* myclass = strtok_r(Classes,<span class="stringliteral">" "</span>,&amp;savept);
-00157                                 <span class="keywordflow">while</span> (myclass)
-00158                                 {
-00159                                         log(<a class="code" href="modules_8h.html#a0">DEBUG</a>,<span class="stringliteral">"*** HasPermission: checking classtype '%s'"</span>,myclass);
-00160                                         <span class="keywordflow">for</span> (<span class="keywordtype">int</span> k =0; k &lt; ConfValueEnum(<span class="stringliteral">"class"</span>,&amp;<a class="code" href="channels_8cpp.html#a33">config_f</a>); k++)
-00161                                         {
-00162                                                 ConfValue(<span class="stringliteral">"class"</span>,<span class="stringliteral">"name"</span>,k,ClassName,&amp;<a class="code" href="channels_8cpp.html#a33">config_f</a>);
-00163                                                 <span class="keywordflow">if</span> (!strcmp(ClassName,myclass))
-00164                                                 {
-00165                                                         ConfValue(<span class="stringliteral">"class"</span>,<span class="stringliteral">"commands"</span>,k,CommandList,&amp;<a class="code" href="channels_8cpp.html#a33">config_f</a>);
-00166                                                         log(<a class="code" href="modules_8h.html#a0">DEBUG</a>,<span class="stringliteral">"*** HasPermission: found class named %s with commands: '%s'"</span>,ClassName,CommandList);
-00167                                                         
-00168                                                         
-00169                                                         mycmd = strtok_r(CommandList,<span class="stringliteral">" "</span>,&amp;savept2);
-00170                                                         <span class="keywordflow">while</span> (mycmd)
-00171                                                         {
-00172                                                                 <span class="keywordflow">if</span> (!strcasecmp(mycmd,command))
-00173                                                                 {
-00174                                                                         log(<a class="code" href="modules_8h.html#a0">DEBUG</a>,<span class="stringliteral">"*** Command %s found, returning true"</span>,command);
-00175                                                                         <span class="keywordflow">return</span> <span class="keyword">true</span>;
-00176                                                                 }
-00177                                                                 mycmd = strtok_r(NULL,<span class="stringliteral">" "</span>,&amp;savept2);
-00178                                                         }
-00179                                                 }
-00180                                         }
-00181                                         myclass = strtok_r(NULL,<span class="stringliteral">" "</span>,&amp;savept);
-00182                                 }
-00183                         }
-00184                 }
-00185         }
-00186         <span class="keywordflow">return</span> <span class="keyword">false</span>;
-00187 }
-00188 
-00189 
-<a name="l00190"></a><a class="code" href="classuserrec.html#a9">00190</a> <span class="keywordtype">bool</span> <a class="code" href="classuserrec.html#a9">userrec::AddBuffer</a>(std::string a)
-00191 {
-00192         std::string b = <span class="stringliteral">""</span>;
-00193         <span class="keywordflow">for</span> (<span class="keywordtype">int</span> i = 0; i &lt; a.length(); i++)
-00194                 <span class="keywordflow">if</span> ((a[i] != <span class="charliteral">'\r'</span>) &amp;&amp; (a[i] != <span class="charliteral">'\0'</span>) &amp;&amp; (a[i] != 7))
-00195                         b = b + a[i];
-00196         std::stringstream stream(<a class="code" href="classuserrec.html#o15">recvq</a>);
-00197         stream &lt;&lt; b;
-00198         <a class="code" href="classuserrec.html#o15">recvq</a> = stream.str();
-00199         <span class="keywordtype">int</span> i = 0;
-00200         <span class="comment">// count the size of the first line in the buffer.</span>
-00201         <span class="keywordflow">while</span> (i &lt; <a class="code" href="classuserrec.html#o15">recvq</a>.length())
-00202         {
-00203                 <span class="keywordflow">if</span> (<a class="code" href="classuserrec.html#o15">recvq</a>[i++] == <span class="charliteral">'\n'</span>)
-00204                         <span class="keywordflow">break</span>;
-00205         }
-00206         <span class="keywordflow">if</span> (<a class="code" href="classuserrec.html#o15">recvq</a>.length() &gt; this-&gt;<a class="code" href="classuserrec.html#o22">recvqmax</a>)
-00207         {
-00208                 this-&gt;<a class="code" href="classuserrec.html#a13">SetWriteError</a>(<span class="stringliteral">"RecvQ exceeded"</span>);
-00209                 WriteOpers(<span class="stringliteral">"*** User %s RecvQ of %d exceeds connect class maximum of %d"</span>,this-&gt;nick,<a class="code" href="classuserrec.html#o15">recvq</a>.length(),this-&gt;<a class="code" href="classuserrec.html#o22">recvqmax</a>);
-00210         }
-00211         <span class="comment">// return false if we've had more than 600 characters WITHOUT</span>
-00212         <span class="comment">// a carriage return (this is BAD, drop the socket)</span>
-00213         <span class="keywordflow">return</span> (i &lt; 600);
-00214 }
-00215 
-<a name="l00216"></a><a class="code" href="classuserrec.html#a10">00216</a> <span class="keywordtype">bool</span> <a class="code" href="classuserrec.html#a10">userrec::BufferIsReady</a>()
-00217 {
-00218         <span class="keywordflow">for</span> (<span class="keywordtype">int</span> i = 0; i &lt; <a class="code" href="classuserrec.html#o15">recvq</a>.length(); i++)
-00219                 <span class="keywordflow">if</span> (<a class="code" href="classuserrec.html#o15">recvq</a>[i] == <span class="charliteral">'\n'</span>)
-00220                         <span class="keywordflow">return</span> <span class="keyword">true</span>;
-00221         <span class="keywordflow">return</span> <span class="keyword">false</span>;
-00222 }
-00223 
-<a name="l00224"></a><a class="code" href="classuserrec.html#a11">00224</a> <span class="keywordtype">void</span> <a class="code" href="classuserrec.html#a11">userrec::ClearBuffer</a>()
-00225 {
-00226         <a class="code" href="classuserrec.html#o15">recvq</a> = <span class="stringliteral">""</span>;
-00227 }
-00228 
-<a name="l00229"></a><a class="code" href="classuserrec.html#a12">00229</a> std::string <a class="code" href="classuserrec.html#a12">userrec::GetBuffer</a>()
-00230 {
-00231         <span class="keywordflow">if</span> (<a class="code" href="classuserrec.html#o15">recvq</a> == <span class="stringliteral">""</span>)
-00232                 <span class="keywordflow">return</span> <span class="stringliteral">""</span>;
-00233         <span class="keywordtype">char</span>* line = (<span class="keywordtype">char</span>*)<a class="code" href="classuserrec.html#o15">recvq</a>.c_str();
-00234         std::string ret = <span class="stringliteral">""</span>;
-00235         <span class="keywordflow">while</span> ((*line != <span class="charliteral">'\n'</span>) &amp;&amp; (strlen(line)))
-00236         {
-00237                 ret = ret + *line;
-00238                 line++;
-00239         }
-00240         <span class="keywordflow">if</span> ((*line == <span class="charliteral">'\n'</span>) || (*line == <span class="charliteral">'\r'</span>))
-00241                 line++;
-00242         <a class="code" href="classuserrec.html#o15">recvq</a> = line;
-00243         <span class="keywordflow">return</span> ret;
-00244 }
-00245 
-<a name="l00246"></a><a class="code" href="classuserrec.html#a15">00246</a> <span class="keywordtype">void</span> <a class="code" href="classuserrec.html#a15">userrec::AddWriteBuf</a>(std::string data)
-00247 {
-00248         <span class="keywordflow">if</span> (this-&gt;<a class="code" href="classuserrec.html#a14">GetWriteError</a>() != <span class="stringliteral">""</span>)
-00249                 <span class="keywordflow">return</span>;
-00250         <span class="keywordflow">if</span> (<a class="code" href="classuserrec.html#o16">sendq</a>.length() + data.length() &gt; this-&gt;<a class="code" href="classuserrec.html#o21">sendqmax</a>)
-00251         {
-00252                 WriteOpers(<span class="stringliteral">"*** User %s SendQ of %d exceeds connect class maximum of %d"</span>,this-&gt;nick,<a class="code" href="classuserrec.html#o16">sendq</a>.length() + data.length(),this-&gt;<a class="code" href="classuserrec.html#o21">sendqmax</a>);
-00253                 this-&gt;<a class="code" href="classuserrec.html#a13">SetWriteError</a>(<span class="stringliteral">"SendQ exceeded"</span>);
-00254                 <span class="keywordflow">return</span>;
-00255         }
-00256         std::stringstream stream;
-00257         stream &lt;&lt; <a class="code" href="classuserrec.html#o16">sendq</a> &lt;&lt; data;
-00258         <a class="code" href="classuserrec.html#o16">sendq</a> = stream.str();
-00259 }
-00260 
-00261 <span class="comment">// send AS MUCH OF THE USERS SENDQ as we are able to (might not be all of it)</span>
-<a name="l00262"></a><a class="code" href="classuserrec.html#a16">00262</a> <span class="keywordtype">void</span> <a class="code" href="classuserrec.html#a16">userrec::FlushWriteBuf</a>()
-00263 {
-00264         <span class="keywordflow">if</span> (<a class="code" href="classuserrec.html#o16">sendq</a>.length())
-00265         {
-00266                 <span class="keywordtype">char</span>* tb = (<span class="keywordtype">char</span>*)this-&gt;<a class="code" href="classuserrec.html#o16">sendq</a>.c_str();
-00267                 <span class="keywordtype">int</span> n_sent = write(this-&gt;fd,tb,this-&gt;sendq.length());
-00268                 <span class="keywordflow">if</span> (n_sent == -1)
-00269                 {
-00270                         this-&gt;<a class="code" href="classuserrec.html#a13">SetWriteError</a>(strerror(errno));
-00271                 }
-00272                 <span class="keywordflow">else</span>
-00273                 {
-00274                         <span class="comment">// advance the queue</span>
-00275                         tb += n_sent;
-00276                         this-&gt;<a class="code" href="classuserrec.html#o16">sendq</a> = tb;
-00277                         <span class="comment">// update the user's stats counters</span>
-00278                         this-&gt;<a class="code" href="classconnection.html#o4">bytes_out</a> += n_sent;
-00279                         this-&gt;<a class="code" href="classconnection.html#o6">cmds_out</a>++;
-00280                 }
-00281         }
-00282 }
-00283 
-<a name="l00284"></a><a class="code" href="classuserrec.html#a13">00284</a> <span class="keywordtype">void</span> <a class="code" href="classuserrec.html#a13">userrec::SetWriteError</a>(std::string error)
-00285 {
-00286         log(<a class="code" href="modules_8h.html#a0">DEBUG</a>,<span class="stringliteral">"Setting error string for %s to '%s'"</span>,this-&gt;nick,error.c_str());
-00287         <span class="comment">// don't try to set the error twice, its already set take the first string.</span>
-00288         <span class="keywordflow">if</span> (this-&gt;<a class="code" href="classuserrec.html#o20">WriteError</a> == <span class="stringliteral">""</span>)
-00289                 this-&gt;<a class="code" href="classuserrec.html#o20">WriteError</a> = error;
-00290 }
-00291 
-<a name="l00292"></a><a class="code" href="classuserrec.html#a14">00292</a> std::string <a class="code" href="classuserrec.html#a14">userrec::GetWriteError</a>()
-00293 {
-00294         <span class="keywordflow">return</span> this-&gt;<a class="code" href="classuserrec.html#o20">WriteError</a>;
-00295 }
-</pre></div><hr size="1"><address style="align: right;"><small>Generated on Wed May 25 22:02:06 2005 for InspIRCd by
+00084 
+<a name="l00085"></a><a class="code" href="classuserrec.html#a3">00085</a> <span class="keywordtype">char</span>* <a class="code" href="classuserrec.html#a3">userrec::GetFullRealHost</a>()
+00086 {
+00087         <span class="keyword">static</span> <span class="keywordtype">char</span> fresult[MAXBUF];
+00088         snprintf(fresult,MAXBUF,<span class="stringliteral">"%s!%s@%s"</span>,<a class="code" href="classuserrec.html#o0">nick</a>,<a class="code" href="classuserrec.html#o1">ident</a>,<a class="code" href="classconnection.html#o1">host</a>);
+00089         <span class="keywordflow">return</span> fresult;
+00090 }
+00091 
+<a name="l00092"></a><a class="code" href="classuserrec.html#a4">00092</a> <span class="keywordtype">bool</span> <a class="code" href="classuserrec.html#a4">userrec::IsInvited</a>(<span class="keywordtype">char</span>* channel)
+00093 {
+00094         <span class="keywordflow">for</span> (InvitedList::iterator i = <a class="code" href="classuserrec.html#r0">invites</a>.begin(); i != <a class="code" href="classuserrec.html#r0">invites</a>.end(); i++)
+00095         {
+00096                 <span class="keywordflow">if</span> (i-&gt;channel) {
+00097                         <span class="keywordflow">if</span> (!strcasecmp(i-&gt;channel,channel))
+00098                         {
+00099                                 <span class="keywordflow">return</span> <span class="keyword">true</span>;
+00100                         }
+00101                 }
+00102         }
+00103         <span class="keywordflow">return</span> <span class="keyword">false</span>;
+00104 }
+00105 
+<a name="l00106"></a><a class="code" href="classuserrec.html#a17">00106</a> <a class="code" href="users_8h.html#a6">InvitedList</a>* <a class="code" href="classuserrec.html#a17">userrec::GetInviteList</a>()
+00107 {
+00108         <span class="keywordflow">return</span> &amp;<a class="code" href="classuserrec.html#r0">invites</a>;
+00109 }
+00110 
+<a name="l00111"></a><a class="code" href="classuserrec.html#a5">00111</a> <span class="keywordtype">void</span> <a class="code" href="classuserrec.html#a5">userrec::InviteTo</a>(<span class="keywordtype">char</span>* channel)
+00112 {
+00113         <a class="code" href="classInvited.html">Invited</a> i;
+00114         strlcpy(i.<a class="code" href="classInvited.html#o0">channel</a>,channel,CHANMAX);
+00115         <a class="code" href="classuserrec.html#r0">invites</a>.push_back(i);
+00116 }
+00117 
+<a name="l00118"></a><a class="code" href="classuserrec.html#a6">00118</a> <span class="keywordtype">void</span> <a class="code" href="classuserrec.html#a6">userrec::RemoveInvite</a>(<span class="keywordtype">char</span>* channel)
+00119 {
+00120         log(<a class="code" href="modules_8h.html#a0">DEBUG</a>,<span class="stringliteral">"Removing invites"</span>);
+00121         <span class="keywordflow">if</span> (channel)
+00122         {
+00123                 <span class="keywordflow">if</span> (<a class="code" href="classuserrec.html#r0">invites</a>.size())
+00124                 {
+00125                         <span class="keywordflow">for</span> (InvitedList::iterator i = <a class="code" href="classuserrec.html#r0">invites</a>.begin(); i != <a class="code" href="classuserrec.html#r0">invites</a>.end(); i++)
+00126                         {
+00127                                 <span class="keywordflow">if</span> (i-&gt;channel)
+00128                                 {
+00129                                         <span class="keywordflow">if</span> (!strcasecmp(i-&gt;channel,channel))
+00130                                         {
+00131                                                 <a class="code" href="classuserrec.html#r0">invites</a>.erase(i);
+00132                                                 <span class="keywordflow">return</span>;
+00133                                         }
+00134                                 }
+00135                         }
+00136                 }
+00137         }
+00138 }
+00139 
+<a name="l00140"></a><a class="code" href="classuserrec.html#a7">00140</a> <span class="keywordtype">bool</span> <a class="code" href="classuserrec.html#a7">userrec::HasPermission</a>(<span class="keywordtype">char</span>* command)
+00141 {
+00142         <span class="keywordtype">char</span> TypeName[MAXBUF],Classes[MAXBUF],ClassName[MAXBUF],CommandList[MAXBUF];
+00143         <span class="keywordtype">char</span>* mycmd;
+00144         <span class="keywordtype">char</span>* savept;
+00145         <span class="keywordtype">char</span>* savept2;
+00146         
+00147         <span class="comment">// are they even an oper at all?</span>
+00148         <span class="keywordflow">if</span> (strchr(this-&gt;modes,<span class="charliteral">'o'</span>))
+00149         {
+00150                 log(<a class="code" href="modules_8h.html#a0">DEBUG</a>,<span class="stringliteral">"*** HasPermission: %s is an oper"</span>,this-&gt;nick);
+00151                 <span class="keywordflow">for</span> (<span class="keywordtype">int</span> j =0; j &lt; ConfValueEnum(<span class="stringliteral">"type"</span>,&amp;<a class="code" href="channels_8cpp.html#a33">config_f</a>); j++)
+00152                 {
+00153                         ConfValue(<span class="stringliteral">"type"</span>,<span class="stringliteral">"name"</span>,j,TypeName,&amp;<a class="code" href="channels_8cpp.html#a33">config_f</a>);
+00154                         <span class="keywordflow">if</span> (!strcmp(TypeName,this-&gt;oper))
+00155                         {
+00156                                 log(<a class="code" href="modules_8h.html#a0">DEBUG</a>,<span class="stringliteral">"*** HasPermission: %s is an oper of type '%s'"</span>,this-&gt;nick,this-&gt;oper);
+00157                                 ConfValue(<span class="stringliteral">"type"</span>,<span class="stringliteral">"classes"</span>,j,Classes,&amp;<a class="code" href="channels_8cpp.html#a33">config_f</a>);
+00158                                 <span class="keywordtype">char</span>* myclass = strtok_r(Classes,<span class="stringliteral">" "</span>,&amp;savept);
+00159                                 <span class="keywordflow">while</span> (myclass)
+00160                                 {
+00161                                         log(<a class="code" href="modules_8h.html#a0">DEBUG</a>,<span class="stringliteral">"*** HasPermission: checking classtype '%s'"</span>,myclass);
+00162                                         <span class="keywordflow">for</span> (<span class="keywordtype">int</span> k =0; k &lt; ConfValueEnum(<span class="stringliteral">"class"</span>,&amp;<a class="code" href="channels_8cpp.html#a33">config_f</a>); k++)
+00163                                         {
+00164                                                 ConfValue(<span class="stringliteral">"class"</span>,<span class="stringliteral">"name"</span>,k,ClassName,&amp;<a class="code" href="channels_8cpp.html#a33">config_f</a>);
+00165                                                 <span class="keywordflow">if</span> (!strcmp(ClassName,myclass))
+00166                                                 {
+00167                                                         ConfValue(<span class="stringliteral">"class"</span>,<span class="stringliteral">"commands"</span>,k,CommandList,&amp;<a class="code" href="channels_8cpp.html#a33">config_f</a>);
+00168                                                         log(<a class="code" href="modules_8h.html#a0">DEBUG</a>,<span class="stringliteral">"*** HasPermission: found class named %s with commands: '%s'"</span>,ClassName,CommandList);
+00169                                                         
+00170                                                         
+00171                                                         mycmd = strtok_r(CommandList,<span class="stringliteral">" "</span>,&amp;savept2);
+00172                                                         <span class="keywordflow">while</span> (mycmd)
+00173                                                         {
+00174                                                                 <span class="keywordflow">if</span> (!strcasecmp(mycmd,command))
+00175                                                                 {
+00176                                                                         log(<a class="code" href="modules_8h.html#a0">DEBUG</a>,<span class="stringliteral">"*** Command %s found, returning true"</span>,command);
+00177                                                                         <span class="keywordflow">return</span> <span class="keyword">true</span>;
+00178                                                                 }
+00179                                                                 mycmd = strtok_r(NULL,<span class="stringliteral">" "</span>,&amp;savept2);
+00180                                                         }
+00181                                                 }
+00182                                         }
+00183                                         myclass = strtok_r(NULL,<span class="stringliteral">" "</span>,&amp;savept);
+00184                                 }
+00185                         }
+00186                 }
+00187         }
+00188         <span class="keywordflow">return</span> <span class="keyword">false</span>;
+00189 }
+00190 
+00191 
+<a name="l00192"></a><a class="code" href="classuserrec.html#a9">00192</a> <span class="keywordtype">bool</span> <a class="code" href="classuserrec.html#a9">userrec::AddBuffer</a>(std::string a)
+00193 {
+00194         std::string b = <span class="stringliteral">""</span>;
+00195         <span class="keywordflow">for</span> (<span class="keywordtype">int</span> i = 0; i &lt; a.length(); i++)
+00196                 <span class="keywordflow">if</span> ((a[i] != <span class="charliteral">'\r'</span>) &amp;&amp; (a[i] != <span class="charliteral">'\0'</span>) &amp;&amp; (a[i] != 7))
+00197                         b = b + a[i];
+00198         std::stringstream stream(<a class="code" href="classuserrec.html#o14">recvq</a>);
+00199         stream &lt;&lt; b;
+00200         <a class="code" href="classuserrec.html#o14">recvq</a> = stream.str();
+00201         <span class="keywordtype">int</span> i = 0;
+00202         <span class="comment">// count the size of the first line in the buffer.</span>
+00203         <span class="keywordflow">while</span> (i &lt; <a class="code" href="classuserrec.html#o14">recvq</a>.length())
+00204         {
+00205                 <span class="keywordflow">if</span> (<a class="code" href="classuserrec.html#o14">recvq</a>[i++] == <span class="charliteral">'\n'</span>)
+00206                         <span class="keywordflow">break</span>;
+00207         }
+00208         <span class="keywordflow">if</span> (<a class="code" href="classuserrec.html#o14">recvq</a>.length() &gt; this-&gt;<a class="code" href="classuserrec.html#o21">recvqmax</a>)
+00209         {
+00210                 this-&gt;<a class="code" href="classuserrec.html#a13">SetWriteError</a>(<span class="stringliteral">"RecvQ exceeded"</span>);
+00211                 WriteOpers(<span class="stringliteral">"*** User %s RecvQ of %d exceeds connect class maximum of %d"</span>,this-&gt;nick,<a class="code" href="classuserrec.html#o14">recvq</a>.length(),this-&gt;<a class="code" href="classuserrec.html#o21">recvqmax</a>);
+00212         }
+00213         <span class="comment">// return false if we've had more than 600 characters WITHOUT</span>
+00214         <span class="comment">// a carriage return (this is BAD, drop the socket)</span>
+00215         <span class="keywordflow">return</span> (i &lt; 600);
+00216 }
+00217 
+<a name="l00218"></a><a class="code" href="classuserrec.html#a10">00218</a> <span class="keywordtype">bool</span> <a class="code" href="classuserrec.html#a10">userrec::BufferIsReady</a>()
+00219 {
+00220         <span class="keywordflow">for</span> (<span class="keywordtype">int</span> i = 0; i &lt; <a class="code" href="classuserrec.html#o14">recvq</a>.length(); i++)
+00221                 <span class="keywordflow">if</span> (<a class="code" href="classuserrec.html#o14">recvq</a>[i] == <span class="charliteral">'\n'</span>)
+00222                         <span class="keywordflow">return</span> <span class="keyword">true</span>;
+00223         <span class="keywordflow">return</span> <span class="keyword">false</span>;
+00224 }
+00225 
+<a name="l00226"></a><a class="code" href="classuserrec.html#a11">00226</a> <span class="keywordtype">void</span> <a class="code" href="classuserrec.html#a11">userrec::ClearBuffer</a>()
+00227 {
+00228         <a class="code" href="classuserrec.html#o14">recvq</a> = <span class="stringliteral">""</span>;
+00229 }
+00230 
+<a name="l00231"></a><a class="code" href="classuserrec.html#a12">00231</a> std::string <a class="code" href="classuserrec.html#a12">userrec::GetBuffer</a>()
+00232 {
+00233         <span class="keywordflow">if</span> (<a class="code" href="classuserrec.html#o14">recvq</a> == <span class="stringliteral">""</span>)
+00234                 <span class="keywordflow">return</span> <span class="stringliteral">""</span>;
+00235         <span class="keywordtype">char</span>* line = (<span class="keywordtype">char</span>*)<a class="code" href="classuserrec.html#o14">recvq</a>.c_str();
+00236         std::string ret = <span class="stringliteral">""</span>;
+00237         <span class="keywordflow">while</span> ((*line != <span class="charliteral">'\n'</span>) &amp;&amp; (strlen(line)))
+00238         {
+00239                 ret = ret + *line;
+00240                 line++;
+00241         }
+00242         <span class="keywordflow">if</span> ((*line == <span class="charliteral">'\n'</span>) || (*line == <span class="charliteral">'\r'</span>))
+00243                 line++;
+00244         <a class="code" href="classuserrec.html#o14">recvq</a> = line;
+00245         <span class="keywordflow">return</span> ret;
+00246 }
+00247 
+<a name="l00248"></a><a class="code" href="classuserrec.html#a15">00248</a> <span class="keywordtype">void</span> <a class="code" href="classuserrec.html#a15">userrec::AddWriteBuf</a>(std::string data)
+00249 {
+00250         <span class="keywordflow">if</span> (this-&gt;<a class="code" href="classuserrec.html#a14">GetWriteError</a>() != <span class="stringliteral">""</span>)
+00251                 <span class="keywordflow">return</span>;
+00252         <span class="keywordflow">if</span> (<a class="code" href="classuserrec.html#o15">sendq</a>.length() + data.length() &gt; this-&gt;<a class="code" href="classuserrec.html#o20">sendqmax</a>)
+00253         {
+00254                 WriteOpers(<span class="stringliteral">"*** User %s SendQ of %d exceeds connect class maximum of %d"</span>,this-&gt;nick,<a class="code" href="classuserrec.html#o15">sendq</a>.length() + data.length(),this-&gt;<a class="code" href="classuserrec.html#o20">sendqmax</a>);
+00255                 this-&gt;<a class="code" href="classuserrec.html#a13">SetWriteError</a>(<span class="stringliteral">"SendQ exceeded"</span>);
+00256                 <span class="keywordflow">return</span>;
+00257         }
+00258         std::stringstream stream;
+00259         stream &lt;&lt; <a class="code" href="classuserrec.html#o15">sendq</a> &lt;&lt; data;
+00260         <a class="code" href="classuserrec.html#o15">sendq</a> = stream.str();
+00261 }
+00262 
+00263 <span class="comment">// send AS MUCH OF THE USERS SENDQ as we are able to (might not be all of it)</span>
+<a name="l00264"></a><a class="code" href="classuserrec.html#a16">00264</a> <span class="keywordtype">void</span> <a class="code" href="classuserrec.html#a16">userrec::FlushWriteBuf</a>()
+00265 {
+00266         <span class="keywordflow">if</span> (<a class="code" href="classuserrec.html#o15">sendq</a>.length())
+00267         {
+00268                 <span class="keywordtype">char</span>* tb = (<span class="keywordtype">char</span>*)this-&gt;<a class="code" href="classuserrec.html#o15">sendq</a>.c_str();
+00269                 <span class="keywordtype">int</span> n_sent = write(this-&gt;fd,tb,this-&gt;sendq.length());
+00270                 <span class="keywordflow">if</span> (n_sent == -1)
+00271                 {
+00272                         this-&gt;<a class="code" href="classuserrec.html#a13">SetWriteError</a>(strerror(errno));
+00273                 }
+00274                 <span class="keywordflow">else</span>
+00275                 {
+00276                         <span class="comment">// advance the queue</span>
+00277                         tb += n_sent;
+00278                         this-&gt;<a class="code" href="classuserrec.html#o15">sendq</a> = tb;
+00279                         <span class="comment">// update the user's stats counters</span>
+00280                         this-&gt;<a class="code" href="classconnection.html#o4">bytes_out</a> += n_sent;
+00281                         this-&gt;<a class="code" href="classconnection.html#o6">cmds_out</a>++;
+00282                 }
+00283         }
+00284 }
+00285 
+<a name="l00286"></a><a class="code" href="classuserrec.html#a13">00286</a> <span class="keywordtype">void</span> <a class="code" href="classuserrec.html#a13">userrec::SetWriteError</a>(std::string error)
+00287 {
+00288         log(<a class="code" href="modules_8h.html#a0">DEBUG</a>,<span class="stringliteral">"Setting error string for %s to '%s'"</span>,this-&gt;nick,error.c_str());
+00289         <span class="comment">// don't try to set the error twice, its already set take the first string.</span>
+00290         <span class="keywordflow">if</span> (this-&gt;<a class="code" href="classuserrec.html#o19">WriteError</a> == <span class="stringliteral">""</span>)
+00291                 this-&gt;<a class="code" href="classuserrec.html#o19">WriteError</a> = error;
+00292 }
+00293 
+<a name="l00294"></a><a class="code" href="classuserrec.html#a14">00294</a> std::string <a class="code" href="classuserrec.html#a14">userrec::GetWriteError</a>()
+00295 {
+00296         <span class="keywordflow">return</span> this-&gt;<a class="code" href="classuserrec.html#o19">WriteError</a>;
+00297 }
+</pre></div><hr size="1"><address style="align: right;"><small>Generated on Mon May 30 05:15:21 2005 for InspIRCd by
 <a href="http://www.doxygen.org/index.html">
 <img src="doxygen.png" alt="doxygen" align="middle" border=0 > 
 </a>1.3.3 </small></address>

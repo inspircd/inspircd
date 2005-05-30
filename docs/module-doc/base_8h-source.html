@@ -53,9 +53,40 @@
 00088         <span class="keywordtype">char</span>* <a class="code" href="classExtensible.html#a2">GetExt</a>(std::string key);
 00089 };
 00090 
-00091 <span class="preprocessor">#endif</span>
-00092 <span class="preprocessor"></span>
-</pre></div><hr size="1"><address style="align: right;"><small>Generated on Wed May 25 22:02:04 2005 for InspIRCd by
+<a name="l00091"></a><a class="code" href="base_8h.html#a1">00091</a> <span class="keyword">const</span> <span class="keywordtype">int</span> <a class="code" href="base_8h.html#a1">bitfields</a>[]           =       {1,2,4,8,16,32,64,128};
+<a name="l00092"></a><a class="code" href="base_8h.html#a2">00092</a> <span class="keyword">const</span> <span class="keywordtype">int</span> <a class="code" href="base_8h.html#a2">inverted_bitfields</a>[]  =       {~1,~2,~4,~8,~16,~32,~64,~128};
+00093 
+<a name="l00098"></a><a class="code" href="classBoolSet.html">00098</a> <span class="keyword">class </span><a class="code" href="classBoolSet.html">BoolSet</a>
+00099 {
+<a name="l00100"></a><a class="code" href="classBoolSet.html#r0">00100</a>         <span class="keywordtype">char</span> <a class="code" href="classBoolSet.html#r0">bits</a>;
+00101 
+00102  <span class="keyword">public</span>:
+00103 
+00106         <a class="code" href="classBoolSet.html#a0">BoolSet</a>();
+00107 
+00110         <a class="code" href="classBoolSet.html#a0">BoolSet</a>(<span class="keywordtype">char</span> bitmask);
+00111 
+00116         <span class="keywordtype">void</span> <a class="code" href="classBoolSet.html#a2">Set</a>(<span class="keywordtype">int</span> number);
+00117 
+00124         <span class="keywordtype">bool</span> <a class="code" href="classBoolSet.html#a3">Get</a>(<span class="keywordtype">int</span> number);
+00125 
+00130         <span class="keywordtype">void</span> <a class="code" href="classBoolSet.html#a4">Unset</a>(<span class="keywordtype">int</span> number);
+00131 
+00136         <span class="keywordtype">void</span> <a class="code" href="classBoolSet.html#a5">Invert</a>(<span class="keywordtype">int</span> number);
+00137 
+00140         <span class="keywordtype">bool</span> <a class="code" href="classBoolSet.html#a6">operator==</a>(<a class="code" href="classBoolSet.html">BoolSet</a> other);
+00141 
+00144         <a class="code" href="classBoolSet.html">BoolSet</a> <a class="code" href="classBoolSet.html#a7">operator|</a>(<a class="code" href="classBoolSet.html">BoolSet</a> other);
+00145         
+00148         <a class="code" href="classBoolSet.html">BoolSet</a> <a class="code" href="classBoolSet.html#a8">operator&amp;</a>(<a class="code" href="classBoolSet.html">BoolSet</a> other);
+00149 
+00152         <span class="keywordtype">bool</span> <a class="code" href="classBoolSet.html#a9">operator=</a>(<a class="code" href="classBoolSet.html">BoolSet</a> other);
+00153 };
+00154 
+00155 
+00156 <span class="preprocessor">#endif</span>
+00157 <span class="preprocessor"></span>
+</pre></div><hr size="1"><address style="align: right;"><small>Generated on Mon May 30 05:15:18 2005 for InspIRCd by
 <a href="http://www.doxygen.org/index.html">
 <img src="doxygen.png" alt="doxygen" align="middle" border=0 > 
 </a>1.3.3 </small></address>

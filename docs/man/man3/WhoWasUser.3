@@ -1,4 +1,4 @@
-.TH "WhoWasUser" 3 "25 May 2005" "InspIRCd" \" -*- nroff -*-
+.TH "WhoWasUser" 3 "30 May 2005" "InspIRCd" \" -*- nroff -*-
 .ad l
 .nh
 .SH NAME
@@ -17,7 +17,7 @@ WhoWasUser \- A lightweight userrec used by WHOWAS.
 .RI "char \fBnick\fP [NICKMAX]"
 .br
 .ti -1c
-.RI "char \fBident\fP [16]"
+.RI "char \fBident\fP [IDENTMAX+1]"
 .br
 .ti -1c
 .RI "char \fBdhost\fP [160]"
@@ -26,7 +26,7 @@ WhoWasUser \- A lightweight userrec used by WHOWAS.
 .RI "char \fBhost\fP [160]"
 .br
 .ti -1c
-.RI "char \fBfullname\fP [128]"
+.RI "char \fBfullname\fP [MAXGECOS+1]"
 .br
 .ti -1c
 .RI "char \fBserver\fP [256]"
@@ -37,30 +37,30 @@ WhoWasUser \- A lightweight userrec used by WHOWAS.
 .in -1c
 .SH "Detailed Description"
 .PP 
-A lightweight userrec used by WHOWAS. Definition at line 326 of file users.h.
+A lightweight userrec used by WHOWAS. Definition at line 325 of file users.h.
 .SH "Member Data Documentation"
 .PP 
 .SS "char \fBWhoWasUser::dhost\fP[160]"
 .PP
-Definition at line 331 of file users.h.
-.SS "char \fBWhoWasUser::fullname\fP[128]"
-.PP
-Definition at line 333 of file users.h.
-.SS "char \fBWhoWasUser::host\fP[160]"
+Definition at line 330 of file users.h.
+.SS "char \fBWhoWasUser::fullname\fP[MAXGECOS+1]"
 .PP
 Definition at line 332 of file users.h.
-.SS "char \fBWhoWasUser::ident\fP[16]"
+.SS "char \fBWhoWasUser::host\fP[160]"
 .PP
-Definition at line 330 of file users.h.
-.SS "char \fBWhoWasUser::nick\fP[NICKMAX]"
+Definition at line 331 of file users.h.
+.SS "char \fBWhoWasUser::ident\fP[IDENTMAX+1]"
 .PP
 Definition at line 329 of file users.h.
+.SS "char \fBWhoWasUser::nick\fP[NICKMAX]"
+.PP
+Definition at line 328 of file users.h.
 .SS "char \fBWhoWasUser::server\fP[256]"
 .PP
-Definition at line 334 of file users.h.
+Definition at line 333 of file users.h.
 .SS "time_t \fBWhoWasUser::signon\fP"
 .PP
-Definition at line 335 of file users.h.
+Definition at line 334 of file users.h.
 
 .SH "Author"
 .PP 
