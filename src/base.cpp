@@ -107,7 +107,7 @@ BoolSet::BoolSet(char bitmask)
 	this->bits = bitmask;
 }
 
-bool operator=(BoolSet other)
+bool BoolSet::operator=(BoolSet other)
 {
         this->bits = other.bits;
         return true;
