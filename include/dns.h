@@ -39,7 +39,7 @@ private:
 	char* result;
 	int t;
 	void dns_init();
-	unsigned int fd;
+	int fd;
 	void dns_init_2(const char* dnsserver);
 	in_addr *dns_aton4(const char * const ipstring);
 	char *dns_ntoa4(const in_addr * const ip);

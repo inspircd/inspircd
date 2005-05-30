@@ -89,7 +89,7 @@ class ModuleSQLOper : public Module
 
 		// sanitize the password (we dont want any mysql insertion exploits!)
 		std::string temp = "";
-		for (int q = 0; q < password.length(); q++)
+		for (unsigned int q = 0; q < password.length(); q++)
 		{
 			if (password[q] == '\'')
 			{
@@ -103,7 +103,7 @@ class ModuleSQLOper : public Module
 		}
 		password = temp;
 		temp = "";
-		for (int v = 0; v < username.length(); v++)
+		for (unsigned int v = 0; v < username.length(); v++)
 		{
 			if (username[v] == '\'')
 			{

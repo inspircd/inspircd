@@ -229,7 +229,7 @@ class ModulePark : public Module
 		awaylog* awy = (awaylog*)dest->GetExt("park_awaylog");
 		if (awy)
 		{
-			if (awy->size() <= ParkMaxMsgs)
+			if (awy->size() <= (unsigned)ParkMaxMsgs)
 			{
 				awaymsg am;
 				am.text = text;

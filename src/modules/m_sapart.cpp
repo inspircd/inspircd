@@ -31,7 +31,7 @@ void handle_sapart(char **parameters, int pcnt, userrec *user)
 	userrec* dest = Srv->FindNick(std::string(parameters[0]));
 	if (dest)
 	{
-		for (int x = 0; x < strlen(parameters[1]); x++)
+		for (unsigned int x = 0; x < strlen(parameters[1]); x++)
 		{
 				if ((parameters[1][0] != '#') || (parameters[1][x] == ' ') || (parameters[1][x] == ','))
 				{

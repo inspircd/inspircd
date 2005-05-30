@@ -300,7 +300,7 @@ class ModuleChanProtect : public Module
 		if (mode == 'q')
 		{
 			chanuserlist cl = Srv->GetUsers(channel);
-			for (int i = 0; i < cl.size(); i++)
+			for (unsigned int i = 0; i < cl.size(); i++)
 			{
 				if (cl[i]->GetExt("cm_founder_"+std::string(channel->name)))
 				{
@@ -312,7 +312,7 @@ class ModuleChanProtect : public Module
                 if (mode == 'a')
                 {
                         chanuserlist cl = Srv->GetUsers(channel);
-                        for (int i = 0; i < cl.size(); i++)
+                        for (unsigned int i = 0; i < cl.size(); i++)
                         {
                                 if (cl[i]->GetExt("cm_protect_"+std::string(channel->name)))
                                 {
@@ -342,7 +342,7 @@ class ModuleChanProtect : public Module
 		// know whos +q/+a on the channel.
 		chanuserlist cl = Srv->GetUsers(chan);
 		string_list commands;
-		for (int i = 0; i < cl.size(); i++)
+		for (unsigned int i = 0; i < cl.size(); i++)
 		{
 			if (cl[i]->GetExt("cm_founder_"+std::string(chan->name)))
 			{

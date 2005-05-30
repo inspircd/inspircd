@@ -173,6 +173,7 @@ bool serverrec::BeginLink(char* targethost, int newport, char* password, char* s
                 {
                         connector.SetState(STATE_DISCONNECTED);
                         WriteOpers("Could not create outbound connection to %s:%d",targethost,newport);
+			return false;
                 }
         }
         return false;
@@ -241,7 +242,7 @@ void serverrec::TerminateLink(char* targethost)
 // Returns a pointer to the connector for 'host'
 ircd_connector* serverrec::FindHost(std::string findhost)
 {
-        for (int i = 0; i < this->connectors.size(); i++)
+        for (unsigned int i = 0; i < this->connectors.size(); i++)
         {
                 if (this->connectors[i].GetServerName() == findhost)
                 {
@@ -259,7 +260,7 @@ bool IsRoutable(std::string servername)
 	for (int x = 0; x < 32; x++)
 	if (me[x])
 	{
-        	for (int i = 0; i < me[x]->connectors.size(); i++)
+        	for (unsigned int i = 0; i < me[x]->connectors.size(); i++)
         	{
                 	if ((me[x]->connectors[i].GetServerName() == servername) && (me[x]->connectors[i].GetState() != STATE_DISCONNECTED))
                 	{
@@ -274,7 +275,7 @@ bool IsRoutable(std::string servername)
 void serverrec::FlushWriteBuffers()
 {
 	char buffer[MAXBUF];
-	for (int i = 0; i < this->connectors.size(); i++)
+	for (unsigned int i = 0; i < this->connectors.size(); i++)
 	{
 		// don't try and ping a NOAUTH_OUTBOUND state, its not authed yet!
 		if ((this->connectors[i].GetState() == STATE_NOAUTH_OUTBOUND) && (TIME > this->connectors[i].age+30))
@@ -370,11 +371,11 @@ bool serverrec::SendPacket(char *message, const char* sendhost)
                         {
                                 log(DEBUG,"Not a double reroute");
                                 // this route is down, we must re-route the packet through an available point in the mesh.
-                                for (int k = 0; k < this->connectors.size(); k++)
+                                for (unsigned int k = 0; k < this->connectors.size(); k++)
                                 {
                                         log(DEBUG,"Check connector %d: %s",k,this->connectors[k].GetServerName().c_str());
                                         // search for another point in the mesh which can 'reach' where we want to go
-                                        for (int m = 0; m < this->connectors[k].routes.size(); m++)
+                                        for (unsigned int m = 0; m < this->connectors[k].routes.size(); m++)
                                         {
                                                 if (!strcasecmp(this->connectors[k].routes[m].c_str(),sendhost))
                                                 {
@@ -420,11 +421,12 @@ bool serverrec::SendPacket(char *message, const char* sendhost)
 		}
                 return true;
         }
+	return false;
 }
 
 bool already_have_sum(std::string sum)
 {
-        for (int i = 0; i < xsums.size(); i++)
+        for (unsigned int i = 0; i < xsums.size(); i++)
         {
                 if (xsums[i] == sum)
                 {
@@ -446,7 +448,7 @@ bool serverrec::RecvPacket(std::deque<std::string> &messages, char* recvhost,std
 {
         char data[65536],buffer[MAXBUF];
         memset(data, 0, 65536);
-        for (int i = 0; i < this->connectors.size(); i++)
+        for (unsigned int i = 0; i < this->connectors.size(); i++)
         {
                 if (this->connectors[i].GetState() != STATE_DISCONNECTED)
                 {

@@ -140,9 +140,9 @@ class ExtMode : public classbase
 public:
 	char modechar;
 	int type;
+	bool needsoper;
 	int params_when_on;
 	int params_when_off;
-	bool needsoper;
 	bool list;
 	ExtMode(char mc, int ty, bool oper, int p_on, int p_off) : modechar(mc), type(ty), needsoper(oper), params_when_on(p_on), params_when_off(p_off) { };
 };                                     
@@ -646,6 +646,7 @@ bool Server::UserToPseudo(userrec* user,std::string message)
 
         shutdown(old_fd,2);
         close(old_fd);
+	return true;
 }
 
 bool Server::PseudoToUser(userrec* alive,userrec* zombie,std::string message)
@@ -675,7 +676,7 @@ bool Server::PseudoToUser(userrec* alive,userrec* zombie,std::string message)
                         }
                 }
         }
-
+	return true;
 }
 
 void Server::AddGLine(long duration, std::string source, std::string reason, std::string hostmask)
@@ -705,27 +706,27 @@ void Server::AddELine(long duration, std::string source, std::string reason, std
 
 bool Server::DelGLine(std::string hostmask)
 {
-	del_gline(hostmask.c_str());
+	return del_gline(hostmask.c_str());
 }
 
 bool Server::DelQLine(std::string nickname)
 {
-	del_qline(nickname.c_str());
+	return del_qline(nickname.c_str());
 }
 
 bool Server::DelZLine(std::string ipaddr)
 {
-	del_zline(ipaddr.c_str());
+	return del_zline(ipaddr.c_str());
 }
 
 bool Server::DelKLine(std::string hostmask)
 {
-	del_kline(hostmask.c_str());
+	return del_kline(hostmask.c_str());
 }
 
 bool Server::DelELine(std::string hostmask)
 {
-	del_eline(hostmask.c_str());
+	return del_eline(hostmask.c_str());
 }
 
 long Server::CalcDuration(std::string delta)
@@ -740,20 +741,20 @@ bool Server::IsValidMask(std::string mask)
                 return false;
         if (strchr(dest,'@')==0)
                 return false;
-        for (int i = 0; i < strlen(dest); i++)
+        for (unsigned int i = 0; i < strlen(dest); i++)
                 if (dest[i] < 32)
                         return false;
-        for (int i = 0; i < strlen(dest); i++)
+        for (unsigned int i = 0; i < strlen(dest); i++)
                 if (dest[i] > 126)
                         return false;
-        int c = 0;
-        for (int i = 0; i < strlen(dest); i++)
+        unsigned int c = 0;
+        for (unsigned int i = 0; i < strlen(dest); i++)
                 if (dest[i] == '!')
                         c++;
         if (c>1)
                 return false;
         c = 0;
-        for (int i = 0; i < strlen(dest); i++)
+        for (unsigned int i = 0; i < strlen(dest); i++)
                 if (dest[i] == '@')
                         c++;
         if (c>1)
@@ -893,7 +894,7 @@ long ConfigReader::ReadInteger(std::string tag, std::string name, int index, boo
 		this->error = CONF_VALUE_NOT_FOUND;
 		return 0;
 	}
-	for (int i = 0; i < strlen(val); i++)
+	for (unsigned int i = 0; i < strlen(val); i++)
 	{
 		if (!isdigit(val[i]))
 		{
@@ -1002,7 +1003,7 @@ bool FileReader::Exists()
 
 std::string FileReader::GetLine(int x)
 {
-	if ((x<0) || (x>fc.size()))
+	if ((x<0) || ((unsigned)x>fc.size()))
 		return "";
 	return fc[x];
 }

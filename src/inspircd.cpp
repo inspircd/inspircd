@@ -843,6 +843,8 @@ chanrec* del_channel(userrec *user, const char* cname, const char* reason, bool 
 			chanlist.erase(iter);
 		}
 	}
+
+	return NULL;
 }
 
 
@@ -1272,15 +1274,15 @@ int main(int argc, char** argv)
 	strlcpy(MyExecutable,argv[0],MAXBUF);
 	
 	// initialize the lowercase mapping table
-	for (int cn = 0; cn < 256; cn++)
+	for (unsigned int cn = 0; cn < 256; cn++)
 		lowermap[cn] = cn;
 	// lowercase the uppercase chars
-	for (int cn = 65; cn < 91; cn++)
+	for (unsigned int cn = 65; cn < 91; cn++)
 		lowermap[cn] = tolower(cn);
 	// now replace the specific chars for scandanavian comparison
-	lowermap['['] = '{';
-	lowermap[']'] = '}';
-	lowermap['\\'] = '|';
+	lowermap[(unsigned)'['] = '{';
+	lowermap[(unsigned)']'] = '}';
+	lowermap[(unsigned)'\\'] = '|';
 
 	if (InspIRCd(argv,argc) == ERROR)
 	{
@@ -1348,7 +1350,7 @@ void AddWhoWas(userrec* u)
 	
 	if (iter == whowas.end())
 	{
-		if (whowas.size() >= WHOWAS_MAX)
+		if (whowas.size() >= (unsigned)WHOWAS_MAX)
 		{
 			for (whowas_hash::iterator i = whowas.begin(); i != whowas.end(); i++)
 			{
@@ -1659,7 +1661,7 @@ void handle_version(char **parameters, int pcnt, userrec *user)
 			{
 				if (me[j] != NULL)
 				{
-					for (int x = 0; x < me[j]->connectors.size(); x++)
+					for (unsigned int x = 0; x < me[j]->connectors.size(); x++)
 					{
 						WriteServ(user->fd,"351 %s :Server %d:%d (%s): %s",user->nick,j,x,me[j]->connectors[x].GetServerName().c_str(),me[j]->connectors[x].GetVersionString().c_str());
 					}
@@ -1677,7 +1679,7 @@ void handle_version(char **parameters, int pcnt, userrec *user)
                 {
                         if (me[j] != NULL)
                         {
-                                for (int x = 0; x < me[j]->connectors.size(); x++)
+                                for (unsigned int x = 0; x < me[j]->connectors.size(); x++)
                                 {
                                         if (match(me[j]->connectors[x].GetServerName().c_str(),parameters[0]))
                                         {
@@ -1709,7 +1711,7 @@ void handle_version(char **parameters, int pcnt, userrec *user)
 
 void call_handler(const char* commandname,char **parameters, int pcnt, userrec *user)
 {
-		for (int i = 0; i < cmdlist.size(); i++)
+		for (unsigned int i = 0; i < cmdlist.size(); i++)
 		{
 			if (!strcasecmp(cmdlist[i].command,commandname))
 			{
@@ -1887,7 +1889,7 @@ void process_command(userrec *user, char* cmd)
 	int total_params = 0;
 	if (strlen(cmd)>2)
 	{
-		for (int q = 0; q < strlen(cmd)-1; q++)
+		for (unsigned int q = 0; q < strlen(cmd)-1; q++)
 		{
 			if ((cmd[q] == ' ') && (cmd[q+1] == ':'))
 			{
@@ -1934,7 +1936,7 @@ void process_command(userrec *user, char* cmd)
 		items = 0;
 		command_p[0] = NULL;
 		parameters = NULL;
-		for (int i = 0; i <= strlen(cmd); i++)
+		for (unsigned int i = 0; i <= strlen(cmd); i++)
 		{
 			cmd[i] = toupper(cmd[i]);
 		}
@@ -1945,7 +1947,7 @@ void process_command(userrec *user, char* cmd)
 		strcpy(cmd,"");
 		j = 0;
 		/* strip out extraneous linefeeds through mirc's crappy pasting (thanks Craig) */
-		for (int i = 0; i < strlen(temp); i++)
+		for (unsigned int i = 0; i < strlen(temp); i++)
 		{
 			if ((temp[i] != 10) && (temp[i] != 13) && (temp[i] != 0) && (temp[i] != 7))
 			{
@@ -1959,7 +1961,7 @@ void process_command(userrec *user, char* cmd)
 		command = cmd;
 		if (strchr(cmd,' '))
 		{
-			for (int i = 0; i <= strlen(cmd); i++)
+			for (unsigned int i = 0; i <= strlen(cmd); i++)
 			{
 				/* capitalise the command ONLY, leave params intact */
 				cmd[i] = toupper(cmd[i]);
@@ -1975,7 +1977,7 @@ void process_command(userrec *user, char* cmd)
 		}
 		else
 		{
-			for (int i = 0; i <= strlen(cmd); i++)
+			for (unsigned int i = 0; i <= strlen(cmd); i++)
 			{
 				cmd[i] = toupper(cmd[i]);
 			}
@@ -1990,7 +1992,7 @@ void process_command(userrec *user, char* cmd)
 		return;
 	}
 	
-	for (int x = 0; x < strlen(command); x++)
+	for (unsigned int x = 0; x < strlen(command); x++)
 	{
 		if (((command[x] < 'A') || (command[x] > 'Z')) && (command[x] != '.'))
 		{
@@ -2006,7 +2008,7 @@ void process_command(userrec *user, char* cmd)
 		}
 	}
 
-	for (int i = 0; i != cmdlist.size(); i++)
+	for (unsigned int i = 0; i != cmdlist.size(); i++)
 	{
 		if (cmdlist[i].command[0])
 		{
@@ -2215,7 +2217,7 @@ void DoSync(serverrec* serv, char* tcp_host)
         {
                 if (me[j] != NULL)
                 {
-                        for (int k = 0; k < me[j]->connectors.size(); k++)
+                        for (unsigned int k = 0; k < me[j]->connectors.size(); k++)
                         {
                                 if (is_uline(me[j]->connectors[k].GetServerName().c_str()))
                                 {
@@ -2243,7 +2245,7 @@ void DoSync(serverrec* serv, char* tcp_host)
 		for (int i = 0; i <= MODCOUNT; i++)
 		{
 			string_list l = modules[i]->OnUserSync(u->second);
-			for (int j = 0; j < l.size(); j++)
+			for (unsigned int j = 0; j < l.size(); j++)
 			{
 				snprintf(data,MAXBUF,"%s %s",CreateSum().c_str(),l[j].c_str());
   				serv->SendPacket(data,tcp_host);
@@ -2264,7 +2266,7 @@ void DoSync(serverrec* serv, char* tcp_host)
 		for (int i = 0; i <= MODCOUNT; i++)
 		{
 			string_list l = modules[i]->OnChannelSync(c->second);
-			for (int j = 0; j < l.size(); j++)
+			for (unsigned int j = 0; j < l.size(); j++)
 			{
 				snprintf(data,MAXBUF,"%s %s",CreateSum().c_str(),l[j].c_str());
   				serv->SendPacket(data,tcp_host);
@@ -2308,7 +2310,7 @@ void NetSendMyRoutingTable()
 	{
 		if (me[i] != NULL)
 		{
-			for (int j = 0; j < me[i]->connectors.size(); j++)
+			for (unsigned int j = 0; j < me[i]->connectors.size(); j++)
 			{
 				if ((me[i]->connectors[j].GetState() != STATE_DISCONNECTED) || (is_uline(me[i]->connectors[j].GetServerName().c_str())))
 				{
@@ -2452,7 +2454,7 @@ void erase_module(int j)
 bool UnloadModule(const char* filename)
 {
 	std::string filename_str = filename;
-	for (int j = 0; j != module_names.size(); j++)
+	for (unsigned int j = 0; j != module_names.size(); j++)
 	{
 		if (module_names[j] == filename_str)
 		{
@@ -2501,7 +2503,7 @@ bool LoadModule(const char* filename)
         if (FileExists(modfile))
         {
 #endif
-		for (int j = 0; j < module_names.size(); j++)
+		for (unsigned int j = 0; j < module_names.size(); j++)
 		{
 			if (module_names[j] == filename_str)
 			{
@@ -2553,7 +2555,7 @@ bool GotServer(std::string name)
         {
                 if (me[j] != NULL)
                 {
-                        for (int k = 0; k < me[j]->connectors.size(); k++)
+                        for (unsigned int k = 0; k < me[j]->connectors.size(); k++)
                         {
 				if (name == me[j]->connectors[k].GetServerName())
 				{
@@ -2573,9 +2575,11 @@ int InspIRCd(char** argv, int argc)
 	int incomingSockfd, result = TRUE;
 	socklen_t length;
 	int count = 0;
+#ifdef USE_SELECT
 	int selectResult = 0, selectResult2 = 0;
-	char configToken[MAXBUF], Addr[MAXBUF], Type[MAXBUF];
 	fd_set selectFds;
+#endif
+	char configToken[MAXBUF], Addr[MAXBUF], Type[MAXBUF];
 	timeval tv;
 
 	std::string logpath = GetFullProgDir(argv,argc) + "/ircd.log";
@@ -2838,7 +2842,10 @@ int InspIRCd(char** argv, int argc)
 #ifdef USE_EPOLL
 	struct epoll_event event[33];
 #endif
+#ifdef USE_SELECT
         fd_set serverfds;
+	fd_set sfd;
+#endif
         timeval tvs;
         tvs.tv_usec = 10000L;
         tvs.tv_sec = 0;
@@ -2846,7 +2853,6 @@ int InspIRCd(char** argv, int argc)
 	tv.tv_usec = 10000L;
         char data[65536];
 	timeval tval;
-	fd_set sfd;
         tval.tv_usec = 10000L;
         tval.tv_sec = 0;
         int total_in_this_set = 0;
@@ -2909,7 +2915,7 @@ int InspIRCd(char** argv, int argc)
 			log(DEBUG,"epoll: Listening server socket event, i=%d, event.data.fd=%d",i,event[0].data.fd);
 			for (int x = 0; x != SERVERportCount; x++)
 			{
-				if ((me[x]) && (event[0].data.fd == me[x]->fd))
+				if ((me[x]) && ((unsigned)event[0].data.fd == (unsigned)me[x]->fd))
 				{
 #endif
 #ifdef USE_KQUEUE
@@ -2921,7 +2927,7 @@ int InspIRCd(char** argv, int argc)
 		        log(DEBUG,"kqueue: Listening server socket event, i=%d, ke.ident=%d",i,ke.ident);
 		        for (int x = 0; x != SERVERportCount; x++)
 		        {
-		                if ((me[x]) && (ke.ident == me[x]->fd))
+		                if ((me[x]) && ((unsigned)ke.ident == (unsigned)me[x]->fd))
 		                {
 
 #endif
@@ -2971,7 +2977,7 @@ int InspIRCd(char** argv, int argc)
 			while ((me[x]) && (me[x]->RecvPacket(msgs, tcp_host, sums))) // returns 0 or more lines (can be multiple lines!)
 			{
 				has_been_netsplit = false;
-				for (int ctr = 0; ctr < msgs.size(); ctr++)
+				for (unsigned int ctr = 0; ctr < msgs.size(); ctr++)
 				{
 					strlcpy(tcp_msg,msgs[ctr].c_str(),MAXBUF);
 					strlcpy(tcp_sum,sums[ctr].c_str(),MAXBUF);
@@ -3134,7 +3140,7 @@ int InspIRCd(char** argv, int argc)
 
 	                                        // registration timeout -- didnt send USER/NICK/HOST in the time specified in
 	                                        // their connection class.
-	                                        if ((TIME > curr->timeout) && (curr->registered != 7))
+	                                        if (((unsigned)TIME > (unsigned)curr->timeout) && (curr->registered != 7))
 	                                        {
 	                                                log(DEBUG,"InspIRCd: registration timeout: %s",curr->nick);
 	                                                kill_link(curr,"Registration timeout");
@@ -3273,7 +3279,7 @@ int InspIRCd(char** argv, int argc)
                                                         }
                                                         goto label;
 						}
-						if (current->recvq.length() > NetBufferSize)
+						if (current->recvq.length() > (unsigned)NetBufferSize)
 						{
 							if (current->registered == 7)
 							{
@@ -3425,7 +3431,7 @@ int InspIRCd(char** argv, int argc)
 		// compared to the number of clients (possibly over 2000)
 		for (count = 0; count < boundPortCount; count++)
 		{
-			if (ke_list[j].ident == openSockfd[count])
+			if ((unsigned)ke_list[j].ident == (unsigned)openSockfd[count])
 			{
 #endif
 #ifdef USE_EPOLL
@@ -3435,7 +3441,7 @@ int InspIRCd(char** argv, int argc)
 		log(DEBUG,"epoll: Listening socket event, i=%d,events[j].data.fd=%d",i,event[j].data.fd);
 		for (count = 0; count < boundPortCount; count++)
 		{
-			if (event[j].data.fd == openSockfd[count])
+			if ((unsigned)event[j].data.fd == (unsigned)openSockfd[count])
 			{
 #endif
 				char target[MAXBUF], resolved[MAXBUF];

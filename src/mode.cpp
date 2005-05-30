@@ -116,7 +116,7 @@ char* give_ops(userrec *user,char *dest,chanrec *chan,int status)
 		}
 
 
-		for (int i = 0; i != MAXCHANS; i++)
+		for (unsigned int i = 0; i != MAXCHANS; i++)
 		{
 			if ((d->chans[i].channel != NULL) && (chan != NULL))
 			if (!strcasecmp(d->chans[i].channel->name,chan->name))
@@ -174,7 +174,7 @@ char* give_hops(userrec *user,char *dest,chanrec *chan,int status)
 			}
 		}
 
-		for (int i = 0; i != MAXCHANS; i++)
+		for (unsigned int i = 0; i != MAXCHANS; i++)
 		{
 			if ((d->chans[i].channel != NULL) && (chan != NULL))
 			if (!strcasecmp(d->chans[i].channel->name,chan->name))
@@ -230,7 +230,7 @@ char* give_voice(userrec *user,char *dest,chanrec *chan,int status)
 			}
 		}
 
-		for (int i = 0; i != MAXCHANS; i++)
+		for (unsigned int i = 0; i != MAXCHANS; i++)
 		{
 			if ((d->chans[i].channel != NULL) && (chan != NULL))
 			if (!strcasecmp(d->chans[i].channel->name,chan->name))
@@ -288,7 +288,7 @@ char* take_ops(userrec *user,char *dest,chanrec *chan,int status)
 			}
 		}
 
-		for (int i = 0; i != MAXCHANS; i++)
+		for (unsigned int i = 0; i != MAXCHANS; i++)
 		{
 			if ((d->chans[i].channel != NULL) && (chan != NULL))
 			if (!strcasecmp(d->chans[i].channel->name,chan->name))
@@ -345,7 +345,7 @@ char* take_hops(userrec *user,char *dest,chanrec *chan,int status)
 			}
 		}
 
-		for (int i = 0; i != MAXCHANS; i++)
+		for (unsigned int i = 0; i != MAXCHANS; i++)
 		{
 			if ((d->chans[i].channel != NULL) && (chan != NULL))
 			if (!strcasecmp(d->chans[i].channel->name,chan->name))
@@ -401,7 +401,7 @@ char* take_voice(userrec *user,char *dest,chanrec *chan,int status)
 			}
 		}
 
-		for (int i = 0; i != MAXCHANS; i++)
+		for (unsigned int i = 0; i != MAXCHANS; i++)
 		{
 			if ((d->chans[i].channel != NULL) && (chan != NULL))
 			if (!strcasecmp(d->chans[i].channel->name,chan->name))
@@ -430,32 +430,32 @@ char* add_ban(userrec *user,char *dest,chanrec *chan,int status)
 	BanItem b;
 	if ((!user) || (!dest) || (!chan))
 		return NULL;
-	int l = strlen(dest);
+	unsigned int l = strlen(dest);
 	if (strchr(dest,'!')==0)
 		return NULL;
 	if (strchr(dest,'@')==0)
 		return NULL;
-	for (int i = 0; i < l; i++)
+	for (unsigned int i = 0; i < l; i++)
 		if (dest[i] < 32)
 			return NULL;
-	for (int i = 0; i < l; i++)
+	for (unsigned int i = 0; i < l; i++)
 		if (dest[i] > 126)
 			return NULL;
 	int c = 0;
-	for (int i = 0; i < l; i++)
+	for (unsigned int i = 0; i < l; i++)
 		if (dest[i] == '!')
 			c++;
 	if (c>1)
 		return NULL;
 	c = 0;
-	for (int i = 0; i < l; i++)
+	for (unsigned int i = 0; i < l; i++)
 		if (dest[i] == '@')
 			c++;
 	if (c>1)
 		return NULL;
 
 	long maxbans = GetMaxBans(chan->name);
-	if (chan->bans.size() > maxbans)
+	if ((unsigned)chan->bans.size() > (unsigned)maxbans)
 	{
 		WriteServ(user->fd,"478 %s %s :Channel ban list for %s is full (maximum entries for this channel is %d)",user->nick, chan->name,chan->name,maxbans);
 		return NULL;
@@ -514,11 +514,10 @@ std::string compress_modes(std::string modes,bool channelmodes)
 {
 	int counts[127];
 	bool active[127];
-	int delta = 1;
 	memset(counts,0,sizeof(counts));
 	memset(active,0,sizeof(active));
 	log(DEBUG,"compress_modes: %s",modes.c_str());
-	for (int i = 0; i < modes.length(); i++)
+	for (unsigned int i = 0; i < modes.length(); i++)
 	{
 		if ((modes[i] == '+') || (modes[i] == '-'))
 			continue;
@@ -851,7 +850,7 @@ void process_modes(char **parameters,userrec* user,chanrec *chan,int status, int
 							break;
 						previously_set_l = true;
 						bool invalid = false;
-						for (int i = 0; i < strlen(parameters[param]); i++)
+						for (unsigned int i = 0; i < strlen(parameters[param]); i++)
 						{
 							if ((parameters[param][i] < '0') || (parameters[param][i] > '9'))
 							{
@@ -1318,7 +1317,7 @@ void handle_mode(char **parameters, int pcnt, userrec *user)
 		if ((parameters[1][0] != '+') && (parameters[1][0] != '-'))
 			return;
 
-		for (int i = 0; i < strlen(parameters[1]); i++)
+		for (unsigned int i = 0; i < strlen(parameters[1]); i++)
 		{
 			if (parameters[1][i] == ' ')
 				continue;
@@ -1398,11 +1397,11 @@ void handle_mode(char **parameters, int pcnt, userrec *user)
 							char umode = parameters[1][i];
 							if ((process_module_umode(umode, user, dest, direction)) || (umode == 'i') || (umode == 's') || (umode == 'w') || (umode == 'o'))
 							{
-								int q = 0;
+								unsigned int q = 0;
 								char temp[MAXBUF];	
 								char moo[MAXBUF];	
 
-								int r = strlen(outpars);
+								unsigned int r = strlen(outpars);
 								outpars[r+1]='\0';
 								outpars[r] = parameters[1][i];
 							
@@ -1430,8 +1429,8 @@ void handle_mode(char **parameters, int pcnt, userrec *user)
 		{
 			char b[MAXBUF];
 			strlcpy(b,"",MAXBUF);
-			int z = 0;
-			int i = 0;
+			unsigned int z = 0;
+			unsigned int i = 0;
 			while (i < strlen (outpars))
 			{
 				b[z++] = outpars[i++];
@@ -1587,7 +1586,7 @@ void server_mode(char **parameters, int pcnt, userrec *user)
 		if ((parameters[1][0] != '+') && (parameters[1][0] != '-'))
 			return;
 
-		for (int i = 0; i < strlen(parameters[1]); i++)
+		for (unsigned int i = 0; i < strlen(parameters[1]); i++)
 		{
                         if (parameters[1][i] == ' ')
                                 continue;
@@ -1658,11 +1657,11 @@ void server_mode(char **parameters, int pcnt, userrec *user)
 							log(DEBUG,"umode %c is an allowed umode",umode);
 							if ((process_module_umode(umode, user, dest, direction)) || (umode == 'i') || (umode == 's') || (umode == 'w') || (umode == 'o'))
 							{
-								int q = 0;
+								unsigned int q = 0;
 								char temp[MAXBUF];
 								char moo[MAXBUF];	
 
-								int v1 = strlen(outpars);
+								unsigned int v1 = strlen(outpars);
 								outpars[v1+1]='\0';
 								outpars[v1] = parameters[1][i];
 							
@@ -1687,8 +1686,8 @@ void server_mode(char **parameters, int pcnt, userrec *user)
 		{
 			char b[MAXBUF];
 			strlcpy(b,"",MAXBUF);
-			int z = 0;
-			int i = 0;
+			unsigned int z = 0;
+			unsigned int i = 0;
 			while (i < strlen (outpars))
 			{
 				b[z++] = outpars[i++];
@@ -1783,7 +1782,7 @@ void merge_mode(char **parameters, int pcnt)
 		if ((parameters[1][0] != '+') && (parameters[1][0] != '-'))
 			return;
 
-		for (int i = 0; i < strlen(parameters[1]); i++)
+		for (unsigned int i = 0; i < strlen(parameters[1]); i++)
 		{
                         if (parameters[1][i] == ' ')
                                 continue;
@@ -1854,11 +1853,11 @@ void merge_mode(char **parameters, int pcnt)
 							log(DEBUG,"umode %c is an allowed umode",umode);
 							if ((process_module_umode(umode, NULL, dest, direction)) || (umode == 'i') || (umode == 's') || (umode == 'w') || (umode == 'o'))
 							{
-								int q = 0;
+								unsigned int q = 0;
 								char temp[MAXBUF];
 								char moo[MAXBUF];	
 
-								int v1 = strlen(outpars);
+								unsigned int v1 = strlen(outpars);
 								outpars[v1+1]='\0';
 								outpars[v1] = parameters[1][i];
 							
@@ -1883,8 +1882,8 @@ void merge_mode(char **parameters, int pcnt)
 		{
 			char b[MAXBUF];
 			strcpy(b,"");
-			int z = 0;
-			int i = 0;
+			unsigned int z = 0;
+			unsigned int i = 0;
 			while (i < strlen (outpars))
 			{
 				b[z++] = outpars[i++];
@@ -1974,7 +1973,7 @@ void merge_mode2(char **parameters, int pcnt, userrec* user)
 		if ((parameters[1][0] != '+') && (parameters[1][0] != '-'))
 		return;
 
-		for (int i = 0; i < strlen(parameters[1]); i++)
+		for (unsigned int i = 0; i < strlen(parameters[1]); i++)
 		{
                         if (parameters[1][i] == ' ')
                                 continue;
@@ -2046,11 +2045,11 @@ void merge_mode2(char **parameters, int pcnt, userrec* user)
 							log(DEBUG,"umode %c is an allowed umode",umode);
 							if ((process_module_umode(umode, NULL, dest, direction)) || (umode == 'i') || (umode == 's') || (umode == 'w') || (umode == 'o'))
 							{
-								int q = 0;
+								unsigned int q = 0;
 								char temp[MAXBUF];
 								char moo[MAXBUF];	
 
-								int v1 = strlen(outpars);
+								unsigned int v1 = strlen(outpars);
 								outpars[v1+1]='\0';
 								outpars[v1] = parameters[1][i];
 							
@@ -2076,8 +2075,8 @@ void merge_mode2(char **parameters, int pcnt, userrec* user)
 		{
 			char b[MAXBUF];
 			strcpy(b,"");
-			int z = 0;
-			int i = 0;
+			unsigned int z = 0;
+			unsigned int i = 0;
 			while (i < strlen (outpars))
 			{
 				b[z++] = outpars[i++];

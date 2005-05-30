@@ -28,7 +28,7 @@ Server *Srv;
 	 
 void handle_chghost(char **parameters, int pcnt, userrec *user)
 {
-	for (int x = 0; x < strlen(parameters[1]); x++)
+	for (unsigned int x = 0; x < strlen(parameters[1]); x++)
 	{
 		if (((tolower(parameters[1][x]) < 'a') || (tolower(parameters[1][x]) > 'z')) && (parameters[1][x] != '.'))
 		{

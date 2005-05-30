@@ -497,7 +497,7 @@ char* DNS::dns_getresult_s(const int cfd, char *res) { /* retrieve result of DNS
 	i = 0;
 	q = 0;
 	l -= 12;
-	while (q < h.qdcount && i < l) {
+	while ((unsigned)q < h.qdcount && i < l) {
 		if (h.payload[i] > 63) { /* pointer */
 			i += 6; /* skip pointer, _class and type */
 			q++;
@@ -511,7 +511,7 @@ char* DNS::dns_getresult_s(const int cfd, char *res) { /* retrieve result of DNS
 	}
 	/* &h.payload[i] should now be the start of the first response */
 	curanswer = 0;
-	while (curanswer < h.ancount) {
+	while ((unsigned)curanswer < h.ancount) {
 		q = 0;
 		while (q == 0 && i < l) {
 			if (h.payload[i] > 63) { /* pointer */
@@ -543,9 +543,9 @@ char* DNS::dns_getresult_s(const int cfd, char *res) { /* retrieve result of DNS
 		}
 		break;
 	}
-	if (curanswer == h.ancount)
+	if ((unsigned)curanswer == h.ancount)
 		return NULL;
-	if (i + rr.rdlength > l)
+	if ((unsigned)i + rr.rdlength > (unsigned)l)
 		return NULL;
 	if (rr.rdlength > 1023)
 		return NULL;
@@ -586,7 +586,7 @@ char* DNS::dns_getresult_s(const int cfd, char *res) { /* retrieve result of DNS
 						return NULL;
 					}
 					memcpy(&alist->ip,&h.payload[i],4);
-					if (++curanswer >= h.ancount)
+					if ((unsigned)++curanswer >= h.ancount)
 						break;
 					i += rr.rdlength;
 					{
@@ -667,6 +667,7 @@ bool DNS::ReverseLookup(std::string ip)
 
 bool DNS::ForwardLookup(std::string host)
 {
+	return false;
 }
 
 bool DNS::HasResult()

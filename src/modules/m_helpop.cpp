@@ -98,7 +98,7 @@ bool do_helpop(char **parameters, int pcnt, userrec *src)
         // case sensitive
         char lower[MAXBUF];
         strlcpy(lower,search,MAXBUF);
-        for (int t = 0; t < strlen(lower); t++)
+        for (unsigned int t = 0; t < strlen(lower); t++)
                 lower[t] = tolower(lower[t]);
 
 

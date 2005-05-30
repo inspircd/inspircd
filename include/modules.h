@@ -144,6 +144,7 @@ class ModuleMessage : public classbase
         /** This class is pure virtual and must be inherited.
          */
         virtual char* Send() = 0;
+	virtual ~ModuleMessage() {};
 };
 
 /** The Request class is a unicast message directed at a given module.

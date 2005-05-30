@@ -84,7 +84,7 @@ class ModuleHostChange : public Module
 					// first take their nick and strip out non-dns, leaving just [A-Z0-9\-]
 					std::string complete = "";
 					std::string old = user->nick;
-					for (int j = 0; j < old.length(); j++)
+					for (unsigned int j = 0; j < old.length(); j++)
 					{
 						if  (((old[j] >= 'A') && (old[j] <= 'Z')) ||
 						    ((old[j] >= 'a') && (old[j] <= 'z')) ||

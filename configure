@@ -569,7 +569,7 @@ sub dir_check {
 sub getosflags {
   if ($config{OSNAME} =~ /BSD$/) {
     $config{LDLIBS} = "-Ldl";
-    $config{FLAGS}  = "-fPIC -frtti $OPTIMISATI -Woverloaded-virtual $config{OPTIMISATI}";
+    $config{FLAGS}  = "-fPIC -frtti $OPTIMISATI -Wall -Woverloaded-virtual $config{OPTIMISATI}";
     $config{MAKEPROG} = "gmake";
     if ($config{OSNAME} eq "OpenBSD") {
 	chomp($foo = `eg++ -dumpversion | cut -c 1`);
@@ -584,10 +584,10 @@ sub getosflags {
     }
   } else {
     $config{LDLIBS} = "-ldl";
-    $config{FLAGS}  = "-fPIC -frtti $OPTIMISATI -Woverloaded-virtual $config{OPTIMISATI}";
+    $config{FLAGS}  = "-fPIC -frtti $OPTIMISATI -Wall -Woverloaded-virtual $config{OPTIMISATI}";
     $config{MAKEPROG} = "make";
     if ($config{OSNAME} =~ /CYGWIN/) {
-       $config{FLAGS}  = "-frtti $OPTIMISATI -Woverloaded-virtual $config{OPTIMISATI}";
+       $config{FLAGS}  = "-frtti $OPTIMISATI -Wall -Woverloaded-virtual $config{OPTIMISATI}";
        $config{LDLIBS} = "";
        $config{MAKEPROG} = "/usr/bin/make";
        $config{MAKEORDER} = "mods ircd config bininst";

@@ -161,7 +161,6 @@ void Write(int sock,char *text, ...)
         char textbuffer[MAXBUF];
         va_list argsPtr;
         char tb[MAXBUF];
-        int res;
 
         va_start (argsPtr, text);
         vsnprintf(textbuffer, MAXBUF, text, argsPtr);
@@ -190,7 +189,6 @@ void WriteServ(int sock, char* text, ...)
                 return;
         }
         char textbuffer[MAXBUF],tb[MAXBUF];
-        int res;
         va_list argsPtr;
         va_start (argsPtr, text);
 
@@ -221,7 +219,6 @@ void WriteFrom(int sock, userrec *user,char* text, ...)
         }
         char textbuffer[MAXBUF],tb[MAXBUF];
         va_list argsPtr;
-        int res;
         va_start (argsPtr, text);
 
         vsnprintf(textbuffer, MAXBUF, text, argsPtr);
@@ -284,7 +281,7 @@ void WriteChannel(chanrec* Ptr, userrec* user, char* text, ...)
         va_end(argsPtr);
 
         std::vector<char*> *ulist = Ptr->GetUsers();
-        for (int j = 0; j < ulist->size(); j++)
+        for (unsigned int j = 0; j < ulist->size(); j++)
         {
                 char* o = (*ulist)[j];
                 userrec* otheruser = (userrec*)o;
@@ -311,7 +308,7 @@ void WriteChannelLocal(chanrec* Ptr, userrec* user, char* text, ...)
         va_end(argsPtr);
 
         std::vector<char*> *ulist = Ptr->GetUsers();
-        for (int j = 0; j < ulist->size(); j++)
+        for (unsigned int j = 0; j < ulist->size(); j++)
         {
                 char* o = (*ulist)[j];
                 userrec* otheruser = (userrec*)o;
@@ -344,7 +341,7 @@ void WriteChannelWithServ(char* ServName, chanrec* Ptr, char* text, ...)
 
 
         std::vector<char*> *ulist = Ptr->GetUsers();
-        for (int j = 0; j < ulist->size(); j++)
+        for (unsigned int j = 0; j < ulist->size(); j++)
         {
                 char* o = (*ulist)[j];
                 userrec* otheruser = (userrec*)o;
@@ -370,7 +367,7 @@ void ChanExceptSender(chanrec* Ptr, userrec* user, char* text, ...)
         va_end(argsPtr);
 
         std::vector<char*> *ulist = Ptr->GetUsers();
-        for (int j = 0; j < ulist->size(); j++)
+        for (unsigned int j = 0; j < ulist->size(); j++)
         {
                 char* o = (*ulist)[j];
                 userrec* otheruser = (userrec*)o;
@@ -385,7 +382,7 @@ std::string GetServerDescription(char* servername)
         {
                 if (me[j] != NULL)
                 {
-                        for (int k = 0; k < me[j]->connectors.size(); k++)
+                        for (unsigned int k = 0; k < me[j]->connectors.size(); k++)
                         {
                                 if (!strcasecmp(me[j]->connectors[k].GetServerName().c_str(),servername))
                                 {
@@ -393,8 +390,8 @@ std::string GetServerDescription(char* servername)
                                 }
                         }
                 }
-                return ServerDesc; // not a remote server that can be found, it must be me.
         }
+	return ServerDesc; // not a remote server that can be found, it must be me.
 }
 
 /* write a formatted string to all users who share at least one common
@@ -429,7 +426,7 @@ void WriteCommon(userrec *u, char* text, ...)
                 if (u->chans[i].channel)
                 {
                         std::vector<char*> *ulist = u->chans[i].channel->GetUsers();
-                        for (int j = 0; j < ulist->size(); j++)
+                        for (unsigned int j = 0; j < ulist->size(); j++)
                         {
                                 char* o = (*ulist)[j];
                                 userrec* otheruser = (userrec*)o;
@@ -479,7 +476,7 @@ void WriteCommonExcept(userrec *u, char* text, ...)
                 if (u->chans[i].channel)
                 {
                         std::vector<char*> *ulist = u->chans[i].channel->GetUsers();
-                        for (int j = 0; j < ulist->size(); j++)
+                        for (unsigned int j = 0; j < ulist->size(); j++)
                         {
                                 char* o = (*ulist)[j];
                                 userrec* otheruser = (userrec*)o;
@@ -565,7 +562,7 @@ bool ChanAnyOnThisServer(chanrec *c,char* servername)
         log(DEBUG,"ChanAnyOnThisServer");
 
         std::vector<char*> *ulist = c->GetUsers();
-        for (int j = 0; j < ulist->size(); j++)
+        for (unsigned int j = 0; j < ulist->size(); j++)
         {
                 char* o = (*ulist)[j];
                 userrec* user = (userrec*)o;
@@ -586,7 +583,7 @@ bool CommonOnThisServer(userrec* u,const char* servername)
                 if (u->chans[i].channel)
                 {
                         std::vector<char*> *ulist = u->chans[i].channel->GetUsers();
-                        for (int j = 0; j < ulist->size(); j++)
+                        for (unsigned int j = 0; j < ulist->size(); j++)
                         {
                                 char* o = (*ulist)[j];
                                 userrec* user = (userrec*)o;
@@ -617,7 +614,7 @@ void NetSendToCommon(userrec* u, char* s)
         {
                 if (me[j] != NULL)
                 {
-                        for (int k = 0; k < me[j]->connectors.size(); k++)
+                        for (unsigned int k = 0; k < me[j]->connectors.size(); k++)
                         {
                                 if (CommonOnThisServer(u,me[j]->connectors[k].GetServerName().c_str()))
                                 {
@@ -648,7 +645,7 @@ void NetSendToAll(char* s)
         {
                 if (me[j] != NULL)
                 {
-                        for (int k = 0; k < me[j]->connectors.size(); k++)
+                        for (unsigned int k = 0; k < me[j]->connectors.size(); k++)
                         {
                                 me[j]->SendPacket(buffer,me[j]->connectors[k].GetServerName().c_str());
                         }
@@ -676,7 +673,7 @@ void NetSendToAll_WithSum(char* s,char* u)
         {
                 if (me[j] != NULL)
                 {
-                        for (int k = 0; k < me[j]->connectors.size(); k++)
+                        for (unsigned int k = 0; k < me[j]->connectors.size(); k++)
                         {
                                 me[j]->SendPacket(buffer,me[j]->connectors[k].GetServerName().c_str());
                         }
@@ -703,7 +700,7 @@ void NetSendToAllAlive(char* s)
         {
                 if (me[j] != NULL)
                 {
-                        for (int k = 0; k < me[j]->connectors.size(); k++)
+                        for (unsigned int k = 0; k < me[j]->connectors.size(); k++)
                         {
                                 if (me[j]->connectors[k].GetState() != STATE_DISCONNECTED)
                                 {
@@ -738,7 +735,7 @@ void NetSendToOne(char* target,char* s)
         {
                 if (me[j] != NULL)
                 {
-                        for (int k = 0; k < me[j]->connectors.size(); k++)
+                        for (unsigned int k = 0; k < me[j]->connectors.size(); k++)
                         {
                                 if (!strcasecmp(me[j]->connectors[k].GetServerName().c_str(),target))
                                 {
@@ -768,7 +765,7 @@ void NetSendToAllExcept(const char* target,char* s)
         {
                 if (me[j] != NULL)
                 {
-                        for (int k = 0; k < me[j]->connectors.size(); k++)
+                        for (unsigned int k = 0; k < me[j]->connectors.size(); k++)
                         {
                                 if (strcasecmp(me[j]->connectors[k].GetServerName().c_str(),target))
                                 {
@@ -798,7 +795,7 @@ void NetSendToAllExcept_WithSum(const char* target,char* s,char* u)
         {
                 if (me[j] != NULL)
                 {
-                        for (int k = 0; k < me[j]->connectors.size(); k++)
+                        for (unsigned int k = 0; k < me[j]->connectors.size(); k++)
                         {
                                 if (strcasecmp(me[j]->connectors[k].GetServerName().c_str(),target))
                                 {
@@ -944,7 +941,7 @@ void strlower(char *n)
         if (n)
         {
                 for (char* t = n; *t; t++)
-                        *t = lowermap[*t];
+                        *t = lowermap[(unsigned)*t];
         }
 }
 
@@ -1131,7 +1128,7 @@ void userlist(userrec *user,chanrec *c)
         snprintf(list,MAXBUF,"353 %s = %s :", user->nick, c->name);
 
         std::vector<char*> *ulist = c->GetUsers();
-        for (int i = 0; i < ulist->size(); i++)
+        for (unsigned int i = 0; i < ulist->size(); i++)
         {
                 char* o = (*ulist)[i];
                 userrec* otheruser = (userrec*)o;
@@ -1374,7 +1371,7 @@ void ShowMOTD(userrec *user)
         }
         snprintf(buf,65535,":%s 375 %s :- %s message of the day\r\n", ServerName, user->nick, ServerName);
         WholeMOTD = WholeMOTD + buf;
-        for (int i = 0; i != MOTD.size(); i++)
+        for (unsigned int i = 0; i != MOTD.size(); i++)
         {
                 snprintf(buf,65535,":%s 372 %s :- %s\r\n", ServerName, user->nick, MOTD[i].c_str());
                 WholeMOTD = WholeMOTD + buf;
@@ -1394,7 +1391,7 @@ void ShowRULES(userrec *user)
                 return;
         }
         WriteServ(user->fd,"NOTICE %s :%s rules",user->nick,ServerName);
-        for (int i = 0; i != RULES.size(); i++)
+        for (unsigned int i = 0; i != RULES.size(); i++)
         {
                                 WriteServ(user->fd,"NOTICE %s :%s",user->nick,RULES[i].c_str());
         }
@@ -1422,7 +1419,7 @@ char islast(const char* s)
         {
                 if (me[j] != NULL)
                 {
-                        for (int k = 0; k < me[j]->connectors.size(); k++)
+                        for (unsigned int k = 0; k < me[j]->connectors.size(); k++)
                         {
                                 if (strcasecmp(me[j]->connectors[k].GetServerName().c_str(),s))
                                 {

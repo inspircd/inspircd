@@ -237,6 +237,7 @@ class RFC1413
 				break;
 			}
 		}
+		return true;
 	}
 
 	// returns true if the operation is completed,

@@ -179,7 +179,7 @@ std::string ConfProcess(char* buffer, long linenumber, std::stringstream* errors
 		return "";
 	}
 	// firstly clean up the line by stripping spaces from the start and end and converting tabs to spaces
-	for (int d = 0; d < strlen(buffer); d++)
+	for (unsigned int d = 0; d < strlen(buffer); d++)
 		if ((buffer[d]) == 9)
 			buffer[d] = ' ';
 	while ((buffer[0] == ' ') && (strlen(buffer)>0)) buffer++;
@@ -189,7 +189,7 @@ std::string ConfProcess(char* buffer, long linenumber, std::stringstream* errors
 		return "";
 	else if (buffer[0] == '#')
 		return "";
-	for (int c = 0; c < strlen(buffer); c++)
+	for (unsigned int c = 0; c < strlen(buffer); c++)
 	{
 		// convert all spaces that are OUTSIDE quotes into hardspace (0xA0) as this will make them easier to
 		// search and replace later :)
@@ -276,7 +276,7 @@ std::string ConfProcess(char* buffer, long linenumber, std::stringstream* errors
 	}
 
 	// turn our hardspace back into softspace
-	for (int d = 0; d < parsedata.length(); d++)
+	for (unsigned int d = 0; d < parsedata.length(); d++)
 	{
 		if (parsedata[d] == '\xA0')
 			parsedata[d] = ' ';
@@ -313,7 +313,7 @@ bool LoadConf(const char* filename, std::stringstream *target, std::stringstream
 	}
 	// Fix the chmod of the file to restrict it to the current user and group
 	chmod(filename,0600);
-	for (int t = 0; t < include_stack.size(); t++)
+	for (unsigned int t = 0; t < include_stack.size(); t++)
 	{
 		if (std::string(filename) == include_stack[t])
 		{
@@ -341,7 +341,7 @@ bool LoadConf(const char* filename, std::stringstream *target, std::stringstream
 							char confpath[10240],newconf[10240];
 							// include file directive
 							buf += 15;	// advance to filename
-							for (int j = 0; j < strlen(buf); j++)
+							for (unsigned int j = 0; j < strlen(buf); j++)
 							{
 								if (buf[j] == '\\')
 									buf[j] = '/';
@@ -574,7 +574,7 @@ int ReadConf(std::stringstream *config, const char* tag, const char* var, int in
 {
 	int ptr = 0;
 	char buffer[65535], c_tag[MAXBUF], c, lastc;
-	int in_token, in_quotes, tptr, j, idx = 0;
+	int in_token, in_quotes, tptr, idx = 0;
 	char* key;
 
 	const char* buf = config->str().c_str();
@@ -642,7 +642,7 @@ int ReadConf(std::stringstream *config, const char* tag, const char* var, int in
 								key++;
 							}
 							key++;
-							for (j = 0; j < strlen(key); j++)
+							for (unsigned j = 0; j < strlen(key); j++)
 							{
 								if (key[j] == '"')
 								{

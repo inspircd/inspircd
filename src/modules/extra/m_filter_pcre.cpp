@@ -90,7 +90,7 @@ class ModuleFilterPCRE : public Module
 	
 	virtual int OnUserPreMessage(userrec* user,void* dest,int target_type, std::string &text)
 	{
-		for (int index = 0; index < filters.size(); index++)
+		for (unsigned int index = 0; index < filters.size(); index++)
 		{
 			if (pcre_exec(filters[index],NULL,text.c_str(),text.length(),0,0,NULL,0) > -1)
 			{
@@ -137,7 +137,7 @@ class ModuleFilterPCRE : public Module
 	
 	virtual int OnUserPreNotice(userrec* user,void* dest,int target_type, std::string &text)
 	{
-		for (int index = 0; index < filters.size(); index++)
+		for (unsigned int index = 0; index < filters.size(); index++)
 		{
 			if (pcre_exec(filters[index],NULL,text.c_str(),text.length(),0,0,NULL,0) > -1)
 			{

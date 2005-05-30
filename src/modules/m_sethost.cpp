@@ -29,7 +29,7 @@ Server *Srv;
 	 
 void handle_sethost(char **parameters, int pcnt, userrec *user)
 {
-	for (int x = 0; x < strlen(parameters[0]); x++)
+	for (unsigned int x = 0; x < strlen(parameters[0]); x++)
 	{
 		if (((tolower(parameters[0][x]) < 'a') || (tolower(parameters[0][x]) > 'z')) && (parameters[0][x] != '.'))
 		{

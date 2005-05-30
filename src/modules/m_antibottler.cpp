@@ -52,7 +52,7 @@ class ModuleAntiBottler : public Module
 			bool not_bottler = false;
 			if (!strncmp(data,"user ",5))
 			{
-				for (int j = 0; j < strlen(data); j++)
+				for (unsigned int j = 0; j < strlen(data); j++)
 				{
 					if (data[j] == ':')
 						break;
@@ -73,7 +73,7 @@ class ModuleAntiBottler : public Module
 				char *remote = strtok(NULL," :");
 				if (!strlen(data)) return;
 				char *gecos = strtok(NULL,"\r\n");
-				for (int j = 0; j < strlen(remote); j++)
+				for (unsigned int j = 0; j < strlen(remote); j++)
 				{
 					if (((remote[j] < '0') || (remote[j] > '9')) && (remote[j] != '.'))
 					{

@@ -192,20 +192,20 @@ bool userrec::HasPermission(char* command)
 bool userrec::AddBuffer(std::string a)
 {
         std::string b = "";
-        for (int i = 0; i < a.length(); i++)
+        for (unsigned int i = 0; i < a.length(); i++)
                 if ((a[i] != '\r') && (a[i] != '\0') && (a[i] != 7))
                         b = b + a[i];
         std::stringstream stream(recvq);
         stream << b;
         recvq = stream.str();
-	int i = 0;
+	unsigned int i = 0;
 	// count the size of the first line in the buffer.
 	while (i < recvq.length())
 	{
 		if (recvq[i++] == '\n')
 			break;
 	}
-	if (recvq.length() > this->recvqmax)
+	if (recvq.length() > (unsigned)this->recvqmax)
 	{
 		this->SetWriteError("RecvQ exceeded");
 		WriteOpers("*** User %s RecvQ of %d exceeds connect class maximum of %d",this->nick,recvq.length(),this->recvqmax);
@@ -217,7 +217,7 @@ bool userrec::AddBuffer(std::string a)
 
 bool userrec::BufferIsReady()
 {
-        for (int i = 0; i < recvq.length(); i++)
+        for (unsigned int i = 0; i < recvq.length(); i++)
 		if (recvq[i] == '\n')
 			return true;
         return false;
@@ -249,7 +249,7 @@ void userrec::AddWriteBuf(std::string data)
 {
 	if (this->GetWriteError() != "")
 		return;
-	if (sendq.length() + data.length() > this->sendqmax)
+	if (sendq.length() + data.length() > (unsigned)this->sendqmax)
 	{
 		WriteOpers("*** User %s SendQ of %d exceeds connect class maximum of %d",this->nick,sendq.length() + data.length(),this->sendqmax);
 		this->SetWriteError("SendQ exceeded");

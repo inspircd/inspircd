@@ -65,7 +65,7 @@ void handle_remove(char **parameters, int pcnt, userrec *user)
 	/* If the target nick exists... */
 	if (target && channel)
 	{
-		for (int x = 0; x < strlen(parameters[1]); x++)
+		for (unsigned int x = 0; x < strlen(parameters[1]); x++)
 		{
 				if ((parameters[1][0] != '#') || (parameters[1][x] == ' ') || (parameters[1][x] == ','))
 				{

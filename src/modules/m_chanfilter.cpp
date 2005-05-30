@@ -89,7 +89,7 @@ class ModuleChanFilter : public Module
         {
 		char buffer[MAXBUF];
 		strlcpy(buffer,text.c_str(),MAXBUF);
-		for (int j = 0; j < strlen(buffer); j++)
+		for (unsigned int j = 0; j < strlen(buffer); j++)
 			buffer[j] = tolower(buffer[j]);
 		SpamList* spamlist = (SpamList*)chan->GetExt("spam_list");
 		if (spamlist)
@@ -130,7 +130,7 @@ class ModuleChanFilter : public Module
 		{
 			chanrec* chan = (chanrec*)target;
 
-			for (int j = 0; j < params[0].length(); j++)
+			for (unsigned int j = 0; j < params[0].length(); j++)
 				params[0][j] = tolower(params[0][j]);
 
 			std::string param = params[0];
@@ -143,7 +143,7 @@ class ModuleChanFilter : public Module
 					spamlist = new SpamList;
 					chan->Extend("spam_list",(char*)spamlist);
 				}
-				if (spamlist->size() < MaxEntries)
+				if (spamlist->size() < (unsigned)MaxEntries)
 				{
 					for (SpamList::iterator i = spamlist->begin(); i != spamlist->end(); i++)
 					{

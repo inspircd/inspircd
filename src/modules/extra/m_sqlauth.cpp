@@ -106,7 +106,7 @@ class ModuleSQLAuth : public Module
 
 		// sanitize the password (we dont want any mysql insertion exploits!)
 		std::string temp = "";
-		for (int q = 0; q < password.length(); q++)
+		for (unsigned int q = 0; q < password.length(); q++)
 		{
 			if (password[q] == '\'')
 			{

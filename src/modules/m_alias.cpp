@@ -89,7 +89,7 @@ class ModuleAlias : public Module
 			strncpy(data,raw.c_str(),MAXBUF);
 			char* dptr = data;
 			
-			for (int i = 0; i < Aliases.size(); i++)
+			for (unsigned int i = 0; i < Aliases.size(); i++)
 			{
 				if (!strncasecmp(Aliases[i].text.c_str(),data,Aliases[i].text.length()))
 				{

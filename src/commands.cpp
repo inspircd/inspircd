@@ -189,7 +189,7 @@ void handle_part(char **parameters, int pcnt, userrec *user)
 
 void handle_commands(char **parameters, int pcnt, userrec *user)
 {
-	for (int i = 0; i < cmdlist.size(); i++)
+	for (unsigned int i = 0; i < cmdlist.size(); i++)
 	{
 		WriteServ(user->fd,"902 %s :%s %s %d",user->nick,cmdlist[i].command,cmdlist[i].source,cmdlist[i].min_params);
 	}
@@ -1291,7 +1291,7 @@ void handle_trace(char **parameters, int pcnt, userrec *user)
 
 void handle_modules(char **parameters, int pcnt, userrec *user)
 {
-  	for (int i = 0; i < module_names.size(); i++)
+  	for (unsigned int i = 0; i < module_names.size(); i++)
 	{
 		Version V = modules[i]->GetVersion();
 		char modulename[MAXBUF];
@@ -1389,7 +1389,6 @@ void handle_stats(char **parameters, int pcnt, userrec *user)
 			}
 		}
 		WriteServ(user->fd,"249 %s :%d OPER(s)",user->nick,idx);
-	//249 [Brain] :bwoadway-monitor (~wgmon@204.152.186.58) Idle: 18
 	}
  	
 	if (*parameters[0] == 'k')
@@ -1420,7 +1419,7 @@ void handle_stats(char **parameters, int pcnt, userrec *user)
 	/* stats m (list number of times each command has been used, plus bytecount) */
 	if (*parameters[0] == 'm')
 	{
-		for (int i = 0; i < cmdlist.size(); i++)
+		for (unsigned int i = 0; i < cmdlist.size(); i++)
 		{
 			if (cmdlist[i].handler_function)
 			{
@@ -1614,7 +1613,7 @@ void handle_squit(char **parameters, int pcnt, userrec *user)
                 	{
                         	if (me[j] != NULL)
                         	{
-                                	for (int x = 0; x < me[j]->connectors.size(); x++)
+                                	for (unsigned int x = 0; x < me[j]->connectors.size(); x++)
                                 	{
                                         	if (match(me[j]->connectors[x].GetServerName().c_str(),parameters[0]))
                                         	{
@@ -1651,7 +1650,7 @@ void handle_links(char **parameters, int pcnt, userrec *user)
  	{
 		if (me[j] != NULL)
   		{
-			for (int k = 0; k < me[j]->connectors.size(); k++)
+			for (unsigned int k = 0; k < me[j]->connectors.size(); k++)
 			{
 				WriteServ(user->fd,"364 %s %s %s :1 %s",user->nick,me[j]->connectors[k].GetServerName().c_str(),ServerName,me[j]->connectors[k].GetDescription().c_str());
 			}
@@ -1671,7 +1670,7 @@ void handle_map(char **parameters, int pcnt, userrec *user)
  	{
 		if (me[j] != NULL)
   		{
-			for (int k = 0; k < me[j]->connectors.size(); k++)
+			for (unsigned int k = 0; k < me[j]->connectors.size(); k++)
 			{
 				int state = me[j]->connectors[k].GetState();
 				snprintf(line,MAXBUF,"006 %s :%c%s%s",user->nick,islast(me[j]->connectors[k].GetServerName().c_str()),state == STATE_NOAUTH_INBOUND || state == STATE_NOAUTH_OUTBOUND ? "-*" : "--", me[j]->connectors[k].GetServerName().c_str());
@@ -1917,7 +1916,7 @@ void handle_v(char token,char* params,serverrec* source,serverrec* reply, char* 
         {
                 if (me[j] != NULL)
                 {
-                        for (int x = 0; x < me[j]->connectors.size(); x++)
+                        for (unsigned int x = 0; x < me[j]->connectors.size(); x++)
                         {
                                 if (!strcasecmp(me[j]->connectors[x].GetServerName().c_str(),servername))
                                 {
@@ -2354,7 +2353,7 @@ void handle_H(char token,char* params,serverrec* source,serverrec* reply, char* 
 	{
 		if (me[j] != NULL)
 		{
-			for (int k = 0; k < me[j]->connectors.size(); k++)
+			for (unsigned int k = 0; k < me[j]->connectors.size(); k++)
 			{
 				if (!strcasecmp(me[j]->connectors[k].GetServerName().c_str(),params))
 				{
@@ -2490,7 +2489,7 @@ void handle_plus(char token,char* params,serverrec* source,serverrec* reply, cha
 	{
 		if (me[i] != NULL)
 		{
-			for (int j = 0; j < me[i]->connectors.size(); j++)
+			for (unsigned int j = 0; j < me[i]->connectors.size(); j++)
 			{
 				if (!strcasecmp(me[i]->connectors[j].GetServerName().c_str(),servername))
 				{
@@ -2589,7 +2588,7 @@ void handle_dollar(char token,char* params,serverrec* source,serverrec* reply, c
 	{
 		if (me[i] != NULL)
 		{
-			for (int j = 0; j < me[i]->connectors.size(); j++)
+			for (unsigned int j = 0; j < me[i]->connectors.size(); j++)
 			{
 				if (!strcasecmp(me[i]->connectors[j].GetServerName().c_str(),sourceserver))
 				{
@@ -3249,7 +3248,7 @@ void handle_link_packet(char* tcp_msg, char* tcp_host, serverrec *serv,char* tcp
 
 		WriteOpers("AuthCookie CONNECT from %s (%s)",servername,tcp_host);
 
-		for (int u = 0; u < auth_cookies.size(); u++)
+		for (unsigned int u = 0; u < auth_cookies.size(); u++)
 		{
 			if (auth_cookies[u] == atoi(cookie))
 			{
@@ -3260,7 +3259,7 @@ void handle_link_packet(char* tcp_msg, char* tcp_host, serverrec *serv,char* tcp
     				{
 					if (me[j] != NULL)
      					{
-     						for (int k = 0; k < me[j]->connectors.size(); k++)
+     						for (unsigned int k = 0; k < me[j]->connectors.size(); k++)
      						{
 							if (!strcasecmp(me[j]->connectors[k].GetServerName().c_str(),tcp_host))
       							{
@@ -3324,7 +3323,7 @@ void handle_link_packet(char* tcp_msg, char* tcp_host, serverrec *serv,char* tcp
 			return;
 		}
 
-		for (int j = 0; j < serv->connectors.size(); j++)
+		for (unsigned int j = 0; j < serv->connectors.size(); j++)
 		{
 			if (!strcasecmp(serv->connectors[j].GetServerName().c_str(),tcp_host))
 			{
@@ -3358,7 +3357,7 @@ void handle_link_packet(char* tcp_msg, char* tcp_host, serverrec *serv,char* tcp
 				snprintf(response,10240,"%s s %s %s :%s",CreateSum().c_str(),ServerName,Link_SendPass,ServerDesc);
 				serv->SendPacket(response,servername);
 
-				for (int t = 0; t < serv->connectors.size(); t++)
+				for (unsigned int t = 0; t < serv->connectors.size(); t++)
 				{
 					if (!strcasecmp(serv->connectors[t].GetServerName().c_str(),servername))
 					{
@@ -3423,7 +3422,7 @@ void handle_link_packet(char* tcp_msg, char* tcp_host, serverrec *serv,char* tcp
 				{
 					if (me[j] != NULL)
      					{
-     						for (int k = 0; k < me[j]->connectors.size(); k++)
+     						for (unsigned int k = 0; k < me[j]->connectors.size(); k++)
      						{
 							if (!strcasecmp(me[j]->connectors[k].GetServerName().c_str(),tcp_host))
       							{
@@ -3480,7 +3479,7 @@ void handle_link_packet(char* tcp_msg, char* tcp_host, serverrec *serv,char* tcp
                 {
                         if (me[j] != NULL)
                         {
-                                for (int k = 0; k < me[j]->connectors.size(); k++)
+                                for (unsigned int k = 0; k < me[j]->connectors.size(); k++)
                                 {
                                         if (!strcasecmp(me[j]->connectors[k].GetServerName().c_str(),servername))
                                         {
@@ -3515,7 +3514,7 @@ void handle_link_packet(char* tcp_msg, char* tcp_host, serverrec *serv,char* tcp
 				{
 					if (me[j] != NULL)
      					{
-     						for (int k = 0; k < me[j]->connectors.size(); k++)
+     						for (unsigned int k = 0; k < me[j]->connectors.size(); k++)
      						{
 							if (!strcasecmp(me[j]->connectors[k].GetServerName().c_str(),tcp_host))
       							{
@@ -3527,7 +3526,7 @@ void handle_link_packet(char* tcp_msg, char* tcp_host, serverrec *serv,char* tcp
 								AddServerName(servername);
 								snprintf(buffer,MAXBUF,"%s X 0",CreateSum().c_str());
 								serv->SendPacket(buffer,servername);
-								snprintf(buffer,MAXBUF,"%s s %s %s %lu :%s",CreateSum().c_str(),ServerName,Link_SendPass,LinkPort,ServerDesc);
+								snprintf(buffer,MAXBUF,"%s s %s %s %d :%s",CreateSum().c_str(),ServerName,Link_SendPass,LinkPort,ServerDesc);
 								serv->SendPacket(buffer,servername);
 								DoSync(me[j],servername);
 								snprintf(buffer,MAXBUF,"H %s",servername);
@@ -3570,7 +3569,7 @@ void handle_link_packet(char* tcp_msg, char* tcp_host, serverrec *serv,char* tcp
   		{
 			if (me[j] != NULL)
    			{
-				for (int x = 0; x < me[j]->connectors.size(); x++)
+				for (unsigned int x = 0; x < me[j]->connectors.size(); x++)
     				{
     					log(DEBUG,"Servers are: '%s' '%s'",tcp_host,me[j]->connectors[x].GetServerName().c_str());
     					if (!strcasecmp(me[j]->connectors[x].GetServerName().c_str(),tcp_host))

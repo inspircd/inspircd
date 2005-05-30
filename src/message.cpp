@@ -109,7 +109,7 @@ void tidystring(char* str)
 	while (go_again)
 	{
 		bool noparse = false;
-		int t = 0, a = 0;
+		unsigned int t = 0, a = 0;
 		go_again = false;
 		while (a < strlen(str))
 		{
@@ -254,7 +254,7 @@ int isident(const char* n)
         {
                 return 0;
         }
-        for (int i = 0; i != strlen(n); i++)
+        for (unsigned int i = 0; i < strlen(n); i++)
         {
                 if ((n[i] < 33) || (n[i] > 125))
                 {
@@ -284,7 +284,7 @@ int isnick(const char* n)
 	{
 		return 0;
 	}
-	for (int i = 0; i != strlen(n); i++)
+	for (unsigned int i = 0; i != strlen(n); i++)
 	{
 		if ((n[i] < 33) || (n[i] > 125))
 		{
