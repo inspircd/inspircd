@@ -94,7 +94,7 @@
 <power diepass="diepass" restartpass="restartpass" pause="2">
 
 
-=-=-=-=-=-=-=-=-=-=-  INCLUDE CONFIGURATION  -=-=-=-=-=-=-=-=-=-=-=-=-=
+#-#-#-#-#-#-#-#-#-#  INCLUDE CONFIGURATION  #-#-#-#-#-#-#-#-#-#-#-#-#-#
 #                                                                     #
 # This optional tag allows you to include another config file         #
 # allowing you to keep your configuration tidy. The configuration     #
