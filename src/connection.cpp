@@ -207,6 +207,7 @@ bool ircd_connector::CheckPing()
 			}
 		}
 	}
+	return true;
 }
 
 void ircd_connector::ResetPing()
