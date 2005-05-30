@@ -60,3 +60,55 @@ char* Extensible::GetExt(std::string key)
 	return NULL;
 }
 
+void BoolSet::Set(int number)
+{
+	this->bits |= bitfields[number];
+}
+
+void BoolSet::Unset(int number)
+{
+	this->bits &= inverted_bitfields[number];
+}
+
+void BoolSet::Invert(int number)
+{
+	this->bits ^= bitfields[number];
+}
+
+bool BoolSet::Get(int number)
+{
+	return ((this->bits | bitfields[number]) > 0);
+}
+
+bool BoolSet::operator==(BoolSet other)
+{
+	return (this->bits == other.bits);
+}
+
+BoolSet BoolSet::operator|(BoolSet other)
+{
+	BoolSet x(this->bits | other.bits);
+	return x;
+}
+
+BoolSet BoolSet::operator&(BoolSet other)
+{
+	BoolSet x(this->bits & other.bits);
+	return x;
+}
+
+BoolSet::BoolSet()
+{
+	this->bits = 0;
+}
+
+BoolSet::BoolSet(char bitmask)
+{
+	this->bits = bitmask;
+}
+
+bool operator=(BoolSet other)
+{
+        this->bits = other.bits;
+        return true;
+}

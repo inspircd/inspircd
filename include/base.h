@@ -88,5 +88,70 @@ public:
 	char* GetExt(std::string key);
 };
 
+const int bitfields[]		=	{1,2,4,8,16,32,64,128};
+const int inverted_bitfields[]	=	{~1,~2,~4,~8,~16,~32,~64,~128};
+
+/** BoolSet is a utility class designed to hold eight bools in a bitmask.
+ * Use BoolSet::Set and BoolSet::Get to set and get bools in the bitmask,
+ * and Unset and Invert for special operations upon them.
+ */
+class BoolSet
+{
+	char bits;
+
+ public:
+
+	/** The default constructor initializes the BoolSet to all values unset.
+	 */
+	BoolSet();
+
+	/** This constructor copies the default bitmask from a char
+	 */
+	BoolSet(char bitmask);
+
+	/** The Set method sets one bool in the set.
+	 *
+	 * @param number The number of the item to set. This must be between 0 and 7.
+	 */
+	void Set(int number);
+
+	/** The Get method returns the value of one bool in the set
+	 *
+	 * @param number The number of the item to retrieve. This must be between 0 and 7.
+	 *
+	 * @return True if the item is set, false if it is unset.
+	 */
+	bool Get(int number);
+
+	/** The Unset method unsets one value in the set
+	 *
+	 * @param number The number of the item to set. This must be between 0 and 7.
+	 */
+	void Unset(int number);
+
+	/** The Unset method inverts (flips) one value in the set
+	 *
+	 * @param number The number of the item to invert. This must be between 0 and 7.
+	 */
+	void Invert(int number);
+
+	/** Compare two BoolSets
+	 */
+	bool operator==(BoolSet other);
+
+	/** OR two BoolSets together
+	 */
+	BoolSet operator|(BoolSet other);
+	
+	/** AND two BoolSets together
+	 */
+	BoolSet operator&(BoolSet other);
+
+	/** Assign one BoolSet to another
+	 */
+	bool operator=(BoolSet other);
+};
+
+
 #endif
 
