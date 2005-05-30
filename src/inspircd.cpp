@@ -3476,5 +3476,6 @@ int InspIRCd(char** argv, int argc)
 }
 /* not reached */
 close (incomingSockfd);
+return 0;
 }
 

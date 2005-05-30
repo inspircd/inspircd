@@ -122,7 +122,7 @@ void ircd_connector::SetServerPort(int p)
 bool ircd_connector::AddBuffer(std::string a)
 {
 	std::string b = "";
-	for (int i = 0; i < a.length(); i++)
+	for (unsigned int i = 0; i < a.length(); i++)
 		if (a[i] != '\r')
 			b = b + a[i];
 
@@ -135,7 +135,7 @@ bool ircd_connector::AddBuffer(std::string a)
 
 bool ircd_connector::BufferIsComplete()
 {
-	for (int i = 0; i < ircdbuffer.length(); i++)
+	for (unsigned int i = 0; i < ircdbuffer.length(); i++)
 		if (ircdbuffer[i] == '\n')
 			return true;
 	return false;
