@@ -186,6 +186,30 @@ dir, otherwise you won't have a config file!
 
 Your operating system is: \033[1;32m$config{OSNAME}\033[0m ($wholeos), fdmax: $config{MAX_CLIENT_T}\n\n";
 
+$config{CHANGE_COMPILER} = "n";
+print "I have detected the following compiler: \033[1;32m$config{CC}\033[0m (version \033[1;32m$config{GCCVER}.$config{GCC34}\033[0m)\n";
+
+yesno(CHANGE_COMPILER,"Do you want to change the compiler?");
+if ($config{CHANGE_COMPILER} =~ /y/i)
+{
+    print "What command do you want to use to invoke your compiler?\n";
+    print "[\033[1;32m$config{CC}\033[0m] -> ";
+    chomp($config{CC} = <STDIN>);
+    if ($config{CC} eq "") { $config{CC} = "g++"; }
+    chomp($foo = `$config{CC} -dumpversion | cut -c 1`);
+    if ($foo ne "") {
+            chomp($config{GCCVER}       = `$config{CC} -dumpversion | cut -c 1`); # we must redo these if we change
+            chomp($config{GCC34}        = `$config{CC} -dumpversion | cut -c 3`); # the compiler path
+	    print "Queried compiler: \033[1;32m$config{CC}\033[0m (version \033[1;32m$config{GCCVER}.$config{GCC34}\033[0m)\n";
+    }
+    else
+    {
+	    print "\033[1;32mWARNING!\033[0m Could not execute the compiler you specified. You may want to try again.\n";
+    }
+}
+
+print "\n";
+
 # Directory Settings..
 dir_check("are the configuration files", "CONFIG_DIR");
 dir_check("are the modules to be compiled to", "MODULE_DIR");
