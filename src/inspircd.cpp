@@ -269,6 +269,7 @@ void ReadConfig(bool bail, userrec* user)
 	if (!LoadConf(CONFIG_FILE,&config_f,&errstr))
 	{
 		errstr.seekg(0);
+		log(DEFAULT,"There were errors in your configuration:\n%s",errstr.str().c_str());
 		if (bail)
 		{
 			printf("There were errors in your configuration:\n%s",errstr.str().c_str());
