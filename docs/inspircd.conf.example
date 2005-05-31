@@ -11,7 +11,7 @@
 #         This is an example of the config file for InspIRCd.          #
 #             Change the options to suit your network                  #
 #								       #
-#                 Last updated on : 05/29/2005                         #
+#                 Last updated on : 05/31/2005                         #
 #                 Written by      : CC  (cc@backchat.co.za)            #
 #                 Updated by      : katsklaw (katsklaw@gmail.com)      #
 ########################################################################
@@ -637,7 +637,7 @@
 # Optional - If you specify to use the m_filter.so module, then       #
 # specfiy below the path to the filter.conf file.                     #
 
-<filter file="/path/to/inspircd/filter.conf">
+#<filter file="/path/to/inspircd/filter.conf">
 
 
 #-#-#-#-#-#-#-#-#-#-#-#-  HELPOP  CONFIGURATION  -#-#-#-#-#-#-#-#-#-#-#
@@ -654,7 +654,7 @@
 # Optional - If you specify to use the m_randquotes.so module, then   #
 # specify below the path to the randquotes.conf file.                 #
 
-# <randquote file="/path/to/inspircd/randquotes.conf">
+#<randquote file="/path/to/inspircd/randquotes.conf">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-  BAN OPTIONS  -#-#-#-#-#-#-#-#-#-#-#-#-#-#
 #                                                                     #
