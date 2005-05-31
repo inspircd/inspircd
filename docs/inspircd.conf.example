@@ -382,6 +382,10 @@
 #                  the location where modules are to be found. This   #
 #                  does not add a supplementary directory. There can  #
 #                  only be one module path.                           #
+#  softlimit     - This optional feature allows a defined softlimit.  #
+#                  if defined sets a soft maxconnections value, has   #
+#                  to be less than the ./configure maxclients         #
+#                                                                     #
 
 <options prefixquit="Quit: "
 	 loglevel="default"
@@ -389,7 +393,8 @@
          maxwho="128"
 	 noservices="0"
          somaxconn="128"
-	 allowhalfop="yes">
+	 softlimit="128"
+         allowhalfop="yes">
 
 
 
