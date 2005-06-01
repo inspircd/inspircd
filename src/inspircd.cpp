@@ -332,7 +332,7 @@ void ReadConfig(bool bail, userrec* user)
 	if ((SoftLimit < 0) || (SoftLimit > MAXCLIENTS))
 	{
 		log(DEFAULT,"WARNING: <options:softlimit> value is greater than %d or less than 0, set to %d.",MAXCLIENTS,MAXCLIENTS);
-		SoftLimit = MaxClients;
+		SoftLimit = MAXCLIENTS;
 	}
 	MaxConn = atoi(MCON);
 	if (MaxConn > SOMAXCONN)
