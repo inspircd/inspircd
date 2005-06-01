@@ -220,6 +220,7 @@ void ircd_connector::ResetPing()
 // send AS MUCH OF THE USERS SENDQ as we are able to (might not be all of it)
 bool ircd_connector::FlushWriteBuf()
 {
+	char buffer[MAXBUF];
 	if ((this->GetState() == STATE_NOAUTH_OUTBOUND) || (this->GetState() == STATE_COOKIE_OUTBOUND))
 	{
 		// if the outbound socket hasnt connected yet... return true and don't
