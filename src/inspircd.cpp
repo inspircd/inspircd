@@ -329,7 +329,7 @@ void ReadConfig(bool bail, userrec* user)
 	ConfValue("options","softlimit",0,SLIMT,&config_f);
 
 	SoftLimit = atoi(SLIMT);
-	if ((SoftLimit < 0) || (SoftLimit > MAXCLIENTS))
+	if ((SoftLimit < 1) || (SoftLimit > MAXCLIENTS))
 	{
 		log(DEFAULT,"WARNING: <options:softlimit> value is greater than %d or less than 0, set to %d.",MAXCLIENTS,MAXCLIENTS);
 		SoftLimit = MAXCLIENTS;
