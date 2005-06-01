@@ -38,6 +38,7 @@
 #define STATE_NOAUTH_INBOUND	3
 #define STATE_NOAUTH_OUTBOUND	4
 #define STATE_SERVICES		5
+#define STATE_COOKIE_OUTBOUND   6
 
 std::string CreateSum();
 

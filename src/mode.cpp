@@ -1173,9 +1173,14 @@ void process_modes(char **parameters,userrec* user,chanrec *chan,int status, int
 
 // based on sourcemodes, return true or false to determine if umode is a valid mode a user may set on themselves or others.
 
-bool allowed_umode(char umode, char* sourcemodes,bool adding)
+bool allowed_umode(char umode, char* sourcemodes,bool adding,bool serveroverride)
 {
 	log(DEBUG,"Allowed_umode: %c %s",umode,sourcemodes);
+	// Servers can +o and -o arbitrarily
+	if ((serveroverride == true) && (umode == 'o'))
+	{
+		return true;
+	}
 	// RFC1459 specified modes
 	if ((umode == 'w') || (umode == 's') || (umode == 'i'))
 	{
@@ -1363,7 +1368,7 @@ void handle_mode(char **parameters, int pcnt, userrec *user)
 				}
 				else
 				{
-					if ((parameters[1][i] == 'i') || (parameters[1][i] == 'w') || (parameters[1][i] == 's') || (allowed_umode(parameters[1][i],user->modes,direction)))
+					if ((parameters[1][i] == 'i') || (parameters[1][i] == 'w') || (parameters[1][i] == 's') || (allowed_umode(parameters[1][i],user->modes,direction,false)))
 					{
 						can_change = 1;
 					}
@@ -1372,7 +1377,7 @@ void handle_mode(char **parameters, int pcnt, userrec *user)
 				{
 					if (direction == 1)
 					{
-						if ((!strchr(dmodes,parameters[1][i])) && (allowed_umode(parameters[1][i],user->modes,true)))
+						if ((!strchr(dmodes,parameters[1][i])) && (allowed_umode(parameters[1][i],user->modes,true,false)))
 						{
 							char umode = parameters[1][i];
 							if ((process_module_umode(umode, user, dest, direction)) || (umode == 'i') || (umode == 's') || (umode == 'w') || (umode == 'o'))
@@ -1392,7 +1397,7 @@ void handle_mode(char **parameters, int pcnt, userrec *user)
 					}
 					else
 					{
-						if ((allowed_umode(parameters[1][i],user->modes,false)) && (strchr(dmodes,parameters[1][i])))
+						if ((allowed_umode(parameters[1][i],user->modes,false,false)) && (strchr(dmodes,parameters[1][i])))
 						{
 							char umode = parameters[1][i];
 							if ((process_module_umode(umode, user, dest, direction)) || (umode == 'i') || (umode == 's') || (umode == 'w') || (umode == 'o'))
@@ -1632,7 +1637,7 @@ void server_mode(char **parameters, int pcnt, userrec *user)
 					if (direction == 1)
 					{
 						log(DEBUG,"umode %c being added",parameters[1][i]);
-						if ((!strchr(dmodes,parameters[1][i])) && (allowed_umode(parameters[1][i],user->modes,true)))
+						if ((!strchr(dmodes,parameters[1][i])) && (allowed_umode(parameters[1][i],user->modes,true,true)))
 						{
 							char umode = parameters[1][i];
 							log(DEBUG,"umode %c is an allowed umode",umode);
@@ -1651,7 +1656,7 @@ void server_mode(char **parameters, int pcnt, userrec *user)
 					{
 						// can only remove a mode they already have
 						log(DEBUG,"umode %c being removed",parameters[1][i]);
-						if ((allowed_umode(parameters[1][i],user->modes,false)) && (strchr(dmodes,parameters[1][i])))
+						if ((allowed_umode(parameters[1][i],user->modes,false,true)) && (strchr(dmodes,parameters[1][i])))
 						{
 							char umode = parameters[1][i];
 							log(DEBUG,"umode %c is an allowed umode",umode);
@@ -1828,7 +1833,7 @@ void merge_mode(char **parameters, int pcnt)
 					if (direction == 1)
 					{
 						log(DEBUG,"umode %c being added",parameters[1][i]);
-						if ((!strchr(dmodes,parameters[1][i])) && (allowed_umode(parameters[1][i],"o",true)))
+						if ((!strchr(dmodes,parameters[1][i])) && (allowed_umode(parameters[1][i],"o",true,true)))
 						{
 							char umode = parameters[1][i];
 							log(DEBUG,"umode %c is an allowed umode",umode);
@@ -1847,7 +1852,7 @@ void merge_mode(char **parameters, int pcnt)
 					{
 						// can only remove a mode they already have
 						log(DEBUG,"umode %c being removed",parameters[1][i]);
-						if ((allowed_umode(parameters[1][i],"o",false)) && (strchr(dmodes,parameters[1][i])))
+						if ((allowed_umode(parameters[1][i],"o",false,true)) && (strchr(dmodes,parameters[1][i])))
 						{
 							char umode = parameters[1][i];
 							log(DEBUG,"umode %c is an allowed umode",umode);
@@ -2019,7 +2024,7 @@ void merge_mode2(char **parameters, int pcnt, userrec* user)
 					if (direction == 1)
 					{
 						log(DEBUG,"umode %c being added",parameters[1][i]);
-						if ((!strchr(dmodes,parameters[1][i])) && (allowed_umode(parameters[1][i],user->modes,true)))
+						if ((!strchr(dmodes,parameters[1][i])) && (allowed_umode(parameters[1][i],user->modes,true,false)))
 						{
 							char umode = parameters[1][i];
 							log(DEBUG,"umode %c is an allowed umode",umode);
@@ -2039,7 +2044,7 @@ void merge_mode2(char **parameters, int pcnt, userrec* user)
 					{
 						// can only remove a mode they already have
 						log(DEBUG,"umode %c being removed",parameters[1][i]);
-						if ((allowed_umode(parameters[1][i],user->modes,false)) && (strchr(dmodes,parameters[1][i])))
+						if ((allowed_umode(parameters[1][i],user->modes,false,false)) && (strchr(dmodes,parameters[1][i])))
 						{
 							char umode = parameters[1][i];
 							log(DEBUG,"umode %c is an allowed umode",umode);
@@ -2131,10 +2136,10 @@ void merge_mode2(char **parameters, int pcnt, userrec* user)
 		log(DEBUG,"merge_mode2: found channel %s",Ptr->name);
 		if (Ptr)
 		{
-			if ((cstatus(user,Ptr) < STATUS_HOP) && (!is_uline(user->server)))
-			{
-				return;
-			}
+			//if ((cstatus(user,Ptr) < STATUS_HOP) && (!is_uline(user->server)))
+			//{
+			//	return;
+			//}
 			process_modes(parameters,user,Ptr,cstatus(user,Ptr),pcnt,false,false,true);
 		}
 	}

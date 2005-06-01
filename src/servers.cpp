@@ -196,7 +196,7 @@ bool serverrec::MeshCookie(char* targethost, int newport, unsigned long cookie, 
                         // we dont want this as the server name.
                         connector.SetServerName(servername);
                         snprintf(connect,MAXBUF,"- %lu %s :%s",cookie,getservername().c_str(),getserverdesc().c_str());
-                        connector.SetState(STATE_NOAUTH_OUTBOUND);
+                        connector.SetState(STATE_COOKIE_OUTBOUND);
                         connector.SetHostAndPort(targethost, newport);
                         this->connectors.push_back(connector);
                         return this->SendPacket(connect, servername);

@@ -90,6 +90,7 @@ int DieDelay  =  5;
 time_t startup_time = time(NULL);
 int NetBufferSize = 10240;	// NetBufferSize used as the buffer size for all read() ops
 int MaxConn = SOMAXCONN;	// size of accept() backlog (128 by default on *BSD)
+unsigned int SoftLimit = MAXCLIENTS;
 extern int MaxWhoResults;
 time_t nb_start = 0;
 int dns_timeout = 5;
@@ -184,6 +185,7 @@ void AddOper(userrec* user)
 
 void AddServerName(std::string servername)
 {
+	log(DEBUG,"Adding server name: %s",servername.c_str());
 	for (servernamelist::iterator a = servernames.begin(); a < servernames.end(); a++)
 	{
 		if (*a == servername)
@@ -261,7 +263,7 @@ std::string getadminnick()
 void ReadConfig(bool bail, userrec* user)
 {
 	char dbg[MAXBUF],pauseval[MAXBUF],Value[MAXBUF],timeout[MAXBUF],NB[MAXBUF],flood[MAXBUF],MW[MAXBUF],MCON[MAXBUF];
-	char AH[MAXBUF],AP[MAXBUF],AF[MAXBUF],DNT[MAXBUF],pfreq[MAXBUF],thold[MAXBUF],sqmax[MAXBUF],rqmax[MAXBUF];
+	char AH[MAXBUF],AP[MAXBUF],AF[MAXBUF],DNT[MAXBUF],pfreq[MAXBUF],thold[MAXBUF],sqmax[MAXBUF],rqmax[MAXBUF],SLIMT[MAXBUF];
 	ConnectClass c;
 	std::stringstream errstr;
 	include_stack.clear();
@@ -324,7 +326,14 @@ void ReadConfig(bool bail, userrec* user)
 	ConfValue("options","moduledir",0,ModPath,&config_f);
         ConfValue("disabled","commands",0,DisabledCommands,&config_f);
 	ConfValue("options","somaxconn",0,MCON,&config_f);
+	ConfValue("options","softlimit",0,SLIMT,&config_f);
 
+	SoftLimit = atoi(SLIMT);
+	if ((SoftLimit < 0) || (SoftLimit > MAXCLIENTS))
+	{
+		log(DEFAULT,"WARNING: <options:softlimit> value is greater than %d or less than 0, set to %d.",MAXCLIENTS,MAXCLIENTS);
+		SoftLimit = MaxClients;
+	}
 	MaxConn = atoi(MCON);
 	if (MaxConn > SOMAXCONN)
 		log(DEFAULT,"WARNING: <options:somaxconn> value may be higher than the system-defined SOMAXCONN value!");
@@ -1469,9 +1478,15 @@ void AddClient(int socket, char* host, int port, bool iscached, char* ip)
  		clientlist[tempnick]->chans[i].uc_modes = 0;
  	}
 
-	if (clientlist.size() == MAXCLIENTS)
+	if (clientlist.size() > SoftLimit)
 	{
-		kill_link(clientlist[tempnick],"No more connections allowed in this class");
+		kill_link(clientlist[tempnick],"No more connections allowed");
+		return;
+	}
+
+	if (clientlist.size() >= MAXCLIENTS)
+	{
+		kill_link(clientlist[tempnick],"No more connections allowed");
 		return;
 	}
 
@@ -1482,7 +1497,7 @@ void AddClient(int socket, char* host, int port, bool iscached, char* ip)
 	// irc server at once (or the irc server otherwise initiating this many connections, files etc)
 	// which for the time being is a physical impossibility (even the largest networks dont have more
 	// than about 10,000 users on ONE server!)
-	if (socket > 65534)
+	if ((unsigned)socket > 65534)
 	{
 		kill_link(clientlist[tempnick],"Server is full");
 		return;
@@ -1580,7 +1595,7 @@ void FullConnectUser(userrec* user)
         std::stringstream v;
         v << "MESHED WALLCHOPS MODES=13 CHANTYPES=# PREFIX=(ohv)@%+ MAP SAFELIST MAXCHANNELS=" << MAXCHANS;
         v << " MAXBANS=60 NICKLEN=" << NICKMAX;
-        v << " TOPICLEN=307 KICKLEN=307 MAXTARGETS=20 AWAYLEN=307 CHANMODES=ohvb,k,l,psmnti NETWORK=";
+        v << " TOPICLEN=" << MAXTOPIC << " KICKLEN=" << MAXKICK << " MAXTARGETS=20 AWAYLEN=" << MAXAWAY << " CHANMODES=ohvb,k,l,psmnti NETWORK=";
         v << Network;
         std::string data005 = v.str();
         FOREACH_MOD On005Numeric(data005);

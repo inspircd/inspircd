@@ -220,7 +220,7 @@ void ircd_connector::ResetPing()
 // send AS MUCH OF THE USERS SENDQ as we are able to (might not be all of it)
 bool ircd_connector::FlushWriteBuf()
 {
-	if (this->GetState() == STATE_NOAUTH_OUTBOUND)
+	if ((this->GetState() == STATE_NOAUTH_OUTBOUND) || (this->GetState() == STATE_COOKIE_OUTBOUND))
 	{
 		// if the outbound socket hasnt connected yet... return true and don't
 		// actually do anything until it IS connected. This should probably
@@ -233,6 +233,19 @@ bool ircd_connector::FlushWriteBuf()
 			return true;
 		// this falls through and sends any waiting data, which can put it into the
 		// connected state.
+		if (this->GetState() == STATE_COOKIE_OUTBOUND)
+		{
+			log(DEBUG,"Moving cookie_outbound into STATE_CONNECTED state");
+			this->SetState(STATE_CONNECTED);
+                        for (int t = 0; t < 32; t++) if (me[t]) for (unsigned int l = 0; l < me[t]->connectors.size(); l++)
+                        {
+				if (me[t]->connectors[l].GetDescription() != "")
+				{
+					snprintf(buffer,MAXBUF,"%s = %s :%s\r\n",CreateSum().c_str(),me[t]->connectors[l].GetServerName().c_str(),me[t]->connectors[l].GetDescription().c_str());
+                                        this->AddWriteBuf(buffer);
+                                }
+                        }
+		}
 	}
         if ((sendq.length()) && (this->GetState() != STATE_DISCONNECTED))
         {

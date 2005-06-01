@@ -261,7 +261,7 @@ int isident(const char* n)
                         return 0;
                 }
                 /* can't occur ANYWHERE in an Ident! */
-                if (strchr("<>,./?:;@'~#=+()*&%$£ \"!",n[i]))
+                if (strchr("<>,/?:;@'~#=+()*&%$£ \"!",n[i]))
                 {
                         return 0;
                 }

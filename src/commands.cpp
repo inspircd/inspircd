@@ -1903,6 +1903,29 @@ void handle_nick(char **parameters, int pcnt, userrec *user)
 	}
 }
 
+void handle_equals(char token,char* params,serverrec* source,serverrec* reply, char* tcp_host, char* tcp_sum)
+{
+        char* servername = strtok(params," ");
+        char* descr = strtok(NULL,"\r\n");
+
+        if ((!servername) || (!descr))
+                return;
+
+        for (int j = 0; j < 32; j++)
+        {
+                if (me[j] != NULL)
+                {
+                        for (unsigned int x = 0; x < me[j]->connectors.size(); x++)
+                        {
+                                if (!strcasecmp(me[j]->connectors[x].GetServerName().c_str(),servername))
+                                {
+                                        me[j]->connectors[x].SetDescription(descr);
+                                }
+                        }
+                }
+        }
+}
+
 
 void handle_v(char token,char* params,serverrec* source,serverrec* reply, char* tcp_host, char* tcp_sum)
 {
@@ -2390,6 +2413,8 @@ void handle_N(char token,char* params,serverrec* source,serverrec* reply, char* 
 	if (*modes == '+')
 		modes++;
 
+	AddServerName(server);
+
 	time_t TS = atoi(tm);
 	user_hash::iterator iter = clientlist.find(nick);
 	if (iter != clientlist.end())
@@ -2414,6 +2439,7 @@ void handle_N(char token,char* params,serverrec* source,serverrec* reply, char* 
 	strlcpy(clientlist[nick]->ident, ident,IDENTMAX+1); // +1 char to compensate for tilde
 	strlcpy(clientlist[nick]->fullname, gecos,MAXGECOS);
 	strlcpy(clientlist[nick]->ip,ipaddr,16);
+	strlcpy(clientlist[nick]->modes,modes,52);
 	clientlist[nick]->signon = TS;
 	clientlist[nick]->nping = 0; // this is ignored for a remote user anyway.
 	clientlist[nick]->lastping = 1;
@@ -2818,7 +2844,7 @@ void handle_del_szline(char token,char* params,serverrec* source,serverrec* repl
 void handle_pipe(char token,char* params,serverrec* source,serverrec* reply, char* tcp_host, char* tcp_sum)
 {
 	char* nick = strtok(params," ");
-	char* type = strtok(params," ");
+	char* type = strtok(NULL," ");
 
 	if ((!nick) || (!type))
 		return;
@@ -2967,6 +2993,9 @@ void process_restricted_commands(char token,char* params,serverrec* source,serve
 		// v <servername> <arbitary version string>
 		case 'v':
 			handle_v(token,params,source,reply,tcp_host,tcp_sum);
+		break;
+		case '=':
+			handle_equals(token,params,source,reply,tcp_host,tcp_sum);
 		break;
 		// L <SOURCE> <CHANNEL> :<REASON>
 		// User parting a channel
@@ -3268,6 +3297,14 @@ void handle_link_packet(char* tcp_msg, char* tcp_host, serverrec *serv,char* tcp
 								me[j]->connectors[k].SetState(STATE_CONNECTED);
 								AddServerName(servername);
 								NetSendMyRoutingTable();
+								for (int t = 0; t < 32; t++) if (me[t]) for (unsigned int l = 0; l < me[t]->connectors.size(); l++)
+								{
+									if (me[t]->connectors[l].GetDescription() != "")
+									{
+										snprintf(buffer,MAXBUF,"%s = %s :%s",CreateSum().c_str(),me[t]->connectors[l].GetServerName().c_str(),me[t]->connectors[l].GetDescription().c_str());
+										serv->SendPacket(buffer,servername);
+									}
+								}
       								return;
 							}
 						}
@@ -3574,7 +3611,7 @@ void handle_link_packet(char* tcp_msg, char* tcp_host, serverrec *serv,char* tcp
     					log(DEBUG,"Servers are: '%s' '%s'",tcp_host,me[j]->connectors[x].GetServerName().c_str());
     					if (!strcasecmp(me[j]->connectors[x].GetServerName().c_str(),tcp_host))
     					{
-    						if ((me[j]->connectors[x].GetState() == STATE_CONNECTED) || (me[j]->connectors[x].GetState() == STATE_SERVICES))
+    						if ((me[j]->connectors[x].GetState() == STATE_CONNECTED) || (me[j]->connectors[x].GetState() == STATE_SERVICES) || (me[j]->connectors[x].GetState() == STATE_COOKIE_OUTBOUND))
     						{
     							// found a valid ircd_connector.
 							if ((params) && (*params))
