@@ -125,3 +125,6 @@ void handle_version(char **parameters, int pcnt, userrec *user);
 
 void AddServerName(std::string servername);
 const char* FindServerNamePtr(std::string servername);
+
+std::string GetVersionString();
+
