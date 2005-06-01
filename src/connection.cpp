@@ -32,6 +32,8 @@ using namespace std;
 #include "inspstring.h"
 #include "helperfuncs.h"
 
+extern char ServerName[MAXBUF];
+extern serverrec* me[32];
 extern bool has_been_netsplit;
 extern std::vector<Module*> modules;
 extern std::vector<ircd_module*> factory;
