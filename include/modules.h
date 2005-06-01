@@ -491,6 +491,18 @@ class Module : public classbase
 	 */
 	virtual void OnLoadModule(Module* mod,std::string name);
 
+	/** Called whenever a module is unloaded.
+         * mod will contain a pointer to the module, and string will contain its name,
+         * for example m_widgets.so. This function is primary for dependency checking,
+         * your module may decide to enable some extra features if it sees that you have
+         * for example loaded "m_killwidgets.so" with "m_makewidgets.so". It is highly
+         * recommended that modules do *NOT* bail if they cannot satisfy dependencies,
+         * but instead operate under reduced functionality, unless the dependency is
+         * absolutely neccessary (e.g. a module that extends the features of another
+         * module).
+         */
+	virtual void OnUnloadModule(Module* mod,std::string name);
+
 	/** Called once every five seconds for background processing.
 	 * This timer can be used to control timed features. Its period is not accurate
 	 * enough to be used as a clock, but it is gauranteed to be called at least once in

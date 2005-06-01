@@ -2480,6 +2480,7 @@ bool UnloadModule(const char* filename)
 				snprintf(MODERR,MAXBUF,"Module not unloadable (marked static)");
 				return false;
 			}
+			FOREACH_MOD OnUnloadModule(modules[j],module_names[j]);
 			// found the module
 			log(DEBUG,"Deleting module...");
 			erase_module(j);
@@ -2541,6 +2542,7 @@ bool LoadModule(const char* filename)
                 {
 			Module* m = factory[MODCOUNT+1]->factory->CreateModule();
                         modules[MODCOUNT+1] = m;
+			FOREACH_MOD OnLoadModule(m,filename_str);
                         /* save the module and the module's classfactory, if
                          * this isnt done, random crashes can occur :/ */
                         module_names.push_back(filename);

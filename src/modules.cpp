@@ -330,6 +330,7 @@ string_list	Module::OnChannelSync(chanrec* chan) { string_list empty; return emp
 void		Module::On005Numeric(std::string &output) { };
 int		Module::OnKill(userrec* source, userrec* dest, std::string reason) { return 0; };
 void		Module::OnLoadModule(Module* mod,std::string name) { };
+void		Module::OnUnloadModule(Module* mod,std::string name) { };
 void		Module::OnBackgroundTimer(time_t curtime) { };
 void		Module::OnSendList(userrec* user, chanrec* channel, char mode) { };
 int		Module::OnPreCommand(std::string command, char **parameters, int pcnt, userrec *user) { return 0; };
