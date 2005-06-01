@@ -76,6 +76,7 @@ int userrec::ReadData(void* buffer, size_t size)
 {
 	if (this->fd > -1)
 	{
+		log(DEBUG,"userrec::ReadData on fd %d",this->fd);
 		return read(this->fd, buffer, size);
 	}
 	else return 0;

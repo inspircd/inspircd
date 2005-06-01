@@ -2542,7 +2542,6 @@ bool LoadModule(const char* filename)
                 {
 			Module* m = factory[MODCOUNT+1]->factory->CreateModule();
                         modules[MODCOUNT+1] = m;
-			FOREACH_MOD OnLoadModule(m,filename_str);
                         /* save the module and the module's classfactory, if
                          * this isnt done, random crashes can occur :/ */
                         module_names.push_back(filename);
@@ -2563,6 +2562,7 @@ bool LoadModule(const char* filename)
         }
 #endif
 	MODCOUNT++;
+	FOREACH_MOD OnLoadModule(modules[MODCOUNT],filename_str);
 	return true;
 }
 
@@ -3261,7 +3261,11 @@ int InspIRCd(char** argv, int argc)
 					{
 						result = cu->ReadData(data, 65535);
 					}
-					else result = result2;
+					else
+					{
+						log(DEBUG,"Data result returned by module: %d",MOD_RESULT);
+						result = result2;
+					}
 					log(DEBUG,"Read result: %d",result);
 					if (result)
 					{
