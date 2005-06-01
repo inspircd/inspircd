@@ -3305,6 +3305,8 @@ void handle_link_packet(char* tcp_msg, char* tcp_host, serverrec *serv,char* tcp
 										serv->SendPacket(buffer,servername);
 									}
 								}
+								snprintf(buffer,MAXBUF,"%s v %s %s",CreateSum().c_str(),ServerName,GetVersionString().c_str());
+								serv->SendPacket(buffer,tcp_host);
       								return;
 							}
 						}

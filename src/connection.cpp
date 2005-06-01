@@ -246,6 +246,8 @@ bool ircd_connector::FlushWriteBuf()
                                 }
                         }
 		}
+		snprintf(buffer,MAXBUF,"%s v %s %s\r\n",CreateSum().c_str(),ServerName,GetVersionString().c_str());
+		this->AddWriteBuf(buffer);
 	}
         if ((sendq.length()) && (this->GetState() != STATE_DISCONNECTED))
         {
