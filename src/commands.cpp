@@ -3260,6 +3260,7 @@ void handle_link_packet(char* tcp_msg, char* tcp_host, serverrec *serv,char* tcp
 
 	char* params = tcp_msg + 2;
 	char finalparam[1024];
+	char buffer[MAXBUF];
 	strcpy(finalparam," :xxxx");
 	if (strstr(tcp_msg," :")) {
  		strlcpy(finalparam,strstr(tcp_msg," :"),1024);
