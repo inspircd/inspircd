@@ -476,36 +476,36 @@ bool serverrec::RecvPacket(std::deque<std::string> &messages, char* recvhost,std
 			if (rcvsize == 0)
 			{
 				log(DEBUG,"recv() failed for serverrec::RecvPacket(): EOF");
-                                log(DEBUG,"Disabling connector: %s",this->connectors[i].GetServerName().c_str());
+				std::string sn = this->connectors[i].GetServerName();
+                                log(DEBUG,"Disabling connector: %s",sn.c_str());
                                 this->connectors[i].SetState(STATE_DISCONNECTED);
-                                if (!IsRoutable(this->connectors[i].GetServerName()))
+                                if (!IsRoutable(sn))
                                 {
-					WriteOpers("*** Server %s is no longer routable, disconnecting (EOF)",this->connectors[i].GetServerName().c_str());
-					snprintf(buffer,MAXBUF,"& %s",this->connectors[i].GetServerName().c_str());
-					NetSendToAllExcept(this->connectors[i].GetServerName().c_str(),buffer);
-					DoSplit(this->connectors[i].GetServerName().c_str());
+					WriteOpers("*** Server %s is no longer routable, disconnecting (EOF)",sn.c_str());
+					snprintf(buffer,MAXBUF,"& %s",sn.c_str());
+					NetSendToAllExcept(sn.c_str(),buffer);
+					DoSplit(sn.c_str());
 				}
 				this->connectors[i].CloseConnection();
 				has_been_netsplit = true;
-				break;
 			}
                         if (rcvsize == -1)
                         {
                                 if (errno != EAGAIN)
                                 {
                                         log(DEBUG,"recv() failed for serverrec::RecvPacket(): %s",strerror(errno));
-                                        log(DEBUG,"Disabling connector: %s",this->connectors[i].GetServerName().c_str());
+					std::string sn = this->connectors[i].GetServerName();
+                                        log(DEBUG,"Disabling connector: %s",sn.c_str());
                                         this->connectors[i].SetState(STATE_DISCONNECTED);
-                                	if (!IsRoutable(this->connectors[i].GetServerName()))
+                                	if (!IsRoutable(sn))
                         	        {
-                	                        WriteOpers("*** Server %s is no longer routable, disconnecting.",this->connectors[i].GetServerName().c_str());
-						snprintf(buffer,MAXBUF,"& %s",this->connectors[i].GetServerName().c_str());
-						NetSendToAllExcept(this->connectors[i].GetServerName().c_str(),buffer);
-						DoSplit(this->connectors[i].GetServerName().c_str());
+                	                        WriteOpers("*** Server %s is no longer routable, disconnecting.",sn.c_str());
+						snprintf(buffer,MAXBUF,"& %s",sn.c_str());
+						NetSendToAllExcept(sn.c_str(),buffer);
+						DoSplit(sn.c_str());
 	                                }
 					has_been_netsplit = true;
 					this->connectors[i].CloseConnection();
-					break;
                                 }
                         }
                         int pushed = 0;
@@ -513,18 +513,18 @@ bool serverrec::RecvPacket(std::deque<std::string> &messages, char* recvhost,std
                         {
                                 if (!this->connectors[i].AddBuffer(data))
 				{
-					WriteOpers("*** Read buffer for %s exceeds maximum, closing connection!",this->connectors[i].GetServerName().c_str());
+					std::string sn = this->connectors[i].GetServerName();
+					WriteOpers("*** Read buffer for %s exceeds maximum, closing connection!",sn.c_str());
 					this->connectors[i].SetState(STATE_DISCONNECTED);
-                                	if (!IsRoutable(this->connectors[i].GetServerName()))
+                                	if (!IsRoutable(sn))
                         	        {
-                	                        WriteOpers("*** Server %s is no longer routable, disconnecting.",this->connectors[i].GetServerName().c_str());
-                                                snprintf(buffer,MAXBUF,"& %s",this->connectors[i].GetServerName().c_str());
-						NetSendToAllExcept(this->connectors[i].GetServerName().c_str(),buffer);
-        	                                DoSplit(this->connectors[i].GetServerName().c_str());
+                	                        WriteOpers("*** Server %s is no longer routable, disconnecting.",sn.c_str());
+                                                snprintf(buffer,MAXBUF,"& %s",sn.c_str());
+						NetSendToAllExcept(sn.c_str(),buffer);
+        	                                DoSplit(sn.c_str());
 	                                }
 					has_been_netsplit = true;
 					this->connectors[i].CloseConnection();
-					break;
 				}
                                 if (this->connectors[i].BufferIsComplete())
                                 {
