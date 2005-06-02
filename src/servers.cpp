@@ -487,6 +487,7 @@ bool serverrec::RecvPacket(std::deque<std::string> &messages, char* recvhost,std
 					DoSplit(this->connectors[i].GetServerName().c_str());
 				}
 				has_been_netsplit = true;
+				break;
 			}
                         if (rcvsize == -1)
                         {
@@ -504,6 +505,7 @@ bool serverrec::RecvPacket(std::deque<std::string> &messages, char* recvhost,std
 						DoSplit(this->connectors[i].GetServerName().c_str());
 	                                }
 					has_been_netsplit = true;
+					break;
                                 }
                         }
                         int pushed = 0;
@@ -522,6 +524,7 @@ bool serverrec::RecvPacket(std::deque<std::string> &messages, char* recvhost,std
         	                                DoSplit(this->connectors[i].GetServerName().c_str());
 	                                }
 					has_been_netsplit = true;
+					break;
 				}
                                 if (this->connectors[i].BufferIsComplete())
                                 {
