@@ -3002,7 +3002,7 @@ int InspIRCd(char** argv, int argc)
 			{
 				if (has_been_netsplit)
 				{
-					log("Netsplit detected in recvpacket, aborting");
+					log(DEBUG,"Netsplit detected in recvpacket, aborting");
 					goto label;
 				}
 				for (unsigned int ctr = 0; ctr < msgs.size(); ctr++)
