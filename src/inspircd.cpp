@@ -2876,6 +2876,8 @@ int InspIRCd(char** argv, int argc)
         int total_in_this_set = 0;
 	int i = 0, v = 0, j = 0, cycle_iter = 0;
 	bool expire_run = false;
+
+	cycle_iter = i = j = 0;		// stop the compiler whining - these may be marked unused in certain socket engine types
 	  
 	/* main loop, this never returns */
 	for (;;)
@@ -3088,7 +3090,7 @@ int InspIRCd(char** argv, int argc)
 
 						// registration timeout -- didnt send USER/NICK/HOST in the time specified in
 						// their connection class.
-						if ((TIME > curr->timeout) && (curr->registered != 7)) 
+						if ((TIME > (unsigned)curr->timeout) && (curr->registered != 7)) 
 						{
 						  	log(DEBUG,"InspIRCd: registration timeout: %s",curr->nick);
 							kill_link(curr,"Registration timeout");
