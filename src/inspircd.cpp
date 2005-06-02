@@ -1790,6 +1790,7 @@ void DoSplitEveryone()
 		}
 	}
 	has_been_netsplit = true;
+	log(DEBUG,"Clients removed.");
 }
 
 
@@ -2387,6 +2388,7 @@ void DoSplit(const char* params)
 		}
 	}
 	has_been_netsplit = true;
+	log(DEBUG,"Removed clients (DoSplit)");
 }
 
 // removes a server. Will NOT remove its users!
@@ -2994,9 +2996,15 @@ int InspIRCd(char** argv, int argc)
 				me[x]->FlushWriteBuffers();
 			sums.clear();
 			msgs.clear();
-			while ((me[x]) && (me[x]->RecvPacket(msgs, tcp_host, sums))) // returns 0 or more lines (can be multiple lines!)
+			if (me[x])
+			has_been_netsplit = false;
+			while (me[x]->RecvPacket(msgs, tcp_host, sums)) // returns 0 or more lines (can be multiple lines!)
 			{
-				has_been_netsplit = false;
+				if (has_been_netsplit)
+				{
+					log("Netsplit detected in recvpacket, aborting");
+					goto label;
+				}
 				for (unsigned int ctr = 0; ctr < msgs.size(); ctr++)
 				{
 					strlcpy(tcp_msg,msgs[ctr].c_str(),MAXBUF);
