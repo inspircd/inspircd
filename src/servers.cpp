@@ -380,10 +380,18 @@ bool serverrec::SendPacket(char *message, const char* sendhost)
                                                 if (!strcasecmp(this->connectors[k].routes[m].c_str(),sendhost))
                                                 {
                                                         log(DEBUG,"Found alternative route for packet: %s",this->connectors[k].GetServerName().c_str());
-                                                        char buffer[MAXBUF];
-                                                        snprintf(buffer,MAXBUF,"R %s %s",sendhost,message);
-                                                        this->SendPacket(buffer,this->connectors[k].GetServerName().c_str());
-                                                        return true;
+							if (this->connectors[k].GetState() != STATE_DISCONNECTED)
+							{
+								char buffer[MAXBUF];
+								snprintf(buffer,MAXBUF,"R %s %s",sendhost,message);
+								this->SendPacket(buffer,this->connectors[k].GetServerName().c_str());
+	                                                        return true;
+							}
+							else
+							{
+								log(DEBUG,"Nope, this route is down...");
+								return false;
+							}
                                                 }
                                         }
                                 }
