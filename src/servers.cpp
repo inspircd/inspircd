@@ -300,7 +300,6 @@ void serverrec::FlushWriteBuffers()
 			if (!this->connectors[i].CheckPing())
 			{
 				WriteOpers("*** Lost single connection to %s: Ping timeout",this->connectors[i].GetServerName().c_str());
-				this->connectors[i].CloseConnection();
 				this->connectors[i].SetState(STATE_DISCONNECTED);
 				if (!IsRoutable(this->connectors[i].GetServerName()))
 				{
@@ -309,6 +308,7 @@ void serverrec::FlushWriteBuffers()
                                         NetSendToAllExcept(this->connectors[i].GetServerName().c_str(),buffer);
 					DoSplit(this->connectors[i].GetServerName().c_str());
 				}
+				this->connectors[i].CloseConnection();
 				has_been_netsplit = true;
 			}
 		}
@@ -316,7 +316,6 @@ void serverrec::FlushWriteBuffers()
 		{
 			// if we're here the write() caused an error, we cannot proceed
 			WriteOpers("*** Lost single connection to %s, link inactive and retrying: %s",this->connectors[i].GetServerName().c_str(),this->connectors[i].GetWriteError().c_str());
-			this->connectors[i].CloseConnection();
 			this->connectors[i].SetState(STATE_DISCONNECTED);
 			if (!IsRoutable(this->connectors[i].GetServerName()))
 			{
@@ -325,6 +324,7 @@ void serverrec::FlushWriteBuffers()
                                 NetSendToAllExcept(this->connectors[i].GetServerName().c_str(),buffer);
 				DoSplit(this->connectors[i].GetServerName().c_str());
 			}
+			this->connectors[i].CloseConnection();
 			has_been_netsplit = true;
 		}
 		if ((this->connectors[i].HasBufferedOutput()) && (this->connectors[i].GetState() != STATE_DISCONNECTED))
@@ -333,7 +333,6 @@ void serverrec::FlushWriteBuffers()
 			{
 				// if we're here the write() caused an error, we cannot proceed
 				WriteOpers("*** Lost single connection to %s, link inactive and retrying: %s",this->connectors[i].GetServerName().c_str(),this->connectors[i].GetWriteError().c_str());
-				this->connectors[i].CloseConnection();
 	                        this->connectors[i].SetState(STATE_DISCONNECTED);
                                 if (!IsRoutable(this->connectors[i].GetServerName()))
                                 {
@@ -342,6 +341,7 @@ void serverrec::FlushWriteBuffers()
                                         NetSendToAllExcept(this->connectors[i].GetServerName().c_str(),buffer);
                                      	DoSplit(this->connectors[i].GetServerName().c_str());
                                 }
+				this->connectors[i].CloseConnection();
 				has_been_netsplit = true;
 			}
                 }
@@ -477,7 +477,6 @@ bool serverrec::RecvPacket(std::deque<std::string> &messages, char* recvhost,std
 			{
 				log(DEBUG,"recv() failed for serverrec::RecvPacket(): EOF");
                                 log(DEBUG,"Disabling connector: %s",this->connectors[i].GetServerName().c_str());
-                                this->connectors[i].CloseConnection();
                                 this->connectors[i].SetState(STATE_DISCONNECTED);
                                 if (!IsRoutable(this->connectors[i].GetServerName()))
                                 {
@@ -486,6 +485,7 @@ bool serverrec::RecvPacket(std::deque<std::string> &messages, char* recvhost,std
 					NetSendToAllExcept(this->connectors[i].GetServerName().c_str(),buffer);
 					DoSplit(this->connectors[i].GetServerName().c_str());
 				}
+				this->connectors[i].CloseConnection();
 				has_been_netsplit = true;
 				break;
 			}
@@ -495,7 +495,6 @@ bool serverrec::RecvPacket(std::deque<std::string> &messages, char* recvhost,std
                                 {
                                         log(DEBUG,"recv() failed for serverrec::RecvPacket(): %s",strerror(errno));
                                         log(DEBUG,"Disabling connector: %s",this->connectors[i].GetServerName().c_str());
-                                        this->connectors[i].CloseConnection();
                                         this->connectors[i].SetState(STATE_DISCONNECTED);
                                 	if (!IsRoutable(this->connectors[i].GetServerName()))
                         	        {
@@ -505,6 +504,7 @@ bool serverrec::RecvPacket(std::deque<std::string> &messages, char* recvhost,std
 						DoSplit(this->connectors[i].GetServerName().c_str());
 	                                }
 					has_been_netsplit = true;
+					this->connectors[i].CloseConnection();
 					break;
                                 }
                         }
@@ -514,7 +514,6 @@ bool serverrec::RecvPacket(std::deque<std::string> &messages, char* recvhost,std
                                 if (!this->connectors[i].AddBuffer(data))
 				{
 					WriteOpers("*** Read buffer for %s exceeds maximum, closing connection!",this->connectors[i].GetServerName().c_str());
-					this->connectors[i].CloseConnection();
 					this->connectors[i].SetState(STATE_DISCONNECTED);
                                 	if (!IsRoutable(this->connectors[i].GetServerName()))
                         	        {
@@ -524,6 +523,7 @@ bool serverrec::RecvPacket(std::deque<std::string> &messages, char* recvhost,std
         	                                DoSplit(this->connectors[i].GetServerName().c_str());
 	                                }
 					has_been_netsplit = true;
+					this->connectors[i].CloseConnection();
 					break;
 				}
                                 if (this->connectors[i].BufferIsComplete())
