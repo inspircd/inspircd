@@ -21,7 +21,8 @@ using namespace std;
 #include "channels.h"
 #include "modules.h"
 #include <string>
-
+#include "helperfuncs.h"
+#include "hashcomp.h"
 
 /* $ModDesc: Povides support for services +r user/chan modes and more */
 
@@ -67,24 +68,28 @@ class ModuleServices : public Module
 			if (type == MT_CHANNEL)
 			{
 				// only a u-lined server may add or remove the +r mode.
-				if ((Srv->IsUlined(user->nick)) || (Srv->IsUlined(user->server)) || (!strcmp(user->server,"")))
+				if ((Srv->IsUlined(user->nick)) || (Srv->IsUlined(user->server)) || (!strcmp(user->server,"") || (strchr(user->nick,'.'))))
 				{
+					log(DEBUG,"Allowing umode +r, server and nick are: '%s','%s'",user->nick,user->server);
 					return 1;
 				}
 				else
 				{
-					Srv->SendServ(user->fd,"500 "+std::string(user->nick)+" :Only a U-Lined server may modify the +r channel mode");
+					log(DEBUG,"Only a server can set chanmode +r, server and nick are: '%s','%s'",user->nick,user->server);
+					Srv->SendServ(user->fd,"500 "+std::string(user->nick)+" :Only a server may modify the +r channel mode");
 				}
 			}
 			else
 			{
-				if ((Srv->IsUlined(user->nick)) || (Srv->IsUlined(user->server)) || (!strcmp(user->server,"")))
+				if ((Srv->IsUlined(user->nick)) || (Srv->IsUlined(user->server)) || (!strcmp(user->server,"") || (strchr(user->nick,'.'))))
 				{
+					log(DEBUG,"Allowing umode +r, server and nick are: '%s','%s'",user->nick,user->server);
 					return 1;
 				}
 				else
 				{
-					Srv->SendServ(user->fd,"500 "+std::string(user->nick)+" :Only a U-Lined server may modify the +r user mode");
+					log(DEBUG,"Only a server can set umode +r, server and nick are: '%s','%s'",user->nick,user->server);
+					Srv->SendServ(user->fd,"500 "+std::string(user->nick)+" :Only a server may modify the +r user mode");
 				}
 			}
 		}
