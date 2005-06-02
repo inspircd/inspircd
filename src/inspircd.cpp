@@ -2346,6 +2346,7 @@ void NetSendMyRoutingTable()
 void DoSplit(const char* params)
 {
 	bool go_again = true;
+	int x = 0;
 	while (go_again)
 	{
 		go_again = false;
@@ -2357,15 +2358,22 @@ void DoSplit(const char* params)
 				{
 					if (!strcasecmp(j->GetServerName().c_str(),params))
 					{
+						log(DEBUG,"Removing %s",j->GetServerName().c_str());
 						j->routes.clear();
 						j->CloseConnection();
 						me[i]->connectors.erase(j);
 						go_again = true;
+						x++;
 						break;
 					}
 				}
 			}
 		}
+	}
+	if (!x)
+	{
+		log(DEBUG,"No clients to remove.");
+		return;
 	}
 	log(DEBUG,"Removed server. Will remove clients...");
 	// iterate through the userlist and remove all users on this server.
