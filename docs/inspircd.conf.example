@@ -11,7 +11,7 @@
 #         This is an example of the config file for InspIRCd.          #
 #             Change the options to suit your network                  #
 #								       #
-#                 Last updated on : 05/31/2005                         #
+#                 Last updated on : 06/06/2005                         #
 #                 Written by      : CC  (cc@backchat.co.za)            #
 #                 Updated by      : katsklaw (katsklaw@gmail.com)      #
 ########################################################################
@@ -106,10 +106,10 @@
 # slash (/) in which case it is treated as an absolute path.          #
 #                                                                     #
 # Syntax is as follows:                                               #
-#       <include="file.conf">                                         #
+#       <include file="file.conf">                                    #
 #                                                                     #
 # A perfect example of an included conf file is helpop.conf           #
-#<include="helpop.conf">
+#<include file="helpop.conf">
 
 #-#-#-#-#-#-#-#-#-#-  CONNECTIONS CONFIGURATION   -#-#-#-#-#-#-#-#-#-#-
 #								      #
