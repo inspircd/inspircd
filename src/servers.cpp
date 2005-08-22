@@ -488,7 +488,6 @@ bool serverrec::RecvPacket(std::deque<std::string> &messages, char* recvhost,std
 				}
 				this->connectors[i].CloseConnection();
 				has_been_netsplit = true;
-				break;
 			}
                         if (rcvsize == -1)
                         {
@@ -507,7 +506,6 @@ bool serverrec::RecvPacket(std::deque<std::string> &messages, char* recvhost,std
 	                                }
 					has_been_netsplit = true;
 					this->connectors[i].CloseConnection();
-					break;
                                 }
                         }
                         int pushed = 0;
@@ -527,7 +525,6 @@ bool serverrec::RecvPacket(std::deque<std::string> &messages, char* recvhost,std
 	                                }
 					has_been_netsplit = true;
 					this->connectors[i].CloseConnection();
-					break;
 				}
                                 if (this->connectors[i].BufferIsComplete())
                                 {
