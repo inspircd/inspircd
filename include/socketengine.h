@@ -1,3 +1,20 @@
+/*       +------------------------------------+
+ *       | Inspire Internet Relay Chat Daemon |
+ *       +------------------------------------+
+ *
+ *  Inspire is copyright (C) 2002-2005 ChatSpike-Dev.
+ *                       E-mail:
+ *                <brain@chatspike.net>
+ *                <Craig@chatspike.net>
+ *
+ * Written by Craig Edwards, Craig McLure, and others.
+ * This program is free but copyrighted software; see
+ *            the file COPYING for details.
+ *
+ * ---------------------------------------------------
+ */
+
+// Fill the engine with client file descriptors pending an action
 
 #define epoll_fill      int i = epoll_wait(ep, event, 1, 5); \
                         if (i > 0) \
@@ -33,6 +50,8 @@
 #define engine_fill select_fill
 #endif
 
+// how to determine if a socket needs attention if further checks are needed
+
 #define epoll_check    ((cu->fd != FD_MAGIC_NUMBER) && (cu->fd != -1))
 
 #define kqueue_check   ((cu->fd != FD_MAGIC_NUMBER) && (cu->fd != -1))
@@ -48,6 +67,8 @@
 #ifdef USE_SELECT
 #define engine_check select_check
 #endif
+
+// how to clean up an exiting client
 
 #define epoll_cleanup                   log(DEBUG,"InspIRCd: Exited: %s",cu->nick); \
                                         kill_link(cu,"Client exited"); \
@@ -77,6 +98,8 @@
 #define engine_cleanup select_cleanup
 #endif
 
+
+// how to scan the set for fd's requiring action
 
 #define select_scanset          for (count = 0; count < boundPortCount; count++) \
 			        { \
@@ -120,6 +143,8 @@
 #ifdef USE_SELECT
 #define engine_scanset select_scanset
 #endif
+
+// how to populate the list with fds before asking for change notification
 
 #define epoll_server_populate               i = epoll_wait(sep, event, 1, EP_DELAY); \
 			                if (i > 0) \
@@ -167,6 +192,8 @@
 #define engine_server_populate select_server_populate
 #endif
 
+// a list of variables used specifically by this engine
+
 #define kqueue_structs struct kevent ke; \
         struct kevent ke_list[33]; \
         struct timespec ts;
@@ -185,6 +212,8 @@
 #ifdef USE_SELECT
 #define engine_structs select_structs
 #endif
+
+// how to initialise the engine before using it
 
 #define select_init     while(0);
 
@@ -218,6 +247,8 @@
 #ifdef USE_SELECT
 #define engine_init select_init
 #endif
+
+// how to fill the engine with a list of server fd's
 
 #define	select_server_fill	log(DEFAULT,"Using standard select socket engine.");
 
@@ -292,6 +323,7 @@
 #define engine_server_fill select_server_fill
 #endif
 
+// how to delete a client fd from the engine
 
 #define kqueue_delete_fd        struct kevent ke; \
 		                EV_SET(&ke, user->fd, EVFILT_READ, EV_DELETE, 0, 0, NULL); \
@@ -323,6 +355,8 @@
 #define engine_delete_fd select_delete_fd
 #endif
 
+// how to add a client fd to the engine
+
 #define select_add_fd		while(0);
 
 #define epoll_add_fd            struct epoll_event ev; \
@@ -353,6 +387,8 @@
 #ifdef USE_SELECT
 #define engine_add_fd select_add_fd
 #endif
+
+// what is this engine called?
 
 #ifdef USE_KQUEUE
 #define engine_name "kqueue"
