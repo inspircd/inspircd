@@ -150,6 +150,12 @@ if (!$fail)
 	}
 	close(EPOLL);
 }
+if ($has_epoll) {
+	my $kernel = `uname -r`;
+	if ($kernel !~ /2\.6/) {
+		$has_epoll = 0;
+	}
+}
 print "yes\n" if $has_epoll == 1;
 print "no\n" if $has_epoll == 0;
 
