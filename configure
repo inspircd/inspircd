@@ -152,6 +152,7 @@ if (!$fail)
 }
 if ($has_epoll) {
 	my $kernel = `uname -r`;
+	chomp($kernel);
 	if ($kernel !~ /2\.6/) {
 		$has_epoll = 0;
 	}
