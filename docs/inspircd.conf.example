@@ -108,8 +108,6 @@
 # Syntax is as follows:                                               #
 #       <include file="file.conf">                                    #
 #                                                                     #
-# A perfect example of an included conf file is helpop.conf           #
-#<include file="helpop.conf">
 
 #-#-#-#-#-#-#-#-#-#-  CONNECTIONS CONFIGURATION   -#-#-#-#-#-#-#-#-#-#-
 #								      #
