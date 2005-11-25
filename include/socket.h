@@ -14,6 +14,9 @@
  * ---------------------------------------------------
  */
 
+#ifndef __INSP_SOCKET_H__
+#define __INSP_SOCKET_H__
+
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
@@ -54,3 +57,5 @@ public:
 	virtual void Close();
 	virtual ~InspSocket();
 };
+
+#endif
