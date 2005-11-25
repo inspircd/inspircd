@@ -3,3 +3,5 @@ Makefile
 inspircd
 inspircd.pid
 inspircd.core
+*~
+*.swp

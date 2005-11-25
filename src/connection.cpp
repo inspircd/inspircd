@@ -317,7 +317,6 @@ bool ircd_connector::MakeOutboundConnection(char* newhost, int newport)
 			if (errno != EINPROGRESS)
 			{
 				WriteOpers("connect() failed for %s",host);
-				RemoveServer(this->servername.c_str());
 				return false;
 			}
 		}
@@ -330,7 +329,6 @@ bool ircd_connector::MakeOutboundConnection(char* newhost, int newport)
 	else
 	{
 		WriteOpers("socket() failed!");
-		RemoveServer(this->servername.c_str());
 	}
 
 	return false;

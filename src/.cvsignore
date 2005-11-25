@@ -1,3 +1,5 @@
 inspircd
 *.so
 *.o
+*~
+*.swp

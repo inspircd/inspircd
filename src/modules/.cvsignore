@@ -8,4 +8,5 @@ m_sqloper.cpp
 m_servicecore.cpp
 *.so
 *.o
-
+*~
+*.swp

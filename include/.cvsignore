@@ -1,2 +1,4 @@
 inspircd_config.h
 modlist.h
+*~
+*.swp
