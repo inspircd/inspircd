@@ -58,6 +58,7 @@
 #include "dynamic.h"
 #include "base.h"
 #include "ctables.h"
+#include "socket.h"
 #include <string>
 #include <deque>
 #include <sstream>
@@ -606,18 +607,6 @@ class Module : public classbase
 	 */
 	virtual int OnLocalTopicChange(userrec* user, chanrec* chan, std::string topic);
 
-	/** Called whenever an unknown token is received in a server to server link.
-	 * The token value is the unknown token -- please check that no other modules are using the token
-	 * that you use. Returning 1 supresses the 'unknown token type' error which is usually sent to
-	 * all opers with +s. The params list is a list of parameters, and if any parameters start with a
-	 * colon (:) it is treated as the whole of the last parameter, identical to how RFC messages are
-	 * handled. source is the sender of the message, and reply is what should be replied to for a unicast
-	 * message. Note that there are not many messages in the mesh protocol which require unicast
-	 * messaging. tcp_host is the server name as a string, ipaddr is its ip address in dotted decimal
-	 * notation and port is the port number it is using.
-	 */
-	virtual int OnMeshToken(char token,string_list params,serverrec* source,serverrec* reply, std::string tcp_host,std::string ipaddr,int port);
-
 	/** Called whenever an Event class is sent to all module by another module.
 	 * Please see the documentation of Event::Send() for further information. The Event sent can
 	 * always be assumed to be non-NULL, you should *always* check the value of Event::GetEventID()
@@ -1101,50 +1090,15 @@ class Server : public classbase
 	 */
 	virtual bool IsValidMask(std::string mask);
 
-	/** Sends a line of text to all connected servers.
-	 * If a server is not directly reachable, the core deals with routing the message, and will also
-	 * deal with failures transparently.
-	 */
-	virtual void MeshSendAll(std::string text);
-
-	/** This method sends a line of text to all servers who have users which share common channels with the user you provide.
-	 * For example, if user A is on server A, and they are on channels #one and #two, and user B is on server B, and also on
-	 * channel #one, but user C is on server C and on neither #one or #two, this function will cause the text to only be
-	 * sent to server B. However, if server B is only reachable via C, it will route it to C (you do not have to worry about
-	 * this routing, it is done transparently, but its good to know how things work!)
-	 */
-	virtual void MeshSendCommon(userrec* user, std::string text);
-
-	/** This function is equivalent to Server::MeshSendToAll except it will only route to servers which are directly routable.
-	 */
-	virtual void MeshSendAllAlive(std::string text);
-
-	/** This function sends a line of text directly to a server.
-	 * If the server is not directly routable at this time, the server attempts to route text through the mesh.
-	 */
-	virtual void MeshSendUnicast(std::string destination, std::string text);
-
-	/** This function sends to all servers EXCEPT the one you specify.
-	 * You should usually use this function to send messages, specifying the SENDER of your message as 'target'.
-	 * This will prevent message loops.
-	 */
-	virtual void MeshSendAllExcept(std::string target, std::string text);
-
-	/** This function is used to check if any users on channel c are on server servername.
-	 * This is used internally by PRIVMSG etc. You should not need to use it.
-	 */
-	virtual bool MeshCheckChan(chanrec *c,std::string servername);
-
-	/** This function is used to check if user u has any channels in common with users on servername.
-	 * This is used internally by Server::MeshSendCommon. You should very rarely need to use it.
-	 */
-	virtual bool MeshCheckCommon(userrec* u,std::string servername);
-
 	/** This function finds a module by name.
 	 * You must provide the filename of the module. If the module cannot be found (is not loaded)
 	 * the function will return NULL.
 	 */
 	virtual Module* FindModule(std::string name);
+
+	/** Adds a class derived from InspSocket to the server's socket engine.
+	 */
+	virtual void AddSocket(InspSocket* sock);
 };
 
 
