@@ -2706,7 +2706,6 @@ int InspIRCd(char** argv, int argc)
 	WritePID(PID);
 
 	length = sizeof (client);
-	char tcp_msg[MAXBUF],tcp_host[MAXBUF],tcp_sum[MAXBUF];
 	engine_structs;
         timeval tvs;
         tvs.tv_usec = 10000L;
@@ -2740,9 +2739,10 @@ int InspIRCd(char** argv, int argc)
 
 		for (std::vector<InspSocket*>::iterator a = module_sockets.begin(); a < module_sockets.end(); a++)
 		{
-			if (!a->Poll())
+			InspSocket* s = (InspSocket*)*a;
+			if (!s->Poll())
 			{
-				delete *a;
+				delete s;
 				module_sockets.erase(a);
 				break;
 			}
