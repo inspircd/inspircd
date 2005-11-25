@@ -2583,7 +2583,7 @@ int InspIRCd(char** argv, int argc)
 
 	AddServerName(ServerName);
 
-	int clientportcount = 0, serverportcount = 0;
+	int clientportcount = 0;
 
 	for (count = 0; count < ConfValueEnum("bind",&config_f); count++)
 	{
@@ -2592,24 +2592,7 @@ int InspIRCd(char** argv, int argc)
 		ConfValue("bind","type",count,Type,&config_f);
 		if (!strcmp(Type,"servers"))
 		{
-			char Default[MAXBUF];
-			strcpy(Default,"no");
-			ConfValue("bind","default",count,Default,&config_f);
-			if (strchr(Default,'y'))
-			{
-				defaultRoute = serverportcount;
-				log(DEBUG,"InspIRCd: startup: binding '%s:%s' is default server route",Addr,configToken);
-			}
-			me[serverportcount] = new serverrec(ServerName,100L,false);
-			if (!me[serverportcount]->CreateListener(Addr,atoi(configToken)))
-			{
-				log(DEFAULT,"Warning: Failed to bind port %lu",(unsigned long)atoi(configToken));
-				printf("Warning: Failed to bind port %lu\n",(unsigned long)atoi(configToken));
-			}
-			else
-			{
-				serverportcount++;
-			}
+			// modules handle this bind type now.
 		}
 		else
 		{
@@ -2620,9 +2603,8 @@ int InspIRCd(char** argv, int argc)
 		log(DEBUG,"InspIRCd: startup: read binding %s:%s [%s] from config",Addr,configToken, Type);
 	}
 	portCount = clientportcount;
-	SERVERportCount = serverportcount;
 	  
-	log(DEBUG,"InspIRCd: startup: read %lu total client ports and %lu total server ports",(unsigned long)portCount,(unsigned long)SERVERportCount);
+	log(DEBUG,"InspIRCd: startup: read %lu total client ports",(unsigned long)portCount);
 	log(DEBUG,"InspIRCd: startup: InspIRCd is now starting!");
 	
 	printf("\n");
@@ -2701,7 +2683,6 @@ int InspIRCd(char** argv, int argc)
         }
 
 	engine_init;
-	engine_server_fill;
 
 	WritePID(PID);
 

@@ -144,54 +144,6 @@
 #define engine_scanset select_scanset
 #endif
 
-// how to populate the list with fds before asking for change notification
-
-#define epoll_server_populate               i = epoll_wait(sep, event, 1, EP_DELAY); \
-			                if (i > 0) \
-			                { \
-			                        log(DEBUG,"epoll: Listening server socket event, i=%d, event.data.fd=%d",i,event[0].data.fd); \
-			                        for (int x = 0; x != SERVERportCount; x++) \
-			                        { \
-			                                if ((me[x]) && ((unsigned)event[0].data.fd == (unsigned)me[x]->fd)) \
-			                                {
-#define kqueue_server_populate              ts.tv_sec = 0; \
-			                ts.tv_nsec = 30000L; \
-			                i = kevent(skq, NULL, 0, &ke, 1, &ts); \
-			                if (i > 0) \
-			                { \
-			                        log(DEBUG,"kqueue: Listening server socket event, i=%d, ke.ident=%d",i,ke.ident); \
-			                        for (int x = 0; x != SERVERportCount; x++) \
-			                        { \
-	       		 	                        if ((me[x]) && ((unsigned)ke.ident == (unsigned)me[x]->fd)) \
-			                                {
-
-#define select_server_populate              FD_ZERO(&serverfds); \
-			                for (int x = 0; x != SERVERportCount; x++) \
-			                { \
-			                        if (me[x]) \
-			                                FD_SET(me[x]->fd, &serverfds); \
-			                } \
-			                tvs.tv_usec = 30000L; \
-			                tvs.tv_sec = 0; \
-			                int servresult = select(FD_SETSIZE, &serverfds, NULL, NULL, &tvs); \
-			                if (servresult > 0) \
-			                { \
-			                        for (int x = 0; x != SERVERportCount; x++) \
-			                        { \
-			                                if ((me[x]) && (FD_ISSET (me[x]->fd, &serverfds))) \
-			                                { 
-
-
-#ifdef USE_EPOLL
-#define engine_server_populate epoll_server_populate
-#endif
-#ifdef USE_KQUEUE
-#define engine_server_populate kqueue_server_populate
-#endif
-#ifdef USE_SELECT
-#define engine_server_populate select_server_populate
-#endif
-
 // a list of variables used specifically by this engine
 
 #define kqueue_structs struct kevent ke; \
@@ -200,8 +152,7 @@
 
 #define epoll_structs struct epoll_event event[33];
 
-#define select_structs fd_set serverfds; \
-        fd_set sfd;
+#define select_structs fd_set sfd;
 
 #ifdef USE_EPOLL
 #define engine_structs epoll_structs
@@ -246,81 +197,6 @@
 #endif
 #ifdef USE_SELECT
 #define engine_init select_init
-#endif
-
-// how to fill the engine with a list of server fd's
-
-#define	select_server_fill	log(DEFAULT,"Using standard select socket engine.");
-
-#define epoll_server_fill        log(DEFAULT,"epoll socket engine is enabled. Filling listen list. boundPortcount=%d",boundPortCount); \
-			        for (count = 0; count < boundPortCount; count++) \
-			        { \
-			                struct epoll_event ev; \
-			                log(DEBUG,"epoll: Add listening socket to events, ep=%d socket=%d",lep,openSockfd[count]); \
-			                ev.events = EPOLLIN | EPOLLET; \
-			                ev.data.fd = openSockfd[count]; \
-			                int i = epoll_ctl(lep, EPOLL_CTL_ADD, openSockfd[count], &ev); \
-			                if (i < 0) \
-			                { \
-			                        log(DEFAULT,"main: add listen ports, epoll_ctl failed!"); \
-			                        printf("ERROR: could not initialise listening sockets in epoll list. Shutting down.\n"); \
-			                        Exit(ERROR); \
-			                } \
-			        } \
-			        for (int t = 0; t != SERVERportCount; t++) \
-			        { \
-			                struct epoll_event ev; \
-			                log(DEBUG,"epoll: Add listening server socket to events, ep=%d socket=%d",sep,me[t]->fd); \
-			                ev.events = EPOLLIN | EPOLLET; \
-			                ev.data.fd = me[t]->fd; \
-			                int i = epoll_ctl(sep, EPOLL_CTL_ADD, me[t]->fd, &ev); \
-			                if (i == -1) \
-			                { \
-			                        log(DEFAULT,"main: add server listen ports, epoll_ctl failed!"); \
-			                        printf("ERROR: could not initialise server listening sockets in epoll list. Shutting down.\n"); \
-			                        Exit(ERROR); \
-			                } \
-			        }
-
-#define kqueue_server_fill        log(DEFAULT,"kqueue socket engine is enabled. Filling listen list."); \
-        for (count = 0; count < boundPortCount; count++) \
-        { \
-                struct kevent ke; \
-                log(DEBUG,"kqueue: Add listening socket to events, kq=%d socket=%d",lkq,openSockfd[count]); \
-                EV_SET(&ke, openSockfd[count], EVFILT_READ, EV_ADD, 0, MaxConn, NULL); \
-                int i = kevent(lkq, &ke, 1, 0, 0, NULL); \
-                if (i == -1) \
-                { \
-                        log(DEFAULT,"main: add listen ports to kqueue failed!"); \
-                        printf("ERROR: could not initialise listening sockets in kqueue. Shutting down.\n"); \
-                        Exit(ERROR); \
-                } \
-        } \
-        for (int t = 0; t != SERVERportCount; t++) \
-        { \
-                struct kevent ke; \
-                if (me[t]) \
-                { \
-                        log(DEBUG,"kqueue: Add listening SERVER socket to events, kq=%d socket=%d",skq,me[t]->fd); \
-                        EV_SET(&ke, me[t]->fd, EVFILT_READ, EV_ADD, 0, MaxConn, NULL); \
-                        int i = kevent(skq, &ke, 1, 0, 0, NULL); \
-                        if (i == -1) \
-                        { \
-                                log(DEFAULT,"main: add server listen ports to kqueue failed!"); \
-                                printf("ERROR: could not initialise listening server sockets in kqueue. Shutting down.\n"); \
-                                Exit(ERROR); \
-                        } \
-                } \
-        }
-
-#ifdef USE_EPOLL
-#define engine_server_fill epoll_server_fill
-#endif
-#ifdef USE_KQUEUE
-#define engine_server_fill kqueue_server_fill
-#endif
-#ifdef USE_SELECT
-#define engine_server_fill select_server_fill
 #endif
 
 // how to delete a client fd from the engine
