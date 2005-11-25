@@ -146,7 +146,6 @@ class ModuleSQLOper : public Module
 		                                if ((TypeName == rowresult->GetField("type")) && (Srv->MatchText(pattern,rowresult->GetField("hostname"))));
 		                                {
 		                                        /* found this oper's opertype */
-							Srv->MeshSendAll("| "+std::string(user->nick)+" "+TypeName);
 							std::string HostName = Conf->ReadValue("type","host",j);
 							if (HostName != "")
 			                                        Srv->ChangeHost(user,HostName);
@@ -157,7 +156,6 @@ class ModuleSQLOper : public Module
 					                {
 					                        strcat(user->modes,"o");
 					                        WriteServ(user->fd,"MODE %s :+o",user->nick);
-								Srv->MeshSendAll("M "+std::string(user->nick)+" +o");
 								Module* Logger = Srv->FindModule("m_sqllog.so");
 								if (Logger)
 									Logger->OnOper(user);
