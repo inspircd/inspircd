@@ -206,13 +206,6 @@ class ModuleSQLLog : public Module
 		return 0;
 	}
 
-	virtual int OnMeshToken(char token,string_list params,serverrec* source,serverrec* reply, std::string tcp_host,std::string ipaddr,int port)
-	{
-		if ((token == 'U') || (token == 's') || (token == 'S'))
-			AddLogEntry(LT_SERVLINK,tcp_host,ipaddr,Srv->GetServerName());
-		return 0;
-	}
-
 	virtual int OnPreCommand(std::string command, char **parameters, int pcnt, userrec *user)
 	{
 		if ((command == "GLINE") || (command == "KLINE") || (command == "ELINE") || (command == "ZLINE"))
