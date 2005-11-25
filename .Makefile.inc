@@ -42,7 +42,9 @@ config:
 	@cp conf/inspire.rules $(CONPATH)/inspire.rules.example
 	@cp docs/*.example $(CONPATH)
 clean:
+	@echo Cleaning...
 	@rm -rvf src/*.so src/*.o src/inspircd src/modules/*.so src/modules/*.o *~ src/*~ src/modules/*~ src/modules/extra/*~
+	@echo Completed.
 
 modclean:
 	rm -rf modules/*.so
