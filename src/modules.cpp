@@ -59,6 +59,7 @@ using namespace std;
 #include "inspstring.h"
 #include "helperfuncs.h"
 #include "hashcomp.h"
+#include "socket.h"
 
 #ifdef USE_KQUEUE
 extern int kq;
@@ -73,6 +74,8 @@ extern std::vector<Module*> modules;
 extern std::vector<ircd_module*> factory;
 
 extern std::vector<std::string> include_stack;
+
+extern std::vector<InspSocket*> module_sockets;
 
 extern time_t TIME;
 

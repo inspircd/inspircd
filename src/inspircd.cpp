@@ -68,6 +68,7 @@ using namespace std;
 #include "helperfuncs.h"
 #include "hashcomp.h"
 #include "socketengine.h"
+#include "socket.h"
 
 int LogLevel = DEFAULT;
 char ServerName[MAXBUF];
@@ -105,6 +106,8 @@ bool AllowFounder = true;
 extern std::vector<Module*> modules;
 std::vector<std::string> module_names;
 extern std::vector<ircd_module*> factory;
+
+std::vector<InspSocket*> module_sockets;
 
 extern int MODCOUNT;
 int openSockfd[MAXSOCKS];
@@ -2735,29 +2738,20 @@ int InspIRCd(char** argv, int argc)
 
 		dns_poll();
 
+		for (std::vector<InspSocket*>::iterator a = module_sockets.begin(); a < module_sockets.end(); a++)
+		{
+			if (!a->Poll())
+			{
+				delete *a;
+				module_sockets.erase(a);
+				break;
+			}
+		}
+
 		// *FIX* Instead of closing sockets in kill_link when they receive the ERROR :blah line, we should queue
 		// them in a list, then reap the list every second or so.
 		if (((TIME % 5) == 0) && (!expire_run))
 		{
-			for (int i = 0; i < ConfValueEnum("link",&config_f); i++)
-			{
-				char Link_ServerName[MAXBUF],Link_AConn[MAXBUF];
-				ConfValue("link","name",i,Link_ServerName,&config_f);
-				ConfValue("link","autoconnect",i,Link_AConn,&config_f);
-				if ((Link_AConn[0]) && (!GotServer(Link_ServerName)))
-				{
-					autoconnects::iterator a = autoconns.find(std::string(Link_ServerName));
-					if (a != autoconns.end())
-					{
-						if (TIME > a->second)
-						{
-							ConnectServer(Link_ServerName,NULL);
-							a->second = TIME + atoi(Link_AConn);
-						}
-					}
-				}
-			}
-
 			expire_lines();
 			FOREACH_MOD OnBackgroundTimer(TIME);
 			expire_run = true;
@@ -2769,414 +2763,340 @@ int InspIRCd(char** argv, int argc)
 		// fix by brain - this must be below any manipulation of the hashmap by modules
 		user_hash::iterator count2 = clientlist.begin();
 
-		engine_server_populate;
-					char remotehost[MAXBUF],resolved[MAXBUF];
-					length = sizeof (client);
-					incomingSockfd = accept (me[x]->fd, (sockaddr *) &client, &length);
-					if (incomingSockfd != -1)
-					{
-						strlcpy(remotehost,(char *)inet_ntoa(client.sin_addr),MAXBUF);
-						if(CleanAndResolve(resolved, remotehost) != TRUE)
-						{
-							strlcpy(resolved,remotehost,MAXBUF);
-						}
-						// add to this connections ircd_connector vector
-						// *FIX* - we need the LOCAL port not the remote port in &client!
-						me[x]->AddIncoming(incomingSockfd,resolved,me[x]->port);
-					}
-				}
-			}
-		}
-     
-		std::deque<std::string> msgs;
-		std::deque<std::string> sums;
-		for (int x = 0; x < SERVERportCount; x++)
-		{
-			if (me[x])
-				me[x]->FlushWriteBuffers();
-			sums.clear();
-			msgs.clear();
-			if (me[x])
-			has_been_netsplit = false;
-			while (me[x]->RecvPacket(msgs, tcp_host, sums)) // returns 0 or more lines (can be multiple lines!)
-			{
-				if (has_been_netsplit)
-				{
-					log(DEBUG,"Netsplit detected in recvpacket, aborting");
-					goto label;
-				}
-				for (unsigned int ctr = 0; ctr < msgs.size(); ctr++)
-				{
-					strlcpy(tcp_msg,msgs[ctr].c_str(),MAXBUF);
-					strlcpy(tcp_sum,sums[ctr].c_str(),MAXBUF);
-					log(DEBUG,"Processing: %s",tcp_msg);
-					if (!tcp_msg[0])
-   					{
-						log(DEBUG,"Invalid string from %s [route%lu]",tcp_host,(unsigned long)x);
-						break;
-					}
-					// during a netburst, send all data to all other linked servers
-					if ((((nb_start>0) && (tcp_msg[0] != 'Y') && (tcp_msg[0] != 'X') && (tcp_msg[0] != 'F'))) || (is_uline(tcp_host)))
-					{
-						if (is_uline(tcp_host))
-						{
-							if ((tcp_msg[0] != 'Y') && (tcp_msg[0] != 'X') && (tcp_msg[0] != 'F'))
-							{
-								NetSendToAllExcept_WithSum(tcp_host,tcp_msg,tcp_sum);
-							}
-						}
-						else
-							NetSendToAllExcept_WithSum(tcp_host,tcp_msg,tcp_sum);
-					}
-		                        std::string msg = tcp_msg;
-		                        FOREACH_MOD OnPacketReceive(msg,tcp_host);
-		                        strlcpy(tcp_msg,msg.c_str(),MAXBUF);
-					if (me[x])
-						handle_link_packet(tcp_msg, tcp_host, me[x], tcp_sum);
-					if (!me[x]->FindHost(tcp_host))
-					{
-						log(DEBUG,"Connector gone, bailing!");
-						goto label;
-					}
-				}
-				goto label;
-			}
-		}
 	
-	while (count2 != clientlist.end())
-	{
-#ifdef USE_SELECT
-		FD_ZERO(&sfd);
-#endif
-
-		total_in_this_set = 0;
-
-		user_hash::iterator xcount = count2;
-		user_hash::iterator endingiter = count2;
-
-		if (count2 == clientlist.end()) break;
-
-		userrec* curr = NULL;
-
-		if (count2->second)
-			curr = count2->second;
-
-		if ((long)curr == -1)
-			goto label;
-
-		if ((curr) && (curr->fd != 0))
+		while (count2 != clientlist.end())
 		{
-#ifdef _POSIX_PRIORITY_SCHEDULING
-        sched_yield();
-#endif
-			// assemble up to 64 sockets into an fd_set
-			// to implement a pooling mechanism.
-			//
-			// This should be up to 64x faster than the
-			// old implementation.
 #ifdef USE_SELECT
-			while (total_in_this_set < 1024)
+			FD_ZERO(&sfd);
+#endif
+	
+			total_in_this_set = 0;
+
+			user_hash::iterator xcount = count2;
+			user_hash::iterator endingiter = count2;
+
+			if (count2 == clientlist.end()) break;
+
+			userrec* curr = NULL;
+
+			if (count2->second)
+				curr = count2->second;
+
+			if ((long)curr == -1)
+				goto label;
+
+			if ((curr) && (curr->fd != 0))
 			{
-				if (count2 != clientlist.end())
+#ifdef _POSIX_PRIORITY_SCHEDULING
+	        sched_yield();
+#endif
+				// assemble up to 64 sockets into an fd_set
+				// to implement a pooling mechanism.
+				//
+				// This should be up to 64x faster than the
+				// old implementation.
+#ifdef USE_SELECT
+				while (total_in_this_set < 1024)
 				{
-					curr = count2->second;
-					if ((long)curr == -1)
-						goto label;
-					int currfd = curr->fd;
-					// we don't check the state of remote users.
-					if ((currfd != -1) && (currfd != FD_MAGIC_NUMBER))
+					if (count2 != clientlist.end())
 					{
-						curr->FlushWriteBuf();
-						if (curr->GetWriteError() != "")
-						{
-							log(DEBUG,"InspIRCd: write error: %s",curr->GetWriteError().c_str());
-							kill_link(curr,curr->GetWriteError().c_str());
+						curr = count2->second;
+						if ((long)curr == -1)
 							goto label;
-						}
-
-						FD_SET (curr->fd, &sfd);
-
-						// registration timeout -- didnt send USER/NICK/HOST in the time specified in
-						// their connection class.
-						if (((unsigned)TIME > (unsigned)curr->timeout) && (curr->registered != 7)) 
+						int currfd = curr->fd;
+						// we don't check the state of remote users.
+						if ((currfd != -1) && (currfd != FD_MAGIC_NUMBER))
 						{
-						  	log(DEBUG,"InspIRCd: registration timeout: %s",curr->nick);
-							kill_link(curr,"Registration timeout");
-							goto label;
-						}
-						if ((TIME > curr->signon) && (curr->registered == 3) && (AllModulesReportReady(curr)))
-						{
-							log(DEBUG,"signon exceed, registered=3, and modules ready, OK");
-							curr->dns_done = true;
-							statsDnsBad++;
-							FullConnectUser(curr);
-                                                        if (fd_ref_table[currfd] != curr) // something changed, bail pronto
-								goto label;                                                        
-						}
-		                                if ((curr->dns_done) && (curr->registered == 3) && (AllModulesReportReady(curr))) // both NICK and USER... and DNS
-		                                {
-							log(DEBUG,"dns done, registered=3, and modules ready, OK");
-		                                        FullConnectUser(curr);
-                                                        if (fd_ref_table[currfd] != curr) // something changed, bail pronto
-                                                                goto label;
-		                                }
-						if ((TIME > curr->nping) && (isnick(curr->nick)) && (curr->registered == 7))
-						{
-							if ((!curr->lastping) && (curr->registered == 7))
+							curr->FlushWriteBuf();
+							if (curr->GetWriteError() != "")
 							{
-							  	log(DEBUG,"InspIRCd: ping timeout: %s",curr->nick);
-								kill_link(curr,"Ping timeout");
+								log(DEBUG,"InspIRCd: write error: %s",curr->GetWriteError().c_str());
+								kill_link(curr,curr->GetWriteError().c_str());
 								goto label;
 							}
-							Write(curr->fd,"PING :%s",ServerName);
-						  	log(DEBUG,"InspIRCd: pinging: %s",curr->nick);
-							curr->lastping = 0;
-							curr->nping = TIME+curr->pingmax;	// was hard coded to 120
+	
+							FD_SET (curr->fd, &sfd);
+	
+							// registration timeout -- didnt send USER/NICK/HOST in the time specified in
+							// their connection class.
+							if (((unsigned)TIME > (unsigned)curr->timeout) && (curr->registered != 7)) 
+							{
+							  	log(DEBUG,"InspIRCd: registration timeout: %s",curr->nick);
+								kill_link(curr,"Registration timeout");
+								goto label;
+							}
+							if ((TIME > curr->signon) && (curr->registered == 3) && (AllModulesReportReady(curr)))
+							{
+								log(DEBUG,"signon exceed, registered=3, and modules ready, OK");
+								curr->dns_done = true;
+								statsDnsBad++;
+								FullConnectUser(curr);
+       								if (fd_ref_table[currfd] != curr) // something changed, bail pronto
+									goto label;                                                        
+							}
+			                                if ((curr->dns_done) && (curr->registered == 3) && (AllModulesReportReady(curr))) // both NICK and USER... and DNS
+			                                {
+								log(DEBUG,"dns done, registered=3, and modules ready, OK");
+			                                        FullConnectUser(curr);
+								if (fd_ref_table[currfd] != curr) // something changed, bail pronto
+									goto label;
+		                                	}
+							if ((TIME > curr->nping) && (isnick(curr->nick)) && (curr->registered == 7))
+							{
+								if ((!curr->lastping) && (curr->registered == 7))
+								{
+								  	log(DEBUG,"InspIRCd: ping timeout: %s",curr->nick);
+									kill_link(curr,"Ping timeout");
+									goto label;
+								}
+								Write(curr->fd,"PING :%s",ServerName);
+							  	log(DEBUG,"InspIRCd: pinging: %s",curr->nick);
+								curr->lastping = 0;
+								curr->nping = TIME+curr->pingmax;	// was hard coded to 120
+							}
 						}
+						count2++;
+						total_in_this_set++;
 					}
-					count2++;
-					total_in_this_set++;
+					else break;
 				}
-				else break;
-			}
-	       		endingiter = count2;
-       			count2 = xcount; // roll back to where we were
+		       		endingiter = count2;
+	       			count2 = xcount; // roll back to where we were
 #else
-			// KQUEUE and EPOLL: We don't go through a loop to fill the fd_set so instead we must manually do this loop every now and again.
-			// TODO: We dont need to do all this EVERY loop iteration, tone down the visits to this if we're using kqueue.
-			cycle_iter++;
-			if (cycle_iter > 20) while (count2 != clientlist.end())
-			{
-				cycle_iter = 0;
-				if (count2 != clientlist.end())
+				// KQUEUE and EPOLL: We don't go through a loop to fill the fd_set so instead we must manually do this loop every now and again.
+				// TODO: We dont need to do all this EVERY loop iteration, tone down the visits to this if we're using kqueue.
+				cycle_iter++;
+				if (cycle_iter > 20) while (count2 != clientlist.end())
 				{
-                	                curr = count2->second;
-                                        if ((long)curr == -1)
-                                                goto label;
-					int currfd = curr->fd;
-        	                        // we don't check the state of remote users.
-	                                if ((currfd != -1) && (currfd != FD_MAGIC_NUMBER))
+					cycle_iter = 0;
+					if (count2 != clientlist.end())
 					{
-
-                                                curr->FlushWriteBuf();
-                                                if (curr->GetWriteError() != "")
-                                                {
-                                                        log(DEBUG,"InspIRCd: write error: %s",curr->GetWriteError().c_str());
-                                                        kill_link(curr,curr->GetWriteError().c_str());
-                                                        goto label;
-                                                }
-
-	                                        // registration timeout -- didnt send USER/NICK/HOST in the time specified in
-	                                        // their connection class.
-	                                        if (((unsigned)TIME > (unsigned)curr->timeout) && (curr->registered != 7))
-	                                        {
-	                                                log(DEBUG,"InspIRCd: registration timeout: %s",curr->nick);
-	                                                kill_link(curr,"Registration timeout");
-							goto label;
-
-	       	                                }
-	       	                                if ((TIME > curr->signon) && (curr->registered == 3) && (AllModulesReportReady(curr)))
-	       	                                {
-	                                                log(DEBUG,"signon exceed, registered=3, and modules ready, OK: %d %d",TIME,curr->signon);
-        	                                        curr->dns_done = true;
-	                                                statsDnsBad++;
-	                                                FullConnectUser(curr);
-                                                        if (fd_ref_table[currfd] != curr) // something changed, bail pronto
-                                                                goto label;
-        	                                }
-	                                        if ((curr->dns_done) && (curr->registered == 3) && (AllModulesReportReady(curr)))
-        	                                {
-	                                                log(DEBUG,"dns done, registered=3, and modules ready, OK");
-	                                                FullConnectUser(curr);
-                                                        if (fd_ref_table[currfd] != curr) // something changed, bail pronto
-                                                                goto label;
-	                                        }
-						if ((TIME > curr->nping) && (isnick(curr->nick)) && (curr->registered == 7))
+	                	                curr = count2->second;
+	                                        if ((long)curr == -1)
+	                                                goto label;
+						int currfd = curr->fd;
+	        	                        // we don't check the state of remote users.
+		                                if ((currfd != -1) && (currfd != FD_MAGIC_NUMBER))
 						{
-	                                         	if ((!curr->lastping) && (curr->registered == 7))
-	                                        	{
-	                                        	        log(DEBUG,"InspIRCd: ping timeout: %s",curr->nick);
-	                                        	        kill_link(curr,"Ping timeout");
-	                                        	        goto label;
-		                                       	}
-		                                       	Write(curr->fd,"PING :%s",ServerName);
-	                                        	log(DEBUG,"InspIRCd: pinging: %s",curr->nick);
-	                                        	curr->lastping = 0;
-	                                                curr->nping = TIME+curr->pingmax;       // was hard coded to 120
+	                                                curr->FlushWriteBuf();
+	                                                if (curr->GetWriteError() != "")
+	                                                {
+        	                                                log(DEBUG,"InspIRCd: write error: %s",curr->GetWriteError().c_str());
+	                                                        kill_link(curr,curr->GetWriteError().c_str());
+	                                                        goto label;
+	                                                }
+	
+		                                        // registration timeout -- didnt send USER/NICK/HOST in the time specified in
+		                                        // their connection class.
+		                                        if (((unsigned)TIME > (unsigned)curr->timeout) && (curr->registered != 7))
+		                                        {
+		                                                log(DEBUG,"InspIRCd: registration timeout: %s",curr->nick);
+		                                                kill_link(curr,"Registration timeout");
+								goto label;
+	
+		       	                                }
+		       	                                if ((TIME > curr->signon) && (curr->registered == 3) && (AllModulesReportReady(curr)))
+		       	                                {
+		                                                log(DEBUG,"signon exceed, registered=3, and modules ready, OK: %d %d",TIME,curr->signon);
+	        	                                        curr->dns_done = true;
+		                                                statsDnsBad++;
+		                                                FullConnectUser(curr);
+	                                                        if (fd_ref_table[currfd] != curr) // something changed, bail pronto
+	                                                                goto label;
+	        	                                }
+		                                        if ((curr->dns_done) && (curr->registered == 3) && (AllModulesReportReady(curr)))
+	        	                                {
+		                                                log(DEBUG,"dns done, registered=3, and modules ready, OK");
+		                                                FullConnectUser(curr);
+	                                                        if (fd_ref_table[currfd] != curr) // something changed, bail pronto
+	                                                                goto label;
+		                                        }
+							if ((TIME > curr->nping) && (isnick(curr->nick)) && (curr->registered == 7))
+							{
+		                                         	if ((!curr->lastping) && (curr->registered == 7))
+		                                        	{
+		                                        	        log(DEBUG,"InspIRCd: ping timeout: %s",curr->nick);
+		                                        	        kill_link(curr,"Ping timeout");
+		                                        	        goto label;
+			                                       	}
+			                                       	Write(curr->fd,"PING :%s",ServerName);
+		                                        	log(DEBUG,"InspIRCd: pinging: %s",curr->nick);
+		                                        	curr->lastping = 0;
+		                                                curr->nping = TIME+curr->pingmax;       // was hard coded to 120
+							}
 						}
 					}
+					else break;
+					count2++;
 				}
-				else break;
-				count2++;
-			}
-			// increment the counter right to the end of the list, as kqueue processes everything in one go
+				// increment the counter right to the end of the list, as kqueue processes everything in one go
 #endif
         
-        		v = 0;
-			engine_fill;
+	        		v = 0;
+				engine_fill;
 
 #ifdef _POSIX_PRIORITY_SCHEDULING
-				sched_yield();
+					sched_yield();
 #endif
-				result = EAGAIN;
-				if (engine_check)
-				{
-					log(DEBUG,"Data waiting on socket %d",cu->fd);
-			                int MOD_RESULT = 0;
-					int result2 = 0;
-			                FOREACH_RESULT(OnRawSocketRead(cu->fd,data,65535,result2));
-				        if (!MOD_RESULT)
+					result = EAGAIN;
+					if (engine_check)
 					{
-						result = cu->ReadData(data, 65535);
-					}
-					else
-					{
-						log(DEBUG,"Data result returned by module: %d",MOD_RESULT);
-						result = result2;
-					}
-					log(DEBUG,"Read result: %d",result);
-					if (result)
-					{
-						statsRecv += result;
-						// perform a check on the raw buffer as an array (not a string!) to remove
-						// characters 0 and 7 which are illegal in the RFC - replace them with spaces.
-						// hopefully this should stop even more people whining about "Unknown command: *"
-						for (int checker = 0; checker < result; checker++)
+						log(DEBUG,"Data waiting on socket %d",cu->fd);
+				                int MOD_RESULT = 0;
+						int result2 = 0;
+				                FOREACH_RESULT(OnRawSocketRead(cu->fd,data,65535,result2));
+					        if (!MOD_RESULT)
 						{
-							if ((data[checker] == 0) || (data[checker] == 7))
-								data[checker] = ' ';
+							result = cu->ReadData(data, 65535);
 						}
-						if (result > 0)
-							data[result] = '\0';
-						userrec* current = cu;
-						int currfd = current->fd;
-						int floodlines = 0;
-						// add the data to the users buffer
-						if (result > 0)
-						if (!current->AddBuffer(data))
+						else
 						{
-							// AddBuffer returned false, theres too much data in the user's buffer and theyre up to no good.
-                                                        if (current->registered == 7)
-                                                        {
-                                                                kill_link(current,"RecvQ exceeded");
-                                                        }
-                                                        else
-                                                        {
-                                                                WriteOpers("*** Excess flood from %s",current->ip);
-                                                                log(DEFAULT,"Excess flood from: %s",current->ip);
-                                                                add_zline(120,ServerName,"Flood from unregistered connection",current->ip);
-                                                                apply_lines();
-                                                        }
-                                                        goto label;
+							log(DEBUG,"Data result returned by module: %d",MOD_RESULT);
+							result = result2;
 						}
-						if (current->recvq.length() > (unsigned)NetBufferSize)
+						log(DEBUG,"Read result: %d",result);
+						if (result)
 						{
-							if (current->registered == 7)
+							statsRecv += result;
+							// perform a check on the raw buffer as an array (not a string!) to remove
+							// characters 0 and 7 which are illegal in the RFC - replace them with spaces.
+							// hopefully this should stop even more people whining about "Unknown command: *"
+							for (int checker = 0; checker < result; checker++)
 							{
-								kill_link(current,"RecvQ exceeded");
+								if ((data[checker] == 0) || (data[checker] == 7))
+									data[checker] = ' ';
 							}
-							else
+							if (result > 0)
+								data[result] = '\0';
+							userrec* current = cu;
+							int currfd = current->fd;
+							int floodlines = 0;
+							// add the data to the users buffer
+							if (result > 0)
+							if (!current->AddBuffer(data))
 							{
-								WriteOpers("*** Excess flood from %s",current->ip);
-								log(DEFAULT,"Excess flood from: %s",current->ip);
-								add_zline(120,ServerName,"Flood from unregistered connection",current->ip);
-								apply_lines();
-							}
-							goto label;
-						}
-						// while there are complete lines to process...
-						while (current->BufferIsReady())
-						{
-							floodlines++;
-							if (TIME > current->reset_due)
-							{
-								current->reset_due = TIME + current->threshold;
-								current->lines_in = 0;
-							}
-							current->lines_in++;
-							if (current->lines_in > current->flood)
-							{
-								log(DEFAULT,"Excess flood from: %s!%s@%s",current->nick,current->ident,current->host);
-								WriteOpers("*** Excess flood from: %s!%s@%s",current->nick,current->ident,current->host);
-								kill_link(current,"Excess flood");
-								goto label;
-							}
-							if ((floodlines > current->flood) && (current->flood != 0))
-							{
+								// AddBuffer returned false, theres too much data in the user's buffer and theyre up to no good.
 								if (current->registered == 7)
 								{
-								  	log(DEFAULT,"Excess flood from: %s!%s@%s",current->nick,current->ident,current->host);
-								  	WriteOpers("*** Excess flood from: %s!%s@%s",current->nick,current->ident,current->host);
-									kill_link(current,"Excess flood");
+									kill_link(current,"RecvQ exceeded");
 								}
 								else
 								{
+									WriteOpers("*** Excess flood from %s",current->ip);
+	                                                                log(DEFAULT,"Excess flood from: %s",current->ip);
 	                                                                add_zline(120,ServerName,"Flood from unregistered connection",current->ip);
-        	                                                        apply_lines();
+	                                                                apply_lines();
+	                                                        }
+	                                                        goto label;
+							}
+							if (current->recvq.length() > (unsigned)NetBufferSize)
+							{
+								if (current->registered == 7)
+								{
+									kill_link(current,"RecvQ exceeded");
+								}
+								else
+								{
+									WriteOpers("*** Excess flood from %s",current->ip);
+									log(DEFAULT,"Excess flood from: %s",current->ip);
+									add_zline(120,ServerName,"Flood from unregistered connection",current->ip);
+									apply_lines();
 								}
 								goto label;
 							}
-							char sanitized[MAXBUF];
-							// use GetBuffer to copy single lines into the sanitized string
-							std::string single_line = current->GetBuffer();
-                                                        current->bytes_in += single_line.length();
-                                                        current->cmds_in++;
-							if (single_line.length()>512)
+							// while there are complete lines to process...
+							while (current->BufferIsReady())
 							{
-								log(DEFAULT,"Excess flood from: %s!%s@%s",current->nick,current->ident,current->host);
-								WriteOpers("*** Excess flood from: %s!%s@%s",current->nick,current->ident,current->host);
-								kill_link(current,"Excess flood");
-								goto label;
-							}
-							strlcpy(sanitized,single_line.c_str(),MAXBUF);
-							if (*sanitized)
-							{
-								userrec* old_comp = fd_ref_table[currfd];
-								// we're gonna re-scan to check if the nick is gone, after every
-								// command - if it has, we're gonna bail
-								process_buffer(sanitized,current);
-								// look for the user's record in case it's changed... if theyve quit,
-								// we cant do anything more with their buffer, so bail.
-								// there used to be an ugly, slow loop here. Now we have a reference
-								// table, life is much easier (and FASTER)
-								userrec* new_comp = fd_ref_table[currfd];
-								if ((currfd < 0) || (!fd_ref_table[currfd]) || (old_comp != new_comp))
+								floodlines++;
+								if (TIME > current->reset_due)
+								{
+									current->reset_due = TIME + current->threshold;
+									current->lines_in = 0;
+								}
+								current->lines_in++;
+								if (current->lines_in > current->flood)
+								{
+									log(DEFAULT,"Excess flood from: %s!%s@%s",current->nick,current->ident,current->host);
+									WriteOpers("*** Excess flood from: %s!%s@%s",current->nick,current->ident,current->host);
+									kill_link(current,"Excess flood");
 									goto label;
-
+								}
+								if ((floodlines > current->flood) && (current->flood != 0))
+								{
+									if (current->registered == 7)
+									{
+									  	log(DEFAULT,"Excess flood from: %s!%s@%s",current->nick,current->ident,current->host);
+									  	WriteOpers("*** Excess flood from: %s!%s@%s",current->nick,current->ident,current->host);
+										kill_link(current,"Excess flood");
+									}
+									else
+									{
+		                                                                add_zline(120,ServerName,"Flood from unregistered connection",current->ip);
+	        	                                                        apply_lines();
+									}
+									goto label;
+								}
+								char sanitized[MAXBUF];
+								// use GetBuffer to copy single lines into the sanitized string
+								std::string single_line = current->GetBuffer();
+	                                                        current->bytes_in += single_line.length();
+	                                                        current->cmds_in++;
+								if (single_line.length()>512)
+								{
+									log(DEFAULT,"Excess flood from: %s!%s@%s",current->nick,current->ident,current->host);
+									WriteOpers("*** Excess flood from: %s!%s@%s",current->nick,current->ident,current->host);
+									kill_link(current,"Excess flood");
+									goto label;
+								}
+								strlcpy(sanitized,single_line.c_str(),MAXBUF);
+								if (*sanitized)
+								{
+									userrec* old_comp = fd_ref_table[currfd];
+									// we're gonna re-scan to check if the nick is gone, after every
+									// command - if it has, we're gonna bail
+									process_buffer(sanitized,current);
+									// look for the user's record in case it's changed... if theyve quit,
+									// we cant do anything more with their buffer, so bail.
+									// there used to be an ugly, slow loop here. Now we have a reference
+									// table, life is much easier (and FASTER)
+									userrec* new_comp = fd_ref_table[currfd];
+									if ((currfd < 0) || (!fd_ref_table[currfd]) || (old_comp != new_comp))
+										goto label;
+	
+								}
 							}
+							goto label;
 						}
-						goto label;
-					}
 
-					if ((result == -1) && (errno != EAGAIN) && (errno != EINTR))
-					{
-						log(DEBUG,"killing: %s",cu->nick);
-						kill_link(cu,strerror(errno));
-						goto label;
+						if ((result == -1) && (errno != EAGAIN) && (errno != EINTR))
+						{
+							log(DEBUG,"killing: %s",cu->nick);
+							kill_link(cu,strerror(errno));
+							goto label;
+						}
 					}
-				}
-				// result EAGAIN means nothing read
-				if (result == EAGAIN)
-				{
-				}
-				else
-				if (result == 0)
-				{
-					engine_cleanup;
-				}
-				else if (result > 0)
-				{
+					// result EAGAIN means nothing read
+					if (result == EAGAIN)
+					{
+					}
+					else
+					if (result == 0)
+					{
+						engine_cleanup;
+					}
+					else if (result > 0)
+					{
+					}
 				}
 			}
+			for (int q = 0; q < total_in_this_set; q++)
+			{
+				count2++;
+			}
 		}
-		for (int q = 0; q < total_in_this_set; q++)
-		{
-			count2++;
-		}
-	}
-
+	
 #ifdef _POSIX_PRIORITY_SCHEDULING
-        sched_yield();
+		sched_yield();
 #endif
 	
 

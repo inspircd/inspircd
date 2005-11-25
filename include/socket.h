@@ -21,6 +21,7 @@
 #include <string>
 
 enum InspSocketState { I_DISCONNECTED, I_CONNECTING, I_CONNECTED, I_LISTENING, I_ERROR };
+enum InspSocketError { I_ERR_TIMEOUT, I_ERR_SOCKET, I_ERR_CONNECT };
 
 class InspSocket
 {
@@ -33,15 +34,22 @@ private:
         in_addr addy;
         time_t timeout_end;
         bool timeout;
+	pollfd polls;
+	char ibuf[1024];
 public:
 	InspSocket();
 	InspSocket(std::string host, int port, bool listening, unsigned long maxtime);
-	virtual int OnConnected();
-	virtual int OnError();
+	virtual bool OnConnected();
+	virtual void OnError(InspSocketError e);
 	virtual int OnDisconnect();
-	virtual int OnDataReady();
+	virtual bool OnDataReady();
+	virtual void OnTimeout();
+	virtual void OnClose();
+	virtual char* Read();
+	virtual int Write(std::string data);
 	virtual int OnIncomingConnection();
 	void SetState(InspSocketState s);
-	void EngineTrigger();
+	bool Poll();
+	virtual void Close();
 	virtual ~InspSocket();
 };
