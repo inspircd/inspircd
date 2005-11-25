@@ -78,14 +78,10 @@ extern std::vector<std::string> module_names;
 
 extern int boundPortCount;
 extern int portCount;
-extern int SERVERportCount;
+
 extern int ports[MAXSOCKS];
-extern int defaultRoute;
 
-extern std::vector<long> auth_cookies;
 extern std::stringstream config_f;
-
-extern serverrec* me[32];
 
 extern FILE *log_file;
 
@@ -309,36 +305,6 @@ bool zline_make_global(const char* ipaddr)
 	}
 	return false;
 }
-
-void sync_xlines(serverrec* serv, char* tcp_host)
-{
-	char data[MAXBUF];
-	
-	// for zlines and qlines, we should first check if theyre global...
-	for (std::vector<ZLine>::iterator i = zlines.begin(); i != zlines.end(); i++)
-	{
-		if (i->is_global)
-		{
-			snprintf(data,MAXBUF,"%s } %s %s %lu %lu :%s",CreateSum().c_str(),i->ipaddr,i->source,(unsigned long)i->set_time,(unsigned long)i->duration,i->reason);
-			serv->SendPacket(data,tcp_host);
-		}
-	}
-	for (std::vector<QLine>::iterator i = qlines.begin(); i != qlines.end(); i++)
-	{
-		if (i->is_global)
-		{
-			snprintf(data,MAXBUF,"%s { %s %s %lu %lu :%s",CreateSum().c_str(),i->nick,i->source,(unsigned long)i->set_time,(unsigned long)i->duration,i->reason);
-			serv->SendPacket(data,tcp_host);
-		}
-	}
-	// glines are always global, so no need to check
-	for (std::vector<GLine>::iterator i = glines.begin(); i != glines.end(); i++)
-	{
-		snprintf(data,MAXBUF,"%s # %s %s %lu %lu :%s",CreateSum().c_str(),i->hostmask,i->source,(unsigned long)i->set_time,(unsigned long)i->duration,i->reason);
-		serv->SendPacket(data,tcp_host);
-	}
-}
-
 
 // deletes a z:line, returns true if the line existed and was removed
 

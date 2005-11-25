@@ -140,7 +140,7 @@ userrec* fd_ref_table[65536];
 
 int statsAccept = 0, statsRefused = 0, statsUnknown = 0, statsCollisions = 0, statsDns = 0, statsDnsGood = 0, statsDnsBad = 0, statsConnects = 0, statsSent= 0, statsRecv = 0;
 
-serverrec* me[32];
+
 
 FILE *log_file;
 
@@ -160,7 +160,7 @@ struct linger linger = { 0 };
 char MyExecutable[1024];
 int boundPortCount = 0;
 int portCount = 0, SERVERportCount = 0, ports[MAXSOCKS];
-int defaultRoute = 0;
+
 char ModPath[MAXBUF];
 
 /* prototypes */
@@ -172,7 +172,6 @@ char* Passwd(userrec *user);
 bool IsDenied(userrec *user);
 void AddWhoWas(userrec* u);
 
-std::vector<long> auth_cookies;
 std::stringstream config_f(stringstream::in | stringstream::out);
 
 std::vector<userrec*> all_opers;

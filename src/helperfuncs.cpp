@@ -36,7 +36,6 @@ using namespace std;
 #include <stdarg.h>
 #include "connection.h"
 #include "users.h"
-#include "servers.h"
 #include "ctables.h"
 #include "globals.h"
 #include "modules.h"
@@ -66,7 +65,7 @@ extern int LogLevel;
 
 extern std::stringstream config_f;
 
-extern serverrec* me[32];
+
 
 extern FILE *log_file;
 extern userrec* fd_ref_table[65536];
@@ -378,19 +377,6 @@ void ChanExceptSender(chanrec* Ptr, userrec* user, char* text, ...)
 
 std::string GetServerDescription(char* servername)
 {
-        for (int j = 0; j < 32; j++)
-        {
-                if (me[j] != NULL)
-                {
-                        for (unsigned int k = 0; k < me[j]->connectors.size(); k++)
-                        {
-                                if (!strcasecmp(me[j]->connectors[k].GetServerName().c_str(),servername))
-                                {
-                                        return me[j]->connectors[k].GetDescription();
-                                }
-                        }
-                }
-        }
 	return ServerDesc; // not a remote server that can be found, it must be me.
 }
 
@@ -1097,21 +1083,7 @@ long chancount(void)
 
 long count_servs(void)
 {
-        int c = 0;
-        for (int i = 0; i < 32; i++)
-        {
-                if (me[i] != NULL)
-                {
-                        for (vector<ircd_connector>::iterator j = me[i]->connectors.begin(); j != me[i]->connectors.end(); j++)
-                        {
-                                if (strcasecmp(j->GetServerName().c_str(),ServerName))
-                                {
-                                        c++;
-                                }
-                        }
-                }
-        }
-        return c;
+        return 0;
 }
 
 long servercount(void)
@@ -1183,25 +1155,7 @@ bool AllModulesReportReady(userrec* user)
 
 char islast(const char* s)
 {
-        char c = '`';
-        for (int j = 0; j < 32; j++)
-        {
-                if (me[j] != NULL)
-                {
-                        for (unsigned int k = 0; k < me[j]->connectors.size(); k++)
-                        {
-                                if (strcasecmp(me[j]->connectors[k].GetServerName().c_str(),s))
-                                {
-                                        c = '|';
-                                }
-                                if (!strcasecmp(me[j]->connectors[k].GetServerName().c_str(),s))
-                                {
-                                        c = '`';
-                                }
-                        }
-                }
-        }
-        return c;
+        return '+';
 }
 
 long map_count(const char* s)

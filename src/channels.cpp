@@ -85,14 +85,10 @@ extern std::vector<std::string> module_names;
 
 extern int boundPortCount;
 extern int portCount;
-extern int SERVERportCount;
+
 extern int ports[MAXSOCKS];
-extern int defaultRoute;
 
-extern std::vector<long> auth_cookies;
 extern std::stringstream config_f;
-
-extern serverrec* me[32];
 
 extern FILE *log_file;
 

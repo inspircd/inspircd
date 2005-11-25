@@ -154,6 +154,4 @@ void zline_set_creation_time(char* ip, time_t create_time);
 bool zline_make_global(const char* ipaddr);
 bool qline_make_global(const char* nickname);
 
-void sync_xlines(serverrec* serv, char* tcp_host);
-
 #endif

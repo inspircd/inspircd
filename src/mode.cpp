@@ -35,7 +35,6 @@ using namespace std;
 #include <deque>
 #include "connection.h"
 #include "users.h"
-#include "servers.h"
 #include "ctables.h"
 #include "globals.h"
 #include "modules.h"
