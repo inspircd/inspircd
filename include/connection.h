@@ -97,7 +97,10 @@ class connection : public Extensible
 	
 	/** Default constructor
 	 */
-	connection();
+	connection()
+	{
+		this->fd = -1;
+	}
 };
 
 
