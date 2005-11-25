@@ -1540,7 +1540,6 @@ void handle_oper(char **parameters, int pcnt, userrec *user)
 	int j;
 	bool found = false;
 	bool fail2 = false;
-	char global[MAXBUF];
 
 	snprintf(TheHost,MAXBUF,"%s@%s",user->ident,user->host);
 
