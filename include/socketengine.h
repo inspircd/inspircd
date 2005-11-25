@@ -280,20 +280,6 @@
 			                        printf("ERROR: could not initialise listening sockets in epoll list. Shutting down.\n"); \
 			                        Exit(ERROR); \
 			                } \
-			        } \
-			        for (int t = 0; t != SERVERportCount; t++) \
-			        { \
-			                struct epoll_event ev; \
-			                log(DEBUG,"epoll: Add listening server socket to events, ep=%d socket=%d",sep,me[t]->fd); \
-			                ev.events = EPOLLIN | EPOLLET; \
-			                ev.data.fd = me[t]->fd; \
-			                int i = epoll_ctl(sep, EPOLL_CTL_ADD, me[t]->fd, &ev); \
-			                if (i == -1) \
-			                { \
-			                        log(DEFAULT,"main: add server listen ports, epoll_ctl failed!"); \
-			                        printf("ERROR: could not initialise server listening sockets in epoll list. Shutting down.\n"); \
-			                        Exit(ERROR); \
-			                } \
 			        }
 
 #define kqueue_server_fill        log(DEFAULT,"kqueue socket engine is enabled. Filling listen list."); \
@@ -308,22 +294,6 @@
                         log(DEFAULT,"main: add listen ports to kqueue failed!"); \
                         printf("ERROR: could not initialise listening sockets in kqueue. Shutting down.\n"); \
                         Exit(ERROR); \
-                } \
-        } \
-        for (int t = 0; t != SERVERportCount; t++) \
-        { \
-                struct kevent ke; \
-                if (me[t]) \
-                { \
-                        log(DEBUG,"kqueue: Add listening SERVER socket to events, kq=%d socket=%d",skq,me[t]->fd); \
-                        EV_SET(&ke, me[t]->fd, EVFILT_READ, EV_ADD, 0, MaxConn, NULL); \
-                        int i = kevent(skq, &ke, 1, 0, 0, NULL); \
-                        if (i == -1) \
-                        { \
-                                log(DEFAULT,"main: add server listen ports to kqueue failed!"); \
-                                printf("ERROR: could not initialise listening server sockets in kqueue. Shutting down.\n"); \
-                                Exit(ERROR); \
-                        } \
                 } \
         }
 
