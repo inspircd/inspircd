@@ -79,7 +79,7 @@ void handle_watch(char **parameters, int pcnt, userrec *user)
 		                        }
 		                }
 			}
-			if (!strcasecmp(nick,"L"))
+			else if (!strcasecmp(nick,"L"))
 			{
 		                for (watchlist::iterator q = watches.begin(); q != watches.end(); q++)
 		                {
@@ -94,7 +94,7 @@ void handle_watch(char **parameters, int pcnt, userrec *user)
 		                }
 		                WriteServ(user->fd,"607 %s :End of WATCH list",user->nick);
 			}
-			if (!strcasecmp(nick,"S"))
+			else if (!strcasecmp(nick,"S"))
 			{
 				std::string list = "";
 		                for (watchlist::iterator q = watches.begin(); q != watches.end(); q++)
@@ -110,7 +110,7 @@ void handle_watch(char **parameters, int pcnt, userrec *user)
 				WriteServ(user->fd,"606 %s :%s",user->nick,l);
 				WriteServ(user->fd,"607 %s :End of WATCH S",user->nick);
 			}
-			if (nick[0] == '-')
+			else if (nick[0] == '-')
 			{
 				// removing an item from the list
 				nick++;
