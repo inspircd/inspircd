@@ -1149,10 +1149,6 @@ void process_modes(char **parameters,userrec* user,chanrec *chan,int status, int
 				if (!silent)
 				{
 					WriteChannelWithServ(ServerName,chan,"MODE %s %s",chan->name,outstr);
-					// M token for a usermode must go to all servers
-					char buffer[MAXBUF];
-					snprintf(buffer,MAXBUF,"M %s %s",chan->name, outstr);
-					NetSendToAll(buffer);
 				}
 					
 			}
@@ -1161,10 +1157,6 @@ void process_modes(char **parameters,userrec* user,chanrec *chan,int status, int
 				if (!silent)
 				{
 					WriteChannel(chan,user,"MODE %s %s",chan->name,outstr);
-					// M token for a usermode must go to all servers
-					char buffer[MAXBUF];
-					snprintf(buffer,MAXBUF,"m %s %s %s",user->nick,chan->name, outstr);
-					NetSendToAll(buffer);
 				}
 			}
 		}
@@ -1468,10 +1460,6 @@ void handle_mode(char **parameters, int pcnt, userrec *user)
 			if (strcmp(b,""))
 			{
 				WriteTo(user, dest, "MODE %s :%s", dest->nick, b);
-				// M token for a usermode must go to all servers
-				char buffer[MAXBUF];
-				snprintf(buffer,MAXBUF,"m %s %s %s",user->nick, dest->nick, b);
-				NetSendToAll(buffer);
 			}
 
 			if (strlen(dmodes)>MAXMODES)
@@ -1725,10 +1713,6 @@ void server_mode(char **parameters, int pcnt, userrec *user)
 			if (strcmp(b,""))
 			{
 				WriteTo(user, dest, "MODE %s :%s", dest->nick, b);
-				// M token for a usermode must go to all servers
-				char buffer[MAXBUF];
-				snprintf(buffer,MAXBUF,"m %s %s %s",user->nick, dest->nick, b);
-				NetSendToAll(buffer);
 			}
 			
 			if (strlen(dmodes)>MAXMODES)

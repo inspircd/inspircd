@@ -384,10 +384,6 @@ int ircd_connector::GetState()
 void ircd_connector::SetState(int newstate)
 {
 	this->state = newstate;
-	if (state == STATE_DISCONNECTED)
-	{
-		NetSendMyRoutingTable();
-	}
 }
 
 void ircd_connector::CloseConnection()

@@ -741,21 +741,6 @@ chanrec* add_channel(userrec *user, const char* cn, const char* key, bool overri
 			Ptr->AddUser((char*)user);
 			WriteChannel(Ptr,user,"JOIN :%s",Ptr->name);
 			
-			if (!override) // we're not overriding... so this isnt part of a netburst, broadcast it.
-			{
-				// use the stamdard J token with no privilages.
-				char buffer[MAXBUF];
-				if (created == 2)
-				{
-					snprintf(buffer,MAXBUF,"J %s @%s",user->nick,Ptr->name);
-				}
-				else
-				{
-					snprintf(buffer,MAXBUF,"J %s %s",user->nick,Ptr->name);
-				}
-				NetSendToAll(buffer);
-			}
-
 			log(DEBUG,"Sent JOIN to client");
 
 			if (Ptr->topicset)
@@ -812,25 +797,9 @@ chanrec* del_channel(userrec *user, const char* cname, const char* reason, bool 
 			if (reason)
 			{
 				WriteChannel(Ptr,user,"PART %s :%s",Ptr->name, reason);
-
-				if (!local)
-				{
-					char buffer[MAXBUF];
-					snprintf(buffer,MAXBUF,"L %s %s :%s",user->nick,Ptr->name,reason);
-					NetSendToAll(buffer);
-				}
-
-				
 			}
 			else
 			{
-				if (!local)
-				{
-					char buffer[MAXBUF];
-					snprintf(buffer,MAXBUF,"L %s %s :",user->nick,Ptr->name);
-					NetSendToAll(buffer);
-				}
-			
 				WriteChannel(Ptr,user,"PART :%s",Ptr->name);
 			}
 			user->chans[i].uc_modes = 0;
@@ -1132,11 +1101,6 @@ void kill_link(userrec *user,const char* r)
 	if (user->registered == 7) {
 		FOREACH_MOD OnUserQuit(user);
 		WriteCommonExcept(user,"QUIT :%s",reason);
-
-		// Q token must go to ALL servers!!!
-		char buffer[MAXBUF];
-		snprintf(buffer,MAXBUF,"Q %s :%s",user->nick,reason);
-		NetSendToAll(buffer);
 	}
 
 	user->FlushWriteBuf();
@@ -1192,11 +1156,6 @@ void kill_link_silent(userrec *user,const char* r)
 	if (user->registered == 7) {
 		FOREACH_MOD OnUserQuit(user);
 		WriteCommonExcept(user,"QUIT :%s",reason);
-
-		// Q token must go to ALL servers!!!
-		char buffer[MAXBUF];
-		snprintf(buffer,MAXBUF,"Q %s :%s",user->nick,reason);
-		NetSendToAll(buffer);
 	}
 
 	FOREACH_MOD OnUserDisconnect(user);
@@ -1565,10 +1524,6 @@ void FullConnectUser(userrec* user)
         }
         ShowMOTD(user);
 
-        char buffer[MAXBUF];
-	snprintf(buffer,MAXBUF,"N %lu %s %s %s %s +%s %s %s :%s",(unsigned long)user->age,user->nick,user->host,user->dhost,user->ident,user->modes,user->ip,ServerName,user->fullname);
-        NetSendToAll(buffer);
-
 	// fix by brain: these should be AFTER the N token, so other servers know what the HELL we're on about... :)
 	FOREACH_MOD OnUserConnect(user);
 	FOREACH_MOD OnGlobalConnect(user);
@@ -1682,55 +1637,6 @@ void call_handler(const char* commandname,char **parameters, int pcnt, userrec *
 			}
 		}
 }
-
-void DoSplitEveryone()
-{
-	bool go_again = true;
-	while (go_again)
-	{
-		go_again = false;
-		for (int i = 0; i < 32; i++)
-		{
-			if (me[i] != NULL)
-			{
-				for (vector<ircd_connector>::iterator j = me[i]->connectors.begin(); j != me[i]->connectors.end(); j++)
-				{
-					if (strcasecmp(j->GetServerName().c_str(),ServerName))
-					{
-						j->routes.clear();
-						j->CloseConnection();
-						me[i]->connectors.erase(j);
-						go_again = true;
-						break;
-					}
-				}
-			}
-		}
-	}
-	log(DEBUG,"Removed server. Will remove clients...");
-	// iterate through the userlist and remove all users on this server.
-	// because we're dealing with a mesh, we dont have to deal with anything
-	// "down-route" from this server (nice huh)
-	go_again = true;
-	char reason[MAXBUF];
-	while (go_again)
-	{
-		go_again = false;
-		for (user_hash::const_iterator u = clientlist.begin(); u != clientlist.end(); u++)
-		{
-			if (strcasecmp(u->second->server,ServerName))
-			{
-				snprintf(reason,MAXBUF,"%s %s",ServerName,u->second->server);
-				kill_link(u->second,reason);
-				go_again = true;
-				break;
-			}
-		}
-	}
-	has_been_netsplit = true;
-	log(DEBUG,"Clients removed.");
-}
-
 
 
 void force_nickchange(userrec* user,const char* newnick)
@@ -2154,218 +2060,6 @@ void process_buffer(const char* cmdbuf,userrec *user)
 	}
 }
 
-void DoSync(serverrec* serv, char* tcp_host)
-{
-	char data[MAXBUF];
-	log(DEBUG,"Sending sync");
-	// send start of sync marker: Y <timestamp>
-	// at this point the ircd receiving it starts broadcasting this netburst to all ircds
-	// except the ones its receiving it from.
-	snprintf(data,MAXBUF,"%s Y %lu",CreateSum().c_str(),(unsigned long)TIME);
-	serv->SendPacket(data,tcp_host);
-	// send users and channels
-
-	NetSendMyRoutingTable();
-
-	// send all routing table and uline voodoo. The ordering of these commands is IMPORTANT!
-        for (int j = 0; j < 32; j++)
-        {
-                if (me[j] != NULL)
-                {
-                        for (unsigned int k = 0; k < me[j]->connectors.size(); k++)
-                        {
-                                if (is_uline(me[j]->connectors[k].GetServerName().c_str()))
-                                {
-                                        snprintf(data,MAXBUF,"%s H %s",CreateSum().c_str(),me[j]->connectors[k].GetServerName().c_str());
-                                        serv->SendPacket(data,tcp_host);
-                                }
-                        }
-                }
-        }
-
-	// send our version for the remote side to cache
-	snprintf(data,MAXBUF,"%s v %s %s",CreateSum().c_str(),ServerName,GetVersionString().c_str());
-	serv->SendPacket(data,tcp_host);
-
-	// sync the users and channels, give the modules a look-in.
-	for (user_hash::iterator u = clientlist.begin(); u != clientlist.end(); u++)
-	{
-		snprintf(data,MAXBUF,"%s N %lu %s %s %s %s +%s %s %s :%s",CreateSum().c_str(),(unsigned long)u->second->age,u->second->nick,u->second->host,u->second->dhost,u->second->ident,u->second->modes,u->second->ip,u->second->server,u->second->fullname);
-		serv->SendPacket(data,tcp_host);
-		if (strchr(u->second->modes,'o'))
-		{
-			snprintf(data,MAXBUF,"%s | %s %s",CreateSum().c_str(),u->second->nick,u->second->oper);
-			serv->SendPacket(data,tcp_host);
-		}
-		for (int i = 0; i <= MODCOUNT; i++)
-		{
-			string_list l = modules[i]->OnUserSync(u->second);
-			for (unsigned int j = 0; j < l.size(); j++)
-			{
-				snprintf(data,MAXBUF,"%s %s",CreateSum().c_str(),l[j].c_str());
-  				serv->SendPacket(data,tcp_host);
-  			}
-  		}
-		char* chl = chlist(u->second,u->second);
-		if (strcmp(chl,""))
-		{
-			snprintf(data,MAXBUF,"%s J %s %s",CreateSum().c_str(),u->second->nick,chl);
-			serv->SendPacket(data,tcp_host);
-		}
-	}
-	// send channel modes, topics etc...
-	for (chan_hash::iterator c = chanlist.begin(); c != chanlist.end(); c++)
-	{
-		snprintf(data,MAXBUF,"M %s +%s",c->second->name,chanmodes(c->second));
-		serv->SendPacket(data,tcp_host);
-		for (int i = 0; i <= MODCOUNT; i++)
-		{
-			string_list l = modules[i]->OnChannelSync(c->second);
-			for (unsigned int j = 0; j < l.size(); j++)
-			{
-				snprintf(data,MAXBUF,"%s %s",CreateSum().c_str(),l[j].c_str());
-  				serv->SendPacket(data,tcp_host);
-  			}
-  		}
-		if (c->second->topic[0])
-		{
-			snprintf(data,MAXBUF,"%s T %lu %s %s :%s",CreateSum().c_str(),(unsigned long)c->second->topicset,c->second->setby,c->second->name,c->second->topic);
-			serv->SendPacket(data,tcp_host);
-		}
-		// send current banlist
-		
-		for (BanList::iterator b = c->second->bans.begin(); b != c->second->bans.end(); b++)
-		{
-			snprintf(data,MAXBUF,"%s M %s +b %s",CreateSum().c_str(),c->second->name,b->data);
-			serv->SendPacket(data,tcp_host);
-		}
-	}
-	// sync global zlines, glines, etc
-	sync_xlines(serv,tcp_host);
-
-	snprintf(data,MAXBUF,"%s F %lu",CreateSum().c_str(),(unsigned long)TIME);
-	serv->SendPacket(data,tcp_host);
-	log(DEBUG,"Sent sync");
-	// ircd sends its serverlist after the end of sync here
-}
-
-
-void NetSendMyRoutingTable()
-{
-	// send out a line saying what is reachable to us.
-	// E.g. if A is linked to B C and D, send out:
-	// $ A B C D
-	// if its only linked to B and D send out:
-	// $ A B D
-	// if it has no links, dont even send out the line at all.
-	char buffer[MAXBUF];
-	snprintf(buffer,MAXBUF,"$ %s",ServerName);
-	bool sendit = false;
-	for (int i = 0; i < 32; i++)
-	{
-		if (me[i] != NULL)
-		{
-			for (unsigned int j = 0; j < me[i]->connectors.size(); j++)
-			{
-				if ((me[i]->connectors[j].GetState() != STATE_DISCONNECTED) || (is_uline(me[i]->connectors[j].GetServerName().c_str())))
-				{
-					strlcat(buffer," ",MAXBUF);
-					strlcat(buffer,me[i]->connectors[j].GetServerName().c_str(),MAXBUF);
-					sendit = true;
-				}
-			}
-		}
-	}
-	if (sendit)
-		NetSendToAll(buffer);
-}
-
-
-void DoSplit(const char* params)
-{
-	bool go_again = true;
-	int x = 0;
-	while (go_again)
-	{
-		go_again = false;
-		for (int i = 0; i < 32; i++)
-		{
-			if (me[i] != NULL)
-			{
-				for (vector<ircd_connector>::iterator j = me[i]->connectors.begin(); j != me[i]->connectors.end(); j++)
-				{
-					if (!strcasecmp(j->GetServerName().c_str(),params))
-					{
-						log(DEBUG,"Removing %s",j->GetServerName().c_str());
-						j->routes.clear();
-						j->CloseConnection();
-						me[i]->connectors.erase(j);
-						go_again = true;
-						x++;
-						break;
-					}
-				}
-			}
-		}
-	}
-	if (!x)
-	{
-		log(DEBUG,"No clients to remove.");
-		return;
-	}
-	log(DEBUG,"Removed server. Will remove clients...");
-	// iterate through the userlist and remove all users on this server.
-	// because we're dealing with a mesh, we dont have to deal with anything
-	// "down-route" from this server (nice huh)
-	go_again = true;
-	char reason[MAXBUF];
-	snprintf(reason,MAXBUF,"%s %s",ServerName,params);
-	while (go_again)
-	{
-		go_again = false;
-		for (user_hash::const_iterator u = clientlist.begin(); u != clientlist.end(); u++)
-		{
-			if (!strcasecmp(u->second->server,params))
-			{
-				kill_link(u->second,reason);
-				go_again = true;
-				break;
-			}
-		}
-	}
-	has_been_netsplit = true;
-	log(DEBUG,"Removed clients (DoSplit)");
-}
-
-// removes a server. Will NOT remove its users!
-
-void RemoveServer(const char* name)
-{
-	bool go_again = true;
-	while (go_again)
-	{
-		go_again = false;
-		for (int i = 0; i < 32; i++)
-		{
-			if (me[i] != NULL)
-			{
-				for (vector<ircd_connector>::iterator j = me[i]->connectors.begin(); j != me[i]->connectors.end(); j++)
-				{
-					if (!strcasecmp(j->GetServerName().c_str(),name))
-					{
-						j->routes.clear();
-						j->CloseConnection();
-						me[i]->connectors.erase(j);
-						go_again = true;
-						break;
-					}
-				}
-			}
-		}
-	}
-}
-
-
 char MODERR[MAXBUF];
 
 char* ModuleError()
@@ -2683,6 +2377,7 @@ int InspIRCd(char** argv, int argc)
         }
 
 	engine_init;
+	engine_server_fill;
 
 	WritePID(PID);
 
@@ -3085,6 +2780,7 @@ int InspIRCd(char** argv, int argc)
 				char target[MAXBUF], resolved[MAXBUF];
 				length = sizeof (client);
 				incomingSockfd = accept (openSockfd[count], (struct sockaddr *) &client, &length);
+				log(DEBUG,"Accepted socket %d",incomingSockfd);
 			      
 				strlcpy (target, (char *) inet_ntoa (client.sin_addr), MAXBUF);
 				strlcpy (resolved, target, MAXBUF);

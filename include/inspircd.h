@@ -109,11 +109,6 @@ char* ModuleError();
 void NoticeAll(userrec *source, bool local_only, char* text, ...);
 void NoticeAllOpers(userrec *source, bool local_only, char* text, ...);
 
-void NetSendMyRoutingTable();
-void DoSplit(const char* params);
-void RemoveServer(const char* name);
-void DoSync(serverrec* serv, char* tcp_host);
-
 // optimization tricks to save us walking the user hash
 
 void AddOper(userrec* user);

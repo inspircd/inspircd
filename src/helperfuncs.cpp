@@ -548,12 +548,6 @@ void NoticeAllOpers(userrec *source, bool local_only, char* text, ...)
                 }
         }
 
-        if (!local_only)
-        {
-                char buffer[MAXBUF];
-                snprintf(buffer,MAXBUF,"V %s @* :%s",source->nick,textbuffer);
-                NetSendToAll(buffer);
-        }
 }
 // returns TRUE of any users on channel C occupy server 'servername'.
 
@@ -593,217 +587,6 @@ bool CommonOnThisServer(userrec* u,const char* servername)
                 }
         }
         return false;
-}
-
-void NetSendToCommon(userrec* u, char* s)
-{
-        char buffer[MAXBUF];
-	if (*s == ':')
-	{
-			snprintf(buffer,MAXBUF,"%s",s);
-	}
-	else snprintf(buffer,MAXBUF,"%s %s",CreateSum().c_str(),s);
-
-        log(DEBUG,"NetSendToCommon: '%s' '%s'",u->nick,s);
-
-        std::string msg = buffer;
-        FOREACH_MOD OnPacketTransmit(msg,s);
-        strlcpy(buffer,msg.c_str(),MAXBUF);
-
-        for (int j = 0; j < 32; j++)
-        {
-                if (me[j] != NULL)
-                {
-                        for (unsigned int k = 0; k < me[j]->connectors.size(); k++)
-                        {
-                                if (CommonOnThisServer(u,me[j]->connectors[k].GetServerName().c_str()))
-                                {
-                                        me[j]->SendPacket(buffer,me[j]->connectors[k].GetServerName().c_str());
-                                }
-                        }
-                }
-        }
-}
-
-
-void NetSendToAll(char* s)
-{
-        char buffer[MAXBUF];
-        if (*s == ':')
-        {
-                        snprintf(buffer,MAXBUF,"%s",s);
-        }
-        else snprintf(buffer,MAXBUF,"%s %s",CreateSum().c_str(),s);
-
-        log(DEBUG,"NetSendToAll: '%s'",s);
-
-        std::string msg = buffer;
-        FOREACH_MOD OnPacketTransmit(msg,s);
-        strlcpy(buffer,msg.c_str(),MAXBUF);
-
-        for (int j = 0; j < 32; j++)
-        {
-                if (me[j] != NULL)
-                {
-                        for (unsigned int k = 0; k < me[j]->connectors.size(); k++)
-                        {
-                                me[j]->SendPacket(buffer,me[j]->connectors[k].GetServerName().c_str());
-                        }
-                }
-        }
-}
-
-
-void NetSendToAll_WithSum(char* s,char* u)
-{
-        char buffer[MAXBUF];
-        if (*s == ':')
-        {
-                        snprintf(buffer,MAXBUF,"%s",s);
-        }
-        else snprintf(buffer,MAXBUF,":%s %s",u,s);
-
-        log(DEBUG,"NetSendToAll: '%s'",s);
-
-        std::string msg = buffer;
-        FOREACH_MOD OnPacketTransmit(msg,s);
-        strlcpy(buffer,msg.c_str(),MAXBUF);
-
-        for (int j = 0; j < 32; j++)
-        {
-                if (me[j] != NULL)
-                {
-                        for (unsigned int k = 0; k < me[j]->connectors.size(); k++)
-                        {
-                                me[j]->SendPacket(buffer,me[j]->connectors[k].GetServerName().c_str());
-                        }
-                }
-        }
-}
-
-void NetSendToAllAlive(char* s)
-{
-        char buffer[MAXBUF];
-        if (*s == ':')
-        {
-                        snprintf(buffer,MAXBUF,"%s",s);
-        }
-        else snprintf(buffer,MAXBUF,"%s %s",CreateSum().c_str(),s);
-
-        log(DEBUG,"NetSendToAllAlive: '%s'",s);
-
-        std::string msg = buffer;
-        FOREACH_MOD OnPacketTransmit(msg,s);
-        strlcpy(buffer,msg.c_str(),MAXBUF);
-
-        for (int j = 0; j < 32; j++)
-        {
-                if (me[j] != NULL)
-                {
-                        for (unsigned int k = 0; k < me[j]->connectors.size(); k++)
-                        {
-                                if (me[j]->connectors[k].GetState() != STATE_DISCONNECTED)
-                                {
-                                        me[j]->SendPacket(buffer,me[j]->connectors[k].GetServerName().c_str());
-                                }
-                                else
-                                {
-                                        log(DEBUG,"%s is dead, not sending to it.",me[j]->connectors[k].GetServerName().c_str());
-                                }
-                        }
-                }
-        }
-}
-
-
-void NetSendToOne(char* target,char* s)
-{
-        char buffer[MAXBUF];
-        if (*s == ':')
-        {
-                        snprintf(buffer,MAXBUF,"%s",s);
-        }
-        else snprintf(buffer,MAXBUF,"%s %s",CreateSum().c_str(),s);
-
-        log(DEBUG,"NetSendToOne: '%s' '%s'",target,s);
-
-        std::string msg = buffer;
-        FOREACH_MOD OnPacketTransmit(msg,s);
-        strlcpy(buffer,msg.c_str(),MAXBUF);
-
-        for (int j = 0; j < 32; j++)
-        {
-                if (me[j] != NULL)
-                {
-                        for (unsigned int k = 0; k < me[j]->connectors.size(); k++)
-                        {
-                                if (!strcasecmp(me[j]->connectors[k].GetServerName().c_str(),target))
-                                {
-                                        me[j]->SendPacket(buffer,me[j]->connectors[k].GetServerName().c_str());
-                                }
-                        }
-                }
-        }
-}
-
-void NetSendToAllExcept(const char* target,char* s)
-{
-        char buffer[MAXBUF];
-        if (*s == ':')
-        {
-                        snprintf(buffer,MAXBUF,"%s",s);
-        }
-        else snprintf(buffer,MAXBUF,"%s %s",CreateSum().c_str(),s);
-
-        log(DEBUG,"NetSendToAllExcept: '%s' '%s'",target,s);
-
-        std::string msg = buffer;
-        FOREACH_MOD OnPacketTransmit(msg,s);
-        strlcpy(buffer,msg.c_str(),MAXBUF);
-
-        for (int j = 0; j < 32; j++)
-        {
-                if (me[j] != NULL)
-                {
-                        for (unsigned int k = 0; k < me[j]->connectors.size(); k++)
-                        {
-                                if (strcasecmp(me[j]->connectors[k].GetServerName().c_str(),target))
-                                {
-                                        me[j]->SendPacket(buffer,me[j]->connectors[k].GetServerName().c_str());
-                                }
-                        }
-                }
-        }
-}
-
-void NetSendToAllExcept_WithSum(const char* target,char* s,char* u)
-{
-        char buffer[MAXBUF];
-        if (*s == ':')
-        {
-                        snprintf(buffer,MAXBUF,"%s",s);
-        }
-        else snprintf(buffer,MAXBUF,":%s %s",u,s);
-
-        log(DEBUG,"NetSendToAllExcept: '%s' '%s'",target,s);
-
-        std::string msg = buffer;
-        FOREACH_MOD OnPacketTransmit(msg,s);
-        strlcpy(buffer,msg.c_str(),MAXBUF);
-
-        for (int j = 0; j < 32; j++)
-        {
-                if (me[j] != NULL)
-                {
-                        for (unsigned int k = 0; k < me[j]->connectors.size(); k++)
-                        {
-                                if (strcasecmp(me[j]->connectors[k].GetServerName().c_str(),target))
-                                {
-                                        me[j]->SendPacket(buffer,me[j]->connectors[k].GetServerName().c_str());
-                                }
-                        }
-                }
-        }
 }
 
 
@@ -883,13 +666,6 @@ void NoticeAll(userrec *source, bool local_only, char* text, ...)
                 }
         }
 
-        if (!local_only)
-        {
-                char buffer[MAXBUF];
-                snprintf(buffer,MAXBUF,"V %s * :%s",source->nick,textbuffer);
-                NetSendToAll(buffer);
-        }
-
 }
 
 
@@ -916,13 +692,6 @@ void WriteWallOps(userrec *source, bool local_only, char* text, ...)
                                 WriteTo(source,i->second,"WALLOPS :%s",textbuffer);
                         }
                 }
-        }
-
-        if (!local_only)
-        {
-                char buffer[MAXBUF];
-                snprintf(buffer,MAXBUF,"@ %s :%s",source->nick,textbuffer);
-                NetSendToAll(buffer);
         }
 }
 

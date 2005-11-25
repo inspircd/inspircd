@@ -221,9 +221,6 @@ void ChangeName(userrec* user, const char* gecos)
 			return;
 	}
 	strlcpy(user->fullname,gecos,MAXBUF);
-	char buffer[MAXBUF];
-	snprintf(buffer,MAXBUF,"a %s :%s",user->nick,gecos);
-	NetSendToAll(buffer);
 }
 
 void ChangeDisplayedHost(userrec* user, const char* host)
@@ -236,9 +233,6 @@ void ChangeDisplayedHost(userrec* user, const char* host)
                         return;
         }
 	strlcpy(user->dhost,host,160);
-	char buffer[MAXBUF];
-	snprintf(buffer,MAXBUF,"b %s %s",user->nick,host);
-	NetSendToAll(buffer);
 }
 
 /* verify that a user's ident and nickname is valid */
@@ -465,12 +459,5 @@ char* chlist(userrec *user,userrec* source)
 	return lst;
 }
 
-
-void send_network_quit(const char* nick, const char* reason)
-{
-	char buffer[MAXBUF];
-	snprintf(buffer,MAXBUF,"Q %s :%s",nick,reason);
-	NetSendToAll(buffer);
-}
 
 

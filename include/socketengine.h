@@ -264,6 +264,80 @@
 #define engine_add_fd select_add_fd
 #endif
 
+#define	select_server_fill	log(DEFAULT,"Using standard select socket engine.");
+
+#define epoll_server_fill        log(DEFAULT,"epoll socket engine is enabled. Filling listen list. boundPortcount=%d",boundPortCount); \
+			        for (count = 0; count < boundPortCount; count++) \
+			        { \
+			                struct epoll_event ev; \
+			                log(DEBUG,"epoll: Add listening socket to events, ep=%d socket=%d",lep,openSockfd[count]); \
+			                ev.events = EPOLLIN | EPOLLET; \
+			                ev.data.fd = openSockfd[count]; \
+			                int i = epoll_ctl(lep, EPOLL_CTL_ADD, openSockfd[count], &ev); \
+			                if (i < 0) \
+			                { \
+			                        log(DEFAULT,"main: add listen ports, epoll_ctl failed!"); \
+			                        printf("ERROR: could not initialise listening sockets in epoll list. Shutting down.\n"); \
+			                        Exit(ERROR); \
+			                } \
+			        } \
+			        for (int t = 0; t != SERVERportCount; t++) \
+			        { \
+			                struct epoll_event ev; \
+			                log(DEBUG,"epoll: Add listening server socket to events, ep=%d socket=%d",sep,me[t]->fd); \
+			                ev.events = EPOLLIN | EPOLLET; \
+			                ev.data.fd = me[t]->fd; \
+			                int i = epoll_ctl(sep, EPOLL_CTL_ADD, me[t]->fd, &ev); \
+			                if (i == -1) \
+			                { \
+			                        log(DEFAULT,"main: add server listen ports, epoll_ctl failed!"); \
+			                        printf("ERROR: could not initialise server listening sockets in epoll list. Shutting down.\n"); \
+			                        Exit(ERROR); \
+			                } \
+			        }
+
+#define kqueue_server_fill        log(DEFAULT,"kqueue socket engine is enabled. Filling listen list."); \
+        for (count = 0; count < boundPortCount; count++) \
+        { \
+                struct kevent ke; \
+                log(DEBUG,"kqueue: Add listening socket to events, kq=%d socket=%d",lkq,openSockfd[count]); \
+                EV_SET(&ke, openSockfd[count], EVFILT_READ, EV_ADD, 0, MaxConn, NULL); \
+                int i = kevent(lkq, &ke, 1, 0, 0, NULL); \
+                if (i == -1) \
+                { \
+                        log(DEFAULT,"main: add listen ports to kqueue failed!"); \
+                        printf("ERROR: could not initialise listening sockets in kqueue. Shutting down.\n"); \
+                        Exit(ERROR); \
+                } \
+        } \
+        for (int t = 0; t != SERVERportCount; t++) \
+        { \
+                struct kevent ke; \
+                if (me[t]) \
+                { \
+                        log(DEBUG,"kqueue: Add listening SERVER socket to events, kq=%d socket=%d",skq,me[t]->fd); \
+                        EV_SET(&ke, me[t]->fd, EVFILT_READ, EV_ADD, 0, MaxConn, NULL); \
+                        int i = kevent(skq, &ke, 1, 0, 0, NULL); \
+                        if (i == -1) \
+                        { \
+                                log(DEFAULT,"main: add server listen ports to kqueue failed!"); \
+                                printf("ERROR: could not initialise listening server sockets in kqueue. Shutting down.\n"); \
+                                Exit(ERROR); \
+                        } \
+                } \
+        }
+
+#ifdef USE_EPOLL
+#define engine_server_fill epoll_server_fill
+#endif
+#ifdef USE_KQUEUE
+#define engine_server_fill kqueue_server_fill
+#endif
+#ifdef USE_SELECT
+#define engine_server_fill select_server_fill
+#endif
+
+
 // what is this engine called?
 
 #ifdef USE_KQUEUE

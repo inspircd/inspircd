@@ -231,10 +231,6 @@ void handle_kick(char **parameters, int pcnt, userrec *user)
 		kick_channel(user,u,Ptr,reason);
 	}
 	
-	// this must be propogated so that channel membership is kept in step network-wide
-	char buffer[MAXBUF];
-	snprintf(buffer,MAXBUF,"k %s %s %s :%s",user->nick,u->nick,Ptr->name,reason);
-	NetSendToAll(buffer);
 }
 
 void handle_loadmodule(char **parameters, int pcnt, userrec *user)
@@ -340,10 +336,6 @@ void handle_kill(char **parameters, int pcnt, userrec *user)
 			WriteOpers("*** Remote kill by %s: %s!%s@%s (%s)",user->nick,u->nick,u->ident,u->host,parameters[1]);
 			snprintf(killreason,MAXBUF,"[%s] Killed (%s (%s))",ServerName,user->nick,parameters[1]);
 			WriteCommonExcept(u,"QUIT :%s",killreason);
-			// K token must go to ALL servers!!!
-			char buffer[MAXBUF];
-			snprintf(buffer,MAXBUF,"K %s %s :%s",user->nick,u->nick,killreason);
-			NetSendToAll(buffer);
 			
 			user_hash::iterator iter = clientlist.find(u->nick);
 			if (iter != clientlist.end())
@@ -453,10 +445,6 @@ void handle_invite(char **parameters, int pcnt, userrec *user)
 		WriteFrom(u->fd,user,"INVITE %s :%s",u->nick,c->name);
 		WriteServ(user->fd,"341 %s %s %s",user->nick,u->nick,c->name);
 	
-		// i token must go to ALL servers!!!
-		char buffer[MAXBUF];
-		snprintf(buffer,MAXBUF,"i %s %s %s",u->nick,user->nick,c->name);
-		NetSendToAll(buffer);
 	}
 	else
 	{
@@ -544,10 +532,6 @@ void handle_topic(char **parameters, int pcnt, userrec *user)
 				Ptr->topicset = TIME;
 				WriteChannel(Ptr,user,"TOPIC %s :%s",Ptr->name, Ptr->topic);
 
-				// t token must go to ALL servers!!!
-				char buffer[MAXBUF];
-				snprintf(buffer,MAXBUF,"t %s %s :%s",user->nick,Ptr->name,topic);
-				NetSendToAll(buffer);
 			}
 			else
 			{
@@ -628,10 +612,6 @@ void handle_privmsg(char **parameters, int pcnt, userrec *user)
 			
 			ChanExceptSender(chan, user, "PRIVMSG %s :%s", chan->name, parameters[1]);
 			
-			// if any users of this channel are on remote servers, broadcast the packet
-			char buffer[MAXBUF];
-			snprintf(buffer,MAXBUF,"P %s %s :%s",user->nick,chan->name,parameters[1]);
-			NetSendToCommon(user,buffer);
 		}
 		else
 		{
@@ -665,12 +645,6 @@ void handle_privmsg(char **parameters, int pcnt, userrec *user)
 		{
 			// direct write, same server
 			WriteTo(user, dest, "PRIVMSG %s :%s", dest->nick, parameters[1]);
-		}
-		else
-		{
-			char buffer[MAXBUF];
-			snprintf(buffer,MAXBUF,"P %s %s :%s",user->nick,dest->nick,parameters[1]);
-			NetSendToOne(dest->server,buffer);
 		}
 	}
 	else
@@ -722,10 +696,6 @@ void handle_notice(char **parameters, int pcnt, userrec *user)
 
 			ChanExceptSender(chan, user, "NOTICE %s :%s", chan->name, parameters[1]);
 
-			// if any users of this channel are on remote servers, broadcast the packet
-			char buffer[MAXBUF];
-			snprintf(buffer,MAXBUF,"V %s %s :%s",user->nick,chan->name,parameters[1]);
-			NetSendToCommon(user,buffer);
 		}
 		else
 		{
@@ -751,12 +721,6 @@ void handle_notice(char **parameters, int pcnt, userrec *user)
 		{
 			// direct write, same server
 			WriteTo(user, dest, "NOTICE %s :%s", dest->nick, parameters[1]);
-		}
-		else
-		{
-			char buffer[MAXBUF];
-			snprintf(buffer,MAXBUF,"V %s %s :%s",user->nick,dest->nick,parameters[1]);
-			NetSendToOne(dest->server,buffer);
 		}
 	}
 	else
@@ -902,9 +866,6 @@ void handle_quit(char **parameters, int pcnt, userrec *user)
 			WriteOpers("*** Client exiting: %s!%s@%s [%s%s]",user->nick,user->ident,user->host,PrefixQuit,parameters[0]);
 			WriteCommonExcept(user,"QUIT :%s%s",PrefixQuit,parameters[0]);
 
-			char buffer[MAXBUF];
-			snprintf(buffer,MAXBUF,"Q %s :%s%s",user->nick,PrefixQuit,parameters[0]);
-			NetSendToAll(buffer);
 		}
 		else
 		{
@@ -912,9 +873,6 @@ void handle_quit(char **parameters, int pcnt, userrec *user)
 			WriteOpers("*** Client exiting: %s!%s@%s [Client exited]",user->nick,user->ident,user->host);
 			WriteCommonExcept(user,"QUIT :Client exited");
 
-			char buffer[MAXBUF];
-			snprintf(buffer,MAXBUF,"Q %s :Client exited",user->nick);
-			NetSendToAll(buffer);
 		}
 		FOREACH_MOD OnUserQuit(user);
 		AddWhoWas(user);
@@ -1606,8 +1564,6 @@ void handle_oper(char **parameters, int pcnt, userrec *user)
 				if (!strcmp(TypeName,OperType))
 				{
 					/* found this oper's opertype */
-					snprintf(global,MAXBUF,"| %s %s",user->nick,TypeName);
-					NetSendToAll(global);
 					ConfValue("type","host",j,HostName,&config_f);
 					if (*HostName)
 						ChangeDisplayedHost(user,HostName);
@@ -1630,8 +1586,6 @@ void handle_oper(char **parameters, int pcnt, userrec *user)
 		{
 			strcat(user->modes,"o");
 			WriteServ(user->fd,"MODE %s :+o",user->nick);
-                        snprintf(global,MAXBUF,"M %s +o",user->nick);
-                        NetSendToAll(global);
 			FOREACH_MOD OnOper(user);
 			log(DEFAULT,"OPER: %s!%s@%s opered as type: %s",user->nick,user->ident,user->host,OperType);
 			AddOper(user);
@@ -1725,10 +1679,6 @@ void handle_nick(char **parameters, int pcnt, userrec *user)
 
 		WriteCommon(user,"NICK %s",parameters[0]);
 		
-		// N token must go to ALL servers!!!
-		char buffer[MAXBUF];
-		snprintf(buffer,MAXBUF,"n %s %s",user->nick,parameters[0]);
-		NetSendToAll(buffer);
 	}
 	
 	char oldnick[NICKMAX];
@@ -1881,9 +1831,6 @@ void handle_gline(char **parameters, int pcnt, userrec *user)
 	if (pcnt >= 3)
 	{
 		add_gline(duration(parameters[1]),user->nick,parameters[2],parameters[0]);
-		// # <mask> <who-set-it> <time-set> <duration> :<reason>
-		snprintf(netdata,MAXBUF,"# %s %s %lu %lu :%s",parameters[0],user->nick,(unsigned long)TIME,(unsigned long)duration(parameters[1]),parameters[2]);
-		NetSendToAll(netdata);
 		if (!duration(parameters[1]))
 		{
 			WriteOpers("*** %s added permenant G-line for %s.",user->nick,parameters[0]);
