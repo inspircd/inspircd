@@ -54,9 +54,7 @@ using namespace std;
 #define   RUSAGE_SELF     0
 #define   RUSAGE_CHILDREN     -1
 #endif
-#include "connection.h"
 #include "users.h"
-#include "servers.h"
 #include "ctables.h"
 #include "globals.h"
 #include "modules.h"

@@ -51,9 +51,7 @@ using namespace std;
 #include <vector>
 #include <deque>
 #include <sched.h>
-#include "connection.h"
 #include "users.h"
-#include "servers.h"
 #include "ctables.h"
 #include "globals.h"
 #include "modules.h"

@@ -38,9 +38,7 @@ using namespace std;
 #include <sstream>
 #include <vector>
 #include <deque>
-#include "connection.h"
 #include "users.h"
-#include "servers.h"
 #include "ctables.h"
 #include "globals.h"
 #include "modules.h"

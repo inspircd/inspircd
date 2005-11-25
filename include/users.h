@@ -16,7 +16,6 @@
 
 #include "inspircd_config.h" 
 #include "channels.h"
-#include "connection.h"
 #include "inspstring.h"
 #include <string>
  
