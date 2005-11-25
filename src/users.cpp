@@ -18,6 +18,7 @@ using namespace std;
 
 #include "inspircd_config.h" 
 #include "channels.h"
+#include "connection.h"
 #include "users.h"
 #include "inspircd.h"
 #include <stdio.h>
