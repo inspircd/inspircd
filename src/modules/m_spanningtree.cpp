@@ -259,15 +259,15 @@ class ModuleSpanningTree : public Module
 			for (int j =0; j < Conf->Enumerate("bind"); j++)
 			{
 				std::string TypeName = Conf->ReadValue("bind","type",j);
-				std::string IP = Conf->ReadValue("bind","address");
-				long Port = Conf->ReadInteger("bind","port",true);
+				std::string IP = Conf->ReadValue("bind","address",j);
+				long Port = Conf->ReadInteger("bind","port",j,true);
 				if (IP == "*")
 				{
 					IP = "";
 				}
 				// TODO: Error check here for failed bindings
 				TreeSocket* listener = new TreeSocket(IP.c_str(),Port,true,10);
-				if (listener->GetStatus() == I_LISTENING)
+				if (listener->GetState() == I_LISTENING)
 				{
 					Srv->AddSocket(listener);
 					Bindings.push_back(listener);
@@ -275,18 +275,20 @@ class ModuleSpanningTree : public Module
 				else
 				{
 					log(DEFAULT,"m_spanningtree: Warning: Failed to bind server port %d",Port);
+					listener->Close();
+					delete listener;
 				}
 			}
 		}
 		LinkBlocks.clear();
-		for (j =0; j < Conf->Enumerate("link"); j++)
+		for (int j =0; j < Conf->Enumerate("link"); j++)
 		{
 			Link L;
 			L.Name = Conf->ReadValue("link","name",j);
 			L.IPAddr = Conf->ReadValue("link","ipaddr",j);
-			L.Port = Conf->ReadInteger("link","port",true);
-			L.SendPass = Conf->ReadValue("link","sendpass");
-			L.RecvPass = Conf->ReadValue("link","recvpass");
+			L.Port = Conf->ReadInteger("link","port",j,true);
+			L.SendPass = Conf->ReadValue("link","sendpass",j);
+			L.RecvPass = Conf->ReadValue("link","recvpass",j);
 			LinkBlocks.push_back(L);
 			log(DEBUG,"m_spanningtree: Read server %s with host %s:%d",L.Name.c_str(),L.IPAddr.c_str(),L.Port);
 		}
