@@ -229,6 +229,11 @@ void InspSocket::SetState(InspSocketState s)
 	this->state = s;
 }
 
+InspSocketState InspSocket::GetState()
+{
+	return this->state;
+}
+
 bool InspSocket::OnConnected() { return true; }
 void InspSocket::OnError(InspSocketError e) { return; }
 int InspSocket::OnDisconnect() { return 0; }

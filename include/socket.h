@@ -57,6 +57,7 @@ public:
 	virtual int Write(std::string data);
 	virtual int OnIncomingConnection(int newfd, char* ip);
 	void SetState(InspSocketState s);
+	InspSocketState GetState();
 	bool Poll();
 	virtual void Close();
 	virtual ~InspSocket();

@@ -22,6 +22,8 @@ using namespace std;
 #include "channels.h"
 #include "modules.h"
 #include "socket.h"
+#include "helperfuncs.h"
+#include "inspircd.h"
 
 enum ServerState { CONNECTING, WAIT_AUTH_1, WAIT_AUTH_2, CONNECTED };
 
@@ -44,14 +46,24 @@ class TreeServer
 
 	TreeServer()
 	{
+		Parent = NULL;
+		ServerName = "";
+		ServerDesc = "";
+		VersionString = "";
+		UserCount = OperCount = 0;
 	}
 
 	TreeServer(std::string Name, std::string Desc) : ServerName(Name), ServerDesc(Desc)
 	{
+		Parent = NULL;
+		VersionString = "";
+		UserCount = OperCount = 0;
 	}
 
 	TreeServer(std::string Name, std::string Desc, TreeServer* Above) : Parent(Above), ServerName(Name), ServerDesc(Desc)
 	{
+		VersionString = "";
+		UserCount = OperCount = 0;
 	}
 
 	void AddChild(TreeServer* Child)
@@ -73,9 +85,22 @@ class TreeServer
 	}
 };
 
+class Link
+{
+ public:
+	 std::string Name;
+	 std::string IPAddr;
+	 int Port;
+	 std::string SendPass;
+	 std::string RecvPass;
+};
+
 /* $ModDesc: Povides a spanning tree server link protocol */
 
 Server *Srv;
+ConfigReader *Conf;
+TreeServer *TreeRoot;
+std::vector<Link> LinkBlocks;
 
 // To attach sockets to the core of the ircd, we must use the InspSocket
 // class which can be found in socket.h. This class allows modules to create
@@ -214,10 +239,6 @@ class TreeSocket : public InspSocket
 	}
 };
 
-// This is a test function which creates an outbound socket to a given
-// hostname. It provides an example of how to create a new outbound
-// socket to a host.
-
 void handle_connecttest(char **parameters, int pcnt, userrec *user)
 {
 	std::string addr = parameters[0];
@@ -227,20 +248,60 @@ void handle_connecttest(char **parameters, int pcnt, userrec *user)
 
 class ModuleSpanningTree : public Module
 {
+	std::vector<TreeSocket*> Bindings;
+
  public:
+
+	void ReadConfiguration(bool rebind)
+	{
+		if (rebind)
+		{
+			for (int j =0; j < Conf->Enumerate("bind"); j++)
+			{
+				std::string TypeName = Conf->ReadValue("bind","type",j);
+				std::string IP = Conf->ReadValue("bind","address");
+				long Port = Conf->ReadInteger("bind","port",true);
+				if (IP == "*")
+				{
+					IP = "";
+				}
+				// TODO: Error check here for failed bindings
+				TreeSocket* listener = new TreeSocket(IP.c_str(),Port,true,10);
+				if (listener->GetStatus() == I_LISTENING)
+				{
+					Srv->AddSocket(listener);
+					Bindings.push_back(listener);
+				}
+				else
+				{
+					log(DEFAULT,"m_spanningtree: Warning: Failed to bind server port %d",Port);
+				}
+			}
+		}
+		LinkBlocks.clear();
+		for (j =0; j < Conf->Enumerate("link"); j++)
+		{
+			Link L;
+			L.Name = Conf->ReadValue("link","name",j);
+			L.IPAddr = Conf->ReadValue("link","ipaddr",j);
+			L.Port = Conf->ReadInteger("link","port",true);
+			L.SendPass = Conf->ReadValue("link","sendpass");
+			L.RecvPass = Conf->ReadValue("link","recvpass");
+			LinkBlocks.push_back(L);
+			log(DEBUG,"m_spanningtree: Read server %s with host %s:%d",L.Name.c_str(),L.IPAddr.c_str(),L.Port);
+		}
+	}
+
 	ModuleSpanningTree()
 	{
 		Srv = new Server;
-		
-		Srv->AddCommand("CONNECTTEST",handle_connecttest,'o',1,"m_spanningtree.so");
+		Conf = new ConfigReader;
+		Bindings.clear();
 
-		// This is an example of how to create a new inbound socket to a host.
-		// Please remember that so long as you AddSocket() your sockets, you
-		// do not need to track resources and do not need to delete your classes
-		// when you are finished with them.
+		// Create the root of the tree
+		TreeRoot = new TreeServer(Srv->GetServerName(),Srv->GetServerDescription());
 
-		TreeSocket* listeningsock = new TreeSocket("127.0.0.1",11111,true,10);
-		Srv->AddSocket(listeningsock);
+		ReadConfiguration(true);
 	}
 
 	virtual ~ModuleSpanningTree()
