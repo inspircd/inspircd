@@ -2337,12 +2337,10 @@ int InspIRCd(char** argv, int argc)
 
 		dns_poll();
 
+		unsigned int numsockets = module_sockets.size();
 		for (std::vector<InspSocket*>::iterator a = module_sockets.begin(); a < module_sockets.end(); a++)
 		{
 			InspSocket* s = (InspSocket*)*a;
-			// Polling a listening socket class may result in the size of module_sockets increasing.
-			// This is still safe to do, however if the size of module_sockets is decreased, e.g.
-			// by a close or error, we cannot continue to use this iterator and must bail out asap.
 			if ((s) && (!s->Poll()))
 			{
 				log(DEBUG,"Socket poll returned false, close and bail");
@@ -2351,6 +2349,8 @@ int InspIRCd(char** argv, int argc)
 				delete s;
 				break;
 			}
+			// we gained a socket, sarper
+			if (module_sockets.size() != numsockets) break;
 		}
 
 		// *FIX* Instead of closing sockets in kill_link when they receive the ERROR :blah line, we should queue

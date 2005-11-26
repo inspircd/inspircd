@@ -143,6 +143,7 @@ char* InspSocket::Read()
 	int n = recv(this->fd,this->ibuf,sizeof(this->ibuf),0);
 	if (n > 0)
 	{
+		ibuf[n] = 0;
 		return ibuf;
 	}
 	else
