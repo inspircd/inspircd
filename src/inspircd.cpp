@@ -2340,11 +2340,15 @@ int InspIRCd(char** argv, int argc)
 		for (std::vector<InspSocket*>::iterator a = module_sockets.begin(); a < module_sockets.end(); a++)
 		{
 			InspSocket* s = (InspSocket*)*a;
-			if (!s->Poll())
+			// Polling a listening socket class may result in the size of module_sockets increasing.
+			// This is still safe to do, however if the size of module_sockets is decreased, e.g.
+			// by a close or error, we cannot continue to use this iterator and must bail out asap.
+			if ((s) && (!s->Poll()))
 			{
+				log(DEBUG,"Socket poll returned false, close and bail");
 				s->Close();
-				delete s;
 				module_sockets.erase(a);
+				delete s;
 				break;
 			}
 		}

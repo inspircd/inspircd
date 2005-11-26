@@ -39,6 +39,12 @@ class TreeSocket : public InspSocket
 		Srv->Log(DEBUG,"Create new");
 		myhost = host;
 	}
+
+	TreeSocket(int newfd)
+		: InspSocket(newfd)
+	{
+		// Associate with an existing file descriptor (accepted from incoming connection)
+	}
 	
         virtual bool OnConnected()
 	{
@@ -88,9 +94,17 @@ class TreeSocket : public InspSocket
 		Srv->SendToModeMask("o",WM_AND,"*** CLOSED ***");
 	}
 	
-	virtual int OnIncomingConnection()
+	virtual int OnIncomingConnection(int newsock, char* ip)
 	{
 		Srv->SendToModeMask("o",WM_AND,"*** INCOMING ***");
+		// use the (int) constructor to associate an incoming
+		// connection with a class, without actually creating
+		// a connection or binding from scratch.
+		TreeSocket* s = new TreeSocket(newsock);
+		Srv->AddSocket(s);
+		char message[1024];
+		sprintf(message,"Added new socket to list with fd %d from %s",newsock,ip);
+		Srv->Log(DEBUG,message);
 		return true;
 	}
 };
@@ -113,6 +127,8 @@ class ModuleSpanningTree : public Module
 		Srv = new Server;
 		Srv->AddCommand("CONNECTTEST",handle_connecttest,'o',1,"m_spanningtree.so");
 		Srv->Log(DEBUG,"ModCreate");
+		TreeSocket* listeningsock = new TreeSocket("127.0.0.1",11111,true,10);
+		Srv->AddSocket(listeningsock);
 	}
 	
 	virtual void OnUserJoin(userrec* user, chanrec* channel)

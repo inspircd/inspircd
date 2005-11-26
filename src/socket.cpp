@@ -48,9 +48,41 @@ InspSocket::InspSocket()
 	this->state = I_DISCONNECTED;
 }
 
+InspSocket::InspSocket(int newfd)
+{
+	this->fd = newfd;
+	this->state = I_CONNECTED;
+}
+
 InspSocket::InspSocket(std::string host, int port, bool listening, unsigned long maxtime)
 {
 	if (listening) {
+		if ((this->fd = OpenTCPSocket()) == ERROR)
+		{
+			this->fd = -1;
+			this->state = I_ERROR;
+			this->OnError(I_ERR_SOCKET);
+			log(DEBUG,"OpenTCPSocket() error");
+                        return;
+		}
+		else
+		{
+			if (BindSocket(this->fd,this->client,this->server,port,(char*)host.c_str()) == ERROR)
+			{
+				this->Close();
+				this->fd = -1;
+				this->state = I_ERROR;
+				this->OnError(I_ERR_BIND);
+				log(DEBUG,"BindSocket() error %s",strerror(errno));
+				return;
+			}
+			else
+			{
+				this->state = I_LISTENING;
+				log(DEBUG,"New socket now in I_LISTENING state");
+				return;
+			}
+		}			
 	} else {
 		char* ip;
 		this->host = host;
@@ -149,10 +181,13 @@ int InspSocket::Write(std::string data)
 
 bool InspSocket::Poll()
 {
-	if (time(NULL) > timeout_end)
+	if ((time(NULL) > timeout_end) && (this->state == I_CONNECTING))
 	{
+		// for non-listening sockets, the timeout can occur
+		// which causes termination of the connection after
+		// the given number of seconds without a successful
+		// connection.
 		this->OnTimeout();
-		this->Close();
 		this->OnError(I_ERR_TIMEOUT);
         	timeout = true;
 		this->state = I_ERROR;
@@ -164,6 +199,8 @@ bool InspSocket::Poll()
 
         if (ret > 0)
 	{
+		int incoming = -1;
+		
 		switch (this->state)
 		{
 			case I_CONNECTING:
@@ -171,7 +208,10 @@ bool InspSocket::Poll()
 				return this->OnConnected();
 			break;
 			case I_LISTENING:
-				this->OnIncomingConnection();
+				length = sizeof (client);
+				incoming = accept (this->fd, (sockaddr*)&client,&length);
+				this->OnIncomingConnection(incoming,inet_ntoa(client.sin_addr));
+				return true;
 			break;
 			case I_CONNECTED:
 				return this->OnDataReady();
@@ -180,7 +220,6 @@ bool InspSocket::Poll()
 			break;
 		}
 	}
-
 	return true;
 }
 
@@ -193,7 +232,7 @@ void InspSocket::SetState(InspSocketState s)
 bool InspSocket::OnConnected() { return true; }
 void InspSocket::OnError(InspSocketError e) { return; }
 int InspSocket::OnDisconnect() { return 0; }
-int InspSocket::OnIncomingConnection() { return 0; }
+int InspSocket::OnIncomingConnection(int newfd, char* ip) { return 0; }
 bool InspSocket::OnDataReady() { return true; }
 void InspSocket::OnTimeout() { return; }
 void InspSocket::OnClose() { return; }
