@@ -184,24 +184,27 @@ class ModuleSpanningTree : public Module
 		{
 			for (int j =0; j < Conf->Enumerate("bind"); j++)
 			{
-				std::string TypeName = Conf->ReadValue("bind","type",j);
+				std::string Type = Conf->ReadValue("bind","type",j);
 				std::string IP = Conf->ReadValue("bind","address",j);
 				long Port = Conf->ReadInteger("bind","port",j,true);
-				if (IP == "*")
+				if (Type == "servers")
 				{
-					IP = "";
-				}
-				TreeSocket* listener = new TreeSocket(IP.c_str(),Port,true,10);
-				if (listener->GetState() == I_LISTENING)
-				{
-					Srv->AddSocket(listener);
-					Bindings.push_back(listener);
-				}
-				else
-				{
-					log(DEFAULT,"m_spanningtree: Warning: Failed to bind server port %d",Port);
-					listener->Close();
-					delete listener;
+					if (IP == "*")
+					{
+						IP = "";
+					}
+					TreeSocket* listener = new TreeSocket(IP.c_str(),Port,true,10);
+					if (listener->GetState() == I_LISTENING)
+					{
+						Srv->AddSocket(listener);
+						Bindings.push_back(listener);
+					}
+					else
+					{
+						log(DEFAULT,"m_spanningtree: Warning: Failed to bind server port %d",Port);
+						listener->Close();
+						delete listener;
+					}
 				}
 			}
 		}
