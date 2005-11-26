@@ -18,6 +18,7 @@ using namespace std;
 
 #include <stdio.h>
 #include <vector>
+#include <deque>
 #include "users.h"
 #include "channels.h"
 #include "modules.h"
@@ -25,7 +26,7 @@ using namespace std;
 #include "helperfuncs.h"
 #include "inspircd.h"
 
-enum ServerState { CONNECTING, WAIT_AUTH_1, WAIT_AUTH_2, CONNECTED };
+enum ServerState { LISTENER, CONNECTING, WAIT_AUTH_1, WAIT_AUTH_2, CONNECTED };
 
 class TreeServer;
 class TreeSocket;
@@ -39,7 +40,6 @@ class TreeServer
 	std::string VersionString;
 	int UserCount;
 	int OperCount;
-	ServerState State;
 	TreeSocket* Socket;	// for directly connected servers this points at the socket object
 	
  public:
@@ -60,7 +60,7 @@ class TreeServer
 		UserCount = OperCount = 0;
 	}
 
-	TreeServer(std::string Name, std::string Desc, TreeServer* Above) : Parent(Above), ServerName(Name), ServerDesc(Desc)
+	TreeServer(std::string Name, std::string Desc, TreeServer* Above, TreeSocket* Sock) : Parent(Above), ServerName(Name), ServerDesc(Desc), Socket(Sock)
 	{
 		VersionString = "";
 		UserCount = OperCount = 0;
@@ -105,6 +105,8 @@ std::vector<Link> LinkBlocks;
 class TreeSocket : public InspSocket
 {
 	std::string myhost;
+	std::string in_buffer;
+	ServerState LinkState;
 	
  public:
 
@@ -113,11 +115,13 @@ class TreeSocket : public InspSocket
 	{
 		Srv->Log(DEBUG,"Create new");
 		myhost = host;
+		this->LinkState = LISTENER;
 	}
 
 	TreeSocket(int newfd)
 		: InspSocket(newfd)
 	{
+		this->LinkState = WAIT_AUTH_1;
 	}
 	
         virtual bool OnConnected()
@@ -131,30 +135,210 @@ class TreeSocket : public InspSocket
 
         virtual int OnDisconnect()
 	{
-		Srv->Log(DEBUG,"Disconnect");
-		Srv->SendToModeMask("o",WM_AND,"*** DISCONNECTED!");
 		return true;
 	}
 
         virtual bool OnDataReady()
 	{
-		Srv->SendToModeMask("o",WM_AND,"*** DATA ***");
 		char* data = this->Read();
 		if (data)
 		{
-			Srv->SendToModeMask("o",WM_AND,data);
+			this->in_buffer += data;
+			while (in_buffer.find("\n") != std::string::npos)
+			{
+				char* line = (char*)in_buffer.c_str();
+				std::string ret = "";
+			        while ((*line != '\n') && (strlen(line)))
+				{
+					ret = ret + *line;
+					line++;
+				}
+				if ((*line == '\n') || (*line == '\r'))
+					line++;
+				in_buffer = line;
+				if (!this->ProcessLine(ret))
+				{
+					return false;
+				}
+			}
 		}
 		return (data != NULL);
 	}
 
+	int WriteLine(std::string line)
+	{
+		return this->Write(line + "\r\n");
+	}
+
+	bool Outbound_Reply_Server(std::deque<std::string> params)
+	{
+		if (params.size() < 4)
+			return false;
+		std::string servername = params[0];
+		std::string password = params[1];
+		int hops = atoi(params[2].c_str());
+		if (hops)
+		{
+			this->WriteLine("ERROR :Server too far away for authentication");
+			return false;
+		}
+		std::string description = params[3];
+		Srv->SendToModeMask("o",WM_AND,"outbound-server-replied: name='"+servername+"' pass='"+password+"' description='"+description+"'");
+		for (std::vector<Link>::iterator x = LinkBlocks.begin(); x < LinkBlocks.end(); x++)
+		{
+			if ((x->Name == servername) && (x->RecvPass == password))
+			{
+				// Begin the sync here. this kickstarts the
+				// other side, waiting in WAIT_AUTH_2 state,
+				// into starting their burst, as it shows
+				// that we're happy.
+				this->LinkState = CONNECTED;
+				// we should add the details of this server now
+				// to the servers tree, as a child of the root
+				// node.
+				TreeServer* Node = new TreeServer(servername,description,TreeRoot,this);
+				TreeRoot->AddChild(Node);
+				return true;
+			}
+		}
+		this->WriteLine("ERROR :Invalid credentials");
+		return false;
+	}
+
+	bool Inbound_Server(std::deque<std::string> params)
+	{
+		if (params.size() < 4)
+			return false;
+		std::string servername = params[0];
+		std::string password = params[1];
+		int hops = atoi(params[2].c_str());
+		if (hops)
+		{
+			this->WriteLine("ERROR :Server too far away for authentication");
+			return false;
+		}
+		std::string description = params[3];
+		Srv->SendToModeMask("o",WM_AND,"inbound-server: name='"+servername+"' pass='"+password+"' description='"+description+"'");
+		for (std::vector<Link>::iterator x = LinkBlocks.begin(); x < LinkBlocks.end(); x++)
+		{
+			if ((x->Name == servername) && (x->RecvPass == password))
+			{
+				// this is good. Send our details: Our server name and description and hopcount of 0,
+				// along with the sendpass from this block.
+				this->WriteLine("SERVER "+Srv->GetServerName()+" "+x->SendPass+" 0 :"+Srv->GetServerDescription());
+				// move to the next state, we are now waiting for THEM.
+				this->LinkState = WAIT_AUTH_2;
+				return true;
+			}
+		}
+		this->WriteLine("ERROR :Invalid credentials");
+		return false;
+	}
+
+	std::deque<std::string> Split(std::string line)
+	{
+		std::deque<std::string> n;
+		std::stringstream s(line);
+		std::string param = "";
+		n.clear();
+		int item = 0;
+		while (!s.eof())
+		{
+			s >> param;
+			if ((param.c_str()[0] == ':') && (item))
+			{
+				char* str = (char*)param.c_str();
+				str++;
+				param = str;
+				std::string append;
+				while (!s.eof())
+				{
+					s >> append;
+					if (append != "")
+					{
+						param = param + " " + append;
+					}
+				}
+			}
+			item++;
+			n.push_back(param);
+		}
+		return n;
+	}
+
+	bool ProcessLine(std::string line)
+	{
+		Srv->SendToModeMask("o",WM_AND,"inbound-line: '"+line+"'");
+
+		std::deque<std::string> params = this->Split(line);
+		std::string command = "";
+		std::string prefix = "";
+		if ((params[0].c_str())[0] == ':')
+		{
+			prefix = params.pop_front();
+			command = params.pop_front();
+		}
+		else
+		{
+			prefix = "";
+			command = params.pop_front();
+		}
+		
+		switch (this->LinkState)
+		{
+			case WAIT_AUTH_1:
+				// Waiting for SERVER command from remote server. Server initiating
+				// the connection sends the first SERVER command, listening server
+				// replies with theirs if its happy, then if the initiator is happy,
+				// it starts to send its net sync, which starts the merge, otherwise
+				// it sends an ERROR.
+				if (command == "SERVER")
+				{
+					return this->Inbound_Server(params);
+				}
+			break;
+			case WAIT_AUTH_2:
+				// Waiting for start of other side's netmerge to say they liked our
+				// password.
+				if (command == "SERVER")
+				{
+					// cant do this, they sent it to us in the WAIT_AUTH_1 state!
+					// silently ignore.
+					return true;
+				}
+				
+			break;
+			case LISTENER:
+				this->WriteLine("ERROR :Internal error -- listening socket accepted its own descriptor!!!");
+				return false;
+			break;
+			case CONNECTING:
+				if (command == "SERVER")
+				{
+					// another server we connected to, which was in WAIT_AUTH_1 state,
+					// has just sent us their credentials. If we get this far, theyre
+					// happy with OUR credentials, and they are now in WAIT_AUTH_2 state.
+					// if we're happy with this, we should send our netburst which
+					// kickstarts the merge.
+					return this->Outbound_Reply_Server(params);
+				}
+			break;
+			case CONNECTED:
+				// This is the 'authenticated' state, when all passwords
+				// have been exchanged and anything past this point is taken
+				// as gospel.
+				return true;
+			break;	
+		}
+		return true;
+	}
+
         virtual void OnTimeout()
 	{
-		Srv->SendToModeMask("o",WM_AND,"*** TIMED OUT ***");
 	}
 
         virtual void OnClose()
 	{
-		Srv->SendToModeMask("o",WM_AND,"*** CLOSED ***");
 	}
 
 	virtual int OnIncomingConnection(int newsock, char* ip)
@@ -165,7 +349,7 @@ class TreeSocket : public InspSocket
 	}
 };
 
-void handle_connecttest(char **parameters, int pcnt, userrec *user)
+void tree_handle_connect(char **parameters, int pcnt, userrec *user)
 {
 	std::string addr = parameters[0];
 	TreeSocket* sock = new TreeSocket(addr,80,false,10);
