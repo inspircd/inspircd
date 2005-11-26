@@ -102,27 +102,12 @@ ConfigReader *Conf;
 TreeServer *TreeRoot;
 std::vector<Link> LinkBlocks;
 
-// To attach sockets to the core of the ircd, we must use the InspSocket
-// class which can be found in socket.h. This class allows modules to create
-// listening and outbound sockets and attach sockets to existing (connected)
-// file descriptors. These file descriptors can then be associated with the
-// core of the ircd and bound to the socket engine.
-// To use InspSocket, we must inherit from it, as shown in TreeSocket below.
-
 class TreeSocket : public InspSocket
 {
 	std::string myhost;
 	
  public:
 
-	// InspSocket has several constructors used for various situations.
-	// This constructor is used to create a socket which may be used
-	// for both inbound and outbound (listen() and connect()) operations.
-	// When you inherit InspSocket you MUST call the superclass constructor
-	// within InspSocket, as shown below, unless you plan to completely
-	// override all behaviour of the class, which would prove to be more
-	// trouble than it's worth unless you're doing something really fancy.
-	
 	TreeSocket(std::string host, int port, bool listening, unsigned long maxtime)
 		: InspSocket(host, port, listening, maxtime)
 	{
@@ -130,44 +115,19 @@ class TreeSocket : public InspSocket
 		myhost = host;
 	}
 
-	// This simpler constructor of InspSocket is used when you wish to
-	// associate an existing file descriptor with an InspSocket class,
-	// or a class inherited from InspSocket. As before, you must call
-	// the superclass. Not doing so will get your module into a whole
-	// world of hurt. Similarly, your inherited class MUST implement
-	// the constructors you use even if all it does is call the parent.
-
 	TreeSocket(int newfd)
 		: InspSocket(newfd)
 	{
 	}
 	
-	// This method is called when an outbound socket (connect() style)
-	// finishes connecting. Connections are asyncronous, so you should
-	// not just assume that immediately after you instantiate a socket
-	// it is connected or failed. This takes time, and when the results
-	// are available for you, this method will be called.
-
         virtual bool OnConnected()
 	{
-		this->Write("GET / HTTP/1.1\r\nHost: " + myhost + "\r\nConnection: Close\r\n\r\n");
 		return true;
 	}
-
-	// When errors occur on the connection, this event will be triggered.
-	// Check the programmer docs for information on possible values for
-	// the InspSocketError type.
 	
         virtual void OnError(InspSocketError e)
 	{
-		char x[1024];
-		Srv->Log(DEBUG,"Error");
-		sprintf(x,"*** ERROR %d",(int)e);
-		Srv->SendToModeMask("o",WM_AND,x);
 	}
-	
-	// When a socket disconnects, this method is triggered. You cannot
-	// prevent the disconnection.
 
         virtual int OnDisconnect()
 	{
@@ -175,20 +135,6 @@ class TreeSocket : public InspSocket
 		Srv->SendToModeMask("o",WM_AND,"*** DISCONNECTED!");
 		return true;
 	}
-
-	// When data is ready to be read from a socket, this method will
-	// be triggered, and within it, you should call this->Read() to
-	// read any pending data. Up to 10 kilobytes of data may be returned
-	// for each call to Read(), and you should not call Read() more
-	// than once per method call. You should also not call Read()
-	// outside of OnDataReady(), doing so will just result in Read()
-	// returning NULL. If Read() returns NULL and you are within the
-	// OnDataReady() event this usually indicates an EOF condition
-	// and the socket should be closed by returning false from this
-	// method. If you return false, the core will remove your socket
-	// from its list, and handle the cleanup (such as deleting the
-	// pointer) for you. This means you do not need to track your
-	// socket resources once they are associated with the core.
 
         virtual bool OnDataReady()
 	{
@@ -201,36 +147,16 @@ class TreeSocket : public InspSocket
 		return (data != NULL);
 	}
 
-	// For outbound (connect style()) sockets only, the connection
-	// may time out, meaning that the time taken to connect was
-	// more than you specified when constructing the object.
-	// If this occurs, the OnTimeout method, as well as OnError,
-	// will be called to notify your class of the event.
-	
         virtual void OnTimeout()
 	{
 		Srv->SendToModeMask("o",WM_AND,"*** TIMED OUT ***");
 	}
-
-	// For any type of socket, when the file descriptor is freed
-	// with close(), under any situation, the OnClose() method
-	// will be called.
 
         virtual void OnClose()
 	{
 		Srv->SendToModeMask("o",WM_AND,"*** CLOSED ***");
 	}
 
-	// When a connection comes in over an inbound (listen() style)
-	// socket, the OnIncomingConnection method is triggered. You
-	// will be given a new file descriptor, and the ip of the
-	// connecting host. Most of the time, you will want to
-	// instantiate another class inherited from InspSocket,
-	// using the (int) constructor which will associate that class
-	// with the new file descriptor. You will usually then need
-	// to add that socket to the core, so that you will receive
-	// notifications for its activity.
-	
 	virtual int OnIncomingConnection(int newsock, char* ip)
 	{
 		TreeSocket* s = new TreeSocket(newsock);
@@ -265,7 +191,6 @@ class ModuleSpanningTree : public Module
 				{
 					IP = "";
 				}
-				// TODO: Error check here for failed bindings
 				TreeSocket* listener = new TreeSocket(IP.c_str(),Port,true,10);
 				if (listener->GetState() == I_LISTENING)
 				{
@@ -304,6 +229,59 @@ class ModuleSpanningTree : public Module
 		TreeRoot = new TreeServer(Srv->GetServerName(),Srv->GetServerDescription());
 
 		ReadConfiguration(true);
+	}
+
+	void HandleLinks(char** parameters, int pcnt, userrec* user)
+	{
+		return;
+	}
+
+	void HandleLusers(char** parameters, int pcnt, userrec* user)
+	{
+		return;
+	}
+
+	void HandleMap(char** parameters, int pcnt, userrec* user)
+	{
+		return;
+	}
+
+	int HandleSquit(char** parameters, int pcnt, userrec* user)
+	{
+		return 1;
+	}
+
+	int HandleConnect(char** parameters, int pcnt, userrec* user)
+	{
+		return 1;
+	}
+
+	virtual int OnPreCommand(std::string command, char **parameters, int pcnt, userrec *user)
+	{
+		if (command == "CONNECT")
+		{
+			return this->HandleConnect(parameters,pcnt,user);
+		}
+		else if (command == "SQUIT")
+		{
+			return this->HandleSquit(parameters,pcnt,user);
+		}
+		else if (command == "MAP")
+		{
+			this->HandleMap(parameters,pcnt,user);
+			return 1;
+		}
+		else if (command == "LUSERS")
+		{
+			this->HandleLusers(parameters,pcnt,user);
+			return 1;
+		}
+		else if (command == "LINKS")
+		{
+			this->HandleLinks(parameters,pcnt,user);
+			return 1;
+		}
+		return 0;
 	}
 
 	virtual ~ModuleSpanningTree()
