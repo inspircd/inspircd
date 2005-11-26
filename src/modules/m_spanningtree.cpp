@@ -2,7 +2,7 @@
  *       | Inspire Internet Relay Chat Daemon |
  *       +------------------------------------+
  *
- *  Inspire is copyright (C) 2002-2004 ChatSpike-Dev.
+ *  Inspire is copyright (C) 2002-2005 ChatSpike-Dev.
  *                       E-mail:
  *                <brain@chatspike.net>
  *           	  <Craig@chatspike.net>
@@ -22,6 +22,56 @@ using namespace std;
 #include "channels.h"
 #include "modules.h"
 #include "socket.h"
+
+enum ServerState { CONNECTING, WAIT_AUTH_1, WAIT_AUTH_2, CONNECTED };
+
+class TreeServer;
+class TreeSocket;
+
+class TreeServer
+{
+	TreeServer* Parent;
+	std::vector<TreeServer*> Children;
+	std::string ServerName;
+	std::string ServerDesc;
+	std::string VersionString;
+	int UserCount;
+	int OperCount;
+	ServerState State;
+	TreeSocket* Socket;	// for directly connected servers this points at the socket object
+	
+ public:
+
+	TreeServer()
+	{
+	}
+
+	TreeServer(std::string Name, std::string Desc) : ServerName(Name), ServerDesc(Desc)
+	{
+	}
+
+	TreeServer(std::string Name, std::string Desc, TreeServer* Above) : Parent(Above), ServerName(Name), ServerDesc(Desc)
+	{
+	}
+
+	void AddChild(TreeServer* Child)
+	{
+		Children.push_back(Child);
+	}
+
+	bool DelChild(TreeServer* Child)
+	{
+		for (std::vector<TreeServer*>::iterator a = Children.begin(); a < Children.end(); a++)
+		{
+			if (*a == Child)
+			{
+				Children.erase(a);
+				return true;
+			}
+		}
+		return false;
+	}
+};
 
 /* $ModDesc: Povides a spanning tree server link protocol */
 
