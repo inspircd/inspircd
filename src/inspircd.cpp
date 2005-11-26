@@ -2342,6 +2342,7 @@ int InspIRCd(char** argv, int argc)
 			InspSocket* s = (InspSocket*)*a;
 			if (!s->Poll())
 			{
+				s->Close();
 				delete s;
 				module_sockets.erase(a);
 				break;

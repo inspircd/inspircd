@@ -115,6 +115,7 @@ char* InspSocket::Read()
 	}
 	else
 	{
+		log(DEBUG,"EOF or error on socket");
 		return NULL;
 	}
 }
@@ -166,6 +167,7 @@ bool InspSocket::Poll()
 		switch (this->state)
 		{
 			case I_CONNECTING:
+				this->SetState(I_CONNECTED);
 				return this->OnConnected();
 			break;
 			case I_LISTENING:
@@ -184,6 +186,7 @@ bool InspSocket::Poll()
 
 void InspSocket::SetState(InspSocketState s)
 {
+	log(DEBUG,"Socket state change");
 	this->state = s;
 }
 

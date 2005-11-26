@@ -1099,6 +1099,10 @@ class Server : public classbase
 	/** Adds a class derived from InspSocket to the server's socket engine.
 	 */
 	virtual void AddSocket(InspSocket* sock);
+
+	/** Deletes a class derived from InspSocket from the server's socket engine.
+	 */
+	virtual void DelSocket(InspSocket* sock);
 };
 
 

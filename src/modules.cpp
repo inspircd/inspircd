@@ -377,6 +377,18 @@ void Server::AddSocket(InspSocket* sock)
 	module_sockets.push_back(sock);
 }
 
+void Server::DelSocket(InspSocket* sock)
+{
+	for (std::vector<InspSocket*>::iterator a = module_sockets.begin(); a < module_sockets.end(); a++)
+	{
+		if (*a == sock)
+		{
+			module_sockets.erase(a);
+			return;
+		}
+	}
+}
+
 void Server::SendOpers(std::string s)
 {
 	WriteOpers("%s",s.c_str());
