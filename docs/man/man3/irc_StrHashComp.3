@@ -1,4 +1,4 @@
-.TH "irc::StrHashComp" 3 "30 May 2005" "InspIRCd" \" -*- nroff -*-
+.TH "irc::StrHashComp" 3 "27 Nov 2005" "Version 1.0Betareleases" "InspIRCd" \" -*- nroff -*-
 .ad l
 .nh
 .SH NAME
@@ -14,7 +14,7 @@ irc::StrHashComp \- This class returns true if two strings match.
 
 .in +1c
 .ti -1c
-.RI "bool \fBoperator()\fP (const std::string &s1, const std::string &s2) const"
+.RI "bool \fBoperator()\fP (const \fBstd::string\fP &s1, const \fBstd::string\fP &s2) const "
 .br
 .RI "\fIThe operator () does the actual comparison in hash_map. \fP"
 .in -1c
@@ -27,9 +27,11 @@ Case sensitivity is ignored, and the RFC 'character set' is adhered to
 Definition at line 80 of file hashcomp.h.
 .SH "Member Function Documentation"
 .PP 
-.SS "bool irc::StrHashComp::operator() (const std::string & s1, const std::string & s2) const"
+.SS "bool irc::StrHashComp::operator() (const \fBstd::string\fP & s1, const \fBstd::string\fP & s2) const"
 .PP
 The operator () does the actual comparison in hash_map. 
+.PP
+
 
 .SH "Author"
 .PP 

@@ -1,4 +1,4 @@
-.TH "channels.cpp" 3 "30 May 2005" "InspIRCd" \" -*- nroff -*-
+.TH "channels.cpp" 3 "27 Nov 2005" "Version 1.0Betareleases" "InspIRCd" \" -*- nroff -*-
 .ad l
 .nh
 .SH NAME
@@ -36,11 +36,7 @@ channels.cpp \-
 .br
 \fC#include <deque>\fP
 .br
-\fC#include 'connection.h'\fP
-.br
 \fC#include 'users.h'\fP
-.br
-\fC#include 'servers.h'\fP
 .br
 \fC#include 'ctables.h'\fP
 .br
@@ -156,7 +152,7 @@ channels.cpp \-
 .RI "time_t \fBnb_start\fP"
 .br
 .ti -1c
-.RI "std::vector< std::string > \fBmodule_names\fP"
+.RI "std::vector< \fBstd::string\fP > \fBmodule_names\fP"
 .br
 .ti -1c
 .RI "int \fBboundPortCount\fP"
@@ -165,22 +161,10 @@ channels.cpp \-
 .RI "int \fBportCount\fP"
 .br
 .ti -1c
-.RI "int \fBSERVERportCount\fP"
-.br
-.ti -1c
 .RI "int \fBports\fP [MAXSOCKS]"
 .br
 .ti -1c
-.RI "int \fBdefaultRoute\fP"
-.br
-.ti -1c
-.RI "std::vector< long > \fBauth_cookies\fP"
-.br
-.ti -1c
 .RI "std::stringstream \fBconfig_f\fP"
-.br
-.ti -1c
-.RI "\fBserverrec\fP * \fBme\fP [32]"
 .br
 .ti -1c
 .RI "FILE * \fBlog_file\fP"
@@ -196,138 +180,88 @@ channels.cpp \-
 .PP 
 .SS "#define nspace   std"
 .PP
-Definition at line 55 of file channels.cpp.
+Definition at line 53 of file channels.cpp.
 .SH "Variable Documentation"
 .PP 
 .SS "char \fBAdminEmail\fP[MAXBUF]"
 .PP
-Definition at line 67 of file channels.cpp.
 .SS "char \fBAdminName\fP[MAXBUF]"
 .PP
-Definition at line 66 of file channels.cpp.
 .SS "char \fBAdminNick\fP[MAXBUF]"
 .PP
-Definition at line 68 of file channels.cpp.
-.SS "std::vector<long> \fBauth_cookies\fP"
-.PP
-Definition at line 94 of file channels.cpp.
 .SS "int \fBboundPortCount\fP"
 .PP
-Definition at line 88 of file channels.cpp.
 .SS "std::stringstream \fBconfig_f\fP"
-.PP
-Definition at line 95 of file channels.cpp.
 .PP
 Referenced by userrec::HasPermission().
 .SS "std::vector<\fBModeParameter\fP> \fBcustom_mode_params\fP"
 .PP
-Definition at line 105 of file channels.cpp.
+Definition at line 99 of file channels.cpp.
 .PP
 Referenced by chanrec::GetModeParameter(), and chanrec::SetCustomModeParam().
 .SS "int \fBdebugging\fP"
 .PP
-Definition at line 77 of file channels.cpp.
-.SS "int \fBdefaultRoute\fP"
-.PP
-Definition at line 92 of file channels.cpp.
 .SS "int \fBDieDelay\fP"
 .PP
-Definition at line 80 of file channels.cpp.
 .SS "char \fBdiepass\fP[MAXBUF]"
 .PP
-Definition at line 69 of file channels.cpp.
 .SS "char \fBDieValue\fP[MAXBUF]"
 .PP
-Definition at line 75 of file channels.cpp.
 .SS "std::vector<\fBircd_module\fP*> factory"
 .PP
-Definition at line 60 of file channels.cpp.
 .SS "char \fBlist\fP[MAXBUF]"
-.PP
-Definition at line 73 of file channels.cpp.
 .PP
 Referenced by Server::GetUsers().
 .SS "FILE* \fBlog_file\fP"
 .PP
-Definition at line 99 of file channels.cpp.
 .SS "int \fBLogLevel\fP"
 .PP
-Definition at line 62 of file channels.cpp.
 .SS "int \fBMaxWhoResults\fP"
 .PP
-Definition at line 83 of file channels.cpp.
-.SS "\fBserverrec\fP* \fBme\fP[32]"
-.PP
-Definition at line 97 of file channels.cpp.
-.PP
-Referenced by IsRoutable().
+Definition at line 81 of file channels.cpp.
 .SS "int \fBMODCOUNT\fP = -1"
 .PP
-Definition at line 1019 of file modules.cpp.
+Definition at line 994 of file modules.cpp.
 .PP
 Referenced by Server::FindModule().
-.SS "std::vector<std::string> \fBmodule_names\fP"
-.PP
-Definition at line 86 of file channels.cpp.
+.SS "std::vector<\fBstd::string\fP> \fBmodule_names\fP"
 .PP
 Referenced by Server::FindModule().
 .SS "std::vector<\fBModule\fP*> modules"
 .PP
-Definition at line 59 of file channels.cpp.
-.PP
 Referenced by Server::FindModule().
 .SS "char \fBmotd\fP[MAXBUF]"
 .PP
-Definition at line 71 of file channels.cpp.
 .SS "time_t \fBnb_start\fP"
 .PP
-Definition at line 84 of file channels.cpp.
 .SS "int \fBNetBufferSize\fP"
 .PP
-Definition at line 82 of file channels.cpp.
 .SS "char \fBNetwork\fP[MAXBUF]"
 .PP
-Definition at line 64 of file channels.cpp.
 .SS "int \fBportCount\fP"
 .PP
-Definition at line 89 of file channels.cpp.
 .SS "int \fBports\fP[MAXSOCKS]"
 .PP
-Definition at line 91 of file channels.cpp.
 .SS "char \fBPrefixQuit\fP[MAXBUF]"
 .PP
-Definition at line 74 of file channels.cpp.
 .SS "char \fBrestartpass\fP[MAXBUF]"
 .PP
-Definition at line 70 of file channels.cpp.
 .SS "char \fBrules\fP[MAXBUF]"
 .PP
-Definition at line 72 of file channels.cpp.
 .SS "char \fBServerDesc\fP[MAXBUF]"
 .PP
-Definition at line 65 of file channels.cpp.
 .SS "char \fBServerName\fP[MAXBUF]"
 .PP
-Definition at line 63 of file channels.cpp.
-.PP
 Referenced by userrec::userrec().
-.SS "int \fBSERVERportCount\fP"
-.PP
-Definition at line 90 of file channels.cpp.
 .SS "time_t \fBstartup_time\fP"
 .PP
-Definition at line 81 of file channels.cpp.
 .SS "time_t \fBTIME\fP"
 .PP
-Definition at line 101 of file channels.cpp.
-.PP
-Referenced by serverrec::FlushWriteBuffers(), serverrec::serverrec(), and userrec::userrec().
+Referenced by userrec::userrec().
 .SS "int \fBWHOWAS_MAX\fP"
 .PP
-Definition at line 79 of file channels.cpp.
 .SS "int \fBWHOWAS_STALE\fP"
 .PP
-Definition at line 78 of file channels.cpp.
 .SH "Author"
 .PP 
 Generated automatically by Doxygen for InspIRCd from the source code.

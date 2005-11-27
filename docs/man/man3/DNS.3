@@ -1,4 +1,4 @@
-.TH "DNS" 3 "30 May 2005" "InspIRCd" \" -*- nroff -*-
+.TH "DNS" 3 "27 Nov 2005" "Version 1.0Betareleases" "InspIRCd" \" -*- nroff -*-
 .ad l
 .nh
 .SH NAME
@@ -18,7 +18,7 @@ DNS \- The DNS class allows fast nonblocking resolution of hostnames and ip addr
 .br
 .RI "\fIThe default constructor uses dns addresses read from /etc/resolv.conf. \fP"
 .ti -1c
-.RI "\fBDNS\fP (std::string dnsserver)"
+.RI "\fBDNS\fP (\fBstd::string\fP dnsserver)"
 .br
 .RI "\fIThis constructor accepts a dns server address. \fP"
 .ti -1c
@@ -26,11 +26,11 @@ DNS \- The DNS class allows fast nonblocking resolution of hostnames and ip addr
 .br
 .RI "\fIThe destructor frees all used structures. \fP"
 .ti -1c
-.RI "bool \fBReverseLookup\fP (std::string ip)"
+.RI "bool \fBReverseLookup\fP (\fBstd::string\fP ip)"
 .br
 .RI "\fIThis method will start the reverse lookup of an ip given in dotted decimal format, e.g. \fP"
 .ti -1c
-.RI "bool \fBForwardLookup\fP (std::string host)"
+.RI "bool \fBForwardLookup\fP (\fBstd::string\fP host)"
 .br
 .RI "\fIThis method will start the forward lookup of a hostname, e.g. \fP"
 .ti -1c
@@ -38,7 +38,7 @@ DNS \- The DNS class allows fast nonblocking resolution of hostnames and ip addr
 .br
 .RI "\fIThis method will return true when the lookup is completed. \fP"
 .ti -1c
-.RI "std::string \fBGetResult\fP ()"
+.RI "\fBstd::string\fP \fBGetResult\fP ()"
 .br
 .RI "\fIThis method returns the result of your query as a string, depending upon wether you called \fBDNS::ReverseLookup()\fP or \fBDNS::ForwardLookup\fP. \fP"
 .ti -1c
@@ -46,7 +46,7 @@ DNS \- The DNS class allows fast nonblocking resolution of hostnames and ip addr
 .br
 .RI "\fIThis method returns the file handle used by the dns query socket or zero if the query is invalid for some reason, e.g. \fP"
 .ti -1c
-.RI "void \fBSetNS\fP (std::string dnsserver)"
+.RI "void \fBSetNS\fP (\fBstd::string\fP dnsserver)"
 .br
 .in -1c
 .SS "Private Member Functions"
@@ -108,80 +108,94 @@ DNS \- The DNS class allows fast nonblocking resolution of hostnames and ip addr
 .RI "int \fBt\fP"
 .br
 .ti -1c
-.RI "unsigned int \fBfd\fP"
+.RI "int \fBfd\fP"
 .br
 .in -1c
 .SH "Detailed Description"
 .PP 
 The DNS class allows fast nonblocking resolution of hostnames and ip addresses. 
 
-It is based heavily upon firedns by Ian Gulliver. 
+It is based heavily upon firedns by Ian Gulliver.
 .PP
 Definition at line 35 of file dns.h.
 .SH "Constructor & Destructor Documentation"
 .PP 
 .SS "DNS::DNS ()"
 .PP
-The default constructor uses dns addresses read from /etc/resolv.conf. Please note that it will re-read /etc/resolv.conf for each copy of the class you instantiate, causing disk access and slow lookups if you create a lot of them. Consider passing the constructor a server address as a parameter instead.
-.SS "DNS::DNS (std::string dnsserver)"
+The default constructor uses dns addresses read from /etc/resolv.conf. 
 .PP
-This constructor accepts a dns server address. The address must be in dotted decimal form, e.g. 1.2.3.4.
-.SS "DNS::~\fBDNS\fP ()"
+Please note that it will re-read /etc/resolv.conf for each copy of the class you instantiate, causing disk access and slow lookups if you create a lot of them. Consider passing the constructor a server address as a parameter instead.
+.SS "DNS::DNS (\fBstd::string\fP dnsserver)"
+.PP
+This constructor accepts a dns server address. 
+.PP
+The address must be in dotted decimal form, e.g. 1.2.3.4.
+.SS "DNS::~DNS ()"
 .PP
 The destructor frees all used structures. 
+.PP
 .SH "Member Function Documentation"
 .PP 
-.SS "in_addr* DNS::dns_aton4 (const char *const ipstring)\fC [private]\fP"
+.SS "in_addr* DNS::dns_aton4 (const char *const  ipstring)\fC [private]\fP"
 .PP
-.SS "in_addr* DNS::dns_aton4_r (const char *const ipstring)\fC [private]\fP"
+.SS "in_addr* DNS::dns_aton4_r (const char *const  ipstring)\fC [private]\fP"
 .PP
-.SS "in_addr* DNS::dns_aton4_s (const char *const ipstring, in_addr *const ip)\fC [private]\fP"
+.SS "in_addr* DNS::dns_aton4_s (const char *const  ipstring, in_addr *const  ip)\fC [private]\fP"
 .PP
-.SS "int DNS::dns_getip4 (const char *const name)\fC [private]\fP"
+.SS "int DNS::dns_getip4 (const char *const  name)\fC [private]\fP"
 .PP
-.SS "int DNS::dns_getip4list (const char *const name)\fC [private]\fP"
+.SS "int DNS::dns_getip4list (const char *const  name)\fC [private]\fP"
 .PP
-.SS "int DNS::dns_getname4 (const in_addr *const ip)\fC [private]\fP"
+.SS "int DNS::dns_getname4 (const in_addr *const  ip)\fC [private]\fP"
 .PP
 .SS "char* DNS::dns_getresult (const int fd)\fC [private]\fP"
 .PP
 .SS "char* DNS::dns_getresult_r (const int fd)\fC [private]\fP"
 .PP
-.SS "char* DNS::dns_getresult_s (const int fd, char *const result)\fC [private]\fP"
+.SS "char* DNS::dns_getresult_s (const int fd, char *const  result)\fC [private]\fP"
 .PP
 .SS "void DNS::dns_init ()\fC [private]\fP"
 .PP
 .SS "void DNS::dns_init_2 (const char * dnsserver)\fC [private]\fP"
 .PP
-.SS "char* DNS::dns_ntoa4 (const in_addr *const ip)\fC [private]\fP"
+.SS "char* DNS::dns_ntoa4 (const in_addr *const  ip)\fC [private]\fP"
 .PP
-.SS "char* DNS::dns_ntoa4_r (const in_addr *const ip)\fC [private]\fP"
+.SS "char* DNS::dns_ntoa4_r (const in_addr *const  ip)\fC [private]\fP"
 .PP
-.SS "char* DNS::dns_ntoa4_s (const in_addr *const ip, char *const result)\fC [private]\fP"
+.SS "char* DNS::dns_ntoa4_s (const in_addr *const  ip, char *const  result)\fC [private]\fP"
 .PP
-.SS "bool DNS::ForwardLookup (std::string host)"
+.SS "bool DNS::ForwardLookup (\fBstd::string\fP host)"
 .PP
-This method will start the forward lookup of a hostname, e.g. www.inspircd.org, and returns true if the lookup was successfully initiated.
+This method will start the forward lookup of a hostname, e.g. 
+.PP
+www.inspircd.org, and returns true if the lookup was successfully initiated.
 .SS "int DNS::GetFD ()"
 .PP
-This method returns the file handle used by the dns query socket or zero if the query is invalid for some reason, e.g. the dns server not responding.
-.SS "std::string DNS::GetResult ()"
+This method returns the file handle used by the dns query socket or zero if the query is invalid for some reason, e.g. 
+.PP
+the dns server not responding.
+.SS "\fBstd::string\fP DNS::GetResult ()"
 .PP
 This method returns the result of your query as a string, depending upon wether you called \fBDNS::ReverseLookup()\fP or \fBDNS::ForwardLookup\fP. 
+.PP
 .SS "bool DNS::HasResult ()"
 .PP
-This method will return true when the lookup is completed. It uses poll internally to determine the status of the socket.
-.SS "bool DNS::ReverseLookup (std::string ip)"
+This method will return true when the lookup is completed. 
 .PP
-This method will start the reverse lookup of an ip given in dotted decimal format, e.g. 1.2.3.4, and returns true if the lookup was successfully initiated.
-.SS "void DNS::SetNS (std::string dnsserver)"
+It uses poll internally to determine the status of the socket.
+.SS "bool DNS::ReverseLookup (\fBstd::string\fP ip)"
+.PP
+This method will start the reverse lookup of an ip given in dotted decimal format, e.g. 
+.PP
+1.2.3.4, and returns true if the lookup was successfully initiated.
+.SS "void DNS::SetNS (\fBstd::string\fP dnsserver)"
 .PP
 .SH "Member Data Documentation"
 .PP 
 .SS "in_addr* \fBDNS::binip\fP\fC [private]\fP"
 .PP
 Definition at line 38 of file dns.h.
-.SS "unsigned int \fBDNS::fd\fP\fC [private]\fP"
+.SS "int \fBDNS::fd\fP\fC [private]\fP"
 .PP
 Definition at line 42 of file dns.h.
 .SS "char* \fBDNS::result\fP\fC [private]\fP"

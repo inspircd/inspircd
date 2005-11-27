@@ -1,4 +1,4 @@
-.TH "ucrec" 3 "30 May 2005" "InspIRCd" \" -*- nroff -*-
+.TH "ucrec" 3 "27 Nov 2005" "Version 1.0Betareleases" "InspIRCd" \" -*- nroff -*-
 .ad l
 .nh
 .SH NAME
@@ -28,7 +28,7 @@ Inherits \fBclassbase\fP.
 .ti -1c
 .RI "char \fBuc_modes\fP"
 .br
-.RI "\fIContains a bitmask of the UCMODE_OP ... \fP"
+.RI "\fIContains a bitmask of the UCMODE_OP . \fP"
 .ti -1c
 .RI "\fBchanrec\fP * \fBchannel\fP"
 .br
@@ -38,7 +38,7 @@ Inherits \fBclassbase\fP.
 .PP 
 Holds a user's modes on a channel This class associates a users privilages with a channel by creating a pointer link between a userrec and chanrec class. 
 
-The uc_modes member holds a bitmask of which privilages the user has on the channel, such as op, voice, etc. 
+The uc_modes member holds a bitmask of which privilages the user has on the channel, such as op, voice, etc.
 .PP
 Definition at line 241 of file channels.h.
 .SH "Constructor & Destructor Documentation"
@@ -50,23 +50,33 @@ Definition at line 254 of file channels.h.
 .nf
 254 { /* stub */ }
 .fi
-.SS "virtual ucrec::~\fBucrec\fP ()\fC [inline, virtual]\fP"
+.PP
+.SS "virtual ucrec::~ucrec ()\fC [inline, virtual]\fP"
 .PP
 Definition at line 255 of file channels.h.
 .PP
 .nf
 255 { /* stub */ }
 .fi
+.PP
 .SH "Member Data Documentation"
 .PP 
 .SS "\fBchanrec\fP* \fBucrec::channel\fP"
 .PP
-Points to the channel record where the given modes apply. If the record is not in use, this value will be NULL.Definition at line 252 of file channels.h.
+Points to the channel record where the given modes apply. 
+.PP
+If the record is not in use, this value will be NULL.
+.PP
+Definition at line 252 of file channels.h.
 .PP
 Referenced by Server::PseudoToUser(), and userrec::userrec().
 .SS "char \fBucrec::uc_modes\fP"
 .PP
-Contains a bitmask of the UCMODE_OP ... UCMODE_FOUNDER values. If this value is zero, the user has no privilages upon the channel.Definition at line 247 of file channels.h.
+Contains a bitmask of the UCMODE_OP . 
+.PP
+.. UCMODE_FOUNDER values. If this value is zero, the user has no privilages upon the channel.
+.PP
+Definition at line 247 of file channels.h.
 .PP
 Referenced by userrec::userrec().
 

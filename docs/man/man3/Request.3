@@ -1,4 +1,4 @@
-.TH "Request" 3 "30 May 2005" "InspIRCd" \" -*- nroff -*-
+.TH "Request" 3 "27 Nov 2005" "Version 1.0Betareleases" "InspIRCd" \" -*- nroff -*-
 .ad l
 .nh
 .SH NAME
@@ -56,88 +56,111 @@ Inherits \fBModuleMessage\fP.
 .PP 
 The Request class is a unicast message directed at a given module. 
 
-When this class is properly instantiated it may be sent to a module using the \fBSend()\fP method, which will call the given module's OnRequest method with this class as its parameter. 
+When this class is properly instantiated it may be sent to a module using the \fBSend()\fP method, which will call the given module's OnRequest method with this class as its parameter.
 .PP
-Definition at line 154 of file modules.h.
+Definition at line 156 of file modules.h.
 .SH "Constructor & Destructor Documentation"
 .PP 
 .SS "Request::Request (char * anydata, \fBModule\fP * src, \fBModule\fP * dst)"
 .PP
-Create a new Request. Definition at line 251 of file modules.cpp.
+Create a new Request. 
+.PP
+Definition at line 252 of file modules.cpp.
 .PP
 .nf
-251 : data(anydata), source(src), dest(dst) { };
+252 : data(anydata), source(src), dest(dst) { };
 .fi
+.PP
 .SH "Member Function Documentation"
 .PP 
 .SS "char * Request::GetData ()"
 .PP
-Fetch the Request data. Definition at line 253 of file modules.cpp.
+Fetch the Request data. 
+.PP
+Definition at line 254 of file modules.cpp.
 .PP
 References data.
 .PP
 .nf
-254 {
-255         return this->data;
-256 }
+255 {
+256         return this->data;
+257 }
 .fi
+.PP
 .SS "\fBModule\fP * Request::GetDest ()"
 .PP
-Fetch the request destination (should be 'this' in the receiving module). Definition at line 263 of file modules.cpp.
+Fetch the request destination (should be 'this' in the receiving module). 
+.PP
+Definition at line 264 of file modules.cpp.
 .PP
 References dest.
 .PP
 .nf
-264 {
-265         return this->dest;
-266 }
+265 {
+266         return this->dest;
+267 }
 .fi
+.PP
 .SS "\fBModule\fP * Request::GetSource ()"
 .PP
-Fetch the request source. Definition at line 258 of file modules.cpp.
+Fetch the request source. 
+.PP
+Definition at line 259 of file modules.cpp.
 .PP
 References source.
 .PP
 .nf
-259 {
-260         return this->source;
-261 }
+260 {
+261         return this->source;
+262 }
 .fi
+.PP
 .SS "char * Request::Send ()\fC [virtual]\fP"
 .PP
-Send the Request. Upon returning the result will be arbitary data returned by the module you sent the request to. It is up to your module to know what this data is and how to deal with it. Implements \fBModuleMessage\fP.
+Send the Request. 
 .PP
-Definition at line 268 of file modules.cpp.
+Upon returning the result will be arbitary data returned by the module you sent the request to. It is up to your module to know what this data is and how to deal with it.
+.PP
+Implements \fBModuleMessage\fP.
+.PP
+Definition at line 269 of file modules.cpp.
 .PP
 References dest, and Module::OnRequest().
 .PP
 .nf
-269 {
-270         if (this->dest)
-271         {
-272                 return dest->OnRequest(this);
-273         }
-274         else
-275         {
-276                 return NULL;
-277         }
-278 }
+270 {
+271         if (this->dest)
+272         {
+273                 return dest->OnRequest(this);
+274         }
+275         else
+276         {
+277                 return NULL;
+278         }
+279 }
 .fi
+.PP
 .SH "Member Data Documentation"
 .PP 
 .SS "char* \fBRequest::data\fP\fC [protected]\fP"
 .PP
-This member holds a pointer to arbitary data set by the emitter of the message. Definition at line 159 of file modules.h.
+This member holds a pointer to arbitary data set by the emitter of the message. 
+.PP
+Definition at line 161 of file modules.h.
 .PP
 Referenced by GetData().
 .SS "\fBModule\fP* \fBRequest::dest\fP\fC [protected]\fP"
 .PP
-The single destination of the Request. Definition at line 166 of file modules.h.
+The single destination of the Request. 
+.PP
+Definition at line 168 of file modules.h.
 .PP
 Referenced by GetDest(), and Send().
 .SS "\fBModule\fP* \fBRequest::source\fP\fC [protected]\fP"
 .PP
-This is a pointer to the sender of the message, which can be used to directly trigger events, or to create a reply. Definition at line 163 of file modules.h.
+This is a pointer to the sender of the message, which can be used to directly trigger events, or to create a reply. 
+.PP
+Definition at line 165 of file modules.h.
 .PP
 Referenced by GetSource().
 

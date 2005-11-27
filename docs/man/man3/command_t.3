@@ -1,4 +1,4 @@
-.TH "command_t" 3 "30 May 2005" "InspIRCd" \" -*- nroff -*-
+.TH "command_t" 3 "27 Nov 2005" "Version 1.0Betareleases" "InspIRCd" \" -*- nroff -*-
 .ad l
 .nh
 .SH NAME
@@ -46,30 +46,46 @@ Inherits \fBExtensible\fP.
 .in -1c
 .SH "Detailed Description"
 .PP 
-A structure that defines a command. Definition at line 26 of file ctables.h.
+A structure that defines a command. 
+.PP
+Definition at line 26 of file ctables.h.
 .SH "Member Data Documentation"
 .PP 
 .SS "char \fBcommand_t::command\fP[MAXBUF]"
 .PP
-Command name. Definition at line 31 of file ctables.h.
+Command name. 
+.PP
+Definition at line 31 of file ctables.h.
 .SS "char \fBcommand_t::flags_needed\fP"
 .PP
-User flags needed to execute the command or 0. Definition at line 37 of file ctables.h.
+User flags needed to execute the command or 0. 
+.PP
+Definition at line 37 of file ctables.h.
 .SS "handlerfunc* \fBcommand_t::handler_function\fP"
 .PP
-Handler function as in typedef. Definition at line 34 of file ctables.h.
+Handler function as in typedef. 
+.PP
+Definition at line 34 of file ctables.h.
 .SS "int \fBcommand_t::min_params\fP"
 .PP
-Minimum number of parameters command takes. Definition at line 40 of file ctables.h.
+Minimum number of parameters command takes. 
+.PP
+Definition at line 40 of file ctables.h.
 .SS "char \fBcommand_t::source\fP[MAXBUF]"
 .PP
-used for resource tracking between modules Definition at line 49 of file ctables.h.
+used for resource tracking between modules 
+.PP
+Definition at line 49 of file ctables.h.
 .SS "long \fBcommand_t::total_bytes\fP"
 .PP
-used by /stats m Definition at line 46 of file ctables.h.
+used by /stats m 
+.PP
+Definition at line 46 of file ctables.h.
 .SS "long \fBcommand_t::use_count\fP"
 .PP
-used by /stats m Definition at line 43 of file ctables.h.
+used by /stats m 
+.PP
+Definition at line 43 of file ctables.h.
 
 .SH "Author"
 .PP 

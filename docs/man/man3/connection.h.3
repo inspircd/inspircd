@@ -1,4 +1,4 @@
-.TH "connection.h" 3 "30 May 2005" "InspIRCd" \" -*- nroff -*-
+.TH "connection.h" 3 "27 Nov 2005" "Version 1.0Betareleases" "InspIRCd" \" -*- nroff -*-
 .ad l
 .nh
 .SH NAME
@@ -35,77 +35,14 @@ connection.h \-
 \fC#include <sstream>\fP
 .br
 
-.SS "Compounds"
+.SS "Classes"
 
 .in +1c
 .ti -1c
 .RI "class \fBconnection\fP"
 .br
 .RI "\fIPlease note: classes serverrec and userrec both inherit from class connection. \fP"
-.ti -1c
-.RI "class \fBircd_connector\fP"
-.br
-.RI "\fIEach connection has one or more of these each represents ONE outbound connection to another ircd so each inbound has multiple outbounds. \fP"
 .in -1c
-.SS "Defines"
-
-.in +1c
-.ti -1c
-.RI "#define \fBSTATE_DISCONNECTED\fP   0"
-.br
-.ti -1c
-.RI "#define \fBSTATE_CONNECTED\fP   1"
-.br
-.ti -1c
-.RI "#define \fBSTATE_SYNC\fP   2"
-.br
-.ti -1c
-.RI "#define \fBSTATE_NOAUTH_INBOUND\fP   3"
-.br
-.ti -1c
-.RI "#define \fBSTATE_NOAUTH_OUTBOUND\fP   4"
-.br
-.ti -1c
-.RI "#define \fBSTATE_SERVICES\fP   5"
-.br
-.in -1c
-.SS "Functions"
-
-.in +1c
-.ti -1c
-.RI "std::string \fBCreateSum\fP ()"
-.br
-.in -1c
-.SH "Define Documentation"
-.PP 
-.SS "#define STATE_CONNECTED   1"
-.PP
-Definition at line 36 of file connection.h.
-.SS "#define STATE_DISCONNECTED   0"
-.PP
-Definition at line 35 of file connection.h.
-.PP
-Referenced by serverrec::BeginLink(), serverrec::FlushWriteBuffers(), IsRoutable(), serverrec::MeshCookie(), serverrec::RecvPacket(), and serverrec::SendPacket().
-.SS "#define STATE_NOAUTH_INBOUND   3"
-.PP
-Definition at line 38 of file connection.h.
-.PP
-Referenced by serverrec::AddIncoming(), and serverrec::FlushWriteBuffers().
-.SS "#define STATE_NOAUTH_OUTBOUND   4"
-.PP
-Definition at line 39 of file connection.h.
-.PP
-Referenced by serverrec::BeginLink(), serverrec::FlushWriteBuffers(), and serverrec::MeshCookie().
-.SS "#define STATE_SERVICES   5"
-.PP
-Definition at line 40 of file connection.h.
-.SS "#define STATE_SYNC   2"
-.PP
-Definition at line 37 of file connection.h.
-.SH "Function Documentation"
-.PP 
-.SS "std::string CreateSum ()"
-.PP
 .SH "Author"
 .PP 
 Generated automatically by Doxygen for InspIRCd from the source code.

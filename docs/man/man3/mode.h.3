@@ -1,4 +1,4 @@
-.TH "mode.h" 3 "30 May 2005" "InspIRCd" \" -*- nroff -*-
+.TH "mode.h" 3 "27 Nov 2005" "Version 1.0Betareleases" "InspIRCd" \" -*- nroff -*-
 .ad l
 .nh
 .SH NAME
@@ -96,6 +96,7 @@ mode.h \-
 .PP
 .SS "void server_mode (char ** parameters, int pcnt, \fBuserrec\fP * user)"
 .PP
+Referenced by Server::SendMode().
 .SS "char* take_ban (\fBuserrec\fP * user, char * dest, \fBchanrec\fP * chan, int status)"
 .PP
 .SS "char* take_hops (\fBuserrec\fP * user, char * dest, \fBchanrec\fP * chan, int status)"

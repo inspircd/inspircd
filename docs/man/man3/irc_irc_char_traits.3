@@ -1,4 +1,4 @@
-.TH "irc::irc_char_traits" 3 "30 May 2005" "InspIRCd" \" -*- nroff -*-
+.TH "irc::irc_char_traits" 3 "27 Nov 2005" "Version 1.0Betareleases" "InspIRCd" \" -*- nroff -*-
 .ad l
 .nh
 .SH NAME
@@ -16,23 +16,23 @@ Inherits \fBchar_traits< char >\fP.
 
 .in +1c
 .ti -1c
-.RI "bool \fBeq\fP (char c1st, char c2nd)"
+.RI "static bool \fBeq\fP (char c1st, char c2nd)"
 .br
 .RI "\fICheck if two chars match. \fP"
 .ti -1c
-.RI "bool \fBne\fP (char c1st, char c2nd)"
+.RI "static bool \fBne\fP (char c1st, char c2nd)"
 .br
 .RI "\fICheck if two chars do NOT match. \fP"
 .ti -1c
-.RI "bool \fBlt\fP (char c1st, char c2nd)"
+.RI "static bool \fBlt\fP (char c1st, char c2nd)"
 .br
 .RI "\fICheck if one char is less than another. \fP"
 .ti -1c
-.RI "int \fBcompare\fP (const char *str1, const char *str2, size_t n)"
+.RI "static int \fBcompare\fP (const char *str1, const char *str2, size_t n)"
 .br
 .RI "\fICompare two strings of size n. \fP"
 .ti -1c
-.RI "const char * \fBfind\fP (const char *s1, int n, char c)"
+.RI "static const char * \fBfind\fP (const char *s1, int n, char c)"
 .br
 .RI "\fIFind a char within a string up to position n. \fP"
 .in -1c
@@ -45,21 +45,27 @@ This class is used to implement \fBirc::string\fP, a case-insensitive, RFC- comp
 Definition at line 104 of file hashcomp.h.
 .SH "Member Function Documentation"
 .PP 
-.SS "int irc::irc_char_traits::compare (const char * str1, const char * str2, size_t n)\fC [static]\fP"
+.SS "static int irc::irc_char_traits::compare (const char * str1, const char * str2, size_t n)\fC [static]\fP"
 .PP
 Compare two strings of size n. 
-.SS "bool irc::irc_char_traits::eq (char c1st, char c2nd)\fC [static]\fP"
+.PP
+.SS "static bool irc::irc_char_traits::eq (char c1st, char c2nd)\fC [static]\fP"
 .PP
 Check if two chars match. 
-.SS "const char* irc::irc_char_traits::find (const char * s1, int n, char c)\fC [static]\fP"
+.PP
+.SS "static const char* irc::irc_char_traits::find (const char * s1, int n, char c)\fC [static]\fP"
 .PP
 Find a char within a string up to position n. 
-.SS "bool irc::irc_char_traits::lt (char c1st, char c2nd)\fC [static]\fP"
+.PP
+.SS "static bool irc::irc_char_traits::lt (char c1st, char c2nd)\fC [static]\fP"
 .PP
 Check if one char is less than another. 
-.SS "bool irc::irc_char_traits::ne (char c1st, char c2nd)\fC [static]\fP"
+.PP
+.SS "static bool irc::irc_char_traits::ne (char c1st, char c2nd)\fC [static]\fP"
 .PP
 Check if two chars do NOT match. 
+.PP
+
 
 .SH "Author"
 .PP 

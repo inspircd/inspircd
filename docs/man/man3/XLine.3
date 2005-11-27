@@ -1,4 +1,4 @@
-.TH "XLine" 3 "30 May 2005" "InspIRCd" \" -*- nroff -*-
+.TH "XLine" 3 "27 Nov 2005" "Version 1.0Betareleases" "InspIRCd" \" -*- nroff -*-
 .ad l
 .nh
 .SH NAME
@@ -40,24 +40,38 @@ Inherited by \fBELine\fP, \fBGLine\fP, \fBKLine\fP, \fBQLine\fP, and \fBZLine\fP
 .in -1c
 .SH "Detailed Description"
 .PP 
-XLine is the base class for ban lines such as G lines and K lines. Definition at line 34 of file xline.h.
+XLine is the base class for ban lines such as G lines and K lines. 
+.PP
+Definition at line 34 of file xline.h.
 .SH "Member Data Documentation"
 .PP 
 .SS "long \fBXLine::duration\fP"
 .PP
-The duration of the ban, or 0 if permenant. Definition at line 44 of file xline.h.
+The duration of the ban, or 0 if permenant. 
+.PP
+Definition at line 44 of file xline.h.
 .SS "long \fBXLine::n_matches\fP"
 .PP
-Number of times the core matches the ban, for statistics. Definition at line 56 of file xline.h.
+Number of times the core matches the ban, for statistics. 
+.PP
+Definition at line 56 of file xline.h.
 .SS "char \fBXLine::reason\fP[MAXBUF]"
 .PP
-Reason for the ban. Definition at line 52 of file xline.h.
+Reason for the ban. 
+.PP
+Definition at line 52 of file xline.h.
 .SS "time_t \fBXLine::set_time\fP"
 .PP
-The time the line was added. Definition at line 40 of file xline.h.
+The time the line was added. 
+.PP
+Definition at line 40 of file xline.h.
 .SS "char \fBXLine::source\fP[256]"
 .PP
-Source of the ban. This can be a servername or an oper nicknameDefinition at line 48 of file xline.h.
+Source of the ban. 
+.PP
+This can be a servername or an oper nickname
+.PP
+Definition at line 48 of file xline.h.
 
 .SH "Author"
 .PP 

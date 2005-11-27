@@ -1,4 +1,4 @@
-.TH "Extensible" 3 "30 May 2005" "InspIRCd" \" -*- nroff -*-
+.TH "Extensible" 3 "27 Nov 2005" "Version 1.0Betareleases" "InspIRCd" \" -*- nroff -*-
 .ad l
 .nh
 .SH NAME
@@ -12,21 +12,21 @@ Extensible \- class Extensible is the parent class of many classes such as userr
 .PP
 Inherits \fBclassbase\fP.
 .PP
-Inherited by \fBchanrec\fP, \fBcommand_t\fP, \fBconnection\fP, and \fBircd_connector\fP.
+Inherited by \fBchanrec\fP, \fBcommand_t\fP, and \fBconnection\fP.
 .PP
 .SS "Public Member Functions"
 
 .in +1c
 .ti -1c
-.RI "bool \fBExtend\fP (std::string key, char *p)"
+.RI "bool \fBExtend\fP (\fBstd::string\fP key, char *p)"
 .br
 .RI "\fIExtend an Extensible class. \fP"
 .ti -1c
-.RI "bool \fBShrink\fP (std::string key)"
+.RI "bool \fBShrink\fP (\fBstd::string\fP key)"
 .br
 .RI "\fIShrink an Extensible class. \fP"
 .ti -1c
-.RI "char * \fBGetExt\fP (std::string key)"
+.RI "char * \fBGetExt\fP (\fBstd::string\fP key)"
 .br
 .RI "\fIGet an extension item. \fP"
 .in -1c
@@ -34,7 +34,7 @@ Inherited by \fBchanrec\fP, \fBcommand_t\fP, \fBconnection\fP, and \fBircd_conne
 
 .in +1c
 .ti -1c
-.RI "std::map< std::string, char * > \fBExtension_Items\fP"
+.RI "std::map< \fBstd::string\fP, char * > \fBExtension_Items\fP"
 .br
 .RI "\fIPrivate data store. \fP"
 .in -1c
@@ -42,14 +42,16 @@ Inherited by \fBchanrec\fP, \fBcommand_t\fP, \fBconnection\fP, and \fBircd_conne
 .PP 
 class Extensible is the parent class of many classes such as userrec and chanrec. 
 
-class Extensible implements a system which allows modules to 'extend' the class by attaching data within a map associated with the object. In this way modules can store their own custom information within user objects, channel objects and server objects, without breaking other modules (this is more sensible than using a flags variable, and each module defining bits within the flag as 'theirs' as it is less prone to conflict and supports arbitary data storage). 
+class Extensible implements a system which allows modules to 'extend' the class by attaching data within a map associated with the object. In this way modules can store their own custom information within user objects, channel objects and server objects, without breaking other modules (this is more sensible than using a flags variable, and each module defining bits within the flag as 'theirs' as it is less prone to conflict and supports arbitary data storage).
 .PP
 Definition at line 50 of file base.h.
 .SH "Member Function Documentation"
 .PP 
-.SS "bool Extensible::Extend (std::string key, char * p)"
+.SS "bool Extensible::Extend (\fBstd::string\fP key, char * p)"
 .PP
-Extend an Extensible class. \fBParameters:\fP
+Extend an Extensible class. 
+.PP
+\fBParameters:\fP
 .RS 4
 \fIkey\fP The key parameter is an arbitary string which identifies the extension data 
 .br
@@ -64,9 +66,11 @@ Returns true on success, false if otherwise
 .RE
 .PP
 
-.SS "char* Extensible::GetExt (std::string key)"
+.SS "char* Extensible::GetExt (\fBstd::string\fP key)"
 .PP
-Get an extension item. \fBParameters:\fP
+Get an extension item. 
+.PP
+\fBParameters:\fP
 .RS 4
 \fIkey\fP The key parameter is an arbitary string which identifies the extension data
 .RE
@@ -77,9 +81,11 @@ If you provide a non-existent key name, the function returns NULL, otherwise a p
 .RE
 .PP
 
-.SS "bool Extensible::Shrink (std::string key)"
+.SS "bool Extensible::Shrink (\fBstd::string\fP key)"
 .PP
-Shrink an Extensible class. \fBParameters:\fP
+Shrink an Extensible class. 
+.PP
+\fBParameters:\fP
 .RS 4
 \fIkey\fP The key parameter is an arbitary string which identifies the extension data
 .RE
@@ -94,9 +100,11 @@ Returns true on success.
 
 .SH "Member Data Documentation"
 .PP 
-.SS "std::map<std::string,char*> \fBExtensible::Extension_Items\fP\fC [private]\fP"
+.SS "std::map<\fBstd::string\fP,char*> \fBExtensible::Extension_Items\fP\fC [private]\fP"
 .PP
-Private data store. Definition at line 54 of file base.h.
+Private data store. 
+.PP
+Definition at line 54 of file base.h.
 
 .SH "Author"
 .PP 

@@ -1,4 +1,4 @@
-.TH "modules.h" 3 "30 May 2005" "InspIRCd" \" -*- nroff -*-
+.TH "modules.h" 3 "27 Nov 2005" "Version 1.0Betareleases" "InspIRCd" \" -*- nroff -*-
 .ad l
 .nh
 .SH NAME
@@ -12,6 +12,8 @@ modules.h \-
 .br
 \fC#include 'ctables.h'\fP
 .br
+\fC#include 'socket.h'\fP
+.br
 \fC#include <string>\fP
 .br
 \fC#include <deque>\fP
@@ -19,33 +21,17 @@ modules.h \-
 \fC#include <sstream>\fP
 .br
 
-.SS "Compounds"
+.SS "Classes"
 
 .in +1c
+.ti -1c
+.RI "class \fBVersion\fP"
+.br
+.RI "\fIHolds a module's Version information The four members (set by the constructor only) indicate details as to the version number of a module. \fP"
 .ti -1c
 .RI "class \fBAdmin\fP"
 .br
 .RI "\fIHolds /ADMIN data This class contains the admin details of the local server. \fP"
-.ti -1c
-.RI "class \fBConfigReader\fP"
-.br
-.RI "\fIAllows reading of values from configuration files This class allows a module to read from either the main configuration file (inspircd.conf) or from a module-specified configuration file. \fP"
-.ti -1c
-.RI "class \fBEvent\fP"
-.br
-.RI "\fIThe Event class is a unicast message directed at all modules. \fP"
-.ti -1c
-.RI "class \fBFileReader\fP"
-.br
-.RI "\fICaches a text file into memory and can be used to retrieve lines from it. \fP"
-.ti -1c
-.RI "class \fBModule\fP"
-.br
-.RI "\fIBase class for all InspIRCd modules This class is the base class for InspIRCd modules. \fP"
-.ti -1c
-.RI "class \fBModuleFactory\fP"
-.br
-.RI "\fIInstantiates classes inherited from \fBModule\fP This class creates a class inherited from type \fBModule\fP, using new. \fP"
 .ti -1c
 .RI "class \fBModuleMessage\fP"
 .br
@@ -55,13 +41,29 @@ modules.h \-
 .br
 .RI "\fIThe Request class is a unicast message directed at a given module. \fP"
 .ti -1c
+.RI "class \fBEvent\fP"
+.br
+.RI "\fIThe Event class is a unicast message directed at all modules. \fP"
+.ti -1c
+.RI "class \fBModule\fP"
+.br
+.RI "\fIBase class for all InspIRCd modules This class is the base class for InspIRCd modules. \fP"
+.ti -1c
 .RI "class \fBServer\fP"
 .br
 .RI "\fIAllows server output and query functions This class contains methods which allow a module to query the state of the irc server, and produce output to users and other servers. \fP"
 .ti -1c
-.RI "class \fBVersion\fP"
+.RI "class \fBConfigReader\fP"
 .br
-.RI "\fIHolds a module's Version information The four members (set by the constructor only) indicate details as to the version number of a module. \fP"
+.RI "\fIAllows reading of values from configuration files This class allows a module to read from either the main configuration file (inspircd.conf) or from a module-specified configuration file. \fP"
+.ti -1c
+.RI "class \fBFileReader\fP"
+.br
+.RI "\fICaches a text file into memory and can be used to retrieve lines from it. \fP"
+.ti -1c
+.RI "class \fBModuleFactory\fP"
+.br
+.RI "\fIInstantiates classes inherited from \fBModule\fP This class creates a class inherited from type \fBModule\fP, using new. \fP"
 .in -1c
 .SS "Defines"
 
@@ -164,7 +166,7 @@ modules.h \-
 
 .in +1c
 .ti -1c
-.RI "typedef std::deque< std::string > \fBfile_cache\fP"
+.RI "typedef std::deque< \fBstd::string\fP > \fBfile_cache\fP"
 .br
 .RI "\fILow level definition of a \fBFileReader\fP classes file cache area. \fP"
 .ti -1c
@@ -230,45 +232,47 @@ Referenced by Module::OnAccessCheck().
 Definition at line 38 of file modules.h.
 .SS "#define CONF_FILE_NOT_FOUND   0x000200"
 .PP
-Definition at line 1141 of file modules.h.
+Definition at line 1112 of file modules.h.
 .PP
 Referenced by ConfigReader::ConfigReader().
 .SS "#define CONF_NOT_A_NUMBER   0x000010"
 .PP
-Definition at line 1138 of file modules.h.
+Definition at line 1109 of file modules.h.
 .PP
 Referenced by ConfigReader::ReadInteger().
 .SS "#define CONF_NOT_UNSIGNED   0x000080"
 .PP
-Definition at line 1139 of file modules.h.
+Definition at line 1110 of file modules.h.
 .PP
 Referenced by ConfigReader::ReadInteger().
 .SS "#define CONF_VALUE_NOT_FOUND   0x000100"
 .PP
-Definition at line 1140 of file modules.h.
+Definition at line 1111 of file modules.h.
 .PP
 Referenced by ConfigReader::ReadFlag(), ConfigReader::ReadInteger(), and ConfigReader::ReadValue().
 .SS "#define DEBUG   10"
 .PP
 Definition at line 23 of file modules.h.
 .PP
-Referenced by Server::AddExtendedMode(), serverrec::AddIncoming(), chanrec::AddUser(), chanrec::DelUser(), userrec::HasPermission(), chanrec::IsCustomModeSet(), serverrec::RecvPacket(), userrec::RemoveInvite(), serverrec::SendPacket(), chanrec::SetCustomMode(), chanrec::SetCustomModeParam(), userrec::SetWriteError(), and Server::UserToPseudo().
+Referenced by Server::AddExtendedMode(), chanrec::AddUser(), chanrec::DelUser(), userrec::HasPermission(), InspSocket::InspSocket(), chanrec::IsCustomModeSet(), InspSocket::Read(), userrec::ReadData(), userrec::RemoveInvite(), chanrec::SetCustomMode(), chanrec::SetCustomModeParam(), InspSocket::SetState(), userrec::SetWriteError(), and Server::UserToPseudo().
 .SS "#define DEFAULT   30"
 .PP
 Definition at line 25 of file modules.h.
 .SS "#define FD_MAGIC_NUMBER   -42"
 .PP
-Definition at line 99 of file modules.h.
+Definition at line 100 of file modules.h.
 .PP
 Referenced by Server::PseudoToUser(), and Server::UserToPseudo().
 .SS "#define FOREACH_MOD   for (int _i = 0; _i <= \fBMODCOUNT\fP; _i++) modules[_i]->"
 .PP
-Definition at line 79 of file modules.h.
+Definition at line 80 of file modules.h.
 .PP
 Referenced by Event::Send().
 .SS "#define FOREACH_RESULT(x)"
 .PP
-\fBValue:\fP.nf
+\fBValue:\fP
+.PP
+.nf
 { MOD_RESULT = 0; \
                         for (int _i = 0; _i <= MODCOUNT; _i++) { \
                         int res = modules[_i]->x ; \
@@ -280,7 +284,7 @@ Referenced by Event::Send().
         }
 .fi
 .PP
-Definition at line 87 of file modules.h.
+Definition at line 88 of file modules.h.
 .SS "#define MT_CHANNEL   1"
 .PP
 Definition at line 31 of file modules.h.
@@ -323,22 +327,20 @@ Referenced by Module::GetVersion().
 .PP 
 .SS "typedef std::deque<\fBuserrec\fP*> \fBchanuserlist\fP"
 .PP
-Holds a list of users in a channel. Definition at line 72 of file modules.h.
+Holds a list of users in a channel. 
 .PP
-Referenced by Server::GetUsers().
-.SS "typedef std::deque<std::string> \fBfile_cache\fP"
+Definition at line 73 of file modules.h.
+.SS "typedef std::deque<\fBstd::string\fP> \fBfile_cache\fP"
 .PP
-Low level definition of a \fBFileReader\fP classes file cache area. Definition at line 67 of file modules.h.
-.PP
-Referenced by FileReader::FileReader(), and FileReader::LoadFile().
-.SS "typedef DLLFactory<\fBModuleFactory\fP> \fBircd_module\fP"
-.PP
-Definition at line 1307 of file modules.h.
-.SS "typedef \fBfile_cache\fP \fBstring_list\fP"
+Low level definition of a \fBFileReader\fP classes file cache area. 
 .PP
 Definition at line 68 of file modules.h.
+.SS "typedef DLLFactory<\fBModuleFactory\fP> \fBircd_module\fP"
 .PP
-Referenced by Module::OnChannelSync(), and Module::OnUserSync().
+Definition at line 1278 of file modules.h.
+.SS "typedef \fBfile_cache\fP \fBstring_list\fP"
+.PP
+Definition at line 69 of file modules.h.
 .SH "Function Documentation"
 .PP 
 .SS "void createcommand (char * cmd, handlerfunc f, char flags, int minparams, char * source)"
@@ -346,7 +348,6 @@ Referenced by Module::OnChannelSync(), and Module::OnUserSync().
 Referenced by Server::AddCommand().
 .SS "void server_mode (char ** parameters, int pcnt, \fBuserrec\fP * user)"
 .PP
-Referenced by Server::SendMode().
 .SH "Author"
 .PP 
 Generated automatically by Doxygen for InspIRCd from the source code.

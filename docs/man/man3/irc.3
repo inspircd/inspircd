@@ -1,15 +1,20 @@
-.TH "irc" 3 "30 May 2005" "InspIRCd" \" -*- nroff -*-
+.TH "irc" 3 "27 Nov 2005" "Version 1.0Betareleases" "InspIRCd" \" -*- nroff -*-
 .ad l
 .nh
 .SH NAME
 irc \- The irc namespace contains a number of helper classes.  
 
+.PP
 .SH SYNOPSIS
 .br
 .PP
-.SS "Compounds"
+.SS "Classes"
 
 .in +1c
+.ti -1c
+.RI "struct \fBStrHashComp\fP"
+.br
+.RI "\fIThis class returns true if two strings match. \fP"
 .ti -1c
 .RI "struct \fBInAddr_HashComp\fP"
 .br
@@ -18,10 +23,6 @@ irc \- The irc namespace contains a number of helper classes.
 .RI "struct \fBirc_char_traits\fP"
 .br
 .RI "\fIThe \fBirc_char_traits\fP class is used for RFC-style comparison of strings. \fP"
-.ti -1c
-.RI "struct \fBStrHashComp\fP"
-.br
-.RI "\fIThis class returns true if two strings match. \fP"
 .in -1c
 .SS "Typedefs"
 
@@ -38,7 +39,9 @@ The irc namespace contains a number of helper classes.
 .PP 
 .SS "typedef basic_string<char, \fBirc_char_traits\fP, allocator<char> > \fBirc::string\fP"
 .PP
-This typedef declares \fBirc::string\fP based upon \fBirc_char_traits\fP. Definition at line 129 of file hashcomp.h.
+This typedef declares \fBirc::string\fP based upon \fBirc_char_traits\fP. 
+.PP
+Definition at line 129 of file hashcomp.h.
 .SH "Author"
 .PP 
 Generated automatically by Doxygen for InspIRCd from the source code.

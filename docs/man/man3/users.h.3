@@ -1,4 +1,4 @@
-.TH "users.h" 3 "30 May 2005" "InspIRCd" \" -*- nroff -*-
+.TH "users.h" 3 "27 Nov 2005" "Version 1.0Betareleases" "InspIRCd" \" -*- nroff -*-
 .ad l
 .nh
 .SH NAME
@@ -10,24 +10,24 @@ users.h \-
 .br
 \fC#include 'channels.h'\fP
 .br
-\fC#include 'connection.h'\fP
-.br
 \fC#include 'inspstring.h'\fP
+.br
+\fC#include 'connection.h'\fP
 .br
 \fC#include <string>\fP
 .br
 
-.SS "Compounds"
+.SS "Classes"
 
 .in +1c
-.ti -1c
-.RI "class \fBConnectClass\fP"
-.br
-.RI "\fIHolds information relevent to <connect allow> and <connect deny> tags in the config file. \fP"
 .ti -1c
 .RI "class \fBInvited\fP"
 .br
 .RI "\fIHolds a channel name to which a user has been invited. \fP"
+.ti -1c
+.RI "class \fBConnectClass\fP"
+.br
+.RI "\fIHolds information relevent to <connect allow> and <connect deny> tags in the config file. \fP"
 .ti -1c
 .RI "class \fBuserrec\fP"
 .br
@@ -95,12 +95,14 @@ Definition at line 28 of file users.h.
 .PP 
 .SS "typedef std::vector<\fBConnectClass\fP> \fBClassVector\fP"
 .PP
-Holds a complete list of all allow and deny tags from the configuration file (connection classes). Definition at line 100 of file users.h.
+Holds a complete list of all allow and deny tags from the configuration file (connection classes). 
+.PP
+Definition at line 100 of file users.h.
 .SS "typedef std::vector<\fBInvited\fP> \fBInvitedList\fP"
 .PP
-Holds a complete list of all channels to which a user has been invited and has not yet joined. Definition at line 94 of file users.h.
+Holds a complete list of all channels to which a user has been invited and has not yet joined. 
 .PP
-Referenced by userrec::GetInviteList().
+Definition at line 94 of file users.h.
 .SH "Author"
 .PP 
 Generated automatically by Doxygen for InspIRCd from the source code.

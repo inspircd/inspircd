@@ -1,4 +1,4 @@
-.TH "Admin" 3 "30 May 2005" "InspIRCd" \" -*- nroff -*-
+.TH "Admin" 3 "27 Nov 2005" "Version 1.0Betareleases" "InspIRCd" \" -*- nroff -*-
 .ad l
 .nh
 .SH NAME
@@ -16,49 +16,50 @@ Inherits \fBclassbase\fP.
 
 .in +1c
 .ti -1c
-.RI "\fBAdmin\fP (std::string name, std::string email, std::string nick)"
+.RI "\fBAdmin\fP (\fBstd::string\fP name, \fBstd::string\fP email, \fBstd::string\fP nick)"
 .br
 .in -1c
 .SS "Public Attributes"
 
 .in +1c
 .ti -1c
-.RI "const std::string \fBName\fP"
+.RI "const \fBstd::string\fP \fBName\fP"
 .br
 .ti -1c
-.RI "const std::string \fBEmail\fP"
+.RI "const \fBstd::string\fP \fBEmail\fP"
 .br
 .ti -1c
-.RI "const std::string \fBNick\fP"
+.RI "const \fBstd::string\fP \fBNick\fP"
 .br
 .in -1c
 .SH "Detailed Description"
 .PP 
 Holds /ADMIN data This class contains the admin details of the local server. 
 
-It is constructed by class \fBServer\fP, and has three read-only values, Name, Email and Nick that contain the specified values for the server where the module is running. 
+It is constructed by class \fBServer\fP, and has three read-only values, Name, Email and Nick that contain the specified values for the server where the module is running.
 .PP
-Definition at line 123 of file modules.h.
+Definition at line 124 of file modules.h.
 .SH "Constructor & Destructor Documentation"
 .PP 
-.SS "Admin::Admin (std::string name, std::string email, std::string nick)"
+.SS "Admin::Admin (\fBstd::string\fP name, \fBstd::string\fP email, \fBstd::string\fP nick)"
 .PP
-Definition at line 249 of file modules.cpp.
+Definition at line 250 of file modules.cpp.
 .PP
 .nf
-249 : Name(name), Email(email), Nick(nick) { };
+250 : Name(name), Email(email), Nick(nick) { };
 .fi
+.PP
 .SH "Member Data Documentation"
 .PP 
-.SS "const std::string \fBAdmin::Email\fP"
+.SS "const \fBstd::string\fP \fBAdmin::Email\fP"
 .PP
-Definition at line 126 of file modules.h.
-.SS "const std::string \fBAdmin::Name\fP"
+Definition at line 127 of file modules.h.
+.SS "const \fBstd::string\fP \fBAdmin::Name\fP"
 .PP
-Definition at line 126 of file modules.h.
-.SS "const std::string \fBAdmin::Nick\fP"
+Definition at line 127 of file modules.h.
+.SS "const \fBstd::string\fP \fBAdmin::Nick\fP"
 .PP
-Definition at line 126 of file modules.h.
+Definition at line 127 of file modules.h.
 
 .SH "Author"
 .PP 

@@ -1,4 +1,4 @@
-.TH "xline.h" 3 "30 May 2005" "InspIRCd" \" -*- nroff -*-
+.TH "xline.h" 3 "27 Nov 2005" "Version 1.0Betareleases" "InspIRCd" \" -*- nroff -*-
 .ad l
 .nh
 .SH NAME
@@ -23,32 +23,32 @@ xline.h \-
 \fC#include 'channels.h'\fP
 .br
 
-.SS "Compounds"
+.SS "Classes"
 
 .in +1c
-.ti -1c
-.RI "class \fBELine\fP"
-.br
-.ti -1c
-.RI "class \fBGLine\fP"
-.br
-.RI "\fIGLine class. \fP"
-.ti -1c
-.RI "class \fBKLine\fP"
-.br
-.RI "\fIKLine class. \fP"
-.ti -1c
-.RI "class \fBQLine\fP"
-.br
-.RI "\fIQLine class. \fP"
 .ti -1c
 .RI "class \fBXLine\fP"
 .br
 .RI "\fIXLine is the base class for ban lines such as G lines and K lines. \fP"
 .ti -1c
+.RI "class \fBKLine\fP"
+.br
+.RI "\fIKLine class. \fP"
+.ti -1c
+.RI "class \fBGLine\fP"
+.br
+.RI "\fIGLine class. \fP"
+.ti -1c
+.RI "class \fBELine\fP"
+.br
+.ti -1c
 .RI "class \fBZLine\fP"
 .br
 .RI "\fIZLine class. \fP"
+.ti -1c
+.RI "class \fBQLine\fP"
+.br
+.RI "\fIQLine class. \fP"
 .in -1c
 .SS "Functions"
 
@@ -137,9 +137,6 @@ xline.h \-
 .ti -1c
 .RI "bool \fBqline_make_global\fP (const char *nickname)"
 .br
-.ti -1c
-.RI "void \fBsync_xlines\fP (\fBserverrec\fP *serv, char *tcp_host)"
-.br
 .in -1c
 .SH "Function Documentation"
 .PP 
@@ -204,8 +201,6 @@ Referenced by Server::DelZLine().
 .SS "void stats_q (\fBuserrec\fP * user)"
 .PP
 .SS "void stats_z (\fBuserrec\fP * user)"
-.PP
-.SS "void sync_xlines (\fBserverrec\fP * serv, char * tcp_host)"
 .PP
 .SS "bool zline_make_global (const char * ipaddr)"
 .PP

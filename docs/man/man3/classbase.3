@@ -1,4 +1,4 @@
-.TH "classbase" 3 "30 May 2005" "InspIRCd" \" -*- nroff -*-
+.TH "classbase" 3 "27 Nov 2005" "Version 1.0Betareleases" "InspIRCd" \" -*- nroff -*-
 .ad l
 .nh
 .SH NAME
@@ -33,30 +33,38 @@ Inherited by \fBAdmin\fP, \fBConfigReader\fP, \fBConnectClass\fP, \fBExtensible\
 .in -1c
 .SH "Detailed Description"
 .PP 
-The base class for all inspircd classes. Definition at line 29 of file base.h.
+The base class for all inspircd classes. 
+.PP
+Definition at line 29 of file base.h.
 .SH "Constructor & Destructor Documentation"
 .PP 
 .SS "classbase::classbase ()\fC [inline]\fP"
 .PP
-Constructor, Sets the object's time. Definition at line 39 of file base.h.
+Constructor, Sets the object's time. 
+.PP
+Definition at line 39 of file base.h.
 .PP
 References age.
 .PP
 .nf
 39 { age = time(NULL); }
 .fi
-.SS "classbase::~\fBclassbase\fP ()\fC [inline]\fP"
+.PP
+.SS "classbase::~classbase ()\fC [inline]\fP"
 .PP
 Definition at line 40 of file base.h.
 .PP
 .nf
 40 { }
 .fi
+.PP
 .SH "Member Data Documentation"
 .PP 
 .SS "time_t \fBclassbase::age\fP"
 .PP
-Time that the object was instantiated (used for TS calculation etc). Definition at line 34 of file base.h.
+Time that the object was instantiated (used for TS calculation etc). 
+.PP
+Definition at line 34 of file base.h.
 .PP
 Referenced by classbase().
 

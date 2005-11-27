@@ -1,4 +1,4 @@
-.TH "ConnectClass" 3 "30 May 2005" "InspIRCd" \" -*- nroff -*-
+.TH "ConnectClass" 3 "27 Nov 2005" "Version 1.0Betareleases" "InspIRCd" \" -*- nroff -*-
 .ad l
 .nh
 .SH NAME
@@ -61,7 +61,9 @@ Inherits \fBclassbase\fP.
 .in -1c
 .SH "Detailed Description"
 .PP 
-Holds information relevent to <connect allow> and <connect deny> tags in the config file. Definition at line 45 of file users.h.
+Holds information relevent to <connect allow> and <connect deny> tags in the config file. 
+.PP
+Definition at line 45 of file users.h.
 .SH "Constructor & Destructor Documentation"
 .PP 
 .SS "ConnectClass::ConnectClass ()\fC [inline]\fP"
@@ -82,51 +84,70 @@ References flood, host, pass, pingtime, recvqmax, registration_timeout, sendqmax
 88                 strlcpy(pass,'',MAXBUF);
 89         }
 .fi
+.PP
 .SH "Member Data Documentation"
 .PP 
 .SS "int \fBConnectClass::flood\fP"
 .PP
-Number of lines in buffer before excess flood is triggered. Definition at line 56 of file users.h.
+Number of lines in buffer before excess flood is triggered. 
+.PP
+Definition at line 56 of file users.h.
 .PP
 Referenced by ConnectClass().
 .SS "char \fBConnectClass::host\fP[MAXBUF]"
 .PP
-Host mask for this line. Definition at line 59 of file users.h.
+Host mask for this line. 
+.PP
+Definition at line 59 of file users.h.
 .PP
 Referenced by ConnectClass().
 .SS "char \fBConnectClass::pass\fP[MAXBUF]"
 .PP
-(Optional) Password for this line Definition at line 65 of file users.h.
+(Optional) Password for this line 
+.PP
+Definition at line 65 of file users.h.
 .PP
 Referenced by ConnectClass().
 .SS "int \fBConnectClass::pingtime\fP"
 .PP
-Number of seconds between pings for this line. Definition at line 62 of file users.h.
+Number of seconds between pings for this line. 
+.PP
+Definition at line 62 of file users.h.
 .PP
 Referenced by ConnectClass().
 .SS "long \fBConnectClass::recvqmax\fP"
 .PP
-Maximum size of recvq for users in this class (bytes). Definition at line 77 of file users.h.
+Maximum size of recvq for users in this class (bytes). 
+.PP
+Definition at line 77 of file users.h.
 .PP
 Referenced by ConnectClass().
 .SS "int \fBConnectClass::registration_timeout\fP"
 .PP
-Max time to register the connection in seconds. Definition at line 53 of file users.h.
+Max time to register the connection in seconds. 
+.PP
+Definition at line 53 of file users.h.
 .PP
 Referenced by ConnectClass().
 .SS "long \fBConnectClass::sendqmax\fP"
 .PP
-Maximum size of sendq for users in this class (bytes). Definition at line 73 of file users.h.
+Maximum size of sendq for users in this class (bytes). 
+.PP
+Definition at line 73 of file users.h.
 .PP
 Referenced by ConnectClass().
 .SS "int \fBConnectClass::threshold\fP"
 .PP
-Threshold value for flood disconnect. Definition at line 69 of file users.h.
+Threshold value for flood disconnect. 
+.PP
+Definition at line 69 of file users.h.
 .PP
 Referenced by ConnectClass().
 .SS "char \fBConnectClass::type\fP"
 .PP
-Type of line, either CC_ALLOW or CC_DENY. Definition at line 50 of file users.h.
+Type of line, either CC_ALLOW or CC_DENY. 
+.PP
+Definition at line 50 of file users.h.
 
 .SH "Author"
 .PP 

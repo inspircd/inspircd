@@ -1,4 +1,4 @@
-.TH "hashcomp.h" 3 "30 May 2005" "InspIRCd" \" -*- nroff -*-
+.TH "hashcomp.h" 3 "27 Nov 2005" "Version 1.0Betareleases" "InspIRCd" \" -*- nroff -*-
 .ad l
 .nh
 .SH NAME
@@ -15,11 +15,33 @@ hashcomp.h \-
 
 .in +1c
 .ti -1c
-.RI "namespace \fBirc\fP"
-.br
-.ti -1c
 .RI "namespace \fBnspace\fP"
 .br
+.ti -1c
+.RI "namespace \fBirc\fP"
+.br
+.in -1c
+.SS "Classes"
+
+.in +1c
+.ti -1c
+.RI "struct \fBnspace::hash< in_addr >\fP"
+.br
+.ti -1c
+.RI "struct \fBnspace::hash< string >\fP"
+.br
+.ti -1c
+.RI "struct \fBirc::StrHashComp\fP"
+.br
+.RI "\fIThis class returns true if two strings match. \fP"
+.ti -1c
+.RI "struct \fBirc::InAddr_HashComp\fP"
+.br
+.RI "\fIThis class returns true if two in_addr structs match. \fP"
+.ti -1c
+.RI "struct \fBirc::irc_char_traits\fP"
+.br
+.RI "\fIThe \fBirc_char_traits\fP class is used for RFC-style comparison of strings. \fP"
 .in -1c
 .SS "Defines"
 
@@ -27,6 +49,14 @@ hashcomp.h \-
 .ti -1c
 .RI "#define \fBnspace\fP   __gnu_cxx"
 .br
+.in -1c
+.SS "Typedefs"
+
+.in +1c
+.ti -1c
+.RI "typedef basic_string< char, irc_char_traits, allocator< char > > \fBirc::string\fP"
+.br
+.RI "\fIThis typedef declares \fBirc::string\fP based upon \fBirc_char_traits\fP. \fP"
 .in -1c
 .SH "Define Documentation"
 .PP 
