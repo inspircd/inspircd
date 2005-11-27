@@ -107,25 +107,52 @@ class TreeSocket : public InspSocket
 	std::string myhost;
 	std::string in_buffer;
 	ServerState LinkState;
+	std::string InboundServerName;
+	std::string InboundDescription;
 	
  public:
 
 	TreeSocket(std::string host, int port, bool listening, unsigned long maxtime)
 		: InspSocket(host, port, listening, maxtime)
 	{
-		Srv->Log(DEBUG,"Create new");
+		Srv->Log(DEBUG,"Create new listening");
 		myhost = host;
 		this->LinkState = LISTENER;
+	}
+
+	TreeSocket(std::string host, int port, bool listening, unsigned long maxtime, std::string ServerName)
+		: InspSocket(host, port, listening, maxtime)
+	{
+		Srv->Log(DEBUG,"Create new outbound");
+		myhost = ServerName;
+		this->LinkState = CONNECTING;
 	}
 
 	TreeSocket(int newfd)
 		: InspSocket(newfd)
 	{
+		Srv->Log(DEBUG,"Associate new inbound");
 		this->LinkState = WAIT_AUTH_1;
 	}
 	
         virtual bool OnConnected()
 	{
+		if (this->LinkState == CONNECTING)
+		{
+			// we should send our details here.
+			// if the other side is satisfied, they send theirs.
+			// we do not need to change state here.
+			for (std::vector<Link>::iterator x = LinkBlocks.begin(); x < LinkBlocks.end(); x++)
+			{
+				if (x->Name == this->myhost)
+				{
+					// found who we're supposed to be connecting to, send the neccessary gubbins.
+					this->WriteLine("SERVER "+Srv->GetServerName()+" "+x->SendPass+" 0 :"+Srv->GetServerDescription());
+					return true;
+				}
+			}
+		}
+		log(DEBUG,"Outbound connection ERROR: Could not find the right link block!");
 		return true;
 	}
 	
@@ -136,6 +163,13 @@ class TreeSocket : public InspSocket
         virtual int OnDisconnect()
 	{
 		return true;
+	}
+
+	void DoBurst(TreeServer* s)
+	{
+		log(DEBUG,"Beginning network burst");
+		this->WriteLine("BURST");
+		this->WriteLine("ENDBURST");
 	}
 
         virtual bool OnDataReady()
@@ -170,6 +204,21 @@ class TreeSocket : public InspSocket
 		return this->Write(line + "\r\n");
 	}
 
+	bool Error(std::deque<std::string> params)
+	{
+		if (params.size() < 1)
+			return false;
+		std::string Errmsg = params[0];
+		std::string SName = myhost;
+		if (InboundServerName != "")
+		{
+			SName = InboundServerName;
+		}
+		Srv->SendOpers("*** ERROR from "+SName+": "+Errmsg);
+		// we will return false to cause the socket to close.
+		return false;
+	}
+
 	bool Outbound_Reply_Server(std::deque<std::string> params)
 	{
 		if (params.size() < 4)
@@ -198,6 +247,7 @@ class TreeSocket : public InspSocket
 				// node.
 				TreeServer* Node = new TreeServer(servername,description,TreeRoot,this);
 				TreeRoot->AddChild(Node);
+				this->DoBurst(Node);
 				return true;
 			}
 		}
@@ -218,11 +268,13 @@ class TreeSocket : public InspSocket
 			return false;
 		}
 		std::string description = params[3];
-		Srv->SendToModeMask("o",WM_AND,"inbound-server: name='"+servername+"' pass='"+password+"' description='"+description+"'");
 		for (std::vector<Link>::iterator x = LinkBlocks.begin(); x < LinkBlocks.end(); x++)
 		{
 			if ((x->Name == servername) && (x->RecvPass == password))
 			{
+				Srv->SendOpers("*** Verified incoming server connection from "+servername+"["+this->GetIP()+"] ("+description+")");
+				this->InboundServerName = servername;
+				this->InboundDescription = description;
 				// this is good. Send our details: Our server name and description and hopcount of 0,
 				// along with the sendpass from this block.
 				this->WriteLine("SERVER "+Srv->GetServerName()+" "+x->SendPass+" 0 :"+Srv->GetServerDescription());
@@ -253,6 +305,7 @@ class TreeSocket : public InspSocket
 				std::string append;
 				while (!s.eof())
 				{
+					append = "";
 					s >> append;
 					if (append != "")
 					{
@@ -275,17 +328,22 @@ class TreeSocket : public InspSocket
 		std::string prefix = "";
 		if ((params[0].c_str())[0] == ':')
 		{
-			prefix = params.pop_front();
-			command = params.pop_front();
+			prefix = params[0];
+			command = params[1];
+			params.pop_front();
+			params.pop_front();
 		}
 		else
 		{
 			prefix = "";
-			command = params.pop_front();
+			command = params[0];
+			params.pop_front();
 		}
 		
 		switch (this->LinkState)
 		{
+			TreeServer* Node;
+			
 			case WAIT_AUTH_1:
 				// Waiting for SERVER command from remote server. Server initiating
 				// the connection sends the first SERVER command, listening server
@@ -296,6 +354,10 @@ class TreeSocket : public InspSocket
 				{
 					return this->Inbound_Server(params);
 				}
+				else if (command == "ERROR")
+				{
+					return this->Error(params);
+				}
 			break;
 			case WAIT_AUTH_2:
 				// Waiting for start of other side's netmerge to say they liked our
@@ -305,6 +367,17 @@ class TreeSocket : public InspSocket
 					// cant do this, they sent it to us in the WAIT_AUTH_1 state!
 					// silently ignore.
 					return true;
+				}
+				else if (command == "BURST")
+				{
+					this->LinkState = CONNECTED;
+					Node = new TreeServer(InboundServerName,InboundDescription,TreeRoot,this);
+	                                TreeRoot->AddChild(Node);
+	                                this->DoBurst(Node);
+				}
+				else if (command == "ERROR")
+				{
+					return this->Error(params);
 				}
 				
 			break;
@@ -335,6 +408,10 @@ class TreeSocket : public InspSocket
 
         virtual void OnTimeout()
 	{
+		if (this->LinkState = CONNECTING)
+		{
+			Srv->SendOpers("*** CONNECT: Connection to "+myhost+" timed out.");
+		}
 	}
 
         virtual void OnClose()
@@ -348,13 +425,6 @@ class TreeSocket : public InspSocket
 		return true;
 	}
 };
-
-void tree_handle_connect(char **parameters, int pcnt, userrec *user)
-{
-	std::string addr = parameters[0];
-	TreeSocket* sock = new TreeSocket(addr,80,false,10);
-	Srv->AddSocket(sock);
-}
 
 class ModuleSpanningTree : public Module
 {
@@ -440,6 +510,17 @@ class ModuleSpanningTree : public Module
 
 	int HandleConnect(char** parameters, int pcnt, userrec* user)
 	{
+		for (std::vector<Link>::iterator x = LinkBlocks.begin(); x < LinkBlocks.end(); x++)
+		{
+			if (Srv->MatchText(x->Name.c_str(),parameters[0]))
+			{
+				WriteServ(user->fd,"NOTICE %s :*** CONNECT: Connecting to server: %s (%s:%d)",user->nick,x->Name.c_str(),x->IPAddr.c_str(),x->Port);
+				TreeSocket* newsocket = new TreeSocket(x->IPAddr,x->Port,false,10,x->Name);
+				Srv->AddSocket(newsocket);
+				return 1;
+			}
+		}
+		WriteServ(user->fd,"NOTICE %s :*** CONNECT: No matching server could be found in the config file.",user->nick);
 		return 1;
 	}
 

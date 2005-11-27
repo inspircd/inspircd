@@ -40,6 +40,7 @@ private:
         bool timeout;
 	pollfd polls;
 	char ibuf[1024];
+	std::string IP;
 	sockaddr_in client;
 	sockaddr_in server;
 	socklen_t length;
@@ -54,6 +55,7 @@ public:
 	virtual void OnTimeout();
 	virtual void OnClose();
 	virtual char* Read();
+	std::string GetIP();
 	virtual int Write(std::string data);
 	virtual int OnIncomingConnection(int newfd, char* ip);
 	void SetState(InspSocketState s);

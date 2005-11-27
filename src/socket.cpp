@@ -94,6 +94,8 @@ InspSocket::InspSocket(std::string host, int port, bool listening, unsigned long
 			ip = inet_ntoa(*ia);
 		}
 
+		this->IP = ip;
+
                 timeout_end = time(NULL)+maxtime;
                 timeout = false;
                 if ((this->fd = socket(AF_INET, SOCK_STREAM, 0)) == -1)
@@ -136,6 +138,11 @@ void InspSocket::Close()
 	        close(this->fd);
 	        this->fd = -1;
 	}
+}
+
+std::string InspSocket::GetIP()
+{
+	return this->IP;
 }
 
 char* InspSocket::Read()
