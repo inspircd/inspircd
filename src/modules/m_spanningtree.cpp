@@ -607,6 +607,29 @@ class TreeSocket : public InspSocket
 				{
 					return this->IntroduceClient(prefix,params);
 				}
+				else
+				{
+					// not a special inter-server command.
+					// Emulate the actual user doing the command,
+					// this saves us having a huge ugly parser.
+					userrec* who = Srv->FindNick(prefix);
+					if (who)
+					{
+						// its a user
+						char* strparams[127];
+						for (unsigned int q = 0; q < params.size(); q++)
+						{
+							strparams[q] = (char*)params[q].c_str();
+						}
+						Srv->CallCommandHandler(command, strparams, params.size(), who);
+					}
+					else
+					{
+						// its not a user. Its either a server, or somethings screwed up.
+						log(DEBUG,"Command with unknown origin '%s'",prefix.c_str());
+					}
+
+				}
 				return true;
 			break;	
 		}
