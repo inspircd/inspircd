@@ -298,6 +298,49 @@ class TreeSocket : public InspSocket
 		}
 	}
 
+	bool IntroduceClient(std::string source, std::deque<std::string> params)
+	{
+		// NICK age nick host dhost ident +modes ip :gecos
+		//       0   1    2    3      4     5    6   7
+		std::string nick = params[1];
+		std::string host = params[2];
+		std::string dhost = params[3];
+		std::string ident = params[4];
+		time_t age = atoi(params[0].c_str());
+		std::string modes = params[5];
+		std::string ip = params[6];
+		std::string gecos = params[7];
+		char* tempnick = (char*)nick.c_str();
+		log(DEBUG,"Introduce client %s!%s@%s",tempnick,ident.c_str(),host.c_str());
+		
+		user_hash::iterator iter;
+		iter = clientlist.find(tempnick);
+		if (iter != clientlist.end())
+		{
+			// nick collision
+			log(DEBUG,"Nick collision on %s!%s@%s",tempnick,ident.c_str(),host.c_str());
+			return true;
+		}
+		
+		clientlist[tempnick] = new userrec();
+		clientlist[tempnick]->fd = FD_MAGIC_NUMBER;
+		strlcpy(clientlist[tempnick]->nick, tempnick,NICKMAX);
+		strlcpy(clientlist[tempnick]->host, host.c_str(),160);
+		strlcpy(clientlist[tempnick]->dhost, dhost.c_str(),160);
+		clientlist[tempnick]->server = (char*)FindServerNamePtr(source.c_str());
+		strlcpy(clientlist[tempnick]->ident, ident.c_str(),IDENTMAX);
+		strlcpy(clientlist[tempnick]->fullname, gecos.c_str(),MAXGECOS);
+		clientlist[tempnick]->registered = 7;
+		clientlist[tempnick]->signon = age;
+		strlcpy(clientlist[tempnick]->ip,ip.c_str(),16);
+		for (int i = 0; i < MAXCHANS; i++)
+		{
+			clientlist[tempnick]->chans[i].channel = NULL;
+			clientlist[tempnick]->chans[i].uc_modes = 0;
+		}
+		return true;
+	}
+
 	// send all users and their channels
 	void SendUsers(TreeServer* Current)
 	{
@@ -313,7 +356,7 @@ class TreeSocket : public InspSocket
 			char* chl = chlist(u->second,u->second);
 			if (*chl)
 			{
-				this->WriteLine(":"+std::string(u->second->nick)+" JOIN "+std::string(chl));
+				this->WriteLine(":"+std::string(u->second->nick)+" FJOIN "+std::string(chl));
 			}
 		}
 	}
@@ -327,7 +370,7 @@ class TreeSocket : public InspSocket
 		this->SendServers(TreeRoot,s,1);
 		// Send users and their channels
 		this->SendUsers(s);
-		// TODO: Send everything else
+		// TODO: Send everything else (channel modes etc)
 		this->WriteLine("ENDBURST");
 	}
 
@@ -391,7 +434,6 @@ class TreeSocket : public InspSocket
 			return false;
 		}
 		std::string description = params[3];
-		Srv->SendToModeMask("o",WM_AND,"outbound-server-replied: name='"+servername+"' pass='"+password+"' description='"+description+"'");
 		for (std::vector<Link>::iterator x = LinkBlocks.begin(); x < LinkBlocks.end(); x++)
 		{
 			if ((x->Name == servername) && (x->RecvPass == password))
@@ -485,10 +527,12 @@ class TreeSocket : public InspSocket
 		std::deque<std::string> params = this->Split(line);
 		std::string command = "";
 		std::string prefix = "";
-		if ((params[0].c_str())[0] == ':')
+		if (((params[0].c_str())[0] == ':') && (params.size() > 1))
 		{
 			prefix = params[0];
 			command = params[1];
+			char* pref = (char*)prefix.c_str();
+			prefix = ++pref;
 			params.pop_front();
 			params.pop_front();
 		}
@@ -559,6 +603,10 @@ class TreeSocket : public InspSocket
 				// This is the 'authenticated' state, when all passwords
 				// have been exchanged and anything past this point is taken
 				// as gospel.
+				if ((command == "NICK") && (params.size() > 1))
+				{
+					return this->IntroduceClient(prefix,params);
+				}
 				return true;
 			break;	
 		}

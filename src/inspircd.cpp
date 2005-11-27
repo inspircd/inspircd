@@ -202,7 +202,8 @@ const char* FindServerNamePtr(std::string servername)
 		if (*a == servername)
 			return a->c_str();
 	}
-	return "";
+	AddServerName(servername);
+	return FindServerNamePtr(servername);
 }
 
 void DeleteOper(userrec* user)
