@@ -1,0 +1,86 @@
+.TH "socket.cpp" 3 "27 Nov 2005" "Version 1.0Betareleases" "InspIRCd" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+socket.cpp \- 
+.SH SYNOPSIS
+.br
+.PP
+\fC#include 'inspircd_config.h'\fP
+.br
+\fC#include <sys/time.h>\fP
+.br
+\fC#include <sys/resource.h>\fP
+.br
+\fC#include <sys/types.h>\fP
+.br
+\fC#include <sys/socket.h>\fP
+.br
+\fC#include <netinet/in.h>\fP
+.br
+\fC#include <string>\fP
+.br
+\fC#include <unistd.h>\fP
+.br
+\fC#include <fcntl.h>\fP
+.br
+\fC#include <poll.h>\fP
+.br
+\fC#include <sstream>\fP
+.br
+\fC#include <iostream>\fP
+.br
+\fC#include <fstream>\fP
+.br
+\fC#include 'socket.h'\fP
+.br
+\fC#include 'inspircd.h'\fP
+.br
+\fC#include 'inspircd_io.h'\fP
+.br
+\fC#include 'inspircd_util.h'\fP
+.br
+\fC#include 'inspstring.h'\fP
+.br
+\fC#include 'helperfuncs.h'\fP
+.br
+
+.SS "Variables"
+
+.in +1c
+.ti -1c
+.RI "FILE * \fBlog_file\fP"
+.br
+.ti -1c
+.RI "int \fBboundPortCount\fP"
+.br
+.ti -1c
+.RI "int \fBopenSockfd\fP [MAXSOCKS]"
+.br
+.ti -1c
+.RI "time_t \fBTIME\fP"
+.br
+.ti -1c
+.RI "bool \fBunlimitcore\fP"
+.br
+.ti -1c
+.RI "int \fBMaxConn\fP"
+.br
+.in -1c
+.SH "Variable Documentation"
+.PP 
+.SS "int \fBboundPortCount\fP"
+.PP
+.SS "FILE* \fBlog_file\fP"
+.PP
+.SS "int \fBMaxConn\fP"
+.PP
+.SS "int \fBopenSockfd\fP[MAXSOCKS]"
+.PP
+.SS "time_t \fBTIME\fP"
+.PP
+.SS "bool \fBunlimitcore\fP"
+.PP
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for InspIRCd from the source code.
