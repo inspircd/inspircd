@@ -48,10 +48,11 @@ InspSocket::InspSocket()
 	this->state = I_DISCONNECTED;
 }
 
-InspSocket::InspSocket(int newfd)
+InspSocket::InspSocket(int newfd, char* ip)
 {
 	this->fd = newfd;
 	this->state = I_CONNECTED;
+	this->IP = ip;
 }
 
 InspSocket::InspSocket(std::string host, int port, bool listening, unsigned long maxtime)

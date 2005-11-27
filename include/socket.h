@@ -46,7 +46,7 @@ private:
 	socklen_t length;
 public:
 	InspSocket();
-	InspSocket(int newfd);
+	InspSocket(int newfd, char* ip);
 	InspSocket(std::string host, int port, bool listening, unsigned long maxtime);
 	virtual bool OnConnected();
 	virtual void OnError(InspSocketError e);

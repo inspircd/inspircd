@@ -66,6 +66,41 @@ class TreeServer
 		UserCount = OperCount = 0;
 	}
 
+	std::string GetName()
+	{
+		return this->ServerName;
+	}
+
+	std::string GetDesc()
+	{
+		return this->ServerDesc;
+	}
+
+	std::string GetVersion()
+	{
+		return this->VersionString;
+	}
+
+	int GetUserCount()
+	{
+		return this->UserCount;
+	}
+
+	int GetOperCount()
+	{
+		return this->OperCount;
+	}
+
+	TreeSocket* GetSocket()
+	{
+		return this->Socket;
+	}
+
+	TreeServer* GetParent()
+	{
+		return this->Parent;
+	}
+
 	void AddChild(TreeServer* Child)
 	{
 		Children.push_back(Child);
@@ -128,8 +163,8 @@ class TreeSocket : public InspSocket
 		this->LinkState = CONNECTING;
 	}
 
-	TreeSocket(int newfd)
-		: InspSocket(newfd)
+	TreeSocket(int newfd, char* ip)
+		: InspSocket(newfd, ip)
 	{
 		Srv->Log(DEBUG,"Associate new inbound");
 		this->LinkState = WAIT_AUTH_1;
@@ -139,6 +174,7 @@ class TreeSocket : public InspSocket
 	{
 		if (this->LinkState == CONNECTING)
 		{
+			Srv->SendOpers("*** Connection to "+myhost+"["+this->GetIP()+"] established.");
 			// we should send our details here.
 			// if the other side is satisfied, they send theirs.
 			// we do not need to change state here.
@@ -168,6 +204,7 @@ class TreeSocket : public InspSocket
 	void DoBurst(TreeServer* s)
 	{
 		log(DEBUG,"Beginning network burst");
+		Srv->SendOpers("*** Bursting to "+s->GetName()+".");
 		this->WriteLine("BURST");
 		this->WriteLine("ENDBURST");
 	}
@@ -420,7 +457,7 @@ class TreeSocket : public InspSocket
 
 	virtual int OnIncomingConnection(int newsock, char* ip)
 	{
-		TreeSocket* s = new TreeSocket(newsock);
+		TreeSocket* s = new TreeSocket(newsock, ip);
 		Srv->AddSocket(s);
 		return true;
 	}
