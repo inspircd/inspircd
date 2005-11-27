@@ -179,7 +179,7 @@ TreeServer* RouteEnumerate(TreeServer* Current, std::string ServerName)
 		return Current;
 	for (unsigned int q = 0; q < Current->ChildCount(); q++)
 	{
-		TreeServer* found = RouteEnumerate(Current->GetChild(),ServerName);
+		TreeServer* found = RouteEnumerate(Current->GetChild(q),ServerName);
 		if (found)
 		{
 			return found;
