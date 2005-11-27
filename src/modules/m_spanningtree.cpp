@@ -19,14 +19,33 @@ using namespace std;
 #include <stdio.h>
 #include <vector>
 #include <deque>
+#include "globals.h"
+#include "inspircd_config.h"
+#ifdef GCC3
+#include <ext/hash_map>
+#else
+#include <hash_map>
+#endif
 #include "users.h"
 #include "channels.h"
 #include "modules.h"
 #include "socket.h"
 #include "helperfuncs.h"
 #include "inspircd.h"
+#include "inspstring.h"
+#include "hashcomp.h"
+#include "message.h"
+
+#ifdef GCC3
+#define nspace __gnu_cxx
+#else
+#define nspace std
+#endif
 
 enum ServerState { LISTENER, CONNECTING, WAIT_AUTH_1, WAIT_AUTH_2, CONNECTED };
+
+typedef nspace::hash_map<std::string, userrec*, nspace::hash<string>, irc::StrHashComp> user_hash;
+extern user_hash clientlist;
 
 class TreeServer;
 class TreeSocket;
@@ -101,6 +120,23 @@ class TreeServer
 		return this->Parent;
 	}
 
+	unsigned int ChildCount()
+	{
+		return Children.size();
+	}
+
+	TreeServer* GetChild(unsigned int n)
+	{
+		if (n < Children.size())
+		{
+			return Children[n];
+		}
+		else
+		{
+			return NULL;
+		}
+	}
+
 	void AddChild(TreeServer* Child)
 	{
 		Children.push_back(Child);
@@ -136,6 +172,49 @@ Server *Srv;
 ConfigReader *Conf;
 TreeServer *TreeRoot;
 std::vector<Link> LinkBlocks;
+
+TreeServer* RouteEnumerate(TreeServer* Current, std::string ServerName)
+{
+	if (Current->GetName() == ServerName)
+		return Current;
+	for (unsigned int q = 0; q < Current->ChildCount(); q++)
+	{
+		TreeServer* found = RouteEnumerate(Current->GetChild(),ServerName);
+		if (found)
+		{
+			return found;
+		}
+	}
+	return NULL;
+}
+
+// Returns the locally connected server we must route a
+// message through to reach server 'ServerName'. This
+// only applies to one-to-one and not one-to-many routing.
+TreeServer* BestRouteTo(std::string ServerName)
+{
+	log(DEBUG,"Finding best route to %s",ServerName.c_str());
+	// first, find the server by recursively walking the tree
+	TreeServer* Found = RouteEnumerate(TreeRoot,ServerName);
+	// did we find it? If not, they did something wrong, abort.
+	if (!Found)
+	{
+		log(DEBUG,"Failed to find %s by walking tree!",ServerName.c_str());
+		return NULL;
+	}
+	else
+	{
+		// The server exists, follow its parent nodes until
+		// the parent of the current is 'TreeRoot', we know
+		// then that this is a directly-connected server.
+		while ((Found) && (Found->GetParent() != TreeRoot))
+		{
+			Found = Found->GetParent();
+		}
+		log(DEBUG,"Route to %s is via %s",ServerName.c_str(),Found->GetName().c_str());
+		return Found;
+	}
+}
 
 class TreeSocket : public InspSocket
 {
@@ -201,11 +280,54 @@ class TreeSocket : public InspSocket
 		return true;
 	}
 
+	// recursively send the server tree with distances as hops
+	void SendServers(TreeServer* Current, TreeServer* s, int hops)
+	{
+		char command[1024];
+		for (unsigned int q = 0; q < Current->ChildCount(); q++)
+		{
+			TreeServer* recursive_server = Current->GetChild(q);
+			if (recursive_server != s)
+			{
+				// :source.server SERVER server.name hops :Description
+				snprintf(command,1024,":%s SERVER %s * %d :%s",Current->GetName().c_str(),recursive_server->GetName().c_str(),hops,recursive_server->GetDesc().c_str());
+				this->WriteLine(command);
+				// down to next level
+				this->SendServers(recursive_server, s, hops+1);
+			}
+		}
+	}
+
+	// send all users and their channels
+	void SendUsers(TreeServer* Current)
+	{
+		char data[MAXBUF];
+		for (user_hash::iterator u = clientlist.begin(); u != clientlist.end(); u++)
+		{
+			snprintf(data,MAXBUF,":%s NICK %lu %s %s %s %s +%s %s :%s",u->second->server,(unsigned long)u->second->age,u->second->nick,u->second->host,u->second->dhost,u->second->ident,u->second->modes,u->second->ip,u->second->fullname);
+			this->WriteLine(data);
+			if (strchr(u->second->modes,'o'))
+			{
+				this->WriteLine(":"+std::string(u->second->nick)+" OPERTYPE "+std::string(u->second->oper));
+			}
+			char* chl = chlist(u->second,u->second);
+			if (*chl)
+			{
+				this->WriteLine(":"+std::string(u->second->nick)+" JOIN "+std::string(chl));
+			}
+		}
+	}
+
 	void DoBurst(TreeServer* s)
 	{
 		log(DEBUG,"Beginning network burst");
 		Srv->SendOpers("*** Bursting to "+s->GetName()+".");
 		this->WriteLine("BURST");
+		// Send server tree
+		this->SendServers(TreeRoot,s,1);
+		// Send users and their channels
+		this->SendUsers(s);
+		// TODO: Send everything else
 		this->WriteLine("ENDBURST");
 	}
 
