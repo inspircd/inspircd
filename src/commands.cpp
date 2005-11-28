@@ -617,9 +617,11 @@ void handle_privmsg(char **parameters, int pcnt, userrec *user)
 		return;
 	}
 	
+	log(DEBUG,"*** PRIVMSG HANDLER");
 	dest = Find(parameters[0]);
 	if (dest)
 	{
+		log(DEBUG,"*** FOUND NICK %s",dest->nick);
 		if (strcmp(dest->awaymsg,""))
 		{
 			/* auto respond with aweh msg */
@@ -635,9 +637,10 @@ void handle_privmsg(char **parameters, int pcnt, userrec *user)
 		}
 		parameters[1] = (char*)temp.c_str();
 
-		if (!strcmp(dest->server,user->server))
+		if (!strcmp(dest->server,ServerName))
 		{
 			// direct write, same server
+			log(DEBUG,"*** CALL WRITETO");
 			WriteTo(user, dest, "PRIVMSG %s :%s", dest->nick, parameters[1]);
 		}
 
@@ -714,7 +717,7 @@ void handle_notice(char **parameters, int pcnt, userrec *user)
 		}
 		parameters[1] = (char*)temp.c_str();
 
-		if (!strcmp(dest->server,user->server))
+		if (!strcmp(dest->server,ServerName))
 		{
 			// direct write, same server
 			WriteTo(user, dest, "NOTICE %s :%s", dest->nick, parameters[1]);

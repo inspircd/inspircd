@@ -654,6 +654,7 @@ class TreeSocket : public InspSocket
 						{
 							strparams[q] = (char*)params[q].c_str();
 						}
+						log(DEBUG,"*** CALL COMMAND HANDLER FOR %s, SOURCE: '%s'",command.c_str(),who->nick);
 						Srv->CallCommandHandler(command, strparams, params.size(), who);
 					}
 					else
@@ -890,7 +891,7 @@ class ModuleSpanningTree : public Module
 
 	virtual void OnUserMessage(userrec* user, void* dest, int target_type, std::string text)
 	{
-		if (target_type = TYPE_USER)
+		if (target_type == TYPE_USER)
 		{
 			// route private messages which are targetted at clients only to the server
 			// which needs to receive them
@@ -900,7 +901,7 @@ class ModuleSpanningTree : public Module
 				std::deque<std::string> params;
 				params.clear();
 				params.push_back(d->nick);
-				params.push_back(text);
+				params.push_back(":"+text);
 				DoOneToOne(user->nick,"PRIVMSG",params,d->server);
 			}
 		}
