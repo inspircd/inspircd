@@ -708,6 +708,11 @@ class TreeSocket : public InspSocket
 					this->LinkState = CONNECTED;
 					Node = new TreeServer(InboundServerName,InboundDescription,TreeRoot,this);
 	                                TreeRoot->AddChild(Node);
+					params.clear();
+					params.push_back(InboundServerName);
+					params.push_back("*");
+					params.push_back("1");
+					params.push_back(InboundDescription);
 					DoOneToAllButSender(InboundServerName,"SERVER",params,InboundServerName);
 	                                this->DoBurst(Node);
 				}
