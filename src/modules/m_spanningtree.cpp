@@ -1009,7 +1009,7 @@ class ModuleSpanningTree : public Module
 		char matrix[128][80];
 		for (unsigned int t = 0; t < 128; t++)
 		{
-			matrix[line][0] = '\0';
+			matrix[t][0] = '\0';
 		}
 		line = 0;
 		// The only recursive bit is called here.
