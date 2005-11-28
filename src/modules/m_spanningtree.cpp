@@ -236,6 +236,33 @@ bool LookForServer(TreeServer* Current, std::string ServerName)
 	return false;
 }
 
+TreeServer* Found;
+
+void RFindServer(TreeServer* Current, std::string ServerName)
+{
+	if ((ServerName == Current->GetName()) && (!Found))
+	{
+		Found = Current;
+		return;
+	}
+	if (!Found)
+	{
+		for (unsigned int q = 0; q < Current->ChildCount(); q++)
+		{
+			if (!Found)
+				RFindServer(Current->GetChild(q),ServerName);
+		}
+	}
+	return;
+}
+
+TreeServer* FindServer(std::string ServerName)
+{
+	Found = NULL;
+	RFindServer(TreeRoot,ServerName);
+	return Found;
+}
+
 bool IsServer(std::string ServerName)
 {
 	return LookForServer(TreeRoot,ServerName);
@@ -323,8 +350,58 @@ class TreeSocket : public InspSocket
 		}
 	}
 
+	bool ForceJoin(std::string source, std::deque<std::string> params)
+	{
+		if (params.size() < 1)
+			return true;
+		for (unsigned int channelnum = 0; channelnum < params.size(); channelnum++)
+		{
+			// process one channel at a time, applying modes.
+			char* channel = (char*)params[channelnum].c_str();
+			char permissions = *channel;
+			char* mode = NULL;
+			switch (permissions)
+			{
+				case '@':
+					channel++;
+					mode = "+o";
+				break;
+				case '%':
+					channel++;
+					mode = "+h";
+				break;
+				case '+':
+					channel++;
+					mode = "+v";
+				break;
+			}
+			userrec* who = Srv->FindNick(source);
+			if (who)
+			{
+				char* key = "";
+				chanrec* chan = Srv->FindChannel(channel);
+				if ((chan) && (*chan->key))
+				{
+					key = chan->key;
+				}
+				Srv->JoinUserToChannel(who,channel,key);
+				if (mode)
+				{
+					char* modelist[3];
+					modelist[0] = channel;
+					modelist[1] = mode;
+					modelist[2] = who->nick;
+					Srv->SendMode(modelist,3,who);
+				}
+			}
+		}
+		return true;
+	}
+
 	bool IntroduceClient(std::string source, std::deque<std::string> params)
 	{
+		if (params.size() < 8)
+			return true;
 		// NICK age nick host dhost ident +modes ip :gecos
 		//       0   1    2    3      4     5    6   7
 		std::string nick = params[1];
@@ -445,6 +522,31 @@ class TreeSocket : public InspSocket
 		Srv->SendOpers("*** ERROR from "+SName+": "+Errmsg);
 		// we will return false to cause the socket to close.
 		return false;
+	}
+
+	bool RemoteServer(std::string prefix, std::deque<std::string> params)
+	{
+		if (params.size() < 4)
+			return false;
+		std::string servername = params[0];
+		std::string password = params[1];
+		int hops = atoi(params[2].c_str());
+		std::string description = params[3];
+		if (!hops)
+		{
+			this->WriteLine("ERROR :Protocol error - Introduced remote server with incorrect hopcount!");
+			return false;
+		}
+		TreeServer* ParentOfThis = FindServer(prefix);
+		if (!ParentOfThis)
+		{
+			this->WriteLine("ERROR :Protocol error - Introduced remote server from unknown server "+prefix);
+			return false;
+		}
+		TreeServer* Node = new TreeServer(servername,description,ParentOfThis,NULL);
+		TreeRoot->AddChild(Node);
+		Srv->SendOpers("*** Server "+prefix+" introduced server "+servername+" ("+description+")");
+		return true;
 	}
 
 	bool Outbound_Reply_Server(std::deque<std::string> params)
@@ -634,6 +736,14 @@ class TreeSocket : public InspSocket
 				{
 					return this->IntroduceClient(prefix,params);
 				}
+				else if (command == "FJOIN")
+				{
+					return this->ForceJoin(prefix,params);
+				}
+				else if (command == "SERVER")
+				{
+					return this->RemoteServer(prefix,params);
+				}
 				else
 				{
 					// not a special inter-server command.
@@ -710,7 +820,7 @@ bool DoOneToAllButSender(std::string prefix, std::string command, std::deque<std
 	for (unsigned int x = 0; x < TreeRoot->ChildCount(); x++)
 	{
 		TreeServer* Route = TreeRoot->GetChild(x);
-		if ((Route->GetSocket()) && (Route->GetName() != omit))
+		if ((Route->GetSocket()) && (Route->GetName() != omit) && (BestRouteTo(omit) != Route))
 		{
 			TreeSocket* Sock = Route->GetSocket();
 			Sock->WriteLine(FullLine);
