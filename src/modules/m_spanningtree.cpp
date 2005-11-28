@@ -579,6 +579,7 @@ class TreeSocket : public InspSocket
 				// node.
 				TreeServer* Node = new TreeServer(servername,description,TreeRoot,this);
 				TreeRoot->AddChild(Node);
+				DoOneToAllButSender(servername,"SERVER",params,servername);
 				this->DoBurst(Node);
 				return true;
 			}
@@ -707,6 +708,7 @@ class TreeSocket : public InspSocket
 					this->LinkState = CONNECTED;
 					Node = new TreeServer(InboundServerName,InboundDescription,TreeRoot,this);
 	                                TreeRoot->AddChild(Node);
+					DoOneToAllButSender(InboundServerName,"SERVER",params,InboundServerName);
 	                                this->DoBurst(Node);
 				}
 				else if (command == "ERROR")
