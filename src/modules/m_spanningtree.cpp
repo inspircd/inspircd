@@ -796,7 +796,7 @@ class TreeSocket : public InspSocket
 
 	virtual void OnTimeout()
 	{
-		if (this->LinkState = CONNECTING)
+		if (this->LinkState == CONNECTING)
 		{
 			Srv->SendOpers("*** CONNECT: Connection to "+myhost+" timed out.");
 		}
