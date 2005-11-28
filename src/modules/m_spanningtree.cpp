@@ -243,6 +243,7 @@ void RFindServer(TreeServer* Current, std::string ServerName)
 	if ((ServerName == Current->GetName()) && (!Found))
 	{
 		Found = Current;
+		log(DEBUG,"Found server %s desc %s",Current->GetName().c_str(),Current->GetDesc().c_str());
 		return;
 	}
 	if (!Found)
@@ -393,6 +394,7 @@ class TreeSocket : public InspSocket
 					modelist[2] = who->nick;
 					Srv->SendMode(modelist,3,who);
 				}
+				DoOneToAllButSender(source,"FJOIN",params,who->server);
 			}
 		}
 		return true;
@@ -544,7 +546,8 @@ class TreeSocket : public InspSocket
 			return false;
 		}
 		TreeServer* Node = new TreeServer(servername,description,ParentOfThis,NULL);
-		TreeRoot->AddChild(Node);
+		ParentOfThis->AddChild(Node);
+		DoOneToAllButSender(prefix,"SERVER",params,prefix);
 		Srv->SendOpers("*** Server "+prefix+" introduced server "+servername+" ("+description+")");
 		return true;
 	}
@@ -811,6 +814,7 @@ class TreeSocket : public InspSocket
 
 bool DoOneToAllButSender(std::string prefix, std::string command, std::deque<std::string> params, std::string omit)
 {
+	log(DEBUG,"ALLBUTONE: Comes from %s SHOULD NOT go back to %s",prefix.c_str(),omit.c_str());
 	// TODO: Special stuff with privmsg and notice
 	std::string FullLine = ":" + prefix + " " + command;
 	for (unsigned int x = 0; x < params.size(); x++)
@@ -820,9 +824,14 @@ bool DoOneToAllButSender(std::string prefix, std::string command, std::deque<std
 	for (unsigned int x = 0; x < TreeRoot->ChildCount(); x++)
 	{
 		TreeServer* Route = TreeRoot->GetChild(x);
+		// Send the line IF:
+		// The route has a socket (its a direct connection)
+		// The route isnt the one to be omitted
+		// The route isnt the path to the one to be omitted
 		if ((Route->GetSocket()) && (Route->GetName() != omit) && (BestRouteTo(omit) != Route))
 		{
 			TreeSocket* Sock = Route->GetSocket();
+			log(DEBUG,"Sending to %s",Route->GetName().c_str());
 			Sock->WriteLine(FullLine);
 		}
 	}
@@ -876,6 +885,7 @@ bool DoOneToOne(std::string prefix, std::string command, std::deque<std::string>
 class ModuleSpanningTree : public Module
 {
 	std::vector<TreeSocket*> Bindings;
+	int line;
 
  public:
 
@@ -935,8 +945,24 @@ class ModuleSpanningTree : public Module
 		ReadConfiguration(true);
 	}
 
+	void ShowLinks(TreeServer* Current, userrec* user, int hops)
+	{
+		std::string Parent = TreeRoot->GetName();
+		if (Current->GetParent())
+		{
+			Parent = Current->GetParent()->GetName();
+		}
+		for (unsigned int q = 0; q < Current->ChildCount(); q++)
+		{
+			ShowLinks(Current->GetChild(q),user,hops+1);
+		}
+		WriteServ(user->fd,"364 %s %s %s :%d %s",user->nick,Current->GetName().c_str(),Parent.c_str(),hops,Current->GetDesc().c_str());
+	}
+
 	void HandleLinks(char** parameters, int pcnt, userrec* user)
 	{
+		ShowLinks(TreeRoot,user,0);
+		WriteServ(user->fd,"365 %s * :End of /LINKS list.",user->nick);
 		return;
 	}
 
@@ -945,8 +971,59 @@ class ModuleSpanningTree : public Module
 		return;
 	}
 
+	void ShowMap(TreeServer* Current, userrec* user, int depth, char matrix[32][80])
+	{
+		for (int t = 0; t < depth; t++)
+		{
+			matrix[line][t] = ' ';
+		}
+		strlcpy(&matrix[line][depth],Current->GetName().c_str(),80);
+		line++;
+		//WriteServ(user->fd,"006 %s :%s%s",user->nick,header,Current->GetName().c_str());
+		for (unsigned int q = 0; q < Current->ChildCount(); q++)
+		{
+			ShowMap(Current->GetChild(q),user,depth+2,matrix);
+		}
+	}
+
+	// Yes, this is smart (and odd). You may all praise me now.
+	// After looking over how others did this, with tons of ugly
+	// maths combined with lots of recursion, i decided to approach
+	// this in a very different way. To cut down on the recursion,
+	// as users may be able to trigger this command, the algorithm
+	// renders the map 'backwards' without recursion after it has
+	// correctly placed the servers into the lines.
 	void HandleMap(char** parameters, int pcnt, userrec* user)
 	{
+		char matrix[32][80];
+		for (unsigned int t = 0; t < 32; t++)
+		{
+			matrix[line][0] = '\0';
+		}
+		line = 0;
+		ShowMap(TreeRoot,user,0,matrix);
+		for (int l = 1; l < line; l++)
+		{
+			int first_nonspace = 0;
+			while (matrix[l][first_nonspace] == ' ')
+			{
+				first_nonspace++;
+			}
+			first_nonspace--;
+			matrix[l][first_nonspace] = '-';
+			matrix[l][first_nonspace-1] = '`';
+			int l2 = l - 1;
+			while ((matrix[l2][first_nonspace-1] == ' ') || (matrix[l2][first_nonspace-1] == '`'))
+			{
+				matrix[l2][first_nonspace-1] = '|';
+				l2--;
+			}
+		}
+		for (int t = 0; t < line; t++)
+		{
+			WriteServ(user->fd,"006 %s :%s",user->nick,&matrix[t][0]);
+		}
+	        WriteServ(user->fd,"007 %s :End of /MAP",user->nick);
 		return;
 	}
 
@@ -1033,6 +1110,18 @@ class ModuleSpanningTree : public Module
 				params.push_back(channel->key);
 			}
 			DoOneToMany(user->nick,"JOIN",params);
+		}
+	}
+
+	virtual void OnUserPart(userrec* user, chanrec* channel)
+	{
+		if (std::string(user->server) == Srv->GetServerName())
+		{
+			log(DEBUG,"**** User on %s PARTS %s",user->server,channel->name);
+			std::deque<std::string> params;
+			params.clear();
+			params.push_back(channel->name);
+			DoOneToMany(user->nick,"PART",params);
 		}
 	}
 
