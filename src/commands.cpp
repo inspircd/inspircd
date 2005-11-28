@@ -607,7 +607,7 @@ void handle_privmsg(char **parameters, int pcnt, userrec *user)
 			}
 			
 			ChanExceptSender(chan, user, "PRIVMSG %s :%s", chan->name, parameters[1]);
-			
+			FOREACH_MOD OnUserMessage(user,chan,TYPE_CHANNEL,parameters[1]);
 		}
 		else
 		{
@@ -635,13 +635,13 @@ void handle_privmsg(char **parameters, int pcnt, userrec *user)
 		}
 		parameters[1] = (char*)temp.c_str();
 
-
-
 		if (!strcmp(dest->server,user->server))
 		{
 			// direct write, same server
 			WriteTo(user, dest, "PRIVMSG %s :%s", dest->nick, parameters[1]);
 		}
+
+		FOREACH_MOD OnUserMessage(user,dest,TYPE_USER,parameters[1]);
 	}
 	else
 	{
@@ -692,6 +692,7 @@ void handle_notice(char **parameters, int pcnt, userrec *user)
 
 			ChanExceptSender(chan, user, "NOTICE %s :%s", chan->name, parameters[1]);
 
+			FOREACH_MOD OnUserNotice(user,chan,TYPE_CHANNEL,parameters[1]);
 		}
 		else
 		{
@@ -718,6 +719,8 @@ void handle_notice(char **parameters, int pcnt, userrec *user)
 			// direct write, same server
 			WriteTo(user, dest, "NOTICE %s :%s", dest->nick, parameters[1]);
 		}
+
+		FOREACH_MOD OnUserNotice(user,dest,TYPE_USER,parameters[1]);
 	}
 	else
 	{

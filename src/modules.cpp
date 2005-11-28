@@ -359,6 +359,8 @@ void		Module::OnRawSocketAccept(int fd, std::string ip, int localport) { };
 int		Module::OnRawSocketWrite(int fd, char* buffer, int count) { return 0; };
 void		Module::OnRawSocketClose(int fd) { };
 int		Module::OnRawSocketRead(int fd, char* buffer, unsigned int count, int &readresult) { return 0; };
+void		OnUserMessage(userrec* user, void* dest, int target_type, std::string text) { };
+void		OnUserNotice(userrec* user, void* dest, int target_type, std::string text) { };
 
 // server is a wrapper class that provides methods to all of the C-style
 // exports in the core

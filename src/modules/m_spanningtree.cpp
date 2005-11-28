@@ -47,8 +47,16 @@ enum ServerState { LISTENER, CONNECTING, WAIT_AUTH_1, WAIT_AUTH_2, CONNECTED };
 typedef nspace::hash_map<std::string, userrec*, nspace::hash<string>, irc::StrHashComp> user_hash;
 extern user_hash clientlist;
 
+const char* OneToEither[] = { "PRIVMSG", "NOTICE", NULL };
+const char* OneToMany[] = { "NICK", "QUIT", "JOIN", "PART", "MODE", "INVITE", "KICK", "KILL", NULL };
+const char* OneToOne[] = { "REHASH", "DIE", "TRACE", "WHOIS", NULL };
+
 class TreeServer;
 class TreeSocket;
+
+bool DoOneToOne(std::string prefix, std::string command, std::deque<std::string> params, std::string target);
+bool DoOneToAllButSender(std::string prefix, std::string command, std::deque<std::string> params, std::string omit);
+bool DoOneToMany(std::string prefix, std::string command, std::deque<std::string> params);
 
 class TreeServer
 {
@@ -216,6 +224,23 @@ TreeServer* BestRouteTo(std::string ServerName)
 	}
 }
 
+bool LookForServer(TreeServer* Current, std::string ServerName)
+{
+	if (ServerName == Current->GetName())
+		return true;
+	for (unsigned int q = 0; q < Current->ChildCount(); q++)
+	{
+		if (LookForServer(Current->GetChild(q),ServerName))
+			return true;
+	}
+	return false;
+}
+
+bool IsServer(std::string ServerName)
+{
+	return LookForServer(TreeRoot,ServerName);
+}
+
 class TreeSocket : public InspSocket
 {
 	std::string myhost;
@@ -338,6 +363,7 @@ class TreeSocket : public InspSocket
 			clientlist[tempnick]->chans[i].channel = NULL;
 			clientlist[tempnick]->chans[i].uc_modes = 0;
 		}
+		DoOneToAllButSender(source,"NICK",params,source);
 		return true;
 	}
 
@@ -603,6 +629,7 @@ class TreeSocket : public InspSocket
 				// This is the 'authenticated' state, when all passwords
 				// have been exchanged and anything past this point is taken
 				// as gospel.
+				std::string target = "";
 				if ((command == "NICK") && (params.size() > 1))
 				{
 					return this->IntroduceClient(prefix,params);
@@ -613,9 +640,15 @@ class TreeSocket : public InspSocket
 					// Emulate the actual user doing the command,
 					// this saves us having a huge ugly parser.
 					userrec* who = Srv->FindNick(prefix);
+					std::string sourceserv = this->myhost;
+					if (this->InboundServerName != "")
+					{
+						sourceserv = this->InboundServerName;
+					}
 					if (who)
 					{
 						// its a user
+						target = who->server;
 						char* strparams[127];
 						for (unsigned int q = 0; q < params.size(); q++)
 						{
@@ -626,8 +659,17 @@ class TreeSocket : public InspSocket
 					else
 					{
 						// its not a user. Its either a server, or somethings screwed up.
-						log(DEBUG,"Command with unknown origin '%s'",prefix.c_str());
+						if (IsServer(prefix))
+						{
+							target = Srv->GetServerName();
+						}
+						else
+						{
+							log(DEBUG,"Command with unknown origin '%s'",prefix.c_str());
+							return true;
+						}
 					}
+					return DoOneToAllButSender(prefix,command,params,sourceserv);
 
 				}
 				return true;
@@ -636,7 +678,7 @@ class TreeSocket : public InspSocket
 		return true;
 	}
 
-        virtual void OnTimeout()
+	virtual void OnTimeout()
 	{
 		if (this->LinkState = CONNECTING)
 		{
@@ -644,7 +686,7 @@ class TreeSocket : public InspSocket
 		}
 	}
 
-        virtual void OnClose()
+	virtual void OnClose()
 	{
 	}
 
@@ -655,6 +697,70 @@ class TreeSocket : public InspSocket
 		return true;
 	}
 };
+
+bool DoOneToAllButSender(std::string prefix, std::string command, std::deque<std::string> params, std::string omit)
+{
+	// TODO: Special stuff with privmsg and notice
+	std::string FullLine = ":" + prefix + " " + command;
+	for (unsigned int x = 0; x < params.size(); x++)
+	{
+		FullLine = FullLine + " " + params[x];
+	}
+	for (unsigned int x = 0; x < TreeRoot->ChildCount(); x++)
+	{
+		TreeServer* Route = TreeRoot->GetChild(x);
+		if ((Route->GetSocket()) && (Route->GetName() != omit))
+		{
+			TreeSocket* Sock = Route->GetSocket();
+			Sock->WriteLine(FullLine);
+		}
+	}
+	return true;
+}
+
+bool DoOneToMany(std::string prefix, std::string command, std::deque<std::string> params)
+{
+	std::string FullLine = ":" + prefix + " " + command;
+	for (unsigned int x = 0; x < params.size(); x++)
+	{
+		FullLine = FullLine + " " + params[x];
+	}
+	for (unsigned int x = 0; x < TreeRoot->ChildCount(); x++)
+	{
+		TreeServer* Route = TreeRoot->GetChild(x);
+		if (Route->GetSocket())
+		{
+			TreeSocket* Sock = Route->GetSocket();
+			Sock->WriteLine(FullLine);
+		}
+	}
+	return true;
+}
+
+bool DoOneToOne(std::string prefix, std::string command, std::deque<std::string> params, std::string target)
+{
+	TreeServer* Route = BestRouteTo(target);
+	if (Route)
+	{
+		std::string FullLine = ":" + prefix + " " + command;
+		for (unsigned int x = 0; x < params.size(); x++)
+		{
+			FullLine = FullLine + " " + params[x];
+		}
+		if (Route->GetSocket())
+		{
+			TreeSocket* Sock = Route->GetSocket();
+			Sock->WriteLine(FullLine);
+		}
+		return true;
+	}
+	else
+	{
+		log(DEBUG,"Could not route message with target %s: %s",target.c_str(),command.c_str());
+		return true;
+	}
+}
+
 
 class ModuleSpanningTree : public Module
 {
@@ -780,6 +886,43 @@ class ModuleSpanningTree : public Module
 			return 1;
 		}
 		return 0;
+	}
+
+	virtual void OnUserMessage(userrec* user, void* dest, int target_type, std::string text)
+	{
+		if (target_type = TYPE_USER)
+		{
+			// route private messages which are targetted at clients only to the server
+			// which needs to receive them
+			userrec* d = (userrec*)dest;
+			if ((std::string(d->server) != Srv->GetServerName()) && (std::string(user->server) == Srv->GetServerName()))
+			{
+				std::deque<std::string> params;
+				params.clear();
+				params.push_back(d->nick);
+				params.push_back(text);
+				DoOneToOne(user->nick,"PRIVMSG",params,d->server);
+			}
+		}
+	}
+
+	virtual void OnUserJoin(userrec* user, chanrec* channel)
+	{
+		// Only do this for local users
+		if (std::string(user->server) == Srv->GetServerName())
+		{
+			log(DEBUG,"**** User on %s JOINS %s",user->server,channel->name);
+			std::deque<std::string> params;
+			params.clear();
+			params.push_back(channel->name);
+			if (*channel->key)
+			{
+				log(DEBUG,"**** With key %s",channel->key);
+				// if the channel has a key, force the join by emulating the key.
+				params.push_back(channel->key);
+			}
+			DoOneToMany(user->nick,"JOIN",params);
+		}
 	}
 
 	virtual ~ModuleSpanningTree()

@@ -416,6 +416,11 @@ class Module : public classbase
 	 * If your method returns nonzero, the nickchange is silently forbidden, and it is down to your
 	 * module to generate some meaninful output.
 	 */
+
+	virtual void OnUserMessage(userrec* user, void* dest, int target_type, std::string text);
+
+	virtual void OnUserNotice(userrec* user, void* dest, int target_type, std::string text);
+	
 	virtual int OnUserPreNick(userrec* user, std::string newnick);
 	
 	/** Called after any nickchange, local or remote. This can be used to track users after nickchanges
