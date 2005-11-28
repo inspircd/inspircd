@@ -971,54 +971,78 @@ class ModuleSpanningTree : public Module
 		return;
 	}
 
-	void ShowMap(TreeServer* Current, userrec* user, int depth, char matrix[32][80])
+	// WARNING: NOT THREAD SAFE - DONT GET ANY SMART IDEAS.
+
+	void ShowMap(TreeServer* Current, userrec* user, int depth, char matrix[128][80])
 	{
-		for (int t = 0; t < depth; t++)
+		if (line < 128)
 		{
-			matrix[line][t] = ' ';
-		}
-		strlcpy(&matrix[line][depth],Current->GetName().c_str(),80);
-		line++;
-		//WriteServ(user->fd,"006 %s :%s%s",user->nick,header,Current->GetName().c_str());
-		for (unsigned int q = 0; q < Current->ChildCount(); q++)
-		{
-			ShowMap(Current->GetChild(q),user,depth+2,matrix);
+			for (int t = 0; t < depth; t++)
+			{
+				matrix[line][t] = ' ';
+			}
+			strlcpy(&matrix[line][depth],Current->GetName().c_str(),80);
+			line++;
+			for (unsigned int q = 0; q < Current->ChildCount(); q++)
+			{
+				ShowMap(Current->GetChild(q),user,depth+2,matrix);
+			}
 		}
 	}
 
-	// Yes, this is smart (and odd). You may all praise me now.
-	// After looking over how others did this, with tons of ugly
-	// maths combined with lots of recursion, i decided to approach
-	// this in a very different way. To cut down on the recursion,
-	// as users may be able to trigger this command, the algorithm
-	// renders the map 'backwards' without recursion after it has
-	// correctly placed the servers into the lines.
+	// Ok, prepare to be confused.
+	// After much mulling over how to approach this, it struck me that
+	// the 'usual' way of doing a /MAP isnt the best way. Instead of
+	// keeping track of a ton of ascii characters, and line by line
+	// under recursion working out where to place them using multiplications
+	// and divisons, we instead render the map onto a backplane of characters
+	// (a character matrix), then draw the branches as a series of "L" shapes
+	// from the nodes. This is not only friendlier on CPU it uses less stack.
+
 	void HandleMap(char** parameters, int pcnt, userrec* user)
 	{
-		char matrix[32][80];
-		for (unsigned int t = 0; t < 32; t++)
+		// This array represents a virtual screen which we will
+		// "scratch" draw to, as the console device of an irc
+		// client does not provide for a proper terminal.
+		char matrix[128][80];
+		for (unsigned int t = 0; t < 128; t++)
 		{
 			matrix[line][0] = '\0';
 		}
 		line = 0;
+		// The only recursive bit is called here.
 		ShowMap(TreeRoot,user,0,matrix);
+		// Process each line one by one. The algorithm has a limit of
+		// 128 servers (which is far more than a spanning tree should have
+		// anyway, so we're ok). This limit can be raised simply by making
+		// the character matrix deeper, 128 rows taking 10k of memory.
 		for (int l = 1; l < line; l++)
 		{
+			// scan across the line looking for the start of the
+			// servername (the recursive part of the algorithm has placed
+			// the servers at indented positions depending on what they
+			// are related to)
 			int first_nonspace = 0;
 			while (matrix[l][first_nonspace] == ' ')
 			{
 				first_nonspace++;
 			}
 			first_nonspace--;
+			// Draw the `- (corner) section: this may be overwritten by
+			// another L shape passing along the same vertical pane, becoming
+			// a |- (branch) section instead.
 			matrix[l][first_nonspace] = '-';
 			matrix[l][first_nonspace-1] = '`';
 			int l2 = l - 1;
+			// Draw upwards until we hit the parent server, causing possibly
+			// other corners (`-) to become branches (|-)
 			while ((matrix[l2][first_nonspace-1] == ' ') || (matrix[l2][first_nonspace-1] == '`'))
 			{
 				matrix[l2][first_nonspace-1] = '|';
 				l2--;
 			}
 		}
+		// dump the whole lot to the user. This is the easy bit, honest.
 		for (int t = 0; t < line; t++)
 		{
 			WriteServ(user->fd,"006 %s :%s",user->nick,&matrix[t][0]);
