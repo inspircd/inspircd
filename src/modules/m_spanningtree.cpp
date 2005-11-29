@@ -776,30 +776,40 @@ class TreeSocket : public InspSocket
 		while (!s.eof())
 		{
 			s >> param;
-			if ((param.c_str()[0] == ':') && (item))
+			if ((param != "") && (param != "\n"))
 			{
-				char* str = (char*)param.c_str();
-				str++;
-				param = str;
-				std::string append;
-				while (!s.eof())
+				if ((param.c_str()[0] == ':') && (item))
 				{
-					append = "";
-					s >> append;
-					if (append != "")
+					char* str = (char*)param.c_str();
+					str++;
+					param = str;
+					std::string append;
+					while (!s.eof())
 					{
-						param = param + " " + append;
+						append = "";
+						s >> append;
+						if (append != "")
+						{
+							param = param + " " + append;
+						}
 					}
 				}
+				item++;
+				n.push_back(param);
+				log(DEBUG,"Line: '%s' added param; '%s'",line.c_str(),param.c_str());
 			}
-			item++;
-			n.push_back(param);
 		}
 		return n;
 	}
 
 	bool ProcessLine(std::string line)
 	{
+		char* l = (char*)line.c_str();
+		while ((strlen(l)) && (l[strlen(l)-1] == '\r') || (l[strlen(l)-1] == '\n'))
+			l[strlen(l)-1] = '\0';
+		line = l;
+		if (line == "")
+			return true;
 		Srv->Log(DEBUG,"inbound-line: '"+line+"'");
 		std::deque<std::string> params = this->Split(line,true);
 		std::string command = "";
@@ -1017,9 +1027,11 @@ bool DoOneToAllButSender(std::string prefix, std::string command, std::deque<std
 	log(DEBUG,"ALLBUTONE: Comes from %s SHOULD NOT go back to %s",prefix.c_str(),omit.c_str());
 	// TODO: Special stuff with privmsg and notice
 	std::string FullLine = ":" + prefix + " " + command;
+	log(DEBUG,"*** ALLBUTONE: %d entries!",params.size());
 	for (unsigned int x = 0; x < params.size(); x++)
 	{
 		FullLine = FullLine + " " + params[x];
+		Srv->Log(DEBUG,"Append "+params[x]+" to line, now: "+FullLine);
 	}
 	for (unsigned int x = 0; x < TreeRoot->ChildCount(); x++)
 	{
