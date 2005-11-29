@@ -1507,11 +1507,12 @@ void handle_map(char **parameters, int pcnt, userrec *user)
 
 bool is_uline(const char* server)
 {
-	if (!server)
-		return false;
-	if (!(*server))
-		return true;
 	char ServName[MAXBUF];
+
+	/* fix, by w00t - per nenolod. I don't see how we can want '""' as a uline. */
+	if (!server || !(*server))
+		return false;
+
 	for (int i = 0; i < ConfValueEnum("uline",&config_f); i++)
 	{
 		ConfValue("uline","server",i,ServName,&config_f);
