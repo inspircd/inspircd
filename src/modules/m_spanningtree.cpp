@@ -47,10 +47,6 @@ enum ServerState { LISTENER, CONNECTING, WAIT_AUTH_1, WAIT_AUTH_2, CONNECTED };
 typedef nspace::hash_map<std::string, userrec*, nspace::hash<string>, irc::StrHashComp> user_hash;
 extern user_hash clientlist;
 
-const char* OneToEither[] = { "PRIVMSG", "NOTICE", NULL };
-const char* OneToMany[] = { "NICK", "QUIT", "JOIN", "PART", "MODE", "INVITE", "KICK", "KILL", NULL };
-const char* OneToOne[] = { "REHASH", "DIE", "TRACE", "WHOIS", NULL };
-
 class TreeServer;
 class TreeSocket;
 
@@ -296,6 +292,8 @@ class TreeSocket : public InspSocket
 	ServerState LinkState;
 	std::string InboundServerName;
 	std::string InboundDescription;
+	int num_lost_users;
+	int num_lost_servers;
 	
  public:
 
@@ -381,6 +379,7 @@ class TreeSocket : public InspSocket
 		}
 		// Now we've whacked the kids, whack self
 		log(DEBUG,"Deleted %s",Current->GetName().c_str());
+		num_lost_servers++;
 		bool quittingpeople = true;
 		while (quittingpeople)
 		{
@@ -391,6 +390,7 @@ class TreeSocket : public InspSocket
 				{
 					log(DEBUG,"Quitting user %s of server %s",u->second->nick,u->second->server);
 					Srv->QuitUser(u->second,Current->GetName()+" "+std::string(Srv->GetServerName()));
+					num_lost_users++;
 					quittingpeople = true;
 					break;
 				}
@@ -408,16 +408,19 @@ class TreeSocket : public InspSocket
 			DoOneToAllButSender(Current->GetParent()->GetName(),"SQUIT",params,Current->GetName());
 			if (Current->GetParent() == TreeRoot)
 			{
-				Srv->SendOpers("Server \002"+Current->GetName()+"\002 SQUIT: "+reason);
+				Srv->SendOpers("Server \002"+Current->GetName()+"\002 split: "+reason);
 			}
 			else
 			{
 				Srv->SendOpers("Server \002"+Current->GetName()+"\002 split from server \002"+Current->GetParent()->GetName()+"\002 with reason: "+reason);
 			}
+			num_lost_servers = 0;
+			num_lost_users = 0;
 			SquitServer(Current);
 			Current->Tidy();
 			Current->GetParent()->DelChild(Current);
 			delete Current;
+			WriteOpers("Netsplit complete, lost \002%d\002 users on \002%d\002 servers.", num_lost_users, num_lost_servers);
 		}
 		else
 		{
@@ -786,7 +789,7 @@ class TreeSocket : public InspSocket
 					params.push_back(InboundServerName);
 					params.push_back("*");
 					params.push_back("1");
-					params.push_back(InboundDescription);
+					params.push_back(":"+InboundDescription);
 					DoOneToAllButSender(TreeRoot->GetName(),"SERVER",params,InboundServerName);
 	                                this->DoBurst(Node);
 				}
