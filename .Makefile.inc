@@ -12,6 +12,7 @@ MAKE = @MAKEPROG@
 PROGS = inspircd
 FLAGS = @FLAGS@
 LDLIBS = @LDLIBS@
+BASE = @BASE_DIR@
 CONPATH = @CONFIG_DIR@
 MODPATH = @MODULE_DIR@
 BINPATH = @BINARY_DIR@
@@ -33,6 +34,7 @@ bininst:
 	@-rm -f $(BINPATH)/inspircd
 	@-cp src/*.so $(LIBPATH)
 	@-cp src/inspircd $(BINPATH)
+	@-cp inspircd $(BASE)
 	@-chmod 0700 $(BINPATH)/inspircd
 	@-chmod 0700 $(LIBPATH)/*.so
 

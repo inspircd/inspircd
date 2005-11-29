@@ -16,6 +16,7 @@ $this = resolve_directory($topdir);						# PWD, Regardless.
 @modlist = ();                                                  		# Declare for Module List..
 %config = ();                                                   		# Initiate Configuration Hash..
 $config{ME}                 = resolve_directory($topdir);			# Present Working Directory
+$config{BASE_DIR}           = $config{ME};                                      # Use CWD as 'Base' Directory.
 $config{CONFIG_DIR}         = resolve_directory($config{ME}."/conf");		# Configuration Directory
 $config{MODULE_DIR}         = resolve_directory($config{ME}."/modules");	# Modules Directory
 $config{BINARY_DIR}         = resolve_directory($config{ME}."/bin");		# Binary Directory
@@ -223,6 +224,12 @@ if ($config{CHANGE_COMPILER} =~ /y/i)
 print "\n";
 
 # Directory Settings..
+dir_check("do you wish to install the InspIRCd base", "BASE_DIR");
+$config{CONFIG_DIR}         = resolve_directory($config{BASE_DIR}."/conf");           # Configuration Directory
+$config{MODULE_DIR}         = resolve_directory($config{BASE_DIR}."/modules");        # Modules Directory
+$config{BINARY_DIR}         = resolve_directory($config{BASE_DIR}."/bin");            # Binary Directory
+$config{LIBRARY_DIR}        = resolve_directory($config{BASE_DIR}."/lib");            # Library Directory
+
 dir_check("are the configuration files", "CONFIG_DIR");
 dir_check("are the modules to be compiled to", "MODULE_DIR");
 dir_check("is the IRCd binary to be placed", "BINARY_DIR");
@@ -784,6 +791,7 @@ EOF
       $tmp =~ s/\@MAKEPROG\@/$config{MAKEPROG}/;
       $tmp =~ s/\@FLAGS\@/$config{FLAGS}/;
       $tmp =~ s/\@LDLIBS\@/$config{LDLIBS}/;
+      $tmp =~ s/\@BASE_DIR\@/$config{BASE_DIR}/;
       $tmp =~ s/\@CONFIG_DIR\@/$config{CONFIG_DIR}/;
       $tmp =~ s/\@MODULE_DIR\@/$config{MODULE_DIR}/;
       $tmp =~ s/\@BINARY_DIR\@/$config{BINARY_DIR}/;
