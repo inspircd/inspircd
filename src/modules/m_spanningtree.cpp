@@ -404,7 +404,7 @@ class TreeSocket : public InspSocket
 		{
 			std::deque<std::string> params;
 			params.push_back(Current->GetName());
-			params.push_back(reason);
+			params.push_back(":"+reason);
 			DoOneToAllButSender(Current->GetParent()->GetName(),"SQUIT",params,Current->GetName());
 			if (Current->GetParent() == TreeRoot)
 			{
