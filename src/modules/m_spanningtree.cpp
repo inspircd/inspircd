@@ -1314,21 +1314,44 @@ class ModuleSpanningTree : public Module
 
 	virtual void OnUserConnect(userrec* user)
 	{
+		char agestr[MAXBUF];
 		if (std::string(user->server) == Srv->GetServerName())
 		{
 			log(DEBUG,"**** User on %s CONNECTS: %s",user->server,user->nick);
 			std::deque<std::string> params;
-			sprintf(agestr,"%d",user->age);
+			snprintf(agestr,MAXBUF,"%d",user->age);
 			params.clear();
 			params.push_back(agestr);
 			params.push_back(user->nick);
 			params.push_back(user->host);
 			params.push_back(user->dhost);
 			params.push_back(user->ident);
-			params.push_back("+"+std::string(user->modes))
+			params.push_back("+"+std::string(user->modes));
 			params.push_back(user->ip);
-			params.push_back(":"+std::string(user->fullname))
+			params.push_back(":"+std::string(user->fullname));
 			DoOneToMany(Srv->GetServerName(),"NICK",params);
+		}
+	}
+
+	virtual void OnUserQuit(userrec* user, std::string reason)
+	{
+		if (std::string(user->server) == Srv->GetServerName())
+		{
+			log(DEBUG,"**** User on %s QUITS: %s",user->server,user->nick);
+			std::deque<std::string> params;
+			params.push_back(":"+reason);
+			DoOneToMany(user->nick,"QUIT",params);
+		}
+	}
+
+	virtual void OnUserPostNick(userrec* user, std::string oldnick)
+	{
+		if (std::string(user->server) == Srv->GetServerName())
+		{
+			log(DEBUG,"**** User on %s changes NICK: %s",user->server,user->nick);
+			std::deque<std::string> params;
+			params.push_back(user->nick);
+			DoOneToMany(oldnick,"NICK",params);
 		}
 	}
 
