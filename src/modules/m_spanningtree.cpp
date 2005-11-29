@@ -728,7 +728,7 @@ class TreeSocket : public InspSocket
 
 	bool ProcessLine(std::string line)
 	{
-		Srv->SendToModeMask("o",WM_AND,"inbound-line: '"+line+"'");
+		Srv->Log(DEBUG,"inbound-line: '"+line+"'");
 
 		std::deque<std::string> params = this->Split(line);
 		std::string command = "";
