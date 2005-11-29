@@ -184,11 +184,11 @@ std::string ConfProcess(char* buffer, long linenumber, std::stringstream* errors
 			buffer[d] = ' ';
 	while ((buffer[0] == ' ') && (strlen(buffer)>0)) buffer++;
 	while ((buffer[strlen(buffer)-1] == ' ') && (strlen(buffer)>0)) buffer[strlen(buffer)-1] = '\0';
-	// empty lines are syntactically valid
-	if (!strcmp(buffer,""))
+
+	// empty lines are syntactically valid, as are comments
+	if (!(*buffer) || buffer[0] == '#')
 		return "";
-	else if (buffer[0] == '#')
-		return "";
+
 	for (unsigned int c = 0; c < strlen(buffer); c++)
 	{
 		// convert all spaces that are OUTSIDE quotes into hardspace (0xA0) as this will make them easier to
