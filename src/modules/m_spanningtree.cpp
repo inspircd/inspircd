@@ -625,6 +625,7 @@ class TreeSocket : public InspSocket
 		}
 		TreeServer* Node = new TreeServer(servername,description,ParentOfThis,NULL);
 		ParentOfThis->AddChild(Node);
+		params[3] = ":" + params[3];
 		DoOneToAllButSender(prefix,"SERVER",params,prefix);
 		Srv->SendOpers("*** Server \002"+prefix+"\002 introduced server \002"+servername+"\002 ("+description+")");
 		return true;
