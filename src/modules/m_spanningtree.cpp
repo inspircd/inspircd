@@ -1227,26 +1227,29 @@ class ModuleSpanningTree : public Module
 		}
 		else
 		{
-			chanrec* c = (chanrec*)dest;
-			std::deque<std::string> params;
-			std::vector<std::string> wlist;
-			params.clear();
-			wlist.clear();
-			params.push_back(c->name);
-			params.push_back(":"+text);
-			std::vector<char*> *ulist = c->GetUsers();
-			for (unsigned int j = 0; j < ulist->size(); j++)
+			if (std::string(user->server) == Srv->GetServerName())
 			{
-				char* o = (*ulist)[j];
-				userrec* otheruser = (userrec*)o;
-				if (strcasecmp(otheruser->server,Srv->GetServerName().c_str()))
+				chanrec* c = (chanrec*)dest;
+				std::deque<std::string> params;
+				std::vector<std::string> wlist;
+				params.clear();
+				wlist.clear();
+				params.push_back(c->name);
+				params.push_back(":"+text);
+				std::vector<char*> *ulist = c->GetUsers();
+				for (unsigned int j = 0; j < ulist->size(); j++)
 				{
-					// this user is on another server.
-					// Write that server, then mark that server so we dont write to it again.
-					if (find(wlist.begin(),wlist.end(),otheruser->server) == wlist.end())
+					char* o = (*ulist)[j];
+					userrec* otheruser = (userrec*)o;
+					if (strcasecmp(otheruser->server,Srv->GetServerName().c_str()))
 					{
-						DoOneToOne(user->nick,"PRIVMSG",params,otheruser->server);
-						wlist.push_back(otheruser->server);
+						// this user is on another server.
+						// Write that server, then mark that server so we dont write to it again.
+						if (find(wlist.begin(),wlist.end(),otheruser->server) == wlist.end())
+						{
+							DoOneToOne(user->nick,"PRIVMSG",params,otheruser->server);
+							wlist.push_back(otheruser->server);
+						}
 					}
 				}
 			}
