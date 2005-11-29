@@ -1390,6 +1390,29 @@ class ModuleSpanningTree : public Module
 		}
 	}
 
+	virtual void OnMode(userrec* user, void* dest, int target_type, std::string text)
+	{
+		if (std::string(user->server) == Srv->GetServerName())
+		{
+			if (target_type == TYPE_USER)
+			{
+				userrec* u = (userrec*)dest;
+				std::deque<std::string> params;
+				params.push_back(u->nick);
+				params.push_back(text);
+				DoOneToMany(user->nick,"MODE",params);
+			}
+			else
+			{
+				chanrec* c = (chanrec*)dest;
+				std::deque<std::string> params;
+				params.push_back(c->name);
+				params.push_back(text);
+				DoOneToMany(user->nick,"MODE",params);
+			}
+		}
+	}
+
 	virtual ~ModuleSpanningTree()
 	{
 		delete Srv;
