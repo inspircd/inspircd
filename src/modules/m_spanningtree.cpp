@@ -1341,7 +1341,7 @@ class ModuleSpanningTree : public Module
 		{
 			log(DEBUG,"**** User on %s CONNECTS: %s",user->server,user->nick);
 			std::deque<std::string> params;
-			snprintf(agestr,MAXBUF,"%lu",user->age);
+			snprintf(agestr,MAXBUF,"%lu",(unsigned long)user->age);
 			params.clear();
 			params.push_back(agestr);
 			params.push_back(user->nick);
