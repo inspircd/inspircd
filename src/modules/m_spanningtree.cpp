@@ -613,7 +613,7 @@ class TreeSocket : public InspSocket
 		if (u)
 		{
 			strlcpy(u->oper,opertype.c_str(),NICKMAX);
-			if (!strchr(u->modes,"o"))
+			if (!strchr(u->modes,'o'))
 			{
 				strcat(u->modes,"o");
 			}
@@ -1341,7 +1341,7 @@ class ModuleSpanningTree : public Module
 		{
 			log(DEBUG,"**** User on %s CONNECTS: %s",user->server,user->nick);
 			std::deque<std::string> params;
-			snprintf(agestr,MAXBUF,"%d",user->age);
+			snprintf(agestr,MAXBUF,"%lu",user->age);
 			params.clear();
 			params.push_back(agestr);
 			params.push_back(user->nick);
