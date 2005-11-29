@@ -710,10 +710,7 @@ class TreeSocket : public InspSocket
 			if ((param.c_str()[0] == ':') && (item))
 			{
 				char* str = (char*)param.c_str();
-				if (stripcolon)
-				{
-					str++;
-				}
+				str++;
 				param = str;
 				std::string append;
 				while (!s.eof())
@@ -727,6 +724,10 @@ class TreeSocket : public InspSocket
 				}
 			}
 			item++;
+			if ((strchr(param.c_str(),' ')) && (!stripcolon))
+			{
+				param = ":"+param;
+			}
 			n.push_back(param);
 		}
 		return n;
