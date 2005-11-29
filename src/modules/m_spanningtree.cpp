@@ -45,7 +45,10 @@ using namespace std;
 enum ServerState { LISTENER, CONNECTING, WAIT_AUTH_1, WAIT_AUTH_2, CONNECTED };
 
 typedef nspace::hash_map<std::string, userrec*, nspace::hash<string>, irc::StrHashComp> user_hash;
+typedef nspace::hash_map<std::string, chanrec*, nspace::hash<string>, irc::StrHashComp> chan_hash;
+
 extern user_hash clientlist;
+extern chan_hash chanlist;
 
 class TreeServer;
 class TreeSocket;
@@ -429,6 +432,25 @@ class TreeSocket : public InspSocket
 		}
 	}
 
+	bool ForceMode(std::string source, std::deque<std::string> params)
+	{
+		log(DEBUG,"*** FORCEMODE");
+		userrec* who = new userrec;
+		who->fd = FD_MAGIC_NUMBER;
+		if (params.size() < 2)
+			return true;
+		char* modelist[255];
+		for (unsigned int q = 0; q < params.size(); q++)
+		{
+			modelist[q] = (char*)params[q].c_str();
+		}
+		Srv->SendMode(modelist,params.size(),who);
+		DoOneToAllButSender(source,"FMODE",params,source);
+		log(DEBUG,"***** Duplicated");
+		delete who;
+		return true;
+	}
+
 	bool ForceJoin(std::string source, std::deque<std::string> params)
 	{
 		if (params.size() < 1)
@@ -530,6 +552,26 @@ class TreeSocket : public InspSocket
 		return true;
 	}
 
+	void SendChannelModes(TreeServer* Current)
+	{
+		char data[MAXBUF];
+		for (chan_hash::iterator c = chanlist.begin(); c != chanlist.end(); c++)
+		{
+			snprintf(data,MAXBUF,":%s FMODE %s +%s",Srv->GetServerName().c_str(),c->second->name,chanmodes(c->second));
+			this->WriteLine(data);
+			if (*c->second->topic)
+			{
+				snprintf(data,MAXBUF,":%s FTOPIC %s %lu %s :%s",Srv->GetServerName().c_str(),c->second->name,(unsigned long)c->second->topicset,c->second->setby,c->second->topic);
+				this->WriteLine(data);
+			}
+			for (BanList::iterator b = c->second->bans.begin(); b != c->second->bans.end(); b++)
+			{
+				snprintf(data,MAXBUF,":%s FMODE %s +b %s",Srv->GetServerName().c_str(),c->second->name,b->data);
+				this->WriteLine(data);
+			}
+		}
+	}
+
 	// send all users and their channels
 	void SendUsers(TreeServer* Current)
 	{
@@ -560,6 +602,7 @@ class TreeSocket : public InspSocket
 		// Send users and their channels
 		this->SendUsers(s);
 		// TODO: Send everything else (channel modes etc)
+		this->SendChannelModes(s);
 		this->WriteLine("ENDBURST");
 	}
 
@@ -859,6 +902,10 @@ class TreeSocket : public InspSocket
 				else if (command == "OPERTYPE")
 				{
 					return this->OperType(prefix,params);
+				}
+				else if (command == "FMODE")
+				{
+					return this->ForceMode(prefix,params);
 				}
 				else if (command == "SQUIT")
 				{
