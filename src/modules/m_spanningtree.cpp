@@ -697,7 +697,7 @@ class TreeSocket : public InspSocket
 		return false;
 	}
 
-	std::deque<std::string> Split(std::string line)
+	std::deque<std::string> Split(std::string line, bool stripcolon)
 	{
 		std::deque<std::string> n;
 		std::stringstream s(line);
@@ -710,7 +710,10 @@ class TreeSocket : public InspSocket
 			if ((param.c_str()[0] == ':') && (item))
 			{
 				char* str = (char*)param.c_str();
-				str++;
+				if (stripcolon)
+				{
+					str++;
+				}
 				param = str;
 				std::string append;
 				while (!s.eof())
@@ -733,7 +736,8 @@ class TreeSocket : public InspSocket
 	{
 		Srv->Log(DEBUG,"inbound-line: '"+line+"'");
 
-		std::deque<std::string> params = this->Split(line);
+		std::deque<std::string> rawparams = this->Split(line,false);
+		std::deque<std::string> params = this->Split(line,true);
 		std::string command = "";
 		std::string prefix = "";
 		if (((params[0].c_str())[0] == ':') && (params.size() > 1))
@@ -875,7 +879,7 @@ class TreeSocket : public InspSocket
 							return true;
 						}
 					}
-					return DoOneToAllButSender(prefix,command,params,sourceserv);
+					return DoOneToAllButSender(prefix,command,rawparams,sourceserv);
 
 				}
 				return true;
