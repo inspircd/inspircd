@@ -1239,7 +1239,7 @@ class ModuleSpanningTree : public Module
 			{
 				char* o = (*ulist)[j];
 				userrec* otheruser = (userrec*)o;
-				if (!strcasecmp(otheruser->server,Srv->GetServerName().c_str()))
+				if (strcasecmp(otheruser->server,Srv->GetServerName().c_str()))
 				{
 					// this user is on another server.
 					// Write that server, then mark that server so we dont write to it again.
