@@ -434,7 +434,6 @@ class TreeSocket : public InspSocket
 
 	bool ForceMode(std::string source, std::deque<std::string> params)
 	{
-		log(DEBUG,"*** FORCEMODE");
 		userrec* who = new userrec;
 		who->fd = FD_MAGIC_NUMBER;
 		if (params.size() < 2)
@@ -446,7 +445,6 @@ class TreeSocket : public InspSocket
 		}
 		Srv->SendMode(modelist,params.size(),who);
 		DoOneToAllButSender(source,"FMODE",params,source);
-		log(DEBUG,"***** Duplicated");
 		delete who;
 		return true;
 	}
@@ -796,7 +794,6 @@ class TreeSocket : public InspSocket
 				}
 				item++;
 				n.push_back(param);
-				log(DEBUG,"Line: '%s' added param; '%s'",line.c_str(),param.c_str());
 			}
 		}
 		return n;
@@ -1023,11 +1020,9 @@ bool DoOneToAllButSender(std::string prefix, std::string command, std::deque<std
 	log(DEBUG,"ALLBUTONE: Comes from %s SHOULD NOT go back to %s",prefix.c_str(),omit.c_str());
 	// TODO: Special stuff with privmsg and notice
 	std::string FullLine = ":" + prefix + " " + command;
-	log(DEBUG,"*** ALLBUTONE: %d entries!",params.size());
 	for (unsigned int x = 0; x < params.size(); x++)
 	{
 		FullLine = FullLine + " " + params[x];
-		Srv->Log(DEBUG,"Append "+params[x]+" to line, now: "+FullLine);
 	}
 	for (unsigned int x = 0; x < TreeRoot->ChildCount(); x++)
 	{
