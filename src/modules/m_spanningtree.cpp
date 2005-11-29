@@ -398,11 +398,31 @@ class TreeSocket : public InspSocket
 		}
 	}
 
-	void Squit(TreeServer* Current)
+	void Squit(TreeServer* Current,std::string reason)
 	{
-		SquitServer(Current);
-		Current->Tidy();
-		Current->GetParent()->DelChild(Current);
+		if (Current)
+		{
+			std::deque<std::string> params;
+			params.push_back(Current->GetName());
+			params.push_back(reason);
+			DoOneToAllButSender(Current->GetParent()->GetName(),"SQUIT",params,Current->GetName());
+			if (Current->GetParent() == TreeRoot)
+			{
+				Srv->SendOpers("Server \002"+Current->GetName()+"\002 SQUIT: "+reason);
+			}
+			else
+			{
+				Srv->SendOpers("Server \002"+Current->GetName()+"\002 split from server \002"+Current->GetParent()->GetName()+"\002 with reason: "+reason);
+			}
+			SquitServer(Current);
+			Current->Tidy();
+			Current->GetParent()->DelChild(Current);
+			delete Current;
+		}
+		else
+		{
+			log(DEBUG,"Squit from unknown server");
+		}
 	}
 
 	bool ForceJoin(std::string source, std::deque<std::string> params)
@@ -602,7 +622,7 @@ class TreeSocket : public InspSocket
 		TreeServer* Node = new TreeServer(servername,description,ParentOfThis,NULL);
 		ParentOfThis->AddChild(Node);
 		DoOneToAllButSender(prefix,"SERVER",params,prefix);
-		Srv->SendOpers("*** Server "+prefix+" introduced server "+servername+" ("+description+")");
+		Srv->SendOpers("*** Server \002"+prefix+"\002 introduced server \002"+servername+"\002 ("+description+")");
 		return true;
 	}
 
@@ -659,7 +679,7 @@ class TreeSocket : public InspSocket
 		{
 			if ((x->Name == servername) && (x->RecvPass == password))
 			{
-				Srv->SendOpers("*** Verified incoming server connection from "+servername+"["+this->GetIP()+"] ("+description+")");
+				Srv->SendOpers("*** Verified incoming server connection from \002"+servername+"\002["+this->GetIP()+"] ("+description+")");
 				this->InboundServerName = servername;
 				this->InboundDescription = description;
 				// this is good. Send our details: Our server name and description and hopcount of 0,
@@ -808,6 +828,14 @@ class TreeSocket : public InspSocket
 				{
 					return this->RemoteServer(prefix,params);
 				}
+				else if (command == "SQUIT")
+				{
+					if (params.size() == 2)
+					{
+						this->Squit(FindServer(params[0]),params[1]);
+					}
+					return true;
+				}
 				else
 				{
 					// not a special inter-server command.
@@ -857,7 +885,7 @@ class TreeSocket : public InspSocket
 	{
 		if (this->LinkState == CONNECTING)
 		{
-			Srv->SendOpers("*** CONNECT: Connection to "+myhost+" timed out.");
+			Srv->SendOpers("*** CONNECT: Connection to \002"+myhost+"\002 timed out.");
 		}
 	}
 
@@ -878,11 +906,7 @@ class TreeSocket : public InspSocket
 			params.push_back(quitserver);
 			params.push_back(":Remote host closed the connection");
 			DoOneToAllButSender(Srv->GetServerName(),"SQUIT",params,quitserver);
-			Squit(s);
-		}
-		else
-		{
-			log(DEBUG,"SQUIT from unknown server %s",quitserver.c_str());
+			Squit(s,"Remote host closed the connection");
 		}
 	}
 
