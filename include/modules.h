@@ -361,7 +361,7 @@ class Module : public classbase
 	 * The userrec will contain the oper mode 'o' as this function is called after any modifications
 	 * are made to the user's structure by the core.
 	 */
-	virtual void OnOper(userrec* user);
+	virtual void OnOper(userrec* user, std::string opertype);
 	
 	/** Called whenever a user types /INFO.
 	 * The userrec will contain the information of the user who typed the command. Modules may use this
@@ -420,6 +420,8 @@ class Module : public classbase
 	virtual void OnUserMessage(userrec* user, void* dest, int target_type, std::string text);
 
 	virtual void OnUserNotice(userrec* user, void* dest, int target_type, std::string text);
+
+	virtual void OnMode(userrec* user, void* dest, int target_type, std::string text);
 	
 	virtual int OnUserPreNick(userrec* user, std::string newnick);
 	

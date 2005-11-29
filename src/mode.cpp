@@ -1140,6 +1140,7 @@ void process_modes(char **parameters,userrec* user,chanrec *chan,int status, int
 		{
 			log(DEBUG,"Local mode change");
 			WriteChannelLocal(chan, user, "MODE %s %s",chan->name,outstr);
+			FOREACH_MOD OnMode(user, chan, TYPE_CHANNEL, outstr);
 		}
 		else
 		{
@@ -1459,6 +1460,7 @@ void handle_mode(char **parameters, int pcnt, userrec *user)
 			if (strcmp(b,""))
 			{
 				WriteTo(user, dest, "MODE %s :%s", dest->nick, b);
+				FOREACH_MOD OnMode(user, dest, TYPE_USER, b);
 			}
 
 			if (strlen(dmodes)>MAXMODES)
@@ -1712,6 +1714,7 @@ void server_mode(char **parameters, int pcnt, userrec *user)
 			if (strcmp(b,""))
 			{
 				WriteTo(user, dest, "MODE %s :%s", dest->nick, b);
+				FOREACH_MOD OnMode(user, dest, TYPE_USER, b);
 			}
 			
 			if (strlen(dmodes)>MAXMODES)
@@ -2098,7 +2101,7 @@ void merge_mode2(char **parameters, int pcnt, userrec* user)
                         if (strcmp(b,""))
                         {
 				WriteTo(user,dest,"MODE %s :%s",dest->nick,b);
-				log(DEBUG,"Sent: :%s MODE %s",user->nick,b);
+				FOREACH_MOD OnMode(user, dest, TYPE_USER, b);
 			}
 
 			if (strlen(dmodes)>MAXMODES)

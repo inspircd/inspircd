@@ -190,7 +190,7 @@ class ModuleSQLLog : public Module
 		InsertEntry((unsigned)category,(unsigned)nickid,(unsigned)hostid,(unsigned)sourceid,(unsigned long)time(NULL));
 	}
 
-	virtual void OnOper(userrec* user)
+	virtual void OnOper(userrec* user, std::string opertype)
 	{
 		AddLogEntry(LT_OPER,user->nick,user->host,user->server);
 	}

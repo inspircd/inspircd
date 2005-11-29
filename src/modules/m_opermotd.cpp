@@ -80,7 +80,7 @@ class ModuleOpermotd : public Module {
 
 		}
 
-		virtual void OnOper(userrec* user) {
+		virtual void OnOper(userrec* user, std::string opertype) {
 
 			ShowOperMOTD(user);
 

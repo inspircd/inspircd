@@ -604,6 +604,24 @@ class TreeSocket : public InspSocket
 		return false;
 	}
 
+	bool OperType(std::string prefix, std::deque<std::string> params)
+	{
+		if (params.size() != 1)
+			return true;
+		std::string opertype = params[0];
+		userrec* u = Srv->FindNick(prefix);
+		if (u)
+		{
+			strlcpy(u->oper,opertype.c_str(),NICKMAX);
+			if (!strchr(u->modes,"o"))
+			{
+				strcat(u->modes,"o");
+			}
+			DoOneToAllButSender(u->server,"OPERTYPE",params,u->server);
+		}
+		return true;
+	}
+
 	bool RemoteServer(std::string prefix, std::deque<std::string> params)
 	{
 		if (params.size() < 4)
@@ -831,6 +849,10 @@ class TreeSocket : public InspSocket
 				else if (command == "SERVER")
 				{
 					return this->RemoteServer(prefix,params);
+				}
+				else if (command == "OPERTYPE")
+				{
+					return this->OperType(prefix,params);
 				}
 				else if (command == "SQUIT")
 				{
@@ -1352,6 +1374,19 @@ class ModuleSpanningTree : public Module
 			std::deque<std::string> params;
 			params.push_back(user->nick);
 			DoOneToMany(oldnick,"NICK",params);
+		}
+	}
+
+	// note: the protocol does not allow direct umode +o except
+	// via NICK with 8 params. sending OPERTYPE infers +o modechange
+	// locally.
+	virtual void OnOper(userrec* user, std::string opertype)
+	{
+		if (std::string(user->server) == Srv->GetServerName())
+		{
+			std::deque<std::string> params;
+			params.push_back(opertype);
+			DoOneToMany(user->nick,"OPERTYPE",params);
 		}
 	}
 

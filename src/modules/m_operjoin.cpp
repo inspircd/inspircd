@@ -42,7 +42,7 @@ class ModuleOperjoin : public Module {
 
 		}
 
-		virtual void OnOper(userrec* user) {
+		virtual void OnOper(userrec* user, std::string opertype) {
 
 			if(operChan != "") {
 

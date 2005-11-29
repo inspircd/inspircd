@@ -48,7 +48,7 @@ class ModuleModesOnOper : public Module
 		return Version(1,0,0,1,VF_VENDOR);
 	}
 	
-	virtual void OnOper(userrec* user)
+	virtual void OnOper(userrec* user, std::string opertype)
 	{
 		// whenever a user opers, go through the oper types, find their <type:modes>,
 		// and if they have one apply their modes. The mode string can contain +modes
