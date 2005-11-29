@@ -103,7 +103,7 @@ class ModuleNickLock : public Module
 		return 0;
 	}
 
-        virtual void OnUserQuit(userrec* user)
+        virtual void OnUserQuit(userrec* user, std::string reason)
         {
                 user->Shrink("nick_locked");
         }

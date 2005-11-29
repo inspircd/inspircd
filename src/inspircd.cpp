@@ -1097,7 +1097,7 @@ void kill_link(userrec *user,const char* r)
 	log(DEBUG,"closing fd %lu",(unsigned long)user->fd);
 
 	if (user->registered == 7) {
-		FOREACH_MOD OnUserQuit(user);
+		FOREACH_MOD OnUserQuit(user,reason);
 		WriteCommonExcept(user,"QUIT :%s",reason);
 	}
 

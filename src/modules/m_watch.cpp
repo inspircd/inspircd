@@ -189,7 +189,7 @@ class Modulewatch : public Module
 		Srv->AddCommand("WATCH",handle_watch,0,0,"m_watch.so");
 	}
 
-	virtual void OnUserQuit(userrec* user)
+	virtual void OnUserQuit(userrec* user, std::string reason)
 	{
 		log(DEBUG,"*** WATCH: On global quit: user %s",user->nick);
 		irc::string n2 = user->nick;

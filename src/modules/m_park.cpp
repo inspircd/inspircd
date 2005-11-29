@@ -209,7 +209,7 @@ class ModulePark : public Module
                 output = output + std::string(" PARK");
         }
 
-        virtual void OnUserQuit(userrec* user)
+        virtual void OnUserQuit(userrec* user, std::string reason)
         {
                 std::string nick = user->nick;
                 // track quits in our parked user list

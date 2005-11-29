@@ -265,7 +265,7 @@ class Module : public classbase
 	 * This event is only called when the user is fully registered when they quit. To catch
 	 * raw disconnections, use the OnUserDisconnect method.
 	 */
-	virtual void OnUserQuit(userrec* user);
+	virtual void OnUserQuit(userrec* user, std::string message);
 
 	/** Called whenever a user's socket is closed.
 	 * The details of the exiting user are available to you in the parameter userrec *user

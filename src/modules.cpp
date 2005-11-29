@@ -306,7 +306,7 @@ std::string Event::GetEventID()
 		Module::Module() { }
 		Module::~Module() { }
 void		Module::OnUserConnect(userrec* user) { }
-void		Module::OnUserQuit(userrec* user) { }
+void		Module::OnUserQuit(userrec* user, std::string message) { }
 void		Module::OnUserDisconnect(userrec* user) { }
 void		Module::OnUserJoin(userrec* user, chanrec* channel) { }
 void		Module::OnUserPart(userrec* user, chanrec* channel) { }

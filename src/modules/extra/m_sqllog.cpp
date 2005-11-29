@@ -225,7 +225,7 @@ class ModuleSQLLog : public Module
 		AddLogEntry(LT_CONNECT,user->nick,user->host,user->server);
 	}
 
-	virtual void OnUserQuit(userrec* user)
+	virtual void OnUserQuit(userrec* user, std::string reason)
 	{
 		AddLogEntry(LT_DISCONNECT,user->nick,user->host,user->server);
 	}

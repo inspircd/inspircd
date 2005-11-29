@@ -131,7 +131,7 @@ class ModuleSilence : public Module
 		Srv->AddCommand("SILENCE",handle_silence,0,0,"m_silence.so");
 	}
 
-	virtual void OnUserQuit(userrec* user)
+	virtual void OnUserQuit(userrec* user, std::string reason)
 	{
 		// when the user quits tidy up any silence list they might have just to keep things tidy
 		// and to prevent a HONKING BIG MEMORY LEAK!

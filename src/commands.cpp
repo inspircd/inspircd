@@ -867,6 +867,7 @@ void handle_quit(char **parameters, int pcnt, userrec *user)
 			Write(user->fd,"ERROR :Closing link (%s@%s) [%s%s]",user->ident,user->host,PrefixQuit,parameters[0]);
 			WriteOpers("*** Client exiting: %s!%s@%s [%s%s]",user->nick,user->ident,user->host,PrefixQuit,parameters[0]);
 			WriteCommonExcept(user,"QUIT :%s%s",PrefixQuit,parameters[0]);
+			FOREACH_MOD OnUserQuit(user,parameters[0]);
 
 		}
 		else
@@ -874,9 +875,9 @@ void handle_quit(char **parameters, int pcnt, userrec *user)
 			Write(user->fd,"ERROR :Closing link (%s@%s) [QUIT]",user->ident,user->host);
 			WriteOpers("*** Client exiting: %s!%s@%s [Client exited]",user->nick,user->ident,user->host);
 			WriteCommonExcept(user,"QUIT :Client exited");
+			FOREACH_MOD OnUserQuit(user,"Client exited");
 
 		}
-		FOREACH_MOD OnUserQuit(user);
 		AddWhoWas(user);
 	}
 

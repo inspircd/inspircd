@@ -66,7 +66,7 @@ class ModuleFoobar : public Module
 		Srv->Log(DEBUG,"Foobar: User connecting: " + b);
 	}
 
-	virtual void OnUserQuit(userrec* user)
+	virtual void OnUserQuit(userrec* user, std::string reason)
 	{
 		// method called when a user disconnects
 	
