@@ -1511,7 +1511,7 @@ bool is_uline(const char* server)
 
 	/* fix, by w00t - per nenolod. I don't see how we can want '""' as a uline. */
 	if (!server || !(*server))
-		return false;
+		return true;
 
 	for (int i = 0; i < ConfValueEnum("uline",&config_f); i++)
 	{
