@@ -490,6 +490,12 @@ class TreeSocket : public InspSocket
 		std::string ident = params[4];
 		time_t age = atoi(params[0].c_str());
 		std::string modes = params[5];
+		if (*(modes.c_str()) == '+')
+		{
+			char* m = (char*)modes.c_str();
+			m++;
+			modes = m;
+		}
 		std::string ip = params[6];
 		std::string gecos = params[7];
 		char* tempnick = (char*)nick.c_str();
@@ -1392,8 +1398,10 @@ class ModuleSpanningTree : public Module
 
 	virtual void OnMode(userrec* user, void* dest, int target_type, std::string text)
 	{
+		log(DEBUG,"*** ONMODE TRIGGER");
 		if (std::string(user->server) == Srv->GetServerName())
 		{
+			log(DEBUG,"*** LOCAL");
 			if (target_type == TYPE_USER)
 			{
 				userrec* u = (userrec*)dest;

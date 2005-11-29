@@ -1157,6 +1157,7 @@ void process_modes(char **parameters,userrec* user,chanrec *chan,int status, int
 				if (!silent)
 				{
 					WriteChannel(chan,user,"MODE %s %s",chan->name,outstr);
+					FOREACH_MOD OnMode(user, chan, TYPE_CHANNEL, outstr);
 				}
 			}
 		}
