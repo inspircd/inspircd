@@ -53,6 +53,7 @@ class TreeSocket;
 bool DoOneToOne(std::string prefix, std::string command, std::deque<std::string> params, std::string target);
 bool DoOneToAllButSender(std::string prefix, std::string command, std::deque<std::string> params, std::string omit);
 bool DoOneToMany(std::string prefix, std::string command, std::deque<std::string> params);
+bool DoOneToAllButSenderRaw(std::string data,std::string omit);
 
 class TreeServer
 {
@@ -929,7 +930,7 @@ bool DoOneToAllButSenderRaw(std::string data,std::string omit)
 		{
 			TreeSocket* Sock = Route->GetSocket();
 			log(DEBUG,"Sending RAW to %s",Route->GetName().c_str());
-			Sock->WriteLine(FullLine);
+			Sock->WriteLine(data);
 		}
 	}
 }
