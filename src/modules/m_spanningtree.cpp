@@ -1225,6 +1225,33 @@ class ModuleSpanningTree : public Module
 		return 0;
 	}
 
+	virtual void OnUserNotice(userrec* user, void* dest, int target_type, std::string text)
+	{
+		if (target_type == TYPE_USER)
+		{
+			userrec* d = (userrec*)dest;
+			if ((std::string(d->server) != Srv->GetServerName()) && (std::string(user->server) == Srv->GetServerName()))
+			{
+				std::deque<std::string> params;
+				params.clear();
+				params.push_back(d->nick);
+				params.push_back(":"+text);
+				DoOneToOne(user->nick,"NOTICE",params,d->server);
+			}
+		}
+		else
+		{
+			if (std::string(user->server) == Srv->GetServerName())
+			{
+				chanrec *c = (chanrec*)dest;
+				std::deque<std::string> params;
+				params.push_back(c->name);
+				params.push_back(":"+text);
+				DoOneToMany(user->nick,"NOTICE",params);
+			}
+		}
+	}
+
 	virtual void OnUserMessage(userrec* user, void* dest, int target_type, std::string text)
 	{
 		if (target_type == TYPE_USER)
