@@ -1433,6 +1433,19 @@ class ModuleSpanningTree : public Module
 		}
 	}
 
+	virtual void OnUserKick(userrec* source, userrec* user, chanrec* chan, std::string reason)
+	{
+		if (std::string(source->server) == Srv->GetServerName())
+		{
+			log(DEBUG,"**** User on %s KICKs: %s %s",source->server,source->nick,user->nick);
+			std::deque<std::string> params;
+			params.push_back(chan->name);
+			params.push_back(user->nick);
+			params.push_back(":"+reason);
+			DoOneToMany(source->nick,"KICK",params);
+		}
+	}
+
 	// note: the protocol does not allow direct umode +o except
 	// via NICK with 8 params. sending OPERTYPE infers +o modechange
 	// locally.
