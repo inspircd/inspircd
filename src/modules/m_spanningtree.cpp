@@ -404,7 +404,7 @@ class TreeSocket : public InspSocket
 		{
 			std::deque<std::string> params;
 			params.push_back(Current->GetName());
-			params.push_back(reason);
+			params.push_back(":"+reason);
 			DoOneToAllButSender(Current->GetParent()->GetName(),"SQUIT",params,Current->GetName());
 			if (Current->GetParent() == TreeRoot)
 			{
@@ -789,7 +789,7 @@ class TreeSocket : public InspSocket
 					params.push_back(InboundServerName);
 					params.push_back("*");
 					params.push_back("1");
-					params.push_back(InboundDescription);
+					params.push_back(":"+InboundDescription);
 					DoOneToAllButSender(TreeRoot->GetName(),"SERVER",params,InboundServerName);
 	                                this->DoBurst(Node);
 				}
@@ -907,7 +907,7 @@ class TreeSocket : public InspSocket
 		{
 			std::deque<std::string> params;
 			params.push_back(quitserver);
-			params.push_back("Remote host closed the connection");
+			params.push_back(":Remote host closed the connection");
 			DoOneToAllButSender(Srv->GetServerName(),"SQUIT",params,quitserver);
 			Squit(s,"Remote host closed the connection");
 		}
@@ -928,14 +928,7 @@ bool DoOneToAllButSender(std::string prefix, std::string command, std::deque<std
 	std::string FullLine = ":" + prefix + " " + command;
 	for (unsigned int x = 0; x < params.size(); x++)
 	{
-		if (!strchr(params[x].c_str(),' '))
-		{
-			FullLine = FullLine + " " + params[x];
-		}
-		else
-		{
-			FullLine = FullLine + " :" + params[x];
-		}
+		FullLine = FullLine + " " + params[x];
 	}
 	for (unsigned int x = 0; x < TreeRoot->ChildCount(); x++)
 	{
@@ -959,14 +952,7 @@ bool DoOneToMany(std::string prefix, std::string command, std::deque<std::string
 	std::string FullLine = ":" + prefix + " " + command;
 	for (unsigned int x = 0; x < params.size(); x++)
 	{
-		if (!strchr(params[x].c_str(),' '))
-		{
-			FullLine = FullLine + " " + params[x];
-		}
-		else
-		{
-			FullLine = FullLine + " :" + params[x];
-		}
+		FullLine = FullLine + " " + params[x];
 	}
 	for (unsigned int x = 0; x < TreeRoot->ChildCount(); x++)
 	{
@@ -988,14 +974,7 @@ bool DoOneToOne(std::string prefix, std::string command, std::deque<std::string>
 		std::string FullLine = ":" + prefix + " " + command;
 		for (unsigned int x = 0; x < params.size(); x++)
 		{
-			if (!strchr(params[x].c_str(),' '))
-			{
-				FullLine = FullLine + " " + params[x];
-			}
-			else
-			{
-				FullLine = FullLine + " :" + params[x];
-			}
+			FullLine = FullLine + " " + params[x];
 		}
 		if (Route->GetSocket())
 		{
@@ -1242,7 +1221,7 @@ class ModuleSpanningTree : public Module
 				std::deque<std::string> params;
 				params.clear();
 				params.push_back(d->nick);
-				params.push_back(text);
+				params.push_back(":"+text);
 				DoOneToOne(user->nick,"PRIVMSG",params,d->server);
 			}
 		}
@@ -1253,7 +1232,7 @@ class ModuleSpanningTree : public Module
 				chanrec *c = (chanrec*)dest;
 				std::deque<std::string> params;
 				params.push_back(c->name);
-				params.push_back(text);
+				params.push_back(":"+text);
 				DoOneToMany(user->nick,"PRIVMSG",params);
 			}
 		}
