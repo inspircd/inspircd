@@ -404,7 +404,7 @@ class TreeSocket : public InspSocket
 		{
 			std::deque<std::string> params;
 			params.push_back(Current->GetName());
-			params.push_back(":"+reason);
+			params.push_back(reason);
 			DoOneToAllButSender(Current->GetParent()->GetName(),"SQUIT",params,Current->GetName());
 			if (Current->GetParent() == TreeRoot)
 			{
@@ -789,7 +789,7 @@ class TreeSocket : public InspSocket
 					params.push_back(InboundServerName);
 					params.push_back("*");
 					params.push_back("1");
-					params.push_back(":"+InboundDescription);
+					params.push_back(InboundDescription);
 					DoOneToAllButSender(TreeRoot->GetName(),"SERVER",params,InboundServerName);
 	                                this->DoBurst(Node);
 				}
@@ -907,7 +907,7 @@ class TreeSocket : public InspSocket
 		{
 			std::deque<std::string> params;
 			params.push_back(quitserver);
-			params.push_back(":Remote host closed the connection");
+			params.push_back("Remote host closed the connection");
 			DoOneToAllButSender(Srv->GetServerName(),"SQUIT",params,quitserver);
 			Squit(s,"Remote host closed the connection");
 		}
@@ -928,7 +928,14 @@ bool DoOneToAllButSender(std::string prefix, std::string command, std::deque<std
 	std::string FullLine = ":" + prefix + " " + command;
 	for (unsigned int x = 0; x < params.size(); x++)
 	{
-		FullLine = FullLine + " " + params[x];
+		if (params[x].find(' ') == std::string::npos)
+		{
+			FullLine = FullLine + " " + params[x];
+		}
+		else
+		{
+			FullLine = FullLine + " :" + params[x];
+		}
 	}
 	for (unsigned int x = 0; x < TreeRoot->ChildCount(); x++)
 	{
@@ -952,7 +959,14 @@ bool DoOneToMany(std::string prefix, std::string command, std::deque<std::string
 	std::string FullLine = ":" + prefix + " " + command;
 	for (unsigned int x = 0; x < params.size(); x++)
 	{
-		FullLine = FullLine + " " + params[x];
+		if (params[x].find(' ') == std::string::npos)
+		{
+			FullLine = FullLine + " " + params[x];
+		}
+		else
+		{
+			FullLine = FullLine + " :" + params[x];
+		}
 	}
 	for (unsigned int x = 0; x < TreeRoot->ChildCount(); x++)
 	{
@@ -974,7 +988,14 @@ bool DoOneToOne(std::string prefix, std::string command, std::deque<std::string>
 		std::string FullLine = ":" + prefix + " " + command;
 		for (unsigned int x = 0; x < params.size(); x++)
 		{
-			FullLine = FullLine + " " + params[x];
+			if (params[x].find(' ') == std::string::npos)
+			{
+				FullLine = FullLine + " " + params[x];
+			}
+			else
+			{
+				FullLine = FullLine + " :" + params[x];
+			}
 		}
 		if (Route->GetSocket())
 		{
@@ -1221,7 +1242,7 @@ class ModuleSpanningTree : public Module
 				std::deque<std::string> params;
 				params.clear();
 				params.push_back(d->nick);
-				params.push_back(":"+text);
+				params.push_back(text);
 				DoOneToOne(user->nick,"PRIVMSG",params,d->server);
 			}
 		}
@@ -1229,29 +1250,11 @@ class ModuleSpanningTree : public Module
 		{
 			if (std::string(user->server) == Srv->GetServerName())
 			{
-				chanrec* c = (chanrec*)dest;
+				chanrec *c = (chanrec*)dest;
 				std::deque<std::string> params;
-				std::vector<std::string> wlist;
-				params.clear();
-				wlist.clear();
 				params.push_back(c->name);
-				params.push_back(":"+text);
-				std::vector<char*> *ulist = c->GetUsers();
-				for (unsigned int j = 0; j < ulist->size(); j++)
-				{
-					char* o = (*ulist)[j];
-					userrec* otheruser = (userrec*)o;
-					if (strcasecmp(otheruser->server,Srv->GetServerName().c_str()))
-					{
-						// this user is on another server.
-						// Write that server, then mark that server so we dont write to it again.
-						if (find(wlist.begin(),wlist.end(),otheruser->server) == wlist.end())
-						{
-							DoOneToOne(user->nick,"PRIVMSG",params,otheruser->server);
-							wlist.push_back(otheruser->server);
-						}
-					}
-				}
+				params.push_back(text);
+				DoOneToMany(user->nick,"PRIVMSG",params);
 			}
 		}
 	}
