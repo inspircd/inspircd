@@ -1152,7 +1152,7 @@ void kill_link_silent(userrec *user,const char* r)
 	user->FlushWriteBuf();
 
 	if (user->registered == 7) {
-		FOREACH_MOD OnUserQuit(user);
+		FOREACH_MOD OnUserQuit(user,reason);
 		WriteCommonExcept(user,"QUIT :%s",reason);
 	}
 
