@@ -928,7 +928,7 @@ bool DoOneToAllButSender(std::string prefix, std::string command, std::deque<std
 	std::string FullLine = ":" + prefix + " " + command;
 	for (unsigned int x = 0; x < params.size(); x++)
 	{
-		if (params[x].find(' ') == std::string::npos)
+		if (!strchr(params[x].c_str(),' '))
 		{
 			FullLine = FullLine + " " + params[x];
 		}
@@ -959,7 +959,7 @@ bool DoOneToMany(std::string prefix, std::string command, std::deque<std::string
 	std::string FullLine = ":" + prefix + " " + command;
 	for (unsigned int x = 0; x < params.size(); x++)
 	{
-		if (params[x].find(' ') == std::string::npos)
+		if (!strchr(params[x].c_str(),' '))
 		{
 			FullLine = FullLine + " " + params[x];
 		}
@@ -988,7 +988,7 @@ bool DoOneToOne(std::string prefix, std::string command, std::deque<std::string>
 		std::string FullLine = ":" + prefix + " " + command;
 		for (unsigned int x = 0; x < params.size(); x++)
 		{
-			if (params[x].find(' ') == std::string::npos)
+			if (!strchr(params[x].c_str(),' '))
 			{
 				FullLine = FullLine + " " + params[x];
 			}
