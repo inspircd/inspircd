@@ -933,6 +933,7 @@ bool DoOneToAllButSenderRaw(std::string data,std::string omit)
 			Sock->WriteLine(data);
 		}
 	}
+	return true;
 }
 
 bool DoOneToAllButSender(std::string prefix, std::string command, std::deque<std::string> params, std::string omit)
