@@ -991,10 +991,6 @@ class TreeSocket : public InspSocket
 		TreeServer* s = FindServer(quitserver);
 		if (s)
 		{
-			std::deque<std::string> params;
-			params.push_back(quitserver);
-			params.push_back(":Remote host closed the connection");
-			DoOneToAllButSender(Srv->GetServerName(),"SQUIT",params,quitserver);
 			Squit(s,"Remote host closed the connection");
 		}
 	}
