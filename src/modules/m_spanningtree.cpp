@@ -68,6 +68,7 @@ class TreeServer
 	int UserCount;
 	int OperCount;
 	TreeSocket* Socket;	// for directly connected servers this points at the socket object
+	bool Deleted;
 	
  public:
 
@@ -78,6 +79,7 @@ class TreeServer
 		ServerDesc = "";
 		VersionString = "";
 		UserCount = OperCount = 0;
+		Deleted = false;
 	}
 
 	TreeServer(std::string Name, std::string Desc) : ServerName(Name), ServerDesc(Desc)
@@ -85,12 +87,14 @@ class TreeServer
 		Parent = NULL;
 		VersionString = "";
 		UserCount = OperCount = 0;
+		Deleted = false;
 	}
 
 	TreeServer(std::string Name, std::string Desc, TreeServer* Above, TreeSocket* Sock) : Parent(Above), ServerName(Name), ServerDesc(Desc), Socket(Sock)
 	{
 		VersionString = "";
 		UserCount = OperCount = 0;
+		Deleted = false;
 	}
 
 	std::string GetName()
@@ -145,6 +149,11 @@ class TreeServer
 		}
 	}
 
+	void MarkDeleted()
+	{
+		this->Deleted = true;
+	}
+
 	void AddChild(TreeServer* Child)
 	{
 		Children.push_back(Child);
@@ -161,6 +170,25 @@ class TreeServer
 			}
 		}
 		return false;
+	}
+
+	// removes child nodes of this node, and of that node, etc etc
+	bool Tidy()
+	{
+		bool stillchildren = true;
+		while (stillchildren)
+		{
+			stillchildren = false;
+			for (std::vector<TreeServer*>::iterator a = Children.begin(); a < Children.end(); a++)
+			{
+				TreeServer*a = (TreeServer*)*a;
+				a->Tidy();
+				Children.erase(a);
+				delete a;
+				stillchildren = true;
+				break;
+			}
+		}
 	}
 };
 
@@ -349,6 +377,40 @@ class TreeSocket : public InspSocket
 				this->SendServers(recursive_server, s, hops+1);
 			}
 		}
+	}
+
+	void SquitServer(TreeServer* Current)
+	{
+		// recursively squit the servers attached to 'Current'
+		for (unsigned int q = 0; q < Current->ChildCount(); q++)
+		{
+			TreeServer* recursive_server = Current->GetChild(q);
+			this->SquitServer(recursive_server);
+		}
+		// Now we've whacked the kids, whack self
+		this->MarkDeleted();
+		log(DEBUG,"Deleted %s",Current->GetName());
+		bool quittingpeople = true;
+		while (quittingpeople)
+		{
+			quittingpeople = false;
+			for (user_hash::iterator u = clientlist.begin(); u != clientlist.end(); u++)
+			{
+				if (!strcasecmp(u->second->server,Current->GetName().c_str()))
+				{
+					Srv->QuitUser(u,Current->GetName()+" "+std::string(Srv->GetServerName()));
+					quittingpeople = true;
+					break;
+				}
+			}
+		}
+	}
+
+	void Squit(TreeServer* Current)
+	{
+		SquitServer(Current);
+		Current->Tidy();
+		Current->GetParent()->DelChild(Current);
 	}
 
 	bool ForceJoin(std::string source, std::deque<std::string> params)
@@ -809,6 +871,27 @@ class TreeSocket : public InspSocket
 
 	virtual void OnClose()
 	{
+		// Connection closed.
+		// If the connection is fully up (state CONNECTED)
+		// then propogate a netsplit to all peers.
+		std::string quitserver = this->myhost;
+		if (this->InboundServerName != "")
+		{
+			quitserver = this->InboundServerName;
+		}
+		TreeServer* s = FindServer(quitserver);
+		if (s)
+		{
+			std::deque<std::string> params;
+			params.push_back(quitserver);
+			params.push_back(":Remote host closed the connection");
+			DoOneToAllButSender(Srv->GetServerName(),"SQUIT",params,quitserver);
+			Squit(s);
+		}
+		else
+		{
+			log(DEBUG,"SQUIT from unknown server %s",quitserver.c_str());
+		}
 	}
 
 	virtual int OnIncomingConnection(int newsock, char* ip)
