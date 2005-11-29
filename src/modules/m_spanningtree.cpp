@@ -724,10 +724,6 @@ class TreeSocket : public InspSocket
 				}
 			}
 			item++;
-			if ((strchr(param.c_str(),' ')) && (!stripcolon))
-			{
-				param = ":"+param;
-			}
 			n.push_back(param);
 		}
 		return n;
@@ -736,8 +732,6 @@ class TreeSocket : public InspSocket
 	bool ProcessLine(std::string line)
 	{
 		Srv->Log(DEBUG,"inbound-line: '"+line+"'");
-
-		std::deque<std::string> rawparams = this->Split(line,false);
 		std::deque<std::string> params = this->Split(line,true);
 		std::string command = "";
 		std::string prefix = "";
@@ -880,7 +874,7 @@ class TreeSocket : public InspSocket
 							return true;
 						}
 					}
-					return DoOneToAllButSender(prefix,command,rawparams,sourceserv);
+					return DoOneToAllButSenderRaw(line,sourceserv);
 
 				}
 				return true;
@@ -925,6 +919,20 @@ class TreeSocket : public InspSocket
 		return true;
 	}
 };
+
+bool DoOneToAllButSenderRaw(std::string data,std::string omit)
+{
+	for (unsigned int x = 0; x < TreeRoot->ChildCount(); x++)
+	{
+		TreeServer* Route = TreeRoot->GetChild(x);
+		if ((Route->GetSocket()) && (Route->GetName() != omit) && (BestRouteTo(omit) != Route))
+		{
+			TreeSocket* Sock = Route->GetSocket();
+			log(DEBUG,"Sending RAW to %s",Route->GetName().c_str());
+			Sock->WriteLine(FullLine);
+		}
+	}
+}
 
 bool DoOneToAllButSender(std::string prefix, std::string command, std::deque<std::string> params, std::string omit)
 {
