@@ -68,7 +68,6 @@ class TreeServer
 	int UserCount;
 	int OperCount;
 	TreeSocket* Socket;	// for directly connected servers this points at the socket object
-	bool Deleted;
 	
  public:
 
@@ -79,7 +78,6 @@ class TreeServer
 		ServerDesc = "";
 		VersionString = "";
 		UserCount = OperCount = 0;
-		Deleted = false;
 	}
 
 	TreeServer(std::string Name, std::string Desc) : ServerName(Name), ServerDesc(Desc)
@@ -87,14 +85,12 @@ class TreeServer
 		Parent = NULL;
 		VersionString = "";
 		UserCount = OperCount = 0;
-		Deleted = false;
 	}
 
 	TreeServer(std::string Name, std::string Desc, TreeServer* Above, TreeSocket* Sock) : Parent(Above), ServerName(Name), ServerDesc(Desc), Socket(Sock)
 	{
 		VersionString = "";
 		UserCount = OperCount = 0;
-		Deleted = false;
 	}
 
 	std::string GetName()
@@ -149,11 +145,6 @@ class TreeServer
 		}
 	}
 
-	void MarkDeleted()
-	{
-		this->Deleted = true;
-	}
-
 	void AddChild(TreeServer* Child)
 	{
 		Children.push_back(Child);
@@ -181,14 +172,15 @@ class TreeServer
 			stillchildren = false;
 			for (std::vector<TreeServer*>::iterator a = Children.begin(); a < Children.end(); a++)
 			{
-				TreeServer*a = (TreeServer*)*a;
-				a->Tidy();
+				TreeServer* s = (TreeServer*)*a;
+				s->Tidy();
 				Children.erase(a);
-				delete a;
+				delete s;
 				stillchildren = true;
 				break;
 			}
 		}
+		return true;
 	}
 };
 
@@ -388,8 +380,7 @@ class TreeSocket : public InspSocket
 			this->SquitServer(recursive_server);
 		}
 		// Now we've whacked the kids, whack self
-		this->MarkDeleted();
-		log(DEBUG,"Deleted %s",Current->GetName());
+		log(DEBUG,"Deleted %s",Current->GetName().c_str());
 		bool quittingpeople = true;
 		while (quittingpeople)
 		{
@@ -398,7 +389,8 @@ class TreeSocket : public InspSocket
 			{
 				if (!strcasecmp(u->second->server,Current->GetName().c_str()))
 				{
-					Srv->QuitUser(u,Current->GetName()+" "+std::string(Srv->GetServerName()));
+					log(DEBUG,"Quitting user %s of server %s",u->second->nick,u->second->server);
+					Srv->QuitUser(u->second,Current->GetName()+" "+std::string(Srv->GetServerName()));
 					quittingpeople = true;
 					break;
 				}
