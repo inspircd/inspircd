@@ -42,7 +42,7 @@ class ModuleChanFilter : public Module
 		Conf = new ConfigReader;
 		Srv->AddExtendedListMode('g');
 		MaxEntries = Conf->ReadInteger("chanfilter","maxsize",0,true);
-		If (MaxEntries == 0)
+		if (MaxEntries == 0)
 			MaxEntries = 32;
 	}
 	
