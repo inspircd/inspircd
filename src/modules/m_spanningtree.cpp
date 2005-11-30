@@ -1648,12 +1648,12 @@ class ModuleSpanningTree : public Module
 			if (target_type == TYPE_USER)
 			{
 				userrec* u = (userrec*)target;
-				s->WriteLine(":"+s->GetName()+" FMODE "+u->nick+" "+modeline);
+				s->WriteLine(":"+Srv->GetServerName()+" FMODE "+u->nick+" "+modeline);
 			}
 			else
 			{
 				chanrec* c = (chanrec*)target;
-				s->WriteLine(":"+s->GetName()+" FMODE "+c->name+" "+modeline);
+				s->WriteLine(":"+Srv->GetServerName()+" FMODE "+c->name+" "+modeline);
 			}
 		}
 	}
