@@ -377,7 +377,16 @@ void ChanExceptSender(chanrec* Ptr, userrec* user, char* text, ...)
 
 std::string GetServerDescription(char* servername)
 {
-	return ServerDesc; // not a remote server that can be found, it must be me.
+	std::string description = "";
+	FOREACH_MOD OnGetServerDescription(servername,description);
+	if (description != "")
+	{
+		return description;
+	}
+	else
+	{
+		return ServerDesc; // not a remote server that can be found, it must be me.
+	}
 }
 
 /* write a formatted string to all users who share at least one common

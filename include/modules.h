@@ -424,6 +424,8 @@ class Module : public classbase
 	virtual void OnUserNotice(userrec* user, void* dest, int target_type, std::string text);
 
 	virtual void OnMode(userrec* user, void* dest, int target_type, std::string text);
+
+	virtual void OnGetServerDescription(std::string servername,std::string &description);
 	
 	virtual int OnUserPreNick(userrec* user, std::string newnick);
 	

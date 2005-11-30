@@ -1371,6 +1371,15 @@ class ModuleSpanningTree : public Module
 		return 0;
 	}
 
+	virtual void OnGetServerDescription(std::string servername,std::string &description)
+	{
+		TreeServer* s = FindServer(servername);
+		if (s)
+		{
+			return s->GetDesc();
+		}
+	}
+
 	virtual void OnUserInvite(userrec* source,userrec* dest,chanrec* channel)
 	{
 		if (std::string(source->server) == Srv->GetServerName())
