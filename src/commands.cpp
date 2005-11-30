@@ -529,7 +529,10 @@ void handle_topic(char **parameters, int pcnt, userrec *user)
 				strlcpy(Ptr->setby,user->nick,NICKMAX);
 				Ptr->topicset = TIME;
 				WriteChannel(Ptr,user,"TOPIC %s :%s",Ptr->name, Ptr->topic);
-
+				if (!strcasecmp(user->server,ServerName))
+				{
+					FOREACH_MOD OnPostLocalTopicChange(user,Ptr,topic)
+				}
 			}
 			else
 			{

@@ -620,6 +620,8 @@ class Module : public classbase
 	 */
 	virtual int OnLocalTopicChange(userrec* user, chanrec* chan, std::string topic);
 
+	virtual void OnPostLocalTopicChange(userrec* user, chanrec* chan, std::string topic);
+
 	/** Called whenever an Event class is sent to all module by another module.
 	 * Please see the documentation of Event::Send() for further information. The Event sent can
 	 * always be assumed to be non-NULL, you should *always* check the value of Event::GetEventID()
