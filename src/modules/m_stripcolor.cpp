@@ -82,7 +82,7 @@ class ModuleStripColor : public Module
 		char sentence[MAXBUF];
 		strncpy(sentence,text.c_str(),MAXBUF);
   
-		len = strlen (sentence);
+		len = strlen(sentence);
 
 		for (i = 0; i < len; i++)
   		{
@@ -101,23 +101,24 @@ class ModuleStripColor : public Module
 				case 3:
 					remove = 1;
 
-					if (isdigit (sentence[i + remove]))
+					if (isdigit(sentence[i + remove]))
 						remove++;
 
-					if (isdigit (sentence[i + remove]))
+					if (isdigit(sentence[i + remove]))
 						remove++;
 
 					if (sentence[i + remove] == ',')
      					{
 						remove += 2;
 
-						if (isdigit (sentence[i + remove]))
-						remove++;
+						if (isdigit(sentence[i + remove]))
+							remove++;
 					}
 				break;
 			}
 
-			if (remove != 0) {
+			if (remove != 0)
+			{
 				len -= remove;
 
 				for (a = i; a <= len; a++)
