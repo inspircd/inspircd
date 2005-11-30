@@ -465,6 +465,12 @@ void expire_lines()
 	
 	// because we mess up an iterator when we remove from the vector, we must bail from
 	// the loop early if we delete an item, therefore this outer while loop is required.
+	//
+	// 30/11/2005-- I can imagine that if we get a large number of *lines, this would perform dog slow.
+	// While we try and think of a better solution, for now I've simply split the loops up, instead of
+	// one huge while () -- this means if we remove a g-line, we only need to re-check glines, not z/g/.
+	// lines too, hopefully a little faster, even if it looks a little messier ;) --w00t
+
 	while (go_again)
 	{
 		go_again = false;
@@ -479,6 +485,13 @@ void expire_lines()
 				break;
 			}
 		}
+	}
+
+	go_again = true;
+
+	while (go_again)
+	{
+		go_again = false;
 
                 for (std::vector<ELine>::iterator i = elines.begin(); i != elines.end(); i++)
                 {
@@ -490,6 +503,13 @@ void expire_lines()
                                 break;
                         }
                 }
+	}
+
+	go_again = true;
+
+	while (go_again)
+	{
+		go_again = false;
 
 		for (std::vector<GLine>::iterator i = glines.begin(); i != glines.end(); i++)
 		{
@@ -501,6 +521,13 @@ void expire_lines()
 				break;
 			}
 		}
+	}
+
+	go_again = true;
+
+	while (go_again)
+	{
+		go_again = false;
 
 		for (std::vector<ZLine>::iterator i = zlines.begin(); i != zlines.end(); i++)
 		{
@@ -512,6 +539,14 @@ void expire_lines()
 				break;
 			}
 		}
+	}
+
+	go_again = true;
+
+
+	while (go_again)
+	{
+		go_again = false;
 
 		for (std::vector<QLine>::iterator i = qlines.begin(); i != qlines.end(); i++)
 		{
