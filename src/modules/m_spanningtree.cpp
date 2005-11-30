@@ -44,6 +44,10 @@ using namespace std;
 
 static Module* TreeProtocolModule;
 
+extern std::vector<Module*> modules;
+extern std::vector<ircd_module*> factory;
+extern int MODCOUNT;
+
 enum ServerState { LISTENER, CONNECTING, WAIT_AUTH_1, WAIT_AUTH_2, CONNECTED };
 
 typedef nspace::hash_map<std::string, userrec*, nspace::hash<string>, irc::StrHashComp> user_hash;
@@ -1635,7 +1639,7 @@ class ModuleSpanningTree : public Module
 		}
 	}
 
-	virtual void ProtoSendMode(void* opaque, int target_type, void* target, std::string modeline);
+	virtual void ProtoSendMode(void* opaque, int target_type, void* target, std::string modeline)
 	{
 		TreeSocket* s = (TreeSocket*)opaque;
 		if (target)
