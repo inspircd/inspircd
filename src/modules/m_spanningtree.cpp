@@ -222,6 +222,11 @@ TreeServer* RouteEnumerate(TreeServer* Current, std::string ServerName)
 TreeServer* BestRouteTo(std::string ServerName)
 {
 	log(DEBUG,"Finding best route to %s",ServerName.c_str());
+	if (ServerName.c_str() == TreeRoot->GetName())
+	{
+		log(DEBUG,"Cant route to myself!!!");
+		return NULL;
+	}
 	// first, find the server by recursively walking the tree
 	TreeServer* Found = RouteEnumerate(TreeRoot,ServerName);
 	// did we find it? If not, they did something wrong, abort.
@@ -584,6 +589,7 @@ class TreeSocket : public InspSocket
 				log(DEBUG,"*** COLLISION: Remote client is newer");
 				// remote is newer, kill it and bail to stop it being introduced
 				this->WriteLine(":"+Srv->GetServerName()+" KILL "+tempnick+" :Killed (Nickname collision from "+Srv->GetServerName()+")");
+				log(DEBUG,"*** COLLIDE COMPLETED");
 				return true;
 			}
 		}
