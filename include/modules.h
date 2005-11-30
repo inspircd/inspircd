@@ -468,20 +468,6 @@ class Module : public classbase
 	 */
 	virtual int OnAccessCheck(userrec* source,userrec* dest,chanrec* channel,int access_type);
 
-	/** Called during a netburst to sync user data.
-	 * This is called during the netburst on a per-user basis. You should use this call to up any special
-	 * user-related things which are implemented by your module, e.g. sending listmodes. You may return
-	 * multiple commands in the string_list.
-	 */
-	virtual string_list OnUserSync(userrec* user);
-
-	/** Called during a netburst to sync channel data.
-	 * This is called during the netburst on a per-channel basis. You should use this call to up any special
-	 * channel-related things which are implemented by your module, e.g. sending listmodes. You may return
-	 * multiple commands in the string_list.
-	 */
-	virtual string_list OnChannelSync(chanrec* chan);
-
 	/** Called when a 005 numeric is about to be output.
 	 * The module should modify the 005 numeric if needed to indicate its features.
 	 */

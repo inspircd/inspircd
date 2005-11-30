@@ -219,7 +219,6 @@ class ModuleChanFilter : public Module
 				proto->ProtoSendMode(opaque,TYPE_CHANNEL,chan,"+g "+*i);
 			}
 		}
-		return commands;
 	}
 
 };
