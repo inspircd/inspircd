@@ -556,9 +556,10 @@ class TreeSocket : public InspSocket
 		if (iter != clientlist.end())
 		{
 			// nick collision
-			log(DEBUG,"Nick collision on %s!%s@%s",tempnick,ident.c_str(),host.c_str());
+			log(DEBUG,"Nick collision on %s!%s@%s: %lu %lu",tempnick,ident.c_str(),host.c_str(),(unsigned long)age,(unsigned long)iter->second->age);
 			if (age <= iter->second->age)
 			{
+				log (DEBUG,"*** COLLISION: Remote client is older");
 				// remote client is older
 				// if hosts are identical, kill the remote,
 				// else kill the local. We must send KILL for
@@ -580,7 +581,7 @@ class TreeSocket : public InspSocket
 			}
 			else
 			{
-				log(DEBUG,"*** LOCATION THREE");
+				log(DEBUG,"*** COLLISION: Remote client is newer");
 				// remote is newer, kill it and bail to stop it being introduced
 				this->WriteLine(":"+Srv->GetServerName()+" KILL "+tempnick+" :Killed (Nickname collision from "+Srv->GetServerName()+")");
 				return true;
