@@ -613,16 +613,19 @@ class TreeSocket : public InspSocket
 		char data[MAXBUF];
 		for (user_hash::iterator u = clientlist.begin(); u != clientlist.end(); u++)
 		{
-			snprintf(data,MAXBUF,":%s NICK %lu %s %s %s %s +%s %s :%s",u->second->server,(unsigned long)u->second->age,u->second->nick,u->second->host,u->second->dhost,u->second->ident,u->second->modes,u->second->ip,u->second->fullname);
-			this->WriteLine(data);
-			if (strchr(u->second->modes,'o'))
+			if (u->second->registered == 7)
 			{
-				this->WriteLine(":"+std::string(u->second->nick)+" OPERTYPE "+std::string(u->second->oper));
-			}
-			char* chl = chlist(u->second,u->second);
-			if (*chl)
-			{
-				this->WriteLine(":"+std::string(u->second->nick)+" FJOIN "+std::string(chl));
+				snprintf(data,MAXBUF,":%s NICK %lu %s %s %s %s +%s %s :%s",u->second->server,(unsigned long)u->second->age,u->second->nick,u->second->host,u->second->dhost,u->second->ident,u->second->modes,u->second->ip,u->second->fullname);
+				this->WriteLine(data);
+				if (strchr(u->second->modes,'o'))
+				{
+					this->WriteLine(":"+std::string(u->second->nick)+" OPERTYPE "+std::string(u->second->oper));
+				}
+				char* chl = chlist(u->second,u->second);
+				if (*chl)
+				{
+					this->WriteLine(":"+std::string(u->second->nick)+" FJOIN "+std::string(chl));
+				}
 			}
 		}
 	}
