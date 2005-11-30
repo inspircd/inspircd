@@ -27,12 +27,13 @@ using namespace std;
 /* $ModDesc: Provides the NICKLOCK command, allows an oper to chage a users nick and lock them to it until they quit */
 
 Server *Srv;
-
-char* dummy = "ON";
 	 
 void handle_nicklock(char **parameters, int pcnt, userrec *user)
 {
 	userrec* source = Srv->FindNick(std::string(parameters[0]));
+	irc::string server;
+	irc::string me;
+
 	if (source)
 	{
 		if (source->GetExt("nick_locked"))
@@ -42,17 +43,18 @@ void handle_nicklock(char **parameters, int pcnt, userrec *user)
 		}
 		if (Srv->IsNick(std::string(parameters[1])))
 		{
-			irc::string server = user->server;
-			irc::string me = Srv->GetServerName().c_str();
+			server = user->server;
+			me = Srv->GetServerName().c_str();
+
 			if (server == me)
 			{
 				// give them a lock flag
 				Srv->SendOpers(std::string(user->nick)+" used NICKLOCK to change and hold "+std::string(parameters[0])+" to "+parameters[1]);
 				Srv->ChangeUserNick(source,std::string(parameters[1]));
 				// only attempt to set their lockflag after we know the change succeeded
-				userrec* s2 = Srv->FindNick(std::string(parameters[1]));
-				if (s2)
-					s2->Extend("nick_locked",dummy);
+				source = Srv->FindNick(std::string(parameters[1]));
+				if (source)
+					source->Extend("nick_locked", "ON");
 			}
 			else
 			{
