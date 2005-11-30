@@ -567,17 +567,20 @@ class TreeSocket : public InspSocket
 				{
 					// kill the remote by sending KILL,
 					// and ABORT to stop it being introduced here.
+					log(DEBUG,"**** LOCATION ONE");
 					this->WriteLine(":"+Srv->GetServerName()+" KILL "+tempnick+" :Killed (Nickname collision from "+Srv->GetServerName()+")");
 					return true;
 				}
 				else
 				{
+					log(DEBUG,"*** LOCATION TWO");
 					// kill our local and continue to let the remote be introduced
 					Srv->QuitUser(iter->second,"Killed (Nickname collision from "+source+")");
 				}
 			}
 			else
 			{
+				log(DEBUG,"*** LOCATION THREE");
 				// remote is newer, kill it and bail to stop it being introduced
 				this->WriteLine(":"+Srv->GetServerName()+" KILL "+tempnick+" :Killed (Nickname collision from "+Srv->GetServerName()+")");
 				return true;
