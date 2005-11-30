@@ -42,7 +42,8 @@ using namespace std;
 #define nspace std
 #endif
 
-static Module* TreeProtocolModule;
+class ModuleSpanningTree;
+static ModuleSpanningTree* TreeProtocolModule;
 
 extern std::vector<Module*> modules;
 extern std::vector<ircd_module*> factory;
@@ -610,7 +611,7 @@ class TreeSocket : public InspSocket
 				snprintf(data,MAXBUF,":%s FMODE %s +b %s",Srv->GetServerName().c_str(),c->second->name,b->data);
 				this->WriteLine(data);
 			}
-			FOREACH_MOD OnSyncChannel(c->second,TreeProtocolModule,this);
+			FOREACH_MOD OnSyncChannel(c->second,(Module*)TreeProtocolModule,(void*)this);
 		}
 	}
 
@@ -633,7 +634,7 @@ class TreeSocket : public InspSocket
 				{
 					this->WriteLine(":"+std::string(u->second->nick)+" FJOIN "+std::string(chl));
 				}
-				FOREACH_MOD OnSyncUser(u->second,TreeProtocolModule,this);
+				FOREACH_MOD OnSyncUser(u->second,(Module*)TreeProtocolModule,(void*)this);
 			}
 		}
 	}
@@ -1647,12 +1648,12 @@ class ModuleSpanningTree : public Module
 			if (target_type == TYPE_USER)
 			{
 				userrec* u = (userrec*)target;
-				opaque->WriteLine(":"+s->GetName()+" FMODE "+u->nick+" "+modeline);
+				s->WriteLine(":"+s->GetName()+" FMODE "+u->nick+" "+modeline);
 			}
 			else
 			{
 				chanrec* c = (chanrec*)target;
-				opaque->WriteLine(":"+s->GetName()+" FMODE "+c->name+" "+modeline);
+				s->WriteLine(":"+s->GetName()+" FMODE "+c->name+" "+modeline);
 			}
 		}
 	}
@@ -1682,7 +1683,8 @@ class ModuleSpanningTreeFactory : public ModuleFactory
 	
 	virtual Module * CreateModule()
 	{
-		return new ModuleSpanningTree;
+		TreeProtocolModule = new ModuleSpanningTree;
+		return TreeProtocolModule;
 	}
 	
 };
@@ -1690,7 +1692,6 @@ class ModuleSpanningTreeFactory : public ModuleFactory
 
 extern "C" void * init_module( void )
 {
-	TreeProtocolModule = new ModuleSpanningTreeFactory;
-	return TreeProtocolModule;
+	return new ModuleSpanningTreeFactory;
 }
 
