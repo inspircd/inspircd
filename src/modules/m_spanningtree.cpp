@@ -562,8 +562,10 @@ class TreeSocket : public InspSocket
 		{
 			// nick collision
 			log(DEBUG,"Nick collision on %s!%s@%s: %lu %lu",tempnick,ident.c_str(),host.c_str(),(unsigned long)age,(unsigned long)iter->second->age);
-			Srv->QuitUser(iter->second,"Killed (Nickname collision from "+source+")");
-			return true;
+			if (age > iter->second->age)
+			{
+				Srv->QuitUser(iter->second,"Killed (Nickname collision from "+source+")");
+			}
 		}
 		
 		clientlist[tempnick] = new userrec();
