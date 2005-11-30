@@ -750,11 +750,6 @@ class TreeSocket : public InspSocket
 		std::string password = params[1];
 		int hops = atoi(params[2].c_str());
 		std::string description = params[3];
-		if (!hops)
-		{
-			this->WriteLine("ERROR :Protocol error - Introduced remote server with incorrect hopcount!");
-			return false;
-		}
 		TreeServer* ParentOfThis = FindServer(prefix);
 		if (!ParentOfThis)
 		{
