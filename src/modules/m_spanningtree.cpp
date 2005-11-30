@@ -467,7 +467,7 @@ class TreeSocket : public InspSocket
 				strlcpy(c->topic,topic.c_str(),MAXTOPIC);
 				strlcpy(c->setby,setby.c_str(),NICKMAX);
 				c->topicset = ts;
-				WriteChannelWithServ(source.c_str(), c, "TOPIC %s :%s", c->name, c->topic)
+				WriteChannelWithServ((char*)source.c_str(), c, "TOPIC %s :%s", c->name, c->topic);
 			}
 			
 		}
