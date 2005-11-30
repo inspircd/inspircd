@@ -562,12 +562,10 @@ class TreeSocket : public InspSocket
 		{
 			// nick collision
 			log(DEBUG,"Nick collision on %s!%s@%s: %lu %lu",tempnick,ident.c_str(),host.c_str(),(unsigned long)age,(unsigned long)iter->second->age);
-			if (age > iter->second->age)
-			{
-				Srv->QuitUser(iter->second,"Killed (Nickname collision from "+source+")");
-			}
+			this->WriteLine(":"+Srv->GetServerName()+" KILL "+tempnick+" :Nickname collision");
+			return true;
 		}
-		
+
 		clientlist[tempnick] = new userrec();
 		clientlist[tempnick]->fd = FD_MAGIC_NUMBER;
 		strlcpy(clientlist[tempnick]->nick, tempnick,NICKMAX);
