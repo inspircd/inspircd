@@ -1342,6 +1342,10 @@ class ModuleSpanningTree : public Module
 		}
 	}
 
+	virtual void OnPostLocalTopicChange(userrec* user, chanrec* chan, std::string topic)
+	{
+	}
+
 	virtual void OnUserNotice(userrec* user, void* dest, int target_type, std::string text)
 	{
 		if (target_type == TYPE_USER)
