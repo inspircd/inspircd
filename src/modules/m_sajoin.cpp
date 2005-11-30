@@ -31,9 +31,17 @@ void handle_sajoin(char **parameters, int pcnt, userrec *user)
 	userrec* dest = Srv->FindNick(std::string(parameters[0]));
 	if (dest)
 	{
+		/* might be nicer to make checking valid channel names an api function sometime --w00t */
+		if (parameters[1][0] != '#')
+		{
+			/* we didn't need to check this for each character ;) */
+			Srv->SendTo(NULL,user,"NOTICE "+std::string(user->nick)+" :*** Invalid characters in channel name");
+			return;
+		}
+
 		for (unsigned int x = 0; x < strlen(parameters[1]); x++)
 		{
-				if ((parameters[1][0] != '#') || (parameters[1][x] == ' ') || (parameters[1][x] == ','))
+				if ((parameters[1][x] == ' ') || (parameters[1][x] == ','))
 				{
 					Srv->SendTo(NULL,user,"NOTICE "+std::string(user->nick)+" :*** Invalid characters in channel name");
 					return;
