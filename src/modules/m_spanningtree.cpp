@@ -713,6 +713,7 @@ class TreeSocket : public InspSocket
 		std::string servermask = params[0];
 		if (Srv->MatchText(Srv->GetServerName(),servermask))
 		{
+			Srv->SendOpers("*** Remote rehash initiated from server \002"+prefix+"\002.");
 			Srv->RehashServer();
 		}
 		DoOneToAllButSender(prefix,"REHASH",params,prefix);
@@ -1577,6 +1578,7 @@ class ModuleSpanningTree : public Module
 			// check for self
 			if (Srv->MatchText(Srv->GetServerName(),parameter))
 			{
+				Srv->SendOpers("*** Remote rehash initiated from server \002"+Srv->GetServerName()+"\002.");
 				Srv->RehashServer();
 			}
 		}
