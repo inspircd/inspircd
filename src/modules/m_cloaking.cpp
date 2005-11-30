@@ -64,7 +64,8 @@ class ModuleCloaking : public Module
 	{
 		byte *p = (byte *)buf;
 	
-		do {
+		do
+		{
 			*buf++ = (word32)((unsigned)p[3] << 8 | p[2]) << 16 |
 				((unsigned)p[1] << 8 | p[0]);
 			p += 4;
@@ -93,7 +94,8 @@ class ModuleCloaking : public Module
 			ctx->bytes[1]++;	/* Carry from low to high */
 
 		t = 64 - (t & 0x3f);	/* Space available in ctx->in (at least 1) */
-		if ((unsigned)t > (unsigned)len) {
+		if ((unsigned)t > (unsigned)len)
+		{
 			memcpy((byte *)ctx->in + 64 - (unsigned)t, buf, len);
 			return;
 		}
@@ -105,7 +107,8 @@ class ModuleCloaking : public Module
 		len -= (unsigned)t;
 
 		/* Process data in 64-byte chunks */
-		while (len >= 64) {
+		while (len >= 64)
+		{
 			memcpy(ctx->in, buf, 64);
 			byteSwap(ctx->in, 16);
 			xMD5Transform(ctx->buf, ctx->in);
@@ -128,7 +131,8 @@ class ModuleCloaking : public Module
 		/* Bytes of padding needed to make 56 bytes (-8..55) */
 		count = 56 - 1 - count;
 
-		if (count < 0) {	/* Padding forces an extra block */
+		if (count < 0)
+		{	/* Padding forces an extra block */
 			memset(p, 0, count+8);
 			byteSwap(ctx->in, 16);
 			xMD5Transform(ctx->buf, ctx->in);
