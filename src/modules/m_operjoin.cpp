@@ -11,43 +11,36 @@ using namespace std;
 
 Server *Srv;
 
-class ModuleOperjoin : public Module {
-
+class ModuleOperjoin : public Module
+{
 	private:
-
 		std::string operChan;
 		ConfigReader* conf;
 
 	public:
-
-		ModuleOperjoin() {
-
+		ModuleOperjoin()
+		{
 			Srv = new Server;
 			conf = new ConfigReader;
-
 			operChan = conf->ReadValue("operjoin", "channel", 0);
-
 		}
 
-		virtual ~ModuleOperjoin() {
-
+		virtual ~ModuleOperjoin()
+		{
 			delete Srv;
 			delete conf;
-
 		}
 
-		virtual Version GetVersion() {
-
+		virtual Version GetVersion()
+		{
 			return Version(1,0,0,1,VF_VENDOR);
-
 		}
 
-		virtual void OnOper(userrec* user, std::string opertype) {
-
-			if(operChan != "") {
-
+		virtual void OnOper(userrec* user, std::string opertype)
+		{
+			if(operChan != "")
+			{
 				Srv->JoinUserToChannel(user,operChan,"");
-
 			}
 
 		}
@@ -56,20 +49,19 @@ class ModuleOperjoin : public Module {
 
 class ModuleOperjoinFactory : public ModuleFactory
 {
- public:
-        ModuleOperjoinFactory()
-        {
-        }
+	public:
+	        ModuleOperjoinFactory()
+        	{
+	        }
 
-        ~ModuleOperjoinFactory()
-        {
-        }
+	        ~ModuleOperjoinFactory()
+        	{
+	        }
 
-        virtual Module * CreateModule()
-        {
-                return new ModuleOperjoin;
-        }
-
+	        virtual Module * CreateModule()
+        	{
+                	return new ModuleOperjoin;
+	        }
 };
 
 extern "C" void * init_module( void )
