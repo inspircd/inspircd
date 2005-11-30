@@ -335,7 +335,7 @@ class ModuleChanProtect : public Module
 		return Version(1,0,0,0,VF_STATIC|VF_VENDOR);
 	}
 	
-	virtual string_list OnChannelSync(chanrec* chan)
+	virtual void OnChannelSync(chanrec* chan, Module* proto, void* opaque)
 	{
 		// this is called when the server is linking into a net and wants to sync channel data.
 		// we should send our mode changes for the channel here to ensure that other servers
@@ -346,11 +346,11 @@ class ModuleChanProtect : public Module
 		{
 			if (cl[i]->GetExt("cm_founder_"+std::string(chan->name)))
 			{
-				commands.push_back("M "+std::string(chan->name)+" +q "+std::string(cl[i]->nick));
+				proto->ProtoSendMode(opaque,TYPE_CHANNEL,chan,"+q "+std::string(cl[i]->nick));
 			}
 			if (cl[i]->GetExt("cm_protect_"+std::string(chan->name)))
 			{
-				commands.push_back("M "+std::string(chan->name)+" +a "+std::string(cl[i]->nick));
+				proto->ProtoSendMode(opaque,TYPE_CHANNEL,chan,"+a "+std::string(cl[i]->nick));
 			}
 		}
 		return commands;

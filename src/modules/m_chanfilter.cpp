@@ -208,7 +208,7 @@ class ModuleChanFilter : public Module
 		return Version(1,0,0,0,VF_STATIC|VF_VENDOR);
 	}
 	
-	virtual string_list OnChannelSync(chanrec* chan)
+	virtual void OnSyncChannel(chanrec* chan, Module* proto, void* opaque)
 	{
 		SpamList* spamlist = (SpamList*)chan->GetExt("spam_list");
 		string_list commands;
@@ -216,7 +216,7 @@ class ModuleChanFilter : public Module
 		{
 			for (SpamList::iterator i = spamlist->begin(); i != spamlist->end(); i++)
 			{
-				commands.push_back("M "+std::string(chan->name)+" +g "+*i);
+				proto->ProtoSendMode(opaque,TYPE_CHANNEL,chan,"+g "+*i);
 			}
 		}
 		return commands;
