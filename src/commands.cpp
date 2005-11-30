@@ -1123,8 +1123,11 @@ void handle_user(char **parameters, int pcnt, userrec *user)
 			WriteServ(user->fd,"461 %s USER :Not enough parameters",user->nick);
 		}
 		else {
-			strcpy(user->ident,"~"); /* we arent checking ident... but these days why bother anyway? */
-			strlcat(user->ident,parameters[0],IDENTMAX+1);
+			/* We're not checking ident, but I'm not sure I like the idea of '~' prefixing.. */
+			/* XXX - Should this IDENTMAX + 1 be IDENTMAX - 1? Ok, users.h has it defined as
+			 * char ident[IDENTMAX+2]; - WTF?
+			 */
+			snprintf(user->ident, IDENTMAX+1, "~%s", parameters[0]);
 			strlcpy(user->fullname,parameters[3],MAXGECOS);
 			user->registered = (user->registered | 1);
 		}
