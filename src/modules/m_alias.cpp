@@ -38,8 +38,9 @@ class ModuleAlias : public Module
 		Server *Srv;
 		ConfigReader *MyConf;
 		std::vector<Alias> Aliases;
-	public:
-		/* XXX - small issue, why is this marked public when it's not (really) intended for external use */
+
+		/* XXX - small issue, why is this marked public when it's not (really) intended for external use
+		 * Fixed 30/11/05 by Brain as suggestion by w00t */
  		virtual void ReadAliases()
 		{
 			Aliases.clear();
@@ -59,6 +60,8 @@ class ModuleAlias : public Module
 			}
 	
 		}
+
+	public:
 	
 		ModuleAlias()
 		{

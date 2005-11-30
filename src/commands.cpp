@@ -332,6 +332,8 @@ void handle_kill(char **parameters, int pcnt, userrec *user)
 			WriteOpers("*** Remote kill by %s: %s!%s@%s (%s)",user->nick,u->nick,u->ident,u->host,parameters[1]);
 			snprintf(killreason,MAXBUF,"[%s] Killed (%s (%s))",ServerName,user->nick,parameters[1]);
 			WriteCommonExcept(u,"QUIT :%s",killreason);
+
+			FOREACH_MOD OnRemoteKill(user,u,killreason);
 			
 			user_hash::iterator iter = clientlist.find(u->nick);
 			if (iter != clientlist.end())

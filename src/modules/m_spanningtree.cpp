@@ -669,6 +669,22 @@ class TreeSocket : public InspSocket
 		return true;
 	}
 
+	bool RemoteKill(std::string prefix, std::deque<std::string> params)
+	{
+		if (params.size() != 2)
+			return true;
+		std::string nick = params[0];
+		std::string reason = params[1];
+		userrec* u = Srv->FindNick(prefix);
+		userrec* who = Srv->FindNick(nick);
+		if (who)
+		{
+			DoOneToAllButSender(prefix,"KILL",params,u->server)
+			Srv->QuitUser(who,reason);
+		}
+		return true;
+	}
+
 	bool RemoteServer(std::string prefix, std::deque<std::string> params)
 	{
 		if (params.size() < 4)
@@ -913,6 +929,10 @@ class TreeSocket : public InspSocket
 				else if (command == "FMODE")
 				{
 					return this->ForceMode(prefix,params);
+				}
+				else if (command == "KILL")
+				{
+					return this->RemoteKill(prefix,params);
 				}
 				else if (command == "SQUIT")
 				{
@@ -1444,6 +1464,14 @@ class ModuleSpanningTree : public Module
 			params.push_back(":"+reason);
 			DoOneToMany(source->nick,"KICK",params);
 		}
+	}
+
+	virtual void OnRemoteKill(userrec* source, userrec* dest, std::string reason)
+	{
+		std::deque<std::string> params;
+		params.push_back(dest->nick);
+		params.push_back(":"+reason);
+		DoOneToMany(source->nick,"KILL",params);
 	}
 
 	// note: the protocol does not allow direct umode +o except

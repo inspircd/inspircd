@@ -76,7 +76,7 @@ void handle_helpop(char **parameters, int pcnt, userrec *user)
 			for (int i = 1; output != ""; i++)
   			{
 				snprintf(a,MAXBUF,"line%d",i);
-				/* XXX - "nohelpo" ? or "nohelp", as above */
+				/* "nohelpo" for opers "nohelp" for users */
    				output = helpop->ReadValue("nohelpo", std::string(a), 0);
 				if (output != "")
 				{

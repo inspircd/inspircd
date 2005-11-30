@@ -487,6 +487,10 @@ class Module : public classbase
 	 */
 	virtual int OnKill(userrec* source, userrec* dest, std::string reason);
 
+	/** Called when an oper wants to disconnect a remote user via KILL
+	 */
+	virtual void OnRemoteKill(userrec* source, userrec* dest, std::string reason);
+
 	/** Called whenever a module is loaded.
 	 * mod will contain a pointer to the module, and string will contain its name,
 	 * for example m_widgets.so. This function is primary for dependency checking,
