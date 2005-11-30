@@ -525,7 +525,7 @@ void handle_topic(char **parameters, int pcnt, userrec *user)
                                                 return;
                                 }
 
-				strlcpy(Ptr->topic,topic,MAXBUF);
+				strlcpy(Ptr->topic,topic,MAXTOPIC);
 				strlcpy(Ptr->setby,user->nick,NICKMAX);
 				Ptr->topicset = TIME;
 				WriteChannel(Ptr,user,"TOPIC %s :%s",Ptr->name, Ptr->topic);

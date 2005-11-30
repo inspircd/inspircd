@@ -449,6 +449,36 @@ class TreeSocket : public InspSocket
 		return true;
 	}
 
+	bool ForceTopic(std::string source, std::deque<std::string> params)
+	{
+		// FTOPIC %s %lu %s :%s
+		if (params.size() != 4)
+			return true;
+		std::string channel = params[0];
+		time_t ts = atoi(params[1].c_str());
+		std::string setby = params[2];
+		std::string topic = params[3];
+
+		chanrec* c = Srv->FindChannel(channel);
+		if (c)
+		{
+			if ((ts >= c->topicset) || (!*c->topic))
+			{
+				strlcpy(c->topic,topic.c_str(),MAXTOPIC);
+				strlcpy(c->setby,setby.c_str(),NICKMAX);
+				c->topicset = ts;
+				WriteChannelWithServ(source.c_str(), c, "TOPIC %s :%s", c->name, c->topic)
+			}
+			
+		}
+		
+		// all done, send it on its way
+		params[3] = ":" + params[3];
+		DoOneToAllButSender(source,"FTOPIC",params,source);
+
+		return true;
+	}
+
 	bool ForceJoin(std::string source, std::deque<std::string> params)
 	{
 		if (params.size() < 1)
@@ -942,6 +972,10 @@ class TreeSocket : public InspSocket
 				{
 					return this->RemoteKill(prefix,params);
 				}
+				else if (command == "FTOPIC")
+				{
+					return this->ForceTopic(prefix,params);
+				}
 				else if (command == "SQUIT")
 				{
 					if (params.size() == 2)
@@ -1344,6 +1378,10 @@ class ModuleSpanningTree : public Module
 
 	virtual void OnPostLocalTopicChange(userrec* user, chanrec* chan, std::string topic)
 	{
+		std::deque<std::string> params;
+		params.push_back(chan->name);
+		params.push_back(":"+topic);
+		DoOneToMany(user->nick,"TOPIC",params);
 	}
 
 	virtual void OnUserNotice(userrec* user, void* dest, int target_type, std::string text)
