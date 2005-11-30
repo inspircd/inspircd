@@ -11,22 +11,18 @@ using namespace std;
 
 Server *Srv;
 
-class ModuleShowwhois : public Module {
-
+class ModuleShowwhois : public Module
+{
 	public:
-
-		ModuleShowwhois() {
-
+		ModuleShowwhois()
+		{
 			Srv = new Server;
-
 			Srv->AddExtendedMode('W',MT_CLIENT,true,0,0);
-
 		}
 
-		~ModuleShowwhois() {
-
+		~ModuleShowwhois()
+		{
 			delete Srv;
-
 		}
 
 		virtual Version GetVersion()
@@ -34,52 +30,45 @@ class ModuleShowwhois : public Module {
 			return Version(1,0,0,3,VF_STATIC);
 		}
 
-		virtual int OnExtendedMode(userrec* user, void* target, char modechar, int type, bool mode_on, string_list& params) {
-
-			if((type == MT_CLIENT) && (modechar == 'W')) {
-
+		virtual int OnExtendedMode(userrec* user, void* target, char modechar, int type, bool mode_on, string_list& params)
+		{
+			if((type == MT_CLIENT) && (modechar == 'W'))
+			{
 				return 1;
-
 			}
 
 			return 0;
-
 		}
 
-		virtual void OnWhois(userrec* source, userrec* dest) {
-
-			if(strchr(dest->modes,'W')) {
-
+		virtual void OnWhois(userrec* source, userrec* dest)
+		{
+			if(strchr(dest->modes,'W'))
+			{
 				WriteServ(dest->fd,"NOTICE %s :*** %s (%s@%s) did a /whois on you.",dest->nick,source->nick,source->ident,source->host);
-				
 			}
-
 		}
 
 };
 
-class ModuleShowwhoisFactory : public ModuleFactory {
-
+class ModuleShowwhoisFactory : public ModuleFactory
+{
 	public:
-
-		ModuleShowwhoisFactory() {
-
+		ModuleShowwhoisFactory()
+		{
 		}
 
-		~ModuleShowwhoisFactory() {
-
+		~ModuleShowwhoisFactory()
+		{
 		}
 
-		virtual Module* CreateModule() {
-
+		virtual Module* CreateModule()
+		{
 			return new ModuleShowwhois;
-
 		}
 
 };
 
-extern "C" void* init_module() {
-
+extern "C" void* init_module()
+{
 	return new ModuleShowwhoisFactory;
-
 }
