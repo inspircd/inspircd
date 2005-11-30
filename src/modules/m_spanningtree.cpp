@@ -1647,12 +1647,12 @@ class ModuleSpanningTree : public Module
 			if (target_type == TYPE_USER)
 			{
 				userrec* u = (userrec*)target;
-				opaque->WriteLine(":"+opaque->GetName()+" FMODE "+u->nick+" "+modeline);
+				opaque->WriteLine(":"+s->GetName()+" FMODE "+u->nick+" "+modeline);
 			}
-			else (target_type == TYPE_CHANNEL)
+			else
 			{
 				chanrec* c = (chanrec*)target;
-				opaque->WriteLine(":"+opaque->GetName()+" FMODE "+c->name+" "+modeline);
+				opaque->WriteLine(":"+s->GetName()+" FMODE "+c->name+" "+modeline);
 			}
 		}
 	}
