@@ -1331,6 +1331,17 @@ class ModuleSpanningTree : public Module
 		return 0;
 	}
 
+	virtual void OnUserInvite(userrec* source,userrec* dest,chanrec* channel)
+	{
+		if (std::string(source->server) == Srv->GetServerName())
+		{
+			std::deque<std::string> params;
+			params.push_back(dest->nick);
+			params.push_back(channel->name);
+			DoOneToMany(source->nick,"INVITE",params);
+		}
+	}
+
 	virtual void OnUserNotice(userrec* user, void* dest, int target_type, std::string text)
 	{
 		if (target_type == TYPE_USER)
