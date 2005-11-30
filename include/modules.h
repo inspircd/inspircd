@@ -304,9 +304,10 @@ class Module : public classbase
 	/** Called on rehash.
 	 * This method is called prior to a /REHASH or when a SIGHUP is received from the operating
 	 * system. You should use it to reload any files so that your module keeps in step with the
-	 * rest of the application.
+	 * rest of the application. If a parameter is given, the core has done nothing. The module
+	 * receiving the event can decide if this parameter has any relevence to it.
 	 */
- 	virtual void OnRehash();
+ 	virtual void OnRehash(std::string parameter);
 
 	/** Called when a raw command is transmitted or received.
 	 * This method is the lowest level of handler available to a module. It will be called with raw
