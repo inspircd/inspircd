@@ -717,7 +717,7 @@ class TreeSocket : public InspSocket
 			Srv->RehashServer();
 		}
 		DoOneToAllButSender(prefix,"REHASH",params,prefix);
-		return;
+		return true;
 	}
 
 	bool RemoteKill(std::string prefix, std::deque<std::string> params)
