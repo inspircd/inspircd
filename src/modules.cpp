@@ -384,6 +384,12 @@ void Server::AddSocket(InspSocket* sock)
 	module_sockets.push_back(sock);
 }
 
+void Server::RehashServer()
+{
+	WriteOpers("*** Rehashing config file");
+	ReadConfig(false,NULL);
+}
+
 void Server::DelSocket(InspSocket* sock)
 {
 	for (std::vector<InspSocket*>::iterator a = module_sockets.begin(); a < module_sockets.end(); a++)

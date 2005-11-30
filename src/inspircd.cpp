@@ -293,7 +293,7 @@ void ReadConfig(bool bail, userrec* user)
 			}
 			else
 			{
-				WriteOpers("There were errors in the configuration file:",user->nick);
+				WriteOpers("There were errors in the configuration file:");
 				while (!errstr.eof())
 				{
 					errstr.getline(dataline,1024);

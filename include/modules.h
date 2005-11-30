@@ -1121,6 +1121,8 @@ class Server : public classbase
 	/** Deletes a class derived from InspSocket from the server's socket engine.
 	 */
 	virtual void DelSocket(InspSocket* sock);
+
+	virtual void RehashServer();
 };
 
 

@@ -1076,7 +1076,10 @@ void handle_rehash(char **parameters, int pcnt, userrec *user)
 {
 	WriteServ(user->fd,"382 %s %s :Rehashing",user->nick,CleanFilename(CONFIG_FILE));
 	ReadConfig(false,user);
-	FOREACH_MOD OnRehash();
+	std::string parameter = "";
+	if (pcnt)
+		parameter = parameters[0];
+	FOREACH_MOD OnRehash(parameter);
 	WriteOpers("%s is rehashing config file %s",user->nick,CleanFilename(CONFIG_FILE));
 }
 
