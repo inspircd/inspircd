@@ -20,24 +20,21 @@ using namespace std;
 Server *Srv;
 
 /* This little function just converts a chanmode character (~ & @ & +) into an integer (5 4 3 2 1) */
+/* XXX - this could be handy in the core, so it can be used elsewhere */
 int chartolevel(std::string privs)
 {
-	int level;
-	if(privs == "~")
-		level = 5;
+	/* XXX - if we just passed this a char, we could do a switch. Look nicer, really. */
+
+	if (privs == "~")
+		return 5;
+	else if (privs == "&")
+		return 4;
+	else if (privs == "@")
+		return 3;
+	else if (privs == "%")
+		return 2;
 	else
-	if(privs == "&")
-		level = 4;
-	else
-	if(privs == "@")
-		level = 3;
-	else
-	if(privs == "%") {
-		level = 2;
-	} else {
-		level = 1;
-	}
-	return level;
+		return 1;
 }
 	 
 void handle_remove(char **parameters, int pcnt, userrec *user)
@@ -99,10 +96,14 @@ void handle_remove(char **parameters, int pcnt, userrec *user)
 				Srv->PartUserFromChannel(target,std::string(parameters[1]), "Remove by "+std::string(user->nick)+":"+result);
 				Srv->SendTo(NULL,user,"NOTICE "+std::string(channel->name)+" : "+std::string(user->nick)+" removed "+std::string(target->nick)+ " from the channel");
 				Srv->SendTo(NULL,target,"NOTICE "+std::string(target->nick)+" :*** "+std::string(user->nick)+" removed you from "+std::string(channel->name)+" with the message:"+std::string(result));
-			} else {
+			}
+			else
+			{
 				Srv->SendTo(NULL,user,"NOTICE "+std::string(user->nick)+" :*** You do not have access to remove "+std::string(target->nick)+" from the "+std::string(channel->name));
 			}
-		} else {
+		}
+		else
+		{
 			Srv->SendTo(NULL,user,"NOTICE "+std::string(user->nick)+" :*** You do not have access to use /remove on "+std::string(channel->name));
 		}
 	}
