@@ -1376,7 +1376,7 @@ class ModuleSpanningTree : public Module
 		TreeServer* s = FindServer(servername);
 		if (s)
 		{
-			return s->GetDesc();
+			description = s->GetDesc();
 		}
 	}
 
