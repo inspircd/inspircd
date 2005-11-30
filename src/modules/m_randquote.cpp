@@ -68,7 +68,8 @@ class ModuleRandQuote : public Module
 		prefix = conf->ReadValue("randquote","prefix",0);
 		suffix = conf->ReadValue("randquote","suffix",0);
 
-		if (q_file == "") {
+		if (q_file == "")
+		{
 			log(DEFAULT,"m_randquote: Quotefile not specified - Please check your config.");
 			return;
                 }
@@ -99,8 +100,9 @@ class ModuleRandQuote : public Module
 	{
 		// Make a fake pointer to be passed to handle_randquote()
 		// Dont try this at home kiddies :D
-		char *rar = "RAR";
-		handle_randquote(&rar, 0, user);
+		/* Or do things a slightly nicer way, and pass NULL */
+		//char *rar = "RAR";
+		handle_randquote(NULL, 0, user);
 	}
 };
 
