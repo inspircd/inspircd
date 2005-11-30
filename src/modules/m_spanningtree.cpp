@@ -706,6 +706,19 @@ class TreeSocket : public InspSocket
 		return true;
 	}
 
+	bool RemoteRehash(std::string prefix, std::deque<std::string> params)
+	{
+		if (params.size() < 1)
+			return true;
+		std::string servermask = params[0];
+		if (Srv->MatchText(Srv->GetServerName(),servermask))
+		{
+			Srv->RehashServer();
+		}
+		DoOneToAllButSender(prefix,"REHASH",params,prefix);
+		return;
+	}
+
 	bool RemoteKill(std::string prefix, std::deque<std::string> params)
 	{
 		if (params.size() != 2)
@@ -981,6 +994,10 @@ class TreeSocket : public InspSocket
 				else if (command == "FTOPIC")
 				{
 					return this->ForceTopic(prefix,params);
+				}
+				else if (command == "REHASH")
+				{
+					return this->RemoteRehash(prefix,params);
 				}
 				else if (command == "SQUIT")
 				{
@@ -1548,6 +1565,21 @@ class ModuleSpanningTree : public Module
 		params.push_back(dest->nick);
 		params.push_back(":"+reason);
 		DoOneToMany(source->nick,"KILL",params);
+	}
+
+	virtual void OnRehash(std::string parameter)
+	{
+		if (parameter != "")
+		{
+			std::deque<std::string> params;
+			params.push_back(parameter);
+			DoOneToMany(Srv->GetServerName(),"REHASH",params);
+			// check for self
+			if (Srv->MatchText(Srv->GetServerName(),parameter))
+			{
+				Srv->RehashServer();
+			}
+		}
 	}
 
 	// note: the protocol does not allow direct umode +o except
