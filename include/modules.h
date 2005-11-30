@@ -386,6 +386,8 @@ class Module : public classbase
 	 */
 	virtual int OnUserPreInvite(userrec* source,userrec* dest,chanrec* channel);
 	
+	virtual void OnUserInvite(userrec* source,userrec* dest,chanrec* channel);
+	
 	/** Called whenever a user is about to PRIVMSG A user or a channel, before any processing is done.
 	 * Returning any nonzero value from this function stops the process immediately, causing no
 	 * output to be sent to the user by the core. If you do this you must produce your own numerics,
