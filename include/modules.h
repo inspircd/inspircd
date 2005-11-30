@@ -427,6 +427,12 @@ class Module : public classbase
 	virtual void OnMode(userrec* user, void* dest, int target_type, std::string text);
 
 	virtual void OnGetServerDescription(std::string servername,std::string &description);
+
+	virtual void OnSyncUser(userrec* user, Module* proto, void* opaque);
+
+	virtual void OnSyncChannel(chanrec* chan, Module* proto, void* opaque);
+
+	virtual void ProtoSendMode(void* opaque, int target_type, void* target, std::string modeline);
 	
 	virtual int OnUserPreNick(userrec* user, std::string newnick);
 	

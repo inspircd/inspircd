@@ -65,6 +65,7 @@
 
 #define TYPE_USER 1
 #define TYPE_CHANNEL 2
+#define TYPE_SERVER 3
 
 typedef std::deque<std::string> file_cache;
 

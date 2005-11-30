@@ -42,6 +42,8 @@ using namespace std;
 #define nspace std
 #endif
 
+static Module* TreeProtocolModule;
+
 enum ServerState { LISTENER, CONNECTING, WAIT_AUTH_1, WAIT_AUTH_2, CONNECTED };
 
 typedef nspace::hash_map<std::string, userrec*, nspace::hash<string>, irc::StrHashComp> user_hash;
@@ -604,6 +606,7 @@ class TreeSocket : public InspSocket
 				snprintf(data,MAXBUF,":%s FMODE %s +b %s",Srv->GetServerName().c_str(),c->second->name,b->data);
 				this->WriteLine(data);
 			}
+			FOREACH_MOD OnSyncChannel(c->second,TreeProtocolModule,this);
 		}
 	}
 
@@ -626,6 +629,7 @@ class TreeSocket : public InspSocket
 				{
 					this->WriteLine(":"+std::string(u->second->nick)+" FJOIN "+std::string(chl));
 				}
+				FOREACH_MOD OnSyncUser(u->second,TreeProtocolModule,this);
 			}
 		}
 	}
@@ -1049,6 +1053,16 @@ class TreeSocket : public InspSocket
 			break;	
 		}
 		return true;
+	}
+
+	virtual std::string GetName()
+	{
+		std::string sourceserv = this->myhost;
+		if (this->InboundServerName != "")
+		{
+			sourceserv = this->InboundServerName;
+		}
+		return sourceserv;
 	}
 
 	virtual void OnTimeout()
@@ -1621,6 +1635,24 @@ class ModuleSpanningTree : public Module
 		}
 	}
 
+	virtual void ProtoSendMode(void* opaque, int target_type, void* target, std::string modeline);
+	{
+		TreeSocket* s = (TreeSocket*)opaque;
+		if (target)
+		{
+			if (target_type == TYPE_USER)
+			{
+				userrec* u = (userrec*)target;
+				opaque->WriteLine(":"+opaque->GetName()+" FMODE "+u->nick+" "+modeline);
+			}
+			else (target_type == TYPE_CHANNEL)
+			{
+				chanrec* c = (chanrec*)target;
+				opaque->WriteLine(":"+opaque->GetName()+" FMODE "+c->name+" "+modeline);
+			}
+		}
+	}
+
 	virtual ~ModuleSpanningTree()
 	{
 		delete Srv;
@@ -1654,6 +1686,7 @@ class ModuleSpanningTreeFactory : public ModuleFactory
 
 extern "C" void * init_module( void )
 {
-	return new ModuleSpanningTreeFactory;
+	TreeProtocolModule = new ModuleSpanningTreeFactory;
+	return TreeProtocolModule;
 }
 

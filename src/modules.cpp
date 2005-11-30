@@ -366,6 +366,10 @@ void 		Module::OnRemoteKill(userrec* source, userrec* dest, std::string reason) 
 void		Module::OnUserInvite(userrec* source,userrec* dest,chanrec* channel) { };
 void		Module::OnPostLocalTopicChange(userrec* user, chanrec* chan, std::string topic) { };
 void		Module::OnGetServerDescription(std::string servername,std::string &description) { };
+void		Module::OnSyncUser(userrec* user, Module* proto, void* opaque) { };
+void		Module::OnSyncChannel(chanrec* chan, Module* proto, void* opaque) { };
+void		Module::ProtoSendMode(void* opaque, int target_type, void* target, std::string modeline) { };
+			
 
 // server is a wrapper class that provides methods to all of the C-style
 // exports in the core
