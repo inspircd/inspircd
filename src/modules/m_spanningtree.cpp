@@ -1129,6 +1129,7 @@ bool DoOneToAllButSender(std::string prefix, std::string command, std::deque<std
 
 bool DoOneToMany(std::string prefix, std::string command, std::deque<std::string> params)
 {
+	Srv->Log(DEBUG,"ONETOMANY: "+command);
 	std::string FullLine = ":" + prefix + " " + command;
 	for (unsigned int x = 0; x < params.size(); x++)
 	{
