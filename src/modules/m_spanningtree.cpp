@@ -557,7 +557,31 @@ class TreeSocket : public InspSocket
 		{
 			// nick collision
 			log(DEBUG,"Nick collision on %s!%s@%s",tempnick,ident.c_str(),host.c_str());
-			return true;
+			if (age <= iter->second->age)
+			{
+				// remote client is older
+				// if hosts are identical, kill the remote,
+				// else kill the local. We must send KILL for
+				// removal of remote users.
+				if (!strcmp(iter->second->host,host.c_str()))
+				{
+					// kill the remote by sending KILL,
+					// and ABORT to stop it being introduced here.
+					this->WriteLine(":"+Srv->GetServerName()+" KILL "+tempnick+" :Killed (Nickname collision from "+Srv->GetServerName()+")");
+					return true;
+				}
+				else
+				{
+					// kill our local and continue to let the remote be introduced
+					Srv->QuitUser(iter->second,"Killed (Nickname collision from "+source+")");
+				}
+			}
+			else
+			{
+				// remote is newer, kill it and bail to stop it being introduced
+				this->WriteLine(":"+Srv->GetServerName()+" KILL "+tempnick+" :Killed (Nickname collision from "+Srv->GetServerName()+")");
+				return true;
+			}
 		}
 		
 		clientlist[tempnick] = new userrec();
