@@ -546,6 +546,7 @@ class TreeSocket : public InspSocket
 			clientlist[tempnick]->chans[i].channel = NULL;
 			clientlist[tempnick]->chans[i].uc_modes = 0;
 		}
+		params[7] = ":" + params[7];
 		DoOneToAllButSender(source,"NICK",params,source);
 		return true;
 	}
@@ -679,6 +680,7 @@ class TreeSocket : public InspSocket
 		userrec* who = Srv->FindNick(nick);
 		if (who)
 		{
+			params[1] = ":" + params[1];
 			DoOneToAllButSender(prefix,"KILL",params,u->server);
 			Srv->QuitUser(who,reason);
 		}
@@ -739,6 +741,7 @@ class TreeSocket : public InspSocket
 				// node.
 				TreeServer* Node = new TreeServer(servername,description,TreeRoot,this);
 				TreeRoot->AddChild(Node);
+				params[3] = ":" + params[3];
 				DoOneToAllButSender(TreeRoot->GetName(),"SERVER",params,servername);
 				this->DoBurst(Node);
 				return true;
