@@ -679,7 +679,7 @@ class TreeSocket : public InspSocket
 		userrec* who = Srv->FindNick(nick);
 		if (who)
 		{
-			DoOneToAllButSender(prefix,"KILL",params,u->server)
+			DoOneToAllButSender(prefix,"KILL",params,u->server);
 			Srv->QuitUser(who,reason);
 		}
 		return true;
