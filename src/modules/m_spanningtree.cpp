@@ -680,8 +680,13 @@ class TreeSocket : public InspSocket
 		userrec* who = Srv->FindNick(nick);
 		if (who)
 		{
+			std::string sourceserv = prefix;
+			if (u)
+			{
+				sourceserv = u->server;
+			}
 			params[1] = ":" + params[1];
-			DoOneToAllButSender(prefix,"KILL",params,u->server);
+			DoOneToAllButSender(prefix,"KILL",params,sourceserv);
 			Srv->QuitUser(who,reason);
 		}
 		return true;
