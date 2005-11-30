@@ -15,7 +15,8 @@ Server* Srv;
 
 void do_opermotd(char** parameters, int pcnt, userrec* user);
 
-void LoadOperMOTD() {
+void LoadOperMOTD()
+{
 
 	ConfigReader* conf = new ConfigReader;
 	std::string filename;
@@ -26,96 +27,83 @@ void LoadOperMOTD() {
 	
 }
 
-void ShowOperMOTD(userrec* user) {
-
-	if(!opermotd->FileSize()) {
-
+void ShowOperMOTD(userrec* user)
+{
+	if(!opermotd->FileSize())
+	{
 		Srv->SendServ(user->fd,std::string("425 ") + user->nick + std::string(" :OPERMOTD file is missing"));
 		return;
-
 	}
 
 	Srv->SendServ(user->fd,std::string("375 ") + user->nick + std::string(" :- IRC Operators Message of the Day"));
 
-	for(int i=0; i != opermotd->FileSize(); i++) {
-
+	for(int i=0; i != opermotd->FileSize(); i++)
+	{
 		Srv->SendServ(user->fd,std::string("372 ") + user->nick + std::string(" :- ") + opermotd->GetLine(i));
-
 	}
 
 	Srv->SendServ(user->fd,std::string("376 ") + user->nick + std::string(" :- End of OPERMOTD"));
 
 }
 
-void do_opermotd(char** parameters, int pcnt, userrec* user) {
-
+void do_opermotd(char** parameters, int pcnt, userrec* user)
+{
 	ShowOperMOTD(user);
-
 }
 
-class ModuleOpermotd : public Module {
-
+class ModuleOpermotd : public Module
+{
 	public:
-
-		ModuleOpermotd() {
-
+		ModuleOpermotd()
+		{
 			Srv = new Server;
 			
 			Srv->AddCommand("OPERMOTD",do_opermotd,'o',0,"m_opermotd.so");
-
 			opermotd = new FileReader();
 			LoadOperMOTD();
-
 		}
 
-		virtual ~ModuleOpermotd() {
-
+		virtual ~ModuleOpermotd()
+		{
 			delete Srv;
-
 		}
 
-		virtual Version GetVersion() {
-
+		virtual Version GetVersion()
+		{
 			return Version(1,0,0,1,VF_VENDOR);
-
 		}
 
-		virtual void OnOper(userrec* user, std::string opertype) {
-
+		virtual void OnOper(userrec* user, std::string opertype)
+		{
 			ShowOperMOTD(user);
-
 		}
 
-		virtual void OnRehash() {
-
+		virtual void OnRehash()
+		{
 			LoadOperMOTD();
-
 		}
 
 };
 
-class ModuleOpermotdFactory : public ModuleFactory {
-
+class ModuleOpermotdFactory : public ModuleFactory
+{
 	public:
-
-		ModuleOpermotdFactory() {
-
+		ModuleOpermotdFactory()
+		{
 		}
 
-		~ModuleOpermotdFactory() {
-
+		~ModuleOpermotdFactory()
+		{
 		}
 
-		virtual Module* CreateModule() {
-
+		virtual Module* CreateModule()
+		{
 			return new ModuleOpermotd;
-
 		}
 
 };
 
-extern "C" void* init_module(void) {
-
+extern "C" void* init_module(void)
+{
 	return new ModuleOpermotdFactory;
-
 }
