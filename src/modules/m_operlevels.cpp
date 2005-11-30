@@ -32,7 +32,7 @@ class ModuleOperLevels : public Module
 			delete conf;
 		}
 
-		virtual void OnRehash()
+		virtual void OnRehash(std::string parameter)
 		{
 			delete conf;
 			conf = new ConfigReader;

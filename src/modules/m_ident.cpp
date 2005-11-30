@@ -269,7 +269,7 @@ class ModuleIdent : public Module
 		ReadSettings();
 	}
 
-	virtual void OnRehash()
+	virtual void OnRehash(std::string parameter)
 	{
 		ReadSettings();
 	}

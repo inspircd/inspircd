@@ -191,7 +191,7 @@ class ModuleHelpop : public Module
 		}
 
 
-		virtual void OnRehash()
+		virtual void OnRehash(std::string parameter)
 		{
 			delete conf;
 			delete helpop;

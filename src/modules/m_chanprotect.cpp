@@ -86,7 +86,7 @@ class ModuleChanProtect : public Module
 		user->Shrink("cm_protect_"+std::string(channel->name));
 	}
 
-	virtual void OnRehash()
+	virtual void OnRehash(std::string parameter)
 	{
 		// on a rehash we delete our classes for good measure and create them again.
 		delete Conf;

@@ -47,7 +47,7 @@ class ModuleHostChange : public Module
 		delete Conf;
 	}
 
-	virtual void OnRehash()
+	virtual void OnRehash(std::string parameter)
 	{
 		delete Conf;
 		Conf = new ConfigReader;

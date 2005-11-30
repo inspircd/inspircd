@@ -71,7 +71,7 @@ class ModuleSQLLog : public Module
 		ReadConfig();
 	}
 
-	virtual void OnRehash()
+	virtual void OnRehash(std::string parameter)
 	{
 		ReadConfig();
 	}

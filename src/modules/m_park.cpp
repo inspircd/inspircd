@@ -199,7 +199,7 @@ class ModulePark : public Module
 		delete Srv;
 	}
 
-	virtual void OnRehash()
+	virtual void OnRehash(std::string parameter)
 	{
 		this->ReadSettings();
 	}

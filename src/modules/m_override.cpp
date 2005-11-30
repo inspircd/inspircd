@@ -47,7 +47,7 @@ class ModuleOverride : public Module
 		NoisyOverride = Conf->ReadFlag("override","noisy",0);
 	}
 	
-	virtual void OnRehash()
+	virtual void OnRehash(std::string parameter)
 	{
 		// on a rehash we delete our classes for good measure and create them again.
 		delete Conf;

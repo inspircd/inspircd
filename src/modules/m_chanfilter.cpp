@@ -77,7 +77,7 @@ class ModuleChanFilter : public Module
 		}
 	}
 
-	virtual void OnRehash()
+	virtual void OnRehash(std::string parameter)
 	{
 		delete Conf;
 		Conf = new ConfigReader;

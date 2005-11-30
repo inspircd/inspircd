@@ -135,7 +135,7 @@ class ModuleAlias : public Module
 			}
 	 	}
   
-		virtual void OnRehash()
+		virtual void OnRehash(std::string parameter)
 		{
 			delete MyConf;
 			MyConf = new ConfigReader;
