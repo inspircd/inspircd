@@ -748,7 +748,7 @@ class TreeSocket : public InspSocket
 			return false;
 		std::string servername = params[0];
 		std::string password = params[1];
-		int hops = atoi(params[2].c_str());
+		// hopcount is not used for a remote server, we calculate this ourselves
 		std::string description = params[3];
 		TreeServer* ParentOfThis = FindServer(prefix);
 		if (!ParentOfThis)
