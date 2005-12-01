@@ -466,7 +466,7 @@ void Server::CallCommandHandler(std::string commandname, char** parameters, int 
 
 bool Server::IsValidModuleCommand(std::string commandname, int pcnt, userrec* user)
 {
-	return is_valid_cmd(commandname, pcnt, user)
+	return is_valid_cmd(commandname.c_str(), pcnt, user);
 }
 
 void Server::Log(int level, std::string s)
