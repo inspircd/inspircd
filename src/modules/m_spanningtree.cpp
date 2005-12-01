@@ -856,8 +856,8 @@ class TreeSocket : public InspSocket
 		while (!s.eof())
 		{
 			s >> param;
-			if ((param != "") && (param != "\n"))
-			{
+			//if ((param != "") && (param != "\n"))
+			//{
 				if ((param.c_str()[0] == ':') && (item))
 				{
 					char* str = (char*)param.c_str();
@@ -876,7 +876,7 @@ class TreeSocket : public InspSocket
 				}
 				item++;
 				n.push_back(param);
-			}
+			//}
 		}
 		return n;
 	}
