@@ -51,6 +51,7 @@ using namespace std;
 #include <vector>
 #include <deque>
 #include <sched.h>
+#include <pthread.h>
 #include "users.h"
 #include "ctables.h"
 #include "globals.h"
@@ -67,6 +68,7 @@ using namespace std;
 #include "hashcomp.h"
 #include "socketengine.h"
 #include "socket.h"
+#include "dns.h"
 
 int LogLevel = DEFAULT;
 char ServerName[MAXBUF];
@@ -1180,6 +1182,15 @@ void kill_link_silent(userrec *user,const char* r)
 }
 
 
+/*void *task(void *arg)
+{
+	for (;;) { 
+		cout << (char *)arg;
+		cout.flush();
+	}
+	return NULL;
+}*/
+
 int main(int argc, char** argv)
 {
 	Start();
@@ -1206,6 +1217,7 @@ int main(int argc, char** argv)
 			}
 		}
 	}
+
 	strlcpy(MyExecutable,argv[0],MAXBUF);
 	
 	// initialize the lowercase mapping table
@@ -1318,6 +1330,48 @@ void AddWhoWas(userrec* u)
 	}
 }
 
+void* dns_task(void* arg)
+{
+	userrec* u = (userrec*)arg;
+	log(DEBUG,"DNS thread for user %s",u->nick);
+	DNS dns1;
+	DNS dns2;
+	std::string host;
+	std::string ip;
+	if (dns1.ReverseLookup(u->ip))
+	{
+		log(DEBUG,"DNS Step 1");
+		while (!dns1.HasResult())
+		{
+			usleep(100);
+		}
+		host = dns1.GetResult();
+		if (host != "")
+		{
+			log(DEBUG,"DNS Step 2: '%s'",host.c_str());
+			if (dns2.ForwardLookup(host))
+			{
+				while (!dns2.HasResult())
+				{
+					usleep(100);
+				}
+				ip = dns2.GetResultIP();
+				log(DEBUG,"DNS Step 3 '%s'(%d) '%s'(%d)",ip.c_str(),ip.length(),u->ip,strlen(u->ip));
+				if (ip == std::string(u->ip))
+				{
+					log(DEBUG,"DNS Step 4");
+					if (host.length() < 160)
+					{
+						log(DEBUG,"DNS Step 5");
+						strcpy(u->host,host.c_str());
+					}
+				}
+			}
+		}
+	}
+	u->dns_done = true;
+	return NULL;
+}
 
 /* add a client connection to the sockets list */
 void AddClient(int socket, char* host, int port, bool iscached, char* ip)
@@ -1443,6 +1497,12 @@ void AddClient(int socket, char* host, int port, bool iscached, char* ip)
 	}
 	fd_ref_table[socket] = clientlist[tempnick];
 	engine_add_fd;
+
+	// initialize their dns lookup thread
+	//if (pthread_create(&clientlist[tempnick]->dnsthread, NULL, dns_task, (void *)clientlist[tempnick]) != 0)
+	//{
+	//	log(DEBUG,"Failed to create DNS lookup thread for user %s",clientlist[tempnick]->nick);
+	//}
 }
 
 /* shows the message of the day, and any other on-logon stuff */

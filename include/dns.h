@@ -85,6 +85,7 @@ public:
 	 * called DNS::ReverseLookup() or DNS::ForwardLookup.
 	 */
 	std::string GetResult();
+	std::string GetResultIP();
 	/** This method returns the file handle used by the dns query socket or zero if the
 	 * query is invalid for some reason, e.g. the dns server not responding.
 	 */

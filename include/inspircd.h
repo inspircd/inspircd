@@ -124,3 +124,4 @@ const char* FindServerNamePtr(std::string servername);
 
 std::string GetVersionString();
 
+void* dns_task(void* arg);

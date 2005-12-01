@@ -60,6 +60,11 @@ userrec::userrec()
 	invites.clear();
 }
 
+userrec::~userrec()
+{
+	pthread_kill(this->dnsthread,9);
+}
+
 void userrec::CloseSocket()
 {
 	shutdown(this->fd,2);

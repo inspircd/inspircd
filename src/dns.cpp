@@ -667,7 +667,13 @@ bool DNS::ReverseLookup(std::string ip)
 
 bool DNS::ForwardLookup(std::string host)
 {
-	return false;
+	statsDns++;
+	this->fd = dns_getip4(host.c_str());
+	if (this->fd == -1)
+	{
+		return false;
+	}
+	return true;
 }
 
 bool DNS::HasResult()
@@ -693,6 +699,30 @@ std::string DNS::GetResult()
 		return result;
         } else {
 		statsDnsBad++;
+		if (this->fd != -1)
+		{
+			dns_close(this->fd);
+		}
+		return "";
+	}
+}
+
+std::string DNS::GetResultIP()
+{
+	char r[1024];
+	result = dns_getresult(this->fd);
+	if (this->fd != -1)
+	{
+		dns_close(this->fd);
+	}
+	if (result)
+	{
+		sprintf(r,"%d.%d.%d.%d",result[0],result[1],result[2],result[3]);
+		return r;
+	}
+	else
+	{
+		log(DEBUG,"DANGER WILL ROBINSON! NXDOMAIN for forward lookup, but we got a reverse lookup!");
 		return "";
 	}
 }

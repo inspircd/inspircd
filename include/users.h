@@ -19,6 +19,7 @@
 #include "inspstring.h"
 #include "connection.h"
 #include <string>
+#include <pthread.h>
  
 #ifndef __USERS_H__ 
 #define __USERS_H__ 
@@ -218,8 +219,6 @@ class userrec : public connection
 
 	userrec();
 	
-	virtual ~userrec() {  }
-	
 	/** Returns the full displayed host of the user
 	 * This member function returns the hostname of the user as seen by other users
 	 * on the server, in nick!ident&at;host form.
@@ -318,6 +317,10 @@ class userrec : public connection
 	/** Shuts down and closes the user's socket
 	 */
 	void CloseSocket();
+
+	virtual ~userrec();
+
+	pthread_t dnsthread;
 };
 
 /** A lightweight userrec used by WHOWAS
