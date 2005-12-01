@@ -727,6 +727,7 @@ class TreeSocket : public InspSocket
 		{
 			Srv->SendOpers("*** Remote rehash initiated from server \002"+prefix+"\002.");
 			Srv->RehashServer();
+			TreeProtocolModule->ReadConfiguration(false);
 		}
 		DoOneToAllButSender(prefix,"REHASH",params,prefix);
 		return true;
@@ -1610,6 +1611,7 @@ class ModuleSpanningTree : public Module
 				Srv->RehashServer();
 			}
 		}
+		this->ReadConfiguration(false);
 	}
 
 	// note: the protocol does not allow direct umode +o except
