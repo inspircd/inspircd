@@ -978,6 +978,8 @@ class Server : public classbase
 	 * used for privilage checks, etc.
 	 */
 	virtual void CallCommandHandler(std::string commandname, char** parameters, int pcnt, userrec* user);
+
+	virtual bool IsValidModuleCommand(std::string commandname, int pcnt, userrec* user);
 	
 	/** Change displayed hostname of a user.
 	 * You should always call this method to change a user's host rather than writing directly to the

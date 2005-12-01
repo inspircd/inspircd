@@ -1560,6 +1560,27 @@ void handle_version(char **parameters, int pcnt, userrec *user)
 }
 
 
+bool is_valid_cmd(const char* commandname, int pcnt, userrec * user)
+{
+	for (unsigned int i = 0; i < cmdlist.size(); i++)
+	{
+		if (!strcasecmp(cmdlist[i].command,commandname))
+		{
+			if (cmdlist[i].handler_function)
+			{
+				if (pcnt>=cmdlist[i].min_params)
+				{
+					if (strchr(user->modes,cmdlist[i].flags_needed))
+					{
+						return true;
+					}
+				}
+			}
+		}
+	}
+	return false;
+}
+
 // calls a handler function for a command
 
 void call_handler(const char* commandname,char **parameters, int pcnt, userrec *user)

@@ -95,6 +95,7 @@ void force_nickchange(userrec* user,const char* newnick);
 void kill_link(userrec *user,const char* r);
 void kill_link_silent(userrec *user,const char* r);
 void call_handler(const char* commandname,char **parameters, int pcnt, userrec *user);
+bool is_valid_cmd(const char* commandname, int pcnt, userrec * user);
 std::string GetRevision();
 int loop_call(handlerfunc fn, char **parameters, int pcnt, userrec *u, int start, int end, int joins);
 void kick_channel(userrec *src,userrec *user, chanrec *Ptr, char* reason);

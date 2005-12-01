@@ -1418,6 +1418,28 @@ class ModuleSpanningTree : public Module
 			this->HandleLinks(parameters,pcnt,user);
 			return 1;
 		}
+		else if (Srv->IsValidModuleCommand(command, pcnt, user))
+		{
+			// this bit of code cleverly routes all module commands
+			// to all remote severs *automatically* so that modules
+			// can just handle commands locally, without having
+			// to have any special provision in place for remote
+			// commands and linking protocols.
+			std::deque<std::string> params;
+			params.clear();
+			for (int j = 0; j < pcnt; j++)
+			{
+				if (strchr(parameters[j],' '))
+				{
+					params.push_back(":" + std::string(parameters[j]));
+				}
+				else
+				{
+					params.push_back(std::string(parameters[j]));
+				}
+			}
+			DoOneToMany(user->nick,command,params);
+		}
 		return 0;
 	}
 
