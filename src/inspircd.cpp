@@ -1568,7 +1568,7 @@ bool is_valid_cmd(const char* commandname, int pcnt, userrec * user)
 		{
 			if (cmdlist[i].handler_function)
 			{
-				if (pcnt>=cmdlist[i].min_params)
+				if ((pcnt>=cmdlist[i].min_params) && (strcasecmp(cmdlist[i].source,"<core>")))
 				{
 					if (strchr(user->modes,cmdlist[i].flags_needed))
 					{
