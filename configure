@@ -962,7 +962,7 @@ CXXFLAGS = -I../include \${FLAGS}
 all: socket.o hashcomp.o channels.o mode.o xline.o inspstring.o dns.o base.o inspircd_util.o inspircd_io.o message.o commands.o dnsqueue.o dynamic.o users.o modules.o wildcard.o helperfuncs.o \$(MODULES) inspircd.exe
 
 inspircd.exe: inspircd.cpp ../include/base.h ../include/channels.h ../include/inspircd.h ../include/channels.h ../include/globals.h ../include/inspircd_config.h ../include/base.h
-	\$(CC) -I../include \$(FLAGS) inspircd.cpp -o inspircd.exe \$(LDLIBS) channels.o mode.o xline.o inspstring.o dns.o base.o inspircd_util.o inspircd_io.o message.o commands.o dnsqueue.o dynamic.o users.o modules.o wildcard.o servers.o helperfuncs.o hashcomp.o socket.o \$(MODULES)
+	\$(CC) -I../include \$(FLAGS) inspircd.cpp -o inspircd.exe \$(LDLIBS) channels.o mode.o xline.o inspstring.o dns.o base.o inspircd_util.o inspircd_io.o message.o commands.o dnsqueue.o dynamic.o users.o modules.o wildcard.o helperfuncs.o hashcomp.o socket.o \$(MODULES)
 
 hashcomp.o: hashcomp.cpp ../include/base.h ../include/hashcomp.h ../include/inspircd.h ../include/users.h ../include/globals.h ../include/inspircd_config.h
 	\$(CC) -pipe -I../include \$(FLAGS) -export-dynamic -c hashcomp.cpp
