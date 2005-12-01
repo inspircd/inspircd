@@ -969,6 +969,10 @@ class TreeSocket : public InspSocket
 					// kickstarts the merge.
 					return this->Outbound_Reply_Server(params);
 				}
+				else if (command == "ERROR")
+				{
+					return this->Error(params);
+				}
 			break;
 			case CONNECTED:
 				// This is the 'authenticated' state, when all passwords
@@ -986,6 +990,10 @@ class TreeSocket : public InspSocket
 				else if (command == "SERVER")
 				{
 					return this->RemoteServer(prefix,params);
+				}
+				else if (command == "ERROR")
+				{
+					return this->Error(params);
 				}
 				else if (command == "OPERTYPE")
 				{
@@ -1105,10 +1113,11 @@ class TreeSocket : public InspSocket
 
 bool DoOneToAllButSenderRaw(std::string data,std::string omit)
 {
+	TreeServer* omitroute = BestRouteTo(omit);
 	for (unsigned int x = 0; x < TreeRoot->ChildCount(); x++)
 	{
 		TreeServer* Route = TreeRoot->GetChild(x);
-		if ((Route->GetSocket()) && (Route->GetName() != omit) && (BestRouteTo(omit) != Route))
+		if ((Route->GetSocket()) && (Route->GetName() != omit) && (omitroute != Route))
 		{
 			TreeSocket* Sock = Route->GetSocket();
 			log(DEBUG,"Sending RAW to %s",Route->GetName().c_str());
@@ -1121,6 +1130,7 @@ bool DoOneToAllButSenderRaw(std::string data,std::string omit)
 bool DoOneToAllButSender(std::string prefix, std::string command, std::deque<std::string> params, std::string omit)
 {
 	log(DEBUG,"ALLBUTONE: Comes from %s SHOULD NOT go back to %s",prefix.c_str(),omit.c_str());
+	TreeServer* omitroute = BestRouteTo(omit);
 	// TODO: Special stuff with privmsg and notice
 	std::string FullLine = ":" + prefix + " " + command;
 	for (unsigned int x = 0; x < params.size(); x++)
@@ -1134,7 +1144,7 @@ bool DoOneToAllButSender(std::string prefix, std::string command, std::deque<std
 		// The route has a socket (its a direct connection)
 		// The route isnt the one to be omitted
 		// The route isnt the path to the one to be omitted
-		if ((Route->GetSocket()) && (Route->GetName() != omit) && (BestRouteTo(omit) != Route))
+		if ((Route->GetSocket()) && (Route->GetName() != omit) && (omitroute != Route))
 		{
 			TreeSocket* Sock = Route->GetSocket();
 			log(DEBUG,"Sending to %s",Route->GetName().c_str());
