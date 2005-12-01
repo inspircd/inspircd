@@ -64,6 +64,7 @@ bool DoOneToOne(std::string prefix, std::string command, std::deque<std::string>
 bool DoOneToAllButSender(std::string prefix, std::string command, std::deque<std::string> params, std::string omit);
 bool DoOneToMany(std::string prefix, std::string command, std::deque<std::string> params);
 bool DoOneToAllButSenderRaw(std::string data,std::string omit);
+void ReadConfiguration(bool rebind);
 
 class TreeServer
 {
@@ -727,7 +728,7 @@ class TreeSocket : public InspSocket
 		{
 			Srv->SendOpers("*** Remote rehash initiated from server \002"+prefix+"\002.");
 			Srv->RehashServer();
-			TreeProtocolModule->ReadConfiguration(false);
+			ReadConfiguration(false);
 		}
 		DoOneToAllButSender(prefix,"REHASH",params,prefix);
 		return true;
@@ -1199,57 +1200,59 @@ bool DoOneToOne(std::string prefix, std::string command, std::deque<std::string>
 	}
 }
 
+std::vector<TreeSocket*> Bindings;
 
+void ReadConfiguration(bool rebind)
+{
+	if (rebind)
+	{
+		for (int j =0; j < Conf->Enumerate("bind"); j++)
+		{
+			std::string Type = Conf->ReadValue("bind","type",j);
+			std::string IP = Conf->ReadValue("bind","address",j);
+			long Port = Conf->ReadInteger("bind","port",j,true);
+			if (Type == "servers")
+			{
+				if (IP == "*")
+				{
+					IP = "";
+				}
+				TreeSocket* listener = new TreeSocket(IP.c_str(),Port,true,10);
+				if (listener->GetState() == I_LISTENING)
+				{
+					Srv->AddSocket(listener);
+					Bindings.push_back(listener);
+				}
+				else
+				{
+					log(DEFAULT,"m_spanningtree: Warning: Failed to bind server port %d",Port);
+					listener->Close();
+					delete listener;
+				}
+			}
+		}
+	}
+	LinkBlocks.clear();
+	for (int j =0; j < Conf->Enumerate("link"); j++)
+	{
+		Link L;
+		L.Name = Conf->ReadValue("link","name",j);
+		L.IPAddr = Conf->ReadValue("link","ipaddr",j);
+		L.Port = Conf->ReadInteger("link","port",j,true);
+		L.SendPass = Conf->ReadValue("link","sendpass",j);
+		L.RecvPass = Conf->ReadValue("link","recvpass",j);
+		LinkBlocks.push_back(L);
+		log(DEBUG,"m_spanningtree: Read server %s with host %s:%d",L.Name.c_str(),L.IPAddr.c_str(),L.Port);
+	}
+}
+
+	
 class ModuleSpanningTree : public Module
 {
 	std::vector<TreeSocket*> Bindings;
 	int line;
 
  public:
-
-	void ReadConfiguration(bool rebind)
-	{
-		if (rebind)
-		{
-			for (int j =0; j < Conf->Enumerate("bind"); j++)
-			{
-				std::string Type = Conf->ReadValue("bind","type",j);
-				std::string IP = Conf->ReadValue("bind","address",j);
-				long Port = Conf->ReadInteger("bind","port",j,true);
-				if (Type == "servers")
-				{
-					if (IP == "*")
-					{
-						IP = "";
-					}
-					TreeSocket* listener = new TreeSocket(IP.c_str(),Port,true,10);
-					if (listener->GetState() == I_LISTENING)
-					{
-						Srv->AddSocket(listener);
-						Bindings.push_back(listener);
-					}
-					else
-					{
-						log(DEFAULT,"m_spanningtree: Warning: Failed to bind server port %d",Port);
-						listener->Close();
-						delete listener;
-					}
-				}
-			}
-		}
-		LinkBlocks.clear();
-		for (int j =0; j < Conf->Enumerate("link"); j++)
-		{
-			Link L;
-			L.Name = Conf->ReadValue("link","name",j);
-			L.IPAddr = Conf->ReadValue("link","ipaddr",j);
-			L.Port = Conf->ReadInteger("link","port",j,true);
-			L.SendPass = Conf->ReadValue("link","sendpass",j);
-			L.RecvPass = Conf->ReadValue("link","recvpass",j);
-			LinkBlocks.push_back(L);
-			log(DEBUG,"m_spanningtree: Read server %s with host %s:%d",L.Name.c_str(),L.IPAddr.c_str(),L.Port);
-		}
-	}
 
 	ModuleSpanningTree()
 	{
@@ -1611,7 +1614,7 @@ class ModuleSpanningTree : public Module
 				Srv->RehashServer();
 			}
 		}
-		this->ReadConfiguration(false);
+		ReadConfiguration(false);
 	}
 
 	// note: the protocol does not allow direct umode +o except
