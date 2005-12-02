@@ -38,11 +38,16 @@ void handle_randquote(char** parameters, int pcntl, userrec *user)
 	std::string str;
 	int fsize;
 	char buf[MAXBUF];
-	if (quotes)
+	if (q_file == "" || quotes->Exists())
 	{
 		fsize = quotes->FileSize();
 		str = quotes->GetLine(rand() % fsize);
 		sprintf(buf,"NOTICE %s :%s%s%s",user->nick,prefix.c_str(),str.c_str(),suffix.c_str());
+		Srv->SendServ(user->fd, buf);
+	}
+	else
+	{
+		sprintf(buf, "NOTICE %s :Your administrator specified an invalid quotes file, please bug them about this.", user->nick);
 		Srv->SendServ(user->fd, buf);
 	}
 	return;
