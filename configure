@@ -611,7 +611,7 @@ sub dir_check {
 
 sub getosflags {
   if ($config{OSNAME} =~ /BSD$/) {
-    $config{LDLIBS} = "-Ldl -lstdc++";
+    $config{LDLIBS} = "-Ldl -lstdc++ -pthread";
     $config{FLAGS}  = "-fPIC -frtti $OPTIMISATI -Wall -Woverloaded-virtual $config{OPTIMISATI}";
     $config{MAKEPROG} = "gmake";
     if ($config{OSNAME} eq "OpenBSD") {
@@ -626,7 +626,7 @@ sub getosflags {
 	}
     }
   } else {
-    $config{LDLIBS} = "-ldl -lstdc++";
+    $config{LDLIBS} = "-ldl -lstdc++ -pthread";
     $config{FLAGS}  = "-fPIC -frtti $OPTIMISATI -Wall -Woverloaded-virtual $config{OPTIMISATI}";
     $config{MAKEPROG} = "make";
     if ($config{OSNAME} =~ /CYGWIN/) {
