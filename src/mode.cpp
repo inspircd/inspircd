@@ -1294,7 +1294,7 @@ void handle_mode(char **parameters, int pcnt, userrec *user)
 		can_change = 0;
 		if (user != dest)
 		{
-			if (strchr(user->modes,'o'))
+			if ((strchr(user->modes,'o')) || (is_uline(user->server)))
 			{
 				can_change = 1;
 			}
