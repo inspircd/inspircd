@@ -717,12 +717,7 @@ std::string DNS::GetResultIP()
 	}
 	if (result)
 	{
-		unsigned long oct1 = (unsigned)result[0];
-		unsigned long oct2 = (unsigned)result[1];
-		unsigned long oct3 = (unsigned)result[2];
-		unsigned long oct4 = (unsigned)result[3];
-		sprintf(r,"%lu.%lu.%lu.%lu",oct1,oct2,oct3,oct4);
-		return r;
+		return dns_ntoa4_s((in_addr*)&result,r);
 	}
 	else
 	{
