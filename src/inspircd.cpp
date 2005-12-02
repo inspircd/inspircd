@@ -1367,6 +1367,7 @@ void* dns_task(void* arg)
 					{
 						log(DEBUG,"DNS Step 5");
 						strcpy(u->host,host.c_str());
+						strcpy(u->dhost,host.c_str());
 					}
 				}
 			}
@@ -2447,7 +2448,9 @@ int InspIRCd(char** argv, int argc)
 		OLDTIME = TIME;
 		TIME = time(NULL);
 
+#ifndef THREADED_DNS
 		dns_poll();
+#endif
 
 		unsigned int numsockets = module_sockets.size();
 		for (std::vector<InspSocket*>::iterator a = module_sockets.begin(); a < module_sockets.end(); a++)

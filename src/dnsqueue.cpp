@@ -87,10 +87,14 @@ long max_fd_alloc = 0;
 
 extern time_t TIME;
 
+//enum LookupState { reverse, forward };
+
 class Lookup {
 private:
-	DNS resolver;
+	DNS resolver1;
+	DNS resolver2;
 	char u[NICKMAX];
+	std::string hostname;
 public:
 	Lookup()
 	{
@@ -108,12 +112,13 @@ public:
 
 	bool DoLookup(std::string nick)
 	{
+		hostname = "";
 		userrec* usr = Find(nick);
 		if (usr)
 		{
 			log(DEBUG,"New Lookup class for %s with DNSServer set to '%s'",nick.c_str(),DNSServer);
-			resolver.SetNS(std::string(DNSServer));
-			if (!resolver.ReverseLookup(std::string(usr->host)))
+			resolver1.SetNS(std::string(DNSServer));
+			if (!resolver1.ReverseLookup(std::string(usr->host)))
 				return false;
 			strlcpy(u,nick.c_str(),NICKMAX);
 			return true;
@@ -123,39 +128,72 @@ public:
 
 	bool Done()
 	{
-		userrec* usr = NULL;
-		if (resolver.HasResult())
+		if (hostname != "")
 		{
-			if (resolver.GetFD() != 0)
+			// doing forward lookup
+			userrec* usr = NULL;
+			if (resolver2.HasResult())
 			{
-				std::string hostname = resolver.GetResult();
-				log(DEBUG,"RESULT! %s",hostname.c_str());
-				usr = Find(u);
-				if (usr)
+				if (resolver2.GetFD() != 0)
 				{
-					if (usr->registered > 3)
+					std::string ip = resolver2.GetResultIP();
+					log(DEBUG,"FORWARD RESULT! %s",ip.c_str());
+
+					usr = Find(u);
+					if (usr)
 					{
-						usr->dns_done = true;
-						return true;
+						if (usr->registered > 3)
+						{
+							usr->dns_done = true;
+							return true;
+						}
+						if ((hostname != "") && (usr->registered != 7))
+						{
+							if (std::string(usr->ip) == ip)
+							{
+								strlcpy(usr->host,hostname.c_str(),MAXBUF);
+								strlcpy(usr->dhost,hostname.c_str(),MAXBUF);
+								log(DEBUG,"Forward and reverse match, assigning hostname");
+							}
+							else
+							{
+								log(DEBUG,"AWOOGA! Forward lookup doesn't match reverse: R='%s',F='%s',IP='%s'",hostname.c_str(),ip.c_str(),usr->ip);
+							}
+							usr->dns_done = true;
+							return true;
+						}
 					}
-					if ((hostname != "") && (usr->registered != 7))
-					{
-						strlcpy(usr->host,hostname.c_str(),MAXBUF);
-						strlcpy(usr->dhost,hostname.c_str(),MAXBUF);
-						WriteServ(usr->fd,"NOTICE Auth :Resolved your hostname: %s",hostname.c_str());
+				}
+				else
+				{
+					usr = Find(u);
+					if (usr)
 						usr->dns_done = true;
-						return true;
-					}
-					usr->dns_done = true;
 					return true;
 				}
 			}
-			else
+		}
+		else
+		{
+			// doing reverse lookup
+			userrec* usr = NULL;
+			if (resolver1.HasResult())
 			{
-				usr = Find(u);
-				if (usr)
-					usr->dns_done = true;
-				return true;
+				if (resolver1.GetFD() != 0)
+				{
+					hostname = resolver1.GetResult();
+					log(DEBUG,"REVERSE RESULT! %s",hostname.c_str());
+					usr = Find(u);
+					if (usr)
+					{
+						if (usr->registered > 3)
+						{
+							usr->dns_done = true;
+							return true;
+						}
+					}
+					resolver2.ForwardLookup(hostname);
+				}
 			}
 		}
 		return false;
