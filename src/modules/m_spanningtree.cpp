@@ -619,19 +619,19 @@ class TreeSocket : public InspSocket
 	void SendFJoins(TreeServer* Current, chanrec* c)
 	{
 		char list[MAXBUF];
-		snprintf(list,MAXBUF,":%s FJOIN %s ",Srv->GetServerName().c_str(),c->name);
+		snprintf(list,MAXBUF,":%s FJOIN %s",Srv->GetServerName().c_str(),c->name);
 		std::vector<char*> *ulist = c->GetUsers();
 		for (unsigned int i = 0; i < ulist->size(); i++)
 		{
 			char* o = (*ulist)[i];
 			userrec* otheruser = (userrec*)o;
+			strlcat(list," ",MAXBUF);
 			strlcat(list,cmode(otheruser,c),MAXBUF);
 			strlcat(list,otheruser->nick,MAXBUF);
-			strlcat(list," ",MAXBUF);
 			if (strlen(list)>(480-NICKMAX))
 			{
 				this->WriteLine(list);
-				snprintf(list,MAXBUF,":%s FJOIN %s ",Srv->GetServerName().c_str(),c->name);
+				snprintf(list,MAXBUF,":%s FJOIN %s",Srv->GetServerName().c_str(),c->name);
 			}
 		}
 		if (list[strlen(list)-1] != ':')
