@@ -717,7 +717,12 @@ std::string DNS::GetResultIP()
 	}
 	if (result)
 	{
-		return dns_ntoa4_s((in_addr*)&result,r);
+		unsigned char a = (unsigned)result[0];
+		unsigned char b = (unsigned)result[1];
+		unsigned char c = (unsigned)result[2];
+		unsigned char d = (unsigned)result[3];
+		snprintf(r,1024,"%u.%u.%u.%u",a,b,c,d);
+		return r;
 	}
 	else
 	{
