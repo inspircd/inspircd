@@ -1630,8 +1630,19 @@ bool is_valid_cmd(const char* commandname, int pcnt, userrec * user)
 			{
 				if ((pcnt>=cmdlist[i].min_params) && (strcasecmp(cmdlist[i].source,"<core>")))
 				{
-					if (strchr(user->modes,cmdlist[i].flags_needed))
+					if ((strchr(user->modes,cmdlist[i].flags_needed)) || (!cmdlist[i].flags_needed))
 					{
+						if (cmdlist[i].flags_needed)
+						{
+							if (!user->HasPermission(command))
+							{
+								return true;
+							}
+							else
+							{
+								return false;
+							}
+						}
 						return true;
 					}
 				}
@@ -1645,15 +1656,24 @@ bool is_valid_cmd(const char* commandname, int pcnt, userrec * user)
 
 void call_handler(const char* commandname,char **parameters, int pcnt, userrec *user)
 {
-		for (unsigned int i = 0; i < cmdlist.size(); i++)
+	for (unsigned int i = 0; i < cmdlist.size(); i++)
+	{
+		if (!strcasecmp(cmdlist[i].command,commandname))
 		{
-			if (!strcasecmp(cmdlist[i].command,commandname))
+			if (cmdlist[i].handler_function)
 			{
-				if (cmdlist[i].handler_function)
+				if (pcnt>=cmdlist[i].min_params)
 				{
-					if (pcnt>=cmdlist[i].min_params)
+					if ((strchr(user->modes,cmdlist[i].flags_needed)) || (!cmdlist[i].flags_needed))
 					{
-						if (strchr(user->modes,cmdlist[i].flags_needed))
+						if (cmdlist[i].flags_needed)
+						{
+							if (!user->HasPermission(command))
+							{
+								cmdlist[i].handler_function(parameters,pcnt,user);
+							}
+						}
+						else
 						{
 							cmdlist[i].handler_function(parameters,pcnt,user);
 						}
@@ -1661,6 +1681,7 @@ void call_handler(const char* commandname,char **parameters, int pcnt, userrec *
 				}
 			}
 		}
+	}
 }
 
 
