@@ -64,7 +64,11 @@ userrec::userrec()
 
 userrec::~userrec()
 {
-	pthread_kill(this->dnsthread,9);
+	// for local clients, clean up their dns thread
+	if (!strcmp(this->server,ServerName))
+	{
+		pthread_kill(this->dnsthread,9);
+	}
 }
 
 void userrec::CloseSocket()
