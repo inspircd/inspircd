@@ -27,6 +27,7 @@ using namespace std;
 #include <signal.h>
 #endif
 #include "inspstring.h"
+#include "commands.h"
 #include "helperfuncs.h"
 
 extern std::stringstream config_f;
