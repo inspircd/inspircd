@@ -494,50 +494,70 @@ class TreeSocket : public InspSocket
 
 	bool ForceJoin(std::string source, std::deque<std::string> params)
 	{
-		if (params.size() < 1)
+		if (params.size() < 2)
 			return true;
-		for (unsigned int channelnum = 0; channelnum < params.size(); channelnum++)
+		
+		char first[MAXBUF];
+		char second[MAXBUF];
+		char* mode_users[127];
+		mode_users[0] = first;
+		mode_users[1] = second;
+		strcpy(mode_users[1],"+");
+		unsigned int modectr = 2;
+		
+		std::string channel = params[0];
+		char* key = "";
+		chanrec* chan = Srv->FindChannel(channel);
+		if (chan)
+		{
+			key = chan->key;
+		}
+		strlcpy(mode_users[0],channel.c_str(),MAXBUF);
+		for (unsigned int usernum = 1; usernum < params.size(); usernum++)
 		{
 			// process one channel at a time, applying modes.
-			char* channel = (char*)params[channelnum].c_str();
-			char permissions = *channel;
+			char* usr = (char*)params[usernum].c_str();
+			char permissions = *usr;
 			char* mode = NULL;
-			switch (permissions)
-			{
-				case '@':
-					channel++;
-					mode = "+o";
-				break;
-				case '%':
-					channel++;
-					mode = "+h";
-				break;
-				case '+':
-					channel++;
-					mode = "+v";
-				break;
-			}
-			userrec* who = Srv->FindNick(source);
+			userrec* who = Srv->FindNick(usr);
 			if (who)
 			{
-				char* key = "";
-				chanrec* chan = Srv->FindChannel(channel);
-				if ((chan) && (*chan->key))
+				switch (permissions)
 				{
-					key = chan->key;
+					case '@':
+						usr++;
+						mode_users[modectr++] = usr;
+						strlcat(modestring,"o",MAXBUF);
+					break;
+					case '%':
+						usr++;
+						mode_users[modectr++] = usr;
+						strlcat(modestring,"h",MAXBUF);
+					break;
+					case '+':
+						usr++;
+						mode_users[modectr++] = usr;
+						strlcat(modestring,"v",MAXBUF);
+					break;
 				}
 				Srv->JoinUserToChannel(who,channel,key);
-				if (mode)
+				if (modectr >= (MAXMODES-1))
 				{
-					char* modelist[3];
-					modelist[0] = channel;
-					modelist[1] = mode;
-					modelist[2] = who->nick;
-					Srv->SendMode(modelist,3,who);
+					// theres a mode for this user. push them onto the mode queue, and flush it
+					// if there are more than MAXMODES to go.
+					Srv->SendMode(mode_users,modectr,who);
+					strcpy(mode_users[1],"+");
+					modectr = 2;
 				}
-				DoOneToAllButSender(source,"FJOIN",params,who->server);
 			}
 		}
+		// there werent enough modes built up to flush it during FJOIN,
+		// or, there are a number left over. flush them out.
+		if (modectr > 2)
+		{
+			Srv->SendMode(mode_users,modectr,who);
+		}
+		DoOneToAllButSender(source,"FJOIN",params,who->server);
 		return true;
 	}
 
@@ -595,11 +615,36 @@ class TreeSocket : public InspSocket
 		return true;
 	}
 
+	void SendFJoins(TreeServer* Current, chanrec* c)
+	{
+		char list[MAXBUF];
+		snprintf(list,MAXBUF,":%s FJOIN %s ",Srv->GetServerName(),c->name);
+		std::vector<char*> *ulist = c->GetUsers();
+		for (unsigned int i = 0; i < ulist->size(); i++)
+		{
+			char* o = (*ulist)[i];
+			userrec* otheruser = (userrec*)o;
+			strlcat(list,cmode(otheruser,c),MAXBUF);
+			strlcat(list,otheruser->nick,MAXBUF);
+			strlcat(list," ",MAXBUF);
+			if (strlen(list)>(480-NICKMAX))
+			{
+				this->WriteLine(list);
+				snprintf(list,MAXBUF,":%s FJOIN %s ",Srv->GetServerName(),c->name);
+			}
+		}
+		if (list[strlen(list)-1] != ':')
+		{
+			this->WriteLine(list);
+		}
+	}
+
 	void SendChannelModes(TreeServer* Current)
 	{
 		char data[MAXBUF];
 		for (chan_hash::iterator c = chanlist.begin(); c != chanlist.end(); c++)
 		{
+			SendFJoins(Current, c->second);
 			snprintf(data,MAXBUF,":%s FMODE %s +%s",Srv->GetServerName().c_str(),c->second->name,chanmodes(c->second));
 			this->WriteLine(data);
 			if (*c->second->topic)
@@ -630,11 +675,11 @@ class TreeSocket : public InspSocket
 				{
 					this->WriteLine(":"+std::string(u->second->nick)+" OPERTYPE "+std::string(u->second->oper));
 				}
-				char* chl = chlist(u->second,u->second);
-				if (*chl)
-				{
-					this->WriteLine(":"+std::string(u->second->nick)+" FJOIN "+std::string(chl));
-				}
+				//char* chl = chlist(u->second,u->second);
+				//if (*chl)
+				//{
+				//	this->WriteLine(":"+std::string(u->second->nick)+" FJOIN "+std::string(chl));
+				//}
 				FOREACH_MOD OnSyncUser(u->second,(Module*)TreeProtocolModule,(void*)this);
 			}
 		}
