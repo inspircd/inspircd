@@ -896,34 +896,53 @@ class TreeSocket : public InspSocket
 	std::deque<std::string> Split(std::string line, bool stripcolon)
 	{
 		std::deque<std::string> n;
+		if (!strchr(line.c_str(),' '))
+		{
+			n.push_back(line);
+			return n;
+		}
 		std::stringstream s(line);
 		std::string param = "";
 		n.clear();
 		int item = 0;
 		while (!s.eof())
 		{
-			s >> param;
-			//if ((param != "") && (param != "\n"))
-			//{
-				if ((param.c_str()[0] == ':') && (item))
+			char c;
+			s.get(c);
+			if (c == ' ')
+			{
+				log(DEBUG,"Push back %s",param.c_str());
+				n.push_back(param);
+				param = "";
+				item++;
+			}
+			else
+			{
+				if (!s.eof())
 				{
-					char* str = (char*)param.c_str();
-					str++;
-					param = str;
-					std::string append;
+					param = param + c;
+				}
+				if ((param == ":") && (item > 0))
+				{
+					param = "";
 					while (!s.eof())
 					{
-						append = "";
-						s >> append;
-						if (append != "")
+						s.get(c);
+						if (!s.eof())
 						{
-							param = param + " " + append;
+							param = param + c;
 						}
 					}
+					log(DEBUG,"Push back %s",param.c_str());
+					n.push_back(param);
+					param = "";
 				}
-				item++;
-				n.push_back(param);
-			//}
+			}
+		}
+		if (param != "")
+		{
+			log(DEBUG,"Push back %s",param.c_str());
+			n.push_back(param);
 		}
 		return n;
 	}
@@ -938,6 +957,7 @@ class TreeSocket : public InspSocket
 			return true;
 		Srv->Log(DEBUG,"inbound-line: '"+line+"'");
 		std::deque<std::string> params = this->Split(line,true);
+		log(DEBUG,"*** Number of params = %d",params.size());
 		std::string command = "";
 		std::string prefix = "";
 		if (((params[0].c_str())[0] == ':') && (params.size() > 1))
@@ -1111,7 +1131,7 @@ class TreeSocket : public InspSocket
 
 				}
 				return true;
-			break;	
+			break;
 		}
 		return true;
 	}
