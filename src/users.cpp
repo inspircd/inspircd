@@ -22,6 +22,8 @@ using namespace std;
 #include "users.h"
 #include "inspircd.h"
 #include <stdio.h>
+#include <pthread.h>
+#include <signal.h>
 #include "inspstring.h"
 #include "helperfuncs.h"
 
