@@ -717,7 +717,7 @@ std::string DNS::GetResultIP()
 	}
 	if (result)
 	{
-		sprintf(r,"%ld.%ld.%ld.%ld",result[0],result[1],result[2],result[3]);
+		sprintf(r,"%u.%u.%u.%u",result[0],result[1],result[2],result[3]);
 		return r;
 	}
 	else
