@@ -19,7 +19,9 @@
 #include "inspstring.h"
 #include "connection.h"
 #include <string>
+#ifdef THREADED_DNS
 #include <pthread.h>
+#endif
  
 #ifndef __USERS_H__ 
 #define __USERS_H__ 
@@ -320,7 +322,9 @@ class userrec : public connection
 
 	virtual ~userrec();
 
+#ifdef THREADED_DNS
 	pthread_t dnsthread;
+#endif
 };
 
 /** A lightweight userrec used by WHOWAS

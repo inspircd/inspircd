@@ -50,7 +50,9 @@ using namespace std;
 #include <sys/types.h>
 #include <sys/time.h>
 #include <sys/resource.h>
+#ifdef THREADED_DNS
 #include <pthread.h>
+#endif
 #ifndef RUSAGE_SELF
 #define   RUSAGE_SELF     0
 #define   RUSAGE_CHILDREN     -1
@@ -1724,11 +1726,17 @@ void handle_nick(char **parameters, int pcnt, userrec *user)
 		//if (user->dns_done)
 		//	log(DEBUG,"Aborting dns lookup of %s because dns server experienced a failure.",user->nick);
 
+#ifdef THREADED_DNS
 		// initialize their dns lookup thread
 		if (pthread_create(&user->dnsthread, NULL, dns_task, (void *)user) != 0)
 		{
 			log(DEBUG,"Failed to create DNS lookup thread for user %s",user->nick);
 		}
+#else
+		user->dns_done = (!lookup_dns(user->nick));
+		if (user->dns_done)
+			log(DEBUG,"Aborting dns lookup of %s because dns server experienced a failure.",user->nick);
+#endif
 	
 	}
 	if (user->registered == 3)

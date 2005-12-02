@@ -22,8 +22,10 @@ using namespace std;
 #include "users.h"
 #include "inspircd.h"
 #include <stdio.h>
+#ifdef THREADED_DNS
 #include <pthread.h>
 #include <signal.h>
+#endif
 #include "inspstring.h"
 #include "helperfuncs.h"
 
@@ -64,11 +66,13 @@ userrec::userrec()
 
 userrec::~userrec()
 {
+#ifdef THREADED_DNS
 	// for local clients, clean up their dns thread
 	if (!strcmp(this->server,ServerName))
 	{
 		pthread_kill(this->dnsthread,9);
 	}
+#endif
 }
 
 void userrec::CloseSocket()

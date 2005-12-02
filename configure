@@ -30,6 +30,7 @@ $config{MAXI_MODES}         = "20";                             		# Default Max.
 $config{HAS_STRLCPY}        = "false";                          		# strlcpy Check.
 $config{USE_KQUEUE}         = "y";						# kqueue enabled
 $config{USE_EPOLL}          = "y";						# epoll enabled
+$config{THREADED_DNS}       = "n";						# threaded dns (experimental)
 $config{STATIC_LINK}	    = "no";						# are doing static modules?
 chomp($config{MAX_CLIENT_T} = `sh -c \"ulimit -n\"`);           		# FD Limit
 chomp($config{GCCVER}       = `gcc -dumpversion | cut -c 1`);   		# Major GCC Version
@@ -249,6 +250,9 @@ if (!$chose_hiperf)
 	print "No high-performance socket engines are available, or you chose\n";
 	print "not to enable one. Defaulting to select() engine.\n\n";
 }
+
+yesno(THREADED_DNS,"Would you like to enable the experimental multi-threaded DNS lookup?");
+print "\n";
 
 print "\nThe following questions will ask you for various figures relating\n";
 print "To your IRCd install. Please note that these should usually be left\n";
@@ -498,6 +502,7 @@ print "\033[0mGCC Version Found:\033[1;32m\t\t$config{GCCVER}.$config{GCC34}\n";
 print "\033[0mOptimatizaton Flag:\033[1;32m\t\t$config{OPTIMISATI}\033[0m\n";
 print "\033[0mCompiler program:\033[1;32m\t\t$config{CC}\033[0m\n";
 print "\033[0mStatic modules:\033[1;32m\t\t\t$config{STATIC_LINK}\033[0m\n\n";
+print "\033[0mMultithread DNS:\033[1;32m\t\t\t$config{THREADED_DNS}\033[0m\n\n";
 
 makecache();
 writefiles();
@@ -611,7 +616,7 @@ sub dir_check {
 
 sub getosflags {
   if ($config{OSNAME} =~ /BSD$/) {
-    $config{LDLIBS} = "-Ldl -lstdc++ -pthread";
+    $config{LDLIBS} = "-Ldl -lstdc++";
     $config{FLAGS}  = "-fPIC -frtti $OPTIMISATI -Wall -Woverloaded-virtual $config{OPTIMISATI}";
     $config{MAKEPROG} = "gmake";
     if ($config{OSNAME} eq "OpenBSD") {
@@ -626,7 +631,7 @@ sub getosflags {
 	}
     }
   } else {
-    $config{LDLIBS} = "-ldl -lstdc++ -pthread";
+    $config{LDLIBS} = "-ldl -lstdc++";
     $config{FLAGS}  = "-fPIC -frtti $OPTIMISATI -Wall -Woverloaded-virtual $config{OPTIMISATI}";
     $config{MAKEPROG} = "make";
     if ($config{OSNAME} =~ /CYGWIN/) {
@@ -734,6 +739,9 @@ EOF
   if ($config{HAS_STRLCPY} eq "true") {
     print FILEHANDLE "#define HAS_STRLCPY\n";
   }
+  if ($config{THREADED_DNS} =~ /y/i) {
+    print FILEHANDLE "#define THREADED_DNS\n";
+  }
   my $use_hiperf = 0;
   if (($has_kqueue) && ($config{USE_KQUEUE} eq "y")) {
     print FILEHANDLE "#define USE_KQUEUE\n";
@@ -775,6 +783,9 @@ EOF
   }
 
   opendir(DIRHANDLE, $this);
+  if ($config{THREADED_DNS} =~ /y/i) {
+    $config{LDLIBS} = $config{LDLIBS} . " -pthread";
+  }
   foreach $name (sort readdir(DIRHANDLE)) {
     if ($name =~ /^\.(.+)\.inc$/)
     {

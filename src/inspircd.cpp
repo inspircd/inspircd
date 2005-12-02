@@ -51,7 +51,9 @@ using namespace std;
 #include <vector>
 #include <deque>
 #include <sched.h>
+#ifdef THREADED_DNS
 #include <pthread.h>
+#endif
 #include "users.h"
 #include "ctables.h"
 #include "globals.h"
@@ -1330,6 +1332,7 @@ void AddWhoWas(userrec* u)
 	}
 }
 
+#ifdef THREADED_DNS
 void* dns_task(void* arg)
 {
 	userrec* u = (userrec*)arg;
@@ -1372,6 +1375,7 @@ void* dns_task(void* arg)
 	u->dns_done = true;
 	return NULL;
 }
+#endif
 
 /* add a client connection to the sockets list */
 void AddClient(int socket, char* host, int port, bool iscached, char* ip)
@@ -1610,7 +1614,12 @@ std::string GetVersionString()
         v2 = strtok_r(s1," ",&savept);
         s1 = savept;
 	char socketengine[] = engine_name;
-	snprintf(versiondata,MAXBUF,"%s Rev. %s %s :%s (O=%lu) [SE=%s]",VERSION,v2,ServerName,SYSTEM,(unsigned long)OPTIMISATION,socketengine);
+#ifdef THREADED_DNS
+	char dnsengine[] = "multithread";
+#else
+	char dnsengine[] = "singlethread";
+#endif
+	snprintf(versiondata,MAXBUF,"%s Rev. %s %s :%s [FLAGS=%lu,%s,%s]",VERSION,v2,ServerName,SYSTEM,(unsigned long)OPTIMISATION,socketengine,dnsengine);
 	return versiondata;
 }
 
