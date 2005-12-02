@@ -41,6 +41,7 @@ using namespace std;
 #include "modules.h"
 #include "dynamic.h"
 #include "wildcard.h"
+#include "commands.h"
 #include "message.h"
 #include "inspstring.h"
 #include "dns.h"
@@ -307,6 +308,10 @@ char* cmode(userrec *user, chanrec *chan)
 		log(DEFAULT,"*** BUG *** cmode was given an invalid parameter");
 		return "";
 	}
+
+	if (is_uline(user->server))
+		return "@";
+
 	for (int i = 0; i != MAXCHANS; i++)
 	{
 		if (user->chans[i].channel)
@@ -343,6 +348,9 @@ int cstatus(userrec *user, chanrec *chan)
 		log(DEFAULT,"*** BUG *** cstatus was given an invalid parameter");
 		return 0;
 	}
+
+	if (is_uline(user->server))
+		return STATUS_OP;
 
 	for (int i = 0; i != MAXCHANS; i++)
 	{

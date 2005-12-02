@@ -1517,7 +1517,7 @@ void handle_mode(char **parameters, int pcnt, userrec *user)
 			}
 		}
 
-                if ((Ptr) && (!has_channel(user,Ptr)))
+                if (((Ptr) && (!has_channel(user,Ptr))) && (!is_uline(user->server)))
                 {
                         WriteServ(user->fd,"442 %s %s :You're not on that channel!",user->nick, Ptr->name);
                         return;
