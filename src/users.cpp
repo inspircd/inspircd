@@ -64,7 +64,7 @@ userrec::userrec()
 
 userrec::~userrec()
 {
-	pthread_kill(this->dnsthread,9);
+	//pthread_kill(this->dnsthread,9);
 }
 
 void userrec::CloseSocket()
