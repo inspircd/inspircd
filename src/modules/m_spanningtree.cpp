@@ -229,10 +229,8 @@ TreeServer* RouteEnumerate(TreeServer* Current, std::string ServerName)
 // only applies to one-to-one and not one-to-many routing.
 TreeServer* BestRouteTo(std::string ServerName)
 {
-	log(DEBUG,"Finding best route to %s",ServerName.c_str());
 	if (ServerName.c_str() == TreeRoot->GetName())
 	{
-		log(DEBUG,"Cant route to myself!!!");
 		return NULL;
 	}
 	// first, find the server by recursively walking the tree
@@ -240,7 +238,6 @@ TreeServer* BestRouteTo(std::string ServerName)
 	// did we find it? If not, they did something wrong, abort.
 	if (!Found)
 	{
-		log(DEBUG,"Failed to find %s by walking tree!",ServerName.c_str());
 		return NULL;
 	}
 	else
@@ -252,7 +249,6 @@ TreeServer* BestRouteTo(std::string ServerName)
 		{
 			Found = Found->GetParent();
 		}
-		log(DEBUG,"Route to %s is via %s",ServerName.c_str(),Found->GetName().c_str());
 		return Found;
 	}
 }
@@ -276,7 +272,6 @@ void RFindServer(TreeServer* Current, std::string ServerName)
 	if ((ServerName == Current->GetName()) && (!Found))
 	{
 		Found = Current;
-		log(DEBUG,"Found server %s desc %s",Current->GetName().c_str(),Current->GetDesc().c_str());
 		return;
 	}
 	if (!Found)
@@ -317,7 +312,6 @@ class TreeSocket : public InspSocket
 	TreeSocket(std::string host, int port, bool listening, unsigned long maxtime)
 		: InspSocket(host, port, listening, maxtime)
 	{
-		Srv->Log(DEBUG,"Create new listening");
 		myhost = host;
 		this->LinkState = LISTENER;
 	}
@@ -325,7 +319,6 @@ class TreeSocket : public InspSocket
 	TreeSocket(std::string host, int port, bool listening, unsigned long maxtime, std::string ServerName)
 		: InspSocket(host, port, listening, maxtime)
 	{
-		Srv->Log(DEBUG,"Create new outbound");
 		myhost = ServerName;
 		this->LinkState = CONNECTING;
 	}
@@ -333,7 +326,6 @@ class TreeSocket : public InspSocket
 	TreeSocket(int newfd, char* ip)
 		: InspSocket(newfd, ip)
 	{
-		Srv->Log(DEBUG,"Associate new inbound");
 		this->LinkState = WAIT_AUTH_1;
 	}
 	
@@ -355,7 +347,6 @@ class TreeSocket : public InspSocket
 				}
 			}
 		}
-		log(DEBUG,"Outbound connection ERROR: Could not find the right link block!");
 		return true;
 	}
 	
@@ -395,7 +386,6 @@ class TreeSocket : public InspSocket
 			this->SquitServer(recursive_server);
 		}
 		// Now we've whacked the kids, whack self
-		log(DEBUG,"Deleted %s",Current->GetName().c_str());
 		num_lost_servers++;
 		bool quittingpeople = true;
 		while (quittingpeople)
@@ -405,7 +395,6 @@ class TreeSocket : public InspSocket
 			{
 				if (!strcasecmp(u->second->server,Current->GetName().c_str()))
 				{
-					log(DEBUG,"Quitting user %s of server %s",u->second->nick,u->second->server);
 					Srv->QuitUser(u->second,Current->GetName()+" "+std::string(Srv->GetServerName()));
 					num_lost_users++;
 					quittingpeople = true;
@@ -441,7 +430,7 @@ class TreeSocket : public InspSocket
 		}
 		else
 		{
-			log(DEBUG,"Squit from unknown server");
+			log(DEFAULT,"Squit from unknown server");
 		}
 	}
 
@@ -496,8 +485,7 @@ class TreeSocket : public InspSocket
 	{
 		if (params.size() < 2)
 			return true;
-		
-		log(DEBUG,"FORCEJOIN *** PARAMS = %d",params.size());
+
 		char first[MAXBUF];
 		char modestring[MAXBUF];
 		char* mode_users[127];
@@ -688,7 +676,6 @@ class TreeSocket : public InspSocket
 
 	void DoBurst(TreeServer* s)
 	{
-		log(DEBUG,"Beginning network burst");
 		Srv->SendOpers("*** Bursting to "+s->GetName()+".");
 		this->WriteLine("BURST");
 		// Send server tree
@@ -911,7 +898,6 @@ class TreeSocket : public InspSocket
 			s.get(c);
 			if (c == ' ')
 			{
-				log(DEBUG,"Push back %s",param.c_str());
 				n.push_back(param);
 				param = "";
 				item++;
@@ -933,7 +919,6 @@ class TreeSocket : public InspSocket
 							param = param + c;
 						}
 					}
-					log(DEBUG,"Push back %s",param.c_str());
 					n.push_back(param);
 					param = "";
 				}
@@ -941,7 +926,6 @@ class TreeSocket : public InspSocket
 		}
 		if (param != "")
 		{
-			log(DEBUG,"Push back %s",param.c_str());
 			n.push_back(param);
 		}
 		return n;
@@ -955,9 +939,8 @@ class TreeSocket : public InspSocket
 		line = l;
 		if (line == "")
 			return true;
-		Srv->Log(DEBUG,"inbound-line: '"+line+"'");
+		Srv->Log(DEBUG,"IN: '"+line+"'");
 		std::deque<std::string> params = this->Split(line,true);
-		log(DEBUG,"*** Number of params = %d",params.size());
 		std::string command = "";
 		std::string prefix = "";
 		if (((params[0].c_str())[0] == ':') && (params.size() > 1))
@@ -1111,7 +1094,6 @@ class TreeSocket : public InspSocket
 						{
 							strparams[q] = (char*)params[q].c_str();
 						}
-						log(DEBUG,"*** CALL COMMAND HANDLER FOR %s, SOURCE: '%s'",command.c_str(),who->nick);
 						Srv->CallCommandHandler(command, strparams, params.size(), who);
 					}
 					else
@@ -1183,7 +1165,6 @@ bool DoOneToAllButSenderRaw(std::string data,std::string omit,std::string prefix
 {
 	if ((command == "NOTICE") || (command == "PRIVMSG"))
 	{
-		log(DEBUG,"*** Clever routing section for PRIVMSG/NOTICE");
 		if (params.size() >= 2)
 		{
 			if (*(params[0].c_str()) != '#')
@@ -1191,7 +1172,6 @@ bool DoOneToAllButSenderRaw(std::string data,std::string omit,std::string prefix
 				userrec* d = Srv->FindNick(params[0]);
 				if (d)
 				{
-					log(DEBUG,"*** Special one-to-one action for %s",d->nick);
 					std::deque<std::string> par;
 					par.clear();
 					par.push_back(params[0]);
@@ -1209,7 +1189,6 @@ bool DoOneToAllButSenderRaw(std::string data,std::string omit,std::string prefix
 		if ((Route->GetSocket()) && (Route->GetName() != omit) && (omitroute != Route))
 		{
 			TreeSocket* Sock = Route->GetSocket();
-			log(DEBUG,"Sending RAW to %s",Route->GetName().c_str());
 			Sock->WriteLine(data);
 		}
 	}
@@ -1218,9 +1197,7 @@ bool DoOneToAllButSenderRaw(std::string data,std::string omit,std::string prefix
 
 bool DoOneToAllButSender(std::string prefix, std::string command, std::deque<std::string> params, std::string omit)
 {
-	log(DEBUG,"ALLBUTONE: Comes from %s SHOULD NOT go back to %s",prefix.c_str(),omit.c_str());
 	TreeServer* omitroute = BestRouteTo(omit);
-	// TODO: Special stuff with privmsg and notice
 	std::string FullLine = ":" + prefix + " " + command;
 	for (unsigned int x = 0; x < params.size(); x++)
 	{
@@ -1236,7 +1213,6 @@ bool DoOneToAllButSender(std::string prefix, std::string command, std::deque<std
 		if ((Route->GetSocket()) && (Route->GetName() != omit) && (omitroute != Route))
 		{
 			TreeSocket* Sock = Route->GetSocket();
-			log(DEBUG,"Sending to %s",Route->GetName().c_str());
 			Sock->WriteLine(FullLine);
 		}
 	}
@@ -1245,7 +1221,6 @@ bool DoOneToAllButSender(std::string prefix, std::string command, std::deque<std
 
 bool DoOneToMany(std::string prefix, std::string command, std::deque<std::string> params)
 {
-	Srv->Log(DEBUG,"ONETOMANY: "+command);
 	std::string FullLine = ":" + prefix + " " + command;
 	for (unsigned int x = 0; x < params.size(); x++)
 	{
@@ -1282,7 +1257,6 @@ bool DoOneToOne(std::string prefix, std::string command, std::deque<std::string>
 	}
 	else
 	{
-		log(DEBUG,"Could not route message with target %s: %s",target.c_str(),command.c_str());
 		return true;
 	}
 }
@@ -1619,13 +1593,11 @@ class ModuleSpanningTree : public Module
 		// Only do this for local users
 		if (std::string(user->server) == Srv->GetServerName())
 		{
-			log(DEBUG,"**** User on %s JOINS %s",user->server,channel->name);
 			std::deque<std::string> params;
 			params.clear();
 			params.push_back(channel->name);
 			if (*channel->key)
 			{
-				log(DEBUG,"**** With key %s",channel->key);
 				// if the channel has a key, force the join by emulating the key.
 				params.push_back(channel->key);
 			}
@@ -1637,7 +1609,6 @@ class ModuleSpanningTree : public Module
 	{
 		if (std::string(user->server) == Srv->GetServerName())
 		{
-			log(DEBUG,"**** User on %s PARTS %s",user->server,channel->name);
 			std::deque<std::string> params;
 			params.clear();
 			params.push_back(channel->name);
@@ -1650,7 +1621,6 @@ class ModuleSpanningTree : public Module
 		char agestr[MAXBUF];
 		if (std::string(user->server) == Srv->GetServerName())
 		{
-			log(DEBUG,"**** User on %s CONNECTS: %s",user->server,user->nick);
 			std::deque<std::string> params;
 			snprintf(agestr,MAXBUF,"%lu",(unsigned long)user->age);
 			params.clear();
@@ -1670,7 +1640,6 @@ class ModuleSpanningTree : public Module
 	{
 		if (std::string(user->server) == Srv->GetServerName())
 		{
-			log(DEBUG,"**** User on %s QUITS: %s",user->server,user->nick);
 			std::deque<std::string> params;
 			params.push_back(":"+reason);
 			DoOneToMany(user->nick,"QUIT",params);
@@ -1681,7 +1650,6 @@ class ModuleSpanningTree : public Module
 	{
 		if (std::string(user->server) == Srv->GetServerName())
 		{
-			log(DEBUG,"**** User on %s changes NICK: %s",user->server,user->nick);
 			std::deque<std::string> params;
 			params.push_back(user->nick);
 			DoOneToMany(oldnick,"NICK",params);
@@ -1692,7 +1660,6 @@ class ModuleSpanningTree : public Module
 	{
 		if (std::string(source->server) == Srv->GetServerName())
 		{
-			log(DEBUG,"**** User on %s KICKs: %s %s",source->server,source->nick,user->nick);
 			std::deque<std::string> params;
 			params.push_back(chan->name);
 			params.push_back(user->nick);
@@ -1741,10 +1708,8 @@ class ModuleSpanningTree : public Module
 
 	virtual void OnMode(userrec* user, void* dest, int target_type, std::string text)
 	{
-		log(DEBUG,"*** ONMODE TRIGGER");
 		if (std::string(user->server) == Srv->GetServerName())
 		{
-			log(DEBUG,"*** LOCAL");
 			if (target_type == TYPE_USER)
 			{
 				userrec* u = (userrec*)dest;
