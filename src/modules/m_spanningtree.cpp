@@ -498,10 +498,10 @@ class TreeSocket : public InspSocket
 			return true;
 		
 		char first[MAXBUF];
-		char second[MAXBUF];
+		char modestring[MAXBUF];
 		char* mode_users[127];
 		mode_users[0] = first;
-		mode_users[1] = second;
+		mode_users[1] = modestring;
 		strcpy(mode_users[1],"+");
 		unsigned int modectr = 2;
 		
@@ -518,7 +518,6 @@ class TreeSocket : public InspSocket
 			// process one channel at a time, applying modes.
 			char* usr = (char*)params[usernum].c_str();
 			char permissions = *usr;
-			char* mode = NULL;
 			userrec* who = Srv->FindNick(usr);
 			if (who)
 			{
@@ -555,9 +554,12 @@ class TreeSocket : public InspSocket
 		// or, there are a number left over. flush them out.
 		if (modectr > 2)
 		{
+			userrec* who = new userrec;
+			who->fd = FD_MAGIC_NUMBER;
 			Srv->SendMode(mode_users,modectr,who);
+			delete who;
 		}
-		DoOneToAllButSender(source,"FJOIN",params,who->server);
+		DoOneToAllButSender(source,"FJOIN",params,source);
 		return true;
 	}
 
@@ -618,7 +620,7 @@ class TreeSocket : public InspSocket
 	void SendFJoins(TreeServer* Current, chanrec* c)
 	{
 		char list[MAXBUF];
-		snprintf(list,MAXBUF,":%s FJOIN %s ",Srv->GetServerName(),c->name);
+		snprintf(list,MAXBUF,":%s FJOIN %s ",Srv->GetServerName().c_str(),c->name);
 		std::vector<char*> *ulist = c->GetUsers();
 		for (unsigned int i = 0; i < ulist->size(); i++)
 		{
@@ -630,7 +632,7 @@ class TreeSocket : public InspSocket
 			if (strlen(list)>(480-NICKMAX))
 			{
 				this->WriteLine(list);
-				snprintf(list,MAXBUF,":%s FJOIN %s ",Srv->GetServerName(),c->name);
+				snprintf(list,MAXBUF,":%s FJOIN %s ",Srv->GetServerName().c_str(),c->name);
 			}
 		}
 		if (list[strlen(list)-1] != ':')
