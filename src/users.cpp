@@ -161,6 +161,15 @@ bool userrec::HasPermission(char* command)
 	char* savept;
 	char* savept2;
 	
+	// users on u-lined servers can completely bypass
+	// all permissions based checks.
+	//
+	// of course, if this is sent to a remote server and this
+	// server is not ulined there, then that other server
+	// silently drops the command.
+	if (is_uline(this->server))
+		return true;
+	
 	// are they even an oper at all?
 	if (strchr(this->modes,'o'))
 	{
