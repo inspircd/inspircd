@@ -501,8 +501,8 @@ print "\033[0mMax away length:\033[1;32m\t\t$config{MAX_AWAY}\n";
 print "\033[0mGCC Version Found:\033[1;32m\t\t$config{GCCVER}.$config{GCC34}\n";
 print "\033[0mOptimatizaton Flag:\033[1;32m\t\t$config{OPTIMISATI}\033[0m\n";
 print "\033[0mCompiler program:\033[1;32m\t\t$config{CC}\033[0m\n";
-print "\033[0mStatic modules:\033[1;32m\t\t\t$config{STATIC_LINK}\033[0m\n\n";
-print "\033[0mMultithread DNS:\033[1;32m\t\t\t$config{THREADED_DNS}\033[0m\n\n";
+print "\033[0mStatic modules:\033[1;32m\t\t\t$config{STATIC_LINK}\033[0m\n";
+print "\033[0mMultithread DNS:\033[1;32m\t\t$config{THREADED_DNS}\033[0m\n\n";
 
 makecache();
 writefiles();
