@@ -497,6 +497,7 @@ class TreeSocket : public InspSocket
 		if (params.size() < 2)
 			return true;
 		
+		log(DEBUG,"FORCEJOIN *** PARAMS = %d",params.size());
 		char first[MAXBUF];
 		char modestring[MAXBUF];
 		char* mode_users[127];
@@ -518,27 +519,27 @@ class TreeSocket : public InspSocket
 			// process one channel at a time, applying modes.
 			char* usr = (char*)params[usernum].c_str();
 			char permissions = *usr;
+			switch (permissions)
+			{
+				case '@':
+					usr++;
+					mode_users[modectr++] = usr;
+					strlcat(modestring,"o",MAXBUF);
+				break;
+				case '%':
+					usr++;
+					mode_users[modectr++] = usr;
+					strlcat(modestring,"h",MAXBUF);
+				break;
+				case '+':
+					usr++;
+					mode_users[modectr++] = usr;
+					strlcat(modestring,"v",MAXBUF);
+				break;
+			}
 			userrec* who = Srv->FindNick(usr);
 			if (who)
 			{
-				switch (permissions)
-				{
-					case '@':
-						usr++;
-						mode_users[modectr++] = usr;
-						strlcat(modestring,"o",MAXBUF);
-					break;
-					case '%':
-						usr++;
-						mode_users[modectr++] = usr;
-						strlcat(modestring,"h",MAXBUF);
-					break;
-					case '+':
-						usr++;
-						mode_users[modectr++] = usr;
-						strlcat(modestring,"v",MAXBUF);
-					break;
-				}
 				Srv->JoinUserToChannel(who,channel,key);
 				if (modectr >= (MAXMODES-1))
 				{
