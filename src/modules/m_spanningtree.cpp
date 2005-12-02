@@ -506,6 +506,7 @@ class TreeSocket : public InspSocket
 		strcpy(mode_users[1],"+");
 		unsigned int modectr = 2;
 		
+		userrec* who = NULL;
 		std::string channel = params[0];
 		char* key = "";
 		chanrec* chan = Srv->FindChannel(channel);
@@ -537,7 +538,7 @@ class TreeSocket : public InspSocket
 					strlcat(modestring,"v",MAXBUF);
 				break;
 			}
-			userrec* who = Srv->FindNick(usr);
+			who = Srv->FindNick(usr);
 			if (who)
 			{
 				Srv->JoinUserToChannel(who,channel,key);
@@ -553,12 +554,9 @@ class TreeSocket : public InspSocket
 		}
 		// there werent enough modes built up to flush it during FJOIN,
 		// or, there are a number left over. flush them out.
-		if (modectr > 2)
+		if ((modectr > 2) && (who))
 		{
-			userrec* who = new userrec;
-			who->fd = FD_MAGIC_NUMBER;
 			Srv->SendMode(mode_users,modectr,who);
-			delete who;
 		}
 		DoOneToAllButSender(source,"FJOIN",params,source);
 		return true;
