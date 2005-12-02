@@ -63,7 +63,7 @@ class TreeSocket;
 bool DoOneToOne(std::string prefix, std::string command, std::deque<std::string> params, std::string target);
 bool DoOneToAllButSender(std::string prefix, std::string command, std::deque<std::string> params, std::string omit);
 bool DoOneToMany(std::string prefix, std::string command, std::deque<std::string> params);
-bool DoOneToAllButSenderRaw(std::string data,std::string omit);
+bool DoOneToAllButSenderRaw(std::string data,std::string omit, std::string prefix,std::string command,std::deque<std::string> params);
 void ReadConfiguration(bool rebind);
 
 class TreeServer
@@ -1127,7 +1127,7 @@ class TreeSocket : public InspSocket
 							return true;
 						}
 					}
-					return DoOneToAllButSenderRaw(line,sourceserv);
+					return DoOneToAllButSenderRaw(line,sourceserv,prefix,command,params);
 
 				}
 				return true;
@@ -1179,8 +1179,29 @@ class TreeSocket : public InspSocket
 	}
 };
 
-bool DoOneToAllButSenderRaw(std::string data,std::string omit)
+bool DoOneToAllButSenderRaw(std::string data,std::string omit,std::string prefix,std::string command,std::deque<std::string> params)
 {
+	if ((command == "NOTICE") || (command == "PRIVMSG"))
+	{
+		log(DEBUG,"*** Clever routing section for PRIVMSG/NOTICE");
+		if (params.size() >= 2)
+		{
+			if (*(params[0].c_str()) != '#')
+			{
+				userrec* d = Srv->FindNick(params[0]);
+				if (d)
+				{
+					log(DEBUG,"*** Special one-to-one action for %s",d->nick);
+					std::deque<std::string> par;
+					par.clear();
+					par.push_back(params[0]);
+					par.push_back(":"+params[1]);
+					DoOneToOne(prefix,command,par,d->server);
+					return true;
+				}
+			}
+		}
+	}
 	TreeServer* omitroute = BestRouteTo(omit);
 	for (unsigned int x = 0; x < TreeRoot->ChildCount(); x++)
 	{
