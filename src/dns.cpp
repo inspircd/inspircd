@@ -717,7 +717,11 @@ std::string DNS::GetResultIP()
 	}
 	if (result)
 	{
-		sprintf(r,"%u.%u.%u.%u",result[0],result[1],result[2],result[3]);
+		unsigned long oct1 = (unsigned)result[0];
+		unsigned long oct2 = (unsigned)result[1];
+		unsigned long oct3 = (unsigned)result[2];
+		unsigned long oct4 = (unsigned)result[3];
+		sprintf(r,"%lu.%lu.%lu.%lu",oct1,oct2,oct3,oct4);
 		return r;
 	}
 	else
