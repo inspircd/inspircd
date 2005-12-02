@@ -1634,7 +1634,7 @@ bool is_valid_cmd(const char* commandname, int pcnt, userrec * user)
 					{
 						if (cmdlist[i].flags_needed)
 						{
-							if (!user->HasPermission(command))
+							if (!user->HasPermission(commandname))
 							{
 								return true;
 							}
@@ -1668,7 +1668,7 @@ void call_handler(const char* commandname,char **parameters, int pcnt, userrec *
 					{
 						if (cmdlist[i].flags_needed)
 						{
-							if (!user->HasPermission(command))
+							if (!user->HasPermission(commandname))
 							{
 								cmdlist[i].handler_function(parameters,pcnt,user);
 							}
