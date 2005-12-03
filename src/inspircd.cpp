@@ -1561,7 +1561,7 @@ void FullConnectUser(userrec* user)
         WriteServ(user->fd,"004 %s %s %s iowghraAsORVSxNCWqBzvdHtGI lvhopsmntikrRcaqOALQbSeKVfHGCuzN",user->nick,ServerName,VERSION);
         // the neatest way to construct the initial 005 numeric, considering the number of configure constants to go in it...
         std::stringstream v;
-        v << "MESHED WALLCHOPS MODES=13 CHANTYPES=# PREFIX=(ohv)@%+ MAP SAFELIST MAXCHANNELS=" << MAXCHANS;
+        v << "WALLCHOPS MODES=13 CHANTYPES=# PREFIX=(ohv)@%+ MAP SAFELIST MAXCHANNELS=" << MAXCHANS;
         v << " MAXBANS=60 NICKLEN=" << NICKMAX;
         v << " TOPICLEN=" << MAXTOPIC << " KICKLEN=" << MAXKICK << " MAXTARGETS=20 AWAYLEN=" << MAXAWAY << " CHANMODES=ohvb,k,l,psmnti NETWORK=";
         v << Network;
