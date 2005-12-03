@@ -516,6 +516,10 @@ class TreeSocket : public InspSocket
 		}
 
 		log(DEBUG,"FJOIN detected, our TS=%lu, their TS=%lu",ourTS,TS);
+
+		// do this first, so our mode reversals are correctly received by other servers
+		// if there is a TS collision.
+		DoOneToAllButSender(source,"FJOIN",params,source);
 		
 		for (unsigned int usernum = 2; usernum < params.size(); usernum++)
 		{
@@ -558,7 +562,6 @@ class TreeSocket : public InspSocket
 						log(DEBUG,"Their channel newer than ours, bouncing their modes");
 						// bouncy bouncy!
 						std::deque<std::string> params;
-						params.push_back(channel);
 						// modes are now being UNSET...
 						*mode_users[1] = '-';
 						for (unsigned int x = 0; x < modectr; x++)
@@ -586,7 +589,6 @@ class TreeSocket : public InspSocket
 			{
 				log(DEBUG,"Their channel newer than ours, bouncing their modes");
 				std::deque<std::string> params;
-				params.push_back(channel);
 				*mode_users[1] = '-';
 				for (unsigned int x = 0; x < modectr; x++)
 				{
@@ -595,13 +597,6 @@ class TreeSocket : public InspSocket
 				DoOneToMany(Srv->GetServerName(),"FMODE",params);
 			}
 		}
-		// sync the TS
-                us = Srv->FindChannel(channel);
-		if (us)
-		{
-			us->age = TS;
-		}
-		DoOneToAllButSender(source,"FJOIN",params,source);
 		return true;
 	}
 
