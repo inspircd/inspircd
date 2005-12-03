@@ -36,7 +36,7 @@ using namespace std;
 
 #ifdef USE_EPOLL
 #include <sys/epoll.h>
-#define EP_DELAY 50
+#define EP_DELAY 5
 #endif
 
 #include <time.h>
