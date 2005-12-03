@@ -579,10 +579,12 @@ class TreeSocket : public InspSocket
 		{
 			if (ourTS >= TS)
 			{
+				log(DEBUG,"Our our channel newer than theirs, accepting their modes");
 				Srv->SendMode(mode_users,modectr,who);
 			}
 			else
 			{
+				log(DEBUG,"Their channel newer than ours, bouncing their modes");
 				std::deque<std::string> params;
 				params.push_back(channel);
 				*mode_users[1] = '-';
