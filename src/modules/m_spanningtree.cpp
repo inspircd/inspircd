@@ -1161,14 +1161,47 @@ class TreeSocket : public InspSocket
 	}
 };
 
+void AddThisServer(TreeServer* server, std::deque<TreeServer*> &list)
+{
+	for (unsigned int c = 0; c < list.size(); c++)
+	{
+		if (list[c] == server)
+		{
+			return;
+		}
+	}
+	list.push_back(server);
+}
+
+// returns a list of DIRECT servernames for a specific channel
+std::deque<TreeServer*> GetListOfServersForChannel(chanrec* c)
+{
+	std::deque<TreeServer*> list;
+	std::vector<char*> *ulist = c->GetUsers();
+	for (unsigned int i = 0; i < ulist->size(); i++)
+	{
+		char* o = (*ulist)[i];
+		userrec* otheruser = (userrec*)o;
+		if (std::string(otheruser->server) != Srv->GetServerName())
+		{
+			TreeServer* best = BestRouteTo(otheruser->server);
+			if (best)
+				AddThisServer(best,list);
+		}
+	}
+	return list;
+}
+
 bool DoOneToAllButSenderRaw(std::string data,std::string omit,std::string prefix,std::string command,std::deque<std::string> params)
 {
+	TreeServer* omitroute = BestRouteTo(omit);
 	if ((command == "NOTICE") || (command == "PRIVMSG"))
 	{
 		if (params.size() >= 2)
 		{
 			if (*(params[0].c_str()) != '#')
 			{
+				// special routing for private messages/notices
 				userrec* d = Srv->FindNick(params[0]);
 				if (d)
 				{
@@ -1180,9 +1213,23 @@ bool DoOneToAllButSenderRaw(std::string data,std::string omit,std::string prefix
 					return true;
 				}
 			}
+			else
+			{
+				chanrec* c = Srv->FindChannel(params[0]);
+				if (c)
+				{
+					std::deque<TreeServer*> list = GetListOfServersForChannel(c);
+					for (unsigned int i = 0; i < list.size(); i++)
+					{
+						TreeSocket* Sock = list[i]->GetSocket();
+						if (Sock)
+							Sock->WriteLine(data);
+					}
+					return true;
+				}
+			}
 		}
 	}
-	TreeServer* omitroute = BestRouteTo(omit);
 	for (unsigned int x = 0; x < TreeRoot->ChildCount(); x++)
 	{
 		TreeServer* Route = TreeRoot->GetChild(x);
@@ -1551,10 +1598,13 @@ class ModuleSpanningTree : public Module
 			if (std::string(user->server) == Srv->GetServerName())
 			{
 				chanrec *c = (chanrec*)dest;
-				std::deque<std::string> params;
-				params.push_back(c->name);
-				params.push_back(":"+text);
-				DoOneToMany(user->nick,"NOTICE",params);
+				std::deque<TreeServer*> list = GetListOfServersForChannel(c);
+				for (unsigned int i = 0; i < list.size(); i++)
+				{
+					TreeSocket* Sock = list[i]->GetSocket();
+					if (Sock)
+						Sock->WriteLine(":"+std::string(user->nick)+" NOTICE "+std::string(c->name)+" :"+text);
+				}
 			}
 		}
 	}
@@ -1580,10 +1630,13 @@ class ModuleSpanningTree : public Module
 			if (std::string(user->server) == Srv->GetServerName())
 			{
 				chanrec *c = (chanrec*)dest;
-				std::deque<std::string> params;
-				params.push_back(c->name);
-				params.push_back(":"+text);
-				DoOneToMany(user->nick,"PRIVMSG",params);
+				std::deque<TreeServer*> list = GetListOfServersForChannel(c);
+				for (unsigned int i = 0; i < list.size(); i++)
+				{
+					TreeSocket* Sock = list[i]->GetSocket();
+					if (Sock)
+						Sock->WriteLine(":"+std::string(user->nick)+" PRIVMSG "+std::string(c->name)+" :"+text);
+				}
 			}
 		}
 	}
