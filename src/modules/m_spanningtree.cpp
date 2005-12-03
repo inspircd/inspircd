@@ -483,7 +483,7 @@ class TreeSocket : public InspSocket
 
 	bool ForceJoin(std::string source, std::deque<std::string> params)
 	{
-		if (params.size() < 2)
+		if (params.size() < 3)
 			return true;
 
 		char first[MAXBUF];
@@ -496,14 +496,28 @@ class TreeSocket : public InspSocket
 		
 		userrec* who = NULL;
 		std::string channel = params[0];
+		time_t TS = atoi(params[1].c_str());
 		char* key = "";
+		
 		chanrec* chan = Srv->FindChannel(channel);
 		if (chan)
 		{
 			key = chan->key;
 		}
 		strlcpy(mode_users[0],channel.c_str(),MAXBUF);
-		for (unsigned int usernum = 1; usernum < params.size(); usernum++)
+
+		// default is a high value, which if we dont have this
+		// channel will let the other side apply their modes.
+		time_t ourTS = time(NULL)+20;
+		chanrec* us = Srv->FindChannel(channel);
+		if (us)
+		{
+			ourTS = us->age;
+		}
+
+		log(DEBUG,"FJOIN detected, our TS=%lu, their TS=%lu",ourTS,TS);
+		
+		for (unsigned int usernum = 2; usernum < params.size(); usernum++)
 		{
 			// process one channel at a time, applying modes.
 			char* usr = (char*)params[usernum].c_str();
@@ -534,7 +548,26 @@ class TreeSocket : public InspSocket
 				{
 					// theres a mode for this user. push them onto the mode queue, and flush it
 					// if there are more than MAXMODES to go.
-					Srv->SendMode(mode_users,modectr,who);
+					if (ourTS >= TS)
+					{
+						log(DEBUG,"Our our channel newer than theirs, accepting their modes");
+						Srv->SendMode(mode_users,modectr,who);
+					}
+					else
+					{
+						log(DEBUG,"Their channel newer than ours, bouncing their modes");
+						// bouncy bouncy!
+						std::deque<std::string> params;
+						params.push_back(channel);
+						// modes are now being UNSET...
+						*mode_users[1] = '-';
+						for (unsigned int x = 0; x < modectr; x++)
+						{
+							params.push_back(mode_users[x]);
+						}
+						// tell everyone to bounce the modes. bad modes, bad!
+						DoOneToMany(Srv->GetServerName(),"FMODE",params);
+					}
 					strcpy(mode_users[1],"+");
 					modectr = 2;
 				}
@@ -544,7 +577,27 @@ class TreeSocket : public InspSocket
 		// or, there are a number left over. flush them out.
 		if ((modectr > 2) && (who))
 		{
-			Srv->SendMode(mode_users,modectr,who);
+			if (ourTS >= TS)
+			{
+				Srv->SendMode(mode_users,modectr,who);
+			}
+			else
+			{
+				std::deque<std::string> params;
+				params.push_back(channel);
+				*mode_users[1] = '-';
+				for (unsigned int x = 0; x < modectr; x++)
+				{
+					params.push_back(mode_users[x]);
+				}
+				DoOneToMany(Srv->GetServerName(),"FMODE",params);
+			}
+		}
+		// sync the TS
+                us = Srv->FindChannel(channel);
+		if (us)
+		{
+			us->age = TS;
 		}
 		DoOneToAllButSender(source,"FJOIN",params,source);
 		return true;
@@ -607,7 +660,7 @@ class TreeSocket : public InspSocket
 	void SendFJoins(TreeServer* Current, chanrec* c)
 	{
 		char list[MAXBUF];
-		snprintf(list,MAXBUF,":%s FJOIN %s",Srv->GetServerName().c_str(),c->name);
+		snprintf(list,MAXBUF,":%s FJOIN %s %lu",Srv->GetServerName().c_str(),c->name,(unsigned long)c->age);
 		std::vector<char*> *ulist = c->GetUsers();
 		for (unsigned int i = 0; i < ulist->size(); i++)
 		{
@@ -619,7 +672,7 @@ class TreeSocket : public InspSocket
 			if (strlen(list)>(480-NICKMAX))
 			{
 				this->WriteLine(list);
-				snprintf(list,MAXBUF,":%s FJOIN %s",Srv->GetServerName().c_str(),c->name);
+				snprintf(list,MAXBUF,":%s FJOIN %s %lu",Srv->GetServerName().c_str(),c->name,(unsigned long)c->age);
 			}
 		}
 		if (list[strlen(list)-1] != ':')
