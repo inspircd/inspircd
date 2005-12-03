@@ -309,9 +309,6 @@ char* cmode(userrec *user, chanrec *chan)
 		return "";
 	}
 
-	if (is_uline(user->server))
-		return "@";
-
 	for (int i = 0; i != MAXCHANS; i++)
 	{
 		if (user->chans[i].channel)
