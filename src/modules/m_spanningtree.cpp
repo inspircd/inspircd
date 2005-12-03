@@ -1215,15 +1215,20 @@ bool DoOneToAllButSenderRaw(std::string data,std::string omit,std::string prefix
 			}
 			else
 			{
+				log(DEBUG,"Channel privmsg going to chan %s",params[0].c_str());
 				chanrec* c = Srv->FindChannel(params[0]);
 				if (c)
 				{
 					std::deque<TreeServer*> list = GetListOfServersForChannel(c);
+					log(DEBUG,"Got a list of %d servers",list.size());
 					for (unsigned int i = 0; i < list.size(); i++)
 					{
 						TreeSocket* Sock = list[i]->GetSocket();
-						if (Sock)
+						if ((Sock) && (list[i]->GetName() != omit) && (omitroute != list[i]))
+						{
+							log(DEBUG,"Writing privmsg to server %s",list[i]->GetName().c_str());
 							Sock->WriteLine(data);
+						}
 					}
 					return true;
 				}
