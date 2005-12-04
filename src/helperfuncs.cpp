@@ -1046,7 +1046,7 @@ int registered_usercount(void)
         int c = 0;
         for (user_hash::const_iterator i = clientlist.begin(); i != clientlist.end(); i++)
         {
-                if ((i->second->fd) && (isnick(i->second->nick))) c++;
+                if (i->second->registered == 7) c++;
         }
         return c;
 }
@@ -1054,10 +1054,9 @@ int registered_usercount(void)
 int usercount_invisible(void)
 {
         int c = 0;
-
         for (user_hash::const_iterator i = clientlist.begin(); i != clientlist.end(); i++)
         {
-                if ((i->second->fd) && (isnick(i->second->nick)) && (strchr(i->second->modes,'i'))) c++;
+                if ((isnick(i->second->nick)) && (strchr(i->second->modes,'i'))) c++;
         }
         return c;
 }
@@ -1065,10 +1064,9 @@ int usercount_invisible(void)
 int usercount_opers(void)
 {
         int c = 0;
-
         for (user_hash::const_iterator i = clientlist.begin(); i != clientlist.end(); i++)
         {
-                if ((i->second->fd) && (isnick(i->second->nick)) && (strchr(i->second->modes,'o'))) c++;
+                if ((isnick(i->second->nick)) && (strchr(i->second->modes,'o'))) c++;
         }
         return c;
 }
