@@ -308,6 +308,8 @@ class TreeSocket : public InspSocket
 	std::string InboundDescription;
 	int num_lost_users;
 	int num_lost_servers;
+	time_t NextPing;
+	bool LastPingWasGood;
 	
  public:
 
@@ -350,6 +352,27 @@ class TreeSocket : public InspSocket
 			}
 		}
 		return true;
+	}
+
+	void SetNextPingTime(time_t t)
+	{
+		this->NextPing = t;
+		LastPingWasGood = false;
+	}
+
+	time_t NextPingTime()
+	{
+		return this->NextPing;
+	}
+
+	bool AnsweredLastPing()
+	{
+		return LastPingWasGood;
+	}
+
+	void SetPingFlag()
+	{
+		LastPingWasGood = true;
 	}
 	
         virtual void OnError(InspSocketError e)
@@ -842,6 +865,27 @@ class TreeSocket : public InspSocket
 		return true;
 	}
 
+	bool LocalPong(std::string prefix, std::deque<std::string> params)
+	{
+		if (params.size() < 1)
+			return true;
+		TreeServer* ServerSource = FindServer(prefix);
+		if (ServerSource)
+		{
+			ServerSource->SetPingFlag();
+		}
+		return true;
+	}
+	
+	bool LocalPing(std::string prefix, std::deque<std::string> params)
+	{
+		if (params.size() < 1)
+			return true;
+		std::string stufftobounce = params[0];
+		this->WriteLine(":"+Srv->GetServerName()+" PONG "+stufftobounce);
+		return true;
+	}
+
 	bool RemoteServer(std::string prefix, std::deque<std::string> params)
 	{
 		if (params.size() < 4)
@@ -1136,6 +1180,14 @@ class TreeSocket : public InspSocket
 				else if (command == "REHASH")
 				{
 					return this->RemoteRehash(prefix,params);
+				}
+				else if (command == "PING")
+				{
+					return this->LocalPing(prefix,params);
+				}
+				else if (command == "PONG")
+				{
+					return this->LocalPong(prefix,params);
 				}
 				else if (command == "SQUIT")
 				{
@@ -1609,6 +1661,34 @@ class ModuleSpanningTree : public Module
 		return 1;
 	}
 
+	void DoPingChecks(time_t curtime)
+	{
+		for (unsigned int j = 0; j < TreeRoot->ChildCount(); j++)
+		{
+			TreeServer* serv = TreeRoot->GetChild(j);
+			TreeSocket* sock = serv->GetSocket();
+			if (sock)
+			{
+				if (serv->NextPingTime() > curtime)
+				{
+					if (serv->AnsweredLastPing())
+					{
+						sock->WriteLine(":"+Srv->GetServerName()+" PING "+serv->GetName());
+						serv->SetNextPingTime(curtime + 60);
+					}
+					else
+					{
+						// they didnt answer, boot them
+						WriteOpers("*** Server \002%s\002 pinged out",serv->GetName().c_str());
+						sock->Squit(serv,"Ping timeout");
+						sock->Close();
+						return;
+					}
+				}
+			}
+		}
+	}
+
 	void AutoConnectServers(time_t curtime)
 	{
 		for (std::vector<Link>::iterator x = LinkBlocks.begin(); x < LinkBlocks.end(); x++)
@@ -1807,6 +1887,7 @@ class ModuleSpanningTree : public Module
 	virtual void OnBackgroundTimer(time_t curtime)
 	{
 		AutoConnectServers(curtime);
+		DoPingChecks(curtime);
 	}
 
 	virtual void OnUserJoin(userrec* user, chanrec* channel)
