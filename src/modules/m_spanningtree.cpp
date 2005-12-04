@@ -1583,14 +1583,14 @@ class ModuleSpanningTree : public Module
 
 	int HandleSquit(char** parameters, int pcnt, userrec* user)
 	{
-		TreeServer* s = FindServer(quitserver);
+		TreeServer* s = FindServer(parameters[0]);
 		if (s)
 		{
 			TreeSocket* sock = s->GetSocket();
 			if (sock)
 			{
 				WriteOpers("*** SQUIT: Server \002%s\002 removed from network by %s",parameters[0],user->nick);
-				Squit(s,"Server quit by "+std::string(user->nick)+"!"+std::string(user->ident)+"@"+std::string(user->host));
+				sock->Squit(s,"Server quit by "+std::string(user->nick)+"!"+std::string(user->ident)+"@"+std::string(user->host));
 				sock->Close();
 			}
 			else
