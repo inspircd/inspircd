@@ -55,7 +55,7 @@ class ModuleConnLUSERS : public Module
 		// protocol module. Yes, at some point there will
 		// be a way to get the current protocol module's name
 		// from the core and probably a pointer to its class.
-		Module* Proto = FindModule("m_spanningtree.so");
+		Module* Proto = Srv->FindModule("m_spanningtree.so");
 		if (Proto)
 		{
 			Proto->OnPreCommand("LUSERS", NULL, 0, user)
