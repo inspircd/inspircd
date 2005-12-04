@@ -76,6 +76,8 @@ class TreeServer
 	int UserCount;
 	int OperCount;
 	TreeSocket* Socket;	// for directly connected servers this points at the socket object
+	time_t NextPing;
+	bool LastPingWasGood;
 	
  public:
 
@@ -114,6 +116,27 @@ class TreeServer
 	std::string GetVersion()
 	{
 		return this->VersionString;
+	}
+
+	void SetNextPingTime(time_t t)
+	{
+		this->NextPing = t;
+		LastPingWasGood = false;
+	}
+
+	time_t NextPingTime()
+	{
+		return this->NextPing;
+	}
+
+	bool AnsweredLastPing()
+	{
+		return LastPingWasGood;
+	}
+
+	void SetPingFlag()
+	{
+		LastPingWasGood = true;
 	}
 
 	int GetUserCount()
@@ -352,27 +375,6 @@ class TreeSocket : public InspSocket
 			}
 		}
 		return true;
-	}
-
-	void SetNextPingTime(time_t t)
-	{
-		this->NextPing = t;
-		LastPingWasGood = false;
-	}
-
-	time_t NextPingTime()
-	{
-		return this->NextPing;
-	}
-
-	bool AnsweredLastPing()
-	{
-		return LastPingWasGood;
-	}
-
-	void SetPingFlag()
-	{
-		LastPingWasGood = true;
 	}
 	
         virtual void OnError(InspSocketError e)
