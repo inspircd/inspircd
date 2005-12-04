@@ -1708,6 +1708,16 @@ class ModuleSpanningTree : public Module
 		DoOneToMany(user->nick,"TOPIC",params);
 	}
 
+	virtual void OnWallops(userrec* user, std::string text)
+	{
+		if (std::string(user->server) == Srv->GetServerName())
+		{
+			std::deque<std::string> params;
+			params.push_back(":"+text);
+			DoOneToMany(user->nick,"WALLOPS",params);
+		}
+	}
+
 	virtual void OnUserNotice(userrec* user, void* dest, int target_type, std::string text)
 	{
 		if (target_type == TYPE_USER)
