@@ -367,7 +367,7 @@ void		Module::OnGetServerDescription(std::string servername,std::string &descrip
 void		Module::OnSyncUser(userrec* user, Module* proto, void* opaque) { };
 void		Module::OnSyncChannel(chanrec* chan, Module* proto, void* opaque) { };
 void		Module::ProtoSendMode(void* opaque, int target_type, void* target, std::string modeline) { };
-void		OnWallops(userrec* user, std::string text) { };
+void		Module::OnWallops(userrec* user, std::string text) { };
 
 // server is a wrapper class that provides methods to all of the C-style
 // exports in the core
