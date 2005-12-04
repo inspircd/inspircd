@@ -101,6 +101,7 @@ class TreeServer
 	{
 		VersionString = "";
 		UserCount = OperCount = 0;
+		this->SetNextPingTime(time(NULL) + 60);
 	}
 
 	std::string GetName()
@@ -1671,7 +1672,7 @@ class ModuleSpanningTree : public Module
 			TreeSocket* sock = serv->GetSocket();
 			if (sock)
 			{
-				if (serv->NextPingTime() > curtime)
+				if (curtime >= serv->NextPingTime())
 				{
 					if (serv->AnsweredLastPing())
 					{
