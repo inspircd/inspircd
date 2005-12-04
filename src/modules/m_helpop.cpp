@@ -38,6 +38,9 @@ void handle_helpop(char **parameters, int pcnt, userrec *user)
 	char a[MAXBUF];
 	std::string output = " ";
 
+	if (!helpop)
+		return;
+
 	if (pcnt < 1)
 	{
  		do_helpop(NULL,pcnt,user);
@@ -176,6 +179,7 @@ class ModuleHelpop : public Module
 
 			if (h_file == "")
 			{
+				helpop = NULL;
 				log(DEFAULT,"m_helpop: Helpop file not Specified.");
 				return;
 			}
@@ -194,7 +198,8 @@ class ModuleHelpop : public Module
 		virtual void OnRehash(std::string parameter)
 		{
 			delete conf;
-			delete helpop;
+			if (helpop)
+				delete helpop;
 
 			ReadConfig();
 		}
