@@ -1776,7 +1776,7 @@ class ModuleSpanningTree : public Module
 		}
 		else
 		{
-			WriteServ(user->fd,"402 %s :No such server",parameters[0]);
+			WriteServ(user->fd,"402 %s %s :No such server",user->nick,parameters[0]);
 		}
 		return 1;
 	}
