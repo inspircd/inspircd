@@ -1602,7 +1602,7 @@ class ModuleSpanningTree : public Module
 				}
 				else
 				{
-					WriteServ(user->fd,"NOTICE %s :*** CONNECT: Server \002%s\002 already exists on the network and is connected via \002%s\002",user->nick,x->ame.c_str(),CheckDupe->GetParent()->GetName().c_str());
+					WriteServ(user->fd,"NOTICE %s :*** CONNECT: Server \002%s\002 already exists on the network and is connected via \002%s\002",user->nick,x->Name.c_str(),CheckDupe->GetParent()->GetName().c_str());
 					return 1;
 				}
 			}
