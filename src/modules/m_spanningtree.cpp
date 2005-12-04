@@ -1414,6 +1414,7 @@ class ModuleSpanningTree : public Module
 {
 	std::vector<TreeSocket*> Bindings;
 	int line;
+	int NumServers;
 
  public:
 
@@ -1443,6 +1444,27 @@ class ModuleSpanningTree : public Module
 		WriteServ(user->fd,"364 %s %s %s :%d %s",user->nick,Current->GetName().c_str(),Parent.c_str(),hops,Current->GetDesc().c_str());
 	}
 
+	int CountLocalServs()
+	{
+		return TreeRoot->ChildCount();
+	}
+
+	void CountServsRecursive(TreeServer* Current)
+	{
+		NumServs++;
+		for (unsigned int q = 0; q < Current->ChildCount(); q++)
+		{
+			CountServsRecursive(Current->GetChild(q));
+		}
+	}
+	
+	int CountServs()
+	{
+		NumServs = 0;
+		CountServsRecursive(TreeRoot);
+		return NumServs;
+	}
+
 	void HandleLinks(char** parameters, int pcnt, userrec* user)
 	{
 		ShowLinks(TreeRoot,user,0);
@@ -1452,6 +1474,11 @@ class ModuleSpanningTree : public Module
 
 	void HandleLusers(char** parameters, int pcnt, userrec* user)
 	{
+		WriteServ(user->fd,"251 %s :There are %d users and %d invisible on %d servers",user->nick,usercnt()-usercount_invisible(),usercount_invisible(),this->CountServs());
+		WriteServ(user->fd,"252 %s %d :operator(s) online",user->nick,usercount_opers());
+		WriteServ(user->fd,"253 %s %d :unknown connections",user->nick,usercount_unknown());
+		WriteServ(user->fd,"254 %s %d :channels formed",user->nick,chancount());
+		WriteServ(user->fd,"254 %s :I have %d clients and %d servers",user->nick,local_count(),this->CountLocalServs());
 		return;
 	}
 
