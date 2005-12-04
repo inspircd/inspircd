@@ -590,7 +590,7 @@ void handle_privmsg(char **parameters, int pcnt, userrec *user)
 		servermask++;
 		if (match(ServerName,servermask))
                 {
-			ServerPrivmsgAll(parameters[1]);
+			ServerPrivmsgAll("%s",parameters[1]);
                 }
 		return;
         }
@@ -688,7 +688,7 @@ void handle_notice(char **parameters, int pcnt, userrec *user)
 		servermask++;
 		if (match(ServerName,servermask))
 		{
-			ServerNoticeAll(parameters[1]);
+			NoticeAll(user, true, "%s",parameters[1])
 		}
 		return;
 	}
@@ -781,6 +781,7 @@ void handle_info(char **parameters, int pcnt, userrec *user)
         WriteServ(user->fd,"371 %s :                 Jazza",user->nick);
         WriteServ(user->fd,"371 %s : ",user->nick);
         WriteServ(user->fd,"371 %s :Testers:         CC",user->nick);
+	WriteServ(user->fd,"371 %s :                 Om",user->nick);
         WriteServ(user->fd,"371 %s :                 Piggles",user->nick);
         WriteServ(user->fd,"371 %s :                 Foamy",user->nick);
         WriteServ(user->fd,"371 %s :                 Hart",user->nick);
@@ -796,6 +797,7 @@ void handle_info(char **parameters, int pcnt, userrec *user)
         WriteServ(user->fd,"371 %s :                 Rob",user->nick);
         WriteServ(user->fd,"371 %s :                 angelic",user->nick);
         WriteServ(user->fd,"371 %s :                 Jason",user->nick);
+	WriteServ(user->fd,"371 %s :                 ThaPrince",user->nick);
         WriteServ(user->fd,"371 %s : ",user->nick);
         WriteServ(user->fd,"371 %s :Thanks to irc-junkie and searchirc",user->nick);
         WriteServ(user->fd,"371 %s :for the nice comments and the help",user->nick);
