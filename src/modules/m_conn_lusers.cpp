@@ -49,7 +49,21 @@ class ModuleConnLUSERS : public Module
 	
 	virtual void OnUserConnect(userrec* user)
 	{
-		Srv->CallCommandHandler("LUSERS", NULL, 0, user);
+		// if we're using a protocol module, we cant just call
+		// the command handler because the protocol module
+		// has hooked it. We must call OnPreCommand in the
+		// protocol module. Yes, at some point there will
+		// be a way to get the current protocol module's name
+		// from the core and probably a pointer to its class.
+		Module* Proto = FindModule("m_spanningtree.so");
+		if (Proto)
+		{
+			Proto->OnPreCommand("LUSERS", NULL, 0, user)
+		}
+		else
+		{
+			Srv->CallCommandHandler("LUSERS", NULL, 0, user);
+		}
 	}
 };
 
