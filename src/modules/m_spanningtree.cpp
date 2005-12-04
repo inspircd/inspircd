@@ -689,12 +689,6 @@ class TreeSocket : public InspSocket
 				// temporarily (until end of burst) we auto-replace occurances of the old nick with the new nick
 				AddFJoinReplacement(tempnick,nick);
 			}
-			else
-			{
-				// the other end will be changing our nick to the guest nick.
-				// Pause and wait for their FNICK.
-				SyncPaused = true;
-			}
 		}
 
 		clientlist[tempnick] = new userrec();
@@ -878,7 +872,6 @@ class TreeSocket : public InspSocket
 			Srv->ChangeUserNick(u,newnick);
 			DoOneToAllButSender(prefix,"FNICK",params,prefix);
 		}
-		SyncPaused = false;
 		return true;
 	}
 
@@ -971,7 +964,7 @@ class TreeSocket : public InspSocket
 				params[3] = ":" + params[3];
 				DoOneToAllButSender(TreeRoot->GetName(),"SERVER",params,servername);
 				this->DoBurst(Node);
-				this->SendChannelModes(s);
+				this->SendChannelModes(Node);
 		                this->WriteLine("ENDBURST");
 				return true;
 			}
@@ -1136,7 +1129,7 @@ class TreeSocket : public InspSocket
 					// one server must wait till the other servers list of synched users
 					// before starting, so we have time to resolve collisions
 					this->DoBurst(Node);
-			                this->SendChannelModes(s);
+			                this->SendChannelModes(Node);
 			                this->WriteLine("ENDBURST");
 				}
 				else if (command == "ERROR")
