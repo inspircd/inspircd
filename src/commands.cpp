@@ -1093,11 +1093,13 @@ void handle_rehash(char **parameters, int pcnt, userrec *user)
 
 void handle_lusers(char **parameters, int pcnt, userrec *user)
 {
-	WriteServ(user->fd,"251 %s :There are %d users and %d invisible on %d servers",user->nick,usercnt()-usercount_invisible(),usercount_invisible(),servercount());
+	// this lusers command shows one server at all times because
+	// a protocol module must override it to show those stats.
+	WriteServ(user->fd,"251 %s :There are %d users and %d invisible on 1 server",user->nick,usercnt()-usercount_invisible(),usercount_invisible());
 	WriteServ(user->fd,"252 %s %d :operator(s) online",user->nick,usercount_opers());
 	WriteServ(user->fd,"253 %s %d :unknown connections",user->nick,usercount_unknown());
 	WriteServ(user->fd,"254 %s %d :channels formed",user->nick,chancount());
-	WriteServ(user->fd,"254 %s :I have %d clients and %d servers",user->nick,local_count(),count_servs());
+	WriteServ(user->fd,"254 %s :I have %d clients and 0 servers",user->nick,local_count());
 }
 
 void handle_admin(char **parameters, int pcnt, userrec *user)
@@ -1520,8 +1522,10 @@ void handle_links(char **parameters, int pcnt, userrec *user)
 
 void handle_map(char **parameters, int pcnt, userrec *user)
 {
-	char line[MAXBUF];
-	snprintf(line,MAXBUF,"006 %s :%s",user->nick,ServerName);
+	// as with /LUSERS this does nothing without a linking
+	// module to override its behaviour and display something
+	// better.
+	WriteServ(user->fd,"006 %s :%s",user->nick,ServerName);
 	WriteServ(user->fd,"007 %s :End of /MAP",user->nick);
 }
 
