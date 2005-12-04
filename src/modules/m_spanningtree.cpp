@@ -1451,7 +1451,7 @@ class ModuleSpanningTree : public Module
 
 	void CountServsRecursive(TreeServer* Current)
 	{
-		NumServs++;
+		NumServers++;
 		for (unsigned int q = 0; q < Current->ChildCount(); q++)
 		{
 			CountServsRecursive(Current->GetChild(q));
@@ -1460,9 +1460,9 @@ class ModuleSpanningTree : public Module
 	
 	int CountServs()
 	{
-		NumServs = 0;
+		NumServers = 0;
 		CountServsRecursive(TreeRoot);
-		return NumServs;
+		return NumServers;
 	}
 
 	void HandleLinks(char** parameters, int pcnt, userrec* user)
