@@ -733,7 +733,7 @@ class TreeSocket : public InspSocket
 		this->SendServers(TreeRoot,s,1);
 		// Send users and their channels
 		this->SendUsers(s);
-		// TODO: Send everything else (channel modes etc)
+		// Send everything else (channel modes etc)
 		this->SendChannelModes(s);
 		this->WriteLine("ENDBURST");
 	}
@@ -854,6 +854,12 @@ class TreeSocket : public InspSocket
 			this->WriteLine("ERROR :Protocol error - Introduced remote server from unknown server "+prefix);
 			return false;
 		}
+		TreeServer* CheckDupe = FindServer(servername);
+		if (CheckDupe)
+		{
+			this->WriteLine("ERROR :Server "+servername+" already exists on server "+CheckDupe->GetParent()->GetName()+"!");
+			return false;
+		}
 		TreeServer* Node = new TreeServer(servername,description,ParentOfThis,NULL);
 		ParentOfThis->AddChild(Node);
 		params[3] = ":" + params[3];
@@ -879,6 +885,12 @@ class TreeSocket : public InspSocket
 		{
 			if ((x->Name == servername) && (x->RecvPass == password))
 			{
+				TreeServer* CheckDupe = FindServer(servername);
+				if (CheckDupe)
+				{
+					this->WriteLine("ERROR :Server "+servername+" already exists on server "+CheckDupe->GetParent()->GetName()+"!");
+					return false;
+				}
 				// Begin the sync here. this kickstarts the
 				// other side, waiting in WAIT_AUTH_2 state,
 				// into starting their burst, as it shows
@@ -916,6 +928,12 @@ class TreeSocket : public InspSocket
 		{
 			if ((x->Name == servername) && (x->RecvPass == password))
 			{
+				TreeServer* CheckDupe = FindServer(servername);
+				if (CheckDupe)
+				{
+					this->WriteLine("ERROR :Server "+servername+" already exists on server "+CheckDupe->GetParent()->GetName()+"!");
+					return false;
+				}
 				Srv->SendOpers("*** Verified incoming server connection from \002"+servername+"\002["+this->GetIP()+"] ("+description+")");
 				this->InboundServerName = servername;
 				this->InboundDescription = description;
@@ -1574,13 +1592,22 @@ class ModuleSpanningTree : public Module
 		{
 			if (Srv->MatchText(x->Name.c_str(),parameters[0]))
 			{
-				WriteServ(user->fd,"NOTICE %s :*** CONNECT: Connecting to server: %s (%s:%d)",user->nick,x->Name.c_str(),x->IPAddr.c_str(),x->Port);
-				TreeSocket* newsocket = new TreeSocket(x->IPAddr,x->Port,false,10,x->Name);
-				Srv->AddSocket(newsocket);
-				return 1;
+				TreeServer* CheckDupe = FindServer(parameters[0]);
+				if (!CheckDupe)
+				{
+					WriteServ(user->fd,"NOTICE %s :*** CONNECT: Connecting to server: \002%s\002 (%s:%d)",user->nick,x->Name.c_str(),x->IPAddr.c_str(),x->Port);
+					TreeSocket* newsocket = new TreeSocket(x->IPAddr,x->Port,false,10,x->Name);
+					Srv->AddSocket(newsocket);
+					return 1;
+				}
+				else
+				{
+					WriteServ(user->fd,"NOTICE %s :*** CONNECT: Server \002%s\002 already exists on the network and is connected via \002%s\002",user->nick,parameters[0],CheckDupe->GetParent()->GetName().c_str());
+					return 1;
+				}
 			}
 		}
-		WriteServ(user->fd,"NOTICE %s :*** CONNECT: No matching server could be found in the config file.",user->nick);
+		WriteServ(user->fd,"NOTICE %s :*** CONNECT: No server matching \002%s\002 could be found in the config file.",user->nick,parameters[0]);
 		return 1;
 	}
 
