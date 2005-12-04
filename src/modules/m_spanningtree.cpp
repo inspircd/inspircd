@@ -1777,6 +1777,7 @@ class ModuleSpanningTree : public Module
 		{
 			WriteServ(user->fd,"402 %s :No such server",parameters[0]);
 		}
+		return 1;
 	}
 	
 	int HandleConnect(char** parameters, int pcnt, userrec* user)
