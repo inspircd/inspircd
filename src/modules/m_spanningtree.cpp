@@ -163,11 +163,6 @@ class TreeServer
 		return this->Parent;
 	}
 
-	std::string GetVersion()
-	{
-		return VersionString;
-	}
-
 	void SetVersion(std::string Version)
 	{
 		VersionString = Version;
