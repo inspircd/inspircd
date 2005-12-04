@@ -1709,7 +1709,21 @@ class ModuleSpanningTree : public Module
 				// if the channel has a key, force the join by emulating the key.
 				params.push_back(channel->key);
 			}
-			DoOneToMany(user->nick,"JOIN",params);
+			if (channel->GetUserCounter() > 1)
+			{
+				// not the first in the channel
+				DoOneToMany(user->nick,"JOIN",params);
+			}
+			else
+			{
+				// first in the channel, set up their permissions
+				// and the channel TS with FJOIN.
+				params.clear();
+				params.push_back(channel->name);
+				params.push_back(channel->age);
+				params.push_back("@"+std::string(user->nick));
+				DoOneToMany(Srv->GetServerName(),"FJOIN",params);
+			}
 		}
 	}
 
