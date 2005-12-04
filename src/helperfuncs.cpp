@@ -516,6 +516,46 @@ void WriteOpers(char* text, ...)
         }
 }
 
+void ServerNoticeAll(char* text, ...)
+{
+	if (!text)
+		return;
+
+	char textbuffer[MAXBUF];
+	va_list argsPtr;
+	va_start (argsPtr, text);
+	vsnprintf(textbuffer, MAXBUF, text, argsPtr);
+	va_end(argsPtr);
+
+	for (user_hash::const_iterator i = clientlist.begin(); i != clientlist.end(); i++)
+	{
+		if ((i->second) && (i->second->fd != FD_MAGIC_NUMBER))
+		{
+			WriteServ(i->second->fd,"NOTICE $%s :%s",ServerName,textbuffer);
+		}
+	}
+}
+
+void ServerPrivmsgAll(char* text, ...)
+{
+	if (!text)
+		return;
+
+	char textbuffer[MAXBUF];
+	va_list argsPtr;
+	va_start (argsPtr, text);
+	vsnprintf(textbuffer, MAXBUF, text, argsPtr);
+	va_end(argsPtr);
+
+	for (user_hash::const_iterator i = clientlist.begin(); i != clientlist.end(); i++)
+	{
+		if ((i->second) && (i->second->fd != FD_MAGIC_NUMBER))
+		{
+			WriteServ(i->second->fd,"PRIVMSG $%s :%s",ServerName,textbuffer);
+		}
+	}
+}
+
 void NoticeAllOpers(userrec *source, bool local_only, char* text, ...)
 {
         if ((!text) || (!source))

@@ -108,6 +108,8 @@ bool LoadModule(const char* filename);
 bool UnloadModule(const char* filename);
 char* ModuleError();
 void NoticeAll(userrec *source, bool local_only, char* text, ...);
+void ServerNoticeAll(char* text, ...);
+void ServerPrivmsgAll(char* text, ...);
 void NoticeAllOpers(userrec *source, bool local_only, char* text, ...);
 
 // optimization tricks to save us walking the user hash

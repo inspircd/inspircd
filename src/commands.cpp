@@ -583,7 +583,18 @@ void handle_privmsg(char **parameters, int pcnt, userrec *user)
 	
 	if (loop_call(handle_privmsg,parameters,pcnt,user,0,pcnt-2,0))
 		return;
-	if (parameters[0][0] == '#')
+        if (parameters[0][0] == '$')
+	{
+		// notice to server mask
+		char* servermask = parameters[0];
+		servermask++;
+		if (match(ServerName,servermask))
+                {
+			ServerPrivmsgAll(parameters[1]);
+                }
+		return;
+        }
+        else if (parameters[0][0] == '#')
 	{
 		chan = FindChan(parameters[0]);
 		if (chan)
@@ -670,7 +681,18 @@ void handle_notice(char **parameters, int pcnt, userrec *user)
 	
 	if (loop_call(handle_notice,parameters,pcnt,user,0,pcnt-2,0))
 		return;
-	if (parameters[0][0] == '#')
+	if (parameters[0][0] == '$')
+	{
+		// notice to server mask
+		char* servermask = parameters[0];
+		servermask++;
+		if (match(ServerName,servermask))
+		{
+			ServerNoticeAll(parameters[1]);
+		}
+		return;
+	}
+	else if (parameters[0][0] == '#')
 	{
 		chan = FindChan(parameters[0]);
 		if (chan)
@@ -814,19 +836,25 @@ void handle_whois(char **parameters, int pcnt, userrec *user)
 				WriteServ(user->fd,"378 %s %s :is connecting from *@%s %s",user->nick, dest->nick, dest->host, dest->ip);
 			}
 			char* cl = chlist(dest,user);
-			if (strcmp(cl,""))
+			if (*cl)
 			{
 				WriteServ(user->fd,"319 %s %s :%s",user->nick, dest->nick, cl);
 			}
 			WriteServ(user->fd,"312 %s %s %s :%s",user->nick, dest->nick, dest->server, GetServerDescription(dest->server).c_str());
-			if (strcmp(dest->awaymsg,""))
+			if (*dest->awaymsg)
 			{
 				WriteServ(user->fd,"301 %s %s :%s",user->nick, dest->nick, dest->awaymsg);
 			}
-			if ((strchr(dest->modes,'o')) && (strcmp(dest->oper,"")))
+			if (strchr(dest->modes,'o'))
 			{
-				WriteServ(user->fd,"313 %s %s :is %s %s on %s",user->nick, dest->nick,
-    				(strchr("aeiou",dest->oper[0]) ? "an" : "a"),dest->oper, Network);
+				if (*dest->oper)
+				{
+					WriteServ(user->fd,"313 %s %s :is %s %s on %s",user->nick, dest->nick, (strchr("aeiou",dest->oper[0]) ? "an" : "a"),dest->oper, Network);
+				}
+				else
+				{
+					WriteServ(user->fd,"313 %s %s :is opered but has an unknown type",user->nick, dest->nick);
+				}
 			}
 			FOREACH_MOD OnWhois(user,dest);
 			if (!strcasecmp(user->server,dest->server))

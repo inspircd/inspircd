@@ -1266,7 +1266,7 @@ bool DoOneToAllButSenderRaw(std::string data,std::string omit,std::string prefix
 	TreeServer* omitroute = BestRouteTo(omit);
 	if ((command == "NOTICE") || (command == "PRIVMSG"))
 	{
-		if (params.size() >= 2)
+		if ((params.size() >= 2) && (*(params[0].c_str()) != '$'))
 		{
 			if (*(params[0].c_str()) != '#')
 			{
