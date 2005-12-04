@@ -791,7 +791,7 @@ class TreeSocket : public InspSocket
 		Srv->SendOpers("*** Bursting to "+s->GetName()+".");
 		this->WriteLine("BURST");
 		// send our version string
-		this->WriteLine(":"+s->GetName()+" VERSION :"+GetVersionString());
+		this->WriteLine(":"+Srv->GetServerName()+" VERSION :"+GetVersionString());
 		// Send server tree
 		this->SendServers(TreeRoot,s,1);
 		// Send users and their channels
