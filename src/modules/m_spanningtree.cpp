@@ -306,6 +306,7 @@ class TreeSocket : public InspSocket
 	std::string InboundDescription;
 	int num_lost_users;
 	int num_lost_servers;
+	nspace::hash_map<std::string,std::string> replacements;
 	
  public:
 
@@ -517,6 +518,29 @@ class TreeSocket : public InspSocket
 
 		log(DEBUG,"FJOIN detected, our TS=%lu, their TS=%lu",ourTS,TS);
 
+		// corect all nicknames that have been force changed due to collision
+		for (unsigned int usernum = 2; usernum < params.size(); usernum++)
+		{
+			log(DEBUG,"Collision translation: In=%s",params[usernum].c_str());
+			char* usr = (char*)params[usernum].c_str();
+			char permissions = *usr;
+			switch (permissions)
+			{
+				case '@':
+				case '%':
+				case '+':
+					usr++;
+				break;
+			}
+			std::string nickname = this->GetFJoinReplacement(usr);
+			if ((permissions == '@') || (permissions == '%') || (permissions == '+'))
+			{
+				nickname = permissions + nickname;
+			}
+			params[usernum] = nickname;
+			log(DEBUG,"Collision translation: Out=%s",params[usernum].c_str());
+		}
+		
 		// do this first, so our mode reversals are correctly received by other servers
 		// if there is a TS collision.
 		DoOneToAllButSender(source,"FJOIN",params,source);
@@ -525,6 +549,7 @@ class TreeSocket : public InspSocket
 		{
 			// process one channel at a time, applying modes.
 			char* usr = (char*)params[usernum].c_str();
+			std::string nickname;
 			char permissions = *usr;
 			switch (permissions)
 			{
@@ -600,6 +625,33 @@ class TreeSocket : public InspSocket
 		return true;
 	}
 
+	bool ClearFJoinReplacement()
+	{
+		replacements.clear();
+		return true;
+	}
+
+	void AddFJoinReplacement(std::string oldnick, std::string newnick)
+	{
+		nspace::hash_map<std::string,std::string>::iterator iter = replacements.find(oldnick);
+	        if (iter != replacements.end())
+			return;
+		replacements[oldnick] = newnick;
+	}
+
+	std::string GetFJoinReplacement(std::string nickname)
+	{
+		nspace::hash_map<std::string,std::string>::iterator iter = replacements.find(nickname);
+		if (iter != replacements.end())
+		{
+			return iter->second;
+		}
+		else
+		{
+			return nickname;
+		}
+	}
+
 	bool IntroduceClient(std::string source, std::deque<std::string> params)
 	{
 		if (params.size() < 8)
@@ -629,11 +681,13 @@ class TreeSocket : public InspSocket
 		{
 			// nick collision
 			log(DEBUG,"Nick collision on %s!%s@%s: %lu %lu",tempnick,ident.c_str(),host.c_str(),(unsigned long)age,(unsigned long)iter->second->age);
-			if (iter->second->age > age)
+			if (iter->second->age >= age)
 			{
-				// ours is older than theirs, ours stays. Ignore their NICK, send KILL.
-				this->WriteLine(":"+Srv->GetServerName()+" KILL "+tempnick+" :Nickname collision");
-				return true;
+				// ours is older than theirs, ours stays. Set a new nick here, send SVSNICK
+				params[1] = nick = "Guest0";
+				this->WriteLine(":"+Srv->GetServerName()+" FNICK "+tempnick+" "+nick);
+				// temporarily (until end of burst) we auto-replace occurances of the old nick with the new nick
+				AddFJoinReplacement(tempnick,nick);
 			}
 		}
 
@@ -802,6 +856,21 @@ class TreeSocket : public InspSocket
 				strcat(u->modes,"o");
 			}
 			DoOneToAllButSender(u->server,"OPERTYPE",params,u->server);
+		}
+		return true;
+	}
+
+	bool ForceNick(std::string prefix, std::deque<std::string> params)
+	{
+		if (params.size() != 2)
+			return true;
+		std::string oldnick = params[0];
+		std::string newnick = params[1];
+		userrec* u = Srv->FindNick(oldnick);
+		if (u)
+		{
+			Srv->ChangeUserNick(u,newnick);
+			DoOneToAllButSender(prefix,"FNICK",params,prefix);
 		}
 		return true;
 	}
@@ -1119,6 +1188,14 @@ class TreeSocket : public InspSocket
 				else if (command == "REHASH")
 				{
 					return this->RemoteRehash(prefix,params);
+				}
+				else if (command == "FNICK")
+				{
+					return this->ForceNick(prefix,params);
+				}
+				else if (command == "ENDBURST")
+				{
+					return this->ClearFJoinReplacement();
 				}
 				else if (command == "SQUIT")
 				{
