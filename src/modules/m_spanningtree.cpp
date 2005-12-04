@@ -612,7 +612,7 @@ class TreeSocket : public InspSocket
 		std::string ident = params[4];
 		time_t age = atoi(params[0].c_str());
 		std::string modes = params[5];
-		if (*(modes.c_str()) == '+')
+		while (*(modes.c_str()) == '+')
 		{
 			char* m = (char*)modes.c_str();
 			m++;
@@ -643,6 +643,7 @@ class TreeSocket : public InspSocket
 		strlcpy(clientlist[tempnick]->fullname, gecos.c_str(),MAXGECOS);
 		clientlist[tempnick]->registered = 7;
 		clientlist[tempnick]->signon = age;
+		strlcpy(clientlist[tempnick]->modes, modes.c_str(),53);
 		strlcpy(clientlist[tempnick]->ip,ip.c_str(),16);
 		for (int i = 0; i < MAXCHANS; i++)
 		{
