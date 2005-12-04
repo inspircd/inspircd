@@ -419,6 +419,7 @@ class Module : public classbase
 	 * If your method returns nonzero, the nickchange is silently forbidden, and it is down to your
 	 * module to generate some meaninful output.
 	 */
+	virtual int OnUserPreNick(userrec* user, std::string newnick);
 
 	virtual void OnUserMessage(userrec* user, void* dest, int target_type, std::string text);
 
@@ -434,7 +435,7 @@ class Module : public classbase
 
 	virtual void ProtoSendMode(void* opaque, int target_type, void* target, std::string modeline);
 	
-	virtual int OnUserPreNick(userrec* user, std::string newnick);
+	virtual void OnWallops(userrec* user, std::string text);
 	
 	/** Called after any nickchange, local or remote. This can be used to track users after nickchanges
 	 * have been applied. Please note that although you can see remote nickchanges through this function, you should

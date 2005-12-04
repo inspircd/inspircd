@@ -1088,6 +1088,7 @@ void handle_who(char **parameters, int pcnt, userrec *user)
 void handle_wallops(char **parameters, int pcnt, userrec *user)
 {
 	WriteWallOps(user,false,"%s",parameters[0]);
+	FOREACH_MOD OnWallops(user,parameters[0]);
 }
 
 void handle_list(char **parameters, int pcnt, userrec *user)
