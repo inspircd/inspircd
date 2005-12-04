@@ -102,6 +102,7 @@ class TreeServer
 		VersionString = "";
 		UserCount = OperCount = 0;
 		this->SetNextPingTime(time(NULL) + 60);
+		this->SetPingFlag();
 	}
 
 	std::string GetName()
