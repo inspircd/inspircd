@@ -629,8 +629,12 @@ class TreeSocket : public InspSocket
 		{
 			// nick collision
 			log(DEBUG,"Nick collision on %s!%s@%s: %lu %lu",tempnick,ident.c_str(),host.c_str(),(unsigned long)age,(unsigned long)iter->second->age);
-			this->WriteLine(":"+Srv->GetServerName()+" KILL "+tempnick+" :Nickname collision");
-			return true;
+			if (iter->second->age > age)
+			{
+				// ours is older than theirs, ours stays. Ignore their NICK, send KILL.
+				this->WriteLine(":"+Srv->GetServerName()+" KILL "+tempnick+" :Nickname collision");
+				return true;
+			}
 		}
 
 		clientlist[tempnick] = new userrec();
