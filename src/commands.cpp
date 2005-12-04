@@ -688,7 +688,7 @@ void handle_notice(char **parameters, int pcnt, userrec *user)
 		servermask++;
 		if (match(ServerName,servermask))
 		{
-			NoticeAll(user, true, "%s",parameters[1])
+			NoticeAll(user, true, "%s",parameters[1]);
 		}
 		return;
 	}
