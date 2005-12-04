@@ -924,7 +924,7 @@ class TreeSocket : public InspSocket
 		{
 			ServerSource->SetVersion(params[0]);
 		}
-		DoOneToAllButSender(prefix,"VERSION",params);
+		DoOneToAllButSender(prefix,"VERSION",params,prefix);
 		return true;
 	}
 	
