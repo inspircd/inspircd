@@ -1613,16 +1613,14 @@ class ModuleSpanningTree : public Module
 	{
 		for (std::vector<Link>::iterator x = LinkBlocks.begin(); x < LinkBlocks.end(); x++)
 		{
-			log(DEBUG,"TICK! Autoconnect=%lu, curtime=%lu, NextConnectTime=%lu",x->AutoConnect,(unsigned long)curtime,(unsigned long)x->NextConnectTime);
 			if ((x->AutoConnect) && (curtime >= x->NextConnectTime))
 			{
-				log(DEBUG,"TICK! AUTOCONNECTING %s",x->Name.c_str());
+				log(DEBUG,"Auto-Connecting %s",x->Name.c_str());
+				x->NextConnectTime = curtime + x->AutoConnect;
 				TreeServer* CheckDupe = FindServer(x->Name);
 				if (!CheckDupe)
 				{
-					log(DEBUG,"TICK! Not a dupe!");
 					// an autoconnected server is not connected. Check if its time to connect it
-					x->NextConnectTime = curtime + x->AutoConnect;
 					WriteOpers("*** AUTOCONNECT: Auto-connecting server \002%s\002 (%lu seconds until next attempt)",x->Name.c_str(),x->AutoConnect);
 					TreeSocket* newsocket = new TreeSocket(x->IPAddr,x->Port,false,10,x->Name);
 					Srv->AddSocket(newsocket);
