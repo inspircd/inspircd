@@ -200,6 +200,8 @@ class Link
 	 int Port;
 	 std::string SendPass;
 	 std::string RecvPass;
+	 unsigned long AutoConnect;
+	 time_t NextConnectTime;
 };
 
 /* $ModDesc: Povides a spanning tree server link protocol */
@@ -1423,12 +1425,14 @@ void ReadConfiguration(bool rebind)
 		L.Port = Conf->ReadInteger("link","port",j,true);
 		L.SendPass = Conf->ReadValue("link","sendpass",j);
 		L.RecvPass = Conf->ReadValue("link","recvpass",j);
+		L.AutoConnect = Conf->ReadInteger("link","autoconnect",j,true);
+		L.NextConnectTime = time(NULL) + L.AutoConnect;
 		LinkBlocks.push_back(L);
 		log(DEBUG,"m_spanningtree: Read server %s with host %s:%d",L.Name.c_str(),L.IPAddr.c_str(),L.Port);
 	}
 }
 
-	
+
 class ModuleSpanningTree : public Module
 {
 	std::vector<TreeSocket*> Bindings;
@@ -1605,6 +1609,28 @@ class ModuleSpanningTree : public Module
 		return 1;
 	}
 
+	void AutoConnectServers(time_t curtime)
+	{
+		for (std::vector<Link>::iterator x = LinkBlocks.begin(); x < LinkBlocks.end(); x++)
+		{
+			if (x->AutoConnect)
+			{
+				TreeServer* CheckDupe = FindServer(x->Name);
+				if (!CheckDupe)
+				{
+					// an autoconnected server is not connected. Check if its time to connect it
+					if (curtime >= x->NextConnectTime)
+					{
+						x->NextConnectTime = curtime + x->AutoConnect;
+						WriteOpers("*** AUTOCONNECT: Auto-connecting server \002%s\002 (%lu seconds until next attempt)",x->Name.c_str(),x->AutoConnect);
+						TreeSocket* newsocket = new TreeSocket(x->IPAddr,x->Port,false,10,x->Name);
+						Srv->AddSocket(newsocket);
+					}
+				}
+			}
+		}
+	}
+	
 	int HandleConnect(char** parameters, int pcnt, userrec* user)
 	{
 		for (std::vector<Link>::iterator x = LinkBlocks.begin(); x < LinkBlocks.end(); x++)
@@ -1778,6 +1804,11 @@ class ModuleSpanningTree : public Module
 				}
 			}
 		}
+	}
+
+	virtual void OnBackgroundTimer(time_t curtime)
+	{
+		AutoConnectServers(curtime);
 	}
 
 	virtual void OnUserJoin(userrec* user, chanrec* channel)
