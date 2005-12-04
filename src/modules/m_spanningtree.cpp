@@ -1718,9 +1718,11 @@ class ModuleSpanningTree : public Module
 			{
 				// first in the channel, set up their permissions
 				// and the channel TS with FJOIN.
+				char ts[24];
+				snprintf(ts,24,"%lu",(unsigned long)channel->age);
 				params.clear();
 				params.push_back(channel->name);
-				params.push_back(channel->age);
+				params.push_back(ts);
 				params.push_back("@"+std::string(user->nick));
 				DoOneToMany(Srv->GetServerName(),"FJOIN",params);
 			}
