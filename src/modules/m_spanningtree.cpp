@@ -1592,7 +1592,7 @@ class ModuleSpanningTree : public Module
 		{
 			if (Srv->MatchText(x->Name.c_str(),parameters[0]))
 			{
-				TreeServer* CheckDupe = FindServer(parameters[0]);
+				TreeServer* CheckDupe = FindServer(x->Name);
 				if (!CheckDupe)
 				{
 					WriteServ(user->fd,"NOTICE %s :*** CONNECT: Connecting to server: \002%s\002 (%s:%d)",user->nick,x->Name.c_str(),x->IPAddr.c_str(),x->Port);
@@ -1602,7 +1602,7 @@ class ModuleSpanningTree : public Module
 				}
 				else
 				{
-					WriteServ(user->fd,"NOTICE %s :*** CONNECT: Server \002%s\002 already exists on the network and is connected via \002%s\002",user->nick,parameters[0],CheckDupe->GetParent()->GetName().c_str());
+					WriteServ(user->fd,"NOTICE %s :*** CONNECT: Server \002%s\002 already exists on the network and is connected via \002%s\002",user->nick,x->ame.c_str(),CheckDupe->GetParent()->GetName().c_str());
 					return 1;
 				}
 			}
