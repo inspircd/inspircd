@@ -88,6 +88,7 @@ class TreeServer
 		ServerDesc = "";
 		VersionString = "";
 		UserCount = OperCount = 0;
+		VersionString = GetVersionString();
 	}
 
 	TreeServer(std::string Name, std::string Desc) : ServerName(Name), ServerDesc(Desc)
@@ -95,6 +96,7 @@ class TreeServer
 		Parent = NULL;
 		VersionString = "";
 		UserCount = OperCount = 0;
+		VersionString = GetVersionString();
 	}
 
 	TreeServer(std::string Name, std::string Desc, TreeServer* Above, TreeSocket* Sock) : Parent(Above), ServerName(Name), ServerDesc(Desc), Socket(Sock)
@@ -159,6 +161,16 @@ class TreeServer
 	TreeServer* GetParent()
 	{
 		return this->Parent;
+	}
+
+	std::string GetVersion()
+	{
+		return VersionString;
+	}
+
+	void SetVersion(std::string Version)
+	{
+		VersionString = Version;
 	}
 
 	unsigned int ChildCount()
@@ -312,10 +324,34 @@ void RFindServer(TreeServer* Current, std::string ServerName)
 	return;
 }
 
+void RFindServerMask(TreeServer* Current, std::string ServerName)
+{
+	if (Srv->MatchText(Current->GetName(),ServerName) && (!Found))
+	{
+		Found = Current;
+		return;
+	}
+	if (!Found)
+	{
+		for (unsigned int q = 0; q < Current->ChildCount(); q++)
+		{
+			if (!Found)
+				RFindServerMask(Current->GetChild(q),ServerName);
+		}
+	}
+}
+
 TreeServer* FindServer(std::string ServerName)
 {
 	Found = NULL;
 	RFindServer(TreeRoot,ServerName);
+	return Found;
+}
+
+TreeServer* FindServerMask(std::string ServerName)
+{
+	Found = NULL;
+	RFindServerMask(TreeRoot,ServerName);
 	return Found;
 }
 
@@ -400,6 +436,7 @@ class TreeSocket : public InspSocket
 				// :source.server SERVER server.name hops :Description
 				snprintf(command,1024,":%s SERVER %s * %d :%s",Current->GetName().c_str(),recursive_server->GetName().c_str(),hops,recursive_server->GetDesc().c_str());
 				this->WriteLine(command);
+				this->WriteLine(":"+recursive_server->GetName()+" VERSION :"+recursive_server->GetVersion());
 				// down to next level
 				this->SendServers(recursive_server, s, hops+1);
 			}
@@ -758,6 +795,8 @@ class TreeSocket : public InspSocket
 	{
 		Srv->SendOpers("*** Bursting to "+s->GetName()+".");
 		this->WriteLine("BURST");
+		// send our version string
+		this->WriteLine(":"+s->GetName()+" VERSION :"+GetVersionString());
 		// Send server tree
 		this->SendServers(TreeRoot,s,1);
 		// Send users and their channels
@@ -877,6 +916,18 @@ class TreeSocket : public InspSocket
 		if (ServerSource)
 		{
 			ServerSource->SetPingFlag();
+		}
+		return true;
+	}
+
+	bool ServerVersion(std::string prefix, std::deque<std::string> params)
+	{
+		if (params.size() < 1)
+			return true;
+		TreeServer* ServerSource = FindServer(prefix);
+		if (ServerSource)
+		{
+			ServerSource->SetVersion(params[0]);
 		}
 		return true;
 	}
@@ -1192,6 +1243,10 @@ class TreeSocket : public InspSocket
 				else if (command == "PONG")
 				{
 					return this->LocalPong(prefix,params);
+				}
+				else if (command == "VERSION")
+				{
+					return this->ServerVersion(prefix,params);
 				}
 				else if (command == "SQUIT")
 				{
@@ -1643,7 +1698,7 @@ class ModuleSpanningTree : public Module
 
 	int HandleSquit(char** parameters, int pcnt, userrec* user)
 	{
-		TreeServer* s = FindServer(parameters[0]);
+		TreeServer* s = FindServerMask(parameters[0]);
 		if (s)
 		{
 			TreeSocket* sock = s->GetSocket();
@@ -1712,6 +1767,21 @@ class ModuleSpanningTree : public Module
 			}
 		}
 	}
+
+	int HandleVersion(char** parameters, int pcnt, userrec* user)
+	{
+		// we've already checked if pcnt > 0, so this is safe
+		TreeServer* found = FindServerMask(parameters[0]);
+		if (found)
+		{
+			std::string Version = found->GetVersion();
+			WriteServ(user->fd,"351 %s :%s",user->nick,Version.c_str());
+		}
+		else
+		{
+			WriteServ(user->fd,"402 %s :No such server",parameters[0]);
+		}
+	}
 	
 	int HandleConnect(char** parameters, int pcnt, userrec* user)
 	{
@@ -1761,6 +1831,11 @@ class ModuleSpanningTree : public Module
 		else if (command == "LINKS")
 		{
 			this->HandleLinks(parameters,pcnt,user);
+			return 1;
+		}
+		else if ((command == "VERSION") && (pcnt > 0))
+		{
+			this->HandleVersion(parameters,pcnt,user);
 			return 1;
 		}
 		else if (Srv->IsValidModuleCommand(command, pcnt, user))
