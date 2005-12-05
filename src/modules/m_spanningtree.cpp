@@ -115,7 +115,12 @@ class TreeServer
 		// find the 'route' for this server (e.g. the one directly connected
 		// to the local server, which we can use to reach it)
 		Route = Above;
-		if (Route != TreeRoot)
+		if (Route == TreeRoot)
+		{
+			log(DEBUG,"(0) Route is %s",this->GetName().c_str());
+			Route = this;
+		}
+		else
 		{
 			log(DEBUG,"(1) Route is %s",Route->GetName().c_str());
 	                while (Route->GetParent() != TreeRoot)
