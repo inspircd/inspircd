@@ -69,6 +69,7 @@ void ReadConfiguration(bool rebind);
 class TreeServer
 {
 	TreeServer* Parent;
+	TreeServer* Route;
 	std::vector<TreeServer*> Children;
 	std::string ServerName;
 	std::string ServerDesc;
@@ -97,6 +98,7 @@ class TreeServer
 		VersionString = "";
 		UserCount = OperCount = 0;
 		VersionString = GetVersionString();
+		Route = this;
 	}
 
 	TreeServer(std::string Name, std::string Desc, TreeServer* Above, TreeSocket* Sock) : Parent(Above), ServerName(Name), ServerDesc(Desc), Socket(Sock)
@@ -105,6 +107,18 @@ class TreeServer
 		UserCount = OperCount = 0;
 		this->SetNextPingTime(time(NULL) + 60);
 		this->SetPingFlag();
+
+		// find the 'route' for this server (e.g. the one directly connected
+		// to the local server, which we can use to reach it)
+		Route = Above;
+		if (Route != TreeRoot)
+	                while (Route->GetParent() != TreeRoot)
+				Route = Route->GetParent();
+	}
+
+	TreeServer* GetRoute()
+	{
+		return Route;
 	}
 
 	std::string GetName()
@@ -246,14 +260,12 @@ std::vector<Link> LinkBlocks;
 TreeServer* RouteEnumerate(TreeServer* Current, std::string ServerName)
 {
 	if (Current->GetName() == ServerName)
-		return Current;
+		return Current->GetRoute();
 	for (unsigned int q = 0; q < Current->ChildCount(); q++)
 	{
 		TreeServer* found = RouteEnumerate(Current->GetChild(q),ServerName);
 		if (found)
-		{
-			return found;
-		}
+			return found->GetRoute();
 	}
 	return NULL;
 }
@@ -269,22 +281,7 @@ TreeServer* BestRouteTo(std::string ServerName)
 	}
 	// first, find the server by recursively walking the tree
 	TreeServer* Found = RouteEnumerate(TreeRoot,ServerName);
-	// did we find it? If not, they did something wrong, abort.
-	if (!Found)
-	{
-		return NULL;
-	}
-	else
-	{
-		// The server exists, follow its parent nodes until
-		// the parent of the current is 'TreeRoot', we know
-		// then that this is a directly-connected server.
-		while ((Found) && (Found->GetParent() != TreeRoot))
-		{
-			Found = Found->GetParent();
-		}
-		return Found;
-	}
+	return Found;
 }
 
 bool LookForServer(TreeServer* Current, std::string ServerName)
