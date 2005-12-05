@@ -206,7 +206,7 @@ void handle_kick(char **parameters, int pcnt, userrec *user)
 		return;
 	}
 	
-	if (!has_channel(user,Ptr))
+	if ((!has_channel(user,Ptr)) && (!is_uline(user->server)))
 	{
 		WriteServ(user->fd,"442 %s %s :You're not on that channel!",user->nick, parameters[0]);
 		return;
