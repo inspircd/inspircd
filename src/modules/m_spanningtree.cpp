@@ -861,7 +861,7 @@ class TreeSocket : public InspSocket
 			{
 				strcat(u->modes,"o");
 			}
-			DoOneToAllButSender(u->server,"OPERTYPE",params,u->server);
+			DoOneToAllButSender(u->nick,"OPERTYPE",params,u->server);
 		}
 		return true;
 	}
