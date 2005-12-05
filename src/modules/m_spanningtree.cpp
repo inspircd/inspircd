@@ -569,7 +569,7 @@ class TreeSocket : public InspSocket
 
 		// default is a high value, which if we dont have this
 		// channel will let the other side apply their modes.
-		time_t ourTS = time(NULL)+20;
+		time_t ourTS = time(NULL)+600;
 		chanrec* us = Srv->FindChannel(channel);
 		if (us)
 		{
