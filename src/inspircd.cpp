@@ -859,12 +859,12 @@ void kick_channel(userrec *src,userrec *user, chanrec *Ptr, char* reason)
 
 	int MOD_RESULT = 0;
 	FOREACH_RESULT(OnAccessCheck(src,user,Ptr,AC_KICK));
-	if (MOD_RESULT == ACR_DENY)
+	if ((MOD_RESULT == ACR_DENY) && (!is_uline(src->server)))
 		return;
 
-	if (MOD_RESULT == ACR_DEFAULT)
+	if ((MOD_RESULT == ACR_DEFAULT) || (!is_uline(src->server)))
 	{
- 		if (((cstatus(src,Ptr) < STATUS_HOP) || (cstatus(src,Ptr) < cstatus(user,Ptr))) && (!is_uline(src->server)))
+ 		if ((cstatus(src,Ptr) < STATUS_HOP) || (cstatus(src,Ptr) < cstatus(user,Ptr)))
 		{
 			if (cstatus(src,Ptr) == STATUS_HOP)
 			{
@@ -879,10 +879,13 @@ void kick_channel(userrec *src,userrec *user, chanrec *Ptr, char* reason)
 		}
 	}
 
-	MOD_RESULT = 0;
-	FOREACH_RESULT(OnUserPreKick(src,user,Ptr,reason));
-	if (MOD_RESULT)
-		return;
+	if (!is_uline(src->server))
+	{
+		MOD_RESULT = 0;
+		FOREACH_RESULT(OnUserPreKick(src,user,Ptr,reason));
+		if (MOD_RESULT)
+			return;
+	}
 
 	FOREACH_MOD OnUserKick(src,user,Ptr,reason);
 
