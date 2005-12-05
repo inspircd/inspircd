@@ -527,10 +527,15 @@ class TreeSocket : public InspSocket
 		{
 			if ((ts >= c->topicset) || (!*c->topic))
 			{
+				std::string oldtopic = c->topic;
 				strlcpy(c->topic,topic.c_str(),MAXTOPIC);
 				strlcpy(c->setby,setby.c_str(),NICKMAX);
 				c->topicset = ts;
-				WriteChannelWithServ((char*)source.c_str(), c, "TOPIC %s :%s", c->name, c->topic);
+				// if the topic text is the same as the current topic,
+				// dont bother to send the TOPIC command out, just silently
+				// update the set time and set nick.
+				if (oldtopic != topic)
+					WriteChannelWithServ((char*)source.c_str(), c, "TOPIC %s :%s", c->name, c->topic);
 			}
 			
 		}
