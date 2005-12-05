@@ -110,12 +110,16 @@ class TreeServer
 		this->SetNextPingTime(time(NULL) + 60);
 		this->SetPingFlag();
 
+		log(DEBUG,"*** CREATE NEW SERVER %s",Name.c_str());
+
 		// find the 'route' for this server (e.g. the one directly connected
 		// to the local server, which we can use to reach it)
 		Route = Above;
 		if (Route != TreeRoot)
 	                while (Route->GetParent() != TreeRoot)
 				Route = Route->GetParent();
+
+		log(DEBUG,"    ROUTE FOR %s is %s",Name.c_str(),Route->GetName().c_str()); 
 	}
 
 	TreeServer* GetRoute()
