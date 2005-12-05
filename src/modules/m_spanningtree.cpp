@@ -60,6 +60,8 @@ extern chan_hash chanlist;
 class TreeServer;
 class TreeSocket;
 
+TreeServer *TreeRoot;
+
 bool DoOneToOne(std::string prefix, std::string command, std::deque<std::string> params, std::string target);
 bool DoOneToAllButSender(std::string prefix, std::string command, std::deque<std::string> params, std::string omit);
 bool DoOneToMany(std::string prefix, std::string command, std::deque<std::string> params);
@@ -254,7 +256,6 @@ class Link
 
 Server *Srv;
 ConfigReader *Conf;
-TreeServer *TreeRoot;
 std::vector<Link> LinkBlocks;
 
 TreeServer* RouteEnumerate(TreeServer* Current, std::string ServerName)
