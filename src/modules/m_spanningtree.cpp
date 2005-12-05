@@ -937,8 +937,8 @@ class TreeSocket : public InspSocket
 		if (u)
 		{
 			Srv->ChangeHost(u,params[0]);
+			DoOneToAllButSender(prefix,"FHOST",params,u->server);
 		}
-		DoOneToAllButSender(prefix,"FHOST",params,prefix);
 		return true;
 	}
 
@@ -950,9 +950,9 @@ class TreeSocket : public InspSocket
 		if (u)
 		{
 			Srv->ChangeGECOS(u,params[0]);
+			params[0] = ":" + params[0];
+			DoOneToAllButSender(prefix,"FNAME",params,u->server);
 		}
-		params[0] = ":" + params[0];
-		DoOneToAllButSender(prefix,"FNAME",params,prefix);
 		return true;
 	}
 	
