@@ -902,9 +902,21 @@ void handle_quit(char **parameters, int pcnt, userrec *user)
 				reason[MAXQUIT-1] = '\0';
 			}
 
-			Write(user->fd,"ERROR :Closing link (%s@%s) [%s%s]",user->ident,user->host,PrefixQuit,parameters[0]);
-			WriteOpers("*** Client exiting: %s!%s@%s [%s%s]",user->nick,user->ident,user->host,PrefixQuit,parameters[0]);
-			WriteCommonExcept(user,"QUIT :%s%s",PrefixQuit,parameters[0]);
+			/* We should only prefix the quit for a local user. Remote users have
+			 * already been prefixed, where neccessary, by the upstream server.
+			 */
+			if (!strcasecmp(user->server,ServerName))
+			{
+				Write(user->fd,"ERROR :Closing link (%s@%s) [%s%s]",user->ident,user->host,PrefixQuit,parameters[0]);
+				WriteOpers("*** Client exiting: %s!%s@%s [%s%s]",user->nick,user->ident,user->host,PrefixQuit,parameters[0]);
+				WriteCommonExcept(user,"QUIT :%s%s",PrefixQuit,parameters[0]);
+			}
+			else
+			{
+				Write(user->fd,"ERROR :Closing link (%s@%s) [%s]",user->ident,user->host,parameters[0]);
+				WriteOpers("*** Client exiting: %s!%s@%s [%s]",user->nick,user->ident,user->host,parameters[0]);
+				WriteCommonExcept(user,"QUIT :%s",parameters[0]);
+			}
 			FOREACH_MOD OnUserQuit(user,std::string(PrefixQuit)+std::string(parameters[0]));
 
 		}
