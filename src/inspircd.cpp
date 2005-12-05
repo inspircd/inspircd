@@ -571,7 +571,7 @@ chanrec* add_channel(userrec *user, const char* cn, const char* key, bool overri
 
 	if (!FindChan(cname))
 	{
-		if (strcmp(ServerName,u->server))
+		if (!strcasecmp(ServerName,user->server))
 		{
 			MOD_RESULT = 0;
 			FOREACH_RESULT(OnUserPreJoin(user,NULL,cname));
