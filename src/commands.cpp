@@ -64,6 +64,7 @@ using namespace std;
 #include "dynamic.h"
 #include "wildcard.h"
 #include "message.h"
+#include "commands.h"
 #include "mode.h"
 #include "xline.h"
 #include "inspstring.h"
