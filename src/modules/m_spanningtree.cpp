@@ -100,7 +100,7 @@ class TreeServer
 		VersionString = "";
 		UserCount = OperCount = 0;
 		VersionString = GetVersionString();
-		Route = this;
+		Route = NULL;
 	}
 
 	TreeServer(std::string Name, std::string Desc, TreeServer* Above, TreeSocket* Sock) : Parent(Above), ServerName(Name), ServerDesc(Desc), Socket(Sock)
@@ -110,14 +110,20 @@ class TreeServer
 		this->SetNextPingTime(time(NULL) + 60);
 		this->SetPingFlag();
 
-		log(DEBUG,"*** CREATE NEW SERVER %s",Name.c_str());
+		log(DEBUG,"*** CREATE NEW SERVER %s ABOVE IS %s",Name.c_str(),Above->GetName().c_str());
 
 		// find the 'route' for this server (e.g. the one directly connected
 		// to the local server, which we can use to reach it)
 		Route = Above;
 		if (Route != TreeRoot)
+		{
+			log(DEBUG,"(1) Route is %s",Route->GetName().c_str());
 	                while (Route->GetParent() != TreeRoot)
+			{
 				Route = Route->GetParent();
+				log(DEBUG,"(2) Route is %s",Route->GetName().c_str());
+			}
+		}
 
 		log(DEBUG,"    ROUTE FOR %s is %s",Name.c_str(),Route->GetName().c_str()); 
 	}
