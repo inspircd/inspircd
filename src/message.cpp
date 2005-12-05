@@ -218,6 +218,7 @@ void ChangeName(userrec* user, const char* gecos)
 		FOREACH_RESULT(OnChangeLocalUserGECOS(user,gecos));
 		if (MOD_RESULT)
 			return;
+		FOREACH_MOD OnChangeName(user,gecos);
 	}
 	strlcpy(user->fullname,gecos,MAXBUF);
 }
@@ -230,6 +231,7 @@ void ChangeDisplayedHost(userrec* user, const char* host)
                 FOREACH_RESULT(OnChangeLocalUserHost(user,host));
                 if (MOD_RESULT)
                         return;
+		FOREACH_MOD OnChangeHost(user,host);
         }
 	strlcpy(user->dhost,host,160);
 }

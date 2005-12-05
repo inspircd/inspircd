@@ -571,10 +571,13 @@ chanrec* add_channel(userrec *user, const char* cn, const char* key, bool overri
 
 	if (!FindChan(cname))
 	{
-		MOD_RESULT = 0;
-		FOREACH_RESULT(OnUserPreJoin(user,NULL,cname));
-		if (MOD_RESULT == 1) {
-			return NULL;
+		if (strcmp(ServerName,u->server))
+		{
+			MOD_RESULT = 0;
+			FOREACH_RESULT(OnUserPreJoin(user,NULL,cname));
+			if (MOD_RESULT == 1) {
+				return NULL;
+			}
 		}
 
 		/* create a new one */
@@ -604,9 +607,9 @@ chanrec* add_channel(userrec *user, const char* cn, const char* key, bool overri
 		{
 			log(DEBUG,"add_channel: joining to: %s",Ptr->name);
 			
-			// the override flag allows us to bypass channel modes
+			// remote users are allowed us to bypass channel modes
 			// and bans (used by servers)
-			if ((!override) || (!strcasecmp(user->server,ServerName)))
+			if (!strcasecmp(ServerName,user->server))
 			{
 				log(DEBUG,"Not overriding...");
 				MOD_RESULT = 0;
