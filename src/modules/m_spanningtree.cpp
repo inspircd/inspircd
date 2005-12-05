@@ -928,6 +928,33 @@ class TreeSocket : public InspSocket
 		DoOneToAllButSender(prefix,"VERSION",params,prefix);
 		return true;
 	}
+
+	bool ChangeHost(std::string prefix, std::deque<std::string> params)
+	{
+		if (params.size() < 1)
+			return true;
+		userrec* u = Srv->FindNick(prefix);
+		if (u)
+		{
+			Srv->ChangeHost(u,params[0]);
+		}
+		DoOneToAllButSender(prefix,"FHOST",params,prefix);
+		return true;
+	}
+
+	bool ChangeName(std::string prefix, std::deque<std::string> params)
+	{
+		if (params.size() < 1)
+			return true;
+		userrec* u = Srv->FindNick(prefix);
+		if (u)
+		{
+			Srv->ChangeGECOS(u,params[0]);
+		}
+		params[0] = ":" + params[0];
+		DoOneToAllButSender(prefix,"FNAME",params,prefix);
+		return true;
+	}
 	
 	bool LocalPing(std::string prefix, std::deque<std::string> params)
 	{
@@ -1244,6 +1271,14 @@ class TreeSocket : public InspSocket
 				else if (command == "VERSION")
 				{
 					return this->ServerVersion(prefix,params);
+				}
+				else if (command == "FHOST")
+				{
+					return this->ChangeHost(prefix,params);
+				}
+				else if (command == "FNAME")
+				{
+					return this->ChangeName(prefix,params);
 				}
 				else if (command == "SQUIT")
 				{
@@ -1998,6 +2033,22 @@ class ModuleSpanningTree : public Module
 				DoOneToMany(Srv->GetServerName(),"FJOIN",params);
 			}
 		}
+	}
+
+	virtual void OnChangeHost(userrec* user, std::string newhost)
+	{
+		// only occurs for local clients
+		std::deque<std::string> params;
+		params.push_back(newhost);
+		DoOneToMany(user->nick,"FHOST",params);
+	}
+
+	virtual void OnChangeName(userrec* user, std::string gecos)
+	{
+		// only occurs for local clients
+		std::deque<std::string> params;
+		params.push_back(gecos);
+		DoOneToMany(user->nick,"FNAME",params);
 	}
 
 	virtual void OnUserPart(userrec* user, chanrec* channel)
