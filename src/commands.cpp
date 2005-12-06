@@ -476,7 +476,7 @@ void handle_topic(char **parameters, int pcnt, userrec *user)
 			{
 				if (((Ptr) && (!has_channel(user,Ptr))) && (Ptr->binarymodes & CM_SECRET))
 				{
-					WriteServ(user->fd,"442 %s %s :You're not on that channel!",user->nick, Ptr->name);
+					WriteServ(user->fd,"401 %s %s :No such nick/channel",user->nick, Ptr->name);
 					return;
 				}
 				if (Ptr->topicset)
@@ -563,7 +563,7 @@ void handle_names(char **parameters, int pcnt, userrec *user)
 	{
                 if (((c) && (!has_channel(user,c))) && (c->binarymodes & CM_SECRET))
                 {
-                      WriteServ(user->fd,"442 %s %s :You're not on that channel!",user->nick, c->name);
+                      WriteServ(user->fd,"401 %s %s :No such nick/channel",user->nick, c->name);
                       return;
                 }
 		userlist(user,c);
