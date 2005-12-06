@@ -74,6 +74,12 @@ bool DoOneToMany(std::string prefix, std::string command, std::deque<std::string
 bool DoOneToAllButSenderRaw(std::string data,std::string omit, std::string prefix,std::string command,std::deque<std::string> params);
 void ReadConfiguration(bool rebind);
 
+extern std::vector<KLine> klines;
+extern std::vector<GLine> glines;
+extern std::vector<ZLine> zlines;
+extern std::vector<QLine> qlines;
+extern std::vector<ELine> elines;
+
 class TreeServer
 {
 	TreeServer* Parent;
@@ -1034,19 +1040,19 @@ class TreeSocket : public InspSocket
 		switch (*(linetype.c_str()))
 		{
 			case 'Z':
-				add_zline(atoi(duration), source.c_str(), reason.c_str(), mask.c_str());
+				add_zline(atoi(duration.c_str()), source.c_str(), reason.c_str(), mask.c_str());
 			break;
 			case 'Q':
-				add_qline(atoi(duration), source.c_str(), reason.c_str(), mask.c_str());
+				add_qline(atoi(duration.c_str()), source.c_str(), reason.c_str(), mask.c_str());
 			break;
 			case 'E':
-				add_eline(atoi(duration), source.c_str(), reason.c_str(), mask.c_str());
+				add_eline(atoi(duration.c_str()), source.c_str(), reason.c_str(), mask.c_str());
 			break;
 			case 'G':
-				add_gline(atoi(duration), source.c_str(), reason.c_str(), mask.c_str());
+				add_gline(atoi(duration.c_str()), source.c_str(), reason.c_str(), mask.c_str());
 			break;
 			case 'K':
-				add_kline(atoi(duration), source.c_str(), reason.c_str(), mask.c_str());
+				add_kline(atoi(duration.c_str()), source.c_str(), reason.c_str(), mask.c_str());
 			break;
 			default:
 				/* Just in case... */
