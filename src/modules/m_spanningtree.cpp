@@ -2309,7 +2309,6 @@ class ModuleSpanningTree : public Module
 			{
 				std::deque<std::string> params;
 				params.push_back(host);
-				type = linetype + line;
 				DoOneToMany(source->nick,stype,params);
 			}
 		}
