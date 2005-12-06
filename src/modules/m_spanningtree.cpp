@@ -1584,6 +1584,9 @@ class TreeSocket : public InspSocket
 					command = "MODE";
 				}
 				std::string target = "";
+				/* Yes, know, this is a mess. Its reasonably fast though as we're
+				 * working with std::string here.
+				 */
 				if ((command == "NICK") && (params.size() > 1))
 				{
 					return this->IntroduceClient(prefix,params);
