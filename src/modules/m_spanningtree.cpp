@@ -174,7 +174,7 @@ class TreeServer
 	{
 		server_hash::iterator iter;
 		iter = serverlist.find(this->ServerName);
-		if (iter == clientlist.end())
+		if (iter == serverlist.end())
 			serverlist[this->ServerName] = this;
 	}
 
@@ -182,7 +182,7 @@ class TreeServer
 	{
 		server_hash::iterator iter;
 		iter = serverlist.find(this->ServerName);
-		if (iter != clientlist.end())
+		if (iter != serverlist.end())
 			serverlist.erase(iter);
 	}
 
@@ -336,7 +336,7 @@ TreeServer* FindServer(std::string ServerName)
 {
 	server_hash::iterator iter;
 	iter = serverlist.find(ServerName);
-	if (iter != clientlist.end())
+	if (iter != serverlist.end())
 	{
 		return iter->second;
 	}
