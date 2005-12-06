@@ -45,6 +45,12 @@ using namespace std;
 #define nspace std
 #endif
 
+/*
+ * TODO: finish this comment off :p
+ * The server list in InspIRCd is maintained as two structures
+ * which hold the data in different ways.
+ */
+
 class ModuleSpanningTree;
 static ModuleSpanningTree* TreeProtocolModule;
 
@@ -374,32 +380,16 @@ TreeServer* BestRouteTo(std::string ServerName)
 	}
 }
 
-TreeServer* Found;
-
-/* TODO: These need optimizing to use an iterator of serverlist
+/* Find the first server matching a given glob mask
  */
-void RFindServerMask(TreeServer* Current, std::string ServerName)
-{
-	if (Srv->MatchText(Current->GetName(),ServerName) && (!Found))
-	{
-		Found = Current;
-		return;
-	}
-	if (!Found)
-	{
-		for (unsigned int q = 0; q < Current->ChildCount(); q++)
-		{
-			if (!Found)
-				RFindServerMask(Current->GetChild(q),ServerName);
-		}
-	}
-}
-
 TreeServer* FindServerMask(std::string ServerName)
 {
-	Found = NULL;
-	RFindServerMask(TreeRoot,ServerName);
-	return Found;
+	for (server_hash::iterator i = serverlist.begin(); i != serverlist.end(); i++)
+	{
+		if (Srv->MatchText(i->first,ServerName))
+			return i->second;
+	}
+	return NULL;
 }
 
 bool IsServer(std::string ServerName)
@@ -800,7 +790,7 @@ class TreeSocket : public InspSocket
 	void SendXLines(TreeServer* Current)
 	{
 		char data[MAXBUF];
-		// for zlines and qlines, we should first check if theyre global...
+		/* Yes, these arent too nice looking, but they get the job done */
 		for (std::vector<ZLine>::iterator i = zlines.begin(); i != zlines.end(); i++)
 		{
 			snprintf(data,MAXBUF,":%s ADDLINE Z %s %s %lu %lu :%s",Srv->GetServerName().c_str(),i->ipaddr,i->source,(unsigned long)i->set_time,(unsigned long)i->duration,i->reason);
@@ -871,7 +861,7 @@ class TreeSocket : public InspSocket
 
 	void DoBurst(TreeServer* s)
 	{
-		Srv->SendOpers("*** Bursting to "+s->GetName()+".");
+		Srv->SendOpers("*** Bursting to \2"+s->GetName()+"\2.");
 		this->WriteLine("BURST");
 		// send our version string
 		this->WriteLine(":"+Srv->GetServerName()+" VERSION :"+GetVersionString());
@@ -883,6 +873,7 @@ class TreeSocket : public InspSocket
 		this->SendChannelModes(s);
 		this->SendXLines(s);
 		this->WriteLine("ENDBURST");
+		Srv->SendOpers("*** Finished bursting to \2"+s->GetName()+"\2.");
 	}
 
         virtual bool OnDataReady()
