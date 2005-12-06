@@ -950,6 +950,32 @@ class TreeSocket : public InspSocket
 		return true;
 	}
 
+	bool ForceNick(std::string prefix, std::deque<std::string> params)
+	{
+		if (params.size() < 3)
+			return true;
+		userrec* u = Srv->FindNick(params[0]);
+		if (u)
+		{
+			Srv->ChangeUserNick(u,params[1]);
+			DoOneToAllButSender(prefix,"SVSNICK",params,prefix);
+		}
+		return true;
+	}
+
+	bool ServiceJoin(std::string prefix, std::deque<std::string> params)
+	{
+		if (params.size() < 2)
+			return true;
+		userrec* u = Srv->FindNick(params[0]);
+		if (u)
+		{
+			Srv->JoinUserToChannel(u,params[1],"");
+			DoOneToAllButSender(prefix,"SVSJOIN",params,prefix);
+		}
+		return true;
+	}
+
 	bool RemoteRehash(std::string prefix, std::deque<std::string> params)
 	{
 		if (params.size() < 1)
@@ -1406,6 +1432,14 @@ class TreeSocket : public InspSocket
 				else if (command == "ADDLINE")
 				{
 					return this->AddLine(prefix,params);
+				}
+				else if (command == "SVSNICK")
+				{
+					return this->ForceNick(prefix,params);
+				}
+				else if (command == "SVSJOIN")
+				{
+					return this->ServiceJoin(prefix,params);
 				}
 				else if (command == "SQUIT")
 				{
