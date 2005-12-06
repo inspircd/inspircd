@@ -1438,11 +1438,11 @@ void AddThisServer(TreeServer* server, std::deque<TreeServer*> &list)
 }
 
 // returns a list of DIRECT servernames for a specific channel
-std::deque<TreeServer*> GetListOfServersForChannel(chanrec* c)
+void GetListOfServersForChannel(chanrec* c, std::deque<TreeServer*> &list)
 {
-	std::deque<TreeServer*> list;
 	std::vector<char*> *ulist = c->GetUsers();
-	for (unsigned int i = 0; i < ulist->size(); i++)
+	unsingned int ucount = ulist->size()
+	for (unsigned int i = 0; i < ucount; i++)
 	{
 		char* o = (*ulist)[i];
 		userrec* otheruser = (userrec*)o;
@@ -1470,7 +1470,6 @@ bool DoOneToAllButSenderRaw(std::string data,std::string omit,std::string prefix
 				if (d)
 				{
 					std::deque<std::string> par;
-					par.clear();
 					par.push_back(params[0]);
 					par.push_back(":"+params[1]);
 					DoOneToOne(prefix,command,par,d->server);
@@ -1483,9 +1482,11 @@ bool DoOneToAllButSenderRaw(std::string data,std::string omit,std::string prefix
 				chanrec* c = Srv->FindChannel(params[0]);
 				if (c)
 				{
-					std::deque<TreeServer*> list = GetListOfServersForChannel(c);
+					std::deque<TreeServer*> list;
+					GetListOfServersForChannel(c,list);
 					log(DEBUG,"Got a list of %d servers",list.size());
-					for (unsigned int i = 0; i < list.size(); i++)
+					unsigned int lsize = list.size();
+					for (unsigned int i = 0; i < lsize; i++)
 					{
 						TreeSocket* Sock = list[i]->GetSocket();
 						if ((Sock) && (list[i]->GetName() != omit) && (omitroute != list[i]))
@@ -1499,7 +1500,8 @@ bool DoOneToAllButSenderRaw(std::string data,std::string omit,std::string prefix
 			}
 		}
 	}
-	for (unsigned int x = 0; x < TreeRoot->ChildCount(); x++)
+	unsigned int items = TreeRoot->ChildCount();
+	for (unsigned int x = 0; x < n; x++)
 	{
 		TreeServer* Route = TreeRoot->GetChild(x);
 		if ((Route->GetSocket()) && (Route->GetName() != omit) && (omitroute != Route))
@@ -1515,11 +1517,13 @@ bool DoOneToAllButSender(std::string prefix, std::string command, std::deque<std
 {
 	TreeServer* omitroute = BestRouteTo(omit);
 	std::string FullLine = ":" + prefix + " " + command;
-	for (unsigned int x = 0; x < params.size(); x++)
+	unsigned int words = params.size();
+	for (unsigned int x = 0; x < words; x++)
 	{
 		FullLine = FullLine + " " + params[x];
 	}
-	for (unsigned int x = 0; x < TreeRoot->ChildCount(); x++)
+	unsigned int items = TreeRoot->ChildCount();
+	for (unsigned int x = 0; x < n; x++)
 	{
 		TreeServer* Route = TreeRoot->GetChild(x);
 		// Send the line IF:
@@ -1538,11 +1542,13 @@ bool DoOneToAllButSender(std::string prefix, std::string command, std::deque<std
 bool DoOneToMany(std::string prefix, std::string command, std::deque<std::string> params)
 {
 	std::string FullLine = ":" + prefix + " " + command;
-	for (unsigned int x = 0; x < params.size(); x++)
+	unsigned int words = params.size();
+	for (unsigned int x = 0; x < words; x++)
 	{
 		FullLine = FullLine + " " + params[x];
 	}
-	for (unsigned int x = 0; x < TreeRoot->ChildCount(); x++)
+	unsigned int items = TreeRoot->ChildCount();
+	for (unsigned int x = 0; x < items; x++)
 	{
 		TreeServer* Route = TreeRoot->GetChild(x);
 		if (Route->GetSocket())
@@ -1560,7 +1566,8 @@ bool DoOneToOne(std::string prefix, std::string command, std::deque<std::string>
 	if (Route)
 	{
 		std::string FullLine = ":" + prefix + " " + command;
-		for (unsigned int x = 0; x < params.size(); x++)
+		unsigned int words = params.size();
+		for (unsigned int x = 0; x < words; x++)
 		{
 			FullLine = FullLine + " " + params[x];
 		}
@@ -2003,8 +2010,10 @@ class ModuleSpanningTree : public Module
 			if (std::string(user->server) == Srv->GetServerName())
 			{
 				chanrec *c = (chanrec*)dest;
-				std::deque<TreeServer*> list = GetListOfServersForChannel(c);
-				for (unsigned int i = 0; i < list.size(); i++)
+				std::deque<TreeServer*> list;
+				GetListOfServersForChannel(c,list);
+				unsigned int ucount = list.size();
+				for (unsigned int i = 0; i < ucount; i++)
 				{
 					TreeSocket* Sock = list[i]->GetSocket();
 					if (Sock)
@@ -2035,8 +2044,10 @@ class ModuleSpanningTree : public Module
 			if (std::string(user->server) == Srv->GetServerName())
 			{
 				chanrec *c = (chanrec*)dest;
-				std::deque<TreeServer*> list = GetListOfServersForChannel(c);
-				for (unsigned int i = 0; i < list.size(); i++)
+				std::deque<TreeServer*> list;
+				GetListOfServersForChannel(c,list);
+				unsigned int ucount = list.size();
+				for (unsigned int i = 0; i < ucount; i++)
 				{
 					TreeSocket* Sock = list[i]->GetSocket();
 					if (Sock)
@@ -2106,7 +2117,6 @@ class ModuleSpanningTree : public Module
 		if (std::string(user->server) == Srv->GetServerName())
 		{
 			std::deque<std::string> params;
-			params.clear();
 			params.push_back(channel->name);
 			DoOneToMany(user->nick,"PART",params);
 		}
@@ -2119,7 +2129,6 @@ class ModuleSpanningTree : public Module
 		{
 			std::deque<std::string> params;
 			snprintf(agestr,MAXBUF,"%lu",(unsigned long)user->age);
-			params.clear();
 			params.push_back(agestr);
 			params.push_back(user->nick);
 			params.push_back(user->host);
