@@ -37,6 +37,7 @@ using namespace std;
 #include "inspstring.h"
 #include "hashcomp.h"
 #include "message.h"
+#include "xline.h"
 
 #ifdef GCC3
 #define nspace __gnu_cxx
@@ -790,6 +791,32 @@ class TreeSocket : public InspSocket
 		}
 	}
 
+	void SendXLines(TreeServer* Current)
+	{
+		char data[MAXBUF];
+		// for zlines and qlines, we should first check if theyre global...
+		for (std::vector<ZLine>::iterator i = zlines.begin(); i != zlines.end(); i++)
+		{
+			snprintf(data,MAXBUF,":%s ADDLINE Z %s %s %lu %lu :%s",Srv->GetServerName().c_str(),i->ipaddr,i->source,(unsigned long)i->set_time,(unsigned long)i->duration,i->reason);
+			this->WriteLine(data);
+		}
+		for (std::vector<QLine>::iterator i = qlines.begin(); i != qlines.end(); i++)
+		{
+			snprintf(data,MAXBUF,":%s ADDLINE Q %s %s %lu %lu :%s",Srv->GetServerName().c_str(),i->nick,i->source,(unsigned long)i->set_time,(unsigned long)i->duration,i->reason);
+			this->WriteLine(data);
+		}
+		for (std::vector<GLine>::iterator i = glines.begin(); i != glines.end(); i++)
+		{
+			snprintf(data,MAXBUF,":%s ADDLINE G %s %s %lu %lu :%s",Srv->GetServerName().c_str(),i->hostmask,i->source,(unsigned long)i->set_time,(unsigned long)i->duration,i->reason);
+			this->WriteLine(data);
+		}
+		for (std::vector<ELine>::iterator i = elines.begin(); i != elines.end(); i++)
+		{
+			snprintf(data,MAXBUF,":%s ADDLINE E %s %s %lu %lu :%s",Srv->GetServerName().c_str(),i->hostmask,i->source,(unsigned long)i->set_time,(unsigned long)i->duration,i->reason);
+			this->WriteLine(data);
+		}
+	}
+
 	void SendChannelModes(TreeServer* Current)
 	{
 		char data[MAXBUF];
@@ -848,6 +875,7 @@ class TreeSocket : public InspSocket
 		this->SendUsers(s);
 		// Send everything else (channel modes etc)
 		this->SendChannelModes(s);
+		this->SendXLines(s);
 		this->WriteLine("ENDBURST");
 	}
 
@@ -989,6 +1017,45 @@ class TreeSocket : public InspSocket
 			Srv->ChangeHost(u,params[0]);
 			DoOneToAllButSender(prefix,"FHOST",params,u->server);
 		}
+		return true;
+	}
+
+	bool AddLine(std::string prefix, std::deque<std::string> params)
+	{
+		if (params.size() < 6)
+			return true;
+		std::string linetype = params[0]; /* Z, Q, E, G, K */
+		std::string mask = params[1]; /* Line type dependent */
+		std::string source = params[2]; /* may not be online or may be a server */
+		std::string settime = params[3]; /* EPOCH time set */
+		std::string duration = params[4]; /* Duration secs */
+		std::string reason = params[5];
+
+		switch (*(linetype.c_str()))
+		{
+			case 'Z':
+				add_zline(atoi(duration), source.c_str(), reason.c_str(), mask.c_str());
+			break;
+			case 'Q':
+				add_qline(atoi(duration), source.c_str(), reason.c_str(), mask.c_str());
+			break;
+			case 'E':
+				add_eline(atoi(duration), source.c_str(), reason.c_str(), mask.c_str());
+			break;
+			case 'G':
+				add_gline(atoi(duration), source.c_str(), reason.c_str(), mask.c_str());
+			break;
+			case 'K':
+				add_kline(atoi(duration), source.c_str(), reason.c_str(), mask.c_str());
+			break;
+			default:
+				/* Just in case... */
+				Srv->SendOpers("*** \2WARNING\2: Invalid xline type '"+linetype+"' sent by server "+prefix+", ignored!")
+			break;
+		}
+		/* Send it on its way */
+		params[5] = ":" + params[5];
+		DoOneToAllButSender(prefix,"ADDLINE",params,prefix);
 		return true;
 	}
 
@@ -1329,6 +1396,10 @@ class TreeSocket : public InspSocket
 				else if (command == "FNAME")
 				{
 					return this->ChangeName(prefix,params);
+				}
+				else if (command == "ADDLINE")
+				{
+					return this->AddLine(prefix,params);
 				}
 				else if (command == "SQUIT")
 				{
@@ -2256,22 +2327,22 @@ class ModuleSpanningTree : public Module
 
 	virtual void OnDelGLine(userrec* source, std::string hostmask)
 	{
-		OnLine(source,hostmask,false,'G',"","");
+		OnLine(source,hostmask,false,'G',0,"");
 	}
 
 	virtual void OnDelZLine(userrec* source, std::string ipmask)
 	{
-		OnLine(source,ipmask,false,'Z',"","");
+		OnLine(source,ipmask,false,'Z',0,"");
 	}
 
 	virtual void OnDelQLine(userrec* source, std::string nickmask)
 	{
-		OnLine(source,nickmask,false,'Q',"","");
+		OnLine(source,nickmask,false,'Q',0,"");
 	}
 
 	virtual void OnDelELine(userrec* source, std::string hostmask)
 	{
-		OnLine(source,hostmask,false,'E',"","");
+		OnLine(source,hostmask,false,'E',0,"");
 	}
 
 	virtual void OnMode(userrec* user, void* dest, int target_type, std::string text)

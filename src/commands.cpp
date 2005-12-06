@@ -1922,7 +1922,6 @@ void handle_eline(char **parameters, int pcnt, userrec *user)
 
 void handle_gline(char **parameters, int pcnt, userrec *user)
 {
-	char netdata[MAXBUF];
 	if (pcnt >= 3)
 	{
 		add_gline(duration(parameters[1]),user->nick,parameters[2],parameters[0]);
