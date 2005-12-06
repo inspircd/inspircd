@@ -1204,6 +1204,11 @@ class TreeSocket : public InspSocket
 		userrec* who = Srv->FindNick(nick);
 		if (who)
 		{
+			/* Append kill source, if we don't have one */
+			if (*(params[1].c_str()) != '[')
+			{
+				params[1] = "[" + std::string(u->server) + "] Killed (" + params[1] +")";
+			}
 			std::string sourceserv = prefix;
 			if (u)
 			{
