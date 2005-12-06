@@ -39,7 +39,7 @@ private:
         time_t timeout_end;
         bool timeout;
 	pollfd polls;
-	char ibuf[1024];
+	char ibuf[16384];
 	std::string IP;
 	sockaddr_in client;
 	sockaddr_in server;
