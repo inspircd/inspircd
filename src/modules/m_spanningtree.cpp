@@ -2292,6 +2292,8 @@ class ModuleSpanningTree : public Module
 	{
 		if (std::string(source->server) == Srv->GetServerName())
 		{
+			std::string type = "LINE";
+			type = linetype + line;
 			if (adding)
 			{
 				char sduration[MAXBUF];
@@ -2300,13 +2302,14 @@ class ModuleSpanningTree : public Module
 				params.push_back(host);
 				params.push_back(sduration);
 				params.push_back(":"+reason);
-				DoOneToMany(source->nick,linetype+"LINE",params);
+				DoOneToMany(source->nick,type,params);
 			}
 			else
 			{
 				std::deque<std::string> params;
 				params.push_back(host);
-				DoOneToMany(source->nick,linetype+"LINE",params);
+				type = linetype + line;
+				DoOneToMany(source->nick,type,params);
 			}
 		}
 	}
