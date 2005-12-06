@@ -14,6 +14,8 @@
  * ---------------------------------------------------
  */
 
+/* $ModDesc: Povides a spanning tree server link protocol */
+
 using namespace std;
 
 #include <stdio.h>
@@ -62,6 +64,9 @@ class TreeSocket;
 
 TreeServer *TreeRoot;
 
+typedef nspace::hash_map<std::string, TreeServer*> server_hash;
+server_hash serverlist;
+
 bool DoOneToOne(std::string prefix, std::string command, std::deque<std::string> params, std::string target);
 bool DoOneToAllButSender(std::string prefix, std::string command, std::deque<std::string> params, std::string omit);
 bool DoOneToMany(std::string prefix, std::string command, std::deque<std::string> params);
@@ -101,6 +106,7 @@ class TreeServer
 		UserCount = OperCount = 0;
 		VersionString = GetVersionString();
 		Route = NULL;
+		AddHashEntry();
 	}
 
 	TreeServer(std::string Name, std::string Desc, TreeServer* Above, TreeSocket* Sock) : Parent(Above), ServerName(Name), ServerDesc(Desc), Socket(Sock)
@@ -110,27 +116,74 @@ class TreeServer
 		this->SetNextPingTime(time(NULL) + 60);
 		this->SetPingFlag();
 
-		log(DEBUG,"*** CREATE NEW SERVER %s ABOVE IS %s",Name.c_str(),Above->GetName().c_str());
+		/* find the 'route' for this server (e.g. the one directly connected
+		 * to the local server, which we can use to reach it)
+		 *
+		 * In the following example, consider we have just added a TreeServer
+		 * class for server G on our network, of which we are server A.
+		 * To route traffic to G (marked with a *) we must send the data to
+		 * B (marked with a +) so this algorithm initializes the 'Route'
+		 * value to point at whichever server traffic must be routed through
+		 * to get here. If we were to try this algorithm with server B,
+		 * the Route pointer would point at its own object ('this').
+		 *
+		 *              A
+		 *             / \
+		 *          + B   C
+		 *           / \   \
+		 *          D   E   F
+		 *         /         \
+		 *      * G           H
+		 *
+		 * We only run this algorithm when a server is created, as
+		 * the routes remain constant while ever the server exists, and
+		 * do not need to be re-calculated.
+		 */
 
-		// find the 'route' for this server (e.g. the one directly connected
-		// to the local server, which we can use to reach it)
 		Route = Above;
 		if (Route == TreeRoot)
 		{
-			log(DEBUG,"(0) Route is %s",this->GetName().c_str());
 			Route = this;
 		}
 		else
 		{
-			log(DEBUG,"(1) Route is %s",Route->GetName().c_str());
-	                while (Route->GetParent() != TreeRoot)
+	                while (this->Route->GetParent() != TreeRoot)
 			{
-				Route = Route->GetParent();
-				log(DEBUG,"(2) Route is %s",Route->GetName().c_str());
+				this->Route = Route->GetParent();
 			}
 		}
 
-		log(DEBUG,"    ROUTE FOR %s is %s",Name.c_str(),Route->GetName().c_str()); 
+		/* Because recursive code is slow and takes a lot of resources,
+		 * we store two representations of the server tree. The first
+		 * is a recursive structure where each server references its
+		 * children and its parent, which is used for netbursts and
+		 * netsplits to dump the whole dataset to the other server,
+		 * and the second is used for very fast lookups when routing
+		 * messages and is instead a hash_map, where each item can
+		 * be referenced by its server name. The AddHashEntry()
+		 * call below automatically inserts each TreeServer class
+		 * into the hash_map as it is created. There is a similar
+		 * maintainance call in the destructor to tidy up deleted
+		 * servers.
+		 */
+
+		this->AddHashEntry();
+	}
+
+	void AddHashEntry()
+	{
+		server_hash::iterator iter;
+		iter = serverlist.find(this->ServerName);
+		if (iter == clientlist.end())
+			serverlist[this->ServerName] = this;
+	}
+
+	void DelHashEntry()
+	{
+		server_hash::iterator iter;
+		iter = serverlist.find(this->ServerName);
+		if (iter != clientlist.end())
+			serverlist.erase(iter);
 	}
 
 	TreeServer* GetRoute()
@@ -234,7 +287,10 @@ class TreeServer
 		return false;
 	}
 
-	// removes child nodes of this node, and of that node, etc etc
+	/* Removes child nodes of this node, and of that node, etc etc.
+	 * This is used during netsplits to automatically tidy up the
+	 * server tree. It is slow, we don't use it for much else.
+	 */
 	bool Tidy()
 	{
 		bool stillchildren = true;
@@ -253,6 +309,11 @@ class TreeServer
 		}
 		return true;
 	}
+
+	~TreeServer()
+	{
+		this->DelHashEntry();
+	}
 };
 
 class Link
@@ -267,71 +328,49 @@ class Link
 	 time_t NextConnectTime;
 };
 
-/* $ModDesc: Povides a spanning tree server link protocol */
-
 Server *Srv;
 ConfigReader *Conf;
 std::vector<Link> LinkBlocks;
 
-TreeServer* RouteEnumerate(TreeServer* Current, std::string ServerName)
+TreeServer* FindServer(std::string ServerName)
 {
-	if (Current->GetName() == ServerName)
-		return Current->GetRoute();
-	for (unsigned int q = 0; q < Current->ChildCount(); q++)
+	server_hash::iterator iter;
+	iter = serverlist.find(ServerName);
+	if (iter != clientlist.end())
 	{
-		TreeServer* found = RouteEnumerate(Current->GetChild(q),ServerName);
-		if (found)
-			return found->GetRoute();
+		return iter->second;
 	}
-	return NULL;
-}
-
-// Returns the locally connected server we must route a
-// message through to reach server 'ServerName'. This
-// only applies to one-to-one and not one-to-many routing.
-TreeServer* BestRouteTo(std::string ServerName)
-{
-	if (ServerName.c_str() == TreeRoot->GetName())
+	else
 	{
 		return NULL;
 	}
-	// first, find the server by recursively walking the tree
-	TreeServer* Found = RouteEnumerate(TreeRoot,ServerName);
-	return Found;
 }
 
-bool LookForServer(TreeServer* Current, std::string ServerName)
+/* Returns the locally connected server we must route a
+ * message through to reach server 'ServerName'. This
+ * only applies to one-to-one and not one-to-many routing.
+ * See the comments for the constructor of TreeServer
+ * for more details.
+ */
+TreeServer* BestRouteTo(std::string ServerName)
 {
-	if (ServerName == Current->GetName())
-		return true;
-	for (unsigned int q = 0; q < Current->ChildCount(); q++)
+	if (ServerName.c_str() == TreeRoot->GetName())
+		return NULL;
+	TreeServer* Found = FindServer(ServerName);
+	if (Found)
 	{
-		if (LookForServer(Current->GetChild(q),ServerName))
-			return true;
+		return Found->GetRoute();
 	}
-	return false;
+	else
+	{
+		return NULL;
+	}
 }
 
 TreeServer* Found;
 
-void RFindServer(TreeServer* Current, std::string ServerName)
-{
-	if ((ServerName == Current->GetName()) && (!Found))
-	{
-		Found = Current;
-		return;
-	}
-	if (!Found)
-	{
-		for (unsigned int q = 0; q < Current->ChildCount(); q++)
-		{
-			if (!Found)
-				RFindServer(Current->GetChild(q),ServerName);
-		}
-	}
-	return;
-}
-
+/* TODO: These need optimizing to use an iterator of serverlist
+ */
 void RFindServerMask(TreeServer* Current, std::string ServerName)
 {
 	if (Srv->MatchText(Current->GetName(),ServerName) && (!Found))
@@ -349,13 +388,6 @@ void RFindServerMask(TreeServer* Current, std::string ServerName)
 	}
 }
 
-TreeServer* FindServer(std::string ServerName)
-{
-	Found = NULL;
-	RFindServer(TreeRoot,ServerName);
-	return Found;
-}
-
 TreeServer* FindServerMask(std::string ServerName)
 {
 	Found = NULL;
@@ -365,7 +397,7 @@ TreeServer* FindServerMask(std::string ServerName)
 
 bool IsServer(std::string ServerName)
 {
-	return LookForServer(TreeRoot,ServerName);
+	return (FindServer(ServerName) != NULL);
 }
 
 class TreeSocket : public InspSocket
