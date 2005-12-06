@@ -1056,7 +1056,7 @@ class TreeSocket : public InspSocket
 			break;
 			default:
 				/* Just in case... */
-				Srv->SendOpers("*** \2WARNING\2: Invalid xline type '"+linetype+"' sent by server "+prefix+", ignored!")
+				Srv->SendOpers("*** \2WARNING\2: Invalid xline type '"+linetype+"' sent by server "+prefix+", ignored!");
 			break;
 		}
 		/* Send it on its way */
