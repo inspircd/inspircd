@@ -46,9 +46,24 @@ using namespace std;
 #endif
 
 /*
- * TODO: finish this comment off :p
  * The server list in InspIRCd is maintained as two structures
- * which hold the data in different ways.
+ * which hold the data in different ways. Most of the time, we
+ * want to very quicky obtain three pieces of information:
+ *
+ * (1) The information on a server
+ * (2) The information on the server we must send data through
+ *     to actually REACH the server we're after
+ * (3) Potentially, the child/parent objects of this server
+ *
+ * The InspIRCd spanning protocol provides easy access to these
+ * by storing the data firstly in a recursive structure, where
+ * each item references its parent item, and a dynamic list
+ * of child items, and another structure which stores the items
+ * hashed, linearly. This means that if we want to find a server
+ * by name quickly, we can look it up in the hash, avoiding
+ * any O(n) lookups. If however, during a split or sync, we want
+ * to apply an operation to a server, and any of its child objects
+ * we can resort to recursion to walk the tree structure.
  */
 
 class ModuleSpanningTree;
@@ -58,50 +73,93 @@ extern std::vector<Module*> modules;
 extern std::vector<ircd_module*> factory;
 extern int MODCOUNT;
 
+/* Any socket can have one of five states at any one time.
+ * The LISTENER state indicates a socket which is listening
+ * for connections. It cannot receive data itself, only incoming
+ * sockets.
+ * The CONNECTING state indicates an outbound socket which is
+ * waiting to be writeable.
+ * The WAIT_AUTH_1 state indicates the socket is outbound and
+ * has successfully connected, but has not yet sent and received
+ * SERVER strings.
+ * The WAIT_AUTH_2 state indicates that the socket is inbound
+ * (allocated by a LISTENER) but has not yet sent and received
+ * SERVER strings.
+ * The CONNECTED state represents a fully authorized, fully
+ * connected server.
+ */
 enum ServerState { LISTENER, CONNECTING, WAIT_AUTH_1, WAIT_AUTH_2, CONNECTED };
 
+/* We need to import these from the core for use in netbursts */
 typedef nspace::hash_map<std::string, userrec*, nspace::hash<string>, irc::StrHashComp> user_hash;
 typedef nspace::hash_map<std::string, chanrec*, nspace::hash<string>, irc::StrHashComp> chan_hash;
-
 extern user_hash clientlist;
 extern chan_hash chanlist;
 
+/* Foward declarations */
 class TreeServer;
 class TreeSocket;
 
+/* This variable represents the root of the server tree
+ * (for all intents and purposes, it's us)
+ */
 TreeServer *TreeRoot;
 
+/* This hash_map holds the hash equivalent of the server
+ * tree, used for rapid linear lookups.
+ */
 typedef nspace::hash_map<std::string, TreeServer*> server_hash;
 server_hash serverlist;
 
+/* More forward declarations */
 bool DoOneToOne(std::string prefix, std::string command, std::deque<std::string> params, std::string target);
 bool DoOneToAllButSender(std::string prefix, std::string command, std::deque<std::string> params, std::string omit);
 bool DoOneToMany(std::string prefix, std::string command, std::deque<std::string> params);
 bool DoOneToAllButSenderRaw(std::string data,std::string omit, std::string prefix,std::string command,std::deque<std::string> params);
 void ReadConfiguration(bool rebind);
 
+/* Imported from xline.cpp for use during netburst */
 extern std::vector<KLine> klines;
 extern std::vector<GLine> glines;
 extern std::vector<ZLine> zlines;
 extern std::vector<QLine> qlines;
 extern std::vector<ELine> elines;
 
+
+/* Each server in the tree is represented by one class of
+ * type TreeServer. A locally connected TreeServer can
+ * have a class of type TreeSocket associated with it, for
+ * remote servers, the TreeSocket entry will be NULL.
+ * Each server also maintains a pointer to its parent
+ * (NULL if this server is ours, at the top of the tree)
+ * and a pointer to its "Route" (see the comments in the
+ * constructors below), and also a dynamic list of pointers
+ * to its children which can be iterated recursively
+ * if required. Creating or deleting objects of type
+ * TreeServer automatically maintains the hash_map of
+ * TreeServer items, deleting and inserting them as they
+ * are created and destroyed.
+ */
+
 class TreeServer
 {
-	TreeServer* Parent;
-	TreeServer* Route;
-	std::vector<TreeServer*> Children;
-	std::string ServerName;
-	std::string ServerDesc;
-	std::string VersionString;
-	int UserCount;
-	int OperCount;
-	TreeSocket* Socket;	// for directly connected servers this points at the socket object
-	time_t NextPing;
-	bool LastPingWasGood;
+	TreeServer* Parent;			/* Parent entry */
+	TreeServer* Route;			/* Route entry */
+	std::vector<TreeServer*> Children;	/* List of child objects */
+	std::string ServerName;			/* Server's name */
+	std::string ServerDesc;			/* Server's description */
+	std::string VersionString;		/* Version string or empty string */
+	int UserCount;				/* Not used in this version */
+	int OperCount;				/* Not used in this version */
+	TreeSocket* Socket;			/* For directly connected servers this points at the socket object */
+	time_t NextPing;			/* After this time, the server should be PINGed*/
+	bool LastPingWasGood;			/* True if the server responded to the last PING with a PONG */
 	
  public:
 
+	/* We don't use this constructor. Its a dummy, and won't cause any insertion
+	 * of the TreeServer into the hash_map. See below for the two we DO use.
+	 */
 	TreeServer()
 	{
 		Parent = NULL;
@@ -112,6 +170,10 @@ class TreeServer
 		VersionString = GetVersionString();
 	}
 
+	/* We use this constructor only to create the 'root' item, TreeRoot, which
+	 * represents our own server. Therefore, it has no route, no parent, and
+	 * no socket associated with it. Its version string is our own local version.
+	 */
 	TreeServer(std::string Name, std::string Desc) : ServerName(Name), ServerDesc(Desc)
 	{
 		Parent = NULL;
@@ -122,6 +184,10 @@ class TreeServer
 		AddHashEntry();
 	}
 
+	/* When we create a new server, we call this constructor to initialize it.
+	 * This constructor initializes the server's Route and Parent, and sets up
+	 * its ping counters so that it will be pinged one minute from now.
+	 */
 	TreeServer(std::string Name, std::string Desc, TreeServer* Above, TreeSocket* Sock) : Parent(Above), ServerName(Name), ServerDesc(Desc), Socket(Sock)
 	{
 		VersionString = "";
@@ -183,6 +249,10 @@ class TreeServer
 		this->AddHashEntry();
 	}
 
+	/* This method is used to add the structure to the
+	 * hash_map for linear searches. It is only called
+	 * by the constructors.
+	 */
 	void AddHashEntry()
 	{
 		server_hash::iterator iter;
@@ -191,6 +261,10 @@ class TreeServer
 			serverlist[this->ServerName] = this;
 	}
 
+	/* This method removes the reference to this object
+	 * from the hash_map which is used for linear searches.
+	 * It is only called by the default destructor.
+	 */
 	void DelHashEntry()
 	{
 		server_hash::iterator iter;
@@ -198,6 +272,10 @@ class TreeServer
 		if (iter != serverlist.end())
 			serverlist.erase(iter);
 	}
+
+	/* These accessors etc should be pretty self-
+	 * explanitory.
+	 */
 
 	TreeServer* GetRoute()
 	{
@@ -274,6 +352,11 @@ class TreeServer
 	{
 		if (n < Children.size())
 		{
+			/* Make sure they  cant request
+			 * an out-of-range object. After
+			 * all we know what these programmer
+			 * types are like *grin*.
+			 */
 			return Children[n];
 		}
 		else
@@ -325,9 +408,17 @@ class TreeServer
 
 	~TreeServer()
 	{
+		/* We'd better tidy up after ourselves, eh? */
 		this->DelHashEntry();
 	}
 };
+
+/* The Link class might as well be a struct,
+ * but this is C++ and we don't believe in structs (!).
+ * It holds the entire information of one <link>
+ * tag from the main config file. We maintain a list
+ * of them, and populate the list on rehash/load.
+ */
 
 class Link
 {
@@ -341,10 +432,21 @@ class Link
 	 time_t NextConnectTime;
 };
 
+/* The usual stuff for inspircd modules,
+ * plus the vector of Link classes which we
+ * use to store the <link> tags from the config
+ * file.
+ */
 Server *Srv;
 ConfigReader *Conf;
 std::vector<Link> LinkBlocks;
 
+/* Yay for fast searches!
+ * This is hundreds of times faster than recursion
+ * or even scanning a linked list, especially when
+ * there are more than a few servers to deal with.
+ * (read as: lots).
+ */
 TreeServer* FindServer(std::string ServerName)
 {
 	server_hash::iterator iter;
@@ -380,7 +482,11 @@ TreeServer* BestRouteTo(std::string ServerName)
 	}
 }
 
-/* Find the first server matching a given glob mask
+/* Find the first server matching a given glob mask.
+ * Theres no find-using-glob method of hash_map [awwww :-(]
+ * so instead, we iterate over the list using an iterator
+ * and match each one until we get a hit. Yes its slow,
+ * deal with it.
  */
 TreeServer* FindServerMask(std::string ServerName)
 {
@@ -392,10 +498,23 @@ TreeServer* FindServerMask(std::string ServerName)
 	return NULL;
 }
 
+/* A convenient wrapper that returns true if a server exists */
 bool IsServer(std::string ServerName)
 {
 	return (FindServer(ServerName) != NULL);
 }
+
+/* Every SERVER connection inbound or outbound is represented by
+ * an object of type TreeSocket.
+ * TreeSockets, being inherited from InspSocket, can be tied into
+ * the core socket engine, and we cn therefore receive activity events
+ * for them, just like activex objects on speed. (yes really, that
+ * is a technical term!) Each of these which relates to a locally
+ * connected server is assocated with it, by hooking it onto a
+ * TreeSocket class using its constructor. In this way, we can
+ * maintain a list of servers, some of which are directly connected,
+ * some of which are not.
+ */
 
 class TreeSocket : public InspSocket
 {
@@ -411,6 +530,11 @@ class TreeSocket : public InspSocket
 	
  public:
 
+	/* Because most of the I/O gubbins are encapsulated within
+	 * InspSocket, we just call the superclass constructor for
+	 * most of the action, and append a few of our own values
+	 * to it.
+	 */
 	TreeSocket(std::string host, int port, bool listening, unsigned long maxtime)
 		: InspSocket(host, port, listening, maxtime)
 	{
@@ -425,43 +549,71 @@ class TreeSocket : public InspSocket
 		this->LinkState = CONNECTING;
 	}
 
+	/* When a listening socket gives us a new file descriptor,
+	 * we must associate it with a socket without creating a new
+	 * connection. This constructor is used for this purpose.
+	 */
 	TreeSocket(int newfd, char* ip)
 		: InspSocket(newfd, ip)
 	{
 		this->LinkState = WAIT_AUTH_1;
 	}
 	
+	/* When an outbound connection finishes connecting, we receive
+	 * this event, and must send our SERVER string to the other
+	 * side. If the other side is happy, as outlined in the server
+	 * to server docs on the inspircd.org site, the other side
+	 * will then send back its own server string.
+	 */
         virtual bool OnConnected()
 	{
 		if (this->LinkState == CONNECTING)
 		{
 			Srv->SendOpers("*** Connection to "+myhost+"["+this->GetIP()+"] established.");
-			// we should send our details here.
-			// if the other side is satisfied, they send theirs.
-			// we do not need to change state here.
+			/* we do not need to change state here. */
 			for (std::vector<Link>::iterator x = LinkBlocks.begin(); x < LinkBlocks.end(); x++)
 			{
 				if (x->Name == this->myhost)
 				{
-					// found who we're supposed to be connecting to, send the neccessary gubbins.
+					/* found who we're supposed to be connecting to, send the neccessary gubbins. */
 					this->WriteLine("SERVER "+Srv->GetServerName()+" "+x->SendPass+" 0 :"+Srv->GetServerDescription());
 					return true;
 				}
 			}
 		}
+		/* There is a (remote) chance that between the /CONNECT and the connection
+		 * being accepted, some muppet has removed the <link> block and rehashed.
+		 * If that happens the connection hangs here until it's closed. Unlikely
+		 * and rather harmless.
+		 */
 		return true;
 	}
 	
         virtual void OnError(InspSocketError e)
 	{
+		/* We don't handle this method, because all our
+		 * dirty work is done in OnClose() (see below)
+		 * which is still called on error conditions too.
+		 */
 	}
 
         virtual int OnDisconnect()
 	{
+		/* For the same reason as above, we don't
+		 * handle OnDisconnect()
+		 */
 		return true;
 	}
 
-	// recursively send the server tree with distances as hops
+	/* Recursively send the server tree with distances as hops.
+	 * This is used during network burst to inform the other server
+	 * (and any of ITS servers too) of what servers we know about.
+	 * If at any point any of these servers already exist on the other
+	 * end, our connection may be terminated. The hopcounts given
+	 * by this function are relative, this doesn't matter so long as
+	 * they are all >1, as all the remote servers re-calculate them
+	 * to be relative too, with themselves as hop 0.
+	 */
 	void SendServers(TreeServer* Current, TreeServer* s, int hops)
 	{
 		char command[1024];
@@ -470,29 +622,43 @@ class TreeSocket : public InspSocket
 			TreeServer* recursive_server = Current->GetChild(q);
 			if (recursive_server != s)
 			{
-				// :source.server SERVER server.name hops :Description
 				snprintf(command,1024,":%s SERVER %s * %d :%s",Current->GetName().c_str(),recursive_server->GetName().c_str(),hops,recursive_server->GetDesc().c_str());
 				this->WriteLine(command);
 				this->WriteLine(":"+recursive_server->GetName()+" VERSION :"+recursive_server->GetVersion());
-				// down to next level
+				/* down to next level */
 				this->SendServers(recursive_server, s, hops+1);
 			}
 		}
 	}
 
+	/* This function forces this server to quit, removing this server
+	 * and any users on it (and servers and users below that, etc etc).
+	 * It's very slow and pretty clunky, but luckily unless your network
+	 * is having a REAL bad hair day, this function shouldnt be called
+	 * too many times a month ;-)
+	 */
 	void SquitServer(TreeServer* Current)
 	{
-		// recursively squit the servers attached to 'Current'
+		/* recursively squit the servers attached to 'Current'.
+		 * We're going backwards so we don't remove users
+		 * while we still need them ;)
+		 */
 		for (unsigned int q = 0; q < Current->ChildCount(); q++)
 		{
 			TreeServer* recursive_server = Current->GetChild(q);
 			this->SquitServer(recursive_server);
 		}
-		// Now we've whacked the kids, whack self
+		/* Now we've whacked the kids, whack self */
 		num_lost_servers++;
 		bool quittingpeople = true;
 		while (quittingpeople)
 		{
+			/* Yup i know, "ew". We cant continue to loop through the
+			 * iterator if we modify it, so whenever we modify it with a
+			 * QUIT we have to start alllll over again. If anyone knows
+			 * a better faster way of *safely* doing this, please let me
+			 * know!
+			 */
 			quittingpeople = false;
 			for (user_hash::iterator u = clientlist.begin(); u != clientlist.end(); u++)
 			{
@@ -507,6 +673,10 @@ class TreeSocket : public InspSocket
 		}
 	}
 
+	/* This is a wrapper function for SquitServer above, which
+	 * does some validation first and passes on the SQUIT to all
+	 * other remaining servers.
+	 */
 	void Squit(TreeServer* Current,std::string reason)
 	{
 		if (Current)
@@ -537,6 +707,7 @@ class TreeSocket : public InspSocket
 		}
 	}
 
+	/* FMODE command */
 	bool ForceMode(std::string source, std::deque<std::string> params)
 	{
 		userrec* who = new userrec;
@@ -554,9 +725,9 @@ class TreeSocket : public InspSocket
 		return true;
 	}
 
+	/* FTOPIC command */
 	bool ForceTopic(std::string source, std::deque<std::string> params)
 	{
-		// FTOPIC %s %lu %s :%s
 		if (params.size() != 4)
 			return true;
 		std::string channel = params[0];
@@ -573,22 +744,24 @@ class TreeSocket : public InspSocket
 				strlcpy(c->topic,topic.c_str(),MAXTOPIC);
 				strlcpy(c->setby,setby.c_str(),NICKMAX);
 				c->topicset = ts;
-				// if the topic text is the same as the current topic,
-				// dont bother to send the TOPIC command out, just silently
-				// update the set time and set nick.
+				/* if the topic text is the same as the current topic,
+				 * dont bother to send the TOPIC command out, just silently
+				 * update the set time and set nick.
+				 */
 				if (oldtopic != topic)
 					WriteChannelWithServ((char*)source.c_str(), c, "TOPIC %s :%s", c->name, c->topic);
 			}
 			
 		}
 		
-		// all done, send it on its way
+		/* all done, send it on its way */
 		params[3] = ":" + params[3];
 		DoOneToAllButSender(source,"FTOPIC",params,source);
 
 		return true;
 	}
 
+	/* FJOIN, similar to unreal SJOIN */
 	bool ForceJoin(std::string source, std::deque<std::string> params)
 	{
 		if (params.size() < 3)
@@ -614,8 +787,9 @@ class TreeSocket : public InspSocket
 		}
 		strlcpy(mode_users[0],channel.c_str(),MAXBUF);
 
-		// default is a high value, which if we dont have this
-		// channel will let the other side apply their modes.
+		/* default is a high value, which if we dont have this
+		 * channel will let the other side apply their modes.
+		 */
 		time_t ourTS = time(NULL)+600;
 		chanrec* us = Srv->FindChannel(channel);
 		if (us)
@@ -625,13 +799,14 @@ class TreeSocket : public InspSocket
 
 		log(DEBUG,"FJOIN detected, our TS=%lu, their TS=%lu",ourTS,TS);
 
-		// do this first, so our mode reversals are correctly received by other servers
-		// if there is a TS collision.
+		/* do this first, so our mode reversals are correctly received by other servers
+		 * if there is a TS collision.
+		 */
 		DoOneToAllButSender(source,"FJOIN",params,source);
 		
 		for (unsigned int usernum = 2; usernum < params.size(); usernum++)
 		{
-			// process one channel at a time, applying modes.
+			/* process one channel at a time, applying modes. */
 			char* usr = (char*)params[usernum].c_str();
 			char permissions = *usr;
 			switch (permissions)
@@ -658,8 +833,9 @@ class TreeSocket : public InspSocket
 				Srv->JoinUserToChannel(who,channel,key);
 				if (modectr >= (MAXMODES-1))
 				{
-					// theres a mode for this user. push them onto the mode queue, and flush it
-					// if there are more than MAXMODES to go.
+					/* theres a mode for this user. push them onto the mode queue, and flush it
+					 * if there are more than MAXMODES to go.
+					 */
 					if (ourTS >= TS)
 					{
 						log(DEBUG,"Our our channel newer than theirs, accepting their modes");
@@ -668,9 +844,9 @@ class TreeSocket : public InspSocket
 					else
 					{
 						log(DEBUG,"Their channel newer than ours, bouncing their modes");
-						// bouncy bouncy!
+						/* bouncy bouncy! */
 						std::deque<std::string> params;
-						// modes are now being UNSET...
+						/* modes are now being UNSET... */
 						*mode_users[1] = '-';
 						for (unsigned int x = 0; x < modectr; x++)
 						{
@@ -684,8 +860,9 @@ class TreeSocket : public InspSocket
 				}
 			}
 		}
-		// there werent enough modes built up to flush it during FJOIN,
-		// or, there are a number left over. flush them out.
+		/* there werent enough modes built up to flush it during FJOIN,
+		 * or, there are a number left over. flush them out.
+		 */
 		if ((modectr > 2) && (who))
 		{
 			if (ourTS >= TS)
@@ -708,6 +885,7 @@ class TreeSocket : public InspSocket
 		return true;
 	}
 
+	/* NICK command */
 	bool IntroduceClient(std::string source, std::deque<std::string> params)
 	{
 		if (params.size() < 8)
@@ -763,6 +941,10 @@ class TreeSocket : public InspSocket
 		return true;
 	}
 
+	/* Send one or more FJOINs for a channel of users.
+	 * If the length of a single line is more than 480-NICKMAX
+	 * in length, it is split over multiple lines.
+	 */
 	void SendFJoins(TreeServer* Current, chanrec* c)
 	{
 		char list[MAXBUF];
@@ -787,6 +969,7 @@ class TreeSocket : public InspSocket
 		}
 	}
 
+	/* Send G, Q, Z and E lines */
 	void SendXLines(TreeServer* Current)
 	{
 		char data[MAXBUF];
@@ -813,6 +996,7 @@ class TreeSocket : public InspSocket
 		}
 	}
 
+	/* Send channel modes and topics */
 	void SendChannelModes(TreeServer* Current)
 	{
 		char data[MAXBUF];
@@ -835,7 +1019,7 @@ class TreeSocket : public InspSocket
 		}
 	}
 
-	// send all users and their channels
+	/* send all users and their oper state/modes */
 	void SendUsers(TreeServer* Current)
 	{
 		char data[MAXBUF];
@@ -859,29 +1043,45 @@ class TreeSocket : public InspSocket
 		}
 	}
 
+	/* This function is called when we want to send a netburst to a local
+	 * server. There is a set order we must do this, because for example
+	 * users require their servers to exist, and channels require their
+	 * users to exist. You get the idea.
+	 */
 	void DoBurst(TreeServer* s)
 	{
 		Srv->SendOpers("*** Bursting to \2"+s->GetName()+"\2.");
 		this->WriteLine("BURST");
-		// send our version string
+		/* send our version string */
 		this->WriteLine(":"+Srv->GetServerName()+" VERSION :"+GetVersionString());
-		// Send server tree
+		/* Send server tree */
 		this->SendServers(TreeRoot,s,1);
-		// Send users and their channels
+		/* Send users and their oper status */
 		this->SendUsers(s);
-		// Send everything else (channel modes etc)
+		/* Send everything else (channel modes, xlines etc) */
 		this->SendChannelModes(s);
 		this->SendXLines(s);
 		this->WriteLine("ENDBURST");
 		Srv->SendOpers("*** Finished bursting to \2"+s->GetName()+"\2.");
 	}
 
+	/* This function is called when we receive data from a remote
+	 * server. We buffer the data in a std::string (it doesnt stay
+	 * there for long), reading using InspSocket::Read() which can
+	 * read up to 16 kilobytes in one operation.
+	 *
+	 * IF THIS FUNCTION RETURNS FALSE, THE CORE CLOSES AND DELETES
+	 * THE SOCKET OBJECT FOR US.
+	 */
         virtual bool OnDataReady()
 	{
 		char* data = this->Read();
 		if (data)
 		{
 			this->in_buffer += data;
+			/* While there is at least one new line in the buffer,
+			 * do something useful (we hope!) with it.
+			 */
 			while (in_buffer.find("\n") != std::string::npos)
 			{
 				char* line = (char*)in_buffer.c_str();
@@ -894,6 +1094,9 @@ class TreeSocket : public InspSocket
 				if ((*line == '\n') || (*line == '\r'))
 					line++;
 				in_buffer = line;
+				/* Process this one, abort if it
+				 * didnt return true.
+				 */
 				if (!this->ProcessLine(ret))
 				{
 					return false;
@@ -908,6 +1111,7 @@ class TreeSocket : public InspSocket
 		return this->Write(line + "\r\n");
 	}
 
+	/* Handle ERROR command */
 	bool Error(std::deque<std::string> params)
 	{
 		if (params.size() < 1)
@@ -919,10 +1123,14 @@ class TreeSocket : public InspSocket
 			SName = InboundServerName;
 		}
 		Srv->SendOpers("*** ERROR from "+SName+": "+Errmsg);
-		// we will return false to cause the socket to close.
+		/* we will return false to cause the socket to close.
+		 */
 		return false;
 	}
 
+	/* Because the core won't let users or even SERVERS set +o,
+	 * we use the OPERTYPE command to do this.
+	 */
 	bool OperType(std::string prefix, std::deque<std::string> params)
 	{
 		if (params.size() != 1)
@@ -941,6 +1149,9 @@ class TreeSocket : public InspSocket
 		return true;
 	}
 
+	/* Because Andy insists that services-compatible servers must
+	 * implement SVSNICK and SVSJOIN, that's exactly what we do :p
+	 */
 	bool ForceNick(std::string prefix, std::deque<std::string> params)
 	{
 		if (params.size() < 3)
@@ -1364,6 +1575,14 @@ class TreeSocket : public InspSocket
 				// This is the 'authenticated' state, when all passwords
 				// have been exchanged and anything past this point is taken
 				// as gospel.
+				if (command == "SVSMODE")
+				{
+					/* Services expects us to implement
+					 * SVSMODE. In inspircd its the same as
+					 * MODE anyway.
+					 */
+					command = "MODE";
+				}
 				std::string target = "";
 				if ((command == "NICK") && (params.size() > 1))
 				{
