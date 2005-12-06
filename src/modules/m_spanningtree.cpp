@@ -1199,7 +1199,6 @@ class TreeSocket : public InspSocket
 		if (params.size() != 2)
 			return true;
 		std::string nick = params[0];
-		std::string reason = params[1];
 		userrec* u = Srv->FindNick(prefix);
 		userrec* who = Srv->FindNick(nick);
 		if (who)
@@ -1216,7 +1215,7 @@ class TreeSocket : public InspSocket
 			}
 			params[1] = ":" + params[1];
 			DoOneToAllButSender(prefix,"KILL",params,sourceserv);
-			Srv->QuitUser(who,reason);
+			Srv->QuitUser(who,params[1]);
 		}
 		return true;
 	}
