@@ -958,7 +958,7 @@ class TreeSocket : public InspSocket
 		if (u)
 		{
 			Srv->ChangeUserNick(u,params[1]);
-			u->age = atoi(params[2]);
+			u->age = atoi(params[2].c_str());
 			DoOneToAllButSender(prefix,"SVSNICK",params,prefix);
 		}
 		return true;
