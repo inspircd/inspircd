@@ -2211,6 +2211,69 @@ class ModuleSpanningTree : public Module
 		}
 	}
 
+	void OnLine(userrec* source, std::string host, bool adding, char linetype, long duration, std::string reason)
+	{
+		if (std::string(source->server) == Srv->GetServerName())
+		{
+			if (adding)
+			{
+				char sduration[MAXBUF];
+				snprintf(sduration,MAXBUF,"%ld",duration);
+				std::deque<std::string> params;
+				params.push_back(host);
+				params.push_back(sduration);
+				params.push_back(":"+reason);
+				DoOneToMany(source->nick,linetype+"LINE",params);
+			}
+			else
+			{
+				std::deque<std::string> params;
+				params.push_back(host);
+				DoOneToMany(source->nick,linetype+"LINE",params);
+			}
+		}
+	}
+
+	virtual void OnAddGLine(long duration, userrec* source, std::string reason, std::string hostmask)
+	{
+		OnLine(source,hostmask,true,'G',duration,reason);
+	}
+	
+	virtual void OnAddZLine(long duration, userrec* source, std::string reason, std::string ipmask)
+	{
+		OnLine(source,ipmask,true,'Z',duration,reason);
+	}
+
+	virtual void OnAddQLine(long duration, userrec* source, std::string reason, std::string nickmask)
+	{
+		OnLine(source,nickmask,true,'Q',duration,reason);
+	}
+
+	virtual void OnAddELine(long duration, userrec* source, std::string reason, std::string hostmask)
+	{
+		OnLine(source,hostmask,true,'E',duration,reason);
+	}
+
+	virtual void OnDelGLine(userrec* source, std::string hostmask)
+	{
+		OnLine(source,hostmask,false,'G',"","");
+	}
+
+	virtual void OnDelZLine(userrec* source, std::string ipmask)
+	{
+		OnLine(source,ipmask,false,'Z',"","");
+	}
+
+	virtual void OnDelQLine(userrec* source, std::string nickmask)
+	{
+		OnLine(source,nickmask,false,'Q',"","");
+	}
+
+	virtual void OnDelELine(userrec* source, std::string hostmask)
+	{
+		OnLine(source,hostmask,false,'E',"","");
+	}
+
 	virtual void OnMode(userrec* user, void* dest, int target_type, std::string text)
 	{
 		if (std::string(user->server) == Srv->GetServerName())

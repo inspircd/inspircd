@@ -1805,6 +1805,13 @@ long duration(const char* str)
 	long total = 0;
 	const char* str_end = str + strlen(str);
 	n_field[0] = 0;
+
+	if ((!strchr(str,'s')) && (!strchr(str,'m')) && (!strchr(str,'h')) && (!strchr(str,'d')) && (!strchr(str,'w')) && (!strchr(str,'y')))
+	{
+		std::string n = str;
+		n = n + "s";
+		return duration(n.c_str());
+	}
 	
 	for (char* i = (char*)str; i < str_end; i++)
 	{
@@ -1858,6 +1865,7 @@ void handle_kline(char **parameters, int pcnt, userrec *user)
 	if (pcnt >= 3)
 	{
 		add_kline(duration(parameters[1]),user->nick,parameters[2],parameters[0]);
+		FOREACH_MOD OnAddKLine(duration(parameters[1]), user, parameters[2], parameters[0]);
 		if (!duration(parameters[1]))
 		{
 			WriteOpers("*** %s added permenant K-line for %s.",user->nick,parameters[0]);
@@ -1871,6 +1879,7 @@ void handle_kline(char **parameters, int pcnt, userrec *user)
 	{
 		if (del_kline(parameters[0]))
 		{
+			FOREACH_MOD OnDelKLine(user, parameters[0]);
 			WriteOpers("*** %s Removed K-line on %s.",user->nick,parameters[0]);
 		}
 		else
@@ -1886,6 +1895,7 @@ void handle_eline(char **parameters, int pcnt, userrec *user)
         if (pcnt >= 3)
         {
                 add_eline(duration(parameters[1]),user->nick,parameters[2],parameters[0]);
+		FOREACH_MOD OnAddELine(duration(parameters[1]), user, parameters[2], parameters[0]);
                 if (!duration(parameters[1]))
                 {
                         WriteOpers("*** %s added permenant E-line for %s.",user->nick,parameters[0]);
@@ -1899,6 +1909,7 @@ void handle_eline(char **parameters, int pcnt, userrec *user)
         {
                 if (del_eline(parameters[0]))
                 {
+			FOREACH_MOD OnDelELine(user, parameters[0]);
                         WriteOpers("*** %s Removed E-line on %s.",user->nick,parameters[0]);
                 }
                 else
@@ -1915,6 +1926,7 @@ void handle_gline(char **parameters, int pcnt, userrec *user)
 	if (pcnt >= 3)
 	{
 		add_gline(duration(parameters[1]),user->nick,parameters[2],parameters[0]);
+		FOREACH_MOD OnAddGLine(duration(parameters[1]), user, parameters[2], parameters[0]);
 		if (!duration(parameters[1]))
 		{
 			WriteOpers("*** %s added permenant G-line for %s.",user->nick,parameters[0]);
@@ -1928,8 +1940,7 @@ void handle_gline(char **parameters, int pcnt, userrec *user)
 	{
 		if (del_gline(parameters[0]))
 		{
-			// . <mask> <who-removed-it>
-			snprintf(netdata,MAXBUF,". %s %s",parameters[0],user->nick);
+			FOREACH_MOD OnDelGLine(user, parameters[0]);
 			WriteOpers("*** %s Removed G-line on %s.",user->nick,parameters[0]);
 		}
 		else
@@ -1945,6 +1956,7 @@ void handle_zline(char **parameters, int pcnt, userrec *user)
 	if (pcnt >= 3)
 	{
 		add_zline(duration(parameters[1]),user->nick,parameters[2],parameters[0]);
+		FOREACH_MOD OnAddZLine(duration(parameters[1]), user, parameters[2], parameters[0]);
 		if (!duration(parameters[1]))
 		{
 			WriteOpers("*** %s added permenant Z-line for %s.",user->nick,parameters[0]);
@@ -1958,6 +1970,7 @@ void handle_zline(char **parameters, int pcnt, userrec *user)
 	{
 		if (del_zline(parameters[0]))
 		{
+			FOREACH_MOD OnDelZLine(user, parameters[0]);
 			WriteOpers("*** %s Removed Z-line on %s.",user->nick,parameters[0]);
 		}
 		else
@@ -1973,6 +1986,7 @@ void handle_qline(char **parameters, int pcnt, userrec *user)
 	if (pcnt >= 3)
 	{
 		add_qline(duration(parameters[1]),user->nick,parameters[2],parameters[0]);
+		FOREACH_MOD OnAddQLine(duration(parameters[1]), user, parameters[2], parameters[0]);
 		if (!duration(parameters[1]))
 		{
 			WriteOpers("*** %s added permenant Q-line for %s.",user->nick,parameters[0]);
@@ -1986,6 +2000,7 @@ void handle_qline(char **parameters, int pcnt, userrec *user)
 	{
 		if (del_qline(parameters[0]))
 		{
+			FOREACH_MOD OnDelQLine(user, parameters[0]);
 			WriteOpers("*** %s Removed Q-line on %s.",user->nick,parameters[0]);
 		}
 		else

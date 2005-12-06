@@ -440,7 +440,27 @@ class Module : public classbase
 	virtual void OnChangeHost(userrec* user, std::string newhost);
 
 	virtual void OnChangeName(userrec* user, std::string gecos);
-	
+
+	virtual void OnAddGLine(long duration, userrec* source, std::string reason, std::string hostmask);
+
+	virtual void OnAddZLine(long duration, userrec* source, std::string reason, std::string ipmask);
+
+	virtual void OnAddKLine(long duration, userrec* source, std::string reason, std::string hostmask);
+
+	virtual void OnAddQLine(long duration, userrec* source, std::string reason, std::string nickmask);
+
+	virtual void OnAddELine(long duration, userrec* source, std::string reason, std::string hostmask);
+
+	virtual void OnDelGLine(userrec* source, std::string hostmask);
+
+	virtual void OnDelZLine(userrec* source, std::string ipmask);
+
+	virtual void OnDelKLine(userrec* source, std::string hostmask);
+
+	virtual void OnDelQLine(userrec* source, std::string nickmask);
+
+	virtual void OnDelELine(userrec* source, std::string hostmask);
+
 	/** Called after any nickchange, local or remote. This can be used to track users after nickchanges
 	 * have been applied. Please note that although you can see remote nickchanges through this function, you should
          * NOT make any changes to the userrec if the user is a remote user as this may cause a desnyc.

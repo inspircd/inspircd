@@ -370,10 +370,20 @@ void		Module::ProtoSendMode(void* opaque, int target_type, void* target, std::st
 void		Module::OnWallops(userrec* user, std::string text) { };
 void		Module::OnChangeHost(userrec* user, std::string newhost) { };
 void		Module::OnChangeName(userrec* user, std::string gecos) { };
+void		Module::OnAddGLine(long duration, userrec* source, std::string reason, std::string hostmask) { };
+void		Module::OnAddZLine(long duration, userrec* source, std::string reason, std::string ipmask) { };
+void		Module::OnAddKLine(long duration, userrec* source, std::string reason, std::string hostmask) { };
+void		Module::OnAddQLine(long duration, userrec* source, std::string reason, std::string nickmask) { };
+void		Module::OnAddELine(long duration, userrec* source, std::string reason, std::string hostmask) { };
+void		Module::OnDelGLine(userrec* source, std::string hostmask) { };
+void		Module::OnDelZLine(userrec* source, std::string ipmask) { };
+void		Module::OnDelKLine(userrec* source, std::string hostmask) { };
+void		Module::OnDelQLine(userrec* source, std::string nickmask) { };
+void		Module::OnDelELine(userrec* source, std::string hostmask) { };
 
-// server is a wrapper class that provides methods to all of the C-style
-// exports in the core
-//
+/* server is a wrapper class that provides methods to all of the C-style
+ * exports in the core
+ */
 
 Server::Server()
 {
