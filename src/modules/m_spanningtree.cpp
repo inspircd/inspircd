@@ -1435,10 +1435,18 @@ class TreeSocket : public InspSocket
 				}
 				else if (command == "SVSNICK")
 				{
+					if (prefix == "")
+					{
+						prefix = this->GetName();
+					}
 					return this->ForceNick(prefix,params);
 				}
 				else if (command == "SVSJOIN")
 				{
+					if (prefix == "")
+					{
+						prefix = this->GetName();
+					}
 					return this->ServiceJoin(prefix,params);
 				}
 				else if (command == "SQUIT")
