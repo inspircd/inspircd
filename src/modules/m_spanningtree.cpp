@@ -1441,7 +1441,7 @@ void AddThisServer(TreeServer* server, std::deque<TreeServer*> &list)
 void GetListOfServersForChannel(chanrec* c, std::deque<TreeServer*> &list)
 {
 	std::vector<char*> *ulist = c->GetUsers();
-	unsingned int ucount = ulist->size()
+	unsigned int ucount = ulist->size();
 	for (unsigned int i = 0; i < ucount; i++)
 	{
 		char* o = (*ulist)[i];
@@ -1453,7 +1453,7 @@ void GetListOfServersForChannel(chanrec* c, std::deque<TreeServer*> &list)
 				AddThisServer(best,list);
 		}
 	}
-	return list;
+	return;
 }
 
 bool DoOneToAllButSenderRaw(std::string data,std::string omit,std::string prefix,std::string command,std::deque<std::string> params)
@@ -1501,7 +1501,7 @@ bool DoOneToAllButSenderRaw(std::string data,std::string omit,std::string prefix
 		}
 	}
 	unsigned int items = TreeRoot->ChildCount();
-	for (unsigned int x = 0; x < n; x++)
+	for (unsigned int x = 0; x < items; x++)
 	{
 		TreeServer* Route = TreeRoot->GetChild(x);
 		if ((Route->GetSocket()) && (Route->GetName() != omit) && (omitroute != Route))
@@ -1523,7 +1523,7 @@ bool DoOneToAllButSender(std::string prefix, std::string command, std::deque<std
 		FullLine = FullLine + " " + params[x];
 	}
 	unsigned int items = TreeRoot->ChildCount();
-	for (unsigned int x = 0; x < n; x++)
+	for (unsigned int x = 0; x < items; x++)
 	{
 		TreeServer* Route = TreeRoot->GetChild(x);
 		// Send the line IF:
