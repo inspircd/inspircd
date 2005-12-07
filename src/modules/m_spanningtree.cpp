@@ -112,10 +112,10 @@ typedef nspace::hash_map<std::string, TreeServer*> server_hash;
 server_hash serverlist;
 
 /* More forward declarations */
-bool DoOneToOne(std::string prefix, std::string command, std::deque<std::string> params, std::string target);
-bool DoOneToAllButSender(std::string prefix, std::string command, std::deque<std::string> params, std::string omit);
-bool DoOneToMany(std::string prefix, std::string command, std::deque<std::string> params);
-bool DoOneToAllButSenderRaw(std::string data,std::string omit, std::string prefix,std::string command,std::deque<std::string> params);
+bool DoOneToOne(std::string prefix, std::string command, std::deque<std::string> &params, std::string target);
+bool DoOneToAllButSender(std::string prefix, std::string command, std::deque<std::string> &params, std::string omit);
+bool DoOneToMany(std::string prefix, std::string command, std::deque<std::string> &params);
+bool DoOneToAllButSenderRaw(std::string data, std::string omit, std::string prefix, std::string command, std::deque<std::string> &params);
 void ReadConfiguration(bool rebind);
 
 /* Imported from xline.cpp for use during netburst */
@@ -1131,7 +1131,7 @@ class TreeSocket : public InspSocket
 	/* Because the core won't let users or even SERVERS set +o,
 	 * we use the OPERTYPE command to do this.
 	 */
-	bool OperType(std::string prefix, std::deque<std::string> params)
+	bool OperType(std::string prefix, std::deque<std::string> &params)
 	{
 		if (params.size() != 1)
 			return true;
@@ -1152,7 +1152,7 @@ class TreeSocket : public InspSocket
 	/* Because Andy insists that services-compatible servers must
 	 * implement SVSNICK and SVSJOIN, that's exactly what we do :p
 	 */
-	bool ForceNick(std::string prefix, std::deque<std::string> params)
+	bool ForceNick(std::string prefix, std::deque<std::string> &params)
 	{
 		if (params.size() < 3)
 			return true;
@@ -1166,7 +1166,7 @@ class TreeSocket : public InspSocket
 		return true;
 	}
 
-	bool ServiceJoin(std::string prefix, std::deque<std::string> params)
+	bool ServiceJoin(std::string prefix, std::deque<std::string> &params)
 	{
 		if (params.size() < 2)
 			return true;
@@ -1179,10 +1179,10 @@ class TreeSocket : public InspSocket
 		return true;
 	}
 
-	bool RemoteRehash(std::string prefix, std::deque<std::string> params)
+	bool RemoteRehash(std::string prefix, std::deque<std::string> &params)
 	{
 		if (params.size() < 1)
-			return true;
+			return false;
 		std::string servermask = params[0];
 		if (Srv->MatchText(Srv->GetServerName(),servermask))
 		{
@@ -1194,7 +1194,7 @@ class TreeSocket : public InspSocket
 		return true;
 	}
 
-	bool RemoteKill(std::string prefix, std::deque<std::string> params)
+	bool RemoteKill(std::string prefix, std::deque<std::string> &params)
 	{
 		if (params.size() != 2)
 			return true;
@@ -1221,7 +1221,7 @@ class TreeSocket : public InspSocket
 		return true;
 	}
 
-	bool LocalPong(std::string prefix, std::deque<std::string> params)
+	bool LocalPong(std::string prefix, std::deque<std::string> &params)
 	{
 		if (params.size() < 1)
 			return true;
@@ -1233,7 +1233,7 @@ class TreeSocket : public InspSocket
 		return true;
 	}
 
-	bool ServerVersion(std::string prefix, std::deque<std::string> params)
+	bool ServerVersion(std::string prefix, std::deque<std::string> &params)
 	{
 		if (params.size() < 1)
 			return true;
@@ -1247,7 +1247,7 @@ class TreeSocket : public InspSocket
 		return true;
 	}
 
-	bool ChangeHost(std::string prefix, std::deque<std::string> params)
+	bool ChangeHost(std::string prefix, std::deque<std::string> &params)
 	{
 		if (params.size() < 1)
 			return true;
@@ -1260,7 +1260,7 @@ class TreeSocket : public InspSocket
 		return true;
 	}
 
-	bool AddLine(std::string prefix, std::deque<std::string> params)
+	bool AddLine(std::string prefix, std::deque<std::string> &params)
 	{
 		if (params.size() < 6)
 			return true;
@@ -1299,7 +1299,7 @@ class TreeSocket : public InspSocket
 		return true;
 	}
 
-	bool ChangeName(std::string prefix, std::deque<std::string> params)
+	bool ChangeName(std::string prefix, std::deque<std::string> &params)
 	{
 		if (params.size() < 1)
 			return true;
@@ -1313,7 +1313,7 @@ class TreeSocket : public InspSocket
 		return true;
 	}
 	
-	bool LocalPing(std::string prefix, std::deque<std::string> params)
+	bool LocalPing(std::string prefix, std::deque<std::string> &params)
 	{
 		if (params.size() < 1)
 			return true;
@@ -1322,7 +1322,7 @@ class TreeSocket : public InspSocket
 		return true;
 	}
 
-	bool RemoteServer(std::string prefix, std::deque<std::string> params)
+	bool RemoteServer(std::string prefix, std::deque<std::string> &params)
 	{
 		if (params.size() < 4)
 			return false;
@@ -1350,7 +1350,7 @@ class TreeSocket : public InspSocket
 		return true;
 	}
 
-	bool Outbound_Reply_Server(std::deque<std::string> params)
+	bool Outbound_Reply_Server(std::deque<std::string> &params)
 	{
 		if (params.size() < 4)
 			return false;
@@ -1393,7 +1393,7 @@ class TreeSocket : public InspSocket
 		return false;
 	}
 
-	bool Inbound_Server(std::deque<std::string> params)
+	bool Inbound_Server(std::deque<std::string> &params)
 	{
 		if (params.size() < 4)
 			return false;
@@ -1431,9 +1431,8 @@ class TreeSocket : public InspSocket
 		return false;
 	}
 
-	std::deque<std::string> Split(std::string line, bool stripcolon)
+	void Split(std::string line, bool stripcolon, std::deque<std::string> &n)
 	{
-		std::deque<std::string> n;
 		if (!strchr(line.c_str(),' '))
 		{
 			n.push_back(line);
@@ -1491,7 +1490,8 @@ class TreeSocket : public InspSocket
 		if (line == "")
 			return true;
 		Srv->Log(DEBUG,"IN: '"+line+"'");
-		std::deque<std::string> params = this->Split(line,true);
+		std::deque<std::string> params;
+	        this->Split(line,true,params);
 		std::string command = "";
 		std::string prefix = "";
 		if (((params[0].c_str())[0] == ':') && (params.size() > 1))
@@ -1794,7 +1794,7 @@ void GetListOfServersForChannel(chanrec* c, std::deque<TreeServer*> &list)
 	return;
 }
 
-bool DoOneToAllButSenderRaw(std::string data,std::string omit,std::string prefix,std::string command,std::deque<std::string> params)
+bool DoOneToAllButSenderRaw(std::string data, std::string omit, std::string prefix, std::string command, std::deque<std::string> &params)
 {
 	TreeServer* omitroute = BestRouteTo(omit);
 	if ((command == "NOTICE") || (command == "PRIVMSG"))
@@ -1851,7 +1851,7 @@ bool DoOneToAllButSenderRaw(std::string data,std::string omit,std::string prefix
 	return true;
 }
 
-bool DoOneToAllButSender(std::string prefix, std::string command, std::deque<std::string> params, std::string omit)
+bool DoOneToAllButSender(std::string prefix, std::string command, std::deque<std::string> &params, std::string omit)
 {
 	TreeServer* omitroute = BestRouteTo(omit);
 	std::string FullLine = ":" + prefix + " " + command;
@@ -1877,7 +1877,7 @@ bool DoOneToAllButSender(std::string prefix, std::string command, std::deque<std
 	return true;
 }
 
-bool DoOneToMany(std::string prefix, std::string command, std::deque<std::string> params)
+bool DoOneToMany(std::string prefix, std::string command, std::deque<std::string> &params)
 {
 	std::string FullLine = ":" + prefix + " " + command;
 	unsigned int words = params.size();
@@ -1898,7 +1898,7 @@ bool DoOneToMany(std::string prefix, std::string command, std::deque<std::string
 	return true;
 }
 
-bool DoOneToOne(std::string prefix, std::string command, std::deque<std::string> params, std::string target)
+bool DoOneToOne(std::string prefix, std::string command, std::deque<std::string> &params, std::string target)
 {
 	TreeServer* Route = BestRouteTo(target);
 	if (Route)
@@ -1926,6 +1926,7 @@ std::vector<TreeSocket*> Bindings;
 
 void ReadConfiguration(bool rebind)
 {
+	Conf = new ConfigReader;
 	if (rebind)
 	{
 		for (int j =0; j < Conf->Enumerate("bind"); j++)
@@ -1968,6 +1969,7 @@ void ReadConfiguration(bool rebind)
 		LinkBlocks.push_back(L);
 		log(DEBUG,"m_spanningtree: Read server %s with host %s:%d",L.Name.c_str(),L.IPAddr.c_str(),L.Port);
 	}
+	delete Conf;
 }
 
 
@@ -1982,7 +1984,6 @@ class ModuleSpanningTree : public Module
 	ModuleSpanningTree()
 	{
 		Srv = new Server;
-		Conf = new ConfigReader;
 		Bindings.clear();
 
 		// Create the root of the tree
@@ -2010,20 +2011,9 @@ class ModuleSpanningTree : public Module
 		return TreeRoot->ChildCount();
 	}
 
-	void CountServsRecursive(TreeServer* Current)
-	{
-		NumServers++;
-		for (unsigned int q = 0; q < Current->ChildCount(); q++)
-		{
-			CountServsRecursive(Current->GetChild(q));
-		}
-	}
-	
 	int CountServs()
 	{
-		NumServers = 0;
-		CountServsRecursive(TreeRoot);
-		return NumServers;
+		return serverlist.size();
 	}
 
 	void HandleLinks(char** parameters, int pcnt, userrec* user)
@@ -2236,6 +2226,20 @@ class ModuleSpanningTree : public Module
 		return 1;
 	}
 
+	virtual bool HandleStats(char ** parameters, int pcnt, userrec* user)
+	{
+	        if (*parameters[0] == 'c')
+	        {
+	                for (int i = 0; i < LinkBlocks.size(); i++)
+	                {
+	                        WriteServ(user->fd,"213 %s C *@%s * %s %d 0 M",user->nick,LinkBlocks[i].IPAddr,LinkBlocks[i].ServerName,LinkBlocks[i].Port);
+				WriteServ(user->fd,"244 %s H * * %s",user->nick,LinkBlocks[i].ServerName);
+			}
+			return true;
+		}
+		return false;
+	}
+
 	virtual int OnPreCommand(std::string command, char **parameters, int pcnt, userrec *user)
 	{
 		if (command == "CONNECT")
@@ -2245,6 +2249,10 @@ class ModuleSpanningTree : public Module
 		else if (command == "SQUIT")
 		{
 			return this->HandleSquit(parameters,pcnt,user);
+		}
+		else if (command == "STATS")
+		{
+			return this->HandleStats(parameters,pcnt,user);
 		}
 		else if (command == "MAP")
 		{
