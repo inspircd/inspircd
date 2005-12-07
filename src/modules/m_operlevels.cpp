@@ -19,16 +19,16 @@ class ModuleOperLevels : public Module
 
 	public:
 
-		ModuleOperLevels()
+		ModuleOperLevels(Server* Me)
+			: Module::Module(Me)
 		{
 
-			Srv = new Server;
+			Srv = Me;
 			conf = new ConfigReader;
 		}
 
 		virtual ~ModuleOperLevels()
 		{
-			delete Srv;
 			delete conf;
 		}
 
@@ -91,9 +91,9 @@ class ModuleOperLevelsFactory : public ModuleFactory
         {
         }
 
-        virtual Module * CreateModule()
+        virtual Module * CreateModule(Server* Me)
         {
-                return new ModuleOperLevels;
+                return new ModuleOperLevels(Me);
         }
 
 };

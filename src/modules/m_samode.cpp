@@ -61,15 +61,15 @@ void handle_samode(char **parameters, int pcnt, userrec *user)
 class ModuleSaMode : public Module
 {
  public:
-	ModuleSaMode()
+	ModuleSaMode(Server* Me)
+		: Module::Module(Me)
 	{
-		Srv = new Server;
+		Srv = Me;
 		Srv->AddCommand("SAMODE",handle_samode,'o',2,"m_samode.so");
 	}
 	
 	virtual ~ModuleSaMode()
 	{
-		delete Srv;
 	}
 	
 	virtual Version GetVersion()
@@ -95,9 +95,9 @@ class ModuleSaModeFactory : public ModuleFactory
 	{
 	}
 	
-	virtual Module * CreateModule()
+	virtual Module * CreateModule(Server* Me)
 	{
-		return new ModuleSaMode;
+		return new ModuleSaMode(Me);
 	}
 	
 };

@@ -48,15 +48,15 @@ void handle_sethost(char **parameters, int pcnt, userrec *user)
 class ModuleSetHost : public Module
 {
  public:
-	ModuleSetHost()
+	ModuleSetHost(Server* Me)
+		: Module::Module(Me)
 	{
-		Srv = new Server;
+		Srv = Me;
 		Srv->AddCommand("SETHOST",handle_sethost,'o',1,"m_sethost.so");
 	}
 	
 	virtual ~ModuleSetHost()
 	{
-		delete Srv;
 	}
 	
 	virtual Version GetVersion()
@@ -79,9 +79,9 @@ class ModuleSetHostFactory : public ModuleFactory
 	{
 	}
 	
-	virtual Module * CreateModule()
+	virtual Module * CreateModule(Server* Me)
 	{
-		return new ModuleSetHost;
+		return new ModuleSetHost(Me);
 	}
 	
 };

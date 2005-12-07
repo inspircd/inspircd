@@ -57,15 +57,15 @@ void handle_saquit(char **parameters, int pcnt, userrec *user)
 class ModuleSaquit : public Module
 {
  public:
-	ModuleSaquit()
+	ModuleSaquit(Server* Me)
+		: Module::Module(Me)
 	{
-		Srv = new Server;
+		Srv = Me;
 		Srv->AddCommand("SAQUIT",handle_saquit,'o',2,"m_saquit.so");
 	}
 	
 	virtual ~ModuleSaquit()
 	{
-		delete Srv;
 	}
 	
 	virtual Version GetVersion()
@@ -88,9 +88,9 @@ class ModuleSaquitFactory : public ModuleFactory
 	{
 	}
 	
-	virtual Module * CreateModule()
+	virtual Module * CreateModule(Server* Me)
 	{
-		return new ModuleSaquit;
+		return new ModuleSaquit(Me);
 	}
 	
 };

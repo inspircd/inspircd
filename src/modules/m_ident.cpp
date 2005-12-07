@@ -263,9 +263,10 @@ class ModuleIdent : public Module
 		delete Conf;
 	}
 
-	ModuleIdent()
+	ModuleIdent(Server* Me)
+		: Module::Module(Me)
 	{
-		Srv = new Server;
+		Srv = Me;
 		ReadSettings();
 	}
 
@@ -334,7 +335,6 @@ class ModuleIdent : public Module
 	
 	virtual ~ModuleIdent()
 	{
-		delete Srv;
 	}
 	
 	virtual Version GetVersion()
@@ -355,9 +355,9 @@ class ModuleIdentFactory : public ModuleFactory
 	{
 	}
 	
-	virtual Module * CreateModule()
+	virtual Module * CreateModule(Server* Me)
 	{
-		return new ModuleIdent;
+		return new ModuleIdent(Me);
 	}
 	
 };

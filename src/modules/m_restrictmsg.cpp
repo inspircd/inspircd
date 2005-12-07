@@ -32,9 +32,10 @@ class ModuleRestrictMsg : public Module
 	Server *Srv;
  public:
  
-	ModuleRestrictMsg()
+	ModuleRestrictMsg(Server* Me)
+		: Module::Module(Me)
 	{
-		Srv = new Server;
+		Srv = Me;
 	}
 
 	virtual int OnUserPreMessage(userrec* user,void* dest,int target_type, std::string &text)
@@ -65,7 +66,6 @@ class ModuleRestrictMsg : public Module
 
 	virtual ~ModuleRestrictMsg()
 	{
-		delete Srv;
 	}
 	
 	virtual Version GetVersion()
@@ -86,9 +86,9 @@ class ModuleRestrictMsgFactory : public ModuleFactory
 	{
 	}
 	
-	virtual Module * CreateModule()
+	virtual Module * CreateModule(Server* Me)
 	{
-		return new ModuleRestrictMsg;
+		return new ModuleRestrictMsg(Me);
 	}
 	
 };

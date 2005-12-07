@@ -42,15 +42,15 @@ void handle_setname(char **parameters, int pcnt, userrec *user)
 class ModuleSetName : public Module
 {
  public:
-	ModuleSetName()
+	ModuleSetName(Server* Me)
+		: Module::Module(Me)
 	{
-		Srv = new Server;
+		Srv = Me;
 		Srv->AddCommand("SETNAME",handle_setname,0,1,"m_setname.so");
 	}
 	
 	virtual ~ModuleSetName()
 	{
-		delete Srv;
 	}
 	
 	virtual Version GetVersion()
@@ -73,9 +73,9 @@ class ModuleSetNameFactory : public ModuleFactory
 	{
 	}
 	
-	virtual Module * CreateModule()
+	virtual Module * CreateModule(Server* Me)
 	{
-		return new ModuleSetName;
+		return new ModuleSetName(Me);
 	}
 	
 };

@@ -36,9 +36,10 @@ class ModuleChanFilter : public Module
 	
  public:
  
-	ModuleChanFilter()
+	ModuleChanFilter(Server* Me)
+		: Module::Module(Me)
 	{
-		Srv = new Server;
+		Srv = Me;
 		Conf = new ConfigReader;
 		Srv->AddExtendedListMode('g');
 		MaxEntries = Conf->ReadInteger("chanfilter","maxsize",0,true);
@@ -202,7 +203,6 @@ class ModuleChanFilter : public Module
 	virtual ~ModuleChanFilter()
 	{
 		delete Conf;
-		delete Srv;
 	}
 	
 	virtual Version GetVersion()
@@ -237,9 +237,9 @@ class ModuleChanFilterFactory : public ModuleFactory
 	{
 	}
 	
-	virtual Module * CreateModule()
+	virtual Module * CreateModule(Server* Me)
 	{
-		return new ModuleChanFilter;
+		return new ModuleChanFilter(Me);
 	}
 	
 };

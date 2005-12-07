@@ -55,9 +55,10 @@ class ModuleSQLOper : public Module
 		return (SQLModule);
 	}
 
-	ModuleSQLOper()
+	ModuleSQLOper(Server* Me)
+		: Module::Module(Me)
 	{
-		Srv = new Server;
+		Srv = Me;
 		Conf = new ConfigReader();
 		ReadConfig();
 	}
@@ -193,7 +194,6 @@ class ModuleSQLOper : public Module
 	virtual ~ModuleSQLOper()
 	{
 		delete Conf;
-		delete Srv;
 	}
 	
 	virtual Version GetVersion()
@@ -214,9 +214,9 @@ class ModuleSQLOperFactory : public ModuleFactory
 	{
 	}
 	
-	virtual Module * CreateModule()
+	virtual Module * CreateModule(Server* Me)
 	{
-		return new ModuleSQLOper;
+		return new ModuleSQLOper(Me);
 	}
 	
 };

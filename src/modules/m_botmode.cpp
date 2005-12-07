@@ -28,9 +28,10 @@ class ModuleBotMode : public Module
 {
 	Server *Srv; 
  public:
-	ModuleBotMode()
+	ModuleBotMode(Server* Me)
+		: Module::Module(Me)
 	{
-		Srv = new Server;
+		Srv = Me;
 		
 		if (!Srv->AddExtendedMode('B',MT_CLIENT,false,0,0))
 		{
@@ -42,7 +43,6 @@ class ModuleBotMode : public Module
 	
 	virtual ~ModuleBotMode()
 	{
-		delete Srv;
 	}
 	
 	virtual Version GetVersion()
@@ -85,9 +85,9 @@ class ModuleBotModeFactory : public ModuleFactory
 	{
 	}
 	
-	virtual Module * CreateModule()
+	virtual Module * CreateModule(Server* Me)
 	{
-		return new ModuleBotMode;
+		return new ModuleBotMode(Me);
 	}
 	
 };

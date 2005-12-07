@@ -30,9 +30,10 @@ class ModuleBlockColor : public Module
 	Server *Srv;
  public:
  
-	ModuleBlockColor()
+	ModuleBlockColor(Server* Me)
+		: Module::Module(Me)
 	{
-		Srv = new Server;
+		Srv = Me;
 		Srv->AddExtendedMode('c',MT_CHANNEL,false,0,0);
 	}
 
@@ -110,7 +111,6 @@ class ModuleBlockColor : public Module
 
 	virtual ~ModuleBlockColor()
 	{
-		delete Srv;
 	}
 	
 	virtual Version GetVersion()
@@ -131,9 +131,9 @@ class ModuleBlockColorFactory : public ModuleFactory
 	{
 	}
 	
-	virtual Module * CreateModule()
+	virtual Module * CreateModule(Server* Me)
 	{
-		return new ModuleBlockColor;
+		return new ModuleBlockColor(Me);
 	}
 	
 };

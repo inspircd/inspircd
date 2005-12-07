@@ -648,7 +648,6 @@ void DNS::SetNS(std::string dnsserver)
 
 DNS::~DNS()
 {
-	log(DEBUG,"Delete DNS fd=%d",this->myfd);
 }
 
 bool DNS::ReverseLookup(std::string ip)

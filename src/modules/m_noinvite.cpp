@@ -3,13 +3,13 @@
  *   +------------------------------------+
  *
  *  Inspire is copyright (C) 2002-2004 ChatSpike-Dev.
- *   E-mail:
- *<brain@chatspike.net>
- *   	  <Craig@chatspike.net>
+ *                   E-mail:
+ *            <brain@chatspike.net>
+ *            <Craig@chatspike.net>
  * 
  * Written by Craig Edwards, Craig McLure, and others.
  * This program is free but copyrighted software; see
- *the file COPYING for details.
+ * the file COPYING for details.
  *
  * ---------------------------------------------------
  */
@@ -30,9 +30,10 @@ class ModuleNoInvite : public Module
 	
 	public:
  
-		ModuleNoInvite()
+		ModuleNoInvite(Server* Me)
+			: Module::Module(Me)
 		{
-			Srv = new Server;
+			Srv = Me;
 			Srv->AddExtendedMode('V',MT_CHANNEL,false,0,0);
 		}
 
@@ -82,7 +83,6 @@ class ModuleNoInvite : public Module
 
 		virtual ~ModuleNoInvite()
 		{
-			delete Srv;
 		}
 	
 		virtual Version GetVersion()
@@ -103,9 +103,9 @@ class ModuleNoInviteFactory : public ModuleFactory
 		{
 		}
 	
-		virtual Module * CreateModule()
+		virtual Module * CreateModule(Server* Me)
 		{
-			return new ModuleNoInvite;
+			return new ModuleNoInvite(Me);
 		}
 	
 };

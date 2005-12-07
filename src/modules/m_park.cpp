@@ -184,9 +184,10 @@ class ModulePark : public Module
 		delete Conf;
 	}
 
-	ModulePark()
+	ModulePark(Server* Me)
+		: Module::Module(Me)
 	{
-		Srv = new Server;
+		Srv = Me;
 		pinfo.clear();
 		this->ReadSettings();
 		Srv->AddCommand("PARK",handle_park,0,0,"m_park.so");
@@ -196,7 +197,6 @@ class ModulePark : public Module
 	
 	virtual ~ModulePark()
 	{
-		delete Srv;
 	}
 
 	virtual void OnRehash(std::string parameter)
@@ -320,9 +320,9 @@ class ModuleParkFactory : public ModuleFactory
 	{
 	}
 	
-	virtual Module * CreateModule()
+	virtual Module * CreateModule(Server* Me)
 	{
-		return new ModulePark;
+		return new ModulePark(Me);
 	}
 	
 };

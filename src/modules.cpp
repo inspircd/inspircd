@@ -108,7 +108,7 @@ extern int portCount;
 
 extern int ports[MAXSOCKS];
 
-
+class Server;
 
 extern std::stringstream config_f;
 
@@ -303,7 +303,8 @@ std::string Event::GetEventID()
 
 
 // These declarations define the behavours of the base class Module (which does nothing at all)
-		Module::Module() { }
+
+		Module::Module(Server* Me) { }
 		Module::~Module() { }
 void		Module::OnUserConnect(userrec* user) { }
 void		Module::OnUserQuit(userrec* user, std::string message) { }

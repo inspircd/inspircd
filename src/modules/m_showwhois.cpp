@@ -9,20 +9,20 @@ using namespace std;
 
 /* $ModDesc: Allows opers to set +W to see when a user uses WHOIS on them */
 
-Server *Srv;
-
 class ModuleShowwhois : public Module
 {
+		Server* Srv;
+
 	public:
-		ModuleShowwhois()
+		ModuleShowwhois(Server* Me)
+			: Module::Module(Me)
 		{
-			Srv = new Server;
+			Srv = Me;
 			Srv->AddExtendedMode('W',MT_CLIENT,true,0,0);
 		}
 
 		~ModuleShowwhois()
 		{
-			delete Srv;
 		}
 
 		virtual Version GetVersion()
@@ -61,9 +61,9 @@ class ModuleShowwhoisFactory : public ModuleFactory
 		{
 		}
 
-		virtual Module* CreateModule()
+		virtual Module* CreateModule(Server* Me)
 		{
-			return new ModuleShowwhois;
+			return new ModuleShowwhois(Me);
 		}
 
 };

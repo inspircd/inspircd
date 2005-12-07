@@ -72,9 +72,10 @@ class ModuleSQLAuth : public Module
 		return (SQLModule);
 	}
 
-	ModuleSQLAuth()
+	ModuleSQLAuth(Server* Me)
+		: Module::Module(Me)
 	{
-		Srv = new Server;
+		Srv = Me;
 		ReadConfig();
 	}
 
@@ -170,7 +171,6 @@ class ModuleSQLAuth : public Module
 
 	virtual ~ModuleSQLAuth()
 	{
-		delete Srv;
 	}
 	
 	virtual Version GetVersion()
@@ -191,9 +191,9 @@ class ModuleSQLAuthFactory : public ModuleFactory
 	{
 	}
 	
-	virtual Module * CreateModule()
+	virtual Module * CreateModule(Server* Me)
 	{
-		return new ModuleSQLAuth;
+		return new ModuleSQLAuth(Me);
 	}
 	
 };

@@ -29,9 +29,10 @@ class ModuleNoNotice : public Module
 	Server *Srv;
  public:
  
-	ModuleNoNotice()
+	ModuleNoNotice(Server* Me)
+		: Module::Module(Me)
 	{
-		Srv = new Server;
+		Srv = Me;
 		Srv->AddExtendedMode('T',MT_CHANNEL,false,0,0);
 	}
 	
@@ -91,7 +92,6 @@ class ModuleNoNotice : public Module
 	
 	virtual ~ModuleNoNotice()
 	{
-		delete Srv;
 	}
 	
 	virtual Version GetVersion()
@@ -112,9 +112,9 @@ class ModuleNoNoticeFactory : public ModuleFactory
 	{
 	}
 	
-	virtual Module * CreateModule()
+	virtual Module * CreateModule(Server* Me)
 	{
-		return new ModuleNoNotice;
+		return new ModuleNoNotice(Me);
 	}
 	
 };

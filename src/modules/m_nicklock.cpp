@@ -79,9 +79,10 @@ void handle_nickunlock(char **parameters, int pcnt, userrec *user)
 class ModuleNickLock : public Module
 {
  public:
-	ModuleNickLock()
+	ModuleNickLock(Server* Me)
+		: Module::Module(Me)
 	{
-		Srv = new Server;
+		Srv = Me;
 		Srv->AddCommand("NICKLOCK",handle_nicklock,'o',2,"m_nicklock.so");
 		Srv->AddCommand("NICKUNLOCK",handle_nickunlock,'o',1,"m_nicklock.so");
 	}
@@ -125,9 +126,9 @@ class ModuleNickLockFactory : public ModuleFactory
 	{
 	}
 	
-	virtual Module * CreateModule()
+	virtual Module * CreateModule(Server* Me)
 	{
-		return new ModuleNickLock;
+		return new ModuleNickLock(Me);
 	}
 	
 };

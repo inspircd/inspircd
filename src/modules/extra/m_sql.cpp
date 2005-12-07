@@ -311,9 +311,10 @@ class ModuleSQL : public Module
 		return NULL;
 	}
 
-	ModuleSQL()
+	ModuleSQL(Server* Me)
+		: Module::Module(Me)
 	{
-		Srv = new Server();
+		Srv = Me;
 		Conf = new ConfigReader();
 		LoadDatabases(Conf);
 	}
@@ -322,7 +323,6 @@ class ModuleSQL : public Module
 	{
 		Connections.clear();
 		delete Conf;
-		delete Srv;
 	}
 	
 	virtual void OnRehash(std::string parameter)
@@ -352,9 +352,9 @@ class ModuleSQLFactory : public ModuleFactory
 	{
 	}
 	
-	virtual Module * CreateModule()
+	virtual Module * CreateModule(Server* Me)
 	{
-		return new ModuleSQL;
+		return new ModuleSQL(Me);
 	}
 	
 };

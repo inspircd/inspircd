@@ -1982,9 +1982,10 @@ class ModuleSpanningTree : public Module
 
  public:
 
-	ModuleSpanningTree()
+	ModuleSpanningTree(Server* Me)
+		: Module::Module(Me)
 	{
-		Srv = new Server;
+		Srv = Me;
 		Bindings.clear();
 
 		// Create the root of the tree
@@ -2669,7 +2670,6 @@ class ModuleSpanningTree : public Module
 
 	virtual ~ModuleSpanningTree()
 	{
-		delete Srv;
 	}
 
 	virtual Version GetVersion()
@@ -2690,9 +2690,9 @@ class ModuleSpanningTreeFactory : public ModuleFactory
 	{
 	}
 	
-	virtual Module * CreateModule()
+	virtual Module * CreateModule(Server* Me)
 	{
-		TreeProtocolModule = new ModuleSpanningTree;
+		TreeProtocolModule = new ModuleSpanningTree(Me);
 		return TreeProtocolModule;
 	}
 	

@@ -31,9 +31,10 @@ class ModuleRedirect : public Module
 	
  public:
  
-	ModuleRedirect()
+	ModuleRedirect(Server* Me)
+		: Module::Module(Me)
 	{
-		Srv = new Server;
+		Srv = Me;
 		Srv->AddExtendedMode('L',MT_CHANNEL,false,1,0);
 	}
 	
@@ -99,7 +100,6 @@ class ModuleRedirect : public Module
 
 	virtual ~ModuleRedirect()
 	{
-		delete Srv;
 	}
 	
 	virtual Version GetVersion()
@@ -125,9 +125,9 @@ class ModuleRedirectFactory : public ModuleFactory
 	{
 	}
 	
-	virtual Module * CreateModule()
+	virtual Module * CreateModule(Server* Me)
 	{
-		return new ModuleRedirect;
+		return new ModuleRedirect(Me);
 	}
 	
 };

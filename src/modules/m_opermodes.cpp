@@ -31,16 +31,16 @@ class ModuleModesOnOper : public Module
 	ConfigReader *Conf;
 
  public:
-	ModuleModesOnOper()
+	ModuleModesOnOper(Server* Me)
+		: Module::Module(Me)
 	{
-		Srv = new Server;
+		Srv = Me;
 		Conf = new ConfigReader;
 	}
 	
 	virtual ~ModuleModesOnOper()
 	{
 		delete Conf;
-		delete Srv;
 	}
 	
 	virtual Version GetVersion()
@@ -85,9 +85,9 @@ class ModuleModesOnOperFactory : public ModuleFactory
 	{
 	}
 	
-	virtual Module * CreateModule()
+	virtual Module * CreateModule(Server* Me)
 	{
-		return new ModuleModesOnOper;
+		return new ModuleModesOnOper(Me);
 	}
 	
 };

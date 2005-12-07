@@ -32,18 +32,16 @@ class ModuleHostChange : public Module
 	std::string MySuffix;
 	 
  public:
-	ModuleHostChange()
+	ModuleHostChange(Server* Me)
+		: Module::Module(Me)
 	{
-		// We must create an instance of the Server class to work with
-		Srv = new Server;
+		Srv = Me;
                 Conf = new ConfigReader;
 		MySuffix = Conf->ReadValue("host","suffix",0);
 	}
 	
 	virtual ~ModuleHostChange()
 	{
-		// not really neccessary, but free it anyway
-		delete Srv;
 		delete Conf;
 	}
 
@@ -122,9 +120,9 @@ class ModuleHostChangeFactory : public ModuleFactory
 	{
 	}
 	
-	virtual Module * CreateModule()
+	virtual Module * CreateModule(Server* Me)
 	{
-		return new ModuleHostChange;
+		return new ModuleHostChange(Me);
 	}
 	
 };

@@ -50,15 +50,15 @@ void handle_chghost(char **parameters, int pcnt, userrec *user)
 class ModuleChgHost : public Module
 {
  public:
-	ModuleChgHost()
+	ModuleChgHost(Server* Me)
+		: Module::Module(Me)
 	{
-		Srv = new Server;
+		Srv = Me;
 		Srv->AddCommand("CHGHOST",handle_chghost,'o',2,"m_chghost.so");
 	}
 	
 	virtual ~ModuleChgHost()
 	{
-		delete Srv;
 	}
 	
 	virtual Version GetVersion()
@@ -81,9 +81,9 @@ class ModuleChgHostFactory : public ModuleFactory
 	{
 	}
 	
-	virtual Module * CreateModule()
+	virtual Module * CreateModule(Server* Me)
 	{
-		return new ModuleChgHost;
+		return new ModuleChgHost(Me);
 	}
 	
 };

@@ -35,14 +35,15 @@ class ModuleFilter : public Module
  ConfigReader *Conf, *MyConf;
  
  public:
-	ModuleFilter()
+	ModuleFilter(Server* Me)
+		: Module::Module(Me)
 	{
 		// read the configuration file on startup.
 		// it is perfectly valid to set <filter file> to the value of the
 		// main config file, then append your <keyword> tags to the bottom
 		// of the main config... but rather messy. That's why the capability
 		// of using a seperate config file is provided.
-		Srv = new Server;
+		Srv = Me;
 		Conf = new ConfigReader;
 		std::string filterfile = Conf->ReadValue("filter","file",0);
 		MyConf = new ConfigReader(filterfile);
@@ -57,7 +58,6 @@ class ModuleFilter : public Module
 	
 	virtual ~ModuleFilter()
 	{
-		delete Srv;
 		delete MyConf;
 		delete Conf;
 	}
@@ -201,9 +201,9 @@ class ModuleFilterFactory : public ModuleFactory
 	{
 	}
 	
-	virtual Module * CreateModule()
+	virtual Module * CreateModule(Server* Me)
 	{
-		return new ModuleFilter;
+		return new ModuleFilter(Me);
 	}
 	
 };

@@ -98,16 +98,16 @@ void handle_tban(char **parameters, int pcnt, userrec *user)
 class ModuleTimedBans : public Module
 {
  public:
-	ModuleTimedBans()
+	ModuleTimedBans(Server* Me)
+		: Module::Module(Me)
 	{
-		Srv = new Server;
+		Srv = Me;
 		Srv->AddCommand("TBAN",handle_tban,0,3,"m_timedbans.so");
 		TimedBanList.clear();
 	}
 	
 	virtual ~ModuleTimedBans()
 	{
-		delete Srv;
 		TimedBanList.clear();
 	}
 
@@ -181,9 +181,9 @@ class ModuleTimedBansFactory : public ModuleFactory
 	{
 	}
 	
-	virtual Module * CreateModule()
+	virtual Module * CreateModule(Server* Me)
 	{
-		return new ModuleTimedBans;
+		return new ModuleTimedBans(Me);
 	}
 	
 };

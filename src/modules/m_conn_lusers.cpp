@@ -32,14 +32,14 @@ class ModuleConnLUSERS : public Module
 	 
 	 Server *Srv;
  public:
-	ModuleConnLUSERS()
+	ModuleConnLUSERS(Server* Me)
+		: Module::Module(Me)
 	{
-		Srv = new Server;
+		Srv = Me;
 	}
 	
 	virtual ~ModuleConnLUSERS()
 	{
-		delete Srv;
 	}
 	
 	virtual Version GetVersion()
@@ -84,9 +84,9 @@ class ModuleConnLUSERSFactory : public ModuleFactory
 	{
 	}
 	
-	virtual Module * CreateModule()
+	virtual Module * CreateModule(Server* Me)
 	{
-		return new ModuleConnLUSERS;
+		return new ModuleConnLUSERS(Me);
 	}
 	
 };

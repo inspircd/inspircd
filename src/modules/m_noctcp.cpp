@@ -30,9 +30,10 @@ class ModuleNoCTCP : public Module
 	
  public:
  
-	ModuleNoCTCP()
+	ModuleNoCTCP(Server* Me)
+		: Module::Module(Me)
 	{
-		Srv = new Server;
+		Srv = Me;
 		Srv->AddExtendedMode('C',MT_CHANNEL,false,0,0);
 	}
 
@@ -111,7 +112,6 @@ class ModuleNoCTCP : public Module
 
 	virtual ~ModuleNoCTCP()
 	{
-		delete Srv;
 	}
 	
 	virtual Version GetVersion()
@@ -132,9 +132,9 @@ class ModuleNoCTCPFactory : public ModuleFactory
 	{
 	}
 	
-	virtual Module * CreateModule()
+	virtual Module * CreateModule(Server* Me)
 	{
-		return new ModuleNoCTCP;
+		return new ModuleNoCTCP(Me);
 	}
 	
 };

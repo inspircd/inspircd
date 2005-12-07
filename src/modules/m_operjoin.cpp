@@ -9,25 +9,24 @@ using namespace std;
 
 /* $ModDesc: Forces opers to join a specified channel on oper-up */
 
-Server *Srv;
-
 class ModuleOperjoin : public Module
 {
 	private:
 		std::string operChan;
 		ConfigReader* conf;
+		Server* Srv;
 
 	public:
-		ModuleOperjoin()
+		ModuleOperjoin(Server* Me)
+			: Module::Module(Me)
 		{
-			Srv = new Server;
+			Srv = Me;
 			conf = new ConfigReader;
 			operChan = conf->ReadValue("operjoin", "channel", 0);
 		}
 
 		virtual ~ModuleOperjoin()
 		{
-			delete Srv;
 			delete conf;
 		}
 
@@ -58,9 +57,9 @@ class ModuleOperjoinFactory : public ModuleFactory
         	{
 	        }
 
-	        virtual Module * CreateModule()
+	        virtual Module * CreateModule(Server* Me)
         	{
-                	return new ModuleOperjoin;
+                	return new ModuleOperjoin(Me);
 	        }
 };
 

@@ -113,9 +113,10 @@ void handle_remove(char **parameters, int pcnt, userrec *user)
 class ModuleRemove : public Module
 {
  public:
-	ModuleRemove()
+	ModuleRemove(Server* Me)
+		: Module::Module(Me)
 	{
-		Srv = new Server;
+		Srv = Me;
 		Srv->AddCommand("REMOVE", handle_remove, 0, 3, "m_remove.so");
 	}
 
@@ -126,7 +127,6 @@ class ModuleRemove : public Module
 	
 	virtual ~ModuleRemove()
 	{
-		delete Srv;
 	}
 	
 	virtual Version GetVersion()
@@ -149,9 +149,9 @@ class ModuleRemoveFactory : public ModuleFactory
 	{
 	}
 	
-	virtual Module * CreateModule()
+	virtual Module * CreateModule(Server* Me)
 	{
-		return new ModuleRemove;
+		return new ModuleRemove(Me);
 	}
 	
 };

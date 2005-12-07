@@ -36,18 +36,16 @@ class ModuleFoobar : public Module
  
 	 Server *Srv;
  public:
-	ModuleFoobar()
+	ModuleFoobar(Server* Me)
+		: Module::Module(Me)
 	{
-		// The constructor just creates an instance of the server class
+		// The constructor just makes a copy of the server class
 	
-		Srv = new Server;
+		Srv = Me;
 	}
 	
 	virtual ~ModuleFoobar()
 	{
-		// destructor deletes the instance of the server class
-	
-		delete Srv;
 	}
 	
 	virtual Version GetVersion()
@@ -111,9 +109,9 @@ class ModuleFoobarFactory : public ModuleFactory
 	{
 	}
 	
-	virtual Module * CreateModule()
+	virtual Module * CreateModule(Server* Me)
 	{
-		return new ModuleFoobar;
+		return new ModuleFoobar(Me);
 	}
 	
 };

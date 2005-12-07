@@ -29,9 +29,10 @@ Server *Srv;
 class ModuleRestrictChans : public Module
 {
  public:
-	ModuleRestrictChans()
+	ModuleRestrictChans(Server* Me)
+		: Module::Module(Me)
 	{
-		Srv = new Server;
+		Srv = Me;
 	}
 	
 	virtual int OnUserPreJoin(userrec* user, chanrec* chan, const char* cname)
@@ -51,7 +52,6 @@ class ModuleRestrictChans : public Module
 	
     	virtual ~ModuleRestrictChans()
 	{
-		delete Srv;
 	}
 	
 	virtual Version GetVersion()
@@ -72,9 +72,9 @@ class ModuleRestrictChansFactory : public ModuleFactory
 	{
 	}
 	
-	virtual Module * CreateModule()
+	virtual Module * CreateModule(Server* Me)
 	{
-		return new ModuleRestrictChans;
+		return new ModuleRestrictChans(Me);
 	}
 	
 };

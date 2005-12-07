@@ -30,9 +30,10 @@ class ModuleStripColor : public Module
  ConfigReader *Conf, *MyConf;
  
  public:
-	ModuleStripColor()
+	ModuleStripColor(Server* Me)
+		: Module::Module(Me)
 	{
-		Srv = new Server;
+		Srv = Me;
 
 		Srv->AddExtendedMode('S',MT_CHANNEL,false,0,0);
 		Srv->AddExtendedMode('S',MT_CLIENT,false,0,0);
@@ -72,7 +73,6 @@ class ModuleStripColor : public Module
  	
 	virtual ~ModuleStripColor()
 	{
-		delete Srv;
 	}
 	
 	// ANSI colour stripping by Doc (Peter Wood)
@@ -191,9 +191,9 @@ class ModuleStripColorFactory : public ModuleFactory
 	{
 	}
 	
-	virtual Module * CreateModule()
+	virtual Module * CreateModule(Server* Me)
 	{
-		return new ModuleStripColor;
+		return new ModuleStripColor(Me);
 	}
 	
 };

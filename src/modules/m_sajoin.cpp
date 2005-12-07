@@ -57,15 +57,15 @@ void handle_sajoin(char **parameters, int pcnt, userrec *user)
 class ModuleSajoin : public Module
 {
  public:
-	ModuleSajoin()
+	ModuleSajoin(Server* Me)
+		: Module::Module(Me)
 	{
-		Srv = new Server;
+		Srv = Me;
 		Srv->AddCommand("SAJOIN",handle_sajoin,'o',2,"m_sajoin.so");
 	}
 	
 	virtual ~ModuleSajoin()
 	{
-		delete Srv;
 	}
 	
 	virtual Version GetVersion()
@@ -88,9 +88,9 @@ class ModuleSajoinFactory : public ModuleFactory
 	{
 	}
 	
-	virtual Module * CreateModule()
+	virtual Module * CreateModule(Server* Me)
 	{
-		return new ModuleSajoin;
+		return new ModuleSajoin(Me);
 	}
 	
 };

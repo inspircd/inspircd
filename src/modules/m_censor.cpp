@@ -31,14 +31,15 @@ class ModuleCensor : public Module
  ConfigReader *Conf, *MyConf;
  
  public:
-	ModuleCensor()
+	ModuleCensor(Server* Me)
+		: Module::Module(Me)
 	{
 		// read the configuration file on startup.
 		// it is perfectly valid to set <censor file> to the value of the
 		// main config file, then append your <badword> tags to the bottom
 		// of the main config... but rather messy. That's why the capability
 		// of using a seperate config file is provided.
-		Srv = new Server;
+		Srv = Me;
 		Conf = new ConfigReader;
 		std::string Censorfile = Conf->ReadValue("censor","file",0);
 		MyConf = new ConfigReader(Censorfile);
@@ -88,7 +89,6 @@ class ModuleCensor : public Module
  	
 	virtual ~ModuleCensor()
 	{
-		delete Srv;
 		delete MyConf;
 		delete Conf;
 	}
@@ -208,9 +208,9 @@ class ModuleCensorFactory : public ModuleFactory
 	{
 	}
 	
-	virtual Module * CreateModule()
+	virtual Module * CreateModule(Server* Me)
 	{
-		return new ModuleCensor;
+		return new ModuleCensor(Me);
 	}
 	
 };

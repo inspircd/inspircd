@@ -99,7 +99,6 @@ public:
 	Lookup()
 	{
 		strcpy(u,"");
-		log(DEBUG,"Create class Lookup");
 	}
 
 	void Reset()
@@ -110,7 +109,6 @@ public:
 
 	~Lookup()
 	{
-		log(DEBUG,"Delete class Lookup");
 	}
 
 	bool DoLookup(std::string nick)

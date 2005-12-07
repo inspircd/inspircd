@@ -144,7 +144,7 @@ userrec* fd_ref_table[65536];
 
 int statsAccept = 0, statsRefused = 0, statsUnknown = 0, statsCollisions = 0, statsDns = 0, statsDnsGood = 0, statsDnsBad = 0, statsConnects = 0, statsSent= 0, statsRecv = 0;
 
-
+Server* MyServer = new Server;
 
 FILE *log_file;
 
@@ -2244,7 +2244,7 @@ bool LoadModule(const char* filename)
                 }
                 if (factory[MODCOUNT+1]->factory)
                 {
-			Module* m = factory[MODCOUNT+1]->factory->CreateModule();
+			Module* m = factory[MODCOUNT+1]->factory->CreateModule(MyServer);
                         modules[MODCOUNT+1] = m;
                         /* save the module and the module's classfactory, if
                          * this isnt done, random crashes can occur :/ */

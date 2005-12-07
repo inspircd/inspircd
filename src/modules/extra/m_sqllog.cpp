@@ -65,9 +65,10 @@ class ModuleSQLLog : public Module
 		return (SQLModule);
 	}
 
-	ModuleSQLLog()
+	ModuleSQLLog(Server* Me)
+		: Module::Module(Me)
 	{
-		Srv = new Server;
+		Srv = Me;
 		ReadConfig();
 	}
 
@@ -237,7 +238,6 @@ class ModuleSQLLog : public Module
 
 	virtual ~ModuleSQLLog()
 	{
-		delete Srv;
 	}
 	
 	virtual Version GetVersion()
@@ -258,9 +258,9 @@ class ModuleSQLLogFactory : public ModuleFactory
 	{
 	}
 	
-	virtual Module * CreateModule()
+	virtual Module * CreateModule(Server* Me)
 	{
-		return new ModuleSQLLog;
+		return new ModuleSQLLog(Me);
 	}
 	
 };

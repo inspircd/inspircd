@@ -26,21 +26,21 @@ using namespace std;
 
 /* $ModDesc: Provides support for unreal-style GLOBOPS and umode +g */
 
-Server *Srv;
-
 class ModuleNoNickChange : public Module
 {
+	Server *Srv;
+	
  public:
-	ModuleNoNickChange()
+	ModuleNoNickChange(Server* Me)
+		: Module::Module(Me)
 	{
-		Srv = new Server;
+		Srv = Me;
 		
 		Srv->AddExtendedMode('N',MT_CHANNEL,false,0,0);
 	}
 	
 	virtual ~ModuleNoNickChange()
 	{
-		delete Srv;
 	}
 	
 	virtual Version GetVersion()
@@ -122,9 +122,9 @@ class ModuleNoNickChangeFactory : public ModuleFactory
 	{
 	}
 	
-	virtual Module * CreateModule()
+	virtual Module * CreateModule(Server* Me)
 	{
-		return new ModuleNoNickChange;
+		return new ModuleNoNickChange(Me);
 	}
 	
 };

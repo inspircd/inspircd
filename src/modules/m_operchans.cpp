@@ -30,10 +30,10 @@ Server *Srv;
 class ModuleOperChans : public Module
 {
  public:
-	ModuleOperChans()
+	ModuleOperChans(Server* Me)
+		: Module::Module(Me)
 	{
-		Srv = new Server;
-
+		Srv = Me;
 		// Add a mode +O for channels with no parameters		
 		Srv->AddExtendedMode('O',MT_CHANNEL,false,0,0);
 	}
@@ -99,18 +99,12 @@ class ModuleOperChans : public Module
 	
     	virtual ~ModuleOperChans()
 	{
-		delete Srv;
 	}
 	
 	virtual Version GetVersion()
 	{
 		return Version(1,0,0,0,VF_STATIC|VF_VENDOR);
 	}
-	
-	virtual void OnUserConnect(userrec* user)
-	{
-	}
-
 };
 
 
@@ -125,9 +119,9 @@ class ModuleOperChansFactory : public ModuleFactory
 	{
 	}
 	
-	virtual Module * CreateModule()
+	virtual Module * CreateModule(Server* Me)
 	{
-		return new ModuleOperChans;
+		return new ModuleOperChans(Me);
 	}
 	
 };

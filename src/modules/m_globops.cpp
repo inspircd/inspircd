@@ -42,9 +42,10 @@ void handle_globops(char **parameters, int pcnt, userrec *user)
 class ModuleGlobops : public Module
 {
  public:
-	ModuleGlobops()
+	ModuleGlobops(Server* Me)
+		: Module::Module(Me)
 	{
-		Srv = new Server;
+		Srv = Me;
 		
 		if (!Srv->AddExtendedMode('g',MT_CLIENT,true,0,0))
 		{
@@ -57,7 +58,6 @@ class ModuleGlobops : public Module
 	
 	virtual ~ModuleGlobops()
 	{
-		delete Srv;
 	}
 	
 	virtual Version GetVersion()
@@ -95,9 +95,9 @@ class ModuleGlobopsFactory : public ModuleFactory
 	{
 	}
 	
-	virtual Module * CreateModule()
+	virtual Module * CreateModule(Server* Me)
 	{
-		return new ModuleGlobops;
+		return new ModuleGlobops(Me);
 	}
 	
 };

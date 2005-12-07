@@ -272,15 +272,15 @@ class ModuleOperMD5 : public Module
 {
  public:
 
-	ModuleOperMD5()
+	ModuleOperMD5(Server* Me)
+		: Module::Module(Me)
 	{
-		Srv = new Server;
+		Srv = Me;
 		Srv->AddCommand("MKPASSWD",handle_mkpasswd,'o',1,"m_opermd5.so");
 	}
 	
 	virtual ~ModuleOperMD5()
 	{
-		delete Srv;
 	}
 
 	virtual int OnOperCompare(std::string data, std::string input)
@@ -321,9 +321,9 @@ class ModuleOperMD5Factory : public ModuleFactory
 	{
 	}
 	
-	virtual Module * CreateModule()
+	virtual Module * CreateModule(Server* Me)
 	{
-		return new ModuleOperMD5;
+		return new ModuleOperMD5(Me);
 	}
 	
 };

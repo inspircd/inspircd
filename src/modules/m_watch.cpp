@@ -183,9 +183,10 @@ class Modulewatch : public Module
 
  public:
 
-	Modulewatch()
+	Modulewatch(Server* Me)
+		: Module::Module(Me)
 	{
-		Srv = new Server;
+		Srv = Me;
 		Srv->AddCommand("WATCH",handle_watch,0,0,"m_watch.so");
 	}
 
@@ -264,7 +265,6 @@ class Modulewatch : public Module
 	
 	virtual ~Modulewatch()
 	{
-		delete Srv;
 	}
 	
 	virtual Version GetVersion()
@@ -285,9 +285,9 @@ class ModulewatchFactory : public ModuleFactory
 	{
 	}
 	
-	virtual Module * CreateModule()
+	virtual Module * CreateModule(Server* Me)
 	{
-		return new Modulewatch;
+		return new Modulewatch(Me);
 	}
 	
 };

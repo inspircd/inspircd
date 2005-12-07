@@ -34,13 +34,14 @@ class ModuleChanProtect : public Module
 	
  public:
  
-	ModuleChanProtect()
+	ModuleChanProtect(Server* Me)
+		: Module::Module(Me)
 	{
 	
 		// here we initialise our module. Use new to create new instances of the required
 		// classes.
 		
-		Srv = new Server;
+		Srv = Me;
 		Conf = new ConfigReader;
 		
 		// set up our modes. We're using listmodes and not normal extmodes here.
@@ -327,7 +328,6 @@ class ModuleChanProtect : public Module
 	virtual ~ModuleChanProtect()
 	{
 		delete Conf;
-		delete Srv;
 	}
 	
 	virtual Version GetVersion()
@@ -369,9 +369,9 @@ class ModuleChanProtectFactory : public ModuleFactory
 	{
 	}
 	
-	virtual Module * CreateModule()
+	virtual Module * CreateModule(Server* Me)
 	{
-		return new ModuleChanProtect;
+		return new ModuleChanProtect(Me);
 	}
 	
 };

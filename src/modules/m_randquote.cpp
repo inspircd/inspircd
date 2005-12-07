@@ -24,7 +24,7 @@ using namespace std;
 #include "modules.h"
 #include "helperfuncs.h"
 
-Server *Srv = NULL;
+Server *Srv;
 FileReader *quotes = NULL;
 
 std::string q_file = "";
@@ -62,9 +62,10 @@ class ModuleRandQuote : public Module
 
 	ConfigReader *conf;
  public:
-	ModuleRandQuote()
+	ModuleRandQuote(Server* Me)
+		: Module::Module(Me)
 	{
-		Srv = new Server;
+		Srv = Me;
 		conf = new ConfigReader;
 		// Sort the Randomizer thingie..
 		srand(time(NULL));
@@ -91,7 +92,6 @@ class ModuleRandQuote : public Module
 	
 	virtual ~ModuleRandQuote()
 	{
-		delete Srv;
 		delete conf;
 		delete quotes;
 	}
@@ -123,9 +123,9 @@ class ModuleRandQuoteFactory : public ModuleFactory
 	{
 	}
 	
-	virtual Module * CreateModule()
+	virtual Module * CreateModule(Server* Me)
 	{
-		return new ModuleRandQuote;
+		return new ModuleRandQuote(Me);
 	}
 	
 };

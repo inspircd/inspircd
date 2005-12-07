@@ -48,9 +48,10 @@ void handle_woot(char **parameters, int pcnt, userrec *user)
 class ModuleTestCommand : public Module
 {
  public:
-	ModuleTestCommand()
+	ModuleTestCommand(Server* Me)
+		: Module::Module(Me)
 	{
-		Srv = new Server;
+		Srv = Me;
 		// Create a new command:
 		// command will be called /WOOT, and will
 		// call handle_woot when triggered, the
@@ -102,7 +103,6 @@ class ModuleTestCommand : public Module
 	
 	virtual ~ModuleTestCommand()
 	{
-		delete Srv;
 	}
 	
 	virtual Version GetVersion()
@@ -128,9 +128,9 @@ class ModuleTestCommandFactory : public ModuleFactory
 	{
 	}
 	
-	virtual Module * CreateModule()
+	virtual Module * CreateModule(Server* Me)
 	{
-		return new ModuleTestCommand;
+		return new ModuleTestCommand(Me);
 	}
 	
 };

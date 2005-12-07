@@ -17,14 +17,13 @@ void do_opermotd(char** parameters, int pcnt, userrec* user);
 
 void LoadOperMOTD()
 {
-
 	ConfigReader* conf = new ConfigReader;
 	std::string filename;
 
 	filename = conf->ReadValue("opermotd","file",0);
 
 	opermotd->LoadFile(filename);
-	
+	delete conf;
 }
 
 void ShowOperMOTD(userrec* user)
@@ -54,9 +53,10 @@ void do_opermotd(char** parameters, int pcnt, userrec* user)
 class ModuleOpermotd : public Module
 {
 	public:
-		ModuleOpermotd()
+		ModuleOpermotd(Server* Me)
+			: Module::Module(Me)
 		{
-			Srv = new Server;
+			Srv = Me;
 			
 			Srv->AddCommand("OPERMOTD",do_opermotd,'o',0,"m_opermotd.so");
 			opermotd = new FileReader();
@@ -65,7 +65,6 @@ class ModuleOpermotd : public Module
 
 		virtual ~ModuleOpermotd()
 		{
-			delete Srv;
 		}
 
 		virtual Version GetVersion()
@@ -96,9 +95,9 @@ class ModuleOpermotdFactory : public ModuleFactory
 		{
 		}
 
-		virtual Module* CreateModule()
+		virtual Module* CreateModule(Server* Me)
 		{
-			return new ModuleOpermotd;
+			return new ModuleOpermotd(Me);
 		}
 
 };

@@ -268,10 +268,11 @@ class ModuleCloaking : public Module
 	}
 	 
  public:
-	ModuleCloaking()
+	ModuleCloaking(Server* Me)
+		: Module::Module(Me)
 	{
-		// We must create an instance of the Server class to work with
-		Srv = new Server;
+		// We must take a copy of the Server class to work with
+		Srv = Me;
 		
 		// we must create a new mode. Set the parameters so the
 		// mode doesn't require oper, and is a client usermode
@@ -291,8 +292,6 @@ class ModuleCloaking : public Module
 	
 	virtual ~ModuleCloaking()
 	{
-		// not really neccessary, but free it anyway
-		delete Srv;
 	}
 	
 	virtual Version GetVersion()
@@ -401,9 +400,9 @@ class ModuleCloakingFactory : public ModuleFactory
 	{
 	}
 	
-	virtual Module * CreateModule()
+	virtual Module * CreateModule(Server* Me)
 	{
-		return new ModuleCloaking;
+		return new ModuleCloaking(Me);
 	}
 	
 };

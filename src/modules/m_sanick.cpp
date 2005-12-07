@@ -45,15 +45,15 @@ void handle_sanick(char **parameters, int pcnt, userrec *user)
 class ModuleSanick : public Module
 {
  public:
-	ModuleSanick()
+	ModuleSanick(Server* Me)
+		: Module::Module(Me)
 	{
-		Srv = new Server;
+		Srv = Me;
 		Srv->AddCommand("SANICK",handle_sanick,'o',2,"m_sanick.so");
 	}
 	
 	virtual ~ModuleSanick()
 	{
-		delete Srv;
 	}
 	
 	virtual Version GetVersion()
@@ -76,9 +76,9 @@ class ModuleSanickFactory : public ModuleFactory
 	{
 	}
 	
-	virtual Module * CreateModule()
+	virtual Module * CreateModule(Server* Me)
 	{
-		return new ModuleSanick;
+		return new ModuleSanick(Me);
 	}
 	
 };

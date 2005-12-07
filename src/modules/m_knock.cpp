@@ -60,9 +60,10 @@ void handle_knock(char **parameters, int pcnt, userrec *user)
 class ModuleKnock : public Module
 {
  public:
-	ModuleKnock()
+	ModuleKnock(Server* Me)
+		: Module::Module(Me)
 	{
-		Srv = new Server;
+		Srv = Me;
 		
 		Srv->AddExtendedMode('K',MT_CHANNEL,false,0,0);
 		Srv->AddCommand("KNOCK",handle_knock,0,2,"m_knock.so");
@@ -92,7 +93,6 @@ class ModuleKnock : public Module
 
 	virtual ~ModuleKnock()
 	{
-		delete Srv;
 	}
 	
 	virtual Version GetVersion()
@@ -128,9 +128,9 @@ class ModuleKnockFactory : public ModuleFactory
 	{
 	}
 	
-	virtual Module * CreateModule()
+	virtual Module * CreateModule(Server* Me)
 	{
-		return new ModuleKnock;
+		return new ModuleKnock(Me);
 	}
 	
 };

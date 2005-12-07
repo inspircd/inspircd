@@ -63,6 +63,8 @@
 #include <deque>
 #include <sstream>
 
+class Server;
+
 /** Low level definition of a FileReader classes file cache area
  */
 typedef std::deque<std::string> file_cache;
@@ -242,7 +244,7 @@ class Module : public classbase
 	/** Default constructor
 	 * creates a module class
 	 */
-	Module();
+	Module(Server* Me);
 
 	/** Default destructor
 	 * destroys a module class
@@ -1310,7 +1312,7 @@ class ModuleFactory : public classbase
 	 * Your inherited class of ModuleFactory must return a pointer to your Module class
 	 * using this method.
 	 */
-	virtual Module * CreateModule() = 0;
+	virtual Module * CreateModule(Server* Me) = 0;
 };
 
 

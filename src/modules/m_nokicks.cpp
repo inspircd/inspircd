@@ -30,9 +30,10 @@ class ModuleNoKicks : public Module
 	
  public:
  
-	ModuleNoKicks()
+	ModuleNoKicks(Server* Me)
+		: Module::Module(Me)
 	{
-		Srv = new Server;
+		Srv = Me;
 		Srv->AddExtendedMode('Q',MT_CHANNEL,false,0,0);
 	}
 
@@ -92,7 +93,6 @@ class ModuleNoKicks : public Module
 
 	virtual ~ModuleNoKicks()
 	{
-		delete Srv;
 	}
 	
 	virtual Version GetVersion()
@@ -113,9 +113,9 @@ class ModuleNoKicksFactory : public ModuleFactory
 	{
 	}
 	
-	virtual Module * CreateModule()
+	virtual Module * CreateModule(Server* Me)
 	{
-		return new ModuleNoKicks;
+		return new ModuleNoKicks(Me);
 	}
 	
 };

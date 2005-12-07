@@ -125,9 +125,10 @@ class ModuleSilence : public Module
 	Server *Srv;
  public:
  
-	ModuleSilence()
+	ModuleSilence(Server* Me)
+		: Module::Module(Me)
 	{
-		Srv = new Server;
+		Srv = Me;
 		Srv->AddCommand("SILENCE",handle_silence,0,0,"m_silence.so");
 	}
 
@@ -199,7 +200,6 @@ class ModuleSilence : public Module
 
 	virtual ~ModuleSilence()
 	{
-		delete Srv;
 	}
 	
 	virtual Version GetVersion()
@@ -220,9 +220,9 @@ class ModuleSilenceFactory : public ModuleFactory
 	{
 	}
 	
-	virtual Module * CreateModule()
+	virtual Module * CreateModule(Server* Me)
 	{
-		return new ModuleSilence;
+		return new ModuleSilence(Me);
 	}
 	
 };

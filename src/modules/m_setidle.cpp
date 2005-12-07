@@ -46,16 +46,15 @@ void handle_setidle(char **parameters, int pcnt, userrec *user)
 class ModuleSetIdle : public Module
 {
  public:
-	ModuleSetIdle()
+	ModuleSetIdle(Server* Me)
+		: Module::Module(Me)
 	{
-		Srv = new Server;
+		Srv = Me;
 		Srv->AddCommand("SETIDLE",handle_setidle,'o',1,"m_setidle.so");
 	}
 	
 	virtual ~ModuleSetIdle()
 	{
-		if (Srv)
-			delete Srv;
 	}
 	
 	virtual Version GetVersion()
@@ -78,9 +77,9 @@ class ModuleSetIdleFactory : public ModuleFactory
 	{
 	}
 	
-	virtual Module * CreateModule()
+	virtual Module * CreateModule(Server* Me)
 	{
-		return new ModuleSetIdle;
+		return new ModuleSetIdle(Me);
 	}
 	
 };

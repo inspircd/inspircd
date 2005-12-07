@@ -27,14 +27,14 @@ class ModuleAntiBottler : public Module
 	 
 	 Server *Srv;
  public:
-	ModuleAntiBottler()
+	ModuleAntiBottler(Server* Me)
+		: Module::Module(Me)
 	{
-		Srv = new Server;
+		Srv = Me;
 	}
 	
 	virtual ~ModuleAntiBottler()
 	{
-		delete Srv;
 	}
 	
 	virtual Version GetVersion()
@@ -102,9 +102,9 @@ class ModuleAntiBottlerFactory : public ModuleFactory
 	{
 	}
 	
-	virtual Module * CreateModule()
+	virtual Module * CreateModule(Server* Me)
 	{
-		return new ModuleAntiBottler;
+		return new ModuleAntiBottler(Me);
 	}
 	
 };

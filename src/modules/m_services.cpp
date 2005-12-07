@@ -30,9 +30,10 @@ class ModuleServices : public Module
 {
 	Server *Srv; 
  public:
-	ModuleServices()
+	ModuleServices(Server* Me)
+		: Module::Module(Me)
 	{
-		Srv = new Server;
+		Srv = Me;
 
 		Srv->AddExtendedMode('r',MT_CHANNEL,false,0,0);
 		Srv->AddExtendedMode('r',MT_CLIENT,false,0,0);
@@ -205,7 +206,6 @@ class ModuleServices : public Module
 
 	virtual ~ModuleServices()
 	{
-		delete Srv;
 	}
 	
 	virtual Version GetVersion()
@@ -231,9 +231,9 @@ class ModuleServicesFactory : public ModuleFactory
 	{
 	}
 	
-	virtual Module * CreateModule()
+	virtual Module * CreateModule(Server* Me)
 	{
-		return new ModuleServices;
+		return new ModuleServices(Me);
 	}
 	
 };

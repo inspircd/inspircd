@@ -24,8 +24,6 @@ using namespace std;
 
 /* $ModDesc: Provides support for unreal-style oper-override */
 
-char dummyvalue[] = "on";
-
 class ModuleOverride : public Module
 {
 	Server *Srv;
@@ -34,13 +32,14 @@ class ModuleOverride : public Module
 	
  public:
  
-	ModuleOverride()
+	ModuleOverride(Server* Me)
+		: Module::Module(Me)
 	{
 	
 		// here we initialise our module. Use new to create new instances of the required
 		// classes.
 		
-		Srv = new Server;
+		Srv = Me;
 		Conf = new ConfigReader;
 		
 		// read our config options (main config file)
@@ -208,7 +207,6 @@ class ModuleOverride : public Module
 	virtual ~ModuleOverride()
 	{
 		delete Conf;
-		delete Srv;
 	}
 	
 	virtual Version GetVersion()
@@ -229,9 +227,9 @@ class ModuleOverrideFactory : public ModuleFactory
 	{
 	}
 	
-	virtual Module * CreateModule()
+	virtual Module * CreateModule(Server* Me)
 	{
-		return new ModuleOverride;
+		return new ModuleOverride(Me);
 	}
 	
 };

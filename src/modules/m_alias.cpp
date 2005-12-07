@@ -63,17 +63,16 @@ class ModuleAlias : public Module
 
 	public:
 	
-		ModuleAlias()
+		ModuleAlias(Server* Me)
+			: Module::Module(Me)
 		{
-			Srv = new Server;
+			Srv = Me;
 			MyConf = new ConfigReader;
-
 			ReadAliases();
 		}
 	
 		virtual ~ModuleAlias()
 		{
-			delete Srv;
 			delete MyConf;
 		}
 	
@@ -156,9 +155,9 @@ class ModuleAliasFactory : public ModuleFactory
 		{
 		}
 	
-		virtual Module * CreateModule()
+		virtual Module * CreateModule(Server* Me)
 		{
-			return new ModuleAlias;
+			return new ModuleAlias(Me);
 		}
 };
 

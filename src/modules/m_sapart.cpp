@@ -49,15 +49,15 @@ void handle_sapart(char **parameters, int pcnt, userrec *user)
 class ModuleSapart : public Module
 {
  public:
-	ModuleSapart()
+	ModuleSapart(Server* Me)
+		: Module::Module(Me)
 	{
-		Srv = new Server;
+		Srv = Me;
 		Srv->AddCommand("SAPART",handle_sapart,'o',2,"m_sapart.so");
 	}
 	
 	virtual ~ModuleSapart()
 	{
-		delete Srv;
 	}
 	
 	virtual Version GetVersion()
@@ -80,9 +80,9 @@ class ModuleSapartFactory : public ModuleFactory
 	{
 	}
 	
-	virtual Module * CreateModule()
+	virtual Module * CreateModule(Server* Me)
 	{
-		return new ModuleSapart;
+		return new ModuleSapart(Me);
 	}
 	
 };

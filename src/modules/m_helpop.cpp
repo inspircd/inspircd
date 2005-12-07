@@ -158,9 +158,10 @@ class ModuleHelpop : public Module
 		std::string  h_file;
 
 	public:
-		ModuleHelpop()
+		ModuleHelpop(Server* Me)
+			: Module::Module(Me)
 		{
-			Srv  = new Server;
+			Srv  = Me;
 
 			ReadConfig();
 			if (!Srv->AddExtendedMode('h',MT_CLIENT,true,0,0))
@@ -223,7 +224,6 @@ class ModuleHelpop : public Module
 
 		virtual ~ModuleHelpop()
 		{
-			delete Srv;
 			delete conf;
 			delete helpop;
 		}
@@ -245,9 +245,9 @@ class ModuleHelpopFactory : public ModuleFactory
 	{
 	}
 	
-	virtual Module * CreateModule()
+	virtual Module * CreateModule(Server* Me)
 	{
-		return new ModuleHelpop;
+		return new ModuleHelpop(Me);
 	}
 	
 };
