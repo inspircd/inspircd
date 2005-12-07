@@ -167,33 +167,26 @@ bool userrec::HasPermission(char* command)
 	// are they even an oper at all?
 	if (strchr(this->modes,'o'))
 	{
-		log(DEBUG,"*** HasPermission: %s is an oper",this->nick);
 		for (int j =0; j < ConfValueEnum("type",&config_f); j++)
 		{
 			ConfValue("type","name",j,TypeName,&config_f);
 			if (!strcmp(TypeName,this->oper))
 			{
-				log(DEBUG,"*** HasPermission: %s is an oper of type '%s'",this->nick,this->oper);
 				ConfValue("type","classes",j,Classes,&config_f);
 				char* myclass = strtok_r(Classes," ",&savept);
 				while (myclass)
 				{
-					log(DEBUG,"*** HasPermission: checking classtype '%s'",myclass);
 					for (int k =0; k < ConfValueEnum("class",&config_f); k++)
 					{
 						ConfValue("class","name",k,ClassName,&config_f);
 						if (!strcmp(ClassName,myclass))
 						{
 							ConfValue("class","commands",k,CommandList,&config_f);
-							log(DEBUG,"*** HasPermission: found class named %s with commands: '%s'",ClassName,CommandList);
-							
-							
 							mycmd = strtok_r(CommandList," ",&savept2);
 							while (mycmd)
 							{
-								if (!strcasecmp(mycmd,command))
+								if ((!strcasecmp(mycmd,command)) || (*mycmd == '*'))
 								{
-									log(DEBUG,"*** Command %s found, returning true",command);
 									return true;
 								}
 								mycmd = strtok_r(NULL," ",&savept2);
