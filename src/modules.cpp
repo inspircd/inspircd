@@ -385,6 +385,7 @@ void		Module::OnDelZLine(userrec* source, std::string ipmask) { };
 void		Module::OnDelKLine(userrec* source, std::string hostmask) { };
 void		Module::OnDelQLine(userrec* source, std::string nickmask) { };
 void		Module::OnDelELine(userrec* source, std::string hostmask) { };
+void 		Module::OnCleanup(int target_type, void* source) { };
 
 /* server is a wrapper class that provides methods to all of the C-style
  * exports in the core

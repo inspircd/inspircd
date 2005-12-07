@@ -2184,6 +2184,15 @@ bool UnloadModule(const char* filename)
 				snprintf(MODERR,MAXBUF,"Module not unloadable (marked static)");
 				return false;
 			}
+			/* Give the module a chance to tidy out all its metadata */
+			for (chan_hash::iterator c = chanlist.begin(); c != chanlist.end(); c++)
+			{
+				modules[j]->OnCleanup(TYPE_CHANNEL,c->second);
+			}
+			for (user_hash::iterator u = userlist.begin(); u != userlist.end(); u++)
+			{
+				modules[j]->OnCleanup(TYPE_USER,u->second);
+			}
 			FOREACH_MOD OnUnloadModule(modules[j],module_names[j]);
 			// found the module
 			log(DEBUG,"Deleting module...");

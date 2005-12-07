@@ -466,10 +466,12 @@ class Module : public classbase
 	virtual void OnDelZLine(userrec* source, std::string ipmask);
 
 	virtual void OnDelKLine(userrec* source, std::string hostmask);
-
+	
 	virtual void OnDelQLine(userrec* source, std::string nickmask);
 
 	virtual void OnDelELine(userrec* source, std::string hostmask);
+
+	virtual void OnCleanup(int target_type, void* source);
 
 	/** Called after any nickchange, local or remote. This can be used to track users after nickchanges
 	 * have been applied. Please note that although you can see remote nickchanges through this function, you should
