@@ -435,7 +435,15 @@ class Module : public classbase
 
 	virtual void OnSyncChannel(chanrec* chan, Module* proto, void* opaque);
 
+	virtual void OnSyncChannelMetaData(chanrec* chan, Module* proto,void* opaque, std::string extname);
+
+	virtual void OnSyncUserMetaData(userrec* user, Module* proto,void* opaque, std::string extname);
+
+	virtual void OnDecodeMetaData(int target_type, void* target, std::string extname, std::string extdata);
+
 	virtual void ProtoSendMode(void* opaque, int target_type, void* target, std::string modeline);
+
+	virtual void ProtoSendMetaData(void* opaque, int target_type, void* target, std::string extname, std::string extdata);
 	
 	virtual void OnWallops(userrec* user, std::string text);
 

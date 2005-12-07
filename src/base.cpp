@@ -18,6 +18,7 @@
 #include "base.h"
 #include <time.h>
 #include <map>
+#include <deque>
 #include <string>
 #include "inspircd.h"
 #include "modules.h"
@@ -59,8 +60,15 @@ char* Extensible::GetExt(std::string key)
 	{
 		return (this->Extension_Items.find(key))->second;
 	}
-	log(DEBUG,"Cant find item %s",key.c_str());
 	return NULL;
+}
+
+void Extensible::GetExtList(std::deque<std::string> &list)
+{
+	for (std::map<std::string,char*>::iterator u = Extension_Items.begin(); u != Extension_Items.end(); u++)
+	{
+		list.push_back(u->first);
+	}
 }
 
 void BoolSet::Set(int number)

@@ -20,6 +20,7 @@
 #include "inspircd_config.h" 
 #include <time.h>
 #include <map>
+#include <deque>
 #include <string>
 
 typedef void* VoidPointer;
@@ -86,6 +87,14 @@ public:
 	 * @return If you provide a non-existent key name, the function returns NULL, otherwise a pointer to the item referenced by the key is returned.
 	 */
 	char* GetExt(std::string key);
+
+	/** Get a list of all extension items names.
+	 *
+	 * @param list A deque of strings to receive the list
+	 *
+	 * @return This function writes a list of all extension items stored in this object by name into the given deque and returns void.
+	 */
+	void GetExtList(std::deque<std::string> &list);
 };
 
 /** BoolSet is a utility class designed to hold eight bools in a bitmask.

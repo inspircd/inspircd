@@ -1001,6 +1001,7 @@ class TreeSocket : public InspSocket
 	void SendChannelModes(TreeServer* Current)
 	{
 		char data[MAXBUF];
+		std::deque<std::string> list;
 		for (chan_hash::iterator c = chanlist.begin(); c != chanlist.end(); c++)
 		{
 			SendFJoins(Current, c->second);
@@ -1017,6 +1018,12 @@ class TreeSocket : public InspSocket
 				this->WriteLine(data);
 			}
 			FOREACH_MOD OnSyncChannel(c->second,(Module*)TreeProtocolModule,(void*)this);
+			list.clear();
+			c->second->GetExtList(list);
+			for (unsigned int j = 0; j < list.size(); j++)
+			{
+				FOREACH_MOD OnSyncChannelMetaData(c->second,(Module*)TreeProtocolModule,(void*)this,list[j]);
+			}
 		}
 	}
 
@@ -1024,6 +1031,7 @@ class TreeSocket : public InspSocket
 	void SendUsers(TreeServer* Current)
 	{
 		char data[MAXBUF];
+		std::deque<std::string> list;
 		for (user_hash::iterator u = clientlist.begin(); u != clientlist.end(); u++)
 		{
 			if (u->second->registered == 7)
@@ -1034,12 +1042,13 @@ class TreeSocket : public InspSocket
 				{
 					this->WriteLine(":"+std::string(u->second->nick)+" OPERTYPE "+std::string(u->second->oper));
 				}
-				//char* chl = chlist(u->second,u->second);
-				//if (*chl)
-				//{
-				//	this->WriteLine(":"+std::string(u->second->nick)+" FJOIN "+std::string(chl));
-				//}
 				FOREACH_MOD OnSyncUser(u->second,(Module*)TreeProtocolModule,(void*)this);
+				list.clear();
+				u->second->GetExtList(list);
+				for (unsigned int j = 0; j < list.size(); j++)
+				{
+					FOREACH_MOD OnSyncUserMetaData(u->second,(Module*)TreeProtocolModule,(void*)this,list[j]);
+				}
 			}
 		}
 	}
@@ -1231,6 +1240,35 @@ class TreeSocket : public InspSocket
 		{
 			ServerSource->SetPingFlag();
 		}
+		return true;
+	}
+	
+	bool MetaData(std::string prefix, std::deque<std::string> &params)
+	{
+		if (params.size() < 3)
+			return true;
+		TreeServer* ServerSource = FindServer(prefix);
+		if (ServerSource)
+		{
+			if (*(params[0].c_str()) == '#')
+			{
+				chanrec* c = Srv->FindChannel(params[0]);
+				if (c)
+				{
+					FOREACH_MOD OnDecodeMetaData(TYPE_CHANNEL,c,params[1],params[2]);
+				}
+			}
+			else
+			{
+				userrec* u = Srv->FindNick(params[0]);
+				if (u)
+				{
+					FOREACH_MOD OnDecodeMetaData(TYPE_USER,u,params[1],params[2]);
+				}
+			}
+		}
+		params[2] = ":" + params[2];
+		DoOneToAllButSender(prefix,"METADATA",params,prefix);
 		return true;
 	}
 
@@ -1628,6 +1666,10 @@ class TreeSocket : public InspSocket
 				else if (command == "REHASH")
 				{
 					return this->RemoteRehash(prefix,params);
+				}
+				else if (command == "METADATA")
+				{
+					return this->MetaData(prefix,params);
 				}
 				else if (command == "PING")
 				{
@@ -2664,6 +2706,24 @@ class ModuleSpanningTree : public Module
 			{
 				chanrec* c = (chanrec*)target;
 				s->WriteLine(":"+Srv->GetServerName()+" FMODE "+c->name+" "+modeline);
+			}
+		}
+	}
+
+	virtual void ProtoSendMetaData(void* opaque, int target_type, void* target, std::string extname, std::string extdata)
+	{
+		TreeSocket* s = (TreeSocket*)opaque;
+		if (target)
+		{
+			if (target_type == TYPE_USER)
+			{
+				userrec* u = (userrec*)target;
+				s->WriteLine(":"+Srv->GetServerName()+" METADATA "+u->nick+" "+extname+" :"+extdata);
+			}
+			else
+			{
+				chanrec* c = (chanrec*)target;
+				s->WriteLine(":"+Srv->GetServerName()+" METADATA "+c->name+" "+extname+" :"+extdata);
 			}
 		}
 	}
