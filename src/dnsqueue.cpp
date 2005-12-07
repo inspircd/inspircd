@@ -99,15 +99,18 @@ public:
 	Lookup()
 	{
 		strcpy(u,"");
+		log(DEBUG,"Create class Lookup");
 	}
 
 	void Reset()
 	{
 		strcpy(u,"");
+		log(DEBUG,"Reset class Lookup");
 	}
 
 	~Lookup()
 	{
+		log(DEBUG,"Delete class Lookup");
 	}
 
 	bool DoLookup(std::string nick)
@@ -119,10 +122,14 @@ public:
 			log(DEBUG,"New Lookup class for %s with DNSServer set to '%s'",nick.c_str(),DNSServer);
 			resolver1.SetNS(std::string(DNSServer));
 			if (!resolver1.ReverseLookup(std::string(usr->host)))
+			{
+				log(DEBUG,"ReverseLookup didnt return true, we're outta here");
 				return false;
+			}
 			strlcpy(u,nick.c_str(),NICKMAX);
 			return true;
 		}
+		log(DEBUG,"We couldnt find that user");
 		return false;
 	}
 
@@ -130,10 +137,12 @@ public:
 	{
 		if (hostname != "")
 		{
+			log(DEBUG,"Doing forward lookup here with host %s",hostname.c_str());
 			// doing forward lookup
 			userrec* usr = NULL;
 			if (resolver2.HasResult())
 			{
+				log(DEBUG,"resolver2 has result");
 				if (resolver2.GetFD() != 0)
 				{
 					std::string ip = resolver2.GetResultIP();
@@ -144,6 +153,7 @@ public:
 					{
 						if (usr->registered > 3)
 						{
+							log(DEBUG,"Point 1: Returning true as usr->dns_done is true");
 							usr->dns_done = true;
 							return true;
 						}
@@ -168,10 +178,15 @@ public:
 				{
 					usr = Find(u);
 					if (usr)
+					{
+						log(DEBUG,"Point 2: Returning true");
 						usr->dns_done = true;
+					}
 					return true;
 				}
 			}
+			log(DEBUG,"Returning false in forward");
+			return false;
 		}
 		else
 		{
@@ -187,16 +202,22 @@ public:
 					hostname = resolver1.GetResult();
 					if (usr)
 					{
-						if ((usr->registered > 3) && (hostname == ""))
+						if ((usr->registered > 3) || (hostname == ""))
 						{
+							log(DEBUG,"Hostname is blank and user->registered > 3, returning true and setting done");
 							usr->dns_done = true;
 							return true;
 						}
 					}
-					resolver2.ForwardLookup(hostname);
+					log(DEBUG,"Starting forwardlookup now for host '%s'...",hostname.c_str());
+					if ((resolver2.GetFD() <= 0) && (hostname != ""))
+					{
+						resolver2.ForwardLookup(hostname);
+					}
 				}
 			}
 		}
+		log(DEBUG,"Returning false");
 		return false;
 	}
 

@@ -37,9 +37,10 @@ class DNS
 private:
 	in_addr *binip;
 	char* result;
+	char localbuf[1024];
 	int t;
 	void dns_init();
-	int fd;
+	int myfd;
 	void dns_init_2(const char* dnsserver);
 	in_addr *dns_aton4(const char * const ipstring);
 	char *dns_ntoa4(const in_addr * const ip);

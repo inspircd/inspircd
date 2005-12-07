@@ -152,6 +152,7 @@ void dns_empty_header(unsigned char *output, const s_header *header, const int l
 }
 
 void dns_close(int fd) { /* close query */
+	log(DEBUG,"DNS: dns_close on fd %d",fd);
 	if (fd == lastcreate) {
 		wantclose = 1;
 		return;
@@ -412,12 +413,6 @@ char* DNS::dns_ntoa4(const in_addr * const ip) { /* numeric to ascii: convert 4p
 	return dns_ntoa4_s(ip,r);
 }
 
-char* DNS::dns_ntoa4_r(const in_addr *ip) { /* numeric to ascii (reentrant): convert 4part IP addr struct to new string */
-	char *r;
-	r = new char[256];
-	return dns_ntoa4_s(ip,r);
-}
-
 char* DNS::dns_ntoa4_s(const in_addr *ip, char *r) { /* numeric to ascii (buffered): convert 4part IP addr struct to given string */
 	unsigned char *m;
 	m = (unsigned char *)&ip->s_addr;
@@ -426,18 +421,8 @@ char* DNS::dns_ntoa4_s(const in_addr *ip, char *r) { /* numeric to ascii (buffer
 }
 
 char* DNS::dns_getresult(const int cfd) { /* retrieve result of DNS query */
-	static char r[RESULTSIZE];
-	return dns_getresult_s(cfd,r);
-}
-
-char* DNS::dns_getresult_r(const int cfd) { /* retrieve result of DNS query (reentrant) */
-	char *r;
-	r = new char[RESULTSIZE];
-	if(dns_getresult_s(cfd,r) == NULL) {
-		delete r;
-		return NULL;
-	}
-	return r;
+	log(DEBUG,"DNS: dns_getresult with cfd=%d",cfd);
+	return dns_getresult_s(cfd,this->localbuf);
 }
 
 char* DNS::dns_getresult_s(const int cfd, char *res) { /* retrieve result of DNS query (buffered) */
@@ -462,7 +447,7 @@ char* DNS::dns_getresult_s(const int cfd, char *res) { /* retrieve result of DNS
 		c = c->next;
 	}
 	if (c == NULL) {
-		log(DEBUG,"DNS: got a response for a query we didnt send");
+		log(DEBUG,"DNS: got a response for a query we didnt send with fd=%d",cfd);
 		return NULL; /* query not found */
 	}
 	/* query found-- pull from list: */
@@ -494,7 +479,7 @@ char* DNS::dns_getresult_s(const int cfd, char *res) { /* retrieve result of DNS
 		return NULL;
 	}
 	if ((h.flags2 & FLAGS2_MASK_RCODE) != 0) {
-		log(DEBUG,"DNS: got an RCODE and didnt want one");
+		log(DEBUG,"DNS lookup failed due to SERVFAIL");
 		delete c;
 		return NULL;
 	}
@@ -646,20 +631,24 @@ char* DNS::dns_getresult_s(const int cfd, char *res) { /* retrieve result of DNS
 DNS::DNS()
 {
 	dns_init();
+	log(DEBUG,"Create blank DNS");
 }
 
 DNS::DNS(std::string dnsserver)
 {
 	dns_init_2(dnsserver.c_str());
+	log(DEBUG,"Create DNS");
 }
 
 void DNS::SetNS(std::string dnsserver)
 {
 	dns_init_2(dnsserver.c_str());
+	log(DEBUG,"Set NS");
 }
 
 DNS::~DNS()
 {
+	log(DEBUG,"Delete DNS fd=%d",this->myfd);
 }
 
 bool DNS::ReverseLookup(std::string ip)
@@ -670,51 +659,56 @@ bool DNS::ReverseLookup(std::string ip)
                 return false;
         }
 
-        this->fd = dns_getname4(binip);
-	if (this->fd == -1)
+        this->myfd = dns_getname4(binip);
+	if (this->myfd == -1)
 	{
 		return false;
 	}
+	log(DEBUG,"DNS: ReverseLookup, fd=%d",this->myfd);
 	return true;
 }
 
 bool DNS::ForwardLookup(std::string host)
 {
 	statsDns++;
-	this->fd = dns_getip4(host.c_str());
-	if (this->fd == -1)
+	this->myfd = dns_getip4(host.c_str());
+	if (this->myfd == -1)
 	{
 		return false;
 	}
+	log(DEBUG,"DNS: ForwardLookup, fd=%d",this->myfd);
 	return true;
 }
 
 bool DNS::HasResult()
 {
+	log(DEBUG,"DNS: HasResult, fd=%d",this->myfd);
 	pollfd polls;
-	polls.fd = this->fd;
+	polls.fd = this->myfd;
 	polls.events = POLLIN;
 	int ret = poll(&polls,1,1);
+	log(DEBUG,"DNS: Hasresult returning %d",ret);
 	return (ret > 0);
 }
 
 int DNS::GetFD()
 {
-	return this->fd;
+	return this->myfd;
 }
 
 std::string DNS::GetResult()
 {
-        result = dns_getresult(this->fd);
+	log(DEBUG,"DNS: GetResult()");
+        result = dns_getresult(this->myfd);
         if (result) {
 		statsDnsGood++;
-		dns_close(this->fd);
+		dns_close(this->myfd);
 		return result;
         } else {
 		statsDnsBad++;
-		if (this->fd != -1)
+		if (this->myfd != -1)
 		{
-			dns_close(this->fd);
+			dns_close(this->myfd);
 		}
 		return "";
 	}
@@ -723,10 +717,11 @@ std::string DNS::GetResult()
 std::string DNS::GetResultIP()
 {
 	char r[1024];
-	result = dns_getresult(this->fd);
-	if (this->fd != -1)
+	log(DEBUG,"DNS: GetResultIP()");
+	result = dns_getresult(this->myfd);
+	if (this->myfd != -1)
 	{
-		dns_close(this->fd);
+		dns_close(this->myfd);
 	}
 	if (result)
 	{
@@ -745,3 +740,4 @@ std::string DNS::GetResultIP()
 		return "";
 	}
 }
+
