@@ -94,6 +94,18 @@ class ModuleSWhois : public Module
 		}
 	}
 
+	// when a user quits, tidy up their metadata
+	virtual void OnUserQuit(userrec* user, std::string message)
+	{
+		char* field = user->GetExt("swhois");
+		if (field)
+		{
+			std::string* swhois = (std::string*)field;
+			user->Shrink("swhois");
+			delete swhois;
+		}
+	}
+
 	// Whenever the linking module receives metadata from another server and doesnt know what
 	// to do with it (of course, hence the 'meta') it calls this method, and it is up to each
 	// module in turn to figure out if this metadata key belongs to them, and what they want
