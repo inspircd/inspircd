@@ -209,9 +209,9 @@ public:
 							return true;
 						}
 					}
-					log(DEBUG,"Starting forwardlookup now for host '%s'...",hostname.c_str());
-					if ((resolver2.GetFD() <= 0) && (hostname != ""))
+					if (hostname != "")
 					{
+						log(DEBUG,"Starting forwardlookup now for host '%s'...",hostname.c_str());
 						resolver2.ForwardLookup(hostname);
 					}
 				}
