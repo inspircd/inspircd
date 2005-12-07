@@ -1436,7 +1436,7 @@ class TreeSocket : public InspSocket
 		if (!strchr(line.c_str(),' '))
 		{
 			n.push_back(line);
-			return n;
+			return;
 		}
 		std::stringstream s(line);
 		std::string param = "";
@@ -1478,7 +1478,7 @@ class TreeSocket : public InspSocket
 		{
 			n.push_back(param);
 		}
-		return n;
+		return;
 	}
 
 	bool ProcessLine(std::string line)
@@ -2232,8 +2232,8 @@ class ModuleSpanningTree : public Module
 	        {
 	                for (int i = 0; i < LinkBlocks.size(); i++)
 	                {
-	                        WriteServ(user->fd,"213 %s C *@%s * %s %d 0 M",user->nick,LinkBlocks[i].IPAddr,LinkBlocks[i].ServerName,LinkBlocks[i].Port);
-				WriteServ(user->fd,"244 %s H * * %s",user->nick,LinkBlocks[i].ServerName);
+	                        WriteServ(user->fd,"213 %s C *@%s * %s %d 0 M",user->nick,LinkBlocks[i].IPAddr,LinkBlocks[i].Name,LinkBlocks[i].Port);
+				WriteServ(user->fd,"244 %s H * * %s",user->nick,LinkBlocks[i].Name);
 			}
 			return true;
 		}
