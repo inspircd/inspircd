@@ -179,14 +179,15 @@ public:
 			userrec* usr = NULL;
 			if (resolver1.HasResult())
 			{
+				usr = Find(u);
+				if ((usr) && (usr->dns_done))
+					return true;
 				if (resolver1.GetFD() != 0)
 				{
 					hostname = resolver1.GetResult();
-					log(DEBUG,"REVERSE RESULT! %s",hostname.c_str());
-					usr = Find(u);
 					if (usr)
 					{
-						if (usr->registered > 3)
+						if ((usr->registered > 3) && (hostname == ""))
 						{
 							usr->dns_done = true;
 							return true;
