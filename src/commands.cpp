@@ -1348,7 +1348,6 @@ void handle_modules(char **parameters, int pcnt, userrec *user)
 
 void handle_stats(char **parameters, int pcnt, userrec *user)
 {
-	char Link_ServerName[MAXBUF],Link_IPAddr[MAXBUF],Link_Port[MAXBUF];
 	if (pcnt != 1)
 	{
 		return;
@@ -1364,14 +1363,7 @@ void handle_stats(char **parameters, int pcnt, userrec *user)
 
 	if (*parameters[0] == 'c')
 	{
-		for (int i = 0; i < ConfValueEnum("link",&config_f); i++)
-		{
-			ConfValue("link","name",i,Link_ServerName,&config_f);
-			ConfValue("link","ipaddr",i,Link_IPAddr,&config_f);
-			ConfValue("link","port",i,Link_Port,&config_f);
-			WriteServ(user->fd,"213 %s C *@%s * %s %s 0 M",user->nick,Link_IPAddr,Link_ServerName,Link_Port);
-			WriteServ(user->fd,"244 %s H * * %s",user->nick,Link_ServerName);
-		}
+		/* This stats symbol must be handled by a linking module */
 	}
 	
 	if (*parameters[0] == 'i')
@@ -1396,10 +1388,11 @@ void handle_stats(char **parameters, int pcnt, userrec *user)
 
 	if (*parameters[0] == 'U')
 	{
+		char ulined[MAXBUF];
 		for (int i = 0; i < ConfValueEnum("uline",&config_f); i++)
 		{
-			ConfValue("uline","server",i,Link_ServerName,&config_f);
-			WriteServ(user->fd,"248 %s U %s",user->nick,Link_ServerName);
+			ConfValue("uline","server",i,ulined,&config_f);
+			WriteServ(user->fd,"248 %s U %s",user->nick,ulined);
 		}
 	}
 	

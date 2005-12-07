@@ -936,6 +936,7 @@ class TreeSocket : public InspSocket
 			clientlist[tempnick]->chans[i].channel = NULL;
 			clientlist[tempnick]->chans[i].uc_modes = 0;
 		}
+		WriteOpers("*** Client connecting at %s: %s!%s@%s [%s]",client[tempnick]->server,client[tempnick]->nick,client[tempnick]->ident,client[tempnick]->host,client[tempnick]->ip);
 		params[7] = ":" + params[7];
 		DoOneToAllButSender(source,"NICK",params,source);
 		return true;
@@ -2228,13 +2229,15 @@ class ModuleSpanningTree : public Module
 
 	virtual bool HandleStats(char ** parameters, int pcnt, userrec* user)
 	{
-	        if (*parameters[0] == 'c')
+		if (*parameters[0] == 'c')
 	        {
-	                for (int i = 0; i < LinkBlocks.size(); i++)
-	                {
-	                        WriteServ(user->fd,"213 %s C *@%s * %s %d 0 M",user->nick,LinkBlocks[i].IPAddr,LinkBlocks[i].Name,LinkBlocks[i].Port);
-				WriteServ(user->fd,"244 %s H * * %s",user->nick,LinkBlocks[i].Name);
+			for (unsigned int i = 0; i < LinkBlocks.size(); i++)
+			{
+				WriteServ(user->fd,"213 %s C *@%s * %s %d 0 M",user->nick,LinkBlocks[i].IPAddr.c_str(),LinkBlocks[i].Name.c_str(),LinkBlocks[i].Port);
+				WriteServ(user->fd,"244 %s H * * %s",user->nick,LinkBlocks[i].Name.c_str());
 			}
+			WriteServ(user->fd,"219 %s %s :End of /STATS report",user->nick,parameters[0]);
+			WriteOpers("*** Notice: Stats '%s' requested by %s (%s@%s)",parameters[0],user->nick,user->ident,user->host);
 			return true;
 		}
 		return false;
