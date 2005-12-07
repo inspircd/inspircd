@@ -2189,7 +2189,7 @@ bool UnloadModule(const char* filename)
 			{
 				modules[j]->OnCleanup(TYPE_CHANNEL,c->second);
 			}
-			for (user_hash::iterator u = userlist.begin(); u != userlist.end(); u++)
+			for (user_hash::iterator u = clientlist.begin(); u != clientlist.end(); u++)
 			{
 				modules[j]->OnCleanup(TYPE_USER,u->second);
 			}
