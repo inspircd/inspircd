@@ -914,8 +914,7 @@ void handle_quit(char **parameters, int pcnt, userrec *user)
 			}
 			else
 			{
-				Write(user->fd,"ERROR :Closing link (%s@%s) [%s]",user->ident,user->host,parameters[0]);
-				WriteOpers("*** Client exiting: %s!%s@%s [%s]",user->nick,user->ident,user->host,parameters[0]);
+				WriteOpers("*** Client exiting at %s: %s!%s@%s [%s]",user->server,user->nick,user->ident,user->host,parameters[0]);
 				WriteCommonExcept(user,"QUIT :%s",parameters[0]);
 			}
 			FOREACH_MOD OnUserQuit(user,std::string(PrefixQuit)+std::string(parameters[0]));
