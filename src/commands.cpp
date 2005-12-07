@@ -1851,11 +1851,93 @@ long duration(const char* str)
 	return total;
 }
 
+/* All other ircds when doing this check usually just look for a string of *@* or *. We're smarter than that, though. */
+
+bool host_matches_everyone(std::string mask, userrec* user)
+{
+	char insanemasks[MAXBUF];
+	char buffer[MAXBUF];
+	char itrigger[MAXBUF];
+	ConfValue("insane","hostmasks",0,insanemasks,&config_f);
+	ConfValue("insane","trigger",0,itrigger,&config_f);
+	if (*itrigger == 0)
+		strlcpy(itrigger,"95.5",MAXBUF);
+	if ((*insanemasks == 'y') || (*insanemasks == 't') || (*insanemasks == '1'))
+		return false;
+	long matches = 0;
+	for (user_hash::iterator u = clientlist.begin(); u != clientlist.end(); u++)
+	{
+		strlcpy(buffer,u->second->ident,MAXBUF);
+		strlcat(buffer,"@",MAXBUF);
+		strlcat(buffer,u->second->host,MAXBUF);
+		if (match(buffer,mask.c_str()))
+			matches++;
+	}
+	float percent = ((float)matches / (float)clientlist.size()) * 100;
+	if (percent > (float)atof(itrigger))
+	{
+		WriteOpers("*** \2WARNING\2: %s tried to set a G/K/E line mask of %s, which covers %.2f%% of the network!",user->nick,mask.c_str(),percent);
+		return true;
+	}
+	return false;
+}
+
+bool ip_matches_everyone(std::string ip, userrec* user)
+{
+	char insanemasks[MAXBUF];
+	char itrigger[MAXBUF];
+	ConfValue("insane","ipmasks",0,insanemasks,&config_f);
+	ConfValue("insane","trigger",0,itrigger,&config_f);
+	if (*itrigger == 0)
+		strlcpy(itrigger,"95.5",MAXBUF);
+	if ((*insanemasks == 'y') || (*insanemasks == 't') || (*insanemasks == '1'))
+		return false;
+	long matches = 0;
+	for (user_hash::iterator u = clientlist.begin(); u != clientlist.end(); u++)
+	{
+		if (match(u->second->ip,ip.c_str()))
+			matches++;
+	}
+	float percent = ((float)matches / (float)clientlist.size()) * 100;
+	if (percent > (float)atof(itrigger))
+	{
+		WriteOpers("*** \2WARNING\2: %s tried to set a Z line mask of %s, which covers %.2f%% of the network!",user->nick,ip.c_str(),percent);
+		return true;
+	}
+	return false;
+}
+
+bool nick_matches_everyone(std::string nick, userrec* user)
+{
+	char insanemasks[MAXBUF];
+	char itrigger[MAXBUF];
+	ConfValue("insane","nickmasks",0,insanemasks,&config_f);
+	ConfValue("insane","trigger",0,itrigger,&config_f);
+	if (*itrigger == 0)
+		strlcpy(itrigger,"95.5",MAXBUF);
+	if ((*insanemasks == 'y') || (*insanemasks == 't') || (*insanemasks == '1'))
+		return false;
+	long matches = 0;
+	for (user_hash::iterator u = clientlist.begin(); u != clientlist.end(); u++)
+	{
+		if (match(u->second->nick,nick.c_str()))
+			matches++;
+	}
+	float percent = ((float)matches / (float)clientlist.size()) * 100;
+	if (percent > (float)atof(itrigger))
+	{
+		WriteOpers("*** \2WARNING\2: %s tried to set a Q line mask of %s, which covers %.2f%% of the network!",user->nick,nick.c_str(),percent);
+		return true;
+	}
+	return false;
+}
 
 void handle_kline(char **parameters, int pcnt, userrec *user)
 {
 	if (pcnt >= 3)
 	{
+		if (host_matches_everyone(parameters[0],user))
+			return;
 		add_kline(duration(parameters[1]),user->nick,parameters[2],parameters[0]);
 		FOREACH_MOD OnAddKLine(duration(parameters[1]), user, parameters[2], parameters[0]);
 		if (!duration(parameters[1]))
@@ -1886,6 +1968,8 @@ void handle_eline(char **parameters, int pcnt, userrec *user)
 {
         if (pcnt >= 3)
         {
+		if (host_matches_everyone(parameters[0],user))
+			return;
                 add_eline(duration(parameters[1]),user->nick,parameters[2],parameters[0]);
 		FOREACH_MOD OnAddELine(duration(parameters[1]), user, parameters[2], parameters[0]);
                 if (!duration(parameters[1]))
@@ -1916,6 +2000,8 @@ void handle_gline(char **parameters, int pcnt, userrec *user)
 {
 	if (pcnt >= 3)
 	{
+		if (host_matches_everyone(parameters[0],user))
+			return;
 		add_gline(duration(parameters[1]),user->nick,parameters[2],parameters[0]);
 		FOREACH_MOD OnAddGLine(duration(parameters[1]), user, parameters[2], parameters[0]);
 		if (!duration(parameters[1]))
@@ -1946,6 +2032,8 @@ void handle_zline(char **parameters, int pcnt, userrec *user)
 {
 	if (pcnt >= 3)
 	{
+		if (ip_matches_everyone(parameters[0],user))
+			return;
 		add_zline(duration(parameters[1]),user->nick,parameters[2],parameters[0]);
 		FOREACH_MOD OnAddZLine(duration(parameters[1]), user, parameters[2], parameters[0]);
 		if (!duration(parameters[1]))
@@ -1976,6 +2064,8 @@ void handle_qline(char **parameters, int pcnt, userrec *user)
 {
 	if (pcnt >= 3)
 	{
+		if (nick_matches_everyone(parameters[0],user))
+			return;
 		add_qline(duration(parameters[1]),user->nick,parameters[2],parameters[0]);
 		FOREACH_MOD OnAddQLine(duration(parameters[1]), user, parameters[2], parameters[0]);
 		if (!duration(parameters[1]))
