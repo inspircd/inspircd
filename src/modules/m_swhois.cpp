@@ -32,7 +32,7 @@ void handle_swhois(char **parameters, int pcnt, userrec *user)
 	if (dest)
 	{
 		std::string line = "";
-		for (int i = 1; i < pcnt - 1; i++)
+		for (int i = 1; i < pcnt; i++)
 		{
 			if (i != 1)
 				line = line + " ";
@@ -57,7 +57,7 @@ class ModuleSWhois : public Module
 		: Module::Module(Me)
 	{
 		Srv = Me;
-		Srv->AddCommand("SWHOIS",handle_swhois,2,'o',"m_swhois.so");
+		Srv->AddCommand("SWHOIS",handle_swhois,'o',2,"m_swhois.so");
 	}
 
 	// :kenny.chatspike.net 320 Brain Azhrarn :is getting paid to play games.
