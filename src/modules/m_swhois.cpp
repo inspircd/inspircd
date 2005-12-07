@@ -111,7 +111,7 @@ class ModuleSWhois : public Module
 	{
 		if (target_type == TYPE_USER)
 		{
-			userrec* u = (userrec*)item;
+			userrec* user = (userrec*)item;
 			char* field = user->GetExt("swhois");
 			if (field)
 			{
