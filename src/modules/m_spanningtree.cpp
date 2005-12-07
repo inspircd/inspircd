@@ -936,7 +936,7 @@ class TreeSocket : public InspSocket
 			clientlist[tempnick]->chans[i].channel = NULL;
 			clientlist[tempnick]->chans[i].uc_modes = 0;
 		}
-		WriteOpers("*** Client connecting at %s: %s!%s@%s [%s]",client[tempnick]->server,client[tempnick]->nick,client[tempnick]->ident,client[tempnick]->host,client[tempnick]->ip);
+		WriteOpers("*** Client connecting at %s: %s!%s@%s [%s]",clientlist[tempnick]->server,clientlist[tempnick]->nick,clientlist[tempnick]->ident,clientlist[tempnick]->host,clientlist[itempnick]->ip);
 		params[7] = ":" + params[7];
 		DoOneToAllButSender(source,"NICK",params,source);
 		return true;
