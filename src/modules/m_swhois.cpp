@@ -106,6 +106,22 @@ class ModuleSWhois : public Module
 		}
 	}
 
+	// if the module is unloaded, tidy up all our dangling metadata
+	virtual void OnCleanup(int target_type, void* item)
+	{
+		if (target_type == TYPE_USER)
+		{
+			userrec* u = (userrec*)item;
+			char* field = user->GetExt("swhois");
+			if (field)
+			{
+				std::string* swhois = (std::string*)field;
+				user->Shrink("swhois");
+				delete swhois;
+			}
+		}
+	}
+
 	// Whenever the linking module receives metadata from another server and doesnt know what
 	// to do with it (of course, hence the 'meta') it calls this method, and it is up to each
 	// module in turn to figure out if this metadata key belongs to them, and what they want
