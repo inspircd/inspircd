@@ -471,7 +471,7 @@ class Module : public classbase
 
 	virtual void OnDelELine(userrec* source, std::string hostmask);
 
-	virtual void OnCleanup(int target_type, void* source);
+	virtual void OnCleanup(int target_type, void* item);
 
 	/** Called after any nickchange, local or remote. This can be used to track users after nickchanges
 	 * have been applied. Please note that although you can see remote nickchanges through this function, you should
