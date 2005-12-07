@@ -156,6 +156,7 @@ void dns_close(int fd) { /* close query */
 		wantclose = 1;
 		return;
 	}
+	shutdown(fd,2);
 	close(fd);
 	return;
 }
@@ -246,6 +247,7 @@ static s_connection *dns_add_query(s_header *h) { /* build DNS query, add to lis
 		s->fd = socket(PF_INET, SOCK_DGRAM, 0);
 		if (s->fd != -1) {
 			if (fcntl(s->fd, F_SETFL, O_NONBLOCK) != 0) {
+				shutdown(s->fd,2);
 				close(s->fd);
 				s->fd = -1;
 			}
@@ -257,6 +259,7 @@ static s_connection *dns_add_query(s_header *h) { /* build DNS query, add to lis
 			addr.sin_port = 0;
 			addr.sin_addr.s_addr = INADDR_ANY;
 			if (bind(s->fd,(sockaddr *)&addr,sizeof(addr)) != 0) {
+				shutdown(s->fd,2);
 				close(s->fd);
 				s->fd = -1;
 			}
@@ -270,6 +273,7 @@ static s_connection *dns_add_query(s_header *h) { /* build DNS query, add to lis
 	connection_head = s;
 
 	if (wantclose == 1) {
+		shutdown(lastcreate,2);
 		close(lastcreate);
 		wantclose = 0;
 	}
@@ -281,7 +285,7 @@ static int dns_build_query_payload(const char * const name, const unsigned short
 	short payloadpos;
 	const char * tempchr, * tempchr2;
 	unsigned short l;
-	
+
 	payloadpos = 0;
 	tempchr2 = name;
 
@@ -458,6 +462,7 @@ char* DNS::dns_getresult_s(const int cfd, char *res) { /* retrieve result of DNS
 		c = c->next;
 	}
 	if (c == NULL) {
+		log(DEBUG,"DNS: got a response for a query we didnt send");
 		return NULL; /* query not found */
 	}
 	/* query found-- pull from list: */
@@ -474,22 +479,27 @@ char* DNS::dns_getresult_s(const int cfd, char *res) { /* retrieve result of DNS
 	}
 	dns_fill_header(&h,buffer,l - 12);
 	if (c->id[0] != h.id[0] || c->id[1] != h.id[1]) {
+		log(DEBUG,"DNS: id mismatch on query");
 		delete c;
 		return NULL; /* ID mismatch */
 	}
 	if ((h.flags1 & FLAGS1_MASK_QR) == 0) {
+		log(DEBUG,"DNS: didnt get a query result");
 		delete c;
 		return NULL;
 	}
 	if ((h.flags1 & FLAGS1_MASK_OPCODE) != 0) {
+		log(DEBUG,"DNS: got an OPCODE and didnt want one");
 		delete c;
 		return NULL;
 	}
 	if ((h.flags2 & FLAGS2_MASK_RCODE) != 0) {
+		log(DEBUG,"DNS: got an RCODE and didnt want one");
 		delete c;
 		return NULL;
 	}
 	if (h.ancount < 1)  { /* no sense going on if we don't have any answers */
+		log(DEBUG,"DNS: no answers!");
 		delete c;
 		return NULL;
 	}
@@ -552,6 +562,7 @@ char* DNS::dns_getresult_s(const int cfd, char *res) { /* retrieve result of DNS
 
 	switch (rr.type) {
 		case DNS_QRY_PTR:
+			log(DEBUG,"DNS: got a result of type DNS_QRY_PTR");
 			o = 0;
 			q = 0;
 			while (q == 0 && i < l && o + 256 < 1023) {
@@ -574,6 +585,7 @@ char* DNS::dns_getresult_s(const int cfd, char *res) { /* retrieve result of DNS
 			res[o] = '\0';
 			break;
 		case DNS_QRY_A:
+			log(DEBUG,"DNS: got a result of type DNS_QRY_A");
 			if (c->want_list) {
 				dns_ip4list *alist = (dns_ip4list *) res; /* we have to trust that this is aligned */
 				while ((char *)alist - (char *)res < 700) {
@@ -622,6 +634,7 @@ char* DNS::dns_getresult_s(const int cfd, char *res) { /* retrieve result of DNS
 			break;
 		default:
 		defaultcase:
+			log(DEBUG,"DNS: doing something with result 'default'");
 			memcpy(res,&h.payload[i],rr.rdlength);
 			res[rr.rdlength] = '\0';
 			break;
@@ -717,6 +730,7 @@ std::string DNS::GetResultIP()
 	}
 	if (result)
 	{
+		statsDnsGood++;
 		unsigned char a = (unsigned)result[0];
 		unsigned char b = (unsigned)result[1];
 		unsigned char c = (unsigned)result[2];
@@ -726,6 +740,7 @@ std::string DNS::GetResultIP()
 	}
 	else
 	{
+		statsDnsBad++;
 		log(DEBUG,"DANGER WILL ROBINSON! NXDOMAIN for forward lookup, but we got a reverse lookup!");
 		return "";
 	}
