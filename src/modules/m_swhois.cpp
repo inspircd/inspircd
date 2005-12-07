@@ -20,6 +20,7 @@ using namespace std;
 #include "users.h"
 #include "channels.h"
 #include "modules.h"
+#include "helperfuncs.h"
 
 /* $ModDesc: Provides the SWHOIS command which allows setting of arbitary WHOIS lines */
 
@@ -66,7 +67,7 @@ class ModuleSWhois : public Module
 		if (desc)
 		{
 			std::string* swhois = (std::string*)desc;
-			WriteServ("320 %s %s :%s",source->nick,dest->nick,desc->c_str());
+			WriteServ(source->fd,"320 %s %s :%s",source->nick,dest->nick,swhois->c_str());
 		}
 	}
 
@@ -81,7 +82,7 @@ class ModuleSWhois : public Module
 		if (extname == "swhois")
 		{
 			// check if this user has an swhois field to send
-			char* field = dest->GetExt("swhois");
+			char* field = user->GetExt("swhois");
 			if (field)
 			{
 				// get our extdata out with a cast
@@ -110,7 +111,7 @@ class ModuleSWhois : public Module
 			if (!dest->GetExt("swhois"))
 			{
 				std::string* text = new std::string(extdata);
-				target->Extend("swhois",(char*)text);
+				dest->Extend("swhois",(char*)text);
 			}
 		}
 	}
