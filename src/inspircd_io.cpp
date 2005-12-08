@@ -286,8 +286,6 @@ std::string ConfProcess(char* buffer, long linenumber, std::stringstream* errors
 	return parsedata;
 }
 
-/* A special version of fgets that will read \r, \n, \r\n or even \n\r, it doesnt care :-) */
-
 int fgets_safe(char* buffer, size_t maxsize, FILE* &file)
 {
 	char c_read = '\0';
@@ -331,10 +329,9 @@ bool LoadConf(const char* filename, std::stringstream *target, std::stringstream
 	{
 		while (!feof(conf))
 		{
-			*buffer = 0;
 			if (fgets_safe(buffer, MAXBUF, conf))
 			{
-				if ((buffer) && (strlen(buffer)) && (*buffer > '\r'))
+				if ((!feof(conf)) && (buffer) && (strlen(buffer)))
 				{
 					if ((buffer[0] != '#') && (buffer[0] != '\r')  && (buffer[0] != '\n'))
 					{
@@ -738,4 +735,3 @@ int OpenTCPSocket (void)
 		return (sockfd);
 	}
 }
-
