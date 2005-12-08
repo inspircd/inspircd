@@ -527,6 +527,7 @@ class TreeSocket : public InspSocket
 	int num_lost_servers;
 	time_t NextPing;
 	bool LastPingWasGood;
+	bool Bursting;
 	
  public:
 
@@ -936,7 +937,10 @@ class TreeSocket : public InspSocket
 			clientlist[tempnick]->chans[i].channel = NULL;
 			clientlist[tempnick]->chans[i].uc_modes = 0;
 		}
-		WriteOpers("*** Client connecting at %s: %s!%s@%s [%s]",clientlist[tempnick]->server,clientlist[tempnick]->nick,clientlist[tempnick]->ident,clientlist[tempnick]->host,clientlist[tempnick]->ip);
+		if (!this->bursting)
+		{
+			WriteOpers("*** Client connecting at %s: %s!%s@%s [%s]",clientlist[tempnick]->server,clientlist[tempnick]->nick,clientlist[tempnick]->ident,clientlist[tempnick]->host,clientlist[tempnick]->ip);
+		}
 		params[7] = ":" + params[7];
 		DoOneToAllButSender(source,"NICK",params,source);
 		return true;
@@ -1428,6 +1432,7 @@ class TreeSocket : public InspSocket
 				TreeRoot->AddChild(Node);
 				params[3] = ":" + params[3];
 				DoOneToAllButSender(TreeRoot->GetName(),"SERVER",params,servername);
+				this->bursting = true;
 				this->DoBurst(Node);
 				return true;
 			}
@@ -1592,6 +1597,7 @@ class TreeSocket : public InspSocket
 					params.push_back("1");
 					params.push_back(":"+InboundDescription);
 					DoOneToAllButSender(TreeRoot->GetName(),"SERVER",params,InboundServerName);
+					this->bursting = true;
 	                                this->DoBurst(Node);
 				}
 				else if (command == "ERROR")
@@ -1721,6 +1727,11 @@ class TreeSocket : public InspSocket
 					{
 						this->Squit(FindServer(params[0]),params[1]);
 					}
+					return true;
+				}
+				else if (command == "ENDBURST")
+				{
+					this->bursting = false;
 					return true;
 				}
 				else
