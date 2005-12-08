@@ -331,9 +331,11 @@ bool LoadConf(const char* filename, std::stringstream *target, std::stringstream
 	{
 		while (!feof(conf))
 		{
+			*buffer = 0;
 			if (fgets_safe(buffer, MAXBUF, conf))
 			{
-				if ((!feof(conf)) && (buffer) && (strlen(buffer)))
+				/*if ((!feof(conf)) && (buffer) && (strlen(buffer)))*/
+				if ((buffer) && (strlen(buffer)) && (*buffer > '\r'))
 				{
 					if ((buffer[0] != '#') && (buffer[0] != '\r')  && (buffer[0] != '\n'))
 					{
@@ -395,16 +397,6 @@ bool LoadConf(const char* filename, std::stringstream *target, std::stringstream
 					else linenumber++;
 				}
 			}
-		}
-		if (*buffer)
-		{
-			bool error = false;
-			std::string data = ConfProcess(buffer,linenumber++,errorstream,error,filename);
-			if (error)
-			{
-				return false;
-			}
-			*target << data;
 		}
 		fclose(conf);
 	}
