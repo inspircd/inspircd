@@ -1629,6 +1629,23 @@ class TreeSocket : public InspSocket
 				// This is the 'authenticated' state, when all passwords
 				// have been exchanged and anything past this point is taken
 				// as gospel.
+				
+				if (prefix != "")
+				{
+					std::string direction = prefix;
+					userrec* t = Srv->FindNick(prefix);
+					if (t)
+					{
+						direction = t->server;
+					}
+					TreeServer* route_back_again = BestRouteTo(direction);
+					if ((!route_back_again) || (back_again->GetSocket() != this))
+					{
+						WriteOpers("*** \2WARNING\2! Fake direction in command '%s' from connection '%s'",line.c_str(),this->GetName());
+						return true;
+					}
+				}
+				
 				if (command == "SVSMODE")
 				{
 					/* Services expects us to implement
