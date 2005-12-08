@@ -1557,8 +1557,6 @@ void FullConnectUser(userrec* user)
 	        }
 	}
 
-	// fix by brain: move this below the xline checks to prevent spurious quits going onto the net that dont belong
-	user->registered = 7;
 
         WriteServ(user->fd,"NOTICE Auth :Welcome to \002%s\002!",Network);
         WriteServ(user->fd,"001 %s :Welcome to the %s IRC Network %s!%s@%s",user->nick,Network,user->nick,user->ident,user->host);
@@ -1593,9 +1591,11 @@ void FullConnectUser(userrec* user)
         }
         ShowMOTD(user);
 
-	// fix by brain: these should be AFTER the N token, so other servers know what the HELL we're on about... :)
+	// fix 3 by brain, move registered = 7 below these so that spurious modes and host changes dont go out
+	// onto the network and produce 'fake direction'
 	FOREACH_MOD OnUserConnect(user);
 	FOREACH_MOD OnGlobalConnect(user);
+	user->registered = 7;
 	WriteOpers("*** Client connecting on port %lu: %s!%s@%s [%s]",(unsigned long)user->port,user->nick,user->ident,user->host,user->ip);
 }
 
