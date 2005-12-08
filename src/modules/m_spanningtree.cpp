@@ -2524,6 +2524,8 @@ class ModuleSpanningTree : public Module
 	virtual void OnChangeHost(userrec* user, std::string newhost)
 	{
 		// only occurs for local clients
+		if (user->registered != 7)
+			return;
 		std::deque<std::string> params;
 		params.push_back(newhost);
 		DoOneToMany(user->nick,"FHOST",params);
@@ -2532,6 +2534,8 @@ class ModuleSpanningTree : public Module
 	virtual void OnChangeName(userrec* user, std::string gecos)
 	{
 		// only occurs for local clients
+		if (user->registered != 7)
+			return;
 		std::deque<std::string> params;
 		params.push_back(gecos);
 		DoOneToMany(user->nick,"FNAME",params);
@@ -2568,7 +2572,7 @@ class ModuleSpanningTree : public Module
 
 	virtual void OnUserQuit(userrec* user, std::string reason)
 	{
-		if (std::string(user->server) == Srv->GetServerName())
+		if ((std::string(user->server) == Srv->GetServerName()) && (user->registered == 7))
 		{
 			std::deque<std::string> params;
 			params.push_back(":"+reason);
@@ -2704,7 +2708,7 @@ class ModuleSpanningTree : public Module
 
 	virtual void OnMode(userrec* user, void* dest, int target_type, std::string text)
 	{
-		if (std::string(user->server) == Srv->GetServerName())
+		if ((std::string(user->server) == Srv->GetServerName()) && (user->registered == 7))
 		{
 			if (target_type == TYPE_USER)
 			{
