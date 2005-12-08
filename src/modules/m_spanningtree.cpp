@@ -1639,9 +1639,9 @@ class TreeSocket : public InspSocket
 						direction = t->server;
 					}
 					TreeServer* route_back_again = BestRouteTo(direction);
-					if ((!route_back_again) || (back_again->GetSocket() != this))
+					if ((!route_back_again) || (route_back_again->GetSocket() != this))
 					{
-						WriteOpers("*** \2WARNING\2! Fake direction in command '%s' from connection '%s'",line.c_str(),this->GetName());
+						WriteOpers("*** \2WARNING\2! Fake direction in command '%s' from connection '%s'",line.c_str(),this->GetName().c_str());
 						return true;
 					}
 				}
