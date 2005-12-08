@@ -334,7 +334,6 @@ bool LoadConf(const char* filename, std::stringstream *target, std::stringstream
 			*buffer = 0;
 			if (fgets_safe(buffer, MAXBUF, conf))
 			{
-				/*if ((!feof(conf)) && (buffer) && (strlen(buffer)))*/
 				if ((buffer) && (strlen(buffer)) && (*buffer > '\r'))
 				{
 					if ((buffer[0] != '#') && (buffer[0] != '\r')  && (buffer[0] != '\n'))
