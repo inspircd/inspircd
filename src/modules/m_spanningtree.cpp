@@ -1314,15 +1314,19 @@ class TreeSocket : public InspSocket
 		{
 			case 'Z':
 				add_zline(atoi(duration.c_str()), source.c_str(), reason.c_str(), mask.c_str());
+				zline_set_creation_time((char*)mask.c_str(), atoi(settime.c_str()));
 			break;
 			case 'Q':
 				add_qline(atoi(duration.c_str()), source.c_str(), reason.c_str(), mask.c_str());
+				qline_set_creation_time((char*)mask.c_str(), atoi(settime.c_str()));
 			break;
 			case 'E':
 				add_eline(atoi(duration.c_str()), source.c_str(), reason.c_str(), mask.c_str());
+				eline_set_creation_time((char*)mask.c_str(), atoi(settime.c_str()));
 			break;
 			case 'G':
 				add_gline(atoi(duration.c_str()), source.c_str(), reason.c_str(), mask.c_str());
+				gline_set_creation_time((char*)mask.c_str(), atoi(settime.c_str()));
 			break;
 			case 'K':
 				add_kline(atoi(duration.c_str()), source.c_str(), reason.c_str(), mask.c_str());
