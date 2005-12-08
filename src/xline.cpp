@@ -105,8 +105,8 @@ extern address_cache IP;
  * Because the old way was horrendously slow, the new way of expiring xlines is very
  * very efficient. I have improved the efficiency of the algorithm in two ways:
  *
- * (1) There are now two lists of items for each linetype. One list holds permenant
- *     items, and the other list holds temporary items (ones which will expire).
+ * (1) There are now two lists of items for each linetype. One list holds temporary
+ *     items, and the other list holds permenant items (ones which will expire).
  *     Items which are on the permenant list are NEVER checked at all by the
  *     expire_lines() function.
  * (2) The temporary xline lists are always kept in strict numerical order, keyed by 
