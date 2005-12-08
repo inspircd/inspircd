@@ -527,7 +527,7 @@ class TreeSocket : public InspSocket
 	int num_lost_servers;
 	time_t NextPing;
 	bool LastPingWasGood;
-	bool Bursting;
+	bool bursting;
 	
  public:
 
