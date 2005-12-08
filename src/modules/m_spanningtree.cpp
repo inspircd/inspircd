@@ -837,7 +837,7 @@ class TreeSocket : public InspSocket
 					/* theres a mode for this user. push them onto the mode queue, and flush it
 					 * if there are more than MAXMODES to go.
 					 */
-					if ((ourTS >= TS) || (is_uline(who->server)))
+					if ((ourTS >= TS) || (Srv->IsUlined(who->server)))
 					{
 						/* We also always let u-lined clients win, no matter what the TS value */
 						log(DEBUG,"Our our channel newer than theirs, accepting their modes");
