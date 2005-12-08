@@ -42,7 +42,11 @@ void handle_chghost(char **parameters, int pcnt, userrec *user)
 	if (dest)
 	{
 		Srv->ChangeHost(dest,parameters[1]);
-		Srv->SendOpers(std::string(user->nick)+" used CHGHOST to make the displayed host of "+std::string(dest->nick)+" become "+std::string(parameters[1]));
+		if (!Srv->IsUlined(user->server))
+		{
+			// fix by brain - ulines set hosts silently
+			Srv->SendOpers(std::string(user->nick)+" used CHGHOST to make the displayed host of "+std::string(dest->nick)+" become "+std::string(parameters[1]));
+		}
 	}
 }
 
