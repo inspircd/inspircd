@@ -286,6 +286,8 @@ std::string ConfProcess(char* buffer, long linenumber, std::stringstream* errors
 	return parsedata;
 }
 
+/* A special version of fgets that will read \r, \n, \r\n or even \n\r, it doesnt care :-) */
+
 int fgets_safe(char* buffer, size_t maxsize, FILE* &file)
 {
 	char c_read = '\0';
@@ -393,6 +395,16 @@ bool LoadConf(const char* filename, std::stringstream *target, std::stringstream
 					else linenumber++;
 				}
 			}
+		}
+		if (*buffer)
+		{
+			bool error = false;
+			std::string data = ConfProcess(buffer,linenumber++,errorstream,error,filename);
+			if (error)
+			{
+				return false;
+			}
+			*target << data;
 		}
 		fclose(conf);
 	}
