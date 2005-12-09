@@ -1394,7 +1394,7 @@ class TreeSocket : public InspSocket
 			}
 			else if (params.size() == 3)
 			{
-				if (std::string(u->server) == Srv->GetServerName())
+				if (std::string(u->server) != Srv->GetServerName())
 				{
 					log(DEBUG,"Got final IDLE");
 					// an incoming reply to a whois we sent out
@@ -1403,7 +1403,7 @@ class TreeSocket : public InspSocket
 					unsigned long signon = atoi(params[1].c_str());
 					unsigned long idle = atoi(params[2].c_str());
 					userrec* who_to_send_to = Srv->FindNick(who_did_the_whois);
-					if (who_to_send_to)
+					if ((who_to_send_to) && (std::string(who_to_send_to->server) == Srv->GetServerName()))
 						do_whois(who_to_send_to,u,signon,idle,(char*)nick_whoised.c_str());
 				}
 				else
