@@ -1374,6 +1374,7 @@ class TreeSocket : public InspSocket
 			{
 				if (std::string(u->server) == Srv->GetServerName())
 				{
+					log(DEBUG,"Got IDLE, sending back IDLE");
 					char signon[MAXBUF];
 					char idle[MAXBUF];
 					snprintf(signon,MAXBUF,"%lu",(unsigned long)u->signon);
@@ -1393,6 +1394,7 @@ class TreeSocket : public InspSocket
 			{
 				if (std::string(u->server) == Srv->GetServerName())
 				{
+					log(DEBUG,"Got final IDLE");
 					// an incoming reply to a whois we sent out
 					std::string nick_whoised = prefix;
 					std::string who_did_the_whois = params[0];
@@ -2272,7 +2274,8 @@ class ModuleSpanningTree : public Module
 	{
 		if ((std::string(user->server) == Srv->GetServerName()) && (pcnt > 1))
 		{
-			if (Srv->FindNick(parameters[1]))
+			userrec* remote = Srv->FindNick(parameters[1]);
+			if ((remote) && (std::string(remote->server) != Srv->GetServerName()))
 			{
 				std::deque<std::string> params;
 				params.push_back(parameters[1]);
