@@ -1374,50 +1374,47 @@ class TreeSocket : public InspSocket
 			// an incoming request
 			if (params.size() == 1)
 			{
-				if (std::string(u->server) != Srv->GetServerName())
+				userrec* x = Srv->FindNick(params[0]);
+				if (std::string(x->server) == Srv->GetServerName())
 				{
 					userrec* x = Srv->FindNick(params[0]);
-					log(DEBUG,"Got IDLE, sending back IDLE");
+					log(DEBUG,"Got IDLE");
 					char signon[MAXBUF];
 					char idle[MAXBUF];
-					if ((x) && (std::string(x->server) == Srv->GetServerName()))
-					{
-						snprintf(signon,MAXBUF,"%lu",(unsigned long)x->signon);
-						snprintf(idle,MAXBUF,"%lu",(unsigned long)abs((x->idle_lastmsg)-time(NULL)));
-						std::deque<std::string> par;
-						par.push_back(prefix);
-						par.push_back(signon);
-						par.push_back(idle);
-						DoOneToOne(params[0],"IDLE",par,u->server);
-					}
-					else
-					{
-						// not for us, pass it on
-						DoOneToOne(prefix,"IDLE",params,u->server);
-					}
+					log(DEBUG,"Sending back IDLE 3");
+					snprintf(signon,MAXBUF,"%lu",(unsigned long)x->signon);
+					snprintf(idle,MAXBUF,"%lu",(unsigned long)abs((x->idle_lastmsg)-time(NULL)));
+					std::deque<std::string> par;
+					par.push_back(prefix);
+					par.push_back(signon);
+					par.push_back(idle);
+					// ours, we're done, pass it BACK
+					DoOneToOne(params[0],"IDLE",par,u->server);
 				}
 				else
 				{
-					DoOneToOne(prefix,"IDLE",params,u->server);
+					// not ours pass it on
+					DoOneToOne(prefix,"IDLE",params,x->server);
 				}
 			}
 			else if (params.size() == 3)
 			{
-				if (std::string(u->server) != Srv->GetServerName())
+				std::string who_did_the_whois = params[0];
+				userrec* who_to_send_to = Srv->FindNick(who_did_the_whois);
+				if (std::string(who_to_send_to->server) == Srv->GetServerName())
 				{
 					log(DEBUG,"Got final IDLE");
 					// an incoming reply to a whois we sent out
 					std::string nick_whoised = prefix;
-					std::string who_did_the_whois = params[0];
 					unsigned long signon = atoi(params[1].c_str());
 					unsigned long idle = atoi(params[2].c_str());
-					userrec* who_to_send_to = Srv->FindNick(who_did_the_whois);
 					if ((who_to_send_to) && (std::string(who_to_send_to->server) == Srv->GetServerName()))
 						do_whois(who_to_send_to,u,signon,idle,(char*)nick_whoised.c_str());
 				}
 				else
 				{
-					DoOneToOne(prefix,"IDLE",params,u->server);
+					// not ours, pass it on
+					DoOneToOne(prefix,"IDLE",params,who_to_send_to->server);
 				}
 			}
 		}
