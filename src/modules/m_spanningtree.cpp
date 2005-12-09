@@ -1702,7 +1702,15 @@ class TreeSocket : public InspSocket
 					TreeServer* route_back_again = BestRouteTo(direction);
 					if ((!route_back_again) || (route_back_again->GetSocket() != this))
 					{
-						WriteOpers("*** \2WARNING\2! Fake direction in command '%s' from connection '%s'",line.c_str(),this->GetName().c_str());
+						if (route_back_again)
+						{
+							WriteOpers("Protocol violation: Fake direction in command '%s' from connection '%s'",line.c_str(),this->GetName().c_str());
+						}
+						else
+						{
+							WriteOpers("Protocol violation: Invalid source '%s' in command '%s' from connection '%s'",direction.c_str(),line.c_str(),this->GetName().c_str());
+						}
+						
 						return true;
 					}
 				}
