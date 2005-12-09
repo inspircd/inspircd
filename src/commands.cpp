@@ -881,7 +881,8 @@ void do_whois(userrec* user, userrec* dest,unsigned long signon, unsigned long i
 		}
 		else
 		{
-			WriteServ(user->fd,"317 %s %s %d %d :seconds idle, signon time",user->nick, dest->nick, idle, signon);
+			if ((!idle) || (!signon))
+				WriteServ(user->fd,"317 %s %s %d %d :seconds idle, signon time",user->nick, dest->nick, idle, signon);
 		}
 		WriteServ(user->fd,"318 %s %s :End of /WHOIS list.",user->nick, dest->nick);
 	}
