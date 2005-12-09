@@ -1385,7 +1385,7 @@ class TreeSocket : public InspSocket
 						snprintf(signon,MAXBUF,"%lu",(unsigned long)x->signon);
 						snprintf(idle,MAXBUF,"%lu",(unsigned long)abs((x->idle_lastmsg)-time(NULL)));
 						std::deque<std::string> par;
-						par.push_back(x->nick);
+						par.push_back(prefix);
 						par.push_back(signon);
 						par.push_back(idle);
 						DoOneToMany(params[0],"IDLE",par);
