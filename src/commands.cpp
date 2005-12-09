@@ -824,61 +824,71 @@ void handle_time(char **parameters, int pcnt, userrec *user)
 void handle_whois(char **parameters, int pcnt, userrec *user)
 {
 	userrec *dest;
-
-	if (loop_call(handle_whois,parameters,pcnt,user,0,pcnt-1,0))
-		return;
+        if (loop_call(handle_whois,parameters,pcnt,user,0,pcnt-1,0))
+                return;
 	dest = Find(parameters[0]);
 	if (dest)
 	{
-		// bug found by phidjit - were able to whois an incomplete connection if it had sent a NICK or USER
-		if (dest->registered == 7)
+		do_whois(user,dest,0,0,parameters[0]);
+	}
+        else
+        {
+                /* no such nick/channel */
+                WriteServ(user->fd,"401 %s %s :No such nick/channel",user->nick, parameters[0]);
+                WriteServ(user->fd,"318 %s %s :End of /WHOIS list.",user->nick, parameters[0]);
+	}
+}
+
+void do_whois(userrec* user, userrec* dest,unsigned long signon, unsigned long idle, char* nick)
+{
+	// bug found by phidjit - were able to whois an incomplete connection if it had sent a NICK or USER
+	if (dest->registered == 7)
+	{
+		WriteServ(user->fd,"311 %s %s %s %s * :%s",user->nick, dest->nick, dest->ident, dest->dhost, dest->fullname);
+		if ((user == dest) || (strchr(user->modes,'o')))
 		{
-			WriteServ(user->fd,"311 %s %s %s %s * :%s",user->nick, dest->nick, dest->ident, dest->dhost, dest->fullname);
-			if ((user == dest) || (strchr(user->modes,'o')))
+			WriteServ(user->fd,"378 %s %s :is connecting from *@%s %s",user->nick, dest->nick, dest->host, dest->ip);
+		}
+		char* cl = chlist(dest,user);
+		if (*cl)
+		{
+			WriteServ(user->fd,"319 %s %s :%s",user->nick, dest->nick, cl);
+		}
+		WriteServ(user->fd,"312 %s %s %s :%s",user->nick, dest->nick, dest->server, GetServerDescription(dest->server).c_str());
+		if (*dest->awaymsg)
+		{
+			WriteServ(user->fd,"301 %s %s :%s",user->nick, dest->nick, dest->awaymsg);
+		}
+		if (strchr(dest->modes,'o'))
+		{
+			if (*dest->oper)
 			{
-				WriteServ(user->fd,"378 %s %s :is connecting from *@%s %s",user->nick, dest->nick, dest->host, dest->ip);
+				WriteServ(user->fd,"313 %s %s :is %s %s on %s",user->nick, dest->nick, (strchr("aeiou",dest->oper[0]) ? "an" : "a"),dest->oper, Network);
 			}
-			char* cl = chlist(dest,user);
-			if (*cl)
+			else
 			{
-				WriteServ(user->fd,"319 %s %s :%s",user->nick, dest->nick, cl);
+				WriteServ(user->fd,"313 %s %s :is opered but has an unknown type",user->nick, dest->nick);
 			}
-			WriteServ(user->fd,"312 %s %s %s :%s",user->nick, dest->nick, dest->server, GetServerDescription(dest->server).c_str());
-			if (*dest->awaymsg)
-			{
-				WriteServ(user->fd,"301 %s %s :%s",user->nick, dest->nick, dest->awaymsg);
-			}
-			if (strchr(dest->modes,'o'))
-			{
-				if (*dest->oper)
-				{
-					WriteServ(user->fd,"313 %s %s :is %s %s on %s",user->nick, dest->nick, (strchr("aeiou",dest->oper[0]) ? "an" : "a"),dest->oper, Network);
-				}
-				else
-				{
-					WriteServ(user->fd,"313 %s %s :is opered but has an unknown type",user->nick, dest->nick);
-				}
-			}
+		}
+		if ((!signon) && (!idle))
+		{
 			FOREACH_MOD OnWhois(user,dest);
-			if (!strcasecmp(user->server,dest->server))
-			{
-				// idle time and signon line can only be sent if youre on the same server (according to RFC)
-				WriteServ(user->fd,"317 %s %s %d %d :seconds idle, signon time",user->nick, dest->nick, abs((dest->idle_lastmsg)-TIME), dest->signon);
-			}
-			
-			WriteServ(user->fd,"318 %s %s :End of /WHOIS list.",user->nick, dest->nick);
+		}
+		if (!strcasecmp(user->server,dest->server))
+		{
+			// idle time and signon line can only be sent if youre on the same server (according to RFC)
+			WriteServ(user->fd,"317 %s %s %d %d :seconds idle, signon time",user->nick, dest->nick, abs((dest->idle_lastmsg)-TIME), dest->signon);
 		}
 		else
 		{
-			WriteServ(user->fd,"401 %s %s :No such nick/channel",user->nick, parameters[0]);
-			WriteServ(user->fd,"318 %s %s :End of /WHOIS list.",user->nick, parameters[0]);
+			WriteServ(user->fd,"317 %s %s %d %d :seconds idle, signon time",user->nick, dest->nick, idle, signon);
 		}
+		WriteServ(user->fd,"318 %s %s :End of /WHOIS list.",user->nick, dest->nick);
 	}
 	else
 	{
-		/* no such nick/channel */
-		WriteServ(user->fd,"401 %s %s :No such nick/channel",user->nick, parameters[0]);
-		WriteServ(user->fd,"318 %s %s :End of /WHOIS list.",user->nick, parameters[0]);
+		WriteServ(user->fd,"401 %s %s :No such nick/channel",user->nick, nick);
+		WriteServ(user->fd,"318 %s %s :End of /WHOIS list.",user->nick, nick);
 	}
 }
 

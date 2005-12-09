@@ -31,6 +31,7 @@ using namespace std;
 #include "users.h"
 #include "channels.h"
 #include "modules.h"
+#include "commands.h"
 #include "socket.h"
 #include "helperfuncs.h"
 #include "inspircd.h"
@@ -1360,6 +1361,55 @@ class TreeSocket : public InspSocket
 		}
 		return true;
 	}
+
+	bool Whois(std::string prefix, std::deque<std::string> &params)
+	{
+		if (params.size() < 1)
+			return true;
+		userrec* u = Srv->FindNick(prefix);
+		if (u)
+		{
+			// an incoming request
+			if (params.size() == 1)
+			{
+				if (std::string(u->server) == Srv->GetServerName())
+				{
+					char signon[MAXBUF];
+					char idle[MAXBUF];
+					snprintf(signon,MAXBUF,"%lu",(unsigned long)u->signon);
+					snprintf(idle,MAXBUF,"%lu",(unsigned long)abs((u->idle_lastmsg)-time(NULL)));
+					std::deque<std::string> par;
+					par.push_back(u->nick);
+					par.push_back(signon);
+					par.push_back(idle);
+					DoOneToMany(params[0],"IDLE",par);
+				}
+				else
+				{
+					DoOneToAllButSender(prefix,"IDLE",params,u->server);
+				}
+			}
+			else if (params.size() == 3)
+			{
+				if (std::string(u->server) == Srv->GetServerName())
+				{
+					// an incoming reply to a whois we sent out
+					std::string nick_whoised = prefix;
+					std::string who_did_the_whois = params[0];
+					unsigned long signon = atoi(params[1].c_str());
+					unsigned long idle = atoi(params[2].c_str());
+					userrec* who_to_send_to = Srv->FindNick(who_did_the_whois);
+					if (who_to_send_to)
+						do_whois(who_to_send_to,u,signon,idle,(char*)nick_whoised.c_str());
+				}
+				else
+				{
+					DoOneToAllButSender(prefix,"IDLE",params,u->server);
+				}
+			}
+		}
+		return true;
+	}
 	
 	bool LocalPing(std::string prefix, std::deque<std::string> &params)
 	{
@@ -1730,6 +1780,10 @@ class TreeSocket : public InspSocket
 						prefix = this->GetName();
 					}
 					return this->ForceNick(prefix,params);
+				}
+				else if (command == "IDLE")
+				{
+					return this->Whois(prefix,params);
 				}
 				else if (command == "SVSJOIN")
 				{
@@ -2214,6 +2268,27 @@ class ModuleSpanningTree : public Module
 		return 1;
 	}
 
+	int HandleRemoteWhois(char** parameters, int pcnt, userrec* user)
+	{
+		if ((std::string(user->server) == Srv->GetServerName()) && (pcnt > 1))
+		{
+			if (Srv->FindNick(parameters[1]))
+			{
+				std::deque<std::string> params;
+				params.push_back(parameters[1]);
+				DoOneToMany(user->nick,"IDLE",params);
+				return 1;
+			}
+			else
+			{
+		                WriteServ(user->fd,"401 %s %s :No such nick/channel",user->nick, parameters[1]);
+		                WriteServ(user->fd,"318 %s %s :End of /WHOIS list.",user->nick, parameters[1]);
+				return 1;
+			}
+		}
+		return 0;
+	}
+
 	void DoPingChecks(time_t curtime)
 	{
 		for (unsigned int j = 0; j < TreeRoot->ChildCount(); j++)
@@ -2347,6 +2422,14 @@ class ModuleSpanningTree : public Module
 		{
 			this->HandleLinks(parameters,pcnt,user);
 			return 1;
+		}
+		else if (command == "WHOIS")
+		{
+			if (pcnt > 1)
+			{
+				// remote whois
+				return this->HandleRemoteWhois(parameters,pcnt,user);
+			}
 		}
 		else if ((command == "VERSION") && (pcnt > 0))
 		{
