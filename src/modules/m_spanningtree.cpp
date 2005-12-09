@@ -1376,13 +1376,14 @@ class TreeSocket : public InspSocket
 			{
 				if (std::string(u->server) != Srv->GetServerName())
 				{
+					userrec* x = Srv->FindNick(params[0]);
 					log(DEBUG,"Got IDLE, sending back IDLE");
 					char signon[MAXBUF];
 					char idle[MAXBUF];
-					snprintf(signon,MAXBUF,"%lu",(unsigned long)u->signon);
-					snprintf(idle,MAXBUF,"%lu",(unsigned long)abs((u->idle_lastmsg)-time(NULL)));
+					snprintf(signon,MAXBUF,"%lu",(unsigned long)x->signon);
+					snprintf(idle,MAXBUF,"%lu",(unsigned long)abs((x->idle_lastmsg)-time(NULL)));
 					std::deque<std::string> par;
-					par.push_back(u->nick);
+					par.push_back(x->nick);
 					par.push_back(signon);
 					par.push_back(idle);
 					DoOneToMany(params[0],"IDLE",par);
