@@ -2284,7 +2284,7 @@ class ModuleSpanningTree : public Module
 				DoOneToMany(user->nick,"IDLE",params);
 				return 1;
 			}
-			else
+			else if (!remote)
 			{
 		                WriteServ(user->fd,"401 %s %s :No such nick/channel",user->nick, parameters[1]);
 		                WriteServ(user->fd,"318 %s %s :End of /WHOIS list.",user->nick, parameters[1]);
