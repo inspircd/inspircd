@@ -1380,13 +1380,16 @@ class TreeSocket : public InspSocket
 					log(DEBUG,"Got IDLE, sending back IDLE");
 					char signon[MAXBUF];
 					char idle[MAXBUF];
-					snprintf(signon,MAXBUF,"%lu",(unsigned long)x->signon);
-					snprintf(idle,MAXBUF,"%lu",(unsigned long)abs((x->idle_lastmsg)-time(NULL)));
-					std::deque<std::string> par;
-					par.push_back(x->nick);
-					par.push_back(signon);
-					par.push_back(idle);
-					DoOneToMany(params[0],"IDLE",par);
+					if (x)
+					{
+						snprintf(signon,MAXBUF,"%lu",(unsigned long)x->signon);
+						snprintf(idle,MAXBUF,"%lu",(unsigned long)abs((x->idle_lastmsg)-time(NULL)));
+						std::deque<std::string> par;
+						par.push_back(x->nick);
+						par.push_back(signon);
+						par.push_back(idle);
+						DoOneToMany(params[0],"IDLE",par);
+					}
 				}
 				else
 				{
