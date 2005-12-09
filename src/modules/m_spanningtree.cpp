@@ -1380,7 +1380,7 @@ class TreeSocket : public InspSocket
 					log(DEBUG,"Got IDLE, sending back IDLE");
 					char signon[MAXBUF];
 					char idle[MAXBUF];
-					if (x)
+					if ((x) && (std::string(x->server) == Srv->GetServerName()))
 					{
 						snprintf(signon,MAXBUF,"%lu",(unsigned long)x->signon);
 						snprintf(idle,MAXBUF,"%lu",(unsigned long)abs((x->idle_lastmsg)-time(NULL)));
@@ -1388,12 +1388,17 @@ class TreeSocket : public InspSocket
 						par.push_back(prefix);
 						par.push_back(signon);
 						par.push_back(idle);
-						DoOneToMany(params[0],"IDLE",par);
+						DoOneToOne(params[0],"IDLE",par,u->server);
+					}
+					else
+					{
+						// not for us, pass it on
+						DoOneToOne(prefix,"IDLE",params,u->server);
 					}
 				}
 				else
 				{
-					DoOneToAllButSender(prefix,"IDLE",params,u->server);
+					DoOneToOne(prefix,"IDLE",params,u->server);
 				}
 			}
 			else if (params.size() == 3)
@@ -1412,7 +1417,7 @@ class TreeSocket : public InspSocket
 				}
 				else
 				{
-					DoOneToAllButSender(prefix,"IDLE",params,u->server);
+					DoOneToOne(prefix,"IDLE",params,u->server);
 				}
 			}
 		}
@@ -2285,7 +2290,7 @@ class ModuleSpanningTree : public Module
 			{
 				std::deque<std::string> params;
 				params.push_back(parameters[1]);
-				DoOneToMany(user->nick,"IDLE",params);
+				DoOneToOne(user->nick,"IDLE",params,remote->server);
 				return 1;
 			}
 			else if (!remote)
