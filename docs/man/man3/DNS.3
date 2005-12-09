@@ -1,4 +1,4 @@
-.TH "DNS" 3 "27 Nov 2005" "Version 1.0Betareleases" "InspIRCd" \" -*- nroff -*-
+.TH "DNS" 3 "9 Dec 2005" "Version 1.0Betareleases" "InspIRCd" \" -*- nroff -*-
 .ad l
 .nh
 .SH NAME
@@ -42,6 +42,9 @@ DNS \- The DNS class allows fast nonblocking resolution of hostnames and ip addr
 .br
 .RI "\fIThis method returns the result of your query as a string, depending upon wether you called \fBDNS::ReverseLookup()\fP or \fBDNS::ForwardLookup\fP. \fP"
 .ti -1c
+.RI "\fBstd::string\fP \fBGetResultIP\fP ()"
+.br
+.ti -1c
 .RI "int \fBGetFD\fP ()"
 .br
 .RI "\fIThis method returns the file handle used by the dns query socket or zero if the query is invalid for some reason, e.g. \fP"
@@ -74,7 +77,7 @@ DNS \- The DNS class allows fast nonblocking resolution of hostnames and ip addr
 .RI "int \fBdns_getname4\fP (const in_addr *const ip)"
 .br
 .ti -1c
-.RI "char * \fBdns_getresult\fP (const int \fBfd\fP)"
+.RI "char * \fBdns_getresult\fP (const int fd)"
 .br
 .ti -1c
 .RI "in_addr * \fBdns_aton4_s\fP (const char *const ipstring, in_addr *const ip)"
@@ -83,7 +86,7 @@ DNS \- The DNS class allows fast nonblocking resolution of hostnames and ip addr
 .RI "char * \fBdns_ntoa4_s\fP (const in_addr *const ip, char *const \fBresult\fP)"
 .br
 .ti -1c
-.RI "char * \fBdns_getresult_s\fP (const int \fBfd\fP, char *const \fBresult\fP)"
+.RI "char * \fBdns_getresult_s\fP (const int fd, char *const \fBresult\fP)"
 .br
 .ti -1c
 .RI "in_addr * \fBdns_aton4_r\fP (const char *const ipstring)"
@@ -92,7 +95,7 @@ DNS \- The DNS class allows fast nonblocking resolution of hostnames and ip addr
 .RI "char * \fBdns_ntoa4_r\fP (const in_addr *const ip)"
 .br
 .ti -1c
-.RI "char * \fBdns_getresult_r\fP (const int \fBfd\fP)"
+.RI "char * \fBdns_getresult_r\fP (const int fd)"
 .br
 .in -1c
 .SS "Private Attributes"
@@ -105,10 +108,13 @@ DNS \- The DNS class allows fast nonblocking resolution of hostnames and ip addr
 .RI "char * \fBresult\fP"
 .br
 .ti -1c
+.RI "char \fBlocalbuf\fP [1024]"
+.br
+.ti -1c
 .RI "int \fBt\fP"
 .br
 .ti -1c
-.RI "int \fBfd\fP"
+.RI "int \fBmyfd\fP"
 .br
 .in -1c
 .SH "Detailed Description"
@@ -178,6 +184,8 @@ the dns server not responding.
 .PP
 This method returns the result of your query as a string, depending upon wether you called \fBDNS::ReverseLookup()\fP or \fBDNS::ForwardLookup\fP. 
 .PP
+.SS "\fBstd::string\fP DNS::GetResultIP ()"
+.PP
 .SS "bool DNS::HasResult ()"
 .PP
 This method will return true when the lookup is completed. 
@@ -195,15 +203,18 @@ This method will start the reverse lookup of an ip given in dotted decimal forma
 .SS "in_addr* \fBDNS::binip\fP\fC [private]\fP"
 .PP
 Definition at line 38 of file dns.h.
-.SS "int \fBDNS::fd\fP\fC [private]\fP"
+.SS "char \fBDNS::localbuf\fP[1024]\fC [private]\fP"
 .PP
-Definition at line 42 of file dns.h.
+Definition at line 40 of file dns.h.
+.SS "int \fBDNS::myfd\fP\fC [private]\fP"
+.PP
+Definition at line 43 of file dns.h.
 .SS "char* \fBDNS::result\fP\fC [private]\fP"
 .PP
 Definition at line 39 of file dns.h.
 .SS "int \fBDNS::t\fP\fC [private]\fP"
 .PP
-Definition at line 40 of file dns.h.
+Definition at line 41 of file dns.h.
 
 .SH "Author"
 .PP 

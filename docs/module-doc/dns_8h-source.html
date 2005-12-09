@@ -43,36 +43,38 @@
 <a name="l00037"></a>00037 <span class="keyword">private</span>:
 <a name="l00038"></a><a class="code" href="classDNS.html#binip">00038</a>         in_addr *<a class="code" href="classDNS.html#binip">binip</a>;
 <a name="l00039"></a><a class="code" href="classDNS.html#result">00039</a>         <span class="keywordtype">char</span>* <a class="code" href="classDNS.html#result">result</a>;
-<a name="l00040"></a><a class="code" href="classDNS.html#t">00040</a>         <span class="keywordtype">int</span> <a class="code" href="classDNS.html#t">t</a>;
-<a name="l00041"></a>00041         <span class="keywordtype">void</span> <a class="code" href="classDNS.html#dns_5Finit_28_29">dns_init</a>();
-<a name="l00042"></a><a class="code" href="classDNS.html#fd">00042</a>         <span class="keywordtype">int</span> <a class="code" href="classDNS.html#fd">fd</a>;
-<a name="l00043"></a>00043         <span class="keywordtype">void</span> <a class="code" href="classDNS.html#dns_5Finit_5F_32_28const_20char_20_2Adnsserver_29">dns_init_2</a>(<span class="keyword">const</span> <span class="keywordtype">char</span>* dnsserver);
-<a name="l00044"></a>00044         in_addr *<a class="code" href="classDNS.html#dns_5Faton_34_28const_20char_20_2Aconst_20ipstring_29">dns_aton4</a>(<span class="keyword">const</span> <span class="keywordtype">char</span> * <span class="keyword">const</span> ipstring);
-<a name="l00045"></a>00045         <span class="keywordtype">char</span> *<a class="code" href="classDNS.html#dns_5Fntoa_34_28const_20in_5Faddr_20_2Aconst_20ip_29">dns_ntoa4</a>(<span class="keyword">const</span> in_addr * <span class="keyword">const</span> ip);
-<a name="l00046"></a>00046         <span class="keywordtype">int</span> <a class="code" href="classDNS.html#dns_5Fgetip_34_28const_20char_20_2Aconst_20name_29">dns_getip4</a>(<span class="keyword">const</span> <span class="keywordtype">char</span> * <span class="keyword">const</span> name);
-<a name="l00047"></a>00047         <span class="keywordtype">int</span> <a class="code" href="classDNS.html#dns_5Fgetip_34list_28const_20char_20_2Aconst_20name_29">dns_getip4list</a>(<span class="keyword">const</span> <span class="keywordtype">char</span> * <span class="keyword">const</span> name);
-<a name="l00048"></a>00048         <span class="keywordtype">int</span> <a class="code" href="classDNS.html#dns_5Fgetname_34_28const_20in_5Faddr_20_2Aconst_20ip_29">dns_getname4</a>(<span class="keyword">const</span> in_addr * <span class="keyword">const</span> ip);
-<a name="l00049"></a>00049         <span class="keywordtype">char</span> *<a class="code" href="classDNS.html#dns_5Fgetresult_28const_20int_20fd_29">dns_getresult</a>(<span class="keyword">const</span> <span class="keywordtype">int</span> <a class="code" href="classDNS.html#fd">fd</a>);
-<a name="l00050"></a>00050         in_addr *<a class="code" href="classDNS.html#dns_5Faton_34_5Fs_28const_20char_20_2Aconst_20ipstring_2C_20in_5Faddr_20_2Aconst_20ip_29">dns_aton4_s</a>(<span class="keyword">const</span> <span class="keywordtype">char</span> * <span class="keyword">const</span> ipstring, in_addr * <span class="keyword">const</span> ip);
-<a name="l00051"></a>00051         <span class="keywordtype">char</span> *<a class="code" href="classDNS.html#dns_5Fntoa_34_5Fs_28const_20in_5Faddr_20_2Aconst_20ip_2C_20char_20_2Aconst_20result_29">dns_ntoa4_s</a>(<span class="keyword">const</span> in_addr * <span class="keyword">const</span> ip, <span class="keywordtype">char</span> * <span class="keyword">const</span> <a class="code" href="classDNS.html#result">result</a>);
-<a name="l00052"></a>00052         <span class="keywordtype">char</span> *<a class="code" href="classDNS.html#dns_5Fgetresult_5Fs_28const_20int_20fd_2C_20char_20_2Aconst_20result_29">dns_getresult_s</a>(<span class="keyword">const</span> <span class="keywordtype">int</span> <a class="code" href="classDNS.html#fd">fd</a>, <span class="keywordtype">char</span> * <span class="keyword">const</span> <a class="code" href="classDNS.html#result">result</a>);
-<a name="l00053"></a>00053         in_addr *<a class="code" href="classDNS.html#dns_5Faton_34_5Fr_28const_20char_20_2Aconst_20ipstring_29">dns_aton4_r</a>(<span class="keyword">const</span> <span class="keywordtype">char</span> * <span class="keyword">const</span> ipstring);
-<a name="l00054"></a>00054         <span class="keywordtype">char</span> *<a class="code" href="classDNS.html#dns_5Fntoa_34_5Fr_28const_20in_5Faddr_20_2Aconst_20ip_29">dns_ntoa4_r</a>(<span class="keyword">const</span> in_addr * <span class="keyword">const</span> ip);
-<a name="l00055"></a>00055         <span class="keywordtype">char</span> *<a class="code" href="classDNS.html#dns_5Fgetresult_5Fr_28const_20int_20fd_29">dns_getresult_r</a>(<span class="keyword">const</span> <span class="keywordtype">int</span> <a class="code" href="classDNS.html#fd">fd</a>);
-<a name="l00056"></a>00056 <span class="keyword">public</span>:
-<a name="l00063"></a>00063         <a class="code" href="classDNS.html#DNS_28_29">DNS</a>();
-<a name="l00067"></a>00067         <a class="code" href="classDNS.html#DNS_28_29">DNS</a>(<a class="code" href="namespaceirc.html#string">std::string</a> dnsserver);
-<a name="l00070"></a>00070         <a class="code" href="classDNS.html#_7EDNS_28_29">~DNS</a>();
-<a name="l00075"></a>00075         <span class="keywordtype">bool</span> <a class="code" href="classDNS.html#ReverseLookup_28std_3A_3Astring_20ip_29">ReverseLookup</a>(<a class="code" href="namespaceirc.html#string">std::string</a> ip);
-<a name="l00079"></a>00079         <span class="keywordtype">bool</span> <a class="code" href="classDNS.html#ForwardLookup_28std_3A_3Astring_20host_29">ForwardLookup</a>(<a class="code" href="namespaceirc.html#string">std::string</a> host);
-<a name="l00083"></a>00083         <span class="keywordtype">bool</span> <a class="code" href="classDNS.html#HasResult_28_29">HasResult</a>();
-<a name="l00087"></a>00087         <a class="code" href="namespaceirc.html#string">std::string</a> <a class="code" href="classDNS.html#GetResult_28_29">GetResult</a>();
-<a name="l00091"></a>00091         <span class="keywordtype">int</span> <a class="code" href="classDNS.html#GetFD_28_29">GetFD</a>();
-<a name="l00092"></a>00092         <span class="keywordtype">void</span> <a class="code" href="classDNS.html#SetNS_28std_3A_3Astring_20dnsserver_29">SetNS</a>(<a class="code" href="namespaceirc.html#string">std::string</a> dnsserver);
-<a name="l00093"></a>00093 };
-<a name="l00094"></a>00094 
-<a name="l00095"></a>00095 <span class="preprocessor">#endif</span>
-</pre></div><hr size="1"><address style="align: right;"><small>Generated on Sun Nov 27 01:43:24 2005 for InspIRCd by&nbsp;
+<a name="l00040"></a><a class="code" href="classDNS.html#localbuf_5B_31_30_32_34_5D">00040</a>         <span class="keywordtype">char</span> <a class="code" href="classDNS.html#localbuf_5B_31_30_32_34_5D">localbuf</a>[1024];
+<a name="l00041"></a><a class="code" href="classDNS.html#t">00041</a>         <span class="keywordtype">int</span> <a class="code" href="classDNS.html#t">t</a>;
+<a name="l00042"></a>00042         <span class="keywordtype">void</span> <a class="code" href="classDNS.html#dns_5Finit_28_29">dns_init</a>();
+<a name="l00043"></a><a class="code" href="classDNS.html#myfd">00043</a>         <span class="keywordtype">int</span> <a class="code" href="classDNS.html#myfd">myfd</a>;
+<a name="l00044"></a>00044         <span class="keywordtype">void</span> <a class="code" href="classDNS.html#dns_5Finit_5F_32_28const_20char_20_2Adnsserver_29">dns_init_2</a>(<span class="keyword">const</span> <span class="keywordtype">char</span>* dnsserver);
+<a name="l00045"></a>00045         in_addr *<a class="code" href="classDNS.html#dns_5Faton_34_28const_20char_20_2Aconst_20ipstring_29">dns_aton4</a>(<span class="keyword">const</span> <span class="keywordtype">char</span> * <span class="keyword">const</span> ipstring);
+<a name="l00046"></a>00046         <span class="keywordtype">char</span> *<a class="code" href="classDNS.html#dns_5Fntoa_34_28const_20in_5Faddr_20_2Aconst_20ip_29">dns_ntoa4</a>(<span class="keyword">const</span> in_addr * <span class="keyword">const</span> ip);
+<a name="l00047"></a>00047         <span class="keywordtype">int</span> <a class="code" href="classDNS.html#dns_5Fgetip_34_28const_20char_20_2Aconst_20name_29">dns_getip4</a>(<span class="keyword">const</span> <span class="keywordtype">char</span> * <span class="keyword">const</span> name);
+<a name="l00048"></a>00048         <span class="keywordtype">int</span> <a class="code" href="classDNS.html#dns_5Fgetip_34list_28const_20char_20_2Aconst_20name_29">dns_getip4list</a>(<span class="keyword">const</span> <span class="keywordtype">char</span> * <span class="keyword">const</span> name);
+<a name="l00049"></a>00049         <span class="keywordtype">int</span> <a class="code" href="classDNS.html#dns_5Fgetname_34_28const_20in_5Faddr_20_2Aconst_20ip_29">dns_getname4</a>(<span class="keyword">const</span> in_addr * <span class="keyword">const</span> ip);
+<a name="l00050"></a>00050         <span class="keywordtype">char</span> *<a class="code" href="classDNS.html#dns_5Fgetresult_28const_20int_20fd_29">dns_getresult</a>(<span class="keyword">const</span> <span class="keywordtype">int</span> fd);
+<a name="l00051"></a>00051         in_addr *<a class="code" href="classDNS.html#dns_5Faton_34_5Fs_28const_20char_20_2Aconst_20ipstring_2C_20in_5Faddr_20_2Aconst_20ip_29">dns_aton4_s</a>(<span class="keyword">const</span> <span class="keywordtype">char</span> * <span class="keyword">const</span> ipstring, in_addr * <span class="keyword">const</span> ip);
+<a name="l00052"></a>00052         <span class="keywordtype">char</span> *<a class="code" href="classDNS.html#dns_5Fntoa_34_5Fs_28const_20in_5Faddr_20_2Aconst_20ip_2C_20char_20_2Aconst_20result_29">dns_ntoa4_s</a>(<span class="keyword">const</span> in_addr * <span class="keyword">const</span> ip, <span class="keywordtype">char</span> * <span class="keyword">const</span> <a class="code" href="classDNS.html#result">result</a>);
+<a name="l00053"></a>00053         <span class="keywordtype">char</span> *<a class="code" href="classDNS.html#dns_5Fgetresult_5Fs_28const_20int_20fd_2C_20char_20_2Aconst_20result_29">dns_getresult_s</a>(<span class="keyword">const</span> <span class="keywordtype">int</span> fd, <span class="keywordtype">char</span> * <span class="keyword">const</span> <a class="code" href="classDNS.html#result">result</a>);
+<a name="l00054"></a>00054         in_addr *<a class="code" href="classDNS.html#dns_5Faton_34_5Fr_28const_20char_20_2Aconst_20ipstring_29">dns_aton4_r</a>(<span class="keyword">const</span> <span class="keywordtype">char</span> * <span class="keyword">const</span> ipstring);
+<a name="l00055"></a>00055         <span class="keywordtype">char</span> *<a class="code" href="classDNS.html#dns_5Fntoa_34_5Fr_28const_20in_5Faddr_20_2Aconst_20ip_29">dns_ntoa4_r</a>(<span class="keyword">const</span> in_addr * <span class="keyword">const</span> ip);
+<a name="l00056"></a>00056         <span class="keywordtype">char</span> *<a class="code" href="classDNS.html#dns_5Fgetresult_5Fr_28const_20int_20fd_29">dns_getresult_r</a>(<span class="keyword">const</span> <span class="keywordtype">int</span> fd);
+<a name="l00057"></a>00057 <span class="keyword">public</span>:
+<a name="l00064"></a>00064         <a class="code" href="classDNS.html#DNS_28_29">DNS</a>();
+<a name="l00068"></a>00068         <a class="code" href="classDNS.html#DNS_28_29">DNS</a>(<a class="code" href="namespaceirc.html#string">std::string</a> dnsserver);
+<a name="l00071"></a>00071         <a class="code" href="classDNS.html#_7EDNS_28_29">~DNS</a>();
+<a name="l00076"></a>00076         <span class="keywordtype">bool</span> <a class="code" href="classDNS.html#ReverseLookup_28std_3A_3Astring_20ip_29">ReverseLookup</a>(<a class="code" href="namespaceirc.html#string">std::string</a> ip);
+<a name="l00080"></a>00080         <span class="keywordtype">bool</span> <a class="code" href="classDNS.html#ForwardLookup_28std_3A_3Astring_20host_29">ForwardLookup</a>(<a class="code" href="namespaceirc.html#string">std::string</a> host);
+<a name="l00084"></a>00084         <span class="keywordtype">bool</span> <a class="code" href="classDNS.html#HasResult_28_29">HasResult</a>();
+<a name="l00088"></a>00088         <a class="code" href="namespaceirc.html#string">std::string</a> <a class="code" href="classDNS.html#GetResult_28_29">GetResult</a>();
+<a name="l00089"></a>00089         <a class="code" href="namespaceirc.html#string">std::string</a> <a class="code" href="classDNS.html#GetResultIP_28_29">GetResultIP</a>();
+<a name="l00093"></a>00093         <span class="keywordtype">int</span> <a class="code" href="classDNS.html#GetFD_28_29">GetFD</a>();
+<a name="l00094"></a>00094         <span class="keywordtype">void</span> <a class="code" href="classDNS.html#SetNS_28std_3A_3Astring_20dnsserver_29">SetNS</a>(<a class="code" href="namespaceirc.html#string">std::string</a> dnsserver);
+<a name="l00095"></a>00095 };
+<a name="l00096"></a>00096 
+<a name="l00097"></a>00097 <span class="preprocessor">#endif</span>
+</pre></div><hr size="1"><address style="align: right;"><small>Generated on Fri Dec 9 20:20:03 2005 for InspIRCd by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img src="doxygen.png" alt="doxygen" align="middle" border="0"></a> 1.4.4-20050815 </small></address>
 </body>

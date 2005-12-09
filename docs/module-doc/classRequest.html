@@ -57,7 +57,7 @@ When this class is properly instantiated it may be sent to a module using the <a
 <p>
 
 <p>
-Definition at line <a class="el" href="modules_8h-source.html#l00156">156</a> of file <a class="el" href="modules_8h-source.html">modules.h</a>.<hr><h2>Constructor &amp; Destructor Documentation</h2>
+Definition at line <a class="el" href="modules_8h-source.html#l00157">157</a> of file <a class="el" href="modules_8h-source.html">modules.h</a>.<hr><h2>Constructor &amp; Destructor Documentation</h2>
 <a class="anchor" name="Request_28char_20_2Aanydata_2C_20Module_20_2Asrc_2C_20Module_20_2Adst_29"></a><!-- doxytag: member="Request::Request" ref="Request_28char_20_2Aanydata_2C_20Module_20_2Asrc_2C_20Module_20_2Adst_29" args="(char *anydata, Module *src, Module *dst)" --><p>
 <table class="mdTable" cellpadding="2" cellspacing="0">
   <tr>
@@ -139,7 +139,7 @@ Fetch the Request data.
 <p>
 Definition at line <a class="el" href="modules_8cpp-source.html#l00254">254</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
 <p>
-References <a class="el" href="modules_8h-source.html#l00161">data</a>.<div class="fragment"><pre class="fragment"><a name="l00255"></a>00255 {
+References <a class="el" href="modules_8h-source.html#l00162">data</a>.<div class="fragment"><pre class="fragment"><a name="l00255"></a>00255 {
 <a name="l00256"></a>00256         <span class="keywordflow">return</span> this-&gt;<a class="code" href="classRequest.html#data">data</a>;
 <a name="l00257"></a>00257 }
 </pre></div>
@@ -177,7 +177,7 @@ Fetch the request destination (should be 'this' in the receiving module).
 <p>
 Definition at line <a class="el" href="modules_8cpp-source.html#l00264">264</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
 <p>
-References <a class="el" href="modules_8h-source.html#l00168">dest</a>.<div class="fragment"><pre class="fragment"><a name="l00265"></a>00265 {
+References <a class="el" href="modules_8h-source.html#l00169">dest</a>.<div class="fragment"><pre class="fragment"><a name="l00265"></a>00265 {
 <a name="l00266"></a>00266         <span class="keywordflow">return</span> this-&gt;<a class="code" href="classRequest.html#dest">dest</a>;
 <a name="l00267"></a>00267 }
 </pre></div>
@@ -215,7 +215,7 @@ Fetch the request source.
 <p>
 Definition at line <a class="el" href="modules_8cpp-source.html#l00259">259</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
 <p>
-References <a class="el" href="modules_8h-source.html#l00165">source</a>.<div class="fragment"><pre class="fragment"><a name="l00260"></a>00260 {
+References <a class="el" href="modules_8h-source.html#l00166">source</a>.<div class="fragment"><pre class="fragment"><a name="l00260"></a>00260 {
 <a name="l00261"></a>00261         <span class="keywordflow">return</span> this-&gt;<a class="code" href="classRequest.html#source">source</a>;
 <a name="l00262"></a>00262 }
 </pre></div>
@@ -255,7 +255,7 @@ Implements <a class="el" href="classModuleMessage.html#Send_28_29_3D_30">ModuleM
 <p>
 Definition at line <a class="el" href="modules_8cpp-source.html#l00269">269</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
 <p>
-References <a class="el" href="modules_8h-source.html#l00168">dest</a>, and <a class="el" href="modules_8cpp-source.html#l00352">Module::OnRequest()</a>.<div class="fragment"><pre class="fragment"><a name="l00270"></a>00270 {
+References <a class="el" href="modules_8h-source.html#l00169">dest</a>, and <a class="el" href="modules_8cpp-source.html#l00352">Module::OnRequest()</a>.<div class="fragment"><pre class="fragment"><a name="l00270"></a>00270 {
 <a name="l00271"></a>00271         <span class="keywordflow">if</span> (this-&gt;dest)
 <a name="l00272"></a>00272         {
 <a name="l00273"></a>00273                 <span class="keywordflow">return</span> <a class="code" href="classRequest.html#dest">dest</a>-&gt;<a class="code" href="classModule.html#OnRequest_28Request_20_2Arequest_29">OnRequest</a>(<span class="keyword">this</span>);
@@ -295,7 +295,7 @@ This member holds a pointer to arbitary data set by the emitter of the message.
 <p>
 
 <p>
-Definition at line <a class="el" href="modules_8h-source.html#l00161">161</a> of file <a class="el" href="modules_8h-source.html">modules.h</a>.
+Definition at line <a class="el" href="modules_8h-source.html#l00162">162</a> of file <a class="el" href="modules_8h-source.html">modules.h</a>.
 <p>
 Referenced by <a class="el" href="modules_8cpp-source.html#l00254">GetData()</a>.    </td>
   </tr>
@@ -324,7 +324,7 @@ The single destination of the Request.
 <p>
 
 <p>
-Definition at line <a class="el" href="modules_8h-source.html#l00168">168</a> of file <a class="el" href="modules_8h-source.html">modules.h</a>.
+Definition at line <a class="el" href="modules_8h-source.html#l00169">169</a> of file <a class="el" href="modules_8h-source.html">modules.h</a>.
 <p>
 Referenced by <a class="el" href="modules_8cpp-source.html#l00264">GetDest()</a>, and <a class="el" href="modules_8cpp-source.html#l00269">Send()</a>.    </td>
   </tr>
@@ -353,14 +353,14 @@ This is a pointer to the sender of the message, which can be used to directly tr
 <p>
 
 <p>
-Definition at line <a class="el" href="modules_8h-source.html#l00165">165</a> of file <a class="el" href="modules_8h-source.html">modules.h</a>.
+Definition at line <a class="el" href="modules_8h-source.html#l00166">166</a> of file <a class="el" href="modules_8h-source.html">modules.h</a>.
 <p>
 Referenced by <a class="el" href="modules_8cpp-source.html#l00259">GetSource()</a>.    </td>
   </tr>
 </table>
 <hr>The documentation for this class was generated from the following files:<ul>
 <li><a class="el" href="modules_8h-source.html">modules.h</a><li><a class="el" href="modules_8cpp-source.html">modules.cpp</a></ul>
-<hr size="1"><address style="align: right;"><small>Generated on Sun Nov 27 01:43:26 2005 for InspIRCd by&nbsp;
+<hr size="1"><address style="align: right;"><small>Generated on Fri Dec 9 20:20:12 2005 for InspIRCd by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img src="doxygen.png" alt="doxygen" align="middle" border="0"></a> 1.4.4-20050815 </small></address>
 </body>

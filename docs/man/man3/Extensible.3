@@ -1,4 +1,4 @@
-.TH "Extensible" 3 "27 Nov 2005" "Version 1.0Betareleases" "InspIRCd" \" -*- nroff -*-
+.TH "Extensible" 3 "9 Dec 2005" "Version 1.0Betareleases" "InspIRCd" \" -*- nroff -*-
 .ad l
 .nh
 .SH NAME
@@ -29,6 +29,10 @@ Inherited by \fBchanrec\fP, \fBcommand_t\fP, and \fBconnection\fP.
 .RI "char * \fBGetExt\fP (\fBstd::string\fP key)"
 .br
 .RI "\fIGet an extension item. \fP"
+.ti -1c
+.RI "void \fBGetExtList\fP (std::deque< \fBstd::string\fP > &\fBlist\fP)"
+.br
+.RI "\fIGet a list of all extension items names. \fP"
 .in -1c
 .SS "Private Attributes"
 
@@ -44,7 +48,7 @@ class Extensible is the parent class of many classes such as userrec and chanrec
 
 class Extensible implements a system which allows modules to 'extend' the class by attaching data within a map associated with the object. In this way modules can store their own custom information within user objects, channel objects and server objects, without breaking other modules (this is more sensible than using a flags variable, and each module defining bits within the flag as 'theirs' as it is less prone to conflict and supports arbitary data storage).
 .PP
-Definition at line 50 of file base.h.
+Definition at line 51 of file base.h.
 .SH "Member Function Documentation"
 .PP 
 .SS "bool Extensible::Extend (\fBstd::string\fP key, char * p)"
@@ -81,6 +85,21 @@ If you provide a non-existent key name, the function returns NULL, otherwise a p
 .RE
 .PP
 
+.SS "void Extensible::GetExtList (std::deque< \fBstd::string\fP > & list)"
+.PP
+Get a list of all extension items names. 
+.PP
+\fBParameters:\fP
+.RS 4
+\fIlist\fP A deque of strings to receive the list
+.RE
+.PP
+\fBReturns:\fP
+.RS 4
+This function writes a list of all extension items stored in this object by name into the given deque and returns void.
+.RE
+.PP
+
 .SS "bool Extensible::Shrink (\fBstd::string\fP key)"
 .PP
 Shrink an Extensible class. 
@@ -104,7 +123,7 @@ Returns true on success.
 .PP
 Private data store. 
 .PP
-Definition at line 54 of file base.h.
+Definition at line 55 of file base.h.
 
 .SH "Author"
 .PP 

@@ -1,4 +1,4 @@
-.TH "Event" 3 "27 Nov 2005" "Version 1.0Betareleases" "InspIRCd" \" -*- nroff -*-
+.TH "Event" 3 "9 Dec 2005" "Version 1.0Betareleases" "InspIRCd" \" -*- nroff -*-
 .ad l
 .nh
 .SH NAME
@@ -58,7 +58,7 @@ The Event class is a unicast message directed at all modules.
 
 When the class is properly instantiated it may be sent to all modules using the \fBSend()\fP method, which will trigger the OnEvent method in all modules passing the object as its parameter.
 .PP
-Definition at line 196 of file modules.h.
+Definition at line 197 of file modules.h.
 .SH "Constructor & Destructor Documentation"
 .PP 
 .SS "Event::Event (char * anydata, \fBModule\fP * src, \fBstd::string\fP eventid)"
@@ -142,7 +142,7 @@ References FOREACH_MOD.
 .PP
 This member holds a pointer to arbitary data set by the emitter of the message. 
 .PP
-Definition at line 201 of file modules.h.
+Definition at line 202 of file modules.h.
 .PP
 Referenced by GetData().
 .SS "\fBstd::string\fP \fBEvent::id\fP\fC [protected]\fP"
@@ -151,14 +151,14 @@ The event identifier.
 .PP
 This is arbitary text which should be used to distinguish one type of event from another.
 .PP
-Definition at line 210 of file modules.h.
+Definition at line 211 of file modules.h.
 .PP
 Referenced by GetEventID().
 .SS "\fBModule\fP* \fBEvent::source\fP\fC [protected]\fP"
 .PP
 This is a pointer to the sender of the message, which can be used to directly trigger events, or to create a reply. 
 .PP
-Definition at line 205 of file modules.h.
+Definition at line 206 of file modules.h.
 .PP
 Referenced by GetSource().
 

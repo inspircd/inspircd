@@ -1,4 +1,4 @@
-.TH "modules.h" 3 "27 Nov 2005" "Version 1.0Betareleases" "InspIRCd" \" -*- nroff -*-
+.TH "modules.h" 3 "9 Dec 2005" "Version 1.0Betareleases" "InspIRCd" \" -*- nroff -*-
 .ad l
 .nh
 .SH NAME
@@ -71,6 +71,7 @@ modules.h \-
 .ti -1c
 .RI "#define \fBDEBUG\fP   10"
 .br
+.RI "\fIlog levels \fP"
 .ti -1c
 .RI "#define \fBVERBOSE\fP   20"
 .br
@@ -86,6 +87,7 @@ modules.h \-
 .ti -1c
 .RI "#define \fBMT_CHANNEL\fP   1"
 .br
+.RI "\fIUsed with OnExtendedMode() method of modules. \fP"
 .ti -1c
 .RI "#define \fBMT_CLIENT\fP   2"
 .br
@@ -95,6 +97,7 @@ modules.h \-
 .ti -1c
 .RI "#define \fBACR_DEFAULT\fP   0"
 .br
+.RI "\fIUsed with OnAccessCheck() method of modules. \fP"
 .ti -1c
 .RI "#define \fBACR_DENY\fP   1"
 .br
@@ -131,6 +134,7 @@ modules.h \-
 .ti -1c
 .RI "#define \fBVF_STATIC\fP   1"
 .br
+.RI "\fIUsed to define a set of behavior bits for a module. \fP"
 .ti -1c
 .RI "#define \fBVF_VENDOR\fP   2"
 .br
@@ -194,35 +198,37 @@ modules.h \-
 .PP 
 .SS "#define AC_DEHALFOP   6"
 .PP
-Definition at line 47 of file modules.h.
+Definition at line 46 of file modules.h.
 .SS "#define AC_DEOP   1"
 .PP
-Definition at line 42 of file modules.h.
+Definition at line 41 of file modules.h.
 .SS "#define AC_DEVOICE   4"
 .PP
-Definition at line 45 of file modules.h.
+Definition at line 44 of file modules.h.
 .SS "#define AC_GENERAL_MODE   8"
 .PP
-Definition at line 49 of file modules.h.
+Definition at line 48 of file modules.h.
 .SS "#define AC_HALFOP   5"
 .PP
-Definition at line 46 of file modules.h.
+Definition at line 45 of file modules.h.
 .SS "#define AC_INVITE   7"
 .PP
-Definition at line 48 of file modules.h.
+Definition at line 47 of file modules.h.
 .SS "#define AC_KICK   0"
 .PP
-Definition at line 41 of file modules.h.
+Definition at line 40 of file modules.h.
 .SS "#define AC_OP   2"
 .PP
-Definition at line 43 of file modules.h.
+Definition at line 42 of file modules.h.
 .SS "#define AC_VOICE   3"
 .PP
-Definition at line 44 of file modules.h.
+Definition at line 43 of file modules.h.
 .SS "#define ACR_ALLOW   2"
 .PP
 Definition at line 39 of file modules.h.
 .SS "#define ACR_DEFAULT   0"
+.PP
+Used with OnAccessCheck() method of modules. 
 .PP
 Definition at line 37 of file modules.h.
 .PP
@@ -232,40 +238,42 @@ Referenced by Module::OnAccessCheck().
 Definition at line 38 of file modules.h.
 .SS "#define CONF_FILE_NOT_FOUND   0x000200"
 .PP
-Definition at line 1112 of file modules.h.
+Definition at line 1501 of file modules.h.
 .PP
 Referenced by ConfigReader::ConfigReader().
 .SS "#define CONF_NOT_A_NUMBER   0x000010"
 .PP
-Definition at line 1109 of file modules.h.
+Definition at line 1498 of file modules.h.
 .PP
 Referenced by ConfigReader::ReadInteger().
 .SS "#define CONF_NOT_UNSIGNED   0x000080"
 .PP
-Definition at line 1110 of file modules.h.
+Definition at line 1499 of file modules.h.
 .PP
 Referenced by ConfigReader::ReadInteger().
 .SS "#define CONF_VALUE_NOT_FOUND   0x000100"
 .PP
-Definition at line 1111 of file modules.h.
+Definition at line 1500 of file modules.h.
 .PP
 Referenced by ConfigReader::ReadFlag(), ConfigReader::ReadInteger(), and ConfigReader::ReadValue().
 .SS "#define DEBUG   10"
 .PP
+log levels 
+.PP
 Definition at line 23 of file modules.h.
 .PP
-Referenced by Server::AddExtendedMode(), chanrec::AddUser(), chanrec::DelUser(), userrec::HasPermission(), InspSocket::InspSocket(), chanrec::IsCustomModeSet(), InspSocket::Read(), userrec::ReadData(), userrec::RemoveInvite(), chanrec::SetCustomMode(), chanrec::SetCustomModeParam(), InspSocket::SetState(), userrec::SetWriteError(), and Server::UserToPseudo().
+Referenced by Server::AddExtendedMode(), chanrec::AddUser(), chanrec::DelUser(), InspSocket::InspSocket(), chanrec::IsCustomModeSet(), InspSocket::Read(), userrec::ReadData(), userrec::RemoveInvite(), chanrec::SetCustomMode(), chanrec::SetCustomModeParam(), InspSocket::SetState(), userrec::SetWriteError(), and Server::UserToPseudo().
 .SS "#define DEFAULT   30"
 .PP
 Definition at line 25 of file modules.h.
 .SS "#define FD_MAGIC_NUMBER   -42"
 .PP
-Definition at line 100 of file modules.h.
+Definition at line 101 of file modules.h.
 .PP
 Referenced by Server::PseudoToUser(), and Server::UserToPseudo().
 .SS "#define FOREACH_MOD   for (int _i = 0; _i <= \fBMODCOUNT\fP; _i++) modules[_i]->"
 .PP
-Definition at line 80 of file modules.h.
+Definition at line 81 of file modules.h.
 .PP
 Referenced by Event::Send().
 .SS "#define FOREACH_RESULT(x)"
@@ -284,8 +292,10 @@ Referenced by Event::Send().
         }
 .fi
 .PP
-Definition at line 88 of file modules.h.
+Definition at line 89 of file modules.h.
 .SS "#define MT_CHANNEL   1"
+.PP
+Used with OnExtendedMode() method of modules. 
 .PP
 Definition at line 31 of file modules.h.
 .PP
@@ -311,16 +321,18 @@ Definition at line 26 of file modules.h.
 Definition at line 24 of file modules.h.
 .SS "#define VF_COMMON   8"
 .PP
-Definition at line 56 of file modules.h.
+Definition at line 55 of file modules.h.
 .SS "#define VF_SERVICEPROVIDER   4"
 .PP
-Definition at line 55 of file modules.h.
+Definition at line 54 of file modules.h.
 .SS "#define VF_STATIC   1"
 .PP
-Definition at line 53 of file modules.h.
+Used to define a set of behavior bits for a module. 
+.PP
+Definition at line 52 of file modules.h.
 .SS "#define VF_VENDOR   2"
 .PP
-Definition at line 54 of file modules.h.
+Definition at line 53 of file modules.h.
 .PP
 Referenced by Module::GetVersion().
 .SH "Typedef Documentation"
@@ -329,18 +341,18 @@ Referenced by Module::GetVersion().
 .PP
 Holds a list of users in a channel. 
 .PP
-Definition at line 73 of file modules.h.
+Definition at line 74 of file modules.h.
 .SS "typedef std::deque<\fBstd::string\fP> \fBfile_cache\fP"
 .PP
 Low level definition of a \fBFileReader\fP classes file cache area. 
 .PP
-Definition at line 68 of file modules.h.
+Definition at line 65 of file modules.h.
 .SS "typedef DLLFactory<\fBModuleFactory\fP> \fBircd_module\fP"
 .PP
-Definition at line 1278 of file modules.h.
+Definition at line 1667 of file modules.h.
 .SS "typedef \fBfile_cache\fP \fBstring_list\fP"
 .PP
-Definition at line 69 of file modules.h.
+Definition at line 70 of file modules.h.
 .SH "Function Documentation"
 .PP 
 .SS "void createcommand (char * cmd, handlerfunc f, char flags, int minparams, char * source)"

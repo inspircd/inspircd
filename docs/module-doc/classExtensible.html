@@ -34,6 +34,9 @@ Inheritance diagram for Extensible:<p><center><img src="classExtensible__inherit
 <tr><td class="memItemLeft" nowrap align="right" valign="top">char *&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classExtensible.html#GetExt_28std_3A_3Astring_20key_29">GetExt</a> (<a class="el" href="namespaceirc.html#string">std::string</a> key)</td></tr>
 
 <tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Get an extension item.  <a href="#GetExt_28std_3A_3Astring_20key_29"></a><br></td></tr>
+<tr><td class="memItemLeft" nowrap align="right" valign="top">void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classExtensible.html#GetExtList_28std_3A_3Adeque_3C_20std_3A_3Astring_20_3E_20_26list_29">GetExtList</a> (std::deque&lt; <a class="el" href="namespaceirc.html#string">std::string</a> &gt; &amp;<a class="el" href="modules_8cpp.html#list_5BMAXBUF_5D">list</a>)</td></tr>
+
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Get a list of all extension items names.  <a href="#GetExtList_28std_3A_3Adeque_3C_20std_3A_3Astring_20_3E_20_26list_29"></a><br></td></tr>
 <tr><td colspan="2"><br><h2>Private Attributes</h2></td></tr>
 <tr><td class="memItemLeft" nowrap align="right" valign="top">std::map&lt; <a class="el" href="namespaceirc.html#string">std::string</a>, char * &gt;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classExtensible.html#Extension_5FItems">Extension_Items</a></td></tr>
 
@@ -46,7 +49,7 @@ class Extensible implements a system which allows modules to 'extend' the class 
 <p>
 
 <p>
-Definition at line <a class="el" href="base_8h-source.html#l00050">50</a> of file <a class="el" href="base_8h-source.html">base.h</a>.<hr><h2>Member Function Documentation</h2>
+Definition at line <a class="el" href="base_8h-source.html#l00051">51</a> of file <a class="el" href="base_8h-source.html">base.h</a>.<hr><h2>Member Function Documentation</h2>
 <a class="anchor" name="Extend_28std_3A_3Astring_20key_2C_20char_20_2Ap_29"></a><!-- doxytag: member="Extensible::Extend" ref="Extend_28std_3A_3Astring_20key_2C_20char_20_2Ap_29" args="(std::string key, char *p)" --><p>
 <table class="mdTable" cellpadding="2" cellspacing="0">
   <tr>
@@ -130,6 +133,42 @@ Get an extension item.
     </td>
   </tr>
 </table>
+<a class="anchor" name="GetExtList_28std_3A_3Adeque_3C_20std_3A_3Astring_20_3E_20_26list_29"></a><!-- doxytag: member="Extensible::GetExtList" ref="GetExtList_28std_3A_3Adeque_3C_20std_3A_3Astring_20_3E_20_26list_29" args="(std::deque&lt; std::string &gt; &amp;list)" --><p>
+<table class="mdTable" cellpadding="2" cellspacing="0">
+  <tr>
+    <td class="mdRow">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top">void Extensible::GetExtList           </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="md" nowrap valign="top">std::deque&lt; <a class="el" href="namespaceirc.html#string">std::string</a> &gt; &amp;&nbsp;</td>
+          <td class="mdname1" valign="top" nowrap> <em>list</em>          </td>
+          <td class="md" valign="top">&nbsp;)&nbsp;</td>
+          <td class="md" nowrap></td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing="5" cellpadding="0" border="0">
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+Get a list of all extension items names. 
+<p>
+<dl compact><dt><b>Parameters:</b></dt><dd>
+  <table border="0" cellspacing="2" cellpadding="0">
+    <tr><td valign="top"></td><td valign="top"><em>list</em>&nbsp;</td><td>A deque of strings to receive the list</td></tr>
+  </table>
+</dl>
+<dl compact><dt><b>Returns:</b></dt><dd>This function writes a list of all extension items stored in this object by name into the given deque and returns void.</dd></dl>
+    </td>
+  </tr>
+</table>
 <a class="anchor" name="Shrink_28std_3A_3Astring_20key_29"></a><!-- doxytag: member="Extensible::Shrink" ref="Shrink_28std_3A_3Astring_20key_29" args="(std::string key)" --><p>
 <table class="mdTable" cellpadding="2" cellspacing="0">
   <tr>
@@ -192,12 +231,12 @@ Private data store.
 <p>
 
 <p>
-Definition at line <a class="el" href="base_8h-source.html#l00054">54</a> of file <a class="el" href="base_8h-source.html">base.h</a>.    </td>
+Definition at line <a class="el" href="base_8h-source.html#l00055">55</a> of file <a class="el" href="base_8h-source.html">base.h</a>.    </td>
   </tr>
 </table>
 <hr>The documentation for this class was generated from the following file:<ul>
 <li><a class="el" href="base_8h-source.html">base.h</a></ul>
-<hr size="1"><address style="align: right;"><small>Generated on Sun Nov 27 01:43:25 2005 for InspIRCd by&nbsp;
+<hr size="1"><address style="align: right;"><small>Generated on Fri Dec 9 20:20:11 2005 for InspIRCd by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img src="doxygen.png" alt="doxygen" align="middle" border="0"></a> 1.4.4-20050815 </small></address>
 </body>

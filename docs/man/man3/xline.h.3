@@ -1,4 +1,4 @@
-.TH "xline.h" 3 "27 Nov 2005" "Version 1.0Betareleases" "InspIRCd" \" -*- nroff -*-
+.TH "xline.h" 3 "9 Dec 2005" "Version 1.0Betareleases" "InspIRCd" \" -*- nroff -*-
 .ad l
 .nh
 .SH NAME
@@ -132,6 +132,9 @@ xline.h \-
 .RI "void \fBzline_set_creation_time\fP (char *ip, time_t create_time)"
 .br
 .ti -1c
+.RI "void \fBeline_set_creation_time\fP (char *host, time_t create_time)"
+.br
+.ti -1c
 .RI "bool \fBzline_make_global\fP (const char *ipaddr)"
 .br
 .ti -1c
@@ -172,6 +175,8 @@ Referenced by Server::DelQLine().
 .SS "bool del_zline (const char * ipaddr)"
 .PP
 Referenced by Server::DelZLine().
+.SS "void eline_set_creation_time (char * host, time_t create_time)"
+.PP
 .SS "void expire_lines ()"
 .PP
 .SS "void gline_set_creation_time (char * host, time_t create_time)"

@@ -1,4 +1,4 @@
-.TH "commands.h" 3 "27 Nov 2005" "Version 1.0Betareleases" "InspIRCd" \" -*- nroff -*-
+.TH "commands.h" 3 "9 Dec 2005" "Version 1.0Betareleases" "InspIRCd" \" -*- nroff -*-
 .ad l
 .nh
 .SH NAME
@@ -188,9 +188,14 @@ commands.h \-
 .RI "long \fBduration\fP (const char *str)"
 .br
 .RI "\fIOther useful functions. \fP"
+.ti -1c
+.RI "void \fBdo_whois\fP (\fBuserrec\fP *user, \fBuserrec\fP *dest, unsigned long signon, unsigned long idle, char *nick)"
+.br
 .in -1c
 .SH "Function Documentation"
 .PP 
+.SS "void do_whois (\fBuserrec\fP * user, \fBuserrec\fP * dest, unsigned long signon, unsigned long idle, char * nick)"
+.PP
 .SS "long duration (const char * str)"
 .PP
 Other useful functions. 
@@ -304,7 +309,7 @@ These are the handlers for user commands.
 .PP
 Functions for u:lined servers. 
 .PP
-Referenced by Server::IsUlined().
+Referenced by userrec::HasPermission(), and Server::IsUlined().
 .SH "Author"
 .PP 
 Generated automatically by Doxygen for InspIRCd from the source code.

@@ -27,7 +27,8 @@ Include dependency graph for commands.h:<p><center><img src="commands_8h__incl.g
 <p>
 This graph shows which files directly or indirectly include this file:<p><center><img src="commands_8h__dep__incl.gif" border="0" usemap="#commands.hdep_map" alt=""></center>
 <map name="commands.hdep_map">
-<area href="modules_8cpp-source.html" shape="rect" coords="154,7,252,33" alt="">
+<area href="modules_8cpp-source.html" shape="rect" coords="154,7,252,34" alt="">
+<area href="users_8cpp-source.html" shape="rect" coords="163,58,243,84" alt="">
 </map>
 
 <p>
@@ -143,8 +144,65 @@ This graph shows which files directly or indirectly include this file:<p><center
 <tr><td class="memItemLeft" nowrap align="right" valign="top">long&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="commands_8h.html#duration_28const_20char_20_2Astr_29">duration</a> (const char *str)</td></tr>
 
 <tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Other useful functions.  <a href="#duration_28const_20char_20_2Astr_29"></a><br></td></tr>
+<tr><td class="memItemLeft" nowrap align="right" valign="top">void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="commands_8h.html#do_5Fwhois_28userrec_20_2Auser_2C_20userrec_20_2Adest_2C_20unsigned_20long_20signon_2C_20unsigned_20long_20idle_2C_20char_20_2Anick_29">do_whois</a> (<a class="el" href="classuserrec.html">userrec</a> *user, <a class="el" href="classuserrec.html">userrec</a> *dest, unsigned long signon, unsigned long idle, char *nick)</td></tr>
+
 </table>
 <hr><h2>Function Documentation</h2>
+<a class="anchor" name="do_5Fwhois_28userrec_20_2Auser_2C_20userrec_20_2Adest_2C_20unsigned_20long_20signon_2C_20unsigned_20long_20idle_2C_20char_20_2Anick_29"></a><!-- doxytag: member="commands.h::do_whois" ref="do_5Fwhois_28userrec_20_2Auser_2C_20userrec_20_2Adest_2C_20unsigned_20long_20signon_2C_20unsigned_20long_20idle_2C_20char_20_2Anick_29" args="(userrec *user, userrec *dest, unsigned long signon, unsigned long idle, char *nick)" --><p>
+<table class="mdTable" cellpadding="2" cellspacing="0">
+  <tr>
+    <td class="mdRow">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top">void do_whois           </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="md" nowrap valign="top"><a class="el" href="classuserrec.html">userrec</a> *&nbsp;</td>
+          <td class="mdname" nowrap> <em>user</em>, </td>
+        </tr>
+        <tr>
+          <td class="md" nowrap align="right"></td>
+          <td class="md"></td>
+          <td class="md" nowrap><a class="el" href="classuserrec.html">userrec</a> *&nbsp;</td>
+          <td class="mdname" nowrap> <em>dest</em>, </td>
+        </tr>
+        <tr>
+          <td class="md" nowrap align="right"></td>
+          <td class="md"></td>
+          <td class="md" nowrap>unsigned long&nbsp;</td>
+          <td class="mdname" nowrap> <em>signon</em>, </td>
+        </tr>
+        <tr>
+          <td class="md" nowrap align="right"></td>
+          <td class="md"></td>
+          <td class="md" nowrap>unsigned long&nbsp;</td>
+          <td class="mdname" nowrap> <em>idle</em>, </td>
+        </tr>
+        <tr>
+          <td class="md" nowrap align="right"></td>
+          <td class="md"></td>
+          <td class="md" nowrap>char *&nbsp;</td>
+          <td class="mdname" nowrap> <em>nick</em></td>
+        </tr>
+        <tr>
+          <td class="md"></td>
+          <td class="md">)&nbsp;</td>
+          <td class="md" colspan="2"></td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing="5" cellpadding="0" border="0">
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
 <a class="anchor" name="duration_28const_20char_20_2Astr_29"></a><!-- doxytag: member="commands.h::duration" ref="duration_28const_20char_20_2Astr_29" args="(const char *str)" --><p>
 <table class="mdTable" cellpadding="2" cellspacing="0">
   <tr>
@@ -174,7 +232,7 @@ Other useful functions.
 <p>
 
 <p>
-Referenced by <a class="el" href="modules_8cpp-source.html#l00750">Server::CalcDuration()</a>.    </td>
+Referenced by <a class="el" href="modules_8cpp-source.html#l00788">Server::CalcDuration()</a>.    </td>
   </tr>
 </table>
 <a class="anchor" name="handle_5Fadmin_28char_20_2A_2Aparameters_2C_20int_20pcnt_2C_20userrec_20_2Auser_29"></a><!-- doxytag: member="commands.h::handle_admin" ref="handle_5Fadmin_28char_20_2A_2Aparameters_2C_20int_20pcnt_2C_20userrec_20_2Auser_29" args="(char **parameters, int pcnt, userrec *user)" --><p>
@@ -2401,10 +2459,10 @@ Functions for u:lined servers.
 <p>
 
 <p>
-Referenced by <a class="el" href="modules_8cpp-source.html#l00442">Server::IsUlined()</a>.    </td>
+Referenced by <a class="el" href="users_8cpp-source.html#l00151">userrec::HasPermission()</a>, and <a class="el" href="modules_8cpp-source.html#l00475">Server::IsUlined()</a>.    </td>
   </tr>
 </table>
-<hr size="1"><address style="align: right;"><small>Generated on Sun Nov 27 01:43:24 2005 for InspIRCd by&nbsp;
+<hr size="1"><address style="align: right;"><small>Generated on Fri Dec 9 20:20:06 2005 for InspIRCd by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img src="doxygen.png" alt="doxygen" align="middle" border="0"></a> 1.4.4-20050815 </small></address>
 </body>

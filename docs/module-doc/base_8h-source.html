@@ -29,63 +29,66 @@
 <a name="l00020"></a>00020 <span class="preprocessor">#include "inspircd_config.h"</span> 
 <a name="l00021"></a>00021 <span class="preprocessor">#include &lt;time.h&gt;</span>
 <a name="l00022"></a>00022 <span class="preprocessor">#include &lt;map&gt;</span>
-<a name="l00023"></a>00023 <span class="preprocessor">#include &lt;string&gt;</span>
-<a name="l00024"></a>00024 
-<a name="l00025"></a><a class="code" href="base_8h.html#VoidPointer">00025</a> <span class="keyword">typedef</span> <span class="keywordtype">void</span>* <a class="code" href="base_8h.html#VoidPointer">VoidPointer</a>;
-<a name="l00026"></a>00026  
-<a name="l00029"></a><a class="code" href="classclassbase.html">00029</a> <span class="keyword">class </span><a class="code" href="classclassbase.html">classbase</a>
-<a name="l00030"></a>00030 {
-<a name="l00031"></a>00031  <span class="keyword">public</span>:
-<a name="l00034"></a><a class="code" href="classclassbase.html#age">00034</a>         time_t <a class="code" href="classclassbase.html#age">age</a>;
-<a name="l00035"></a>00035 
-<a name="l00039"></a><a class="code" href="classclassbase.html#classbase_28_29">00039</a>         <a class="code" href="classclassbase.html#classbase_28_29">classbase</a>() { <a class="code" href="classclassbase.html#age">age</a> = time(NULL); }
-<a name="l00040"></a><a class="code" href="classclassbase.html#_7Eclassbase_28_29">00040</a>         <a class="code" href="classclassbase.html#_7Eclassbase_28_29">~classbase</a>() { }
-<a name="l00041"></a>00041 };
-<a name="l00042"></a>00042 
-<a name="l00050"></a><a class="code" href="classExtensible.html">00050</a> <span class="keyword">class </span><a class="code" href="classExtensible.html">Extensible</a> : <span class="keyword">public</span> <a class="code" href="classclassbase.html">classbase</a>
-<a name="l00051"></a>00051 {
-<a name="l00054"></a><a class="code" href="classExtensible.html#Extension_5FItems">00054</a>         std::map&lt;std::string,char*&gt; <a class="code" href="classExtensible.html#Extension_5FItems">Extension_Items</a>;
-<a name="l00055"></a>00055         
-<a name="l00056"></a>00056 <span class="keyword">public</span>:
-<a name="l00057"></a>00057 
-<a name="l00069"></a>00069         <span class="keywordtype">bool</span> <a class="code" href="classExtensible.html#Extend_28std_3A_3Astring_20key_2C_20char_20_2Ap_29">Extend</a>(<a class="code" href="namespaceirc.html#string">std::string</a> key, <span class="keywordtype">char</span>* p);
-<a name="l00070"></a>00070 
-<a name="l00080"></a>00080         <span class="keywordtype">bool</span> <a class="code" href="classExtensible.html#Shrink_28std_3A_3Astring_20key_29">Shrink</a>(<a class="code" href="namespaceirc.html#string">std::string</a> key);
-<a name="l00081"></a>00081         
-<a name="l00088"></a>00088         <span class="keywordtype">char</span>* <a class="code" href="classExtensible.html#GetExt_28std_3A_3Astring_20key_29">GetExt</a>(<a class="code" href="namespaceirc.html#string">std::string</a> key);
-<a name="l00089"></a>00089 };
+<a name="l00023"></a>00023 <span class="preprocessor">#include &lt;deque&gt;</span>
+<a name="l00024"></a>00024 <span class="preprocessor">#include &lt;string&gt;</span>
+<a name="l00025"></a>00025 
+<a name="l00026"></a><a class="code" href="base_8h.html#VoidPointer">00026</a> <span class="keyword">typedef</span> <span class="keywordtype">void</span>* <a class="code" href="base_8h.html#VoidPointer">VoidPointer</a>;
+<a name="l00027"></a>00027  
+<a name="l00030"></a><a class="code" href="classclassbase.html">00030</a> <span class="keyword">class </span><a class="code" href="classclassbase.html">classbase</a>
+<a name="l00031"></a>00031 {
+<a name="l00032"></a>00032  <span class="keyword">public</span>:
+<a name="l00035"></a><a class="code" href="classclassbase.html#age">00035</a>         time_t <a class="code" href="classclassbase.html#age">age</a>;
+<a name="l00036"></a>00036 
+<a name="l00040"></a><a class="code" href="classclassbase.html#classbase_28_29">00040</a>         <a class="code" href="classclassbase.html#classbase_28_29">classbase</a>() { <a class="code" href="classclassbase.html#age">age</a> = time(NULL); }
+<a name="l00041"></a><a class="code" href="classclassbase.html#_7Eclassbase_28_29">00041</a>         <a class="code" href="classclassbase.html#_7Eclassbase_28_29">~classbase</a>() { }
+<a name="l00042"></a>00042 };
+<a name="l00043"></a>00043 
+<a name="l00051"></a><a class="code" href="classExtensible.html">00051</a> <span class="keyword">class </span><a class="code" href="classExtensible.html">Extensible</a> : <span class="keyword">public</span> <a class="code" href="classclassbase.html">classbase</a>
+<a name="l00052"></a>00052 {
+<a name="l00055"></a><a class="code" href="classExtensible.html#Extension_5FItems">00055</a>         std::map&lt;std::string,char*&gt; <a class="code" href="classExtensible.html#Extension_5FItems">Extension_Items</a>;
+<a name="l00056"></a>00056         
+<a name="l00057"></a>00057 <span class="keyword">public</span>:
+<a name="l00058"></a>00058 
+<a name="l00070"></a>00070         <span class="keywordtype">bool</span> <a class="code" href="classExtensible.html#Extend_28std_3A_3Astring_20key_2C_20char_20_2Ap_29">Extend</a>(<a class="code" href="namespaceirc.html#string">std::string</a> key, <span class="keywordtype">char</span>* p);
+<a name="l00071"></a>00071 
+<a name="l00081"></a>00081         <span class="keywordtype">bool</span> <a class="code" href="classExtensible.html#Shrink_28std_3A_3Astring_20key_29">Shrink</a>(<a class="code" href="namespaceirc.html#string">std::string</a> key);
+<a name="l00082"></a>00082         
+<a name="l00089"></a>00089         <span class="keywordtype">char</span>* <a class="code" href="classExtensible.html#GetExt_28std_3A_3Astring_20key_29">GetExt</a>(<a class="code" href="namespaceirc.html#string">std::string</a> key);
 <a name="l00090"></a>00090 
-<a name="l00095"></a><a class="code" href="classBoolSet.html">00095</a> <span class="keyword">class </span><a class="code" href="classBoolSet.html">BoolSet</a>
-<a name="l00096"></a>00096 {
-<a name="l00097"></a><a class="code" href="classBoolSet.html#bits">00097</a>         <span class="keywordtype">char</span> <a class="code" href="classBoolSet.html#bits">bits</a>;
-<a name="l00098"></a>00098 
-<a name="l00099"></a>00099  <span class="keyword">public</span>:
-<a name="l00100"></a>00100 
-<a name="l00103"></a>00103         <a class="code" href="classBoolSet.html#BoolSet_28_29">BoolSet</a>();
-<a name="l00104"></a>00104 
-<a name="l00107"></a>00107         <a class="code" href="classBoolSet.html#BoolSet_28_29">BoolSet</a>(<span class="keywordtype">char</span> bitmask);
-<a name="l00108"></a>00108 
-<a name="l00113"></a>00113         <span class="keywordtype">void</span> <a class="code" href="classBoolSet.html#Set_28int_20number_29">Set</a>(<span class="keywordtype">int</span> number);
-<a name="l00114"></a>00114 
-<a name="l00121"></a>00121         <span class="keywordtype">bool</span> <a class="code" href="classBoolSet.html#Get_28int_20number_29">Get</a>(<span class="keywordtype">int</span> number);
-<a name="l00122"></a>00122 
-<a name="l00127"></a>00127         <span class="keywordtype">void</span> <a class="code" href="classBoolSet.html#Unset_28int_20number_29">Unset</a>(<span class="keywordtype">int</span> number);
-<a name="l00128"></a>00128 
-<a name="l00133"></a>00133         <span class="keywordtype">void</span> <a class="code" href="classBoolSet.html#Invert_28int_20number_29">Invert</a>(<span class="keywordtype">int</span> number);
-<a name="l00134"></a>00134 
-<a name="l00137"></a>00137         <span class="keywordtype">bool</span> <a class="code" href="classBoolSet.html#operator_3D_3D_28BoolSet_20other_29">operator==</a>(<a class="code" href="classBoolSet.html">BoolSet</a> other);
-<a name="l00138"></a>00138 
-<a name="l00141"></a>00141         <a class="code" href="classBoolSet.html">BoolSet</a> <a class="code" href="classBoolSet.html#operator_7C_28BoolSet_20other_29">operator|</a>(<a class="code" href="classBoolSet.html">BoolSet</a> other);
-<a name="l00142"></a>00142         
-<a name="l00145"></a>00145         <a class="code" href="classBoolSet.html">BoolSet</a> <a class="code" href="classBoolSet.html#operator_20_26_28BoolSet_20other_29">operator&amp;</a>(<a class="code" href="classBoolSet.html">BoolSet</a> other);
-<a name="l00146"></a>00146 
-<a name="l00149"></a>00149         <span class="keywordtype">bool</span> <a class="code" href="classBoolSet.html#operator_3D_28BoolSet_20other_29">operator=</a>(<a class="code" href="classBoolSet.html">BoolSet</a> other);
-<a name="l00150"></a>00150 };
-<a name="l00151"></a>00151 
-<a name="l00152"></a>00152 
-<a name="l00153"></a>00153 <span class="preprocessor">#endif</span>
-<a name="l00154"></a>00154 <span class="preprocessor"></span>
-</pre></div><hr size="1"><address style="align: right;"><small>Generated on Sun Nov 27 01:43:24 2005 for InspIRCd by&nbsp;
+<a name="l00097"></a>00097         <span class="keywordtype">void</span> <a class="code" href="classExtensible.html#GetExtList_28std_3A_3Adeque_3C_20std_3A_3Astring_20_3E_20_26list_29">GetExtList</a>(std::deque&lt;std::string&gt; &amp;list);
+<a name="l00098"></a>00098 };
+<a name="l00099"></a>00099 
+<a name="l00104"></a><a class="code" href="classBoolSet.html">00104</a> <span class="keyword">class </span><a class="code" href="classBoolSet.html">BoolSet</a>
+<a name="l00105"></a>00105 {
+<a name="l00106"></a><a class="code" href="classBoolSet.html#bits">00106</a>         <span class="keywordtype">char</span> <a class="code" href="classBoolSet.html#bits">bits</a>;
+<a name="l00107"></a>00107 
+<a name="l00108"></a>00108  <span class="keyword">public</span>:
+<a name="l00109"></a>00109 
+<a name="l00112"></a>00112         <a class="code" href="classBoolSet.html#BoolSet_28_29">BoolSet</a>();
+<a name="l00113"></a>00113 
+<a name="l00116"></a>00116         <a class="code" href="classBoolSet.html#BoolSet_28_29">BoolSet</a>(<span class="keywordtype">char</span> bitmask);
+<a name="l00117"></a>00117 
+<a name="l00122"></a>00122         <span class="keywordtype">void</span> <a class="code" href="classBoolSet.html#Set_28int_20number_29">Set</a>(<span class="keywordtype">int</span> number);
+<a name="l00123"></a>00123 
+<a name="l00130"></a>00130         <span class="keywordtype">bool</span> <a class="code" href="classBoolSet.html#Get_28int_20number_29">Get</a>(<span class="keywordtype">int</span> number);
+<a name="l00131"></a>00131 
+<a name="l00136"></a>00136         <span class="keywordtype">void</span> <a class="code" href="classBoolSet.html#Unset_28int_20number_29">Unset</a>(<span class="keywordtype">int</span> number);
+<a name="l00137"></a>00137 
+<a name="l00142"></a>00142         <span class="keywordtype">void</span> <a class="code" href="classBoolSet.html#Invert_28int_20number_29">Invert</a>(<span class="keywordtype">int</span> number);
+<a name="l00143"></a>00143 
+<a name="l00146"></a>00146         <span class="keywordtype">bool</span> <a class="code" href="classBoolSet.html#operator_3D_3D_28BoolSet_20other_29">operator==</a>(<a class="code" href="classBoolSet.html">BoolSet</a> other);
+<a name="l00147"></a>00147 
+<a name="l00150"></a>00150         <a class="code" href="classBoolSet.html">BoolSet</a> <a class="code" href="classBoolSet.html#operator_7C_28BoolSet_20other_29">operator|</a>(<a class="code" href="classBoolSet.html">BoolSet</a> other);
+<a name="l00151"></a>00151         
+<a name="l00154"></a>00154         <a class="code" href="classBoolSet.html">BoolSet</a> <a class="code" href="classBoolSet.html#operator_20_26_28BoolSet_20other_29">operator&amp;</a>(<a class="code" href="classBoolSet.html">BoolSet</a> other);
+<a name="l00155"></a>00155 
+<a name="l00158"></a>00158         <span class="keywordtype">bool</span> <a class="code" href="classBoolSet.html#operator_3D_28BoolSet_20other_29">operator=</a>(<a class="code" href="classBoolSet.html">BoolSet</a> other);
+<a name="l00159"></a>00159 };
+<a name="l00160"></a>00160 
+<a name="l00161"></a>00161 
+<a name="l00162"></a>00162 <span class="preprocessor">#endif</span>
+<a name="l00163"></a>00163 <span class="preprocessor"></span>
+</pre></div><hr size="1"><address style="align: right;"><small>Generated on Fri Dec 9 20:20:03 2005 for InspIRCd by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img src="doxygen.png" alt="doxygen" align="middle" border="0"></a> 1.4.4-20050815 </small></address>
 </body>
