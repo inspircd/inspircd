@@ -1366,13 +1366,15 @@ class TreeSocket : public InspSocket
 	{
 		if (params.size() < 1)
 			return true;
+		log(DEBUG,"In IDLE command");
 		userrec* u = Srv->FindNick(prefix);
 		if (u)
 		{
+			log(DEBUG,"USER EXISTS: %s",u->nick);
 			// an incoming request
 			if (params.size() == 1)
 			{
-				if (std::string(u->server) == Srv->GetServerName())
+				if (std::string(u->server) != Srv->GetServerName())
 				{
 					log(DEBUG,"Got IDLE, sending back IDLE");
 					char signon[MAXBUF];
