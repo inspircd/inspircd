@@ -311,8 +311,6 @@ void		Module::OnUserQuit(userrec* user, std::string message) { }
 void		Module::OnUserDisconnect(userrec* user) { }
 void		Module::OnUserJoin(userrec* user, chanrec* channel) { }
 void		Module::OnUserPart(userrec* user, chanrec* channel) { }
-void		Module::OnPacketTransmit(std::string &data, std::string serv) { }
-void		Module::OnPacketReceive(std::string &data, std::string serv) { }
 void		Module::OnRehash(std::string parameter) { }
 void		Module::OnServerRaw(std::string &raw, bool inbound, userrec* user) { }
 int		Module::OnUserPreJoin(userrec* user, chanrec* chan, const char* cname) { return 0; }
