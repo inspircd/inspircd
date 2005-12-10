@@ -99,7 +99,7 @@ class ModuleChanFilter : public Module
 		{
 			for (SpamList::iterator i = spamlist->begin(); i != spamlist->end(); i++)
 			{
-				if (strstr(text.c_str(),i->c_str()))
+				if (strstr(buffer,i->c_str()))
 				{
 					WriteServ(user->fd,"936 %s %s :Your message contained a censored word, and was blocked",user->nick, chan->name);
 					return 1;
