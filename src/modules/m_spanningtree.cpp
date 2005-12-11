@@ -125,7 +125,11 @@ extern std::vector<GLine> glines;
 extern std::vector<ZLine> zlines;
 extern std::vector<QLine> qlines;
 extern std::vector<ELine> elines;
-
+extern std::vector<KLine> pklines;
+extern std::vector<GLine> pglines;
+extern std::vector<ZLine> pzlines;
+extern std::vector<QLine> pqlines;
+extern std::vector<ELine> pelines;
 
 /* Each server in the tree is represented by one class of
  * type TreeServer. A locally connected TreeServer can
@@ -997,6 +1001,26 @@ class TreeSocket : public InspSocket
 			this->WriteLine(data);
 		}
 		for (std::vector<ELine>::iterator i = elines.begin(); i != elines.end(); i++)
+		{
+			snprintf(data,MAXBUF,":%s ADDLINE E %s %s %lu %lu :%s",Srv->GetServerName().c_str(),i->hostmask,i->source,(unsigned long)i->set_time,(unsigned long)i->duration,i->reason);
+			this->WriteLine(data);
+		}
+		for (std::vector<ZLine>::iterator i = pzlines.begin(); i != pzlines.end(); i++)
+		{
+			snprintf(data,MAXBUF,":%s ADDLINE Z %s %s %lu %lu :%s",Srv->GetServerName().c_str(),i->ipaddr,i->source,(unsigned long)i->set_time,(unsigned long)i->duration,i->reason);
+			this->WriteLine(data);
+		}
+		for (std::vector<QLine>::iterator i = pqlines.begin(); i != pqlines.end(); i++)
+		{
+			snprintf(data,MAXBUF,":%s ADDLINE Q %s %s %lu %lu :%s",Srv->GetServerName().c_str(),i->nick,i->source,(unsigned long)i->set_time,(unsigned long)i->duration,i->reason);
+			this->WriteLine(data);
+		}
+		for (std::vector<GLine>::iterator i = pglines.begin(); i != pglines.end(); i++)
+		{
+			snprintf(data,MAXBUF,":%s ADDLINE G %s %s %lu %lu :%s",Srv->GetServerName().c_str(),i->hostmask,i->source,(unsigned long)i->set_time,(unsigned long)i->duration,i->reason);
+			this->WriteLine(data);
+		}
+		for (std::vector<ELine>::iterator i = pelines.begin(); i != pelines.end(); i++)
 		{
 			snprintf(data,MAXBUF,":%s ADDLINE E %s %s %lu %lu :%s",Srv->GetServerName().c_str(),i->hostmask,i->source,(unsigned long)i->set_time,(unsigned long)i->duration,i->reason);
 			this->WriteLine(data);
