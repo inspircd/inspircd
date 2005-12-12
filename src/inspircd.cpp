@@ -2654,7 +2654,7 @@ int InspIRCd(char** argv, int argc)
 	for (;;)
 	{
 #ifdef _POSIX_PRIORITY_SCHEDULING
-		sched_yield();
+		sched_yield(); sched_yield();
 #endif
 		// we only read time() once per iteration rather than tons of times!
 		OLDTIME = TIME;
@@ -2676,9 +2676,12 @@ int InspIRCd(char** argv, int argc)
 
 		SE->Wait(activefds);
 
-		for (unsigned int activefd = 0; activefd < activefds.size(); activefd++)
+		unsigned int numberactive = activefds.size();
+		for (unsigned int activefd = 0; activefd < numberactive; activefd++)
 		{
-			if (SE->GetType(activefds[activefd]) == X_ESTAB_CLIENT)
+			int socket_type = SE->GetType(activefds[activefd]);
+
+			if (socket_type == X_ESTAB_CLIENT)
 			{
 				log(DEBUG,"Got a ready socket of type X_ESTAB_CLIENT");
 				userrec* cu = fd_ref_table[activefds[activefd]];
@@ -2688,7 +2691,7 @@ int InspIRCd(char** argv, int argc)
 					ProcessUser(cu);
 				}
 			}
-			else if (SE->GetType(activefds[activefd]) == X_ESTAB_MODULE)
+			else if (socket_type == X_ESTAB_MODULE)
 			{
 				log(DEBUG,"Got a ready socket of type X_ESTAB_MODULE");
 				unsigned int numsockets = module_sockets.size();
@@ -2710,14 +2713,14 @@ int InspIRCd(char** argv, int argc)
 					}
 				}
 			}
-			else if (SE->GetType(activefds[activefd]) == X_ESTAB_DNS)
+			else if (socket_type == X_ESTAB_DNS)
 			{
 				log(DEBUG,"Got a ready socket of type X_ESTAB_DNS");
 #ifndef THREADED_DNS
 				dns_poll(activefds[activefd]);
 #endif
 			}
-			else if (SE->GetType(activefds[activefd]) == X_LISTEN)
+			else if (socket_type == X_LISTEN)
 			{
 				log(DEBUG,"Got a ready socket of type X_LISTEN");
 				/* It maybe a listener */
