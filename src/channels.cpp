@@ -168,8 +168,7 @@ void chanrec::SetCustomModeParam(char mode,char* parameter,bool mode_on)
 
 bool chanrec::IsCustomModeSet(char mode)
 {
-	log(DEBUG,"Checking ISCustomModeSet: %c %s",mode,this->custom_modes);
-	return (strchr(this->custom_modes,mode) != 0);
+	return (strchr(this->custom_modes,mode));
 }
 
 std::string chanrec::GetModeParameter(char mode)
