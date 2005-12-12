@@ -38,6 +38,12 @@ SocketEngine::~SocketEngine()
 #endif
 }
 
+char SocketEngine::GetType(int fd)
+{
+	/* Mask off the top bit used for 'read/write' state */
+	return (ref[fd] & 0x7F);
+}
+
 bool SocketEngine::AddFd(int fd, bool readable, char type)
 {
 	this->fds.push_back(fd);
