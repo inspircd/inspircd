@@ -151,7 +151,7 @@ bool SocketEngine::Wait(std::vector<int> &fdlist)
 #ifdef USE_EPOLL
 	int i = epoll_wait(EngineHandle, events, 65535, 1);
 	for (int j = 0; j < i; j++)
-		fdlist.push_back(event[0].data.fd);
+		fdlist.push_back(events[j].data.fd);
 #endif
 	return true;
 }
