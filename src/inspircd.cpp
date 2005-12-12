@@ -2427,8 +2427,23 @@ void ProcessUser(userrec* cu)
         }
 }
 
-void DoBackgroundUserStuff()
+void DoBackgroundUserStuff(time_t TIME)
 {
+	unsigned int numsockets = module_sockets.size();
+	for (std::vector<InspSocket*>::iterator a = module_sockets.begin(); a < module_sockets.end(); a++)
+	{
+		InspSocket* s = (InspSocket*)*a;
+		if (s->Timeout(TIME))
+		{
+			log(DEBUG,"Socket poll returned false, close and bail");
+			SE->DelFd(s->GetFd());
+			s->Close();
+			module_sockets.erase(a);
+			delete s;
+			break;
+		}
+		if (module_sockets.size() != numsockets) break;
+	}
         for (user_hash::iterator count2 = clientlist.begin(); count2 != clientlist.end(); count2++)
         {
                 userrec* curr = NULL;
@@ -2672,7 +2687,7 @@ int InspIRCd(char** argv, int argc)
 		if ((TIME % 5) == 1)
 			expire_run = false;
 		
-		DoBackgroundUserStuff();
+		DoBackgroundUserStuff(TIME);
 
 		SE->Wait(activefds);
 
