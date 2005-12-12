@@ -10,6 +10,9 @@
 #include <sys/event.h>
 #include <sys/time.h>
 #endif
+#include <vector>
+#include <string>
+#include "socketengine.h"
 
 char ref[65535];
 
@@ -32,7 +35,10 @@ SocketEngine::SocketEngine()
 
 SocketEngine::~SocketEngine()
 {
-#ifdef USE_EPOLL || USE_KQUEUE
+#ifdef USE_EPOLL
+	close(EngineHandle);
+#endif
+#ifdef USE_KQUEUE
 	close(EngineHandle);
 #endif
 }
@@ -57,7 +63,7 @@ bool SocketEngine::AddFd(int fd, bool readable, char type)
 #ifdef USE_KQUEUE
 	struct kevent ke;
 	log(DEBUG,"kqueue: Add user to events, kq=%d socket=%d",EngineHandle,fd);
-	EV_SET(&ke, socket, readable ? EVFILT_READ : EVFILT_WRITE, EV_ADD, 0, 0, NULL);
+	EV_SET(&ke, fd, readable ? EVFILT_READ : EVFILT_WRITE, EV_ADD, 0, 0, NULL);
 	int i = kevent(EngineHandle, &ke, 1, 0, 0, NULL);
 	if (i == -1)
 	{
@@ -70,9 +76,15 @@ return true;
 
 bool SocketEngine::DelFd(int fd)
 {
-	std::vector<int>::iterator i = this->fds.find(fd);
-	if (i != this->fds.end())
-		this->fds.erase(i);
+	bool found = false;
+	for (std::vector<int>::iterator i = fds.begin(); i != fds.end(); i++)
+	{
+		if (*i == fd)
+		{
+			fds.erase(i);
+			found = true;
+		}
+	}
 #ifdef USE_KQUEUE
 	struct kevent ke;
 	EV_SET(&ke, fd, ref[fd] && X_READBIT ? EVFILT_READ : EVFILT_WRITE, EV_DELETE, 0, 0, NULL);
@@ -95,10 +107,10 @@ bool SocketEngine::DelFd(int fd)
 	}
 #endif
 	ref[fd] = 0;
-	return (i != this->fds.end());
+	return found;
 }
 
-bool SocketEngine::Wait(unsigned long millisecs, std::vector<int> &fdlist)
+bool SocketEngine::Wait(std::vector<int> &fdlist)
 {
 	fdlist.clear();
 #ifdef USE_SELECT
@@ -132,7 +144,7 @@ bool SocketEngine::Wait(unsigned long millisecs, std::vector<int> &fdlist)
 #ifdef USE_KQUEUE
 	ts.tv_nsec = 1000L;
 	ts.tv_sec = 0;
-	int i = kevent(EngineHandle, NULL, 0, &ke_list, 65535, &ts);
+	int i = kevent(EngineHandle, NULL, 0, &ke_list[0], 65535, &ts);
 	for (int j = 0; j < i; j++)
 		fdlist.push_back(ke_list[j].ident);
 #endif

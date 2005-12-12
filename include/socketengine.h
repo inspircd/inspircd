@@ -19,6 +19,18 @@
 
 #include <vector>
 #include <string>
+#include "inspircd_config.h"
+#include "globals.h"
+#include "inspircd.h"
+#ifdef USE_EPOLL
+#include <sys/epoll.h>
+#define EP_DELAY 5
+#endif
+#ifdef USE_KQUEUE
+#include <sys/types.h>
+#include <sys/event.h>
+#include <sys/time.h>
+#endif
 
 class SocketEngine {
 
@@ -39,9 +51,9 @@ public:
 
 	SocketEngine();
 	~SocketEngine();
-	bool AddFd(int fd, bool readable, bool writeable, char type);
+	bool AddFd(int fd, bool readable, char type);
 	bool DelFd(int fd);
-	bool Wait(unsigned long millisecs, std::vector<int> &fdlist);
+	bool Wait(std::vector<int> &fdlist);
 	std::string GetName();
 };
 
