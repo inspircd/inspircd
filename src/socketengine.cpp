@@ -132,7 +132,7 @@ bool SocketEngine::Wait(std::vector<int> &fdlist)
 	int sresult;
 	for (unsigned int a = 0; a < fds.size(); a++)
 	{
-		if (ref[fds[a]] && X_READBIT)
+		if (ref[fds[a]] & X_READBIT)
 		{
 			FD_SET (fds[a], &rfdset);
 		}
