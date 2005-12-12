@@ -164,7 +164,7 @@ bool SocketEngine::Wait(std::vector<int> &fdlist)
 		
 	}
 	tval.tv_sec = 0;
-	tval.tv_usec = 10000L;
+	tval.tv_usec = 100L;
 	sresult = select(FD_SETSIZE, &rfdset, &wfdset, NULL, &tval);
 	if (sresult > 0)
 	{
