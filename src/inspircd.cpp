@@ -57,6 +57,7 @@ using namespace std;
 #include "helperfuncs.h"
 #include "hashcomp.h"
 #include "socketengine.h"
+#include "userprocess.h"
 #include "socket.h"
 #include "dns.h"
 
