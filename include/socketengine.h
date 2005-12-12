@@ -12,7 +12,54 @@
  *            the file COPYING for details.
  *
  * ---------------------------------------------------
- */
+*/
+
+#ifndef __SOCKETENGINE__
+#define __SOCKETENGINE__
+
+#include <vector>
+#include <string>
+
+class SocketEngine {
+
+	std::vector<int> fds;
+	int EngineHandle;
+#ifdef USE_SELECT
+	fd_set wfdset, rfdset;
+#endif
+#ifdef USE_KQUEUE
+	struct kevent ke_list[65535];
+	struct timespec ts;
+#endif
+#ifdef USE_EPOLL
+	struct epoll_event events[65535];
+#endif
+
+public:
+
+	SocketEngine();
+	~SocketEngine();
+	bool AddFd(int fd, bool readable, bool writeable, char type);
+	bool DelFd(int fd);
+	bool Wait(unsigned long millisecs, std::vector<int> &fdlist);
+	std::string GetName();
+};
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 // Fill the engine with client file descriptors pending an action
 
@@ -320,3 +367,5 @@
 #define engine_name "epoll"
 #endif
 
+
+#endif
