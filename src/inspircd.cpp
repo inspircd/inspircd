@@ -2710,7 +2710,7 @@ int InspIRCd(char** argv, int argc)
 			{
 				log(DEBUG,"Got a ready socket of type X_ESTAB_DNS");
 #ifndef THREADED_DNS
-				dns_poll();
+				dns_poll(activefds[activefd]);
 #endif
 			}
 			else if (SE->GetType(activefds[activefd]) == X_LISTEN)

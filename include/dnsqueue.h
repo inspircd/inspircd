@@ -2,4 +2,4 @@
 #include "users.h"
 
 bool lookup_dns(std::string nick);
-void dns_poll();
+void dns_poll(int fdcheck);

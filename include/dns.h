@@ -82,6 +82,9 @@ public:
 	 * to determine the status of the socket.
 	 */
 	bool HasResult();
+	/** This method will return true if the lookup's fd matches the one provided
+	 */
+	bool HasResult(int fd);
 	/** This method returns the result of your query as a string, depending upon wether you
 	 * called DNS::ReverseLookup() or DNS::ForwardLookup.
 	 */

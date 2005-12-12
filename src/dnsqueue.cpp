@@ -134,14 +134,14 @@ public:
 		return false;
 	}
 
-	bool Done()
+	bool Done(int fdcheck)
 	{
 		if (hostname != "")
 		{
 			log(DEBUG,"Doing forward lookup here with host %s",hostname.c_str());
 			// doing forward lookup
 			userrec* usr = NULL;
-			if (resolver2.HasResult())
+			if (resolver2.HasResult(fdcheck))
 			{
 				log(DEBUG,"resolver2 has result");
 				if (resolver2.GetFD() != 0)
@@ -193,7 +193,7 @@ public:
 		{
 			// doing reverse lookup
 			userrec* usr = NULL;
-			if (resolver1.HasResult())
+			if (resolver1.HasResult(fdcheck))
 			{
 				usr = Find(u);
 				if ((usr) && (usr->dns_done))
@@ -267,7 +267,7 @@ bool lookup_dns(std::string nick)
 	return false;
 }
 
-void dns_poll()
+void dns_poll(int fdcheck)
 {
 	// do we have items in the queue?
 	for (int j = 0; j <= max_fd_alloc; j++)
@@ -275,7 +275,7 @@ void dns_poll()
 		// are any ready, or stale?
 		if (dnsq[j].GetFD())
 		{
-			if (dnsq[j].Done())
+			if (dnsq[j].Done(fdcheck))
 			{
 				dnsq[j].Reset();
 			}

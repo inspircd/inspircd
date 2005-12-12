@@ -688,6 +688,11 @@ bool DNS::ForwardLookup(std::string host)
 	return true;
 }
 
+bool DNS::HasResult(int fd)
+{
+	return (fd == this->myfd);
+}
+
 bool DNS::HasResult()
 {
 	log(DEBUG,"DNS: HasResult, fd=%d",this->myfd);
