@@ -71,14 +71,9 @@ using namespace std;
 #include "dnsqueue.h"
 #include "helperfuncs.h"
 #include "hashcomp.h"
+#include "socketengine.h"
 
-#ifdef USE_KQUEUE
-extern int kq;
-#endif
-
-#ifdef USE_EPOLL
-int ep;
-#endif
+extern SocketEngine* SE;
 
 extern int MODCOUNT;
 extern std::vector<Module*> modules;
@@ -947,25 +942,7 @@ void handle_quit(char **parameters, int pcnt, userrec *user)
 	/* push the socket on a stack of sockets due to be closed at the next opportunity */
 	if (user->fd > -1)
 	{
-#ifdef USE_KQUEUE
-                struct kevent ke;
-                EV_SET(&ke, user->fd, EVFILT_READ, EV_DELETE, 0, 0, NULL);
-                int i = kevent(kq, &ke, 1, 0, 0, NULL);
-                if (i == -1)
-                {
-                        log(DEBUG,"kqueue: Failed to remove user from queue!");
-                }
-#endif
-#ifdef USE_EPOLL
-                struct epoll_event ev;
-                ev.events = EPOLLIN | EPOLLET;
-                ev.data.fd = user->fd;
-                int i = epoll_ctl(ep, EPOLL_CTL_DEL, user->fd, &ev);
-                if (i < 0)
-                {
-                        log(DEBUG,"epoll: List deletion failure!");
-                }
-#endif
+		SE->DelFd(user->fd);
 		user->CloseSocket();
 	}
 	

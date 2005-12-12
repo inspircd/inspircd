@@ -58,15 +58,9 @@ using namespace std;
 #include "helperfuncs.h"
 #include "hashcomp.h"
 #include "socket.h"
+#include "socketengine.h"
 
-#ifdef USE_KQUEUE
-extern int kq;
-#endif
-
-#ifdef USE_EPOLL
-int ep;
-#endif
-
+extern SocketEngine* SE;
 extern int MODCOUNT;
 extern std::vector<Module*> modules;
 extern std::vector<ircd_module*> factory;
@@ -678,26 +672,7 @@ bool Server::UserToPseudo(userrec* user,std::string message)
 	user->fd = FD_MAGIC_NUMBER;
 	user->ClearBuffer();
 	Write(old_fd,"ERROR :Closing link (%s@%s) [%s]",user->ident,user->host,message.c_str());
-#ifdef USE_KQUEUE
-        struct kevent ke;
-        EV_SET(&ke, old_fd, EVFILT_READ, EV_DELETE, 0, 0, NULL);
-        int i = kevent(kq, &ke, 1, 0, 0, NULL);
-        if (i == -1)
-        {
-                log(DEBUG,"kqueue: Failed to remove user from queue!");
-        }
-#endif
-#ifdef USE_EPOLL
-        struct epoll_event ev;
-        ev.events = EPOLLIN | EPOLLET;
-        ev.data.fd = old_fd;
-        int i = epoll_ctl(ep, EPOLL_CTL_DEL, old_fd, &ev);
-        if (i < 0)
-        {
-                log(DEBUG,"epoll: List deletion failure!");
-        }
-#endif
-
+	SE->DelFd(old_fd);
         shutdown(old_fd,2);
         close(old_fd);
 	return true;

@@ -16,15 +16,9 @@
 
 char ref[65535];
 
-const char X_LISTEN		= 0;
-const char X_ESTAB_CLIENT	= 1;
-const char X_ESTAB_MODULE	= 2;
-const char X_ESTAB_DNS		= 3;
-
-const char X_READBIT		= 0x80;
-
 SocketEngine::SocketEngine()
 {
+	log(DEBUG,"SocketEngine::SocketEngine()");
 #ifdef USE_EPOLL
 	EngineHandle = epoll_create(65535);
 #endif
@@ -35,6 +29,7 @@ SocketEngine::SocketEngine()
 
 SocketEngine::~SocketEngine()
 {
+	log(DEBUG,"SocketEngine::~SocketEngine()");
 #ifdef USE_EPOLL
 	close(EngineHandle);
 #endif
@@ -50,7 +45,7 @@ bool SocketEngine::AddFd(int fd, bool readable, char type)
 		ref[fd] |= X_READBIT;
 #ifdef USE_EPOLL
 	struct epoll_event ev;
-	log(DEBUG,"epoll: Adduser to events, ep=%d socket=%d",EngineHandle,fd);
+	log(DEBUG,"epoll: Add socket to events, ep=%d socket=%d",EngineHandle,fd);
 	readable ? ev.events = EPOLLIN | EPOLLET : ev.events = EPOLLOUT | EPOLLET;
 	ev.data.fd = fd;
 	int i = epoll_ctl(EngineHandle, EPOLL_CTL_ADD, fd, &ev);
@@ -62,7 +57,7 @@ bool SocketEngine::AddFd(int fd, bool readable, char type)
 #endif
 #ifdef USE_KQUEUE
 	struct kevent ke;
-	log(DEBUG,"kqueue: Add user to events, kq=%d socket=%d",EngineHandle,fd);
+	log(DEBUG,"kqueue: Add socket to events, kq=%d socket=%d",EngineHandle,fd);
 	EV_SET(&ke, fd, readable ? EVFILT_READ : EVFILT_WRITE, EV_ADD, 0, 0, NULL);
 	int i = kevent(EngineHandle, &ke, 1, 0, 0, NULL);
 	if (i == -1)
@@ -76,6 +71,7 @@ return true;
 
 bool SocketEngine::DelFd(int fd)
 {
+	log(DEBUG,"SocketEngine::DelFd(%d)",fd);
 	bool found = false;
 	for (std::vector<int>::iterator i = fds.begin(); i != fds.end(); i++)
 	{
@@ -83,6 +79,7 @@ bool SocketEngine::DelFd(int fd)
 		{
 			fds.erase(i);
 			found = true;
+			break;
 		}
 	}
 #ifdef USE_KQUEUE
@@ -91,7 +88,7 @@ bool SocketEngine::DelFd(int fd)
 	int i = kevent(EngineHandle, &ke, 1, 0, 0, NULL);
 	if (i == -1)
 	{
-		log(DEBUG,"kqueue: Failed to remove user from queue!");
+		log(DEBUG,"kqueue: Failed to remove socket from queue!");
 		return false;
 	}
 #endif
@@ -114,7 +111,8 @@ bool SocketEngine::Wait(std::vector<int> &fdlist)
 {
 	fdlist.clear();
 #ifdef USE_SELECT
-	int highest_fd = 0;
+	FD_ZERO(&wfdset);
+	FD_ZERO(&rfdset);
 	timeval tval;
 	int sresult;
 	for (unsigned int a = 0; a < fds.size(); a++)
