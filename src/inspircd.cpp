@@ -2450,7 +2450,7 @@ bool DoBackgroundUserStuff(time_t TIME)
                 if (count2->second)
                         curr = count2->second;
                 if ((long)curr == -1)
-                        return true;
+                        return false;
 
                 if ((curr) && (curr->fd != 0))
                 {
@@ -2463,7 +2463,7 @@ bool DoBackgroundUserStuff(time_t TIME)
                                 {
                                         log(DEBUG,"InspIRCd: write error: %s",curr->GetWriteError().c_str());
                                         kill_link(curr,curr->GetWriteError().c_str());
-                                        return false;
+                                        return true;
                                 }
                                 // registration timeout -- didnt send USER/NICK/HOST in the time specified in
                                 // their connection class.
@@ -2471,7 +2471,7 @@ bool DoBackgroundUserStuff(time_t TIME)
                                 {
                                         log(DEBUG,"InspIRCd: registration timeout: %s",curr->nick);
                                         kill_link(curr,"Registration timeout");
-                                        return false;
+                                        return true;
                                 }
                                 if ((TIME > curr->signon) && (curr->registered == 3) && (AllModulesReportReady(curr)))
                                 {
@@ -2480,14 +2480,14 @@ bool DoBackgroundUserStuff(time_t TIME)
                                         statsDnsBad++;
                                         FullConnectUser(curr);
                                         if (fd_ref_table[currfd] != curr) // something changed, bail pronto
-	                                        return false;
+	                                        return true;
                                  }
                                  if ((curr->dns_done) && (curr->registered == 3) && (AllModulesReportReady(curr)))
                                  {
                                        log(DEBUG,"dns done, registered=3, and modules ready, OK");
                                        FullConnectUser(curr);
                                        if (fd_ref_table[currfd] != curr) // something changed, bail pronto
-                                                return false;
+                                                return true;
                                  }
                                  if ((TIME > curr->nping) && (isnick(curr->nick)) && (curr->registered == 7))
                                  {
@@ -2495,7 +2495,7 @@ bool DoBackgroundUserStuff(time_t TIME)
                                        {
 	                                       log(DEBUG,"InspIRCd: ping timeout: %s",curr->nick);
                                                kill_link(curr,"Ping timeout");
-                                               return false;
+                                               return true;
                                        }
                                        Write(curr->fd,"PING :%s",ServerName);
                                        log(DEBUG,"InspIRCd: pinging: %s",curr->nick);
@@ -2505,7 +2505,7 @@ bool DoBackgroundUserStuff(time_t TIME)
                 	}
         	}
 	}
-	return true;
+	return false;
 }
 
 void OpenLog(char** argv, int argc)
