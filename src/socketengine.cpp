@@ -1,3 +1,6 @@
+#include "inspircd_config.h"
+#include "globals.h"
+#include "inspircd.h"
 #ifdef USE_EPOLL
 #include <sys/epoll.h>
 #define EP_DELAY 5
@@ -7,7 +10,6 @@
 #include <sys/event.h>
 #include <sys/time.h>
 #endif
-
 
 char ref[65535];
 
