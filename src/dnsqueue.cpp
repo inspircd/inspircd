@@ -60,6 +60,9 @@ using namespace std;
 #include "dns.h"
 #include "helperfuncs.h"
 #include "hashcomp.h"
+#include "socketengine.h"
+
+extern SocketEngine* SE;
 
 extern int MaxWhoResults;
 

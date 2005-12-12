@@ -2656,10 +2656,6 @@ int InspIRCd(char** argv, int argc)
 		OLDTIME = TIME;
 		TIME = time(NULL);
 
-#ifndef THREADED_DNS
-		dns_poll();
-#endif
-
 		// *FIX* Instead of closing sockets in kill_link when they receive the ERROR :blah line, we should queue
 		// them in a list, then reap the list every second or so.
 		if (((TIME % 5) == 0) && (!expire_run))
@@ -2713,6 +2709,9 @@ int InspIRCd(char** argv, int argc)
 			else if (SE->GetType(activefds[activefd]) == X_ESTAB_DNS)
 			{
 				log(DEBUG,"Got a ready socket of type X_ESTAB_DNS");
+#ifndef THREADED_DNS
+				dns_poll();
+#endif
 			}
 			else if (SE->GetType(activefds[activefd]) == X_LISTEN)
 			{

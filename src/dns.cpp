@@ -37,6 +37,9 @@ using namespace std;
 #include <arpa/inet.h>
 #include "dns.h"
 #include "helperfuncs.h"
+#include "socketengine.h"
+
+extern SocketEngine* SE;
 
 extern int statsAccept,statsRefused,statsUnknown,statsCollisions,statsDns,statsDnsGood,statsDnsBad,statsConnects,statsSent,statsRecv;
 
@@ -664,6 +667,9 @@ bool DNS::ReverseLookup(std::string ip)
 		return false;
 	}
 	log(DEBUG,"DNS: ReverseLookup, fd=%d",this->myfd);
+#ifndef THREADED_DNS
+	SE->AddFd(this->myfd,true,X_ESTAB_DNS);
+#endif
 	return true;
 }
 
@@ -676,6 +682,9 @@ bool DNS::ForwardLookup(std::string host)
 		return false;
 	}
 	log(DEBUG,"DNS: ForwardLookup, fd=%d",this->myfd);
+#ifndef THREADED_DNS
+	SE->AddFd(this->myfd,true,X_ESTAB_DNS);
+#endif
 	return true;
 }
 
@@ -699,6 +708,9 @@ std::string DNS::GetResult()
 {
 	log(DEBUG,"DNS: GetResult()");
         result = dns_getresult(this->myfd);
+#ifndef THREADED_DNS
+	SE->DelFd(this->myfd);
+#endif
         if (result) {
 		statsDnsGood++;
 		dns_close(this->myfd);
@@ -720,6 +732,9 @@ std::string DNS::GetResultIP()
 	result = dns_getresult(this->myfd);
 	if (this->myfd != -1)
 	{
+#ifndef THREADED_DNS
+		SE->DelFd(this->myfd);
+#endif
 		dns_close(this->myfd);
 	}
 	if (result)

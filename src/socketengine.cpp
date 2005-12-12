@@ -40,12 +40,16 @@ SocketEngine::~SocketEngine()
 
 char SocketEngine::GetType(int fd)
 {
+	if ((fd < 0) || (fd > 65535))
+		return X_EMPTY_SLOT;
 	/* Mask off the top bit used for 'read/write' state */
 	return (ref[fd] & ~0x80);
 }
 
 bool SocketEngine::AddFd(int fd, bool readable, char type)
 {
+	if ((fd < 0) || (fd > 65535))
+		return false;
 	this->fds.push_back(fd);
 	ref[fd] = type;
 	if (readable)
@@ -79,6 +83,10 @@ return true;
 bool SocketEngine::DelFd(int fd)
 {
 	log(DEBUG,"SocketEngine::DelFd(%d)",fd);
+
+	if ((fd < 0) || (fd > 65535))
+		return false;
+
 	bool found = false;
 	for (std::vector<int>::iterator i = fds.begin(); i != fds.end(); i++)
 	{
