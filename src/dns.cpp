@@ -693,6 +693,10 @@ bool DNS::HasResult(int fd)
 	return (fd == this->myfd);
 }
 
+/* Only the multithreaded dns uses this poll() based
+ * check now. As its in another thread we dont have
+ * to worry about its performance that much.
+ */
 bool DNS::HasResult()
 {
 	log(DEBUG,"DNS: HasResult, fd=%d",this->myfd);
