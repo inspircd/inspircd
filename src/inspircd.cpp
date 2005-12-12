@@ -2402,7 +2402,14 @@ void ProcessUser(userrec* cu)
                                         // table, life is much easier (and FASTER)
                                         userrec* new_comp = fd_ref_table[currfd];
                                         if ((currfd < 0) || (!fd_ref_table[currfd]) || (old_comp != new_comp))
+					{
                                                 return;
+					}
+					else
+					{
+						/* The user is still here, flush their buffer */
+						current->FlushWriteBuf();
+					}
                                 }
                         }
                         return;
