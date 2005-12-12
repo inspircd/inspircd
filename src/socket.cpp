@@ -46,6 +46,8 @@ extern time_t TIME;
 extern bool unlimitcore;
 extern int MaxConn;
 
+InspSocket* socket_ref[65535];
+
 InspSocket::InspSocket()
 {
 	this->state = I_DISCONNECTED;
@@ -57,6 +59,7 @@ InspSocket::InspSocket(int newfd, char* ip)
 	this->state = I_CONNECTED;
 	this->IP = ip;
 	SE->AddFd(this->fd,true,X_ESTAB_MODULE);
+	socket_ref[this->fd] = this;
 }
 
 InspSocket::InspSocket(std::string host, int port, bool listening, unsigned long maxtime)
@@ -85,6 +88,7 @@ InspSocket::InspSocket(std::string host, int port, bool listening, unsigned long
 			{
 				this->state = I_LISTENING;
 				SE->AddFd(this->fd,true,X_ESTAB_MODULE);
+				socket_ref[this->fd] = this;
 				log(DEBUG,"New socket now in I_LISTENING state");
 				return;
 			}
@@ -132,6 +136,7 @@ InspSocket::InspSocket(std::string host, int port, bool listening, unsigned long
                 }
                 this->state = I_CONNECTING;
 		SE->AddFd(this->fd,false,X_ESTAB_MODULE);
+		socket_ref[this->fd] = this;
                 return;
 	}
 }
@@ -143,6 +148,7 @@ void InspSocket::Close()
 		this->OnClose();
 	        shutdown(this->fd,2);
 	        close(this->fd);
+		socket_ref[this->fd] = NULL;
 	        this->fd = -1;
 	}
 }

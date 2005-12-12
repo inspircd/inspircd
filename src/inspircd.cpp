@@ -121,6 +121,8 @@ char addrs[MAXBUF][255];
 socklen_t length;
 char configToken[MAXBUF], Addr[MAXBUF], Type[MAXBUF];
 
+extern InspSocket* socket_ref[65535];
+
 time_t TIME = time(NULL), OLDTIME = time(NULL);
 
 SocketEngine* SE = NULL;
@@ -2639,8 +2641,9 @@ int InspIRCd(char** argv, int argc)
 	int incomingSockfd;
 	userrec* cu = NULL;
 	InspSocket* s = NULL;
+	InspSocket* s_del = NULL;
 	char target[MAXBUF];
-	unsigned int numsockets, numberactive;
+	unsigned int numberactive;
 
 	/* Beta 7 moved all this stuff out of the main function
 	 * into smaller sub-functions, much tidier -- Brain
@@ -2755,23 +2758,23 @@ int InspIRCd(char** argv, int argc)
 					 * Modules are encouraged to inherit their sockets from
 					 * InspSocket so we can process them neatly like this.
 					 */
-					numsockets = module_sockets.size();
-					for (std::vector<InspSocket*>::iterator a = module_sockets.begin(); a < module_sockets.end(); a++)
+					s = socket_ref[activefds[activefd]];
+
+					if ((s) && (!s->Poll()))
 					{
-						s = (InspSocket*)*a;
-						if ((s) && (s->GetFd() == activefds[activefd]))
+						log(DEBUG,"Socket poll returned false, close and bail");
+						SE->DelFd(s->GetFd());
+						for (std::vector<InspSocket*>::iterator a = module_sockets.begin(); a < module_sockets.end(); a++)
 						{
-							if (!s->Poll())
+							s_del = (InspSocket*)*a;
+							if ((s_del) && (s_del->GetFd() == activefds[activefd]))
 							{
-								log(DEBUG,"Socket poll returned false, close and bail");
-								SE->DelFd(s->GetFd());
-								s->Close();
 								module_sockets.erase(a);
-								delete s;
 								break;
 							}
-							if (module_sockets.size() != numsockets) break;
 						}
+						s->Close();
+						delete s;
 					}
 
 				break;
