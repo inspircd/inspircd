@@ -139,12 +139,10 @@ bool SocketEngine::Wait(std::vector<int> &fdlist)
 	{
 		if (ref[fds[a]] & X_READBIT)
 		{
-			log(DEBUG,"Adding readable %d",fds[a]);
 			FD_SET (fds[a], &rfdset);
 		}
 		else
 		{
-			log(DEBUG,"Adding writeable %d",fds[a]);
 			FD_SET (fds[a], &wfdset);
 		}
 		
