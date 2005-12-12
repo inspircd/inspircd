@@ -164,7 +164,7 @@ bool SocketEngine::Wait(std::vector<int> &fdlist)
 		
 	}
 	tval.tv_sec = 0;
-	tval.tv_usec = 1000L;
+	tval.tv_usec = 10000L;
 	sresult = select(FD_SETSIZE, &rfdset, &wfdset, NULL, &tval);
 	if (sresult > 0)
 	{
@@ -179,14 +179,14 @@ bool SocketEngine::Wait(std::vector<int> &fdlist)
 	}
 #endif
 #ifdef USE_KQUEUE
-	ts.tv_nsec = 1000L;
+	ts.tv_nsec = 10000L;
 	ts.tv_sec = 0;
 	int i = kevent(EngineHandle, NULL, 0, &ke_list[0], 65535, &ts);
 	for (int j = 0; j < i; j++)
 		fdlist.push_back(ke_list[j].ident);
 #endif
 #ifdef USE_EPOLL
-	int i = epoll_wait(EngineHandle, events, 65535, 1);
+	int i = epoll_wait(EngineHandle, events, 65535, 100);
 	for (int j = 0; j < i; j++)
 		fdlist.push_back(events[j].data.fd);
 #endif
