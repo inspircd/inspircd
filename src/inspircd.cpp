@@ -2833,7 +2833,7 @@ int InspIRCd(char** argv, int argc)
 					}
 				break;
 
-				default;
+				default:
 					/* Something went wrong if we're in here.
 					 * In fact, so wrong, im not quite sure
 					 * what we would do, so for now, its going
