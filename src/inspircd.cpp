@@ -2696,12 +2696,6 @@ int InspIRCd(char** argv, int argc)
 	/* main loop, this never returns */
 	for (;;)
 	{
-#ifdef _POSIX_PRIORITY_SCHEDULING
-		/* If we can, yield a bit. Doesnt do us any harm, if we're busy we take back some timeslice later ;-)
-		 * it just means that if we have absolutely NOTHING to do, we dont eat up all the cpu doing nothing.
-		 */
-		sched_yield(); sched_yield();
-#endif
 		/* time() seems to be a pretty expensive syscall, so avoid calling it too much.
 		 * Once per loop iteration is pleanty.
 		 */
