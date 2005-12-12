@@ -1,4 +1,4 @@
-.TH "modules.cpp" 3 "9 Dec 2005" "Version 1.0Betareleases" "InspIRCd" \" -*- nroff -*-
+.TH "modules.cpp" 3 "12 Dec 2005" "Version 1.0Betareleases" "InspIRCd" \" -*- nroff -*-
 .ad l
 .nh
 .SH NAME
@@ -59,6 +59,8 @@ modules.cpp \-
 \fC#include 'hashcomp.h'\fP
 .br
 \fC#include 'socket.h'\fP
+.br
+\fC#include 'socketengine.h'\fP
 .br
 
 .SS "Classes"
@@ -127,6 +129,9 @@ modules.cpp \-
 .SS "Variables"
 
 .in +1c
+.ti -1c
+.RI "\fBSocketEngine\fP * \fBSE\fP"
+.br
 .ti -1c
 .RI "int \fBMODCOUNT\fP = -1"
 .br
@@ -261,164 +266,164 @@ modules.cpp \-
 .PP 
 .SS "typedef nspace::hash_map<in_addr,\fBstring\fP*, nspace::hash<in_addr>, \fBirc::InAddr_HashComp\fP> \fBaddress_cache\fP"
 .PP
-Definition at line 123 of file modules.cpp.
+Definition at line 117 of file modules.cpp.
 .SS "typedef nspace::hash_map<\fBstd::string\fP, \fBchanrec\fP*, nspace::hash<\fBstring\fP>, \fBirc::StrHashComp\fP> \fBchan_hash\fP"
 .PP
-Definition at line 122 of file modules.cpp.
+Definition at line 116 of file modules.cpp.
 .SS "typedef std::deque<\fBcommand_t\fP> \fBcommand_table\fP"
 .PP
-Definition at line 125 of file modules.cpp.
+Definition at line 119 of file modules.cpp.
 .SS "typedef std::vector<\fBExtMode\fP> \fBExtModeList\fP"
 .PP
-Definition at line 151 of file modules.cpp.
+Definition at line 145 of file modules.cpp.
 .SS "typedef ExtModeList::iterator \fBExtModeListIter\fP"
 .PP
-Definition at line 152 of file modules.cpp.
+Definition at line 146 of file modules.cpp.
 .SS "typedef nspace::hash_map<\fBstd::string\fP, \fBuserrec\fP*, nspace::hash<\fBstring\fP>, \fBirc::StrHashComp\fP> \fBuser_hash\fP"
 .PP
-Definition at line 121 of file modules.cpp.
+Definition at line 115 of file modules.cpp.
 .SS "typedef nspace::hash_map<\fBstd::string\fP, \fBWhoWasUser\fP*, nspace::hash<\fBstring\fP>, \fBirc::StrHashComp\fP> \fBwhowas_hash\fP"
 .PP
-Definition at line 124 of file modules.cpp.
+Definition at line 118 of file modules.cpp.
 .SH "Function Documentation"
 .PP 
 .SS "bool DoAddExtendedMode (char modechar, int type, bool requires_oper, int params_on, int params_off)"
 .PP
-Definition at line 221 of file modules.cpp.
+Definition at line 215 of file modules.cpp.
 .PP
 References EMode, and ModeDefined().
 .PP
 Referenced by Server::AddExtendedListMode(), and Server::AddExtendedMode().
 .PP
 .nf
-222 {
-223         if (ModeDefined(modechar,type)) {
-224                 return false;
-225         }
-226         EMode.push_back(ExtMode(modechar,type,requires_oper,params_on,params_off));
-227         return true;
-228 }
+216 {
+217         if (ModeDefined(modechar,type)) {
+218                 return false;
+219         }
+220         EMode.push_back(ExtMode(modechar,type,requires_oper,params_on,params_off));
+221         return true;
+222 }
 .fi
 .PP
 .SS "std::vector<\fBircd_module\fP*> factory (255)"
 .PP
 .SS "bool ModeDefined (char modechar, int type)"
 .PP
-Definition at line 158 of file modules.cpp.
+Definition at line 152 of file modules.cpp.
 .PP
 References EMode.
 .PP
 Referenced by DoAddExtendedMode().
 .PP
 .nf
-159 {
-160         for (ExtModeListIter i = EMode.begin(); i < EMode.end(); i++)
-161         {
-162                 if ((i->modechar == modechar) && (i->type == type))
-163                 {
-164                         return true;
-165                 }
-166         }
-167         return false;
-168 }
+153 {
+154         for (ExtModeListIter i = EMode.begin(); i < EMode.end(); i++)
+155         {
+156                 if ((i->modechar == modechar) && (i->type == type))
+157                 {
+158                         return true;
+159                 }
+160         }
+161         return false;
+162 }
 .fi
 .PP
 .SS "int ModeDefinedOff (char modechar, int type)"
 .PP
-Definition at line 208 of file modules.cpp.
+Definition at line 202 of file modules.cpp.
 .PP
 References EMode.
 .PP
 .nf
-209 {
-210         for (ExtModeListIter i = EMode.begin(); i < EMode.end(); i++)
-211         {
-212                 if ((i->modechar == modechar) && (i->type == type))
-213                 {
-214                         return i->params_when_off;
-215                 }
-216         }
-217         return 0;
-218 }
+203 {
+204         for (ExtModeListIter i = EMode.begin(); i < EMode.end(); i++)
+205         {
+206                 if ((i->modechar == modechar) && (i->type == type))
+207                 {
+208                         return i->params_when_off;
+209                 }
+210         }
+211         return 0;
+212 }
 .fi
 .PP
 .SS "int ModeDefinedOn (char modechar, int type)"
 .PP
-Definition at line 195 of file modules.cpp.
+Definition at line 189 of file modules.cpp.
 .PP
 References EMode.
 .PP
 .nf
-196 {
-197         for (ExtModeListIter i = EMode.begin(); i < EMode.end(); i++)
-198         {
-199                 if ((i->modechar == modechar) && (i->type == type))
-200                 {
-201                         return i->params_when_on;
-202                 }
-203         }
-204         return 0;
-205 }
+190 {
+191         for (ExtModeListIter i = EMode.begin(); i < EMode.end(); i++)
+192         {
+193                 if ((i->modechar == modechar) && (i->type == type))
+194                 {
+195                         return i->params_when_on;
+196                 }
+197         }
+198         return 0;
+199 }
 .fi
 .PP
 .SS "bool ModeDefinedOper (char modechar, int type)"
 .PP
-Definition at line 182 of file modules.cpp.
+Definition at line 176 of file modules.cpp.
 .PP
 References EMode.
 .PP
 .nf
-183 {
-184         for (ExtModeListIter i = EMode.begin(); i < EMode.end(); i++)
-185         {
-186                 if ((i->modechar == modechar) && (i->type == type) && (i->needsoper == true))
-187                 {
-188                         return true;
-189                 }
-190         }
-191         return false;
-192 }
+177 {
+178         for (ExtModeListIter i = EMode.begin(); i < EMode.end(); i++)
+179         {
+180                 if ((i->modechar == modechar) && (i->type == type) && (i->needsoper == true))
+181                 {
+182                         return true;
+183                 }
+184         }
+185         return false;
+186 }
 .fi
 .PP
 .SS "bool ModeIsListMode (char modechar, int type)"
 .PP
-Definition at line 170 of file modules.cpp.
+Definition at line 164 of file modules.cpp.
 .PP
 References EMode.
 .PP
 .nf
-171 {
-172         for (ExtModeListIter i = EMode.begin(); i < EMode.end(); i++)
-173         {
-174                 if ((i->modechar == modechar) && (i->type == type) && (i->list == true))
-175                 {
-176                         return true;
-177                 }
-178         }
-179         return false;
-180 }
+165 {
+166         for (ExtModeListIter i = EMode.begin(); i < EMode.end(); i++)
+167         {
+168                 if ((i->modechar == modechar) && (i->type == type) && (i->list == true))
+169                 {
+170                         return true;
+171                 }
+172         }
+173         return false;
+174 }
 .fi
 .PP
 .SS "void ModeMakeList (char modechar)"
 .PP
-Definition at line 231 of file modules.cpp.
+Definition at line 225 of file modules.cpp.
 .PP
 References EMode, and MT_CHANNEL.
 .PP
 Referenced by Server::AddExtendedListMode().
 .PP
 .nf
-232 {
-233         for (ExtModeListIter i = EMode.begin(); i < EMode.end(); i++)
-234         {
-235                 if ((i->modechar == modechar) && (i->type == MT_CHANNEL))
-236                 {
-237                         i->list = true;
-238                         return;
-239                 }
-240         }
-241         return;
-242 }
+226 {
+227         for (ExtModeListIter i = EMode.begin(); i < EMode.end(); i++)
+228         {
+229                 if ((i->modechar == modechar) && (i->type == MT_CHANNEL))
+230                 {
+231                         i->list = true;
+232                         return;
+233                 }
+234         }
+235         return;
+236 }
 .fi
 .PP
 .SS "std::vector<\fBModule\fP*> modules (255)"
@@ -451,7 +456,7 @@ Referenced by Server::AddExtendedListMode().
 .PP
 .SS "\fBExtModeList\fP \fBEMode\fP"
 .PP
-Definition at line 155 of file modules.cpp.
+Definition at line 149 of file modules.cpp.
 .PP
 Referenced by DoAddExtendedMode(), ModeDefined(), ModeDefinedOff(), ModeDefinedOn(), ModeDefinedOper(), ModeIsListMode(), and ModeMakeList().
 .SS "std::vector<\fBircd_module\fP*> factory"
@@ -474,7 +479,7 @@ Referenced by ConfigReader::ConfigReader().
 Definition at line 81 of file channels.cpp.
 .SS "int \fBMODCOUNT\fP = -1"
 .PP
-Definition at line 1032 of file modules.cpp.
+Definition at line 1005 of file modules.cpp.
 .SS "std::vector<\fBstd::string\fP> \fBmodule_names\fP"
 .PP
 .SS "std::vector<\fBInspSocket\fP*> \fBmodule_sockets\fP"
@@ -503,6 +508,8 @@ Referenced by Server::AddSocket(), and Server::DelSocket().
 .SS "\fBfile_cache\fP \fBRULES\fP"
 .PP
 .SS "char \fBrules\fP[MAXBUF]"
+.PP
+.SS "\fBSocketEngine\fP* \fBSE\fP"
 .PP
 .SS "char \fBServerDesc\fP[MAXBUF]"
 .PP

@@ -32,6 +32,9 @@ Collaboration diagram for DNS:<p><center><img src="classDNS__coll__graph.gif" bo
 <tr><td class="memItemLeft" nowrap align="right" valign="top">bool&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classDNS.html#HasResult_28_29">HasResult</a> ()</td></tr>
 
 <tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">This method will return true when the lookup is completed.  <a href="#HasResult_28_29"></a><br></td></tr>
+<tr><td class="memItemLeft" nowrap align="right" valign="top">bool&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classDNS.html#HasResult_28int_20fd_29">HasResult</a> (int fd)</td></tr>
+
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">This method will return true if the lookup's fd matches the one provided.  <a href="#HasResult_28int_20fd_29"></a><br></td></tr>
 <tr><td class="memItemLeft" nowrap align="right" valign="top"><a class="el" href="namespaceirc.html#string">std::string</a>&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classDNS.html#GetResult_28_29">GetResult</a> ()</td></tr>
 
 <tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">This method returns the result of your query as a string, depending upon wether you called <a class="el" href="classDNS.html#ReverseLookup_28std_3A_3Astring_20ip_29">DNS::ReverseLookup()</a> or <a class="el" href="classDNS.html#ForwardLookup_28std_3A_3Astring_20host_29">DNS::ForwardLookup</a>.  <a href="#GetResult_28_29"></a><br></td></tr>
@@ -713,6 +716,36 @@ This method returns the result of your query as a string, depending upon wether 
     </td>
   </tr>
 </table>
+<a class="anchor" name="HasResult_28int_20fd_29"></a><!-- doxytag: member="DNS::HasResult" ref="HasResult_28int_20fd_29" args="(int fd)" --><p>
+<table class="mdTable" cellpadding="2" cellspacing="0">
+  <tr>
+    <td class="mdRow">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top">bool DNS::HasResult           </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="md" nowrap valign="top">int&nbsp;</td>
+          <td class="mdname1" valign="top" nowrap> <em>fd</em>          </td>
+          <td class="md" valign="top">&nbsp;)&nbsp;</td>
+          <td class="md" nowrap></td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing="5" cellpadding="0" border="0">
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+This method will return true if the lookup's fd matches the one provided. 
+<p>
+    </td>
+  </tr>
+</table>
 <a class="anchor" name="HasResult_28_29"></a><!-- doxytag: member="DNS::HasResult" ref="HasResult_28_29" args="()" --><p>
 <table class="mdTable" cellpadding="2" cellspacing="0">
   <tr>
@@ -928,7 +961,7 @@ Definition at line <a class="el" href="dns_8h-source.html#l00041">41</a> of file
 </table>
 <hr>The documentation for this class was generated from the following file:<ul>
 <li><a class="el" href="dns_8h-source.html">dns.h</a></ul>
-<hr size="1"><address style="align: right;"><small>Generated on Fri Dec 9 20:20:11 2005 for InspIRCd by&nbsp;
+<hr size="1"><address style="align: right;"><small>Generated on Mon Dec 12 13:31:11 2005 for InspIRCd by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img src="doxygen.png" alt="doxygen" align="middle" border="0"></a> 1.4.4-20050815 </small></address>
 </body>

@@ -1,4 +1,4 @@
-.TH "Module" 3 "9 Dec 2005" "Version 1.0Betareleases" "InspIRCd" \" -*- nroff -*-
+.TH "Module" 3 "12 Dec 2005" "Version 1.0Betareleases" "InspIRCd" \" -*- nroff -*-
 .ad l
 .nh
 .SH NAME
@@ -354,20 +354,20 @@ Default constructor Creates a module class.
 .PP
 
 .PP
-Definition at line 307 of file modules.cpp.
+Definition at line 301 of file modules.cpp.
 .PP
 .nf
-307 { }
+301 { }
 .fi
 .PP
 .SS "Module::~Module ()\fC [virtual]\fP"
 .PP
 Default destructor destroys a module class. 
 .PP
-Definition at line 308 of file modules.cpp.
+Definition at line 302 of file modules.cpp.
 .PP
 .nf
-308 { }
+302 { }
 .fi
 .PP
 .SH "Member Function Documentation"
@@ -378,12 +378,12 @@ Returns the version number of a Module.
 .PP
 The method should return a \fBVersion\fP object with its version information assigned via \fBVersion::Version\fP
 .PP
-Definition at line 321 of file modules.cpp.
+Definition at line 313 of file modules.cpp.
 .PP
 References VF_VENDOR.
 .PP
 .nf
-321 { return Version(1,0,0,0,VF_VENDOR); }
+313 { return Version(1,0,0,0,VF_VENDOR); }
 .fi
 .PP
 .SS "void Module::On005Numeric (\fBstd::string\fP & output)\fC [virtual]\fP"
@@ -399,10 +399,10 @@ The module should modify the 005 numeric if needed to indicate its features.
 .PP
 
 .PP
-Definition at line 331 of file modules.cpp.
+Definition at line 323 of file modules.cpp.
 .PP
 .nf
-331 { };
+323 { };
 .fi
 .PP
 .SS "int Module::OnAccessCheck (\fBuserrec\fP * source, \fBuserrec\fP * dest, \fBchanrec\fP * channel, int access_type)\fC [virtual]\fP"
@@ -446,12 +446,12 @@ This function is called before many functions which check a users status on a ch
 .PP
 
 .PP
-Definition at line 330 of file modules.cpp.
+Definition at line 322 of file modules.cpp.
 .PP
 References ACR_DEFAULT.
 .PP
 .nf
-330 { return ACR_DEFAULT; };
+322 { return ACR_DEFAULT; };
 .fi
 .PP
 .SS "int Module::OnAddBan (\fBuserrec\fP * source, \fBchanrec\fP * channel, \fBstd::string\fP banmask)\fC [virtual]\fP"
@@ -476,10 +476,10 @@ Return a non-zero value to 'eat' the mode change and prevent the ban from being 
 .PP
 
 .PP
-Definition at line 356 of file modules.cpp.
+Definition at line 348 of file modules.cpp.
 .PP
 .nf
-356 { return 0; };
+348 { return 0; };
 .fi
 .PP
 .SS "void Module::OnAddELine (long duration, \fBuserrec\fP * source, \fBstd::string\fP reason, \fBstd::string\fP hostmask)\fC [virtual]\fP"
@@ -501,10 +501,10 @@ This method is triggered after the line is added.
 .PP
 
 .PP
-Definition at line 382 of file modules.cpp.
+Definition at line 374 of file modules.cpp.
 .PP
 .nf
-382 { };
+374 { };
 .fi
 .PP
 .SS "void Module::OnAddGLine (long duration, \fBuserrec\fP * source, \fBstd::string\fP reason, \fBstd::string\fP hostmask)\fC [virtual]\fP"
@@ -526,10 +526,10 @@ This method is triggered after the line is added.
 .PP
 
 .PP
-Definition at line 378 of file modules.cpp.
+Definition at line 370 of file modules.cpp.
 .PP
 .nf
-378 { };
+370 { };
 .fi
 .PP
 .SS "void Module::OnAddKLine (long duration, \fBuserrec\fP * source, \fBstd::string\fP reason, \fBstd::string\fP hostmask)\fC [virtual]\fP"
@@ -551,10 +551,10 @@ This method is triggered after the line is added.
 .PP
 
 .PP
-Definition at line 380 of file modules.cpp.
+Definition at line 372 of file modules.cpp.
 .PP
 .nf
-380 { };
+372 { };
 .fi
 .PP
 .SS "void Module::OnAddQLine (long duration, \fBuserrec\fP * source, \fBstd::string\fP reason, \fBstd::string\fP nickmask)\fC [virtual]\fP"
@@ -576,10 +576,10 @@ This method is triggered after the line is added.
 .PP
 
 .PP
-Definition at line 381 of file modules.cpp.
+Definition at line 373 of file modules.cpp.
 .PP
 .nf
-381 { };
+373 { };
 .fi
 .PP
 .SS "void Module::OnAddZLine (long duration, \fBuserrec\fP * source, \fBstd::string\fP reason, \fBstd::string\fP ipmask)\fC [virtual]\fP"
@@ -601,10 +601,10 @@ This method is triggered after the line is added.
 .PP
 
 .PP
-Definition at line 379 of file modules.cpp.
+Definition at line 371 of file modules.cpp.
 .PP
 .nf
-379 { };
+371 { };
 .fi
 .PP
 .SS "void Module::OnBackgroundTimer (time_t curtime)\fC [virtual]\fP"
@@ -620,10 +620,10 @@ This timer can be used to control timed features. Its period is not accurate eno
 .PP
 
 .PP
-Definition at line 335 of file modules.cpp.
+Definition at line 327 of file modules.cpp.
 .PP
 .nf
-335 { };
+327 { };
 .fi
 .PP
 .SS "void Module::OnChangeHost (\fBuserrec\fP * user, \fBstd::string\fP newhost)\fC [virtual]\fP"
@@ -641,10 +641,10 @@ This event triggers after the host has been set.
 .PP
 
 .PP
-Definition at line 376 of file modules.cpp.
+Definition at line 368 of file modules.cpp.
 .PP
 .nf
-376 { };
+368 { };
 .fi
 .PP
 .SS "int Module::OnChangeLocalUserGECOS (\fBuserrec\fP * user, \fBstd::string\fP newhost)\fC [virtual]\fP"
@@ -667,10 +667,10 @@ return 1 to deny the name change, or 0 to allow it.
 .PP
 
 .PP
-Definition at line 349 of file modules.cpp.
+Definition at line 341 of file modules.cpp.
 .PP
 .nf
-349 { return 0; };
+341 { return 0; };
 .fi
 .PP
 .SS "int Module::OnChangeLocalUserHost (\fBuserrec\fP * user, \fBstd::string\fP newhost)\fC [virtual]\fP"
@@ -693,10 +693,10 @@ Return 1 to deny the host change, or 0 to allow it.
 .PP
 
 .PP
-Definition at line 348 of file modules.cpp.
+Definition at line 340 of file modules.cpp.
 .PP
 .nf
-348 { return 0; };
+340 { return 0; };
 .fi
 .PP
 .SS "void Module::OnChangeName (\fBuserrec\fP * user, \fBstd::string\fP gecos)\fC [virtual]\fP"
@@ -714,10 +714,10 @@ This event triggers after the name has been set.
 .PP
 
 .PP
-Definition at line 377 of file modules.cpp.
+Definition at line 369 of file modules.cpp.
 .PP
 .nf
-377 { };
+369 { };
 .fi
 .PP
 .SS "int Module::OnCheckBan (\fBuserrec\fP * user, \fBchanrec\fP * chan)\fC [virtual]\fP"
@@ -740,10 +740,10 @@ This method will always be called for each join, wether or not the user actually
 .PP
 
 .PP
-Definition at line 346 of file modules.cpp.
+Definition at line 338 of file modules.cpp.
 .PP
 .nf
-346 { return 0; };
+338 { return 0; };
 .fi
 .PP
 .SS "int Module::OnCheckInvite (\fBuserrec\fP * user, \fBchanrec\fP * chan)\fC [virtual]\fP"
@@ -766,10 +766,10 @@ This method will always be called for each join, wether or not the channel is ac
 .PP
 
 .PP
-Definition at line 343 of file modules.cpp.
+Definition at line 335 of file modules.cpp.
 .PP
 .nf
-343 { return 0; };
+335 { return 0; };
 .fi
 .PP
 .SS "int Module::OnCheckKey (\fBuserrec\fP * user, \fBchanrec\fP * chan, \fBstd::string\fP keygiven)\fC [virtual]\fP"
@@ -792,10 +792,10 @@ This method will always be called for each join, wether or not the channel is ac
 .PP
 
 .PP
-Definition at line 344 of file modules.cpp.
+Definition at line 336 of file modules.cpp.
 .PP
 .nf
-344 { return 0; };
+336 { return 0; };
 .fi
 .PP
 .SS "int Module::OnCheckLimit (\fBuserrec\fP * user, \fBchanrec\fP * chan)\fC [virtual]\fP"
@@ -818,10 +818,10 @@ This method will always be called for each join, wether or not the channel is ac
 .PP
 
 .PP
-Definition at line 345 of file modules.cpp.
+Definition at line 337 of file modules.cpp.
 .PP
 .nf
-345 { return 0; };
+337 { return 0; };
 .fi
 .PP
 .SS "bool Module::OnCheckReady (\fBuserrec\fP * user)\fC [virtual]\fP"
@@ -842,10 +842,10 @@ true to indicate readiness, false if otherwise
 .PP
 
 .PP
-Definition at line 338 of file modules.cpp.
+Definition at line 330 of file modules.cpp.
 .PP
 .nf
-338 { return true; };
+330 { return true; };
 .fi
 .PP
 .SS "void Module::OnCleanup (int target_type, void * item)\fC [virtual]\fP"
@@ -863,10 +863,10 @@ This method is called once for every user and channel on the network, so that wh
 .PP
 
 .PP
-Definition at line 388 of file modules.cpp.
+Definition at line 380 of file modules.cpp.
 .PP
 .nf
-388 { };
+380 { };
 .fi
 .PP
 .SS "void Module::OnDecodeMetaData (int target_type, void * target, \fBstd::string\fP extname, \fBstd::string\fP extdata)\fC [virtual]\fP"
@@ -888,10 +888,10 @@ Please see src/modules/m_swhois.cpp for a working example of how to use this met
 .PP
 
 .PP
-Definition at line 373 of file modules.cpp.
+Definition at line 365 of file modules.cpp.
 .PP
 .nf
-373 { };
+365 { };
 .fi
 .PP
 .SS "int Module::OnDelBan (\fBuserrec\fP * source, \fBchanrec\fP * channel, \fBstd::string\fP banmask)\fC [virtual]\fP"
@@ -916,10 +916,10 @@ Return a non-zero value to 'eat' the mode change and prevent the ban from being 
 .PP
 
 .PP
-Definition at line 357 of file modules.cpp.
+Definition at line 349 of file modules.cpp.
 .PP
 .nf
-357 { return 0; };
+349 { return 0; };
 .fi
 .PP
 .SS "void Module::OnDelELine (\fBuserrec\fP * source, \fBstd::string\fP hostmask)\fC [virtual]\fP"
@@ -937,10 +937,10 @@ This method is triggered after the line is deleted.
 .PP
 
 .PP
-Definition at line 387 of file modules.cpp.
+Definition at line 379 of file modules.cpp.
 .PP
 .nf
-387 { };
+379 { };
 .fi
 .PP
 .SS "void Module::OnDelGLine (\fBuserrec\fP * source, \fBstd::string\fP hostmask)\fC [virtual]\fP"
@@ -958,10 +958,10 @@ This method is triggered after the line is deleted.
 .PP
 
 .PP
-Definition at line 383 of file modules.cpp.
+Definition at line 375 of file modules.cpp.
 .PP
 .nf
-383 { };
+375 { };
 .fi
 .PP
 .SS "void Module::OnDelKLine (\fBuserrec\fP * source, \fBstd::string\fP hostmask)\fC [virtual]\fP"
@@ -979,10 +979,10 @@ This method is triggered after the line is deleted.
 .PP
 
 .PP
-Definition at line 385 of file modules.cpp.
+Definition at line 377 of file modules.cpp.
 .PP
 .nf
-385 { };
+377 { };
 .fi
 .PP
 .SS "void Module::OnDelQLine (\fBuserrec\fP * source, \fBstd::string\fP nickmask)\fC [virtual]\fP"
@@ -1000,10 +1000,10 @@ This method is triggered after the line is deleted.
 .PP
 
 .PP
-Definition at line 386 of file modules.cpp.
+Definition at line 378 of file modules.cpp.
 .PP
 .nf
-386 { };
+378 { };
 .fi
 .PP
 .SS "void Module::OnDelZLine (\fBuserrec\fP * source, \fBstd::string\fP ipmask)\fC [virtual]\fP"
@@ -1021,10 +1021,10 @@ This method is triggered after the line is deleted.
 .PP
 
 .PP
-Definition at line 384 of file modules.cpp.
+Definition at line 376 of file modules.cpp.
 .PP
 .nf
-384 { };
+376 { };
 .fi
 .PP
 .SS "void Module::OnEvent (\fBEvent\fP * event)\fC [virtual]\fP"
@@ -1040,10 +1040,10 @@ Please see the documentation of \fBEvent::Send()\fP for further information. The
 .PP
 
 .PP
-Definition at line 351 of file modules.cpp.
+Definition at line 343 of file modules.cpp.
 .PP
 .nf
-351 { return; };
+343 { return; };
 .fi
 .PP
 .SS "int Module::OnExtendedMode (\fBuserrec\fP * user, void * target, char modechar, int type, bool mode_on, \fBstring_list\fP & params)\fC [virtual]\fP"
@@ -1069,10 +1069,10 @@ The type parameter is MT_SERVER, MT_CLIENT or MT_CHANNEL, dependent on where the
 .PP
 
 .PP
-Definition at line 319 of file modules.cpp.
+Definition at line 311 of file modules.cpp.
 .PP
 .nf
-319 { return false; }
+311 { return false; }
 .fi
 .PP
 .SS "void Module::OnGetServerDescription (\fBstd::string\fP servername, \fBstd::string\fP & description)\fC [virtual]\fP"
@@ -1090,10 +1090,10 @@ You may change or define the description given in \fBstd::string\fP &description
 .PP
 
 .PP
-Definition at line 367 of file modules.cpp.
+Definition at line 359 of file modules.cpp.
 .PP
 .nf
-367 { };
+359 { };
 .fi
 .PP
 .SS "void Module::OnGlobalConnect (\fBuserrec\fP * user)\fC [virtual]\fP"
@@ -1109,10 +1109,10 @@ This event is informational only. You should not change any user information in 
 .PP
 
 .PP
-Definition at line 355 of file modules.cpp.
+Definition at line 347 of file modules.cpp.
 .PP
 .nf
-355 { };
+347 { };
 .fi
 .PP
 .SS "void Module::OnGlobalOper (\fBuserrec\fP * user)\fC [virtual]\fP"
@@ -1128,10 +1128,10 @@ You cannot override this and prevent it from happening as it is already happened
 .PP
 
 .PP
-Definition at line 354 of file modules.cpp.
+Definition at line 346 of file modules.cpp.
 .PP
 .nf
-354 { };
+346 { };
 .fi
 .PP
 .SS "void Module::OnInfo (\fBuserrec\fP * user)\fC [virtual]\fP"
@@ -1149,10 +1149,10 @@ The userrec will contain the information of the user who typed the command. Modu
 .PP
 
 .PP
-Definition at line 323 of file modules.cpp.
+Definition at line 315 of file modules.cpp.
 .PP
 .nf
-323 { };
+315 { };
 .fi
 .PP
 .SS "int Module::OnKill (\fBuserrec\fP * source, \fBuserrec\fP * dest, \fBstd::string\fP reason)\fC [virtual]\fP"
@@ -1177,10 +1177,10 @@ If a client is killed by a server, e.g. a nickname collision or protocol error, 
 .PP
 
 .PP
-Definition at line 332 of file modules.cpp.
+Definition at line 324 of file modules.cpp.
 .PP
 .nf
-332 { return 0; };
+324 { return 0; };
 .fi
 .PP
 .SS "void Module::OnLoadModule (\fBModule\fP * mod, \fBstd::string\fP name)\fC [virtual]\fP"
@@ -1198,10 +1198,10 @@ mod will contain a pointer to the module, and string will contain its name, for 
 .PP
 
 .PP
-Definition at line 333 of file modules.cpp.
+Definition at line 325 of file modules.cpp.
 .PP
 .nf
-333 { };
+325 { };
 .fi
 .PP
 .SS "int Module::OnLocalTopicChange (\fBuserrec\fP * user, \fBchanrec\fP * chan, \fBstd::string\fP topic)\fC [virtual]\fP"
@@ -1223,10 +1223,10 @@ Return 1 to deny the topic change, or 0 to allow it.
 .PP
 
 .PP
-Definition at line 350 of file modules.cpp.
+Definition at line 342 of file modules.cpp.
 .PP
 .nf
-350 { return 0; };
+342 { return 0; };
 .fi
 .PP
 .SS "void Module::OnMode (\fBuserrec\fP * user, void * dest, int target_type, \fBstd::string\fP text)\fC [virtual]\fP"
@@ -1248,10 +1248,10 @@ The text variable contains the remainder of the mode string after the target, e.
 .PP
 
 .PP
-Definition at line 320 of file modules.cpp.
+Definition at line 312 of file modules.cpp.
 .PP
 .nf
-320 { };
+312 { };
 .fi
 .PP
 .SS "void Module::OnOper (\fBuserrec\fP * user, \fBstd::string\fP opertype)\fC [virtual]\fP"
@@ -1269,10 +1269,10 @@ The userrec will contain the oper mode 'o' as this function is called after any 
 .PP
 
 .PP
-Definition at line 322 of file modules.cpp.
+Definition at line 314 of file modules.cpp.
 .PP
 .nf
-322 { };
+314 { };
 .fi
 .PP
 .SS "int Module::OnOperCompare (\fBstd::string\fP password, \fBstd::string\fP input)\fC [virtual]\fP"
@@ -1295,10 +1295,10 @@ The password field (from the config file) is in 'password' and is to be compared
 .PP
 
 .PP
-Definition at line 353 of file modules.cpp.
+Definition at line 345 of file modules.cpp.
 .PP
 .nf
-353 { return 0; };
+345 { return 0; };
 .fi
 .PP
 .SS "void Module::OnPostLocalTopicChange (\fBuserrec\fP * user, \fBchanrec\fP * chan, \fBstd::string\fP topic)\fC [virtual]\fP"
@@ -1318,10 +1318,10 @@ To block topic changes you must use OnLocalTopicChange instead.
 .PP
 
 .PP
-Definition at line 366 of file modules.cpp.
+Definition at line 358 of file modules.cpp.
 .PP
 .nf
-366 { };
+358 { };
 .fi
 .PP
 .SS "int Module::OnPreCommand (\fBstd::string\fP command, char ** parameters, int pcnt, \fBuserrec\fP * user)\fC [virtual]\fP"
@@ -1348,10 +1348,10 @@ This event occurs for all registered commands, wether they are registered in the
 .PP
 
 .PP
-Definition at line 337 of file modules.cpp.
+Definition at line 329 of file modules.cpp.
 .PP
 .nf
-337 { return 0; };
+329 { return 0; };
 .fi
 .PP
 .SS "int Module::OnRawMode (\fBuserrec\fP * user, \fBchanrec\fP * chan, char mode, \fBstd::string\fP param, bool adding, int pcnt)\fC [virtual]\fP"
@@ -1382,10 +1382,10 @@ Return 1 from this function to block the mode character from being processed ent
 .PP
 
 .PP
-Definition at line 342 of file modules.cpp.
+Definition at line 334 of file modules.cpp.
 .PP
 .nf
-342 { return 0; };
+334 { return 0; };
 .fi
 .PP
 .SS "void Module::OnRawSocketAccept (int fd, \fBstd::string\fP ip, int localport)\fC [virtual]\fP"
@@ -1405,10 +1405,10 @@ This is intended for raw socket processing (e.g. modules which wrap the tcp conn
 .PP
 
 .PP
-Definition at line 358 of file modules.cpp.
+Definition at line 350 of file modules.cpp.
 .PP
 .nf
-358 { };
+350 { };
 .fi
 .PP
 .SS "void Module::OnRawSocketClose (int fd)\fC [virtual]\fP"
@@ -1424,10 +1424,10 @@ When this event is called, shutdown() has not yet been called on the socket.
 .PP
 
 .PP
-Definition at line 360 of file modules.cpp.
+Definition at line 352 of file modules.cpp.
 .PP
 .nf
-360 { };
+352 { };
 .fi
 .PP
 .SS "int Module::OnRawSocketRead (int fd, char * buffer, unsigned int count, int & readresult)\fC [virtual]\fP"
@@ -1454,10 +1454,10 @@ nonzero if the event was handled, in which case readresult must be valid on exit
 .PP
 
 .PP
-Definition at line 361 of file modules.cpp.
+Definition at line 353 of file modules.cpp.
 .PP
 .nf
-361 { return 0; };
+353 { return 0; };
 .fi
 .PP
 .SS "int Module::OnRawSocketWrite (int fd, char * buffer, int count)\fC [virtual]\fP"
@@ -1482,10 +1482,10 @@ Number of characters actually written or 0 if you didn't handle the operation
 .PP
 
 .PP
-Definition at line 359 of file modules.cpp.
+Definition at line 351 of file modules.cpp.
 .PP
 .nf
-359 { return 0; };
+351 { return 0; };
 .fi
 .PP
 .SS "void Module::OnRehash (\fBstd::string\fP parameter)\fC [virtual]\fP"
@@ -1501,10 +1501,10 @@ This method is called prior to a /REHASH or when a SIGHUP is received from the o
 .PP
 
 .PP
-Definition at line 316 of file modules.cpp.
+Definition at line 308 of file modules.cpp.
 .PP
 .nf
-316 { }
+308 { }
 .fi
 .PP
 .SS "void Module::OnRemoteKill (\fBuserrec\fP * source, \fBuserrec\fP * dest, \fBstd::string\fP reason)\fC [virtual]\fP"
@@ -1522,10 +1522,10 @@ Called when an oper wants to disconnect a remote user via KILL.
 .PP
 
 .PP
-Definition at line 364 of file modules.cpp.
+Definition at line 356 of file modules.cpp.
 .PP
 .nf
-364 { };
+356 { };
 .fi
 .PP
 .SS "char * Module::OnRequest (\fBRequest\fP * request)\fC [virtual]\fP"
@@ -1541,12 +1541,12 @@ Please see the documentation of \fBRequest::Send()\fP for further information. T
 .PP
 
 .PP
-Definition at line 352 of file modules.cpp.
+Definition at line 344 of file modules.cpp.
 .PP
 Referenced by Request::Send().
 .PP
 .nf
-352 { return NULL; };
+344 { return NULL; };
 .fi
 .PP
 .SS "void Module::OnSendList (\fBuserrec\fP * user, \fBchanrec\fP * channel, char mode)\fC [virtual]\fP"
@@ -1566,10 +1566,10 @@ For example, when a /MODE channel +b (without any other parameters) is called, i
 .PP
 
 .PP
-Definition at line 336 of file modules.cpp.
+Definition at line 328 of file modules.cpp.
 .PP
 .nf
-336 { };
+328 { };
 .fi
 .PP
 .SS "void Module::OnServerRaw (\fBstd::string\fP & raw, bool inbound, \fBuserrec\fP * user)\fC [virtual]\fP"
@@ -1589,10 +1589,10 @@ This method is the lowest level of handler available to a module. It will be cal
 .PP
 
 .PP
-Definition at line 317 of file modules.cpp.
+Definition at line 309 of file modules.cpp.
 .PP
 .nf
-317 { }
+309 { }
 .fi
 .PP
 .SS "void Module::OnStats (char symbol)\fC [virtual]\fP"
@@ -1606,10 +1606,10 @@ Called on all /STATS commands This method is triggered for all /STATS use, inclu
 .PP
 
 .PP
-Definition at line 347 of file modules.cpp.
+Definition at line 339 of file modules.cpp.
 .PP
 .nf
-347 { };
+339 { };
 .fi
 .PP
 .SS "void Module::OnSyncChannel (\fBchanrec\fP * chan, \fBModule\fP * proto, void * opaque)\fC [virtual]\fP"
@@ -1631,18 +1631,18 @@ For a good example of how to use this function, please see src/modules/m_chanpro
 .PP
 
 .PP
-Definition at line 369 of file modules.cpp.
+Definition at line 361 of file modules.cpp.
 .PP
 .nf
-369 { };
+361 { };
 .fi
 .PP
 .SS "void Module::OnSyncChannelMetaData (\fBchanrec\fP * chan, \fBModule\fP * proto, void * opaque, \fBstd::string\fP extname)\fC [virtual]\fP"
 .PP
-Definition at line 371 of file modules.cpp.
+Definition at line 363 of file modules.cpp.
 .PP
 .nf
-371 { };
+363 { };
 .fi
 .PP
 .SS "void Module::OnSyncUser (\fBuserrec\fP * user, \fBModule\fP * proto, void * opaque)\fC [virtual]\fP"
@@ -1662,18 +1662,18 @@ When this function is called, it will be called from the module which implements
 .PP
 
 .PP
-Definition at line 368 of file modules.cpp.
+Definition at line 360 of file modules.cpp.
 .PP
 .nf
-368 { };
+360 { };
 .fi
 .PP
 .SS "void Module::OnSyncUserMetaData (\fBuserrec\fP * user, \fBModule\fP * proto, void * opaque, \fBstd::string\fP extname)\fC [virtual]\fP"
 .PP
-Definition at line 372 of file modules.cpp.
+Definition at line 364 of file modules.cpp.
 .PP
 .nf
-372 { };
+364 { };
 .fi
 .PP
 .SS "void Module::OnUnloadModule (\fBModule\fP * mod, \fBstd::string\fP name)\fC [virtual]\fP"
@@ -1691,10 +1691,10 @@ mod will contain a pointer to the module, and string will contain its name, for 
 .PP
 
 .PP
-Definition at line 334 of file modules.cpp.
+Definition at line 326 of file modules.cpp.
 .PP
 .nf
-334 { };
+326 { };
 .fi
 .PP
 .SS "void Module::OnUserConnect (\fBuserrec\fP * user)\fC [virtual]\fP"
@@ -1710,10 +1710,10 @@ The details of the connecting user are available to you in the parameter userrec
 .PP
 
 .PP
-Definition at line 309 of file modules.cpp.
+Definition at line 303 of file modules.cpp.
 .PP
 .nf
-309 { }
+303 { }
 .fi
 .PP
 .SS "void Module::OnUserDisconnect (\fBuserrec\fP * user)\fC [virtual]\fP"
@@ -1729,10 +1729,10 @@ The details of the exiting user are available to you in the parameter userrec *u
 .PP
 
 .PP
-Definition at line 311 of file modules.cpp.
+Definition at line 305 of file modules.cpp.
 .PP
 .nf
-311 { }
+305 { }
 .fi
 .PP
 .SS "void Module::OnUserInvite (\fBuserrec\fP * source, \fBuserrec\fP * dest, \fBchanrec\fP * channel)\fC [virtual]\fP"
@@ -1752,10 +1752,10 @@ You cannot prevent the invite from occuring using this function, to do that, use
 .PP
 
 .PP
-Definition at line 365 of file modules.cpp.
+Definition at line 357 of file modules.cpp.
 .PP
 .nf
-365 { };
+357 { };
 .fi
 .PP
 .SS "void Module::OnUserJoin (\fBuserrec\fP * user, \fBchanrec\fP * channel)\fC [virtual]\fP"
@@ -1773,10 +1773,10 @@ The details of the joining user are available to you in the parameter userrec *u
 .PP
 
 .PP
-Definition at line 312 of file modules.cpp.
+Definition at line 306 of file modules.cpp.
 .PP
 .nf
-312 { }
+306 { }
 .fi
 .PP
 .SS "void Module::OnUserKick (\fBuserrec\fP * source, \fBuserrec\fP * user, \fBchanrec\fP * chan, \fBstd::string\fP reason)\fC [virtual]\fP"
@@ -1798,10 +1798,10 @@ If this method is called, the kick is already underway and cannot be prevented, 
 .PP
 
 .PP
-Definition at line 341 of file modules.cpp.
+Definition at line 333 of file modules.cpp.
 .PP
 .nf
-341 { };
+333 { };
 .fi
 .PP
 .SS "void Module::OnUserMessage (\fBuserrec\fP * user, void * dest, int target_type, \fBstd::string\fP text)\fC [virtual]\fP"
@@ -1823,10 +1823,10 @@ The dest variable contains a userrec* if target_type is TYPE_USER and a chanrec*
 .PP
 
 .PP
-Definition at line 362 of file modules.cpp.
+Definition at line 354 of file modules.cpp.
 .PP
 .nf
-362 { };
+354 { };
 .fi
 .PP
 .SS "void Module::OnUserNotice (\fBuserrec\fP * user, void * dest, int target_type, \fBstd::string\fP text)\fC [virtual]\fP"
@@ -1848,10 +1848,10 @@ The dest variable contains a userrec* if target_type is TYPE_USER and a chanrec*
 .PP
 
 .PP
-Definition at line 363 of file modules.cpp.
+Definition at line 355 of file modules.cpp.
 .PP
 .nf
-363 { };
+355 { };
 .fi
 .PP
 .SS "void Module::OnUserPart (\fBuserrec\fP * user, \fBchanrec\fP * channel)\fC [virtual]\fP"
@@ -1869,10 +1869,10 @@ The details of the leaving user are available to you in the parameter userrec *u
 .PP
 
 .PP
-Definition at line 313 of file modules.cpp.
+Definition at line 307 of file modules.cpp.
 .PP
 .nf
-313 { }
+307 { }
 .fi
 .PP
 .SS "void Module::OnUserPostNick (\fBuserrec\fP * user, \fBstd::string\fP oldnick)\fC [virtual]\fP"
@@ -1890,10 +1890,10 @@ This can be used to track users after nickchanges have been applied. Please note
 .PP
 
 .PP
-Definition at line 329 of file modules.cpp.
+Definition at line 321 of file modules.cpp.
 .PP
 .nf
-329 { };
+321 { };
 .fi
 .PP
 .SS "int Module::OnUserPreInvite (\fBuserrec\fP * source, \fBuserrec\fP * dest, \fBchanrec\fP * channel)\fC [virtual]\fP"
@@ -1918,10 +1918,10 @@ Returning 1 from this function stops the process immediately, causing no output 
 .PP
 
 .PP
-Definition at line 325 of file modules.cpp.
+Definition at line 317 of file modules.cpp.
 .PP
 .nf
-325 { return 0; };
+317 { return 0; };
 .fi
 .PP
 .SS "int Module::OnUserPreJoin (\fBuserrec\fP * user, \fBchanrec\fP * chan, const char * cname)\fC [virtual]\fP"
@@ -1948,10 +1948,10 @@ If the user joins a NEW channel which does not exist yet, OnUserPreJoin will be 
 .PP
 
 .PP
-Definition at line 318 of file modules.cpp.
+Definition at line 310 of file modules.cpp.
 .PP
 .nf
-318 { return 0; }
+310 { return 0; }
 .fi
 .PP
 .SS "int Module::OnUserPreKick (\fBuserrec\fP * source, \fBuserrec\fP * user, \fBchanrec\fP * chan, \fBstd::string\fP reason)\fC [virtual]\fP"
@@ -1978,10 +1978,10 @@ Returning a value of 1 from this function stops the process immediately, causing
 .PP
 
 .PP
-Definition at line 340 of file modules.cpp.
+Definition at line 332 of file modules.cpp.
 .PP
 .nf
-340 { return 0; };
+332 { return 0; };
 .fi
 .PP
 .SS "int Module::OnUserPreMessage (\fBuserrec\fP * user, void * dest, int target_type, \fBstd::string\fP & text)\fC [virtual]\fP"
@@ -2008,10 +2008,10 @@ Returning any nonzero value from this function stops the process immediately, ca
 .PP
 
 .PP
-Definition at line 326 of file modules.cpp.
+Definition at line 318 of file modules.cpp.
 .PP
 .nf
-326 { return 0; };
+318 { return 0; };
 .fi
 .PP
 .SS "int Module::OnUserPreNick (\fBuserrec\fP * user, \fBstd::string\fP newnick)\fC [virtual]\fP"
@@ -2034,10 +2034,10 @@ This can be used to implement Q-lines etc. Please note that although you can see
 .PP
 
 .PP
-Definition at line 328 of file modules.cpp.
+Definition at line 320 of file modules.cpp.
 .PP
 .nf
-328 { return 0; };
+320 { return 0; };
 .fi
 .PP
 .SS "int Module::OnUserPreNotice (\fBuserrec\fP * user, void * dest, int target_type, \fBstd::string\fP & text)\fC [virtual]\fP"
@@ -2064,10 +2064,10 @@ Returning any nonzero value from this function stops the process immediately, ca
 .PP
 
 .PP
-Definition at line 327 of file modules.cpp.
+Definition at line 319 of file modules.cpp.
 .PP
 .nf
-327 { return 0; };
+319 { return 0; };
 .fi
 .PP
 .SS "void Module::OnUserQuit (\fBuserrec\fP * user, \fBstd::string\fP message)\fC [virtual]\fP"
@@ -2085,10 +2085,10 @@ The details of the exiting user are available to you in the parameter userrec *u
 .PP
 
 .PP
-Definition at line 310 of file modules.cpp.
+Definition at line 304 of file modules.cpp.
 .PP
 .nf
-310 { }
+304 { }
 .fi
 .PP
 .SS "void Module::OnUserRegister (\fBuserrec\fP * user)\fC [virtual]\fP"
@@ -2104,10 +2104,10 @@ before the user is sent the MOTD etc). Modules can use this method if they are p
 .PP
 
 .PP
-Definition at line 339 of file modules.cpp.
+Definition at line 331 of file modules.cpp.
 .PP
 .nf
-339 { };
+331 { };
 .fi
 .PP
 .SS "void Module::OnWallops (\fBuserrec\fP * user, \fBstd::string\fP text)\fC [virtual]\fP"
@@ -2123,10 +2123,10 @@ Called after every WALLOPS command.
 .PP
 
 .PP
-Definition at line 375 of file modules.cpp.
+Definition at line 367 of file modules.cpp.
 .PP
 .nf
-375 { };
+367 { };
 .fi
 .PP
 .SS "void Module::OnWhois (\fBuserrec\fP * source, \fBuserrec\fP * dest)\fC [virtual]\fP"
@@ -2144,10 +2144,10 @@ The source parameter contains the details of the user who issued the WHOIS comma
 .PP
 
 .PP
-Definition at line 324 of file modules.cpp.
+Definition at line 316 of file modules.cpp.
 .PP
 .nf
-324 { };
+316 { };
 .fi
 .PP
 .SS "void Module::ProtoSendMetaData (void * opaque, int target_type, void * target, \fBstd::string\fP extname, \fBstd::string\fP extdata)\fC [virtual]\fP"
@@ -2173,10 +2173,10 @@ More documentation to follow soon. Please see src/modules/m_swhois.cpp for examp
 .PP
 
 .PP
-Definition at line 374 of file modules.cpp.
+Definition at line 366 of file modules.cpp.
 .PP
 .nf
-374 { };
+366 { };
 .fi
 .PP
 .SS "void Module::ProtoSendMode (void * opaque, int target_type, void * target, \fBstd::string\fP modeline)\fC [virtual]\fP"
@@ -2200,10 +2200,10 @@ More documentation to follow soon. Please see src/modules/m_chanprotect.cpp for 
 .PP
 
 .PP
-Definition at line 370 of file modules.cpp.
+Definition at line 362 of file modules.cpp.
 .PP
 .nf
-370 { };
+362 { };
 .fi
 .PP
 

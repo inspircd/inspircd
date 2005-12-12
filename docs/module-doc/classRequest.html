@@ -102,7 +102,7 @@ Create a new Request.
 <p>
 
 <p>
-Definition at line <a class="el" href="modules_8cpp-source.html#l00252">252</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.<div class="fragment"><pre class="fragment"><a name="l00252"></a>00252 : <a class="code" href="classRequest.html#data">data</a>(anydata), <a class="code" href="classRequest.html#source">source</a>(src), <a class="code" href="classRequest.html#dest">dest</a>(dst) { };
+Definition at line <a class="el" href="modules_8cpp-source.html#l00246">246</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.<div class="fragment"><pre class="fragment"><a name="l00246"></a>00246 : <a class="code" href="classRequest.html#data">data</a>(anydata), <a class="code" href="classRequest.html#source">source</a>(src), <a class="code" href="classRequest.html#dest">dest</a>(dst) { };
 </pre></div>
 <p>
     </td>
@@ -137,11 +137,11 @@ Fetch the Request data.
 <p>
 
 <p>
-Definition at line <a class="el" href="modules_8cpp-source.html#l00254">254</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
+Definition at line <a class="el" href="modules_8cpp-source.html#l00248">248</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
 <p>
-References <a class="el" href="modules_8h-source.html#l00162">data</a>.<div class="fragment"><pre class="fragment"><a name="l00255"></a>00255 {
-<a name="l00256"></a>00256         <span class="keywordflow">return</span> this-&gt;<a class="code" href="classRequest.html#data">data</a>;
-<a name="l00257"></a>00257 }
+References <a class="el" href="modules_8h-source.html#l00162">data</a>.<div class="fragment"><pre class="fragment"><a name="l00249"></a>00249 {
+<a name="l00250"></a>00250         <span class="keywordflow">return</span> this-&gt;<a class="code" href="classRequest.html#data">data</a>;
+<a name="l00251"></a>00251 }
 </pre></div>
 <p>
     </td>
@@ -175,11 +175,11 @@ Fetch the request destination (should be 'this' in the receiving module).
 <p>
 
 <p>
-Definition at line <a class="el" href="modules_8cpp-source.html#l00264">264</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
+Definition at line <a class="el" href="modules_8cpp-source.html#l00258">258</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
 <p>
-References <a class="el" href="modules_8h-source.html#l00169">dest</a>.<div class="fragment"><pre class="fragment"><a name="l00265"></a>00265 {
-<a name="l00266"></a>00266         <span class="keywordflow">return</span> this-&gt;<a class="code" href="classRequest.html#dest">dest</a>;
-<a name="l00267"></a>00267 }
+References <a class="el" href="modules_8h-source.html#l00169">dest</a>.<div class="fragment"><pre class="fragment"><a name="l00259"></a>00259 {
+<a name="l00260"></a>00260         <span class="keywordflow">return</span> this-&gt;<a class="code" href="classRequest.html#dest">dest</a>;
+<a name="l00261"></a>00261 }
 </pre></div>
 <p>
     </td>
@@ -213,11 +213,11 @@ Fetch the request source.
 <p>
 
 <p>
-Definition at line <a class="el" href="modules_8cpp-source.html#l00259">259</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
+Definition at line <a class="el" href="modules_8cpp-source.html#l00253">253</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
 <p>
-References <a class="el" href="modules_8h-source.html#l00166">source</a>.<div class="fragment"><pre class="fragment"><a name="l00260"></a>00260 {
-<a name="l00261"></a>00261         <span class="keywordflow">return</span> this-&gt;<a class="code" href="classRequest.html#source">source</a>;
-<a name="l00262"></a>00262 }
+References <a class="el" href="modules_8h-source.html#l00166">source</a>.<div class="fragment"><pre class="fragment"><a name="l00254"></a>00254 {
+<a name="l00255"></a>00255         <span class="keywordflow">return</span> this-&gt;<a class="code" href="classRequest.html#source">source</a>;
+<a name="l00256"></a>00256 }
 </pre></div>
 <p>
     </td>
@@ -253,18 +253,18 @@ Upon returning the result will be arbitary data returned by the module you sent 
 <p>
 Implements <a class="el" href="classModuleMessage.html#Send_28_29_3D_30">ModuleMessage</a>.
 <p>
-Definition at line <a class="el" href="modules_8cpp-source.html#l00269">269</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
+Definition at line <a class="el" href="modules_8cpp-source.html#l00263">263</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
 <p>
-References <a class="el" href="modules_8h-source.html#l00169">dest</a>, and <a class="el" href="modules_8cpp-source.html#l00352">Module::OnRequest()</a>.<div class="fragment"><pre class="fragment"><a name="l00270"></a>00270 {
-<a name="l00271"></a>00271         <span class="keywordflow">if</span> (this-&gt;dest)
-<a name="l00272"></a>00272         {
-<a name="l00273"></a>00273                 <span class="keywordflow">return</span> <a class="code" href="classRequest.html#dest">dest</a>-&gt;<a class="code" href="classModule.html#OnRequest_28Request_20_2Arequest_29">OnRequest</a>(<span class="keyword">this</span>);
-<a name="l00274"></a>00274         }
-<a name="l00275"></a>00275         <span class="keywordflow">else</span>
-<a name="l00276"></a>00276         {
-<a name="l00277"></a>00277                 <span class="keywordflow">return</span> NULL;
-<a name="l00278"></a>00278         }
-<a name="l00279"></a>00279 }
+References <a class="el" href="modules_8h-source.html#l00169">dest</a>, and <a class="el" href="modules_8cpp-source.html#l00344">Module::OnRequest()</a>.<div class="fragment"><pre class="fragment"><a name="l00264"></a>00264 {
+<a name="l00265"></a>00265         <span class="keywordflow">if</span> (this-&gt;dest)
+<a name="l00266"></a>00266         {
+<a name="l00267"></a>00267                 <span class="keywordflow">return</span> <a class="code" href="classRequest.html#dest">dest</a>-&gt;<a class="code" href="classModule.html#OnRequest_28Request_20_2Arequest_29">OnRequest</a>(<span class="keyword">this</span>);
+<a name="l00268"></a>00268         }
+<a name="l00269"></a>00269         <span class="keywordflow">else</span>
+<a name="l00270"></a>00270         {
+<a name="l00271"></a>00271                 <span class="keywordflow">return</span> NULL;
+<a name="l00272"></a>00272         }
+<a name="l00273"></a>00273 }
 </pre></div>
 <p>
     </td>
@@ -297,7 +297,7 @@ This member holds a pointer to arbitary data set by the emitter of the message.
 <p>
 Definition at line <a class="el" href="modules_8h-source.html#l00162">162</a> of file <a class="el" href="modules_8h-source.html">modules.h</a>.
 <p>
-Referenced by <a class="el" href="modules_8cpp-source.html#l00254">GetData()</a>.    </td>
+Referenced by <a class="el" href="modules_8cpp-source.html#l00248">GetData()</a>.    </td>
   </tr>
 </table>
 <a class="anchor" name="dest"></a><!-- doxytag: member="Request::dest" ref="dest" args="" --><p>
@@ -326,7 +326,7 @@ The single destination of the Request.
 <p>
 Definition at line <a class="el" href="modules_8h-source.html#l00169">169</a> of file <a class="el" href="modules_8h-source.html">modules.h</a>.
 <p>
-Referenced by <a class="el" href="modules_8cpp-source.html#l00264">GetDest()</a>, and <a class="el" href="modules_8cpp-source.html#l00269">Send()</a>.    </td>
+Referenced by <a class="el" href="modules_8cpp-source.html#l00258">GetDest()</a>, and <a class="el" href="modules_8cpp-source.html#l00263">Send()</a>.    </td>
   </tr>
 </table>
 <a class="anchor" name="source"></a><!-- doxytag: member="Request::source" ref="source" args="" --><p>
@@ -355,12 +355,12 @@ This is a pointer to the sender of the message, which can be used to directly tr
 <p>
 Definition at line <a class="el" href="modules_8h-source.html#l00166">166</a> of file <a class="el" href="modules_8h-source.html">modules.h</a>.
 <p>
-Referenced by <a class="el" href="modules_8cpp-source.html#l00259">GetSource()</a>.    </td>
+Referenced by <a class="el" href="modules_8cpp-source.html#l00253">GetSource()</a>.    </td>
   </tr>
 </table>
 <hr>The documentation for this class was generated from the following files:<ul>
 <li><a class="el" href="modules_8h-source.html">modules.h</a><li><a class="el" href="modules_8cpp-source.html">modules.cpp</a></ul>
-<hr size="1"><address style="align: right;"><small>Generated on Fri Dec 9 20:20:12 2005 for InspIRCd by&nbsp;
+<hr size="1"><address style="align: right;"><small>Generated on Mon Dec 12 13:31:12 2005 for InspIRCd by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img src="doxygen.png" alt="doxygen" align="middle" border="0"></a> 1.4.4-20050815 </small></address>
 </body>

@@ -1,4 +1,4 @@
-.TH "socket.cpp" 3 "9 Dec 2005" "Version 1.0Betareleases" "InspIRCd" \" -*- nroff -*-
+.TH "socket.cpp" 3 "12 Dec 2005" "Version 1.0Betareleases" "InspIRCd" \" -*- nroff -*-
 .ad l
 .nh
 .SH NAME
@@ -44,10 +44,15 @@ socket.cpp \-
 .br
 \fC#include 'helperfuncs.h'\fP
 .br
+\fC#include 'socketengine.h'\fP
+.br
 
 .SS "Variables"
 
 .in +1c
+.ti -1c
+.RI "\fBSocketEngine\fP * \fBSE\fP"
+.br
 .ti -1c
 .RI "FILE * \fBlog_file\fP"
 .br
@@ -76,6 +81,8 @@ socket.cpp \-
 .SS "int \fBMaxConn\fP"
 .PP
 .SS "int \fBopenSockfd\fP[MAXSOCKS]"
+.PP
+.SS "\fBSocketEngine\fP* \fBSE\fP"
 .PP
 .SS "time_t \fBTIME\fP"
 .PP

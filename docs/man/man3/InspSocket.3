@@ -1,4 +1,4 @@
-.TH "InspSocket" 3 "9 Dec 2005" "Version 1.0Betareleases" "InspIRCd" \" -*- nroff -*-
+.TH "InspSocket" 3 "12 Dec 2005" "Version 1.0Betareleases" "InspIRCd" \" -*- nroff -*-
 .ad l
 .nh
 .SH NAME
@@ -60,6 +60,9 @@ InspSocket \-
 .RI "bool \fBPoll\fP ()"
 .br
 .ti -1c
+.RI "int \fBGetFd\fP ()"
+.br
+.ti -1c
 .RI "virtual void \fBClose\fP ()"
 .br
 .ti -1c
@@ -119,352 +122,367 @@ Definition at line 30 of file socket.h.
 .PP 
 .SS "InspSocket::InspSocket ()"
 .PP
-Definition at line 46 of file socket.cpp.
+Definition at line 49 of file socket.cpp.
 .PP
 References I_DISCONNECTED, and state.
 .PP
 .nf
-47 {
-48         this->state = I_DISCONNECTED;
-49 }
+50 {
+51         this->state = I_DISCONNECTED;
+52 }
 .fi
 .PP
 .SS "InspSocket::InspSocket (int newfd, char * ip)"
 .PP
-Definition at line 51 of file socket.cpp.
+Definition at line 54 of file socket.cpp.
 .PP
-References fd, I_CONNECTED, IP, and state.
+References SocketEngine::AddFd(), fd, I_CONNECTED, IP, state, and X_ESTAB_MODULE.
 .PP
 .nf
-52 {
-53         this->fd = newfd;
-54         this->state = I_CONNECTED;
-55         this->IP = ip;
-56 }
+55 {
+56         this->fd = newfd;
+57         this->state = I_CONNECTED;
+58         this->IP = ip;
+59         SE->AddFd(this->fd,true,X_ESTAB_MODULE);
+60 }
 .fi
 .PP
 .SS "InspSocket::InspSocket (\fBstd::string\fP host, int port, bool listening, unsigned long maxtime)"
 .PP
-Definition at line 58 of file socket.cpp.
+Definition at line 62 of file socket.cpp.
 .PP
-References addr, addy, Close(), DEBUG, fd, I_CONNECTING, I_ERR_BIND, I_ERR_CONNECT, I_ERR_SOCKET, I_ERROR, I_LISTENING, IP, OnError(), state, timeout, and timeout_end.
+References SocketEngine::AddFd(), addr, addy, Close(), DEBUG, fd, I_CONNECTING, I_ERR_BIND, I_ERR_CONNECT, I_ERR_SOCKET, I_ERROR, I_LISTENING, IP, OnError(), state, timeout, timeout_end, and X_ESTAB_MODULE.
 .PP
 .nf
-59 {
-60         if (listening) {
-61                 if ((this->fd = OpenTCPSocket()) == ERROR)
-62                 {
-63                         this->fd = -1;
-64                         this->state = I_ERROR;
-65                         this->OnError(I_ERR_SOCKET);
-66                         log(DEBUG,'OpenTCPSocket() error');
-67                         return;
-68                 }
-69                 else
-70                 {
-71                         if (BindSocket(this->fd,this->client,this->server,port,(char*)host.c_str()) == ERROR)
-72                         {
-73                                 this->Close();
-74                                 this->fd = -1;
-75                                 this->state = I_ERROR;
-76                                 this->OnError(I_ERR_BIND);
-77                                 log(DEBUG,'BindSocket() error %s',strerror(errno));
-78                                 return;
-79                         }
-80                         else
-81                         {
-82                                 this->state = I_LISTENING;
-83                                 log(DEBUG,'New socket now in I_LISTENING state');
-84                                 return;
-85                         }
-86                 }                       
-87         } else {
-88                 char* ip;
-89                 this->host = host;
-90                 hostent* hoste = gethostbyname(host.c_str());
-91                 if (!hoste) {
-92                         ip = (char*)host.c_str();
-93                 } else {
-94                         struct in_addr* ia = (in_addr*)hoste->h_addr;
-95                         ip = inet_ntoa(*ia);
-96                 }
-97 
-98                 this->IP = ip;
-99 
-100                 timeout_end = time(NULL)+maxtime;
-101                 timeout = false;
-102                 if ((this->fd = socket(AF_INET, SOCK_STREAM, 0)) == -1)
-103                 {
-104                         this->state = I_ERROR;
-105                         this->OnError(I_ERR_SOCKET);
-106                         return;
-107                 }
-108                 this->port = port;
-109                 inet_aton(ip,&addy);
-110                 addr.sin_family = AF_INET;
-111                 addr.sin_addr = addy;
-112                 addr.sin_port = htons(this->port);
-113 
-114                 int flags;
-115                 flags = fcntl(this->fd, F_GETFL, 0);
-116                 fcntl(this->fd, F_SETFL, flags | O_NONBLOCK);
-117 
-118                 if(connect(this->fd, (sockaddr*)&this->addr,sizeof(this->addr)) == -1)
-119                 {
-120                         if (errno != EINPROGRESS)
-121                         {
-122                                 this->Close();
-123                                 this->OnError(I_ERR_CONNECT);
-124                                 this->state = I_ERROR;
-125                                 return;
-126                         }
-127                 }
-128                 this->state = I_CONNECTING;
-129                 return;
-130         }
-131 }
+63 {
+64         if (listening) {
+65                 if ((this->fd = OpenTCPSocket()) == ERROR)
+66                 {
+67                         this->fd = -1;
+68                         this->state = I_ERROR;
+69                         this->OnError(I_ERR_SOCKET);
+70                         log(DEBUG,'OpenTCPSocket() error');
+71                         return;
+72                 }
+73                 else
+74                 {
+75                         if (BindSocket(this->fd,this->client,this->server,port,(char*)host.c_str()) == ERROR)
+76                         {
+77                                 this->Close();
+78                                 this->fd = -1;
+79                                 this->state = I_ERROR;
+80                                 this->OnError(I_ERR_BIND);
+81                                 log(DEBUG,'BindSocket() error %s',strerror(errno));
+82                                 return;
+83                         }
+84                         else
+85                         {
+86                                 this->state = I_LISTENING;
+87                                 SE->AddFd(this->fd,true,X_ESTAB_MODULE);
+88                                 log(DEBUG,'New socket now in I_LISTENING state');
+89                                 return;
+90                         }
+91                 }                       
+92         } else {
+93                 char* ip;
+94                 this->host = host;
+95                 hostent* hoste = gethostbyname(host.c_str());
+96                 if (!hoste) {
+97                         ip = (char*)host.c_str();
+98                 } else {
+99                         struct in_addr* ia = (in_addr*)hoste->h_addr;
+100                         ip = inet_ntoa(*ia);
+101                 }
+102 
+103                 this->IP = ip;
+104 
+105                 timeout_end = time(NULL)+maxtime;
+106                 timeout = false;
+107                 if ((this->fd = socket(AF_INET, SOCK_STREAM, 0)) == -1)
+108                 {
+109                         this->state = I_ERROR;
+110                         this->OnError(I_ERR_SOCKET);
+111                         return;
+112                 }
+113                 this->port = port;
+114                 inet_aton(ip,&addy);
+115                 addr.sin_family = AF_INET;
+116                 addr.sin_addr = addy;
+117                 addr.sin_port = htons(this->port);
+118 
+119                 int flags;
+120                 flags = fcntl(this->fd, F_GETFL, 0);
+121                 fcntl(this->fd, F_SETFL, flags | O_NONBLOCK);
+122 
+123                 if(connect(this->fd, (sockaddr*)&this->addr,sizeof(this->addr)) == -1)
+124                 {
+125                         if (errno != EINPROGRESS)
+126                         {
+127                                 this->Close();
+128                                 this->OnError(I_ERR_CONNECT);
+129                                 this->state = I_ERROR;
+130                                 return;
+131                         }
+132                 }
+133                 this->state = I_CONNECTING;
+134                 SE->AddFd(this->fd,false,X_ESTAB_MODULE);
+135                 return;
+136         }
+137 }
 .fi
 .PP
 .SS "InspSocket::~InspSocket ()\fC [virtual]\fP"
 .PP
-Definition at line 254 of file socket.cpp.
+Definition at line 265 of file socket.cpp.
 .PP
 References Close().
 .PP
 .nf
-255 {
-256         this->Close();
-257 }
+266 {
+267         this->Close();
+268 }
 .fi
 .PP
 .SH "Member Function Documentation"
 .PP 
 .SS "void InspSocket::Close ()\fC [virtual]\fP"
 .PP
-Definition at line 133 of file socket.cpp.
+Definition at line 139 of file socket.cpp.
 .PP
 References fd, and OnClose().
 .PP
 Referenced by InspSocket(), and ~InspSocket().
 .PP
 .nf
-134 {
-135         if (this->fd != -1)
-136         {
-137                 this->OnClose();
-138                 shutdown(this->fd,2);
-139                 close(this->fd);
-140                 this->fd = -1;
-141         }
-142 }
+140 {
+141         if (this->fd != -1)
+142         {
+143                 this->OnClose();
+144                 shutdown(this->fd,2);
+145                 close(this->fd);
+146                 this->fd = -1;
+147         }
+148 }
+.fi
+.PP
+.SS "int InspSocket::GetFd ()"
+.PP
+Definition at line 252 of file socket.cpp.
+.PP
+References fd.
+.PP
+.nf
+253 {
+254         return this->fd;
+255 }
 .fi
 .PP
 .SS "\fBstd::string\fP InspSocket::GetIP ()"
 .PP
-Definition at line 144 of file socket.cpp.
+Definition at line 150 of file socket.cpp.
 .PP
 References IP.
 .PP
 .nf
-145 {
-146         return this->IP;
-147 }
+151 {
+152         return this->IP;
+153 }
 .fi
 .PP
 .SS "\fBInspSocketState\fP InspSocket::GetState ()"
 .PP
-Definition at line 241 of file socket.cpp.
+Definition at line 247 of file socket.cpp.
 .PP
 References state.
 .PP
 .nf
-242 {
-243         return this->state;
-244 }
+248 {
+249         return this->state;
+250 }
 .fi
 .PP
 .SS "void InspSocket::OnClose ()\fC [virtual]\fP"
 .PP
-Definition at line 252 of file socket.cpp.
+Definition at line 263 of file socket.cpp.
 .PP
 Referenced by Close().
 .PP
 .nf
-252 { return; }
+263 { return; }
 .fi
 .PP
 .SS "bool InspSocket::OnConnected ()\fC [virtual]\fP"
 .PP
-Definition at line 246 of file socket.cpp.
+Definition at line 257 of file socket.cpp.
 .PP
 Referenced by Poll().
 .PP
 .nf
-246 { return true; }
+257 { return true; }
 .fi
 .PP
 .SS "bool InspSocket::OnDataReady ()\fC [virtual]\fP"
 .PP
-Definition at line 250 of file socket.cpp.
+Definition at line 261 of file socket.cpp.
 .PP
 Referenced by Poll().
 .PP
 .nf
-250 { return true; }
+261 { return true; }
 .fi
 .PP
 .SS "int InspSocket::OnDisconnect ()\fC [virtual]\fP"
 .PP
-Definition at line 248 of file socket.cpp.
+Definition at line 259 of file socket.cpp.
 .PP
 .nf
-248 { return 0; }
+259 { return 0; }
 .fi
 .PP
 .SS "void InspSocket::OnError (\fBInspSocketError\fP e)\fC [virtual]\fP"
 .PP
-Definition at line 247 of file socket.cpp.
+Definition at line 258 of file socket.cpp.
 .PP
 Referenced by InspSocket(), and Poll().
 .PP
 .nf
-247 { return; }
+258 { return; }
 .fi
 .PP
 .SS "int InspSocket::OnIncomingConnection (int newfd, char * ip)\fC [virtual]\fP"
 .PP
-Definition at line 249 of file socket.cpp.
+Definition at line 260 of file socket.cpp.
 .PP
 Referenced by Poll().
 .PP
 .nf
-249 { return 0; }
+260 { return 0; }
 .fi
 .PP
 .SS "void InspSocket::OnTimeout ()\fC [virtual]\fP"
 .PP
-Definition at line 251 of file socket.cpp.
+Definition at line 262 of file socket.cpp.
 .PP
 Referenced by Poll().
 .PP
 .nf
-251 { return; }
+262 { return; }
 .fi
 .PP
 .SS "bool InspSocket::Poll ()"
 .PP
-Definition at line 191 of file socket.cpp.
+Definition at line 197 of file socket.cpp.
 .PP
-References client, fd, I_CONNECTED, I_CONNECTING, I_ERR_TIMEOUT, I_ERROR, I_LISTENING, length, OnConnected(), OnDataReady(), OnError(), OnIncomingConnection(), OnTimeout(), polls, SetState(), state, timeout, and timeout_end.
+References SocketEngine::AddFd(), client, SocketEngine::DelFd(), I_CONNECTED, I_CONNECTING, I_ERR_TIMEOUT, I_ERROR, I_LISTENING, length, OnConnected(), OnDataReady(), OnError(), OnIncomingConnection(), OnTimeout(), SetState(), state, timeout, timeout_end, and X_ESTAB_MODULE.
 .PP
 .nf
-192 {
-193         if ((time(NULL) > timeout_end) && (this->state == I_CONNECTING))
-194         {
-195                 // for non-listening sockets, the timeout can occur
-196                 // which causes termination of the connection after
-197                 // the given number of seconds without a successful
-198                 // connection.
-199                 this->OnTimeout();
-200                 this->OnError(I_ERR_TIMEOUT);
-201                 timeout = true;
-202                 this->state = I_ERROR;
-203                 return false;
-204         }
-205         polls.fd = this->fd;
-206         state == I_CONNECTING ? polls.events = POLLOUT : polls.events = POLLIN;
-207         int ret = poll(&polls,1,1);
-208 
-209         if (ret > 0)
-210         {
-211                 int incoming = -1;
-212                 
-213                 switch (this->state)
-214                 {
-215                         case I_CONNECTING:
-216                                 this->SetState(I_CONNECTED);
-217                                 return this->OnConnected();
-218                         break;
-219                         case I_LISTENING:
-220                                 length = sizeof (client);
-221                                 incoming = accept (this->fd, (sockaddr*)&client,&length);
-222                                 this->OnIncomingConnection(incoming,inet_ntoa(client.sin_addr));
-223                                 return true;
-224                         break;
-225                         case I_CONNECTED:
-226                                 return this->OnDataReady();
-227                         break;
-228                         default:
-229                         break;
-230                 }
-231         }
-232         return true;
-233 }
+198 {
+199         if ((time(NULL) > timeout_end) && (this->state == I_CONNECTING))
+200         {
+201                 // for non-listening sockets, the timeout can occur
+202                 // which causes termination of the connection after
+203                 // the given number of seconds without a successful
+204                 // connection.
+205                 this->OnTimeout();
+206                 this->OnError(I_ERR_TIMEOUT);
+207                 timeout = true;
+208                 this->state = I_ERROR;
+209                 return false;
+210         }
+211 
+212         int incoming = -1;
+213         
+214         switch (this->state)
+215         {
+216                 case I_CONNECTING:
+217                         this->SetState(I_CONNECTED);
+218                         /* Our socket was in write-state, so delete it and re-add it
+219                          * in read-state.
+220                          */
+221                         SE->DelFd(this->fd);
+222                         SE->AddFd(this->fd,true,X_ESTAB_MODULE);
+223                         return this->OnConnected();
+224                 break;
+225                 case I_LISTENING:
+226                         length = sizeof (client);
+227                         incoming = accept (this->fd, (sockaddr*)&client,&length);
+228                         this->OnIncomingConnection(incoming,inet_ntoa(client.sin_addr));
+229                         return true;
+230                 break;
+231                 case I_CONNECTED:
+232                         return this->OnDataReady();
+233                 break;
+234                 default:
+235                 break;
+236         }
+237 
+238         return true;
+239 }
 .fi
 .PP
 .SS "char * InspSocket::Read ()\fC [virtual]\fP"
 .PP
-Definition at line 149 of file socket.cpp.
+Definition at line 155 of file socket.cpp.
 .PP
 References DEBUG, and ibuf.
 .PP
 .nf
-150 {
-151         int n = recv(this->fd,this->ibuf,sizeof(this->ibuf),0);
-152         if (n > 0)
-153         {
-154                 ibuf[n] = 0;
-155                 return ibuf;
-156         }
-157         else
-158         {
-159                 log(DEBUG,'EOF or error on socket');
-160                 return NULL;
-161         }
-162 }
+156 {
+157         int n = recv(this->fd,this->ibuf,sizeof(this->ibuf),0);
+158         if (n > 0)
+159         {
+160                 ibuf[n] = 0;
+161                 return ibuf;
+162         }
+163         else
+164         {
+165                 log(DEBUG,'EOF or error on socket');
+166                 return NULL;
+167         }
+168 }
 .fi
 .PP
 .SS "void InspSocket::SetState (\fBInspSocketState\fP s)"
 .PP
-Definition at line 235 of file socket.cpp.
+Definition at line 241 of file socket.cpp.
 .PP
 References DEBUG, and state.
 .PP
 Referenced by Poll().
 .PP
 .nf
-236 {
-237         log(DEBUG,'Socket state change');
-238         this->state = s;
-239 }
+242 {
+243         log(DEBUG,'Socket state change');
+244         this->state = s;
+245 }
 .fi
 .PP
 .SS "int InspSocket::Write (\fBstd::string\fP data)\fC [virtual]\fP"
 .PP
-Definition at line 168 of file socket.cpp.
+Definition at line 174 of file socket.cpp.
 .PP
 .nf
-169 {
-170         char* d = (char*)data.c_str();
-171         unsigned int written = 0;
-172         int n = 0;
-173         int s = data.length();
-174         while ((written < data.length()) && (n >= 0))
-175         {
-176                 n = send(this->fd,d,s,0);
-177                 if (n > 0)
-178                 {
-179                         // If we didnt write everything, advance
-180                         // the pointers so that when we retry
-181                         // the next time around the loop, we try
-182                         // to write what we failed to write before.
-183                         written += n;
-184                         s -= n;
-185                         d += n;
-186                 }
-187         }
-188         return written;
-189 }
+175 {
+176         char* d = (char*)data.c_str();
+177         unsigned int written = 0;
+178         int n = 0;
+179         int s = data.length();
+180         while ((written < data.length()) && (n >= 0))
+181         {
+182                 n = send(this->fd,d,s,0);
+183                 if (n > 0)
+184                 {
+185                         // If we didnt write everything, advance
+186                         // the pointers so that when we retry
+187                         // the next time around the loop, we try
+188                         // to write what we failed to write before.
+189                         written += n;
+190                         s -= n;
+191                         d += n;
+192                 }
+193         }
+194         return written;
+195 }
 .fi
 .PP
 .SH "Member Data Documentation"
@@ -488,7 +506,7 @@ Referenced by Poll().
 .PP
 Definition at line 33 of file socket.h.
 .PP
-Referenced by Close(), InspSocket(), and Poll().
+Referenced by Close(), GetFd(), and InspSocket().
 .SS "\fBstd::string\fP \fBInspSocket::host\fP\fC [private]\fP"
 .PP
 Definition at line 34 of file socket.h.
@@ -510,8 +528,6 @@ Referenced by Poll().
 .SS "pollfd \fBInspSocket::polls\fP\fC [private]\fP"
 .PP
 Definition at line 41 of file socket.h.
-.PP
-Referenced by Poll().
 .SS "int \fBInspSocket::port\fP\fC [private]\fP"
 .PP
 Definition at line 35 of file socket.h.

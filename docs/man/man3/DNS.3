@@ -1,4 +1,4 @@
-.TH "DNS" 3 "9 Dec 2005" "Version 1.0Betareleases" "InspIRCd" \" -*- nroff -*-
+.TH "DNS" 3 "12 Dec 2005" "Version 1.0Betareleases" "InspIRCd" \" -*- nroff -*-
 .ad l
 .nh
 .SH NAME
@@ -37,6 +37,10 @@ DNS \- The DNS class allows fast nonblocking resolution of hostnames and ip addr
 .RI "bool \fBHasResult\fP ()"
 .br
 .RI "\fIThis method will return true when the lookup is completed. \fP"
+.ti -1c
+.RI "bool \fBHasResult\fP (int fd)"
+.br
+.RI "\fIThis method will return true if the lookup's fd matches the one provided. \fP"
 .ti -1c
 .RI "\fBstd::string\fP \fBGetResult\fP ()"
 .br
@@ -185,6 +189,10 @@ the dns server not responding.
 This method returns the result of your query as a string, depending upon wether you called \fBDNS::ReverseLookup()\fP or \fBDNS::ForwardLookup\fP. 
 .PP
 .SS "\fBstd::string\fP DNS::GetResultIP ()"
+.PP
+.SS "bool DNS::HasResult (int fd)"
+.PP
+This method will return true if the lookup's fd matches the one provided. 
 .PP
 .SS "bool DNS::HasResult ()"
 .PP

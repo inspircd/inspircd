@@ -1,4 +1,4 @@
-.TH "Event" 3 "9 Dec 2005" "Version 1.0Betareleases" "InspIRCd" \" -*- nroff -*-
+.TH "Event" 3 "12 Dec 2005" "Version 1.0Betareleases" "InspIRCd" \" -*- nroff -*-
 .ad l
 .nh
 .SH NAME
@@ -65,10 +65,10 @@ Definition at line 197 of file modules.h.
 .PP
 Create a new Event. 
 .PP
-Definition at line 281 of file modules.cpp.
+Definition at line 275 of file modules.cpp.
 .PP
 .nf
-281 : data(anydata), source(src), id(eventid) { };
+275 : data(anydata), source(src), id(eventid) { };
 .fi
 .PP
 .SH "Member Function Documentation"
@@ -77,14 +77,14 @@ Definition at line 281 of file modules.cpp.
 .PP
 Get the Event data. 
 .PP
-Definition at line 283 of file modules.cpp.
+Definition at line 277 of file modules.cpp.
 .PP
 References data.
 .PP
 .nf
-284 {
-285         return this->data;
-286 }
+278 {
+279         return this->data;
+280 }
 .fi
 .PP
 .SS "\fBstd::string\fP Event::GetEventID ()"
@@ -93,28 +93,28 @@ Get the event ID.
 .PP
 Use this to determine the event type for safe casting of the data
 .PP
-Definition at line 299 of file modules.cpp.
+Definition at line 293 of file modules.cpp.
 .PP
 References id.
 .PP
 .nf
-300 {
-301         return this->id;
-302 }
+294 {
+295         return this->id;
+296 }
 .fi
 .PP
 .SS "\fBModule\fP * Event::GetSource ()"
 .PP
 Get the event Source. 
 .PP
-Definition at line 288 of file modules.cpp.
+Definition at line 282 of file modules.cpp.
 .PP
 References source.
 .PP
 .nf
-289 {
-290         return this->source;
-291 }
+283 {
+284         return this->source;
+285 }
 .fi
 .PP
 .SS "char * Event::Send ()\fC [virtual]\fP"
@@ -125,15 +125,15 @@ The return result of an \fBEvent::Send()\fP will always be NULL as no replies ar
 .PP
 Implements \fBModuleMessage\fP.
 .PP
-Definition at line 293 of file modules.cpp.
+Definition at line 287 of file modules.cpp.
 .PP
 References FOREACH_MOD.
 .PP
 .nf
-294 {
-295         FOREACH_MOD OnEvent(this);
-296         return NULL;
-297 }
+288 {
+289         FOREACH_MOD OnEvent(this);
+290         return NULL;
+291 }
 .fi
 .PP
 .SH "Member Data Documentation"

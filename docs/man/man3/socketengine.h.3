@@ -1,0 +1,92 @@
+.TH "socketengine.h" 3 "12 Dec 2005" "Version 1.0Betareleases" "InspIRCd" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+socketengine.h \- 
+.SH SYNOPSIS
+.br
+.PP
+\fC#include <vector>\fP
+.br
+\fC#include <string>\fP
+.br
+\fC#include 'inspircd_config.h'\fP
+.br
+\fC#include 'globals.h'\fP
+.br
+\fC#include 'inspircd.h'\fP
+.br
+\fC#include <sys/types.h>\fP
+.br
+\fC#include <sys/event.h>\fP
+.br
+\fC#include <sys/time.h>\fP
+.br
+
+.SS "Classes"
+
+.in +1c
+.ti -1c
+.RI "class \fBSocketEngine\fP"
+.br
+.RI "\fIThe actual socketengine class presents the same interface on all operating systems, but its private members and internal behaviour should be treated as blackboxed, and vary from system to system and upon the config settings chosen by the server admin. \fP"
+.in -1c
+.SS "Variables"
+
+.in +1c
+.ti -1c
+.RI "const char \fBX_EMPTY_SLOT\fP = 0"
+.br
+.RI "\fIEach of these values represents a socket type in our reference table (the reference table itself is only accessible to \fBsocketengine.cpp\fP). \fP"
+.ti -1c
+.RI "const char \fBX_LISTEN\fP = 1"
+.br
+.ti -1c
+.RI "const char \fBX_ESTAB_CLIENT\fP = 2"
+.br
+.ti -1c
+.RI "const char \fBX_ESTAB_MODULE\fP = 3"
+.br
+.ti -1c
+.RI "const char \fBX_ESTAB_DNS\fP = 4"
+.br
+.ti -1c
+.RI "const char \fBX_READBIT\fP = 0x80"
+.br
+.RI "\fITo indicate that a socket is readable, we mask its top bit with this X_READBIT value. \fP"
+.in -1c
+.SH "Variable Documentation"
+.PP 
+.SS "const char \fBX_EMPTY_SLOT\fP = 0"
+.PP
+Each of these values represents a socket type in our reference table (the reference table itself is only accessible to \fBsocketengine.cpp\fP). 
+.PP
+Definition at line 41 of file socketengine.h.
+.PP
+Referenced by SocketEngine::GetType().
+.SS "const char \fBX_ESTAB_CLIENT\fP = 2"
+.PP
+Definition at line 43 of file socketengine.h.
+.SS "const char \fBX_ESTAB_DNS\fP = 4"
+.PP
+Definition at line 45 of file socketengine.h.
+.SS "const char \fBX_ESTAB_MODULE\fP = 3"
+.PP
+Definition at line 44 of file socketengine.h.
+.PP
+Referenced by InspSocket::InspSocket(), and InspSocket::Poll().
+.SS "const char \fBX_LISTEN\fP = 1"
+.PP
+Definition at line 42 of file socketengine.h.
+.SS "const char \fBX_READBIT\fP = 0x80"
+.PP
+To indicate that a socket is readable, we mask its top bit with this X_READBIT value. 
+.PP
+The socket engine can handle two types of socket, readable and writeable (error sockets are dealt with when read() and write() return negative or zero values).
+.PP
+Definition at line 55 of file socketengine.h.
+.PP
+Referenced by SocketEngine::AddFd(), SocketEngine::DelFd(), and SocketEngine::Wait().
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for InspIRCd from the source code.

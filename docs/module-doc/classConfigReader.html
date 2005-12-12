@@ -102,16 +102,16 @@ Default constructor.
 <p>
 This constructor initialises the ConfigReader class to read the inspircd.conf file as specified when running ./configure.
 <p>
-Definition at line <a class="el" href="modules_8cpp-source.html#l00834">834</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
+Definition at line <a class="el" href="modules_8cpp-source.html#l00807">807</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
 <p>
-References <a class="el" href="modules_8h-source.html#l01518">cache</a>, <a class="el" href="modules_8h-source.html#l01501">CONF_FILE_NOT_FOUND</a>, <a class="el" href="modules_8h-source.html#l01523">error</a>, <a class="el" href="modules_8h-source.html#l01519">errorlog</a>, <a class="el" href="modules_8cpp.html#include_5Fstack">include_stack</a>, and <a class="el" href="modules_8h-source.html#l01522">readerror</a>.<div class="fragment"><pre class="fragment"><a name="l00835"></a>00835 {
-<a name="l00836"></a>00836         <a class="code" href="modules_8cpp.html#include_5Fstack">include_stack</a>.clear();
-<a name="l00837"></a>00837         this-&gt;<a class="code" href="classConfigReader.html#cache">cache</a> = <span class="keyword">new</span> std::stringstream(std::stringstream::in | std::stringstream::out);
-<a name="l00838"></a>00838         this-&gt;<a class="code" href="classConfigReader.html#errorlog">errorlog</a> = <span class="keyword">new</span> std::stringstream(std::stringstream::in | std::stringstream::out);
-<a name="l00839"></a>00839         this-&gt;<a class="code" href="classConfigReader.html#readerror">readerror</a> = LoadConf(CONFIG_FILE,this-&gt;cache,this-&gt;errorlog);
-<a name="l00840"></a>00840         <span class="keywordflow">if</span> (!this-&gt;readerror)
-<a name="l00841"></a>00841                 this-&gt;<a class="code" href="classConfigReader.html#error">error</a> = <a class="code" href="modules_8h.html#CONF_5FFILE_5FNOT_5FFOUND">CONF_FILE_NOT_FOUND</a>;
-<a name="l00842"></a>00842 }
+References <a class="el" href="modules_8h-source.html#l01518">cache</a>, <a class="el" href="modules_8h-source.html#l01501">CONF_FILE_NOT_FOUND</a>, <a class="el" href="modules_8h-source.html#l01523">error</a>, <a class="el" href="modules_8h-source.html#l01519">errorlog</a>, <a class="el" href="modules_8cpp.html#include_5Fstack">include_stack</a>, and <a class="el" href="modules_8h-source.html#l01522">readerror</a>.<div class="fragment"><pre class="fragment"><a name="l00808"></a>00808 {
+<a name="l00809"></a>00809         <a class="code" href="modules_8cpp.html#include_5Fstack">include_stack</a>.clear();
+<a name="l00810"></a>00810         this-&gt;<a class="code" href="classConfigReader.html#cache">cache</a> = <span class="keyword">new</span> std::stringstream(std::stringstream::in | std::stringstream::out);
+<a name="l00811"></a>00811         this-&gt;<a class="code" href="classConfigReader.html#errorlog">errorlog</a> = <span class="keyword">new</span> std::stringstream(std::stringstream::in | std::stringstream::out);
+<a name="l00812"></a>00812         this-&gt;<a class="code" href="classConfigReader.html#readerror">readerror</a> = LoadConf(CONFIG_FILE,this-&gt;cache,this-&gt;errorlog);
+<a name="l00813"></a>00813         <span class="keywordflow">if</span> (!this-&gt;readerror)
+<a name="l00814"></a>00814                 this-&gt;<a class="code" href="classConfigReader.html#error">error</a> = <a class="code" href="modules_8h.html#CONF_5FFILE_5FNOT_5FFOUND">CONF_FILE_NOT_FOUND</a>;
+<a name="l00815"></a>00815 }
 </pre></div>
 <p>
     </td>
@@ -146,15 +146,15 @@ Overloaded constructor.
 <p>
 This constructor initialises the ConfigReader class to read a user-specified config file
 <p>
-Definition at line <a class="el" href="modules_8cpp-source.html#l00854">854</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
+Definition at line <a class="el" href="modules_8cpp-source.html#l00827">827</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
 <p>
-References <a class="el" href="modules_8h-source.html#l01518">cache</a>, <a class="el" href="modules_8h-source.html#l01501">CONF_FILE_NOT_FOUND</a>, <a class="el" href="modules_8h-source.html#l01523">error</a>, <a class="el" href="modules_8h-source.html#l01519">errorlog</a>, and <a class="el" href="modules_8h-source.html#l01522">readerror</a>.<div class="fragment"><pre class="fragment"><a name="l00855"></a>00855 {
-<a name="l00856"></a>00856         this-&gt;<a class="code" href="classConfigReader.html#cache">cache</a> = <span class="keyword">new</span> std::stringstream(std::stringstream::in | std::stringstream::out);
-<a name="l00857"></a>00857         this-&gt;<a class="code" href="classConfigReader.html#errorlog">errorlog</a> = <span class="keyword">new</span> std::stringstream(std::stringstream::in | std::stringstream::out);
-<a name="l00858"></a>00858         this-&gt;<a class="code" href="classConfigReader.html#readerror">readerror</a> = LoadConf(filename.c_str(),this-&gt;<a class="code" href="classConfigReader.html#cache">cache</a>,this-&gt;<a class="code" href="classConfigReader.html#errorlog">errorlog</a>);
-<a name="l00859"></a>00859         <span class="keywordflow">if</span> (!this-&gt;readerror)
-<a name="l00860"></a>00860                 this-&gt;<a class="code" href="classConfigReader.html#error">error</a> = <a class="code" href="modules_8h.html#CONF_5FFILE_5FNOT_5FFOUND">CONF_FILE_NOT_FOUND</a>;
-<a name="l00861"></a>00861 };
+References <a class="el" href="modules_8h-source.html#l01518">cache</a>, <a class="el" href="modules_8h-source.html#l01501">CONF_FILE_NOT_FOUND</a>, <a class="el" href="modules_8h-source.html#l01523">error</a>, <a class="el" href="modules_8h-source.html#l01519">errorlog</a>, and <a class="el" href="modules_8h-source.html#l01522">readerror</a>.<div class="fragment"><pre class="fragment"><a name="l00828"></a>00828 {
+<a name="l00829"></a>00829         this-&gt;<a class="code" href="classConfigReader.html#cache">cache</a> = <span class="keyword">new</span> std::stringstream(std::stringstream::in | std::stringstream::out);
+<a name="l00830"></a>00830         this-&gt;<a class="code" href="classConfigReader.html#errorlog">errorlog</a> = <span class="keyword">new</span> std::stringstream(std::stringstream::in | std::stringstream::out);
+<a name="l00831"></a>00831         this-&gt;<a class="code" href="classConfigReader.html#readerror">readerror</a> = LoadConf(filename.c_str(),this-&gt;<a class="code" href="classConfigReader.html#cache">cache</a>,this-&gt;<a class="code" href="classConfigReader.html#errorlog">errorlog</a>);
+<a name="l00832"></a>00832         <span class="keywordflow">if</span> (!this-&gt;readerror)
+<a name="l00833"></a>00833                 this-&gt;<a class="code" href="classConfigReader.html#error">error</a> = <a class="code" href="modules_8h.html#CONF_5FFILE_5FNOT_5FFOUND">CONF_FILE_NOT_FOUND</a>;
+<a name="l00834"></a>00834 };
 </pre></div>
 <p>
     </td>
@@ -188,14 +188,14 @@ Default destructor.
 <p>
 This method destroys the ConfigReader class.
 <p>
-Definition at line <a class="el" href="modules_8cpp-source.html#l00845">845</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
+Definition at line <a class="el" href="modules_8cpp-source.html#l00818">818</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
 <p>
-References <a class="el" href="modules_8h-source.html#l01518">cache</a>, and <a class="el" href="modules_8h-source.html#l01519">errorlog</a>.<div class="fragment"><pre class="fragment"><a name="l00846"></a>00846 {
-<a name="l00847"></a>00847         <span class="keywordflow">if</span> (this-&gt;cache)
-<a name="l00848"></a>00848                 <span class="keyword">delete</span> this-&gt;<a class="code" href="classConfigReader.html#cache">cache</a>;
-<a name="l00849"></a>00849         <span class="keywordflow">if</span> (this-&gt;errorlog)
-<a name="l00850"></a>00850                 <span class="keyword">delete</span> this-&gt;<a class="code" href="classConfigReader.html#errorlog">errorlog</a>;
-<a name="l00851"></a>00851 }
+References <a class="el" href="modules_8h-source.html#l01518">cache</a>, and <a class="el" href="modules_8h-source.html#l01519">errorlog</a>.<div class="fragment"><pre class="fragment"><a name="l00819"></a>00819 {
+<a name="l00820"></a>00820         <span class="keywordflow">if</span> (this-&gt;cache)
+<a name="l00821"></a>00821                 <span class="keyword">delete</span> this-&gt;<a class="code" href="classConfigReader.html#cache">cache</a>;
+<a name="l00822"></a>00822         <span class="keywordflow">if</span> (this-&gt;errorlog)
+<a name="l00823"></a>00823                 <span class="keyword">delete</span> this-&gt;<a class="code" href="classConfigReader.html#errorlog">errorlog</a>;
+<a name="l00824"></a>00824 }
 </pre></div>
 <p>
     </td>
@@ -240,38 +240,38 @@ Dumps the list of errors in a config file to an output location.
 <p>
 If bail is true, then the program will abort. If bail is false and user points to a valid user record, the error report will be spooled to the given user by means of NOTICE. if bool is false AND user is false, the error report will be spooled to all opers by means of a NOTICE to all opers.
 <p>
-Definition at line <a class="el" href="modules_8cpp-source.html#l00932">932</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
+Definition at line <a class="el" href="modules_8cpp-source.html#l00905">905</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
 <p>
-References <a class="el" href="modules_8h-source.html#l01519">errorlog</a>, <a class="el" href="connection_8h-source.html#l00042">connection::fd</a>, and <a class="el" href="users_8h-source.html#l00124">userrec::nick</a>.<div class="fragment"><pre class="fragment"><a name="l00933"></a>00933 {
-<a name="l00934"></a>00934         <span class="keywordflow">if</span> (bail)
-<a name="l00935"></a>00935         {
-<a name="l00936"></a>00936                 printf(<span class="stringliteral">"There were errors in your configuration:\n%s"</span>,<a class="code" href="classConfigReader.html#errorlog">errorlog</a>-&gt;str().c_str());
-<a name="l00937"></a>00937                 exit(0);
-<a name="l00938"></a>00938         }
-<a name="l00939"></a>00939         <span class="keywordflow">else</span>
-<a name="l00940"></a>00940         {
-<a name="l00941"></a>00941                 <span class="keywordtype">char</span> dataline[1024];
-<a name="l00942"></a>00942                 <span class="keywordflow">if</span> (user)
-<a name="l00943"></a>00943                 {
-<a name="l00944"></a>00944                         WriteServ(user-&gt;<a class="code" href="classconnection.html#fd">fd</a>,<span class="stringliteral">"NOTICE %s :There were errors in the configuration file:"</span>,user-&gt;<a class="code" href="classuserrec.html#nick_5BNICKMAX_5D">nick</a>);
-<a name="l00945"></a>00945                         <span class="keywordflow">while</span> (!<a class="code" href="classConfigReader.html#errorlog">errorlog</a>-&gt;eof())
-<a name="l00946"></a>00946                         {
-<a name="l00947"></a>00947                                 <a class="code" href="classConfigReader.html#errorlog">errorlog</a>-&gt;getline(dataline,1024);
-<a name="l00948"></a>00948                                 WriteServ(user-&gt;<a class="code" href="classconnection.html#fd">fd</a>,<span class="stringliteral">"NOTICE %s :%s"</span>,user-&gt;<a class="code" href="classuserrec.html#nick_5BNICKMAX_5D">nick</a>,dataline);
-<a name="l00949"></a>00949                         }
-<a name="l00950"></a>00950                 }
-<a name="l00951"></a>00951                 <span class="keywordflow">else</span>
-<a name="l00952"></a>00952                 {
-<a name="l00953"></a>00953                         WriteOpers(<span class="stringliteral">"There were errors in the configuration file:"</span>,user-&gt;<a class="code" href="classuserrec.html#nick_5BNICKMAX_5D">nick</a>);
-<a name="l00954"></a>00954                         <span class="keywordflow">while</span> (!<a class="code" href="classConfigReader.html#errorlog">errorlog</a>-&gt;eof())
-<a name="l00955"></a>00955                         {
-<a name="l00956"></a>00956                                 <a class="code" href="classConfigReader.html#errorlog">errorlog</a>-&gt;getline(dataline,1024);
-<a name="l00957"></a>00957                                 WriteOpers(dataline);
-<a name="l00958"></a>00958                         }
-<a name="l00959"></a>00959                 }
-<a name="l00960"></a>00960                 <span class="keywordflow">return</span>;
-<a name="l00961"></a>00961         }
-<a name="l00962"></a>00962 }
+References <a class="el" href="modules_8h-source.html#l01519">errorlog</a>, <a class="el" href="connection_8h-source.html#l00042">connection::fd</a>, and <a class="el" href="users_8h-source.html#l00124">userrec::nick</a>.<div class="fragment"><pre class="fragment"><a name="l00906"></a>00906 {
+<a name="l00907"></a>00907         <span class="keywordflow">if</span> (bail)
+<a name="l00908"></a>00908         {
+<a name="l00909"></a>00909                 printf(<span class="stringliteral">"There were errors in your configuration:\n%s"</span>,<a class="code" href="classConfigReader.html#errorlog">errorlog</a>-&gt;str().c_str());
+<a name="l00910"></a>00910                 exit(0);
+<a name="l00911"></a>00911         }
+<a name="l00912"></a>00912         <span class="keywordflow">else</span>
+<a name="l00913"></a>00913         {
+<a name="l00914"></a>00914                 <span class="keywordtype">char</span> dataline[1024];
+<a name="l00915"></a>00915                 <span class="keywordflow">if</span> (user)
+<a name="l00916"></a>00916                 {
+<a name="l00917"></a>00917                         WriteServ(user-&gt;<a class="code" href="classconnection.html#fd">fd</a>,<span class="stringliteral">"NOTICE %s :There were errors in the configuration file:"</span>,user-&gt;<a class="code" href="classuserrec.html#nick_5BNICKMAX_5D">nick</a>);
+<a name="l00918"></a>00918                         <span class="keywordflow">while</span> (!<a class="code" href="classConfigReader.html#errorlog">errorlog</a>-&gt;eof())
+<a name="l00919"></a>00919                         {
+<a name="l00920"></a>00920                                 <a class="code" href="classConfigReader.html#errorlog">errorlog</a>-&gt;getline(dataline,1024);
+<a name="l00921"></a>00921                                 WriteServ(user-&gt;<a class="code" href="classconnection.html#fd">fd</a>,<span class="stringliteral">"NOTICE %s :%s"</span>,user-&gt;<a class="code" href="classuserrec.html#nick_5BNICKMAX_5D">nick</a>,dataline);
+<a name="l00922"></a>00922                         }
+<a name="l00923"></a>00923                 }
+<a name="l00924"></a>00924                 <span class="keywordflow">else</span>
+<a name="l00925"></a>00925                 {
+<a name="l00926"></a>00926                         WriteOpers(<span class="stringliteral">"There were errors in the configuration file:"</span>,user-&gt;<a class="code" href="classuserrec.html#nick_5BNICKMAX_5D">nick</a>);
+<a name="l00927"></a>00927                         <span class="keywordflow">while</span> (!<a class="code" href="classConfigReader.html#errorlog">errorlog</a>-&gt;eof())
+<a name="l00928"></a>00928                         {
+<a name="l00929"></a>00929                                 <a class="code" href="classConfigReader.html#errorlog">errorlog</a>-&gt;getline(dataline,1024);
+<a name="l00930"></a>00930                                 WriteOpers(dataline);
+<a name="l00931"></a>00931                         }
+<a name="l00932"></a>00932                 }
+<a name="l00933"></a>00933                 <span class="keywordflow">return</span>;
+<a name="l00934"></a>00934         }
+<a name="l00935"></a>00935 }
 </pre></div>
 <p>
     </td>
@@ -306,11 +306,11 @@ Counts the number of times a given tag appears in the config file.
 <p>
 This method counts the number of times a tag appears in a config file, for use where there are several tags of the same kind, e.g. with opers and connect types. It can be used with the index value of <a class="el" href="classConfigReader.html#ReadValue_28std_3A_3Astring_20tag_2C_20std_3A_3Astring_20name_2C_20int_20index_29">ConfigReader::ReadValue</a> to loop through all copies of a multiple instance tag.
 <p>
-Definition at line <a class="el" href="modules_8cpp-source.html#l00965">965</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
+Definition at line <a class="el" href="modules_8cpp-source.html#l00938">938</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
 <p>
-References <a class="el" href="modules_8h-source.html#l01518">cache</a>.<div class="fragment"><pre class="fragment"><a name="l00966"></a>00966 {
-<a name="l00967"></a>00967         <span class="keywordflow">return</span> EnumConf(<a class="code" href="classConfigReader.html#cache">cache</a>,tag.c_str());
-<a name="l00968"></a>00968 }
+References <a class="el" href="modules_8h-source.html#l01518">cache</a>.<div class="fragment"><pre class="fragment"><a name="l00939"></a>00939 {
+<a name="l00940"></a>00940         <span class="keywordflow">return</span> EnumConf(<a class="code" href="classConfigReader.html#cache">cache</a>,tag.c_str());
+<a name="l00941"></a>00941 }
 </pre></div>
 <p>
     </td>
@@ -354,11 +354,11 @@ Returns the number of items within a tag.
 <p>
 For example if the tag was &lt;test tag="blah" data="foo"&gt; then this function would return 2. Spaces and newlines both qualify as valid seperators between values.
 <p>
-Definition at line <a class="el" href="modules_8cpp-source.html#l00970">970</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
+Definition at line <a class="el" href="modules_8cpp-source.html#l00943">943</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
 <p>
-References <a class="el" href="modules_8h-source.html#l01518">cache</a>.<div class="fragment"><pre class="fragment"><a name="l00971"></a>00971 {
-<a name="l00972"></a>00972         <span class="keywordflow">return</span> EnumValues(<a class="code" href="classConfigReader.html#cache">cache</a>, tag.c_str(), index);
-<a name="l00973"></a>00973 }
+References <a class="el" href="modules_8h-source.html#l01518">cache</a>.<div class="fragment"><pre class="fragment"><a name="l00944"></a>00944 {
+<a name="l00945"></a>00945         <span class="keywordflow">return</span> EnumValues(<a class="code" href="classConfigReader.html#cache">cache</a>, tag.c_str(), index);
+<a name="l00946"></a>00946 }
 </pre></div>
 <p>
     </td>
@@ -392,13 +392,13 @@ Returns the last error to occur.
 <p>
 Valid errors can be found by looking in <a class="el" href="modules_8h.html">modules.h</a>. Any nonzero value indicates an error condition. A call to <a class="el" href="classConfigReader.html#GetError_28_29">GetError()</a> resets the error flag back to 0.
 <p>
-Definition at line <a class="el" href="modules_8cpp-source.html#l00925">925</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
+Definition at line <a class="el" href="modules_8cpp-source.html#l00898">898</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
 <p>
-References <a class="el" href="modules_8h-source.html#l01523">error</a>.<div class="fragment"><pre class="fragment"><a name="l00926"></a>00926 {
-<a name="l00927"></a>00927         <span class="keywordtype">long</span> olderr = this-&gt;<a class="code" href="classConfigReader.html#error">error</a>;
-<a name="l00928"></a>00928         this-&gt;<a class="code" href="classConfigReader.html#error">error</a> = 0;
-<a name="l00929"></a>00929         <span class="keywordflow">return</span> olderr;
-<a name="l00930"></a>00930 }
+References <a class="el" href="modules_8h-source.html#l01523">error</a>.<div class="fragment"><pre class="fragment"><a name="l00899"></a>00899 {
+<a name="l00900"></a>00900         <span class="keywordtype">long</span> olderr = this-&gt;<a class="code" href="classConfigReader.html#error">error</a>;
+<a name="l00901"></a>00901         this-&gt;<a class="code" href="classConfigReader.html#error">error</a> = 0;
+<a name="l00902"></a>00902         <span class="keywordflow">return</span> olderr;
+<a name="l00903"></a>00903 }
 </pre></div>
 <p>
     </td>
@@ -448,23 +448,23 @@ Retrieves a boolean value from the config file.
 <p>
 This method retrieves a boolean value from the config file. Where multiple copies of the tag exist in the config file, index indicates which of the values to retrieve. The values "1", "yes" and "true" in the config file count as true to ReadFlag, and any other value counts as false.
 <p>
-Definition at line <a class="el" href="modules_8cpp-source.html#l00879">879</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
+Definition at line <a class="el" href="modules_8cpp-source.html#l00852">852</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
 <p>
-References <a class="el" href="modules_8h-source.html#l01518">cache</a>, <a class="el" href="modules_8h-source.html#l01500">CONF_VALUE_NOT_FOUND</a>, and <a class="el" href="modules_8h-source.html#l01523">error</a>.<div class="fragment"><pre class="fragment"><a name="l00880"></a>00880 {
-<a name="l00881"></a>00881         <span class="keywordtype">char</span> val[MAXBUF];
-<a name="l00882"></a>00882         <span class="keywordtype">char</span> t[MAXBUF];
-<a name="l00883"></a>00883         <span class="keywordtype">char</span> n[MAXBUF];
-<a name="l00884"></a>00884         strlcpy(t,tag.c_str(),MAXBUF);
-<a name="l00885"></a>00885         strlcpy(n,name.c_str(),MAXBUF);
-<a name="l00886"></a>00886         <span class="keywordtype">int</span> res = ReadConf(<a class="code" href="classConfigReader.html#cache">cache</a>,t,n,index,val);
-<a name="l00887"></a>00887         <span class="keywordflow">if</span> (!res)
-<a name="l00888"></a>00888         {
-<a name="l00889"></a>00889                 this-&gt;<a class="code" href="classConfigReader.html#error">error</a> = <a class="code" href="modules_8h.html#CONF_5FVALUE_5FNOT_5FFOUND">CONF_VALUE_NOT_FOUND</a>;
-<a name="l00890"></a>00890                 <span class="keywordflow">return</span> <span class="keyword">false</span>;
-<a name="l00891"></a>00891         }
-<a name="l00892"></a>00892         <a class="code" href="namespaceirc.html#string">std::string</a> s = val;
-<a name="l00893"></a>00893         <span class="keywordflow">return</span> ((s == <span class="stringliteral">"yes"</span>) || (s == <span class="stringliteral">"YES"</span>) || (s == <span class="stringliteral">"true"</span>) || (s == <span class="stringliteral">"TRUE"</span>) || (s == <span class="stringliteral">"1"</span>));
-<a name="l00894"></a>00894 }
+References <a class="el" href="modules_8h-source.html#l01518">cache</a>, <a class="el" href="modules_8h-source.html#l01500">CONF_VALUE_NOT_FOUND</a>, and <a class="el" href="modules_8h-source.html#l01523">error</a>.<div class="fragment"><pre class="fragment"><a name="l00853"></a>00853 {
+<a name="l00854"></a>00854         <span class="keywordtype">char</span> val[MAXBUF];
+<a name="l00855"></a>00855         <span class="keywordtype">char</span> t[MAXBUF];
+<a name="l00856"></a>00856         <span class="keywordtype">char</span> n[MAXBUF];
+<a name="l00857"></a>00857         strlcpy(t,tag.c_str(),MAXBUF);
+<a name="l00858"></a>00858         strlcpy(n,name.c_str(),MAXBUF);
+<a name="l00859"></a>00859         <span class="keywordtype">int</span> res = ReadConf(<a class="code" href="classConfigReader.html#cache">cache</a>,t,n,index,val);
+<a name="l00860"></a>00860         <span class="keywordflow">if</span> (!res)
+<a name="l00861"></a>00861         {
+<a name="l00862"></a>00862                 this-&gt;<a class="code" href="classConfigReader.html#error">error</a> = <a class="code" href="modules_8h.html#CONF_5FVALUE_5FNOT_5FFOUND">CONF_VALUE_NOT_FOUND</a>;
+<a name="l00863"></a>00863                 <span class="keywordflow">return</span> <span class="keyword">false</span>;
+<a name="l00864"></a>00864         }
+<a name="l00865"></a>00865         <a class="code" href="namespaceirc.html#string">std::string</a> s = val;
+<a name="l00866"></a>00866         <span class="keywordflow">return</span> ((s == <span class="stringliteral">"yes"</span>) || (s == <span class="stringliteral">"YES"</span>) || (s == <span class="stringliteral">"true"</span>) || (s == <span class="stringliteral">"TRUE"</span>) || (s == <span class="stringliteral">"1"</span>));
+<a name="l00867"></a>00867 }
 </pre></div>
 <p>
     </td>
@@ -520,35 +520,35 @@ Retrieves an integer value from the config file.
 <p>
 This method retrieves an integer value from the config file. Where multiple copies of the tag exist in the config file, index indicates which of the values to retrieve. Any invalid integer values in the tag will cause the objects error value to be set, and any call to <a class="el" href="classConfigReader.html#GetError_28_29">GetError()</a> will return CONF_INVALID_NUMBER to be returned. needs_unsigned is set if the number must be unsigned. If a signed number is placed into a tag which is specified unsigned, 0 will be returned and <a class="el" href="classConfigReader.html#GetError_28_29">GetError()</a> will return CONF_NOT_UNSIGNED
 <p>
-Definition at line <a class="el" href="modules_8cpp-source.html#l00896">896</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
+Definition at line <a class="el" href="modules_8cpp-source.html#l00869">869</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
 <p>
-References <a class="el" href="modules_8h-source.html#l01518">cache</a>, <a class="el" href="modules_8h-source.html#l01498">CONF_NOT_A_NUMBER</a>, <a class="el" href="modules_8h-source.html#l01499">CONF_NOT_UNSIGNED</a>, <a class="el" href="modules_8h-source.html#l01500">CONF_VALUE_NOT_FOUND</a>, and <a class="el" href="modules_8h-source.html#l01523">error</a>.<div class="fragment"><pre class="fragment"><a name="l00897"></a>00897 {
-<a name="l00898"></a>00898         <span class="keywordtype">char</span> val[MAXBUF];
-<a name="l00899"></a>00899         <span class="keywordtype">char</span> t[MAXBUF];
-<a name="l00900"></a>00900         <span class="keywordtype">char</span> n[MAXBUF];
-<a name="l00901"></a>00901         strlcpy(t,tag.c_str(),MAXBUF);
-<a name="l00902"></a>00902         strlcpy(n,name.c_str(),MAXBUF);
-<a name="l00903"></a>00903         <span class="keywordtype">int</span> res = ReadConf(<a class="code" href="classConfigReader.html#cache">cache</a>,t,n,index,val);
-<a name="l00904"></a>00904         <span class="keywordflow">if</span> (!res)
-<a name="l00905"></a>00905         {
-<a name="l00906"></a>00906                 this-&gt;<a class="code" href="classConfigReader.html#error">error</a> = <a class="code" href="modules_8h.html#CONF_5FVALUE_5FNOT_5FFOUND">CONF_VALUE_NOT_FOUND</a>;
-<a name="l00907"></a>00907                 <span class="keywordflow">return</span> 0;
-<a name="l00908"></a>00908         }
-<a name="l00909"></a>00909         <span class="keywordflow">for</span> (<span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> i = 0; i &lt; strlen(val); i++)
-<a name="l00910"></a>00910         {
-<a name="l00911"></a>00911                 <span class="keywordflow">if</span> (!isdigit(val[i]))
-<a name="l00912"></a>00912                 {
-<a name="l00913"></a>00913                         this-&gt;<a class="code" href="classConfigReader.html#error">error</a> = <a class="code" href="modules_8h.html#CONF_5FNOT_5FA_5FNUMBER">CONF_NOT_A_NUMBER</a>;
-<a name="l00914"></a>00914                         <span class="keywordflow">return</span> 0;
-<a name="l00915"></a>00915                 }
-<a name="l00916"></a>00916         }
-<a name="l00917"></a>00917         <span class="keywordflow">if</span> ((needs_unsigned) &amp;&amp; (atoi(val)&lt;0))
-<a name="l00918"></a>00918         {
-<a name="l00919"></a>00919                 this-&gt;<a class="code" href="classConfigReader.html#error">error</a> = <a class="code" href="modules_8h.html#CONF_5FNOT_5FUNSIGNED">CONF_NOT_UNSIGNED</a>;
-<a name="l00920"></a>00920                 <span class="keywordflow">return</span> 0;
-<a name="l00921"></a>00921         }
-<a name="l00922"></a>00922         <span class="keywordflow">return</span> atoi(val);
-<a name="l00923"></a>00923 }
+References <a class="el" href="modules_8h-source.html#l01518">cache</a>, <a class="el" href="modules_8h-source.html#l01498">CONF_NOT_A_NUMBER</a>, <a class="el" href="modules_8h-source.html#l01499">CONF_NOT_UNSIGNED</a>, <a class="el" href="modules_8h-source.html#l01500">CONF_VALUE_NOT_FOUND</a>, and <a class="el" href="modules_8h-source.html#l01523">error</a>.<div class="fragment"><pre class="fragment"><a name="l00870"></a>00870 {
+<a name="l00871"></a>00871         <span class="keywordtype">char</span> val[MAXBUF];
+<a name="l00872"></a>00872         <span class="keywordtype">char</span> t[MAXBUF];
+<a name="l00873"></a>00873         <span class="keywordtype">char</span> n[MAXBUF];
+<a name="l00874"></a>00874         strlcpy(t,tag.c_str(),MAXBUF);
+<a name="l00875"></a>00875         strlcpy(n,name.c_str(),MAXBUF);
+<a name="l00876"></a>00876         <span class="keywordtype">int</span> res = ReadConf(<a class="code" href="classConfigReader.html#cache">cache</a>,t,n,index,val);
+<a name="l00877"></a>00877         <span class="keywordflow">if</span> (!res)
+<a name="l00878"></a>00878         {
+<a name="l00879"></a>00879                 this-&gt;<a class="code" href="classConfigReader.html#error">error</a> = <a class="code" href="modules_8h.html#CONF_5FVALUE_5FNOT_5FFOUND">CONF_VALUE_NOT_FOUND</a>;
+<a name="l00880"></a>00880                 <span class="keywordflow">return</span> 0;
+<a name="l00881"></a>00881         }
+<a name="l00882"></a>00882         <span class="keywordflow">for</span> (<span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> i = 0; i &lt; strlen(val); i++)
+<a name="l00883"></a>00883         {
+<a name="l00884"></a>00884                 <span class="keywordflow">if</span> (!isdigit(val[i]))
+<a name="l00885"></a>00885                 {
+<a name="l00886"></a>00886                         this-&gt;<a class="code" href="classConfigReader.html#error">error</a> = <a class="code" href="modules_8h.html#CONF_5FNOT_5FA_5FNUMBER">CONF_NOT_A_NUMBER</a>;
+<a name="l00887"></a>00887                         <span class="keywordflow">return</span> 0;
+<a name="l00888"></a>00888                 }
+<a name="l00889"></a>00889         }
+<a name="l00890"></a>00890         <span class="keywordflow">if</span> ((needs_unsigned) &amp;&amp; (atoi(val)&lt;0))
+<a name="l00891"></a>00891         {
+<a name="l00892"></a>00892                 this-&gt;<a class="code" href="classConfigReader.html#error">error</a> = <a class="code" href="modules_8h.html#CONF_5FNOT_5FUNSIGNED">CONF_NOT_UNSIGNED</a>;
+<a name="l00893"></a>00893                 <span class="keywordflow">return</span> 0;
+<a name="l00894"></a>00894         }
+<a name="l00895"></a>00895         <span class="keywordflow">return</span> atoi(val);
+<a name="l00896"></a>00896 }
 </pre></div>
 <p>
     </td>
@@ -598,22 +598,22 @@ Retrieves a value from the config file.
 <p>
 This method retrieves a value from the config file. Where multiple copies of the tag exist in the config file, index indicates which of the values to retrieve.
 <p>
-Definition at line <a class="el" href="modules_8cpp-source.html#l00863">863</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
+Definition at line <a class="el" href="modules_8cpp-source.html#l00836">836</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
 <p>
-References <a class="el" href="modules_8h-source.html#l01518">cache</a>, <a class="el" href="modules_8h-source.html#l01500">CONF_VALUE_NOT_FOUND</a>, and <a class="el" href="modules_8h-source.html#l01523">error</a>.<div class="fragment"><pre class="fragment"><a name="l00864"></a>00864 {
-<a name="l00865"></a>00865         <span class="keywordtype">char</span> val[MAXBUF];
-<a name="l00866"></a>00866         <span class="keywordtype">char</span> t[MAXBUF];
-<a name="l00867"></a>00867         <span class="keywordtype">char</span> n[MAXBUF];
-<a name="l00868"></a>00868         strlcpy(t,tag.c_str(),MAXBUF);
-<a name="l00869"></a>00869         strlcpy(n,name.c_str(),MAXBUF);
-<a name="l00870"></a>00870         <span class="keywordtype">int</span> res = ReadConf(<a class="code" href="classConfigReader.html#cache">cache</a>,t,n,index,val);
-<a name="l00871"></a>00871         <span class="keywordflow">if</span> (!res)
-<a name="l00872"></a>00872         {
-<a name="l00873"></a>00873                 this-&gt;<a class="code" href="classConfigReader.html#error">error</a> = <a class="code" href="modules_8h.html#CONF_5FVALUE_5FNOT_5FFOUND">CONF_VALUE_NOT_FOUND</a>;
-<a name="l00874"></a>00874                 <span class="keywordflow">return</span> <span class="stringliteral">""</span>;
-<a name="l00875"></a>00875         }
-<a name="l00876"></a>00876         <span class="keywordflow">return</span> val;
-<a name="l00877"></a>00877 }
+References <a class="el" href="modules_8h-source.html#l01518">cache</a>, <a class="el" href="modules_8h-source.html#l01500">CONF_VALUE_NOT_FOUND</a>, and <a class="el" href="modules_8h-source.html#l01523">error</a>.<div class="fragment"><pre class="fragment"><a name="l00837"></a>00837 {
+<a name="l00838"></a>00838         <span class="keywordtype">char</span> val[MAXBUF];
+<a name="l00839"></a>00839         <span class="keywordtype">char</span> t[MAXBUF];
+<a name="l00840"></a>00840         <span class="keywordtype">char</span> n[MAXBUF];
+<a name="l00841"></a>00841         strlcpy(t,tag.c_str(),MAXBUF);
+<a name="l00842"></a>00842         strlcpy(n,name.c_str(),MAXBUF);
+<a name="l00843"></a>00843         <span class="keywordtype">int</span> res = ReadConf(<a class="code" href="classConfigReader.html#cache">cache</a>,t,n,index,val);
+<a name="l00844"></a>00844         <span class="keywordflow">if</span> (!res)
+<a name="l00845"></a>00845         {
+<a name="l00846"></a>00846                 this-&gt;<a class="code" href="classConfigReader.html#error">error</a> = <a class="code" href="modules_8h.html#CONF_5FVALUE_5FNOT_5FFOUND">CONF_VALUE_NOT_FOUND</a>;
+<a name="l00847"></a>00847                 <span class="keywordflow">return</span> <span class="stringliteral">""</span>;
+<a name="l00848"></a>00848         }
+<a name="l00849"></a>00849         <span class="keywordflow">return</span> val;
+<a name="l00850"></a>00850 }
 </pre></div>
 <p>
     </td>
@@ -647,11 +647,11 @@ Returns true if a config file is valid.
 <p>
 This method is partially implemented and will only return false if the config file does not exist or could not be opened.
 <p>
-Definition at line <a class="el" href="modules_8cpp-source.html#l00975">975</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
+Definition at line <a class="el" href="modules_8cpp-source.html#l00948">948</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
 <p>
-References <a class="el" href="modules_8h-source.html#l01522">readerror</a>.<div class="fragment"><pre class="fragment"><a name="l00976"></a>00976 {
-<a name="l00977"></a>00977         <span class="keywordflow">return</span> this-&gt;<a class="code" href="classConfigReader.html#readerror">readerror</a>;
-<a name="l00978"></a>00978 }
+References <a class="el" href="modules_8h-source.html#l01522">readerror</a>.<div class="fragment"><pre class="fragment"><a name="l00949"></a>00949 {
+<a name="l00950"></a>00950         <span class="keywordflow">return</span> this-&gt;<a class="code" href="classConfigReader.html#readerror">readerror</a>;
+<a name="l00951"></a>00951 }
 </pre></div>
 <p>
     </td>
@@ -684,7 +684,7 @@ It will contain a pointer to the configuration file data with unneeded data (suc
 <p>
 Definition at line <a class="el" href="modules_8h-source.html#l01518">1518</a> of file <a class="el" href="modules_8h-source.html">modules.h</a>.
 <p>
-Referenced by <a class="el" href="modules_8cpp-source.html#l00834">ConfigReader()</a>, <a class="el" href="modules_8cpp-source.html#l00965">Enumerate()</a>, <a class="el" href="modules_8cpp-source.html#l00970">EnumerateValues()</a>, <a class="el" href="modules_8cpp-source.html#l00879">ReadFlag()</a>, <a class="el" href="modules_8cpp-source.html#l00896">ReadInteger()</a>, <a class="el" href="modules_8cpp-source.html#l00863">ReadValue()</a>, and <a class="el" href="modules_8cpp-source.html#l00845">~ConfigReader()</a>.    </td>
+Referenced by <a class="el" href="modules_8cpp-source.html#l00807">ConfigReader()</a>, <a class="el" href="modules_8cpp-source.html#l00938">Enumerate()</a>, <a class="el" href="modules_8cpp-source.html#l00943">EnumerateValues()</a>, <a class="el" href="modules_8cpp-source.html#l00852">ReadFlag()</a>, <a class="el" href="modules_8cpp-source.html#l00869">ReadInteger()</a>, <a class="el" href="modules_8cpp-source.html#l00836">ReadValue()</a>, and <a class="el" href="modules_8cpp-source.html#l00818">~ConfigReader()</a>.    </td>
   </tr>
 </table>
 <a class="anchor" name="error"></a><!-- doxytag: member="ConfigReader::error" ref="error" args="" --><p>
@@ -711,7 +711,7 @@ Referenced by <a class="el" href="modules_8cpp-source.html#l00834">ConfigReader(
 <p>
 Definition at line <a class="el" href="modules_8h-source.html#l01523">1523</a> of file <a class="el" href="modules_8h-source.html">modules.h</a>.
 <p>
-Referenced by <a class="el" href="modules_8cpp-source.html#l00834">ConfigReader()</a>, <a class="el" href="modules_8cpp-source.html#l00925">GetError()</a>, <a class="el" href="modules_8cpp-source.html#l00879">ReadFlag()</a>, <a class="el" href="modules_8cpp-source.html#l00896">ReadInteger()</a>, and <a class="el" href="modules_8cpp-source.html#l00863">ReadValue()</a>.    </td>
+Referenced by <a class="el" href="modules_8cpp-source.html#l00807">ConfigReader()</a>, <a class="el" href="modules_8cpp-source.html#l00898">GetError()</a>, <a class="el" href="modules_8cpp-source.html#l00852">ReadFlag()</a>, <a class="el" href="modules_8cpp-source.html#l00869">ReadInteger()</a>, and <a class="el" href="modules_8cpp-source.html#l00836">ReadValue()</a>.    </td>
   </tr>
 </table>
 <a class="anchor" name="errorlog"></a><!-- doxytag: member="ConfigReader::errorlog" ref="errorlog" args="" --><p>
@@ -738,7 +738,7 @@ Referenced by <a class="el" href="modules_8cpp-source.html#l00834">ConfigReader(
 <p>
 Definition at line <a class="el" href="modules_8h-source.html#l01519">1519</a> of file <a class="el" href="modules_8h-source.html">modules.h</a>.
 <p>
-Referenced by <a class="el" href="modules_8cpp-source.html#l00834">ConfigReader()</a>, <a class="el" href="modules_8cpp-source.html#l00932">DumpErrors()</a>, and <a class="el" href="modules_8cpp-source.html#l00845">~ConfigReader()</a>.    </td>
+Referenced by <a class="el" href="modules_8cpp-source.html#l00807">ConfigReader()</a>, <a class="el" href="modules_8cpp-source.html#l00905">DumpErrors()</a>, and <a class="el" href="modules_8cpp-source.html#l00818">~ConfigReader()</a>.    </td>
   </tr>
 </table>
 <a class="anchor" name="readerror"></a><!-- doxytag: member="ConfigReader::readerror" ref="readerror" args="" --><p>
@@ -767,12 +767,12 @@ Used to store errors.
 <p>
 Definition at line <a class="el" href="modules_8h-source.html#l01522">1522</a> of file <a class="el" href="modules_8h-source.html">modules.h</a>.
 <p>
-Referenced by <a class="el" href="modules_8cpp-source.html#l00834">ConfigReader()</a>, and <a class="el" href="modules_8cpp-source.html#l00975">Verify()</a>.    </td>
+Referenced by <a class="el" href="modules_8cpp-source.html#l00807">ConfigReader()</a>, and <a class="el" href="modules_8cpp-source.html#l00948">Verify()</a>.    </td>
   </tr>
 </table>
 <hr>The documentation for this class was generated from the following files:<ul>
 <li><a class="el" href="modules_8h-source.html">modules.h</a><li><a class="el" href="modules_8cpp-source.html">modules.cpp</a></ul>
-<hr size="1"><address style="align: right;"><small>Generated on Fri Dec 9 20:20:11 2005 for InspIRCd by&nbsp;
+<hr size="1"><address style="align: right;"><small>Generated on Mon Dec 12 13:31:11 2005 for InspIRCd by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img src="doxygen.png" alt="doxygen" align="middle" border="0"></a> 1.4.4-20050815 </small></address>
 </body>
