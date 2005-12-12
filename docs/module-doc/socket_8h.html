@@ -10,7 +10,6 @@
 <h1>socket.h File Reference</h1><code>#include &lt;sys/types.h&gt;</code><br>
 <code>#include &lt;sys/socket.h&gt;</code><br>
 <code>#include &lt;netinet/in.h&gt;</code><br>
-<code>#include &lt;poll.h&gt;</code><br>
 <code>#include &lt;sstream&gt;</code><br>
 <code>#include &lt;string&gt;</code><br>
 
@@ -32,6 +31,7 @@ This graph shows which files directly or indirectly include this file:<p><center
 <tr><td colspan="2"><br><h2>Classes</h2></td></tr>
 <tr><td class="memItemLeft" nowrap align="right" valign="top">class &nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classInspSocket.html">InspSocket</a></td></tr>
 
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">InspSocket is an extendable socket class which modules can use for TCP socket support.  <a href="classInspSocket.html#_details">More...</a><br></td></tr>
 <tr><td colspan="2"><br><h2>Enumerations</h2></td></tr>
 <tr><td class="memItemLeft" nowrap align="right" valign="top">enum &nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="socket_8h.html#InspSocketState">InspSocketState</a> { <br>
 &nbsp;&nbsp;<a class="el" href="socket_8h.html#InspSocketStateI_5FDISCONNECTED">I_DISCONNECTED</a>, 
@@ -43,12 +43,14 @@ This graph shows which files directly or indirectly include this file:<p><center
 <br>
  }</td></tr>
 
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">States which a socket may be in.  <a href="socket_8h.html#InspSocketState">More...</a><br></td></tr>
 <tr><td class="memItemLeft" nowrap align="right" valign="top">enum &nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="socket_8h.html#InspSocketError">InspSocketError</a> { <a class="el" href="socket_8h.html#InspSocketErrorI_5FERR_5FTIMEOUT">I_ERR_TIMEOUT</a>, 
 <a class="el" href="socket_8h.html#InspSocketErrorI_5FERR_5FSOCKET">I_ERR_SOCKET</a>, 
 <a class="el" href="socket_8h.html#InspSocketErrorI_5FERR_5FCONNECT">I_ERR_CONNECT</a>, 
 <a class="el" href="socket_8h.html#InspSocketErrorI_5FERR_5FBIND">I_ERR_BIND</a>
  }</td></tr>
 
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Error types which a socket may exhibit.  <a href="socket_8h.html#InspSocketError">More...</a><br></td></tr>
 </table>
 <hr><h2>Enumeration Type Documentation</h2>
 <a class="anchor" name="InspSocketError"></a><!-- doxytag: member="socket.h::InspSocketError" ref="InspSocketError" args="" --><p>
@@ -71,6 +73,8 @@ This graph shows which files directly or indirectly include this file:<p><center
     <td>
 
 <p>
+Error types which a socket may exhibit. 
+<p>
 <dl compact><dt><b>Enumerator: </b></dt><dd>
 <table border="0" cellspacing="2" cellpadding="0">
 <tr><td valign="top"><em><a class="anchor" name="InspSocketErrorI_5FERR_5FTIMEOUT"></a><!-- doxytag: member="I_ERR_TIMEOUT" ref="InspSocketErrorI_5FERR_5FTIMEOUT" args="" -->I_ERR_TIMEOUT</em>&nbsp;</td><td>
@@ -85,7 +89,7 @@ This graph shows which files directly or indirectly include this file:<p><center
 </dl>
 
 <p>
-Definition at line <a class="el" href="socket_8h-source.html#l00028">28</a> of file <a class="el" href="socket_8h-source.html">socket.h</a>.<div class="fragment"><pre class="fragment"><a name="l00028"></a>00028 { <a class="code" href="socket_8h.html#InspSocketErrorI_5FERR_5FTIMEOUT">I_ERR_TIMEOUT</a>, <a class="code" href="socket_8h.html#InspSocketErrorI_5FERR_5FSOCKET">I_ERR_SOCKET</a>, <a class="code" href="socket_8h.html#InspSocketErrorI_5FERR_5FCONNECT">I_ERR_CONNECT</a>, <a class="code" href="socket_8h.html#InspSocketErrorI_5FERR_5FBIND">I_ERR_BIND</a> };
+Definition at line <a class="el" href="socket_8h-source.html#l00034">34</a> of file <a class="el" href="socket_8h-source.html">socket.h</a>.<div class="fragment"><pre class="fragment"><a name="l00034"></a>00034 { <a class="code" href="socket_8h.html#InspSocketErrorI_5FERR_5FTIMEOUT">I_ERR_TIMEOUT</a>, <a class="code" href="socket_8h.html#InspSocketErrorI_5FERR_5FSOCKET">I_ERR_SOCKET</a>, <a class="code" href="socket_8h.html#InspSocketErrorI_5FERR_5FCONNECT">I_ERR_CONNECT</a>, <a class="code" href="socket_8h.html#InspSocketErrorI_5FERR_5FBIND">I_ERR_BIND</a> };
 </pre></div>
 <p>
     </td>
@@ -111,6 +115,8 @@ Definition at line <a class="el" href="socket_8h-source.html#l00028">28</a> of f
     <td>
 
 <p>
+States which a socket may be in. 
+<p>
 <dl compact><dt><b>Enumerator: </b></dt><dd>
 <table border="0" cellspacing="2" cellpadding="0">
 <tr><td valign="top"><em><a class="anchor" name="InspSocketStateI_5FDISCONNECTED"></a><!-- doxytag: member="I_DISCONNECTED" ref="InspSocketStateI_5FDISCONNECTED" args="" -->I_DISCONNECTED</em>&nbsp;</td><td>
@@ -127,13 +133,13 @@ Definition at line <a class="el" href="socket_8h-source.html#l00028">28</a> of f
 </dl>
 
 <p>
-Definition at line <a class="el" href="socket_8h-source.html#l00027">27</a> of file <a class="el" href="socket_8h-source.html">socket.h</a>.<div class="fragment"><pre class="fragment"><a name="l00027"></a>00027 { <a class="code" href="socket_8h.html#InspSocketStateI_5FDISCONNECTED">I_DISCONNECTED</a>, <a class="code" href="socket_8h.html#InspSocketStateI_5FCONNECTING">I_CONNECTING</a>, <a class="code" href="socket_8h.html#InspSocketStateI_5FCONNECTED">I_CONNECTED</a>, <a class="code" href="socket_8h.html#InspSocketStateI_5FLISTENING">I_LISTENING</a>, <a class="code" href="socket_8h.html#InspSocketStateI_5FERROR">I_ERROR</a> };
+Definition at line <a class="el" href="socket_8h-source.html#l00029">29</a> of file <a class="el" href="socket_8h-source.html">socket.h</a>.<div class="fragment"><pre class="fragment"><a name="l00029"></a>00029 { <a class="code" href="socket_8h.html#InspSocketStateI_5FDISCONNECTED">I_DISCONNECTED</a>, <a class="code" href="socket_8h.html#InspSocketStateI_5FCONNECTING">I_CONNECTING</a>, <a class="code" href="socket_8h.html#InspSocketStateI_5FCONNECTED">I_CONNECTED</a>, <a class="code" href="socket_8h.html#InspSocketStateI_5FLISTENING">I_LISTENING</a>, <a class="code" href="socket_8h.html#InspSocketStateI_5FERROR">I_ERROR</a> };
 </pre></div>
 <p>
     </td>
   </tr>
 </table>
-<hr size="1"><address style="align: right;"><small>Generated on Mon Dec 12 13:31:10 2005 for InspIRCd by&nbsp;
+<hr size="1"><address style="align: right;"><small>Generated on Mon Dec 12 18:31:01 2005 for InspIRCd by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img src="doxygen.png" alt="doxygen" align="middle" border="0"></a> 1.4.4-20050815 </small></address>
 </body>

@@ -203,9 +203,9 @@
 <a name="l00194"></a>00194         <span class="keywordflow">return</span> written;
 <a name="l00195"></a>00195 }
 <a name="l00196"></a>00196 
-<a name="l00197"></a><a class="code" href="classInspSocket.html#Poll_28_29">00197</a> <span class="keywordtype">bool</span> <a class="code" href="classInspSocket.html#Poll_28_29">InspSocket::Poll</a>()
+<a name="l00197"></a><a class="code" href="classInspSocket.html#Timeout_28time_5Ft_20current_29">00197</a> <span class="keywordtype">bool</span> <a class="code" href="classInspSocket.html#Timeout_28time_5Ft_20current_29">InspSocket::Timeout</a>(time_t current)
 <a name="l00198"></a>00198 {
-<a name="l00199"></a>00199         <span class="keywordflow">if</span> ((time(NULL) &gt; <a class="code" href="classInspSocket.html#timeout_5Fend">timeout_end</a>) &amp;&amp; (this-&gt;state == <a class="code" href="socket_8h.html#InspSocketStateI_5FCONNECTING">I_CONNECTING</a>))
+<a name="l00199"></a>00199         <span class="keywordflow">if</span> ((this-&gt;state == <a class="code" href="socket_8h.html#InspSocketStateI_5FCONNECTING">I_CONNECTING</a>) &amp;&amp; (current &gt; <a class="code" href="classInspSocket.html#timeout_5Fend">timeout_end</a>))
 <a name="l00200"></a>00200         {
 <a name="l00201"></a>00201                 <span class="comment">// for non-listening sockets, the timeout can occur</span>
 <a name="l00202"></a>00202                 <span class="comment">// which causes termination of the connection after</span>
@@ -215,72 +215,76 @@
 <a name="l00206"></a>00206                 this-&gt;<a class="code" href="classInspSocket.html#OnError_28InspSocketError_20e_29">OnError</a>(<a class="code" href="socket_8h.html#InspSocketErrorI_5FERR_5FTIMEOUT">I_ERR_TIMEOUT</a>);
 <a name="l00207"></a>00207                 <a class="code" href="classInspSocket.html#timeout">timeout</a> = <span class="keyword">true</span>;
 <a name="l00208"></a>00208                 this-&gt;<a class="code" href="classInspSocket.html#state">state</a> = <a class="code" href="socket_8h.html#InspSocketStateI_5FERROR">I_ERROR</a>;
-<a name="l00209"></a>00209                 <span class="keywordflow">return</span> <span class="keyword">false</span>;
+<a name="l00209"></a>00209                 <span class="keywordflow">return</span> <span class="keyword">true</span>;
 <a name="l00210"></a>00210         }
-<a name="l00211"></a>00211 
-<a name="l00212"></a>00212         <span class="keywordtype">int</span> incoming = -1;
-<a name="l00213"></a>00213         
-<a name="l00214"></a>00214         <span class="keywordflow">switch</span> (this-&gt;state)
-<a name="l00215"></a>00215         {
-<a name="l00216"></a>00216                 <span class="keywordflow">case</span> <a class="code" href="socket_8h.html#InspSocketStateI_5FCONNECTING">I_CONNECTING</a>:
-<a name="l00217"></a>00217                         this-&gt;<a class="code" href="classInspSocket.html#SetState_28InspSocketState_20s_29">SetState</a>(<a class="code" href="socket_8h.html#InspSocketStateI_5FCONNECTED">I_CONNECTED</a>);
-<a name="l00218"></a>00218                         <span class="comment">/* Our socket was in write-state, so delete it and re-add it</span>
-<a name="l00219"></a>00219 <span class="comment">                         * in read-state.</span>
-<a name="l00220"></a>00220 <span class="comment">                         */</span>
-<a name="l00221"></a>00221                         SE-&gt;<a class="code" href="classSocketEngine.html#DelFd_28int_20fd_29">DelFd</a>(this-&gt;fd);
-<a name="l00222"></a>00222                         SE-&gt;<a class="code" href="classSocketEngine.html#AddFd_28int_20fd_2C_20bool_20readable_2C_20char_20type_29">AddFd</a>(this-&gt;fd,<span class="keyword">true</span>,<a class="code" href="socketengine_8h.html#X_5FESTAB_5FMODULE">X_ESTAB_MODULE</a>);
-<a name="l00223"></a>00223                         <span class="keywordflow">return</span> this-&gt;<a class="code" href="classInspSocket.html#OnConnected_28_29">OnConnected</a>();
-<a name="l00224"></a>00224                 <span class="keywordflow">break</span>;
-<a name="l00225"></a>00225                 <span class="keywordflow">case</span> <a class="code" href="socket_8h.html#InspSocketStateI_5FLISTENING">I_LISTENING</a>:
-<a name="l00226"></a>00226                         <a class="code" href="classInspSocket.html#length">length</a> = <span class="keyword">sizeof</span> (<a class="code" href="classInspSocket.html#client">client</a>);
-<a name="l00227"></a>00227                         incoming = accept (this-&gt;fd, (sockaddr*)&amp;<a class="code" href="classInspSocket.html#client">client</a>,&amp;<a class="code" href="classInspSocket.html#length">length</a>);
-<a name="l00228"></a>00228                         this-&gt;<a class="code" href="classInspSocket.html#OnIncomingConnection_28int_20newfd_2C_20char_20_2Aip_29">OnIncomingConnection</a>(incoming,inet_ntoa(client.sin_addr));
-<a name="l00229"></a>00229                         <span class="keywordflow">return</span> <span class="keyword">true</span>;
-<a name="l00230"></a>00230                 <span class="keywordflow">break</span>;
-<a name="l00231"></a>00231                 <span class="keywordflow">case</span> <a class="code" href="socket_8h.html#InspSocketStateI_5FCONNECTED">I_CONNECTED</a>:
-<a name="l00232"></a>00232                         <span class="keywordflow">return</span> this-&gt;<a class="code" href="classInspSocket.html#OnDataReady_28_29">OnDataReady</a>();
-<a name="l00233"></a>00233                 <span class="keywordflow">break</span>;
-<a name="l00234"></a>00234                 <span class="keywordflow">default</span>:
-<a name="l00235"></a>00235                 <span class="keywordflow">break</span>;
-<a name="l00236"></a>00236         }
-<a name="l00237"></a>00237 
-<a name="l00238"></a>00238         <span class="keywordflow">return</span> <span class="keyword">true</span>;
-<a name="l00239"></a>00239 }
-<a name="l00240"></a>00240 
-<a name="l00241"></a><a class="code" href="classInspSocket.html#SetState_28InspSocketState_20s_29">00241</a> <span class="keywordtype">void</span> <a class="code" href="classInspSocket.html#SetState_28InspSocketState_20s_29">InspSocket::SetState</a>(<a class="code" href="socket_8h.html#InspSocketState">InspSocketState</a> s)
-<a name="l00242"></a>00242 {
-<a name="l00243"></a>00243         log(<a class="code" href="modules_8h.html#DEBUG">DEBUG</a>,<span class="stringliteral">"Socket state change"</span>);
-<a name="l00244"></a>00244         this-&gt;<a class="code" href="classInspSocket.html#state">state</a> = s;
-<a name="l00245"></a>00245 }
-<a name="l00246"></a>00246 
-<a name="l00247"></a><a class="code" href="classInspSocket.html#GetState_28_29">00247</a> <a class="code" href="socket_8h.html#InspSocketState">InspSocketState</a> <a class="code" href="classInspSocket.html#GetState_28_29">InspSocket::GetState</a>()
-<a name="l00248"></a>00248 {
-<a name="l00249"></a>00249         <span class="keywordflow">return</span> this-&gt;<a class="code" href="classInspSocket.html#state">state</a>;
-<a name="l00250"></a>00250 }
-<a name="l00251"></a>00251 
-<a name="l00252"></a><a class="code" href="classInspSocket.html#GetFd_28_29">00252</a> <span class="keywordtype">int</span> <a class="code" href="classInspSocket.html#GetFd_28_29">InspSocket::GetFd</a>()
-<a name="l00253"></a>00253 {
-<a name="l00254"></a>00254         <span class="keywordflow">return</span> this-&gt;<a class="code" href="classInspSocket.html#fd">fd</a>;
-<a name="l00255"></a>00255 }
-<a name="l00256"></a>00256 
-<a name="l00257"></a><a class="code" href="classInspSocket.html#OnConnected_28_29">00257</a> <span class="keywordtype">bool</span> <a class="code" href="classInspSocket.html#OnConnected_28_29">InspSocket::OnConnected</a>() { <span class="keywordflow">return</span> <span class="keyword">true</span>; }
-<a name="l00258"></a><a class="code" href="classInspSocket.html#OnError_28InspSocketError_20e_29">00258</a> <span class="keywordtype">void</span> <a class="code" href="classInspSocket.html#OnError_28InspSocketError_20e_29">InspSocket::OnError</a>(<a class="code" href="socket_8h.html#InspSocketError">InspSocketError</a> e) { <span class="keywordflow">return</span>; }
-<a name="l00259"></a><a class="code" href="classInspSocket.html#OnDisconnect_28_29">00259</a> <span class="keywordtype">int</span> <a class="code" href="classInspSocket.html#OnDisconnect_28_29">InspSocket::OnDisconnect</a>() { <span class="keywordflow">return</span> 0; }
-<a name="l00260"></a><a class="code" href="classInspSocket.html#OnIncomingConnection_28int_20newfd_2C_20char_20_2Aip_29">00260</a> <span class="keywordtype">int</span> <a class="code" href="classInspSocket.html#OnIncomingConnection_28int_20newfd_2C_20char_20_2Aip_29">InspSocket::OnIncomingConnection</a>(<span class="keywordtype">int</span> newfd, <span class="keywordtype">char</span>* ip) { <span class="keywordflow">return</span> 0; }
-<a name="l00261"></a><a class="code" href="classInspSocket.html#OnDataReady_28_29">00261</a> <span class="keywordtype">bool</span> <a class="code" href="classInspSocket.html#OnDataReady_28_29">InspSocket::OnDataReady</a>() { <span class="keywordflow">return</span> <span class="keyword">true</span>; }
-<a name="l00262"></a><a class="code" href="classInspSocket.html#OnTimeout_28_29">00262</a> <span class="keywordtype">void</span> <a class="code" href="classInspSocket.html#OnTimeout_28_29">InspSocket::OnTimeout</a>() { <span class="keywordflow">return</span>; }
-<a name="l00263"></a><a class="code" href="classInspSocket.html#OnClose_28_29">00263</a> <span class="keywordtype">void</span> <a class="code" href="classInspSocket.html#OnClose_28_29">InspSocket::OnClose</a>() { <span class="keywordflow">return</span>; }
-<a name="l00264"></a>00264 
-<a name="l00265"></a><a class="code" href="classInspSocket.html#_7EInspSocket_28_29">00265</a> <a class="code" href="classInspSocket.html#_7EInspSocket_28_29">InspSocket::~InspSocket</a>()
-<a name="l00266"></a>00266 {
-<a name="l00267"></a>00267         this-&gt;<a class="code" href="classInspSocket.html#Close_28_29">Close</a>();
-<a name="l00268"></a>00268 }
-<a name="l00269"></a>00269 
-<a name="l00270"></a>00270 <span class="comment">/*</span>
-<a name="l00271"></a>00271 <span class="comment">int BindSocket (int sockfd, struct sockaddr_in client, struct sockaddr_in server, int port, char* addr)</span>
-<a name="l00272"></a>00272 <span class="comment">int OpenTCPSocket (void)</span>
-<a name="l00273"></a>00273 <span class="comment">*/</span>
-</pre></div><hr size="1"><address style="align: right;"><small>Generated on Mon Dec 12 13:31:08 2005 for InspIRCd by&nbsp;
+<a name="l00211"></a>00211         <span class="keywordflow">return</span> <span class="keyword">false</span>;
+<a name="l00212"></a>00212 }
+<a name="l00213"></a>00213 
+<a name="l00214"></a><a class="code" href="classInspSocket.html#Poll_28_29">00214</a> <span class="keywordtype">bool</span> <a class="code" href="classInspSocket.html#Poll_28_29">InspSocket::Poll</a>()
+<a name="l00215"></a>00215 {
+<a name="l00216"></a>00216         <span class="keywordtype">int</span> incoming = -1;
+<a name="l00217"></a>00217         
+<a name="l00218"></a>00218         <span class="keywordflow">switch</span> (this-&gt;state)
+<a name="l00219"></a>00219         {
+<a name="l00220"></a>00220                 <span class="keywordflow">case</span> <a class="code" href="socket_8h.html#InspSocketStateI_5FCONNECTING">I_CONNECTING</a>:
+<a name="l00221"></a>00221                         this-&gt;<a class="code" href="classInspSocket.html#SetState_28InspSocketState_20s_29">SetState</a>(<a class="code" href="socket_8h.html#InspSocketStateI_5FCONNECTED">I_CONNECTED</a>);
+<a name="l00222"></a>00222                         <span class="comment">/* Our socket was in write-state, so delete it and re-add it</span>
+<a name="l00223"></a>00223 <span class="comment">                         * in read-state.</span>
+<a name="l00224"></a>00224 <span class="comment">                         */</span>
+<a name="l00225"></a>00225                         SE-&gt;<a class="code" href="classSocketEngine.html#DelFd_28int_20fd_29">DelFd</a>(this-&gt;fd);
+<a name="l00226"></a>00226                         SE-&gt;<a class="code" href="classSocketEngine.html#AddFd_28int_20fd_2C_20bool_20readable_2C_20char_20type_29">AddFd</a>(this-&gt;fd,<span class="keyword">true</span>,<a class="code" href="socketengine_8h.html#X_5FESTAB_5FMODULE">X_ESTAB_MODULE</a>);
+<a name="l00227"></a>00227                         <span class="keywordflow">return</span> this-&gt;<a class="code" href="classInspSocket.html#OnConnected_28_29">OnConnected</a>();
+<a name="l00228"></a>00228                 <span class="keywordflow">break</span>;
+<a name="l00229"></a>00229                 <span class="keywordflow">case</span> <a class="code" href="socket_8h.html#InspSocketStateI_5FLISTENING">I_LISTENING</a>:
+<a name="l00230"></a>00230                         <a class="code" href="classInspSocket.html#length">length</a> = <span class="keyword">sizeof</span> (<a class="code" href="classInspSocket.html#client">client</a>);
+<a name="l00231"></a>00231                         incoming = accept (this-&gt;fd, (sockaddr*)&amp;<a class="code" href="classInspSocket.html#client">client</a>,&amp;<a class="code" href="classInspSocket.html#length">length</a>);
+<a name="l00232"></a>00232                         this-&gt;<a class="code" href="classInspSocket.html#OnIncomingConnection_28int_20newfd_2C_20char_20_2Aip_29">OnIncomingConnection</a>(incoming,inet_ntoa(client.sin_addr));
+<a name="l00233"></a>00233                         <span class="keywordflow">return</span> <span class="keyword">true</span>;
+<a name="l00234"></a>00234                 <span class="keywordflow">break</span>;
+<a name="l00235"></a>00235                 <span class="keywordflow">case</span> <a class="code" href="socket_8h.html#InspSocketStateI_5FCONNECTED">I_CONNECTED</a>:
+<a name="l00236"></a>00236                         <span class="keywordflow">return</span> this-&gt;<a class="code" href="classInspSocket.html#OnDataReady_28_29">OnDataReady</a>();
+<a name="l00237"></a>00237                 <span class="keywordflow">break</span>;
+<a name="l00238"></a>00238                 <span class="keywordflow">default</span>:
+<a name="l00239"></a>00239                 <span class="keywordflow">break</span>;
+<a name="l00240"></a>00240         }
+<a name="l00241"></a>00241 
+<a name="l00242"></a>00242         <span class="keywordflow">return</span> <span class="keyword">true</span>;
+<a name="l00243"></a>00243 }
+<a name="l00244"></a>00244 
+<a name="l00245"></a><a class="code" href="classInspSocket.html#SetState_28InspSocketState_20s_29">00245</a> <span class="keywordtype">void</span> <a class="code" href="classInspSocket.html#SetState_28InspSocketState_20s_29">InspSocket::SetState</a>(<a class="code" href="socket_8h.html#InspSocketState">InspSocketState</a> s)
+<a name="l00246"></a>00246 {
+<a name="l00247"></a>00247         log(<a class="code" href="modules_8h.html#DEBUG">DEBUG</a>,<span class="stringliteral">"Socket state change"</span>);
+<a name="l00248"></a>00248         this-&gt;<a class="code" href="classInspSocket.html#state">state</a> = s;
+<a name="l00249"></a>00249 }
+<a name="l00250"></a>00250 
+<a name="l00251"></a><a class="code" href="classInspSocket.html#GetState_28_29">00251</a> <a class="code" href="socket_8h.html#InspSocketState">InspSocketState</a> <a class="code" href="classInspSocket.html#GetState_28_29">InspSocket::GetState</a>()
+<a name="l00252"></a>00252 {
+<a name="l00253"></a>00253         <span class="keywordflow">return</span> this-&gt;<a class="code" href="classInspSocket.html#state">state</a>;
+<a name="l00254"></a>00254 }
+<a name="l00255"></a>00255 
+<a name="l00256"></a><a class="code" href="classInspSocket.html#GetFd_28_29">00256</a> <span class="keywordtype">int</span> <a class="code" href="classInspSocket.html#GetFd_28_29">InspSocket::GetFd</a>()
+<a name="l00257"></a>00257 {
+<a name="l00258"></a>00258         <span class="keywordflow">return</span> this-&gt;<a class="code" href="classInspSocket.html#fd">fd</a>;
+<a name="l00259"></a>00259 }
+<a name="l00260"></a>00260 
+<a name="l00261"></a><a class="code" href="classInspSocket.html#OnConnected_28_29">00261</a> <span class="keywordtype">bool</span> <a class="code" href="classInspSocket.html#OnConnected_28_29">InspSocket::OnConnected</a>() { <span class="keywordflow">return</span> <span class="keyword">true</span>; }
+<a name="l00262"></a><a class="code" href="classInspSocket.html#OnError_28InspSocketError_20e_29">00262</a> <span class="keywordtype">void</span> <a class="code" href="classInspSocket.html#OnError_28InspSocketError_20e_29">InspSocket::OnError</a>(<a class="code" href="socket_8h.html#InspSocketError">InspSocketError</a> e) { <span class="keywordflow">return</span>; }
+<a name="l00263"></a><a class="code" href="classInspSocket.html#OnDisconnect_28_29">00263</a> <span class="keywordtype">int</span> <a class="code" href="classInspSocket.html#OnDisconnect_28_29">InspSocket::OnDisconnect</a>() { <span class="keywordflow">return</span> 0; }
+<a name="l00264"></a><a class="code" href="classInspSocket.html#OnIncomingConnection_28int_20newfd_2C_20char_20_2Aip_29">00264</a> <span class="keywordtype">int</span> <a class="code" href="classInspSocket.html#OnIncomingConnection_28int_20newfd_2C_20char_20_2Aip_29">InspSocket::OnIncomingConnection</a>(<span class="keywordtype">int</span> newfd, <span class="keywordtype">char</span>* ip) { <span class="keywordflow">return</span> 0; }
+<a name="l00265"></a><a class="code" href="classInspSocket.html#OnDataReady_28_29">00265</a> <span class="keywordtype">bool</span> <a class="code" href="classInspSocket.html#OnDataReady_28_29">InspSocket::OnDataReady</a>() { <span class="keywordflow">return</span> <span class="keyword">true</span>; }
+<a name="l00266"></a><a class="code" href="classInspSocket.html#OnTimeout_28_29">00266</a> <span class="keywordtype">void</span> <a class="code" href="classInspSocket.html#OnTimeout_28_29">InspSocket::OnTimeout</a>() { <span class="keywordflow">return</span>; }
+<a name="l00267"></a><a class="code" href="classInspSocket.html#OnClose_28_29">00267</a> <span class="keywordtype">void</span> <a class="code" href="classInspSocket.html#OnClose_28_29">InspSocket::OnClose</a>() { <span class="keywordflow">return</span>; }
+<a name="l00268"></a>00268 
+<a name="l00269"></a><a class="code" href="classInspSocket.html#_7EInspSocket_28_29">00269</a> <a class="code" href="classInspSocket.html#_7EInspSocket_28_29">InspSocket::~InspSocket</a>()
+<a name="l00270"></a>00270 {
+<a name="l00271"></a>00271         this-&gt;<a class="code" href="classInspSocket.html#Close_28_29">Close</a>();
+<a name="l00272"></a>00272 }
+<a name="l00273"></a>00273 
+<a name="l00274"></a>00274 <span class="comment">/*</span>
+<a name="l00275"></a>00275 <span class="comment">int BindSocket (int sockfd, struct sockaddr_in client, struct sockaddr_in server, int port, char* addr)</span>
+<a name="l00276"></a>00276 <span class="comment">int OpenTCPSocket (void)</span>
+<a name="l00277"></a>00277 <span class="comment">*/</span>
+</pre></div><hr size="1"><address style="align: right;"><small>Generated on Mon Dec 12 18:30:58 2005 for InspIRCd by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img src="doxygen.png" alt="doxygen" align="middle" border="0"></a> 1.4.4-20050815 </small></address>
 </body>

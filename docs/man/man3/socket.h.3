@@ -12,8 +12,6 @@ socket.h \-
 .br
 \fC#include <netinet/in.h>\fP
 .br
-\fC#include <poll.h>\fP
-.br
 \fC#include <sstream>\fP
 .br
 \fC#include <string>\fP
@@ -25,6 +23,7 @@ socket.h \-
 .ti -1c
 .RI "class \fBInspSocket\fP"
 .br
+.RI "\fIInspSocket is an extendable socket class which modules can use for TCP socket support. \fP"
 .in -1c
 .SS "Enumerations"
 
@@ -32,13 +31,17 @@ socket.h \-
 .ti -1c
 .RI "enum \fBInspSocketState\fP { \fBI_DISCONNECTED\fP, \fBI_CONNECTING\fP, \fBI_CONNECTED\fP, \fBI_LISTENING\fP, \fBI_ERROR\fP }"
 .br
+.RI "\fIStates which a socket may be in. \fP"
 .ti -1c
 .RI "enum \fBInspSocketError\fP { \fBI_ERR_TIMEOUT\fP, \fBI_ERR_SOCKET\fP, \fBI_ERR_CONNECT\fP, \fBI_ERR_BIND\fP }"
 .br
+.RI "\fIError types which a socket may exhibit. \fP"
 .in -1c
 .SH "Enumeration Type Documentation"
 .PP 
 .SS "enum \fBInspSocketError\fP"
+.PP
+Error types which a socket may exhibit. 
 .PP
 \fBEnumerator: \fP
 .in +1c
@@ -52,13 +55,15 @@ socket.h \-
 \fB\fII_ERR_BIND \fP\fP
 
 .PP
-Definition at line 28 of file socket.h.
+Definition at line 34 of file socket.h.
 .PP
 .nf
-28 { I_ERR_TIMEOUT, I_ERR_SOCKET, I_ERR_CONNECT, I_ERR_BIND };
+34 { I_ERR_TIMEOUT, I_ERR_SOCKET, I_ERR_CONNECT, I_ERR_BIND };
 .fi
 .PP
 .SS "enum \fBInspSocketState\fP"
+.PP
+States which a socket may be in. 
 .PP
 \fBEnumerator: \fP
 .in +1c
@@ -74,10 +79,10 @@ Definition at line 28 of file socket.h.
 \fB\fII_ERROR \fP\fP
 
 .PP
-Definition at line 27 of file socket.h.
+Definition at line 29 of file socket.h.
 .PP
 .nf
-27 { I_DISCONNECTED, I_CONNECTING, I_CONNECTED, I_LISTENING, I_ERROR };
+29 { I_DISCONNECTED, I_CONNECTING, I_CONNECTED, I_LISTENING, I_ERROR };
 .fi
 .PP
 .SH "Author"

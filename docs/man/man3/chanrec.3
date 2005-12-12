@@ -154,15 +154,15 @@ Add a user pointer to the internal reference list.
 .PP
 The data inserted into the reference list is a table as it is an arbitary pointer compared to other users by its memory address, as this is a very fast 32 or 64 bit integer comparison.
 .PP
-Definition at line 195 of file channels.cpp.
+Definition at line 194 of file channels.cpp.
 .PP
 References DEBUG, and internal_userlist.
 .PP
 .nf
-196 {
-197         internal_userlist.push_back(castuser);
-198         log(DEBUG,'Added casted user to channel's internal list');
-199 }
+195 {
+196         internal_userlist.push_back(castuser);
+197         log(DEBUG,'Added casted user to channel's internal list');
+198 }
 .fi
 .PP
 .SS "void chanrec::DelUser (char * castuser)"
@@ -176,23 +176,23 @@ Delete a user pointer to the internal reference list.
 .PP
 The data removed from the reference list is a table as it is an arbitary pointer compared to other users by its memory address, as this is a very fast 32 or 64 bit integer comparison.
 .PP
-Definition at line 201 of file channels.cpp.
+Definition at line 200 of file channels.cpp.
 .PP
 References DEBUG, internal_userlist, and name.
 .PP
 .nf
-202 {
-203         for (std::vector<char*>::iterator a = internal_userlist.begin(); a < internal_userlist.end(); a++)
-204         {
-205                 if (*a == castuser)
-206                 {
-207                         log(DEBUG,'Removed casted user from channel's internal list');
-208                         internal_userlist.erase(a);
-209                         return;
-210                 }
-211         }
-212         log(DEBUG,'BUG BUG BUG! Attempt to remove an uncasted user from the internal list of %s!',name);
-213 }
+201 {
+202         for (std::vector<char*>::iterator a = internal_userlist.begin(); a < internal_userlist.end(); a++)
+203         {
+204                 if (*a == castuser)
+205                 {
+206                         log(DEBUG,'Removed casted user from channel's internal list');
+207                         internal_userlist.erase(a);
+208                         return;
+209                 }
+210         }
+211         log(DEBUG,'BUG BUG BUG! Attempt to remove an uncasted user from the internal list of %s!',name);
+212 }
 .fi
 .PP
 .SS "\fBstd::string\fP chanrec::GetModeParameter (char mode)"
@@ -213,24 +213,24 @@ The parameter for this mode is returned, or an empty string
 .PP
 
 .PP
-Definition at line 175 of file channels.cpp.
+Definition at line 174 of file channels.cpp.
 .PP
 References custom_mode_params.
 .PP
 .nf
-176 {
-177         if (custom_mode_params.size())
-178         {
-179                 for (vector<ModeParameter>::iterator i = custom_mode_params.begin(); i < custom_mode_params.end(); i++)
-180                 {
-181                         if ((i->mode == mode) && (!strcasecmp(this->name,i->channel)))
-182                         {
-183                                 return i->parameter;
-184                         }
-185                 }
-186         }
-187         return '';
-188 }
+175 {
+176         if (custom_mode_params.size())
+177         {
+178                 for (vector<ModeParameter>::iterator i = custom_mode_params.begin(); i < custom_mode_params.end(); i++)
+179                 {
+180                         if ((i->mode == mode) && (!strcasecmp(this->name,i->channel)))
+181                         {
+182                                 return i->parameter;
+183                         }
+184                 }
+185         }
+186         return '';
+187 }
 .fi
 .PP
 .SS "long chanrec::GetUserCounter ()"
@@ -244,12 +244,12 @@ The number of users on this channel
 .PP
 
 .PP
-Definition at line 190 of file channels.cpp.
+Definition at line 189 of file channels.cpp.
 .PP
 .nf
-191 {
-192         return (this->internal_userlist.size());
-193 }
+190 {
+191         return (this->internal_userlist.size());
+192 }
 .fi
 .PP
 .SS "std::vector< char * > * chanrec::GetUsers ()"
@@ -265,16 +265,16 @@ This function returns a vector of userrec pointers, each of which has been caste
 .PP
 
 .PP
-Definition at line 215 of file channels.cpp.
+Definition at line 214 of file channels.cpp.
 .PP
 References internal_userlist.
 .PP
 Referenced by Server::GetUsers().
 .PP
 .nf
-216 {
-217         return &internal_userlist;
-218 }
+215 {
+216         return &internal_userlist;
+217 }
 .fi
 .PP
 .SS "bool chanrec::IsCustomModeSet (char mode)"
@@ -295,13 +295,10 @@ True if the custom mode is set, false if otherwise
 .PP
 Definition at line 169 of file channels.cpp.
 .PP
-References DEBUG.
-.PP
 .nf
 170 {
-171         log(DEBUG,'Checking ISCustomModeSet: %c %s',mode,this->custom_modes);
-172         return (strchr(this->custom_modes,mode) != 0);
-173 }
+171         return (strchr(this->custom_modes,mode));
+172 }
 .fi
 .PP
 .SS "void chanrec::SetCustomMode (char mode, bool mode_on)"

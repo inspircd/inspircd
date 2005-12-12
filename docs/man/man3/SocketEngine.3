@@ -287,7 +287,7 @@ References DEBUG, EngineHandle, fds, ke_list, ref, ts, and X_READBIT.
 164                 
 165         }
 166         tval.tv_sec = 0;
-167         tval.tv_usec = 1000L;
+167         tval.tv_usec = 100L;
 168         sresult = select(FD_SETSIZE, &rfdset, &wfdset, NULL, &tval);
 169         if (sresult > 0)
 170         {
@@ -302,14 +302,14 @@ References DEBUG, EngineHandle, fds, ke_list, ref, ts, and X_READBIT.
 179         }
 180 #endif
 181 #ifdef USE_KQUEUE
-182         ts.tv_nsec = 1000L;
+182         ts.tv_nsec = 10000L;
 183         ts.tv_sec = 0;
 184         int i = kevent(EngineHandle, NULL, 0, &ke_list[0], 65535, &ts);
 185         for (int j = 0; j < i; j++)
 186                 fdlist.push_back(ke_list[j].ident);
 187 #endif
 188 #ifdef USE_EPOLL
-189         int i = epoll_wait(EngineHandle, events, 65535, 1);
+189         int i = epoll_wait(EngineHandle, events, 65535, 100);
 190         for (int j = 0; j < i; j++)
 191                 fdlist.push_back(events[j].data.fd);
 192 #endif
