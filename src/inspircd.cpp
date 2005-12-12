@@ -116,6 +116,10 @@ extern int MODCOUNT;
 int openSockfd[MAXSOCKS];
 bool nofork = false;
 bool unlimitcore = false;
+struct sockaddr_in client,server;
+char addrs[MAXBUF][255];
+socklen_t length;
+char configToken[MAXBUF], Addr[MAXBUF], Type[MAXBUF];
 
 time_t TIME = time(NULL), OLDTIME = time(NULL);
 
@@ -2504,6 +2508,7 @@ void OpenLog(char** argv, int argc)
 #endif
 }
 
+
 void CheckRoot()
 {
 	if (geteuid() == 0)
@@ -2514,109 +2519,72 @@ void CheckRoot()
 	}
 }
 
-int InspIRCd(char** argv, int argc)
+
+int BindPorts()
 {
-	struct sockaddr_in client,server;
-	char addrs[MAXBUF][255];
-	int incomingSockfd;
-	socklen_t length;
-	int count = 0;
 	int clientportcount = 0;
-	char configToken[MAXBUF], Addr[MAXBUF], Type[MAXBUF];
-
-	OpenLog(argv, argc);
-	CheckRoot();
-	SetupCommandTable();
-	ReadConfig(true,NULL);
-	AddServerName(ServerName);
-	
-	if (DieValue[0])
-	{ 
-		printf("WARNING: %s\n\n",DieValue);
-		log(DEFAULT,"Ut-Oh, somebody didn't read their config file: '%s'",DieValue);
-		exit(0); 
-	}  
-	log(DEBUG,"InspIRCd: startup: read config");
-
-	for (count = 0; count < ConfValueEnum("bind",&config_f); count++)
-	{
-		ConfValue("bind","port",count,configToken,&config_f);
-		ConfValue("bind","address",count,Addr,&config_f);
-		ConfValue("bind","type",count,Type,&config_f);
-		if (!strcmp(Type,"servers"))
-		{
-			// modules handle this bind type now.
-		}
-		else
-		{
-			ports[clientportcount] = atoi(configToken);
-			strlcpy(addrs[clientportcount],Addr,256);
-			clientportcount++;
-		}
-		log(DEBUG,"InspIRCd: startup: read binding %s:%s [%s] from config",Addr,configToken, Type);
-	}
-	portCount = clientportcount;
-  
-	log(DEBUG,"InspIRCd: startup: read %lu total client ports",(unsigned long)portCount);
-
-	printf("\n");
-	startup_time = time(NULL);
-	  
-	char PID[MAXBUF];
-	ConfValue("pid","file",0,PID,&config_f);
-	// write once here, to try it out and make sure its ok
-	WritePID(PID);
-
-	log(VERBOSE,"InspIRCd: startup: portCount = %lu", (unsigned long)portCount);
-	
-	for (count = 0; count < portCount; count++)
-	{
-		if ((openSockfd[boundPortCount] = OpenTCPSocket()) == ERROR)
-		{
-			log(DEBUG,"InspIRCd: startup: bad fd %lu",(unsigned long)openSockfd[boundPortCount]);
-			return(ERROR);
-		}
-		if (BindSocket(openSockfd[boundPortCount],client,server,ports[count],addrs[count]) == ERROR)
-		{
-			log(DEFAULT,"InspIRCd: startup: failed to bind port %lu",(unsigned long)ports[count]);
-		}
-		else	/* well we at least bound to one socket so we'll continue */
-		{
-			boundPortCount++;
-		}
-	}
-	
-	log(DEBUG,"InspIRCd: startup: total bound ports %lu",(unsigned long)boundPortCount);
-	  
-	/* if we didn't bind to anything then abort */
-	if (boundPortCount == 0)
-	{
-		log(DEFAULT,"InspIRCd: startup: no ports bound, bailing!");
-		printf("\nERROR: Was not able to bind any of %lu ports! Please check your configuration.\n\n", (unsigned long)portCount);
-		return (ERROR);
-	}
-
-        if (nofork)
+        for (int count = 0; count < ConfValueEnum("bind",&config_f); count++)
         {
-                log(VERBOSE,"Not forking as -nofork was specified");
-        }
-        else
-        {
-                if (DaemonSeed() == ERROR)
+                ConfValue("bind","port",count,configToken,&config_f);
+                ConfValue("bind","address",count,Addr,&config_f);
+                ConfValue("bind","type",count,Type,&config_f);
+                if (strcmp(Type,"servers"))
                 {
-                        log(DEFAULT,"InspIRCd: startup: can't daemonise");
-                        printf("ERROR: could not go into daemon mode. Shutting down.\n");
-                        Exit(ERROR);
+                        // modules handle server bind types now,
+                        // its not a typo in the strcmp.
+                        ports[clientportcount] = atoi(configToken);
+                        strlcpy(addrs[clientportcount],Addr,256);
+                        clientportcount++;
+                        log(DEBUG,"InspIRCd: startup: read binding %s:%s [%s] from config",Addr,configToken, Type);
+                }
+        }
+        portCount = clientportcount;
+
+        for (int count = 0; count < portCount; count++)
+        {
+                if ((openSockfd[boundPortCount] = OpenTCPSocket()) == ERROR)
+                {
+                        log(DEBUG,"InspIRCd: startup: bad fd %lu",(unsigned long)openSockfd[boundPortCount]);
+                        return(ERROR);
+                }
+                if (BindSocket(openSockfd[boundPortCount],client,server,ports[count],addrs[count]) == ERROR)
+                {
+                        log(DEFAULT,"InspIRCd: startup: failed to bind port %lu",(unsigned long)ports[count]);
+                }
+                else    /* well we at least bound to one socket so we'll continue */
+                {
+                        boundPortCount++;
                 }
         }
 
-	SE = new SocketEngine();
+        /* if we didn't bind to anything then abort */
+        if (!boundPortCount)
+        {
+                log(DEFAULT,"InspIRCd: startup: no ports bound, bailing!");
+                printf("\nERROR: Was not able to bind any of %lu ports! Please check your configuration.\n\n", (unsigned long)portCount);
+                return (ERROR);
+        }
 
-	/* We must load the modules AFTER initializing the socket engine, now */
+	return boundPortCount;
+}
+
+void CheckDie()
+{
+        if (DieValue[0])
+        {
+                printf("WARNING: %s\n\n",DieValue);
+                log(DEFAULT,"Ut-Oh, somebody didn't read their config file: '%s'",DieValue);
+                exit(0);
+        }
+}
+
+void LoadAllModules()
+{
+        /* We must load the modules AFTER initializing the socket engine, now */
         MODCOUNT = -1;
-	for (count = 0; count < ConfValueEnum("module",&config_f); count++)
-	{
-		ConfValue("module","name",count,configToken,&config_f);
+        for (int count = 0; count < ConfValueEnum("module",&config_f); count++)
+        {
+                ConfValue("module","name",count,configToken,&config_f);
                 printf("Loading module... \033[1;32m%s\033[0m\n",configToken);
                 if (!LoadModule(configToken))
                 {
@@ -2625,10 +2593,49 @@ int InspIRCd(char** argv, int argc)
                         Exit(0);
                 }
         }
-	log(DEFAULT,"Total loaded modules: %lu",(unsigned long)MODCOUNT+1);
+        log(DEFAULT,"Total loaded modules: %lu",(unsigned long)MODCOUNT+1);
+}
+
+int InspIRCd(char** argv, int argc)
+{
+	bool expire_run = false;
+	std::vector<int> activefds;
+	int incomingSockfd;
+
+	OpenLog(argv, argc);
+	CheckRoot();
+	SetupCommandTable();
+	ReadConfig(true,NULL);
+	AddServerName(ServerName);
+	CheckDie();
+	boundPortCount = BindPorts();
+
+	printf("\n");
+	startup_time = time(NULL);
+	  
+	char PID[MAXBUF];
+	ConfValue("pid","file",0,PID,&config_f);
+	// write once here, to try it out and make sure its ok
+	WritePID(PID);
+	
+        if (!nofork)
+        {
+                if (DaemonSeed() == ERROR)
+                {
+                        printf("ERROR: could not go into daemon mode. Shutting down.\n");
+                        Exit(ERROR);
+                }
+        }
+
+	/* Because of limitations in kqueue on freebsd, we must fork BEFORE we
+	 * initialize the socket engine.
+	 */
+	SE = new SocketEngine();
+
+	/* We must load the modules AFTER initializing the socket engine, now */
+	LoadAllModules();
 
 	printf("\nInspIRCd is now running!\n");
-
 	if (!nofork)
 	{
 		freopen("/dev/null","w",stdout);
@@ -2638,13 +2645,10 @@ int InspIRCd(char** argv, int argc)
 	/* Add the listening sockets used for client inbound connections
 	 * to the socket engine
 	 */
-	for (count = 0; count < portCount; count++)
+	for (int count = 0; count < portCount; count++)
 		SE->AddFd(openSockfd[count],true,X_LISTEN);
 
-	std::vector<int> activefds;
-
 	WritePID(PID);
-	bool expire_run = false;
 
 	/* main loop, this never returns */
 	for (;;)
@@ -2717,7 +2721,7 @@ int InspIRCd(char** argv, int argc)
 			{
 				log(DEBUG,"Got a ready socket of type X_LISTEN");
 				/* It maybe a listener */
-				for (count = 0; count < boundPortCount; count++)
+				for (int count = 0; count < boundPortCount; count++)
 				{
 					if (activefds[activefd] == openSockfd[count])
 					{
