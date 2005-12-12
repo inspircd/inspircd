@@ -215,12 +215,12 @@ bool InspSocket::Poll()
 	{
 		case I_CONNECTING:
 			this->SetState(I_CONNECTED);
-			return this->OnConnected();
 			/* Our socket was in write-state, so delete it and re-add it
 			 * in read-state.
 			 */
 			SE->DelFd(this->fd);
 			SE->AddFd(this->fd,true,X_ESTAB_MODULE);
+			return this->OnConnected();
 		break;
 		case I_LISTENING:
 			length = sizeof (client);
