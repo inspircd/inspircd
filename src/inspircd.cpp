@@ -2427,7 +2427,7 @@ void ProcessUser(userrec* cu)
         }
 }
 
-void DoBackgroundUserStuff(time_t TIME)
+bool DoBackgroundUserStuff(time_t TIME)
 {
 	unsigned int numsockets = module_sockets.size();
 	for (std::vector<InspSocket*>::iterator a = module_sockets.begin(); a < module_sockets.end(); a++)
@@ -2450,7 +2450,7 @@ void DoBackgroundUserStuff(time_t TIME)
                 if (count2->second)
                         curr = count2->second;
                 if ((long)curr == -1)
-                        return;
+                        return true;
 
                 if ((curr) && (curr->fd != 0))
                 {
@@ -2463,7 +2463,7 @@ void DoBackgroundUserStuff(time_t TIME)
                                 {
                                         log(DEBUG,"InspIRCd: write error: %s",curr->GetWriteError().c_str());
                                         kill_link(curr,curr->GetWriteError().c_str());
-                                        return;
+                                        return false;
                                 }
                                 // registration timeout -- didnt send USER/NICK/HOST in the time specified in
                                 // their connection class.
@@ -2471,7 +2471,7 @@ void DoBackgroundUserStuff(time_t TIME)
                                 {
                                         log(DEBUG,"InspIRCd: registration timeout: %s",curr->nick);
                                         kill_link(curr,"Registration timeout");
-                                        return;
+                                        return false;
                                 }
                                 if ((TIME > curr->signon) && (curr->registered == 3) && (AllModulesReportReady(curr)))
                                 {
@@ -2480,14 +2480,14 @@ void DoBackgroundUserStuff(time_t TIME)
                                         statsDnsBad++;
                                         FullConnectUser(curr);
                                         if (fd_ref_table[currfd] != curr) // something changed, bail pronto
-	                                        return;
+	                                        return false;
                                  }
                                  if ((curr->dns_done) && (curr->registered == 3) && (AllModulesReportReady(curr)))
                                  {
                                        log(DEBUG,"dns done, registered=3, and modules ready, OK");
                                        FullConnectUser(curr);
                                        if (fd_ref_table[currfd] != curr) // something changed, bail pronto
-                                                return;
+                                                return false;
                                  }
                                  if ((TIME > curr->nping) && (isnick(curr->nick)) && (curr->registered == 7))
                                  {
@@ -2495,16 +2495,17 @@ void DoBackgroundUserStuff(time_t TIME)
                                        {
 	                                       log(DEBUG,"InspIRCd: ping timeout: %s",curr->nick);
                                                kill_link(curr,"Ping timeout");
-                                               return;
+                                               return false;
                                        }
                                        Write(curr->fd,"PING :%s",ServerName);
                                        log(DEBUG,"InspIRCd: pinging: %s",curr->nick);
                                        curr->lastping = 0;
                                        curr->nping = TIME+curr->pingmax;       // was hard coded to 120
-                                 }
-                         }
-                 }
-         }
+                        	}
+                	}
+        	}
+	}
+	return true;
 }
 
 void OpenLog(char** argv, int argc)
@@ -2687,7 +2688,8 @@ int InspIRCd(char** argv, int argc)
 		if ((TIME % 8) == 1)
 			expire_run = false;
 		
-		DoBackgroundUserStuff(TIME);
+		if (TIME != OLDTIME)
+			while (DoBackgroundUserStuff(TIME));
 
 		SE->Wait(activefds);
 
