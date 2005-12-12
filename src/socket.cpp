@@ -35,6 +35,9 @@ using namespace std;
 #include "inspircd_util.h"
 #include "inspstring.h"
 #include "helperfuncs.h"
+#include "socketengine.h"
+
+extern SocketEngine* SE;
 
 extern FILE *log_file;
 extern int boundPortCount;
@@ -53,6 +56,7 @@ InspSocket::InspSocket(int newfd, char* ip)
 	this->fd = newfd;
 	this->state = I_CONNECTED;
 	this->IP = ip;
+	SE->AddFd(this->fd,true,X_ESTAB_MODULE);
 }
 
 InspSocket::InspSocket(std::string host, int port, bool listening, unsigned long maxtime)
@@ -80,6 +84,7 @@ InspSocket::InspSocket(std::string host, int port, bool listening, unsigned long
 			else
 			{
 				this->state = I_LISTENING;
+				SE->AddFd(this->fd,true,X_ESTAB_MODULE);
 				log(DEBUG,"New socket now in I_LISTENING state");
 				return;
 			}
@@ -126,6 +131,7 @@ InspSocket::InspSocket(std::string host, int port, bool listening, unsigned long
                         }
                 }
                 this->state = I_CONNECTING;
+		SE->AddFd(this->fd,false,X_ESTAB_MODULE);
                 return;
 	}
 }
@@ -202,33 +208,33 @@ bool InspSocket::Poll()
 		this->state = I_ERROR;
 	        return false;
 	}
-        polls.fd = this->fd;
-	state == I_CONNECTING ? polls.events = POLLOUT : polls.events = POLLIN;
-	int ret = poll(&polls,1,1);
 
-        if (ret > 0)
+	int incoming = -1;
+	
+	switch (this->state)
 	{
-		int incoming = -1;
-		
-		switch (this->state)
-		{
-			case I_CONNECTING:
-				this->SetState(I_CONNECTED);
-				return this->OnConnected();
-			break;
-			case I_LISTENING:
-				length = sizeof (client);
-				incoming = accept (this->fd, (sockaddr*)&client,&length);
-				this->OnIncomingConnection(incoming,inet_ntoa(client.sin_addr));
-				return true;
-			break;
-			case I_CONNECTED:
-				return this->OnDataReady();
-			break;
-			default:
-			break;
-		}
+		case I_CONNECTING:
+			this->SetState(I_CONNECTED);
+			return this->OnConnected();
+			/* Our socket was in write-state, so delete it and re-add it
+			 * in read-state.
+			 */
+			SE->DelFd(this->fd);
+			SE->AddFd(this->fd,true,X_ESTAB_MODULE);
+		break;
+		case I_LISTENING:
+			length = sizeof (client);
+			incoming = accept (this->fd, (sockaddr*)&client,&length);
+			this->OnIncomingConnection(incoming,inet_ntoa(client.sin_addr));
+			return true;
+		break;
+		case I_CONNECTED:
+			return this->OnDataReady();
+		break;
+		default:
+		break;
 	}
+
 	return true;
 }
 
@@ -241,6 +247,11 @@ void InspSocket::SetState(InspSocketState s)
 InspSocketState InspSocket::GetState()
 {
 	return this->state;
+}
+
+int InspSocket::GetFd()
+{
+	return this->fd;
 }
 
 bool InspSocket::OnConnected() { return true; }

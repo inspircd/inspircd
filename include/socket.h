@@ -61,6 +61,7 @@ public:
 	void SetState(InspSocketState s);
 	InspSocketState GetState();
 	bool Poll();
+	int GetFd();
 	virtual void Close();
 	virtual ~InspSocket();
 };

@@ -1615,13 +1615,12 @@ std::string GetVersionString()
         s1 = savept;
         v2 = strtok_r(s1," ",&savept);
         s1 = savept;
-	char socketengine[] = engine_name;
 #ifdef THREADED_DNS
 	char dnsengine[] = "multithread";
 #else
 	char dnsengine[] = "singlethread";
 #endif
-	snprintf(versiondata,MAXBUF,"%s Rev. %s %s :%s [FLAGS=%lu,%s,%s]",VERSION,v2,ServerName,SYSTEM,(unsigned long)OPTIMISATION,socketengine,dnsengine);
+	snprintf(versiondata,MAXBUF,"%s Rev. %s %s :%s [FLAGS=%lu,%s,%s]",VERSION,v2,ServerName,SYSTEM,(unsigned long)OPTIMISATION,SE->GetName().c_str(),dnsengine);
 	return versiondata;
 }
 
@@ -2657,22 +2656,6 @@ int InspIRCd(char** argv, int argc)
 		dns_poll();
 #endif
 
-		unsigned int numsockets = module_sockets.size();
-		for (std::vector<InspSocket*>::iterator a = module_sockets.begin(); a < module_sockets.end(); a++)
-		{
-			InspSocket* s = (InspSocket*)*a;
-			if ((s) && (!s->Poll()))
-			{
-				log(DEBUG,"Socket poll returned false, close and bail");
-				s->Close();
-				module_sockets.erase(a);
-				delete s;
-				break;
-			}
-			// we gained a socket, sarper
-			if (module_sockets.size() != numsockets) break;
-		}
-
 		// *FIX* Instead of closing sockets in kill_link when they receive the ERROR :blah line, we should queue
 		// them in a list, then reap the list every second or so.
 		if (((TIME % 5) == 0) && (!expire_run))
@@ -2688,17 +2671,48 @@ int InspIRCd(char** argv, int argc)
 		DoBackgroundUserStuff();
 
 		SE->Wait(activefds);
-	
+
 		for (unsigned int activefd = 0; activefd < activefds.size(); activefd++)
 		{
-			userrec* cu = fd_ref_table[activefds[activefd]];
-			if (cu)
+			if (SE->GetType(activefds[activefd]) == X_ESTAB_CLIENT)
 			{
-				/* It's a user */
-				ProcessUser(cu);
+				log(DEBUG,"Got a ready socket of type X_ESTAB_CLIENT");
+				userrec* cu = fd_ref_table[activefds[activefd]];
+				if (cu)
+				{
+					/* It's a user */
+					ProcessUser(cu);
+				}
 			}
-			else
+			else if (SE->GetType(activefds[activefd]) == X_MODULE)
 			{
+				log(DEBUG,"Got a ready socket of type X_MODULE");
+				unsigned int numsockets = module_sockets.size();
+				for (std::vector<InspSocket*>::iterator a = module_sockets.begin(); a < module_sockets.end(); a++)
+				{
+					InspSocket* s = (InspSocket*)*a;
+					if ((s) && (s->GetFd() == activefds[activefd]))
+					{
+						if (!s->Poll())
+						{
+							log(DEBUG,"Socket poll returned false, close and bail");
+							SE->DelFd(s->GetFd());
+							s->Close();
+							module_sockets.erase(a);
+							delete s;
+							break;
+						}
+						if (module_sockets.size() != numsockets) break;
+					}
+				}
+			}
+			else if (SE->GetType(activefds[activefd]) == X_ESTAB_DNS)
+			{
+				log(DEBUG,"Got a ready socket of type X_ESTAB_DNS");
+			}
+			else if (SE->GetType(activefds[activefd]) == X_LISTEN)
+			{
+				log(DEBUG,"Got a ready socket of type X_LISTEN");
 				/* It maybe a listener */
 				for (count = 0; count < boundPortCount; count++)
 				{
