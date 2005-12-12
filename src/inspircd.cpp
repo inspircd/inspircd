@@ -2637,7 +2637,14 @@ int InspIRCd(char** argv, int argc)
 	bool expire_run = false;
 	std::vector<int> activefds;
 	int incomingSockfd;
+	userrec* cu = NULL;
+	InspSocket* s = NULL;
+	char target[MAXBUF];
+	unsigned int numsockets, numberactive;
 
+	/* Beta 7 moved all this stuff out of the main function
+	 * into smaller sub-functions, much tidier -- Brain
+	 */
 	OpenLog(argv, argc);
 	CheckRoot();
 	SetupCommandTable();
@@ -2734,7 +2741,7 @@ int InspIRCd(char** argv, int argc)
 		 * listening ports or module sockets though, things could get
 		 * ugly.
 		 */
-		unsigned int numberactive = activefds.size();
+		numberactive = activefds.size();
 		for (unsigned int activefd = 0; activefd < numberactive; activefd++)
 		{
 			int socket_type = SE->GetType(activefds[activefd]);
@@ -2742,7 +2749,7 @@ int InspIRCd(char** argv, int argc)
 			{
 				case X_ESTAB_CLIENT:
 
-					userrec* cu = fd_ref_table[activefds[activefd]];
+					cu = fd_ref_table[activefds[activefd]];
 					if (cu)
 						ProcessUser(cu);
 
@@ -2754,10 +2761,10 @@ int InspIRCd(char** argv, int argc)
 					 * Modules are encouraged to inherit their sockets from
 					 * InspSocket so we can process them neatly like this.
 					 */
-					unsigned int numsockets = module_sockets.size();
+					numsockets = module_sockets.size();
 					for (std::vector<InspSocket*>::iterator a = module_sockets.begin(); a < module_sockets.end(); a++)
 					{
-						InspSocket* s = (InspSocket*)*a;
+						s = (InspSocket*)*a;
 						if ((s) && (s->GetFd() == activefds[activefd]))
 						{
 							if (!s->Poll())
@@ -2797,7 +2804,6 @@ int InspIRCd(char** argv, int argc)
 					{
 						if (activefds[activefd] == openSockfd[count])
 						{
-							char target[MAXBUF];
 							length = sizeof (client);
 							incomingSockfd = accept (openSockfd[count], (struct sockaddr *) &client, &length);
 							log(DEBUG,"Accepted socket %d",incomingSockfd);
