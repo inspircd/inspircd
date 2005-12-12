@@ -2434,6 +2434,16 @@ void ProcessUser(userrec* cu)
         }
 }
 
+/**
+ * This function is called once a second from the mainloop.
+ * It is intended to do background checking on all the user structs, e.g.
+ * stuff like ping checks, registration timeouts, etc.
+ * The function returns false when it is finished, and true if
+ * it needs to be run again (e.g. it has processed one of a batch of
+ * QUIT messages, but couldnt continue iterating because the iterator
+ * became invalid). This function is also responsible for checking
+ * if InspSocket derived classes are timed out.
+ */
 bool DoBackgroundUserStuff(time_t TIME)
 {
 	unsigned int numsockets = module_sockets.size();
@@ -2451,8 +2461,11 @@ bool DoBackgroundUserStuff(time_t TIME)
 		}
 		if (module_sockets.size() != numsockets) break;
 	}
+	/* TODO: We need a seperate hash containing only local users for this
+	 */
         for (user_hash::iterator count2 = clientlist.begin(); count2 != clientlist.end(); count2++)
         {
+		/* Sanity checks for corrupted iterators (yes, really) */
                 userrec* curr = NULL;
                 if (count2->second)
                         curr = count2->second;
@@ -2677,14 +2690,22 @@ int InspIRCd(char** argv, int argc)
 	for (;;)
 	{
 #ifdef _POSIX_PRIORITY_SCHEDULING
+		/* If we can, yield a bit. Doesnt do us any harm, if we're busy we take back some timeslice later ;-)
+		 * it just means that if we have absolutely NOTHING to do, we dont eat up all the cpu doing nothing.
+		 */
 		sched_yield(); sched_yield();
 #endif
-		// we only read time() once per iteration rather than tons of times!
+		/* time() seems to be a pretty expensive syscall, so avoid calling it too much.
+		 * Once per loop iteration is pleanty.
+		 */
 		OLDTIME = TIME;
 		TIME = time(NULL);
 
-		// *FIX* Instead of closing sockets in kill_link when they receive the ERROR :blah line, we should queue
-		// them in a list, then reap the list every second or so.
+		/* Run background module timers every few seconds
+		 * (the docs say modules shouldnt rely on accurate
+		 * timing using this event, so we dont have to
+		 * time this exactly).
+		 */
 		if (((TIME % 8) == 0) && (!expire_run))
 		{
 			expire_lines();
@@ -2695,84 +2716,124 @@ int InspIRCd(char** argv, int argc)
 		if ((TIME % 8) == 1)
 			expire_run = false;
 		
+		/* Once a second, do the background processing */
 		if (TIME != OLDTIME)
 			while (DoBackgroundUserStuff(TIME));
 
+		/* Call the socket engine to wait on the active
+		 * file descriptors. The socket engine has everything's
+		 * descriptors in its list... dns, modules, users,
+		 * servers... so its nice and easy, just one call.
+		 */
 		SE->Wait(activefds);
 
+		/**
+		 * Now process each of the fd's. For users, we have a fast
+		 * lookup table which can find a user by file descriptor, so
+		 * processing them by fd isnt expensive. If we have a lot of
+		 * listening ports or module sockets though, things could get
+		 * ugly.
+		 */
 		unsigned int numberactive = activefds.size();
 		for (unsigned int activefd = 0; activefd < numberactive; activefd++)
 		{
 			int socket_type = SE->GetType(activefds[activefd]);
+			switch (socket_type)
+			{
+				case X_ESTAB_CLIENT:
 
-			if (socket_type == X_ESTAB_CLIENT)
-			{
-				log(DEBUG,"Got a ready socket of type X_ESTAB_CLIENT");
-				userrec* cu = fd_ref_table[activefds[activefd]];
-				if (cu)
-				{
-					/* It's a user */
-					ProcessUser(cu);
-				}
-			}
-			else if (socket_type == X_ESTAB_MODULE)
-			{
-				log(DEBUG,"Got a ready socket of type X_ESTAB_MODULE");
-				unsigned int numsockets = module_sockets.size();
-				for (std::vector<InspSocket*>::iterator a = module_sockets.begin(); a < module_sockets.end(); a++)
-				{
-					InspSocket* s = (InspSocket*)*a;
-					if ((s) && (s->GetFd() == activefds[activefd]))
+					userrec* cu = fd_ref_table[activefds[activefd]];
+					if (cu)
+						ProcessUser(cu);
+
+				break;
+
+				case X_ESTAB_MODULE:
+
+					/* Process module-owned sockets.
+					 * Modules are encouraged to inherit their sockets from
+					 * InspSocket so we can process them neatly like this.
+					 */
+					unsigned int numsockets = module_sockets.size();
+					for (std::vector<InspSocket*>::iterator a = module_sockets.begin(); a < module_sockets.end(); a++)
 					{
-						if ((s->Timeout(TIME)) || (!s->Poll()))
+						InspSocket* s = (InspSocket*)*a;
+						if ((s) && (s->GetFd() == activefds[activefd]))
 						{
-							log(DEBUG,"Socket poll returned false, close and bail");
-							SE->DelFd(s->GetFd());
-							s->Close();
-							module_sockets.erase(a);
-							delete s;
+							if (!s->Poll())
+							{
+								log(DEBUG,"Socket poll returned false, close and bail");
+								SE->DelFd(s->GetFd());
+								s->Close();
+								module_sockets.erase(a);
+								delete s;
+								break;
+							}
+							if (module_sockets.size() != numsockets) break;
+						}
+					}
+
+				break;
+
+				case X_ESTAB_DNS:
+
+					/* When we are using single-threaded dns,
+					 * the sockets for dns end up in our mainloop.
+					 * When we are using multi-threaded dns,
+					 * each thread has its own basic poll() loop
+					 * within it, making them 'fire and forget'
+					 * and independent of the mainloop.
+					 */
+					log(DEBUG,"Got a ready socket of type X_ESTAB_DNS");
+#ifndef THREADED_DNS
+					dns_poll(activefds[activefd]);
+#endif
+				break;
+				
+				case X_LISTEN:
+
+					/* It's a listener */
+					for (int count = 0; count < boundPortCount; count++)
+					{
+						if (activefds[activefd] == openSockfd[count])
+						{
+							char target[MAXBUF];
+							length = sizeof (client);
+							incomingSockfd = accept (openSockfd[count], (struct sockaddr *) &client, &length);
+							log(DEBUG,"Accepted socket %d",incomingSockfd);
+							strlcpy (target, (char *) inet_ntoa (client.sin_addr), MAXBUF);
+							/* Years and years ago, we used to resolve here
+							 * using gethostbyaddr(). That is sucky and we
+							 * don't do that any more...
+							 */
+							if (incomingSockfd >= 0)
+							{
+								FOREACH_MOD OnRawSocketAccept(incomingSockfd, target, ports[count]);
+								statsAccept++;
+								AddClient(incomingSockfd, target, ports[count], false, inet_ntoa (client.sin_addr));
+								log(DEBUG,"Adding client on port %lu fd=%lu",(unsigned long)ports[count],(unsigned long)incomingSockfd);
+							}
+							else
+							{
+								WriteOpers("*** WARNING: accept() failed on port %lu (%s)",(unsigned long)ports[count],target);
+								log(DEBUG,"accept failed: %lu",(unsigned long)ports[count]);
+								statsRefused++;
+							}
+							/* We've found out what port it belongs on,
+							 * no need to iterate the rest
+							 */
 							break;
 						}
-						if (module_sockets.size() != numsockets) break;
 					}
-				}
-			}
-			else if (socket_type == X_ESTAB_DNS)
-			{
-				log(DEBUG,"Got a ready socket of type X_ESTAB_DNS");
-#ifndef THREADED_DNS
-				dns_poll(activefds[activefd]);
-#endif
-			}
-			else if (socket_type == X_LISTEN)
-			{
-				log(DEBUG,"Got a ready socket of type X_LISTEN");
-				/* It maybe a listener */
-				for (int count = 0; count < boundPortCount; count++)
-				{
-					if (activefds[activefd] == openSockfd[count])
-					{
-						char target[MAXBUF], resolved[MAXBUF];
-						length = sizeof (client);
-						incomingSockfd = accept (openSockfd[count], (struct sockaddr *) &client, &length);
-						log(DEBUG,"Accepted socket %d",incomingSockfd);
-						strlcpy (target, (char *) inet_ntoa (client.sin_addr), MAXBUF);
-						strlcpy (resolved, target, MAXBUF);
-						if (incomingSockfd >= 0)
-						{
-							FOREACH_MOD OnRawSocketAccept(incomingSockfd, resolved, ports[count]);
-							statsAccept++;
-							AddClient(incomingSockfd, resolved, ports[count], false, inet_ntoa (client.sin_addr));
-							log(DEBUG,"Adding client on port %lu fd=%lu",(unsigned long)ports[count],(unsigned long)incomingSockfd);
-						}
-						else
-						{
-							WriteOpers("*** WARNING: accept() failed on port %lu (%s)",(unsigned long)ports[count],target);
-							log(DEBUG,"accept failed: %lu",(unsigned long)ports[count]);
-							statsRefused++;
-						}
-					}
-				}
+				break;
+
+				default;
+					/* Something went wrong if we're in here.
+					 * In fact, so wrong, im not quite sure
+					 * what we would do, so for now, its going
+					 * to safely do bugger all.
+					 */
+				break;
 			}
 		}
 
