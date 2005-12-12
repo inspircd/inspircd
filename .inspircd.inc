@@ -86,14 +86,8 @@ sub start {
         if (getstatus() == 1) { print "InspIRCd is already running.\n"; return 0; }
         # If we are still alive here.. Try starting the IRCd..
         system("$binpath/$executable");
-        sleep 1;
-        if (getstatus() == 0) {
-                print "InspIRCd Seemingly not started, Log follows:\n";
-                system("tail $binpath/ircd.log");
-        } else {
-                # We're good!
-                return 1;
-        }
+	sleep 2;
+        return 1;
 }
 
 sub debug {
