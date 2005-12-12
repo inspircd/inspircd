@@ -24,17 +24,6 @@ using namespace std;
 #include <sys/errno.h>
 #include <sys/ioctl.h>
 #include <sys/utsname.h>
-
-#ifdef USE_KQUEUE
-#include <sys/types.h>
-#include <sys/event.h>
-#include <sys/time.h>
-#endif
-
-#ifdef USE_EPOLL
-#include <sys/epoll.h>
-#endif
-
 #include <cstdio>
 #include <time.h>
 #include <string>

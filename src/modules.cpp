@@ -22,17 +22,6 @@ using namespace std;
 #include "inspircd_util.h"
 #include <unistd.h>
 #include <sys/errno.h>
-
-#ifdef USE_KQUEUE
-#include <sys/types.h>
-#include <sys/event.h>
-#include <sys/time.h>
-#endif
-
-#ifdef USE_EPOLL
-#include <sys/epoll.h>
-#endif
-
 #include <time.h>
 #include <string>
 #ifdef GCC3
