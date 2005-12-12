@@ -2560,22 +2560,6 @@ int InspIRCd(char** argv, int argc)
 	log(DEBUG,"InspIRCd: startup: read %lu total client ports",(unsigned long)portCount);
 
 	printf("\n");
-	
-	/* BugFix By Craig! :p */
-	MODCOUNT = -1;
-	for (count = 0; count < ConfValueEnum("module",&config_f); count++)
-	{
-		ConfValue("module","name",count,configToken,&config_f);
-		printf("Loading module... \033[1;32m%s\033[0m\n",configToken);
-		if (!LoadModule(configToken))
-		{
-			log(DEFAULT,"Exiting due to a module loader error.");
-			printf("\nThere was an error loading a module: %s\n\nYou might want to do './inspircd start' instead of 'bin/inspircd'\n\n",ModuleError());
-			Exit(0);
-		}
-	}
-	log(DEFAULT,"Total loaded modules: %lu",(unsigned long)MODCOUNT+1);
-	
 	startup_time = time(NULL);
 	  
 	char PID[MAXBUF];
@@ -2611,9 +2595,6 @@ int InspIRCd(char** argv, int argc)
 		printf("\nERROR: Was not able to bind any of %lu ports! Please check your configuration.\n\n", (unsigned long)portCount);
 		return (ERROR);
 	}
-	
-
-        printf("\nInspIRCd is now running!\n");
 
         if (nofork)
         {
@@ -2630,6 +2611,29 @@ int InspIRCd(char** argv, int argc)
         }
 
 	SE = new SocketEngine();
+
+	/* We must load the modules AFTER initializing the socket engine, now */
+        MODCOUNT = -1;
+	for (count = 0; count < ConfValueEnum("module",&config_f); count++)
+	{
+		ConfValue("module","name",count,configToken,&config_f);
+                printf("Loading module... \033[1;32m%s\033[0m\n",configToken);
+                if (!LoadModule(configToken))
+                {
+                        log(DEFAULT,"Exiting due to a module loader error.");
+                        printf("\nThere was an error loading a module: %s\n\nYou might want to do './inspircd start' instead of 'bin/inspircd'\n\n",ModuleError());
+                        Exit(0);
+                }
+        }
+	log(DEFAULT,"Total loaded modules: %lu",(unsigned long)MODCOUNT+1);
+
+	printf("\nInspIRCd is now running!\n");
+
+	if (!nofork)
+	{
+		freopen("/dev/null","w",stdout);
+		freopen("/dev/null","w",stderr);
+	}
 
 	/* Add the listening sockets used for client inbound connections
 	 * to the socket engine

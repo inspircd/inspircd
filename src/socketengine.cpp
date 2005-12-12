@@ -41,12 +41,13 @@ SocketEngine::~SocketEngine()
 char SocketEngine::GetType(int fd)
 {
 	/* Mask off the top bit used for 'read/write' state */
-	return (ref[fd] & 0x7F);
+	return (ref[fd] & ~0x80);
 }
 
 bool SocketEngine::AddFd(int fd, bool readable, char type)
 {
 	this->fds.push_back(fd);
+	ref[fd] = type;
 	if (readable)
 		ref[fd] |= X_READBIT;
 #ifdef USE_EPOLL
