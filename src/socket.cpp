@@ -194,9 +194,9 @@ int InspSocket::Write(std::string data)
 	return written;
 }
 
-bool InspSocket::Poll()
+bool InspSocket::Timeout(time_t current)
 {
-	if ((time(NULL) > timeout_end) && (this->state == I_CONNECTING))
+	if ((this->state == I_CONNECTING) && (current > timeout_end))
 	{
 		// for non-listening sockets, the timeout can occur
 		// which causes termination of the connection after
@@ -204,11 +204,15 @@ bool InspSocket::Poll()
 		// connection.
 		this->OnTimeout();
 		this->OnError(I_ERR_TIMEOUT);
-        	timeout = true;
+		timeout = true;
 		this->state = I_ERROR;
-	        return false;
+		return true;
 	}
+	return false;
+}
 
+bool InspSocket::Poll()
+{
 	int incoming = -1;
 	
 	switch (this->state)

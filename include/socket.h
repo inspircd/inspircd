@@ -56,6 +56,7 @@ public:
 	virtual void OnClose();
 	virtual char* Read();
 	std::string GetIP();
+	bool Timeout(time_t current);
 	virtual int Write(std::string data);
 	virtual int OnIncomingConnection(int newfd, char* ip);
 	void SetState(InspSocketState s);

@@ -2700,7 +2700,7 @@ int InspIRCd(char** argv, int argc)
 					InspSocket* s = (InspSocket*)*a;
 					if ((s) && (s->GetFd() == activefds[activefd]))
 					{
-						if (!s->Poll())
+						if ((s->Timeout(TIME)) || (!s->Poll()))
 						{
 							log(DEBUG,"Socket poll returned false, close and bail");
 							SE->DelFd(s->GetFd());
