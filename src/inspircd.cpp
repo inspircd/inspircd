@@ -2684,9 +2684,9 @@ int InspIRCd(char** argv, int argc)
 					ProcessUser(cu);
 				}
 			}
-			else if (SE->GetType(activefds[activefd]) == X_MODULE)
+			else if (SE->GetType(activefds[activefd]) == X_ESTAB_MODULE)
 			{
-				log(DEBUG,"Got a ready socket of type X_MODULE");
+				log(DEBUG,"Got a ready socket of type X_ESTAB_MODULE");
 				unsigned int numsockets = module_sockets.size();
 				for (std::vector<InspSocket*>::iterator a = module_sockets.begin(); a < module_sockets.end(); a++)
 				{
