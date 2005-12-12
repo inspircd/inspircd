@@ -2677,14 +2677,14 @@ int InspIRCd(char** argv, int argc)
 
 		// *FIX* Instead of closing sockets in kill_link when they receive the ERROR :blah line, we should queue
 		// them in a list, then reap the list every second or so.
-		if (((TIME % 5) == 0) && (!expire_run))
+		if (((TIME % 8) == 0) && (!expire_run))
 		{
 			expire_lines();
 			FOREACH_MOD OnBackgroundTimer(TIME);
 			expire_run = true;
 			continue;
 		}
-		if ((TIME % 5) == 1)
+		if ((TIME % 8) == 1)
 			expire_run = false;
 		
 		DoBackgroundUserStuff(TIME);
