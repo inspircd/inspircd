@@ -53,7 +53,11 @@ bool SocketEngine::AddFd(int fd, bool readable, char type)
 	this->fds.push_back(fd);
 	ref[fd] = type;
 	if (readable)
+	{
+		log(DEBUG,"Set readbit");
 		ref[fd] |= X_READBIT;
+	}
+	log(DEBUG,"Add socket %d",fd);
 #ifdef USE_EPOLL
 	struct epoll_event ev;
 	log(DEBUG,"epoll: Add socket to events, ep=%d socket=%d",EngineHandle,fd);
@@ -93,6 +97,7 @@ bool SocketEngine::DelFd(int fd)
 		if (*i == fd)
 		{
 			fds.erase(i);
+			log(DEBUG,"Deleted fd %d",fd);
 			found = true;
 			break;
 		}
@@ -134,10 +139,12 @@ bool SocketEngine::Wait(std::vector<int> &fdlist)
 	{
 		if (ref[fds[a]] & X_READBIT)
 		{
+			log(DEBUG,"Adding readable %d",fds[a]);
 			FD_SET (fds[a], &rfdset);
 		}
 		else
 		{
+			log(DEBUG,"Adding writeable %d",fds[a]);
 			FD_SET (fds[a], &wfdset);
 		}
 		
@@ -150,7 +157,10 @@ bool SocketEngine::Wait(std::vector<int> &fdlist)
 		for (unsigned int a = 0; a < fds.size(); a++)
 		{
 			if ((FD_ISSET (fds[a], &rfdset)) || (FD_ISSET (fds[a], &wfdset)))
+			{
+				log(DEBUG,"...Adding active %d",fds[a]);
 				fdlist.push_back(fds[a]);
+			}
 		}
 	}
 #endif
