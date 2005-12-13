@@ -639,7 +639,7 @@ void handle_privmsg(char **parameters, int pcnt, userrec *user)
 		}
 		parameters[1] = (char*)temp.c_str();
 
-		if (dest->server > -1)
+		if (dest->fd > -1)
 		{
 			// direct write, same server
 			WriteTo(user, dest, "PRIVMSG %s :%s", dest->nick, parameters[1]);

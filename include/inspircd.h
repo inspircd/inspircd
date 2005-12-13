@@ -67,6 +67,10 @@
 #define TYPE_CHANNEL 2
 #define TYPE_SERVER 3
 
+#define IS_LOCAL(x) (x->fd > -1)
+#define IS_REMOTE(x) (x->fd < 0)
+#define IS_MODULE_CREATED(x) (x->fd == FD_MAGIC_NUMBER)
+
 typedef std::deque<std::string> file_cache;
 
 typedef void (handlerfunc) (char**, int, userrec*);

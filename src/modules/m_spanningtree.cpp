@@ -2724,7 +2724,7 @@ class ModuleSpanningTree : public Module
 
 	virtual void OnUserKick(userrec* source, userrec* user, chanrec* chan, std::string reason)
 	{
-		if (source->server > -1)
+		if (source->fd > -1)
 		{
 			std::deque<std::string> params;
 			params.push_back(chan->name);

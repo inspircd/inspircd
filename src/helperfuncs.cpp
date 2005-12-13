@@ -1117,7 +1117,7 @@ int usercount_unknown(void)
 
         for (user_hash::const_iterator i = clientlist.begin(); i != clientlist.end(); i++)
         {
-                if ((i->second->fd) && (i->second->registered != 7))
+                if ((i->second->fd > -1) && (i->second->registered != 7))
                         c++;
         }
         return c;
@@ -1133,7 +1133,7 @@ long local_count()
         int c = 0;
         for (user_hash::const_iterator i = clientlist.begin(); i != clientlist.end(); i++)
         {
-                if ((i->second->fd) && (isnick(i->second->nick)) && (i->second->server->fd > -1)) c++;
+                if ((isnick(i->second->nick)) && (i->second->fd > -1)) c++;
         }
         return c;
 }

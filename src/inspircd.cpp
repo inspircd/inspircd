@@ -587,8 +587,9 @@ chanrec* add_channel(userrec *user, const char* cn, const char* key, bool overri
 		{
 			MOD_RESULT = 0;
 			FOREACH_RESULT(OnUserPreJoin(user,Ptr,cname));
-			if (MOD_RESULT == 1) {
-				return NULL
+			if (MOD_RESULT == 1)
+			{
+				return NULL;
 			}
 			else
 			{
