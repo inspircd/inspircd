@@ -2037,6 +2037,11 @@ void handle_zline(char **parameters, int pcnt, userrec *user)
 {
 	if (pcnt >= 3)
 	{
+		if (strchr(parameters[0],'@'))
+		{
+			WriteServ(user->fd,"NOTICE %s :*** You cannot include a username in a zline, a zline must ban only an IP mask",user->nick);
+			return;
+		}
 		if (ip_matches_everyone(parameters[0],user))
 			return;
 		add_zline(duration(parameters[1]),user->nick,parameters[2],parameters[0]);
