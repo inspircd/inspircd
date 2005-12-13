@@ -427,11 +427,11 @@ void TidyBan(char *ban)
 
 char lst[MAXBUF];
 
-char* chlist(userrec *user,userrec* source)
+std::string chlist(userrec *user,userrec* source)
 {
-	char cmp[MAXBUF];
+	std::string cmp = "";
+	std::string lst = "";
         log(DEBUG,"chlist: %s",user->nick);
-	strcpy(lst,"");
 	if (!user)
 	{
 		return lst;
@@ -442,27 +442,18 @@ char* chlist(userrec *user,userrec* source)
 		{
 			if (user->chans[i].channel->name)
 			{
-				strlcpy(cmp,user->chans[i].channel->name,MAXBUF);
-				strlcat(cmp," ",MAXBUF);
-				if (!strstr(lst,cmp))
+				cmp = std::string(user->chans[i].channel->name) + " ";
+				if (!strstr(lst.c_str(),cmp.c_str()))
 				{
 					// if the channel is NOT private/secret, OR the source user is on the channel
 					if (((!(user->chans[i].channel->binarymodes & CM_PRIVATE)) && (!(user->chans[i].channel->binarymodes & CM_SECRET))) || (has_channel(source,user->chans[i].channel)))
 					{
-						strlcat(lst,cmode(user,user->chans[i].channel),MAXBUF);
-						strlcat(lst,user->chans[i].channel->name,MAXBUF);
-						strlcat(lst," ",MAXBUF);
+						lst = lst + std::string(cmode(user,user->chans[i].channel)) + std::string(user->chans[i].channel->name) + " ";
 					}
 				}
 			}
 		}
 	}
-	if (strlen(lst))
-	{
-		lst[strlen(lst)-1] = '\0'; // chop trailing space
-	}
 	return lst;
 }
-
-
 

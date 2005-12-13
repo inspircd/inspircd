@@ -823,6 +823,23 @@ void handle_whois(char **parameters, int pcnt, userrec *user)
 	}
 }
 
+void split_chlist(userrec* user, userrec* dest, std::string &cl)
+{
+	std::stringstream channels(cl);
+	std::string line = "";
+	std::string cname = "";
+	while (!channels.eof())
+	{
+		channels >> cname;
+		line = line + cname + " ";
+		if (line.length() > 400)
+		{
+			WriteServ(user->fd,"319 %s %s :%s",user->nick, dest->nick, line.c_str());
+			line = "";
+		}
+	}
+}
+
 void do_whois(userrec* user, userrec* dest,unsigned long signon, unsigned long idle, char* nick)
 {
 	// bug found by phidjit - were able to whois an incomplete connection if it had sent a NICK or USER
@@ -833,10 +850,17 @@ void do_whois(userrec* user, userrec* dest,unsigned long signon, unsigned long i
 		{
 			WriteServ(user->fd,"378 %s %s :is connecting from *@%s %s",user->nick, dest->nick, dest->host, dest->ip);
 		}
-		char* cl = chlist(dest,user);
-		if (*cl)
+		std::string cl = chlist(dest,user);
+		if (cl.length())
 		{
-			WriteServ(user->fd,"319 %s %s :%s",user->nick, dest->nick, cl);
+			if (cl.length() > 400)
+			{
+				split_chlist(user,dest,cl);
+			}
+			else
+			{
+				WriteServ(user->fd,"319 %s %s :%s",user->nick, dest->nick, cl.c_str());
+			}
 		}
 		WriteServ(user->fd,"312 %s %s %s :%s",user->nick, dest->nick, dest->server, GetServerDescription(dest->server).c_str());
 		if (*dest->awaymsg)
