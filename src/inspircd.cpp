@@ -718,45 +718,62 @@ chanrec* add_channel(userrec *user, const char* cn, const char* key, bool overri
 	
 	for (unsigned int index =0; index < user->chans.size(); index++)
 	{
-		log(DEBUG,"Check location %d",index);
 		if (user->chans[index].channel == NULL)
 		{
-			log(DEBUG,"Adding into their channel list at location %d",index);
-
-			if (created == 2) 
-			{
-				/* first user in is given ops */
-				user->chans[index].uc_modes = UCMODE_OP;
-			}
-			else
-			{
-				user->chans[index].uc_modes = 0;
-			}
-			user->chans[index].channel = Ptr;
-			Ptr->AddUser((char*)user);
-			WriteChannel(Ptr,user,"JOIN :%s",Ptr->name);
-			
-			log(DEBUG,"Sent JOIN to client");
-
-			if (Ptr->topicset)
-			{
-				WriteServ(user->fd,"332 %s %s :%s", user->nick, Ptr->name, Ptr->topic);
-				WriteServ(user->fd,"333 %s %s %s %lu", user->nick, Ptr->name, Ptr->setby, (unsigned long)Ptr->topicset);
-			}
-			userlist(user,Ptr);
-			WriteServ(user->fd,"366 %s %s :End of /NAMES list.", user->nick, Ptr->name);
-			//WriteServ(user->fd,"324 %s %s +%s",user->nick, Ptr->name,chanmodes(Ptr));
-			//WriteServ(user->fd,"329 %s %s %lu", user->nick, Ptr->name, (unsigned long)Ptr->created);
-			FOREACH_MOD OnUserJoin(user,Ptr);
-			return Ptr;
+			return ForceChan(Ptr,user->chans[index],user,created);
 		}
 	}
 	/* XXX: If the user is an oper here, we can just extend their user->chans vector by one
-	 * and put the channel in here. Otherwise, nope, youre boned.
+	 * and put the channel in here. Same for remote users which are not bound by
+	 * the channel limits. Otherwise, nope, youre boned.
 	 */
+	if (strcasecmp(user->server,ServerName))
+	{
+		ucrec a;
+		chanrec* c = ForceChan(Ptr,a,user,created);
+		user->chans.push_back(a);
+		return c;
+	}
+	else if (strchr(user->modes,'o'))
+	{
+		/* Oper allows extension up to the OPERMAXCHANS value */
+		if (user->chans.size() < OPERMAXCHANS)
+		{
+			ucrec a;
+			chanrec* c = ForceChan(Ptr,a,user,created);
+			user->chans.push_back(a);
+			return c;
+		}
+	}
 	log(DEBUG,"add_channel: user channel max exceeded: %s %s",user->nick,cname);
 	WriteServ(user->fd,"405 %s %s :You are on too many channels",user->nick, cname);
 	return NULL;
+}
+
+chanrec* ForceChan(chanrec* Ptr,ucrec &a,userrec* user, int created)
+{
+	if (created == 2)
+	{
+		/* first user in is given ops */
+		a.uc_modes = UCMODE_OP;
+	}
+	else
+	{
+		a.uc_modes = 0;
+	}
+	a.channel = Ptr;
+	Ptr->AddUser((char*)user);
+	WriteChannel(Ptr,user,"JOIN :%s",Ptr->name);
+	log(DEBUG,"Sent JOIN to client");
+	if (Ptr->topicset)
+	{
+		WriteServ(user->fd,"332 %s %s :%s", user->nick, Ptr->name, Ptr->topic);
+		WriteServ(user->fd,"333 %s %s %s %lu", user->nick, Ptr->name, Ptr->setby, (unsigned long)Ptr->topicset);
+	}
+	userlist(user,Ptr);
+	WriteServ(user->fd,"366 %s %s :End of /NAMES list.", user->nick, Ptr->name);
+	FOREACH_MOD OnUserJoin(user,Ptr);
+	return Ptr;
 }
 
 /* remove a channel from a users record, and remove the record from memory

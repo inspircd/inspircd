@@ -25,7 +25,8 @@ $config{OPTIMITEMP}         = "0";                              		# Default Opti
 $config{OPTIMISATI}         = "-g";                             		# Optimisation Flag
 $config{NICK_LENGT}         = "31";                             		# Default Nick Length
 $config{CHAN_LENGT}         = "64";                             		# Default Channel Name Length
-$config{MAX_CHANNE}         = "20";                             		# Default Max. Channels per user..
+$config{MAX_CHANNE}         = "20";                             		# Default Max. Channels per user
+$config{MAX_OPERCH}         = "60"; 						# Default Max. Channels per oper
 $config{MAXI_MODES}         = "20";                             		# Default Max. Number of Modes set at once.
 $config{HAS_STRLCPY}        = "false";                          		# strlcpy Check.
 $config{USE_KQUEUE}         = "y";						# kqueue enabled
@@ -330,7 +331,7 @@ while (!$continue) {
 
 $continue = 0;
 while (!$continue) {
-  print "What is the maximum number of channels a user may join at any one time?\n";
+  print "What is the maximum number of channels a normal user may join at any one time?\n";
   print "[\033[1;32m$config{MAX_CHANNE}\033[0m] -> ";
   chomp($var = <STDIN>);
   if ($var eq "") { $var = $config{MAX_CHANNE}; }
@@ -342,6 +343,20 @@ while (!$continue) {
   } else {
     print "You must enter a number in this field. Please try again.\n\n";
   }
+}
+
+$continue = 0;
+while (!$continue) {
+  print "What is the maximum number of channels an oper may join at any one time?\n";
+  print "[\033[1;32m$config{MAX_OPERCH}\033[0m] -> ";
+  chomp($var = <STDIN>);
+  if ($var eq "") { $var = $config{MAX_OPERCH}; }
+  if ($var =~ /^\d+$/) {
+    # We don't care what the number is, set it and be on our way.
+    $config{MAX_OPERCH} = $var;
+    $continue = 1;
+    print "\n";
+ }
 }
 
 $continue = 0;
@@ -706,6 +721,7 @@ sub writefiles {
 #define NICKMAX $NL
 #define CHANMAX $CL
 #define MAXCHANS $config{MAX_CHANNE}
+#define OPERMAXCHANS $config{MAX_OPERCH}
 #define MAXMODES $config{MAXI_MODES}
 #define IDENTMAX $config{MAX_IDENT}
 #define MAXQUIT $config{MAX_QUIT}
