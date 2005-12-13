@@ -1133,7 +1133,7 @@ long local_count()
         int c = 0;
         for (user_hash::const_iterator i = clientlist.begin(); i != clientlist.end(); i++)
         {
-                if ((i->second->fd) && (isnick(i->second->nick)) && (!strcasecmp(i->second->server,ServerName))) c++;
+                if ((i->second->fd) && (isnick(i->second->nick)) && (i->second->server->fd > -1)) c++;
         }
         return c;
 }

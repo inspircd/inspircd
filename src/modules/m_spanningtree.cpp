@@ -1405,7 +1405,7 @@ class TreeSocket : public InspSocket
 			if (params.size() == 1)
 			{
 				userrec* x = Srv->FindNick(params[0]);
-				if (std::string(x->server) == Srv->GetServerName())
+				if (x->fd > -1)
 				{
 					userrec* x = Srv->FindNick(params[0]);
 					log(DEBUG,"Got IDLE");
@@ -1431,14 +1431,14 @@ class TreeSocket : public InspSocket
 			{
 				std::string who_did_the_whois = params[0];
 				userrec* who_to_send_to = Srv->FindNick(who_did_the_whois);
-				if (std::string(who_to_send_to->server) == Srv->GetServerName())
+				if (who_to_send_to->fd > -1)
 				{
 					log(DEBUG,"Got final IDLE");
 					// an incoming reply to a whois we sent out
 					std::string nick_whoised = prefix;
 					unsigned long signon = atoi(params[1].c_str());
 					unsigned long idle = atoi(params[2].c_str());
-					if ((who_to_send_to) && (std::string(who_to_send_to->server) == Srv->GetServerName()))
+					if ((who_to_send_to) && (who_to_send_to->fd > -1))
 						do_whois(who_to_send_to,u,signon,idle,(char*)nick_whoised.c_str());
 				}
 				else
@@ -1962,7 +1962,7 @@ void GetListOfServersForChannel(chanrec* c, std::deque<TreeServer*> &list)
 	{
 		char* o = (*ulist)[i];
 		userrec* otheruser = (userrec*)o;
-		if (std::string(otheruser->server) != Srv->GetServerName())
+		if (otheruser->fd < 0)
 		{
 			TreeServer* best = BestRouteTo(otheruser->server);
 			if (best)
@@ -2318,10 +2318,10 @@ class ModuleSpanningTree : public Module
 
 	int HandleRemoteWhois(char** parameters, int pcnt, userrec* user)
 	{
-		if ((std::string(user->server) == Srv->GetServerName()) && (pcnt > 1))
+		if ((user->fd > -1) && (pcnt > 1))
 		{
 			userrec* remote = Srv->FindNick(parameters[1]);
-			if ((remote) && (std::string(remote->server) != Srv->GetServerName()))
+			if ((remote) && (remote->fd < 0))
 			{
 				std::deque<std::string> params;
 				params.push_back(parameters[1]);
@@ -2521,7 +2521,7 @@ class ModuleSpanningTree : public Module
 
 	virtual void OnUserInvite(userrec* source,userrec* dest,chanrec* channel)
 	{
-		if (std::string(source->server) == Srv->GetServerName())
+		if (source->fd > -1)
 		{
 			std::deque<std::string> params;
 			params.push_back(dest->nick);
@@ -2540,7 +2540,7 @@ class ModuleSpanningTree : public Module
 
 	virtual void OnWallops(userrec* user, std::string text)
 	{
-		if (std::string(user->server) == Srv->GetServerName())
+		if (user->fd > -1)
 		{
 			std::deque<std::string> params;
 			params.push_back(":"+text);
@@ -2553,7 +2553,7 @@ class ModuleSpanningTree : public Module
 		if (target_type == TYPE_USER)
 		{
 			userrec* d = (userrec*)dest;
-			if ((std::string(d->server) != Srv->GetServerName()) && (std::string(user->server) == Srv->GetServerName()))
+			if ((d->fd < 0) && (user->fd > -1))
 			{
 				std::deque<std::string> params;
 				params.clear();
@@ -2564,7 +2564,7 @@ class ModuleSpanningTree : public Module
 		}
 		else
 		{
-			if (std::string(user->server) == Srv->GetServerName())
+			if (user->fd > -1)
 			{
 				chanrec *c = (chanrec*)dest;
 				std::deque<TreeServer*> list;
@@ -2587,7 +2587,7 @@ class ModuleSpanningTree : public Module
 			// route private messages which are targetted at clients only to the server
 			// which needs to receive them
 			userrec* d = (userrec*)dest;
-			if ((std::string(d->server) != Srv->GetServerName()) && (std::string(user->server) == Srv->GetServerName()))
+			if ((d->fd < 0) && (user->fd > -1))
 			{
 				std::deque<std::string> params;
 				params.clear();
@@ -2598,7 +2598,7 @@ class ModuleSpanningTree : public Module
 		}
 		else
 		{
-			if (std::string(user->server) == Srv->GetServerName())
+			if (user->fd > -1)
 			{
 				chanrec *c = (chanrec*)dest;
 				std::deque<TreeServer*> list;
@@ -2623,7 +2623,7 @@ class ModuleSpanningTree : public Module
 	virtual void OnUserJoin(userrec* user, chanrec* channel)
 	{
 		// Only do this for local users
-		if (std::string(user->server) == Srv->GetServerName())
+		if (user->fd > -1)
 		{
 			std::deque<std::string> params;
 			params.clear();
@@ -2675,7 +2675,7 @@ class ModuleSpanningTree : public Module
 
 	virtual void OnUserPart(userrec* user, chanrec* channel)
 	{
-		if (std::string(user->server) == Srv->GetServerName())
+		if (user->fd > -1)
 		{
 			std::deque<std::string> params;
 			params.push_back(channel->name);
@@ -2686,7 +2686,7 @@ class ModuleSpanningTree : public Module
 	virtual void OnUserConnect(userrec* user)
 	{
 		char agestr[MAXBUF];
-		if (std::string(user->server) == Srv->GetServerName())
+		if (user->fd > -1)
 		{
 			std::deque<std::string> params;
 			snprintf(agestr,MAXBUF,"%lu",(unsigned long)user->age);
@@ -2704,7 +2704,7 @@ class ModuleSpanningTree : public Module
 
 	virtual void OnUserQuit(userrec* user, std::string reason)
 	{
-		if ((std::string(user->server) == Srv->GetServerName()) && (user->registered == 7))
+		if ((user->fd > -1) && (user->registered == 7))
 		{
 			std::deque<std::string> params;
 			params.push_back(":"+reason);
@@ -2714,7 +2714,7 @@ class ModuleSpanningTree : public Module
 
 	virtual void OnUserPostNick(userrec* user, std::string oldnick)
 	{
-		if (std::string(user->server) == Srv->GetServerName())
+		if (user->fd > -1)
 		{
 			std::deque<std::string> params;
 			params.push_back(user->nick);
@@ -2724,7 +2724,7 @@ class ModuleSpanningTree : public Module
 
 	virtual void OnUserKick(userrec* source, userrec* user, chanrec* chan, std::string reason)
 	{
-		if (std::string(source->server) == Srv->GetServerName())
+		if (source->server > -1)
 		{
 			std::deque<std::string> params;
 			params.push_back(chan->name);
@@ -2764,7 +2764,7 @@ class ModuleSpanningTree : public Module
 	// locally.
 	virtual void OnOper(userrec* user, std::string opertype)
 	{
-		if (std::string(user->server) == Srv->GetServerName())
+		if (user->fd > -1)
 		{
 			std::deque<std::string> params;
 			params.push_back(opertype);
@@ -2774,7 +2774,7 @@ class ModuleSpanningTree : public Module
 
 	void OnLine(userrec* source, std::string host, bool adding, char linetype, long duration, std::string reason)
 	{
-		if (std::string(source->server) == Srv->GetServerName())
+		if (source->fd > -1)
 		{
 			char type[8];
 			snprintf(type,8,"%cLINE",linetype);
@@ -2840,7 +2840,7 @@ class ModuleSpanningTree : public Module
 
 	virtual void OnMode(userrec* user, void* dest, int target_type, std::string text)
 	{
-		if ((std::string(user->server) == Srv->GetServerName()) && (user->registered == 7))
+		if ((user->fd > -1) && (user->registered == 7))
 		{
 			if (target_type == TYPE_USER)
 			{

@@ -314,7 +314,7 @@ void handle_kill(char **parameters, int pcnt, userrec *user)
                         return;
                 }
 
-		if (strcmp(ServerName,u->server))
+		if (u->fd < 0)
 		{
 			// remote kill
 			WriteOpers("*** Remote kill by %s: %s!%s@%s (%s)",user->nick,u->nick,u->ident,u->host,parameters[1]);
@@ -505,7 +505,7 @@ void handle_topic(char **parameters, int pcnt, userrec *user)
 					topic[MAXTOPIC] = '\0';
 				}
 
-                                if (!strcasecmp(user->server,ServerName))
+                                if (user->fd > -1)
                                 {
                                         int MOD_RESULT = 0;
                                         FOREACH_RESULT(OnLocalTopicChange(user,Ptr,topic));
@@ -517,7 +517,7 @@ void handle_topic(char **parameters, int pcnt, userrec *user)
 				strlcpy(Ptr->setby,user->nick,NICKMAX);
 				Ptr->topicset = TIME;
 				WriteChannel(Ptr,user,"TOPIC %s :%s",Ptr->name, Ptr->topic);
-				if (!strcasecmp(user->server,ServerName))
+				if (user->fd > -1)
 				{
 					FOREACH_MOD OnPostLocalTopicChange(user,Ptr,topic);
 				}
@@ -620,12 +620,10 @@ void handle_privmsg(char **parameters, int pcnt, userrec *user)
 		}
 		return;
 	}
-	
-	log(DEBUG,"*** PRIVMSG HANDLER");
+
 	dest = Find(parameters[0]);
 	if (dest)
 	{
-		log(DEBUG,"*** FOUND NICK %s",dest->nick);
 		if (strcmp(dest->awaymsg,""))
 		{
 			/* auto respond with aweh msg */
@@ -641,10 +639,9 @@ void handle_privmsg(char **parameters, int pcnt, userrec *user)
 		}
 		parameters[1] = (char*)temp.c_str();
 
-		if (!strcmp(dest->server,ServerName))
+		if (dest->server > -1)
 		{
 			// direct write, same server
-			log(DEBUG,"*** CALL WRITETO");
 			WriteTo(user, dest, "PRIVMSG %s :%s", dest->nick, parameters[1]);
 		}
 
@@ -732,7 +729,7 @@ void handle_notice(char **parameters, int pcnt, userrec *user)
 		}
 		parameters[1] = (char*)temp.c_str();
 
-		if (!strcmp(dest->server,ServerName))
+		if (dest->fd > -1)
 		{
 			// direct write, same server
 			WriteTo(user, dest, "NOTICE %s :%s", dest->nick, parameters[1]);
@@ -929,7 +926,7 @@ void handle_quit(char **parameters, int pcnt, userrec *user)
 			/* We should only prefix the quit for a local user. Remote users have
 			 * already been prefixed, where neccessary, by the upstream server.
 			 */
-			if (!strcasecmp(user->server,ServerName))
+			if (user->fd > -1)
 			{
 				Write(user->fd,"ERROR :Closing link (%s@%s) [%s%s]",user->ident,user->host,PrefixQuit,parameters[0]);
 				WriteOpers("*** Client exiting: %s!%s@%s [%s%s]",user->nick,user->ident,user->host,PrefixQuit,parameters[0]);

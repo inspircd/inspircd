@@ -702,7 +702,7 @@ void apply_lines()
 		go_again = false;
 		for (user_hash::const_iterator u = clientlist.begin(); u != clientlist.end(); u++)
 		{
-			if (!strcasecmp(u->second->server,ServerName))
+			if (u->second->server > -1)
 			{
 				snprintf(host,MAXBUF,"%s@%s",u->second->ident,u->second->host);
 				if (elines.size())

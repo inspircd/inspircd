@@ -212,7 +212,7 @@ bool hasumode(userrec* user, char mode)
 
 void ChangeName(userrec* user, const char* gecos)
 {
-	if (!strcasecmp(user->server,ServerName))
+	if (user->fd > -1)
 	{
 		int MOD_RESULT = 0;
 		FOREACH_RESULT(OnChangeLocalUserGECOS(user,gecos));
@@ -225,7 +225,7 @@ void ChangeName(userrec* user, const char* gecos)
 
 void ChangeDisplayedHost(userrec* user, const char* host)
 {
-        if (!strcasecmp(user->server,ServerName))
+        if (user->fd > -1)
         {
                 int MOD_RESULT = 0;
                 FOREACH_RESULT(OnChangeLocalUserHost(user,host));
