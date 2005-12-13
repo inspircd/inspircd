@@ -1190,11 +1190,6 @@ bool AllModulesReportReady(userrec* user)
         return true;
 }
 
-char islast(const char* s)
-{
-        return '+';
-}
-
 long map_count(const char* s)
 {
         int c = 0;
