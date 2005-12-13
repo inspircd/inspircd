@@ -938,11 +938,13 @@ class TreeSocket : public InspSocket
 		clientlist[tempnick]->signon = age;
 		strlcpy(clientlist[tempnick]->modes, modes.c_str(),53);
 		strlcpy(clientlist[tempnick]->ip,ip.c_str(),16);
+
+		ucrec a;
+		a.channel = NULL;
+		a.uc_modes = 0;
 		for (int i = 0; i < MAXCHANS; i++)
-		{
-			clientlist[tempnick]->chans[i].channel = NULL;
-			clientlist[tempnick]->chans[i].uc_modes = 0;
-		}
+			clientlist[tempnick]->chans.push_back(a);
+
 		if (!this->bursting)
 		{
 			WriteOpers("*** Client connecting at %s: %s!%s@%s [%s]",clientlist[tempnick]->server,clientlist[tempnick]->nick,clientlist[tempnick]->ident,clientlist[tempnick]->host,clientlist[tempnick]->ip);

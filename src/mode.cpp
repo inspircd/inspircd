@@ -115,7 +115,7 @@ char* give_ops(userrec *user,char *dest,chanrec *chan,int status)
 		}
 
 
-		for (unsigned int i = 0; i != MAXCHANS; i++)
+		for (unsigned int i = 0; i < d->chans.size(); i++)
 		{
 			if ((d->chans[i].channel != NULL) && (chan != NULL))
 			if (!strcasecmp(d->chans[i].channel->name,chan->name))
@@ -173,7 +173,7 @@ char* give_hops(userrec *user,char *dest,chanrec *chan,int status)
 			}
 		}
 
-		for (unsigned int i = 0; i != MAXCHANS; i++)
+		for (unsigned int i = 0; i < d->chans.size(); i++)
 		{
 			if ((d->chans[i].channel != NULL) && (chan != NULL))
 			if (!strcasecmp(d->chans[i].channel->name,chan->name))
@@ -229,7 +229,7 @@ char* give_voice(userrec *user,char *dest,chanrec *chan,int status)
 			}
 		}
 
-		for (unsigned int i = 0; i != MAXCHANS; i++)
+		for (unsigned int i = 0; i < d->chans.size(); i++)
 		{
 			if ((d->chans[i].channel != NULL) && (chan != NULL))
 			if (!strcasecmp(d->chans[i].channel->name,chan->name))
@@ -287,7 +287,7 @@ char* take_ops(userrec *user,char *dest,chanrec *chan,int status)
 			}
 		}
 
-		for (unsigned int i = 0; i != MAXCHANS; i++)
+		for (unsigned int i = 0; i < d->chans.size(); i++)
 		{
 			if ((d->chans[i].channel != NULL) && (chan != NULL))
 			if (!strcasecmp(d->chans[i].channel->name,chan->name))
@@ -344,7 +344,7 @@ char* take_hops(userrec *user,char *dest,chanrec *chan,int status)
 			}
 		}
 
-		for (unsigned int i = 0; i != MAXCHANS; i++)
+		for (unsigned int i = 0; i < d->chans.size(); i++)
 		{
 			if ((d->chans[i].channel != NULL) && (chan != NULL))
 			if (!strcasecmp(d->chans[i].channel->name,chan->name))
@@ -400,7 +400,7 @@ char* take_voice(userrec *user,char *dest,chanrec *chan,int status)
 			}
 		}
 
-		for (unsigned int i = 0; i != MAXCHANS; i++)
+		for (unsigned int i = 0; i < d->chans.size(); i++)
 		{
 			if ((d->chans[i].channel != NULL) && (chan != NULL))
 			if (!strcasecmp(d->chans[i].channel->name,chan->name))

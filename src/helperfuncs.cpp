@@ -416,7 +416,7 @@ void WriteCommon(userrec *u, char* text, ...)
 
         bool sent_to_at_least_one = false;
 
-        for (int i = 0; i < MAXCHANS; i++)
+        for (int i = 0; i < u->chans.size(); i++)
         {
                 if (u->chans[i].channel)
                 {
@@ -466,7 +466,7 @@ void WriteCommonExcept(userrec *u, char* text, ...)
 
         memset(&already_sent,0,65536);
 
-        for (int i = 0; i < MAXCHANS; i++)
+        for (int i = 0; i < u->chans.size(); i++)
         {
                 if (u->chans[i].channel)
                 {
@@ -607,7 +607,7 @@ bool CommonOnThisServer(userrec* u,const char* servername)
 {
         log(DEBUG,"ChanAnyOnThisServer");
 
-        for (int i = 0; i < MAXCHANS; i++)
+        for (int i = 0; i < u->chans[i].size(); i++)
         {
                 if (u->chans[i].channel)
                 {
@@ -803,7 +803,7 @@ void purge_empty_chans(userrec* u)
         int go_again = 1, purge = 0;
 
         // firstly decrement the count on each channel
-        for (int f = 0; f < MAXCHANS; f++)
+        for (int f = 0; f < u->chans.size(); f++)
         {
                 if (u->chans[f].channel)
                 {
@@ -811,7 +811,7 @@ void purge_empty_chans(userrec* u)
                 }
         }
 
-        for (int i = 0; i < MAXCHANS; i++)
+        for (int i = 0; i < u->chans.size(); i++)
         {
                 if (u->chans[i].channel)
                 {

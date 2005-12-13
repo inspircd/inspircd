@@ -146,7 +146,7 @@ class userrec : public connection
 	 */
 	char modes[54];
 	
-	ucrec chans[MAXCHANS];
+	std::vector<ucrec> chans;
 	
 	/** The server the user is connected to.
 	 */

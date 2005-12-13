@@ -73,7 +73,7 @@ class ModuleNoNickChange : public Module
 		irc::string me = Srv->GetServerName().c_str();
 		if (server == me)
 		{
-			for (int i =0; i != MAXCHANS; i++)
+			for (int i =0; i < user->chans.size(); i++)
 			{
 				if (user->chans[i].channel != NULL)
 				{

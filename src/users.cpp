@@ -57,11 +57,7 @@ userrec::userrec()
 	dns_done = false;
 	recvq = "";
 	sendq = "";
-	for (int i = 0; i < MAXCHANS; i++)
-	{
-		this->chans[i].channel = NULL;
-		this->chans[i].uc_modes = 0;
-	}
+	chans.clear();
 	invites.clear();
 }
 
@@ -86,7 +82,6 @@ int userrec::ReadData(void* buffer, size_t size)
 {
 	if (this->fd > -1)
 	{
-		log(DEBUG,"userrec::ReadData on fd %d",this->fd);
 		return read(this->fd, buffer, size);
 	}
 	else return 0;

@@ -716,7 +716,7 @@ chanrec* add_channel(userrec *user, const char* cn, const char* key, bool overri
 
 	log(DEBUG,"Passed channel checks");
 	
-	for (int index =0; index != MAXCHANS; index++)
+	for (int index =0; index < user->chans.size(); index++)
 	{
 		log(DEBUG,"Check location %d",index);
 		if (user->chans[index].channel == NULL)
@@ -751,6 +751,9 @@ chanrec* add_channel(userrec *user, const char* cn, const char* key, bool overri
 			return Ptr;
 		}
 	}
+	/* XXX: If the user is an oper here, we can just extend their user->chans vector by one
+	 * and put the channel in here. Otherwise, nope, youre boned.
+	 */
 	log(DEBUG,"add_channel: user channel max exceeded: %s %s",user->nick,cname);
 	WriteServ(user->fd,"405 %s %s :You are on too many channels",user->nick, cname);
 	return NULL;
@@ -784,7 +787,7 @@ chanrec* del_channel(userrec *user, const char* cname, const char* reason, bool 
 	FOREACH_MOD OnUserPart(user,Ptr);
 	log(DEBUG,"del_channel: removing: %s %s",user->nick,Ptr->name);
 	
-	for (int i =0; i != MAXCHANS; i++)
+	for (int i =0; i < user->chans.size(); i++)
 	{
 		/* zap it from the channel list of the user */
 		if (user->chans[i].channel == Ptr)
@@ -879,7 +882,7 @@ void kick_channel(userrec *src,userrec *user, chanrec *Ptr, char* reason)
 
 	FOREACH_MOD OnUserKick(src,user,Ptr,reason);
 
-	for (int i =0; i != MAXCHANS; i++)
+	for (int i =0; i < user->chans.size(); i++)
 	{
 		/* zap it from the channel list of the user */
 		if (user->chans[i].channel)
@@ -1443,11 +1446,11 @@ void AddClient(int socket, char* host, int port, bool iscached, char* ip)
 	clientlist[tempnick]->sendqmax = class_sqmax;
 	clientlist[tempnick]->recvqmax = class_rqmax;
 
+	ucrec a;
+	a.channel = NULL;
+	a.uc_modes = 0;
 	for (int i = 0; i < MAXCHANS; i++)
-	{
- 		clientlist[tempnick]->chans[i].channel = NULL;
- 		clientlist[tempnick]->chans[i].uc_modes = 0;
- 	}
+		clientlist[tempnick]->chans.push_back(a);
 
 	if (clientlist.size() > SoftLimit)
 	{

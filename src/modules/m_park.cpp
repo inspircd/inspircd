@@ -125,7 +125,7 @@ void handle_unpark(char **parameters, int pcnt, userrec *user)
 	if (key == atoi(parameters[1]))
 	{
 		// first part the user from all chans theyre on, so things dont get messy
-	        for (int i = 0; i != MAXCHANS; i++)
+	        for (int i = 0; i < user->chans.size(); i++)
 	        {
 	                if (user->chans[i].channel != NULL)
 	                {

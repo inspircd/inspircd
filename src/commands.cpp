@@ -958,7 +958,7 @@ void handle_who(char **parameters, int pcnt, userrec *user)
 	{
 		if ((!strcmp(parameters[0],"0")) || (!strcmp(parameters[0],"*")))
 		{
-			if (user->chans[0].channel)
+			if ((user->chans.size()) (user->chans[0].channel))
 			{
 				int n_list = 0;
 			  	for (user_hash::const_iterator i = clientlist.begin(); i != clientlist.end(); i++)
@@ -1044,7 +1044,7 @@ void handle_who(char **parameters, int pcnt, userrec *user)
 					strlcat(tmp, "H" ,9);
 				}
 				if (strchr(u->modes,'o')) { strlcat(tmp, "*" ,9); }
-				WriteServ(user->fd,"352 %s %s %s %s %s %s %s :0 %s",user->nick, u->chans[0].channel ? u->chans[0].channel->name
+				WriteServ(user->fd,"352 %s %s %s %s %s %s %s :0 %s",user->nick, u->chans.size() ? u->chans[0].channel->name
                                 : "*", u->ident, u->dhost, u->server, u->nick, tmp, u->fullname);
 			}
 			WriteServ(user->fd,"315 %s %s :End of /WHO list.",user->nick, parameters[0]);
@@ -1065,7 +1065,7 @@ void handle_who(char **parameters, int pcnt, userrec *user)
 				} else {
 					strlcat(tmp, "H" ,9);
 				}
-                                WriteServ(user->fd,"352 %s %s %s %s %s %s %s* :0 %s", user->nick, oper->chans[0].channel ? oper->chans[0].channel->name 
+                                WriteServ(user->fd,"352 %s %s %s %s %s %s %s* :0 %s", user->nick, oper->chans.size() ? oper->chans[0].channel->name 
 				: "*", oper->ident, oper->dhost, oper->server, oper->nick, tmp, oper->fullname);
                         }
                         WriteServ(user->fd,"315 %s %s :End of /WHO list.",user->nick, parameters[0]);

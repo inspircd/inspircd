@@ -68,9 +68,9 @@ int common_channels(userrec *u, userrec *u2)
 		log(DEFAULT,"*** BUG *** common_channels was given an invalid parameter");
 		return 0;
 	}
-	for (int i = 0; i != MAXCHANS; i++)
+	for (int i = 0; i < u->chans.size(); i++)
 	{
-		for (int z = 0; z != MAXCHANS; z++)
+		for (int z = 0; z != u2->chans.size(); z++)
 		{
 			if ((u->chans[i].channel != NULL) && (u2->chans[z].channel != NULL))
 			{
@@ -193,7 +193,7 @@ int CleanAndResolve (char *resolvedHost, const char *unresolvedHost)
 int c_count(userrec* u)
 {
 	int z = 0;
-	for (int i =0; i != MAXCHANS; i++)
+	for (int i =0; i < u->chans.size(); i++)
 		if (u->chans[i].channel != NULL)
 			z++;
 	return z;
@@ -311,7 +311,7 @@ char* cmode(userrec *user, chanrec *chan)
 		return "";
 	}
 
-	for (int i = 0; i != MAXCHANS; i++)
+	for (int i = 0; i < user->chans.size(); i++)
 	{
 		if (user->chans[i].channel)
 		{
@@ -351,7 +351,7 @@ int cstatus(userrec *user, chanrec *chan)
 	if (is_uline(user->server))
 		return STATUS_OP;
 
-	for (int i = 0; i != MAXCHANS; i++)
+	for (int i = 0; i < user->chans.size(); i++)
 	{
 		if (user->chans[i].channel)
 		{
@@ -385,7 +385,7 @@ int has_channel(userrec *u, chanrec *c)
 		log(DEFAULT,"*** BUG *** has_channel was given an invalid parameter");
 		return 0;
 	}
-	for (int i =0; i != MAXCHANS; i++)
+	for (int i =0; i < u->chans.size(); i++)
 	{
 		if (u->chans[i].channel)
 		{
@@ -436,7 +436,7 @@ char* chlist(userrec *user,userrec* source)
 	{
 		return lst;
 	}
-	for (int i = 0; i != MAXCHANS; i++)
+	for (int i = 0; i < user->chans.size(); i++)
 	{
 		if (user->chans[i].channel != NULL)
 		{
