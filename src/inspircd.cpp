@@ -542,179 +542,134 @@ chanrec* add_channel(userrec *user, const char* cn, const char* key, bool overri
 		return 0;
 	}
 
-	chanrec* Ptr;
 	int created = 0;
 	char cname[MAXBUF];
-
-	strncpy(cname,cn,MAXBUF);
-	
-	// we MUST declare this wherever we use FOREACH_RESULT
 	int MOD_RESULT = 0;
-
-	if (strlen(cname) > CHANMAX)
-	{
-		cname[CHANMAX] = '\0';
-	}
+	strncpy(cname,cn,CHANMAX);
 
 	log(DEBUG,"add_channel: %s %s",user->nick,cname);
-	
-	if ((FindChan(cname)) && (has_channel(user,FindChan(cname))))
-	{
-		return NULL; // already on the channel!
-	}
 
+	chanrec* Ptr = FindChan(cname);
 
-	if (!FindChan(cname))
+	if (!Ptr)
 	{
-		if (!strcasecmp(ServerName,user->server))
+		if (user->fd > -1)
 		{
 			MOD_RESULT = 0;
 			FOREACH_RESULT(OnUserPreJoin(user,NULL,cname));
-			if (MOD_RESULT == 1) {
+			if (MOD_RESULT == 1)
 				return NULL;
-			}
 		}
-
 		/* create a new one */
-		log(DEBUG,"add_channel: creating: %s",cname);
-		{
-			chanlist[cname] = new chanrec();
-
-			strlcpy(chanlist[cname]->name, cname,CHANMAX);
-			chanlist[cname]->binarymodes = CM_TOPICLOCK | CM_NOEXTERNAL;
-			chanlist[cname]->created = TIME;
-			strcpy(chanlist[cname]->topic, "");
-			strncpy(chanlist[cname]->setby, user->nick,NICKMAX);
-			chanlist[cname]->topicset = 0;
-			Ptr = chanlist[cname];
-			log(DEBUG,"add_channel: created: %s",cname);
-			/* set created to 2 to indicate user
-			 * is the first in the channel
-			 * and should be given ops */
-			created = 2;
-		}
+		chanlist[cname] = new chanrec();
+		strlcpy(chanlist[cname]->name, cname,CHANMAX);
+		chanlist[cname]->binarymodes = CM_TOPICLOCK | CM_NOEXTERNAL;
+		chanlist[cname]->created = TIME;
+		strcpy(chanlist[cname]->topic, "");
+		strncpy(chanlist[cname]->setby, user->nick,NICKMAX);
+		chanlist[cname]->topicset = 0;
+		Ptr = chanlist[cname];
+		log(DEBUG,"add_channel: created: %s",cname);
+		/* set created to 2 to indicate user
+		 * is the first in the channel
+		 * and should be given ops */
+		created = 2;
 	}
 	else
 	{
-		/* channel exists, just fish out a pointer to its struct */
-		Ptr = FindChan(cname);
-		if (Ptr)
-		{
-			log(DEBUG,"add_channel: joining to: %s",Ptr->name);
+		/* Already on the channel */
+		if (has_channel(user,Ptr))
+			return NULL;
 			
-			// remote users are allowed us to bypass channel modes
-			// and bans (used by servers)
-			if (!strcasecmp(ServerName,user->server))
-			{
-				log(DEBUG,"Not overriding...");
-				MOD_RESULT = 0;
-				FOREACH_RESULT(OnUserPreJoin(user,Ptr,cname));
-				if (MOD_RESULT == 1) {
-					return NULL;
-				}
-				log(DEBUG,"MOD_RESULT=%d",MOD_RESULT);
-				
-				if (!MOD_RESULT) 
-				{
-					log(DEBUG,"add_channel: checking key, invite, etc");
-					MOD_RESULT = 0;
-					FOREACH_RESULT(OnCheckKey(user, Ptr, key ? key : ""));
-					if (MOD_RESULT == 0)
-					{
-						if (Ptr->key[0])
-						{
-							log(DEBUG,"add_channel: %s has key %s",Ptr->name,Ptr->key);
-							if (!key)
-							{
-								log(DEBUG,"add_channel: no key given in JOIN");
-								WriteServ(user->fd,"475 %s %s :Cannot join channel (Requires key)",user->nick, Ptr->name);
-								return NULL;
-							}
-							else
-							{
-								if (strcasecmp(key,Ptr->key))
-								{
-									log(DEBUG,"add_channel: bad key given in JOIN");
-									WriteServ(user->fd,"475 %s %s :Cannot join channel (Incorrect key)",user->nick, Ptr->name);
-									return NULL;
-								}
-							}
-						}
-						log(DEBUG,"add_channel: no key");
-					}
-					MOD_RESULT = 0;
-					FOREACH_RESULT(OnCheckInvite(user, Ptr));
-					if (MOD_RESULT == 0)
-					{
-						if (Ptr->binarymodes & CM_INVITEONLY)
-						{
-							log(DEBUG,"add_channel: channel is +i");
-							if (user->IsInvited(Ptr->name))
-							{
-								/* user was invited to channel */
-								/* there may be an optional channel NOTICE here */
-							}
-							else
-							{
-								WriteServ(user->fd,"473 %s %s :Cannot join channel (Invite only)",user->nick, Ptr->name);
-								return NULL;
-							}
-						}
-						log(DEBUG,"add_channel: channel is not +i");
-					}
-					MOD_RESULT = 0;
-					FOREACH_RESULT(OnCheckLimit(user, Ptr));
-					if (MOD_RESULT == 0)
-					{
-						if (Ptr->limit)
-						{
-							if (usercount(Ptr) >= Ptr->limit)
-							{
-								WriteServ(user->fd,"471 %s %s :Cannot join channel (Channel is full)",user->nick, Ptr->name);
-								return NULL;
-							}
-						}
-					}
-					log(DEBUG,"add_channel: about to walk banlist");
-					MOD_RESULT = 0;
-					FOREACH_RESULT(OnCheckBan(user, Ptr));
-					if (MOD_RESULT == 0)
-					{
-						/* check user against the channel banlist */
-						if (Ptr)
-						{
-							if (Ptr->bans.size())
-							{
-								for (BanList::iterator i = Ptr->bans.begin(); i != Ptr->bans.end(); i++)
-								{
-									if (match(user->GetFullHost(),i->data))
-									{
-										WriteServ(user->fd,"474 %s %s :Cannot join channel (You're banned)",user->nick, Ptr->name);
-										return NULL;
-									}
-								}
-							}
-						}
-						log(DEBUG,"add_channel: bans checked");
-					}
-				
-				}
-				
-
-				if ((Ptr) && (user))
-				{
-					user->RemoveInvite(Ptr->name);
-				}
-	
-				log(DEBUG,"add_channel: invites removed");
-
+		// remote users are allowed us to bypass channel modes
+		// and bans (used by servers)
+		if (user->fd > -1)
+		{
+			MOD_RESULT = 0;
+			FOREACH_RESULT(OnUserPreJoin(user,Ptr,cname));
+			if (MOD_RESULT == 1) {
+				return NULL
 			}
 			else
 			{
-				log(DEBUG,"Overridden checks");
+				if (*Ptr->key)
+				{
+					MOD_RESULT = 0;
+					FOREACH_RESULT(OnCheckKey(user, Ptr, key ? key : ""));
+					if (!MOD_RESULT)
+					{
+						if (!key)
+						{
+							log(DEBUG,"add_channel: no key given in JOIN");
+							WriteServ(user->fd,"475 %s %s :Cannot join channel (Requires key)",user->nick, Ptr->name);
+							return NULL;
+						}
+						else
+						{
+							if (strcasecmp(key,Ptr->key))
+							{
+								log(DEBUG,"add_channel: bad key given in JOIN");
+								WriteServ(user->fd,"475 %s %s :Cannot join channel (Incorrect key)",user->nick, Ptr->name);
+								return NULL;
+							}
+						}
+					}
+				}
+				if (Ptr->binarymodes & CM_INVITEONLY)
+				{
+					MOD_RESULT = 0;
+					FOREACH_RESULT(OnCheckInvite(user, Ptr));
+					if (!MOD_RESULT)
+					{
+						log(DEBUG,"add_channel: channel is +i");
+						if (user->IsInvited(Ptr->name))
+						{
+							/* user was invited to channel */
+							/* there may be an optional channel NOTICE here */
+						}
+						else
+						{
+							WriteServ(user->fd,"473 %s %s :Cannot join channel (Invite only)",user->nick, Ptr->name);
+							return NULL;
+						}
+					}
+					user->RemoveInvite(Ptr->name);
+				}
+				if (Ptr->limit)
+				{
+					MOD_RESULT = 0;
+					FOREACH_RESULT(OnCheckLimit(user, Ptr));
+					if (!MOD_RESULT)
+					{
+						if (usercount(Ptr) >= Ptr->limit)
+						{
+							WriteServ(user->fd,"471 %s %s :Cannot join channel (Channel is full)",user->nick, Ptr->name);
+							return NULL;
+						}
+					}
+				}
+				if (Ptr->bans.size())
+				{
+					log(DEBUG,"add_channel: about to walk banlist");
+					MOD_RESULT = 0;
+					FOREACH_RESULT(OnCheckBan(user, Ptr));
+					if (!MOD_RESULT)
+					{
+						for (BanList::iterator i = Ptr->bans.begin(); i != Ptr->bans.end(); i++)
+						{
+							if (match(user->GetFullHost(),i->data))
+							{
+								WriteServ(user->fd,"474 %s %s :Cannot join channel (You're banned)",user->nick, Ptr->name);
+								return NULL;
+							}
+						}
+					}
+				}
 			}
-
-			
+		}
+		else
+		{
+			log(DEBUG,"Overridden checks");
 		}
 		created = 1;
 	}
@@ -732,7 +687,7 @@ chanrec* add_channel(userrec *user, const char* cn, const char* key, bool overri
 	 * and put the channel in here. Same for remote users which are not bound by
 	 * the channel limits. Otherwise, nope, youre boned.
 	 */
-	if (strcasecmp(user->server,ServerName))
+	if (user->fd < 0)
 	{
 		ucrec a;
 		chanrec* c = ForceChan(Ptr,a,user,created);
@@ -792,19 +747,10 @@ chanrec* del_channel(userrec *user, const char* cname, const char* reason, bool 
 		return NULL;
 	}
 
-	chanrec* Ptr;
-
-	if ((!cname) || (!user))
-	{
-		return NULL;
-	}
-
-	Ptr = FindChan(cname);
+	chanrec* Ptr = FindChan(cname);
 	
 	if (!Ptr)
-	{
 		return NULL;
-	}
 
 	FOREACH_MOD OnUserPart(user,Ptr);
 	log(DEBUG,"del_channel: removing: %s %s",user->nick,Ptr->name);
@@ -1142,7 +1088,7 @@ void kill_link(userrec *user,const char* r)
         if (user->registered == 7) {
                 purge_empty_chans(user);
 		// fix by brain: only show local quits because we only show local connects (it just makes SENSE)
-		if (!strcmp(user->server,ServerName))
+		if (user->fd > -1)
 			WriteOpers("*** Client exiting: %s!%s@%s [%s]",user->nick,user->ident,user->host,reason);
 		AddWhoWas(user);
 	}
