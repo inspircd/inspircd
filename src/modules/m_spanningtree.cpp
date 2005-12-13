@@ -960,6 +960,7 @@ class TreeSocket : public InspSocket
 	 */
 	void SendFJoins(TreeServer* Current, chanrec* c)
 	{
+		log(DEBUG,"Sending FJOINs to other server for %s",c->name);
 		char list[MAXBUF];
 		snprintf(list,MAXBUF,":%s FJOIN %s %lu",Srv->GetServerName().c_str(),c->name,(unsigned long)c->age);
 		std::vector<char*> *ulist = c->GetUsers();
@@ -972,6 +973,7 @@ class TreeSocket : public InspSocket
 			strlcat(list,otheruser->nick,MAXBUF);
 			if (strlen(list)>(480-NICKMAX))
 			{
+				log(DEBUG,"FJOIN line wrapped");
 				this->WriteLine(list);
 				snprintf(list,MAXBUF,":%s FJOIN %s %lu",Srv->GetServerName().c_str(),c->name,(unsigned long)c->age);
 			}
