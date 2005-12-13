@@ -171,10 +171,7 @@ bool SocketEngine::Wait(std::vector<int> &fdlist)
 		for (unsigned int a = 0; a < fds.size(); a++)
 		{
 			if ((FD_ISSET (fds[a], &rfdset)) || (FD_ISSET (fds[a], &wfdset)))
-			{
-				log(DEBUG,"...Adding active %d",fds[a]);
 				fdlist.push_back(fds[a]);
-			}
 		}
 	}
 #endif
