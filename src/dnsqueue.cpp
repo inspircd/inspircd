@@ -277,6 +277,7 @@ void dns_poll(int fdcheck)
 		{
 			if (dnsq[j].Done(fdcheck))
 			{
+				SE->DelFd(dnsq[j].GetFD());
 				dnsq[j].Reset();
 			}
 		}
