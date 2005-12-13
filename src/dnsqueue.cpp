@@ -98,9 +98,11 @@ public:
 			strlcpy(u,nick.c_str(),NICKMAX);
 
 			/* ASSOCIATE WITH DNS LOOKUP LIST */
-			dnslist[resolver1.GetFD()] = this;
-			
-			return true;
+			if (resolver1.GetFD() != -1)
+			{
+				dnslist[resolver1.GetFD()] = this;
+				return true;
+			}
 		}
 		return false;
 	}
@@ -157,7 +159,11 @@ public:
 			{
 				usr = Find(u);
 				if ((usr) && (usr->dns_done))
+				{
+					if (resolver1.GetFD() != -1)
+						dnslist[resolver1.GetFD()] = NULL;
 					return true;
+				}
 				if (resolver1.GetFD() != -1)
 				{
 					dnslist[resolver1.GetFD()] = NULL;
@@ -173,7 +179,7 @@ public:
 					if (hostname != "")
 					{
 						resolver2.ForwardLookup(hostname);
-						if (resolver2.GetFD())
+						if (resolver2.GetFD() != -1)
 							dnslist[resolver2.GetFD()] = this;
 					}
 				}
@@ -258,6 +264,10 @@ void dns_poll(int fdcheck)
 		 */
 		return;
 	}
-	log(DEBUG,"DNS: Received an event for an invalid descriptor!");
+	/* This FD doesnt belong here, lets be rid of it,
+	 * just to be safe so we dont get any more events
+	 * about it.
+	 */
+	SE->DelFd(fdcheck);
 }
 

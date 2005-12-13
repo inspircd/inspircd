@@ -2326,11 +2326,14 @@ int InspIRCd(char** argv, int argc)
 	bool expire_run = false;
 	std::vector<int> activefds;
 	int incomingSockfd;
+	int in_port;
 	userrec* cu = NULL;
 	InspSocket* s = NULL;
 	InspSocket* s_del = NULL;
 	char target[MAXBUF];
 	unsigned int numberactive;
+        sockaddr_in sock_us;     // our port number
+        socklen_t uslen;         // length of our port number
 
 	/* Beta 7 moved all this stuff out of the main function
 	 * into smaller sub-functions, much tidier -- Brain
@@ -2483,36 +2486,36 @@ int InspIRCd(char** argv, int argc)
 				case X_LISTEN:
 
 					/* It's a listener */
-					for (int count = 0; count < boundPortCount; count++)
+					uslen = sizeof(sock_us);
+					themlen = sizeof(sock_them);
+					length = sizeof (client);
+					incomingSockfd = accept (activefds[activefd], (struct sockaddr *) &client, &length);
+					if (!getsockname(incomingSockfd,(sockaddr*)&sock_us,&uslen))
 					{
-						if (activefds[activefd] == openSockfd[count])
+						in_port = ntohs(sock_us.sin_port);
+						log(DEBUG,"Accepted socket %d",incomingSockfd);
+						strlcpy (target, (char *) inet_ntoa (client.sin_addr), MAXBUF);
+						/* Years and years ago, we used to resolve here
+						 * using gethostbyaddr(). That is sucky and we
+						 * don't do that any more...
+						 */
+						if (incomingSockfd >= 0)
 						{
-							length = sizeof (client);
-							incomingSockfd = accept (openSockfd[count], (struct sockaddr *) &client, &length);
-							log(DEBUG,"Accepted socket %d",incomingSockfd);
-							strlcpy (target, (char *) inet_ntoa (client.sin_addr), MAXBUF);
-							/* Years and years ago, we used to resolve here
-							 * using gethostbyaddr(). That is sucky and we
-							 * don't do that any more...
-							 */
-							if (incomingSockfd >= 0)
-							{
-								FOREACH_MOD OnRawSocketAccept(incomingSockfd, target, ports[count]);
-								statsAccept++;
-								AddClient(incomingSockfd, target, ports[count], false, inet_ntoa (client.sin_addr));
-								log(DEBUG,"Adding client on port %lu fd=%lu",(unsigned long)ports[count],(unsigned long)incomingSockfd);
-							}
-							else
-							{
-								WriteOpers("*** WARNING: accept() failed on port %lu (%s)",(unsigned long)ports[count],target);
-								log(DEBUG,"accept failed: %lu",(unsigned long)ports[count]);
-								statsRefused++;
-							}
-							/* We've found out what port it belongs on,
-							 * no need to iterate the rest
-							 */
-							break;
+							FOREACH_MOD OnRawSocketAccept(incomingSockfd, target, in_port);
+							statsAccept++;
+							AddClient(incomingSockfd, target, in_port, false, inet_ntoa (client.sin_addr));
+							log(DEBUG,"Adding client on port %lu fd=%lu",(unsigned long)in_port,(unsigned long)incomingSockfd);
 						}
+						else
+						{
+							WriteOpers("*** WARNING: accept() failed on port %lu (%s)",(unsigned long)in_port,target);
+							log(DEBUG,"accept failed: %lu",(unsigned long)in_port);
+							statsRefused++;
+						}
+					}
+					else
+					{
+						log(DEBUG,"Couldnt look up the port number for fd %lu(?!)",incomingSockfd);
 					}
 				break;
 
