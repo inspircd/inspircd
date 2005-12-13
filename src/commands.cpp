@@ -958,7 +958,7 @@ void handle_who(char **parameters, int pcnt, userrec *user)
 	{
 		if ((!strcmp(parameters[0],"0")) || (!strcmp(parameters[0],"*")))
 		{
-			if ((user->chans.size()) (user->chans[0].channel))
+			if ((user->chans.size()) && (user->chans[0].channel))
 			{
 				int n_list = 0;
 			  	for (user_hash::const_iterator i = clientlist.begin(); i != clientlist.end(); i++)

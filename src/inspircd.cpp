@@ -716,7 +716,7 @@ chanrec* add_channel(userrec *user, const char* cn, const char* key, bool overri
 
 	log(DEBUG,"Passed channel checks");
 	
-	for (int index =0; index < user->chans.size(); index++)
+	for (unsigned int index =0; index < user->chans.size(); index++)
 	{
 		log(DEBUG,"Check location %d",index);
 		if (user->chans[index].channel == NULL)
@@ -787,7 +787,7 @@ chanrec* del_channel(userrec *user, const char* cname, const char* reason, bool 
 	FOREACH_MOD OnUserPart(user,Ptr);
 	log(DEBUG,"del_channel: removing: %s %s",user->nick,Ptr->name);
 	
-	for (int i =0; i < user->chans.size(); i++)
+	for (unsigned int i =0; i < user->chans.size(); i++)
 	{
 		/* zap it from the channel list of the user */
 		if (user->chans[i].channel == Ptr)
@@ -882,7 +882,7 @@ void kick_channel(userrec *src,userrec *user, chanrec *Ptr, char* reason)
 
 	FOREACH_MOD OnUserKick(src,user,Ptr,reason);
 
-	for (int i =0; i < user->chans.size(); i++)
+	for (unsigned int i =0; i < user->chans.size(); i++)
 	{
 		/* zap it from the channel list of the user */
 		if (user->chans[i].channel)
