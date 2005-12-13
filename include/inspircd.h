@@ -130,3 +130,4 @@ void* dns_task(void* arg);
 
 void process_buffer(const char* cmdbuf,userrec *user);
 void FullConnectUser(userrec* user);
+chanrec* ForceChan(chanrec* Ptr,ucrec &a,userrec* user, int created);
