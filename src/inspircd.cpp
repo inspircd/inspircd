@@ -2330,7 +2330,7 @@ int InspIRCd(char** argv, int argc)
 	userrec* cu = NULL;
 	InspSocket* s = NULL;
 	InspSocket* s_del = NULL;
-	char target[MAXBUF];
+	char* target;
 	unsigned int numberactive;
         sockaddr_in sock_us;     // our port number
         socklen_t uslen;         // length of our port number
@@ -2487,14 +2487,13 @@ int InspIRCd(char** argv, int argc)
 
 					/* It's a listener */
 					uslen = sizeof(sock_us);
-					themlen = sizeof(sock_them);
-					length = sizeof (client);
-					incomingSockfd = accept (activefds[activefd], (struct sockaddr *) &client, &length);
+					length = sizeof(client);
+					incomingSockfd = accept (activefds[activefd],(struct sockaddr*)&client,&length);
 					if (!getsockname(incomingSockfd,(sockaddr*)&sock_us,&uslen))
 					{
 						in_port = ntohs(sock_us.sin_port);
 						log(DEBUG,"Accepted socket %d",incomingSockfd);
-						strlcpy (target, (char *) inet_ntoa (client.sin_addr), MAXBUF);
+						target = (char*)inet_ntoa(client.sin_addr);
 						/* Years and years ago, we used to resolve here
 						 * using gethostbyaddr(). That is sucky and we
 						 * don't do that any more...
@@ -2503,7 +2502,7 @@ int InspIRCd(char** argv, int argc)
 						{
 							FOREACH_MOD OnRawSocketAccept(incomingSockfd, target, in_port);
 							statsAccept++;
-							AddClient(incomingSockfd, target, in_port, false, inet_ntoa (client.sin_addr));
+							AddClient(incomingSockfd, target, in_port, false, target);
 							log(DEBUG,"Adding client on port %lu fd=%lu",(unsigned long)in_port,(unsigned long)incomingSockfd);
 						}
 						else
@@ -2515,7 +2514,9 @@ int InspIRCd(char** argv, int argc)
 					}
 					else
 					{
-						log(DEBUG,"Couldnt look up the port number for fd %lu(?!)",incomingSockfd);
+						log(DEBUG,"Couldnt look up the port number for fd %lu (OS BROKEN?!)",incomingSockfd);
+						shutdown(incomingSockfd,2);
+						close(incomingSockfd);
 					}
 				break;
 
