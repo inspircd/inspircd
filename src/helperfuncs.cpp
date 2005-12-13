@@ -1128,16 +1128,6 @@ long chancount(void)
         return chanlist.size();
 }
 
-long count_servs(void)
-{
-        return 0;
-}
-
-long servercount(void)
-{
-        return count_servs()+1;
-}
-
 long local_count()
 {
         int c = 0;
