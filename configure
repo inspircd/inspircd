@@ -509,6 +509,7 @@ print "\033[0mModule path:\033[1;32m\t\t\t$config{MODULE_DIR}\n";
 print "\033[0mLibrary path:\033[1;32m\t\t\t$config{LIBRARY_DIR}\n";
 print "\033[0mMax connections:\033[1;32m\t\t$config{MAX_CLIENT}\n";
 print "\033[0mMax User Channels:\033[1;32m\t\t$config{MAX_CHANNE}\n";
+print "\033[0mMax Oper Channels:\033[1;32m\t\t$config{MAX_OPERCH}\n";
 print "\033[0mMax nickname length:\033[1;32m\t\t$config{NICK_LENGT}\n";
 print "\033[0mMax channel length:\033[1;32m\t\t$config{CHAN_LENGT}\n";
 print "\033[0mMax mode length:\033[1;32m\t\t$config{MAXI_MODES}\n";
