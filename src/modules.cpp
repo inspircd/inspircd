@@ -675,7 +675,7 @@ bool Server::PseudoToUser(userrec* alive,userrec* zombie,std::string message)
 	Write(zombie->fd,":%s!%s@%s NICK %s",alive->nick,alive->ident,alive->host,zombie->nick);
 	kill_link(alive,message.c_str());
 	fd_ref_table[zombie->fd] = zombie;
-        for (int i = 0; i < zombie->chans.size(); i++)
+        for (unsigned int i = 0; i < zombie->chans.size(); i++)
         {
                 if (zombie->chans[i].channel != NULL)
                 {
