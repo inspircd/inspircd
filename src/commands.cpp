@@ -838,6 +838,10 @@ void split_chlist(userrec* user, userrec* dest, std::string &cl)
 			line = "";
 		}
 	}
+	if (line.length())
+	{
+		WriteServ(user->fd,"319 %s %s :%s",user->nick, dest->nick, line.c_str());
+	}
 }
 
 void do_whois(userrec* user, userrec* dest,unsigned long signon, unsigned long idle, char* nick)
