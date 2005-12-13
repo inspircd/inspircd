@@ -2475,7 +2475,6 @@ int InspIRCd(char** argv, int argc)
 					 * within it, making them 'fire and forget'
 					 * and independent of the mainloop.
 					 */
-					log(DEBUG,"Got a ready socket of type X_ESTAB_DNS");
 #ifndef THREADED_DNS
 					dns_poll(activefds[activefd]);
 #endif

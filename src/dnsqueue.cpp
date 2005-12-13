@@ -14,8 +14,6 @@
  * ---------------------------------------------------
  */
 
-/* Now with added unF! ;) */
-
 using namespace std;
 
 #include "inspircd_config.h"
@@ -39,15 +37,7 @@ using namespace std;
 #include <vector>
 #include <deque>
 #include "users.h"
-#include "ctables.h"
 #include "globals.h"
-#include "modules.h"
-#include "dynamic.h"
-#include "wildcard.h"
-#include "message.h"
-#include "mode.h"
-#include "commands.h"
-#include "xline.h"
 #include "inspstring.h"
 #include "dnsqueue.h"
 #include <time.h>
@@ -63,32 +53,13 @@ using namespace std;
 #include "socketengine.h"
 
 extern SocketEngine* SE;
-
-extern int MaxWhoResults;
-
-extern std::vector<Module*> modules;
-extern std::vector<std::string> module_names;
-extern std::vector<ircd_module*> factory;
-
-extern int MODCOUNT;
-
 typedef nspace::hash_map<std::string, userrec*, nspace::hash<string>, irc::StrHashComp> user_hash;
-typedef nspace::hash_map<std::string, chanrec*, nspace::hash<string>, irc::StrHashComp> chan_hash;
-typedef nspace::hash_map<in_addr,string*, nspace::hash<in_addr>, irc::InAddr_HashComp> address_cache;
-typedef nspace::hash_map<std::string, WhoWasUser*, nspace::hash<string>, irc::StrHashComp> whowas_hash;
-typedef std::deque<command_t> command_table;
-
 extern user_hash clientlist;
-extern chan_hash chanlist;
-extern whowas_hash whowas;
-extern command_table cmdlist;
-
-extern ClassVector Classes;
-
 extern char DNSServer[MAXBUF];
-long max_fd_alloc = 0;
 
-extern time_t TIME;
+class Lookup;
+
+Lookup* dnslist[65535];
 
 //enum LookupState { reverse, forward };
 
@@ -107,7 +78,6 @@ public:
 	void Reset()
 	{
 		strcpy(u,"");
-		log(DEBUG,"Reset class Lookup");
 	}
 
 	~Lookup()
@@ -120,17 +90,18 @@ public:
 		userrec* usr = Find(nick);
 		if (usr)
 		{
-			log(DEBUG,"New Lookup class for %s with DNSServer set to '%s'",nick.c_str(),DNSServer);
 			resolver1.SetNS(std::string(DNSServer));
 			if (!resolver1.ReverseLookup(std::string(usr->host)))
 			{
-				log(DEBUG,"ReverseLookup didnt return true, we're outta here");
 				return false;
 			}
 			strlcpy(u,nick.c_str(),NICKMAX);
+
+			/* ASSOCIATE WITH DNS LOOKUP LIST */
+			dnslist[resolver1.GetFD()] = this;
+			
 			return true;
 		}
-		log(DEBUG,"We couldnt find that user");
 		return false;
 	}
 
@@ -138,23 +109,19 @@ public:
 	{
 		if (hostname != "")
 		{
-			log(DEBUG,"Doing forward lookup here with host %s",hostname.c_str());
 			// doing forward lookup
 			userrec* usr = NULL;
 			if (resolver2.HasResult(fdcheck))
 			{
-				log(DEBUG,"resolver2 has result");
-				if (resolver2.GetFD() != 0)
+				if (resolver2.GetFD() != -1)
 				{
+					dnslist[resolver2.GetFD()] = NULL;
 					std::string ip = resolver2.GetResultIP();
-					log(DEBUG,"FORWARD RESULT! %s",ip.c_str());
-
 					usr = Find(u);
 					if (usr)
 					{
 						if (usr->registered > 3)
 						{
-							log(DEBUG,"Point 1: Returning true as usr->dns_done is true");
 							usr->dns_done = true;
 							return true;
 						}
@@ -164,11 +131,6 @@ public:
 							{
 								strlcpy(usr->host,hostname.c_str(),MAXBUF);
 								strlcpy(usr->dhost,hostname.c_str(),MAXBUF);
-								log(DEBUG,"Forward and reverse match, assigning hostname");
-							}
-							else
-							{
-								log(DEBUG,"AWOOGA! Forward lookup doesn't match reverse: R='%s',F='%s',IP='%s'",hostname.c_str(),ip.c_str(),usr->ip);
 							}
 							usr->dns_done = true;
 							return true;
@@ -180,13 +142,11 @@ public:
 					usr = Find(u);
 					if (usr)
 					{
-						log(DEBUG,"Point 2: Returning true");
 						usr->dns_done = true;
 					}
 					return true;
 				}
 			}
-			log(DEBUG,"Returning false in forward");
 			return false;
 		}
 		else
@@ -198,27 +158,27 @@ public:
 				usr = Find(u);
 				if ((usr) && (usr->dns_done))
 					return true;
-				if (resolver1.GetFD() != 0)
+				if (resolver1.GetFD() != -1)
 				{
+					dnslist[resolver1.GetFD()] = NULL;
 					hostname = resolver1.GetResult();
 					if (usr)
 					{
 						if ((usr->registered > 3) || (hostname == ""))
 						{
-							log(DEBUG,"Hostname is blank and user->registered > 3, returning true and setting done");
 							usr->dns_done = true;
 							return true;
 						}
 					}
 					if (hostname != "")
 					{
-						log(DEBUG,"Starting forwardlookup now for host '%s'...",hostname.c_str());
 						resolver2.ForwardLookup(hostname);
+						if (resolver2.GetFD())
+							dnslist[resolver2.GetFD()] = this;
 					}
 				}
 			}
 		}
-		log(DEBUG,"Returning false");
 		return false;
 	}
 
@@ -233,59 +193,71 @@ public:
 	}
 };
 
-Lookup dnsq[255];
-
 bool lookup_dns(std::string nick)
 {
+	/* First attempt to find the nickname */
 	userrec* u = Find(nick);
 	if (u)
 	{
-		// place a new user into the queue...
-		log(DEBUG,"Queueing DNS lookup for %s",u->nick);
-		WriteServ(u->fd,"NOTICE Auth :Looking up your hostname...");
-		Lookup L;
-		if (L.DoLookup(nick))
-		{
-			for (int j = 0; j < 255; j++)
-			{
-				if (!dnsq[j].GetFD())
-				{
-					dnsq[j] = L;
-					return true;
-				}
-			}
-			// calculate the maximum value, this saves cpu time later
-			for (int p = 0; p < 255; p++)
-				if (dnsq[p].GetFD())
-					max_fd_alloc = p;
-		}
-		else
-		{
-			return false;
-		}
+		/* If the user exists, create a new
+		 * lookup object, and associate it
+		 * with the user. The lookup object
+		 * will maintain the reference table
+		 * which we use for quickly finding
+		 * dns results. Please note that we
+		 * do not associate a lookup with a
+		 * userrec* pointer and we use the
+		 * nickname instead because, by the
+		 * time the DNS lookup has completed,
+		 * the nickname could have quit and
+		 * if we then try and access the
+		 * pointer we get a nice segfault.
+		 */
+		Lookup* L = new Lookup();
+		L->DoLookup(nick);
+		return true;
 	}
 	return false;
 }
 
 void dns_poll(int fdcheck)
 {
-	// do we have items in the queue?
-	for (int j = 0; j <= max_fd_alloc; j++)
+	/* Check the given file descriptor is in valid range */
+	if ((fdcheck < 0) || (fdcheck > 65535))
+		return;
+
+	/* Try and find the file descriptor in our list of
+	 * active DNS lookups
+	 */
+	Lookup *x = dnslist[fdcheck];
+	if (x)
 	{
-		// are any ready, or stale?
-		if (dnsq[j].GetFD())
+		/* If it exists check if its a valid fd still */
+		if (x->GetFD() != -1)
 		{
-			if (dnsq[j].Done(fdcheck))
+			/* Check if its done, if it is delete it */
+			if (x->Done(fdcheck))
 			{
-				SE->DelFd(dnsq[j].GetFD());
-				dnsq[j].Reset();
+				/* We don't need to delete the file descriptor
+				 * from the socket engine, as dns.cpp tracks it
+				 * for us if we are in single-threaded country.
+				 */
+				delete x;
 			}
 		}
+		else
+		{
+			/* its fd is dodgy, the dns code probably
+			 * bashed it due to error. Free the class.
+			 */
+			delete x;
+		}
+		/* If we got down here, the dns lookup was valid, BUT,
+		 * its still in progress. Be patient, and wait for
+		 * more socketengine events to complete the lookups.
+		 */
+		return;
 	}
-	// looks like someones freed an item, recalculate end of list.
-	if ((!dnsq[max_fd_alloc].GetFD()) && (max_fd_alloc != 0))
-		for (int p = 0; p < 255; p++)
-			if (dnsq[p].GetFD())
-				max_fd_alloc = p;
-
+	log(DEBUG,"DNS: Received an event for an invalid descriptor!");
 }
+
