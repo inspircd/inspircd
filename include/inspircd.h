@@ -127,3 +127,6 @@ const char* FindServerNamePtr(std::string servername);
 std::string GetVersionString();
 
 void* dns_task(void* arg);
+
+void process_buffer(const char* cmdbuf,userrec *user);
+void FullConnectUser(userrec* user);

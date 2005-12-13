@@ -81,6 +81,52 @@ extern std::vector<InspSocket*> module_sockets;
 
 extern SocketEngine* SE;
 
+extern time_t TIME;
+extern time_t OLDTIME;
+
+extern int DieDelay;
+extern time_t startup_time;
+extern int NetBufferSize;
+extern int MaxConn;
+extern unsigned int SoftLimit;
+extern int MaxWhoResults;
+extern time_t nb_start;
+extern int dns_timeout;
+
+extern int statsAccept, statsRefused, statsUnknown, statsCollisions, statsDns, statsDnsGood, statsDnsBad, statsConnects, statsSent, statsRecv;
+
+extern userrec* fd_ref_table[65536];
+
+extern int LogLevel;
+extern char ServerName[MAXBUF];
+extern char Network[MAXBUF];
+extern char ServerDesc[MAXBUF];
+extern char AdminName[MAXBUF];
+extern char AdminEmail[MAXBUF];
+extern char AdminNick[MAXBUF];
+extern char diepass[MAXBUF];
+extern char restartpass[MAXBUF];
+extern char motd[MAXBUF];
+extern char rules[MAXBUF];
+extern char list[MAXBUF];
+extern char PrefixQuit[MAXBUF];
+extern char DieValue[MAXBUF];
+extern char DNSServer[MAXBUF];
+extern char data[65536];
+
+
+typedef nspace::hash_map<std::string, userrec*, nspace::hash<string>, irc::StrHashComp> user_hash;
+typedef nspace::hash_map<std::string, chanrec*, nspace::hash<string>, irc::StrHashComp> chan_hash;
+typedef nspace::hash_map<in_addr,string*, nspace::hash<in_addr>, irc::InAddr_HashComp> address_cache;
+typedef nspace::hash_map<std::string, WhoWasUser*, nspace::hash<string>, irc::StrHashComp> whowas_hash;
+
+extern user_hash clientlist;
+extern chan_hash chanlist;
+extern whowas_hash whowas;
+
+extern FILE *log_file;
+extern std::stringstream config_f;
+
 void ProcessUser(userrec* cu)
 {
         int result = EAGAIN;
