@@ -215,14 +215,19 @@ void DeleteOper(userrec* user)
 
 std::string GetRevision()
 {
-	char Revision[] = "$Revision$";
-	char *s1 = Revision;
-	char *savept;
-	char *v2 = strtok_r(s1," ",&savept);
-	s1 = savept;
-	v2 = strtok_r(s1," ",&savept);
-	s1 = savept;
-	return std::string(v2);
+	/* w00t got me to replace a bunch of strtok_r
+	 * with something nicer, so i did this. Its the
+	 * same thing really, only in C++. It places the
+	 * text into a std::stringstream which is a readable
+	 * and writeable buffer stream, and then pops two
+	 * words off it, space delimited. Because it reads
+	 * into the same variable twice, the first word
+	 * is discarded, and the second one returned.
+	 */
+	std::stringstream Revision("$Revision$");
+	std::string single;
+	Revision >> single >> single;
+	return single;
 }
 
 
