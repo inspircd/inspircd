@@ -55,7 +55,7 @@ class ModuleFilterPCRE : public Module
 		MyConf = new ConfigReader(filterfile);
 		if ((filterfile == "") || (!MyConf->Verify()))
 		{
-			printf("Error, could not find <filter file=\"\"> definition in your config file!");
+			printf("Error, could not find <filter file=\"\"> definition in your config file!\n");
 			log(DEFAULT,"Error, could not find <filter file=\"\"> definition in your config file!");
 			return;
 		}
