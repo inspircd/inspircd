@@ -980,6 +980,7 @@ class TreeSocket : public InspSocket
 		}
 		if (list[strlen(list)-1] != ':')
 		{
+			log(DEBUG,"Final FJOIN line");
 			this->WriteLine(list);
 		}
 	}
@@ -1152,6 +1153,7 @@ class TreeSocket : public InspSocket
 
 	int WriteLine(std::string line)
 	{
+		log(DEBUG,"OUT: %s",line.c_str());
 		return this->Write(line + "\r\n");
 	}
 
