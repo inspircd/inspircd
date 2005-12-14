@@ -1703,7 +1703,7 @@ int InspIRCd::Run()
 
 int main(int argc, char** argv)
 {
-        InspIRCd TittyBiscuits = new InspIRCd(argc, argv);
+        InspIRCd* TittyBiscuits = new InspIRCd(argc, argv);
         TittyBiscuits->Run();
         delete TittyBiscuits;
         return 0;
