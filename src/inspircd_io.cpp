@@ -1029,7 +1029,7 @@ int BindPorts()
         char configToken[MAXBUF], Addr[MAXBUF], Type[MAXBUF];
 	sockaddr_in client,server;
         int clientportcount = 0;
-	int BoundPortCount;
+	int BoundPortCount = 0;
         for (int count = 0; count < Config->ConfValueEnum("bind",&Config->config_f); count++)
         {
                 Config->ConfValue("bind","port",count,configToken,&Config->config_f);
