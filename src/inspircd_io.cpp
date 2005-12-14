@@ -1023,3 +1023,53 @@ int OpenTCPSocket (void)
 		return (sockfd);
 	}
 }
+
+int BindPorts()
+{
+        char configToken[MAXBUF], Addr[MAXBUF], Type[MAXBUF];
+        int clientportcount = 0;
+        for (int count = 0; count < Config->ConfValueEnum("bind",&Config->config_f); count++)
+        {
+                Config->ConfValue("bind","port",count,configToken,&Config->config_f);
+                Config->ConfValue("bind","address",count,Addr,&Config->config_f);
+                Config->ConfValue("bind","type",count,Type,&Config->config_f);
+                if (strcmp(Type,"servers"))
+                {
+                        // modules handle server bind types now,
+                        // its not a typo in the strcmp.
+                        ports[clientportcount] = atoi(configToken);
+                        strlcpy(Config->addrs[clientportcount],Addr,256);
+                        clientportcount++;
+                        log(DEBUG,"InspIRCd: startup: read binding %s:%s [%s] from config",Addr,configToken, Type);
+                }
+        }
+        portCount = clientportcount;
+
+        for (int count = 0; count < portCount; count++)
+        {
+                if ((openSockfd[boundPortCount] = OpenTCPSocket()) == ERROR)
+                {
+                        log(DEBUG,"InspIRCd: startup: bad fd %lu",(unsigned long)openSockfd[boundPortCount]);
+                        return(ERROR);
+                }
+                if (BindSocket(openSockfd[boundPortCount],client,server,ports[count],Config->addrs[count]) == ERROR)
+                {
+                        log(DEFAULT,"InspIRCd: startup: failed to bind port %lu",(unsigned long)ports[count]);
+                }
+                else    /* well we at least bound to one socket so we'll continue */
+                {
+                        boundPortCount++;
+                }
+        }
+
+        /* if we didn't bind to anything then abort */
+        if (!boundPortCount)
+        {
+                log(DEFAULT,"InspIRCd: startup: no ports bound, bailing!");
+                printf("\nERROR: Was not able to bind any of %lu ports! Please check your configuration.\n\n", (unsigned long)portCount);
+                return (ERROR);
+        }
+
+        return boundPortCount;
+}
+
