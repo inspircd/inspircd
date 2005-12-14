@@ -376,7 +376,7 @@ void LoadAllModules()
         {
                 Config->ConfValue("module","name",count,configToken,&Config->config_f);
                 printf("Loading module... \033[1;32m%s\033[0m\n",configToken);
-                if (!LoadModule(configToken))
+                if (!ServerInstance->LoadModule(configToken))
                 {
                         log(DEFAULT,"Exiting due to a module loader error.");
                         printf("\nThere was an error loading a module: %s\n\nYou might want to do './inspircd start' instead of 'bin/inspircd'\n\n",ModuleError());

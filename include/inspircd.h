@@ -42,7 +42,7 @@
 #include "inspircd_util.h"
 #include "users.h"
 #include "channels.h"
-#include "sockets.h"
+#include "socket.h"
 
 // some misc defines
 
