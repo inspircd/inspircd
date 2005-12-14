@@ -61,6 +61,7 @@ using namespace std;
 #include "helperfuncs.h"
 #include "hashcomp.h"
 #include "socketengine.h"
+#include "typedefs.h"
 
 extern SocketEngine* SE;
 extern ServerConfig* Config;
@@ -86,11 +87,11 @@ const long duration_d = duration_h * 24;
 const long duration_w = duration_d * 7;
 const long duration_y = duration_w * 52;
 
-typedef nspace::hash_map<std::string, userrec*, nspace::hash<string>, irc::StrHashComp> user_hash;
+/*typedef nspace::hash_map<std::string, userrec*, nspace::hash<string>, irc::StrHashComp> user_hash;
 typedef nspace::hash_map<std::string, chanrec*, nspace::hash<string>, irc::StrHashComp> chan_hash;
 typedef nspace::hash_map<in_addr,string*, nspace::hash<in_addr>, irc::InAddr_HashComp> address_cache;
 typedef nspace::hash_map<std::string, WhoWasUser*, nspace::hash<string>, irc::StrHashComp> whowas_hash;
-typedef std::deque<command_t> command_table;
+typedef std::deque<command_t> command_table;*/
 
 
 extern user_hash clientlist;

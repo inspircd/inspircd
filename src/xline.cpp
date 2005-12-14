@@ -46,13 +46,14 @@ using namespace std;
 #include "inspstring.h"
 #include "helperfuncs.h"
 #include "hashcomp.h"
+#include "typedefs.h"
 
 extern int MODCOUNT;
 extern std::vector<Module*> modules;
 extern std::vector<ircd_module*> factory;
 extern ServerConfig* Config;
 extern std::stringstream config_f;
-typedef nspace::hash_map<std::string, userrec*, nspace::hash<string>, irc::StrHashComp> user_hash;
+/*typedef nspace::hash_map<std::string, userrec*, nspace::hash<string>, irc::StrHashComp> user_hash;*/
 extern user_hash clientlist;
 
 /* Version two, now with optimized expiry!

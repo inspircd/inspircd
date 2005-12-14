@@ -60,6 +60,7 @@ using namespace std;
 #include "userprocess.h"
 #include "socket.h"
 #include "dns.h"
+#include "typedefs.h"
 
 int WHOWAS_STALE = 48; // default WHOWAS Entries last 2 days before they go 'stale'
 int WHOWAS_MAX = 100;  // default 100 people maximum in the WHOWAS list
@@ -85,12 +86,12 @@ SocketEngine* SE = NULL;
 
 extern std::vector<std::string> include_stack;
 
-typedef nspace::hash_map<std::string, userrec*, nspace::hash<string>, irc::StrHashComp> user_hash;
+/*typedef nspace::hash_map<std::string, userrec*, nspace::hash<string>, irc::StrHashComp> user_hash;
 typedef nspace::hash_map<std::string, chanrec*, nspace::hash<string>, irc::StrHashComp> chan_hash;
 typedef nspace::hash_map<in_addr,string*, nspace::hash<in_addr>, irc::InAddr_HashComp> address_cache;
 typedef nspace::hash_map<std::string, WhoWasUser*, nspace::hash<string>, irc::StrHashComp> whowas_hash;
 typedef std::deque<command_t> command_table;
-typedef std::vector<std::string> servernamelist;
+typedef std::vector<std::string> servernamelist;*/
 
 // This table references users by file descriptor.
 // its an array to make it VERY fast, as all lookups are referenced

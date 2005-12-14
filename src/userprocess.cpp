@@ -57,6 +57,7 @@ using namespace std;
 #include "helperfuncs.h"
 #include "hashcomp.h"
 #include "socketengine.h"
+#include "typedefs.h"
 
 extern int MODCOUNT;
 extern int openSockfd[MAXSOCKS];
@@ -77,10 +78,10 @@ extern ServerConfig *Config;
 extern userrec* fd_ref_table[65536];
 char data[65536];
 
-typedef nspace::hash_map<std::string, userrec*, nspace::hash<string>, irc::StrHashComp> user_hash;
+/*typedef nspace::hash_map<std::string, userrec*, nspace::hash<string>, irc::StrHashComp> user_hash;
 typedef nspace::hash_map<std::string, chanrec*, nspace::hash<string>, irc::StrHashComp> chan_hash;
 typedef nspace::hash_map<in_addr,string*, nspace::hash<in_addr>, irc::InAddr_HashComp> address_cache;
-typedef nspace::hash_map<std::string, WhoWasUser*, nspace::hash<string>, irc::StrHashComp> whowas_hash;
+typedef nspace::hash_map<std::string, WhoWasUser*, nspace::hash<string>, irc::StrHashComp> whowas_hash;*/
 
 extern user_hash clientlist;
 extern chan_hash chanlist;

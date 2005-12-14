@@ -48,6 +48,7 @@ using namespace std;
 #include "inspstring.h"
 #include "helperfuncs.h"
 #include "hashcomp.h"
+#include "typedefs.h"
 
 extern int MODCOUNT;
 extern std::vector<Module*> modules;
@@ -66,9 +67,9 @@ extern std::vector<userrec*> all_opers;
 
 extern ClassVector Classes;
 
-typedef nspace::hash_map<std::string, userrec*, nspace::hash<string>, irc::StrHashComp> user_hash;
+/*typedef nspace::hash_map<std::string, userrec*, nspace::hash<string>, irc::StrHashComp> user_hash;
 typedef nspace::hash_map<std::string, chanrec*, nspace::hash<string>, irc::StrHashComp> chan_hash;
-typedef std::deque<command_t> command_table;
+typedef std::deque<command_t> command_table;*/
 
 extern user_hash clientlist;
 extern chan_hash chanlist;
