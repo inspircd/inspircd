@@ -42,6 +42,7 @@
 #include "inspircd_util.h"
 #include "users.h"
 #include "channels.h"
+#include "sockets.h"
 
 // some misc defines
 
@@ -102,6 +103,7 @@ class InspIRCd
 
  public:
 	time_t startup_time;
+	std::vector<InspSocket*> module_sockets;
 	
 	InspIRCd(int argc, char** argv);
 	int Run();
