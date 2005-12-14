@@ -101,7 +101,6 @@ whowas_hash whowas;
 command_table cmdlist;
 address_cache IP;
 
-ClassVector Classes;
 servernamelist servernames;
 
 int boundPortCount = 0;
@@ -1072,7 +1071,7 @@ void AddClient(int socket, char* host, int port, bool iscached, char* ip)
 	long class_sqmax = 262144;	// 256kb
 	long class_rqmax = 4096;	// 4k
 
-	for (ClassVector::iterator i = Classes.begin(); i != Classes.end(); i++)
+	for (ClassVector::iterator i = Config->Classes.begin(); i != Config->Classes.end(); i++)
 	{
 		if (match(clientlist[tempnick]->host,i->host) && (i->type == CC_ALLOW))
 		{

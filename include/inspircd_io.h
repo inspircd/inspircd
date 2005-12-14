@@ -66,6 +66,7 @@ class ServerConfig
 	file_cache RULES;
 	char PID[1024];
 	std::stringstream config_f;
+	ClassVector Classes;
 
 	ServerConfig();
 	void Read(bool bail, userrec* user);
