@@ -33,7 +33,6 @@ using namespace std;
 #include "xline.h"
 
 extern ServerConfig *Config;
-extern int boundPortCount;
 extern int openSockfd[MAXSOCKS];
 extern time_t TIME;
 
@@ -1029,6 +1028,7 @@ int BindPorts()
         char configToken[MAXBUF], Addr[MAXBUF], Type[MAXBUF];
 	sockaddr_in client,server;
         int clientportcount = 0;
+	int BoundPortCount;
         for (int count = 0; count < Config->ConfValueEnum("bind",&Config->config_f); count++)
         {
                 Config->ConfValue("bind","port",count,configToken,&Config->config_f);
@@ -1048,29 +1048,29 @@ int BindPorts()
 
         for (int count = 0; count < PortCount; count++)
         {
-                if ((openSockfd[boundPortCount] = OpenTCPSocket()) == ERROR)
+                if ((openSockfd[BoundPortCount] = OpenTCPSocket()) == ERROR)
                 {
-                        log(DEBUG,"InspIRCd: startup: bad fd %lu",(unsigned long)openSockfd[boundPortCount]);
+                        log(DEBUG,"InspIRCd: startup: bad fd %lu",(unsigned long)openSockfd[BoundPortCount]);
                         return(ERROR);
                 }
-                if (BindSocket(openSockfd[boundPortCount],client,server,Config->ports[count],Config->addrs[count]) == ERROR)
+                if (BindSocket(openSockfd[BoundPortCount],client,server,Config->ports[count],Config->addrs[count]) == ERROR)
                 {
                         log(DEFAULT,"InspIRCd: startup: failed to bind port %lu",(unsigned long)Config->ports[count]);
                 }
                 else    /* well we at least bound to one socket so we'll continue */
                 {
-                        boundPortCount++;
+                        BoundPortCount++;
                 }
         }
 
         /* if we didn't bind to anything then abort */
-        if (!boundPortCount)
+        if (!BoundPortCount)
         {
                 log(DEFAULT,"InspIRCd: startup: no ports bound, bailing!");
                 printf("\nERROR: Was not able to bind any of %lu ports! Please check your configuration.\n\n", (unsigned long)PortCount);
                 return (ERROR);
         }
 
-        return boundPortCount;
+        return BoundPortCount;
 }
 
