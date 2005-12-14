@@ -214,10 +214,10 @@ void handle_unloadmodule(char **parameters, int pcnt, userrec *user)
 void handle_die(char **parameters, int pcnt, userrec *user)
 {
 	log(DEBUG,"die: %s",user->nick);
-	if (!strcmp(parameters[0],diepass))
+	if (!strcmp(parameters[0],Config->diepass))
 	{
 		WriteOpers("*** DIE command from %s!%s@%s, terminating...",user->nick,user->ident,user->host);
-		sleep(DieDelay);
+		sleep(Config->DieDelay);
 		Exit(ERROR);
 	}
 	else
@@ -230,13 +230,13 @@ void handle_restart(char **parameters, int pcnt, userrec *user)
 {
 	char *argv[32];
 	log(DEFAULT,"Restart: %s",user->nick);
-	if (!strcmp(parameters[0],restartpass))
+	if (!strcmp(parameters[0],Config->restartpass))
 	{
 		WriteOpers("*** RESTART command from %s!%s@%s, restarting server.",user->nick,user->ident,user->host);
 
-		argv[0] = MyExecutable;
+		argv[0] = Config->MyExecutable;
 		argv[1] = "-wait";
-		if (nofork)
+		if (Config->nofork)
 		{
 			argv[2] = "-nofork";
 		}
@@ -256,7 +256,7 @@ void handle_restart(char **parameters, int pcnt, userrec *user)
 		}
 		sleep(2);
 		
-		execv(MyExecutable,argv);
+		execv(Config->MyExecutable,argv);
 
 		exit(0);
 	}
@@ -286,7 +286,7 @@ void handle_kill(char **parameters, int pcnt, userrec *user)
 		{
 			// remote kill
 			WriteOpers("*** Remote kill by %s: %s!%s@%s (%s)",user->nick,u->nick,u->ident,u->host,parameters[1]);
-			snprintf(killreason,MAXBUF,"[%s] Killed (%s (%s))",ServerName,user->nick,parameters[1]);
+			snprintf(killreason,MAXBUF,"[%s] Killed (%s (%s))",Config->ServerName,user->nick,parameters[1]);
 			WriteCommonExcept(u,"QUIT :%s",killreason);
 
 			FOREACH_MOD OnRemoteKill(user,u,killreason);
@@ -308,8 +308,8 @@ void handle_kill(char **parameters, int pcnt, userrec *user)
 		else
 		{
 			// local kill
-			log(DEFAULT,"LOCAL KILL: %s :%s!%s!%s (%s)", u->nick, ServerName,user->dhost,user->nick,parameters[1]);
-			WriteTo(user, u, "KILL %s :%s!%s!%s (%s)", u->nick, ServerName,user->dhost,user->nick,parameters[1]);
+			log(DEFAULT,"LOCAL KILL: %s :%s!%s!%s (%s)", u->nick, Config->ServerName,user->dhost,user->nick,parameters[1]);
+			WriteTo(user, u, "KILL %s :%s!%s!%s (%s)", u->nick, Config->ServerName,user->dhost,user->nick,parameters[1]);
 			WriteOpers("*** Local Kill by %s: %s!%s@%s (%s)",user->nick,u->nick,u->ident,u->host,parameters[1]);
 			snprintf(killreason,MAXBUF,"Killed (%s (%s))",user->nick,parameters[1]);
 			kill_link(u,killreason);
@@ -541,7 +541,7 @@ void handle_privmsg(char **parameters, int pcnt, userrec *user)
 		// notice to server mask
 		char* servermask = parameters[0];
 		servermask++;
-		if (match(ServerName,servermask))
+		if (match(Config->ServerName,servermask))
                 {
 			ServerPrivmsgAll("%s",parameters[1]);
                 }
@@ -636,7 +636,7 @@ void handle_notice(char **parameters, int pcnt, userrec *user)
 		// notice to server mask
 		char* servermask = parameters[0];
 		servermask++;
-		if (match(ServerName,servermask))
+		if (match(Config->ServerName,servermask))
 		{
 			NoticeAll(user, true, "%s",parameters[1]);
 		}
@@ -764,9 +764,9 @@ void handle_time(char **parameters, int pcnt, userrec *user)
 	time_t rawtime;
 	struct tm * timeinfo;
 
-	time ( &rawtime );
-	timeinfo = localtime ( &rawtime );
-	WriteServ(user->fd,"391 %s %s :%s",user->nick,ServerName, asctime (timeinfo) );
+	time(&rawtime);
+	timeinfo = localtime(&rawtime);
+	WriteServ(user->fd,"391 %s %s :%s",user->nick,Config->ServerName,asctime(timeinfo));
   
 }
 
@@ -840,7 +840,7 @@ void do_whois(userrec* user, userrec* dest,unsigned long signon, unsigned long i
 		{
 			if (*dest->oper)
 			{
-				WriteServ(user->fd,"313 %s %s :is %s %s on %s",user->nick, dest->nick, (strchr("aeiou",dest->oper[0]) ? "an" : "a"),dest->oper, Network);
+				WriteServ(user->fd,"313 %s %s :is %s %s on %s",user->nick, dest->nick, (strchr("aeiou",dest->oper[0]) ? "an" : "a"),dest->oper, Config->Network);
 			}
 			else
 			{
@@ -896,16 +896,16 @@ void handle_quit(char **parameters, int pcnt, userrec *user)
 			 */
 			if (user->fd > -1)
 			{
-				Write(user->fd,"ERROR :Closing link (%s@%s) [%s%s]",user->ident,user->host,PrefixQuit,parameters[0]);
-				WriteOpers("*** Client exiting: %s!%s@%s [%s%s]",user->nick,user->ident,user->host,PrefixQuit,parameters[0]);
-				WriteCommonExcept(user,"QUIT :%s%s",PrefixQuit,parameters[0]);
+				Write(user->fd,"ERROR :Closing link (%s@%s) [%s%s]",user->ident,user->host,Config->PrefixQuit,parameters[0]);
+				WriteOpers("*** Client exiting: %s!%s@%s [%s%s]",user->nick,user->ident,user->host,Config->PrefixQuit,parameters[0]);
+				WriteCommonExcept(user,"QUIT :%s%s",Config->PrefixQuit,parameters[0]);
 			}
 			else
 			{
 				WriteOpers("*** Client exiting at %s: %s!%s@%s [%s]",user->server,user->nick,user->ident,user->host,parameters[0]);
 				WriteCommonExcept(user,"QUIT :%s",parameters[0]);
 			}
-			FOREACH_MOD OnUserQuit(user,std::string(PrefixQuit)+std::string(parameters[0]));
+			FOREACH_MOD OnUserQuit(user,std::string(Config->PrefixQuit)+std::string(parameters[0]));
 
 		}
 		else
@@ -970,7 +970,7 @@ void handle_who(char **parameters, int pcnt, userrec *user)
 						if (strchr(i->second->modes,'o')) { strlcat(tmp, "*", 9); }
 						WriteServ(user->fd,"352 %s %s %s %s %s %s %s :0 %s",user->nick, Ptr ? Ptr->name : "*", i->second->ident, i->second->dhost, i->second->server, i->second->nick, tmp, i->second->fullname);
 						n_list++;
-						if (n_list > MaxWhoResults)
+						if (n_list > Config->MaxWhoResults)
 						{
 							WriteServ(user->fd,"523 %s WHO :Command aborted: More results than configured limit",user->nick);
 							break;
@@ -1009,7 +1009,7 @@ void handle_who(char **parameters, int pcnt, userrec *user)
 						strlcat(tmp, cmode(i->second, Ptr),5);
 						WriteServ(user->fd,"352 %s %s %s %s %s %s %s :0 %s",user->nick, Ptr->name, i->second->ident, i->second->dhost, i->second->server, i->second->nick, tmp, i->second->fullname);
                                                 n_list++;
-                                                if (n_list > MaxWhoResults)
+                                                if (n_list > Config->MaxWhoResults)
                                                 {
                                                         WriteServ(user->fd,"523 %s WHO :Command aborted: More results than configured limit",user->nick);
                                                         break;
@@ -1117,15 +1117,15 @@ void handle_lusers(char **parameters, int pcnt, userrec *user)
 
 void handle_admin(char **parameters, int pcnt, userrec *user)
 {
-	WriteServ(user->fd,"256 %s :Administrative info for %s",user->nick,ServerName);
-	WriteServ(user->fd,"257 %s :Name     - %s",user->nick,AdminName);
-	WriteServ(user->fd,"258 %s :Nickname - %s",user->nick,AdminNick);
-	WriteServ(user->fd,"258 %s :E-Mail   - %s",user->nick,AdminEmail);
+	WriteServ(user->fd,"256 %s :Administrative info for %s",user->nick,Config->ServerName);
+	WriteServ(user->fd,"257 %s :Name     - %s",user->nick,Config->AdminName);
+	WriteServ(user->fd,"258 %s :Nickname - %s",user->nick,Config->AdminNick);
+	WriteServ(user->fd,"258 %s :E-Mail   - %s",user->nick,Config->AdminEmail);
 }
 
 void handle_ping(char **parameters, int pcnt, userrec *user)
 {
-	WriteServ(user->fd,"PONG %s :%s",ServerName,parameters[0]);
+	WriteServ(user->fd,"PONG %s :%s",Config->ServerName,parameters[0]);
 }
 
 void handle_pong(char **parameters, int pcnt, userrec *user)
@@ -1340,7 +1340,7 @@ void handle_stats(char **parameters, int pcnt, userrec *user)
 		int idx = 0;
 		for (ClassVector::iterator i = Classes.begin(); i != Classes.end(); i++)
 		{
-			WriteServ(user->fd,"215 %s I * * * %d %d %s *",user->nick,MAXCLIENTS,idx,ServerName);
+			WriteServ(user->fd,"215 %s I * * * %d %d %s *",user->nick,MAXCLIENTS,idx,Config->ServerName);
 			idx++;
 		}
 	}
@@ -1522,7 +1522,7 @@ void handle_squit(char **parameters, int pcnt, userrec *user)
 
 void handle_links(char **parameters, int pcnt, userrec *user)
 {
-	WriteServ(user->fd,"364 %s %s %s :0 %s",user->nick,ServerName,ServerName,ServerDesc);
+	WriteServ(user->fd,"364 %s %s %s :0 %s",user->nick,Config->ServerName,Config->ServerName,ServerDesc);
 	WriteServ(user->fd,"365 %s * :End of /LINKS list.",user->nick);
 }
 
@@ -1531,7 +1531,7 @@ void handle_map(char **parameters, int pcnt, userrec *user)
 	// as with /LUSERS this does nothing without a linking
 	// module to override its behaviour and display something
 	// better.
-	WriteServ(user->fd,"006 %s :%s",user->nick,ServerName);
+	WriteServ(user->fd,"006 %s :%s",user->nick,Config->ServerName);
 	WriteServ(user->fd,"007 %s :End of /MAP",user->nick);
 }
 

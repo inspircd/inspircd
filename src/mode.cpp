@@ -661,7 +661,7 @@ void process_modes(char **parameters,userrec* user,chanrec *chan,int status, int
 				break;
 			
 				case 'h':
-					if (((param >= pcnt)) || (!AllowHalfop)) break;
+					if (((param >= pcnt)) || (!Config->AllowHalfop)) break;
 					if (mdir == 1)
 					{
                                                 MOD_RESULT = 0;
@@ -1130,7 +1130,7 @@ void process_modes(char **parameters,userrec* user,chanrec *chan,int status, int
 			{
 				if (!silent)
 				{
-					WriteChannelWithServ(ServerName,chan,"MODE %s %s",chan->name,outstr);
+					WriteChannelWithServ(Config->ServerName,chan,"MODE %s %s",chan->name,outstr);
 				}
 					
 			}
@@ -1206,7 +1206,7 @@ bool process_module_umode(char umode, userrec* source, void* dest, bool adding)
 	if (!source)
 	{
 		s2 = new userrec;
-		strlcpy(s2->nick,ServerName,NICKMAX);
+		strlcpy(s2->nick,Config->ServerName,NICKMAX);
 		strlcpy(s2->modes,"o",52);
 		s2->fd = -1;
 		source = s2;
@@ -1904,7 +1904,7 @@ void merge_mode(char **parameters, int pcnt)
 	if (Ptr)
 	{
 		userrec s2;
-		strlcpy(s2.nick,ServerName,NICKMAX);
+		strlcpy(s2.nick,Config->ServerName,NICKMAX);
 		strcpy(s2.modes,"o");
 		s2.fd = -1;
 		process_modes(parameters,&s2,Ptr,STATUS_OP,pcnt,true,true,false);

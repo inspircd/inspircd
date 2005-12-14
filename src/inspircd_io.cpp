@@ -41,16 +41,16 @@ void WriteOpers(char* text, ...);
 
 void Exit (int status)
 {
-	if (log_file)
-		fclose(log_file);
+	if (Config->log_file)
+		fclose(Config->log_file);
 	send_error("Server shutdown.");
 	exit (status);
 }
 
 void Killed(int status)
 {
-	if (log_file)
-		fclose(log_file);
+	if (Config->log_file)
+		fclose(Config->log_file);
 	send_error("Server terminated.");
 	exit(status);
 }
@@ -108,7 +108,7 @@ int DaemonSeed (void)
 
 	setpriority(PRIO_PROCESS,(int)getpid(),15);
 
-	if (unlimitcore)
+	if (Config->unlimitcore)
 	{
 		rlimit rl;
 		if (getrlimit(RLIMIT_CORE, &rl) == -1)
@@ -706,7 +706,7 @@ int BindSocket (int sockfd, struct sockaddr_in client, struct sockaddr_in server
 	}
 	else
 	{
-		listen(sockfd, MaxConn);
+		listen(sockfd, Config->MaxConn);
 		return(TRUE);
 	}
 }
