@@ -25,5 +25,6 @@ typedef std::deque<command_t> command_table;
 typedef std::vector<std::string> servernamelist;
 typedef std::vector<ExtMode> ExtModeList;
 typedef ExtModeList::iterator ExtModeListIter;
+typedef void (handlerfunc) (char**, int, userrec*);
 
 #endif

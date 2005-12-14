@@ -428,7 +428,7 @@ void kill_link_silent(userrec *user,const char* r)
 }
 
 
-int main(int argc, char** argv)
+InspIRCd::InspIRCd(int argc, char** argv)
 {
 	Start();
 	srand(time(NULL));
@@ -468,14 +468,7 @@ int main(int argc, char** argv)
 	lowermap[(unsigned)']'] = '}';
 	lowermap[(unsigned)'\\'] = '|';
 
-	if (InspIRCd(argv,argc) == ERROR)
-	{
-		log(DEFAULT,"main: daemon function bailed");
-		printf("ERROR: could not initialise. Shutting down.\n");
-		Exit(ERROR);
-	}
-	Exit(TRUE);
-	return 0;
+	return;
 }
 
 template<typename T> inline string ConvToStr(const T &in)
@@ -1543,7 +1536,7 @@ int BindPorts()
 	return boundPortCount;
 }
 
-int InspIRCd(char** argv, int argc)
+int InspIRCd::Run()
 {
 	bool expire_run = false;
 	std::vector<int> activefds;
@@ -1751,5 +1744,19 @@ int InspIRCd(char** argv, int argc)
 	}
 	/* This is never reached -- we hope! */
 	return 0;
+}
+
+/**********************************************************************************/
+
+/**
+ * An ircd in four lines! bwahahaha. ahahahahaha. ahahah *cough*.
+ */
+
+int main(int argc, char** argv)
+{
+        InspIRCd TittyBiscuits = new InspIRCd(argc, argv);
+        TittyBiscuits->Run();
+        delete TittyBiscuits;
+        return 0;
 }
 

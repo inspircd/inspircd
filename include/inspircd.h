@@ -90,10 +90,15 @@ class serverstats
 	}
 };
 
-typedef void (handlerfunc) (char**, int, userrec*);
+
+class InspIRCd
+{
+ public:
+	InspIRCd(int argc, char** argv);
+	int Run();
+};
 
 /* prototypes */
-int InspIRCd(char** argv, int argc);
 void force_nickchange(userrec* user,const char* newnick);
 void kill_link(userrec *user,const char* r);
 void kill_link_silent(userrec *user,const char* r);
@@ -118,6 +123,5 @@ std::string GetVersionString();
 void* dns_task(void* arg);
 void process_buffer(const char* cmdbuf,userrec *user);
 void FullConnectUser(userrec* user);
-chanrec* ForceChan(chanrec* Ptr,ucrec &a,userrec* user, int created);
 
 #endif
