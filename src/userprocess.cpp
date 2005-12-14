@@ -380,7 +380,7 @@ void LoadAllModules()
                 if (!ServerInstance->LoadModule(configToken))
                 {
                         log(DEFAULT,"Exiting due to a module loader error.");
-                        printf("\nThere was an error loading a module: %s\n\nYou might want to do './inspircd start' instead of 'bin/inspircd'\n\n",ModuleError());
+                        printf("\nThere was an error loading a module: %s\n\nYou might want to do './inspircd start' instead of 'bin/inspircd'\n\n",ServerInstance->ModuleError());
                         Exit(0);
                 }
         }
