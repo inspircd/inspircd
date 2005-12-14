@@ -26,5 +26,6 @@ typedef std::vector<std::string> servernamelist;
 typedef std::vector<ExtMode> ExtModeList;
 typedef ExtModeList::iterator ExtModeListIter;
 typedef void (handlerfunc) (char**, int, userrec*);
+typedef std::deque<std::string> file_cache;
 
 #endif

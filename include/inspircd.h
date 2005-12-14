@@ -42,6 +42,7 @@
 #include "inspircd_util.h"
 #include "users.h"
 #include "channels.h"
+#include "typedefs.h"
 
 // some misc defines
 
@@ -65,8 +66,6 @@
 #define IS_LOCAL(x) (x->fd > -1)
 #define IS_REMOTE(x) (x->fd < 0)
 #define IS_MODULE_CREATED(x) (x->fd == FD_MAGIC_NUMBER)
-
-typedef std::deque<std::string> file_cache;
 
 class serverstats
 {
