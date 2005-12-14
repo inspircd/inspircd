@@ -120,7 +120,7 @@ bool SocketEngine::DelFd(int fd)
 	}
 #ifdef USE_KQUEUE
 	struct kevent ke;
-	EV_SET(&ke, fd, ref[fd] && X_READBIT ? EVFILT_READ : EVFILT_WRITE, EV_DELETE, 0, 0, NULL);
+	EV_SET(&ke, fd, ref[fd] & X_READBIT ? EVFILT_READ : EVFILT_WRITE, EV_DELETE, 0, 0, NULL);
 	int i = kevent(EngineHandle, &ke, 1, 0, 0, NULL);
 	if (i == -1)
 	{
