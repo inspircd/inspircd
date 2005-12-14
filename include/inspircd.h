@@ -93,9 +93,17 @@ class serverstats
 
 class InspIRCd
 {
+
+ private:
+        void erase_factory(int j);
+        void erase_module(int j);
+        bool UnloadModule(const char* filename);
+        bool LoadModule(const char* filename);
+
  public:
 	InspIRCd(int argc, char** argv);
 	int Run();
+
 };
 
 /* prototypes */
@@ -109,8 +117,6 @@ int loop_call(handlerfunc fn, char **parameters, int pcnt, userrec *u, int start
 void AddWhoWas(userrec* u);
 void ConnectUser(userrec *user);
 userrec* ReHashNick(char* Old, char* New);
-bool LoadModule(const char* filename);
-bool UnloadModule(const char* filename);
 char* ModuleError();
 /* optimization tricks to save us walking the user hash */
 void AddOper(userrec* user);

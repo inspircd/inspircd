@@ -1368,7 +1368,7 @@ char* ModuleError()
 	return MODERR;
 }
 
-void erase_factory(int j)
+void InspIRCd::erase_factory(int j)
 {
 	int v = 0;
 	for (std::vector<ircd_module*>::iterator t = factory.begin(); t != factory.end(); t++)
@@ -1383,7 +1383,7 @@ void erase_factory(int j)
      	}
 }
 
-void erase_module(int j)
+void InspIRCd::erase_module(int j)
 {
 	int v1 = 0;
 	for (std::vector<Module*>::iterator m = modules.begin(); m!= modules.end(); m++)
@@ -1410,7 +1410,7 @@ void erase_module(int j)
 
 }
 
-bool UnloadModule(const char* filename)
+bool InspIRCd::UnloadModule(const char* filename)
 {
 	std::string filename_str = filename;
 	for (unsigned int j = 0; j != Config->module_names.size(); j++)
@@ -1450,7 +1450,7 @@ bool UnloadModule(const char* filename)
 	return false;
 }
 
-bool LoadModule(const char* filename)
+bool InspIRCd::LoadModule(const char* filename)
 {
 	char modfile[MAXBUF];
 #ifdef STATIC_LINK
