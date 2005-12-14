@@ -2,7 +2,9 @@
 .ad l
 .nh
 .SH NAME
-ServerConfig \- 
+ServerConfig \- This class holds the bulk of the runtime configuration for the ircd.  
+
+.PP
 .SH SYNOPSIS
 .br
 .PP
@@ -19,9 +21,11 @@ Inherits \fBclassbase\fP.
 .ti -1c
 .RI "void \fBClearStack\fP ()"
 .br
+.RI "\fIClears the include stack in preperation for a \fBRead()\fP call. \fP"
 .ti -1c
 .RI "void \fBRead\fP (bool bail, \fBuserrec\fP *user)"
 .br
+.RI "\fIRead the entire configuration into memory and initialize this class. \fP"
 .ti -1c
 .RI "bool \fBLoadConf\fP (const char *filename, std::stringstream *target, std::stringstream *errorstream)"
 .br
@@ -47,108 +51,142 @@ Inherits \fBclassbase\fP.
 .ti -1c
 .RI "char \fBServerName\fP [MAXBUF]"
 .br
+.RI "\fIHolds the server name of the local server as defined by the administrator. \fP"
 .ti -1c
 .RI "char \fBNetwork\fP [MAXBUF]"
 .br
 .ti -1c
 .RI "char \fBServerDesc\fP [MAXBUF]"
 .br
+.RI "\fIHolds the description of the local server as defined by the administrator. \fP"
 .ti -1c
 .RI "char \fBAdminName\fP [MAXBUF]"
 .br
+.RI "\fIHolds the admin's name, for output in the /ADMIN command. \fP"
 .ti -1c
 .RI "char \fBAdminEmail\fP [MAXBUF]"
 .br
+.RI "\fIHolds the email address of the admin, for output in the /ADMIN command. \fP"
 .ti -1c
 .RI "char \fBAdminNick\fP [MAXBUF]"
 .br
+.RI "\fIHolds the admin's nickname, for output in the /ADMIN command. \fP"
 .ti -1c
 .RI "char \fBdiepass\fP [MAXBUF]"
 .br
+.RI "\fIThe admin-configured /DIE password. \fP"
 .ti -1c
 .RI "char \fBrestartpass\fP [MAXBUF]"
 .br
+.RI "\fIThe admin-configured /RESTART password. \fP"
 .ti -1c
 .RI "char \fBmotd\fP [MAXBUF]"
 .br
+.RI "\fIThe pathname and filename of the message of the day file, as defined by the administrator. \fP"
 .ti -1c
 .RI "char \fBrules\fP [MAXBUF]"
 .br
+.RI "\fIThe pathname and filename of the rules file, as defined by the administrator. \fP"
 .ti -1c
 .RI "char \fBPrefixQuit\fP [MAXBUF]"
 .br
+.RI "\fIThe quit prefix in use, or an empty string. \fP"
 .ti -1c
 .RI "char \fBDieValue\fP [MAXBUF]"
 .br
+.RI "\fIThe last string found within a <die> tag, or an empty string. \fP"
 .ti -1c
 .RI "char \fBDNSServer\fP [MAXBUF]"
 .br
+.RI "\fIThe \fBDNS\fP server to use for \fBDNS\fP queries. \fP"
 .ti -1c
 .RI "char \fBDisabledCommands\fP [MAXBUF]"
 .br
+.RI "\fIThis variable contains a space-seperated list of commands which are disabled by the administrator of the server for non-opers. \fP"
 .ti -1c
 .RI "char \fBModPath\fP [1024]"
 .br
+.RI "\fIThe full path to the modules directory. \fP"
 .ti -1c
 .RI "char \fBMyExecutable\fP [1024]"
 .br
+.RI "\fIThe full pathname to the executable, as given in argv[0] when the program starts. \fP"
 .ti -1c
 .RI "FILE * \fBlog_file\fP"
 .br
+.RI "\fIThe file handle of the logfile. \fP"
 .ti -1c
 .RI "bool \fBnofork\fP"
 .br
+.RI "\fIIf this value is true, the owner of the server specified -nofork on the command line, causing the daemon to stay in the foreground. \fP"
 .ti -1c
 .RI "bool \fBunlimitcore\fP"
 .br
+.RI "\fIIf this value is true, the owner of the server has chosen to unlimit the coredump size to as large a value as his account settings will allow. \fP"
 .ti -1c
 .RI "bool \fBAllowHalfop\fP"
 .br
+.RI "\fIIf this value is true, halfops have been enabled in the configuration file. \fP"
 .ti -1c
 .RI "int \fBdns_timeout\fP"
 .br
+.RI "\fIThe number of seconds the \fBDNS\fP subsystem will wait before timing out any request. \fP"
 .ti -1c
 .RI "int \fBNetBufferSize\fP"
 .br
+.RI "\fIThe size of the read() buffer in the user handling code, used to read data into a user's recvQ. \fP"
 .ti -1c
 .RI "int \fBMaxConn\fP"
 .br
+.RI "\fIThe value to be used for listen() backlogs as default. \fP"
 .ti -1c
 .RI "unsigned int \fBSoftLimit\fP"
 .br
+.RI "\fIThe soft limit value assigned to the irc server. \fP"
 .ti -1c
 .RI "int \fBMaxWhoResults\fP"
 .br
+.RI "\fIThe maximum number of /WHO results allowed in any single /WHO command. \fP"
 .ti -1c
 .RI "int \fBdebugging\fP"
 .br
+.RI "\fITrue if the DEBUG loglevel is selected. \fP"
 .ti -1c
 .RI "int \fBLogLevel\fP"
 .br
+.RI "\fIThe loglevel in use by the IRC server. \fP"
 .ti -1c
 .RI "int \fBDieDelay\fP"
 .br
+.RI "\fIHow many seconds to wait before exiting the program when /DIE is correctly issued. \fP"
 .ti -1c
 .RI "char \fBaddrs\fP [MAXBUF][255]"
 .br
+.RI "\fIA list of IP addresses the server is listening on. \fP"
 .ti -1c
 .RI "\fBfile_cache\fP \fBMOTD\fP"
 .br
+.RI "\fIThe MOTD file, cached in a file_cache type. \fP"
 .ti -1c
 .RI "\fBfile_cache\fP \fBRULES\fP"
 .br
+.RI "\fIThe RULES file, cached in a file_cache type. \fP"
 .ti -1c
 .RI "char \fBPID\fP [1024]"
 .br
+.RI "\fIThe full pathname and filename of the PID file as defined in the configuration. \fP"
 .ti -1c
 .RI "std::stringstream \fBconfig_f\fP"
 .br
+.RI "\fIThe parsed configuration file as a stringstream. \fP"
 .ti -1c
 .RI "\fBClassVector\fP \fBClasses\fP"
 .br
+.RI "\fIThe connect classes in use by the IRC server. \fP"
 .ti -1c
 .RI "std::vector< \fBstd::string\fP > \fBmodule_names\fP"
 .br
+.RI "\fIA list of module names (names only, no paths) which are currently loaded by the server. \fP"
 .in -1c
 .SS "Private Member Functions"
 
@@ -156,9 +194,11 @@ Inherits \fBclassbase\fP.
 .ti -1c
 .RI "int \fBfgets_safe\fP (char *buffer, size_t maxsize, FILE *&file)"
 .br
+.RI "\fIUsed by the config file subsystem to safely read a C-style string without dependency upon any certain style of linefeed, e.g. \fP"
 .ti -1c
 .RI "\fBstd::string\fP \fBConfProcess\fP (char *buffer, long linenumber, std::stringstream *errorstream, bool &error, \fBstd::string\fP filename)"
 .br
+.RI "\fIThis private method processes one line of configutation, appending errors to errorstream and setting error if an error has occured. \fP"
 .in -1c
 .SS "Private Attributes"
 
@@ -166,10 +206,15 @@ Inherits \fBclassbase\fP.
 .ti -1c
 .RI "std::vector< \fBstd::string\fP > \fBinclude_stack\fP"
 .br
+.RI "\fIThis variable holds the names of all files included from the main one. \fP"
 .in -1c
 .SH "Detailed Description"
 .PP 
-Definition at line 34 of file inspircd_io.h.
+This class holds the bulk of the runtime configuration for the ircd. 
+
+It allows for reading new config values, accessing configuration files, and storage of the configuration data needed to run the ircd, such as the servername, connect classes, /ADMIN data, MOTDs and filenames etc.
+.PP
+Definition at line 39 of file inspircd_io.h.
 .SH "Constructor & Destructor Documentation"
 .PP 
 .SS "ServerConfig::ServerConfig ()"
@@ -178,8 +223,12 @@ Definition at line 34 of file inspircd_io.h.
 .PP 
 .SS "void ServerConfig::ClearStack ()"
 .PP
+Clears the include stack in preperation for a \fBRead()\fP call. 
+.PP
 Referenced by ConfigReader::ConfigReader().
 .SS "\fBstd::string\fP ServerConfig::ConfProcess (char * buffer, long linenumber, std::stringstream * errorstream, bool & error, \fBstd::string\fP filename)\fC [private]\fP"
+.PP
+This private method processes one line of configutation, appending errors to errorstream and setting error if an error has occured. 
 .PP
 .SS "int ServerConfig::ConfValue (char * tag, char * var, int index, char * result, std::stringstream * config)"
 .PP
@@ -194,10 +243,17 @@ Referenced by ConfigReader::Enumerate().
 Referenced by ConfigReader::EnumerateValues().
 .SS "int ServerConfig::fgets_safe (char * buffer, size_t maxsize, FILE *& file)\fC [private]\fP"
 .PP
+Used by the config file subsystem to safely read a C-style string without dependency upon any certain style of linefeed, e.g. 
+.PP
+it can read both windows and UNIX style linefeeds transparently.
 .SS "bool ServerConfig::LoadConf (const char * filename, std::stringstream * target, std::stringstream * errorstream)"
 .PP
 Referenced by ConfigReader::ConfigReader().
 .SS "void ServerConfig::Read (bool bail, \fBuserrec\fP * user)"
+.PP
+Read the entire configuration into memory and initialize this class. 
+.PP
+All other methods should be used only by the core.
 .PP
 Referenced by Server::RehashServer().
 .SS "int ServerConfig::ReadConf (std::stringstream * config_f, const char * tag, const char * var, int index, char * result)"
@@ -207,118 +263,200 @@ Referenced by ConfigReader::ReadFlag(), ConfigReader::ReadInteger(), and ConfigR
 .PP 
 .SS "char \fBServerConfig::addrs\fP[MAXBUF][255]"
 .PP
-Definition at line 70 of file inspircd_io.h.
+A list of IP addresses the server is listening on. 
+.PP
+Definition at line 216 of file inspircd_io.h.
 .SS "char \fBServerConfig::AdminEmail\fP[MAXBUF]"
 .PP
-Definition at line 46 of file inspircd_io.h.
+Holds the email address of the admin, for output in the /ADMIN command. 
+.PP
+Definition at line 89 of file inspircd_io.h.
 .SS "char \fBServerConfig::AdminName\fP[MAXBUF]"
 .PP
-Definition at line 45 of file inspircd_io.h.
+Holds the admin's name, for output in the /ADMIN command. 
+.PP
+Definition at line 84 of file inspircd_io.h.
 .SS "char \fBServerConfig::AdminNick\fP[MAXBUF]"
 .PP
-Definition at line 47 of file inspircd_io.h.
+Holds the admin's nickname, for output in the /ADMIN command. 
+.PP
+Definition at line 94 of file inspircd_io.h.
 .SS "bool \fBServerConfig::AllowHalfop\fP"
 .PP
-Definition at line 61 of file inspircd_io.h.
+If this value is true, halfops have been enabled in the configuration file. 
+.PP
+Definition at line 171 of file inspircd_io.h.
 .SS "\fBClassVector\fP \fBServerConfig::Classes\fP"
 .PP
-Definition at line 75 of file inspircd_io.h.
+The connect classes in use by the IRC server. 
+.PP
+Definition at line 242 of file inspircd_io.h.
 .SS "std::stringstream \fBServerConfig::config_f\fP"
 .PP
-Definition at line 74 of file inspircd_io.h.
+The parsed configuration file as a stringstream. 
+.PP
+You should pass this to any configuration methods of this class, and not access it directly. It is recommended that modules use \fBConfigReader\fP instead which provides a simpler abstraction of configuration files.
+.PP
+Definition at line 238 of file inspircd_io.h.
 .PP
 Referenced by userrec::HasPermission().
 .SS "int \fBServerConfig::debugging\fP"
 .PP
-Definition at line 67 of file inspircd_io.h.
+True if the DEBUG loglevel is selected. 
+.PP
+Definition at line 202 of file inspircd_io.h.
 .SS "int \fBServerConfig::DieDelay\fP"
 .PP
-Definition at line 69 of file inspircd_io.h.
+How many seconds to wait before exiting the program when /DIE is correctly issued. 
+.PP
+Definition at line 211 of file inspircd_io.h.
 .SS "char \fBServerConfig::diepass\fP[MAXBUF]"
 .PP
-Definition at line 48 of file inspircd_io.h.
+The admin-configured /DIE password. 
+.PP
+Definition at line 98 of file inspircd_io.h.
 .SS "char \fBServerConfig::DieValue\fP[MAXBUF]"
 .PP
-Definition at line 53 of file inspircd_io.h.
+The last string found within a <die> tag, or an empty string. 
+.PP
+Definition at line 121 of file inspircd_io.h.
 .SS "char \fBServerConfig::DisabledCommands\fP[MAXBUF]"
 .PP
-Definition at line 55 of file inspircd_io.h.
+This variable contains a space-seperated list of commands which are disabled by the administrator of the server for non-opers. 
+.PP
+Definition at line 131 of file inspircd_io.h.
 .SS "int \fBServerConfig::dns_timeout\fP"
 .PP
-Definition at line 62 of file inspircd_io.h.
+The number of seconds the \fBDNS\fP subsystem will wait before timing out any request. 
+.PP
+Definition at line 176 of file inspircd_io.h.
 .SS "char \fBServerConfig::DNSServer\fP[MAXBUF]"
 .PP
-Definition at line 54 of file inspircd_io.h.
+The \fBDNS\fP server to use for \fBDNS\fP queries. 
+.PP
+Definition at line 125 of file inspircd_io.h.
 .SS "std::vector<\fBstd::string\fP> \fBServerConfig::include_stack\fP\fC [private]\fP"
 .PP
-Definition at line 37 of file inspircd_io.h.
+This variable holds the names of all files included from the main one. 
+.PP
+This is used to make sure that no files are recursively included.
+.PP
+Definition at line 47 of file inspircd_io.h.
 .SS "FILE* \fBServerConfig::log_file\fP"
 .PP
-Definition at line 58 of file inspircd_io.h.
+The file handle of the logfile. 
+.PP
+If this value is NULL, the log file is not open, probably due to a permissions error on startup (this should not happen in normal operation!).
+.PP
+Definition at line 151 of file inspircd_io.h.
 .SS "int \fBServerConfig::LogLevel\fP"
 .PP
-Definition at line 68 of file inspircd_io.h.
+The loglevel in use by the IRC server. 
+.PP
+Definition at line 206 of file inspircd_io.h.
 .SS "int \fBServerConfig::MaxConn\fP"
 .PP
-Definition at line 64 of file inspircd_io.h.
+The value to be used for listen() backlogs as default. 
+.PP
+Definition at line 187 of file inspircd_io.h.
 .SS "int \fBServerConfig::MaxWhoResults\fP"
 .PP
-Definition at line 66 of file inspircd_io.h.
+The maximum number of /WHO results allowed in any single /WHO command. 
+.PP
+Definition at line 198 of file inspircd_io.h.
 .SS "char \fBServerConfig::ModPath\fP[1024]"
 .PP
-Definition at line 56 of file inspircd_io.h.
+The full path to the modules directory. 
+.PP
+This is either set at compile time, or overridden in the configuration file via the <options> tag.
+.PP
+Definition at line 138 of file inspircd_io.h.
 .SS "std::vector<\fBstd::string\fP> \fBServerConfig::module_names\fP"
 .PP
-Definition at line 76 of file inspircd_io.h.
+A list of module names (names only, no paths) which are currently loaded by the server. 
+.PP
+Definition at line 247 of file inspircd_io.h.
 .PP
 Referenced by Server::FindModule().
 .SS "\fBfile_cache\fP \fBServerConfig::MOTD\fP"
 .PP
-Definition at line 71 of file inspircd_io.h.
+The MOTD file, cached in a file_cache type. 
+.PP
+Definition at line 220 of file inspircd_io.h.
 .SS "char \fBServerConfig::motd\fP[MAXBUF]"
 .PP
-Definition at line 50 of file inspircd_io.h.
+The pathname and filename of the message of the day file, as defined by the administrator. 
+.PP
+Definition at line 107 of file inspircd_io.h.
 .SS "char \fBServerConfig::MyExecutable\fP[1024]"
 .PP
-Definition at line 57 of file inspircd_io.h.
+The full pathname to the executable, as given in argv[0] when the program starts. 
+.PP
+Definition at line 143 of file inspircd_io.h.
 .SS "int \fBServerConfig::NetBufferSize\fP"
 .PP
-Definition at line 63 of file inspircd_io.h.
+The size of the read() buffer in the user handling code, used to read data into a user's recvQ. 
+.PP
+Definition at line 182 of file inspircd_io.h.
 .SS "char \fBServerConfig::Network\fP[MAXBUF]"
 .PP
-Definition at line 43 of file inspircd_io.h.
+Definition at line 74 of file inspircd_io.h.
 .SS "bool \fBServerConfig::nofork\fP"
 .PP
-Definition at line 59 of file inspircd_io.h.
+If this value is true, the owner of the server specified -nofork on the command line, causing the daemon to stay in the foreground. 
+.PP
+Definition at line 158 of file inspircd_io.h.
 .SS "char \fBServerConfig::PID\fP[1024]"
 .PP
-Definition at line 73 of file inspircd_io.h.
+The full pathname and filename of the PID file as defined in the configuration. 
+.PP
+Definition at line 229 of file inspircd_io.h.
 .SS "char \fBServerConfig::PrefixQuit\fP[MAXBUF]"
 .PP
-Definition at line 52 of file inspircd_io.h.
+The quit prefix in use, or an empty string. 
+.PP
+Definition at line 116 of file inspircd_io.h.
 .SS "char \fBServerConfig::restartpass\fP[MAXBUF]"
 .PP
-Definition at line 49 of file inspircd_io.h.
+The admin-configured /RESTART password. 
+.PP
+Definition at line 102 of file inspircd_io.h.
 .SS "\fBfile_cache\fP \fBServerConfig::RULES\fP"
 .PP
-Definition at line 72 of file inspircd_io.h.
+The RULES file, cached in a file_cache type. 
+.PP
+Definition at line 224 of file inspircd_io.h.
 .SS "char \fBServerConfig::rules\fP[MAXBUF]"
 .PP
-Definition at line 51 of file inspircd_io.h.
+The pathname and filename of the rules file, as defined by the administrator. 
+.PP
+Definition at line 112 of file inspircd_io.h.
 .SS "char \fBServerConfig::ServerDesc\fP[MAXBUF]"
 .PP
-Definition at line 44 of file inspircd_io.h.
+Holds the description of the local server as defined by the administrator. 
+.PP
+Definition at line 79 of file inspircd_io.h.
 .SS "char \fBServerConfig::ServerName\fP[MAXBUF]"
 .PP
-Definition at line 42 of file inspircd_io.h.
+Holds the server name of the local server as defined by the administrator. 
+.PP
+Definition at line 68 of file inspircd_io.h.
 .PP
 Referenced by userrec::userrec().
 .SS "unsigned int \fBServerConfig::SoftLimit\fP"
 .PP
-Definition at line 65 of file inspircd_io.h.
+The soft limit value assigned to the irc server. 
+.PP
+The IRC server will not allow more than this number of local users.
+.PP
+Definition at line 193 of file inspircd_io.h.
 .SS "bool \fBServerConfig::unlimitcore\fP"
 .PP
-Definition at line 60 of file inspircd_io.h.
+If this value is true, the owner of the server has chosen to unlimit the coredump size to as large a value as his account settings will allow. 
+.PP
+This is often used when debugging.
+.PP
+Definition at line 166 of file inspircd_io.h.
 
 .SH "Author"
 .PP 
