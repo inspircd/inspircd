@@ -763,12 +763,12 @@ chanrec* FindChan(const char* chan)
 long GetMaxBans(char* name)
 {
         char CM[MAXBUF];
-        for (int count = 0; count < ConfValueEnum("banlist",&Config->config_f); count++)
+        for (int count = 0; count < Config->ConfValueEnum("banlist",&Config->config_f); count++)
         {
-                ConfValue("banlist","chan",count,CM,&Config->config_f);
+		Config->ConfValue("banlist","chan",count,CM,&Config->config_f);
                 if (match(name,CM))
                 {
-                        ConfValue("banlist","limit",count,CM,&Config->config_f);
+                        Config->ConfValue("banlist","limit",count,CM,&Config->config_f);
                         return atoi(CM);
                 }
         }
@@ -992,7 +992,7 @@ int usercount(chanrec *c)
 
 char* Passwd(userrec *user)
 {
-        for (ClassVector::iterator i = Classes.begin(); i != Classes.end(); i++)
+        for (ClassVector::iterator i = Config->Classes.begin(); i != Config->Classes.end(); i++)
         {
                 if (match(user->host,i->host) && (i->type == CC_ALLOW))
                 {
@@ -1004,7 +1004,7 @@ char* Passwd(userrec *user)
 
 bool IsDenied(userrec *user)
 {
-        for (ClassVector::iterator i = Classes.begin(); i != Classes.end(); i++)
+        for (ClassVector::iterator i = Config->Classes.begin(); i != Config->Classes.end(); i++)
         {
                 if (match(user->host,i->host) && (i->type == CC_DENY))
                 {

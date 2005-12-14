@@ -1896,11 +1896,11 @@ int BindPorts()
 {
 	char configToken[MAXBUF], Addr[MAXBUF], Type[MAXBUF];
 	int clientportcount = 0;
-        for (int count = 0; count < ConfValueEnum("bind",&Config->config_f); count++)
+        for (int count = 0; count < Config->ConfValueEnum("bind",&Config->config_f); count++)
         {
-                ConfValue("bind","port",count,configToken,&Config->config_f);
-                ConfValue("bind","address",count,Addr,&Config->config_f);
-                ConfValue("bind","type",count,Type,&Config->config_f);
+		Config->ConfValue("bind","port",count,configToken,&Config->config_f);
+		Config->ConfValue("bind","address",count,Addr,&Config->config_f);
+		Config->ConfValue("bind","type",count,Type,&Config->config_f);
                 if (strcmp(Type,"servers"))
                 {
                         // modules handle server bind types now,

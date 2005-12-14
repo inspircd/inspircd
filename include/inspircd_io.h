@@ -31,7 +31,7 @@
 #define SPARSE 40
 #define NONE 50
 
-class ServerConfig
+class ServerConfig : public classbase
 {
   private:
 	std::vector<std::string> include_stack;
