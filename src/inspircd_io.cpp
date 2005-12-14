@@ -306,7 +306,7 @@ void ServerConfig::Read(bool bail, userrec* user)
                         }
                         else
                         {
-                                WriteServ(user->fd,"972 %s %s :Failed to unload module %s: %s",user->nick, removing->c_str(), removing->c_str(), ModuleError());
+                                WriteServ(user->fd,"972 %s %s :Failed to unload module %s: %s",user->nick, removing->c_str(), removing->c_str(), ServerInstance->ModuleError());
                         }
                 }
                 if (!added_modules.empty())
@@ -320,7 +320,7 @@ void ServerConfig::Read(bool bail, userrec* user)
                         }
                         else
                         {
-                                WriteServ(user->fd,"974 %s %s :Failed to load module %s: %s",user->nick, adding->c_str(), adding->c_str(), ModuleError());
+                                WriteServ(user->fd,"974 %s %s :Failed to load module %s: %s",user->nick, adding->c_str(), adding->c_str(), ServerInstance->ModuleError());
                         }
                 }
                 log(DEFAULT,"Successfully unloaded %lu of %lu modules and loaded %lu of %lu modules.",(unsigned long)rem,(unsigned long)removed_modules.size(),
@@ -328,8 +328,6 @@ void ServerConfig::Read(bool bail, userrec* user)
 	}
 }
 
-
-void WriteOpers(char* text, ...);
 
 void Exit (int status)
 {

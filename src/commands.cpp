@@ -176,7 +176,7 @@ void handle_loadmodule(char **parameters, int pcnt, userrec *user)
 	}
 	else
 	{
-		WriteServ(user->fd,"974 %s %s :Failed to load module: %s",user->nick, parameters[0],ModuleError());
+		WriteServ(user->fd,"974 %s %s :Failed to load module: %s",user->nick, parameters[0],ServerInstance->ModuleError());
 	}
 }
 
@@ -189,7 +189,7 @@ void handle_unloadmodule(char **parameters, int pcnt, userrec *user)
         }
         else
         {
-                WriteServ(user->fd,"972 %s %s :Failed to unload module: %s",user->nick, parameters[0],ModuleError());
+                WriteServ(user->fd,"972 %s %s :Failed to unload module: %s",user->nick, parameters[0],ServerInstance->ModuleError());
         }
 }
 
