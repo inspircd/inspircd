@@ -9,7 +9,7 @@
 <a class="el" href="dir_000000.html">home</a>&nbsp;&raquo&nbsp;<a class="el" href="dir_000001.html">brain</a>&nbsp;&raquo&nbsp;<a class="el" href="dir_000002.html">inspircd-cvs</a>&nbsp;&raquo&nbsp;<a class="el" href="dir_000003.html">inspircd</a>&nbsp;&raquo&nbsp;<a class="el" href="dir_000005.html">src</a></div>
 <h1>modules.cpp File Reference</h1><code>#include &quot;inspircd_config.h&quot;</code><br>
 <code>#include &quot;inspircd.h&quot;</code><br>
-<code>#include &quot;inspircd_io.h&quot;</code><br>
+<code>#include &quot;<a class="el" href="inspircd__io_8h-source.html">inspircd_io.h</a>&quot;</code><br>
 <code>#include &quot;inspircd_util.h&quot;</code><br>
 <code>#include &lt;unistd.h&gt;</code><br>
 <code>#include &lt;sys/errno.h&gt;</code><br>
@@ -35,51 +35,28 @@
 <code>#include &quot;<a class="el" href="hashcomp_8h-source.html">hashcomp.h</a>&quot;</code><br>
 <code>#include &quot;<a class="el" href="socket_8h-source.html">socket.h</a>&quot;</code><br>
 <code>#include &quot;<a class="el" href="socketengine_8h-source.html">socketengine.h</a>&quot;</code><br>
+<code>#include &quot;<a class="el" href="typedefs_8h-source.html">typedefs.h</a>&quot;</code><br>
 
 <p>
 Include dependency graph for modules.cpp:<p><center><img src="modules_8cpp__incl.gif" border="0" usemap="#modules.cpp_map" alt=""></center>
 <map name="modules.cpp_map">
-<area href="users_8h-source.html" shape="rect" coords="330,283,394,309" alt="">
-<area href="ctables_8h-source.html" shape="rect" coords="324,1093,399,1120" alt="">
-<area href="modules_8h-source.html" shape="rect" coords="168,1043,251,1069" alt="">
-<area href="socket_8h-source.html" shape="rect" coords="326,941,398,968" alt="">
-<area href="message_8h-source.html" shape="rect" coords="167,404,252,431" alt="">
-<area href="mode_8h-source.html" shape="rect" coords="176,533,243,560" alt="">
-<area href="xline_8h-source.html" shape="rect" coords="179,341,240,368" alt="">
-<area href="commands_8h-source.html" shape="rect" coords="160,637,259,664" alt="">
-<area href="hashcomp_8h-source.html" shape="rect" coords="315,80,408,107" alt="">
-<area href="socketengine_8h-source.html" shape="rect" coords="154,815,266,841" alt="">
+<area href="inspircd__io_8h-source.html" shape="rect" coords="313,311,409,338" alt="">
+<area href="users_8h-source.html" shape="rect" coords="476,1274,540,1300" alt="">
+<area href="ctables_8h-source.html" shape="rect" coords="471,716,545,743" alt="">
+<area href="modules_8h-source.html" shape="rect" coords="320,691,403,718" alt="">
+<area href="socket_8h-source.html" shape="rect" coords="472,615,544,642" alt="">
+<area href="message_8h-source.html" shape="rect" coords="319,1172,404,1199" alt="">
+<area href="mode_8h-source.html" shape="rect" coords="328,919,395,946" alt="">
+<area href="xline_8h-source.html" shape="rect" coords="331,1071,392,1098" alt="">
+<area href="commands_8h-source.html" shape="rect" coords="312,970,411,996" alt="">
+<area href="hashcomp_8h-source.html" shape="rect" coords="315,1527,408,1554" alt="">
+<area href="socketengine_8h-source.html" shape="rect" coords="305,362,417,388" alt="">
+<area href="typedefs_8h-source.html" shape="rect" coords="163,1223,248,1250" alt="">
 </map>
 
 <p>
 <a href="modules_8cpp-source.html">Go to the source code of this file.</a><table border="0" cellpadding="0" cellspacing="0">
 <tr><td></td></tr>
-<tr><td colspan="2"><br><h2>Classes</h2></td></tr>
-<tr><td class="memItemLeft" nowrap align="right" valign="top">class &nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classExtMode.html">ExtMode</a></td></tr>
-
-<tr><td colspan="2"><br><h2>Typedefs</h2></td></tr>
-<tr><td class="memItemLeft" nowrap align="right" valign="top">typedef nspace::hash_map&lt;<br>
- <a class="el" href="namespaceirc.html#string">std::string</a>, <a class="el" href="classuserrec.html">userrec</a> *, nspace::hash&lt;<br>
- <a class="el" href="namespaceirc.html#string">string</a> &gt;, <a class="el" href="structirc_1_1StrHashComp.html">irc::StrHashComp</a> &gt;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="modules_8cpp.html#user_5Fhash">user_hash</a></td></tr>
-
-<tr><td class="memItemLeft" nowrap align="right" valign="top">typedef nspace::hash_map&lt;<br>
- <a class="el" href="namespaceirc.html#string">std::string</a>, <a class="el" href="classchanrec.html">chanrec</a> *, nspace::hash&lt;<br>
- <a class="el" href="namespaceirc.html#string">string</a> &gt;, <a class="el" href="structirc_1_1StrHashComp.html">irc::StrHashComp</a> &gt;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="modules_8cpp.html#chan_5Fhash">chan_hash</a></td></tr>
-
-<tr><td class="memItemLeft" nowrap align="right" valign="top">typedef nspace::hash_map&lt;<br>
- in_addr, <a class="el" href="namespaceirc.html#string">string</a> *, nspace::hash&lt;<br>
- in_addr &gt;, <a class="el" href="structirc_1_1InAddr__HashComp.html">irc::InAddr_HashComp</a> &gt;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="modules_8cpp.html#address_5Fcache">address_cache</a></td></tr>
-
-<tr><td class="memItemLeft" nowrap align="right" valign="top">typedef nspace::hash_map&lt;<br>
- <a class="el" href="namespaceirc.html#string">std::string</a>, <a class="el" href="classWhoWasUser.html">WhoWasUser</a> *,<br>
- nspace::hash&lt; <a class="el" href="namespaceirc.html#string">string</a> &gt;, <a class="el" href="structirc_1_1StrHashComp.html">irc::StrHashComp</a> &gt;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="modules_8cpp.html#whowas_5Fhash">whowas_hash</a></td></tr>
-
-<tr><td class="memItemLeft" nowrap align="right" valign="top">typedef std::deque&lt; <a class="el" href="classcommand__t.html">command_t</a> &gt;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="modules_8cpp.html#command_5Ftable">command_table</a></td></tr>
-
-<tr><td class="memItemLeft" nowrap align="right" valign="top">typedef std::vector&lt; <a class="el" href="classExtMode.html">ExtMode</a> &gt;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="modules_8cpp.html#ExtModeList">ExtModeList</a></td></tr>
-
-<tr><td class="memItemLeft" nowrap align="right" valign="top">typedef ExtModeList::iterator&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="modules_8cpp.html#ExtModeListIter">ExtModeListIter</a></td></tr>
-
 <tr><td colspan="2"><br><h2>Functions</h2></td></tr>
 <tr><td class="memItemLeft" nowrap align="right" valign="top">bool&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="modules_8cpp.html#ModeDefined_28char_20modechar_2C_20int_20type_29">ModeDefined</a> (char modechar, int type)</td></tr>
 
@@ -102,63 +79,23 @@ Include dependency graph for modules.cpp:<p><center><img src="modules_8cpp__incl
 <tr><td colspan="2"><br><h2>Variables</h2></td></tr>
 <tr><td class="memItemLeft" nowrap align="right" valign="top"><a class="el" href="classSocketEngine.html">SocketEngine</a> *&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="modules_8cpp.html#SE">SE</a></td></tr>
 
+<tr><td class="memItemLeft" nowrap align="right" valign="top"><a class="el" href="classServerConfig.html">ServerConfig</a> *&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="modules_8cpp.html#Config">Config</a></td></tr>
+
 <tr><td class="memItemLeft" nowrap align="right" valign="top">int&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="modules_8cpp.html#MODCOUNT">MODCOUNT</a> = -1</td></tr>
 
 <tr><td class="memItemLeft" nowrap align="right" valign="top">std::vector&lt; <a class="el" href="classModule.html">Module</a> * &gt;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="modules_8cpp.html#modules">modules</a></td></tr>
 
 <tr><td class="memItemLeft" nowrap align="right" valign="top">std::vector&lt; <a class="el" href="modules_8h.html#ircd_5Fmodule">ircd_module</a> * &gt;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="modules_8cpp.html#factory">factory</a></td></tr>
 
-<tr><td class="memItemLeft" nowrap align="right" valign="top">std::vector&lt; <a class="el" href="namespaceirc.html#string">std::string</a> &gt;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="modules_8cpp.html#include_5Fstack">include_stack</a></td></tr>
-
 <tr><td class="memItemLeft" nowrap align="right" valign="top">std::vector&lt; <a class="el" href="classInspSocket.html">InspSocket</a> * &gt;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="modules_8cpp.html#module_5Fsockets">module_sockets</a></td></tr>
 
 <tr><td class="memItemLeft" nowrap align="right" valign="top">time_t&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="modules_8cpp.html#TIME">TIME</a></td></tr>
-
-<tr><td class="memItemLeft" nowrap align="right" valign="top">int&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="modules_8cpp.html#LogLevel">LogLevel</a></td></tr>
-
-<tr><td class="memItemLeft" nowrap align="right" valign="top">char&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="modules_8cpp.html#ServerName_5BMAXBUF_5D">ServerName</a> [MAXBUF]</td></tr>
-
-<tr><td class="memItemLeft" nowrap align="right" valign="top">char&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="modules_8cpp.html#Network_5BMAXBUF_5D">Network</a> [MAXBUF]</td></tr>
-
-<tr><td class="memItemLeft" nowrap align="right" valign="top">char&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="modules_8cpp.html#ServerDesc_5BMAXBUF_5D">ServerDesc</a> [MAXBUF]</td></tr>
-
-<tr><td class="memItemLeft" nowrap align="right" valign="top">char&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="modules_8cpp.html#AdminName_5BMAXBUF_5D">AdminName</a> [MAXBUF]</td></tr>
-
-<tr><td class="memItemLeft" nowrap align="right" valign="top">char&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="modules_8cpp.html#AdminEmail_5BMAXBUF_5D">AdminEmail</a> [MAXBUF]</td></tr>
-
-<tr><td class="memItemLeft" nowrap align="right" valign="top">char&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="modules_8cpp.html#AdminNick_5BMAXBUF_5D">AdminNick</a> [MAXBUF]</td></tr>
-
-<tr><td class="memItemLeft" nowrap align="right" valign="top">char&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="modules_8cpp.html#diepass_5BMAXBUF_5D">diepass</a> [MAXBUF]</td></tr>
-
-<tr><td class="memItemLeft" nowrap align="right" valign="top">char&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="modules_8cpp.html#restartpass_5BMAXBUF_5D">restartpass</a> [MAXBUF]</td></tr>
-
-<tr><td class="memItemLeft" nowrap align="right" valign="top">char&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="modules_8cpp.html#motd_5BMAXBUF_5D">motd</a> [MAXBUF]</td></tr>
-
-<tr><td class="memItemLeft" nowrap align="right" valign="top">char&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="modules_8cpp.html#rules_5BMAXBUF_5D">rules</a> [MAXBUF]</td></tr>
-
-<tr><td class="memItemLeft" nowrap align="right" valign="top">char&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="modules_8cpp.html#list_5BMAXBUF_5D">list</a> [MAXBUF]</td></tr>
-
-<tr><td class="memItemLeft" nowrap align="right" valign="top">char&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="modules_8cpp.html#PrefixQuit_5BMAXBUF_5D">PrefixQuit</a> [MAXBUF]</td></tr>
-
-<tr><td class="memItemLeft" nowrap align="right" valign="top">char&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="modules_8cpp.html#DieValue_5BMAXBUF_5D">DieValue</a> [MAXBUF]</td></tr>
-
-<tr><td class="memItemLeft" nowrap align="right" valign="top">int&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="modules_8cpp.html#debugging">debugging</a></td></tr>
 
 <tr><td class="memItemLeft" nowrap align="right" valign="top">int&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="modules_8cpp.html#WHOWAS_5FSTALE">WHOWAS_STALE</a></td></tr>
 
 <tr><td class="memItemLeft" nowrap align="right" valign="top">int&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="modules_8cpp.html#WHOWAS_5FMAX">WHOWAS_MAX</a></td></tr>
 
-<tr><td class="memItemLeft" nowrap align="right" valign="top">int&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="modules_8cpp.html#DieDelay">DieDelay</a></td></tr>
-
 <tr><td class="memItemLeft" nowrap align="right" valign="top">time_t&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="modules_8cpp.html#startup_5Ftime">startup_time</a></td></tr>
-
-<tr><td class="memItemLeft" nowrap align="right" valign="top">int&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="modules_8cpp.html#NetBufferSize">NetBufferSize</a></td></tr>
-
-<tr><td class="memItemLeft" nowrap align="right" valign="top">int&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="modules_8cpp.html#MaxWhoResults">MaxWhoResults</a></td></tr>
-
-<tr><td class="memItemLeft" nowrap align="right" valign="top">time_t&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="modules_8cpp.html#nb_5Fstart">nb_start</a></td></tr>
-
-<tr><td class="memItemLeft" nowrap align="right" valign="top">std::vector&lt; <a class="el" href="namespaceirc.html#string">std::string</a> &gt;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="modules_8cpp.html#module_5Fnames">module_names</a></td></tr>
 
 <tr><td class="memItemLeft" nowrap align="right" valign="top">int&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="modules_8cpp.html#boundPortCount">boundPortCount</a></td></tr>
 
@@ -166,204 +103,20 @@ Include dependency graph for modules.cpp:<p><center><img src="modules_8cpp__incl
 
 <tr><td class="memItemLeft" nowrap align="right" valign="top">int&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="modules_8cpp.html#ports_5BMAXSOCKS_5D">ports</a> [MAXSOCKS]</td></tr>
 
-<tr><td class="memItemLeft" nowrap align="right" valign="top">std::stringstream&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="modules_8cpp.html#config_5Ff">config_f</a></td></tr>
-
-<tr><td class="memItemLeft" nowrap align="right" valign="top">FILE *&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="modules_8cpp.html#log_5Ffile">log_file</a></td></tr>
-
 <tr><td class="memItemLeft" nowrap align="right" valign="top"><a class="el" href="classuserrec.html">userrec</a> *&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="modules_8cpp.html#fd_5Fref_5Ftable_5B_36_35_35_33_36_5D">fd_ref_table</a> [65536]</td></tr>
 
-<tr><td class="memItemLeft" nowrap align="right" valign="top"><a class="el" href="modules_8cpp.html#user_5Fhash">user_hash</a>&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="modules_8cpp.html#clientlist">clientlist</a></td></tr>
+<tr><td class="memItemLeft" nowrap align="right" valign="top"><a class="el" href="typedefs_8h.html#user_5Fhash">user_hash</a>&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="modules_8cpp.html#clientlist">clientlist</a></td></tr>
 
-<tr><td class="memItemLeft" nowrap align="right" valign="top"><a class="el" href="modules_8cpp.html#chan_5Fhash">chan_hash</a>&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="modules_8cpp.html#chanlist">chanlist</a></td></tr>
+<tr><td class="memItemLeft" nowrap align="right" valign="top"><a class="el" href="typedefs_8h.html#chan_5Fhash">chan_hash</a>&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="modules_8cpp.html#chanlist">chanlist</a></td></tr>
 
-<tr><td class="memItemLeft" nowrap align="right" valign="top"><a class="el" href="modules_8cpp.html#whowas_5Fhash">whowas_hash</a>&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="modules_8cpp.html#whowas">whowas</a></td></tr>
+<tr><td class="memItemLeft" nowrap align="right" valign="top"><a class="el" href="typedefs_8h.html#whowas_5Fhash">whowas_hash</a>&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="modules_8cpp.html#whowas">whowas</a></td></tr>
 
-<tr><td class="memItemLeft" nowrap align="right" valign="top"><a class="el" href="modules_8cpp.html#command_5Ftable">command_table</a>&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="modules_8cpp.html#cmdlist">cmdlist</a></td></tr>
+<tr><td class="memItemLeft" nowrap align="right" valign="top"><a class="el" href="typedefs_8h.html#command_5Ftable">command_table</a>&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="modules_8cpp.html#cmdlist">cmdlist</a></td></tr>
 
-<tr><td class="memItemLeft" nowrap align="right" valign="top"><a class="el" href="modules_8h.html#file_5Fcache">file_cache</a>&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="modules_8cpp.html#MOTD">MOTD</a></td></tr>
+<tr><td class="memItemLeft" nowrap align="right" valign="top"><a class="el" href="typedefs_8h.html#address_5Fcache">address_cache</a>&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="modules_8cpp.html#IP">IP</a></td></tr>
 
-<tr><td class="memItemLeft" nowrap align="right" valign="top"><a class="el" href="modules_8h.html#file_5Fcache">file_cache</a>&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="modules_8cpp.html#RULES">RULES</a></td></tr>
+<tr><td class="memItemLeft" nowrap align="right" valign="top"><a class="el" href="typedefs_8h.html#ExtModeList">ExtModeList</a>&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="modules_8cpp.html#EMode">EMode</a></td></tr>
 
-<tr><td class="memItemLeft" nowrap align="right" valign="top"><a class="el" href="modules_8cpp.html#address_5Fcache">address_cache</a>&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="modules_8cpp.html#IP">IP</a></td></tr>
-
-<tr><td class="memItemLeft" nowrap align="right" valign="top"><a class="el" href="modules_8cpp.html#ExtModeList">ExtModeList</a>&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="modules_8cpp.html#EMode">EMode</a></td></tr>
-
-</table>
-<hr><h2>Typedef Documentation</h2>
-<a class="anchor" name="address_5Fcache"></a><!-- doxytag: member="modules.cpp::address_cache" ref="address_5Fcache" args="" --><p>
-<table class="mdTable" cellpadding="2" cellspacing="0">
-  <tr>
-    <td class="mdRow">
-      <table cellpadding="0" cellspacing="0" border="0">
-        <tr>
-          <td class="md" nowrap valign="top">typedef nspace::hash_map&lt;in_addr,<a class="el" href="namespaceirc.html#string">string</a>*, nspace::hash&lt;in_addr&gt;, <a class="el" href="structirc_1_1InAddr__HashComp.html">irc::InAddr_HashComp</a>&gt; <a class="el" href="modules_8cpp.html#address_5Fcache">address_cache</a>          </td>
-        </tr>
-      </table>
-    </td>
-  </tr>
-</table>
-<table cellspacing="5" cellpadding="0" border="0">
-  <tr>
-    <td>
-      &nbsp;
-    </td>
-    <td>
-
-<p>
-
-<p>
-Definition at line <a class="el" href="modules_8cpp-source.html#l00117">117</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.    </td>
-  </tr>
-</table>
-<a class="anchor" name="chan_5Fhash"></a><!-- doxytag: member="modules.cpp::chan_hash" ref="chan_5Fhash" args="" --><p>
-<table class="mdTable" cellpadding="2" cellspacing="0">
-  <tr>
-    <td class="mdRow">
-      <table cellpadding="0" cellspacing="0" border="0">
-        <tr>
-          <td class="md" nowrap valign="top">typedef nspace::hash_map&lt;<a class="el" href="namespaceirc.html#string">std::string</a>, <a class="el" href="classchanrec.html">chanrec</a>*, nspace::hash&lt;<a class="el" href="namespaceirc.html#string">string</a>&gt;, <a class="el" href="structirc_1_1StrHashComp.html">irc::StrHashComp</a>&gt; <a class="el" href="modules_8cpp.html#chan_5Fhash">chan_hash</a>          </td>
-        </tr>
-      </table>
-    </td>
-  </tr>
-</table>
-<table cellspacing="5" cellpadding="0" border="0">
-  <tr>
-    <td>
-      &nbsp;
-    </td>
-    <td>
-
-<p>
-
-<p>
-Definition at line <a class="el" href="modules_8cpp-source.html#l00116">116</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.    </td>
-  </tr>
-</table>
-<a class="anchor" name="command_5Ftable"></a><!-- doxytag: member="modules.cpp::command_table" ref="command_5Ftable" args="" --><p>
-<table class="mdTable" cellpadding="2" cellspacing="0">
-  <tr>
-    <td class="mdRow">
-      <table cellpadding="0" cellspacing="0" border="0">
-        <tr>
-          <td class="md" nowrap valign="top">typedef std::deque&lt;<a class="el" href="classcommand__t.html">command_t</a>&gt; <a class="el" href="modules_8cpp.html#command_5Ftable">command_table</a>          </td>
-        </tr>
-      </table>
-    </td>
-  </tr>
-</table>
-<table cellspacing="5" cellpadding="0" border="0">
-  <tr>
-    <td>
-      &nbsp;
-    </td>
-    <td>
-
-<p>
-
-<p>
-Definition at line <a class="el" href="modules_8cpp-source.html#l00119">119</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.    </td>
-  </tr>
-</table>
-<a class="anchor" name="ExtModeList"></a><!-- doxytag: member="modules.cpp::ExtModeList" ref="ExtModeList" args="" --><p>
-<table class="mdTable" cellpadding="2" cellspacing="0">
-  <tr>
-    <td class="mdRow">
-      <table cellpadding="0" cellspacing="0" border="0">
-        <tr>
-          <td class="md" nowrap valign="top">typedef std::vector&lt;<a class="el" href="classExtMode.html">ExtMode</a>&gt; <a class="el" href="modules_8cpp.html#ExtModeList">ExtModeList</a>          </td>
-        </tr>
-      </table>
-    </td>
-  </tr>
-</table>
-<table cellspacing="5" cellpadding="0" border="0">
-  <tr>
-    <td>
-      &nbsp;
-    </td>
-    <td>
-
-<p>
-
-<p>
-Definition at line <a class="el" href="modules_8cpp-source.html#l00145">145</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.    </td>
-  </tr>
-</table>
-<a class="anchor" name="ExtModeListIter"></a><!-- doxytag: member="modules.cpp::ExtModeListIter" ref="ExtModeListIter" args="" --><p>
-<table class="mdTable" cellpadding="2" cellspacing="0">
-  <tr>
-    <td class="mdRow">
-      <table cellpadding="0" cellspacing="0" border="0">
-        <tr>
-          <td class="md" nowrap valign="top">typedef ExtModeList::iterator <a class="el" href="modules_8cpp.html#ExtModeListIter">ExtModeListIter</a>          </td>
-        </tr>
-      </table>
-    </td>
-  </tr>
-</table>
-<table cellspacing="5" cellpadding="0" border="0">
-  <tr>
-    <td>
-      &nbsp;
-    </td>
-    <td>
-
-<p>
-
-<p>
-Definition at line <a class="el" href="modules_8cpp-source.html#l00146">146</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.    </td>
-  </tr>
-</table>
-<a class="anchor" name="user_5Fhash"></a><!-- doxytag: member="modules.cpp::user_hash" ref="user_5Fhash" args="" --><p>
-<table class="mdTable" cellpadding="2" cellspacing="0">
-  <tr>
-    <td class="mdRow">
-      <table cellpadding="0" cellspacing="0" border="0">
-        <tr>
-          <td class="md" nowrap valign="top">typedef nspace::hash_map&lt;<a class="el" href="namespaceirc.html#string">std::string</a>, <a class="el" href="classuserrec.html">userrec</a>*, nspace::hash&lt;<a class="el" href="namespaceirc.html#string">string</a>&gt;, <a class="el" href="structirc_1_1StrHashComp.html">irc::StrHashComp</a>&gt; <a class="el" href="modules_8cpp.html#user_5Fhash">user_hash</a>          </td>
-        </tr>
-      </table>
-    </td>
-  </tr>
-</table>
-<table cellspacing="5" cellpadding="0" border="0">
-  <tr>
-    <td>
-      &nbsp;
-    </td>
-    <td>
-
-<p>
-
-<p>
-Definition at line <a class="el" href="modules_8cpp-source.html#l00115">115</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.    </td>
-  </tr>
-</table>
-<a class="anchor" name="whowas_5Fhash"></a><!-- doxytag: member="modules.cpp::whowas_hash" ref="whowas_5Fhash" args="" --><p>
-<table class="mdTable" cellpadding="2" cellspacing="0">
-  <tr>
-    <td class="mdRow">
-      <table cellpadding="0" cellspacing="0" border="0">
-        <tr>
-          <td class="md" nowrap valign="top">typedef nspace::hash_map&lt;<a class="el" href="namespaceirc.html#string">std::string</a>, <a class="el" href="classWhoWasUser.html">WhoWasUser</a>*, nspace::hash&lt;<a class="el" href="namespaceirc.html#string">string</a>&gt;, <a class="el" href="structirc_1_1StrHashComp.html">irc::StrHashComp</a>&gt; <a class="el" href="modules_8cpp.html#whowas_5Fhash">whowas_hash</a>          </td>
-        </tr>
-      </table>
-    </td>
-  </tr>
-</table>
-<table cellspacing="5" cellpadding="0" border="0">
-  <tr>
-    <td>
-      &nbsp;
-    </td>
-    <td>
-
-<p>
-
-<p>
-Definition at line <a class="el" href="modules_8cpp-source.html#l00118">118</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.    </td>
-  </tr>
 </table>
 <hr><h2>Function Documentation</h2>
 <a class="anchor" name="DoAddExtendedMode_28char_20modechar_2C_20int_20type_2C_20bool_20requires_5Foper_2C_20int_20params_5Fon_2C_20int_20params_5Foff_29"></a><!-- doxytag: member="modules.cpp::DoAddExtendedMode" ref="DoAddExtendedMode_28char_20modechar_2C_20int_20type_2C_20bool_20requires_5Foper_2C_20int_20params_5Fon_2C_20int_20params_5Foff_29" args="(char modechar, int type, bool requires_oper, int params_on, int params_off)" --><p>
@@ -420,17 +173,17 @@ Definition at line <a class="el" href="modules_8cpp-source.html#l00118">118</a> 
 <p>
 
 <p>
-Definition at line <a class="el" href="modules_8cpp-source.html#l00215">215</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
+Definition at line <a class="el" href="modules_8cpp-source.html#l00142">142</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
 <p>
-References <a class="el" href="modules_8cpp-source.html#l00149">EMode</a>, and <a class="el" href="modules_8cpp-source.html#l00152">ModeDefined()</a>.
+References <a class="el" href="modules_8cpp-source.html#l00076">EMode</a>, and <a class="el" href="modules_8cpp-source.html#l00079">ModeDefined()</a>.
 <p>
-Referenced by <a class="el" href="modules_8cpp-source.html#l00655">Server::AddExtendedListMode()</a>, and <a class="el" href="modules_8cpp-source.html#l00627">Server::AddExtendedMode()</a>.<div class="fragment"><pre class="fragment"><a name="l00216"></a>00216 {
-<a name="l00217"></a>00217         <span class="keywordflow">if</span> (<a class="code" href="modules_8cpp.html#ModeDefined_28char_20modechar_2C_20int_20type_29">ModeDefined</a>(modechar,type)) {
-<a name="l00218"></a>00218                 <span class="keywordflow">return</span> <span class="keyword">false</span>;
-<a name="l00219"></a>00219         }
-<a name="l00220"></a>00220         <a class="code" href="modules_8cpp.html#EMode">EMode</a>.push_back(<a class="code" href="classExtMode.html">ExtMode</a>(modechar,type,requires_oper,params_on,params_off));
-<a name="l00221"></a>00221         <span class="keywordflow">return</span> <span class="keyword">true</span>;
-<a name="l00222"></a>00222 }
+Referenced by <a class="el" href="modules_8cpp-source.html#l00582">Server::AddExtendedListMode()</a>, and <a class="el" href="modules_8cpp-source.html#l00554">Server::AddExtendedMode()</a>.<div class="fragment"><pre class="fragment"><a name="l00143"></a>00143 {
+<a name="l00144"></a>00144         <span class="keywordflow">if</span> (<a class="code" href="modules_8cpp.html#ModeDefined_28char_20modechar_2C_20int_20type_29">ModeDefined</a>(modechar,type)) {
+<a name="l00145"></a>00145                 <span class="keywordflow">return</span> <span class="keyword">false</span>;
+<a name="l00146"></a>00146         }
+<a name="l00147"></a>00147         <a class="code" href="modules_8cpp.html#EMode">EMode</a>.push_back(<a class="code" href="classExtMode.html">ExtMode</a>(modechar,type,requires_oper,params_on,params_off));
+<a name="l00148"></a>00148         <span class="keywordflow">return</span> <span class="keyword">true</span>;
+<a name="l00149"></a>00149 }
 </pre></div>
 <p>
     </td>
@@ -500,20 +253,20 @@ Referenced by <a class="el" href="modules_8cpp-source.html#l00655">Server::AddEx
 <p>
 
 <p>
-Definition at line <a class="el" href="modules_8cpp-source.html#l00152">152</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
+Definition at line <a class="el" href="modules_8cpp-source.html#l00079">79</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
 <p>
-References <a class="el" href="modules_8cpp-source.html#l00149">EMode</a>.
+References <a class="el" href="modules_8cpp-source.html#l00076">EMode</a>.
 <p>
-Referenced by <a class="el" href="modules_8cpp-source.html#l00215">DoAddExtendedMode()</a>.<div class="fragment"><pre class="fragment"><a name="l00153"></a>00153 {
-<a name="l00154"></a>00154         <span class="keywordflow">for</span> (<a class="code" href="modules_8cpp.html#ExtModeListIter">ExtModeListIter</a> i = <a class="code" href="modules_8cpp.html#EMode">EMode</a>.begin(); i &lt; <a class="code" href="modules_8cpp.html#EMode">EMode</a>.end(); i++)
-<a name="l00155"></a>00155         {
-<a name="l00156"></a>00156                 <span class="keywordflow">if</span> ((i-&gt;modechar == modechar) &amp;&amp; (i-&gt;type == type))
-<a name="l00157"></a>00157                 {
-<a name="l00158"></a>00158                         <span class="keywordflow">return</span> <span class="keyword">true</span>;
-<a name="l00159"></a>00159                 }
-<a name="l00160"></a>00160         }
-<a name="l00161"></a>00161         <span class="keywordflow">return</span> <span class="keyword">false</span>;
-<a name="l00162"></a>00162 }
+Referenced by <a class="el" href="modules_8cpp-source.html#l00142">DoAddExtendedMode()</a>.<div class="fragment"><pre class="fragment"><a name="l00080"></a>00080 {
+<a name="l00081"></a>00081         <span class="keywordflow">for</span> (<a class="code" href="typedefs_8h.html#ExtModeListIter">ExtModeListIter</a> i = <a class="code" href="modules_8cpp.html#EMode">EMode</a>.begin(); i &lt; <a class="code" href="modules_8cpp.html#EMode">EMode</a>.end(); i++)
+<a name="l00082"></a>00082         {
+<a name="l00083"></a>00083                 <span class="keywordflow">if</span> ((i-&gt;modechar == modechar) &amp;&amp; (i-&gt;type == type))
+<a name="l00084"></a>00084                 {
+<a name="l00085"></a>00085                         <span class="keywordflow">return</span> <span class="keyword">true</span>;
+<a name="l00086"></a>00086                 }
+<a name="l00087"></a>00087         }
+<a name="l00088"></a>00088         <span class="keywordflow">return</span> <span class="keyword">false</span>;
+<a name="l00089"></a>00089 }
 </pre></div>
 <p>
     </td>
@@ -555,18 +308,18 @@ Referenced by <a class="el" href="modules_8cpp-source.html#l00215">DoAddExtended
 <p>
 
 <p>
-Definition at line <a class="el" href="modules_8cpp-source.html#l00202">202</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
+Definition at line <a class="el" href="modules_8cpp-source.html#l00129">129</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
 <p>
-References <a class="el" href="modules_8cpp-source.html#l00149">EMode</a>.<div class="fragment"><pre class="fragment"><a name="l00203"></a>00203 {
-<a name="l00204"></a>00204         <span class="keywordflow">for</span> (<a class="code" href="modules_8cpp.html#ExtModeListIter">ExtModeListIter</a> i = <a class="code" href="modules_8cpp.html#EMode">EMode</a>.begin(); i &lt; <a class="code" href="modules_8cpp.html#EMode">EMode</a>.end(); i++)
-<a name="l00205"></a>00205         {
-<a name="l00206"></a>00206                 <span class="keywordflow">if</span> ((i-&gt;modechar == modechar) &amp;&amp; (i-&gt;type == type))
-<a name="l00207"></a>00207                 {
-<a name="l00208"></a>00208                         <span class="keywordflow">return</span> i-&gt;params_when_off;
-<a name="l00209"></a>00209                 }
-<a name="l00210"></a>00210         }
-<a name="l00211"></a>00211         <span class="keywordflow">return</span> 0;
-<a name="l00212"></a>00212 }
+References <a class="el" href="modules_8cpp-source.html#l00076">EMode</a>.<div class="fragment"><pre class="fragment"><a name="l00130"></a>00130 {
+<a name="l00131"></a>00131         <span class="keywordflow">for</span> (<a class="code" href="typedefs_8h.html#ExtModeListIter">ExtModeListIter</a> i = <a class="code" href="modules_8cpp.html#EMode">EMode</a>.begin(); i &lt; <a class="code" href="modules_8cpp.html#EMode">EMode</a>.end(); i++)
+<a name="l00132"></a>00132         {
+<a name="l00133"></a>00133                 <span class="keywordflow">if</span> ((i-&gt;modechar == modechar) &amp;&amp; (i-&gt;type == type))
+<a name="l00134"></a>00134                 {
+<a name="l00135"></a>00135                         <span class="keywordflow">return</span> i-&gt;params_when_off;
+<a name="l00136"></a>00136                 }
+<a name="l00137"></a>00137         }
+<a name="l00138"></a>00138         <span class="keywordflow">return</span> 0;
+<a name="l00139"></a>00139 }
 </pre></div>
 <p>
     </td>
@@ -608,18 +361,18 @@ References <a class="el" href="modules_8cpp-source.html#l00149">EMode</a>.<div c
 <p>
 
 <p>
-Definition at line <a class="el" href="modules_8cpp-source.html#l00189">189</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
+Definition at line <a class="el" href="modules_8cpp-source.html#l00116">116</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
 <p>
-References <a class="el" href="modules_8cpp-source.html#l00149">EMode</a>.<div class="fragment"><pre class="fragment"><a name="l00190"></a>00190 {
-<a name="l00191"></a>00191         <span class="keywordflow">for</span> (<a class="code" href="modules_8cpp.html#ExtModeListIter">ExtModeListIter</a> i = <a class="code" href="modules_8cpp.html#EMode">EMode</a>.begin(); i &lt; <a class="code" href="modules_8cpp.html#EMode">EMode</a>.end(); i++)
-<a name="l00192"></a>00192         {
-<a name="l00193"></a>00193                 <span class="keywordflow">if</span> ((i-&gt;modechar == modechar) &amp;&amp; (i-&gt;type == type))
-<a name="l00194"></a>00194                 {
-<a name="l00195"></a>00195                         <span class="keywordflow">return</span> i-&gt;params_when_on;
-<a name="l00196"></a>00196                 }
-<a name="l00197"></a>00197         }
-<a name="l00198"></a>00198         <span class="keywordflow">return</span> 0;
-<a name="l00199"></a>00199 }
+References <a class="el" href="modules_8cpp-source.html#l00076">EMode</a>.<div class="fragment"><pre class="fragment"><a name="l00117"></a>00117 {
+<a name="l00118"></a>00118         <span class="keywordflow">for</span> (<a class="code" href="typedefs_8h.html#ExtModeListIter">ExtModeListIter</a> i = <a class="code" href="modules_8cpp.html#EMode">EMode</a>.begin(); i &lt; <a class="code" href="modules_8cpp.html#EMode">EMode</a>.end(); i++)
+<a name="l00119"></a>00119         {
+<a name="l00120"></a>00120                 <span class="keywordflow">if</span> ((i-&gt;modechar == modechar) &amp;&amp; (i-&gt;type == type))
+<a name="l00121"></a>00121                 {
+<a name="l00122"></a>00122                         <span class="keywordflow">return</span> i-&gt;params_when_on;
+<a name="l00123"></a>00123                 }
+<a name="l00124"></a>00124         }
+<a name="l00125"></a>00125         <span class="keywordflow">return</span> 0;
+<a name="l00126"></a>00126 }
 </pre></div>
 <p>
     </td>
@@ -661,18 +414,18 @@ References <a class="el" href="modules_8cpp-source.html#l00149">EMode</a>.<div c
 <p>
 
 <p>
-Definition at line <a class="el" href="modules_8cpp-source.html#l00176">176</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
+Definition at line <a class="el" href="modules_8cpp-source.html#l00103">103</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
 <p>
-References <a class="el" href="modules_8cpp-source.html#l00149">EMode</a>.<div class="fragment"><pre class="fragment"><a name="l00177"></a>00177 {
-<a name="l00178"></a>00178         <span class="keywordflow">for</span> (<a class="code" href="modules_8cpp.html#ExtModeListIter">ExtModeListIter</a> i = <a class="code" href="modules_8cpp.html#EMode">EMode</a>.begin(); i &lt; <a class="code" href="modules_8cpp.html#EMode">EMode</a>.end(); i++)
-<a name="l00179"></a>00179         {
-<a name="l00180"></a>00180                 <span class="keywordflow">if</span> ((i-&gt;modechar == modechar) &amp;&amp; (i-&gt;type == type) &amp;&amp; (i-&gt;needsoper == <span class="keyword">true</span>))
-<a name="l00181"></a>00181                 {
-<a name="l00182"></a>00182                         <span class="keywordflow">return</span> <span class="keyword">true</span>;
-<a name="l00183"></a>00183                 }
-<a name="l00184"></a>00184         }
-<a name="l00185"></a>00185         <span class="keywordflow">return</span> <span class="keyword">false</span>;
-<a name="l00186"></a>00186 }
+References <a class="el" href="modules_8cpp-source.html#l00076">EMode</a>.<div class="fragment"><pre class="fragment"><a name="l00104"></a>00104 {
+<a name="l00105"></a>00105         <span class="keywordflow">for</span> (<a class="code" href="typedefs_8h.html#ExtModeListIter">ExtModeListIter</a> i = <a class="code" href="modules_8cpp.html#EMode">EMode</a>.begin(); i &lt; <a class="code" href="modules_8cpp.html#EMode">EMode</a>.end(); i++)
+<a name="l00106"></a>00106         {
+<a name="l00107"></a>00107                 <span class="keywordflow">if</span> ((i-&gt;modechar == modechar) &amp;&amp; (i-&gt;type == type) &amp;&amp; (i-&gt;needsoper == <span class="keyword">true</span>))
+<a name="l00108"></a>00108                 {
+<a name="l00109"></a>00109                         <span class="keywordflow">return</span> <span class="keyword">true</span>;
+<a name="l00110"></a>00110                 }
+<a name="l00111"></a>00111         }
+<a name="l00112"></a>00112         <span class="keywordflow">return</span> <span class="keyword">false</span>;
+<a name="l00113"></a>00113 }
 </pre></div>
 <p>
     </td>
@@ -714,18 +467,18 @@ References <a class="el" href="modules_8cpp-source.html#l00149">EMode</a>.<div c
 <p>
 
 <p>
-Definition at line <a class="el" href="modules_8cpp-source.html#l00164">164</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
+Definition at line <a class="el" href="modules_8cpp-source.html#l00091">91</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
 <p>
-References <a class="el" href="modules_8cpp-source.html#l00149">EMode</a>.<div class="fragment"><pre class="fragment"><a name="l00165"></a>00165 {
-<a name="l00166"></a>00166         <span class="keywordflow">for</span> (<a class="code" href="modules_8cpp.html#ExtModeListIter">ExtModeListIter</a> i = <a class="code" href="modules_8cpp.html#EMode">EMode</a>.begin(); i &lt; <a class="code" href="modules_8cpp.html#EMode">EMode</a>.end(); i++)
-<a name="l00167"></a>00167         {
-<a name="l00168"></a>00168                 <span class="keywordflow">if</span> ((i-&gt;modechar == modechar) &amp;&amp; (i-&gt;type == type) &amp;&amp; (i-&gt;list == <span class="keyword">true</span>))
-<a name="l00169"></a>00169                 {
-<a name="l00170"></a>00170                         <span class="keywordflow">return</span> <span class="keyword">true</span>;
-<a name="l00171"></a>00171                 }
-<a name="l00172"></a>00172         }
-<a name="l00173"></a>00173         <span class="keywordflow">return</span> <span class="keyword">false</span>;
-<a name="l00174"></a>00174 }
+References <a class="el" href="modules_8cpp-source.html#l00076">EMode</a>.<div class="fragment"><pre class="fragment"><a name="l00092"></a>00092 {
+<a name="l00093"></a>00093         <span class="keywordflow">for</span> (<a class="code" href="typedefs_8h.html#ExtModeListIter">ExtModeListIter</a> i = <a class="code" href="modules_8cpp.html#EMode">EMode</a>.begin(); i &lt; <a class="code" href="modules_8cpp.html#EMode">EMode</a>.end(); i++)
+<a name="l00094"></a>00094         {
+<a name="l00095"></a>00095                 <span class="keywordflow">if</span> ((i-&gt;modechar == modechar) &amp;&amp; (i-&gt;type == type) &amp;&amp; (i-&gt;list == <span class="keyword">true</span>))
+<a name="l00096"></a>00096                 {
+<a name="l00097"></a>00097                         <span class="keywordflow">return</span> <span class="keyword">true</span>;
+<a name="l00098"></a>00098                 }
+<a name="l00099"></a>00099         }
+<a name="l00100"></a>00100         <span class="keywordflow">return</span> <span class="keyword">false</span>;
+<a name="l00101"></a>00101 }
 </pre></div>
 <p>
     </td>
@@ -758,21 +511,21 @@ References <a class="el" href="modules_8cpp-source.html#l00149">EMode</a>.<div c
 <p>
 
 <p>
-Definition at line <a class="el" href="modules_8cpp-source.html#l00225">225</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
+Definition at line <a class="el" href="modules_8cpp-source.html#l00152">152</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
 <p>
-References <a class="el" href="modules_8cpp-source.html#l00149">EMode</a>, and <a class="el" href="modules_8h-source.html#l00031">MT_CHANNEL</a>.
+References <a class="el" href="modules_8cpp-source.html#l00076">EMode</a>, and <a class="el" href="modules_8h-source.html#l00031">MT_CHANNEL</a>.
 <p>
-Referenced by <a class="el" href="modules_8cpp-source.html#l00655">Server::AddExtendedListMode()</a>.<div class="fragment"><pre class="fragment"><a name="l00226"></a>00226 {
-<a name="l00227"></a>00227         <span class="keywordflow">for</span> (<a class="code" href="modules_8cpp.html#ExtModeListIter">ExtModeListIter</a> i = <a class="code" href="modules_8cpp.html#EMode">EMode</a>.begin(); i &lt; <a class="code" href="modules_8cpp.html#EMode">EMode</a>.end(); i++)
-<a name="l00228"></a>00228         {
-<a name="l00229"></a>00229                 <span class="keywordflow">if</span> ((i-&gt;modechar == modechar) &amp;&amp; (i-&gt;type == <a class="code" href="modules_8h.html#MT_5FCHANNEL">MT_CHANNEL</a>))
-<a name="l00230"></a>00230                 {
-<a name="l00231"></a>00231                         i-&gt;list = <span class="keyword">true</span>;
-<a name="l00232"></a>00232                         <span class="keywordflow">return</span>;
-<a name="l00233"></a>00233                 }
-<a name="l00234"></a>00234         }
-<a name="l00235"></a>00235         <span class="keywordflow">return</span>;
-<a name="l00236"></a>00236 }
+Referenced by <a class="el" href="modules_8cpp-source.html#l00582">Server::AddExtendedListMode()</a>.<div class="fragment"><pre class="fragment"><a name="l00153"></a>00153 {
+<a name="l00154"></a>00154         <span class="keywordflow">for</span> (<a class="code" href="typedefs_8h.html#ExtModeListIter">ExtModeListIter</a> i = <a class="code" href="modules_8cpp.html#EMode">EMode</a>.begin(); i &lt; <a class="code" href="modules_8cpp.html#EMode">EMode</a>.end(); i++)
+<a name="l00155"></a>00155         {
+<a name="l00156"></a>00156                 <span class="keywordflow">if</span> ((i-&gt;modechar == modechar) &amp;&amp; (i-&gt;type == <a class="code" href="modules_8h.html#MT_5FCHANNEL">MT_CHANNEL</a>))
+<a name="l00157"></a>00157                 {
+<a name="l00158"></a>00158                         i-&gt;list = <span class="keyword">true</span>;
+<a name="l00159"></a>00159                         <span class="keywordflow">return</span>;
+<a name="l00160"></a>00160                 }
+<a name="l00161"></a>00161         }
+<a name="l00162"></a>00162         <span class="keywordflow">return</span>;
+<a name="l00163"></a>00163 }
 </pre></div>
 <p>
     </td>
@@ -807,75 +560,6 @@ Referenced by <a class="el" href="modules_8cpp-source.html#l00655">Server::AddEx
   </tr>
 </table>
 <hr><h2>Variable Documentation</h2>
-<a class="anchor" name="AdminEmail_5BMAXBUF_5D"></a><!-- doxytag: member="modules.cpp::AdminEmail" ref="AdminEmail_5BMAXBUF_5D" args="[MAXBUF]" --><p>
-<table class="mdTable" cellpadding="2" cellspacing="0">
-  <tr>
-    <td class="mdRow">
-      <table cellpadding="0" cellspacing="0" border="0">
-        <tr>
-          <td class="md" nowrap valign="top">char <a class="el" href="modules_8cpp.html#AdminEmail_5BMAXBUF_5D">AdminEmail</a>[MAXBUF]          </td>
-        </tr>
-      </table>
-    </td>
-  </tr>
-</table>
-<table cellspacing="5" cellpadding="0" border="0">
-  <tr>
-    <td>
-      &nbsp;
-    </td>
-    <td>
-
-<p>
-    </td>
-  </tr>
-</table>
-<a class="anchor" name="AdminName_5BMAXBUF_5D"></a><!-- doxytag: member="modules.cpp::AdminName" ref="AdminName_5BMAXBUF_5D" args="[MAXBUF]" --><p>
-<table class="mdTable" cellpadding="2" cellspacing="0">
-  <tr>
-    <td class="mdRow">
-      <table cellpadding="0" cellspacing="0" border="0">
-        <tr>
-          <td class="md" nowrap valign="top">char <a class="el" href="modules_8cpp.html#AdminName_5BMAXBUF_5D">AdminName</a>[MAXBUF]          </td>
-        </tr>
-      </table>
-    </td>
-  </tr>
-</table>
-<table cellspacing="5" cellpadding="0" border="0">
-  <tr>
-    <td>
-      &nbsp;
-    </td>
-    <td>
-
-<p>
-    </td>
-  </tr>
-</table>
-<a class="anchor" name="AdminNick_5BMAXBUF_5D"></a><!-- doxytag: member="modules.cpp::AdminNick" ref="AdminNick_5BMAXBUF_5D" args="[MAXBUF]" --><p>
-<table class="mdTable" cellpadding="2" cellspacing="0">
-  <tr>
-    <td class="mdRow">
-      <table cellpadding="0" cellspacing="0" border="0">
-        <tr>
-          <td class="md" nowrap valign="top">char <a class="el" href="modules_8cpp.html#AdminNick_5BMAXBUF_5D">AdminNick</a>[MAXBUF]          </td>
-        </tr>
-      </table>
-    </td>
-  </tr>
-</table>
-<table cellspacing="5" cellpadding="0" border="0">
-  <tr>
-    <td>
-      &nbsp;
-    </td>
-    <td>
-
-<p>
-    </td>
-  </tr>
-</table>
 <a class="anchor" name="boundPortCount"></a><!-- doxytag: member="modules.cpp::boundPortCount" ref="boundPortCount" args="" --><p>
 <table class="mdTable" cellpadding="2" cellspacing="0">
   <tr>
@@ -905,7 +589,7 @@ Referenced by <a class="el" href="modules_8cpp-source.html#l00655">Server::AddEx
     <td class="mdRow">
       <table cellpadding="0" cellspacing="0" border="0">
         <tr>
-          <td class="md" nowrap valign="top"><a class="el" href="modules_8cpp.html#chan_5Fhash">chan_hash</a> <a class="el" href="modules_8cpp.html#chanlist">chanlist</a>          </td>
+          <td class="md" nowrap valign="top"><a class="el" href="typedefs_8h.html#chan_5Fhash">chan_hash</a> <a class="el" href="modules_8cpp.html#chanlist">chanlist</a>          </td>
         </tr>
       </table>
     </td>
@@ -928,7 +612,7 @@ Referenced by <a class="el" href="modules_8cpp-source.html#l00655">Server::AddEx
     <td class="mdRow">
       <table cellpadding="0" cellspacing="0" border="0">
         <tr>
-          <td class="md" nowrap valign="top"><a class="el" href="modules_8cpp.html#user_5Fhash">user_hash</a> <a class="el" href="modules_8cpp.html#clientlist">clientlist</a>          </td>
+          <td class="md" nowrap valign="top"><a class="el" href="typedefs_8h.html#user_5Fhash">user_hash</a> <a class="el" href="modules_8cpp.html#clientlist">clientlist</a>          </td>
         </tr>
       </table>
     </td>
@@ -951,7 +635,7 @@ Referenced by <a class="el" href="modules_8cpp-source.html#l00655">Server::AddEx
     <td class="mdRow">
       <table cellpadding="0" cellspacing="0" border="0">
         <tr>
-          <td class="md" nowrap valign="top"><a class="el" href="modules_8cpp.html#command_5Ftable">command_table</a> <a class="el" href="modules_8cpp.html#cmdlist">cmdlist</a>          </td>
+          <td class="md" nowrap valign="top"><a class="el" href="typedefs_8h.html#command_5Ftable">command_table</a> <a class="el" href="modules_8cpp.html#cmdlist">cmdlist</a>          </td>
         </tr>
       </table>
     </td>
@@ -968,105 +652,13 @@ Referenced by <a class="el" href="modules_8cpp-source.html#l00655">Server::AddEx
     </td>
   </tr>
 </table>
-<a class="anchor" name="config_5Ff"></a><!-- doxytag: member="modules.cpp::config_f" ref="config_5Ff" args="" --><p>
+<a class="anchor" name="Config"></a><!-- doxytag: member="modules.cpp::Config" ref="Config" args="" --><p>
 <table class="mdTable" cellpadding="2" cellspacing="0">
   <tr>
     <td class="mdRow">
       <table cellpadding="0" cellspacing="0" border="0">
         <tr>
-          <td class="md" nowrap valign="top">std::stringstream <a class="el" href="users_8cpp.html#config_5Ff">config_f</a>          </td>
-        </tr>
-      </table>
-    </td>
-  </tr>
-</table>
-<table cellspacing="5" cellpadding="0" border="0">
-  <tr>
-    <td>
-      &nbsp;
-    </td>
-    <td>
-
-<p>
-    </td>
-  </tr>
-</table>
-<a class="anchor" name="debugging"></a><!-- doxytag: member="modules.cpp::debugging" ref="debugging" args="" --><p>
-<table class="mdTable" cellpadding="2" cellspacing="0">
-  <tr>
-    <td class="mdRow">
-      <table cellpadding="0" cellspacing="0" border="0">
-        <tr>
-          <td class="md" nowrap valign="top">int <a class="el" href="modules_8cpp.html#debugging">debugging</a>          </td>
-        </tr>
-      </table>
-    </td>
-  </tr>
-</table>
-<table cellspacing="5" cellpadding="0" border="0">
-  <tr>
-    <td>
-      &nbsp;
-    </td>
-    <td>
-
-<p>
-    </td>
-  </tr>
-</table>
-<a class="anchor" name="DieDelay"></a><!-- doxytag: member="modules.cpp::DieDelay" ref="DieDelay" args="" --><p>
-<table class="mdTable" cellpadding="2" cellspacing="0">
-  <tr>
-    <td class="mdRow">
-      <table cellpadding="0" cellspacing="0" border="0">
-        <tr>
-          <td class="md" nowrap valign="top">int <a class="el" href="modules_8cpp.html#DieDelay">DieDelay</a>          </td>
-        </tr>
-      </table>
-    </td>
-  </tr>
-</table>
-<table cellspacing="5" cellpadding="0" border="0">
-  <tr>
-    <td>
-      &nbsp;
-    </td>
-    <td>
-
-<p>
-    </td>
-  </tr>
-</table>
-<a class="anchor" name="diepass_5BMAXBUF_5D"></a><!-- doxytag: member="modules.cpp::diepass" ref="diepass_5BMAXBUF_5D" args="[MAXBUF]" --><p>
-<table class="mdTable" cellpadding="2" cellspacing="0">
-  <tr>
-    <td class="mdRow">
-      <table cellpadding="0" cellspacing="0" border="0">
-        <tr>
-          <td class="md" nowrap valign="top">char <a class="el" href="modules_8cpp.html#diepass_5BMAXBUF_5D">diepass</a>[MAXBUF]          </td>
-        </tr>
-      </table>
-    </td>
-  </tr>
-</table>
-<table cellspacing="5" cellpadding="0" border="0">
-  <tr>
-    <td>
-      &nbsp;
-    </td>
-    <td>
-
-<p>
-    </td>
-  </tr>
-</table>
-<a class="anchor" name="DieValue_5BMAXBUF_5D"></a><!-- doxytag: member="modules.cpp::DieValue" ref="DieValue_5BMAXBUF_5D" args="[MAXBUF]" --><p>
-<table class="mdTable" cellpadding="2" cellspacing="0">
-  <tr>
-    <td class="mdRow">
-      <table cellpadding="0" cellspacing="0" border="0">
-        <tr>
-          <td class="md" nowrap valign="top">char <a class="el" href="modules_8cpp.html#DieValue_5BMAXBUF_5D">DieValue</a>[MAXBUF]          </td>
+          <td class="md" nowrap valign="top"><a class="el" href="classServerConfig.html">ServerConfig</a>* <a class="el" href="users_8cpp.html#Config">Config</a>          </td>
         </tr>
       </table>
     </td>
@@ -1089,7 +681,7 @@ Referenced by <a class="el" href="modules_8cpp-source.html#l00655">Server::AddEx
     <td class="mdRow">
       <table cellpadding="0" cellspacing="0" border="0">
         <tr>
-          <td class="md" nowrap valign="top"><a class="el" href="modules_8cpp.html#ExtModeList">ExtModeList</a> <a class="el" href="modules_8cpp.html#EMode">EMode</a>          </td>
+          <td class="md" nowrap valign="top"><a class="el" href="typedefs_8h.html#ExtModeList">ExtModeList</a> <a class="el" href="modules_8cpp.html#EMode">EMode</a>          </td>
         </tr>
       </table>
     </td>
@@ -1105,9 +697,9 @@ Referenced by <a class="el" href="modules_8cpp-source.html#l00655">Server::AddEx
 <p>
 
 <p>
-Definition at line <a class="el" href="modules_8cpp-source.html#l00149">149</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
+Definition at line <a class="el" href="modules_8cpp-source.html#l00076">76</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
 <p>
-Referenced by <a class="el" href="modules_8cpp-source.html#l00215">DoAddExtendedMode()</a>, <a class="el" href="modules_8cpp-source.html#l00152">ModeDefined()</a>, <a class="el" href="modules_8cpp-source.html#l00202">ModeDefinedOff()</a>, <a class="el" href="modules_8cpp-source.html#l00189">ModeDefinedOn()</a>, <a class="el" href="modules_8cpp-source.html#l00176">ModeDefinedOper()</a>, <a class="el" href="modules_8cpp-source.html#l00164">ModeIsListMode()</a>, and <a class="el" href="modules_8cpp-source.html#l00225">ModeMakeList()</a>.    </td>
+Referenced by <a class="el" href="modules_8cpp-source.html#l00142">DoAddExtendedMode()</a>, <a class="el" href="modules_8cpp-source.html#l00079">ModeDefined()</a>, <a class="el" href="modules_8cpp-source.html#l00129">ModeDefinedOff()</a>, <a class="el" href="modules_8cpp-source.html#l00116">ModeDefinedOn()</a>, <a class="el" href="modules_8cpp-source.html#l00103">ModeDefinedOper()</a>, <a class="el" href="modules_8cpp-source.html#l00091">ModeIsListMode()</a>, and <a class="el" href="modules_8cpp-source.html#l00152">ModeMakeList()</a>.    </td>
   </tr>
 </table>
 <a class="anchor" name="factory"></a><!-- doxytag: member="modules.cpp::factory" ref="factory" args="" --><p>
@@ -1156,38 +748,13 @@ Referenced by <a class="el" href="modules_8cpp-source.html#l00215">DoAddExtended
     </td>
   </tr>
 </table>
-<a class="anchor" name="include_5Fstack"></a><!-- doxytag: member="modules.cpp::include_stack" ref="include_5Fstack" args="" --><p>
-<table class="mdTable" cellpadding="2" cellspacing="0">
-  <tr>
-    <td class="mdRow">
-      <table cellpadding="0" cellspacing="0" border="0">
-        <tr>
-          <td class="md" nowrap valign="top">std::vector&lt;<a class="el" href="namespaceirc.html#string">std::string</a>&gt; <a class="el" href="modules_8cpp.html#include_5Fstack">include_stack</a>          </td>
-        </tr>
-      </table>
-    </td>
-  </tr>
-</table>
-<table cellspacing="5" cellpadding="0" border="0">
-  <tr>
-    <td>
-      &nbsp;
-    </td>
-    <td>
-
-<p>
-
-<p>
-Referenced by <a class="el" href="modules_8cpp-source.html#l00807">ConfigReader::ConfigReader()</a>.    </td>
-  </tr>
-</table>
 <a class="anchor" name="IP"></a><!-- doxytag: member="modules.cpp::IP" ref="IP" args="" --><p>
 <table class="mdTable" cellpadding="2" cellspacing="0">
   <tr>
     <td class="mdRow">
       <table cellpadding="0" cellspacing="0" border="0">
         <tr>
-          <td class="md" nowrap valign="top"><a class="el" href="modules_8cpp.html#address_5Fcache">address_cache</a> <a class="el" href="modules_8cpp.html#IP">IP</a>          </td>
+          <td class="md" nowrap valign="top"><a class="el" href="typedefs_8h.html#address_5Fcache">address_cache</a> <a class="el" href="modules_8cpp.html#IP">IP</a>          </td>
         </tr>
       </table>
     </td>
@@ -1202,100 +769,6 @@ Referenced by <a class="el" href="modules_8cpp-source.html#l00807">ConfigReader:
 
 <p>
     </td>
-  </tr>
-</table>
-<a class="anchor" name="list_5BMAXBUF_5D"></a><!-- doxytag: member="modules.cpp::list" ref="list_5BMAXBUF_5D" args="[MAXBUF]" --><p>
-<table class="mdTable" cellpadding="2" cellspacing="0">
-  <tr>
-    <td class="mdRow">
-      <table cellpadding="0" cellspacing="0" border="0">
-        <tr>
-          <td class="md" nowrap valign="top">char <a class="el" href="modules_8cpp.html#list_5BMAXBUF_5D">list</a>[MAXBUF]          </td>
-        </tr>
-      </table>
-    </td>
-  </tr>
-</table>
-<table cellspacing="5" cellpadding="0" border="0">
-  <tr>
-    <td>
-      &nbsp;
-    </td>
-    <td>
-
-<p>
-    </td>
-  </tr>
-</table>
-<a class="anchor" name="log_5Ffile"></a><!-- doxytag: member="modules.cpp::log_file" ref="log_5Ffile" args="" --><p>
-<table class="mdTable" cellpadding="2" cellspacing="0">
-  <tr>
-    <td class="mdRow">
-      <table cellpadding="0" cellspacing="0" border="0">
-        <tr>
-          <td class="md" nowrap valign="top">FILE* <a class="el" href="socket_8cpp.html#log_5Ffile">log_file</a>          </td>
-        </tr>
-      </table>
-    </td>
-  </tr>
-</table>
-<table cellspacing="5" cellpadding="0" border="0">
-  <tr>
-    <td>
-      &nbsp;
-    </td>
-    <td>
-
-<p>
-    </td>
-  </tr>
-</table>
-<a class="anchor" name="LogLevel"></a><!-- doxytag: member="modules.cpp::LogLevel" ref="LogLevel" args="" --><p>
-<table class="mdTable" cellpadding="2" cellspacing="0">
-  <tr>
-    <td class="mdRow">
-      <table cellpadding="0" cellspacing="0" border="0">
-        <tr>
-          <td class="md" nowrap valign="top">int <a class="el" href="modules_8cpp.html#LogLevel">LogLevel</a>          </td>
-        </tr>
-      </table>
-    </td>
-  </tr>
-</table>
-<table cellspacing="5" cellpadding="0" border="0">
-  <tr>
-    <td>
-      &nbsp;
-    </td>
-    <td>
-
-<p>
-    </td>
-  </tr>
-</table>
-<a class="anchor" name="MaxWhoResults"></a><!-- doxytag: member="modules.cpp::MaxWhoResults" ref="MaxWhoResults" args="" --><p>
-<table class="mdTable" cellpadding="2" cellspacing="0">
-  <tr>
-    <td class="mdRow">
-      <table cellpadding="0" cellspacing="0" border="0">
-        <tr>
-          <td class="md" nowrap valign="top">int <a class="el" href="modules_8cpp.html#MaxWhoResults">MaxWhoResults</a>          </td>
-        </tr>
-      </table>
-    </td>
-  </tr>
-</table>
-<table cellspacing="5" cellpadding="0" border="0">
-  <tr>
-    <td>
-      &nbsp;
-    </td>
-    <td>
-
-<p>
-
-<p>
-Definition at line <a class="el" href="channels_8cpp-source.html#l00081">81</a> of file <a class="el" href="channels_8cpp-source.html">channels.cpp</a>.    </td>
   </tr>
 </table>
 <a class="anchor" name="MODCOUNT"></a><!-- doxytag: member="modules.cpp::MODCOUNT" ref="MODCOUNT" args="" --><p>
@@ -1320,30 +793,7 @@ Definition at line <a class="el" href="channels_8cpp-source.html#l00081">81</a> 
 <p>
 
 <p>
-Definition at line <a class="el" href="modules_8cpp-source.html#l01005">1005</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.    </td>
-  </tr>
-</table>
-<a class="anchor" name="module_5Fnames"></a><!-- doxytag: member="modules.cpp::module_names" ref="module_5Fnames" args="" --><p>
-<table class="mdTable" cellpadding="2" cellspacing="0">
-  <tr>
-    <td class="mdRow">
-      <table cellpadding="0" cellspacing="0" border="0">
-        <tr>
-          <td class="md" nowrap valign="top">std::vector&lt;<a class="el" href="namespaceirc.html#string">std::string</a>&gt; <a class="el" href="modules_8cpp.html#module_5Fnames">module_names</a>          </td>
-        </tr>
-      </table>
-    </td>
-  </tr>
-</table>
-<table cellspacing="5" cellpadding="0" border="0">
-  <tr>
-    <td>
-      &nbsp;
-    </td>
-    <td>
-
-<p>
-    </td>
+Definition at line <a class="el" href="modules_8cpp-source.html#l00933">933</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.    </td>
   </tr>
 </table>
 <a class="anchor" name="module_5Fsockets"></a><!-- doxytag: member="modules.cpp::module_sockets" ref="module_5Fsockets" args="" --><p>
@@ -1368,7 +818,7 @@ Definition at line <a class="el" href="modules_8cpp-source.html#l01005">1005</a>
 <p>
 
 <p>
-Referenced by <a class="el" href="modules_8cpp-source.html#l00394">Server::AddSocket()</a>, and <a class="el" href="modules_8cpp-source.html#l00405">Server::DelSocket()</a>.    </td>
+Referenced by <a class="el" href="modules_8cpp-source.html#l00321">Server::AddSocket()</a>, and <a class="el" href="modules_8cpp-source.html#l00332">Server::DelSocket()</a>.    </td>
   </tr>
 </table>
 <a class="anchor" name="modules"></a><!-- doxytag: member="modules.cpp::modules" ref="modules" args="" --><p>
@@ -1378,121 +828,6 @@ Referenced by <a class="el" href="modules_8cpp-source.html#l00394">Server::AddSo
       <table cellpadding="0" cellspacing="0" border="0">
         <tr>
           <td class="md" nowrap valign="top">std::vector&lt;<a class="el" href="classModule.html">Module</a>*&gt; modules          </td>
-        </tr>
-      </table>
-    </td>
-  </tr>
-</table>
-<table cellspacing="5" cellpadding="0" border="0">
-  <tr>
-    <td>
-      &nbsp;
-    </td>
-    <td>
-
-<p>
-    </td>
-  </tr>
-</table>
-<a class="anchor" name="MOTD"></a><!-- doxytag: member="modules.cpp::MOTD" ref="MOTD" args="" --><p>
-<table class="mdTable" cellpadding="2" cellspacing="0">
-  <tr>
-    <td class="mdRow">
-      <table cellpadding="0" cellspacing="0" border="0">
-        <tr>
-          <td class="md" nowrap valign="top"><a class="el" href="modules_8h.html#file_5Fcache">file_cache</a> <a class="el" href="modules_8cpp.html#MOTD">MOTD</a>          </td>
-        </tr>
-      </table>
-    </td>
-  </tr>
-</table>
-<table cellspacing="5" cellpadding="0" border="0">
-  <tr>
-    <td>
-      &nbsp;
-    </td>
-    <td>
-
-<p>
-    </td>
-  </tr>
-</table>
-<a class="anchor" name="motd_5BMAXBUF_5D"></a><!-- doxytag: member="modules.cpp::motd" ref="motd_5BMAXBUF_5D" args="[MAXBUF]" --><p>
-<table class="mdTable" cellpadding="2" cellspacing="0">
-  <tr>
-    <td class="mdRow">
-      <table cellpadding="0" cellspacing="0" border="0">
-        <tr>
-          <td class="md" nowrap valign="top">char <a class="el" href="modules_8cpp.html#motd_5BMAXBUF_5D">motd</a>[MAXBUF]          </td>
-        </tr>
-      </table>
-    </td>
-  </tr>
-</table>
-<table cellspacing="5" cellpadding="0" border="0">
-  <tr>
-    <td>
-      &nbsp;
-    </td>
-    <td>
-
-<p>
-    </td>
-  </tr>
-</table>
-<a class="anchor" name="nb_5Fstart"></a><!-- doxytag: member="modules.cpp::nb_start" ref="nb_5Fstart" args="" --><p>
-<table class="mdTable" cellpadding="2" cellspacing="0">
-  <tr>
-    <td class="mdRow">
-      <table cellpadding="0" cellspacing="0" border="0">
-        <tr>
-          <td class="md" nowrap valign="top">time_t <a class="el" href="modules_8cpp.html#nb_5Fstart">nb_start</a>          </td>
-        </tr>
-      </table>
-    </td>
-  </tr>
-</table>
-<table cellspacing="5" cellpadding="0" border="0">
-  <tr>
-    <td>
-      &nbsp;
-    </td>
-    <td>
-
-<p>
-    </td>
-  </tr>
-</table>
-<a class="anchor" name="NetBufferSize"></a><!-- doxytag: member="modules.cpp::NetBufferSize" ref="NetBufferSize" args="" --><p>
-<table class="mdTable" cellpadding="2" cellspacing="0">
-  <tr>
-    <td class="mdRow">
-      <table cellpadding="0" cellspacing="0" border="0">
-        <tr>
-          <td class="md" nowrap valign="top">int <a class="el" href="modules_8cpp.html#NetBufferSize">NetBufferSize</a>          </td>
-        </tr>
-      </table>
-    </td>
-  </tr>
-</table>
-<table cellspacing="5" cellpadding="0" border="0">
-  <tr>
-    <td>
-      &nbsp;
-    </td>
-    <td>
-
-<p>
-    </td>
-  </tr>
-</table>
-<a class="anchor" name="Network_5BMAXBUF_5D"></a><!-- doxytag: member="modules.cpp::Network" ref="Network_5BMAXBUF_5D" args="[MAXBUF]" --><p>
-<table class="mdTable" cellpadding="2" cellspacing="0">
-  <tr>
-    <td class="mdRow">
-      <table cellpadding="0" cellspacing="0" border="0">
-        <tr>
-          <td class="md" nowrap valign="top">char <a class="el" href="modules_8cpp.html#Network_5BMAXBUF_5D">Network</a>[MAXBUF]          </td>
         </tr>
       </table>
     </td>
@@ -1555,98 +890,6 @@ Referenced by <a class="el" href="modules_8cpp-source.html#l00394">Server::AddSo
     </td>
   </tr>
 </table>
-<a class="anchor" name="PrefixQuit_5BMAXBUF_5D"></a><!-- doxytag: member="modules.cpp::PrefixQuit" ref="PrefixQuit_5BMAXBUF_5D" args="[MAXBUF]" --><p>
-<table class="mdTable" cellpadding="2" cellspacing="0">
-  <tr>
-    <td class="mdRow">
-      <table cellpadding="0" cellspacing="0" border="0">
-        <tr>
-          <td class="md" nowrap valign="top">char <a class="el" href="modules_8cpp.html#PrefixQuit_5BMAXBUF_5D">PrefixQuit</a>[MAXBUF]          </td>
-        </tr>
-      </table>
-    </td>
-  </tr>
-</table>
-<table cellspacing="5" cellpadding="0" border="0">
-  <tr>
-    <td>
-      &nbsp;
-    </td>
-    <td>
-
-<p>
-    </td>
-  </tr>
-</table>
-<a class="anchor" name="restartpass_5BMAXBUF_5D"></a><!-- doxytag: member="modules.cpp::restartpass" ref="restartpass_5BMAXBUF_5D" args="[MAXBUF]" --><p>
-<table class="mdTable" cellpadding="2" cellspacing="0">
-  <tr>
-    <td class="mdRow">
-      <table cellpadding="0" cellspacing="0" border="0">
-        <tr>
-          <td class="md" nowrap valign="top">char <a class="el" href="modules_8cpp.html#restartpass_5BMAXBUF_5D">restartpass</a>[MAXBUF]          </td>
-        </tr>
-      </table>
-    </td>
-  </tr>
-</table>
-<table cellspacing="5" cellpadding="0" border="0">
-  <tr>
-    <td>
-      &nbsp;
-    </td>
-    <td>
-
-<p>
-    </td>
-  </tr>
-</table>
-<a class="anchor" name="RULES"></a><!-- doxytag: member="modules.cpp::RULES" ref="RULES" args="" --><p>
-<table class="mdTable" cellpadding="2" cellspacing="0">
-  <tr>
-    <td class="mdRow">
-      <table cellpadding="0" cellspacing="0" border="0">
-        <tr>
-          <td class="md" nowrap valign="top"><a class="el" href="modules_8h.html#file_5Fcache">file_cache</a> <a class="el" href="modules_8cpp.html#RULES">RULES</a>          </td>
-        </tr>
-      </table>
-    </td>
-  </tr>
-</table>
-<table cellspacing="5" cellpadding="0" border="0">
-  <tr>
-    <td>
-      &nbsp;
-    </td>
-    <td>
-
-<p>
-    </td>
-  </tr>
-</table>
-<a class="anchor" name="rules_5BMAXBUF_5D"></a><!-- doxytag: member="modules.cpp::rules" ref="rules_5BMAXBUF_5D" args="[MAXBUF]" --><p>
-<table class="mdTable" cellpadding="2" cellspacing="0">
-  <tr>
-    <td class="mdRow">
-      <table cellpadding="0" cellspacing="0" border="0">
-        <tr>
-          <td class="md" nowrap valign="top">char <a class="el" href="modules_8cpp.html#rules_5BMAXBUF_5D">rules</a>[MAXBUF]          </td>
-        </tr>
-      </table>
-    </td>
-  </tr>
-</table>
-<table cellspacing="5" cellpadding="0" border="0">
-  <tr>
-    <td>
-      &nbsp;
-    </td>
-    <td>
-
-<p>
-    </td>
-  </tr>
-</table>
 <a class="anchor" name="SE"></a><!-- doxytag: member="modules.cpp::SE" ref="SE" args="" --><p>
 <table class="mdTable" cellpadding="2" cellspacing="0">
   <tr>
@@ -1654,52 +897,6 @@ Referenced by <a class="el" href="modules_8cpp-source.html#l00394">Server::AddSo
       <table cellpadding="0" cellspacing="0" border="0">
         <tr>
           <td class="md" nowrap valign="top"><a class="el" href="classSocketEngine.html">SocketEngine</a>* <a class="el" href="socket_8cpp.html#SE">SE</a>          </td>
-        </tr>
-      </table>
-    </td>
-  </tr>
-</table>
-<table cellspacing="5" cellpadding="0" border="0">
-  <tr>
-    <td>
-      &nbsp;
-    </td>
-    <td>
-
-<p>
-    </td>
-  </tr>
-</table>
-<a class="anchor" name="ServerDesc_5BMAXBUF_5D"></a><!-- doxytag: member="modules.cpp::ServerDesc" ref="ServerDesc_5BMAXBUF_5D" args="[MAXBUF]" --><p>
-<table class="mdTable" cellpadding="2" cellspacing="0">
-  <tr>
-    <td class="mdRow">
-      <table cellpadding="0" cellspacing="0" border="0">
-        <tr>
-          <td class="md" nowrap valign="top">char <a class="el" href="modules_8cpp.html#ServerDesc_5BMAXBUF_5D">ServerDesc</a>[MAXBUF]          </td>
-        </tr>
-      </table>
-    </td>
-  </tr>
-</table>
-<table cellspacing="5" cellpadding="0" border="0">
-  <tr>
-    <td>
-      &nbsp;
-    </td>
-    <td>
-
-<p>
-    </td>
-  </tr>
-</table>
-<a class="anchor" name="ServerName_5BMAXBUF_5D"></a><!-- doxytag: member="modules.cpp::ServerName" ref="ServerName_5BMAXBUF_5D" args="[MAXBUF]" --><p>
-<table class="mdTable" cellpadding="2" cellspacing="0">
-  <tr>
-    <td class="mdRow">
-      <table cellpadding="0" cellspacing="0" border="0">
-        <tr>
-          <td class="md" nowrap valign="top">char <a class="el" href="users_8cpp.html#ServerName_5BMAXBUF_5D">ServerName</a>[MAXBUF]          </td>
         </tr>
       </table>
     </td>
@@ -1768,7 +965,7 @@ Referenced by <a class="el" href="modules_8cpp-source.html#l00394">Server::AddSo
     <td class="mdRow">
       <table cellpadding="0" cellspacing="0" border="0">
         <tr>
-          <td class="md" nowrap valign="top"><a class="el" href="modules_8cpp.html#whowas_5Fhash">whowas_hash</a> <a class="el" href="modules_8cpp.html#whowas">whowas</a>          </td>
+          <td class="md" nowrap valign="top"><a class="el" href="typedefs_8h.html#whowas_5Fhash">whowas_hash</a> <a class="el" href="modules_8cpp.html#whowas">whowas</a>          </td>
         </tr>
       </table>
     </td>
@@ -1831,7 +1028,7 @@ Referenced by <a class="el" href="modules_8cpp-source.html#l00394">Server::AddSo
     </td>
   </tr>
 </table>
-<hr size="1"><address style="align: right;"><small>Generated on Mon Dec 12 18:31:00 2005 for InspIRCd by&nbsp;
+<hr size="1"><address style="align: right;"><small>Generated on Wed Dec 14 14:49:24 2005 for InspIRCd by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img src="doxygen.png" alt="doxygen" align="middle" border="0"></a> 1.4.4-20050815 </small></address>
 </body>

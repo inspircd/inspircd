@@ -26,8 +26,9 @@ Include dependency graph for modules.h:<p><center><img src="modules_8h__incl.gif
 <p>
 This graph shows which files directly or indirectly include this file:<p><center><img src="modules_8h__dep__incl.gif" border="0" usemap="#modules.hdep_map" alt=""></center>
 <map name="modules.hdep_map">
-<area href="channels_8cpp-source.html" shape="rect" coords="141,7,240,34" alt="">
-<area href="modules_8cpp-source.html" shape="rect" coords="141,58,240,84" alt="">
+<area href="channels_8cpp-source.html" shape="rect" coords="142,7,240,33" alt="">
+<area href="modules_8cpp-source.html" shape="rect" coords="290,83,388,109" alt="">
+<area href="typedefs_8h-source.html" shape="rect" coords="148,108,234,135" alt="">
 </map>
 
 <p>
@@ -49,6 +50,9 @@ This graph shows which files directly or indirectly include this file:<p><center
 <tr><td class="memItemLeft" nowrap align="right" valign="top">class &nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classEvent.html">Event</a></td></tr>
 
 <tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">The Event class is a unicast message directed at all modules.  <a href="classEvent.html#_details">More...</a><br></td></tr>
+<tr><td class="memItemLeft" nowrap align="right" valign="top">class &nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classExtMode.html">ExtMode</a></td></tr>
+
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Holds an extended mode's details.  <a href="classExtMode.html#_details">More...</a><br></td></tr>
 <tr><td class="memItemLeft" nowrap align="right" valign="top">class &nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classModule.html">Module</a></td></tr>
 
 <tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Base class for all InspIRCd modules This class is the base class for InspIRCd modules.  <a href="classModule.html#_details">More...</a><br></td></tr>
@@ -425,7 +429,7 @@ Used with OnAccessCheck() method of modules.
 <p>
 Definition at line <a class="el" href="modules_8h-source.html#l00037">37</a> of file <a class="el" href="modules_8h-source.html">modules.h</a>.
 <p>
-Referenced by <a class="el" href="modules_8cpp-source.html#l00322">Module::OnAccessCheck()</a>.    </td>
+Referenced by <a class="el" href="modules_8cpp-source.html#l00249">Module::OnAccessCheck()</a>.    </td>
   </tr>
 </table>
 <a class="anchor" name="ACR_5FDENY"></a><!-- doxytag: member="modules.h::ACR_DENY" ref="ACR_5FDENY" args="" --><p>
@@ -475,9 +479,9 @@ Definition at line <a class="el" href="modules_8h-source.html#l00038">38</a> of 
 <p>
 
 <p>
-Definition at line <a class="el" href="modules_8h-source.html#l01501">1501</a> of file <a class="el" href="modules_8h-source.html">modules.h</a>.
+Definition at line <a class="el" href="modules_8h-source.html#l01516">1516</a> of file <a class="el" href="modules_8h-source.html">modules.h</a>.
 <p>
-Referenced by <a class="el" href="modules_8cpp-source.html#l00807">ConfigReader::ConfigReader()</a>.    </td>
+Referenced by <a class="el" href="modules_8cpp-source.html#l00734">ConfigReader::ConfigReader()</a>.    </td>
   </tr>
 </table>
 <a class="anchor" name="CONF_5FNOT_5FA_5FNUMBER"></a><!-- doxytag: member="modules.h::CONF_NOT_A_NUMBER" ref="CONF_5FNOT_5FA_5FNUMBER" args="" --><p>
@@ -502,9 +506,9 @@ Referenced by <a class="el" href="modules_8cpp-source.html#l00807">ConfigReader:
 <p>
 
 <p>
-Definition at line <a class="el" href="modules_8h-source.html#l01498">1498</a> of file <a class="el" href="modules_8h-source.html">modules.h</a>.
+Definition at line <a class="el" href="modules_8h-source.html#l01513">1513</a> of file <a class="el" href="modules_8h-source.html">modules.h</a>.
 <p>
-Referenced by <a class="el" href="modules_8cpp-source.html#l00869">ConfigReader::ReadInteger()</a>.    </td>
+Referenced by <a class="el" href="modules_8cpp-source.html#l00797">ConfigReader::ReadInteger()</a>.    </td>
   </tr>
 </table>
 <a class="anchor" name="CONF_5FNOT_5FUNSIGNED"></a><!-- doxytag: member="modules.h::CONF_NOT_UNSIGNED" ref="CONF_5FNOT_5FUNSIGNED" args="" --><p>
@@ -529,9 +533,9 @@ Referenced by <a class="el" href="modules_8cpp-source.html#l00869">ConfigReader:
 <p>
 
 <p>
-Definition at line <a class="el" href="modules_8h-source.html#l01499">1499</a> of file <a class="el" href="modules_8h-source.html">modules.h</a>.
+Definition at line <a class="el" href="modules_8h-source.html#l01514">1514</a> of file <a class="el" href="modules_8h-source.html">modules.h</a>.
 <p>
-Referenced by <a class="el" href="modules_8cpp-source.html#l00869">ConfigReader::ReadInteger()</a>.    </td>
+Referenced by <a class="el" href="modules_8cpp-source.html#l00797">ConfigReader::ReadInteger()</a>.    </td>
   </tr>
 </table>
 <a class="anchor" name="CONF_5FVALUE_5FNOT_5FFOUND"></a><!-- doxytag: member="modules.h::CONF_VALUE_NOT_FOUND" ref="CONF_5FVALUE_5FNOT_5FFOUND" args="" --><p>
@@ -556,9 +560,9 @@ Referenced by <a class="el" href="modules_8cpp-source.html#l00869">ConfigReader:
 <p>
 
 <p>
-Definition at line <a class="el" href="modules_8h-source.html#l01500">1500</a> of file <a class="el" href="modules_8h-source.html">modules.h</a>.
+Definition at line <a class="el" href="modules_8h-source.html#l01515">1515</a> of file <a class="el" href="modules_8h-source.html">modules.h</a>.
 <p>
-Referenced by <a class="el" href="modules_8cpp-source.html#l00852">ConfigReader::ReadFlag()</a>, <a class="el" href="modules_8cpp-source.html#l00869">ConfigReader::ReadInteger()</a>, and <a class="el" href="modules_8cpp-source.html#l00836">ConfigReader::ReadValue()</a>.    </td>
+Referenced by <a class="el" href="modules_8cpp-source.html#l00780">ConfigReader::ReadFlag()</a>, <a class="el" href="modules_8cpp-source.html#l00797">ConfigReader::ReadInteger()</a>, and <a class="el" href="modules_8cpp-source.html#l00764">ConfigReader::ReadValue()</a>.    </td>
   </tr>
 </table>
 <a class="anchor" name="DEBUG"></a><!-- doxytag: member="modules.h::DEBUG" ref="DEBUG" args="" --><p>
@@ -585,9 +589,7 @@ log levels
 <p>
 
 <p>
-Definition at line <a class="el" href="modules_8h-source.html#l00023">23</a> of file <a class="el" href="modules_8h-source.html">modules.h</a>.
-<p>
-Referenced by <a class="el" href="modules_8cpp-source.html#l00627">Server::AddExtendedMode()</a>, <a class="el" href="socketengine_8cpp-source.html#l00065">SocketEngine::AddFd()</a>, <a class="el" href="channels_8cpp-source.html#l00194">chanrec::AddUser()</a>, <a class="el" href="socketengine_8cpp-source.html#l00103">SocketEngine::DelFd()</a>, <a class="el" href="channels_8cpp-source.html#l00200">chanrec::DelUser()</a>, <a class="el" href="socket_8cpp-source.html#l00062">InspSocket::InspSocket()</a>, <a class="el" href="socket_8cpp-source.html#l00155">InspSocket::Read()</a>, <a class="el" href="users_8cpp-source.html#l00085">userrec::ReadData()</a>, <a class="el" href="users_8cpp-source.html#l00129">userrec::RemoveInvite()</a>, <a class="el" href="channels_8cpp-source.html#l00113">chanrec::SetCustomMode()</a>, <a class="el" href="channels_8cpp-source.html#l00138">chanrec::SetCustomModeParam()</a>, <a class="el" href="socket_8cpp-source.html#l00245">InspSocket::SetState()</a>, <a class="el" href="users_8cpp-source.html#l00299">userrec::SetWriteError()</a>, <a class="el" href="socketengine_8cpp-source.html#l00035">SocketEngine::SocketEngine()</a>, <a class="el" href="socketengine_8cpp-source.html#l00146">SocketEngine::Wait()</a>, and <a class="el" href="socketengine_8cpp-source.html#l00046">SocketEngine::~SocketEngine()</a>.    </td>
+Definition at line <a class="el" href="modules_8h-source.html#l00023">23</a> of file <a class="el" href="modules_8h-source.html">modules.h</a>.    </td>
   </tr>
 </table>
 <a class="anchor" name="DEFAULT"></a><!-- doxytag: member="modules.h::DEFAULT" ref="DEFAULT" args="" --><p>
@@ -639,7 +641,7 @@ Definition at line <a class="el" href="modules_8h-source.html#l00025">25</a> of 
 <p>
 Definition at line <a class="el" href="modules_8h-source.html#l00101">101</a> of file <a class="el" href="modules_8h-source.html">modules.h</a>.
 <p>
-Referenced by <a class="el" href="modules_8cpp-source.html#l00681">Server::PseudoToUser()</a>, and <a class="el" href="modules_8cpp-source.html#l00669">Server::UserToPseudo()</a>.    </td>
+Referenced by <a class="el" href="modules_8cpp-source.html#l00608">Server::PseudoToUser()</a>, and <a class="el" href="modules_8cpp-source.html#l00596">Server::UserToPseudo()</a>.    </td>
   </tr>
 </table>
 <a class="anchor" name="FOREACH_5FMOD"></a><!-- doxytag: member="modules.h::FOREACH_MOD" ref="FOREACH_5FMOD" args="" --><p>
@@ -666,7 +668,7 @@ Referenced by <a class="el" href="modules_8cpp-source.html#l00681">Server::Pseud
 <p>
 Definition at line <a class="el" href="modules_8h-source.html#l00081">81</a> of file <a class="el" href="modules_8h-source.html">modules.h</a>.
 <p>
-Referenced by <a class="el" href="modules_8cpp-source.html#l00287">Event::Send()</a>.    </td>
+Referenced by <a class="el" href="modules_8cpp-source.html#l00214">Event::Send()</a>.    </td>
   </tr>
 </table>
 <a class="anchor" name="FOREACH_5FRESULT_28x_29"></a><!-- doxytag: member="modules.h::FOREACH_RESULT" ref="FOREACH_5FRESULT_28x_29" args="(x)" --><p>
@@ -734,7 +736,7 @@ Used with OnExtendedMode() method of modules.
 <p>
 Definition at line <a class="el" href="modules_8h-source.html#l00031">31</a> of file <a class="el" href="modules_8h-source.html">modules.h</a>.
 <p>
-Referenced by <a class="el" href="modules_8cpp-source.html#l00655">Server::AddExtendedListMode()</a>, and <a class="el" href="modules_8cpp-source.html#l00225">ModeMakeList()</a>.    </td>
+Referenced by <a class="el" href="modules_8cpp-source.html#l00582">Server::AddExtendedListMode()</a>, and <a class="el" href="modules_8cpp-source.html#l00152">ModeMakeList()</a>.    </td>
   </tr>
 </table>
 <a class="anchor" name="MT_5FCLIENT"></a><!-- doxytag: member="modules.h::MT_CLIENT" ref="MT_5FCLIENT" args="" --><p>
@@ -761,7 +763,7 @@ Referenced by <a class="el" href="modules_8cpp-source.html#l00655">Server::AddEx
 <p>
 Definition at line <a class="el" href="modules_8h-source.html#l00032">32</a> of file <a class="el" href="modules_8h-source.html">modules.h</a>.
 <p>
-Referenced by <a class="el" href="modules_8cpp-source.html#l00627">Server::AddExtendedMode()</a>.    </td>
+Referenced by <a class="el" href="modules_8cpp-source.html#l00554">Server::AddExtendedMode()</a>.    </td>
   </tr>
 </table>
 <a class="anchor" name="MT_5FSERVER"></a><!-- doxytag: member="modules.h::MT_SERVER" ref="MT_5FSERVER" args="" --><p>
@@ -788,7 +790,7 @@ Referenced by <a class="el" href="modules_8cpp-source.html#l00627">Server::AddEx
 <p>
 Definition at line <a class="el" href="modules_8h-source.html#l00033">33</a> of file <a class="el" href="modules_8h-source.html">modules.h</a>.
 <p>
-Referenced by <a class="el" href="modules_8cpp-source.html#l00627">Server::AddExtendedMode()</a>.    </td>
+Referenced by <a class="el" href="modules_8cpp-source.html#l00554">Server::AddExtendedMode()</a>.    </td>
   </tr>
 </table>
 <a class="anchor" name="NONE"></a><!-- doxytag: member="modules.h::NONE" ref="NONE" args="" --><p>
@@ -967,7 +969,7 @@ Definition at line <a class="el" href="modules_8h-source.html#l00052">52</a> of 
 <p>
 Definition at line <a class="el" href="modules_8h-source.html#l00053">53</a> of file <a class="el" href="modules_8h-source.html">modules.h</a>.
 <p>
-Referenced by <a class="el" href="modules_8cpp-source.html#l00313">Module::GetVersion()</a>.    </td>
+Referenced by <a class="el" href="modules_8cpp-source.html#l00240">Module::GetVersion()</a>.    </td>
   </tr>
 </table>
 <hr><h2>Typedef Documentation</h2>
@@ -1047,7 +1049,7 @@ Definition at line <a class="el" href="modules_8h-source.html#l00065">65</a> of 
 <p>
 
 <p>
-Definition at line <a class="el" href="modules_8h-source.html#l01667">1667</a> of file <a class="el" href="modules_8h-source.html">modules.h</a>.    </td>
+Definition at line <a class="el" href="modules_8h-source.html#l01682">1682</a> of file <a class="el" href="modules_8h-source.html">modules.h</a>.    </td>
   </tr>
 </table>
 <a class="anchor" name="string_5Flist"></a><!-- doxytag: member="modules.h::string_list" ref="string_5Flist" args="" --><p>
@@ -1130,7 +1132,7 @@ Definition at line <a class="el" href="modules_8h-source.html#l00070">70</a> of 
 <p>
 
 <p>
-Referenced by <a class="el" href="modules_8cpp-source.html#l00487">Server::AddCommand()</a>.    </td>
+Referenced by <a class="el" href="modules_8cpp-source.html#l00414">Server::AddCommand()</a>.    </td>
   </tr>
 </table>
 <a class="anchor" name="server_5Fmode_28char_20_2A_2Aparameters_2C_20int_20pcnt_2C_20userrec_20_2Auser_29"></a><!-- doxytag: member="modules.h::server_mode" ref="server_5Fmode_28char_20_2A_2Aparameters_2C_20int_20pcnt_2C_20userrec_20_2Auser_29" args="(char **parameters, int pcnt, userrec *user)" --><p>
@@ -1176,7 +1178,7 @@ Referenced by <a class="el" href="modules_8cpp-source.html#l00487">Server::AddCo
     </td>
   </tr>
 </table>
-<hr size="1"><address style="align: right;"><small>Generated on Mon Dec 12 18:31:01 2005 for InspIRCd by&nbsp;
+<hr size="1"><address style="align: right;"><small>Generated on Wed Dec 14 14:49:25 2005 for InspIRCd by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img src="doxygen.png" alt="doxygen" align="middle" border="0"></a> 1.4.4-20050815 </small></address>
 </body>

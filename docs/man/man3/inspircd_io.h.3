@@ -1,0 +1,110 @@
+.TH "inspircd_io.h" 3 "14 Dec 2005" "Version 1.0Betareleases" "InspIRCd" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+inspircd_io.h \- 
+.SH SYNOPSIS
+.br
+.PP
+\fC#include <sstream>\fP
+.br
+\fC#include <string>\fP
+.br
+\fC#include <vector>\fP
+.br
+\fC#include 'inspircd.h'\fP
+.br
+\fC#include 'globals.h'\fP
+.br
+
+.SS "Classes"
+
+.in +1c
+.ti -1c
+.RI "class \fBServerConfig\fP"
+.br
+.in -1c
+.SS "Defines"
+
+.in +1c
+.ti -1c
+.RI "#define \fBDEBUG\fP   10"
+.br
+.ti -1c
+.RI "#define \fBVERBOSE\fP   20"
+.br
+.ti -1c
+.RI "#define \fBDEFAULT\fP   30"
+.br
+.ti -1c
+.RI "#define \fBSPARSE\fP   40"
+.br
+.ti -1c
+.RI "#define \fBNONE\fP   50"
+.br
+.in -1c
+.SS "Functions"
+
+.in +1c
+.ti -1c
+.RI "void \fBExit\fP (int)"
+.br
+.ti -1c
+.RI "void \fBStart\fP (void)"
+.br
+.ti -1c
+.RI "int \fBDaemonSeed\fP (void)"
+.br
+.ti -1c
+.RI "bool \fBFileExists\fP (const char *file)"
+.br
+.ti -1c
+.RI "int \fBOpenTCPSocket\fP (void)"
+.br
+.ti -1c
+.RI "int \fBBindSocket\fP (int sockfd, struct sockaddr_in client, struct sockaddr_in server, int port, char *addr)"
+.br
+.ti -1c
+.RI "void \fBWritePID\fP (\fBstd::string\fP filename)"
+.br
+.in -1c
+.SH "Define Documentation"
+.PP 
+.SS "#define DEBUG   10"
+.PP
+Definition at line 28 of file inspircd_io.h.
+.PP
+Referenced by Server::AddExtendedMode(), SocketEngine::AddFd(), chanrec::AddUser(), SocketEngine::DelFd(), chanrec::DelUser(), InspSocket::InspSocket(), InspSocket::Read(), userrec::RemoveInvite(), chanrec::SetCustomMode(), chanrec::SetCustomModeParam(), InspSocket::SetState(), userrec::SetWriteError(), SocketEngine::SocketEngine(), and SocketEngine::~SocketEngine().
+.SS "#define DEFAULT   30"
+.PP
+Definition at line 30 of file inspircd_io.h.
+.SS "#define NONE   50"
+.PP
+Definition at line 32 of file inspircd_io.h.
+.SS "#define SPARSE   40"
+.PP
+Definition at line 31 of file inspircd_io.h.
+.SS "#define VERBOSE   20"
+.PP
+Definition at line 29 of file inspircd_io.h.
+.SH "Function Documentation"
+.PP 
+.SS "int BindSocket (int sockfd, struct sockaddr_in client, struct sockaddr_in server, int port, char * addr)"
+.PP
+Referenced by InspSocket::InspSocket().
+.SS "int DaemonSeed (void)"
+.PP
+.SS "void Exit (int)"
+.PP
+.SS "bool FileExists (const char * file)"
+.PP
+.SS "int OpenTCPSocket (void)"
+.PP
+Referenced by InspSocket::InspSocket().
+.SS "void Start (void)"
+.PP
+.SS "void WritePID (\fBstd::string\fP filename)"
+.PP
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for InspIRCd from the source code.

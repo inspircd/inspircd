@@ -1,4 +1,4 @@
-.TH "channels.cpp" 3 "12 Dec 2005" "Version 1.0Betareleases" "InspIRCd" \" -*- nroff -*-
+.TH "channels.cpp" 3 "14 Dec 2005" "Version 1.0Betareleases" "InspIRCd" \" -*- nroff -*-
 .ad l
 .nh
 .SH NAME
@@ -77,6 +77,9 @@ channels.cpp \-
 
 .in +1c
 .ti -1c
+.RI "\fBServerConfig\fP * \fBConfig\fP"
+.br
+.ti -1c
 .RI "int \fBMODCOUNT\fP = -1"
 .br
 .ti -1c
@@ -86,70 +89,13 @@ channels.cpp \-
 .RI "std::vector< \fBircd_module\fP * > \fBfactory\fP"
 .br
 .ti -1c
-.RI "int \fBLogLevel\fP"
-.br
-.ti -1c
-.RI "char \fBServerName\fP [MAXBUF]"
-.br
-.ti -1c
-.RI "char \fBNetwork\fP [MAXBUF]"
-.br
-.ti -1c
-.RI "char \fBServerDesc\fP [MAXBUF]"
-.br
-.ti -1c
-.RI "char \fBAdminName\fP [MAXBUF]"
-.br
-.ti -1c
-.RI "char \fBAdminEmail\fP [MAXBUF]"
-.br
-.ti -1c
-.RI "char \fBAdminNick\fP [MAXBUF]"
-.br
-.ti -1c
-.RI "char \fBdiepass\fP [MAXBUF]"
-.br
-.ti -1c
-.RI "char \fBrestartpass\fP [MAXBUF]"
-.br
-.ti -1c
-.RI "char \fBmotd\fP [MAXBUF]"
-.br
-.ti -1c
-.RI "char \fBrules\fP [MAXBUF]"
-.br
-.ti -1c
-.RI "char \fBlist\fP [MAXBUF]"
-.br
-.ti -1c
-.RI "char \fBPrefixQuit\fP [MAXBUF]"
-.br
-.ti -1c
-.RI "char \fBDieValue\fP [MAXBUF]"
-.br
-.ti -1c
-.RI "int \fBdebugging\fP"
-.br
-.ti -1c
 .RI "int \fBWHOWAS_STALE\fP"
 .br
 .ti -1c
 .RI "int \fBWHOWAS_MAX\fP"
 .br
 .ti -1c
-.RI "int \fBDieDelay\fP"
-.br
-.ti -1c
 .RI "time_t \fBstartup_time\fP"
-.br
-.ti -1c
-.RI "int \fBNetBufferSize\fP"
-.br
-.ti -1c
-.RI "int \fBMaxWhoResults\fP"
-.br
-.ti -1c
-.RI "time_t \fBnb_start\fP"
 .br
 .ti -1c
 .RI "std::vector< \fBstd::string\fP > \fBmodule_names\fP"
@@ -158,16 +104,7 @@ channels.cpp \-
 .RI "int \fBboundPortCount\fP"
 .br
 .ti -1c
-.RI "int \fBportCount\fP"
-.br
-.ti -1c
-.RI "int \fBports\fP [MAXSOCKS]"
-.br
-.ti -1c
 .RI "std::stringstream \fBconfig_f\fP"
-.br
-.ti -1c
-.RI "FILE * \fBlog_file\fP"
 .br
 .ti -1c
 .RI "time_t \fBTIME\fP"
@@ -183,76 +120,29 @@ channels.cpp \-
 Definition at line 53 of file channels.cpp.
 .SH "Variable Documentation"
 .PP 
-.SS "char \fBAdminEmail\fP[MAXBUF]"
-.PP
-.SS "char \fBAdminName\fP[MAXBUF]"
-.PP
-.SS "char \fBAdminNick\fP[MAXBUF]"
-.PP
 .SS "int \fBboundPortCount\fP"
+.PP
+.SS "\fBServerConfig\fP* \fBConfig\fP"
 .PP
 .SS "std::stringstream \fBconfig_f\fP"
 .PP
-Referenced by userrec::HasPermission().
 .SS "std::vector<\fBModeParameter\fP> \fBcustom_mode_params\fP"
 .PP
-Definition at line 99 of file channels.cpp.
+Definition at line 71 of file channels.cpp.
 .PP
 Referenced by chanrec::GetModeParameter(), and chanrec::SetCustomModeParam().
-.SS "int \fBdebugging\fP"
-.PP
-.SS "int \fBDieDelay\fP"
-.PP
-.SS "char \fBdiepass\fP[MAXBUF]"
-.PP
-.SS "char \fBDieValue\fP[MAXBUF]"
-.PP
 .SS "std::vector<\fBircd_module\fP*> factory"
 .PP
-.SS "char \fBlist\fP[MAXBUF]"
-.PP
-Referenced by Server::GetUsers().
-.SS "FILE* \fBlog_file\fP"
-.PP
-.SS "int \fBLogLevel\fP"
-.PP
-.SS "int \fBMaxWhoResults\fP"
-.PP
-Definition at line 81 of file channels.cpp.
 .SS "int \fBMODCOUNT\fP = -1"
 .PP
-Definition at line 1005 of file modules.cpp.
+Definition at line 933 of file modules.cpp.
 .PP
 Referenced by Server::FindModule().
 .SS "std::vector<\fBstd::string\fP> \fBmodule_names\fP"
 .PP
-Referenced by Server::FindModule().
 .SS "std::vector<\fBModule\fP*> modules"
 .PP
 Referenced by Server::FindModule().
-.SS "char \fBmotd\fP[MAXBUF]"
-.PP
-.SS "time_t \fBnb_start\fP"
-.PP
-.SS "int \fBNetBufferSize\fP"
-.PP
-.SS "char \fBNetwork\fP[MAXBUF]"
-.PP
-.SS "int \fBportCount\fP"
-.PP
-.SS "int \fBports\fP[MAXSOCKS]"
-.PP
-.SS "char \fBPrefixQuit\fP[MAXBUF]"
-.PP
-.SS "char \fBrestartpass\fP[MAXBUF]"
-.PP
-.SS "char \fBrules\fP[MAXBUF]"
-.PP
-.SS "char \fBServerDesc\fP[MAXBUF]"
-.PP
-.SS "char \fBServerName\fP[MAXBUF]"
-.PP
-Referenced by userrec::userrec().
 .SS "time_t \fBstartup_time\fP"
 .PP
 .SS "time_t \fBTIME\fP"

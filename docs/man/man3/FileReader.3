@@ -1,4 +1,4 @@
-.TH "FileReader" 3 "12 Dec 2005" "Version 1.0Betareleases" "InspIRCd" \" -*- nroff -*-
+.TH "FileReader" 3 "14 Dec 2005" "Version 1.0Betareleases" "InspIRCd" \" -*- nroff -*-
 .ad l
 .nh
 .SH NAME
@@ -57,7 +57,7 @@ Caches a text file into memory and can be used to retrieve lines from it.
 
 This class contains methods for read-only manipulation of a text file in memory. Either use the constructor type with one parameter to load a file into memory at construction, or use the LoadFile method to load a file.
 .PP
-Definition at line 1599 of file modules.h.
+Definition at line 1614 of file modules.h.
 .SH "Constructor & Destructor Documentation"
 .PP 
 .SS "FileReader::FileReader ()"
@@ -66,11 +66,11 @@ Default constructor.
 .PP
 This method does not load any file into memory, you must use the LoadFile method after constructing the class this way.
 .PP
-Definition at line 961 of file modules.cpp.
+Definition at line 889 of file modules.cpp.
 .PP
 .nf
-962 {
-963 }
+890 {
+891 }
 .fi
 .PP
 .SS "FileReader::FileReader (\fBstd::string\fP filename)"
@@ -79,16 +79,16 @@ Secondary constructor.
 .PP
 This method initialises the class with a file loaded into it ready for GetLine and and other methods to be called. If the file could not be loaded, \fBFileReader::FileSize\fP returns 0.
 .PP
-Definition at line 954 of file modules.cpp.
+Definition at line 882 of file modules.cpp.
 .PP
 References fc.
 .PP
 .nf
-955 {
-956         file_cache c;
-957         readfile(c,filename.c_str());
-958         this->fc = c;
-959 }
+883 {
+884         file_cache c;
+885         readfile(c,filename.c_str());
+886         this->fc = c;
+887 }
 .fi
 .PP
 .SS "FileReader::~FileReader ()"
@@ -97,11 +97,11 @@ Default destructor.
 .PP
 This deletes the memory allocated to the file.
 .PP
-Definition at line 973 of file modules.cpp.
+Definition at line 901 of file modules.cpp.
 .PP
 .nf
-974 {
-975 }
+902 {
+903 }
 .fi
 .PP
 .SH "Member Function Documentation"
@@ -110,21 +110,21 @@ Definition at line 973 of file modules.cpp.
 .PP
 Returns true if the file exists This function will return false if the file could not be opened. 
 .PP
-Definition at line 977 of file modules.cpp.
+Definition at line 905 of file modules.cpp.
 .PP
 References fc.
 .PP
 .nf
-978 {
-979         if (fc.size() == 0)
-980         {
-981                 return(false);
-982         }
-983         else
-984         {
-985                 return(true);
-986         }
-987 }
+906 {
+907         if (fc.size() == 0)
+908         {
+909                 return(false);
+910         }
+911         else
+912         {
+913                 return(true);
+914         }
+915 }
 .fi
 .PP
 .SS "int FileReader::FileSize ()"
@@ -133,14 +133,14 @@ Returns the size of the file in lines.
 .PP
 This method returns the number of lines in the read file. If it is 0, no lines have been read into memory, either because the file is empty or it does not exist, or cannot be opened due to permission problems.
 .PP
-Definition at line 996 of file modules.cpp.
+Definition at line 924 of file modules.cpp.
 .PP
 References fc.
 .PP
 .nf
-997 {
-998         return fc.size();
-999 }
+925 {
+926         return fc.size();
+927 }
 .fi
 .PP
 .SS "\fBstd::string\fP FileReader::GetLine (int x)"
@@ -149,16 +149,16 @@ Retrieve one line from the file.
 .PP
 This method retrieves one line from the text file. If an empty non-NULL string is returned, the index was out of bounds, or the line had no data on it.
 .PP
-Definition at line 989 of file modules.cpp.
+Definition at line 917 of file modules.cpp.
 .PP
 References fc.
 .PP
 .nf
-990 {
-991         if ((x<0) || ((unsigned)x>fc.size()))
-992                 return '';
-993         return fc[x];
-994 }
+918 {
+919         if ((x<0) || ((unsigned)x>fc.size()))
+920                 return '';
+921         return fc[x];
+922 }
 .fi
 .PP
 .SS "void FileReader::LoadFile (\fBstd::string\fP filename)"
@@ -167,23 +167,23 @@ Used to load a file.
 .PP
 This method loads a file into the class ready for GetLine and and other methods to be called. If the file could not be loaded, \fBFileReader::FileSize\fP returns 0.
 .PP
-Definition at line 965 of file modules.cpp.
+Definition at line 893 of file modules.cpp.
 .PP
 References fc.
 .PP
 .nf
-966 {
-967         file_cache c;
-968         readfile(c,filename.c_str());
-969         this->fc = c;
-970 }
+894 {
+895         file_cache c;
+896         readfile(c,filename.c_str());
+897         this->fc = c;
+898 }
 .fi
 .PP
 .SH "Member Data Documentation"
 .PP 
 .SS "\fBfile_cache\fP \fBFileReader::fc\fP\fC [private]\fP"
 .PP
-Definition at line 1601 of file modules.h.
+Definition at line 1616 of file modules.h.
 .PP
 Referenced by Exists(), FileReader(), FileSize(), GetLine(), and LoadFile().
 

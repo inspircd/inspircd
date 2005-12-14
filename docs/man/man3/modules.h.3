@@ -1,4 +1,4 @@
-.TH "modules.h" 3 "12 Dec 2005" "Version 1.0Betareleases" "InspIRCd" \" -*- nroff -*-
+.TH "modules.h" 3 "14 Dec 2005" "Version 1.0Betareleases" "InspIRCd" \" -*- nroff -*-
 .ad l
 .nh
 .SH NAME
@@ -44,6 +44,10 @@ modules.h \-
 .RI "class \fBEvent\fP"
 .br
 .RI "\fIThe Event class is a unicast message directed at all modules. \fP"
+.ti -1c
+.RI "class \fBExtMode\fP"
+.br
+.RI "\fIHolds an extended mode's details. \fP"
 .ti -1c
 .RI "class \fBModule\fP"
 .br
@@ -238,22 +242,22 @@ Referenced by Module::OnAccessCheck().
 Definition at line 38 of file modules.h.
 .SS "#define CONF_FILE_NOT_FOUND   0x000200"
 .PP
-Definition at line 1501 of file modules.h.
+Definition at line 1516 of file modules.h.
 .PP
 Referenced by ConfigReader::ConfigReader().
 .SS "#define CONF_NOT_A_NUMBER   0x000010"
 .PP
-Definition at line 1498 of file modules.h.
+Definition at line 1513 of file modules.h.
 .PP
 Referenced by ConfigReader::ReadInteger().
 .SS "#define CONF_NOT_UNSIGNED   0x000080"
 .PP
-Definition at line 1499 of file modules.h.
+Definition at line 1514 of file modules.h.
 .PP
 Referenced by ConfigReader::ReadInteger().
 .SS "#define CONF_VALUE_NOT_FOUND   0x000100"
 .PP
-Definition at line 1500 of file modules.h.
+Definition at line 1515 of file modules.h.
 .PP
 Referenced by ConfigReader::ReadFlag(), ConfigReader::ReadInteger(), and ConfigReader::ReadValue().
 .SS "#define DEBUG   10"
@@ -261,8 +265,6 @@ Referenced by ConfigReader::ReadFlag(), ConfigReader::ReadInteger(), and ConfigR
 log levels 
 .PP
 Definition at line 23 of file modules.h.
-.PP
-Referenced by Server::AddExtendedMode(), SocketEngine::AddFd(), chanrec::AddUser(), SocketEngine::DelFd(), chanrec::DelUser(), InspSocket::InspSocket(), InspSocket::Read(), userrec::ReadData(), userrec::RemoveInvite(), chanrec::SetCustomMode(), chanrec::SetCustomModeParam(), InspSocket::SetState(), userrec::SetWriteError(), SocketEngine::SocketEngine(), SocketEngine::Wait(), and SocketEngine::~SocketEngine().
 .SS "#define DEFAULT   30"
 .PP
 Definition at line 25 of file modules.h.
@@ -349,7 +351,7 @@ Low level definition of a \fBFileReader\fP classes file cache area.
 Definition at line 65 of file modules.h.
 .SS "typedef DLLFactory<\fBModuleFactory\fP> \fBircd_module\fP"
 .PP
-Definition at line 1667 of file modules.h.
+Definition at line 1682 of file modules.h.
 .SS "typedef \fBfile_cache\fP \fBstring_list\fP"
 .PP
 Definition at line 70 of file modules.h.

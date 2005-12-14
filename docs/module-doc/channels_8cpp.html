@@ -9,7 +9,7 @@
 <a class="el" href="dir_000000.html">home</a>&nbsp;&raquo&nbsp;<a class="el" href="dir_000001.html">brain</a>&nbsp;&raquo&nbsp;<a class="el" href="dir_000002.html">inspircd-cvs</a>&nbsp;&raquo&nbsp;<a class="el" href="dir_000003.html">inspircd</a>&nbsp;&raquo&nbsp;<a class="el" href="dir_000005.html">src</a></div>
 <h1>channels.cpp File Reference</h1><code>#include &quot;inspircd_config.h&quot;</code><br>
 <code>#include &quot;inspircd.h&quot;</code><br>
-<code>#include &quot;inspircd_io.h&quot;</code><br>
+<code>#include &quot;<a class="el" href="inspircd__io_8h-source.html">inspircd_io.h</a>&quot;</code><br>
 <code>#include &quot;inspircd_util.h&quot;</code><br>
 <code>#include &lt;unistd.h&gt;</code><br>
 <code>#include &lt;sys/errno.h&gt;</code><br>
@@ -37,12 +37,13 @@
 <p>
 Include dependency graph for channels.cpp:<p><center><img src="channels_8cpp__incl.gif" border="0" usemap="#channels.cpp_map" alt=""></center>
 <map name="channels.cpp_map">
-<area href="users_8h-source.html" shape="rect" coords="324,1002,388,1028" alt="">
-<area href="ctables_8h-source.html" shape="rect" coords="319,355,393,382" alt="">
-<area href="modules_8h-source.html" shape="rect" coords="169,748,252,775" alt="">
-<area href="message_8h-source.html" shape="rect" coords="168,1052,253,1079" alt="">
-<area href="mode_8h-source.html" shape="rect" coords="177,1154,244,1180" alt="">
-<area href="xline_8h-source.html" shape="rect" coords="180,850,241,876" alt="">
+<area href="inspircd__io_8h-source.html" shape="rect" coords="163,513,259,540" alt="">
+<area href="users_8h-source.html" shape="rect" coords="324,159,388,185" alt="">
+<area href="ctables_8h-source.html" shape="rect" coords="319,513,393,540" alt="">
+<area href="modules_8h-source.html" shape="rect" coords="169,463,252,489" alt="">
+<area href="message_8h-source.html" shape="rect" coords="168,209,253,236" alt="">
+<area href="mode_8h-source.html" shape="rect" coords="177,311,244,337" alt="">
+<area href="xline_8h-source.html" shape="rect" coords="180,159,241,185" alt="">
 </map>
 
 <p>
@@ -55,67 +56,25 @@ Include dependency graph for channels.cpp:<p><center><img src="channels_8cpp__in
 <tr><td class="memItemLeft" nowrap align="right" valign="top">#define&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="channels_8cpp.html#nspace">nspace</a>&nbsp;&nbsp;&nbsp;std</td></tr>
 
 <tr><td colspan="2"><br><h2>Variables</h2></td></tr>
+<tr><td class="memItemLeft" nowrap align="right" valign="top"><a class="el" href="classServerConfig.html">ServerConfig</a> *&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="channels_8cpp.html#Config">Config</a></td></tr>
+
 <tr><td class="memItemLeft" nowrap align="right" valign="top">int&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="channels_8cpp.html#MODCOUNT">MODCOUNT</a> = -1</td></tr>
 
 <tr><td class="memItemLeft" nowrap align="right" valign="top">std::vector&lt; <a class="el" href="classModule.html">Module</a> * &gt;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="channels_8cpp.html#modules">modules</a></td></tr>
 
 <tr><td class="memItemLeft" nowrap align="right" valign="top">std::vector&lt; <a class="el" href="modules_8h.html#ircd_5Fmodule">ircd_module</a> * &gt;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="channels_8cpp.html#factory">factory</a></td></tr>
 
-<tr><td class="memItemLeft" nowrap align="right" valign="top">int&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="channels_8cpp.html#LogLevel">LogLevel</a></td></tr>
-
-<tr><td class="memItemLeft" nowrap align="right" valign="top">char&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="channels_8cpp.html#ServerName_5BMAXBUF_5D">ServerName</a> [MAXBUF]</td></tr>
-
-<tr><td class="memItemLeft" nowrap align="right" valign="top">char&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="channels_8cpp.html#Network_5BMAXBUF_5D">Network</a> [MAXBUF]</td></tr>
-
-<tr><td class="memItemLeft" nowrap align="right" valign="top">char&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="channels_8cpp.html#ServerDesc_5BMAXBUF_5D">ServerDesc</a> [MAXBUF]</td></tr>
-
-<tr><td class="memItemLeft" nowrap align="right" valign="top">char&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="channels_8cpp.html#AdminName_5BMAXBUF_5D">AdminName</a> [MAXBUF]</td></tr>
-
-<tr><td class="memItemLeft" nowrap align="right" valign="top">char&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="channels_8cpp.html#AdminEmail_5BMAXBUF_5D">AdminEmail</a> [MAXBUF]</td></tr>
-
-<tr><td class="memItemLeft" nowrap align="right" valign="top">char&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="channels_8cpp.html#AdminNick_5BMAXBUF_5D">AdminNick</a> [MAXBUF]</td></tr>
-
-<tr><td class="memItemLeft" nowrap align="right" valign="top">char&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="channels_8cpp.html#diepass_5BMAXBUF_5D">diepass</a> [MAXBUF]</td></tr>
-
-<tr><td class="memItemLeft" nowrap align="right" valign="top">char&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="channels_8cpp.html#restartpass_5BMAXBUF_5D">restartpass</a> [MAXBUF]</td></tr>
-
-<tr><td class="memItemLeft" nowrap align="right" valign="top">char&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="channels_8cpp.html#motd_5BMAXBUF_5D">motd</a> [MAXBUF]</td></tr>
-
-<tr><td class="memItemLeft" nowrap align="right" valign="top">char&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="channels_8cpp.html#rules_5BMAXBUF_5D">rules</a> [MAXBUF]</td></tr>
-
-<tr><td class="memItemLeft" nowrap align="right" valign="top">char&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="channels_8cpp.html#list_5BMAXBUF_5D">list</a> [MAXBUF]</td></tr>
-
-<tr><td class="memItemLeft" nowrap align="right" valign="top">char&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="channels_8cpp.html#PrefixQuit_5BMAXBUF_5D">PrefixQuit</a> [MAXBUF]</td></tr>
-
-<tr><td class="memItemLeft" nowrap align="right" valign="top">char&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="channels_8cpp.html#DieValue_5BMAXBUF_5D">DieValue</a> [MAXBUF]</td></tr>
-
-<tr><td class="memItemLeft" nowrap align="right" valign="top">int&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="channels_8cpp.html#debugging">debugging</a></td></tr>
-
 <tr><td class="memItemLeft" nowrap align="right" valign="top">int&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="channels_8cpp.html#WHOWAS_5FSTALE">WHOWAS_STALE</a></td></tr>
 
 <tr><td class="memItemLeft" nowrap align="right" valign="top">int&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="channels_8cpp.html#WHOWAS_5FMAX">WHOWAS_MAX</a></td></tr>
 
-<tr><td class="memItemLeft" nowrap align="right" valign="top">int&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="channels_8cpp.html#DieDelay">DieDelay</a></td></tr>
-
 <tr><td class="memItemLeft" nowrap align="right" valign="top">time_t&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="channels_8cpp.html#startup_5Ftime">startup_time</a></td></tr>
-
-<tr><td class="memItemLeft" nowrap align="right" valign="top">int&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="channels_8cpp.html#NetBufferSize">NetBufferSize</a></td></tr>
-
-<tr><td class="memItemLeft" nowrap align="right" valign="top">int&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="channels_8cpp.html#MaxWhoResults">MaxWhoResults</a></td></tr>
-
-<tr><td class="memItemLeft" nowrap align="right" valign="top">time_t&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="channels_8cpp.html#nb_5Fstart">nb_start</a></td></tr>
 
 <tr><td class="memItemLeft" nowrap align="right" valign="top">std::vector&lt; <a class="el" href="namespaceirc.html#string">std::string</a> &gt;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="channels_8cpp.html#module_5Fnames">module_names</a></td></tr>
 
 <tr><td class="memItemLeft" nowrap align="right" valign="top">int&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="channels_8cpp.html#boundPortCount">boundPortCount</a></td></tr>
 
-<tr><td class="memItemLeft" nowrap align="right" valign="top">int&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="channels_8cpp.html#portCount">portCount</a></td></tr>
-
-<tr><td class="memItemLeft" nowrap align="right" valign="top">int&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="channels_8cpp.html#ports_5BMAXSOCKS_5D">ports</a> [MAXSOCKS]</td></tr>
-
 <tr><td class="memItemLeft" nowrap align="right" valign="top">std::stringstream&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="channels_8cpp.html#config_5Ff">config_f</a></td></tr>
-
-<tr><td class="memItemLeft" nowrap align="right" valign="top">FILE *&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="channels_8cpp.html#log_5Ffile">log_file</a></td></tr>
 
 <tr><td class="memItemLeft" nowrap align="right" valign="top">time_t&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="channels_8cpp.html#TIME">TIME</a></td></tr>
 
@@ -149,75 +108,6 @@ Definition at line <a class="el" href="channels_8cpp-source.html#l00053">53</a> 
   </tr>
 </table>
 <hr><h2>Variable Documentation</h2>
-<a class="anchor" name="AdminEmail_5BMAXBUF_5D"></a><!-- doxytag: member="channels.cpp::AdminEmail" ref="AdminEmail_5BMAXBUF_5D" args="[MAXBUF]" --><p>
-<table class="mdTable" cellpadding="2" cellspacing="0">
-  <tr>
-    <td class="mdRow">
-      <table cellpadding="0" cellspacing="0" border="0">
-        <tr>
-          <td class="md" nowrap valign="top">char <a class="el" href="modules_8cpp.html#AdminEmail_5BMAXBUF_5D">AdminEmail</a>[MAXBUF]          </td>
-        </tr>
-      </table>
-    </td>
-  </tr>
-</table>
-<table cellspacing="5" cellpadding="0" border="0">
-  <tr>
-    <td>
-      &nbsp;
-    </td>
-    <td>
-
-<p>
-    </td>
-  </tr>
-</table>
-<a class="anchor" name="AdminName_5BMAXBUF_5D"></a><!-- doxytag: member="channels.cpp::AdminName" ref="AdminName_5BMAXBUF_5D" args="[MAXBUF]" --><p>
-<table class="mdTable" cellpadding="2" cellspacing="0">
-  <tr>
-    <td class="mdRow">
-      <table cellpadding="0" cellspacing="0" border="0">
-        <tr>
-          <td class="md" nowrap valign="top">char <a class="el" href="modules_8cpp.html#AdminName_5BMAXBUF_5D">AdminName</a>[MAXBUF]          </td>
-        </tr>
-      </table>
-    </td>
-  </tr>
-</table>
-<table cellspacing="5" cellpadding="0" border="0">
-  <tr>
-    <td>
-      &nbsp;
-    </td>
-    <td>
-
-<p>
-    </td>
-  </tr>
-</table>
-<a class="anchor" name="AdminNick_5BMAXBUF_5D"></a><!-- doxytag: member="channels.cpp::AdminNick" ref="AdminNick_5BMAXBUF_5D" args="[MAXBUF]" --><p>
-<table class="mdTable" cellpadding="2" cellspacing="0">
-  <tr>
-    <td class="mdRow">
-      <table cellpadding="0" cellspacing="0" border="0">
-        <tr>
-          <td class="md" nowrap valign="top">char <a class="el" href="modules_8cpp.html#AdminNick_5BMAXBUF_5D">AdminNick</a>[MAXBUF]          </td>
-        </tr>
-      </table>
-    </td>
-  </tr>
-</table>
-<table cellspacing="5" cellpadding="0" border="0">
-  <tr>
-    <td>
-      &nbsp;
-    </td>
-    <td>
-
-<p>
-    </td>
-  </tr>
-</table>
 <a class="anchor" name="boundPortCount"></a><!-- doxytag: member="channels.cpp::boundPortCount" ref="boundPortCount" args="" --><p>
 <table class="mdTable" cellpadding="2" cellspacing="0">
   <tr>
@@ -241,13 +131,13 @@ Definition at line <a class="el" href="channels_8cpp-source.html#l00053">53</a> 
     </td>
   </tr>
 </table>
-<a class="anchor" name="config_5Ff"></a><!-- doxytag: member="channels.cpp::config_f" ref="config_5Ff" args="" --><p>
+<a class="anchor" name="Config"></a><!-- doxytag: member="channels.cpp::Config" ref="Config" args="" --><p>
 <table class="mdTable" cellpadding="2" cellspacing="0">
   <tr>
     <td class="mdRow">
       <table cellpadding="0" cellspacing="0" border="0">
         <tr>
-          <td class="md" nowrap valign="top">std::stringstream <a class="el" href="users_8cpp.html#config_5Ff">config_f</a>          </td>
+          <td class="md" nowrap valign="top"><a class="el" href="classServerConfig.html">ServerConfig</a>* <a class="el" href="users_8cpp.html#Config">Config</a>          </td>
         </tr>
       </table>
     </td>
@@ -261,9 +151,30 @@ Definition at line <a class="el" href="channels_8cpp-source.html#l00053">53</a> 
     <td>
 
 <p>
+    </td>
+  </tr>
+</table>
+<a class="anchor" name="config_5Ff"></a><!-- doxytag: member="channels.cpp::config_f" ref="config_5Ff" args="" --><p>
+<table class="mdTable" cellpadding="2" cellspacing="0">
+  <tr>
+    <td class="mdRow">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top">std::stringstream <a class="el" href="channels_8cpp.html#config_5Ff">config_f</a>          </td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing="5" cellpadding="0" border="0">
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
 
 <p>
-Referenced by <a class="el" href="users_8cpp-source.html#l00151">userrec::HasPermission()</a>.    </td>
+    </td>
   </tr>
 </table>
 <a class="anchor" name="custom_5Fmode_5Fparams"></a><!-- doxytag: member="channels.cpp::custom_mode_params" ref="custom_5Fmode_5Fparams" args="" --><p>
@@ -288,101 +199,9 @@ Referenced by <a class="el" href="users_8cpp-source.html#l00151">userrec::HasPer
 <p>
 
 <p>
-Definition at line <a class="el" href="channels_8cpp-source.html#l00099">99</a> of file <a class="el" href="channels_8cpp-source.html">channels.cpp</a>.
+Definition at line <a class="el" href="channels_8cpp-source.html#l00071">71</a> of file <a class="el" href="channels_8cpp-source.html">channels.cpp</a>.
 <p>
-Referenced by <a class="el" href="channels_8cpp-source.html#l00174">chanrec::GetModeParameter()</a>, and <a class="el" href="channels_8cpp-source.html#l00138">chanrec::SetCustomModeParam()</a>.    </td>
-  </tr>
-</table>
-<a class="anchor" name="debugging"></a><!-- doxytag: member="channels.cpp::debugging" ref="debugging" args="" --><p>
-<table class="mdTable" cellpadding="2" cellspacing="0">
-  <tr>
-    <td class="mdRow">
-      <table cellpadding="0" cellspacing="0" border="0">
-        <tr>
-          <td class="md" nowrap valign="top">int <a class="el" href="modules_8cpp.html#debugging">debugging</a>          </td>
-        </tr>
-      </table>
-    </td>
-  </tr>
-</table>
-<table cellspacing="5" cellpadding="0" border="0">
-  <tr>
-    <td>
-      &nbsp;
-    </td>
-    <td>
-
-<p>
-    </td>
-  </tr>
-</table>
-<a class="anchor" name="DieDelay"></a><!-- doxytag: member="channels.cpp::DieDelay" ref="DieDelay" args="" --><p>
-<table class="mdTable" cellpadding="2" cellspacing="0">
-  <tr>
-    <td class="mdRow">
-      <table cellpadding="0" cellspacing="0" border="0">
-        <tr>
-          <td class="md" nowrap valign="top">int <a class="el" href="modules_8cpp.html#DieDelay">DieDelay</a>          </td>
-        </tr>
-      </table>
-    </td>
-  </tr>
-</table>
-<table cellspacing="5" cellpadding="0" border="0">
-  <tr>
-    <td>
-      &nbsp;
-    </td>
-    <td>
-
-<p>
-    </td>
-  </tr>
-</table>
-<a class="anchor" name="diepass_5BMAXBUF_5D"></a><!-- doxytag: member="channels.cpp::diepass" ref="diepass_5BMAXBUF_5D" args="[MAXBUF]" --><p>
-<table class="mdTable" cellpadding="2" cellspacing="0">
-  <tr>
-    <td class="mdRow">
-      <table cellpadding="0" cellspacing="0" border="0">
-        <tr>
-          <td class="md" nowrap valign="top">char <a class="el" href="modules_8cpp.html#diepass_5BMAXBUF_5D">diepass</a>[MAXBUF]          </td>
-        </tr>
-      </table>
-    </td>
-  </tr>
-</table>
-<table cellspacing="5" cellpadding="0" border="0">
-  <tr>
-    <td>
-      &nbsp;
-    </td>
-    <td>
-
-<p>
-    </td>
-  </tr>
-</table>
-<a class="anchor" name="DieValue_5BMAXBUF_5D"></a><!-- doxytag: member="channels.cpp::DieValue" ref="DieValue_5BMAXBUF_5D" args="[MAXBUF]" --><p>
-<table class="mdTable" cellpadding="2" cellspacing="0">
-  <tr>
-    <td class="mdRow">
-      <table cellpadding="0" cellspacing="0" border="0">
-        <tr>
-          <td class="md" nowrap valign="top">char <a class="el" href="modules_8cpp.html#DieValue_5BMAXBUF_5D">DieValue</a>[MAXBUF]          </td>
-        </tr>
-      </table>
-    </td>
-  </tr>
-</table>
-<table cellspacing="5" cellpadding="0" border="0">
-  <tr>
-    <td>
-      &nbsp;
-    </td>
-    <td>
-
-<p>
-    </td>
+Referenced by <a class="el" href="channels_8cpp-source.html#l00146">chanrec::GetModeParameter()</a>, and <a class="el" href="channels_8cpp-source.html#l00110">chanrec::SetCustomModeParam()</a>.    </td>
   </tr>
 </table>
 <a class="anchor" name="factory"></a><!-- doxytag: member="channels.cpp::factory" ref="factory" args="" --><p>
@@ -408,102 +227,6 @@ Referenced by <a class="el" href="channels_8cpp-source.html#l00174">chanrec::Get
     </td>
   </tr>
 </table>
-<a class="anchor" name="list_5BMAXBUF_5D"></a><!-- doxytag: member="channels.cpp::list" ref="list_5BMAXBUF_5D" args="[MAXBUF]" --><p>
-<table class="mdTable" cellpadding="2" cellspacing="0">
-  <tr>
-    <td class="mdRow">
-      <table cellpadding="0" cellspacing="0" border="0">
-        <tr>
-          <td class="md" nowrap valign="top">char <a class="el" href="modules_8cpp.html#list_5BMAXBUF_5D">list</a>[MAXBUF]          </td>
-        </tr>
-      </table>
-    </td>
-  </tr>
-</table>
-<table cellspacing="5" cellpadding="0" border="0">
-  <tr>
-    <td>
-      &nbsp;
-    </td>
-    <td>
-
-<p>
-
-<p>
-Referenced by <a class="el" href="modules_8cpp-source.html#l00445">Server::GetUsers()</a>.    </td>
-  </tr>
-</table>
-<a class="anchor" name="log_5Ffile"></a><!-- doxytag: member="channels.cpp::log_file" ref="log_5Ffile" args="" --><p>
-<table class="mdTable" cellpadding="2" cellspacing="0">
-  <tr>
-    <td class="mdRow">
-      <table cellpadding="0" cellspacing="0" border="0">
-        <tr>
-          <td class="md" nowrap valign="top">FILE* <a class="el" href="socket_8cpp.html#log_5Ffile">log_file</a>          </td>
-        </tr>
-      </table>
-    </td>
-  </tr>
-</table>
-<table cellspacing="5" cellpadding="0" border="0">
-  <tr>
-    <td>
-      &nbsp;
-    </td>
-    <td>
-
-<p>
-    </td>
-  </tr>
-</table>
-<a class="anchor" name="LogLevel"></a><!-- doxytag: member="channels.cpp::LogLevel" ref="LogLevel" args="" --><p>
-<table class="mdTable" cellpadding="2" cellspacing="0">
-  <tr>
-    <td class="mdRow">
-      <table cellpadding="0" cellspacing="0" border="0">
-        <tr>
-          <td class="md" nowrap valign="top">int <a class="el" href="modules_8cpp.html#LogLevel">LogLevel</a>          </td>
-        </tr>
-      </table>
-    </td>
-  </tr>
-</table>
-<table cellspacing="5" cellpadding="0" border="0">
-  <tr>
-    <td>
-      &nbsp;
-    </td>
-    <td>
-
-<p>
-    </td>
-  </tr>
-</table>
-<a class="anchor" name="MaxWhoResults"></a><!-- doxytag: member="channels.cpp::MaxWhoResults" ref="MaxWhoResults" args="" --><p>
-<table class="mdTable" cellpadding="2" cellspacing="0">
-  <tr>
-    <td class="mdRow">
-      <table cellpadding="0" cellspacing="0" border="0">
-        <tr>
-          <td class="md" nowrap valign="top">int <a class="el" href="modules_8cpp.html#MaxWhoResults">MaxWhoResults</a>          </td>
-        </tr>
-      </table>
-    </td>
-  </tr>
-</table>
-<table cellspacing="5" cellpadding="0" border="0">
-  <tr>
-    <td>
-      &nbsp;
-    </td>
-    <td>
-
-<p>
-
-<p>
-Definition at line <a class="el" href="channels_8cpp-source.html#l00081">81</a> of file <a class="el" href="channels_8cpp-source.html">channels.cpp</a>.    </td>
-  </tr>
-</table>
 <a class="anchor" name="MODCOUNT"></a><!-- doxytag: member="channels.cpp::MODCOUNT" ref="MODCOUNT" args="" --><p>
 <table class="mdTable" cellpadding="2" cellspacing="0">
   <tr>
@@ -526,9 +249,9 @@ Definition at line <a class="el" href="channels_8cpp-source.html#l00081">81</a> 
 <p>
 
 <p>
-Definition at line <a class="el" href="modules_8cpp-source.html#l01005">1005</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
+Definition at line <a class="el" href="modules_8cpp-source.html#l00933">933</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
 <p>
-Referenced by <a class="el" href="modules_8cpp-source.html#l00795">Server::FindModule()</a>.    </td>
+Referenced by <a class="el" href="modules_8cpp-source.html#l00722">Server::FindModule()</a>.    </td>
   </tr>
 </table>
 <a class="anchor" name="module_5Fnames"></a><!-- doxytag: member="channels.cpp::module_names" ref="module_5Fnames" args="" --><p>
@@ -537,7 +260,7 @@ Referenced by <a class="el" href="modules_8cpp-source.html#l00795">Server::FindM
     <td class="mdRow">
       <table cellpadding="0" cellspacing="0" border="0">
         <tr>
-          <td class="md" nowrap valign="top">std::vector&lt;<a class="el" href="namespaceirc.html#string">std::string</a>&gt; <a class="el" href="modules_8cpp.html#module_5Fnames">module_names</a>          </td>
+          <td class="md" nowrap valign="top">std::vector&lt;<a class="el" href="namespaceirc.html#string">std::string</a>&gt; <a class="el" href="channels_8cpp.html#module_5Fnames">module_names</a>          </td>
         </tr>
       </table>
     </td>
@@ -551,9 +274,7 @@ Referenced by <a class="el" href="modules_8cpp-source.html#l00795">Server::FindM
     <td>
 
 <p>
-
-<p>
-Referenced by <a class="el" href="modules_8cpp-source.html#l00795">Server::FindModule()</a>.    </td>
+    </td>
   </tr>
 </table>
 <a class="anchor" name="modules"></a><!-- doxytag: member="channels.cpp::modules" ref="modules" args="" --><p>
@@ -578,262 +299,7 @@ Referenced by <a class="el" href="modules_8cpp-source.html#l00795">Server::FindM
 <p>
 
 <p>
-Referenced by <a class="el" href="modules_8cpp-source.html#l00795">Server::FindModule()</a>.    </td>
-  </tr>
-</table>
-<a class="anchor" name="motd_5BMAXBUF_5D"></a><!-- doxytag: member="channels.cpp::motd" ref="motd_5BMAXBUF_5D" args="[MAXBUF]" --><p>
-<table class="mdTable" cellpadding="2" cellspacing="0">
-  <tr>
-    <td class="mdRow">
-      <table cellpadding="0" cellspacing="0" border="0">
-        <tr>
-          <td class="md" nowrap valign="top">char <a class="el" href="modules_8cpp.html#motd_5BMAXBUF_5D">motd</a>[MAXBUF]          </td>
-        </tr>
-      </table>
-    </td>
-  </tr>
-</table>
-<table cellspacing="5" cellpadding="0" border="0">
-  <tr>
-    <td>
-      &nbsp;
-    </td>
-    <td>
-
-<p>
-    </td>
-  </tr>
-</table>
-<a class="anchor" name="nb_5Fstart"></a><!-- doxytag: member="channels.cpp::nb_start" ref="nb_5Fstart" args="" --><p>
-<table class="mdTable" cellpadding="2" cellspacing="0">
-  <tr>
-    <td class="mdRow">
-      <table cellpadding="0" cellspacing="0" border="0">
-        <tr>
-          <td class="md" nowrap valign="top">time_t <a class="el" href="modules_8cpp.html#nb_5Fstart">nb_start</a>          </td>
-        </tr>
-      </table>
-    </td>
-  </tr>
-</table>
-<table cellspacing="5" cellpadding="0" border="0">
-  <tr>
-    <td>
-      &nbsp;
-    </td>
-    <td>
-
-<p>
-    </td>
-  </tr>
-</table>
-<a class="anchor" name="NetBufferSize"></a><!-- doxytag: member="channels.cpp::NetBufferSize" ref="NetBufferSize" args="" --><p>
-<table class="mdTable" cellpadding="2" cellspacing="0">
-  <tr>
-    <td class="mdRow">
-      <table cellpadding="0" cellspacing="0" border="0">
-        <tr>
-          <td class="md" nowrap valign="top">int <a class="el" href="modules_8cpp.html#NetBufferSize">NetBufferSize</a>          </td>
-        </tr>
-      </table>
-    </td>
-  </tr>
-</table>
-<table cellspacing="5" cellpadding="0" border="0">
-  <tr>
-    <td>
-      &nbsp;
-    </td>
-    <td>
-
-<p>
-    </td>
-  </tr>
-</table>
-<a class="anchor" name="Network_5BMAXBUF_5D"></a><!-- doxytag: member="channels.cpp::Network" ref="Network_5BMAXBUF_5D" args="[MAXBUF]" --><p>
-<table class="mdTable" cellpadding="2" cellspacing="0">
-  <tr>
-    <td class="mdRow">
-      <table cellpadding="0" cellspacing="0" border="0">
-        <tr>
-          <td class="md" nowrap valign="top">char <a class="el" href="modules_8cpp.html#Network_5BMAXBUF_5D">Network</a>[MAXBUF]          </td>
-        </tr>
-      </table>
-    </td>
-  </tr>
-</table>
-<table cellspacing="5" cellpadding="0" border="0">
-  <tr>
-    <td>
-      &nbsp;
-    </td>
-    <td>
-
-<p>
-    </td>
-  </tr>
-</table>
-<a class="anchor" name="portCount"></a><!-- doxytag: member="channels.cpp::portCount" ref="portCount" args="" --><p>
-<table class="mdTable" cellpadding="2" cellspacing="0">
-  <tr>
-    <td class="mdRow">
-      <table cellpadding="0" cellspacing="0" border="0">
-        <tr>
-          <td class="md" nowrap valign="top">int <a class="el" href="modules_8cpp.html#portCount">portCount</a>          </td>
-        </tr>
-      </table>
-    </td>
-  </tr>
-</table>
-<table cellspacing="5" cellpadding="0" border="0">
-  <tr>
-    <td>
-      &nbsp;
-    </td>
-    <td>
-
-<p>
-    </td>
-  </tr>
-</table>
-<a class="anchor" name="ports_5BMAXSOCKS_5D"></a><!-- doxytag: member="channels.cpp::ports" ref="ports_5BMAXSOCKS_5D" args="[MAXSOCKS]" --><p>
-<table class="mdTable" cellpadding="2" cellspacing="0">
-  <tr>
-    <td class="mdRow">
-      <table cellpadding="0" cellspacing="0" border="0">
-        <tr>
-          <td class="md" nowrap valign="top">int <a class="el" href="modules_8cpp.html#ports_5BMAXSOCKS_5D">ports</a>[MAXSOCKS]          </td>
-        </tr>
-      </table>
-    </td>
-  </tr>
-</table>
-<table cellspacing="5" cellpadding="0" border="0">
-  <tr>
-    <td>
-      &nbsp;
-    </td>
-    <td>
-
-<p>
-    </td>
-  </tr>
-</table>
-<a class="anchor" name="PrefixQuit_5BMAXBUF_5D"></a><!-- doxytag: member="channels.cpp::PrefixQuit" ref="PrefixQuit_5BMAXBUF_5D" args="[MAXBUF]" --><p>
-<table class="mdTable" cellpadding="2" cellspacing="0">
-  <tr>
-    <td class="mdRow">
-      <table cellpadding="0" cellspacing="0" border="0">
-        <tr>
-          <td class="md" nowrap valign="top">char <a class="el" href="modules_8cpp.html#PrefixQuit_5BMAXBUF_5D">PrefixQuit</a>[MAXBUF]          </td>
-        </tr>
-      </table>
-    </td>
-  </tr>
-</table>
-<table cellspacing="5" cellpadding="0" border="0">
-  <tr>
-    <td>
-      &nbsp;
-    </td>
-    <td>
-
-<p>
-    </td>
-  </tr>
-</table>
-<a class="anchor" name="restartpass_5BMAXBUF_5D"></a><!-- doxytag: member="channels.cpp::restartpass" ref="restartpass_5BMAXBUF_5D" args="[MAXBUF]" --><p>
-<table class="mdTable" cellpadding="2" cellspacing="0">
-  <tr>
-    <td class="mdRow">
-      <table cellpadding="0" cellspacing="0" border="0">
-        <tr>
-          <td class="md" nowrap valign="top">char <a class="el" href="modules_8cpp.html#restartpass_5BMAXBUF_5D">restartpass</a>[MAXBUF]          </td>
-        </tr>
-      </table>
-    </td>
-  </tr>
-</table>
-<table cellspacing="5" cellpadding="0" border="0">
-  <tr>
-    <td>
-      &nbsp;
-    </td>
-    <td>
-
-<p>
-    </td>
-  </tr>
-</table>
-<a class="anchor" name="rules_5BMAXBUF_5D"></a><!-- doxytag: member="channels.cpp::rules" ref="rules_5BMAXBUF_5D" args="[MAXBUF]" --><p>
-<table class="mdTable" cellpadding="2" cellspacing="0">
-  <tr>
-    <td class="mdRow">
-      <table cellpadding="0" cellspacing="0" border="0">
-        <tr>
-          <td class="md" nowrap valign="top">char <a class="el" href="modules_8cpp.html#rules_5BMAXBUF_5D">rules</a>[MAXBUF]          </td>
-        </tr>
-      </table>
-    </td>
-  </tr>
-</table>
-<table cellspacing="5" cellpadding="0" border="0">
-  <tr>
-    <td>
-      &nbsp;
-    </td>
-    <td>
-
-<p>
-    </td>
-  </tr>
-</table>
-<a class="anchor" name="ServerDesc_5BMAXBUF_5D"></a><!-- doxytag: member="channels.cpp::ServerDesc" ref="ServerDesc_5BMAXBUF_5D" args="[MAXBUF]" --><p>
-<table class="mdTable" cellpadding="2" cellspacing="0">
-  <tr>
-    <td class="mdRow">
-      <table cellpadding="0" cellspacing="0" border="0">
-        <tr>
-          <td class="md" nowrap valign="top">char <a class="el" href="modules_8cpp.html#ServerDesc_5BMAXBUF_5D">ServerDesc</a>[MAXBUF]          </td>
-        </tr>
-      </table>
-    </td>
-  </tr>
-</table>
-<table cellspacing="5" cellpadding="0" border="0">
-  <tr>
-    <td>
-      &nbsp;
-    </td>
-    <td>
-
-<p>
-    </td>
-  </tr>
-</table>
-<a class="anchor" name="ServerName_5BMAXBUF_5D"></a><!-- doxytag: member="channels.cpp::ServerName" ref="ServerName_5BMAXBUF_5D" args="[MAXBUF]" --><p>
-<table class="mdTable" cellpadding="2" cellspacing="0">
-  <tr>
-    <td class="mdRow">
-      <table cellpadding="0" cellspacing="0" border="0">
-        <tr>
-          <td class="md" nowrap valign="top">char <a class="el" href="users_8cpp.html#ServerName_5BMAXBUF_5D">ServerName</a>[MAXBUF]          </td>
-        </tr>
-      </table>
-    </td>
-  </tr>
-</table>
-<table cellspacing="5" cellpadding="0" border="0">
-  <tr>
-    <td>
-      &nbsp;
-    </td>
-    <td>
-
-<p>
-
-<p>
-Referenced by <a class="el" href="users_8cpp-source.html#l00038">userrec::userrec()</a>.    </td>
+Referenced by <a class="el" href="modules_8cpp-source.html#l00722">Server::FindModule()</a>.    </td>
   </tr>
 </table>
 <a class="anchor" name="startup_5Ftime"></a><!-- doxytag: member="channels.cpp::startup_time" ref="startup_5Ftime" args="" --><p>
@@ -881,7 +347,7 @@ Referenced by <a class="el" href="users_8cpp-source.html#l00038">userrec::userre
 <p>
 
 <p>
-Referenced by <a class="el" href="users_8cpp-source.html#l00038">userrec::userrec()</a>.    </td>
+Referenced by <a class="el" href="users_8cpp-source.html#l00036">userrec::userrec()</a>.    </td>
   </tr>
 </table>
 <a class="anchor" name="WHOWAS_5FMAX"></a><!-- doxytag: member="channels.cpp::WHOWAS_MAX" ref="WHOWAS_5FMAX" args="" --><p>
@@ -930,7 +396,7 @@ Referenced by <a class="el" href="users_8cpp-source.html#l00038">userrec::userre
     </td>
   </tr>
 </table>
-<hr size="1"><address style="align: right;"><small>Generated on Mon Dec 12 18:30:59 2005 for InspIRCd by&nbsp;
+<hr size="1"><address style="align: right;"><small>Generated on Wed Dec 14 14:49:20 2005 for InspIRCd by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img src="doxygen.png" alt="doxygen" align="middle" border="0"></a> 1.4.4-20050815 </small></address>
 </body>

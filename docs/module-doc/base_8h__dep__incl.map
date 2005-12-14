@@ -1,13 +1,5 @@
 base referer
-rect $channels_8h-source.html 123,327 208,353
-rect $connection_8h-source.html 116,276 215,303
-rect $ctables_8h-source.html 264,529 339,556
-rect $modules_8h-source.html 396,479 479,505
-rect $users_8cpp-source.html 546,99 626,125
-rect $users_8h-source.html 270,276 334,303
-rect $commands_8h-source.html 388,124 487,151
-rect $message_8h-source.html 395,428 480,455
-rect $mode_8h-source.html 404,327 471,353
-rect $xline_8h-source.html 407,377 468,404
-rect $channels_8cpp-source.html 536,428 635,455
-rect $modules_8cpp-source.html 536,377 635,404
+rect $channels_8h-source.html 123,7 208,33
+rect $connection_8h-source.html 116,57 215,84
+rect $ctables_8h-source.html 128,108 203,135
+rect $modules_8h-source.html 264,133 347,160

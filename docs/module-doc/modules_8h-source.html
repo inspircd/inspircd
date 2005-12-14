@@ -160,358 +160,370 @@
 <a name="l00230"></a>00230         <span class="keywordtype">char</span>* <a class="code" href="classEvent.html#Send_28_29">Send</a>();
 <a name="l00231"></a>00231 };
 <a name="l00232"></a>00232 
-<a name="l00233"></a>00233 
-<a name="l00239"></a><a class="code" href="classModule.html">00239</a> <span class="keyword">class </span><a class="code" href="classModule.html">Module</a> : <span class="keyword">public</span> <a class="code" href="classclassbase.html">classbase</a>
-<a name="l00240"></a>00240 {
-<a name="l00241"></a>00241  <span class="keyword">public</span>:
-<a name="l00242"></a>00242 
-<a name="l00247"></a>00247         <a class="code" href="classModule.html#Module_28Server_20_2AMe_29">Module</a>(<a class="code" href="classServer.html">Server</a>* Me);
+<a name="l00236"></a><a class="code" href="classExtMode.html">00236</a> <span class="keyword">class </span><a class="code" href="classExtMode.html">ExtMode</a> : <span class="keyword">public</span> <a class="code" href="classclassbase.html">classbase</a>
+<a name="l00237"></a>00237 {
+<a name="l00238"></a>00238  <span class="keyword">public</span>:
+<a name="l00239"></a><a class="code" href="classExtMode.html#modechar">00239</a>         <span class="keywordtype">char</span> <a class="code" href="classExtMode.html#modechar">modechar</a>;
+<a name="l00240"></a><a class="code" href="classExtMode.html#type">00240</a>         <span class="keywordtype">int</span> <a class="code" href="classExtMode.html#type">type</a>;
+<a name="l00241"></a><a class="code" href="classExtMode.html#needsoper">00241</a>         <span class="keywordtype">bool</span> <a class="code" href="classExtMode.html#needsoper">needsoper</a>;
+<a name="l00242"></a><a class="code" href="classExtMode.html#params_5Fwhen_5Fon">00242</a>         <span class="keywordtype">int</span> <a class="code" href="classExtMode.html#params_5Fwhen_5Fon">params_when_on</a>;
+<a name="l00243"></a><a class="code" href="classExtMode.html#params_5Fwhen_5Foff">00243</a>         <span class="keywordtype">int</span> <a class="code" href="classExtMode.html#params_5Fwhen_5Foff">params_when_off</a>;
+<a name="l00244"></a><a class="code" href="classExtMode.html#list">00244</a>         <span class="keywordtype">bool</span> <a class="code" href="classExtMode.html#list">list</a>;
+<a name="l00245"></a><a class="code" href="classExtMode.html#ExtMode_28char_20mc_2C_20int_20ty_2C_20bool_20oper_2C_20int_20p_5Fon_2C_20int_20p_5Foff_29">00245</a>         <a class="code" href="classExtMode.html#ExtMode_28char_20mc_2C_20int_20ty_2C_20bool_20oper_2C_20int_20p_5Fon_2C_20int_20p_5Foff_29">ExtMode</a>(<span class="keywordtype">char</span> mc, <span class="keywordtype">int</span> ty, <span class="keywordtype">bool</span> oper, <span class="keywordtype">int</span> p_on, <span class="keywordtype">int</span> p_off) : <a class="code" href="classExtMode.html#modechar">modechar</a>(mc), <a class="code" href="classExtMode.html#type">type</a>(ty), <a class="code" href="classExtMode.html#needsoper">needsoper</a>(oper), <a class="code" href="classExtMode.html#params_5Fwhen_5Fon">params_when_on</a>(p_on), <a class="code" href="classExtMode.html#params_5Fwhen_5Foff">params_when_off</a>(p_off) { };
+<a name="l00246"></a>00246 };
+<a name="l00247"></a>00247 
 <a name="l00248"></a>00248 
-<a name="l00252"></a>00252         <span class="keyword">virtual</span> <a class="code" href="classModule.html#_7EModule_28_29">~Module</a>();
-<a name="l00253"></a>00253 
-<a name="l00258"></a>00258         <span class="keyword">virtual</span> <a class="code" href="classVersion.html">Version</a> <a class="code" href="classModule.html#GetVersion_28_29">GetVersion</a>();
-<a name="l00259"></a>00259 
-<a name="l00264"></a>00264         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classModule.html#OnUserConnect_28userrec_20_2Auser_29">OnUserConnect</a>(<a class="code" href="classuserrec.html">userrec</a>* user);
-<a name="l00265"></a>00265 
-<a name="l00273"></a>00273         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classModule.html#OnUserQuit_28userrec_20_2Auser_2C_20std_3A_3Astring_20message_29">OnUserQuit</a>(<a class="code" href="classuserrec.html">userrec</a>* user, <a class="code" href="namespaceirc.html#string">std::string</a> message);
+<a name="l00254"></a><a class="code" href="classModule.html">00254</a> <span class="keyword">class </span><a class="code" href="classModule.html">Module</a> : <span class="keyword">public</span> <a class="code" href="classclassbase.html">classbase</a>
+<a name="l00255"></a>00255 {
+<a name="l00256"></a>00256  <span class="keyword">public</span>:
+<a name="l00257"></a>00257 
+<a name="l00262"></a>00262         <a class="code" href="classModule.html#Module_28Server_20_2AMe_29">Module</a>(<a class="code" href="classServer.html">Server</a>* Me);
+<a name="l00263"></a>00263 
+<a name="l00267"></a>00267         <span class="keyword">virtual</span> <a class="code" href="classModule.html#_7EModule_28_29">~Module</a>();
+<a name="l00268"></a>00268 
+<a name="l00273"></a>00273         <span class="keyword">virtual</span> <a class="code" href="classVersion.html">Version</a> <a class="code" href="classModule.html#GetVersion_28_29">GetVersion</a>();
 <a name="l00274"></a>00274 
-<a name="l00281"></a>00281         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classModule.html#OnUserDisconnect_28userrec_20_2Auser_29">OnUserDisconnect</a>(<a class="code" href="classuserrec.html">userrec</a>* user);
-<a name="l00282"></a>00282 
-<a name="l00289"></a>00289         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classModule.html#OnUserJoin_28userrec_20_2Auser_2C_20chanrec_20_2Achannel_29">OnUserJoin</a>(<a class="code" href="classuserrec.html">userrec</a>* user, <a class="code" href="classchanrec.html">chanrec</a>* channel);
-<a name="l00290"></a>00290 
-<a name="l00297"></a>00297         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classModule.html#OnUserPart_28userrec_20_2Auser_2C_20chanrec_20_2Achannel_29">OnUserPart</a>(<a class="code" href="classuserrec.html">userrec</a>* user, <a class="code" href="classchanrec.html">chanrec</a>* channel);
-<a name="l00298"></a>00298 
-<a name="l00306"></a>00306         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classModule.html#OnRehash_28std_3A_3Astring_20parameter_29">OnRehash</a>(<a class="code" href="namespaceirc.html#string">std::string</a> parameter);
-<a name="l00307"></a>00307 
-<a name="l00319"></a>00319         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classModule.html#OnServerRaw_28std_3A_3Astring_20_26raw_2C_20bool_20inbound_2C_20userrec_20_2Auser_29">OnServerRaw</a>(<a class="code" href="namespaceirc.html#string">std::string</a> &amp;raw, <span class="keywordtype">bool</span> inbound, <a class="code" href="classuserrec.html">userrec</a>* user);
-<a name="l00320"></a>00320 
-<a name="l00336"></a>00336         <span class="keyword">virtual</span> <span class="keywordtype">int</span> <a class="code" href="classModule.html#OnExtendedMode_28userrec_20_2Auser_2C_20void_20_2Atarget_2C_20char_20modechar_2C_20int_20type_2C_20bool_20mode_5Fon_2C_20string_5Flist_20_26params_29">OnExtendedMode</a>(<a class="code" href="classuserrec.html">userrec</a>* user, <span class="keywordtype">void</span>* target, <span class="keywordtype">char</span> modechar, <span class="keywordtype">int</span> type, <span class="keywordtype">bool</span> mode_on, <a class="code" href="modules_8h.html#string_5Flist">string_list</a> &amp;params);
-<a name="l00337"></a>00337         
-<a name="l00354"></a>00354         <span class="keyword">virtual</span> <span class="keywordtype">int</span> <a class="code" href="classModule.html#OnUserPreJoin_28userrec_20_2Auser_2C_20chanrec_20_2Achan_2C_20const_20char_20_2Acname_29">OnUserPreJoin</a>(<a class="code" href="classuserrec.html">userrec</a>* user, <a class="code" href="classchanrec.html">chanrec</a>* chan, <span class="keyword">const</span> <span class="keywordtype">char</span>* cname);
-<a name="l00355"></a>00355         
-<a name="l00366"></a>00366         <span class="keyword">virtual</span> <span class="keywordtype">int</span> <a class="code" href="classModule.html#OnUserPreKick_28userrec_20_2Asource_2C_20userrec_20_2Auser_2C_20chanrec_20_2Achan_2C_20std_3A_3Astring_20reason_29">OnUserPreKick</a>(<a class="code" href="classuserrec.html">userrec</a>* source, <a class="code" href="classuserrec.html">userrec</a>* user, <a class="code" href="classchanrec.html">chanrec</a>* chan, <a class="code" href="namespaceirc.html#string">std::string</a> reason);
-<a name="l00367"></a>00367 
-<a name="l00376"></a>00376         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classModule.html#OnUserKick_28userrec_20_2Asource_2C_20userrec_20_2Auser_2C_20chanrec_20_2Achan_2C_20std_3A_3Astring_20reason_29">OnUserKick</a>(<a class="code" href="classuserrec.html">userrec</a>* source, <a class="code" href="classuserrec.html">userrec</a>* user, <a class="code" href="classchanrec.html">chanrec</a>* chan, <a class="code" href="namespaceirc.html#string">std::string</a> reason);
-<a name="l00377"></a>00377 
-<a name="l00384"></a>00384         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classModule.html#OnOper_28userrec_20_2Auser_2C_20std_3A_3Astring_20opertype_29">OnOper</a>(<a class="code" href="classuserrec.html">userrec</a>* user, <a class="code" href="namespaceirc.html#string">std::string</a> opertype);
-<a name="l00385"></a>00385         
-<a name="l00396"></a>00396         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classModule.html#OnInfo_28userrec_20_2Auser_29">OnInfo</a>(<a class="code" href="classuserrec.html">userrec</a>* user);
-<a name="l00397"></a>00397         
-<a name="l00404"></a>00404         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classModule.html#OnWhois_28userrec_20_2Asource_2C_20userrec_20_2Adest_29">OnWhois</a>(<a class="code" href="classuserrec.html">userrec</a>* source, <a class="code" href="classuserrec.html">userrec</a>* dest);
-<a name="l00405"></a>00405         
-<a name="l00415"></a>00415         <span class="keyword">virtual</span> <span class="keywordtype">int</span> <a class="code" href="classModule.html#OnUserPreInvite_28userrec_20_2Asource_2C_20userrec_20_2Adest_2C_20chanrec_20_2Achannel_29">OnUserPreInvite</a>(<a class="code" href="classuserrec.html">userrec</a>* source,<a class="code" href="classuserrec.html">userrec</a>* dest,<a class="code" href="classchanrec.html">chanrec</a>* channel);
-<a name="l00416"></a>00416         
-<a name="l00424"></a>00424         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classModule.html#OnUserInvite_28userrec_20_2Asource_2C_20userrec_20_2Adest_2C_20chanrec_20_2Achannel_29">OnUserInvite</a>(<a class="code" href="classuserrec.html">userrec</a>* source,<a class="code" href="classuserrec.html">userrec</a>* dest,<a class="code" href="classchanrec.html">chanrec</a>* channel);
-<a name="l00425"></a>00425         
-<a name="l00439"></a>00439         <span class="keyword">virtual</span> <span class="keywordtype">int</span> <a class="code" href="classModule.html#OnUserPreMessage_28userrec_20_2Auser_2C_20void_20_2Adest_2C_20int_20target_5Ftype_2C_20std_3A_3Astring_20_26text_29">OnUserPreMessage</a>(<a class="code" href="classuserrec.html">userrec</a>* user,<span class="keywordtype">void</span>* dest,<span class="keywordtype">int</span> target_type, <a class="code" href="namespaceirc.html#string">std::string</a> &amp;text);
-<a name="l00440"></a>00440 
-<a name="l00457"></a>00457         <span class="keyword">virtual</span> <span class="keywordtype">int</span> <a class="code" href="classModule.html#OnUserPreNotice_28userrec_20_2Auser_2C_20void_20_2Adest_2C_20int_20target_5Ftype_2C_20std_3A_3Astring_20_26text_29">OnUserPreNotice</a>(<a class="code" href="classuserrec.html">userrec</a>* user,<span class="keywordtype">void</span>* dest,<span class="keywordtype">int</span> target_type, <a class="code" href="namespaceirc.html#string">std::string</a> &amp;text);
-<a name="l00458"></a>00458         
-<a name="l00469"></a>00469         <span class="keyword">virtual</span> <span class="keywordtype">int</span> <a class="code" href="classModule.html#OnUserPreNick_28userrec_20_2Auser_2C_20std_3A_3Astring_20newnick_29">OnUserPreNick</a>(<a class="code" href="classuserrec.html">userrec</a>* user, <a class="code" href="namespaceirc.html#string">std::string</a> newnick);
-<a name="l00470"></a>00470 
-<a name="l00479"></a>00479         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classModule.html#OnUserMessage_28userrec_20_2Auser_2C_20void_20_2Adest_2C_20int_20target_5Ftype_2C_20std_3A_3Astring_20text_29">OnUserMessage</a>(<a class="code" href="classuserrec.html">userrec</a>* user, <span class="keywordtype">void</span>* dest, <span class="keywordtype">int</span> target_type, <a class="code" href="namespaceirc.html#string">std::string</a> text);
-<a name="l00480"></a>00480 
-<a name="l00489"></a>00489         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classModule.html#OnUserNotice_28userrec_20_2Auser_2C_20void_20_2Adest_2C_20int_20target_5Ftype_2C_20std_3A_3Astring_20text_29">OnUserNotice</a>(<a class="code" href="classuserrec.html">userrec</a>* user, <span class="keywordtype">void</span>* dest, <span class="keywordtype">int</span> target_type, <a class="code" href="namespaceirc.html#string">std::string</a> text);
-<a name="l00490"></a>00490 
-<a name="l00500"></a>00500         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classModule.html#OnMode_28userrec_20_2Auser_2C_20void_20_2Adest_2C_20int_20target_5Ftype_2C_20std_3A_3Astring_20text_29">OnMode</a>(<a class="code" href="classuserrec.html">userrec</a>* user, <span class="keywordtype">void</span>* dest, <span class="keywordtype">int</span> target_type, <a class="code" href="namespaceirc.html#string">std::string</a> text);
-<a name="l00501"></a>00501 
-<a name="l00510"></a>00510         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classModule.html#OnGetServerDescription_28std_3A_3Astring_20servername_2C_20std_3A_3Astring_20_26description_29">OnGetServerDescription</a>(<a class="code" href="namespaceirc.html#string">std::string</a> servername,<a class="code" href="namespaceirc.html#string">std::string</a> &amp;description);
-<a name="l00511"></a>00511 
-<a name="l00524"></a>00524         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classModule.html#OnSyncUser_28userrec_20_2Auser_2C_20Module_20_2Aproto_2C_20void_20_2Aopaque_29">OnSyncUser</a>(<a class="code" href="classuserrec.html">userrec</a>* user, <a class="code" href="classModule.html">Module</a>* proto, <span class="keywordtype">void</span>* opaque);
-<a name="l00525"></a>00525 
-<a name="l00541"></a>00541         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classModule.html#OnSyncChannel_28chanrec_20_2Achan_2C_20Module_20_2Aproto_2C_20void_20_2Aopaque_29">OnSyncChannel</a>(<a class="code" href="classchanrec.html">chanrec</a>* chan, <a class="code" href="classModule.html">Module</a>* proto, <span class="keywordtype">void</span>* opaque);
-<a name="l00542"></a>00542 
-<a name="l00543"></a>00543         <span class="comment">/* Allows modules to syncronize metadata related to channels over the network during a netburst.</span>
-<a name="l00544"></a>00544 <span class="comment">         * Whenever the linking module wants to send out data, but doesnt know what the data</span>
-<a name="l00545"></a>00545 <span class="comment">         * represents (e.g. it is Extensible metadata, added to a userrec or chanrec by a module) then</span>
-<a name="l00546"></a>00546 <span class="comment">         * this method is called.You should use the ProtoSendMetaData function after you've</span>
-<a name="l00547"></a>00547 <span class="comment">         * correctly decided how the data should be represented, to send the metadata on its way if it belongs</span>
-<a name="l00548"></a>00548 <span class="comment">         * to your module. For a good example of how to use this method, see src/modules/m_swhois.cpp.</span>
-<a name="l00549"></a>00549 <span class="comment">         * @param chan The channel whos metadata is being syncronized</span>
-<a name="l00550"></a>00550 <span class="comment">         * @param proto A pointer to the module handling network protocol</span>
-<a name="l00551"></a>00551 <span class="comment">         * @param opaque An opaque pointer set by the protocol module, should not be modified!</span>
-<a name="l00552"></a>00552 <span class="comment">         * @param extname The extensions name which is being searched for</span>
-<a name="l00553"></a>00553 <span class="comment">         */</span>
-<a name="l00554"></a>00554         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classModule.html#OnSyncChannelMetaData_28chanrec_20_2Achan_2C_20Module_20_2Aproto_2C_20void_20_2Aopaque_2C_20std_3A_3Astring_20extname_29">OnSyncChannelMetaData</a>(<a class="code" href="classchanrec.html">chanrec</a>* chan, <a class="code" href="classModule.html">Module</a>* proto,<span class="keywordtype">void</span>* opaque, <a class="code" href="namespaceirc.html#string">std::string</a> extname);
-<a name="l00555"></a>00555 
-<a name="l00556"></a>00556         <span class="comment">/* Allows modules to syncronize metadata related to users over the network during a netburst.</span>
-<a name="l00557"></a>00557 <span class="comment">         * Whenever the linking module wants to send out data, but doesnt know what the data</span>
-<a name="l00558"></a>00558 <span class="comment">         * represents (e.g. it is Extensible metadata, added to a userrec or chanrec by a module) then</span>
-<a name="l00559"></a>00559 <span class="comment">         * this method is called. You should use the ProtoSendMetaData function after you've</span>
-<a name="l00560"></a>00560 <span class="comment">         * correctly decided how the data should be represented, to send the metadata on its way if</span>
-<a name="l00561"></a>00561 <span class="comment">         * if it belongs to your module.</span>
-<a name="l00562"></a>00562 <span class="comment">         * @param user The user whos metadata is being syncronized</span>
-<a name="l00563"></a>00563 <span class="comment">         * @param proto A pointer to the module handling network protocol</span>
-<a name="l00564"></a>00564 <span class="comment">         * @param opaque An opaque pointer set by the protocol module, should not be modified!</span>
-<a name="l00565"></a>00565 <span class="comment">         * @param extname The extensions name which is being searched for</span>
-<a name="l00566"></a>00566 <span class="comment">         */</span>
-<a name="l00567"></a>00567         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classModule.html#OnSyncUserMetaData_28userrec_20_2Auser_2C_20Module_20_2Aproto_2C_20void_20_2Aopaque_2C_20std_3A_3Astring_20extname_29">OnSyncUserMetaData</a>(<a class="code" href="classuserrec.html">userrec</a>* user, <a class="code" href="classModule.html">Module</a>* proto,<span class="keywordtype">void</span>* opaque, <a class="code" href="namespaceirc.html#string">std::string</a> extname);
-<a name="l00568"></a>00568 
-<a name="l00576"></a>00576         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classModule.html#OnDecodeMetaData_28int_20target_5Ftype_2C_20void_20_2Atarget_2C_20std_3A_3Astring_20extname_2C_20std_3A_3Astring_20extdata_29">OnDecodeMetaData</a>(<span class="keywordtype">int</span> target_type, <span class="keywordtype">void</span>* target, <a class="code" href="namespaceirc.html#string">std::string</a> extname, <a class="code" href="namespaceirc.html#string">std::string</a> extdata);
-<a name="l00577"></a>00577 
-<a name="l00591"></a>00591         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classModule.html#ProtoSendMode_28void_20_2Aopaque_2C_20int_20target_5Ftype_2C_20void_20_2Atarget_2C_20std_3A_3Astring_20modeline_29">ProtoSendMode</a>(<span class="keywordtype">void</span>* opaque, <span class="keywordtype">int</span> target_type, <span class="keywordtype">void</span>* target, <a class="code" href="namespaceirc.html#string">std::string</a> modeline);
+<a name="l00279"></a>00279         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classModule.html#OnUserConnect_28userrec_20_2Auser_29">OnUserConnect</a>(<a class="code" href="classuserrec.html">userrec</a>* user);
+<a name="l00280"></a>00280 
+<a name="l00288"></a>00288         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classModule.html#OnUserQuit_28userrec_20_2Auser_2C_20std_3A_3Astring_20message_29">OnUserQuit</a>(<a class="code" href="classuserrec.html">userrec</a>* user, <a class="code" href="namespaceirc.html#string">std::string</a> message);
+<a name="l00289"></a>00289 
+<a name="l00296"></a>00296         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classModule.html#OnUserDisconnect_28userrec_20_2Auser_29">OnUserDisconnect</a>(<a class="code" href="classuserrec.html">userrec</a>* user);
+<a name="l00297"></a>00297 
+<a name="l00304"></a>00304         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classModule.html#OnUserJoin_28userrec_20_2Auser_2C_20chanrec_20_2Achannel_29">OnUserJoin</a>(<a class="code" href="classuserrec.html">userrec</a>* user, <a class="code" href="classchanrec.html">chanrec</a>* channel);
+<a name="l00305"></a>00305 
+<a name="l00312"></a>00312         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classModule.html#OnUserPart_28userrec_20_2Auser_2C_20chanrec_20_2Achannel_29">OnUserPart</a>(<a class="code" href="classuserrec.html">userrec</a>* user, <a class="code" href="classchanrec.html">chanrec</a>* channel);
+<a name="l00313"></a>00313 
+<a name="l00321"></a>00321         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classModule.html#OnRehash_28std_3A_3Astring_20parameter_29">OnRehash</a>(<a class="code" href="namespaceirc.html#string">std::string</a> parameter);
+<a name="l00322"></a>00322 
+<a name="l00334"></a>00334         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classModule.html#OnServerRaw_28std_3A_3Astring_20_26raw_2C_20bool_20inbound_2C_20userrec_20_2Auser_29">OnServerRaw</a>(<a class="code" href="namespaceirc.html#string">std::string</a> &amp;raw, <span class="keywordtype">bool</span> inbound, <a class="code" href="classuserrec.html">userrec</a>* user);
+<a name="l00335"></a>00335 
+<a name="l00351"></a>00351         <span class="keyword">virtual</span> <span class="keywordtype">int</span> <a class="code" href="classModule.html#OnExtendedMode_28userrec_20_2Auser_2C_20void_20_2Atarget_2C_20char_20modechar_2C_20int_20type_2C_20bool_20mode_5Fon_2C_20string_5Flist_20_26params_29">OnExtendedMode</a>(<a class="code" href="classuserrec.html">userrec</a>* user, <span class="keywordtype">void</span>* target, <span class="keywordtype">char</span> modechar, <span class="keywordtype">int</span> type, <span class="keywordtype">bool</span> mode_on, <a class="code" href="modules_8h.html#string_5Flist">string_list</a> &amp;params);
+<a name="l00352"></a>00352         
+<a name="l00369"></a>00369         <span class="keyword">virtual</span> <span class="keywordtype">int</span> <a class="code" href="classModule.html#OnUserPreJoin_28userrec_20_2Auser_2C_20chanrec_20_2Achan_2C_20const_20char_20_2Acname_29">OnUserPreJoin</a>(<a class="code" href="classuserrec.html">userrec</a>* user, <a class="code" href="classchanrec.html">chanrec</a>* chan, <span class="keyword">const</span> <span class="keywordtype">char</span>* cname);
+<a name="l00370"></a>00370         
+<a name="l00381"></a>00381         <span class="keyword">virtual</span> <span class="keywordtype">int</span> <a class="code" href="classModule.html#OnUserPreKick_28userrec_20_2Asource_2C_20userrec_20_2Auser_2C_20chanrec_20_2Achan_2C_20std_3A_3Astring_20reason_29">OnUserPreKick</a>(<a class="code" href="classuserrec.html">userrec</a>* source, <a class="code" href="classuserrec.html">userrec</a>* user, <a class="code" href="classchanrec.html">chanrec</a>* chan, <a class="code" href="namespaceirc.html#string">std::string</a> reason);
+<a name="l00382"></a>00382 
+<a name="l00391"></a>00391         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classModule.html#OnUserKick_28userrec_20_2Asource_2C_20userrec_20_2Auser_2C_20chanrec_20_2Achan_2C_20std_3A_3Astring_20reason_29">OnUserKick</a>(<a class="code" href="classuserrec.html">userrec</a>* source, <a class="code" href="classuserrec.html">userrec</a>* user, <a class="code" href="classchanrec.html">chanrec</a>* chan, <a class="code" href="namespaceirc.html#string">std::string</a> reason);
+<a name="l00392"></a>00392 
+<a name="l00399"></a>00399         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classModule.html#OnOper_28userrec_20_2Auser_2C_20std_3A_3Astring_20opertype_29">OnOper</a>(<a class="code" href="classuserrec.html">userrec</a>* user, <a class="code" href="namespaceirc.html#string">std::string</a> opertype);
+<a name="l00400"></a>00400         
+<a name="l00411"></a>00411         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classModule.html#OnInfo_28userrec_20_2Auser_29">OnInfo</a>(<a class="code" href="classuserrec.html">userrec</a>* user);
+<a name="l00412"></a>00412         
+<a name="l00419"></a>00419         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classModule.html#OnWhois_28userrec_20_2Asource_2C_20userrec_20_2Adest_29">OnWhois</a>(<a class="code" href="classuserrec.html">userrec</a>* source, <a class="code" href="classuserrec.html">userrec</a>* dest);
+<a name="l00420"></a>00420         
+<a name="l00430"></a>00430         <span class="keyword">virtual</span> <span class="keywordtype">int</span> <a class="code" href="classModule.html#OnUserPreInvite_28userrec_20_2Asource_2C_20userrec_20_2Adest_2C_20chanrec_20_2Achannel_29">OnUserPreInvite</a>(<a class="code" href="classuserrec.html">userrec</a>* source,<a class="code" href="classuserrec.html">userrec</a>* dest,<a class="code" href="classchanrec.html">chanrec</a>* channel);
+<a name="l00431"></a>00431         
+<a name="l00439"></a>00439         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classModule.html#OnUserInvite_28userrec_20_2Asource_2C_20userrec_20_2Adest_2C_20chanrec_20_2Achannel_29">OnUserInvite</a>(<a class="code" href="classuserrec.html">userrec</a>* source,<a class="code" href="classuserrec.html">userrec</a>* dest,<a class="code" href="classchanrec.html">chanrec</a>* channel);
+<a name="l00440"></a>00440         
+<a name="l00454"></a>00454         <span class="keyword">virtual</span> <span class="keywordtype">int</span> <a class="code" href="classModule.html#OnUserPreMessage_28userrec_20_2Auser_2C_20void_20_2Adest_2C_20int_20target_5Ftype_2C_20std_3A_3Astring_20_26text_29">OnUserPreMessage</a>(<a class="code" href="classuserrec.html">userrec</a>* user,<span class="keywordtype">void</span>* dest,<span class="keywordtype">int</span> target_type, <a class="code" href="namespaceirc.html#string">std::string</a> &amp;text);
+<a name="l00455"></a>00455 
+<a name="l00472"></a>00472         <span class="keyword">virtual</span> <span class="keywordtype">int</span> <a class="code" href="classModule.html#OnUserPreNotice_28userrec_20_2Auser_2C_20void_20_2Adest_2C_20int_20target_5Ftype_2C_20std_3A_3Astring_20_26text_29">OnUserPreNotice</a>(<a class="code" href="classuserrec.html">userrec</a>* user,<span class="keywordtype">void</span>* dest,<span class="keywordtype">int</span> target_type, <a class="code" href="namespaceirc.html#string">std::string</a> &amp;text);
+<a name="l00473"></a>00473         
+<a name="l00484"></a>00484         <span class="keyword">virtual</span> <span class="keywordtype">int</span> <a class="code" href="classModule.html#OnUserPreNick_28userrec_20_2Auser_2C_20std_3A_3Astring_20newnick_29">OnUserPreNick</a>(<a class="code" href="classuserrec.html">userrec</a>* user, <a class="code" href="namespaceirc.html#string">std::string</a> newnick);
+<a name="l00485"></a>00485 
+<a name="l00494"></a>00494         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classModule.html#OnUserMessage_28userrec_20_2Auser_2C_20void_20_2Adest_2C_20int_20target_5Ftype_2C_20std_3A_3Astring_20text_29">OnUserMessage</a>(<a class="code" href="classuserrec.html">userrec</a>* user, <span class="keywordtype">void</span>* dest, <span class="keywordtype">int</span> target_type, <a class="code" href="namespaceirc.html#string">std::string</a> text);
+<a name="l00495"></a>00495 
+<a name="l00504"></a>00504         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classModule.html#OnUserNotice_28userrec_20_2Auser_2C_20void_20_2Adest_2C_20int_20target_5Ftype_2C_20std_3A_3Astring_20text_29">OnUserNotice</a>(<a class="code" href="classuserrec.html">userrec</a>* user, <span class="keywordtype">void</span>* dest, <span class="keywordtype">int</span> target_type, <a class="code" href="namespaceirc.html#string">std::string</a> text);
+<a name="l00505"></a>00505 
+<a name="l00515"></a>00515         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classModule.html#OnMode_28userrec_20_2Auser_2C_20void_20_2Adest_2C_20int_20target_5Ftype_2C_20std_3A_3Astring_20text_29">OnMode</a>(<a class="code" href="classuserrec.html">userrec</a>* user, <span class="keywordtype">void</span>* dest, <span class="keywordtype">int</span> target_type, <a class="code" href="namespaceirc.html#string">std::string</a> text);
+<a name="l00516"></a>00516 
+<a name="l00525"></a>00525         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classModule.html#OnGetServerDescription_28std_3A_3Astring_20servername_2C_20std_3A_3Astring_20_26description_29">OnGetServerDescription</a>(<a class="code" href="namespaceirc.html#string">std::string</a> servername,<a class="code" href="namespaceirc.html#string">std::string</a> &amp;description);
+<a name="l00526"></a>00526 
+<a name="l00539"></a>00539         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classModule.html#OnSyncUser_28userrec_20_2Auser_2C_20Module_20_2Aproto_2C_20void_20_2Aopaque_29">OnSyncUser</a>(<a class="code" href="classuserrec.html">userrec</a>* user, <a class="code" href="classModule.html">Module</a>* proto, <span class="keywordtype">void</span>* opaque);
+<a name="l00540"></a>00540 
+<a name="l00556"></a>00556         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classModule.html#OnSyncChannel_28chanrec_20_2Achan_2C_20Module_20_2Aproto_2C_20void_20_2Aopaque_29">OnSyncChannel</a>(<a class="code" href="classchanrec.html">chanrec</a>* chan, <a class="code" href="classModule.html">Module</a>* proto, <span class="keywordtype">void</span>* opaque);
+<a name="l00557"></a>00557 
+<a name="l00558"></a>00558         <span class="comment">/* Allows modules to syncronize metadata related to channels over the network during a netburst.</span>
+<a name="l00559"></a>00559 <span class="comment">         * Whenever the linking module wants to send out data, but doesnt know what the data</span>
+<a name="l00560"></a>00560 <span class="comment">         * represents (e.g. it is Extensible metadata, added to a userrec or chanrec by a module) then</span>
+<a name="l00561"></a>00561 <span class="comment">         * this method is called.You should use the ProtoSendMetaData function after you've</span>
+<a name="l00562"></a>00562 <span class="comment">         * correctly decided how the data should be represented, to send the metadata on its way if it belongs</span>
+<a name="l00563"></a>00563 <span class="comment">         * to your module. For a good example of how to use this method, see src/modules/m_swhois.cpp.</span>
+<a name="l00564"></a>00564 <span class="comment">         * @param chan The channel whos metadata is being syncronized</span>
+<a name="l00565"></a>00565 <span class="comment">         * @param proto A pointer to the module handling network protocol</span>
+<a name="l00566"></a>00566 <span class="comment">         * @param opaque An opaque pointer set by the protocol module, should not be modified!</span>
+<a name="l00567"></a>00567 <span class="comment">         * @param extname The extensions name which is being searched for</span>
+<a name="l00568"></a>00568 <span class="comment">         */</span>
+<a name="l00569"></a>00569         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classModule.html#OnSyncChannelMetaData_28chanrec_20_2Achan_2C_20Module_20_2Aproto_2C_20void_20_2Aopaque_2C_20std_3A_3Astring_20extname_29">OnSyncChannelMetaData</a>(<a class="code" href="classchanrec.html">chanrec</a>* chan, <a class="code" href="classModule.html">Module</a>* proto,<span class="keywordtype">void</span>* opaque, <a class="code" href="namespaceirc.html#string">std::string</a> extname);
+<a name="l00570"></a>00570 
+<a name="l00571"></a>00571         <span class="comment">/* Allows modules to syncronize metadata related to users over the network during a netburst.</span>
+<a name="l00572"></a>00572 <span class="comment">         * Whenever the linking module wants to send out data, but doesnt know what the data</span>
+<a name="l00573"></a>00573 <span class="comment">         * represents (e.g. it is Extensible metadata, added to a userrec or chanrec by a module) then</span>
+<a name="l00574"></a>00574 <span class="comment">         * this method is called. You should use the ProtoSendMetaData function after you've</span>
+<a name="l00575"></a>00575 <span class="comment">         * correctly decided how the data should be represented, to send the metadata on its way if</span>
+<a name="l00576"></a>00576 <span class="comment">         * if it belongs to your module.</span>
+<a name="l00577"></a>00577 <span class="comment">         * @param user The user whos metadata is being syncronized</span>
+<a name="l00578"></a>00578 <span class="comment">         * @param proto A pointer to the module handling network protocol</span>
+<a name="l00579"></a>00579 <span class="comment">         * @param opaque An opaque pointer set by the protocol module, should not be modified!</span>
+<a name="l00580"></a>00580 <span class="comment">         * @param extname The extensions name which is being searched for</span>
+<a name="l00581"></a>00581 <span class="comment">         */</span>
+<a name="l00582"></a>00582         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classModule.html#OnSyncUserMetaData_28userrec_20_2Auser_2C_20Module_20_2Aproto_2C_20void_20_2Aopaque_2C_20std_3A_3Astring_20extname_29">OnSyncUserMetaData</a>(<a class="code" href="classuserrec.html">userrec</a>* user, <a class="code" href="classModule.html">Module</a>* proto,<span class="keywordtype">void</span>* opaque, <a class="code" href="namespaceirc.html#string">std::string</a> extname);
+<a name="l00583"></a>00583 
+<a name="l00591"></a>00591         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classModule.html#OnDecodeMetaData_28int_20target_5Ftype_2C_20void_20_2Atarget_2C_20std_3A_3Astring_20extname_2C_20std_3A_3Astring_20extdata_29">OnDecodeMetaData</a>(<span class="keywordtype">int</span> target_type, <span class="keywordtype">void</span>* target, <a class="code" href="namespaceirc.html#string">std::string</a> extname, <a class="code" href="namespaceirc.html#string">std::string</a> extdata);
 <a name="l00592"></a>00592 
-<a name="l00607"></a>00607         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classModule.html#ProtoSendMetaData_28void_20_2Aopaque_2C_20int_20target_5Ftype_2C_20void_20_2Atarget_2C_20std_3A_3Astring_20extname_2C_20std_3A_3Astring_20extdata_29">ProtoSendMetaData</a>(<span class="keywordtype">void</span>* opaque, <span class="keywordtype">int</span> target_type, <span class="keywordtype">void</span>* target, <a class="code" href="namespaceirc.html#string">std::string</a> extname, <a class="code" href="namespaceirc.html#string">std::string</a> extdata);
-<a name="l00608"></a>00608         
-<a name="l00613"></a>00613         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classModule.html#OnWallops_28userrec_20_2Auser_2C_20std_3A_3Astring_20text_29">OnWallops</a>(<a class="code" href="classuserrec.html">userrec</a>* user, <a class="code" href="namespaceirc.html#string">std::string</a> text);
-<a name="l00614"></a>00614 
-<a name="l00620"></a>00620         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classModule.html#OnChangeHost_28userrec_20_2Auser_2C_20std_3A_3Astring_20newhost_29">OnChangeHost</a>(<a class="code" href="classuserrec.html">userrec</a>* user, <a class="code" href="namespaceirc.html#string">std::string</a> newhost);
-<a name="l00621"></a>00621 
-<a name="l00627"></a>00627         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classModule.html#OnChangeName_28userrec_20_2Auser_2C_20std_3A_3Astring_20gecos_29">OnChangeName</a>(<a class="code" href="classuserrec.html">userrec</a>* user, <a class="code" href="namespaceirc.html#string">std::string</a> gecos);
-<a name="l00628"></a>00628 
-<a name="l00636"></a>00636         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classModule.html#OnAddGLine_28long_20duration_2C_20userrec_20_2Asource_2C_20std_3A_3Astring_20reason_2C_20std_3A_3Astring_20hostmask_29">OnAddGLine</a>(<span class="keywordtype">long</span> <a class="code" href="commands_8h.html#duration_28const_20char_20_2Astr_29">duration</a>, <a class="code" href="classuserrec.html">userrec</a>* source, <a class="code" href="namespaceirc.html#string">std::string</a> reason, <a class="code" href="namespaceirc.html#string">std::string</a> hostmask);
-<a name="l00637"></a>00637 
-<a name="l00645"></a>00645         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classModule.html#OnAddZLine_28long_20duration_2C_20userrec_20_2Asource_2C_20std_3A_3Astring_20reason_2C_20std_3A_3Astring_20ipmask_29">OnAddZLine</a>(<span class="keywordtype">long</span> duration, <a class="code" href="classuserrec.html">userrec</a>* source, <a class="code" href="namespaceirc.html#string">std::string</a> reason, <a class="code" href="namespaceirc.html#string">std::string</a> ipmask);
-<a name="l00646"></a>00646 
-<a name="l00654"></a>00654         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classModule.html#OnAddKLine_28long_20duration_2C_20userrec_20_2Asource_2C_20std_3A_3Astring_20reason_2C_20std_3A_3Astring_20hostmask_29">OnAddKLine</a>(<span class="keywordtype">long</span> duration, <a class="code" href="classuserrec.html">userrec</a>* source, <a class="code" href="namespaceirc.html#string">std::string</a> reason, <a class="code" href="namespaceirc.html#string">std::string</a> hostmask);
-<a name="l00655"></a>00655 
-<a name="l00663"></a>00663         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classModule.html#OnAddQLine_28long_20duration_2C_20userrec_20_2Asource_2C_20std_3A_3Astring_20reason_2C_20std_3A_3Astring_20nickmask_29">OnAddQLine</a>(<span class="keywordtype">long</span> duration, <a class="code" href="classuserrec.html">userrec</a>* source, <a class="code" href="namespaceirc.html#string">std::string</a> reason, <a class="code" href="namespaceirc.html#string">std::string</a> nickmask);
-<a name="l00664"></a>00664 
-<a name="l00672"></a>00672         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classModule.html#OnAddELine_28long_20duration_2C_20userrec_20_2Asource_2C_20std_3A_3Astring_20reason_2C_20std_3A_3Astring_20hostmask_29">OnAddELine</a>(<span class="keywordtype">long</span> duration, <a class="code" href="classuserrec.html">userrec</a>* source, <a class="code" href="namespaceirc.html#string">std::string</a> reason, <a class="code" href="namespaceirc.html#string">std::string</a> hostmask);
-<a name="l00673"></a>00673 
-<a name="l00679"></a>00679         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classModule.html#OnDelGLine_28userrec_20_2Asource_2C_20std_3A_3Astring_20hostmask_29">OnDelGLine</a>(<a class="code" href="classuserrec.html">userrec</a>* source, <a class="code" href="namespaceirc.html#string">std::string</a> hostmask);
-<a name="l00680"></a>00680 
-<a name="l00686"></a>00686         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classModule.html#OnDelZLine_28userrec_20_2Asource_2C_20std_3A_3Astring_20ipmask_29">OnDelZLine</a>(<a class="code" href="classuserrec.html">userrec</a>* source, <a class="code" href="namespaceirc.html#string">std::string</a> ipmask);
-<a name="l00687"></a>00687 
-<a name="l00693"></a>00693         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classModule.html#OnDelKLine_28userrec_20_2Asource_2C_20std_3A_3Astring_20hostmask_29">OnDelKLine</a>(<a class="code" href="classuserrec.html">userrec</a>* source, <a class="code" href="namespaceirc.html#string">std::string</a> hostmask);
-<a name="l00694"></a>00694         
-<a name="l00700"></a>00700         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classModule.html#OnDelQLine_28userrec_20_2Asource_2C_20std_3A_3Astring_20nickmask_29">OnDelQLine</a>(<a class="code" href="classuserrec.html">userrec</a>* source, <a class="code" href="namespaceirc.html#string">std::string</a> nickmask);
-<a name="l00701"></a>00701 
-<a name="l00707"></a>00707         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classModule.html#OnDelELine_28userrec_20_2Asource_2C_20std_3A_3Astring_20hostmask_29">OnDelELine</a>(<a class="code" href="classuserrec.html">userrec</a>* source, <a class="code" href="namespaceirc.html#string">std::string</a> hostmask);
-<a name="l00708"></a>00708 
-<a name="l00718"></a>00718         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classModule.html#OnCleanup_28int_20target_5Ftype_2C_20void_20_2Aitem_29">OnCleanup</a>(<span class="keywordtype">int</span> target_type, <span class="keywordtype">void</span>* item);
-<a name="l00719"></a>00719 
-<a name="l00729"></a>00729         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classModule.html#OnUserPostNick_28userrec_20_2Auser_2C_20std_3A_3Astring_20oldnick_29">OnUserPostNick</a>(<a class="code" href="classuserrec.html">userrec</a>* user, <a class="code" href="namespaceirc.html#string">std::string</a> oldnick);
-<a name="l00730"></a>00730 
-<a name="l00756"></a>00756         <span class="keyword">virtual</span> <span class="keywordtype">int</span> <a class="code" href="classModule.html#OnAccessCheck_28userrec_20_2Asource_2C_20userrec_20_2Adest_2C_20chanrec_20_2Achannel_2C_20int_20access_5Ftype_29">OnAccessCheck</a>(<a class="code" href="classuserrec.html">userrec</a>* source,<a class="code" href="classuserrec.html">userrec</a>* dest,<a class="code" href="classchanrec.html">chanrec</a>* channel,<span class="keywordtype">int</span> access_type);
-<a name="l00757"></a>00757 
-<a name="l00762"></a>00762         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classModule.html#On_30_30_35Numeric_28std_3A_3Astring_20_26output_29">On005Numeric</a>(<a class="code" href="namespaceirc.html#string">std::string</a> &amp;output);
-<a name="l00763"></a>00763 
-<a name="l00777"></a>00777         <span class="keyword">virtual</span> <span class="keywordtype">int</span> <a class="code" href="classModule.html#OnKill_28userrec_20_2Asource_2C_20userrec_20_2Adest_2C_20std_3A_3Astring_20reason_29">OnKill</a>(<a class="code" href="classuserrec.html">userrec</a>* source, <a class="code" href="classuserrec.html">userrec</a>* dest, <a class="code" href="namespaceirc.html#string">std::string</a> reason);
+<a name="l00606"></a>00606         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classModule.html#ProtoSendMode_28void_20_2Aopaque_2C_20int_20target_5Ftype_2C_20void_20_2Atarget_2C_20std_3A_3Astring_20modeline_29">ProtoSendMode</a>(<span class="keywordtype">void</span>* opaque, <span class="keywordtype">int</span> target_type, <span class="keywordtype">void</span>* target, <a class="code" href="namespaceirc.html#string">std::string</a> modeline);
+<a name="l00607"></a>00607 
+<a name="l00622"></a>00622         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classModule.html#ProtoSendMetaData_28void_20_2Aopaque_2C_20int_20target_5Ftype_2C_20void_20_2Atarget_2C_20std_3A_3Astring_20extname_2C_20std_3A_3Astring_20extdata_29">ProtoSendMetaData</a>(<span class="keywordtype">void</span>* opaque, <span class="keywordtype">int</span> target_type, <span class="keywordtype">void</span>* target, <a class="code" href="namespaceirc.html#string">std::string</a> extname, <a class="code" href="namespaceirc.html#string">std::string</a> extdata);
+<a name="l00623"></a>00623         
+<a name="l00628"></a>00628         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classModule.html#OnWallops_28userrec_20_2Auser_2C_20std_3A_3Astring_20text_29">OnWallops</a>(<a class="code" href="classuserrec.html">userrec</a>* user, <a class="code" href="namespaceirc.html#string">std::string</a> text);
+<a name="l00629"></a>00629 
+<a name="l00635"></a>00635         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classModule.html#OnChangeHost_28userrec_20_2Auser_2C_20std_3A_3Astring_20newhost_29">OnChangeHost</a>(<a class="code" href="classuserrec.html">userrec</a>* user, <a class="code" href="namespaceirc.html#string">std::string</a> newhost);
+<a name="l00636"></a>00636 
+<a name="l00642"></a>00642         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classModule.html#OnChangeName_28userrec_20_2Auser_2C_20std_3A_3Astring_20gecos_29">OnChangeName</a>(<a class="code" href="classuserrec.html">userrec</a>* user, <a class="code" href="namespaceirc.html#string">std::string</a> gecos);
+<a name="l00643"></a>00643 
+<a name="l00651"></a>00651         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classModule.html#OnAddGLine_28long_20duration_2C_20userrec_20_2Asource_2C_20std_3A_3Astring_20reason_2C_20std_3A_3Astring_20hostmask_29">OnAddGLine</a>(<span class="keywordtype">long</span> <a class="code" href="commands_8h.html#duration_28const_20char_20_2Astr_29">duration</a>, <a class="code" href="classuserrec.html">userrec</a>* source, <a class="code" href="namespaceirc.html#string">std::string</a> reason, <a class="code" href="namespaceirc.html#string">std::string</a> hostmask);
+<a name="l00652"></a>00652 
+<a name="l00660"></a>00660         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classModule.html#OnAddZLine_28long_20duration_2C_20userrec_20_2Asource_2C_20std_3A_3Astring_20reason_2C_20std_3A_3Astring_20ipmask_29">OnAddZLine</a>(<span class="keywordtype">long</span> duration, <a class="code" href="classuserrec.html">userrec</a>* source, <a class="code" href="namespaceirc.html#string">std::string</a> reason, <a class="code" href="namespaceirc.html#string">std::string</a> ipmask);
+<a name="l00661"></a>00661 
+<a name="l00669"></a>00669         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classModule.html#OnAddKLine_28long_20duration_2C_20userrec_20_2Asource_2C_20std_3A_3Astring_20reason_2C_20std_3A_3Astring_20hostmask_29">OnAddKLine</a>(<span class="keywordtype">long</span> duration, <a class="code" href="classuserrec.html">userrec</a>* source, <a class="code" href="namespaceirc.html#string">std::string</a> reason, <a class="code" href="namespaceirc.html#string">std::string</a> hostmask);
+<a name="l00670"></a>00670 
+<a name="l00678"></a>00678         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classModule.html#OnAddQLine_28long_20duration_2C_20userrec_20_2Asource_2C_20std_3A_3Astring_20reason_2C_20std_3A_3Astring_20nickmask_29">OnAddQLine</a>(<span class="keywordtype">long</span> duration, <a class="code" href="classuserrec.html">userrec</a>* source, <a class="code" href="namespaceirc.html#string">std::string</a> reason, <a class="code" href="namespaceirc.html#string">std::string</a> nickmask);
+<a name="l00679"></a>00679 
+<a name="l00687"></a>00687         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classModule.html#OnAddELine_28long_20duration_2C_20userrec_20_2Asource_2C_20std_3A_3Astring_20reason_2C_20std_3A_3Astring_20hostmask_29">OnAddELine</a>(<span class="keywordtype">long</span> duration, <a class="code" href="classuserrec.html">userrec</a>* source, <a class="code" href="namespaceirc.html#string">std::string</a> reason, <a class="code" href="namespaceirc.html#string">std::string</a> hostmask);
+<a name="l00688"></a>00688 
+<a name="l00694"></a>00694         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classModule.html#OnDelGLine_28userrec_20_2Asource_2C_20std_3A_3Astring_20hostmask_29">OnDelGLine</a>(<a class="code" href="classuserrec.html">userrec</a>* source, <a class="code" href="namespaceirc.html#string">std::string</a> hostmask);
+<a name="l00695"></a>00695 
+<a name="l00701"></a>00701         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classModule.html#OnDelZLine_28userrec_20_2Asource_2C_20std_3A_3Astring_20ipmask_29">OnDelZLine</a>(<a class="code" href="classuserrec.html">userrec</a>* source, <a class="code" href="namespaceirc.html#string">std::string</a> ipmask);
+<a name="l00702"></a>00702 
+<a name="l00708"></a>00708         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classModule.html#OnDelKLine_28userrec_20_2Asource_2C_20std_3A_3Astring_20hostmask_29">OnDelKLine</a>(<a class="code" href="classuserrec.html">userrec</a>* source, <a class="code" href="namespaceirc.html#string">std::string</a> hostmask);
+<a name="l00709"></a>00709         
+<a name="l00715"></a>00715         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classModule.html#OnDelQLine_28userrec_20_2Asource_2C_20std_3A_3Astring_20nickmask_29">OnDelQLine</a>(<a class="code" href="classuserrec.html">userrec</a>* source, <a class="code" href="namespaceirc.html#string">std::string</a> nickmask);
+<a name="l00716"></a>00716 
+<a name="l00722"></a>00722         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classModule.html#OnDelELine_28userrec_20_2Asource_2C_20std_3A_3Astring_20hostmask_29">OnDelELine</a>(<a class="code" href="classuserrec.html">userrec</a>* source, <a class="code" href="namespaceirc.html#string">std::string</a> hostmask);
+<a name="l00723"></a>00723 
+<a name="l00733"></a>00733         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classModule.html#OnCleanup_28int_20target_5Ftype_2C_20void_20_2Aitem_29">OnCleanup</a>(<span class="keywordtype">int</span> target_type, <span class="keywordtype">void</span>* item);
+<a name="l00734"></a>00734 
+<a name="l00744"></a>00744         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classModule.html#OnUserPostNick_28userrec_20_2Auser_2C_20std_3A_3Astring_20oldnick_29">OnUserPostNick</a>(<a class="code" href="classuserrec.html">userrec</a>* user, <a class="code" href="namespaceirc.html#string">std::string</a> oldnick);
+<a name="l00745"></a>00745 
+<a name="l00771"></a>00771         <span class="keyword">virtual</span> <span class="keywordtype">int</span> <a class="code" href="classModule.html#OnAccessCheck_28userrec_20_2Asource_2C_20userrec_20_2Adest_2C_20chanrec_20_2Achannel_2C_20int_20access_5Ftype_29">OnAccessCheck</a>(<a class="code" href="classuserrec.html">userrec</a>* source,<a class="code" href="classuserrec.html">userrec</a>* dest,<a class="code" href="classchanrec.html">chanrec</a>* channel,<span class="keywordtype">int</span> access_type);
+<a name="l00772"></a>00772 
+<a name="l00777"></a>00777         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classModule.html#On_30_30_35Numeric_28std_3A_3Astring_20_26output_29">On005Numeric</a>(<a class="code" href="namespaceirc.html#string">std::string</a> &amp;output);
 <a name="l00778"></a>00778 
-<a name="l00784"></a>00784         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classModule.html#OnRemoteKill_28userrec_20_2Asource_2C_20userrec_20_2Adest_2C_20std_3A_3Astring_20reason_29">OnRemoteKill</a>(<a class="code" href="classuserrec.html">userrec</a>* source, <a class="code" href="classuserrec.html">userrec</a>* dest, <a class="code" href="namespaceirc.html#string">std::string</a> reason);
-<a name="l00785"></a>00785 
-<a name="l00798"></a>00798         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classModule.html#OnLoadModule_28Module_20_2Amod_2C_20std_3A_3Astring_20name_29">OnLoadModule</a>(<a class="code" href="classModule.html">Module</a>* mod,<a class="code" href="namespaceirc.html#string">std::string</a> name);
-<a name="l00799"></a>00799 
-<a name="l00812"></a>00812         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classModule.html#OnUnloadModule_28Module_20_2Amod_2C_20std_3A_3Astring_20name_29">OnUnloadModule</a>(<a class="code" href="classModule.html">Module</a>* mod,<a class="code" href="namespaceirc.html#string">std::string</a> name);
-<a name="l00813"></a>00813 
-<a name="l00820"></a>00820         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classModule.html#OnBackgroundTimer_28time_5Ft_20curtime_29">OnBackgroundTimer</a>(time_t curtime);
-<a name="l00821"></a>00821 
-<a name="l00832"></a>00832         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classModule.html#OnSendList_28userrec_20_2Auser_2C_20chanrec_20_2Achannel_2C_20char_20mode_29">OnSendList</a>(<a class="code" href="classuserrec.html">userrec</a>* user, <a class="code" href="classchanrec.html">chanrec</a>* channel, <span class="keywordtype">char</span> mode);
-<a name="l00833"></a>00833 
-<a name="l00849"></a>00849         <span class="keyword">virtual</span> <span class="keywordtype">int</span> <a class="code" href="classModule.html#OnPreCommand_28std_3A_3Astring_20command_2C_20char_20_2A_2Aparameters_2C_20int_20pcnt_2C_20userrec_20_2Auser_29">OnPreCommand</a>(<a class="code" href="namespaceirc.html#string">std::string</a> command, <span class="keywordtype">char</span> **parameters, <span class="keywordtype">int</span> pcnt, <a class="code" href="classuserrec.html">userrec</a> *user);
-<a name="l00850"></a>00850 
-<a name="l00861"></a>00861         <span class="keyword">virtual</span> <span class="keywordtype">bool</span> <a class="code" href="classModule.html#OnCheckReady_28userrec_20_2Auser_29">OnCheckReady</a>(<a class="code" href="classuserrec.html">userrec</a>* user);
-<a name="l00862"></a>00862 
-<a name="l00871"></a>00871         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classModule.html#OnUserRegister_28userrec_20_2Auser_29">OnUserRegister</a>(<a class="code" href="classuserrec.html">userrec</a>* user);
-<a name="l00872"></a>00872 
-<a name="l00885"></a>00885         <span class="keyword">virtual</span> <span class="keywordtype">int</span> <a class="code" href="classModule.html#OnRawMode_28userrec_20_2Auser_2C_20chanrec_20_2Achan_2C_20char_20mode_2C_20std_3A_3Astring_20param_2C_20bool_20adding_2C_20int_20pcnt_29">OnRawMode</a>(<a class="code" href="classuserrec.html">userrec</a>* user, <a class="code" href="classchanrec.html">chanrec</a>* chan, <span class="keywordtype">char</span> mode, <a class="code" href="namespaceirc.html#string">std::string</a> param, <span class="keywordtype">bool</span> adding, <span class="keywordtype">int</span> pcnt);
-<a name="l00886"></a>00886 
-<a name="l00895"></a>00895         <span class="keyword">virtual</span> <span class="keywordtype">int</span> <a class="code" href="classModule.html#OnCheckInvite_28userrec_20_2Auser_2C_20chanrec_20_2Achan_29">OnCheckInvite</a>(<a class="code" href="classuserrec.html">userrec</a>* user, <a class="code" href="classchanrec.html">chanrec</a>* chan);
-<a name="l00896"></a>00896 
-<a name="l00906"></a>00906         <span class="keyword">virtual</span> <span class="keywordtype">int</span> <a class="code" href="classModule.html#OnCheckKey_28userrec_20_2Auser_2C_20chanrec_20_2Achan_2C_20std_3A_3Astring_20keygiven_29">OnCheckKey</a>(<a class="code" href="classuserrec.html">userrec</a>* user, <a class="code" href="classchanrec.html">chanrec</a>* chan, <a class="code" href="namespaceirc.html#string">std::string</a> keygiven);
-<a name="l00907"></a>00907 
-<a name="l00916"></a>00916         <span class="keyword">virtual</span> <span class="keywordtype">int</span> <a class="code" href="classModule.html#OnCheckLimit_28userrec_20_2Auser_2C_20chanrec_20_2Achan_29">OnCheckLimit</a>(<a class="code" href="classuserrec.html">userrec</a>* user, <a class="code" href="classchanrec.html">chanrec</a>* chan);
-<a name="l00917"></a>00917 
-<a name="l00926"></a>00926         <span class="keyword">virtual</span> <span class="keywordtype">int</span> <a class="code" href="classModule.html#OnCheckBan_28userrec_20_2Auser_2C_20chanrec_20_2Achan_29">OnCheckBan</a>(<a class="code" href="classuserrec.html">userrec</a>* user, <a class="code" href="classchanrec.html">chanrec</a>* chan);
-<a name="l00927"></a>00927 
-<a name="l00932"></a>00932         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classModule.html#OnStats_28char_20symbol_29">OnStats</a>(<span class="keywordtype">char</span> symbol);
-<a name="l00933"></a>00933 
-<a name="l00940"></a>00940         <span class="keyword">virtual</span> <span class="keywordtype">int</span> <a class="code" href="classModule.html#OnChangeLocalUserHost_28userrec_20_2Auser_2C_20std_3A_3Astring_20newhost_29">OnChangeLocalUserHost</a>(<a class="code" href="classuserrec.html">userrec</a>* user, <a class="code" href="namespaceirc.html#string">std::string</a> newhost);
-<a name="l00941"></a>00941 
-<a name="l00948"></a>00948         <span class="keyword">virtual</span> <span class="keywordtype">int</span> <a class="code" href="classModule.html#OnChangeLocalUserGECOS_28userrec_20_2Auser_2C_20std_3A_3Astring_20newhost_29">OnChangeLocalUserGECOS</a>(<a class="code" href="classuserrec.html">userrec</a>* user, <a class="code" href="namespaceirc.html#string">std::string</a> newhost); 
-<a name="l00949"></a>00949 
-<a name="l00957"></a>00957         <span class="keyword">virtual</span> <span class="keywordtype">int</span> <a class="code" href="classModule.html#OnLocalTopicChange_28userrec_20_2Auser_2C_20chanrec_20_2Achan_2C_20std_3A_3Astring_20topic_29">OnLocalTopicChange</a>(<a class="code" href="classuserrec.html">userrec</a>* user, <a class="code" href="classchanrec.html">chanrec</a>* chan, <a class="code" href="namespaceirc.html#string">std::string</a> topic);
-<a name="l00958"></a>00958 
-<a name="l00965"></a>00965         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classModule.html#OnPostLocalTopicChange_28userrec_20_2Auser_2C_20chanrec_20_2Achan_2C_20std_3A_3Astring_20topic_29">OnPostLocalTopicChange</a>(<a class="code" href="classuserrec.html">userrec</a>* user, <a class="code" href="classchanrec.html">chanrec</a>* chan, <a class="code" href="namespaceirc.html#string">std::string</a> topic);
-<a name="l00966"></a>00966 
-<a name="l00973"></a>00973         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classModule.html#OnEvent_28Event_20_2Aevent_29">OnEvent</a>(<a class="code" href="classEvent.html">Event</a>* event);
-<a name="l00974"></a>00974 
-<a name="l00982"></a>00982         <span class="keyword">virtual</span> <span class="keywordtype">char</span>* <a class="code" href="classModule.html#OnRequest_28Request_20_2Arequest_29">OnRequest</a>(<a class="code" href="classRequest.html">Request</a>* request);
-<a name="l00983"></a>00983 
-<a name="l00993"></a>00993         <span class="keyword">virtual</span> <span class="keywordtype">int</span> <a class="code" href="classModule.html#OnOperCompare_28std_3A_3Astring_20password_2C_20std_3A_3Astring_20input_29">OnOperCompare</a>(<a class="code" href="namespaceirc.html#string">std::string</a> password, <a class="code" href="namespaceirc.html#string">std::string</a> input);
-<a name="l00994"></a>00994 
-<a name="l01001"></a>01001         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classModule.html#OnGlobalOper_28userrec_20_2Auser_29">OnGlobalOper</a>(<a class="code" href="classuserrec.html">userrec</a>* user);
-<a name="l01002"></a>01002 
-<a name="l01008"></a>01008         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classModule.html#OnGlobalConnect_28userrec_20_2Auser_29">OnGlobalConnect</a>(<a class="code" href="classuserrec.html">userrec</a>* user);
+<a name="l00792"></a>00792         <span class="keyword">virtual</span> <span class="keywordtype">int</span> <a class="code" href="classModule.html#OnKill_28userrec_20_2Asource_2C_20userrec_20_2Adest_2C_20std_3A_3Astring_20reason_29">OnKill</a>(<a class="code" href="classuserrec.html">userrec</a>* source, <a class="code" href="classuserrec.html">userrec</a>* dest, <a class="code" href="namespaceirc.html#string">std::string</a> reason);
+<a name="l00793"></a>00793 
+<a name="l00799"></a>00799         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classModule.html#OnRemoteKill_28userrec_20_2Asource_2C_20userrec_20_2Adest_2C_20std_3A_3Astring_20reason_29">OnRemoteKill</a>(<a class="code" href="classuserrec.html">userrec</a>* source, <a class="code" href="classuserrec.html">userrec</a>* dest, <a class="code" href="namespaceirc.html#string">std::string</a> reason);
+<a name="l00800"></a>00800 
+<a name="l00813"></a>00813         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classModule.html#OnLoadModule_28Module_20_2Amod_2C_20std_3A_3Astring_20name_29">OnLoadModule</a>(<a class="code" href="classModule.html">Module</a>* mod,<a class="code" href="namespaceirc.html#string">std::string</a> name);
+<a name="l00814"></a>00814 
+<a name="l00827"></a>00827         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classModule.html#OnUnloadModule_28Module_20_2Amod_2C_20std_3A_3Astring_20name_29">OnUnloadModule</a>(<a class="code" href="classModule.html">Module</a>* mod,<a class="code" href="namespaceirc.html#string">std::string</a> name);
+<a name="l00828"></a>00828 
+<a name="l00835"></a>00835         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classModule.html#OnBackgroundTimer_28time_5Ft_20curtime_29">OnBackgroundTimer</a>(time_t curtime);
+<a name="l00836"></a>00836 
+<a name="l00847"></a>00847         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classModule.html#OnSendList_28userrec_20_2Auser_2C_20chanrec_20_2Achannel_2C_20char_20mode_29">OnSendList</a>(<a class="code" href="classuserrec.html">userrec</a>* user, <a class="code" href="classchanrec.html">chanrec</a>* channel, <span class="keywordtype">char</span> mode);
+<a name="l00848"></a>00848 
+<a name="l00864"></a>00864         <span class="keyword">virtual</span> <span class="keywordtype">int</span> <a class="code" href="classModule.html#OnPreCommand_28std_3A_3Astring_20command_2C_20char_20_2A_2Aparameters_2C_20int_20pcnt_2C_20userrec_20_2Auser_29">OnPreCommand</a>(<a class="code" href="namespaceirc.html#string">std::string</a> command, <span class="keywordtype">char</span> **parameters, <span class="keywordtype">int</span> pcnt, <a class="code" href="classuserrec.html">userrec</a> *user);
+<a name="l00865"></a>00865 
+<a name="l00876"></a>00876         <span class="keyword">virtual</span> <span class="keywordtype">bool</span> <a class="code" href="classModule.html#OnCheckReady_28userrec_20_2Auser_29">OnCheckReady</a>(<a class="code" href="classuserrec.html">userrec</a>* user);
+<a name="l00877"></a>00877 
+<a name="l00886"></a>00886         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classModule.html#OnUserRegister_28userrec_20_2Auser_29">OnUserRegister</a>(<a class="code" href="classuserrec.html">userrec</a>* user);
+<a name="l00887"></a>00887 
+<a name="l00900"></a>00900         <span class="keyword">virtual</span> <span class="keywordtype">int</span> <a class="code" href="classModule.html#OnRawMode_28userrec_20_2Auser_2C_20chanrec_20_2Achan_2C_20char_20mode_2C_20std_3A_3Astring_20param_2C_20bool_20adding_2C_20int_20pcnt_29">OnRawMode</a>(<a class="code" href="classuserrec.html">userrec</a>* user, <a class="code" href="classchanrec.html">chanrec</a>* chan, <span class="keywordtype">char</span> mode, <a class="code" href="namespaceirc.html#string">std::string</a> param, <span class="keywordtype">bool</span> adding, <span class="keywordtype">int</span> pcnt);
+<a name="l00901"></a>00901 
+<a name="l00910"></a>00910         <span class="keyword">virtual</span> <span class="keywordtype">int</span> <a class="code" href="classModule.html#OnCheckInvite_28userrec_20_2Auser_2C_20chanrec_20_2Achan_29">OnCheckInvite</a>(<a class="code" href="classuserrec.html">userrec</a>* user, <a class="code" href="classchanrec.html">chanrec</a>* chan);
+<a name="l00911"></a>00911 
+<a name="l00921"></a>00921         <span class="keyword">virtual</span> <span class="keywordtype">int</span> <a class="code" href="classModule.html#OnCheckKey_28userrec_20_2Auser_2C_20chanrec_20_2Achan_2C_20std_3A_3Astring_20keygiven_29">OnCheckKey</a>(<a class="code" href="classuserrec.html">userrec</a>* user, <a class="code" href="classchanrec.html">chanrec</a>* chan, <a class="code" href="namespaceirc.html#string">std::string</a> keygiven);
+<a name="l00922"></a>00922 
+<a name="l00931"></a>00931         <span class="keyword">virtual</span> <span class="keywordtype">int</span> <a class="code" href="classModule.html#OnCheckLimit_28userrec_20_2Auser_2C_20chanrec_20_2Achan_29">OnCheckLimit</a>(<a class="code" href="classuserrec.html">userrec</a>* user, <a class="code" href="classchanrec.html">chanrec</a>* chan);
+<a name="l00932"></a>00932 
+<a name="l00941"></a>00941         <span class="keyword">virtual</span> <span class="keywordtype">int</span> <a class="code" href="classModule.html#OnCheckBan_28userrec_20_2Auser_2C_20chanrec_20_2Achan_29">OnCheckBan</a>(<a class="code" href="classuserrec.html">userrec</a>* user, <a class="code" href="classchanrec.html">chanrec</a>* chan);
+<a name="l00942"></a>00942 
+<a name="l00947"></a>00947         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classModule.html#OnStats_28char_20symbol_29">OnStats</a>(<span class="keywordtype">char</span> symbol);
+<a name="l00948"></a>00948 
+<a name="l00955"></a>00955         <span class="keyword">virtual</span> <span class="keywordtype">int</span> <a class="code" href="classModule.html#OnChangeLocalUserHost_28userrec_20_2Auser_2C_20std_3A_3Astring_20newhost_29">OnChangeLocalUserHost</a>(<a class="code" href="classuserrec.html">userrec</a>* user, <a class="code" href="namespaceirc.html#string">std::string</a> newhost);
+<a name="l00956"></a>00956 
+<a name="l00963"></a>00963         <span class="keyword">virtual</span> <span class="keywordtype">int</span> <a class="code" href="classModule.html#OnChangeLocalUserGECOS_28userrec_20_2Auser_2C_20std_3A_3Astring_20newhost_29">OnChangeLocalUserGECOS</a>(<a class="code" href="classuserrec.html">userrec</a>* user, <a class="code" href="namespaceirc.html#string">std::string</a> newhost); 
+<a name="l00964"></a>00964 
+<a name="l00972"></a>00972         <span class="keyword">virtual</span> <span class="keywordtype">int</span> <a class="code" href="classModule.html#OnLocalTopicChange_28userrec_20_2Auser_2C_20chanrec_20_2Achan_2C_20std_3A_3Astring_20topic_29">OnLocalTopicChange</a>(<a class="code" href="classuserrec.html">userrec</a>* user, <a class="code" href="classchanrec.html">chanrec</a>* chan, <a class="code" href="namespaceirc.html#string">std::string</a> topic);
+<a name="l00973"></a>00973 
+<a name="l00980"></a>00980         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classModule.html#OnPostLocalTopicChange_28userrec_20_2Auser_2C_20chanrec_20_2Achan_2C_20std_3A_3Astring_20topic_29">OnPostLocalTopicChange</a>(<a class="code" href="classuserrec.html">userrec</a>* user, <a class="code" href="classchanrec.html">chanrec</a>* chan, <a class="code" href="namespaceirc.html#string">std::string</a> topic);
+<a name="l00981"></a>00981 
+<a name="l00988"></a>00988         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classModule.html#OnEvent_28Event_20_2Aevent_29">OnEvent</a>(<a class="code" href="classEvent.html">Event</a>* event);
+<a name="l00989"></a>00989 
+<a name="l00997"></a>00997         <span class="keyword">virtual</span> <span class="keywordtype">char</span>* <a class="code" href="classModule.html#OnRequest_28Request_20_2Arequest_29">OnRequest</a>(<a class="code" href="classRequest.html">Request</a>* request);
+<a name="l00998"></a>00998 
+<a name="l01008"></a>01008         <span class="keyword">virtual</span> <span class="keywordtype">int</span> <a class="code" href="classModule.html#OnOperCompare_28std_3A_3Astring_20password_2C_20std_3A_3Astring_20input_29">OnOperCompare</a>(<a class="code" href="namespaceirc.html#string">std::string</a> password, <a class="code" href="namespaceirc.html#string">std::string</a> input);
 <a name="l01009"></a>01009 
-<a name="l01017"></a>01017         <span class="keyword">virtual</span> <span class="keywordtype">int</span> <a class="code" href="classModule.html#OnAddBan_28userrec_20_2Asource_2C_20chanrec_20_2Achannel_2C_20std_3A_3Astring_20banmask_29">OnAddBan</a>(<a class="code" href="classuserrec.html">userrec</a>* source, <a class="code" href="classchanrec.html">chanrec</a>* channel,<a class="code" href="namespaceirc.html#string">std::string</a> banmask);
-<a name="l01018"></a>01018 
-<a name="l01026"></a>01026         <span class="keyword">virtual</span> <span class="keywordtype">int</span> <a class="code" href="classModule.html#OnDelBan_28userrec_20_2Asource_2C_20chanrec_20_2Achannel_2C_20std_3A_3Astring_20banmask_29">OnDelBan</a>(<a class="code" href="classuserrec.html">userrec</a>* source, <a class="code" href="classchanrec.html">chanrec</a>* channel,<a class="code" href="namespaceirc.html#string">std::string</a> banmask);
-<a name="l01027"></a>01027 
-<a name="l01037"></a>01037         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classModule.html#OnRawSocketAccept_28int_20fd_2C_20std_3A_3Astring_20ip_2C_20int_20localport_29">OnRawSocketAccept</a>(<span class="keywordtype">int</span> fd, <a class="code" href="namespaceirc.html#string">std::string</a> ip, <span class="keywordtype">int</span> localport);
-<a name="l01038"></a>01038 
-<a name="l01049"></a>01049         <span class="keyword">virtual</span> <span class="keywordtype">int</span> <a class="code" href="classModule.html#OnRawSocketWrite_28int_20fd_2C_20char_20_2Abuffer_2C_20int_20count_29">OnRawSocketWrite</a>(<span class="keywordtype">int</span> fd, <span class="keywordtype">char</span>* buffer, <span class="keywordtype">int</span> count);
-<a name="l01050"></a>01050 
-<a name="l01055"></a>01055         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classModule.html#OnRawSocketClose_28int_20fd_29">OnRawSocketClose</a>(<span class="keywordtype">int</span> fd);
-<a name="l01056"></a>01056 
-<a name="l01072"></a>01072         <span class="keyword">virtual</span> <span class="keywordtype">int</span> <a class="code" href="classModule.html#OnRawSocketRead_28int_20fd_2C_20char_20_2Abuffer_2C_20unsigned_20int_20count_2C_20int_20_26readresult_29">OnRawSocketRead</a>(<span class="keywordtype">int</span> fd, <span class="keywordtype">char</span>* buffer, <span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> count, <span class="keywordtype">int</span> &amp;readresult);
-<a name="l01073"></a>01073 };
-<a name="l01074"></a>01074 
-<a name="l01075"></a>01075 
-<a name="l01081"></a><a class="code" href="classServer.html">01081</a> <span class="keyword">class </span><a class="code" href="classServer.html">Server</a> : <span class="keyword">public</span> <a class="code" href="classclassbase.html">classbase</a>
-<a name="l01082"></a>01082 {
-<a name="l01083"></a>01083  <span class="keyword">public</span>:
-<a name="l01087"></a>01087         <a class="code" href="classServer.html#Server_28_29">Server</a>();
-<a name="l01091"></a>01091         <span class="keyword">virtual</span> <a class="code" href="classServer.html#_7EServer_28_29">~Server</a>();
-<a name="l01092"></a>01092 
-<a name="l01096"></a>01096         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classServer.html#SendOpers_28std_3A_3Astring_20s_29">SendOpers</a>(<a class="code" href="namespaceirc.html#string">std::string</a> s);
-<a name="l01101"></a>01101         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classServer.html#Log_28int_20level_2C_20std_3A_3Astring_20s_29">Log</a>(<span class="keywordtype">int</span> level, <a class="code" href="namespaceirc.html#string">std::string</a> s);
-<a name="l01106"></a>01106         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classServer.html#Send_28int_20Socket_2C_20std_3A_3Astring_20s_29">Send</a>(<span class="keywordtype">int</span> Socket, <a class="code" href="namespaceirc.html#string">std::string</a> s);
-<a name="l01111"></a>01111         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classServer.html#SendServ_28int_20Socket_2C_20std_3A_3Astring_20s_29">SendServ</a>(<span class="keywordtype">int</span> Socket, <a class="code" href="namespaceirc.html#string">std::string</a> s);
-<a name="l01115"></a>01115         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classServer.html#SendChannelServerNotice_28std_3A_3Astring_20ServName_2C_20chanrec_20_2AChannel_2C_20std_3A_3Astring_20text_29">SendChannelServerNotice</a>(<a class="code" href="namespaceirc.html#string">std::string</a> ServName, <a class="code" href="classchanrec.html">chanrec</a>* Channel, <a class="code" href="namespaceirc.html#string">std::string</a> text);
-<a name="l01120"></a>01120         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classServer.html#SendFrom_28int_20Socket_2C_20userrec_20_2AUser_2C_20std_3A_3Astring_20s_29">SendFrom</a>(<span class="keywordtype">int</span> Socket, <a class="code" href="classuserrec.html">userrec</a>* User, <a class="code" href="namespaceirc.html#string">std::string</a> s);
-<a name="l01135"></a>01135         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classServer.html#SendTo_28userrec_20_2ASource_2C_20userrec_20_2ADest_2C_20std_3A_3Astring_20s_29">SendTo</a>(<a class="code" href="classuserrec.html">userrec</a>* Source, <a class="code" href="classuserrec.html">userrec</a>* Dest, <a class="code" href="namespaceirc.html#string">std::string</a> s);
-<a name="l01142"></a>01142         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classServer.html#SendChannel_28userrec_20_2AUser_2C_20chanrec_20_2AChannel_2C_20std_3A_3Astring_20s_2C_20bool_20IncludeSender_29">SendChannel</a>(<a class="code" href="classuserrec.html">userrec</a>* User, <a class="code" href="classchanrec.html">chanrec</a>* Channel, <a class="code" href="namespaceirc.html#string">std::string</a> s,<span class="keywordtype">bool</span> IncludeSender);
-<a name="l01147"></a>01147         <span class="keyword">virtual</span> <span class="keywordtype">bool</span> <a class="code" href="classServer.html#CommonChannels_28userrec_20_2Au_31_2C_20userrec_20_2Au_32_29">CommonChannels</a>(<a class="code" href="classuserrec.html">userrec</a>* u1, <a class="code" href="classuserrec.html">userrec</a>* u2);
-<a name="l01155"></a>01155         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classServer.html#SendCommon_28userrec_20_2AUser_2C_20std_3A_3Astring_20text_2C_20bool_20IncludeSender_29">SendCommon</a>(<a class="code" href="classuserrec.html">userrec</a>* User, <a class="code" href="namespaceirc.html#string">std::string</a> text,<span class="keywordtype">bool</span> IncludeSender);
-<a name="l01160"></a>01160         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classServer.html#SendWallops_28userrec_20_2AUser_2C_20std_3A_3Astring_20text_29">SendWallops</a>(<a class="code" href="classuserrec.html">userrec</a>* User, <a class="code" href="namespaceirc.html#string">std::string</a> text);
-<a name="l01161"></a>01161 
-<a name="l01165"></a>01165         <span class="keyword">virtual</span> <span class="keywordtype">bool</span> <a class="code" href="classServer.html#IsNick_28std_3A_3Astring_20nick_29">IsNick</a>(<a class="code" href="namespaceirc.html#string">std::string</a> nick);
-<a name="l01169"></a>01169         <span class="keyword">virtual</span> <span class="keywordtype">int</span> <a class="code" href="classServer.html#CountUsers_28chanrec_20_2Ac_29">CountUsers</a>(<a class="code" href="classchanrec.html">chanrec</a>* c);
-<a name="l01173"></a>01173         <span class="keyword">virtual</span> <a class="code" href="classuserrec.html">userrec</a>* <a class="code" href="classServer.html#FindNick_28std_3A_3Astring_20nick_29">FindNick</a>(<a class="code" href="namespaceirc.html#string">std::string</a> nick);
-<a name="l01177"></a>01177         <span class="keyword">virtual</span> <a class="code" href="classuserrec.html">userrec</a>* <a class="code" href="classServer.html#FindDescriptor_28int_20socket_29">FindDescriptor</a>(<span class="keywordtype">int</span> socket);
-<a name="l01181"></a>01181         <span class="keyword">virtual</span> <a class="code" href="classchanrec.html">chanrec</a>* <a class="code" href="classServer.html#FindChannel_28std_3A_3Astring_20channel_29">FindChannel</a>(<a class="code" href="namespaceirc.html#string">std::string</a> channel);
-<a name="l01186"></a>01186         <span class="keyword">virtual</span> <a class="code" href="namespaceirc.html#string">std::string</a> <a class="code" href="classServer.html#ChanMode_28userrec_20_2AUser_2C_20chanrec_20_2AChan_29">ChanMode</a>(<a class="code" href="classuserrec.html">userrec</a>* User, <a class="code" href="classchanrec.html">chanrec</a>* Chan);
-<a name="l01190"></a>01190         <span class="keyword">virtual</span> <span class="keywordtype">bool</span> <a class="code" href="classServer.html#IsOnChannel_28userrec_20_2AUser_2C_20chanrec_20_2AChan_29">IsOnChannel</a>(<a class="code" href="classuserrec.html">userrec</a>* User, <a class="code" href="classchanrec.html">chanrec</a>* Chan);
-<a name="l01193"></a>01193         <span class="keyword">virtual</span> <a class="code" href="namespaceirc.html#string">std::string</a> <a class="code" href="classServer.html#GetServerName_28_29">GetServerName</a>();
-<a name="l01196"></a>01196         <span class="keyword">virtual</span> <a class="code" href="namespaceirc.html#string">std::string</a> <a class="code" href="classServer.html#GetNetworkName_28_29">GetNetworkName</a>();
-<a name="l01199"></a>01199         <span class="keyword">virtual</span> <a class="code" href="namespaceirc.html#string">std::string</a> <a class="code" href="classServer.html#GetServerDescription_28_29">GetServerDescription</a>();
-<a name="l01205"></a>01205         <span class="keyword">virtual</span> <a class="code" href="classAdmin.html">Admin</a> <a class="code" href="classServer.html#GetAdmin_28_29">GetAdmin</a>();
-<a name="l01224"></a>01224         <span class="keyword">virtual</span> <span class="keywordtype">bool</span> <a class="code" href="classServer.html#AddExtendedMode_28char_20modechar_2C_20int_20type_2C_20bool_20requires_5Foper_2C_20int_20params_5Fwhen_5Fon_2C_20int_20params_5Fwhen_5Foff_29">AddExtendedMode</a>(<span class="keywordtype">char</span> modechar, <span class="keywordtype">int</span> type, <span class="keywordtype">bool</span> requires_oper, <span class="keywordtype">int</span> params_when_on, <span class="keywordtype">int</span> params_when_off);
-<a name="l01225"></a>01225 
-<a name="l01247"></a>01247         <span class="keyword">virtual</span> <span class="keywordtype">bool</span> <a class="code" href="classServer.html#AddExtendedListMode_28char_20modechar_29">AddExtendedListMode</a>(<span class="keywordtype">char</span> modechar);
-<a name="l01248"></a>01248 
-<a name="l01266"></a>01266         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classServer.html#AddCommand_28char_20_2Acmd_2C_20handlerfunc_20f_2C_20char_20flags_2C_20int_20minparams_2C_20char_20_2Asource_29">AddCommand</a>(<span class="keywordtype">char</span>* cmd, handlerfunc f, <span class="keywordtype">char</span> flags, <span class="keywordtype">int</span> minparams, <span class="keywordtype">char</span>* source);
-<a name="l01267"></a>01267          
-<a name="l01289"></a>01289         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classServer.html#SendMode_28char_20_2A_2Aparameters_2C_20int_20pcnt_2C_20userrec_20_2Auser_29">SendMode</a>(<span class="keywordtype">char</span> **parameters, <span class="keywordtype">int</span> pcnt, <a class="code" href="classuserrec.html">userrec</a> *user);
-<a name="l01290"></a>01290         
-<a name="l01303"></a>01303         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classServer.html#SendToModeMask_28std_3A_3Astring_20modes_2C_20int_20flags_2C_20std_3A_3Astring_20text_29">SendToModeMask</a>(<a class="code" href="namespaceirc.html#string">std::string</a> modes, <span class="keywordtype">int</span> flags, <a class="code" href="namespaceirc.html#string">std::string</a> text);
-<a name="l01304"></a>01304 
-<a name="l01310"></a>01310         <span class="keyword">virtual</span> <a class="code" href="classchanrec.html">chanrec</a>* <a class="code" href="classServer.html#JoinUserToChannel_28userrec_20_2Auser_2C_20std_3A_3Astring_20cname_2C_20std_3A_3Astring_20key_29">JoinUserToChannel</a>(<a class="code" href="classuserrec.html">userrec</a>* user, <a class="code" href="namespaceirc.html#string">std::string</a> cname, <a class="code" href="namespaceirc.html#string">std::string</a> key);
-<a name="l01311"></a>01311         
-<a name="l01317"></a>01317         <span class="keyword">virtual</span> <a class="code" href="classchanrec.html">chanrec</a>* <a class="code" href="classServer.html#PartUserFromChannel_28userrec_20_2Auser_2C_20std_3A_3Astring_20cname_2C_20std_3A_3Astring_20reason_29">PartUserFromChannel</a>(<a class="code" href="classuserrec.html">userrec</a>* user, <a class="code" href="namespaceirc.html#string">std::string</a> cname, <a class="code" href="namespaceirc.html#string">std::string</a> reason);
-<a name="l01318"></a>01318         
-<a name="l01324"></a>01324         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classServer.html#ChangeUserNick_28userrec_20_2Auser_2C_20std_3A_3Astring_20nickname_29">ChangeUserNick</a>(<a class="code" href="classuserrec.html">userrec</a>* user, <a class="code" href="namespaceirc.html#string">std::string</a> nickname);
-<a name="l01325"></a>01325         
-<a name="l01336"></a>01336         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classServer.html#QuitUser_28userrec_20_2Auser_2C_20std_3A_3Astring_20reason_29">QuitUser</a>(<a class="code" href="classuserrec.html">userrec</a>* user, <a class="code" href="namespaceirc.html#string">std::string</a> reason);
-<a name="l01337"></a>01337         
-<a name="l01342"></a>01342         <span class="keyword">virtual</span> <span class="keywordtype">bool</span> <a class="code" href="classServer.html#MatchText_28std_3A_3Astring_20sliteral_2C_20std_3A_3Astring_20spattern_29">MatchText</a>(<a class="code" href="namespaceirc.html#string">std::string</a> sliteral, <a class="code" href="namespaceirc.html#string">std::string</a> spattern);
-<a name="l01343"></a>01343         
-<a name="l01355"></a>01355         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classServer.html#CallCommandHandler_28std_3A_3Astring_20commandname_2C_20char_20_2A_2Aparameters_2C_20int_20pcnt_2C_20userrec_20_2Auser_29">CallCommandHandler</a>(<a class="code" href="namespaceirc.html#string">std::string</a> commandname, <span class="keywordtype">char</span>** parameters, <span class="keywordtype">int</span> pcnt, <a class="code" href="classuserrec.html">userrec</a>* user);
-<a name="l01356"></a>01356 
-<a name="l01357"></a>01357         <span class="keyword">virtual</span> <span class="keywordtype">bool</span> <a class="code" href="classServer.html#IsValidModuleCommand_28std_3A_3Astring_20commandname_2C_20int_20pcnt_2C_20userrec_20_2Auser_29">IsValidModuleCommand</a>(<a class="code" href="namespaceirc.html#string">std::string</a> commandname, <span class="keywordtype">int</span> pcnt, <a class="code" href="classuserrec.html">userrec</a>* user);
+<a name="l01016"></a>01016         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classModule.html#OnGlobalOper_28userrec_20_2Auser_29">OnGlobalOper</a>(<a class="code" href="classuserrec.html">userrec</a>* user);
+<a name="l01017"></a>01017 
+<a name="l01023"></a>01023         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classModule.html#OnGlobalConnect_28userrec_20_2Auser_29">OnGlobalConnect</a>(<a class="code" href="classuserrec.html">userrec</a>* user);
+<a name="l01024"></a>01024 
+<a name="l01032"></a>01032         <span class="keyword">virtual</span> <span class="keywordtype">int</span> <a class="code" href="classModule.html#OnAddBan_28userrec_20_2Asource_2C_20chanrec_20_2Achannel_2C_20std_3A_3Astring_20banmask_29">OnAddBan</a>(<a class="code" href="classuserrec.html">userrec</a>* source, <a class="code" href="classchanrec.html">chanrec</a>* channel,<a class="code" href="namespaceirc.html#string">std::string</a> banmask);
+<a name="l01033"></a>01033 
+<a name="l01041"></a>01041         <span class="keyword">virtual</span> <span class="keywordtype">int</span> <a class="code" href="classModule.html#OnDelBan_28userrec_20_2Asource_2C_20chanrec_20_2Achannel_2C_20std_3A_3Astring_20banmask_29">OnDelBan</a>(<a class="code" href="classuserrec.html">userrec</a>* source, <a class="code" href="classchanrec.html">chanrec</a>* channel,<a class="code" href="namespaceirc.html#string">std::string</a> banmask);
+<a name="l01042"></a>01042 
+<a name="l01052"></a>01052         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classModule.html#OnRawSocketAccept_28int_20fd_2C_20std_3A_3Astring_20ip_2C_20int_20localport_29">OnRawSocketAccept</a>(<span class="keywordtype">int</span> fd, <a class="code" href="namespaceirc.html#string">std::string</a> ip, <span class="keywordtype">int</span> localport);
+<a name="l01053"></a>01053 
+<a name="l01064"></a>01064         <span class="keyword">virtual</span> <span class="keywordtype">int</span> <a class="code" href="classModule.html#OnRawSocketWrite_28int_20fd_2C_20char_20_2Abuffer_2C_20int_20count_29">OnRawSocketWrite</a>(<span class="keywordtype">int</span> fd, <span class="keywordtype">char</span>* buffer, <span class="keywordtype">int</span> count);
+<a name="l01065"></a>01065 
+<a name="l01070"></a>01070         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classModule.html#OnRawSocketClose_28int_20fd_29">OnRawSocketClose</a>(<span class="keywordtype">int</span> fd);
+<a name="l01071"></a>01071 
+<a name="l01087"></a>01087         <span class="keyword">virtual</span> <span class="keywordtype">int</span> <a class="code" href="classModule.html#OnRawSocketRead_28int_20fd_2C_20char_20_2Abuffer_2C_20unsigned_20int_20count_2C_20int_20_26readresult_29">OnRawSocketRead</a>(<span class="keywordtype">int</span> fd, <span class="keywordtype">char</span>* buffer, <span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> count, <span class="keywordtype">int</span> &amp;readresult);
+<a name="l01088"></a>01088 };
+<a name="l01089"></a>01089 
+<a name="l01090"></a>01090 
+<a name="l01096"></a><a class="code" href="classServer.html">01096</a> <span class="keyword">class </span><a class="code" href="classServer.html">Server</a> : <span class="keyword">public</span> <a class="code" href="classclassbase.html">classbase</a>
+<a name="l01097"></a>01097 {
+<a name="l01098"></a>01098  <span class="keyword">public</span>:
+<a name="l01102"></a>01102         <a class="code" href="classServer.html#Server_28_29">Server</a>();
+<a name="l01106"></a>01106         <span class="keyword">virtual</span> <a class="code" href="classServer.html#_7EServer_28_29">~Server</a>();
+<a name="l01107"></a>01107 
+<a name="l01111"></a>01111         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classServer.html#SendOpers_28std_3A_3Astring_20s_29">SendOpers</a>(<a class="code" href="namespaceirc.html#string">std::string</a> s);
+<a name="l01116"></a>01116         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classServer.html#Log_28int_20level_2C_20std_3A_3Astring_20s_29">Log</a>(<span class="keywordtype">int</span> level, <a class="code" href="namespaceirc.html#string">std::string</a> s);
+<a name="l01121"></a>01121         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classServer.html#Send_28int_20Socket_2C_20std_3A_3Astring_20s_29">Send</a>(<span class="keywordtype">int</span> Socket, <a class="code" href="namespaceirc.html#string">std::string</a> s);
+<a name="l01126"></a>01126         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classServer.html#SendServ_28int_20Socket_2C_20std_3A_3Astring_20s_29">SendServ</a>(<span class="keywordtype">int</span> Socket, <a class="code" href="namespaceirc.html#string">std::string</a> s);
+<a name="l01130"></a>01130         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classServer.html#SendChannelServerNotice_28std_3A_3Astring_20ServName_2C_20chanrec_20_2AChannel_2C_20std_3A_3Astring_20text_29">SendChannelServerNotice</a>(<a class="code" href="namespaceirc.html#string">std::string</a> ServName, <a class="code" href="classchanrec.html">chanrec</a>* Channel, <a class="code" href="namespaceirc.html#string">std::string</a> text);
+<a name="l01135"></a>01135         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classServer.html#SendFrom_28int_20Socket_2C_20userrec_20_2AUser_2C_20std_3A_3Astring_20s_29">SendFrom</a>(<span class="keywordtype">int</span> Socket, <a class="code" href="classuserrec.html">userrec</a>* User, <a class="code" href="namespaceirc.html#string">std::string</a> s);
+<a name="l01150"></a>01150         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classServer.html#SendTo_28userrec_20_2ASource_2C_20userrec_20_2ADest_2C_20std_3A_3Astring_20s_29">SendTo</a>(<a class="code" href="classuserrec.html">userrec</a>* Source, <a class="code" href="classuserrec.html">userrec</a>* Dest, <a class="code" href="namespaceirc.html#string">std::string</a> s);
+<a name="l01157"></a>01157         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classServer.html#SendChannel_28userrec_20_2AUser_2C_20chanrec_20_2AChannel_2C_20std_3A_3Astring_20s_2C_20bool_20IncludeSender_29">SendChannel</a>(<a class="code" href="classuserrec.html">userrec</a>* User, <a class="code" href="classchanrec.html">chanrec</a>* Channel, <a class="code" href="namespaceirc.html#string">std::string</a> s,<span class="keywordtype">bool</span> IncludeSender);
+<a name="l01162"></a>01162         <span class="keyword">virtual</span> <span class="keywordtype">bool</span> <a class="code" href="classServer.html#CommonChannels_28userrec_20_2Au_31_2C_20userrec_20_2Au_32_29">CommonChannels</a>(<a class="code" href="classuserrec.html">userrec</a>* u1, <a class="code" href="classuserrec.html">userrec</a>* u2);
+<a name="l01170"></a>01170         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classServer.html#SendCommon_28userrec_20_2AUser_2C_20std_3A_3Astring_20text_2C_20bool_20IncludeSender_29">SendCommon</a>(<a class="code" href="classuserrec.html">userrec</a>* User, <a class="code" href="namespaceirc.html#string">std::string</a> text,<span class="keywordtype">bool</span> IncludeSender);
+<a name="l01175"></a>01175         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classServer.html#SendWallops_28userrec_20_2AUser_2C_20std_3A_3Astring_20text_29">SendWallops</a>(<a class="code" href="classuserrec.html">userrec</a>* User, <a class="code" href="namespaceirc.html#string">std::string</a> text);
+<a name="l01176"></a>01176 
+<a name="l01180"></a>01180         <span class="keyword">virtual</span> <span class="keywordtype">bool</span> <a class="code" href="classServer.html#IsNick_28std_3A_3Astring_20nick_29">IsNick</a>(<a class="code" href="namespaceirc.html#string">std::string</a> nick);
+<a name="l01184"></a>01184         <span class="keyword">virtual</span> <span class="keywordtype">int</span> <a class="code" href="classServer.html#CountUsers_28chanrec_20_2Ac_29">CountUsers</a>(<a class="code" href="classchanrec.html">chanrec</a>* c);
+<a name="l01188"></a>01188         <span class="keyword">virtual</span> <a class="code" href="classuserrec.html">userrec</a>* <a class="code" href="classServer.html#FindNick_28std_3A_3Astring_20nick_29">FindNick</a>(<a class="code" href="namespaceirc.html#string">std::string</a> nick);
+<a name="l01192"></a>01192         <span class="keyword">virtual</span> <a class="code" href="classuserrec.html">userrec</a>* <a class="code" href="classServer.html#FindDescriptor_28int_20socket_29">FindDescriptor</a>(<span class="keywordtype">int</span> socket);
+<a name="l01196"></a>01196         <span class="keyword">virtual</span> <a class="code" href="classchanrec.html">chanrec</a>* <a class="code" href="classServer.html#FindChannel_28std_3A_3Astring_20channel_29">FindChannel</a>(<a class="code" href="namespaceirc.html#string">std::string</a> channel);
+<a name="l01201"></a>01201         <span class="keyword">virtual</span> <a class="code" href="namespaceirc.html#string">std::string</a> <a class="code" href="classServer.html#ChanMode_28userrec_20_2AUser_2C_20chanrec_20_2AChan_29">ChanMode</a>(<a class="code" href="classuserrec.html">userrec</a>* User, <a class="code" href="classchanrec.html">chanrec</a>* Chan);
+<a name="l01205"></a>01205         <span class="keyword">virtual</span> <span class="keywordtype">bool</span> <a class="code" href="classServer.html#IsOnChannel_28userrec_20_2AUser_2C_20chanrec_20_2AChan_29">IsOnChannel</a>(<a class="code" href="classuserrec.html">userrec</a>* User, <a class="code" href="classchanrec.html">chanrec</a>* Chan);
+<a name="l01208"></a>01208         <span class="keyword">virtual</span> <a class="code" href="namespaceirc.html#string">std::string</a> <a class="code" href="classServer.html#GetServerName_28_29">GetServerName</a>();
+<a name="l01211"></a>01211         <span class="keyword">virtual</span> <a class="code" href="namespaceirc.html#string">std::string</a> <a class="code" href="classServer.html#GetNetworkName_28_29">GetNetworkName</a>();
+<a name="l01214"></a>01214         <span class="keyword">virtual</span> <a class="code" href="namespaceirc.html#string">std::string</a> <a class="code" href="classServer.html#GetServerDescription_28_29">GetServerDescription</a>();
+<a name="l01220"></a>01220         <span class="keyword">virtual</span> <a class="code" href="classAdmin.html">Admin</a> <a class="code" href="classServer.html#GetAdmin_28_29">GetAdmin</a>();
+<a name="l01239"></a>01239         <span class="keyword">virtual</span> <span class="keywordtype">bool</span> <a class="code" href="classServer.html#AddExtendedMode_28char_20modechar_2C_20int_20type_2C_20bool_20requires_5Foper_2C_20int_20params_5Fwhen_5Fon_2C_20int_20params_5Fwhen_5Foff_29">AddExtendedMode</a>(<span class="keywordtype">char</span> modechar, <span class="keywordtype">int</span> type, <span class="keywordtype">bool</span> requires_oper, <span class="keywordtype">int</span> params_when_on, <span class="keywordtype">int</span> params_when_off);
+<a name="l01240"></a>01240 
+<a name="l01262"></a>01262         <span class="keyword">virtual</span> <span class="keywordtype">bool</span> <a class="code" href="classServer.html#AddExtendedListMode_28char_20modechar_29">AddExtendedListMode</a>(<span class="keywordtype">char</span> modechar);
+<a name="l01263"></a>01263 
+<a name="l01281"></a>01281         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classServer.html#AddCommand_28char_20_2Acmd_2C_20handlerfunc_20f_2C_20char_20flags_2C_20int_20minparams_2C_20char_20_2Asource_29">AddCommand</a>(<span class="keywordtype">char</span>* cmd, handlerfunc f, <span class="keywordtype">char</span> flags, <span class="keywordtype">int</span> minparams, <span class="keywordtype">char</span>* source);
+<a name="l01282"></a>01282          
+<a name="l01304"></a>01304         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classServer.html#SendMode_28char_20_2A_2Aparameters_2C_20int_20pcnt_2C_20userrec_20_2Auser_29">SendMode</a>(<span class="keywordtype">char</span> **parameters, <span class="keywordtype">int</span> pcnt, <a class="code" href="classuserrec.html">userrec</a> *user);
+<a name="l01305"></a>01305         
+<a name="l01318"></a>01318         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classServer.html#SendToModeMask_28std_3A_3Astring_20modes_2C_20int_20flags_2C_20std_3A_3Astring_20text_29">SendToModeMask</a>(<a class="code" href="namespaceirc.html#string">std::string</a> modes, <span class="keywordtype">int</span> flags, <a class="code" href="namespaceirc.html#string">std::string</a> text);
+<a name="l01319"></a>01319 
+<a name="l01325"></a>01325         <span class="keyword">virtual</span> <a class="code" href="classchanrec.html">chanrec</a>* <a class="code" href="classServer.html#JoinUserToChannel_28userrec_20_2Auser_2C_20std_3A_3Astring_20cname_2C_20std_3A_3Astring_20key_29">JoinUserToChannel</a>(<a class="code" href="classuserrec.html">userrec</a>* user, <a class="code" href="namespaceirc.html#string">std::string</a> cname, <a class="code" href="namespaceirc.html#string">std::string</a> key);
+<a name="l01326"></a>01326         
+<a name="l01332"></a>01332         <span class="keyword">virtual</span> <a class="code" href="classchanrec.html">chanrec</a>* <a class="code" href="classServer.html#PartUserFromChannel_28userrec_20_2Auser_2C_20std_3A_3Astring_20cname_2C_20std_3A_3Astring_20reason_29">PartUserFromChannel</a>(<a class="code" href="classuserrec.html">userrec</a>* user, <a class="code" href="namespaceirc.html#string">std::string</a> cname, <a class="code" href="namespaceirc.html#string">std::string</a> reason);
+<a name="l01333"></a>01333         
+<a name="l01339"></a>01339         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classServer.html#ChangeUserNick_28userrec_20_2Auser_2C_20std_3A_3Astring_20nickname_29">ChangeUserNick</a>(<a class="code" href="classuserrec.html">userrec</a>* user, <a class="code" href="namespaceirc.html#string">std::string</a> nickname);
+<a name="l01340"></a>01340         
+<a name="l01351"></a>01351         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classServer.html#QuitUser_28userrec_20_2Auser_2C_20std_3A_3Astring_20reason_29">QuitUser</a>(<a class="code" href="classuserrec.html">userrec</a>* user, <a class="code" href="namespaceirc.html#string">std::string</a> reason);
+<a name="l01352"></a>01352         
+<a name="l01357"></a>01357         <span class="keyword">virtual</span> <span class="keywordtype">bool</span> <a class="code" href="classServer.html#MatchText_28std_3A_3Astring_20sliteral_2C_20std_3A_3Astring_20spattern_29">MatchText</a>(<a class="code" href="namespaceirc.html#string">std::string</a> sliteral, <a class="code" href="namespaceirc.html#string">std::string</a> spattern);
 <a name="l01358"></a>01358         
-<a name="l01364"></a>01364         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classServer.html#ChangeHost_28userrec_20_2Auser_2C_20std_3A_3Astring_20host_29">ChangeHost</a>(<a class="code" href="classuserrec.html">userrec</a>* user, <a class="code" href="namespaceirc.html#string">std::string</a> host);
-<a name="l01365"></a>01365         
-<a name="l01371"></a>01371         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classServer.html#ChangeGECOS_28userrec_20_2Auser_2C_20std_3A_3Astring_20gecos_29">ChangeGECOS</a>(<a class="code" href="classuserrec.html">userrec</a>* user, <a class="code" href="namespaceirc.html#string">std::string</a> gecos);
-<a name="l01372"></a>01372         
-<a name="l01381"></a>01381         <span class="keyword">virtual</span> <span class="keywordtype">bool</span> <a class="code" href="classServer.html#IsUlined_28std_3A_3Astring_20server_29">IsUlined</a>(<a class="code" href="namespaceirc.html#string">std::string</a> server);
-<a name="l01382"></a>01382         
-<a name="l01386"></a>01386         <span class="keyword">virtual</span> <a class="code" href="modules_8h.html#chanuserlist">chanuserlist</a> <a class="code" href="classServer.html#GetUsers_28chanrec_20_2Achan_29">GetUsers</a>(<a class="code" href="classchanrec.html">chanrec</a>* chan);
-<a name="l01387"></a>01387 
-<a name="l01394"></a>01394         <span class="keyword">virtual</span> <span class="keywordtype">bool</span> <a class="code" href="classServer.html#UserToPseudo_28userrec_20_2Auser_2C_20std_3A_3Astring_20message_29">UserToPseudo</a>(<a class="code" href="classuserrec.html">userrec</a>* user,<a class="code" href="namespaceirc.html#string">std::string</a> message);
-<a name="l01395"></a>01395 
-<a name="l01402"></a>01402         <span class="keyword">virtual</span> <span class="keywordtype">bool</span> <a class="code" href="classServer.html#PseudoToUser_28userrec_20_2Aalive_2C_20userrec_20_2Azombie_2C_20std_3A_3Astring_20message_29">PseudoToUser</a>(<a class="code" href="classuserrec.html">userrec</a>* alive,<a class="code" href="classuserrec.html">userrec</a>* zombie,<a class="code" href="namespaceirc.html#string">std::string</a> message);
-<a name="l01403"></a>01403 
-<a name="l01411"></a>01411         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classServer.html#AddGLine_28long_20duration_2C_20std_3A_3Astring_20source_2C_20std_3A_3Astring_20reason_2C_20std_3A_3Astring_20hostmask_29">AddGLine</a>(<span class="keywordtype">long</span> <a class="code" href="commands_8h.html#duration_28const_20char_20_2Astr_29">duration</a>, <a class="code" href="namespaceirc.html#string">std::string</a> source, <a class="code" href="namespaceirc.html#string">std::string</a> reason, <a class="code" href="namespaceirc.html#string">std::string</a> hostmask);
-<a name="l01412"></a>01412 
-<a name="l01420"></a>01420         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classServer.html#AddQLine_28long_20duration_2C_20std_3A_3Astring_20source_2C_20std_3A_3Astring_20reason_2C_20std_3A_3Astring_20nickname_29">AddQLine</a>(<span class="keywordtype">long</span> duration, <a class="code" href="namespaceirc.html#string">std::string</a> source, <a class="code" href="namespaceirc.html#string">std::string</a> reason, <a class="code" href="namespaceirc.html#string">std::string</a> nickname);
-<a name="l01421"></a>01421 
-<a name="l01429"></a>01429         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classServer.html#AddZLine_28long_20duration_2C_20std_3A_3Astring_20source_2C_20std_3A_3Astring_20reason_2C_20std_3A_3Astring_20ipaddr_29">AddZLine</a>(<span class="keywordtype">long</span> duration, <a class="code" href="namespaceirc.html#string">std::string</a> source, <a class="code" href="namespaceirc.html#string">std::string</a> reason, <a class="code" href="namespaceirc.html#string">std::string</a> ipaddr);
-<a name="l01430"></a>01430 
-<a name="l01438"></a>01438         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classServer.html#AddKLine_28long_20duration_2C_20std_3A_3Astring_20source_2C_20std_3A_3Astring_20reason_2C_20std_3A_3Astring_20hostmask_29">AddKLine</a>(<span class="keywordtype">long</span> duration, <a class="code" href="namespaceirc.html#string">std::string</a> source, <a class="code" href="namespaceirc.html#string">std::string</a> reason, <a class="code" href="namespaceirc.html#string">std::string</a> hostmask);
-<a name="l01439"></a>01439 
-<a name="l01447"></a>01447         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classServer.html#AddELine_28long_20duration_2C_20std_3A_3Astring_20source_2C_20std_3A_3Astring_20reason_2C_20std_3A_3Astring_20hostmask_29">AddELine</a>(<span class="keywordtype">long</span> duration, <a class="code" href="namespaceirc.html#string">std::string</a> source, <a class="code" href="namespaceirc.html#string">std::string</a> reason, <a class="code" href="namespaceirc.html#string">std::string</a> hostmask);
-<a name="l01448"></a>01448 
-<a name="l01451"></a>01451         <span class="keyword">virtual</span> <span class="keywordtype">bool</span> <a class="code" href="classServer.html#DelGLine_28std_3A_3Astring_20hostmask_29">DelGLine</a>(<a class="code" href="namespaceirc.html#string">std::string</a> hostmask);
-<a name="l01452"></a>01452 
-<a name="l01455"></a>01455         <span class="keyword">virtual</span> <span class="keywordtype">bool</span> <a class="code" href="classServer.html#DelQLine_28std_3A_3Astring_20nickname_29">DelQLine</a>(<a class="code" href="namespaceirc.html#string">std::string</a> nickname);
-<a name="l01456"></a>01456 
-<a name="l01459"></a>01459         <span class="keyword">virtual</span> <span class="keywordtype">bool</span> <a class="code" href="classServer.html#DelZLine_28std_3A_3Astring_20ipaddr_29">DelZLine</a>(<a class="code" href="namespaceirc.html#string">std::string</a> ipaddr);
-<a name="l01460"></a>01460 
-<a name="l01463"></a>01463         <span class="keyword">virtual</span> <span class="keywordtype">bool</span> <a class="code" href="classServer.html#DelKLine_28std_3A_3Astring_20hostmask_29">DelKLine</a>(<a class="code" href="namespaceirc.html#string">std::string</a> hostmask);
-<a name="l01464"></a>01464 
-<a name="l01467"></a>01467         <span class="keyword">virtual</span> <span class="keywordtype">bool</span> <a class="code" href="classServer.html#DelELine_28std_3A_3Astring_20hostmask_29">DelELine</a>(<a class="code" href="namespaceirc.html#string">std::string</a> hostmask);
-<a name="l01468"></a>01468 
-<a name="l01474"></a>01474         <span class="keyword">virtual</span> <span class="keywordtype">long</span> <a class="code" href="classServer.html#CalcDuration_28std_3A_3Astring_20duration_29">CalcDuration</a>(<a class="code" href="namespaceirc.html#string">std::string</a> duration);
+<a name="l01370"></a>01370         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classServer.html#CallCommandHandler_28std_3A_3Astring_20commandname_2C_20char_20_2A_2Aparameters_2C_20int_20pcnt_2C_20userrec_20_2Auser_29">CallCommandHandler</a>(<a class="code" href="namespaceirc.html#string">std::string</a> commandname, <span class="keywordtype">char</span>** parameters, <span class="keywordtype">int</span> pcnt, <a class="code" href="classuserrec.html">userrec</a>* user);
+<a name="l01371"></a>01371 
+<a name="l01372"></a>01372         <span class="keyword">virtual</span> <span class="keywordtype">bool</span> <a class="code" href="classServer.html#IsValidModuleCommand_28std_3A_3Astring_20commandname_2C_20int_20pcnt_2C_20userrec_20_2Auser_29">IsValidModuleCommand</a>(<a class="code" href="namespaceirc.html#string">std::string</a> commandname, <span class="keywordtype">int</span> pcnt, <a class="code" href="classuserrec.html">userrec</a>* user);
+<a name="l01373"></a>01373         
+<a name="l01379"></a>01379         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classServer.html#ChangeHost_28userrec_20_2Auser_2C_20std_3A_3Astring_20host_29">ChangeHost</a>(<a class="code" href="classuserrec.html">userrec</a>* user, <a class="code" href="namespaceirc.html#string">std::string</a> host);
+<a name="l01380"></a>01380         
+<a name="l01386"></a>01386         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classServer.html#ChangeGECOS_28userrec_20_2Auser_2C_20std_3A_3Astring_20gecos_29">ChangeGECOS</a>(<a class="code" href="classuserrec.html">userrec</a>* user, <a class="code" href="namespaceirc.html#string">std::string</a> gecos);
+<a name="l01387"></a>01387         
+<a name="l01396"></a>01396         <span class="keyword">virtual</span> <span class="keywordtype">bool</span> <a class="code" href="classServer.html#IsUlined_28std_3A_3Astring_20server_29">IsUlined</a>(<a class="code" href="namespaceirc.html#string">std::string</a> server);
+<a name="l01397"></a>01397         
+<a name="l01401"></a>01401         <span class="keyword">virtual</span> <a class="code" href="modules_8h.html#chanuserlist">chanuserlist</a> <a class="code" href="classServer.html#GetUsers_28chanrec_20_2Achan_29">GetUsers</a>(<a class="code" href="classchanrec.html">chanrec</a>* chan);
+<a name="l01402"></a>01402 
+<a name="l01409"></a>01409         <span class="keyword">virtual</span> <span class="keywordtype">bool</span> <a class="code" href="classServer.html#UserToPseudo_28userrec_20_2Auser_2C_20std_3A_3Astring_20message_29">UserToPseudo</a>(<a class="code" href="classuserrec.html">userrec</a>* user,<a class="code" href="namespaceirc.html#string">std::string</a> message);
+<a name="l01410"></a>01410 
+<a name="l01417"></a>01417         <span class="keyword">virtual</span> <span class="keywordtype">bool</span> <a class="code" href="classServer.html#PseudoToUser_28userrec_20_2Aalive_2C_20userrec_20_2Azombie_2C_20std_3A_3Astring_20message_29">PseudoToUser</a>(<a class="code" href="classuserrec.html">userrec</a>* alive,<a class="code" href="classuserrec.html">userrec</a>* zombie,<a class="code" href="namespaceirc.html#string">std::string</a> message);
+<a name="l01418"></a>01418 
+<a name="l01426"></a>01426         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classServer.html#AddGLine_28long_20duration_2C_20std_3A_3Astring_20source_2C_20std_3A_3Astring_20reason_2C_20std_3A_3Astring_20hostmask_29">AddGLine</a>(<span class="keywordtype">long</span> <a class="code" href="commands_8h.html#duration_28const_20char_20_2Astr_29">duration</a>, <a class="code" href="namespaceirc.html#string">std::string</a> source, <a class="code" href="namespaceirc.html#string">std::string</a> reason, <a class="code" href="namespaceirc.html#string">std::string</a> hostmask);
+<a name="l01427"></a>01427 
+<a name="l01435"></a>01435         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classServer.html#AddQLine_28long_20duration_2C_20std_3A_3Astring_20source_2C_20std_3A_3Astring_20reason_2C_20std_3A_3Astring_20nickname_29">AddQLine</a>(<span class="keywordtype">long</span> duration, <a class="code" href="namespaceirc.html#string">std::string</a> source, <a class="code" href="namespaceirc.html#string">std::string</a> reason, <a class="code" href="namespaceirc.html#string">std::string</a> nickname);
+<a name="l01436"></a>01436 
+<a name="l01444"></a>01444         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classServer.html#AddZLine_28long_20duration_2C_20std_3A_3Astring_20source_2C_20std_3A_3Astring_20reason_2C_20std_3A_3Astring_20ipaddr_29">AddZLine</a>(<span class="keywordtype">long</span> duration, <a class="code" href="namespaceirc.html#string">std::string</a> source, <a class="code" href="namespaceirc.html#string">std::string</a> reason, <a class="code" href="namespaceirc.html#string">std::string</a> ipaddr);
+<a name="l01445"></a>01445 
+<a name="l01453"></a>01453         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classServer.html#AddKLine_28long_20duration_2C_20std_3A_3Astring_20source_2C_20std_3A_3Astring_20reason_2C_20std_3A_3Astring_20hostmask_29">AddKLine</a>(<span class="keywordtype">long</span> duration, <a class="code" href="namespaceirc.html#string">std::string</a> source, <a class="code" href="namespaceirc.html#string">std::string</a> reason, <a class="code" href="namespaceirc.html#string">std::string</a> hostmask);
+<a name="l01454"></a>01454 
+<a name="l01462"></a>01462         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classServer.html#AddELine_28long_20duration_2C_20std_3A_3Astring_20source_2C_20std_3A_3Astring_20reason_2C_20std_3A_3Astring_20hostmask_29">AddELine</a>(<span class="keywordtype">long</span> duration, <a class="code" href="namespaceirc.html#string">std::string</a> source, <a class="code" href="namespaceirc.html#string">std::string</a> reason, <a class="code" href="namespaceirc.html#string">std::string</a> hostmask);
+<a name="l01463"></a>01463 
+<a name="l01466"></a>01466         <span class="keyword">virtual</span> <span class="keywordtype">bool</span> <a class="code" href="classServer.html#DelGLine_28std_3A_3Astring_20hostmask_29">DelGLine</a>(<a class="code" href="namespaceirc.html#string">std::string</a> hostmask);
+<a name="l01467"></a>01467 
+<a name="l01470"></a>01470         <span class="keyword">virtual</span> <span class="keywordtype">bool</span> <a class="code" href="classServer.html#DelQLine_28std_3A_3Astring_20nickname_29">DelQLine</a>(<a class="code" href="namespaceirc.html#string">std::string</a> nickname);
+<a name="l01471"></a>01471 
+<a name="l01474"></a>01474         <span class="keyword">virtual</span> <span class="keywordtype">bool</span> <a class="code" href="classServer.html#DelZLine_28std_3A_3Astring_20ipaddr_29">DelZLine</a>(<a class="code" href="namespaceirc.html#string">std::string</a> ipaddr);
 <a name="l01475"></a>01475 
-<a name="l01478"></a>01478         <span class="keyword">virtual</span> <span class="keywordtype">bool</span> <a class="code" href="classServer.html#IsValidMask_28std_3A_3Astring_20mask_29">IsValidMask</a>(<a class="code" href="namespaceirc.html#string">std::string</a> mask);
+<a name="l01478"></a>01478         <span class="keyword">virtual</span> <span class="keywordtype">bool</span> <a class="code" href="classServer.html#DelKLine_28std_3A_3Astring_20hostmask_29">DelKLine</a>(<a class="code" href="namespaceirc.html#string">std::string</a> hostmask);
 <a name="l01479"></a>01479 
-<a name="l01484"></a>01484         <span class="keyword">virtual</span> <a class="code" href="classModule.html">Module</a>* <a class="code" href="classServer.html#FindModule_28std_3A_3Astring_20name_29">FindModule</a>(<a class="code" href="namespaceirc.html#string">std::string</a> name);
-<a name="l01485"></a>01485 
-<a name="l01488"></a>01488         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classServer.html#AddSocket_28InspSocket_20_2Asock_29">AddSocket</a>(<a class="code" href="classInspSocket.html">InspSocket</a>* sock);
-<a name="l01489"></a>01489 
-<a name="l01492"></a>01492         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classServer.html#DelSocket_28InspSocket_20_2Asock_29">DelSocket</a>(<a class="code" href="classInspSocket.html">InspSocket</a>* sock);
-<a name="l01493"></a>01493 
-<a name="l01494"></a>01494         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classServer.html#RehashServer_28_29">RehashServer</a>();
-<a name="l01495"></a>01495 };
-<a name="l01496"></a>01496 
-<a name="l01497"></a>01497 
-<a name="l01498"></a><a class="code" href="modules_8h.html#CONF_5FNOT_5FA_5FNUMBER">01498</a> <span class="preprocessor">#define CONF_NOT_A_NUMBER       0x000010</span>
-<a name="l01499"></a><a class="code" href="modules_8h.html#CONF_5FNOT_5FUNSIGNED">01499</a> <span class="preprocessor"></span><span class="preprocessor">#define CONF_NOT_UNSIGNED       0x000080</span>
-<a name="l01500"></a><a class="code" href="modules_8h.html#CONF_5FVALUE_5FNOT_5FFOUND">01500</a> <span class="preprocessor"></span><span class="preprocessor">#define CONF_VALUE_NOT_FOUND    0x000100</span>
-<a name="l01501"></a><a class="code" href="modules_8h.html#CONF_5FFILE_5FNOT_5FFOUND">01501</a> <span class="preprocessor"></span><span class="preprocessor">#define CONF_FILE_NOT_FOUND     0x000200</span>
-<a name="l01502"></a>01502 <span class="preprocessor"></span>
-<a name="l01503"></a>01503 
-<a name="l01510"></a><a class="code" href="classConfigReader.html">01510</a> <span class="keyword">class </span><a class="code" href="classConfigReader.html">ConfigReader</a> : <span class="keyword">public</span> <a class="code" href="classclassbase.html">classbase</a>
-<a name="l01511"></a>01511 {
-<a name="l01512"></a>01512   <span class="keyword">protected</span>:
-<a name="l01518"></a><a class="code" href="classConfigReader.html#cache">01518</a>         std::stringstream *<a class="code" href="classConfigReader.html#cache">cache</a>;
-<a name="l01519"></a><a class="code" href="classConfigReader.html#errorlog">01519</a>         std::stringstream *<a class="code" href="classConfigReader.html#errorlog">errorlog</a>;
-<a name="l01522"></a><a class="code" href="classConfigReader.html#readerror">01522</a>         <span class="keywordtype">bool</span> <a class="code" href="classConfigReader.html#readerror">readerror</a>;
-<a name="l01523"></a><a class="code" href="classConfigReader.html#error">01523</a>         <span class="keywordtype">long</span> <a class="code" href="classConfigReader.html#error">error</a>;
-<a name="l01524"></a>01524         
-<a name="l01525"></a>01525   <span class="keyword">public</span>:
-<a name="l01530"></a>01530         <a class="code" href="classConfigReader.html#ConfigReader_28_29">ConfigReader</a>();                 <span class="comment">// default constructor reads ircd.conf</span>
-<a name="l01534"></a>01534 <span class="comment"></span>        <a class="code" href="classConfigReader.html#ConfigReader_28_29">ConfigReader</a>(<a class="code" href="namespaceirc.html#string">std::string</a> filename);     <span class="comment">// read a module-specific config</span>
-<a name="l01538"></a>01538 <span class="comment"></span>        <a class="code" href="classConfigReader.html#_7EConfigReader_28_29">~ConfigReader</a>();
-<a name="l01543"></a>01543         <a class="code" href="namespaceirc.html#string">std::string</a> <a class="code" href="classConfigReader.html#ReadValue_28std_3A_3Astring_20tag_2C_20std_3A_3Astring_20name_2C_20int_20index_29">ReadValue</a>(<a class="code" href="namespaceirc.html#string">std::string</a> tag, <a class="code" href="namespaceirc.html#string">std::string</a> name, <span class="keywordtype">int</span> index);
-<a name="l01549"></a>01549         <span class="keywordtype">bool</span> <a class="code" href="classConfigReader.html#ReadFlag_28std_3A_3Astring_20tag_2C_20std_3A_3Astring_20name_2C_20int_20index_29">ReadFlag</a>(<a class="code" href="namespaceirc.html#string">std::string</a> tag, <a class="code" href="namespaceirc.html#string">std::string</a> name, <span class="keywordtype">int</span> index);
-<a name="l01558"></a>01558         <span class="keywordtype">long</span> <a class="code" href="classConfigReader.html#ReadInteger_28std_3A_3Astring_20tag_2C_20std_3A_3Astring_20name_2C_20int_20index_2C_20bool_20needs_5Funsigned_29">ReadInteger</a>(<a class="code" href="namespaceirc.html#string">std::string</a> tag, <a class="code" href="namespaceirc.html#string">std::string</a> name, <span class="keywordtype">int</span> index, <span class="keywordtype">bool</span> needs_unsigned);
-<a name="l01563"></a>01563         <span class="keywordtype">long</span> <a class="code" href="classConfigReader.html#GetError_28_29">GetError</a>();
-<a name="l01570"></a>01570         <span class="keywordtype">int</span> <a class="code" href="classConfigReader.html#Enumerate_28std_3A_3Astring_20tag_29">Enumerate</a>(<a class="code" href="namespaceirc.html#string">std::string</a> tag);
-<a name="l01575"></a>01575         <span class="keywordtype">bool</span> <a class="code" href="classConfigReader.html#Verify_28_29">Verify</a>();
-<a name="l01582"></a>01582         <span class="keywordtype">void</span> <a class="code" href="classConfigReader.html#DumpErrors_28bool_20bail_2C_20userrec_20_2Auser_29">DumpErrors</a>(<span class="keywordtype">bool</span> bail,<a class="code" href="classuserrec.html">userrec</a>* user);
-<a name="l01583"></a>01583 
-<a name="l01589"></a>01589         <span class="keywordtype">int</span> <a class="code" href="classConfigReader.html#EnumerateValues_28std_3A_3Astring_20tag_2C_20int_20index_29">EnumerateValues</a>(<a class="code" href="namespaceirc.html#string">std::string</a> tag, <span class="keywordtype">int</span> index);
-<a name="l01590"></a>01590 };
-<a name="l01591"></a>01591 
-<a name="l01592"></a>01592 
-<a name="l01593"></a>01593 
-<a name="l01599"></a><a class="code" href="classFileReader.html">01599</a> <span class="keyword">class </span><a class="code" href="classFileReader.html">FileReader</a> : <span class="keyword">public</span> <a class="code" href="classclassbase.html">classbase</a>
-<a name="l01600"></a>01600 {
-<a name="l01601"></a><a class="code" href="classFileReader.html#fc">01601</a>  <a class="code" href="modules_8h.html#file_5Fcache">file_cache</a> <a class="code" href="classFileReader.html#fc">fc</a>;
-<a name="l01602"></a>01602  <span class="keyword">public</span>:
-<a name="l01607"></a>01607          <a class="code" href="classFileReader.html#FileReader_28_29">FileReader</a>();
+<a name="l01482"></a>01482         <span class="keyword">virtual</span> <span class="keywordtype">bool</span> <a class="code" href="classServer.html#DelELine_28std_3A_3Astring_20hostmask_29">DelELine</a>(<a class="code" href="namespaceirc.html#string">std::string</a> hostmask);
+<a name="l01483"></a>01483 
+<a name="l01489"></a>01489         <span class="keyword">virtual</span> <span class="keywordtype">long</span> <a class="code" href="classServer.html#CalcDuration_28std_3A_3Astring_20duration_29">CalcDuration</a>(<a class="code" href="namespaceirc.html#string">std::string</a> duration);
+<a name="l01490"></a>01490 
+<a name="l01493"></a>01493         <span class="keyword">virtual</span> <span class="keywordtype">bool</span> <a class="code" href="classServer.html#IsValidMask_28std_3A_3Astring_20mask_29">IsValidMask</a>(<a class="code" href="namespaceirc.html#string">std::string</a> mask);
+<a name="l01494"></a>01494 
+<a name="l01499"></a>01499         <span class="keyword">virtual</span> <a class="code" href="classModule.html">Module</a>* <a class="code" href="classServer.html#FindModule_28std_3A_3Astring_20name_29">FindModule</a>(<a class="code" href="namespaceirc.html#string">std::string</a> name);
+<a name="l01500"></a>01500 
+<a name="l01503"></a>01503         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classServer.html#AddSocket_28InspSocket_20_2Asock_29">AddSocket</a>(<a class="code" href="classInspSocket.html">InspSocket</a>* sock);
+<a name="l01504"></a>01504 
+<a name="l01507"></a>01507         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classServer.html#DelSocket_28InspSocket_20_2Asock_29">DelSocket</a>(<a class="code" href="classInspSocket.html">InspSocket</a>* sock);
+<a name="l01508"></a>01508 
+<a name="l01509"></a>01509         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classServer.html#RehashServer_28_29">RehashServer</a>();
+<a name="l01510"></a>01510 };
+<a name="l01511"></a>01511 
+<a name="l01512"></a>01512 
+<a name="l01513"></a><a class="code" href="modules_8h.html#CONF_5FNOT_5FA_5FNUMBER">01513</a> <span class="preprocessor">#define CONF_NOT_A_NUMBER       0x000010</span>
+<a name="l01514"></a><a class="code" href="modules_8h.html#CONF_5FNOT_5FUNSIGNED">01514</a> <span class="preprocessor"></span><span class="preprocessor">#define CONF_NOT_UNSIGNED       0x000080</span>
+<a name="l01515"></a><a class="code" href="modules_8h.html#CONF_5FVALUE_5FNOT_5FFOUND">01515</a> <span class="preprocessor"></span><span class="preprocessor">#define CONF_VALUE_NOT_FOUND    0x000100</span>
+<a name="l01516"></a><a class="code" href="modules_8h.html#CONF_5FFILE_5FNOT_5FFOUND">01516</a> <span class="preprocessor"></span><span class="preprocessor">#define CONF_FILE_NOT_FOUND     0x000200</span>
+<a name="l01517"></a>01517 <span class="preprocessor"></span>
+<a name="l01518"></a>01518 
+<a name="l01525"></a><a class="code" href="classConfigReader.html">01525</a> <span class="keyword">class </span><a class="code" href="classConfigReader.html">ConfigReader</a> : <span class="keyword">public</span> <a class="code" href="classclassbase.html">classbase</a>
+<a name="l01526"></a>01526 {
+<a name="l01527"></a>01527   <span class="keyword">protected</span>:
+<a name="l01533"></a><a class="code" href="classConfigReader.html#cache">01533</a>         std::stringstream *<a class="code" href="classConfigReader.html#cache">cache</a>;
+<a name="l01534"></a><a class="code" href="classConfigReader.html#errorlog">01534</a>         std::stringstream *<a class="code" href="classConfigReader.html#errorlog">errorlog</a>;
+<a name="l01537"></a><a class="code" href="classConfigReader.html#readerror">01537</a>         <span class="keywordtype">bool</span> <a class="code" href="classConfigReader.html#readerror">readerror</a>;
+<a name="l01538"></a><a class="code" href="classConfigReader.html#error">01538</a>         <span class="keywordtype">long</span> <a class="code" href="classConfigReader.html#error">error</a>;
+<a name="l01539"></a>01539         
+<a name="l01540"></a>01540   <span class="keyword">public</span>:
+<a name="l01545"></a>01545         <a class="code" href="classConfigReader.html#ConfigReader_28_29">ConfigReader</a>();                 <span class="comment">// default constructor reads ircd.conf</span>
+<a name="l01549"></a>01549 <span class="comment"></span>        <a class="code" href="classConfigReader.html#ConfigReader_28_29">ConfigReader</a>(<a class="code" href="namespaceirc.html#string">std::string</a> filename);     <span class="comment">// read a module-specific config</span>
+<a name="l01553"></a>01553 <span class="comment"></span>        <a class="code" href="classConfigReader.html#_7EConfigReader_28_29">~ConfigReader</a>();
+<a name="l01558"></a>01558         <a class="code" href="namespaceirc.html#string">std::string</a> <a class="code" href="classConfigReader.html#ReadValue_28std_3A_3Astring_20tag_2C_20std_3A_3Astring_20name_2C_20int_20index_29">ReadValue</a>(<a class="code" href="namespaceirc.html#string">std::string</a> tag, <a class="code" href="namespaceirc.html#string">std::string</a> name, <span class="keywordtype">int</span> index);
+<a name="l01564"></a>01564         <span class="keywordtype">bool</span> <a class="code" href="classConfigReader.html#ReadFlag_28std_3A_3Astring_20tag_2C_20std_3A_3Astring_20name_2C_20int_20index_29">ReadFlag</a>(<a class="code" href="namespaceirc.html#string">std::string</a> tag, <a class="code" href="namespaceirc.html#string">std::string</a> name, <span class="keywordtype">int</span> index);
+<a name="l01573"></a>01573         <span class="keywordtype">long</span> <a class="code" href="classConfigReader.html#ReadInteger_28std_3A_3Astring_20tag_2C_20std_3A_3Astring_20name_2C_20int_20index_2C_20bool_20needs_5Funsigned_29">ReadInteger</a>(<a class="code" href="namespaceirc.html#string">std::string</a> tag, <a class="code" href="namespaceirc.html#string">std::string</a> name, <span class="keywordtype">int</span> index, <span class="keywordtype">bool</span> needs_unsigned);
+<a name="l01578"></a>01578         <span class="keywordtype">long</span> <a class="code" href="classConfigReader.html#GetError_28_29">GetError</a>();
+<a name="l01585"></a>01585         <span class="keywordtype">int</span> <a class="code" href="classConfigReader.html#Enumerate_28std_3A_3Astring_20tag_29">Enumerate</a>(<a class="code" href="namespaceirc.html#string">std::string</a> tag);
+<a name="l01590"></a>01590         <span class="keywordtype">bool</span> <a class="code" href="classConfigReader.html#Verify_28_29">Verify</a>();
+<a name="l01597"></a>01597         <span class="keywordtype">void</span> <a class="code" href="classConfigReader.html#DumpErrors_28bool_20bail_2C_20userrec_20_2Auser_29">DumpErrors</a>(<span class="keywordtype">bool</span> bail,<a class="code" href="classuserrec.html">userrec</a>* user);
+<a name="l01598"></a>01598 
+<a name="l01604"></a>01604         <span class="keywordtype">int</span> <a class="code" href="classConfigReader.html#EnumerateValues_28std_3A_3Astring_20tag_2C_20int_20index_29">EnumerateValues</a>(<a class="code" href="namespaceirc.html#string">std::string</a> tag, <span class="keywordtype">int</span> index);
+<a name="l01605"></a>01605 };
+<a name="l01606"></a>01606 
+<a name="l01607"></a>01607 
 <a name="l01608"></a>01608 
-<a name="l01614"></a>01614          <a class="code" href="classFileReader.html#FileReader_28_29">FileReader</a>(<a class="code" href="namespaceirc.html#string">std::string</a> filename);
-<a name="l01615"></a>01615 
-<a name="l01619"></a>01619          <a class="code" href="classFileReader.html#_7EFileReader_28_29">~FileReader</a>();
-<a name="l01620"></a>01620 
-<a name="l01626"></a>01626          <span class="keywordtype">void</span> <a class="code" href="classFileReader.html#LoadFile_28std_3A_3Astring_20filename_29">LoadFile</a>(<a class="code" href="namespaceirc.html#string">std::string</a> filename);
-<a name="l01627"></a>01627 
-<a name="l01631"></a>01631          <span class="keywordtype">bool</span> <a class="code" href="classFileReader.html#Exists_28_29">Exists</a>();
-<a name="l01632"></a>01632          
-<a name="l01637"></a>01637          <a class="code" href="namespaceirc.html#string">std::string</a> <a class="code" href="classFileReader.html#GetLine_28int_20x_29">GetLine</a>(<span class="keywordtype">int</span> x);
-<a name="l01638"></a>01638 
-<a name="l01644"></a>01644          <span class="keywordtype">int</span> <a class="code" href="classFileReader.html#FileSize_28_29">FileSize</a>();
-<a name="l01645"></a>01645 };
-<a name="l01646"></a>01646 
-<a name="l01647"></a>01647 
-<a name="l01654"></a><a class="code" href="classModuleFactory.html">01654</a> <span class="keyword">class </span><a class="code" href="classModuleFactory.html">ModuleFactory</a> : <span class="keyword">public</span> <a class="code" href="classclassbase.html">classbase</a>
-<a name="l01655"></a>01655 {
-<a name="l01656"></a>01656  <span class="keyword">public</span>:
-<a name="l01657"></a><a class="code" href="classModuleFactory.html#ModuleFactory_28_29">01657</a>         <a class="code" href="classModuleFactory.html#ModuleFactory_28_29">ModuleFactory</a>() { }
-<a name="l01658"></a><a class="code" href="classModuleFactory.html#_7EModuleFactory_28_29">01658</a>         <span class="keyword">virtual</span> <a class="code" href="classModuleFactory.html#_7EModuleFactory_28_29">~ModuleFactory</a>() { }
-<a name="l01663"></a>01663         <span class="keyword">virtual</span> <a class="code" href="classModule.html">Module</a> * <a class="code" href="classModuleFactory.html#CreateModule_28Server_20_2AMe_29_3D_30">CreateModule</a>(<a class="code" href="classServer.html">Server</a>* Me) = 0;
-<a name="l01664"></a>01664 };
-<a name="l01665"></a>01665 
-<a name="l01666"></a>01666 
-<a name="l01667"></a><a class="code" href="modules_8h.html#ircd_5Fmodule">01667</a> <span class="keyword">typedef</span> DLLFactory&lt;ModuleFactory&gt; <a class="code" href="modules_8h.html#ircd_5Fmodule">ircd_module</a>;
-<a name="l01668"></a>01668 
-<a name="l01669"></a>01669 <span class="preprocessor">#endif</span>
-</pre></div><hr size="1"><address style="align: right;"><small>Generated on Mon Dec 12 18:30:58 2005 for InspIRCd by&nbsp;
+<a name="l01614"></a><a class="code" href="classFileReader.html">01614</a> <span class="keyword">class </span><a class="code" href="classFileReader.html">FileReader</a> : <span class="keyword">public</span> <a class="code" href="classclassbase.html">classbase</a>
+<a name="l01615"></a>01615 {
+<a name="l01616"></a><a class="code" href="classFileReader.html#fc">01616</a>  <a class="code" href="modules_8h.html#file_5Fcache">file_cache</a> <a class="code" href="classFileReader.html#fc">fc</a>;
+<a name="l01617"></a>01617  <span class="keyword">public</span>:
+<a name="l01622"></a>01622          <a class="code" href="classFileReader.html#FileReader_28_29">FileReader</a>();
+<a name="l01623"></a>01623 
+<a name="l01629"></a>01629          <a class="code" href="classFileReader.html#FileReader_28_29">FileReader</a>(<a class="code" href="namespaceirc.html#string">std::string</a> filename);
+<a name="l01630"></a>01630 
+<a name="l01634"></a>01634          <a class="code" href="classFileReader.html#_7EFileReader_28_29">~FileReader</a>();
+<a name="l01635"></a>01635 
+<a name="l01641"></a>01641          <span class="keywordtype">void</span> <a class="code" href="classFileReader.html#LoadFile_28std_3A_3Astring_20filename_29">LoadFile</a>(<a class="code" href="namespaceirc.html#string">std::string</a> filename);
+<a name="l01642"></a>01642 
+<a name="l01646"></a>01646          <span class="keywordtype">bool</span> <a class="code" href="classFileReader.html#Exists_28_29">Exists</a>();
+<a name="l01647"></a>01647          
+<a name="l01652"></a>01652          <a class="code" href="namespaceirc.html#string">std::string</a> <a class="code" href="classFileReader.html#GetLine_28int_20x_29">GetLine</a>(<span class="keywordtype">int</span> x);
+<a name="l01653"></a>01653 
+<a name="l01659"></a>01659          <span class="keywordtype">int</span> <a class="code" href="classFileReader.html#FileSize_28_29">FileSize</a>();
+<a name="l01660"></a>01660 };
+<a name="l01661"></a>01661 
+<a name="l01662"></a>01662 
+<a name="l01669"></a><a class="code" href="classModuleFactory.html">01669</a> <span class="keyword">class </span><a class="code" href="classModuleFactory.html">ModuleFactory</a> : <span class="keyword">public</span> <a class="code" href="classclassbase.html">classbase</a>
+<a name="l01670"></a>01670 {
+<a name="l01671"></a>01671  <span class="keyword">public</span>:
+<a name="l01672"></a><a class="code" href="classModuleFactory.html#ModuleFactory_28_29">01672</a>         <a class="code" href="classModuleFactory.html#ModuleFactory_28_29">ModuleFactory</a>() { }
+<a name="l01673"></a><a class="code" href="classModuleFactory.html#_7EModuleFactory_28_29">01673</a>         <span class="keyword">virtual</span> <a class="code" href="classModuleFactory.html#_7EModuleFactory_28_29">~ModuleFactory</a>() { }
+<a name="l01678"></a>01678         <span class="keyword">virtual</span> <a class="code" href="classModule.html">Module</a> * <a class="code" href="classModuleFactory.html#CreateModule_28Server_20_2AMe_29_3D_30">CreateModule</a>(<a class="code" href="classServer.html">Server</a>* Me) = 0;
+<a name="l01679"></a>01679 };
+<a name="l01680"></a>01680 
+<a name="l01681"></a>01681 
+<a name="l01682"></a><a class="code" href="modules_8h.html#ircd_5Fmodule">01682</a> <span class="keyword">typedef</span> DLLFactory&lt;ModuleFactory&gt; <a class="code" href="modules_8h.html#ircd_5Fmodule">ircd_module</a>;
+<a name="l01683"></a>01683 
+<a name="l01684"></a>01684 <span class="preprocessor">#endif</span>
+</pre></div><hr size="1"><address style="align: right;"><small>Generated on Wed Dec 14 14:49:17 2005 for InspIRCd by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img src="doxygen.png" alt="doxygen" align="middle" border="0"></a> 1.4.4-20050815 </small></address>
 </body>

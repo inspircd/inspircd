@@ -1,4 +1,4 @@
-.TH "xline.h" 3 "12 Dec 2005" "Version 1.0Betareleases" "InspIRCd" \" -*- nroff -*-
+.TH "xline.h" 3 "14 Dec 2005" "Version 1.0Betareleases" "InspIRCd" \" -*- nroff -*-
 .ad l
 .nh
 .SH NAME
@@ -105,7 +105,7 @@ xline.h \-
 .RI "void \fBexpire_lines\fP ()"
 .br
 .ti -1c
-.RI "void \fBapply_lines\fP ()"
+.RI "void \fBapply_lines\fP (const int What)"
 .br
 .ti -1c
 .RI "void \fBstats_k\fP (\fBuserrec\fP *user)"
@@ -141,6 +141,25 @@ xline.h \-
 .RI "bool \fBqline_make_global\fP (const char *nickname)"
 .br
 .in -1c
+.SS "Variables"
+
+.in +1c
+.ti -1c
+.RI "const int \fBAPPLY_GLINES\fP = 1"
+.br
+.ti -1c
+.RI "const int \fBAPPLY_KLINES\fP = 2"
+.br
+.ti -1c
+.RI "const int \fBAPPLY_QLINES\fP = 4"
+.br
+.ti -1c
+.RI "const int \fBAPPLY_ZLINES\fP = 8"
+.br
+.ti -1c
+.RI "const int \fBAPPLY_ALL\fP = \fBAPPLY_GLINES\fP | \fBAPPLY_KLINES\fP | \fBAPPLY_QLINES\fP | \fBAPPLY_ZLINES\fP"
+.br
+.in -1c
 .SH "Function Documentation"
 .PP 
 .SS "void add_eline (long duration, const char * source, const char * reason, const char * hostmask)"
@@ -158,7 +177,7 @@ Referenced by Server::AddQLine().
 .SS "void add_zline (long duration, const char * source, const char * reason, const char * ipaddr)"
 .PP
 Referenced by Server::AddZLine().
-.SS "void apply_lines ()"
+.SS "void apply_lines (const int What)"
 .PP
 .SS "bool del_eline (const char * hostmask)"
 .PP
@@ -211,6 +230,23 @@ Referenced by Server::DelZLine().
 .PP
 .SS "void zline_set_creation_time (char * ip, time_t create_time)"
 .PP
+.SH "Variable Documentation"
+.PP 
+.SS "const int \fBAPPLY_ALL\fP = \fBAPPLY_GLINES\fP | \fBAPPLY_KLINES\fP | \fBAPPLY_QLINES\fP | \fBAPPLY_ZLINES\fP"
+.PP
+Definition at line 35 of file xline.h.
+.SS "const int \fBAPPLY_GLINES\fP = 1"
+.PP
+Definition at line 31 of file xline.h.
+.SS "const int \fBAPPLY_KLINES\fP = 2"
+.PP
+Definition at line 32 of file xline.h.
+.SS "const int \fBAPPLY_QLINES\fP = 4"
+.PP
+Definition at line 33 of file xline.h.
+.SS "const int \fBAPPLY_ZLINES\fP = 8"
+.PP
+Definition at line 34 of file xline.h.
 .SH "Author"
 .PP 
 Generated automatically by Doxygen for InspIRCd from the source code.

@@ -1,10 +1,14 @@
-.TH "ExtMode" 3 "12 Dec 2005" "Version 1.0Betareleases" "InspIRCd" \" -*- nroff -*-
+.TH "ExtMode" 3 "14 Dec 2005" "Version 1.0Betareleases" "InspIRCd" \" -*- nroff -*-
 .ad l
 .nh
 .SH NAME
-ExtMode \- 
+ExtMode \- Holds an extended mode's details.  
+
+.PP
 .SH SYNOPSIS
 .br
+.PP
+\fC#include <modules.h>\fP
 .PP
 Inherits \fBclassbase\fP.
 .PP
@@ -39,37 +43,41 @@ Inherits \fBclassbase\fP.
 .in -1c
 .SH "Detailed Description"
 .PP 
-Definition at line 133 of file modules.cpp.
+Holds an extended mode's details. 
+
+Used internally by \fBmodules.cpp\fP
+.PP
+Definition at line 236 of file modules.h.
 .SH "Constructor & Destructor Documentation"
 .PP 
 .SS "ExtMode::ExtMode (char mc, int ty, bool oper, int p_on, int p_off)\fC [inline]\fP"
 .PP
-Definition at line 142 of file modules.cpp.
+Definition at line 245 of file modules.h.
 .PP
 .nf
-142 : modechar(mc), type(ty), needsoper(oper), params_when_on(p_on), params_when_off(p_off) { };
+245 : modechar(mc), type(ty), needsoper(oper), params_when_on(p_on), params_when_off(p_off) { };
 .fi
 .PP
 .SH "Member Data Documentation"
 .PP 
 .SS "bool \fBExtMode::list\fP"
 .PP
-Definition at line 141 of file modules.cpp.
+Definition at line 244 of file modules.h.
 .SS "char \fBExtMode::modechar\fP"
 .PP
-Definition at line 136 of file modules.cpp.
+Definition at line 239 of file modules.h.
 .SS "bool \fBExtMode::needsoper\fP"
 .PP
-Definition at line 138 of file modules.cpp.
+Definition at line 241 of file modules.h.
 .SS "int \fBExtMode::params_when_off\fP"
 .PP
-Definition at line 140 of file modules.cpp.
+Definition at line 243 of file modules.h.
 .SS "int \fBExtMode::params_when_on\fP"
 .PP
-Definition at line 139 of file modules.cpp.
+Definition at line 242 of file modules.h.
 .SS "int \fBExtMode::type\fP"
 .PP
-Definition at line 137 of file modules.cpp.
+Definition at line 240 of file modules.h.
 
 .SH "Author"
 .PP 

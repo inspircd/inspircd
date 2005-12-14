@@ -1,4 +1,4 @@
-.TH "message.h" 3 "12 Dec 2005" "Version 1.0Betareleases" "InspIRCd" \" -*- nroff -*-
+.TH "message.h" 3 "14 Dec 2005" "Version 1.0Betareleases" "InspIRCd" \" -*- nroff -*-
 .ad l
 .nh
 .SH NAME
@@ -75,7 +75,7 @@ message.h \-
 .RI "void \fBTidyBan\fP (char *ban)"
 .br
 .ti -1c
-.RI "char * \fBchlist\fP (\fBuserrec\fP *user, \fBuserrec\fP *source)"
+.RI "\fBstd::string\fP \fBchlist\fP (\fBuserrec\fP *user, \fBuserrec\fP *source)"
 .br
 .ti -1c
 .RI "void \fBsend_network_quit\fP (const char *nick, const char *reason)"
@@ -93,7 +93,7 @@ Referenced by Server::ChangeHost().
 .SS "void ChangeName (\fBuserrec\fP * user, const char * gecos)"
 .PP
 Referenced by Server::ChangeGECOS().
-.SS "char* chlist (\fBuserrec\fP * user, \fBuserrec\fP * source)"
+.SS "\fBstd::string\fP chlist (\fBuserrec\fP * user, \fBuserrec\fP * source)"
 .PP
 .SS "void chop (char * str)"
 .PP

@@ -1,4 +1,4 @@
-.TH "SocketEngine" 3 "12 Dec 2005" "Version 1.0Betareleases" "InspIRCd" \" -*- nroff -*-
+.TH "SocketEngine" 3 "14 Dec 2005" "Version 1.0Betareleases" "InspIRCd" \" -*- nroff -*-
 .ad l
 .nh
 .SH NAME
@@ -192,7 +192,7 @@ Referenced by InspSocket::Poll(), and Server::UserToPseudo().
 120         }
 121 #ifdef USE_KQUEUE
 122         struct kevent ke;
-123         EV_SET(&ke, fd, ref[fd] && X_READBIT ? EVFILT_READ : EVFILT_WRITE, EV_DELETE, 0, 0, NULL);
+123         EV_SET(&ke, fd, ref[fd] & X_READBIT ? EVFILT_READ : EVFILT_WRITE, EV_DELETE, 0, 0, NULL);
 124         int i = kevent(EngineHandle, &ke, 1, 0, 0, NULL);
 125         if (i == -1)
 126         {
@@ -220,21 +220,21 @@ Referenced by InspSocket::Poll(), and Server::UserToPseudo().
 .PP
 Returns the socket engines name This returns the name of the engine for use in /VERSION responses. 
 .PP
-Definition at line 196 of file socketengine.cpp.
+Definition at line 193 of file socketengine.cpp.
 .PP
 .nf
-197 {
-198 #ifdef USE_SELECT
-199         return 'select';
+194 {
+195 #ifdef USE_SELECT
+196         return 'select';
+197 #endif
+198 #ifdef USE_KQUEUE
+199         return 'kqueue';
 200 #endif
-201 #ifdef USE_KQUEUE
-202         return 'kqueue';
+201 #ifdef USE_EPOLL
+202         return 'epoll';
 203 #endif
-204 #ifdef USE_EPOLL
-205         return 'epoll';
-206 #endif
-207         return 'misconfigured';
-208 }
+204         return 'misconfigured';
+205 }
 .fi
 .PP
 .SS "char SocketEngine::GetType (int fd)"
@@ -264,7 +264,7 @@ Please note that this doesnt wait long, only a couple of milliseconds. It return
 .PP
 Definition at line 146 of file socketengine.cpp.
 .PP
-References DEBUG, EngineHandle, fds, ke_list, ref, ts, and X_READBIT.
+References EngineHandle, fds, ke_list, ref, ts, and X_READBIT.
 .PP
 .nf
 147 {
@@ -294,27 +294,24 @@ References DEBUG, EngineHandle, fds, ke_list, ref, ts, and X_READBIT.
 171                 for (unsigned int a = 0; a < fds.size(); a++)
 172                 {
 173                         if ((FD_ISSET (fds[a], &rfdset)) || (FD_ISSET (fds[a], &wfdset)))
-174                         {
-175                                 log(DEBUG,'...Adding active %d',fds[a]);
-176                                 fdlist.push_back(fds[a]);
-177                         }
-178                 }
-179         }
-180 #endif
-181 #ifdef USE_KQUEUE
-182         ts.tv_nsec = 10000L;
-183         ts.tv_sec = 0;
-184         int i = kevent(EngineHandle, NULL, 0, &ke_list[0], 65535, &ts);
-185         for (int j = 0; j < i; j++)
-186                 fdlist.push_back(ke_list[j].ident);
-187 #endif
-188 #ifdef USE_EPOLL
-189         int i = epoll_wait(EngineHandle, events, 65535, 100);
-190         for (int j = 0; j < i; j++)
-191                 fdlist.push_back(events[j].data.fd);
-192 #endif
-193         return true;
-194 }
+174                                 fdlist.push_back(fds[a]);
+175                 }
+176         }
+177 #endif
+178 #ifdef USE_KQUEUE
+179         ts.tv_nsec = 10000L;
+180         ts.tv_sec = 0;
+181         int i = kevent(EngineHandle, NULL, 0, &ke_list[0], 65535, &ts);
+182         for (int j = 0; j < i; j++)
+183                 fdlist.push_back(ke_list[j].ident);
+184 #endif
+185 #ifdef USE_EPOLL
+186         int i = epoll_wait(EngineHandle, events, 65535, 100);
+187         for (int j = 0; j < i; j++)
+188                 fdlist.push_back(events[j].data.fd);
+189 #endif
+190         return true;
+191 }
 .fi
 .PP
 .SH "Member Data Documentation"
