@@ -1346,9 +1346,9 @@ void handle_stats(char **parameters, int pcnt, userrec *user)
 	if (*parameters[0] == 'U')
 	{
 		char ulined[MAXBUF];
-		for (int i = 0; i < ConfValueEnum("uline",&Config->config_f); i++)
+		for (int i = 0; i < Config->ConfValueEnum("uline",&Config->config_f); i++)
 		{
-			ConfValue("uline","server",i,ulined,&Config->config_f);
+			Config->ConfValue("uline","server",i,ulined,&Config->config_f);
 			WriteServ(user->fd,"248 %s U %s",user->nick,ulined);
 		}
 	}
@@ -1444,14 +1444,14 @@ void handle_stats(char **parameters, int pcnt, userrec *user)
 	/* stats o */
 	if (*parameters[0] == 'o')
 	{
-		for (int i = 0; i < ConfValueEnum("oper",&Config->config_f); i++)
+		for (int i = 0; i < Config->ConfValueEnum("oper",&Config->config_f); i++)
 		{
 			char LoginName[MAXBUF];
 			char HostName[MAXBUF];
 			char OperType[MAXBUF];
-			ConfValue("oper","name",i,LoginName,&Config->config_f);
-			ConfValue("oper","host",i,HostName,&Config->config_f);
-			ConfValue("oper","type",i,OperType,&Config->config_f);
+			Config->ConfValue("oper","name",i,LoginName,&Config->config_f);
+			Config->ConfValue("oper","host",i,HostName,&Config->config_f);
+			Config->ConfValue("oper","type",i,OperType,&Config->config_f);
 			WriteServ(user->fd,"243 %s O %s * %s %s 0",user->nick,HostName,LoginName,OperType);
 		}
 	}
@@ -1532,9 +1532,9 @@ bool is_uline(const char* server)
 	if (!(*server))
 		return true;
 
-	for (int i = 0; i < ConfValueEnum("uline",&Config->config_f); i++)
+	for (int i = 0; i < Config->ConfValueEnum("uline",&Config->config_f); i++)
 	{
-		ConfValue("uline","server",i,ServName,&Config->config_f);
+		Config->ConfValue("uline","server",i,ServName,&Config->config_f);
 		if (!strcasecmp(server,ServName))
 		{
 			return true;
@@ -1569,23 +1569,23 @@ void handle_oper(char **parameters, int pcnt, userrec *user)
 
 	snprintf(TheHost,MAXBUF,"%s@%s",user->ident,user->host);
 
-	for (int i = 0; i < ConfValueEnum("oper",&Config->config_f); i++)
+	for (int i = 0; i < Config->ConfValueEnum("oper",&Config->config_f); i++)
 	{
-		ConfValue("oper","name",i,LoginName,&Config->config_f);
-		ConfValue("oper","password",i,Password,&Config->config_f);
-		ConfValue("oper","type",i,OperType,&Config->config_f);
-		ConfValue("oper","host",i,HostName,&Config->config_f);
+		Config->ConfValue("oper","name",i,LoginName,&Config->config_f);
+		Config->ConfValue("oper","password",i,Password,&Config->config_f);
+		Config->ConfValue("oper","type",i,OperType,&Config->config_f);
+		Config->ConfValue("oper","host",i,HostName,&Config->config_f);
 		if ((!strcmp(LoginName,parameters[0])) && (!operstrcmp(Password,parameters[1])) && (match(TheHost,HostName)))
 		{
 			fail2 = true;
-			for (j =0; j < ConfValueEnum("type",&Config->config_f); j++)
+			for (j =0; j < Config->ConfValueEnum("type",&Config->config_f); j++)
 			{
-				ConfValue("type","name",j,TypeName,&Config->config_f);
+				Config->ConfValue("type","name",j,TypeName,&Config->config_f);
 
 				if (!strcmp(TypeName,OperType))
 				{
 					/* found this oper's opertype */
-					ConfValue("type","host",j,HostName,&Config->config_f);
+					Config->ConfValue("type","host",j,HostName,&Config->config_f);
 					if (*HostName)
 						ChangeDisplayedHost(user,HostName);
 					strlcpy(user->oper,TypeName,NICKMAX);
@@ -1816,8 +1816,8 @@ bool host_matches_everyone(std::string mask, userrec* user)
 	char insanemasks[MAXBUF];
 	char buffer[MAXBUF];
 	char itrigger[MAXBUF];
-	ConfValue("insane","hostmasks",0,insanemasks,&Config->config_f);
-	ConfValue("insane","trigger",0,itrigger,&Config->config_f);
+	Config->ConfValue("insane","hostmasks",0,insanemasks,&Config->config_f);
+	Config->ConfValue("insane","trigger",0,itrigger,&Config->config_f);
 	if (*itrigger == 0)
 		strlcpy(itrigger,"95.5",MAXBUF);
 	if ((*insanemasks == 'y') || (*insanemasks == 't') || (*insanemasks == '1'))
@@ -1844,8 +1844,8 @@ bool ip_matches_everyone(std::string ip, userrec* user)
 {
 	char insanemasks[MAXBUF];
 	char itrigger[MAXBUF];
-	ConfValue("insane","ipmasks",0,insanemasks,&Config->config_f);
-	ConfValue("insane","trigger",0,itrigger,&Config->config_f);
+	Config->ConfValue("insane","ipmasks",0,insanemasks,&Config->config_f);
+	Config->ConfValue("insane","trigger",0,itrigger,&Config->config_f);
 	if (*itrigger == 0)
 		strlcpy(itrigger,"95.5",MAXBUF);
 	if ((*insanemasks == 'y') || (*insanemasks == 't') || (*insanemasks == '1'))
@@ -1869,8 +1869,8 @@ bool nick_matches_everyone(std::string nick, userrec* user)
 {
 	char insanemasks[MAXBUF];
 	char itrigger[MAXBUF];
-	ConfValue("insane","nickmasks",0,insanemasks,&Config->config_f);
-	ConfValue("insane","trigger",0,itrigger,&Config->config_f);
+	Config->ConfValue("insane","nickmasks",0,insanemasks,&Config->config_f);
+	Config->ConfValue("insane","trigger",0,itrigger,&Config->config_f);
 	if (*itrigger == 0)
 		strlcpy(itrigger,"95.5",MAXBUF);
 	if ((*insanemasks == 'y') || (*insanemasks == 't') || (*insanemasks == '1'))

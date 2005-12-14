@@ -736,7 +736,7 @@ ConfigReader::ConfigReader()
 	Config->ClearStack();
 	this->cache = new std::stringstream(std::stringstream::in | std::stringstream::out);
 	this->errorlog = new std::stringstream(std::stringstream::in | std::stringstream::out);
-	this->readerror = LoadConf(CONFIG_FILE,this->cache,this->errorlog);
+	this->readerror = Config->LoadConf(CONFIG_FILE,this->cache,this->errorlog);
 	if (!this->readerror)
 		this->error = CONF_FILE_NOT_FOUND;
 }
@@ -756,7 +756,7 @@ ConfigReader::ConfigReader(std::string filename)
 	Config->ClearStack();
 	this->cache = new std::stringstream(std::stringstream::in | std::stringstream::out);
 	this->errorlog = new std::stringstream(std::stringstream::in | std::stringstream::out);
-	this->readerror = LoadConf(filename.c_str(),this->cache,this->errorlog);
+	this->readerror = Config->LoadConf(filename.c_str(),this->cache,this->errorlog);
 	if (!this->readerror)
 		this->error = CONF_FILE_NOT_FOUND;
 };
@@ -768,7 +768,7 @@ std::string ConfigReader::ReadValue(std::string tag, std::string name, int index
 	char n[MAXBUF];
 	strlcpy(t,tag.c_str(),MAXBUF);
 	strlcpy(n,name.c_str(),MAXBUF);
-	int res = ReadConf(cache,t,n,index,val);
+	int res = Config->ReadConf(cache,t,n,index,val);
 	if (!res)
 	{
 		this->error = CONF_VALUE_NOT_FOUND;
@@ -784,7 +784,7 @@ bool ConfigReader::ReadFlag(std::string tag, std::string name, int index)
 	char n[MAXBUF];
 	strlcpy(t,tag.c_str(),MAXBUF);
 	strlcpy(n,name.c_str(),MAXBUF);
-	int res = ReadConf(cache,t,n,index,val);
+	int res = Config->ReadConf(cache,t,n,index,val);
 	if (!res)
 	{
 		this->error = CONF_VALUE_NOT_FOUND;
@@ -801,7 +801,7 @@ long ConfigReader::ReadInteger(std::string tag, std::string name, int index, boo
 	char n[MAXBUF];
 	strlcpy(t,tag.c_str(),MAXBUF);
 	strlcpy(n,name.c_str(),MAXBUF);
-	int res = ReadConf(cache,t,n,index,val);
+	int res = Config->ReadConf(cache,t,n,index,val);
 	if (!res)
 	{
 		this->error = CONF_VALUE_NOT_FOUND;
@@ -865,12 +865,12 @@ void ConfigReader::DumpErrors(bool bail, userrec* user)
 
 int ConfigReader::Enumerate(std::string tag)
 {
-	return EnumConf(cache,tag.c_str());
+	return Config->EnumConf(cache,tag.c_str());
 }
 
 int ConfigReader::EnumerateValues(std::string tag, int index)
 {
-	return EnumValues(cache, tag.c_str(), index);
+	return Config->EnumValues(cache, tag.c_str(), index);
 }
 
 bool ConfigReader::Verify()

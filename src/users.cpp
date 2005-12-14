@@ -160,21 +160,21 @@ bool userrec::HasPermission(char* command)
 	// are they even an oper at all?
 	if (strchr(this->modes,'o'))
 	{
-		for (int j =0; j < ConfValueEnum("type",&Config->config_f); j++)
+		for (int j =0; j < Config->ConfValueEnum("type",&Config->config_f); j++)
 		{
-			ConfValue("type","name",j,TypeName,&Config->config_f);
+			Config->ConfValue("type","name",j,TypeName,&Config->config_f);
 			if (!strcmp(TypeName,this->oper))
 			{
-				ConfValue("type","classes",j,Classes,&Config->config_f);
+				Config->ConfValue("type","classes",j,Classes,&Config->config_f);
 				char* myclass = strtok_r(Classes," ",&savept);
 				while (myclass)
 				{
-					for (int k =0; k < ConfValueEnum("class",&Config->config_f); k++)
+					for (int k =0; k < Config->ConfValueEnum("class",&Config->config_f); k++)
 					{
-						ConfValue("class","name",k,ClassName,&Config->config_f);
+						Config->ConfValue("class","name",k,ClassName,&Config->config_f);
 						if (!strcmp(ClassName,myclass))
 						{
-							ConfValue("class","commands",k,CommandList,&Config->config_f);
+							Config->ConfValue("class","commands",k,CommandList,&Config->config_f);
 							mycmd = strtok_r(CommandList," ",&savept2);
 							while (mycmd)
 							{
