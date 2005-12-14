@@ -70,8 +70,6 @@ int WHOWAS_MAX = 100;  // default 100 people maximum in the WHOWAS list
 extern std::vector<Module*> modules;
 extern std::vector<ircd_module*> factory;
 
-std::vector<InspSocket*> module_sockets;
-
 extern int MODCOUNT;
 int openSockfd[MAXSOCKS];
 sockaddr_in client,server;
@@ -96,7 +94,6 @@ user_hash clientlist;
 chan_hash chanlist;
 whowas_hash whowas;
 command_table cmdlist;
-address_cache IP;
 servernamelist servernames;
 int BoundPortCount = 0;
 std::vector<userrec*> all_opers;
@@ -1613,12 +1610,12 @@ int InspIRCd::Run()
 					{
 						log(DEBUG,"Socket poll returned false, close and bail");
 						SE->DelFd(s->GetFd());
-						for (std::vector<InspSocket*>::iterator a = module_sockets.begin(); a < module_sockets.end(); a++)
+						for (std::vector<InspSocket*>::iterator a = this->module_sockets.begin(); a < this->module_sockets.end(); a++)
 						{
 							s_del = (InspSocket*)*a;
 							if ((s_del) && (s_del->GetFd() == activefds[activefd]))
 							{
-								module_sockets.erase(a);
+								this->module_sockets.erase(a);
 								break;
 							}
 						}
