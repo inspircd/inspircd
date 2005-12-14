@@ -101,6 +101,8 @@ class InspIRCd
         bool LoadModule(const char* filename);
 
  public:
+	time_t startup_time;
+	
 	InspIRCd(int argc, char** argv);
 	int Run();
 

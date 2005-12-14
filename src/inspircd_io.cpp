@@ -33,6 +33,7 @@ using namespace std;
 #include "xline.h"
 
 extern ServerConfig *Config;
+extern InspIRCd* ServerInstance;
 extern int openSockfd[MAXSOCKS];
 extern time_t TIME;
 
@@ -297,7 +298,7 @@ void ServerConfig::Read(bool bail, userrec* user)
                 if (!removed_modules.empty())
                 for (std::vector<std::string>::iterator removing = removed_modules.begin(); removing != removed_modules.end(); removing++)
                 {
-                        if (UnloadModule(removing->c_str()))
+                        if (ServerInstance->UnloadModule(removing->c_str()))
                         {
                                 WriteOpers("*** REHASH UNLOADED MODULE: %s",removing->c_str());
                                 WriteServ(user->fd,"973 %s %s :Module %s successfully unloaded.",user->nick, removing->c_str(), removing->c_str());
@@ -311,7 +312,7 @@ void ServerConfig::Read(bool bail, userrec* user)
                 if (!added_modules.empty())
                 for (std::vector<std::string>::iterator adding = added_modules.begin(); adding != added_modules.end(); adding++)
                 {
-                        if (LoadModule(adding->c_str()))
+                        if (ServerInstance->LoadModule(adding->c_str()))
                         {
                                 WriteOpers("*** REHASH LOADED MODULE: %s",adding->c_str());
                                 WriteServ(user->fd,"975 %s %s :Module %s successfully loaded.",user->nick, adding->c_str(), adding->c_str());

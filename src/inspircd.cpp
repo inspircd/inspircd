@@ -62,10 +62,10 @@ using namespace std;
 #include "dns.h"
 #include "typedefs.h"
 
+InspIRCd* ServerInstance;
+
 int WHOWAS_STALE = 48; // default WHOWAS Entries last 2 days before they go 'stale'
 int WHOWAS_MAX = 100;  // default 100 people maximum in the WHOWAS list
-int DieDelay  =  5;
-time_t startup_time = time(NULL);
 
 extern std::vector<Module*> modules;
 extern std::vector<ircd_module*> factory;
@@ -430,6 +430,7 @@ void kill_link_silent(userrec *user,const char* r)
 InspIRCd::InspIRCd(int argc, char** argv)
 {
 	Start();
+	this->startup_time = time(NULL);
 	srand(time(NULL));
 	log(DEBUG,"*** InspIRCd starting up!");
 	if (!FileExists(CONFIG_FILE))
@@ -1703,9 +1704,9 @@ int InspIRCd::Run()
 
 int main(int argc, char** argv)
 {
-        InspIRCd* TittyBiscuits = new InspIRCd(argc, argv);
-        TittyBiscuits->Run();
-        delete TittyBiscuits;
+        ServerInstance = new InspIRCd(argc, argv);
+        ServerInstance->Run();
+        delete ServerInstance;
         return 0;
 }
 
