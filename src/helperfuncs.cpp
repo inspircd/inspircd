@@ -1120,16 +1120,16 @@ void ShowMOTD(userrec *user)
 {
         char buf[65536];
         std::string WholeMOTD = "";
-        if (!MOTD.size())
+        if (!Config->MOTD.size())
         {
                 WriteServ(user->fd,"422 %s :Message of the day file is missing.",user->nick);
                 return;
         }
         snprintf(buf,65535,":%s 375 %s :- %s message of the day\r\n", Config->ServerName, user->nick, Config->ServerName);
         WholeMOTD = WholeMOTD + buf;
-        for (unsigned int i = 0; i != MOTD.size(); i++)
+        for (unsigned int i = 0; i < Config->MOTD.size(); i++)
         {
-                snprintf(buf,65535,":%s 372 %s :- %s\r\n", Config->ServerName, user->nick, MOTD[i].c_str());
+                snprintf(buf,65535,":%s 372 %s :- %s\r\n", Config->ServerName, user->nick, Config->MOTD[i].c_str());
                 WholeMOTD = WholeMOTD + buf;
         }
         snprintf(buf,65535,":%s 376 %s :End of message of the day.\r\n", Config->ServerName, user->nick);
@@ -1147,9 +1147,9 @@ void ShowRULES(userrec *user)
                 return;
         }
         WriteServ(user->fd,"NOTICE %s :%s rules",user->nick,Config->ServerName);
-        for (unsigned int i = 0; i != RULES.size(); i++)
+        for (unsigned int i = 0; i < Config->RULES.size(); i++)
         {
-                                WriteServ(user->fd,"NOTICE %s :%s",user->nick,RULES[i].c_str());
+                WriteServ(user->fd,"NOTICE %s :%s",user->nick,Config->RULES[i].c_str());
         }
         WriteServ(user->fd,"NOTICE %s :End of %s rules.",user->nick,Config->ServerName);
 }
