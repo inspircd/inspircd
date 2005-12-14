@@ -2,7 +2,7 @@
  *       | Inspire Internet Relay Chat Daemon |
  *       +------------------------------------+
  *
- *  Inspire is copyright (C) 2002-2004 ChatSpike-Dev.
+ *  Inspire is copyright (C) 2002-2005 ChatSpike-Dev.
  *                       E-mail:
  *                <brain@chatspike.net>
  *           	  <Craig@chatspike.net>
@@ -40,12 +40,14 @@ using namespace std;
 #include "globals.h"
 #include "modules.h"
 #include "dynamic.h"
+#include "commands.h"
 #include "wildcard.h"
 #include "message.h"
 #include "mode.h"
 #include "xline.h"
 #include "inspstring.h"
 #include "helperfuncs.h"
+#include "typedefs.h"
 
 #ifdef GCC3
 #define nspace __gnu_cxx
@@ -65,6 +67,7 @@ extern std::vector<std::string> module_names;
 extern int boundPortCount;
 extern std::stringstream config_f;
 extern time_t TIME;
+extern chan_hash chanlist;
 
 using namespace std;
 

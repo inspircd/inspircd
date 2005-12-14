@@ -30,6 +30,8 @@
 #define CM_SECRET 16
 #define CM_PRIVATE 32
 
+class userrec;
+
 /** Holds an entry for a ban list, exemption list, or invite list.
  * This class contains a single element in a channel list, such as a banlist.
  */
