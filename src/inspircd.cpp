@@ -69,6 +69,7 @@ int WHOWAS_MAX = 100;  // default 100 people maximum in the WHOWAS list
 
 extern std::vector<Module*> modules;
 extern std::vector<ircd_module*> factory;
+std::vector<InspSocket*> module_sockets;
 
 extern int MODCOUNT;
 int openSockfd[MAXSOCKS];
@@ -427,6 +428,7 @@ void kill_link_silent(userrec *user,const char* r)
 InspIRCd::InspIRCd(int argc, char** argv)
 {
 	Start();
+	module_sockets.clear();
 	this->startup_time = time(NULL);
 	srand(time(NULL));
 	log(DEBUG,"*** InspIRCd starting up!");
