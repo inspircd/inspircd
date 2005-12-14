@@ -21,6 +21,14 @@
 #include <string>
 #include "inspircd.h"
 
+// flags for use with log()
+
+#define DEBUG 10
+#define VERBOSE 20
+#define DEFAULT 30
+#define SPARSE 40
+#define NONE 50
+
 class ServerConfig
 {
   public:
@@ -82,7 +90,7 @@ class ServerConfig
 		MaxConn = SOMAXCONN;
 		MaxWhoResults = 100;
 		debugging = 0;
-		LogLevel = 30;
+		LogLevel = DEFAULT;
 		DieDelay = 5;
 	}
 };

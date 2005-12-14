@@ -51,14 +51,6 @@
 #define MAXSOCKS 64
 #define MAXCOMMAND 32
 
-// flags for use with log()
-
-#define DEBUG 10
-#define VERBOSE 20
-#define DEFAULT 30
-#define SPARSE 40
-#define NONE 50
-
 // flags for use with WriteMode
 
 #define WM_AND 1

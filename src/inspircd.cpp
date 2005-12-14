@@ -318,6 +318,7 @@ void ReadConfig(bool bail, userrec* user)
 		log(DEFAULT,"No MaxWhoResults specified or size out of range, setting to default of 128.");
 		Config->MaxWhoResults = 128;
 	}
+	Config->LogLevel = DEFAULT;
 	if (!strcmp(dbg,"debug"))
 	{
 		Config->LogLevel = DEBUG;
@@ -331,6 +332,7 @@ void ReadConfig(bool bail, userrec* user)
 		Config->LogLevel = SPARSE;
 	if (!strcmp(dbg,"none"))
 		Config->LogLevel = NONE;
+
 	readfile(MOTD,Config->motd);
 	log(DEFAULT,"Reading message of the day...");
 	readfile(RULES,Config->rules);
@@ -2231,9 +2233,9 @@ int InspIRCd(char** argv, int argc)
 	 * into smaller sub-functions, much tidier -- Brain
 	 */
 	OpenLog(argv, argc);
+	ReadConfig(true,NULL);
 	CheckRoot();
 	SetupCommandTable();
-	ReadConfig(true,NULL);
 	AddServerName(Config->ServerName);
 	CheckDie();
 	boundPortCount = BindPorts();
