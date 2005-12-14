@@ -73,6 +73,8 @@ using namespace std;
 
 std::vector<ModeParameter> custom_mode_params;
 
+chanrec* ForceChan(chanrec* Ptr,ucrec &a,userrec* user, int created);
+
 chanrec::chanrec()
 {
 	strcpy(name,"");

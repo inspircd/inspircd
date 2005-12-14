@@ -20,6 +20,9 @@
 #include "inspircd_config.h"
 #include "inspircd.h"
 #include "base.h"
+#include "typedefs.h"
+
+typedef void (handlerfunc) (char**, int, userrec*);
 
 /** A structure that defines a command
  */
