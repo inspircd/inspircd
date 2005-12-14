@@ -457,7 +457,7 @@ bool del_kline(const char* hostmask)
 
 char* matches_qline(const char* nick)
 {
-	if (qlines.empty())
+	if ((qlines.empty()) && (pqlines.empty()))
 		return NULL;
 	for (std::vector<QLine>::iterator i = qlines.begin(); i != qlines.end(); i++)
 		if (match(nick,i->nick))
@@ -472,7 +472,7 @@ char* matches_qline(const char* nick)
 
 char* matches_gline(const char* host)
 {
-        if (glines.empty())
+        if ((glines.empty()) && (pglines.empty()))
                 return NULL;
 	for (std::vector<GLine>::iterator i = glines.begin(); i != glines.end(); i++)
 		if (match(host,i->hostmask))
@@ -485,7 +485,7 @@ char* matches_gline(const char* host)
 
 char* matches_exception(const char* host)
 {
-        if (elines.empty())
+        if ((elines.empty()) && (pelines.empty()))
                 return NULL;
 	char host2[MAXBUF];
 	snprintf(host2,MAXBUF,"*@%s",host);
@@ -587,7 +587,7 @@ void zline_set_creation_time(char* ip, time_t create_time)
 
 char* matches_zline(const char* ipaddr)
 {
-        if (zlines.empty())
+        if ((zlines.empty()) && (pzlines.empty()))
                 return NULL;
 	for (std::vector<ZLine>::iterator i = zlines.begin(); i != zlines.end(); i++)
 		if (match(ipaddr,i->ipaddr))
@@ -602,7 +602,7 @@ char* matches_zline(const char* ipaddr)
 
 char* matches_kline(const char* host)
 {
-        if (klines.empty())
+        if ((klines.empty()) && (pklines.empty()))
                 return NULL;
 	for (std::vector<KLine>::iterator i = klines.begin(); i != klines.end(); i++)
 		if (match(host,i->hostmask))
@@ -688,7 +688,7 @@ void expire_lines()
 
 // applies lines, removing clients and changing nicks etc as applicable
 
-void apply_lines()
+void apply_lines(const int What)
 {
 	bool go_again = true;
 	char reason[MAXBUF];
@@ -711,7 +711,7 @@ void apply_lines()
 					if (matches_exception(host))
 						continue;
 				}
-				if (glines.size() || pglines.size())
+				if ((What & APPLY_GLINES) && (glines.size() || pglines.size()))
 				{
 					char* check = matches_gline(host);
 					if (check)
@@ -723,7 +723,7 @@ void apply_lines()
 						break;
 					}
 				}
-				if (klines.size() || pklines.size())
+				if ((What & APPLY_KLINES) && (klines.size() || pklines.size()))
 				{
 					char* check = matches_kline(host);
 					if (check)
@@ -735,7 +735,7 @@ void apply_lines()
 						break;
 					}
 				}
-				if (qlines.size() || pqlines.size())
+				if ((What & APPLY_QLINES) && (qlines.size() || pqlines.size()))
 				{
 					char* check = matches_qline(u->second->nick);
 					if (check)
@@ -747,7 +747,7 @@ void apply_lines()
 						break;
 					}
 				}
-				if (zlines.size() || pzlines.size())
+				if ((What & APPLY_ZLINES) && (zlines.size() || pzlines.size()))
 				{
 					char* check = matches_zline(u->second->ip);
 					if (check)

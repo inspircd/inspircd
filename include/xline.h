@@ -28,6 +28,11 @@
 #include "users.h"
 #include "channels.h"
 
+const int APPLY_GLINES	= 1;
+const int APPLY_KLINES	= 2;
+const int APPLY_QLINES	= 4;
+const int APPLY_ZLINES	= 8;
+const int APPLY_ALL	= APPLY_GLINES | APPLY_KLINES | APPLY_QLINES | APPLY_ZLINES;
 
 /** XLine is the base class for ban lines such as G lines and K lines.
  */
@@ -139,7 +144,7 @@ char* matches_kline(const char* host);
 char* matches_exception(const char* host);
 
 void expire_lines();
-void apply_lines();
+void apply_lines(const int What);
 
 void stats_k(userrec* user);
 void stats_g(userrec* user);

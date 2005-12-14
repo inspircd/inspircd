@@ -1950,6 +1950,7 @@ void handle_kline(char **parameters, int pcnt, userrec *user)
 		{
 			WriteOpers("*** %s added timed K-line for %s, expires in %d seconds.",user->nick,parameters[0],duration(parameters[1]));
 		}
+		apply_lines(APPLY_KLINES);
 	}
 	else
 	{
@@ -1963,7 +1964,6 @@ void handle_kline(char **parameters, int pcnt, userrec *user)
 			WriteServ(user->fd,"NOTICE %s :*** K-Line %s not found in list, try /stats k.",user->nick,parameters[0]);
 		}
 	}
-	apply_lines();
 }
 
 void handle_eline(char **parameters, int pcnt, userrec *user)
@@ -2014,6 +2014,7 @@ void handle_gline(char **parameters, int pcnt, userrec *user)
 		{
 			WriteOpers("*** %s added timed G-line for %s, expires in %d seconds.",user->nick,parameters[0],duration(parameters[1]));
 		}
+		apply_lines(APPLY_GLINES);
 	}
 	else
 	{
@@ -2027,7 +2028,6 @@ void handle_gline(char **parameters, int pcnt, userrec *user)
 			WriteServ(user->fd,"NOTICE %s :*** G-Line %s not found in list, try /stats g.",user->nick,parameters[0]);
 		}
 	}
-	apply_lines();
 }
 
 void handle_zline(char **parameters, int pcnt, userrec *user)
@@ -2051,6 +2051,7 @@ void handle_zline(char **parameters, int pcnt, userrec *user)
 		{
 			WriteOpers("*** %s added timed Z-line for %s, expires in %d seconds.",user->nick,parameters[0],duration(parameters[1]));
 		}
+		apply_lines(APPLY_ZLINES);
 	}
 	else
 	{
@@ -2064,7 +2065,6 @@ void handle_zline(char **parameters, int pcnt, userrec *user)
 			WriteServ(user->fd,"NOTICE %s :*** Z-Line %s not found in list, try /stats Z.",user->nick,parameters[0]);
 		}
 	}
-	apply_lines();
 }
 
 void handle_qline(char **parameters, int pcnt, userrec *user)
@@ -2083,6 +2083,7 @@ void handle_qline(char **parameters, int pcnt, userrec *user)
 		{
 			WriteOpers("*** %s added timed Q-line for %s, expires in %d seconds.",user->nick,parameters[0],duration(parameters[1]));
 		}
+		apply_lines(APPLY_QLINES);
 	}
 	else
 	{
@@ -2096,7 +2097,6 @@ void handle_qline(char **parameters, int pcnt, userrec *user)
 			WriteServ(user->fd,"NOTICE %s :*** Q-Line %s not found in list, try /stats k.",user->nick,parameters[0]);
 		}
 	}
-	apply_lines();
 }
 
 

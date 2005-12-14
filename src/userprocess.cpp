@@ -175,7 +175,7 @@ void ProcessUser(userrec* cu)
                                         WriteOpers("*** Excess flood from %s",current->ip);
                                         log(DEFAULT,"Excess flood from: %s",current->ip);
                                         add_zline(120,ServerName,"Flood from unregistered connection",current->ip);
-                                        apply_lines();
+                                        apply_lines(APPLY_ZLINES);
                                 }
                                 return;
                         }
@@ -190,7 +190,7 @@ void ProcessUser(userrec* cu)
                                         WriteOpers("*** Excess flood from %s",current->ip);
                                         log(DEFAULT,"Excess flood from: %s",current->ip);
                                         add_zline(120,ServerName,"Flood from unregistered connection",current->ip);
-                                        apply_lines();
+                                        apply_lines(APPLY_ZLINES);
                                 }
                                 return;
                         }
@@ -222,7 +222,7 @@ void ProcessUser(userrec* cu)
                                         else
                                         {
                                                 add_zline(120,ServerName,"Flood from unregistered connection",current->ip);
-                                                apply_lines();
+                                                apply_lines(APPLY_ZLINES);
                                         }
                                         return;
                                 }

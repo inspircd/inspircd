@@ -104,7 +104,7 @@ void tidystring(char* str)
 	while (go_again)
 	{
 		bool noparse = false;
-		unsigned int t = 0, a = 0;
+		int t = 0, a = 0;
 		go_again = false;
 		const int lenofstr = strlen(str);
 
