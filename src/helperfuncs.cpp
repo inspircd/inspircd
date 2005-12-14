@@ -60,7 +60,6 @@ extern userrec* fd_ref_table[65536];
 extern serverstats* stats;
 static char already_sent[65536];
 extern std::vector<userrec*> all_opers;
-extern ClassVector Classes;
 extern user_hash clientlist;
 extern chan_hash chanlist;
 extern command_table cmdlist;

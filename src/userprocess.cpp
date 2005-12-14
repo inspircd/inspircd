@@ -64,7 +64,6 @@ extern int openSockfd[MAXSOCKS];
 extern struct sockaddr_in client,server;
 extern socklen_t length;
 extern std::vector<Module*> modules;
-extern std::vector<std::string> module_names;
 extern std::vector<ircd_module*> factory;
 extern std::vector<InspSocket*> module_sockets;
 extern SocketEngine* SE;

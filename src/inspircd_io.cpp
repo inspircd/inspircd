@@ -30,15 +30,17 @@ using namespace std;
 #include "inspircd_util.h"
 #include "inspstring.h"
 #include "helperfuncs.h"
+#include "xline.h"
 
 extern ServerConfig *Config;
 extern int boundPortCount;
 extern int openSockfd[MAXSOCKS];
 extern time_t TIME;
-std::vector<std::string> include_stack;
+
 
 ServerConfig::ServerConfig()
 {
+	this->ClearStack();
 	*ServerName = *Network = *ServerDesc = *AdminName = '\0';
 	*AdminEmail = *AdminNick = *diepass = *restartpass = '\0';
 	*motd = *rules = *PrefixQuit = *DieValue = *DNSServer = '\0';
@@ -55,6 +57,11 @@ ServerConfig::ServerConfig()
 	debugging = 0;
 	LogLevel = DEFAULT;
 	DieDelay = 5;
+}
+
+ServerConfig::ClearStack()
+{
+	include_stack.clear();
 }
 
 

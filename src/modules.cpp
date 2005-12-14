@@ -55,28 +55,23 @@ extern ServerConfig *Config;
 extern int MODCOUNT;
 extern std::vector<Module*> modules;
 extern std::vector<ircd_module*> factory;
-extern std::vector<std::string> include_stack;
 extern std::vector<InspSocket*> module_sockets;
 
 extern time_t TIME;
 extern int WHOWAS_STALE;
 extern int WHOWAS_MAX;
 extern time_t startup_time;
-extern std::vector<std::string> module_names;
 extern int boundPortCount;
 extern int portCount;
 extern int ports[MAXSOCKS];
 
 class Server;
-
 extern userrec* fd_ref_table[65536];
 
 extern user_hash clientlist;
 extern chan_hash chanlist;
 extern whowas_hash whowas;
 extern command_table cmdlist;
-extern file_cache MOTD;
-extern file_cache RULES;
 extern address_cache IP;                                     
 ExtModeList EMode;
 
@@ -738,7 +733,7 @@ Module* Server::FindModule(std::string name)
 
 ConfigReader::ConfigReader()
 {
-	include_stack.clear();
+	Config->ClearStack();
 	this->cache = new std::stringstream(std::stringstream::in | std::stringstream::out);
 	this->errorlog = new std::stringstream(std::stringstream::in | std::stringstream::out);
 	this->readerror = LoadConf(CONFIG_FILE,this->cache,this->errorlog);
@@ -758,6 +753,7 @@ ConfigReader::~ConfigReader()
 
 ConfigReader::ConfigReader(std::string filename)
 {
+	Config->ClearStack();
 	this->cache = new std::stringstream(std::stringstream::in | std::stringstream::out);
 	this->errorlog = new std::stringstream(std::stringstream::in | std::stringstream::out);
 	this->readerror = LoadConf(filename.c_str(),this->cache,this->errorlog);

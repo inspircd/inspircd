@@ -73,11 +73,9 @@ extern int WHOWAS_STALE;
 extern int WHOWAS_MAX;
 extern time_t startup_time;
 extern time_t TIME;
-extern std::vector<std::string> module_names;
 extern int boundPortCount;
 extern int portCount;
 extern int ports[MAXSOCKS];
-extern ClassVector Classes;
 
 const long duration_m = 60;
 const long duration_h = duration_m * 60;
@@ -1276,7 +1274,7 @@ void handle_trace(char **parameters, int pcnt, userrec *user)
 
 void handle_modules(char **parameters, int pcnt, userrec *user)
 {
-  	for (unsigned int i = 0; i < module_names.size(); i++)
+  	for (unsigned int i = 0; i < Config->module_names.size(); i++)
 	{
 		Version V = modules[i]->GetVersion();
 		char modulename[MAXBUF];
@@ -1292,7 +1290,7 @@ void handle_modules(char **parameters, int pcnt, userrec *user)
 			strlcat(flagstate,", service provider",MAXBUF);
 		if (!flagstate[0])
 			strcpy(flagstate,"  <no flags>");
-		strlcpy(modulename,module_names[i].c_str(),256);
+		strlcpy(modulename,Config->module_names[i].c_str(),256);
 		if (strchr(user->modes,'o'))
 		{
 			WriteServ(user->fd,"900 %s :0x%08lx %d.%d.%d.%d %s (%s)",user->nick,modules[i],V.Major,V.Minor,V.Revision,V.Build,CleanFilename(modulename),flagstate+2);
@@ -1328,7 +1326,7 @@ void handle_stats(char **parameters, int pcnt, userrec *user)
 	if (*parameters[0] == 'i')
 	{
 		int idx = 0;
-		for (ClassVector::iterator i = Classes.begin(); i != Classes.end(); i++)
+		for (ClassVector::iterator i = Config->Classes.begin(); i != Config->Classes.end(); i++)
 		{
 			WriteServ(user->fd,"215 %s I * * * %d %d %s *",user->nick,MAXCLIENTS,idx,Config->ServerName);
 			idx++;
@@ -1338,7 +1336,7 @@ void handle_stats(char **parameters, int pcnt, userrec *user)
 	if (*parameters[0] == 'y')
 	{
 		int idx = 0;
-		for (ClassVector::iterator i = Classes.begin(); i != Classes.end(); i++)
+		for (ClassVector::iterator i = Config->Classes.begin(); i != Config->Classes.end(); i++)
 		{
 			WriteServ(user->fd,"218 %s Y %d %d 0 %d %d",user->nick,idx,120,i->flood,i->registration_timeout);
 			idx++;

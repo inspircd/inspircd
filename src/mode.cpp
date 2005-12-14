@@ -49,8 +49,6 @@ using namespace std;
 extern int MODCOUNT;
 extern std::vector<Module*> modules;
 extern std::vector<ircd_module*> factory;
-extern std::vector<std::string> module_names;
-
 extern ServerConfig* Config;
 
 extern time_t TIME;
@@ -1220,7 +1218,7 @@ bool process_module_umode(char umode, userrec* source, void* dest, bool adding)
 		{
 			if (modules[i]->OnExtendedMode(source,(void*)dest,umode,MT_CLIENT,adding,p))
 			{
-				log(DEBUG,"Module %s claims umode %c",module_names[i].c_str(),umode);
+				log(DEBUG,"Module %s claims umode %c",Config->module_names[i].c_str(),umode);
 				return true;
 			}
 		}

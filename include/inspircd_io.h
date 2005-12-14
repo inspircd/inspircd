@@ -19,6 +19,7 @@
 
 #include <sstream>
 #include <string>
+#include <vector>
 #include "inspircd.h"
 #include "globals.h"
 
@@ -32,6 +33,9 @@
 
 class ServerConfig
 {
+  private:
+	std::vector<std::string> include_stack;
+
   public:
 	char ServerName[MAXBUF];
 	char Network[MAXBUF];
@@ -67,8 +71,10 @@ class ServerConfig
 	char PID[1024];
 	std::stringstream config_f;
 	ClassVector Classes;
+	std::vector<std::string> module_names;
 
 	ServerConfig();
+	ClearStack();
 	void Read(bool bail, userrec* user);
 };
 

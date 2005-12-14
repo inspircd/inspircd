@@ -68,7 +68,6 @@ int DieDelay  =  5;
 time_t startup_time = time(NULL);
 
 extern std::vector<Module*> modules;
-std::vector<std::string> module_names;
 extern std::vector<ircd_module*> factory;
 
 std::vector<InspSocket*> module_sockets;
@@ -83,8 +82,6 @@ extern InspSocket* socket_ref[65535];
 time_t TIME = time(NULL), OLDTIME = time(NULL);
 
 SocketEngine* SE = NULL;
-
-extern std::vector<std::string> include_stack;
 
 // This table references users by file descriptor.
 // its an array to make it VERY fast, as all lookups are referenced
@@ -1775,11 +1772,11 @@ void erase_module(int j)
 		v1++;
         }
 	int v2 = 0;
-        for (std::vector<std::string>::iterator v = module_names.begin(); v != module_names.end(); v++)
+        for (std::vector<std::string>::iterator v = Config->module_names.begin(); v != Config->module_names.end(); v++)
         {
                 if (v2 == j)
                 {
-                       module_names.erase(v);
+                       Config->module_names.erase(v);
                        break;
                 }
 		v2++;
@@ -1790,9 +1787,9 @@ void erase_module(int j)
 bool UnloadModule(const char* filename)
 {
 	std::string filename_str = filename;
-	for (unsigned int j = 0; j != module_names.size(); j++)
+	for (unsigned int j = 0; j != Config->module_names.size(); j++)
 	{
-		if (module_names[j] == filename_str)
+		if (Config->module_names[j] == filename_str)
 		{
 			if (modules[j]->GetVersion().Flags & VF_STATIC)
 			{
@@ -1809,7 +1806,7 @@ bool UnloadModule(const char* filename)
 			{
 				modules[j]->OnCleanup(TYPE_USER,u->second);
 			}
-			FOREACH_MOD OnUnloadModule(modules[j],module_names[j]);
+			FOREACH_MOD OnUnloadModule(modules[j],Config->module_names[j]);
 			// found the module
 			log(DEBUG,"Deleting module...");
 			erase_module(j);
@@ -1849,9 +1846,9 @@ bool LoadModule(const char* filename)
         if (FileExists(modfile))
         {
 #endif
-		for (unsigned int j = 0; j < module_names.size(); j++)
+		for (unsigned int j = 0; j < Config->module_names.size(); j++)
 		{
-			if (module_names[j] == filename_str)
+			if (Config->module_names[j] == filename_str)
 			{
 				log(DEFAULT,"Module %s is already loaded, cannot load a module twice!",modfile);
 				snprintf(MODERR,MAXBUF,"Module already loaded");
@@ -1873,7 +1870,7 @@ bool LoadModule(const char* filename)
                         modules[MODCOUNT+1] = m;
                         /* save the module and the module's classfactory, if
                          * this isnt done, random crashes can occur :/ */
-                        module_names.push_back(filename);
+                        Config->module_names.push_back(filename);
                 }
 		else
                 {
@@ -1962,6 +1959,7 @@ int InspIRCd(char** argv, int argc)
 	 * into smaller sub-functions, much tidier -- Brain
 	 */
 	OpenLog(argv, argc);
+	Config->ClearStack();
 	Config->Read(true,NULL);
 	CheckRoot();
 	SetupCommandTable();
