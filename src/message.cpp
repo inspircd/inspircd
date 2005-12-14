@@ -50,13 +50,8 @@ using namespace std;
 extern int MODCOUNT;
 extern std::vector<Module*> modules;
 extern std::vector<ircd_module*> factory;
-
-extern char ServerName[MAXBUF];
-
 extern time_t TIME;
-
-extern FILE *log_file;
-extern char DNSServer[MAXBUF];
+extern ServerConfig* Config;
 
 /* return 0 or 1 depending if users u and u2 share one or more common channels
  * (used by QUIT, NICK etc which arent channel specific notices) */
