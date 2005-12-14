@@ -101,7 +101,6 @@ class InspIRCd
 
  public:
 	time_t startup_time;
-	std::vector<InspSocket*> module_sockets;
 
 	bool LoadModule(const char* filename);
 	bool UnloadModule(const char* filename);

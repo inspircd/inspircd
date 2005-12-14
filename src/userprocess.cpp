@@ -64,7 +64,7 @@ extern struct sockaddr_in client,server;
 extern socklen_t length;
 extern std::vector<Module*> modules;
 extern std::vector<ircd_module*> factory;
-std::vector<InspSocket*> module_sockets;
+extern std::vector<InspSocket*> module_sockets;
 extern time_t TIME;
 extern time_t OLDTIME;
 
@@ -248,8 +248,8 @@ void ProcessUser(userrec* cu)
  */
 bool DoBackgroundUserStuff(time_t TIME)
 {
-        unsigned int numsockets = ServerInstance->module_sockets.size();
-        for (std::vector<InspSocket*>::iterator a = ServerInstance->module_sockets.begin(); a < ServerInstance->module_sockets.end(); a++)
+        unsigned int numsockets = module_sockets.size();
+        for (std::vector<InspSocket*>::iterator a = module_sockets.begin(); a < module_sockets.end(); a++)
         {
                 InspSocket* s = (InspSocket*)*a;
                 if (s->Timeout(TIME))
@@ -257,11 +257,11 @@ bool DoBackgroundUserStuff(time_t TIME)
                         log(DEBUG,"Socket poll returned false, close and bail");
                         SE->DelFd(s->GetFd());
                         s->Close();
-                        ServerInstance->module_sockets.erase(a);
+                        module_sockets.erase(a);
                         delete s;
                         break;
                 }
-                if (ServerInstance->module_sockets.size() != numsockets) break;
+                if (module_sockets.size() != numsockets) break;
         }
         /* TODO: We need a seperate hash containing only local users for this
          */

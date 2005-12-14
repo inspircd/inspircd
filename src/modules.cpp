@@ -56,7 +56,7 @@ extern InspIRCd* ServerInstance;
 extern int MODCOUNT;
 extern std::vector<Module*> modules;
 extern std::vector<ircd_module*> factory;
-std::vector<InspSocket*> module_sockets;
+extern std::vector<InspSocket*> module_sockets;
 
 extern time_t TIME;
 class Server;
@@ -312,7 +312,7 @@ Server::~Server()
 
 void Server::AddSocket(InspSocket* sock)
 {
-	ServerInstance->module_sockets.push_back(sock);
+	module_sockets.push_back(sock);
 }
 
 void Server::RehashServer()
@@ -328,11 +328,11 @@ ServerConfig* Server::GetConfig()
 
 void Server::DelSocket(InspSocket* sock)
 {
-	for (std::vector<InspSocket*>::iterator a = ServerInstance->module_sockets.begin(); a < ServerInstance->module_sockets.end(); a++)
+	for (std::vector<InspSocket*>::iterator a = module_sockets.begin(); a < module_sockets.end(); a++)
 	{
 		if (*a == sock)
 		{
-			ServerInstance->module_sockets.erase(a);
+			module_sockets.erase(a);
 			return;
 		}
 	}
