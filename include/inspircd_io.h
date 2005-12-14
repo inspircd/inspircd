@@ -246,6 +246,10 @@ class ServerConfig : public classbase
 	 */
 	std::vector<std::string> module_names;
 
+	/** A list of ports which the server is listening on
+	 */
+	int ports[MAXSOCKS];
+
 	ServerConfig();
 
 	/** Clears the include stack in preperation for

@@ -99,7 +99,6 @@ command_table cmdlist;
 address_cache IP;
 servernamelist servernames;
 int boundPortCount = 0;
-int portCount = 0, ports[MAXSOCKS];
 std::vector<userrec*> all_opers;
 char lowermap[255];
 

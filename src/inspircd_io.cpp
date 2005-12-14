@@ -1037,7 +1037,7 @@ int BindPorts()
                 {
                         // modules handle server bind types now,
                         // its not a typo in the strcmp.
-                        ports[clientportcount] = atoi(configToken);
+                        Config->ports[clientportcount] = atoi(configToken);
                         strlcpy(Config->addrs[clientportcount],Addr,256);
                         clientportcount++;
                         log(DEBUG,"InspIRCd: startup: read binding %s:%s [%s] from config",Addr,configToken, Type);
@@ -1052,9 +1052,9 @@ int BindPorts()
                         log(DEBUG,"InspIRCd: startup: bad fd %lu",(unsigned long)openSockfd[boundPortCount]);
                         return(ERROR);
                 }
-                if (BindSocket(openSockfd[boundPortCount],client,server,ports[count],Config->addrs[count]) == ERROR)
+                if (BindSocket(openSockfd[boundPortCount],client,server,Config->ports[count],Config->addrs[count]) == ERROR)
                 {
-                        log(DEFAULT,"InspIRCd: startup: failed to bind port %lu",(unsigned long)ports[count]);
+                        log(DEFAULT,"InspIRCd: startup: failed to bind port %lu",(unsigned long)Config->ports[count]);
                 }
                 else    /* well we at least bound to one socket so we'll continue */
                 {
