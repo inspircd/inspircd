@@ -322,11 +322,11 @@ bool DoBackgroundUserStuff(time_t TIME)
                 if ((long)curr == -1)
                         return false;
 
-                if ((curr) && (curr->fd != 0))
+                if ((curr) && (curr->fd != 0)) /* XXX - why are we checking fd != 0? --w00t */
                 {
                         int currfd = curr->fd;
                         // we don't check the state of remote users.
-                        if ((currfd != -1) && (currfd != FD_MAGIC_NUMBER))
+			if (IS_LOCAL(curr))
                         {
                                 curr->FlushWriteBuf();
                                 if (curr->GetWriteError() != "")
