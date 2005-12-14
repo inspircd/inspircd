@@ -1113,6 +1113,9 @@ class Server : public classbase
 	 * This method sends a server notice to all opers with the usermode +s.
 	 */
 	virtual void SendOpers(std::string s);
+	/** Returns the version string of this server
+	 */
+	std::string GetVersion();
 	/** Writes a log string.
 	 * This method writes a line of text to the log. If the level given is lower than the
 	 * level given in the configuration, this command has no effect.

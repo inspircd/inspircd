@@ -326,6 +326,11 @@ ServerConfig* Server::GetConfig()
 	return Config;
 }
 
+std::string Server::GetVersion()
+{
+	return ServerInstance->GetVersionString();
+}
+
 void Server::DelSocket(InspSocket* sock)
 {
 	for (std::vector<InspSocket*>::iterator a = module_sockets.begin(); a < module_sockets.end(); a++)

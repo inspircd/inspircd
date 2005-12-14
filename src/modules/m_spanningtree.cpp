@@ -173,7 +173,7 @@ class TreeServer
 		ServerDesc = "";
 		VersionString = "";
 		UserCount = OperCount = 0;
-		VersionString = GetVersionString();
+		VersionString = Srv->GetVersion();
 	}
 
 	/* We use this constructor only to create the 'root' item, TreeRoot, which
@@ -185,7 +185,7 @@ class TreeServer
 		Parent = NULL;
 		VersionString = "";
 		UserCount = OperCount = 0;
-		VersionString = GetVersionString();
+		VersionString = Srv->GetVersion();
 		Route = NULL;
 		AddHashEntry();
 	}
@@ -1099,7 +1099,7 @@ class TreeSocket : public InspSocket
 		Srv->SendOpers("*** Bursting to \2"+s->GetName()+"\2.");
 		this->WriteLine("BURST");
 		/* send our version string */
-		this->WriteLine(":"+Srv->GetServerName()+" VERSION :"+GetVersionString());
+		this->WriteLine(":"+Srv->GetServerName()+" VERSION :"+Srv->GetVersion());
 		/* Send server tree */
 		this->SendServers(TreeRoot,s,1);
 		/* Send users and their oper status */
