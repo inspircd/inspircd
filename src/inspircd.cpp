@@ -142,7 +142,7 @@ void DeleteOper(userrec* user)
         }
 }
 
-std::string GetRevision()
+std::string InspIRCd::GetRevision()
 {
 	/* w00t got me to replace a bunch of strtok_r
 	 * with something nicer, so i did this. Its the
@@ -855,7 +855,7 @@ void ConnectUser(userrec *user)
 	}
 }
 
-std::string GetVersionString()
+std::string InspIRCd::GetVersionString()
 {
 	char versiondata[MAXBUF];
 #ifdef THREADED_DNS
@@ -869,7 +869,7 @@ std::string GetVersionString()
 
 void handle_version(char **parameters, int pcnt, userrec *user)
 {
-	WriteServ(user->fd,"351 %s :%s",user->nick,GetVersionString().c_str());
+	WriteServ(user->fd,"351 %s :%s",user->nick,ServerInstance->GetVersionString().c_str());
 }
 
 
@@ -1359,9 +1359,7 @@ void process_buffer(const char* cmdbuf,userrec *user)
 	}
 }
 
-char MODERR[MAXBUF];
-
-char* ModuleError()
+char* InspIRCd::ModuleError()
 {
 	return MODERR;
 }

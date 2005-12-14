@@ -96,12 +96,16 @@ class InspIRCd
 {
 
  private:
+	char MODERR[MAXBUF];
         void erase_factory(int j);
-        void erase_module(int j);
+        void erase_module(int j);	
 
  public:
 	time_t startup_time;
 
+	std::string GetRevision();
+	std::string GetVersionString();
+	char* ModuleError();
 	bool LoadModule(const char* filename);
 	bool UnloadModule(const char* filename);
 	InspIRCd(int argc, char** argv);
@@ -115,12 +119,10 @@ void kill_link(userrec *user,const char* r);
 void kill_link_silent(userrec *user,const char* r);
 void call_handler(const char* commandname,char **parameters, int pcnt, userrec *user);
 bool is_valid_cmd(const char* commandname, int pcnt, userrec * user);
-std::string GetRevision();
 int loop_call(handlerfunc fn, char **parameters, int pcnt, userrec *u, int start, int end, int joins);
 void AddWhoWas(userrec* u);
 void ConnectUser(userrec *user);
 userrec* ReHashNick(char* Old, char* New);
-char* ModuleError();
 /* optimization tricks to save us walking the user hash */
 void AddOper(userrec* user);
 void DeleteOper(userrec* user);
@@ -128,7 +130,6 @@ void handle_version(char **parameters, int pcnt, userrec *user);
 /* userrec optimization stuff */
 void AddServerName(std::string servername);
 const char* FindServerNamePtr(std::string servername);
-std::string GetVersionString();
 void* dns_task(void* arg);
 void process_buffer(const char* cmdbuf,userrec *user);
 void FullConnectUser(userrec* user);
