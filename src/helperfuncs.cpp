@@ -53,24 +53,17 @@ using namespace std;
 extern int MODCOUNT;
 extern std::vector<Module*> modules;
 extern ServerConfig *Config;
-
 extern time_t TIME;
 extern char lowermap[255];
 static char list[MAXBUF];
 extern userrec* fd_ref_table[65536];
-
 extern serverstats* stats;
-
 static char already_sent[65536];
 extern std::vector<userrec*> all_opers;
-
 extern ClassVector Classes;
-
 extern user_hash clientlist;
 extern chan_hash chanlist;
 extern command_table cmdlist;
-extern file_cache MOTD;
-extern file_cache RULES;
 
 void log(int level,char *text, ...)
 {
@@ -116,7 +109,7 @@ void readfile(file_cache &F, const char* fname)
                 {
                         fgets(linebuf,sizeof(linebuf),file);
                         linebuf[strlen(linebuf)-1]='\0';
-                        if (linebuf[0] == 0)
+                        if (!*linebuf)
                         {
                                 strcpy(linebuf,"  ");
                         }
@@ -850,7 +843,7 @@ char* chanmodes(chanrec *chan)
         {
                 strlcat(scratch,"t",MAXMODES);
         }
-        if (chan->key[0])
+        if (*chan->key)
         {
                 strlcat(scratch,"k",MAXMODES);
         }
@@ -874,7 +867,7 @@ char* chanmodes(chanrec *chan)
         {
                 strlcat(scratch,"p",MAXMODES);
         }
-        if (chan->key[0])
+        if (*chan->key)
         {
                 strlcat(sparam," ",MAXBUF);
                 strlcat(sparam,chan->key,MAXBUF);
