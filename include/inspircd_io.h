@@ -74,7 +74,7 @@ class ServerConfig
 	std::vector<std::string> module_names;
 
 	ServerConfig();
-	ClearStack();
+	void ClearStack();
 	void Read(bool bail, userrec* user);
 };
 

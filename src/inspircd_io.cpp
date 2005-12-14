@@ -59,7 +59,7 @@ ServerConfig::ServerConfig()
 	DieDelay = 5;
 }
 
-ServerConfig::ClearStack()
+void ServerConfig::ClearStack()
 {
 	include_stack.clear();
 }
