@@ -20,6 +20,7 @@
 #include <sstream>
 #include <string>
 #include "inspircd.h"
+#include "globals.h"
 
 // flags for use with log()
 

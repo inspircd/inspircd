@@ -8,6 +8,7 @@
 #include "ctables.h"
 #include "inspircd.h"
 #include "modules.h"
+#include "globals.h"
 #include "inspircd_config.h"
 #include <string>
 #ifdef GCC3

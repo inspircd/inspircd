@@ -323,9 +323,9 @@ void ReadConfig(bool bail, userrec* user)
 	if (!strcmp(dbg,"none"))
 		Config->LogLevel = NONE;
 
-	readfile(MOTD,Config->motd);
+	readfile(Config->MOTD,Config->motd);
 	log(DEFAULT,"Reading message of the day...");
-	readfile(RULES,Config->rules);
+	readfile(Config->RULES,Config->rules);
 	log(DEFAULT,"Reading connect classes...");
 	Classes.clear();
 	for (int i = 0; i < ConfValueEnum("connect",&Config->config_f); i++)
