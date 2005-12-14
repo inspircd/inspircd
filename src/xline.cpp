@@ -113,33 +113,33 @@ void read_xline_defaults()
 	char host[MAXBUF];
 	char reason[MAXBUF];
 
-	for (int i = 0; i < ConfValueEnum("badip",&Config->config_f); i++)
+	for (int i = 0; i < Config->ConfValueEnum("badip",&Config->config_f); i++)
 	{
-		ConfValue("badip","ipmask",i,ipmask,&Config->config_f);
-		ConfValue("badip","reason",i,reason,&Config->config_f);
+		Config->ConfValue("badip","ipmask",i,ipmask,&Config->config_f);
+		Config->ConfValue("badip","reason",i,reason,&Config->config_f);
 		add_zline(0,"<Config>",reason,ipmask);
 		log(DEBUG,"Read Z line (badip tag): ipmask=%s reason=%s",ipmask,reason);
 	}
 	
-	for (int i = 0; i < ConfValueEnum("badnick",&Config->config_f); i++)
+	for (int i = 0; i < Config->ConfValueEnum("badnick",&Config->config_f); i++)
 	{
-		ConfValue("badnick","nick",i,nick,&Config->config_f);
-		ConfValue("badnick","reason",i,reason,&Config->config_f);
+		Config->ConfValue("badnick","nick",i,nick,&Config->config_f);
+		Config->ConfValue("badnick","reason",i,reason,&Config->config_f);
 		add_qline(0,"<Config>",reason,nick);
 		log(DEBUG,"Read Q line (badnick tag): nick=%s reason=%s",nick,reason);
 	}
 	
-	for (int i = 0; i < ConfValueEnum("badhost",&Config->config_f); i++)
+	for (int i = 0; i < Config->ConfValueEnum("badhost",&Config->config_f); i++)
 	{
-		ConfValue("badhost","host",i,host,&Config->config_f);
-		ConfValue("badhost","reason",i,reason,&Config->config_f);
+		Config->ConfValue("badhost","host",i,host,&Config->config_f);
+		Config->ConfValue("badhost","reason",i,reason,&Config->config_f);
 		add_kline(0,"<Config>",reason,host);
 		log(DEBUG,"Read K line (badhost tag): host=%s reason=%s",host,reason);
 	}
-	for (int i = 0; i < ConfValueEnum("exception",&Config->config_f); i++)
+	for (int i = 0; i < Config->ConfValueEnum("exception",&Config->config_f); i++)
 	{
-		ConfValue("exception","host",i,host,&Config->config_f);
-		ConfValue("exception","reason",i,reason,&Config->config_f);
+		Config->ConfValue("exception","host",i,host,&Config->config_f);
+		Config->ConfValue("exception","reason",i,reason,&Config->config_f);
 		add_eline(0,"<Config>",reason,host);
 		log(DEBUG,"Read E line (exception tag): host=%s reason=%s",host,reason);
 	}

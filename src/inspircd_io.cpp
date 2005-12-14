@@ -670,7 +670,7 @@ bool ServerConfig::LoadConf(const char* filename, std::stringstream *target, std
 						else
 						{
 							bool error = false;
-							std::string data = ConfProcess(buffer,linenumber++,errorstream,error,filename);
+							std::string data = this->ConfProcess(buffer,linenumber++,errorstream,error,filename);
 							if (error)
 							{
 								return false;

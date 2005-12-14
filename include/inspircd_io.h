@@ -35,7 +35,8 @@ class ServerConfig
 {
   private:
 	std::vector<std::string> include_stack;
-	fgets_safe(char* buffer, size_t maxsize, FILE* &file);
+	int fgets_safe(char* buffer, size_t maxsize, FILE* &file);
+	std::string ConfProcess(char* buffer, long linenumber, std::stringstream* errorstream, bool &error, std::string filename);
 
   public:
 	char ServerName[MAXBUF];
