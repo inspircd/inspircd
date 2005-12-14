@@ -329,6 +329,11 @@ void Server::RehashServer()
 	Config->Read(false,NULL);
 }
 
+ServerConfig* Server::GetConfig()
+{
+	return Config;
+}
+
 void Server::DelSocket(InspSocket* sock)
 {
 	for (std::vector<InspSocket*>::iterator a = module_sockets.begin(); a < module_sockets.end(); a++)

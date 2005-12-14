@@ -1104,7 +1104,11 @@ class Server : public classbase
 	 * Destroys a Server object.
 	 */
 	virtual ~Server();
-
+	/** Obtains a pointer to the server's ServerConfig object.
+	 * The ServerConfig object contains most of the configuration data
+	 * of the IRC server, as read from the config file by the core.
+	 */
+	ServerConfig* GetConfig();
 	/** Sends text to all opers.
 	 * This method sends a server notice to all opers with the usermode +s.
 	 */
