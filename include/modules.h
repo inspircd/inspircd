@@ -1685,4 +1685,11 @@ class ModuleFactory : public classbase
 
 typedef DLLFactory<ModuleFactory> ircd_module;
 
+bool ModeDefined(char c, int i);
+bool ModeDefinedOper(char c, int i);
+int ModeDefinedOn(char c, int i);
+int ModeDefinedOff(char c, int i);
+void ModeMakeList(char modechar);
+bool ModeIsListMode(char modechar, int type);
+
 #endif

@@ -94,22 +94,6 @@ typedef void (handlerfunc) (char**, int, userrec*);
 
 /* prototypes */
 int InspIRCd(char** argv, int argc);
-int InitConfig(void);
-void ReadConfig(bool bail,userrec* user);
-
-std::string getservername();
-std::string getserverdesc();
-std::string getnetworkname();
-std::string getadminname();
-std::string getadminemail();
-std::string getadminnick();
-void readfile(file_cache &F, const char* fname);
-bool ModeDefined(char c, int i);
-bool ModeDefinedOper(char c, int i);
-int ModeDefinedOn(char c, int i);
-int ModeDefinedOff(char c, int i);
-void ModeMakeList(char modechar);
-bool ModeIsListMode(char modechar, int type);
 chanrec* add_channel(userrec *user, const char* cn, const char* key, bool override);
 chanrec* del_channel(userrec *user, const char* cname, const char* reason, bool local);
 void force_nickchange(userrec* user,const char* newnick);
@@ -121,34 +105,20 @@ std::string GetRevision();
 int loop_call(handlerfunc fn, char **parameters, int pcnt, userrec *u, int start, int end, int joins);
 void kick_channel(userrec *src,userrec *user, chanrec *Ptr, char* reason);
 void AddWhoWas(userrec* u);
-void update_stats_l(int fd,int data_out);
 void ConnectUser(userrec *user);
-void DoSplitEveryone();
 userrec* ReHashNick(char* Old, char* New);
 bool LoadModule(const char* filename);
 bool UnloadModule(const char* filename);
 char* ModuleError();
-void NoticeAll(userrec *source, bool local_only, char* text, ...);
-void ServerNoticeAll(char* text, ...);
-void ServerPrivmsgAll(char* text, ...);
-void NoticeAllOpers(userrec *source, bool local_only, char* text, ...);
-
-// optimization tricks to save us walking the user hash
-
+/* optimization tricks to save us walking the user hash */
 void AddOper(userrec* user);
 void DeleteOper(userrec* user);
-
 void handle_version(char **parameters, int pcnt, userrec *user);
-
 // userrec optimization stuff
-
 void AddServerName(std::string servername);
 const char* FindServerNamePtr(std::string servername);
-
 std::string GetVersionString();
-
 void* dns_task(void* arg);
-
 void process_buffer(const char* cmdbuf,userrec *user);
 void FullConnectUser(userrec* user);
 chanrec* ForceChan(chanrec* Ptr,ucrec &a,userrec* user, int created);

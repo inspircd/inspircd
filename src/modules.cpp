@@ -536,22 +536,22 @@ bool Server::IsOnChannel(userrec* User, chanrec* Chan)
 
 std::string Server::GetServerName()
 {
-	return getservername();
+	return Config->ServerName;
 }
 
 std::string Server::GetNetworkName()
 {
-	return getnetworkname();
+	return Config->Network;
 }
 
 std::string Server::GetServerDescription()
 {
-	return getserverdesc();
+	return Config->ServerDesc;
 }
 
 Admin Server::GetAdmin()
 {
-	return Admin(getadminname(),getadminemail(),getadminnick());
+	return Admin(Config->AdminName,Config->AdminEmail,Config->AdminNick);
 }
 
 

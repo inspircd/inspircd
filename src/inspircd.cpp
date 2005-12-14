@@ -97,24 +97,12 @@ chan_hash chanlist;
 whowas_hash whowas;
 command_table cmdlist;
 address_cache IP;
-
 servernamelist servernames;
-
 int boundPortCount = 0;
 int portCount = 0, ports[MAXSOCKS];
-
-/* prototypes */
-
-/*int has_channel(userrec *u, chanrec *c);
-int usercount(chanrec *c);
-int usercount_i(chanrec *c);
-char* Passwd(userrec *user);
-bool IsDenied(userrec *user);
-void AddWhoWas(userrec* u);*/
-
 std::vector<userrec*> all_opers;
-
 char lowermap[255];
+
 
 void AddOper(userrec* user)
 {
@@ -174,36 +162,6 @@ std::string GetRevision()
 	return single;
 }
 
-
-std::string getservername()
-{
-	return Config->ServerName;
-}
-
-std::string getserverdesc()
-{
-	return Config->ServerDesc;
-}
-
-std::string getnetworkname()
-{
-	return Config->Network;
-}
-
-std::string getadminname()
-{
-	return Config->AdminName;
-}
-
-std::string getadminemail()
-{
-	return Config->AdminEmail;
-}
-
-std::string getadminnick()
-{
-	return Config->AdminNick;
-}
 
 /* add a channel to a user, creating the record for it if needed and linking
  * it to the user record */
