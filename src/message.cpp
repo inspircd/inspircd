@@ -87,32 +87,35 @@ int common_channels(userrec *u, userrec *u2)
 	return 0;
 }
 
-
 void tidystring(char* str)
 {
 	// strips out double spaces before a : parameter
-	
+
 	char temp[MAXBUF];
 	bool go_again = true;
-	
+
 	if (!str)
-	{
 		return;
-	}
-	
-	while ((str[0] == ' ') && (strlen(str)>0))
-	{
+
+	// pointer voodoo++ --w00t
+	while ((*str) && (*str == ' '))
 		str++;
-	}
-	
+
 	while (go_again)
 	{
 		bool noparse = false;
 		unsigned int t = 0, a = 0;
 		go_again = false;
-		while (a < strlen(str))
+		const int lenofstr = strlen(str);
+
+		/*
+		 * by caching strlen() of str, we theoretically avoid 3 expensive calls each time this loop
+		 * rolls around.. should speed things up a nanosecond or two. ;)
+		 */
+
+		while (a < lenofstr)
 		{
-			if ((a<strlen(str)-1) && (noparse==false))
+			if ((a < lenofstr - 1) && (noparse == false))
 			{
 				if ((str[a] == ' ') && (str[a+1] == ' '))
 				{
@@ -121,17 +124,18 @@ void tidystring(char* str)
 					a++;
 				}
 			}
-			
-			if (a<strlen(str)-1)
+
+			if (a < lenofstr - 1)
 			{
 				if ((str[a] == ' ') && (str[a+1] == ':'))
 				{
 					noparse = true;
 				}
 			}
-			
+
 			temp[t++] = str[a++];
 		}
+
 		temp[t] = '\0';
 		strlcpy(str,temp,MAXBUF);
 	}
