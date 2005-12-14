@@ -169,7 +169,7 @@ void handle_kick(char **parameters, int pcnt, userrec *user)
 
 void handle_loadmodule(char **parameters, int pcnt, userrec *user)
 {
-	if (LoadModule(parameters[0]))
+	if (ServerInstance->LoadModule(parameters[0]))
 	{
 		WriteOpers("*** NEW MODULE: %s",parameters[0]);
 		WriteServ(user->fd,"975 %s %s :Module successfully loaded.",user->nick, parameters[0]);
@@ -182,7 +182,7 @@ void handle_loadmodule(char **parameters, int pcnt, userrec *user)
 
 void handle_unloadmodule(char **parameters, int pcnt, userrec *user)
 {
-        if (UnloadModule(parameters[0]))
+        if (ServerInstance->UnloadModule(parameters[0]))
         {
                 WriteOpers("*** MODULE UNLOADED: %s",parameters[0]);
                 WriteServ(user->fd,"973 %s %s :Module successfully unloaded.",user->nick, parameters[0]);
