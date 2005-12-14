@@ -37,6 +37,7 @@ class ServerConfig
 	char PrefixQuit[MAXBUF];
 	char DieValue[MAXBUF];
 	char DNSServer[MAXBUF];
+	char DisabledCommands[MAXBUF];
         char ModPath[1024];
         char MyExecutable[1024];
         FILE *log_file;
@@ -70,6 +71,7 @@ class ServerConfig
 		*DNSServer = '\0';
 		*ModPath = '\0';
 		*MyExecutable = '\0';
+		*DisabledCommands = '\0';
 		log_file = NULL;
 		nofork = false;
 		unlimitcore = false;
@@ -80,7 +82,7 @@ class ServerConfig
 		MaxConn = SOMAXCONN;
 		MaxWhoResults = 100;
 		debugging = 0;
-		LogLevel = 0;
+		LogLevel = 30;
 		DieDelay = 5;
 	}
 };

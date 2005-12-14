@@ -1522,7 +1522,7 @@ void handle_squit(char **parameters, int pcnt, userrec *user)
 
 void handle_links(char **parameters, int pcnt, userrec *user)
 {
-	WriteServ(user->fd,"364 %s %s %s :0 %s",user->nick,Config->ServerName,Config->ServerName,ServerDesc);
+	WriteServ(user->fd,"364 %s %s %s :0 %s",user->nick,Config->ServerName,Config->ServerName,Config->ServerDesc);
 	WriteServ(user->fd,"365 %s * :End of /LINKS list.",user->nick);
 }
 

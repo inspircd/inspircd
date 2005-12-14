@@ -56,7 +56,7 @@ extern ServerConfig *Config;
 extern time_t TIME;
 extern char lowermap[255];
 extern std::stringstream config_f;
-
+static char list[MAXBUF];
 extern userrec* fd_ref_table[65536];
 
 extern serverstats* stats;
@@ -82,13 +82,13 @@ void log(int level,char *text, ...)
         va_list argsPtr;
         time_t rawtime;
         struct tm * timeinfo;
-        if (level < LogLevel)
+        if (level < Config->LogLevel)
                 return;
 
         time(&rawtime);
-        timeinfo = localtime (&rawtime);
+        timeinfo = localtime(&rawtime);
 
-        if (log_file)
+        if (Config->log_file)
         {
                 char b[MAXBUF];
                 va_start (argsPtr, text);
@@ -96,8 +96,9 @@ void log(int level,char *text, ...)
                 va_end(argsPtr);
                 strlcpy(b,asctime(timeinfo),MAXBUF);
                 b[24] = ':';    // we know this is the end of the time string
-                fprintf(log_file,"%s %s\n",b,textbuffer);
-                if (nofork)
+		if (Config->log_file)
+	                fprintf(Config->log_file,"%s %s\n",b,textbuffer);
+                if (Config->nofork)
                 {
                         // nofork enabled? display it on terminal too
                         printf("%s %s\n",b,textbuffer);
@@ -160,7 +161,7 @@ void Write(int sock,char *text, ...)
                 int MOD_RESULT = 0;
                 FOREACH_RESULT(OnRawSocketWrite(sock,tb,bytes));
                 fd_ref_table[sock]->AddWriteBuf(tb);
-                statsSent += bytes;
+                stats->statsSent += bytes;
         }
         else log(DEFAULT,"ERROR! attempted write to a user with no fd_ref_table entry!!!");
 }
@@ -182,14 +183,14 @@ void WriteServ(int sock, char* text, ...)
 
         vsnprintf(textbuffer, MAXBUF, text, argsPtr);
         va_end(argsPtr);
-        int bytes = snprintf(tb,MAXBUF,":%s %s\r\n",ServerName,textbuffer);
+        int bytes = snprintf(tb,MAXBUF,":%s %s\r\n",Config->ServerName,textbuffer);
         chop(tb);
         if (fd_ref_table[sock])
         {
                 int MOD_RESULT = 0;
                 FOREACH_RESULT(OnRawSocketWrite(sock,tb,bytes));
                 fd_ref_table[sock]->AddWriteBuf(tb);
-                statsSent += bytes;
+                stats->statsSent += bytes;
         }
         else log(DEFAULT,"ERROR! attempted write to a user with no fd_ref_table entry!!!");
 }
@@ -218,7 +219,7 @@ void WriteFrom(int sock, userrec *user,char* text, ...)
                 int MOD_RESULT = 0;
                 FOREACH_RESULT(OnRawSocketWrite(sock,tb,bytes));
                 fd_ref_table[sock]->AddWriteBuf(tb);
-                statsSent += bytes;
+                stats->statsSent += bytes;
         }
         else log(DEFAULT,"ERROR! attempted write to a user with no fd_ref_table entry!!!");
 }
@@ -244,7 +245,7 @@ void WriteTo(userrec *source, userrec *dest,char *data, ...)
         // if no source given send it from the server.
         if (!source)
         {
-                WriteServ(dest->fd,":%s %s",ServerName,textbuffer);
+                WriteServ(dest->fd,":%s %s",Config->ServerName,textbuffer);
         }
         else
         {
@@ -374,7 +375,7 @@ std::string GetServerDescription(char* servername)
 	}
 	else
 	{
-		return ServerDesc; // not a remote server that can be found, it must be me.
+		return Config->ServerDesc; // not a remote server that can be found, it must be me.
 	}
 }
 
@@ -520,7 +521,7 @@ void ServerNoticeAll(char* text, ...)
 	{
 		if ((i->second) && (i->second->fd != FD_MAGIC_NUMBER))
 		{
-			WriteServ(i->second->fd,"NOTICE $%s :%s",ServerName,textbuffer);
+			WriteServ(i->second->fd,"NOTICE $%s :%s",Config->ServerName,textbuffer);
 		}
 	}
 }
@@ -540,7 +541,7 @@ void ServerPrivmsgAll(char* text, ...)
 	{
 		if ((i->second) && (i->second->fd != FD_MAGIC_NUMBER))
 		{
-			WriteServ(i->second->fd,"PRIVMSG $%s :%s",ServerName,textbuffer);
+			WriteServ(i->second->fd,"PRIVMSG $%s :%s",Config->ServerName,textbuffer);
 		}
 	}
 }
@@ -962,7 +963,6 @@ int usercount_i(chanrec *c)
                 return 0;
         }
 
-        strcpy(list,"");
         for (user_hash::const_iterator i = clientlist.begin(); i != clientlist.end(); i++)
         {
                 if (i->second)
@@ -1136,18 +1136,18 @@ void ShowMOTD(userrec *user)
                 WriteServ(user->fd,"422 %s :Message of the day file is missing.",user->nick);
                 return;
         }
-        snprintf(buf,65535,":%s 375 %s :- %s message of the day\r\n", ServerName, user->nick, ServerName);
+        snprintf(buf,65535,":%s 375 %s :- %s message of the day\r\n", Config->ServerName, user->nick, Config->ServerName);
         WholeMOTD = WholeMOTD + buf;
         for (unsigned int i = 0; i != MOTD.size(); i++)
         {
-                snprintf(buf,65535,":%s 372 %s :- %s\r\n", ServerName, user->nick, MOTD[i].c_str());
+                snprintf(buf,65535,":%s 372 %s :- %s\r\n", Config->ServerName, user->nick, MOTD[i].c_str());
                 WholeMOTD = WholeMOTD + buf;
         }
-        snprintf(buf,65535,":%s 376 %s :End of message of the day.\r\n", ServerName, user->nick);
+        snprintf(buf,65535,":%s 376 %s :End of message of the day.\r\n", Config->ServerName, user->nick);
         WholeMOTD = WholeMOTD + buf;
         // only one write operation
         user->AddWriteBuf(WholeMOTD);
-        statsSent += WholeMOTD.length();
+        stats->statsSent += WholeMOTD.length();
 }
 
 void ShowRULES(userrec *user)
@@ -1157,12 +1157,12 @@ void ShowRULES(userrec *user)
                 WriteServ(user->fd,"NOTICE %s :Rules file is missing.",user->nick);
                 return;
         }
-        WriteServ(user->fd,"NOTICE %s :%s rules",user->nick,ServerName);
+        WriteServ(user->fd,"NOTICE %s :%s rules",user->nick,Config->ServerName);
         for (unsigned int i = 0; i != RULES.size(); i++)
         {
                                 WriteServ(user->fd,"NOTICE %s :%s",user->nick,RULES[i].c_str());
         }
-        WriteServ(user->fd,"NOTICE %s :End of %s rules.",user->nick,ServerName);
+        WriteServ(user->fd,"NOTICE %s :End of %s rules.",user->nick,Config->ServerName);
 }
 
 // this returns 1 when all modules are satisfied that the user should be allowed onto the irc server

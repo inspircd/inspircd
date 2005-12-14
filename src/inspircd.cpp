@@ -105,7 +105,6 @@ user_hash clientlist;
 chan_hash chanlist;
 whowas_hash whowas;
 command_table cmdlist;
-autoconnects autoconns;
 file_cache MOTD;
 file_cache RULES;
 address_cache IP;
@@ -289,13 +288,13 @@ void ReadConfig(bool bail, userrec* user)
 	ConfValue("options","softlimit",0,SLIMT,&config_f);
 
 	Config->SoftLimit = atoi(SLIMT);
-	if ((SoftLimit < 1) || (SoftLimit > MAXCLIENTS))
+	if ((Config->SoftLimit < 1) || (Config->SoftLimit > MAXCLIENTS))
 	{
 		log(DEFAULT,"WARNING: <options:softlimit> value is greater than %d or less than 0, set to %d.",MAXCLIENTS,MAXCLIENTS);
 		Config->SoftLimit = MAXCLIENTS;
 	}
 	Config->MaxConn = atoi(MCON);
-	if (MaxConn > SOMAXCONN)
+	if (Config->MaxConn > SOMAXCONN)
 		log(DEFAULT,"WARNING: <options:somaxconn> value may be higher than the system-defined SOMAXCONN value!");
 	Config->NetBufferSize = atoi(NB);
 	Config->MaxWhoResults = atoi(MW);
@@ -1115,18 +1114,18 @@ int main(int argc, char** argv)
 		for (int i = 1; i < argc; i++)
 		{
 			if (!strcmp(argv[i],"-nofork")) {
-				nofork = true;
+				Config->nofork = true;
 			}
 			if (!strcmp(argv[i],"-wait")) {
 				sleep(6);
 			}
 			if (!strcmp(argv[i],"-nolimit")) {
-				unlimitcore = true;
+				Config->unlimitcore = true;
 			}
 		}
 	}
 
-	strlcpy(MyExecutable,argv[0],MAXBUF);
+	strlcpy(Config->MyExecutable,argv[0],MAXBUF);
 	
 	// initialize the lowercase mapping table
 	for (unsigned int cn = 0; cn < 256; cn++)
@@ -1329,7 +1328,7 @@ void AddClient(int socket, char* host, int port, bool iscached, char* ip)
 	clientlist[tempnick]->server = (char*)FindServerNamePtr(Config->ServerName);
 	strlcpy(clientlist[tempnick]->ident, "unknown",IDENTMAX);
 	clientlist[tempnick]->registered = 0;
-	clientlist[tempnick]->signon = TIME+dns_timeout;
+	clientlist[tempnick]->signon = TIME + Config->dns_timeout;
 	clientlist[tempnick]->lastping = 1;
 	clientlist[tempnick]->port = port;
 	strlcpy(clientlist[tempnick]->ip,ip,16);
@@ -1355,7 +1354,7 @@ void AddClient(int socket, char* host, int port, bool iscached, char* ip)
 		}
 	}
 
-	clientlist[tempnick]->nping = TIME+clientlist[tempnick]->pingmax+dns_timeout;
+	clientlist[tempnick]->nping = TIME+clientlist[tempnick]->pingmax + Config->dns_timeout;
 	clientlist[tempnick]->timeout = TIME+class_regtimeout;
 	clientlist[tempnick]->flood = class_flood;
 	clientlist[tempnick]->threshold = class_threshold;
@@ -1368,7 +1367,7 @@ void AddClient(int socket, char* host, int port, bool iscached, char* ip)
 	for (int i = 0; i < MAXCHANS; i++)
 		clientlist[tempnick]->chans.push_back(a);
 
-	if (clientlist.size() > SoftLimit)
+	if (clientlist.size() > Config->SoftLimit)
 	{
 		kill_link(clientlist[tempnick],"No more connections allowed");
 		return;
@@ -1452,8 +1451,8 @@ void FullConnectUser(userrec* user)
 	}
 
 
-        WriteServ(user->fd,"NOTICE Auth :Welcome to \002%s\002!",Network);
-        WriteServ(user->fd,"001 %s :Welcome to the %s IRC Network %s!%s@%s",user->nick,Network,user->nick,user->ident,user->host);
+        WriteServ(user->fd,"NOTICE Auth :Welcome to \002%s\002!",Config->Network);
+        WriteServ(user->fd,"001 %s :Welcome to the %s IRC Network %s!%s@%s",user->nick,Config->Network,user->nick,user->ident,user->host);
         WriteServ(user->fd,"002 %s :Your host is %s, running version %s",user->nick,Config->ServerName,VERSION);
         WriteServ(user->fd,"003 %s :This server was created %s %s",user->nick,__TIME__,__DATE__);
         WriteServ(user->fd,"004 %s %s %s iowghraAsORVSxNCWqBzvdHtGI lvhopsmntikrRcaqOALQbSeKVfHGCuzN",user->nick,Config->ServerName,VERSION);
@@ -1462,7 +1461,7 @@ void FullConnectUser(userrec* user)
         v << "WALLCHOPS MODES=13 CHANTYPES=# PREFIX=(ohv)@%+ MAP SAFELIST MAXCHANNELS=" << MAXCHANS;
         v << " MAXBANS=60 NICKLEN=" << NICKMAX;
         v << " TOPICLEN=" << MAXTOPIC << " KICKLEN=" << MAXKICK << " MAXTARGETS=20 AWAYLEN=" << MAXAWAY << " CHANMODES=ohvb,k,l,psmnti NETWORK=";
-        v << Network;
+        v << Config->Network;
         std::string data005 = v.str();
         FOREACH_MOD On005Numeric(data005);
         // anfl @ #ratbox, efnet reminded me that according to the RFC this cant contain more than 13 tokens per line...
@@ -1512,7 +1511,7 @@ std::string GetVersionString()
 #else
 	char dnsengine[] = "singlethread";
 #endif
-	snprintf(versiondata,MAXBUF,"%s Rev. %s %s :%s [FLAGS=%lu,%s,%s]",VERSION,GetRevision.c_str(),Config->ServerName,SYSTEM,(unsigned long)OPTIMISATION,SE->GetName().c_str(),dnsengine);
+	snprintf(versiondata,MAXBUF,"%s Rev. %s %s :%s [FLAGS=%lu,%s,%s]",VERSION,GetRevision().c_str(),Config->ServerName,SYSTEM,(unsigned long)OPTIMISATION,SE->GetName().c_str(),dnsengine);
 	return versiondata;
 }
 
@@ -1878,7 +1877,7 @@ void process_command(userrec *user, char* cmd)
 					}
 					if ((user->registered == 7) && (!strchr(user->modes,'o')))
 					{
-						std::stringstream dcmds(DisabledCommands);
+						std::stringstream dcmds(Config->DisabledCommands);
 						while (!dcmds.eof())
 						{
 							std::string thiscmd;
@@ -2103,7 +2102,7 @@ bool LoadModule(const char* filename)
 #ifdef STATIC_LINK
 	snprintf(modfile,MAXBUF,"%s",filename);
 #else
-	snprintf(modfile,MAXBUF,"%s/%s",ModPath,filename);
+	snprintf(modfile,MAXBUF,"%s/%s",Config->ModPath,filename);
 #endif
 	std::string filename_str = filename;
 #ifndef STATIC_LINK
@@ -2167,7 +2166,7 @@ bool LoadModule(const char* filename)
 
 int BindPorts()
 {
-	char configToken[MAXBUF];
+	char configToken[MAXBUF], Addr[MAXBUF], Type[MAXBUF];
 	int clientportcount = 0;
         for (int count = 0; count < ConfValueEnum("bind",&config_f); count++)
         {
@@ -2179,7 +2178,7 @@ int BindPorts()
                         // modules handle server bind types now,
                         // its not a typo in the strcmp.
                         ports[clientportcount] = atoi(configToken);
-                        strlcpy(addrs[clientportcount],Addr,256);
+                        strlcpy(Config->addrs[clientportcount],Addr,256);
                         clientportcount++;
                         log(DEBUG,"InspIRCd: startup: read binding %s:%s [%s] from config",Addr,configToken, Type);
                 }
@@ -2193,7 +2192,7 @@ int BindPorts()
                         log(DEBUG,"InspIRCd: startup: bad fd %lu",(unsigned long)openSockfd[boundPortCount]);
                         return(ERROR);
                 }
-                if (BindSocket(openSockfd[boundPortCount],client,server,ports[count],addrs[count]) == ERROR)
+                if (BindSocket(openSockfd[boundPortCount],client,server,ports[count],Config->addrs[count]) == ERROR)
                 {
                         log(DEFAULT,"InspIRCd: startup: failed to bind port %lu",(unsigned long)ports[count]);
                 }
@@ -2247,7 +2246,7 @@ int InspIRCd(char** argv, int argc)
 	// write once here, to try it out and make sure its ok
 	WritePID(PID);
 	
-        if (!nofork)
+        if (!Config->nofork)
         {
                 if (DaemonSeed() == ERROR)
                 {

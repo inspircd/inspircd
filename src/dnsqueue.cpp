@@ -87,7 +87,7 @@ public:
 		userrec* usr = Find(nick);
 		if (usr)
 		{
-			resolver1.SetNS(std::string(DNSServer));
+			resolver1.SetNS(std::string(Config->DNSServer));
 			if (!resolver1.ReverseLookup(std::string(usr->host)))
 			{
 				return false;
