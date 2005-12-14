@@ -29,7 +29,7 @@
 <a name="l00020"></a>00020 <span class="preprocessor">#include "<a class="code" href="channels_8h.html">channels.h</a>"</span>
 <a name="l00021"></a>00021 <span class="preprocessor">#include "<a class="code" href="connection_8h.html">connection.h</a>"</span>
 <a name="l00022"></a>00022 <span class="preprocessor">#include "<a class="code" href="users_8h.html">users.h</a>"</span>
-<a name="l00023"></a>00023 <span class="preprocessor">#include "inspircd.h"</span>
+<a name="l00023"></a>00023 <span class="preprocessor">#include "<a class="code" href="inspircd_8h.html">inspircd.h</a>"</span>
 <a name="l00024"></a>00024 <span class="preprocessor">#include &lt;stdio.h&gt;</span>
 <a name="l00025"></a>00025 <span class="preprocessor">#ifdef THREADED_DNS</span>
 <a name="l00026"></a>00026 <span class="preprocessor"></span><span class="preprocessor">#include &lt;pthread.h&gt;</span>
@@ -53,7 +53,7 @@
 <a name="l00044"></a>00044         strcpy(<a class="code" href="classuserrec.html#dhost_5B_31_36_30_5D">dhost</a>,<span class="stringliteral">""</span>);
 <a name="l00045"></a>00045         strcpy(<a class="code" href="classuserrec.html#fullname_5BMAXGECOS_2B_31_5D">fullname</a>,<span class="stringliteral">""</span>);
 <a name="l00046"></a>00046         strcpy(<a class="code" href="classuserrec.html#modes_5B_35_34_5D">modes</a>,<span class="stringliteral">""</span>);
-<a name="l00047"></a>00047         <a class="code" href="classuserrec.html#server">server</a> = (<span class="keywordtype">char</span>*)FindServerNamePtr(Config-&gt;<a class="code" href="classServerConfig.html#ServerName_5BMAXBUF_5D">ServerName</a>);
+<a name="l00047"></a>00047         <a class="code" href="classuserrec.html#server">server</a> = (<span class="keywordtype">char</span>*)<a class="code" href="inspircd_8h.html#FindServerNamePtr_28std_3A_3Astring_20servername_29">FindServerNamePtr</a>(Config-&gt;<a class="code" href="classServerConfig.html#ServerName_5BMAXBUF_5D">ServerName</a>);
 <a name="l00048"></a>00048         strcpy(<a class="code" href="classuserrec.html#awaymsg_5BMAXAWAY_2B_31_5D">awaymsg</a>,<span class="stringliteral">""</span>);
 <a name="l00049"></a>00049         strcpy(<a class="code" href="classuserrec.html#oper_5BNICKMAX_5D">oper</a>,<span class="stringliteral">""</span>);
 <a name="l00050"></a>00050         <a class="code" href="classuserrec.html#reset_5Fdue">reset_due</a> = <a class="code" href="channels_8cpp.html#TIME">TIME</a>;
@@ -130,7 +130,7 @@
 <a name="l00121"></a>00121 
 <a name="l00122"></a><a class="code" href="classuserrec.html#RemoveInvite_28char_20_2Achannel_29">00122</a> <span class="keywordtype">void</span> <a class="code" href="classuserrec.html#RemoveInvite_28char_20_2Achannel_29">userrec::RemoveInvite</a>(<span class="keywordtype">char</span>* channel)
 <a name="l00123"></a>00123 {
-<a name="l00124"></a>00124         log(<a class="code" href="inspircd__io_8h.html#DEBUG">DEBUG</a>,<span class="stringliteral">"Removing invites"</span>);
+<a name="l00124"></a>00124         <a class="code" href="globals_8h.html#log_28int_20level_2C_20char_20_2Atext_2C_2E_2E_2E_29">log</a>(<a class="code" href="inspircd__io_8h.html#DEBUG">DEBUG</a>,<span class="stringliteral">"Removing invites"</span>);
 <a name="l00125"></a>00125         <span class="keywordflow">if</span> (channel)
 <a name="l00126"></a>00126         {
 <a name="l00127"></a>00127                 <span class="keywordflow">if</span> (<a class="code" href="classuserrec.html#invites">invites</a>.size())
@@ -223,7 +223,7 @@
 <a name="l00214"></a>00214         <span class="keywordflow">if</span> (<a class="code" href="classuserrec.html#recvq">recvq</a>.length() &gt; (unsigned)this-&gt;<a class="code" href="classuserrec.html#recvqmax">recvqmax</a>)
 <a name="l00215"></a>00215         {
 <a name="l00216"></a>00216                 this-&gt;<a class="code" href="classuserrec.html#SetWriteError_28std_3A_3Astring_20error_29">SetWriteError</a>(<span class="stringliteral">"RecvQ exceeded"</span>);
-<a name="l00217"></a>00217                 WriteOpers(<span class="stringliteral">"*** User %s RecvQ of %d exceeds connect class maximum of %d"</span>,this-&gt;nick,<a class="code" href="classuserrec.html#recvq">recvq</a>.length(),this-&gt;<a class="code" href="classuserrec.html#recvqmax">recvqmax</a>);
+<a name="l00217"></a>00217                 <a class="code" href="globals_8h.html#WriteOpers_28char_20_2Atext_2C_2E_2E_2E_29">WriteOpers</a>(<span class="stringliteral">"*** User %s RecvQ of %d exceeds connect class maximum of %d"</span>,this-&gt;nick,<a class="code" href="classuserrec.html#recvq">recvq</a>.length(),this-&gt;<a class="code" href="classuserrec.html#recvqmax">recvqmax</a>);
 <a name="l00218"></a>00218         }
 <a name="l00219"></a>00219         <span class="comment">// return false if we've had more than 600 characters WITHOUT</span>
 <a name="l00220"></a>00220         <span class="comment">// a carriage return (this is BAD, drop the socket)</span>
@@ -266,7 +266,7 @@
 <a name="l00257"></a>00257                 <span class="keywordflow">return</span>;
 <a name="l00258"></a>00258         <span class="keywordflow">if</span> (<a class="code" href="classuserrec.html#sendq">sendq</a>.length() + data.length() &gt; (unsigned)this-&gt;<a class="code" href="classuserrec.html#sendqmax">sendqmax</a>)
 <a name="l00259"></a>00259         {
-<a name="l00260"></a>00260                 WriteOpers(<span class="stringliteral">"*** User %s SendQ of %d exceeds connect class maximum of %d"</span>,this-&gt;nick,<a class="code" href="classuserrec.html#sendq">sendq</a>.length() + data.length(),this-&gt;<a class="code" href="classuserrec.html#sendqmax">sendqmax</a>);
+<a name="l00260"></a>00260                 <a class="code" href="globals_8h.html#WriteOpers_28char_20_2Atext_2C_2E_2E_2E_29">WriteOpers</a>(<span class="stringliteral">"*** User %s SendQ of %d exceeds connect class maximum of %d"</span>,this-&gt;nick,<a class="code" href="classuserrec.html#sendq">sendq</a>.length() + data.length(),this-&gt;<a class="code" href="classuserrec.html#sendqmax">sendqmax</a>);
 <a name="l00261"></a>00261                 this-&gt;<a class="code" href="classuserrec.html#SetWriteError_28std_3A_3Astring_20error_29">SetWriteError</a>(<span class="stringliteral">"SendQ exceeded"</span>);
 <a name="l00262"></a>00262                 <span class="keywordflow">return</span>;
 <a name="l00263"></a>00263         }
@@ -300,7 +300,7 @@
 <a name="l00291"></a>00291 
 <a name="l00292"></a><a class="code" href="classuserrec.html#SetWriteError_28std_3A_3Astring_20error_29">00292</a> <span class="keywordtype">void</span> <a class="code" href="classuserrec.html#SetWriteError_28std_3A_3Astring_20error_29">userrec::SetWriteError</a>(<a class="code" href="namespaceirc.html#string">std::string</a> error)
 <a name="l00293"></a>00293 {
-<a name="l00294"></a>00294         log(<a class="code" href="inspircd__io_8h.html#DEBUG">DEBUG</a>,<span class="stringliteral">"Setting error string for %s to '%s'"</span>,this-&gt;nick,error.c_str());
+<a name="l00294"></a>00294         <a class="code" href="globals_8h.html#log_28int_20level_2C_20char_20_2Atext_2C_2E_2E_2E_29">log</a>(<a class="code" href="inspircd__io_8h.html#DEBUG">DEBUG</a>,<span class="stringliteral">"Setting error string for %s to '%s'"</span>,this-&gt;nick,error.c_str());
 <a name="l00295"></a>00295         <span class="comment">// don't try to set the error twice, its already set take the first string.</span>
 <a name="l00296"></a>00296         <span class="keywordflow">if</span> (this-&gt;WriteError == <span class="stringliteral">""</span>)
 <a name="l00297"></a>00297                 this-&gt;<a class="code" href="classuserrec.html#WriteError">WriteError</a> = error;
@@ -310,7 +310,7 @@
 <a name="l00301"></a>00301 {
 <a name="l00302"></a>00302         <span class="keywordflow">return</span> this-&gt;<a class="code" href="classuserrec.html#WriteError">WriteError</a>;
 <a name="l00303"></a>00303 }
-</pre></div><hr size="1"><address style="align: right;"><small>Generated on Wed Dec 14 15:55:47 2005 for InspIRCd by&nbsp;
+</pre></div><hr size="1"><address style="align: right;"><small>Generated on Wed Dec 14 19:16:12 2005 for InspIRCd by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img src="doxygen.png" alt="doxygen" align="middle" border="0"></a> 1.4.4-20050815 </small></address>
 </body>

@@ -65,10 +65,10 @@ Definition at line 197 of file modules.h.
 .PP
 Create a new Event. 
 .PP
-Definition at line 202 of file modules.cpp.
+Definition at line 194 of file modules.cpp.
 .PP
 .nf
-202 : data(anydata), source(src), id(eventid) { };
+194 : data(anydata), source(src), id(eventid) { };
 .fi
 .PP
 .SH "Member Function Documentation"
@@ -77,14 +77,14 @@ Definition at line 202 of file modules.cpp.
 .PP
 Get the Event data. 
 .PP
-Definition at line 204 of file modules.cpp.
+Definition at line 196 of file modules.cpp.
 .PP
 References data.
 .PP
 .nf
-205 {
-206         return this->data;
-207 }
+197 {
+198         return this->data;
+199 }
 .fi
 .PP
 .SS "\fBstd::string\fP Event::GetEventID ()"
@@ -93,28 +93,28 @@ Get the event ID.
 .PP
 Use this to determine the event type for safe casting of the data
 .PP
-Definition at line 220 of file modules.cpp.
+Definition at line 212 of file modules.cpp.
 .PP
 References id.
 .PP
 .nf
-221 {
-222         return this->id;
-223 }
+213 {
+214         return this->id;
+215 }
 .fi
 .PP
 .SS "\fBModule\fP * Event::GetSource ()"
 .PP
 Get the event Source. 
 .PP
-Definition at line 209 of file modules.cpp.
+Definition at line 201 of file modules.cpp.
 .PP
 References source.
 .PP
 .nf
-210 {
-211         return this->source;
-212 }
+202 {
+203         return this->source;
+204 }
 .fi
 .PP
 .SS "char * Event::Send ()\fC [virtual]\fP"
@@ -125,15 +125,15 @@ The return result of an \fBEvent::Send()\fP will always be NULL as no replies ar
 .PP
 Implements \fBModuleMessage\fP.
 .PP
-Definition at line 214 of file modules.cpp.
+Definition at line 206 of file modules.cpp.
 .PP
 References FOREACH_MOD.
 .PP
 .nf
-215 {
-216         FOREACH_MOD OnEvent(this);
-217         return NULL;
-218 }
+207 {
+208         FOREACH_MOD OnEvent(this);
+209         return NULL;
+210 }
 .fi
 .PP
 .SH "Member Data Documentation"

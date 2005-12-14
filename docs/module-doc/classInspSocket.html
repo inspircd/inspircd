@@ -273,25 +273,25 @@ This constructor is used to create a new socket, either listening for connection
 <p>
 Definition at line <a class="el" href="socket_8cpp-source.html#l00062">62</a> of file <a class="el" href="socket_8cpp-source.html">socket.cpp</a>.
 <p>
-References <a class="el" href="socketengine_8cpp-source.html#l00065">SocketEngine::AddFd()</a>, <a class="el" href="socket_8h-source.html#l00078">addr</a>, <a class="el" href="socket_8h-source.html#l00084">addy</a>, <a class="el" href="inspircd__io_8h.html#BindSocket_28int_20sockfd_2C_20struct_20sockaddr_5Fin_20client_2C_20struct_20sockaddr_5Fin_20server_2C_20int_20port_2C_20char_20_2Aaddr_29">BindSocket()</a>, <a class="el" href="socket_8cpp-source.html#l00141">Close()</a>, <a class="el" href="inspircd__io_8h-source.html#l00028">DEBUG</a>, <a class="el" href="socket_8h-source.html#l00054">fd</a>, <a class="el" href="socket_8h.html#InspSocketStateI_5FCONNECTING">I_CONNECTING</a>, <a class="el" href="socket_8h.html#InspSocketErrorI_5FERR_5FBIND">I_ERR_BIND</a>, <a class="el" href="socket_8h.html#InspSocketErrorI_5FERR_5FCONNECT">I_ERR_CONNECT</a>, <a class="el" href="socket_8h.html#InspSocketErrorI_5FERR_5FSOCKET">I_ERR_SOCKET</a>, <a class="el" href="socket_8h.html#InspSocketStateI_5FERROR">I_ERROR</a>, <a class="el" href="socket_8h.html#InspSocketStateI_5FLISTENING">I_LISTENING</a>, <a class="el" href="socket_8h-source.html#l00113">IP</a>, <a class="el" href="socket_8cpp-source.html#l00265">OnError()</a>, <a class="el" href="inspircd__io_8h.html#OpenTCPSocket_28void_29">OpenTCPSocket()</a>, <a class="el" href="socket_8h-source.html#l00072">state</a>, <a class="el" href="socket_8h-source.html#l00097">timeout</a>, <a class="el" href="socket_8h-source.html#l00091">timeout_end</a>, and <a class="el" href="socketengine_8h-source.html#l00044">X_ESTAB_MODULE</a>.<div class="fragment"><pre class="fragment"><a name="l00063"></a>00063 {
+References <a class="el" href="socketengine_8cpp-source.html#l00065">SocketEngine::AddFd()</a>, <a class="el" href="socket_8h-source.html#l00078">addr</a>, <a class="el" href="socket_8h-source.html#l00084">addy</a>, <a class="el" href="inspircd__io_8h.html#BindSocket_28int_20sockfd_2C_20struct_20sockaddr_5Fin_20client_2C_20struct_20sockaddr_5Fin_20server_2C_20int_20port_2C_20char_20_2Aaddr_29">BindSocket()</a>, <a class="el" href="socket_8cpp-source.html#l00141">Close()</a>, <a class="el" href="inspircd__io_8h-source.html#l00028">DEBUG</a>, <a class="el" href="inspircd_8h-source.html#l00049">ERROR</a>, <a class="el" href="socket_8h-source.html#l00054">fd</a>, <a class="el" href="socket_8h.html#InspSocketStateI_5FCONNECTING">I_CONNECTING</a>, <a class="el" href="socket_8h.html#InspSocketErrorI_5FERR_5FBIND">I_ERR_BIND</a>, <a class="el" href="socket_8h.html#InspSocketErrorI_5FERR_5FCONNECT">I_ERR_CONNECT</a>, <a class="el" href="socket_8h.html#InspSocketErrorI_5FERR_5FSOCKET">I_ERR_SOCKET</a>, <a class="el" href="socket_8h.html#InspSocketStateI_5FERROR">I_ERROR</a>, <a class="el" href="socket_8h.html#InspSocketStateI_5FLISTENING">I_LISTENING</a>, <a class="el" href="socket_8h-source.html#l00113">IP</a>, <a class="el" href="globals_8h.html#log_28int_20level_2C_20char_20_2Atext_2C_2E_2E_2E_29">log()</a>, <a class="el" href="socket_8cpp-source.html#l00265">OnError()</a>, <a class="el" href="inspircd__io_8h.html#OpenTCPSocket_28void_29">OpenTCPSocket()</a>, <a class="el" href="socket_8h-source.html#l00072">state</a>, <a class="el" href="socket_8h-source.html#l00097">timeout</a>, <a class="el" href="socket_8h-source.html#l00091">timeout_end</a>, and <a class="el" href="socketengine_8h-source.html#l00044">X_ESTAB_MODULE</a>.<div class="fragment"><pre class="fragment"><a name="l00063"></a>00063 {
 <a name="l00064"></a>00064         <span class="keywordflow">if</span> (listening) {
-<a name="l00065"></a>00065                 <span class="keywordflow">if</span> ((this-&gt;fd = <a class="code" href="inspircd__io_8h.html#OpenTCPSocket_28void_29">OpenTCPSocket</a>()) == ERROR)
+<a name="l00065"></a>00065                 <span class="keywordflow">if</span> ((this-&gt;fd = <a class="code" href="inspircd__io_8h.html#OpenTCPSocket_28void_29">OpenTCPSocket</a>()) == <a class="code" href="inspircd_8h.html#ERROR">ERROR</a>)
 <a name="l00066"></a>00066                 {
 <a name="l00067"></a>00067                         this-&gt;<a class="code" href="classInspSocket.html#fd">fd</a> = -1;
 <a name="l00068"></a>00068                         this-&gt;<a class="code" href="classInspSocket.html#state">state</a> = <a class="code" href="socket_8h.html#InspSocketStateI_5FERROR">I_ERROR</a>;
 <a name="l00069"></a>00069                         this-&gt;<a class="code" href="classInspSocket.html#OnError_28InspSocketError_20e_29">OnError</a>(<a class="code" href="socket_8h.html#InspSocketErrorI_5FERR_5FSOCKET">I_ERR_SOCKET</a>);
-<a name="l00070"></a>00070                         log(<a class="code" href="inspircd__io_8h.html#DEBUG">DEBUG</a>,<span class="stringliteral">"OpenTCPSocket() error"</span>);
+<a name="l00070"></a>00070                         <a class="code" href="globals_8h.html#log_28int_20level_2C_20char_20_2Atext_2C_2E_2E_2E_29">log</a>(<a class="code" href="inspircd__io_8h.html#DEBUG">DEBUG</a>,<span class="stringliteral">"OpenTCPSocket() error"</span>);
 <a name="l00071"></a>00071                         <span class="keywordflow">return</span>;
 <a name="l00072"></a>00072                 }
 <a name="l00073"></a>00073                 <span class="keywordflow">else</span>
 <a name="l00074"></a>00074                 {
-<a name="l00075"></a>00075                         <span class="keywordflow">if</span> (<a class="code" href="inspircd__io_8h.html#BindSocket_28int_20sockfd_2C_20struct_20sockaddr_5Fin_20client_2C_20struct_20sockaddr_5Fin_20server_2C_20int_20port_2C_20char_20_2Aaddr_29">BindSocket</a>(this-&gt;fd,this-&gt;client,this-&gt;server,<a class="code" href="classInspSocket.html#port">port</a>,(<span class="keywordtype">char</span>*)<a class="code" href="classInspSocket.html#host">host</a>.c_str()) == ERROR)
+<a name="l00075"></a>00075                         <span class="keywordflow">if</span> (<a class="code" href="inspircd__io_8h.html#BindSocket_28int_20sockfd_2C_20struct_20sockaddr_5Fin_20client_2C_20struct_20sockaddr_5Fin_20server_2C_20int_20port_2C_20char_20_2Aaddr_29">BindSocket</a>(this-&gt;fd,this-&gt;client,this-&gt;server,<a class="code" href="classInspSocket.html#port">port</a>,(<span class="keywordtype">char</span>*)<a class="code" href="classInspSocket.html#host">host</a>.c_str()) == <a class="code" href="inspircd_8h.html#ERROR">ERROR</a>)
 <a name="l00076"></a>00076                         {
 <a name="l00077"></a>00077                                 this-&gt;<a class="code" href="classInspSocket.html#Close_28_29">Close</a>();
 <a name="l00078"></a>00078                                 this-&gt;<a class="code" href="classInspSocket.html#fd">fd</a> = -1;
 <a name="l00079"></a>00079                                 this-&gt;<a class="code" href="classInspSocket.html#state">state</a> = <a class="code" href="socket_8h.html#InspSocketStateI_5FERROR">I_ERROR</a>;
 <a name="l00080"></a>00080                                 this-&gt;<a class="code" href="classInspSocket.html#OnError_28InspSocketError_20e_29">OnError</a>(<a class="code" href="socket_8h.html#InspSocketErrorI_5FERR_5FBIND">I_ERR_BIND</a>);
-<a name="l00081"></a>00081                                 log(<a class="code" href="inspircd__io_8h.html#DEBUG">DEBUG</a>,<span class="stringliteral">"BindSocket() error %s"</span>,strerror(errno));
+<a name="l00081"></a>00081                                 <a class="code" href="globals_8h.html#log_28int_20level_2C_20char_20_2Atext_2C_2E_2E_2E_29">log</a>(<a class="code" href="inspircd__io_8h.html#DEBUG">DEBUG</a>,<span class="stringliteral">"BindSocket() error %s"</span>,strerror(errno));
 <a name="l00082"></a>00082                                 <span class="keywordflow">return</span>;
 <a name="l00083"></a>00083                         }
 <a name="l00084"></a>00084                         <span class="keywordflow">else</span>
@@ -299,7 +299,7 @@ References <a class="el" href="socketengine_8cpp-source.html#l00065">SocketEngin
 <a name="l00086"></a>00086                                 this-&gt;<a class="code" href="classInspSocket.html#state">state</a> = <a class="code" href="socket_8h.html#InspSocketStateI_5FLISTENING">I_LISTENING</a>;
 <a name="l00087"></a>00087                                 <a class="code" href="modules_8cpp.html#SE">SE</a>-&gt;<a class="code" href="classSocketEngine.html#AddFd_28int_20fd_2C_20bool_20readable_2C_20char_20type_29">AddFd</a>(this-&gt;fd,<span class="keyword">true</span>,<a class="code" href="socketengine_8h.html#X_5FESTAB_5FMODULE">X_ESTAB_MODULE</a>);
 <a name="l00088"></a>00088                                 <a class="code" href="socket_8cpp.html#socket_5Fref_5B_36_35_35_33_35_5D">socket_ref</a>[this-&gt;<a class="code" href="classInspSocket.html#fd">fd</a>] = <span class="keyword">this</span>;
-<a name="l00089"></a>00089                                 log(<a class="code" href="inspircd__io_8h.html#DEBUG">DEBUG</a>,<span class="stringliteral">"New socket now in I_LISTENING state"</span>);
+<a name="l00089"></a>00089                                 <a class="code" href="globals_8h.html#log_28int_20level_2C_20char_20_2Atext_2C_2E_2E_2E_29">log</a>(<a class="code" href="inspircd__io_8h.html#DEBUG">DEBUG</a>,<span class="stringliteral">"New socket now in I_LISTENING state"</span>);
 <a name="l00090"></a>00090                                 <span class="keywordflow">return</span>;
 <a name="l00091"></a>00091                         }
 <a name="l00092"></a>00092                 }                       
@@ -919,7 +919,7 @@ Reads all pending bytes from the socket into a char* array which can be up to 16
 <p>
 Definition at line <a class="el" href="socket_8cpp-source.html#l00158">158</a> of file <a class="el" href="socket_8cpp-source.html">socket.cpp</a>.
 <p>
-References <a class="el" href="inspircd__io_8h-source.html#l00028">DEBUG</a>, and <a class="el" href="socket_8h-source.html#l00106">ibuf</a>.<div class="fragment"><pre class="fragment"><a name="l00159"></a>00159 {
+References <a class="el" href="inspircd__io_8h-source.html#l00028">DEBUG</a>, <a class="el" href="socket_8h-source.html#l00106">ibuf</a>, and <a class="el" href="globals_8h.html#log_28int_20level_2C_20char_20_2Atext_2C_2E_2E_2E_29">log()</a>.<div class="fragment"><pre class="fragment"><a name="l00159"></a>00159 {
 <a name="l00160"></a>00160         <span class="keywordtype">int</span> n = recv(this-&gt;fd,this-&gt;ibuf,<span class="keyword">sizeof</span>(this-&gt;ibuf),0);
 <a name="l00161"></a>00161         <span class="keywordflow">if</span> (n &gt; 0)
 <a name="l00162"></a>00162         {
@@ -928,7 +928,7 @@ References <a class="el" href="inspircd__io_8h-source.html#l00028">DEBUG</a>, an
 <a name="l00165"></a>00165         }
 <a name="l00166"></a>00166         <span class="keywordflow">else</span>
 <a name="l00167"></a>00167         {
-<a name="l00168"></a>00168                 log(<a class="code" href="inspircd__io_8h.html#DEBUG">DEBUG</a>,<span class="stringliteral">"EOF or error on socket"</span>);
+<a name="l00168"></a>00168                 <a class="code" href="globals_8h.html#log_28int_20level_2C_20char_20_2Atext_2C_2E_2E_2E_29">log</a>(<a class="code" href="inspircd__io_8h.html#DEBUG">DEBUG</a>,<span class="stringliteral">"EOF or error on socket"</span>);
 <a name="l00169"></a>00169                 <span class="keywordflow">return</span> NULL;
 <a name="l00170"></a>00170         }
 <a name="l00171"></a>00171 }
@@ -968,10 +968,10 @@ The core uses this to change socket states, and you should not call it directly.
 <p>
 Definition at line <a class="el" href="socket_8cpp-source.html#l00248">248</a> of file <a class="el" href="socket_8cpp-source.html">socket.cpp</a>.
 <p>
-References <a class="el" href="inspircd__io_8h-source.html#l00028">DEBUG</a>, and <a class="el" href="socket_8h-source.html#l00072">state</a>.
+References <a class="el" href="inspircd__io_8h-source.html#l00028">DEBUG</a>, <a class="el" href="globals_8h.html#log_28int_20level_2C_20char_20_2Atext_2C_2E_2E_2E_29">log()</a>, and <a class="el" href="socket_8h-source.html#l00072">state</a>.
 <p>
 Referenced by <a class="el" href="socket_8cpp-source.html#l00217">Poll()</a>.<div class="fragment"><pre class="fragment"><a name="l00249"></a>00249 {
-<a name="l00250"></a>00250         log(<a class="code" href="inspircd__io_8h.html#DEBUG">DEBUG</a>,<span class="stringliteral">"Socket state change"</span>);
+<a name="l00250"></a>00250         <a class="code" href="globals_8h.html#log_28int_20level_2C_20char_20_2Atext_2C_2E_2E_2E_29">log</a>(<a class="code" href="inspircd__io_8h.html#DEBUG">DEBUG</a>,<span class="stringliteral">"Socket state change"</span>);
 <a name="l00251"></a>00251         this-&gt;<a class="code" href="classInspSocket.html#state">state</a> = s;
 <a name="l00252"></a>00252 }
 </pre></div>
@@ -1465,7 +1465,7 @@ Referenced by <a class="el" href="socket_8cpp-source.html#l00062">InspSocket()</
 </table>
 <hr>The documentation for this class was generated from the following files:<ul>
 <li><a class="el" href="socket_8h-source.html">socket.h</a><li><a class="el" href="socket_8cpp-source.html">socket.cpp</a></ul>
-<hr size="1"><address style="align: right;"><small>Generated on Wed Dec 14 15:55:49 2005 for InspIRCd by&nbsp;
+<hr size="1"><address style="align: right;"><small>Generated on Wed Dec 14 19:16:26 2005 for InspIRCd by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img src="doxygen.png" alt="doxygen" align="middle" border="0"></a> 1.4.4-20050815 </small></address>
 </body>

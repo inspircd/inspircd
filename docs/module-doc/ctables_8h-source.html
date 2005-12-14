@@ -27,14 +27,14 @@
 <a name="l00018"></a>00018 <span class="preprocessor"></span><span class="preprocessor">#define __CTABLES_H__</span>
 <a name="l00019"></a>00019 <span class="preprocessor"></span>
 <a name="l00020"></a>00020 <span class="preprocessor">#include "inspircd_config.h"</span>
-<a name="l00021"></a>00021 <span class="preprocessor">#include "inspircd.h"</span>
+<a name="l00021"></a>00021 <span class="preprocessor">#include "<a class="code" href="inspircd_8h.html">inspircd.h</a>"</span>
 <a name="l00022"></a>00022 <span class="preprocessor">#include "<a class="code" href="base_8h.html">base.h</a>"</span>
 <a name="l00023"></a>00023 
 <a name="l00026"></a><a class="code" href="classcommand__t.html">00026</a> <span class="keyword">class </span><a class="code" href="classcommand__t.html">command_t</a> : <span class="keyword">public</span> <a class="code" href="classExtensible.html">Extensible</a>
 <a name="l00027"></a>00027 {
 <a name="l00028"></a>00028  <span class="keyword">public</span>:
 <a name="l00031"></a><a class="code" href="classcommand__t.html#command_5BMAXBUF_5D">00031</a>         <span class="keywordtype">char</span> <a class="code" href="classcommand__t.html#command_5BMAXBUF_5D">command</a>[MAXBUF];
-<a name="l00034"></a><a class="code" href="classcommand__t.html#handler_5Ffunction">00034</a>         handlerfunc *<a class="code" href="classcommand__t.html#handler_5Ffunction">handler_function</a>; 
+<a name="l00034"></a><a class="code" href="classcommand__t.html#handler_5Ffunction">00034</a>         <a class="code" href="inspircd_8h.html#handlerfunc_29_28char_20_2A_2A_2C_20int_2C_20userrec_20_2A_29">handlerfunc</a> *<a class="code" href="classcommand__t.html#handler_5Ffunction">handler_function</a>; 
 <a name="l00037"></a><a class="code" href="classcommand__t.html#flags_5Fneeded">00037</a>         <span class="keywordtype">char</span> <a class="code" href="classcommand__t.html#flags_5Fneeded">flags_needed</a>;
 <a name="l00040"></a><a class="code" href="classcommand__t.html#min_5Fparams">00040</a>         <span class="keywordtype">int</span> <a class="code" href="classcommand__t.html#min_5Fparams">min_params</a>;
 <a name="l00043"></a><a class="code" href="classcommand__t.html#use_5Fcount">00043</a>         <span class="keywordtype">long</span> <a class="code" href="classcommand__t.html#use_5Fcount">use_count</a>;
@@ -44,7 +44,7 @@
 <a name="l00051"></a>00051 
 <a name="l00052"></a>00052 <span class="preprocessor">#endif</span>
 <a name="l00053"></a>00053 <span class="preprocessor"></span>
-</pre></div><hr size="1"><address style="align: right;"><small>Generated on Wed Dec 14 15:55:46 2005 for InspIRCd by&nbsp;
+</pre></div><hr size="1"><address style="align: right;"><small>Generated on Wed Dec 14 19:16:11 2005 for InspIRCd by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img src="doxygen.png" alt="doxygen" align="middle" border="0"></a> 1.4.4-20050815 </small></address>
 </body>

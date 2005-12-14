@@ -1,3 +1,4 @@
 base referer
-rect $modules_8cpp-source.html 154,7 252,34
-rect $users_8cpp-source.html 163,58 243,84
+rect $channels_8cpp-source.html 155,7 253,33
+rect $modules_8cpp-source.html 155,57 253,84
+rect $users_8cpp-source.html 164,108 244,135

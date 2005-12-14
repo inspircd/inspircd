@@ -39,7 +39,7 @@
 <a name="l00030"></a>00030 <span class="preprocessor">#include &lt;iostream&gt;</span>
 <a name="l00031"></a>00031 <span class="preprocessor">#include &lt;fstream&gt;</span>
 <a name="l00032"></a>00032 <span class="preprocessor">#include "<a class="code" href="socket_8h.html">socket.h</a>"</span>
-<a name="l00033"></a>00033 <span class="preprocessor">#include "inspircd.h"</span>
+<a name="l00033"></a>00033 <span class="preprocessor">#include "<a class="code" href="inspircd_8h.html">inspircd.h</a>"</span>
 <a name="l00034"></a>00034 <span class="preprocessor">#include "<a class="code" href="inspircd__io_8h.html">inspircd_io.h</a>"</span>
 <a name="l00035"></a>00035 <span class="preprocessor">#include "inspircd_util.h"</span>
 <a name="l00036"></a>00036 <span class="preprocessor">#include "inspstring.h"</span>
@@ -48,8 +48,8 @@
 <a name="l00039"></a>00039 
 <a name="l00040"></a>00040 <span class="keyword">extern</span> <a class="code" href="classSocketEngine.html">SocketEngine</a>* <a class="code" href="modules_8cpp.html#SE">SE</a>;
 <a name="l00041"></a>00041 
-<a name="l00042"></a>00042 <span class="keyword">extern</span> <span class="keywordtype">int</span> <a class="code" href="channels_8cpp.html#boundPortCount">boundPortCount</a>;
-<a name="l00043"></a>00043 <span class="keyword">extern</span> <span class="keywordtype">int</span> <a class="code" href="socket_8cpp.html#openSockfd_5BMAXSOCKS_5D">openSockfd</a>[MAXSOCKS];
+<a name="l00042"></a>00042 <span class="keyword">extern</span> <span class="keywordtype">int</span> <a class="code" href="socket_8cpp.html#boundPortCount">boundPortCount</a>;
+<a name="l00043"></a>00043 <span class="keyword">extern</span> <span class="keywordtype">int</span> <a class="code" href="socket_8cpp.html#openSockfd_5BMAXSOCKS_5D">openSockfd</a>[<a class="code" href="inspircd_8h.html#MAXSOCKS">MAXSOCKS</a>];
 <a name="l00044"></a>00044 <span class="keyword">extern</span> time_t <a class="code" href="channels_8cpp.html#TIME">TIME</a>;
 <a name="l00045"></a>00045 
 <a name="l00046"></a><a class="code" href="socket_8cpp.html#socket_5Fref_5B_36_35_35_33_35_5D">00046</a> <a class="code" href="classInspSocket.html">InspSocket</a>* <a class="code" href="socket_8cpp.html#socket_5Fref_5B_36_35_35_33_35_5D">socket_ref</a>[65535];
@@ -71,23 +71,23 @@
 <a name="l00062"></a><a class="code" href="classInspSocket.html#InspSocket_28std_3A_3Astring_20host_2C_20int_20port_2C_20bool_20listening_2C_20unsigned_20long_20maxtime_29">00062</a> <a class="code" href="classInspSocket.html#InspSocket_28_29">InspSocket::InspSocket</a>(<a class="code" href="namespaceirc.html#string">std::string</a> host, <span class="keywordtype">int</span> port, <span class="keywordtype">bool</span> listening, <span class="keywordtype">unsigned</span> <span class="keywordtype">long</span> maxtime)
 <a name="l00063"></a>00063 {
 <a name="l00064"></a>00064         <span class="keywordflow">if</span> (listening) {
-<a name="l00065"></a>00065                 <span class="keywordflow">if</span> ((this-&gt;fd = <a class="code" href="inspircd__io_8h.html#OpenTCPSocket_28void_29">OpenTCPSocket</a>()) == ERROR)
+<a name="l00065"></a>00065                 <span class="keywordflow">if</span> ((this-&gt;fd = <a class="code" href="inspircd__io_8h.html#OpenTCPSocket_28void_29">OpenTCPSocket</a>()) == <a class="code" href="inspircd_8h.html#ERROR">ERROR</a>)
 <a name="l00066"></a>00066                 {
 <a name="l00067"></a>00067                         this-&gt;<a class="code" href="classInspSocket.html#fd">fd</a> = -1;
 <a name="l00068"></a>00068                         this-&gt;<a class="code" href="classInspSocket.html#state">state</a> = <a class="code" href="socket_8h.html#InspSocketStateI_5FERROR">I_ERROR</a>;
 <a name="l00069"></a>00069                         this-&gt;<a class="code" href="classInspSocket.html#OnError_28InspSocketError_20e_29">OnError</a>(<a class="code" href="socket_8h.html#InspSocketErrorI_5FERR_5FSOCKET">I_ERR_SOCKET</a>);
-<a name="l00070"></a>00070                         log(<a class="code" href="inspircd__io_8h.html#DEBUG">DEBUG</a>,<span class="stringliteral">"OpenTCPSocket() error"</span>);
+<a name="l00070"></a>00070                         <a class="code" href="globals_8h.html#log_28int_20level_2C_20char_20_2Atext_2C_2E_2E_2E_29">log</a>(<a class="code" href="inspircd__io_8h.html#DEBUG">DEBUG</a>,<span class="stringliteral">"OpenTCPSocket() error"</span>);
 <a name="l00071"></a>00071                         <span class="keywordflow">return</span>;
 <a name="l00072"></a>00072                 }
 <a name="l00073"></a>00073                 <span class="keywordflow">else</span>
 <a name="l00074"></a>00074                 {
-<a name="l00075"></a>00075                         <span class="keywordflow">if</span> (<a class="code" href="inspircd__io_8h.html#BindSocket_28int_20sockfd_2C_20struct_20sockaddr_5Fin_20client_2C_20struct_20sockaddr_5Fin_20server_2C_20int_20port_2C_20char_20_2Aaddr_29">BindSocket</a>(this-&gt;fd,this-&gt;client,this-&gt;server,port,(<span class="keywordtype">char</span>*)host.c_str()) == ERROR)
+<a name="l00075"></a>00075                         <span class="keywordflow">if</span> (<a class="code" href="inspircd__io_8h.html#BindSocket_28int_20sockfd_2C_20struct_20sockaddr_5Fin_20client_2C_20struct_20sockaddr_5Fin_20server_2C_20int_20port_2C_20char_20_2Aaddr_29">BindSocket</a>(this-&gt;fd,this-&gt;client,this-&gt;server,port,(<span class="keywordtype">char</span>*)host.c_str()) == <a class="code" href="inspircd_8h.html#ERROR">ERROR</a>)
 <a name="l00076"></a>00076                         {
 <a name="l00077"></a>00077                                 this-&gt;<a class="code" href="classInspSocket.html#Close_28_29">Close</a>();
 <a name="l00078"></a>00078                                 this-&gt;<a class="code" href="classInspSocket.html#fd">fd</a> = -1;
 <a name="l00079"></a>00079                                 this-&gt;<a class="code" href="classInspSocket.html#state">state</a> = <a class="code" href="socket_8h.html#InspSocketStateI_5FERROR">I_ERROR</a>;
 <a name="l00080"></a>00080                                 this-&gt;<a class="code" href="classInspSocket.html#OnError_28InspSocketError_20e_29">OnError</a>(<a class="code" href="socket_8h.html#InspSocketErrorI_5FERR_5FBIND">I_ERR_BIND</a>);
-<a name="l00081"></a>00081                                 log(<a class="code" href="inspircd__io_8h.html#DEBUG">DEBUG</a>,<span class="stringliteral">"BindSocket() error %s"</span>,strerror(errno));
+<a name="l00081"></a>00081                                 <a class="code" href="globals_8h.html#log_28int_20level_2C_20char_20_2Atext_2C_2E_2E_2E_29">log</a>(<a class="code" href="inspircd__io_8h.html#DEBUG">DEBUG</a>,<span class="stringliteral">"BindSocket() error %s"</span>,strerror(errno));
 <a name="l00082"></a>00082                                 <span class="keywordflow">return</span>;
 <a name="l00083"></a>00083                         }
 <a name="l00084"></a>00084                         <span class="keywordflow">else</span>
@@ -95,7 +95,7 @@
 <a name="l00086"></a>00086                                 this-&gt;<a class="code" href="classInspSocket.html#state">state</a> = <a class="code" href="socket_8h.html#InspSocketStateI_5FLISTENING">I_LISTENING</a>;
 <a name="l00087"></a>00087                                 SE-&gt;<a class="code" href="classSocketEngine.html#AddFd_28int_20fd_2C_20bool_20readable_2C_20char_20type_29">AddFd</a>(this-&gt;fd,<span class="keyword">true</span>,<a class="code" href="socketengine_8h.html#X_5FESTAB_5FMODULE">X_ESTAB_MODULE</a>);
 <a name="l00088"></a>00088                                 socket_ref[this-&gt;<a class="code" href="classInspSocket.html#fd">fd</a>] = <span class="keyword">this</span>;
-<a name="l00089"></a>00089                                 log(<a class="code" href="inspircd__io_8h.html#DEBUG">DEBUG</a>,<span class="stringliteral">"New socket now in I_LISTENING state"</span>);
+<a name="l00089"></a>00089                                 <a class="code" href="globals_8h.html#log_28int_20level_2C_20char_20_2Atext_2C_2E_2E_2E_29">log</a>(<a class="code" href="inspircd__io_8h.html#DEBUG">DEBUG</a>,<span class="stringliteral">"New socket now in I_LISTENING state"</span>);
 <a name="l00090"></a>00090                                 <span class="keywordflow">return</span>;
 <a name="l00091"></a>00091                         }
 <a name="l00092"></a>00092                 }                       
@@ -174,7 +174,7 @@
 <a name="l00165"></a>00165         }
 <a name="l00166"></a>00166         <span class="keywordflow">else</span>
 <a name="l00167"></a>00167         {
-<a name="l00168"></a>00168                 log(<a class="code" href="inspircd__io_8h.html#DEBUG">DEBUG</a>,<span class="stringliteral">"EOF or error on socket"</span>);
+<a name="l00168"></a>00168                 <a class="code" href="globals_8h.html#log_28int_20level_2C_20char_20_2Atext_2C_2E_2E_2E_29">log</a>(<a class="code" href="inspircd__io_8h.html#DEBUG">DEBUG</a>,<span class="stringliteral">"EOF or error on socket"</span>);
 <a name="l00169"></a>00169                 <span class="keywordflow">return</span> NULL;
 <a name="l00170"></a>00170         }
 <a name="l00171"></a>00171 }
@@ -256,7 +256,7 @@
 <a name="l00247"></a>00247 
 <a name="l00248"></a><a class="code" href="classInspSocket.html#SetState_28InspSocketState_20s_29">00248</a> <span class="keywordtype">void</span> <a class="code" href="classInspSocket.html#SetState_28InspSocketState_20s_29">InspSocket::SetState</a>(<a class="code" href="socket_8h.html#InspSocketState">InspSocketState</a> s)
 <a name="l00249"></a>00249 {
-<a name="l00250"></a>00250         log(<a class="code" href="inspircd__io_8h.html#DEBUG">DEBUG</a>,<span class="stringliteral">"Socket state change"</span>);
+<a name="l00250"></a>00250         <a class="code" href="globals_8h.html#log_28int_20level_2C_20char_20_2Atext_2C_2E_2E_2E_29">log</a>(<a class="code" href="inspircd__io_8h.html#DEBUG">DEBUG</a>,<span class="stringliteral">"Socket state change"</span>);
 <a name="l00251"></a>00251         this-&gt;<a class="code" href="classInspSocket.html#state">state</a> = s;
 <a name="l00252"></a>00252 }
 <a name="l00253"></a>00253 
@@ -287,7 +287,7 @@
 <a name="l00278"></a>00278 <span class="comment">int BindSocket (int sockfd, struct sockaddr_in client, struct sockaddr_in server, int port, char* addr)</span>
 <a name="l00279"></a>00279 <span class="comment">int OpenTCPSocket (void)</span>
 <a name="l00280"></a>00280 <span class="comment">*/</span>
-</pre></div><hr size="1"><address style="align: right;"><small>Generated on Wed Dec 14 15:55:46 2005 for InspIRCd by&nbsp;
+</pre></div><hr size="1"><address style="align: right;"><small>Generated on Wed Dec 14 19:16:12 2005 for InspIRCd by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img src="doxygen.png" alt="doxygen" align="middle" border="0"></a> 1.4.4-20050815 </small></address>
 </body>

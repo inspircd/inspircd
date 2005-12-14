@@ -12,9 +12,9 @@
 <code>#include &quot;<a class="el" href="hashcomp_8h-source.html">hashcomp.h</a>&quot;</code><br>
 <code>#include &quot;inspstring.h&quot;</code><br>
 <code>#include &quot;<a class="el" href="ctables_8h-source.html">ctables.h</a>&quot;</code><br>
-<code>#include &quot;inspircd.h&quot;</code><br>
+<code>#include &quot;<a class="el" href="inspircd_8h-source.html">inspircd.h</a>&quot;</code><br>
 <code>#include &quot;<a class="el" href="modules_8h-source.html">modules.h</a>&quot;</code><br>
-<code>#include &quot;globals.h&quot;</code><br>
+<code>#include &quot;<a class="el" href="globals_8h-source.html">globals.h</a>&quot;</code><br>
 <code>#include &quot;inspircd_config.h&quot;</code><br>
 <code>#include &lt;string&gt;</code><br>
 <code>#include &lt;ext/hash_map&gt;</code><br>
@@ -22,17 +22,20 @@
 <p>
 Include dependency graph for typedefs.h:<p><center><img src="typedefs_8h__incl.gif" border="0" usemap="#typedefs.h_map" alt=""></center>
 <map name="typedefs.h_map">
-<area href="users_8h-source.html" shape="rect" coords="156,159,220,185" alt="">
-<area href="channels_8h-source.html" shape="rect" coords="295,209,380,236" alt="">
-<area href="hashcomp_8h-source.html" shape="rect" coords="141,412,235,439" alt="">
-<area href="ctables_8h-source.html" shape="rect" coords="300,361,375,388" alt="">
+<area href="users_8h-source.html" shape="rect" coords="568,463,632,489" alt="">
+<area href="channels_8h-source.html" shape="rect" coords="684,361,769,388" alt="">
+<area href="hashcomp_8h-source.html" shape="rect" coords="141,108,235,135" alt="">
+<area href="ctables_8h-source.html" shape="rect" coords="300,209,375,236" alt="">
+<area href="inspircd_8h-source.html" shape="rect" coords="439,235,519,261" alt="">
 <area href="modules_8h-source.html" shape="rect" coords="147,311,229,337" alt="">
+<area href="globals_8h-source.html" shape="rect" coords="441,412,516,439" alt="">
 </map>
 
 <p>
 This graph shows which files directly or indirectly include this file:<p><center><img src="typedefs_8h__dep__incl.gif" border="0" usemap="#typedefs.hdep_map" alt=""></center>
 <map name="typedefs.hdep_map">
-<area href="modules_8cpp-source.html" shape="rect" coords="140,7,239,33" alt="">
+<area href="channels_8cpp-source.html" shape="rect" coords="141,7,240,34" alt="">
+<area href="modules_8cpp-source.html" shape="rect" coords="141,58,240,84" alt="">
 </map>
 
 <p>
@@ -62,6 +65,8 @@ This graph shows which files directly or indirectly include this file:<p><center
 <tr><td class="memItemLeft" nowrap align="right" valign="top">typedef std::vector&lt; <a class="el" href="classExtMode.html">ExtMode</a> &gt;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="typedefs_8h.html#ExtModeList">ExtModeList</a></td></tr>
 
 <tr><td class="memItemLeft" nowrap align="right" valign="top">typedef ExtModeList::iterator&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="typedefs_8h.html#ExtModeListIter">ExtModeListIter</a></td></tr>
+
+<tr><td class="memItemLeft" nowrap align="right" valign="top">typedef std::deque&lt; <a class="el" href="namespaceirc.html#string">std::string</a> &gt;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="typedefs_8h.html#file_5Fcache">file_cache</a></td></tr>
 
 </table>
 <hr><h2>Typedef Documentation</h2>
@@ -190,6 +195,31 @@ Definition at line <a class="el" href="typedefs_8h-source.html#l00026">26</a> of
 Definition at line <a class="el" href="typedefs_8h-source.html#l00027">27</a> of file <a class="el" href="typedefs_8h-source.html">typedefs.h</a>.    </td>
   </tr>
 </table>
+<a class="anchor" name="file_5Fcache"></a><!-- doxytag: member="typedefs.h::file_cache" ref="file_5Fcache" args="" --><p>
+<table class="mdTable" cellpadding="2" cellspacing="0">
+  <tr>
+    <td class="mdRow">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top">typedef std::deque&lt;<a class="el" href="namespaceirc.html#string">std::string</a>&gt; <a class="el" href="typedefs_8h.html#file_5Fcache">file_cache</a>          </td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing="5" cellpadding="0" border="0">
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+
+<p>
+Definition at line <a class="el" href="typedefs_8h-source.html#l00028">28</a> of file <a class="el" href="typedefs_8h-source.html">typedefs.h</a>.    </td>
+  </tr>
+</table>
 <a class="anchor" name="servernamelist"></a><!-- doxytag: member="typedefs.h::servernamelist" ref="servernamelist" args="" --><p>
 <table class="mdTable" cellpadding="2" cellspacing="0">
   <tr>
@@ -265,7 +295,7 @@ Definition at line <a class="el" href="typedefs_8h-source.html#l00020">20</a> of
 Definition at line <a class="el" href="typedefs_8h-source.html#l00023">23</a> of file <a class="el" href="typedefs_8h-source.html">typedefs.h</a>.    </td>
   </tr>
 </table>
-<hr size="1"><address style="align: right;"><small>Generated on Wed Dec 14 15:55:47 2005 for InspIRCd by&nbsp;
+<hr size="1"><address style="align: right;"><small>Generated on Wed Dec 14 19:16:24 2005 for InspIRCd by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img src="doxygen.png" alt="doxygen" align="middle" border="0"></a> 1.4.4-20050815 </small></address>
 </body>

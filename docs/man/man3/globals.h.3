@@ -1,0 +1,174 @@
+.TH "globals.h" 3 "14 Dec 2005" "Version 1.0Betareleases" "InspIRCd" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+globals.h \- 
+.SH SYNOPSIS
+.br
+.PP
+\fC#include <typeinfo>\fP
+.br
+\fC#include <iostream>\fP
+.br
+\fC#include <string>\fP
+.br
+\fC#include <deque>\fP
+.br
+\fC#include 'users.h'\fP
+.br
+\fC#include 'channels.h'\fP
+.br
+
+.SS "Typedefs"
+
+.in +1c
+.ti -1c
+.RI "typedef std::deque< \fBstd::string\fP > \fBfile_cache\fP"
+.br
+.in -1c
+.SS "Functions"
+
+.in +1c
+.ti -1c
+.RI "void \fBWriteOpers\fP (char *text,...)"
+.br
+.ti -1c
+.RI "void \fBlog\fP (int level, char *text,...)"
+.br
+.ti -1c
+.RI "void \fBWrite\fP (int sock, char *text,...)"
+.br
+.ti -1c
+.RI "void \fBWriteServ\fP (int sock, char *text,...)"
+.br
+.ti -1c
+.RI "void \fBWriteFrom\fP (int sock, \fBuserrec\fP *user, char *text,...)"
+.br
+.ti -1c
+.RI "void \fBWriteTo\fP (\fBuserrec\fP *source, \fBuserrec\fP *dest, char *data,...)"
+.br
+.ti -1c
+.RI "void \fBWriteChannel\fP (\fBchanrec\fP *Ptr, \fBuserrec\fP *user, char *text,...)"
+.br
+.ti -1c
+.RI "void \fBChanExceptSender\fP (\fBchanrec\fP *Ptr, \fBuserrec\fP *user, char *text,...)"
+.br
+.ti -1c
+.RI "int \fBcommon_channels\fP (\fBuserrec\fP *u, \fBuserrec\fP *u2)"
+.br
+.ti -1c
+.RI "void \fBWriteCommon\fP (\fBuserrec\fP *u, char *text,...)"
+.br
+.ti -1c
+.RI "void \fBWriteCommonExcept\fP (\fBuserrec\fP *u, char *text,...)"
+.br
+.ti -1c
+.RI "void \fBWriteWallOps\fP (\fBuserrec\fP *source, bool local_only, char *text,...)"
+.br
+.ti -1c
+.RI "int \fBisnick\fP (const char *n)"
+.br
+.ti -1c
+.RI "\fBuserrec\fP * \fBFind\fP (\fBstd::string\fP nick)"
+.br
+.ti -1c
+.RI "\fBchanrec\fP * \fBFindChan\fP (const char *chan)"
+.br
+.ti -1c
+.RI "char * \fBcmode\fP (\fBuserrec\fP *user, \fBchanrec\fP *chan)"
+.br
+.ti -1c
+.RI "\fBstd::string\fP \fBgetservername\fP ()"
+.br
+.ti -1c
+.RI "\fBstd::string\fP \fBgetnetworkname\fP ()"
+.br
+.ti -1c
+.RI "\fBstd::string\fP \fBgetadminname\fP ()"
+.br
+.ti -1c
+.RI "\fBstd::string\fP \fBgetadminemail\fP ()"
+.br
+.ti -1c
+.RI "\fBstd::string\fP \fBgetadminnick\fP ()"
+.br
+.ti -1c
+.RI "void \fBreadfile\fP (\fBfile_cache\fP &F, const char *fname)"
+.br
+.ti -1c
+.RI "int \fBModeDefiend\fP (char c, int i)"
+.br
+.in -1c
+.SH "Typedef Documentation"
+.PP 
+.SS "typedef std::deque<\fBstd::string\fP> \fBfile_cache\fP"
+.PP
+Definition at line 29 of file globals.h.
+.SH "Function Documentation"
+.PP 
+.SS "void ChanExceptSender (\fBchanrec\fP * Ptr, \fBuserrec\fP * user, char * text,  ...)"
+.PP
+Referenced by Server::SendChannel().
+.SS "char* cmode (\fBuserrec\fP * user, \fBchanrec\fP * chan)"
+.PP
+Referenced by Server::ChanMode().
+.SS "int common_channels (\fBuserrec\fP * u, \fBuserrec\fP * u2)"
+.PP
+Referenced by Server::CommonChannels().
+.SS "\fBuserrec\fP* Find (\fBstd::string\fP nick)"
+.PP
+Referenced by Server::FindNick().
+.SS "\fBchanrec\fP* FindChan (const char * chan)"
+.PP
+Referenced by add_channel(), del_channel(), and Server::FindChannel().
+.SS "\fBstd::string\fP getadminemail ()"
+.PP
+.SS "\fBstd::string\fP getadminname ()"
+.PP
+.SS "\fBstd::string\fP getadminnick ()"
+.PP
+.SS "\fBstd::string\fP getnetworkname ()"
+.PP
+.SS "\fBstd::string\fP getservername ()"
+.PP
+.SS "int isnick (const char * n)"
+.PP
+Referenced by Server::IsNick().
+.SS "void log (int level, char * text,  ...)"
+.PP
+Referenced by add_channel(), Server::AddExtendedMode(), SocketEngine::AddFd(), chanrec::AddUser(), del_channel(), SocketEngine::DelFd(), chanrec::DelUser(), ForceChan(), InspSocket::InspSocket(), kick_channel(), Server::Log(), InspSocket::Read(), userrec::RemoveInvite(), chanrec::SetCustomMode(), chanrec::SetCustomModeParam(), InspSocket::SetState(), userrec::SetWriteError(), SocketEngine::SocketEngine(), and SocketEngine::~SocketEngine().
+.SS "int ModeDefiend (char c, int i)"
+.PP
+.SS "void readfile (\fBfile_cache\fP & F, const char * fname)"
+.PP
+Referenced by FileReader::FileReader(), and FileReader::LoadFile().
+.SS "void Write (int sock, char * text,  ...)"
+.PP
+Referenced by Server::PseudoToUser(), Server::Send(), Server::SendTo(), and Server::UserToPseudo().
+.SS "void WriteChannel (\fBchanrec\fP * Ptr, \fBuserrec\fP * user, char * text,  ...)"
+.PP
+Referenced by del_channel(), ForceChan(), kick_channel(), and Server::SendChannel().
+.SS "void WriteCommon (\fBuserrec\fP * u, char * text,  ...)"
+.PP
+Referenced by Server::SendCommon().
+.SS "void WriteCommonExcept (\fBuserrec\fP * u, char * text,  ...)"
+.PP
+Referenced by Server::SendCommon().
+.SS "void WriteFrom (int sock, \fBuserrec\fP * user, char * text,  ...)"
+.PP
+Referenced by Server::PseudoToUser(), and Server::SendFrom().
+.SS "void WriteOpers (char * text,  ...)"
+.PP
+Referenced by userrec::AddBuffer(), userrec::AddWriteBuf(), ConfigReader::DumpErrors(), Server::RehashServer(), and Server::SendOpers().
+.SS "void WriteServ (int sock, char * text,  ...)"
+.PP
+Referenced by add_channel(), ConfigReader::DumpErrors(), ForceChan(), kick_channel(), Server::PseudoToUser(), and Server::SendServ().
+.SS "void WriteTo (\fBuserrec\fP * source, \fBuserrec\fP * dest, char * data,  ...)"
+.PP
+Referenced by Server::SendTo().
+.SS "void WriteWallOps (\fBuserrec\fP * source, bool local_only, char * text,  ...)"
+.PP
+Referenced by Server::SendWallops().
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for InspIRCd from the source code.

@@ -1,6 +1,5 @@
 base referer
-rect $modules_8cpp-source.html 410,57 508,84
-rect $socket_8cpp-source.html 127,57 212,84
-rect $modules_8h-source.html 128,108 211,135
-rect $channels_8cpp-source.html 262,108 360,135
-rect $typedefs_8h-source.html 268,159 354,185
+rect $modules_8cpp-source.html 260,57 359,84
+rect $socket_8cpp-source.html 267,133 352,160
+rect $inspircd_8h-source.html 129,108 209,135
+rect $modules_8h-source.html 128,57 211,84

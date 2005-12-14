@@ -75,7 +75,7 @@ Please note that if there is a catastrophic failure (for example, you try and en
 .PP
 Definition at line 35 of file socketengine.cpp.
 .PP
-References DEBUG, and EngineHandle.
+References DEBUG, EngineHandle, and log().
 .PP
 .nf
 36 {
@@ -95,7 +95,7 @@ Destructor The destructor transparently tidies up any resources used by the sock
 .PP
 Definition at line 46 of file socketengine.cpp.
 .PP
-References DEBUG, and EngineHandle.
+References DEBUG, EngineHandle, and log().
 .PP
 .nf
 47 {
@@ -119,7 +119,7 @@ You must provide a type (see the consts in \fBsocketengine.h\fP) and a boolean f
 .PP
 Definition at line 65 of file socketengine.cpp.
 .PP
-References DEBUG, EngineHandle, fds, ref, and X_READBIT.
+References DEBUG, EngineHandle, fds, log(), ref, and X_READBIT.
 .PP
 Referenced by InspSocket::InspSocket(), and InspSocket::Poll().
 .PP
@@ -168,7 +168,7 @@ Delete a file descriptor f rom the engine This function call deletes a file desc
 .PP
 Definition at line 103 of file socketengine.cpp.
 .PP
-References DEBUG, EngineHandle, fds, ref, and X_READBIT.
+References DEBUG, EngineHandle, fds, log(), ref, and X_READBIT.
 .PP
 Referenced by InspSocket::Poll(), and Server::UserToPseudo().
 .PP

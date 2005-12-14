@@ -83,8 +83,8 @@ Please note that if there is a catastrophic failure (for example, you try and en
 <p>
 Definition at line <a class="el" href="socketengine_8cpp-source.html#l00035">35</a> of file <a class="el" href="socketengine_8cpp-source.html">socketengine.cpp</a>.
 <p>
-References <a class="el" href="inspircd__io_8h-source.html#l00028">DEBUG</a>, and <a class="el" href="socketengine_8h-source.html#l00069">EngineHandle</a>.<div class="fragment"><pre class="fragment"><a name="l00036"></a>00036 {
-<a name="l00037"></a>00037         log(<a class="code" href="inspircd__io_8h.html#DEBUG">DEBUG</a>,<span class="stringliteral">"SocketEngine::SocketEngine()"</span>);
+References <a class="el" href="inspircd__io_8h-source.html#l00028">DEBUG</a>, <a class="el" href="socketengine_8h-source.html#l00069">EngineHandle</a>, and <a class="el" href="globals_8h.html#log_28int_20level_2C_20char_20_2Atext_2C_2E_2E_2E_29">log()</a>.<div class="fragment"><pre class="fragment"><a name="l00036"></a>00036 {
+<a name="l00037"></a>00037         <a class="code" href="globals_8h.html#log_28int_20level_2C_20char_20_2Atext_2C_2E_2E_2E_29">log</a>(<a class="code" href="inspircd__io_8h.html#DEBUG">DEBUG</a>,<span class="stringliteral">"SocketEngine::SocketEngine()"</span>);
 <a name="l00038"></a>00038 <span class="preprocessor">#ifdef USE_EPOLL</span>
 <a name="l00039"></a>00039 <span class="preprocessor"></span>        <a class="code" href="classSocketEngine.html#EngineHandle">EngineHandle</a> = epoll_create(65535);
 <a name="l00040"></a>00040 <span class="preprocessor">#endif</span>
@@ -127,8 +127,8 @@ Destructor The destructor transparently tidies up any resources used by the sock
 <p>
 Definition at line <a class="el" href="socketengine_8cpp-source.html#l00046">46</a> of file <a class="el" href="socketengine_8cpp-source.html">socketengine.cpp</a>.
 <p>
-References <a class="el" href="inspircd__io_8h-source.html#l00028">DEBUG</a>, and <a class="el" href="socketengine_8h-source.html#l00069">EngineHandle</a>.<div class="fragment"><pre class="fragment"><a name="l00047"></a>00047 {
-<a name="l00048"></a>00048         log(<a class="code" href="inspircd__io_8h.html#DEBUG">DEBUG</a>,<span class="stringliteral">"SocketEngine::~SocketEngine()"</span>);
+References <a class="el" href="inspircd__io_8h-source.html#l00028">DEBUG</a>, <a class="el" href="socketengine_8h-source.html#l00069">EngineHandle</a>, and <a class="el" href="globals_8h.html#log_28int_20level_2C_20char_20_2Atext_2C_2E_2E_2E_29">log()</a>.<div class="fragment"><pre class="fragment"><a name="l00047"></a>00047 {
+<a name="l00048"></a>00048         <a class="code" href="globals_8h.html#log_28int_20level_2C_20char_20_2Atext_2C_2E_2E_2E_29">log</a>(<a class="code" href="inspircd__io_8h.html#DEBUG">DEBUG</a>,<span class="stringliteral">"SocketEngine::~SocketEngine()"</span>);
 <a name="l00049"></a>00049 <span class="preprocessor">#ifdef USE_EPOLL</span>
 <a name="l00050"></a>00050 <span class="preprocessor"></span>        close(<a class="code" href="classSocketEngine.html#EngineHandle">EngineHandle</a>);
 <a name="l00051"></a>00051 <span class="preprocessor">#endif</span>
@@ -188,7 +188,7 @@ You must provide a type (see the consts in <a class="el" href="socketengine_8h.h
 <p>
 Definition at line <a class="el" href="socketengine_8cpp-source.html#l00065">65</a> of file <a class="el" href="socketengine_8cpp-source.html">socketengine.cpp</a>.
 <p>
-References <a class="el" href="inspircd__io_8h-source.html#l00028">DEBUG</a>, <a class="el" href="socketengine_8h-source.html#l00069">EngineHandle</a>, <a class="el" href="socketengine_8h-source.html#l00068">fds</a>, <a class="el" href="socketengine_8cpp-source.html#l00033">ref</a>, and <a class="el" href="socketengine_8h-source.html#l00055">X_READBIT</a>.
+References <a class="el" href="inspircd__io_8h-source.html#l00028">DEBUG</a>, <a class="el" href="socketengine_8h-source.html#l00069">EngineHandle</a>, <a class="el" href="socketengine_8h-source.html#l00068">fds</a>, <a class="el" href="globals_8h.html#log_28int_20level_2C_20char_20_2Atext_2C_2E_2E_2E_29">log()</a>, <a class="el" href="socketengine_8cpp-source.html#l00033">ref</a>, and <a class="el" href="socketengine_8h-source.html#l00055">X_READBIT</a>.
 <p>
 Referenced by <a class="el" href="socket_8cpp-source.html#l00053">InspSocket::InspSocket()</a>, and <a class="el" href="socket_8cpp-source.html#l00217">InspSocket::Poll()</a>.<div class="fragment"><pre class="fragment"><a name="l00066"></a>00066 {
 <a name="l00067"></a>00067         <span class="keywordflow">if</span> ((fd &lt; 0) || (fd &gt; 65535))
@@ -197,30 +197,30 @@ Referenced by <a class="el" href="socket_8cpp-source.html#l00053">InspSocket::In
 <a name="l00070"></a>00070         <a class="code" href="socketengine_8cpp.html#ref_5B_36_35_35_33_35_5D">ref</a>[fd] = type;
 <a name="l00071"></a>00071         <span class="keywordflow">if</span> (readable)
 <a name="l00072"></a>00072         {
-<a name="l00073"></a>00073                 log(<a class="code" href="inspircd__io_8h.html#DEBUG">DEBUG</a>,<span class="stringliteral">"Set readbit"</span>);
+<a name="l00073"></a>00073                 <a class="code" href="globals_8h.html#log_28int_20level_2C_20char_20_2Atext_2C_2E_2E_2E_29">log</a>(<a class="code" href="inspircd__io_8h.html#DEBUG">DEBUG</a>,<span class="stringliteral">"Set readbit"</span>);
 <a name="l00074"></a>00074                 <a class="code" href="socketengine_8cpp.html#ref_5B_36_35_35_33_35_5D">ref</a>[fd] |= <a class="code" href="socketengine_8h.html#X_5FREADBIT">X_READBIT</a>;
 <a name="l00075"></a>00075         }
-<a name="l00076"></a>00076         log(<a class="code" href="inspircd__io_8h.html#DEBUG">DEBUG</a>,<span class="stringliteral">"Add socket %d"</span>,fd);
+<a name="l00076"></a>00076         <a class="code" href="globals_8h.html#log_28int_20level_2C_20char_20_2Atext_2C_2E_2E_2E_29">log</a>(<a class="code" href="inspircd__io_8h.html#DEBUG">DEBUG</a>,<span class="stringliteral">"Add socket %d"</span>,fd);
 <a name="l00077"></a>00077 <span class="preprocessor">#ifdef USE_EPOLL</span>
 <a name="l00078"></a>00078 <span class="preprocessor"></span>        <span class="keyword">struct </span>epoll_event ev;
-<a name="l00079"></a>00079         log(<a class="code" href="inspircd__io_8h.html#DEBUG">DEBUG</a>,<span class="stringliteral">"epoll: Add socket to events, ep=%d socket=%d"</span>,<a class="code" href="classSocketEngine.html#EngineHandle">EngineHandle</a>,fd);
+<a name="l00079"></a>00079         <a class="code" href="globals_8h.html#log_28int_20level_2C_20char_20_2Atext_2C_2E_2E_2E_29">log</a>(<a class="code" href="inspircd__io_8h.html#DEBUG">DEBUG</a>,<span class="stringliteral">"epoll: Add socket to events, ep=%d socket=%d"</span>,<a class="code" href="classSocketEngine.html#EngineHandle">EngineHandle</a>,fd);
 <a name="l00080"></a>00080         readable ? ev.events = EPOLLIN | EPOLLET : ev.events = EPOLLOUT | EPOLLET;
 <a name="l00081"></a>00081         ev.data.fd = fd;
 <a name="l00082"></a>00082         <span class="keywordtype">int</span> i = epoll_ctl(<a class="code" href="classSocketEngine.html#EngineHandle">EngineHandle</a>, EPOLL_CTL_ADD, fd, &amp;ev);
 <a name="l00083"></a>00083         <span class="keywordflow">if</span> (i &lt; 0)
 <a name="l00084"></a>00084         {
-<a name="l00085"></a>00085                 log(<a class="code" href="inspircd__io_8h.html#DEBUG">DEBUG</a>,<span class="stringliteral">"epoll: List insertion failure!"</span>);
+<a name="l00085"></a>00085                 <a class="code" href="globals_8h.html#log_28int_20level_2C_20char_20_2Atext_2C_2E_2E_2E_29">log</a>(<a class="code" href="inspircd__io_8h.html#DEBUG">DEBUG</a>,<span class="stringliteral">"epoll: List insertion failure!"</span>);
 <a name="l00086"></a>00086                 <span class="keywordflow">return</span> <span class="keyword">false</span>;
 <a name="l00087"></a>00087         }
 <a name="l00088"></a>00088 <span class="preprocessor">#endif</span>
 <a name="l00089"></a>00089 <span class="preprocessor"></span><span class="preprocessor">#ifdef USE_KQUEUE</span>
 <a name="l00090"></a>00090 <span class="preprocessor"></span>        <span class="keyword">struct </span>kevent ke;
-<a name="l00091"></a>00091         log(<a class="code" href="inspircd__io_8h.html#DEBUG">DEBUG</a>,<span class="stringliteral">"kqueue: Add socket to events, kq=%d socket=%d"</span>,<a class="code" href="classSocketEngine.html#EngineHandle">EngineHandle</a>,fd);
+<a name="l00091"></a>00091         <a class="code" href="globals_8h.html#log_28int_20level_2C_20char_20_2Atext_2C_2E_2E_2E_29">log</a>(<a class="code" href="inspircd__io_8h.html#DEBUG">DEBUG</a>,<span class="stringliteral">"kqueue: Add socket to events, kq=%d socket=%d"</span>,<a class="code" href="classSocketEngine.html#EngineHandle">EngineHandle</a>,fd);
 <a name="l00092"></a>00092         EV_SET(&amp;ke, fd, readable ? EVFILT_READ : EVFILT_WRITE, EV_ADD, 0, 0, NULL);
 <a name="l00093"></a>00093         <span class="keywordtype">int</span> i = kevent(<a class="code" href="classSocketEngine.html#EngineHandle">EngineHandle</a>, &amp;ke, 1, 0, 0, NULL);
 <a name="l00094"></a>00094         <span class="keywordflow">if</span> (i == -1)
 <a name="l00095"></a>00095         {
-<a name="l00096"></a>00096                 log(<a class="code" href="inspircd__io_8h.html#DEBUG">DEBUG</a>,<span class="stringliteral">"kqueue: List insertion failure!"</span>);
+<a name="l00096"></a>00096                 <a class="code" href="globals_8h.html#log_28int_20level_2C_20char_20_2Atext_2C_2E_2E_2E_29">log</a>(<a class="code" href="inspircd__io_8h.html#DEBUG">DEBUG</a>,<span class="stringliteral">"kqueue: List insertion failure!"</span>);
 <a name="l00097"></a>00097                 <span class="keywordflow">return</span> <span class="keyword">false</span>;
 <a name="l00098"></a>00098         }
 <a name="l00099"></a>00099 <span class="preprocessor">#endif</span>
@@ -262,10 +262,10 @@ Delete a file descriptor f rom the engine This function call deletes a file desc
 <p>
 Definition at line <a class="el" href="socketengine_8cpp-source.html#l00103">103</a> of file <a class="el" href="socketengine_8cpp-source.html">socketengine.cpp</a>.
 <p>
-References <a class="el" href="inspircd__io_8h-source.html#l00028">DEBUG</a>, <a class="el" href="socketengine_8h-source.html#l00069">EngineHandle</a>, <a class="el" href="socketengine_8h-source.html#l00068">fds</a>, <a class="el" href="socketengine_8cpp-source.html#l00033">ref</a>, and <a class="el" href="socketengine_8h-source.html#l00055">X_READBIT</a>.
+References <a class="el" href="inspircd__io_8h-source.html#l00028">DEBUG</a>, <a class="el" href="socketengine_8h-source.html#l00069">EngineHandle</a>, <a class="el" href="socketengine_8h-source.html#l00068">fds</a>, <a class="el" href="globals_8h.html#log_28int_20level_2C_20char_20_2Atext_2C_2E_2E_2E_29">log()</a>, <a class="el" href="socketengine_8cpp-source.html#l00033">ref</a>, and <a class="el" href="socketengine_8h-source.html#l00055">X_READBIT</a>.
 <p>
-Referenced by <a class="el" href="socket_8cpp-source.html#l00217">InspSocket::Poll()</a>, and <a class="el" href="modules_8cpp-source.html#l00601">Server::UserToPseudo()</a>.<div class="fragment"><pre class="fragment"><a name="l00104"></a>00104 {
-<a name="l00105"></a>00105         log(<a class="code" href="inspircd__io_8h.html#DEBUG">DEBUG</a>,<span class="stringliteral">"SocketEngine::DelFd(%d)"</span>,fd);
+Referenced by <a class="el" href="socket_8cpp-source.html#l00217">InspSocket::Poll()</a>, and <a class="el" href="modules_8cpp-source.html#l00593">Server::UserToPseudo()</a>.<div class="fragment"><pre class="fragment"><a name="l00104"></a>00104 {
+<a name="l00105"></a>00105         <a class="code" href="globals_8h.html#log_28int_20level_2C_20char_20_2Atext_2C_2E_2E_2E_29">log</a>(<a class="code" href="inspircd__io_8h.html#DEBUG">DEBUG</a>,<span class="stringliteral">"SocketEngine::DelFd(%d)"</span>,fd);
 <a name="l00106"></a>00106 
 <a name="l00107"></a>00107         <span class="keywordflow">if</span> ((fd &lt; 0) || (fd &gt; 65535))
 <a name="l00108"></a>00108                 <span class="keywordflow">return</span> <span class="keyword">false</span>;
@@ -276,7 +276,7 @@ Referenced by <a class="el" href="socket_8cpp-source.html#l00217">InspSocket::Po
 <a name="l00113"></a>00113                 <span class="keywordflow">if</span> (*i == fd)
 <a name="l00114"></a>00114                 {
 <a name="l00115"></a>00115                         <a class="code" href="classSocketEngine.html#fds">fds</a>.erase(i);
-<a name="l00116"></a>00116                         log(<a class="code" href="inspircd__io_8h.html#DEBUG">DEBUG</a>,<span class="stringliteral">"Deleted fd %d"</span>,fd);
+<a name="l00116"></a>00116                         <a class="code" href="globals_8h.html#log_28int_20level_2C_20char_20_2Atext_2C_2E_2E_2E_29">log</a>(<a class="code" href="inspircd__io_8h.html#DEBUG">DEBUG</a>,<span class="stringliteral">"Deleted fd %d"</span>,fd);
 <a name="l00117"></a>00117                         found = <span class="keyword">true</span>;
 <a name="l00118"></a>00118                         <span class="keywordflow">break</span>;
 <a name="l00119"></a>00119                 }
@@ -287,7 +287,7 @@ Referenced by <a class="el" href="socket_8cpp-source.html#l00217">InspSocket::Po
 <a name="l00124"></a>00124         <span class="keywordtype">int</span> i = kevent(<a class="code" href="classSocketEngine.html#EngineHandle">EngineHandle</a>, &amp;ke, 1, 0, 0, NULL);
 <a name="l00125"></a>00125         <span class="keywordflow">if</span> (i == -1)
 <a name="l00126"></a>00126         {
-<a name="l00127"></a>00127                 log(<a class="code" href="inspircd__io_8h.html#DEBUG">DEBUG</a>,<span class="stringliteral">"kqueue: Failed to remove socket from queue!"</span>);
+<a name="l00127"></a>00127                 <a class="code" href="globals_8h.html#log_28int_20level_2C_20char_20_2Atext_2C_2E_2E_2E_29">log</a>(<a class="code" href="inspircd__io_8h.html#DEBUG">DEBUG</a>,<span class="stringliteral">"kqueue: Failed to remove socket from queue!"</span>);
 <a name="l00128"></a>00128                 <span class="keywordflow">return</span> <span class="keyword">false</span>;
 <a name="l00129"></a>00129         }
 <a name="l00130"></a>00130 <span class="preprocessor">#endif</span>
@@ -298,7 +298,7 @@ Referenced by <a class="el" href="socket_8cpp-source.html#l00217">InspSocket::Po
 <a name="l00135"></a>00135         <span class="keywordtype">int</span> i = epoll_ctl(<a class="code" href="classSocketEngine.html#EngineHandle">EngineHandle</a>, EPOLL_CTL_DEL, fd, &amp;ev);
 <a name="l00136"></a>00136         <span class="keywordflow">if</span> (i &lt; 0)
 <a name="l00137"></a>00137         {
-<a name="l00138"></a>00138                 log(<a class="code" href="inspircd__io_8h.html#DEBUG">DEBUG</a>,<span class="stringliteral">"epoll: List deletion failure!"</span>);
+<a name="l00138"></a>00138                 <a class="code" href="globals_8h.html#log_28int_20level_2C_20char_20_2Atext_2C_2E_2E_2E_29">log</a>(<a class="code" href="inspircd__io_8h.html#DEBUG">DEBUG</a>,<span class="stringliteral">"epoll: List deletion failure!"</span>);
 <a name="l00139"></a>00139                 <span class="keywordflow">return</span> <span class="keyword">false</span>;
 <a name="l00140"></a>00140         }
 <a name="l00141"></a>00141 <span class="preprocessor">#endif</span>
@@ -589,7 +589,7 @@ Referenced by <a class="el" href="socketengine_8cpp-source.html#l00146">Wait()</
 </table>
 <hr>The documentation for this class was generated from the following files:<ul>
 <li><a class="el" href="socketengine_8h-source.html">socketengine.h</a><li><a class="el" href="socketengine_8cpp-source.html">socketengine.cpp</a></ul>
-<hr size="1"><address style="align: right;"><small>Generated on Wed Dec 14 15:55:51 2005 for InspIRCd by&nbsp;
+<hr size="1"><address style="align: right;"><small>Generated on Wed Dec 14 19:16:28 2005 for InspIRCd by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img src="doxygen.png" alt="doxygen" align="middle" border="0"></a> 1.4.4-20050815 </small></address>
 </body>

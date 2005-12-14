@@ -187,6 +187,10 @@ Inherits \fBclassbase\fP.
 .RI "std::vector< \fBstd::string\fP > \fBmodule_names\fP"
 .br
 .RI "\fIA list of module names (names only, no paths) which are currently loaded by the server. \fP"
+.ti -1c
+.RI "int \fBports\fP [255]"
+.br
+.RI "\fIA list of ports which the server is listening on. \fP"
 .in -1c
 .SS "Private Member Functions"
 
@@ -271,16 +275,22 @@ Definition at line 216 of file inspircd_io.h.
 Holds the email address of the admin, for output in the /ADMIN command. 
 .PP
 Definition at line 89 of file inspircd_io.h.
+.PP
+Referenced by Server::GetAdmin().
 .SS "char \fBServerConfig::AdminName\fP[MAXBUF]"
 .PP
 Holds the admin's name, for output in the /ADMIN command. 
 .PP
 Definition at line 84 of file inspircd_io.h.
+.PP
+Referenced by Server::GetAdmin().
 .SS "char \fBServerConfig::AdminNick\fP[MAXBUF]"
 .PP
 Holds the admin's nickname, for output in the /ADMIN command. 
 .PP
 Definition at line 94 of file inspircd_io.h.
+.PP
+Referenced by Server::GetAdmin().
 .SS "bool \fBServerConfig::AllowHalfop\fP"
 .PP
 If this value is true, halfops have been enabled in the configuration file. 
@@ -401,6 +411,8 @@ Definition at line 182 of file inspircd_io.h.
 .SS "char \fBServerConfig::Network\fP[MAXBUF]"
 .PP
 Definition at line 74 of file inspircd_io.h.
+.PP
+Referenced by Server::GetNetworkName().
 .SS "bool \fBServerConfig::nofork\fP"
 .PP
 If this value is true, the owner of the server specified -nofork on the command line, causing the daemon to stay in the foreground. 
@@ -411,6 +423,11 @@ Definition at line 158 of file inspircd_io.h.
 The full pathname and filename of the PID file as defined in the configuration. 
 .PP
 Definition at line 229 of file inspircd_io.h.
+.SS "int \fBServerConfig::ports\fP[255]"
+.PP
+A list of ports which the server is listening on. 
+.PP
+Definition at line 251 of file inspircd_io.h.
 .SS "char \fBServerConfig::PrefixQuit\fP[MAXBUF]"
 .PP
 The quit prefix in use, or an empty string. 
@@ -436,13 +453,15 @@ Definition at line 112 of file inspircd_io.h.
 Holds the description of the local server as defined by the administrator. 
 .PP
 Definition at line 79 of file inspircd_io.h.
+.PP
+Referenced by Server::GetServerDescription().
 .SS "char \fBServerConfig::ServerName\fP[MAXBUF]"
 .PP
 Holds the server name of the local server as defined by the administrator. 
 .PP
 Definition at line 68 of file inspircd_io.h.
 .PP
-Referenced by userrec::userrec().
+Referenced by Server::GetServerName(), and userrec::userrec().
 .SS "unsigned int \fBServerConfig::SoftLimit\fP"
 .PP
 The soft limit value assigned to the irc server. 

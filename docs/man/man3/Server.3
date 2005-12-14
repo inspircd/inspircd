@@ -124,7 +124,7 @@ Inherits \fBclassbase\fP.
 .br
 .RI "\fIAdds an extended mode letter which is parsed by a module and handled in a list fashion. \fP"
 .ti -1c
-.RI "virtual void \fBAddCommand\fP (char *cmd, handlerfunc f, char flags, int minparams, char *source)"
+.RI "virtual void \fBAddCommand\fP (char *cmd, \fBhandlerfunc\fP f, char flags, int minparams, char *source)"
 .br
 .RI "\fIAdds a command to the command table. \fP"
 .ti -1c
@@ -265,11 +265,11 @@ Default constructor.
 .PP
 Creates a Server object.
 .PP
-Definition at line 313 of file modules.cpp.
+Definition at line 305 of file modules.cpp.
 .PP
 .nf
-314 {
-315 }
+306 {
+307 }
 .fi
 .PP
 .SS "Server::~Server ()\fC [virtual]\fP"
@@ -278,16 +278,16 @@ Default destructor.
 .PP
 Destroys a Server object.
 .PP
-Definition at line 317 of file modules.cpp.
+Definition at line 309 of file modules.cpp.
 .PP
 .nf
-318 {
-319 }
+310 {
+311 }
 .fi
 .PP
 .SH "Member Function Documentation"
 .PP 
-.SS "void Server::AddCommand (char * cmd, handlerfunc f, char flags, int minparams, char * source)\fC [virtual]\fP"
+.SS "void Server::AddCommand (char * cmd, \fBhandlerfunc\fP f, char flags, int minparams, char * source)\fC [virtual]\fP"
 .PP
 Adds a command to the command table. 
 .PP
@@ -297,14 +297,14 @@ typedef void (handlerfunc) (char**, int, userrec*); ... void \fBhandle_kill(char
 .PP
 When the command is typed, the parameters will be placed into the parameters array (similar to argv) and the parameter count will be placed into pcnt (similar to argv). There will never be any less parameters than the 'minparams' value you specified when creating the command. The *user parameter is the class of the user which caused the command to trigger, who will always have the flag you specified in 'flags' when creating the initial command. For example to create an oper only command create the commands with flags='o'. The source parameter is used for resource tracking, and should contain the name of your module (with file extension) e.g. 'm_blarp.so'. If you place the wrong identifier here, you can cause crashes if your module is unloaded.
 .PP
-Definition at line 419 of file modules.cpp.
+Definition at line 411 of file modules.cpp.
 .PP
 References createcommand().
 .PP
 .nf
-420 {
-421         createcommand(cmd,f,flags,minparams,source);
-422 }
+412 {
+413         createcommand(cmd,f,flags,minparams,source);
+414 }
 .fi
 .PP
 .SS "void Server::AddELine (long duration, \fBstd::string\fP source, \fBstd::string\fP reason, \fBstd::string\fP hostmask)\fC [virtual]\fP"
@@ -313,14 +313,14 @@ Adds a E-line The E-line is enforced as soon as it is added.
 .PP
 The duration must be in seconds, however you can use the \fBServer::CalcDuration\fP method to convert durations into the 1w2d3h3m6s format used by /GLINE etc. The source is an arbitary string used to indicate who or what sent the data, usually this is the nickname of a person, or a server name.
 .PP
-Definition at line 663 of file modules.cpp.
+Definition at line 655 of file modules.cpp.
 .PP
 References add_eline().
 .PP
 .nf
-664 {
-665         add_eline(duration, source.c_str(), reason.c_str(), hostmask.c_str());
-666 }
+656 {
+657         add_eline(duration, source.c_str(), reason.c_str(), hostmask.c_str());
+658 }
 .fi
 .PP
 .SS "bool Server::AddExtendedListMode (char modechar)\fC [virtual]\fP"
@@ -337,19 +337,19 @@ This call is used to implement modes like +q and +a. The characteristics of thes
 .PP
 (4) The mode and its parameter are NOT stored in the channels modes structure
 .PP
-It is down to the module handling the mode to maintain state and determine what 'items' (e.g. users, or a banlist) have the mode set on them, and process the modes at the correct times, e.g. during access checks on channels, etc. When the extended mode is triggered the OnExtendedMode method will be triggered as above. Note that the target you are given will be a channel, if for example your mode is set 'on a user' (in for example +a) you must use Server::Find to locate the user the mode is operating on. Your mode handler may return 1 to handle the mode AND tell the core to display the mode change, e.g. '+aaa one two three' in the case of the mode for 'two', or it may return -1 to 'eat' the mode change, so the above example would become '+aa one three' after processing.
+It is down to the module handling the mode to maintain state and determine what 'items' (e.g. users, or a banlist) have the mode set on them, and process the modes at the correct times, e.g. during access checks on channels, etc. When the extended mode is triggered the OnExtendedMode method will be triggered as above. Note that the target you are given will be a channel, if for example your mode is set 'on a user' (in for example +a) you must use \fBServer::Find\fP to locate the user the mode is operating on. Your mode handler may return 1 to handle the mode AND tell the core to display the mode change, e.g. '+aaa one two three' in the case of the mode for 'two', or it may return -1 to 'eat' the mode change, so the above example would become '+aa one three' after processing.
 .PP
-Definition at line 587 of file modules.cpp.
+Definition at line 579 of file modules.cpp.
 .PP
 References DoAddExtendedMode(), ModeMakeList(), and MT_CHANNEL.
 .PP
 .nf
-588 {
-589         bool res = DoAddExtendedMode(modechar,MT_CHANNEL,false,1,1);
-590         if (res)
-591                 ModeMakeList(modechar);
-592         return res;
-593 }
+580 {
+581         bool res = DoAddExtendedMode(modechar,MT_CHANNEL,false,1,1);
+582         if (res)
+583                 ModeMakeList(modechar);
+584         return res;
+585 }
 .fi
 .PP
 .SS "bool Server::AddExtendedMode (char modechar, int type, bool requires_oper, int params_when_on, int params_when_off)\fC [virtual]\fP"
@@ -358,37 +358,37 @@ Adds an extended mode letter which is parsed by a module.
 .PP
 This allows modules to add extra mode letters, e.g. +x for hostcloak. the 'type' parameter is either MT_CHANNEL, MT_CLIENT, or MT_SERVER, to indicate wether the mode is a channel mode, a client mode, or a server mode. requires_oper is used with MT_CLIENT type modes only to indicate the mode can only be set or unset by an oper. If this is used for MT_CHANNEL type modes it is ignored. params_when_on is the number of modes to expect when the mode is turned on (for type MT_CHANNEL only), e.g. with mode +k, this would have a value of 1. the params_when_off value has a similar value to params_when_on, except it indicates the number of parameters to expect when the mode is disabled. Modes which act in a similar way to channel mode +l (e.g. require a parameter to enable, but not to disable) should use this parameter. The function returns false if the mode is unavailable, and will not attempt to allocate another character, as this will confuse users. This also means that as only one module can claim a specific mode character, the core does not need to keep track of which modules own which modes, which speeds up operation of the server. In this version, a mode can have at most one parameter, attempting to use more parameters will have undefined effects.
 .PP
-Definition at line 559 of file modules.cpp.
+Definition at line 551 of file modules.cpp.
 .PP
-References DEBUG, DoAddExtendedMode(), MT_CLIENT, and MT_SERVER.
+References DEBUG, DoAddExtendedMode(), log(), MT_CLIENT, and MT_SERVER.
 .PP
 .nf
-560 {
-561         if (((modechar >= 'A') && (modechar <= 'Z')) || ((modechar >= 'a') && (modechar <= 'z')))
-562         {
-563                 if (type == MT_SERVER)
-564                 {
-565                         log(DEBUG,'*** API ERROR *** Modes of type MT_SERVER are reserved for future expansion');
-566                         return false;
-567                 }
-568                 if (((params_when_on>0) || (params_when_off>0)) && (type == MT_CLIENT))
-569                 {
-570                         log(DEBUG,'*** API ERROR *** Parameters on MT_CLIENT modes are not supported');
-571                         return false;
-572                 }
-573                 if ((params_when_on>1) || (params_when_off>1))
-574                 {
-575                         log(DEBUG,'*** API ERROR *** More than one parameter for an MT_CHANNEL mode is not yet supported');
-576                         return false;
-577                 }
-578                 return DoAddExtendedMode(modechar,type,requires_oper,params_when_on,params_when_off);
-579         }
-580         else
-581         {
-582                 log(DEBUG,'*** API ERROR *** Muppet modechar detected.');
-583         }
-584         return false;
-585 }
+552 {
+553         if (((modechar >= 'A') && (modechar <= 'Z')) || ((modechar >= 'a') && (modechar <= 'z')))
+554         {
+555                 if (type == MT_SERVER)
+556                 {
+557                         log(DEBUG,'*** API ERROR *** Modes of type MT_SERVER are reserved for future expansion');
+558                         return false;
+559                 }
+560                 if (((params_when_on>0) || (params_when_off>0)) && (type == MT_CLIENT))
+561                 {
+562                         log(DEBUG,'*** API ERROR *** Parameters on MT_CLIENT modes are not supported');
+563                         return false;
+564                 }
+565                 if ((params_when_on>1) || (params_when_off>1))
+566                 {
+567                         log(DEBUG,'*** API ERROR *** More than one parameter for an MT_CHANNEL mode is not yet supported');
+568                         return false;
+569                 }
+570                 return DoAddExtendedMode(modechar,type,requires_oper,params_when_on,params_when_off);
+571         }
+572         else
+573         {
+574                 log(DEBUG,'*** API ERROR *** Muppet modechar detected.');
+575         }
+576         return false;
+577 }
 .fi
 .PP
 .SS "void Server::AddGLine (long duration, \fBstd::string\fP source, \fBstd::string\fP reason, \fBstd::string\fP hostmask)\fC [virtual]\fP"
@@ -397,14 +397,14 @@ Adds a G-line The G-line is propogated to all of the servers in the mesh and enf
 .PP
 The duration must be in seconds, however you can use the \fBServer::CalcDuration\fP method to convert durations into the 1w2d3h3m6s format used by /GLINE etc. The source is an arbitary string used to indicate who or what sent the data, usually this is the nickname of a person, or a server name.
 .PP
-Definition at line 643 of file modules.cpp.
+Definition at line 635 of file modules.cpp.
 .PP
 References add_gline().
 .PP
 .nf
-644 {
-645         add_gline(duration, source.c_str(), reason.c_str(), hostmask.c_str());
-646 }
+636 {
+637         add_gline(duration, source.c_str(), reason.c_str(), hostmask.c_str());
+638 }
 .fi
 .PP
 .SS "void Server::AddKLine (long duration, \fBstd::string\fP source, \fBstd::string\fP reason, \fBstd::string\fP hostmask)\fC [virtual]\fP"
@@ -413,14 +413,14 @@ Adds a K-line The K-line is enforced as soon as it is added.
 .PP
 The duration must be in seconds, however you can use the \fBServer::CalcDuration\fP method to convert durations into the 1w2d3h3m6s format used by /GLINE etc. The source is an arbitary string used to indicate who or what sent the data, usually this is the nickname of a person, or a server name.
 .PP
-Definition at line 658 of file modules.cpp.
+Definition at line 650 of file modules.cpp.
 .PP
 References add_kline().
 .PP
 .nf
-659 {
-660         add_kline(duration, source.c_str(), reason.c_str(), hostmask.c_str());
-661 }
+651 {
+652         add_kline(duration, source.c_str(), reason.c_str(), hostmask.c_str());
+653 }
 .fi
 .PP
 .SS "void Server::AddQLine (long duration, \fBstd::string\fP source, \fBstd::string\fP reason, \fBstd::string\fP nickname)\fC [virtual]\fP"
@@ -429,28 +429,28 @@ Adds a Q-line The Q-line is propogated to all of the servers in the mesh and enf
 .PP
 The duration must be in seconds, however you can use the \fBServer::CalcDuration\fP method to convert durations into the 1w2d3h3m6s format used by /GLINE etc. The source is an arbitary string used to indicate who or what sent the data, usually this is the nickname of a person, or a server name.
 .PP
-Definition at line 648 of file modules.cpp.
+Definition at line 640 of file modules.cpp.
 .PP
 References add_qline().
 .PP
 .nf
-649 {
-650         add_qline(duration, source.c_str(), reason.c_str(), nickname.c_str());
-651 }
+641 {
+642         add_qline(duration, source.c_str(), reason.c_str(), nickname.c_str());
+643 }
 .fi
 .PP
 .SS "void Server::AddSocket (\fBInspSocket\fP * sock)\fC [virtual]\fP"
 .PP
 Adds a class derived from \fBInspSocket\fP to the server's socket engine. 
 .PP
-Definition at line 321 of file modules.cpp.
+Definition at line 313 of file modules.cpp.
 .PP
 References module_sockets.
 .PP
 .nf
-322 {
-323         module_sockets.push_back(sock);
-324 }
+314 {
+315         module_sockets.push_back(sock);
+316 }
 .fi
 .PP
 .SS "void Server::AddZLine (long duration, \fBstd::string\fP source, \fBstd::string\fP reason, \fBstd::string\fP ipaddr)\fC [virtual]\fP"
@@ -459,14 +459,14 @@ Adds a Z-line The Z-line is propogated to all of the servers in the mesh and enf
 .PP
 The duration must be in seconds, however you can use the \fBServer::CalcDuration\fP method to convert durations into the 1w2d3h3m6s format used by /GLINE etc. The source is an arbitary string used to indicate who or what sent the data, usually this is the nickname of a person, or a server name.
 .PP
-Definition at line 653 of file modules.cpp.
+Definition at line 645 of file modules.cpp.
 .PP
 References add_zline().
 .PP
 .nf
-654 {
-655         add_zline(duration, source.c_str(), reason.c_str(), ipaddr.c_str());
-656 }
+646 {
+647         add_zline(duration, source.c_str(), reason.c_str(), ipaddr.c_str());
+648 }
 .fi
 .PP
 .SS "long Server::CalcDuration (\fBstd::string\fP duration)\fC [virtual]\fP"
@@ -475,14 +475,14 @@ Calculates a duration This method will take a string containing a formatted dura
 .PP
 '1w2d') and return its value as a total number of seconds. This is the same function used internally by /GLINE etc to set the ban times.
 .PP
-Definition at line 693 of file modules.cpp.
+Definition at line 685 of file modules.cpp.
 .PP
 References duration().
 .PP
 .nf
-694 {
-695         return duration(delta.c_str());
-696 }
+686 {
+687         return duration(delta.c_str());
+688 }
 .fi
 .PP
 .SS "void Server::CallCommandHandler (\fBstd::string\fP commandname, char ** parameters, int pcnt, \fBuserrec\fP * user)\fC [virtual]\fP"
@@ -493,12 +493,14 @@ You can use this function to trigger other commands in the ircd, such as PRIVMSG
 .br
 ) you may use them as callback identifiers. The first parameter to this method is the name of the command handler you wish to call, e.g. PRIVMSG. This will be a command handler previously registered by the core or wih \fBAddCommand()\fP. The second parameter is an array of parameters, and the third parameter is a count of parameters in the array. If you do not pass enough parameters to meet the minimum needed by the handler, the functiom will silently ignore it. The final parameter is the user executing the command handler, used for privilage checks, etc.
 .PP
-Definition at line 404 of file modules.cpp.
+Definition at line 396 of file modules.cpp.
+.PP
+References call_handler().
 .PP
 .nf
-405 {
-406         call_handler(commandname.c_str(),parameters,pcnt,user);
-407 }
+397 {
+398         call_handler(commandname.c_str(),parameters,pcnt,user);
+399 }
 .fi
 .PP
 .SS "void Server::ChangeGECOS (\fBuserrec\fP * user, \fBstd::string\fP gecos)\fC [virtual]\fP"
@@ -507,14 +509,14 @@ Change GECOS (fullname) of a user.
 .PP
 You should always call this method to change a user's GECOS rather than writing directly to the fullname member of userrec, as any change applied via this method will be propogated to any linked servers.
 .PP
-Definition at line 502 of file modules.cpp.
+Definition at line 494 of file modules.cpp.
 .PP
 References ChangeName().
 .PP
 .nf
-503 {
-504         ChangeName(user,gecos.c_str());
-505 }
+495 {
+496         ChangeName(user,gecos.c_str());
+497 }
 .fi
 .PP
 .SS "void Server::ChangeHost (\fBuserrec\fP * user, \fBstd::string\fP host)\fC [virtual]\fP"
@@ -523,14 +525,14 @@ Change displayed hostname of a user.
 .PP
 You should always call this method to change a user's host rather than writing directly to the dhost member of userrec, as any change applied via this method will be propogated to any linked servers.
 .PP
-Definition at line 497 of file modules.cpp.
+Definition at line 489 of file modules.cpp.
 .PP
 References ChangeDisplayedHost().
 .PP
 .nf
-498 {
-499         ChangeDisplayedHost(user,host.c_str());
-500 }
+490 {
+491         ChangeDisplayedHost(user,host.c_str());
+492 }
 .fi
 .PP
 .SS "void Server::ChangeUserNick (\fBuserrec\fP * user, \fBstd::string\fP nickname)\fC [virtual]\fP"
@@ -539,12 +541,14 @@ Forces a user nickchange.
 .PP
 This command works similarly to SVSNICK, and can be used to implement Q-lines etc. If you specify an invalid nickname, the nick change will be dropped and the target user will receive the error numeric for it.
 .PP
-Definition at line 389 of file modules.cpp.
+Definition at line 381 of file modules.cpp.
+.PP
+References force_nickchange().
 .PP
 .nf
-390 {
-391         force_nickchange(user,nickname.c_str());
-392 }
+382 {
+383         force_nickchange(user,nickname.c_str());
+384 }
 .fi
 .PP
 .SS "\fBstd::string\fP Server::ChanMode (\fBuserrec\fP * User, \fBchanrec\fP * Chan)\fC [virtual]\fP"
@@ -553,14 +557,14 @@ Attempts to look up a user's privilages on a channel.
 .PP
 This function will return a string containing either @, %, +, or an empty string, representing the user's privilages upon the channel you specify.
 .PP
-Definition at line 527 of file modules.cpp.
+Definition at line 519 of file modules.cpp.
 .PP
 References cmode().
 .PP
 .nf
-528 {
-529         return cmode(User,Chan);
-530 }
+520 {
+521         return cmode(User,Chan);
+522 }
 .fi
 .PP
 .SS "bool Server::CommonChannels (\fBuserrec\fP * u1, \fBuserrec\fP * u2)\fC [virtual]\fP"
@@ -569,14 +573,14 @@ Returns true if two users share a common channel.
 .PP
 This method is used internally by the NICK and QUIT commands, and the \fBServer::SendCommon\fP method.
 .PP
-Definition at line 475 of file modules.cpp.
+Definition at line 467 of file modules.cpp.
 .PP
 References common_channels().
 .PP
 .nf
-476 {
-477         return (common_channels(u1,u2) != 0);
-478 }
+468 {
+469         return (common_channels(u1,u2) != 0);
+470 }
 .fi
 .PP
 .SS "int Server::CountUsers (\fBchanrec\fP * c)\fC [virtual]\fP"
@@ -585,103 +589,103 @@ Returns a count of the number of users on a channel.
 .PP
 This will NEVER be 0, as if the chanrec exists, it will have at least one user in the channel.
 .PP
-Definition at line 595 of file modules.cpp.
+Definition at line 587 of file modules.cpp.
 .PP
 .nf
-596 {
-597         return usercount(c);
-598 }
+588 {
+589         return usercount(c);
+590 }
 .fi
 .PP
 .SS "bool Server::DelELine (\fBstd::string\fP hostmask)\fC [virtual]\fP"
 .PP
 Deletes a local E-Line. 
 .PP
-Definition at line 688 of file modules.cpp.
+Definition at line 680 of file modules.cpp.
 .PP
 References del_eline().
 .PP
 .nf
-689 {
-690         return del_eline(hostmask.c_str());
-691 }
+681 {
+682         return del_eline(hostmask.c_str());
+683 }
 .fi
 .PP
 .SS "bool Server::DelGLine (\fBstd::string\fP hostmask)\fC [virtual]\fP"
 .PP
 Deletes a G-Line from all servers on the mesh. 
 .PP
-Definition at line 668 of file modules.cpp.
+Definition at line 660 of file modules.cpp.
 .PP
 References del_gline().
 .PP
 .nf
-669 {
-670         return del_gline(hostmask.c_str());
-671 }
+661 {
+662         return del_gline(hostmask.c_str());
+663 }
 .fi
 .PP
 .SS "bool Server::DelKLine (\fBstd::string\fP hostmask)\fC [virtual]\fP"
 .PP
 Deletes a local K-Line. 
 .PP
-Definition at line 683 of file modules.cpp.
+Definition at line 675 of file modules.cpp.
 .PP
 References del_kline().
 .PP
 .nf
-684 {
-685         return del_kline(hostmask.c_str());
-686 }
+676 {
+677         return del_kline(hostmask.c_str());
+678 }
 .fi
 .PP
 .SS "bool Server::DelQLine (\fBstd::string\fP nickname)\fC [virtual]\fP"
 .PP
 Deletes a Q-Line from all servers on the mesh. 
 .PP
-Definition at line 673 of file modules.cpp.
+Definition at line 665 of file modules.cpp.
 .PP
 References del_qline().
 .PP
 .nf
-674 {
-675         return del_qline(nickname.c_str());
-676 }
+666 {
+667         return del_qline(nickname.c_str());
+668 }
 .fi
 .PP
 .SS "void Server::DelSocket (\fBInspSocket\fP * sock)\fC [virtual]\fP"
 .PP
 Deletes a class derived from \fBInspSocket\fP from the server's socket engine. 
 .PP
-Definition at line 337 of file modules.cpp.
+Definition at line 329 of file modules.cpp.
 .PP
 References module_sockets.
 .PP
 .nf
-338 {
-339         for (std::vector<InspSocket*>::iterator a = module_sockets.begin(); a < module_sockets.end(); a++)
-340         {
-341                 if (*a == sock)
-342                 {
-343                         module_sockets.erase(a);
-344                         return;
-345                 }
-346         }
-347 }
+330 {
+331         for (std::vector<InspSocket*>::iterator a = module_sockets.begin(); a < module_sockets.end(); a++)
+332         {
+333                 if (*a == sock)
+334                 {
+335                         module_sockets.erase(a);
+336                         return;
+337                 }
+338         }
+339 }
 .fi
 .PP
 .SS "bool Server::DelZLine (\fBstd::string\fP ipaddr)\fC [virtual]\fP"
 .PP
 Deletes a Z-Line from all servers on the mesh. 
 .PP
-Definition at line 678 of file modules.cpp.
+Definition at line 670 of file modules.cpp.
 .PP
 References del_zline().
 .PP
 .nf
-679 {
-680         return del_zline(ipaddr.c_str());
-681 }
+671 {
+672         return del_zline(ipaddr.c_str());
+673 }
 .fi
 .PP
 .SS "\fBchanrec\fP * Server::FindChannel (\fBstd::string\fP channel)\fC [virtual]\fP"
@@ -690,12 +694,14 @@ Attempts to look up a channel and return a pointer to it.
 .PP
 This function will return NULL if the channel does not exist.
 .PP
-Definition at line 522 of file modules.cpp.
+Definition at line 514 of file modules.cpp.
+.PP
+References FindChan().
 .PP
 .nf
-523 {
-524         return FindChan(channel.c_str());
-525 }
+515 {
+516         return FindChan(channel.c_str());
+517 }
 .fi
 .PP
 .SS "\fBuserrec\fP * Server::FindDescriptor (int socket)\fC [virtual]\fP"
@@ -704,12 +710,12 @@ Attempts to look up a nick using the file descriptor associated with that nick.
 .PP
 This function will return NULL if the file descriptor is not associated with a valid user.
 .PP
-Definition at line 517 of file modules.cpp.
+Definition at line 509 of file modules.cpp.
 .PP
 .nf
-518 {
-519         return (socket < 65536 ? fd_ref_table[socket] : NULL);
-520 }
+510 {
+511         return (socket < 65536 ? fd_ref_table[socket] : NULL);
+512 }
 .fi
 .PP
 .SS "\fBModule\fP * Server::FindModule (\fBstd::string\fP name)\fC [virtual]\fP"
@@ -718,21 +724,21 @@ This function finds a module by name.
 .PP
 You must provide the filename of the module. If the module cannot be found (is not loaded) the function will return NULL.
 .PP
-Definition at line 727 of file modules.cpp.
+Definition at line 719 of file modules.cpp.
 .PP
 References MODCOUNT, ServerConfig::module_names, and modules.
 .PP
 .nf
-728 {
-729         for (int i = 0; i <= MODCOUNT; i++)
-730         {
-731                 if (Config->module_names[i] == name)
-732                 {
-733                         return modules[i];
-734                 }
-735         }
-736         return NULL;
-737 }
+720 {
+721         for (int i = 0; i <= MODCOUNT; i++)
+722         {
+723                 if (Config->module_names[i] == name)
+724                 {
+725                         return modules[i];
+726                 }
+727         }
+728         return NULL;
+729 }
 .fi
 .PP
 .SS "\fBuserrec\fP * Server::FindNick (\fBstd::string\fP nick)\fC [virtual]\fP"
@@ -741,12 +747,14 @@ Attempts to look up a nick and return a pointer to it.
 .PP
 This function will return NULL if the nick does not exist.
 .PP
-Definition at line 512 of file modules.cpp.
+Definition at line 504 of file modules.cpp.
+.PP
+References Find().
 .PP
 .nf
-513 {
-514         return Find(nick);
-515 }
+505 {
+506         return Find(nick);
+507 }
 .fi
 .PP
 .SS "\fBAdmin\fP Server::GetAdmin ()\fC [virtual]\fP"
@@ -755,12 +763,14 @@ Returns the information of the server as returned by the /ADMIN command.
 .PP
 See the \fBAdmin\fP class for further information of the return value. The members \fBAdmin::Nick\fP, \fBAdmin::Email\fP and \fBAdmin::Name\fP contain the information for the server where the module is loaded.
 .PP
-Definition at line 552 of file modules.cpp.
+Definition at line 544 of file modules.cpp.
+.PP
+References ServerConfig::AdminEmail, ServerConfig::AdminName, and ServerConfig::AdminNick.
 .PP
 .nf
-553 {
-554         return Admin(getadminname(),getadminemail(),getadminnick());
-555 }
+545 {
+546         return Admin(Config->AdminName,Config->AdminEmail,Config->AdminNick);
+547 }
 .fi
 .PP
 .SS "\fBServerConfig\fP * Server::GetConfig ()"
@@ -769,48 +779,54 @@ Obtains a pointer to the server's \fBServerConfig\fP object.
 .PP
 The \fBServerConfig\fP object contains most of the configuration data of the IRC server, as read from the config file by the core.
 .PP
-Definition at line 332 of file modules.cpp.
+Definition at line 324 of file modules.cpp.
 .PP
 .nf
-333 {
-334         return Config;
-335 }
+325 {
+326         return Config;
+327 }
 .fi
 .PP
 .SS "\fBstd::string\fP Server::GetNetworkName ()\fC [virtual]\fP"
 .PP
 Returns the network name, global to all linked servers. 
 .PP
-Definition at line 542 of file modules.cpp.
+Definition at line 534 of file modules.cpp.
+.PP
+References ServerConfig::Network.
 .PP
 .nf
-543 {
-544         return getnetworkname();
-545 }
+535 {
+536         return Config->Network;
+537 }
 .fi
 .PP
 .SS "\fBstd::string\fP Server::GetServerDescription ()\fC [virtual]\fP"
 .PP
 Returns the server description string of the local server. 
 .PP
-Definition at line 547 of file modules.cpp.
+Definition at line 539 of file modules.cpp.
+.PP
+References ServerConfig::ServerDesc.
 .PP
 .nf
-548 {
-549         return getserverdesc();
-550 }
+540 {
+541         return Config->ServerDesc;
+542 }
 .fi
 .PP
 .SS "\fBstd::string\fP Server::GetServerName ()\fC [virtual]\fP"
 .PP
 Returns the server name of the server where the module is loaded. 
 .PP
-Definition at line 537 of file modules.cpp.
+Definition at line 529 of file modules.cpp.
+.PP
+References ServerConfig::ServerName.
 .PP
 .nf
-538 {
-539         return getservername();
-540 }
+530 {
+531         return Config->ServerName;
+532 }
 .fi
 .PP
 .SS "\fBchanuserlist\fP Server::GetUsers (\fBchanrec\fP * chan)\fC [virtual]\fP"
@@ -819,22 +835,22 @@ Fetches the userlist of a channel.
 .PP
 This function must be here and not a member of userrec or chanrec due to include constraints.
 .PP
-Definition at line 377 of file modules.cpp.
+Definition at line 369 of file modules.cpp.
 .PP
 References chanrec::GetUsers().
 .PP
 .nf
-378 {
-379         chanuserlist userl;
-380         userl.clear();
-381         std::vector<char*> *list = chan->GetUsers();
-382         for (std::vector<char*>::iterator i = list->begin(); i != list->end(); i++)
-383         {
-384                 char* o = *i;
-385                 userl.push_back((userrec*)o);
-386         }
-387         return userl;
-388 }
+370 {
+371         chanuserlist userl;
+372         userl.clear();
+373         std::vector<char*> *list = chan->GetUsers();
+374         for (std::vector<char*>::iterator i = list->begin(); i != list->end(); i++)
+375         {
+376                 char* o = *i;
+377                 userl.push_back((userrec*)o);
+378         }
+379         return userl;
+380 }
 .fi
 .PP
 .SS "bool Server::IsNick (\fBstd::string\fP nick)\fC [virtual]\fP"
@@ -843,14 +859,14 @@ Returns true if a nick is valid.
 .PP
 Nicks for unregistered connections will return false.
 .PP
-Definition at line 507 of file modules.cpp.
+Definition at line 499 of file modules.cpp.
 .PP
 References isnick().
 .PP
 .nf
-508 {
-509         return (isnick(nick.c_str()) != 0);
-510 }
+500 {
+501         return (isnick(nick.c_str()) != 0);
+502 }
 .fi
 .PP
 .SS "bool Server::IsOnChannel (\fBuserrec\fP * User, \fBchanrec\fP * Chan)\fC [virtual]\fP"
@@ -859,14 +875,14 @@ Checks if a user is on a channel.
 .PP
 This function will return true or false to indicate if user 'User' is on channel 'Chan'.
 .PP
-Definition at line 532 of file modules.cpp.
+Definition at line 524 of file modules.cpp.
 .PP
 References has_channel().
 .PP
 .nf
-533 {
-534         return has_channel(User,Chan);
-535 }
+525 {
+526         return has_channel(User,Chan);
+527 }
 .fi
 .PP
 .SS "bool Server::IsUlined (\fBstd::string\fP server)\fC [virtual]\fP"
@@ -875,60 +891,62 @@ Returns true if the servername you give is ulined.
 .PP
 ULined servers have extra privilages. They are allowed to change nicknames on remote servers, change modes of clients which are on remote servers and set modes of channels where there are no channel operators for that channel on the ulined server, amongst other things. Ulined server data is also broadcast across the mesh at all times as opposed to selectively messaged in the case of normal servers, as many ulined server types (such as services) do not support meshed links and must operate in this manner.
 .PP
-Definition at line 399 of file modules.cpp.
+Definition at line 391 of file modules.cpp.
 .PP
 References is_uline().
 .PP
 .nf
-400 {
-401         return is_uline(server.c_str());
-402 }
+392 {
+393         return is_uline(server.c_str());
+394 }
 .fi
 .PP
 .SS "bool Server::IsValidMask (\fBstd::string\fP mask)\fC [virtual]\fP"
 .PP
 Returns true if a nick!ident string is correctly formatted, false if otherwise. 
 .PP
-Definition at line 698 of file modules.cpp.
+Definition at line 690 of file modules.cpp.
 .PP
 .nf
-699 {
-700         const char* dest = mask.c_str();
-701         if (strchr(dest,'!')==0)
-702                 return false;
-703         if (strchr(dest,'@')==0)
-704                 return false;
-705         for (unsigned int i = 0; i < strlen(dest); i++)
-706                 if (dest[i] < 32)
-707                         return false;
-708         for (unsigned int i = 0; i < strlen(dest); i++)
-709                 if (dest[i] > 126)
-710                         return false;
-711         unsigned int c = 0;
-712         for (unsigned int i = 0; i < strlen(dest); i++)
-713                 if (dest[i] == '!')
-714                         c++;
-715         if (c>1)
-716                 return false;
-717         c = 0;
-718         for (unsigned int i = 0; i < strlen(dest); i++)
-719                 if (dest[i] == '@')
-720                         c++;
-721         if (c>1)
-722                 return false;
-723 
-724         return true;
-725 }
+691 {
+692         const char* dest = mask.c_str();
+693         if (strchr(dest,'!')==0)
+694                 return false;
+695         if (strchr(dest,'@')==0)
+696                 return false;
+697         for (unsigned int i = 0; i < strlen(dest); i++)
+698                 if (dest[i] < 32)
+699                         return false;
+700         for (unsigned int i = 0; i < strlen(dest); i++)
+701                 if (dest[i] > 126)
+702                         return false;
+703         unsigned int c = 0;
+704         for (unsigned int i = 0; i < strlen(dest); i++)
+705                 if (dest[i] == '!')
+706                         c++;
+707         if (c>1)
+708                 return false;
+709         c = 0;
+710         for (unsigned int i = 0; i < strlen(dest); i++)
+711                 if (dest[i] == '@')
+712                         c++;
+713         if (c>1)
+714                 return false;
+715 
+716         return true;
+717 }
 .fi
 .PP
 .SS "bool Server::IsValidModuleCommand (\fBstd::string\fP commandname, int pcnt, \fBuserrec\fP * user)\fC [virtual]\fP"
 .PP
-Definition at line 409 of file modules.cpp.
+Definition at line 401 of file modules.cpp.
+.PP
+References is_valid_cmd().
 .PP
 .nf
-410 {
-411         return is_valid_cmd(commandname.c_str(), pcnt, user);
-412 }
+402 {
+403         return is_valid_cmd(commandname.c_str(), pcnt, user);
+404 }
 .fi
 .PP
 .SS "\fBchanrec\fP * Server::JoinUserToChannel (\fBuserrec\fP * user, \fBstd::string\fP cname, \fBstd::string\fP key)\fC [virtual]\fP"
@@ -937,12 +955,14 @@ Forces a user to join a channel.
 .PP
 This is similar to svsjoin and can be used to implement redirection, etc. On success, the return value is a valid pointer to a chanrec* of the channel the user was joined to. On failure, the result is NULL.
 .PP
-Definition at line 367 of file modules.cpp.
+Definition at line 359 of file modules.cpp.
+.PP
+References add_channel().
 .PP
 .nf
-368 {
-369         return add_channel(user,cname.c_str(),key.c_str(),false);
-370 }
+360 {
+361         return add_channel(user,cname.c_str(),key.c_str(),false);
+362 }
 .fi
 .PP
 .SS "void Server::Log (int level, \fBstd::string\fP s)\fC [virtual]\fP"
@@ -951,12 +971,14 @@ Writes a log string.
 .PP
 This method writes a line of text to the log. If the level given is lower than the level given in the configuration, this command has no effect.
 .PP
-Definition at line 414 of file modules.cpp.
+Definition at line 406 of file modules.cpp.
+.PP
+References log().
 .PP
 .nf
-415 {
-416         log(level,'%s',s.c_str());
-417 }
+407 {
+408         log(level,'%s',s.c_str());
+409 }
 .fi
 .PP
 .SS "bool Server::MatchText (\fBstd::string\fP sliteral, \fBstd::string\fP spattern)\fC [virtual]\fP"
@@ -965,15 +987,15 @@ Matches text against a glob pattern.
 .PP
 Uses the ircd's internal matching function to match string against a globbing pattern, e.g. *!*@*.com Returns true if the literal successfully matches the pattern, false if otherwise.
 .PP
-Definition at line 354 of file modules.cpp.
+Definition at line 346 of file modules.cpp.
 .PP
 .nf
-355 {
-356         char literal[MAXBUF],pattern[MAXBUF];
-357         strlcpy(literal,sliteral.c_str(),MAXBUF);
-358         strlcpy(pattern,spattern.c_str(),MAXBUF);
-359         return match(literal,pattern);
-360 }
+347 {
+348         char literal[MAXBUF],pattern[MAXBUF];
+349         strlcpy(literal,sliteral.c_str(),MAXBUF);
+350         strlcpy(pattern,spattern.c_str(),MAXBUF);
+351         return match(literal,pattern);
+352 }
 .fi
 .PP
 .SS "\fBchanrec\fP * Server::PartUserFromChannel (\fBuserrec\fP * user, \fBstd::string\fP cname, \fBstd::string\fP reason)\fC [virtual]\fP"
@@ -982,12 +1004,14 @@ Forces a user to part a channel.
 .PP
 This is similar to svspart and can be used to implement redirection, etc. Although the return value of this function is a pointer to a channel record, the returned data is undefined and should not be read or written to. This behaviour may be changed in a future version.
 .PP
-Definition at line 372 of file modules.cpp.
+Definition at line 364 of file modules.cpp.
+.PP
+References del_channel().
 .PP
 .nf
-373 {
-374         return del_channel(user,cname.c_str(),reason.c_str(),false);
-375 }
+365 {
+366         return del_channel(user,cname.c_str(),reason.c_str(),false);
+367 }
 .fi
 .PP
 .SS "bool Server::PseudoToUser (\fBuserrec\fP * alive, \fBuserrec\fP * zombie, \fBstd::string\fP message)\fC [virtual]\fP"
@@ -996,39 +1020,39 @@ This user takes one user, and switches their file descriptor with another user, 
 .PP
 The user in 'alive' is booted off the server with the given message. The user referred to by 'zombie' should have previously been locked with Server::ZombifyUser, otherwise stale sockets and file descriptor leaks can occur. After this call, the pointer to alive will be invalid, and the pointer to zombie will be equivalent in effect to the old pointer to alive.
 .PP
-Definition at line 613 of file modules.cpp.
+Definition at line 605 of file modules.cpp.
 .PP
-References userrec::chans, userrec::ClearBuffer(), connection::fd, FD_MAGIC_NUMBER, connection::host, userrec::ident, chanrec::name, userrec::nick, chanrec::setby, chanrec::topic, and chanrec::topicset.
+References userrec::chans, userrec::ClearBuffer(), connection::fd, FD_MAGIC_NUMBER, connection::host, userrec::ident, kill_link(), chanrec::name, userrec::nick, chanrec::setby, chanrec::topic, chanrec::topicset, Write(), WriteFrom(), and WriteServ().
 .PP
 .nf
-614 {
-615         zombie->fd = alive->fd;
-616         alive->fd = FD_MAGIC_NUMBER;
-617         alive->ClearBuffer();
-618         Write(zombie->fd,':%s!%s@%s NICK %s',alive->nick,alive->ident,alive->host,zombie->nick);
-619         kill_link(alive,message.c_str());
-620         fd_ref_table[zombie->fd] = zombie;
-621         for (unsigned int i = 0; i < zombie->chans.size(); i++)
-622         {
-623                 if (zombie->chans[i].channel != NULL)
-624                 {
-625                         if (zombie->chans[i].channel->name)
-626                         {
-627                                 chanrec* Ptr = zombie->chans[i].channel;
-628                                 WriteFrom(zombie->fd,zombie,'JOIN %s',Ptr->name);
-629                                 if (Ptr->topicset)
-630                                 {
-631                                         WriteServ(zombie->fd,'332 %s %s :%s', zombie->nick, Ptr->name, Ptr->topic);
-632                                         WriteServ(zombie->fd,'333 %s %s %s %d', zombie->nick, Ptr->name, Ptr->setby, Ptr->topicset);
-633                                 }
-634                                 userlist(zombie,Ptr);
-635                                 WriteServ(zombie->fd,'366 %s %s :End of /NAMES list.', zombie->nick, Ptr->name);
-636 
-637                         }
-638                 }
-639         }
-640         return true;
-641 }
+606 {
+607         zombie->fd = alive->fd;
+608         alive->fd = FD_MAGIC_NUMBER;
+609         alive->ClearBuffer();
+610         Write(zombie->fd,':%s!%s@%s NICK %s',alive->nick,alive->ident,alive->host,zombie->nick);
+611         kill_link(alive,message.c_str());
+612         fd_ref_table[zombie->fd] = zombie;
+613         for (unsigned int i = 0; i < zombie->chans.size(); i++)
+614         {
+615                 if (zombie->chans[i].channel != NULL)
+616                 {
+617                         if (zombie->chans[i].channel->name)
+618                         {
+619                                 chanrec* Ptr = zombie->chans[i].channel;
+620                                 WriteFrom(zombie->fd,zombie,'JOIN %s',Ptr->name);
+621                                 if (Ptr->topicset)
+622                                 {
+623                                         WriteServ(zombie->fd,'332 %s %s :%s', zombie->nick, Ptr->name, Ptr->topic);
+624                                         WriteServ(zombie->fd,'333 %s %s %s %d', zombie->nick, Ptr->name, Ptr->setby, Ptr->topicset);
+625                                 }
+626                                 userlist(zombie,Ptr);
+627                                 WriteServ(zombie->fd,'366 %s %s :End of /NAMES list.', zombie->nick, Ptr->name);
+628 
+629                         }
+630                 }
+631         }
+632         return true;
+633 }
 .fi
 .PP
 .SS "void Server::QuitUser (\fBuserrec\fP * user, \fBstd::string\fP reason)\fC [virtual]\fP"
@@ -1041,25 +1065,27 @@ WARNING!
 .PP
 Once you call this function, userrec* user will immediately become INVALID. You MUST NOT write to, or read from this pointer after calling the QuitUser method UNDER ANY CIRCUMSTANCES! The best course of action after calling this method is to immediately bail from your handler.
 .PP
-Definition at line 394 of file modules.cpp.
+Definition at line 386 of file modules.cpp.
+.PP
+References kill_link().
 .PP
 .nf
-395 {
-396         kill_link(user,reason.c_str());
-397 }
+387 {
+388         kill_link(user,reason.c_str());
+389 }
 .fi
 .PP
 .SS "void Server::RehashServer ()\fC [virtual]\fP"
 .PP
-Definition at line 326 of file modules.cpp.
+Definition at line 318 of file modules.cpp.
 .PP
-References ServerConfig::Read().
+References ServerConfig::Read(), and WriteOpers().
 .PP
 .nf
-327 {
-328         WriteOpers('*** Rehashing config file');
-329         Config->Read(false,NULL);
-330 }
+319 {
+320         WriteOpers('*** Rehashing config file');
+321         Config->Read(false,NULL);
+322 }
 .fi
 .PP
 .SS "void Server::Send (int Socket, \fBstd::string\fP s)\fC [virtual]\fP"
@@ -1068,12 +1094,14 @@ Sends a line of text down a TCP/IP socket.
 .PP
 This method writes a line of text to an established socket, cutting it to 510 characters plus a carriage return and linefeed if required.
 .PP
-Definition at line 429 of file modules.cpp.
+Definition at line 421 of file modules.cpp.
+.PP
+References Write().
 .PP
 .nf
-430 {
-431         Write(Socket,'%s',s.c_str());
-432 }
+422 {
+423         Write(Socket,'%s',s.c_str());
+424 }
 .fi
 .PP
 .SS "void Server::SendChannel (\fBuserrec\fP * User, \fBchanrec\fP * Channel, \fBstd::string\fP s, bool IncludeSender)\fC [virtual]\fP"
@@ -1082,19 +1110,21 @@ Sends text from a user to a channel (mulicast).
 .PP
 This method writes a line of text to a channel, with the given user's nick/ident /host combination prepended, as used in PRIVMSG etc commands (see RFC 1459). If the IncludeSender flag is set, then the text is also sent back to the user from which it originated, as seen in MODE (see RFC 1459).
 .PP
-Definition at line 463 of file modules.cpp.
+Definition at line 455 of file modules.cpp.
+.PP
+References ChanExceptSender(), and WriteChannel().
 .PP
 .nf
-464 {
-465         if (IncludeSender)
-466         {
-467                 WriteChannel(Channel,User,'%s',s.c_str());
-468         }
-469         else
-470         {
-471                 ChanExceptSender(Channel,User,'%s',s.c_str());
-472         }
-473 }
+456 {
+457         if (IncludeSender)
+458         {
+459                 WriteChannel(Channel,User,'%s',s.c_str());
+460         }
+461         else
+462         {
+463                 ChanExceptSender(Channel,User,'%s',s.c_str());
+464         }
+465 }
 .fi
 .PP
 .SS "void Server::SendChannelServerNotice (\fBstd::string\fP ServName, \fBchanrec\fP * Channel, \fBstd::string\fP text)\fC [virtual]\fP"
@@ -1103,12 +1133,12 @@ Writes text to a channel, but from a server, including all.
 .PP
 This can be used to send server notices to a group of users.
 .PP
-Definition at line 458 of file modules.cpp.
+Definition at line 450 of file modules.cpp.
 .PP
 .nf
-459 {
-460         WriteChannelWithServ((char*)ServName.c_str(), Channel, '%s', text.c_str());
-461 }
+451 {
+452         WriteChannelWithServ((char*)ServName.c_str(), Channel, '%s', text.c_str());
+453 }
 .fi
 .PP
 .SS "void Server::SendCommon (\fBuserrec\fP * User, \fBstd::string\fP text, bool IncludeSender)\fC [virtual]\fP"
@@ -1117,19 +1147,21 @@ Sends text from a user to one or more channels (mulicast).
 .PP
 This method writes a line of text to all users which share a common channel with a given user, with the user's nick/ident/host combination prepended, as used in PRIVMSG etc commands (see RFC 1459). If the IncludeSender flag is set, then the text is also sent back to the user from which it originated, as seen in NICK (see RFC 1459). Otherwise, it is only sent to the other recipients, as seen in QUIT.
 .PP
-Definition at line 480 of file modules.cpp.
+Definition at line 472 of file modules.cpp.
+.PP
+References WriteCommon(), and WriteCommonExcept().
 .PP
 .nf
-481 {
-482         if (IncludeSender)
-483         {
-484                 WriteCommon(User,'%s',text.c_str());
-485         }
-486         else
-487         {
-488                 WriteCommonExcept(User,'%s',text.c_str());
-489         }
-490 }
+473 {
+474         if (IncludeSender)
+475         {
+476                 WriteCommon(User,'%s',text.c_str());
+477         }
+478         else
+479         {
+480                 WriteCommonExcept(User,'%s',text.c_str());
+481         }
+482 }
 .fi
 .PP
 .SS "void Server::SendFrom (int Socket, \fBuserrec\fP * User, \fBstd::string\fP s)\fC [virtual]\fP"
@@ -1138,12 +1170,14 @@ Sends text from a user to a socket.
 .PP
 This method writes a line of text to an established socket, with the given user's nick/ident /host combination prepended, as used in PRIVSG etc commands (see RFC 1459)
 .PP
-Definition at line 439 of file modules.cpp.
+Definition at line 431 of file modules.cpp.
+.PP
+References WriteFrom().
 .PP
 .nf
-440 {
-441         WriteFrom(Socket,User,'%s',s.c_str());
-442 }
+432 {
+433         WriteFrom(Socket,User,'%s',s.c_str());
+434 }
 .fi
 .PP
 .SS "void Server::SendMode (char ** parameters, int pcnt, \fBuserrec\fP * user)\fC [virtual]\fP"
@@ -1166,14 +1200,14 @@ Srv->SendMode(modes,3,user);
 .PP
 The modes will originate from the server where the command was issued, however responses (e.g. numerics) will be sent to the user you provide as the third parameter. You must be sure to get the number of parameters correct in the pcnt parameter otherwise you could leave your server in an unstable state!
 .PP
-Definition at line 424 of file modules.cpp.
+Definition at line 416 of file modules.cpp.
 .PP
 References server_mode().
 .PP
 .nf
-425 {
-426         server_mode(parameters,pcnt,user);
-427 }
+417 {
+418         server_mode(parameters,pcnt,user);
+419 }
 .fi
 .PP
 .SS "void Server::SendOpers (\fBstd::string\fP s)\fC [virtual]\fP"
@@ -1182,12 +1216,14 @@ Sends text to all opers.
 .PP
 This method sends a server notice to all opers with the usermode +s.
 .PP
-Definition at line 349 of file modules.cpp.
+Definition at line 341 of file modules.cpp.
+.PP
+References WriteOpers().
 .PP
 .nf
-350 {
-351         WriteOpers('%s',s.c_str());
-352 }
+342 {
+343         WriteOpers('%s',s.c_str());
+344 }
 .fi
 .PP
 .SS "void Server::SendServ (int Socket, \fBstd::string\fP s)\fC [virtual]\fP"
@@ -1196,12 +1232,14 @@ Sends text from the server to a socket.
 .PP
 This method writes a line of text to an established socket, with the servername prepended as used by numerics (see RFC 1459)
 .PP
-Definition at line 434 of file modules.cpp.
+Definition at line 426 of file modules.cpp.
+.PP
+References WriteServ().
 .PP
 .nf
-435 {
-436         WriteServ(Socket,'%s',s.c_str());
-437 }
+427 {
+428         WriteServ(Socket,'%s',s.c_str());
+429 }
 .fi
 .PP
 .SS "void Server::SendTo (\fBuserrec\fP * Source, \fBuserrec\fP * Dest, \fBstd::string\fP s)\fC [virtual]\fP"
@@ -1218,23 +1256,23 @@ The format will become:
 .PP
 Which is useful for numerics and server notices to single users, etc.
 .PP
-Definition at line 444 of file modules.cpp.
+Definition at line 436 of file modules.cpp.
 .PP
-References connection::fd.
+References connection::fd, Write(), and WriteTo().
 .PP
 .nf
-445 {
-446         if (!Source)
-447         {
-448                 // if source is NULL, then the message originates from the local server
-449                 Write(Dest->fd,':%s %s',this->GetServerName().c_str(),s.c_str());
-450         }
-451         else
-452         {
-453                 // otherwise it comes from the user specified
-454                 WriteTo(Source,Dest,'%s',s.c_str());
-455         }
-456 }
+437 {
+438         if (!Source)
+439         {
+440                 // if source is NULL, then the message originates from the local server
+441                 Write(Dest->fd,':%s %s',this->GetServerName().c_str(),s.c_str());
+442         }
+443         else
+444         {
+445                 // otherwise it comes from the user specified
+446                 WriteTo(Source,Dest,'%s',s.c_str());
+447         }
+448 }
 .fi
 .PP
 .SS "void Server::SendToModeMask (\fBstd::string\fP modes, int flags, \fBstd::string\fP text)\fC [virtual]\fP"
@@ -1247,12 +1285,12 @@ Serv->SendToModeMask('xi', WM_OR, 'm00');
 .PP
 Then the text 'm00' will be sent to all users with EITHER mode x or i. Conversely if you used WM_AND, the user must have both modes set to receive the message.
 .PP
-Definition at line 362 of file modules.cpp.
+Definition at line 354 of file modules.cpp.
 .PP
 .nf
-363 {
-364         WriteMode(modes.c_str(),flags,'%s',text.c_str());
-365 }
+355 {
+356         WriteMode(modes.c_str(),flags,'%s',text.c_str());
+357 }
 .fi
 .PP
 .SS "void Server::SendWallops (\fBuserrec\fP * User, \fBstd::string\fP text)\fC [virtual]\fP"
@@ -1261,12 +1299,14 @@ Sends a WALLOPS message.
 .PP
 This method writes a WALLOPS message to all users with the +w flag, originating from the specified user.
 .PP
-Definition at line 492 of file modules.cpp.
+Definition at line 484 of file modules.cpp.
+.PP
+References WriteWallOps().
 .PP
 .nf
-493 {
-494         WriteWallOps(User,false,'%s',text.c_str());
-495 }
+485 {
+486         WriteWallOps(User,false,'%s',text.c_str());
+487 }
 .fi
 .PP
 .SS "bool Server::UserToPseudo (\fBuserrec\fP * user, \fBstd::string\fP message)\fC [virtual]\fP"
@@ -1275,21 +1315,21 @@ Remove a user's connection to the irc server, but leave their client in existenc
 .PP
 When you call this function, the user's file descriptor will be replaced with the value of FD_MAGIC_NUMBER and their old file descriptor will be closed. This idle client will remain until it is restored with a valid file descriptor, or is removed from IRC by an operator After this call, the pointer to user will be invalid.
 .PP
-Definition at line 601 of file modules.cpp.
+Definition at line 593 of file modules.cpp.
 .PP
-References userrec::ClearBuffer(), SocketEngine::DelFd(), connection::fd, FD_MAGIC_NUMBER, connection::host, and userrec::ident.
+References userrec::ClearBuffer(), SocketEngine::DelFd(), connection::fd, FD_MAGIC_NUMBER, connection::host, userrec::ident, and Write().
 .PP
 .nf
-602 {
-603         unsigned int old_fd = user->fd;
-604         user->fd = FD_MAGIC_NUMBER;
-605         user->ClearBuffer();
-606         Write(old_fd,'ERROR :Closing link (%s@%s) [%s]',user->ident,user->host,message.c_str());
-607         SE->DelFd(old_fd);
-608         shutdown(old_fd,2);
-609         close(old_fd);
-610         return true;
-611 }
+594 {
+595         unsigned int old_fd = user->fd;
+596         user->fd = FD_MAGIC_NUMBER;
+597         user->ClearBuffer();
+598         Write(old_fd,'ERROR :Closing link (%s@%s) [%s]',user->ident,user->host,message.c_str());
+599         SE->DelFd(old_fd);
+600         shutdown(old_fd,2);
+601         close(old_fd);
+602         return true;
+603 }
 .fi
 .PP
 

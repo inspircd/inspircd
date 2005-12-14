@@ -29,8 +29,8 @@
 <a name="l00020"></a>00020 <span class="preprocessor">#include &lt;sstream&gt;</span>
 <a name="l00021"></a>00021 <span class="preprocessor">#include &lt;string&gt;</span>
 <a name="l00022"></a>00022 <span class="preprocessor">#include &lt;vector&gt;</span>
-<a name="l00023"></a>00023 <span class="preprocessor">#include "inspircd.h"</span>
-<a name="l00024"></a>00024 <span class="preprocessor">#include "globals.h"</span>
+<a name="l00023"></a>00023 <span class="preprocessor">#include "<a class="code" href="inspircd_8h.html">inspircd.h</a>"</span>
+<a name="l00024"></a>00024 <span class="preprocessor">#include "<a class="code" href="globals_8h.html">globals.h</a>"</span>
 <a name="l00025"></a>00025 
 <a name="l00028"></a><a class="code" href="inspircd__io_8h.html#DEBUG">00028</a> <span class="preprocessor">#define DEBUG 10</span>
 <a name="l00029"></a><a class="code" href="inspircd__io_8h.html#VERBOSE">00029</a> <span class="preprocessor"></span><span class="preprocessor">#define VERBOSE 20</span>
@@ -111,9 +111,9 @@
 <a name="l00212"></a>00212 
 <a name="l00216"></a><a class="code" href="classServerConfig.html#addrs_5BMAXBUF_5D_5B_32_35_35_5D">00216</a>         <span class="keywordtype">char</span> <a class="code" href="classServerConfig.html#addrs_5BMAXBUF_5D_5B_32_35_35_5D">addrs</a>[MAXBUF][255];
 <a name="l00217"></a>00217 
-<a name="l00220"></a><a class="code" href="classServerConfig.html#MOTD">00220</a>         <a class="code" href="modules_8h.html#file_5Fcache">file_cache</a> <a class="code" href="classServerConfig.html#MOTD">MOTD</a>;
+<a name="l00220"></a><a class="code" href="classServerConfig.html#MOTD">00220</a>         <a class="code" href="globals_8h.html#file_5Fcache">file_cache</a> <a class="code" href="classServerConfig.html#MOTD">MOTD</a>;
 <a name="l00221"></a>00221 
-<a name="l00224"></a><a class="code" href="classServerConfig.html#RULES">00224</a>         <a class="code" href="modules_8h.html#file_5Fcache">file_cache</a> <a class="code" href="classServerConfig.html#RULES">RULES</a>;
+<a name="l00224"></a><a class="code" href="classServerConfig.html#RULES">00224</a>         <a class="code" href="globals_8h.html#file_5Fcache">file_cache</a> <a class="code" href="classServerConfig.html#RULES">RULES</a>;
 <a name="l00225"></a>00225 
 <a name="l00229"></a><a class="code" href="classServerConfig.html#PID_5B_31_30_32_34_5D">00229</a>         <span class="keywordtype">char</span> <a class="code" href="classServerConfig.html#PID_5B_31_30_32_34_5D">PID</a>[1024];
 <a name="l00230"></a>00230 
@@ -123,31 +123,34 @@
 <a name="l00243"></a>00243 
 <a name="l00247"></a><a class="code" href="classServerConfig.html#module_5Fnames">00247</a>         std::vector&lt;std::string&gt; <a class="code" href="classServerConfig.html#module_5Fnames">module_names</a>;
 <a name="l00248"></a>00248 
-<a name="l00249"></a>00249         <a class="code" href="classServerConfig.html#ServerConfig_28_29">ServerConfig</a>();
-<a name="l00250"></a>00250 
-<a name="l00254"></a>00254         <span class="keywordtype">void</span> <a class="code" href="classServerConfig.html#ClearStack_28_29">ClearStack</a>();
-<a name="l00255"></a>00255 
-<a name="l00260"></a>00260         <span class="keywordtype">void</span> <a class="code" href="classServerConfig.html#Read_28bool_20bail_2C_20userrec_20_2Auser_29">Read</a>(<span class="keywordtype">bool</span> bail, <a class="code" href="classuserrec.html">userrec</a>* user);
-<a name="l00261"></a>00261 
-<a name="l00262"></a>00262         <span class="keywordtype">bool</span> <a class="code" href="classServerConfig.html#LoadConf_28const_20char_20_2Afilename_2C_20std_3A_3Astringstream_20_2Atarget_2C_20std_3A_3Astringstream_20_2Aerrorstream_29">LoadConf</a>(<span class="keyword">const</span> <span class="keywordtype">char</span>* filename, std::stringstream *target, std::stringstream* errorstream);
-<a name="l00263"></a>00263         <span class="keywordtype">int</span> <a class="code" href="classServerConfig.html#ConfValue_28char_20_2Atag_2C_20char_20_2Avar_2C_20int_20index_2C_20char_20_2Aresult_2C_20std_3A_3Astringstream_20_2Aconfig_29">ConfValue</a>(<span class="keywordtype">char</span>* tag, <span class="keywordtype">char</span>* var, <span class="keywordtype">int</span> index, <span class="keywordtype">char</span> *result, std::stringstream *config);
-<a name="l00264"></a>00264         <span class="keywordtype">int</span> <a class="code" href="classServerConfig.html#ReadConf_28std_3A_3Astringstream_20_2Aconfig_5Ff_2C_20const_20char_20_2Atag_2C_20const_20char_20_2Avar_2C_20int_20index_2C_20char_20_2Aresult_29">ReadConf</a>(std::stringstream *<a class="code" href="classServerConfig.html#config_5Ff">config_f</a>,<span class="keyword">const</span> <span class="keywordtype">char</span>* tag, <span class="keyword">const</span> <span class="keywordtype">char</span>* var, <span class="keywordtype">int</span> index, <span class="keywordtype">char</span> *result);
-<a name="l00265"></a>00265         <span class="keywordtype">int</span> <a class="code" href="classServerConfig.html#ConfValueEnum_28char_20_2Atag_2C_20std_3A_3Astringstream_20_2Aconfig_29">ConfValueEnum</a>(<span class="keywordtype">char</span>* tag,std::stringstream *config);
-<a name="l00266"></a>00266         <span class="keywordtype">int</span> <a class="code" href="classServerConfig.html#EnumConf_28std_3A_3Astringstream_20_2Aconfig_5Ff_2C_20const_20char_20_2Atag_29">EnumConf</a>(std::stringstream *<a class="code" href="classServerConfig.html#config_5Ff">config_f</a>,<span class="keyword">const</span> <span class="keywordtype">char</span>* tag);
-<a name="l00267"></a>00267         <span class="keywordtype">int</span> <a class="code" href="classServerConfig.html#EnumValues_28std_3A_3Astringstream_20_2Aconfig_2C_20const_20char_20_2Atag_2C_20int_20index_29">EnumValues</a>(std::stringstream *config, <span class="keyword">const</span> <span class="keywordtype">char</span>* tag, <span class="keywordtype">int</span> index);
-<a name="l00268"></a>00268 };
-<a name="l00269"></a>00269 
-<a name="l00270"></a>00270 
-<a name="l00271"></a>00271 <span class="keywordtype">void</span> <a class="code" href="inspircd__io_8h.html#Exit_28int_29">Exit</a> (<span class="keywordtype">int</span>); 
-<a name="l00272"></a>00272 <span class="keywordtype">void</span> <a class="code" href="inspircd__io_8h.html#Start_28void_29">Start</a> (<span class="keywordtype">void</span>); 
-<a name="l00273"></a>00273 <span class="keywordtype">int</span> <a class="code" href="inspircd__io_8h.html#DaemonSeed_28void_29">DaemonSeed</a> (<span class="keywordtype">void</span>); 
-<a name="l00274"></a>00274 <span class="keywordtype">bool</span> <a class="code" href="inspircd__io_8h.html#FileExists_28const_20char_20_2Afile_29">FileExists</a> (<span class="keyword">const</span> <span class="keywordtype">char</span>* file);
-<a name="l00275"></a>00275 <span class="keywordtype">int</span> <a class="code" href="inspircd__io_8h.html#OpenTCPSocket_28void_29">OpenTCPSocket</a> (<span class="keywordtype">void</span>); 
-<a name="l00276"></a>00276 <span class="keywordtype">int</span> <a class="code" href="inspircd__io_8h.html#BindSocket_28int_20sockfd_2C_20struct_20sockaddr_5Fin_20client_2C_20struct_20sockaddr_5Fin_20server_2C_20int_20port_2C_20char_20_2Aaddr_29">BindSocket</a> (<span class="keywordtype">int</span> sockfd, <span class="keyword">struct</span> sockaddr_in client, <span class="keyword">struct</span> sockaddr_in server, <span class="keywordtype">int</span> port, <span class="keywordtype">char</span>* addr);
-<a name="l00277"></a>00277 <span class="keywordtype">void</span> <a class="code" href="inspircd__io_8h.html#WritePID_28std_3A_3Astring_20filename_29">WritePID</a>(<a class="code" href="namespaceirc.html#string">std::string</a> filename);
-<a name="l00278"></a>00278 
-<a name="l00279"></a>00279 <span class="preprocessor">#endif</span>
-</pre></div><hr size="1"><address style="align: right;"><small>Generated on Wed Dec 14 15:55:46 2005 for InspIRCd by&nbsp;
+<a name="l00251"></a><a class="code" href="classServerConfig.html#ports_5B_32_35_35_5D">00251</a>         <span class="keywordtype">int</span> <a class="code" href="classServerConfig.html#ports_5B_32_35_35_5D">ports</a>[255];
+<a name="l00252"></a>00252 
+<a name="l00253"></a>00253         <a class="code" href="classServerConfig.html#ServerConfig_28_29">ServerConfig</a>();
+<a name="l00254"></a>00254 
+<a name="l00258"></a>00258         <span class="keywordtype">void</span> <a class="code" href="classServerConfig.html#ClearStack_28_29">ClearStack</a>();
+<a name="l00259"></a>00259 
+<a name="l00264"></a>00264         <span class="keywordtype">void</span> <a class="code" href="classServerConfig.html#Read_28bool_20bail_2C_20userrec_20_2Auser_29">Read</a>(<span class="keywordtype">bool</span> bail, <a class="code" href="classuserrec.html">userrec</a>* user);
+<a name="l00265"></a>00265 
+<a name="l00266"></a>00266         <span class="keywordtype">bool</span> <a class="code" href="classServerConfig.html#LoadConf_28const_20char_20_2Afilename_2C_20std_3A_3Astringstream_20_2Atarget_2C_20std_3A_3Astringstream_20_2Aerrorstream_29">LoadConf</a>(<span class="keyword">const</span> <span class="keywordtype">char</span>* filename, std::stringstream *target, std::stringstream* errorstream);
+<a name="l00267"></a>00267         <span class="keywordtype">int</span> <a class="code" href="classServerConfig.html#ConfValue_28char_20_2Atag_2C_20char_20_2Avar_2C_20int_20index_2C_20char_20_2Aresult_2C_20std_3A_3Astringstream_20_2Aconfig_29">ConfValue</a>(<span class="keywordtype">char</span>* tag, <span class="keywordtype">char</span>* var, <span class="keywordtype">int</span> index, <span class="keywordtype">char</span> *result, std::stringstream *config);
+<a name="l00268"></a>00268         <span class="keywordtype">int</span> <a class="code" href="classServerConfig.html#ReadConf_28std_3A_3Astringstream_20_2Aconfig_5Ff_2C_20const_20char_20_2Atag_2C_20const_20char_20_2Avar_2C_20int_20index_2C_20char_20_2Aresult_29">ReadConf</a>(std::stringstream *<a class="code" href="classServerConfig.html#config_5Ff">config_f</a>,<span class="keyword">const</span> <span class="keywordtype">char</span>* tag, <span class="keyword">const</span> <span class="keywordtype">char</span>* var, <span class="keywordtype">int</span> index, <span class="keywordtype">char</span> *result);
+<a name="l00269"></a>00269         <span class="keywordtype">int</span> <a class="code" href="classServerConfig.html#ConfValueEnum_28char_20_2Atag_2C_20std_3A_3Astringstream_20_2Aconfig_29">ConfValueEnum</a>(<span class="keywordtype">char</span>* tag,std::stringstream *config);
+<a name="l00270"></a>00270         <span class="keywordtype">int</span> <a class="code" href="classServerConfig.html#EnumConf_28std_3A_3Astringstream_20_2Aconfig_5Ff_2C_20const_20char_20_2Atag_29">EnumConf</a>(std::stringstream *<a class="code" href="classServerConfig.html#config_5Ff">config_f</a>,<span class="keyword">const</span> <span class="keywordtype">char</span>* tag);
+<a name="l00271"></a>00271         <span class="keywordtype">int</span> <a class="code" href="classServerConfig.html#EnumValues_28std_3A_3Astringstream_20_2Aconfig_2C_20const_20char_20_2Atag_2C_20int_20index_29">EnumValues</a>(std::stringstream *config, <span class="keyword">const</span> <span class="keywordtype">char</span>* tag, <span class="keywordtype">int</span> index);
+<a name="l00272"></a>00272 };
+<a name="l00273"></a>00273 
+<a name="l00274"></a>00274 
+<a name="l00275"></a>00275 <span class="keywordtype">void</span> <a class="code" href="inspircd__io_8h.html#Exit_28int_29">Exit</a> (<span class="keywordtype">int</span>); 
+<a name="l00276"></a>00276 <span class="keywordtype">void</span> <a class="code" href="inspircd__io_8h.html#Start_28void_29">Start</a> (<span class="keywordtype">void</span>); 
+<a name="l00277"></a>00277 <span class="keywordtype">int</span> <a class="code" href="inspircd__io_8h.html#DaemonSeed_28void_29">DaemonSeed</a> (<span class="keywordtype">void</span>); 
+<a name="l00278"></a>00278 <span class="keywordtype">bool</span> <a class="code" href="inspircd__io_8h.html#FileExists_28const_20char_20_2Afile_29">FileExists</a> (<span class="keyword">const</span> <span class="keywordtype">char</span>* file);
+<a name="l00279"></a>00279 <span class="keywordtype">int</span> <a class="code" href="inspircd__io_8h.html#OpenTCPSocket_28void_29">OpenTCPSocket</a> (<span class="keywordtype">void</span>); 
+<a name="l00280"></a>00280 <span class="keywordtype">int</span> <a class="code" href="inspircd__io_8h.html#BindSocket_28int_20sockfd_2C_20struct_20sockaddr_5Fin_20client_2C_20struct_20sockaddr_5Fin_20server_2C_20int_20port_2C_20char_20_2Aaddr_29">BindSocket</a> (<span class="keywordtype">int</span> sockfd, <span class="keyword">struct</span> sockaddr_in client, <span class="keyword">struct</span> sockaddr_in server, <span class="keywordtype">int</span> port, <span class="keywordtype">char</span>* addr);
+<a name="l00281"></a>00281 <span class="keywordtype">void</span> <a class="code" href="inspircd__io_8h.html#WritePID_28std_3A_3Astring_20filename_29">WritePID</a>(<a class="code" href="namespaceirc.html#string">std::string</a> filename);
+<a name="l00282"></a>00282 <span class="keywordtype">int</span> <a class="code" href="inspircd__io_8h.html#BindPorts_28_29">BindPorts</a>();
+<a name="l00283"></a>00283 
+<a name="l00284"></a>00284 <span class="preprocessor">#endif</span>
+</pre></div><hr size="1"><address style="align: right;"><small>Generated on Wed Dec 14 19:16:11 2005 for InspIRCd by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img src="doxygen.png" alt="doxygen" align="middle" border="0"></a> 1.4.4-20050815 </small></address>
 </body>

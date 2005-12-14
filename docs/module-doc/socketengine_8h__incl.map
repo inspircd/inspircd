@@ -1,1 +1,3 @@
 base referer
+rect $globals_8h-source.html 175,108 250,135
+rect $inspircd_8h-source.html 172,159 252,186

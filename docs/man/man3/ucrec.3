@@ -40,23 +40,23 @@ Holds a user's modes on a channel This class associates a users privilages with 
 
 The uc_modes member holds a bitmask of which privilages the user has on the channel, such as op, voice, etc.
 .PP
-Definition at line 241 of file channels.h.
+Definition at line 243 of file channels.h.
 .SH "Constructor & Destructor Documentation"
 .PP 
 .SS "ucrec::ucrec ()\fC [inline]\fP"
 .PP
-Definition at line 254 of file channels.h.
+Definition at line 256 of file channels.h.
 .PP
 .nf
-254 { /* stub */ }
+256 { /* stub */ }
 .fi
 .PP
 .SS "virtual ucrec::~ucrec ()\fC [inline, virtual]\fP"
 .PP
-Definition at line 255 of file channels.h.
+Definition at line 257 of file channels.h.
 .PP
 .nf
-255 { /* stub */ }
+257 { /* stub */ }
 .fi
 .PP
 .SH "Member Data Documentation"
@@ -67,14 +67,18 @@ Points to the channel record where the given modes apply.
 .PP
 If the record is not in use, this value will be NULL.
 .PP
-Definition at line 252 of file channels.h.
+Definition at line 254 of file channels.h.
+.PP
+Referenced by ForceChan().
 .SS "char \fBucrec::uc_modes\fP"
 .PP
 Contains a bitmask of the UCMODE_OP . 
 .PP
 .. UCMODE_FOUNDER values. If this value is zero, the user has no privilages upon the channel.
 .PP
-Definition at line 247 of file channels.h.
+Definition at line 249 of file channels.h.
+.PP
+Referenced by ForceChan().
 
 .SH "Author"
 .PP 

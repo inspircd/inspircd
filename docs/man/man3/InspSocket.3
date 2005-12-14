@@ -212,7 +212,7 @@ This constructor is used to create a new socket, either listening for connection
 .PP
 Definition at line 62 of file socket.cpp.
 .PP
-References SocketEngine::AddFd(), addr, addy, BindSocket(), Close(), DEBUG, fd, I_CONNECTING, I_ERR_BIND, I_ERR_CONNECT, I_ERR_SOCKET, I_ERROR, I_LISTENING, IP, OnError(), OpenTCPSocket(), state, timeout, timeout_end, and X_ESTAB_MODULE.
+References SocketEngine::AddFd(), addr, addy, BindSocket(), Close(), DEBUG, ERROR, fd, I_CONNECTING, I_ERR_BIND, I_ERR_CONNECT, I_ERR_SOCKET, I_ERROR, I_LISTENING, IP, log(), OnError(), OpenTCPSocket(), state, timeout, timeout_end, and X_ESTAB_MODULE.
 .PP
 .nf
 63 {
@@ -540,7 +540,7 @@ Reads all pending bytes from the socket into a char* array which can be up to 16
 .PP
 Definition at line 158 of file socket.cpp.
 .PP
-References DEBUG, and ibuf.
+References DEBUG, ibuf, and log().
 .PP
 .nf
 159 {
@@ -566,7 +566,7 @@ The core uses this to change socket states, and you should not call it directly.
 .PP
 Definition at line 248 of file socket.cpp.
 .PP
-References DEBUG, and state.
+References DEBUG, log(), and state.
 .PP
 Referenced by Poll().
 .PP

@@ -65,8 +65,8 @@
 <a name="l00064"></a>00064 
 <a name="l00065"></a><a class="code" href="modules_8h.html#file_5Fcache">00065</a> <span class="keyword">class </span><a class="code" href="classServer.html">Server</a>;
 <a name="l00066"></a>00066 
-<a name="l00069"></a>00069 <span class="keyword">typedef</span> std::deque&lt;std::string&gt; <a class="code" href="modules_8h.html#file_5Fcache">file_cache</a>;
-<a name="l00070"></a><a class="code" href="modules_8h.html#string_5Flist">00070</a> <span class="keyword">typedef</span> <a class="code" href="modules_8h.html#file_5Fcache">file_cache</a> <a class="code" href="modules_8h.html#string_5Flist">string_list</a>;
+<a name="l00069"></a>00069 <span class="keyword">typedef</span> std::deque&lt;std::string&gt; <a class="code" href="globals_8h.html#file_5Fcache">file_cache</a>;
+<a name="l00070"></a><a class="code" href="modules_8h.html#string_5Flist">00070</a> <span class="keyword">typedef</span> <a class="code" href="globals_8h.html#file_5Fcache">file_cache</a> <a class="code" href="modules_8h.html#string_5Flist">string_list</a>;
 <a name="l00071"></a>00071 
 <a name="l00074"></a><a class="code" href="modules_8h.html#chanuserlist">00074</a> <span class="keyword">typedef</span> std::deque&lt;userrec*&gt; <a class="code" href="modules_8h.html#chanuserlist">chanuserlist</a>;
 <a name="l00075"></a>00075 
@@ -97,7 +97,7 @@
 <a name="l00100"></a>00100 
 <a name="l00101"></a><a class="code" href="modules_8h.html#FD_5FMAGIC_5FNUMBER">00101</a> <span class="preprocessor">#define FD_MAGIC_NUMBER -42</span>
 <a name="l00102"></a>00102 <span class="preprocessor"></span>
-<a name="l00103"></a>00103 <span class="keyword">extern</span> <span class="keywordtype">void</span> <a class="code" href="modules_8h.html#createcommand_28char_20_2Acmd_2C_20handlerfunc_20f_2C_20char_20flags_2C_20int_20minparams_2C_20char_20_2Asource_29">createcommand</a>(<span class="keywordtype">char</span>* cmd, handlerfunc f, <span class="keywordtype">char</span> flags, <span class="keywordtype">int</span> minparams, <span class="keywordtype">char</span>* source);
+<a name="l00103"></a>00103 <span class="keyword">extern</span> <span class="keywordtype">void</span> <a class="code" href="modules_8h.html#createcommand_28char_20_2Acmd_2C_20handlerfunc_20f_2C_20char_20flags_2C_20int_20minparams_2C_20char_20_2Asource_29">createcommand</a>(<span class="keywordtype">char</span>* cmd, <a class="code" href="inspircd_8h.html#handlerfunc_29_28char_20_2A_2A_2C_20int_2C_20userrec_20_2A_29">handlerfunc</a> f, <span class="keywordtype">char</span> flags, <span class="keywordtype">int</span> minparams, <span class="keywordtype">char</span>* source);
 <a name="l00104"></a>00104 <span class="keyword">extern</span> <span class="keywordtype">void</span> <a class="code" href="mode_8h.html#server_5Fmode_28char_20_2A_2Aparameters_2C_20int_20pcnt_2C_20userrec_20_2Auser_29">server_mode</a>(<span class="keywordtype">char</span> **parameters, <span class="keywordtype">int</span> pcnt, <a class="code" href="classuserrec.html">userrec</a> *user);
 <a name="l00105"></a>00105 
 <a name="l00106"></a>00106 <span class="comment">// class Version holds the version information of a Module, returned</span>
@@ -394,7 +394,7 @@
 <a name="l01244"></a>01244 
 <a name="l01266"></a>01266         <span class="keyword">virtual</span> <span class="keywordtype">bool</span> <a class="code" href="classServer.html#AddExtendedListMode_28char_20modechar_29">AddExtendedListMode</a>(<span class="keywordtype">char</span> modechar);
 <a name="l01267"></a>01267 
-<a name="l01285"></a>01285         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classServer.html#AddCommand_28char_20_2Acmd_2C_20handlerfunc_20f_2C_20char_20flags_2C_20int_20minparams_2C_20char_20_2Asource_29">AddCommand</a>(<span class="keywordtype">char</span>* cmd, handlerfunc f, <span class="keywordtype">char</span> flags, <span class="keywordtype">int</span> minparams, <span class="keywordtype">char</span>* source);
+<a name="l01285"></a>01285         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classServer.html#AddCommand_28char_20_2Acmd_2C_20handlerfunc_20f_2C_20char_20flags_2C_20int_20minparams_2C_20char_20_2Asource_29">AddCommand</a>(<span class="keywordtype">char</span>* cmd, <a class="code" href="inspircd_8h.html#handlerfunc_29_28char_20_2A_2A_2C_20int_2C_20userrec_20_2A_29">handlerfunc</a> f, <span class="keywordtype">char</span> flags, <span class="keywordtype">int</span> minparams, <span class="keywordtype">char</span>* source);
 <a name="l01286"></a>01286          
 <a name="l01308"></a>01308         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classServer.html#SendMode_28char_20_2A_2Aparameters_2C_20int_20pcnt_2C_20userrec_20_2Auser_29">SendMode</a>(<span class="keywordtype">char</span> **parameters, <span class="keywordtype">int</span> pcnt, <a class="code" href="classuserrec.html">userrec</a> *user);
 <a name="l01309"></a>01309         
@@ -493,7 +493,7 @@
 <a name="l01612"></a>01612 
 <a name="l01618"></a><a class="code" href="classFileReader.html">01618</a> <span class="keyword">class </span><a class="code" href="classFileReader.html">FileReader</a> : <span class="keyword">public</span> <a class="code" href="classclassbase.html">classbase</a>
 <a name="l01619"></a>01619 {
-<a name="l01620"></a><a class="code" href="classFileReader.html#fc">01620</a>  <a class="code" href="modules_8h.html#file_5Fcache">file_cache</a> <a class="code" href="classFileReader.html#fc">fc</a>;
+<a name="l01620"></a><a class="code" href="classFileReader.html#fc">01620</a>  <a class="code" href="globals_8h.html#file_5Fcache">file_cache</a> <a class="code" href="classFileReader.html#fc">fc</a>;
 <a name="l01621"></a>01621  <span class="keyword">public</span>:
 <a name="l01626"></a>01626          <a class="code" href="classFileReader.html#FileReader_28_29">FileReader</a>();
 <a name="l01627"></a>01627 
@@ -522,8 +522,15 @@
 <a name="l01685"></a>01685 
 <a name="l01686"></a><a class="code" href="modules_8h.html#ircd_5Fmodule">01686</a> <span class="keyword">typedef</span> DLLFactory&lt;ModuleFactory&gt; <a class="code" href="modules_8h.html#ircd_5Fmodule">ircd_module</a>;
 <a name="l01687"></a>01687 
-<a name="l01688"></a>01688 <span class="preprocessor">#endif</span>
-</pre></div><hr size="1"><address style="align: right;"><small>Generated on Wed Dec 14 15:55:46 2005 for InspIRCd by&nbsp;
+<a name="l01688"></a>01688 <span class="keywordtype">bool</span> <a class="code" href="modules_8cpp.html#ModeDefined_28char_20modechar_2C_20int_20type_29">ModeDefined</a>(<span class="keywordtype">char</span> c, <span class="keywordtype">int</span> i);
+<a name="l01689"></a>01689 <span class="keywordtype">bool</span> <a class="code" href="modules_8cpp.html#ModeDefinedOper_28char_20modechar_2C_20int_20type_29">ModeDefinedOper</a>(<span class="keywordtype">char</span> c, <span class="keywordtype">int</span> i);
+<a name="l01690"></a>01690 <span class="keywordtype">int</span> <a class="code" href="modules_8cpp.html#ModeDefinedOn_28char_20modechar_2C_20int_20type_29">ModeDefinedOn</a>(<span class="keywordtype">char</span> c, <span class="keywordtype">int</span> i);
+<a name="l01691"></a>01691 <span class="keywordtype">int</span> <a class="code" href="modules_8cpp.html#ModeDefinedOff_28char_20modechar_2C_20int_20type_29">ModeDefinedOff</a>(<span class="keywordtype">char</span> c, <span class="keywordtype">int</span> i);
+<a name="l01692"></a>01692 <span class="keywordtype">void</span> <a class="code" href="modules_8cpp.html#ModeMakeList_28char_20modechar_29">ModeMakeList</a>(<span class="keywordtype">char</span> modechar);
+<a name="l01693"></a>01693 <span class="keywordtype">bool</span> <a class="code" href="modules_8cpp.html#ModeIsListMode_28char_20modechar_2C_20int_20type_29">ModeIsListMode</a>(<span class="keywordtype">char</span> modechar, <span class="keywordtype">int</span> type);
+<a name="l01694"></a>01694 
+<a name="l01695"></a>01695 <span class="preprocessor">#endif</span>
+</pre></div><hr size="1"><address style="align: right;"><small>Generated on Wed Dec 14 19:16:12 2005 for InspIRCd by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img src="doxygen.png" alt="doxygen" align="middle" border="0"></a> 1.4.4-20050815 </small></address>
 </body>

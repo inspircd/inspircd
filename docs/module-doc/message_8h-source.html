@@ -37,7 +37,7 @@
 <a name="l00028"></a>00028 <span class="preprocessor">#include "<a class="code" href="users_8h.html">users.h</a>"</span>
 <a name="l00029"></a>00029 <span class="preprocessor">#include "<a class="code" href="channels_8h.html">channels.h</a>"</span>
 <a name="l00030"></a>00030 
-<a name="l00031"></a>00031 <span class="keywordtype">int</span> <a class="code" href="message_8h.html#common_5Fchannels_28userrec_20_2Au_2C_20userrec_20_2Au_32_29">common_channels</a>(<a class="code" href="classuserrec.html">userrec</a> *u, <a class="code" href="classuserrec.html">userrec</a> *u2);
+<a name="l00031"></a>00031 <span class="keywordtype">int</span> <a class="code" href="globals_8h.html#common_5Fchannels_28userrec_20_2Au_2C_20userrec_20_2Au_32_29">common_channels</a>(<a class="code" href="classuserrec.html">userrec</a> *u, <a class="code" href="classuserrec.html">userrec</a> *u2);
 <a name="l00032"></a>00032 <span class="keywordtype">void</span> <a class="code" href="message_8h.html#chop_28char_20_2Astr_29">chop</a>(<span class="keywordtype">char</span>* str);
 <a name="l00033"></a>00033 <span class="keywordtype">void</span> <a class="code" href="message_8h.html#tidystring_28char_20_2Astr_29">tidystring</a>(<span class="keywordtype">char</span>* str);
 <a name="l00034"></a>00034 <span class="keywordtype">void</span> <a class="code" href="message_8h.html#Blocking_28int_20s_29">Blocking</a>(<span class="keywordtype">int</span> s);
@@ -48,8 +48,8 @@
 <a name="l00039"></a>00039 <span class="keywordtype">void</span> <a class="code" href="message_8h.html#ChangeName_28userrec_20_2Auser_2C_20const_20char_20_2Agecos_29">ChangeName</a>(<a class="code" href="classuserrec.html">userrec</a>* user, <span class="keyword">const</span> <span class="keywordtype">char</span>* gecos);
 <a name="l00040"></a>00040 <span class="keywordtype">void</span> <a class="code" href="message_8h.html#ChangeDisplayedHost_28userrec_20_2Auser_2C_20const_20char_20_2Ahost_29">ChangeDisplayedHost</a>(<a class="code" href="classuserrec.html">userrec</a>* user, <span class="keyword">const</span> <span class="keywordtype">char</span>* host);
 <a name="l00041"></a>00041 <span class="keywordtype">int</span> <a class="code" href="message_8h.html#isident_28const_20char_20_2An_29">isident</a>(<span class="keyword">const</span> <span class="keywordtype">char</span>* n);
-<a name="l00042"></a>00042 <span class="keywordtype">int</span> <a class="code" href="message_8h.html#isnick_28const_20char_20_2An_29">isnick</a>(<span class="keyword">const</span> <span class="keywordtype">char</span>* n);
-<a name="l00043"></a>00043 <span class="keywordtype">char</span>* <a class="code" href="message_8h.html#cmode_28userrec_20_2Auser_2C_20chanrec_20_2Achan_29">cmode</a>(<a class="code" href="classuserrec.html">userrec</a> *user, <a class="code" href="classchanrec.html">chanrec</a> *chan);
+<a name="l00042"></a>00042 <span class="keywordtype">int</span> <a class="code" href="globals_8h.html#isnick_28const_20char_20_2An_29">isnick</a>(<span class="keyword">const</span> <span class="keywordtype">char</span>* n);
+<a name="l00043"></a>00043 <span class="keywordtype">char</span>* <a class="code" href="globals_8h.html#cmode_28userrec_20_2Auser_2C_20chanrec_20_2Achan_29">cmode</a>(<a class="code" href="classuserrec.html">userrec</a> *user, <a class="code" href="classchanrec.html">chanrec</a> *chan);
 <a name="l00044"></a>00044 <span class="keywordtype">int</span> <a class="code" href="message_8h.html#cstatus_28userrec_20_2Auser_2C_20chanrec_20_2Achan_29">cstatus</a>(<a class="code" href="classuserrec.html">userrec</a> *user, <a class="code" href="classchanrec.html">chanrec</a> *chan);
 <a name="l00045"></a>00045 <span class="keywordtype">int</span> <a class="code" href="message_8h.html#has_5Fchannel_28userrec_20_2Au_2C_20chanrec_20_2Ac_29">has_channel</a>(<a class="code" href="classuserrec.html">userrec</a> *u, <a class="code" href="classchanrec.html">chanrec</a> *c);
 <a name="l00046"></a>00046 <span class="keywordtype">void</span> <a class="code" href="message_8h.html#TidyBan_28char_20_2Aban_29">TidyBan</a>(<span class="keywordtype">char</span> *ban);
@@ -57,7 +57,7 @@
 <a name="l00048"></a>00048 <span class="keywordtype">void</span> <a class="code" href="message_8h.html#send_5Fnetwork_5Fquit_28const_20char_20_2Anick_2C_20const_20char_20_2Areason_29">send_network_quit</a>(<span class="keyword">const</span> <span class="keywordtype">char</span>* nick, <span class="keyword">const</span> <span class="keywordtype">char</span>* reason);
 <a name="l00049"></a>00049 
 <a name="l00050"></a>00050 <span class="preprocessor">#endif</span>
-</pre></div><hr size="1"><address style="align: right;"><small>Generated on Wed Dec 14 15:55:46 2005 for InspIRCd by&nbsp;
+</pre></div><hr size="1"><address style="align: right;"><small>Generated on Wed Dec 14 19:16:11 2005 for InspIRCd by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img src="doxygen.png" alt="doxygen" align="middle" border="0"></a> 1.4.4-20050815 </small></address>
 </body>

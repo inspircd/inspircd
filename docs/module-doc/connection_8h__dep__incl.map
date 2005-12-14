@@ -1,11 +1,3 @@
 base referer
-rect $users_8cpp-source.html 434,57 514,84
-rect $users_8h-source.html 155,235 219,261
-rect $channels_8cpp-source.html 424,387 523,413
-rect $modules_8cpp-source.html 424,285 523,312
-rect $commands_8h-source.html 272,108 371,135
-rect $message_8h-source.html 279,361 364,388
-rect $mode_8h-source.html 288,412 355,439
-rect $typedefs_8h-source.html 279,159 364,185
-rect $userprocess_8h-source.html 270,209 374,236
-rect $xline_8h-source.html 291,311 352,337
+rect $users_8cpp-source.html 268,32 348,59
+rect $users_8h-source.html 155,58 219,84

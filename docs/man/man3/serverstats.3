@@ -1,0 +1,126 @@
+.TH "serverstats" 3 "14 Dec 2005" "Version 1.0Betareleases" "InspIRCd" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+serverstats \- 
+.SH SYNOPSIS
+.br
+.PP
+\fC#include <inspircd.h>\fP
+.PP
+.SS "Public Member Functions"
+
+.in +1c
+.ti -1c
+.RI "\fBserverstats\fP ()"
+.br
+.in -1c
+.SS "Public Attributes"
+
+.in +1c
+.ti -1c
+.RI "int \fBstatsAccept\fP"
+.br
+.ti -1c
+.RI "int \fBstatsRefused\fP"
+.br
+.ti -1c
+.RI "int \fBstatsUnknown\fP"
+.br
+.ti -1c
+.RI "int \fBstatsCollisions\fP"
+.br
+.ti -1c
+.RI "int \fBstatsDns\fP"
+.br
+.ti -1c
+.RI "int \fBstatsDnsGood\fP"
+.br
+.ti -1c
+.RI "int \fBstatsDnsBad\fP"
+.br
+.ti -1c
+.RI "int \fBstatsConnects\fP"
+.br
+.ti -1c
+.RI "int \fBstatsSent\fP"
+.br
+.ti -1c
+.RI "int \fBstatsRecv\fP"
+.br
+.in -1c
+.SH "Detailed Description"
+.PP 
+Definition at line 72 of file inspircd.h.
+.SH "Constructor & Destructor Documentation"
+.PP 
+.SS "serverstats::serverstats ()\fC [inline]\fP"
+.PP
+Definition at line 86 of file inspircd.h.
+.PP
+References statsAccept, statsCollisions, statsConnects, statsDns, statsDnsBad, statsDnsGood, statsRecv, statsRefused, statsSent, and statsUnknown.
+.PP
+.nf
+87         {
+88                 statsAccept = statsRefused = statsUnknown = 0;
+89                 statsCollisions = statsDns = statsDnsGood = 0;
+90                 statsDnsBad = statsConnects = statsSent = statsRecv = 0;
+91         }
+.fi
+.PP
+.SH "Member Data Documentation"
+.PP 
+.SS "int \fBserverstats::statsAccept\fP"
+.PP
+Definition at line 75 of file inspircd.h.
+.PP
+Referenced by serverstats().
+.SS "int \fBserverstats::statsCollisions\fP"
+.PP
+Definition at line 78 of file inspircd.h.
+.PP
+Referenced by serverstats().
+.SS "int \fBserverstats::statsConnects\fP"
+.PP
+Definition at line 82 of file inspircd.h.
+.PP
+Referenced by serverstats().
+.SS "int \fBserverstats::statsDns\fP"
+.PP
+Definition at line 79 of file inspircd.h.
+.PP
+Referenced by serverstats().
+.SS "int \fBserverstats::statsDnsBad\fP"
+.PP
+Definition at line 81 of file inspircd.h.
+.PP
+Referenced by serverstats().
+.SS "int \fBserverstats::statsDnsGood\fP"
+.PP
+Definition at line 80 of file inspircd.h.
+.PP
+Referenced by serverstats().
+.SS "int \fBserverstats::statsRecv\fP"
+.PP
+Definition at line 84 of file inspircd.h.
+.PP
+Referenced by serverstats().
+.SS "int \fBserverstats::statsRefused\fP"
+.PP
+Definition at line 76 of file inspircd.h.
+.PP
+Referenced by serverstats().
+.SS "int \fBserverstats::statsSent\fP"
+.PP
+Definition at line 83 of file inspircd.h.
+.PP
+Referenced by serverstats().
+.SS "int \fBserverstats::statsUnknown\fP"
+.PP
+Definition at line 77 of file inspircd.h.
+.PP
+Referenced by serverstats().
+
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for InspIRCd from the source code.

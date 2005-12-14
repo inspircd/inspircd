@@ -1,2 +1,4 @@
 base referer
-rect $socketengine_8h-source.html 180,159 292,186
+rect $globals_8h-source.html 343,209 417,236
+rect $inspircd_8h-source.html 340,57 420,84
+rect $socketengine_8h-source.html 180,159 292,185

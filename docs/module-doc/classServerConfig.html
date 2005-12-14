@@ -16,7 +16,7 @@ Inheritance diagram for ServerConfig:<p><center><img src="classServerConfig__inh
 </map>
 <center><font size="2">[<a target="top" href="graph_legend.html">legend</a>]</font></center>Collaboration diagram for ServerConfig:<p><center><img src="classServerConfig__coll__graph.gif" border="0" usemap="#ServerConfig__coll__map" alt="Collaboration graph"></center>
 <map name="ServerConfig__coll__map">
-<area href="classclassbase.html" shape="rect" coords="38,11,118,37" alt="">
+<area href="classclassbase.html" shape="rect" coords="38,12,118,39" alt="">
 </map>
 <center><font size="2">[<a target="top" href="graph_legend.html">legend</a>]</font></center><a href="classServerConfig-members.html">List of all members.</a><table border="0" cellpadding="0" cellspacing="0">
 <tr><td></td></tr>
@@ -128,10 +128,10 @@ Inheritance diagram for ServerConfig:<p><center><img src="classServerConfig__inh
 <tr><td class="memItemLeft" nowrap align="right" valign="top">char&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classServerConfig.html#addrs_5BMAXBUF_5D_5B_32_35_35_5D">addrs</a> [MAXBUF][255]</td></tr>
 
 <tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">A list of IP addresses the server is listening on.  <a href="#addrs_5BMAXBUF_5D_5B_32_35_35_5D"></a><br></td></tr>
-<tr><td class="memItemLeft" nowrap align="right" valign="top"><a class="el" href="modules_8h.html#file_5Fcache">file_cache</a>&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classServerConfig.html#MOTD">MOTD</a></td></tr>
+<tr><td class="memItemLeft" nowrap align="right" valign="top"><a class="el" href="typedefs_8h.html#file_5Fcache">file_cache</a>&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classServerConfig.html#MOTD">MOTD</a></td></tr>
 
 <tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">The MOTD file, cached in a file_cache type.  <a href="#MOTD"></a><br></td></tr>
-<tr><td class="memItemLeft" nowrap align="right" valign="top"><a class="el" href="modules_8h.html#file_5Fcache">file_cache</a>&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classServerConfig.html#RULES">RULES</a></td></tr>
+<tr><td class="memItemLeft" nowrap align="right" valign="top"><a class="el" href="typedefs_8h.html#file_5Fcache">file_cache</a>&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classServerConfig.html#RULES">RULES</a></td></tr>
 
 <tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">The RULES file, cached in a file_cache type.  <a href="#RULES"></a><br></td></tr>
 <tr><td class="memItemLeft" nowrap align="right" valign="top">char&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classServerConfig.html#PID_5B_31_30_32_34_5D">PID</a> [1024]</td></tr>
@@ -146,6 +146,9 @@ Inheritance diagram for ServerConfig:<p><center><img src="classServerConfig__inh
 <tr><td class="memItemLeft" nowrap align="right" valign="top">std::vector&lt; <a class="el" href="namespaceirc.html#string">std::string</a> &gt;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classServerConfig.html#module_5Fnames">module_names</a></td></tr>
 
 <tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">A list of module names (names only, no paths) which are currently loaded by the server.  <a href="#module_5Fnames"></a><br></td></tr>
+<tr><td class="memItemLeft" nowrap align="right" valign="top">int&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classServerConfig.html#ports_5B_32_35_35_5D">ports</a> [255]</td></tr>
+
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">A list of ports which the server is listening on.  <a href="#ports_5B_32_35_35_5D"></a><br></td></tr>
 <tr><td colspan="2"><br><h2>Private Member Functions</h2></td></tr>
 <tr><td class="memItemLeft" nowrap align="right" valign="top">int&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classServerConfig.html#fgets_5Fsafe_28char_20_2Abuffer_2C_20size_5Ft_20maxsize_2C_20FILE_20_2A_26file_29">fgets_safe</a> (char *buffer, size_t maxsize, FILE *&amp;file)</td></tr>
 
@@ -222,7 +225,7 @@ Clears the include stack in preperation for a <a class="el" href="classServerCon
 <p>
 
 <p>
-Referenced by <a class="el" href="modules_8cpp-source.html#l00739">ConfigReader::ConfigReader()</a>.    </td>
+Referenced by <a class="el" href="modules_8cpp-source.html#l00731">ConfigReader::ConfigReader()</a>.    </td>
   </tr>
 </table>
 <a class="anchor" name="ConfProcess_28char_20_2Abuffer_2C_20long_20linenumber_2C_20std_3A_3Astringstream_20_2Aerrorstream_2C_20bool_20_26error_2C_20std_3A_3Astring_20filename_29"></a><!-- doxytag: member="ServerConfig::ConfProcess" ref="ConfProcess_28char_20_2Abuffer_2C_20long_20linenumber_2C_20std_3A_3Astringstream_20_2Aerrorstream_2C_20bool_20_26error_2C_20std_3A_3Astring_20filename_29" args="(char *buffer, long linenumber, std::stringstream *errorstream, bool &amp;error, std::string filename)" --><p>
@@ -412,7 +415,7 @@ Referenced by <a class="el" href="users_8cpp-source.html#l00144">userrec::HasPer
 <p>
 
 <p>
-Referenced by <a class="el" href="modules_8cpp-source.html#l00871">ConfigReader::Enumerate()</a>.    </td>
+Referenced by <a class="el" href="modules_8cpp-source.html#l00863">ConfigReader::Enumerate()</a>.    </td>
   </tr>
 </table>
 <a class="anchor" name="EnumValues_28std_3A_3Astringstream_20_2Aconfig_2C_20const_20char_20_2Atag_2C_20int_20index_29"></a><!-- doxytag: member="ServerConfig::EnumValues" ref="EnumValues_28std_3A_3Astringstream_20_2Aconfig_2C_20const_20char_20_2Atag_2C_20int_20index_29" args="(std::stringstream *config, const char *tag, int index)" --><p>
@@ -457,7 +460,7 @@ Referenced by <a class="el" href="modules_8cpp-source.html#l00871">ConfigReader:
 <p>
 
 <p>
-Referenced by <a class="el" href="modules_8cpp-source.html#l00876">ConfigReader::EnumerateValues()</a>.    </td>
+Referenced by <a class="el" href="modules_8cpp-source.html#l00868">ConfigReader::EnumerateValues()</a>.    </td>
   </tr>
 </table>
 <a class="anchor" name="fgets_5Fsafe_28char_20_2Abuffer_2C_20size_5Ft_20maxsize_2C_20FILE_20_2A_26file_29"></a><!-- doxytag: member="ServerConfig::fgets_safe" ref="fgets_5Fsafe_28char_20_2Abuffer_2C_20size_5Ft_20maxsize_2C_20FILE_20_2A_26file_29" args="(char *buffer, size_t maxsize, FILE *&amp;file)" --><p>
@@ -547,7 +550,7 @@ it can read both windows and UNIX style linefeeds transparently.    </td>
 <p>
 
 <p>
-Referenced by <a class="el" href="modules_8cpp-source.html#l00739">ConfigReader::ConfigReader()</a>.    </td>
+Referenced by <a class="el" href="modules_8cpp-source.html#l00731">ConfigReader::ConfigReader()</a>.    </td>
   </tr>
 </table>
 <a class="anchor" name="Read_28bool_20bail_2C_20userrec_20_2Auser_29"></a><!-- doxytag: member="ServerConfig::Read" ref="Read_28bool_20bail_2C_20userrec_20_2Auser_29" args="(bool bail, userrec *user)" --><p>
@@ -588,7 +591,7 @@ Read the entire configuration into memory and initialize this class.
 <p>
 All other methods should be used only by the core.
 <p>
-Referenced by <a class="el" href="modules_8cpp-source.html#l00326">Server::RehashServer()</a>.    </td>
+Referenced by <a class="el" href="modules_8cpp-source.html#l00318">Server::RehashServer()</a>.    </td>
   </tr>
 </table>
 <a class="anchor" name="ReadConf_28std_3A_3Astringstream_20_2Aconfig_5Ff_2C_20const_20char_20_2Atag_2C_20const_20char_20_2Avar_2C_20int_20index_2C_20char_20_2Aresult_29"></a><!-- doxytag: member="ServerConfig::ReadConf" ref="ReadConf_28std_3A_3Astringstream_20_2Aconfig_5Ff_2C_20const_20char_20_2Atag_2C_20const_20char_20_2Avar_2C_20int_20index_2C_20char_20_2Aresult_29" args="(std::stringstream *config_f, const char *tag, const char *var, int index, char *result)" --><p>
@@ -645,7 +648,7 @@ Referenced by <a class="el" href="modules_8cpp-source.html#l00326">Server::Rehas
 <p>
 
 <p>
-Referenced by <a class="el" href="modules_8cpp-source.html#l00785">ConfigReader::ReadFlag()</a>, <a class="el" href="modules_8cpp-source.html#l00802">ConfigReader::ReadInteger()</a>, and <a class="el" href="modules_8cpp-source.html#l00769">ConfigReader::ReadValue()</a>.    </td>
+Referenced by <a class="el" href="modules_8cpp-source.html#l00777">ConfigReader::ReadFlag()</a>, <a class="el" href="modules_8cpp-source.html#l00794">ConfigReader::ReadInteger()</a>, and <a class="el" href="modules_8cpp-source.html#l00761">ConfigReader::ReadValue()</a>.    </td>
   </tr>
 </table>
 <hr><h2>Member Data Documentation</h2>
@@ -700,7 +703,9 @@ Holds the email address of the admin, for output in the /ADMIN command.
 <p>
 
 <p>
-Definition at line <a class="el" href="inspircd__io_8h-source.html#l00089">89</a> of file <a class="el" href="inspircd__io_8h-source.html">inspircd_io.h</a>.    </td>
+Definition at line <a class="el" href="inspircd__io_8h-source.html#l00089">89</a> of file <a class="el" href="inspircd__io_8h-source.html">inspircd_io.h</a>.
+<p>
+Referenced by <a class="el" href="modules_8cpp-source.html#l00544">Server::GetAdmin()</a>.    </td>
   </tr>
 </table>
 <a class="anchor" name="AdminName_5BMAXBUF_5D"></a><!-- doxytag: member="ServerConfig::AdminName" ref="AdminName_5BMAXBUF_5D" args="[MAXBUF]" --><p>
@@ -727,7 +732,9 @@ Holds the admin's name, for output in the /ADMIN command.
 <p>
 
 <p>
-Definition at line <a class="el" href="inspircd__io_8h-source.html#l00084">84</a> of file <a class="el" href="inspircd__io_8h-source.html">inspircd_io.h</a>.    </td>
+Definition at line <a class="el" href="inspircd__io_8h-source.html#l00084">84</a> of file <a class="el" href="inspircd__io_8h-source.html">inspircd_io.h</a>.
+<p>
+Referenced by <a class="el" href="modules_8cpp-source.html#l00544">Server::GetAdmin()</a>.    </td>
   </tr>
 </table>
 <a class="anchor" name="AdminNick_5BMAXBUF_5D"></a><!-- doxytag: member="ServerConfig::AdminNick" ref="AdminNick_5BMAXBUF_5D" args="[MAXBUF]" --><p>
@@ -754,7 +761,9 @@ Holds the admin's nickname, for output in the /ADMIN command.
 <p>
 
 <p>
-Definition at line <a class="el" href="inspircd__io_8h-source.html#l00094">94</a> of file <a class="el" href="inspircd__io_8h-source.html">inspircd_io.h</a>.    </td>
+Definition at line <a class="el" href="inspircd__io_8h-source.html#l00094">94</a> of file <a class="el" href="inspircd__io_8h-source.html">inspircd_io.h</a>.
+<p>
+Referenced by <a class="el" href="modules_8cpp-source.html#l00544">Server::GetAdmin()</a>.    </td>
   </tr>
 </table>
 <a class="anchor" name="AllowHalfop"></a><!-- doxytag: member="ServerConfig::AllowHalfop" ref="AllowHalfop" args="" --><p>
@@ -1217,7 +1226,7 @@ A list of module names (names only, no paths) which are currently loaded by the 
 <p>
 Definition at line <a class="el" href="inspircd__io_8h-source.html#l00247">247</a> of file <a class="el" href="inspircd__io_8h-source.html">inspircd_io.h</a>.
 <p>
-Referenced by <a class="el" href="modules_8cpp-source.html#l00727">Server::FindModule()</a>.    </td>
+Referenced by <a class="el" href="modules_8cpp-source.html#l00719">Server::FindModule()</a>.    </td>
   </tr>
 </table>
 <a class="anchor" name="MOTD"></a><!-- doxytag: member="ServerConfig::MOTD" ref="MOTD" args="" --><p>
@@ -1226,7 +1235,7 @@ Referenced by <a class="el" href="modules_8cpp-source.html#l00727">Server::FindM
     <td class="mdRow">
       <table cellpadding="0" cellspacing="0" border="0">
         <tr>
-          <td class="md" nowrap valign="top"><a class="el" href="modules_8h.html#file_5Fcache">file_cache</a> <a class="el" href="classServerConfig.html#MOTD">ServerConfig::MOTD</a>          </td>
+          <td class="md" nowrap valign="top"><a class="el" href="typedefs_8h.html#file_5Fcache">file_cache</a> <a class="el" href="classServerConfig.html#MOTD">ServerConfig::MOTD</a>          </td>
         </tr>
       </table>
     </td>
@@ -1350,7 +1359,9 @@ Definition at line <a class="el" href="inspircd__io_8h-source.html#l00182">182</
 <p>
 
 <p>
-Definition at line <a class="el" href="inspircd__io_8h-source.html#l00074">74</a> of file <a class="el" href="inspircd__io_8h-source.html">inspircd_io.h</a>.    </td>
+Definition at line <a class="el" href="inspircd__io_8h-source.html#l00074">74</a> of file <a class="el" href="inspircd__io_8h-source.html">inspircd_io.h</a>.
+<p>
+Referenced by <a class="el" href="modules_8cpp-source.html#l00534">Server::GetNetworkName()</a>.    </td>
   </tr>
 </table>
 <a class="anchor" name="nofork"></a><!-- doxytag: member="ServerConfig::nofork" ref="nofork" args="" --><p>
@@ -1405,6 +1416,33 @@ The full pathname and filename of the PID file as defined in the configuration.
 
 <p>
 Definition at line <a class="el" href="inspircd__io_8h-source.html#l00229">229</a> of file <a class="el" href="inspircd__io_8h-source.html">inspircd_io.h</a>.    </td>
+  </tr>
+</table>
+<a class="anchor" name="ports_5B_32_35_35_5D"></a><!-- doxytag: member="ServerConfig::ports" ref="ports_5B_32_35_35_5D" args="[255]" --><p>
+<table class="mdTable" cellpadding="2" cellspacing="0">
+  <tr>
+    <td class="mdRow">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top">int <a class="el" href="classServerConfig.html#ports_5B_32_35_35_5D">ServerConfig::ports</a>[255]          </td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing="5" cellpadding="0" border="0">
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+A list of ports which the server is listening on. 
+<p>
+
+<p>
+Definition at line <a class="el" href="inspircd__io_8h-source.html#l00251">251</a> of file <a class="el" href="inspircd__io_8h-source.html">inspircd_io.h</a>.    </td>
   </tr>
 </table>
 <a class="anchor" name="PrefixQuit_5BMAXBUF_5D"></a><!-- doxytag: member="ServerConfig::PrefixQuit" ref="PrefixQuit_5BMAXBUF_5D" args="[MAXBUF]" --><p>
@@ -1467,7 +1505,7 @@ Definition at line <a class="el" href="inspircd__io_8h-source.html#l00102">102</
     <td class="mdRow">
       <table cellpadding="0" cellspacing="0" border="0">
         <tr>
-          <td class="md" nowrap valign="top"><a class="el" href="modules_8h.html#file_5Fcache">file_cache</a> <a class="el" href="classServerConfig.html#RULES">ServerConfig::RULES</a>          </td>
+          <td class="md" nowrap valign="top"><a class="el" href="typedefs_8h.html#file_5Fcache">file_cache</a> <a class="el" href="classServerConfig.html#RULES">ServerConfig::RULES</a>          </td>
         </tr>
       </table>
     </td>
@@ -1539,7 +1577,9 @@ Holds the description of the local server as defined by the administrator.
 <p>
 
 <p>
-Definition at line <a class="el" href="inspircd__io_8h-source.html#l00079">79</a> of file <a class="el" href="inspircd__io_8h-source.html">inspircd_io.h</a>.    </td>
+Definition at line <a class="el" href="inspircd__io_8h-source.html#l00079">79</a> of file <a class="el" href="inspircd__io_8h-source.html">inspircd_io.h</a>.
+<p>
+Referenced by <a class="el" href="modules_8cpp-source.html#l00539">Server::GetServerDescription()</a>.    </td>
   </tr>
 </table>
 <a class="anchor" name="ServerName_5BMAXBUF_5D"></a><!-- doxytag: member="ServerConfig::ServerName" ref="ServerName_5BMAXBUF_5D" args="[MAXBUF]" --><p>
@@ -1568,7 +1608,7 @@ Holds the server name of the local server as defined by the administrator.
 <p>
 Definition at line <a class="el" href="inspircd__io_8h-source.html#l00068">68</a> of file <a class="el" href="inspircd__io_8h-source.html">inspircd_io.h</a>.
 <p>
-Referenced by <a class="el" href="users_8cpp-source.html#l00036">userrec::userrec()</a>.    </td>
+Referenced by <a class="el" href="modules_8cpp-source.html#l00529">Server::GetServerName()</a>, and <a class="el" href="users_8cpp-source.html#l00036">userrec::userrec()</a>.    </td>
   </tr>
 </table>
 <a class="anchor" name="SoftLimit"></a><!-- doxytag: member="ServerConfig::SoftLimit" ref="SoftLimit" args="" --><p>
@@ -1627,7 +1667,7 @@ Definition at line <a class="el" href="inspircd__io_8h-source.html#l00166">166</
 </table>
 <hr>The documentation for this class was generated from the following file:<ul>
 <li><a class="el" href="inspircd__io_8h-source.html">inspircd_io.h</a></ul>
-<hr size="1"><address style="align: right;"><small>Generated on Wed Dec 14 15:55:51 2005 for InspIRCd by&nbsp;
+<hr size="1"><address style="align: right;"><small>Generated on Wed Dec 14 19:16:28 2005 for InspIRCd by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img src="doxygen.png" alt="doxygen" align="middle" border="0"></a> 1.4.4-20050815 </small></address>
 </body>

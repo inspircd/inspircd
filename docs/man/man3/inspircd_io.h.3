@@ -31,7 +31,7 @@ inspircd_io.h \-
 .ti -1c
 .RI "#define \fBDEBUG\fP   10"
 .br
-.RI "\fIFlags for use with log(). \fP"
+.RI "\fIFlags for use with \fBlog()\fP. \fP"
 .ti -1c
 .RI "#define \fBVERBOSE\fP   20"
 .br
@@ -69,19 +69,24 @@ inspircd_io.h \-
 .ti -1c
 .RI "void \fBWritePID\fP (\fBstd::string\fP filename)"
 .br
+.ti -1c
+.RI "int \fBBindPorts\fP ()"
+.br
 .in -1c
 .SH "Define Documentation"
 .PP 
 .SS "#define DEBUG   10"
 .PP
-Flags for use with log(). 
+Flags for use with \fBlog()\fP. 
 .PP
 Definition at line 28 of file inspircd_io.h.
 .PP
-Referenced by Server::AddExtendedMode(), SocketEngine::AddFd(), chanrec::AddUser(), SocketEngine::DelFd(), chanrec::DelUser(), InspSocket::InspSocket(), InspSocket::Read(), userrec::RemoveInvite(), chanrec::SetCustomMode(), chanrec::SetCustomModeParam(), InspSocket::SetState(), userrec::SetWriteError(), SocketEngine::SocketEngine(), and SocketEngine::~SocketEngine().
+Referenced by add_channel(), Server::AddExtendedMode(), SocketEngine::AddFd(), chanrec::AddUser(), del_channel(), SocketEngine::DelFd(), chanrec::DelUser(), ForceChan(), InspSocket::InspSocket(), kick_channel(), InspSocket::Read(), userrec::RemoveInvite(), chanrec::SetCustomMode(), chanrec::SetCustomModeParam(), InspSocket::SetState(), userrec::SetWriteError(), SocketEngine::SocketEngine(), and SocketEngine::~SocketEngine().
 .SS "#define DEFAULT   30"
 .PP
 Definition at line 30 of file inspircd_io.h.
+.PP
+Referenced by add_channel(), del_channel(), and kick_channel().
 .SS "#define NONE   50"
 .PP
 Definition at line 32 of file inspircd_io.h.
@@ -93,6 +98,8 @@ Definition at line 31 of file inspircd_io.h.
 Definition at line 29 of file inspircd_io.h.
 .SH "Function Documentation"
 .PP 
+.SS "int BindPorts ()"
+.PP
 .SS "int BindSocket (int sockfd, struct sockaddr_in client, struct sockaddr_in server, int port, char * addr)"
 .PP
 Referenced by InspSocket::InspSocket().

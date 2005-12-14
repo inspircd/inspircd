@@ -199,7 +199,7 @@ Definition at line 111 of file users.h.
 .PP
 Definition at line 36 of file users.cpp.
 .PP
-References awaymsg, connection::bytes_in, connection::bytes_out, chans, connection::cmds_in, connection::cmds_out, dhost, dns_done, connection::fd, flood, fullname, connection::haspassed, connection::host, ident, connection::idle_lastmsg, invites, connection::ip, connection::lastping, lines_in, modes, nick, connection::nping, oper, connection::port, recvq, connection::registered, reset_due, sendq, server, ServerConfig::ServerName, connection::signon, TIME, and timeout.
+References awaymsg, connection::bytes_in, connection::bytes_out, chans, connection::cmds_in, connection::cmds_out, dhost, dns_done, connection::fd, FindServerNamePtr(), flood, fullname, connection::haspassed, connection::host, ident, connection::idle_lastmsg, invites, connection::ip, connection::lastping, lines_in, modes, nick, connection::nping, oper, connection::port, recvq, connection::registered, reset_due, sendq, server, ServerConfig::ServerName, connection::signon, TIME, and timeout.
 .PP
 .nf
 37 {
@@ -247,7 +247,7 @@ The buffer can grow to any size within limits of the available memory, managed b
 .PP
 Definition at line 198 of file users.cpp.
 .PP
-References recvq, recvqmax, and SetWriteError().
+References recvq, recvqmax, SetWriteError(), and WriteOpers().
 .PP
 .nf
 199 {
@@ -284,7 +284,7 @@ You may add any amount of text up to this users sendq value, if you exceed the s
 .PP
 Definition at line 254 of file users.cpp.
 .PP
-References sendq, sendqmax, and SetWriteError().
+References sendq, sendqmax, SetWriteError(), and WriteOpers().
 .PP
 .nf
 255 {
@@ -418,6 +418,8 @@ Returns the full displayed host of the user This member function returns the hos
 Definition at line 72 of file users.cpp.
 .PP
 References dhost, ident, and nick.
+.PP
+Referenced by add_channel().
 .PP
 .nf
 73 {
@@ -561,6 +563,8 @@ Definition at line 96 of file users.cpp.
 .PP
 References invites.
 .PP
+Referenced by add_channel().
+.PP
 .nf
 97 {
 98         for (InvitedList::iterator i = invites.begin(); i != invites.end(); i++)
@@ -600,7 +604,9 @@ This member function is called on successfully joining an invite only channel to
 .PP
 Definition at line 122 of file users.cpp.
 .PP
-References DEBUG, and invites.
+References DEBUG, invites, and log().
+.PP
+Referenced by add_channel().
 .PP
 .nf
 123 {
@@ -633,7 +639,7 @@ This is done because the actual disconnect of a client may occur at an inopportu
 .PP
 Definition at line 292 of file users.cpp.
 .PP
-References DEBUG, and WriteError.
+References DEBUG, log(), and WriteError.
 .PP
 Referenced by AddBuffer(), AddWriteBuf(), and FlushWriteBuf().
 .PP
@@ -661,7 +667,7 @@ Referenced by userrec().
 .PP
 Definition at line 149 of file users.h.
 .PP
-Referenced by Server::PseudoToUser(), and userrec().
+Referenced by add_channel(), del_channel(), kick_channel(), Server::PseudoToUser(), and userrec().
 .SS "char \fBuserrec::dhost\fP[160]"
 .PP
 The host displayed to non-opers (used for cloaking etc). 
@@ -723,7 +729,7 @@ This may contain any of the following RFC characters: o, w, s, i Your module may
 .PP
 Definition at line 147 of file users.h.
 .PP
-Referenced by userrec().
+Referenced by add_channel(), and userrec().
 .SS "char \fBuserrec::nick\fP[NICKMAX]"
 .PP
 The users nickname. 
@@ -732,7 +738,7 @@ An invalid nickname indicates an unregistered connection prior to the NICK comma
 .PP
 Definition at line 124 of file users.h.
 .PP
-Referenced by ConfigReader::DumpErrors(), GetFullHost(), GetFullRealHost(), Server::PseudoToUser(), and userrec().
+Referenced by add_channel(), del_channel(), ConfigReader::DumpErrors(), GetFullHost(), GetFullRealHost(), kick_channel(), Server::PseudoToUser(), and userrec().
 .SS "char \fBuserrec::oper\fP[NICKMAX]"
 .PP
 The oper type they logged in as, if they are an oper. 
@@ -797,7 +803,7 @@ The server the user is connected to.
 .PP
 Definition at line 153 of file users.h.
 .PP
-Referenced by userrec().
+Referenced by kick_channel(), and userrec().
 .SS "long \fBuserrec::threshold\fP"
 .PP
 Definition at line 208 of file users.h.

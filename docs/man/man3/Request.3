@@ -65,10 +65,10 @@ Definition at line 157 of file modules.h.
 .PP
 Create a new Request. 
 .PP
-Definition at line 173 of file modules.cpp.
+Definition at line 165 of file modules.cpp.
 .PP
 .nf
-173 : data(anydata), source(src), dest(dst) { };
+165 : data(anydata), source(src), dest(dst) { };
 .fi
 .PP
 .SH "Member Function Documentation"
@@ -77,42 +77,42 @@ Definition at line 173 of file modules.cpp.
 .PP
 Fetch the Request data. 
 .PP
-Definition at line 175 of file modules.cpp.
+Definition at line 167 of file modules.cpp.
 .PP
 References data.
 .PP
 .nf
-176 {
-177         return this->data;
-178 }
+168 {
+169         return this->data;
+170 }
 .fi
 .PP
 .SS "\fBModule\fP * Request::GetDest ()"
 .PP
 Fetch the request destination (should be 'this' in the receiving module). 
 .PP
-Definition at line 185 of file modules.cpp.
+Definition at line 177 of file modules.cpp.
 .PP
 References dest.
 .PP
 .nf
-186 {
-187         return this->dest;
-188 }
+178 {
+179         return this->dest;
+180 }
 .fi
 .PP
 .SS "\fBModule\fP * Request::GetSource ()"
 .PP
 Fetch the request source. 
 .PP
-Definition at line 180 of file modules.cpp.
+Definition at line 172 of file modules.cpp.
 .PP
 References source.
 .PP
 .nf
-181 {
-182         return this->source;
-183 }
+173 {
+174         return this->source;
+175 }
 .fi
 .PP
 .SS "char * Request::Send ()\fC [virtual]\fP"
@@ -123,21 +123,21 @@ Upon returning the result will be arbitary data returned by the module you sent 
 .PP
 Implements \fBModuleMessage\fP.
 .PP
-Definition at line 190 of file modules.cpp.
+Definition at line 182 of file modules.cpp.
 .PP
 References dest, and Module::OnRequest().
 .PP
 .nf
-191 {
-192         if (this->dest)
-193         {
-194                 return dest->OnRequest(this);
-195         }
-196         else
-197         {
-198                 return NULL;
-199         }
-200 }
+183 {
+184         if (this->dest)
+185         {
+186                 return dest->OnRequest(this);
+187         }
+188         else
+189         {
+190                 return NULL;
+191         }
+192 }
 .fi
 .PP
 .SH "Member Data Documentation"

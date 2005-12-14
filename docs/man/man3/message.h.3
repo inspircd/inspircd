@@ -101,22 +101,20 @@ Referenced by Server::ChangeGECOS().
 .PP
 .SS "char* cmode (\fBuserrec\fP * user, \fBchanrec\fP * chan)"
 .PP
-Referenced by Server::ChanMode().
 .SS "int common_channels (\fBuserrec\fP * u, \fBuserrec\fP * u2)"
 .PP
-Referenced by Server::CommonChannels().
 .SS "int cstatus (\fBuserrec\fP * user, \fBchanrec\fP * chan)"
 .PP
+Referenced by kick_channel().
 .SS "int has_channel (\fBuserrec\fP * u, \fBchanrec\fP * c)"
 .PP
-Referenced by Server::IsOnChannel().
+Referenced by add_channel(), Server::IsOnChannel(), and kick_channel().
 .SS "bool hasumode (\fBuserrec\fP * user, char mode)"
 .PP
 .SS "int isident (const char * n)"
 .PP
 .SS "int isnick (const char * n)"
 .PP
-Referenced by Server::IsNick().
 .SS "void NonBlocking (int s)"
 .PP
 .SS "void send_network_quit (const char * nick, const char * reason)"

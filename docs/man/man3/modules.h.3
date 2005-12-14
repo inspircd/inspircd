@@ -51,7 +51,7 @@ modules.h \-
 .ti -1c
 .RI "class \fBModule\fP"
 .br
-.RI "\fIBase class for all InspIRCd modules This class is the base class for InspIRCd modules. \fP"
+.RI "\fIBase class for all \fBInspIRCd\fP modules This class is the base class for \fBInspIRCd\fP modules. \fP"
 .ti -1c
 .RI "class \fBServer\fP"
 .br
@@ -192,10 +192,28 @@ modules.h \-
 
 .in +1c
 .ti -1c
-.RI "void \fBcreatecommand\fP (char *cmd, handlerfunc f, char flags, int minparams, char *source)"
+.RI "void \fBcreatecommand\fP (char *cmd, \fBhandlerfunc\fP f, char flags, int minparams, char *source)"
 .br
 .ti -1c
 .RI "void \fBserver_mode\fP (char **parameters, int pcnt, \fBuserrec\fP *user)"
+.br
+.ti -1c
+.RI "bool \fBModeDefined\fP (char c, int i)"
+.br
+.ti -1c
+.RI "bool \fBModeDefinedOper\fP (char c, int i)"
+.br
+.ti -1c
+.RI "int \fBModeDefinedOn\fP (char c, int i)"
+.br
+.ti -1c
+.RI "int \fBModeDefinedOff\fP (char c, int i)"
+.br
+.ti -1c
+.RI "void \fBModeMakeList\fP (char modechar)"
+.br
+.ti -1c
+.RI "bool \fBModeIsListMode\fP (char modechar, int type)"
 .br
 .in -1c
 .SH "Define Documentation"
@@ -221,6 +239,8 @@ Definition at line 47 of file modules.h.
 .SS "#define AC_KICK   0"
 .PP
 Definition at line 40 of file modules.h.
+.PP
+Referenced by kick_channel().
 .SS "#define AC_OP   2"
 .PP
 Definition at line 42 of file modules.h.
@@ -236,10 +256,12 @@ Used with OnAccessCheck() method of modules.
 .PP
 Definition at line 37 of file modules.h.
 .PP
-Referenced by Module::OnAccessCheck().
+Referenced by kick_channel(), and Module::OnAccessCheck().
 .SS "#define ACR_DENY   1"
 .PP
 Definition at line 38 of file modules.h.
+.PP
+Referenced by kick_channel().
 .SS "#define CONF_FILE_NOT_FOUND   0x000200"
 .PP
 Definition at line 1520 of file modules.h.
@@ -277,7 +299,7 @@ Referenced by Server::PseudoToUser(), and Server::UserToPseudo().
 .PP
 Definition at line 81 of file modules.h.
 .PP
-Referenced by Event::Send().
+Referenced by del_channel(), ForceChan(), kick_channel(), and Event::Send().
 .SS "#define FOREACH_RESULT(x)"
 .PP
 \fBValue:\fP
@@ -295,6 +317,8 @@ Referenced by Event::Send().
 .fi
 .PP
 Definition at line 89 of file modules.h.
+.PP
+Referenced by add_channel(), and kick_channel().
 .SS "#define MT_CHANNEL   1"
 .PP
 Used with OnExtendedMode() method of modules. 
@@ -357,9 +381,128 @@ Definition at line 1686 of file modules.h.
 Definition at line 70 of file modules.h.
 .SH "Function Documentation"
 .PP 
-.SS "void createcommand (char * cmd, handlerfunc f, char flags, int minparams, char * source)"
+.SS "void createcommand (char * cmd, \fBhandlerfunc\fP f, char flags, int minparams, char * source)"
 .PP
 Referenced by Server::AddCommand().
+.SS "bool ModeDefined (char c, int i)"
+.PP
+Definition at line 71 of file modules.cpp.
+.PP
+References EMode.
+.PP
+Referenced by DoAddExtendedMode().
+.PP
+.nf
+72 {
+73         for (ExtModeListIter i = EMode.begin(); i < EMode.end(); i++)
+74         {
+75                 if ((i->modechar == modechar) && (i->type == type))
+76                 {
+77                         return true;
+78                 }
+79         }
+80         return false;
+81 }
+.fi
+.PP
+.SS "int ModeDefinedOff (char c, int i)"
+.PP
+Definition at line 121 of file modules.cpp.
+.PP
+References EMode.
+.PP
+.nf
+122 {
+123         for (ExtModeListIter i = EMode.begin(); i < EMode.end(); i++)
+124         {
+125                 if ((i->modechar == modechar) && (i->type == type))
+126                 {
+127                         return i->params_when_off;
+128                 }
+129         }
+130         return 0;
+131 }
+.fi
+.PP
+.SS "int ModeDefinedOn (char c, int i)"
+.PP
+Definition at line 108 of file modules.cpp.
+.PP
+References EMode.
+.PP
+.nf
+109 {
+110         for (ExtModeListIter i = EMode.begin(); i < EMode.end(); i++)
+111         {
+112                 if ((i->modechar == modechar) && (i->type == type))
+113                 {
+114                         return i->params_when_on;
+115                 }
+116         }
+117         return 0;
+118 }
+.fi
+.PP
+.SS "bool ModeDefinedOper (char c, int i)"
+.PP
+Definition at line 95 of file modules.cpp.
+.PP
+References EMode.
+.PP
+.nf
+96 {
+97         for (ExtModeListIter i = EMode.begin(); i < EMode.end(); i++)
+98         {
+99                 if ((i->modechar == modechar) && (i->type == type) && (i->needsoper == true))
+100                 {
+101                         return true;
+102                 }
+103         }
+104         return false;
+105 }
+.fi
+.PP
+.SS "bool ModeIsListMode (char modechar, int type)"
+.PP
+Definition at line 83 of file modules.cpp.
+.PP
+References EMode.
+.PP
+.nf
+84 {
+85         for (ExtModeListIter i = EMode.begin(); i < EMode.end(); i++)
+86         {
+87                 if ((i->modechar == modechar) && (i->type == type) && (i->list == true))
+88                 {
+89                         return true;
+90                 }
+91         }
+92         return false;
+93 }
+.fi
+.PP
+.SS "void ModeMakeList (char modechar)"
+.PP
+Definition at line 144 of file modules.cpp.
+.PP
+References EMode, and MT_CHANNEL.
+.PP
+Referenced by Server::AddExtendedListMode().
+.PP
+.nf
+145 {
+146         for (ExtModeListIter i = EMode.begin(); i < EMode.end(); i++)
+147         {
+148                 if ((i->modechar == modechar) && (i->type == MT_CHANNEL))
+149                 {
+150                         i->list = true;
+151                         return;
+152                 }
+153         }
+154         return;
+155 }
+.fi
+.PP
 .SS "void server_mode (char ** parameters, int pcnt, \fBuserrec\fP * user)"
 .PP
 .SH "Author"

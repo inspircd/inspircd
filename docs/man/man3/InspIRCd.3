@@ -1,0 +1,71 @@
+.TH "InspIRCd" 3 "14 Dec 2005" "Version 1.0Betareleases" "InspIRCd" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+InspIRCd \- 
+.SH SYNOPSIS
+.br
+.PP
+\fC#include <inspircd.h>\fP
+.PP
+.SS "Public Member Functions"
+
+.in +1c
+.ti -1c
+.RI "bool \fBLoadModule\fP (const char *filename)"
+.br
+.ti -1c
+.RI "bool \fBUnloadModule\fP (const char *filename)"
+.br
+.ti -1c
+.RI "\fBInspIRCd\fP (int argc, char **argv)"
+.br
+.ti -1c
+.RI "int \fBRun\fP ()"
+.br
+.in -1c
+.SS "Public Attributes"
+
+.in +1c
+.ti -1c
+.RI "time_t \fBstartup_time\fP"
+.br
+.in -1c
+.SS "Private Member Functions"
+
+.in +1c
+.ti -1c
+.RI "void \fBerase_factory\fP (int j)"
+.br
+.ti -1c
+.RI "void \fBerase_module\fP (int j)"
+.br
+.in -1c
+.SH "Detailed Description"
+.PP 
+Definition at line 95 of file inspircd.h.
+.SH "Constructor & Destructor Documentation"
+.PP 
+.SS "InspIRCd::InspIRCd (int argc, char ** argv)"
+.PP
+.SH "Member Function Documentation"
+.PP 
+.SS "void InspIRCd::erase_factory (int j)\fC [private]\fP"
+.PP
+.SS "void InspIRCd::erase_module (int j)\fC [private]\fP"
+.PP
+.SS "bool InspIRCd::LoadModule (const char * filename)"
+.PP
+.SS "int InspIRCd::Run ()"
+.PP
+.SS "bool InspIRCd::UnloadModule (const char * filename)"
+.PP
+.SH "Member Data Documentation"
+.PP 
+.SS "time_t \fBInspIRCd::startup_time\fP"
+.PP
+Definition at line 103 of file inspircd.h.
+
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for InspIRCd from the source code.
