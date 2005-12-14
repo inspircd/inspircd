@@ -42,7 +42,6 @@
 #include "inspircd_util.h"
 #include "users.h"
 #include "channels.h"
-#include "typedefs.h"
 
 // some misc defines
 

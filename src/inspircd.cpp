@@ -468,6 +468,38 @@ InspIRCd::InspIRCd(int argc, char** argv)
 	lowermap[(unsigned)']'] = '}';
 	lowermap[(unsigned)'\\'] = '|';
 
+
+        OpenLog(argc, argv);
+        Config->ClearStack();
+        Config->Read(true,NULL);
+        CheckRoot();
+        SetupCommandTable();
+        AddServerName(Config->ServerName);
+        CheckDie();
+        boundPortCount = BindPorts();
+
+        printf("\n");
+        startup_time = time(NULL);
+
+        if (!Config->nofork)
+        {
+                if (DaemonSeed() == ERROR)
+                {
+                        printf("ERROR: could not go into daemon mode. Shutting down.\n");
+                        Exit(ERROR);
+                }
+        }
+
+        /* Because of limitations in kqueue on freebsd, we must fork BEFORE we
+         * initialize the socket engine.
+         */
+        SE = new SocketEngine();
+
+        /* We must load the modules AFTER initializing the socket engine, now */
+        LoadAllModules();
+
+        printf("\nInspIRCd is now running!\n");
+
 	return;
 }
 
@@ -1550,39 +1582,6 @@ int InspIRCd::Run()
         sockaddr_in sock_us;     // our port number
         socklen_t uslen;         // length of our port number
 
-	/* Beta 7 moved all this stuff out of the main function
-	 * into smaller sub-functions, much tidier -- Brain
-	 */
-	OpenLog(argv, argc);
-	Config->ClearStack();
-	Config->Read(true,NULL);
-	CheckRoot();
-	SetupCommandTable();
-	AddServerName(Config->ServerName);
-	CheckDie();
-	boundPortCount = BindPorts();
-
-	printf("\n");
-	startup_time = time(NULL);
-	
-        if (!Config->nofork)
-        {
-                if (DaemonSeed() == ERROR)
-                {
-                        printf("ERROR: could not go into daemon mode. Shutting down.\n");
-                        Exit(ERROR);
-                }
-        }
-
-	/* Because of limitations in kqueue on freebsd, we must fork BEFORE we
-	 * initialize the socket engine.
-	 */
-	SE = new SocketEngine();
-
-	/* We must load the modules AFTER initializing the socket engine, now */
-	LoadAllModules();
-
-	printf("\nInspIRCd is now running!\n");
 	if (!Config->nofork)
 	{
 		freopen("/dev/null","w",stdout);

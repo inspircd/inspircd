@@ -20,7 +20,6 @@
 #include "inspircd_config.h"
 #include "inspircd.h"
 #include "base.h"
-#include "typedefs.h"
 
 /** A structure that defines a command
  */
