@@ -35,6 +35,7 @@ class ServerConfig
 {
   private:
 	std::vector<std::string> include_stack;
+	fgets_safe(char* buffer, size_t maxsize, FILE* &file);
 
   public:
 	char ServerName[MAXBUF];
@@ -76,6 +77,12 @@ class ServerConfig
 	ServerConfig();
 	void ClearStack();
 	void Read(bool bail, userrec* user);
+	bool LoadConf(const char* filename, std::stringstream *target, std::stringstream* errorstream);
+	int ConfValue(char* tag, char* var, int index, char *result, std::stringstream *config);
+	int ReadConf(std::stringstream *config_f,const char* tag, const char* var, int index, char *result);
+	int ConfValueEnum(char* tag,std::stringstream *config);
+	int EnumConf(std::stringstream *config_f,const char* tag);
+	int EnumValues(std::stringstream *config, const char* tag, int index);
 };
 
 
@@ -86,12 +93,13 @@ bool FileExists (const char* file);
 int OpenTCPSocket (void); 
 int BindSocket (int sockfd, struct sockaddr_in client, struct sockaddr_in server, int port, char* addr);
 
-bool LoadConf(const char* filename, std::stringstream *target, std::stringstream* errorstream);
+/*bool LoadConf(const char* filename, std::stringstream *target, std::stringstream* errorstream);
 int ConfValue(char* tag, char* var, int index, char *result, std::stringstream *config);
 int ReadConf(std::stringstream *config_f,const char* tag, const char* var, int index, char *result);
 int ConfValueEnum(char* tag,std::stringstream *config);
 int EnumConf(std::stringstream *config_f,const char* tag);
-int EnumValues(std::stringstream *config, const char* tag, int index);
+int EnumValues(std::stringstream *config, const char* tag, int index);*/
+
 void WritePID(std::string filename);
 
 #endif

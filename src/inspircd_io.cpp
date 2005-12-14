@@ -455,7 +455,7 @@ bool FileExists (const char* file)
  * Turns multiple spaces that are outside of quotes into single spaces
  */
 
-std::string ConfProcess(char* buffer, long linenumber, std::stringstream* errorstream, bool &error, std::string filename)
+std::string ServerConfig::ConfProcess(char* buffer, long linenumber, std::stringstream* errorstream, bool &error, std::string filename)
 {
 	long number_of_quotes = 0;
 	long number_of_equals = 0;
@@ -574,7 +574,7 @@ std::string ConfProcess(char* buffer, long linenumber, std::stringstream* errors
 	return parsedata;
 }
 
-int fgets_safe(char* buffer, size_t maxsize, FILE* &file)
+int ServerConfig::fgets_safe(char* buffer, size_t maxsize, FILE* &file)
 {
 	char c_read = '\0';
 	unsigned int bufptr = 0;
@@ -588,7 +588,7 @@ int fgets_safe(char* buffer, size_t maxsize, FILE* &file)
 	return bufptr;
 }
 
-bool LoadConf(const char* filename, std::stringstream *target, std::stringstream* errorstream)
+bool ServerConfig::LoadConf(const char* filename, std::stringstream *target, std::stringstream* errorstream)
 {
 	target->str("");
 	errorstream->str("");
@@ -690,7 +690,7 @@ bool LoadConf(const char* filename, std::stringstream *target, std::stringstream
 
 /* Counts the number of tags of a certain type within the config file, e.g. to enumerate opers */
 
-int EnumConf(std::stringstream *config, const char* tag)
+int ServerConfig::EnumConf(std::stringstream *config, const char* tag)
 {
 	int ptr = 0;
 	char buffer[MAXBUF], c_tag[MAXBUF], c, lastc;
@@ -760,7 +760,7 @@ int EnumConf(std::stringstream *config, const char* tag)
 
 /* Counts the number of values within a certain tag */
 
-int EnumValues(std::stringstream *config, const char* tag, int index)
+int ServerConfig::EnumValues(std::stringstream *config, const char* tag, int index)
 {
 	int ptr = 0;
 	char buffer[MAXBUF], c_tag[MAXBUF], c, lastc;
@@ -845,7 +845,7 @@ int EnumValues(std::stringstream *config, const char* tag, int index)
 
 
 
-int ConfValueEnum(char* tag, std::stringstream* config)
+int ServerConfig::ConfValueEnum(char* tag, std::stringstream* config)
 {
 	return EnumConf(config,tag);
 }
@@ -858,7 +858,7 @@ int ConfValueEnum(char* tag, std::stringstream* config)
  * ConfValue("oper","name",2,result);
  */
 
-int ReadConf(std::stringstream *config, const char* tag, const char* var, int index, char *result)
+int ServerConfig::ReadConf(std::stringstream *config, const char* tag, const char* var, int index, char *result)
 {
 	int ptr = 0;
 	char buffer[65535], c_tag[MAXBUF], c, lastc;
@@ -968,7 +968,7 @@ int ReadConf(std::stringstream *config, const char* tag, const char* var, int in
 
 
 
-int ConfValue(char* tag, char* var, int index, char *result,std::stringstream *config)
+int ServerConfig::ConfValue(char* tag, char* var, int index, char *result,std::stringstream *config)
 {
 	ReadConf(config, tag, var, index, result);
 	return 0;
