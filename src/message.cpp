@@ -178,9 +178,9 @@ void NonBlocking(int s)
 
 int CleanAndResolve (char *resolvedHost, const char *unresolvedHost)
 {
-	DNS d(DNSServer);
+	DNS d(Config->DNSServer);
 	int fd = d.ReverseLookup(unresolvedHost);
-	if (fd < 1)
+	if (fd < 0)
 		return 0;
 	time_t T = time(NULL)+1;
 	while ((!d.HasResult()) && (time(NULL)<T));
