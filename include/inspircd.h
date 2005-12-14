@@ -73,6 +73,27 @@
 
 typedef std::deque<std::string> file_cache;
 
+class serverstats
+{
+	int statsAccept;
+	int statsRefused;
+	int statsUnknown;
+	int statsCollisions;
+	int statsDns;
+	int statsDnsGood;
+	int statsDnsBad;
+	int statsConnects;
+	int statsSent;
+	int statsRecv;
+
+	serverstats()
+	{
+		statsAccept = statsRefused = statsUnknown = 0;
+		statsCollisions = statsDns = statsDnsGood = 0;
+		statsDnsBad = statsConnects = statsSent = statsRecv = 0;
+	}
+};
+
 typedef void (handlerfunc) (char**, int, userrec*);
 
 /* prototypes */

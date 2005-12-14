@@ -61,39 +61,10 @@ using namespace std;
 #include "socket.h"
 #include "dns.h"
 
-int LogLevel = DEFAULT;
-char ServerName[MAXBUF];
-char Network[MAXBUF];
-char ServerDesc[MAXBUF];
-char AdminName[MAXBUF];
-char AdminEmail[MAXBUF];
-char AdminNick[MAXBUF];
-char diepass[MAXBUF];
-char restartpass[MAXBUF];
-char motd[MAXBUF];
-char rules[MAXBUF];
-char list[MAXBUF];
-char PrefixQuit[MAXBUF];
-char DieValue[MAXBUF];
-char DNSServer[MAXBUF];
-char data[65536];
-int debugging =  0;
 int WHOWAS_STALE = 48; // default WHOWAS Entries last 2 days before they go 'stale'
 int WHOWAS_MAX = 100;  // default 100 people maximum in the WHOWAS list
 int DieDelay  =  5;
 time_t startup_time = time(NULL);
-int NetBufferSize = 10240;	// NetBufferSize used as the buffer size for all read() ops
-int MaxConn = SOMAXCONN;	// size of accept() backlog (128 by default on *BSD)
-unsigned int SoftLimit = MAXCLIENTS;
-extern int MaxWhoResults;
-time_t nb_start = 0;
-int dns_timeout = 5;
-
-char DisabledCommands[MAXBUF];
-
-bool AllowHalfop = true;
-bool AllowProtect = true;
-bool AllowFounder = true;
 
 extern std::vector<Module*> modules;
 std::vector<std::string> module_names;
@@ -103,12 +74,8 @@ std::vector<InspSocket*> module_sockets;
 
 extern int MODCOUNT;
 int openSockfd[MAXSOCKS];
-bool nofork = false;
-bool unlimitcore = false;
 struct sockaddr_in client,server;
-char addrs[MAXBUF][255];
 socklen_t length;
-char configToken[MAXBUF], Addr[MAXBUF], Type[MAXBUF];
 
 extern InspSocket* socket_ref[65535];
 
@@ -116,7 +83,6 @@ time_t TIME = time(NULL), OLDTIME = time(NULL);
 
 SocketEngine* SE = NULL;
 
-bool has_been_netsplit = false;
 extern std::vector<std::string> include_stack;
 
 typedef nspace::hash_map<std::string, userrec*, nspace::hash<string>, irc::StrHashComp> user_hash;
@@ -124,7 +90,6 @@ typedef nspace::hash_map<std::string, chanrec*, nspace::hash<string>, irc::StrHa
 typedef nspace::hash_map<in_addr,string*, nspace::hash<in_addr>, irc::InAddr_HashComp> address_cache;
 typedef nspace::hash_map<std::string, WhoWasUser*, nspace::hash<string>, irc::StrHashComp> whowas_hash;
 typedef std::deque<command_t> command_table;
-typedef std::map<std::string,time_t> autoconnects;
 typedef std::vector<std::string> servernamelist;
 
 // This table references users by file descriptor.
@@ -132,11 +97,9 @@ typedef std::vector<std::string> servernamelist;
 // by an integer, meaning there is no need for a scan/search operation.
 userrec* fd_ref_table[65536];
 
-int statsAccept = 0, statsRefused = 0, statsUnknown = 0, statsCollisions = 0, statsDns = 0, statsDnsGood = 0, statsDnsBad = 0, statsConnects = 0, statsSent= 0, statsRecv = 0;
-
+serverstats* stats = new serverstats;
 Server* MyServer = new Server;
-
-FILE *log_file;
+ServerConfig *Config = new ServerConfig;
 
 user_hash clientlist;
 chan_hash chanlist;
@@ -150,12 +113,8 @@ address_cache IP;
 ClassVector Classes;
 servernamelist servernames;
 
-struct linger linger = { 0 };
-char MyExecutable[1024];
 int boundPortCount = 0;
-int portCount = 0, SERVERportCount = 0, ports[MAXSOCKS];
-
-char ModPath[MAXBUF];
+int portCount = 0, ports[MAXSOCKS];
 
 /* prototypes */
 
@@ -233,32 +192,32 @@ std::string GetRevision()
 
 std::string getservername()
 {
-	return ServerName;
+	return Config->ServerName;
 }
 
 std::string getserverdesc()
 {
-	return ServerDesc;
+	return Config->ServerDesc;
 }
 
 std::string getnetworkname()
 {
-	return Network;
+	return Config->Network;
 }
 
 std::string getadminname()
 {
-	return AdminName;
+	return Config->AdminName;
 }
 
 std::string getadminemail()
 {
-	return AdminEmail;
+	return Config->AdminEmail;
 }
 
 std::string getadminnick()
 {
-	return AdminNick;
+	return Config->AdminNick;
 }
 
 void ReadConfig(bool bail, userrec* user)
@@ -303,78 +262,79 @@ void ReadConfig(bool bail, userrec* user)
 		}
 	}
 	  
-	ConfValue("server","name",0,ServerName,&config_f);
-	ConfValue("server","description",0,ServerDesc,&config_f);
-	ConfValue("server","network",0,Network,&config_f);
-	ConfValue("admin","name",0,AdminName,&config_f);
-	ConfValue("admin","email",0,AdminEmail,&config_f);
-	ConfValue("admin","nick",0,AdminNick,&config_f);
-	ConfValue("files","motd",0,motd,&config_f);
-	ConfValue("files","rules",0,rules,&config_f);
-	ConfValue("power","diepass",0,diepass,&config_f);
+	ConfValue("server","name",0,Config->ServerName,&config_f);
+	ConfValue("server","description",0,Config->ServerDesc,&config_f);
+	ConfValue("server","network",0,Config->Network,&config_f);
+	ConfValue("admin","name",0,Config->AdminName,&config_f);
+	ConfValue("admin","email",0,Config->AdminEmail,&config_f);
+	ConfValue("admin","nick",0,Config->AdminNick,&config_f);
+	ConfValue("files","motd",0,Config->motd,&config_f);
+	ConfValue("files","rules",0,Config->rules,&config_f);
+	ConfValue("power","diepass",0,Config->diepass,&config_f);
 	ConfValue("power","pause",0,pauseval,&config_f);
-	ConfValue("power","restartpass",0,restartpass,&config_f);
-	ConfValue("options","prefixquit",0,PrefixQuit,&config_f);
-	ConfValue("die","value",0,DieValue,&config_f);
+	ConfValue("power","restartpass",0,Config->restartpass,&config_f);
+	ConfValue("options","prefixquit",0,Config->PrefixQuit,&config_f);
+	ConfValue("die","value",0,Config->DieValue,&config_f);
 	ConfValue("options","loglevel",0,dbg,&config_f);
 	ConfValue("options","netbuffersize",0,NB,&config_f);
 	ConfValue("options","maxwho",0,MW,&config_f);
 	ConfValue("options","allowhalfop",0,AH,&config_f);
 	ConfValue("options","allowprotect",0,AP,&config_f);
 	ConfValue("options","allowfounder",0,AF,&config_f);
-	ConfValue("dns","server",0,DNSServer,&config_f);
+	ConfValue("dns","server",0,Config->DNSServer,&config_f);
 	ConfValue("dns","timeout",0,DNT,&config_f);
-	ConfValue("options","moduledir",0,ModPath,&config_f);
-        ConfValue("disabled","commands",0,DisabledCommands,&config_f);
+	ConfValue("options","moduledir",0,Config->ModPath,&config_f);
+        ConfValue("disabled","commands",0,Config->DisabledCommands,&config_f);
 	ConfValue("options","somaxconn",0,MCON,&config_f);
 	ConfValue("options","softlimit",0,SLIMT,&config_f);
 
-	SoftLimit = atoi(SLIMT);
+	Config->SoftLimit = atoi(SLIMT);
 	if ((SoftLimit < 1) || (SoftLimit > MAXCLIENTS))
 	{
 		log(DEFAULT,"WARNING: <options:softlimit> value is greater than %d or less than 0, set to %d.",MAXCLIENTS,MAXCLIENTS);
-		SoftLimit = MAXCLIENTS;
+		Config->SoftLimit = MAXCLIENTS;
 	}
-	MaxConn = atoi(MCON);
+	Config->MaxConn = atoi(MCON);
 	if (MaxConn > SOMAXCONN)
 		log(DEFAULT,"WARNING: <options:somaxconn> value may be higher than the system-defined SOMAXCONN value!");
-	NetBufferSize = atoi(NB);
-	MaxWhoResults = atoi(MW);
-	dns_timeout = atoi(DNT);
-	if (!dns_timeout)
-		dns_timeout = 5;
-	if (!MaxConn)
-		MaxConn = SOMAXCONN;
-	if (!DNSServer[0])
-		strlcpy(DNSServer,"127.0.0.1",MAXBUF);
-	if (!ModPath[0])
-		strlcpy(ModPath,MOD_PATH,MAXBUF);
-	AllowHalfop = ((!strcasecmp(AH,"true")) || (!strcasecmp(AH,"1")) || (!strcasecmp(AH,"yes")));
-	AllowProtect = ((!strcasecmp(AP,"true")) || (!strcasecmp(AP,"1")) || (!strcasecmp(AP,"yes")));
-	AllowFounder = ((!strcasecmp(AF,"true")) || (!strcasecmp(AF,"1")) || (!strcasecmp(AF,"yes")));
-	if ((!NetBufferSize) || (NetBufferSize > 65535) || (NetBufferSize < 1024))
+	Config->NetBufferSize = atoi(NB);
+	Config->MaxWhoResults = atoi(MW);
+	Config->dns_timeout = atoi(DNT);
+	if (!Config->dns_timeout)
+		Config->dns_timeout = 5;
+	if (!Config->MaxConn)
+		Config->MaxConn = SOMAXCONN;
+	if (!*Config->DNSServer)
+		strlcpy(Config->DNSServer,"127.0.0.1",MAXBUF);
+	if (!*Config->ModPath)
+		strlcpy(Config->ModPath,MOD_PATH,MAXBUF);
+	Config->AllowHalfop = ((!strcasecmp(AH,"true")) || (!strcasecmp(AH,"1")) || (!strcasecmp(AH,"yes")));
+	if ((!Config->NetBufferSize) || (Config->NetBufferSize > 65535) || (Config->NetBufferSize < 1024))
 	{
 		log(DEFAULT,"No NetBufferSize specified or size out of range, setting to default of 10240.");
-		NetBufferSize = 10240;
+		Config->NetBufferSize = 10240;
 	}
-	if ((!MaxWhoResults) || (MaxWhoResults > 65535) || (MaxWhoResults < 1))
+	if ((!Config->MaxWhoResults) || (Config->MaxWhoResults > 65535) || (Config->MaxWhoResults < 1))
 	{
 		log(DEFAULT,"No MaxWhoResults specified or size out of range, setting to default of 128.");
-		MaxWhoResults = 128;
+		Config->MaxWhoResults = 128;
 	}
 	if (!strcmp(dbg,"debug"))
-		LogLevel = DEBUG;
+	{
+		Config->LogLevel = DEBUG;
+		Config->debugging = 1;
+	}
 	if (!strcmp(dbg,"verbose"))
-		LogLevel = VERBOSE;
+		Config->LogLevel = VERBOSE;
 	if (!strcmp(dbg,"default"))
-		LogLevel = DEFAULT;
+		Config->LogLevel = DEFAULT;
 	if (!strcmp(dbg,"sparse"))
-		LogLevel = SPARSE;
+		Config->LogLevel = SPARSE;
 	if (!strcmp(dbg,"none"))
-		LogLevel = NONE;
-	readfile(MOTD,motd);
+		Config->LogLevel = NONE;
+	readfile(MOTD,Config->motd);
 	log(DEFAULT,"Reading message of the day...");
-	readfile(RULES,rules);
+	readfile(RULES,Config->rules);
 	log(DEFAULT,"Reading connect classes...");
 	Classes.clear();
 	for (int i = 0; i < ConfValueEnum("connect",&config_f); i++)
@@ -436,20 +396,7 @@ void ReadConfig(bool bail, userrec* user)
 	log(DEFAULT,"Reading K lines,Q lines and Z lines from config...");
 	read_xline_defaults();
 	log(DEFAULT,"Applying K lines, Q lines and Z lines...");
-	apply_lines();
-
-	autoconns.clear();
-        for (int i = 0; i < ConfValueEnum("link",&config_f); i++)
-        {
-		char Link_ServerName[MAXBUF],Link_AConn[MAXBUF];
-                ConfValue("link","name",i,Link_ServerName,&config_f);
-                ConfValue("link","autoconnect",i,Link_AConn,&config_f);
-		if (strcmp(Link_AConn,""))
-		{
-			autoconns[std::string(Link_ServerName)] = atoi(Link_AConn) + time(NULL);
-		}
-        }
-
+	apply_lines(APPLY_ALL);
 
 	log(DEFAULT,"Done reading configuration file, InspIRCd is now starting.");
 	if (!bail)
@@ -1379,7 +1326,7 @@ void AddClient(int socket, char* host, int port, bool iscached, char* ip)
 	strlcpy(clientlist[tempnick]->nick, tn2,NICKMAX);
 	strlcpy(clientlist[tempnick]->host, host,160);
 	strlcpy(clientlist[tempnick]->dhost, host,160);
-	clientlist[tempnick]->server = (char*)FindServerNamePtr(ServerName);
+	clientlist[tempnick]->server = (char*)FindServerNamePtr(Config->ServerName);
 	strlcpy(clientlist[tempnick]->ident, "unknown",IDENTMAX);
 	clientlist[tempnick]->registered = 0;
 	clientlist[tempnick]->signon = TIME+dns_timeout;
@@ -1466,7 +1413,7 @@ void AddClient(int socket, char* host, int port, bool iscached, char* ip)
 /* shows the message of the day, and any other on-logon stuff */
 void FullConnectUser(userrec* user)
 {
-	statsConnects++;
+	stats->statsConnects++;
         user->idle_lastmsg = TIME;
         log(DEBUG,"ConnectUser: %s",user->nick);
 
@@ -1507,9 +1454,9 @@ void FullConnectUser(userrec* user)
 
         WriteServ(user->fd,"NOTICE Auth :Welcome to \002%s\002!",Network);
         WriteServ(user->fd,"001 %s :Welcome to the %s IRC Network %s!%s@%s",user->nick,Network,user->nick,user->ident,user->host);
-        WriteServ(user->fd,"002 %s :Your host is %s, running version %s",user->nick,ServerName,VERSION);
+        WriteServ(user->fd,"002 %s :Your host is %s, running version %s",user->nick,Config->ServerName,VERSION);
         WriteServ(user->fd,"003 %s :This server was created %s %s",user->nick,__TIME__,__DATE__);
-        WriteServ(user->fd,"004 %s %s %s iowghraAsORVSxNCWqBzvdHtGI lvhopsmntikrRcaqOALQbSeKVfHGCuzN",user->nick,ServerName,VERSION);
+        WriteServ(user->fd,"004 %s %s %s iowghraAsORVSxNCWqBzvdHtGI lvhopsmntikrRcaqOALQbSeKVfHGCuzN",user->nick,Config->ServerName,VERSION);
         // the neatest way to construct the initial 005 numeric, considering the number of configure constants to go in it...
         std::stringstream v;
         v << "WALLCHOPS MODES=13 CHANTYPES=# PREFIX=(ohv)@%+ MAP SAFELIST MAXCHANNELS=" << MAXCHANS;
@@ -1559,20 +1506,13 @@ void ConnectUser(userrec *user)
 
 std::string GetVersionString()
 {
-        char Revision[] = "$Revision$";
 	char versiondata[MAXBUF];
-        char *s1 = Revision;
-        char *savept;
-        char *v2 = strtok_r(s1," ",&savept);
-        s1 = savept;
-        v2 = strtok_r(s1," ",&savept);
-        s1 = savept;
 #ifdef THREADED_DNS
 	char dnsengine[] = "multithread";
 #else
 	char dnsengine[] = "singlethread";
 #endif
-	snprintf(versiondata,MAXBUF,"%s Rev. %s %s :%s [FLAGS=%lu,%s,%s]",VERSION,v2,ServerName,SYSTEM,(unsigned long)OPTIMISATION,SE->GetName().c_str(),dnsengine);
+	snprintf(versiondata,MAXBUF,"%s Rev. %s %s :%s [FLAGS=%lu,%s,%s]",VERSION,GetRevision.c_str(),Config->ServerName,SYSTEM,(unsigned long)OPTIMISATION,SE->GetName().c_str(),dnsengine);
 	return versiondata;
 }
 
@@ -1656,13 +1596,13 @@ void force_nickchange(userrec* user,const char* newnick)
 
 	FOREACH_RESULT(OnUserPreNick(user,newnick));
 	if (MOD_RESULT) {
-		statsCollisions++;
+		stats->statsCollisions++;
 		kill_link(user,"Nickname collision");
 		return;
 	}
 	if (matches_qline(newnick))
 	{
-		statsCollisions++;
+		stats->statsCollisions++;
 		kill_link(user,"Nickname collision");
 		return;
 	}
@@ -1869,7 +1809,7 @@ void process_command(userrec *user, char* cmd)
 			{
 				if (strchr("@!\"$%^&*(){}[]_=+;:'#~,<>/?\\|`",command[x]))
 				{
-					statsUnknown++;
+					stats->statsUnknown++;
 					WriteServ(user->fd,"421 %s %s :Unknown command",user->nick,command);
 					return;
 				}
@@ -1989,7 +1929,7 @@ void process_command(userrec *user, char* cmd)
 	}
 	if ((!cmd_found) && (user))
 	{
-		statsUnknown++;
+		stats->statsUnknown++;
 		WriteServ(user->fd,"421 %s %s :Unknown command",user->nick,command);
 	}
 }
@@ -2227,6 +2167,7 @@ bool LoadModule(const char* filename)
 
 int BindPorts()
 {
+	char configToken[MAXBUF];
 	int clientportcount = 0;
         for (int count = 0; count < ConfValueEnum("bind",&config_f); count++)
         {
@@ -2294,7 +2235,7 @@ int InspIRCd(char** argv, int argc)
 	CheckRoot();
 	SetupCommandTable();
 	ReadConfig(true,NULL);
-	AddServerName(ServerName);
+	AddServerName(Config->ServerName);
 	CheckDie();
 	boundPortCount = BindPorts();
 
@@ -2453,7 +2394,7 @@ int InspIRCd(char** argv, int argc)
 						if (incomingSockfd >= 0)
 						{
 							FOREACH_MOD OnRawSocketAccept(incomingSockfd, target, in_port);
-							statsAccept++;
+							stats->statsAccept++;
 							AddClient(incomingSockfd, target, in_port, false, target);
 							log(DEBUG,"Adding client on port %lu fd=%lu",(unsigned long)in_port,(unsigned long)incomingSockfd);
 						}
@@ -2461,7 +2402,7 @@ int InspIRCd(char** argv, int argc)
 						{
 							WriteOpers("*** WARNING: accept() failed on port %lu (%s)",(unsigned long)in_port,target);
 							log(DEBUG,"accept failed: %lu",(unsigned long)in_port);
-							statsRefused++;
+							stats->statsRefused++;
 						}
 					}
 					else

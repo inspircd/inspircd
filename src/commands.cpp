@@ -140,7 +140,7 @@ extern std::vector<userrec*> all_opers;
 // by an integer, meaning there is no need for a scan/search operation.
 extern userrec* fd_ref_table[65536];
 
-extern int statsAccept,statsRefused,statsUnknown,statsCollisions,statsDns,statsDnsGood,statsDnsBad,statsConnects,statsSent,statsRecv;
+extern serverstats* stats;
 
 void handle_join(char **parameters, int pcnt, userrec *user)
 {
@@ -1477,12 +1477,12 @@ void handle_stats(char **parameters, int pcnt, userrec *user)
 
 	if (*parameters[0] == 'T')
 	{
-		WriteServ(user->fd,"249 Brain :accepts %d refused %d",statsAccept,statsRefused);
-		WriteServ(user->fd,"249 Brain :unknown commands %d",statsUnknown);
-		WriteServ(user->fd,"249 Brain :nick collisions %d",statsCollisions);
-		WriteServ(user->fd,"249 Brain :dns requests %d succeeded %d failed %d",statsDns,statsDnsGood,statsDnsBad);
-		WriteServ(user->fd,"249 Brain :connections %d",statsConnects);
-		WriteServ(user->fd,"249 Brain :bytes sent %dK recv %dK",(statsSent / 1024),(statsRecv / 1024));
+		WriteServ(user->fd,"249 Brain :accepts %d refused %d",stats->statsAccept,stats->statsRefused);
+		WriteServ(user->fd,"249 Brain :unknown commands %d",stats->statsUnknown);
+		WriteServ(user->fd,"249 Brain :nick collisions %d",stats->statsCollisions);
+		WriteServ(user->fd,"249 Brain :dns requests %d succeeded %d failed %d",stats->statsDns,stats->statsDnsGood,stats->statsDnsBad);
+		WriteServ(user->fd,"249 Brain :connections %d",stats->statsConnects);
+		WriteServ(user->fd,"249 Brain :bytes sent %dK recv %dK",(stats->statsSent / 1024),(stats->statsRecv / 1024));
 	}
 	
 	/* stats o */
@@ -2094,7 +2094,7 @@ void handle_qline(char **parameters, int pcnt, userrec *user)
 		}
 		else
 		{
-			WriteServ(user->fd,"NOTICE %s :*** Q-Line %s not found in list, try /stats k.",user->nick,parameters[0]);
+			WriteServ(user->fd,"NOTICE %s :*** Q-Line %s not found in list, try /stats q.",user->nick,parameters[0]);
 		}
 	}
 }

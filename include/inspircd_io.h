@@ -17,6 +17,70 @@
 #include <sstream>
 #include <string>
 
+class ServerConfig
+{
+	char ServerName[MAXBUF];
+	char Network[MAXBUF];
+	char ServerDesc[MAXBUF];
+	char AdminName[MAXBUF];
+	char AdminEmail[MAXBUF];
+	char AdminNick[MAXBUF];
+	char diepass[MAXBUF];
+	char restartpass[MAXBUF];
+	char motd[MAXBUF];
+	char rules[MAXBUF];
+	char PrefixQuit[MAXBUF];
+	char DieValue[MAXBUF];
+	char DNSServer[MAXBUF];
+        char ModPath[1024];
+        char MyExecutable[1024];
+        FILE *log_file;
+        bool nofork;
+        bool unlimitcore;
+        bool AllowHalfop;
+        int dns_timeout;
+        int NetBufferSize;      // NetBufferSize used as the buffer size for all read() ops
+        int MaxConn;            // size of accept() backlog (128 by default on *BSD)
+        unsigned int SoftLimit;
+        int MaxWhoResults;
+        int debugging;
+        int LogLevel;
+        int DieDelay;
+        char addrs[MAXBUF][255];
+
+	ServerConfig()
+	{
+		*ServerName = '\0';
+		*Network = '\0';
+		*ServerDesc = '\0';
+		*AdminName = '\0';
+		*AdminEmail = '\0';
+		*AdminNick = '\0';
+		*diepass = '\0';
+		*restartpass = '\0';
+		*motd = '\0';
+		*rules = '\0';
+		*PrefixQuit = '\0';
+		*DieValue = '\0';
+		*DNSServer = '\0';
+		*ModPath = '\0';
+		*MyExecutable = '\0';
+		log_file = NULL;
+		nofork = false;
+		unlimitcore = false;
+		AllowHalfop = true;
+		dns_timeout = 5;
+		NetBufferSize = 10240;
+		SoftLimit = MAXCLIENTS;
+		MaxConn = SOMAXCONN;
+		MaxWhoResults = 100;
+		debugging = 0;
+		LogLevel = DEFAULT;
+		DieDelay = 5;
+	}
+};
+
+
 void Exit (int); 
 void Start (void); 
 int DaemonSeed (void); 

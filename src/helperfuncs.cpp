@@ -65,12 +65,10 @@ extern int LogLevel;
 
 extern std::stringstream config_f;
 
-
-
 extern FILE *log_file;
 extern userrec* fd_ref_table[65536];
 
-extern int statsAccept, statsRefused, statsUnknown, statsCollisions, statsDns, statsDnsGood, statsDnsBad, statsConnects, statsSent, statsRecv;
+extern serverstats* stats;
 
 static char already_sent[65536];
 extern std::vector<userrec*> all_opers;

@@ -93,7 +93,7 @@ extern int MaxWhoResults;
 extern time_t nb_start;
 extern int dns_timeout;
 
-extern int statsAccept, statsRefused, statsUnknown, statsCollisions, statsDns, statsDnsGood, statsDnsBad, statsConnects, statsSent, statsRecv;
+extern serverstats* stats;
 
 extern userrec* fd_ref_table[65536];
 
