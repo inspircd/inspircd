@@ -2264,7 +2264,7 @@ int InspIRCd(char** argv, int argc)
 	LoadAllModules();
 
 	printf("\nInspIRCd is now running!\n");
-	if (!nofork)
+	if (!Config->nofork)
 	{
 		freopen("/dev/null","w",stdout);
 		freopen("/dev/null","w",stderr);
