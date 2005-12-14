@@ -1027,6 +1027,7 @@ int OpenTCPSocket (void)
 int BindPorts()
 {
         char configToken[MAXBUF], Addr[MAXBUF], Type[MAXBUF];
+	sockaddr_in client,server;
         int clientportcount = 0;
         for (int count = 0; count < Config->ConfValueEnum("bind",&Config->config_f); count++)
         {
@@ -1043,9 +1044,9 @@ int BindPorts()
                         log(DEBUG,"InspIRCd: startup: read binding %s:%s [%s] from config",Addr,configToken, Type);
                 }
         }
-        portCount = clientportcount;
+        int PortCount = clientportcount;
 
-        for (int count = 0; count < portCount; count++)
+        for (int count = 0; count < PortCount; count++)
         {
                 if ((openSockfd[boundPortCount] = OpenTCPSocket()) == ERROR)
                 {
@@ -1066,7 +1067,7 @@ int BindPorts()
         if (!boundPortCount)
         {
                 log(DEFAULT,"InspIRCd: startup: no ports bound, bailing!");
-                printf("\nERROR: Was not able to bind any of %lu ports! Please check your configuration.\n\n", (unsigned long)portCount);
+                printf("\nERROR: Was not able to bind any of %lu ports! Please check your configuration.\n\n", (unsigned long)PortCount);
                 return (ERROR);
         }
 

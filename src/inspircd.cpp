@@ -74,7 +74,7 @@ std::vector<InspSocket*> module_sockets;
 
 extern int MODCOUNT;
 int openSockfd[MAXSOCKS];
-struct sockaddr_in client,server;
+sockaddr_in client,server;
 socklen_t length;
 
 extern InspSocket* socket_ref[65535];

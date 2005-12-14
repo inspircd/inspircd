@@ -248,7 +248,7 @@ class ServerConfig : public classbase
 
 	/** A list of ports which the server is listening on
 	 */
-	int ports[MAXSOCKS];
+	int ports[255];
 
 	ServerConfig();
 
