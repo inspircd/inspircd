@@ -389,6 +389,10 @@ void ReadConfig(bool bail, userrec* user)
 	log(DEFAULT,"Applying K lines, Q lines and Z lines...");
 	apply_lines(APPLY_ALL);
 
+        ConfValue("pid","file",0,Config->PID,&Config->config_f);
+        // write once here, to try it out and make sure its ok
+	WritePID(Config->PID);
+
 	log(DEFAULT,"Done reading configuration file, InspIRCd is now starting.");
 	if (!bail)
 	{
@@ -2232,10 +2236,6 @@ int InspIRCd(char** argv, int argc)
 
 	printf("\n");
 	startup_time = time(NULL);
-	  
-	ConfValue("pid","file",0,Config->PID,&Config->config_f);
-	// write once here, to try it out and make sure its ok
-	WritePID(PID);
 	
         if (!Config->nofork)
         {
