@@ -1141,7 +1141,7 @@ void ShowMOTD(userrec *user)
 
 void ShowRULES(userrec *user)
 {
-        if (!RULES.size())
+        if (!Config->RULES.size())
         {
                 WriteServ(user->fd,"NOTICE %s :Rules file is missing.",user->nick);
                 return;
