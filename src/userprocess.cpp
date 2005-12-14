@@ -82,8 +82,6 @@ extern user_hash clientlist;
 extern chan_hash chanlist;
 extern whowas_hash whowas;
 
-extern std::stringstream config_f;
-
 void ProcessUser(userrec* cu)
 {
         int result = EAGAIN;
@@ -378,9 +376,9 @@ void LoadAllModules()
         /* We must load the modules AFTER initializing the socket engine, now */
         MODCOUNT = -1;
 	char configToken[MAXBUF];
-        for (int count = 0; count < ConfValueEnum("module",&config_f); count++)
+        for (int count = 0; count < ConfValueEnum("module",&Config->config_f); count++)
         {
-                ConfValue("module","name",count,configToken,&config_f);
+                ConfValue("module","name",count,configToken,&Config->config_f);
                 printf("Loading module... \033[1;32m%s\033[0m\n",configToken);
                 if (!LoadModule(configToken))
                 {

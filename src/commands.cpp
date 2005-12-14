@@ -77,8 +77,6 @@ extern std::vector<std::string> module_names;
 extern int boundPortCount;
 extern int portCount;
 extern int ports[MAXSOCKS];
-extern std::stringstream config_f;
-
 extern ClassVector Classes;
 
 const long duration_m = 60;
@@ -91,8 +89,6 @@ extern user_hash clientlist;
 extern chan_hash chanlist;
 extern whowas_hash whowas;
 extern command_table cmdlist;
-extern file_cache MOTD;
-extern file_cache RULES;
 extern address_cache IP;
 
 extern std::vector<userrec*> all_opers;
@@ -1352,9 +1348,9 @@ void handle_stats(char **parameters, int pcnt, userrec *user)
 	if (*parameters[0] == 'U')
 	{
 		char ulined[MAXBUF];
-		for (int i = 0; i < ConfValueEnum("uline",&config_f); i++)
+		for (int i = 0; i < ConfValueEnum("uline",&Config->config_f); i++)
 		{
-			ConfValue("uline","server",i,ulined,&config_f);
+			ConfValue("uline","server",i,ulined,&Config->config_f);
 			WriteServ(user->fd,"248 %s U %s",user->nick,ulined);
 		}
 	}
@@ -1422,7 +1418,7 @@ void handle_stats(char **parameters, int pcnt, userrec *user)
 		WriteServ(user->fd,"249 %s :Users(HASH_MAP) %d (%d bytes, %d buckets)",user->nick,clientlist.size(),clientlist.size()*sizeof(userrec),clientlist.bucket_count());
 		WriteServ(user->fd,"249 %s :Channels(HASH_MAP) %d (%d bytes, %d buckets)",user->nick,chanlist.size(),chanlist.size()*sizeof(chanrec),chanlist.bucket_count());
 		WriteServ(user->fd,"249 %s :Commands(VECTOR) %d (%d bytes)",user->nick,cmdlist.size(),cmdlist.size()*sizeof(command_t));
-		WriteServ(user->fd,"249 %s :MOTD(VECTOR) %d, RULES(VECTOR) %d",user->nick,MOTD.size(),RULES.size());
+		WriteServ(user->fd,"249 %s :MOTD(VECTOR) %d, RULES(VECTOR) %d",user->nick,Config->MOTD.size(),Config->RULES.size());
 		WriteServ(user->fd,"249 %s :address_cache(HASH_MAP) %d (%d buckets)",user->nick,IP.size(),IP.bucket_count());
 		WriteServ(user->fd,"249 %s :Modules(VECTOR) %d (%d)",user->nick,modules.size(),modules.size()*sizeof(Module));
 		WriteServ(user->fd,"249 %s :ClassFactories(VECTOR) %d (%d)",user->nick,factory.size(),factory.size()*sizeof(ircd_module));
@@ -1450,14 +1446,14 @@ void handle_stats(char **parameters, int pcnt, userrec *user)
 	/* stats o */
 	if (*parameters[0] == 'o')
 	{
-		for (int i = 0; i < ConfValueEnum("oper",&config_f); i++)
+		for (int i = 0; i < ConfValueEnum("oper",&Config->config_f); i++)
 		{
 			char LoginName[MAXBUF];
 			char HostName[MAXBUF];
 			char OperType[MAXBUF];
-			ConfValue("oper","name",i,LoginName,&config_f);
-			ConfValue("oper","host",i,HostName,&config_f);
-			ConfValue("oper","type",i,OperType,&config_f);
+			ConfValue("oper","name",i,LoginName,&Config->config_f);
+			ConfValue("oper","host",i,HostName,&Config->config_f);
+			ConfValue("oper","type",i,OperType,&Config->config_f);
 			WriteServ(user->fd,"243 %s O %s * %s %s 0",user->nick,HostName,LoginName,OperType);
 		}
 	}
@@ -1538,9 +1534,9 @@ bool is_uline(const char* server)
 	if (!(*server))
 		return true;
 
-	for (int i = 0; i < ConfValueEnum("uline",&config_f); i++)
+	for (int i = 0; i < ConfValueEnum("uline",&Config->config_f); i++)
 	{
-		ConfValue("uline","server",i,ServName,&config_f);
+		ConfValue("uline","server",i,ServName,&Config->config_f);
 		if (!strcasecmp(server,ServName))
 		{
 			return true;
@@ -1575,23 +1571,23 @@ void handle_oper(char **parameters, int pcnt, userrec *user)
 
 	snprintf(TheHost,MAXBUF,"%s@%s",user->ident,user->host);
 
-	for (int i = 0; i < ConfValueEnum("oper",&config_f); i++)
+	for (int i = 0; i < ConfValueEnum("oper",&Config->config_f); i++)
 	{
-		ConfValue("oper","name",i,LoginName,&config_f);
-		ConfValue("oper","password",i,Password,&config_f);
-		ConfValue("oper","type",i,OperType,&config_f);
-		ConfValue("oper","host",i,HostName,&config_f);
+		ConfValue("oper","name",i,LoginName,&Config->config_f);
+		ConfValue("oper","password",i,Password,&Config->config_f);
+		ConfValue("oper","type",i,OperType,&Config->config_f);
+		ConfValue("oper","host",i,HostName,&Config->config_f);
 		if ((!strcmp(LoginName,parameters[0])) && (!operstrcmp(Password,parameters[1])) && (match(TheHost,HostName)))
 		{
 			fail2 = true;
-			for (j =0; j < ConfValueEnum("type",&config_f); j++)
+			for (j =0; j < ConfValueEnum("type",&Config->config_f); j++)
 			{
-				ConfValue("type","name",j,TypeName,&config_f);
+				ConfValue("type","name",j,TypeName,&Config->config_f);
 
 				if (!strcmp(TypeName,OperType))
 				{
 					/* found this oper's opertype */
-					ConfValue("type","host",j,HostName,&config_f);
+					ConfValue("type","host",j,HostName,&Config->config_f);
 					if (*HostName)
 						ChangeDisplayedHost(user,HostName);
 					strlcpy(user->oper,TypeName,NICKMAX);
@@ -1822,8 +1818,8 @@ bool host_matches_everyone(std::string mask, userrec* user)
 	char insanemasks[MAXBUF];
 	char buffer[MAXBUF];
 	char itrigger[MAXBUF];
-	ConfValue("insane","hostmasks",0,insanemasks,&config_f);
-	ConfValue("insane","trigger",0,itrigger,&config_f);
+	ConfValue("insane","hostmasks",0,insanemasks,&Config->config_f);
+	ConfValue("insane","trigger",0,itrigger,&Config->config_f);
 	if (*itrigger == 0)
 		strlcpy(itrigger,"95.5",MAXBUF);
 	if ((*insanemasks == 'y') || (*insanemasks == 't') || (*insanemasks == '1'))
@@ -1850,8 +1846,8 @@ bool ip_matches_everyone(std::string ip, userrec* user)
 {
 	char insanemasks[MAXBUF];
 	char itrigger[MAXBUF];
-	ConfValue("insane","ipmasks",0,insanemasks,&config_f);
-	ConfValue("insane","trigger",0,itrigger,&config_f);
+	ConfValue("insane","ipmasks",0,insanemasks,&Config->config_f);
+	ConfValue("insane","trigger",0,itrigger,&Config->config_f);
 	if (*itrigger == 0)
 		strlcpy(itrigger,"95.5",MAXBUF);
 	if ((*insanemasks == 'y') || (*insanemasks == 't') || (*insanemasks == '1'))
@@ -1875,8 +1871,8 @@ bool nick_matches_everyone(std::string nick, userrec* user)
 {
 	char insanemasks[MAXBUF];
 	char itrigger[MAXBUF];
-	ConfValue("insane","nickmasks",0,insanemasks,&config_f);
-	ConfValue("insane","trigger",0,itrigger,&config_f);
+	ConfValue("insane","nickmasks",0,insanemasks,&Config->config_f);
+	ConfValue("insane","trigger",0,itrigger,&Config->config_f);
 	if (*itrigger == 0)
 		strlcpy(itrigger,"95.5",MAXBUF);
 	if ((*insanemasks == 'y') || (*insanemasks == 't') || (*insanemasks == '1'))

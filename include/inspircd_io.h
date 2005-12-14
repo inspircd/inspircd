@@ -61,6 +61,10 @@ class ServerConfig
         int LogLevel;
         int DieDelay;
         char addrs[MAXBUF][255];
+	file_cache MOTD;
+	file_cache RULES;
+	char PID[1024];
+	std::stringstream config_f;
 
 	ServerConfig()
 	{
@@ -80,6 +84,7 @@ class ServerConfig
 		*ModPath = '\0';
 		*MyExecutable = '\0';
 		*DisabledCommands = '\0';
+		*PID = '\0';
 		log_file = NULL;
 		nofork = false;
 		unlimitcore = false;

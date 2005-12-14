@@ -30,9 +30,7 @@ using namespace std;
 #include "commands.h"
 #include "helperfuncs.h"
 
-extern std::stringstream config_f;
 extern ServerConfig* Config;
-
 extern time_t TIME;
 
 userrec::userrec()
@@ -162,21 +160,21 @@ bool userrec::HasPermission(char* command)
 	// are they even an oper at all?
 	if (strchr(this->modes,'o'))
 	{
-		for (int j =0; j < ConfValueEnum("type",&config_f); j++)
+		for (int j =0; j < ConfValueEnum("type",&Config->config_f); j++)
 		{
-			ConfValue("type","name",j,TypeName,&config_f);
+			ConfValue("type","name",j,TypeName,&Config->config_f);
 			if (!strcmp(TypeName,this->oper))
 			{
-				ConfValue("type","classes",j,Classes,&config_f);
+				ConfValue("type","classes",j,Classes,&Config->config_f);
 				char* myclass = strtok_r(Classes," ",&savept);
 				while (myclass)
 				{
-					for (int k =0; k < ConfValueEnum("class",&config_f); k++)
+					for (int k =0; k < ConfValueEnum("class",&Config->config_f); k++)
 					{
-						ConfValue("class","name",k,ClassName,&config_f);
+						ConfValue("class","name",k,ClassName,&Config->config_f);
 						if (!strcmp(ClassName,myclass))
 						{
-							ConfValue("class","commands",k,CommandList,&config_f);
+							ConfValue("class","commands",k,CommandList,&Config->config_f);
 							mycmd = strtok_r(CommandList," ",&savept2);
 							while (mycmd)
 							{

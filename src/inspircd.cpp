@@ -99,8 +99,6 @@ user_hash clientlist;
 chan_hash chanlist;
 whowas_hash whowas;
 command_table cmdlist;
-file_cache MOTD;
-file_cache RULES;
 address_cache IP;
 
 ClassVector Classes;
@@ -111,14 +109,12 @@ int portCount = 0, ports[MAXSOCKS];
 
 /* prototypes */
 
-int has_channel(userrec *u, chanrec *c);
+/*int has_channel(userrec *u, chanrec *c);
 int usercount(chanrec *c);
 int usercount_i(chanrec *c);
 char* Passwd(userrec *user);
 bool IsDenied(userrec *user);
-void AddWhoWas(userrec* u);
-
-std::stringstream config_f(stringstream::in | stringstream::out);
+void AddWhoWas(userrec* u);*/
 
 std::vector<userrec*> all_opers;
 
@@ -221,7 +217,7 @@ void ReadConfig(bool bail, userrec* user)
 	std::stringstream errstr;
 	include_stack.clear();
 	
-	if (!LoadConf(CONFIG_FILE,&config_f,&errstr))
+	if (!LoadConf(CONFIG_FILE,&Config->config_f,&errstr))
 	{
 		errstr.seekg(0);
 		log(DEFAULT,"There were errors in your configuration:\n%s",errstr.str().c_str());
@@ -255,31 +251,31 @@ void ReadConfig(bool bail, userrec* user)
 		}
 	}
 	  
-	ConfValue("server","name",0,Config->ServerName,&config_f);
-	ConfValue("server","description",0,Config->ServerDesc,&config_f);
-	ConfValue("server","network",0,Config->Network,&config_f);
-	ConfValue("admin","name",0,Config->AdminName,&config_f);
-	ConfValue("admin","email",0,Config->AdminEmail,&config_f);
-	ConfValue("admin","nick",0,Config->AdminNick,&config_f);
-	ConfValue("files","motd",0,Config->motd,&config_f);
-	ConfValue("files","rules",0,Config->rules,&config_f);
-	ConfValue("power","diepass",0,Config->diepass,&config_f);
-	ConfValue("power","pause",0,pauseval,&config_f);
-	ConfValue("power","restartpass",0,Config->restartpass,&config_f);
-	ConfValue("options","prefixquit",0,Config->PrefixQuit,&config_f);
-	ConfValue("die","value",0,Config->DieValue,&config_f);
-	ConfValue("options","loglevel",0,dbg,&config_f);
-	ConfValue("options","netbuffersize",0,NB,&config_f);
-	ConfValue("options","maxwho",0,MW,&config_f);
-	ConfValue("options","allowhalfop",0,AH,&config_f);
-	ConfValue("options","allowprotect",0,AP,&config_f);
-	ConfValue("options","allowfounder",0,AF,&config_f);
-	ConfValue("dns","server",0,Config->DNSServer,&config_f);
-	ConfValue("dns","timeout",0,DNT,&config_f);
-	ConfValue("options","moduledir",0,Config->ModPath,&config_f);
-        ConfValue("disabled","commands",0,Config->DisabledCommands,&config_f);
-	ConfValue("options","somaxconn",0,MCON,&config_f);
-	ConfValue("options","softlimit",0,SLIMT,&config_f);
+	ConfValue("server","name",0,Config->ServerName,&Config->config_f);
+	ConfValue("server","description",0,Config->ServerDesc,&Config->config_f);
+	ConfValue("server","network",0,Config->Network,&Config->config_f);
+	ConfValue("admin","name",0,Config->AdminName,&Config->config_f);
+	ConfValue("admin","email",0,Config->AdminEmail,&Config->config_f);
+	ConfValue("admin","nick",0,Config->AdminNick,&Config->config_f);
+	ConfValue("files","motd",0,Config->motd,&Config->config_f);
+	ConfValue("files","rules",0,Config->rules,&Config->config_f);
+	ConfValue("power","diepass",0,Config->diepass,&Config->config_f);
+	ConfValue("power","pause",0,pauseval,&Config->config_f);
+	ConfValue("power","restartpass",0,Config->restartpass,&Config->config_f);
+	ConfValue("options","prefixquit",0,Config->PrefixQuit,&Config->config_f);
+	ConfValue("die","value",0,Config->DieValue,&Config->config_f);
+	ConfValue("options","loglevel",0,dbg,&Config->config_f);
+	ConfValue("options","netbuffersize",0,NB,&Config->config_f);
+	ConfValue("options","maxwho",0,MW,&Config->config_f);
+	ConfValue("options","allowhalfop",0,AH,&Config->config_f);
+	ConfValue("options","allowprotect",0,AP,&Config->config_f);
+	ConfValue("options","allowfounder",0,AF,&Config->config_f);
+	ConfValue("dns","server",0,Config->DNSServer,&Config->config_f);
+	ConfValue("dns","timeout",0,DNT,&Config->config_f);
+	ConfValue("options","moduledir",0,Config->ModPath,&Config->config_f);
+        ConfValue("disabled","commands",0,Config->DisabledCommands,&Config->config_f);
+	ConfValue("options","somaxconn",0,MCON,&Config->config_f);
+	ConfValue("options","softlimit",0,SLIMT,&Config->config_f);
 
 	Config->SoftLimit = atoi(SLIMT);
 	if ((Config->SoftLimit < 1) || (Config->SoftLimit > MAXCLIENTS))
@@ -332,22 +328,22 @@ void ReadConfig(bool bail, userrec* user)
 	readfile(RULES,Config->rules);
 	log(DEFAULT,"Reading connect classes...");
 	Classes.clear();
-	for (int i = 0; i < ConfValueEnum("connect",&config_f); i++)
+	for (int i = 0; i < ConfValueEnum("connect",&Config->config_f); i++)
 	{
 		strcpy(Value,"");
-		ConfValue("connect","allow",i,Value,&config_f);
-		ConfValue("connect","timeout",i,timeout,&config_f);
-		ConfValue("connect","flood",i,flood,&config_f);
-		ConfValue("connect","pingfreq",i,pfreq,&config_f);
-		ConfValue("connect","threshold",i,thold,&config_f);
-		ConfValue("connect","sendq",i,sqmax,&config_f);
-		ConfValue("connect","recvq",i,rqmax,&config_f);
+		ConfValue("connect","allow",i,Value,&Config->config_f);
+		ConfValue("connect","timeout",i,timeout,&Config->config_f);
+		ConfValue("connect","flood",i,flood,&Config->config_f);
+		ConfValue("connect","pingfreq",i,pfreq,&Config->config_f);
+		ConfValue("connect","threshold",i,thold,&Config->config_f);
+		ConfValue("connect","sendq",i,sqmax,&Config->config_f);
+		ConfValue("connect","recvq",i,rqmax,&Config->config_f);
 		if (Value[0])
 		{
 			strlcpy(c.host,Value,MAXBUF);
 			c.type = CC_ALLOW;
 			strlcpy(Value,"",MAXBUF);
-			ConfValue("connect","password",i,Value,&config_f);
+			ConfValue("connect","password",i,Value,&Config->config_f);
 			strlcpy(c.pass,Value,MAXBUF);
 			c.registration_timeout = 90; // default is 2 minutes
 			c.pingtime = 120;
@@ -380,7 +376,7 @@ void ReadConfig(bool bail, userrec* user)
 		}
 		else
 		{
-			ConfValue("connect","deny",i,Value,&config_f);
+			ConfValue("connect","deny",i,Value,&Config->config_f);
 			strlcpy(c.host,Value,MAXBUF);
 			c.type = CC_DENY;
 			Classes.push_back(c);
@@ -407,9 +403,9 @@ void ReadConfig(bool bail, userrec* user)
 		}
 
 		// get the new module names
-		for (int count2 = 0; count2 < ConfValueEnum("module",&config_f); count2++)
+		for (int count2 = 0; count2 < ConfValueEnum("module",&Config->config_f); count2++)
 		{
-			ConfValue("module","name",count2,Value,&config_f);
+			ConfValue("module","name",count2,Value,&Config->config_f);
 			new_module_names.push_back(Value);
 		}
 
@@ -2164,11 +2160,11 @@ int BindPorts()
 {
 	char configToken[MAXBUF], Addr[MAXBUF], Type[MAXBUF];
 	int clientportcount = 0;
-        for (int count = 0; count < ConfValueEnum("bind",&config_f); count++)
+        for (int count = 0; count < ConfValueEnum("bind",&Config->config_f); count++)
         {
-                ConfValue("bind","port",count,configToken,&config_f);
-                ConfValue("bind","address",count,Addr,&config_f);
-                ConfValue("bind","type",count,Type,&config_f);
+                ConfValue("bind","port",count,configToken,&Config->config_f);
+                ConfValue("bind","address",count,Addr,&Config->config_f);
+                ConfValue("bind","type",count,Type,&Config->config_f);
                 if (strcmp(Type,"servers"))
                 {
                         // modules handle server bind types now,
@@ -2237,8 +2233,7 @@ int InspIRCd(char** argv, int argc)
 	printf("\n");
 	startup_time = time(NULL);
 	  
-	char PID[MAXBUF];
-	ConfValue("pid","file",0,PID,&config_f);
+	ConfValue("pid","file",0,Config->PID,&Config->config_f);
 	// write once here, to try it out and make sure its ok
 	WritePID(PID);
 	
@@ -2272,7 +2267,7 @@ int InspIRCd(char** argv, int argc)
 	for (int count = 0; count < portCount; count++)
 		SE->AddFd(openSockfd[count],true,X_LISTEN);
 
-	WritePID(PID);
+	WritePID(Config->PID);
 
 	/* main loop, this never returns */
 	for (;;)

@@ -56,7 +56,6 @@ extern ServerConfig *Config;
 
 extern time_t TIME;
 extern char lowermap[255];
-extern std::stringstream config_f;
 static char list[MAXBUF];
 extern userrec* fd_ref_table[65536];
 
@@ -772,12 +771,12 @@ chanrec* FindChan(const char* chan)
 long GetMaxBans(char* name)
 {
         char CM[MAXBUF];
-        for (int count = 0; count < ConfValueEnum("banlist",&config_f); count++)
+        for (int count = 0; count < ConfValueEnum("banlist",&Config->config_f); count++)
         {
-                ConfValue("banlist","chan",count,CM,&config_f);
+                ConfValue("banlist","chan",count,CM,&Config->config_f);
                 if (match(name,CM))
                 {
-                        ConfValue("banlist","limit",count,CM,&config_f);
+                        ConfValue("banlist","limit",count,CM,&Config->config_f);
                         return atoi(CM);
                 }
         }

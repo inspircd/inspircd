@@ -69,7 +69,6 @@ extern int ports[MAXSOCKS];
 
 class Server;
 
-extern std::stringstream config_f;
 extern userrec* fd_ref_table[65536];
 
 extern user_hash clientlist;
