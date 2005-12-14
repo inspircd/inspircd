@@ -107,6 +107,8 @@ class TreeSocket;
  */
 TreeServer *TreeRoot;
 
+Server* Srv;
+
 /* This hash_map holds the hash equivalent of the server
  * tree, used for rapid linear lookups.
  */
@@ -443,7 +445,6 @@ class Link
  * use to store the <link> tags from the config
  * file.
  */
-Server *Srv;
 ConfigReader *Conf;
 std::vector<Link> LinkBlocks;
 
