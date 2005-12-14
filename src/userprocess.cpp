@@ -60,17 +60,16 @@ using namespace std;
 #include "typedefs.h"
 
 extern int MODCOUNT;
-extern int openSockfd[MAXSOCKS];
 extern struct sockaddr_in client,server;
 extern socklen_t length;
 extern std::vector<Module*> modules;
 extern std::vector<ircd_module*> factory;
 extern std::vector<InspSocket*> module_sockets;
-extern SocketEngine* SE;
 extern time_t TIME;
 extern time_t OLDTIME;
-extern time_t startup_time;
 
+extern InspIRCd* ServerInstance;
+extern SocketEngine* SE;
 extern serverstats* stats;
 extern ServerConfig *Config;
 
@@ -79,7 +78,6 @@ char data[65536];
 
 extern user_hash clientlist;
 extern chan_hash chanlist;
-extern whowas_hash whowas;
 
 void ProcessUser(userrec* cu)
 {

@@ -52,27 +52,19 @@ using namespace std;
 
 extern SocketEngine* SE;
 extern ServerConfig *Config;
+extern InspIRCd* ServerInstance;
 extern int MODCOUNT;
 extern std::vector<Module*> modules;
 extern std::vector<ircd_module*> factory;
 extern std::vector<InspSocket*> module_sockets;
 
 extern time_t TIME;
-extern int WHOWAS_STALE;
-extern int WHOWAS_MAX;
-extern time_t startup_time;
-extern int boundPortCount;
-extern int portCount;
-extern int ports[MAXSOCKS];
-
 class Server;
 extern userrec* fd_ref_table[65536];
 
 extern user_hash clientlist;
 extern chan_hash chanlist;
-extern whowas_hash whowas;
 extern command_table cmdlist;
-extern address_cache IP;                                     
 ExtModeList EMode;
 
 // returns true if an extended mode character is in use

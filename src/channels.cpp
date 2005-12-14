@@ -62,10 +62,6 @@ extern std::vector<Module*> modules;
 extern std::vector<ircd_module*> factory;
 extern int WHOWAS_STALE;
 extern int WHOWAS_MAX;
-extern time_t startup_time;
-extern std::vector<std::string> module_names;
-extern int boundPortCount;
-extern std::stringstream config_f;
 extern time_t TIME;
 extern chan_hash chanlist;
 

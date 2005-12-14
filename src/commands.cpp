@@ -65,13 +65,11 @@ using namespace std;
 
 extern SocketEngine* SE;
 extern ServerConfig* Config;
+extern InspIRCd* ServerInstance;
 
 extern int MODCOUNT;
 extern std::vector<Module*> modules;
 extern std::vector<ircd_module*> factory;
-extern int WHOWAS_STALE;
-extern int WHOWAS_MAX;
-extern time_t startup_time;
 extern time_t TIME;
 
 const long duration_m = 60;
@@ -84,7 +82,6 @@ extern user_hash clientlist;
 extern chan_hash chanlist;
 extern whowas_hash whowas;
 extern command_table cmdlist;
-extern address_cache IP;
 
 extern std::vector<userrec*> all_opers;
 
@@ -1475,7 +1472,7 @@ void handle_stats(char **parameters, int pcnt, userrec *user)
 	{
 		time_t current_time = 0;
 		current_time = TIME;
-		time_t server_uptime = current_time - startup_time;
+		time_t server_uptime = current_time - ServerInstance->startup_time;
 		struct tm* stime;
 		stime = gmtime(&server_uptime);
 		/* i dont know who the hell would have an ircd running for over a year nonstop, but

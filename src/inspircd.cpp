@@ -479,8 +479,6 @@ InspIRCd::InspIRCd(int argc, char** argv)
         BoundPortCount = BindPorts();
 
         printf("\n");
-        startup_time = time(NULL);
-
         if (!Config->nofork)
         {
                 if (DaemonSeed() == ERROR)
