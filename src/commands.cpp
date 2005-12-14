@@ -1089,7 +1089,7 @@ void handle_rehash(char **parameters, int pcnt, userrec *user)
 	else
 	{
 		WriteOpers("%s is rehashing config file %s",user->nick,CleanFilename(CONFIG_FILE));
-		ReadConfig(false,user);
+		Config->Read(false,user);
 	}
 	FOREACH_MOD OnRehash(parameter);
 }

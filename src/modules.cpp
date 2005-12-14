@@ -331,7 +331,7 @@ void Server::AddSocket(InspSocket* sock)
 void Server::RehashServer()
 {
 	WriteOpers("*** Rehashing config file");
-	ReadConfig(false,NULL);
+	Config->Read(false,NULL);
 }
 
 void Server::DelSocket(InspSocket* sock)

@@ -67,38 +67,8 @@ class ServerConfig
 	char PID[1024];
 	std::stringstream config_f;
 
-	ServerConfig()
-	{
-		*ServerName = '\0';
-		*Network = '\0';
-		*ServerDesc = '\0';
-		*AdminName = '\0';
-		*AdminEmail = '\0';
-		*AdminNick = '\0';
-		*diepass = '\0';
-		*restartpass = '\0';
-		*motd = '\0';
-		*rules = '\0';
-		*PrefixQuit = '\0';
-		*DieValue = '\0';
-		*DNSServer = '\0';
-		*ModPath = '\0';
-		*MyExecutable = '\0';
-		*DisabledCommands = '\0';
-		*PID = '\0';
-		log_file = NULL;
-		nofork = false;
-		unlimitcore = false;
-		AllowHalfop = true;
-		dns_timeout = 5;
-		NetBufferSize = 10240;
-		SoftLimit = MAXCLIENTS;
-		MaxConn = SOMAXCONN;
-		MaxWhoResults = 100;
-		debugging = 0;
-		LogLevel = DEFAULT;
-		DieDelay = 5;
-	}
+	ServerConfig();
+	void Read(bool bail, userrec* user);
 };
 
 
