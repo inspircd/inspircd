@@ -230,6 +230,21 @@ class Event : public ModuleMessage
         char* Send();
 };
 
+/** Holds an extended mode's details.
+ * Used internally by modules.cpp
+ */
+class ExtMode : public classbase
+{
+ public:
+        char modechar;
+        int type;
+        bool needsoper;
+        int params_when_on;
+        int params_when_off;
+        bool list;
+        ExtMode(char mc, int ty, bool oper, int p_on, int p_off) : modechar(mc), type(ty), needsoper(oper), params_when_on(p_on), params_when_off(p_off) { };
+};
+
 
 /** Base class for all InspIRCd modules
  *  This class is the base class for InspIRCd modules. All modules must inherit from this class,

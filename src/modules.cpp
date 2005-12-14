@@ -72,39 +72,13 @@ class Server;
 extern std::stringstream config_f;
 extern userrec* fd_ref_table[65536];
 
-/*typedef nspace::hash_map<std::string, userrec*, nspace::hash<string>, irc::StrHashComp> user_hash;
-typedef nspace::hash_map<std::string, chanrec*, nspace::hash<string>, irc::StrHashComp> chan_hash;
-typedef nspace::hash_map<in_addr,string*, nspace::hash<in_addr>, irc::InAddr_HashComp> address_cache;
-typedef nspace::hash_map<std::string, WhoWasUser*, nspace::hash<string>, irc::StrHashComp> whowas_hash;
-typedef std::deque<command_t> command_table;*/
-
 extern user_hash clientlist;
 extern chan_hash chanlist;
 extern whowas_hash whowas;
 extern command_table cmdlist;
 extern file_cache MOTD;
 extern file_cache RULES;
-extern address_cache IP;
-
-
-// class type for holding an extended mode character - internal to core
-
-class ExtMode : public classbase
-{
-public:
-	char modechar;
-	int type;
-	bool needsoper;
-	int params_when_on;
-	int params_when_off;
-	bool list;
-	ExtMode(char mc, int ty, bool oper, int p_on, int p_off) : modechar(mc), type(ty), needsoper(oper), params_when_on(p_on), params_when_off(p_off) { };
-};                                     
-
-typedef std::vector<ExtMode> ExtModeList;
-typedef ExtModeList::iterator ExtModeListIter;
-
-
+extern address_cache IP;                                     
 ExtModeList EMode;
 
 // returns true if an extended mode character is in use
