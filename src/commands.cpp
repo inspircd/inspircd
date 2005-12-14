@@ -73,9 +73,6 @@ extern int WHOWAS_STALE;
 extern int WHOWAS_MAX;
 extern time_t startup_time;
 extern time_t TIME;
-extern int boundPortCount;
-extern int portCount;
-extern int ports[MAXSOCKS];
 
 const long duration_m = 60;
 const long duration_h = duration_m * 60;
