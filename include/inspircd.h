@@ -67,6 +67,8 @@
 #define IS_REMOTE(x) (x->fd < 0)
 #define IS_MODULE_CREATED(x) (x->fd == FD_MAGIC_NUMBER)
 
+typedef void (handlerfunc) (char**, int, userrec*);
+
 class serverstats
 {
   public:
