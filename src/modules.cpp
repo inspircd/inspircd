@@ -723,7 +723,7 @@ Module* Server::FindModule(std::string name)
 {
 	for (int i = 0; i <= MODCOUNT; i++)
 	{
-		if (module_names[i] == name)
+		if (Config->module_names[i] == name)
 		{
 			return modules[i];
 		}
