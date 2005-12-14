@@ -31,7 +31,7 @@ using namespace std;
 #include "helperfuncs.h"
 
 extern std::stringstream config_f;
-extern char ServerName[MAXBUF];
+extern ServerConfig* Config;
 
 extern time_t TIME;
 
@@ -46,7 +46,7 @@ userrec::userrec()
 	strcpy(dhost,"");
 	strcpy(fullname,"");
 	strcpy(modes,"");
-	server = (char*)FindServerNamePtr(ServerName);
+	server = (char*)FindServerNamePtr(Config->ServerName);
 	strcpy(awaymsg,"");
 	strcpy(oper,"");
 	reset_due = TIME;

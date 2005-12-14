@@ -51,21 +51,12 @@ using namespace std;
 
 extern int MODCOUNT;
 extern std::vector<Module*> modules;
+extern ServerConfig *Config;
 
 extern time_t TIME;
-extern bool nofork;
 extern char lowermap[255];
-extern char ServerName[MAXBUF];
-extern char Network[MAXBUF];
-extern char ServerDesc[MAXBUF];
-extern char list[MAXBUF];
-
-extern int debugging;
-extern int LogLevel;
-
 extern std::stringstream config_f;
 
-extern FILE *log_file;
 extern userrec* fd_ref_table[65536];
 
 extern serverstats* stats;

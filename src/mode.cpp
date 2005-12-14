@@ -51,25 +51,7 @@ extern std::vector<Module*> modules;
 extern std::vector<ircd_module*> factory;
 extern std::vector<std::string> module_names;
 
-
-extern int LogLevel;
-extern char ServerName[MAXBUF];
-extern char Network[MAXBUF];
-extern char ServerDesc[MAXBUF];
-extern char AdminName[MAXBUF];
-extern char AdminEmail[MAXBUF];
-extern char AdminNick[MAXBUF];
-extern char diepass[MAXBUF];
-extern char restartpass[MAXBUF];
-extern char motd[MAXBUF];
-extern char rules[MAXBUF];
-extern char list[MAXBUF];
-extern char PrefixQuit[MAXBUF];
-extern char DieValue[MAXBUF];
-
-extern bool AllowHalfop;
-extern bool AllowProtect;
-extern bool AllowFounder;
+extern ServerConfig* Config;
 
 extern time_t TIME;
 

@@ -40,6 +40,7 @@ using namespace std;
 #include "socketengine.h"
 
 extern SocketEngine* SE;
+extern ServerConfig* Config;
 serverstats* stats;
 
 #define max(a,b) (a > b ? a : b)

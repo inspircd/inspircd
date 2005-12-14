@@ -43,7 +43,6 @@ using namespace std;
 #include <time.h>
 #include <sys/types.h>
 #include <sys/socket.h>
-#include <sys/poll.h>
 #include <sys/time.h>
 #include <netinet/in.h>
 #include <string.h>
@@ -53,9 +52,7 @@ using namespace std;
 #include "socketengine.h"
 
 extern SocketEngine* SE;
-typedef nspace::hash_map<std::string, userrec*, nspace::hash<string>, irc::StrHashComp> user_hash;
-extern user_hash clientlist;
-extern char DNSServer[MAXBUF];
+extern ServerConfig* Config;
 
 class Lookup;
 

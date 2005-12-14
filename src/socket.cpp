@@ -39,12 +39,9 @@ using namespace std;
 
 extern SocketEngine* SE;
 
-extern FILE *log_file;
 extern int boundPortCount;
 extern int openSockfd[MAXSOCKS];
 extern time_t TIME;
-extern bool unlimitcore;
-extern int MaxConn;
 
 InspSocket* socket_ref[65535];
 

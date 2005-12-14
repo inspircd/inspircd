@@ -14,6 +14,9 @@
  * ---------------------------------------------------
  */
 
+#ifndef __INSPIRCD_H__
+#define __INSPIRCD_H__
+
 #include "inspircd_config.h"
 #include <string>
 #include <stdio.h>
@@ -75,6 +78,7 @@ typedef std::deque<std::string> file_cache;
 
 class serverstats
 {
+  public:
 	int statsAccept;
 	int statsRefused;
 	int statsUnknown;
@@ -156,3 +160,5 @@ void* dns_task(void* arg);
 void process_buffer(const char* cmdbuf,userrec *user);
 void FullConnectUser(userrec* user);
 chanrec* ForceChan(chanrec* Ptr,ucrec &a,userrec* user, int created);
+
+#endif

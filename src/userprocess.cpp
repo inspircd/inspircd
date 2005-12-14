@@ -60,60 +60,22 @@ using namespace std;
 
 extern int MODCOUNT;
 extern int openSockfd[MAXSOCKS];
-extern bool nofork;
-extern bool unlimitcore;
 extern struct sockaddr_in client,server;
-extern char addrs[MAXBUF][255];
 extern socklen_t length;
-extern char configToken[MAXBUF], Addr[MAXBUF], Type[MAXBUF];
-
-extern char DisabledCommands[MAXBUF];
-
-extern bool AllowHalfop;
-extern bool AllowProtect;
-extern bool AllowFounder;
-
 extern std::vector<Module*> modules;
 extern std::vector<std::string> module_names;
 extern std::vector<ircd_module*> factory;
-
 extern std::vector<InspSocket*> module_sockets;
-
 extern SocketEngine* SE;
-
 extern time_t TIME;
 extern time_t OLDTIME;
-
-extern int DieDelay;
 extern time_t startup_time;
-extern int NetBufferSize;
-extern int MaxConn;
-extern unsigned int SoftLimit;
-extern int MaxWhoResults;
-extern time_t nb_start;
-extern int dns_timeout;
 
 extern serverstats* stats;
+extern ServerConfig *Config;
 
 extern userrec* fd_ref_table[65536];
-
-extern int LogLevel;
-extern char ServerName[MAXBUF];
-extern char Network[MAXBUF];
-extern char ServerDesc[MAXBUF];
-extern char AdminName[MAXBUF];
-extern char AdminEmail[MAXBUF];
-extern char AdminNick[MAXBUF];
-extern char diepass[MAXBUF];
-extern char restartpass[MAXBUF];
-extern char motd[MAXBUF];
-extern char rules[MAXBUF];
-extern char list[MAXBUF];
-extern char PrefixQuit[MAXBUF];
-extern char DieValue[MAXBUF];
-extern char DNSServer[MAXBUF];
-extern char data[65536];
-
+char data[65536];
 
 typedef nspace::hash_map<std::string, userrec*, nspace::hash<string>, irc::StrHashComp> user_hash;
 typedef nspace::hash_map<std::string, chanrec*, nspace::hash<string>, irc::StrHashComp> chan_hash;
@@ -124,7 +86,6 @@ extern user_hash clientlist;
 extern chan_hash chanlist;
 extern whowas_hash whowas;
 
-extern FILE *log_file;
 extern std::stringstream config_f;
 
 void ProcessUser(userrec* cu)
@@ -146,7 +107,7 @@ void ProcessUser(userrec* cu)
         log(DEBUG,"Read result: %d",result);
         if (result)
         {
-                statsRecv += result;
+                stats->statsRecv += result;
                 // perform a check on the raw buffer as an array (not a string!) to remove
                 // characters 0 and 7 which are illegal in the RFC - replace them with spaces.
                 // hopefully this should stop even more people whining about "Unknown command: *"
@@ -174,12 +135,12 @@ void ProcessUser(userrec* cu)
                                 {
                                         WriteOpers("*** Excess flood from %s",current->ip);
                                         log(DEFAULT,"Excess flood from: %s",current->ip);
-                                        add_zline(120,ServerName,"Flood from unregistered connection",current->ip);
+                                        add_zline(120,Config->ServerName,"Flood from unregistered connection",current->ip);
                                         apply_lines(APPLY_ZLINES);
                                 }
                                 return;
                         }
-                        if (current->recvq.length() > (unsigned)NetBufferSize)
+                        if (current->recvq.length() > (unsigned)Config->NetBufferSize)
                         {
                                 if (current->registered == 7)
                                 {
@@ -189,7 +150,7 @@ void ProcessUser(userrec* cu)
                                 {
                                         WriteOpers("*** Excess flood from %s",current->ip);
                                         log(DEFAULT,"Excess flood from: %s",current->ip);
-                                        add_zline(120,ServerName,"Flood from unregistered connection",current->ip);
+                                        add_zline(120,Config->ServerName,"Flood from unregistered connection",current->ip);
                                         apply_lines(APPLY_ZLINES);
                                 }
                                 return;
@@ -221,7 +182,7 @@ void ProcessUser(userrec* cu)
                                         }
                                         else
                                         {
-                                                add_zline(120,ServerName,"Flood from unregistered connection",current->ip);
+                                                add_zline(120,Config->ServerName,"Flood from unregistered connection",current->ip);
                                                 apply_lines(APPLY_ZLINES);
                                         }
                                         return;
@@ -347,7 +308,7 @@ bool DoBackgroundUserStuff(time_t TIME)
                                 {
                                         log(DEBUG,"signon exceed, registered=3, and modules ready, OK: %d %d",TIME,curr->signon);
                                         curr->dns_done = true;
-                                        statsDnsBad++;
+                                        stats->statsDnsBad++;
                                         FullConnectUser(curr);
                                         if (fd_ref_table[currfd] != curr) // something changed, bail pronto
                                                 return true;
@@ -367,7 +328,7 @@ bool DoBackgroundUserStuff(time_t TIME)
                                                kill_link(curr,"Ping timeout");
                                                return true;
                                        }
-                                       Write(curr->fd,"PING :%s",ServerName);
+                                       Write(curr->fd,"PING :%s",Config->ServerName);
                                        log(DEBUG,"InspIRCd: pinging: %s",curr->nick);
                                        curr->lastping = 0;
                                        curr->nping = TIME+curr->pingmax;       // was hard coded to 120
@@ -381,8 +342,8 @@ bool DoBackgroundUserStuff(time_t TIME)
 void OpenLog(char** argv, int argc)
 {
         std::string logpath = GetFullProgDir(argv,argc) + "/ircd.log";
-        log_file = fopen(logpath.c_str(),"a+");
-        if (!log_file)
+        Config->log_file = fopen(logpath.c_str(),"a+");
+        if (!Config->log_file)
         {
                 printf("ERROR: Could not write to logfile %s, bailing!\n\n",logpath.c_str());
                 Exit(ERROR);
@@ -408,10 +369,10 @@ void CheckRoot()
 
 void CheckDie()
 {
-        if (DieValue[0])
+        if (*Config->DieValue)
         {
-                printf("WARNING: %s\n\n",DieValue);
-                log(DEFAULT,"Ut-Oh, somebody didn't read their config file: '%s'",DieValue);
+                printf("WARNING: %s\n\n",Config->DieValue);
+                log(DEFAULT,"Ut-Oh, somebody didn't read their config file: '%s'",Config->DieValue);
                 exit(0);
         }
 }
@@ -420,6 +381,7 @@ void LoadAllModules()
 {
         /* We must load the modules AFTER initializing the socket engine, now */
         MODCOUNT = -1;
+	char configToken[MAXBUF];
         for (int count = 0; count < ConfValueEnum("module",&config_f); count++)
         {
                 ConfValue("module","name",count,configToken,&config_f);

@@ -14,11 +14,16 @@
  * ---------------------------------------------------
  */
 
+#ifndef __INSPIRCD_IO_H__
+#define __INSPIRCD_IO_H__
+
 #include <sstream>
 #include <string>
+#include "inspircd.h"
 
 class ServerConfig
 {
+  public:
 	char ServerName[MAXBUF];
 	char Network[MAXBUF];
 	char ServerDesc[MAXBUF];
@@ -75,7 +80,7 @@ class ServerConfig
 		MaxConn = SOMAXCONN;
 		MaxWhoResults = 100;
 		debugging = 0;
-		LogLevel = DEFAULT;
+		LogLevel = 0;
 		DieDelay = 5;
 	}
 };
@@ -95,3 +100,5 @@ int ConfValueEnum(char* tag,std::stringstream *config);
 int EnumConf(std::stringstream *config_f,const char* tag);
 int EnumValues(std::stringstream *config, const char* tag, int index);
 void WritePID(std::string filename);
+
+#endif

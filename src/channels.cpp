@@ -53,45 +53,17 @@ using namespace std;
 #define nspace std
 #endif
 
+extern ServerConfig* Config;
+
 extern int MODCOUNT;
 extern std::vector<Module*> modules;
 extern std::vector<ircd_module*> factory;
-
-extern int LogLevel;
-extern char ServerName[MAXBUF];
-extern char Network[MAXBUF];
-extern char ServerDesc[MAXBUF];
-extern char AdminName[MAXBUF];
-extern char AdminEmail[MAXBUF];
-extern char AdminNick[MAXBUF];
-extern char diepass[MAXBUF];
-extern char restartpass[MAXBUF];
-extern char motd[MAXBUF];
-extern char rules[MAXBUF];
-extern char list[MAXBUF];
-extern char PrefixQuit[MAXBUF];
-extern char DieValue[MAXBUF];
-
-extern int debugging;
 extern int WHOWAS_STALE;
 extern int WHOWAS_MAX;
-extern int DieDelay;
 extern time_t startup_time;
-extern int NetBufferSize;
-int MaxWhoResults;
-extern time_t nb_start;
-
 extern std::vector<std::string> module_names;
-
 extern int boundPortCount;
-extern int portCount;
-
-extern int ports[MAXSOCKS];
-
 extern std::stringstream config_f;
-
-extern FILE *log_file;
-
 extern time_t TIME;
 
 using namespace std;

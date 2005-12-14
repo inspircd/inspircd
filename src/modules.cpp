@@ -50,55 +50,25 @@ using namespace std;
 #include "socketengine.h"
 
 extern SocketEngine* SE;
+extern ServerConfig *Config;
 extern int MODCOUNT;
 extern std::vector<Module*> modules;
 extern std::vector<ircd_module*> factory;
-
 extern std::vector<std::string> include_stack;
-
 extern std::vector<InspSocket*> module_sockets;
 
 extern time_t TIME;
-
-extern int LogLevel;
-extern char ServerName[MAXBUF];
-extern char Network[MAXBUF];
-extern char ServerDesc[MAXBUF];
-extern char AdminName[MAXBUF];
-extern char AdminEmail[MAXBUF];
-extern char AdminNick[MAXBUF];
-extern char diepass[MAXBUF];
-extern char restartpass[MAXBUF];
-extern char motd[MAXBUF];
-extern char rules[MAXBUF];
-extern char list[MAXBUF];
-extern char PrefixQuit[MAXBUF];
-extern char DieValue[MAXBUF];
-
-extern int debugging;
 extern int WHOWAS_STALE;
 extern int WHOWAS_MAX;
-extern int DieDelay;
 extern time_t startup_time;
-extern int NetBufferSize;
-extern int MaxWhoResults;
-extern time_t nb_start;
-
 extern std::vector<std::string> module_names;
-
 extern int boundPortCount;
 extern int portCount;
-
 extern int ports[MAXSOCKS];
 
 class Server;
 
 extern std::stringstream config_f;
-
-
-
-extern FILE *log_file;
-
 extern userrec* fd_ref_table[65536];
 
 typedef nspace::hash_map<std::string, userrec*, nspace::hash<string>, irc::StrHashComp> user_hash;

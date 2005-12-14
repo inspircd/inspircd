@@ -50,55 +50,10 @@ using namespace std;
 extern int MODCOUNT;
 extern std::vector<Module*> modules;
 extern std::vector<ircd_module*> factory;
-
-extern int LogLevel;
-extern char ServerName[MAXBUF];
-extern char Network[MAXBUF];
-extern char ServerDesc[MAXBUF];
-extern char AdminName[MAXBUF];
-extern char AdminEmail[MAXBUF];
-extern char AdminNick[MAXBUF];
-extern char diepass[MAXBUF];
-extern char restartpass[MAXBUF];
-extern char motd[MAXBUF];
-extern char rules[MAXBUF];
-extern char list[MAXBUF];
-extern char PrefixQuit[MAXBUF];
-extern char DieValue[MAXBUF];
-
-extern int debugging;
-extern int WHOWAS_STALE;
-extern int WHOWAS_MAX;
-extern int DieDelay;
-extern time_t startup_time;
-extern int NetBufferSize;
-extern time_t nb_start;
-
-extern std::vector<std::string> module_names;
-
-extern int boundPortCount;
-extern int portCount;
-
-extern int ports[MAXSOCKS];
-
+extern ServerConfig* Config;
 extern std::stringstream config_f;
-
-extern FILE *log_file;
-
 typedef nspace::hash_map<std::string, userrec*, nspace::hash<string>, irc::StrHashComp> user_hash;
-typedef nspace::hash_map<std::string, chanrec*, nspace::hash<string>, irc::StrHashComp> chan_hash;
-typedef nspace::hash_map<in_addr,string*, nspace::hash<in_addr>, irc::InAddr_HashComp> address_cache;
-typedef nspace::hash_map<std::string, WhoWasUser*, nspace::hash<string>, irc::StrHashComp> whowas_hash;
-typedef std::deque<command_t> command_table;
-
-
 extern user_hash clientlist;
-extern chan_hash chanlist;
-extern whowas_hash whowas;
-extern command_table cmdlist;
-extern file_cache MOTD;
-extern file_cache RULES;
-extern address_cache IP;
 
 /* Version two, now with optimized expiry!
  *

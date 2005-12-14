@@ -31,12 +31,10 @@ using namespace std;
 #include "inspstring.h"
 #include "helperfuncs.h"
 
-extern FILE *log_file;
+extern ServerConfig *Config;
 extern int boundPortCount;
 extern int openSockfd[MAXSOCKS];
 extern time_t TIME;
-extern bool unlimitcore;
-extern int MaxConn;
 std::vector<std::string> include_stack;
 
 void WriteOpers(char* text, ...);
