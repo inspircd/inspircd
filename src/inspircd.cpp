@@ -1612,12 +1612,12 @@ int InspIRCd::Run()
 					{
 						log(DEBUG,"Socket poll returned false, close and bail");
 						SE->DelFd(s->GetFd());
-						for (std::vector<InspSocket*>::iterator a = this->module_sockets.begin(); a < this->module_sockets.end(); a++)
+						for (std::vector<InspSocket*>::iterator a = module_sockets.begin(); a < module_sockets.end(); a++)
 						{
 							s_del = (InspSocket*)*a;
 							if ((s_del) && (s_del->GetFd() == activefds[activefd]))
 							{
-								this->module_sockets.erase(a);
+								module_sockets.erase(a);
 								break;
 							}
 						}
