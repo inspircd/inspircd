@@ -19,7 +19,6 @@ using namespace std;
 #include "inspircd_config.h"
 #include "inspircd.h"
 #include "inspircd_io.h"
-#include "inspircd_util.h"
 #include <unistd.h>
 #include <sys/errno.h>
 #include <sys/ioctl.h>

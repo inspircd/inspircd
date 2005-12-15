@@ -32,7 +32,6 @@ using namespace std;
 #include "socket.h"
 #include "inspircd.h"
 #include "inspircd_io.h"
-#include "inspircd_util.h"
 #include "inspstring.h"
 #include "helperfuncs.h"
 #include "socketengine.h"
