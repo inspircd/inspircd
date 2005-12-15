@@ -534,75 +534,6 @@ void ServerPrivmsgAll(char* text, ...)
 	}
 }
 
-void NoticeAllOpers(userrec *source, bool local_only, char* text, ...)
-{
-        if ((!text) || (!source))
-        {
-                log(DEFAULT,"*** BUG *** NoticeAllOpers was given an invalid parameter");
-                return;
-        }
-
-        char textbuffer[MAXBUF];
-        va_list argsPtr;
-        va_start (argsPtr, text);
-        vsnprintf(textbuffer, MAXBUF, text, argsPtr);
-        va_end(argsPtr);
-
-        for (std::vector<userrec*>::iterator i = all_opers.begin(); i != all_opers.end(); i++)
-        {
-                userrec* a = *i;
-                if ((a) && (a->fd != FD_MAGIC_NUMBER))
-                {
-                        if (strchr(a->modes,'s'))
-                        {
-                                // send server notices to all with +s
-                                WriteServ(a->fd,"NOTICE %s :*** Notice From %s: %s",a->nick,source->nick,textbuffer);
-                        }
-                }
-        }
-
-}
-// returns TRUE of any users on channel C occupy server 'servername'.
-
-bool ChanAnyOnThisServer(chanrec *c,char* servername)
-{
-        log(DEBUG,"ChanAnyOnThisServer");
-
-        std::vector<char*> *ulist = c->GetUsers();
-        for (unsigned int j = 0; j < ulist->size(); j++)
-        {
-                char* o = (*ulist)[j];
-                userrec* user = (userrec*)o;
-                if (!strcasecmp(user->server,servername))
-                        return true;
-        }
-        return false;
-}
-
-// returns true if user 'u' shares any common channels with any users on server 'servername'
-
-bool CommonOnThisServer(userrec* u,const char* servername)
-{
-        log(DEBUG,"ChanAnyOnThisServer");
-
-        for (unsigned int i = 0; i < u->chans.size(); i++)
-        {
-                if (u->chans[i].channel)
-                {
-                        std::vector<char*> *ulist = u->chans[i].channel->GetUsers();
-                        for (unsigned int j = 0; j < ulist->size(); j++)
-                        {
-                                char* o = (*ulist)[j];
-                                userrec* user = (userrec*)o;
-                                if (!strcasecmp(user->server,servername))
-                                        return true;
-                        }
-                }
-        }
-        return false;
-}
-
-
 void WriteMode(const char* modes, int flags, const char* text, ...)
 {
         if ((!text) || (!modes) || (!flags))
@@ -823,7 +754,7 @@ char* chanmodes(chanrec *chan)
 {
 	static char scratch[MAXBUF];
 	static char sparam[MAXBUF];
-	int offset = 0;
+	char* offset = scratch;
 
         if (!chan)
         {
@@ -835,21 +766,21 @@ char* chanmodes(chanrec *chan)
         *scratch = '\0';
         *sparam = '\0';
         if (chan->binarymodes & CM_NOEXTERNAL)
-		scratch[offset++] = 'n';
+		*offset++ = 'n';
         if (chan->binarymodes & CM_TOPICLOCK)
-		scratch[offset++] = 't';
+		*offset++ = 't';
         if (*chan->key)
-		scratch[offset++] = 'k';
+		*offset++ = 'k';
         if (chan->limit)
-		scratch[offset++] = 'l';
+		*offset++ = 'l';
         if (chan->binarymodes & CM_INVITEONLY)
-		scratch[offset++] = 'i';
+		*offset++ = 'i';
         if (chan->binarymodes & CM_MODERATED)
-		scratch[offset++] = 'm';
+		*offset++ = 'm';
         if (chan->binarymodes & CM_SECRET)
-		scratch[offset++] = 's';
+		*offset++ = 's';
         if (chan->binarymodes & CM_PRIVATE)
-                scratch[offset++] = 'p';
+                *offset++ = 'p';
         if (*chan->key)
 		snprintf(sparam,MAXBUF," %s",chan->key);
         if (chan->limit)
@@ -860,9 +791,9 @@ char* chanmodes(chanrec *chan)
         }
         if (*chan->custom_modes)
         {
-		for (char* t= chan->custom_modes; *t; t++)
-	                scratch[offset++] = *t;
-                for (int z = 0; chan->custom_modes[z] != 0; z++)
+		for (char* t = chan->custom_modes; *t; t++)
+	                *offset++ = *t;
+                for (int z = 0; chan->custom_modes[z]; z++)
                 {
                         std::string extparam = chan->GetModeParameter(chan->custom_modes[z]);
                         if (extparam != "")
@@ -873,7 +804,7 @@ char* chanmodes(chanrec *chan)
                 }
         }
 	/* Null terminate scratch */
-	scratch[offset] = '\0';
+	*offset = '\0';
         strlcat(scratch,sparam,MAXMODES);
         return scratch;
 }
@@ -977,7 +908,7 @@ char* Passwd(userrec *user)
 {
         for (ClassVector::iterator i = Config->Classes.begin(); i != Config->Classes.end(); i++)
         {
-                if (match(user->host,i->host) && (i->type == CC_ALLOW))
+                if ((i->type == CC_ALLOW) && match(user->host,i->host))
                 {
                         return i->pass;
                 }
@@ -989,7 +920,7 @@ bool IsDenied(userrec *user)
 {
         for (ClassVector::iterator i = Config->Classes.begin(); i != Config->Classes.end(); i++)
         {
-                if (match(user->host,i->host) && (i->type == CC_DENY))
+                if ((i->type == CC_DENY) && match(user->host,i->host))
                 {
                         return true;
                 }
@@ -1008,15 +939,18 @@ void send_error(char *s)
         log(DEBUG,"send_error: %s",s);
         for (user_hash::const_iterator i = clientlist.begin(); i != clientlist.end(); i++)
         {
-                if (isnick(i->second->nick))
-                {
-                        WriteServ(i->second->fd,"NOTICE %s :%s",i->second->nick,s);
-                }
-                else
-                {
-                        // fix - unregistered connections receive ERROR, not NOTICE
-                        Write(i->second->fd,"ERROR :%s",s);
-                }
+                if (IS_LOCAL(i->second))
+		{
+			if (i->second->registered == 7)
+	                {
+	       	                WriteServ(i->second->fd,"NOTICE %s :%s",i->second->nick,s);
+	       	        }
+	                else
+	                {
+	                        // fix - unregistered connections receive ERROR, not NOTICE
+	                        Write(i->second->fd,"ERROR :%s",s);
+	                }
+		}
         }
 }
 
@@ -1100,22 +1034,21 @@ long local_count()
 
 void ShowMOTD(userrec *user)
 {
-        char buf[65536];
+        static char mbuf[MAXBUF];
+	static char crud[MAXBUF];
         std::string WholeMOTD = "";
         if (!Config->MOTD.size())
         {
                 WriteServ(user->fd,"422 %s :Message of the day file is missing.",user->nick);
                 return;
         }
-        snprintf(buf,65535,":%s 375 %s :- %s message of the day\r\n", Config->ServerName, user->nick, Config->ServerName);
-        WholeMOTD = WholeMOTD + buf;
+	snprintf(crud,MAXBUF,":%s 372 %s :- ", Config->ServerName, user->nick);
+        snprintf(mbuf,MAXBUF,":%s 375 %s :- %s message of the day\r\n", Config->ServerName, user->nick, Config->ServerName);
+        WholeMOTD = WholeMOTD + mbuf;
         for (unsigned int i = 0; i < Config->MOTD.size(); i++)
-        {
-                snprintf(buf,65535,":%s 372 %s :- %s\r\n", Config->ServerName, user->nick, Config->MOTD[i].c_str());
-                WholeMOTD = WholeMOTD + buf;
-        }
-        snprintf(buf,65535,":%s 376 %s :End of message of the day.\r\n", Config->ServerName, user->nick);
-        WholeMOTD = WholeMOTD + buf;
+                WholeMOTD = WholeMOTD + std::string(crud) + Config->MOTD[i].c_str() + std::string("\r\n");
+        snprintf(mbuf,MAXBUF,":%s 376 %s :End of message of the day.\r\n", Config->ServerName, user->nick);
+        WholeMOTD = WholeMOTD + mbuf;
         // only one write operation
         user->AddWriteBuf(WholeMOTD);
         stats->statsSent += WholeMOTD.length();
@@ -1130,9 +1063,7 @@ void ShowRULES(userrec *user)
         }
         WriteServ(user->fd,"NOTICE %s :%s rules",user->nick,Config->ServerName);
         for (unsigned int i = 0; i < Config->RULES.size(); i++)
-        {
                 WriteServ(user->fd,"NOTICE %s :%s",user->nick,Config->RULES[i].c_str());
-        }
         WriteServ(user->fd,"NOTICE %s :End of %s rules.",user->nick,Config->ServerName);
 }
 
@@ -1144,8 +1075,8 @@ bool AllModulesReportReady(userrec* user)
         for (int i = 0; i <= MODCOUNT; i++)
         {
                 int res = modules[i]->OnCheckReady(user);
-                        if (!res)
-                                return false;
+                if (!res)
+                        return false;
         }
         return true;
 }
@@ -1226,10 +1157,11 @@ void SetupCommandTable(void)
 bool DirValid(char* dirandfile)
 {
         char work[MAXBUF];
+	char buffer[MAXBUF], otherdir[MAXBUF];
         strlcpy(work,dirandfile,MAXBUF);
         int p = strlen(work);
         // we just want the dir
-        while (strlen(work))
+        while (*work)
         {
                 if (work[p] == '/')
                 {
@@ -1238,7 +1170,6 @@ bool DirValid(char* dirandfile)
                 }
                 work[p--] = '\0';
         }
-        char buffer[MAXBUF], otherdir[MAXBUF];
         // Get the current working directory
         if( getcwd( buffer, MAXBUF ) == NULL )
                 return false;
@@ -1261,10 +1192,11 @@ bool DirValid(char* dirandfile)
 std::string GetFullProgDir(char** argv, int argc)
 {
         char work[MAXBUF];
+	char buffer[MAXBUF], otherdir[MAXBUF];
         strlcpy(work,argv[0],MAXBUF);
         int p = strlen(work);
         // we just want the dir
-        while (strlen(work))
+        while (*work)
         {
                 if (work[p] == '/')
                 {
@@ -1273,7 +1205,6 @@ std::string GetFullProgDir(char** argv, int argc)
                 }
                 work[p--] = '\0';
         }
-        char buffer[MAXBUF], otherdir[MAXBUF];
         // Get the current working directory
         if( getcwd( buffer, MAXBUF ) == NULL )
                 return "";
