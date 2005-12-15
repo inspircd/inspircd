@@ -916,9 +916,9 @@ int ServerConfig::ReadConf(std::stringstream *config, const char* tag, const cha
 						else
 						{
 							key+=strlen(var);
-							while (key[0] !='"')
+							while (*key !='"')
 							{
-								if (!strlen(key))
+								if (!*key)
 								{
 									/* missing quote */
 									strcpy(result,"");
