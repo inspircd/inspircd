@@ -98,13 +98,10 @@ bool userrec::IsInvited(irc::string &channel)
 {
 	for (InvitedList::iterator i = invites.begin(); i != invites.end(); i++)
 	{
-		if (i->channel)
+		irc::string compare = i->channel;
+		if (compare == channel)
 		{
-			irc::string compare = i->channel;
-			if (compare == channel)
-			{
-				return true;
-			}
+			return true;
 		}
 	}
 	return false;
@@ -122,7 +119,7 @@ void userrec::InviteTo(irc::string &channel)
 	invites.push_back(i);
 }
 
-void userrec::RemoveInvite(std::string &channel)
+void userrec::RemoveInvite(irc::string &channel)
 {
 	log(DEBUG,"Removing invites");
 	if (invites.size())
