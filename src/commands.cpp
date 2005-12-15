@@ -390,9 +390,7 @@ void handle_invite(char **parameters, int pcnt, userrec *user)
 		InvitedList* il = user->GetInviteList();
 		for (InvitedList::iterator i = il->begin(); i != il->end(); i++)
 		{
-		        if (i->channel) {
-				WriteServ(user->fd,"346 %s :%s",user->nick,i->channel.c_str());
-		        }
+			WriteServ(user->fd,"346 %s :%s",user->nick,i->channel.c_str());
 		}
 		WriteServ(user->fd,"347 %s :End of INVITE list",user->nick);
 	}
