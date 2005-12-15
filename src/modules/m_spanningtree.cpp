@@ -40,6 +40,7 @@ using namespace std;
 #include "message.h"
 #include "xline.h"
 #include "typedefs.h"
+#include "cull_list.h"
 
 #ifdef GCC3
 #define nspace __gnu_cxx
@@ -645,7 +646,7 @@ class TreeSocket : public InspSocket
 	 * is having a REAL bad hair day, this function shouldnt be called
 	 * too many times a month ;-)
 	 */
-	void SquitServer(TreeServer* Current)
+	void SquitServer(TreeServer* Current, CullList* Goners)
 	{
 		/* recursively squit the servers attached to 'Current'.
 		 * We're going backwards so we don't remove users
@@ -654,29 +655,18 @@ class TreeSocket : public InspSocket
 		for (unsigned int q = 0; q < Current->ChildCount(); q++)
 		{
 			TreeServer* recursive_server = Current->GetChild(q);
-			this->SquitServer(recursive_server);
+			this->SquitServer(recursive_server,Goners);
 		}
 		/* Now we've whacked the kids, whack self */
 		num_lost_servers++;
-		bool quittingpeople = true;
-		while (quittingpeople)
+		quittingpeople = false;
+		for (user_hash::iterator u = clientlist.begin(); u != clientlist.end(); u++)
 		{
-			/* Yup i know, "ew". We cant continue to loop through the
-			 * iterator if we modify it, so whenever we modify it with a
-			 * QUIT we have to start alllll over again. If anyone knows
-			 * a better faster way of *safely* doing this, please let me
-			 * know!
-			 */
-			quittingpeople = false;
-			for (user_hash::iterator u = clientlist.begin(); u != clientlist.end(); u++)
+			if (!strcasecmp(u->second->server,Current->GetName().c_str()))
 			{
-				if (!strcasecmp(u->second->server,Current->GetName().c_str()))
-				{
-					Srv->QuitUser(u->second,Current->GetName()+" "+std::string(Srv->GetServerName()));
-					num_lost_users++;
-					quittingpeople = true;
-					break;
-				}
+				std::string qreason = Current->GetName()+" "+std::string(Srv->GetServerName());
+				Goners->AddItem(u->second,qreason);
+				num_lost_users++;
 			}
 		}
 	}
@@ -703,10 +693,13 @@ class TreeSocket : public InspSocket
 			}
 			num_lost_servers = 0;
 			num_lost_users = 0;
-			SquitServer(Current);
+			CullList* Goners = new CullList();
+			SquitServer(Current, Goners);
+			Goners->Apply();
 			Current->Tidy();
 			Current->GetParent()->DelChild(Current);
 			delete Current;
+			delete Goners;
 			WriteOpers("Netsplit complete, lost \002%d\002 users on \002%d\002 servers.", num_lost_users, num_lost_servers);
 		}
 		else
