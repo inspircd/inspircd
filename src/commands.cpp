@@ -377,7 +377,8 @@ void handle_invite(char **parameters, int pcnt, userrec *user)
 			return;
 		}
 
-		u->InviteTo(c->name);
+		irc::string xname(c->name);
+		u->InviteTo(xname);
 		WriteFrom(u->fd,user,"INVITE %s :%s",u->nick,c->name);
 		WriteServ(user->fd,"341 %s %s %s",user->nick,u->nick,c->name);
 		FOREACH_MOD OnUserInvite(user,u,c);
@@ -390,7 +391,7 @@ void handle_invite(char **parameters, int pcnt, userrec *user)
 		for (InvitedList::iterator i = il->begin(); i != il->end(); i++)
 		{
 		        if (i->channel) {
-				WriteServ(user->fd,"346 %s :%s",user->nick,i->channel);
+				WriteServ(user->fd,"346 %s :%s",user->nick,i->channel.c_str());
 		        }
 		}
 		WriteServ(user->fd,"347 %s :End of INVITE list",user->nick);
