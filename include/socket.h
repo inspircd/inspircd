@@ -99,11 +99,11 @@ private:
 	/**
 	 * Socket input buffer, used by read(). The class which
 	 * extends InspSocket is expected to implement an extendable
-	 * buffer which can grow much larger than 16k,
+	 * buffer which can grow much larger than 64k,
 	 * this buffer is just designed to be temporary storage.
 	 * space.
 	 */
-	char ibuf[16384];
+	char ibuf[65535];
 
 	/**
 	 * The output buffer for this socket
