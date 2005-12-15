@@ -82,6 +82,7 @@ void handle_server(char **parameters, int pcnt, userrec *user);
 void handle_loadmodule(char **parameters, int pcnt, userrec *user);
 void handle_unloadmodule(char **parameters, int pcnt, userrec *user);
 void handle_commands(char **parameters, int pcnt, userrec *user);
+void handle_version(char **parameters, int pcnt, userrec *user);
 
 /** Functions for u:lined servers
  */

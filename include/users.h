@@ -236,23 +236,23 @@ class userrec : public connection
 	
 	/** Returns true if a user is invited to a channel.
 	 */
-	virtual bool IsInvited(char* channel);
+	virtual bool IsInvited(irc::string &channel);
 	
 	/** Adds a channel to a users invite list (invites them to a channel)
 	 */
-	virtual void InviteTo(char* channel);
+	virtual void InviteTo(irc::string &channel);
 	
 	/** Removes a channel from a users invite list.
 	 * This member function is called on successfully joining an invite only channel
 	 * to which the user has previously been invited, to clear the invitation.
 	 */
-	virtual void RemoveInvite(char* channel);
+	virtual void RemoveInvite(irc::string &channel);
 	
 	/** Returns true or false for if a user can execute a privilaged oper command.
 	 * This is done by looking up their oper type from userrec::oper, then referencing
 	 * this to their oper classes and checking the commands they can execute.
 	 */
-	bool HasPermission(char* command);
+	bool HasPermission(std::string &command);
 
 	/** Calls read() to read some data for this user using their fd.
 	 */
@@ -340,5 +340,14 @@ class WhoWasUser
 	char server[256];
 	time_t signon;
 };
+
+void AddOper(userrec* user);
+void DeleteOper(userrec* user);
+void kill_link(userrec *user,const char* r);
+void kill_link_silent(userrec *user,const char* r);
+void AddWhoWas(userrec* u);
+void AddClient(int socket, char* host, int port, bool iscached, char* ip);
+void FullConnectUser(userrec* user);
+void ConnectUser(userrec *user);
 
 #endif

@@ -2047,4 +2047,8 @@ void handle_qline(char **parameters, int pcnt, userrec *user)
 	}
 }
 
+void handle_version(char **parameters, int pcnt, userrec *user)
+{
+	        WriteServ(user->fd,"351 %s :%s",user->nick,ServerInstance->GetVersionString().c_str());
+}
 

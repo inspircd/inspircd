@@ -115,23 +115,14 @@ class InspIRCd
 
 /* prototypes */
 void force_nickchange(userrec* user,const char* newnick);
-void kill_link(userrec *user,const char* r);
-void kill_link_silent(userrec *user,const char* r);
 void call_handler(const char* commandname,char **parameters, int pcnt, userrec *user);
 bool is_valid_cmd(const char* commandname, int pcnt, userrec * user);
 int loop_call(handlerfunc fn, char **parameters, int pcnt, userrec *u, int start, int end, int joins);
-void AddWhoWas(userrec* u);
-void ConnectUser(userrec *user);
 userrec* ReHashNick(char* Old, char* New);
-/* optimization tricks to save us walking the user hash */
-void AddOper(userrec* user);
-void DeleteOper(userrec* user);
-void handle_version(char **parameters, int pcnt, userrec *user);
 /* userrec optimization stuff */
 void AddServerName(std::string servername);
 const char* FindServerNamePtr(std::string servername);
 void* dns_task(void* arg);
 void process_buffer(const char* cmdbuf,userrec *user);
-void FullConnectUser(userrec* user);
 
 #endif
