@@ -68,7 +68,7 @@ std::string CullItem::GetReason()
 CullList::CullList()
 {
 	list.clear();
-        memset(exempt,0,65535);
+        exempt.clear();
 }
 
 void CullList::AddItem(userrec* user, std::string reason)
