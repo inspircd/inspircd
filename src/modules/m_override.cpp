@@ -171,7 +171,7 @@ class ModuleOverride : public Module
 				{
 					if (NoisyOverride)
 					{
-						std::string x = chan->name;
+						irc::string x = chan->name;
 						if (!user->IsInvited(x))
 						{
 							WriteChannelWithServ((char*)Srv->GetServerName().c_str(),chan,"NOTICE %s :%s invited himself into the channel",cname,user->nick);
