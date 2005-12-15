@@ -73,7 +73,7 @@ CullList::CullList()
 
 void CullList::AddItem(userrec* user, std::string reason)
 {
-	if (exempt.find(user) != exempt.end())
+	if (exempt.find(user) == exempt.end())
 	{
 	        CullItem item(user,reason);
 	        list.push_back(item);
