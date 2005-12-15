@@ -169,7 +169,7 @@ Definition at line <a class="el" href="channels_8cpp-source.html#l00195">195</a>
 <p>
 References <a class="el" href="channels_8h-source.html#l00151">chanrec::bans</a>, <a class="el" href="channels_8h-source.html#l00147">chanrec::binarymodes</a>, <a class="el" href="channels_8cpp.html#chanlist">chanlist</a>, <a class="el" href="users_8h-source.html#l00149">userrec::chans</a>, <a class="el" href="channels_8h-source.html#l00028">CM_INVITEONLY</a>, <a class="el" href="channels_8h-source.html#l00027">CM_NOEXTERNAL</a>, <a class="el" href="channels_8h-source.html#l00026">CM_TOPICLOCK</a>, <a class="el" href="inspircd__io_8h-source.html#l00028">DEBUG</a>, <a class="el" href="inspircd__io_8h-source.html#l00030">DEFAULT</a>, <a class="el" href="connection_8h-source.html#l00042">connection::fd</a>, <a class="el" href="globals_8h.html#FindChan_28const_20char_20_2Achan_29">FindChan()</a>, <a class="el" href="channels_8cpp-source.html#l00372">ForceChan()</a>, <a class="el" href="modules_8h-source.html#l00089">FOREACH_RESULT</a>, <a class="el" href="users_8cpp-source.html#l00072">userrec::GetFullHost()</a>, <a class="el" href="message_8h.html#has_5Fchannel_28userrec_20_2Au_2C_20chanrec_20_2Ac_29">has_channel()</a>, <a class="el" href="users_8cpp-source.html#l00096">userrec::IsInvited()</a>, <a class="el" href="channels_8h-source.html#l00143">chanrec::key</a>, <a class="el" href="channels_8h-source.html#l00138">chanrec::limit</a>, <a class="el" href="globals_8h.html#log_28int_20level_2C_20char_20_2Atext_2C_2E_2E_2E_29">log()</a>, <a class="el" href="users_8h-source.html#l00147">userrec::modes</a>, <a class="el" href="channels_8h-source.html#l00108">chanrec::name</a>, <a class="el" href="users_8h-source.html#l00124">userrec::nick</a>, <a class="el" href="users_8cpp-source.html#l00122">userrec::RemoveInvite()</a>, <a class="el" href="channels_8cpp.html#TIME">TIME</a>, and <a class="el" href="globals_8h.html#WriteServ_28int_20sock_2C_20char_20_2Atext_2C_2E_2E_2E_29">WriteServ()</a>.
 <p>
-Referenced by <a class="el" href="modules_8cpp-source.html#l00359">Server::JoinUserToChannel()</a>.<div class="fragment"><pre class="fragment"><a name="l00196"></a>00196 {
+Referenced by <a class="el" href="modules_8cpp-source.html#l00364">Server::JoinUserToChannel()</a>.<div class="fragment"><pre class="fragment"><a name="l00196"></a>00196 {
 <a name="l00197"></a>00197         <span class="keywordflow">if</span> ((!user) || (!cn))
 <a name="l00198"></a>00198         {
 <a name="l00199"></a>00199                 <a class="code" href="globals_8h.html#log_28int_20level_2C_20char_20_2Atext_2C_2E_2E_2E_29">log</a>(<a class="code" href="inspircd__io_8h.html#DEFAULT">DEFAULT</a>,<span class="stringliteral">"*** BUG *** add_channel was given an invalid parameter"</span>);
@@ -401,7 +401,7 @@ Definition at line <a class="el" href="channels_8cpp-source.html#l00401">401</a>
 <p>
 References <a class="el" href="channels_8cpp.html#chanlist">chanlist</a>, <a class="el" href="users_8h-source.html#l00149">userrec::chans</a>, <a class="el" href="inspircd__io_8h-source.html#l00028">DEBUG</a>, <a class="el" href="inspircd__io_8h-source.html#l00030">DEFAULT</a>, <a class="el" href="channels_8cpp-source.html#l00173">chanrec::DelUser()</a>, <a class="el" href="globals_8h.html#FindChan_28const_20char_20_2Achan_29">FindChan()</a>, <a class="el" href="modules_8h-source.html#l00081">FOREACH_MOD</a>, <a class="el" href="globals_8h.html#log_28int_20level_2C_20char_20_2Atext_2C_2E_2E_2E_29">log()</a>, <a class="el" href="channels_8h-source.html#l00108">chanrec::name</a>, <a class="el" href="users_8h-source.html#l00124">userrec::nick</a>, and <a class="el" href="globals_8h.html#WriteChannel_28chanrec_20_2APtr_2C_20userrec_20_2Auser_2C_20char_20_2Atext_2C_2E_2E_2E_29">WriteChannel()</a>.
 <p>
-Referenced by <a class="el" href="modules_8cpp-source.html#l00364">Server::PartUserFromChannel()</a>.<div class="fragment"><pre class="fragment"><a name="l00402"></a>00402 {
+Referenced by <a class="el" href="modules_8cpp-source.html#l00369">Server::PartUserFromChannel()</a>.<div class="fragment"><pre class="fragment"><a name="l00402"></a>00402 {
 <a name="l00403"></a>00403         <span class="keywordflow">if</span> ((!user) || (!cname))
 <a name="l00404"></a>00404         {
 <a name="l00405"></a>00405                 <a class="code" href="globals_8h.html#log_28int_20level_2C_20char_20_2Atext_2C_2E_2E_2E_29">log</a>(<a class="code" href="inspircd__io_8h.html#DEFAULT">DEFAULT</a>,<span class="stringliteral">"*** BUG *** del_channel was given an invalid parameter"</span>);
@@ -802,9 +802,9 @@ Referenced by <a class="el" href="channels_8cpp-source.html#l00147">chanrec::Get
 <p>
 
 <p>
-Definition at line <a class="el" href="modules_8cpp-source.html#l00930">930</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
+Definition at line <a class="el" href="modules_8cpp-source.html#l00935">935</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
 <p>
-Referenced by <a class="el" href="modules_8cpp-source.html#l00719">Server::FindModule()</a>.    </td>
+Referenced by <a class="el" href="modules_8cpp-source.html#l00724">Server::FindModule()</a>.    </td>
   </tr>
 </table>
 <a class="anchor" name="modules"></a><!-- doxytag: member="channels.cpp::modules" ref="modules" args="" --><p>
@@ -829,7 +829,7 @@ Referenced by <a class="el" href="modules_8cpp-source.html#l00719">Server::FindM
 <p>
 
 <p>
-Referenced by <a class="el" href="modules_8cpp-source.html#l00719">Server::FindModule()</a>.    </td>
+Referenced by <a class="el" href="modules_8cpp-source.html#l00724">Server::FindModule()</a>.    </td>
   </tr>
 </table>
 <a class="anchor" name="TIME"></a><!-- doxytag: member="channels.cpp::TIME" ref="TIME" args="" --><p>
@@ -903,7 +903,7 @@ Referenced by <a class="el" href="channels_8cpp-source.html#l00195">add_channel(
     </td>
   </tr>
 </table>
-<hr size="1"><address style="align: right;"><small>Generated on Wed Dec 14 19:16:14 2005 for InspIRCd by&nbsp;
+<hr size="1"><address style="align: right;"><small>Generated on Thu Dec 15 11:14:15 2005 for InspIRCd by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img src="doxygen.png" alt="doxygen" align="middle" border="0"></a> 1.4.4-20050815 </small></address>
 </body>

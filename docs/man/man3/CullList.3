@@ -1,0 +1,98 @@
+.TH "CullList" 3 "15 Dec 2005" "Version 1.0Betareleases" "InspIRCd" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+CullList \- The CullList class can be used by modules, and is used by the core, to compile large lists of users in preperation to quitting them all at once.  
+
+.PP
+.SH SYNOPSIS
+.br
+.PP
+\fC#include <cull_list.h>\fP
+.PP
+.SS "Public Member Functions"
+
+.in +1c
+.ti -1c
+.RI "\fBCullList\fP ()"
+.br
+.RI "\fIConstructor. \fP"
+.ti -1c
+.RI "void \fBAddItem\fP (\fBuserrec\fP *user, \fBstd::string\fP reason)"
+.br
+.RI "\fIAdds a user to the cull list for later removal via QUIT. \fP"
+.ti -1c
+.RI "int \fBApply\fP ()"
+.br
+.RI "\fIApplies the cull list, quitting all the users on the list with their quit reasons all at once. \fP"
+.in -1c
+.SS "Private Attributes"
+
+.in +1c
+.ti -1c
+.RI "std::vector< \fBCullItem\fP > \fBlist\fP"
+.br
+.RI "\fIHolds a list of users being quit. \fP"
+.ti -1c
+.RI "std::map< \fBuserrec\fP *, int > \fBexempt\fP"
+.br
+.RI "\fIA list of users who have already been placed on the list, as a map for fast reference. \fP"
+.in -1c
+.SH "Detailed Description"
+.PP 
+The CullList class can be used by modules, and is used by the core, to compile large lists of users in preperation to quitting them all at once. 
+
+This is faster than quitting them within the loop, as the loops become tighter with little or no comparisons within them. The CullList class operates by allowing the programmer to push users onto the list, each with a seperate quit reason, and then, once the list is complete, call a method to flush the list, quitting all the users upon it. A CullList may hold local or remote users, but it may only hold each user once. If you attempt to add the same user twice, then the second attempt will be ignored.
+.PP
+Definition at line 75 of file cull_list.h.
+.SH "Constructor & Destructor Documentation"
+.PP 
+.SS "CullList::CullList ()"
+.PP
+Constructor. 
+.PP
+Clears the \fBCullList::list\fP and \fBCullList::exempt\fP items.
+.SH "Member Function Documentation"
+.PP 
+.SS "void CullList::AddItem (\fBuserrec\fP * user, \fBstd::string\fP reason)"
+.PP
+Adds a user to the cull list for later removal via QUIT. 
+.PP
+\fBParameters:\fP
+.RS 4
+\fIuser\fP The user to add 
+.br
+\fIreason\fP The quit reason of the user being added
+.RE
+.PP
+
+.SS "int CullList::Apply ()"
+.PP
+Applies the cull list, quitting all the users on the list with their quit reasons all at once. 
+.PP
+This is a very fast operation compared to iterating the user list and comparing each one, especially if there are multiple comparisons to be done, or recursion. 
+.PP
+\fBReturns:\fP
+.RS 4
+The number of users removed from IRC.
+.RE
+.PP
+
+.SH "Member Data Documentation"
+.PP 
+.SS "std::map<\fBuserrec\fP*,int> \fBCullList::exempt\fP\fC [private]\fP"
+.PP
+A list of users who have already been placed on the list, as a map for fast reference. 
+.PP
+Definition at line 87 of file cull_list.h.
+.SS "std::vector<\fBCullItem\fP> \fBCullList::list\fP\fC [private]\fP"
+.PP
+Holds a list of users being quit. 
+.PP
+See the information for \fBCullItem\fP for more information.
+.PP
+Definition at line 82 of file cull_list.h.
+
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for InspIRCd from the source code.

@@ -23,13 +23,14 @@ Include dependency graph for channels.h:<p><center><img src="channels_8h__incl.g
 This graph shows which files directly or indirectly include this file:<p><center><img src="channels_8h__dep__incl.gif" border="0" usemap="#channels.hdep_map" alt=""></center>
 <map name="channels.hdep_map">
 <area href="users_8cpp-source.html" shape="rect" coords="407,83,487,109" alt="">
-<area href="users_8h-source.html" shape="rect" coords="144,257,208,284" alt="">
+<area href="users_8h-source.html" shape="rect" coords="144,260,208,287" alt="">
 <area href="commands_8h-source.html" shape="rect" coords="257,57,356,84" alt="">
-<area href="globals_8h-source.html" shape="rect" coords="269,159,344,185" alt="">
-<area href="typedefs_8h-source.html" shape="rect" coords="404,209,489,236" alt="">
+<area href="globals_8h-source.html" shape="rect" coords="269,209,344,236" alt="">
+<area href="typedefs_8h-source.html" shape="rect" coords="404,235,489,261" alt="">
 <area href="inspircd_8h-source.html" shape="rect" coords="267,108,347,135" alt="">
-<area href="message_8h-source.html" shape="rect" coords="264,311,349,337" alt="">
-<area href="mode_8h-source.html" shape="rect" coords="273,361,340,388" alt="">
+<area href="cull__list_8h-source.html" shape="rect" coords="268,311,345,337" alt="">
+<area href="message_8h-source.html" shape="rect" coords="264,361,349,388" alt="">
+<area href="mode_8h-source.html" shape="rect" coords="273,412,340,439" alt="">
 <area href="xline_8h-source.html" shape="rect" coords="276,463,337,489" alt="">
 </map>
 
@@ -518,7 +519,7 @@ Definition at line <a class="el" href="channels_8cpp-source.html#l00195">195</a>
 <p>
 References <a class="el" href="channels_8h-source.html#l00151">chanrec::bans</a>, <a class="el" href="channels_8h-source.html#l00147">chanrec::binarymodes</a>, <a class="el" href="channels_8cpp.html#chanlist">chanlist</a>, <a class="el" href="users_8h-source.html#l00149">userrec::chans</a>, <a class="el" href="channels_8h-source.html#l00028">CM_INVITEONLY</a>, <a class="el" href="channels_8h-source.html#l00027">CM_NOEXTERNAL</a>, <a class="el" href="channels_8h-source.html#l00026">CM_TOPICLOCK</a>, <a class="el" href="inspircd__io_8h-source.html#l00028">DEBUG</a>, <a class="el" href="inspircd__io_8h-source.html#l00030">DEFAULT</a>, <a class="el" href="connection_8h-source.html#l00042">connection::fd</a>, <a class="el" href="globals_8h.html#FindChan_28const_20char_20_2Achan_29">FindChan()</a>, <a class="el" href="channels_8cpp-source.html#l00372">ForceChan()</a>, <a class="el" href="modules_8h-source.html#l00089">FOREACH_RESULT</a>, <a class="el" href="users_8cpp-source.html#l00072">userrec::GetFullHost()</a>, <a class="el" href="message_8h.html#has_5Fchannel_28userrec_20_2Au_2C_20chanrec_20_2Ac_29">has_channel()</a>, <a class="el" href="users_8cpp-source.html#l00096">userrec::IsInvited()</a>, <a class="el" href="channels_8h-source.html#l00143">chanrec::key</a>, <a class="el" href="channels_8h-source.html#l00138">chanrec::limit</a>, <a class="el" href="globals_8h.html#log_28int_20level_2C_20char_20_2Atext_2C_2E_2E_2E_29">log()</a>, <a class="el" href="users_8h-source.html#l00147">userrec::modes</a>, <a class="el" href="channels_8h-source.html#l00108">chanrec::name</a>, <a class="el" href="users_8h-source.html#l00124">userrec::nick</a>, <a class="el" href="users_8cpp-source.html#l00122">userrec::RemoveInvite()</a>, <a class="el" href="channels_8cpp.html#TIME">TIME</a>, and <a class="el" href="globals_8h.html#WriteServ_28int_20sock_2C_20char_20_2Atext_2C_2E_2E_2E_29">WriteServ()</a>.
 <p>
-Referenced by <a class="el" href="modules_8cpp-source.html#l00359">Server::JoinUserToChannel()</a>.<div class="fragment"><pre class="fragment"><a name="l00196"></a>00196 {
+Referenced by <a class="el" href="modules_8cpp-source.html#l00364">Server::JoinUserToChannel()</a>.<div class="fragment"><pre class="fragment"><a name="l00196"></a>00196 {
 <a name="l00197"></a>00197         <span class="keywordflow">if</span> ((!user) || (!cn))
 <a name="l00198"></a>00198         {
 <a name="l00199"></a>00199                 <a class="code" href="globals_8h.html#log_28int_20level_2C_20char_20_2Atext_2C_2E_2E_2E_29">log</a>(<a class="code" href="inspircd__io_8h.html#DEFAULT">DEFAULT</a>,<span class="stringliteral">"*** BUG *** add_channel was given an invalid parameter"</span>);
@@ -750,7 +751,7 @@ Definition at line <a class="el" href="channels_8cpp-source.html#l00401">401</a>
 <p>
 References <a class="el" href="channels_8cpp.html#chanlist">chanlist</a>, <a class="el" href="users_8h-source.html#l00149">userrec::chans</a>, <a class="el" href="inspircd__io_8h-source.html#l00028">DEBUG</a>, <a class="el" href="inspircd__io_8h-source.html#l00030">DEFAULT</a>, <a class="el" href="channels_8cpp-source.html#l00173">chanrec::DelUser()</a>, <a class="el" href="globals_8h.html#FindChan_28const_20char_20_2Achan_29">FindChan()</a>, <a class="el" href="modules_8h-source.html#l00081">FOREACH_MOD</a>, <a class="el" href="globals_8h.html#log_28int_20level_2C_20char_20_2Atext_2C_2E_2E_2E_29">log()</a>, <a class="el" href="channels_8h-source.html#l00108">chanrec::name</a>, <a class="el" href="users_8h-source.html#l00124">userrec::nick</a>, and <a class="el" href="globals_8h.html#WriteChannel_28chanrec_20_2APtr_2C_20userrec_20_2Auser_2C_20char_20_2Atext_2C_2E_2E_2E_29">WriteChannel()</a>.
 <p>
-Referenced by <a class="el" href="modules_8cpp-source.html#l00364">Server::PartUserFromChannel()</a>.<div class="fragment"><pre class="fragment"><a name="l00402"></a>00402 {
+Referenced by <a class="el" href="modules_8cpp-source.html#l00369">Server::PartUserFromChannel()</a>.<div class="fragment"><pre class="fragment"><a name="l00402"></a>00402 {
 <a name="l00403"></a>00403         <span class="keywordflow">if</span> ((!user) || (!cname))
 <a name="l00404"></a>00404         {
 <a name="l00405"></a>00405                 <a class="code" href="globals_8h.html#log_28int_20level_2C_20char_20_2Atext_2C_2E_2E_2E_29">log</a>(<a class="code" href="inspircd__io_8h.html#DEFAULT">DEFAULT</a>,<span class="stringliteral">"*** BUG *** del_channel was given an invalid parameter"</span>);
@@ -949,7 +950,7 @@ References <a class="el" href="modules_8h-source.html#l00040">AC_KICK</a>, <a cl
     </td>
   </tr>
 </table>
-<hr size="1"><address style="align: right;"><small>Generated on Wed Dec 14 19:16:15 2005 for InspIRCd by&nbsp;
+<hr size="1"><address style="align: right;"><small>Generated on Thu Dec 15 11:14:15 2005 for InspIRCd by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img src="doxygen.png" alt="doxygen" align="middle" border="0"></a> 1.4.4-20050815 </small></address>
 </body>

@@ -1,4 +1,4 @@
-.TH "inspircd.h" 3 "14 Dec 2005" "Version 1.0Betareleases" "InspIRCd" \" -*- nroff -*-
+.TH "inspircd.h" 3 "15 Dec 2005" "Version 1.0Betareleases" "InspIRCd" \" -*- nroff -*-
 .ad l
 .nh
 .SH NAME
@@ -126,9 +126,6 @@ inspircd.h \-
 .RI "bool \fBis_valid_cmd\fP (const char *commandname, int pcnt, \fBuserrec\fP *user)"
 .br
 .ti -1c
-.RI "\fBstd::string\fP \fBGetRevision\fP ()"
-.br
-.ti -1c
 .RI "int \fBloop_call\fP (\fBhandlerfunc\fP fn, char **parameters, int pcnt, \fBuserrec\fP *u, int start, int end, int joins)"
 .br
 .ti -1c
@@ -139,9 +136,6 @@ inspircd.h \-
 .br
 .ti -1c
 .RI "\fBuserrec\fP * \fBReHashNick\fP (char *Old, char *New)"
-.br
-.ti -1c
-.RI "char * \fBModuleError\fP ()"
 .br
 .ti -1c
 .RI "void \fBAddOper\fP (\fBuserrec\fP *user)"
@@ -157,9 +151,6 @@ inspircd.h \-
 .br
 .ti -1c
 .RI "const char * \fBFindServerNamePtr\fP (\fBstd::string\fP servername)"
-.br
-.ti -1c
-.RI "\fBstd::string\fP \fBGetVersionString\fP ()"
 .br
 .ti -1c
 .RI "void * \fBdns_task\fP (void *arg)"
@@ -244,10 +235,6 @@ Referenced by userrec::userrec().
 Referenced by Server::ChangeUserNick().
 .SS "void FullConnectUser (\fBuserrec\fP * user)"
 .PP
-.SS "\fBstd::string\fP GetRevision ()"
-.PP
-.SS "\fBstd::string\fP GetVersionString ()"
-.PP
 .SS "void handle_version (char ** parameters, int pcnt, \fBuserrec\fP * user)"
 .PP
 .SS "bool is_valid_cmd (const char * commandname, int pcnt, \fBuserrec\fP * user)"
@@ -259,8 +246,6 @@ Referenced by Server::PseudoToUser(), and Server::QuitUser().
 .SS "void kill_link_silent (\fBuserrec\fP * user, const char * r)"
 .PP
 .SS "int loop_call (\fBhandlerfunc\fP fn, char ** parameters, int pcnt, \fBuserrec\fP * u, int start, int end, int joins)"
-.PP
-.SS "char* ModuleError ()"
 .PP
 .SS "void process_buffer (const char * cmdbuf, \fBuserrec\fP * user)"
 .PP

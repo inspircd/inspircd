@@ -1,0 +1,87 @@
+.TH "CullItem" 3 "15 Dec 2005" "Version 1.0Betareleases" "InspIRCd" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+CullItem \- The CullItem class holds a user and their quitmessage, and is used internally by the \fBCullList\fP class to compile a list of users which are to be culled when a long operation (such as a netsplit) has completed.  
+
+.PP
+.SH SYNOPSIS
+.br
+.PP
+\fC#include <cull_list.h>\fP
+.PP
+.SS "Public Member Functions"
+
+.in +1c
+.ti -1c
+.RI "\fBCullItem\fP (\fBuserrec\fP *u, \fBstd::string\fP r)"
+.br
+.RI "\fIConstrcutor. \fP"
+.ti -1c
+.RI "\fBuserrec\fP * \fBGetUser\fP ()"
+.br
+.RI "\fIReturns a pointer to the user. \fP"
+.ti -1c
+.RI "\fBstd::string\fP \fBGetReason\fP ()"
+.br
+.RI "\fIReturns the user's quit reason. \fP"
+.in -1c
+.SS "Private Attributes"
+
+.in +1c
+.ti -1c
+.RI "\fBuserrec\fP * \fBuser\fP"
+.br
+.RI "\fIHolds a pointer to the user, must be valid and can be a local or remote user. \fP"
+.ti -1c
+.RI "\fBstd::string\fP \fBreason\fP"
+.br
+.RI "\fIHolds the quit reason to use for this user. \fP"
+.in -1c
+.SH "Detailed Description"
+.PP 
+The CullItem class holds a user and their quitmessage, and is used internally by the \fBCullList\fP class to compile a list of users which are to be culled when a long operation (such as a netsplit) has completed. 
+.PP
+Definition at line 36 of file cull_list.h.
+.SH "Constructor & Destructor Documentation"
+.PP 
+.SS "CullItem::CullItem (\fBuserrec\fP * u, \fBstd::string\fP r)"
+.PP
+Constrcutor. 
+.PP
+Initializes the CullItem with a user pointer and their quit reason 
+.PP
+\fBParameters:\fP
+.RS 4
+\fIu\fP The user to add 
+.br
+\fIr\fP The quit reason of the added user
+.RE
+.PP
+
+.SH "Member Function Documentation"
+.PP 
+.SS "\fBstd::string\fP CullItem::GetReason ()"
+.PP
+Returns the user's quit reason. 
+.PP
+.SS "\fBuserrec\fP* CullItem::GetUser ()"
+.PP
+Returns a pointer to the user. 
+.PP
+.SH "Member Data Documentation"
+.PP 
+.SS "\fBstd::string\fP \fBCullItem::reason\fP\fC [private]\fP"
+.PP
+Holds the quit reason to use for this user. 
+.PP
+Definition at line 45 of file cull_list.h.
+.SS "\fBuserrec\fP* \fBCullItem::user\fP\fC [private]\fP"
+.PP
+Holds a pointer to the user, must be valid and can be a local or remote user. 
+.PP
+Definition at line 42 of file cull_list.h.
+
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for InspIRCd from the source code.

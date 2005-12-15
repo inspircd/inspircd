@@ -1,4 +1,4 @@
-.TH "InspIRCd" 3 "14 Dec 2005" "Version 1.0Betareleases" "InspIRCd" \" -*- nroff -*-
+.TH "InspIRCd" 3 "15 Dec 2005" "Version 1.0Betareleases" "InspIRCd" \" -*- nroff -*-
 .ad l
 .nh
 .SH NAME
@@ -11,6 +11,15 @@ InspIRCd \-
 .SS "Public Member Functions"
 
 .in +1c
+.ti -1c
+.RI "\fBstd::string\fP \fBGetRevision\fP ()"
+.br
+.ti -1c
+.RI "\fBstd::string\fP \fBGetVersionString\fP ()"
+.br
+.ti -1c
+.RI "char * \fBModuleError\fP ()"
+.br
 .ti -1c
 .RI "bool \fBLoadModule\fP (const char *filename)"
 .br
@@ -41,6 +50,13 @@ InspIRCd \-
 .RI "void \fBerase_module\fP (int j)"
 .br
 .in -1c
+.SS "Private Attributes"
+
+.in +1c
+.ti -1c
+.RI "char \fBMODERR\fP [MAXBUF]"
+.br
+.in -1c
 .SH "Detailed Description"
 .PP 
 Definition at line 95 of file inspircd.h.
@@ -54,7 +70,14 @@ Definition at line 95 of file inspircd.h.
 .PP
 .SS "void InspIRCd::erase_module (int j)\fC [private]\fP"
 .PP
+.SS "\fBstd::string\fP InspIRCd::GetRevision ()"
+.PP
+.SS "\fBstd::string\fP InspIRCd::GetVersionString ()"
+.PP
+Referenced by Server::GetVersion().
 .SS "bool InspIRCd::LoadModule (const char * filename)"
+.PP
+.SS "char* InspIRCd::ModuleError ()"
 .PP
 .SS "int InspIRCd::Run ()"
 .PP
@@ -62,9 +85,12 @@ Definition at line 95 of file inspircd.h.
 .PP
 .SH "Member Data Documentation"
 .PP 
+.SS "char \fBInspIRCd::MODERR\fP[MAXBUF]\fC [private]\fP"
+.PP
+Definition at line 99 of file inspircd.h.
 .SS "time_t \fBInspIRCd::startup_time\fP"
 .PP
-Definition at line 103 of file inspircd.h.
+Definition at line 104 of file inspircd.h.
 
 .SH "Author"
 .PP 

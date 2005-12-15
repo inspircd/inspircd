@@ -100,8 +100,6 @@ This graph shows which files directly or indirectly include this file:<p><center
 
 <tr><td class="memItemLeft" nowrap align="right" valign="top">bool&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="inspircd_8h.html#is_5Fvalid_5Fcmd_28const_20char_20_2Acommandname_2C_20int_20pcnt_2C_20userrec_20_2Auser_29">is_valid_cmd</a> (const char *commandname, int pcnt, <a class="el" href="classuserrec.html">userrec</a> *user)</td></tr>
 
-<tr><td class="memItemLeft" nowrap align="right" valign="top"><a class="el" href="namespaceirc.html#string">std::string</a>&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="inspircd_8h.html#GetRevision_28_29">GetRevision</a> ()</td></tr>
-
 <tr><td class="memItemLeft" nowrap align="right" valign="top">int&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="inspircd_8h.html#loop_5Fcall_28handlerfunc_20fn_2C_20char_20_2A_2Aparameters_2C_20int_20pcnt_2C_20userrec_20_2Au_2C_20int_20start_2C_20int_20end_2C_20int_20joins_29">loop_call</a> (<a class="el" href="inspircd_8h.html#handlerfunc_29_28char_20_2A_2A_2C_20int_2C_20userrec_20_2A_29">handlerfunc</a> fn, char **parameters, int pcnt, <a class="el" href="classuserrec.html">userrec</a> *u, int start, int end, int joins)</td></tr>
 
 <tr><td class="memItemLeft" nowrap align="right" valign="top">void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="inspircd_8h.html#AddWhoWas_28userrec_20_2Au_29">AddWhoWas</a> (<a class="el" href="classuserrec.html">userrec</a> *u)</td></tr>
@@ -109,8 +107,6 @@ This graph shows which files directly or indirectly include this file:<p><center
 <tr><td class="memItemLeft" nowrap align="right" valign="top">void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="inspircd_8h.html#ConnectUser_28userrec_20_2Auser_29">ConnectUser</a> (<a class="el" href="classuserrec.html">userrec</a> *user)</td></tr>
 
 <tr><td class="memItemLeft" nowrap align="right" valign="top"><a class="el" href="classuserrec.html">userrec</a> *&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="inspircd_8h.html#ReHashNick_28char_20_2AOld_2C_20char_20_2ANew_29">ReHashNick</a> (char *Old, char *New)</td></tr>
-
-<tr><td class="memItemLeft" nowrap align="right" valign="top">char *&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="inspircd_8h.html#ModuleError_28_29">ModuleError</a> ()</td></tr>
 
 <tr><td class="memItemLeft" nowrap align="right" valign="top">void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="inspircd_8h.html#AddOper_28userrec_20_2Auser_29">AddOper</a> (<a class="el" href="classuserrec.html">userrec</a> *user)</td></tr>
 
@@ -121,8 +117,6 @@ This graph shows which files directly or indirectly include this file:<p><center
 <tr><td class="memItemLeft" nowrap align="right" valign="top">void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="inspircd_8h.html#AddServerName_28std_3A_3Astring_20servername_29">AddServerName</a> (<a class="el" href="namespaceirc.html#string">std::string</a> servername)</td></tr>
 
 <tr><td class="memItemLeft" nowrap align="right" valign="top">const char *&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="inspircd_8h.html#FindServerNamePtr_28std_3A_3Astring_20servername_29">FindServerNamePtr</a> (<a class="el" href="namespaceirc.html#string">std::string</a> servername)</td></tr>
-
-<tr><td class="memItemLeft" nowrap align="right" valign="top"><a class="el" href="namespaceirc.html#string">std::string</a>&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="inspircd_8h.html#GetVersionString_28_29">GetVersionString</a> ()</td></tr>
 
 <tr><td class="memItemLeft" nowrap align="right" valign="top">void *&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="inspircd_8h.html#dns_5Ftask_28void_20_2Aarg_29">dns_task</a> (void *arg)</td></tr>
 
@@ -633,7 +627,7 @@ Definition at line <a class="el" href="inspircd_8h-source.html#l00070">70</a> of
 <p>
 
 <p>
-Referenced by <a class="el" href="modules_8cpp-source.html#l00396">Server::CallCommandHandler()</a>.    </td>
+Referenced by <a class="el" href="modules_8cpp-source.html#l00401">Server::CallCommandHandler()</a>.    </td>
   </tr>
 </table>
 <a class="anchor" name="ConnectUser_28userrec_20_2Auser_29"></a><!-- doxytag: member="inspircd.h::ConnectUser" ref="ConnectUser_28userrec_20_2Auser_29" args="(userrec *user)" --><p>
@@ -786,7 +780,7 @@ Referenced by <a class="el" href="users_8cpp-source.html#l00036">userrec::userre
 <p>
 
 <p>
-Referenced by <a class="el" href="modules_8cpp-source.html#l00381">Server::ChangeUserNick()</a>.    </td>
+Referenced by <a class="el" href="modules_8cpp-source.html#l00386">Server::ChangeUserNick()</a>.    </td>
   </tr>
 </table>
 <a class="anchor" name="FullConnectUser_28userrec_20_2Auser_29"></a><!-- doxytag: member="inspircd.h::FullConnectUser" ref="FullConnectUser_28userrec_20_2Auser_29" args="(userrec *user)" --><p>
@@ -799,60 +793,6 @@ Referenced by <a class="el" href="modules_8cpp-source.html#l00381">Server::Chang
           <td class="md" valign="top">(&nbsp;</td>
           <td class="md" nowrap valign="top"><a class="el" href="classuserrec.html">userrec</a> *&nbsp;</td>
           <td class="mdname1" valign="top" nowrap> <em>user</em>          </td>
-          <td class="md" valign="top">&nbsp;)&nbsp;</td>
-          <td class="md" nowrap></td>
-        </tr>
-      </table>
-    </td>
-  </tr>
-</table>
-<table cellspacing="5" cellpadding="0" border="0">
-  <tr>
-    <td>
-      &nbsp;
-    </td>
-    <td>
-
-<p>
-    </td>
-  </tr>
-</table>
-<a class="anchor" name="GetRevision_28_29"></a><!-- doxytag: member="inspircd.h::GetRevision" ref="GetRevision_28_29" args="()" --><p>
-<table class="mdTable" cellpadding="2" cellspacing="0">
-  <tr>
-    <td class="mdRow">
-      <table cellpadding="0" cellspacing="0" border="0">
-        <tr>
-          <td class="md" nowrap valign="top"><a class="el" href="namespaceirc.html#string">std::string</a> GetRevision           </td>
-          <td class="md" valign="top">(&nbsp;</td>
-          <td class="mdname1" valign="top" nowrap>          </td>
-          <td class="md" valign="top">&nbsp;)&nbsp;</td>
-          <td class="md" nowrap></td>
-        </tr>
-      </table>
-    </td>
-  </tr>
-</table>
-<table cellspacing="5" cellpadding="0" border="0">
-  <tr>
-    <td>
-      &nbsp;
-    </td>
-    <td>
-
-<p>
-    </td>
-  </tr>
-</table>
-<a class="anchor" name="GetVersionString_28_29"></a><!-- doxytag: member="inspircd.h::GetVersionString" ref="GetVersionString_28_29" args="()" --><p>
-<table class="mdTable" cellpadding="2" cellspacing="0">
-  <tr>
-    <td class="mdRow">
-      <table cellpadding="0" cellspacing="0" border="0">
-        <tr>
-          <td class="md" nowrap valign="top"><a class="el" href="namespaceirc.html#string">std::string</a> GetVersionString           </td>
-          <td class="md" valign="top">(&nbsp;</td>
-          <td class="mdname1" valign="top" nowrap>          </td>
           <td class="md" valign="top">&nbsp;)&nbsp;</td>
           <td class="md" nowrap></td>
         </tr>
@@ -956,7 +896,7 @@ Referenced by <a class="el" href="modules_8cpp-source.html#l00381">Server::Chang
 <p>
 
 <p>
-Referenced by <a class="el" href="modules_8cpp-source.html#l00401">Server::IsValidModuleCommand()</a>.    </td>
+Referenced by <a class="el" href="modules_8cpp-source.html#l00406">Server::IsValidModuleCommand()</a>.    </td>
   </tr>
 </table>
 <a class="anchor" name="kill_5Flink_28userrec_20_2Auser_2C_20const_20char_20_2Ar_29"></a><!-- doxytag: member="inspircd.h::kill_link" ref="kill_5Flink_28userrec_20_2Auser_2C_20const_20char_20_2Ar_29" args="(userrec *user, const char *r)" --><p>
@@ -995,7 +935,7 @@ Referenced by <a class="el" href="modules_8cpp-source.html#l00401">Server::IsVal
 <p>
 
 <p>
-Referenced by <a class="el" href="modules_8cpp-source.html#l00605">Server::PseudoToUser()</a>, and <a class="el" href="modules_8cpp-source.html#l00386">Server::QuitUser()</a>.    </td>
+Referenced by <a class="el" href="modules_8cpp-source.html#l00610">Server::PseudoToUser()</a>, and <a class="el" href="modules_8cpp-source.html#l00391">Server::QuitUser()</a>.    </td>
   </tr>
 </table>
 <a class="anchor" name="kill_5Flink_5Fsilent_28userrec_20_2Auser_2C_20const_20char_20_2Ar_29"></a><!-- doxytag: member="inspircd.h::kill_link_silent" ref="kill_5Flink_5Fsilent_28userrec_20_2Auser_2C_20const_20char_20_2Ar_29" args="(userrec *user, const char *r)" --><p>
@@ -1102,33 +1042,6 @@ Referenced by <a class="el" href="modules_8cpp-source.html#l00605">Server::Pseud
     </td>
   </tr>
 </table>
-<a class="anchor" name="ModuleError_28_29"></a><!-- doxytag: member="inspircd.h::ModuleError" ref="ModuleError_28_29" args="()" --><p>
-<table class="mdTable" cellpadding="2" cellspacing="0">
-  <tr>
-    <td class="mdRow">
-      <table cellpadding="0" cellspacing="0" border="0">
-        <tr>
-          <td class="md" nowrap valign="top">char* ModuleError           </td>
-          <td class="md" valign="top">(&nbsp;</td>
-          <td class="mdname1" valign="top" nowrap>          </td>
-          <td class="md" valign="top">&nbsp;)&nbsp;</td>
-          <td class="md" nowrap></td>
-        </tr>
-      </table>
-    </td>
-  </tr>
-</table>
-<table cellspacing="5" cellpadding="0" border="0">
-  <tr>
-    <td>
-      &nbsp;
-    </td>
-    <td>
-
-<p>
-    </td>
-  </tr>
-</table>
 <a class="anchor" name="process_5Fbuffer_28const_20char_20_2Acmdbuf_2C_20userrec_20_2Auser_29"></a><!-- doxytag: member="inspircd.h::process_buffer" ref="process_5Fbuffer_28const_20char_20_2Acmdbuf_2C_20userrec_20_2Auser_29" args="(const char *cmdbuf, userrec *user)" --><p>
 <table class="mdTable" cellpadding="2" cellspacing="0">
   <tr>
@@ -1203,7 +1116,7 @@ Referenced by <a class="el" href="modules_8cpp-source.html#l00605">Server::Pseud
     </td>
   </tr>
 </table>
-<hr size="1"><address style="align: right;"><small>Generated on Wed Dec 14 19:16:18 2005 for InspIRCd by&nbsp;
+<hr size="1"><address style="align: right;"><small>Generated on Thu Dec 15 11:14:16 2005 for InspIRCd by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img src="doxygen.png" alt="doxygen" align="middle" border="0"></a> 1.4.4-20050815 </small></address>
 </body>
