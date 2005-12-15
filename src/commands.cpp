@@ -95,7 +95,7 @@ char* CleanFilename(char* name)
 {
 	char* p = name + strlen(name);
 	while ((p != name) && (*p != '/')) p--;
-	p != name ? return ++p : return p;
+	return (p != name ? ++p : p);
 }
 
 void handle_join(char **parameters, int pcnt, userrec *user)
