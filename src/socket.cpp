@@ -175,25 +175,24 @@ char* InspSocket::Read()
 // and should be aborted.
 int InspSocket::Write(std::string data)
 {
-	char* d = (char*)data.c_str();
-	unsigned int written = 0;
-	int n = 0;
-	int s = data.length();
-	while ((written < data.length()) && (n >= 0))
+	this->Buffer = this->Buffer + data;
+	this->FlushWriteBuffer();
+}
+
+void InspSocket::FlushWriteBuffer()
+{
+	int result = 0;
+	if (this->Buffer.length())
 	{
-		n = send(this->fd,d,s,0);
-		if (n > 0)
+		result = send(this->fd,this->Buffer,this->Buffer.length(),0);
+		if (result > 0)
 		{
-			// If we didnt write everything, advance
-			// the pointers so that when we retry
-			// the next time around the loop, we try
-			// to write what we failed to write before.
-			written += n;
-			s -= n;
-			d += n;
+			/* If we wrote some, advance the buffer forwards */
+			char* n = (char*)this->Buffer.c_str();
+			n += result;
+			this->Buffer = n;
 		}
 	}
-	return written;
 }
 
 bool InspSocket::Timeout(time_t current)
@@ -210,6 +209,8 @@ bool InspSocket::Timeout(time_t current)
 		this->state = I_ERROR;
 		return true;
 	}
+	if (this->Buffer.length())
+		this->FlushWriteBuffer();
 	return false;
 }
 
