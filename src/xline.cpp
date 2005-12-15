@@ -642,6 +642,65 @@ void expire_lines()
 	
 }
 
+class CullItem
+{
+ private:
+	userrec* user;
+	std::string reason;
+ public:
+	CullItem(userrec* u, std::string r)
+	{
+		this->user = u;
+		this->reason = r;
+	}
+
+	userrec* GetUser()
+	{
+		return this->user;
+	}
+
+	std::string GetReason()
+	{
+		return this->reason;
+	}
+};
+
+
+class CullList
+{
+ private:
+	 std::vector<CullItem> list;
+	 char exempt[65535];
+ public:
+	 CullList()
+	 {
+		 memset(exempt,0,65535);
+		 line = ltype;
+	 }
+	 
+	 AddItem(userrec* user, std::string reason)
+	 {
+		 if ((user->fd > -1) && (exempt[user->fd] == 0))
+		 {
+			 CullItem item(user,reason);
+			 list.push_back(item);
+			 exempt[user->fd] = 1;
+		 }
+	 }
+
+	 Apply()
+	 {
+		 while (list.size())
+		 {
+			std::vector<CullItem>::iterator a = list.begin();
+			userrec* u = a->GetUser();
+			std::string reason = a->GetReason();
+			kill_link(u,reason);
+			list.erase(list.begin());
+		 }
+	 }
+}
+
 // applies lines, removing clients and changing nicks etc as applicable
 
 void apply_lines(const int What)
@@ -652,72 +711,61 @@ void apply_lines(const int What)
 	
 	if ((!glines.size()) && (!klines.size()) && (!zlines.size()) && (!qlines.size()))
 		return;
+
+	CullList* Goners = new CullList();
 	
-	while (go_again)
+	for (user_hash::const_iterator u = clientlist.begin(); u != clientlist.end(); u++)
 	{
-		go_again = false;
-		for (user_hash::const_iterator u = clientlist.begin(); u != clientlist.end(); u++)
+		if (u->second->fd > -1)
 		{
-			if (u->second->fd > -1)
+			snprintf(host,MAXBUF,"%s@%s",u->second->ident,u->second->host);
+			if (elines.size())
 			{
-				snprintf(host,MAXBUF,"%s@%s",u->second->ident,u->second->host);
-				if (elines.size())
+				// ignore people matching exempts
+				if (matches_exception(host))
+					continue;
+			}
+			if ((What & APPLY_GLINES) && (glines.size() || pglines.size()))
+			{
+				char* check = matches_gline(host);
+				if (check)
 				{
-					// ignore people matching exempts
-					if (matches_exception(host))
-						continue;
+					snprintf(reason,MAXBUF,"G-Lined: %s",check);
+					Goners->AddItem(u->second,reason);
 				}
-				if ((What & APPLY_GLINES) && (glines.size() || pglines.size()))
+			}
+			if ((What & APPLY_KLINES) && (klines.size() || pklines.size()))
+			{
+				char* check = matches_kline(host);
+				if (check)
 				{
-					char* check = matches_gline(host);
-					if (check)
-					{
-						WriteOpers("*** User %s matches G-Line: %s",u->second->registered == 7 ? u->second->nick:"<unknown>",check);
-						snprintf(reason,MAXBUF,"G-Lined: %s",check);
-						kill_link(u->second,reason);
-						go_again = true;
-						break;
-					}
+					snprintf(reason,MAXBUF,"K-Lined: %s",check);
+					Goners->AddItem(u->second,reason);
 				}
-				if ((What & APPLY_KLINES) && (klines.size() || pklines.size()))
+			}
+			if ((What & APPLY_QLINES) && (qlines.size() || pqlines.size()))
+			{
+				char* check = matches_qline(u->second->nick);
+				if (check)
 				{
-					char* check = matches_kline(host);
-					if (check)
-					{
-						WriteOpers("*** User %s matches K-Line: %s",u->second->registered == 7 ? u->second->nick:"<unknown>",check);
-						snprintf(reason,MAXBUF,"K-Lined: %s",check);
-						kill_link(u->second,reason);
-						go_again = true;
-						break;
-					}
+					snprintf(reason,MAXBUF,"Matched Q-Lined nick: %s",check);
+					Goners->AddItem(u->second,reason);
 				}
-				if ((What & APPLY_QLINES) && (qlines.size() || pqlines.size()))
+			}
+			if ((What & APPLY_ZLINES) && (zlines.size() || pzlines.size()))
+			{
+				char* check = matches_zline(u->second->ip);
+				if (check)
 				{
-					char* check = matches_qline(u->second->nick);
-					if (check)
-					{
-						snprintf(reason,MAXBUF,"Matched Q-Lined nick: %s",check);
-						WriteOpers("*** Q-Lined nickname %s from %s: %s",u->second->registered == 7 ? u->second->nick:"<unknown>",u->second->host,check);
-						kill_link(u->second,reason);
-						go_again = true;
-						break;
-					}
-				}
-				if ((What & APPLY_ZLINES) && (zlines.size() || pzlines.size()))
-				{
-					char* check = matches_zline(u->second->ip);
-					if (check)
-					{
-						snprintf(reason,MAXBUF,"Z-Lined: %s",check);
-						WriteOpers("*** User %s matches Z-Line: %s",u->second->registered == 7 ? u->second->nick:"<unknown>",u->second->host,check);
-						kill_link(u->second,reason);
-						go_again = true;
-						break;
-					}
+					snprintf(reason,MAXBUF,"Z-Lined: %s",check);
+					Goners->AddItem(u->second,reason);
 				}
 			}
 		}
 	}
+
+	Goners->Apply();
+	delete Goners;
 }
 
 void stats_k(userrec* user)
