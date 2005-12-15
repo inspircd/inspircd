@@ -91,6 +91,13 @@ extern userrec* fd_ref_table[65536];
 
 extern serverstats* stats;
 
+char* CleanFilename(char* name)
+{
+	char* p = name + strlen(name);
+	while ((p != name) && (*p != '/')) p--;
+	p != name ? return ++p : return p;
+}
+
 void handle_join(char **parameters, int pcnt, userrec *user)
 {
 	chanrec* Ptr;
