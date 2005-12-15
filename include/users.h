@@ -41,7 +41,7 @@
 class Invited : public classbase
 {
  public:
-	char channel[CHANMAX];
+	 irc::string channel;
 };
 
 
