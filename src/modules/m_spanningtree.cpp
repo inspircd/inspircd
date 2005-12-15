@@ -1117,6 +1117,7 @@ class TreeSocket : public InspSocket
 		char* data = this->Read();
 		if (data)
 		{
+			Srv->Log(DEBUG,"m_spanningtree: READ");
 			this->in_buffer += data;
 			/* While there is at least one new line in the buffer,
 			 * do something useful (we hope!) with it.
@@ -1622,7 +1623,7 @@ class TreeSocket : public InspSocket
 		line = l;
 		if (line == "")
 			return true;
-		Srv->Log(DEBUG,"IN: '"+line+"'");
+		Srv->Log(DEBUG,"IN: "+line);
 		std::deque<std::string> params;
 	        this->Split(line,true,params);
 		std::string command = "";
