@@ -650,7 +650,8 @@ void apply_lines(const int What)
 	char reason[MAXBUF];
 	char host[MAXBUF];
 	
-	if ((!glines.size()) && (!klines.size()) && (!zlines.size()) && (!qlines.size()))
+	if ((!glines.size()) && (!klines.size()) && (!zlines.size()) && (!qlines.size()) &&
+	(!pglines.size()) && (!pklines.size()) && (!pzlines.size()) && (!pqlines.size()))
 		return;
 
 	CullList* Goners = new CullList();
