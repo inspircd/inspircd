@@ -30,11 +30,15 @@ using namespace std;
 #include "commands.h"
 #include "helperfuncs.h"
 #include "typedefs.h"
+#include "socketengine.h"
 #include "hashcomp.h"
+#include "message.h"
+#include "wildcard.h"
+#include "xline.h"
 
 extern InspIRCd* ServerInstance;
-extern int WHOWAS_STALE = 48; // default WHOWAS Entries last 2 days before they go 'stale'
-extern int WHOWAS_MAX = 100;  // default 100 people maximum in the WHOWAS list
+extern int WHOWAS_STALE;
+extern int WHOWAS_MAX;
 extern std::vector<Module*> modules;
 extern std::vector<ircd_module*> factory;
 extern std::vector<InspSocket*> module_sockets;
@@ -49,6 +53,13 @@ extern user_hash clientlist;
 extern whowas_hash whowas;
 
 std::vector<userrec*> all_opers;
+
+template<typename T> inline string ConvToStr(const T &in)
+{
+        stringstream tmp;
+        if (!(tmp << in)) return string();
+        return tmp.str();
+}
 
 userrec::userrec()
 {

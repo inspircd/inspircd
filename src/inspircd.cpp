@@ -378,13 +378,6 @@ InspIRCd::InspIRCd(int argc, char** argv)
 	return;
 }
 
-template<typename T> inline string ConvToStr(const T &in)
-{
-	stringstream tmp;
-	if (!(tmp << in)) return string();
-	return tmp.str();
-}
-
 /* re-allocates a nick in the user_hash after they change nicknames,
  * returns a pointer to the new user as it may have moved */
 
@@ -473,11 +466,11 @@ std::string InspIRCd::GetVersionString()
 }
 
 
-bool is_valid_cmd(const char* commandname, int pcnt, userrec * user)
+bool is_valid_cmd(std::string &commandname, int pcnt, userrec * user)
 {
 	for (unsigned int i = 0; i < cmdlist.size(); i++)
 	{
-		if (!strcasecmp(cmdlist[i].command,commandname))
+		if (!strcasecmp(cmdlist[i].command,commandname.c_str()))
 		{
 			if (cmdlist[i].handler_function)
 			{
@@ -487,7 +480,7 @@ bool is_valid_cmd(const char* commandname, int pcnt, userrec * user)
 					{
 						if (cmdlist[i].flags_needed)
 						{
-							if ((user->HasPermission((char*)commandname)) || (is_uline(user->server)))
+							if ((user->HasPermission(commandname)) || (is_uline(user->server)))
 							{
 								return true;
 							}
@@ -507,11 +500,11 @@ bool is_valid_cmd(const char* commandname, int pcnt, userrec * user)
 
 // calls a handler function for a command
 
-void call_handler(const char* commandname,char **parameters, int pcnt, userrec *user)
+void call_handler(std::string &commandname,char **parameters, int pcnt, userrec *user)
 {
 	for (unsigned int i = 0; i < cmdlist.size(); i++)
 	{
-		if (!strcasecmp(cmdlist[i].command,commandname))
+		if (!strcasecmp(cmdlist[i].command,commandname.c_str()))
 		{
 			if (cmdlist[i].handler_function)
 			{
@@ -521,7 +514,7 @@ void call_handler(const char* commandname,char **parameters, int pcnt, userrec *
 					{
 						if (cmdlist[i].flags_needed)
 						{
-							if ((user->HasPermission((char*)commandname)) || (is_uline(user->server)))
+							if ((user->HasPermission(commandname)) || (is_uline(user->server)))
 							{
 								cmdlist[i].handler_function(parameters,pcnt,user);
 							}
