@@ -276,12 +276,13 @@ chanrec* add_channel(userrec *user, const char* cn, const char* key, bool overri
                                 }
                                 if (Ptr->binarymodes & CM_INVITEONLY)
                                 {
-                                        MOD_RESULT = 0;
+					MOD_RESULT = 0;
+					irc::string xname(Ptr->name);
                                         FOREACH_RESULT(OnCheckInvite(user, Ptr));
                                         if (!MOD_RESULT)
                                         {
                                                 log(DEBUG,"add_channel: channel is +i");
-                                                if (user->IsInvited(Ptr->name))
+                                                if (user->IsInvited(xname))
                                                 {
                                                         /* user was invited to channel */
                                                         /* there may be an optional channel NOTICE here */
@@ -292,7 +293,7 @@ chanrec* add_channel(userrec *user, const char* cn, const char* key, bool overri
                                                         return NULL;
                                                 }
                                         }
-                                        user->RemoveInvite(Ptr->name);
+                                        user->RemoveInvite(xname);
                                 }
                                 if (Ptr->limit)
                                 {
