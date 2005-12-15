@@ -44,7 +44,7 @@ class CullList
 {
  private:
          std::vector<CullItem> list;
-         char exempt[65535];
+	 std::map<userrec*,int> exempt;
  public:
          CullList();
          void AddItem(userrec* user, std::string reason);
