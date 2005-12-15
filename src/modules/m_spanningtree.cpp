@@ -659,7 +659,6 @@ class TreeSocket : public InspSocket
 		}
 		/* Now we've whacked the kids, whack self */
 		num_lost_servers++;
-		quittingpeople = false;
 		for (user_hash::iterator u = clientlist.begin(); u != clientlist.end(); u++)
 		{
 			if (!strcasecmp(u->second->server,Current->GetName().c_str()))
