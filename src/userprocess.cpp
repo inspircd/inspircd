@@ -66,6 +66,7 @@ extern std::vector<ircd_module*> factory;
 extern std::vector<InspSocket*> module_sockets;
 extern time_t TIME;
 extern time_t OLDTIME;
+extern std::vector<userrec*> local_users;
 
 extern InspIRCd* ServerInstance;
 extern SocketEngine* SE;
@@ -264,12 +265,12 @@ bool DoBackgroundUserStuff(time_t TIME)
         }
         /* TODO: We need a seperate hash containing only local users for this
          */
-        for (user_hash::iterator count2 = clientlist.begin(); count2 != clientlist.end(); count2++)
+        for (std::vector<userrec*>::iterator count2 = local_users.begin(); count2 != local_users.end(); count2++)
         {
                 /* Sanity checks for corrupted iterators (yes, really) */
                 userrec* curr = NULL;
-                if (count2->second)
-                        curr = count2->second;
+                if (*count2)
+                        curr = (userrec*)(*count2);
                 if ((long)curr == -1)
                         return false;
 

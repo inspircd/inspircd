@@ -83,6 +83,7 @@ extern whowas_hash whowas;
 extern command_table cmdlist;
 
 extern std::vector<userrec*> all_opers;
+extern std::vector<userrec*> local_users;
 
 // This table references users by file descriptor.
 // its an array to make it VERY fast, as all lookups are referenced
@@ -912,6 +913,11 @@ void handle_quit(char **parameters, int pcnt, userrec *user)
 	if (user->fd > -1)
 	{
 		SE->DelFd(user->fd);
+                if (find(local_users.begin(),local_users.end(),user) != local_users.end())
+                {
+                        log(DEBUG,"Delete local user");
+                        local_users.erase(find(local_users.begin(),local_users.end(),user));
+                }
 		user->CloseSocket();
 	}
 	

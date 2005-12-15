@@ -51,6 +51,7 @@ extern serverstats* stats;
 extern ServerConfig *Config;
 extern user_hash clientlist;
 extern whowas_hash whowas;
+std::vector<userrec*> local_users;
 
 std::vector<userrec*> all_opers;
 
@@ -390,7 +391,14 @@ void kill_link(userrec *user,const char* r)
         {
                 log(DEBUG,"deleting user hash value %lu",(unsigned long)user);
                 if (user->fd > -1)
+		{
                         fd_ref_table[user->fd] = NULL;
+			if (find(local_users.begin(),local_users.end(),user) != local_users.end())
+			{
+				local_users.erase(find(local_users.begin(),local_users.end(),user));
+				log(DEBUG,"Delete local user");
+			}
+		}
                 clientlist.erase(iter);
         }
         delete user;
@@ -437,7 +445,14 @@ void kill_link_silent(userrec *user,const char* r)
         {
                 log(DEBUG,"deleting user hash value %lu",(unsigned long)user);
                 if (user->fd > -1)
+		{
                         fd_ref_table[user->fd] = NULL;
+			if (find(local_users.begin(),local_users.end(),user) != local_users.end())
+			{
+				log(DEBUG,"Delete local user");
+	                        local_users.erase(find(local_users.begin(),local_users.end(),user));
+			}
+		}
                 clientlist.erase(iter);
         }
         delete user;
@@ -618,6 +633,7 @@ void AddClient(int socket, char* host, int port, bool iscached, char* ip)
                 }
         }
         fd_ref_table[socket] = clientlist[tempnick];
+	local_users.push_back(clientlist[tempnick]);
         SE->AddFd(socket,true,X_ESTAB_CLIENT);
 }
 

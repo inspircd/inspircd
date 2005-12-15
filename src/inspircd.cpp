@@ -69,6 +69,7 @@ int WHOWAS_MAX = 100;  // default 100 people maximum in the WHOWAS list
 extern std::vector<Module*> modules;
 extern std::vector<ircd_module*> factory;
 std::vector<InspSocket*> module_sockets;
+std::vector<userrec*> local_users;
 
 extern int MODCOUNT;
 int openSockfd[MAXSOCKS];
