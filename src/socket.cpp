@@ -177,6 +177,7 @@ int InspSocket::Write(std::string data)
 {
 	this->Buffer = this->Buffer + data;
 	this->FlushWriteBuffer();
+	return data.length();
 }
 
 void InspSocket::FlushWriteBuffer()
@@ -184,7 +185,7 @@ void InspSocket::FlushWriteBuffer()
 	int result = 0;
 	if (this->Buffer.length())
 	{
-		result = send(this->fd,this->Buffer,this->Buffer.length(),0);
+		result = send(this->fd,this->Buffer.c_str(),this->Buffer.length(),0);
 		if (result > 0)
 		{
 			/* If we wrote some, advance the buffer forwards */
