@@ -29,9 +29,25 @@ using namespace std;
 #include "inspstring.h"
 #include "commands.h"
 #include "helperfuncs.h"
+#include "typedefs.h"
+#include "hashcomp.h"
 
-extern ServerConfig* Config;
+extern InspIRCd* ServerInstance;
+extern int WHOWAS_STALE = 48; // default WHOWAS Entries last 2 days before they go 'stale'
+extern int WHOWAS_MAX = 100;  // default 100 people maximum in the WHOWAS list
+extern std::vector<Module*> modules;
+extern std::vector<ircd_module*> factory;
+extern std::vector<InspSocket*> module_sockets;
+extern int MODCOUNT;
+extern InspSocket* socket_ref[65535];
 extern time_t TIME;
+extern SocketEngine* SE;
+extern userrec* fd_ref_table[65536];
+extern serverstats* stats;
+extern ServerConfig *Config;
+extern user_hash clientlist;
+extern whowas_hash whowas;
+
 std::vector<userrec*> all_opers;
 
 userrec::userrec()
@@ -126,15 +142,12 @@ void userrec::RemoveInvite(irc::string &channel)
 	{
 		for (InvitedList::iterator i = invites.begin(); i != invites.end(); i++)
 		{
-			if (i->channel)
+			irc::string compare = i->channel;
+			if (compare == channel)
 			{
-				irc::string compare = i->channel;
-				if (compare == channel)
-				{
-					invites.erase(i);
-					return;
-	       	         	}
-			}
+				invites.erase(i);
+				return;
+       	         	}
        		}
        	}
 }
