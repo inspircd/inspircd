@@ -761,6 +761,7 @@ void process_command(userrec *user, char* cmd)
 		}
 	}
 
+	std::string xcommand = command;
 	for (unsigned int i = 0; i != cmdlist.size(); i++)
 	{
 		if (cmdlist[i].command[0])
@@ -802,7 +803,7 @@ void process_command(userrec *user, char* cmd)
 						cmd_found = 1;
 						return;
 					}
-					if ((cmdlist[i].flags_needed) && (!user->HasPermission(command)))
+					if ((cmdlist[i].flags_needed) && (!user->HasPermission(xcommand)))
 					{
 					        log(DEBUG,"process_command: permission denied: %s %s",user->nick,command);
 						WriteServ(user->fd,"481 %s :Permission Denied- Oper type %s does not have access to command %s",user->nick,user->oper,command);
