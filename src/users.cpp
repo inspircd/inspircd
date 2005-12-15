@@ -280,8 +280,12 @@ void userrec::AddWriteBuf(std::string data)
 		return;
 	if (sendq.length() + data.length() > (unsigned)this->sendqmax)
 	{
-		WriteOpers("*** User %s SendQ of %d exceeds connect class maximum of %d",this->nick,sendq.length() + data.length(),this->sendqmax);
+		/* Fix by brain - Set the error text BEFORE calling writeopers, because
+		 * if we dont it'll recursively  call here over and over again trying
+		 * to repeatedly add the text to the sendq!
+		 */
 		this->SetWriteError("SendQ exceeded");
+		WriteOpers("*** User %s SendQ of %d exceeds connect class maximum of %d",this->nick,sendq.length() + data.length(),this->sendqmax);
 		return;
 	}
         std::stringstream stream;
