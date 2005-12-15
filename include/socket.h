@@ -130,6 +130,10 @@ private:
 	 */
 	socklen_t length;
 
+	/** Flushes the write buffer
+	 */
+	void FlushWriteBuffer();
+
 public:
 
 	/**
