@@ -25,6 +25,8 @@
  
 #ifndef __USERS_H__ 
 #define __USERS_H__ 
+
+#include "hashcomp.h"
  
 #define STATUS_OP	4
 #define STATUS_HOP	2
