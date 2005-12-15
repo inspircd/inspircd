@@ -2,7 +2,7 @@
  *       | Inspire Internet Relay Chat Daemon |
  *       +------------------------------------+
  *
- *  Inspire is copyright (C) 2002-2004 ChatSpike-Dev.
+ *  Inspire is copyright (C) 2002-2005 ChatSpike-Dev.
  *                       E-mail:
  *                <brain@chatspike.net>
  *           	  <Craig@chatspike.net>
@@ -47,6 +47,7 @@ using namespace std;
 #include "helperfuncs.h"
 #include "hashcomp.h"
 #include "typedefs.h"
+#include "cull_list.h"
 
 extern ServerConfig *Config;
 
@@ -642,70 +643,10 @@ void expire_lines()
 	
 }
 
-class CullItem
-{
- private:
-	userrec* user;
-	std::string reason;
- public:
-	CullItem(userrec* u, std::string r)
-	{
-		this->user = u;
-		this->reason = r;
-	}
-
-	userrec* GetUser()
-	{
-		return this->user;
-	}
-
-	std::string GetReason()
-	{
-		return this->reason;
-	}
-};
-
-
-class CullList
-{
- private:
-	 std::vector<CullItem> list;
-	 char exempt[65535];
- public:
-	 CullList()
-	 {
-		 memset(exempt,0,65535);
-		 line = ltype;
-	 }
-	 
-	 AddItem(userrec* user, std::string reason)
-	 {
-		 if ((user->fd > -1) && (exempt[user->fd] == 0))
-		 {
-			 CullItem item(user,reason);
-			 list.push_back(item);
-			 exempt[user->fd] = 1;
-		 }
-	 }
-
-	 Apply()
-	 {
-		 while (list.size())
-		 {
-			std::vector<CullItem>::iterator a = list.begin();
-			userrec* u = a->GetUser();
-			std::string reason = a->GetReason();
-			kill_link(u,reason);
-			list.erase(list.begin());
-		 }
-	 }
-}
-
 // applies lines, removing clients and changing nicks etc as applicable
 
 void apply_lines(const int What)
 {
-	bool go_again = true;
 	char reason[MAXBUF];
 	char host[MAXBUF];
 	
