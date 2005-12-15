@@ -378,35 +378,6 @@ InspIRCd::InspIRCd(int argc, char** argv)
 	return;
 }
 
-/* re-allocates a nick in the user_hash after they change nicknames,
- * returns a pointer to the new user as it may have moved */
-
-userrec* ReHashNick(char* Old, char* New)
-{
-	//user_hash::iterator newnick;
-	user_hash::iterator oldnick = clientlist.find(Old);
-
-	log(DEBUG,"ReHashNick: %s %s",Old,New);
-	
-	if (!strcasecmp(Old,New))
-	{
-		log(DEBUG,"old nick is new nick, skipping");
-		return oldnick->second;
-	}
-	
-	if (oldnick == clientlist.end()) return NULL; /* doesnt exist */
-
-	log(DEBUG,"ReHashNick: Found hashed nick %s",Old);
-
-	userrec* olduser = oldnick->second;
-	clientlist[New] = olduser;
-	clientlist.erase(oldnick);
-
-	log(DEBUG,"ReHashNick: Nick rehashed as %s",New);
-	
-	return clientlist[New];
-}
-
 #ifdef THREADED_DNS
 void* dns_task(void* arg)
 {
@@ -529,43 +500,6 @@ void call_handler(std::string &commandname,char **parameters, int pcnt, userrec 
 		}
 	}
 }
-
-
-void force_nickchange(userrec* user,const char* newnick)
-{
-	char nick[MAXBUF];
-	int MOD_RESULT = 0;
-	
-	strcpy(nick,"");
-
-	FOREACH_RESULT(OnUserPreNick(user,newnick));
-	if (MOD_RESULT) {
-		stats->statsCollisions++;
-		kill_link(user,"Nickname collision");
-		return;
-	}
-	if (matches_qline(newnick))
-	{
-		stats->statsCollisions++;
-		kill_link(user,"Nickname collision");
-		return;
-	}
-	
-	if (user)
-	{
-		if (newnick)
-		{
-			strncpy(nick,newnick,MAXBUF);
-		}
-		if (user->registered == 7)
-		{
-			char* pars[1];
-			pars[0] = nick;
-			handle_nick(pars,1,user);
-		}
-	}
-}
-				
 
 int process_parameters(char **command_p,char *parameters)
 {

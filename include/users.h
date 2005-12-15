@@ -353,5 +353,7 @@ void AddWhoWas(userrec* u);
 void AddClient(int socket, char* host, int port, bool iscached, char* ip);
 void FullConnectUser(userrec* user);
 void ConnectUser(userrec *user);
+userrec* ReHashNick(char* Old, char* New);
+void force_nickchange(userrec* user,const char* newnick);
 
 #endif

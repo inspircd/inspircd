@@ -114,11 +114,9 @@ class InspIRCd
 };
 
 /* prototypes */
-void force_nickchange(userrec* user,const char* newnick);
 void call_handler(std::string &commandname,char **parameters, int pcnt, userrec *user);
 bool is_valid_cmd(std::string &commandname, int pcnt, userrec * user);
 int loop_call(handlerfunc fn, char **parameters, int pcnt, userrec *u, int start, int end, int joins);
-userrec* ReHashNick(char* Old, char* New);
 /* userrec optimization stuff */
 void AddServerName(std::string servername);
 const char* FindServerNamePtr(std::string servername);
