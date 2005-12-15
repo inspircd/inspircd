@@ -778,7 +778,7 @@ long GetMaxBans(char* name)
 void purge_empty_chans(userrec* u)
 {
 
-        int go_again = 1, purge = 0;
+        int purge = 0;
 
         // firstly decrement the count on each channel
         for (unsigned int f = 0; f < u->chans.size(); f++)
@@ -803,7 +803,6 @@ void purge_empty_chans(userrec* u)
                                         if (i2->second)
                                                 delete i2->second;
                                         chanlist.erase(i2);
-                                        go_again = 1;
                                         purge++;
                                         u->chans[i].channel = NULL;
                                 }
@@ -820,57 +819,39 @@ void purge_empty_chans(userrec* u)
 }
 
 
-char scratch[MAXBUF];
-char sparam[MAXBUF];
-
 char* chanmodes(chanrec *chan)
 {
+	static char scratch[MAXBUF];
+	static char sparam[MAXBUF];
+	int offset = 0;
+
         if (!chan)
         {
                 log(DEFAULT,"*** BUG *** chanmodes was given an invalid parameter");
-                strcpy(scratch,"");
+                *scratch = '\0';
                 return scratch;
         }
 
-        strcpy(scratch,"");
-        strcpy(sparam,"");
+        *scratch = '\0';
+        *sparam = '\0';
         if (chan->binarymodes & CM_NOEXTERNAL)
-        {
-                strlcat(scratch,"n",MAXMODES);
-        }
+		scratch[offset++] = 'n';
         if (chan->binarymodes & CM_TOPICLOCK)
-        {
-                strlcat(scratch,"t",MAXMODES);
-        }
+		scratch[offset++] = 't';
         if (*chan->key)
-        {
-                strlcat(scratch,"k",MAXMODES);
-        }
+		scratch[offset++] = 'k';
         if (chan->limit)
-        {
-                strlcat(scratch,"l",MAXMODES);
-        }
+		scratch[offset++] = 'l';
         if (chan->binarymodes & CM_INVITEONLY)
-        {
-                strlcat(scratch,"i",MAXMODES);
-        }
+		scratch[offset++] = 'i';
         if (chan->binarymodes & CM_MODERATED)
-        {
-                strlcat(scratch,"m",MAXMODES);
-        }
+		scratch[offset++] = 'm';
         if (chan->binarymodes & CM_SECRET)
-        {
-                strlcat(scratch,"s",MAXMODES);
-        }
+		scratch[offset++] = 's';
         if (chan->binarymodes & CM_PRIVATE)
-        {
-                strlcat(scratch,"p",MAXMODES);
-        }
+                scratch[offset++] = 'p';
         if (*chan->key)
-        {
-                strlcat(sparam," ",MAXBUF);
-                strlcat(sparam,chan->key,MAXBUF);
-        }
+		snprintf(sparam,MAXBUF," %s",chan->key);
         if (chan->limit)
         {
                 char foo[24];
@@ -879,7 +860,8 @@ char* chanmodes(chanrec *chan)
         }
         if (*chan->custom_modes)
         {
-                strlcat(scratch,chan->custom_modes,MAXMODES);
+		for (char* t= chan->custom_modes; *t; t++)
+	                scratch[offset++] = *t;
                 for (int z = 0; chan->custom_modes[z] != 0; z++)
                 {
                         std::string extparam = chan->GetModeParameter(chan->custom_modes[z]);
@@ -890,7 +872,8 @@ char* chanmodes(chanrec *chan)
                         }
                 }
         }
-        log(DEBUG,"chanmodes: %s %s%s",chan->name,scratch,sparam);
+	/* Null terminate scratch */
+	scratch[offset] = '\0';
         strlcat(scratch,sparam,MAXMODES);
         return scratch;
 }
