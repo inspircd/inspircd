@@ -414,9 +414,9 @@ void Server::Log(int level, std::string s)
 	log(level,"%s",s.c_str());
 }
 
-void Server::AddCommand(char* cmd, handlerfunc f, char flags, int minparams, char* source)
+void Server::AddCommand(command_t *f)
 {
-	ServerInstance->Parser->CreateCommand(cmd,f,flags,minparams,source);
+	ServerInstance->Parser->CreateCommand(f);
 }
 
 void Server::SendMode(char **parameters, int pcnt, userrec *user)

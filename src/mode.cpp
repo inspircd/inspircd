@@ -1241,7 +1241,7 @@ bool ModeParser::ProcessModuleUmode(char umode, userrec* source, void* dest, boo
 	}
 }
 
-void handle_mode(char **parameters, int pcnt, userrec *user)
+void cmd_mode::Handle (char **parameters, int pcnt, userrec *user)
 {
 	chanrec* Ptr;
 	userrec* dest;

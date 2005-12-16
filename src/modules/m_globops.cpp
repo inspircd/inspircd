@@ -27,20 +27,30 @@ using namespace std;
 /* $ModDesc: Provides support for unreal-style GLOBOPS and umode +g */
 
 Server *Srv;
-	 
-void handle_globops(char **parameters, int pcnt, userrec *user)
+
+class cmd_globops : public command_t
 {
-	std::string line = "*** GLOBOPS - From " + std::string(user->nick) + ": ";
-	for (int i = 0; i < pcnt; i++)
+ public:
+	cmd_globops () : command_t("GLOBOPS",'o',1)
 	{
-		line = line + std::string(parameters[i]) + " ";
+		this->source = "m_globops.so";
 	}
-	Srv->SendToModeMask("og",WM_AND,line);
-}
+	
+	void Handle (char **parameters, int pcnt, userrec *user)
+	{
+		std::string line = "*** GLOBOPS - From " + std::string(user->nick) + ": ";
+		for (int i = 0; i < pcnt; i++)
+		{
+			line = line + std::string(parameters[i]) + " ";
+		}
+		Srv->SendToModeMask("og",WM_AND,line);
+	}
+};
 
 
 class ModuleGlobops : public Module
 {
+	cmd_globops* mycommand;
  public:
 	ModuleGlobops(Server* Me)
 		: Module::Module(Me)
@@ -53,7 +63,11 @@ class ModuleGlobops : public Module
 			printf("Could not claim usermode +g for this module!");
 			return;
 		}
-		else Srv->AddCommand("GLOBOPS",handle_globops,'o',1,"m_globops.so");
+		else
+		{
+			mycommand = new cmd_globops();
+			Srv->AddCommand(mycommand);
+		}
 	}
 	
 	virtual ~ModuleGlobops()

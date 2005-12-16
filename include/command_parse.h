@@ -36,10 +36,10 @@ class CommandParser
 	CommandParser();
 	void CallHandler(std::string &commandname,char **parameters, int pcnt, userrec *user);
 	bool IsValidCommand(std::string &commandname, int pcnt, userrec * user);
-	int LoopCall(handlerfunc fn, char **parameters, int pcnt, userrec *u, int start, int end, int joins);
+	int LoopCall(command_t *fn, char **parameters, int pcnt, userrec *u, int start, int end, int joins);
 	void ProcessBuffer(const char* cmdbuf,userrec *user);
 	bool RemoveCommands(const char* source);
-	bool CreateCommand(char* cmd, handlerfunc f, char flags, int minparams,char* source);
+	bool CreateCommand(command_t *f);
 };
 
 #endif

@@ -22,7 +22,7 @@
 
 class userrec;
 
-typedef void (handlerfunc) (char**, int, userrec*);
+/*typedef void (handlerfunc) (char**, int, userrec*);*/
 
 /** A structure that defines a command
  */
@@ -31,10 +31,7 @@ class command_t
  public:
 	/** Command name
 	*/
-	char command[MAXBUF];
-	/** Handler function as in typedef
-	*/
-	handlerfunc *handler_function; 
+	 std::string command;
 	/** User flags needed to execute the command or 0
 	 */
 	char flags_needed;
@@ -49,10 +46,20 @@ class command_t
 	long total_bytes;
 	/** used for resource tracking between modules
 	 */
-	char source[MAXBUF];
+	std::string source;
+
+	command_t(std::string cmd, char flags, int minpara) : command(cmd), flags_needed(flags), min_params(minpara)
+	{
+		use_count = total_bytes = 0;
+		source = "<core>";
+	}
+
+	virtual void Handle(char** parameters, int pcnt, userrec* user) = 0;
+
+	virtual ~command_t() {}
 };
 
-typedef std::deque<command_t> command_table;
+typedef std::deque<command_t*> command_table;
 
 #endif
 

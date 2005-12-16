@@ -30,67 +30,76 @@ void handle_helpop(char**, int, userrec*);
 bool do_helpop(char**, int, userrec*);
 void sendtohelpop(userrec*, int, char**);
 
-
 /* $ModDesc: /helpop Command, Works like Unreal helpop */
 
-void handle_helpop(char **parameters, int pcnt, userrec *user)
+class cmd_helpop : public command_t
 {
-	char a[MAXBUF];
-	std::string output = " ";
+ public:
+	 cmd_helpop () : command_t("HELPOP",0,0)
+	 {
+		 this->source = "m_helpop.so";
+	 }
 
-	if (!helpop)
-		return;
+	void Handle (char **parameters, int pcnt, userrec *user)
+	{
+		char a[MAXBUF];
+		std::string output = " ";
 
-	if (pcnt < 1)
-	{
- 		do_helpop(NULL,pcnt,user);
-		return;
-   	}
+		if (!helpop)
+			return;
 
-	if (parameters[0][0] == '!')
-	{
-		// Force send to all +h users
-		sendtohelpop(user, pcnt, parameters);
-	}
-	else if (parameters[0][0] == '?')
-	{
-		// Force to the helpop system with no forward if not found.
-		if (do_helpop(parameters, pcnt, user) == false)
+		if (pcnt < 1)
 		{
-			// Not handled by the Database, Tell the user, and bail.
-			for (int i = 1; output != ""; i++)
-			{
-				snprintf(a,MAXBUF,"line%d",i);
-				output = helpop->ReadValue("nohelp", std::string(a), 0);
+	 		do_helpop(NULL,pcnt,user);
+			return;
+	   	}
 
-				if(output != "")
+		if (parameters[0][0] == '!')
+		{
+			// Force send to all +h users
+			sendtohelpop(user, pcnt, parameters);
+		}
+		else if (parameters[0][0] == '?')
+		{
+			// Force to the helpop system with no forward if not found.
+			if (do_helpop(parameters, pcnt, user) == false)
+			{
+				// Not handled by the Database, Tell the user, and bail.
+				for (int i = 1; output != ""; i++)
 				{
-					Srv->SendTo(NULL,user,"290 "+std::string(user->nick)+" :"+output);
+					snprintf(a,MAXBUF,"line%d",i);
+					output = helpop->ReadValue("nohelp", std::string(a), 0);
+	
+					if(output != "")
+					{
+						Srv->SendTo(NULL,user,"290 "+std::string(user->nick)+" :"+output);
+					}
 				}
 			}
 		}
-	}
-	else
-	{
-		// Check with the helpop database, if not found send to +h
-		if (do_helpop(parameters, pcnt, user) == false)
+		else
 		{
-			// Not handled by the Database, Tell the user, and forward.
-			for (int i = 1; output != ""; i++)
-  			{
-				snprintf(a,MAXBUF,"line%d",i);
-				/* "nohelpo" for opers "nohelp" for users */
-   				output = helpop->ReadValue("nohelpo", std::string(a), 0);
-				if (output != "")
-				{
-					Srv->SendTo(NULL,user,"290 "+std::string(user->nick)+" :"+output);
-				}
-  			}
-			// Forward.
-			sendtohelpop(user, pcnt, parameters);
+			// Check with the helpop database, if not found send to +h
+			if (do_helpop(parameters, pcnt, user) == false)
+			{
+				// Not handled by the Database, Tell the user, and forward.
+				for (int i = 1; output != ""; i++)
+	  			{
+					snprintf(a,MAXBUF,"line%d",i);
+					/* "nohelpo" for opers "nohelp" for users */
+	   				output = helpop->ReadValue("nohelpo", std::string(a), 0);
+					if (output != "")
+					{
+						Srv->SendTo(NULL,user,"290 "+std::string(user->nick)+" :"+output);
+					}
+	  			}
+				// Forward.
+				sendtohelpop(user, pcnt, parameters);
+			}
 		}
 	}
-}
+};
+
 
 bool do_helpop(char **parameters, int pcnt, userrec *src)
 {
@@ -156,6 +165,7 @@ class ModuleHelpop : public Module
 	private:
 		ConfigReader *conf;
 		std::string  h_file;
+		cmd_helpop* mycommand;
 
 	public:
 		ModuleHelpop(Server* Me)
@@ -170,7 +180,8 @@ class ModuleHelpop : public Module
 				return;
 			}
 
-			Srv->AddCommand("HELPOP",handle_helpop,0,0,"m_helpop.so");
+			mycommand = new cmd_helpop();
+			Srv->AddCommand(mycommand);
 		}
 
 		virtual void ReadConfig()

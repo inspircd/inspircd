@@ -27,6 +27,7 @@
 #include <vector>
 #include "users.h"
 #include "channels.h"
+#include "ctables.h"
 
 class ModeParser
 {
@@ -47,7 +48,11 @@ class ModeParser
 	void ServerMode(char **parameters, int pcnt, userrec *user);
 };
 
-void handle_mode(char **parameters, int pcnt, userrec *user);
-
+class cmd_mode : public command_t
+{
+ public:
+	cmd_mode () : command_t("MODE",0,1) { }
+	void Handle(char **parameters, int pcnt, userrec *user);
+};
 
 #endif

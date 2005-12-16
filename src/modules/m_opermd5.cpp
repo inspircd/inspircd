@@ -261,22 +261,33 @@ void GenHash(const char* src, char* dest)
 	strcpy(dest,hash);
 }
 
-void handle_mkpasswd(char **parameters, int pcnt, userrec *user)
+class cmd_mkpasswd : public command_t
 {
-	char buffer[MAXBUF];
-	GenHash(parameters[0],buffer);
-	WriteServ(user->fd,"NOTICE %s :MD5 hashed password for %s is %s",user->nick,parameters[0],buffer);
-}
+ public:
+	cmd_mkpasswd () : command_t("MKPASSWD", 'o', 1)
+	{
+		this->source = "m_opermd5.so";
+	}
+
+	void Handle (char **parameters, int pcnt, userrec *user)
+	{
+		char buffer[MAXBUF];
+		GenHash(parameters[0],buffer);
+		WriteServ(user->fd,"NOTICE %s :MD5 hashed password for %s is %s",user->nick,parameters[0],buffer);
+	}
+};
 
 class ModuleOperMD5 : public Module
 {
+	cmd_mkpasswd* mycommand;
  public:
 
 	ModuleOperMD5(Server* Me)
 		: Module::Module(Me)
 	{
 		Srv = Me;
-		Srv->AddCommand("MKPASSWD",handle_mkpasswd,'o',1,"m_opermd5.so");
+		mycommand = new cmd_mkpasswd();
+		Srv->AddCommand(mycommand);
 	}
 	
 	virtual ~ModuleOperMD5()

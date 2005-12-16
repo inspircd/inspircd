@@ -28,70 +28,67 @@
 #include "users.h"
 #include "channels.h"
 
-
-/** These are the handlers for user commands
- */
-void handle_join(char **parameters, int pcnt, userrec *user);
-void handle_part(char **parameters, int pcnt, userrec *user);
-void handle_kick(char **parameters, int pcnt, userrec *user);
-void handle_die(char **parameters, int pcnt, userrec *user);
-void handle_restart(char **parameters, int pcnt, userrec *user);
-void handle_kill(char **parameters, int pcnt, userrec *user);
-void handle_summon(char **parameters, int pcnt, userrec *user);
-void handle_users(char **parameters, int pcnt, userrec *user);
-void handle_pass(char **parameters, int pcnt, userrec *user);
-void handle_invite(char **parameters, int pcnt, userrec *user);
-void handle_topic(char **parameters, int pcnt, userrec *user);
-void handle_names(char **parameters, int pcnt, userrec *user);
-void handle_privmsg(char **parameters, int pcnt, userrec *user);
-void handle_notice(char **parameters, int pcnt, userrec *user);
-void handle_info(char **parameters, int pcnt, userrec *user);
-void handle_time(char **parameters, int pcnt, userrec *user);
-void handle_whois(char **parameters, int pcnt, userrec *user);
-void handle_quit(char **parameters, int pcnt, userrec *user);
-void handle_who(char **parameters, int pcnt, userrec *user);
-void handle_wallops(char **parameters, int pcnt, userrec *user);
-void handle_list(char **parameters, int pcnt, userrec *user);
-void handle_rehash(char **parameters, int pcnt, userrec *user);
-void handle_lusers(char **parameters, int pcnt, userrec *user);
-void handle_admin(char **parameters, int pcnt, userrec *user);
-void handle_ping(char **parameters, int pcnt, userrec *user);
-void handle_pong(char **parameters, int pcnt, userrec *user);
-void handle_motd(char **parameters, int pcnt, userrec *user);
-void handle_rules(char **parameters, int pcnt, userrec *user);
-void handle_user(char **parameters, int pcnt, userrec *user);
-void handle_userhost(char **parameters, int pcnt, userrec *user);
-void handle_ison(char **parameters, int pcnt, userrec *user);
-void handle_away(char **parameters, int pcnt, userrec *user);
-void handle_whowas(char **parameters, int pcnt, userrec *user);
-void handle_trace(char **parameters, int pcnt, userrec *user);
-void handle_modules(char **parameters, int pcnt, userrec *user);
-void handle_stats(char **parameters, int pcnt, userrec *user);
-void handle_connect(char **parameters, int pcnt, userrec *user);
-void handle_squit(char **parameters, int pcnt, userrec *user);
-void handle_links(char **parameters, int pcnt, userrec *user);
-void handle_map(char **parameters, int pcnt, userrec *user);
-void handle_oper(char **parameters, int pcnt, userrec *user);
-void handle_nick(char **parameters, int pcnt, userrec *user);
-void handle_kline(char **parameters, int pcnt, userrec *user);
-void handle_gline(char **parameters, int pcnt, userrec *user);
-void handle_zline(char **parameters, int pcnt, userrec *user);
-void handle_qline(char **parameters, int pcnt, userrec *user);
-void handle_eline(char **parameters, int pcnt, userrec *user);
-void handle_server(char **parameters, int pcnt, userrec *user);
-void handle_loadmodule(char **parameters, int pcnt, userrec *user);
-void handle_unloadmodule(char **parameters, int pcnt, userrec *user);
-void handle_commands(char **parameters, int pcnt, userrec *user);
-void handle_version(char **parameters, int pcnt, userrec *user);
-
-/** Functions for u:lined servers
- */
+char* CleanFilename(char* name);
 bool is_uline(const char* server);
-
-/** Other useful functions
- */
 long duration(const char* str);
-
 void do_whois(userrec* user, userrec* dest,unsigned long signon, unsigned long idle, char* nick);
+bool host_matches_everyone(std::string mask, userrec* user);
+bool ip_matches_everyone(std::string ip, userrec* user);
+bool nick_matches_everyone(std::string nick, userrec* user);	
+int operstrcmp(char* data,char* input);
+
+#include "cmd_admin.h"
+#include "cmd_away.h"
+#include "cmd_commands.h"
+#include "cmd_connect.h"
+#include "cmd_die.h"
+#include "cmd_eline.h"
+#include "cmd_gline.h"
+#include "cmd_info.h"
+#include "cmd_invite.h"
+#include "cmd_ison.h"
+#include "cmd_join.h"
+#include "cmd_kick.h"
+#include "cmd_kill.h"
+#include "cmd_kline.h"
+#include "cmd_links.h"
+#include "cmd_list.h"
+#include "cmd_loadmodule.h"
+#include "cmd_lusers.h"
+#include "cmd_map.h"
+#include "cmd_modules.h"
+#include "cmd_motd.h"
+#include "cmd_names.h"
+#include "cmd_nick.h"
+#include "cmd_notice.h"
+#include "cmd_oper.h"
+#include "cmd_part.h"
+#include "cmd_pass.h"
+#include "cmd_ping.h"
+#include "cmd_pong.h"
+#include "cmd_privmsg.h"
+#include "cmd_qline.h"
+#include "cmd_quit.h"
+#include "cmd_rehash.h"
+#include "cmd_restart.h"
+#include "cmd_rules.h"
+#include "cmd_server.h"
+#include "cmd_squit.h"
+#include "cmd_stats.h"
+#include "cmd_summon.h"
+#include "cmd_time.h"
+#include "cmd_topic.h"
+#include "cmd_trace.h"
+#include "cmd_unloadmodule.h"
+#include "cmd_user.h"
+#include "cmd_userhost.h"
+#include "cmd_users.h"
+#include "cmd_version.h"
+#include "cmd_wallops.h"
+#include "cmd_who.h"
+#include "cmd_whois.h"
+#include "cmd_whowas.h"
+#include "cmd_zline.h"
+
 
 #endif

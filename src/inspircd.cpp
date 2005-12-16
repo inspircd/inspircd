@@ -37,7 +37,6 @@ using namespace std;
 #include <sstream>
 #include <vector>
 #include <deque>
-#include <sched.h>
 #ifdef THREADED_DNS
 #include <pthread.h>
 #endif
@@ -58,7 +57,6 @@ using namespace std;
 #include "socketengine.h"
 #include "userprocess.h"
 #include "socket.h"
-#include "dns.h"
 #include "typedefs.h"
 #include "command_parse.h"
 

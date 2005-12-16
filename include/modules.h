@@ -1303,7 +1303,7 @@ class Server : public classbase
 	 * extension) e.g. "m_blarp.so". If you place the wrong identifier here, you can cause crashes if your module
 	 * is unloaded.
 	 */
-	virtual void AddCommand(char* cmd, handlerfunc f, char flags, int minparams, char* source);
+	virtual void AddCommand(command_t *f);
 	 
  	/** Sends a servermode.
  	 * you must format the parameters array with the target, modes and parameters for those modes.

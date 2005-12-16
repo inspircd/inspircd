@@ -798,7 +798,8 @@ void force_nickchange(userrec* user,const char* newnick)
                 {
                         char* pars[1];
                         pars[0] = nick;
-                        handle_nick(pars,1,user);
+			std::string cmd = "NICK";
+                        ServerInstance->Parser->CallHandler(cmd,pars,1,user);
                 }
         }
 }

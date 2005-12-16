@@ -13,8 +13,6 @@ using namespace std;
 FileReader* opermotd;
 Server* Srv;
 
-void do_opermotd(char** parameters, int pcnt, userrec* user);
-
 void LoadOperMOTD()
 {
 	ConfigReader* conf = new ConfigReader;
@@ -45,20 +43,30 @@ void ShowOperMOTD(userrec* user)
 
 }
 
-void do_opermotd(char** parameters, int pcnt, userrec* user)
+class cmd_opermotd : public command_t
 {
-	ShowOperMOTD(user);
-}
+ public:
+	cmd_opermotd () : command_t("OPERMOTD", 'o', 0)
+	{
+		this->source = "m_opermotd.so";
+	}
+
+	void Handle (char** parameters, int pcnt, userrec* user)
+	{
+		ShowOperMOTD(user);
+	}
+};
 
 class ModuleOpermotd : public Module
 {
+		cmd_opermotd* mycommand;
 	public:
 		ModuleOpermotd(Server* Me)
 			: Module::Module(Me)
 		{
 			Srv = Me;
-			
-			Srv->AddCommand("OPERMOTD",do_opermotd,'o',0,"m_opermotd.so");
+			mycommand = new cmd_opermotd();
+			Srv->AddCommand(mycommand);
 			opermotd = new FileReader();
 			LoadOperMOTD();
 		}

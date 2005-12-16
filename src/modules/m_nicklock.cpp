@@ -27,64 +27,86 @@ using namespace std;
 /* $ModDesc: Provides the NICKLOCK command, allows an oper to chage a users nick and lock them to it until they quit */
 
 Server *Srv;
-	 
-void handle_nicklock(char **parameters, int pcnt, userrec *user)
+
+class cmd_nicklock : public command_t
 {
-	userrec* source = Srv->FindNick(std::string(parameters[0]));
-	irc::string server;
-	irc::string me;
+ public:
+	 cmd_nicklock () : command_t("NICKLOCK", 'o', 2)
+	 {
+		this->source = "m_nicklock.so";
+	 }
 
-	if (source)
+	void Handle(char **parameters, int pcnt, userrec *user)
 	{
-		if (source->GetExt("nick_locked"))
-		{
-			WriteServ(user->fd,"946 %s %s :This user's nickname is already locked.",user->nick,source->nick);
-			return;
-		}
-		if (Srv->IsNick(std::string(parameters[1])))
-		{
-			server = user->server;
-			me = Srv->GetServerName().c_str();
+		userrec* source = Srv->FindNick(std::string(parameters[0]));
+		irc::string server;
+		irc::string me;
 
-			if (server == me)
+		if (source)
+		{
+			if (source->GetExt("nick_locked"))
 			{
-				// give them a lock flag
-				Srv->SendOpers(std::string(user->nick)+" used NICKLOCK to change and hold "+std::string(parameters[0])+" to "+parameters[1]);
-				Srv->ChangeUserNick(source,std::string(parameters[1]));
-				// only attempt to set their lockflag after we know the change succeeded
-				source = Srv->FindNick(std::string(parameters[1]));
-				if (source)
-					source->Extend("nick_locked", "ON");
+				WriteServ(user->fd,"946 %s %s :This user's nickname is already locked.",user->nick,source->nick);
+				return;
 			}
-			else
+			if (Srv->IsNick(std::string(parameters[1])))
 			{
-				WriteServ(user->fd,"947 %s %s :Can't lock the nickname of a non-local user",user->nick,source->nick);
+				server = user->server;
+				me = Srv->GetServerName().c_str();
+	
+				if (server == me)
+				{
+					// give them a lock flag
+					Srv->SendOpers(std::string(user->nick)+" used NICKLOCK to change and hold "+std::string(parameters[0])+" to "+parameters[1]);
+					Srv->ChangeUserNick(source,std::string(parameters[1]));
+					// only attempt to set their lockflag after we know the change succeeded
+					source = Srv->FindNick(std::string(parameters[1]));
+					if (source)
+						source->Extend("nick_locked", "ON");
+				}
+				else
+				{
+					WriteServ(user->fd,"947 %s %s :Can't lock the nickname of a non-local user",user->nick,source->nick);
+				}
 			}
 		}
 	}
-}
+};
 
-void handle_nickunlock(char **parameters, int pcnt, userrec *user)
+class cmd_nickunlock : public command_t
 {
-	userrec* source = Srv->FindNick(std::string(parameters[0]));
-	if (source)
+ public:
+	cmd_nickunlock () : command_t("NICKUNLOCK", 'o', 1)
 	{
-		source->Shrink("nick_locked");
-		WriteServ(user->fd,"945 %s %s :Nickname now unlocked.",user->nick,source->nick);
-		Srv->SendOpers(std::string(user->nick)+" used NICKUNLOCK on "+std::string(parameters[0]));
+		this->source = "m_nickunlock.so";
 	}
-}
+
+	void Handle (char **parameters, int pcnt, userrec *user)
+	{
+		userrec* source = Srv->FindNick(std::string(parameters[0]));
+		if (source)
+		{
+			source->Shrink("nick_locked");
+			WriteServ(user->fd,"945 %s %s :Nickname now unlocked.",user->nick,source->nick);
+			Srv->SendOpers(std::string(user->nick)+" used NICKUNLOCK on "+std::string(parameters[0]));
+		}
+	}
+};
 
 
 class ModuleNickLock : public Module
 {
+	cmd_nicklock*	cmd1;
+	cmd_nickunlock*	cmd2;
  public:
 	ModuleNickLock(Server* Me)
 		: Module::Module(Me)
 	{
 		Srv = Me;
-		Srv->AddCommand("NICKLOCK",handle_nicklock,'o',2,"m_nicklock.so");
-		Srv->AddCommand("NICKUNLOCK",handle_nickunlock,'o',1,"m_nicklock.so");
+		cmd1 = new cmd_nicklock();
+		cmd2 = new cmd_nickunlock();
+		Srv->AddCommand(cmd1);
+		Srv->AddCommand(cmd2);
 	}
 	
 	virtual ~ModuleNickLock()

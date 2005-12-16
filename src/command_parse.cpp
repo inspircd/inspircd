@@ -103,7 +103,7 @@ extern chan_hash chanlist;
  * before the actual list as well. This code is used by many functions which
  * can function as "one to list" (see the RFC) */
 
-int CommandParser::LoopCall(handlerfunc fn, char **parameters, int pcnt, userrec *u, int start, int end, int joins)
+int CommandParser::LoopCall(command_t* fn, char **parameters, int pcnt, userrec *u, int start, int end, int joins)
 {
         char plist[MAXBUF];
         char *param;
@@ -230,17 +230,17 @@ int CommandParser::LoopCall(handlerfunc fn, char **parameters, int pcnt, userrec
                         if (pars[1])
                         {
                                 // pars[1] already set up and containing key from blog2[j]
-                                fn(pars,2,u);
+                                fn->Handle(pars,2,u);
                         }
                         else
                         {
                                 pars[1] = parameters[1];
-                                fn(pars,2,u);
+                                fn->Handle(pars,2,u);
                         }
                 }
                 else
                 {
-                        fn(pars,pcnt-(end-start),u);
+                        fn->Handle(pars,pcnt-(end-start),u);
                 }
         }
 
@@ -251,27 +251,24 @@ bool CommandParser::IsValidCommand(std::string &commandname, int pcnt, userrec *
 {
         for (unsigned int i = 0; i < cmdlist.size(); i++)
         {
-                if (!strcasecmp(cmdlist[i].command,commandname.c_str()))
+                if (cmdlist[i]->command == commandname)
                 {
-                        if (cmdlist[i].handler_function)
+                        if ((pcnt>=cmdlist[i]->min_params) && (cmdlist[i]->source != "<core>"))
                         {
-                                if ((pcnt>=cmdlist[i].min_params) && (strcasecmp(cmdlist[i].source,"<core>")))
+                                if ((strchr(user->modes,cmdlist[i]->flags_needed)) || (!cmdlist[i]->flags_needed))
                                 {
-                                        if ((strchr(user->modes,cmdlist[i].flags_needed)) || (!cmdlist[i].flags_needed))
+                                        if (cmdlist[i]->flags_needed)
                                         {
-                                                if (cmdlist[i].flags_needed)
+                                                if ((user->HasPermission(commandname)) || (is_uline(user->server)))
                                                 {
-                                                        if ((user->HasPermission(commandname)) || (is_uline(user->server)))
-                                                        {
-                                                                return true;
-                                                        }
-                                                        else
-                                                        {
-                                                                return false;
-                                                        }
+                                                        return true;
                                                 }
-                                                return true;
+                                                else
+                                                {
+                                                        return false;
+                                                }
                                         }
+                                        return true;
                                 }
                         }
                 }
@@ -285,25 +282,22 @@ void CommandParser::CallHandler(std::string &commandname,char **parameters, int 
 {
         for (unsigned int i = 0; i < cmdlist.size(); i++)
         {
-                if (!strcasecmp(cmdlist[i].command,commandname.c_str()))
+                if (cmdlist[i]->command == commandname)
                 {
-                        if (cmdlist[i].handler_function)
+                        if (pcnt>=cmdlist[i]->min_params)
                         {
-                                if (pcnt>=cmdlist[i].min_params)
+                                if ((strchr(user->modes,cmdlist[i]->flags_needed)) || (!cmdlist[i]->flags_needed))
                                 {
-                                        if ((strchr(user->modes,cmdlist[i].flags_needed)) || (!cmdlist[i].flags_needed))
+                                        if (cmdlist[i]->flags_needed)
                                         {
-                                                if (cmdlist[i].flags_needed)
+                                                if ((user->HasPermission(commandname)) || (is_uline(user->server)))
                                                 {
-                                                        if ((user->HasPermission(commandname)) || (is_uline(user->server)))
-                                                        {
-                                                                cmdlist[i].handler_function(parameters,pcnt,user);
-                                                        }
+                                                        cmdlist[i]->Handle(parameters,pcnt,user);
                                                 }
-                                                else
-                                                {
-                                                        cmdlist[i].handler_function(parameters,pcnt,user);
-                                                }
+                                        }
+                                        else
+                                        {
+                                                cmdlist[i]->Handle(parameters,pcnt,user);
                                         }
                                 }
                         }
@@ -508,9 +502,7 @@ void CommandParser::ProcessCommand(userrec *user, char* cmd)
         std::string xcommand = command;
         for (unsigned int i = 0; i != cmdlist.size(); i++)
         {
-                if (cmdlist[i].command[0])
-                {
-                        if (strlen(command)>=(strlen(cmdlist[i].command))) if (!strncmp(command, cmdlist[i].command,MAXCOMMAND))
+                        if ((xcommand.length() >= cmdlist[i]->command.length()) && (xcommand == cmdlist[i]->command))
                         {
                                 if (parameters)
                                 {
@@ -534,20 +526,20 @@ void CommandParser::ProcessCommand(userrec *user, char* cmd)
                                 {
                                         /* activity resets the ping pending timer */
                                         user->nping = TIME + user->pingmax;
-                                        if ((items) < cmdlist[i].min_params)
+                                        if ((items) < cmdlist[i]->min_params)
                                         {
                                                 log(DEBUG,"not enough parameters: %s %s",user->nick,command);
                                                 WriteServ(user->fd,"461 %s %s :Not enough parameters",user->nick,command);
                                                 return;
                                         }
-                                        if ((!strchr(user->modes,cmdlist[i].flags_needed)) && (cmdlist[i].flags_needed))
+                                        if ((!strchr(user->modes,cmdlist[i]->flags_needed)) && (cmdlist[i]->flags_needed))
                                         {
                                                 log(DEBUG,"permission denied: %s %s",user->nick,command);
                                                 WriteServ(user->fd,"481 %s :Permission Denied- You do not have the required operator privilages",user->nick);
                                                 cmd_found = 1;
                                                 return;
                                         }
-                                        if ((cmdlist[i].flags_needed) && (!user->HasPermission(xcommand)))
+                                        if ((cmdlist[i]->flags_needed) && (!user->HasPermission(xcommand)))
                                         {
                                                 log(DEBUG,"permission denied: %s %s",user->nick,command);
                                                 WriteServ(user->fd,"481 %s :Permission Denied- Oper type %s does not have access to command %s",user->nick,user->oper,command);
@@ -582,14 +574,11 @@ void CommandParser::ProcessCommand(userrec *user, char* cmd)
                                         }
                                         if ((user->registered == 7) || (!strncmp(command,"USER",4)) || (!strncmp(command,"NICK",4)) || (!strncmp(command,"PASS",4)))
                                         {
-                                                if (cmdlist[i].handler_function)
-                                                {
-
                                                         /* ikky /stats counters */
                                                         if (temp)
                                                         {
-                                                                cmdlist[i].use_count++;
-                                                                cmdlist[i].total_bytes+=strlen(temp);
+                                                                cmdlist[i]->use_count++;
+                                                                cmdlist[i]->total_bytes+=strlen(temp);
                                                         }
 
                                                         int MOD_RESULT = 0;
@@ -602,8 +591,7 @@ void CommandParser::ProcessCommand(userrec *user, char* cmd)
                                                          * command handler call, as the handler
                                                          * may free the user structure! */
 
-                                                        cmdlist[i].handler_function(command_p,items,user);
-                                                }
+                                                        cmdlist[i]->Handle(command_p,items,user);
                                                 return;
                                         }
                                         else
@@ -614,8 +602,6 @@ void CommandParser::ProcessCommand(userrec *user, char* cmd)
                                 }
                                 cmd_found = 1;
                         }
-
-                }
         }
         if ((!cmd_found) && (user))
         {
@@ -630,11 +616,12 @@ bool CommandParser::RemoveCommands(const char* source)
         while (go_again)
         {
                 go_again = false;
-                for (std::deque<command_t>::iterator i = cmdlist.begin(); i != cmdlist.end(); i++)
+                for (std::deque<command_t*>::iterator i = cmdlist.begin(); i != cmdlist.end(); i++)
                 {
-                        if (!strcmp(i->source,source))
+			command_t* x = (command_t*)*i;
+                        if (x->source == std::string(source))
                         {
-                                log(DEBUG,"removecommands(%s) Removing dependent command: %s",i->source,i->command);
+                                log(DEBUG,"removecommands(%s) Removing dependent command: %s",x->source.c_str(),x->command.c_str());
                                 cmdlist.erase(i);
                                 go_again = true;
                                 break;
@@ -697,19 +684,11 @@ void CommandParser::ProcessBuffer(const char* cmdbuf,userrec *user)
         }
 }
 
-bool CommandParser::CreateCommand(char* cmd, handlerfunc f, char flags, int minparams,char* source)
+bool CommandParser::CreateCommand(command_t *f)
 {
-        command_t comm;
         /* create the command and push it onto the table */
-        strlcpy(comm.command,cmd,MAXBUF);
-        strlcpy(comm.source,source,MAXBUF);
-        comm.handler_function = f;
-        comm.flags_needed = flags;
-        comm.min_params = minparams;
-        comm.use_count = 0;
-        comm.total_bytes = 0;
-        cmdlist.push_back(comm);
-        log(DEBUG,"Added command %s (%lu parameters)",cmd,(unsigned long)minparams);
+        cmdlist.push_back(f);
+        log(DEBUG,"Added command %s (%lu parameters)",f->command.c_str(),(unsigned long)f->min_params);
 	return true;
 }
 
@@ -720,58 +699,58 @@ CommandParser::CommandParser()
 
 void CommandParser::SetupCommandTable()
 {
-        this->CreateCommand("USER",handle_user,0,4,"<core>");
-        this->CreateCommand("NICK",handle_nick,0,1,"<core>");
-        this->CreateCommand("QUIT",handle_quit,0,0,"<core>");
-        this->CreateCommand("VERSION",handle_version,0,0,"<core>");
-        this->CreateCommand("PING",handle_ping,0,1,"<core>");
-        this->CreateCommand("PONG",handle_pong,0,1,"<core>");
-        this->CreateCommand("ADMIN",handle_admin,0,0,"<core>");
-        this->CreateCommand("PRIVMSG",handle_privmsg,0,2,"<core>");
-        this->CreateCommand("INFO",handle_info,0,0,"<core>");
-        this->CreateCommand("TIME",handle_time,0,0,"<core>");
-        this->CreateCommand("WHOIS",handle_whois,0,1,"<core>");
-        this->CreateCommand("WALLOPS",handle_wallops,'o',1,"<core>");
-        this->CreateCommand("NOTICE",handle_notice,0,2,"<core>");
-        this->CreateCommand("JOIN",handle_join,0,1,"<core>");
-        this->CreateCommand("NAMES",handle_names,0,0,"<core>");
-        this->CreateCommand("PART",handle_part,0,1,"<core>");
-        this->CreateCommand("KICK",handle_kick,0,2,"<core>");
-        this->CreateCommand("MODE",handle_mode,0,1,"<core>");
-        this->CreateCommand("TOPIC",handle_topic,0,1,"<core>");
-        this->CreateCommand("WHO",handle_who,0,1,"<core>");
-        this->CreateCommand("MOTD",handle_motd,0,0,"<core>");
-        this->CreateCommand("RULES",handle_rules,0,0,"<core>");
-        this->CreateCommand("OPER",handle_oper,0,2,"<core>");
-        this->CreateCommand("LIST",handle_list,0,0,"<core>");
-        this->CreateCommand("DIE",handle_die,'o',1,"<core>");
-        this->CreateCommand("RESTART",handle_restart,'o',1,"<core>");
-        this->CreateCommand("KILL",handle_kill,'o',2,"<core>");
-        this->CreateCommand("REHASH",handle_rehash,'o',0,"<core>");
-        this->CreateCommand("LUSERS",handle_lusers,0,0,"<core>");
-        this->CreateCommand("STATS",handle_stats,0,1,"<core>");
-        this->CreateCommand("USERHOST",handle_userhost,0,1,"<core>");
-        this->CreateCommand("AWAY",handle_away,0,0,"<core>");
-        this->CreateCommand("ISON",handle_ison,0,0,"<core>");
-        this->CreateCommand("SUMMON",handle_summon,0,0,"<core>");
-        this->CreateCommand("USERS",handle_users,0,0,"<core>");
-        this->CreateCommand("INVITE",handle_invite,0,0,"<core>");
-        this->CreateCommand("PASS",handle_pass,0,1,"<core>");
-        this->CreateCommand("TRACE",handle_trace,'o',0,"<core>");
-        this->CreateCommand("WHOWAS",handle_whowas,0,1,"<core>");
-        this->CreateCommand("CONNECT",handle_connect,'o',1,"<core>");
-        this->CreateCommand("SQUIT",handle_squit,'o',0,"<core>");
-        this->CreateCommand("MODULES",handle_modules,0,0,"<core>");
-        this->CreateCommand("LINKS",handle_links,0,0,"<core>");
-        this->CreateCommand("MAP",handle_map,0,0,"<core>");
-        this->CreateCommand("KLINE",handle_kline,'o',1,"<core>");
-        this->CreateCommand("GLINE",handle_gline,'o',1,"<core>");
-        this->CreateCommand("ZLINE",handle_zline,'o',1,"<core>");
-        this->CreateCommand("QLINE",handle_qline,'o',1,"<core>");
-        this->CreateCommand("ELINE",handle_eline,'o',1,"<core>");
-        this->CreateCommand("LOADMODULE",handle_loadmodule,'o',1,"<core>");
-        this->CreateCommand("UNLOADMODULE",handle_unloadmodule,'o',1,"<core>");
-        this->CreateCommand("SERVER",handle_server,0,0,"<core>");
-        this->CreateCommand("COMMANDS",handle_commands,0,0,"<core>");
+	this->CreateCommand(new cmd_user);
+        this->CreateCommand(new cmd_nick);
+        this->CreateCommand(new cmd_quit);
+        this->CreateCommand(new cmd_version);
+        this->CreateCommand(new cmd_ping);
+        this->CreateCommand(new cmd_pong);
+        this->CreateCommand(new cmd_admin);
+        this->CreateCommand(new cmd_privmsg);
+        this->CreateCommand(new cmd_info);
+        this->CreateCommand(new cmd_time);
+        this->CreateCommand(new cmd_whois);
+        this->CreateCommand(new cmd_wallops);
+        this->CreateCommand(new cmd_notice);
+        this->CreateCommand(new cmd_join);
+        this->CreateCommand(new cmd_names);
+        this->CreateCommand(new cmd_part);
+        this->CreateCommand(new cmd_kick);
+        this->CreateCommand(new cmd_mode);
+        this->CreateCommand(new cmd_topic);
+        this->CreateCommand(new cmd_who);
+        this->CreateCommand(new cmd_motd);
+        this->CreateCommand(new cmd_rules);
+        this->CreateCommand(new cmd_oper);
+        this->CreateCommand(new cmd_list);
+        this->CreateCommand(new cmd_die);
+        this->CreateCommand(new cmd_restart);
+        this->CreateCommand(new cmd_kill);
+        this->CreateCommand(new cmd_rehash);
+        this->CreateCommand(new cmd_lusers);
+        this->CreateCommand(new cmd_stats);
+        this->CreateCommand(new cmd_userhost);
+        this->CreateCommand(new cmd_away);
+        this->CreateCommand(new cmd_ison);
+        this->CreateCommand(new cmd_summon);
+        this->CreateCommand(new cmd_users);
+        this->CreateCommand(new cmd_invite);
+        this->CreateCommand(new cmd_pass);
+        this->CreateCommand(new cmd_trace);
+        this->CreateCommand(new cmd_whowas);
+        this->CreateCommand(new cmd_connect);
+        this->CreateCommand(new cmd_squit);
+        this->CreateCommand(new cmd_modules);
+        this->CreateCommand(new cmd_links);
+        this->CreateCommand(new cmd_map);
+        this->CreateCommand(new cmd_kline);
+        this->CreateCommand(new cmd_gline);
+        this->CreateCommand(new cmd_zline);
+        this->CreateCommand(new cmd_qline);
+        this->CreateCommand(new cmd_eline);
+        this->CreateCommand(new cmd_loadmodule);
+        this->CreateCommand(new cmd_unloadmodule);
+        this->CreateCommand(new cmd_server);
+        this->CreateCommand(new cmd_commands);
 }
 

@@ -33,33 +33,40 @@ std::string suffix = "";
 
 /* $ModDesc: Provides random Quotes on Connect. */
 
-void handle_randquote(char** parameters, int pcntl, userrec *user)
+class cmd_randquote : public command_t
 {
-	std::string str;
-	int fsize;
-	char buf[MAXBUF];
-	if (q_file == "" || quotes->Exists())
+ public:
+	cmd_randquote () : command_t("RANDQUOTE", 0, 0)
 	{
-		fsize = quotes->FileSize();
-		str = quotes->GetLine(rand() % fsize);
-		sprintf(buf,"NOTICE %s :%s%s%s",user->nick,prefix.c_str(),str.c_str(),suffix.c_str());
-		Srv->SendServ(user->fd, buf);
+		this->source = "m_randquote.so";
 	}
-	else
+
+	void Handle (char** parameters, int pcntl, userrec *user)
 	{
-		sprintf(buf, "NOTICE %s :Your administrator specified an invalid quotes file, please bug them about this.", user->nick);
-		Srv->SendServ(user->fd, buf);
+		std::string str;
+		int fsize;
+		char buf[MAXBUF];
+		if (q_file == "" || quotes->Exists())
+		{
+			fsize = quotes->FileSize();
+			str = quotes->GetLine(rand() % fsize);
+			sprintf(buf,"NOTICE %s :%s%s%s",user->nick,prefix.c_str(),str.c_str(),suffix.c_str());
+			Srv->SendServ(user->fd, buf);
+		}
+		else
+		{
+			sprintf(buf, "NOTICE %s :Your administrator specified an invalid quotes file, please bug them about this.", user->nick);
+			Srv->SendServ(user->fd, buf);
+		}
+		return;
 	}
-	return;
-}
-
-
+};
 
 
 class ModuleRandQuote : public Module
 {
  private:
-
+	cmd_randquote* mycommand;
 	ConfigReader *conf;
  public:
 	ModuleRandQuote(Server* Me)
@@ -74,6 +81,8 @@ class ModuleRandQuote : public Module
 		prefix = conf->ReadValue("randquote","prefix",0);
 		suffix = conf->ReadValue("randquote","suffix",0);
 
+		mycommand = NULL;
+
 		if (q_file == "")
 		{
 			log(DEFAULT,"m_randquote: Quotefile not specified - Please check your config.");
@@ -86,8 +95,12 @@ class ModuleRandQuote : public Module
 			log(DEFAULT,"m_randquote: QuoteFile not Found!! Please check your config - module will not function.");
 			return;
 		}
-		/* Hidden Command -- Mode clients assume /quote sends raw data to an IRCd >:D */
-		else Srv->AddCommand("QUOTE",handle_randquote,0,0,"m_randquote.so");
+		else
+		{
+			/* Hidden Command -- Mode clients assume /quote sends raw data to an IRCd >:D */
+			mycommand = new cmd_randquote();
+			Srv->AddCommand(mycommand);
+		}
 	}
 	
 	virtual ~ModuleRandQuote()
@@ -103,11 +116,8 @@ class ModuleRandQuote : public Module
 	
 	virtual void OnUserConnect(userrec* user)
 	{
-		// Make a fake pointer to be passed to handle_randquote()
-		// Dont try this at home kiddies :D
-		/* Or do things a slightly nicer way, and pass NULL */
-		//char *rar = "RAR";
-		handle_randquote(NULL, 0, user);
+		if (mycommand)
+			mycommand->Handle(NULL, 0, user);
 	}
 };
 

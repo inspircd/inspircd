@@ -26,47 +26,56 @@ using namespace std;
 /* $ModDesc: Provides support for /KNOCK and mode +K */
 
 Server *Srv;
-	 
-void handle_knock(char **parameters, int pcnt, userrec *user)
+
+class cmd_knock : public command_t
 {
-	chanrec* c = Srv->FindChannel(parameters[0]);
-	std::string line = "";
+ public:
+	cmd_knock () : command_t("KNOCK", 0, 2)
+	{
+		this->source = "m_knock.so";
+	}
+	
+	void Handle (char **parameters, int pcnt, userrec *user)
+	{
+		chanrec* c = Srv->FindChannel(parameters[0]);
+		std::string line = "";
 
-	for (int i = 1; i < pcnt - 1; i++)
-	{
-		line = line + std::string(parameters[i]) + " ";
-	}
-	line = line + std::string(parameters[pcnt-1]);
+		for (int i = 1; i < pcnt - 1; i++)
+		{
+			line = line + std::string(parameters[i]) + " ";
+		}
+		line = line + std::string(parameters[pcnt-1]);
 
-	if (c->IsCustomModeSet('K'))
-	{
-		WriteServ(user->fd,"480 %s :Can't KNOCK on %s, +K is set.",user->nick, c->name);
-		return;
+		if (c->IsCustomModeSet('K'))
+		{
+			WriteServ(user->fd,"480 %s :Can't KNOCK on %s, +K is set.",user->nick, c->name);
+			return;
+		}
+		if (c->binarymodes & CM_INVITEONLY)
+		{
+			WriteChannelWithServ((char*)Srv->GetServerName().c_str(),c,"NOTICE %s :User %s is KNOCKing on %s (%s)",c->name,user->nick,c->name,line.c_str());
+			WriteServ(user->fd,"NOTICE %s :KNOCKing on %s",user->nick,c->name);
+			return;
+		}
+		else
+		{
+			WriteServ(user->fd,"480 %s :Can't KNOCK on %s, channel is not invite only so knocking is pointless!",user->nick, c->name);
+			return;
+		}
 	}
-	if (c->binarymodes & CM_INVITEONLY)
-	{
-		WriteChannelWithServ((char*)Srv->GetServerName().c_str(),c,"NOTICE %s :User %s is KNOCKing on %s (%s)",c->name,user->nick,c->name,line.c_str());
-		WriteServ(user->fd,"NOTICE %s :KNOCKing on %s",user->nick,c->name);
-		return;
-	}
-	else
-	{
-		WriteServ(user->fd,"480 %s :Can't KNOCK on %s, channel is not invite only so knocking is pointless!",user->nick, c->name);
-		return;
-	}
-}
-
+};
 
 class ModuleKnock : public Module
 {
+	cmd_knock* mycommand;
  public:
 	ModuleKnock(Server* Me)
 		: Module::Module(Me)
 	{
 		Srv = Me;
-		
 		Srv->AddExtendedMode('K',MT_CHANNEL,false,0,0);
-		Srv->AddCommand("KNOCK",handle_knock,0,2,"m_knock.so");
+		mycommand = new cmd_knock();
+		Srv->AddCommand(mycommand);
 	}
 
         virtual void On005Numeric(std::string &output)
