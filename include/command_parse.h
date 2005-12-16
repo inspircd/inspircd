@@ -26,5 +26,6 @@ void call_handler(std::string &commandname,char **parameters, int pcnt, userrec 
 bool is_valid_cmd(std::string &commandname, int pcnt, userrec * user);
 int loop_call(handlerfunc fn, char **parameters, int pcnt, userrec *u, int start, int end, int joins);
 void process_buffer(const char* cmdbuf,userrec *user);
+bool remove_commands(const char* source);
 
 #endif
