@@ -51,7 +51,6 @@ using namespace std;
 #include "modules.h"
 #include "command_parse.h"
 
-extern SocketEngine* SE;
 extern ServerConfig *Config;
 extern InspIRCd* ServerInstance;
 extern int MODCOUNT;
@@ -603,7 +602,7 @@ bool Server::UserToPseudo(userrec* user,std::string message)
 	user->fd = FD_MAGIC_NUMBER;
 	user->ClearBuffer();
 	Write(old_fd,"ERROR :Closing link (%s@%s) [%s]",user->ident,user->host,message.c_str());
-	SE->DelFd(old_fd);
+	ServerInstance->SE->DelFd(old_fd);
         shutdown(old_fd,2);
         close(old_fd);
 	return true;

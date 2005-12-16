@@ -70,7 +70,6 @@ extern time_t OLDTIME;
 extern std::vector<userrec*> local_users;
 
 extern InspIRCd* ServerInstance;
-extern SocketEngine* SE;
 extern serverstats* stats;
 extern ServerConfig *Config;
 extern userrec* fd_ref_table[65536];
@@ -258,6 +257,7 @@ void ProcessUser(userrec* cu)
 bool DoBackgroundUserStuff(time_t TIME)
 {
         unsigned int numsockets = module_sockets.size();
+	SocketEngine* SE = ServerInstance->SE;
         for (std::vector<InspSocket*>::iterator a = module_sockets.begin(); a < module_sockets.end(); a++)
         {
                 InspSocket* s = (InspSocket*)*a;

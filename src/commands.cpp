@@ -912,7 +912,7 @@ void handle_quit(char **parameters, int pcnt, userrec *user)
 	/* push the socket on a stack of sockets due to be closed at the next opportunity */
 	if (user->fd > -1)
 	{
-		SE->DelFd(user->fd);
+		ServerInstance->SE->DelFd(user->fd);
                 if (find(local_users.begin(),local_users.end(),user) != local_users.end())
                 {
                         log(DEBUG,"Delete local user");

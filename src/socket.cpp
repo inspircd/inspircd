@@ -36,10 +36,8 @@ using namespace std;
 #include "helperfuncs.h"
 #include "socketengine.h"
 
-extern SocketEngine* SE;
 
-extern int boundPortCount;
-extern int openSockfd[MAXSOCKS];
+extern InspIRCd* ServerInstance;
 extern time_t TIME;
 
 InspSocket* socket_ref[65535];
@@ -54,7 +52,7 @@ InspSocket::InspSocket(int newfd, char* ip)
 	this->fd = newfd;
 	this->state = I_CONNECTED;
 	this->IP = ip;
-	SE->AddFd(this->fd,true,X_ESTAB_MODULE);
+	ServerInstance->SE->AddFd(this->fd,true,X_ESTAB_MODULE);
 	socket_ref[this->fd] = this;
 }
 
@@ -83,7 +81,7 @@ InspSocket::InspSocket(std::string host, int port, bool listening, unsigned long
 			else
 			{
 				this->state = I_LISTENING;
-				SE->AddFd(this->fd,true,X_ESTAB_MODULE);
+				ServerInstance->SE->AddFd(this->fd,true,X_ESTAB_MODULE);
 				socket_ref[this->fd] = this;
 				log(DEBUG,"New socket now in I_LISTENING state");
 				return;
@@ -131,7 +129,7 @@ InspSocket::InspSocket(std::string host, int port, bool listening, unsigned long
                         }
                 }
                 this->state = I_CONNECTING;
-		SE->AddFd(this->fd,false,X_ESTAB_MODULE);
+		ServerInstance->SE->AddFd(this->fd,false,X_ESTAB_MODULE);
 		socket_ref[this->fd] = this;
                 return;
 	}
@@ -226,8 +224,8 @@ bool InspSocket::Poll()
 			/* Our socket was in write-state, so delete it and re-add it
 			 * in read-state.
 			 */
-			SE->DelFd(this->fd);
-			SE->AddFd(this->fd,true,X_ESTAB_MODULE);
+			ServerInstance->SE->DelFd(this->fd);
+			ServerInstance->SE->AddFd(this->fd,true,X_ESTAB_MODULE);
 			return this->OnConnected();
 		break;
 		case I_LISTENING:

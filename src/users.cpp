@@ -45,7 +45,6 @@ extern std::vector<InspSocket*> module_sockets;
 extern int MODCOUNT;
 extern InspSocket* socket_ref[65535];
 extern time_t TIME;
-extern SocketEngine* SE;
 extern userrec* fd_ref_table[65536];
 extern serverstats* stats;
 extern ServerConfig *Config;
@@ -381,7 +380,7 @@ void kill_link(userrec *user,const char* r)
 		{
                 	IOHookModule->OnRawSocketClose(user->fd);
 		}
-                SE->DelFd(user->fd);
+                ServerInstance->SE->DelFd(user->fd);
                 user->CloseSocket();
         }
 
@@ -444,7 +443,7 @@ void kill_link_silent(userrec *user,const char* r)
 		{
                 	IOHookModule->OnRawSocketClose(user->fd);
 		}
-                SE->DelFd(user->fd);
+                ServerInstance->SE->DelFd(user->fd);
                 user->CloseSocket();
         }
 
@@ -645,7 +644,7 @@ void AddClient(int socket, char* host, int port, bool iscached, char* ip)
         }
         fd_ref_table[socket] = clientlist[tempnick];
 	local_users.push_back(clientlist[tempnick]);
-        SE->AddFd(socket,true,X_ESTAB_CLIENT);
+        ServerInstance->SE->AddFd(socket,true,X_ESTAB_CLIENT);
 }
 
 void FullConnectUser(userrec* user)
