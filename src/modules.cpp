@@ -419,7 +419,7 @@ void Server::Log(int level, std::string s)
 
 void Server::AddCommand(char* cmd, handlerfunc f, char flags, int minparams, char* source)
 {
-	createcommand(cmd,f,flags,minparams,source);
+	Parser->CreateCommand(cmd,f,flags,minparams,source);
 }
 
 void Server::SendMode(char **parameters, int pcnt, userrec *user)
