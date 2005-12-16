@@ -188,8 +188,7 @@ InspIRCd::InspIRCd(int argc, char** argv)
         Config->ClearStack();
         Config->Read(true,NULL);
         CheckRoot();
-	Parser = new CommandParser;
-        Parser->SetupCommandTable();
+	Parser = new CommandParser();
         AddServerName(Config->ServerName);
         CheckDie();
         stats->BoundPortCount = BindPorts();
