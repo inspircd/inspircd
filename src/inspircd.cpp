@@ -398,7 +398,7 @@ int InspIRCd::Run()
 
 	/* Until THIS point, ServerInstance == NULL */
 	
-        LoadAllModules();
+        LoadAllModules(this);
 
         printf("\nInspIRCd is now running!\n");
 	
