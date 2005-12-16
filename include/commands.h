@@ -37,6 +37,14 @@ bool ip_matches_everyone(std::string ip, userrec* user);
 bool nick_matches_everyone(std::string nick, userrec* user);	
 int operstrcmp(char* data,char* input);
 
+/*       XXX Serious WTFness XXX
+ *
+ * Well, unless someone invents a wildcard or
+ * regexp #include, and makes it a standard,
+ * we're stuck with this way of including all
+ * the commands.
+ */
+
 #include "cmd_admin.h"
 #include "cmd_away.h"
 #include "cmd_commands.h"
