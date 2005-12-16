@@ -71,7 +71,6 @@ void log(int level,char *text, ...)
         if (level < Config->LogLevel)
                 return;
 	char textbuffer[MAXBUF];
-	char tb[MAXBUF];
         timeinfo = localtime(&TIME);
 
         if (Config->log_file)
