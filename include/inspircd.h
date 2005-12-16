@@ -111,7 +111,7 @@ class InspIRCd
 	SocketEngine* SE;
 	serverstats* stats;
 
-	void MakeLowerMap()
+	void MakeLowerMap();
 	std::string GetRevision();
 	std::string GetVersionString();
 	char* ModuleError();
