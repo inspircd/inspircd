@@ -44,11 +44,13 @@ using namespace std;
 #include "xline.h"
 #include "inspstring.h"
 #include "helperfuncs.h"
+#include "mode.h"
 
 extern int MODCOUNT;
 extern std::vector<Module*> modules;
 extern std::vector<ircd_module*> factory;
 extern ServerConfig* Config;
+extern ModeParser* ModeGrok;
 
 extern time_t TIME;
 
@@ -58,20 +60,20 @@ char* ModeParser::GiveOps(userrec *user,char *dest,chanrec *chan,int status)
 	
 	if ((!user) || (!dest) || (!chan))
 	{
-		log(DEFAULT,"*** BUG *** give_ops was given an invalid parameter");
+		log(DEFAULT,"*** BUG *** GiveOps was given an invalid parameter");
 		return NULL;
 	}
 
 	if (!isnick(dest))
 	{
-		log(DEFAULT,"the target nickname given to give_ops was invalid");
+		log(DEFAULT,"the target nickname given to GiveOps was invalid");
 		WriteServ(user->fd,"401 %s %s :No such nick/channel",user->nick, dest);
 		return NULL;
 	}
 	d = Find(dest);
 	if (!d)
 	{
-		log(DEFAULT,"the target nickname given to give_ops couldnt be found");
+		log(DEFAULT,"the target nickname given to GiveOps couldnt be found");
 		WriteServ(user->fd,"401 %s %s :No such nick/channel",user->nick, dest);
 		return NULL;
 	}
@@ -102,7 +104,7 @@ char* ModeParser::GiveOps(userrec *user,char *dest,chanrec *chan,int status)
 			if (d->chans[i].uc_modes & UCMODE_OP)
 				{
 					/* mode already set on user, dont allow multiple */
-					log(DEFAULT,"The target user given to give_ops was already opped on the channel");
+					log(DEFAULT,"The target user given to GiveOps was already opped on the channel");
 					return NULL;
 				}
 				d->chans[i].uc_modes = d->chans[i].uc_modes | UCMODE_OP;
@@ -110,7 +112,7 @@ char* ModeParser::GiveOps(userrec *user,char *dest,chanrec *chan,int status)
 				return d->nick;
 			}
 		}
-		log(DEFAULT,"The target channel given to give_ops was not in the users mode list");
+		log(DEFAULT,"The target channel given to GiveOps was not in the users mode list");
 	}
 	return NULL;
 }
@@ -121,7 +123,7 @@ char* ModeParser::GiveHops(userrec *user,char *dest,chanrec *chan,int status)
 	
 	if ((!user) || (!dest) || (!chan))
 	{
-		log(DEFAULT,"*** BUG *** give_hops was given an invalid parameter");
+		log(DEFAULT,"*** BUG *** GiveHops was given an invalid parameter");
 		return NULL;
 	}
 
@@ -177,7 +179,7 @@ char* ModeParser::GiveVoice(userrec *user,char *dest,chanrec *chan,int status)
 	
 	if ((!user) || (!dest) || (!chan))
 	{
-		log(DEFAULT,"*** BUG *** give_voice was given an invalid parameter");
+		log(DEFAULT,"*** BUG *** GiveVoice was given an invalid parameter");
 		return NULL;
 	}
 
@@ -233,20 +235,20 @@ char* ModeParser::TakeOps(userrec *user,char *dest,chanrec *chan,int status)
 	
 	if ((!user) || (!dest) || (!chan))
 	{
-		log(DEFAULT,"*** BUG *** take_ops was given an invalid parameter");
+		log(DEFAULT,"*** BUG *** TakeOps was given an invalid parameter");
 		return NULL;
 	}
 
 	d = Find(dest);
 	if (!isnick(dest))
 	{
-		log(DEBUG,"take_ops was given an invalid target nickname of %s",dest);
+		log(DEBUG,"TakeOps was given an invalid target nickname of %s",dest);
 		WriteServ(user->fd,"401 %s %s :No such nick/channel",user->nick, dest);
 		return NULL;
 	}
 	if (!d)
 	{
-		log(DEBUG,"take_ops couldnt resolve the target nickname: %s",dest);
+		log(DEBUG,"TakeOps couldnt resolve the target nickname: %s",dest);
 		WriteServ(user->fd,"401 %s %s :No such nick/channel",user->nick, dest);
 		return NULL;
 	}
@@ -281,7 +283,7 @@ char* ModeParser::TakeOps(userrec *user,char *dest,chanrec *chan,int status)
 				return d->nick;
 			}
 		}
-		log(DEBUG,"take_ops couldnt locate the target channel in the target users list");
+		log(DEBUG,"TakeOps couldnt locate the target channel in the target users list");
 	}
 	return NULL;
 }
@@ -292,7 +294,7 @@ char* ModeParser::TakeHops(userrec *user,char *dest,chanrec *chan,int status)
 	
 	if ((!user) || (!dest) || (!chan))
 	{
-		log(DEFAULT,"*** BUG *** take_hops was given an invalid parameter");
+		log(DEFAULT,"*** BUG *** TakeHops was given an invalid parameter");
 		return NULL;
 	}
 
@@ -348,7 +350,7 @@ char* ModeParser::TakeVoice(userrec *user,char *dest,chanrec *chan,int status)
 	
 	if ((!user) || (!dest) || (!chan))
 	{
-		log(DEFAULT,"*** BUG *** take_voice was given an invalid parameter");
+		log(DEFAULT,"*** BUG *** TakeVoice was given an invalid parameter");
 		return NULL;
 	}
 
@@ -401,7 +403,7 @@ char* ModeParser::TakeVoice(userrec *user,char *dest,chanrec *chan,int status)
 char* ModeParser::AddBan(userrec *user,char *dest,chanrec *chan,int status)
 {
 	if ((!user) || (!dest) || (!chan)) {
-		log(DEFAULT,"*** BUG *** add_ban was given an invalid parameter");
+		log(DEFAULT,"*** BUG *** AddBan was given an invalid parameter");
 		return NULL;
 	}
 
@@ -439,7 +441,7 @@ char* ModeParser::AddBan(userrec *user,char *dest,chanrec *chan,int status)
 		return NULL;
 	}
 
-	log(DEBUG,"add_ban: %s %s",chan->name,user->nick);
+	log(DEBUG,"AddBan: %s %s",chan->name,user->nick);
 
 	int MOD_RESULT = 0;
 	FOREACH_RESULT(OnAddBan(user,chan,dest));
@@ -466,7 +468,7 @@ char* ModeParser::AddBan(userrec *user,char *dest,chanrec *chan,int status)
 char* ModeParser::TakeBan(userrec *user,char *dest,chanrec *chan,int status)
 {
 	if ((!user) || (!dest) || (!chan)) {
-		log(DEFAULT,"*** BUG *** take_ban was given an invalid parameter");
+		log(DEFAULT,"*** BUG *** TakeBan was given an invalid parameter");
 		return 0;
 	}
 
@@ -494,7 +496,6 @@ std::string ModeParser::CompressModes(std::string modes,bool channelmodes)
 	bool active[127];
 	memset(counts,0,sizeof(counts));
 	memset(active,0,sizeof(active));
-	log(DEBUG,"compress_modes: %s",modes.c_str());
 	for (unsigned int i = 0; i < modes.length(); i++)
 	{
 		if ((modes[i] == '+') || (modes[i] == '-'))
@@ -575,7 +576,7 @@ void ModeParser::ProcessModes(char **parameters,userrec* user,chanrec *chan,int 
 
 	log(DEBUG,"process_modes: modelist: %s",modelist);
 
-	std::string tidied = compress_modes(modelist,true);
+	std::string tidied = this->CompressModes(modelist,true);
 	strlcpy(modelist,tidied.c_str(),MAXBUF);
 
 	int len = strlen(modelist);
@@ -634,8 +635,8 @@ void ModeParser::ProcessModes(char **parameters,userrec* user,chanrec *chan,int 
 						FOREACH_RESULT(OnRawMode(user, chan, 'o', parameters[param], true, 1));
 						if (!MOD_RESULT)
 						{
-							log(DEBUG,"calling give_ops");
-							r = give_ops(user,parameters[param++],chan,status);
+							log(DEBUG,"calling GiveOps");
+							r = GiveOps(user,parameters[param++],chan,status);
 						}
 						else param++;
 					}
@@ -645,8 +646,8 @@ void ModeParser::ProcessModes(char **parameters,userrec* user,chanrec *chan,int 
                                                 FOREACH_RESULT(OnRawMode(user, chan, 'o', parameters[param], false, 1));
                                                 if (!MOD_RESULT)
                                                 {
-							log(DEBUG,"calling take_ops");
-							r = take_ops(user,parameters[param++],chan,status);
+							log(DEBUG,"calling TakeOps");
+							r = TakeOps(user,parameters[param++],chan,status);
 						}
 						else param++;
 					}
@@ -665,7 +666,7 @@ void ModeParser::ProcessModes(char **parameters,userrec* user,chanrec *chan,int 
                                                 FOREACH_RESULT(OnRawMode(user, chan, 'h', parameters[param], true, 1));
                                                 if (!MOD_RESULT)
                                                 {
-							r = give_hops(user,parameters[param++],chan,status);
+							r = GiveHops(user,parameters[param++],chan,status);
 						}
 						else param++;
 					}
@@ -675,7 +676,7 @@ void ModeParser::ProcessModes(char **parameters,userrec* user,chanrec *chan,int 
                                                 FOREACH_RESULT(OnRawMode(user, chan, 'h', parameters[param], false, 1));
                                                 if (!MOD_RESULT)
                                                 {
-							r = take_hops(user,parameters[param++],chan,status);
+							r = TakeHops(user,parameters[param++],chan,status);
 						}
 						else param++;
 					}
@@ -695,7 +696,7 @@ void ModeParser::ProcessModes(char **parameters,userrec* user,chanrec *chan,int 
                                                 FOREACH_RESULT(OnRawMode(user, chan, 'v', parameters[param], true, 1));
                                                 if (!MOD_RESULT)
                                                 {
-							r = give_voice(user,parameters[param++],chan,status);
+							r = GiveVoice(user,parameters[param++],chan,status);
 						}
 						else param++;
 					}
@@ -705,7 +706,7 @@ void ModeParser::ProcessModes(char **parameters,userrec* user,chanrec *chan,int 
                                                 FOREACH_RESULT(OnRawMode(user, chan, 'v', parameters[param], false, 1));
                                                 if (!MOD_RESULT)
                                                 {
-							r = take_voice(user,parameters[param++],chan,status);
+							r = TakeVoice(user,parameters[param++],chan,status);
 						}
 						else param++;
 					}
@@ -724,7 +725,7 @@ void ModeParser::ProcessModes(char **parameters,userrec* user,chanrec *chan,int 
                                                 FOREACH_RESULT(OnRawMode(user, chan, 'b', parameters[param], true, 1));
                                                 if (!MOD_RESULT)
                                                 {
-							r = add_ban(user,parameters[param++],chan,status);
+							r = AddBan(user,parameters[param++],chan,status);
 						}
 						else param++;
 					}
@@ -734,7 +735,7 @@ void ModeParser::ProcessModes(char **parameters,userrec* user,chanrec *chan,int 
                                                 FOREACH_RESULT(OnRawMode(user, chan, 'b', parameters[param], false, 1));
                                                 if (!MOD_RESULT)
                                                 {
-							r = take_ban(user,parameters[param++],chan,status);
+							r = TakeBan(user,parameters[param++],chan,status);
 						}
 						else param++;
 					}
@@ -1263,7 +1264,7 @@ void handle_mode(char **parameters, int pcnt, userrec *user)
 
 	if ((dest) && (pcnt > 1))
 	{
-		std::string tidied = compress_modes(parameters[1],false);
+		std::string tidied = ModeGrok->CompressModes(parameters[1],false);
 		parameters[1] = (char*)tidied.c_str();
 
 		char dmodes[MAXBUF];
@@ -1340,7 +1341,7 @@ void handle_mode(char **parameters, int pcnt, userrec *user)
 				}
 				else
 				{
-					if ((parameters[1][i] == 'i') || (parameters[1][i] == 'w') || (parameters[1][i] == 's') || (allowed_umode(parameters[1][i],user->modes,direction,false)))
+					if ((parameters[1][i] == 'i') || (parameters[1][i] == 'w') || (parameters[1][i] == 's') || (ModeGrok->AllowedUmode(parameters[1][i],user->modes,direction,false)))
 					{
 						can_change = 1;
 					}
@@ -1349,10 +1350,10 @@ void handle_mode(char **parameters, int pcnt, userrec *user)
 				{
 					if (direction == 1)
 					{
-						if ((!strchr(dmodes,parameters[1][i])) && (allowed_umode(parameters[1][i],user->modes,true,false)))
+						if ((!strchr(dmodes,parameters[1][i])) && (ModeGrok->AllowedUmode(parameters[1][i],user->modes,true,false)))
 						{
 							char umode = parameters[1][i];
-							if ((process_module_umode(umode, user, dest, direction)) || (umode == 'i') || (umode == 's') || (umode == 'w') || (umode == 'o'))
+							if ((ModeGrok->ProcessModuleUmode(umode, user, dest, direction)) || (umode == 'i') || (umode == 's') || (umode == 'w') || (umode == 'o'))
 							{
 								int q = strlen(dmodes);
 								int r = strlen(outpars);
@@ -1369,10 +1370,10 @@ void handle_mode(char **parameters, int pcnt, userrec *user)
 					}
 					else
 					{
-						if ((allowed_umode(parameters[1][i],user->modes,false,false)) && (strchr(dmodes,parameters[1][i])))
+						if ((ModeGrok->AllowedUmode(parameters[1][i],user->modes,false,false)) && (strchr(dmodes,parameters[1][i])))
 						{
 							char umode = parameters[1][i];
-							if ((process_module_umode(umode, user, dest, direction)) || (umode == 'i') || (umode == 's') || (umode == 'w') || (umode == 'o'))
+							if ((ModeGrok->ProcessModuleUmode(umode, user, dest, direction)) || (umode == 'i') || (umode == 's') || (umode == 'w') || (umode == 'o'))
 							{
 								unsigned int q = 0;
 								char temp[MAXBUF];	
@@ -1518,7 +1519,7 @@ void handle_mode(char **parameters, int pcnt, userrec *user)
 				}
 			}
 
-			process_modes(parameters,user,Ptr,cstatus(user,Ptr),pcnt,false,false,false);
+			ModeGrok->ProcessModes(parameters,user,Ptr,cstatus(user,Ptr),pcnt,false,false,false);
 		}
 	}
 	else
@@ -1548,7 +1549,7 @@ void ModeParser::ServerMode(char **parameters, int pcnt, userrec *user)
 
 	if ((dest) && (pcnt > 1))
 	{
-                std::string tidied = compress_modes(parameters[1],false);
+                std::string tidied = ModeGrok->CompressModes(parameters[1],false);
                 parameters[1] = (char*)tidied.c_str();
 
 		char dmodes[MAXBUF];
@@ -1606,11 +1607,11 @@ void ModeParser::ServerMode(char **parameters, int pcnt, userrec *user)
 					if (direction == 1)
 					{
 						log(DEBUG,"umode %c being added",parameters[1][i]);
-						if ((!strchr(dmodes,parameters[1][i])) && (allowed_umode(parameters[1][i],user->modes,true,true)))
+						if ((!strchr(dmodes,parameters[1][i])) && (ModeGrok->AllowedUmode(parameters[1][i],user->modes,true,true)))
 						{
 							char umode = parameters[1][i];
 							log(DEBUG,"umode %c is an allowed umode",umode);
-							if ((process_module_umode(umode, user, dest, direction)) || (umode == 'i') || (umode == 's') || (umode == 'w') || (umode == 'o'))
+							if ((ModeGrok->ProcessModuleUmode(umode, user, dest, direction)) || (umode == 'i') || (umode == 's') || (umode == 'w') || (umode == 'o'))
 							{
 								int v1 = strlen(dmodes);
 								int v2 = strlen(outpars);
@@ -1625,11 +1626,11 @@ void ModeParser::ServerMode(char **parameters, int pcnt, userrec *user)
 					{
 						// can only remove a mode they already have
 						log(DEBUG,"umode %c being removed",parameters[1][i]);
-						if ((allowed_umode(parameters[1][i],user->modes,false,true)) && (strchr(dmodes,parameters[1][i])))
+						if ((ModeGrok->AllowedUmode(parameters[1][i],user->modes,false,true)) && (strchr(dmodes,parameters[1][i])))
 						{
 							char umode = parameters[1][i];
 							log(DEBUG,"umode %c is an allowed umode",umode);
-							if ((process_module_umode(umode, user, dest, direction)) || (umode == 'i') || (umode == 's') || (umode == 'w') || (umode == 'o'))
+							if ((ModeGrok->ProcessModuleUmode(umode, user, dest, direction)) || (umode == 'i') || (umode == 's') || (umode == 'w') || (umode == 'o'))
 							{
 								unsigned int q = 0;
 								char temp[MAXBUF];
@@ -1713,7 +1714,7 @@ void ModeParser::ServerMode(char **parameters, int pcnt, userrec *user)
 	Ptr = FindChan(parameters[0]);
 	if (Ptr)
 	{
-		process_modes(parameters,user,Ptr,STATUS_OP,pcnt,true,false,false);
+		ModeGrok->ProcessModes(parameters,user,Ptr,STATUS_OP,pcnt,true,false,false);
 	}
 	else
 	{

@@ -54,6 +54,7 @@ using namespace std;
 extern SocketEngine* SE;
 extern ServerConfig *Config;
 extern InspIRCd* ServerInstance;
+extern ModeParser* ModeGrok;
 extern int MODCOUNT;
 extern std::vector<Module*> modules;
 extern std::vector<ircd_module*> factory;
@@ -424,7 +425,7 @@ void Server::AddCommand(char* cmd, handlerfunc f, char flags, int minparams, cha
 
 void Server::SendMode(char **parameters, int pcnt, userrec *user)
 {
-	server_mode(parameters,pcnt,user);
+	ModeGrok->ServerMode(parameters,pcnt,user);
 }
 
 void Server::Send(int Socket, std::string s)
