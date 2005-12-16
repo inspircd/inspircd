@@ -404,12 +404,12 @@ bool Server::IsUlined(std::string server)
 
 void Server::CallCommandHandler(std::string commandname, char** parameters, int pcnt, userrec* user)
 {
-	call_handler(commandname,parameters,pcnt,user);
+	Parser->CallHandler(commandname,parameters,pcnt,user);
 }
 
 bool Server::IsValidModuleCommand(std::string commandname, int pcnt, userrec* user)
 {
-	return is_valid_cmd(commandname, pcnt, user);
+	return Parser->IsValidCommand(commandname, pcnt, user);
 }
 
 void Server::Log(int level, std::string s)
