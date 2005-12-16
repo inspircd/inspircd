@@ -71,16 +71,16 @@ extern Module* IOHookModule;
 extern InspSocket* socket_ref[65535];
 extern time_t TIME;
 
-extern SocketEngine* SE = NULL;
+extern SocketEngine* SE;
 
 // This table references users by file descriptor.
 // its an array to make it VERY fast, as all lookups are referenced
 // by an integer, meaning there is no need for a scan/search operation.
 extern userrec* fd_ref_table[65536];
 
-extern serverstats* stats = new serverstats;
-extern Server* MyServer = new Server;
-extern ServerConfig *Config = new ServerConfig;
+extern serverstats* stats;
+extern Server* MyServer;
+extern ServerConfig *Config;
 
 extern user_hash clientlist;
 extern chan_hash chanlist;
