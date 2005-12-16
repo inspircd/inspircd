@@ -62,6 +62,7 @@ extern std::vector<userrec*> all_opers;
 extern user_hash clientlist;
 extern chan_hash chanlist;
 extern command_table cmdlist;
+extern Module* IOHookModule;
 
 static char textbuffer[MAXBUF];
 static char tb[MAXBUF];
@@ -143,10 +144,15 @@ void Write(int sock,char *text, ...)
         chop(tb);
         if (fd_ref_table[sock])
         {
-                int MOD_RESULT = 0;
-                FOREACH_RESULT(OnRawSocketWrite(sock,tb,bytes));
-                fd_ref_table[sock]->AddWriteBuf(tb);
-                stats->statsSent += bytes;
+		if (IOHookModule)
+		{
+			IOHookModule->OnRawSocketWrite(sock,tb,bytes);
+		}
+		else
+		{
+	                fd_ref_table[sock]->AddWriteBuf(tb);
+		}
+		stats->statsSent += bytes;
         }
         else log(DEFAULT,"ERROR! attempted write to a user with no fd_ref_table entry!!!");
 }
@@ -171,9 +177,14 @@ void WriteServ(int sock, char* text, ...)
         chop(tb);
         if (fd_ref_table[sock])
         {
-                int MOD_RESULT = 0;
-                FOREACH_RESULT(OnRawSocketWrite(sock,tb,bytes));
-                fd_ref_table[sock]->AddWriteBuf(tb);
+		if (IOHookModule)
+		{
+			IOHookModule->OnRawSocketWrite(sock,tb,bytes);
+		}
+		else
+		{
+	                fd_ref_table[sock]->AddWriteBuf(tb);
+		}
                 stats->statsSent += bytes;
         }
         else log(DEFAULT,"ERROR! attempted write to a user with no fd_ref_table entry!!!");
@@ -199,9 +210,14 @@ void WriteFrom(int sock, userrec *user,char* text, ...)
         chop(tb);
         if (fd_ref_table[sock])
         {
-                int MOD_RESULT = 0;
-                FOREACH_RESULT(OnRawSocketWrite(sock,tb,bytes));
-                fd_ref_table[sock]->AddWriteBuf(tb);
+		if (IOHookModule)
+		{
+			IOHookModule->OnRawSocketWrite(sock,tb,bytes);
+		}
+		else
+		{
+	                fd_ref_table[sock]->AddWriteBuf(tb);
+		}
                 stats->statsSent += bytes;
         }
         else log(DEFAULT,"ERROR! attempted write to a user with no fd_ref_table entry!!!");
@@ -1052,7 +1068,14 @@ void ShowMOTD(userrec *user)
         snprintf(mbuf,MAXBUF,":%s 376 %s :End of message of the day.\r\n", Config->ServerName, user->nick);
         WholeMOTD = WholeMOTD + mbuf;
         // only one write operation
-        user->AddWriteBuf(WholeMOTD);
+	if (IOHookModule)
+	{
+		IOHookModule->OnRawSocketWrite(user->fd,(char*)WholeMOTD.c_str(),WholeMOTD.length());
+	}
+	else
+	{
+        	user->AddWriteBuf(WholeMOTD);
+	}
         stats->statsSent += WholeMOTD.length();
 }
 

@@ -48,6 +48,7 @@ using namespace std;
 #include "socket.h"
 #include "socketengine.h"
 #include "typedefs.h"
+#include "modules.h"
 
 extern SocketEngine* SE;
 extern ServerConfig *Config;
@@ -65,6 +66,8 @@ extern user_hash clientlist;
 extern chan_hash chanlist;
 extern command_table cmdlist;
 ExtModeList EMode;
+
+Module* IOHookModule;
 
 // returns true if an extended mode character is in use
 bool ModeDefined(char modechar, int type)
