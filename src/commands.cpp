@@ -66,6 +66,7 @@ using namespace std;
 extern SocketEngine* SE;
 extern ServerConfig* Config;
 extern InspIRCd* ServerInstance;
+extern CommandParser *Parser;
 
 extern int MODCOUNT;
 extern std::vector<Module*> modules;

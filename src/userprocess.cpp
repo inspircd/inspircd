@@ -73,6 +73,7 @@ extern InspIRCd* ServerInstance;
 extern SocketEngine* SE;
 extern serverstats* stats;
 extern ServerConfig *Config;
+extern CommandParser *Parser;
 
 extern userrec* fd_ref_table[65536];
 char data[65536];

@@ -104,7 +104,7 @@ extern command_table cmdlist;
  * before the actual list as well. This code is used by many functions which
  * can function as "one to list" (see the RFC) */
 
-int loop_call(handlerfunc fn, char **parameters, int pcnt, userrec *u, int start, int end, int joins)
+int CommandParser::LoopCall(handlerfunc fn, char **parameters, int pcnt, userrec *u, int start, int end, int joins)
 {
         char plist[MAXBUF];
         char *param;
@@ -248,7 +248,7 @@ int loop_call(handlerfunc fn, char **parameters, int pcnt, userrec *u, int start
         return 1;
 }
 
-bool is_valid_cmd(std::string &commandname, int pcnt, userrec * user)
+bool CommandParser::IsValidCommand(std::string &commandname, int pcnt, userrec * user)
 {
         for (unsigned int i = 0; i < cmdlist.size(); i++)
         {
@@ -282,7 +282,7 @@ bool is_valid_cmd(std::string &commandname, int pcnt, userrec * user)
 
 // calls a handler function for a command
 
-void call_handler(std::string &commandname,char **parameters, int pcnt, userrec *user)
+void CommandParser::CallHandler(std::string &commandname,char **parameters, int pcnt, userrec *user)
 {
         for (unsigned int i = 0; i < cmdlist.size(); i++)
         {
@@ -312,7 +312,7 @@ void call_handler(std::string &commandname,char **parameters, int pcnt, userrec 
         }
 }
 
-int process_parameters(char **command_p,char *parameters)
+int CommandParser::ProcessParameters(char **command_p,char *parameters)
 {
         int j = 0;
         int q = strlen(parameters);
@@ -360,7 +360,7 @@ int process_parameters(char **command_p,char *parameters)
         return j; /* returns total number of items in the list */
 }
 
-void process_command(userrec *user, char* cmd)
+void CommandParser::ProcessCommand(userrec *user, char* cmd)
 {
         char *parameters;
         char *command;
@@ -537,20 +537,20 @@ void process_command(userrec *user, char* cmd)
                                         user->nping = TIME + user->pingmax;
                                         if ((items) < cmdlist[i].min_params)
                                         {
-                                                log(DEBUG,"process_command: not enough parameters: %s %s",user->nick,command);
+                                                log(DEBUG,"not enough parameters: %s %s",user->nick,command);
                                                 WriteServ(user->fd,"461 %s %s :Not enough parameters",user->nick,command);
                                                 return;
                                         }
                                         if ((!strchr(user->modes,cmdlist[i].flags_needed)) && (cmdlist[i].flags_needed))
                                         {
-                                                log(DEBUG,"process_command: permission denied: %s %s",user->nick,command);
+                                                log(DEBUG,"permission denied: %s %s",user->nick,command);
                                                 WriteServ(user->fd,"481 %s :Permission Denied- You do not have the required operator privilages",user->nick);
                                                 cmd_found = 1;
                                                 return;
                                         }
                                         if ((cmdlist[i].flags_needed) && (!user->HasPermission(xcommand)))
                                         {
-                                                log(DEBUG,"process_command: permission denied: %s %s",user->nick,command);
+                                                log(DEBUG,"permission denied: %s %s",user->nick,command);
                                                 WriteServ(user->fd,"481 %s :Permission Denied- Oper type %s does not have access to command %s",user->nick,user->oper,command);
                                                 cmd_found = 1;
                                                 return;
@@ -561,7 +561,7 @@ void process_command(userrec *user, char* cmd)
                                         {
                                                 if ((!isnick(user->nick)) || (user->registered != 7))
                                                 {
-                                                        log(DEBUG,"process_command: not registered: %s %s",user->nick,command);
+                                                        log(DEBUG,"not registered: %s %s",user->nick,command);
                                                         WriteServ(user->fd,"451 %s :You have not registered",command);
                                                         return;
                                                 }
@@ -625,7 +625,7 @@ void process_command(userrec *user, char* cmd)
         }
 }
 
-bool remove_commands(const char* source)
+bool CommandParser::RemoveCommands(const char* source)
 {
         bool go_again = true;
         while (go_again)
@@ -645,7 +645,7 @@ bool remove_commands(const char* source)
         return true;
 }
 
-void process_buffer(const char* cmdbuf,userrec *user)
+void CommandParser::ProcessBuffer(const char* cmdbuf,userrec *user)
 {
         if (!user)
         {
@@ -694,7 +694,7 @@ void process_buffer(const char* cmdbuf,userrec *user)
         tidystring(cmd);
         if ((user) && (cmd))
         {
-                process_command(user,cmd);
+                this->ProcessCommand(user,cmd);
         }
 }
 

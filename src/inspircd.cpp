@@ -92,6 +92,7 @@ userrec* fd_ref_table[65536];
 serverstats* stats = new serverstats;
 Server* MyServer = new Server;
 ServerConfig *Config = new ServerConfig;
+CommandParser *Parser = new CommandParser;
 
 user_hash clientlist;
 chan_hash chanlist;

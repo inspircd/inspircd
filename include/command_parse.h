@@ -22,10 +22,15 @@
 #include <string>
 #include "users.h"
  
-void call_handler(std::string &commandname,char **parameters, int pcnt, userrec *user);
-bool is_valid_cmd(std::string &commandname, int pcnt, userrec * user);
-int loop_call(handlerfunc fn, char **parameters, int pcnt, userrec *u, int start, int end, int joins);
-void process_buffer(const char* cmdbuf,userrec *user);
-bool remove_commands(const char* source);
+class CommandParser
+{
+ public:
+	void CallHandler(std::string &commandname,char **parameters, int pcnt, userrec *user);
+	bool IsValidCommand(std::string &commandname, int pcnt, userrec * user);
+	int LoopCall(handlerfunc fn, char **parameters, int pcnt, userrec *u, int start, int end, int joins);
+	void ProcessBuffer(const char* cmdbuf,userrec *user);
+	bool RemoveCommands(const char* source);
+	void CommandParser::ProcessCommand(userrec *user, char* cmd);
+};
 
 #endif

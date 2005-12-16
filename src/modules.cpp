@@ -58,6 +58,7 @@ extern int MODCOUNT;
 extern std::vector<Module*> modules;
 extern std::vector<ircd_module*> factory;
 extern std::vector<InspSocket*> module_sockets;
+extern CommandParser *Parser;
 
 extern time_t TIME;
 class Server;
