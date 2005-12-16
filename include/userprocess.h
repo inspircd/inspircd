@@ -2,9 +2,10 @@
 #define __USERPROCESS_H__
 
 #include "users.h"
+#include "inspircd.h"
 
 void CheckDie();
-void LoadAllModules();
+void LoadAllModules(InspIRCd* ServerInstance);
 void CheckRoot();
 void OpenLog(char** argv, int argc);
 bool DoBackgroundUserStuff(time_t TIME);

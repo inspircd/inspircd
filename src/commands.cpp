@@ -90,8 +90,6 @@ extern std::vector<userrec*> local_users;
 // by an integer, meaning there is no need for a scan/search operation.
 extern userrec* fd_ref_table[65536];
 
-extern serverstats* stats;
-
 char* CleanFilename(char* name)
 {
 	char* p = name + strlen(name);
@@ -1436,12 +1434,12 @@ void handle_stats(char **parameters, int pcnt, userrec *user)
 
 	if (*parameters[0] == 'T')
 	{
-		WriteServ(user->fd,"249 Brain :accepts %d refused %d",stats->statsAccept,stats->statsRefused);
-		WriteServ(user->fd,"249 Brain :unknown commands %d",stats->statsUnknown);
-		WriteServ(user->fd,"249 Brain :nick collisions %d",stats->statsCollisions);
-		WriteServ(user->fd,"249 Brain :dns requests %d succeeded %d failed %d",stats->statsDns,stats->statsDnsGood,stats->statsDnsBad);
-		WriteServ(user->fd,"249 Brain :connections %d",stats->statsConnects);
-		WriteServ(user->fd,"249 Brain :bytes sent %dK recv %dK",(stats->statsSent / 1024),(stats->statsRecv / 1024));
+		WriteServ(user->fd,"249 Brain :accepts %d refused %d",ServerInstance->stats->statsAccept,ServerInstance->stats->statsRefused);
+		WriteServ(user->fd,"249 Brain :unknown commands %d",ServerInstance->stats->statsUnknown);
+		WriteServ(user->fd,"249 Brain :nick collisions %d",ServerInstance->stats->statsCollisions);
+		WriteServ(user->fd,"249 Brain :dns requests %d succeeded %d failed %d",ServerInstance->stats->statsDns,ServerInstance->stats->statsDnsGood,ServerInstance->stats->statsDnsBad);
+		WriteServ(user->fd,"249 Brain :connections %d",ServerInstance->stats->statsConnects);
+		WriteServ(user->fd,"249 Brain :bytes sent %dK recv %dK",(ServerInstance->stats->statsSent / 1024),(ServerInstance->stats->statsRecv / 1024));
 	}
 	
 	/* stats o */

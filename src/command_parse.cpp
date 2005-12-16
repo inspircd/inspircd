@@ -79,13 +79,11 @@ extern SocketEngine* SE;
 // by an integer, meaning there is no need for a scan/search operation.
 extern userrec* fd_ref_table[65536];
 
-extern serverstats* stats;
 extern Server* MyServer;
 extern ServerConfig *Config;
 
 extern user_hash clientlist;
 extern chan_hash chanlist;
-extern command_table cmdlist;
 
 /* This function pokes and hacks at a parameter list like the following:
  *
@@ -499,7 +497,7 @@ void CommandParser::ProcessCommand(userrec *user, char* cmd)
                         {
                                 if (strchr("@!\"$%^&*(){}[]_=+;:'#~,<>/?\\|`",command[x]))
                                 {
-                                        stats->statsUnknown++;
+                                        ServerInstance->stats->statsUnknown++;
                                         WriteServ(user->fd,"421 %s %s :Unknown command",user->nick,command);
                                         return;
                                 }
@@ -621,7 +619,7 @@ void CommandParser::ProcessCommand(userrec *user, char* cmd)
         }
         if ((!cmd_found) && (user))
         {
-                stats->statsUnknown++;
+                ServerInstance->stats->statsUnknown++;
                 WriteServ(user->fd,"421 %s %s :Unknown command",user->nick,command);
         }
 }

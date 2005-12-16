@@ -42,7 +42,6 @@ using namespace std;
 
 extern InspIRCd* ServerInstance;
 extern ServerConfig* Config;
-serverstats* stats;
 
 #define max(a,b) (a > b ? a : b)
 #define DNS_MAX              8                    /* max number of nameservers used */
@@ -656,7 +655,7 @@ DNS::~DNS()
 
 bool DNS::ReverseLookup(std::string ip)
 {
-	stats->statsDns++;
+	ServerInstance->stats->statsDns++;
         binip = dns_aton4(ip.c_str());
         if (binip == NULL) {
                 return false;
@@ -676,7 +675,7 @@ bool DNS::ReverseLookup(std::string ip)
 
 bool DNS::ForwardLookup(std::string host)
 {
-	stats->statsDns++;
+	ServerInstance->stats->statsDns++;
 	this->myfd = dns_getip4(host.c_str());
 	if (this->myfd == -1)
 	{
@@ -722,11 +721,11 @@ std::string DNS::GetResult()
 	ServerInstance->SE->DelFd(this->myfd);
 #endif
         if (result) {
-		stats->statsDnsGood++;
+		ServerInstance->stats->statsDnsGood++;
 		dns_close(this->myfd);
 		return result;
         } else {
-		stats->statsDnsBad++;
+		ServerInstance->stats->statsDnsBad++;
 		if (this->myfd != -1)
 		{
 			dns_close(this->myfd);
@@ -749,7 +748,7 @@ std::string DNS::GetResultIP()
 	}
 	if (result)
 	{
-		stats->statsDnsGood++;
+		ServerInstance->stats->statsDnsGood++;
 		unsigned char a = (unsigned)result[0];
 		unsigned char b = (unsigned)result[1];
 		unsigned char c = (unsigned)result[2];
@@ -759,7 +758,7 @@ std::string DNS::GetResultIP()
 	}
 	else
 	{
-		stats->statsDnsBad++;
+		ServerInstance->stats->statsDnsBad++;
 		log(DEBUG,"DANGER WILL ROBINSON! NXDOMAIN for forward lookup, but we got a reverse lookup!");
 		return "";
 	}

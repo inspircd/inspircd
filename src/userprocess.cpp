@@ -70,7 +70,6 @@ extern time_t OLDTIME;
 extern std::vector<userrec*> local_users;
 
 extern InspIRCd* ServerInstance;
-extern serverstats* stats;
 extern ServerConfig *Config;
 extern userrec* fd_ref_table[65536];
 char data[65536];
@@ -106,7 +105,7 @@ void ProcessUser(userrec* cu)
         log(DEBUG,"Read result: %d",result);
         if (result)
         {
-                stats->statsRecv += result;
+                ServerInstance->stats->statsRecv += result;
                 // perform a check on the raw buffer as an array (not a string!) to remove
                 // characters 0 and 7 which are illegal in the RFC - replace them with spaces.
                 // hopefully this should stop even more people whining about "Unknown command: *"
@@ -308,7 +307,7 @@ bool DoBackgroundUserStuff(time_t TIME)
                                 {
                                         log(DEBUG,"signon exceed, registered=3, and modules ready, OK: %d %d",TIME,curr->signon);
                                         curr->dns_done = true;
-                                        stats->statsDnsBad++;
+                                        ServerInstance->stats->statsDnsBad++;
                                         FullConnectUser(curr);
                                         if (fd_ref_table[currfd] != curr) // something changed, bail pronto
                                                 return true;
@@ -377,7 +376,7 @@ void CheckDie()
         }
 }
 
-void LoadAllModules()
+void LoadAllModules(InspIRCd* ServerInstance)
 {
         /* We must load the modules AFTER initializing the socket engine, now */
         MODCOUNT = -1;

@@ -56,7 +56,6 @@ extern time_t TIME;
 extern char lowermap[255];
 static char list[MAXBUF];
 extern userrec* fd_ref_table[65536];
-extern serverstats* stats;
 static char already_sent[65536];
 extern std::vector<userrec*> all_opers;
 extern user_hash clientlist;
@@ -148,7 +147,7 @@ void Write(int sock,char *text, ...)
 		{
 	                fd_ref_table[sock]->AddWriteBuf(tb);
 		}
-		stats->statsSent += bytes;
+		ServerInstance->stats->statsSent += bytes;
         }
         else log(DEFAULT,"ERROR! attempted write to a user with no fd_ref_table entry!!!");
 }
@@ -181,7 +180,7 @@ void WriteServ(int sock, char* text, ...)
 		{
 	                fd_ref_table[sock]->AddWriteBuf(tb);
 		}
-                stats->statsSent += bytes;
+                ServerInstance->stats->statsSent += bytes;
         }
         else log(DEFAULT,"ERROR! attempted write to a user with no fd_ref_table entry!!!");
 }
@@ -214,7 +213,7 @@ void WriteFrom(int sock, userrec *user,char* text, ...)
 		{
 	                fd_ref_table[sock]->AddWriteBuf(tb);
 		}
-                stats->statsSent += bytes;
+                ServerInstance->stats->statsSent += bytes;
         }
         else log(DEFAULT,"ERROR! attempted write to a user with no fd_ref_table entry!!!");
 }
@@ -1073,7 +1072,7 @@ void ShowMOTD(userrec *user)
 	{
         	user->AddWriteBuf(WholeMOTD);
 	}
-        stats->statsSent += WholeMOTD.length();
+        ServerInstance->stats->statsSent += WholeMOTD.length();
 }
 
 void ShowRULES(userrec *user)
