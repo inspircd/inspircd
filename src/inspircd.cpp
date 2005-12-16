@@ -89,7 +89,6 @@ SocketEngine* SE = NULL;
 // by an integer, meaning there is no need for a scan/search operation.
 userrec* fd_ref_table[65536];
 
-serverstats* stats = new serverstats;
 Server* MyServer = new Server;
 ServerConfig *Config = new ServerConfig;
 
@@ -138,7 +137,19 @@ std::string InspIRCd::GetRevision()
 	return single;
 }
 
-
+void InspIRCd::MakeLowerMap()
+{
+	// initialize the lowercase mapping table
+	for (unsigned int cn = 0; cn < 256; cn++)
+		lowermap[cn] = cn;
+	// lowercase the uppercase chars
+	for (unsigned int cn = 65; cn < 91; cn++)
+		lowermap[cn] = tolower(cn);
+	// now replace the specific chars for scandanavian comparison
+	lowermap[(unsigned)'['] = '{';
+	lowermap[(unsigned)']'] = '}';
+	lowermap[(unsigned)'\\'] = '|';
+}
 
 InspIRCd::InspIRCd(int argc, char** argv)
 {
@@ -170,18 +181,8 @@ InspIRCd::InspIRCd(int argc, char** argv)
 	}
 
 	strlcpy(Config->MyExecutable,argv[0],MAXBUF);
-	
-	// initialize the lowercase mapping table
-	for (unsigned int cn = 0; cn < 256; cn++)
-		lowermap[cn] = cn;
-	// lowercase the uppercase chars
-	for (unsigned int cn = 65; cn < 91; cn++)
-		lowermap[cn] = tolower(cn);
-	// now replace the specific chars for scandanavian comparison
-	lowermap[(unsigned)'['] = '{';
-	lowermap[(unsigned)']'] = '}';
-	lowermap[(unsigned)'\\'] = '|';
 
+	this->MakeLowerMap();
 
         OpenLog(argv, argc);
         Config->ClearStack();
@@ -189,6 +190,7 @@ InspIRCd::InspIRCd(int argc, char** argv)
         CheckRoot();
 	this->ModeGrok = new ModeParser();
 	this->Parser = new CommandParser();
+	this->stats = new serverstats();
         AddServerName(Config->ServerName);
         CheckDie();
         stats->BoundPortCount = BindPorts();

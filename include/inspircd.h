@@ -109,7 +109,9 @@ class InspIRCd
 	ModeParser* ModeGrok;
 	CommandParser* Parser;
 	SocketEngine* SE;
+	serverstats* stats;
 
+	void MakeLowerMap()
 	std::string GetRevision();
 	std::string GetVersionString();
 	char* ModuleError();
