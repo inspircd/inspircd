@@ -40,7 +40,6 @@ using namespace std;
 #include <pthread.h>
 #endif
 #include "users.h"
-#include "ctables.h"
 #include "globals.h"
 #include "modules.h"
 #include "dynamic.h"
@@ -59,6 +58,7 @@ using namespace std;
 #include "dns.h"
 #include "typedefs.h"
 #include "command_parse.h"
+#include "ctables.h"
 
 extern InspIRCd* ServerInstance;
 

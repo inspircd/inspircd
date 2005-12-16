@@ -49,6 +49,7 @@ using namespace std;
 extern int MODCOUNT;
 extern std::vector<Module*> modules;
 extern std::vector<ircd_module*> factory;
+extern InspIRCd* ServerInstance;
 extern ServerConfig* Config;
 
 extern time_t TIME;

@@ -22,6 +22,7 @@
 #include "ctables.h"
 #include "users.h"
 #include "channels.h"
+#include "typedefs.h"
 #include <string>
 #include <deque>
 #include <sstream>

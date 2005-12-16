@@ -18,12 +18,15 @@
 #define __CTABLES_H__
 
 #include "inspircd_config.h"
-#include "inspircd.h"
-#include "base.h"
+#include <deque>
+
+class userrec;
+
+typedef void (handlerfunc) (char**, int, userrec*);
 
 /** A structure that defines a command
  */
-class command_t : public Extensible
+class command_t
 {
  public:
 	/** Command name
@@ -48,6 +51,8 @@ class command_t : public Extensible
 	 */
 	char source[MAXBUF];
 };
+
+typedef std::deque<command_t> command_table;
 
 #endif
 

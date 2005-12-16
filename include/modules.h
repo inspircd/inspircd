@@ -63,6 +63,7 @@
 #include <sstream>
 
 class Server;
+class ServerConfig;
 
 /** Low level definition of a FileReader classes file cache area
  */
@@ -100,8 +101,8 @@ typedef std::deque<userrec*> chanuserlist;
 
 #define FD_MAGIC_NUMBER -42
 
-extern void createcommand(char* cmd, handlerfunc f, char flags, int minparams, char* source);
-extern void server_mode(char **parameters, int pcnt, userrec *user);
+/*extern void createcommand(char* cmd, handlerfunc f, char flags, int minparams, char* source);
+extern void server_mode(char **parameters, int pcnt, userrec *user);*/
 
 // class Version holds the version information of a Module, returned
 // by Module::GetVersion (thanks RD)

@@ -103,7 +103,7 @@ void handle_join(char **parameters, int pcnt, userrec *user)
 {
 	chanrec* Ptr;
 	
-	if (Parser->LoopCall(handle_join,parameters,pcnt,user,0,0,1))
+	if (ServerInstance->Parser->LoopCall(handle_join,parameters,pcnt,user,0,0,1))
 		return;
 	if (parameters[0][0] == '#')
 	{
@@ -116,13 +116,13 @@ void handle_part(char **parameters, int pcnt, userrec *user)
 {
 	if (pcnt > 1)
 	{
-		if (Parser->LoopCall(handle_part,parameters,pcnt,user,0,pcnt-2,0))
+		if (ServerInstance->Parser->LoopCall(handle_part,parameters,pcnt,user,0,pcnt-2,0))
 			return;
 		del_channel(user,parameters[0],parameters[1],false);
 	}
 	else
 	{
-		if (Parser->LoopCall(handle_part,parameters,pcnt,user,0,pcnt-1,0))
+		if (ServerInstance->Parser->LoopCall(handle_part,parameters,pcnt,user,0,pcnt-1,0))
 			return;
 		del_channel(user,parameters[0],NULL,false);
 	}
@@ -130,9 +130,9 @@ void handle_part(char **parameters, int pcnt, userrec *user)
 
 void handle_commands(char **parameters, int pcnt, userrec *user)
 {
-	for (unsigned int i = 0; i < Parser->cmdlist.size(); i++)
+	for (unsigned int i = 0; i < ServerInstance->Parser->cmdlist.size(); i++)
 	{
-		WriteServ(user->fd,"902 %s :%s %s %d",user->nick,Parser->cmdlist[i].command,Parser->cmdlist[i].source,Parser->cmdlist[i].min_params);
+		WriteServ(user->fd,"902 %s :%s %s %d",user->nick,ServerInstance->Parser->cmdlist[i].command,ServerInstance->Parser->cmdlist[i].source,ServerInstance->Parser->cmdlist[i].min_params);
 	}
 	WriteServ(user->fd,"903 %s :End of COMMANDS list",user->nick);
 }

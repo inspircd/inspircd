@@ -21,7 +21,6 @@ typedef nspace::hash_map<std::string, userrec*, nspace::hash<string>, irc::StrHa
 typedef nspace::hash_map<std::string, chanrec*, nspace::hash<string>, irc::StrHashComp> chan_hash;
 typedef nspace::hash_map<in_addr,string*, nspace::hash<in_addr>, irc::InAddr_HashComp> address_cache;
 typedef nspace::hash_map<std::string, WhoWasUser*, nspace::hash<string>, irc::StrHashComp> whowas_hash;
-typedef std::deque<command_t> command_table;
 typedef std::vector<std::string> servernamelist;
 typedef std::vector<ExtMode> ExtModeList;
 typedef ExtModeList::iterator ExtModeListIter;
