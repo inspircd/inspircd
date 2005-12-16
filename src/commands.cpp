@@ -66,7 +66,6 @@ using namespace std;
 extern SocketEngine* SE;
 extern ServerConfig* Config;
 extern InspIRCd* ServerInstance;
-extern CommandParser *Parser;
 
 extern int MODCOUNT;
 extern std::vector<Module*> modules;
@@ -497,7 +496,7 @@ void handle_names(char **parameters, int pcnt, userrec *user)
 		return;
 	}
 
-	if (Parser->LoopCall(handle_names,parameters,pcnt,user,0,pcnt-1,0))
+	if (ServerInstance->Parser->LoopCall(handle_names,parameters,pcnt,user,0,pcnt-1,0))
 		return;
 	c = FindChan(parameters[0]);
 	if (c)
@@ -523,7 +522,7 @@ void handle_privmsg(char **parameters, int pcnt, userrec *user)
 
 	user->idle_lastmsg = TIME;
 	
-	if (Parser->LoopCall(handle_privmsg,parameters,pcnt,user,0,pcnt-2,0))
+	if (ServerInstance->Parser->LoopCall(handle_privmsg,parameters,pcnt,user,0,pcnt-2,0))
 		return;
         if (parameters[0][0] == '$')
 	{
@@ -618,7 +617,7 @@ void handle_notice(char **parameters, int pcnt, userrec *user)
 
 	user->idle_lastmsg = TIME;
 	
-	if (Parser->LoopCall(handle_notice,parameters,pcnt,user,0,pcnt-2,0))
+	if (ServerInstance->Parser->LoopCall(handle_notice,parameters,pcnt,user,0,pcnt-2,0))
 		return;
 	if (parameters[0][0] == '$')
 	{
@@ -762,7 +761,7 @@ void handle_time(char **parameters, int pcnt, userrec *user)
 void handle_whois(char **parameters, int pcnt, userrec *user)
 {
 	userrec *dest;
-        if (Parser->LoopCall(handle_whois,parameters,pcnt,user,0,pcnt-1,0))
+        if (ServerInstance->Parser->LoopCall(handle_whois,parameters,pcnt,user,0,pcnt-1,0))
                 return;
 	dest = Find(parameters[0]);
 	if (dest)
@@ -1401,14 +1400,14 @@ void handle_stats(char **parameters, int pcnt, userrec *user)
 	/* stats m (list number of times each command has been used, plus bytecount) */
 	if (*parameters[0] == 'm')
 	{
-		for (unsigned int i = 0; i < Parser->cmdlist.size(); i++)
+		for (unsigned int i = 0; i < ServerInstance->Parser->cmdlist.size(); i++)
 		{
-			if (Parser->cmdlist[i].handler_function)
+			if (ServerInstance->Parser->cmdlist[i].handler_function)
 			{
-				if (Parser->cmdlist[i].use_count)
+				if (ServerInstance->Parser->cmdlist[i].use_count)
 				{
 					/* RPL_STATSCOMMANDS */
-					WriteServ(user->fd,"212 %s %s %d %d",user->nick,Parser->cmdlist[i].command,Parser->cmdlist[i].use_count,Parser->cmdlist[i].total_bytes);
+					WriteServ(user->fd,"212 %s %s %d %d",user->nick,ServerInstance->Parser->cmdlist[i].command,ServerInstance->Parser->cmdlist[i].use_count,ServerInstance->Parser->cmdlist[i].total_bytes);
 				}
 			}
 		}
@@ -1421,7 +1420,7 @@ void handle_stats(char **parameters, int pcnt, userrec *user)
 		rusage R;
 		WriteServ(user->fd,"249 %s :Users(HASH_MAP) %d (%d bytes, %d buckets)",user->nick,clientlist.size(),clientlist.size()*sizeof(userrec),clientlist.bucket_count());
 		WriteServ(user->fd,"249 %s :Channels(HASH_MAP) %d (%d bytes, %d buckets)",user->nick,chanlist.size(),chanlist.size()*sizeof(chanrec),chanlist.bucket_count());
-		WriteServ(user->fd,"249 %s :Commands(VECTOR) %d (%d bytes)",user->nick,Parser->cmdlist.size(),Parser->cmdlist.size()*sizeof(command_t));
+		WriteServ(user->fd,"249 %s :Commands(VECTOR) %d (%d bytes)",user->nick,ServerInstance->Parser->cmdlist.size(),ServerInstance->Parser->cmdlist.size()*sizeof(command_t));
 		WriteServ(user->fd,"249 %s :MOTD(VECTOR) %d, RULES(VECTOR) %d",user->nick,Config->MOTD.size(),Config->RULES.size());
 		WriteServ(user->fd,"249 %s :Modules(VECTOR) %d (%d)",user->nick,modules.size(),modules.size()*sizeof(Module));
 		WriteServ(user->fd,"249 %s :ClassFactories(VECTOR) %d (%d)",user->nick,factory.size(),factory.size()*sizeof(ircd_module));

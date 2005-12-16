@@ -92,8 +92,6 @@ userrec* fd_ref_table[65536];
 serverstats* stats = new serverstats;
 Server* MyServer = new Server;
 ServerConfig *Config = new ServerConfig;
-CommandParser *Parser = NULL;
-ModeParser *ModeGrok = NULL;
 
 user_hash clientlist;
 chan_hash chanlist;
@@ -189,8 +187,8 @@ InspIRCd::InspIRCd(int argc, char** argv)
         Config->ClearStack();
         Config->Read(true,NULL);
         CheckRoot();
-	ModeGrok = new ModeParser();
-	Parser = new CommandParser();
+	this->ModeGrok = new ModeParser();
+	this->Parser = new CommandParser();
         AddServerName(Config->ServerName);
         CheckDie();
         stats->BoundPortCount = BindPorts();

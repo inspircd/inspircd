@@ -50,7 +50,6 @@ extern int MODCOUNT;
 extern std::vector<Module*> modules;
 extern std::vector<ircd_module*> factory;
 extern ServerConfig* Config;
-extern ModeParser* ModeGrok;
 
 extern time_t TIME;
 
@@ -1264,7 +1263,7 @@ void handle_mode(char **parameters, int pcnt, userrec *user)
 
 	if ((dest) && (pcnt > 1))
 	{
-		std::string tidied = ModeGrok->CompressModes(parameters[1],false);
+		std::string tidied = ServerInstance->ModeGrok->CompressModes(parameters[1],false);
 		parameters[1] = (char*)tidied.c_str();
 
 		char dmodes[MAXBUF];
@@ -1341,7 +1340,7 @@ void handle_mode(char **parameters, int pcnt, userrec *user)
 				}
 				else
 				{
-					if ((parameters[1][i] == 'i') || (parameters[1][i] == 'w') || (parameters[1][i] == 's') || (ModeGrok->AllowedUmode(parameters[1][i],user->modes,direction,false)))
+					if ((parameters[1][i] == 'i') || (parameters[1][i] == 'w') || (parameters[1][i] == 's') || (ServerInstance->ModeGrok->AllowedUmode(parameters[1][i],user->modes,direction,false)))
 					{
 						can_change = 1;
 					}
@@ -1350,10 +1349,10 @@ void handle_mode(char **parameters, int pcnt, userrec *user)
 				{
 					if (direction == 1)
 					{
-						if ((!strchr(dmodes,parameters[1][i])) && (ModeGrok->AllowedUmode(parameters[1][i],user->modes,true,false)))
+						if ((!strchr(dmodes,parameters[1][i])) && (ServerInstance->ModeGrok->AllowedUmode(parameters[1][i],user->modes,true,false)))
 						{
 							char umode = parameters[1][i];
-							if ((ModeGrok->ProcessModuleUmode(umode, user, dest, direction)) || (umode == 'i') || (umode == 's') || (umode == 'w') || (umode == 'o'))
+							if ((ServerInstance->ModeGrok->ProcessModuleUmode(umode, user, dest, direction)) || (umode == 'i') || (umode == 's') || (umode == 'w') || (umode == 'o'))
 							{
 								int q = strlen(dmodes);
 								int r = strlen(outpars);
@@ -1370,10 +1369,10 @@ void handle_mode(char **parameters, int pcnt, userrec *user)
 					}
 					else
 					{
-						if ((ModeGrok->AllowedUmode(parameters[1][i],user->modes,false,false)) && (strchr(dmodes,parameters[1][i])))
+						if ((ServerInstance->ModeGrok->AllowedUmode(parameters[1][i],user->modes,false,false)) && (strchr(dmodes,parameters[1][i])))
 						{
 							char umode = parameters[1][i];
-							if ((ModeGrok->ProcessModuleUmode(umode, user, dest, direction)) || (umode == 'i') || (umode == 's') || (umode == 'w') || (umode == 'o'))
+							if ((ServerInstance->ModeGrok->ProcessModuleUmode(umode, user, dest, direction)) || (umode == 'i') || (umode == 's') || (umode == 'w') || (umode == 'o'))
 							{
 								unsigned int q = 0;
 								char temp[MAXBUF];	
@@ -1519,7 +1518,7 @@ void handle_mode(char **parameters, int pcnt, userrec *user)
 				}
 			}
 
-			ModeGrok->ProcessModes(parameters,user,Ptr,cstatus(user,Ptr),pcnt,false,false,false);
+			ServerInstance->ModeGrok->ProcessModes(parameters,user,Ptr,cstatus(user,Ptr),pcnt,false,false,false);
 		}
 	}
 	else
@@ -1549,7 +1548,7 @@ void ModeParser::ServerMode(char **parameters, int pcnt, userrec *user)
 
 	if ((dest) && (pcnt > 1))
 	{
-                std::string tidied = ModeGrok->CompressModes(parameters[1],false);
+                std::string tidied = ServerInstance->ModeGrok->CompressModes(parameters[1],false);
                 parameters[1] = (char*)tidied.c_str();
 
 		char dmodes[MAXBUF];
@@ -1607,11 +1606,11 @@ void ModeParser::ServerMode(char **parameters, int pcnt, userrec *user)
 					if (direction == 1)
 					{
 						log(DEBUG,"umode %c being added",parameters[1][i]);
-						if ((!strchr(dmodes,parameters[1][i])) && (ModeGrok->AllowedUmode(parameters[1][i],user->modes,true,true)))
+						if ((!strchr(dmodes,parameters[1][i])) && (ServerInstance->ModeGrok->AllowedUmode(parameters[1][i],user->modes,true,true)))
 						{
 							char umode = parameters[1][i];
 							log(DEBUG,"umode %c is an allowed umode",umode);
-							if ((ModeGrok->ProcessModuleUmode(umode, user, dest, direction)) || (umode == 'i') || (umode == 's') || (umode == 'w') || (umode == 'o'))
+							if ((ServerInstance->ModeGrok->ProcessModuleUmode(umode, user, dest, direction)) || (umode == 'i') || (umode == 's') || (umode == 'w') || (umode == 'o'))
 							{
 								int v1 = strlen(dmodes);
 								int v2 = strlen(outpars);
@@ -1626,11 +1625,11 @@ void ModeParser::ServerMode(char **parameters, int pcnt, userrec *user)
 					{
 						// can only remove a mode they already have
 						log(DEBUG,"umode %c being removed",parameters[1][i]);
-						if ((ModeGrok->AllowedUmode(parameters[1][i],user->modes,false,true)) && (strchr(dmodes,parameters[1][i])))
+						if ((ServerInstance->ModeGrok->AllowedUmode(parameters[1][i],user->modes,false,true)) && (strchr(dmodes,parameters[1][i])))
 						{
 							char umode = parameters[1][i];
 							log(DEBUG,"umode %c is an allowed umode",umode);
-							if ((ModeGrok->ProcessModuleUmode(umode, user, dest, direction)) || (umode == 'i') || (umode == 's') || (umode == 'w') || (umode == 'o'))
+							if ((ServerInstance->ModeGrok->ProcessModuleUmode(umode, user, dest, direction)) || (umode == 'i') || (umode == 's') || (umode == 'w') || (umode == 'o'))
 							{
 								unsigned int q = 0;
 								char temp[MAXBUF];
@@ -1714,7 +1713,7 @@ void ModeParser::ServerMode(char **parameters, int pcnt, userrec *user)
 	Ptr = FindChan(parameters[0]);
 	if (Ptr)
 	{
-		ModeGrok->ProcessModes(parameters,user,Ptr,STATUS_OP,pcnt,true,false,false);
+		ServerInstance->ModeGrok->ProcessModes(parameters,user,Ptr,STATUS_OP,pcnt,true,false,false);
 	}
 	else
 	{

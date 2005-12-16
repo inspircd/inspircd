@@ -42,6 +42,8 @@
 #include "users.h"
 #include "channels.h"
 #include "socket.h"
+#include "mode.h"
+#include "command_parse.h"
 
 // some misc defines
 
@@ -103,6 +105,8 @@ class InspIRCd
 
  public:
 	time_t startup_time;
+	ModeParser* ModeGrok;
+	CommandParser* Parser;
 
 	std::string GetRevision();
 	std::string GetVersionString();

@@ -54,13 +54,10 @@ using namespace std;
 extern SocketEngine* SE;
 extern ServerConfig *Config;
 extern InspIRCd* ServerInstance;
-extern ModeParser* ModeGrok;
 extern int MODCOUNT;
 extern std::vector<Module*> modules;
 extern std::vector<ircd_module*> factory;
 extern std::vector<InspSocket*> module_sockets;
-extern CommandParser *Parser;
-
 extern time_t TIME;
 class Server;
 extern userrec* fd_ref_table[65536];
@@ -405,12 +402,12 @@ bool Server::IsUlined(std::string server)
 
 void Server::CallCommandHandler(std::string commandname, char** parameters, int pcnt, userrec* user)
 {
-	Parser->CallHandler(commandname,parameters,pcnt,user);
+	ServerInstance->Parser->CallHandler(commandname,parameters,pcnt,user);
 }
 
 bool Server::IsValidModuleCommand(std::string commandname, int pcnt, userrec* user)
 {
-	return Parser->IsValidCommand(commandname, pcnt, user);
+	return ServerInstance->Parser->IsValidCommand(commandname, pcnt, user);
 }
 
 void Server::Log(int level, std::string s)
@@ -420,12 +417,12 @@ void Server::Log(int level, std::string s)
 
 void Server::AddCommand(char* cmd, handlerfunc f, char flags, int minparams, char* source)
 {
-	Parser->CreateCommand(cmd,f,flags,minparams,source);
+	ServerInstance->Parser->CreateCommand(cmd,f,flags,minparams,source);
 }
 
 void Server::SendMode(char **parameters, int pcnt, userrec *user)
 {
-	ModeGrok->ServerMode(parameters,pcnt,user);
+	ServerInstance->ModeGrok->ServerMode(parameters,pcnt,user);
 }
 
 void Server::Send(int Socket, std::string s)

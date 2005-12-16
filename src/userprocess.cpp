@@ -73,8 +73,6 @@ extern InspIRCd* ServerInstance;
 extern SocketEngine* SE;
 extern serverstats* stats;
 extern ServerConfig *Config;
-extern CommandParser *Parser;
-
 extern userrec* fd_ref_table[65536];
 char data[65536];
 
@@ -207,7 +205,7 @@ void ProcessUser(userrec* cu)
                                         userrec* old_comp = fd_ref_table[currfd];
                                         // we're gonna re-scan to check if the nick is gone, after every
                                         // command - if it has, we're gonna bail
-                                        Parser->ProcessBuffer(sanitized,current);
+                                        ServerInstance->Parser->ProcessBuffer(sanitized,current);
                                         // look for the user's record in case it's changed... if theyve quit,
                                         // we cant do anything more with their buffer, so bail.
                                         // there used to be an ugly, slow loop here. Now we have a reference
