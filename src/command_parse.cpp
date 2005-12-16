@@ -518,7 +518,7 @@ void CommandParser::ProcessCommand(userrec *user, char* cmd)
                                 {
                                         if (parameters[0])
                                         {
-                                                items = process_parameters(command_p,parameters);
+                                                items = this->ProcessParameters(command_p,parameters);
                                         }
                                         else
                                         {
@@ -699,7 +699,7 @@ void CommandParser::ProcessBuffer(const char* cmdbuf,userrec *user)
         }
 }
 
-void CommandParser::CreateCommand(char* cmd, handlerfunc f, char flags, int minparams,char* source)
+bool CommandParser::CreateCommand(char* cmd, handlerfunc f, char flags, int minparams,char* source)
 {
         command_t comm;
         /* create the command and push it onto the table */
@@ -712,6 +712,7 @@ void CommandParser::CreateCommand(char* cmd, handlerfunc f, char flags, int minp
         comm.total_bytes = 0;
         cmdlist.push_back(comm);
         log(DEBUG,"Added command %s (%lu parameters)",cmd,(unsigned long)minparams);
+	return true;
 }
 
 CommandParser::CommandParser()
