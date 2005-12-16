@@ -69,8 +69,8 @@ void cmd_privmsg::Handle (char **parameters, int pcnt, userrec *user)
 
 	user->idle_lastmsg = TIME;
 	
-	/*if (ServerInstance->Parser->LoopCall(handle_privmsg,parameters,pcnt,user,0,pcnt-2,0))
-		return;*/
+	if (ServerInstance->Parser->LoopCall(this,parameters,pcnt,user,0,pcnt-2,0))
+		return;
         if (parameters[0][0] == '$')
 	{
 		// notice to server mask

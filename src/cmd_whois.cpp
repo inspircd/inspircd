@@ -65,8 +65,8 @@ extern userrec* fd_ref_table[65536];
 void cmd_whois::Handle (char **parameters, int pcnt, userrec *user)
 {
 	userrec *dest;
-        /*if (ServerInstance->Parser->LoopCall(handle_whois,parameters,pcnt,user,0,pcnt-1,0))
-                return;*/
+	if (ServerInstance->Parser->LoopCall(this,parameters,pcnt,user,0,pcnt-1,0))
+		return;
 	dest = Find(parameters[0]);
 	if (dest)
 	{

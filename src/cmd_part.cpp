@@ -66,14 +66,14 @@ void cmd_part::Handle (char **parameters, int pcnt, userrec *user)
 {
 	if (pcnt > 1)
 	{
-		/*if (ServerInstance->Parser->LoopCall(handle_part,parameters,pcnt,user,0,pcnt-2,0))
-			return;*/
+		if (ServerInstance->Parser->LoopCall(this,parameters,pcnt,user,0,pcnt-2,0))
+			return;
 		del_channel(user,parameters[0],parameters[1],false);
 	}
 	else
 	{
-		/*if (ServerInstance->Parser->LoopCall(handle_part,parameters,pcnt,user,0,pcnt-1,0))
-			return;*/
+		if (ServerInstance->Parser->LoopCall(this,parameters,pcnt,user,0,pcnt-1,0))
+			return;
 		del_channel(user,parameters[0],NULL,false);
 	}
 }
