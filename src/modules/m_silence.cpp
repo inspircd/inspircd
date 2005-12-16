@@ -33,103 +33,112 @@ using namespace std;
 // have one of these structures associated with their user record.
 typedef std::vector<std::string> silencelist;
 
-
-void handle_silence(char **parameters, int pcnt, userrec *user)
+class cmd_silence : public command_t
 {
-	if (!pcnt)
+ public:
+	cmd_silence() : command_t("SILENCE", 0, 1)
 	{
-		// no parameters, show the current silence list.
-		// Use Extensible::GetExt to fetch the silence list
-		silencelist* sl = (silencelist*)user->GetExt("silence_list");
-		// if the user has a silence list associated with their user record, show it
-		if (sl)
-		{
-			for (silencelist::const_iterator c = sl->begin(); c < sl->end(); c++)
-			{
-				WriteServ(user->fd,"271 %s %s %s!*@*",user->nick, user->nick,c->c_str());
-			}
-		}
-		WriteServ(user->fd,"272 %s :End of Silence List",user->nick);
+		this->source = "m_silence.so";
 	}
-	else if (pcnt > 0)
+
+	void Handle (char **parameters, int pcnt, userrec *user)
 	{
-		// one or more parameters, add or delete entry from the list (only the first parameter is used)
-		char *nick = parameters[0];
-		if (nick[0] == '-')
+		if (!pcnt)
 		{
-			// removing an item from the list
-			nick++;
-			// fetch their silence list
+			// no parameters, show the current silence list.
+			// Use Extensible::GetExt to fetch the silence list
 			silencelist* sl = (silencelist*)user->GetExt("silence_list");
-			// does it contain any entries and does it exist?
+			// if the user has a silence list associated with their user record, show it
 			if (sl)
 			{
-                		if (sl->size())
-                		{
-                	        	for (silencelist::iterator i = sl->begin(); i != sl->end(); i++)
-               		         	{
-						// search through for the item
-						irc::string listitem = i->c_str();
-						irc::string target = nick;
-						if (listitem == target)
-               	                        	{
-               	                                	sl->erase(i);
-							WriteServ(user->fd,"950 %s %s :Removed %s!*@* from silence list",user->nick, user->nick,nick);
-							// we have modified the vector from within a loop, we must now bail out
-        	                                       	return;
-       	                                	}
-       		                	}
-		                }
-				if (!sl->size())
+				for (silencelist::const_iterator c = sl->begin(); c < sl->end(); c++)
 				{
-					// tidy up -- if a user's list is empty, theres no use having it
-					// hanging around in the user record.
-					delete sl;
-					user->Shrink("silence_list");
+					WriteServ(user->fd,"271 %s %s %s!*@*",user->nick, user->nick,c->c_str());
 				}
 			}
+			WriteServ(user->fd,"272 %s :End of Silence List",user->nick);
 		}
-		else if (nick[0] == '+')
+		else if (pcnt > 0)
 		{
-			nick++;
-			// fetch the user's current silence list
-			silencelist* sl = (silencelist*)user->GetExt("silence_list");
-			// what, they dont have one??? WE'RE ALL GONNA DIE! ...no, we just create an empty one.
-			if (!sl)
+			// one or more parameters, add or delete entry from the list (only the first parameter is used)
+			char *nick = parameters[0];
+			if (nick[0] == '-')
 			{
-				sl = new silencelist;
-				user->Extend(std::string("silence_list"),(char*)sl);
-			}
-			// add the nick to it -- silence only takes nicks for some reason even though its list shows masks
-			for (silencelist::iterator n = sl->begin(); n != sl->end();  n++)
-			{
-				irc::string listitem = n->c_str();
-				irc::string target = nick;
-				if (listitem == target)
+				// removing an item from the list
+				nick++;
+				// fetch their silence list
+				silencelist* sl = (silencelist*)user->GetExt("silence_list");
+				// does it contain any entries and does it exist?
+				if (sl)
 				{
-					WriteServ(user->fd,"952 %s %s :%s is already on your silence list",user->nick, user->nick,nick);
-					return;
+	                		if (sl->size())
+	                		{
+	                	        	for (silencelist::iterator i = sl->begin(); i != sl->end(); i++)
+	               		         	{
+							// search through for the item
+							irc::string listitem = i->c_str();
+							irc::string target = nick;
+							if (listitem == target)
+	               	                        	{
+	               	                                	sl->erase(i);
+								WriteServ(user->fd,"950 %s %s :Removed %s!*@* from silence list",user->nick, user->nick,nick);
+								// we have modified the vector from within a loop, we must now bail out
+	        	                                       	return;
+	       	                                	}
+	       		                	}
+			                }
+					if (!sl->size())
+					{
+						// tidy up -- if a user's list is empty, theres no use having it
+						// hanging around in the user record.
+						delete sl;
+						user->Shrink("silence_list");
+					}
 				}
 			}
-			sl->push_back(std::string(nick));
-			WriteServ(user->fd,"951 %s %s :Added %s!*@* to silence list",user->nick, user->nick,nick);
-			return;
+			else if (nick[0] == '+')
+			{
+				nick++;
+				// fetch the user's current silence list
+				silencelist* sl = (silencelist*)user->GetExt("silence_list");
+				// what, they dont have one??? WE'RE ALL GONNA DIE! ...no, we just create an empty one.
+				if (!sl)
+				{
+					sl = new silencelist;
+					user->Extend(std::string("silence_list"),(char*)sl);
+				}
+				// add the nick to it -- silence only takes nicks for some reason even though its list shows masks
+				for (silencelist::iterator n = sl->begin(); n != sl->end();  n++)
+				{
+					irc::string listitem = n->c_str();
+					irc::string target = nick;
+					if (listitem == target)
+					{
+						WriteServ(user->fd,"952 %s %s :%s is already on your silence list",user->nick, user->nick,nick);
+						return;
+					}
+				}
+				sl->push_back(std::string(nick));
+				WriteServ(user->fd,"951 %s %s :Added %s!*@* to silence list",user->nick, user->nick,nick);
+				return;
+			}
 		}
+		return;
 	}
-	return;
-}
-
+};
 
 class ModuleSilence : public Module
 {
 	Server *Srv;
+	cmd_silence* mycommand;
  public:
  
 	ModuleSilence(Server* Me)
 		: Module::Module(Me)
 	{
 		Srv = Me;
-		Srv->AddCommand("SILENCE",handle_silence,0,0,"m_silence.so");
+		mycommand = new cmd_silence();
+		Srv->AddCommand(mycommand);
 	}
 
 	virtual void OnUserQuit(userrec* user, std::string reason)

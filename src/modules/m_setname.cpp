@@ -30,7 +30,7 @@ Server *Srv;
 class cmd_setname : public command_t
 {
  public:
-	cmd_setname () : command_t("SETNAME", 0, 1);
+	cmd_setname () : command_t("SETNAME", 0, 1)
 	{
 		this->source = "m_setname.so";
 	}

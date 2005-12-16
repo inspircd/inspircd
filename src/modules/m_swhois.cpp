@@ -26,38 +26,49 @@ using namespace std;
 
 Server *Srv;
 
-void handle_swhois(char **parameters, int pcnt, userrec *user)
+class cmd_swhois : public command_t
 {
-	userrec* dest = Srv->FindNick(std::string(parameters[0]));
-	if (dest)
+ public:
+	cmd_swhois () : command_t("SWHOIS",'o',2)
 	{
-		std::string line = "";
-		for (int i = 1; i < pcnt; i++)
-		{
-			if (i != 1)
-				line = line + " ";
-			line = line + std::string(parameters[i]);
-		}
-		char* field = dest->GetExt("swhois");
-		if (field)
-		{
-			std::string* text = (std::string*)field;
-			dest->Shrink("swhois");
-			delete text;
-		}
-		std::string* text = new std::string(line);
-		dest->Extend("swhois",(char*)text);
+		this->source = "m_swhois.so";
 	}
-}
+
+	void Handle (char **parameters, int pcnt, userrec *user)
+	{
+		userrec* dest = Srv->FindNick(std::string(parameters[0]));
+		if (dest)
+		{
+			std::string line = "";
+			for (int i = 1; i < pcnt; i++)
+			{
+				if (i != 1)
+					line = line + " ";
+				line = line + std::string(parameters[i]);
+			}
+			char* field = dest->GetExt("swhois");
+			if (field)
+			{
+				std::string* text = (std::string*)field;
+				dest->Shrink("swhois");
+				delete text;
+			}
+			std::string* text = new std::string(line);
+			dest->Extend("swhois",(char*)text);
+		}
+	}
+};
 
 class ModuleSWhois : public Module
 {
+	cmd_swhois* mycommand;
  public:
 	ModuleSWhois(Server* Me)
 		: Module::Module(Me)
 	{
 		Srv = Me;
-		Srv->AddCommand("SWHOIS",handle_swhois,'o',2,"m_swhois.so");
+		mycommand = new cmd_swhois();
+		Srv->AddCommand(mycommand);
 	}
 
 	// :kenny.chatspike.net 320 Brain Azhrarn :is getting paid to play games.

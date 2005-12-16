@@ -25,28 +25,37 @@ using namespace std;
 
 Server *Srv;
 	 
-
-void handle_woot(char **parameters, int pcnt, userrec *user)
+class cmd_woot : public command_t
 {
-	Srv->Log(DEBUG,"woot handler");
-	// Here is a sample of how to send servermodes. Note that unless remote
-	// servers in your net are u:lined, they may reverse this, but its a
-	// quick and effective modehack.
-	
-	// NOTE: DO NOT CODE LIKE THIS!!! This has no checks and can send
-	// invalid or plain confusing mode changes, code some checking!
-	char* modes[3];
-	modes[0] = "#chatspike";
-	modes[1] = "+o";
-	modes[2] = user->nick;
-	
-	// run the mode change, send numerics (such as "no such channel") back
-	// to "user".
-	Srv->SendMode(modes,3,user);
-}
+ public:
+	cmd_woot () : command_t("WOOT", 0, 0);
+	{
+		this->source = "m_testcommand.so";
+	}
+
+	void Handle (char **parameters, int pcnt, userrec *user)
+	{
+		Srv->Log(DEBUG,"woot handler");
+		// Here is a sample of how to send servermodes. Note that unless remote
+		// servers in your net are u:lined, they may reverse this, but its a
+		// quick and effective modehack.
+		
+		// NOTE: DO NOT CODE LIKE THIS!!! This has no checks and can send
+		// invalid or plain confusing mode changes, code some checking!
+		char* modes[3];
+		modes[0] = "#chatspike";
+		modes[1] = "+o";
+		modes[2] = user->nick;
+		
+		// run the mode change, send numerics (such as "no such channel") back
+		// to "user".
+		Srv->SendMode(modes,3,user);
+	}
+};
 
 class ModuleTestCommand : public Module
 {
+	cmd_woot* newcommand;
  public:
 	ModuleTestCommand(Server* Me)
 		: Module::Module(Me)
@@ -58,7 +67,8 @@ class ModuleTestCommand : public Module
 		// 0 in the modes parameter signifies that
 		// anyone can issue the command, and the
 		// command takes only one parameter.
-		Srv->AddCommand("WOOT",handle_woot,0,0,"m_testcommand.so");
+		newcommand = new cmd_woot();
+		Srv->AddCommand(mycommand);
 
 		// Add a mode +Z for channels with no parameters		
 		Srv->AddExtendedMode('Z',MT_CHANNEL,false,1,0);
