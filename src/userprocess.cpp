@@ -79,22 +79,31 @@ char data[65536];
 extern user_hash clientlist;
 extern chan_hash chanlist;
 
+extern Module* IOHookModule;
+
 void ProcessUser(userrec* cu)
 {
         int result = EAGAIN;
         log(DEBUG,"Processing user with fd %d",cu->fd);
-        int MOD_RESULT = 0;
-        int result2 = 0;
-        FOREACH_RESULT(OnRawSocketRead(cu->fd,data,65535,result2));
-        if (!MOD_RESULT)
-        {
-                result = cu->ReadData(data, 65535);
-        }
-        else
-        {
-                log(DEBUG,"Data result returned by module: %d",MOD_RESULT);
-                result = result2;
-        }
+	if (IOHookModule)
+	{
+	        int MOD_RESULT = 0;
+	        int result2 = 0;
+	        IOHookModule->OnRawSocketRead(cu->fd,data,65535,result2);
+	        if (!MOD_RESULT)
+	        {
+	                result = cu->ReadData(data, 65535);
+	        }
+	        else
+	        {
+	                log(DEBUG,"Data result returned by module: %d",MOD_RESULT);
+	                result = result2;
+	        }
+	}
+	else
+	{
+		result = cu->ReadData(data, 65535);
+	}
         log(DEBUG,"Read result: %d",result);
         if (result)
         {

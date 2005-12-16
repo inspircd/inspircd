@@ -67,7 +67,7 @@ extern chan_hash chanlist;
 extern command_table cmdlist;
 ExtModeList EMode;
 
-Module* IOHookModule;
+Module* IOHookModule = NULL;
 
 // returns true if an extended mode character is in use
 bool ModeDefined(char modechar, int type)
