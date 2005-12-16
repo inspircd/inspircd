@@ -64,16 +64,14 @@ extern chan_hash chanlist;
 extern command_table cmdlist;
 extern Module* IOHookModule;
 
-static char textbuffer[MAXBUF];
-static char tb[MAXBUF];
-
 void log(int level,char *text, ...)
 {
         va_list argsPtr;
         struct tm * timeinfo;
         if (level < Config->LogLevel)
                 return;
-
+	char textbuffer[MAXBUF];
+	char tb[MAXBUF];
         timeinfo = localtime(&TIME);
 
         if (Config->log_file)
@@ -136,7 +134,7 @@ void Write(int sock,char *text, ...)
                 return;
         }
         va_list argsPtr;
-
+	char textbuffer[MAXBUF],tb[MAXBUF];
         va_start (argsPtr, text);
         vsnprintf(textbuffer, MAXBUF, text, argsPtr);
         va_end(argsPtr);
@@ -170,7 +168,7 @@ void WriteServ(int sock, char* text, ...)
         }
         va_list argsPtr;
         va_start (argsPtr, text);
-
+	char textbuffer[MAXBUF],tb[MAXBUF];
         vsnprintf(textbuffer, MAXBUF, text, argsPtr);
         va_end(argsPtr);
         int bytes = snprintf(tb,MAXBUF,":%s %s\r\n",Config->ServerName,textbuffer);
@@ -203,7 +201,7 @@ void WriteFrom(int sock, userrec *user,char* text, ...)
         }
         va_list argsPtr;
         va_start (argsPtr, text);
-
+	char textbuffer[MAXBUF],tb[MAXBUF];
         vsnprintf(textbuffer, MAXBUF, text, argsPtr);
         va_end(argsPtr);
         int bytes = snprintf(tb,MAXBUF,":%s!%s@%s %s\r\n",user->nick,user->ident,user->dhost,textbuffer);
@@ -234,6 +232,7 @@ void WriteTo(userrec *source, userrec *dest,char *data, ...)
         }
         if (dest->fd == FD_MAGIC_NUMBER)
                 return;
+	char textbuffer[MAXBUF],tb[MAXBUF];
         va_list argsPtr;
         va_start (argsPtr, data);
         vsnprintf(textbuffer, MAXBUF, data, argsPtr);
