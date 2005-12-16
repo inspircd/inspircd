@@ -51,6 +51,7 @@ extern serverstats* stats;
 extern ServerConfig *Config;
 extern user_hash clientlist;
 extern whowas_hash whowas;
+extern Module* IOHookModule;
 std::vector<userrec*> local_users;
 
 std::vector<userrec*> all_opers;

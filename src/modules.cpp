@@ -49,6 +49,7 @@ using namespace std;
 #include "socketengine.h"
 #include "typedefs.h"
 #include "modules.h"
+#include "command_parse.h"
 
 extern SocketEngine* SE;
 extern ServerConfig *Config;
