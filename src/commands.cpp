@@ -131,9 +131,9 @@ void handle_part(char **parameters, int pcnt, userrec *user)
 
 void handle_commands(char **parameters, int pcnt, userrec *user)
 {
-	for (unsigned int i = 0; i < cmdlist.size(); i++)
+	for (unsigned int i = 0; i < Parser->cmdlist.size(); i++)
 	{
-		WriteServ(user->fd,"902 %s :%s %s %d",user->nick,cmdlist[i].command,cmdlist[i].source,cmdlist[i].min_params);
+		WriteServ(user->fd,"902 %s :%s %s %d",user->nick,Parser->cmdlist[i].command,Parser->cmdlist[i].source,Parser->cmdlist[i].min_params);
 	}
 	WriteServ(user->fd,"903 %s :End of COMMANDS list",user->nick);
 }
