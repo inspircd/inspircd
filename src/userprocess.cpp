@@ -57,6 +57,7 @@ using namespace std;
 #include "hashcomp.h"
 #include "socketengine.h"
 #include "typedefs.h"
+#include "command_parse.h"
 
 extern int MODCOUNT;
 extern struct sockaddr_in client,server;

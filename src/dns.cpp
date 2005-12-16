@@ -764,3 +764,45 @@ std::string DNS::GetResultIP()
 	}
 }
 
+
+
+#ifdef THREADED_DNS
+void* dns_task(void* arg)
+{
+        userrec* u = (userrec*)arg;
+        log(DEBUG,"DNS thread for user %s",u->nick);
+        DNS dns1;
+        DNS dns2;
+        std::string host;
+        std::string ip;
+        if (dns1.ReverseLookup(u->ip))
+        {
+                while (!dns1.HasResult())
+                {
+                        usleep(100);
+                }
+                host = dns1.GetResult();
+                if (host != "")
+                {
+                        if (dns2.ForwardLookup(host))
+                        {
+                                while (!dns2.HasResult())
+                                {
+                                        usleep(100);
+                                }
+                                ip = dns2.GetResultIP();
+                                if (ip == std::string(u->ip))
+                                {
+                                        if (host.length() < 160)
+                                        {
+                                                strcpy(u->host,host.c_str());
+                                                strcpy(u->dhost,host.c_str());
+                                        }
+                                }
+                        }
+                }
+        }
+        u->dns_done = true;
+        return NULL;
+}
+#endif

@@ -97,4 +97,11 @@ public:
 	void SetNS(std::string dnsserver);
 };
 
+/** This is the handler function for multi-threaded DNS.
+ * It cannot be a class member as pthread will not let us
+ * create a thread whos handler function is a member of
+ * a class (ugh).
+ */
+void* dns_task(void* arg);
+
 #endif

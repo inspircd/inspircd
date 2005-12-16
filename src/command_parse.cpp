@@ -1,0 +1,700 @@
+/*       +------------------------------------+
+ *       | Inspire Internet Relay Chat Daemon |
+ *       +------------------------------------+
+ *
+ *  Inspire is copyright (C) 2002-2005 ChatSpike-Dev.
+ *                       E-mail:
+ *                <brain@chatspike.net>
+ *                <Craig@chatspike.net>
+ *
+ * Written by Craig Edwards, Craig McLure, and others.
+ * This program is free but copyrighted software; see
+ *            the file COPYING for details.
+ *
+ * ---------------------------------------------------
+ */
+
+using namespace std;
+
+#include "inspircd_config.h"
+#include "inspircd.h"
+#include "inspircd_io.h"
+#include <unistd.h>
+#include <fcntl.h>
+#include <sys/errno.h>
+#include <sys/ioctl.h>
+#include <sys/utsname.h>
+#include <time.h>
+#include <string>
+#ifdef GCC3
+#include <ext/hash_map>
+#else
+#include <hash_map>
+#endif
+#include <map>
+#include <sstream>
+#include <vector>
+#include <deque>
+#include <sched.h>
+#ifdef THREADED_DNS
+#include <pthread.h>
+#endif
+#include "users.h"
+#include "ctables.h"
+#include "globals.h"
+#include "modules.h"
+#include "dynamic.h"
+#include "wildcard.h"
+#include "message.h"
+#include "mode.h"
+#include "commands.h"
+#include "xline.h"
+#include "inspstring.h"
+#include "dnsqueue.h"
+#include "helperfuncs.h"
+#include "hashcomp.h"
+#include "socketengine.h"
+#include "userprocess.h"
+#include "socket.h"
+#include "dns.h"
+#include "typedefs.h"
+
+extern InspIRCd* ServerInstance;
+
+extern std::vector<Module*> modules;
+extern std::vector<ircd_module*> factory;
+extern std::vector<InspSocket*> module_sockets;
+extern std::vector<userrec*> local_users;
+
+extern int MODCOUNT;
+extern Module* IOHookModule;
+extern InspSocket* socket_ref[65535];
+extern time_t TIME;
+
+extern SocketEngine* SE = NULL;
+
+// This table references users by file descriptor.
+// its an array to make it VERY fast, as all lookups are referenced
+// by an integer, meaning there is no need for a scan/search operation.
+extern userrec* fd_ref_table[65536];
+
+extern serverstats* stats = new serverstats;
+extern Server* MyServer = new Server;
+extern ServerConfig *Config = new ServerConfig;
+
+extern user_hash clientlist;
+extern chan_hash chanlist;
+extern command_table cmdlist;
+
+/* This function pokes and hacks at a parameter list like the following:
+ *
+ * PART #winbot,#darkgalaxy :m00!
+ *
+ * to turn it into a series of individual calls like this:
+ *
+ * PART #winbot :m00!
+ * PART #darkgalaxy :m00!
+ *
+ * The seperate calls are sent to a callback function provided by the caller
+ * (the caller will usually call itself recursively). The callback function
+ * must be a command handler. Calling this function on a line with no list causes
+ * no action to be taken. You must provide a starting and ending parameter number
+ * where the range of the list can be found, useful if you have a terminating
+ * parameter as above which is actually not part of the list, or parameters
+ * before the actual list as well. This code is used by many functions which
+ * can function as "one to list" (see the RFC) */
+
+int loop_call(handlerfunc fn, char **parameters, int pcnt, userrec *u, int start, int end, int joins)
+{
+        char plist[MAXBUF];
+        char *param;
+        char *pars[32];
+        char blog[32][MAXBUF];
+        char blog2[32][MAXBUF];
+        int j = 0, q = 0, total = 0, t = 0, t2 = 0, total2 = 0;
+        char keystr[MAXBUF];
+        char moo[MAXBUF];
+
+        for (int i = 0; i <32; i++)
+                strcpy(blog[i],"");
+
+        for (int i = 0; i <32; i++)
+                strcpy(blog2[i],"");
+
+        strcpy(moo,"");
+        for (int i = 0; i <10; i++)
+        {
+                if (!parameters[i])
+                {
+                        parameters[i] = moo;
+                }
+        }
+        if (joins)
+        {
+                if (pcnt > 1) /* we have a key to copy */
+                {
+                        strlcpy(keystr,parameters[1],MAXBUF);
+                }
+        }
+
+        if (!parameters[start])
+        {
+                return 0;
+        }
+        if (!strchr(parameters[start],','))
+        {
+                return 0;
+        }
+        strcpy(plist,"");
+        for (int i = start; i <= end; i++)
+        {
+                if (parameters[i])
+                {
+                        strlcat(plist,parameters[i],MAXBUF);
+                }
+        }
+
+        j = 0;
+        param = plist;
+
+        t = strlen(plist);
+        for (int i = 0; i < t; i++)
+        {
+                if (plist[i] == ',')
+                {
+                        plist[i] = '\0';
+                        strlcpy(blog[j++],param,MAXBUF);
+                        param = plist+i+1;
+                        if (j>20)
+                        {
+                                WriteServ(u->fd,"407 %s %s :Too many targets in list, message not delivered.",u->nick,blog[j-1]);
+                                return 1;
+                        }
+                }
+        }
+        strlcpy(blog[j++],param,MAXBUF);
+        total = j;
+
+        if ((joins) && (keystr) && (total>0)) // more than one channel and is joining
+        {
+                strcat(keystr,",");
+        }
+
+        if ((joins) && (keystr))
+        {
+                if (strchr(keystr,','))
+                {
+                        j = 0;
+                        param = keystr;
+                        t2 = strlen(keystr);
+                        for (int i = 0; i < t2; i++)
+                        {
+                                if (keystr[i] == ',')
+                                {
+                                        keystr[i] = '\0';
+                                        strlcpy(blog2[j++],param,MAXBUF);
+                                        param = keystr+i+1;
+                                }
+                        }
+                        strlcpy(blog2[j++],param,MAXBUF);
+                        total2 = j;
+                }
+        }
+
+        for (j = 0; j < total; j++)
+        {
+                if (blog[j])
+                {
+                        pars[0] = blog[j];
+                }
+                for (q = end; q < pcnt-1; q++)
+                {
+                        if (parameters[q+1])
+                        {
+                                pars[q-end+1] = parameters[q+1];
+                        }
+                }
+                if ((joins) && (parameters[1]))
+                {
+                        if (pcnt > 1)
+                        {
+                                pars[1] = blog2[j];
+                        }
+                        else
+                        {
+                                pars[1] = NULL;
+                        }
+                }
+                /* repeatedly call the function with the hacked parameter list */
+                if ((joins) && (pcnt > 1))
+                {
+                        if (pars[1])
+                        {
+                                // pars[1] already set up and containing key from blog2[j]
+                                fn(pars,2,u);
+                        }
+                        else
+                        {
+                                pars[1] = parameters[1];
+                                fn(pars,2,u);
+                        }
+                }
+                else
+                {
+                        fn(pars,pcnt-(end-start),u);
+                }
+        }
+
+        return 1;
+}
+
+bool is_valid_cmd(std::string &commandname, int pcnt, userrec * user)
+{
+        for (unsigned int i = 0; i < cmdlist.size(); i++)
+        {
+                if (!strcasecmp(cmdlist[i].command,commandname.c_str()))
+                {
+                        if (cmdlist[i].handler_function)
+                        {
+                                if ((pcnt>=cmdlist[i].min_params) && (strcasecmp(cmdlist[i].source,"<core>")))
+                                {
+                                        if ((strchr(user->modes,cmdlist[i].flags_needed)) || (!cmdlist[i].flags_needed))
+                                        {
+                                                if (cmdlist[i].flags_needed)
+                                                {
+                                                        if ((user->HasPermission(commandname)) || (is_uline(user->server)))
+                                                        {
+                                                                return true;
+                                                        }
+                                                        else
+                                                        {
+                                                                return false;
+                                                        }
+                                                }
+                                                return true;
+                                        }
+                                }
+                        }
+                }
+        }
+        return false;
+}
+
+// calls a handler function for a command
+
+void call_handler(std::string &commandname,char **parameters, int pcnt, userrec *user)
+{
+        for (unsigned int i = 0; i < cmdlist.size(); i++)
+        {
+                if (!strcasecmp(cmdlist[i].command,commandname.c_str()))
+                {
+                        if (cmdlist[i].handler_function)
+                        {
+                                if (pcnt>=cmdlist[i].min_params)
+                                {
+                                        if ((strchr(user->modes,cmdlist[i].flags_needed)) || (!cmdlist[i].flags_needed))
+                                        {
+                                                if (cmdlist[i].flags_needed)
+                                                {
+                                                        if ((user->HasPermission(commandname)) || (is_uline(user->server)))
+                                                        {
+                                                                cmdlist[i].handler_function(parameters,pcnt,user);
+                                                        }
+                                                }
+                                                else
+                                                {
+                                                        cmdlist[i].handler_function(parameters,pcnt,user);
+                                                }
+                                        }
+                                }
+                        }
+                }
+        }
+}
+
+int process_parameters(char **command_p,char *parameters)
+{
+        int j = 0;
+        int q = strlen(parameters);
+        if (!q)
+        {
+                /* no parameters, command_p invalid! */
+                return 0;
+        }
+        if (parameters[0] == ':')
+        {
+                command_p[0] = parameters+1;
+                return 1;
+        }
+        if (q)
+        {
+                if ((strchr(parameters,' ')==NULL) || (parameters[0] == ':'))
+                {
+                        /* only one parameter */
+                        command_p[0] = parameters;
+                        if (parameters[0] == ':')
+                        {
+                                if (strchr(parameters,' ') != NULL)
+                                {
+                                        command_p[0]++;
+                                }
+                        }
+                        return 1;
+                }
+        }
+        command_p[j++] = parameters;
+        for (int i = 0; i <= q; i++)
+        {
+                if (parameters[i] == ' ')
+                {
+                        command_p[j++] = parameters+i+1;
+                        parameters[i] = '\0';
+                        if (command_p[j-1][0] == ':')
+                        {
+                                *command_p[j-1]++; /* remove dodgy ":" */
+                                break;
+                                /* parameter like this marks end of the sequence */
+                        }
+                }
+        }
+        return j; /* returns total number of items in the list */
+}
+
+void process_command(userrec *user, char* cmd)
+{
+        char *parameters;
+        char *command;
+        char *command_p[127];
+        char p[MAXBUF], temp[MAXBUF];
+        int j, items, cmd_found;
+
+        for (int i = 0; i < 127; i++)
+                command_p[i] = NULL;
+
+        if (!user)
+        {
+                return;
+        }
+        if (!cmd)
+        {
+                return;
+        }
+        if (!cmd[0])
+        {
+                return;
+        }
+
+        int total_params = 0;
+        if (strlen(cmd)>2)
+        {
+                for (unsigned int q = 0; q < strlen(cmd)-1; q++)
+                {
+                        if ((cmd[q] == ' ') && (cmd[q+1] == ':'))
+                        {
+                                total_params++;
+                                // found a 'trailing', we dont count them after this.
+                                break;
+                        }
+                        if (cmd[q] == ' ')
+                                total_params++;
+                }
+        }
+
+        // another phidjit bug...
+        if (total_params > 126)
+        {
+                *(strchr(cmd,' ')) = '\0';
+                WriteServ(user->fd,"421 %s %s :Too many parameters given",user->nick,cmd);
+                return;
+        }
+
+        strlcpy(temp,cmd,MAXBUF);
+
+        std::string tmp = cmd;
+        for (int i = 0; i <= MODCOUNT; i++)
+        {
+                std::string oldtmp = tmp;
+                modules[i]->OnServerRaw(tmp,true,user);
+                if (oldtmp != tmp)
+                {
+                        log(DEBUG,"A Module changed the input string!");
+                        log(DEBUG,"New string: %s",tmp.c_str());
+                        log(DEBUG,"Old string: %s",oldtmp.c_str());
+                        break;
+                }
+        }
+        strlcpy(cmd,tmp.c_str(),MAXBUF);
+        strlcpy(temp,cmd,MAXBUF);
+
+        if (!strchr(cmd,' '))
+        {
+                /* no parameters, lets skip the formalities and not chop up
+                 * the string */
+                log(DEBUG,"About to preprocess command with no params");
+                items = 0;
+                command_p[0] = NULL;
+                parameters = NULL;
+                for (unsigned int i = 0; i <= strlen(cmd); i++)
+                {
+                        cmd[i] = toupper(cmd[i]);
+                }
+                command = cmd;
+        }
+        else
+        {
+                strcpy(cmd,"");
+                j = 0;
+                /* strip out extraneous linefeeds through mirc's crappy pasting (thanks Craig) */
+                for (unsigned int i = 0; i < strlen(temp); i++)
+                {
+                        if ((temp[i] != 10) && (temp[i] != 13) && (temp[i] != 0) && (temp[i] != 7))
+                        {
+                                cmd[j++] = temp[i];
+                                cmd[j] = 0;
+                        }
+                }
+                /* split the full string into a command plus parameters */
+                parameters = p;
+                strcpy(p," ");
+                command = cmd;
+                if (strchr(cmd,' '))
+                {
+                        for (unsigned int i = 0; i <= strlen(cmd); i++)
+                        {
+                                /* capitalise the command ONLY, leave params intact */
+                                cmd[i] = toupper(cmd[i]);
+                                /* are we nearly there yet?! :P */
+                                if (cmd[i] == ' ')
+                                {
+                                        command = cmd;
+                                        parameters = cmd+i+1;
+                                        cmd[i] = '\0';
+                                        break;
+                                }
+                        }
+                }
+                else
+                {
+                        for (unsigned int i = 0; i <= strlen(cmd); i++)
+                        {
+                                cmd[i] = toupper(cmd[i]);
+                        }
+                }
+
+        }
+        cmd_found = 0;
+
+        if (strlen(command)>MAXCOMMAND)
+        {
+                WriteServ(user->fd,"421 %s %s :Command too long",user->nick,command);
+                return;
+        }
+
+        for (unsigned int x = 0; x < strlen(command); x++)
+        {
+                if (((command[x] < 'A') || (command[x] > 'Z')) && (command[x] != '.'))
+                {
+                        if (((command[x] < '0') || (command[x]> '9')) && (command[x] != '-'))
+                        {
+                                if (strchr("@!\"$%^&*(){}[]_=+;:'#~,<>/?\\|`",command[x]))
+                                {
+                                        stats->statsUnknown++;
+                                        WriteServ(user->fd,"421 %s %s :Unknown command",user->nick,command);
+                                        return;
+                                }
+                        }
+                }
+        }
+
+        std::string xcommand = command;
+        for (unsigned int i = 0; i != cmdlist.size(); i++)
+        {
+                if (cmdlist[i].command[0])
+                {
+                        if (strlen(command)>=(strlen(cmdlist[i].command))) if (!strncmp(command, cmdlist[i].command,MAXCOMMAND))
+                        {
+                                if (parameters)
+                                {
+                                        if (parameters[0])
+                                        {
+                                                items = process_parameters(command_p,parameters);
+                                        }
+                                        else
+                                        {
+                                                items = 0;
+                                                command_p[0] = NULL;
+                                        }
+                                }
+                                else
+                                {
+                                        items = 0;
+                                        command_p[0] = NULL;
+                                }
+
+                                if (user)
+                                {
+                                        /* activity resets the ping pending timer */
+                                        user->nping = TIME + user->pingmax;
+                                        if ((items) < cmdlist[i].min_params)
+                                        {
+                                                log(DEBUG,"process_command: not enough parameters: %s %s",user->nick,command);
+                                                WriteServ(user->fd,"461 %s %s :Not enough parameters",user->nick,command);
+                                                return;
+                                        }
+                                        if ((!strchr(user->modes,cmdlist[i].flags_needed)) && (cmdlist[i].flags_needed))
+                                        {
+                                                log(DEBUG,"process_command: permission denied: %s %s",user->nick,command);
+                                                WriteServ(user->fd,"481 %s :Permission Denied- You do not have the required operator privilages",user->nick);
+                                                cmd_found = 1;
+                                                return;
+                                        }
+                                        if ((cmdlist[i].flags_needed) && (!user->HasPermission(xcommand)))
+                                        {
+                                                log(DEBUG,"process_command: permission denied: %s %s",user->nick,command);
+                                                WriteServ(user->fd,"481 %s :Permission Denied- Oper type %s does not have access to command %s",user->nick,user->oper,command);
+                                                cmd_found = 1;
+                                                return;
+                                        }
+                                        /* if the command isnt USER, PASS, or NICK, and nick is empty,
+                                         * deny command! */
+                                        if ((strncmp(command,"USER",4)) && (strncmp(command,"NICK",4)) && (strncmp(command,"PASS",4)))
+                                        {
+                                                if ((!isnick(user->nick)) || (user->registered != 7))
+                                                {
+                                                        log(DEBUG,"process_command: not registered: %s %s",user->nick,command);
+                                                        WriteServ(user->fd,"451 %s :You have not registered",command);
+                                                        return;
+                                                }
+                                        }
+                                        if ((user->registered == 7) && (!strchr(user->modes,'o')))
+                                        {
+                                                std::stringstream dcmds(Config->DisabledCommands);
+                                                while (!dcmds.eof())
+                                                {
+                                                        std::string thiscmd;
+                                                        dcmds >> thiscmd;
+                                                        if (!strcasecmp(thiscmd.c_str(),command))
+                                                        {
+                                                                // command is disabled!
+                                                                WriteServ(user->fd,"421 %s %s :This command has been disabled.",user->nick,command);
+                                                                return;
+                                                        }
+                                                }
+                                        }
+                                        if ((user->registered == 7) || (!strncmp(command,"USER",4)) || (!strncmp(command,"NICK",4)) || (!strncmp(command,"PASS",4)))
+                                        {
+                                                if (cmdlist[i].handler_function)
+                                                {
+
+                                                        /* ikky /stats counters */
+                                                        if (temp)
+                                                        {
+                                                                cmdlist[i].use_count++;
+                                                                cmdlist[i].total_bytes+=strlen(temp);
+                                                        }
+
+                                                        int MOD_RESULT = 0;
+                                                        FOREACH_RESULT(OnPreCommand(command,command_p,items,user));
+                                                        if (MOD_RESULT == 1) {
+                                                                return;
+                                                        }
+
+                                                        /* WARNING: nothing may come after the
+                                                         * command handler call, as the handler
+                                                         * may free the user structure! */
+
+                                                        cmdlist[i].handler_function(command_p,items,user);
+                                                }
+                                                return;
+                                        }
+                                        else
+                                        {
+                                                WriteServ(user->fd,"451 %s :You have not registered",command);
+                                                return;
+                                        }
+                                }
+                                cmd_found = 1;
+                        }
+
+                }
+        }
+        if ((!cmd_found) && (user))
+        {
+                stats->statsUnknown++;
+                WriteServ(user->fd,"421 %s %s :Unknown command",user->nick,command);
+        }
+}
+
+bool remove_commands(const char* source)
+{
+        bool go_again = true;
+        while (go_again)
+        {
+                go_again = false;
+                for (std::deque<command_t>::iterator i = cmdlist.begin(); i != cmdlist.end(); i++)
+                {
+                        if (!strcmp(i->source,source))
+                        {
+                                log(DEBUG,"removecommands(%s) Removing dependent command: %s",i->source,i->command);
+                                cmdlist.erase(i);
+                                go_again = true;
+                                break;
+                        }
+                }
+        }
+        return true;
+}
+
+void process_buffer(const char* cmdbuf,userrec *user)
+{
+        if (!user)
+        {
+                log(DEFAULT,"*** BUG *** process_buffer was given an invalid parameter");
+                return;
+        }
+        char cmd[MAXBUF];
+        if (!cmdbuf)
+        {
+                log(DEFAULT,"*** BUG *** process_buffer was given an invalid parameter");
+                return;
+        }
+        if (!cmdbuf[0])
+        {
+                return;
+        }
+        while (*cmdbuf == ' ') cmdbuf++; // strip leading spaces
+
+        strlcpy(cmd,cmdbuf,MAXBUF);
+        if (!cmd[0])
+        {
+                return;
+        }
+        int sl = strlen(cmd)-1;
+        if ((cmd[sl] == 13) || (cmd[sl] == 10))
+        {
+                cmd[sl] = '\0';
+        }
+        sl = strlen(cmd)-1;
+        if ((cmd[sl] == 13) || (cmd[sl] == 10))
+        {
+                cmd[sl] = '\0';
+        }
+        sl = strlen(cmd)-1;
+        while (cmd[sl] == ' ') // strip trailing spaces
+        {
+                cmd[sl] = '\0';
+                sl = strlen(cmd)-1;
+        }
+
+        if (!cmd[0])
+        {
+                return;
+        }
+        log(DEBUG,"CMDIN: %s %s",user->nick,cmd);
+        tidystring(cmd);
+        if ((user) && (cmd))
+        {
+                process_command(user,cmd);
+        }
+}
+
