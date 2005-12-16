@@ -101,6 +101,12 @@ typedef std::deque<userrec*> chanuserlist;
 
 #define FD_MAGIC_NUMBER -42
 
+// useful macros
+
+#define IS_LOCAL(x) (x->fd > -1)
+#define IS_REMOTE(x) (x->fd < 0)
+#define IS_MODULE_CREATED(x) (x->fd == FD_MAGIC_NUMBER)
+
 // flags for use with WriteMode
 
 #define WM_AND 1
