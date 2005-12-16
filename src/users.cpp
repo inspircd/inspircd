@@ -46,7 +46,6 @@ extern int MODCOUNT;
 extern InspSocket* socket_ref[65535];
 extern time_t TIME;
 extern userrec* fd_ref_table[65536];
-extern serverstats* stats;
 extern ServerConfig *Config;
 extern user_hash clientlist;
 extern whowas_hash whowas;
@@ -649,7 +648,7 @@ void AddClient(int socket, char* host, int port, bool iscached, char* ip)
 
 void FullConnectUser(userrec* user)
 {
-        stats->statsConnects++;
+        ServerInstance->stats->statsConnects++;
         user->idle_lastmsg = TIME;
         log(DEBUG,"ConnectUser: %s",user->nick);
 
@@ -778,13 +777,13 @@ void force_nickchange(userrec* user,const char* newnick)
 
         FOREACH_RESULT(OnUserPreNick(user,newnick));
         if (MOD_RESULT) {
-                stats->statsCollisions++;
+                ServerInstance->stats->statsCollisions++;
                 kill_link(user,"Nickname collision");
                 return;
         }
         if (matches_qline(newnick))
         {
-                stats->statsCollisions++;
+		ServerInstance->stats->statsCollisions++;
                 kill_link(user,"Nickname collision");
                 return;
         }
