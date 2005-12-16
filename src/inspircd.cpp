@@ -209,9 +209,6 @@ InspIRCd::InspIRCd(int argc, char** argv)
         SE = new SocketEngine();
 
         /* We must load the modules AFTER initializing the socket engine, now */
-        LoadAllModules();
-
-        printf("\nInspIRCd is now running!\n");
 
 	return;
 }
@@ -395,8 +392,14 @@ int InspIRCd::Run()
 	char* target;
 	unsigned int numberactive;
         sockaddr_in sock_us;     // our port number
-        socklen_t uslen;         // length of our port number
+	socklen_t uslen;         // length of our port number
 
+	/* Until THIS point, ServerInstance == NULL */
+	
+        LoadAllModules();
+
+        printf("\nInspIRCd is now running!\n");
+	
 	if (!Config->nofork)
 	{
 		freopen("/dev/null","w",stdout);
