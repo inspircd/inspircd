@@ -92,7 +92,7 @@ userrec* fd_ref_table[65536];
 serverstats* stats = new serverstats;
 Server* MyServer = new Server;
 ServerConfig *Config = new ServerConfig;
-CommandParser *Parser = new CommandParser;
+CommandParser *Parser = NULL;
 
 user_hash clientlist;
 chan_hash chanlist;
@@ -188,7 +188,8 @@ InspIRCd::InspIRCd(int argc, char** argv)
         Config->ClearStack();
         Config->Read(true,NULL);
         CheckRoot();
-        SetupCommandTable();
+	Parser = new CommandParser;
+        Parser->SetupCommandTable();
         AddServerName(Config->ServerName);
         CheckDie();
         stats->BoundPortCount = BindPorts();
@@ -304,7 +305,7 @@ bool InspIRCd::UnloadModule(const char* filename)
 			log(DEBUG,"Erasing module entry...");
 			erase_factory(j);
                         log(DEBUG,"Removing dependent commands...");
-                        remove_commands(filename);
+                        Parser->RemoveCommands(filename);
 			log(DEFAULT,"Module %s unloaded",filename);
 			MODCOUNT--;
 			return true;
