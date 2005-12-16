@@ -304,7 +304,7 @@ bool InspIRCd::UnloadModule(const char* filename)
 			log(DEBUG,"Erasing module entry...");
 			erase_factory(j);
                         log(DEBUG,"Removing dependent commands...");
-                        removecommands(filename);
+                        remove_commands(filename);
 			log(DEFAULT,"Module %s unloaded",filename);
 			MODCOUNT--;
 			return true;
