@@ -61,7 +61,6 @@ static char already_sent[65536];
 extern std::vector<userrec*> all_opers;
 extern user_hash clientlist;
 extern chan_hash chanlist;
-extern command_table cmdlist;
 extern Module* IOHookModule;
 
 void log(int level,char *text, ...)
@@ -1102,79 +1101,6 @@ bool AllModulesReportReady(userrec* user)
                         return false;
         }
         return true;
-}
-
-void createcommand(char* cmd, handlerfunc f, char flags, int minparams,char* source)
-{
-        command_t comm;
-        /* create the command and push it onto the table */
-        strlcpy(comm.command,cmd,MAXBUF);
-        strlcpy(comm.source,source,MAXBUF);
-        comm.handler_function = f;
-        comm.flags_needed = flags;
-        comm.min_params = minparams;
-        comm.use_count = 0;
-        comm.total_bytes = 0;
-        cmdlist.push_back(comm);
-        log(DEBUG,"Added command %s (%lu parameters)",cmd,(unsigned long)minparams);
-}
-
-
-void SetupCommandTable(void)
-{
-        createcommand("USER",handle_user,0,4,"<core>");
-        createcommand("NICK",handle_nick,0,1,"<core>");
-        createcommand("QUIT",handle_quit,0,0,"<core>");
-        createcommand("VERSION",handle_version,0,0,"<core>");
-        createcommand("PING",handle_ping,0,1,"<core>");
-        createcommand("PONG",handle_pong,0,1,"<core>");
-        createcommand("ADMIN",handle_admin,0,0,"<core>");
-        createcommand("PRIVMSG",handle_privmsg,0,2,"<core>");
-        createcommand("INFO",handle_info,0,0,"<core>");
-        createcommand("TIME",handle_time,0,0,"<core>");
-        createcommand("WHOIS",handle_whois,0,1,"<core>");
-        createcommand("WALLOPS",handle_wallops,'o',1,"<core>");
-        createcommand("NOTICE",handle_notice,0,2,"<core>");
-        createcommand("JOIN",handle_join,0,1,"<core>");
-        createcommand("NAMES",handle_names,0,0,"<core>");
-        createcommand("PART",handle_part,0,1,"<core>");
-        createcommand("KICK",handle_kick,0,2,"<core>");
-        createcommand("MODE",handle_mode,0,1,"<core>");
-        createcommand("TOPIC",handle_topic,0,1,"<core>");
-        createcommand("WHO",handle_who,0,1,"<core>");
-        createcommand("MOTD",handle_motd,0,0,"<core>");
-        createcommand("RULES",handle_rules,0,0,"<core>");
-        createcommand("OPER",handle_oper,0,2,"<core>");
-        createcommand("LIST",handle_list,0,0,"<core>");
-        createcommand("DIE",handle_die,'o',1,"<core>");
-        createcommand("RESTART",handle_restart,'o',1,"<core>");
-        createcommand("KILL",handle_kill,'o',2,"<core>");
-        createcommand("REHASH",handle_rehash,'o',0,"<core>");
-        createcommand("LUSERS",handle_lusers,0,0,"<core>");
-        createcommand("STATS",handle_stats,0,1,"<core>");
-        createcommand("USERHOST",handle_userhost,0,1,"<core>");
-        createcommand("AWAY",handle_away,0,0,"<core>");
-        createcommand("ISON",handle_ison,0,0,"<core>");
-        createcommand("SUMMON",handle_summon,0,0,"<core>");
-        createcommand("USERS",handle_users,0,0,"<core>");
-        createcommand("INVITE",handle_invite,0,0,"<core>");
-        createcommand("PASS",handle_pass,0,1,"<core>");
-        createcommand("TRACE",handle_trace,'o',0,"<core>");
-        createcommand("WHOWAS",handle_whowas,0,1,"<core>");
-        createcommand("CONNECT",handle_connect,'o',1,"<core>");
-        createcommand("SQUIT",handle_squit,'o',0,"<core>");
-        createcommand("MODULES",handle_modules,0,0,"<core>");
-        createcommand("LINKS",handle_links,0,0,"<core>");
-        createcommand("MAP",handle_map,0,0,"<core>");
-        createcommand("KLINE",handle_kline,'o',1,"<core>");
-        createcommand("GLINE",handle_gline,'o',1,"<core>");
-        createcommand("ZLINE",handle_zline,'o',1,"<core>");
-        createcommand("QLINE",handle_qline,'o',1,"<core>");
-        createcommand("ELINE",handle_eline,'o',1,"<core>");
-        createcommand("LOADMODULE",handle_loadmodule,'o',1,"<core>");
-        createcommand("UNLOADMODULE",handle_unloadmodule,'o',1,"<core>");
-        createcommand("SERVER",handle_server,0,0,"<core>");
-	createcommand("COMMANDS",handle_commands,0,0,"<core>");
 }
 
 bool DirValid(char* dirandfile)

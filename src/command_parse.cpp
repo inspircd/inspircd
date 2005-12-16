@@ -699,3 +699,80 @@ void CommandParser::ProcessBuffer(const char* cmdbuf,userrec *user)
         }
 }
 
+void CommandParser::CreateCommand(char* cmd, handlerfunc f, char flags, int minparams,char* source)
+{
+        command_t comm;
+        /* create the command and push it onto the table */
+        strlcpy(comm.command,cmd,MAXBUF);
+        strlcpy(comm.source,source,MAXBUF);
+        comm.handler_function = f;
+        comm.flags_needed = flags;
+        comm.min_params = minparams;
+        comm.use_count = 0;
+        comm.total_bytes = 0;
+        cmdlist.push_back(comm);
+        log(DEBUG,"Added command %s (%lu parameters)",cmd,(unsigned long)minparams);
+}
+
+CommandParser::CommandParser()
+{
+	this->SetupCommandTable();
+}
+
+void CommandParser::SetupCommandTable()
+{
+        this->CreateCommand("USER",handle_user,0,4,"<core>");
+        this->CreateCommand("NICK",handle_nick,0,1,"<core>");
+        this->CreateCommand("QUIT",handle_quit,0,0,"<core>");
+        this->CreateCommand("VERSION",handle_version,0,0,"<core>");
+        this->CreateCommand("PING",handle_ping,0,1,"<core>");
+        this->CreateCommand("PONG",handle_pong,0,1,"<core>");
+        this->CreateCommand("ADMIN",handle_admin,0,0,"<core>");
+        this->CreateCommand("PRIVMSG",handle_privmsg,0,2,"<core>");
+        this->CreateCommand("INFO",handle_info,0,0,"<core>");
+        this->CreateCommand("TIME",handle_time,0,0,"<core>");
+        this->CreateCommand("WHOIS",handle_whois,0,1,"<core>");
+        this->CreateCommand("WALLOPS",handle_wallops,'o',1,"<core>");
+        this->CreateCommand("NOTICE",handle_notice,0,2,"<core>");
+        this->CreateCommand("JOIN",handle_join,0,1,"<core>");
+        this->CreateCommand("NAMES",handle_names,0,0,"<core>");
+        this->CreateCommand("PART",handle_part,0,1,"<core>");
+        this->CreateCommand("KICK",handle_kick,0,2,"<core>");
+        this->CreateCommand("MODE",handle_mode,0,1,"<core>");
+        this->CreateCommand("TOPIC",handle_topic,0,1,"<core>");
+        this->CreateCommand("WHO",handle_who,0,1,"<core>");
+        this->CreateCommand("MOTD",handle_motd,0,0,"<core>");
+        this->CreateCommand("RULES",handle_rules,0,0,"<core>");
+        this->CreateCommand("OPER",handle_oper,0,2,"<core>");
+        this->CreateCommand("LIST",handle_list,0,0,"<core>");
+        this->CreateCommand("DIE",handle_die,'o',1,"<core>");
+        this->CreateCommand("RESTART",handle_restart,'o',1,"<core>");
+        this->CreateCommand("KILL",handle_kill,'o',2,"<core>");
+        this->CreateCommand("REHASH",handle_rehash,'o',0,"<core>");
+        this->CreateCommand("LUSERS",handle_lusers,0,0,"<core>");
+        this->CreateCommand("STATS",handle_stats,0,1,"<core>");
+        this->CreateCommand("USERHOST",handle_userhost,0,1,"<core>");
+        this->CreateCommand("AWAY",handle_away,0,0,"<core>");
+        this->CreateCommand("ISON",handle_ison,0,0,"<core>");
+        this->CreateCommand("SUMMON",handle_summon,0,0,"<core>");
+        this->CreateCommand("USERS",handle_users,0,0,"<core>");
+        this->CreateCommand("INVITE",handle_invite,0,0,"<core>");
+        this->CreateCommand("PASS",handle_pass,0,1,"<core>");
+        this->CreateCommand("TRACE",handle_trace,'o',0,"<core>");
+        this->CreateCommand("WHOWAS",handle_whowas,0,1,"<core>");
+        this->CreateCommand("CONNECT",handle_connect,'o',1,"<core>");
+        this->CreateCommand("SQUIT",handle_squit,'o',0,"<core>");
+        this->CreateCommand("MODULES",handle_modules,0,0,"<core>");
+        this->CreateCommand("LINKS",handle_links,0,0,"<core>");
+        this->CreateCommand("MAP",handle_map,0,0,"<core>");
+        this->CreateCommand("KLINE",handle_kline,'o',1,"<core>");
+        this->CreateCommand("GLINE",handle_gline,'o',1,"<core>");
+        this->CreateCommand("ZLINE",handle_zline,'o',1,"<core>");
+        this->CreateCommand("QLINE",handle_qline,'o',1,"<core>");
+        this->CreateCommand("ELINE",handle_eline,'o',1,"<core>");
+        this->CreateCommand("LOADMODULE",handle_loadmodule,'o',1,"<core>");
+        this->CreateCommand("UNLOADMODULE",handle_unloadmodule,'o',1,"<core>");
+        this->CreateCommand("SERVER",handle_server,0,0,"<core>");
+        this->CreateCommand("COMMANDS",handle_commands,0,0,"<core>");
+}
+

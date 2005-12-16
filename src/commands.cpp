@@ -82,7 +82,6 @@ const long duration_y = duration_w * 52;
 extern user_hash clientlist;
 extern chan_hash chanlist;
 extern whowas_hash whowas;
-extern command_table cmdlist;
 
 extern std::vector<userrec*> all_opers;
 extern std::vector<userrec*> local_users;
@@ -1402,14 +1401,14 @@ void handle_stats(char **parameters, int pcnt, userrec *user)
 	/* stats m (list number of times each command has been used, plus bytecount) */
 	if (*parameters[0] == 'm')
 	{
-		for (unsigned int i = 0; i < cmdlist.size(); i++)
+		for (unsigned int i = 0; i < Parser->cmdlist.size(); i++)
 		{
-			if (cmdlist[i].handler_function)
+			if (Parser->cmdlist[i].handler_function)
 			{
-				if (cmdlist[i].use_count)
+				if (Parser->cmdlist[i].use_count)
 				{
 					/* RPL_STATSCOMMANDS */
-					WriteServ(user->fd,"212 %s %s %d %d",user->nick,cmdlist[i].command,cmdlist[i].use_count,cmdlist[i].total_bytes);
+					WriteServ(user->fd,"212 %s %s %d %d",user->nick,Parser->cmdlist[i].command,Parser->cmdlist[i].use_count,Parser->cmdlist[i].total_bytes);
 				}
 			}
 		}
@@ -1422,7 +1421,7 @@ void handle_stats(char **parameters, int pcnt, userrec *user)
 		rusage R;
 		WriteServ(user->fd,"249 %s :Users(HASH_MAP) %d (%d bytes, %d buckets)",user->nick,clientlist.size(),clientlist.size()*sizeof(userrec),clientlist.bucket_count());
 		WriteServ(user->fd,"249 %s :Channels(HASH_MAP) %d (%d bytes, %d buckets)",user->nick,chanlist.size(),chanlist.size()*sizeof(chanrec),chanlist.bucket_count());
-		WriteServ(user->fd,"249 %s :Commands(VECTOR) %d (%d bytes)",user->nick,cmdlist.size(),cmdlist.size()*sizeof(command_t));
+		WriteServ(user->fd,"249 %s :Commands(VECTOR) %d (%d bytes)",user->nick,Parser->cmdlist.size(),Parser->cmdlist.size()*sizeof(command_t));
 		WriteServ(user->fd,"249 %s :MOTD(VECTOR) %d, RULES(VECTOR) %d",user->nick,Config->MOTD.size(),Config->RULES.size());
 		WriteServ(user->fd,"249 %s :Modules(VECTOR) %d (%d)",user->nick,modules.size(),modules.size()*sizeof(Module));
 		WriteServ(user->fd,"249 %s :ClassFactories(VECTOR) %d (%d)",user->nick,factory.size(),factory.size()*sizeof(ircd_module));

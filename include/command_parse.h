@@ -21,16 +21,25 @@
 #include <iostream>
 #include <string>
 #include "users.h"
+#include "ctables.h"
+#include "typedefs.h"
  
 class CommandParser
 {
+ private:
+	int CommandParser::ProcessParameters(char **command_p,char *parameters);
+	void CommandParser::ProcessCommand(userrec *user, char* cmd);
+	void SetupCommandTable();
  public:
+	command_table cmdlist;
+
+	CommandParser();
 	void CallHandler(std::string &commandname,char **parameters, int pcnt, userrec *user);
 	bool IsValidCommand(std::string &commandname, int pcnt, userrec * user);
 	int LoopCall(handlerfunc fn, char **parameters, int pcnt, userrec *u, int start, int end, int joins);
 	void ProcessBuffer(const char* cmdbuf,userrec *user);
 	bool RemoveCommands(const char* source);
-	void CommandParser::ProcessCommand(userrec *user, char* cmd);
+	bool CreateCommand(char* cmd, handlerfunc f, char flags, int minparams,char* source);
 };
 
 #endif

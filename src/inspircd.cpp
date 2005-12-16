@@ -97,7 +97,6 @@ CommandParser *Parser = new CommandParser;
 user_hash clientlist;
 chan_hash chanlist;
 whowas_hash whowas;
-command_table cmdlist;
 servernamelist servernames;
 char lowermap[255];
 

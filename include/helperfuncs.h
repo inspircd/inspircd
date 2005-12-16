@@ -68,8 +68,6 @@ long local_count();
 void ShowMOTD(userrec *user);
 void ShowRULES(userrec *user);
 bool AllModulesReportReady(userrec* user);
-void createcommand(char* cmd, handlerfunc f, char flags, int minparams,char* source);
-void SetupCommandTable(void);
 bool DirValid(char* dirandfile);
 std::string GetFullProgDir(char** argv, int argc);
 
