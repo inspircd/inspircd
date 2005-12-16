@@ -68,7 +68,7 @@ class ModuleTestCommand : public Module
 		// anyone can issue the command, and the
 		// command takes only one parameter.
 		newcommand = new cmd_woot();
-		Srv->AddCommand(mycommand);
+		Srv->AddCommand(newcommand);
 
 		// Add a mode +Z for channels with no parameters		
 		Srv->AddExtendedMode('Z',MT_CHANNEL,false,1,0);

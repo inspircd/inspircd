@@ -54,7 +54,7 @@ class cmd_userip : public command_t
 
 class ModuleUserIP : public Module
 {
-	cmd_userip* myommand;
+	cmd_userip* mycommand;
  public:
 	ModuleUserIP(Server* Me)
 		: Module::Module(Me)
