@@ -63,17 +63,17 @@ extern user_hash clientlist;
 extern chan_hash chanlist;
 extern command_table cmdlist;
 
+static char textbuffer[MAXBUF];
+static char tb[MAXBUF];
+
 void log(int level,char *text, ...)
 {
-        char textbuffer[MAXBUF];
         va_list argsPtr;
-        time_t rawtime;
         struct tm * timeinfo;
         if (level < Config->LogLevel)
                 return;
 
-        time(&rawtime);
-        timeinfo = localtime(&rawtime);
+        timeinfo = localtime(&TIME);
 
         if (Config->log_file)
         {
@@ -134,9 +134,7 @@ void Write(int sock,char *text, ...)
                 log(DEFAULT,"*** BUG *** Write was given an invalid parameter");
                 return;
         }
-        char textbuffer[MAXBUF];
         va_list argsPtr;
-        char tb[MAXBUF];
 
         va_start (argsPtr, text);
         vsnprintf(textbuffer, MAXBUF, text, argsPtr);
@@ -164,7 +162,6 @@ void WriteServ(int sock, char* text, ...)
                 log(DEFAULT,"*** BUG *** WriteServ was given an invalid parameter");
                 return;
         }
-        char textbuffer[MAXBUF],tb[MAXBUF];
         va_list argsPtr;
         va_start (argsPtr, text);
 
@@ -193,7 +190,6 @@ void WriteFrom(int sock, userrec *user,char* text, ...)
                 log(DEFAULT,"*** BUG *** WriteFrom was given an invalid parameter");
                 return;
         }
-        char textbuffer[MAXBUF],tb[MAXBUF];
         va_list argsPtr;
         va_start (argsPtr, text);
 
@@ -222,7 +218,6 @@ void WriteTo(userrec *source, userrec *dest,char *data, ...)
         }
         if (dest->fd == FD_MAGIC_NUMBER)
                 return;
-        char textbuffer[MAXBUF],tb[MAXBUF];
         va_list argsPtr;
         va_start (argsPtr, data);
         vsnprintf(textbuffer, MAXBUF, data, argsPtr);
@@ -257,7 +252,8 @@ void WriteChannel(chanrec* Ptr, userrec* user, char* text, ...)
         va_end(argsPtr);
 
         std::vector<char*> *ulist = Ptr->GetUsers();
-        for (unsigned int j = 0; j < ulist->size(); j++)
+	unsigned int x = ulist->size();
+        for (unsigned int j = 0; j < x; j++)
         {
                 char* o = (*ulist)[j];
                 userrec* otheruser = (userrec*)o;
@@ -284,7 +280,8 @@ void WriteChannelLocal(chanrec* Ptr, userrec* user, char* text, ...)
         va_end(argsPtr);
 
         std::vector<char*> *ulist = Ptr->GetUsers();
-        for (unsigned int j = 0; j < ulist->size(); j++)
+	unsigned int x = ulist->size();
+        for (unsigned int j = 0; j < x; j++)
         {
                 char* o = (*ulist)[j];
                 userrec* otheruser = (userrec*)o;
@@ -317,7 +314,8 @@ void WriteChannelWithServ(char* ServName, chanrec* Ptr, char* text, ...)
 
 
         std::vector<char*> *ulist = Ptr->GetUsers();
-        for (unsigned int j = 0; j < ulist->size(); j++)
+	unsigned int x = ulist->size();
+        for (unsigned int j = 0; j < x; j++)
         {
                 char* o = (*ulist)[j];
                 userrec* otheruser = (userrec*)o;
@@ -343,7 +341,8 @@ void ChanExceptSender(chanrec* Ptr, userrec* user, char* text, ...)
         va_end(argsPtr);
 
         std::vector<char*> *ulist = Ptr->GetUsers();
-        for (unsigned int j = 0; j < ulist->size(); j++)
+	unsigned int x = ulist->size();
+        for (unsigned int j = 0; j < x; j++)
         {
                 char* o = (*ulist)[j];
                 userrec* otheruser = (userrec*)o;
@@ -393,7 +392,8 @@ void WriteCommon(userrec *u, char* text, ...)
 
         bool sent_to_at_least_one = false;
 
-        for (unsigned int i = 0; i < u->chans.size(); i++)
+	unsigned int y = u->chans.size();
+        for (unsigned int i = 0; i < y; i++)
         {
                 if (u->chans[i].channel)
                 {
@@ -403,7 +403,7 @@ void WriteCommon(userrec *u, char* text, ...)
                         {
                                 char* o = (*ulist)[j];
                                 userrec* otheruser = (userrec*)o;
-                                if ((otheruser->fd > 0) && (!already_sent[otheruser->fd]))
+                                if ((otheruser->fd > -1) && (!already_sent[otheruser->fd]))
                                 {
                                         already_sent[otheruser->fd] = 1;
                                         WriteFrom(otheruser->fd,u,"%s",textbuffer);
@@ -442,20 +442,22 @@ void WriteCommonExcept(userrec *u, char* text, ...)
         vsnprintf(textbuffer, MAXBUF, text, argsPtr);
         va_end(argsPtr);
 
-        memset(&already_sent,0,65536);
+        memset(&already_sent,0,MAXCLIENTS);
 
-        for (unsigned int i = 0; i < u->chans.size(); i++)
+	unsigned int y = u->chans.size();
+        for (unsigned int i = 0; i < y; i++)
         {
                 if (u->chans[i].channel)
                 {
                         std::vector<char*> *ulist = u->chans[i].channel->GetUsers();
-                        for (unsigned int j = 0; j < ulist->size(); j++)
+			unsigned int x = ulist->size();
+                        for (unsigned int j = 0; j < x; j++)
                         {
                                 char* o = (*ulist)[j];
                                 userrec* otheruser = (userrec*)o;
                                 if (u != otheruser)
                                 {
-                                        if ((otheruser->fd > 0) && (!already_sent[otheruser->fd]))
+                                        if ((otheruser->fd > -1) && (!already_sent[otheruser->fd]))
                                         {
                                                 already_sent[otheruser->fd] = 1;
                                                 WriteFrom(otheruser->fd,u,"%s",textbuffer);
