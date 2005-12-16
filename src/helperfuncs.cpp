@@ -389,7 +389,7 @@ void WriteCommon(userrec *u, char* text, ...)
         va_end(argsPtr);
 
         // FIX: Stops a message going to the same person more than once
-        memset(&already_sent,0,65536);
+        memset(&already_sent,0,MAXCLIENTS);
 
         bool sent_to_at_least_one = false;
 
@@ -398,7 +398,8 @@ void WriteCommon(userrec *u, char* text, ...)
                 if (u->chans[i].channel)
                 {
                         std::vector<char*> *ulist = u->chans[i].channel->GetUsers();
-                        for (unsigned int j = 0; j < ulist->size(); j++)
+			unsigned int x = ulist->size();
+                        for (unsigned int j = 0; j < x; j++)
                         {
                                 char* o = (*ulist)[j];
                                 userrec* otheruser = (userrec*)o;
