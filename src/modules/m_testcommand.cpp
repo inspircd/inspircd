@@ -28,7 +28,7 @@ Server *Srv;
 class cmd_woot : public command_t
 {
  public:
-	cmd_woot () : command_t("WOOT", 0, 0);
+	cmd_woot () : command_t("WOOT", 0, 0)
 	{
 		this->source = "m_testcommand.so";
 	}

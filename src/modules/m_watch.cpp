@@ -39,155 +39,164 @@ class watchentry
 typedef std::vector<watchentry> watchlist;
 watchlist watches;
 
-void handle_watch(char **parameters, int pcnt, userrec *user)
+class cmd_watch : public command_t
 {
-	if (!pcnt)
+ public:
+	cmd_watch() : command_t("WATCH",0,0)
 	{
-                for (watchlist::iterator q = watches.begin(); q != watches.end(); q++)
-                {
-                        if (q->watcher == user)
-                        {
-				userrec* targ = Srv->FindNick(q->target);
-				if (targ)
-				{
-					WriteServ(user->fd,"604 %s %s %s %s %lu :is online",user->nick,targ->nick,targ->ident,targ->dhost,targ->age);
-				}
-                        }
-                }
-		WriteServ(user->fd,"607 %s :End of WATCH list",user->nick);
+		this->source = "m_watch.so";
 	}
-	else if (pcnt > 0)
+
+	void Handle (char **parameters, int pcnt, userrec *user)
 	{
-		for (int x = 0; x < pcnt; x++)
+		if (!pcnt)
 		{
-			char *nick = parameters[x];
-			if (!strcasecmp(nick,"C"))
+	                for (watchlist::iterator q = watches.begin(); q != watches.end(); q++)
+	                {
+	                        if (q->watcher == user)
+	                        {
+					userrec* targ = Srv->FindNick(q->target);
+					if (targ)
+					{
+						WriteServ(user->fd,"604 %s %s %s %s %lu :is online",user->nick,targ->nick,targ->ident,targ->dhost,targ->age);
+					}
+	                        }
+	                }
+			WriteServ(user->fd,"607 %s :End of WATCH list",user->nick);
+		}
+		else if (pcnt > 0)
+		{
+			for (int x = 0; x < pcnt; x++)
 			{
-				// watch clear
-		                bool done = false;
-		                while (!done)
-		                {
-		                        done = true;
+				char *nick = parameters[x];
+				if (!strcasecmp(nick,"C"))
+				{
+					// watch clear
+			                bool done = false;
+			                while (!done)
+			                {
+			                        done = true;
+			                        for (watchlist::iterator q = watches.begin(); q != watches.end(); q++)
+			                        {
+			                                if (q->watcher == user)
+			                                {
+			                                        done = false;
+			                                        watches.erase(q);
+			                                        break;
+			                                }
+			                        }
+			                }
+				}
+				else if (!strcasecmp(nick,"L"))
+				{
+			                for (watchlist::iterator q = watches.begin(); q != watches.end(); q++)
+			                {
+			                        if (q->watcher == user)
+			                        {
+			                                userrec* targ = Srv->FindNick(q->target);
+			                                if (targ)
+			                                {
+			                                        WriteServ(user->fd,"604 %s %s %s %s %lu :is online",user->nick,targ->nick,targ->ident,targ->dhost,targ->age);
+			                                }
+			                        }
+			                }
+			                WriteServ(user->fd,"607 %s :End of WATCH list",user->nick);
+				}
+				else if (!strcasecmp(nick,"S"))
+				{
+					std::string list = "";
+			                for (watchlist::iterator q = watches.begin(); q != watches.end(); q++)
+			                {
+			                        if (q->watcher == user)
+			                        {
+							list = list + " " + q->target;
+			                        }
+			                }
+					char* l = (char*)list.c_str();
+					if (*l == ' ')
+						l++;
+					WriteServ(user->fd,"606 %s :%s",user->nick,l);
+					WriteServ(user->fd,"607 %s :End of WATCH S",user->nick);
+				}
+				else if (nick[0] == '-')
+				{
+					// removing an item from the list
+					nick++;
+					irc::string n1 = nick;
 		                        for (watchlist::iterator q = watches.begin(); q != watches.end(); q++)
 		                        {
 		                                if (q->watcher == user)
 		                                {
-		                                        done = false;
-		                                        watches.erase(q);
-		                                        break;
-		                                }
-		                        }
-		                }
-			}
-			else if (!strcasecmp(nick,"L"))
-			{
-		                for (watchlist::iterator q = watches.begin(); q != watches.end(); q++)
-		                {
-		                        if (q->watcher == user)
-		                        {
-		                                userrec* targ = Srv->FindNick(q->target);
-		                                if (targ)
-		                                {
-		                                        WriteServ(user->fd,"604 %s %s %s %s %lu :is online",user->nick,targ->nick,targ->ident,targ->dhost,targ->age);
-		                                }
-		                        }
-		                }
-		                WriteServ(user->fd,"607 %s :End of WATCH list",user->nick);
-			}
-			else if (!strcasecmp(nick,"S"))
-			{
-				std::string list = "";
-		                for (watchlist::iterator q = watches.begin(); q != watches.end(); q++)
-		                {
-		                        if (q->watcher == user)
-		                        {
-						list = list + " " + q->target;
-		                        }
-		                }
-				char* l = (char*)list.c_str();
-				if (*l == ' ')
-					l++;
-				WriteServ(user->fd,"606 %s :%s",user->nick,l);
-				WriteServ(user->fd,"607 %s :End of WATCH S",user->nick);
-			}
-			else if (nick[0] == '-')
-			{
-				// removing an item from the list
-				nick++;
-				irc::string n1 = nick;
-	                        for (watchlist::iterator q = watches.begin(); q != watches.end(); q++)
-	                        {
-	                                if (q->watcher == user)
-	                                {
-						irc::string n2 = q->target.c_str();
-						userrec* a = Srv->FindNick(q->target);
-                                                if (a)
-                                                {
-                                                        WriteServ(user->fd,"602 %s %s %s %s %lu :stopped watching",user->nick,a->nick,a->ident,a->dhost,a->age);
-                                                }
-                                                else
-                                                {
-                                                         WriteServ(user->fd,"602 %s %s * * 0 :stopped watching",user->nick,q->target.c_str());
-                                                }
-                                                if (n1 == n2)
-                                                {
-                                                        watches.erase(q);
-                                                        break;
-                                                }
-					}
-				}
-			}
-			else if (nick[0] == '+')
-			{
-				nick++;
-				irc::string n1 = nick;
-				bool exists = false;
-				for (watchlist::iterator q = watches.begin(); q != watches.end(); q++)
-				{
-					if (q->watcher == user)
-					{
-						irc::string n2 = q->target.c_str();
-						if (n1 == n2)
-						{
-							// already on watch list
-							exists = true;
+							irc::string n2 = q->target.c_str();
+							userrec* a = Srv->FindNick(q->target);
+	                                                if (a)
+	                                                {
+	                                                        WriteServ(user->fd,"602 %s %s %s %s %lu :stopped watching",user->nick,a->nick,a->ident,a->dhost,a->age);
+	                                                }
+	                                                else
+	                                                {
+	                                                         WriteServ(user->fd,"602 %s %s * * 0 :stopped watching",user->nick,q->target.c_str());
+	                                                }
+	                                                if (n1 == n2)
+	                                                {
+	                                                        watches.erase(q);
+	                                                        break;
+	                                                }
 						}
 					}
 				}
-				if (!exists)
+				else if (nick[0] == '+')
 				{
-					watchentry w;
-					w.watcher = user;
-					w.target = nick;
-					watches.push_back(w);
-					log(DEBUG,"*** Added %s to watchlist of %s",nick,user->nick);
+					nick++;
+					irc::string n1 = nick;
+					bool exists = false;
+					for (watchlist::iterator q = watches.begin(); q != watches.end(); q++)
+					{
+						if (q->watcher == user)
+						{
+							irc::string n2 = q->target.c_str();
+							if (n1 == n2)
+							{
+								// already on watch list
+								exists = true;
+							}
+						}
+					}
+					if (!exists)
+					{
+						watchentry w;
+						w.watcher = user;
+						w.target = nick;
+						watches.push_back(w);
+						log(DEBUG,"*** Added %s to watchlist of %s",nick,user->nick);
+					}
+	               	                userrec* a = Srv->FindNick(nick);
+	               	                if (a)
+	               	                {
+	               	                        WriteServ(user->fd,"604 %s %s %s %s %lu :is online",user->nick,a->nick,a->ident,a->dhost,a->age);
+	                                }
+	                                else
+	                                {
+	                                        WriteServ(user->fd,"605 %s %s * * 0 :is offline",user->nick,nick);
+	                                }
 				}
-                                userrec* a = Srv->FindNick(nick);
-                                if (a)
-                                {
-                                        WriteServ(user->fd,"604 %s %s %s %s %lu :is online",user->nick,a->nick,a->ident,a->dhost,a->age);
-                                }
-                                else
-                                {
-                                        WriteServ(user->fd,"605 %s %s * * 0 :is offline",user->nick,nick);
-                                }
 			}
 		}
+		return;
 	}
-	return;
-}
-
+};
 
 class Modulewatch : public Module
 {
-
+	cmd_watch* mycommand;
  public:
 
 	Modulewatch(Server* Me)
 		: Module::Module(Me)
 	{
 		Srv = Me;
-		Srv->AddCommand("WATCH",handle_watch,0,0,"m_watch.so");
+		mycommand = new cmd_watch();
+		Srv->AddCommand(mycommand);
 	}
 
 	virtual void OnUserQuit(userrec* user, std::string reason)

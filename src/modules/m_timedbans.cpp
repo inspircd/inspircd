@@ -39,70 +39,81 @@ class TimedBan
 typedef std::vector<TimedBan> timedbans;
 timedbans TimedBanList;
 
-void handle_tban(char **parameters, int pcnt, userrec *user)
+class cmd_tban : public command_t
 {
-	chanrec* channel = Srv->FindChannel(parameters[0]);
-	if (channel)
+ public:
+	cmd_tban () : command_t("TBAN", 0, 3)
 	{
-		std::string cm = Srv->ChanMode(user,channel);
-		if ((cm == "%") || (cm == "@"))
+		this->source = "m_timedbans,cpp";
+	}
+
+	void Handle (char **parameters, int pcnt, userrec *user)
+	{
+		chanrec* channel = Srv->FindChannel(parameters[0]);
+		if (channel)
 		{
-			if (!Srv->IsValidMask(parameters[2]))
+			std::string cm = Srv->ChanMode(user,channel);
+			if ((cm == "%") || (cm == "@"))
 			{
-				Srv->SendServ(user->fd,"NOTICE "+std::string(user->nick)+" :Invalid ban mask");
-				return;
-			}
-			for (timedbans::iterator i = TimedBanList.begin(); i < TimedBanList.end(); i++)
-			{
-                                irc::string listitem = i->mask.c_str();
-                                irc::string target = parameters[2];
-				irc::string listchan = i->channel.c_str();
-				irc::string targetchan = parameters[0];
-				if ((listitem == target) && (listchan == targetchan))
+				if (!Srv->IsValidMask(parameters[2]))
 				{
-					Srv->SendServ(user->fd,"NOTICE "+std::string(user->nick)+" :The ban "+std::string(parameters[2])+" is already on the banlist of "+std::string(parameters[0]));
+					Srv->SendServ(user->fd,"NOTICE "+std::string(user->nick)+" :Invalid ban mask");
 					return;
 				}
-			}
-			TimedBan T;
-			std::string channelname = parameters[0];
-			unsigned long expire = Srv->CalcDuration(parameters[1]) + time(NULL);
-			if (Srv->CalcDuration(parameters[1]) < 1)
-			{
-				Srv->SendServ(user->fd,"NOTICE "+std::string(user->nick)+" :Invalid ban time");
+				for (timedbans::iterator i = TimedBanList.begin(); i < TimedBanList.end(); i++)
+				{
+	                                irc::string listitem = i->mask.c_str();
+	                                irc::string target = parameters[2];
+					irc::string listchan = i->channel.c_str();
+					irc::string targetchan = parameters[0];
+					if ((listitem == target) && (listchan == targetchan))
+					{
+						Srv->SendServ(user->fd,"NOTICE "+std::string(user->nick)+" :The ban "+std::string(parameters[2])+" is already on the banlist of "+std::string(parameters[0]));
+						return;
+					}
+				}
+				TimedBan T;
+				std::string channelname = parameters[0];
+				unsigned long expire = Srv->CalcDuration(parameters[1]) + time(NULL);
+				if (Srv->CalcDuration(parameters[1]) < 1)
+				{
+					Srv->SendServ(user->fd,"NOTICE "+std::string(user->nick)+" :Invalid ban time");
+					return;
+				}
+				char duration[MAXBUF];
+				snprintf(duration,MAXBUF,"%lu",Srv->CalcDuration(parameters[1]));
+				std::string mask = parameters[2];
+				char *setban[3];
+				setban[0] = parameters[0];
+				setban[1] = "+b";
+				setban[2] = parameters[2];
+				// use CallCommandHandler to make it so that the user sets the mode
+				// themselves
+				Srv->CallCommandHandler("MODE",setban,3,user);
+				T.channel = channelname;
+				T.mask = mask;
+				T.expire = expire;
+				TimedBanList.push_back(T);
+				Srv->SendChannelServerNotice(Srv->GetServerName(),channel,"NOTICE "+std::string(channel->name)+" :"+std::string(user->nick)+" added a timed ban on "+mask+" lasting for "+std::string(duration)+" seconds.");
 				return;
 			}
-			char duration[MAXBUF];
-			snprintf(duration,MAXBUF,"%lu",Srv->CalcDuration(parameters[1]));
-			std::string mask = parameters[2];
-			char *setban[3];
-			setban[0] = parameters[0];
-			setban[1] = "+b";
-			setban[2] = parameters[2];
-			// use CallCommandHandler to make it so that the user sets the mode
-			// themselves
-			Srv->CallCommandHandler("MODE",setban,3,user);
-			T.channel = channelname;
-			T.mask = mask;
-			T.expire = expire;
-			TimedBanList.push_back(T);
-			Srv->SendChannelServerNotice(Srv->GetServerName(),channel,"NOTICE "+std::string(channel->name)+" :"+std::string(user->nick)+" added a timed ban on "+mask+" lasting for "+std::string(duration)+" seconds.");
+			else WriteServ(user->fd,"482 %s %s :You must be at least a half-operator to change modes on this channel",user->nick, channel->name);
 			return;
 		}
-		else WriteServ(user->fd,"482 %s %s :You must be at least a half-operator to change modes on this channel",user->nick, channel->name);
-		return;
+		WriteServ(user->fd,"401 %s %s :No such channel",user->nick, parameters[0]);
 	}
-	WriteServ(user->fd,"401 %s %s :No such channel",user->nick, parameters[0]);
-}
+};
 
 class ModuleTimedBans : public Module
 {
+	cmd_tban* mycommand;
  public:
 	ModuleTimedBans(Server* Me)
 		: Module::Module(Me)
 	{
 		Srv = Me;
-		Srv->AddCommand("TBAN",handle_tban,0,3,"m_timedbans.so");
+		mycommand = new cmd_tban();
+		Srv->AddCommand(mycommand);
 		TimedBanList.clear();
 	}
 	
