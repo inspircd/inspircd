@@ -35,33 +35,43 @@ using namespace std;
 /* $ModDesc: Provides support for an SAQUIT command, exits user with a reason */
 
 Server *Srv;
-	 
-void handle_saquit(char **parameters, int pcnt, userrec *user)
-{
-	userrec* dest = Srv->FindNick(std::string(parameters[0]));
-	if (dest)
-	{
-		std::string line = "";
-		for (int i = 1; i < pcnt - 1; i++)
-		{
-			line = line + std::string(parameters[i]) + " ";
-		}
-		line = line + std::string(parameters[pcnt-1]);
-	
-		Srv->SendOpers(std::string(user->nick)+" used SAQUIT to make "+std::string(dest->nick)+" quit with a reason of "+line);
-		Srv->QuitUser(dest, line);
-	}
-}
 
+class cmd_saquit : public command_t
+{
+ public:
+	cmd_saquit () : command_t("SAQUIT",'o',2)
+	{
+		this->source = "m_saquit.so";
+	}
+
+	void Handle (char **parameters, int pcnt, userrec *user)
+	{
+		userrec* dest = Srv->FindNick(std::string(parameters[0]));
+		if (dest)
+		{
+			std::string line = "";
+			for (int i = 1; i < pcnt - 1; i++)
+			{
+				line = line + std::string(parameters[i]) + " ";
+			}
+			line = line + std::string(parameters[pcnt-1]);
+		
+			Srv->SendOpers(std::string(user->nick)+" used SAQUIT to make "+std::string(dest->nick)+" quit with a reason of "+line);
+			Srv->QuitUser(dest, line);
+		}
+	}
+};
 
 class ModuleSaquit : public Module
 {
+	cmd_saquit*	mycommand;
  public:
 	ModuleSaquit(Server* Me)
 		: Module::Module(Me)
 	{
 		Srv = Me;
-		Srv->AddCommand("SAQUIT",handle_saquit,'o',2,"m_saquit.so");
+		mycommand = new cmd_saquit();
+		Srv->AddCommand(mycommand);
 	}
 	
 	virtual ~ModuleSaquit()

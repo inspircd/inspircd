@@ -26,31 +26,42 @@ using namespace std;
 /* $ModDesc: Allows opers to set their idle time */
 
 Server *Srv = NULL;
-	 
-void handle_setidle(char **parameters, int pcnt, userrec *user)
+
+class cmd_setidle : public command_t
 {
-	if (atoi(parameters[0]) < 1)
+ public:
+	cmd_setidle () : command_t("SETIDLE", 'o', 1)
 	{
-		WriteServ(user->fd,"948 %s :Invalid idle time.",user->nick);
-		return;
+		this->source = "m_setidle.so";
 	}
-	user->idle_lastmsg = time(NULL) - atoi(parameters[0]);
-	// minor tweak - we cant have signon time shorter than our idle time!
-	if (user->signon > user->idle_lastmsg)
-		user->signon = user->idle_lastmsg;
-	Srv->SendOpers(std::string(user->nick)+" used SETIDLE to set their idle time to "+std::string(parameters[0])+" seconds");
-	WriteServ(user->fd,"944 %s :Idle time set.",user->nick);
-}
+
+	void Handle (char **parameters, int pcnt, userrec *user)
+	{
+		if (atoi(parameters[0]) < 1)
+		{
+			WriteServ(user->fd,"948 %s :Invalid idle time.",user->nick);
+			return;
+		}
+		user->idle_lastmsg = time(NULL) - atoi(parameters[0]);
+		// minor tweak - we cant have signon time shorter than our idle time!
+		if (user->signon > user->idle_lastmsg)
+			user->signon = user->idle_lastmsg;
+		Srv->SendOpers(std::string(user->nick)+" used SETIDLE to set their idle time to "+std::string(parameters[0])+" seconds");
+		WriteServ(user->fd,"944 %s :Idle time set.",user->nick);
+	}
+};
 
 
 class ModuleSetIdle : public Module
 {
+	cmd_setidle*	mycommand;
  public:
 	ModuleSetIdle(Server* Me)
 		: Module::Module(Me)
 	{
 		Srv = Me;
-		Srv->AddCommand("SETIDLE",handle_setidle,'o',1,"m_setidle.so");
+		mycommand = new cmd_setidle();
+		Srv->AddCommand(mycommand);
 	}
 	
 	virtual ~ModuleSetIdle()

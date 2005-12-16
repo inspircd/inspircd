@@ -26,33 +26,44 @@ using namespace std;
 /* $ModDesc: Provides support for the SETHOST command */
 
 Server *Srv;
-	 
-void handle_sethost(char **parameters, int pcnt, userrec *user)
+
+class cmd_sethost : public command_t
 {
-	for (unsigned int x = 0; x < strlen(parameters[0]); x++)
+ public:
+	cmd_sethost() : command_t("SETHOST",'o',1)
 	{
-		if (((tolower(parameters[0][x]) < 'a') || (tolower(parameters[0][x]) > 'z')) && (parameters[0][x] != '.'))
+		this->source = "m_sethost.so";
+	}
+
+	void Handle (char **parameters, int pcnt, userrec *user)
+	{
+		for (unsigned int x = 0; x < strlen(parameters[0]); x++)
 		{
-			if (((parameters[0][x] < '0') || (parameters[0][x]> '9')) && (parameters[0][x] != '-'))
+			if (((tolower(parameters[0][x]) < 'a') || (tolower(parameters[0][x]) > 'z')) && (parameters[0][x] != '.'))
 			{
-				Srv->SendTo(NULL,user,"NOTICE "+std::string(user->nick)+" :*** Invalid characters in hostname");
-				return;
+				if (((parameters[0][x] < '0') || (parameters[0][x]> '9')) && (parameters[0][x] != '-'))
+				{
+					Srv->SendTo(NULL,user,"NOTICE "+std::string(user->nick)+" :*** Invalid characters in hostname");
+					return;
+				}
 			}
 		}
+		Srv->ChangeHost(user,parameters[0]);
+		Srv->SendOpers(std::string(user->nick)+" used SETHOST to change their displayed host to "+std::string(parameters[0]));
 	}
-	Srv->ChangeHost(user,parameters[0]);
-	Srv->SendOpers(std::string(user->nick)+" used SETHOST to change their displayed host to "+std::string(parameters[0]));
-}
+};
 
 
 class ModuleSetHost : public Module
 {
+	cmd_sethost*	mycommand;
  public:
 	ModuleSetHost(Server* Me)
 		: Module::Module(Me)
 	{
 		Srv = Me;
-		Srv->AddCommand("SETHOST",handle_sethost,'o',1,"m_sethost.so");
+		mycommand = new cmd_sethost();
+		Srv->AddCommand(mycommand);
 	}
 	
 	virtual ~ModuleSetHost()
