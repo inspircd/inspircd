@@ -52,6 +52,7 @@ using namespace std;
 extern int MODCOUNT;
 extern std::vector<Module*> modules;
 extern ServerConfig *Config;
+extern InspIRCd* ServerInstance;
 extern time_t TIME;
 extern char lowermap[255];
 static char list[MAXBUF];
