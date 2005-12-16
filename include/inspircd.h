@@ -81,12 +81,14 @@ class serverstats
 	int statsConnects;
 	int statsSent;
 	int statsRecv;
+	int BoundPortCount;
 
 	serverstats()
 	{
 		statsAccept = statsRefused = statsUnknown = 0;
 		statsCollisions = statsDns = statsDnsGood = 0;
 		statsDnsBad = statsConnects = statsSent = statsRecv = 0;
+		BoundPortCount = 0;
 	}
 };
 

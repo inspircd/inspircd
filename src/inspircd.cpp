@@ -97,7 +97,6 @@ chan_hash chanlist;
 whowas_hash whowas;
 command_table cmdlist;
 servernamelist servernames;
-int BoundPortCount = 0;
 char lowermap[255];
 
 void AddServerName(std::string servername)
@@ -354,7 +353,7 @@ InspIRCd::InspIRCd(int argc, char** argv)
         SetupCommandTable();
         AddServerName(Config->ServerName);
         CheckDie();
-        BoundPortCount = BindPorts();
+        stats->BoundPortCount = BindPorts();
 
         printf("\n");
         if (!Config->nofork)
@@ -1066,7 +1065,7 @@ int InspIRCd::Run()
 	/* Add the listening sockets used for client inbound connections
 	 * to the socket engine
 	 */
-	for (int count = 0; count < BoundPortCount; count++)
+	for (int count = 0; count < stats->BoundPortCount; count++)
 		SE->AddFd(openSockfd[count],true,X_LISTEN);
 
 	WritePID(Config->PID);
