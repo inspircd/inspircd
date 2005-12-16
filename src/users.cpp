@@ -376,7 +376,10 @@ void kill_link(userrec *user,const char* r)
 
         if (user->fd > -1)
         {
-                FOREACH_MOD OnRawSocketClose(user->fd);
+		if (IOHookModule)
+		{
+                	IOHookModule->OnRawSocketClose(user->fd);
+		}
                 SE->DelFd(user->fd);
                 user->CloseSocket();
         }
@@ -436,7 +439,10 @@ void kill_link_silent(userrec *user,const char* r)
 
         if (user->fd > -1)
         {
-                FOREACH_MOD OnRawSocketClose(user->fd);
+		if (IOHookModule)
+		{
+                	IOHookModule->OnRawSocketClose(user->fd);
+		}
                 SE->DelFd(user->fd);
                 user->CloseSocket();
         }
