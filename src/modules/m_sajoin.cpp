@@ -25,43 +25,53 @@ using namespace std;
 /* $ModDesc: Provides support for unreal-style SAJOIN command */
 
 Server *Srv;
-	 
-void handle_sajoin(char **parameters, int pcnt, userrec *user)
+
+class cmd_sajoin : public command_t
 {
-	userrec* dest = Srv->FindNick(std::string(parameters[0]));
-	if (dest)
+ public:
+	cmd_sajoin() : command_t("SAJOIN", 'o', 2)
 	{
-		/* might be nicer to make checking valid channel names an api function sometime --w00t */
-		if (parameters[1][0] != '#')
-		{
-			/* we didn't need to check this for each character ;) */
-			Srv->SendTo(NULL,user,"NOTICE "+std::string(user->nick)+" :*** Invalid characters in channel name");
-			return;
-		}
-
-		for (unsigned int x = 0; x < strlen(parameters[1]); x++)
-		{
-				if ((parameters[1][x] == ' ') || (parameters[1][x] == ','))
-				{
-					Srv->SendTo(NULL,user,"NOTICE "+std::string(user->nick)+" :*** Invalid characters in channel name");
-					return;
-				}
-		}
-
-		Srv->SendOpers(std::string(user->nick)+" used SAJOIN to make "+std::string(dest->nick)+" join "+parameters[1]);
-		Srv->JoinUserToChannel(dest,std::string(parameters[1]),std::string(dest->nick));
+		this->source = "m_sajoin.cpp";
 	}
-}
 
+	void Handle (char **parameters, int pcnt, userrec *user)
+	{
+		userrec* dest = Srv->FindNick(std::string(parameters[0]));
+		if (dest)
+		{
+			/* might be nicer to make checking valid channel names an api function sometime --w00t */
+			if (parameters[1][0] != '#')
+			{
+				/* we didn't need to check this for each character ;) */
+				Srv->SendTo(NULL,user,"NOTICE "+std::string(user->nick)+" :*** Invalid characters in channel name");
+				return;
+			}
+
+			for (unsigned int x = 0; x < strlen(parameters[1]); x++)
+			{
+					if ((parameters[1][x] == ' ') || (parameters[1][x] == ','))
+					{
+						Srv->SendTo(NULL,user,"NOTICE "+std::string(user->nick)+" :*** Invalid characters in channel name");
+						return;
+					}
+			}
+
+			Srv->SendOpers(std::string(user->nick)+" used SAJOIN to make "+std::string(dest->nick)+" join "+parameters[1]);
+			Srv->JoinUserToChannel(dest,std::string(parameters[1]),std::string(dest->nick));
+		}
+	}
+};
 
 class ModuleSajoin : public Module
 {
+	cmd_sajoin*	mycommand;
  public:
 	ModuleSajoin(Server* Me)
 		: Module::Module(Me)
 	{
 		Srv = Me;
-		Srv->AddCommand("SAJOIN",handle_sajoin,'o',2,"m_sajoin.so");
+		mycommand = new cmd_sajoin();
+		Srv->AddCommand(mycommand);
 	}
 	
 	virtual ~ModuleSajoin()

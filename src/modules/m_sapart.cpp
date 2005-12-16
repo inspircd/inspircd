@@ -25,35 +25,46 @@ using namespace std;
 /* $ModDesc: Provides support for unreal-style SAPART command */
 
 Server *Srv;
-	 
-void handle_sapart(char **parameters, int pcnt, userrec *user)
-{
-	userrec* dest = Srv->FindNick(std::string(parameters[0]));
-	if (dest)
-	{
-		for (unsigned int x = 0; x < strlen(parameters[1]); x++)
-		{
-				if ((parameters[1][0] != '#') || (parameters[1][x] == ' ') || (parameters[1][x] == ','))
-				{
-					Srv->SendTo(NULL,user,"NOTICE "+std::string(user->nick)+" :*** Invalid characters in channel name");
-					return;
-				}
-		}
 
-		Srv->SendOpers(std::string(user->nick)+" used SAPART to make "+std::string(dest->nick)+" part "+parameters[1]);
-		Srv->PartUserFromChannel(dest,std::string(parameters[1]),std::string(dest->nick));
+class cmd_sapart : public command_t
+{
+ public:
+	cmd_sapart () : command_t("SAPART", 'o', 2)
+	{
+		this->source = "m_sapart.so";
 	}
-}
+	 
+	void Handle (char **parameters, int pcnt, userrec *user)
+	{
+		userrec* dest = Srv->FindNick(std::string(parameters[0]));
+		if (dest)
+		{
+			for (unsigned int x = 0; x < strlen(parameters[1]); x++)
+			{
+					if ((parameters[1][0] != '#') || (parameters[1][x] == ' ') || (parameters[1][x] == ','))
+					{
+						Srv->SendTo(NULL,user,"NOTICE "+std::string(user->nick)+" :*** Invalid characters in channel name");
+						return;
+					}
+			}
+
+			Srv->SendOpers(std::string(user->nick)+" used SAPART to make "+std::string(dest->nick)+" part "+parameters[1]);
+			Srv->PartUserFromChannel(dest,std::string(parameters[1]),std::string(dest->nick));
+		}
+	}
+};
 
 
 class ModuleSapart : public Module
 {
+	cmd_sapart*	mycommand;
  public:
 	ModuleSapart(Server* Me)
 		: Module::Module(Me)
 	{
 		Srv = Me;
-		Srv->AddCommand("SAPART",handle_sapart,'o',2,"m_sapart.so");
+		mycommand = new cmd_sapart();
+		Srv->AddCommand(mycommand);
 	}
 	
 	virtual ~ModuleSapart()

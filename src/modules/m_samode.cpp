@@ -38,34 +38,44 @@ using namespace std;
 
 Server *Srv;
 	 
-
-void handle_samode(char **parameters, int pcnt, userrec *user)
+class cmd_samode : public command_t
 {
-	/*
-	 * Handles an SAMODE request. Notifies all +s users.
- 	 */
-	int n=0;
-	std::string result;
-	Srv->Log(DEBUG,"SAMODE: Being handled");
-	Srv->SendMode(parameters,pcnt,user);
-	Srv->Log(DEBUG,"SAMODE: Modechange handled");
-	result = std::string(user->nick) + std::string(" used SAMODE ");
-  	while (n<pcnt)
+ public:
+	cmd_samode () : command_t("SAMODE", 'o', 2)
 	{
-		result=result + std::string(" ") + std::string(parameters[n]);
-		n++;
+		this->source = "m_samode.so";
 	}
-	Srv->SendOpers(result);
-}
+
+	void Handle (char **parameters, int pcnt, userrec *user)
+	{
+		/*
+		 * Handles an SAMODE request. Notifies all +s users.
+	 	 */
+		int n=0;
+		std::string result;
+		Srv->Log(DEBUG,"SAMODE: Being handled");
+		Srv->SendMode(parameters,pcnt,user);
+		Srv->Log(DEBUG,"SAMODE: Modechange handled");
+		result = std::string(user->nick) + std::string(" used SAMODE ");
+	  	while (n<pcnt)
+		{
+			result=result + std::string(" ") + std::string(parameters[n]);
+			n++;
+		}
+		Srv->SendOpers(result);
+	}
+};
 
 class ModuleSaMode : public Module
 {
+	cmd_samode*	mycommand;
  public:
 	ModuleSaMode(Server* Me)
 		: Module::Module(Me)
 	{
 		Srv = Me;
-		Srv->AddCommand("SAMODE",handle_samode,'o',2,"m_samode.so");
+		mycommand = new cmd_samode();
+		Srv->AddCommand(mycommand);
 	}
 	
 	virtual ~ModuleSaMode()

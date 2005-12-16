@@ -25,31 +25,42 @@ using namespace std;
 /* $ModDesc: Provides support for SANICK command */
 
 Server *Srv;
-	 
-void handle_sanick(char **parameters, int pcnt, userrec *user)
+
+class cmd_sanick : public command_t
 {
-	userrec* source = Srv->FindNick(std::string(parameters[0]));
-	if (source)
+ public:
+	cmd_sanick () : command_t("SANICK", 'o', 2)
 	{
-		if (Srv->IsNick(std::string(parameters[1])))
+		this->source = "m_sanick.so";
+	}
+
+	void Handle (char **parameters, int pcnt, userrec *user)
+	{
+		userrec* source = Srv->FindNick(std::string(parameters[0]));
+		if (source)
 		{
-			// FIX by brain: Cant use source->nick here because if it traverses a server link then
-			// source->nick becomes invalid as the object data moves in memory.
-			Srv->SendOpers(std::string(user->nick)+" used SANICK to change "+std::string(parameters[0])+" to "+parameters[1]);
-			Srv->ChangeUserNick(source,std::string(parameters[1]));
+			if (Srv->IsNick(std::string(parameters[1])))
+			{
+				// FIX by brain: Cant use source->nick here because if it traverses a server link then
+				// source->nick becomes invalid as the object data moves in memory.
+				Srv->SendOpers(std::string(user->nick)+" used SANICK to change "+std::string(parameters[0])+" to "+parameters[1]);
+				Srv->ChangeUserNick(source,std::string(parameters[1]));
+			}
 		}
 	}
-}
+};
 
 
 class ModuleSanick : public Module
 {
+	cmd_sanick*	mycommand;
  public:
 	ModuleSanick(Server* Me)
 		: Module::Module(Me)
 	{
 		Srv = Me;
-		Srv->AddCommand("SANICK",handle_sanick,'o',2,"m_sanick.so");
+		mycommand = new cmd_sanick();
+		Srv->AddCommand(mycommand);
 	}
 	
 	virtual ~ModuleSanick()
