@@ -53,12 +53,13 @@
 #define MAXSOCKS 64
 #define MAXCOMMAND 32
 
-// flags for use with WriteMode
+/*
+flags for use with WriteMode
 
 #define WM_AND 1
 #define WM_OR 2
 
-// flags for use with OnUserPreMessage and OnUserPreNotice
+flags for use with OnUserPreMessage and OnUserPreNotice
 
 #define TYPE_USER 1
 #define TYPE_CHANNEL 2
@@ -67,8 +68,7 @@
 #define IS_LOCAL(x) (x->fd > -1)
 #define IS_REMOTE(x) (x->fd < 0)
 #define IS_MODULE_CREATED(x) (x->fd == FD_MAGIC_NUMBER)
-
-/*typedef void (handlerfunc) (char**, int, userrec*);*/
+*/
 
 class serverstats
 {

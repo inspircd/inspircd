@@ -29,7 +29,10 @@ using namespace std;
 // the server->server link, and all encoding of hosts is
 // done locally on the server by this module.
 
-#include <stdio.h>
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
 #include "users.h"
 #include "channels.h"
 #include "modules.h"

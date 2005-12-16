@@ -101,6 +101,17 @@ typedef std::deque<userrec*> chanuserlist;
 
 #define FD_MAGIC_NUMBER -42
 
+// flags for use with WriteMode
+
+#define WM_AND 1
+#define WM_OR 2
+
+// flags for use with OnUserPreMessage and OnUserPreNotice
+
+#define TYPE_USER 1
+#define TYPE_CHANNEL 2
+#define TYPE_SERVER 3
+
 /*extern void createcommand(char* cmd, handlerfunc f, char flags, int minparams, char* source);
 extern void server_mode(char **parameters, int pcnt, userrec *user);*/
 
