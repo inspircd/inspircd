@@ -52,7 +52,7 @@ extern ServerConfig* Config;
 
 extern time_t TIME;
 
-char* give_ops(userrec *user,char *dest,chanrec *chan,int status)
+char* ModeParser::GiveOps(userrec *user,char *dest,chanrec *chan,int status)
 {
 	userrec *d;
 	
@@ -115,7 +115,7 @@ char* give_ops(userrec *user,char *dest,chanrec *chan,int status)
 	return NULL;
 }
 
-char* give_hops(userrec *user,char *dest,chanrec *chan,int status)
+char* ModeParser::GiveHops(userrec *user,char *dest,chanrec *chan,int status)
 {
 	userrec *d;
 	
@@ -171,7 +171,7 @@ char* give_hops(userrec *user,char *dest,chanrec *chan,int status)
 	return NULL;
 }
 
-char* give_voice(userrec *user,char *dest,chanrec *chan,int status)
+char* ModeParser::GiveVoice(userrec *user,char *dest,chanrec *chan,int status)
 {
 	userrec *d;
 	
@@ -227,7 +227,7 @@ char* give_voice(userrec *user,char *dest,chanrec *chan,int status)
 	return NULL;
 }
 
-char* take_ops(userrec *user,char *dest,chanrec *chan,int status)
+char* ModeParser::TakeOps(userrec *user,char *dest,chanrec *chan,int status)
 {
 	userrec *d;
 	
@@ -286,7 +286,7 @@ char* take_ops(userrec *user,char *dest,chanrec *chan,int status)
 	return NULL;
 }
 
-char* take_hops(userrec *user,char *dest,chanrec *chan,int status)
+char* ModeParser::TakeHops(userrec *user,char *dest,chanrec *chan,int status)
 {
 	userrec *d;
 	
@@ -342,7 +342,7 @@ char* take_hops(userrec *user,char *dest,chanrec *chan,int status)
 	return NULL;
 }
 
-char* take_voice(userrec *user,char *dest,chanrec *chan,int status)
+char* ModeParser::TakeVoice(userrec *user,char *dest,chanrec *chan,int status)
 {
 	userrec *d;
 	
@@ -398,7 +398,7 @@ char* take_voice(userrec *user,char *dest,chanrec *chan,int status)
 	return NULL;
 }
 
-char* add_ban(userrec *user,char *dest,chanrec *chan,int status)
+char* ModeParser::AddBan(userrec *user,char *dest,chanrec *chan,int status)
 {
 	if ((!user) || (!dest) || (!chan)) {
 		log(DEFAULT,"*** BUG *** add_ban was given an invalid parameter");
@@ -463,7 +463,7 @@ char* add_ban(userrec *user,char *dest,chanrec *chan,int status)
 	return dest;
 }
 
-char* take_ban(userrec *user,char *dest,chanrec *chan,int status)
+char* ModeParser::TakeBan(userrec *user,char *dest,chanrec *chan,int status)
 {
 	if ((!user) || (!dest) || (!chan)) {
 		log(DEFAULT,"*** BUG *** take_ban was given an invalid parameter");
@@ -488,7 +488,7 @@ char* take_ban(userrec *user,char *dest,chanrec *chan,int status)
 
 // tidies up redundant modes, e.g. +nt-nt+i becomes +-+i,
 // a section further down the chain tidies up the +-+- crap.
-std::string compress_modes(std::string modes,bool channelmodes)
+std::string ModeParser::CompressModes(std::string modes,bool channelmodes)
 {
 	int counts[127];
 	bool active[127];
@@ -536,7 +536,7 @@ std::string compress_modes(std::string modes,bool channelmodes)
 	return modes;
 }
 
-void process_modes(char **parameters,userrec* user,chanrec *chan,int status, int pcnt, bool servermode, bool silent, bool local)
+void ModeParser::ProcessModes(char **parameters,userrec* user,chanrec *chan,int status, int pcnt, bool servermode, bool silent, bool local)
 {
 	if (!parameters) {
 		log(DEFAULT,"*** BUG *** process_modes was given an invalid parameter");
@@ -1145,7 +1145,7 @@ void process_modes(char **parameters,userrec* user,chanrec *chan,int status, int
 
 // based on sourcemodes, return true or false to determine if umode is a valid mode a user may set on themselves or others.
 
-bool allowed_umode(char umode, char* sourcemodes,bool adding,bool serveroverride)
+bool ModeParser::AllowedUmode(char umode, char* sourcemodes,bool adding,bool serveroverride)
 {
 	log(DEBUG,"Allowed_umode: %c %s",umode,sourcemodes);
 	// Servers can +o and -o arbitrarily
@@ -1196,7 +1196,7 @@ bool allowed_umode(char umode, char* sourcemodes,bool adding,bool serveroverride
 	return false;
 }
 
-bool process_module_umode(char umode, userrec* source, void* dest, bool adding)
+bool ModeParser::ProcessModuleUmode(char umode, userrec* source, void* dest, bool adding)
 {
 	userrec* s2;
 	bool faked = false;
@@ -1530,7 +1530,7 @@ void handle_mode(char **parameters, int pcnt, userrec *user)
 
 
 
-void server_mode(char **parameters, int pcnt, userrec *user)
+void ModeParser::ServerMode(char **parameters, int pcnt, userrec *user)
 {
 	chanrec* Ptr;
 	userrec* dest;
@@ -1720,395 +1720,3 @@ void server_mode(char **parameters, int pcnt, userrec *user)
 		WriteServ(user->fd,"401 %s %s :No such nick/channel",user->nick, parameters[0]);
 	}
 }
-
-
-
-void merge_mode(char **parameters, int pcnt)
-{
-	chanrec* Ptr;
-	userrec* dest;
-	int can_change;
-	int direction = 1;
-	char outpars[MAXBUF];
-
-	dest = Find(parameters[0]);
-	
-	// fix: ChroNiCk found this - we cant use this as debug if its null!
-	if (dest)
-	{
-		log(DEBUG,"merge_mode on %s",dest->nick);
-	}
-
-	if ((dest) && (pcnt > 1))
-	{
-                std::string tidied = compress_modes(parameters[1],false);
-                parameters[1] = (char*)tidied.c_str();
-
-		char dmodes[MAXBUF];
-		strlcpy(dmodes,dest->modes,52);
-
-		strcpy(outpars,"+");
-		direction = 1;
-
-		if ((parameters[1][0] != '+') && (parameters[1][0] != '-'))
-			return;
-
-		for (unsigned int i = 0; i < strlen(parameters[1]); i++)
-		{
-                        if (parameters[1][i] == ' ')
-                                continue;
-			if (parameters[1][i] == '+')
-			{
-				if (direction != 1)
-				{
-					int t = strlen(outpars)-1;
-					if ((outpars[t] == '+') || (outpars[t] == '-'))
-					{
-						outpars[t] = '+';
-					}
-					else
-					{
-						strcat(outpars,"+");
-					}
-				}
-				direction = 1;
-			}
-			else
-			if (parameters[1][i] == '-')
-			{
-				if (direction != 0)
-				{
-					int t = strlen(outpars)-1;
-					if ((outpars[t] == '+') || (outpars[t] == '-'))
-					{
-						outpars[t] = '-';
-					}
-					else
-					{
-						strcat(outpars,"-");
-					}
-				}
-				direction = 0;
-			}
-			else
-			{
-				log(DEBUG,"begin mode processing entry");
-				can_change = 1;
-				if (can_change)
-				{
-					if (direction == 1)
-					{
-						log(DEBUG,"umode %c being added",parameters[1][i]);
-						if ((!strchr(dmodes,parameters[1][i])) && (allowed_umode(parameters[1][i],"o",true,true)))
-						{
-							char umode = parameters[1][i];
-							log(DEBUG,"umode %c is an allowed umode",umode);
-							if ((process_module_umode(umode, NULL, dest, direction)) || (umode == 'i') || (umode == 's') || (umode == 'w') || (umode == 'o'))
-							{
-								int v1 = strlen(dmodes);
-								int v2 = strlen(outpars);
-								dmodes[v1+1]='\0';
-								dmodes[v1] = parameters[1][i];
-								outpars[v2+1]='\0';
-								outpars[v2] = parameters[1][i];
-							}
-						}
-					}
-					else
-					{
-						// can only remove a mode they already have
-						log(DEBUG,"umode %c being removed",parameters[1][i]);
-						if ((allowed_umode(parameters[1][i],"o",false,true)) && (strchr(dmodes,parameters[1][i])))
-						{
-							char umode = parameters[1][i];
-							log(DEBUG,"umode %c is an allowed umode",umode);
-							if ((process_module_umode(umode, NULL, dest, direction)) || (umode == 'i') || (umode == 's') || (umode == 'w') || (umode == 'o'))
-							{
-								unsigned int q = 0;
-								char temp[MAXBUF];
-								char moo[MAXBUF];	
-
-								unsigned int v1 = strlen(outpars);
-								outpars[v1+1]='\0';
-								outpars[v1] = parameters[1][i];
-							
-								strcpy(temp,"");
-								for (q = 0; q < strlen(dmodes); q++)
-								{
-									if (dmodes[q] != parameters[1][i])
-									{
-										moo[0] = dmodes[q];
-										moo[1] = '\0';
-										strlcat(temp,moo,MAXBUF);
-									}
-								}
-								strlcpy(dmodes,temp,52);
-							}
-						}
-					}
-				}
-			}
-		}
-		if (outpars[0])
-		{
-			char b[MAXBUF];
-			strcpy(b,"");
-			unsigned int z = 0;
-			unsigned int i = 0;
-			while (i < strlen (outpars))
-			{
-				b[z++] = outpars[i++];
-				b[z] = '\0';
-				if (i<strlen(outpars)-1)
-				{
-					if (((outpars[i] == '-') || (outpars[i] == '+')) && ((outpars[i+1] == '-') || (outpars[i+1] == '+')))
-					{
-						// someones playing silly buggers and trying
-						// to put a +- or -+ into the line...
-						i++;
-					}
-				}
-				if (i == strlen(outpars)-1)
-				{
-					if ((outpars[i] == '-') || (outpars[i] == '+'))
-					{
-						i++;
-					}
-				}
-			}
-
-			z = strlen(b)-1;
-			if ((b[z] == '-') || (b[z] == '+'))
-				b[z] = '\0';
-
-			if ((!strcmp(b,"+")) || (!strcmp(b,"-")))
-				return;
-
-			if (strlen(dmodes)>MAXMODES)
-			{
-				dmodes[MAXMODES-1] = '\0';
-			}
-			log(DEBUG,"Stripped mode line");
-			log(DEBUG,"Line dest is now %s",dmodes);
-			strlcpy(dest->modes,dmodes,MAXMODES);
-
-		}
-
-		return;
-	}
-	
-	Ptr = FindChan(parameters[0]);
-	if (Ptr)
-	{
-		userrec s2;
-		strlcpy(s2.nick,Config->ServerName,NICKMAX);
-		strcpy(s2.modes,"o");
-		s2.fd = -1;
-		process_modes(parameters,&s2,Ptr,STATUS_OP,pcnt,true,true,false);
-	}
-}
-
-
-void merge_mode2(char **parameters, int pcnt, userrec* user)
-{
-	chanrec* Ptr;
-	userrec* dest;
-	int can_change;
-	int direction = 1;
-	char outpars[MAXBUF];
-
-	dest = Find(parameters[0]);
-	
-	// fix: ChroNiCk found this - we cant use this as debug if its null!
-	if (dest)
-	{
-		log(DEBUG,"merge_mode2 on %s",dest->nick);
-	}
-
-	if ((dest) && (pcnt > 1))
-	{
-                std::string tidied = compress_modes(parameters[1],false);
-                parameters[1] = (char*)tidied.c_str();
-
-		char dmodes[MAXBUF];
-		strlcpy(dmodes,dest->modes,52);
-
-		strcpy(outpars,"+");
-		direction = 1;
-
-		if ((parameters[1][0] == ':') && (strlen(parameters[1])>1))
-		{
-			// some stupid 3rd party things (such as services packages) put a colon on the mode list...
-			log(DEBUG,"Some muppet put a colon on the modelist! changed to '%s'",++parameters[1]);
-		}
-		if ((parameters[1][0] != '+') && (parameters[1][0] != '-'))
-		return;
-
-		for (unsigned int i = 0; i < strlen(parameters[1]); i++)
-		{
-                        if (parameters[1][i] == ' ')
-                                continue;
-			if (parameters[1][i] == '+')
-			{
-				if (direction != 1)
-				{
-					int t = strlen(outpars)-1;
-					if ((outpars[t] == '+') || (outpars[t] == '-'))
-					{
-						outpars[t] = '+';
-					}
-					else
-					{
-						strcat(outpars,"+");
-					}
-				}
-				direction = 1;
-			}
-			else
-			if (parameters[1][i] == '-')
-			{
-				if (direction != 0)
-				{
-					int t = strlen(outpars)-1;
-					if ((outpars[t] == '+') || (outpars[t] == '-'))
-					{
-						outpars[t] = '-';
-					}
-					else
-					{
-						strcat(outpars,"-");
-					}
-				}
-				direction = 0;
-			}
-			else
-			{
-				log(DEBUG,"begin mode processing entry");
-				can_change = 1;
-				if (can_change)
-				{
-					if (direction == 1)
-					{
-						log(DEBUG,"umode %c being added",parameters[1][i]);
-						if ((!strchr(dmodes,parameters[1][i])) && (allowed_umode(parameters[1][i],user->modes,true,false)))
-						{
-							char umode = parameters[1][i];
-							log(DEBUG,"umode %c is an allowed umode",umode);
-							if ((process_module_umode(umode, NULL, dest, direction)) || (umode == 'i') || (umode == 's') || (umode == 'w') || (umode == 'o'))
-							{
-								int v1 = strlen(dmodes);
-								int v2 = strlen(outpars);
-								dmodes[v1+1]='\0';
-								dmodes[v1] = parameters[1][i];
-								outpars[v2+1]='\0';
-								outpars[v2] = parameters[1][i];
-								log(DEBUG,"OUTPARS='%s', DMODES='%s'",outpars,dmodes);
-							}
-						}
-					}
-					else
-					{
-						// can only remove a mode they already have
-						log(DEBUG,"umode %c being removed",parameters[1][i]);
-						if ((allowed_umode(parameters[1][i],user->modes,false,false)) && (strchr(dmodes,parameters[1][i])))
-						{
-							char umode = parameters[1][i];
-							log(DEBUG,"umode %c is an allowed umode",umode);
-							if ((process_module_umode(umode, NULL, dest, direction)) || (umode == 'i') || (umode == 's') || (umode == 'w') || (umode == 'o'))
-							{
-								unsigned int q = 0;
-								char temp[MAXBUF];
-								char moo[MAXBUF];	
-
-								unsigned int v1 = strlen(outpars);
-								outpars[v1+1]='\0';
-								outpars[v1] = parameters[1][i];
-							
-								strcpy(temp,"");
-								for (q = 0; q < strlen(dmodes); q++)
-								{
-									if (dmodes[q] != parameters[1][i])
-									{
-										moo[0] = dmodes[q];
-										moo[1] = '\0';
-										strlcat(temp,moo,MAXBUF);
-									}
-								}
-								strlcpy(dmodes,temp,52);
-							}
-						}
-					}
-				}
-			}
-		}
-		log(DEBUG,"DONE! OUTPARS='%s', DMODES='%s'",outpars,dmodes);
-		if (outpars[0])
-		{
-			char b[MAXBUF];
-			strcpy(b,"");
-			unsigned int z = 0;
-			unsigned int i = 0;
-			while (i < strlen (outpars))
-			{
-				b[z++] = outpars[i++];
-				b[z] = '\0';
-				if (i<strlen(outpars)-1)
-				{
-					if (((outpars[i] == '-') || (outpars[i] == '+')) && ((outpars[i+1] == '-') || (outpars[i+1] == '+')))
-					{
-						// someones playing silly buggers and trying
-						// to put a +- or -+ into the line...
-						i++;
-					}
-				}
-				if (i == strlen(outpars)-1)
-				{
-					if ((outpars[i] == '-') || (outpars[i] == '+'))
-					{
-						i++;
-					}
-				}
-			}
-
-			z = strlen(b)-1;
-			if ((b[z] == '-') || (b[z] == '+'))
-				b[z] = '\0';
-
-
-                        if ((!b[0]) || (!strcmp(b,"+")) || (!strcmp(b,"-")))
-                                return;
-
-                        if (strcmp(b,""))
-                        {
-				WriteTo(user,dest,"MODE %s :%s",dest->nick,b);
-				FOREACH_MOD OnMode(user, dest, TYPE_USER, b);
-			}
-
-			if (strlen(dmodes)>MAXMODES)
-			{
-				dmodes[MAXMODES-1] = '\0';
-			}
-			log(DEBUG,"Stripped mode line");
-			log(DEBUG,"Line dest is now %s",dmodes);
-			strlcpy(dest->modes,dmodes,MAXMODES);
-		}
-
-		return;
-	}
-	
-	Ptr = FindChan(parameters[0]);
-	if (Ptr)
-	{
-		log(DEBUG,"merge_mode2: found channel %s",Ptr->name);
-		if (Ptr)
-		{
-			//if ((cstatus(user,Ptr) < STATUS_HOP) && (!is_uline(user->server)))
-			//{
-			//	return;
-			//}
-			process_modes(parameters,user,Ptr,cstatus(user,Ptr),pcnt,false,false,true);
-		}
-	}
-}
-
-
