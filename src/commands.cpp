@@ -105,7 +105,7 @@ void handle_join(char **parameters, int pcnt, userrec *user)
 {
 	chanrec* Ptr;
 	
-	if (loop_call(handle_join,parameters,pcnt,user,0,0,1))
+	if (Parser->LoopCall(handle_join,parameters,pcnt,user,0,0,1))
 		return;
 	if (parameters[0][0] == '#')
 	{
@@ -118,13 +118,13 @@ void handle_part(char **parameters, int pcnt, userrec *user)
 {
 	if (pcnt > 1)
 	{
-		if (loop_call(handle_part,parameters,pcnt,user,0,pcnt-2,0))
+		if (Parser->LoopCall(handle_part,parameters,pcnt,user,0,pcnt-2,0))
 			return;
 		del_channel(user,parameters[0],parameters[1],false);
 	}
 	else
 	{
-		if (loop_call(handle_part,parameters,pcnt,user,0,pcnt-1,0))
+		if (Parser->LoopCall(handle_part,parameters,pcnt,user,0,pcnt-1,0))
 			return;
 		del_channel(user,parameters[0],NULL,false);
 	}
@@ -498,7 +498,7 @@ void handle_names(char **parameters, int pcnt, userrec *user)
 		return;
 	}
 
-	if (loop_call(handle_names,parameters,pcnt,user,0,pcnt-1,0))
+	if (Parser->LoopCall(handle_names,parameters,pcnt,user,0,pcnt-1,0))
 		return;
 	c = FindChan(parameters[0]);
 	if (c)
@@ -524,7 +524,7 @@ void handle_privmsg(char **parameters, int pcnt, userrec *user)
 
 	user->idle_lastmsg = TIME;
 	
-	if (loop_call(handle_privmsg,parameters,pcnt,user,0,pcnt-2,0))
+	if (Parser->LoopCall(handle_privmsg,parameters,pcnt,user,0,pcnt-2,0))
 		return;
         if (parameters[0][0] == '$')
 	{
@@ -619,7 +619,7 @@ void handle_notice(char **parameters, int pcnt, userrec *user)
 
 	user->idle_lastmsg = TIME;
 	
-	if (loop_call(handle_notice,parameters,pcnt,user,0,pcnt-2,0))
+	if (Parser->LoopCall(handle_notice,parameters,pcnt,user,0,pcnt-2,0))
 		return;
 	if (parameters[0][0] == '$')
 	{
@@ -763,7 +763,7 @@ void handle_time(char **parameters, int pcnt, userrec *user)
 void handle_whois(char **parameters, int pcnt, userrec *user)
 {
 	userrec *dest;
-        if (loop_call(handle_whois,parameters,pcnt,user,0,pcnt-1,0))
+        if (Parser->LoopCall(handle_whois,parameters,pcnt,user,0,pcnt-1,0))
                 return;
 	dest = Find(parameters[0]);
 	if (dest)
