@@ -14,6 +14,7 @@
  * ---------------------------------------------------
  */
 
+
 using namespace std;
 
 #include "inspircd_config.h"
