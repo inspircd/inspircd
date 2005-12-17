@@ -1,0 +1,744 @@
+########################################################################
+#								       #
+#		      ---------------------------		       #
+#  		      InspIRCd Configuration File		       #
+#		      ---------------------------		       #
+#								       #
+##################################||####################################
+				 #||#
+##################################||####################################
+#								       #
+#         This is an example of the config file for InspIRCd.          #
+#             Change the options to suit your network                  #
+#								       #
+#                 Last updated on : 06/06/2005                         #
+#                 Written by      : CC  (cc@backchat.co.za)            #
+#                 Updated by      : katsklaw (katsklaw@gmail.com)      #
+########################################################################
+
+
+
+#-#-#-#-#-#-#-#-#-#-#-#-  SERVER DESCRIPTION  -#-#-#-#-#-#-#-#-#-#-#-#-
+#								      #
+#   Here is where you enter the information about your server.        #
+#								      #
+#  Syntax is as follows:					      #
+#     <server name="server.name"				      #
+#      description="Server Description"				      #
+#      network="MyNetwork">					      #
+#								      #
+
+<server name="penguin.omega.org.za"
+        description="Waddle World"
+        network="Omega">
+
+
+#-#-#-#-#-#-#-#-#-#-#-#-   ADMIN INFORMATION   -#-#-#-#-#-#-#-#-#-#-#-#
+#								      #
+#   Describes the Server Administrator's real name, nick	      #
+#   and email address.                   			      #
+#								      #
+#  Syntax is as follows:					      #
+#	<admin name="real name"					      #
+#	       nick="nick name"					      #
+#              email="email@address.com">			      #
+#								      #
+
+<admin  name="Johnny English"
+        nick="MI5"
+        email="MI5@the.best.secret.agent">
+
+
+#-#-#-#-#-#-#-#-#-#-#-#-   PORT CONFIGURATION   -#-#-#-#-#-#-#-#-#-#-#-
+#								      #
+#   Enter the port and address bindings here.	                      #
+#								      #
+#  bind address - specifies which the address which ports bind	      #	
+#  port		- opens an unused port				      #
+#  type         - can be 'clients' or 'servers'. The clients type is  #
+#                 a standard tcp based socket, the servers type is a  #
+#                 also a TCP based connection but of a different      #
+#                 format.                                             #
+#  default      - if the port type is 'servers' then this can be      #
+#                 specified. If set to 'yes', it indicates that this  #
+#                 port is the default route for all /connect commands.#
+#                 if you do not bind your default route to an         #
+#                 external ip, or all ip's, you may have connection   #
+#                 problems.                                           #
+#								      #
+#  Leaving address empty binds to all available interfaces            #
+#								      #
+#  Syntax is as follows:                                              #
+#                                                                     #
+# <bind address="ip number" port="port" type="clients">	      	      #
+# <bind address="ip number" port="port" type="servers">	      	      #
+# <bind address="ip number" port="port" type="servers" default="yes"> #
+#								      #
+
+<bind address="" port="6660" type="clients">
+<bind address="" port="7000" type="servers" default="yes">
+<bind address="" port="7001" type="servers">
+
+
+#-#-#-#-#-#-#-#-#-#-  DIE/RESTART CONFIGURATION   -#-#-#-#-#-#-#-#-#-#-
+#                                                                     #
+#   You can configure the passwords here which you wish to use for    #
+#   the die and restart commands. Only trusted ircops who will        #
+#   need this ability should know the die and restart password.       #
+#                                                                     #
+#  Syntax is as follows:                                              #
+#       <power diepass="die password" restartpass="restart password"  #
+#	 pause="secs before dying">			      	      #
+#                                                                     #
+
+<power diepass="diepass" restartpass="restartpass" pause="2">
+
+
+#-#-#-#-#-#-#-#-#-#  INCLUDE CONFIGURATION  #-#-#-#-#-#-#-#-#-#-#-#-#-#
+#                                                                     #
+# This optional tag allows you to include another config file         #
+# allowing you to keep your configuration tidy. The configuration     #
+# file you include will be treated as part of the configuration file  #
+# which includes it, in simple terms the inclusion is transparent.    #
+#                                                                     #
+# All paths to config files are relative to the directory of the main #
+# config file inspircd.conf, unless the filename starts with a forward#
+# slash (/) in which case it is treated as an absolute path.          #
+#                                                                     #
+# Syntax is as follows:                                               #
+#       <include file="file.conf">                                    #
+#                                                                     #
+
+#-#-#-#-#-#-#-#-#-#-  CONNECTIONS CONFIGURATION   -#-#-#-#-#-#-#-#-#-#-
+#								      #
+#   This is where you can configure which connections are allowed     #
+#   and denied access onto your server.				      #
+#   The password is optional.					      #
+#   You may have as many of these as you require.                     #
+#   To allow/deny all connections use a *                             #
+#								      #
+#  Syntax is as follows:					      #
+#	<connect allow="ip or host">				      #
+#	<connect allow="ip or host" password="blahblah">              #
+#       <connect allow="ip or host" password="blah" timeout="10">     #
+#	<connect allow="ip or host" timeout="blah" flood="5">         #
+#       <connect allow="ip or host" threshold="8" pingfreq="120">     #
+#       <connect allow="ip or host" sendq="99999" revcq="696969">     #
+#	<connect deny="ip or host">				      #
+#                                                                     #
+#   You may optionally include timeout="x" on any allow line, which   #
+#   specifies the amount of time given before an unknown connection   #
+#   is closed if USER/NICK/PASS are not given. This value is in secs  #
+#								      #
+#   You may also optionally include a flood="x" line which indicates  #
+#   the number of lines a user may place into their buffer at once    #
+#   before they are disconnected for excess flood. The default is to  #
+#   DISABLE this feature. A recommended value is 10. A counter is     #
+#   maintained for each user which is reset every 'threshold' seconds #
+#   and specifying this threshold value with threshold="X" indicates  #
+#   how often the counter is reset. For example, with flood="5" and   #
+#   threshold="8", the user may not send more than 5 lines in 8 secs. #
+#                                                                     #
+#   You may optionally specify the sendq size and ping frequency of   #
+#   each connect:allow line using the pingfreq="X" and sendq="X"      #
+#   settings as shown in the full example below.                      #
+#   The ping frequency is specified in seconds, and the sendq size    #
+#   in bytes. It is recommended, although not enforced, that you      #
+#   should never set your sendq size to less than 8k. Send Queues are #
+#   dynamically allocated and can grow as needed up to the maximum    #
+#   size specified.                                                   #
+#                                                                     #
+#   The optional recvq value is the maximum size which users in this  #
+#   group may grow their receive queue to. This is recommended to be  #
+#   kept pretty low compared to the sendq, as users will always       #
+#   recieve more than they send in normal circumstances. The default  #
+#   if not specified is 4096.                                         #
+#                                                                     #
+#   IMPORTANT NOTE, CALL THE CONFUSION POLICE!                        #
+#   The sendq is the data waiting to be sent TO THE USER.             #
+#   The recvq is the data being received FROM THE USER.               #
+#   The names sendq and recvq are from the SERVER'S PERSPECTIVE not   #
+#   that of the user... Just to clear up any confusion or complaints  #
+#   that these are backwards :p                                       #
+#                                                                     #
+
+<connect allow="196.12.*"  password="secret">
+<connect allow="*" timeout="60" flood="10" threshold="60" pingfreq="120" sendq="262144" recvq="4096">
+
+<connect deny="69.254.*">
+
+
+#-#-#-#-#-#-#-#-#-#-#-#-  CLASS CONFIGURATION   -#-#-#-#-#-#-#-#-#-#-#-
+#								      #
+#   Classes are a group of commands which are grouped together        #
+#   and given a unique name. They used to define which commands       #
+#   are available to certain types of Operators.                      #
+#								      #
+#  Syntax is as follow:						      #
+#	<class name="name" commands="oper commands">		      #
+#								      #
+
+<class name="Shutdown" commands="DIE RESTART REHASH">
+<class name="ServerLink" commands="CONNECT SQUIT">
+<class name="BanControl" commands="KILL GLINE KLINE ZLINE QLINE SHUN">
+<class name="OperChat" commands="WALLOPS CHATOPS">
+<class name="HostCloak" commands="SETHOST SETIDENT SETNAME">
+
+
+#-#-#-#-#-#-#-#-#-#-#-#-  OPERATOR COMPOSITION   -#-#-#-#-#-#-#-#-#-#-#
+#								      #
+#   This is where you specify which types of operators you have on    #
+#   your server, as well as the commands they are allowed to use.     #
+#   This works alongside with the classes specified above.	      #
+#								      #
+#  type name  - a name for the combined class types		      #
+#  classes    - specified above, used for flexibility for the         #
+#               server admin to decide on which operators get         #
+#		what commands					      #
+#  host	      - hostmask operators will recieve on oper-up.           #
+#(optional)							      #
+#                                                                     #
+#  Syntax is as follows:					      #
+#	<type name="name" classes="class name" host="oper hostmask">  #
+#								      #
+
+<type name="NetAdmin" classes="OperChat BanControl HostCloak Shutdown ServerLink" host="netadmin.omega.org.za">
+<type name="GlobalOp" classes="OperChat BanControl HostCloak ServerLink" host="ircop.omega.org.za">
+<type name="LocalOp" classes="OperChat BanControl HostCloak" host="local.omega.org.za">
+<type name="Helper" classes="HostCloak" host="helper.omega.org.za">
+
+
+#-#-#-#-#-#-#-#-#-#-#-  OPERATOR CONFIGURATION   -#-#-#-#-#-#-#-#-#-#-#
+#								      #
+#   Opers are defined here. This is a very important section.         #
+#   Remember to only make operators out of truthworthy people.        #
+#								      #
+#  name      - oper name, best to use lower-case		      #
+#  password  - password to oper-up,	              	              #
+#              encryption not supported by inspircd. However, there   #
+#              are modules that allow for oper password encryption.   #		      
+#                                                                     #
+#  host      - host of client allowed to oper-up, more hostmasks      #
+#              seperated by spaces, wildcards accepted	              #
+#  type      - specified above, defines the kind of operator	      #
+#								      #
+#  Syntax is as follows:                                              #
+#	<oper name="login"					      #
+#	      password="pass"					      #
+#             host="hostmask@of.oper"				      #
+#             type="oper type">					      #
+#								      #
+
+<oper   name="katsklaw"
+	password="s3cret"
+        host="*@*"
+        type="NetAdmin">
+
+
+#-#-#-#-#-#-#-#-#-#-#-  SERVER LINK CONFIGURATION  -#-#-#-#-#-#-#-#-#-#
+#                                                                     #
+# Defines which servers can link to this one, and which servers this  #
+# server may create outbound links to.                                #
+#                                                                     #
+# name        - The name is the canocial name of the server, it does  #
+#               not have to resolve - but it is expected to be sent   #
+#               in the remote servers connection info.                #
+# ipaddr      - Valid host or ip address for remote server. *         #
+# port        - Valid listening UDP port for remote server.           #
+# sendpass    - Password to send to create an outbound connection to  #
+#               this server.                                          #
+# recvpass    - Password to receive to accept an inbound connection   #
+#               from this server.                                     #
+# autoconnect - Sets the server to autoconnect. Where x is the number #
+# (optional)    of seconds between attempts.  300 = 5 minutes         #
+#                                                                     #
+# to u:line a server (give it extra privilages required for running   #
+# services, Q, etc) you must include the <uline server> tag as shown  #
+# in the example below. You can have as many of these as you like.    #
+#                                                                     #
+# WARNING: Unlike other ircds, u:lining a server allows ALL users on  #
+# that server to operoverride modes. This should only be used for     #
+# services and protected oper servers!                                #
+#                                                                     #
+# IMPORTANT NOTE: When specifying the ip address and/or host, the     #
+# server software will prioritize RESOLVED hostnames above ip         #
+# addresses, so for example if your target server resolves to a.b.com #
+# you MUST put a.b.com into your link block, and NOT the IP address   #
+# of a.b.com. The system uses reverse resolution.                     #
+#                                                                     #
+
+<link name="hub.penguin.org"
+	ipaddr="penguin.box.com"
+	port="7000"
+        autoconnect="300"
+	sendpass="outgoing!password"
+	recvpass="incoming!password">
+
+<link name="services.antarctic.com"
+	ipaddr="localhost"
+	port="7000"
+	sendpass="penguins"
+	recvpass="polarbears">
+
+<uline server="services.antarctic.com">
+
+
+#-#-#-#-#-#-#-#-#-#-  MISCELLANEOUS CONFIGURATION  -#-#-#-#-#-#-#-#-#-#
+#								      #
+#   These options let you define the path to your motd and rules      #
+#   files.							      #
+#								      #
+
+<files  motd="/home/cc/inspircd/conf/inspire.motd"
+	rules="/home/cc/inspircd/conf/inspire.rules">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-# DNS SERVER -#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+#                                                                     #
+# Define your DNS server address here. InspIRCd has its own resolver  #
+# and you must define this otherwise nobody's host will resolve. The  #
+# timeout value is in seconds.					      #
+#                                                                     #
+
+<dns server="127.0.0.1" timeout="5">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#  PID FILE  -#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+#                                                                     #
+# Define the path to the PID file here. The PID file can be used to   #
+# rehash the ircd from the shell or to terminate the ircd from the    #
+# shell using shell scripts, perl scripts etc, and to monitor the     #
+# ircd's state via cron jobs.                                         #
+#                                                                     #
+
+<pid file="/path/to/inspircd.pid">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#- BANLIST LIMITS #-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+#                                                                     #
+# Use these tags to customise the ban limits on a per channel basis.  #
+# the tags are read from top to bottom, and any tag found which       #
+# matches the channels name applies the banlimit to that channel.     #
+# It is advisable to put an entry with the channel as '*' at the      #
+# bottom of the list. If none are specified or no maxbans tag is      #
+# matched, the banlist size defaults to 64 entries.                   #
+#                                                                     #
+
+<banlist chan="#morons" limit="128">
+<banlist chan="*" limit="69">
+
+#-#-#-#-#-#-#-#-#-#-#-  DISABLED COMMANDS  -#-#-#-#-#-#-#-#-#-#-#-#-#-#
+#                                                                     #
+# This tag is optional, and specifies one or more commands which are  #
+# not available to non-operators. For example you may wish to disable #
+# NICK and prevent non-opers from changing their nicknames.           #
+# Note that any disabled commands take effect only after the user has #
+# 'registered' (e.g. after the initial USER/NICK/PASS on connection)  #
+# so for example disabling NICK will not cripple your network.        #
+#                                                                     #
+#         <disabled commands="TOPIC MODE">                            #
+#                                                                     #
+
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-  RTFM LINE  -#-#-#-#-#-#-#-#-#-#-#-#-#-#
+#                                                                     #
+#   Just remove this... Its here to make you read ALL of the config   #
+#   file options ;)                                                   #
+
+<die value="You should probably edit your config *PROPERLY* and try again.">
+
+
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-  SERVER OPTIONS   -#-#-#-#-#-#-#-#-#-#-#-#-#
+#								      #
+#   Settings to define which features are useable on your server.     #
+#								      #
+#  prefixquit    - a prefix for a client's quit message               #
+#  loglevel      - specifies what detail of messages to log in the    #
+#                  log file. You may select from debug, verbose,      #
+#                  default, sparse and none.                          #
+#  allowhalfop   - allows the +h channel mode			      #
+#  noservices    - If noservices is true, yes, or 1, then the first   #
+#                  user into a channel gets founder status. This is   #
+#                  only useful on networks running the m_chanprotect  #
+#                  module without services.                           #
+#  netbuffersize - size of the buffer used to receive data from       #
+#                  clients. The ircd may only read() this amount      #
+#		   of text in one go at any time. (OPTIONAL)          #
+#  maxwho        - The maximum number of results returned by a /WHO   #
+#                  query. This is to prevent /WHO being used as a     #
+#                  spam vector or means of flooding an ircd. The      #
+#                  default is 128, it is not recommended to raise it  #
+#                  above 1024. Values up to 65535 are permitted.      #
+#  somaxconn     - The maximum number of sockets that may be waiting  #
+#                  in the accept queue. This usually allows the ircd  #
+#                  to soak up more connections in a shorter space of  #
+#                  time when increased but please be aware there is a #
+#                  system defined maximum value to this, the same way #
+#                  there is a system defined maximum number of file   #
+#                  descriptors. Some systems may only allow this to   #
+#                  be up to 5 (ugh) while others such as FreeBSD will #
+#                  default to a much nicer 128.                       #
+#  moduledir     - This optional value indicates a runtime change of  #
+#                  the location where modules are to be found. This   #
+#                  does not add a supplementary directory. There can  #
+#                  only be one module path.                           #
+#  softlimit     - This optional feature allows a defined softlimit.  #
+#                  if defined sets a soft maxconnections value, has   #
+#                  to be less than the ./configure maxclients         #
+#                                                                     #
+
+<options prefixquit="Quit: "
+	 loglevel="default"
+	 netbuffersize="10240"
+         maxwho="128"
+	 noservices="0"
+         somaxconn="128"
+	 softlimit="128"
+         allowhalfop="yes">
+
+
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-  MODULE OPTIONS   -#-#-#-#-#-#-#-#-#-#-#-#-#
+#                                                                     #
+#  These tags define which modules will be loaded on startup by your  #
+#  server. Add modules without any paths. When you make your ircd     #
+#  using the 'make' command, all compiled modules will be moved into  #
+#  the folder you specified when you ran ./configure. The module tag  #
+#  automatically looks for modules in this location.                  #
+#  If you attempt to load a module outside of this location, either   #
+#  in the config, or via /LOADMODULE, you will receive an error.      #
+#                                                                     #
+#  By default, ALL modules are commented out. You must uncomment them #
+#  or add lines to your config to load modules. Please refer to       #
+#  http://www.inspircd.org/wiki/Modules_List for a list of modules and#
+#  each modules link for any additional conf tags they require.       #
+#                                                                     #
+#  WINDOWS USERS PLEASE NOTE: You can still load these modules! They  #
+#  are incorporated into the executable and can be loaded and removed #
+#  similarly to if they were in a ramdisk.                            #
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Foobar module - does nothing
+#<module name="m_foobar.so">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Chanprotect module: gives +q and +a channel modes
+#<module name="m_chanprotect.so">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Globops module: gives /GLOBOPS and usermode +g
+#<module name="m_globops.so">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Noinvite module: Gives channel mode +V
+#<module name="m_noinvite.so">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Oper MD5 module: Allows MD5 hashed oper passwords
+#<module name="m_opermd5.so">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Restricted channels module: Allows only opers to create channels
+#<module name="m_restrictchans.so">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Deny Channels: Deny Channels from being used by users
+#<module name="m_denychans.so"> 
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Services support module: Adds several usermodes such as +R and +M
+#<module name="m_services.so">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Userip module: Adds the /USERIP command
+#<module name="m_userip.so">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Alias module: Allows you to define server-side command aliases
+#<module name="m_alias.so">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# CHGHOST module: Adds the /CHGHOST command
+#<module name="m_chghost.so">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# HELPOP module: Provides the /HELPOP command
+#<module name="m_helpop.so">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# No kicks module: Adds the +Q channel mode
+#<module name="m_nokicks.so">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Oper MOTD module: Provides support for seperate message of the day
+# on oper-up
+#<module name="m_opermotd.so">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Restrict message module: Allows users to only message opers
+#<module name="m_restrictmsg.so">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Sethost module: Adds the /SETHOST command
+#<module name="m_sethost.so">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Antibottler module: Labels bottler leech bots
+#<module name="m_antibottler.so">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Watch module: Adds the WATCH command, which is used by clients to 
+# maintain notify lists.
+#<module name="m_watch.so">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Cloaking module: Adds usermode +x and cloaking support
+#<module name="m_cloaking.so">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Hostchange module: Allows a different style of cloaking
+#<module name="m_hostchange.so">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# No nicks module: Adds the +N channel mode
+#<module name="m_nonicks.so">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Override module: Adds support for oper override
+#<module name="m_override.so">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# SAJOIN module: Adds the /SAJOIN command
+#<module name="m_sajoin.so">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Set Idle module: Adds a command for opers to change their
+# idle time (mainly a toy)
+#<module name="m_setidle.so">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Block colour module: Adds the +c channel mode
+#<module name="m_blockcolor.so">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Conn-Lusers: Shows the LUSERS output on connect
+#<module name="m_conn_lusers.so">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Ident: Provides RFC 1413 ident lookup support
+#<module name="m_ident.so">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# No Notice module: adds the channel mode +T
+#<module name="m_nonotice.so">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Parking module: Adds parking support and /PARK and /UNPARK
+#<module name="m_park.so">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# SAMODE module: Adds the oper /SAMODE command
+#<module name="m_samode.so">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# SETNAME module: Adds the /SETNAME command
+#<module name="m_setname.so">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Botmode module: Adds the user mode +B
+#<module name="m_botmode.so">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Filter module: Provides glob-based message filtering
+#<module name="m_filter.so">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Knock module: adds the /KNOCK command and +K channel mode
+#<module name="m_knock.so">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Oper channels mode: Adds the +O channel mode
+#<module name="m_operchans.so">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Random Quote module: provides a random quote on connect
+#<module name="m_randquote.so">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# SANICK module: Allows opers to change user's nicks
+#<module name="m_sanick.so">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Show Whois module: Adds the +W usermode which allows opers
+# to see when they are whois'ed
+#<module name="m_showwhois.so">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Strip colour module: Adds the channel mode +S
+#<module name="m_stripcolor.so">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Censor module: Adds the channel mode +G
+#<module name="m_censor.so">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Nick locking module: Adds the oper-only /NICKLOCK command
+#<module name="m_nicklock.so">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Oper Join module: Forces opers to join a channel on oper-up
+#<module name="m_operjoin.so">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Redirect module: Adds channel redirection (mode +L)
+#<module name="m_redirect.so">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# SAPART module: Adds the oper /SAPART command
+#<module name="m_sapart.so">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# SILENCE module: Adds support for /SILENCE
+#<module name="m_silence.so">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Test command module: Does nothing significant
+#<module name="m_testcommand.so">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Channel filter module: Allows channel-op defined message
+# filtering using simple string matches (channel mode +g)
+#<module name="m_chanfilter.so">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# No ctcp module: Adds the channel mode +C to block CTCPs
+#<module name="m_noctcp.so">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Oper levels module: Gives each oper a level and prevents
+# actions being taken against higher level opers
+#<module name="m_operlevels.so">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Remove module: Adds the /REMOVE command which is a peaceful
+# alternative to /KICK
+#<module name="m_remove.so">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# SAQUIT module: Adds the oper /SAQUIT command (abusable!!!)
+#<module name="m_saquit.so">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Timed bans module: Adds timed bans and the /TBAN command
+#<module name="m_timedbans.so">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Oper modes module: Allows you to specify modes to add/remove on oper
+#<module name="m_opermodes.so">
+
+
+#-#-#-#-#-#-#-#-#-#-#-  FILTER  CONFIGURATION  -#-#-#-#-#-#-#-#-#-#-#-#
+#                                                                     #
+# Optional - If you specify to use the m_filter.so module, then       #
+# specfiy below the path to the filter.conf file.                     #
+
+#<filter file="/path/to/inspircd/filter.conf">
+
+
+#-#-#-#-#-#-#-#-#-#-#-#-  HELPOP  CONFIGURATION  -#-#-#-#-#-#-#-#-#-#-#
+#                                                                     #
+# Optional - If you specify to use the m_helpop.so module, then       #
+# specify below the path to the helpop.conf file.                     #
+
+<die value="If you used the helpop include above then do *NOT* use this tag.">
+#<helpop file="/path/to/inspircd/helpop.conf">
+
+
+#-#-#-#-#-#-#-#-#-#-  RANDOMQUOTES CONFIGURATION -#-#-#-#-#-#-#-#-#-#-#
+#                                                                     #
+# Optional - If you specify to use the m_randquotes.so module, then   #
+# specify below the path to the randquotes.conf file.                 #
+
+#<randquote file="/path/to/inspircd/randquotes.conf">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-  BAN OPTIONS  -#-#-#-#-#-#-#-#-#-#-#-#-#-#
+#                                                                     #
+# The ban tags define nick masks, host masks and ip ranges which are  #
+# banned from your server. All details in these tags are local to     #
+# Your server.                                                        #
+#                                                                     #
+#                                                                     #
+# badip lines ban an ip range (same as a zline)                       #
+#                                                                     #
+# ipmask       -          The ip range to ban (wildcards possible)    #
+# reason       -          Reason to display when disconnected         #
+#                                                                     #
+# badnick lines ban a nick mask (same as a qline)                     #
+#                                                                     #
+# nick         -          Nick mask to ban (wildcards possible)       #
+# reason       -          Reason to display on /NICK                  #
+#                                                                     #
+# badhost lines ban a user@host mask (same as a kline)                #
+#                                                                     #
+# host         -          ident@hostname (wildcards possible)         #
+# reason       -          Reason to display on disconnection          #
+#                                                                     #
+# exception lines define a hostmask that is excempt from [kzg]lines   #
+#                                                                     #
+# host         -          ident@hostname (wildcards possible)         #
+# reason       -          Reason, shown only in /stats e              #
+#                                                                     #
+
+<badip ipmask="69.69.69.69" reason="No porn here thanks.">
+
+<badnick nick="ChanServ" reason="Reserved For Services">
+<badnick nick="NickServ" reason="Reserved For Services">
+<badnick nick="OperServ" reason="Reserved For Services">
+<badnick nick="MemoServ" reason="Reserved For Services">
+
+<badhost host="*@hundredz.n.hundredz.o.1337.kiddies.com" reason="Too many 1337 kiddiots">
+<badhost host="*@localhost" reason="No irc from localhost!">
+
+<exception host="*@ircop.host.com" reason="Opers hostname">
+
+#-#-#-#-#-#-#-#-#-#-#-  ALIAS DEFINITIONS  -#-#-#-#-#-#-#-#-#-#-#-#-#-#
+#                                                                     #
+# If you have the m_alias.so module loaded, you may also define       #
+# aliases as shown below. They are commonly used to provide shortcut  #
+# commands to services, however they are not limited to jsut this use.#
+# An alias tag requires the following values to be defined in it:     #
+#                                                                     #
+# text        -      The text to detect at the start of the line,     #
+#                    must be at the start of the line to trigger the  #
+#                    alias. May contain spaces, but case insensitive. #
+# replace     -      The text to replace 'text' with. Usually this    #
+#                    will be "PRIVMSG ServiceName :" or similar.      #
+# requires    -      If you provide a value for 'requires' this means #
+#                    the given nickname MUST be online for the alias  #
+#                    to successfully trigger. If they are not, then   #
+#                    the user receives a 'no such nick' 401 numeric.  #
+# uline       -      Defining this value with 'yes', 'true' or '1'    #
+#                    will ensure that the user given in 'requires'    #
+#                    must also be on a u-lined server, as well as     #
+#                    actually being on the network. If the user is    #
+#                    online, but not on a u-lined server, then an     #
+#                    oper-alert is sent out as this is possibly signs #
+#                    of a user trying to impersonate a service.       #
+#                                                                     #
+
+<alias text="NICKSERV" replace="PRIVMSG NickServ :" requires="NickServ" uline="yes">
+<alias text="CHANSERV" replace="PRIVMSG ChanServ :" requires="ChanServ" uline="yes">
+<alias text="NS" replace="PRIVMSG NickServ :" requires="NickServ" uline="yes">
+<alias text="CS" replace="PRIVMSG ChanServ :" requires="ChanServ" uline="yes">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#- YAWN  -#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+#                                                                     #
+#   You should already know what to do here :)                        #
+
+<die value="You should probably edit your config *PROPERLY* and try again.">
+
+
+#########################################################################
+#									#
+#		 -InspIRCd Development and Coding Team-			#
+#                          www.inspircd.org				#
+#	 								#
+#########################################################################

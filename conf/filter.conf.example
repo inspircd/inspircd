@@ -1,0 +1,24 @@
+# Configuration file for m_filter.so (2.0.0.0)
+# C.J.Edwards April 2004.
+#
+
+# The tags for this module are formatted as follows:
+#
+# <keyword	pattern="any glob pattern here"
+#		reason="reason for filtering"
+#		action="action to take">
+#
+# Valid actions for 'action' are:
+#
+# block		This blocks the line, sends out a notice to all opers with
+#		+s and informs the user that their message was blocked.
+#
+# none		This action causes nothing to be done except logging. This
+#		is the default action if none is specified.
+#
+# kill		This disconnects the user, with the 'reason' parameter as
+#		the kill reason.
+
+<keyword pattern="*qwerty*" reason="You qwertied!" action="block">
+<keyword pattern="*killmenow*" reason="As you request." action="kill">
+

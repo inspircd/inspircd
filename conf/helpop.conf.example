@@ -1,0 +1,323 @@
+# Sample configuration file for m_helpop.so
+# You can either copy this into your conf folder and set up the module to use it,
+# or you can customise the responses for your network and/or add more.
+
+<start line1="     InspIRCd help system"
+	line2="     --------------------"
+	line3="-"
+	line4="This system provides help for commands and modes."
+	line5="Specify your question or a command name as the"
+	line6="parameter for this command. If you are an oper"
+	line7="you must prefix your query with a ? symbol."
+	line8="-"
+	line9="/HELPOP COMMANDS      -      To see a list of user commands"
+	line10="/HELPOP COPER         -      To see a list of oper commands"
+	line11="/HELPOP UMODES        -      To see a list of user modes"
+	line12="/HELPOP CHMODES       -      To see a list of channel modes">
+
+<nohelp line1="There is no help for the topic"
+	line2="You searched for. Please try again.">
+
+<nohelpo line1="There is no help for the topic"
+	line2="You searched for. Please try again."
+	line3="-"
+	line4="Your Query has been forwarded to the IRCops">
+
+<commands line1="User Commands"
+	line2="-------------"
+	line3="USER     NICK    QUIT    VERSION     PING"
+	line4="PONG     ADMIN   PRIVMSG INFO        TIME"
+	line5="WHOIS    NOTICE  JOIN    NAMES       PART"
+	line6="KICK     MODE    TOPIC   WHO         MOTD"
+	line7="RULES    OPER    LIST    LUSERS      STATS"
+	line8="USERHOST AWAY    ISON    SUMMON      USERS"
+	line9="INVITE   PASS    WHOWAS  LINKS       MAP"
+	line10="COMMANDS MODULES">
+
+<user line1="/USER [ident] [local host] [remote host] :[GECOS]"
+	line2="This command is used by your client to register your irc session."
+	line3="You should not use it during an established connection.">
+
+<nick line1="/NICK [new nick]"
+	line2="Change your nickname to [new nick]">
+
+<quit line1="/QUIT [reason]"
+	line2="Quit from IRC and end your current session">
+
+<version line1="/VERSION"
+	line2="Returns the server's version number">
+
+<ping line1="/PING [server]"
+	line2="Ping a server. Target server will answer with a PONG">
+
+<pong line2="/PONG [server]"
+	line2="Your client should send this to answer server PINGs. You"
+	line3="should not issue this command manually.">
+
+<admin line1="/ADMIN [server]"
+	line2="Fetches the administrative information on the given"
+	line3="server.">
+
+<privmsg line1="/MSG [target] [text]"
+	line2="Sends a message to a user or channel specified in [target]">
+
+<notice line1="/NOTICE [target] [text]"
+	line2="Sends a notice to a user or channel specified in [target]">
+
+<join line1="/JOIN [channel]{,[channel]} [key]{,[key]}"
+	line2="Joins one or more channels you provide the names for">
+
+<names line1="/NAMES [channel]{,[channel]}"
+	line2="Return a list of users on the channels you provide">
+
+<part line1="/PART [channel]{,[channel]}"
+	line2="Leaves one or more channels you specify">
+
+<kick line1="/KICK [channel] [nick]"
+	line2="Kicks a user from a channel you specify. You must be"
+	line3-"At least a channel halfoperator to kick a user">
+
+<mode line1="/MODE [target] [+|-][modes]{[+|-][modes]} {mode parameters}"
+	line2="Sets the mode for a channel or a nickname specified in [target]"
+	line3="A user may only set modes upon themselves, and may not set the"
+	line4="+o usermode, and a user may only change channel modes of"
+	line5="channels where they are at least a halfoperator.">
+
+<topic line1="/TOPIC [channel] {topic}"
+	line2="Sets or retrieves the channel topic. If a channel topic is"
+	line3="given in teh command and the channel is either not +t, or"
+	line4="You are at least a halfoperator, the channel topic will be"
+	line5="changed to the new one you provide">
+
+<who line1="/WHO [channel|nick|servermask|o 0]"
+	line2="Looks up the information of users matching the range you"
+	line3="provide. You may only /WHO nicknames in channels or on servers"
+	line4="where you share a common channel with them."
+	line5="The syntax '/WHO o 0' shows a list of online IRC operators.">
+
+<motd line1="/MOTD [server]"
+	line2="Show the message of the day for [server]. Messages of the"
+	line3="day contain important server rules and notice and should be"
+	line4="read before using a server in any way!">
+
+<rules line1="/RULES"
+	line2="Show the rules file for the local server. This is similar in"
+	line3="effect to /MOTD except that rules are optional. All users are"
+	line4="sent the MOTD when they connect without having to request it.">
+
+<oper line1="/OPER [login] [password]"
+	line2="Attempts to authenticate a user as an IRC operator."
+	line3="Please be aware that both successful and unsucessful oper attempts"
+	line4="Are logged, and sent to online IRC operators">
+
+
+<list line1="/LIST [pattern]"
+	line2="Creates a list of all existing channels matching the glob pattern"
+	line3="[pattern], e.g. *chat* or bot*">
+
+<lusers line1="/LUSERS"
+	line2="Shows a count of local and remote users, servers and channels.">
+
+<stats line1="/STATS [symbol]"
+	line2="Shows various server statistics. Depending on configuration this"
+	line3="command may be reserved for oper-only use."
+	line4="-"
+	line5="Valid symbols are:"
+	line6="-"
+	line7="m  Show command statistics, number of times commands have been used"
+	line8="z  Show memory usage statistics"
+	line9="o  Show a list of all valid oper usernames and hostmasks"
+	line10="l  Show all inbound and outbound server and client connections"
+	line11="u  Show server uptime"
+	line12="k  Show k-lines (local bans)"
+	line13="g  Show g-lines (global bans)"
+	line14="q  Show q-lines (nick mask bans)"
+	line15="Z  Show z-lines (ip mask bans)"
+	line16="Y  Show connection classes"
+	line17="C  Show link blocks"
+	line18="U  Show u-lined servers"
+	line19="P  Show online opers and their idle times"
+	line20="I  Show connect class permissions"
+	line21="e  Show e-lines (local ban exemptions)"
+	line22="-"
+	line23="Note that all /STATS use is broadcast to online IRC operators.">
+
+<kline line1="/KLINE [user@host] {[duration] :[reason]}"
+	line2="Sets or removes a k-line (host based ban) on a host and ident mask."
+	line3="You must specify at least 3 parameters to add a ban, and one"
+	line4="parameter to remove a ban (just the user@host section)."
+	line5="The duration may be specified in seconds, or in the following format"
+	line6="1y2w3d4h5m6s - meaning one year, two weeks, three days, 4 hours,"
+	line7="5 minutes and 6 seconds. All fields in this format are optional.">
+
+<zline line1="/ZLINE [ipmask] {[duration] :[reason]}"
+        line2="Sets or removes a z-line (ip based ban) on an ip range mask."
+        line3="You must specify at least 3 parameters to add a ban, and one"
+        line4="parameter to remove a ban (just the user@host section)."
+        line5="The duration may be specified in seconds, or in the following format"
+        line6="1y2w3d4h5m6s - meaning one year, two weeks, three days, 4 hours,"
+        line7="5 minutes and 6 seconds. All fields in this format are optional.">
+
+<qline line1="/QLINE [nickmask] {[duration] :[reason]}"
+        line2="Sets or removes a q-line (nick based ban) on a nick mask."
+        line3="You must specify at least 3 parameters to add a ban, and one"
+        line4="parameter to remove a ban (just the user@host section)."
+        line5="The duration may be specified in seconds, or in the following format"
+        line6="1y2w3d4h5m6s - meaning one year, two weeks, three days, 4 hours,"
+        line7="5 minutes and 6 seconds. All fields in this format are optional.">
+
+<gline line1="/GLINE [user@host] {[duration] :[reason]}"
+        line2="Sets or removes a g-line (global host based ban) on host mask."
+        line3="You must specify at least 3 parameters to add a ban, and one"
+        line4="parameter to remove a ban (just the user@host section)."
+        line5="The duration may be specified in seconds, or in the following format"
+        line6="1y2w3d4h5m6s - meaning one year, two weeks, three days, 4 hours,"
+        line7="5 minutes and 6 seconds. All fields in this format are optional.">
+
+<eline line1="/ELINE [user@host] {[duration] :[reason]}"
+	line2="Sets or removes a e-line (local ban exception) on host mask."
+	line3="You must specify at least 3 parameters to add an exception, and one"
+	line4="parameter to remove an exception (just the user@host section)."
+	line5="The duration may be specified in seconds, or in the following format"
+	line6="1y2w3d4h5m6s - meaning one year, two weeks, three days, 4 hours,"
+	line7="5 minutes and 6 seconds. All fields in this format are optional.">
+
+<userhost line1="/USERHOST [nickname]"
+	line2="Returns the hostname and nickname of a user, and some other"
+	line3="miscellanious information.">
+
+<away line1="/AWAY {message}"
+	line2="If a message is given, marks you as being away, otherwise"
+	line3="removes your away status and previous message">
+
+<ison line1="/ISON [nick] {[nick]...}"
+	line2="Returns a subset of the nicks you give, showing only those"
+	line3="that are currently online.">
+
+<summon line1="/SUMMON [user]"
+	line2="Summons a user from the shell where the ircd is running onto irc"
+	line3="This command is deprecated in the current protocol.">
+
+<users line1="/USERS"
+	line2="Shows users logged into the shell where the ircd is running."
+	line3="This command is deprecated in the current protocol.">
+
+<invite line1="/INVITE [nick] [channel]"
+	line2="Invites a user to a channel. If the channel is NOT +i, any"
+	line3="user, channel op or not, may invite any other user to the"
+	line4="channel, so long as they are a member of that channel."
+	line5="Otherwise, if +i is set only channel halfoperators"
+	line6="and above may invite users into the channel">
+
+<pass line1="/PASS [password]"
+	line2="This command is used by your irc client when setting up"
+	line3="your irc session, and should not be issued by a fully"
+	line4="connected client.">
+
+<whowas line1="/WHOWAS [nick]"
+	line2="Returns a list of times the user was last seen on irc"
+	line3="along with the time they were last seen and their server.">
+
+<links line1="/LINKS"
+	line2="Shows all servers linked to this one. Note that in this"
+	line3="server implementation all links will be flattened as"
+	line4="a tree based layout is not in use.">
+
+<map line1="/MAP"
+	line2="Shows a graphical representation of all users and servers"
+	line3="on the network. The tree diagram is inaccurate in this"
+	line4="implementation as a tree based network is not in place.">
+
+
+<coper line1="Oper Commands"
+	line2="-------------"
+	line3="DIE      RESTART KILL    REHASH      TRACE"
+	line4="CONNECT  SQUIT   MODULES KLINE       ZLINE"
+	line5="QLINE    GLINE   ELINE">
+
+<die line1="/DIE [password]"
+	line2="If the correct password is provided, and you are an operator,"
+	line3="This command will shut down the local server.">
+
+<restart line1="/RESTART [password]"
+	line2="If the correct password is provided, and you are an operator,"
+	line3="This command will restart the local server.">
+
+<commands line1="/COMMANDS"
+	line2="Shows all currently available commands.">
+
+<kill line1="/KILL [user] [reason]"
+	line2="This command will disconnect a user from IRC with the given"
+	line3="reason.">
+
+<rehash line1="/REHASH"
+	line2="This command will cause the server configuration file to be"
+	line3="re-read and values re-initialised.">
+
+<trace line1="/TRACE [nick|user@host|servermask]"
+	line2="This command will provide a list of all users and servers which"
+	line3="must be passed through or over to reach a given object (server"
+	line4="or user)">
+
+<connect line1="/CONNECT [servermask]"
+	line2="Create a mesh connection to the given servermask. You must have"
+	line3="configured the server for linking in your configuration file,"
+	line4="and provided a password.">
+
+<squit line1="/SQUIT"
+	line2="Disconnects the local server from the mesh network, causing every"
+	line3="other server in the mesh to drop it.">
+
+<modules line1="/MODULES"
+	line2="Lists currently loaded modules, their memory offsets and version"
+	line3="numbers and flags. If you are not an operator, you will see reduced"
+	line4="detail.">
+
+<loadmodule line1="/LOADMODULE [filename.so]"
+	line2="Loads a module into the IRCd.">
+
+<unloadmodule line1="/UNLOADMODULE [filename.so]"
+	line3="Unloads a module from the IRCd. The module cannot have the static"
+	line4="flag set (see the output of /MODULES)">
+
+<umodes line1="User Modes"
+	line2="----------"
+	line3="o                Is an IRC operator"
+	line4="i                Is invisible to /WHO"
+	line5="w                Can receive wallops messages"
+	line6="s                Can receive server notices"
+	line7="x                Cloaked hostname (requires cloaking module)"
+	line8="g                Can receive globops (requires globops module)"
+	line9="h                Will receive helpops notification (requires helpop module)">
+
+<chmodes line1="Channel Modes"
+	line2="-------------"
+	line3="v [nickname]     Gives voice to [nickname] (can talk on +m channel)"
+	line4="h [nickname]     Gives halfops to [nickname] (requires halfop module)"
+	line5="o [nickname]     Gives ops to [nickname]"
+	line6="b [hostmask]     Bans [hostmask] on the channel"
+	line7="a [nickname]     Give protected status to [nickname] (+q only)"
+	line8="q [nickname]     Give founder status to [nickname] (ulines only)"
+	line9="i                Make the channel invite only, must /INVITE users"
+	line10="k [key]          Set the channel key (password) to [key]"
+	line11="l [limit]        Set the maximum possible users to [limit]"
+	line12="m                Enable moderation. Only +vo(h) can speak"
+	line13="n                Only users who are members of the channel may message it"
+	line14="p                Make channel private (hide from /LIST)"
+	line15="s                Make channel secret (can't be used at the same time as +p)"
+	line16="O                Channel is IRCops only (can only be set by IRCops)"
+	line17="t                Only halfops and above can change the topic"
+	line18="Q                Only U-Lined servers/nicks can kick"
+	line19="T                Only halfops/ops can send NOTICEs to the channel"
+	line20="C                No CTCPs allowed to the channel"
+	line21="c                mIRC colour codes blocked on the channel"
+	line22="K                No /KNOCK allowed to channel (if knock module is loaded)"
+	line23="L [channel]      If the channel is full, redirect users to [channel]"
+	line24="N                No nickchanges while on the channel"
+	line25="-------------"
+	line26="NOTE: A large number of these modes are dependent upon server-side modules"
+	line27="being loaded by a server/network administrator. The actual modes available"
+	line28="on your network may be very different to this list. Please consult your"
+	line29="help channel if you have any questions.">
+
+
