@@ -42,6 +42,7 @@ using namespace std;
 #include "xline.h"
 #include "inspstring.h"
 #include "dnsqueue.h"
+#include "dns.h"
 #include "helperfuncs.h"
 #include "hashcomp.h"
 #include "socketengine.h"
