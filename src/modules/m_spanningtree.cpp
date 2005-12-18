@@ -2139,8 +2139,16 @@ void ReadConfiguration(bool rebind)
 		L.RecvPass = Conf->ReadValue("link","recvpass",j);
 		L.AutoConnect = Conf->ReadInteger("link","autoconnect",j,true);
 		L.NextConnectTime = time(NULL) + L.AutoConnect;
-		LinkBlocks.push_back(L);
-		log(DEBUG,"m_spanningtree: Read server %s with host %s:%d",L.Name.c_str(),L.IPAddr.c_str(),L.Port);
+		/* Bugfix by brain, do not allow people to enter bad configurations */
+		if ((recvpass != "") && (sendpass != "") && (Name != "") && (Port))
+		{
+			LinkBlocks.push_back(L);
+			log(DEBUG,"m_spanningtree: Read server %s with host %s:%d",L.Name.c_str(),L.IPAddr.c_str(),L.Port);
+		}
+		else
+		{
+			log(DEFAULT,"m_spanningtree: Invalid configuration for server '%s', ignored!",L.Name.c_str());
+		}
 	}
 	delete Conf;
 }
