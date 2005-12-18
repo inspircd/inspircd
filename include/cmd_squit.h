@@ -31,7 +31,7 @@
 class cmd_squit : public command_t
 {
  public:
-        cmd_squit () : command_t("SQUIT",'o',0) { }
+        cmd_squit () : command_t("SQUIT",'o',1) { }
         void Handle(char **parameters, int pcnt, userrec *user);
 };
 
