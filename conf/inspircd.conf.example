@@ -11,10 +11,9 @@
 #         This is an example of the config file for InspIRCd.          #
 #             Change the options to suit your network                  #
 #								       #
-#                 Last updated on : 18/12/2005                         #
+#                 Last updated on : 06/06/2005                         #
 #                 Written by      : CC  (cc@backchat.co.za)            #
 #                 Updated by      : katsklaw (katsklaw@gmail.com)      #
-#                 Updated by:     : brain (brain@inspircd.org)         #
 ########################################################################
 
 
@@ -60,17 +59,24 @@
 #                 a standard tcp based socket, the servers type is a  #
 #                 also a TCP based connection but of a different      #
 #                 format.                                             #
-#                                                                     #
+#  default      - if the port type is 'servers' then this can be      #
+#                 specified. If set to 'yes', it indicates that this  #
+#                 port is the default route for all /connect commands.#
+#                 if you do not bind your default route to an         #
+#                 external ip, or all ip's, you may have connection   #
+#                 problems.                                           #
+#								      #
 #  Leaving address empty binds to all available interfaces            #
 #								      #
 #  Syntax is as follows:                                              #
 #                                                                     #
 # <bind address="ip number" port="port" type="clients">	      	      #
 # <bind address="ip number" port="port" type="servers">	      	      #
+# <bind address="ip number" port="port" type="servers" default="yes"> #
 #								      #
 
 <bind address="" port="6660" type="clients">
-<bind address="" port="7000" type="servers">
+<bind address="" port="7000" type="servers" default="yes">
 <bind address="" port="7001" type="servers">
 
 
@@ -157,7 +163,7 @@
 #                                                                     #
 
 <connect allow="196.12.*"  password="secret">
-<connect allow="*" timeout="60" flood="20" threshold="5" pingfreq="120" sendq="262144" recvq="16384">
+<connect allow="*" timeout="60" flood="10" threshold="60" pingfreq="120" sendq="262144" recvq="4096">
 
 <connect deny="69.254.*">
 
@@ -167,10 +173,6 @@
 #   Classes are a group of commands which are grouped together        #
 #   and given a unique name. They used to define which commands       #
 #   are available to certain types of Operators.                      #
-#                                                                     #
-#   Note that you are not restricted just to the class names shown    #
-#   here and you can make your own up. That is the idea, this ircd    #
-#   is very unrestrictive about configuration.                        #
 #								      #
 #  Syntax is as follow:						      #
 #	<class name="name" commands="oper commands">		      #
@@ -194,16 +196,11 @@
 #               server admin to decide on which operators get         #
 #		what commands					      #
 #  host	      - hostmask operators will recieve on oper-up.           #
-# (optional)							      #
+#(optional)							      #
 #                                                                     #
 #  Syntax is as follows:					      #
 #	<type name="name" classes="class name" host="oper hostmask">  #
 #								      #
-# Please note that you are not restricted to just the four oper types #
-# shown below. You can make up your own opertypes, that is what its   #
-# designed for! Please note that oper types, and classes above, are   #
-# case sensitive and may only be one word long, no spaces.            #
-#                                                                     #
 
 <type name="NetAdmin" classes="OperChat BanControl HostCloak Shutdown ServerLink" host="netadmin.omega.org.za">
 <type name="GlobalOp" classes="OperChat BanControl HostCloak ServerLink" host="ircop.omega.org.za">
@@ -247,7 +244,7 @@
 #               not have to resolve - but it is expected to be sent   #
 #               in the remote servers connection info.                #
 # ipaddr      - Valid host or ip address for remote server. *         #
-# port        - Valid listening TCP port for remote server.           #
+# port        - Valid listening UDP port for remote server.           #
 # sendpass    - Password to send to create an outbound connection to  #
 #               this server.                                          #
 # recvpass    - Password to receive to accept an inbound connection   #
@@ -311,11 +308,7 @@
 # shell using shell scripts, perl scripts etc, and to monitor the     #
 # ircd's state via cron jobs.                                         #
 #                                                                     #
-# This tag is NOT optional and must be defined. Once you have defined #
-# it, remove the die tag above it to mark it as valid.                #
-#                                                                     #
 
-<die value="Someone did not define their PID file path!">
 <pid file="/path/to/inspircd.pid">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#- BANLIST LIMITS #-#-#-#-#-#-#-#-#-#-#-#-#-#-#
@@ -397,7 +390,10 @@
 	 netbuffersize="10240"
          maxwho="128"
 	 noservices="0"
+         somaxconn="128"
+	 softlimit="128"
          allowhalfop="yes">
+
 
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-  MODULE OPTIONS   -#-#-#-#-#-#-#-#-#-#-#-#-#
@@ -419,23 +415,8 @@
 #  are incorporated into the executable and can be loaded and removed #
 #  similarly to if they were in a ramdisk.                            #
 
-
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-#  ____  _____    _    ____    _____ _   _ ___ ____    ____ ___ _____ _
-# |  _ \| ____|  / \  |  _ \  |_   _| | | |_ _/ ___|  | __ )_ _|_   _| |
-# | |_) |  _|   / _ \ | | | |   | | | |_| || |\___ \  |  _ \| |  | | | |
-# |  _ <| |___ / ___ \| |_| |   | | |  _  || | ___) | | |_) | |  | | |_|
-# |_| \_\_____/_/   \_\____/    |_| |_| |_|___|____/  |____/___| |_| (_)
-#
-# Please note that as of 1.0 Beta 6 and onwards, linking is modular.
-# This means that unless you load m_spanningtree.so (as commented out
-# below) you will be UNABLE TO LINK ANY SERVERS (including services!).
-# Uncommenting the tag below loads basic linking support.
-#
-#<module name="m_spanningtree.so">
-
-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# Foobar module - does nothing. This is a test module for coders.
+# Foobar module - does nothing
 #<module name="m_foobar.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
@@ -652,10 +633,6 @@
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Oper modes module: Allows you to specify modes to add/remove on oper
 #<module name="m_opermodes.so">
-
-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# SWHOIS module. Allows opers to place arbitary text in their WHOIS.
-#<module name="m_swhois.so">
 
 
 #-#-#-#-#-#-#-#-#-#-#-  FILTER  CONFIGURATION  -#-#-#-#-#-#-#-#-#-#-#-#

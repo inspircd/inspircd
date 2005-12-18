@@ -49,7 +49,6 @@ extern userrec* fd_ref_table[65536];
 extern ServerConfig *Config;
 extern user_hash clientlist;
 extern whowas_hash whowas;
-extern Module* IOHookModule;
 std::vector<userrec*> local_users;
 
 std::vector<userrec*> all_opers;
@@ -375,9 +374,9 @@ void kill_link(userrec *user,const char* r)
 
         if (user->fd > -1)
         {
-		if (IOHookModule)
+		if (Config->GetIOHook(user->port))
 		{
-                	IOHookModule->OnRawSocketClose(user->fd);
+                	Config->GetIOHook(user->port)->OnRawSocketClose(user->fd);
 		}
                 ServerInstance->SE->DelFd(user->fd);
                 user->CloseSocket();
@@ -438,9 +437,9 @@ void kill_link_silent(userrec *user,const char* r)
 
         if (user->fd > -1)
         {
-		if (IOHookModule)
+		if (Config->GetIOHook(user->port))
 		{
-                	IOHookModule->OnRawSocketClose(user->fd);
+                	Config->GetIOHook(user->port)->OnRawSocketClose(user->fd);
 		}
                 ServerInstance->SE->DelFd(user->fd);
                 user->CloseSocket();

@@ -22,6 +22,7 @@
 #include <vector>
 #include "inspircd.h"
 #include "globals.h"
+#include "modules.h"
 
 /** Flags for use with log()
  */
@@ -250,6 +251,10 @@ class ServerConfig : public classbase
 	 */
 	int ports[255];
 
+	/** A list of ports claimed by IO Modules
+	 */
+	std::map<int,Module*> IOHookModule;
+
 	ServerConfig();
 
 	/** Clears the include stack in preperation for
@@ -269,6 +274,9 @@ class ServerConfig : public classbase
 	int ConfValueEnum(char* tag,std::stringstream *config);
 	int EnumConf(std::stringstream *config_f,const char* tag);
 	int EnumValues(std::stringstream *config, const char* tag, int index);
+	Module* GetIOHook(int port);
+	bool AddIOHook(int port, Module* iomod);
+	bool DelIOHook(int port);
 };
 
 

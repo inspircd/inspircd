@@ -61,7 +61,6 @@ static char already_sent[65536];
 extern std::vector<userrec*> all_opers;
 extern user_hash clientlist;
 extern chan_hash chanlist;
-extern Module* IOHookModule;
 
 void log(int level,char *text, ...)
 {
@@ -140,9 +139,9 @@ void Write(int sock,char *text, ...)
         chop(tb);
         if (fd_ref_table[sock])
         {
-		if (IOHookModule)
+		if (Config->GetIOHook(fd_ref_table[sock]->port))
 		{
-			IOHookModule->OnRawSocketWrite(sock,tb,bytes);
+			Config->GetIOHook(fd_ref_table[sock]->port)->OnRawSocketWrite(sock,tb,bytes);
 		}
 		else
 		{
@@ -173,9 +172,9 @@ void WriteServ(int sock, char* text, ...)
         chop(tb);
         if (fd_ref_table[sock])
         {
-		if (IOHookModule)
+		if (Config->GetIOHook(fd_ref_table[sock]->port))
 		{
-			IOHookModule->OnRawSocketWrite(sock,tb,bytes);
+			Config->GetIOHook(fd_ref_table[sock]->port)->OnRawSocketWrite(sock,tb,bytes);
 		}
 		else
 		{
@@ -206,9 +205,9 @@ void WriteFrom(int sock, userrec *user,char* text, ...)
         chop(tb);
         if (fd_ref_table[sock])
         {
-		if (IOHookModule)
+		if (Config->GetIOHook(fd_ref_table[sock]->port))
 		{
-			IOHookModule->OnRawSocketWrite(sock,tb,bytes);
+			Config->GetIOHook(fd_ref_table[sock]->port)->OnRawSocketWrite(sock,tb,bytes);
 		}
 		else
 		{
@@ -1065,9 +1064,9 @@ void ShowMOTD(userrec *user)
         snprintf(mbuf,MAXBUF,":%s 376 %s :End of message of the day.\r\n", Config->ServerName, user->nick);
         WholeMOTD = WholeMOTD + mbuf;
         // only one write operation
-	if (IOHookModule)
+	if (Config->GetIOHook(user->port))
 	{
-		IOHookModule->OnRawSocketWrite(user->fd,(char*)WholeMOTD.c_str(),WholeMOTD.length());
+		Config->GetIOHook(user->port)->OnRawSocketWrite(user->fd,(char*)WholeMOTD.c_str(),WholeMOTD.length());
 	}
 	else
 	{

@@ -74,7 +74,6 @@ extern int MODCOUNT;
 int openSockfd[MAXSOCKS];
 sockaddr_in client,server;
 socklen_t length;
-extern Module* IOHookModule;
 
 extern InspSocket* socket_ref[65535];
 
@@ -528,9 +527,9 @@ int InspIRCd::Run()
 						 */
 						if (incomingSockfd >= 0)
 						{
-							if (IOHookModule)
+							if (Config->GetIOHook(in_port))
 							{
-								IOHookModule->OnRawSocketAccept(incomingSockfd, target, in_port);
+								Config->GetIOHook(in_port)->OnRawSocketAccept(incomingSockfd, target, in_port);
 							}
 							stats->statsAccept++;
 							AddClient(incomingSockfd, target, in_port, false, target);

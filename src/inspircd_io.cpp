@@ -63,6 +63,32 @@ void ServerConfig::ClearStack()
 	include_stack.clear();
 }
 
+Module* ServerConfig::GetIOHook(int port)
+{
+	std::map<int,Module*>::iterator x = IOHookModule.find(port);
+	return (x != IOHookModule.end() ? x->second : NULL);
+}
+
+bool ServerConfig::AddIOHook(int port, Module* iomod)
+{
+	if (!GetIOHook(port))
+	{
+		IOHookModule[port] = iomod;
+		return true;
+	}
+	return false;
+}
+
+bool ServerConfig::DelIOHook(int port)
+{
+	std::map<int,Module*>::iterator x = IOHookModule.find(port);
+	if (x != IOHookModule.end())
+	{
+		IOHookModule.erase(x);
+		return true;
+	}
+	return false;
+}
 
 void ServerConfig::Read(bool bail, userrec* user)
 {

@@ -68,7 +68,6 @@ extern std::vector<InspSocket*> module_sockets;
 extern std::vector<userrec*> local_users;
 
 extern int MODCOUNT;
-extern Module* IOHookModule;
 extern InspSocket* socket_ref[65535];
 extern time_t TIME;
 
