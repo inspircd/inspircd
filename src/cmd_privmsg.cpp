@@ -127,7 +127,7 @@ void cmd_privmsg::Handle (char **parameters, int pcnt, userrec *user)
 	dest = Find(parameters[0]);
 	if (dest)
 	{
-		if (strcmp(dest->awaymsg,""))
+		if (*dest->awaymsg)
 		{
 			/* auto respond with aweh msg */
 			WriteServ(user->fd,"301 %s %s :%s",user->nick,dest->nick,dest->awaymsg);
