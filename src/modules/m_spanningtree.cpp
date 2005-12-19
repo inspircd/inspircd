@@ -539,6 +539,7 @@ class TreeSocket : public InspSocket
 	bool LastPingWasGood;
 	bool bursting;
 	AES* ctx;
+	unsigned int keylength;
 	
  public:
 
@@ -554,23 +555,21 @@ class TreeSocket : public InspSocket
 		this->LinkState = LISTENER;
 	}
 
-	TreeSocket(std::string host, int port, bool listening, unsigned long maxtime, std::string ServerName, std::string encryptionkey)
+	TreeSocket(std::string host, int port, bool listening, unsigned long maxtime, std::string ServerName)
 		: InspSocket(host, port, listening, maxtime)
 	{
 		myhost = ServerName;
 		this->LinkState = CONNECTING;
-		InitAES(encryptionkey);
 	}
 
 	/* When a listening socket gives us a new file descriptor,
 	 * we must associate it with a socket without creating a new
 	 * connection. This constructor is used for this purpose.
 	 */
-	TreeSocket(int newfd, char* ip, std::string encryptionkey)
+	TreeSocket(int newfd, char* ip)
 		: InspSocket(newfd, ip)
 	{
 		this->LinkState = WAIT_AUTH_1;
-		InitAES(encryptionkey);
 	}
 
 	void InitAES(std::string key)
@@ -580,13 +579,14 @@ class TreeSocket : public InspSocket
 
 		ctx = new AES();
 		// key must be 16, 24, 32 etc bytes (multiple of 8)
-		unsigned int keylength = key.length();
+		keylength = key.length();
 		if (!(keylength == 16 || keylength == 24 || keylength == 32))
 		{
+			log(DEBUG,"Key length not 16, 24 or 32 characters!");
 		}
 		else
 		{
-			ctx->MakeKey(key.c_str(), "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0
+			ctx->MakeKey(key.c_str(), "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\
 				\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0", keylength, keylength);
 		}
 	}
@@ -1166,7 +1166,7 @@ class TreeSocket : public InspSocket
 					char result[1024];
 					int nbytes = from64tobits(out, ret.c_str(), 1024);
 					log(DEBUG,"m_spanningtree: decrypt %d bytes",nbytes);
-					ctx->Decrypt(out, result, nbytes, AES::ECB);
+					ctx->Decrypt(out, result, nbytes, 0);
 					ret = result;
 				}
 				if (!this->ProcessLine(ret))
@@ -1183,15 +1183,17 @@ class TreeSocket : public InspSocket
 		log(DEBUG,"OUT: %s",line.c_str());
 		if (ctx)
 		{
-			char* result[1024];
-			char* result64[1024];
+			char result[1024];
+			char result64[1024];
 			while (line.length() % this->keylength != 0)
 			{
 				// pad it to be a multiple of the key length
 				line = line + "\0";
 			}
-			ctx->Encrypt(line.c_str(), result, line.length(), AES::ECB);
-			to64frombits(result64, result, line.length());
+			ctx->Encrypt(line.c_str(), result, line.length(),0);
+			to64frombits((unsigned char*)result64,
+					(unsigned char*)result,
+					line.length());
 			line = result64;
 			log(DEBUG,"Encrypted: %s",line.c_str());
 			//int from64tobits(char *out, const char *in, int maxlen);
@@ -1894,6 +1896,16 @@ class TreeSocket : public InspSocket
 				else if (command == "ENDBURST")
 				{
 					this->bursting = false;
+					std::string sserv = this->myhost;
+					if (this->InboundServerName != "")
+						sserv = this->InboundServerName;
+					for (std::vector<Link>::iterator x = LinkBlocks.begin(); x < LinkBlocks.end(); x++)
+					{
+						if ((x->EncryptionKey != "") && (x->Name == sserv))
+						{
+							this->InitAES(x->EncryptionKey);
+						}
+					}
 					return true;
 				}
 				else
