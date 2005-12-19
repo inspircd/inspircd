@@ -1,6 +1,0 @@
-base referer
-rect $channels_8cpp-source.html 400,108 499,135
-rect $modules_8cpp-source.html 400,184 499,211
-rect $modules_8h-source.html 134,108 216,135
-rect $typedefs_8h-source.html 266,159 351,185
-rect $mode_8h-source.html 275,209 342,236

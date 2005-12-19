@@ -1,8 +1,0 @@
-base referer
-rect $users_8h-source.html 280,245 344,272
-rect $channels_8h-source.html 404,448 489,475
-rect $hashcomp_8h-source.html 400,93 493,120
-rect $ctables_8h-source.html 275,600 349,627
-rect $inspircd_8h-source.html 143,335 223,361
-rect $modules_8h-source.html 141,600 224,627
-rect $globals_8h-source.html 145,423 220,449

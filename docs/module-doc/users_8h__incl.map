@@ -1,4 +1,0 @@
-base referer
-rect $channels_8h-source.html 128,108 213,135
-rect $connection_8h-source.html 121,159 220,185
-rect $hashcomp_8h-source.html 124,57 217,84

@@ -1,4 +1,0 @@
-base referer
-rect $channels_8h-source.html 123,7 208,33
-rect $connection_8h-source.html 116,57 215,84
-rect $modules_8h-source.html 124,108 207,135
