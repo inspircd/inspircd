@@ -572,7 +572,7 @@ class TreeSocket : public InspSocket
 		this->LinkState = WAIT_AUTH_1;
 	}
 
-	void InitAES(std::string key)
+	void InitAES(std::string key,std::string SName)
 	{
 		if (key == "")
 			return;
@@ -588,11 +588,6 @@ class TreeSocket : public InspSocket
 		}
 		else
 		{
-	                std::string SName = myhost;
-	                if (InboundServerName != "")
-	                {
-				SName = InboundServerName;
-	                }
 			WriteOpers("\2AES\2: Initialized %d bit encryption to server %s",keylength*8,SName.c_str());
 			ctx->MakeKey(key.c_str(), "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\
 				\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0", keylength, keylength);
@@ -618,7 +613,7 @@ class TreeSocket : public InspSocket
 					if (x->EncryptionKey != "")
 					{
 						this->WriteLine("AES "+Srv->GetServerName());
-						this->InitAES(x->EncryptionKey);
+						this->InitAES(x->EncryptionKey,x->Name);
 					}
 					/* found who we're supposed to be connecting to, send the neccessary gubbins. */
 					this->WriteLine("SERVER "+Srv->GetServerName()+" "+x->SendPass+" 0 :"+Srv->GetServerDescription());
@@ -1719,7 +1714,7 @@ class TreeSocket : public InspSocket
                         {
                                 if ((x->EncryptionKey != "") && (x->Name == sserv))
                                 {
-                                        this->InitAES(x->EncryptionKey);
+                                        this->InitAES(x->EncryptionKey,sserv);
                                 }
                         }
                         return true;
