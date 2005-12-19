@@ -615,6 +615,11 @@ class TreeSocket : public InspSocket
 			{
 				if (x->Name == this->myhost)
 				{
+					if (x->EncryptionKey != "")
+					{
+						this->WriteLine("AES "+Srv->GetServerName());
+						this->InitAES(x->EncryptionKey);
+					}
 					/* found who we're supposed to be connecting to, send the neccessary gubbins. */
 					this->WriteLine("SERVER "+Srv->GetServerName()+" "+x->SendPass+" 0 :"+Srv->GetServerDescription());
 					return true;
@@ -1706,6 +1711,19 @@ class TreeSocket : public InspSocket
 			command = params[0];
 			params.pop_front();
 		}
+
+		if ((!this->ctx) && (command == "AES"))
+		{
+                        std::string sserv = params[0];
+                        for (std::vector<Link>::iterator x = LinkBlocks.begin(); x < LinkBlocks.end(); x++)
+                        {
+                                if ((x->EncryptionKey != "") && (x->Name == sserv))
+                                {
+                                        this->InitAES(x->EncryptionKey);
+                                }
+                        }
+                        return true;
+		}
 		
 		switch (this->LinkState)
 		{
@@ -1910,16 +1928,6 @@ class TreeSocket : public InspSocket
 				else if (command == "ENDBURST")
 				{
 					this->bursting = false;
-					std::string sserv = this->myhost;
-					if (this->InboundServerName != "")
-						sserv = this->InboundServerName;
-					for (std::vector<Link>::iterator x = LinkBlocks.begin(); x < LinkBlocks.end(); x++)
-					{
-						if ((x->EncryptionKey != "") && (x->Name == sserv))
-						{
-							this->InitAES(x->EncryptionKey);
-						}
-					}
 					return true;
 				}
 				else
