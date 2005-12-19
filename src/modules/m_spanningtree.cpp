@@ -612,8 +612,15 @@ class TreeSocket : public InspSocket
 				{
 					if (x->EncryptionKey != "")
 					{
-						this->WriteLine("AES "+Srv->GetServerName());
-						this->InitAES(x->EncryptionKey,x->Name);
+						if (!(x->EncryptionKey.length() == 16 || x->EncryptionKey.length() == 24 || x->EncryptionKey.length() == 32))
+						{
+							WriteOpers("\2WARNING\2: Your encryption key is NOT 16, 24 or 32 characters in length, encryption will \2NOT\2 be enabled.");
+						}
+						else
+						{
+							this->WriteLine("AES "+Srv->GetServerName());
+							this->InitAES(x->EncryptionKey,x->Name);
+						}
 					}
 					/* found who we're supposed to be connecting to, send the neccessary gubbins. */
 					this->WriteLine("SERVER "+Srv->GetServerName()+" "+x->SendPass+" 0 :"+Srv->GetServerDescription());
@@ -1719,7 +1726,11 @@ class TreeSocket : public InspSocket
                         }
                         return true;
 		}
-		
+		else if ((this->ctx) && (command == "AES"))
+		{
+			WriteOpers("\2AES\2: Encryption already enabled on this connection yet %s is trying to enable it twice!",params[0].c_str());
+		}
+
 		switch (this->LinkState)
 		{
 			TreeServer* Node;

@@ -240,17 +240,29 @@
 # Defines which servers can link to this one, and which servers this  #
 # server may create outbound links to.                                #
 #                                                                     #
-# name        - The name is the canocial name of the server, it does  #
-#               not have to resolve - but it is expected to be sent   #
-#               in the remote servers connection info.                #
-# ipaddr      - Valid host or ip address for remote server. *         #
-# port        - Valid listening UDP port for remote server.           #
-# sendpass    - Password to send to create an outbound connection to  #
-#               this server.                                          #
-# recvpass    - Password to receive to accept an inbound connection   #
-#               from this server.                                     #
-# autoconnect - Sets the server to autoconnect. Where x is the number #
-# (optional)    of seconds between attempts.  300 = 5 minutes         #
+# name          - The name is the canocial name of the server, it does#
+#                 not have to resolve - but it is expected to be sent #
+#                 in the remote servers connection info.              #
+#                                                                     #
+# ipaddr        - Valid host or ip address for remote server. *       #
+#                                                                     #
+# port          - Valid listening UDP port for remote server.         #
+#                                                                     #
+# sendpass      - Password to send to create an outbound connection   #
+#                 to this server.                                     #
+#                                                                     #
+# recvpass      - Password to receive to accept an inbound connection #
+#                 from this server.                                   #
+#                                                                     #
+# autoconnect   - Sets the server to autoconnect. x is the number     #
+# (optional)      of seconds between attempts.  300 = 5 minutes       #
+#                                                                     #
+# encryptionkey - The encryption key to use to encrypt this link.     #
+# (optional)      Applicable when using m_spanningtree.so, the key    #
+#                 must be EXACTLY 16, 24 or 32 characters long and    #
+#                 must match on both ends of the link. Each link may  #
+#                 have its own key so long as both ends of the link   #
+#                 use the same key string.                            #
 #                                                                     #
 # to u:line a server (give it extra privilages required for running   #
 # services, Q, etc) you must include the <uline server> tag as shown  #
@@ -272,7 +284,8 @@
 	port="7000"
         autoconnect="300"
 	sendpass="outgoing!password"
-	recvpass="incoming!password">
+	recvpass="incoming!password"
+	encryptionkey="0123456789123456">
 
 <link name="services.antarctic.com"
 	ipaddr="localhost"
