@@ -578,6 +578,7 @@ class TreeSocket : public InspSocket
 			return;
 
 		ctx = new AES();
+		log(DEBUG,"Initialized AES key %s",key.c_str());
 		// key must be 16, 24, 32 etc bytes (multiple of 8)
 		keylength = key.length();
 		if (!(keylength == 16 || keylength == 24 || keylength == 32))
@@ -1164,6 +1165,7 @@ class TreeSocket : public InspSocket
 				{
 					char out[1024];
 					char result[1024];
+					log(DEBUG,"Original string '%s'",ret.c_str());
 					int nbytes = from64tobits(out, ret.c_str(), 1024);
 					log(DEBUG,"m_spanningtree: decrypt %d bytes",nbytes);
 					ctx->Decrypt(out, result, nbytes, 0);
@@ -1181,14 +1183,18 @@ class TreeSocket : public InspSocket
 	int WriteLine(std::string line)
 	{
 		log(DEBUG,"OUT: %s",line.c_str());
-		if (ctx)
+		if (this->ctx)
 		{
+			log(DEBUG,"AES context");
 			char result[1024];
 			char result64[1024];
-			while (line.length() % this->keylength != 0)
+			if (this->keylength)
 			{
-				// pad it to be a multiple of the key length
-				line = line + "\0";
+				while (line.length() % this->keylength != 0)
+				{
+					// pad it to be a multiple of the key length
+					line = line + "\0";
+				}
 			}
 			ctx->Encrypt(line.c_str(), result, line.length(),0);
 			to64frombits((unsigned char*)result64,
