@@ -41,6 +41,7 @@ using namespace std;
 #include "xline.h"
 #include "typedefs.h"
 #include "cull_list.h"
+#include "aes.h"
 
 #ifdef GCC3
 #define nspace __gnu_cxx
@@ -439,6 +440,7 @@ class Link
 	 std::string RecvPass;
 	 unsigned long AutoConnect;
 	 time_t NextConnectTime;
+	 std::string EncryptionKey;
 };
 
 /* The usual stuff for inspircd modules,
@@ -536,6 +538,7 @@ class TreeSocket : public InspSocket
 	time_t NextPing;
 	bool LastPingWasGood;
 	bool bursting;
+	AES* ctx;
 	
  public:
 
@@ -551,21 +554,41 @@ class TreeSocket : public InspSocket
 		this->LinkState = LISTENER;
 	}
 
-	TreeSocket(std::string host, int port, bool listening, unsigned long maxtime, std::string ServerName)
+	TreeSocket(std::string host, int port, bool listening, unsigned long maxtime, std::string ServerName, std::string encryptionkey)
 		: InspSocket(host, port, listening, maxtime)
 	{
 		myhost = ServerName;
 		this->LinkState = CONNECTING;
+		InitAES(encryptionkey);
 	}
 
 	/* When a listening socket gives us a new file descriptor,
 	 * we must associate it with a socket without creating a new
 	 * connection. This constructor is used for this purpose.
 	 */
-	TreeSocket(int newfd, char* ip)
+	TreeSocket(int newfd, char* ip, std::string encryptionkey)
 		: InspSocket(newfd, ip)
 	{
 		this->LinkState = WAIT_AUTH_1;
+		InitAES(encryptionkey);
+	}
+
+	void InitAES(std::string key)
+	{
+		if (key == "")
+			return;
+
+		ctx = new AES();
+		// key must be 16, 24, 32 etc bytes (multiple of 8)
+		unsigned int keylength = key.length();
+		if (!(keylength == 16 || keylength == 24 || keylength == 32))
+		{
+		}
+		else
+		{
+			ctx->MakeKey(key.c_str(), "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0
+				\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0", keylength, keylength);
+		}
 	}
 	
 	/* When an outbound connection finishes connecting, we receive
@@ -1137,6 +1160,15 @@ class TreeSocket : public InspSocket
 				/* Process this one, abort if it
 				 * didnt return true.
 				 */
+				if (this->ctx)
+				{
+					char out[1024];
+					char result[1024];
+					int nbytes = from64tobits(out, ret.c_str(), 1024);
+					log(DEBUG,"m_spanningtree: decrypt %d bytes",nbytes);
+					ctx->Decrypt(out, result, nbytes, AES::ECB);
+					ret = result;
+				}
 				if (!this->ProcessLine(ret))
 				{
 					return false;
@@ -1149,6 +1181,21 @@ class TreeSocket : public InspSocket
 	int WriteLine(std::string line)
 	{
 		log(DEBUG,"OUT: %s",line.c_str());
+		if (ctx)
+		{
+			char* result[1024];
+			char* result64[1024];
+			while (line.length() % this->keylength != 0)
+			{
+				// pad it to be a multiple of the key length
+				line = line + "\0";
+			}
+			ctx->Encrypt(line.c_str(), result, line.length(), AES::ECB);
+			to64frombits(result64, result, line.length());
+			line = result64;
+			log(DEBUG,"Encrypted: %s",line.c_str());
+			//int from64tobits(char *out, const char *in, int maxlen);
+		}
 		return this->Write(line + "\r\n");
 	}
 
@@ -2138,6 +2185,7 @@ void ReadConfiguration(bool rebind)
 		L.SendPass = Conf->ReadValue("link","sendpass",j);
 		L.RecvPass = Conf->ReadValue("link","recvpass",j);
 		L.AutoConnect = Conf->ReadInteger("link","autoconnect",j,true);
+		L.EncryptionKey =  Conf->ReadValue("link","encryptionkey",j);
 		L.NextConnectTime = time(NULL) + L.AutoConnect;
 		/* Bugfix by brain, do not allow people to enter bad configurations */
 		if ((L.RecvPass != "") && (L.SendPass != "") && (L.Name != "") && (L.Port))
