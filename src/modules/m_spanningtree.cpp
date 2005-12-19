@@ -1193,7 +1193,7 @@ class TreeSocket : public InspSocket
 				while (line.length() % this->keylength != 0)
 				{
 					// pad it to be a multiple of the key length
-					line = line + "\0";
+					line = line + "\n";
 				}
 			}
 			ctx->Encrypt(line.c_str(), result, line.length(),0);
