@@ -83,18 +83,17 @@ void ProcessUser(userrec* cu)
         log(DEBUG,"Processing user with fd %d",cu->fd);
 	if (Config->GetIOHook(cu->port))
 	{
-	        int MOD_RESULT = 0;
 	        int result2 = 0;
-		Config->GetIOHook(cu->port)->OnRawSocketRead(cu->fd,data,65535,result2);
-	        if (!MOD_RESULT)
-	        {
-	                result = cu->ReadData(data, 65535);
-	        }
-	        else
-	        {
-	                log(DEBUG,"Data result returned by module: %d",MOD_RESULT);
-	                result = result2;
-	        }
+		int MOD_RESULT = Config->GetIOHook(cu->port)->OnRawSocketRead(cu->fd,data,65535,result2);
+                log(DEBUG,"Data result returned by module: %d",MOD_RESULT);
+		if (MOD_RESULT < 0)
+		{
+			result = EAGAIN;
+		}
+		else
+		{
+                	result = result2;
+		}
 	}
 	else
 	{

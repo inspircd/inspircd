@@ -527,6 +527,7 @@ int InspIRCd::Run()
 						 */
 						if (incomingSockfd >= 0)
 						{
+							NonBlocking(incomingSockfd);
 							if (Config->GetIOHook(in_port))
 							{
 								Config->GetIOHook(in_port)->OnRawSocketAccept(incomingSockfd, target, in_port);

@@ -555,7 +555,6 @@ void AddClient(int socket, char* host, int port, bool iscached, char* ip)
          */
         clientlist[tempnick] = new userrec();
 
-        NonBlocking(socket);
         log(DEBUG,"AddClient: %lu %s %d %s",(unsigned long)socket,host,port,ip);
 
         clientlist[tempnick]->fd = socket;
