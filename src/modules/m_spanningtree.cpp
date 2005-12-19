@@ -583,10 +583,17 @@ class TreeSocket : public InspSocket
 		keylength = key.length();
 		if (!(keylength == 16 || keylength == 24 || keylength == 32))
 		{
+			WriteOpers("\2ERROR\2: Key length for encryptionkey is not 16, 24 or 32 bytes in length!");
 			log(DEBUG,"Key length not 16, 24 or 32 characters!");
 		}
 		else
 		{
+	                std::string SName = myhost;
+	                if (InboundServerName != "")
+	                {
+				SName = InboundServerName;
+	                }
+			WriteOpers("\2AES\2: Initialized %d bit encryption to server %s",keylength*8,SName.c_str());
 			ctx->MakeKey(key.c_str(), "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\
 				\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0", keylength, keylength);
 		}
@@ -1141,7 +1148,6 @@ class TreeSocket : public InspSocket
 		char* data = this->Read();
 		if (data)
 		{
-			Srv->Log(DEBUG,"m_spanningtree: READ");
 			this->in_buffer += data;
 			/* While there is at least one new line in the buffer,
 			 * do something useful (we hope!) with it.
