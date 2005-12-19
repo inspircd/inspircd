@@ -1169,6 +1169,8 @@ class TreeSocket : public InspSocket
 					int nbytes = from64tobits(out, ret.c_str(), 1024);
 					log(DEBUG,"m_spanningtree: decrypt %d bytes",nbytes);
 					ctx->Decrypt(out, result, nbytes, 0);
+					for (int t = 0; t < nbytes; t++)
+						if (result[t] == '\7') result[t] = 0;
 					ret = result;
 				}
 				if (!this->ProcessLine(ret))
@@ -1193,7 +1195,7 @@ class TreeSocket : public InspSocket
 				while (line.length() % this->keylength != 0)
 				{
 					// pad it to be a multiple of the key length
-					line = line + "\n";
+					line = line + "\7";
 				}
 			}
 			ctx->Encrypt(line.c_str(), result, line.length(),0);
