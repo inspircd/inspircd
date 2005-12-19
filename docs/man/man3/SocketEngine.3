@@ -1,4 +1,4 @@
-.TH "SocketEngine" 3 "15 Dec 2005" "Version 1.0Betareleases" "InspIRCd" \" -*- nroff -*-
+.TH "SocketEngine" 3 "19 Dec 2005" "Version 1.0Betareleases" "InspIRCd" \" -*- nroff -*-
 .ad l
 .nh
 .SH NAME
@@ -121,7 +121,7 @@ Definition at line 65 of file socketengine.cpp.
 .PP
 References DEBUG, EngineHandle, fds, log(), ref, and X_READBIT.
 .PP
-Referenced by InspSocket::InspSocket(), and InspSocket::Poll().
+Referenced by AddClient(), InspSocket::InspSocket(), and InspSocket::Poll().
 .PP
 .nf
 66 {
@@ -170,7 +170,7 @@ Definition at line 103 of file socketengine.cpp.
 .PP
 References DEBUG, EngineHandle, fds, log(), ref, and X_READBIT.
 .PP
-Referenced by InspSocket::Poll(), and Server::UserToPseudo().
+Referenced by kill_link(), kill_link_silent(), InspSocket::Poll(), and Server::UserToPseudo().
 .PP
 .nf
 104 {

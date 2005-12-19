@@ -34,13 +34,15 @@ Collaboration diagram for serverstats:<p><center><img src="classserverstats__col
 
 <tr><td class="memItemLeft" nowrap align="right" valign="top">int&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classserverstats.html#statsRecv">statsRecv</a></td></tr>
 
+<tr><td class="memItemLeft" nowrap align="right" valign="top">int&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classserverstats.html#BoundPortCount">BoundPortCount</a></td></tr>
+
 </table>
 <hr><a name="_details"></a><h2>Detailed Description</h2>
 
 <p>
 
 <p>
-Definition at line <a class="el" href="inspircd_8h-source.html#l00072">72</a> of file <a class="el" href="inspircd_8h-source.html">inspircd.h</a>.<hr><h2>Constructor &amp; Destructor Documentation</h2>
+Definition at line <a class="el" href="inspircd_8h-source.html#l00074">74</a> of file <a class="el" href="inspircd_8h-source.html">inspircd.h</a>.<hr><h2>Constructor &amp; Destructor Documentation</h2>
 <a class="anchor" name="serverstats_28_29"></a><!-- doxytag: member="serverstats::serverstats" ref="serverstats_28_29" args="()" --><p>
 <table class="mdTable" cellpadding="2" cellspacing="0">
   <tr>
@@ -67,19 +69,47 @@ Definition at line <a class="el" href="inspircd_8h-source.html#l00072">72</a> of
 <p>
 
 <p>
-Definition at line <a class="el" href="inspircd_8h-source.html#l00086">86</a> of file <a class="el" href="inspircd_8h-source.html">inspircd.h</a>.
+Definition at line <a class="el" href="inspircd_8h-source.html#l00089">89</a> of file <a class="el" href="inspircd_8h-source.html">inspircd.h</a>.
 <p>
-References <a class="el" href="inspircd_8h-source.html#l00075">statsAccept</a>, <a class="el" href="inspircd_8h-source.html#l00078">statsCollisions</a>, <a class="el" href="inspircd_8h-source.html#l00082">statsConnects</a>, <a class="el" href="inspircd_8h-source.html#l00079">statsDns</a>, <a class="el" href="inspircd_8h-source.html#l00081">statsDnsBad</a>, <a class="el" href="inspircd_8h-source.html#l00080">statsDnsGood</a>, <a class="el" href="inspircd_8h-source.html#l00084">statsRecv</a>, <a class="el" href="inspircd_8h-source.html#l00076">statsRefused</a>, <a class="el" href="inspircd_8h-source.html#l00083">statsSent</a>, and <a class="el" href="inspircd_8h-source.html#l00077">statsUnknown</a>.<div class="fragment"><pre class="fragment"><a name="l00087"></a>00087         {
-<a name="l00088"></a>00088                 <a class="code" href="classserverstats.html#statsAccept">statsAccept</a> = <a class="code" href="classserverstats.html#statsRefused">statsRefused</a> = <a class="code" href="classserverstats.html#statsUnknown">statsUnknown</a> = 0;
-<a name="l00089"></a>00089                 <a class="code" href="classserverstats.html#statsCollisions">statsCollisions</a> = <a class="code" href="classserverstats.html#statsDns">statsDns</a> = <a class="code" href="classserverstats.html#statsDnsGood">statsDnsGood</a> = 0;
-<a name="l00090"></a>00090                 <a class="code" href="classserverstats.html#statsDnsBad">statsDnsBad</a> = <a class="code" href="classserverstats.html#statsConnects">statsConnects</a> = <a class="code" href="classserverstats.html#statsSent">statsSent</a> = <a class="code" href="classserverstats.html#statsRecv">statsRecv</a> = 0;
-<a name="l00091"></a>00091         }
+References <a class="el" href="inspircd_8h-source.html#l00087">BoundPortCount</a>, <a class="el" href="inspircd_8h-source.html#l00077">statsAccept</a>, <a class="el" href="inspircd_8h-source.html#l00080">statsCollisions</a>, <a class="el" href="inspircd_8h-source.html#l00084">statsConnects</a>, <a class="el" href="inspircd_8h-source.html#l00081">statsDns</a>, <a class="el" href="inspircd_8h-source.html#l00083">statsDnsBad</a>, <a class="el" href="inspircd_8h-source.html#l00082">statsDnsGood</a>, <a class="el" href="inspircd_8h-source.html#l00086">statsRecv</a>, <a class="el" href="inspircd_8h-source.html#l00078">statsRefused</a>, <a class="el" href="inspircd_8h-source.html#l00085">statsSent</a>, and <a class="el" href="inspircd_8h-source.html#l00079">statsUnknown</a>.<div class="fragment"><pre class="fragment"><a name="l00090"></a>00090         {
+<a name="l00091"></a>00091                 <a class="code" href="classserverstats.html#statsAccept">statsAccept</a> = <a class="code" href="classserverstats.html#statsRefused">statsRefused</a> = <a class="code" href="classserverstats.html#statsUnknown">statsUnknown</a> = 0;
+<a name="l00092"></a>00092                 <a class="code" href="classserverstats.html#statsCollisions">statsCollisions</a> = <a class="code" href="classserverstats.html#statsDns">statsDns</a> = <a class="code" href="classserverstats.html#statsDnsGood">statsDnsGood</a> = 0;
+<a name="l00093"></a>00093                 <a class="code" href="classserverstats.html#statsDnsBad">statsDnsBad</a> = <a class="code" href="classserverstats.html#statsConnects">statsConnects</a> = <a class="code" href="classserverstats.html#statsSent">statsSent</a> = <a class="code" href="classserverstats.html#statsRecv">statsRecv</a> = 0;
+<a name="l00094"></a>00094                 <a class="code" href="classserverstats.html#BoundPortCount">BoundPortCount</a> = 0;
+<a name="l00095"></a>00095         }
 </pre></div>
 <p>
     </td>
   </tr>
 </table>
 <hr><h2>Member Data Documentation</h2>
+<a class="anchor" name="BoundPortCount"></a><!-- doxytag: member="serverstats::BoundPortCount" ref="BoundPortCount" args="" --><p>
+<table class="mdTable" cellpadding="2" cellspacing="0">
+  <tr>
+    <td class="mdRow">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top">int <a class="el" href="classserverstats.html#BoundPortCount">serverstats::BoundPortCount</a>          </td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing="5" cellpadding="0" border="0">
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+
+<p>
+Definition at line <a class="el" href="inspircd_8h-source.html#l00087">87</a> of file <a class="el" href="inspircd_8h-source.html">inspircd.h</a>.
+<p>
+Referenced by <a class="el" href="inspircd_8h-source.html#l00089">serverstats()</a>.    </td>
+  </tr>
+</table>
 <a class="anchor" name="statsAccept"></a><!-- doxytag: member="serverstats::statsAccept" ref="statsAccept" args="" --><p>
 <table class="mdTable" cellpadding="2" cellspacing="0">
   <tr>
@@ -102,9 +132,9 @@ References <a class="el" href="inspircd_8h-source.html#l00075">statsAccept</a>, 
 <p>
 
 <p>
-Definition at line <a class="el" href="inspircd_8h-source.html#l00075">75</a> of file <a class="el" href="inspircd_8h-source.html">inspircd.h</a>.
+Definition at line <a class="el" href="inspircd_8h-source.html#l00077">77</a> of file <a class="el" href="inspircd_8h-source.html">inspircd.h</a>.
 <p>
-Referenced by <a class="el" href="inspircd_8h-source.html#l00086">serverstats()</a>.    </td>
+Referenced by <a class="el" href="inspircd_8h-source.html#l00089">serverstats()</a>.    </td>
   </tr>
 </table>
 <a class="anchor" name="statsCollisions"></a><!-- doxytag: member="serverstats::statsCollisions" ref="statsCollisions" args="" --><p>
@@ -129,9 +159,9 @@ Referenced by <a class="el" href="inspircd_8h-source.html#l00086">serverstats()<
 <p>
 
 <p>
-Definition at line <a class="el" href="inspircd_8h-source.html#l00078">78</a> of file <a class="el" href="inspircd_8h-source.html">inspircd.h</a>.
+Definition at line <a class="el" href="inspircd_8h-source.html#l00080">80</a> of file <a class="el" href="inspircd_8h-source.html">inspircd.h</a>.
 <p>
-Referenced by <a class="el" href="inspircd_8h-source.html#l00086">serverstats()</a>.    </td>
+Referenced by <a class="el" href="users_8cpp-source.html#l00769">force_nickchange()</a>, and <a class="el" href="inspircd_8h-source.html#l00089">serverstats()</a>.    </td>
   </tr>
 </table>
 <a class="anchor" name="statsConnects"></a><!-- doxytag: member="serverstats::statsConnects" ref="statsConnects" args="" --><p>
@@ -156,9 +186,9 @@ Referenced by <a class="el" href="inspircd_8h-source.html#l00086">serverstats()<
 <p>
 
 <p>
-Definition at line <a class="el" href="inspircd_8h-source.html#l00082">82</a> of file <a class="el" href="inspircd_8h-source.html">inspircd.h</a>.
+Definition at line <a class="el" href="inspircd_8h-source.html#l00084">84</a> of file <a class="el" href="inspircd_8h-source.html">inspircd.h</a>.
 <p>
-Referenced by <a class="el" href="inspircd_8h-source.html#l00086">serverstats()</a>.    </td>
+Referenced by <a class="el" href="users_8cpp-source.html#l00647">FullConnectUser()</a>, and <a class="el" href="inspircd_8h-source.html#l00089">serverstats()</a>.    </td>
   </tr>
 </table>
 <a class="anchor" name="statsDns"></a><!-- doxytag: member="serverstats::statsDns" ref="statsDns" args="" --><p>
@@ -183,9 +213,9 @@ Referenced by <a class="el" href="inspircd_8h-source.html#l00086">serverstats()<
 <p>
 
 <p>
-Definition at line <a class="el" href="inspircd_8h-source.html#l00079">79</a> of file <a class="el" href="inspircd_8h-source.html">inspircd.h</a>.
+Definition at line <a class="el" href="inspircd_8h-source.html#l00081">81</a> of file <a class="el" href="inspircd_8h-source.html">inspircd.h</a>.
 <p>
-Referenced by <a class="el" href="inspircd_8h-source.html#l00086">serverstats()</a>.    </td>
+Referenced by <a class="el" href="inspircd_8h-source.html#l00089">serverstats()</a>.    </td>
   </tr>
 </table>
 <a class="anchor" name="statsDnsBad"></a><!-- doxytag: member="serverstats::statsDnsBad" ref="statsDnsBad" args="" --><p>
@@ -210,9 +240,9 @@ Referenced by <a class="el" href="inspircd_8h-source.html#l00086">serverstats()<
 <p>
 
 <p>
-Definition at line <a class="el" href="inspircd_8h-source.html#l00081">81</a> of file <a class="el" href="inspircd_8h-source.html">inspircd.h</a>.
+Definition at line <a class="el" href="inspircd_8h-source.html#l00083">83</a> of file <a class="el" href="inspircd_8h-source.html">inspircd.h</a>.
 <p>
-Referenced by <a class="el" href="inspircd_8h-source.html#l00086">serverstats()</a>.    </td>
+Referenced by <a class="el" href="inspircd_8h-source.html#l00089">serverstats()</a>.    </td>
   </tr>
 </table>
 <a class="anchor" name="statsDnsGood"></a><!-- doxytag: member="serverstats::statsDnsGood" ref="statsDnsGood" args="" --><p>
@@ -237,9 +267,9 @@ Referenced by <a class="el" href="inspircd_8h-source.html#l00086">serverstats()<
 <p>
 
 <p>
-Definition at line <a class="el" href="inspircd_8h-source.html#l00080">80</a> of file <a class="el" href="inspircd_8h-source.html">inspircd.h</a>.
+Definition at line <a class="el" href="inspircd_8h-source.html#l00082">82</a> of file <a class="el" href="inspircd_8h-source.html">inspircd.h</a>.
 <p>
-Referenced by <a class="el" href="inspircd_8h-source.html#l00086">serverstats()</a>.    </td>
+Referenced by <a class="el" href="inspircd_8h-source.html#l00089">serverstats()</a>.    </td>
   </tr>
 </table>
 <a class="anchor" name="statsRecv"></a><!-- doxytag: member="serverstats::statsRecv" ref="statsRecv" args="" --><p>
@@ -264,9 +294,9 @@ Referenced by <a class="el" href="inspircd_8h-source.html#l00086">serverstats()<
 <p>
 
 <p>
-Definition at line <a class="el" href="inspircd_8h-source.html#l00084">84</a> of file <a class="el" href="inspircd_8h-source.html">inspircd.h</a>.
+Definition at line <a class="el" href="inspircd_8h-source.html#l00086">86</a> of file <a class="el" href="inspircd_8h-source.html">inspircd.h</a>.
 <p>
-Referenced by <a class="el" href="inspircd_8h-source.html#l00086">serverstats()</a>.    </td>
+Referenced by <a class="el" href="inspircd_8h-source.html#l00089">serverstats()</a>.    </td>
   </tr>
 </table>
 <a class="anchor" name="statsRefused"></a><!-- doxytag: member="serverstats::statsRefused" ref="statsRefused" args="" --><p>
@@ -291,9 +321,9 @@ Referenced by <a class="el" href="inspircd_8h-source.html#l00086">serverstats()<
 <p>
 
 <p>
-Definition at line <a class="el" href="inspircd_8h-source.html#l00076">76</a> of file <a class="el" href="inspircd_8h-source.html">inspircd.h</a>.
+Definition at line <a class="el" href="inspircd_8h-source.html#l00078">78</a> of file <a class="el" href="inspircd_8h-source.html">inspircd.h</a>.
 <p>
-Referenced by <a class="el" href="inspircd_8h-source.html#l00086">serverstats()</a>.    </td>
+Referenced by <a class="el" href="inspircd_8h-source.html#l00089">serverstats()</a>.    </td>
   </tr>
 </table>
 <a class="anchor" name="statsSent"></a><!-- doxytag: member="serverstats::statsSent" ref="statsSent" args="" --><p>
@@ -318,9 +348,9 @@ Referenced by <a class="el" href="inspircd_8h-source.html#l00086">serverstats()<
 <p>
 
 <p>
-Definition at line <a class="el" href="inspircd_8h-source.html#l00083">83</a> of file <a class="el" href="inspircd_8h-source.html">inspircd.h</a>.
+Definition at line <a class="el" href="inspircd_8h-source.html#l00085">85</a> of file <a class="el" href="inspircd_8h-source.html">inspircd.h</a>.
 <p>
-Referenced by <a class="el" href="inspircd_8h-source.html#l00086">serverstats()</a>.    </td>
+Referenced by <a class="el" href="inspircd_8h-source.html#l00089">serverstats()</a>.    </td>
   </tr>
 </table>
 <a class="anchor" name="statsUnknown"></a><!-- doxytag: member="serverstats::statsUnknown" ref="statsUnknown" args="" --><p>
@@ -345,14 +375,14 @@ Referenced by <a class="el" href="inspircd_8h-source.html#l00086">serverstats()<
 <p>
 
 <p>
-Definition at line <a class="el" href="inspircd_8h-source.html#l00077">77</a> of file <a class="el" href="inspircd_8h-source.html">inspircd.h</a>.
+Definition at line <a class="el" href="inspircd_8h-source.html#l00079">79</a> of file <a class="el" href="inspircd_8h-source.html">inspircd.h</a>.
 <p>
-Referenced by <a class="el" href="inspircd_8h-source.html#l00086">serverstats()</a>.    </td>
+Referenced by <a class="el" href="inspircd_8h-source.html#l00089">serverstats()</a>.    </td>
   </tr>
 </table>
 <hr>The documentation for this class was generated from the following file:<ul>
 <li><a class="el" href="inspircd_8h-source.html">inspircd.h</a></ul>
-<hr size="1"><address style="align: right;"><small>Generated on Thu Dec 15 11:14:19 2005 for InspIRCd by&nbsp;
+<hr size="1"><address style="align: right;"><small>Generated on Mon Dec 19 18:02:16 2005 for InspIRCd by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img src="doxygen.png" alt="doxygen" align="middle" border="0"></a> 1.4.4-20050815 </small></address>
 </body>

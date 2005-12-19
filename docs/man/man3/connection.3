@@ -1,4 +1,4 @@
-.TH "connection" 3 "15 Dec 2005" "Version 1.0Betareleases" "InspIRCd" \" -*- nroff -*-
+.TH "connection" 3 "19 Dec 2005" "Version 1.0Betareleases" "InspIRCd" \" -*- nroff -*-
 .ad l
 .nh
 .SH NAME
@@ -139,14 +139,14 @@ File descriptor of the connection.
 .PP
 Definition at line 42 of file connection.h.
 .PP
-Referenced by add_channel(), connection(), ConfigReader::DumpErrors(), kick_channel(), Server::PseudoToUser(), Server::SendTo(), userrec::userrec(), and Server::UserToPseudo().
+Referenced by add_channel(), connection(), ConfigReader::DumpErrors(), FullConnectUser(), kick_channel(), kill_link(), kill_link_silent(), Server::PseudoToUser(), Server::SendTo(), userrec::userrec(), and Server::UserToPseudo().
 .SS "bool \fBconnection::haspassed\fP"
 .PP
 True if server/user has authenticated, false if otherwise. 
 .PP
 Definition at line 70 of file connection.h.
 .PP
-Referenced by userrec::userrec().
+Referenced by FullConnectUser(), and userrec::userrec().
 .SS "char \fBconnection::host\fP[160]"
 .PP
 Hostname of connection. 
@@ -155,21 +155,21 @@ Not used if this is a serverrec
 .PP
 Definition at line 46 of file connection.h.
 .PP
-Referenced by userrec::GetFullRealHost(), Server::PseudoToUser(), userrec::userrec(), and Server::UserToPseudo().
+Referenced by AddWhoWas(), FullConnectUser(), userrec::GetFullRealHost(), kill_link(), kill_link_silent(), Server::PseudoToUser(), userrec::userrec(), and Server::UserToPseudo().
 .SS "time_t \fBconnection::idle_lastmsg\fP"
 .PP
 Time that the connection last sent data, used to calculate idle time. 
 .PP
 Definition at line 92 of file connection.h.
 .PP
-Referenced by userrec::userrec().
+Referenced by FullConnectUser(), and userrec::userrec().
 .SS "char \fBconnection::ip\fP[16]"
 .PP
 IP of connection. 
 .PP
 Definition at line 50 of file connection.h.
 .PP
-Referenced by userrec::userrec().
+Referenced by FullConnectUser(), and userrec::userrec().
 .SS "time_t \fBconnection::lastping\fP"
 .PP
 Time the connection was last pinged. 
@@ -192,21 +192,21 @@ For a serverrec this is the current listening port of the serverrec object.
 .PP
 Definition at line 76 of file connection.h.
 .PP
-Referenced by userrec::userrec().
+Referenced by FullConnectUser(), kill_link(), kill_link_silent(), and userrec::userrec().
 .SS "char \fBconnection::registered\fP"
 .PP
 Used by userrec to indicate the registration status of the connection. 
 .PP
 Definition at line 80 of file connection.h.
 .PP
-Referenced by userrec::userrec().
+Referenced by ConnectUser(), force_nickchange(), FullConnectUser(), kill_link(), kill_link_silent(), and userrec::userrec().
 .SS "time_t \fBconnection::signon\fP"
 .PP
 Time the connection was created, set in the constructor. 
 .PP
 Definition at line 88 of file connection.h.
 .PP
-Referenced by userrec::userrec().
+Referenced by AddWhoWas(), and userrec::userrec().
 
 .SH "Author"
 .PP 

@@ -1,4 +1,4 @@
-.TH "userprocess.h" 3 "15 Dec 2005" "Version 1.0Betareleases" "InspIRCd" \" -*- nroff -*-
+.TH "userprocess.h" 3 "19 Dec 2005" "Version 1.0Betareleases" "InspIRCd" \" -*- nroff -*-
 .ad l
 .nh
 .SH NAME
@@ -8,6 +8,8 @@ userprocess.h \-
 .PP
 \fC#include 'users.h'\fP
 .br
+\fC#include 'inspircd.h'\fP
+.br
 
 .SS "Functions"
 
@@ -16,7 +18,7 @@ userprocess.h \-
 .RI "void \fBCheckDie\fP ()"
 .br
 .ti -1c
-.RI "void \fBLoadAllModules\fP ()"
+.RI "void \fBLoadAllModules\fP (\fBInspIRCd\fP *\fBServerInstance\fP)"
 .br
 .ti -1c
 .RI "void \fBCheckRoot\fP ()"
@@ -39,7 +41,7 @@ userprocess.h \-
 .PP
 .SS "bool DoBackgroundUserStuff (time_t TIME)"
 .PP
-.SS "void LoadAllModules ()"
+.SS "void LoadAllModules (\fBInspIRCd\fP * ServerInstance)"
 .PP
 .SS "void OpenLog (char ** argv, int argc)"
 .PP

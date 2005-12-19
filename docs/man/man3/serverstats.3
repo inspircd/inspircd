@@ -1,4 +1,4 @@
-.TH "serverstats" 3 "15 Dec 2005" "Version 1.0Betareleases" "InspIRCd" \" -*- nroff -*-
+.TH "serverstats" 3 "19 Dec 2005" "Version 1.0Betareleases" "InspIRCd" \" -*- nroff -*-
 .ad l
 .nh
 .SH NAME
@@ -48,76 +48,85 @@ serverstats \-
 .ti -1c
 .RI "int \fBstatsRecv\fP"
 .br
+.ti -1c
+.RI "int \fBBoundPortCount\fP"
+.br
 .in -1c
 .SH "Detailed Description"
 .PP 
-Definition at line 72 of file inspircd.h.
+Definition at line 74 of file inspircd.h.
 .SH "Constructor & Destructor Documentation"
 .PP 
 .SS "serverstats::serverstats ()\fC [inline]\fP"
 .PP
-Definition at line 86 of file inspircd.h.
+Definition at line 89 of file inspircd.h.
 .PP
-References statsAccept, statsCollisions, statsConnects, statsDns, statsDnsBad, statsDnsGood, statsRecv, statsRefused, statsSent, and statsUnknown.
+References BoundPortCount, statsAccept, statsCollisions, statsConnects, statsDns, statsDnsBad, statsDnsGood, statsRecv, statsRefused, statsSent, and statsUnknown.
 .PP
 .nf
-87         {
-88                 statsAccept = statsRefused = statsUnknown = 0;
-89                 statsCollisions = statsDns = statsDnsGood = 0;
-90                 statsDnsBad = statsConnects = statsSent = statsRecv = 0;
-91         }
+90         {
+91                 statsAccept = statsRefused = statsUnknown = 0;
+92                 statsCollisions = statsDns = statsDnsGood = 0;
+93                 statsDnsBad = statsConnects = statsSent = statsRecv = 0;
+94                 BoundPortCount = 0;
+95         }
 .fi
 .PP
 .SH "Member Data Documentation"
 .PP 
+.SS "int \fBserverstats::BoundPortCount\fP"
+.PP
+Definition at line 87 of file inspircd.h.
+.PP
+Referenced by serverstats().
 .SS "int \fBserverstats::statsAccept\fP"
 .PP
-Definition at line 75 of file inspircd.h.
+Definition at line 77 of file inspircd.h.
 .PP
 Referenced by serverstats().
 .SS "int \fBserverstats::statsCollisions\fP"
 .PP
-Definition at line 78 of file inspircd.h.
+Definition at line 80 of file inspircd.h.
 .PP
-Referenced by serverstats().
+Referenced by force_nickchange(), and serverstats().
 .SS "int \fBserverstats::statsConnects\fP"
 .PP
-Definition at line 82 of file inspircd.h.
+Definition at line 84 of file inspircd.h.
 .PP
-Referenced by serverstats().
+Referenced by FullConnectUser(), and serverstats().
 .SS "int \fBserverstats::statsDns\fP"
-.PP
-Definition at line 79 of file inspircd.h.
-.PP
-Referenced by serverstats().
-.SS "int \fBserverstats::statsDnsBad\fP"
 .PP
 Definition at line 81 of file inspircd.h.
 .PP
 Referenced by serverstats().
-.SS "int \fBserverstats::statsDnsGood\fP"
-.PP
-Definition at line 80 of file inspircd.h.
-.PP
-Referenced by serverstats().
-.SS "int \fBserverstats::statsRecv\fP"
-.PP
-Definition at line 84 of file inspircd.h.
-.PP
-Referenced by serverstats().
-.SS "int \fBserverstats::statsRefused\fP"
-.PP
-Definition at line 76 of file inspircd.h.
-.PP
-Referenced by serverstats().
-.SS "int \fBserverstats::statsSent\fP"
+.SS "int \fBserverstats::statsDnsBad\fP"
 .PP
 Definition at line 83 of file inspircd.h.
 .PP
 Referenced by serverstats().
+.SS "int \fBserverstats::statsDnsGood\fP"
+.PP
+Definition at line 82 of file inspircd.h.
+.PP
+Referenced by serverstats().
+.SS "int \fBserverstats::statsRecv\fP"
+.PP
+Definition at line 86 of file inspircd.h.
+.PP
+Referenced by serverstats().
+.SS "int \fBserverstats::statsRefused\fP"
+.PP
+Definition at line 78 of file inspircd.h.
+.PP
+Referenced by serverstats().
+.SS "int \fBserverstats::statsSent\fP"
+.PP
+Definition at line 85 of file inspircd.h.
+.PP
+Referenced by serverstats().
 .SS "int \fBserverstats::statsUnknown\fP"
 .PP
-Definition at line 77 of file inspircd.h.
+Definition at line 79 of file inspircd.h.
 .PP
 Referenced by serverstats().
 

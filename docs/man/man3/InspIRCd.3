@@ -1,4 +1,4 @@
-.TH "InspIRCd" 3 "15 Dec 2005" "Version 1.0Betareleases" "InspIRCd" \" -*- nroff -*-
+.TH "InspIRCd" 3 "19 Dec 2005" "Version 1.0Betareleases" "InspIRCd" \" -*- nroff -*-
 .ad l
 .nh
 .SH NAME
@@ -11,6 +11,9 @@ InspIRCd \-
 .SS "Public Member Functions"
 
 .in +1c
+.ti -1c
+.RI "void \fBMakeLowerMap\fP ()"
+.br
 .ti -1c
 .RI "\fBstd::string\fP \fBGetRevision\fP ()"
 .br
@@ -39,6 +42,18 @@ InspIRCd \-
 .ti -1c
 .RI "time_t \fBstartup_time\fP"
 .br
+.ti -1c
+.RI "\fBModeParser\fP * \fBModeGrok\fP"
+.br
+.ti -1c
+.RI "CommandParser * \fBParser\fP"
+.br
+.ti -1c
+.RI "\fBSocketEngine\fP * \fBSE\fP"
+.br
+.ti -1c
+.RI "\fBserverstats\fP * \fBstats\fP"
+.br
 .in -1c
 .SS "Private Member Functions"
 
@@ -59,7 +74,7 @@ InspIRCd \-
 .in -1c
 .SH "Detailed Description"
 .PP 
-Definition at line 95 of file inspircd.h.
+Definition at line 99 of file inspircd.h.
 .SH "Constructor & Destructor Documentation"
 .PP 
 .SS "InspIRCd::InspIRCd (int argc, char ** argv)"
@@ -77,6 +92,8 @@ Definition at line 95 of file inspircd.h.
 Referenced by Server::GetVersion().
 .SS "bool InspIRCd::LoadModule (const char * filename)"
 .PP
+.SS "void InspIRCd::MakeLowerMap ()"
+.PP
 .SS "char* InspIRCd::ModuleError ()"
 .PP
 .SS "int InspIRCd::Run ()"
@@ -85,12 +102,32 @@ Referenced by Server::GetVersion().
 .PP
 .SH "Member Data Documentation"
 .PP 
+.SS "\fBModeParser\fP* \fBInspIRCd::ModeGrok\fP"
+.PP
+Definition at line 109 of file inspircd.h.
+.PP
+Referenced by Server::SendMode().
 .SS "char \fBInspIRCd::MODERR\fP[MAXBUF]\fC [private]\fP"
 .PP
-Definition at line 99 of file inspircd.h.
+Definition at line 103 of file inspircd.h.
+.SS "CommandParser* \fBInspIRCd::Parser\fP"
+.PP
+Definition at line 110 of file inspircd.h.
+.PP
+Referenced by Server::AddCommand(), Server::CallCommandHandler(), force_nickchange(), and Server::IsValidModuleCommand().
+.SS "\fBSocketEngine\fP* \fBInspIRCd::SE\fP"
+.PP
+Definition at line 111 of file inspircd.h.
+.PP
+Referenced by AddClient(), InspSocket::InspSocket(), kill_link(), kill_link_silent(), InspSocket::Poll(), and Server::UserToPseudo().
 .SS "time_t \fBInspIRCd::startup_time\fP"
 .PP
-Definition at line 104 of file inspircd.h.
+Definition at line 108 of file inspircd.h.
+.SS "\fBserverstats\fP* \fBInspIRCd::stats\fP"
+.PP
+Definition at line 112 of file inspircd.h.
+.PP
+Referenced by force_nickchange(), and FullConnectUser().
 
 .SH "Author"
 .PP 

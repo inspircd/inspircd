@@ -1,4 +1,4 @@
-.TH "globals.h" 3 "15 Dec 2005" "Version 1.0Betareleases" "InspIRCd" \" -*- nroff -*-
+.TH "globals.h" 3 "19 Dec 2005" "Version 1.0Betareleases" "InspIRCd" \" -*- nroff -*-
 .ad l
 .nh
 .SH NAME
@@ -136,7 +136,7 @@ Referenced by add_channel(), del_channel(), and Server::FindChannel().
 Referenced by Server::IsNick().
 .SS "void log (int level, char * text,  ...)"
 .PP
-Referenced by add_channel(), Server::AddExtendedMode(), SocketEngine::AddFd(), chanrec::AddUser(), del_channel(), SocketEngine::DelFd(), chanrec::DelUser(), ForceChan(), InspSocket::InspSocket(), kick_channel(), Server::Log(), InspSocket::Read(), userrec::RemoveInvite(), chanrec::SetCustomMode(), chanrec::SetCustomModeParam(), InspSocket::SetState(), userrec::SetWriteError(), SocketEngine::SocketEngine(), and SocketEngine::~SocketEngine().
+Referenced by add_channel(), AddClient(), Server::AddExtendedMode(), SocketEngine::AddFd(), AddOper(), chanrec::AddUser(), AddWhoWas(), del_channel(), DeleteOper(), SocketEngine::DelFd(), chanrec::DelUser(), ForceChan(), FullConnectUser(), InspSocket::InspSocket(), kick_channel(), kill_link(), kill_link_silent(), Server::Log(), InspSocket::Read(), ReHashNick(), userrec::RemoveInvite(), chanrec::SetCustomMode(), chanrec::SetCustomModeParam(), InspSocket::SetState(), userrec::SetWriteError(), SocketEngine::SocketEngine(), and SocketEngine::~SocketEngine().
 .SS "int ModeDefiend (char c, int i)"
 .PP
 .SS "void readfile (\fBfile_cache\fP & F, const char * fname)"
@@ -144,7 +144,7 @@ Referenced by add_channel(), Server::AddExtendedMode(), SocketEngine::AddFd(), c
 Referenced by FileReader::FileReader(), and FileReader::LoadFile().
 .SS "void Write (int sock, char * text,  ...)"
 .PP
-Referenced by Server::PseudoToUser(), Server::Send(), Server::SendTo(), and Server::UserToPseudo().
+Referenced by kill_link(), kill_link_silent(), Server::PseudoToUser(), Server::Send(), Server::SendTo(), and Server::UserToPseudo().
 .SS "void WriteChannel (\fBchanrec\fP * Ptr, \fBuserrec\fP * user, char * text,  ...)"
 .PP
 Referenced by del_channel(), ForceChan(), kick_channel(), and Server::SendChannel().
@@ -153,16 +153,16 @@ Referenced by del_channel(), ForceChan(), kick_channel(), and Server::SendChanne
 Referenced by Server::SendCommon().
 .SS "void WriteCommonExcept (\fBuserrec\fP * u, char * text,  ...)"
 .PP
-Referenced by Server::SendCommon().
+Referenced by kill_link(), kill_link_silent(), and Server::SendCommon().
 .SS "void WriteFrom (int sock, \fBuserrec\fP * user, char * text,  ...)"
 .PP
 Referenced by Server::PseudoToUser(), and Server::SendFrom().
 .SS "void WriteOpers (char * text,  ...)"
 .PP
-Referenced by userrec::AddBuffer(), userrec::AddWriteBuf(), ConfigReader::DumpErrors(), Server::RehashServer(), and Server::SendOpers().
+Referenced by userrec::AddBuffer(), userrec::AddWriteBuf(), ConfigReader::DumpErrors(), FullConnectUser(), kill_link(), Server::RehashServer(), and Server::SendOpers().
 .SS "void WriteServ (int sock, char * text,  ...)"
 .PP
-Referenced by add_channel(), ConfigReader::DumpErrors(), ForceChan(), kick_channel(), Server::PseudoToUser(), and Server::SendServ().
+Referenced by add_channel(), ConfigReader::DumpErrors(), ForceChan(), FullConnectUser(), kick_channel(), Server::PseudoToUser(), and Server::SendServ().
 .SS "void WriteTo (\fBuserrec\fP * source, \fBuserrec\fP * dest, char * data,  ...)"
 .PP
 Referenced by Server::SendTo().

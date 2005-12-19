@@ -31,126 +31,132 @@
 <a name="l00022"></a>00022 <span class="preprocessor">#include &lt;vector&gt;</span>
 <a name="l00023"></a>00023 <span class="preprocessor">#include "<a class="code" href="inspircd_8h.html">inspircd.h</a>"</span>
 <a name="l00024"></a>00024 <span class="preprocessor">#include "<a class="code" href="globals_8h.html">globals.h</a>"</span>
-<a name="l00025"></a>00025 
-<a name="l00028"></a><a class="code" href="inspircd__io_8h.html#DEBUG">00028</a> <span class="preprocessor">#define DEBUG 10</span>
-<a name="l00029"></a><a class="code" href="inspircd__io_8h.html#VERBOSE">00029</a> <span class="preprocessor"></span><span class="preprocessor">#define VERBOSE 20</span>
-<a name="l00030"></a><a class="code" href="inspircd__io_8h.html#DEFAULT">00030</a> <span class="preprocessor"></span><span class="preprocessor">#define DEFAULT 30</span>
-<a name="l00031"></a><a class="code" href="inspircd__io_8h.html#SPARSE">00031</a> <span class="preprocessor"></span><span class="preprocessor">#define SPARSE 40</span>
-<a name="l00032"></a><a class="code" href="inspircd__io_8h.html#NONE">00032</a> <span class="preprocessor"></span><span class="preprocessor">#define NONE 50</span>
-<a name="l00033"></a>00033 <span class="preprocessor"></span>
-<a name="l00039"></a><a class="code" href="classServerConfig.html">00039</a> <span class="keyword">class </span><a class="code" href="classServerConfig.html">ServerConfig</a> : <span class="keyword">public</span> <a class="code" href="classclassbase.html">classbase</a>
-<a name="l00040"></a>00040 {
-<a name="l00041"></a>00041   <span class="keyword">private</span>:
-<a name="l00047"></a><a class="code" href="classServerConfig.html#include_5Fstack">00047</a>         std::vector&lt;std::string&gt; <a class="code" href="classServerConfig.html#include_5Fstack">include_stack</a>;
-<a name="l00048"></a>00048 
-<a name="l00055"></a>00055         <span class="keywordtype">int</span> <a class="code" href="classServerConfig.html#fgets_5Fsafe_28char_20_2Abuffer_2C_20size_5Ft_20maxsize_2C_20FILE_20_2A_26file_29">fgets_safe</a>(<span class="keywordtype">char</span>* buffer, size_t maxsize, FILE* &amp;file);
-<a name="l00056"></a>00056 
-<a name="l00061"></a>00061         <a class="code" href="namespaceirc.html#string">std::string</a> <a class="code" href="classServerConfig.html#ConfProcess_28char_20_2Abuffer_2C_20long_20linenumber_2C_20std_3A_3Astringstream_20_2Aerrorstream_2C_20bool_20_26error_2C_20std_3A_3Astring_20filename_29">ConfProcess</a>(<span class="keywordtype">char</span>* buffer, <span class="keywordtype">long</span> linenumber, std::stringstream* errorstream, <span class="keywordtype">bool</span> &amp;error, <a class="code" href="namespaceirc.html#string">std::string</a> filename);
-<a name="l00062"></a>00062 
-<a name="l00063"></a>00063   <span class="keyword">public</span>:
-<a name="l00064"></a>00064 
-<a name="l00068"></a><a class="code" href="classServerConfig.html#ServerName_5BMAXBUF_5D">00068</a>         <span class="keywordtype">char</span> <a class="code" href="classServerConfig.html#ServerName_5BMAXBUF_5D">ServerName</a>[MAXBUF];
-<a name="l00069"></a>00069         
-<a name="l00070"></a>00070         <span class="comment">/* Holds the network name the local server</span>
-<a name="l00071"></a>00071 <span class="comment">         * belongs to. This is an arbitary field defined</span>
-<a name="l00072"></a>00072 <span class="comment">         * by the administrator.</span>
-<a name="l00073"></a>00073 <span class="comment">         */</span>
-<a name="l00074"></a><a class="code" href="classServerConfig.html#Network_5BMAXBUF_5D">00074</a>         <span class="keywordtype">char</span> <a class="code" href="classServerConfig.html#Network_5BMAXBUF_5D">Network</a>[MAXBUF];
-<a name="l00075"></a>00075 
-<a name="l00079"></a><a class="code" href="classServerConfig.html#ServerDesc_5BMAXBUF_5D">00079</a>         <span class="keywordtype">char</span> <a class="code" href="classServerConfig.html#ServerDesc_5BMAXBUF_5D">ServerDesc</a>[MAXBUF];
-<a name="l00080"></a>00080 
-<a name="l00084"></a><a class="code" href="classServerConfig.html#AdminName_5BMAXBUF_5D">00084</a>         <span class="keywordtype">char</span> <a class="code" href="classServerConfig.html#AdminName_5BMAXBUF_5D">AdminName</a>[MAXBUF];
-<a name="l00085"></a>00085 
-<a name="l00089"></a><a class="code" href="classServerConfig.html#AdminEmail_5BMAXBUF_5D">00089</a>         <span class="keywordtype">char</span> <a class="code" href="classServerConfig.html#AdminEmail_5BMAXBUF_5D">AdminEmail</a>[MAXBUF];
-<a name="l00090"></a>00090 
-<a name="l00094"></a><a class="code" href="classServerConfig.html#AdminNick_5BMAXBUF_5D">00094</a>         <span class="keywordtype">char</span> <a class="code" href="classServerConfig.html#AdminNick_5BMAXBUF_5D">AdminNick</a>[MAXBUF];
-<a name="l00095"></a>00095 
-<a name="l00098"></a><a class="code" href="classServerConfig.html#diepass_5BMAXBUF_5D">00098</a>         <span class="keywordtype">char</span> <a class="code" href="classServerConfig.html#diepass_5BMAXBUF_5D">diepass</a>[MAXBUF];
-<a name="l00099"></a>00099 
-<a name="l00102"></a><a class="code" href="classServerConfig.html#restartpass_5BMAXBUF_5D">00102</a>         <span class="keywordtype">char</span> <a class="code" href="classServerConfig.html#restartpass_5BMAXBUF_5D">restartpass</a>[MAXBUF];
-<a name="l00103"></a>00103 
-<a name="l00107"></a><a class="code" href="classServerConfig.html#motd_5BMAXBUF_5D">00107</a>         <span class="keywordtype">char</span> <a class="code" href="classServerConfig.html#motd_5BMAXBUF_5D">motd</a>[MAXBUF];
-<a name="l00108"></a>00108 
-<a name="l00112"></a><a class="code" href="classServerConfig.html#rules_5BMAXBUF_5D">00112</a>         <span class="keywordtype">char</span> <a class="code" href="classServerConfig.html#rules_5BMAXBUF_5D">rules</a>[MAXBUF];
-<a name="l00113"></a>00113 
-<a name="l00116"></a><a class="code" href="classServerConfig.html#PrefixQuit_5BMAXBUF_5D">00116</a>         <span class="keywordtype">char</span> <a class="code" href="classServerConfig.html#PrefixQuit_5BMAXBUF_5D">PrefixQuit</a>[MAXBUF];
-<a name="l00117"></a>00117 
-<a name="l00121"></a><a class="code" href="classServerConfig.html#DieValue_5BMAXBUF_5D">00121</a>         <span class="keywordtype">char</span> <a class="code" href="classServerConfig.html#DieValue_5BMAXBUF_5D">DieValue</a>[MAXBUF];
-<a name="l00122"></a>00122 
-<a name="l00125"></a><a class="code" href="classServerConfig.html#DNSServer_5BMAXBUF_5D">00125</a>         <span class="keywordtype">char</span> <a class="code" href="classServerConfig.html#DNSServer_5BMAXBUF_5D">DNSServer</a>[MAXBUF];
-<a name="l00126"></a>00126 
-<a name="l00131"></a><a class="code" href="classServerConfig.html#DisabledCommands_5BMAXBUF_5D">00131</a>         <span class="keywordtype">char</span> <a class="code" href="classServerConfig.html#DisabledCommands_5BMAXBUF_5D">DisabledCommands</a>[MAXBUF];
-<a name="l00132"></a>00132 
-<a name="l00138"></a><a class="code" href="classServerConfig.html#ModPath_5B_31_30_32_34_5D">00138</a>         <span class="keywordtype">char</span> <a class="code" href="classServerConfig.html#ModPath_5B_31_30_32_34_5D">ModPath</a>[1024];
-<a name="l00139"></a>00139 
-<a name="l00143"></a><a class="code" href="classServerConfig.html#MyExecutable_5B_31_30_32_34_5D">00143</a>         <span class="keywordtype">char</span> <a class="code" href="classServerConfig.html#MyExecutable_5B_31_30_32_34_5D">MyExecutable</a>[1024];
-<a name="l00144"></a>00144 
-<a name="l00151"></a><a class="code" href="classServerConfig.html#log_5Ffile">00151</a>         FILE *<a class="code" href="classServerConfig.html#log_5Ffile">log_file</a>;
-<a name="l00152"></a>00152 
-<a name="l00158"></a><a class="code" href="classServerConfig.html#nofork">00158</a>         <span class="keywordtype">bool</span> <a class="code" href="classServerConfig.html#nofork">nofork</a>;
-<a name="l00159"></a>00159 
-<a name="l00166"></a><a class="code" href="classServerConfig.html#unlimitcore">00166</a>         <span class="keywordtype">bool</span> <a class="code" href="classServerConfig.html#unlimitcore">unlimitcore</a>;
-<a name="l00167"></a>00167 
-<a name="l00171"></a><a class="code" href="classServerConfig.html#AllowHalfop">00171</a>         <span class="keywordtype">bool</span> <a class="code" href="classServerConfig.html#AllowHalfop">AllowHalfop</a>;
-<a name="l00172"></a>00172 
-<a name="l00176"></a><a class="code" href="classServerConfig.html#dns_5Ftimeout">00176</a>         <span class="keywordtype">int</span> <a class="code" href="classServerConfig.html#dns_5Ftimeout">dns_timeout</a>;
-<a name="l00177"></a>00177 
-<a name="l00182"></a><a class="code" href="classServerConfig.html#NetBufferSize">00182</a>         <span class="keywordtype">int</span> <a class="code" href="classServerConfig.html#NetBufferSize">NetBufferSize</a>;
-<a name="l00183"></a>00183 
-<a name="l00187"></a><a class="code" href="classServerConfig.html#MaxConn">00187</a>         <span class="keywordtype">int</span> <a class="code" href="classServerConfig.html#MaxConn">MaxConn</a>;
-<a name="l00188"></a>00188 
-<a name="l00193"></a><a class="code" href="classServerConfig.html#SoftLimit">00193</a>         <span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> <a class="code" href="classServerConfig.html#SoftLimit">SoftLimit</a>;
-<a name="l00194"></a>00194 
-<a name="l00198"></a><a class="code" href="classServerConfig.html#MaxWhoResults">00198</a>         <span class="keywordtype">int</span> <a class="code" href="classServerConfig.html#MaxWhoResults">MaxWhoResults</a>;
-<a name="l00199"></a>00199 
-<a name="l00202"></a><a class="code" href="classServerConfig.html#debugging">00202</a>         <span class="keywordtype">int</span> <a class="code" href="classServerConfig.html#debugging">debugging</a>;
-<a name="l00203"></a>00203 
-<a name="l00206"></a><a class="code" href="classServerConfig.html#LogLevel">00206</a>         <span class="keywordtype">int</span> <a class="code" href="classServerConfig.html#LogLevel">LogLevel</a>;
-<a name="l00207"></a>00207 
-<a name="l00211"></a><a class="code" href="classServerConfig.html#DieDelay">00211</a>         <span class="keywordtype">int</span> <a class="code" href="classServerConfig.html#DieDelay">DieDelay</a>;
-<a name="l00212"></a>00212 
-<a name="l00216"></a><a class="code" href="classServerConfig.html#addrs_5BMAXBUF_5D_5B_32_35_35_5D">00216</a>         <span class="keywordtype">char</span> <a class="code" href="classServerConfig.html#addrs_5BMAXBUF_5D_5B_32_35_35_5D">addrs</a>[MAXBUF][255];
-<a name="l00217"></a>00217 
-<a name="l00220"></a><a class="code" href="classServerConfig.html#MOTD">00220</a>         <a class="code" href="globals_8h.html#file_5Fcache">file_cache</a> <a class="code" href="classServerConfig.html#MOTD">MOTD</a>;
-<a name="l00221"></a>00221 
-<a name="l00224"></a><a class="code" href="classServerConfig.html#RULES">00224</a>         <a class="code" href="globals_8h.html#file_5Fcache">file_cache</a> <a class="code" href="classServerConfig.html#RULES">RULES</a>;
-<a name="l00225"></a>00225 
-<a name="l00229"></a><a class="code" href="classServerConfig.html#PID_5B_31_30_32_34_5D">00229</a>         <span class="keywordtype">char</span> <a class="code" href="classServerConfig.html#PID_5B_31_30_32_34_5D">PID</a>[1024];
-<a name="l00230"></a>00230 
-<a name="l00238"></a><a class="code" href="classServerConfig.html#config_5Ff">00238</a>         std::stringstream <a class="code" href="classServerConfig.html#config_5Ff">config_f</a>;
-<a name="l00239"></a>00239 
-<a name="l00242"></a><a class="code" href="classServerConfig.html#Classes">00242</a>         <a class="code" href="users_8h.html#ClassVector">ClassVector</a> <a class="code" href="classServerConfig.html#Classes">Classes</a>;
-<a name="l00243"></a>00243 
-<a name="l00247"></a><a class="code" href="classServerConfig.html#module_5Fnames">00247</a>         std::vector&lt;std::string&gt; <a class="code" href="classServerConfig.html#module_5Fnames">module_names</a>;
-<a name="l00248"></a>00248 
-<a name="l00251"></a><a class="code" href="classServerConfig.html#ports_5B_32_35_35_5D">00251</a>         <span class="keywordtype">int</span> <a class="code" href="classServerConfig.html#ports_5B_32_35_35_5D">ports</a>[255];
-<a name="l00252"></a>00252 
-<a name="l00253"></a>00253         <a class="code" href="classServerConfig.html#ServerConfig_28_29">ServerConfig</a>();
-<a name="l00254"></a>00254 
-<a name="l00258"></a>00258         <span class="keywordtype">void</span> <a class="code" href="classServerConfig.html#ClearStack_28_29">ClearStack</a>();
+<a name="l00025"></a>00025 <span class="preprocessor">#include "<a class="code" href="modules_8h.html">modules.h</a>"</span>
+<a name="l00026"></a>00026 
+<a name="l00029"></a><a class="code" href="inspircd__io_8h.html#DEBUG">00029</a> <span class="preprocessor">#define DEBUG 10</span>
+<a name="l00030"></a><a class="code" href="inspircd__io_8h.html#VERBOSE">00030</a> <span class="preprocessor"></span><span class="preprocessor">#define VERBOSE 20</span>
+<a name="l00031"></a><a class="code" href="inspircd__io_8h.html#DEFAULT">00031</a> <span class="preprocessor"></span><span class="preprocessor">#define DEFAULT 30</span>
+<a name="l00032"></a><a class="code" href="inspircd__io_8h.html#SPARSE">00032</a> <span class="preprocessor"></span><span class="preprocessor">#define SPARSE 40</span>
+<a name="l00033"></a><a class="code" href="inspircd__io_8h.html#NONE">00033</a> <span class="preprocessor"></span><span class="preprocessor">#define NONE 50</span>
+<a name="l00034"></a>00034 <span class="preprocessor"></span>
+<a name="l00040"></a><a class="code" href="classServerConfig.html">00040</a> <span class="keyword">class </span><a class="code" href="classServerConfig.html">ServerConfig</a> : <span class="keyword">public</span> <a class="code" href="classclassbase.html">classbase</a>
+<a name="l00041"></a>00041 {
+<a name="l00042"></a>00042   <span class="keyword">private</span>:
+<a name="l00048"></a><a class="code" href="classServerConfig.html#include_5Fstack">00048</a>         std::vector&lt;std::string&gt; <a class="code" href="classServerConfig.html#include_5Fstack">include_stack</a>;
+<a name="l00049"></a>00049 
+<a name="l00056"></a>00056         <span class="keywordtype">int</span> <a class="code" href="classServerConfig.html#fgets_5Fsafe_28char_20_2Abuffer_2C_20size_5Ft_20maxsize_2C_20FILE_20_2A_26file_29">fgets_safe</a>(<span class="keywordtype">char</span>* buffer, size_t maxsize, FILE* &amp;file);
+<a name="l00057"></a>00057 
+<a name="l00062"></a>00062         <a class="code" href="namespaceirc.html#string">std::string</a> <a class="code" href="classServerConfig.html#ConfProcess_28char_20_2Abuffer_2C_20long_20linenumber_2C_20std_3A_3Astringstream_20_2Aerrorstream_2C_20bool_20_26error_2C_20std_3A_3Astring_20filename_29">ConfProcess</a>(<span class="keywordtype">char</span>* buffer, <span class="keywordtype">long</span> linenumber, std::stringstream* errorstream, <span class="keywordtype">bool</span> &amp;error, <a class="code" href="namespaceirc.html#string">std::string</a> filename);
+<a name="l00063"></a>00063 
+<a name="l00064"></a>00064   <span class="keyword">public</span>:
+<a name="l00065"></a>00065 
+<a name="l00069"></a><a class="code" href="classServerConfig.html#ServerName_5BMAXBUF_5D">00069</a>         <span class="keywordtype">char</span> <a class="code" href="classServerConfig.html#ServerName_5BMAXBUF_5D">ServerName</a>[MAXBUF];
+<a name="l00070"></a>00070         
+<a name="l00071"></a>00071         <span class="comment">/* Holds the network name the local server</span>
+<a name="l00072"></a>00072 <span class="comment">         * belongs to. This is an arbitary field defined</span>
+<a name="l00073"></a>00073 <span class="comment">         * by the administrator.</span>
+<a name="l00074"></a>00074 <span class="comment">         */</span>
+<a name="l00075"></a><a class="code" href="classServerConfig.html#Network_5BMAXBUF_5D">00075</a>         <span class="keywordtype">char</span> <a class="code" href="classServerConfig.html#Network_5BMAXBUF_5D">Network</a>[MAXBUF];
+<a name="l00076"></a>00076 
+<a name="l00080"></a><a class="code" href="classServerConfig.html#ServerDesc_5BMAXBUF_5D">00080</a>         <span class="keywordtype">char</span> <a class="code" href="classServerConfig.html#ServerDesc_5BMAXBUF_5D">ServerDesc</a>[MAXBUF];
+<a name="l00081"></a>00081 
+<a name="l00085"></a><a class="code" href="classServerConfig.html#AdminName_5BMAXBUF_5D">00085</a>         <span class="keywordtype">char</span> <a class="code" href="classServerConfig.html#AdminName_5BMAXBUF_5D">AdminName</a>[MAXBUF];
+<a name="l00086"></a>00086 
+<a name="l00090"></a><a class="code" href="classServerConfig.html#AdminEmail_5BMAXBUF_5D">00090</a>         <span class="keywordtype">char</span> <a class="code" href="classServerConfig.html#AdminEmail_5BMAXBUF_5D">AdminEmail</a>[MAXBUF];
+<a name="l00091"></a>00091 
+<a name="l00095"></a><a class="code" href="classServerConfig.html#AdminNick_5BMAXBUF_5D">00095</a>         <span class="keywordtype">char</span> <a class="code" href="classServerConfig.html#AdminNick_5BMAXBUF_5D">AdminNick</a>[MAXBUF];
+<a name="l00096"></a>00096 
+<a name="l00099"></a><a class="code" href="classServerConfig.html#diepass_5BMAXBUF_5D">00099</a>         <span class="keywordtype">char</span> <a class="code" href="classServerConfig.html#diepass_5BMAXBUF_5D">diepass</a>[MAXBUF];
+<a name="l00100"></a>00100 
+<a name="l00103"></a><a class="code" href="classServerConfig.html#restartpass_5BMAXBUF_5D">00103</a>         <span class="keywordtype">char</span> <a class="code" href="classServerConfig.html#restartpass_5BMAXBUF_5D">restartpass</a>[MAXBUF];
+<a name="l00104"></a>00104 
+<a name="l00108"></a><a class="code" href="classServerConfig.html#motd_5BMAXBUF_5D">00108</a>         <span class="keywordtype">char</span> <a class="code" href="classServerConfig.html#motd_5BMAXBUF_5D">motd</a>[MAXBUF];
+<a name="l00109"></a>00109 
+<a name="l00113"></a><a class="code" href="classServerConfig.html#rules_5BMAXBUF_5D">00113</a>         <span class="keywordtype">char</span> <a class="code" href="classServerConfig.html#rules_5BMAXBUF_5D">rules</a>[MAXBUF];
+<a name="l00114"></a>00114 
+<a name="l00117"></a><a class="code" href="classServerConfig.html#PrefixQuit_5BMAXBUF_5D">00117</a>         <span class="keywordtype">char</span> <a class="code" href="classServerConfig.html#PrefixQuit_5BMAXBUF_5D">PrefixQuit</a>[MAXBUF];
+<a name="l00118"></a>00118 
+<a name="l00122"></a><a class="code" href="classServerConfig.html#DieValue_5BMAXBUF_5D">00122</a>         <span class="keywordtype">char</span> <a class="code" href="classServerConfig.html#DieValue_5BMAXBUF_5D">DieValue</a>[MAXBUF];
+<a name="l00123"></a>00123 
+<a name="l00126"></a><a class="code" href="classServerConfig.html#DNSServer_5BMAXBUF_5D">00126</a>         <span class="keywordtype">char</span> <a class="code" href="classServerConfig.html#DNSServer_5BMAXBUF_5D">DNSServer</a>[MAXBUF];
+<a name="l00127"></a>00127 
+<a name="l00132"></a><a class="code" href="classServerConfig.html#DisabledCommands_5BMAXBUF_5D">00132</a>         <span class="keywordtype">char</span> <a class="code" href="classServerConfig.html#DisabledCommands_5BMAXBUF_5D">DisabledCommands</a>[MAXBUF];
+<a name="l00133"></a>00133 
+<a name="l00139"></a><a class="code" href="classServerConfig.html#ModPath_5B_31_30_32_34_5D">00139</a>         <span class="keywordtype">char</span> <a class="code" href="classServerConfig.html#ModPath_5B_31_30_32_34_5D">ModPath</a>[1024];
+<a name="l00140"></a>00140 
+<a name="l00144"></a><a class="code" href="classServerConfig.html#MyExecutable_5B_31_30_32_34_5D">00144</a>         <span class="keywordtype">char</span> <a class="code" href="classServerConfig.html#MyExecutable_5B_31_30_32_34_5D">MyExecutable</a>[1024];
+<a name="l00145"></a>00145 
+<a name="l00152"></a><a class="code" href="classServerConfig.html#log_5Ffile">00152</a>         FILE *<a class="code" href="classServerConfig.html#log_5Ffile">log_file</a>;
+<a name="l00153"></a>00153 
+<a name="l00159"></a><a class="code" href="classServerConfig.html#nofork">00159</a>         <span class="keywordtype">bool</span> <a class="code" href="classServerConfig.html#nofork">nofork</a>;
+<a name="l00160"></a>00160 
+<a name="l00167"></a><a class="code" href="classServerConfig.html#unlimitcore">00167</a>         <span class="keywordtype">bool</span> <a class="code" href="classServerConfig.html#unlimitcore">unlimitcore</a>;
+<a name="l00168"></a>00168 
+<a name="l00172"></a><a class="code" href="classServerConfig.html#AllowHalfop">00172</a>         <span class="keywordtype">bool</span> <a class="code" href="classServerConfig.html#AllowHalfop">AllowHalfop</a>;
+<a name="l00173"></a>00173 
+<a name="l00177"></a><a class="code" href="classServerConfig.html#dns_5Ftimeout">00177</a>         <span class="keywordtype">int</span> <a class="code" href="classServerConfig.html#dns_5Ftimeout">dns_timeout</a>;
+<a name="l00178"></a>00178 
+<a name="l00183"></a><a class="code" href="classServerConfig.html#NetBufferSize">00183</a>         <span class="keywordtype">int</span> <a class="code" href="classServerConfig.html#NetBufferSize">NetBufferSize</a>;
+<a name="l00184"></a>00184 
+<a name="l00188"></a><a class="code" href="classServerConfig.html#MaxConn">00188</a>         <span class="keywordtype">int</span> <a class="code" href="classServerConfig.html#MaxConn">MaxConn</a>;
+<a name="l00189"></a>00189 
+<a name="l00194"></a><a class="code" href="classServerConfig.html#SoftLimit">00194</a>         <span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> <a class="code" href="classServerConfig.html#SoftLimit">SoftLimit</a>;
+<a name="l00195"></a>00195 
+<a name="l00199"></a><a class="code" href="classServerConfig.html#MaxWhoResults">00199</a>         <span class="keywordtype">int</span> <a class="code" href="classServerConfig.html#MaxWhoResults">MaxWhoResults</a>;
+<a name="l00200"></a>00200 
+<a name="l00203"></a><a class="code" href="classServerConfig.html#debugging">00203</a>         <span class="keywordtype">int</span> <a class="code" href="classServerConfig.html#debugging">debugging</a>;
+<a name="l00204"></a>00204 
+<a name="l00207"></a><a class="code" href="classServerConfig.html#LogLevel">00207</a>         <span class="keywordtype">int</span> <a class="code" href="classServerConfig.html#LogLevel">LogLevel</a>;
+<a name="l00208"></a>00208 
+<a name="l00212"></a><a class="code" href="classServerConfig.html#DieDelay">00212</a>         <span class="keywordtype">int</span> <a class="code" href="classServerConfig.html#DieDelay">DieDelay</a>;
+<a name="l00213"></a>00213 
+<a name="l00217"></a><a class="code" href="classServerConfig.html#addrs_5BMAXBUF_5D_5B_32_35_35_5D">00217</a>         <span class="keywordtype">char</span> <a class="code" href="classServerConfig.html#addrs_5BMAXBUF_5D_5B_32_35_35_5D">addrs</a>[MAXBUF][255];
+<a name="l00218"></a>00218 
+<a name="l00221"></a><a class="code" href="classServerConfig.html#MOTD">00221</a>         <a class="code" href="globals_8h.html#file_5Fcache">file_cache</a> <a class="code" href="classServerConfig.html#MOTD">MOTD</a>;
+<a name="l00222"></a>00222 
+<a name="l00225"></a><a class="code" href="classServerConfig.html#RULES">00225</a>         <a class="code" href="globals_8h.html#file_5Fcache">file_cache</a> <a class="code" href="classServerConfig.html#RULES">RULES</a>;
+<a name="l00226"></a>00226 
+<a name="l00230"></a><a class="code" href="classServerConfig.html#PID_5B_31_30_32_34_5D">00230</a>         <span class="keywordtype">char</span> <a class="code" href="classServerConfig.html#PID_5B_31_30_32_34_5D">PID</a>[1024];
+<a name="l00231"></a>00231 
+<a name="l00239"></a><a class="code" href="classServerConfig.html#config_5Ff">00239</a>         std::stringstream <a class="code" href="classServerConfig.html#config_5Ff">config_f</a>;
+<a name="l00240"></a>00240 
+<a name="l00243"></a><a class="code" href="classServerConfig.html#Classes">00243</a>         <a class="code" href="users_8h.html#ClassVector">ClassVector</a> <a class="code" href="classServerConfig.html#Classes">Classes</a>;
+<a name="l00244"></a>00244 
+<a name="l00248"></a><a class="code" href="classServerConfig.html#module_5Fnames">00248</a>         std::vector&lt;std::string&gt; <a class="code" href="classServerConfig.html#module_5Fnames">module_names</a>;
+<a name="l00249"></a>00249 
+<a name="l00252"></a><a class="code" href="classServerConfig.html#ports_5B_32_35_35_5D">00252</a>         <span class="keywordtype">int</span> <a class="code" href="classServerConfig.html#ports_5B_32_35_35_5D">ports</a>[255];
+<a name="l00253"></a>00253 
+<a name="l00256"></a><a class="code" href="classServerConfig.html#IOHookModule">00256</a>         std::map&lt;int,Module*&gt; <a class="code" href="classServerConfig.html#IOHookModule">IOHookModule</a>;
+<a name="l00257"></a>00257 
+<a name="l00258"></a>00258         <a class="code" href="classServerConfig.html#ServerConfig_28_29">ServerConfig</a>();
 <a name="l00259"></a>00259 
-<a name="l00264"></a>00264         <span class="keywordtype">void</span> <a class="code" href="classServerConfig.html#Read_28bool_20bail_2C_20userrec_20_2Auser_29">Read</a>(<span class="keywordtype">bool</span> bail, <a class="code" href="classuserrec.html">userrec</a>* user);
-<a name="l00265"></a>00265 
-<a name="l00266"></a>00266         <span class="keywordtype">bool</span> <a class="code" href="classServerConfig.html#LoadConf_28const_20char_20_2Afilename_2C_20std_3A_3Astringstream_20_2Atarget_2C_20std_3A_3Astringstream_20_2Aerrorstream_29">LoadConf</a>(<span class="keyword">const</span> <span class="keywordtype">char</span>* filename, std::stringstream *target, std::stringstream* errorstream);
-<a name="l00267"></a>00267         <span class="keywordtype">int</span> <a class="code" href="classServerConfig.html#ConfValue_28char_20_2Atag_2C_20char_20_2Avar_2C_20int_20index_2C_20char_20_2Aresult_2C_20std_3A_3Astringstream_20_2Aconfig_29">ConfValue</a>(<span class="keywordtype">char</span>* tag, <span class="keywordtype">char</span>* var, <span class="keywordtype">int</span> index, <span class="keywordtype">char</span> *result, std::stringstream *config);
-<a name="l00268"></a>00268         <span class="keywordtype">int</span> <a class="code" href="classServerConfig.html#ReadConf_28std_3A_3Astringstream_20_2Aconfig_5Ff_2C_20const_20char_20_2Atag_2C_20const_20char_20_2Avar_2C_20int_20index_2C_20char_20_2Aresult_29">ReadConf</a>(std::stringstream *<a class="code" href="classServerConfig.html#config_5Ff">config_f</a>,<span class="keyword">const</span> <span class="keywordtype">char</span>* tag, <span class="keyword">const</span> <span class="keywordtype">char</span>* var, <span class="keywordtype">int</span> index, <span class="keywordtype">char</span> *result);
-<a name="l00269"></a>00269         <span class="keywordtype">int</span> <a class="code" href="classServerConfig.html#ConfValueEnum_28char_20_2Atag_2C_20std_3A_3Astringstream_20_2Aconfig_29">ConfValueEnum</a>(<span class="keywordtype">char</span>* tag,std::stringstream *config);
-<a name="l00270"></a>00270         <span class="keywordtype">int</span> <a class="code" href="classServerConfig.html#EnumConf_28std_3A_3Astringstream_20_2Aconfig_5Ff_2C_20const_20char_20_2Atag_29">EnumConf</a>(std::stringstream *<a class="code" href="classServerConfig.html#config_5Ff">config_f</a>,<span class="keyword">const</span> <span class="keywordtype">char</span>* tag);
-<a name="l00271"></a>00271         <span class="keywordtype">int</span> <a class="code" href="classServerConfig.html#EnumValues_28std_3A_3Astringstream_20_2Aconfig_2C_20const_20char_20_2Atag_2C_20int_20index_29">EnumValues</a>(std::stringstream *config, <span class="keyword">const</span> <span class="keywordtype">char</span>* tag, <span class="keywordtype">int</span> index);
-<a name="l00272"></a>00272 };
-<a name="l00273"></a>00273 
-<a name="l00274"></a>00274 
-<a name="l00275"></a>00275 <span class="keywordtype">void</span> <a class="code" href="inspircd__io_8h.html#Exit_28int_29">Exit</a> (<span class="keywordtype">int</span>); 
-<a name="l00276"></a>00276 <span class="keywordtype">void</span> <a class="code" href="inspircd__io_8h.html#Start_28void_29">Start</a> (<span class="keywordtype">void</span>); 
-<a name="l00277"></a>00277 <span class="keywordtype">int</span> <a class="code" href="inspircd__io_8h.html#DaemonSeed_28void_29">DaemonSeed</a> (<span class="keywordtype">void</span>); 
-<a name="l00278"></a>00278 <span class="keywordtype">bool</span> <a class="code" href="inspircd__io_8h.html#FileExists_28const_20char_20_2Afile_29">FileExists</a> (<span class="keyword">const</span> <span class="keywordtype">char</span>* file);
-<a name="l00279"></a>00279 <span class="keywordtype">int</span> <a class="code" href="inspircd__io_8h.html#OpenTCPSocket_28void_29">OpenTCPSocket</a> (<span class="keywordtype">void</span>); 
-<a name="l00280"></a>00280 <span class="keywordtype">int</span> <a class="code" href="inspircd__io_8h.html#BindSocket_28int_20sockfd_2C_20struct_20sockaddr_5Fin_20client_2C_20struct_20sockaddr_5Fin_20server_2C_20int_20port_2C_20char_20_2Aaddr_29">BindSocket</a> (<span class="keywordtype">int</span> sockfd, <span class="keyword">struct</span> sockaddr_in client, <span class="keyword">struct</span> sockaddr_in server, <span class="keywordtype">int</span> port, <span class="keywordtype">char</span>* addr);
-<a name="l00281"></a>00281 <span class="keywordtype">void</span> <a class="code" href="inspircd__io_8h.html#WritePID_28std_3A_3Astring_20filename_29">WritePID</a>(<a class="code" href="namespaceirc.html#string">std::string</a> filename);
-<a name="l00282"></a>00282 <span class="keywordtype">int</span> <a class="code" href="inspircd__io_8h.html#BindPorts_28_29">BindPorts</a>();
-<a name="l00283"></a>00283 
-<a name="l00284"></a>00284 <span class="preprocessor">#endif</span>
-</pre></div><hr size="1"><address style="align: right;"><small>Generated on Thu Dec 15 11:14:14 2005 for InspIRCd by&nbsp;
+<a name="l00263"></a>00263         <span class="keywordtype">void</span> <a class="code" href="classServerConfig.html#ClearStack_28_29">ClearStack</a>();
+<a name="l00264"></a>00264 
+<a name="l00269"></a>00269         <span class="keywordtype">void</span> <a class="code" href="classServerConfig.html#Read_28bool_20bail_2C_20userrec_20_2Auser_29">Read</a>(<span class="keywordtype">bool</span> bail, <a class="code" href="classuserrec.html">userrec</a>* user);
+<a name="l00270"></a>00270 
+<a name="l00271"></a>00271         <span class="keywordtype">bool</span> <a class="code" href="classServerConfig.html#LoadConf_28const_20char_20_2Afilename_2C_20std_3A_3Astringstream_20_2Atarget_2C_20std_3A_3Astringstream_20_2Aerrorstream_29">LoadConf</a>(<span class="keyword">const</span> <span class="keywordtype">char</span>* filename, std::stringstream *target, std::stringstream* errorstream);
+<a name="l00272"></a>00272         <span class="keywordtype">int</span> <a class="code" href="classServerConfig.html#ConfValue_28char_20_2Atag_2C_20char_20_2Avar_2C_20int_20index_2C_20char_20_2Aresult_2C_20std_3A_3Astringstream_20_2Aconfig_29">ConfValue</a>(<span class="keywordtype">char</span>* tag, <span class="keywordtype">char</span>* var, <span class="keywordtype">int</span> index, <span class="keywordtype">char</span> *result, std::stringstream *config);
+<a name="l00273"></a>00273         <span class="keywordtype">int</span> <a class="code" href="classServerConfig.html#ReadConf_28std_3A_3Astringstream_20_2Aconfig_5Ff_2C_20const_20char_20_2Atag_2C_20const_20char_20_2Avar_2C_20int_20index_2C_20char_20_2Aresult_29">ReadConf</a>(std::stringstream *<a class="code" href="classServerConfig.html#config_5Ff">config_f</a>,<span class="keyword">const</span> <span class="keywordtype">char</span>* tag, <span class="keyword">const</span> <span class="keywordtype">char</span>* var, <span class="keywordtype">int</span> index, <span class="keywordtype">char</span> *result);
+<a name="l00274"></a>00274         <span class="keywordtype">int</span> <a class="code" href="classServerConfig.html#ConfValueEnum_28char_20_2Atag_2C_20std_3A_3Astringstream_20_2Aconfig_29">ConfValueEnum</a>(<span class="keywordtype">char</span>* tag,std::stringstream *config);
+<a name="l00275"></a>00275         <span class="keywordtype">int</span> <a class="code" href="classServerConfig.html#EnumConf_28std_3A_3Astringstream_20_2Aconfig_5Ff_2C_20const_20char_20_2Atag_29">EnumConf</a>(std::stringstream *<a class="code" href="classServerConfig.html#config_5Ff">config_f</a>,<span class="keyword">const</span> <span class="keywordtype">char</span>* tag);
+<a name="l00276"></a>00276         <span class="keywordtype">int</span> <a class="code" href="classServerConfig.html#EnumValues_28std_3A_3Astringstream_20_2Aconfig_2C_20const_20char_20_2Atag_2C_20int_20index_29">EnumValues</a>(std::stringstream *config, <span class="keyword">const</span> <span class="keywordtype">char</span>* tag, <span class="keywordtype">int</span> index);
+<a name="l00277"></a>00277         <a class="code" href="classModule.html">Module</a>* <a class="code" href="classServerConfig.html#GetIOHook_28int_20port_29">GetIOHook</a>(<span class="keywordtype">int</span> port);
+<a name="l00278"></a>00278         <span class="keywordtype">bool</span> <a class="code" href="classServerConfig.html#AddIOHook_28int_20port_2C_20Module_20_2Aiomod_29">AddIOHook</a>(<span class="keywordtype">int</span> port, <a class="code" href="classModule.html">Module</a>* iomod);
+<a name="l00279"></a>00279         <span class="keywordtype">bool</span> <a class="code" href="classServerConfig.html#DelIOHook_28int_20port_29">DelIOHook</a>(<span class="keywordtype">int</span> port);
+<a name="l00280"></a>00280 };
+<a name="l00281"></a>00281 
+<a name="l00282"></a>00282 
+<a name="l00283"></a>00283 <span class="keywordtype">void</span> <a class="code" href="inspircd__io_8h.html#Exit_28int_29">Exit</a> (<span class="keywordtype">int</span>); 
+<a name="l00284"></a>00284 <span class="keywordtype">void</span> <a class="code" href="inspircd__io_8h.html#Start_28void_29">Start</a> (<span class="keywordtype">void</span>); 
+<a name="l00285"></a>00285 <span class="keywordtype">int</span> <a class="code" href="inspircd__io_8h.html#DaemonSeed_28void_29">DaemonSeed</a> (<span class="keywordtype">void</span>); 
+<a name="l00286"></a>00286 <span class="keywordtype">bool</span> <a class="code" href="inspircd__io_8h.html#FileExists_28const_20char_20_2Afile_29">FileExists</a> (<span class="keyword">const</span> <span class="keywordtype">char</span>* file);
+<a name="l00287"></a>00287 <span class="keywordtype">int</span> <a class="code" href="inspircd__io_8h.html#OpenTCPSocket_28void_29">OpenTCPSocket</a> (<span class="keywordtype">void</span>); 
+<a name="l00288"></a>00288 <span class="keywordtype">int</span> <a class="code" href="inspircd__io_8h.html#BindSocket_28int_20sockfd_2C_20struct_20sockaddr_5Fin_20client_2C_20struct_20sockaddr_5Fin_20server_2C_20int_20port_2C_20char_20_2Aaddr_29">BindSocket</a> (<span class="keywordtype">int</span> sockfd, <span class="keyword">struct</span> sockaddr_in client, <span class="keyword">struct</span> sockaddr_in server, <span class="keywordtype">int</span> port, <span class="keywordtype">char</span>* addr);
+<a name="l00289"></a>00289 <span class="keywordtype">void</span> <a class="code" href="inspircd__io_8h.html#WritePID_28std_3A_3Astring_20filename_29">WritePID</a>(<a class="code" href="namespaceirc.html#string">std::string</a> filename);
+<a name="l00290"></a>00290 <span class="keywordtype">int</span> <a class="code" href="inspircd__io_8h.html#BindPorts_28_29">BindPorts</a>();
+<a name="l00291"></a>00291 
+<a name="l00292"></a>00292 <span class="preprocessor">#endif</span>
+</pre></div><hr size="1"><address style="align: right;"><small>Generated on Mon Dec 19 18:02:13 2005 for InspIRCd by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img src="doxygen.png" alt="doxygen" align="middle" border="0"></a> 1.4.4-20050815 </small></address>
 </body>

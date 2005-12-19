@@ -11,16 +11,17 @@
 <a name="l00002"></a>00002 <span class="preprocessor"></span><span class="preprocessor">#define __USERPROCESS_H__</span>
 <a name="l00003"></a>00003 <span class="preprocessor"></span>
 <a name="l00004"></a>00004 <span class="preprocessor">#include "<a class="code" href="users_8h.html">users.h</a>"</span>
-<a name="l00005"></a>00005 
-<a name="l00006"></a>00006 <span class="keywordtype">void</span> <a class="code" href="userprocess_8h.html#CheckDie_28_29">CheckDie</a>();
-<a name="l00007"></a>00007 <span class="keywordtype">void</span> <a class="code" href="userprocess_8h.html#LoadAllModules_28_29">LoadAllModules</a>();
-<a name="l00008"></a>00008 <span class="keywordtype">void</span> <a class="code" href="userprocess_8h.html#CheckRoot_28_29">CheckRoot</a>();
-<a name="l00009"></a>00009 <span class="keywordtype">void</span> <a class="code" href="userprocess_8h.html#OpenLog_28char_20_2A_2Aargv_2C_20int_20argc_29">OpenLog</a>(<span class="keywordtype">char</span>** argv, <span class="keywordtype">int</span> argc);
-<a name="l00010"></a>00010 <span class="keywordtype">bool</span> <a class="code" href="userprocess_8h.html#DoBackgroundUserStuff_28time_5Ft_20TIME_29">DoBackgroundUserStuff</a>(time_t TIME);
-<a name="l00011"></a>00011 <span class="keywordtype">void</span> <a class="code" href="userprocess_8h.html#ProcessUser_28userrec_20_2Acu_29">ProcessUser</a>(<a class="code" href="classuserrec.html">userrec</a>* cu);
-<a name="l00012"></a>00012 
-<a name="l00013"></a>00013 <span class="preprocessor">#endif</span>
-</pre></div><hr size="1"><address style="align: right;"><small>Generated on Thu Dec 15 11:14:14 2005 for InspIRCd by&nbsp;
+<a name="l00005"></a>00005 <span class="preprocessor">#include "<a class="code" href="inspircd_8h.html">inspircd.h</a>"</span>
+<a name="l00006"></a>00006 
+<a name="l00007"></a>00007 <span class="keywordtype">void</span> <a class="code" href="userprocess_8h.html#CheckDie_28_29">CheckDie</a>();
+<a name="l00008"></a>00008 <span class="keywordtype">void</span> <a class="code" href="userprocess_8h.html#LoadAllModules_28InspIRCd_20_2AServerInstance_29">LoadAllModules</a>(<a class="code" href="classInspIRCd.html">InspIRCd</a>* ServerInstance);
+<a name="l00009"></a>00009 <span class="keywordtype">void</span> <a class="code" href="userprocess_8h.html#CheckRoot_28_29">CheckRoot</a>();
+<a name="l00010"></a>00010 <span class="keywordtype">void</span> <a class="code" href="userprocess_8h.html#OpenLog_28char_20_2A_2Aargv_2C_20int_20argc_29">OpenLog</a>(<span class="keywordtype">char</span>** argv, <span class="keywordtype">int</span> argc);
+<a name="l00011"></a>00011 <span class="keywordtype">bool</span> <a class="code" href="userprocess_8h.html#DoBackgroundUserStuff_28time_5Ft_20TIME_29">DoBackgroundUserStuff</a>(time_t TIME);
+<a name="l00012"></a>00012 <span class="keywordtype">void</span> <a class="code" href="userprocess_8h.html#ProcessUser_28userrec_20_2Acu_29">ProcessUser</a>(<a class="code" href="classuserrec.html">userrec</a>* cu);
+<a name="l00013"></a>00013 
+<a name="l00014"></a>00014 <span class="preprocessor">#endif</span>
+</pre></div><hr size="1"><address style="align: right;"><small>Generated on Mon Dec 19 18:02:13 2005 for InspIRCd by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img src="doxygen.png" alt="doxygen" align="middle" border="0"></a> 1.4.4-20050815 </small></address>
 </body>

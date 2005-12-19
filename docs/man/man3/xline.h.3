@@ -1,4 +1,4 @@
-.TH "xline.h" 3 "15 Dec 2005" "Version 1.0Betareleases" "InspIRCd" \" -*- nroff -*-
+.TH "xline.h" 3 "19 Dec 2005" "Version 1.0Betareleases" "InspIRCd" \" -*- nroff -*-
 .ad l
 .nh
 .SH NAME
@@ -202,14 +202,19 @@ Referenced by Server::DelZLine().
 .PP
 .SS "char* matches_exception (const char * host)"
 .PP
+Referenced by AddClient(), and FullConnectUser().
 .SS "char* matches_gline (const char * host)"
 .PP
+Referenced by FullConnectUser().
 .SS "char* matches_kline (const char * host)"
 .PP
+Referenced by FullConnectUser().
 .SS "char* matches_qline (const char * nick)"
 .PP
+Referenced by force_nickchange().
 .SS "char* matches_zline (const char * ipaddr)"
 .PP
+Referenced by AddClient().
 .SS "bool qline_make_global (const char * nickname)"
 .PP
 .SS "void qline_set_creation_time (char * nick, time_t create_time)"

@@ -1,4 +1,4 @@
-.TH "ctables.h" 3 "15 Dec 2005" "Version 1.0Betareleases" "InspIRCd" \" -*- nroff -*-
+.TH "ctables.h" 3 "19 Dec 2005" "Version 1.0Betareleases" "InspIRCd" \" -*- nroff -*-
 .ad l
 .nh
 .SH NAME
@@ -8,9 +8,7 @@ ctables.h \-
 .PP
 \fC#include 'inspircd_config.h'\fP
 .br
-\fC#include 'inspircd.h'\fP
-.br
-\fC#include 'base.h'\fP
+\fC#include <deque>\fP
 .br
 
 .SS "Classes"
@@ -21,6 +19,18 @@ ctables.h \-
 .br
 .RI "\fIA structure that defines a command. \fP"
 .in -1c
+.SS "Typedefs"
+
+.in +1c
+.ti -1c
+.RI "typedef std::deque< \fBcommand_t\fP * > \fBcommand_table\fP"
+.br
+.in -1c
+.SH "Typedef Documentation"
+.PP 
+.SS "typedef std::deque<\fBcommand_t\fP*> \fBcommand_table\fP"
+.PP
+Definition at line 62 of file ctables.h.
 .SH "Author"
 .PP 
 Generated automatically by Doxygen for InspIRCd from the source code.

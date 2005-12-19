@@ -1,4 +1,4 @@
-.TH "modules.h" 3 "15 Dec 2005" "Version 1.0Betareleases" "InspIRCd" \" -*- nroff -*-
+.TH "modules.h" 3 "19 Dec 2005" "Version 1.0Betareleases" "InspIRCd" \" -*- nroff -*-
 .ad l
 .nh
 .SH NAME
@@ -158,6 +158,30 @@ modules.h \-
 .RI "#define \fBFD_MAGIC_NUMBER\fP   -42"
 .br
 .ti -1c
+.RI "#define \fBIS_LOCAL\fP(x)   (x->fd > -1)"
+.br
+.ti -1c
+.RI "#define \fBIS_REMOTE\fP(x)   (x->fd < 0)"
+.br
+.ti -1c
+.RI "#define \fBIS_MODULE_CREATED\fP(x)   (x->fd == FD_MAGIC_NUMBER)"
+.br
+.ti -1c
+.RI "#define \fBWM_AND\fP   1"
+.br
+.ti -1c
+.RI "#define \fBWM_OR\fP   2"
+.br
+.ti -1c
+.RI "#define \fBTYPE_USER\fP   1"
+.br
+.ti -1c
+.RI "#define \fBTYPE_CHANNEL\fP   2"
+.br
+.ti -1c
+.RI "#define \fBTYPE_SERVER\fP   3"
+.br
+.ti -1c
 .RI "#define \fBCONF_NOT_A_NUMBER\fP   0x000010"
 .br
 .ti -1c
@@ -191,12 +215,6 @@ modules.h \-
 .SS "Functions"
 
 .in +1c
-.ti -1c
-.RI "void \fBcreatecommand\fP (char *cmd, \fBhandlerfunc\fP f, char flags, int minparams, char *source)"
-.br
-.ti -1c
-.RI "void \fBserver_mode\fP (char **parameters, int pcnt, \fBuserrec\fP *user)"
-.br
 .ti -1c
 .RI "bool \fBModeDefined\fP (char c, int i)"
 .br
@@ -264,22 +282,22 @@ Definition at line 38 of file modules.h.
 Referenced by kick_channel().
 .SS "#define CONF_FILE_NOT_FOUND   0x000200"
 .PP
-Definition at line 1523 of file modules.h.
+Definition at line 1541 of file modules.h.
 .PP
 Referenced by ConfigReader::ConfigReader().
 .SS "#define CONF_NOT_A_NUMBER   0x000010"
 .PP
-Definition at line 1520 of file modules.h.
+Definition at line 1538 of file modules.h.
 .PP
 Referenced by ConfigReader::ReadInteger().
 .SS "#define CONF_NOT_UNSIGNED   0x000080"
 .PP
-Definition at line 1521 of file modules.h.
+Definition at line 1539 of file modules.h.
 .PP
 Referenced by ConfigReader::ReadInteger().
 .SS "#define CONF_VALUE_NOT_FOUND   0x000100"
 .PP
-Definition at line 1522 of file modules.h.
+Definition at line 1540 of file modules.h.
 .PP
 Referenced by ConfigReader::ReadFlag(), ConfigReader::ReadInteger(), and ConfigReader::ReadValue().
 .SS "#define DEBUG   10"
@@ -292,14 +310,14 @@ Definition at line 23 of file modules.h.
 Definition at line 25 of file modules.h.
 .SS "#define FD_MAGIC_NUMBER   -42"
 .PP
-Definition at line 101 of file modules.h.
+Definition at line 102 of file modules.h.
 .PP
 Referenced by Server::PseudoToUser(), and Server::UserToPseudo().
 .SS "#define FOREACH_MOD   for (int _i = 0; _i <= \fBMODCOUNT\fP; _i++) modules[_i]->"
 .PP
-Definition at line 81 of file modules.h.
+Definition at line 82 of file modules.h.
 .PP
-Referenced by del_channel(), ForceChan(), kick_channel(), and Event::Send().
+Referenced by del_channel(), ForceChan(), FullConnectUser(), kick_channel(), kill_link(), kill_link_silent(), and Event::Send().
 .SS "#define FOREACH_RESULT(x)"
 .PP
 \fBValue:\fP
@@ -316,9 +334,18 @@ Referenced by del_channel(), ForceChan(), kick_channel(), and Event::Send().
         }
 .fi
 .PP
-Definition at line 89 of file modules.h.
+Definition at line 90 of file modules.h.
 .PP
-Referenced by add_channel(), and kick_channel().
+Referenced by add_channel(), force_nickchange(), and kick_channel().
+.SS "#define IS_LOCAL(x)   (x->fd > -1)"
+.PP
+Definition at line 106 of file modules.h.
+.SS "#define IS_MODULE_CREATED(x)   (x->fd == FD_MAGIC_NUMBER)"
+.PP
+Definition at line 108 of file modules.h.
+.SS "#define IS_REMOTE(x)   (x->fd < 0)"
+.PP
+Definition at line 107 of file modules.h.
 .SS "#define MT_CHANNEL   1"
 .PP
 Used with OnExtendedMode() method of modules. 
@@ -342,6 +369,15 @@ Definition at line 27 of file modules.h.
 .SS "#define SPARSE   40"
 .PP
 Definition at line 26 of file modules.h.
+.SS "#define TYPE_CHANNEL   2"
+.PP
+Definition at line 118 of file modules.h.
+.SS "#define TYPE_SERVER   3"
+.PP
+Definition at line 119 of file modules.h.
+.SS "#define TYPE_USER   1"
+.PP
+Definition at line 117 of file modules.h.
 .SS "#define VERBOSE   20"
 .PP
 Definition at line 24 of file modules.h.
@@ -361,149 +397,150 @@ Definition at line 52 of file modules.h.
 Definition at line 53 of file modules.h.
 .PP
 Referenced by Module::GetVersion().
+.SS "#define WM_AND   1"
+.PP
+Definition at line 112 of file modules.h.
+.SS "#define WM_OR   2"
+.PP
+Definition at line 113 of file modules.h.
 .SH "Typedef Documentation"
 .PP 
 .SS "typedef std::deque<\fBuserrec\fP*> \fBchanuserlist\fP"
 .PP
 Holds a list of users in a channel. 
 .PP
-Definition at line 74 of file modules.h.
+Definition at line 75 of file modules.h.
 .SS "typedef std::deque<\fBstd::string\fP> \fBfile_cache\fP"
 .PP
 Low level definition of a \fBFileReader\fP classes file cache area. 
 .PP
-Definition at line 65 of file modules.h.
+Definition at line 66 of file modules.h.
 .SS "typedef DLLFactory<\fBModuleFactory\fP> \fBircd_module\fP"
 .PP
-Definition at line 1689 of file modules.h.
+Definition at line 1707 of file modules.h.
 .SS "typedef \fBfile_cache\fP \fBstring_list\fP"
 .PP
-Definition at line 70 of file modules.h.
+Definition at line 71 of file modules.h.
 .SH "Function Documentation"
 .PP 
-.SS "void createcommand (char * cmd, \fBhandlerfunc\fP f, char flags, int minparams, char * source)"
-.PP
-Referenced by Server::AddCommand().
 .SS "bool ModeDefined (char c, int i)"
 .PP
-Definition at line 71 of file modules.cpp.
+Definition at line 70 of file modules.cpp.
 .PP
 References EMode.
 .PP
 Referenced by DoAddExtendedMode().
 .PP
 .nf
-72 {
-73         for (ExtModeListIter i = EMode.begin(); i < EMode.end(); i++)
-74         {
-75                 if ((i->modechar == modechar) && (i->type == type))
-76                 {
-77                         return true;
-78                 }
-79         }
-80         return false;
-81 }
+71 {
+72         for (ExtModeListIter i = EMode.begin(); i < EMode.end(); i++)
+73         {
+74                 if ((i->modechar == modechar) && (i->type == type))
+75                 {
+76                         return true;
+77                 }
+78         }
+79         return false;
+80 }
 .fi
 .PP
 .SS "int ModeDefinedOff (char c, int i)"
 .PP
-Definition at line 121 of file modules.cpp.
+Definition at line 120 of file modules.cpp.
 .PP
 References EMode.
 .PP
 .nf
-122 {
-123         for (ExtModeListIter i = EMode.begin(); i < EMode.end(); i++)
-124         {
-125                 if ((i->modechar == modechar) && (i->type == type))
-126                 {
-127                         return i->params_when_off;
-128                 }
-129         }
-130         return 0;
-131 }
+121 {
+122         for (ExtModeListIter i = EMode.begin(); i < EMode.end(); i++)
+123         {
+124                 if ((i->modechar == modechar) && (i->type == type))
+125                 {
+126                         return i->params_when_off;
+127                 }
+128         }
+129         return 0;
+130 }
 .fi
 .PP
 .SS "int ModeDefinedOn (char c, int i)"
 .PP
-Definition at line 108 of file modules.cpp.
+Definition at line 107 of file modules.cpp.
 .PP
 References EMode.
 .PP
 .nf
-109 {
-110         for (ExtModeListIter i = EMode.begin(); i < EMode.end(); i++)
-111         {
-112                 if ((i->modechar == modechar) && (i->type == type))
-113                 {
-114                         return i->params_when_on;
-115                 }
-116         }
-117         return 0;
-118 }
+108 {
+109         for (ExtModeListIter i = EMode.begin(); i < EMode.end(); i++)
+110         {
+111                 if ((i->modechar == modechar) && (i->type == type))
+112                 {
+113                         return i->params_when_on;
+114                 }
+115         }
+116         return 0;
+117 }
 .fi
 .PP
 .SS "bool ModeDefinedOper (char c, int i)"
 .PP
-Definition at line 95 of file modules.cpp.
+Definition at line 94 of file modules.cpp.
 .PP
 References EMode.
 .PP
 .nf
-96 {
-97         for (ExtModeListIter i = EMode.begin(); i < EMode.end(); i++)
-98         {
-99                 if ((i->modechar == modechar) && (i->type == type) && (i->needsoper == true))
-100                 {
-101                         return true;
-102                 }
-103         }
-104         return false;
-105 }
+95 {
+96         for (ExtModeListIter i = EMode.begin(); i < EMode.end(); i++)
+97         {
+98                 if ((i->modechar == modechar) && (i->type == type) && (i->needsoper == true))
+99                 {
+100                         return true;
+101                 }
+102         }
+103         return false;
+104 }
 .fi
 .PP
 .SS "bool ModeIsListMode (char modechar, int type)"
 .PP
-Definition at line 83 of file modules.cpp.
+Definition at line 82 of file modules.cpp.
 .PP
 References EMode.
 .PP
 .nf
-84 {
-85         for (ExtModeListIter i = EMode.begin(); i < EMode.end(); i++)
-86         {
-87                 if ((i->modechar == modechar) && (i->type == type) && (i->list == true))
-88                 {
-89                         return true;
-90                 }
-91         }
-92         return false;
-93 }
+83 {
+84         for (ExtModeListIter i = EMode.begin(); i < EMode.end(); i++)
+85         {
+86                 if ((i->modechar == modechar) && (i->type == type) && (i->list == true))
+87                 {
+88                         return true;
+89                 }
+90         }
+91         return false;
+92 }
 .fi
 .PP
 .SS "void ModeMakeList (char modechar)"
 .PP
-Definition at line 144 of file modules.cpp.
+Definition at line 143 of file modules.cpp.
 .PP
 References EMode, and MT_CHANNEL.
 .PP
 Referenced by Server::AddExtendedListMode().
 .PP
 .nf
-145 {
-146         for (ExtModeListIter i = EMode.begin(); i < EMode.end(); i++)
-147         {
-148                 if ((i->modechar == modechar) && (i->type == MT_CHANNEL))
-149                 {
-150                         i->list = true;
-151                         return;
-152                 }
-153         }
-154         return;
-155 }
+144 {
+145         for (ExtModeListIter i = EMode.begin(); i < EMode.end(); i++)
+146         {
+147                 if ((i->modechar == modechar) && (i->type == MT_CHANNEL))
+148                 {
+149                         i->list = true;
+150                         return;
+151                 }
+152         }
+153         return;
+154 }
 .fi
-.PP
-.SS "void server_mode (char ** parameters, int pcnt, \fBuserrec\fP * user)"
 .PP
 .SH "Author"
 .PP 

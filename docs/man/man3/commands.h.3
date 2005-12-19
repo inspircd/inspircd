@@ -1,4 +1,4 @@
-.TH "commands.h" 3 "15 Dec 2005" "Version 1.0Betareleases" "InspIRCd" \" -*- nroff -*-
+.TH "commands.h" 3 "19 Dec 2005" "Version 1.0Betareleases" "InspIRCd" \" -*- nroff -*-
 .ad l
 .nh
 .SH NAME
@@ -22,294 +22,159 @@ commands.h \-
 .br
 \fC#include 'channels.h'\fP
 .br
+\fC#include 'cmd_admin.h'\fP
+.br
+\fC#include 'cmd_away.h'\fP
+.br
+\fC#include 'cmd_commands.h'\fP
+.br
+\fC#include 'cmd_connect.h'\fP
+.br
+\fC#include 'cmd_die.h'\fP
+.br
+\fC#include 'cmd_eline.h'\fP
+.br
+\fC#include 'cmd_gline.h'\fP
+.br
+\fC#include 'cmd_info.h'\fP
+.br
+\fC#include 'cmd_invite.h'\fP
+.br
+\fC#include 'cmd_ison.h'\fP
+.br
+\fC#include 'cmd_join.h'\fP
+.br
+\fC#include 'cmd_kick.h'\fP
+.br
+\fC#include 'cmd_kill.h'\fP
+.br
+\fC#include 'cmd_kline.h'\fP
+.br
+\fC#include 'cmd_links.h'\fP
+.br
+\fC#include 'cmd_list.h'\fP
+.br
+\fC#include 'cmd_loadmodule.h'\fP
+.br
+\fC#include 'cmd_lusers.h'\fP
+.br
+\fC#include 'cmd_map.h'\fP
+.br
+\fC#include 'cmd_modules.h'\fP
+.br
+\fC#include 'cmd_motd.h'\fP
+.br
+\fC#include 'cmd_names.h'\fP
+.br
+\fC#include 'cmd_nick.h'\fP
+.br
+\fC#include 'cmd_notice.h'\fP
+.br
+\fC#include 'cmd_oper.h'\fP
+.br
+\fC#include 'cmd_part.h'\fP
+.br
+\fC#include 'cmd_pass.h'\fP
+.br
+\fC#include 'cmd_ping.h'\fP
+.br
+\fC#include 'cmd_pong.h'\fP
+.br
+\fC#include 'cmd_privmsg.h'\fP
+.br
+\fC#include 'cmd_qline.h'\fP
+.br
+\fC#include 'cmd_quit.h'\fP
+.br
+\fC#include 'cmd_rehash.h'\fP
+.br
+\fC#include 'cmd_restart.h'\fP
+.br
+\fC#include 'cmd_rules.h'\fP
+.br
+\fC#include 'cmd_server.h'\fP
+.br
+\fC#include 'cmd_squit.h'\fP
+.br
+\fC#include 'cmd_stats.h'\fP
+.br
+\fC#include 'cmd_summon.h'\fP
+.br
+\fC#include 'cmd_time.h'\fP
+.br
+\fC#include 'cmd_topic.h'\fP
+.br
+\fC#include 'cmd_trace.h'\fP
+.br
+\fC#include 'cmd_unloadmodule.h'\fP
+.br
+\fC#include 'cmd_user.h'\fP
+.br
+\fC#include 'cmd_userhost.h'\fP
+.br
+\fC#include 'cmd_users.h'\fP
+.br
+\fC#include 'cmd_version.h'\fP
+.br
+\fC#include 'cmd_wallops.h'\fP
+.br
+\fC#include 'cmd_who.h'\fP
+.br
+\fC#include 'cmd_whois.h'\fP
+.br
+\fC#include 'cmd_whowas.h'\fP
+.br
+\fC#include 'cmd_zline.h'\fP
+.br
 
 .SS "Functions"
 
 .in +1c
 .ti -1c
-.RI "void \fBhandle_join\fP (char **parameters, int pcnt, \fBuserrec\fP *user)"
-.br
-.RI "\fIThese are the handlers for user commands. \fP"
-.ti -1c
-.RI "void \fBhandle_part\fP (char **parameters, int pcnt, \fBuserrec\fP *user)"
-.br
-.ti -1c
-.RI "void \fBhandle_kick\fP (char **parameters, int pcnt, \fBuserrec\fP *user)"
-.br
-.ti -1c
-.RI "void \fBhandle_die\fP (char **parameters, int pcnt, \fBuserrec\fP *user)"
-.br
-.ti -1c
-.RI "void \fBhandle_restart\fP (char **parameters, int pcnt, \fBuserrec\fP *user)"
-.br
-.ti -1c
-.RI "void \fBhandle_kill\fP (char **parameters, int pcnt, \fBuserrec\fP *user)"
-.br
-.ti -1c
-.RI "void \fBhandle_summon\fP (char **parameters, int pcnt, \fBuserrec\fP *user)"
-.br
-.ti -1c
-.RI "void \fBhandle_users\fP (char **parameters, int pcnt, \fBuserrec\fP *user)"
-.br
-.ti -1c
-.RI "void \fBhandle_pass\fP (char **parameters, int pcnt, \fBuserrec\fP *user)"
-.br
-.ti -1c
-.RI "void \fBhandle_invite\fP (char **parameters, int pcnt, \fBuserrec\fP *user)"
-.br
-.ti -1c
-.RI "void \fBhandle_topic\fP (char **parameters, int pcnt, \fBuserrec\fP *user)"
-.br
-.ti -1c
-.RI "void \fBhandle_names\fP (char **parameters, int pcnt, \fBuserrec\fP *user)"
-.br
-.ti -1c
-.RI "void \fBhandle_privmsg\fP (char **parameters, int pcnt, \fBuserrec\fP *user)"
-.br
-.ti -1c
-.RI "void \fBhandle_notice\fP (char **parameters, int pcnt, \fBuserrec\fP *user)"
-.br
-.ti -1c
-.RI "void \fBhandle_info\fP (char **parameters, int pcnt, \fBuserrec\fP *user)"
-.br
-.ti -1c
-.RI "void \fBhandle_time\fP (char **parameters, int pcnt, \fBuserrec\fP *user)"
-.br
-.ti -1c
-.RI "void \fBhandle_whois\fP (char **parameters, int pcnt, \fBuserrec\fP *user)"
-.br
-.ti -1c
-.RI "void \fBhandle_quit\fP (char **parameters, int pcnt, \fBuserrec\fP *user)"
-.br
-.ti -1c
-.RI "void \fBhandle_who\fP (char **parameters, int pcnt, \fBuserrec\fP *user)"
-.br
-.ti -1c
-.RI "void \fBhandle_wallops\fP (char **parameters, int pcnt, \fBuserrec\fP *user)"
-.br
-.ti -1c
-.RI "void \fBhandle_list\fP (char **parameters, int pcnt, \fBuserrec\fP *user)"
-.br
-.ti -1c
-.RI "void \fBhandle_rehash\fP (char **parameters, int pcnt, \fBuserrec\fP *user)"
-.br
-.ti -1c
-.RI "void \fBhandle_lusers\fP (char **parameters, int pcnt, \fBuserrec\fP *user)"
-.br
-.ti -1c
-.RI "void \fBhandle_admin\fP (char **parameters, int pcnt, \fBuserrec\fP *user)"
-.br
-.ti -1c
-.RI "void \fBhandle_ping\fP (char **parameters, int pcnt, \fBuserrec\fP *user)"
-.br
-.ti -1c
-.RI "void \fBhandle_pong\fP (char **parameters, int pcnt, \fBuserrec\fP *user)"
-.br
-.ti -1c
-.RI "void \fBhandle_motd\fP (char **parameters, int pcnt, \fBuserrec\fP *user)"
-.br
-.ti -1c
-.RI "void \fBhandle_rules\fP (char **parameters, int pcnt, \fBuserrec\fP *user)"
-.br
-.ti -1c
-.RI "void \fBhandle_user\fP (char **parameters, int pcnt, \fBuserrec\fP *user)"
-.br
-.ti -1c
-.RI "void \fBhandle_userhost\fP (char **parameters, int pcnt, \fBuserrec\fP *user)"
-.br
-.ti -1c
-.RI "void \fBhandle_ison\fP (char **parameters, int pcnt, \fBuserrec\fP *user)"
-.br
-.ti -1c
-.RI "void \fBhandle_away\fP (char **parameters, int pcnt, \fBuserrec\fP *user)"
-.br
-.ti -1c
-.RI "void \fBhandle_whowas\fP (char **parameters, int pcnt, \fBuserrec\fP *user)"
-.br
-.ti -1c
-.RI "void \fBhandle_trace\fP (char **parameters, int pcnt, \fBuserrec\fP *user)"
-.br
-.ti -1c
-.RI "void \fBhandle_modules\fP (char **parameters, int pcnt, \fBuserrec\fP *user)"
-.br
-.ti -1c
-.RI "void \fBhandle_stats\fP (char **parameters, int pcnt, \fBuserrec\fP *user)"
-.br
-.ti -1c
-.RI "void \fBhandle_connect\fP (char **parameters, int pcnt, \fBuserrec\fP *user)"
-.br
-.ti -1c
-.RI "void \fBhandle_squit\fP (char **parameters, int pcnt, \fBuserrec\fP *user)"
-.br
-.ti -1c
-.RI "void \fBhandle_links\fP (char **parameters, int pcnt, \fBuserrec\fP *user)"
-.br
-.ti -1c
-.RI "void \fBhandle_map\fP (char **parameters, int pcnt, \fBuserrec\fP *user)"
-.br
-.ti -1c
-.RI "void \fBhandle_oper\fP (char **parameters, int pcnt, \fBuserrec\fP *user)"
-.br
-.ti -1c
-.RI "void \fBhandle_nick\fP (char **parameters, int pcnt, \fBuserrec\fP *user)"
-.br
-.ti -1c
-.RI "void \fBhandle_kline\fP (char **parameters, int pcnt, \fBuserrec\fP *user)"
-.br
-.ti -1c
-.RI "void \fBhandle_gline\fP (char **parameters, int pcnt, \fBuserrec\fP *user)"
-.br
-.ti -1c
-.RI "void \fBhandle_zline\fP (char **parameters, int pcnt, \fBuserrec\fP *user)"
-.br
-.ti -1c
-.RI "void \fBhandle_qline\fP (char **parameters, int pcnt, \fBuserrec\fP *user)"
-.br
-.ti -1c
-.RI "void \fBhandle_eline\fP (char **parameters, int pcnt, \fBuserrec\fP *user)"
-.br
-.ti -1c
-.RI "void \fBhandle_server\fP (char **parameters, int pcnt, \fBuserrec\fP *user)"
-.br
-.ti -1c
-.RI "void \fBhandle_loadmodule\fP (char **parameters, int pcnt, \fBuserrec\fP *user)"
-.br
-.ti -1c
-.RI "void \fBhandle_unloadmodule\fP (char **parameters, int pcnt, \fBuserrec\fP *user)"
-.br
-.ti -1c
-.RI "void \fBhandle_commands\fP (char **parameters, int pcnt, \fBuserrec\fP *user)"
+.RI "char * \fBCleanFilename\fP (char *name)"
 .br
 .ti -1c
 .RI "bool \fBis_uline\fP (const char *server)"
 .br
-.RI "\fIFunctions for u:lined servers. \fP"
 .ti -1c
 .RI "long \fBduration\fP (const char *str)"
 .br
-.RI "\fIOther useful functions. \fP"
 .ti -1c
 .RI "void \fBdo_whois\fP (\fBuserrec\fP *user, \fBuserrec\fP *dest, unsigned long signon, unsigned long idle, char *nick)"
+.br
+.ti -1c
+.RI "bool \fBhost_matches_everyone\fP (\fBstd::string\fP mask, \fBuserrec\fP *user)"
+.br
+.ti -1c
+.RI "bool \fBip_matches_everyone\fP (\fBstd::string\fP ip, \fBuserrec\fP *user)"
+.br
+.ti -1c
+.RI "bool \fBnick_matches_everyone\fP (\fBstd::string\fP nick, \fBuserrec\fP *user)"
+.br
+.ti -1c
+.RI "int \fBoperstrcmp\fP (char *data, char *input)"
 .br
 .in -1c
 .SH "Function Documentation"
 .PP 
+.SS "char* CleanFilename (char * name)"
+.PP
 .SS "void do_whois (\fBuserrec\fP * user, \fBuserrec\fP * dest, unsigned long signon, unsigned long idle, char * nick)"
 .PP
 .SS "long duration (const char * str)"
 .PP
-Other useful functions. 
-.PP
 Referenced by Server::CalcDuration().
-.SS "void handle_admin (char ** parameters, int pcnt, \fBuserrec\fP * user)"
+.SS "bool host_matches_everyone (\fBstd::string\fP mask, \fBuserrec\fP * user)"
 .PP
-.SS "void handle_away (char ** parameters, int pcnt, \fBuserrec\fP * user)"
-.PP
-.SS "void handle_commands (char ** parameters, int pcnt, \fBuserrec\fP * user)"
-.PP
-.SS "void handle_connect (char ** parameters, int pcnt, \fBuserrec\fP * user)"
-.PP
-.SS "void handle_die (char ** parameters, int pcnt, \fBuserrec\fP * user)"
-.PP
-.SS "void handle_eline (char ** parameters, int pcnt, \fBuserrec\fP * user)"
-.PP
-.SS "void handle_gline (char ** parameters, int pcnt, \fBuserrec\fP * user)"
-.PP
-.SS "void handle_info (char ** parameters, int pcnt, \fBuserrec\fP * user)"
-.PP
-.SS "void handle_invite (char ** parameters, int pcnt, \fBuserrec\fP * user)"
-.PP
-.SS "void handle_ison (char ** parameters, int pcnt, \fBuserrec\fP * user)"
-.PP
-.SS "void handle_join (char ** parameters, int pcnt, \fBuserrec\fP * user)"
-.PP
-These are the handlers for user commands. 
-.PP
-.SS "void handle_kick (char ** parameters, int pcnt, \fBuserrec\fP * user)"
-.PP
-.SS "void handle_kill (char ** parameters, int pcnt, \fBuserrec\fP * user)"
-.PP
-.SS "void handle_kline (char ** parameters, int pcnt, \fBuserrec\fP * user)"
-.PP
-.SS "void handle_links (char ** parameters, int pcnt, \fBuserrec\fP * user)"
-.PP
-.SS "void handle_list (char ** parameters, int pcnt, \fBuserrec\fP * user)"
-.PP
-.SS "void handle_loadmodule (char ** parameters, int pcnt, \fBuserrec\fP * user)"
-.PP
-.SS "void handle_lusers (char ** parameters, int pcnt, \fBuserrec\fP * user)"
-.PP
-.SS "void handle_map (char ** parameters, int pcnt, \fBuserrec\fP * user)"
-.PP
-.SS "void handle_modules (char ** parameters, int pcnt, \fBuserrec\fP * user)"
-.PP
-.SS "void handle_motd (char ** parameters, int pcnt, \fBuserrec\fP * user)"
-.PP
-.SS "void handle_names (char ** parameters, int pcnt, \fBuserrec\fP * user)"
-.PP
-.SS "void handle_nick (char ** parameters, int pcnt, \fBuserrec\fP * user)"
-.PP
-.SS "void handle_notice (char ** parameters, int pcnt, \fBuserrec\fP * user)"
-.PP
-.SS "void handle_oper (char ** parameters, int pcnt, \fBuserrec\fP * user)"
-.PP
-.SS "void handle_part (char ** parameters, int pcnt, \fBuserrec\fP * user)"
-.PP
-.SS "void handle_pass (char ** parameters, int pcnt, \fBuserrec\fP * user)"
-.PP
-.SS "void handle_ping (char ** parameters, int pcnt, \fBuserrec\fP * user)"
-.PP
-.SS "void handle_pong (char ** parameters, int pcnt, \fBuserrec\fP * user)"
-.PP
-.SS "void handle_privmsg (char ** parameters, int pcnt, \fBuserrec\fP * user)"
-.PP
-.SS "void handle_qline (char ** parameters, int pcnt, \fBuserrec\fP * user)"
-.PP
-.SS "void handle_quit (char ** parameters, int pcnt, \fBuserrec\fP * user)"
-.PP
-.SS "void handle_rehash (char ** parameters, int pcnt, \fBuserrec\fP * user)"
-.PP
-.SS "void handle_restart (char ** parameters, int pcnt, \fBuserrec\fP * user)"
-.PP
-.SS "void handle_rules (char ** parameters, int pcnt, \fBuserrec\fP * user)"
-.PP
-.SS "void handle_server (char ** parameters, int pcnt, \fBuserrec\fP * user)"
-.PP
-.SS "void handle_squit (char ** parameters, int pcnt, \fBuserrec\fP * user)"
-.PP
-.SS "void handle_stats (char ** parameters, int pcnt, \fBuserrec\fP * user)"
-.PP
-.SS "void handle_summon (char ** parameters, int pcnt, \fBuserrec\fP * user)"
-.PP
-.SS "void handle_time (char ** parameters, int pcnt, \fBuserrec\fP * user)"
-.PP
-.SS "void handle_topic (char ** parameters, int pcnt, \fBuserrec\fP * user)"
-.PP
-.SS "void handle_trace (char ** parameters, int pcnt, \fBuserrec\fP * user)"
-.PP
-.SS "void handle_unloadmodule (char ** parameters, int pcnt, \fBuserrec\fP * user)"
-.PP
-.SS "void handle_user (char ** parameters, int pcnt, \fBuserrec\fP * user)"
-.PP
-.SS "void handle_userhost (char ** parameters, int pcnt, \fBuserrec\fP * user)"
-.PP
-.SS "void handle_users (char ** parameters, int pcnt, \fBuserrec\fP * user)"
-.PP
-.SS "void handle_wallops (char ** parameters, int pcnt, \fBuserrec\fP * user)"
-.PP
-.SS "void handle_who (char ** parameters, int pcnt, \fBuserrec\fP * user)"
-.PP
-.SS "void handle_whois (char ** parameters, int pcnt, \fBuserrec\fP * user)"
-.PP
-.SS "void handle_whowas (char ** parameters, int pcnt, \fBuserrec\fP * user)"
-.PP
-.SS "void handle_zline (char ** parameters, int pcnt, \fBuserrec\fP * user)"
+.SS "bool ip_matches_everyone (\fBstd::string\fP ip, \fBuserrec\fP * user)"
 .PP
 .SS "bool is_uline (const char * server)"
 .PP
-Functions for u:lined servers. 
-.PP
 Referenced by userrec::HasPermission(), Server::IsUlined(), and kick_channel().
+.SS "bool nick_matches_everyone (\fBstd::string\fP nick, \fBuserrec\fP * user)"
+.PP
+.SS "int operstrcmp (char * data, char * input)"
+.PP
 .SH "Author"
 .PP 
 Generated automatically by Doxygen for InspIRCd from the source code.

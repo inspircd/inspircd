@@ -1,4 +1,3 @@
 base referer
-rect $users_8h-source.html 163,108 227,135
-rect $channels_8h-source.html 283,108 368,135
-rect $connection_8h-source.html 276,58 375,84
+rect $users_8h-source.html 291,32 355,59
+rect $inspircd_8h-source.html 162,58 242,84

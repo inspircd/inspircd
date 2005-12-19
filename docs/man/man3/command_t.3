@@ -1,4 +1,4 @@
-.TH "command_t" 3 "15 Dec 2005" "Version 1.0Betareleases" "InspIRCd" \" -*- nroff -*-
+.TH "command_t" 3 "19 Dec 2005" "Version 1.0Betareleases" "InspIRCd" \" -*- nroff -*-
 .ad l
 .nh
 .SH NAME
@@ -10,19 +10,28 @@ command_t \- A structure that defines a command.
 .PP
 \fC#include <ctables.h>\fP
 .PP
-Inherits \fBExtensible\fP.
+Inherited by \fBcmd_mode\fP.
 .PP
+.SS "Public Member Functions"
+
+.in +1c
+.ti -1c
+.RI "\fBcommand_t\fP (\fBstd::string\fP cmd, char flags, int minpara)"
+.br
+.ti -1c
+.RI "virtual void \fBHandle\fP (char **parameters, int pcnt, \fBuserrec\fP *user)=0"
+.br
+.ti -1c
+.RI "virtual \fB~command_t\fP ()"
+.br
+.in -1c
 .SS "Public Attributes"
 
 .in +1c
 .ti -1c
-.RI "char \fBcommand\fP [MAXBUF]"
+.RI "\fBstd::string\fP \fBcommand\fP"
 .br
 .RI "\fICommand name. \fP"
-.ti -1c
-.RI "\fBhandlerfunc\fP * \fBhandler_function\fP"
-.br
-.RI "\fIHandler function as in typedef. \fP"
 .ti -1c
 .RI "char \fBflags_needed\fP"
 .br
@@ -40,7 +49,7 @@ Inherits \fBExtensible\fP.
 .br
 .RI "\fIused by /stats m \fP"
 .ti -1c
-.RI "char \fBsource\fP [MAXBUF]"
+.RI "\fBstd::string\fP \fBsource\fP"
 .br
 .RI "\fIused for resource tracking between modules \fP"
 .in -1c
@@ -48,44 +57,74 @@ Inherits \fBExtensible\fP.
 .PP 
 A structure that defines a command. 
 .PP
-Definition at line 26 of file ctables.h.
+Definition at line 29 of file ctables.h.
+.SH "Constructor & Destructor Documentation"
+.PP 
+.SS "command_t::command_t (\fBstd::string\fP cmd, char flags, int minpara)\fC [inline]\fP"
+.PP
+Definition at line 51 of file ctables.h.
+.PP
+References source, total_bytes, and use_count.
+.PP
+.nf
+51                                                           : command(cmd), flags_needed(flags), min_params(minpara)
+52         {
+53                 use_count = total_bytes = 0;
+54                 source = '<core>';
+55         }
+.fi
+.PP
+.SS "virtual command_t::~command_t ()\fC [inline, virtual]\fP"
+.PP
+Definition at line 59 of file ctables.h.
+.PP
+.nf
+59 {}
+.fi
+.PP
+.SH "Member Function Documentation"
+.PP 
+.SS "virtual void command_t::Handle (char ** parameters, int pcnt, \fBuserrec\fP * user)\fC [pure virtual]\fP"
+.PP
+Implemented in \fBcmd_mode\fP.
 .SH "Member Data Documentation"
 .PP 
-.SS "char \fBcommand_t::command\fP[MAXBUF]"
+.SS "\fBstd::string\fP \fBcommand_t::command\fP"
 .PP
 Command name. 
 .PP
-Definition at line 31 of file ctables.h.
+Definition at line 34 of file ctables.h.
 .SS "char \fBcommand_t::flags_needed\fP"
 .PP
 User flags needed to execute the command or 0. 
 .PP
 Definition at line 37 of file ctables.h.
-.SS "\fBhandlerfunc\fP* \fBcommand_t::handler_function\fP"
-.PP
-Handler function as in typedef. 
-.PP
-Definition at line 34 of file ctables.h.
 .SS "int \fBcommand_t::min_params\fP"
 .PP
 Minimum number of parameters command takes. 
 .PP
 Definition at line 40 of file ctables.h.
-.SS "char \fBcommand_t::source\fP[MAXBUF]"
+.SS "\fBstd::string\fP \fBcommand_t::source\fP"
 .PP
 used for resource tracking between modules 
 .PP
 Definition at line 49 of file ctables.h.
+.PP
+Referenced by command_t().
 .SS "long \fBcommand_t::total_bytes\fP"
 .PP
 used by /stats m 
 .PP
 Definition at line 46 of file ctables.h.
+.PP
+Referenced by command_t().
 .SS "long \fBcommand_t::use_count\fP"
 .PP
 used by /stats m 
 .PP
 Definition at line 43 of file ctables.h.
+.PP
+Referenced by command_t().
 
 .SH "Author"
 .PP 

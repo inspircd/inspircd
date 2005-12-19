@@ -8,13 +8,13 @@
 <div class="nav">
 <a class="el" href="dir_000000.html">home</a>&nbsp;&raquo&nbsp;<a class="el" href="dir_000001.html">brain</a>&nbsp;&raquo&nbsp;<a class="el" href="dir_000002.html">inspircd-cvs</a>&nbsp;&raquo&nbsp;<a class="el" href="dir_000003.html">inspircd</a>&nbsp;&raquo&nbsp;<a class="el" href="dir_000004.html">include</a></div>
 <h1>userprocess.h File Reference</h1><code>#include &quot;<a class="el" href="users_8h-source.html">users.h</a>&quot;</code><br>
+<code>#include &quot;<a class="el" href="inspircd_8h-source.html">inspircd.h</a>&quot;</code><br>
 
 <p>
 Include dependency graph for userprocess.h:<p><center><img src="userprocess_8h__incl.gif" border="0" usemap="#userprocess.h_map" alt=""></center>
 <map name="userprocess.h_map">
-<area href="users_8h-source.html" shape="rect" coords="163,108,227,135" alt="">
-<area href="channels_8h-source.html" shape="rect" coords="283,108,368,135" alt="">
-<area href="connection_8h-source.html" shape="rect" coords="276,58,375,84" alt="">
+<area href="users_8h-source.html" shape="rect" coords="291,32,355,59" alt="">
+<area href="inspircd_8h-source.html" shape="rect" coords="162,58,242,84" alt="">
 </map>
 
 <p>
@@ -23,7 +23,7 @@ Include dependency graph for userprocess.h:<p><center><img src="userprocess_8h__
 <tr><td colspan="2"><br><h2>Functions</h2></td></tr>
 <tr><td class="memItemLeft" nowrap align="right" valign="top">void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="userprocess_8h.html#CheckDie_28_29">CheckDie</a> ()</td></tr>
 
-<tr><td class="memItemLeft" nowrap align="right" valign="top">void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="userprocess_8h.html#LoadAllModules_28_29">LoadAllModules</a> ()</td></tr>
+<tr><td class="memItemLeft" nowrap align="right" valign="top">void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="userprocess_8h.html#LoadAllModules_28InspIRCd_20_2AServerInstance_29">LoadAllModules</a> (<a class="el" href="classInspIRCd.html">InspIRCd</a> *<a class="el" href="users_8cpp.html#ServerInstance">ServerInstance</a>)</td></tr>
 
 <tr><td class="memItemLeft" nowrap align="right" valign="top">void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="userprocess_8h.html#CheckRoot_28_29">CheckRoot</a> ()</td></tr>
 
@@ -117,7 +117,7 @@ Include dependency graph for userprocess.h:<p><center><img src="userprocess_8h__
     </td>
   </tr>
 </table>
-<a class="anchor" name="LoadAllModules_28_29"></a><!-- doxytag: member="userprocess.h::LoadAllModules" ref="LoadAllModules_28_29" args="()" --><p>
+<a class="anchor" name="LoadAllModules_28InspIRCd_20_2AServerInstance_29"></a><!-- doxytag: member="userprocess.h::LoadAllModules" ref="LoadAllModules_28InspIRCd_20_2AServerInstance_29" args="(InspIRCd *ServerInstance)" --><p>
 <table class="mdTable" cellpadding="2" cellspacing="0">
   <tr>
     <td class="mdRow">
@@ -125,7 +125,8 @@ Include dependency graph for userprocess.h:<p><center><img src="userprocess_8h__
         <tr>
           <td class="md" nowrap valign="top">void LoadAllModules           </td>
           <td class="md" valign="top">(&nbsp;</td>
-          <td class="mdname1" valign="top" nowrap>          </td>
+          <td class="md" nowrap valign="top"><a class="el" href="classInspIRCd.html">InspIRCd</a> *&nbsp;</td>
+          <td class="mdname1" valign="top" nowrap> <em>ServerInstance</em>          </td>
           <td class="md" valign="top">&nbsp;)&nbsp;</td>
           <td class="md" nowrap></td>
         </tr>
@@ -209,7 +210,7 @@ Include dependency graph for userprocess.h:<p><center><img src="userprocess_8h__
     </td>
   </tr>
 </table>
-<hr size="1"><address style="align: right;"><small>Generated on Thu Dec 15 11:14:16 2005 for InspIRCd by&nbsp;
+<hr size="1"><address style="align: right;"><small>Generated on Mon Dec 19 18:02:14 2005 for InspIRCd by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img src="doxygen.png" alt="doxygen" align="middle" border="0"></a> 1.4.4-20050815 </small></address>
 </body>

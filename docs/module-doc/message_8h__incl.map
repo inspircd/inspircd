@@ -1,4 +1,5 @@
 base referer
 rect $users_8h-source.html 148,260 212,287
-rect $channels_8h-source.html 272,210 357,236
-rect $connection_8h-source.html 265,362 364,388
+rect $channels_8h-source.html 272,209 357,236
+rect $connection_8h-source.html 265,412 364,439
+rect $hashcomp_8h-source.html 268,311 361,337

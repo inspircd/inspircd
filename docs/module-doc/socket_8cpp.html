@@ -23,7 +23,6 @@
 <code>#include &quot;<a class="el" href="socket_8h-source.html">socket.h</a>&quot;</code><br>
 <code>#include &quot;<a class="el" href="inspircd_8h-source.html">inspircd.h</a>&quot;</code><br>
 <code>#include &quot;<a class="el" href="inspircd__io_8h-source.html">inspircd_io.h</a>&quot;</code><br>
-<code>#include &quot;inspircd_util.h&quot;</code><br>
 <code>#include &quot;inspstring.h&quot;</code><br>
 <code>#include &quot;helperfuncs.h&quot;</code><br>
 <code>#include &quot;<a class="el" href="socketengine_8h-source.html">socketengine.h</a>&quot;</code><br>
@@ -31,21 +30,17 @@
 <p>
 Include dependency graph for socket.cpp:<p><center><img src="socket_8cpp__incl.gif" border="0" usemap="#socket.cpp_map" alt=""></center>
 <map name="socket.cpp_map">
-<area href="socket_8h-source.html" shape="rect" coords="456,374,528,400" alt="">
-<area href="inspircd_8h-source.html" shape="rect" coords="301,450,381,476" alt="">
-<area href="inspircd__io_8h-source.html" shape="rect" coords="444,424,540,451" alt="">
-<area href="socketengine_8h-source.html" shape="rect" coords="140,830,252,856" alt="">
+<area href="socket_8h-source.html" shape="rect" coords="318,463,390,490" alt="">
+<area href="inspircd_8h-source.html" shape="rect" coords="155,424,235,451" alt="">
+<area href="inspircd__io_8h-source.html" shape="rect" coords="306,564,402,591" alt="">
+<area href="socketengine_8h-source.html" shape="rect" coords="298,210,410,236" alt="">
 </map>
 
 <p>
 <a href="socket_8cpp-source.html">Go to the source code of this file.</a><table border="0" cellpadding="0" cellspacing="0">
 <tr><td></td></tr>
 <tr><td colspan="2"><br><h2>Variables</h2></td></tr>
-<tr><td class="memItemLeft" nowrap align="right" valign="top"><a class="el" href="classSocketEngine.html">SocketEngine</a> *&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="socket_8cpp.html#SE">SE</a></td></tr>
-
-<tr><td class="memItemLeft" nowrap align="right" valign="top">int&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="socket_8cpp.html#boundPortCount">boundPortCount</a></td></tr>
-
-<tr><td class="memItemLeft" nowrap align="right" valign="top">int&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="socket_8cpp.html#openSockfd_5BMAXSOCKS_5D">openSockfd</a> [MAXSOCKS]</td></tr>
+<tr><td class="memItemLeft" nowrap align="right" valign="top"><a class="el" href="classInspIRCd.html">InspIRCd</a> *&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="socket_8cpp.html#ServerInstance">ServerInstance</a></td></tr>
 
 <tr><td class="memItemLeft" nowrap align="right" valign="top">time_t&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="socket_8cpp.html#TIME">TIME</a></td></tr>
 
@@ -53,59 +48,13 @@ Include dependency graph for socket.cpp:<p><center><img src="socket_8cpp__incl.g
 
 </table>
 <hr><h2>Variable Documentation</h2>
-<a class="anchor" name="boundPortCount"></a><!-- doxytag: member="socket.cpp::boundPortCount" ref="boundPortCount" args="" --><p>
+<a class="anchor" name="ServerInstance"></a><!-- doxytag: member="socket.cpp::ServerInstance" ref="ServerInstance" args="" --><p>
 <table class="mdTable" cellpadding="2" cellspacing="0">
   <tr>
     <td class="mdRow">
       <table cellpadding="0" cellspacing="0" border="0">
         <tr>
-          <td class="md" nowrap valign="top">int <a class="el" href="socket_8cpp.html#boundPortCount">boundPortCount</a>          </td>
-        </tr>
-      </table>
-    </td>
-  </tr>
-</table>
-<table cellspacing="5" cellpadding="0" border="0">
-  <tr>
-    <td>
-      &nbsp;
-    </td>
-    <td>
-
-<p>
-    </td>
-  </tr>
-</table>
-<a class="anchor" name="openSockfd_5BMAXSOCKS_5D"></a><!-- doxytag: member="socket.cpp::openSockfd" ref="openSockfd_5BMAXSOCKS_5D" args="[MAXSOCKS]" --><p>
-<table class="mdTable" cellpadding="2" cellspacing="0">
-  <tr>
-    <td class="mdRow">
-      <table cellpadding="0" cellspacing="0" border="0">
-        <tr>
-          <td class="md" nowrap valign="top">int <a class="el" href="socket_8cpp.html#openSockfd_5BMAXSOCKS_5D">openSockfd</a>[MAXSOCKS]          </td>
-        </tr>
-      </table>
-    </td>
-  </tr>
-</table>
-<table cellspacing="5" cellpadding="0" border="0">
-  <tr>
-    <td>
-      &nbsp;
-    </td>
-    <td>
-
-<p>
-    </td>
-  </tr>
-</table>
-<a class="anchor" name="SE"></a><!-- doxytag: member="socket.cpp::SE" ref="SE" args="" --><p>
-<table class="mdTable" cellpadding="2" cellspacing="0">
-  <tr>
-    <td class="mdRow">
-      <table cellpadding="0" cellspacing="0" border="0">
-        <tr>
-          <td class="md" nowrap valign="top"><a class="el" href="classSocketEngine.html">SocketEngine</a>* <a class="el" href="socket_8cpp.html#SE">SE</a>          </td>
+          <td class="md" nowrap valign="top"><a class="el" href="classInspIRCd.html">InspIRCd</a>* <a class="el" href="users_8cpp.html#ServerInstance">ServerInstance</a>          </td>
         </tr>
       </table>
     </td>
@@ -128,7 +77,7 @@ Include dependency graph for socket.cpp:<p><center><img src="socket_8cpp__incl.g
     <td class="mdRow">
       <table cellpadding="0" cellspacing="0" border="0">
         <tr>
-          <td class="md" nowrap valign="top"><a class="el" href="classInspSocket.html">InspSocket</a>* <a class="el" href="socket_8cpp.html#socket_5Fref_5B_36_35_35_33_35_5D">socket_ref</a>[65535]          </td>
+          <td class="md" nowrap valign="top"><a class="el" href="classInspSocket.html">InspSocket</a>* <a class="el" href="users_8cpp.html#socket_5Fref_5B_36_35_35_33_35_5D">socket_ref</a>[65535]          </td>
         </tr>
       </table>
     </td>
@@ -144,7 +93,7 @@ Include dependency graph for socket.cpp:<p><center><img src="socket_8cpp__incl.g
 <p>
 
 <p>
-Definition at line <a class="el" href="socket_8cpp-source.html#l00046">46</a> of file <a class="el" href="socket_8cpp-source.html">socket.cpp</a>.    </td>
+Definition at line <a class="el" href="socket_8cpp-source.html#l00043">43</a> of file <a class="el" href="socket_8cpp-source.html">socket.cpp</a>.    </td>
   </tr>
 </table>
 <a class="anchor" name="TIME"></a><!-- doxytag: member="socket.cpp::TIME" ref="TIME" args="" --><p>
@@ -170,7 +119,7 @@ Definition at line <a class="el" href="socket_8cpp-source.html#l00046">46</a> of
     </td>
   </tr>
 </table>
-<hr size="1"><address style="align: right;"><small>Generated on Thu Dec 15 11:14:16 2005 for InspIRCd by&nbsp;
+<hr size="1"><address style="align: right;"><small>Generated on Mon Dec 19 18:02:14 2005 for InspIRCd by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img src="doxygen.png" alt="doxygen" align="middle" border="0"></a> 1.4.4-20050815 </small></address>
 </body>

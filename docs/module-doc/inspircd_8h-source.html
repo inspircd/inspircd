@@ -48,103 +48,95 @@
 <a name="l00039"></a>00039 <span class="preprocessor">#include &lt;deque&gt;</span>
 <a name="l00040"></a>00040 
 <a name="l00041"></a>00041 <span class="preprocessor">#include "<a class="code" href="inspircd__io_8h.html">inspircd_io.h</a>"</span>
-<a name="l00042"></a>00042 <span class="preprocessor">#include "inspircd_util.h"</span>
-<a name="l00043"></a>00043 <span class="preprocessor">#include "<a class="code" href="users_8h.html">users.h</a>"</span>
-<a name="l00044"></a>00044 <span class="preprocessor">#include "<a class="code" href="channels_8h.html">channels.h</a>"</span>
-<a name="l00045"></a>00045 <span class="preprocessor">#include "<a class="code" href="socket_8h.html">socket.h</a>"</span>
-<a name="l00046"></a>00046 
-<a name="l00047"></a>00047 <span class="comment">// some misc defines</span>
+<a name="l00042"></a>00042 <span class="preprocessor">#include "<a class="code" href="users_8h.html">users.h</a>"</span>
+<a name="l00043"></a>00043 <span class="preprocessor">#include "<a class="code" href="channels_8h.html">channels.h</a>"</span>
+<a name="l00044"></a>00044 <span class="preprocessor">#include "<a class="code" href="socket_8h.html">socket.h</a>"</span>
+<a name="l00045"></a>00045 <span class="preprocessor">#include "<a class="code" href="mode_8h.html">mode.h</a>"</span>
+<a name="l00046"></a>00046 <span class="preprocessor">#include "<a class="code" href="socketengine_8h.html">socketengine.h</a>"</span>
+<a name="l00047"></a>00047 <span class="preprocessor">#include "command_parse.h"</span>
 <a name="l00048"></a>00048 
-<a name="l00049"></a><a class="code" href="inspircd_8h.html#ERROR">00049</a> <span class="preprocessor">#define ERROR -1</span>
-<a name="l00050"></a><a class="code" href="inspircd_8h.html#TRUE">00050</a> <span class="preprocessor"></span><span class="preprocessor">#define TRUE 1</span>
-<a name="l00051"></a><a class="code" href="inspircd_8h.html#FALSE">00051</a> <span class="preprocessor"></span><span class="preprocessor">#define FALSE 0</span>
-<a name="l00052"></a><a class="code" href="inspircd_8h.html#MAXSOCKS">00052</a> <span class="preprocessor"></span><span class="preprocessor">#define MAXSOCKS 64</span>
-<a name="l00053"></a><a class="code" href="inspircd_8h.html#MAXCOMMAND">00053</a> <span class="preprocessor"></span><span class="preprocessor">#define MAXCOMMAND 32</span>
-<a name="l00054"></a>00054 <span class="preprocessor"></span>
-<a name="l00055"></a>00055 <span class="comment">// flags for use with WriteMode</span>
-<a name="l00056"></a>00056 
-<a name="l00057"></a><a class="code" href="inspircd_8h.html#WM_5FAND">00057</a> <span class="preprocessor">#define WM_AND 1</span>
-<a name="l00058"></a><a class="code" href="inspircd_8h.html#WM_5FOR">00058</a> <span class="preprocessor"></span><span class="preprocessor">#define WM_OR 2</span>
-<a name="l00059"></a>00059 <span class="preprocessor"></span>
-<a name="l00060"></a>00060 <span class="comment">// flags for use with OnUserPreMessage and OnUserPreNotice</span>
-<a name="l00061"></a>00061 
-<a name="l00062"></a><a class="code" href="inspircd_8h.html#TYPE_5FUSER">00062</a> <span class="preprocessor">#define TYPE_USER 1</span>
-<a name="l00063"></a><a class="code" href="inspircd_8h.html#TYPE_5FCHANNEL">00063</a> <span class="preprocessor"></span><span class="preprocessor">#define TYPE_CHANNEL 2</span>
-<a name="l00064"></a><a class="code" href="inspircd_8h.html#TYPE_5FSERVER">00064</a> <span class="preprocessor"></span><span class="preprocessor">#define TYPE_SERVER 3</span>
-<a name="l00065"></a>00065 <span class="preprocessor"></span>
-<a name="l00066"></a><a class="code" href="inspircd_8h.html#IS_5FLOCAL_28x_29">00066</a> <span class="preprocessor">#define IS_LOCAL(x) (x-&gt;fd &gt; -1)</span>
-<a name="l00067"></a><a class="code" href="inspircd_8h.html#IS_5FREMOTE_28x_29">00067</a> <span class="preprocessor"></span><span class="preprocessor">#define IS_REMOTE(x) (x-&gt;fd &lt; 0)</span>
-<a name="l00068"></a><a class="code" href="inspircd_8h.html#IS_5FMODULE_5FCREATED_28x_29">00068</a> <span class="preprocessor"></span><span class="preprocessor">#define IS_MODULE_CREATED(x) (x-&gt;fd == FD_MAGIC_NUMBER)</span>
-<a name="l00069"></a>00069 <span class="preprocessor"></span>
-<a name="l00070"></a><a class="code" href="inspircd_8h.html#handlerfunc_29_28char_20_2A_2A_2C_20int_2C_20userrec_20_2A_29">00070</a> <span class="keyword">typedef</span> void (<a class="code" href="inspircd_8h.html#handlerfunc_29_28char_20_2A_2A_2C_20int_2C_20userrec_20_2A_29">handlerfunc</a>) (<span class="keywordtype">char</span>**, int, <a class="code" href="classuserrec.html">userrec</a>*);
-<a name="l00071"></a>00071 
-<a name="l00072"></a><a class="code" href="classserverstats.html">00072</a> <span class="keyword">class </span><a class="code" href="classserverstats.html">serverstats</a>
-<a name="l00073"></a>00073 {
-<a name="l00074"></a>00074   <span class="keyword">public</span>:
-<a name="l00075"></a><a class="code" href="classserverstats.html#statsAccept">00075</a>         <span class="keywordtype">int</span> <a class="code" href="classserverstats.html#statsAccept">statsAccept</a>;
-<a name="l00076"></a><a class="code" href="classserverstats.html#statsRefused">00076</a>         <span class="keywordtype">int</span> <a class="code" href="classserverstats.html#statsRefused">statsRefused</a>;
-<a name="l00077"></a><a class="code" href="classserverstats.html#statsUnknown">00077</a>         <span class="keywordtype">int</span> <a class="code" href="classserverstats.html#statsUnknown">statsUnknown</a>;
-<a name="l00078"></a><a class="code" href="classserverstats.html#statsCollisions">00078</a>         <span class="keywordtype">int</span> <a class="code" href="classserverstats.html#statsCollisions">statsCollisions</a>;
-<a name="l00079"></a><a class="code" href="classserverstats.html#statsDns">00079</a>         <span class="keywordtype">int</span> <a class="code" href="classserverstats.html#statsDns">statsDns</a>;
-<a name="l00080"></a><a class="code" href="classserverstats.html#statsDnsGood">00080</a>         <span class="keywordtype">int</span> <a class="code" href="classserverstats.html#statsDnsGood">statsDnsGood</a>;
-<a name="l00081"></a><a class="code" href="classserverstats.html#statsDnsBad">00081</a>         <span class="keywordtype">int</span> <a class="code" href="classserverstats.html#statsDnsBad">statsDnsBad</a>;
-<a name="l00082"></a><a class="code" href="classserverstats.html#statsConnects">00082</a>         <span class="keywordtype">int</span> <a class="code" href="classserverstats.html#statsConnects">statsConnects</a>;
-<a name="l00083"></a><a class="code" href="classserverstats.html#statsSent">00083</a>         <span class="keywordtype">int</span> <a class="code" href="classserverstats.html#statsSent">statsSent</a>;
-<a name="l00084"></a><a class="code" href="classserverstats.html#statsRecv">00084</a>         <span class="keywordtype">int</span> <a class="code" href="classserverstats.html#statsRecv">statsRecv</a>;
-<a name="l00085"></a>00085 
-<a name="l00086"></a><a class="code" href="classserverstats.html#serverstats_28_29">00086</a>         <a class="code" href="classserverstats.html#serverstats_28_29">serverstats</a>()
-<a name="l00087"></a>00087         {
-<a name="l00088"></a>00088                 <a class="code" href="classserverstats.html#statsAccept">statsAccept</a> = <a class="code" href="classserverstats.html#statsRefused">statsRefused</a> = <a class="code" href="classserverstats.html#statsUnknown">statsUnknown</a> = 0;
-<a name="l00089"></a>00089                 <a class="code" href="classserverstats.html#statsCollisions">statsCollisions</a> = <a class="code" href="classserverstats.html#statsDns">statsDns</a> = <a class="code" href="classserverstats.html#statsDnsGood">statsDnsGood</a> = 0;
-<a name="l00090"></a>00090                 <a class="code" href="classserverstats.html#statsDnsBad">statsDnsBad</a> = <a class="code" href="classserverstats.html#statsConnects">statsConnects</a> = <a class="code" href="classserverstats.html#statsSent">statsSent</a> = <a class="code" href="classserverstats.html#statsRecv">statsRecv</a> = 0;
-<a name="l00091"></a>00091         }
-<a name="l00092"></a>00092 };
-<a name="l00093"></a>00093 
-<a name="l00094"></a>00094 
-<a name="l00095"></a><a class="code" href="classInspIRCd.html">00095</a> <span class="keyword">class </span><a class="code" href="classInspIRCd.html">InspIRCd</a>
-<a name="l00096"></a>00096 {
+<a name="l00049"></a>00049 <span class="comment">// some misc defines</span>
+<a name="l00050"></a>00050 
+<a name="l00051"></a><a class="code" href="inspircd_8h.html#ERROR">00051</a> <span class="preprocessor">#define ERROR -1</span>
+<a name="l00052"></a><a class="code" href="inspircd_8h.html#TRUE">00052</a> <span class="preprocessor"></span><span class="preprocessor">#define TRUE 1</span>
+<a name="l00053"></a><a class="code" href="inspircd_8h.html#FALSE">00053</a> <span class="preprocessor"></span><span class="preprocessor">#define FALSE 0</span>
+<a name="l00054"></a><a class="code" href="inspircd_8h.html#MAXSOCKS">00054</a> <span class="preprocessor"></span><span class="preprocessor">#define MAXSOCKS 64</span>
+<a name="l00055"></a><a class="code" href="inspircd_8h.html#MAXCOMMAND">00055</a> <span class="preprocessor"></span><span class="preprocessor">#define MAXCOMMAND 32</span>
+<a name="l00056"></a>00056 <span class="preprocessor"></span>
+<a name="l00057"></a>00057 <span class="comment">/*</span>
+<a name="l00058"></a>00058 <span class="comment">flags for use with WriteMode</span>
+<a name="l00059"></a>00059 <span class="comment"></span>
+<a name="l00060"></a>00060 <span class="comment">#define WM_AND 1</span>
+<a name="l00061"></a>00061 <span class="comment">#define WM_OR 2</span>
+<a name="l00062"></a>00062 <span class="comment"></span>
+<a name="l00063"></a>00063 <span class="comment">flags for use with OnUserPreMessage and OnUserPreNotice</span>
+<a name="l00064"></a>00064 <span class="comment"></span>
+<a name="l00065"></a>00065 <span class="comment">#define TYPE_USER 1</span>
+<a name="l00066"></a>00066 <span class="comment">#define TYPE_CHANNEL 2</span>
+<a name="l00067"></a>00067 <span class="comment">#define TYPE_SERVER 3</span>
+<a name="l00068"></a>00068 <span class="comment"></span>
+<a name="l00069"></a>00069 <span class="comment">#define IS_LOCAL(x) (x-&gt;fd &gt; -1)</span>
+<a name="l00070"></a>00070 <span class="comment">#define IS_REMOTE(x) (x-&gt;fd &lt; 0)</span>
+<a name="l00071"></a>00071 <span class="comment">#define IS_MODULE_CREATED(x) (x-&gt;fd == FD_MAGIC_NUMBER)</span>
+<a name="l00072"></a>00072 <span class="comment">*/</span>
+<a name="l00073"></a>00073 
+<a name="l00074"></a><a class="code" href="classserverstats.html">00074</a> <span class="keyword">class </span><a class="code" href="classserverstats.html">serverstats</a>
+<a name="l00075"></a>00075 {
+<a name="l00076"></a>00076   <span class="keyword">public</span>:
+<a name="l00077"></a><a class="code" href="classserverstats.html#statsAccept">00077</a>         <span class="keywordtype">int</span> <a class="code" href="classserverstats.html#statsAccept">statsAccept</a>;
+<a name="l00078"></a><a class="code" href="classserverstats.html#statsRefused">00078</a>         <span class="keywordtype">int</span> <a class="code" href="classserverstats.html#statsRefused">statsRefused</a>;
+<a name="l00079"></a><a class="code" href="classserverstats.html#statsUnknown">00079</a>         <span class="keywordtype">int</span> <a class="code" href="classserverstats.html#statsUnknown">statsUnknown</a>;
+<a name="l00080"></a><a class="code" href="classserverstats.html#statsCollisions">00080</a>         <span class="keywordtype">int</span> <a class="code" href="classserverstats.html#statsCollisions">statsCollisions</a>;
+<a name="l00081"></a><a class="code" href="classserverstats.html#statsDns">00081</a>         <span class="keywordtype">int</span> <a class="code" href="classserverstats.html#statsDns">statsDns</a>;
+<a name="l00082"></a><a class="code" href="classserverstats.html#statsDnsGood">00082</a>         <span class="keywordtype">int</span> <a class="code" href="classserverstats.html#statsDnsGood">statsDnsGood</a>;
+<a name="l00083"></a><a class="code" href="classserverstats.html#statsDnsBad">00083</a>         <span class="keywordtype">int</span> <a class="code" href="classserverstats.html#statsDnsBad">statsDnsBad</a>;
+<a name="l00084"></a><a class="code" href="classserverstats.html#statsConnects">00084</a>         <span class="keywordtype">int</span> <a class="code" href="classserverstats.html#statsConnects">statsConnects</a>;
+<a name="l00085"></a><a class="code" href="classserverstats.html#statsSent">00085</a>         <span class="keywordtype">int</span> <a class="code" href="classserverstats.html#statsSent">statsSent</a>;
+<a name="l00086"></a><a class="code" href="classserverstats.html#statsRecv">00086</a>         <span class="keywordtype">int</span> <a class="code" href="classserverstats.html#statsRecv">statsRecv</a>;
+<a name="l00087"></a><a class="code" href="classserverstats.html#BoundPortCount">00087</a>         <span class="keywordtype">int</span> <a class="code" href="classserverstats.html#BoundPortCount">BoundPortCount</a>;
+<a name="l00088"></a>00088 
+<a name="l00089"></a><a class="code" href="classserverstats.html#serverstats_28_29">00089</a>         <a class="code" href="classserverstats.html#serverstats_28_29">serverstats</a>()
+<a name="l00090"></a>00090         {
+<a name="l00091"></a>00091                 <a class="code" href="classserverstats.html#statsAccept">statsAccept</a> = <a class="code" href="classserverstats.html#statsRefused">statsRefused</a> = <a class="code" href="classserverstats.html#statsUnknown">statsUnknown</a> = 0;
+<a name="l00092"></a>00092                 <a class="code" href="classserverstats.html#statsCollisions">statsCollisions</a> = <a class="code" href="classserverstats.html#statsDns">statsDns</a> = <a class="code" href="classserverstats.html#statsDnsGood">statsDnsGood</a> = 0;
+<a name="l00093"></a>00093                 <a class="code" href="classserverstats.html#statsDnsBad">statsDnsBad</a> = <a class="code" href="classserverstats.html#statsConnects">statsConnects</a> = <a class="code" href="classserverstats.html#statsSent">statsSent</a> = <a class="code" href="classserverstats.html#statsRecv">statsRecv</a> = 0;
+<a name="l00094"></a>00094                 <a class="code" href="classserverstats.html#BoundPortCount">BoundPortCount</a> = 0;
+<a name="l00095"></a>00095         }
+<a name="l00096"></a>00096 };
 <a name="l00097"></a>00097 
-<a name="l00098"></a>00098  <span class="keyword">private</span>:
-<a name="l00099"></a><a class="code" href="classInspIRCd.html#MODERR_5BMAXBUF_5D">00099</a>         <span class="keywordtype">char</span> <a class="code" href="classInspIRCd.html#MODERR_5BMAXBUF_5D">MODERR</a>[MAXBUF];
-<a name="l00100"></a>00100         <span class="keywordtype">void</span> <a class="code" href="classInspIRCd.html#erase_5Ffactory_28int_20j_29">erase_factory</a>(<span class="keywordtype">int</span> j);
-<a name="l00101"></a>00101         <span class="keywordtype">void</span> <a class="code" href="classInspIRCd.html#erase_5Fmodule_28int_20j_29">erase_module</a>(<span class="keywordtype">int</span> j);       
-<a name="l00102"></a>00102 
-<a name="l00103"></a>00103  <span class="keyword">public</span>:
-<a name="l00104"></a><a class="code" href="classInspIRCd.html#startup_5Ftime">00104</a>         time_t <a class="code" href="classInspIRCd.html#startup_5Ftime">startup_time</a>;
-<a name="l00105"></a>00105 
-<a name="l00106"></a>00106         <a class="code" href="namespaceirc.html#string">std::string</a> <a class="code" href="classInspIRCd.html#GetRevision_28_29">GetRevision</a>();
-<a name="l00107"></a>00107         <a class="code" href="namespaceirc.html#string">std::string</a> <a class="code" href="classInspIRCd.html#GetVersionString_28_29">GetVersionString</a>();
-<a name="l00108"></a>00108         <span class="keywordtype">char</span>* <a class="code" href="classInspIRCd.html#ModuleError_28_29">ModuleError</a>();
-<a name="l00109"></a>00109         <span class="keywordtype">bool</span> <a class="code" href="classInspIRCd.html#LoadModule_28const_20char_20_2Afilename_29">LoadModule</a>(<span class="keyword">const</span> <span class="keywordtype">char</span>* filename);
-<a name="l00110"></a>00110         <span class="keywordtype">bool</span> <a class="code" href="classInspIRCd.html#UnloadModule_28const_20char_20_2Afilename_29">UnloadModule</a>(<span class="keyword">const</span> <span class="keywordtype">char</span>* filename);
-<a name="l00111"></a>00111         <a class="code" href="classInspIRCd.html#InspIRCd_28int_20argc_2C_20char_20_2A_2Aargv_29">InspIRCd</a>(<span class="keywordtype">int</span> argc, <span class="keywordtype">char</span>** argv);
-<a name="l00112"></a>00112         <span class="keywordtype">int</span> <a class="code" href="classInspIRCd.html#Run_28_29">Run</a>();
+<a name="l00098"></a>00098 
+<a name="l00099"></a><a class="code" href="classInspIRCd.html">00099</a> <span class="keyword">class </span><a class="code" href="classInspIRCd.html">InspIRCd</a>
+<a name="l00100"></a>00100 {
+<a name="l00101"></a>00101 
+<a name="l00102"></a>00102  <span class="keyword">private</span>:
+<a name="l00103"></a><a class="code" href="classInspIRCd.html#MODERR_5BMAXBUF_5D">00103</a>         <span class="keywordtype">char</span> <a class="code" href="classInspIRCd.html#MODERR_5BMAXBUF_5D">MODERR</a>[MAXBUF];
+<a name="l00104"></a>00104         <span class="keywordtype">void</span> <a class="code" href="classInspIRCd.html#erase_5Ffactory_28int_20j_29">erase_factory</a>(<span class="keywordtype">int</span> j);
+<a name="l00105"></a>00105         <span class="keywordtype">void</span> <a class="code" href="classInspIRCd.html#erase_5Fmodule_28int_20j_29">erase_module</a>(<span class="keywordtype">int</span> j);       
+<a name="l00106"></a>00106 
+<a name="l00107"></a>00107  <span class="keyword">public</span>:
+<a name="l00108"></a><a class="code" href="classInspIRCd.html#startup_5Ftime">00108</a>         time_t <a class="code" href="classInspIRCd.html#startup_5Ftime">startup_time</a>;
+<a name="l00109"></a><a class="code" href="classInspIRCd.html#ModeGrok">00109</a>         <a class="code" href="classModeParser.html">ModeParser</a>* <a class="code" href="classInspIRCd.html#ModeGrok">ModeGrok</a>;
+<a name="l00110"></a><a class="code" href="classInspIRCd.html#Parser">00110</a>         CommandParser* <a class="code" href="classInspIRCd.html#Parser">Parser</a>;
+<a name="l00111"></a><a class="code" href="classInspIRCd.html#SE">00111</a>         <a class="code" href="classSocketEngine.html">SocketEngine</a>* <a class="code" href="classInspIRCd.html#SE">SE</a>;
+<a name="l00112"></a><a class="code" href="classInspIRCd.html#stats">00112</a>         <a class="code" href="classserverstats.html">serverstats</a>* <a class="code" href="classInspIRCd.html#stats">stats</a>;
 <a name="l00113"></a>00113 
-<a name="l00114"></a>00114 };
-<a name="l00115"></a>00115 
-<a name="l00116"></a>00116 <span class="comment">/* prototypes */</span>
-<a name="l00117"></a>00117 <span class="keywordtype">void</span> <a class="code" href="inspircd_8h.html#force_5Fnickchange_28userrec_20_2Auser_2C_20const_20char_20_2Anewnick_29">force_nickchange</a>(<a class="code" href="classuserrec.html">userrec</a>* user,<span class="keyword">const</span> <span class="keywordtype">char</span>* newnick);
-<a name="l00118"></a>00118 <span class="keywordtype">void</span> <a class="code" href="inspircd_8h.html#kill_5Flink_28userrec_20_2Auser_2C_20const_20char_20_2Ar_29">kill_link</a>(<a class="code" href="classuserrec.html">userrec</a> *user,<span class="keyword">const</span> <span class="keywordtype">char</span>* r);
-<a name="l00119"></a>00119 <span class="keywordtype">void</span> <a class="code" href="inspircd_8h.html#kill_5Flink_5Fsilent_28userrec_20_2Auser_2C_20const_20char_20_2Ar_29">kill_link_silent</a>(<a class="code" href="classuserrec.html">userrec</a> *user,<span class="keyword">const</span> <span class="keywordtype">char</span>* r);
-<a name="l00120"></a>00120 <span class="keywordtype">void</span> <a class="code" href="inspircd_8h.html#call_5Fhandler_28const_20char_20_2Acommandname_2C_20char_20_2A_2Aparameters_2C_20int_20pcnt_2C_20userrec_20_2Auser_29">call_handler</a>(<span class="keyword">const</span> <span class="keywordtype">char</span>* commandname,<span class="keywordtype">char</span> **parameters, <span class="keywordtype">int</span> pcnt, <a class="code" href="classuserrec.html">userrec</a> *user);
-<a name="l00121"></a>00121 <span class="keywordtype">bool</span> <a class="code" href="inspircd_8h.html#is_5Fvalid_5Fcmd_28const_20char_20_2Acommandname_2C_20int_20pcnt_2C_20userrec_20_2Auser_29">is_valid_cmd</a>(<span class="keyword">const</span> <span class="keywordtype">char</span>* commandname, <span class="keywordtype">int</span> pcnt, <a class="code" href="classuserrec.html">userrec</a> * user);
-<a name="l00122"></a>00122 <span class="keywordtype">int</span> <a class="code" href="inspircd_8h.html#loop_5Fcall_28handlerfunc_20fn_2C_20char_20_2A_2Aparameters_2C_20int_20pcnt_2C_20userrec_20_2Au_2C_20int_20start_2C_20int_20end_2C_20int_20joins_29">loop_call</a>(<a class="code" href="inspircd_8h.html#handlerfunc_29_28char_20_2A_2A_2C_20int_2C_20userrec_20_2A_29">handlerfunc</a> fn, <span class="keywordtype">char</span> **parameters, <span class="keywordtype">int</span> pcnt, <a class="code" href="classuserrec.html">userrec</a> *u, <span class="keywordtype">int</span> start, <span class="keywordtype">int</span> end, <span class="keywordtype">int</span> joins);
-<a name="l00123"></a>00123 <span class="keywordtype">void</span> <a class="code" href="inspircd_8h.html#AddWhoWas_28userrec_20_2Au_29">AddWhoWas</a>(<a class="code" href="classuserrec.html">userrec</a>* u);
-<a name="l00124"></a>00124 <span class="keywordtype">void</span> <a class="code" href="inspircd_8h.html#ConnectUser_28userrec_20_2Auser_29">ConnectUser</a>(<a class="code" href="classuserrec.html">userrec</a> *user);
-<a name="l00125"></a>00125 <a class="code" href="classuserrec.html">userrec</a>* <a class="code" href="inspircd_8h.html#ReHashNick_28char_20_2AOld_2C_20char_20_2ANew_29">ReHashNick</a>(<span class="keywordtype">char</span>* Old, <span class="keywordtype">char</span>* New);
-<a name="l00126"></a>00126 <span class="comment">/* optimization tricks to save us walking the user hash */</span>
-<a name="l00127"></a>00127 <span class="keywordtype">void</span> <a class="code" href="inspircd_8h.html#AddOper_28userrec_20_2Auser_29">AddOper</a>(<a class="code" href="classuserrec.html">userrec</a>* user);
-<a name="l00128"></a>00128 <span class="keywordtype">void</span> <a class="code" href="inspircd_8h.html#DeleteOper_28userrec_20_2Auser_29">DeleteOper</a>(<a class="code" href="classuserrec.html">userrec</a>* user);
-<a name="l00129"></a>00129 <span class="keywordtype">void</span> <a class="code" href="inspircd_8h.html#handle_5Fversion_28char_20_2A_2Aparameters_2C_20int_20pcnt_2C_20userrec_20_2Auser_29">handle_version</a>(<span class="keywordtype">char</span> **parameters, <span class="keywordtype">int</span> pcnt, <a class="code" href="classuserrec.html">userrec</a> *user);
-<a name="l00130"></a>00130 <span class="comment">/* userrec optimization stuff */</span>
-<a name="l00131"></a>00131 <span class="keywordtype">void</span> <a class="code" href="inspircd_8h.html#AddServerName_28std_3A_3Astring_20servername_29">AddServerName</a>(<a class="code" href="namespaceirc.html#string">std::string</a> servername);
-<a name="l00132"></a>00132 <span class="keyword">const</span> <span class="keywordtype">char</span>* <a class="code" href="inspircd_8h.html#FindServerNamePtr_28std_3A_3Astring_20servername_29">FindServerNamePtr</a>(<a class="code" href="namespaceirc.html#string">std::string</a> servername);
-<a name="l00133"></a>00133 <span class="keywordtype">void</span>* <a class="code" href="inspircd_8h.html#dns_5Ftask_28void_20_2Aarg_29">dns_task</a>(<span class="keywordtype">void</span>* arg);
-<a name="l00134"></a>00134 <span class="keywordtype">void</span> <a class="code" href="inspircd_8h.html#process_5Fbuffer_28const_20char_20_2Acmdbuf_2C_20userrec_20_2Auser_29">process_buffer</a>(<span class="keyword">const</span> <span class="keywordtype">char</span>* cmdbuf,<a class="code" href="classuserrec.html">userrec</a> *user);
-<a name="l00135"></a>00135 <span class="keywordtype">void</span> <a class="code" href="inspircd_8h.html#FullConnectUser_28userrec_20_2Auser_29">FullConnectUser</a>(<a class="code" href="classuserrec.html">userrec</a>* user);
-<a name="l00136"></a>00136 
-<a name="l00137"></a>00137 <span class="preprocessor">#endif</span>
-</pre></div><hr size="1"><address style="align: right;"><small>Generated on Thu Dec 15 11:14:14 2005 for InspIRCd by&nbsp;
+<a name="l00114"></a>00114         <span class="keywordtype">void</span> <a class="code" href="classInspIRCd.html#MakeLowerMap_28_29">MakeLowerMap</a>();
+<a name="l00115"></a>00115         <a class="code" href="namespaceirc.html#string">std::string</a> <a class="code" href="classInspIRCd.html#GetRevision_28_29">GetRevision</a>();
+<a name="l00116"></a>00116         <a class="code" href="namespaceirc.html#string">std::string</a> <a class="code" href="classInspIRCd.html#GetVersionString_28_29">GetVersionString</a>();
+<a name="l00117"></a>00117         <span class="keywordtype">char</span>* <a class="code" href="classInspIRCd.html#ModuleError_28_29">ModuleError</a>();
+<a name="l00118"></a>00118         <span class="keywordtype">bool</span> <a class="code" href="classInspIRCd.html#LoadModule_28const_20char_20_2Afilename_29">LoadModule</a>(<span class="keyword">const</span> <span class="keywordtype">char</span>* filename);
+<a name="l00119"></a>00119         <span class="keywordtype">bool</span> <a class="code" href="classInspIRCd.html#UnloadModule_28const_20char_20_2Afilename_29">UnloadModule</a>(<span class="keyword">const</span> <span class="keywordtype">char</span>* filename);
+<a name="l00120"></a>00120         <a class="code" href="classInspIRCd.html#InspIRCd_28int_20argc_2C_20char_20_2A_2Aargv_29">InspIRCd</a>(<span class="keywordtype">int</span> argc, <span class="keywordtype">char</span>** argv);
+<a name="l00121"></a>00121         <span class="keywordtype">int</span> <a class="code" href="classInspIRCd.html#Run_28_29">Run</a>();
+<a name="l00122"></a>00122 
+<a name="l00123"></a>00123 };
+<a name="l00124"></a>00124 
+<a name="l00125"></a>00125 <span class="comment">/* userrec optimization stuff */</span>
+<a name="l00126"></a>00126 <span class="keywordtype">void</span> <a class="code" href="inspircd_8h.html#AddServerName_28std_3A_3Astring_20servername_29">AddServerName</a>(<a class="code" href="namespaceirc.html#string">std::string</a> servername);
+<a name="l00127"></a>00127 <span class="keyword">const</span> <span class="keywordtype">char</span>* <a class="code" href="inspircd_8h.html#FindServerNamePtr_28std_3A_3Astring_20servername_29">FindServerNamePtr</a>(<a class="code" href="namespaceirc.html#string">std::string</a> servername);
+<a name="l00128"></a>00128 
+<a name="l00129"></a>00129 <span class="preprocessor">#endif</span>
+</pre></div><hr size="1"><address style="align: right;"><small>Generated on Mon Dec 19 18:02:13 2005 for InspIRCd by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img src="doxygen.png" alt="doxygen" align="middle" border="0"></a> 1.4.4-20050815 </small></address>
 </body>

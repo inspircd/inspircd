@@ -1,2 +1,3 @@
 base referer
-rect $classCullList.html 7,7 73,33
+rect $classcommand__t.html 8,7 99,33
+rect $classcmd__mode.html 149,7 237,33

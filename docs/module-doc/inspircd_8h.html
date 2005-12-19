@@ -23,32 +23,36 @@
 <code>#include &lt;arpa/inet.h&gt;</code><br>
 <code>#include &lt;deque&gt;</code><br>
 <code>#include &quot;<a class="el" href="inspircd__io_8h-source.html">inspircd_io.h</a>&quot;</code><br>
-<code>#include &quot;inspircd_util.h&quot;</code><br>
 <code>#include &quot;<a class="el" href="users_8h-source.html">users.h</a>&quot;</code><br>
 <code>#include &quot;<a class="el" href="channels_8h-source.html">channels.h</a>&quot;</code><br>
 <code>#include &quot;<a class="el" href="socket_8h-source.html">socket.h</a>&quot;</code><br>
+<code>#include &quot;<a class="el" href="mode_8h-source.html">mode.h</a>&quot;</code><br>
+<code>#include &quot;<a class="el" href="socketengine_8h-source.html">socketengine.h</a>&quot;</code><br>
+<code>#include &quot;command_parse.h&quot;</code><br>
 
 <p>
 Include dependency graph for inspircd.h:<p><center><img src="inspircd_8h__incl.gif" border="0" usemap="#inspircd.h_map" alt=""></center>
 <map name="inspircd.h_map">
-<area href="inspircd__io_8h-source.html" shape="rect" coords="139,615,235,642" alt="">
-<area href="users_8h-source.html" shape="rect" coords="155,868,219,895" alt="">
-<area href="channels_8h-source.html" shape="rect" coords="292,868,377,895" alt="">
-<area href="socket_8h-source.html" shape="rect" coords="151,463,223,490" alt="">
+<area href="inspircd__io_8h-source.html" shape="rect" coords="153,442,249,468" alt="">
+<area href="users_8h-source.html" shape="rect" coords="332,290,396,316" alt="">
+<area href="channels_8h-source.html" shape="rect" coords="461,188,547,215" alt="">
+<area href="socket_8h-source.html" shape="rect" coords="165,644,237,671" alt="">
+<area href="mode_8h-source.html" shape="rect" coords="168,290,235,316" alt="">
+<area href="socketengine_8h-source.html" shape="rect" coords="145,492,257,519" alt="">
 </map>
 
 <p>
 This graph shows which files directly or indirectly include this file:<p><center><img src="inspircd_8h__dep__incl.gif" border="0" usemap="#inspircd.hdep_map" alt=""></center>
 <map name="inspircd.hdep_map">
-<area href="channels_8cpp-source.html" shape="rect" coords="469,83,568,110" alt="">
-<area href="modules_8cpp-source.html" shape="rect" coords="469,260,568,287" alt="">
-<area href="socket_8cpp-source.html" shape="rect" coords="315,362,400,388" alt="">
-<area href="socketengine_8cpp-source.html" shape="rect" coords="295,463,420,490" alt="">
-<area href="users_8cpp-source.html" shape="rect" coords="151,514,231,540" alt="">
-<area href="ctables_8h-source.html" shape="rect" coords="153,159,228,186" alt="">
-<area href="typedefs_8h-source.html" shape="rect" coords="315,108,400,135" alt="">
-<area href="inspircd__io_8h-source.html" shape="rect" coords="143,260,239,287" alt="">
-<area href="socketengine_8h-source.html" shape="rect" coords="135,412,247,439" alt="">
+<area href="channels_8cpp-source.html" shape="rect" coords="308,57,407,84" alt="">
+<area href="modules_8cpp-source.html" shape="rect" coords="308,133,407,160" alt="">
+<area href="socket_8cpp-source.html" shape="rect" coords="315,209,400,236" alt="">
+<area href="socketengine_8cpp-source.html" shape="rect" coords="295,336,420,363" alt="">
+<area href="users_8cpp-source.html" shape="rect" coords="318,260,398,287" alt="">
+<area href="inspircd__io_8h-source.html" shape="rect" coords="143,57,239,84" alt="">
+<area href="socketengine_8h-source.html" shape="rect" coords="135,260,247,287" alt="">
+<area href="typedefs_8h-source.html" shape="rect" coords="148,108,234,135" alt="">
+<area href="userprocess_8h-source.html" shape="rect" coords="139,412,243,439" alt="">
 </map>
 
 <p>
@@ -70,59 +74,10 @@ This graph shows which files directly or indirectly include this file:<p><center
 
 <tr><td class="memItemLeft" nowrap align="right" valign="top">#define&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="inspircd_8h.html#MAXCOMMAND">MAXCOMMAND</a>&nbsp;&nbsp;&nbsp;32</td></tr>
 
-<tr><td class="memItemLeft" nowrap align="right" valign="top">#define&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="inspircd_8h.html#WM_5FAND">WM_AND</a>&nbsp;&nbsp;&nbsp;1</td></tr>
-
-<tr><td class="memItemLeft" nowrap align="right" valign="top">#define&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="inspircd_8h.html#WM_5FOR">WM_OR</a>&nbsp;&nbsp;&nbsp;2</td></tr>
-
-<tr><td class="memItemLeft" nowrap align="right" valign="top">#define&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="inspircd_8h.html#TYPE_5FUSER">TYPE_USER</a>&nbsp;&nbsp;&nbsp;1</td></tr>
-
-<tr><td class="memItemLeft" nowrap align="right" valign="top">#define&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="inspircd_8h.html#TYPE_5FCHANNEL">TYPE_CHANNEL</a>&nbsp;&nbsp;&nbsp;2</td></tr>
-
-<tr><td class="memItemLeft" nowrap align="right" valign="top">#define&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="inspircd_8h.html#TYPE_5FSERVER">TYPE_SERVER</a>&nbsp;&nbsp;&nbsp;3</td></tr>
-
-<tr><td class="memItemLeft" nowrap align="right" valign="top">#define&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="inspircd_8h.html#IS_5FLOCAL_28x_29">IS_LOCAL</a>(x)&nbsp;&nbsp;&nbsp;(x-&gt;fd &gt; -1)</td></tr>
-
-<tr><td class="memItemLeft" nowrap align="right" valign="top">#define&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="inspircd_8h.html#IS_5FREMOTE_28x_29">IS_REMOTE</a>(x)&nbsp;&nbsp;&nbsp;(x-&gt;fd &lt; 0)</td></tr>
-
-<tr><td class="memItemLeft" nowrap align="right" valign="top">#define&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="inspircd_8h.html#IS_5FMODULE_5FCREATED_28x_29">IS_MODULE_CREATED</a>(x)&nbsp;&nbsp;&nbsp;(x-&gt;fd == FD_MAGIC_NUMBER)</td></tr>
-
-<tr><td colspan="2"><br><h2>Typedefs</h2></td></tr>
-<tr><td class="memItemLeft" nowrap align="right" valign="top">typedef void(&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="inspircd_8h.html#handlerfunc_29_28char_20_2A_2A_2C_20int_2C_20userrec_20_2A_29">handlerfunc</a> )(char **, int, <a class="el" href="classuserrec.html">userrec</a> *)</td></tr>
-
 <tr><td colspan="2"><br><h2>Functions</h2></td></tr>
-<tr><td class="memItemLeft" nowrap align="right" valign="top">void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="inspircd_8h.html#force_5Fnickchange_28userrec_20_2Auser_2C_20const_20char_20_2Anewnick_29">force_nickchange</a> (<a class="el" href="classuserrec.html">userrec</a> *user, const char *newnick)</td></tr>
-
-<tr><td class="memItemLeft" nowrap align="right" valign="top">void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="inspircd_8h.html#kill_5Flink_28userrec_20_2Auser_2C_20const_20char_20_2Ar_29">kill_link</a> (<a class="el" href="classuserrec.html">userrec</a> *user, const char *r)</td></tr>
-
-<tr><td class="memItemLeft" nowrap align="right" valign="top">void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="inspircd_8h.html#kill_5Flink_5Fsilent_28userrec_20_2Auser_2C_20const_20char_20_2Ar_29">kill_link_silent</a> (<a class="el" href="classuserrec.html">userrec</a> *user, const char *r)</td></tr>
-
-<tr><td class="memItemLeft" nowrap align="right" valign="top">void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="inspircd_8h.html#call_5Fhandler_28const_20char_20_2Acommandname_2C_20char_20_2A_2Aparameters_2C_20int_20pcnt_2C_20userrec_20_2Auser_29">call_handler</a> (const char *commandname, char **parameters, int pcnt, <a class="el" href="classuserrec.html">userrec</a> *user)</td></tr>
-
-<tr><td class="memItemLeft" nowrap align="right" valign="top">bool&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="inspircd_8h.html#is_5Fvalid_5Fcmd_28const_20char_20_2Acommandname_2C_20int_20pcnt_2C_20userrec_20_2Auser_29">is_valid_cmd</a> (const char *commandname, int pcnt, <a class="el" href="classuserrec.html">userrec</a> *user)</td></tr>
-
-<tr><td class="memItemLeft" nowrap align="right" valign="top">int&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="inspircd_8h.html#loop_5Fcall_28handlerfunc_20fn_2C_20char_20_2A_2Aparameters_2C_20int_20pcnt_2C_20userrec_20_2Au_2C_20int_20start_2C_20int_20end_2C_20int_20joins_29">loop_call</a> (<a class="el" href="inspircd_8h.html#handlerfunc_29_28char_20_2A_2A_2C_20int_2C_20userrec_20_2A_29">handlerfunc</a> fn, char **parameters, int pcnt, <a class="el" href="classuserrec.html">userrec</a> *u, int start, int end, int joins)</td></tr>
-
-<tr><td class="memItemLeft" nowrap align="right" valign="top">void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="inspircd_8h.html#AddWhoWas_28userrec_20_2Au_29">AddWhoWas</a> (<a class="el" href="classuserrec.html">userrec</a> *u)</td></tr>
-
-<tr><td class="memItemLeft" nowrap align="right" valign="top">void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="inspircd_8h.html#ConnectUser_28userrec_20_2Auser_29">ConnectUser</a> (<a class="el" href="classuserrec.html">userrec</a> *user)</td></tr>
-
-<tr><td class="memItemLeft" nowrap align="right" valign="top"><a class="el" href="classuserrec.html">userrec</a> *&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="inspircd_8h.html#ReHashNick_28char_20_2AOld_2C_20char_20_2ANew_29">ReHashNick</a> (char *Old, char *New)</td></tr>
-
-<tr><td class="memItemLeft" nowrap align="right" valign="top">void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="inspircd_8h.html#AddOper_28userrec_20_2Auser_29">AddOper</a> (<a class="el" href="classuserrec.html">userrec</a> *user)</td></tr>
-
-<tr><td class="memItemLeft" nowrap align="right" valign="top">void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="inspircd_8h.html#DeleteOper_28userrec_20_2Auser_29">DeleteOper</a> (<a class="el" href="classuserrec.html">userrec</a> *user)</td></tr>
-
-<tr><td class="memItemLeft" nowrap align="right" valign="top">void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="inspircd_8h.html#handle_5Fversion_28char_20_2A_2Aparameters_2C_20int_20pcnt_2C_20userrec_20_2Auser_29">handle_version</a> (char **parameters, int pcnt, <a class="el" href="classuserrec.html">userrec</a> *user)</td></tr>
-
 <tr><td class="memItemLeft" nowrap align="right" valign="top">void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="inspircd_8h.html#AddServerName_28std_3A_3Astring_20servername_29">AddServerName</a> (<a class="el" href="namespaceirc.html#string">std::string</a> servername)</td></tr>
 
 <tr><td class="memItemLeft" nowrap align="right" valign="top">const char *&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="inspircd_8h.html#FindServerNamePtr_28std_3A_3Astring_20servername_29">FindServerNamePtr</a> (<a class="el" href="namespaceirc.html#string">std::string</a> servername)</td></tr>
-
-<tr><td class="memItemLeft" nowrap align="right" valign="top">void *&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="inspircd_8h.html#dns_5Ftask_28void_20_2Aarg_29">dns_task</a> (void *arg)</td></tr>
-
-<tr><td class="memItemLeft" nowrap align="right" valign="top">void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="inspircd_8h.html#process_5Fbuffer_28const_20char_20_2Acmdbuf_2C_20userrec_20_2Auser_29">process_buffer</a> (const char *cmdbuf, <a class="el" href="classuserrec.html">userrec</a> *user)</td></tr>
-
-<tr><td class="memItemLeft" nowrap align="right" valign="top">void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="inspircd_8h.html#FullConnectUser_28userrec_20_2Auser_29">FullConnectUser</a> (<a class="el" href="classuserrec.html">userrec</a> *user)</td></tr>
 
 </table>
 <hr><h2>Define Documentation</h2>
@@ -148,9 +103,9 @@ This graph shows which files directly or indirectly include this file:<p><center
 <p>
 
 <p>
-Definition at line <a class="el" href="inspircd_8h-source.html#l00049">49</a> of file <a class="el" href="inspircd_8h-source.html">inspircd.h</a>.
+Definition at line <a class="el" href="inspircd_8h-source.html#l00051">51</a> of file <a class="el" href="inspircd_8h-source.html">inspircd.h</a>.
 <p>
-Referenced by <a class="el" href="socket_8cpp-source.html#l00062">InspSocket::InspSocket()</a>.    </td>
+Referenced by <a class="el" href="socket_8cpp-source.html#l00059">InspSocket::InspSocket()</a>.    </td>
   </tr>
 </table>
 <a class="anchor" name="FALSE"></a><!-- doxytag: member="inspircd.h::FALSE" ref="FALSE" args="" --><p>
@@ -175,97 +130,7 @@ Referenced by <a class="el" href="socket_8cpp-source.html#l00062">InspSocket::In
 <p>
 
 <p>
-Definition at line <a class="el" href="inspircd_8h-source.html#l00051">51</a> of file <a class="el" href="inspircd_8h-source.html">inspircd.h</a>.    </td>
-  </tr>
-</table>
-<a class="anchor" name="IS_5FLOCAL_28x_29"></a><!-- doxytag: member="inspircd.h::IS_LOCAL" ref="IS_5FLOCAL_28x_29" args="(x)" --><p>
-<table class="mdTable" cellpadding="2" cellspacing="0">
-  <tr>
-    <td class="mdRow">
-      <table cellpadding="0" cellspacing="0" border="0">
-        <tr>
-          <td class="md" nowrap valign="top">#define IS_LOCAL          </td>
-          <td class="md" valign="top">(&nbsp;</td>
-          <td class="md" nowrap valign="top">x&nbsp;</td>
-          <td class="mdname1" valign="top" nowrap>          </td>
-          <td class="md" valign="top">&nbsp;)&nbsp;</td>
-          <td class="md" nowrap>&nbsp;&nbsp;&nbsp;(x-&gt;fd &gt; -1)</td>
-        </tr>
-      </table>
-    </td>
-  </tr>
-</table>
-<table cellspacing="5" cellpadding="0" border="0">
-  <tr>
-    <td>
-      &nbsp;
-    </td>
-    <td>
-
-<p>
-
-<p>
-Definition at line <a class="el" href="inspircd_8h-source.html#l00066">66</a> of file <a class="el" href="inspircd_8h-source.html">inspircd.h</a>.    </td>
-  </tr>
-</table>
-<a class="anchor" name="IS_5FMODULE_5FCREATED_28x_29"></a><!-- doxytag: member="inspircd.h::IS_MODULE_CREATED" ref="IS_5FMODULE_5FCREATED_28x_29" args="(x)" --><p>
-<table class="mdTable" cellpadding="2" cellspacing="0">
-  <tr>
-    <td class="mdRow">
-      <table cellpadding="0" cellspacing="0" border="0">
-        <tr>
-          <td class="md" nowrap valign="top">#define IS_MODULE_CREATED          </td>
-          <td class="md" valign="top">(&nbsp;</td>
-          <td class="md" nowrap valign="top">x&nbsp;</td>
-          <td class="mdname1" valign="top" nowrap>          </td>
-          <td class="md" valign="top">&nbsp;)&nbsp;</td>
-          <td class="md" nowrap>&nbsp;&nbsp;&nbsp;(x-&gt;fd == FD_MAGIC_NUMBER)</td>
-        </tr>
-      </table>
-    </td>
-  </tr>
-</table>
-<table cellspacing="5" cellpadding="0" border="0">
-  <tr>
-    <td>
-      &nbsp;
-    </td>
-    <td>
-
-<p>
-
-<p>
-Definition at line <a class="el" href="inspircd_8h-source.html#l00068">68</a> of file <a class="el" href="inspircd_8h-source.html">inspircd.h</a>.    </td>
-  </tr>
-</table>
-<a class="anchor" name="IS_5FREMOTE_28x_29"></a><!-- doxytag: member="inspircd.h::IS_REMOTE" ref="IS_5FREMOTE_28x_29" args="(x)" --><p>
-<table class="mdTable" cellpadding="2" cellspacing="0">
-  <tr>
-    <td class="mdRow">
-      <table cellpadding="0" cellspacing="0" border="0">
-        <tr>
-          <td class="md" nowrap valign="top">#define IS_REMOTE          </td>
-          <td class="md" valign="top">(&nbsp;</td>
-          <td class="md" nowrap valign="top">x&nbsp;</td>
-          <td class="mdname1" valign="top" nowrap>          </td>
-          <td class="md" valign="top">&nbsp;)&nbsp;</td>
-          <td class="md" nowrap>&nbsp;&nbsp;&nbsp;(x-&gt;fd &lt; 0)</td>
-        </tr>
-      </table>
-    </td>
-  </tr>
-</table>
-<table cellspacing="5" cellpadding="0" border="0">
-  <tr>
-    <td>
-      &nbsp;
-    </td>
-    <td>
-
-<p>
-
-<p>
-Definition at line <a class="el" href="inspircd_8h-source.html#l00067">67</a> of file <a class="el" href="inspircd_8h-source.html">inspircd.h</a>.    </td>
+Definition at line <a class="el" href="inspircd_8h-source.html#l00053">53</a> of file <a class="el" href="inspircd_8h-source.html">inspircd.h</a>.    </td>
   </tr>
 </table>
 <a class="anchor" name="MAXCOMMAND"></a><!-- doxytag: member="inspircd.h::MAXCOMMAND" ref="MAXCOMMAND" args="" --><p>
@@ -290,7 +155,7 @@ Definition at line <a class="el" href="inspircd_8h-source.html#l00067">67</a> of
 <p>
 
 <p>
-Definition at line <a class="el" href="inspircd_8h-source.html#l00053">53</a> of file <a class="el" href="inspircd_8h-source.html">inspircd.h</a>.    </td>
+Definition at line <a class="el" href="inspircd_8h-source.html#l00055">55</a> of file <a class="el" href="inspircd_8h-source.html">inspircd.h</a>.    </td>
   </tr>
 </table>
 <a class="anchor" name="MAXSOCKS"></a><!-- doxytag: member="inspircd.h::MAXSOCKS" ref="MAXSOCKS" args="" --><p>
@@ -315,7 +180,7 @@ Definition at line <a class="el" href="inspircd_8h-source.html#l00053">53</a> of
 <p>
 
 <p>
-Definition at line <a class="el" href="inspircd_8h-source.html#l00052">52</a> of file <a class="el" href="inspircd_8h-source.html">inspircd.h</a>.    </td>
+Definition at line <a class="el" href="inspircd_8h-source.html#l00054">54</a> of file <a class="el" href="inspircd_8h-source.html">inspircd.h</a>.    </td>
   </tr>
 </table>
 <a class="anchor" name="TRUE"></a><!-- doxytag: member="inspircd.h::TRUE" ref="TRUE" args="" --><p>
@@ -340,189 +205,10 @@ Definition at line <a class="el" href="inspircd_8h-source.html#l00052">52</a> of
 <p>
 
 <p>
-Definition at line <a class="el" href="inspircd_8h-source.html#l00050">50</a> of file <a class="el" href="inspircd_8h-source.html">inspircd.h</a>.    </td>
-  </tr>
-</table>
-<a class="anchor" name="TYPE_5FCHANNEL"></a><!-- doxytag: member="inspircd.h::TYPE_CHANNEL" ref="TYPE_5FCHANNEL" args="" --><p>
-<table class="mdTable" cellpadding="2" cellspacing="0">
-  <tr>
-    <td class="mdRow">
-      <table cellpadding="0" cellspacing="0" border="0">
-        <tr>
-          <td class="md" nowrap valign="top">#define TYPE_CHANNEL&nbsp;&nbsp;&nbsp;2          </td>
-        </tr>
-      </table>
-    </td>
-  </tr>
-</table>
-<table cellspacing="5" cellpadding="0" border="0">
-  <tr>
-    <td>
-      &nbsp;
-    </td>
-    <td>
-
-<p>
-
-<p>
-Definition at line <a class="el" href="inspircd_8h-source.html#l00063">63</a> of file <a class="el" href="inspircd_8h-source.html">inspircd.h</a>.    </td>
-  </tr>
-</table>
-<a class="anchor" name="TYPE_5FSERVER"></a><!-- doxytag: member="inspircd.h::TYPE_SERVER" ref="TYPE_5FSERVER" args="" --><p>
-<table class="mdTable" cellpadding="2" cellspacing="0">
-  <tr>
-    <td class="mdRow">
-      <table cellpadding="0" cellspacing="0" border="0">
-        <tr>
-          <td class="md" nowrap valign="top">#define TYPE_SERVER&nbsp;&nbsp;&nbsp;3          </td>
-        </tr>
-      </table>
-    </td>
-  </tr>
-</table>
-<table cellspacing="5" cellpadding="0" border="0">
-  <tr>
-    <td>
-      &nbsp;
-    </td>
-    <td>
-
-<p>
-
-<p>
-Definition at line <a class="el" href="inspircd_8h-source.html#l00064">64</a> of file <a class="el" href="inspircd_8h-source.html">inspircd.h</a>.    </td>
-  </tr>
-</table>
-<a class="anchor" name="TYPE_5FUSER"></a><!-- doxytag: member="inspircd.h::TYPE_USER" ref="TYPE_5FUSER" args="" --><p>
-<table class="mdTable" cellpadding="2" cellspacing="0">
-  <tr>
-    <td class="mdRow">
-      <table cellpadding="0" cellspacing="0" border="0">
-        <tr>
-          <td class="md" nowrap valign="top">#define TYPE_USER&nbsp;&nbsp;&nbsp;1          </td>
-        </tr>
-      </table>
-    </td>
-  </tr>
-</table>
-<table cellspacing="5" cellpadding="0" border="0">
-  <tr>
-    <td>
-      &nbsp;
-    </td>
-    <td>
-
-<p>
-
-<p>
-Definition at line <a class="el" href="inspircd_8h-source.html#l00062">62</a> of file <a class="el" href="inspircd_8h-source.html">inspircd.h</a>.    </td>
-  </tr>
-</table>
-<a class="anchor" name="WM_5FAND"></a><!-- doxytag: member="inspircd.h::WM_AND" ref="WM_5FAND" args="" --><p>
-<table class="mdTable" cellpadding="2" cellspacing="0">
-  <tr>
-    <td class="mdRow">
-      <table cellpadding="0" cellspacing="0" border="0">
-        <tr>
-          <td class="md" nowrap valign="top">#define WM_AND&nbsp;&nbsp;&nbsp;1          </td>
-        </tr>
-      </table>
-    </td>
-  </tr>
-</table>
-<table cellspacing="5" cellpadding="0" border="0">
-  <tr>
-    <td>
-      &nbsp;
-    </td>
-    <td>
-
-<p>
-
-<p>
-Definition at line <a class="el" href="inspircd_8h-source.html#l00057">57</a> of file <a class="el" href="inspircd_8h-source.html">inspircd.h</a>.    </td>
-  </tr>
-</table>
-<a class="anchor" name="WM_5FOR"></a><!-- doxytag: member="inspircd.h::WM_OR" ref="WM_5FOR" args="" --><p>
-<table class="mdTable" cellpadding="2" cellspacing="0">
-  <tr>
-    <td class="mdRow">
-      <table cellpadding="0" cellspacing="0" border="0">
-        <tr>
-          <td class="md" nowrap valign="top">#define WM_OR&nbsp;&nbsp;&nbsp;2          </td>
-        </tr>
-      </table>
-    </td>
-  </tr>
-</table>
-<table cellspacing="5" cellpadding="0" border="0">
-  <tr>
-    <td>
-      &nbsp;
-    </td>
-    <td>
-
-<p>
-
-<p>
-Definition at line <a class="el" href="inspircd_8h-source.html#l00058">58</a> of file <a class="el" href="inspircd_8h-source.html">inspircd.h</a>.    </td>
-  </tr>
-</table>
-<hr><h2>Typedef Documentation</h2>
-<a class="anchor" name="handlerfunc_29_28char_20_2A_2A_2C_20int_2C_20userrec_20_2A_29"></a><!-- doxytag: member="inspircd.h::handlerfunc" ref="handlerfunc_29_28char_20_2A_2A_2C_20int_2C_20userrec_20_2A_29" args=")(char **, int, userrec *)" --><p>
-<table class="mdTable" cellpadding="2" cellspacing="0">
-  <tr>
-    <td class="mdRow">
-      <table cellpadding="0" cellspacing="0" border="0">
-        <tr>
-          <td class="md" nowrap valign="top">typedef void( <a class="el" href="inspircd_8h.html#handlerfunc_29_28char_20_2A_2A_2C_20int_2C_20userrec_20_2A_29">handlerfunc</a>)(char **, int, <a class="el" href="classuserrec.html">userrec</a> *)          </td>
-        </tr>
-      </table>
-    </td>
-  </tr>
-</table>
-<table cellspacing="5" cellpadding="0" border="0">
-  <tr>
-    <td>
-      &nbsp;
-    </td>
-    <td>
-
-<p>
-
-<p>
-Definition at line <a class="el" href="inspircd_8h-source.html#l00070">70</a> of file <a class="el" href="inspircd_8h-source.html">inspircd.h</a>.    </td>
+Definition at line <a class="el" href="inspircd_8h-source.html#l00052">52</a> of file <a class="el" href="inspircd_8h-source.html">inspircd.h</a>.    </td>
   </tr>
 </table>
 <hr><h2>Function Documentation</h2>
-<a class="anchor" name="AddOper_28userrec_20_2Auser_29"></a><!-- doxytag: member="inspircd.h::AddOper" ref="AddOper_28userrec_20_2Auser_29" args="(userrec *user)" --><p>
-<table class="mdTable" cellpadding="2" cellspacing="0">
-  <tr>
-    <td class="mdRow">
-      <table cellpadding="0" cellspacing="0" border="0">
-        <tr>
-          <td class="md" nowrap valign="top">void AddOper           </td>
-          <td class="md" valign="top">(&nbsp;</td>
-          <td class="md" nowrap valign="top"><a class="el" href="classuserrec.html">userrec</a> *&nbsp;</td>
-          <td class="mdname1" valign="top" nowrap> <em>user</em>          </td>
-          <td class="md" valign="top">&nbsp;)&nbsp;</td>
-          <td class="md" nowrap></td>
-        </tr>
-      </table>
-    </td>
-  </tr>
-</table>
-<table cellspacing="5" cellpadding="0" border="0">
-  <tr>
-    <td>
-      &nbsp;
-    </td>
-    <td>
-
-<p>
-    </td>
-  </tr>
-</table>
 <a class="anchor" name="AddServerName_28std_3A_3Astring_20servername_29"></a><!-- doxytag: member="inspircd.h::AddServerName" ref="AddServerName_28std_3A_3Astring_20servername_29" args="(std::string servername)" --><p>
 <table class="mdTable" cellpadding="2" cellspacing="0">
   <tr>
@@ -533,169 +219,6 @@ Definition at line <a class="el" href="inspircd_8h-source.html#l00070">70</a> of
           <td class="md" valign="top">(&nbsp;</td>
           <td class="md" nowrap valign="top"><a class="el" href="namespaceirc.html#string">std::string</a>&nbsp;</td>
           <td class="mdname1" valign="top" nowrap> <em>servername</em>          </td>
-          <td class="md" valign="top">&nbsp;)&nbsp;</td>
-          <td class="md" nowrap></td>
-        </tr>
-      </table>
-    </td>
-  </tr>
-</table>
-<table cellspacing="5" cellpadding="0" border="0">
-  <tr>
-    <td>
-      &nbsp;
-    </td>
-    <td>
-
-<p>
-    </td>
-  </tr>
-</table>
-<a class="anchor" name="AddWhoWas_28userrec_20_2Au_29"></a><!-- doxytag: member="inspircd.h::AddWhoWas" ref="AddWhoWas_28userrec_20_2Au_29" args="(userrec *u)" --><p>
-<table class="mdTable" cellpadding="2" cellspacing="0">
-  <tr>
-    <td class="mdRow">
-      <table cellpadding="0" cellspacing="0" border="0">
-        <tr>
-          <td class="md" nowrap valign="top">void AddWhoWas           </td>
-          <td class="md" valign="top">(&nbsp;</td>
-          <td class="md" nowrap valign="top"><a class="el" href="classuserrec.html">userrec</a> *&nbsp;</td>
-          <td class="mdname1" valign="top" nowrap> <em>u</em>          </td>
-          <td class="md" valign="top">&nbsp;)&nbsp;</td>
-          <td class="md" nowrap></td>
-        </tr>
-      </table>
-    </td>
-  </tr>
-</table>
-<table cellspacing="5" cellpadding="0" border="0">
-  <tr>
-    <td>
-      &nbsp;
-    </td>
-    <td>
-
-<p>
-    </td>
-  </tr>
-</table>
-<a class="anchor" name="call_5Fhandler_28const_20char_20_2Acommandname_2C_20char_20_2A_2Aparameters_2C_20int_20pcnt_2C_20userrec_20_2Auser_29"></a><!-- doxytag: member="inspircd.h::call_handler" ref="call_5Fhandler_28const_20char_20_2Acommandname_2C_20char_20_2A_2Aparameters_2C_20int_20pcnt_2C_20userrec_20_2Auser_29" args="(const char *commandname, char **parameters, int pcnt, userrec *user)" --><p>
-<table class="mdTable" cellpadding="2" cellspacing="0">
-  <tr>
-    <td class="mdRow">
-      <table cellpadding="0" cellspacing="0" border="0">
-        <tr>
-          <td class="md" nowrap valign="top">void call_handler           </td>
-          <td class="md" valign="top">(&nbsp;</td>
-          <td class="md" nowrap valign="top">const char *&nbsp;</td>
-          <td class="mdname" nowrap> <em>commandname</em>, </td>
-        </tr>
-        <tr>
-          <td class="md" nowrap align="right"></td>
-          <td class="md"></td>
-          <td class="md" nowrap>char **&nbsp;</td>
-          <td class="mdname" nowrap> <em>parameters</em>, </td>
-        </tr>
-        <tr>
-          <td class="md" nowrap align="right"></td>
-          <td class="md"></td>
-          <td class="md" nowrap>int&nbsp;</td>
-          <td class="mdname" nowrap> <em>pcnt</em>, </td>
-        </tr>
-        <tr>
-          <td class="md" nowrap align="right"></td>
-          <td class="md"></td>
-          <td class="md" nowrap><a class="el" href="classuserrec.html">userrec</a> *&nbsp;</td>
-          <td class="mdname" nowrap> <em>user</em></td>
-        </tr>
-        <tr>
-          <td class="md"></td>
-          <td class="md">)&nbsp;</td>
-          <td class="md" colspan="2"></td>
-        </tr>
-      </table>
-    </td>
-  </tr>
-</table>
-<table cellspacing="5" cellpadding="0" border="0">
-  <tr>
-    <td>
-      &nbsp;
-    </td>
-    <td>
-
-<p>
-
-<p>
-Referenced by <a class="el" href="modules_8cpp-source.html#l00401">Server::CallCommandHandler()</a>.    </td>
-  </tr>
-</table>
-<a class="anchor" name="ConnectUser_28userrec_20_2Auser_29"></a><!-- doxytag: member="inspircd.h::ConnectUser" ref="ConnectUser_28userrec_20_2Auser_29" args="(userrec *user)" --><p>
-<table class="mdTable" cellpadding="2" cellspacing="0">
-  <tr>
-    <td class="mdRow">
-      <table cellpadding="0" cellspacing="0" border="0">
-        <tr>
-          <td class="md" nowrap valign="top">void ConnectUser           </td>
-          <td class="md" valign="top">(&nbsp;</td>
-          <td class="md" nowrap valign="top"><a class="el" href="classuserrec.html">userrec</a> *&nbsp;</td>
-          <td class="mdname1" valign="top" nowrap> <em>user</em>          </td>
-          <td class="md" valign="top">&nbsp;)&nbsp;</td>
-          <td class="md" nowrap></td>
-        </tr>
-      </table>
-    </td>
-  </tr>
-</table>
-<table cellspacing="5" cellpadding="0" border="0">
-  <tr>
-    <td>
-      &nbsp;
-    </td>
-    <td>
-
-<p>
-    </td>
-  </tr>
-</table>
-<a class="anchor" name="DeleteOper_28userrec_20_2Auser_29"></a><!-- doxytag: member="inspircd.h::DeleteOper" ref="DeleteOper_28userrec_20_2Auser_29" args="(userrec *user)" --><p>
-<table class="mdTable" cellpadding="2" cellspacing="0">
-  <tr>
-    <td class="mdRow">
-      <table cellpadding="0" cellspacing="0" border="0">
-        <tr>
-          <td class="md" nowrap valign="top">void DeleteOper           </td>
-          <td class="md" valign="top">(&nbsp;</td>
-          <td class="md" nowrap valign="top"><a class="el" href="classuserrec.html">userrec</a> *&nbsp;</td>
-          <td class="mdname1" valign="top" nowrap> <em>user</em>          </td>
-          <td class="md" valign="top">&nbsp;)&nbsp;</td>
-          <td class="md" nowrap></td>
-        </tr>
-      </table>
-    </td>
-  </tr>
-</table>
-<table cellspacing="5" cellpadding="0" border="0">
-  <tr>
-    <td>
-      &nbsp;
-    </td>
-    <td>
-
-<p>
-    </td>
-  </tr>
-</table>
-<a class="anchor" name="dns_5Ftask_28void_20_2Aarg_29"></a><!-- doxytag: member="inspircd.h::dns_task" ref="dns_5Ftask_28void_20_2Aarg_29" args="(void *arg)" --><p>
-<table class="mdTable" cellpadding="2" cellspacing="0">
-  <tr>
-    <td class="mdRow">
-      <table cellpadding="0" cellspacing="0" border="0">
-        <tr>
-          <td class="md" nowrap valign="top">void* dns_task           </td>
-          <td class="md" valign="top">(&nbsp;</td>
-          <td class="md" nowrap valign="top">void *&nbsp;</td>
-          <td class="mdname1" valign="top" nowrap> <em>arg</em>          </td>
           <td class="md" valign="top">&nbsp;)&nbsp;</td>
           <td class="md" nowrap></td>
         </tr>
@@ -741,382 +264,10 @@ Referenced by <a class="el" href="modules_8cpp-source.html#l00401">Server::CallC
 <p>
 
 <p>
-Referenced by <a class="el" href="users_8cpp-source.html#l00036">userrec::userrec()</a>.    </td>
+Referenced by <a class="el" href="users_8cpp-source.html#l00524">AddClient()</a>, and <a class="el" href="users_8cpp-source.html#l00063">userrec::userrec()</a>.    </td>
   </tr>
 </table>
-<a class="anchor" name="force_5Fnickchange_28userrec_20_2Auser_2C_20const_20char_20_2Anewnick_29"></a><!-- doxytag: member="inspircd.h::force_nickchange" ref="force_5Fnickchange_28userrec_20_2Auser_2C_20const_20char_20_2Anewnick_29" args="(userrec *user, const char *newnick)" --><p>
-<table class="mdTable" cellpadding="2" cellspacing="0">
-  <tr>
-    <td class="mdRow">
-      <table cellpadding="0" cellspacing="0" border="0">
-        <tr>
-          <td class="md" nowrap valign="top">void force_nickchange           </td>
-          <td class="md" valign="top">(&nbsp;</td>
-          <td class="md" nowrap valign="top"><a class="el" href="classuserrec.html">userrec</a> *&nbsp;</td>
-          <td class="mdname" nowrap> <em>user</em>, </td>
-        </tr>
-        <tr>
-          <td class="md" nowrap align="right"></td>
-          <td class="md"></td>
-          <td class="md" nowrap>const char *&nbsp;</td>
-          <td class="mdname" nowrap> <em>newnick</em></td>
-        </tr>
-        <tr>
-          <td class="md"></td>
-          <td class="md">)&nbsp;</td>
-          <td class="md" colspan="2"></td>
-        </tr>
-      </table>
-    </td>
-  </tr>
-</table>
-<table cellspacing="5" cellpadding="0" border="0">
-  <tr>
-    <td>
-      &nbsp;
-    </td>
-    <td>
-
-<p>
-
-<p>
-Referenced by <a class="el" href="modules_8cpp-source.html#l00386">Server::ChangeUserNick()</a>.    </td>
-  </tr>
-</table>
-<a class="anchor" name="FullConnectUser_28userrec_20_2Auser_29"></a><!-- doxytag: member="inspircd.h::FullConnectUser" ref="FullConnectUser_28userrec_20_2Auser_29" args="(userrec *user)" --><p>
-<table class="mdTable" cellpadding="2" cellspacing="0">
-  <tr>
-    <td class="mdRow">
-      <table cellpadding="0" cellspacing="0" border="0">
-        <tr>
-          <td class="md" nowrap valign="top">void FullConnectUser           </td>
-          <td class="md" valign="top">(&nbsp;</td>
-          <td class="md" nowrap valign="top"><a class="el" href="classuserrec.html">userrec</a> *&nbsp;</td>
-          <td class="mdname1" valign="top" nowrap> <em>user</em>          </td>
-          <td class="md" valign="top">&nbsp;)&nbsp;</td>
-          <td class="md" nowrap></td>
-        </tr>
-      </table>
-    </td>
-  </tr>
-</table>
-<table cellspacing="5" cellpadding="0" border="0">
-  <tr>
-    <td>
-      &nbsp;
-    </td>
-    <td>
-
-<p>
-    </td>
-  </tr>
-</table>
-<a class="anchor" name="handle_5Fversion_28char_20_2A_2Aparameters_2C_20int_20pcnt_2C_20userrec_20_2Auser_29"></a><!-- doxytag: member="inspircd.h::handle_version" ref="handle_5Fversion_28char_20_2A_2Aparameters_2C_20int_20pcnt_2C_20userrec_20_2Auser_29" args="(char **parameters, int pcnt, userrec *user)" --><p>
-<table class="mdTable" cellpadding="2" cellspacing="0">
-  <tr>
-    <td class="mdRow">
-      <table cellpadding="0" cellspacing="0" border="0">
-        <tr>
-          <td class="md" nowrap valign="top">void handle_version           </td>
-          <td class="md" valign="top">(&nbsp;</td>
-          <td class="md" nowrap valign="top">char **&nbsp;</td>
-          <td class="mdname" nowrap> <em>parameters</em>, </td>
-        </tr>
-        <tr>
-          <td class="md" nowrap align="right"></td>
-          <td class="md"></td>
-          <td class="md" nowrap>int&nbsp;</td>
-          <td class="mdname" nowrap> <em>pcnt</em>, </td>
-        </tr>
-        <tr>
-          <td class="md" nowrap align="right"></td>
-          <td class="md"></td>
-          <td class="md" nowrap><a class="el" href="classuserrec.html">userrec</a> *&nbsp;</td>
-          <td class="mdname" nowrap> <em>user</em></td>
-        </tr>
-        <tr>
-          <td class="md"></td>
-          <td class="md">)&nbsp;</td>
-          <td class="md" colspan="2"></td>
-        </tr>
-      </table>
-    </td>
-  </tr>
-</table>
-<table cellspacing="5" cellpadding="0" border="0">
-  <tr>
-    <td>
-      &nbsp;
-    </td>
-    <td>
-
-<p>
-    </td>
-  </tr>
-</table>
-<a class="anchor" name="is_5Fvalid_5Fcmd_28const_20char_20_2Acommandname_2C_20int_20pcnt_2C_20userrec_20_2Auser_29"></a><!-- doxytag: member="inspircd.h::is_valid_cmd" ref="is_5Fvalid_5Fcmd_28const_20char_20_2Acommandname_2C_20int_20pcnt_2C_20userrec_20_2Auser_29" args="(const char *commandname, int pcnt, userrec *user)" --><p>
-<table class="mdTable" cellpadding="2" cellspacing="0">
-  <tr>
-    <td class="mdRow">
-      <table cellpadding="0" cellspacing="0" border="0">
-        <tr>
-          <td class="md" nowrap valign="top">bool is_valid_cmd           </td>
-          <td class="md" valign="top">(&nbsp;</td>
-          <td class="md" nowrap valign="top">const char *&nbsp;</td>
-          <td class="mdname" nowrap> <em>commandname</em>, </td>
-        </tr>
-        <tr>
-          <td class="md" nowrap align="right"></td>
-          <td class="md"></td>
-          <td class="md" nowrap>int&nbsp;</td>
-          <td class="mdname" nowrap> <em>pcnt</em>, </td>
-        </tr>
-        <tr>
-          <td class="md" nowrap align="right"></td>
-          <td class="md"></td>
-          <td class="md" nowrap><a class="el" href="classuserrec.html">userrec</a> *&nbsp;</td>
-          <td class="mdname" nowrap> <em>user</em></td>
-        </tr>
-        <tr>
-          <td class="md"></td>
-          <td class="md">)&nbsp;</td>
-          <td class="md" colspan="2"></td>
-        </tr>
-      </table>
-    </td>
-  </tr>
-</table>
-<table cellspacing="5" cellpadding="0" border="0">
-  <tr>
-    <td>
-      &nbsp;
-    </td>
-    <td>
-
-<p>
-
-<p>
-Referenced by <a class="el" href="modules_8cpp-source.html#l00406">Server::IsValidModuleCommand()</a>.    </td>
-  </tr>
-</table>
-<a class="anchor" name="kill_5Flink_28userrec_20_2Auser_2C_20const_20char_20_2Ar_29"></a><!-- doxytag: member="inspircd.h::kill_link" ref="kill_5Flink_28userrec_20_2Auser_2C_20const_20char_20_2Ar_29" args="(userrec *user, const char *r)" --><p>
-<table class="mdTable" cellpadding="2" cellspacing="0">
-  <tr>
-    <td class="mdRow">
-      <table cellpadding="0" cellspacing="0" border="0">
-        <tr>
-          <td class="md" nowrap valign="top">void kill_link           </td>
-          <td class="md" valign="top">(&nbsp;</td>
-          <td class="md" nowrap valign="top"><a class="el" href="classuserrec.html">userrec</a> *&nbsp;</td>
-          <td class="mdname" nowrap> <em>user</em>, </td>
-        </tr>
-        <tr>
-          <td class="md" nowrap align="right"></td>
-          <td class="md"></td>
-          <td class="md" nowrap>const char *&nbsp;</td>
-          <td class="mdname" nowrap> <em>r</em></td>
-        </tr>
-        <tr>
-          <td class="md"></td>
-          <td class="md">)&nbsp;</td>
-          <td class="md" colspan="2"></td>
-        </tr>
-      </table>
-    </td>
-  </tr>
-</table>
-<table cellspacing="5" cellpadding="0" border="0">
-  <tr>
-    <td>
-      &nbsp;
-    </td>
-    <td>
-
-<p>
-
-<p>
-Referenced by <a class="el" href="modules_8cpp-source.html#l00610">Server::PseudoToUser()</a>, and <a class="el" href="modules_8cpp-source.html#l00391">Server::QuitUser()</a>.    </td>
-  </tr>
-</table>
-<a class="anchor" name="kill_5Flink_5Fsilent_28userrec_20_2Auser_2C_20const_20char_20_2Ar_29"></a><!-- doxytag: member="inspircd.h::kill_link_silent" ref="kill_5Flink_5Fsilent_28userrec_20_2Auser_2C_20const_20char_20_2Ar_29" args="(userrec *user, const char *r)" --><p>
-<table class="mdTable" cellpadding="2" cellspacing="0">
-  <tr>
-    <td class="mdRow">
-      <table cellpadding="0" cellspacing="0" border="0">
-        <tr>
-          <td class="md" nowrap valign="top">void kill_link_silent           </td>
-          <td class="md" valign="top">(&nbsp;</td>
-          <td class="md" nowrap valign="top"><a class="el" href="classuserrec.html">userrec</a> *&nbsp;</td>
-          <td class="mdname" nowrap> <em>user</em>, </td>
-        </tr>
-        <tr>
-          <td class="md" nowrap align="right"></td>
-          <td class="md"></td>
-          <td class="md" nowrap>const char *&nbsp;</td>
-          <td class="mdname" nowrap> <em>r</em></td>
-        </tr>
-        <tr>
-          <td class="md"></td>
-          <td class="md">)&nbsp;</td>
-          <td class="md" colspan="2"></td>
-        </tr>
-      </table>
-    </td>
-  </tr>
-</table>
-<table cellspacing="5" cellpadding="0" border="0">
-  <tr>
-    <td>
-      &nbsp;
-    </td>
-    <td>
-
-<p>
-    </td>
-  </tr>
-</table>
-<a class="anchor" name="loop_5Fcall_28handlerfunc_20fn_2C_20char_20_2A_2Aparameters_2C_20int_20pcnt_2C_20userrec_20_2Au_2C_20int_20start_2C_20int_20end_2C_20int_20joins_29"></a><!-- doxytag: member="inspircd.h::loop_call" ref="loop_5Fcall_28handlerfunc_20fn_2C_20char_20_2A_2Aparameters_2C_20int_20pcnt_2C_20userrec_20_2Au_2C_20int_20start_2C_20int_20end_2C_20int_20joins_29" args="(handlerfunc fn, char **parameters, int pcnt, userrec *u, int start, int end, int joins)" --><p>
-<table class="mdTable" cellpadding="2" cellspacing="0">
-  <tr>
-    <td class="mdRow">
-      <table cellpadding="0" cellspacing="0" border="0">
-        <tr>
-          <td class="md" nowrap valign="top">int loop_call           </td>
-          <td class="md" valign="top">(&nbsp;</td>
-          <td class="md" nowrap valign="top"><a class="el" href="inspircd_8h.html#handlerfunc_29_28char_20_2A_2A_2C_20int_2C_20userrec_20_2A_29">handlerfunc</a>&nbsp;</td>
-          <td class="mdname" nowrap> <em>fn</em>, </td>
-        </tr>
-        <tr>
-          <td class="md" nowrap align="right"></td>
-          <td class="md"></td>
-          <td class="md" nowrap>char **&nbsp;</td>
-          <td class="mdname" nowrap> <em>parameters</em>, </td>
-        </tr>
-        <tr>
-          <td class="md" nowrap align="right"></td>
-          <td class="md"></td>
-          <td class="md" nowrap>int&nbsp;</td>
-          <td class="mdname" nowrap> <em>pcnt</em>, </td>
-        </tr>
-        <tr>
-          <td class="md" nowrap align="right"></td>
-          <td class="md"></td>
-          <td class="md" nowrap><a class="el" href="classuserrec.html">userrec</a> *&nbsp;</td>
-          <td class="mdname" nowrap> <em>u</em>, </td>
-        </tr>
-        <tr>
-          <td class="md" nowrap align="right"></td>
-          <td class="md"></td>
-          <td class="md" nowrap>int&nbsp;</td>
-          <td class="mdname" nowrap> <em>start</em>, </td>
-        </tr>
-        <tr>
-          <td class="md" nowrap align="right"></td>
-          <td class="md"></td>
-          <td class="md" nowrap>int&nbsp;</td>
-          <td class="mdname" nowrap> <em>end</em>, </td>
-        </tr>
-        <tr>
-          <td class="md" nowrap align="right"></td>
-          <td class="md"></td>
-          <td class="md" nowrap>int&nbsp;</td>
-          <td class="mdname" nowrap> <em>joins</em></td>
-        </tr>
-        <tr>
-          <td class="md"></td>
-          <td class="md">)&nbsp;</td>
-          <td class="md" colspan="2"></td>
-        </tr>
-      </table>
-    </td>
-  </tr>
-</table>
-<table cellspacing="5" cellpadding="0" border="0">
-  <tr>
-    <td>
-      &nbsp;
-    </td>
-    <td>
-
-<p>
-    </td>
-  </tr>
-</table>
-<a class="anchor" name="process_5Fbuffer_28const_20char_20_2Acmdbuf_2C_20userrec_20_2Auser_29"></a><!-- doxytag: member="inspircd.h::process_buffer" ref="process_5Fbuffer_28const_20char_20_2Acmdbuf_2C_20userrec_20_2Auser_29" args="(const char *cmdbuf, userrec *user)" --><p>
-<table class="mdTable" cellpadding="2" cellspacing="0">
-  <tr>
-    <td class="mdRow">
-      <table cellpadding="0" cellspacing="0" border="0">
-        <tr>
-          <td class="md" nowrap valign="top">void process_buffer           </td>
-          <td class="md" valign="top">(&nbsp;</td>
-          <td class="md" nowrap valign="top">const char *&nbsp;</td>
-          <td class="mdname" nowrap> <em>cmdbuf</em>, </td>
-        </tr>
-        <tr>
-          <td class="md" nowrap align="right"></td>
-          <td class="md"></td>
-          <td class="md" nowrap><a class="el" href="classuserrec.html">userrec</a> *&nbsp;</td>
-          <td class="mdname" nowrap> <em>user</em></td>
-        </tr>
-        <tr>
-          <td class="md"></td>
-          <td class="md">)&nbsp;</td>
-          <td class="md" colspan="2"></td>
-        </tr>
-      </table>
-    </td>
-  </tr>
-</table>
-<table cellspacing="5" cellpadding="0" border="0">
-  <tr>
-    <td>
-      &nbsp;
-    </td>
-    <td>
-
-<p>
-    </td>
-  </tr>
-</table>
-<a class="anchor" name="ReHashNick_28char_20_2AOld_2C_20char_20_2ANew_29"></a><!-- doxytag: member="inspircd.h::ReHashNick" ref="ReHashNick_28char_20_2AOld_2C_20char_20_2ANew_29" args="(char *Old, char *New)" --><p>
-<table class="mdTable" cellpadding="2" cellspacing="0">
-  <tr>
-    <td class="mdRow">
-      <table cellpadding="0" cellspacing="0" border="0">
-        <tr>
-          <td class="md" nowrap valign="top"><a class="el" href="classuserrec.html">userrec</a>* ReHashNick           </td>
-          <td class="md" valign="top">(&nbsp;</td>
-          <td class="md" nowrap valign="top">char *&nbsp;</td>
-          <td class="mdname" nowrap> <em>Old</em>, </td>
-        </tr>
-        <tr>
-          <td class="md" nowrap align="right"></td>
-          <td class="md"></td>
-          <td class="md" nowrap>char *&nbsp;</td>
-          <td class="mdname" nowrap> <em>New</em></td>
-        </tr>
-        <tr>
-          <td class="md"></td>
-          <td class="md">)&nbsp;</td>
-          <td class="md" colspan="2"></td>
-        </tr>
-      </table>
-    </td>
-  </tr>
-</table>
-<table cellspacing="5" cellpadding="0" border="0">
-  <tr>
-    <td>
-      &nbsp;
-    </td>
-    <td>
-
-<p>
-    </td>
-  </tr>
-</table>
-<hr size="1"><address style="align: right;"><small>Generated on Thu Dec 15 11:14:16 2005 for InspIRCd by&nbsp;
+<hr size="1"><address style="align: right;"><small>Generated on Mon Dec 19 18:02:14 2005 for InspIRCd by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img src="doxygen.png" alt="doxygen" align="middle" border="0"></a> 1.4.4-20050815 </small></address>
 </body>

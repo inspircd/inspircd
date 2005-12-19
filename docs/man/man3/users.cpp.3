@@ -1,4 +1,4 @@
-.TH "users.cpp" 3 "15 Dec 2005" "Version 1.0Betareleases" "InspIRCd" \" -*- nroff -*-
+.TH "users.cpp" 3 "19 Dec 2005" "Version 1.0Betareleases" "InspIRCd" \" -*- nroff -*-
 .ad l
 .nh
 .SH NAME
@@ -24,22 +24,707 @@ users.cpp \-
 .br
 \fC#include 'helperfuncs.h'\fP
 .br
+\fC#include 'typedefs.h'\fP
+.br
+\fC#include 'socketengine.h'\fP
+.br
+\fC#include 'hashcomp.h'\fP
+.br
+\fC#include 'message.h'\fP
+.br
+\fC#include 'wildcard.h'\fP
+.br
+\fC#include 'xline.h'\fP
+.br
 
+.SS "Functions"
+
+.in +1c
+.ti -1c
+.RI "template<typename T> \fBstring\fP \fBConvToStr\fP (const T &in)"
+.br
+.ti -1c
+.RI "void \fBAddOper\fP (\fBuserrec\fP *user)"
+.br
+.ti -1c
+.RI "void \fBDeleteOper\fP (\fBuserrec\fP *user)"
+.br
+.ti -1c
+.RI "void \fBkill_link\fP (\fBuserrec\fP *user, const char *r)"
+.br
+.ti -1c
+.RI "void \fBkill_link_silent\fP (\fBuserrec\fP *user, const char *r)"
+.br
+.ti -1c
+.RI "void \fBAddWhoWas\fP (\fBuserrec\fP *u)"
+.br
+.ti -1c
+.RI "void \fBAddClient\fP (int socket, char *host, int port, bool iscached, char *ip)"
+.br
+.ti -1c
+.RI "void \fBFullConnectUser\fP (\fBuserrec\fP *user)"
+.br
+.ti -1c
+.RI "void \fBConnectUser\fP (\fBuserrec\fP *user)"
+.br
+.ti -1c
+.RI "\fBuserrec\fP * \fBReHashNick\fP (char *Old, char *New)"
+.br
+.ti -1c
+.RI "void \fBforce_nickchange\fP (\fBuserrec\fP *user, const char *newnick)"
+.br
+.in -1c
 .SS "Variables"
 
 .in +1c
 .ti -1c
-.RI "\fBServerConfig\fP * \fBConfig\fP"
+.RI "\fBInspIRCd\fP * \fBServerInstance\fP"
+.br
+.ti -1c
+.RI "int \fBWHOWAS_STALE\fP"
+.br
+.ti -1c
+.RI "int \fBWHOWAS_MAX\fP"
+.br
+.ti -1c
+.RI "std::vector< \fBModule\fP * > \fBmodules\fP"
+.br
+.ti -1c
+.RI "std::vector< \fBircd_module\fP * > \fBfactory\fP"
+.br
+.ti -1c
+.RI "std::vector< \fBInspSocket\fP * > \fBmodule_sockets\fP"
+.br
+.ti -1c
+.RI "int \fBMODCOUNT\fP"
+.br
+.ti -1c
+.RI "\fBInspSocket\fP * \fBsocket_ref\fP [65535]"
 .br
 .ti -1c
 .RI "time_t \fBTIME\fP"
 .br
+.ti -1c
+.RI "\fBuserrec\fP * \fBfd_ref_table\fP [65536]"
+.br
+.ti -1c
+.RI "\fBServerConfig\fP * \fBConfig\fP"
+.br
+.ti -1c
+.RI "\fBuser_hash\fP \fBclientlist\fP"
+.br
+.ti -1c
+.RI "\fBwhowas_hash\fP \fBwhowas\fP"
+.br
+.ti -1c
+.RI "std::vector< \fBuserrec\fP * > \fBlocal_users\fP"
+.br
+.ti -1c
+.RI "std::vector< \fBuserrec\fP * > \fBall_opers\fP"
+.br
 .in -1c
+.SH "Function Documentation"
+.PP 
+.SS "void AddClient (int socket, char * host, int port, bool iscached, char * ip)"
+.PP
+Definition at line 524 of file users.cpp.
+.PP
+References SocketEngine::AddFd(), CC_ALLOW, ucrec::channel, ServerConfig::Classes, clientlist, ConvToStr(), DEBUG, ServerConfig::dns_timeout, FindServerNamePtr(), kill_link(), local_users, log(), matches_exception(), matches_zline(), InspIRCd::SE, ServerConfig::ServerName, ServerConfig::SoftLimit, TIME, ucrec::uc_modes, and X_ESTAB_CLIENT.
+.PP
+.nf
+525 {
+526         string tempnick;
+527         char tn2[MAXBUF];
+528         user_hash::iterator iter;
+529 
+530         tempnick = ConvToStr(socket) + '-unknown';
+531         sprintf(tn2,'%lu-unknown',(unsigned long)socket);
+532 
+533         iter = clientlist.find(tempnick);
+534 
+535         // fix by brain.
+536         // as these nicknames are 'RFC impossible', we can be sure nobody is going to be
+537         // using one as a registered connection. As theyre per fd, we can also safely assume
+538         // that we wont have collisions. Therefore, if the nick exists in the list, its only
+539         // used by a dead socket, erase the iterator so that the new client may reclaim it.
+540         // this was probably the cause of 'server ignores me when i hammer it with reconnects'
+541         // issue in earlier alphas/betas
+542         if (iter != clientlist.end())
+543         {
+544                 userrec* goner = iter->second;
+545                 delete goner;
+546                 clientlist.erase(iter);
+547         }
+548 
+549         /*
+550          * It is OK to access the value here this way since we know
+551          * it exists, we just created it above.
+552          *
+553          * At NO other time should you access a value in a map or a
+554          * hash_map this way.
+555          */
+556         clientlist[tempnick] = new userrec();
+557 
+558         log(DEBUG,'AddClient: %lu %s %d %s',(unsigned long)socket,host,port,ip);
+559 
+560         clientlist[tempnick]->fd = socket;
+561         strlcpy(clientlist[tempnick]->nick, tn2,NICKMAX);
+562         strlcpy(clientlist[tempnick]->host, host,160);
+563         strlcpy(clientlist[tempnick]->dhost, host,160);
+564         clientlist[tempnick]->server = (char*)FindServerNamePtr(Config->ServerName);
+565         strlcpy(clientlist[tempnick]->ident, 'unknown',IDENTMAX);
+566         clientlist[tempnick]->registered = 0;
+567         clientlist[tempnick]->signon = TIME + Config->dns_timeout;
+568         clientlist[tempnick]->lastping = 1;
+569         clientlist[tempnick]->port = port;
+570         strlcpy(clientlist[tempnick]->ip,ip,16);
+571 
+572         // set the registration timeout for this user
+573         unsigned long class_regtimeout = 90;
+574         int class_flood = 0;
+575         long class_threshold = 5;
+576         long class_sqmax = 262144;      // 256kb
+577         long class_rqmax = 4096;        // 4k
+578 
+579         for (ClassVector::iterator i = Config->Classes.begin(); i != Config->Classes.end(); i++)
+580         {
+581                 if (match(clientlist[tempnick]->host,i->host) && (i->type == CC_ALLOW))
+582                 {
+583                         class_regtimeout = (unsigned long)i->registration_timeout;
+584                         class_flood = i->flood;
+585                         clientlist[tempnick]->pingmax = i->pingtime;
+586                         class_threshold = i->threshold;
+587                         class_sqmax = i->sendqmax;
+588                         class_rqmax = i->recvqmax;
+589                         break;
+590                 }
+591         }
+592 
+593         clientlist[tempnick]->nping = TIME+clientlist[tempnick]->pingmax + Config->dns_timeout;
+594         clientlist[tempnick]->timeout = TIME+class_regtimeout;
+595         clientlist[tempnick]->flood = class_flood;
+596         clientlist[tempnick]->threshold = class_threshold;
+597         clientlist[tempnick]->sendqmax = class_sqmax;
+598         clientlist[tempnick]->recvqmax = class_rqmax;
+599 
+600         ucrec a;
+601         a.channel = NULL;
+602         a.uc_modes = 0;
+603         for (int i = 0; i < MAXCHANS; i++)
+604                 clientlist[tempnick]->chans.push_back(a);
+605 
+606         if (clientlist.size() > Config->SoftLimit)
+607         {
+608                 kill_link(clientlist[tempnick],'No more connections allowed');
+609                 return;
+610         }
+611 
+612         if (clientlist.size() >= MAXCLIENTS)
+613         {
+614                 kill_link(clientlist[tempnick],'No more connections allowed');
+615                 return;
+616         }
+617 
+618         // this is done as a safety check to keep the file descriptors within range of fd_ref_table.
+619         // its a pretty big but for the moment valid assumption:
+620         // file descriptors are handed out starting at 0, and are recycled as theyre freed.
+621         // therefore if there is ever an fd over 65535, 65536 clients must be connected to the
+622         // irc server at once (or the irc server otherwise initiating this many connections, files etc)
+623         // which for the time being is a physical impossibility (even the largest networks dont have more
+624         // than about 10,000 users on ONE server!)
+625         if ((unsigned)socket > 65534)
+626         {
+627                 kill_link(clientlist[tempnick],'Server is full');
+628                 return;
+629         }
+630         char* e = matches_exception(ip);
+631         if (!e)
+632         {
+633                 char* r = matches_zline(ip);
+634                 if (r)
+635                 {
+636                         char reason[MAXBUF];
+637                         snprintf(reason,MAXBUF,'Z-Lined: %s',r);
+638                         kill_link(clientlist[tempnick],reason);
+639                         return;
+640                 }
+641         }
+642         fd_ref_table[socket] = clientlist[tempnick];
+643         local_users.push_back(clientlist[tempnick]);
+644         ServerInstance->SE->AddFd(socket,true,X_ESTAB_CLIENT);
+645 }
+.fi
+.PP
+.SS "void AddOper (\fBuserrec\fP * user)"
+.PP
+Definition at line 330 of file users.cpp.
+.PP
+References all_opers, DEBUG, and log().
+.PP
+.nf
+331 {
+332         log(DEBUG,'Oper added to optimization list');
+333         all_opers.push_back(user);
+334 }
+.fi
+.PP
+.SS "void AddWhoWas (\fBuserrec\fP * u)"
+.PP
+Definition at line 471 of file users.cpp.
+.PP
+References DEBUG, WhoWasUser::dhost, userrec::dhost, WhoWasUser::fullname, userrec::fullname, WhoWasUser::host, connection::host, WhoWasUser::ident, userrec::ident, log(), userrec::nick, WhoWasUser::nick, WhoWasUser::server, userrec::server, WhoWasUser::signon, connection::signon, TIME, whowas, WHOWAS_MAX, and WHOWAS_STALE.
+.PP
+Referenced by kill_link().
+.PP
+.nf
+472 {
+473         whowas_hash::iterator iter = whowas.find(u->nick);
+474         WhoWasUser *a = new WhoWasUser();
+475         strlcpy(a->nick,u->nick,NICKMAX);
+476         strlcpy(a->ident,u->ident,IDENTMAX);
+477         strlcpy(a->dhost,u->dhost,160);
+478         strlcpy(a->host,u->host,160);
+479         strlcpy(a->fullname,u->fullname,MAXGECOS);
+480         strlcpy(a->server,u->server,256);
+481         a->signon = u->signon;
+482 
+483         /* MAX_WHOWAS:   max number of /WHOWAS items
+484          * WHOWAS_STALE: number of hours before a WHOWAS item is marked as stale and
+485          *               can be replaced by a newer one
+486          */
+487 
+488         if (iter == whowas.end())
+489         {
+490                 if (whowas.size() >= (unsigned)WHOWAS_MAX)
+491                 {
+492                         for (whowas_hash::iterator i = whowas.begin(); i != whowas.end(); i++)
+493                         {
+494                                 // 3600 seconds in an hour ;)
+495                                 if ((i->second->signon)<(TIME-(WHOWAS_STALE*3600)))
+496                                 {
+497                                         // delete the old one
+498                                         if (i->second) delete i->second;
+499                                         // replace with new one
+500                                         i->second = a;
+501                                         log(DEBUG,'added WHOWAS entry, purged an old record');
+502                                         return;
+503                                 }
+504                         }
+505                         // no space left and user doesnt exist. Don't leave ram in use!
+506                         log(DEBUG,'Not able to update whowas (list at WHOWAS_MAX entries and trying to add new?), freeing excess ram');
+507                         delete a;
+508                 }
+509                 else
+510                 {
+511                         log(DEBUG,'added fresh WHOWAS entry');
+512                         whowas[a->nick] = a;
+513                 }
+514         }
+515         else
+516         {
+517                 log(DEBUG,'updated WHOWAS entry');
+518                 if (iter->second) delete iter->second;
+519                 iter->second = a;
+520         }
+521 }
+.fi
+.PP
+.SS "void ConnectUser (\fBuserrec\fP * user)"
+.PP
+Definition at line 731 of file users.cpp.
+.PP
+References userrec::dns_done, FullConnectUser(), and connection::registered.
+.PP
+.nf
+732 {
+733         // dns is already done, things are fast. no need to wait for dns to complete just pass them straight on
+734         if ((user->dns_done) && (user->registered >= 3) && (AllModulesReportReady(user)))
+735         {
+736                 FullConnectUser(user);
+737         }
+738 }
+.fi
+.PP
+.SS "template<typename T> \fBstring\fP ConvToStr (const T & in)\fC [inline]\fP"
+.PP
+Definition at line 56 of file users.cpp.
+.PP
+Referenced by AddClient().
+.PP
+.nf
+57 {
+58         stringstream tmp;
+59         if (!(tmp << in)) return string();
+60         return tmp.str();
+61 }
+.fi
+.PP
+.SS "void DeleteOper (\fBuserrec\fP * user)"
+.PP
+Definition at line 336 of file users.cpp.
+.PP
+References all_opers, DEBUG, and log().
+.PP
+.nf
+337 {
+338         for (std::vector<userrec*>::iterator a = all_opers.begin(); a < all_opers.end(); a++)
+339         {
+340                 if (*a == user)
+341                 {
+342                         log(DEBUG,'Oper removed from optimization list');
+343                         all_opers.erase(a);
+344                         return;
+345                 }
+346         }
+347 }
+.fi
+.PP
+.SS "void force_nickchange (\fBuserrec\fP * user, const char * newnick)"
+.PP
+Definition at line 769 of file users.cpp.
+.PP
+References FOREACH_RESULT, kill_link(), matches_qline(), InspIRCd::Parser, connection::registered, InspIRCd::stats, and serverstats::statsCollisions.
+.PP
+Referenced by Server::ChangeUserNick().
+.PP
+.nf
+770 {
+771         char nick[MAXBUF];
+772         int MOD_RESULT = 0;
+773 
+774         strcpy(nick,'');
+775 
+776         FOREACH_RESULT(OnUserPreNick(user,newnick));
+777         if (MOD_RESULT) {
+778                 ServerInstance->stats->statsCollisions++;
+779                 kill_link(user,'Nickname collision');
+780                 return;
+781         }
+782         if (matches_qline(newnick))
+783         {
+784                 ServerInstance->stats->statsCollisions++;
+785                 kill_link(user,'Nickname collision');
+786                 return;
+787         }
+788 
+789         if (user)
+790         {
+791                 if (newnick)
+792                 {
+793                         strncpy(nick,newnick,MAXBUF);
+794                 }
+795                 if (user->registered == 7)
+796                 {
+797                         char* pars[1];
+798                         pars[0] = nick;
+799                         std::string cmd = 'NICK';
+800                         ServerInstance->Parser->CallHandler(cmd,pars,1,user);
+801                 }
+802         }
+803 }
+.fi
+.PP
+.SS "void FullConnectUser (\fBuserrec\fP * user)"
+.PP
+Definition at line 647 of file users.cpp.
+.PP
+References DEBUG, connection::fd, FOREACH_MOD, connection::haspassed, connection::host, userrec::ident, connection::idle_lastmsg, connection::ip, kill_link(), kill_link_silent(), log(), matches_exception(), matches_gline(), matches_kline(), ServerConfig::Network, userrec::nick, connection::port, connection::registered, ServerConfig::ServerName, InspIRCd::stats, serverstats::statsConnects, TIME, WriteOpers(), and WriteServ().
+.PP
+Referenced by ConnectUser().
+.PP
+.nf
+648 {
+649         ServerInstance->stats->statsConnects++;
+650         user->idle_lastmsg = TIME;
+651         log(DEBUG,'ConnectUser: %s',user->nick);
+652 
+653         if ((strcmp(Passwd(user),'')) && (!user->haspassed))
+654         {
+655                 kill_link(user,'Invalid password');
+656                 return;
+657         }
+658         if (IsDenied(user))
+659         {
+660                 kill_link(user,'Unauthorised connection');
+661                 return;
+662         }
+663 
+664         char match_against[MAXBUF];
+665         snprintf(match_against,MAXBUF,'%s@%s',user->ident,user->host);
+666         char* e = matches_exception(match_against);
+667         if (!e)
+668         {
+669                 char* r = matches_gline(match_against);
+670                 if (r)
+671                 {
+672                         char reason[MAXBUF];
+673                         snprintf(reason,MAXBUF,'G-Lined: %s',r);
+674                         kill_link_silent(user,reason);
+675                         return;
+676                 }
+677                 r = matches_kline(user->host);
+678                 if (r)
+679                 {
+680                         char reason[MAXBUF];
+681                         snprintf(reason,MAXBUF,'K-Lined: %s',r);
+682                         kill_link_silent(user,reason);
+683                         return;
+684                 }
+685         }
+686 
+687 
+688         WriteServ(user->fd,'NOTICE Auth :Welcome to \002%s\002!',Config->Network);
+689         WriteServ(user->fd,'001 %s :Welcome to the %s IRC Network %s!%s@%s',user->nick,Config->Network,user->nick,user->ident,user->host);
+690         WriteServ(user->fd,'002 %s :Your host is %s, running version %s',user->nick,Config->ServerName,VERSION);
+691         WriteServ(user->fd,'003 %s :This server was created %s %s',user->nick,__TIME__,__DATE__);
+692         WriteServ(user->fd,'004 %s %s %s iowghraAsORVSxNCWqBzvdHtGI lvhopsmntikrRcaqOALQbSeKVfHGCuzN',user->nick,Config->ServerName,VERSION);
+693         // the neatest way to construct the initial 005 numeric, considering the number of configure constants to go in it...
+694         std::stringstream v;
+695         v << 'WALLCHOPS MODES=13 CHANTYPES=# PREFIX=(ohv)@%+ MAP SAFELIST MAXCHANNELS=' << MAXCHANS;
+696         v << ' MAXBANS=60 NICKLEN=' << NICKMAX;
+697         v << ' TOPICLEN=' << MAXTOPIC << ' KICKLEN=' << MAXKICK << ' MAXTARGETS=20 AWAYLEN=' << MAXAWAY << ' CHANMODES=ohvb,k,l,psmnti NETWORK=';
+698         v << Config->Network;
+699         std::string data005 = v.str();
+700         FOREACH_MOD On005Numeric(data005);
+701         // anfl @ #ratbox, efnet reminded me that according to the RFC this cant contain more than 13 tokens per line...
+702         // so i'd better split it :)
+703         std::stringstream out(data005);
+704         std::string token = '';
+705         std::string line5 = '';
+706         int token_counter = 0;
+707         while (!out.eof())
+708         {
+709                 out >> token;
+710                 line5 = line5 + token + ' ';
+711                 token_counter++;
+712                 if ((token_counter >= 13) || (out.eof() == true))
+713                 {
+714                         WriteServ(user->fd,'005 %s %s:are supported by this server',user->nick,line5.c_str());
+715                         line5 = '';
+716                         token_counter = 0;
+717                 }
+718         }
+719         ShowMOTD(user);
+720 
+721         // fix 3 by brain, move registered = 7 below these so that spurious modes and host changes dont go out
+722         // onto the network and produce 'fake direction'
+723         FOREACH_MOD OnUserConnect(user);
+724         FOREACH_MOD OnGlobalConnect(user);
+725         user->registered = 7;
+726         WriteOpers('*** Client connecting on port %lu: %s!%s@%s [%s]',(unsigned long)user->port,user->nick,user->ident,user->host,user->ip);
+727 }
+.fi
+.PP
+.SS "void kill_link (\fBuserrec\fP * user, const char * r)"
+.PP
+Definition at line 349 of file users.cpp.
+.PP
+References AddWhoWas(), clientlist, userrec::CloseSocket(), DEBUG, SocketEngine::DelFd(), connection::fd, userrec::FlushWriteBuf(), FOREACH_MOD, ServerConfig::GetIOHook(), connection::host, userrec::ident, local_users, log(), userrec::nick, Module::OnRawSocketClose(), connection::port, connection::registered, InspIRCd::SE, Write(), WriteCommonExcept(), and WriteOpers().
+.PP
+Referenced by AddClient(), force_nickchange(), FullConnectUser(), Server::PseudoToUser(), and Server::QuitUser().
+.PP
+.nf
+350 {
+351         user_hash::iterator iter = clientlist.find(user->nick);
+352 
+353         char reason[MAXBUF];
+354 
+355         strncpy(reason,r,MAXBUF);
+356 
+357         if (strlen(reason)>MAXQUIT)
+358         {
+359                 reason[MAXQUIT-1] = '\0';
+360         }
+361 
+362         log(DEBUG,'kill_link: %s '%s'',user->nick,reason);
+363         Write(user->fd,'ERROR :Closing link (%s@%s) [%s]',user->ident,user->host,reason);
+364         log(DEBUG,'closing fd %lu',(unsigned long)user->fd);
+365 
+366         if (user->registered == 7) {
+367                 FOREACH_MOD OnUserQuit(user,reason);
+368                 WriteCommonExcept(user,'QUIT :%s',reason);
+369         }
+370 
+371         user->FlushWriteBuf();
+372 
+373         FOREACH_MOD OnUserDisconnect(user);
+374 
+375         if (user->fd > -1)
+376         {
+377                 if (Config->GetIOHook(user->port))
+378                 {
+379                         Config->GetIOHook(user->port)->OnRawSocketClose(user->fd);
+380                 }
+381                 ServerInstance->SE->DelFd(user->fd);
+382                 user->CloseSocket();
+383         }
+384 
+385         // this must come before the WriteOpers so that it doesnt try to fill their buffer with anything
+386         // if they were an oper with +s.
+387         if (user->registered == 7) {
+388                 purge_empty_chans(user);
+389                 // fix by brain: only show local quits because we only show local connects (it just makes SENSE)
+390                 if (user->fd > -1)
+391                         WriteOpers('*** Client exiting: %s!%s@%s [%s]',user->nick,user->ident,user->host,reason);
+392                 AddWhoWas(user);
+393         }
+394 
+395         if (iter != clientlist.end())
+396         {
+397                 log(DEBUG,'deleting user hash value %lu',(unsigned long)user);
+398                 if (user->fd > -1)
+399                 {
+400                         fd_ref_table[user->fd] = NULL;
+401                         if (find(local_users.begin(),local_users.end(),user) != local_users.end())
+402                         {
+403                                 local_users.erase(find(local_users.begin(),local_users.end(),user));
+404                                 log(DEBUG,'Delete local user');
+405                         }
+406                 }
+407                 clientlist.erase(iter);
+408         }
+409         delete user;
+410 }
+.fi
+.PP
+.SS "void kill_link_silent (\fBuserrec\fP * user, const char * r)"
+.PP
+Definition at line 412 of file users.cpp.
+.PP
+References clientlist, userrec::CloseSocket(), DEBUG, SocketEngine::DelFd(), connection::fd, userrec::FlushWriteBuf(), FOREACH_MOD, ServerConfig::GetIOHook(), connection::host, userrec::ident, local_users, log(), userrec::nick, Module::OnRawSocketClose(), connection::port, connection::registered, InspIRCd::SE, Write(), and WriteCommonExcept().
+.PP
+Referenced by FullConnectUser().
+.PP
+.nf
+413 {
+414         user_hash::iterator iter = clientlist.find(user->nick);
+415 
+416         char reason[MAXBUF];
+417 
+418         strncpy(reason,r,MAXBUF);
+419 
+420         if (strlen(reason)>MAXQUIT)
+421         {
+422                 reason[MAXQUIT-1] = '\0';
+423         }
+424 
+425         log(DEBUG,'kill_link: %s '%s'',user->nick,reason);
+426         Write(user->fd,'ERROR :Closing link (%s@%s) [%s]',user->ident,user->host,reason);
+427         log(DEBUG,'closing fd %lu',(unsigned long)user->fd);
+428 
+429         user->FlushWriteBuf();
+430 
+431         if (user->registered == 7) {
+432                 FOREACH_MOD OnUserQuit(user,reason);
+433                 WriteCommonExcept(user,'QUIT :%s',reason);
+434         }
+435 
+436         FOREACH_MOD OnUserDisconnect(user);
+437 
+438         if (user->fd > -1)
+439         {
+440                 if (Config->GetIOHook(user->port))
+441                 {
+442                         Config->GetIOHook(user->port)->OnRawSocketClose(user->fd);
+443                 }
+444                 ServerInstance->SE->DelFd(user->fd);
+445                 user->CloseSocket();
+446         }
+447 
+448         if (user->registered == 7) {
+449                 purge_empty_chans(user);
+450         }
+451 
+452         if (iter != clientlist.end())
+453         {
+454                 log(DEBUG,'deleting user hash value %lu',(unsigned long)user);
+455                 if (user->fd > -1)
+456                 {
+457                         fd_ref_table[user->fd] = NULL;
+458                         if (find(local_users.begin(),local_users.end(),user) != local_users.end())
+459                         {
+460                                 log(DEBUG,'Delete local user');
+461                                 local_users.erase(find(local_users.begin(),local_users.end(),user));
+462                         }
+463                 }
+464                 clientlist.erase(iter);
+465         }
+466         delete user;
+467 }
+.fi
+.PP
+.SS "\fBuserrec\fP* ReHashNick (char * Old, char * New)"
+.PP
+Definition at line 743 of file users.cpp.
+.PP
+References clientlist, DEBUG, and log().
+.PP
+.nf
+744 {
+745         //user_hash::iterator newnick;
+746         user_hash::iterator oldnick = clientlist.find(Old);
+747 
+748         log(DEBUG,'ReHashNick: %s %s',Old,New);
+749 
+750         if (!strcasecmp(Old,New))
+751         {
+752                 log(DEBUG,'old nick is new nick, skipping');
+753                 return oldnick->second;
+754         }
+755 
+756         if (oldnick == clientlist.end()) return NULL; /* doesnt exist */
+757 
+758         log(DEBUG,'ReHashNick: Found hashed nick %s',Old);
+759 
+760         userrec* olduser = oldnick->second;
+761         clientlist[New] = olduser;
+762         clientlist.erase(oldnick);
+763 
+764         log(DEBUG,'ReHashNick: Nick rehashed as %s',New);
+765 
+766         return clientlist[New];
+767 }
+.fi
+.PP
 .SH "Variable Documentation"
 .PP 
+.SS "std::vector<\fBuserrec\fP*> \fBall_opers\fP"
+.PP
+Definition at line 54 of file users.cpp.
+.PP
+Referenced by AddOper(), and DeleteOper().
+.SS "\fBuser_hash\fP \fBclientlist\fP"
+.PP
 .SS "\fBServerConfig\fP* \fBConfig\fP"
 .PP
+.SS "std::vector<\fBircd_module\fP*> factory"
+.PP
+.SS "\fBuserrec\fP* \fBfd_ref_table\fP[65536]"
+.PP
+.SS "std::vector<\fBuserrec\fP*> \fBlocal_users\fP"
+.PP
+Definition at line 52 of file users.cpp.
+.PP
+Referenced by AddClient(), kill_link(), and kill_link_silent().
+.SS "int \fBMODCOUNT\fP"
+.PP
+.SS "std::vector<\fBInspSocket\fP*> \fBmodule_sockets\fP"
+.PP
+.SS "std::vector<\fBModule\fP*> modules"
+.PP
+.SS "\fBInspIRCd\fP* \fBServerInstance\fP"
+.PP
+.SS "\fBInspSocket\fP* \fBsocket_ref\fP[65535]"
+.PP
+Definition at line 43 of file socket.cpp.
 .SS "time_t \fBTIME\fP"
+.PP
+.SS "\fBwhowas_hash\fP \fBwhowas\fP"
+.PP
+Referenced by AddWhoWas().
+.SS "int \fBWHOWAS_MAX\fP"
+.PP
+.SS "int \fBWHOWAS_STALE\fP"
 .PP
 .SH "Author"
 .PP 

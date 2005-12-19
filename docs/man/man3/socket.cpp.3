@@ -1,4 +1,4 @@
-.TH "socket.cpp" 3 "15 Dec 2005" "Version 1.0Betareleases" "InspIRCd" \" -*- nroff -*-
+.TH "socket.cpp" 3 "19 Dec 2005" "Version 1.0Betareleases" "InspIRCd" \" -*- nroff -*-
 .ad l
 .nh
 .SH NAME
@@ -38,8 +38,6 @@ socket.cpp \-
 .br
 \fC#include 'inspircd_io.h'\fP
 .br
-\fC#include 'inspircd_util.h'\fP
-.br
 \fC#include 'inspstring.h'\fP
 .br
 \fC#include 'helperfuncs.h'\fP
@@ -51,13 +49,7 @@ socket.cpp \-
 
 .in +1c
 .ti -1c
-.RI "\fBSocketEngine\fP * \fBSE\fP"
-.br
-.ti -1c
-.RI "int \fBboundPortCount\fP"
-.br
-.ti -1c
-.RI "int \fBopenSockfd\fP [MAXSOCKS]"
+.RI "\fBInspIRCd\fP * \fBServerInstance\fP"
 .br
 .ti -1c
 .RI "time_t \fBTIME\fP"
@@ -68,15 +60,11 @@ socket.cpp \-
 .in -1c
 .SH "Variable Documentation"
 .PP 
-.SS "int \fBboundPortCount\fP"
-.PP
-.SS "int \fBopenSockfd\fP[MAXSOCKS]"
-.PP
-.SS "\fBSocketEngine\fP* \fBSE\fP"
+.SS "\fBInspIRCd\fP* \fBServerInstance\fP"
 .PP
 .SS "\fBInspSocket\fP* \fBsocket_ref\fP[65535]"
 .PP
-Definition at line 46 of file socket.cpp.
+Definition at line 43 of file socket.cpp.
 .SS "time_t \fBTIME\fP"
 .PP
 .SH "Author"

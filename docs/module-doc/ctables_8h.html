@@ -8,23 +8,19 @@
 <div class="nav">
 <a class="el" href="dir_000000.html">home</a>&nbsp;&raquo&nbsp;<a class="el" href="dir_000001.html">brain</a>&nbsp;&raquo&nbsp;<a class="el" href="dir_000002.html">inspircd-cvs</a>&nbsp;&raquo&nbsp;<a class="el" href="dir_000003.html">inspircd</a>&nbsp;&raquo&nbsp;<a class="el" href="dir_000004.html">include</a></div>
 <h1>ctables.h File Reference</h1><code>#include &quot;inspircd_config.h&quot;</code><br>
-<code>#include &quot;<a class="el" href="inspircd_8h-source.html">inspircd.h</a>&quot;</code><br>
-<code>#include &quot;<a class="el" href="base_8h-source.html">base.h</a>&quot;</code><br>
+<code>#include &lt;deque&gt;</code><br>
 
 <p>
 Include dependency graph for ctables.h:<p><center><img src="ctables_8h__incl.gif" border="0" usemap="#ctables.h_map" alt=""></center>
-<map name="ctables.h_map">
-<area href="inspircd_8h-source.html" shape="rect" coords="132,57,212,84" alt="">
-<area href="base_8h-source.html" shape="rect" coords="141,108,203,135" alt="">
-</map>
 
 <p>
 This graph shows which files directly or indirectly include this file:<p><center><img src="ctables_8h__dep__incl.gif" border="0" usemap="#ctables.hdep_map" alt=""></center>
 <map name="ctables.hdep_map">
-<area href="channels_8cpp-source.html" shape="rect" coords="400,58,499,84" alt="">
-<area href="modules_8cpp-source.html" shape="rect" coords="400,159,499,186" alt="">
+<area href="channels_8cpp-source.html" shape="rect" coords="400,108,499,135" alt="">
+<area href="modules_8cpp-source.html" shape="rect" coords="400,184,499,211" alt="">
 <area href="modules_8h-source.html" shape="rect" coords="134,108,216,135" alt="">
-<area href="typedefs_8h-source.html" shape="rect" coords="266,58,351,84" alt="">
+<area href="typedefs_8h-source.html" shape="rect" coords="266,159,351,185" alt="">
+<area href="mode_8h-source.html" shape="rect" coords="275,209,342,236" alt="">
 </map>
 
 <p>
@@ -34,8 +30,37 @@ This graph shows which files directly or indirectly include this file:<p><center
 <tr><td class="memItemLeft" nowrap align="right" valign="top">class &nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classcommand__t.html">command_t</a></td></tr>
 
 <tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">A structure that defines a command.  <a href="classcommand__t.html#_details">More...</a><br></td></tr>
+<tr><td colspan="2"><br><h2>Typedefs</h2></td></tr>
+<tr><td class="memItemLeft" nowrap align="right" valign="top">typedef std::deque&lt; <a class="el" href="classcommand__t.html">command_t</a> * &gt;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="ctables_8h.html#command_5Ftable">command_table</a></td></tr>
+
 </table>
-<hr size="1"><address style="align: right;"><small>Generated on Thu Dec 15 11:14:16 2005 for InspIRCd by&nbsp;
+<hr><h2>Typedef Documentation</h2>
+<a class="anchor" name="command_5Ftable"></a><!-- doxytag: member="ctables.h::command_table" ref="command_5Ftable" args="" --><p>
+<table class="mdTable" cellpadding="2" cellspacing="0">
+  <tr>
+    <td class="mdRow">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top">typedef std::deque&lt;<a class="el" href="classcommand__t.html">command_t</a>*&gt; <a class="el" href="ctables_8h.html#command_5Ftable">command_table</a>          </td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing="5" cellpadding="0" border="0">
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+
+<p>
+Definition at line <a class="el" href="ctables_8h-source.html#l00062">62</a> of file <a class="el" href="ctables_8h-source.html">ctables.h</a>.    </td>
+  </tr>
+</table>
+<hr size="1"><address style="align: right;"><small>Generated on Mon Dec 19 18:02:14 2005 for InspIRCd by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img src="doxygen.png" alt="doxygen" align="middle" border="0"></a> 1.4.4-20050815 </small></address>
 </body>

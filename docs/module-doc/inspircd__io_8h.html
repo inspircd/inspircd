@@ -12,21 +12,28 @@
 <code>#include &lt;vector&gt;</code><br>
 <code>#include &quot;<a class="el" href="inspircd_8h-source.html">inspircd.h</a>&quot;</code><br>
 <code>#include &quot;<a class="el" href="globals_8h-source.html">globals.h</a>&quot;</code><br>
+<code>#include &quot;<a class="el" href="modules_8h-source.html">modules.h</a>&quot;</code><br>
 
 <p>
 Include dependency graph for inspircd_io.h:<p><center><img src="inspircd__io_8h__incl.gif" border="0" usemap="#inspircd_io.h_map" alt=""></center>
 <map name="inspircd_io.h_map">
-<area href="inspircd_8h-source.html" shape="rect" coords="153,159,233,186" alt="">
-<area href="globals_8h-source.html" shape="rect" coords="156,210,231,236" alt="">
+<area href="inspircd_8h-source.html" shape="rect" coords="156,209,236,236" alt="">
+<area href="globals_8h-source.html" shape="rect" coords="159,159,234,185" alt="">
+<area href="modules_8h-source.html" shape="rect" coords="155,57,238,84" alt="">
 </map>
 
 <p>
 This graph shows which files directly or indirectly include this file:<p><center><img src="inspircd__io_8h__dep__incl.gif" border="0" usemap="#inspircd_io.hdep_map" alt=""></center>
 <map name="inspircd_io.hdep_map">
-<area href="channels_8cpp-source.html" shape="rect" coords="283,20,381,47" alt="">
-<area href="modules_8cpp-source.html" shape="rect" coords="283,96,381,123" alt="">
-<area href="socket_8cpp-source.html" shape="rect" coords="289,147,375,173" alt="">
-<area href="inspircd_8h-source.html" shape="rect" coords="153,57,233,84" alt="">
+<area href="channels_8cpp-source.html" shape="rect" coords="455,58,553,84" alt="">
+<area href="modules_8cpp-source.html" shape="rect" coords="455,235,553,262" alt="">
+<area href="socket_8cpp-source.html" shape="rect" coords="461,463,547,490" alt="">
+<area href="inspircd_8h-source.html" shape="rect" coords="153,286,233,312" alt="">
+<area href="socketengine_8cpp-source.html" shape="rect" coords="441,387,567,414" alt="">
+<area href="users_8cpp-source.html" shape="rect" coords="464,311,544,338" alt="">
+<area href="socketengine_8h-source.html" shape="rect" coords="281,362,393,388" alt="">
+<area href="typedefs_8h-source.html" shape="rect" coords="295,260,380,287" alt="">
+<area href="userprocess_8h-source.html" shape="rect" coords="285,159,389,186" alt="">
 </map>
 
 <p>
@@ -91,9 +98,9 @@ Flags for use with <a class="el" href="globals_8h.html#log_28int_20level_2C_20ch
 <p>
 
 <p>
-Definition at line <a class="el" href="inspircd__io_8h-source.html#l00028">28</a> of file <a class="el" href="inspircd__io_8h-source.html">inspircd_io.h</a>.
+Definition at line <a class="el" href="inspircd__io_8h-source.html#l00029">29</a> of file <a class="el" href="inspircd__io_8h-source.html">inspircd_io.h</a>.
 <p>
-Referenced by <a class="el" href="channels_8cpp-source.html#l00195">add_channel()</a>, <a class="el" href="modules_8cpp-source.html#l00556">Server::AddExtendedMode()</a>, <a class="el" href="socketengine_8cpp-source.html#l00065">SocketEngine::AddFd()</a>, <a class="el" href="channels_8cpp-source.html#l00167">chanrec::AddUser()</a>, <a class="el" href="channels_8cpp-source.html#l00401">del_channel()</a>, <a class="el" href="socketengine_8cpp-source.html#l00103">SocketEngine::DelFd()</a>, <a class="el" href="channels_8cpp-source.html#l00173">chanrec::DelUser()</a>, <a class="el" href="channels_8cpp-source.html#l00372">ForceChan()</a>, <a class="el" href="socket_8cpp-source.html#l00062">InspSocket::InspSocket()</a>, <a class="el" href="channels_8cpp-source.html#l00459">kick_channel()</a>, <a class="el" href="socket_8cpp-source.html#l00158">InspSocket::Read()</a>, <a class="el" href="users_8cpp-source.html#l00122">userrec::RemoveInvite()</a>, <a class="el" href="channels_8cpp-source.html#l00086">chanrec::SetCustomMode()</a>, <a class="el" href="channels_8cpp-source.html#l00111">chanrec::SetCustomModeParam()</a>, <a class="el" href="socket_8cpp-source.html#l00248">InspSocket::SetState()</a>, <a class="el" href="users_8cpp-source.html#l00292">userrec::SetWriteError()</a>, <a class="el" href="socketengine_8cpp-source.html#l00035">SocketEngine::SocketEngine()</a>, and <a class="el" href="socketengine_8cpp-source.html#l00046">SocketEngine::~SocketEngine()</a>.    </td>
+Referenced by <a class="el" href="channels_8cpp-source.html#l00194">add_channel()</a>, <a class="el" href="users_8cpp-source.html#l00524">AddClient()</a>, <a class="el" href="modules_8cpp-source.html#l00555">Server::AddExtendedMode()</a>, <a class="el" href="socketengine_8cpp-source.html#l00065">SocketEngine::AddFd()</a>, <a class="el" href="users_8cpp-source.html#l00330">AddOper()</a>, <a class="el" href="channels_8cpp-source.html#l00166">chanrec::AddUser()</a>, <a class="el" href="users_8cpp-source.html#l00471">AddWhoWas()</a>, <a class="el" href="channels_8cpp-source.html#l00401">del_channel()</a>, <a class="el" href="users_8cpp-source.html#l00336">DeleteOper()</a>, <a class="el" href="socketengine_8cpp-source.html#l00103">SocketEngine::DelFd()</a>, <a class="el" href="channels_8cpp-source.html#l00172">chanrec::DelUser()</a>, <a class="el" href="channels_8cpp-source.html#l00372">ForceChan()</a>, <a class="el" href="users_8cpp-source.html#l00647">FullConnectUser()</a>, <a class="el" href="socket_8cpp-source.html#l00059">InspSocket::InspSocket()</a>, <a class="el" href="channels_8cpp-source.html#l00459">kick_channel()</a>, <a class="el" href="users_8cpp-source.html#l00349">kill_link()</a>, <a class="el" href="users_8cpp-source.html#l00412">kill_link_silent()</a>, <a class="el" href="socket_8cpp-source.html#l00155">InspSocket::Read()</a>, <a class="el" href="users_8cpp-source.html#l00743">ReHashNick()</a>, <a class="el" href="users_8cpp-source.html#l00148">userrec::RemoveInvite()</a>, <a class="el" href="channels_8cpp-source.html#l00085">chanrec::SetCustomMode()</a>, <a class="el" href="channels_8cpp-source.html#l00110">chanrec::SetCustomModeParam()</a>, <a class="el" href="socket_8cpp-source.html#l00247">InspSocket::SetState()</a>, <a class="el" href="users_8cpp-source.html#l00317">userrec::SetWriteError()</a>, <a class="el" href="socketengine_8cpp-source.html#l00035">SocketEngine::SocketEngine()</a>, and <a class="el" href="socketengine_8cpp-source.html#l00046">SocketEngine::~SocketEngine()</a>.    </td>
   </tr>
 </table>
 <a class="anchor" name="DEFAULT"></a><!-- doxytag: member="inspircd_io.h::DEFAULT" ref="DEFAULT" args="" --><p>
@@ -118,9 +125,9 @@ Referenced by <a class="el" href="channels_8cpp-source.html#l00195">add_channel(
 <p>
 
 <p>
-Definition at line <a class="el" href="inspircd__io_8h-source.html#l00030">30</a> of file <a class="el" href="inspircd__io_8h-source.html">inspircd_io.h</a>.
+Definition at line <a class="el" href="inspircd__io_8h-source.html#l00031">31</a> of file <a class="el" href="inspircd__io_8h-source.html">inspircd_io.h</a>.
 <p>
-Referenced by <a class="el" href="channels_8cpp-source.html#l00195">add_channel()</a>, <a class="el" href="channels_8cpp-source.html#l00401">del_channel()</a>, and <a class="el" href="channels_8cpp-source.html#l00459">kick_channel()</a>.    </td>
+Referenced by <a class="el" href="channels_8cpp-source.html#l00194">add_channel()</a>, <a class="el" href="channels_8cpp-source.html#l00401">del_channel()</a>, and <a class="el" href="channels_8cpp-source.html#l00459">kick_channel()</a>.    </td>
   </tr>
 </table>
 <a class="anchor" name="NONE"></a><!-- doxytag: member="inspircd_io.h::NONE" ref="NONE" args="" --><p>
@@ -145,7 +152,7 @@ Referenced by <a class="el" href="channels_8cpp-source.html#l00195">add_channel(
 <p>
 
 <p>
-Definition at line <a class="el" href="inspircd__io_8h-source.html#l00032">32</a> of file <a class="el" href="inspircd__io_8h-source.html">inspircd_io.h</a>.    </td>
+Definition at line <a class="el" href="inspircd__io_8h-source.html#l00033">33</a> of file <a class="el" href="inspircd__io_8h-source.html">inspircd_io.h</a>.    </td>
   </tr>
 </table>
 <a class="anchor" name="SPARSE"></a><!-- doxytag: member="inspircd_io.h::SPARSE" ref="SPARSE" args="" --><p>
@@ -170,7 +177,7 @@ Definition at line <a class="el" href="inspircd__io_8h-source.html#l00032">32</a
 <p>
 
 <p>
-Definition at line <a class="el" href="inspircd__io_8h-source.html#l00031">31</a> of file <a class="el" href="inspircd__io_8h-source.html">inspircd_io.h</a>.    </td>
+Definition at line <a class="el" href="inspircd__io_8h-source.html#l00032">32</a> of file <a class="el" href="inspircd__io_8h-source.html">inspircd_io.h</a>.    </td>
   </tr>
 </table>
 <a class="anchor" name="VERBOSE"></a><!-- doxytag: member="inspircd_io.h::VERBOSE" ref="VERBOSE" args="" --><p>
@@ -195,7 +202,7 @@ Definition at line <a class="el" href="inspircd__io_8h-source.html#l00031">31</a
 <p>
 
 <p>
-Definition at line <a class="el" href="inspircd__io_8h-source.html#l00029">29</a> of file <a class="el" href="inspircd__io_8h-source.html">inspircd_io.h</a>.    </td>
+Definition at line <a class="el" href="inspircd__io_8h-source.html#l00030">30</a> of file <a class="el" href="inspircd__io_8h-source.html">inspircd_io.h</a>.    </td>
   </tr>
 </table>
 <hr><h2>Function Documentation</h2>
@@ -280,7 +287,7 @@ Definition at line <a class="el" href="inspircd__io_8h-source.html#l00029">29</a
 <p>
 
 <p>
-Referenced by <a class="el" href="socket_8cpp-source.html#l00062">InspSocket::InspSocket()</a>.    </td>
+Referenced by <a class="el" href="socket_8cpp-source.html#l00059">InspSocket::InspSocket()</a>.    </td>
   </tr>
 </table>
 <a class="anchor" name="DaemonSeed_28void_29"></a><!-- doxytag: member="inspircd_io.h::DaemonSeed" ref="DaemonSeed_28void_29" args="(void)" --><p>
@@ -394,7 +401,7 @@ Referenced by <a class="el" href="socket_8cpp-source.html#l00062">InspSocket::In
 <p>
 
 <p>
-Referenced by <a class="el" href="socket_8cpp-source.html#l00062">InspSocket::InspSocket()</a>.    </td>
+Referenced by <a class="el" href="socket_8cpp-source.html#l00059">InspSocket::InspSocket()</a>.    </td>
   </tr>
 </table>
 <a class="anchor" name="Start_28void_29"></a><!-- doxytag: member="inspircd_io.h::Start" ref="Start_28void_29" args="(void)" --><p>
@@ -453,7 +460,7 @@ Referenced by <a class="el" href="socket_8cpp-source.html#l00062">InspSocket::In
     </td>
   </tr>
 </table>
-<hr size="1"><address style="align: right;"><small>Generated on Thu Dec 15 11:14:16 2005 for InspIRCd by&nbsp;
+<hr size="1"><address style="align: right;"><small>Generated on Mon Dec 19 18:02:14 2005 for InspIRCd by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img src="doxygen.png" alt="doxygen" align="middle" border="0"></a> 1.4.4-20050815 </small></address>
 </body>

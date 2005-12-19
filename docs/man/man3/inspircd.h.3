@@ -1,4 +1,4 @@
-.TH "inspircd.h" 3 "15 Dec 2005" "Version 1.0Betareleases" "InspIRCd" \" -*- nroff -*-
+.TH "inspircd.h" 3 "19 Dec 2005" "Version 1.0Betareleases" "InspIRCd" \" -*- nroff -*-
 .ad l
 .nh
 .SH NAME
@@ -38,13 +38,17 @@ inspircd.h \-
 .br
 \fC#include 'inspircd_io.h'\fP
 .br
-\fC#include 'inspircd_util.h'\fP
-.br
 \fC#include 'users.h'\fP
 .br
 \fC#include 'channels.h'\fP
 .br
 \fC#include 'socket.h'\fP
+.br
+\fC#include 'mode.h'\fP
+.br
+\fC#include 'socketengine.h'\fP
+.br
+\fC#include 'command_parse.h'\fP
 .br
 
 .SS "Classes"
@@ -75,182 +79,43 @@ inspircd.h \-
 .ti -1c
 .RI "#define \fBMAXCOMMAND\fP   32"
 .br
-.ti -1c
-.RI "#define \fBWM_AND\fP   1"
-.br
-.ti -1c
-.RI "#define \fBWM_OR\fP   2"
-.br
-.ti -1c
-.RI "#define \fBTYPE_USER\fP   1"
-.br
-.ti -1c
-.RI "#define \fBTYPE_CHANNEL\fP   2"
-.br
-.ti -1c
-.RI "#define \fBTYPE_SERVER\fP   3"
-.br
-.ti -1c
-.RI "#define \fBIS_LOCAL\fP(x)   (x->fd > -1)"
-.br
-.ti -1c
-.RI "#define \fBIS_REMOTE\fP(x)   (x->fd < 0)"
-.br
-.ti -1c
-.RI "#define \fBIS_MODULE_CREATED\fP(x)   (x->fd == FD_MAGIC_NUMBER)"
-.br
-.in -1c
-.SS "Typedefs"
-
-.in +1c
-.ti -1c
-.RI "typedef void( \fBhandlerfunc\fP )(char **, int, \fBuserrec\fP *)"
-.br
 .in -1c
 .SS "Functions"
 
 .in +1c
-.ti -1c
-.RI "void \fBforce_nickchange\fP (\fBuserrec\fP *user, const char *newnick)"
-.br
-.ti -1c
-.RI "void \fBkill_link\fP (\fBuserrec\fP *user, const char *r)"
-.br
-.ti -1c
-.RI "void \fBkill_link_silent\fP (\fBuserrec\fP *user, const char *r)"
-.br
-.ti -1c
-.RI "void \fBcall_handler\fP (const char *commandname, char **parameters, int pcnt, \fBuserrec\fP *user)"
-.br
-.ti -1c
-.RI "bool \fBis_valid_cmd\fP (const char *commandname, int pcnt, \fBuserrec\fP *user)"
-.br
-.ti -1c
-.RI "int \fBloop_call\fP (\fBhandlerfunc\fP fn, char **parameters, int pcnt, \fBuserrec\fP *u, int start, int end, int joins)"
-.br
-.ti -1c
-.RI "void \fBAddWhoWas\fP (\fBuserrec\fP *u)"
-.br
-.ti -1c
-.RI "void \fBConnectUser\fP (\fBuserrec\fP *user)"
-.br
-.ti -1c
-.RI "\fBuserrec\fP * \fBReHashNick\fP (char *Old, char *New)"
-.br
-.ti -1c
-.RI "void \fBAddOper\fP (\fBuserrec\fP *user)"
-.br
-.ti -1c
-.RI "void \fBDeleteOper\fP (\fBuserrec\fP *user)"
-.br
-.ti -1c
-.RI "void \fBhandle_version\fP (char **parameters, int pcnt, \fBuserrec\fP *user)"
-.br
 .ti -1c
 .RI "void \fBAddServerName\fP (\fBstd::string\fP servername)"
 .br
 .ti -1c
 .RI "const char * \fBFindServerNamePtr\fP (\fBstd::string\fP servername)"
 .br
-.ti -1c
-.RI "void * \fBdns_task\fP (void *arg)"
-.br
-.ti -1c
-.RI "void \fBprocess_buffer\fP (const char *cmdbuf, \fBuserrec\fP *user)"
-.br
-.ti -1c
-.RI "void \fBFullConnectUser\fP (\fBuserrec\fP *user)"
-.br
 .in -1c
 .SH "Define Documentation"
 .PP 
 .SS "#define ERROR   -1"
 .PP
-Definition at line 49 of file inspircd.h.
+Definition at line 51 of file inspircd.h.
 .PP
 Referenced by InspSocket::InspSocket().
 .SS "#define FALSE   0"
 .PP
-Definition at line 51 of file inspircd.h.
-.SS "#define IS_LOCAL(x)   (x->fd > -1)"
-.PP
-Definition at line 66 of file inspircd.h.
-.SS "#define IS_MODULE_CREATED(x)   (x->fd == FD_MAGIC_NUMBER)"
-.PP
-Definition at line 68 of file inspircd.h.
-.SS "#define IS_REMOTE(x)   (x->fd < 0)"
-.PP
-Definition at line 67 of file inspircd.h.
+Definition at line 53 of file inspircd.h.
 .SS "#define MAXCOMMAND   32"
 .PP
-Definition at line 53 of file inspircd.h.
+Definition at line 55 of file inspircd.h.
 .SS "#define MAXSOCKS   64"
 .PP
-Definition at line 52 of file inspircd.h.
+Definition at line 54 of file inspircd.h.
 .SS "#define TRUE   1"
 .PP
-Definition at line 50 of file inspircd.h.
-.SS "#define TYPE_CHANNEL   2"
-.PP
-Definition at line 63 of file inspircd.h.
-.SS "#define TYPE_SERVER   3"
-.PP
-Definition at line 64 of file inspircd.h.
-.SS "#define TYPE_USER   1"
-.PP
-Definition at line 62 of file inspircd.h.
-.SS "#define WM_AND   1"
-.PP
-Definition at line 57 of file inspircd.h.
-.SS "#define WM_OR   2"
-.PP
-Definition at line 58 of file inspircd.h.
-.SH "Typedef Documentation"
-.PP 
-.SS "typedef void( \fBhandlerfunc\fP)(char **, int, \fBuserrec\fP *)"
-.PP
-Definition at line 70 of file inspircd.h.
+Definition at line 52 of file inspircd.h.
 .SH "Function Documentation"
 .PP 
-.SS "void AddOper (\fBuserrec\fP * user)"
-.PP
 .SS "void AddServerName (\fBstd::string\fP servername)"
-.PP
-.SS "void AddWhoWas (\fBuserrec\fP * u)"
-.PP
-.SS "void call_handler (const char * commandname, char ** parameters, int pcnt, \fBuserrec\fP * user)"
-.PP
-Referenced by Server::CallCommandHandler().
-.SS "void ConnectUser (\fBuserrec\fP * user)"
-.PP
-.SS "void DeleteOper (\fBuserrec\fP * user)"
-.PP
-.SS "void* dns_task (void * arg)"
 .PP
 .SS "const char* FindServerNamePtr (\fBstd::string\fP servername)"
 .PP
-Referenced by userrec::userrec().
-.SS "void force_nickchange (\fBuserrec\fP * user, const char * newnick)"
-.PP
-Referenced by Server::ChangeUserNick().
-.SS "void FullConnectUser (\fBuserrec\fP * user)"
-.PP
-.SS "void handle_version (char ** parameters, int pcnt, \fBuserrec\fP * user)"
-.PP
-.SS "bool is_valid_cmd (const char * commandname, int pcnt, \fBuserrec\fP * user)"
-.PP
-Referenced by Server::IsValidModuleCommand().
-.SS "void kill_link (\fBuserrec\fP * user, const char * r)"
-.PP
-Referenced by Server::PseudoToUser(), and Server::QuitUser().
-.SS "void kill_link_silent (\fBuserrec\fP * user, const char * r)"
-.PP
-.SS "int loop_call (\fBhandlerfunc\fP fn, char ** parameters, int pcnt, \fBuserrec\fP * u, int start, int end, int joins)"
-.PP
-.SS "void process_buffer (const char * cmdbuf, \fBuserrec\fP * user)"
-.PP
-.SS "\fBuserrec\fP* ReHashNick (char * Old, char * New)"
-.PP
+Referenced by AddClient(), and userrec::userrec().
 .SH "Author"
 .PP 
 Generated automatically by Doxygen for InspIRCd from the source code.

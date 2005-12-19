@@ -1,6 +1,5 @@
 base referer
 rect $classchanrec.html 7,156 76,183
-rect $classcommand__t.html 100,156 191,183
-rect $classconnection.html 215,156 300,183
-rect $classclassbase.html 106,7 186,33
-rect $classuserrec.html 224,231 291,257
+rect $classconnection.html 100,156 185,183
+rect $classclassbase.html 52,7 132,33
+rect $classuserrec.html 109,231 176,257

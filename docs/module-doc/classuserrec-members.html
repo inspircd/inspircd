@@ -35,14 +35,14 @@
   <tr class="memlist"><td><a class="el" href="classuserrec.html#GetInviteList_28_29">GetInviteList</a>()</td><td><a class="el" href="classuserrec.html">userrec</a></td><td></td></tr>
   <tr class="memlist"><td><a class="el" href="classuserrec.html#GetWriteError_28_29">GetWriteError</a>()</td><td><a class="el" href="classuserrec.html">userrec</a></td><td></td></tr>
   <tr class="memlist"><td><a class="el" href="classconnection.html#haspassed">haspassed</a></td><td><a class="el" href="classconnection.html">connection</a></td><td></td></tr>
-  <tr class="memlist"><td><a class="el" href="classuserrec.html#HasPermission_28char_20_2Acommand_29">HasPermission</a>(char *command)</td><td><a class="el" href="classuserrec.html">userrec</a></td><td></td></tr>
+  <tr class="memlist"><td><a class="el" href="classuserrec.html#HasPermission_28std_3A_3Astring_20_26command_29">HasPermission</a>(std::string &amp;command)</td><td><a class="el" href="classuserrec.html">userrec</a></td><td></td></tr>
   <tr class="memlist"><td><a class="el" href="classconnection.html#host_5B_31_36_30_5D">host</a></td><td><a class="el" href="classconnection.html">connection</a></td><td></td></tr>
   <tr class="memlist"><td><a class="el" href="classuserrec.html#ident_5BIDENTMAX_2B_32_5D">ident</a></td><td><a class="el" href="classuserrec.html">userrec</a></td><td></td></tr>
   <tr class="memlist"><td><a class="el" href="classconnection.html#idle_5Flastmsg">idle_lastmsg</a></td><td><a class="el" href="classconnection.html">connection</a></td><td></td></tr>
   <tr class="memlist"><td><a class="el" href="classuserrec.html#invites">invites</a></td><td><a class="el" href="classuserrec.html">userrec</a></td><td><code> [private]</code></td></tr>
-  <tr class="memlist"><td><a class="el" href="classuserrec.html#InviteTo_28char_20_2Achannel_29">InviteTo</a>(char *channel)</td><td><a class="el" href="classuserrec.html">userrec</a></td><td><code> [virtual]</code></td></tr>
+  <tr class="memlist"><td><a class="el" href="classuserrec.html#InviteTo_28irc_3A_3Astring_20_26channel_29">InviteTo</a>(irc::string &amp;channel)</td><td><a class="el" href="classuserrec.html">userrec</a></td><td><code> [virtual]</code></td></tr>
   <tr class="memlist"><td><a class="el" href="classconnection.html#ip_5B_31_36_5D">ip</a></td><td><a class="el" href="classconnection.html">connection</a></td><td></td></tr>
-  <tr class="memlist"><td><a class="el" href="classuserrec.html#IsInvited_28char_20_2Achannel_29">IsInvited</a>(char *channel)</td><td><a class="el" href="classuserrec.html">userrec</a></td><td><code> [virtual]</code></td></tr>
+  <tr class="memlist"><td><a class="el" href="classuserrec.html#IsInvited_28irc_3A_3Astring_20_26channel_29">IsInvited</a>(irc::string &amp;channel)</td><td><a class="el" href="classuserrec.html">userrec</a></td><td><code> [virtual]</code></td></tr>
   <tr class="memlist"><td><a class="el" href="classconnection.html#lastping">lastping</a></td><td><a class="el" href="classconnection.html">connection</a></td><td></td></tr>
   <tr class="memlist"><td><a class="el" href="classuserrec.html#lines_5Fin">lines_in</a></td><td><a class="el" href="classuserrec.html">userrec</a></td><td></td></tr>
   <tr class="memlist"><td><a class="el" href="classuserrec.html#modes_5B_35_34_5D">modes</a></td><td><a class="el" href="classuserrec.html">userrec</a></td><td></td></tr>
@@ -56,7 +56,7 @@
   <tr class="memlist"><td><a class="el" href="classuserrec.html#recvq">recvq</a></td><td><a class="el" href="classuserrec.html">userrec</a></td><td></td></tr>
   <tr class="memlist"><td><a class="el" href="classuserrec.html#recvqmax">recvqmax</a></td><td><a class="el" href="classuserrec.html">userrec</a></td><td></td></tr>
   <tr class="memlist"><td><a class="el" href="classconnection.html#registered">registered</a></td><td><a class="el" href="classconnection.html">connection</a></td><td></td></tr>
-  <tr class="memlist"><td><a class="el" href="classuserrec.html#RemoveInvite_28char_20_2Achannel_29">RemoveInvite</a>(char *channel)</td><td><a class="el" href="classuserrec.html">userrec</a></td><td><code> [virtual]</code></td></tr>
+  <tr class="memlist"><td><a class="el" href="classuserrec.html#RemoveInvite_28irc_3A_3Astring_20_26channel_29">RemoveInvite</a>(irc::string &amp;channel)</td><td><a class="el" href="classuserrec.html">userrec</a></td><td><code> [virtual]</code></td></tr>
   <tr class="memlist"><td><a class="el" href="classuserrec.html#reset_5Fdue">reset_due</a></td><td><a class="el" href="classuserrec.html">userrec</a></td><td></td></tr>
   <tr class="memlist"><td><a class="el" href="classuserrec.html#sendq">sendq</a></td><td><a class="el" href="classuserrec.html">userrec</a></td><td></td></tr>
   <tr class="memlist"><td><a class="el" href="classuserrec.html#sendqmax">sendqmax</a></td><td><a class="el" href="classuserrec.html">userrec</a></td><td></td></tr>
@@ -70,7 +70,7 @@
   <tr class="memlist"><td><a class="el" href="classuserrec.html#WriteError">WriteError</a></td><td><a class="el" href="classuserrec.html">userrec</a></td><td></td></tr>
   <tr class="memlist"><td><a class="el" href="classclassbase.html#_7Eclassbase_28_29">~classbase</a>()</td><td><a class="el" href="classclassbase.html">classbase</a></td><td><code> [inline]</code></td></tr>
   <tr class="memlist"><td><a class="el" href="classuserrec.html#_7Euserrec_28_29">~userrec</a>()</td><td><a class="el" href="classuserrec.html">userrec</a></td><td><code> [virtual]</code></td></tr>
-</table><hr size="1"><address style="align: right;"><small>Generated on Thu Dec 15 11:14:20 2005 for InspIRCd by&nbsp;
+</table><hr size="1"><address style="align: right;"><small>Generated on Mon Dec 19 18:02:16 2005 for InspIRCd by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img src="doxygen.png" alt="doxygen" align="middle" border="0"></a> 1.4.4-20050815 </small></address>
 </body>

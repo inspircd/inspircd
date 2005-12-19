@@ -56,61 +56,65 @@
 <a name="l00092"></a>00092 
 <a name="l00097"></a><a class="code" href="classInspSocket.html#timeout">00097</a>         <span class="keywordtype">bool</span> <a class="code" href="classInspSocket.html#timeout">timeout</a>;
 <a name="l00098"></a>00098         
-<a name="l00106"></a><a class="code" href="classInspSocket.html#ibuf_5B_31_36_33_38_34_5D">00106</a>         <span class="keywordtype">char</span> <a class="code" href="classInspSocket.html#ibuf_5B_31_36_33_38_34_5D">ibuf</a>[16384];
+<a name="l00106"></a><a class="code" href="classInspSocket.html#ibuf_5B_36_35_35_33_35_5D">00106</a>         <span class="keywordtype">char</span> <a class="code" href="classInspSocket.html#ibuf_5B_36_35_35_33_35_5D">ibuf</a>[65535];
 <a name="l00107"></a>00107 
-<a name="l00113"></a><a class="code" href="classInspSocket.html#IP">00113</a>         <a class="code" href="namespaceirc.html#string">std::string</a> <a class="code" href="classInspSocket.html#IP">IP</a>;
-<a name="l00114"></a>00114 
-<a name="l00119"></a><a class="code" href="classInspSocket.html#client">00119</a>         sockaddr_in <a class="code" href="classInspSocket.html#client">client</a>;
-<a name="l00120"></a>00120 
-<a name="l00125"></a><a class="code" href="classInspSocket.html#server">00125</a>         sockaddr_in <a class="code" href="classInspSocket.html#server">server</a>;
-<a name="l00126"></a>00126 
-<a name="l00131"></a><a class="code" href="classInspSocket.html#length">00131</a>         socklen_t <a class="code" href="classInspSocket.html#length">length</a>;
-<a name="l00132"></a>00132 
-<a name="l00133"></a>00133 <span class="keyword">public</span>:
-<a name="l00134"></a>00134 
-<a name="l00139"></a>00139         <a class="code" href="classInspSocket.html#InspSocket_28_29">InspSocket</a>();
-<a name="l00140"></a>00140 
-<a name="l00149"></a>00149         <a class="code" href="classInspSocket.html#InspSocket_28_29">InspSocket</a>(<span class="keywordtype">int</span> newfd, <span class="keywordtype">char</span>* ip);
-<a name="l00150"></a>00150 
-<a name="l00160"></a>00160         <a class="code" href="classInspSocket.html#InspSocket_28_29">InspSocket</a>(<a class="code" href="namespaceirc.html#string">std::string</a> <a class="code" href="classInspSocket.html#host">host</a>, <span class="keywordtype">int</span> <a class="code" href="classInspSocket.html#port">port</a>, <span class="keywordtype">bool</span> listening, <span class="keywordtype">unsigned</span> <span class="keywordtype">long</span> maxtime);
-<a name="l00161"></a>00161 
-<a name="l00167"></a>00167         <span class="keyword">virtual</span> <span class="keywordtype">bool</span> <a class="code" href="classInspSocket.html#OnConnected_28_29">OnConnected</a>();
-<a name="l00168"></a>00168 
-<a name="l00175"></a>00175         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classInspSocket.html#OnError_28InspSocketError_20e_29">OnError</a>(<a class="code" href="socket_8h.html#InspSocketError">InspSocketError</a> e);
-<a name="l00176"></a>00176 
-<a name="l00181"></a>00181         <span class="keyword">virtual</span> <span class="keywordtype">int</span> <a class="code" href="classInspSocket.html#OnDisconnect_28_29">OnDisconnect</a>();
-<a name="l00182"></a>00182 
-<a name="l00195"></a>00195         <span class="keyword">virtual</span> <span class="keywordtype">bool</span> <a class="code" href="classInspSocket.html#OnDataReady_28_29">OnDataReady</a>();
-<a name="l00196"></a>00196 
-<a name="l00204"></a>00204         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classInspSocket.html#OnTimeout_28_29">OnTimeout</a>();
+<a name="l00111"></a><a class="code" href="classInspSocket.html#Buffer">00111</a>         <a class="code" href="namespaceirc.html#string">std::string</a> <a class="code" href="classInspSocket.html#Buffer">Buffer</a>;
+<a name="l00112"></a>00112 
+<a name="l00118"></a><a class="code" href="classInspSocket.html#IP">00118</a>         <a class="code" href="namespaceirc.html#string">std::string</a> <a class="code" href="classInspSocket.html#IP">IP</a>;
+<a name="l00119"></a>00119 
+<a name="l00124"></a><a class="code" href="classInspSocket.html#client">00124</a>         sockaddr_in <a class="code" href="classInspSocket.html#client">client</a>;
+<a name="l00125"></a>00125 
+<a name="l00130"></a><a class="code" href="classInspSocket.html#server">00130</a>         sockaddr_in <a class="code" href="classInspSocket.html#server">server</a>;
+<a name="l00131"></a>00131 
+<a name="l00136"></a><a class="code" href="classInspSocket.html#length">00136</a>         socklen_t <a class="code" href="classInspSocket.html#length">length</a>;
+<a name="l00137"></a>00137 
+<a name="l00140"></a>00140         <span class="keywordtype">void</span> <a class="code" href="classInspSocket.html#FlushWriteBuffer_28_29">FlushWriteBuffer</a>();
+<a name="l00141"></a>00141 
+<a name="l00142"></a>00142 <span class="keyword">public</span>:
+<a name="l00143"></a>00143 
+<a name="l00148"></a>00148         <a class="code" href="classInspSocket.html#InspSocket_28_29">InspSocket</a>();
+<a name="l00149"></a>00149 
+<a name="l00158"></a>00158         <a class="code" href="classInspSocket.html#InspSocket_28_29">InspSocket</a>(<span class="keywordtype">int</span> newfd, <span class="keywordtype">char</span>* ip);
+<a name="l00159"></a>00159 
+<a name="l00169"></a>00169         <a class="code" href="classInspSocket.html#InspSocket_28_29">InspSocket</a>(<a class="code" href="namespaceirc.html#string">std::string</a> <a class="code" href="classInspSocket.html#host">host</a>, <span class="keywordtype">int</span> <a class="code" href="classInspSocket.html#port">port</a>, <span class="keywordtype">bool</span> listening, <span class="keywordtype">unsigned</span> <span class="keywordtype">long</span> maxtime);
+<a name="l00170"></a>00170 
+<a name="l00176"></a>00176         <span class="keyword">virtual</span> <span class="keywordtype">bool</span> <a class="code" href="classInspSocket.html#OnConnected_28_29">OnConnected</a>();
+<a name="l00177"></a>00177 
+<a name="l00184"></a>00184         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classInspSocket.html#OnError_28InspSocketError_20e_29">OnError</a>(<a class="code" href="socket_8h.html#InspSocketError">InspSocketError</a> e);
+<a name="l00185"></a>00185 
+<a name="l00190"></a>00190         <span class="keyword">virtual</span> <span class="keywordtype">int</span> <a class="code" href="classInspSocket.html#OnDisconnect_28_29">OnDisconnect</a>();
+<a name="l00191"></a>00191 
+<a name="l00204"></a>00204         <span class="keyword">virtual</span> <span class="keywordtype">bool</span> <a class="code" href="classInspSocket.html#OnDataReady_28_29">OnDataReady</a>();
 <a name="l00205"></a>00205 
-<a name="l00214"></a>00214         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classInspSocket.html#OnClose_28_29">OnClose</a>();
-<a name="l00215"></a>00215 
-<a name="l00221"></a>00221         <span class="keyword">virtual</span> <span class="keywordtype">char</span>* <a class="code" href="classInspSocket.html#Read_28_29">Read</a>();
-<a name="l00222"></a>00222 
-<a name="l00228"></a>00228         <a class="code" href="namespaceirc.html#string">std::string</a> <a class="code" href="classInspSocket.html#GetIP_28_29">GetIP</a>();
-<a name="l00229"></a>00229 
-<a name="l00236"></a>00236         <span class="keywordtype">bool</span> <a class="code" href="classInspSocket.html#Timeout_28time_5Ft_20current_29">Timeout</a>(time_t current);
-<a name="l00237"></a>00237 
-<a name="l00243"></a>00243         <span class="keyword">virtual</span> <span class="keywordtype">int</span> <a class="code" href="classInspSocket.html#Write_28std_3A_3Astring_20data_29">Write</a>(<a class="code" href="namespaceirc.html#string">std::string</a> data);
-<a name="l00244"></a>00244 
-<a name="l00258"></a>00258         <span class="keyword">virtual</span> <span class="keywordtype">int</span> <a class="code" href="classInspSocket.html#OnIncomingConnection_28int_20newfd_2C_20char_20_2Aip_29">OnIncomingConnection</a>(<span class="keywordtype">int</span> newfd, <span class="keywordtype">char</span>* ip);
-<a name="l00259"></a>00259 
-<a name="l00265"></a>00265         <span class="keywordtype">void</span> <a class="code" href="classInspSocket.html#SetState_28InspSocketState_20s_29">SetState</a>(<a class="code" href="socket_8h.html#InspSocketState">InspSocketState</a> s);
-<a name="l00266"></a>00266 
-<a name="l00270"></a>00270         <a class="code" href="socket_8h.html#InspSocketState">InspSocketState</a> <a class="code" href="classInspSocket.html#GetState_28_29">GetState</a>();
-<a name="l00271"></a>00271 
-<a name="l00280"></a>00280         <span class="keywordtype">bool</span> <a class="code" href="classInspSocket.html#Poll_28_29">Poll</a>();
-<a name="l00281"></a>00281 
-<a name="l00287"></a>00287         <span class="keywordtype">int</span> <a class="code" href="classInspSocket.html#GetFd_28_29">GetFd</a>();
-<a name="l00288"></a>00288 
-<a name="l00294"></a>00294         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classInspSocket.html#Close_28_29">Close</a>();
-<a name="l00295"></a>00295 
-<a name="l00301"></a>00301         <span class="keyword">virtual</span> <a class="code" href="classInspSocket.html#_7EInspSocket_28_29">~InspSocket</a>();
-<a name="l00302"></a>00302 };
-<a name="l00303"></a>00303 
-<a name="l00304"></a>00304 <span class="preprocessor">#endif</span>
-</pre></div><hr size="1"><address style="align: right;"><small>Generated on Thu Dec 15 11:14:14 2005 for InspIRCd by&nbsp;
+<a name="l00213"></a>00213         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classInspSocket.html#OnTimeout_28_29">OnTimeout</a>();
+<a name="l00214"></a>00214 
+<a name="l00223"></a>00223         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classInspSocket.html#OnClose_28_29">OnClose</a>();
+<a name="l00224"></a>00224 
+<a name="l00230"></a>00230         <span class="keyword">virtual</span> <span class="keywordtype">char</span>* <a class="code" href="classInspSocket.html#Read_28_29">Read</a>();
+<a name="l00231"></a>00231 
+<a name="l00237"></a>00237         <a class="code" href="namespaceirc.html#string">std::string</a> <a class="code" href="classInspSocket.html#GetIP_28_29">GetIP</a>();
+<a name="l00238"></a>00238 
+<a name="l00245"></a>00245         <span class="keywordtype">bool</span> <a class="code" href="classInspSocket.html#Timeout_28time_5Ft_20current_29">Timeout</a>(time_t current);
+<a name="l00246"></a>00246 
+<a name="l00252"></a>00252         <span class="keyword">virtual</span> <span class="keywordtype">int</span> <a class="code" href="classInspSocket.html#Write_28std_3A_3Astring_20data_29">Write</a>(<a class="code" href="namespaceirc.html#string">std::string</a> data);
+<a name="l00253"></a>00253 
+<a name="l00267"></a>00267         <span class="keyword">virtual</span> <span class="keywordtype">int</span> <a class="code" href="classInspSocket.html#OnIncomingConnection_28int_20newfd_2C_20char_20_2Aip_29">OnIncomingConnection</a>(<span class="keywordtype">int</span> newfd, <span class="keywordtype">char</span>* ip);
+<a name="l00268"></a>00268 
+<a name="l00274"></a>00274         <span class="keywordtype">void</span> <a class="code" href="classInspSocket.html#SetState_28InspSocketState_20s_29">SetState</a>(<a class="code" href="socket_8h.html#InspSocketState">InspSocketState</a> s);
+<a name="l00275"></a>00275 
+<a name="l00279"></a>00279         <a class="code" href="socket_8h.html#InspSocketState">InspSocketState</a> <a class="code" href="classInspSocket.html#GetState_28_29">GetState</a>();
+<a name="l00280"></a>00280 
+<a name="l00289"></a>00289         <span class="keywordtype">bool</span> <a class="code" href="classInspSocket.html#Poll_28_29">Poll</a>();
+<a name="l00290"></a>00290 
+<a name="l00296"></a>00296         <span class="keywordtype">int</span> <a class="code" href="classInspSocket.html#GetFd_28_29">GetFd</a>();
+<a name="l00297"></a>00297 
+<a name="l00303"></a>00303         <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classInspSocket.html#Close_28_29">Close</a>();
+<a name="l00304"></a>00304 
+<a name="l00310"></a>00310         <span class="keyword">virtual</span> <a class="code" href="classInspSocket.html#_7EInspSocket_28_29">~InspSocket</a>();
+<a name="l00311"></a>00311 };
+<a name="l00312"></a>00312 
+<a name="l00313"></a>00313 <span class="preprocessor">#endif</span>
+</pre></div><hr size="1"><address style="align: right;"><small>Generated on Mon Dec 19 18:02:13 2005 for InspIRCd by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img src="doxygen.png" alt="doxygen" align="middle" border="0"></a> 1.4.4-20050815 </small></address>
 </body>

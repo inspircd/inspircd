@@ -1,4 +1,4 @@
-.TH "channels.h" 3 "15 Dec 2005" "Version 1.0Betareleases" "InspIRCd" \" -*- nroff -*-
+.TH "channels.h" 3 "19 Dec 2005" "Version 1.0Betareleases" "InspIRCd" \" -*- nroff -*-
 .ad l
 .nh
 .SH NAME
@@ -179,102 +179,103 @@ Definition at line 97 of file channels.h.
 .PP 
 .SS "\fBchanrec\fP* add_channel (\fBuserrec\fP * user, const char * cn, const char * key, bool override)"
 .PP
-Definition at line 195 of file channels.cpp.
+Definition at line 194 of file channels.cpp.
 .PP
 References chanrec::bans, chanrec::binarymodes, chanlist, userrec::chans, CM_INVITEONLY, CM_NOEXTERNAL, CM_TOPICLOCK, DEBUG, DEFAULT, connection::fd, FindChan(), ForceChan(), FOREACH_RESULT, userrec::GetFullHost(), has_channel(), userrec::IsInvited(), chanrec::key, chanrec::limit, log(), userrec::modes, chanrec::name, userrec::nick, userrec::RemoveInvite(), TIME, and WriteServ().
 .PP
 Referenced by Server::JoinUserToChannel().
 .PP
 .nf
-196 {
-197         if ((!user) || (!cn))
-198         {
-199                 log(DEFAULT,'*** BUG *** add_channel was given an invalid parameter');
-200                 return 0;
-201         }
-202 
-203         int created = 0;
-204         char cname[MAXBUF];
-205         int MOD_RESULT = 0;
-206         strncpy(cname,cn,CHANMAX);
-207 
-208         log(DEBUG,'add_channel: %s %s',user->nick,cname);
-209 
-210         chanrec* Ptr = FindChan(cname);
-211 
-212         if (!Ptr)
-213         {
-214                 if (user->fd > -1)
-215                 {
-216                         MOD_RESULT = 0;
-217                         FOREACH_RESULT(OnUserPreJoin(user,NULL,cname));
-218                         if (MOD_RESULT == 1)
-219                                 return NULL;
-220                 }
-221                 /* create a new one */
-222                 chanlist[cname] = new chanrec();
-223                 strlcpy(chanlist[cname]->name, cname,CHANMAX);
-224                 chanlist[cname]->binarymodes = CM_TOPICLOCK | CM_NOEXTERNAL;
-225                 chanlist[cname]->created = TIME;
-226                 strcpy(chanlist[cname]->topic, '');
-227                 strncpy(chanlist[cname]->setby, user->nick,NICKMAX);
-228                 chanlist[cname]->topicset = 0;
-229                 Ptr = chanlist[cname];
-230                 log(DEBUG,'add_channel: created: %s',cname);
-231                 /* set created to 2 to indicate user
-232                  * is the first in the channel
-233                  * and should be given ops */
-234                 created = 2;
-235         }
-236         else
-237         {
-238                 /* Already on the channel */
-239                 if (has_channel(user,Ptr))
-240                         return NULL;
-241 
-242                 // remote users are allowed us to bypass channel modes
-243                 // and bans (used by servers)
-244                 if (user->fd > -1)
-245                 {
-246                         MOD_RESULT = 0;
-247                         FOREACH_RESULT(OnUserPreJoin(user,Ptr,cname));
-248                         if (MOD_RESULT == 1)
-249                         {
-250                                 return NULL;
-251                         }
-252                         else
-253                         {
-254                                 if (*Ptr->key)
-255                                 {
-256                                         MOD_RESULT = 0;
-257                                         FOREACH_RESULT(OnCheckKey(user, Ptr, key ? key : ''));
-258                                         if (!MOD_RESULT)
-259                                         {
-260                                                 if (!key)
-261                                                 {
-262                                                         log(DEBUG,'add_channel: no key given in JOIN');
-263                                                         WriteServ(user->fd,'475 %s %s :Cannot join channel (Requires key)',user->nick, Ptr->name);
-264                                                         return NULL;
-265                                                 }
-266                                                 else
-267                                                 {
-268                                                         if (strcasecmp(key,Ptr->key))
-269                                                         {
-270                                                                 log(DEBUG,'add_channel: bad key given in JOIN');
-271                                                                 WriteServ(user->fd,'475 %s %s :Cannot join channel (Incorrect key)',user->nick, Ptr->name);
-272                                                                 return NULL;
-273                                                         }
-274                                                 }
-275                                         }
-276                                 }
-277                                 if (Ptr->binarymodes & CM_INVITEONLY)
-278                                 {
-279                                         MOD_RESULT = 0;
+195 {
+196         if ((!user) || (!cn))
+197         {
+198                 log(DEFAULT,'*** BUG *** add_channel was given an invalid parameter');
+199                 return 0;
+200         }
+201 
+202         int created = 0;
+203         char cname[MAXBUF];
+204         int MOD_RESULT = 0;
+205         strncpy(cname,cn,CHANMAX);
+206 
+207         log(DEBUG,'add_channel: %s %s',user->nick,cname);
+208 
+209         chanrec* Ptr = FindChan(cname);
+210 
+211         if (!Ptr)
+212         {
+213                 if (user->fd > -1)
+214                 {
+215                         MOD_RESULT = 0;
+216                         FOREACH_RESULT(OnUserPreJoin(user,NULL,cname));
+217                         if (MOD_RESULT == 1)
+218                                 return NULL;
+219                 }
+220                 /* create a new one */
+221                 chanlist[cname] = new chanrec();
+222                 strlcpy(chanlist[cname]->name, cname,CHANMAX);
+223                 chanlist[cname]->binarymodes = CM_TOPICLOCK | CM_NOEXTERNAL;
+224                 chanlist[cname]->created = TIME;
+225                 strcpy(chanlist[cname]->topic, '');
+226                 strncpy(chanlist[cname]->setby, user->nick,NICKMAX);
+227                 chanlist[cname]->topicset = 0;
+228                 Ptr = chanlist[cname];
+229                 log(DEBUG,'add_channel: created: %s',cname);
+230                 /* set created to 2 to indicate user
+231                  * is the first in the channel
+232                  * and should be given ops */
+233                 created = 2;
+234         }
+235         else
+236         {
+237                 /* Already on the channel */
+238                 if (has_channel(user,Ptr))
+239                         return NULL;
+240 
+241                 // remote users are allowed us to bypass channel modes
+242                 // and bans (used by servers)
+243                 if (user->fd > -1)
+244                 {
+245                         MOD_RESULT = 0;
+246                         FOREACH_RESULT(OnUserPreJoin(user,Ptr,cname));
+247                         if (MOD_RESULT == 1)
+248                         {
+249                                 return NULL;
+250                         }
+251                         else
+252                         {
+253                                 if (*Ptr->key)
+254                                 {
+255                                         MOD_RESULT = 0;
+256                                         FOREACH_RESULT(OnCheckKey(user, Ptr, key ? key : ''));
+257                                         if (!MOD_RESULT)
+258                                         {
+259                                                 if (!key)
+260                                                 {
+261                                                         log(DEBUG,'add_channel: no key given in JOIN');
+262                                                         WriteServ(user->fd,'475 %s %s :Cannot join channel (Requires key)',user->nick, Ptr->name);
+263                                                         return NULL;
+264                                                 }
+265                                                 else
+266                                                 {
+267                                                         if (strcasecmp(key,Ptr->key))
+268                                                         {
+269                                                                 log(DEBUG,'add_channel: bad key given in JOIN');
+270                                                                 WriteServ(user->fd,'475 %s %s :Cannot join channel (Incorrect key)',user->nick, Ptr->name);
+271                                                                 return NULL;
+272                                                         }
+273                                                 }
+274                                         }
+275                                 }
+276                                 if (Ptr->binarymodes & CM_INVITEONLY)
+277                                 {
+278                                         MOD_RESULT = 0;
+279                                         irc::string xname(Ptr->name);
 280                                         FOREACH_RESULT(OnCheckInvite(user, Ptr));
 281                                         if (!MOD_RESULT)
 282                                         {
 283                                                 log(DEBUG,'add_channel: channel is +i');
-284                                                 if (user->IsInvited(Ptr->name))
+284                                                 if (user->IsInvited(xname))
 285                                                 {
 286                                                         /* user was invited to channel */
 287                                                         /* there may be an optional channel NOTICE here */
@@ -285,7 +286,7 @@ Referenced by Server::JoinUserToChannel().
 292                                                         return NULL;
 293                                                 }
 294                                         }
-295                                         user->RemoveInvite(Ptr->name);
+295                                         user->RemoveInvite(xname);
 296                                 }
 297                                 if (Ptr->limit)
 298                                 {

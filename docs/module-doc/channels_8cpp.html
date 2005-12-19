@@ -10,7 +10,6 @@
 <h1>channels.cpp File Reference</h1><code>#include &quot;inspircd_config.h&quot;</code><br>
 <code>#include &quot;<a class="el" href="inspircd_8h-source.html">inspircd.h</a>&quot;</code><br>
 <code>#include &quot;<a class="el" href="inspircd__io_8h-source.html">inspircd_io.h</a>&quot;</code><br>
-<code>#include &quot;inspircd_util.h&quot;</code><br>
 <code>#include &lt;unistd.h&gt;</code><br>
 <code>#include &lt;sys/errno.h&gt;</code><br>
 <code>#include &lt;sys/ioctl.h&gt;</code><br>
@@ -39,17 +38,17 @@
 <p>
 Include dependency graph for channels.cpp:<p><center><img src="channels_8cpp__incl.gif" border="0" usemap="#channels.cpp_map" alt=""></center>
 <map name="channels.cpp_map">
-<area href="inspircd_8h-source.html" shape="rect" coords="580,665,660,692" alt="">
-<area href="inspircd__io_8h-source.html" shape="rect" coords="712,615,808,641" alt="">
-<area href="globals_8h-source.html" shape="rect" coords="872,767,947,793" alt="">
-<area href="users_8h-source.html" shape="rect" coords="1009,716,1073,743" alt="">
-<area href="ctables_8h-source.html" shape="rect" coords="452,868,527,895" alt="">
-<area href="modules_8h-source.html" shape="rect" coords="315,767,397,793" alt="">
-<area href="commands_8h-source.html" shape="rect" coords="860,361,959,388" alt="">
-<area href="message_8h-source.html" shape="rect" coords="867,412,952,439" alt="">
-<area href="mode_8h-source.html" shape="rect" coords="876,108,943,135" alt="">
-<area href="xline_8h-source.html" shape="rect" coords="879,159,940,185" alt="">
-<area href="typedefs_8h-source.html" shape="rect" coords="168,1020,253,1047" alt="">
+<area href="inspircd_8h-source.html" shape="rect" coords="313,817,393,844" alt="">
+<area href="inspircd__io_8h-source.html" shape="rect" coords="443,919,539,945" alt="">
+<area href="globals_8h-source.html" shape="rect" coords="600,615,675,641" alt="">
+<area href="users_8h-source.html" shape="rect" coords="745,817,809,844" alt="">
+<area href="modules_8h-source.html" shape="rect" coords="596,437,679,464" alt="">
+<area href="ctables_8h-source.html" shape="rect" coords="740,412,815,439" alt="">
+<area href="mode_8h-source.html" shape="rect" coords="604,919,671,945" alt="">
+<area href="commands_8h-source.html" shape="rect" coords="588,1223,687,1249" alt="">
+<area href="message_8h-source.html" shape="rect" coords="595,1273,680,1300" alt="">
+<area href="xline_8h-source.html" shape="rect" coords="607,1172,668,1199" alt="">
+<area href="typedefs_8h-source.html" shape="rect" coords="168,463,253,489" alt="">
 </map>
 
 <p>
@@ -113,7 +112,7 @@ Include dependency graph for channels.cpp:<p><center><img src="channels_8cpp__in
 <p>
 
 <p>
-Definition at line <a class="el" href="channels_8cpp-source.html#l00055">55</a> of file <a class="el" href="channels_8cpp-source.html">channels.cpp</a>.    </td>
+Definition at line <a class="el" href="channels_8cpp-source.html#l00054">54</a> of file <a class="el" href="channels_8cpp-source.html">channels.cpp</a>.    </td>
   </tr>
 </table>
 <hr><h2>Function Documentation</h2>
@@ -165,99 +164,100 @@ Definition at line <a class="el" href="channels_8cpp-source.html#l00055">55</a> 
 <p>
 
 <p>
-Definition at line <a class="el" href="channels_8cpp-source.html#l00195">195</a> of file <a class="el" href="channels_8cpp-source.html">channels.cpp</a>.
+Definition at line <a class="el" href="channels_8cpp-source.html#l00194">194</a> of file <a class="el" href="channels_8cpp-source.html">channels.cpp</a>.
 <p>
-References <a class="el" href="channels_8h-source.html#l00151">chanrec::bans</a>, <a class="el" href="channels_8h-source.html#l00147">chanrec::binarymodes</a>, <a class="el" href="channels_8cpp.html#chanlist">chanlist</a>, <a class="el" href="users_8h-source.html#l00149">userrec::chans</a>, <a class="el" href="channels_8h-source.html#l00028">CM_INVITEONLY</a>, <a class="el" href="channels_8h-source.html#l00027">CM_NOEXTERNAL</a>, <a class="el" href="channels_8h-source.html#l00026">CM_TOPICLOCK</a>, <a class="el" href="inspircd__io_8h-source.html#l00028">DEBUG</a>, <a class="el" href="inspircd__io_8h-source.html#l00030">DEFAULT</a>, <a class="el" href="connection_8h-source.html#l00042">connection::fd</a>, <a class="el" href="globals_8h.html#FindChan_28const_20char_20_2Achan_29">FindChan()</a>, <a class="el" href="channels_8cpp-source.html#l00372">ForceChan()</a>, <a class="el" href="modules_8h-source.html#l00089">FOREACH_RESULT</a>, <a class="el" href="users_8cpp-source.html#l00072">userrec::GetFullHost()</a>, <a class="el" href="message_8h.html#has_5Fchannel_28userrec_20_2Au_2C_20chanrec_20_2Ac_29">has_channel()</a>, <a class="el" href="users_8cpp-source.html#l00096">userrec::IsInvited()</a>, <a class="el" href="channels_8h-source.html#l00143">chanrec::key</a>, <a class="el" href="channels_8h-source.html#l00138">chanrec::limit</a>, <a class="el" href="globals_8h.html#log_28int_20level_2C_20char_20_2Atext_2C_2E_2E_2E_29">log()</a>, <a class="el" href="users_8h-source.html#l00147">userrec::modes</a>, <a class="el" href="channels_8h-source.html#l00108">chanrec::name</a>, <a class="el" href="users_8h-source.html#l00124">userrec::nick</a>, <a class="el" href="users_8cpp-source.html#l00122">userrec::RemoveInvite()</a>, <a class="el" href="channels_8cpp.html#TIME">TIME</a>, and <a class="el" href="globals_8h.html#WriteServ_28int_20sock_2C_20char_20_2Atext_2C_2E_2E_2E_29">WriteServ()</a>.
+References <a class="el" href="channels_8h-source.html#l00151">chanrec::bans</a>, <a class="el" href="channels_8h-source.html#l00147">chanrec::binarymodes</a>, <a class="el" href="channels_8cpp.html#chanlist">chanlist</a>, <a class="el" href="users_8h-source.html#l00153">userrec::chans</a>, <a class="el" href="channels_8h-source.html#l00028">CM_INVITEONLY</a>, <a class="el" href="channels_8h-source.html#l00027">CM_NOEXTERNAL</a>, <a class="el" href="channels_8h-source.html#l00026">CM_TOPICLOCK</a>, <a class="el" href="inspircd__io_8h-source.html#l00029">DEBUG</a>, <a class="el" href="inspircd__io_8h-source.html#l00031">DEFAULT</a>, <a class="el" href="connection_8h-source.html#l00042">connection::fd</a>, <a class="el" href="globals_8h.html#FindChan_28const_20char_20_2Achan_29">FindChan()</a>, <a class="el" href="channels_8cpp-source.html#l00372">ForceChan()</a>, <a class="el" href="modules_8h-source.html#l00090">FOREACH_RESULT</a>, <a class="el" href="users_8cpp-source.html#l00099">userrec::GetFullHost()</a>, <a class="el" href="message_8h.html#has_5Fchannel_28userrec_20_2Au_2C_20chanrec_20_2Ac_29">has_channel()</a>, <a class="el" href="users_8cpp-source.html#l00123">userrec::IsInvited()</a>, <a class="el" href="channels_8h-source.html#l00143">chanrec::key</a>, <a class="el" href="channels_8h-source.html#l00138">chanrec::limit</a>, <a class="el" href="globals_8h.html#log_28int_20level_2C_20char_20_2Atext_2C_2E_2E_2E_29">log()</a>, <a class="el" href="users_8h-source.html#l00151">userrec::modes</a>, <a class="el" href="channels_8h-source.html#l00108">chanrec::name</a>, <a class="el" href="users_8h-source.html#l00128">userrec::nick</a>, <a class="el" href="users_8cpp-source.html#l00148">userrec::RemoveInvite()</a>, <a class="el" href="channels_8cpp.html#TIME">TIME</a>, and <a class="el" href="globals_8h.html#WriteServ_28int_20sock_2C_20char_20_2Atext_2C_2E_2E_2E_29">WriteServ()</a>.
 <p>
-Referenced by <a class="el" href="modules_8cpp-source.html#l00364">Server::JoinUserToChannel()</a>.<div class="fragment"><pre class="fragment"><a name="l00196"></a>00196 {
-<a name="l00197"></a>00197         <span class="keywordflow">if</span> ((!user) || (!cn))
-<a name="l00198"></a>00198         {
-<a name="l00199"></a>00199                 <a class="code" href="globals_8h.html#log_28int_20level_2C_20char_20_2Atext_2C_2E_2E_2E_29">log</a>(<a class="code" href="inspircd__io_8h.html#DEFAULT">DEFAULT</a>,<span class="stringliteral">"*** BUG *** add_channel was given an invalid parameter"</span>);
-<a name="l00200"></a>00200                 <span class="keywordflow">return</span> 0;
-<a name="l00201"></a>00201         }
-<a name="l00202"></a>00202 
-<a name="l00203"></a>00203         <span class="keywordtype">int</span> created = 0;
-<a name="l00204"></a>00204         <span class="keywordtype">char</span> cname[MAXBUF];
-<a name="l00205"></a>00205         <span class="keywordtype">int</span> MOD_RESULT = 0;
-<a name="l00206"></a>00206         strncpy(cname,cn,CHANMAX);
-<a name="l00207"></a>00207 
-<a name="l00208"></a>00208         <a class="code" href="globals_8h.html#log_28int_20level_2C_20char_20_2Atext_2C_2E_2E_2E_29">log</a>(<a class="code" href="inspircd__io_8h.html#DEBUG">DEBUG</a>,<span class="stringliteral">"add_channel: %s %s"</span>,user-&gt;<a class="code" href="classuserrec.html#nick_5BNICKMAX_5D">nick</a>,cname);
-<a name="l00209"></a>00209 
-<a name="l00210"></a>00210         <a class="code" href="classchanrec.html">chanrec</a>* Ptr = <a class="code" href="globals_8h.html#FindChan_28const_20char_20_2Achan_29">FindChan</a>(cname);
-<a name="l00211"></a>00211 
-<a name="l00212"></a>00212         <span class="keywordflow">if</span> (!Ptr)
-<a name="l00213"></a>00213         {
-<a name="l00214"></a>00214                 <span class="keywordflow">if</span> (user-&gt;<a class="code" href="classconnection.html#fd">fd</a> &gt; -1)
-<a name="l00215"></a>00215                 {
-<a name="l00216"></a>00216                         MOD_RESULT = 0;
-<a name="l00217"></a>00217                         <a class="code" href="modules_8h.html#FOREACH_5FRESULT_28x_29">FOREACH_RESULT</a>(OnUserPreJoin(user,NULL,cname));
-<a name="l00218"></a>00218                         <span class="keywordflow">if</span> (MOD_RESULT == 1)
-<a name="l00219"></a>00219                                 <span class="keywordflow">return</span> NULL;
-<a name="l00220"></a>00220                 }
-<a name="l00221"></a>00221                 <span class="comment">/* create a new one */</span>
-<a name="l00222"></a>00222                 <a class="code" href="channels_8cpp.html#chanlist">chanlist</a>[cname] = <span class="keyword">new</span> <a class="code" href="classchanrec.html">chanrec</a>();
-<a name="l00223"></a>00223                 strlcpy(chanlist[cname]-&gt;name, cname,CHANMAX);
-<a name="l00224"></a>00224                 <a class="code" href="channels_8cpp.html#chanlist">chanlist</a>[cname]-&gt;binarymodes = <a class="code" href="channels_8h.html#CM_5FTOPICLOCK">CM_TOPICLOCK</a> | <a class="code" href="channels_8h.html#CM_5FNOEXTERNAL">CM_NOEXTERNAL</a>;
-<a name="l00225"></a>00225                 <a class="code" href="channels_8cpp.html#chanlist">chanlist</a>[cname]-&gt;created = <a class="code" href="channels_8cpp.html#TIME">TIME</a>;
-<a name="l00226"></a>00226                 strcpy(chanlist[cname]-&gt;topic, <span class="stringliteral">""</span>);
-<a name="l00227"></a>00227                 strncpy(chanlist[cname]-&gt;setby, user-&gt;<a class="code" href="classuserrec.html#nick_5BNICKMAX_5D">nick</a>,NICKMAX);
-<a name="l00228"></a>00228                 <a class="code" href="channels_8cpp.html#chanlist">chanlist</a>[cname]-&gt;topicset = 0;
-<a name="l00229"></a>00229                 Ptr = <a class="code" href="channels_8cpp.html#chanlist">chanlist</a>[cname];
-<a name="l00230"></a>00230                 <a class="code" href="globals_8h.html#log_28int_20level_2C_20char_20_2Atext_2C_2E_2E_2E_29">log</a>(<a class="code" href="inspircd__io_8h.html#DEBUG">DEBUG</a>,<span class="stringliteral">"add_channel: created: %s"</span>,cname);
-<a name="l00231"></a>00231                 <span class="comment">/* set created to 2 to indicate user</span>
-<a name="l00232"></a>00232 <span class="comment">                 * is the first in the channel</span>
-<a name="l00233"></a>00233 <span class="comment">                 * and should be given ops */</span>
-<a name="l00234"></a>00234                 created = 2;
-<a name="l00235"></a>00235         }
-<a name="l00236"></a>00236         <span class="keywordflow">else</span>
-<a name="l00237"></a>00237         {
-<a name="l00238"></a>00238                 <span class="comment">/* Already on the channel */</span>
-<a name="l00239"></a>00239                 <span class="keywordflow">if</span> (<a class="code" href="message_8h.html#has_5Fchannel_28userrec_20_2Au_2C_20chanrec_20_2Ac_29">has_channel</a>(user,Ptr))
-<a name="l00240"></a>00240                         <span class="keywordflow">return</span> NULL;
-<a name="l00241"></a>00241 
-<a name="l00242"></a>00242                 <span class="comment">// remote users are allowed us to bypass channel modes</span>
-<a name="l00243"></a>00243                 <span class="comment">// and bans (used by servers)</span>
-<a name="l00244"></a>00244                 <span class="keywordflow">if</span> (user-&gt;<a class="code" href="classconnection.html#fd">fd</a> &gt; -1)
-<a name="l00245"></a>00245                 {
-<a name="l00246"></a>00246                         MOD_RESULT = 0;
-<a name="l00247"></a>00247                         <a class="code" href="modules_8h.html#FOREACH_5FRESULT_28x_29">FOREACH_RESULT</a>(OnUserPreJoin(user,Ptr,cname));
-<a name="l00248"></a>00248                         <span class="keywordflow">if</span> (MOD_RESULT == 1)
-<a name="l00249"></a>00249                         {
-<a name="l00250"></a>00250                                 <span class="keywordflow">return</span> NULL;
-<a name="l00251"></a>00251                         }
-<a name="l00252"></a>00252                         <span class="keywordflow">else</span>
-<a name="l00253"></a>00253                         {
-<a name="l00254"></a>00254                                 <span class="keywordflow">if</span> (*Ptr-&gt;<a class="code" href="classchanrec.html#key_5B_33_32_5D">key</a>)
-<a name="l00255"></a>00255                                 {
-<a name="l00256"></a>00256                                         MOD_RESULT = 0;
-<a name="l00257"></a>00257                                         <a class="code" href="modules_8h.html#FOREACH_5FRESULT_28x_29">FOREACH_RESULT</a>(OnCheckKey(user, Ptr, key ? key : <span class="stringliteral">""</span>));
-<a name="l00258"></a>00258                                         <span class="keywordflow">if</span> (!MOD_RESULT)
-<a name="l00259"></a>00259                                         {
-<a name="l00260"></a>00260                                                 <span class="keywordflow">if</span> (!key)
-<a name="l00261"></a>00261                                                 {
-<a name="l00262"></a>00262                                                         <a class="code" href="globals_8h.html#log_28int_20level_2C_20char_20_2Atext_2C_2E_2E_2E_29">log</a>(<a class="code" href="inspircd__io_8h.html#DEBUG">DEBUG</a>,<span class="stringliteral">"add_channel: no key given in JOIN"</span>);
-<a name="l00263"></a>00263                                                         <a class="code" href="globals_8h.html#WriteServ_28int_20sock_2C_20char_20_2Atext_2C_2E_2E_2E_29">WriteServ</a>(user-&gt;<a class="code" href="classconnection.html#fd">fd</a>,<span class="stringliteral">"475 %s %s :Cannot join channel (Requires key)"</span>,user-&gt;<a class="code" href="classuserrec.html#nick_5BNICKMAX_5D">nick</a>, Ptr-&gt;<a class="code" href="classchanrec.html#name_5BCHANMAX_5D">name</a>);
-<a name="l00264"></a>00264                                                         <span class="keywordflow">return</span> NULL;
-<a name="l00265"></a>00265                                                 }
-<a name="l00266"></a>00266                                                 <span class="keywordflow">else</span>
-<a name="l00267"></a>00267                                                 {
-<a name="l00268"></a>00268                                                         <span class="keywordflow">if</span> (strcasecmp(key,Ptr-&gt;<a class="code" href="classchanrec.html#key_5B_33_32_5D">key</a>))
-<a name="l00269"></a>00269                                                         {
-<a name="l00270"></a>00270                                                                 <a class="code" href="globals_8h.html#log_28int_20level_2C_20char_20_2Atext_2C_2E_2E_2E_29">log</a>(<a class="code" href="inspircd__io_8h.html#DEBUG">DEBUG</a>,<span class="stringliteral">"add_channel: bad key given in JOIN"</span>);
-<a name="l00271"></a>00271                                                                 <a class="code" href="globals_8h.html#WriteServ_28int_20sock_2C_20char_20_2Atext_2C_2E_2E_2E_29">WriteServ</a>(user-&gt;<a class="code" href="classconnection.html#fd">fd</a>,<span class="stringliteral">"475 %s %s :Cannot join channel (Incorrect key)"</span>,user-&gt;<a class="code" href="classuserrec.html#nick_5BNICKMAX_5D">nick</a>, Ptr-&gt;<a class="code" href="classchanrec.html#name_5BCHANMAX_5D">name</a>);
-<a name="l00272"></a>00272                                                                 <span class="keywordflow">return</span> NULL;
-<a name="l00273"></a>00273                                                         }
-<a name="l00274"></a>00274                                                 }
-<a name="l00275"></a>00275                                         }
-<a name="l00276"></a>00276                                 }
-<a name="l00277"></a>00277                                 <span class="keywordflow">if</span> (Ptr-&gt;<a class="code" href="classchanrec.html#binarymodes">binarymodes</a> &amp; <a class="code" href="channels_8h.html#CM_5FINVITEONLY">CM_INVITEONLY</a>)
-<a name="l00278"></a>00278                                 {
-<a name="l00279"></a>00279                                         MOD_RESULT = 0;
+Referenced by <a class="el" href="modules_8cpp-source.html#l00363">Server::JoinUserToChannel()</a>.<div class="fragment"><pre class="fragment"><a name="l00195"></a>00195 {
+<a name="l00196"></a>00196         <span class="keywordflow">if</span> ((!user) || (!cn))
+<a name="l00197"></a>00197         {
+<a name="l00198"></a>00198                 <a class="code" href="globals_8h.html#log_28int_20level_2C_20char_20_2Atext_2C_2E_2E_2E_29">log</a>(<a class="code" href="inspircd__io_8h.html#DEFAULT">DEFAULT</a>,<span class="stringliteral">"*** BUG *** add_channel was given an invalid parameter"</span>);
+<a name="l00199"></a>00199                 <span class="keywordflow">return</span> 0;
+<a name="l00200"></a>00200         }
+<a name="l00201"></a>00201 
+<a name="l00202"></a>00202         <span class="keywordtype">int</span> created = 0;
+<a name="l00203"></a>00203         <span class="keywordtype">char</span> cname[MAXBUF];
+<a name="l00204"></a>00204         <span class="keywordtype">int</span> MOD_RESULT = 0;
+<a name="l00205"></a>00205         strncpy(cname,cn,CHANMAX);
+<a name="l00206"></a>00206 
+<a name="l00207"></a>00207         <a class="code" href="globals_8h.html#log_28int_20level_2C_20char_20_2Atext_2C_2E_2E_2E_29">log</a>(<a class="code" href="inspircd__io_8h.html#DEBUG">DEBUG</a>,<span class="stringliteral">"add_channel: %s %s"</span>,user-&gt;<a class="code" href="classuserrec.html#nick_5BNICKMAX_5D">nick</a>,cname);
+<a name="l00208"></a>00208 
+<a name="l00209"></a>00209         <a class="code" href="classchanrec.html">chanrec</a>* Ptr = <a class="code" href="globals_8h.html#FindChan_28const_20char_20_2Achan_29">FindChan</a>(cname);
+<a name="l00210"></a>00210 
+<a name="l00211"></a>00211         <span class="keywordflow">if</span> (!Ptr)
+<a name="l00212"></a>00212         {
+<a name="l00213"></a>00213                 <span class="keywordflow">if</span> (user-&gt;<a class="code" href="classconnection.html#fd">fd</a> &gt; -1)
+<a name="l00214"></a>00214                 {
+<a name="l00215"></a>00215                         MOD_RESULT = 0;
+<a name="l00216"></a>00216                         <a class="code" href="modules_8h.html#FOREACH_5FRESULT_28x_29">FOREACH_RESULT</a>(OnUserPreJoin(user,NULL,cname));
+<a name="l00217"></a>00217                         <span class="keywordflow">if</span> (MOD_RESULT == 1)
+<a name="l00218"></a>00218                                 <span class="keywordflow">return</span> NULL;
+<a name="l00219"></a>00219                 }
+<a name="l00220"></a>00220                 <span class="comment">/* create a new one */</span>
+<a name="l00221"></a>00221                 <a class="code" href="channels_8cpp.html#chanlist">chanlist</a>[cname] = <span class="keyword">new</span> <a class="code" href="classchanrec.html">chanrec</a>();
+<a name="l00222"></a>00222                 strlcpy(chanlist[cname]-&gt;name, cname,CHANMAX);
+<a name="l00223"></a>00223                 <a class="code" href="channels_8cpp.html#chanlist">chanlist</a>[cname]-&gt;binarymodes = <a class="code" href="channels_8h.html#CM_5FTOPICLOCK">CM_TOPICLOCK</a> | <a class="code" href="channels_8h.html#CM_5FNOEXTERNAL">CM_NOEXTERNAL</a>;
+<a name="l00224"></a>00224                 <a class="code" href="channels_8cpp.html#chanlist">chanlist</a>[cname]-&gt;created = <a class="code" href="channels_8cpp.html#TIME">TIME</a>;
+<a name="l00225"></a>00225                 strcpy(chanlist[cname]-&gt;topic, <span class="stringliteral">""</span>);
+<a name="l00226"></a>00226                 strncpy(chanlist[cname]-&gt;setby, user-&gt;<a class="code" href="classuserrec.html#nick_5BNICKMAX_5D">nick</a>,NICKMAX);
+<a name="l00227"></a>00227                 <a class="code" href="channels_8cpp.html#chanlist">chanlist</a>[cname]-&gt;topicset = 0;
+<a name="l00228"></a>00228                 Ptr = <a class="code" href="channels_8cpp.html#chanlist">chanlist</a>[cname];
+<a name="l00229"></a>00229                 <a class="code" href="globals_8h.html#log_28int_20level_2C_20char_20_2Atext_2C_2E_2E_2E_29">log</a>(<a class="code" href="inspircd__io_8h.html#DEBUG">DEBUG</a>,<span class="stringliteral">"add_channel: created: %s"</span>,cname);
+<a name="l00230"></a>00230                 <span class="comment">/* set created to 2 to indicate user</span>
+<a name="l00231"></a>00231 <span class="comment">                 * is the first in the channel</span>
+<a name="l00232"></a>00232 <span class="comment">                 * and should be given ops */</span>
+<a name="l00233"></a>00233                 created = 2;
+<a name="l00234"></a>00234         }
+<a name="l00235"></a>00235         <span class="keywordflow">else</span>
+<a name="l00236"></a>00236         {
+<a name="l00237"></a>00237                 <span class="comment">/* Already on the channel */</span>
+<a name="l00238"></a>00238                 <span class="keywordflow">if</span> (<a class="code" href="message_8h.html#has_5Fchannel_28userrec_20_2Au_2C_20chanrec_20_2Ac_29">has_channel</a>(user,Ptr))
+<a name="l00239"></a>00239                         <span class="keywordflow">return</span> NULL;
+<a name="l00240"></a>00240 
+<a name="l00241"></a>00241                 <span class="comment">// remote users are allowed us to bypass channel modes</span>
+<a name="l00242"></a>00242                 <span class="comment">// and bans (used by servers)</span>
+<a name="l00243"></a>00243                 <span class="keywordflow">if</span> (user-&gt;<a class="code" href="classconnection.html#fd">fd</a> &gt; -1)
+<a name="l00244"></a>00244                 {
+<a name="l00245"></a>00245                         MOD_RESULT = 0;
+<a name="l00246"></a>00246                         <a class="code" href="modules_8h.html#FOREACH_5FRESULT_28x_29">FOREACH_RESULT</a>(OnUserPreJoin(user,Ptr,cname));
+<a name="l00247"></a>00247                         <span class="keywordflow">if</span> (MOD_RESULT == 1)
+<a name="l00248"></a>00248                         {
+<a name="l00249"></a>00249                                 <span class="keywordflow">return</span> NULL;
+<a name="l00250"></a>00250                         }
+<a name="l00251"></a>00251                         <span class="keywordflow">else</span>
+<a name="l00252"></a>00252                         {
+<a name="l00253"></a>00253                                 <span class="keywordflow">if</span> (*Ptr-&gt;<a class="code" href="classchanrec.html#key_5B_33_32_5D">key</a>)
+<a name="l00254"></a>00254                                 {
+<a name="l00255"></a>00255                                         MOD_RESULT = 0;
+<a name="l00256"></a>00256                                         <a class="code" href="modules_8h.html#FOREACH_5FRESULT_28x_29">FOREACH_RESULT</a>(OnCheckKey(user, Ptr, key ? key : <span class="stringliteral">""</span>));
+<a name="l00257"></a>00257                                         <span class="keywordflow">if</span> (!MOD_RESULT)
+<a name="l00258"></a>00258                                         {
+<a name="l00259"></a>00259                                                 <span class="keywordflow">if</span> (!key)
+<a name="l00260"></a>00260                                                 {
+<a name="l00261"></a>00261                                                         <a class="code" href="globals_8h.html#log_28int_20level_2C_20char_20_2Atext_2C_2E_2E_2E_29">log</a>(<a class="code" href="inspircd__io_8h.html#DEBUG">DEBUG</a>,<span class="stringliteral">"add_channel: no key given in JOIN"</span>);
+<a name="l00262"></a>00262                                                         <a class="code" href="globals_8h.html#WriteServ_28int_20sock_2C_20char_20_2Atext_2C_2E_2E_2E_29">WriteServ</a>(user-&gt;<a class="code" href="classconnection.html#fd">fd</a>,<span class="stringliteral">"475 %s %s :Cannot join channel (Requires key)"</span>,user-&gt;<a class="code" href="classuserrec.html#nick_5BNICKMAX_5D">nick</a>, Ptr-&gt;<a class="code" href="classchanrec.html#name_5BCHANMAX_5D">name</a>);
+<a name="l00263"></a>00263                                                         <span class="keywordflow">return</span> NULL;
+<a name="l00264"></a>00264                                                 }
+<a name="l00265"></a>00265                                                 <span class="keywordflow">else</span>
+<a name="l00266"></a>00266                                                 {
+<a name="l00267"></a>00267                                                         <span class="keywordflow">if</span> (strcasecmp(key,Ptr-&gt;<a class="code" href="classchanrec.html#key_5B_33_32_5D">key</a>))
+<a name="l00268"></a>00268                                                         {
+<a name="l00269"></a>00269                                                                 <a class="code" href="globals_8h.html#log_28int_20level_2C_20char_20_2Atext_2C_2E_2E_2E_29">log</a>(<a class="code" href="inspircd__io_8h.html#DEBUG">DEBUG</a>,<span class="stringliteral">"add_channel: bad key given in JOIN"</span>);
+<a name="l00270"></a>00270                                                                 <a class="code" href="globals_8h.html#WriteServ_28int_20sock_2C_20char_20_2Atext_2C_2E_2E_2E_29">WriteServ</a>(user-&gt;<a class="code" href="classconnection.html#fd">fd</a>,<span class="stringliteral">"475 %s %s :Cannot join channel (Incorrect key)"</span>,user-&gt;<a class="code" href="classuserrec.html#nick_5BNICKMAX_5D">nick</a>, Ptr-&gt;<a class="code" href="classchanrec.html#name_5BCHANMAX_5D">name</a>);
+<a name="l00271"></a>00271                                                                 <span class="keywordflow">return</span> NULL;
+<a name="l00272"></a>00272                                                         }
+<a name="l00273"></a>00273                                                 }
+<a name="l00274"></a>00274                                         }
+<a name="l00275"></a>00275                                 }
+<a name="l00276"></a>00276                                 <span class="keywordflow">if</span> (Ptr-&gt;<a class="code" href="classchanrec.html#binarymodes">binarymodes</a> &amp; <a class="code" href="channels_8h.html#CM_5FINVITEONLY">CM_INVITEONLY</a>)
+<a name="l00277"></a>00277                                 {
+<a name="l00278"></a>00278                                         MOD_RESULT = 0;
+<a name="l00279"></a>00279                                         <a class="code" href="namespaceirc.html#string">irc::string</a> xname(Ptr-&gt;<a class="code" href="classchanrec.html#name_5BCHANMAX_5D">name</a>);
 <a name="l00280"></a>00280                                         <a class="code" href="modules_8h.html#FOREACH_5FRESULT_28x_29">FOREACH_RESULT</a>(OnCheckInvite(user, Ptr));
 <a name="l00281"></a>00281                                         <span class="keywordflow">if</span> (!MOD_RESULT)
 <a name="l00282"></a>00282                                         {
 <a name="l00283"></a>00283                                                 <a class="code" href="globals_8h.html#log_28int_20level_2C_20char_20_2Atext_2C_2E_2E_2E_29">log</a>(<a class="code" href="inspircd__io_8h.html#DEBUG">DEBUG</a>,<span class="stringliteral">"add_channel: channel is +i"</span>);
-<a name="l00284"></a>00284                                                 <span class="keywordflow">if</span> (user-&gt;<a class="code" href="classuserrec.html#IsInvited_28char_20_2Achannel_29">IsInvited</a>(Ptr-&gt;<a class="code" href="classchanrec.html#name_5BCHANMAX_5D">name</a>))
+<a name="l00284"></a>00284                                                 <span class="keywordflow">if</span> (user-&gt;<a class="code" href="classuserrec.html#IsInvited_28irc_3A_3Astring_20_26channel_29">IsInvited</a>(xname))
 <a name="l00285"></a>00285                                                 {
 <a name="l00286"></a>00286                                                         <span class="comment">/* user was invited to channel */</span>
 <a name="l00287"></a>00287                                                         <span class="comment">/* there may be an optional channel NOTICE here */</span>
@@ -268,7 +268,7 @@ Referenced by <a class="el" href="modules_8cpp-source.html#l00364">Server::JoinU
 <a name="l00292"></a>00292                                                         <span class="keywordflow">return</span> NULL;
 <a name="l00293"></a>00293                                                 }
 <a name="l00294"></a>00294                                         }
-<a name="l00295"></a>00295                                         user-&gt;<a class="code" href="classuserrec.html#RemoveInvite_28char_20_2Achannel_29">RemoveInvite</a>(Ptr-&gt;<a class="code" href="classchanrec.html#name_5BCHANMAX_5D">name</a>);
+<a name="l00295"></a>00295                                         user-&gt;<a class="code" href="classuserrec.html#RemoveInvite_28irc_3A_3Astring_20_26channel_29">RemoveInvite</a>(xname);
 <a name="l00296"></a>00296                                 }
 <a name="l00297"></a>00297                                 <span class="keywordflow">if</span> (Ptr-&gt;<a class="code" href="classchanrec.html#limit">limit</a>)
 <a name="l00298"></a>00298                                 {
@@ -399,9 +399,9 @@ Referenced by <a class="el" href="modules_8cpp-source.html#l00364">Server::JoinU
 <p>
 Definition at line <a class="el" href="channels_8cpp-source.html#l00401">401</a> of file <a class="el" href="channels_8cpp-source.html">channels.cpp</a>.
 <p>
-References <a class="el" href="channels_8cpp.html#chanlist">chanlist</a>, <a class="el" href="users_8h-source.html#l00149">userrec::chans</a>, <a class="el" href="inspircd__io_8h-source.html#l00028">DEBUG</a>, <a class="el" href="inspircd__io_8h-source.html#l00030">DEFAULT</a>, <a class="el" href="channels_8cpp-source.html#l00173">chanrec::DelUser()</a>, <a class="el" href="globals_8h.html#FindChan_28const_20char_20_2Achan_29">FindChan()</a>, <a class="el" href="modules_8h-source.html#l00081">FOREACH_MOD</a>, <a class="el" href="globals_8h.html#log_28int_20level_2C_20char_20_2Atext_2C_2E_2E_2E_29">log()</a>, <a class="el" href="channels_8h-source.html#l00108">chanrec::name</a>, <a class="el" href="users_8h-source.html#l00124">userrec::nick</a>, and <a class="el" href="globals_8h.html#WriteChannel_28chanrec_20_2APtr_2C_20userrec_20_2Auser_2C_20char_20_2Atext_2C_2E_2E_2E_29">WriteChannel()</a>.
+References <a class="el" href="channels_8cpp.html#chanlist">chanlist</a>, <a class="el" href="users_8h-source.html#l00153">userrec::chans</a>, <a class="el" href="inspircd__io_8h-source.html#l00029">DEBUG</a>, <a class="el" href="inspircd__io_8h-source.html#l00031">DEFAULT</a>, <a class="el" href="channels_8cpp-source.html#l00172">chanrec::DelUser()</a>, <a class="el" href="globals_8h.html#FindChan_28const_20char_20_2Achan_29">FindChan()</a>, <a class="el" href="modules_8h-source.html#l00082">FOREACH_MOD</a>, <a class="el" href="globals_8h.html#log_28int_20level_2C_20char_20_2Atext_2C_2E_2E_2E_29">log()</a>, <a class="el" href="channels_8h-source.html#l00108">chanrec::name</a>, <a class="el" href="users_8h-source.html#l00128">userrec::nick</a>, and <a class="el" href="globals_8h.html#WriteChannel_28chanrec_20_2APtr_2C_20userrec_20_2Auser_2C_20char_20_2Atext_2C_2E_2E_2E_29">WriteChannel()</a>.
 <p>
-Referenced by <a class="el" href="modules_8cpp-source.html#l00369">Server::PartUserFromChannel()</a>.<div class="fragment"><pre class="fragment"><a name="l00402"></a>00402 {
+Referenced by <a class="el" href="modules_8cpp-source.html#l00368">Server::PartUserFromChannel()</a>.<div class="fragment"><pre class="fragment"><a name="l00402"></a>00402 {
 <a name="l00403"></a>00403         <span class="keywordflow">if</span> ((!user) || (!cname))
 <a name="l00404"></a>00404         {
 <a name="l00405"></a>00405                 <a class="code" href="globals_8h.html#log_28int_20level_2C_20char_20_2Atext_2C_2E_2E_2E_29">log</a>(<a class="code" href="inspircd__io_8h.html#DEFAULT">DEFAULT</a>,<span class="stringliteral">"*** BUG *** del_channel was given an invalid parameter"</span>);
@@ -511,9 +511,9 @@ Referenced by <a class="el" href="modules_8cpp-source.html#l00369">Server::PartU
 <p>
 Definition at line <a class="el" href="channels_8cpp-source.html#l00372">372</a> of file <a class="el" href="channels_8cpp-source.html">channels.cpp</a>.
 <p>
-References <a class="el" href="channels_8cpp-source.html#l00167">chanrec::AddUser()</a>, <a class="el" href="channels_8h-source.html#l00254">ucrec::channel</a>, <a class="el" href="inspircd__io_8h-source.html#l00028">DEBUG</a>, <a class="el" href="modules_8h-source.html#l00081">FOREACH_MOD</a>, <a class="el" href="globals_8h.html#log_28int_20level_2C_20char_20_2Atext_2C_2E_2E_2E_29">log()</a>, <a class="el" href="channels_8h-source.html#l00108">chanrec::name</a>, <a class="el" href="channels_8h-source.html#l00133">chanrec::setby</a>, <a class="el" href="channels_8h-source.html#l00122">chanrec::topic</a>, <a class="el" href="channels_8h-source.html#l00129">chanrec::topicset</a>, <a class="el" href="channels_8h-source.html#l00249">ucrec::uc_modes</a>, <a class="el" href="channels_8h-source.html#l00232">UCMODE_OP</a>, <a class="el" href="globals_8h.html#WriteChannel_28chanrec_20_2APtr_2C_20userrec_20_2Auser_2C_20char_20_2Atext_2C_2E_2E_2E_29">WriteChannel()</a>, and <a class="el" href="globals_8h.html#WriteServ_28int_20sock_2C_20char_20_2Atext_2C_2E_2E_2E_29">WriteServ()</a>.
+References <a class="el" href="channels_8cpp-source.html#l00166">chanrec::AddUser()</a>, <a class="el" href="channels_8h-source.html#l00254">ucrec::channel</a>, <a class="el" href="inspircd__io_8h-source.html#l00029">DEBUG</a>, <a class="el" href="modules_8h-source.html#l00082">FOREACH_MOD</a>, <a class="el" href="globals_8h.html#log_28int_20level_2C_20char_20_2Atext_2C_2E_2E_2E_29">log()</a>, <a class="el" href="channels_8h-source.html#l00108">chanrec::name</a>, <a class="el" href="channels_8h-source.html#l00133">chanrec::setby</a>, <a class="el" href="channels_8h-source.html#l00122">chanrec::topic</a>, <a class="el" href="channels_8h-source.html#l00129">chanrec::topicset</a>, <a class="el" href="channels_8h-source.html#l00249">ucrec::uc_modes</a>, <a class="el" href="channels_8h-source.html#l00232">UCMODE_OP</a>, <a class="el" href="globals_8h.html#WriteChannel_28chanrec_20_2APtr_2C_20userrec_20_2Auser_2C_20char_20_2Atext_2C_2E_2E_2E_29">WriteChannel()</a>, and <a class="el" href="globals_8h.html#WriteServ_28int_20sock_2C_20char_20_2Atext_2C_2E_2E_2E_29">WriteServ()</a>.
 <p>
-Referenced by <a class="el" href="channels_8cpp-source.html#l00195">add_channel()</a>.<div class="fragment"><pre class="fragment"><a name="l00373"></a>00373 {
+Referenced by <a class="el" href="channels_8cpp-source.html#l00194">add_channel()</a>.<div class="fragment"><pre class="fragment"><a name="l00373"></a>00373 {
 <a name="l00374"></a>00374         <span class="keywordflow">if</span> (created == 2)
 <a name="l00375"></a>00375         {
 <a name="l00376"></a>00376                 <span class="comment">/* first user in is given ops */</span>
@@ -592,7 +592,7 @@ Referenced by <a class="el" href="channels_8cpp-source.html#l00195">add_channel(
 <p>
 Definition at line <a class="el" href="channels_8cpp-source.html#l00459">459</a> of file <a class="el" href="channels_8cpp-source.html">channels.cpp</a>.
 <p>
-References <a class="el" href="modules_8h-source.html#l00040">AC_KICK</a>, <a class="el" href="modules_8h-source.html#l00037">ACR_DEFAULT</a>, <a class="el" href="modules_8h-source.html#l00038">ACR_DENY</a>, <a class="el" href="channels_8cpp.html#chanlist">chanlist</a>, <a class="el" href="users_8h-source.html#l00149">userrec::chans</a>, <a class="el" href="message_8h.html#cstatus_28userrec_20_2Auser_2C_20chanrec_20_2Achan_29">cstatus()</a>, <a class="el" href="inspircd__io_8h-source.html#l00028">DEBUG</a>, <a class="el" href="inspircd__io_8h-source.html#l00030">DEFAULT</a>, <a class="el" href="channels_8cpp-source.html#l00173">chanrec::DelUser()</a>, <a class="el" href="connection_8h-source.html#l00042">connection::fd</a>, <a class="el" href="modules_8h-source.html#l00081">FOREACH_MOD</a>, <a class="el" href="modules_8h-source.html#l00089">FOREACH_RESULT</a>, <a class="el" href="message_8h.html#has_5Fchannel_28userrec_20_2Au_2C_20chanrec_20_2Ac_29">has_channel()</a>, <a class="el" href="commands_8h.html#is_5Fuline_28const_20char_20_2Aserver_29">is_uline()</a>, <a class="el" href="globals_8h.html#log_28int_20level_2C_20char_20_2Atext_2C_2E_2E_2E_29">log()</a>, <a class="el" href="channels_8h-source.html#l00108">chanrec::name</a>, <a class="el" href="users_8h-source.html#l00124">userrec::nick</a>, <a class="el" href="users_8h-source.html#l00153">userrec::server</a>, <a class="el" href="users_8h-source.html#l00030">STATUS_HOP</a>, <a class="el" href="globals_8h.html#WriteChannel_28chanrec_20_2APtr_2C_20userrec_20_2Auser_2C_20char_20_2Atext_2C_2E_2E_2E_29">WriteChannel()</a>, and <a class="el" href="globals_8h.html#WriteServ_28int_20sock_2C_20char_20_2Atext_2C_2E_2E_2E_29">WriteServ()</a>.<div class="fragment"><pre class="fragment"><a name="l00460"></a>00460 {
+References <a class="el" href="modules_8h-source.html#l00040">AC_KICK</a>, <a class="el" href="modules_8h-source.html#l00037">ACR_DEFAULT</a>, <a class="el" href="modules_8h-source.html#l00038">ACR_DENY</a>, <a class="el" href="channels_8cpp.html#chanlist">chanlist</a>, <a class="el" href="users_8h-source.html#l00153">userrec::chans</a>, <a class="el" href="message_8h.html#cstatus_28userrec_20_2Auser_2C_20chanrec_20_2Achan_29">cstatus()</a>, <a class="el" href="inspircd__io_8h-source.html#l00029">DEBUG</a>, <a class="el" href="inspircd__io_8h-source.html#l00031">DEFAULT</a>, <a class="el" href="channels_8cpp-source.html#l00172">chanrec::DelUser()</a>, <a class="el" href="connection_8h-source.html#l00042">connection::fd</a>, <a class="el" href="modules_8h-source.html#l00082">FOREACH_MOD</a>, <a class="el" href="modules_8h-source.html#l00090">FOREACH_RESULT</a>, <a class="el" href="message_8h.html#has_5Fchannel_28userrec_20_2Au_2C_20chanrec_20_2Ac_29">has_channel()</a>, <a class="el" href="commands_8h.html#is_5Fuline_28const_20char_20_2Aserver_29">is_uline()</a>, <a class="el" href="globals_8h.html#log_28int_20level_2C_20char_20_2Atext_2C_2E_2E_2E_29">log()</a>, <a class="el" href="channels_8h-source.html#l00108">chanrec::name</a>, <a class="el" href="users_8h-source.html#l00128">userrec::nick</a>, <a class="el" href="users_8h-source.html#l00157">userrec::server</a>, <a class="el" href="users_8h-source.html#l00032">STATUS_HOP</a>, <a class="el" href="globals_8h.html#WriteChannel_28chanrec_20_2APtr_2C_20userrec_20_2Auser_2C_20char_20_2Atext_2C_2E_2E_2E_29">WriteChannel()</a>, and <a class="el" href="globals_8h.html#WriteServ_28int_20sock_2C_20char_20_2Atext_2C_2E_2E_2E_29">WriteServ()</a>.<div class="fragment"><pre class="fragment"><a name="l00460"></a>00460 {
 <a name="l00461"></a>00461         <span class="keywordflow">if</span> ((!src) || (!user) || (!Ptr) || (!reason))
 <a name="l00462"></a>00462         {
 <a name="l00463"></a>00463                 <a class="code" href="globals_8h.html#log_28int_20level_2C_20char_20_2Atext_2C_2E_2E_2E_29">log</a>(<a class="code" href="inspircd__io_8h.html#DEFAULT">DEFAULT</a>,<span class="stringliteral">"*** BUG *** kick_channel was given an invalid parameter"</span>);
@@ -704,7 +704,7 @@ References <a class="el" href="modules_8h-source.html#l00040">AC_KICK</a>, <a cl
 <p>
 
 <p>
-Referenced by <a class="el" href="channels_8cpp-source.html#l00195">add_channel()</a>, <a class="el" href="channels_8cpp-source.html#l00401">del_channel()</a>, and <a class="el" href="channels_8cpp-source.html#l00459">kick_channel()</a>.    </td>
+Referenced by <a class="el" href="channels_8cpp-source.html#l00194">add_channel()</a>, <a class="el" href="channels_8cpp-source.html#l00401">del_channel()</a>, and <a class="el" href="channels_8cpp-source.html#l00459">kick_channel()</a>.    </td>
   </tr>
 </table>
 <a class="anchor" name="Config"></a><!-- doxytag: member="channels.cpp::Config" ref="Config" args="" --><p>
@@ -752,9 +752,9 @@ Referenced by <a class="el" href="channels_8cpp-source.html#l00195">add_channel(
 <p>
 
 <p>
-Definition at line <a class="el" href="channels_8cpp-source.html#l00070">70</a> of file <a class="el" href="channels_8cpp-source.html">channels.cpp</a>.
+Definition at line <a class="el" href="channels_8cpp-source.html#l00069">69</a> of file <a class="el" href="channels_8cpp-source.html">channels.cpp</a>.
 <p>
-Referenced by <a class="el" href="channels_8cpp-source.html#l00147">chanrec::GetModeParameter()</a>, and <a class="el" href="channels_8cpp-source.html#l00111">chanrec::SetCustomModeParam()</a>.    </td>
+Referenced by <a class="el" href="channels_8cpp-source.html#l00146">chanrec::GetModeParameter()</a>, and <a class="el" href="channels_8cpp-source.html#l00110">chanrec::SetCustomModeParam()</a>.    </td>
   </tr>
 </table>
 <a class="anchor" name="factory"></a><!-- doxytag: member="channels.cpp::factory" ref="factory" args="" --><p>
@@ -786,7 +786,7 @@ Referenced by <a class="el" href="channels_8cpp-source.html#l00147">chanrec::Get
     <td class="mdRow">
       <table cellpadding="0" cellspacing="0" border="0">
         <tr>
-          <td class="md" nowrap valign="top">int <a class="el" href="modules_8cpp.html#MODCOUNT">MODCOUNT</a> = -1          </td>
+          <td class="md" nowrap valign="top">int <a class="el" href="users_8cpp.html#MODCOUNT">MODCOUNT</a> = -1          </td>
         </tr>
       </table>
     </td>
@@ -802,9 +802,9 @@ Referenced by <a class="el" href="channels_8cpp-source.html#l00147">chanrec::Get
 <p>
 
 <p>
-Definition at line <a class="el" href="modules_8cpp-source.html#l00935">935</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
+Definition at line <a class="el" href="modules_8cpp-source.html#l00934">934</a> of file <a class="el" href="modules_8cpp-source.html">modules.cpp</a>.
 <p>
-Referenced by <a class="el" href="modules_8cpp-source.html#l00724">Server::FindModule()</a>.    </td>
+Referenced by <a class="el" href="modules_8cpp-source.html#l00723">Server::FindModule()</a>.    </td>
   </tr>
 </table>
 <a class="anchor" name="modules"></a><!-- doxytag: member="channels.cpp::modules" ref="modules" args="" --><p>
@@ -829,7 +829,7 @@ Referenced by <a class="el" href="modules_8cpp-source.html#l00724">Server::FindM
 <p>
 
 <p>
-Referenced by <a class="el" href="modules_8cpp-source.html#l00724">Server::FindModule()</a>.    </td>
+Referenced by <a class="el" href="modules_8cpp-source.html#l00723">Server::FindModule()</a>.    </td>
   </tr>
 </table>
 <a class="anchor" name="TIME"></a><!-- doxytag: member="channels.cpp::TIME" ref="TIME" args="" --><p>
@@ -854,7 +854,7 @@ Referenced by <a class="el" href="modules_8cpp-source.html#l00724">Server::FindM
 <p>
 
 <p>
-Referenced by <a class="el" href="channels_8cpp-source.html#l00195">add_channel()</a>, and <a class="el" href="users_8cpp-source.html#l00036">userrec::userrec()</a>.    </td>
+Referenced by <a class="el" href="channels_8cpp-source.html#l00194">add_channel()</a>, <a class="el" href="users_8cpp-source.html#l00524">AddClient()</a>, <a class="el" href="users_8cpp-source.html#l00471">AddWhoWas()</a>, <a class="el" href="users_8cpp-source.html#l00647">FullConnectUser()</a>, and <a class="el" href="users_8cpp-source.html#l00063">userrec::userrec()</a>.    </td>
   </tr>
 </table>
 <a class="anchor" name="WHOWAS_5FMAX"></a><!-- doxytag: member="channels.cpp::WHOWAS_MAX" ref="WHOWAS_5FMAX" args="" --><p>
@@ -863,7 +863,7 @@ Referenced by <a class="el" href="channels_8cpp-source.html#l00195">add_channel(
     <td class="mdRow">
       <table cellpadding="0" cellspacing="0" border="0">
         <tr>
-          <td class="md" nowrap valign="top">int <a class="el" href="channels_8cpp.html#WHOWAS_5FMAX">WHOWAS_MAX</a>          </td>
+          <td class="md" nowrap valign="top">int <a class="el" href="users_8cpp.html#WHOWAS_5FMAX">WHOWAS_MAX</a>          </td>
         </tr>
       </table>
     </td>
@@ -877,7 +877,9 @@ Referenced by <a class="el" href="channels_8cpp-source.html#l00195">add_channel(
     <td>
 
 <p>
-    </td>
+
+<p>
+Referenced by <a class="el" href="users_8cpp-source.html#l00471">AddWhoWas()</a>.    </td>
   </tr>
 </table>
 <a class="anchor" name="WHOWAS_5FSTALE"></a><!-- doxytag: member="channels.cpp::WHOWAS_STALE" ref="WHOWAS_5FSTALE" args="" --><p>
@@ -886,7 +888,7 @@ Referenced by <a class="el" href="channels_8cpp-source.html#l00195">add_channel(
     <td class="mdRow">
       <table cellpadding="0" cellspacing="0" border="0">
         <tr>
-          <td class="md" nowrap valign="top">int <a class="el" href="channels_8cpp.html#WHOWAS_5FSTALE">WHOWAS_STALE</a>          </td>
+          <td class="md" nowrap valign="top">int <a class="el" href="users_8cpp.html#WHOWAS_5FSTALE">WHOWAS_STALE</a>          </td>
         </tr>
       </table>
     </td>
@@ -900,10 +902,12 @@ Referenced by <a class="el" href="channels_8cpp-source.html#l00195">add_channel(
     <td>
 
 <p>
-    </td>
+
+<p>
+Referenced by <a class="el" href="users_8cpp-source.html#l00471">AddWhoWas()</a>.    </td>
   </tr>
 </table>
-<hr size="1"><address style="align: right;"><small>Generated on Thu Dec 15 11:14:15 2005 for InspIRCd by&nbsp;
+<hr size="1"><address style="align: right;"><small>Generated on Mon Dec 19 18:02:13 2005 for InspIRCd by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img src="doxygen.png" alt="doxygen" align="middle" border="0"></a> 1.4.4-20050815 </small></address>
 </body>

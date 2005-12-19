@@ -1,4 +1,4 @@
 base referer
-rect $users_8h-source.html 127,260 191,287
-rect $channels_8h-source.html 251,210 336,236
-rect $connection_8h-source.html 244,362 343,388
+rect $users_8h-source.html 128,311 192,337
+rect $channels_8h-source.html 248,361 333,388
+rect $ctables_8h-source.html 123,108 197,135
