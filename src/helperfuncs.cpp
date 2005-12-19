@@ -130,7 +130,6 @@ void Write(int sock,char *text, ...)
                 log(DEFAULT,"*** BUG *** Write was given an invalid parameter");
                 return;
         }
-	log(DEBUG,"Write: Normal");
         va_list argsPtr;
 	char textbuffer[MAXBUF],tb[MAXBUF];
         va_start (argsPtr, text);
@@ -142,7 +141,6 @@ void Write(int sock,char *text, ...)
         {
 		if (Config->GetIOHook(fd_ref_table[sock]->port))
 		{
-			log(DEBUG,"Write: IO Hooked");
 			Config->GetIOHook(fd_ref_table[sock]->port)->OnRawSocketWrite(sock,tb,bytes);
 		}
 		else
@@ -165,7 +163,6 @@ void WriteServ(int sock, char* text, ...)
                 log(DEFAULT,"*** BUG *** WriteServ was given an invalid parameter");
                 return;
         }
-	log(DEBUG,"WriteServ: normal");
         va_list argsPtr;
         va_start (argsPtr, text);
 	char textbuffer[MAXBUF],tb[MAXBUF];
@@ -177,7 +174,6 @@ void WriteServ(int sock, char* text, ...)
         {
 		if (Config->GetIOHook(fd_ref_table[sock]->port))
 		{
-			log(DEBUG,"WriteServ: IO Hooked");
 			Config->GetIOHook(fd_ref_table[sock]->port)->OnRawSocketWrite(sock,tb,bytes);
 		}
 		else
@@ -200,7 +196,6 @@ void WriteFrom(int sock, userrec *user,char* text, ...)
                 log(DEFAULT,"*** BUG *** WriteFrom was given an invalid parameter");
                 return;
         }
-	log(DEBUG,"WriteFrom: normal");
         va_list argsPtr;
         va_start (argsPtr, text);
 	char textbuffer[MAXBUF],tb[MAXBUF];
@@ -212,7 +207,6 @@ void WriteFrom(int sock, userrec *user,char* text, ...)
         {
 		if (Config->GetIOHook(fd_ref_table[sock]->port))
 		{
-			log(DEBUG,"WriteFrom: IO hooked");
 			Config->GetIOHook(fd_ref_table[sock]->port)->OnRawSocketWrite(sock,tb,bytes);
 		}
 		else
