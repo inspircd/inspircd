@@ -90,9 +90,12 @@ void cmd_nick::Handle (char **parameters, int pcnt, userrec *user)
 		log(DEBUG,"invalid old nick passed to handle_nick");
 		return;
 	}
-	if (!strcasecmp(user->nick,parameters[0]))
+	if (irc::string(user->nick) == irc::string(parameters[0]))
 	{
 		log(DEBUG,"old nick is new nick, skipping");
+		strlcpy(user->nick,parameters[0],NICKMAX);
+		if (user->registered == 7)
+			WriteCommon(user,"NICK %s",parameters[0]);
 		return;
 	}
 	else
