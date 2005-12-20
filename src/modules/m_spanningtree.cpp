@@ -191,6 +191,7 @@ class TreeServer
 		UserCount = OperCount = 0;
 		VersionString = Srv->GetVersion();
 		Route = NULL;
+		Socket = NULL; /* Fix by brain */
 		AddHashEntry();
 	}
 
