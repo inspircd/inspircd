@@ -1758,7 +1758,11 @@ class TreeSocket : public InspSocket
 				// replies with theirs if its happy, then if the initiator is happy,
 				// it starts to send its net sync, which starts the merge, otherwise
 				// it sends an ERROR.
-				if (command == "SERVER")
+				if (command == "PASS")
+				{
+					/* Silently ignored */
+				}
+				else if (command == "SERVER")
 				{
 					return this->Inbound_Server(params);
 				}
@@ -1769,6 +1773,11 @@ class TreeSocket : public InspSocket
 				else if (command == "USER")
 				{
 					this->WriteLine("ERROR :Client connections to this port are prohibited.");
+					return false;
+				}
+				else
+				{
+					this->WriteLine("ERROR :Invalid command in negotiation phase.");
 					return false;
 				}
 			break;
