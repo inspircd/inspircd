@@ -715,7 +715,7 @@ class TreeSocket : public InspSocket
 	 */
 	void Squit(TreeServer* Current,std::string reason)
 	{
-		if (Current)
+		if ((Current) && (Current != TreeRoot))
 		{
 			std::deque<std::string> params;
 			params.push_back(Current->GetName());
