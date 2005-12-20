@@ -65,6 +65,8 @@ extern userrec* fd_ref_table[65536];
 
 void cmd_nick::Handle (char **parameters, int pcnt, userrec *user)
 {
+	char oldnick[NICKMAX];
+
 	if (pcnt < 1) 
 	{
 		log(DEBUG,"not enough params for handle_nick");
@@ -92,10 +94,16 @@ void cmd_nick::Handle (char **parameters, int pcnt, userrec *user)
 	}
 	if (irc::string(user->nick) == irc::string(parameters[0]))
 	{
-		log(DEBUG,"old nick is new nick, skipping");
+		log(DEBUG,"old nick is new nick, not updating hash (case change only)");
+		strlcpy(oldnick,user->nick,NICKMAX);
+		int MOD_RESULT = 0;
+		FOREACH_RESULT(OnUserPreNick(user,parameters[0]));
+		if (MOD_RESULT)
+			return;
 		strlcpy(user->nick,parameters[0],NICKMAX);
 		if (user->registered == 7)
 			WriteCommon(user,"NICK %s",parameters[0]);
+		FOREACH_MOD OnUserPostNick(user,oldnick);
 		return;
 	}
 	else
@@ -137,8 +145,7 @@ void cmd_nick::Handle (char **parameters, int pcnt, userrec *user)
 		WriteCommon(user,"NICK %s",parameters[0]);
 		
 	}
-	
-	char oldnick[NICKMAX];
+
 	strlcpy(oldnick,user->nick,NICKMAX);
 
 	/* change the nick of the user in the users_hash */
