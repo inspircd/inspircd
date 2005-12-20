@@ -583,12 +583,12 @@ class TreeSocket : public InspSocket
 		keylength = key.length();
 		if (!(keylength == 16 || keylength == 24 || keylength == 32))
 		{
-			WriteOpers("\2ERROR\2: Key length for encryptionkey is not 16, 24 or 32 bytes in length!");
+			WriteOpers("*** \2ERROR\2: Key length for encryptionkey is not 16, 24 or 32 bytes in length!");
 			log(DEBUG,"Key length not 16, 24 or 32 characters!");
 		}
 		else
 		{
-			WriteOpers("\2AES\2: Initialized %d bit encryption to server %s",keylength*8,SName.c_str());
+			WriteOpers("*** \2AES\2: Initialized %d bit encryption to server %s",keylength*8,SName.c_str());
 			ctx->MakeKey(key.c_str(), "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\
 				\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0", keylength, keylength);
 		}
@@ -1543,6 +1543,7 @@ class TreeSocket : public InspSocket
 		if (CheckDupe)
 		{
 			this->WriteLine("ERROR :Server "+servername+" already exists on server "+CheckDupe->GetParent()->GetName()+"!");
+			Srv->SendOpers("*** Server connection from \2"+servername+"\2 denied, already exists on server "+CheckDupe->GetParent()->GetName());
 			return false;
 		}
 		TreeServer* Node = new TreeServer(servername,description,ParentOfThis,NULL);
@@ -1563,6 +1564,7 @@ class TreeSocket : public InspSocket
 		if (hops)
 		{
 			this->WriteLine("ERROR :Server too far away for authentication");
+			Srv->SendOpers("*** Server connection from \2"+servername+"\2 denied, server is too far away for authentication");
 			return false;
 		}
 		std::string description = params[3];
@@ -1574,6 +1576,7 @@ class TreeSocket : public InspSocket
 				if (CheckDupe)
 				{
 					this->WriteLine("ERROR :Server "+servername+" already exists on server "+CheckDupe->GetParent()->GetName()+"!");
+					Srv->SendOpers("*** Server connection from \2"+servername+"\2 denied, already exists on server "+CheckDupe->GetParent()->GetName());
 					return false;
 				}
 				// Begin the sync here. this kickstarts the
@@ -1594,6 +1597,7 @@ class TreeSocket : public InspSocket
 			}
 		}
 		this->WriteLine("ERROR :Invalid credentials");
+		Srv->SendOpers("*** Server connection from \2"+servername+"\2 denied, invalid link credentials");
 		return false;
 	}
 
@@ -1607,6 +1611,7 @@ class TreeSocket : public InspSocket
 		if (hops)
 		{
 			this->WriteLine("ERROR :Server too far away for authentication");
+			Srv->SendOpers("*** Server connection from \2"+servername+"\2 denied, server is too far away for authentication");
 			return false;
 		}
 		std::string description = params[3];
@@ -1618,6 +1623,7 @@ class TreeSocket : public InspSocket
 				if (CheckDupe)
 				{
 					this->WriteLine("ERROR :Server "+servername+" already exists on server "+CheckDupe->GetParent()->GetName()+"!");
+					Srv->SendOpers("*** Server connection from \2"+servername+"\2 denied, already exists on server "+CheckDupe->GetParent()->GetName());
 					return false;
 				}
 				/* If the config says this link is encrypted, but the remote side
@@ -1627,6 +1633,7 @@ class TreeSocket : public InspSocket
 				if ((x->EncryptionKey != "") && (!this->ctx))
 				{
 					this->WriteLine("ERROR :This link requires AES encryption to be enabled. Plaintext connection refused.");
+					Srv->SendOpers("*** Server connection from \2"+servername+"\2 denied, remote server did not enable AES.");
 					return false;
 				}
 				Srv->SendOpers("*** Verified incoming server connection from \002"+servername+"\002["+this->GetIP()+"] ("+description+")");
@@ -1641,6 +1648,7 @@ class TreeSocket : public InspSocket
 			}
 		}
 		this->WriteLine("ERROR :Invalid credentials");
+		Srv->SendOpers("*** Server connection from \2"+servername+"\2 denied, invalid link credentials");
 		return false;
 	}
 
@@ -1737,7 +1745,7 @@ class TreeSocket : public InspSocket
 		}
 		else if ((this->ctx) && (command == "AES"))
 		{
-			WriteOpers("\2AES\2: Encryption already enabled on this connection yet %s is trying to enable it twice!",params[0].c_str());
+			WriteOpers("*** \2AES\2: Encryption already enabled on this connection yet %s is trying to enable it twice!",params[0].c_str());
 		}
 
 		switch (this->LinkState)
@@ -1757,6 +1765,11 @@ class TreeSocket : public InspSocket
 				else if (command == "ERROR")
 				{
 					return this->Error(params);
+				}
+				else if (command == "USER")
+				{
+					this->WriteLine("ERROR :Client connections to this port are prohibited.");
+					return false;
 				}
 			break;
 			case WAIT_AUTH_2:
@@ -1825,11 +1838,11 @@ class TreeSocket : public InspSocket
 					{
 						if (route_back_again)
 						{
-							WriteOpers("Protocol violation: Fake direction in command '%s' from connection '%s'",line.c_str(),this->GetName().c_str());
+							WriteOpers("*** Protocol violation: Fake direction in command '%s' from connection '%s'",line.c_str(),this->GetName().c_str());
 						}
 						else
 						{
-							WriteOpers("Protocol violation: Invalid source '%s' in command '%s' from connection '%s'",direction.c_str(),line.c_str(),this->GetName().c_str());
+							WriteOpers("*** Protocol violation: Invalid source '%s' in command '%s' from connection '%s'",direction.c_str(),line.c_str(),this->GetName().c_str());
 						}
 						
 						return true;
@@ -2533,7 +2546,7 @@ class ModuleSpanningTree : public Module
 	        {
 			for (unsigned int i = 0; i < LinkBlocks.size(); i++)
 			{
-				WriteServ(user->fd,"213 %s C *@%s * %s %d 0 M",user->nick,LinkBlocks[i].IPAddr.c_str(),LinkBlocks[i].Name.c_str(),LinkBlocks[i].Port);
+				WriteServ(user->fd,"213 %s C *@%s * %s %d 0 %s",user->nick,LinkBlocks[i].IPAddr.c_str(),LinkBlocks[i].Name.c_str(),LinkBlocks[i].Port,(LinkBlocks[i].EncryptionKey != "" ? "es" : " s"));
 				WriteServ(user->fd,"244 %s H * * %s",user->nick,LinkBlocks[i].Name.c_str());
 			}
 			WriteServ(user->fd,"219 %s %s :End of /STATS report",user->nick,parameters[0]);
