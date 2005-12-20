@@ -1620,6 +1620,15 @@ class TreeSocket : public InspSocket
 					this->WriteLine("ERROR :Server "+servername+" already exists on server "+CheckDupe->GetParent()->GetName()+"!");
 					return false;
 				}
+				/* If the config says this link is encrypted, but the remote side
+				 * hasnt bothered to send the AES command before SERVER, then we
+				 * boot them off as we MUST have this connection encrypted.
+				 */
+				if ((x->EncryptionKey != "") && (!this->ctx))
+				{
+					this->WriteLine("ERROR :This link requires AES encryption to be enabled. Plaintext connection refused.");
+					return false;
+				}
 				Srv->SendOpers("*** Verified incoming server connection from \002"+servername+"\002["+this->GetIP()+"] ("+description+")");
 				this->InboundServerName = servername;
 				this->InboundDescription = description;
