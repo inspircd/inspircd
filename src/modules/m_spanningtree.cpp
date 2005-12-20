@@ -294,17 +294,17 @@ class TreeServer
 
 	std::string GetName()
 	{
-		return this->ServerName;
+		return ServerName;
 	}
 
 	std::string GetDesc()
 	{
-		return this->ServerDesc;
+		return ServerDesc;
 	}
 
 	std::string GetVersion()
 	{
-		return this->VersionString;
+		return VersionString;
 	}
 
 	void SetNextPingTime(time_t t)
@@ -315,7 +315,7 @@ class TreeServer
 
 	time_t NextPingTime()
 	{
-		return this->NextPing;
+		return NextPing;
 	}
 
 	bool AnsweredLastPing()
@@ -330,22 +330,22 @@ class TreeServer
 
 	int GetUserCount()
 	{
-		return this->UserCount;
+		return UserCount;
 	}
 
 	int GetOperCount()
 	{
-		return this->OperCount;
+		return OperCount;
 	}
 
 	TreeSocket* GetSocket()
 	{
-		return this->Socket;
+		return Socket;
 	}
 
 	TreeServer* GetParent()
 	{
-		return this->Parent;
+		return Parent;
 	}
 
 	void SetVersion(std::string Version)
@@ -2419,9 +2419,15 @@ class ModuleSpanningTree : public Module
 		TreeServer* s = FindServerMask(parameters[0]);
 		if (s)
 		{
+			if (s == TreeRoot)
+			{
+				 WriteServ(user->fd,"NOTICE %s :*** SQUIT: Foolish mortal, you cannot make a server SQUIT itself! (%s matches local server name)",user->nick,parameters[0]);
+				return 1;
+			}
 			TreeSocket* sock = s->GetSocket();
 			if (sock)
 			{
+				log(DEBUG,"Splitting server %s",s->GetName().c_str());
 				WriteOpers("*** SQUIT: Server \002%s\002 removed from network by %s",parameters[0],user->nick);
 				sock->Squit(s,"Server quit by "+std::string(user->nick)+"!"+std::string(user->ident)+"@"+std::string(user->host));
 				sock->Close();
