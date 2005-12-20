@@ -94,6 +94,13 @@ void cmd_nick::Handle (char **parameters, int pcnt, userrec *user)
 	}
 	if (irc::string(user->nick) == irc::string(parameters[0]))
 	{
+		/* If its exactly the same, even case, dont do anything. */
+		if (!strcmp(user->nick,parameters[0]))
+			return;
+		/* Its a change of case. People insisted that they should be
+		 * able to do silly things like this even though the RFC says
+		 * the nick AAA is the same as the nick aaa.
+		 */
 		log(DEBUG,"old nick is new nick, not updating hash (case change only)");
 		strlcpy(oldnick,user->nick,NICKMAX);
 		int MOD_RESULT = 0;
