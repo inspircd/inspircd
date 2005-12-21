@@ -58,7 +58,7 @@ class ModuleConnLUSERS : public Module
 		Module* Proto = Srv->FindModule("m_spanningtree.so");
 		if (Proto)
 		{
-			Proto->OnPreCommand("LUSERS", NULL, 0, user);
+			Proto->OnPreCommand("LUSERS", NULL, 0, user, true);
 		}
 		else
 		{

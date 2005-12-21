@@ -877,9 +877,10 @@ class Module : public classbase
 	 * @param parameters An array of array of characters containing the parameters for the command
 	 * @param pcnt The nuimber of parameters passed to the command
 	 * @param user the user issuing the command
+	 * @param validated True if the command has passed all checks, e.g. it is recognised, has enough parameters, the user has permission to execute it, etc.
 	 * @return 1 to block the command, 0 to allow
 	 */
-	virtual int OnPreCommand(std::string command, char **parameters, int pcnt, userrec *user);
+	virtual int OnPreCommand(std::string command, char **parameters, int pcnt, userrec *user, bool validated);
 
 	/** Called to check if a user who is connecting can now be allowed to register
 	 * If any modules return false for this function, the user is held in the waiting

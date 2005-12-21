@@ -525,6 +525,11 @@ void CommandParser::ProcessCommand(userrec *user, char* cmd)
                                 {
                                         /* activity resets the ping pending timer */
                                         user->nping = TIME + user->pingmax;
+					int MOD_RESULT = 0;
+					FOREACH_RESULT(OnPreCommand(command,command_p,items,user,false));
+					if (MOD_RESULT == 1) {
+                                        	return;
+					}
                                         if ((items) < cmdlist[i]->min_params)
                                         {
                                                 log(DEBUG,"not enough parameters: %s %s",user->nick,command);
@@ -581,7 +586,7 @@ void CommandParser::ProcessCommand(userrec *user, char* cmd)
                                                         }
 
                                                         int MOD_RESULT = 0;
-                                                        FOREACH_RESULT(OnPreCommand(command,command_p,items,user));
+                                                        FOREACH_RESULT(OnPreCommand(command,command_p,items,user,true));
                                                         if (MOD_RESULT == 1) {
                                                                 return;
                                                         }

@@ -2635,8 +2635,12 @@ class ModuleSpanningTree : public Module
 		return false;
 	}
 
-	virtual int OnPreCommand(std::string command, char **parameters, int pcnt, userrec *user)
+	virtual int OnPreCommand(std::string command, char **parameters, int pcnt, userrec *user, bool validated)
 	{
+		/* If the command doesnt appear to be valid, we dont want to mess with it. */
+		if (!validated)
+			return;
+
 		if (command == "CONNECT")
 		{
 			return this->HandleConnect(parameters,pcnt,user);
