@@ -29,7 +29,8 @@ using namespace std;
 #include "helperfuncs.h"
 
 /* $ModDesc: m_filter with regexps */
-/* $CompileFlags: -I/usr/local/include -L/usr/local/lib -lpcre */
+/* $CompileFlags: -I/usr/local/include */
+/* $LinkerFlags: -L/usr/local/lib -lpcre */
 
 class ModuleFilterPCRE : public Module
 {

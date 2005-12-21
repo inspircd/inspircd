@@ -872,7 +872,8 @@ EOF
 
   # Create a Modules List..
   my $modules = "";
-  my $flags = "";
+  my $cmflags = "";
+  my $liflags = "";
   if ($config{OSNAME} =~ /CYGWIN/) {
      open(MODLIST,">include/modlist.h");
      print MODLIST <<HEADER;
@@ -892,7 +893,8 @@ HEADER
   foreach $i (@modlist)
   {
     if ($i !~ /_static$/) {
-     $flags = getcompilerflags("src/modules/m_".$i.".cpp");
+     $cmflags = getcompilerflags("src/modules/m_".$i.".cpp");
+     $liflags = getlinkerflags("src/modules/m_".$i.".cpp");
      if ($config{OSNAME} =~ /CYGWIN/) {
         print FILEHANDLE <<EOCHEESE;
 m_$i.o: m_$i\_static.cpp ../../include/modules.h ../../include/users.h ../../include/channels.h ../../include/base.h
@@ -918,8 +920,8 @@ EOENT
      else {
          print FILEHANDLE <<EOCHEESE;
 m_$i.so: m_$i.cpp ../../include/modules.h ../../include/users.h ../../include/channels.h ../../include/base.h ../../include/inspircd_config.h ../../include/inspircd.h ../../include/inspircd_io.h
-	\$(CC) -pipe -I../../include \$(FLAGS) $flags -export-dynamic -c m_$i.cpp
-	\$(CC) \$(FLAGS) -shared $flags -o m_$i.so m_$i.o
+	\$(CC) -pipe -I../../include \$(FLAGS) $cmflags -export-dynamic -c m_$i.cpp
+	\$(CC) \$(FLAGS) -shared $liflags -o m_$i.so m_$i.o
 	\@-rm -f \$(MODPATH)/m_$i.so
 	cp m_$i.so \$(MODPATH)/
 	chmod 0700 \$(MODPATH)/m_$i.so
@@ -939,6 +941,19 @@ sub getcompilerflags {
   open(FLAGS, $file);
   while (<FLAGS>) {
     if ($_ =~ /^\/\* \$CompileFlags: (.+) \*\/$/) {
+      close(FLAGS);
+      return $1;
+    }
+  }
+  close(FLAGS);
+  return undef;
+}
+
+sub getlinkerflags {
+  my ($file) = @_;
+  open(FLAGS, $file);
+  while (<FLAGS>) {
+    if ($_ =~ /^\/\* \$LinkerFlags: (.+) \*\/$/) {
       close(FLAGS);
       return $1;
     }
