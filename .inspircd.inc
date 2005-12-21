@@ -21,8 +21,6 @@ my $libpath = "@LIBRARY_DIR@";
 my $executable = "@EXECUTABLE@";
 my @filesparsed;
 
-$ENV{"LD_LIBRARY_PATH"} = $ENV{"LD_LIBRARY_PATH"} . ":/usr/local/lib/mysql:/usr/lib/mysql";
-
 # Lets see what they want to do.. Set the variable (Cause i'm a lazy coder)
 my $arg = $ARGV[0];
 getpidfile($confpath."inspircd.conf");
