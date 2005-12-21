@@ -917,7 +917,7 @@ EOENT
      }
      else {
          print FILEHANDLE <<EOCHEESE;
-m_$i.so: m_$i.cpp ../../include/modules.h ../../include/users.h ../../include/channels.h ../../include/base.h
+m_$i.so: m_$i.cpp ../../include/modules.h ../../include/users.h ../../include/channels.h ../../include/base.h ../include/inspircd_config.h ../include/inspircd.h ../include/base.h ../include/inspircd_io.h
 	\$(CC) -pipe -I../../include \$(FLAGS) $flags -export-dynamic -c m_$i.cpp
 	\$(CC) \$(FLAGS) -shared $flags -o m_$i.so m_$i.o
 	\@-rm -f \$(MODPATH)/m_$i.so
@@ -1081,7 +1081,7 @@ aes.o: aes.cpp ../include/base.h ../include/inspircd.h ../include/globals.h ../i
 EOM
 	foreach my $cmd (@cmdlist) {
 		print FH <<ITEM;
-cmd_$cmd.o: cmd_$cmd.cpp ../include/base.h ../include/modules.h ../include/inspircd.h ../include/channels.h ../include/users.h ../include/globals.h ../include/inspircd_config.h
+cmd_$cmd.o: cmd_$cmd.cpp ../include/base.h ../include/modules.h ../include/inspircd.h ../include/channels.h ../include/users.h ../include/globals.h ../include/inspircd_config.h ../include/cmd_$cmd.h
 	\$(CC) -pipe -I../include \$(FLAGS) -export-dynamic -c cmd_$cmd.cpp
 ITEM
 	}
@@ -1216,7 +1216,7 @@ libIRCDaes.so: aes.cpp ../include/base.h ../include/inspircd.h ../include/global
 EOM
 	foreach my $cmd (@cmdlist) {
 		print FH <<ITEM;
-cmd_$cmd.o: cmd_$cmd.cpp ../include/base.h ../include/modules.h ../include/inspircd.h ../include/channels.h ../include/users.h ../include/globals.h ../include/inspircd_config.h
+cmd_$cmd.o: cmd_$cmd.cpp ../include/base.h ../include/modules.h ../include/inspircd.h ../include/channels.h ../include/users.h ../include/globals.h ../include/inspircd_config.h ../include/cmd_$cmd.h
 	\$(CC) -pipe -I../include \$(FLAGS) -export-dynamic -c cmd_$cmd.cpp
 
 ITEM
