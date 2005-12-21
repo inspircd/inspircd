@@ -95,8 +95,6 @@ extern int MODCOUNT;
 enum ServerState { LISTENER, CONNECTING, WAIT_AUTH_1, WAIT_AUTH_2, CONNECTED };
 
 /* We need to import these from the core for use in netbursts */
-/*typedef nspace::hash_map<std::string, userrec*, nspace::hash<string>, irc::StrHashComp> user_hash;
-typedef nspace::hash_map<std::string, chanrec*, nspace::hash<string>, irc::StrHashComp> chan_hash;*/
 extern user_hash clientlist;
 extern chan_hash chanlist;
 
