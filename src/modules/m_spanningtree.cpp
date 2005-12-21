@@ -2639,7 +2639,7 @@ class ModuleSpanningTree : public Module
 	{
 		/* If the command doesnt appear to be valid, we dont want to mess with it. */
 		if (!validated)
-			return;
+			return 0;
 
 		if (command == "CONNECT")
 		{

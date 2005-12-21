@@ -84,10 +84,14 @@ class ModuleAlias : public Module
 			return Version(1,0,0,1,VF_VENDOR);
 		}
 
-		virtual int OnPreCommand(std::string command, char **parameters, int pcnt, userrec *user)
+		virtual int OnPreCommand(std::string command, char **parameters, int pcnt, userrec *user, bool validated)
 		{
 			userrec *u = NULL;
 			irc::string c = command.c_str();
+
+			/* If the command is valid, we dont want to know */
+			if (validated)
+				return 0;
 			
 			for (unsigned int i = 0; i < Aliases.size(); i++)
 			{
