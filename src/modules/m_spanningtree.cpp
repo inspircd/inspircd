@@ -610,6 +610,7 @@ class TreeSocket : public InspSocket
 			{
 				if (x->Name == this->myhost)
 				{
+					this->SendCapabilities();
 					if (x->EncryptionKey != "")
 					{
 						if (!(x->EncryptionKey.length() == 16 || x->EncryptionKey.length() == 24 || x->EncryptionKey.length() == 32))
@@ -622,7 +623,6 @@ class TreeSocket : public InspSocket
 							this->InitAES(x->EncryptionKey,x->Name);
 						}
 					}
-					this->SendCapabilities();
 					/* found who we're supposed to be connecting to, send the neccessary gubbins. */
 					this->WriteLine("SERVER "+Srv->GetServerName()+" "+x->SendPass+" 0 :"+Srv->GetServerDescription());
 					return true;
