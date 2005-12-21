@@ -980,6 +980,21 @@ sub yesno {
 
 sub write_static_makefile {
 	open(FH,">src/Makefile") or die("Could not write src/Makefile!");
+        my $i = 0;
+        my @cmdlist = ();
+        opendir(DIRHANDLE, "src");
+        foreach $name (sort readdir(DIRHANDLE)) {
+                if ($name =~ /^cmd_(.+)\.cpp$/) {
+                        $cmdlist[$i++] = $1;
+                }
+        }
+        closedir(DIRHANDLE);
+        my $cmdobjs = "";
+	my $srcobjs = "";
+        foreach my $cmd (@cmdlist) {
+                $cmdobjs = $cmdobjs . "cmd_$cmd.o ";
+                $srcobjs = $srcobjs . "cmd_$cmd.cpp ";
+	}
 	print FH <<EOM;
 # Insp Makefile :p
 #
@@ -992,7 +1007,7 @@ CC = im a cheezeball
 
 CXXFLAGS = -I../include \${FLAGS}
 
-all: aes.o command_parse.o cull_list.o userprocess.o socketengine.o socket.o hashcomp.o channels.o mode.o xline.o inspstring.o dns.o base.o inspircd_io.o message.o commands.o dnsqueue.o dynamic.o users.o modules.o wildcard.o helperfuncs.o \$(MODULES) inspircd.exe
+all: aes.o command_parse.o cull_list.o userprocess.o socketengine.o socket.o hashcomp.o channels.o mode.o xline.o inspstring.o dns.o base.o inspircd_io.o message.o $cmdobjs commands.o dnsqueue.o dynamic.o users.o modules.o wildcard.o helperfuncs.o \$(MODULES) inspircd.exe
 
 inspircd.exe: inspircd.cpp ../include/base.h ../include/channels.h ../include/inspircd.h ../include/channels.h ../include/globals.h ../include/inspircd_config.h ../include/base.h
 	\$(CC) -I../include \$(FLAGS) inspircd.cpp -o inspircd.exe \$(LDLIBS) channels.o mode.o xline.o inspstring.o dns.o base.o inspircd_io.o message.o commands.o dnsqueue.o dynamic.o users.o modules.o wildcard.o helperfuncs.o hashcomp.o socket.o socketengine.o userprocess.o cull_list.o command_parse.o aes.o \$(MODULES)
@@ -1039,8 +1054,8 @@ inspircd_io.o: inspircd_io.cpp ../include/base.h ../include/inspircd_io.h ../inc
 message.o: message.cpp ../include/base.h ../include/message.h ../include/inspircd.h ../include/channels.h ../include/users.h ../include/globals.h ../include/inspircd_config.h
 	\$(CC) -pipe -I../include \$(FLAGS) -export-dynamic -c message.cpp
 
-commands.o: commands.cpp ../include/base.h ../include/commands.h ../include/inspircd.h ../include/channels.h ../include/users.h ../include/globals.h ../include/inspircd_config.h
-	\$(CC) -pipe -I../include \$(FLAGS) -export-dynamic -c commands.cpp
+commands.o: commands.cpp ../include/base.h ../include/commands.h ../include/inspircd.h ../include/channels.h ../include/users.h ../include/globals.h ../include/inspircd_config.h $srcobjs
+	\$(CC) -pipe -I../include \$(FLAGS) -export-dynamic -c commands.cpp $cmdobjs
 
 dnsqueue.o: dnsqueue.cpp ../include/base.h ../include/dnsqueue.h ../include/inspircd.h ../include/channels.h ../include/users.h ../include/globals.h ../include/inspircd_config.h
 	\$(CC) -pipe -I../include \$(FLAGS) -export-dynamic -c dnsqueue.cpp
@@ -1064,6 +1079,12 @@ aes.o: aes.cpp ../include/base.h ../include/inspircd.h ../include/globals.h ../i
 	\$(CC) -pipe -I../include \$(FLAGS) -export-dynamic -c aes.cpp
 
 EOM
+	foreach my $cmd (@cmdlist) {
+		print FH <<ITEM;
+cmd_$cmd.o: cmd_$cmd.cpp ../include/base.h ../include/modules.h ../include/inspircd.h ../include/channels.h ../include/users.h ../include/globals.h ../include/inspircd_config.h
+	\$(CC) -pipe -I../include \$(FLAGS) -export-dynamic -c cmd_$cmd.cpp
+ITEM
+	}
 close(FH);
 }
 
@@ -1084,7 +1105,7 @@ sub write_dynamic_makefile {
 	foreach my $cmd (@cmdlist) {
 		$cmdobjs = $cmdobjs . "cmd_$cmd.o ";
 		$srcobjs = $srcobjs . "cmd_$cmd.cpp ";
-	i}
+	}
 
 	open(FH,">src/Makefile") or die("Could not write src/Makefile");
 	print FH <<EOM;
@@ -1106,91 +1127,91 @@ inspircd: inspircd.cpp ../include/base.h ../include/channels.h ../include/inspir
 
 libIRCDsocketengine.so: socketengine.cpp ../include/base.h ../include/hashcomp.h ../include/globals.h ../include/inspircd_config.h
 	\$(CC) -pipe -I../include \$(FLAGS) -export-dynamic -c socketengine.cpp
-	\$(CC) -shared -o libIRCDsocketengine.so socketengine.o
+	\@\$(CC) -shared -o libIRCDsocketengine.so socketengine.o
 
 libIRCDcommand_parse.so: command_parse.cpp ../include/base.h ../include/hashcomp.h ../include/inspircd.h ../include/users.h ../include/globals.h ../include/inspircd_config.h
 	\$(CC) -pipe -I../include \$(FLAGS) -export-dynamic -c command_parse.cpp
-	\$(CC) -shared -o libIRCDcommand_parse.so command_parse.o
+	\@\$(CC) -shared -o libIRCDcommand_parse.so command_parse.o
 
 libIRCDcull_list.so: cull_list.cpp ../include/base.h ../include/hashcomp.h ../include/globals.h ../include/inspircd_config.h ../include/users.h ../include/channels.h
 	\$(CC) -pipe -I../include \$(FLAGS) -export-dynamic -c cull_list.cpp
-	\$(CC) -shared -o libIRCDcull_list.so cull_list.o
+	\@\$(CC) -shared -o libIRCDcull_list.so cull_list.o
 
 libIRCDuserprocess.so: userprocess.cpp ../include/base.h ../include/hashcomp.h ../include/globals.h ../include/inspircd_config.h
 	\$(CC) -pipe -I../include \$(FLAGS) -export-dynamic -c userprocess.cpp
-	\$(CC) -shared -o libIRCDuserprocess.so userprocess.o
+	\@\$(CC) -shared -o libIRCDuserprocess.so userprocess.o
 
 libIRCDhash.so: hashcomp.cpp ../include/base.h ../include/hashcomp.h ../include/inspircd.h ../include/users.h ../include/globals.h ../include/inspircd_config.h
 	\$(CC) -pipe -I../include \$(FLAGS) -export-dynamic -c hashcomp.cpp
-	\$(CC) -shared -o libIRCDhash.so hashcomp.o
+	\@\$(CC) -shared -o libIRCDhash.so hashcomp.o
 
 libIRCDhelper.so: helperfuncs.cpp ../include/base.h ../include/helperfuncs.h ../include/inspircd.h ../include/users.h ../include/globals.h ../include/inspircd_config.h
 	\$(CC) -pipe -I../include \$(FLAGS) -export-dynamic -c helperfuncs.cpp
-	\$(CC) -shared -o libIRCDhelper.so helperfuncs.o
+	\@\$(CC) -shared -o libIRCDhelper.so helperfuncs.o
 
 libIRCDchannels.so: channels.cpp ../include/base.h ../include/channels.h ../include/inspircd.h ../include/users.h ../include/globals.h ../include/inspircd_config.h
 	\$(CC) -pipe -I../include \$(FLAGS) -export-dynamic -c channels.cpp
-	\$(CC) -shared -o libIRCDchannels.so channels.o
+	\@\$(CC) -shared -o libIRCDchannels.so channels.o
 
 libIRCDmode.so: mode.cpp ../include/base.h ../include/mode.h ../include/inspircd.h ../include/channels.h ../include/users.h ../include/globals.h ../include/inspircd_config.h
 	\$(CC) -pipe -I../include \$(FLAGS) -export-dynamic -c mode.cpp
-	\$(CC) -shared -o libIRCDmode.so mode.o
+	\@\$(CC) -shared -o libIRCDmode.so mode.o
 
 libIRCDxline.so: xline.cpp ../include/base.h ../include/xline.h ../include/inspircd.h ../include/channels.h ../include/users.h ../include/globals.h ../include/inspircd_config.h
 	\$(CC) -pipe -I../include \$(FLAGS) -export-dynamic -c xline.cpp
-	\$(CC) -shared -o libIRCDxline.so xline.o
+	\@\$(CC) -shared -o libIRCDxline.so xline.o
 
 libIRCDstring.so: inspstring.cpp ../include/base.h ../include/inspstring.h ../include/inspircd.h ../include/channels.h ../include/users.h ../include/globals.h ../include/inspircd_config.h
 	\$(CC) -pipe -I../include \$(FLAGS) -export-dynamic -c inspstring.cpp
-	\$(CC) -shared -o libIRCDstring.so inspstring.o
+	\@\$(CC) -shared -o libIRCDstring.so inspstring.o
 
 libIRCDasyncdns.so: dns.cpp ../include/base.h ../include/dns.h ../include/inspircd.h ../include/channels.h ../include/users.h ../include/globals.h ../include/inspircd_config.h
 	\$(CC) -pipe -I../include \$(FLAGS) -export-dynamic -c dns.cpp
-	\$(CC) -shared -o libIRCDasyncdns.so dns.o
+	\@\$(CC) -shared -o libIRCDasyncdns.so dns.o
 
 libIRCDbase.so: base.cpp ../include/base.h ../include/globals.h ../include/inspircd_config.h
 	\$(CC) -pipe -I../include \$(FLAGS) -export-dynamic -c base.cpp
-	\$(CC) -shared -o libIRCDbase.so base.o
+	\@\$(CC) -shared -o libIRCDbase.so base.o
 
 libIRCDio.so: inspircd_io.cpp ../include/base.h ../include/inspircd_io.h ../include/inspircd.h ../include/channels.h ../include/users.h ../include/globals.h ../include/inspircd_config.h
 	\$(CC) -pipe -I../include \$(FLAGS) -export-dynamic -c inspircd_io.cpp
-	\$(CC) -shared -o libIRCDio.so inspircd_io.o
+	\@\$(CC) -shared -o libIRCDio.so inspircd_io.o
 
 libIRCDmessage.so: message.cpp ../include/base.h ../include/message.h ../include/inspircd.h ../include/channels.h ../include/users.h ../include/globals.h ../include/inspircd_config.h
 	\$(CC) -pipe -I../include \$(FLAGS) -export-dynamic -c message.cpp
-	\$(CC) -shared -o libIRCDmessage.so message.o
+	\@\$(CC) -shared -o libIRCDmessage.so message.o
 
 libIRCDcommands.so: commands.cpp ../include/base.h ../include/commands.h ../include/inspircd.h ../include/channels.h ../include/users.h ../include/globals.h ../include/inspircd_config.h $srcobjs
 	\$(CC) -pipe -I../include \$(FLAGS) -export-dynamic -c commands.cpp
-	\$(CC) -shared -o libIRCDcommands.so commands.o $cmdobjs
+	\@\$(CC) -shared -o libIRCDcommands.so commands.o $cmdobjs
 
 libIRCDdnsqueue.so: dnsqueue.cpp ../include/base.h ../include/dnsqueue.h ../include/inspircd.h ../include/channels.h ../include/users.h ../include/globals.h ../include/inspircd_config.h
 	\$(CC) -pipe -I../include \$(FLAGS) -export-dynamic -c dnsqueue.cpp
-	\$(CC) -shared -o libIRCDdnsqueue.so dnsqueue.o
+	\@\$(CC) -shared -o libIRCDdnsqueue.so dnsqueue.o
 
 libIRCDdynamic.so: dynamic.cpp ../include/base.h ../include/dynamic.h ../include/inspircd.h ../include/channels.h ../include/users.h ../include/globals.h ../include/inspircd_config.h
 	\$(CC) -pipe -I../include \$(FLAGS) -export-dynamic -c dynamic.cpp
-	\$(CC) -shared -o libIRCDdynamic.so dynamic.o
+	\@\$(CC) -shared -o libIRCDdynamic.so dynamic.o
 
 libIRCDusers.so: users.cpp ../include/base.h ../include/users.h ../include/inspircd.h ../include/channels.h ../include/users.h ../include/globals.h ../include/inspircd_config.h
 	\$(CC) -pipe -I../include \$(FLAGS) -export-dynamic -c users.cpp
-	\$(CC) -shared -o libIRCDusers.so users.o
+	\@\$(CC) -shared -o libIRCDusers.so users.o
 
 libIRCDmodules.so: modules.cpp ../include/base.h ../include/modules.h ../include/inspircd.h ../include/channels.h ../include/users.h ../include/globals.h ../include/inspircd_config.h
 	\$(CC) -pipe -I../include \$(FLAGS) -export-dynamic -c modules.cpp
-	\$(CC) -shared -o libIRCDmodules.so modules.o
+	\@\$(CC) -shared -o libIRCDmodules.so modules.o
 
 libIRCDwildcard.so: wildcard.cpp ../include/base.h ../include/wildcard.h ../include/inspircd.h ../include/channels.h ../include/users.h ../include/globals.h ../include/inspircd_config.h
 	\$(CC) -pipe -I../include \$(FLAGS) -export-dynamic -c wildcard.cpp
-	\$(CC) -shared -o libIRCDwildcard.so wildcard.o
+	\@\$(CC) -shared -o libIRCDwildcard.so wildcard.o
 
 libIRCDsocket.so: socket.cpp ../include/base.h ../include/inspircd.h ../include/globals.h ../include/inspircd_config.h
 	\$(CC) -pipe -I../include \$(FLAGS) -export-dynamic -c socket.cpp
-	\$(CC) -shared -o libIRCDsocket.so socket.o
+	\@\$(CC) -shared -o libIRCDsocket.so socket.o
 
 libIRCDaes.so: aes.cpp ../include/base.h ../include/inspircd.h ../include/globals.h ../include/inspircd_config.h
 	\$(CC) -pipe -I../include \$(FLAGS) -export-dynamic -c aes.cpp
-	\$(CC) -shared -o libIRCDaes.so aes.o
+	\@\$(CC) -shared -o libIRCDaes.so aes.o
 
 EOM
 	foreach my $cmd (@cmdlist) {
