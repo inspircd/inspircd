@@ -710,7 +710,7 @@
 #                    must be at the start of the line to trigger the  #
 #                    alias. May contain spaces, but case insensitive. #
 # replace     -      The text to replace 'text' with. Usually this    #
-#                    will be "PRIVMSG ServiceName :" or similar.      #
+#                    will be "PRIVMSG ServiceName" or similar.        #
 # requires    -      If you provide a value for 'requires' this means #
 #                    the given nickname MUST be online for the alias  #
 #                    to successfully trigger. If they are not, then   #
@@ -724,10 +724,10 @@
 #                    of a user trying to impersonate a service.       #
 #                                                                     #
 
-<alias text="NICKSERV" replace="PRIVMSG NickServ :" requires="NickServ" uline="yes">
-<alias text="CHANSERV" replace="PRIVMSG ChanServ :" requires="ChanServ" uline="yes">
-<alias text="NS" replace="PRIVMSG NickServ :" requires="NickServ" uline="yes">
-<alias text="CS" replace="PRIVMSG ChanServ :" requires="ChanServ" uline="yes">
+<alias text="NICKSERV" replace="PRIVMSG NickServ" requires="NickServ" uline="yes">
+<alias text="CHANSERV" replace="PRIVMSG ChanServ" requires="ChanServ" uline="yes">
+<alias text="NS" replace="PRIVMSG NickServ" requires="NickServ" uline="yes">
+<alias text="CS" replace="PRIVMSG ChanServ" requires="ChanServ" uline="yes">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#- YAWN  -#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 #                                                                     #

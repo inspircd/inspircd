@@ -95,7 +95,6 @@ class ModuleAlias : public Module
 			
 			for (unsigned int i = 0; i < Aliases.size(); i++)
 			{
-				log(DEBUG,"Check against alias %s: %s",Aliases[i].text.c_str(),c.c_str());
 				if (Aliases[i].text == c)
 				{
 					if (Aliases[i].requires != "")
@@ -118,28 +117,26 @@ class ModuleAlias : public Module
 						}
 					}
 
-					std::stringstream stuff(Aliases[i].replace_with);
-					for (int j = 1; j < pcnt; j++)
+					std::string n = "";
+					for (int j = 0; j < pcnt; j++)
 					{
 						if (j)
-							stuff << " ";
-						stuff << parameters[j];
+							n = n + " ";
+						n = n + parameters[j];
 					}
+					/* Final param now in n as one string */
+					std::stringstream stuff(Aliases[i].replace_with);
 
-					std::vector<std::string> items;
-					while (!stuff.eof())
-					{
-						std::string data;
-						stuff >> data;
-						items.push_back(data);
-					}
+					std::string cmd = "";
+					std::string target = "";
+					stuff >> cmd;
+					stuff >> target;
 
-					char* para[127];
+					char* para[2];
+					para[0] = (char*)target.c_str();
+					para[1] = (char*)n.c_str();
 
-					for (unsigned int j = 1; j < items.size(); j++)
-						para[j-1] = (char*)items[j].c_str();
-
-					Srv->CallCommandHandler(items[0],para,items.size()-1,user);
+					Srv->CallCommandHandler(cmd,para,2,user);
 					return 1;
 				}
 			}

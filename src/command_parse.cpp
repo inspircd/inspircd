@@ -377,9 +377,10 @@ void CommandParser::ProcessCommand(userrec *user, char* cmd)
         }
 
         int total_params = 0;
-        if (strlen(cmd)>2)
+	unsigned int xl = strlen(cmd);
+        if (xl > 2)
         {
-                for (unsigned int q = 0; q < strlen(cmd)-1; q++)
+                for (unsigned int q = 0; q < xl - 1; q++)
                 {
                         if ((cmd[q] == ' ') && (cmd[q+1] == ':'))
                         {
@@ -426,7 +427,8 @@ void CommandParser::ProcessCommand(userrec *user, char* cmd)
                 items = 0;
                 command_p[0] = NULL;
                 parameters = NULL;
-                for (unsigned int i = 0; i <= strlen(cmd); i++)
+		unsigned int tl = strlen(cmd);
+                for (unsigned int i = 0; i <= tl; i++)
                 {
                         cmd[i] = toupper(cmd[i]);
                 }
@@ -434,10 +436,12 @@ void CommandParser::ProcessCommand(userrec *user, char* cmd)
         }
         else
         {
-                strcpy(cmd,"");
+                *cmd = 0;
                 j = 0;
+
+		unsigned int vl = strlen(temp);
                 /* strip out extraneous linefeeds through mirc's crappy pasting (thanks Craig) */
-                for (unsigned int i = 0; i < strlen(temp); i++)
+                for (unsigned int i = 0; i < vl; i++)
                 {
                         if ((temp[i] != 10) && (temp[i] != 13) && (temp[i] != 0) && (temp[i] != 7))
                         {
@@ -447,11 +451,14 @@ void CommandParser::ProcessCommand(userrec *user, char* cmd)
                 }
                 /* split the full string into a command plus parameters */
                 parameters = p;
-                strcpy(p," ");
+                p[0] = ' ';
+		p[1] = 0;
+		
                 command = cmd;
                 if (strchr(cmd,' '))
                 {
-                        for (unsigned int i = 0; i <= strlen(cmd); i++)
+			unsigned int cl = strlen(cmd);
+                        for (unsigned int i = 0; i <= cl; i++)
                         {
                                 /* capitalise the command ONLY, leave params intact */
                                 cmd[i] = toupper(cmd[i]);
@@ -482,13 +489,13 @@ void CommandParser::ProcessCommand(userrec *user, char* cmd)
                 return;
         }
 
-        for (unsigned int x = 0; x < strlen(command); x++)
+        for (char* x = command; *x; x++)
         {
-                if (((command[x] < 'A') || (command[x] > 'Z')) && (command[x] != '.'))
+                if (((*x < 'A') || (*x > 'Z')) && (*x != '.'))
                 {
-                        if (((command[x] < '0') || (command[x]> '9')) && (command[x] != '-'))
+                        if (((*x < '0') || (*x> '9')) && (*x != '-'))
                         {
-                                if (strchr("@!\"$%^&*(){}[]_=+;:'#~,<>/?\\|`",command[x]))
+                                if (strchr("@!\"$%^&*(){}[]_=+;:'#~,<>/?\\|`",*x))
                                 {
                                         ServerInstance->stats->statsUnknown++;
                                         WriteServ(user->fd,"421 %s %s :Unknown command",user->nick,command);
@@ -499,37 +506,40 @@ void CommandParser::ProcessCommand(userrec *user, char* cmd)
         }
 
         std::string xcommand = command;
+	
+	/* Tweak by brain - why was this INSIDE the mainloop? */
+	if (parameters)
+	{
+		 if (parameters[0])
+		 {
+			 items = this->ProcessParameters(command_p,parameters);
+		 }
+		 else
+		 {
+			 items = 0;
+			 command_p[0] = NULL;
+		 }
+	}
+	else
+	{
+		items = 0;
+		command_p[0] = NULL;
+	}
+
+	int MOD_RESULT = 0;
+	FOREACH_RESULT(OnPreCommand(command,command_p,items,user,false));
+	if (MOD_RESULT == 1) {
+		return;
+	}
+	
         for (unsigned int i = 0; i != cmdlist.size(); i++)
         {
                         if ((xcommand.length() >= cmdlist[i]->command.length()) && (xcommand == cmdlist[i]->command))
                         {
-                                if (parameters)
-                                {
-                                        if (parameters[0])
-                                        {
-                                                items = this->ProcessParameters(command_p,parameters);
-                                        }
-                                        else
-                                        {
-                                                items = 0;
-                                                command_p[0] = NULL;
-                                        }
-                                }
-                                else
-                                {
-                                        items = 0;
-                                        command_p[0] = NULL;
-                                }
-
                                 if (user)
                                 {
                                         /* activity resets the ping pending timer */
                                         user->nping = TIME + user->pingmax;
-					int MOD_RESULT = 0;
-					FOREACH_RESULT(OnPreCommand(command,command_p,items,user,false));
-					if (MOD_RESULT == 1) {
-                                        	return;
-					}
                                         if ((items) < cmdlist[i]->min_params)
                                         {
                                                 log(DEBUG,"not enough parameters: %s %s",user->nick,command);
