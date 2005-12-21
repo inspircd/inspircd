@@ -569,6 +569,7 @@ class TreeSocket : public InspSocket
 		: InspSocket(newfd, ip)
 	{
 		this->LinkState = WAIT_AUTH_1;
+		this->SendCapabilities();
 	}
 
 	void InitAES(std::string key,std::string SName)
@@ -621,6 +622,7 @@ class TreeSocket : public InspSocket
 							this->InitAES(x->EncryptionKey,x->Name);
 						}
 					}
+					this->SendCapabilities();
 					/* found who we're supposed to be connecting to, send the neccessary gubbins. */
 					this->WriteLine("SERVER "+Srv->GetServerName()+" "+x->SendPass+" 0 :"+Srv->GetServerDescription());
 					return true;
@@ -675,6 +677,51 @@ class TreeSocket : public InspSocket
 				this->SendServers(recursive_server, s, hops+1);
 			}
 		}
+	}
+
+	std::string MyCapabilities()
+	{
+		ServerConfig* Config = Srv->GetConfig();
+		std::vector<std::string> modlist;
+		std::string capabilities = "";
+
+                for (int i = 0; i <= MODCOUNT; i++)
+                {
+			if ((modules[i]->GetVersion().Flags & VF_STATIC) || (modules[i]->GetVersion().Flags & VF_COMMON))
+				modlist.push_back(Config->module_names[i]);
+                }
+		sort(modlist.begin(),modlist.end());
+		for (unsigned int i = 0; i < modlist.size(); i++)
+		{
+			if (i)
+				capabilities = capabilities + ",";
+			capabilities = capabilities + modlist[i];
+		}
+		return capabilities;
+	}
+	
+	void SendCapabilities()
+	{
+		this->WriteLine("CAPAB "+MyCapabilities());
+	}
+
+	bool Capab(std::deque<std::string> params)
+	{
+		if (params.size() != 1)
+		{
+			this->WriteLine("ERROR :Invalid number of parameters for CAPAB");
+			return false;
+		}
+		if (params[0] != this->MyCapabilities())
+		{
+			WriteOpers("*** \2ERROR\2: Server '%s' does not have the same set of modules loaded, cannot link!");
+			WriteOpers("*** Our networked module set is: '%s'",this->MyCapabilities().c_str());
+			WriteOpers("*** Other server's networked module set is: '%s'",params[0].c_str());
+			WriteOpers("*** These lists must match exactly on both servers. Please correct these errors, and try again.");
+			this->WriteLine("ERROR :CAPAB mismatch; My capabilities: '"+this->MyCapabilities()+"'");
+			return false;
+		}
+		return true;
 	}
 
 	/* This function forces this server to quit, removing this server
@@ -1774,6 +1821,10 @@ class TreeSocket : public InspSocket
 					this->WriteLine("ERROR :Client connections to this port are prohibited.");
 					return false;
 				}
+				else if (command == "CAPAB")
+				{
+					return this->Capab(params);
+				}
 				else
 				{
 					this->WriteLine("ERROR :Invalid command in negotiation phase.");
@@ -1806,6 +1857,10 @@ class TreeSocket : public InspSocket
 				else if (command == "ERROR")
 				{
 					return this->Error(params);
+				}
+				else if (command == "CAPAB")
+				{
+					return this->Capab(params);
 				}
 				
 			break;
