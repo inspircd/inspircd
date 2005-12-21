@@ -714,7 +714,12 @@ class TreeSocket : public InspSocket
 		}
 		if (params[0] != this->MyCapabilities())
 		{
-			WriteOpers("*** \2ERROR\2: Server '%s' does not have the same set of modules loaded, cannot link!");
+	                std::string quitserver = this->myhost;
+	                if (this->InboundServerName != "")
+	                {
+	                        quitserver = this->InboundServerName;
+	                }
+			WriteOpers("*** \2ERROR\2: Server '%s' does not have the same set of modules loaded, cannot link!",quitserver.c_str());
 			WriteOpers("*** Our networked module set is: '%s'",this->MyCapabilities().c_str());
 			WriteOpers("*** Other server's networked module set is: '%s'",params[0].c_str());
 			WriteOpers("*** These lists must match exactly on both servers. Please correct these errors, and try again.");
@@ -1225,12 +1230,16 @@ class TreeSocket : public InspSocket
 					char out[1024];
 					char result[1024];
 					log(DEBUG,"Original string '%s'",ret.c_str());
-					int nbytes = from64tobits(out, ret.c_str(), 1024);
-					log(DEBUG,"m_spanningtree: decrypt %d bytes",nbytes);
-					ctx->Decrypt(out, result, nbytes, 0);
-					for (int t = 0; t < nbytes; t++)
-						if (result[t] == '\7') result[t] = 0;
-					ret = result;
+					/* ERROR is still allowed unencryped */
+					if (ret.substr(0,7) != "ERROR :")
+					{
+						int nbytes = from64tobits(out, ret.c_str(), 1024);
+						log(DEBUG,"m_spanningtree: decrypt %d bytes",nbytes);
+						ctx->Decrypt(out, result, nbytes, 0);
+						for (int t = 0; t < nbytes; t++)
+							if (result[t] == '\7') result[t] = 0;
+						ret = result;
+					}
 				}
 				if (!this->ProcessLine(ret))
 				{
@@ -2098,6 +2107,7 @@ class TreeSocket : public InspSocket
 		{
 			Squit(s,"Remote host closed the connection");
 		}
+		WriteOpers("Server '\2%s\2[%s]' closed the connection.",quitserver.c_str(),this->GetIP().c_str());
 	}
 
 	virtual int OnIncomingConnection(int newsock, char* ip)
