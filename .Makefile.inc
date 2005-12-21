@@ -37,6 +37,11 @@ bininst:
 	@-cp inspircd $(BASE)
 	@-chmod 0700 $(BINPATH)/inspircd
 	@-chmod 0700 $(LIBPATH)/*.so
+	@echo *************************************
+	@echo *      BUILD COMPLETE!              *
+	@echo * It is safe to ignore any messages *
+	@echo * related to copying of files.      *
+	@echo *************************************
 
 config:
 	@cp conf/inspire.motd $(CONPATH)/inspire.motd.example
