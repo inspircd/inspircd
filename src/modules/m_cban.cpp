@@ -67,9 +67,9 @@ class ModuleCBan : public Module
 	{
 		/* check cbans in here, and apply as necessary. */
 
-		std::string chname(cname);
+		std::string chname = cname;
 
-		for (vector<std::string>::iterator iterate = cbans.begin();; iterate < cbans.end(); iterate++)
+		for (vector<std::string>::iterator iterate = cbans.begin(); iterate < cbans.end(); iterate++)
 		{
 			if (chname == *iterate)
 			{
