@@ -24,8 +24,8 @@ using namespace std;
 
 /* $ModDesc: Gives /cban, aka C:lines. Think Q:lines, for channels. */
 
+extern time_t TIME;
 Server *Srv;
-vector<CBan> cbans;
 
 class CBan
 {
@@ -56,6 +56,9 @@ class CBan
 	}
 };
 
+vector<CBan> cbans;
+/* don't ask why this is here. */
+
 class cmd_cban : public command_t
 {
  private:
@@ -85,11 +88,11 @@ class cmd_cban : public command_t
 			/* full form to add a CBAN */
 			/* XXX - checking on chnames */
 			chname = parameters[0];
-			expiry = TIME + Srv->Duration(parameters[1]);
+			expiry = TIME + Srv->CalcDuration(parameters[1]);
 			reason = parameters[2];
 
 			CBan meow(chname, reason, expiry);
-			cbans.push_back(meow)
+			cbans.push_back(meow);
 		}
 	}
 };
