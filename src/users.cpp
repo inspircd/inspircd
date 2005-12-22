@@ -63,7 +63,7 @@ template<typename T> inline string ConvToStr(const T &in)
 userrec::userrec()
 {
 	// the PROPER way to do it, AVOID bzero at *ALL* costs
-	*nick = *ident = *host = *dhost = *fullname = *modes = *awaymsg = *oper = *ip = 0
+	*nick = *ident = *host = *dhost = *fullname = *modes = *awaymsg = *oper = *ip = 0;
 	server = (char*)FindServerNamePtr(Config->ServerName);
 	reset_due = TIME;
 	lines_in = fd = lastping = signon = idle_lastmsg = nping = registered = 0;
