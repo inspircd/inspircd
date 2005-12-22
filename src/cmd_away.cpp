@@ -49,7 +49,7 @@ void cmd_away::Handle (char **parameters, int pcnt, userrec *user)
 	}
 	else
 	{
-		strlcpy(user->awaymsg,"",MAXAWAY);
+		*user->awaymsg = 0;
 		WriteServ(user->fd,"305 %s :You are no longer marked as being away",user->nick);
 	}
 }
