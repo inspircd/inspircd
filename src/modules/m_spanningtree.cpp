@@ -552,6 +552,7 @@ class TreeSocket : public InspSocket
 	{
 		myhost = host;
 		this->LinkState = LISTENER;
+		this->ctx = NULL;
 	}
 
 	TreeSocket(std::string host, int port, bool listening, unsigned long maxtime, std::string ServerName)
@@ -559,6 +560,7 @@ class TreeSocket : public InspSocket
 	{
 		myhost = ServerName;
 		this->LinkState = CONNECTING;
+		this->ctx = NULL;
 	}
 
 	/* When a listening socket gives us a new file descriptor,
@@ -569,7 +571,14 @@ class TreeSocket : public InspSocket
 		: InspSocket(newfd, ip)
 	{
 		this->LinkState = WAIT_AUTH_1;
+		this->ctx = NULL;
 		this->SendCapabilities();
+	}
+
+	~TreeSocket()
+	{
+		if (ctx)
+			delete ctx;
 	}
 
 	void InitAES(std::string key,std::string SName)
