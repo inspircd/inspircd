@@ -38,7 +38,6 @@ using namespace std;
 
 extern ServerConfig* Config;
 
-
 void cmd_admin::Handle (char **parameters, int pcnt, userrec *user)
 {
 	WriteServ(user->fd,"256 %s :Administrative info for %s",user->nick,Config->ServerName);
