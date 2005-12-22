@@ -84,6 +84,14 @@ class cmd_cban : public command_t
 		if (pcnt == 1)
 		{
 			/* form: CBAN #channel removes a CBAN */
+			for (vector<CBan>::iterator myiter; myiter < cbans.end(); myiter++)
+			{
+				if (parameters[0] == (*myiter).GetName())
+				{
+					cbans.erase(myiter);
+					break;
+				}
+			}
 		}
 		else if (pcnt >= 2)
 		{
