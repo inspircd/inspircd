@@ -25,6 +25,7 @@ using namespace std;
 /* $ModDesc: Gives /cban, aka C:lines. Think Q:lines, for channels. */
 
 Server *Srv;
+vector<CBan> cbans;
 
 class CBan
 {
@@ -57,6 +58,9 @@ class CBan
 
 class cmd_cban : public command_t
 {
+ private:
+	Server *Srv;
+
  public:
 	cmd_cban () : command_t("CBAN", 'o', 1)
 	{
@@ -68,6 +72,10 @@ class cmd_cban : public command_t
 		/* syntax: CBAN #channel time :reason goes here */
 		/* 'time' is a human-readable timestring, like 2d3h2s. */
 
+		std::string chname;
+		std::string reason;
+		unsigned long expiry;
+
 		if (pcnt == 1)
 		{
 			/* form: CBAN #channel removes a CBAN */
@@ -75,6 +83,13 @@ class cmd_cban : public command_t
 		else if (pcnt >= 2)
 		{
 			/* full form to add a CBAN */
+			/* XXX - checking on chnames */
+			chname = parameters[0];
+			expiry = TIME + Srv->Duration(parameters[1]);
+			reason = parameters[2];
+
+			CBan meow(chname, reason, expiry);
+			cbans.push_back(meow)
 		}
 	}
 };
@@ -82,7 +97,6 @@ class cmd_cban : public command_t
 class ModuleCBan : public Module
 {
 	cmd_cban* mycommand;
-	vector<CBan> cbans;
 
  public:
 	ModuleCBan(Server* Me) : Module::Module(Me)
