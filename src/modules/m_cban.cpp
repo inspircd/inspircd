@@ -88,7 +88,8 @@ class cmd_cban : public command_t
 			/* full form to add a CBAN */
 			/* XXX - checking on chnames */
 			chname = parameters[0];
-			expiry = TIME + Srv->CalcDuration(parameters[1]);
+			expiry = 0;
+//TIME + Srv->CalcDuration(parameters[1]);
 			reason = parameters[2];
 
 			CBan meow(chname, reason, expiry);
@@ -109,7 +110,7 @@ class ModuleCBan : public Module
 		Srv->AddCommand(mycommand);
 	}
 
-	virtual int OnUserPreJoin (userrec *user, chanrec *chan, const char *cname)
+	virtual int OnUserPreJoin(userrec *user, chanrec *chan, const char *cname)
 	{
 		/* check cbans in here, and apply as necessary. */
 
@@ -117,12 +118,16 @@ class ModuleCBan : public Module
 
 		for (unsigned int a = 0; a < cbans.size(); a++)
 		{
+			WriteOpers("m_cban: DEBUG: checking %s against %s in OnPreUserJoin()", chname, cbans[a].GetName());
 			if (chname == cbans[a].GetName())
 			{
 				/* matches CBAN */
+				WriteOpers("DENY join");
 				return 1;
 			}
 		}
+
+		WriteOpers("DONE checking, allowed");
 
 		/* Allow the change. */
 		return 0;
