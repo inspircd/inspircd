@@ -20,10 +20,7 @@ using namespace std;
 #include "inspircd.h"
 #include "inspircd_io.h"
 #include <string>
-#include <map>
-#include <sstream>
 #include <vector>
-#include <deque>
 #include "users.h"
 #include "ctables.h"
 #include "globals.h"
