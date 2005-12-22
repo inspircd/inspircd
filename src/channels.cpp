@@ -72,13 +72,8 @@ chanrec* ForceChan(chanrec* Ptr,ucrec &a,userrec* user, int created);
 
 chanrec::chanrec()
 {
-	strcpy(name,"");
-	strcpy(custom_modes,"");
-	strcpy(topic,"");
-	strcpy(setby,"");
-	strcpy(key,"");
-	created = topicset = limit = 0;
-	binarymodes = 0;
+	*name = *custom_modes = *topic = *setby = *key = 0;
+	created = topicset = limit = binarymodes = 0;
 	internal_userlist.clear();
 }
 
