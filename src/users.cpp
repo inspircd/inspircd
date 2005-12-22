@@ -63,23 +63,13 @@ template<typename T> inline string ConvToStr(const T &in)
 userrec::userrec()
 {
 	// the PROPER way to do it, AVOID bzero at *ALL* costs
-	strcpy(nick,"");
+	*nick = *ident = *host = *dhost = *fullname = *modes = *awaymsg = *oper = 0;
 	strcpy(ip,"127.0.0.1");
-	timeout = 0;
-	strcpy(ident,"");
-	strcpy(host,"");
-	strcpy(dhost,"");
-	strcpy(fullname,"");
-	strcpy(modes,"");
 	server = (char*)FindServerNamePtr(Config->ServerName);
-	strcpy(awaymsg,"");
-	strcpy(oper,"");
 	reset_due = TIME;
-	lines_in = 0;
-	fd = lastping = signon = idle_lastmsg = nping = registered = 0;
-	flood = port = bytes_in = bytes_out = cmds_in = cmds_out = 0;
-	haspassed = false;
-	dns_done = false;
+	lines_in = fd = lastping = signon = idle_lastmsg = nping = registered = 0;
+	timeout = flood = port = bytes_in = bytes_out = cmds_in = cmds_out = 0;
+	haspassed = dns_done = false;
 	recvq = "";
 	sendq = "";
 	chans.clear();
@@ -578,7 +568,7 @@ void AddClient(int socket, char* host, int port, bool iscached, char* ip)
 
         for (ClassVector::iterator i = Config->Classes.begin(); i != Config->Classes.end(); i++)
         {
-                if (match(clientlist[tempnick]->host,i->host) && (i->type == CC_ALLOW))
+                if (match(clientlist[tempnick]->host,i->host.c_str()) && (i->type == CC_ALLOW))
                 {
                         class_regtimeout = (unsigned long)i->registration_timeout;
                         class_flood = i->flood;

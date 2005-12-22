@@ -63,13 +63,13 @@ class ConnectClass : public classbase
 	int flood;
 	/** Host mask for this line
 	 */
-	char host[MAXBUF];
+	std::string host;
 	/** Number of seconds between pings for this line
 	 */
 	int pingtime;
 	/** (Optional) Password for this line
 	 */
-	char pass[MAXBUF];
+	std::string pass;
 
 	/** Threshold value for flood disconnect
 	 */
@@ -83,16 +83,8 @@ class ConnectClass : public classbase
 	 */
 	long recvqmax;
 	
-	ConnectClass()
+	ConnectClass() : registration_timeout(0), flood(0), host(""), pingtime(0), pass(""), threshold(0), sendqmax(0), recvqmax(0)
 	{
-		registration_timeout = 0;
-		flood = 0;
-		pingtime = 0;
-		threshold = 0;
-		sendqmax = 0;
-		recvqmax = 0;
-		strlcpy(host,"",MAXBUF);
-		strlcpy(pass,"",MAXBUF);
 	}
 };
 

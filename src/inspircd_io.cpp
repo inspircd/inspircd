@@ -211,7 +211,7 @@ void ServerConfig::Read(bool bail, userrec* user)
         Classes.clear();
         for (int i = 0; i < ConfValueEnum("connect",&Config->config_f); i++)
         {
-                strcpy(Value,"");
+                *Value = 0;
                 ConfValue("connect","allow",i,Value,&Config->config_f);
                 ConfValue("connect","timeout",i,timeout,&Config->config_f);
                 ConfValue("connect","flood",i,flood,&Config->config_f);
@@ -221,11 +221,11 @@ void ServerConfig::Read(bool bail, userrec* user)
                 ConfValue("connect","recvq",i,rqmax,&Config->config_f);
                 if (*Value)
                 {
-                        strlcpy(c.host,Value,MAXBUF);
+                        c.host = Value;
                         c.type = CC_ALLOW;
                         strlcpy(Value,"",MAXBUF);
                         ConfValue("connect","password",i,Value,&Config->config_f);
-                        strlcpy(c.pass,Value,MAXBUF);
+                        c.pass = Value;
                         c.registration_timeout = 90; // default is 2 minutes
                         c.pingtime = 120;
                         c.flood = atoi(flood);
@@ -257,10 +257,10 @@ void ServerConfig::Read(bool bail, userrec* user)
                 else
                 {
                         ConfValue("connect","deny",i,Value,&Config->config_f);
-                        strlcpy(c.host,Value,MAXBUF);
+                        c.host = Value;
                         c.type = CC_DENY;
                         Classes.push_back(c);
-                        log(DEBUG,"Read connect class type DENY, host=%s",c.host);
+                        log(DEBUG,"Read connect class type DENY, host=%s",c.host.c_str());
                 }
 
         }

@@ -922,9 +922,9 @@ char* Passwd(userrec *user)
 {
         for (ClassVector::iterator i = Config->Classes.begin(); i != Config->Classes.end(); i++)
         {
-                if ((i->type == CC_ALLOW) && match(user->host,i->host))
+                if ((i->type == CC_ALLOW) && match(user->host,i->host.c_str()))
                 {
-                        return i->pass;
+                        return (char*)i->pass.c_str();
                 }
         }
         return "";
@@ -934,7 +934,7 @@ bool IsDenied(userrec *user)
 {
         for (ClassVector::iterator i = Config->Classes.begin(); i != Config->Classes.end(); i++)
         {
-                if ((i->type == CC_DENY) && match(user->host,i->host))
+                if ((i->type == CC_DENY) && match(user->host,i->host.c_str()))
                 {
                         return true;
                 }
