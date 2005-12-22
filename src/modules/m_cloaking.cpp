@@ -256,7 +256,7 @@ class ModuleCloaking : public Module
 		int i = 0;
 		unsigned char bytes[16];
 		char hash[MAXBUF];
-		strcpy(hash,"");
+		*hash = 0;
 		MyMD5((char*)bytes,src,strlen(src));
 		for (i = 0; i < 16; i++)
 		{

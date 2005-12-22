@@ -63,8 +63,7 @@ template<typename T> inline string ConvToStr(const T &in)
 userrec::userrec()
 {
 	// the PROPER way to do it, AVOID bzero at *ALL* costs
-	*nick = *ident = *host = *dhost = *fullname = *modes = *awaymsg = *oper = 0;
-	strcpy(ip,"127.0.0.1");
+	*nick = *ident = *host = *dhost = *fullname = *modes = *awaymsg = *oper = *ip = 0
 	server = (char*)FindServerNamePtr(Config->ServerName);
 	reset_due = TIME;
 	lines_in = fd = lastping = signon = idle_lastmsg = nping = registered = 0;
@@ -761,7 +760,7 @@ void force_nickchange(userrec* user,const char* newnick)
         char nick[MAXBUF];
         int MOD_RESULT = 0;
 
-        strcpy(nick,"");
+        *nick = 0;
 
         FOREACH_RESULT(OnUserPreNick(user,newnick));
         if (MOD_RESULT) {

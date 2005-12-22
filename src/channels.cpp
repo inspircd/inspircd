@@ -217,7 +217,7 @@ chanrec* add_channel(userrec *user, const char* cn, const char* key, bool overri
                 strlcpy(chanlist[cname]->name, cname,CHANMAX);
                 chanlist[cname]->binarymodes = CM_TOPICLOCK | CM_NOEXTERNAL;
                 chanlist[cname]->created = TIME;
-                strcpy(chanlist[cname]->topic, "");
+                *chanlist[cname]->topic = 0;
                 strncpy(chanlist[cname]->setby, user->nick,NICKMAX);
                 chanlist[cname]->topicset = 0;
                 Ptr = chanlist[cname];

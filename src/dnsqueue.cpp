@@ -68,12 +68,12 @@ private:
 public:
 	Lookup()
 	{
-		strcpy(u,"");
+		*u = 0;
 	}
 
 	void Reset()
 	{
-		strcpy(u,"");
+		*u = 0;
 	}
 
 	~Lookup()

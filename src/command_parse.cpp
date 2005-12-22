@@ -114,12 +114,12 @@ int CommandParser::LoopCall(command_t* fn, char **parameters, int pcnt, userrec 
         char moo[MAXBUF];
 
         for (int i = 0; i <32; i++)
-                strcpy(blog[i],"");
+                *blog[i] = 0;
 
         for (int i = 0; i <32; i++)
-                strcpy(blog2[i],"");
+                *blog2[i] = 0;
 
-        strcpy(moo,"");
+        *moo = 0;
         for (int i = 0; i <10; i++)
         {
                 if (!parameters[i])
@@ -143,7 +143,7 @@ int CommandParser::LoopCall(command_t* fn, char **parameters, int pcnt, userrec 
         {
                 return 0;
         }
-        strcpy(plist,"");
+        *plist = 0;
         for (int i = start; i <= end; i++)
         {
                 if (parameters[i])

@@ -1289,7 +1289,8 @@ void cmd_mode::Handle (char **parameters, int pcnt, userrec *user)
 			return;
 		}
 		
-		strcpy(outpars,"+");
+		outpars[0] = '+';
+		outpars[1] = 0;
 		direction = 1;
 
 		if ((parameters[1][0] != '+') && (parameters[1][0] != '-'))
@@ -1383,7 +1384,7 @@ void cmd_mode::Handle (char **parameters, int pcnt, userrec *user)
 								outpars[r+1]='\0';
 								outpars[r] = parameters[1][i];
 							
-								strcpy(temp,"");
+								*temp = 0;
 								for (q = 0; q < strlen(dmodes); q++)
 								{
 									if (dmodes[q] != parameters[1][i])
@@ -1555,7 +1556,8 @@ void ModeParser::ServerMode(char **parameters, int pcnt, userrec *user)
 		char dmodes[MAXBUF];
 		strlcpy(dmodes,dest->modes,52);
 
-		strcpy(outpars,"+");
+		outpars[0] = '+';
+		outpars[1] = 0;
 		direction = 1;
 
 		if ((parameters[1][0] != '+') && (parameters[1][0] != '-'))
@@ -1639,8 +1641,7 @@ void ModeParser::ServerMode(char **parameters, int pcnt, userrec *user)
 								unsigned int v1 = strlen(outpars);
 								outpars[v1+1]='\0';
 								outpars[v1] = parameters[1][i];
-							
-								strcpy(temp,"");
+								*temp = 0;
 								for (q = 0; q < strlen(dmodes); q++)
 								{
 									if (dmodes[q] != parameters[1][i])

@@ -936,7 +936,7 @@ int ServerConfig::ReadConf(std::stringstream *config, const char* tag, const cha
 						if (!key)
 						{
 							/* value not found in tag */
-							strcpy(result,"");
+							*result = 0;
 							return 0;
 						}
 						else
@@ -947,7 +947,7 @@ int ServerConfig::ReadConf(std::stringstream *config, const char* tag, const cha
 								if (!*key)
 								{
 									/* missing quote */
-									strcpy(result,"");
+									*result = 0;
 									return 0;
 								}
 								key++;
@@ -985,7 +985,7 @@ int ServerConfig::ReadConf(std::stringstream *config, const char* tag, const cha
 			}
 		}
 	}
-	strcpy(result,""); // value or its tag not found at all
+	*result = 0; // value or its tag not found at all
 	return 0;
 }
 

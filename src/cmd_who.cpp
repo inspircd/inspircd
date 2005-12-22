@@ -82,8 +82,8 @@ void cmd_who::Handle (char **parameters, int pcnt, userrec *user)
 					if ((!common_channels(user,i->second)) && (isnick(i->second->nick)))
 					{
 						// Bug Fix #29
-						strcpy(tmp, "");
-						if (strcmp(i->second->awaymsg, "")) {
+						*tmp = 0;
+						if (*i->second->awaymsg) {
 							strlcat(tmp, "G", 9);
 						} else {
 							strlcat(tmp, "H", 9);
@@ -120,8 +120,8 @@ void cmd_who::Handle (char **parameters, int pcnt, userrec *user)
 					if ((has_channel(i->second,Ptr)) && (isnick(i->second->nick)))
 					{
 						// Fix Bug #29 - Part 2..
-						strcpy(tmp, "");
-						if (strcmp(i->second->awaymsg, "")) {
+						*tmp = 0;
+						if (*i->second->awaymsg) {
 							strlcat(tmp, "G", 9);
 						} else {
 							strlcat(tmp, "H", 9);
@@ -151,8 +151,8 @@ void cmd_who::Handle (char **parameters, int pcnt, userrec *user)
 			if (u)
 			{
 				// Bug Fix #29 -- Part 29..
-				strcpy(tmp, "");
-				if (strcmp(u->awaymsg, "")) {
+				*tmp = 0;
+				if (*u->awaymsg) {
 					strlcat(tmp, "G" ,9);
 				} else {
 					strlcat(tmp, "H" ,9);
@@ -173,8 +173,8 @@ void cmd_who::Handle (char **parameters, int pcnt, userrec *user)
 				// If i were a rich man.. I wouldn't need to me making these bugfixes..
 				// But i'm a poor bastard with nothing better to do.
 				userrec* oper = *i;
-				strcpy(tmp, "");
-				if (strcmp(oper->awaymsg, "")) {
+				*tmp = 0;
+				if (*oper->awaymsg) {
 					strlcat(tmp, "G" ,9);
 				} else {
 					strlcat(tmp, "H" ,9);

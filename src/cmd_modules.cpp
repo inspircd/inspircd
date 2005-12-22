@@ -69,7 +69,7 @@ void cmd_modules::Handle (char **parameters, int pcnt, userrec *user)
 		Version V = modules[i]->GetVersion();
 		char modulename[MAXBUF];
 		char flagstate[MAXBUF];
-		strcpy(flagstate,"");
+		*flagstate = 0;
 		if (V.Flags & VF_STATIC)
 			strlcat(flagstate,", static",MAXBUF);
 		if (V.Flags & VF_VENDOR)

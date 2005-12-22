@@ -245,7 +245,7 @@ void GenHash(const char* src, char* dest)
 	int i = 0;
 	unsigned char bytes[16];
 	char hash[1024];
-	strcpy(hash,"");
+	*hash = 0;
 	MyMD5((char*)bytes,(void*)src,strlen(src));
 	for (i = 0; i < 16; i++)
 	{
