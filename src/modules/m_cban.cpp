@@ -26,9 +26,38 @@ using namespace std;
 
 Server *Srv;
 
+class CBan
+{
+ private:
+	unsigned long expiry;
+	std::string chname;
+	std::string reason;
+
+ public:
+	CBan(std::string chname, std::string reason, unsigned long expiry)
+	{
+
+	}
+
+	std::string GetName()
+	{
+		return chname;
+	}
+
+	std::string GetReason()
+	{
+		return reason;
+	}
+
+	unsigned long GetExpiry()
+	{
+		return expiry;
+	}
+}
+
 class cmd_cban : public command_t
 {
-	public:
+ public:
 	cmd_cban () : command_t("CBAN", 'o', 1)
 	{
 		this->source = "m_cban.so";
@@ -53,7 +82,7 @@ class cmd_cban : public command_t
 class ModuleCBan : public Module
 {
 	cmd_cban* mycommand;
-	vector<std::string> cbans;
+	vector<CBan> cbans;
 
  public:
 	ModuleCBan(Server* Me) : Module::Module(Me)
@@ -69,9 +98,9 @@ class ModuleCBan : public Module
 
 		std::string chname = cname;
 
-		for (vector<std::string>::iterator iterate = cbans.begin(); iterate < cbans.end(); iterate++)
+		for (vector<CBan>::iterator iterate = cbans.begin(); iterate < cbans.end(); iterate++)
 		{
-			if (chname == *iterate)
+			if (chname == *iterate->GetName())
 			{
 				/* matches CBAN */
 				return 1;
