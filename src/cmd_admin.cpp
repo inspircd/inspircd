@@ -33,6 +33,7 @@ using namespace std;
 #include "typedefs.h"
 #include "cmd_admin.h"
 
+
 extern ServerConfig* Config;
 
 void cmd_admin::Handle (char **parameters, int pcnt, userrec *user)
