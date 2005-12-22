@@ -98,11 +98,9 @@ class ModuleCBan : public Module
 
 		std::string chname = cname;
 
-		for (vector<CBan>::iterator iterate = cbans.begin(); iterate < cbans.end(); iterate++)
+		for (unsigned int a = 0; a < cbans.size(); a++)
 		{
-			CBan *comp = (CBan *)*iterate; /* *mindsplode* */
-
-			if (chname == comp->GetName())
+			if (chname == cbans[a].GetName())
 			{
 				/* matches CBAN */
 				return 1;
