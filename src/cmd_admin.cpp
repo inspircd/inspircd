@@ -37,7 +37,6 @@ using namespace std;
 #include "cmd_admin.h"
 
 extern ServerConfig* Config;
-extern InspIRCd* ServerInstance;
 
 void cmd_admin::Handle (char **parameters, int pcnt, userrec *user)
 {
