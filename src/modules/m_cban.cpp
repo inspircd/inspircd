@@ -25,7 +25,6 @@ using namespace std;
 /* $ModDesc: Gives /cban, aka C:lines. Think Q:lines, for channels. */
 
 extern time_t TIME;
-Server *Srv;
 
 class CBan
 {
@@ -35,24 +34,26 @@ class CBan
 	std::string reason;
 
  public:
-	CBan(std::string chname, std::string reason, unsigned long expiry)
+	CBan(std::string cn, std::string rs, unsigned long ex)
 	{
-
+		chname = cn;
+		reason = rs;
+		expiry = ex;
 	}
 
 	std::string GetName()
 	{
-		return chname;
+		return this->chname;
 	}
 
 	std::string GetReason()
 	{
-		return reason;
+		return this->reason;
 	}
 
 	unsigned long GetExpiry()
 	{
-		return expiry;
+		return this->expiry;
 	}
 };
 
@@ -65,9 +66,10 @@ class cmd_cban : public command_t
 	Server *Srv;
 
  public:
-	cmd_cban () : command_t("CBAN", 'o', 1)
+	cmd_cban (Server* Me) : command_t("CBAN", 'o', 1)
 	{
 		this->source = "m_cban.so";
+		this->Srv = Me;
 	}
 
 	void Handle(char **parameters, int pcnt, userrec *user)
@@ -88,8 +90,7 @@ class cmd_cban : public command_t
 			/* full form to add a CBAN */
 			/* XXX - checking on chnames */
 			chname = parameters[0];
-			expiry = 0;
-//TIME + Srv->CalcDuration(parameters[1]);
+			expiry = TIME + Srv->CalcDuration(parameters[1]);
 			reason = parameters[2];
 
 			CBan meow(chname, reason, expiry);
@@ -101,24 +102,26 @@ class cmd_cban : public command_t
 class ModuleCBan : public Module
 {
 	cmd_cban* mycommand;
+	Server* Srv;
 
  public:
 	ModuleCBan(Server* Me) : Module::Module(Me)
 	{
 		Srv = Me;
-		mycommand = new cmd_cban();
+		mycommand = new cmd_cban(Srv);
 		Srv->AddCommand(mycommand);
 	}
 
 	virtual int OnUserPreJoin(userrec *user, chanrec *chan, const char *cname)
 	{
 		/* check cbans in here, and apply as necessary. */
+		log(DEBUG,"In OnUserPreJoin cbans.size() == %d",cbans.size());
 
 		std::string chname = cname;
 
 		for (unsigned int a = 0; a < cbans.size(); a++)
 		{
-			WriteOpers("m_cban: DEBUG: checking %s against %s in OnPreUserJoin()", chname, cbans[a].GetName());
+			log(DEBUG,"m_cban: DEBUG: checking %s against %s in OnPreUserJoin()", chname.c_str(), cbans[a].GetName().c_str());
 			if (chname == cbans[a].GetName())
 			{
 				/* matches CBAN */
@@ -127,7 +130,7 @@ class ModuleCBan : public Module
 			}
 		}
 
-		WriteOpers("DONE checking, allowed");
+		log(DEBUG,"DONE checking, allowed");
 
 		/* Allow the change. */
 		return 0;
