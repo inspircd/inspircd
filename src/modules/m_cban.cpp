@@ -53,7 +53,7 @@ class CBan
 	{
 		return expiry;
 	}
-}
+};
 
 class cmd_cban : public command_t
 {
@@ -100,7 +100,9 @@ class ModuleCBan : public Module
 
 		for (vector<CBan>::iterator iterate = cbans.begin(); iterate < cbans.end(); iterate++)
 		{
-			if (chname == *iterate->GetName())
+			CBan *comp = (CBan *)*iterate; /* *mindsplode* */
+
+			if (chname == comp->GetName())
 			{
 				/* matches CBAN */
 				return 1;
