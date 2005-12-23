@@ -114,7 +114,7 @@ class ModuleBlockColor : public Module
 							break;
 					}
 
-					*ctptr++;
+					ctptr++;
 				}
 			}
 		}
