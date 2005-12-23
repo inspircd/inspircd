@@ -49,7 +49,7 @@ extern userrec* fd_ref_table[65536];
 extern ServerConfig *Config;
 extern user_hash clientlist;
 extern whowas_hash whowas;
-std::vector<userrec*> local_users;
+extern std::vector<userrec*> local_users;
 
 std::vector<userrec*> all_opers;
 
