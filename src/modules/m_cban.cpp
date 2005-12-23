@@ -57,8 +57,8 @@ class CBan
 	}
 };
 
+/* cbans is declared here, as our type is right above. Don't try move it. */
 vector<CBan> cbans;
-/* don't ask why this is here. */
 
 class cmd_cban : public command_t
 {
