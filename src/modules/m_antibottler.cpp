@@ -42,7 +42,6 @@ class ModuleAntiBottler : public Module
 		return Version(1,0,0,1,VF_VENDOR);
 	}
 
-	/* XXX - OnServerRaw? Wouldn't it be easier to use an OnUserConnect, or something? --w00t */
 	virtual void OnServerRaw(std::string &raw, bool inbound, userrec* user)
 	{
 		if (inbound)
@@ -52,12 +51,12 @@ class ModuleAntiBottler : public Module
 			bool not_bottler = false;
 			if (!strncmp(data,"user ",5))
 			{
-				for (unsigned int j = 0; j < strlen(data); j++)
+				for (char* j = data; *j; j++)
 				{
-					if (data[j] == ':')
+					if (*j == ':')
 						break;
 						
-					if (data[j] == '"')
+					if (*j == '"')
 					{
 						not_bottler = true;
 					}
@@ -81,9 +80,9 @@ class ModuleAntiBottler : public Module
 				if (!ident || !local || !remote || !gecos)
 					return;
 
-				for (unsigned int j = 0; j < strlen(remote); j++)
+				for (char* j = remote; *j; j++)
 				{
-					if (((remote[j] < '0') || (remote[j] > '9')) && (remote[j] != '.'))
+					if (((*j < '0') || (*j > '9')) && (*j != '.'))
 					{
 						not_bottler = true;
 					}

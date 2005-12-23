@@ -43,6 +43,8 @@ class ModuleCensor : public Module
 		 *
 		 * XXX - Really, it'd be nice to scraip this kind of thing, and have something like
 		 * an include directive to include additional configuration files. Might make our lives easier. --w00t
+		 *
+		 * XXX - These module pre-date the include directive which exists since beta 5 -- Brain
 		 */
 		Srv = Me;
 		Conf = new ConfigReader;

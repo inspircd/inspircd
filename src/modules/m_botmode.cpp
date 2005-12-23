@@ -36,7 +36,6 @@ class ModuleBotMode : public Module
 		if (!Srv->AddExtendedMode('B',MT_CLIENT,false,0,0))
 		{
 			Srv->Log(DEFAULT,"*** m_botmode: ERROR, failed to allocate user mode +B!");
-			printf("Could not claim usermode +B for this module!"); /* XXX - do we have a debug function? */
 			return;
 		}
 	}
