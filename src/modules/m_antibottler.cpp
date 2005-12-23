@@ -42,7 +42,7 @@ class ModuleAntiBottler : public Module
 		return Version(1,0,0,1,VF_VENDOR);
 	}
 
-
+	/* XXX - OnServerRaw? Wouldn't it be easier to use an OnUserConnect, or something? --w00t */
 	virtual void OnServerRaw(std::string &raw, bool inbound, userrec* user)
 	{
 		if (inbound)
@@ -63,16 +63,24 @@ class ModuleAntiBottler : public Module
 					}
 				}
 				// Bug Fix (#14) -- FCS
-				if (!strlen(data)) return;				
+
+				if (!(data) || !(*data))
+					return;
+
+				/*
+				 * slight efficiency fix: strtok() just returns NULL if it has no more
+				 * tokens to return. Plus strlen's here really could have been replaced
+				 * with above pointer voodoo :-). --w00t
+				 */
 				strtok(data," ");
-				if (!strlen(data)) return;
 				char *ident = strtok(NULL," ");
-				if (!strlen(data)) return;
 				char *local = strtok(NULL," ");
-				if (!strlen(data)) return;
 				char *remote = strtok(NULL," :");
-				if (!strlen(data)) return;
 				char *gecos = strtok(NULL,"\r\n");
+
+				if (!ident || !local || !remote || !gecos)
+					return;
+
 				for (unsigned int j = 0; j < strlen(remote); j++)
 				{
 					if (((remote[j] < '0') || (remote[j] > '9')) && (remote[j] != '.'))
