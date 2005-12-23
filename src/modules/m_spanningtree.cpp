@@ -1238,6 +1238,8 @@ class TreeSocket : public InspSocket
 				{
 					char out[1024];
 					char result[1024];
+					memset(result,0,1024);
+					memset(out,0,1024);
 					log(DEBUG,"Original string '%s'",ret.c_str());
 					/* ERROR + CAPAB is still allowed unencryped */
 					if ((ret.substr(0,7) != "ERROR :") && (ret.substr(0,6) != "CAPAB "))
