@@ -1,2 +1,2 @@
 #!sh
-echo "InspIRCd-1.0(RC2)"
+echo "InspIRCd-1.0(RC2)+SVN"
