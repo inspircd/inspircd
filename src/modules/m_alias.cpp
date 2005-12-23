@@ -40,8 +40,6 @@ class ModuleAlias : public Module
 		ConfigReader *MyConf;
 		std::vector<Alias> Aliases;
 
-		/* XXX - small issue, why is this marked public when it's not (really) intended for external use
-		 * Fixed 30/11/05 by Brain as suggestion by w00t */
  		virtual void ReadAliases()
 		{
 			Aliases.clear();
@@ -100,12 +98,11 @@ class ModuleAlias : public Module
 					if (Aliases[i].requires != "")
 					{
 						u = Srv->FindNick(Aliases[i].requires);
-					}
-				
-					if ((Aliases[i].requires != "") && (!u))
-					{
-						Srv->SendServ(user->fd,"401 "+std::string(user->nick)+" "+Aliases[i].requires+" :is currently unavailable. Please try again later.");
-						return 1;
+						if (!u)
+						{
+							Srv->SendServ(user->fd,"401 "+std::string(user->nick)+" "+Aliases[i].requires+" :is currently unavailable. Please try again later.");
+							return 1;
+						}
 					}
 					if (Aliases[i].uline)
 					{
