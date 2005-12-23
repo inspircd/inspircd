@@ -34,11 +34,16 @@ class ModuleCensor : public Module
 	ModuleCensor(Server* Me)
 		: Module::Module(Me)
 	{
-		// read the configuration file on startup.
-		// it is perfectly valid to set <censor file> to the value of the
-		// main config file, then append your <badword> tags to the bottom
-		// of the main config... but rather messy. That's why the capability
-		// of using a seperate config file is provided.
+		/*
+		 * read the configuration file on startup.
+		 * it is perfectly valid to set <censor file> to the value of the
+		 * main config file, then append your <badword> tags to the bottom
+		 * of the main config... but rather messy. That's why the capability
+		 * of using a seperate config file is provided.
+		 *
+		 * XXX - Really, it'd be nice to scraip this kind of thing, and have something like
+		 * an include directive to include additional configuration files. Might make our lives easier. --w00t
+		 */
 		Srv = Me;
 		Conf = new ConfigReader;
 		std::string Censorfile = Conf->ReadValue("censor","file",0);
@@ -170,8 +175,10 @@ class ModuleCensor : public Module
 	
 	virtual void OnRehash(std::string parameter)
 	{
-		// reload our config file on rehash - we must destroy and re-allocate the classes
-		// to call the constructor again and re-read our data.
+		/*
+		 * reload our config file on rehash - we must destroy and re-allocate the classes
+		 * to call the constructor again and re-read our data.
+		 */
 		delete Conf;
 		delete MyConf;
 		Conf = new ConfigReader;
