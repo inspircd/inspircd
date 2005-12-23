@@ -1025,7 +1025,7 @@ CXXFLAGS = -I../include \${FLAGS}
 all: aes.o command_parse.o cull_list.o userprocess.o socketengine.o socket.o hashcomp.o channels.o mode.o xline.o inspstring.o dns.o base.o inspircd_io.o message.o $cmdobjs commands.o dnsqueue.o dynamic.o users.o modules.o wildcard.o helperfuncs.o \$(MODULES) inspircd.exe
 
 inspircd.exe: inspircd.cpp ../include/base.h ../include/channels.h ../include/inspircd.h ../include/channels.h ../include/globals.h ../include/inspircd_config.h ../include/base.h
-	\$(CC) -I../include \$(FLAGS) inspircd.cpp -o inspircd.exe \$(LDLIBS) channels.o mode.o xline.o inspstring.o dns.o base.o inspircd_io.o message.o commands.o dnsqueue.o dynamic.o users.o modules.o wildcard.o helperfuncs.o hashcomp.o socket.o socketengine.o userprocess.o cull_list.o command_parse.o aes.o \$(MODULES)
+	\$(CC) -I../include \$(FLAGS) inspircd.cpp -o inspircd.exe \$(LDLIBS) channels.o mode.o xline.o inspstring.o dns.o base.o inspircd_io.o message.o $cmdobjs commands.o dnsqueue.o dynamic.o users.o modules.o wildcard.o helperfuncs.o hashcomp.o socket.o socketengine.o userprocess.o cull_list.o command_parse.o aes.o \$(MODULES)
 
 cull_list.o: cull_list.cpp ../include/base.h ../include/hashcomp.h ../include/globals.h ../include/inspircd_config.h ../include/users.h ../include/channels.h
 	\$(CC) -pipe -I../include \$(FLAGS) -export-dynamic -c cull_list.cpp
