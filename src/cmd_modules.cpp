@@ -110,7 +110,7 @@ void cmd_modules::Handle (char **parameters, int pcnt, userrec *user)
 						*dlist = 0;
 						for (int v = 0; v < 4; v++)
 						{
-							if (itab[it])
+							if ((itab[it]) && (Config->implement_lists[i][it]))
 							{
 								snprintf(data,MAXBUF,"%s=>%c ",itab[it],(Config->implement_lists[i][it] ? '1' : '0'));
 								strncat(dlist,data,MAXBUF);
@@ -123,7 +123,8 @@ void cmd_modules::Handle (char **parameters, int pcnt, userrec *user)
 					WriteServ(user->fd,"900 %s :=== DEBUG: Implementation counts ===",user->nick);
 					for (int it = 0; itab[it]; it++)
 					{
-						WriteServ(user->fd,"900 %s :%s: %d times",user->nick, itab[it],(int)Config->global_implementation[it]);
+						if (Config->global_implementation[it])
+							WriteServ(user->fd,"900 %s :%s: %d times",user->nick, itab[it],(int)Config->global_implementation[it]);
 					}
 				}
 			}
