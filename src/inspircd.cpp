@@ -196,6 +196,8 @@ InspIRCd::InspIRCd(int argc, char** argv)
 	for(int t = 0; t < 255; t++)
 		Config->global_implementation[t] = 0;
 
+	memset(&Config->implement_lists,0,sizeof(Config->implement_lists));
+
         printf("\n");
         if (!Config->nofork)
         {
@@ -299,7 +301,9 @@ bool InspIRCd::UnloadModule(const char* filename)
 			}
 
                         for(int t = 0; t < 255; t++)
+			{
 				Config->global_implementation[t] -= Config->implement_lists[j][t];
+			}
 
 			FOREACH_MOD(I_OnUnloadModule,OnUnloadModule(modules[j],Config->module_names[j]));
 			// found the module
@@ -374,7 +378,13 @@ bool InspIRCd::LoadModule(const char* filename)
 			modules[MODCOUNT+1]->Implements(x);
 
 			for(int t = 0; t < 255; t++)
+			{
 				Config->global_implementation[t] += Config->implement_lists[MODCOUNT+1][t];
+				if (Config->implement_lists[MODCOUNT+1][t])
+				{
+					log(DEBUG,"Add global implementation: %d %d => %d",MODCOUNT+1,t,Config->global_implementation[t]);
+				}
+			}
                 }
 		else
                 {

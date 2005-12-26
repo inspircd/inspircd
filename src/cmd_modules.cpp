@@ -98,11 +98,34 @@ void cmd_modules::Handle (char **parameters, int pcnt, userrec *user)
 		strlcpy(modulename,Config->module_names[i].c_str(),256);
 		if (strchr(user->modes,'o'))
 		{
-			if ((pcnt > 0) && (!strcasecmp(parameters[0],"debug")))
+			if ((pcnt >= 2) && (!strcasecmp(parameters[0],"debug")))
 			{
-				WriteServ(user->fd,"900 %s :0x%08lx %d.%d.%d.%d %s (%s)",user->nick,modules[i],V.Major,V.Minor,V.Revision,V.Build,CleanFilename(modulename),flagstate+2);
-				for (int it = 0; itab[it]; it++)
-					WriteServ(user->fd,"900 %s :%s [%s = %d]",user->nick,CleanFilename(modulename),itab[it],Config->implement_lists[i]);
+				if (match(Config->module_names[i].c_str(),parameters[1]))
+				{
+					WriteServ(user->fd,"900 %s :0x%08lx %d.%d.%d.%d %s (%s)",user->nick,modules[i],V.Major,V.Minor,V.Revision,V.Build,CleanFilename(modulename),flagstate+2);
+					for (int it = 0; itab[it];)
+					{
+						char data[MAXBUF];
+						char dlist[MAXBUF];
+						*dlist = 0;
+						for (int v = 0; v < 4; v++)
+						{
+							if (itab[it])
+							{
+								snprintf(data,MAXBUF,"%s=>%c ",itab[it],(Config->implement_lists[i][it] ? '1' : '0'));
+								strncat(dlist,data,MAXBUF);
+								it++;
+							}
+						}
+						if (*dlist)
+							WriteServ(user->fd,"900 %s :%s [ %s]",user->nick,CleanFilename(modulename),dlist);
+					}
+					WriteServ(user->fd,"900 %s :=== DEBUG: Implementation counts ===",user->nick);
+					for (int it = 0; itab[it]; it++)
+					{
+						WriteServ(user->fd,"900 %s :%s: %d times",user->nick, itab[it],(int)Config->global_implementation[it]);
+					}
+				}
 			}
 			else
 			{
