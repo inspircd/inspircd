@@ -61,6 +61,12 @@ class ModuleCensor : public Module
 		Srv->AddExtendedMode('G',MT_CLIENT,false,0,0);
 	}
 
+	void Implements(char* List)
+	{
+		List[I_OnRehash] = List[I_On005Numeric] = List[I_OnUserPreMessage] = List[I_OnUserPreNotice] = List[I_OnExtendedMode] = 1;
+	}
+
+
         virtual void On005Numeric(std::string &output)
         {
                 std::stringstream line(output);

@@ -73,6 +73,8 @@ using namespace std;
 class ModuleSpanningTree;
 static ModuleSpanningTree* TreeProtocolModule;
 
+extern ServerConfig* Config;
+
 extern std::vector<Module*> modules;
 extern std::vector<ircd_module*> factory;
 extern int MODCOUNT;
@@ -1144,12 +1146,12 @@ class TreeSocket : public InspSocket
 				snprintf(data,MAXBUF,":%s FMODE %s +b %s",Srv->GetServerName().c_str(),c->second->name,b->data);
 				this->WriteLine(data);
 			}
-			FOREACH_MOD OnSyncChannel(c->second,(Module*)TreeProtocolModule,(void*)this);
+			FOREACH_MOD(I_OnSyncChannel,OnSyncChannel(c->second,(Module*)TreeProtocolModule,(void*)this));
 			list.clear();
 			c->second->GetExtList(list);
 			for (unsigned int j = 0; j < list.size(); j++)
 			{
-				FOREACH_MOD OnSyncChannelMetaData(c->second,(Module*)TreeProtocolModule,(void*)this,list[j]);
+				FOREACH_MOD(I_OnSyncChannelMetaData,OnSyncChannelMetaData(c->second,(Module*)TreeProtocolModule,(void*)this,list[j]));
 			}
 		}
 	}
@@ -1169,12 +1171,12 @@ class TreeSocket : public InspSocket
 				{
 					this->WriteLine(":"+std::string(u->second->nick)+" OPERTYPE "+std::string(u->second->oper));
 				}
-				FOREACH_MOD OnSyncUser(u->second,(Module*)TreeProtocolModule,(void*)this);
+				FOREACH_MOD(I_OnSyncUser,OnSyncUser(u->second,(Module*)TreeProtocolModule,(void*)this));
 				list.clear();
 				u->second->GetExtList(list);
 				for (unsigned int j = 0; j < list.size(); j++)
 				{
-					FOREACH_MOD OnSyncUserMetaData(u->second,(Module*)TreeProtocolModule,(void*)this,list[j]);
+					FOREACH_MOD(I_OnSyncUserMetaData,OnSyncUserMetaData(u->second,(Module*)TreeProtocolModule,(void*)this,list[j]));
 				}
 			}
 		}
@@ -1425,7 +1427,7 @@ class TreeSocket : public InspSocket
 				chanrec* c = Srv->FindChannel(params[0]);
 				if (c)
 				{
-					FOREACH_MOD OnDecodeMetaData(TYPE_CHANNEL,c,params[1],params[2]);
+					FOREACH_MOD(I_OnDecodeMetaData,OnDecodeMetaData(TYPE_CHANNEL,c,params[1],params[2]));
 				}
 			}
 			else
@@ -1433,7 +1435,7 @@ class TreeSocket : public InspSocket
 				userrec* u = Srv->FindNick(params[0]);
 				if (u)
 				{
-					FOREACH_MOD OnDecodeMetaData(TYPE_USER,u,params[1],params[2]);
+					FOREACH_MOD(I_OnDecodeMetaData,OnDecodeMetaData(TYPE_USER,u,params[1],params[2]));
 				}
 			}
 		}
