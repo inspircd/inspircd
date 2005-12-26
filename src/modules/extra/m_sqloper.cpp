@@ -70,6 +70,11 @@ class ModuleSQLOper : public Module
 		ReadConfig();
 	}
 
+	void Implements(char* List)
+	{
+		List[I_OnRehash] = List[I_OnPreCommand] = 1;
+	}
+
 	virtual int OnPreCommand(std::string command, char **parameters, int pcnt, userrec *user)
 	{
 		if (command == "OPER")

@@ -143,7 +143,7 @@ class ModuleSilence : public Module
 
 	void Implements(char* List)
 	{
-		List[I_OnUserQuit] = List[I_On005Numeric] = List[I_OnUserPreNotice] = List[OnUserPreMessage] = 1;
+		List[I_OnUserQuit] = List[I_On005Numeric] = List[I_OnUserPreNotice] = List[I_OnUserPreMessage] = 1;
 	}
 
 	virtual void OnUserQuit(userrec* user, std::string reason)

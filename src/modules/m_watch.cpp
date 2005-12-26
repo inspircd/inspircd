@@ -199,6 +199,11 @@ class Modulewatch : public Module
 		Srv->AddCommand(mycommand);
 	}
 
+	void Implements(char* List)
+	{
+		List[I_OnUserQuit] = List[I_OnGlobalConnect] = List[I_OnUserPostNick] = List[I_On005Numeric] = 1;
+	}
+
 	virtual void OnUserQuit(userrec* user, std::string reason)
 	{
 		log(DEBUG,"*** WATCH: On global quit: user %s",user->nick);

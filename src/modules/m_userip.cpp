@@ -64,6 +64,11 @@ class ModuleUserIP : public Module
 		Srv->AddCommand(mycommand);
 	}
 
+	void Implements(char* List)
+	{
+		List[I_On005Numeric] = 1;
+	}
+
         virtual void On005Numeric(std::string &output)
         {
 		output = output + std::string(" USERIP");

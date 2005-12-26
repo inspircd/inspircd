@@ -73,6 +73,11 @@ class ModuleTestCommand : public Module
 		// Add a mode +Z for channels with no parameters		
 		Srv->AddExtendedMode('Z',MT_CHANNEL,false,1,0);
 	}
+
+	void Implements(char* List)
+	{
+		List[I_OnExtendedMode] = List[I_OnUserJoin] = 1;
+	}
 	
 	virtual int OnExtendedMode(userrec* user, void* target, char modechar, int type, bool mode_on, string_list &params)
 	{
@@ -119,11 +124,6 @@ class ModuleTestCommand : public Module
 	{
 		return Version(1,0,0,0,VF_STATIC|VF_VENDOR);
 	}
-	
-	virtual void OnUserConnect(userrec* user)
-	{
-	}
-
 };
 
 

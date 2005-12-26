@@ -39,6 +39,11 @@ class ModuleStripColor : public Module
 		Srv->AddExtendedMode('S',MT_CLIENT,false,0,0);
 	}
 
+	void Implements(char* List)
+	{
+		List[I_OnExtendedMode] = List[I_On005Numeric] = List[I_OnUserPreMessage] = List[I_OnUserPreNotice] = 1;
+	}
+
 	virtual int OnExtendedMode(userrec* user, void* target, char modechar, int type, bool mode_on, string_list &params)
 	{
 		// check if this is our mode character...

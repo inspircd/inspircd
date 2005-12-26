@@ -286,6 +286,11 @@ class ModuleSQL : public Module
 		}
 	}
 
+	void Implements(char* List)
+	{
+		List[I_OnRehash] = List[I_OnRequest] = 1;
+	}
+
 	char* OnRequest(Request* request)
 	{
 		if (request)

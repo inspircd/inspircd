@@ -62,7 +62,7 @@ class ModuleRedirect : public Module
 
 	void Implements(char* List)
 	{
-		List[I_On005Numeiric] = List[I_OnUserPreJoin] = List[I_OnExtendedMode] = 1;
+		List[I_On005Numeric] = List[I_OnUserPreJoin] = List[I_OnExtendedMode] = 1;
 	}
 
         virtual void On005Numeric(std::string &output)

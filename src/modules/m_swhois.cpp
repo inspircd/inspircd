@@ -71,6 +71,11 @@ class ModuleSWhois : public Module
 		Srv->AddCommand(mycommand);
 	}
 
+	void Implements(char* List)
+	{
+		List[I_OnWhois] = List[I_OnSyncUserMetaData] = List[I_OnUserQuit] = List[I_OnCleanup] = 1;
+	}
+
 	// :kenny.chatspike.net 320 Brain Azhrarn :is getting paid to play games.
 	virtual void OnWhois(userrec* source, userrec* dest)
 	{
@@ -163,11 +168,6 @@ class ModuleSWhois : public Module
 	{
 		return Version(1,0,0,0,VF_VENDOR);
 	}
-	
-	virtual void OnUserConnect(userrec* user)
-	{
-	}
-
 };
 
 

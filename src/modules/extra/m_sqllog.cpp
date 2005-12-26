@@ -72,6 +72,13 @@ class ModuleSQLLog : public Module
 		ReadConfig();
 	}
 
+	void Implements(char* List)
+	{
+		List[I_OnRehash] = List[I_OnOper]] = List[I_OnGlobalOper] = List[I_OnKill] = 1;
+	       	List[I_OnPreCommand] = List[I_OnUserConnect] = List[I_OnGlobalConnect] = 1;
+		List[I_OnUserQuit] = List[I_OnLoadModule] = 1;
+	}
+
 	virtual void OnRehash(std::string parameter)
 	{
 		ReadConfig();
