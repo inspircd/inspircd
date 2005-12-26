@@ -318,7 +318,8 @@ char* ModeParser::TakeHops(userrec *user,char *dest,chanrec *chan,int status)
 			return NULL;
 		if (MOD_RESULT == ACR_DEFAULT)
 		{
-			if ((status < STATUS_OP) && (!is_uline(user->server)))
+			/* Tweak by Brain suggested by w00t, allow a halfop to dehalfop themselves */
+			if ((user != d) && ((status < STATUS_OP) && (!is_uline(user->server))))
 			{
 				WriteServ(user->fd,"482 %s %s :You are not a channel operator",user->nick, chan->name);
 				return NULL;
