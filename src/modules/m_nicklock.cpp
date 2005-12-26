@@ -118,6 +118,11 @@ class ModuleNickLock : public Module
 		return Version(1,0,0,1,VF_VENDOR);
 	}
 
+	void Implements(char* List)
+	{
+		List[I_OnUserPreNick] = List[I_OnUserQuit] = 1;
+	}
+
 	virtual int OnUserPreNick(userrec* user, std::string newnick)
 	{
 		if (user->GetExt("nick_locked"))
