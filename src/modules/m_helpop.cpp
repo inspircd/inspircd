@@ -206,6 +206,10 @@ class ModuleHelpop : public Module
 			}
 		}
 
+		void Implements(char* List)
+		{
+			List[I_OnRehash] = List[I_OnExtendedMode] = List[I_OnWhois] = 1;
+		}
 
 		virtual void OnRehash(std::string parameter)
 		{

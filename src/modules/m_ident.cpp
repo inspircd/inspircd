@@ -270,6 +270,11 @@ class ModuleIdent : public Module
 		ReadSettings();
 	}
 
+	void Implements(char* List)
+	{
+		List[I_OnRehash] = List[I_OnUserRegister] = List[I_OnCheckReady] = List[I_OnUserDisconnect] = 1;
+	}
+
 	virtual void OnRehash(std::string parameter)
 	{
 		ReadSettings();
