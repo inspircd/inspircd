@@ -193,6 +193,9 @@ InspIRCd::InspIRCd(int argc, char** argv)
         CheckDie();
         stats->BoundPortCount = BindPorts();
 
+	for(int t = 0; t < 255; t++)
+		Config->global_implementation[t] = 0;
+
         printf("\n");
         if (!Config->nofork)
         {
@@ -294,6 +297,10 @@ bool InspIRCd::UnloadModule(const char* filename)
 			{
 				modules[j]->OnCleanup(TYPE_USER,u->second);
 			}
+
+                        for(int t = 0; t < 255; t++)
+				Config->global_implementation[t] -= implement_lists[j][t];
+
 			FOREACH_MOD(I_OnUnloadModule,OnUnloadModule(modules[j],Config->module_names[j]));
 			// found the module
 			log(DEBUG,"Deleting module...");
@@ -365,6 +372,9 @@ bool InspIRCd::LoadModule(const char* filename)
 				x[t] = 0;
 
 			modules[MODCOUNT+1]->Implements(x);
+
+			for(int t = 0; t < 255; t++)
+				Config->global_implementation[t] += implement_lists[MODCOUNT+1][t];
                 }
 		else
                 {

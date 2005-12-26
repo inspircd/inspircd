@@ -255,6 +255,10 @@ class ServerConfig : public classbase
 	 */
 	char implement_lists[255][255];
 
+	/** Global implementation list
+	 */
+	char global_implementation[255];
+
 	/** A list of ports claimed by IO Modules
 	 */
 	std::map<int,Module*> IOHookModule;
