@@ -50,6 +50,11 @@ class ModuleDenyChannels : public Module
 		return Version(1,0,0,1,VF_VENDOR);
 	}
 
+	void Implements(char* List)
+	{
+		List[I_OnUserPreJoin] = 1;
+	}
+
         virtual int OnUserPreJoin(userrec* user, chanrec* chan, const char* cname)
         {
 		for (int j =0; j < Conf->Enumerate("badchan"); j++)
