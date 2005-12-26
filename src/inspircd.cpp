@@ -299,7 +299,7 @@ bool InspIRCd::UnloadModule(const char* filename)
 			}
 
                         for(int t = 0; t < 255; t++)
-				Config->global_implementation[t] -= implement_lists[j][t];
+				Config->global_implementation[t] -= Config->implement_lists[j][t];
 
 			FOREACH_MOD(I_OnUnloadModule,OnUnloadModule(modules[j],Config->module_names[j]));
 			// found the module
@@ -374,7 +374,7 @@ bool InspIRCd::LoadModule(const char* filename)
 			modules[MODCOUNT+1]->Implements(x);
 
 			for(int t = 0; t < 255; t++)
-				Config->global_implementation[t] += implement_lists[MODCOUNT+1][t];
+				Config->global_implementation[t] += Config->implement_lists[MODCOUNT+1][t];
                 }
 		else
                 {
