@@ -25,6 +25,11 @@ class ModuleShowwhois : public Module
 		{
 		}
 
+		void Implements(char* List)
+		{
+			List[I_OnWhois] = List[I_OnExtendedMode] = 1;
+		}
+
 		virtual Version GetVersion()
 		{
 			return Version(1,0,0,3,VF_STATIC);

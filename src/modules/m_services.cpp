@@ -60,6 +60,11 @@ class ModuleServices : public Module
 		if (temp2.length())
 	                output = temp2.substr(0,temp2.length()-1);
         }
+
+	void Implements(char* List)
+	{
+		List[I_OnUserPreMessage] = List[I_OnExtendedMode] = List[I_On005Numeric] = List[I_OnUserPreNotice] = List[I_OnUserPreJoin] = 1;
+	}
 	
 	virtual int OnExtendedMode(userrec* user, void* target, char modechar, int type, bool mode_on, string_list &params)
 	{
@@ -212,11 +217,6 @@ class ModuleServices : public Module
 	{
 		return Version(1,0,0,0,VF_STATIC|VF_VENDOR);
 	}
-	
-	virtual void OnUserConnect(userrec* user)
-	{
-	}
-
 };
 
 

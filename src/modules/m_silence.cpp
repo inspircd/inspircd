@@ -141,6 +141,11 @@ class ModuleSilence : public Module
 		Srv->AddCommand(mycommand);
 	}
 
+	void Implements(char* List)
+	{
+		List[I_OnUserQuit] = List[I_On005Numeric] = List[I_OnUserPreNotice] = List[OnUserPreMessage] = 1;
+	}
+
 	virtual void OnUserQuit(userrec* user, std::string reason)
 	{
 		// when the user quits tidy up any silence list they might have just to keep things tidy

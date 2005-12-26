@@ -38,6 +38,11 @@ class ModuleRestrictMsg : public Module
 		Srv = Me;
 	}
 
+	void Implements(char* List)
+	{
+		List[I_OnUserPreMessage] = List[I_OnUserPreNotice] = 1;
+	}
+
 	virtual int OnUserPreMessage(userrec* user,void* dest,int target_type, std::string &text)
 	{
 		if (target_type == TYPE_USER)
