@@ -55,6 +55,11 @@ class ModuleOverride : public Module
 		NoisyOverride = Conf->ReadFlag("override","noisy",0);
 	}
 
+	void Implements(char* List)
+	{
+		List[I_OnRehash] = List[I_OnAccesscheck] = List[I_On005Numeric] = List[I_OnUserPreJoin] = 1;
+	}
+
         virtual void On005Numeric(std::string &output)
         {
 		output = output + std::string(" OVERRIDE");

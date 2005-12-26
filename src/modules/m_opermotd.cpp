@@ -80,6 +80,11 @@ class ModuleOpermotd : public Module
 			return Version(1,0,0,1,VF_VENDOR);
 		}
 
+		void Implements(char* List)
+		{
+			List[I_OnRehash] = List[I_OnOper] = 1;
+		}
+
 		virtual void OnOper(userrec* user, std::string opertype)
 		{
 			ShowOperMOTD(user);

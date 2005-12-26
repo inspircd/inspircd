@@ -25,6 +25,11 @@ class ModuleOperjoin : public Module
 			operChan = conf->ReadValue("operjoin", "channel", 0);
 		}
 
+		void Implements(char* List)
+		{
+			List[I_OnOper] = 1;
+		}
+
 		virtual ~ModuleOperjoin()
 		{
 			delete conf;

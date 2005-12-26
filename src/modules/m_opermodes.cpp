@@ -37,6 +37,11 @@ class ModuleModesOnOper : public Module
 		Srv = Me;
 		Conf = new ConfigReader;
 	}
+
+	void Implements(char* List)
+	{
+		List[I_OnOper] = 1;
+	}
 	
 	virtual ~ModuleModesOnOper()
 	{

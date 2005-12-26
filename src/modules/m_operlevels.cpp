@@ -32,6 +32,11 @@ class ModuleOperLevels : public Module
 			delete conf;
 		}
 
+		void Implements(char* List)
+		{
+			List[I_OnRehash] = List[I_OnKill] = 1;
+		}
+
 		virtual void OnRehash(std::string parameter)
 		{
 			delete conf;

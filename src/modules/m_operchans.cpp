@@ -37,6 +37,11 @@ class ModuleOperChans : public Module
 		// Add a mode +O for channels with no parameters		
 		Srv->AddExtendedMode('O',MT_CHANNEL,false,0,0);
 	}
+
+	void Implements(char* List)
+	{
+		List[I_OnExtendedMode] = List[I_On005Numeric] = List[I_OnUserPreJoin] = 1;
+	}
 	
 	virtual int OnExtendedMode(userrec* user, void* target, char modechar, int type, bool mode_on, string_list &params)
 	{
