@@ -562,7 +562,7 @@ void ModeParser::ProcessModes(char **parameters,userrec* user,chanrec *chan,int 
 	}
 
 	int MOD_RESULT = 0;
-	FOREACH_RESULT(I_OnAccessCheck(user,NULL,chan,AC_GENERAL_MODE));
+	FOREACH_RESULT(I_OnAccessCheck,OnAccessCheck(user,NULL,chan,AC_GENERAL_MODE));
 	
 	if (MOD_RESULT == ACR_DENY)
 		return;

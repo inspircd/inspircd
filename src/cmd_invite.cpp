@@ -36,6 +36,7 @@ using namespace std;
 #include "command_parse.h"
 #include "cmd_invite.h"
 
+extern ServerConfig* Config;
 extern int MODCOUNT;
 extern std::vector<Module*> modules;
 extern std::vector<ircd_module*> factory;

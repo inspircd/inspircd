@@ -359,7 +359,12 @@ bool InspIRCd::LoadModule(const char* filename)
                         /* save the module and the module's classfactory, if
                          * this isnt done, random crashes can occur :/ */
                         Config->module_names.push_back(filename);
-			modules[MODCOUNT+1]->Implements(Config->implement_lists[MODCOUNT+1]);
+
+			char* x = &Config->implement_lists[MODCOUNT+1][0];
+			for(int t = 0; t < 255; t++)
+				x[t] = 0;
+
+			modules[MODCOUNT+1]->Implements(x);
                 }
 		else
                 {

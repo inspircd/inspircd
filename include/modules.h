@@ -280,7 +280,8 @@ enum Implementation {	I_OnUserConnect, I_OnUserQuit, I_OnUserDisconnect, I_OnUse
 			I_OnBackgroundTimer, I_OnSendList, I_OnPreCommand, I_OnCheckReady, I_OnUserRrgister, I_OnRawMode, I_OnCheckInvite,
 			I_OnCheckKey, I_OnCheckLimit, I_OnCheckBan, I_OnStats, I_OnChangeLocalUserHost, I_OnChangeLocalUserGecos, I_OnLocalTopicChange,
 			I_OnPostLocalTopicChange, I_OnEvent, I_OnRequest, I_OnOperCompre, I_OnGlobalOper, I_OnGlobalConnect, I_OnAddBan, I_OnDelBan,
-			I_OnRawSocketAccept, I_OnRawSocketClose, I_OnRawSocketWrite, I_OnRawSocketRead };
+			I_OnRawSocketAccept, I_OnRawSocketClose, I_OnRawSocketWrite, I_OnRawSocketRead, I_OnChangeLocalUserGECOS, I_OnUserRegister,
+			I_OnOperCompare };
 
 /** Base class for all InspIRCd modules
  *  This class is the base class for InspIRCd modules. All modules must inherit from this class,
@@ -308,7 +309,7 @@ class Module : public classbase
 	 */
 	virtual Version GetVersion();
 
-	virtual void Implements(bool &Implements[255]);
+	virtual void Implements(char* Implements);
 
 	/** Called when a user connects.
 	 * The details of the connecting user are available to you in the parameter userrec *user
