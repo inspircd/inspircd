@@ -294,6 +294,11 @@ class ModuleOperMD5 : public Module
 	{
 	}
 
+	void Implements(char* List)
+	{
+		List[I_OnOperCompare] = 1;
+	}
+
 	virtual int OnOperCompare(std::string data, std::string input)
 	{
 		char buffer[MAXBUF];
@@ -313,11 +318,6 @@ class ModuleOperMD5 : public Module
 	{
 		return Version(1,0,0,1,VF_VENDOR);
 	}
-	
-	virtual void OnUserConnect(userrec* user)
-	{
-	}
-
 };
 
 
