@@ -102,6 +102,11 @@ class ModuleRandQuote : public Module
 			Srv->AddCommand(mycommand);
 		}
 	}
+
+	void Implements(char* List)
+	{
+		List[I_OnUserConnect] = 1;
+	}
 	
 	virtual ~ModuleRandQuote()
 	{

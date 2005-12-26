@@ -60,6 +60,11 @@ class ModuleRedirect : public Module
 		return 0;
 	}
 
+	void Implements(char* List)
+	{
+		List[I_On005Numeiric] = List[I_OnUserPreJoin] = List[I_OnExtendedMode] = 1;
+	}
+
         virtual void On005Numeric(std::string &output)
         {
                 std::stringstream line(output);
@@ -106,11 +111,6 @@ class ModuleRedirect : public Module
 	{
 		return Version(1,0,0,0,VF_STATIC|VF_VENDOR);
 	}
-	
-	virtual void OnUserConnect(userrec* user)
-	{
-	}
-
 };
 
 
