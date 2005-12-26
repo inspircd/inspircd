@@ -120,6 +120,11 @@ class ModuleCBan : public Module
 		Srv->AddCommand(mycommand);
 	}
 
+	void Implements(char* List)
+	{
+		List[I_OnUserPreJoin] = 1;
+	}
+
 	virtual int OnUserPreJoin(userrec *user, chanrec *chan, const char *cname)
 	{
 		/* check cbans in here, and apply as necessary. */

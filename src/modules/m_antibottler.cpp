@@ -32,6 +32,12 @@ class ModuleAntiBottler : public Module
 	{
 		Srv = Me;
 	}
+
+        void Implements(char* List)
+        {
+                List[I_OnServerRaw] = 1;
+        }
+
 	
 	virtual ~ModuleAntiBottler()
 	{

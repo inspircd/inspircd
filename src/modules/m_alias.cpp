@@ -71,6 +71,11 @@ class ModuleAlias : public Module
 			MyConf = new ConfigReader;
 			ReadAliases();
 		}
+
+		void Implements(char* List)
+		{
+			List[I_OnPreCommand] = List[I_OnRehash] = 1;
+		}
 	
 		virtual ~ModuleAlias()
 		{

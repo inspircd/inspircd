@@ -39,6 +39,11 @@ class ModuleBotMode : public Module
 			return;
 		}
 	}
+
+	void Implements(char* List)
+	{
+		List[I_OnWhois] = List[I_OnExtendedMode] = 1;
+	}
 	
 	virtual ~ModuleBotMode()
 	{

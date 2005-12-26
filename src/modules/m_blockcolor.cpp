@@ -37,6 +37,11 @@ class ModuleBlockColor : public Module
 		Srv->AddExtendedMode('c',MT_CHANNEL,false,0,0);
 	}
 
+	void Implements(char* List)
+        {
+                List[I_On005Numeric] = List[I_OnUserPreMessage] = List[I_OnUserPreNotice] = List[I_OnExtendedMode] = 1;
+        }
+
         virtual void On005Numeric(std::string &output)
         {
                 // we don't really have a limit...
