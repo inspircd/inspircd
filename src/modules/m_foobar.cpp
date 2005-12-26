@@ -55,6 +55,11 @@ class ModuleFoobar : public Module
 	
 		return Version(1,0,0,1,VF_VENDOR);
 	}
+
+	void Implements(char* List)
+	{
+		List[I_OnUserConnect] = List[I_OnUserQuit] = List[I_OnUserJoin] = List[I_OnUserPart] = 1;
+	}
 	
 	virtual void OnUserConnect(userrec* user)
 	{

@@ -78,6 +78,11 @@ class ModuleGlobops : public Module
 	{
 		return Version(1,0,0,1,VF_STATIC|VF_VENDOR);
 	}
+
+	void Implements(char* List)
+	{
+		List[I_OnExtendedMode] = 1;
+	}
 	
 	virtual int OnExtendedMode(userrec* user, void* target, char modechar, int type, bool mode_on, string_list &params)
 	{
