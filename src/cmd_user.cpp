@@ -91,7 +91,7 @@ void cmd_user::Handle (char **parameters, int pcnt, userrec *user)
 	if (user->registered == 3)
 	{
 		/* user is registered now, bit 0 = USER command, bit 1 = sent a NICK command */
-		FOREACH_MOD OnUserRegister(user);
+		FOREACH_MOD(I_OnUserRegister,OnUserRegister(user));
 		ConnectUser(user);
 	}
 }

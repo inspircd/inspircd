@@ -204,7 +204,7 @@ Module* Event::GetSource()
 
 char* Event::Send()
 {
-        FOREACH_MOD OnEvent(this);
+        FOREACH_MOD(I_OnEvent,OnEvent(this));
         return NULL;
 }
 
@@ -296,6 +296,7 @@ void		Module::OnDelKLine(userrec* source, std::string hostmask) { };
 void		Module::OnDelQLine(userrec* source, std::string nickmask) { };
 void		Module::OnDelELine(userrec* source, std::string hostmask) { };
 void 		Module::OnCleanup(int target_type, void* item) { };
+void		Module::Implements(bool &Implements[255]) { for (int j = 0; j < 255; j++) Implements[j] = false; };
 
 /* server is a wrapper class that provides methods to all of the C-style
  * exports in the core

@@ -146,7 +146,7 @@ void chop(char* str)
 		return;
 	}
 	string temp = str;
-	FOREACH_MOD OnServerRaw(temp,false,NULL);
+	FOREACH_MOD(I_OnServerRaw,OnServerRaw(temp,false,NULL));
 	const char* str2 = temp.c_str();
 	snprintf(str,MAXBUF,"%s",str2);
 	if (strlen(str) >= 511)
@@ -213,10 +213,10 @@ void ChangeName(userrec* user, const char* gecos)
 	if (user->fd > -1)
 	{
 		int MOD_RESULT = 0;
-		FOREACH_RESULT(OnChangeLocalUserGECOS(user,gecos));
+		FOREACH_RESULT(I_OnChangeLocalUserGECOS,OnChangeLocalUserGECOS(user,gecos));
 		if (MOD_RESULT)
 			return;
-		FOREACH_MOD OnChangeName(user,gecos);
+		FOREACH_MOD(I_OnChangeName,OnChangeName(user,gecos));
 	}
 	strlcpy(user->fullname,gecos,MAXBUF);
 }
@@ -226,10 +226,10 @@ void ChangeDisplayedHost(userrec* user, const char* host)
         if (user->fd > -1)
         {
                 int MOD_RESULT = 0;
-                FOREACH_RESULT(OnChangeLocalUserHost(user,host));
+                FOREACH_RESULT(I_OnChangeLocalUserHost,OnChangeLocalUserHost(user,host));
                 if (MOD_RESULT)
                         return;
-		FOREACH_MOD OnChangeHost(user,host);
+		FOREACH_MOD(I_OnChangeHost,OnChangeHost(user,host));
         }
 	strlcpy(user->dhost,host,160);
 }

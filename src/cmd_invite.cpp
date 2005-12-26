@@ -84,7 +84,7 @@ void cmd_invite::Handle (char **parameters, int pcnt, userrec *user)
 		}
 
 		int MOD_RESULT = 0;
-		FOREACH_RESULT(OnUserPreInvite(user,u,c));
+		FOREACH_RESULT(I_OnUserPreInvite,OnUserPreInvite(user,u,c));
 		if (MOD_RESULT == 1) {
 			return;
 		}
@@ -93,7 +93,7 @@ void cmd_invite::Handle (char **parameters, int pcnt, userrec *user)
 		u->InviteTo(xname);
 		WriteFrom(u->fd,user,"INVITE %s :%s",u->nick,c->name);
 		WriteServ(user->fd,"341 %s %s %s",user->nick,u->nick,c->name);
-		FOREACH_MOD OnUserInvite(user,u,c);
+		FOREACH_MOD(I_OnUserInvite,OnUserInvite(user,u,c));
 	}
 	else
 	{

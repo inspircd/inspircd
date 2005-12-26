@@ -97,7 +97,7 @@ void cmd_quit::Handle (char **parameters, int pcnt, userrec *user)
 				WriteOpers("*** Client exiting at %s: %s!%s@%s [%s]",user->server,user->nick,user->ident,user->host,parameters[0]);
 				WriteCommonExcept(user,"QUIT :%s",parameters[0]);
 			}
-			FOREACH_MOD OnUserQuit(user,std::string(Config->PrefixQuit)+std::string(parameters[0]));
+			FOREACH_MOD(I_OnUserQuit,OnUserQuit(user,std::string(Config->PrefixQuit)+std::string(parameters[0])));
 
 		}
 		else
@@ -105,13 +105,13 @@ void cmd_quit::Handle (char **parameters, int pcnt, userrec *user)
 			Write(user->fd,"ERROR :Closing link (%s@%s) [QUIT]",user->ident,user->host);
 			WriteOpers("*** Client exiting: %s!%s@%s [Client exited]",user->nick,user->ident,user->host);
 			WriteCommonExcept(user,"QUIT :Client exited");
-			FOREACH_MOD OnUserQuit(user,"Client exited");
+			FOREACH_MOD(I_OnUserQuit,OnUserQuit(user,"Client exited"));
 
 		}
 		AddWhoWas(user);
 	}
 
-	FOREACH_MOD OnUserDisconnect(user);
+	FOREACH_MOD(I_OnUserDisconnect,OnUserDisconnect(user));
 
 	/* push the socket on a stack of sockets due to be closed at the next opportunity */
 	if (user->fd > -1)

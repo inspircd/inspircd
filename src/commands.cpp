@@ -158,7 +158,7 @@ void do_whois(userrec* user, userrec* dest,unsigned long signon, unsigned long i
 		}
 		if ((!signon) && (!idle))
 		{
-			FOREACH_MOD OnWhois(user,dest);
+			FOREACH_MOD(I_OnWhois,OnWhois(user,dest));
 		}
 		if (!strcasecmp(user->server,dest->server))
 		{
@@ -202,7 +202,7 @@ bool is_uline(const char* server)
 int operstrcmp(char* data,char* input)
 {
 	int MOD_RESULT = 0;
-	FOREACH_RESULT(OnOperCompare(data,input))
+	FOREACH_RESULT(I_OnOperCompare,OnOperCompare(data,input))
 	log(DEBUG,"operstrcmp: %d",MOD_RESULT);
 	if (MOD_RESULT == 1)
 		return 0;

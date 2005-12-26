@@ -251,6 +251,10 @@ class ServerConfig : public classbase
 	 */
 	int ports[255];
 
+	/** Boolean sets of which modules implement which functions
+	 */
+	char implement_lists[255][255];
+
 	/** A list of ports claimed by IO Modules
 	 */
 	std::map<int,Module*> IOHookModule;

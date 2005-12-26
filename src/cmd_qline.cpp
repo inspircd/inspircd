@@ -52,7 +52,7 @@ void cmd_qline::Handle (char **parameters, int pcnt, userrec *user)
 		if (nick_matches_everyone(parameters[0],user))
 			return;
 		add_qline(duration(parameters[1]),user->nick,parameters[2],parameters[0]);
-		FOREACH_MOD OnAddQLine(duration(parameters[1]), user, parameters[2], parameters[0]);
+		FOREACH_MOD(I_OnAddQLine,OnAddQLine(duration(parameters[1]), user, parameters[2], parameters[0]));
 		if (!duration(parameters[1]))
 		{
 			WriteOpers("*** %s added permenant Q-line for %s.",user->nick,parameters[0]);
@@ -67,7 +67,7 @@ void cmd_qline::Handle (char **parameters, int pcnt, userrec *user)
 	{
 		if (del_qline(parameters[0]))
 		{
-			FOREACH_MOD OnDelQLine(user, parameters[0]);
+			FOREACH_MOD(I_OnDelQLine,OnDelQLine(user, parameters[0]));
 			WriteOpers("*** %s Removed Q-line on %s.",user->nick,parameters[0]);
 		}
 		else

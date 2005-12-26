@@ -527,7 +527,7 @@ void CommandParser::ProcessCommand(userrec *user, char* cmd)
 	}
 
 	int MOD_RESULT = 0;
-	FOREACH_RESULT(OnPreCommand(command,command_p,items,user,false));
+	FOREACH_RESULT(I_OnPreCommand,OnPreCommand(command,command_p,items,user,false));
 	if (MOD_RESULT == 1) {
 		return;
 	}
@@ -596,7 +596,7 @@ void CommandParser::ProcessCommand(userrec *user, char* cmd)
                                                         }
 
                                                         int MOD_RESULT = 0;
-                                                        FOREACH_RESULT(OnPreCommand(command,command_p,items,user,true));
+                                                        FOREACH_RESULT(I_OnPreCommand,OnPreCommand(command,command_p,items,user,true));
                                                         if (MOD_RESULT == 1) {
                                                                 return;
                                                         }

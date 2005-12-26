@@ -75,7 +75,7 @@ void cmd_rehash::Handle (char **parameters, int pcnt, userrec *user)
 		WriteOpers("%s is rehashing config file %s",user->nick,CleanFilename(CONFIG_FILE));
 		Config->Read(false,user);
 	}
-	FOREACH_MOD OnRehash(parameter);
+	FOREACH_MOD(I_OnRehash,OnRehash(parameter));
 }
 
 

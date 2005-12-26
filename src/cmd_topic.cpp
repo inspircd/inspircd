@@ -123,7 +123,7 @@ void cmd_topic::Handle (char **parameters, int pcnt, userrec *user)
                                 if (user->fd > -1)
                                 {
                                         int MOD_RESULT = 0;
-                                        FOREACH_RESULT(OnLocalTopicChange(user,Ptr,topic));
+                                        FOREACH_RESULT(I_OnLocalTopicChange,OnLocalTopicChange(user,Ptr,topic));
                                         if (MOD_RESULT)
                                                 return;
                                 }
@@ -134,7 +134,7 @@ void cmd_topic::Handle (char **parameters, int pcnt, userrec *user)
 				WriteChannel(Ptr,user,"TOPIC %s :%s",Ptr->name, Ptr->topic);
 				if (user->fd > -1)
 				{
-					FOREACH_MOD OnPostLocalTopicChange(user,Ptr,topic);
+					FOREACH_MOD(I_OnPostLocalTopicChange,OnPostLocalTopicChange(user,Ptr,topic));
 				}
 			}
 			else

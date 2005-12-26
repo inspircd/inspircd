@@ -67,6 +67,7 @@ int WHOWAS_MAX = 100;  // default 100 people maximum in the WHOWAS list
 
 extern std::vector<Module*> modules;
 extern std::vector<ircd_module*> factory;
+
 std::vector<InspSocket*> module_sockets;
 std::vector<userrec*> local_users;
 
@@ -293,7 +294,7 @@ bool InspIRCd::UnloadModule(const char* filename)
 			{
 				modules[j]->OnCleanup(TYPE_USER,u->second);
 			}
-			FOREACH_MOD OnUnloadModule(modules[j],Config->module_names[j]);
+			FOREACH_MOD(I_OnUnloadModule,OnUnloadModule(modules[j],Config->module_names[j]));
 			// found the module
 			log(DEBUG,"Deleting module...");
 			erase_module(j);
@@ -358,6 +359,7 @@ bool InspIRCd::LoadModule(const char* filename)
                         /* save the module and the module's classfactory, if
                          * this isnt done, random crashes can occur :/ */
                         Config->module_names.push_back(filename);
+			modules[MODCOUNT+1]->Implements(Config->implement_lists[MODCOUNT+1]);
                 }
 		else
                 {
@@ -375,7 +377,7 @@ bool InspIRCd::LoadModule(const char* filename)
         }
 #endif
 	MODCOUNT++;
-	FOREACH_MOD OnLoadModule(modules[MODCOUNT],filename_str);
+	FOREACH_MOD(I_OnLoadModule,OnLoadModule(modules[MODCOUNT],filename_str));
 	return true;
 }
 
@@ -430,7 +432,7 @@ int InspIRCd::Run()
 		if (((TIME % 8) == 0) && (!expire_run))
 		{
 			expire_lines();
-			FOREACH_MOD OnBackgroundTimer(TIME);
+			FOREACH_MOD(I_OnBackgroundTimer,OnBackgroundTimer(TIME));
 			expire_run = true;
 			continue;
 		}

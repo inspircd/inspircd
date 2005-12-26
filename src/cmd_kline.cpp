@@ -69,7 +69,7 @@ void cmd_kline::Handle (char **parameters, int pcnt, userrec *user)
 		if (host_matches_everyone(parameters[0],user))
 			return;
 		add_kline(duration(parameters[1]),user->nick,parameters[2],parameters[0]);
-		FOREACH_MOD OnAddKLine(duration(parameters[1]), user, parameters[2], parameters[0]);
+		FOREACH_MOD(I_OnAddKLine,OnAddKLine(duration(parameters[1]), user, parameters[2], parameters[0]));
 		if (!duration(parameters[1]))
 		{
 			WriteOpers("*** %s added permenant K-line for %s.",user->nick,parameters[0]);
@@ -84,7 +84,7 @@ void cmd_kline::Handle (char **parameters, int pcnt, userrec *user)
 	{
 		if (del_kline(parameters[0]))
 		{
-			FOREACH_MOD OnDelKLine(user, parameters[0]);
+			FOREACH_MOD(I_OnDelKLine,OnDelKLine(user, parameters[0]));
 			WriteOpers("*** %s Removed K-line on %s.",user->nick,parameters[0]);
 		}
 		else

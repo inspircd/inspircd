@@ -208,7 +208,7 @@ chanrec* add_channel(userrec *user, const char* cn, const char* key, bool overri
                 if (user->fd > -1)
                 {
                         MOD_RESULT = 0;
-                        FOREACH_RESULT(OnUserPreJoin(user,NULL,cname));
+                        FOREACH_RESULT(I_OnUserPreJoin,OnUserPreJoin(user,NULL,cname));
                         if (MOD_RESULT == 1)
                                 return NULL;
                 }
@@ -238,7 +238,7 @@ chanrec* add_channel(userrec *user, const char* cn, const char* key, bool overri
                 if (user->fd > -1)
                 {
                         MOD_RESULT = 0;
-                        FOREACH_RESULT(OnUserPreJoin(user,Ptr,cname));
+                        FOREACH_RESULT(I_OnUserPreJoin,OnUserPreJoin(user,Ptr,cname));
                         if (MOD_RESULT == 1)
                         {
                                 return NULL;
@@ -248,7 +248,7 @@ chanrec* add_channel(userrec *user, const char* cn, const char* key, bool overri
                                 if (*Ptr->key)
                                 {
                                         MOD_RESULT = 0;
-                                        FOREACH_RESULT(OnCheckKey(user, Ptr, key ? key : ""));
+                                        FOREACH_RESULT(I_OnCheckKey,OnCheckKey(user, Ptr, key ? key : ""));
                                         if (!MOD_RESULT)
                                         {
                                                 if (!key)
@@ -272,7 +272,7 @@ chanrec* add_channel(userrec *user, const char* cn, const char* key, bool overri
                                 {
 					MOD_RESULT = 0;
 					irc::string xname(Ptr->name);
-                                        FOREACH_RESULT(OnCheckInvite(user, Ptr));
+                                        FOREACH_RESULT(I_OnCheckInvite,OnCheckInvite(user, Ptr));
                                         if (!MOD_RESULT)
                                         {
                                                 log(DEBUG,"add_channel: channel is +i");
@@ -292,7 +292,7 @@ chanrec* add_channel(userrec *user, const char* cn, const char* key, bool overri
                                 if (Ptr->limit)
                                 {
                                         MOD_RESULT = 0;
-                                        FOREACH_RESULT(OnCheckLimit(user, Ptr));
+                                        FOREACH_RESULT(I_OnCheckLimit,OnCheckLimit(user, Ptr));
                                         if (!MOD_RESULT)
                                         {
                                                 if (usercount(Ptr) >= Ptr->limit)
@@ -306,7 +306,7 @@ chanrec* add_channel(userrec *user, const char* cn, const char* key, bool overri
                                 {
                                         log(DEBUG,"add_channel: about to walk banlist");
                                         MOD_RESULT = 0;
-                                        FOREACH_RESULT(OnCheckBan(user, Ptr));
+                                        FOREACH_RESULT(I_OnCheckBan,OnCheckBan(user, Ptr));
                                         if (!MOD_RESULT)
                                         {
                                                 for (BanList::iterator i = Ptr->bans.begin(); i != Ptr->bans.end(); i++)
@@ -386,7 +386,7 @@ chanrec* ForceChan(chanrec* Ptr,ucrec &a,userrec* user, int created)
         }
         userlist(user,Ptr);
         WriteServ(user->fd,"366 %s %s :End of /NAMES list.", user->nick, Ptr->name);
-        FOREACH_MOD OnUserJoin(user,Ptr);
+        FOREACH_MOD(I_OnUserJoin,OnUserJoin(user,Ptr));
         return Ptr;
 }
 
@@ -406,7 +406,7 @@ chanrec* del_channel(userrec *user, const char* cname, const char* reason, bool 
         if (!Ptr)
                 return NULL;
 
-        FOREACH_MOD OnUserPart(user,Ptr);
+        FOREACH_MOD(I_OnUserPart,OnUserPart(user,Ptr));
         log(DEBUG,"del_channel: removing: %s %s",user->nick,Ptr->name);
 
         for (unsigned int i =0; i < user->chans.size(); i++)
@@ -473,7 +473,7 @@ void kick_channel(userrec *src,userrec *user, chanrec *Ptr, char* reason)
         }
 
         int MOD_RESULT = 0;
-        FOREACH_RESULT(OnAccessCheck(src,user,Ptr,AC_KICK));
+        FOREACH_RESULT(I_OnAccessCheck,OnAccessCheck(src,user,Ptr,AC_KICK));
         if ((MOD_RESULT == ACR_DENY) && (!is_uline(src->server)))
                 return;
 
@@ -497,12 +497,12 @@ void kick_channel(userrec *src,userrec *user, chanrec *Ptr, char* reason)
         if (!is_uline(src->server))
         {
                 MOD_RESULT = 0;
-                FOREACH_RESULT(OnUserPreKick(src,user,Ptr,reason));
+                FOREACH_RESULT(I_OnUserPreKick,OnUserPreKick(src,user,Ptr,reason));
                 if (MOD_RESULT)
                         return;
         }
 
-        FOREACH_MOD OnUserKick(src,user,Ptr,reason);
+        FOREACH_MOD(I_OnUserKick,OnUserKick(src,user,Ptr,reason));
 
         for (unsigned int i =0; i < user->chans.size(); i++)
         {

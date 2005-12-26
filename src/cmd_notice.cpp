@@ -101,7 +101,7 @@ void cmd_notice::Handle (char **parameters, int pcnt, userrec *user)
 			int MOD_RESULT = 0;
 
 			std::string temp = parameters[1];
-			FOREACH_RESULT(OnUserPreNotice(user,chan,TYPE_CHANNEL,temp));
+			FOREACH_RESULT(I_OnUserPreNotice,OnUserPreNotice(user,chan,TYPE_CHANNEL,temp));
 			if (MOD_RESULT) {
 				return;
 			}
@@ -115,7 +115,7 @@ void cmd_notice::Handle (char **parameters, int pcnt, userrec *user)
 
 			ChanExceptSender(chan, user, "NOTICE %s :%s", chan->name, parameters[1]);
 
-			FOREACH_MOD OnUserNotice(user,chan,TYPE_CHANNEL,parameters[1]);
+			FOREACH_MOD(I_OnUserNotice,OnUserNotice(user,chan,TYPE_CHANNEL,parameters[1]));
 		}
 		else
 		{
@@ -131,7 +131,7 @@ void cmd_notice::Handle (char **parameters, int pcnt, userrec *user)
 		int MOD_RESULT = 0;
 		
 		std::string temp = parameters[1];
-		FOREACH_RESULT(OnUserPreNotice(user,dest,TYPE_USER,temp));
+		FOREACH_RESULT(I_OnUserPreNotice,OnUserPreNotice(user,dest,TYPE_USER,temp));
 		if (MOD_RESULT) {
 			return;
 		}
@@ -143,7 +143,7 @@ void cmd_notice::Handle (char **parameters, int pcnt, userrec *user)
 			WriteTo(user, dest, "NOTICE %s :%s", dest->nick, parameters[1]);
 		}
 
-		FOREACH_MOD OnUserNotice(user,dest,TYPE_USER,parameters[1]);
+		FOREACH_MOD(I_OnUserNotice,OnUserNotice(user,dest,TYPE_USER,parameters[1]));
 	}
 	else
 	{

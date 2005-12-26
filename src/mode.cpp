@@ -81,7 +81,7 @@ char* ModeParser::GiveOps(userrec *user,char *dest,chanrec *chan,int status)
 	{
 
 		int MOD_RESULT = 0;
-		FOREACH_RESULT(OnAccessCheck(user,d,chan,AC_OP));
+		FOREACH_RESULT(I_OnAccessCheck,OnAccessCheck(user,d,chan,AC_OP));
 		
 		if (MOD_RESULT == ACR_DENY)
 			return NULL;
@@ -141,7 +141,7 @@ char* ModeParser::GiveHops(userrec *user,char *dest,chanrec *chan,int status)
 	else
 	{
 		int MOD_RESULT = 0;
-		FOREACH_RESULT(OnAccessCheck(user,d,chan,AC_HALFOP));
+		FOREACH_RESULT(I_OnAccessCheck,OnAccessCheck(user,d,chan,AC_HALFOP));
 		
 		if (MOD_RESULT == ACR_DENY)
 			return NULL;
@@ -197,7 +197,7 @@ char* ModeParser::GiveVoice(userrec *user,char *dest,chanrec *chan,int status)
 	else
 	{
 		int MOD_RESULT = 0;
-		FOREACH_RESULT(OnAccessCheck(user,d,chan,AC_VOICE));
+		FOREACH_RESULT(I_OnAccessCheck,OnAccessCheck(user,d,chan,AC_VOICE));
 		
 		if (MOD_RESULT == ACR_DENY)
 			return NULL;
@@ -255,7 +255,7 @@ char* ModeParser::TakeOps(userrec *user,char *dest,chanrec *chan,int status)
 	else
 	{
 		int MOD_RESULT = 0;
-		FOREACH_RESULT(OnAccessCheck(user,d,chan,AC_DEOP));
+		FOREACH_RESULT(I_OnAccessCheck,OnAccessCheck(user,d,chan,AC_DEOP));
 		
 		if (MOD_RESULT == ACR_DENY)
 			return NULL;
@@ -312,7 +312,7 @@ char* ModeParser::TakeHops(userrec *user,char *dest,chanrec *chan,int status)
 	else
 	{
 		int MOD_RESULT = 0;
-		FOREACH_RESULT(OnAccessCheck(user,d,chan,AC_DEHALFOP));
+		FOREACH_RESULT(I_OnAccessCheck,OnAccessCheck(user,d,chan,AC_DEHALFOP));
 		
 		if (MOD_RESULT == ACR_DENY)
 			return NULL;
@@ -369,7 +369,7 @@ char* ModeParser::TakeVoice(userrec *user,char *dest,chanrec *chan,int status)
 	else
 	{
 		int MOD_RESULT = 0;
-		FOREACH_RESULT(OnAccessCheck(user,d,chan,AC_DEVOICE));
+		FOREACH_RESULT(I_OnAccessCheck,OnAccessCheck(user,d,chan,AC_DEVOICE));
 		
 		if (MOD_RESULT == ACR_DENY)
 			return NULL;
@@ -445,7 +445,7 @@ char* ModeParser::AddBan(userrec *user,char *dest,chanrec *chan,int status)
 	log(DEBUG,"AddBan: %s %s",chan->name,user->nick);
 
 	int MOD_RESULT = 0;
-	FOREACH_RESULT(OnAddBan(user,chan,dest));
+	FOREACH_RESULT(I_OnAddBan,OnAddBan(user,chan,dest));
 	if (MOD_RESULT)
 		return NULL;
 
@@ -479,7 +479,7 @@ char* ModeParser::TakeBan(userrec *user,char *dest,chanrec *chan,int status)
 		if (!strcasecmp(i->data,dest))
 		{
 		        int MOD_RESULT = 0;
-		        FOREACH_RESULT(OnDelBan(user,chan,dest));
+		        FOREACH_RESULT(I_OnDelBan,OnDelBan(user,chan,dest));
 		        if (MOD_RESULT)
 		                return NULL;
 			chan->bans.erase(i);
@@ -562,7 +562,7 @@ void ModeParser::ProcessModes(char **parameters,userrec* user,chanrec *chan,int 
 	}
 
 	int MOD_RESULT = 0;
-	FOREACH_RESULT(OnAccessCheck(user,NULL,chan,AC_GENERAL_MODE));
+	FOREACH_RESULT(I_OnAccessCheck(user,NULL,chan,AC_GENERAL_MODE));
 	
 	if (MOD_RESULT == ACR_DENY)
 		return;
@@ -633,7 +633,7 @@ void ModeParser::ProcessModes(char **parameters,userrec* user,chanrec *chan,int 
 					if (mdir == 1)
 					{
 						MOD_RESULT = 0;
-						FOREACH_RESULT(OnRawMode(user, chan, 'o', parameters[param], true, 1));
+						FOREACH_RESULT(I_OnRawMode,OnRawMode(user, chan, 'o', parameters[param], true, 1));
 						if (!MOD_RESULT)
 						{
 							log(DEBUG,"calling GiveOps");
@@ -644,7 +644,7 @@ void ModeParser::ProcessModes(char **parameters,userrec* user,chanrec *chan,int 
 					else
 					{
                                                 MOD_RESULT = 0;
-                                                FOREACH_RESULT(OnRawMode(user, chan, 'o', parameters[param], false, 1));
+                                                FOREACH_RESULT(I_OnRawMode,OnRawMode(user, chan, 'o', parameters[param], false, 1));
                                                 if (!MOD_RESULT)
                                                 {
 							log(DEBUG,"calling TakeOps");
@@ -664,7 +664,7 @@ void ModeParser::ProcessModes(char **parameters,userrec* user,chanrec *chan,int 
 					if (mdir == 1)
 					{
                                                 MOD_RESULT = 0;
-                                                FOREACH_RESULT(OnRawMode(user, chan, 'h', parameters[param], true, 1));
+                                                FOREACH_RESULT(I_OnRawMode,OnRawMode(user, chan, 'h', parameters[param], true, 1));
                                                 if (!MOD_RESULT)
                                                 {
 							r = GiveHops(user,parameters[param++],chan,status);
@@ -674,7 +674,7 @@ void ModeParser::ProcessModes(char **parameters,userrec* user,chanrec *chan,int 
 					else
 					{
                                                 MOD_RESULT = 0;
-                                                FOREACH_RESULT(OnRawMode(user, chan, 'h', parameters[param], false, 1));
+                                                FOREACH_RESULT(I_OnRawMode,OnRawMode(user, chan, 'h', parameters[param], false, 1));
                                                 if (!MOD_RESULT)
                                                 {
 							r = TakeHops(user,parameters[param++],chan,status);
@@ -694,7 +694,7 @@ void ModeParser::ProcessModes(char **parameters,userrec* user,chanrec *chan,int 
 					if (mdir == 1)
 					{
                                                 MOD_RESULT = 0;
-                                                FOREACH_RESULT(OnRawMode(user, chan, 'v', parameters[param], true, 1));
+                                                FOREACH_RESULT(I_OnRawMode,OnRawMode(user, chan, 'v', parameters[param], true, 1));
                                                 if (!MOD_RESULT)
                                                 {
 							r = GiveVoice(user,parameters[param++],chan,status);
@@ -704,7 +704,7 @@ void ModeParser::ProcessModes(char **parameters,userrec* user,chanrec *chan,int 
 					else
 					{
                                                 MOD_RESULT = 0;
-                                                FOREACH_RESULT(OnRawMode(user, chan, 'v', parameters[param], false, 1));
+                                                FOREACH_RESULT(I_OnRawMode,OnRawMode(user, chan, 'v', parameters[param], false, 1));
                                                 if (!MOD_RESULT)
                                                 {
 							r = TakeVoice(user,parameters[param++],chan,status);
@@ -723,7 +723,7 @@ void ModeParser::ProcessModes(char **parameters,userrec* user,chanrec *chan,int 
 					if (mdir == 1)
 					{
                                                 MOD_RESULT = 0;
-                                                FOREACH_RESULT(OnRawMode(user, chan, 'b', parameters[param], true, 1));
+                                                FOREACH_RESULT(I_OnRawMode,OnRawMode(user, chan, 'b', parameters[param], true, 1));
                                                 if (!MOD_RESULT)
                                                 {
 							r = AddBan(user,parameters[param++],chan,status);
@@ -733,7 +733,7 @@ void ModeParser::ProcessModes(char **parameters,userrec* user,chanrec *chan,int 
 					else
 					{
                                                 MOD_RESULT = 0;
-                                                FOREACH_RESULT(OnRawMode(user, chan, 'b', parameters[param], false, 1));
+                                                FOREACH_RESULT(I_OnRawMode,OnRawMode(user, chan, 'b', parameters[param], false, 1));
                                                 if (!MOD_RESULT)
                                                 {
 							r = TakeBan(user,parameters[param++],chan,status);
@@ -764,7 +764,7 @@ void ModeParser::ProcessModes(char **parameters,userrec* user,chanrec *chan,int 
 						if (!strcmp(chan->key,""))
 						{
 							MOD_RESULT = 0;
-							FOREACH_RESULT(OnRawMode(user, chan, 'k', parameters[param], true, 1));
+							FOREACH_RESULT(I_OnRawMode,OnRawMode(user, chan, 'k', parameters[param], true, 1));
 							if (!MOD_RESULT)
 							{
 								strcat(outlist,"k");
@@ -787,7 +787,7 @@ void ModeParser::ProcessModes(char **parameters,userrec* user,chanrec *chan,int 
 
 						char key[MAXBUF];
 						MOD_RESULT = 0;
-						FOREACH_RESULT(OnRawMode(user, chan, 'k', parameters[param], false, 1));
+						FOREACH_RESULT(I_OnRawMode,OnRawMode(user, chan, 'k', parameters[param], false, 1));
 						if (!MOD_RESULT)
 						{
 							strlcpy(key,parameters[param++],32);
@@ -810,7 +810,7 @@ void ModeParser::ProcessModes(char **parameters,userrec* user,chanrec *chan,int 
 							break;
 						previously_unset_l = true;
                                                 MOD_RESULT = 0;
-                                                FOREACH_RESULT(OnRawMode(user, chan, 'l', "", false, 0));
+                                                FOREACH_RESULT(I_OnRawMode,OnRawMode(user, chan, 'l', "", false, 0));
                                                 if (!MOD_RESULT)
                                                 {
 							if (chan->limit)
@@ -846,7 +846,7 @@ void ModeParser::ProcessModes(char **parameters,userrec* user,chanrec *chan,int 
 							break;
 
                                                 MOD_RESULT = 0;
-                                                FOREACH_RESULT(OnRawMode(user, chan, 'l', parameters[param], true, 1));
+                                                FOREACH_RESULT(I_OnRawMode,OnRawMode(user, chan, 'l', parameters[param], true, 1));
                                                 if (!MOD_RESULT)
                                                 {
 	
@@ -868,7 +868,7 @@ void ModeParser::ProcessModes(char **parameters,userrec* user,chanrec *chan,int 
 				
 				case 'i':
                                         MOD_RESULT = 0;
-                                        FOREACH_RESULT(OnRawMode(user, chan, 'i', "", mdir, 0));
+                                        FOREACH_RESULT(I_OnRawMode,OnRawMode(user, chan, 'i', "", mdir, 0));
                                         if (!MOD_RESULT)
                                         {
 						if (mdir)
@@ -886,7 +886,7 @@ void ModeParser::ProcessModes(char **parameters,userrec* user,chanrec *chan,int 
 				
 				case 't':
                                         MOD_RESULT = 0;
-                                        FOREACH_RESULT(OnRawMode(user, chan, 't', "", mdir, 0));
+                                        FOREACH_RESULT(I_OnRawMode,OnRawMode(user, chan, 't', "", mdir, 0));
                                         if (!MOD_RESULT)
                                         {
 						if (mdir)
@@ -904,7 +904,7 @@ void ModeParser::ProcessModes(char **parameters,userrec* user,chanrec *chan,int 
 				
 				case 'n':
                                         MOD_RESULT = 0;
-                                        FOREACH_RESULT(OnRawMode(user, chan, 'n', "", mdir, 0));
+                                        FOREACH_RESULT(I_OnRawMode,OnRawMode(user, chan, 'n', "", mdir, 0));
                                         if (!MOD_RESULT)
                                         {
                                                 if (mdir)
@@ -922,7 +922,7 @@ void ModeParser::ProcessModes(char **parameters,userrec* user,chanrec *chan,int 
 				
 				case 'm':
                                         MOD_RESULT = 0;
-                                        FOREACH_RESULT(OnRawMode(user, chan, 'm', "", mdir, 0));
+                                        FOREACH_RESULT(I_OnRawMode,OnRawMode(user, chan, 'm', "", mdir, 0));
                                         if (!MOD_RESULT)
                                         {
                                                 if (mdir)
@@ -940,7 +940,7 @@ void ModeParser::ProcessModes(char **parameters,userrec* user,chanrec *chan,int 
 				
 				case 's':
                                         MOD_RESULT = 0;
-                                        FOREACH_RESULT(OnRawMode(user, chan, 's', "", mdir, 0));
+                                        FOREACH_RESULT(I_OnRawMode,OnRawMode(user, chan, 's', "", mdir, 0));
                                         if (!MOD_RESULT)
                                         {
                                                 if (mdir)
@@ -966,7 +966,7 @@ void ModeParser::ProcessModes(char **parameters,userrec* user,chanrec *chan,int 
 				
 				case 'p':
                                         MOD_RESULT = 0;
-                                        FOREACH_RESULT(OnRawMode(user, chan, 'p', "", mdir, 0));
+                                        FOREACH_RESULT(I_OnRawMode,OnRawMode(user, chan, 'p', "", mdir, 0));
                                         if (!MOD_RESULT)
                                         {
                                                 if (mdir)
@@ -1036,7 +1036,7 @@ void ModeParser::ProcessModes(char **parameters,userrec* user,chanrec *chan,int 
 						std::string para = "";
 						if (p.size())
 							para = p[0];
-        	                                FOREACH_RESULT(OnRawMode(user, chan, modechar, para, mdir, pcnt));
+        	                                FOREACH_RESULT(I_OnRawMode,OnRawMode(user, chan, modechar, para, mdir, pcnt));
                 	                        if (!MOD_RESULT)
                         	                {
   							for (int i = 0; i <= MODCOUNT; i++)
@@ -1121,7 +1121,7 @@ void ModeParser::ProcessModes(char **parameters,userrec* user,chanrec *chan,int 
 		{
 			log(DEBUG,"Local mode change");
 			WriteChannelLocal(chan, user, "MODE %s %s",chan->name,outstr);
-			FOREACH_MOD OnMode(user, chan, TYPE_CHANNEL, outstr);
+			FOREACH_MOD(I_OnMode,OnMode(user, chan, TYPE_CHANNEL, outstr));
 		}
 		else
 		{
@@ -1138,7 +1138,7 @@ void ModeParser::ProcessModes(char **parameters,userrec* user,chanrec *chan,int 
 				if (!silent)
 				{
 					WriteChannel(chan,user,"MODE %s %s",chan->name,outstr);
-					FOREACH_MOD OnMode(user, chan, TYPE_CHANNEL, outstr);
+					FOREACH_MOD(I_OnMode,OnMode(user, chan, TYPE_CHANNEL, outstr));
 				}
 			}
 		}
@@ -1365,7 +1365,7 @@ void cmd_mode::Handle (char **parameters, int pcnt, userrec *user)
 								outpars[r] = parameters[1][i];
 								if (parameters[1][i] == 'o')
 								{
-									FOREACH_MOD OnGlobalOper(dest);
+									FOREACH_MOD(I_OnGlobalOper,OnGlobalOper(dest));
 								}
 							}
 						}
@@ -1443,7 +1443,7 @@ void cmd_mode::Handle (char **parameters, int pcnt, userrec *user)
 			if (strcmp(b,""))
 			{
 				WriteTo(user, dest, "MODE %s :%s", dest->nick, b);
-				FOREACH_MOD OnMode(user, dest, TYPE_USER, b);
+				FOREACH_MOD(I_OnMode,OnMode(user, dest, TYPE_USER, b));
 			}
 
 			if (strlen(dmodes)>MAXMODES)
@@ -1476,7 +1476,7 @@ void cmd_mode::Handle (char **parameters, int pcnt, userrec *user)
 			if (*mode == '+')
 				mode++;
 			int MOD_RESULT = 0;
-                        FOREACH_RESULT(OnRawMode(user, Ptr, *mode, "", false, 0));
+                        FOREACH_RESULT(I_OnRawMode,OnRawMode(user, Ptr, *mode, "", false, 0));
                         if (!MOD_RESULT)
                         {
 				if (*mode == 'b')
@@ -1493,7 +1493,7 @@ void cmd_mode::Handle (char **parameters, int pcnt, userrec *user)
 				{
 					// list of items for an extmode
 					log(DEBUG,"Calling OnSendList for all modules, list output for mode %c",*mode);
-					FOREACH_MOD OnSendList(user,Ptr,*mode);
+					FOREACH_MOD(I_OnSendList,OnSendList(user,Ptr,*mode));
 					return;
 				}
 			}
@@ -1508,7 +1508,7 @@ void cmd_mode::Handle (char **parameters, int pcnt, userrec *user)
 		if (Ptr)
 		{
 			int MOD_RESULT = 0;
-			FOREACH_RESULT(OnAccessCheck(user,NULL,Ptr,AC_GENERAL_MODE));
+			FOREACH_RESULT(I_OnAccessCheck,OnAccessCheck(user,NULL,Ptr,AC_GENERAL_MODE));
 			
 			if (MOD_RESULT == ACR_DENY)
 				return;
@@ -1697,7 +1697,7 @@ void ModeParser::ServerMode(char **parameters, int pcnt, userrec *user)
 			if (strcmp(b,""))
 			{
 				WriteTo(user, dest, "MODE %s :%s", dest->nick, b);
-				FOREACH_MOD OnMode(user, dest, TYPE_USER, b);
+				FOREACH_MOD(I_OnMode,OnMode(user, dest, TYPE_USER, b));
 			}
 			
 			if (strlen(dmodes)>MAXMODES)

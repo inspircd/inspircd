@@ -56,7 +56,7 @@ void cmd_kill::Handle (char **parameters, int pcnt, userrec *user)
 	{
 		log(DEBUG,"into kill mechanism");
 		int MOD_RESULT = 0;
-                FOREACH_RESULT(OnKill(user,u,parameters[1]));
+                FOREACH_RESULT(I_OnKill,OnKill(user,u,parameters[1]));
                 if (MOD_RESULT) {
 			log(DEBUG,"A module prevented the kill with result %d",MOD_RESULT);
                         return;
@@ -69,7 +69,7 @@ void cmd_kill::Handle (char **parameters, int pcnt, userrec *user)
 			snprintf(killreason,MAXBUF,"[%s] Killed (%s (%s))",Config->ServerName,user->nick,parameters[1]);
 			WriteCommonExcept(u,"QUIT :%s",killreason);
 
-			FOREACH_MOD OnRemoteKill(user,u,killreason);
+			FOREACH_MOD(I_OnRemoteKill,OnRemoteKill(user,u,killreason));
 			
 			user_hash::iterator iter = clientlist.find(u->nick);
 			if (iter != clientlist.end())

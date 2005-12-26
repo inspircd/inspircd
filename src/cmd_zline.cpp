@@ -57,7 +57,7 @@ void cmd_zline::Handle (char **parameters, int pcnt, userrec *user)
 		if (ip_matches_everyone(parameters[0],user))
 			return;
 		add_zline(duration(parameters[1]),user->nick,parameters[2],parameters[0]);
-		FOREACH_MOD OnAddZLine(duration(parameters[1]), user, parameters[2], parameters[0]);
+		FOREACH_MOD(I_OnAddZLine,OnAddZLine(duration(parameters[1]), user, parameters[2], parameters[0]));
 		if (!duration(parameters[1]))
 		{
 			WriteOpers("*** %s added permenant Z-line for %s.",user->nick,parameters[0]);
@@ -72,7 +72,7 @@ void cmd_zline::Handle (char **parameters, int pcnt, userrec *user)
 	{
 		if (del_zline(parameters[0]))
 		{
-			FOREACH_MOD OnDelZLine(user, parameters[0]);
+			FOREACH_MOD(I_OnDelZLine,OnDelZLine(user, parameters[0]));
 			WriteOpers("*** %s Removed Z-line on %s.",user->nick,parameters[0]);
 		}
 		else

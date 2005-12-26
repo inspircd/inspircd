@@ -104,13 +104,13 @@ void cmd_nick::Handle (char **parameters, int pcnt, userrec *user)
 		log(DEBUG,"old nick is new nick, not updating hash (case change only)");
 		strlcpy(oldnick,user->nick,NICKMAX);
 		int MOD_RESULT = 0;
-		FOREACH_RESULT(OnUserPreNick(user,parameters[0]));
+		FOREACH_RESULT(I_OnUserPreNick,OnUserPreNick(user,parameters[0]));
 		if (MOD_RESULT)
 			return;
 		strlcpy(user->nick,parameters[0],NICKMAX);
 		if (user->registered == 7)
 			WriteCommon(user,"NICK %s",parameters[0]);
-		FOREACH_MOD OnUserPostNick(user,oldnick);
+		FOREACH_MOD(I_OnUserPostNick,OnUserPostNick(user,oldnick));
 		return;
 	}
 	else
@@ -143,7 +143,7 @@ void cmd_nick::Handle (char **parameters, int pcnt, userrec *user)
 	if (user->registered == 7)
 	{
 		int MOD_RESULT = 0;
-		FOREACH_RESULT(OnUserPreNick(user,parameters[0]));
+		FOREACH_RESULT(I_OnUserPreNick,OnUserPreNick(user,parameters[0]));
 		if (MOD_RESULT) {
 			// if a module returns true, the nick change is silently forbidden.
 			return;
@@ -190,12 +190,12 @@ void cmd_nick::Handle (char **parameters, int pcnt, userrec *user)
 	if (user->registered == 3)
 	{
 		/* user is registered now, bit 0 = USER command, bit 1 = sent a NICK command */
-		FOREACH_MOD OnUserRegister(user);
+		FOREACH_MOD(I_OnUserRegister,OnUserRegister(user));
 		ConnectUser(user);
 	}
 	if (user->registered == 7)
 	{
-		FOREACH_MOD OnUserPostNick(user,oldnick);
+		FOREACH_MOD(I_OnUserPostNick,OnUserPostNick(user,oldnick));
 	}
 }
 

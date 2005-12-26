@@ -85,7 +85,7 @@ void cmd_stats::Handle (char **parameters, int pcnt, userrec *user)
 	}
 
 
-	FOREACH_MOD OnStats(*parameters[0]);
+	FOREACH_MOD(I_OnStats,OnStats(*parameters[0]));
 
 	if (*parameters[0] == 'c')
 	{

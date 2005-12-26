@@ -366,7 +366,7 @@ void ChanExceptSender(chanrec* Ptr, userrec* user, char* text, ...)
 std::string GetServerDescription(char* servername)
 {
 	std::string description = "";
-	FOREACH_MOD OnGetServerDescription(servername,description);
+	FOREACH_MOD(I_OnGetServerDescription,OnGetServerDescription(servername,description));
 	if (description != "")
 	{
 		return description;

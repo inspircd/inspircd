@@ -2,7 +2,7 @@
  *       | Inspire Internet Relay Chat Daemon |
  *       +------------------------------------+
  *
- *  Inspire is copyright (C) 2002-2004 ChatSpike-Dev.
+ *  Inspire is copyright (C) 2002-2006 ChatSpike-Dev.
  *                       E-mail:
  *                <brain@chatspike.net>
  *           	  <Craig@chatspike.net>
@@ -353,13 +353,13 @@ void kill_link(userrec *user,const char* r)
         log(DEBUG,"closing fd %lu",(unsigned long)user->fd);
 
         if (user->registered == 7) {
-                FOREACH_MOD OnUserQuit(user,reason);
+                FOREACH_MOD(I_OnUserQuit,OnUserQuit(user,reason));
                 WriteCommonExcept(user,"QUIT :%s",reason);
         }
 
         user->FlushWriteBuf();
 
-        FOREACH_MOD OnUserDisconnect(user);
+        FOREACH_MOD(I_OnUserDisconnect,OnUserDisconnect(user));
 
         if (user->fd > -1)
         {
@@ -418,11 +418,11 @@ void kill_link_silent(userrec *user,const char* r)
         user->FlushWriteBuf();
 
         if (user->registered == 7) {
-                FOREACH_MOD OnUserQuit(user,reason);
+                FOREACH_MOD(I_OnUserQuit,OnUserQuit(user,reason));
                 WriteCommonExcept(user,"QUIT :%s",reason);
         }
 
-        FOREACH_MOD OnUserDisconnect(user);
+        FOREACH_MOD(I_OnUserDisconnect,OnUserDisconnect(user));
 
         if (user->fd > -1)
         {
@@ -686,7 +686,7 @@ void FullConnectUser(userrec* user)
         v << " TOPICLEN=" << MAXTOPIC << " KICKLEN=" << MAXKICK << " MAXTARGETS=20 AWAYLEN=" << MAXAWAY << " CHANMODES=ohvb,k,l,psmnti NETWORK=";
         v << Config->Network;
         std::string data005 = v.str();
-        FOREACH_MOD On005Numeric(data005);
+        FOREACH_MOD(I_On005Numeric,On005Numeric(data005));
         // anfl @ #ratbox, efnet reminded me that according to the RFC this cant contain more than 13 tokens per line...
         // so i'd better split it :)
         std::stringstream out(data005);
@@ -709,8 +709,8 @@ void FullConnectUser(userrec* user)
 
         // fix 3 by brain, move registered = 7 below these so that spurious modes and host changes dont go out
         // onto the network and produce 'fake direction'
-        FOREACH_MOD OnUserConnect(user);
-        FOREACH_MOD OnGlobalConnect(user);
+        FOREACH_MOD(I_OnUserConnect,OnUserConnect(user));
+        FOREACH_MOD(I_OnGlobalConnect,OnGlobalConnect(user));
         user->registered = 7;
         WriteOpers("*** Client connecting on port %lu: %s!%s@%s [%s]",(unsigned long)user->port,user->nick,user->ident,user->host,user->ip);
 }
@@ -762,7 +762,7 @@ void force_nickchange(userrec* user,const char* newnick)
 
         *nick = 0;
 
-        FOREACH_RESULT(OnUserPreNick(user,newnick));
+        FOREACH_RESULT(I_OnUserPreNick,OnUserPreNick(user,newnick));
         if (MOD_RESULT) {
                 ServerInstance->stats->statsCollisions++;
                 kill_link(user,"Nickname collision");

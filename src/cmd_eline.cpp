@@ -52,7 +52,7 @@ void cmd_eline::Handle (char **parameters, int pcnt, userrec *user)
 		if (host_matches_everyone(parameters[0],user))
 			return;
                 add_eline(duration(parameters[1]),user->nick,parameters[2],parameters[0]);
-		FOREACH_MOD OnAddELine(duration(parameters[1]), user, parameters[2], parameters[0]);
+		FOREACH_MOD(I_OnAddELine,OnAddELine(duration(parameters[1]), user, parameters[2], parameters[0]));
                 if (!duration(parameters[1]))
                 {
                         WriteOpers("*** %s added permenant E-line for %s.",user->nick,parameters[0]);
@@ -66,7 +66,7 @@ void cmd_eline::Handle (char **parameters, int pcnt, userrec *user)
         {
                 if (del_eline(parameters[0]))
                 {
-			FOREACH_MOD OnDelELine(user, parameters[0]);
+			FOREACH_MOD(I_OnDelELine,OnDelELine(user, parameters[0]));
                         WriteOpers("*** %s Removed E-line on %s.",user->nick,parameters[0]);
                 }
                 else

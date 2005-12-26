@@ -74,7 +74,7 @@ void cmd_info::Handle (char **parameters, int pcnt, userrec *user)
         WriteServ(user->fd,"371 %s :this software.",user->nick);
         WriteServ(user->fd,"371 %s : ",user->nick);
         WriteServ(user->fd,"371 %s :Best experienced with: An IRC client.",user->nick);
-	FOREACH_MOD OnInfo(user);
+	FOREACH_MOD(I_OnInfo,OnInfo(user));
 	WriteServ(user->fd,"374 %s :End of /INFO list",user->nick);
 }
 

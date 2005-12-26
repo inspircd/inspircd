@@ -114,7 +114,7 @@ void cmd_oper::Handle (char **parameters, int pcnt, userrec *user)
 		{
 			strcat(user->modes,"o");
 			WriteServ(user->fd,"MODE %s :+o",user->nick);
-			FOREACH_MOD OnOper(user,OperType);
+			FOREACH_MOD(I_OnOper,OnOper(user,OperType));
 			log(DEFAULT,"OPER: %s!%s@%s opered as type: %s",user->nick,user->ident,user->host,OperType);
 			AddOper(user);
 		}
