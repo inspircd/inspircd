@@ -110,10 +110,13 @@ void cmd_modules::Handle (char **parameters, int pcnt, userrec *user)
 						*dlist = 0;
 						for (int v = 0; v < 4; v++)
 						{
-							if ((itab[it]) && (Config->implement_lists[i][it]))
+							if (itab[it])
 							{
-								snprintf(data,MAXBUF,"%s=>%c ",itab[it],(Config->implement_lists[i][it] ? '1' : '0'));
-								strncat(dlist,data,MAXBUF);
+								if (Config->implement_lists[i][it])
+								{
+									snprintf(data,MAXBUF,"%s=>%c ",itab[it],(Config->implement_lists[i][it] ? '1' : '0'));
+									strncat(dlist,data,MAXBUF);
+								}
 								it++;
 							}
 						}
