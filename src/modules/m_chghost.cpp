@@ -73,6 +73,10 @@ class ModuleChgHost : public Module
 		mycommand = new cmd_chghost();
 		Srv->AddCommand(mycommand);
 	}
+
+	void Implements(char* List)
+	{
+	}
 	
 	virtual ~ModuleChgHost()
 	{

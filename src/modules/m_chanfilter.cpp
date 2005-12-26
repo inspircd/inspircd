@@ -46,6 +46,11 @@ class ModuleChanFilter : public Module
 		if (MaxEntries == 0)
 			MaxEntries = 32;
 	}
+
+	void Implements(char* List)
+	{
+		List[I_On005Numeric] = List[I_OnUserPart] = List[I_OnRehash] = List[I_OnUserPreMessage] = List[I_OnUserPreNotice] = List[I_OnExtendedMode] = List[I_OnSendList] = List[I_OnSyncChannel] = 1;
+	}
 	
         virtual void On005Numeric(std::string &output)
         {

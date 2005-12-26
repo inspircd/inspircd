@@ -46,6 +46,11 @@ class ModuleConnLUSERS : public Module
 	{
 		return Version(1,0,0,1,VF_VENDOR);
 	}
+
+	void Implements(char* List)
+	{
+		List[I_OnUserConnect] = 1;
+	}
 	
 	virtual void OnUserConnect(userrec* user)
 	{

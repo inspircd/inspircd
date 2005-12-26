@@ -53,6 +53,11 @@ class ModuleChanProtect : public Module
 		// read our config options (main config file)
 		FirstInGetsFounder = Conf->ReadFlag("options","noservices",0);
 	}
+
+	void Implements(char* List)
+	{
+		List[I_On005Numeric] = List[I_OnUserKick] = List[I_OnUserPart] = List[I_OnRehash] = List[I_OnUserJoin] = List[I_OnAccessCheck] = List[I_OnExtendedMode] = List[I_OnSendList] = List[I_OnSyncChannel] = 1;
+	}
 	
         virtual void On005Numeric(std::string &output)
         {

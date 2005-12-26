@@ -303,6 +303,11 @@ class ModuleCloaking : public Module
 		// listed in /MODULES
 		return Version(1,0,0,1,VF_STATIC|VF_VENDOR);
 	}
+
+	void Implements(char* List)
+	{
+		List[I_OnExtendedMode] = List[I_OnUserConnect] = 1;
+	}
 	
 	virtual int OnExtendedMode(userrec* user, void* target, char modechar, int type, bool mode_on, string_list &params)
 	{
