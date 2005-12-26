@@ -48,6 +48,11 @@ class ModuleNoNickChange : public Module
 		return Version(1,0,0,1,VF_STATIC|VF_VENDOR);
 	}
 
+	void Implements(char* List)
+	{
+		List[I_On005Numeric] = List[I_OnUserPreNick] = List[I_OnExtendedMode] = 1;
+	}
+
         virtual void On005Numeric(std::string &output)
         {
                 std::stringstream line(output);

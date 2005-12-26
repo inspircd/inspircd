@@ -35,6 +35,11 @@ class ModuleNoNotice : public Module
 		Srv = Me;
 		Srv->AddExtendedMode('T',MT_CHANNEL,false,0,0);
 	}
+
+	void Implements(char* List)
+	{
+		List[I_OnUserPreNotice] = List[I_On005Numeric] = List[I_OnExtendedMode] = 1;
+	}
 	
 	virtual int OnUserPreNotice(userrec* user,void* dest,int target_type, std::string &text)
 	{
