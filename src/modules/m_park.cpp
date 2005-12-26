@@ -152,7 +152,7 @@ class cmd_unpark : public command_t
 		if (key == atoi(parameters[1]))
 		{
 			// first part the user from all chans theyre on, so things dont get messy
-		        for (int i = 0; i < user->chans.size(); i++)
+		        for (unsigned int i = 0; i < user->chans.size(); i++)
 		        {
 		                if (user->chans[i].channel != NULL)
 		                {
