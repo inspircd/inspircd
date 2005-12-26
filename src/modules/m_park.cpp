@@ -234,7 +234,7 @@ class ModulePark : public Module
 
 	void Implements(char* List)
 	{
-		List[I_OnRehash] = List[I_OnUserQuit] = List[I_OnUserPreMessage] = List[I_OnUserPreNick] = List[I_OnBackgroundTimer] = List[I_OnWhois] = 1;
+		List[I_On005Numeric] = List[I_OnRehash] = List[I_OnUserQuit] = List[I_OnUserPreMessage] = List[I_OnUserPreNick] = List[I_OnBackgroundTimer] = List[I_OnWhois] = 1;
 	}
 
 	virtual void OnRehash(std::string parameter)
