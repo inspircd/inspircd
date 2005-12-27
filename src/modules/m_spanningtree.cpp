@@ -1247,11 +1247,14 @@ class TreeSocket : public InspSocket
 					if ((ret.substr(0,7) != "ERROR :") && (ret.substr(0,6) != "CAPAB "))
 					{
 						int nbytes = from64tobits(out, ret.c_str(), 1024);
-						log(DEBUG,"m_spanningtree: decrypt %d bytes",nbytes);
-						ctx->Decrypt(out, result, nbytes, 0);
-						for (int t = 0; t < nbytes; t++)
-							if (result[t] == '\7') result[t] = 0;
-						ret = result;
+						if (nbytes > 0)
+						{
+							log(DEBUG,"m_spanningtree: decrypt %d bytes",nbytes);
+							ctx->Decrypt(out, result, nbytes, 0);
+							for (int t = 0; t < nbytes; t++)
+								if (result[t] == '\7') result[t] = 0;
+							ret = result;
+						}
 					}
 				}
 				if (!this->ProcessLine(ret))
@@ -1283,9 +1286,7 @@ class TreeSocket : public InspSocket
 			log(DEBUG,"Plaintext line with padding = %d chars",ll);
 			ctx->Encrypt(line.c_str(), result, ll, 0);
 			log(DEBUG,"Encrypted.");
-			to64frombits((unsigned char*)result64,
-					(unsigned char*)result,
-					ll);
+			to64frombits((unsigned char*)result64,(unsigned char*)result,ll);
 			line = result64;
 			log(DEBUG,"Encrypted: %s",line.c_str());
 			//int from64tobits(char *out, const char *in, int maxlen);
