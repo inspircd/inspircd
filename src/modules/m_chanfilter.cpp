@@ -23,10 +23,11 @@ using namespace std;
 #include "channels.h"
 #include "modules.h"
 #include "helperfuncs.h"
+#include "hashcomp.h"
 
 /* $ModDesc: Provides channel-specific censor lists (like mode +G but varies from channel to channel) */
 
-typedef std::vector<std::string> SpamList;
+typedef std::vector<irc::string> SpamList;
 
 class ModuleChanFilter : public Module
 {
@@ -47,8 +48,8 @@ class ModuleChanFilter : public Module
 			MaxEntries = 32;
 	}
 
-	void Implements(char* List)
-	{
+	void Implements(char* List) 
+	{ 
 		List[I_On005Numeric] = List[I_OnUserPart] = List[I_OnRehash] = List[I_OnUserPreMessage] = List[I_OnUserPreNotice] = List[I_OnExtendedMode] = List[I_OnSendList] = List[I_OnSyncChannel] = 1;
 	}
 	
@@ -95,16 +96,16 @@ class ModuleChanFilter : public Module
 
         virtual int ProcessMessages(userrec* user,chanrec* chan,std::string &text)
         {
-		char buffer[MAXBUF];
-		strlcpy(buffer,text.c_str(),MAXBUF);
-		for (unsigned int j = 0; j < strlen(buffer); j++)
-			buffer[j] = tolower(buffer[j]);
+
+		// Create a copy of the string in irc::string
+		irc::string line = text.c_str();
+
 		SpamList* spamlist = (SpamList*)chan->GetExt("spam_list");
 		if (spamlist)
 		{
 			for (SpamList::iterator i = spamlist->begin(); i != spamlist->end(); i++)
 			{
-				if (strstr(buffer,i->c_str()))
+				if (line.find(*i) != std::string::npos)
 				{
 					WriteServ(user->fd,"936 %s %s :Your message contained a censored word, and was blocked",user->nick, chan->name);
 					return 1;
@@ -138,11 +139,8 @@ class ModuleChanFilter : public Module
 		{
 			chanrec* chan = (chanrec*)target;
 
-			for (unsigned int j = 0; j < params[0].length(); j++)
-				params[0][j] = tolower(params[0][j]);
+			irc::string word = params[0].c_str();
 
-			std::string param = params[0];
-		
 			if (mode_on)
 			{
 				SpamList* spamlist = (SpamList*)chan->GetExt("spam_list");
@@ -155,13 +153,13 @@ class ModuleChanFilter : public Module
 				{
 					for (SpamList::iterator i = spamlist->begin(); i != spamlist->end(); i++)
 					{
-						if (*i == params[0])
+						if (*i == word)
 						{
-							WriteServ(user->fd,"937 %s %s :The word %s is already on the spamfilter list",user->nick, chan->name,params[0].c_str());
+							WriteServ(user->fd,"937 %s %s :The word %s is already on the spamfilter list",user->nick, chan->name,word.c_str());
 							return -1;
 						}
 					}
-					spamlist->push_back(params[0]);
+					spamlist->push_back(word);
 					return 1;
 				}
 				WriteServ(user->fd,"939 %s %s :Channel spamfilter list is full",user->nick, chan->name);
@@ -174,7 +172,7 @@ class ModuleChanFilter : public Module
 				{
 					for (SpamList::iterator i = spamlist->begin(); i != spamlist->end(); i++)
 					{
-						if (*i == params[0])
+						if (*i == word)
 						{
 							spamlist->erase(i);
 							return 1;
@@ -223,7 +221,7 @@ class ModuleChanFilter : public Module
 		{
 			for (SpamList::iterator i = spamlist->begin(); i != spamlist->end(); i++)
 			{
-				proto->ProtoSendMode(opaque,TYPE_CHANNEL,chan,"+g "+*i);
+				proto->ProtoSendMode(opaque,TYPE_CHANNEL,chan,"+g "+std::string(i->c_str()));
 			}
 		}
 	}
