@@ -1247,7 +1247,7 @@ class TreeSocket : public InspSocket
 					if ((ret.substr(0,7) != "ERROR :") && (ret.substr(0,6) != "CAPAB "))
 					{
 						int nbytes = from64tobits(out, ret.c_str(), 1024);
-						if (nbytes > 0)
+						if ((nbytes > 0) && (nbytes < 1024))
 						{
 							log(DEBUG,"m_spanningtree: decrypt %d bytes",nbytes);
 							ctx->Decrypt(out, result, nbytes, 0);
