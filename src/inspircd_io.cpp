@@ -404,15 +404,19 @@ void WritePID(std::string filename)
 	}
 }
 
-
-int DaemonSeed (void)
+void SetSignals()
 {
-	int childpid;
 	signal (SIGALRM, SIG_IGN);
 	signal (SIGHUP, Rehash);
 	signal (SIGPIPE, SIG_IGN);
 	signal (SIGTERM, Exit);
 	signal (SIGSEGV, Error);
+}
+
+
+int DaemonSeed (void)
+{
+	int childpid;
 	if ((childpid = fork ()) < 0)
 		return (ERROR);
 	else if (childpid > 0)

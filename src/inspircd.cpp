@@ -199,6 +199,7 @@ InspIRCd::InspIRCd(int argc, char** argv)
 	memset(&Config->implement_lists,0,sizeof(Config->implement_lists));
 
         printf("\n");
+	SetSignals();
         if (!Config->nofork)
         {
                 if (DaemonSeed() == ERROR)
