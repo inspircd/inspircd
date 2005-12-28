@@ -240,9 +240,6 @@ void ProcessUser(userrec* cu)
         }
 }
 
-
-CullList* GlobalGoners;
-
 /**
  * This function is called once a second from the mainloop.
  * It is intended to do background checking on all the user structs, e.g.
@@ -271,7 +268,7 @@ bool DoBackgroundUserStuff(time_t TIME)
                 }
                 if (module_sockets.size() != numsockets) break;
         }
-        GlobalGoners = new CullList();
+        CullList* GlobalGoners = new CullList();
         for (std::vector<userrec*>::iterator count2 = local_users.begin(); count2 != local_users.end(); count2++)
         {
                 /* Sanity checks for corrupted iterators (yes, really) */
@@ -281,58 +278,68 @@ bool DoBackgroundUserStuff(time_t TIME)
                 if ((long)curr == -1)
                         return false;
 
-                if ((curr) && (curr->fd != 0)) /* XXX - why are we checking fd != 0? --w00t */
+                if (curr)
                 {
-                        // we don't check the state of remote users.
-			if (IS_LOCAL(curr))
+                        // registration timeout -- didnt send USER/NICK/HOST in the time specified in
+                        // their connection class.
+                        if (((unsigned)TIME > (unsigned)curr->timeout) && (curr->registered != 7))
                         {
-                                if (curr->GetWriteError() != "")
-                                {
-                                        log(DEBUG,"InspIRCd: write error: %s",curr->GetWriteError().c_str());
-					GlobalGoners->AddItem(curr,curr->GetWriteError());
-					continue;
-                                }
-                                // registration timeout -- didnt send USER/NICK/HOST in the time specified in
-                                // their connection class.
-                                if (((unsigned)TIME > (unsigned)curr->timeout) && (curr->registered != 7))
-                                {
-                                        log(DEBUG,"InspIRCd: registration timeout: %s",curr->nick);
-                                        GlobalGoners->AddItem(curr,"Registration timeout");
-                                        continue;
-                                }
-                                if ((TIME > curr->signon) && (curr->registered == 3) && (AllModulesReportReady(curr)))
-                                {
-                                        log(DEBUG,"signon exceed, registered=3, and modules ready, OK: %d %d",TIME,curr->signon);
-                                        curr->dns_done = true;
-                                        ServerInstance->stats->statsDnsBad++;
-                                        FullConnectUser(curr,GlobalGoners);
-                                        continue;
-                                 }
-                                 if ((curr->dns_done) && (curr->registered == 3) && (AllModulesReportReady(curr)))
-                                 {
-                                       log(DEBUG,"dns done, registered=3, and modules ready, OK");
-                                       FullConnectUser(curr,GlobalGoners);
-                                       continue;
-                                 }
-                                 if ((TIME > curr->nping) && (isnick(curr->nick)) && (curr->registered == 7))
-                                 {
-                                       if ((!curr->lastping) && (curr->registered == 7))
-                                       {
-                                               log(DEBUG,"InspIRCd: ping timeout: %s",curr->nick);
-					       GlobalGoners->AddItem(curr,"Ping timeout");
-                                               continue;
-                                       }
-                                       Write(curr->fd,"PING :%s",Config->ServerName);
-                                       log(DEBUG,"InspIRCd: pinging: %s",curr->nick);
-                                       curr->lastping = 0;
-                                       curr->nping = TIME+curr->pingmax;       // was hard coded to 120
-                                }
-				curr->FlushWriteBuf();
+                                log(DEBUG,"InspIRCd: registration timeout: %s",curr->nick);
+                                GlobalGoners->AddItem(curr,"Registration timeout");
+                                continue;
                         }
+			// user has signed on with USER/NICK/PASS, and dns has completed, all the modules
+			// say this user is ok to proceed, fully connect them.
+                        if ((TIME > curr->signon) && (curr->registered == 3) && (AllModulesReportReady(curr)))
+                        {
+                                curr->dns_done = true;
+                                ServerInstance->stats->statsDnsBad++;
+                                FullConnectUser(curr,GlobalGoners);
+                                continue;
+                        }
+                        if ((curr->dns_done) && (curr->registered == 3) && (AllModulesReportReady(curr)))
+                        {
+                                log(DEBUG,"dns done, registered=3, and modules ready, OK");
+                                FullConnectUser(curr,GlobalGoners);
+                                continue;
+                        }
+			// It's time to PING this user. Send them a ping.
+			// XXX: We were checking isnick() here -- why when we check curr->registered? - Brain
+                        if ((TIME > curr->nping) && (curr->registered == 7))
+                        {
+				// This user didn't answer the last ping, remove them
+				if (!curr->lastping)
+				{
+					GlobalGoners->AddItem(curr,"Ping timeout");
+					continue;
+				}
+				Write(curr->fd,"PING :%s",Config->ServerName);
+				curr->lastping = 0;
+				curr->nping = TIME+curr->pingmax;
+			}
+			// XXX: We can flush the write buffer as the last thing we do, because if they
+			// match any of the above conditions its no use flushing their buffer anyway.
+			curr->FlushWriteBuf();
+			if (curr->GetWriteError() != "")
+			{
+				GlobalGoners->AddItem(curr,curr->GetWriteError());
+				continue;
+			}
                 }
         }
+	/** Remove all the queued users who are due to be quit
+	 */
 	GlobalGoners->Apply();
+	/** Free to memory used
+	 */
 	delete GlobalGoners;
+	/** XXX: The old system prior to 1.0RC2 would call this function
+	 * repeatedly until everything was ship-shape, however now we are
+	 * using CullList to avoid bailing from the loop, so this is no
+	 * longer required. We always return false here so this only executes
+	 * once. At some future date the while loop may be removed from
+	 * the mainloop which calls this function.
+	 */
         return false;
 }
 
