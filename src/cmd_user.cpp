@@ -48,7 +48,6 @@ using namespace std;
 #include "typedefs.h"
 #include "command_parse.h"
 #include "cmd_user.h"
-#include "cull_list.h"
 
 extern ServerConfig* Config;
 extern InspIRCd* ServerInstance;
@@ -62,8 +61,6 @@ extern whowas_hash whowas;
 extern std::vector<userrec*> all_opers;
 extern std::vector<userrec*> local_users;
 extern userrec* fd_ref_table[65536];
-
-extern CullList* GlobalGoners;
 
 void cmd_user::Handle (char **parameters, int pcnt, userrec *user)
 {
@@ -95,7 +92,7 @@ void cmd_user::Handle (char **parameters, int pcnt, userrec *user)
 	{
 		/* user is registered now, bit 0 = USER command, bit 1 = sent a NICK command */
 		FOREACH_MOD(I_OnUserRegister,OnUserRegister(user));
-		ConnectUser(user,GlobalGoners);
+		//ConnectUser(user,NULL);
 	}
 }
 	

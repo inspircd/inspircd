@@ -35,6 +35,7 @@ using namespace std;
 #include "message.h"
 #include "wildcard.h"
 #include "xline.h"
+#include "cull_list.h"
 
 extern InspIRCd* ServerInstance;
 extern int WHOWAS_STALE;
@@ -717,14 +718,14 @@ void FullConnectUser(userrec* user, CullList* Goners)
 
 
 /* shows the message of the day, and any other on-logon stuff */
-void ConnectUser(userrec *user, CullList* Goners)
-{
+//void ConnectUser(userrec *user)
+//{
         // dns is already done, things are fast. no need to wait for dns to complete just pass them straight on
-        if ((user->dns_done) && (user->registered >= 3) && (AllModulesReportReady(user)))
-        {
-                FullConnectUser(user, Goners);
-        }
-}
+        //if ((user->dns_done) && (user->registered >= 3) && (AllModulesReportReady(user)))
+        //{
+        //        FullConnectUser(user, Goners);
+        //}
+//}
 
 /* re-allocates a nick in the user_hash after they change nicknames,
  * returns a pointer to the new user as it may have moved */

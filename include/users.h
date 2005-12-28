@@ -27,6 +27,7 @@
 #define __USERS_H__ 
 
 #include "hashcomp.h"
+#include "cull_list.h"
  
 #define STATUS_OP	4
 #define STATUS_HOP	2
@@ -343,8 +344,8 @@ void kill_link(userrec *user,const char* r);
 void kill_link_silent(userrec *user,const char* r);
 void AddWhoWas(userrec* u);
 void AddClient(int socket, char* host, int port, bool iscached, char* ip);
-void FullConnectUser(userrec* user);
-void ConnectUser(userrec *user);
+void FullConnectUser(userrec* user, CullList* Goners);
+//void ConnectUser(userrec *user, CullList* Goners);
 userrec* ReHashNick(char* Old, char* New);
 void force_nickchange(userrec* user,const char* newnick);
 

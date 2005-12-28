@@ -283,11 +283,9 @@ bool DoBackgroundUserStuff(time_t TIME)
 
                 if ((curr) && (curr->fd != 0)) /* XXX - why are we checking fd != 0? --w00t */
                 {
-                        int currfd = curr->fd;
                         // we don't check the state of remote users.
 			if (IS_LOCAL(curr))
                         {
-                                curr->FlushWriteBuf();
                                 if (curr->GetWriteError() != "")
                                 {
                                         log(DEBUG,"InspIRCd: write error: %s",curr->GetWriteError().c_str());
@@ -329,6 +327,7 @@ bool DoBackgroundUserStuff(time_t TIME)
                                        curr->lastping = 0;
                                        curr->nping = TIME+curr->pingmax;       // was hard coded to 120
                                 }
+				curr->FlushWriteBuf();
                         }
                 }
         }
