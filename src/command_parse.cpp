@@ -626,7 +626,7 @@ bool CommandParser::RemoveCommands(const char* source)
                 go_again = false;
                 for (std::map<std::string,command_t*>::iterator i = cmdlist.begin(); i != cmdlist.end(); i++)
                 {
-			command_t* x = (command_t*)*i;
+			command_t* x = i->second;
                         if (x->source == std::string(source))
                         {
                                 log(DEBUG,"removecommands(%s) Removing dependent command: %s",x->source.c_str(),x->command.c_str());
