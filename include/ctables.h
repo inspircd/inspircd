@@ -18,7 +18,7 @@
 #define __CTABLES_H__
 
 #include "inspircd_config.h"
-#include <deque>
+#include <map>
 
 class userrec;
 
@@ -59,7 +59,7 @@ class command_t
 	virtual ~command_t() {}
 };
 
-typedef std::deque<command_t*> command_table;
+typedef std::map<std::string,command_t*> command_table;
 
 #endif
 

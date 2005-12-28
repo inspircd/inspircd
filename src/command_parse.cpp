@@ -248,15 +248,14 @@ int CommandParser::LoopCall(command_t* fn, char **parameters, int pcnt, userrec 
 
 bool CommandParser::IsValidCommand(std::string &commandname, int pcnt, userrec * user)
 {
-        for (unsigned int i = 0; i < cmdlist.size(); i++)
-        {
-                if (cmdlist[i]->command == commandname)
-                {
-                        if ((pcnt>=cmdlist[i]->min_params) && (cmdlist[i]->source != "<core>"))
+	std::map<std::string,command_t*>::iterator n = cmdlist.find(commandname);
+	if (n != cmdlist.end())
+	{
+                        if ((pcnt>=n->second->min_params) && (n->second->source != "<core>"))
                         {
-                                if ((strchr(user->modes,cmdlist[i]->flags_needed)) || (!cmdlist[i]->flags_needed))
+                                if ((strchr(user->modes,n->second->flags_needed)) || (!n->second->flags_needed))
                                 {
-                                        if (cmdlist[i]->flags_needed)
+                                        if (n->second->flags_needed)
                                         {
                                                 if ((user->HasPermission(commandname)) || (is_uline(user->server)))
                                                 {
@@ -270,7 +269,6 @@ bool CommandParser::IsValidCommand(std::string &commandname, int pcnt, userrec *
                                         return true;
                                 }
                         }
-                }
         }
         return false;
 }
@@ -279,28 +277,26 @@ bool CommandParser::IsValidCommand(std::string &commandname, int pcnt, userrec *
 
 void CommandParser::CallHandler(std::string &commandname,char **parameters, int pcnt, userrec *user)
 {
-        for (unsigned int i = 0; i < cmdlist.size(); i++)
+	std::map<std::string,command_t*>::iterator n = cmdlist.find(commandname);
+        if (n != cmdlist.end())
         {
-                if (cmdlist[i]->command == commandname)
-                {
-                        if (pcnt>=cmdlist[i]->min_params)
+                        if (pcnt >= n->second->min_params)
                         {
-                                if ((strchr(user->modes,cmdlist[i]->flags_needed)) || (!cmdlist[i]->flags_needed))
+                                if ((strchr(user->modes,n->second->flags_needed)) || (!n->second->flags_needed))
                                 {
-                                        if (cmdlist[i]->flags_needed)
+                                        if (n->second->flags_needed)
                                         {
                                                 if ((user->HasPermission(commandname)) || (is_uline(user->server)))
                                                 {
-                                                        cmdlist[i]->Handle(parameters,pcnt,user);
+                                                        n->second->Handle(parameters,pcnt,user);
                                                 }
                                         }
                                         else
                                         {
-                                                cmdlist[i]->Handle(parameters,pcnt,user);
+                                                n->second->Handle(parameters,pcnt,user);
                                         }
                                 }
                         }
-                }
         }
 }
 
@@ -481,7 +477,6 @@ void CommandParser::ProcessCommand(userrec *user, char* cmd)
                 }
 
         }
-        cmd_found = 0;
 
         if (strlen(command)>MAXCOMMAND)
         {
@@ -532,28 +527,29 @@ void CommandParser::ProcessCommand(userrec *user, char* cmd)
 		return;
 	}
 	
-        for (unsigned int i = 0; i != cmdlist.size(); i++)
+	std::map<std::string,command_t*>::iterator cm = cmdlist.find(xcommand);
+	
+        if (cm != cmdlist.end())
         {
-                        if ((xcommand.length() >= cmdlist[i]->command.length()) && (xcommand == cmdlist[i]->command))
-                        {
+                        
                                 if (user)
                                 {
                                         /* activity resets the ping pending timer */
                                         user->nping = TIME + user->pingmax;
-                                        if ((items) < cmdlist[i]->min_params)
+                                        if ((items) < cm->second->min_params)
                                         {
                                                 log(DEBUG,"not enough parameters: %s %s",user->nick,command);
                                                 WriteServ(user->fd,"461 %s %s :Not enough parameters",user->nick,command);
                                                 return;
                                         }
-                                        if ((!strchr(user->modes,cmdlist[i]->flags_needed)) && (cmdlist[i]->flags_needed))
+                                        if ((!strchr(user->modes,cm->second->flags_needed)) && (cm->second->flags_needed))
                                         {
                                                 log(DEBUG,"permission denied: %s %s",user->nick,command);
                                                 WriteServ(user->fd,"481 %s :Permission Denied- You do not have the required operator privilages",user->nick);
                                                 cmd_found = 1;
                                                 return;
                                         }
-                                        if ((cmdlist[i]->flags_needed) && (!user->HasPermission(xcommand)))
+                                        if ((cm->second->flags_needed) && (!user->HasPermission(xcommand)))
                                         {
                                                 log(DEBUG,"permission denied: %s %s",user->nick,command);
                                                 WriteServ(user->fd,"481 %s :Permission Denied- Oper type %s does not have access to command %s",user->nick,user->oper,command);
@@ -591,8 +587,8 @@ void CommandParser::ProcessCommand(userrec *user, char* cmd)
                                                         /* ikky /stats counters */
                                                         if (temp)
                                                         {
-                                                                cmdlist[i]->use_count++;
-                                                                cmdlist[i]->total_bytes+=strlen(temp);
+                                                                cm->second->use_count++;
+                                                                cm->second->total_bytes+=strlen(temp);
                                                         }
 
                                                         int MOD_RESULT = 0;
@@ -605,7 +601,7 @@ void CommandParser::ProcessCommand(userrec *user, char* cmd)
                                                          * command handler call, as the handler
                                                          * may free the user structure! */
 
-                                                        cmdlist[i]->Handle(command_p,items,user);
+                                                        cm->second->Handle(command_p,items,user);
                                                 return;
                                         }
                                         else
@@ -614,10 +610,8 @@ void CommandParser::ProcessCommand(userrec *user, char* cmd)
                                                 return;
                                         }
                                 }
-                                cmd_found = 1;
-                        }
         }
-        if ((!cmd_found) && (user))
+	else if (user)
         {
                 ServerInstance->stats->statsUnknown++;
                 WriteServ(user->fd,"421 %s %s :Unknown command",user->nick,command);
@@ -630,7 +624,7 @@ bool CommandParser::RemoveCommands(const char* source)
         while (go_again)
         {
                 go_again = false;
-                for (std::deque<command_t*>::iterator i = cmdlist.begin(); i != cmdlist.end(); i++)
+                for (std::map<std::string,command_t*>::iterator i = cmdlist.begin(); i != cmdlist.end(); i++)
                 {
 			command_t* x = (command_t*)*i;
                         if (x->source == std::string(source))
@@ -701,7 +695,7 @@ void CommandParser::ProcessBuffer(const char* cmdbuf,userrec *user)
 bool CommandParser::CreateCommand(command_t *f)
 {
         /* create the command and push it onto the table */
-        cmdlist.push_back(f);
+        cmdlist[f->command] = f;
         log(DEBUG,"Added command %s (%lu parameters)",f->command.c_str(),(unsigned long)f->min_params);
 	return true;
 }
