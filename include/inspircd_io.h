@@ -290,6 +290,7 @@ class ServerConfig : public classbase
 
 void Exit (int); 
 void Start (void); 
+void SetSignals();
 int DaemonSeed (void); 
 bool FileExists (const char* file);
 int OpenTCPSocket (void); 
