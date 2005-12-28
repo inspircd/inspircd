@@ -58,16 +58,9 @@ char* ModeParser::GiveOps(userrec *user,char *dest,chanrec *chan,int status)
 {
 	userrec *d;
 	
-	if ((!user) || (!dest) || (!chan))
+	if ((!user) || (!dest) || (!chan) || (!*dest))
 	{
 		log(DEFAULT,"*** BUG *** GiveOps was given an invalid parameter");
-		return NULL;
-	}
-
-	if (!isnick(dest))
-	{
-		log(DEFAULT,"the target nickname given to GiveOps was invalid");
-		WriteServ(user->fd,"401 %s %s :No such nick/channel",user->nick, dest);
 		return NULL;
 	}
 	d = Find(dest);
@@ -121,18 +114,13 @@ char* ModeParser::GiveHops(userrec *user,char *dest,chanrec *chan,int status)
 {
 	userrec *d;
 	
-	if ((!user) || (!dest) || (!chan))
+	if ((!user) || (!dest) || (!chan) || (!*dest))
 	{
 		log(DEFAULT,"*** BUG *** GiveHops was given an invalid parameter");
 		return NULL;
 	}
 
 	d = Find(dest);
-	if (!isnick(dest))
-	{
-		WriteServ(user->fd,"401 %s %s :No such nick/channel",user->nick, dest);
-		return NULL;
-	}
 	if (!d)
 	{
 		WriteServ(user->fd,"401 %s %s :No such nick/channel",user->nick, dest);
@@ -177,18 +165,13 @@ char* ModeParser::GiveVoice(userrec *user,char *dest,chanrec *chan,int status)
 {
 	userrec *d;
 	
-	if ((!user) || (!dest) || (!chan))
+	if ((!user) || (!dest) || (!chan) || (!*dest))
 	{
 		log(DEFAULT,"*** BUG *** GiveVoice was given an invalid parameter");
 		return NULL;
 	}
 
 	d = Find(dest);
-	if (!isnick(dest))
-	{
-		WriteServ(user->fd,"401 %s %s :No such nick/channel",user->nick, dest);
-		return NULL;
-	}
 	if (!d)
 	{
 		WriteServ(user->fd,"401 %s %s :No such nick/channel",user->nick, dest);
@@ -233,19 +216,13 @@ char* ModeParser::TakeOps(userrec *user,char *dest,chanrec *chan,int status)
 {
 	userrec *d;
 	
-	if ((!user) || (!dest) || (!chan))
+	if ((!user) || (!dest) || (!chan) || (!*dest))
 	{
 		log(DEFAULT,"*** BUG *** TakeOps was given an invalid parameter");
 		return NULL;
 	}
 
 	d = Find(dest);
-	if (!isnick(dest))
-	{
-		log(DEBUG,"TakeOps was given an invalid target nickname of %s",dest);
-		WriteServ(user->fd,"401 %s %s :No such nick/channel",user->nick, dest);
-		return NULL;
-	}
 	if (!d)
 	{
 		log(DEBUG,"TakeOps couldnt resolve the target nickname: %s",dest);
@@ -292,18 +269,13 @@ char* ModeParser::TakeHops(userrec *user,char *dest,chanrec *chan,int status)
 {
 	userrec *d;
 	
-	if ((!user) || (!dest) || (!chan))
+	if ((!user) || (!dest) || (!chan) || (!*dest))
 	{
 		log(DEFAULT,"*** BUG *** TakeHops was given an invalid parameter");
 		return NULL;
 	}
 
 	d = Find(dest);
-	if (!isnick(dest))
-	{
-		WriteServ(user->fd,"401 %s %s :No such nick/channel",user->nick, dest);
-		return NULL;
-	}
 	if (!d)
 	{
 		WriteServ(user->fd,"401 %s %s :No such nick/channel",user->nick, dest);
@@ -349,18 +321,13 @@ char* ModeParser::TakeVoice(userrec *user,char *dest,chanrec *chan,int status)
 {
 	userrec *d;
 	
-	if ((!user) || (!dest) || (!chan))
+	if ((!user) || (!dest) || (!chan) || (!*dest))
 	{
 		log(DEFAULT,"*** BUG *** TakeVoice was given an invalid parameter");
 		return NULL;
 	}
 
 	d = Find(dest);
-	if (!isnick(dest))
-	{
-		WriteServ(user->fd,"401 %s %s :No such nick/channel",user->nick, dest);
-		return NULL;
-	}
 	if (!d)
 	{
 		WriteServ(user->fd,"401 %s %s :No such nick/channel",user->nick, dest);
@@ -403,14 +370,13 @@ char* ModeParser::TakeVoice(userrec *user,char *dest,chanrec *chan,int status)
 
 char* ModeParser::AddBan(userrec *user,char *dest,chanrec *chan,int status)
 {
-	if ((!user) || (!dest) || (!chan)) {
+	if ((!user) || (!dest) || (!chan) || (!*dest)) {
 		log(DEFAULT,"*** BUG *** AddBan was given an invalid parameter");
 		return NULL;
 	}
 
 	BanItem b;
-	if ((!user) || (!dest) || (!chan))
-		return NULL;
+
 	unsigned int l = strlen(dest);
 	if (strchr(dest,'!')==0)
 		return NULL;
@@ -468,7 +434,7 @@ char* ModeParser::AddBan(userrec *user,char *dest,chanrec *chan,int status)
 
 char* ModeParser::TakeBan(userrec *user,char *dest,chanrec *chan,int status)
 {
-	if ((!user) || (!dest) || (!chan)) {
+	if ((!user) || (!dest) || (!chan) || (!*dest)) {
 		log(DEFAULT,"*** BUG *** TakeBan was given an invalid parameter");
 		return 0;
 	}
