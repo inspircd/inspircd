@@ -18,7 +18,18 @@
 #define __CTABLES_H__
 
 #include "inspircd_config.h"
-#include <map>
+
+#ifdef GCC3
+#include <ext/hash_map>
+#else
+#include <hash_map>
+#endif
+
+#ifdef GCC3
+#define nspace __gnu_cxx
+#else
+#define nspace std
+#endif
 
 class userrec;
 
@@ -59,7 +70,7 @@ class command_t
 	virtual ~command_t() {}
 };
 
-typedef std::map<std::string,command_t*> command_table;
+typedef nspace::hash_map<std::string,command_t*> command_table;
 
 #endif
 

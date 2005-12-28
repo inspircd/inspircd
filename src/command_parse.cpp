@@ -60,6 +60,13 @@ using namespace std;
 #include "command_parse.h"
 #include "ctables.h"
 
+#ifdef GCC3
+#define nspace __gnu_cxx
+#else
+#define nspace std
+#endif
+
+
 extern InspIRCd* ServerInstance;
 
 extern std::vector<Module*> modules;
@@ -248,7 +255,7 @@ int CommandParser::LoopCall(command_t* fn, char **parameters, int pcnt, userrec 
 
 bool CommandParser::IsValidCommand(std::string &commandname, int pcnt, userrec * user)
 {
-	std::map<std::string,command_t*>::iterator n = cmdlist.find(commandname);
+	nspace::hash_map<std::string,command_t*>::iterator n = cmdlist.find(commandname);
 	if (n != cmdlist.end())
 	{
                         if ((pcnt>=n->second->min_params) && (n->second->source != "<core>"))
@@ -277,7 +284,7 @@ bool CommandParser::IsValidCommand(std::string &commandname, int pcnt, userrec *
 
 void CommandParser::CallHandler(std::string &commandname,char **parameters, int pcnt, userrec *user)
 {
-	std::map<std::string,command_t*>::iterator n = cmdlist.find(commandname);
+	nspace::hash_map<std::string,command_t*>::iterator n = cmdlist.find(commandname);
         if (n != cmdlist.end())
         {
                         if (pcnt >= n->second->min_params)
@@ -527,7 +534,7 @@ void CommandParser::ProcessCommand(userrec *user, char* cmd)
 		return;
 	}
 	
-	std::map<std::string,command_t*>::iterator cm = cmdlist.find(xcommand);
+	nspace::hash_map<std::string,command_t*>::iterator cm = cmdlist.find(xcommand);
 	
         if (cm != cmdlist.end())
         {
@@ -624,7 +631,7 @@ bool CommandParser::RemoveCommands(const char* source)
         while (go_again)
         {
                 go_again = false;
-                for (std::map<std::string,command_t*>::iterator i = cmdlist.begin(); i != cmdlist.end(); i++)
+                for (nspace::hash_map<std::string,command_t*>::iterator i = cmdlist.begin(); i != cmdlist.end(); i++)
                 {
 			command_t* x = i->second;
                         if (x->source == std::string(source))
