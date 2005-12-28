@@ -633,7 +633,7 @@ void AddClient(int socket, char* host, int port, bool iscached, char* ip)
         ServerInstance->SE->AddFd(socket,true,X_ESTAB_CLIENT);
 }
 
-void FullConnectUser(userrec* user)
+void FullConnectUser(userrec* user, CullList* Goners)
 {
         ServerInstance->stats->statsConnects++;
         user->idle_lastmsg = TIME;
@@ -641,12 +641,12 @@ void FullConnectUser(userrec* user)
 
         if ((strcmp(Passwd(user),"")) && (!user->haspassed))
         {
-                kill_link(user,"Invalid password");
+		Goners->AddItem(user,"Invalid password");
                 return;
         }
         if (IsDenied(user))
         {
-                kill_link(user,"Unauthorised connection");
+		Goners->AddItem(user,"Unauthorised connection");
                 return;
         }
 
@@ -660,7 +660,7 @@ void FullConnectUser(userrec* user)
                 {
                         char reason[MAXBUF];
                         snprintf(reason,MAXBUF,"G-Lined: %s",r);
-                        kill_link_silent(user,reason);
+			Goners->AddItem(user,reason);
                         return;
                 }
                 r = matches_kline(user->host);
@@ -668,7 +668,7 @@ void FullConnectUser(userrec* user)
                 {
                         char reason[MAXBUF];
                         snprintf(reason,MAXBUF,"K-Lined: %s",r);
-                        kill_link_silent(user,reason);
+                        Goners->AddItem(user,reason);
                         return;
                 }
         }
@@ -717,12 +717,12 @@ void FullConnectUser(userrec* user)
 
 
 /* shows the message of the day, and any other on-logon stuff */
-void ConnectUser(userrec *user)
+void ConnectUser(userrec *user, CullList* Goners)
 {
         // dns is already done, things are fast. no need to wait for dns to complete just pass them straight on
         if ((user->dns_done) && (user->registered >= 3) && (AllModulesReportReady(user)))
         {
-                FullConnectUser(user);
+                FullConnectUser(user, Goners);
         }
 }
 

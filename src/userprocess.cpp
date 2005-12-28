@@ -58,6 +58,7 @@ using namespace std;
 #include "socketengine.h"
 #include "typedefs.h"
 #include "command_parse.h"
+#include "cull_list.h"
 
 extern int MODCOUNT;
 extern struct sockaddr_in client,server;
@@ -240,6 +241,8 @@ void ProcessUser(userrec* cu)
 }
 
 
+CullList* GlobalGoners;
+
 /**
  * This function is called once a second from the mainloop.
  * It is intended to do background checking on all the user structs, e.g.
@@ -268,8 +271,7 @@ bool DoBackgroundUserStuff(time_t TIME)
                 }
                 if (module_sockets.size() != numsockets) break;
         }
-        /* TODO: We need a seperate hash containing only local users for this
-         */
+        GlobalGoners = new CullList();
         for (std::vector<userrec*>::iterator count2 = local_users.begin(); count2 != local_users.end(); count2++)
         {
                 /* Sanity checks for corrupted iterators (yes, really) */
@@ -289,40 +291,38 @@ bool DoBackgroundUserStuff(time_t TIME)
                                 if (curr->GetWriteError() != "")
                                 {
                                         log(DEBUG,"InspIRCd: write error: %s",curr->GetWriteError().c_str());
-                                        kill_link(curr,curr->GetWriteError().c_str());
-                                        return true;
+					GlobalGoners->AddItem(curr,curr->GetWriteError());
+					continue;
                                 }
                                 // registration timeout -- didnt send USER/NICK/HOST in the time specified in
                                 // their connection class.
                                 if (((unsigned)TIME > (unsigned)curr->timeout) && (curr->registered != 7))
                                 {
                                         log(DEBUG,"InspIRCd: registration timeout: %s",curr->nick);
-                                        kill_link(curr,"Registration timeout");
-                                        return true;
+                                        GlobalGoners->AddItem(curr,"Registration timeout");
+                                        continue;
                                 }
                                 if ((TIME > curr->signon) && (curr->registered == 3) && (AllModulesReportReady(curr)))
                                 {
                                         log(DEBUG,"signon exceed, registered=3, and modules ready, OK: %d %d",TIME,curr->signon);
                                         curr->dns_done = true;
                                         ServerInstance->stats->statsDnsBad++;
-                                        FullConnectUser(curr);
-                                        if (fd_ref_table[currfd] != curr) // something changed, bail pronto
-                                                return true;
+                                        FullConnectUser(curr,GlobalGoners);
+                                        continue;
                                  }
                                  if ((curr->dns_done) && (curr->registered == 3) && (AllModulesReportReady(curr)))
                                  {
                                        log(DEBUG,"dns done, registered=3, and modules ready, OK");
-                                       FullConnectUser(curr);
-                                       if (fd_ref_table[currfd] != curr) // something changed, bail pronto
-                                                return true;
+                                       FullConnectUser(curr,GlobalGoners);
+                                       continue;
                                  }
                                  if ((TIME > curr->nping) && (isnick(curr->nick)) && (curr->registered == 7))
                                  {
                                        if ((!curr->lastping) && (curr->registered == 7))
                                        {
                                                log(DEBUG,"InspIRCd: ping timeout: %s",curr->nick);
-                                               kill_link(curr,"Ping timeout");
-                                               return true;
+					       GlobalGoners->AddItem(curr,"Ping timeout");
+                                               continue;
                                        }
                                        Write(curr->fd,"PING :%s",Config->ServerName);
                                        log(DEBUG,"InspIRCd: pinging: %s",curr->nick);
@@ -332,6 +332,8 @@ bool DoBackgroundUserStuff(time_t TIME)
                         }
                 }
         }
+	GlobalGoners->Apply();
+	delete GlobalGoners;
         return false;
 }
 
