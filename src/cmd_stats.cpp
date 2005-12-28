@@ -164,12 +164,12 @@ void cmd_stats::Handle (char **parameters, int pcnt, userrec *user)
 	/* stats m (list number of times each command has been used, plus bytecount) */
 	if (*parameters[0] == 'm')
 	{
-		for (unsigned int i = 0; i < ServerInstance->Parser->cmdlist.size(); i++)
+		for (nspace::hash_map<std::string,command_t*>::iterator i = ServerInstance->Parser->cmdlist.begin(); i != ServerInstance->Parser->cmdlist.end(); i++)
 		{
-			if (ServerInstance->Parser->cmdlist[i]->use_count)
+			if (i->second->use_count)
 			{
 				/* RPL_STATSCOMMANDS */
-				WriteServ(user->fd,"212 %s %s %d %d",user->nick,ServerInstance->Parser->cmdlist[i]->command.c_str(),ServerInstance->Parser->cmdlist[i]->use_count,ServerInstance->Parser->cmdlist[i]->total_bytes);
+				WriteServ(user->fd,"212 %s %s %d %d",user->nick,i->second->command.c_str(),i->second->use_count,i->second->total_bytes);
 			}
 		}
 			
