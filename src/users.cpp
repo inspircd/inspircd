@@ -612,7 +612,7 @@ void AddClient(int socket, char* host, int port, bool iscached, char* ip)
         // irc server at once (or the irc server otherwise initiating this many connections, files etc)
         // which for the time being is a physical impossibility (even the largest networks dont have more
         // than about 10,000 users on ONE server!)
-        if ((unsigned)socket > 65534)
+        if ((unsigned)socket > MAX_DESCRIPTORS)
         {
                 kill_link(clientlist[tempnick],"Server is full");
                 return;
@@ -632,6 +632,8 @@ void AddClient(int socket, char* host, int port, bool iscached, char* ip)
         fd_ref_table[socket] = clientlist[tempnick];
 	local_users.push_back(clientlist[tempnick]);
         ServerInstance->SE->AddFd(socket,true,X_ESTAB_CLIENT);
+
+	WriteServ(clientlist[tempnick]->fd,"NOTICE Auth :*** Looking up your hostname...");
 }
 
 void FullConnectUser(userrec* user, CullList* Goners)
@@ -680,17 +682,9 @@ void FullConnectUser(userrec* user, CullList* Goners)
         WriteServ(user->fd,"002 %s :Your host is %s, running version %s",user->nick,Config->ServerName,VERSION);
         WriteServ(user->fd,"003 %s :This server was created %s %s",user->nick,__TIME__,__DATE__);
         WriteServ(user->fd,"004 %s %s %s iowghraAsORVSxNCWqBzvdHtGI lvhopsmntikrRcaqOALQbSeKVfHGCuzN",user->nick,Config->ServerName,VERSION);
-        // the neatest way to construct the initial 005 numeric, considering the number of configure constants to go in it...
-        std::stringstream v;
-        v << "WALLCHOPS MODES=13 CHANTYPES=# PREFIX=(ohv)@%+ MAP SAFELIST MAXCHANNELS=" << MAXCHANS;
-        v << " MAXBANS=60 NICKLEN=" << NICKMAX;
-        v << " TOPICLEN=" << MAXTOPIC << " KICKLEN=" << MAXKICK << " MAXTARGETS=20 AWAYLEN=" << MAXAWAY << " CHANMODES=ohvb,k,l,psmnti NETWORK=";
-        v << Config->Network;
-        std::string data005 = v.str();
-        FOREACH_MOD(I_On005Numeric,On005Numeric(data005));
         // anfl @ #ratbox, efnet reminded me that according to the RFC this cant contain more than 13 tokens per line...
         // so i'd better split it :)
-        std::stringstream out(data005);
+        std::stringstream out(Config->data005);
         std::string token = "";
         std::string line5 = "";
         int token_counter = 0;

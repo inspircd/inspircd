@@ -276,6 +276,16 @@ void InspIRCd::erase_module(int j)
 
 }
 
+void InspIRCd::BuildISupport()
+{
+        // the neatest way to construct the initial 005 numeric, considering the number of configure constants to go in it...
+	std::stringstream v;
+	v << "WALLCHOPS MODES=13 CHANTYPES=# PREFIX=(ohv)@%+ MAP SAFELIST MAXCHANNELS=" << MAXCHANS << " MAXBANS=60 NICKLEN=" << NICKMAX;
+	v << " TOPICLEN=" << MAXTOPIC << " KICKLEN=" << MAXKICK << " MAXTARGETS=20 AWAYLEN=" << MAXAWAY << " CHANMODES=ohvb,k,l,psmnti NETWORK=" << Config->Network;
+	Config->data005 = v.str();
+	FOREACH_MOD(I_On005Numeric,On005Numeric(Config->data005));
+}
+
 bool InspIRCd::UnloadModule(const char* filename)
 {
 	std::string filename_str = filename;
@@ -314,6 +324,7 @@ bool InspIRCd::UnloadModule(const char* filename)
                         Parser->RemoveCommands(filename);
 			log(DEFAULT,"Module %s unloaded",filename);
 			MODCOUNT--;
+			BuildISupport();
 			return true;
 		}
 	}
@@ -402,6 +413,7 @@ bool InspIRCd::LoadModule(const char* filename)
 #endif
 	MODCOUNT++;
 	FOREACH_MOD(I_OnLoadModule,OnLoadModule(modules[MODCOUNT],filename_str));
+	BuildISupport();
 	return true;
 }
 

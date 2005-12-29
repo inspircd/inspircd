@@ -263,6 +263,12 @@ class ServerConfig : public classbase
 	 */
 	std::map<int,Module*> IOHookModule;
 
+	/** The 005 tokens of this server (ISUPPORT)
+	 * populated/repopulated upon loading or unloading
+	 * modules.
+	 */
+	std::string data005;
+
 	ServerConfig();
 
 	/** Clears the include stack in preperation for

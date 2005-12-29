@@ -102,7 +102,8 @@ class InspIRCd
  private:
 	char MODERR[MAXBUF];
         void erase_factory(int j);
-        void erase_module(int j);	
+        void erase_module(int j);
+	void BuildISupport();
 
  public:
 	time_t startup_time;
