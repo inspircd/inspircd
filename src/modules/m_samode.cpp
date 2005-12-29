@@ -86,11 +86,6 @@ class ModuleSaMode : public Module
 	{
 		return Version(1,0,2,2,VF_VENDOR);
 	}
-	
-	virtual void OnUserConnect(userrec* user)
-	{
-	}
-
 };
 
 
