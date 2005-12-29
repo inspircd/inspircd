@@ -593,13 +593,13 @@ void AddClient(int socket, char* host, int port, bool iscached, char* ip)
         for (int i = 0; i < MAXCHANS; i++)
                 clientlist[tempnick]->chans.push_back(a);
 
-        if (clientlist.size() > Config->SoftLimit)
+        if (local_users.size() > Config->SoftLimit)
         {
                 kill_link(clientlist[tempnick],"No more connections allowed");
                 return;
         }
 
-        if (clientlist.size() >= MAXCLIENTS)
+        if (local_users.size() >= MAXCLIENTS)
         {
                 kill_link(clientlist[tempnick],"No more connections allowed");
                 return;
