@@ -410,7 +410,7 @@ bool InspIRCd::LoadModule(const char* filename)
 int InspIRCd::Run()
 {
 	bool expire_run = false;
-	std::vector<int> activefds;
+	int activefds[65535];
 	int incomingSockfd;
 	int in_port;
 	userrec* cu = NULL;
@@ -462,19 +462,26 @@ int InspIRCd::Run()
 			expire_run = true;
 			continue;
 		}
-		if ((TIME % 8) == 1)
+		else if ((TIME % 8) == 1)
+		{
 			expire_run = false;
+		}
 		
 		/* Once a second, do the background processing */
-		if (TIME != OLDTIME)
-			while (DoBackgroundUserStuff(TIME));
+		if ((TIME != OLDTIME) && ((TIME % 2) == 0))
+			DoBackgroundUserStuff(TIME);
 
 		/* Call the socket engine to wait on the active
 		 * file descriptors. The socket engine has everything's
 		 * descriptors in its list... dns, modules, users,
 		 * servers... so its nice and easy, just one call.
 		 */
-		SE->Wait(activefds);
+		numberactive = SE->Wait(activefds);
+
+		if (!numberactive)
+			continue;
+
+		log(DEBUG,"%d active fds this time around",numberactive);
 
 		/**
 		 * Now process each of the fd's. For users, we have a fast
@@ -483,7 +490,6 @@ int InspIRCd::Run()
 		 * listening ports or module sockets though, things could get
 		 * ugly.
 		 */
-		numberactive = activefds.size();
 		for (unsigned int activefd = 0; activefd < numberactive; activefd++)
 		{
 			int socket_type = SE->GetType(activefds[activefd]);

@@ -19,6 +19,7 @@
 
 #include <vector>
 #include <string>
+#include <map>
 #include "inspircd_config.h"
 #include "globals.h"
 #include "inspircd.h"
@@ -65,9 +66,9 @@ const char X_READBIT            = 0x80;
  */
 class SocketEngine {
 
-	std::vector<int> fds;			/* List of file descriptors being monitored */
 	int EngineHandle;			/* Handle to the socket engine if needed */
 #ifdef USE_SELECT
+	std::map<int,int> fds;			/* List of file descriptors being monitored */
 	fd_set wfdset, rfdset;			/* Readable and writeable sets for select() */
 #endif
 #ifdef USE_KQUEUE
@@ -132,7 +133,7 @@ public:
 	 * of active file descriptors in the vector
 	 * fdlist which the core may then act upon.
 	 */
-	bool Wait(std::vector<int> &fdlist);
+	int Wait(int* fdlist);
 
 	/** Returns the socket engines name
 	 * This returns the name of the engine for use

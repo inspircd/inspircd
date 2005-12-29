@@ -1093,11 +1093,16 @@ void ShowRULES(userrec *user)
 // registration timeout maximum seconds)
 bool AllModulesReportReady(userrec* user)
 {
+	if (!Config->global_implementation[I_OnCheckReady])
+		return true;
         for (int i = 0; i <= MODCOUNT; i++)
         {
-                int res = modules[i]->OnCheckReady(user);
-                if (!res)
-                        return false;
+		if (Config->implement_lists[i][I_OnCheckReady])
+		{
+			int res = modules[i]->OnCheckReady(user);
+			if (!res)
+	                        return false;
+		}
         }
         return true;
 }

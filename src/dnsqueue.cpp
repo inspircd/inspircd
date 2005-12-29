@@ -264,6 +264,7 @@ void dns_poll(int fdcheck)
 	 * just to be safe so we dont get any more events
 	 * about it.
 	 */
-	SE->DelFd(fdcheck);
+	if (SE)
+		SE->DelFd(fdcheck);
 }
 

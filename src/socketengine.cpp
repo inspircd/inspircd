@@ -66,7 +66,9 @@ bool SocketEngine::AddFd(int fd, bool readable, char type)
 {
 	if ((fd < 0) || (fd > 65535))
 		return false;
-	this->fds.push_back(fd);
+#ifdef USE_SELECT
+	fds[fd] = fd;
+#endif
 	ref[fd] = type;
 	if (readable)
 	{
@@ -107,17 +109,14 @@ bool SocketEngine::DelFd(int fd)
 	if ((fd < 0) || (fd > 65535))
 		return false;
 
-	bool found = false;
-	for (std::vector<int>::iterator i = fds.begin(); i != fds.end(); i++)
+#ifdef USE_SELECT
+	std::map<int,int>::iterator t = fds.find(fd);
+	if (t != fds.end())
 	{
-		if (*i == fd)
-		{
-			fds.erase(i);
-			log(DEBUG,"Deleted fd %d",fd);
-			found = true;
-			break;
-		}
+		fds.erase(t);
+		log(DEBUG,"Deleted fd %d",fd);
 	}
+#endif
 #ifdef USE_KQUEUE
 	struct kevent ke;
 	EV_SET(&ke, fd, ref[fd] & X_READBIT ? EVFILT_READ : EVFILT_WRITE, EV_DELETE, 0, 0, NULL);
@@ -140,26 +139,26 @@ bool SocketEngine::DelFd(int fd)
 	}
 #endif
 	ref[fd] = 0;
-	return found;
+	return true;
 }
 
-bool SocketEngine::Wait(std::vector<int> &fdlist)
+int SocketEngine::Wait(int* fdlist)
 {
-	fdlist.clear();
+	int result = 0;
 #ifdef USE_SELECT
 	FD_ZERO(&wfdset);
 	FD_ZERO(&rfdset);
 	timeval tval;
 	int sresult;
-	for (unsigned int a = 0; a < fds.size(); a++)
+	for (std::map<int,int>::iterator a = fds.begin(); a != fds.end(); a++)
 	{
-		if (ref[fds[a]] & X_READBIT)
+		if (ref[a->second] & X_READBIT)
 		{
-			FD_SET (fds[a], &rfdset);
+			FD_SET (a->second, &rfdset);
 		}
 		else
 		{
-			FD_SET (fds[a], &wfdset);
+			FD_SET (a->second, &wfdset);
 		}
 		
 	}
@@ -168,10 +167,10 @@ bool SocketEngine::Wait(std::vector<int> &fdlist)
 	sresult = select(FD_SETSIZE, &rfdset, &wfdset, NULL, &tval);
 	if (sresult > 0)
 	{
-		for (unsigned int a = 0; a < fds.size(); a++)
+		for (std::map<int,int>::iterator a = fds.begin(); a != fds.end(); a++)
 		{
-			if ((FD_ISSET (fds[a], &rfdset)) || (FD_ISSET (fds[a], &wfdset)))
-				fdlist.push_back(fds[a]);
+			if ((FD_ISSET (a->second, &rfdset)) || (FD_ISSET (a->second, &wfdset)))
+				fdlist[result++] = a->second;
 		}
 	}
 #endif
@@ -180,14 +179,14 @@ bool SocketEngine::Wait(std::vector<int> &fdlist)
 	ts.tv_sec = 0;
 	int i = kevent(EngineHandle, NULL, 0, &ke_list[0], 65535, &ts);
 	for (int j = 0; j < i; j++)
-		fdlist.push_back(ke_list[j].ident);
+		fdlist[result++] = ke_list[j].ident;
 #endif
 #ifdef USE_EPOLL
 	int i = epoll_wait(EngineHandle, events, 65535, 100);
 	for (int j = 0; j < i; j++)
-		fdlist.push_back(events[j].data.fd);
+		fdlist[result++] = events[j].data.fd;
 #endif
-	return true;
+	return result;
 }
 
 std::string SocketEngine::GetName()
