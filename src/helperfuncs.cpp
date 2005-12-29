@@ -62,6 +62,8 @@ extern std::vector<userrec*> all_opers;
 extern user_hash clientlist;
 extern chan_hash chanlist;
 
+extern std::vector<userrec*> local_users;
+
 void log(int level,char *text, ...)
 {
         va_list argsPtr;
@@ -73,11 +75,11 @@ void log(int level,char *text, ...)
 
         if (Config->log_file)
         {
-                char b[MAXBUF];
+                char b[26];
                 va_start (argsPtr, text);
                 vsnprintf(textbuffer, MAXBUF, text, argsPtr);
                 va_end(argsPtr);
-                strlcpy(b,asctime(timeinfo),MAXBUF);
+                strlcpy(b,asctime(timeinfo),26);
                 b[24] = ':';    // we know this is the end of the time string
 		if (Config->log_file)
 	                fprintf(Config->log_file,"%s %s\n",b,textbuffer);
@@ -121,6 +123,29 @@ void readfile(file_cache &F, const char* fname)
         log(DEBUG,"readfile: loaded %s, %lu lines",fname,(unsigned long)F.size());
 }
 
+void Write_NoFormat(int sock,char *text)
+{
+	if ((sock < 0) || (!text))
+		return;
+
+	char tb[MAXBUF];
+	int bytes = snprintf(tb,MAXBUF,"%s\r\n",text);
+	chop(tb);
+	if (fd_ref_table[sock])
+	{
+		if (Config->GetIOHook(fd_ref_table[sock]->port))
+		{
+			Config->GetIOHook(fd_ref_table[sock]->port)->OnRawSocketWrite(sock,tb,bytes);
+		}
+		else
+		{
+			fd_ref_table[sock]->AddWriteBuf(tb);
+		}
+		ServerInstance->stats->statsSent += bytes;
+	}
+	else log(DEFAULT,"ERROR! attempted write to a user with no fd_ref_table entry!!!");
+}
+
 void Write(int sock,char *text, ...)
 {
         if (sock < 0)
@@ -150,6 +175,28 @@ void Write(int sock,char *text, ...)
 		ServerInstance->stats->statsSent += bytes;
         }
         else log(DEFAULT,"ERROR! attempted write to a user with no fd_ref_table entry!!!");
+}
+
+void WriteServ_NoFormat(int sock, char* text)
+{
+	if ((sock < 0) || (!text))
+		return;
+	char tb[MAXBUF];
+	int bytes = snprintf(tb,MAXBUF,":%s %s\r\n",Config->ServerName,text);
+	chop(tb);
+	if (fd_ref_table[sock])
+	{
+		if (Config->GetIOHook(fd_ref_table[sock]->port))
+		{
+			Config->GetIOHook(fd_ref_table[sock]->port)->OnRawSocketWrite(sock,tb,bytes);
+		}
+		else
+		{
+			fd_ref_table[sock]->AddWriteBuf(tb);
+		}
+		ServerInstance->stats->statsSent += bytes;
+	}
+	else log(DEFAULT,"ERROR! attempted write to a user with no fd_ref_table entry!!!");
 }
 
 /* write a server formatted numeric response to a single socket */
@@ -183,6 +230,28 @@ void WriteServ(int sock, char* text, ...)
                 ServerInstance->stats->statsSent += bytes;
         }
         else log(DEFAULT,"ERROR! attempted write to a user with no fd_ref_table entry!!!");
+}
+
+void WriteFrom_NoFormat(int sock, userrec *user,char* text)
+{
+	if ((sock < 0) || (!text) || (!user))
+		return;
+	char tb[MAXBUF];
+	int bytes = snprintf(tb,MAXBUF,":%s!%s@%s %s\r\n",user->nick,user->ident,user->dhost,text);
+	chop(tb);
+	if (fd_ref_table[sock])
+	{
+		if (Config->GetIOHook(fd_ref_table[sock]->port))
+		{
+			Config->GetIOHook(fd_ref_table[sock]->port)->OnRawSocketWrite(sock,tb,bytes);
+		}
+		else
+		{
+			fd_ref_table[sock]->AddWriteBuf(tb);
+		}
+		ServerInstance->stats->statsSent += bytes;
+	}
+	else log(DEFAULT,"ERROR! attempted write to a user with no fd_ref_table entry!!!");
 }
 
 /* write text from an originating user to originating user */
@@ -227,7 +296,7 @@ void WriteTo(userrec *source, userrec *dest,char *data, ...)
                 log(DEFAULT,"*** BUG *** WriteTo was given an invalid parameter");
                 return;
         }
-        if (dest->fd == FD_MAGIC_NUMBER)
+        if (!IS_LOCAL(dest))
                 return;
 	char textbuffer[MAXBUF],tb[MAXBUF];
         va_list argsPtr;
@@ -243,8 +312,22 @@ void WriteTo(userrec *source, userrec *dest,char *data, ...)
         }
         else
         {
-                WriteFrom(dest->fd,source,"%s",textbuffer);
+                WriteFrom_NoFormat(dest->fd,source,textbuffer);
         }
+}
+
+void WriteTo_NoFormat(userrec *source, userrec *dest,char *data)
+{
+	if ((!dest) || (!data))
+		return;
+	if (!source)
+	{
+		WriteServ(dest->fd,":%s %s",Config->ServerName,data);
+	}
+	else
+	{
+		WriteFrom_NoFormat(dest->fd,source,data);
+	}
 }
 
 /* write formatted text from a source user to all users on a channel
@@ -270,7 +353,7 @@ void WriteChannel(chanrec* Ptr, userrec* user, char* text, ...)
                 char* o = (*ulist)[j];
                 userrec* otheruser = (userrec*)o;
                 if (otheruser->fd != FD_MAGIC_NUMBER)
-                        WriteTo(user,otheruser,"%s",textbuffer);
+                        WriteTo_NoFormat(user,otheruser,textbuffer);
         }
 }
 
@@ -301,11 +384,11 @@ void WriteChannelLocal(chanrec* Ptr, userrec* user, char* text, ...)
                 {
                         if (!user)
                         {
-                                WriteServ(otheruser->fd,"%s",textbuffer);
+                                WriteServ_NoFormat(otheruser->fd,textbuffer);
                         }
                         else
                         {
-                                WriteTo(user,otheruser,"%s",textbuffer);
+                                WriteTo_NoFormat(user,otheruser,textbuffer);
                         }
                 }
         }
@@ -331,8 +414,8 @@ void WriteChannelWithServ(char* ServName, chanrec* Ptr, char* text, ...)
         {
                 char* o = (*ulist)[j];
                 userrec* otheruser = (userrec*)o;
-                if (otheruser->fd != FD_MAGIC_NUMBER)
-                        WriteServ(otheruser->fd,"%s",textbuffer);
+                if (IS_LOCAL(otheruser))
+                        WriteServ_NoFormat(otheruser->fd,textbuffer);
         }
 }
 
@@ -358,8 +441,8 @@ void ChanExceptSender(chanrec* Ptr, userrec* user, char* text, ...)
         {
                 char* o = (*ulist)[j];
                 userrec* otheruser = (userrec*)o;
-                if ((otheruser->fd != FD_MAGIC_NUMBER) && (user != otheruser))
-                        WriteFrom(otheruser->fd,user,"%s",textbuffer);
+                if ((IS_LOCAL(otheruser)) && (user != otheruser))
+                        WriteFrom_NoFormat(otheruser->fd,user,textbuffer);
         }
 }
 
@@ -400,7 +483,7 @@ void WriteCommon(userrec *u, char* text, ...)
         va_end(argsPtr);
 
         // FIX: Stops a message going to the same person more than once
-        memset(&already_sent,0,MAXCLIENTS);
+        memset(&already_sent,0,MAX_DESCRIPTORS);
 
         bool sent_to_at_least_one = false;
 
@@ -418,7 +501,7 @@ void WriteCommon(userrec *u, char* text, ...)
                                 if ((otheruser->fd > -1) && (!already_sent[otheruser->fd]))
                                 {
                                         already_sent[otheruser->fd] = 1;
-                                        WriteFrom(otheruser->fd,u,"%s",textbuffer);
+                                        WriteFrom_NoFormat(otheruser->fd,u,textbuffer);
                                         sent_to_at_least_one = true;
                                 }
                         }
@@ -454,7 +537,7 @@ void WriteCommonExcept(userrec *u, char* text, ...)
         vsnprintf(textbuffer, MAXBUF, text, argsPtr);
         va_end(argsPtr);
 
-        memset(&already_sent,0,MAXCLIENTS);
+        memset(&already_sent,0,MAX_DESCRIPTORS);
 
 	unsigned int y = u->chans.size();
         for (unsigned int i = 0; i < y; i++)
@@ -472,7 +555,7 @@ void WriteCommonExcept(userrec *u, char* text, ...)
                                         if ((otheruser->fd > -1) && (!already_sent[otheruser->fd]))
                                         {
                                                 already_sent[otheruser->fd] = 1;
-                                                WriteFrom(otheruser->fd,u,"%s",textbuffer);
+                                                WriteFrom_NoFormat(otheruser->fd,u,textbuffer);
                                         }
                                 }
                         }
@@ -497,7 +580,7 @@ void WriteOpers(char* text, ...)
         for (std::vector<userrec*>::iterator i = all_opers.begin(); i != all_opers.end(); i++)
         {
                 userrec* a = *i;
-                if ((a) && (a->fd != FD_MAGIC_NUMBER))
+                if (IS_LOCAL(a))
                 {
                         if (strchr(a->modes,'s'))
                         {
@@ -519,12 +602,10 @@ void ServerNoticeAll(char* text, ...)
 	vsnprintf(textbuffer, MAXBUF, text, argsPtr);
 	va_end(argsPtr);
 
-	for (user_hash::const_iterator i = clientlist.begin(); i != clientlist.end(); i++)
+	for (std::vector<userrec*>::const_iterator i = local_users.begin(); i != local_users.end(); i++)
 	{
-		if ((i->second) && (i->second->fd != FD_MAGIC_NUMBER))
-		{
-			WriteServ(i->second->fd,"NOTICE $%s :%s",Config->ServerName,textbuffer);
-		}
+		userrec* t = (userrec*)(*i);
+		WriteServ(t->fd,"NOTICE $%s :%s",Config->ServerName,textbuffer);
 	}
 }
 
@@ -539,12 +620,10 @@ void ServerPrivmsgAll(char* text, ...)
 	vsnprintf(textbuffer, MAXBUF, text, argsPtr);
 	va_end(argsPtr);
 
-	for (user_hash::const_iterator i = clientlist.begin(); i != clientlist.end(); i++)
+	for (std::vector<userrec*>::const_iterator i = local_users.begin(); i != local_users.end(); i++)
 	{
-		if ((i->second) && (i->second->fd != FD_MAGIC_NUMBER))
-		{
-			WriteServ(i->second->fd,"PRIVMSG $%s :%s",Config->ServerName,textbuffer);
-		}
+		userrec* t = (userrec*)(*i);
+		WriteServ(t->fd,"PRIVMSG $%s :%s",Config->ServerName,textbuffer);
 	}
 }
 
@@ -563,41 +642,37 @@ void WriteMode(const char* modes, int flags, const char* text, ...)
         va_end(argsPtr);
         int modelen = strlen(modes);
 
-        for (user_hash::const_iterator i = clientlist.begin(); i != clientlist.end(); i++)
+        for (std::vector<userrec*>::const_iterator i = local_users.begin(); i != local_users.end(); i++)
         {
-                if ((i->second) && (i->second->fd != FD_MAGIC_NUMBER))
+		userrec* t = (userrec*)(*i);
+                bool send_to_user = false;
+                if (flags == WM_AND)
                 {
-                        bool send_to_user = false;
-
-                        if (flags == WM_AND)
+                        send_to_user = true;
+                        for (int n = 0; n < modelen; n++)
                         {
-                                send_to_user = true;
-                                for (int n = 0; n < modelen; n++)
+                                if (!hasumode(t,modes[n]))
                                 {
-                                        if (!hasumode(i->second,modes[n]))
-                                        {
-                                                send_to_user = false;
-                                                break;
-                                        }
+                                        send_to_user = false;
+                                        break;
                                 }
                         }
-                        else if (flags == WM_OR)
+                }
+                else if (flags == WM_OR)
+                {
+                        send_to_user = false;
+                        for (int n = 0; n < modelen; n++)
                         {
-                                send_to_user = false;
-                                for (int n = 0; n < modelen; n++)
+                                if (hasumode(t,modes[n]))
                                 {
-                                        if (hasumode(i->second,modes[n]))
-                                        {
-                                                send_to_user = true;
-                                                break;
-                                        }
+                                        send_to_user = true;
+                                        break;
                                 }
                         }
-
-                        if (send_to_user)
-                        {
-                                WriteServ(i->second->fd,"NOTICE %s :%s",i->second->nick,textbuffer);
-                        }
+                }
+                if (send_to_user)
+                {
+                        WriteServ(t->fd,"NOTICE %s :%s",t->nick,textbuffer);
                 }
         }
 }
@@ -616,12 +691,10 @@ void NoticeAll(userrec *source, bool local_only, char* text, ...)
         vsnprintf(textbuffer, MAXBUF, text, argsPtr);
         va_end(argsPtr);
 
-        for (user_hash::const_iterator i = clientlist.begin(); i != clientlist.end(); i++)
+        for (std::vector<userrec*>::const_iterator i = local_users.begin(); i != local_users.end(); i++)
         {
-                if ((i->second) && (i->second->fd != FD_MAGIC_NUMBER))
-                {
-                        WriteFrom(i->second->fd,source,"NOTICE $* :%s",textbuffer);
-                }
+                userrec* t = (userrec*)(*i);
+                WriteFrom(t->fd,source,"NOTICE $* :%s",textbuffer);
         }
 
 }
@@ -641,14 +714,12 @@ void WriteWallOps(userrec *source, bool local_only, char* text, ...)
         vsnprintf(textbuffer, MAXBUF, text, argsPtr);
         va_end(argsPtr);
 
-        for (user_hash::const_iterator i = clientlist.begin(); i != clientlist.end(); i++)
+        for (std::vector<userrec*>::const_iterator i = local_users.begin(); i != local_users.end(); i++)
         {
-                if ((i->second) && (i->second->fd != FD_MAGIC_NUMBER))
+		userrec* t = (userrec*)(*i);
+                if ((IS_LOCAL(t)) && (strchr(t->modes,'w')))
                 {
-                        if (strchr(i->second->modes,'w'))
-                        {
-                                WriteTo(source,i->second,"WALLOPS :%s",textbuffer);
-                        }
+                        WriteTo(source,t,"WALLOPS :%s",textbuffer);
                 }
         }
 }
@@ -881,11 +952,9 @@ int usercount_i(chanrec *c)
 
         for (user_hash::const_iterator i = clientlist.begin(); i != clientlist.end(); i++)
         {
-                if (i->second)
-                {
                         if (has_channel(i->second,c))
                         {
-                                if (isnick(i->second->nick))
+                                if (i->second->registered == 7)
                                 {
                                         if ((!has_channel(i->second,c)) && (strchr(i->second->modes,'i')))
                                         {
@@ -896,7 +965,6 @@ int usercount_i(chanrec *c)
                                         count++;
                                 }
                         }
-                }
         }
         log(DEBUG,"usercount_i: %s %lu",c->name,(unsigned long)count);
         return count;
@@ -905,14 +973,7 @@ int usercount_i(chanrec *c)
 
 int usercount(chanrec *c)
 {
-        if (!c)
-        {
-                log(DEFAULT,"*** BUG *** usercount was given an invalid parameter");
-                return 0;
-        }
-        int count = c->GetUserCounter();
-        log(DEBUG,"usercount: %s %lu",c->name,(unsigned long)count);
-        return count;
+        return (c ? c->GetUserCounter() : 0);
 }
 
 
@@ -951,20 +1012,18 @@ bool IsDenied(userrec *user)
 void send_error(char *s)
 {
         log(DEBUG,"send_error: %s",s);
-        for (user_hash::const_iterator i = clientlist.begin(); i != clientlist.end(); i++)
+        for (std::vector<userrec*>::const_iterator i = local_users.begin(); i != local_users.end(); i++)
         {
-                if (IS_LOCAL(i->second))
-		{
-			if (i->second->registered == 7)
-	                {
-	       	                WriteServ(i->second->fd,"NOTICE %s :%s",i->second->nick,s);
-	       	        }
-	                else
-	                {
-	                        // fix - unregistered connections receive ERROR, not NOTICE
-	                        Write(i->second->fd,"ERROR :%s",s);
-	                }
-		}
+		userrec* t = (userrec*)(*i);
+		if (t->registered == 7)
+                {
+       	                WriteServ(t->fd,"NOTICE %s :%s",t->nick,s);
+       	        }
+                else
+                {
+                        // fix - unregistered connections receive ERROR, not NOTICE
+                        Write(t->fd,"ERROR :%s",s);
+                }
         }
 }
 
@@ -1004,28 +1063,23 @@ int usercount_invisible(void)
         int c = 0;
         for (user_hash::const_iterator i = clientlist.begin(); i != clientlist.end(); i++)
         {
-                if ((isnick(i->second->nick)) && (strchr(i->second->modes,'i'))) c++;
+                if ((i->second->registered == 7) && (strchr(i->second->modes,'i'))) c++;
         }
         return c;
 }
 
 int usercount_opers(void)
 {
-        int c = 0;
-        for (user_hash::const_iterator i = clientlist.begin(); i != clientlist.end(); i++)
-        {
-                if ((isnick(i->second->nick)) && (strchr(i->second->modes,'o'))) c++;
-        }
-        return c;
+        return all_opers.size();
 }
 
 int usercount_unknown(void)
 {
         int c = 0;
-
-        for (user_hash::const_iterator i = clientlist.begin(); i != clientlist.end(); i++)
+        for (std::vector<userrec*>::const_iterator i = local_users.begin(); i != local_users.end(); i++)
         {
-                if ((i->second->fd > -1) && (i->second->registered != 7))
+		userrec* t = (userrec*)(*i);
+                if (t->registered != 7)
                         c++;
         }
         return c;
@@ -1039,9 +1093,10 @@ long chancount(void)
 long local_count()
 {
         int c = 0;
-        for (user_hash::const_iterator i = clientlist.begin(); i != clientlist.end(); i++)
+        for (std::vector<userrec*>::const_iterator i = local_users.begin(); i != local_users.end(); i++)
         {
-                if ((isnick(i->second->nick)) && (i->second->fd > -1)) c++;
+		userrec* t = (userrec*)(*i);
+                if (t->registered == 7) c++;
         }
         return c;
 }

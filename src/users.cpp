@@ -642,7 +642,7 @@ void FullConnectUser(userrec* user, CullList* Goners)
         user->idle_lastmsg = TIME;
         log(DEBUG,"ConnectUser: %s",user->nick);
 
-        if ((strcmp(Passwd(user),"")) && (!user->haspassed))
+        if ((*(Passwd(user))) && (!user->haspassed))
         {
 		Goners->AddItem(user,"Invalid password");
                 return;
@@ -709,17 +709,6 @@ void FullConnectUser(userrec* user, CullList* Goners)
         user->registered = 7;
         WriteOpers("*** Client connecting on port %lu: %s!%s@%s [%s]",(unsigned long)user->port,user->nick,user->ident,user->host,user->ip);
 }
-
-
-/* shows the message of the day, and any other on-logon stuff */
-//void ConnectUser(userrec *user)
-//{
-        // dns is already done, things are fast. no need to wait for dns to complete just pass them straight on
-        //if ((user->dns_done) && (user->registered >= 3) && (AllModulesReportReady(user)))
-        //{
-        //        FullConnectUser(user, Goners);
-        //}
-//}
 
 /* re-allocates a nick in the user_hash after they change nicknames,
  * returns a pointer to the new user as it may have moved */
