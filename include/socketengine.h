@@ -120,6 +120,16 @@ public:
 	 */
 	char GetType(int fd);
 
+	/** Returns the maximum number of file descriptors
+	 * you may store in the socket engine at any one time.
+	 */
+	int GetMaxFds();
+
+	/** Returns the number of file descriptor slots
+	 * which are available for storing fds.
+	 */
+	int GetRemainingFds();
+
 	/** Delete a file descriptor f rom the engine
 	 * This function call deletes a file descriptor
 	 * from the engine, returning true if it succeeded

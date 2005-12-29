@@ -474,12 +474,8 @@ int InspIRCd::Run()
 		 * descriptors in its list... dns, modules, users,
 		 * servers... so its nice and easy, just one call.
 		 */
-		numberactive = SE->Wait(activefds);
-
-		if (!numberactive)
+		if (!(numberactive = SE->Wait(activefds)))
 			continue;
-
-		log(DEBUG,"%d active fds this time around",numberactive);
 
 		/**
 		 * Now process each of the fd's. For users, we have a fast

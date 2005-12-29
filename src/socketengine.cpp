@@ -41,6 +41,7 @@ SocketEngine::SocketEngine()
 #ifdef USE_KQUEUE
 	EngineHandle = kqueue();
 #endif
+	CurrentSetSize = 0;
 }
 
 SocketEngine::~SocketEngine()
@@ -99,7 +100,8 @@ bool SocketEngine::AddFd(int fd, bool readable, char type)
 		return false;
 	}
 #endif
-return true;
+	CurrentSetSize++;
+	return true;
 }
 
 bool SocketEngine::DelFd(int fd)
@@ -138,8 +140,35 @@ bool SocketEngine::DelFd(int fd)
 		return false;
 	}
 #endif
+	CurrentSetSize--;
 	ref[fd] = 0;
 	return true;
+}
+
+int SocketEngine::GetMaxFds()
+{
+#ifdef USE_SELECT
+	return FD_SETSIZE;
+#endif
+#ifdef USE_KQUEUE
+	return MAX_DESCRIPTORS;
+#endif
+#ifdef USE_EPOLL
+	return MAX_DESCRIPTORS;
+#endif
+}
+
+int SocketEngine::GetRemainingFds()
+{
+#ifdef USE_SELECT
+	return FD_SETSIZE - CurrentSetSize;
+#endif
+#ifdef USE_KQUEUE
+	return MAX_DESCRIPTORS - CurrentSetSize;
+#endif
+#ifdef USE_EPOLL
+	return MAX_DESCRIPTORS - CurrentSetSize;
+#endif
 }
 
 int SocketEngine::Wait(int* fdlist)
