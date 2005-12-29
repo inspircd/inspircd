@@ -2,7 +2,7 @@
  *       | Inspire Internet Relay Chat Daemon |
  *       +------------------------------------+
  *
- *  Inspire is copyright (C) 2002-2005 ChatSpike-Dev.
+ *  Inspire is copyright (C) 2002-2006 ChatSpike-Dev.
  *                       E-mail:
  *                <brain@chatspike.net>
  *                <Craig@chatspike.net>
@@ -19,7 +19,6 @@
 #include "inspircd.h"
 #ifdef USE_EPOLL
 #include <sys/epoll.h>
-#define EP_DELAY 5
 #endif
 #ifdef USE_KQUEUE
 #include <sys/types.h>
@@ -67,6 +66,11 @@ bool SocketEngine::AddFd(int fd, bool readable, char type)
 {
 	if ((fd < 0) || (fd > 65535))
 		return false;
+	if (GetRemainingFds() <= 1)
+	{
+		log(DEFAULT,"ERROR: System out of file descriptors!");
+		return false;
+	}
 #ifdef USE_SELECT
 	fds[fd] = fd;
 #endif

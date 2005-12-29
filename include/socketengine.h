@@ -67,6 +67,7 @@ const char X_READBIT            = 0x80;
 class SocketEngine {
 
 	int EngineHandle;			/* Handle to the socket engine if needed */
+	int CurrentSetSize;			/* Current number of descriptors in the engine */
 #ifdef USE_SELECT
 	std::map<int,int> fds;			/* List of file descriptors being monitored */
 	fd_set wfdset, rfdset;			/* Readable and writeable sets for select() */
