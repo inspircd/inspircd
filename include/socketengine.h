@@ -73,11 +73,11 @@ class SocketEngine {
 	fd_set wfdset, rfdset;			/* Readable and writeable sets for select() */
 #endif
 #ifdef USE_KQUEUE
-	struct kevent ke_list[65535];		/* Up to 64k sockets for kqueue */
+	struct kevent ke_list[MAX_DESCRIPTORS];	/* Up to 64k sockets for kqueue */
 	struct timespec ts;			/* kqueue delay value */
 #endif
 #ifdef USE_EPOLL
-	struct epoll_event events[65535];	/* Up to 64k sockets for epoll */
+	struct epoll_event events[MAX_DESCRIPTORS];	/* Up to 64k sockets for epoll */
 #endif
 
 public:
