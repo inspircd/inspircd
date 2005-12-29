@@ -123,7 +123,7 @@ void readfile(file_cache &F, const char* fname)
         log(DEBUG,"readfile: loaded %s, %lu lines",fname,(unsigned long)F.size());
 }
 
-void Write_NoFormat(int sock,char *text)
+void Write_NoFormat(int sock, const char *text)
 {
 	if ((sock < 0) || (!text))
 		return;
@@ -177,7 +177,7 @@ void Write(int sock,char *text, ...)
         else log(DEFAULT,"ERROR! attempted write to a user with no fd_ref_table entry!!!");
 }
 
-void WriteServ_NoFormat(int sock, char* text)
+void WriteServ_NoFormat(int sock, const char* text)
 {
 	if ((sock < 0) || (!text))
 		return;
@@ -232,7 +232,7 @@ void WriteServ(int sock, char* text, ...)
         else log(DEFAULT,"ERROR! attempted write to a user with no fd_ref_table entry!!!");
 }
 
-void WriteFrom_NoFormat(int sock, userrec *user,char* text)
+void WriteFrom_NoFormat(int sock, userrec *user, const char* text)
 {
 	if ((sock < 0) || (!text) || (!user))
 		return;
@@ -316,7 +316,7 @@ void WriteTo(userrec *source, userrec *dest,char *data, ...)
         }
 }
 
-void WriteTo_NoFormat(userrec *source, userrec *dest,char *data)
+void WriteTo_NoFormat(userrec *source, userrec *dest, const char *data)
 {
 	if ((!dest) || (!data))
 		return;
@@ -357,6 +357,25 @@ void WriteChannel(chanrec* Ptr, userrec* user, char* text, ...)
         }
 }
 
+void WriteChannel_NoFormat(chanrec* Ptr, userrec* user, const char* text)
+{
+        if ((!Ptr) || (!user) || (!text))
+        {
+                log(DEFAULT,"*** BUG *** WriteChannel was given an invalid parameter");
+                return;
+        }
+        std::vector<char*> *ulist = Ptr->GetUsers();
+        unsigned int x = ulist->size();
+        for (unsigned int j = 0; j < x; j++)
+        {
+                char* o = (*ulist)[j];
+                userrec* otheruser = (userrec*)o;
+                if (otheruser->fd != FD_MAGIC_NUMBER)
+                        WriteTo_NoFormat(user,otheruser,text);
+        }
+}
+
+
 /* write formatted text from a source user to all users on a channel
  * including the sender (NOT for privmsg, notice etc!) doesnt send to
  * users on remote servers */
@@ -380,7 +399,7 @@ void WriteChannelLocal(chanrec* Ptr, userrec* user, char* text, ...)
         {
                 char* o = (*ulist)[j];
                 userrec* otheruser = (userrec*)o;
-                if ((otheruser->fd != FD_MAGIC_NUMBER) && (otheruser->fd != -1) && (otheruser != user))
+                if ((otheruser->fd != FD_MAGIC_NUMBER) && (otheruser != user))
                 {
                         if (!user)
                         {
@@ -393,6 +412,35 @@ void WriteChannelLocal(chanrec* Ptr, userrec* user, char* text, ...)
                 }
         }
 }
+
+void WriteChannelLocal_NoFormat(chanrec* Ptr, userrec* user, const char* text)
+{
+        if ((!Ptr) || (!text))
+        {
+                log(DEFAULT,"*** BUG *** WriteChannel was given an invalid parameter");
+                return;
+        }
+        std::vector<char*> *ulist = Ptr->GetUsers();
+        unsigned int x = ulist->size();
+        for (unsigned int j = 0; j < x; j++)
+        {
+                char* o = (*ulist)[j];   
+                userrec* otheruser = (userrec*)o;
+                if ((otheruser->fd != FD_MAGIC_NUMBER) && (otheruser != user))
+                {
+                        if (!user)
+                        {
+                                WriteServ_NoFormat(otheruser->fd,text);
+                        }
+                        else
+                        {
+                                WriteTo_NoFormat(user,otheruser,text);
+                        }
+                }
+        }
+}
+
+
 
 void WriteChannelWithServ(char* ServName, chanrec* Ptr, char* text, ...)
 {
@@ -419,6 +467,26 @@ void WriteChannelWithServ(char* ServName, chanrec* Ptr, char* text, ...)
         }
 }
 
+void WriteChannelWithServ_NoFormat(char* ServName, chanrec* Ptr, const char* text)
+{
+        if ((!Ptr) || (!text))
+        {
+                log(DEFAULT,"*** BUG *** WriteChannelWithServ was given an invalid parameter");
+                return;
+        }
+        std::vector<char*> *ulist = Ptr->GetUsers();
+        unsigned int x = ulist->size();
+        for (unsigned int j = 0; j < x; j++)
+        {
+                char* o = (*ulist)[j];
+                userrec* otheruser = (userrec*)o;
+                if (IS_LOCAL(otheruser))
+                        WriteServ_NoFormat(otheruser->fd,text);
+        }
+}
+
+
+
 /* write formatted text from a source user to all users on a channel except
  * for the sender (for privmsg etc) */
 
@@ -443,6 +511,24 @@ void ChanExceptSender(chanrec* Ptr, userrec* user, char* text, ...)
                 userrec* otheruser = (userrec*)o;
                 if ((IS_LOCAL(otheruser)) && (user != otheruser))
                         WriteFrom_NoFormat(otheruser->fd,user,textbuffer);
+        }
+}
+
+void ChanExceptSender_NoFormat(chanrec* Ptr, userrec* user, const char* text)
+{
+        if ((!Ptr) || (!user) || (!text))
+        {
+                log(DEFAULT,"*** BUG *** ChanExceptSender was given an invalid parameter");
+                return;
+        }
+        std::vector<char*> *ulist = Ptr->GetUsers();
+        unsigned int x = ulist->size();
+        for (unsigned int j = 0; j < x; j++)
+        {
+                char* o = (*ulist)[j];
+                userrec* otheruser = (userrec*)o;
+                if ((IS_LOCAL(otheruser)) && (user != otheruser))
+                        WriteFrom_NoFormat(otheruser->fd,user,text);
         }
 }
 
@@ -511,9 +597,56 @@ void WriteCommon(userrec *u, char* text, ...)
         // receives their OWN message for WriteCommon
         if (!sent_to_at_least_one)
         {
-                WriteFrom(u->fd,u,"%s",textbuffer);
+                WriteFrom_NoFormat(u->fd,u,textbuffer);
         }
 }
+
+void WriteCommon_NoFormat(userrec *u, const char* text)
+{
+        if (!u)
+        {
+                log(DEFAULT,"*** BUG *** WriteCommon was given an invalid parameter");
+                return;
+        }
+                
+        if (u->registered != 7) {
+                log(DEFAULT,"*** BUG *** WriteCommon on an unregistered user");
+                return;
+        }
+        // FIX: Stops a message going to the same person more than once
+        memset(&already_sent,0,MAX_DESCRIPTORS);
+                
+        bool sent_to_at_least_one = false;
+                        
+        unsigned int y = u->chans.size();
+        for (unsigned int i = 0; i < y; i++)
+        {
+                if (u->chans[i].channel)
+                {
+                        std::vector<char*> *ulist = u->chans[i].channel->GetUsers();
+                        unsigned int x = ulist->size();
+                        for (unsigned int j = 0; j < x; j++)
+                        {
+                                char* o = (*ulist)[j];
+                                userrec* otheruser = (userrec*)o;
+                                if ((otheruser->fd > -1) && (!already_sent[otheruser->fd]))
+                                {
+                                        already_sent[otheruser->fd] = 1;
+                                        WriteFrom_NoFormat(otheruser->fd,u,text);
+                                        sent_to_at_least_one = true;
+                                }
+                        }
+                }
+        }
+        // if the user was not in any channels, no users will receive the text. Make sure the user
+        // receives their OWN message for WriteCommon
+        if (!sent_to_at_least_one)
+        {
+                WriteFrom_NoFormat(u->fd,u,text);
+        }
+}
+
+
 
 /* write a formatted string to all users who share at least one common
  * channel, NOT including the source user e.g. for use in QUIT */
@@ -562,6 +695,47 @@ void WriteCommonExcept(userrec *u, char* text, ...)
                 }
         }
 }
+
+void WriteCommonExcept_NoFormat(userrec *u, const char* text)
+{
+        if (!u)
+        {
+                log(DEFAULT,"*** BUG *** WriteCommon was given an invalid parameter");
+                return;
+        }
+         
+        if (u->registered != 7) {
+                log(DEFAULT,"*** BUG *** WriteCommon on an unregistered user");
+                return;
+        }
+
+        memset(&already_sent,0,MAX_DESCRIPTORS);
+
+        unsigned int y = u->chans.size();
+        for (unsigned int i = 0; i < y; i++)
+        {
+                if (u->chans[i].channel)
+                {
+                        std::vector<char*> *ulist = u->chans[i].channel->GetUsers();
+                        unsigned int x = ulist->size();
+                        for (unsigned int j = 0; j < x; j++)
+                        {
+                                char* o = (*ulist)[j];
+                                userrec* otheruser = (userrec*)o;
+                                if (u != otheruser)
+                                {
+                                        if ((otheruser->fd > -1) && (!already_sent[otheruser->fd]))
+                                        {
+                                                already_sent[otheruser->fd] = 1;
+                                                WriteFrom_NoFormat(otheruser->fd,u,text);
+                                        }
+                                }
+                        }
+                }
+        }
+}
+
+
 
 void WriteOpers(char* text, ...)
 {
@@ -926,14 +1100,14 @@ void userlist(userrec *user,chanrec *c)
                 {
                         /* list overflowed into
                          * multiple numerics */
-                        WriteServ(user->fd,"%s",list);
+                        WriteServ_NoFormat(user->fd,list);
                         snprintf(list,MAXBUF,"353 %s = %s :", user->nick, c->name);
                 }
         }
         /* if whats left in the list isnt empty, send it */
         if (list[strlen(list)-1] != ':')
         {
-                WriteServ(user->fd,"%s",list);
+                WriteServ_NoFormat(user->fd,list);
         }
 }
 

@@ -425,17 +425,17 @@ void Server::SendMode(char **parameters, int pcnt, userrec *user)
 
 void Server::Send(int Socket, std::string s)
 {
-	Write(Socket,"%s",s.c_str());
+	Write_NoFormat(Socket,s.c_str());
 }
 
 void Server::SendServ(int Socket, std::string s)
 {
-	WriteServ(Socket,"%s",s.c_str());
+	WriteServ_NoFormat(Socket,s.c_str());
 }
 
 void Server::SendFrom(int Socket, userrec* User, std::string s)
 {
-	WriteFrom(Socket,User,"%s",s.c_str());
+	WriteFrom_NoFormat(Socket,User,s.c_str());
 }
 
 void Server::SendTo(userrec* Source, userrec* Dest, std::string s)
@@ -448,7 +448,7 @@ void Server::SendTo(userrec* Source, userrec* Dest, std::string s)
 	else
 	{
 		// otherwise it comes from the user specified
-		WriteTo(Source,Dest,"%s",s.c_str());
+		WriteTo_NoFormat(Source,Dest,s.c_str());
 	}
 }
 
@@ -461,11 +461,11 @@ void Server::SendChannel(userrec* User, chanrec* Channel, std::string s,bool Inc
 {
 	if (IncludeSender)
 	{
-		WriteChannel(Channel,User,"%s",s.c_str());
+		WriteChannel_NoFormat(Channel,User,s.c_str());
 	}
 	else
 	{
-		ChanExceptSender(Channel,User,"%s",s.c_str());
+		ChanExceptSender_NoFormat(Channel,User,s.c_str());
 	}
 }
 
@@ -478,11 +478,11 @@ void Server::SendCommon(userrec* User, std::string text,bool IncludeSender)
 {
 	if (IncludeSender)
 	{
-		WriteCommon(User,"%s",text.c_str());
+		WriteCommon_NoFormat(User,text.c_str());
 	}
 	else
 	{
-		WriteCommonExcept(User,"%s",text.c_str());
+		WriteCommonExcept_NoFormat(User,text.c_str());
 	}
 }
 

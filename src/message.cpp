@@ -146,9 +146,8 @@ void chop(char* str)
 		return;
 	}
 	string temp = str;
-	FOREACH_MOD(I_OnServerRaw,OnServerRaw(temp,false,NULL));
 	const char* str2 = temp.c_str();
-	snprintf(str,MAXBUF,"%s",str2);
+	strlcat(str,str2,MAXBUF);
 	if (strlen(str) >= 511)
 	{
 		str[510] = '\r';

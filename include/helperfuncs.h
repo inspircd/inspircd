@@ -29,6 +29,7 @@
 
 void log(int level,char *text, ...);
 void readfile(file_cache &F, const char* fname);
+
 void Write(int sock,char *text, ...);
 void WriteServ(int sock, char* text, ...);
 void WriteFrom(int sock, userrec *user,char* text, ...);
@@ -37,6 +38,18 @@ void WriteChannel(chanrec* Ptr, userrec* user, char* text, ...);
 void WriteChannelLocal(chanrec* Ptr, userrec* user, char* text, ...);
 void WriteChannelWithServ(char* ServName, chanrec* Ptr, char* text, ...);
 void ChanExceptSender(chanrec* Ptr, userrec* user, char* text, ...);
+
+void Write_NoFormat(int sock,const char *text);
+void WriteServ_NoFormat(int sock, const char* text);
+void WriteFrom_NoFormat(int sock, userrec *user,const char* text);
+void WriteTo_NoFormat(userrec *source, userrec *dest,const char *data);
+void WriteChannel_NoFormat(chanrec* Ptr, userrec* user, const char* text);
+void WriteChannelLocal_NoFormat(chanrec* Ptr, userrec* user, const char* text);
+void WriteChannelWithServ_NoFormat(char* ServName, chanrec* Ptr, const char* text);
+void ChanExceptSender_NoFormat(chanrec* Ptr, userrec* user, const char* text);
+void WriteCommon_NoFormat(userrec *u, const char* text);
+void WriteCommonExcept_NoFormat(userrec *u, const char* text);
+
 std::string GetServerDescription(char* servername);
 void WriteCommon(userrec *u, char* text, ...);
 void WriteCommonExcept(userrec *u, char* text, ...);
