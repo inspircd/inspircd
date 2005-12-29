@@ -145,9 +145,6 @@ void chop(char* str)
 		log(DEBUG,"ERROR! Null string passed to chop()!");
 		return;
 	}
-	string temp = str;
-	const char* str2 = temp.c_str();
-	strlcat(str,str2,MAXBUF);
 	if (strlen(str) >= 511)
 	{
 		str[510] = '\r';
