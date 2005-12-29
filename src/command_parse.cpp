@@ -75,13 +75,13 @@ extern std::vector<InspSocket*> module_sockets;
 extern std::vector<userrec*> local_users;
 
 extern int MODCOUNT;
-extern InspSocket* socket_ref[65535];
+extern InspSocket* socket_ref[MAX_DESCRIPTORS];
 extern time_t TIME;
 
 // This table references users by file descriptor.
 // its an array to make it VERY fast, as all lookups are referenced
 // by an integer, meaning there is no need for a scan/search operation.
-extern userrec* fd_ref_table[65536];
+extern userrec* fd_ref_table[MAX_DESCRIPTORS];
 
 extern Server* MyServer;
 extern ServerConfig *Config;

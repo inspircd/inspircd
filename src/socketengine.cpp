@@ -29,13 +29,13 @@
 #include <string>
 #include "socketengine.h"
 
-char ref[65535];
+char ref[MAX_DESCRIPTORS];
 
 SocketEngine::SocketEngine()
 {
 	log(DEBUG,"SocketEngine::SocketEngine()");
 #ifdef USE_EPOLL
-	EngineHandle = epoll_create(65535);
+	EngineHandle = epoll_create(MAX_DESCRIPTORS);
 #endif
 #ifdef USE_KQUEUE
 	EngineHandle = kqueue();
@@ -56,7 +56,7 @@ SocketEngine::~SocketEngine()
 
 char SocketEngine::GetType(int fd)
 {
-	if ((fd < 0) || (fd > 65535))
+	if ((fd < 0) || (fd > MAX_DESCRIPTORS))
 		return X_EMPTY_SLOT;
 	/* Mask off the top bit used for 'read/write' state */
 	return (ref[fd] & ~0x80);
@@ -64,7 +64,7 @@ char SocketEngine::GetType(int fd)
 
 bool SocketEngine::AddFd(int fd, bool readable, char type)
 {
-	if ((fd < 0) || (fd > 65535))
+	if ((fd < 0) || (fd > MAX_DESCRIPTORS))
 		return false;
 	if (GetRemainingFds() <= 1)
 	{
@@ -112,7 +112,7 @@ bool SocketEngine::DelFd(int fd)
 {
 	log(DEBUG,"SocketEngine::DelFd(%d)",fd);
 
-	if ((fd < 0) || (fd > 65535))
+	if ((fd < 0) || (fd > MAX_DESCRIPTORS))
 		return false;
 
 #ifdef USE_SELECT
@@ -210,12 +210,12 @@ int SocketEngine::Wait(int* fdlist)
 #ifdef USE_KQUEUE
 	ts.tv_nsec = 10000L;
 	ts.tv_sec = 0;
-	int i = kevent(EngineHandle, NULL, 0, &ke_list[0], 65535, &ts);
+	int i = kevent(EngineHandle, NULL, 0, &ke_list[0], MAX_DESCRIPTORS, &ts);
 	for (int j = 0; j < i; j++)
 		fdlist[result++] = ke_list[j].ident;
 #endif
 #ifdef USE_EPOLL
-	int i = epoll_wait(EngineHandle, events, 65535, 100);
+	int i = epoll_wait(EngineHandle, events, MAX_DESCRIPTORS, 100);
 	for (int j = 0; j < i; j++)
 		fdlist[result++] = events[j].data.fd;
 #endif

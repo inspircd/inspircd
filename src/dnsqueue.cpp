@@ -55,7 +55,7 @@ extern InspIRCd* ServerInstance;
 
 class Lookup;
 
-Lookup* dnslist[65535];
+Lookup* dnslist[MAX_DESCRIPTORS];
 
 //enum LookupState { reverse, forward };
 
@@ -225,7 +225,7 @@ bool lookup_dns(std::string nick)
 void dns_poll(int fdcheck)
 {
 	/* Check the given file descriptor is in valid range */
-	if ((fdcheck < 0) || (fdcheck > 65535))
+	if ((fdcheck < 0) || (fdcheck > MAX_DESCRIPTORS))
 		return;
 
 	/* Try and find the file descriptor in our list of

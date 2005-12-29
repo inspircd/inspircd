@@ -40,7 +40,7 @@ using namespace std;
 extern InspIRCd* ServerInstance;
 extern time_t TIME;
 
-InspSocket* socket_ref[65535];
+InspSocket* socket_ref[MAX_DESCRIPTORS];
 
 InspSocket::InspSocket()
 {

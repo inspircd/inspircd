@@ -76,7 +76,7 @@ int openSockfd[MAXSOCKS];
 sockaddr_in client,server;
 socklen_t length;
 
-extern InspSocket* socket_ref[65535];
+extern InspSocket* socket_ref[MAX_DESCRIPTORS];
 
 time_t TIME = time(NULL), OLDTIME = time(NULL);
 
@@ -408,7 +408,7 @@ bool InspIRCd::LoadModule(const char* filename)
 int InspIRCd::Run()
 {
 	bool expire_run = false;
-	int activefds[65535];
+	int activefds[MAX_DESCRIPTORS];
 	int incomingSockfd;
 	int in_port;
 	userrec* cu = NULL;
