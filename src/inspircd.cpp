@@ -80,8 +80,6 @@ extern InspSocket* socket_ref[65535];
 
 time_t TIME = time(NULL), OLDTIME = time(NULL);
 
-SocketEngine* SE = NULL;
-
 // This table references users by file descriptor.
 // its an array to make it VERY fast, as all lookups are referenced
 // by an integer, meaning there is no need for a scan/search operation.

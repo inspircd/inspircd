@@ -155,6 +155,9 @@ void dns_empty_header(unsigned char *output, const s_header *header, const int l
 }
 
 void dns_close(int fd) { /* close query */
+#ifndef THREADED_DNS
+        ServerInstance->SE->DelFd(fd);
+#endif
 	log(DEBUG,"DNS: dns_close on fd %d",fd);
 	if (fd == lastcreate) {
 		wantclose = 1;
@@ -717,9 +720,6 @@ std::string DNS::GetResult()
 {
 	log(DEBUG,"DNS: GetResult()");
         result = dns_getresult(this->myfd);
-#ifndef THREADED_DNS
-	ServerInstance->SE->DelFd(this->myfd);
-#endif
         if (result) {
 		ServerInstance->stats->statsDnsGood++;
 		dns_close(this->myfd);
@@ -741,9 +741,6 @@ std::string DNS::GetResultIP()
 	result = dns_getresult(this->myfd);
 	if (this->myfd != -1)
 	{
-#ifndef THREADED_DNS
-		ServerInstance->SE->DelFd(this->myfd);
-#endif
 		dns_close(this->myfd);
 	}
 	if (result)

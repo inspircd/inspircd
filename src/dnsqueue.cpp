@@ -50,8 +50,8 @@ using namespace std;
 #include "hashcomp.h"
 #include "socketengine.h"
 
-extern SocketEngine* SE;
 extern ServerConfig* Config;
+extern InspIRCd* ServerInstance;
 
 class Lookup;
 
@@ -265,6 +265,6 @@ void dns_poll(int fdcheck)
 	 * about it.
 	 */
 	if (SE)
-		SE->DelFd(fdcheck);
+		ServerInstance->SE->DelFd(fdcheck);
 }
 

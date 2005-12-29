@@ -63,7 +63,6 @@ using namespace std;
 #include "typedefs.h"
 #include "command_parse.h"
 
-extern SocketEngine* SE;
 extern ServerConfig* Config;
 extern InspIRCd* ServerInstance;
 
