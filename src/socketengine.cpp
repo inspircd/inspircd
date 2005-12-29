@@ -65,7 +65,10 @@ char SocketEngine::GetType(int fd)
 bool SocketEngine::AddFd(int fd, bool readable, char type)
 {
 	if ((fd < 0) || (fd > MAX_DESCRIPTORS))
+	{
+		log(DEFAULT,"ERROR: FD of %d added above max of %d",fd,MAX_DESCRIPTORS);
 		return false;
+	}
 	if (GetRemainingFds() <= 1)
 	{
 		log(DEFAULT,"ERROR: System out of file descriptors!");
