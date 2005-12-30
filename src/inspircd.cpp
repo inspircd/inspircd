@@ -478,7 +478,7 @@ int InspIRCd::Run()
 		}
 		
 		/* Once a second, do the background processing */
-		if ((TIME != OLDTIME) && ((TIME % 2) == 0))
+		if (TIME != OLDTIME)
 			DoBackgroundUserStuff(TIME);
 
 		/* Call the socket engine to wait on the active
