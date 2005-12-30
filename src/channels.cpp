@@ -243,7 +243,7 @@ chanrec* add_channel(userrec *user, const char* cn, const char* key, bool overri
                         {
                                 return NULL;
                         }
-                        else
+                        else if (MOD_RESULT == 0)
                         {
                                 if (*Ptr->key)
                                 {
