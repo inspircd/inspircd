@@ -677,7 +677,7 @@ bool ServerConfig::LoadConf(const char* filename, std::stringstream *target, std
 								}
 								snprintf(newconf,10240,"%s/%s",confpath,buf);
 							}
-							else snprintf(newconf,10240,"%s",buf);
+							else strlcpy(newconf,buf,10240);
 							std::stringstream merge(stringstream::in | stringstream::out);
 							// recursively call LoadConf and get the new data, use the same errorstream
 							if (LoadConf(newconf, &merge, errorstream))

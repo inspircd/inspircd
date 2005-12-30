@@ -454,7 +454,7 @@ void Server::SendTo(userrec* Source, userrec* Dest, std::string s)
 
 void Server::SendChannelServerNotice(std::string ServName, chanrec* Channel, std::string text)
 {
-	WriteChannelWithServ((char*)ServName.c_str(), Channel, "%s", text.c_str());
+	WriteChannelWithServ_NoFormat((char*)ServName.c_str(), Channel, text.c_str());
 }
 
 void Server::SendChannel(userrec* User, chanrec* Channel, std::string s,bool IncludeSender)

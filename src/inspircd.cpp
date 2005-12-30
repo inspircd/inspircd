@@ -337,7 +337,7 @@ bool InspIRCd::LoadModule(const char* filename)
 {
 	char modfile[MAXBUF];
 #ifdef STATIC_LINK
-	snprintf(modfile,MAXBUF,"%s",filename);
+	strlcpy(modfile,filename,MAXBUF);
 #else
 	snprintf(modfile,MAXBUF,"%s/%s",Config->ModPath,filename);
 #endif
