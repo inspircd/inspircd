@@ -241,6 +241,9 @@ bool InspSocket::Poll()
 		break;
 	}
 
+	if (this->Buffer.length())
+		this->FlushWriteBuffer();
+
 	return true;
 }
 
