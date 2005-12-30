@@ -539,7 +539,8 @@ class TreeSocket : public InspSocket
 	time_t NextPing;
 	bool LastPingWasGood;
 	bool bursting;
-	AES* ctx;
+	AES* ctx_in;
+	AES* ctx_out;
 	unsigned int keylength;
 	
  public:
@@ -554,7 +555,8 @@ class TreeSocket : public InspSocket
 	{
 		myhost = host;
 		this->LinkState = LISTENER;
-		this->ctx = NULL;
+		this->ctx_in = NULL;
+		this->ctx_out = NULL;
 	}
 
 	TreeSocket(std::string host, int port, bool listening, unsigned long maxtime, std::string ServerName)
@@ -562,7 +564,8 @@ class TreeSocket : public InspSocket
 	{
 		myhost = ServerName;
 		this->LinkState = CONNECTING;
-		this->ctx = NULL;
+		this->ctx_in = NULL;
+		this->ctx_out = NULL;
 	}
 
 	/* When a listening socket gives us a new file descriptor,
@@ -573,14 +576,17 @@ class TreeSocket : public InspSocket
 		: InspSocket(newfd, ip)
 	{
 		this->LinkState = WAIT_AUTH_1;
-		this->ctx = NULL;
+		this->ctx_in = NULL;
+		this->ctx_out = NULL;
 		this->SendCapabilities();
 	}
 
 	~TreeSocket()
 	{
-		if (ctx)
-			delete ctx;
+		if (ctx_in)
+			delete ctx_in;
+		if (ctx_out)
+			delete ctx_out;
 	}
 
 	void InitAES(std::string key,std::string SName)
@@ -588,7 +594,8 @@ class TreeSocket : public InspSocket
 		if (key == "")
 			return;
 
-		ctx = new AES();
+		ctx_in = new AES();
+		ctx_out = new AES();
 		log(DEBUG,"Initialized AES key %s",key.c_str());
 		// key must be 16, 24, 32 etc bytes (multiple of 8)
 		keylength = key.length();
@@ -600,7 +607,9 @@ class TreeSocket : public InspSocket
 		else
 		{
 			WriteOpers("*** \2AES\2: Initialized %d bit encryption to server %s",keylength*8,SName.c_str());
-			ctx->MakeKey(key.c_str(), "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\
+			ctx_in->MakeKey(key.c_str(), "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\
+				\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0", keylength, keylength);
+			ctx_out->MakeKey(key.c_str(), "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\
 				\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0", keylength, keylength);
 		}
 	}
@@ -1236,7 +1245,7 @@ class TreeSocket : public InspSocket
 				/* Process this one, abort if it
 				 * didnt return true.
 				 */
-				if (this->ctx)
+				if (this->ctx_in)
 				{
 					char out[1024];
 					char result[1024];
@@ -1250,7 +1259,7 @@ class TreeSocket : public InspSocket
 						if ((nbytes > 0) && (nbytes < 1024))
 						{
 							log(DEBUG,"m_spanningtree: decrypt %d bytes",nbytes);
-							ctx->Decrypt(out, result, nbytes, 1);
+							ctx_in->Decrypt(out, result, nbytes, 1);
 							for (int t = 0; t < nbytes; t++)
 								if (result[t] == '\7') result[t] = 0;
 							ret = result;
@@ -1269,7 +1278,7 @@ class TreeSocket : public InspSocket
 	int WriteLine(std::string line)
 	{
 		log(DEBUG,"OUT: %s",line.c_str());
-		if (this->ctx)
+		if (this->ctx_out)
 		{
 			log(DEBUG,"AES context");
 			char result[10240];
@@ -1284,7 +1293,7 @@ class TreeSocket : public InspSocket
 			}
 			unsigned int ll = line.length();
 			log(DEBUG,"Plaintext line with padding = %d chars",ll);
-			ctx->Encrypt(line.c_str(), result, ll, 1);
+			ctx_out->Encrypt(line.c_str(), result, ll, 1);
 			log(DEBUG,"Encrypted.");
 			to64frombits((unsigned char*)result64,(unsigned char*)result,ll);
 			line = result64;
@@ -1702,7 +1711,7 @@ class TreeSocket : public InspSocket
 				 * hasnt bothered to send the AES command before SERVER, then we
 				 * boot them off as we MUST have this connection encrypted.
 				 */
-				if ((x->EncryptionKey != "") && (!this->ctx))
+				if ((x->EncryptionKey != "") && (!this->ctx_in))
 				{
 					this->WriteLine("ERROR :This link requires AES encryption to be enabled. Plaintext connection refused.");
 					Srv->SendOpers("*** Server connection from \2"+servername+"\2 denied, remote server did not enable AES.");
@@ -1803,7 +1812,7 @@ class TreeSocket : public InspSocket
 			params.pop_front();
 		}
 
-		if ((!this->ctx) && (command == "AES"))
+		if ((!this->ctx_in) && (command == "AES"))
 		{
                         std::string sserv = params[0];
                         for (std::vector<Link>::iterator x = LinkBlocks.begin(); x < LinkBlocks.end(); x++)
@@ -1815,7 +1824,7 @@ class TreeSocket : public InspSocket
                         }
                         return true;
 		}
-		else if ((this->ctx) && (command == "AES"))
+		else if ((this->ctx_in) && (command == "AES"))
 		{
 			WriteOpers("*** \2AES\2: Encryption already enabled on this connection yet %s is trying to enable it twice!",params[0].c_str());
 		}
