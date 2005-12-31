@@ -1,7 +1,0 @@
-Makefile
-.config.cache
-inspircd
-inspircd.pid
-inspircd.core
-*~
-*.swp
