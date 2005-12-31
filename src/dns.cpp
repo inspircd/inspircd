@@ -1,21 +1,30 @@
+/*       +------------------------------------+
+ *       | Inspire Internet Relay Chat Daemon |
+ *       +------------------------------------+
+ *
+ *  Inspire is copyright (C) 2002-2005 ChatSpike-Dev.
+ *                       E-mail:
+ *                <brain@chatspike.net>
+ *                <Craig@chatspike.net>
+ *     
+ * Written by Craig Edwards, Craig McLure, and others.
+ * This program is free but copyrighted software; see
+ *            the file COPYING for details.
+ *
+ * ---------------------------------------------------
+ */
+
 /*
-dns.cpp - based on the firedns library Copyright (C) 2002 Ian Gulliver
+dns.cpp - Nonblocking DNS functions.
+Very loosely based on the firedns library,
+Copyright (C) 2002 Ian Gulliver.
 
-This program is free software; you can redistribute it and/or modify
-it under the terms of version 2 of the GNU General Public License as
-published by the Free Software Foundation.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program; if not, write to the Free Software
-Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+There have been so many modifications to this file
+to make it fit into InspIRCd and make it object
+orientated that you should not take this code as
+being what firedns really looks like. It used to
+look very different to this! :-P
 */
-
-#define _DNS_C
 
 using namespace std;
 
@@ -95,7 +104,8 @@ class s_header
 };
 
 
-void *dns_align(void *inp) {
+void *dns_align(void *inp)
+{
 	char *p = (char*)inp;
 	int offby = ((char *)p - (char *)0) % (sizeof(void *) > sizeof(long) ? sizeof(void *) : sizeof(long));
 	if (offby != 0)
@@ -111,14 +121,16 @@ void *dns_align(void *inp) {
  * but of course, more impressive). Also made these inline.
  */
 
-inline void dns_fill_rr(s_rr_middle* rr, const unsigned char *input) {
+inline void dns_fill_rr(s_rr_middle* rr, const unsigned char *input)
+{
 	rr->type = (QueryType)((input[0] << 8) + input[1]);
 	rr->_class = (input[2] << 8) + input[3];
 	rr->ttl = (input[4] << 24) + (input[5] << 16) + (input[6] << 8) + input[7];
 	rr->rdlength = (input[8] << 8) + input[9];
 }
 
-inline void dns_fill_header(s_header *header, const unsigned char *input, const int l) {
+inline void dns_fill_header(s_header *header, const unsigned char *input, const int l)
+{
 	header->id[0] = input[0];
 	header->id[1] = input[1];
 	header->flags1 = input[2];
@@ -130,7 +142,8 @@ inline void dns_fill_header(s_header *header, const unsigned char *input, const 
 	memcpy(header->payload,&input[12],l);
 }
 
-inline void dns_empty_header(unsigned char *output, const s_header *header, const int l) {
+inline void dns_empty_header(unsigned char *output, const s_header *header, const int l)
+{
 	output[0] = header->id[0];
 	output[1] = header->id[1];
 	output[2] = header->flags1;
@@ -146,12 +159,14 @@ inline void dns_empty_header(unsigned char *output, const s_header *header, cons
 	memcpy(&output[12],header->payload,l);
 }
 
-void dns_close(int fd) { /* close query */
+void dns_close(int fd)
+{
 #ifndef THREADED_DNS
         ServerInstance->SE->DelFd(fd);
 #endif
 	log(DEBUG,"DNS: dns_close on fd %d",fd);
-	if (fd == lastcreate) {
+	if (fd == lastcreate)
+	{
 		wantclose = 1;
 		return;
 	}
@@ -160,7 +175,8 @@ void dns_close(int fd) { /* close query */
 	return;
 }
 
-void DNS::dns_init() {
+void DNS::dns_init()
+{
 	FILE *f;
 	int i;
 	in_addr addr4;
@@ -176,11 +192,13 @@ void DNS::dns_init() {
 	if (f == NULL)
 		return;
 	while (fgets(buf,1024,f) != NULL) {
-		if (strncmp(buf,"nameserver",10) == 0) {
+		if (strncmp(buf,"nameserver",10) == 0)
+		{
 			i = 10;
 			while (buf[i] == ' ' || buf[i] == '\t')
 				i++;
-			if (i4 < 8) {
+			if (i4 < 8)
+			{
 				if (dns_aton4_s(&buf[i],&addr4) != NULL)
 					memcpy(&servers4[i4++],&addr4,sizeof(in_addr));
 			}
@@ -200,7 +218,7 @@ void DNS::dns_init_2(const char* dnsserver)
 }
 
 
-static int dns_send_requests(const s_header *h, const s_connection *s, const int l)
+int dns_send_requests(const s_header *h, const s_connection *s, const int l)
 {
 	int i;
 	sockaddr_in addr4;
@@ -224,7 +242,8 @@ static int dns_send_requests(const s_header *h, const s_connection *s, const int
 	return 0;
 }
 
-static s_connection *dns_add_query(s_header *h) { /* build DNS query, add to list */
+s_connection *dns_add_query(s_header *h)
+{
 
 	s_connection * s = new s_connection;
 	int id = rand() % 65536;
@@ -238,40 +257,42 @@ static s_connection *dns_add_query(s_header *h) { /* build DNS query, add to lis
 	h->ancount = 0;
 	h->nscount = 0;
 	h->arcount = 0;
-
-	/* turn off want_list by default */
 	s->want_list = 0;
-
-	/* try to create ipv6 or ipv4 socket */
-		s->fd = socket(PF_INET, SOCK_DGRAM, 0);
-		if (s->fd != -1) {
-			if (fcntl(s->fd, F_SETFL, O_NONBLOCK) != 0) {
-				shutdown(s->fd,2);
-				close(s->fd);
-				s->fd = -1;
-			}
+	s->fd = socket(PF_INET, SOCK_DGRAM, 0);
+	if (s->fd != -1)
+	{
+		if (fcntl(s->fd, F_SETFL, O_NONBLOCK) != 0)
+		{
+			shutdown(s->fd,2);
+			close(s->fd);
+			s->fd = -1;
 		}
-		if (s->fd != -1) {
-			sockaddr_in addr;
-			memset(&addr,0,sizeof(addr));
-			addr.sin_family = AF_INET;
-			addr.sin_port = 0;
-			addr.sin_addr.s_addr = INADDR_ANY;
-			if (bind(s->fd,(sockaddr *)&addr,sizeof(addr)) != 0) {
-				shutdown(s->fd,2);
-				close(s->fd);
-				s->fd = -1;
-			}
+	}
+	if (s->fd != -1)
+	{
+		sockaddr_in addr;
+		memset(&addr,0,sizeof(addr));
+		addr.sin_family = AF_INET;
+		addr.sin_port = 0;
+		addr.sin_addr.s_addr = INADDR_ANY;
+		if (bind(s->fd,(sockaddr *)&addr,sizeof(addr)) != 0)
+		{
+			shutdown(s->fd,2);
+			close(s->fd);
+			s->fd = -1;
 		}
-		if (s->fd == -1) {
-			delete s;
-			return NULL;
-		}
+	}
+	if (s->fd == -1)
+	{
+		delete s;
+		return NULL;
+	}
 	/* create new connection object, add to linked list */
 	if (connections.find(s->fd) == connections.end())
 		connections[s->fd] = s;
 
-	if (wantclose == 1) {
+	if (wantclose == 1)
+	{
 		shutdown(lastcreate,2);
 		close(lastcreate);
 		wantclose = 0;
@@ -280,7 +301,8 @@ static s_connection *dns_add_query(s_header *h) { /* build DNS query, add to lis
 	return s;
 }
 
-static int dns_build_query_payload(const char * const name, const unsigned short rr, const unsigned short _class, unsigned char * const payload) { 
+int dns_build_query_payload(const char * const name, const unsigned short rr, const unsigned short _class, unsigned char * const payload)
+{
 	short payloadpos;
 	const char * tempchr, * tempchr2;
 	unsigned short l;
@@ -289,7 +311,8 @@ static int dns_build_query_payload(const char * const name, const unsigned short
 	tempchr2 = name;
 
 	/* split name up into labels, create query */
-	while ((tempchr = strchr(tempchr2,'.')) != NULL) {
+	while ((tempchr = strchr(tempchr2,'.')) != NULL)
+	{
 		l = tempchr - tempchr2;
 		if (payloadpos + l + 1 > 507)
 			return -1;
@@ -299,7 +322,8 @@ static int dns_build_query_payload(const char * const name, const unsigned short
 		tempchr2 = &tempchr[1];
 	}
 	l = strlen(tempchr2);
-	if (l) {
+	if (l)
+	{
 		if (payloadpos + l + 2 > 507)
 			return -1;
 		payload[payloadpos++] = l;
@@ -316,7 +340,8 @@ static int dns_build_query_payload(const char * const name, const unsigned short
 	return payloadpos + 4;
 }
 
-in_addr* DNS::dns_aton4(const char * const ipstring) { /* ascii to numeric: convert string to static 4part IP addr struct */
+in_addr* DNS::dns_aton4(const char * const ipstring)
+{
 	static in_addr ip;
 	return dns_aton4_s(ipstring,&ip);
 }
@@ -324,7 +349,8 @@ in_addr* DNS::dns_aton4(const char * const ipstring) { /* ascii to numeric: conv
 in_addr* DNS::dns_aton4_r(const char *ipstring) { /* ascii to numeric (reentrant): convert string to new 4part IP addr struct */
 	in_addr* ip;
 	ip = new in_addr;
-	if(dns_aton4_s(ipstring,ip) == NULL) {
+	if(dns_aton4_s(ipstring,ip) == NULL)
+	{
 		delete ip;
 		return NULL;
 	}
@@ -365,7 +391,6 @@ int DNS::dns_getip4list(const char *name) { /* build, add and send A query; retr
 
 	dns_init();
 	
-
 	l = dns_build_query_payload(name,DNS_QRY_A,1,(unsigned char *)&h.payload);
 	if (l == -1)
 		return -1;
@@ -451,80 +476,98 @@ char* DNS::dns_getresult_s(const int cfd, char *res) { /* retrieve result of DNS
 
 	l = recv(c->fd,buffer,sizeof(s_header),0);
 	dns_close(c->fd);
-	if (l < 12) {
+	if (l < 12)
+	{
 		delete c;
 		return NULL;
 	}
 	dns_fill_header(&h,buffer,l - 12);
-	if (c->id[0] != h.id[0] || c->id[1] != h.id[1]) {
+	if (c->id[0] != h.id[0] || c->id[1] != h.id[1])
+	{
 		log(DEBUG,"DNS: id mismatch on query");
 		delete c;
 		return NULL; /* ID mismatch */
 	}
-	if ((h.flags1 & FLAGS1_MASK_QR) == 0) {
+	if ((h.flags1 & FLAGS1_MASK_QR) == 0)
+	{
 		log(DEBUG,"DNS: didnt get a query result");
 		delete c;
 		return NULL;
 	}
-	if ((h.flags1 & FLAGS1_MASK_OPCODE) != 0) {
+	if ((h.flags1 & FLAGS1_MASK_OPCODE) != 0)
+	{
 		log(DEBUG,"DNS: got an OPCODE and didnt want one");
 		delete c;
 		return NULL;
 	}
-	if ((h.flags2 & FLAGS2_MASK_RCODE) != 0) {
+	if ((h.flags2 & FLAGS2_MASK_RCODE) != 0)
+	{
 		log(DEBUG,"DNS lookup failed due to SERVFAIL");
 		delete c;
 		return NULL;
 	}
-	if (h.ancount < 1)  { /* no sense going on if we don't have any answers */
+	if (h.ancount < 1)
+	{
 		log(DEBUG,"DNS: no answers!");
 		delete c;
 		return NULL;
 	}
-	/* skip queries */
 	i = 0;
 	q = 0;
 	l -= 12;
-	while ((unsigned)q < h.qdcount && i < l) {
-		if (h.payload[i] > 63) { /* pointer */
-			i += 6; /* skip pointer, _class and type */
+	while ((unsigned)q < h.qdcount && i < l)
+	{
+		if (h.payload[i] > 63)
+		{
+			i += 6;
 			q++;
-		} else { /* label */
-			if (h.payload[i] == 0) {
+		}
+		else
+		{
+			if (h.payload[i] == 0)
+			{
 				q++;
-				i += 5; /* skip nil, _class and type */
-			} else
-				i += h.payload[i] + 1; /* skip length and label */
+				i += 5;
+			}
+			else i += h.payload[i] + 1;
 		}
 	}
-	/* &h.payload[i] should now be the start of the first response */
 	curanswer = 0;
-	while ((unsigned)curanswer < h.ancount) {
+	while ((unsigned)curanswer < h.ancount)
+	{
 		q = 0;
-		while (q == 0 && i < l) {
-			if (h.payload[i] > 63) { /* pointer */
-				i += 2; /* skip pointer */
+		while (q == 0 && i < l)
+		{
+			if (h.payload[i] > 63)
+			{
+				i += 2;
 				q = 1;
-			} else { /* label */
-				if (h.payload[i] == 0) {
+			}
+			else
+			{
+				if (h.payload[i] == 0)
+				{
 					i++;
 					q = 1;
-				} else
-					i += h.payload[i] + 1; /* skip length and label */
+				}
+				else i += h.payload[i] + 1; /* skip length and label */
 			}
 		}
-		if (l - i < 10) {
+		if (l - i < 10)
+		{
 			delete c;
 			return NULL;
 		}
 		dns_fill_rr(&rr,&h.payload[i]);
 		i += 10;
-		if (rr.type != c->type) {
+		if (rr.type != c->type)
+		{
 			curanswer++;
 			i += rr.rdlength;
 			continue;
 		}
-		if (rr._class != c->_class) {
+		if (rr._class != c->_class)
+		{
 			curanswer++;
 			i += rr.rdlength;
 			continue;
@@ -538,19 +581,27 @@ char* DNS::dns_getresult_s(const int cfd, char *res) { /* retrieve result of DNS
 	if (rr.rdlength > 1023)
 		return NULL;
 
-	switch (rr.type) {
+	switch (rr.type)
+	{
 		case DNS_QRY_PTR:
 			log(DEBUG,"DNS: got a result of type DNS_QRY_PTR");
 			o = 0;
 			q = 0;
-			while (q == 0 && i < l && o + 256 < 1023) {
-				if (h.payload[i] > 63) { /* pointer */
+			while (q == 0 && i < l && o + 256 < 1023)
+			{
+				if (h.payload[i] > 63)
+				{
 					memcpy(&p,&h.payload[i],2);
 					i = ntohs(p) - 0xC000 - 12;
-				} else { /* label */
+				}
+				else
+				{
 					if (h.payload[i] == 0)
+					{
 						q = 1;
-					else {
+					}
+					else
+					{
 						res[o] = '\0';
 						if (o != 0)
 							res[o++] = '.';
@@ -561,17 +612,20 @@ char* DNS::dns_getresult_s(const int cfd, char *res) { /* retrieve result of DNS
 				}
 			}
 			res[o] = '\0';
-			break;
+		break;
 		case DNS_QRY_A:
 			log(DEBUG,"DNS: got a result of type DNS_QRY_A");
-			if (c->want_list) {
+			if (c->want_list)
+			{
 				dns_ip4list *alist = (dns_ip4list *) res; /* we have to trust that this is aligned */
-				while ((char *)alist - (char *)res < 700) {
+				while ((char *)alist - (char *)res < 700)
+				{
 					if (rr.type != DNS_QRY_A)
 						break;
 					if (rr._class != 1)
 						break;
-					if (rr.rdlength != 4) {
+					if (rr.rdlength != 4)
+					{
 						delete c;
 						return NULL;
 					}
@@ -579,23 +633,26 @@ char* DNS::dns_getresult_s(const int cfd, char *res) { /* retrieve result of DNS
 					if ((unsigned)++curanswer >= h.ancount)
 						break;
 					i += rr.rdlength;
+					q = 0;
+					while (q == 0 && i < l)
 					{
-						/* skip next name */
-						q = 0;
-						while (q == 0 && i < l) {
-							if (h.payload[i] > 63) { /* pointer */
-								i += 2; /* skip pointer */
+						if (h.payload[i] > 63)
+						{
+							i += 2;
+							q = 1;
+						}
+						else
+						{
+							if (h.payload[i] == 0)
+							{
+								i++;
 								q = 1;
-							} else { /* label */
-								if (h.payload[i] == 0) {
-									i++;
-									q = 1;
-								} else
-									i += h.payload[i] + 1; /* skip length and label */
 							}
+							else i += h.payload[i] + 1;
 						}
 					}
-					if (l - i < 10) {
+					if (l - i < 10)
+					{
 						delete c;
 						return NULL;
 					}
@@ -612,7 +669,6 @@ char* DNS::dns_getresult_s(const int cfd, char *res) { /* retrieve result of DNS
 			break;
 		default:
 		defaultcase:
-			log(DEBUG,"DNS: doing something with result 'default'");
 			memcpy(res,&h.payload[i],rr.rdlength);
 			res[rr.rdlength] = '\0';
 			break;
@@ -647,7 +703,8 @@ bool DNS::ReverseLookup(std::string ip)
 {
 	ServerInstance->stats->statsDns++;
         binip = dns_aton4(ip.c_str());
-        if (binip == NULL) {
+        if (binip == NULL)
+	{
                 return false;
         }
 
@@ -707,11 +764,14 @@ std::string DNS::GetResult()
 {
 	log(DEBUG,"DNS: GetResult()");
         result = dns_getresult(this->myfd);
-        if (result) {
+        if (result)
+	{
 		ServerInstance->stats->statsDnsGood++;
 		dns_close(this->myfd);
 		return result;
-        } else {
+        }
+	else
+	{
 		ServerInstance->stats->statsDnsBad++;
 		if (this->myfd != -1)
 		{
