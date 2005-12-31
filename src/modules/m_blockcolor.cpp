@@ -69,7 +69,7 @@ class ModuleBlockColor : public Module
 			chanrec* c = (chanrec*)dest;
 			char ctext[MAXBUF];
 			char *ctptr = ctext;
-			snprintf(ctext,MAXBUF,"%s",text.c_str());
+			strlcpy(ctext,text.c_str(),MAXBUF);
 
 
 			if (c->IsCustomModeSet('c'))
@@ -77,17 +77,18 @@ class ModuleBlockColor : public Module
 				/* Instead of using strchr() here, do our own loop. Hopefully faster. --w00t */
 				while (ctptr && *ctptr)
 				{
-					switch (*ctptr)
+					switch (*ctptr++)
 					{
 						case 2:
 						case 3:
+						case 15:
+						case 21:
+						case 22:
 						case 31:
 							WriteServ(user->fd,"404 %s %s :Can't send colors to channel (+c set)",user->nick, c->name);
 							return 1;
-							break;
+						break;
 					}
-
-					*ctptr++;
 				}
 			}
 		}
@@ -101,7 +102,7 @@ class ModuleBlockColor : public Module
 			chanrec* c = (chanrec*)dest;
 			char ctext[MAXBUF];
 			char *ctptr = ctext;
-			snprintf(ctext,MAXBUF,"%s",text.c_str());
+			strlcpy(ctext,text.c_str(),MAXBUF);
 
 
 			if (c->IsCustomModeSet('c'))
@@ -109,17 +110,18 @@ class ModuleBlockColor : public Module
 				/* Instead of using strchr() here, do our own loop. Hopefully faster. --w00t */
 				while (ctptr && *ctptr)
 				{
-					switch (*ctptr)
+					switch (*ctptr++)
 					{
 						case 2:
 						case 3:
+						case 15:
+						case 21:
+						case 22:
 						case 31:
 							WriteServ(user->fd,"404 %s %s :Can't send colors to channel (+c set)",user->nick, c->name);
 							return 1;
-							break;
+						break;
 					}
-
-					ctptr++;
 				}
 			}
 		}
