@@ -36,6 +36,7 @@ using namespace std;
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <map>
+#include <algorithm>
 #include "dns.h"
 #include "inspircd.h"
 #include "helperfuncs.h"
@@ -43,67 +44,62 @@ using namespace std;
 
 extern InspIRCd* ServerInstance;
 extern ServerConfig* Config;
+extern time_t TIME;
 
-#define max(a,b) (a > b ? a : b)
-#define min(a,b) (a < b ? a : b)
-
-enum QueryTypes { DNS_QRY_A = 1, DNS_QRY_PTR = 12};
+enum QueryType { DNS_QRY_A = 1, DNS_QRY_PTR = 12 };
 enum QueryFlags1 { FLAGS1_MASK_RD = 0x01, FLAGS1_MASK_TC = 0x02, FLAGS1_MASK_AA = 0x04, FLAGS1_MASK_OPCODE = 0x78, FLAGS1_MASK_QR = 0x80 };
 enum QueryFlags2 { FLAGS2_MASK_RCODE = 0x0F, FLAGS2_MASK_Z = 0x70, FLAGS2_MASK_RA = 0x80 };
 
-#define DNS_ALIGN (sizeof(void *) > sizeof(long) ? sizeof(void *) : sizeof(long))
-#define RESULTSIZE 1024
-
-static struct in_addr servers4[8]; /* up to 8 nameservers; populated by dns_init() */
-static int i4; /* actual count of nameservers; set by dns_init() */
-
-static int initdone = 0; /* to ensure dns_init() only runs once (on the first call) */
-static int wantclose = 0;
-static int lastcreate = -1;
-
-class s_connection
-{
- public:
-	unsigned char id[2];
-	unsigned int _class;
-	unsigned int type;
-	int want_list;
-	int fd; /* file descriptor returned from sockets */
-};
-
-class s_rr_middle
-{
- public:
-	unsigned int type;
-	unsigned int _class;
-	unsigned long ttl;
-	unsigned int rdlength;
-};
+class s_connection;
 
 typedef std::map<int,s_connection*> connlist;
 typedef connlist::iterator connlist_iter;
 connlist connections;
 
+struct in_addr servers4[8];
+int i4;
+int initdone = 0;
+int wantclose = 0;
+int lastcreate = -1;
+
+class s_connection
+{
+ public:
+	unsigned char	id[2];
+	unsigned int	_class;
+	QueryType	type;
+	int		want_list;
+	int		fd;
+};
+
+class s_rr_middle
+{
+ public:
+	QueryType	type;
+	unsigned int	_class;
+	unsigned long	ttl;
+	unsigned int	rdlength;
+};
+
 class s_header
 {
  public:
-	unsigned char id[2];
-	unsigned int flags1;
-	unsigned int flags2;
-	unsigned int qdcount;
-	unsigned int ancount;
-	unsigned int nscount;
-	unsigned int arcount;
-	unsigned char payload[512]; /* DNS question, populated by dns_build_query_payload() */
+	unsigned char	id[2];
+	unsigned int	flags1;
+	unsigned int	flags2;
+	unsigned int	qdcount;
+	unsigned int	ancount;
+	unsigned int	nscount;
+	unsigned int	arcount;
+	unsigned char	payload[512];
 };
 
-extern time_t TIME;
 
 void *dns_align(void *inp) {
 	char *p = (char*)inp;
-	int offby = ((char *)p - (char *)0) % DNS_ALIGN;
+	int offby = ((char *)p - (char *)0) % (sizeof(void *) > sizeof(long) ? sizeof(void *) : sizeof(long));
 	if (offby != 0)
-		return p + (DNS_ALIGN - offby);
+		return p + ((sizeof(void *) > sizeof(long) ? sizeof(void *) : sizeof(long)) - offby);
 	else
 		return p;
 }
@@ -116,7 +112,7 @@ void *dns_align(void *inp) {
  */
 
 inline void dns_fill_rr(s_rr_middle* rr, const unsigned char *input) {
-	rr->type = (input[0] << 8) + input[1];
+	rr->type = (QueryType)((input[0] << 8) + input[1]);
 	rr->_class = (input[2] << 8) + input[3];
 	rr->ttl = (input[4] << 24) + (input[5] << 16) + (input[6] << 8) + input[7];
 	rr->rdlength = (input[8] << 8) + input[9];
