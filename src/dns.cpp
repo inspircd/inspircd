@@ -35,6 +35,7 @@ using namespace std;
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
+#include <map>
 #include "dns.h"
 #include "inspircd.h"
 #include "helperfuncs.h"
@@ -63,7 +64,6 @@ static int lastcreate = -1;
 class s_connection
 {
  public:
-	struct s_connection *next; /* next in list */
 	unsigned char id[2];
 	unsigned int _class;
 	unsigned int type;
@@ -80,7 +80,9 @@ class s_rr_middle
 	unsigned int rdlength;
 };
 
-static s_connection *connection_head = NULL; /* linked list of open DNS queries; populated by dns_add_query(), decimated by dns_getresult_s() */
+typedef std::map<int,s_connection*> connlist;
+typedef connlist::iterator connlist_iter;
+connlist connections;
 
 class s_header
 {
@@ -227,13 +229,13 @@ static int dns_send_requests(const s_header *h, const s_connection *s, const int
 }
 
 static s_connection *dns_add_query(s_header *h) { /* build DNS query, add to list */
-	s_connection * s;
 
-	s = new s_connection;
+	s_connection * s = new s_connection;
+	int id = rand() % 65536;
 
 	/* set header flags */
-	h->id[0] = s->id[0] = rand() % 255; /* verified by dns_getresult_s() */
-	h->id[1] = s->id[1] = rand() % 255;
+	h->id[0] = s->id[0] = id >> 8; /* verified by dns_getresult_s() */
+	h->id[1] = s->id[1] = id & 0xFF;
 	h->flags1 = 0 | FLAGS1_MASK_RD;
 	h->flags2 = 0;
 	h->qdcount = 1;
@@ -270,8 +272,8 @@ static s_connection *dns_add_query(s_header *h) { /* build DNS query, add to lis
 			return NULL;
 		}
 	/* create new connection object, add to linked list */
-	s->next = connection_head;
-	connection_head = s;
+	if (connections.find(s->fd) == connections.end())
+		connections[s->fd] = s;
 
 	if (wantclose == 1) {
 		shutdown(lastcreate,2);
@@ -427,34 +429,29 @@ char* DNS::dns_getresult(const int cfd) { /* retrieve result of DNS query */
 
 char* DNS::dns_getresult_s(const int cfd, char *res) { /* retrieve result of DNS query (buffered) */
 	s_header h;
-	s_connection *c, *prev;
-	int l,i,q,curanswer,o;
+	s_connection *c;
+	int l, i, q, curanswer, o;
 	s_rr_middle rr;
 	unsigned char buffer[sizeof(s_header)];
 	unsigned short p;
 
 	if (res)
-	{
-		res[0] = 0;
-	}
+		*res = 0;
 
-	prev = NULL;
-	c = connection_head;
-	while (c != NULL) { /* find query in list of open queries */
-		if (c->fd == cfd)
-			break;
-		prev = c;
-		c = c->next;
-	}
-	if (c == NULL) {
+	/* FireDNS used a linked list for this. How ugly (and slow). */
+	connlist_iter n_iter = connections.find(cfd);
+	if (n_iter == connections.end())
+	{
 		log(DEBUG,"DNS: got a response for a query we didnt send with fd=%d",cfd);
-		return NULL; /* query not found */
+		return NULL;
 	}
-	/* query found-- pull from list: */
-	if (prev != NULL)
-		prev->next = c->next;
 	else
-		connection_head = c->next;
+	{
+		/* Remove the query from the list */
+		c = (s_connection*)n_iter->second;
+		/* We don't delete c here, because its done later when needed */
+		connections.erase(n_iter);
+	}
 
 	l = recv(c->fd,buffer,sizeof(s_header),0);
 	dns_close(c->fd);
