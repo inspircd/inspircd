@@ -44,29 +44,25 @@ extern InspIRCd* ServerInstance;
 extern ServerConfig* Config;
 
 #define max(a,b) (a > b ? a : b)
-#define DNS_MAX              8                    /* max number of nameservers used */
-#define DNS_CONFIG_FBCK     "/etc/resolv.conf"    /* fallback config file */
-#define DNS_PORT            53                    /* DNS well known port */
-#define DNS_QRY_A            1                    /* name to IP address */
-#define DNS_QRY_AAAA        28                    /* name to IP6 address */
-#define DNS_QRY_PTR         12                    /* IP address to name */
-#define DNS_QRY_MX          15                    /* name to MX */
-#define DNS_QRY_TXT         16                    /* name to TXT */
-#define DNS_QRY_CNAME       5
-
-#define DNS_ALIGN (sizeof(void *) > sizeof(long) ? sizeof(void *) : sizeof(long))
-#define DNS_TRIES 3
-#define RESULTSIZE 1024
 #define min(a,b) (a < b ? a : b)
 
-static struct in_addr servers4[DNS_MAX]; /* up to DNS_MAX nameservers; populated by dns_init() */
+enum QueryTypes { DNS_QRY_A = 1, DNS_QRY_PTR = 12};
+enum QueryFlags1 { FLAGS1_MASK_RD = 0x01, FLAGS1_MASK_TC = 0x02, FLAGS1_MASK_AA = 0x04, FLAGS1_MASK_OPCODE = 0x78, FLAGS1_MASK_QR = 0x80 };
+enum QueryFlags2 { FLAGS2_MASK_RCODE = 0x0F, FLAGS2_MASK_Z = 0x70, FLAGS2_MASK_RA = 0x80 };
+
+#define DNS_ALIGN (sizeof(void *) > sizeof(long) ? sizeof(void *) : sizeof(long))
+#define RESULTSIZE 1024
+
+static struct in_addr servers4[8]; /* up to 8 nameservers; populated by dns_init() */
 static int i4; /* actual count of nameservers; set by dns_init() */
 
 static int initdone = 0; /* to ensure dns_init() only runs once (on the first call) */
 static int wantclose = 0;
 static int lastcreate = -1;
 
-struct s_connection { /* open DNS query */
+class s_connection
+{
+ public:
 	struct s_connection *next; /* next in list */
 	unsigned char id[2];
 	unsigned int _class;
@@ -75,29 +71,23 @@ struct s_connection { /* open DNS query */
 	int fd; /* file descriptor returned from sockets */
 };
 
-struct s_rr_middle {
+class s_rr_middle
+{
+ public:
 	unsigned int type;
 	unsigned int _class;
 	unsigned long ttl;
 	unsigned int rdlength;
 };
 
-#define DNS_POINTER_VALUE 0xc000
-
 static s_connection *connection_head = NULL; /* linked list of open DNS queries; populated by dns_add_query(), decimated by dns_getresult_s() */
 
-struct s_header { /* DNS query header */
+class s_header
+{
+ public:
 	unsigned char id[2];
 	unsigned int flags1;
-#define FLAGS1_MASK_QR 0x80
-#define FLAGS1_MASK_OPCODE 0x78 /* bitshift right 3 */
-#define FLAGS1_MASK_AA 0x04
-#define FLAGS1_MASK_TC 0x02
-#define FLAGS1_MASK_RD 0x01
 	unsigned int flags2;
-#define FLAGS2_MASK_RA 0x80
-#define FLAGS2_MASK_Z  0x70
-#define FLAGS2_MASK_RCODE 0x0f
 	unsigned int qdcount;
 	unsigned int ancount;
 	unsigned int nscount;
@@ -117,40 +107,44 @@ void *dns_align(void *inp) {
 }
 
 /*
- * These little hacks are here to avoid alignment and type sizing issues completely by doing manual copies
+ * Optimized by brain, these were using integer division and modulus.
+ * We can use logic shifts and logic AND to replace these even divisions
+ * and multiplications, it should be a bit faster (probably not noticably,
+ * but of course, more impressive). Also made these inline.
  */
-void dns_fill_rr(s_rr_middle* rr, const unsigned char *input) {
-	rr->type = input[0] * 256 + input[1];
-	rr->_class = input[2] * 256 + input[3];
-	rr->ttl = input[4] * 16777216 + input[5] * 65536 + input[6] * 256 + input[7];
-	rr->rdlength = input[8] * 256 + input[9];
+
+inline void dns_fill_rr(s_rr_middle* rr, const unsigned char *input) {
+	rr->type = (input[0] << 8) + input[1];
+	rr->_class = (input[2] << 8) + input[3];
+	rr->ttl = (input[4] << 24) + (input[5] << 16) + (input[6] << 8) + input[7];
+	rr->rdlength = (input[8] << 8) + input[9];
 }
 
-void dns_fill_header(s_header *header, const unsigned char *input, const int l) {
+inline void dns_fill_header(s_header *header, const unsigned char *input, const int l) {
 	header->id[0] = input[0];
 	header->id[1] = input[1];
 	header->flags1 = input[2];
 	header->flags2 = input[3];
-	header->qdcount = input[4] * 256 + input[5];
-	header->ancount = input[6] * 256 + input[7];
-	header->nscount = input[8] * 256 + input[9];
-	header->arcount = input[10] * 256 + input[11];
+	header->qdcount = (input[4] << 8) + input[5];
+	header->ancount = (input[6] << 8) + input[7];
+	header->nscount = (input[8] << 8) + input[9];
+	header->arcount = (input[10] << 8) + input[11];
 	memcpy(header->payload,&input[12],l);
 }
 
-void dns_empty_header(unsigned char *output, const s_header *header, const int l) {
+inline void dns_empty_header(unsigned char *output, const s_header *header, const int l) {
 	output[0] = header->id[0];
 	output[1] = header->id[1];
 	output[2] = header->flags1;
 	output[3] = header->flags2;
-	output[4] = header->qdcount / 256;
-	output[5] = header->qdcount % 256;
-	output[6] = header->ancount / 256;
-	output[7] = header->ancount % 256;
-	output[8] = header->nscount / 256;
-	output[9] = header->nscount % 256;
-	output[10] = header->arcount / 256;
-	output[11] = header->arcount % 256;
+	output[4] = header->qdcount >> 8;
+	output[5] = header->qdcount & 0xFF;
+	output[6] = header->ancount >> 8;
+	output[7] = header->ancount & 0xFF;
+	output[8] = header->nscount >> 8;
+	output[9] = header->nscount & 0xFF;
+	output[10] = header->arcount >> 8;
+	output[11] = header->arcount & 0xFF;
 	memcpy(&output[12],header->payload,l);
 }
 
@@ -168,7 +162,7 @@ void dns_close(int fd) { /* close query */
 	return;
 }
 
-void DNS::dns_init() { /* on first call only: populates servers4 struct with up to DNS_MAX nameserver IP addresses from /etc/resolv.conf */
+void DNS::dns_init() {
 	FILE *f;
 	int i;
 	in_addr addr4;
@@ -179,8 +173,8 @@ void DNS::dns_init() { /* on first call only: populates servers4 struct with up 
 
 	initdone = 1;
 	srand((unsigned int) TIME);
-	memset(servers4,'\0',sizeof(in_addr) * DNS_MAX);
-	f = fopen(DNS_CONFIG_FBCK,"r");
+	memset(servers4,'\0',sizeof(in_addr) * 8);
+	f = fopen("/etc/resolv.conf","r");
 	if (f == NULL)
 		return;
 	while (fgets(buf,1024,f) != NULL) {
@@ -188,7 +182,7 @@ void DNS::dns_init() { /* on first call only: populates servers4 struct with up 
 			i = 10;
 			while (buf[i] == ' ' || buf[i] == '\t')
 				i++;
-			if (i4 < DNS_MAX) {
+			if (i4 < 8) {
 				if (dns_aton4_s(&buf[i],&addr4) != NULL)
 					memcpy(&servers4[i4++],&addr4,sizeof(in_addr));
 			}
@@ -202,7 +196,7 @@ void DNS::dns_init_2(const char* dnsserver)
         in_addr addr4;
         i4 = 0;
         srand((unsigned int) TIME);
-        memset(servers4,'\0',sizeof(in_addr) * DNS_MAX);
+        memset(servers4,'\0',sizeof(in_addr) * 8);
         if (dns_aton4_s(dnsserver,&addr4) != NULL)
             memcpy(&servers4[i4++],&addr4,sizeof(in_addr));
 }
@@ -223,7 +217,7 @@ static int dns_send_requests(const s_header *h, const s_connection *s, const int
 	memset(&addr4,0,sizeof(addr4));
 	memcpy(&addr4.sin_addr,&servers4[i],sizeof(addr4.sin_addr));
 	addr4.sin_family = AF_INET;
-	addr4.sin_port = htons(DNS_PORT);
+	addr4.sin_port = htons(53);
 	if (sendto(s->fd, payload, l + 12, 0, (sockaddr *) &addr4, sizeof(addr4)) == -1)
 	{
 		return -1;
@@ -559,7 +553,7 @@ char* DNS::dns_getresult_s(const int cfd, char *res) { /* retrieve result of DNS
 			while (q == 0 && i < l && o + 256 < 1023) {
 				if (h.payload[i] > 63) { /* pointer */
 					memcpy(&p,&h.payload[i],2);
-					i = ntohs(p) - DNS_POINTER_VALUE - 12;
+					i = ntohs(p) - 0xC000 - 12;
 				} else { /* label */
 					if (h.payload[i] == 0)
 						q = 1;
