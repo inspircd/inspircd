@@ -2350,7 +2350,22 @@ void ReadConfiguration(bool rebind)
 		}
 		else
 		{
-			log(DEFAULT,"m_spanningtree: Invalid configuration for server '%s', ignored!",L.Name.c_str());
+			if (L.RecvPass == "")
+			{
+				log(DEFAULT,"Invalid configuration for server '%s', recvpass not defined!",L.Name.c_str());
+			}
+			else if (L.SendPass == "")
+			{
+				log(DEFAULT,"Invalid configuration for server '%s', sendpass not defined!",L.Name.c_str());
+			}
+			else if (L.Name == "")
+			{
+				log(DEFAULT,"Invalid configuration, link tag without a name!");
+			}
+			else if (!L.Port)
+			{
+				log(DEFAULT,"Invalid configuration for server '%s', no port specified!",L.Name.c_str());
+			}
 		}
 	}
 	delete Conf;
