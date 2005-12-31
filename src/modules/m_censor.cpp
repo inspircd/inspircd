@@ -196,7 +196,7 @@ class ModuleCensor : public Module
 		if ((Censorfile == "") || (!MyConf->Verify()))
 		{
 			// bail if the user forgot to create a config file
-			printf("Error, could not find <censor file=\"\"> definition in your config file!");
+			printf("Error, could not find <censor file=\"\"> definition in your config file!\n");
 			log(DEFAULT,"Error, could not find <censor file=\"\"> definition in your config file!");
 		}
 		Srv->Log(DEFAULT,std::string("m_censor: read configuration from ")+Censorfile);
