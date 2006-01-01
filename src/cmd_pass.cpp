@@ -70,11 +70,11 @@ void cmd_pass::Handle (char **parameters, int pcnt, userrec *user)
 		WriteServ(user->fd,"462 %s :You may not reregister",user->nick);
 		return;
 	}
+	ConnectClass* a = GetClass(user);
 	strlcpy(user->password,parameters[0],MAXBUF);
-	if (!strcasecmp(parameters[0],Passwd(user)))
+	if (!strcmp(parameters[0],a->pass.c_str()))
 	{
 		user->haspassed = true;
 	}
 }
-
 

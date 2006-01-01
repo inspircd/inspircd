@@ -642,14 +642,16 @@ void FullConnectUser(userrec* user, CullList* Goners)
         user->idle_lastmsg = TIME;
         log(DEBUG,"ConnectUser: %s",user->nick);
 
-        if ((*(Passwd(user))) && (!user->haspassed))
+	ConnectClass* a = GetClass(user);
+	
+	if (a->type == CC_DENY)
+	{
+		Goners->AddItem(user,"Unauthorised connection");
+		return;
+	}
+	if ((*(a->pass.c_str())) && (!user->haspassed))
         {
 		Goners->AddItem(user,"Invalid password");
-                return;
-        }
-        if (IsDenied(user))
-        {
-		Goners->AddItem(user,"Unauthorised connection");
                 return;
         }
 

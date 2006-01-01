@@ -1153,32 +1153,17 @@ int usercount(chanrec *c)
 
 // looks up a users password for their connection class (<ALLOW>/<DENY> tags)
 
-char* Passwd(userrec *user)
+ConnectClass* GetClass(userrec *user)
 {
         for (ClassVector::iterator i = Config->Classes.begin(); i != Config->Classes.end(); i++)
         {
-                if ((i->type == CC_ALLOW) && match(user->host,i->host.c_str()))
+                if (match(user->host,i->host.c_str()))
                 {
-                        return (char*)i->pass.c_str();
+                        return (ConnectClass*)i->second;
                 }
         }
         return "";
 }
-
-bool IsDenied(userrec *user)
-{
-        for (ClassVector::iterator i = Config->Classes.begin(); i != Config->Classes.end(); i++)
-        {
-                if ((i->type == CC_DENY) && match(user->host,i->host.c_str()))
-                {
-                        return true;
-                }
-        }
-        return false;
-}
-
-
-
 
 /* sends out an error notice to all connected clients (not to be used
  * lightly!) */
