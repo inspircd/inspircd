@@ -1153,16 +1153,16 @@ int usercount(chanrec *c)
 
 // looks up a users password for their connection class (<ALLOW>/<DENY> tags)
 
-ConnectClass* GetClass(userrec *user)
+ConnectClass GetClass(userrec *user)
 {
         for (ClassVector::iterator i = Config->Classes.begin(); i != Config->Classes.end(); i++)
         {
                 if (match(user->host,i->host.c_str()))
                 {
-                        return (ConnectClass*)i->second;
+                        return *i;
                 }
         }
-        return "";
+        return *(Config->Classes.begin());
 }
 
 /* sends out an error notice to all connected clients (not to be used

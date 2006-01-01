@@ -68,7 +68,7 @@ char* chanmodes(chanrec *chan);
 void userlist(userrec *user,chanrec *c);
 int usercount_i(chanrec *c);
 int usercount(chanrec *c);
-ConnectClass* GetClass(userrec *user);
+ConnectClass GetClass(userrec *user);
 void send_error(char *s);
 void Error(int status);
 int usercnt(void);
