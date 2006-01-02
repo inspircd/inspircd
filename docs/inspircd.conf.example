@@ -1,8 +1,17 @@
 ########################################################################
 #								       #
-#		      ---------------------------		       #
-#  		      InspIRCd Configuration File		       #
-#		      ---------------------------		       #
+#               ___                ___ ____   ____    _                #
+#              |_ _|_ __  ___ _ __|_ _|  _ \ / ___|__| |               #
+#               | || '_ \/ __| '_ \| || |_) | |   / _` |               #
+#               | || | | \__ \ |_) | ||  _ <| |__| (_| |               #
+#              |___|_| |_|___/ .__/___|_| \_\\____\__,_|               #
+#                            |_|                                       #
+#      ____             __ _                       _   _               #
+#     / ___|___  _ __  / _(_) __ _ _   _ _ __ __ _| |_(_) ___  _ __    #
+#    | |   / _ \| '_ \| |_| |/ _` | | | | '__/ _` | __| |/ _ \| '_ \   #
+#    | |__| (_) | | | |  _| | (_| | |_| | | | (_| | |_| | (_) | | | |  #
+#     \____\___/|_| |_|_| |_|\__, |\__,_|_|  \__,_|\__|_|\___/|_| |_|  #
+#                            |___/                                     #
 #								       #
 ##################################||####################################
 				 #||#
@@ -11,9 +20,22 @@
 #         This is an example of the config file for InspIRCd.          #
 #             Change the options to suit your network                  #
 #								       #
-#                 Last updated on : 06/06/2005                         #
+#                 Last updated on : 02/01/2006                         #
 #                 Written by      : CC  (cc@backchat.co.za)            #
 #                 Updated by      : katsklaw (katsklaw@gmail.com)      #
+#                 Updated by      : brain (brain@inspircd.org)         #
+#                                                                      #
+#    ____                _   _____ _     _       ____  _ _   _         #
+#   |  _ \ ___  __ _  __| | |_   _| |__ (_)___  | __ )(_) |_| |        #
+#   | |_) / _ \/ _` |/ _` |   | | | '_ \| / __| |  _ \| | __| |        #
+#   |  _ <  __/ (_| | (_| |   | | | | | | \__ \ | |_) | | |_|_|        #
+#   |_| \_\___|\__,_|\__,_|   |_| |_| |_|_|___/ |____/|_|\__(_)        #
+#                                                                      #
+#   Lines prefixed with READ THIS BIT, as shown above, are IMPORTANT   #
+#   lines, and you REALLY SHOULD READ THEM. Yes, THIS MEANS YOU. Even  #
+#   if you've configured InspIRCd before, these probably indicate      #
+#   something new or different to this version and you SHOULD READ IT. #
+#                                                                      #
 ########################################################################
 
 
@@ -59,13 +81,17 @@
 #                 a standard tcp based socket, the servers type is a  #
 #                 also a TCP based connection but of a different      #
 #                 format.                                             #
-#  default      - if the port type is 'servers' then this can be      #
-#                 specified. If set to 'yes', it indicates that this  #
-#                 port is the default route for all /connect commands.#
-#                 if you do not bind your default route to an         #
-#                 external ip, or all ip's, you may have connection   #
-#                 problems.                                           #
-#								      #
+#    ____                _   _____ _     _       ____  _ _   _        #
+#   |  _ \ ___  __ _  __| | |_   _| |__ (_)___  | __ )(_) |_| |       #
+#   | |_) / _ \/ _` |/ _` |   | | | '_ \| / __| |  _ \| | __| |       #
+#   |  _ <  __/ (_| | (_| |   | | | | | | \__ \ | |_) | | |_|_|       #
+#   |_| \_\___|\__,_|\__,_|   |_| |_| |_|_|___/ |____/|_|\__(_)       #
+#                                                                     #
+#  If you want to link servers to InspIRCd you must load the          #
+#  m_spanningtree module! Please see the modules list below for       #
+#  information on how to load this module! If you do not load this    #
+#  module, server ports will NOT be bound!                            #
+#                                                                     #
 #  Leaving address empty binds to all available interfaces            #
 #								      #
 #  Syntax is as follows:                                              #
@@ -76,7 +102,7 @@
 #								      #
 
 <bind address="" port="6660" type="clients">
-<bind address="" port="7000" type="servers" default="yes">
+<bind address="" port="7000" type="servers">
 <bind address="" port="7001" type="servers">
 
 
@@ -177,6 +203,16 @@
 #  Syntax is as follow:						      #
 #	<class name="name" commands="oper commands">		      #
 #								      #
+#    ____                _   _____ _     _       ____  _ _   _        #
+#   |  _ \ ___  __ _  __| | |_   _| |__ (_)___  | __ )(_) |_| |       #
+#   | |_) / _ \/ _` |/ _` |   | | | '_ \| / __| |  _ \| | __| |       #
+#   |  _ <  __/ (_| | (_| |   | | | | | | \__ \ | |_) | | |_|_|       #
+#   |_| \_\___|\__,_|\__,_|   |_| |_| |_|_|___/ |____/|_|\__(_)       #
+#                                                                     #
+#  You are not forced to give these classes the names given below.    #
+#  You can create your own named classes, if you want, in fact that   #
+#  is the whole idea of this system!                                  #
+#                                                                     #
 
 <class name="Shutdown" commands="DIE RESTART REHASH">
 <class name="ServerLink" commands="CONNECT SQUIT">
@@ -201,6 +237,16 @@
 #  Syntax is as follows:					      #
 #	<type name="name" classes="class name" host="oper hostmask">  #
 #								      #
+#    ____                _   _____ _     _       ____  _ _   _        #
+#   |  _ \ ___  __ _  __| | |_   _| |__ (_)___  | __ )(_) |_| |       #
+#   | |_) / _ \/ _` |/ _` |   | | | '_ \| / __| |  _ \| | __| |       #
+#   |  _ <  __/ (_| | (_| |   | | | | | | \__ \ | |_) | | |_|_|       #
+#   |_| \_\___|\__,_|\__,_|   |_| |_| |_|_|___/ |____/|_|\__(_)       #
+#                                                                     #
+#  You are not forced to give these types the names given below.      #
+#  You can create your own named types, if you want, in fact that     #
+#  is the whole idea of this system!                                  #
+#                                                                     #
 
 <type name="NetAdmin" classes="OperChat BanControl HostCloak Shutdown ServerLink" host="netadmin.omega.org.za">
 <type name="GlobalOp" classes="OperChat BanControl HostCloak ServerLink" host="ircop.omega.org.za">
@@ -218,8 +264,8 @@
 #              encryption not supported by inspircd. However, there   #
 #              are modules that allow for oper password encryption.   #		      
 #                                                                     #
-#  host      - host of client allowed to oper-up, more hostmasks      #
-#              seperated by spaces, wildcards accepted	              #
+#  host      - host of client allowed to oper-up.                     #
+#              wildcards accepted                                     #
 #  type      - specified above, defines the kind of operator	      #
 #								      #
 #  Syntax is as follows:                                              #
@@ -240,17 +286,27 @@
 # Defines which servers can link to this one, and which servers this  #
 # server may create outbound links to.                                #
 #                                                                     #
-# name        - The name is the canocial name of the server, it does  #
-#               not have to resolve - but it is expected to be sent   #
-#               in the remote servers connection info.                #
-# ipaddr      - Valid host or ip address for remote server. *         #
-# port        - Valid listening UDP port for remote server.           #
-# sendpass    - Password to send to create an outbound connection to  #
-#               this server.                                          #
-# recvpass    - Password to receive to accept an inbound connection   #
-#               from this server.                                     #
-# autoconnect - Sets the server to autoconnect. Where x is the number #
-# (optional)    of seconds between attempts.  300 = 5 minutes         #
+# name        -   The name is the canocial name of the server, does   #
+#                 not have to resolve - but it is expected to be sent #
+#                 in the remote servers connection info.              #
+# ipaddr      -   Valid host or ip address for remote server. *       #
+#                                                                     #
+# port        -   The TCP port for the remote server.                 #
+#                                                                     #
+# sendpass    -   Password to send to create an outbound connection   #
+#                 to this server.                                     #
+#                                                                     #
+# recvpass    -   Password to receive to accept an inbound connection #
+#                 from this server.                                   #
+#                                                                     #
+# autoconnect -   Sets the server to autoconnect. Where x is the num. #
+# (optional)      of seconds between attempts. e.g. 300 = 5 minutes.  #
+#                                                                     #
+# encryptionkey - Encryption key to be used for AES encryption, where #
+#                 supported. Links using the spanning tree protocol   #
+#                 support AES. The encryption key must be EXACTLY 8,  #
+#                 16 or 32 characters in length for a 64, 128 or 256  #
+#                 bit key, respectively.                              #
 #                                                                     #
 # to u:line a server (give it extra privilages required for running   #
 # services, Q, etc) you must include the <uline server> tag as shown  #
@@ -265,6 +321,17 @@
 # addresses, so for example if your target server resolves to a.b.com #
 # you MUST put a.b.com into your link block, and NOT the IP address   #
 # of a.b.com. The system uses reverse resolution.                     #
+#                                                                     #
+#    ____                _   _____ _     _       ____  _ _   _        #
+#   |  _ \ ___  __ _  __| | |_   _| |__ (_)___  | __ )(_) |_| |       #
+#   | |_) / _ \/ _` |/ _` |   | | | '_ \| / __| |  _ \| | __| |       #
+#   |  _ <  __/ (_| | (_| |   | | | | | | \__ \ | |_) | | |_|_|       #
+#   |_| \_\___|\__,_|\__,_|   |_| |_| |_|_|___/ |____/|_|\__(_)       #
+#                                                                     #
+#  If you want to link servers to InspIRCd you must load the          #
+#  m_spanningtree module! Please see the modules list below for       #
+#  information on how to load this module! If you do not load this    #
+#  module, server links will NOT work!                                #
 #                                                                     #
 
 <link name="hub.penguin.org"
@@ -297,6 +364,21 @@
 # Define your DNS server address here. InspIRCd has its own resolver  #
 # and you must define this otherwise nobody's host will resolve. The  #
 # timeout value is in seconds.					      #
+#                                                                     #
+#    ____                _   _____ _     _       ____  _ _   _        #
+#   |  _ \ ___  __ _  __| | |_   _| |__ (_)___  | __ )(_) |_| |       #
+#   | |_) / _ \/ _` |/ _` |   | | | '_ \| / __| |  _ \| | __| |       #
+#   |  _ <  __/ (_| | (_| |   | | | | | | \__ \ | |_) | | |_|_|       #
+#   |_| \_\___|\__,_|\__,_|   |_| |_| |_|_|___/ |____/|_|\__(_)       #
+#                                                                     #
+# When choosing a server, be sure to choose one which will do a       #
+# RECURSIVE LOOKUP. InspIRCd's resolver does not currently do these   #
+# recursive lookups itself, to save time and resources. The dns       #
+# server recommended by the InspIRCd team is bind, available from the #
+# ISC website. If your DNS server does not do a recursive lookup, you #
+# will be able to notice this by the fact that none of your users are #
+# resolving even though the DNS server appears to be up! Most ISP and #
+# hosting provider DNS servers support recursive lookups.             #
 #                                                                     #
 
 <dns server="127.0.0.1" timeout="5">
@@ -351,22 +433,27 @@
 #   Settings to define which features are useable on your server.     #
 #								      #
 #  prefixquit    - a prefix for a client's quit message               #
+#                                                                     #
 #  loglevel      - specifies what detail of messages to log in the    #
 #                  log file. You may select from debug, verbose,      #
 #                  default, sparse and none.                          #
 #  allowhalfop   - allows the +h channel mode			      #
+#                                                                     #
 #  noservices    - If noservices is true, yes, or 1, then the first   #
 #                  user into a channel gets founder status. This is   #
 #                  only useful on networks running the m_chanprotect  #
 #                  module without services.                           #
+#                                                                     #
 #  netbuffersize - size of the buffer used to receive data from       #
 #                  clients. The ircd may only read() this amount      #
 #		   of text in one go at any time. (OPTIONAL)          #
+#                                                                     #
 #  maxwho        - The maximum number of results returned by a /WHO   #
 #                  query. This is to prevent /WHO being used as a     #
 #                  spam vector or means of flooding an ircd. The      #
 #                  default is 128, it is not recommended to raise it  #
 #                  above 1024. Values up to 65535 are permitted.      #
+#                                                                     #
 #  somaxconn     - The maximum number of sockets that may be waiting  #
 #                  in the accept queue. This usually allows the ircd  #
 #                  to soak up more connections in a shorter space of  #
@@ -376,10 +463,12 @@
 #                  descriptors. Some systems may only allow this to   #
 #                  be up to 5 (ugh) while others such as FreeBSD will #
 #                  default to a much nicer 128.                       #
+#                                                                     #
 #  moduledir     - This optional value indicates a runtime change of  #
 #                  the location where modules are to be found. This   #
 #                  does not add a supplementary directory. There can  #
 #                  only be one module path.                           #
+#                                                                     #
 #  softlimit     - This optional feature allows a defined softlimit.  #
 #                  if defined sets a soft maxconnections value, has   #
 #                  to be less than the ./configure maxclients         #
@@ -414,6 +503,23 @@
 #  WINDOWS USERS PLEASE NOTE: You can still load these modules! They  #
 #  are incorporated into the executable and can be loaded and removed #
 #  similarly to if they were in a ramdisk.                            #
+#    ____                _   _____ _     _       ____  _ _   _        #
+#   |  _ \ ___  __ _  __| | |_   _| |__ (_)___  | __ )(_) |_| |       #
+#   | |_) / _ \/ _` |/ _` |   | | | '_ \| / __| |  _ \| | __| |       #
+#   |  _ <  __/ (_| | (_| |   | | | | | | \__ \ | |_) | | |_|_|       #
+#   |_| \_\___|\__,_|\__,_|   |_| |_| |_|_|___/ |____/|_|\__(_)       #
+#                                                                     #
+# To link servers to InspIRCd, you MUST load the m_spanningtree       #
+# module, as shown below. If you DO NOT do this, server links will    #
+# NOT work at all. ie. The ports will NOT bind, and /connect will not #
+# work properly. This is by design, to allow for the implementation   #
+# of other linking protocols in modules in the future.                #
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Spanning Tree module - allows linking of servers using the spanning
+# tree protocol (see the READ THIS BIT section above).
+#
+#<module name="m_spanningtree.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Foobar module - does nothing
@@ -633,6 +739,10 @@
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Oper modes module: Allows you to specify modes to add/remove on oper
 #<module name="m_opermodes.so">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# SWHOIS module: Allows you to add arbitary lines to user WHOIS.
+#<module name="m_swhois.so">
 
 
 #-#-#-#-#-#-#-#-#-#-#-  FILTER  CONFIGURATION  -#-#-#-#-#-#-#-#-#-#-#-#
