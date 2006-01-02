@@ -27,8 +27,8 @@
 class CommandParser
 {
  private:
-	int CommandParser::ProcessParameters(char **command_p,char *parameters);
-	void CommandParser::ProcessCommand(userrec *user, char* cmd);
+	int ProcessParameters(char **command_p,char *parameters);
+	void ProcessCommand(userrec *user, char* cmd);
 	void SetupCommandTable();
  public:
 	command_table cmdlist;
