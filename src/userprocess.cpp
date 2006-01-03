@@ -81,6 +81,8 @@ extern chan_hash chanlist;
 void ProcessUser(userrec* cu)
 {
         int result = EAGAIN;
+	if (cu->fd == FD_MAGIC_NUMBER)
+		return;
         log(DEBUG,"Processing user with fd %d",cu->fd);
 	if (Config->GetIOHook(cu->port))
 	{

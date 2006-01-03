@@ -284,7 +284,7 @@ void userrec::AddWriteBuf(std::string data)
 // send AS MUCH OF THE USERS SENDQ as we are able to (might not be all of it)
 void userrec::FlushWriteBuf()
 {
-	if (sendq.length())
+	if ((sendq.length()) && (this->fd != FD_MAGIC_NUMBER))
 	{
 		char* tb = (char*)this->sendq.c_str();
 		int n_sent = write(this->fd,tb,this->sendq.length());
@@ -467,7 +467,8 @@ void AddWhoWas(userrec* u)
         strlcpy(a->dhost,u->dhost,160);
         strlcpy(a->host,u->host,160);
         strlcpy(a->fullname,u->fullname,MAXGECOS);
-        strlcpy(a->server,u->server,256);
+	if (u->server)
+	        strlcpy(a->server,u->server,256);
         a->signon = u->signon;
 
         /* MAX_WHOWAS:   max number of /WHOWAS items
