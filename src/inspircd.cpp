@@ -315,8 +315,15 @@ bool InspIRCd::UnloadModule(const char* filename)
 				Config->global_implementation[t] -= Config->implement_lists[j][t];
 			}
 
-			/* TODO: We have to renumber implement_lists after unload because the module numbers change!
+			/* We have to renumber implement_lists after unload because the module numbers change!
 			 */
+			for(int j2 = j; j2 < 254; j2++)
+			{
+				for(int t = 0; t < 255; t++)
+				{
+					Config->implement_lists[j2][t] = Config->implement_lists[j2+1][t];
+				}
+			}
 
 			FOREACH_MOD(I_OnUnloadModule,OnUnloadModule(modules[j],Config->module_names[j]));
 			// found the module
