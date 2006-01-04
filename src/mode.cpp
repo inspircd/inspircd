@@ -371,7 +371,6 @@ char* ModeParser::TakeVoice(userrec *user,char *dest,chanrec *chan,int status)
 char* ModeParser::AddBan(userrec *user,char *dest,chanrec *chan,int status)
 {
 	BanItem b;
-	unsigned int l;
 	int toomanyexclamation = 0;
 	int toomanyat = 0;
 
@@ -381,18 +380,20 @@ char* ModeParser::AddBan(userrec *user,char *dest,chanrec *chan,int status)
 		return NULL;
 	}
 
-	l = strlen(dest);
-
-	for (unsigned int i = 0; i < l; i++)
+	for (char* i = dest; *i; i++)
 	{
-		if (dest[i] < 32)
+		if ((*i < 32) || (*i > 126))
+		{
 			return NULL;
-		if (dest[i] > 126)
-			return NULL;
-		if (dest[i] == '!')
+		}
+		else if (*i == '!')
+		{
 			toomanyexclamation++;
-		if (dest[i] == '@')
+		}
+		else if (*i == '@')
+		{
 			toomanyat++;
+		}
 	}
 
 	if (toomanyexclamation != 1 || toomanyat != 1)
@@ -539,7 +540,8 @@ void ModeParser::ProcessModes(char **parameters,userrec* user,chanrec *chan,int 
 	strlcpy(modelist,parameters[1],MAXBUF); /* mode list, e.g. +oo-o *
 						 * parameters[2] onwards are parameters for
 					 	 * modes that require them :) */
-	strlcpy(outlist,"+",MAXBUF);
+	*outlist = '+';
+	*(outlist+1) = 0;
 	mdir = 1;
 
 	log(DEBUG,"process_modes: modelist: %s",modelist);
@@ -547,18 +549,16 @@ void ModeParser::ProcessModes(char **parameters,userrec* user,chanrec *chan,int 
 	std::string tidied = this->CompressModes(modelist,true);
 	strlcpy(modelist,tidied.c_str(),MAXBUF);
 
-	int len = strlen(modelist);
+	int len = tidied.length();
 	while (modelist[len-1] == ' ')
 		modelist[--len] = '\0';
-	for (ptr = 0; ptr < len; ptr++)
+
+	for (char* modechar = modelist; *modechar; ptr++, modechar++)
 	{
 		r = NULL;
 
 		{
-			log(DEBUG,"process_modes: modechar: %c",modelist[ptr]);
-
-			char modechar = modelist[ptr];
-			switch (modelist[ptr])
+			switch (*modechar)
 			{
 				case '-':
 					if (mdir != 0)
@@ -728,7 +728,7 @@ void ModeParser::ProcessModes(char **parameters,userrec* user,chanrec *chan,int 
 							break;
 						previously_set_k = true;
 						
-						if (!strcmp(chan->key,""))
+						if (!*chan->key)
 						{
 							MOD_RESULT = 0;
 							FOREACH_RESULT(I_OnRawMode,OnRawMode(user, chan, 'k', parameters[param], true, 1));
@@ -958,27 +958,27 @@ void ModeParser::ProcessModes(char **parameters,userrec* user,chanrec *chan,int 
 				break;
 				
 				default:
-					log(DEBUG,"Preprocessing custom mode %c: modelist: %s",modechar,chan->custom_modes);
+					log(DEBUG,"Preprocessing custom mode %c: modelist: %s",*modechar,chan->custom_modes);
 					string_list p;
 					p.clear();
-					if (((!strchr(chan->custom_modes,modechar)) && (!mdir)) || ((strchr(chan->custom_modes,modechar)) && (mdir)))
+					if (((!strchr(chan->custom_modes,*modechar)) && (!mdir)) || ((strchr(chan->custom_modes,*modechar)) && (mdir)))
 					{
-						if (!ModeIsListMode(modechar,MT_CHANNEL))
+						if (!ModeIsListMode(*modechar,MT_CHANNEL))
 						{
-							log(DEBUG,"Mode %c isnt set on %s but trying to remove!",modechar,chan->name);
+							log(DEBUG,"Mode %c isnt set on %s but trying to remove!",*modechar,chan->name);
 							break;
 						}
 					}
-					if (ModeDefined(modechar,MT_CHANNEL))
+					if (ModeDefined(*modechar,MT_CHANNEL))
 					{
 						log(DEBUG,"A module has claimed this mode");
 						if (param<pcnt)
 						{
-     							if ((ModeDefinedOn(modechar,MT_CHANNEL)>0) && (mdir))
+     							if ((ModeDefinedOn(*modechar,MT_CHANNEL)>0) && (mdir))
 							{
       								p.push_back(parameters[param]);
   							}
-							if ((ModeDefinedOff(modechar,MT_CHANNEL)>0) && (!mdir))
+							if ((ModeDefinedOff(*modechar,MT_CHANNEL)>0) && (!mdir))
 							{
       								p.push_back(parameters[param]);
   							}
@@ -987,9 +987,9 @@ void ModeParser::ProcessModes(char **parameters,userrec* user,chanrec *chan,int 
   						if (param>=pcnt)
   						{
   							// we're supposed to have a parameter, but none was given... so dont handle the mode.
-  							if (((ModeDefinedOn(modechar,MT_CHANNEL)>0) && (mdir)) || ((ModeDefinedOff(modechar,MT_CHANNEL)>0) && (!mdir)))	
+  							if (((ModeDefinedOn(*modechar,MT_CHANNEL)>0) && (mdir)) || ((ModeDefinedOff(*modechar,MT_CHANNEL)>0) && (!mdir)))	
   							{
-  								log(DEBUG,"Not enough parameters for module-mode %c",modechar);
+  								log(DEBUG,"Not enough parameters for module-mode %c",*modechar);
   								handled = true;
   								param++;
   							}
@@ -1003,19 +1003,19 @@ void ModeParser::ProcessModes(char **parameters,userrec* user,chanrec *chan,int 
 						std::string para = "";
 						if (p.size())
 							para = p[0];
-        	                                FOREACH_RESULT(I_OnRawMode,OnRawMode(user, chan, modechar, para, mdir, pcnt));
+        	                                FOREACH_RESULT(I_OnRawMode,OnRawMode(user, chan, *modechar, para, mdir, pcnt));
                 	                        if (!MOD_RESULT)
                         	                {
   							for (int i = 0; i <= MODCOUNT; i++)
 							{
 								if (!handled)
 								{
-									int t = modules[i]->OnExtendedMode(user,chan,modechar,MT_CHANNEL,mdir,p);
+									int t = modules[i]->OnExtendedMode(user,chan,*modechar,MT_CHANNEL,mdir,p);
 									if (t != 0)
 									{
 										log(DEBUG,"OnExtendedMode returned nonzero for a module");
-										char app[] = {modechar, 0};
-										if (ModeIsListMode(modechar,MT_CHANNEL))
+										char app[] = {*modechar, 0};
+										if (ModeIsListMode(*modechar,MT_CHANNEL))
 										{
 											if (t == -1)
 											{
@@ -1039,14 +1039,14 @@ void ModeParser::ProcessModes(char **parameters,userrec* user,chanrec *chan,int 
 												{
 													strlcat(outlist, app,MAXBUF);
 												}
-												else if (!strchr(outlist,modechar))
+												else if (!strchr(outlist,*modechar))
 												{
 													strlcat(outlist, app,MAXBUF);
 												}
 											}
-											chan->SetCustomMode(modechar,mdir);
+											chan->SetCustomMode(*modechar,mdir);
 											// include parameters in output if mode has them
-											if ((ModeDefinedOn(modechar,MT_CHANNEL)>0) && (mdir))
+											if ((ModeDefinedOn(*modechar,MT_CHANNEL)>0) && (mdir))
 											{
 												chan->SetCustomModeParam(modelist[ptr],parameters[param],mdir);
 												strlcpy(outpars[pc++],parameters[param++],MAXBUF);
@@ -1061,7 +1061,7 @@ void ModeParser::ProcessModes(char **parameters,userrec* user,chanrec *chan,int 
      					}
 					else
 					{
-						WriteServ(user->fd,"472 %s %c :is unknown mode char to me",user->nick,modechar);
+						WriteServ(user->fd,"472 %s %c :is unknown mode char to me",user->nick,*modechar);
 					}
 				break;
 				
