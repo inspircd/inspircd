@@ -370,35 +370,36 @@ char* ModeParser::TakeVoice(userrec *user,char *dest,chanrec *chan,int status)
 
 char* ModeParser::AddBan(userrec *user,char *dest,chanrec *chan,int status)
 {
-	if ((!user) || (!dest) || (!chan) || (!*dest)) {
+	BanItem b;
+	unsigned int l;
+	int toomanyexclamation = 0;
+	int toomanyat = 0;
+
+	if ((!user) || (!dest) || (!chan) || (!*dest))
+	{
 		log(DEFAULT,"*** BUG *** AddBan was given an invalid parameter");
 		return NULL;
 	}
 
-	BanItem b;
+	l = strlen(dest);
 
-	unsigned int l = strlen(dest);
-	if (strchr(dest,'!')==0)
-		return NULL;
-	if (strchr(dest,'@')==0)
-		return NULL;
 	for (unsigned int i = 0; i < l; i++)
+	{
 		if (dest[i] < 32)
 			return NULL;
-	for (unsigned int i = 0; i < l; i++)
 		if (dest[i] > 126)
 			return NULL;
-	int c = 0;
-	for (unsigned int i = 0; i < l; i++)
 		if (dest[i] == '!')
-			c++;
-	if (c>1)
-		return NULL;
-	c = 0;
-	for (unsigned int i = 0; i < l; i++)
+			toomanyexclamation++;
 		if (dest[i] == '@')
-			c++;
-	if (c>1)
+			toomanyat++;
+	}
+
+	if (toomanyexclamation != 1 || toomanyat != 1)
+		/*
+		 * this stops sillyness like n!u!u!u@h, though note that most
+		 * ircds don't actually verify banmask validity. --w00t
+		 */
 		return NULL;
 
 	long maxbans = GetMaxBans(chan->name);
