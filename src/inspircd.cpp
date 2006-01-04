@@ -315,6 +315,9 @@ bool InspIRCd::UnloadModule(const char* filename)
 				Config->global_implementation[t] -= Config->implement_lists[j][t];
 			}
 
+			/* TODO: We have to renumber implement_lists after unload because the module numbers change!
+			 */
+
 			FOREACH_MOD(I_OnUnloadModule,OnUnloadModule(modules[j],Config->module_names[j]));
 			// found the module
 			log(DEBUG,"Deleting module...");
