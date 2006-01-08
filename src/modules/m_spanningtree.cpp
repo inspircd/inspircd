@@ -2484,7 +2484,7 @@ class ModuleSpanningTree : public Module
 			{
 				percent = ((float)Current->GetUserCount() / (float)clientlist.size()) * 100;
 			}
-			snprintf(text, 80, "%s %s%5d [%3.2f%%]", Current->GetName().c_str(), spacer, Current->GetUserCount(), percent);
+			snprintf(text, 80, "%s %s%5d [%5.2f%%]", Current->GetName().c_str(), spacer, Current->GetUserCount(), percent);
 			strlcpy(&matrix[line][depth],text,80);
 			line++;
 			for (unsigned int q = 0; q < Current->ChildCount(); q++)
