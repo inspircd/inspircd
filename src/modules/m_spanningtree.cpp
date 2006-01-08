@@ -2468,7 +2468,9 @@ class ModuleSpanningTree : public Module
 			memset(spacer,' ',40);
 			if ((40 - Current->GetName().length() - depth) > 1) {
 				spacer[40 - Current->GetName().length() - depth] = '\0';
-			} else {
+			}
+			else
+			{
 				spacer[5] = '\0';
 			}
 
@@ -2477,10 +2479,12 @@ class ModuleSpanningTree : public Module
 			if (clientlist.size() == 0) {
 				// If there are no users, WHO THE HELL DID THE /MAP?!?!?!
 				percent = 0;
-			} else {
+			}
+			else
+			{
 				percent = ((float)Current->GetUserCount() / (float)clientlist.size()) * 100;
 			}
-			snprintf(text, 80, "%s %s%d [%.2f%%]", Current->GetName().c_str(), spacer, Current->GetUserCount(), percent);
+			snprintf(text, 80, "%s %s%5d [%3.2f%%]", Current->GetName().c_str(), spacer, Current->GetUserCount(), percent);
 			strlcpy(&matrix[line][depth],text,80);
 			line++;
 			for (unsigned int q = 0; q < Current->ChildCount(); q++)
