@@ -334,6 +334,16 @@ class TreeServer
 		return UserCount;
 	}
 
+	void AddUserCount()
+	{
+		UserCount++;
+	}
+
+	void DelUserCount()
+	{
+		UserCount--;
+	}
+
 	int GetOperCount()
 	{
 		return OperCount;
@@ -1054,6 +1064,13 @@ class TreeSocket : public InspSocket
 		}
 		params[7] = ":" + params[7];
 		DoOneToAllButSender(source,"NICK",params,source);
+
+		// Increment the Source Servers User Count..
+		TreeServer* SourceServer = FindServer(source);
+		if (SourceServer) {
+			SourceServer->AddUserCount();
+		}
+
 		return true;
 	}
 
@@ -2443,7 +2460,28 @@ class ModuleSpanningTree : public Module
 			{
 				matrix[line][t] = ' ';
 			}
-			strlcpy(&matrix[line][depth],Current->GetName().c_str(),80);
+
+			// For Aligning, we need to work out exactly how deep this thing is, and produce
+			// a 'Spacer' String to compensate.
+			char spacer[40];
+
+			memset(spacer,' ',40);
+			if ((40 - Current->GetName().length() - depth) > 1) {
+				spacer[40 - Current->GetName().length() - depth] = '\0';
+			} else {
+				spacer[5] = '\0';
+			}
+
+			float percent;
+			char text[80];
+			if (clientlist.size() == 0) {
+				// If there are no users, WHO THE HELL DID THE /MAP?!?!?!
+				percent = 0;
+			} else {
+				percent = ((float)Current->GetUserCount() / (float)clientlist.size()) * 100;
+			}
+			snprintf(text, 80, "%s %s%d [%.2f%%]", Current->GetName().c_str(), spacer, Current->GetUserCount(), percent);
+			strlcpy(&matrix[line][depth],text,80);
 			line++;
 			for (unsigned int q = 0; q < Current->ChildCount(); q++)
 			{
@@ -2930,6 +2968,13 @@ class ModuleSpanningTree : public Module
 			params.push_back(user->ip);
 			params.push_back(":"+std::string(user->fullname));
 			DoOneToMany(Srv->GetServerName(),"NICK",params);
+
+			// User is Local, change needs to be reflected!
+			TreeServer* SourceServer = FindServer(user->server);
+			if (SourceServer) {
+				SourceServer->AddUserCount();
+			}
+
 		}
 	}
 
@@ -2941,6 +2986,12 @@ class ModuleSpanningTree : public Module
 			params.push_back(":"+reason);
 			DoOneToMany(user->nick,"QUIT",params);
 		}
+		// Regardless, We need to modify the user Counts..
+		TreeServer* SourceServer = FindServer(user->server);
+		if (SourceServer) {
+			SourceServer->DelUserCount();
+		}
+
 	}
 
 	virtual void OnUserPostNick(userrec* user, std::string oldnick)
