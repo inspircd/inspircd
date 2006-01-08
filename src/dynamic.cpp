@@ -28,6 +28,9 @@ using namespace std;
 
 #include "inspstring.h"
 #include "helperfuncs.h"
+#include <unistd.h>
+#include <sys/types.h>
+#include <stdio.h>
 
 DLLManager::DLLManager(char *fname)
 {
@@ -47,10 +50,27 @@ DLLManager::DLLManager(char *fname)
 	}
 	err = "Module is not statically compiled into the ircd";
 #else
-    // Try to open the library now and get any error message.
+	// Copy the library to a temp location, this makes recompiles
+	// a little safer if the ircd is running at the time as the
+	// shared libraries are mmap()ed and not doing this causes
+	// segfaults.
+	FILE* x = fopen(fname,"rb");
+	char tmpfile_template[255];
+	char buffer[65536];
+	snprintf(tmpfile_template, 255, "/tmp/inspircd_file.so.%d.XXXXXXXXXX",getpid());
+	int fd = mkstemp(tmpfile_template);
+	while (!feof(x))
+	{
+		int n = fread(buffer, 1, 65535, x);
+		if (n)
+			write(fd,buffer,n);
+	}
 	
-	h = dlopen( fname, RTLD_NOW );
+	// Try to open the library now and get any error message.
+	
+	h = dlopen(tmpfile_template, RTLD_NOW );
 	err = (char*)dlerror();
+	close(fd);
 #endif
 }
 
