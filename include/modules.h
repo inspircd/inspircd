@@ -987,8 +987,10 @@ class Module : public classbase
 	/** Called on all /STATS commands
 	 * This method is triggered for all /STATS use, including stats symbols handled by the core.
 	 * @param symbol the symbol provided to /STATS
+	 * @user the user issuing the /STATS command
+	 * @return 1 to block the /STATS from being processed by the core, 0 to allow it
 	 */
-	virtual void OnStats(char symbol);
+	virtual int OnStats(char symbol, userrec* user);
 
 	/** Called whenever a change of a local users displayed host is attempted.
 	 * Return 1 to deny the host change, or 0 to allow it.

@@ -269,6 +269,11 @@ class ServerConfig : public classbase
 	 */
 	std::string data005;
 
+	/** STATS characters in this list are available
+	 * only to operators.
+	 */
+	char OperOnlyStats[MAXBUF];
+
 	ServerConfig();
 
 	/** Clears the include stack in preperation for

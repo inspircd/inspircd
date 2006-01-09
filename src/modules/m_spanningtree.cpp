@@ -2715,9 +2715,9 @@ class ModuleSpanningTree : public Module
 		return 1;
 	}
 
-	virtual bool HandleStats(char ** parameters, int pcnt, userrec* user)
+	virtual int OnStats(char statschar, userrec* user)
 	{
-		if (*parameters[0] == 'c')
+		if (statschar == 'c')
 	        {
 			for (unsigned int i = 0; i < LinkBlocks.size(); i++)
 			{
@@ -2726,9 +2726,9 @@ class ModuleSpanningTree : public Module
 			}
 			WriteServ(user->fd,"219 %s %s :End of /STATS report",user->nick,parameters[0]);
 			WriteOpers("*** Notice: Stats '%s' requested by %s (%s@%s)",parameters[0],user->nick,user->ident,user->host);
-			return true;
+			return 1;
 		}
-		return false;
+		return 0;
 	}
 
 	virtual int OnPreCommand(std::string command, char **parameters, int pcnt, userrec *user, bool validated)
@@ -2744,10 +2744,6 @@ class ModuleSpanningTree : public Module
 		else if (command == "SQUIT")
 		{
 			return this->HandleSquit(parameters,pcnt,user);
-		}
-		else if (command == "STATS")
-		{
-			return this->HandleStats(parameters,pcnt,user);
 		}
 		else if (command == "MAP")
 		{
@@ -3219,7 +3215,7 @@ class ModuleSpanningTree : public Module
 		List[I_OnUserQuit] = List[I_OnUserPostNick] = List[I_OnUserKick] = List[I_OnRemoteKill] = List[I_OnRehash] = 1;
 		List[I_OnOper] = List[I_OnAddGLine] = List[I_OnAddZLine] = List[I_OnAddQLine] = List[I_OnAddELine] = 1;
 		List[I_OnDelGLine] = List[I_OnDelZLine] = List[I_OnDelQLine] = List[I_OnDelELine] = List[I_ProtoSendMode] = List[I_OnMode] = 1;
-		List[I_ProtoSendMetaData] = 1;
+		List[I_OnStats] = List[I_ProtoSendMetaData] = 1;
 	}
 };
 

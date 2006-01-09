@@ -43,7 +43,7 @@ ServerConfig::ServerConfig()
 	*ServerName = *Network = *ServerDesc = *AdminName = '\0';
 	*AdminEmail = *AdminNick = *diepass = *restartpass = '\0';
 	*motd = *rules = *PrefixQuit = *DieValue = *DNSServer = '\0';
-	*ModPath = *MyExecutable = *DisabledCommands = *PID = '\0';
+	*OperOnlyStats = *ModPath = *MyExecutable = *DisabledCommands = *PID = '\0';
 	log_file = NULL;
 	nofork = false;
 	unlimitcore = false;
@@ -157,6 +157,7 @@ void ServerConfig::Read(bool bail, userrec* user)
         ConfValue("disabled","commands",0,Config->DisabledCommands,&Config->config_f);
         ConfValue("options","somaxconn",0,MCON,&Config->config_f);
         ConfValue("options","softlimit",0,SLIMT,&Config->config_f);
+	ConfValue("options","operonlystats",0,Config->OperOnlyStats,&Config->config_f);
 
         Config->SoftLimit = atoi(SLIMT);
         if ((Config->SoftLimit < 1) || (Config->SoftLimit > MAXCLIENTS))
