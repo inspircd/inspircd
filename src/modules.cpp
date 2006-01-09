@@ -255,7 +255,7 @@ int		Module::OnCheckInvite(userrec* user, chanrec* chan) { return 0; };
 int		Module::OnCheckKey(userrec* user, chanrec* chan, std::string keygiven) { return 0; };
 int		Module::OnCheckLimit(userrec* user, chanrec* chan) { return 0; };
 int		Module::OnCheckBan(userrec* user, chanrec* chan) { return 0; };
-int		Module::OnStats(char symbol, userrec* user) { };
+int		Module::OnStats(char symbol, userrec* user) { return 0; };
 int		Module::OnChangeLocalUserHost(userrec* user, std::string newhost) { return 0; };
 int		Module::OnChangeLocalUserGECOS(userrec* user, std::string newhost) { return 0; };
 int		Module::OnLocalTopicChange(userrec* user, chanrec* chan, std::string topic) { return 0; };
