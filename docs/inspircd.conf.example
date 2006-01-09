@@ -1,5 +1,5 @@
 ########################################################################
-#								       #
+#                                                                      #
 #               ___                ___ ____   ____    _                #
 #              |_ _|_ __  ___ _ __|_ _|  _ \ / ___|__| |               #
 #               | || '_ \/ __| '_ \| || |_) | |   / _` |               #
@@ -12,15 +12,15 @@
 #    | |__| (_) | | | |  _| | (_| | |_| | | | (_| | |_| | (_) | | | |  #
 #     \____\___/|_| |_|_| |_|\__, |\__,_|_|  \__,_|\__|_|\___/|_| |_|  #
 #                            |___/                                     #
-#								       #
+#                                                                      #
 ##################################||####################################
-				 #||#
+                                 #||#
 ##################################||####################################
-#								       #
+#                                                                      #
 #         This is an example of the config file for InspIRCd.          #
 #             Change the options to suit your network                  #
-#								       #
-#                 Last updated on : 02/01/2006                         #
+#                                                                      #
+#                 Last updated on : 09/01/2006                         #
 #                 Written by      : CC  (cc@backchat.co.za)            #
 #                 Updated by      : katsklaw (katsklaw@gmail.com)      #
 #                 Updated by      : brain (brain@inspircd.org)         #
@@ -41,14 +41,15 @@
 
 
 #-#-#-#-#-#-#-#-#-#-#-#-  SERVER DESCRIPTION  -#-#-#-#-#-#-#-#-#-#-#-#-
-#								      #
+#                                                                     #
 #   Here is where you enter the information about your server.        #
-#								      #
-#  Syntax is as follows:					      #
-#     <server name="server.name"				      #
-#      description="Server Description"				      #
-#      network="MyNetwork">					      #
-#								      #
+#                                                                     #
+#  Syntax is as follows:                                              #
+#                                                                     #
+#     <server name="server.name"                                      #
+#      description="Server Description"                               #
+#      network="MyNetwork">                                           #
+#                                                                     #
 
 <server name="penguin.omega.org.za"
         description="Waddle World"
@@ -56,15 +57,15 @@
 
 
 #-#-#-#-#-#-#-#-#-#-#-#-   ADMIN INFORMATION   -#-#-#-#-#-#-#-#-#-#-#-#
-#								      #
-#   Describes the Server Administrator's real name, nick	      #
-#   and email address.                   			      #
-#								      #
-#  Syntax is as follows:					      #
-#	<admin name="real name"					      #
-#	       nick="nick name"					      #
-#              email="email@address.com">			      #
-#								      #
+#                                                                     #
+#   Describes the Server Administrator's real name, nick              #
+#   and email address.                                                #
+#                                                                     #
+#  Syntax is as follows:                                              #
+#       <admin name="real name"                                       #
+#              nick="nick name"                                       #
+#              email="email@address.com">                             #
+#                                                                     #
 
 <admin  name="Johnny English"
         nick="MI5"
@@ -72,11 +73,11 @@
 
 
 #-#-#-#-#-#-#-#-#-#-#-#-   PORT CONFIGURATION   -#-#-#-#-#-#-#-#-#-#-#-
-#								      #
-#   Enter the port and address bindings here.	                      #
-#								      #
-#  bind address - specifies which the address which ports bind	      #	
-#  port		- opens an unused port				      #
+#                                                                     #
+#   Enter the port and address bindings here.                         #
+#                                                                     #
+#  bind address - specifies which the address which ports bind        #
+#  port         - opens an unused port                                #
 #  type         - can be 'clients' or 'servers'. The clients type is  #
 #                 a standard tcp based socket, the servers type is a  #
 #                 also a TCP based connection but of a different      #
@@ -93,13 +94,13 @@
 #  module, server ports will NOT be bound!                            #
 #                                                                     #
 #  Leaving address empty binds to all available interfaces            #
-#								      #
+#                                                                     #
 #  Syntax is as follows:                                              #
 #                                                                     #
-# <bind address="ip number" port="port" type="clients">	      	      #
-# <bind address="ip number" port="port" type="servers">	      	      #
+# <bind address="ip number" port="port" type="clients">               #
+# <bind address="ip number" port="port" type="servers">               #
 # <bind address="ip number" port="port" type="servers" default="yes"> #
-#								      #
+#                                                                     #
 
 <bind address="" port="6660" type="clients">
 <bind address="" port="7000" type="servers">
@@ -114,7 +115,7 @@
 #                                                                     #
 #  Syntax is as follows:                                              #
 #       <power diepass="die password" restartpass="restart password"  #
-#	 pause="secs before dying">			      	      #
+#        pause="secs before dying">                                   #
 #                                                                     #
 
 <power diepass="diepass" restartpass="restartpass" pause="2">
@@ -135,27 +136,28 @@
 #       <include file="file.conf">                                    #
 #                                                                     #
 
-#-#-#-#-#-#-#-#-#-#-  CONNECTIONS CONFIGURATION   -#-#-#-#-#-#-#-#-#-#-
-#								      #
+#-#-#-#-#-#-#-#-#-#-  CONNECTIONS CONFIGURATION  -#-#-#-#-#-#-#-#-#-#-#
+#                                                                     #
 #   This is where you can configure which connections are allowed     #
-#   and denied access onto your server.				      #
-#   The password is optional.					      #
+#   and denied access onto your server.                               #
+#   The password is optional.                                         #
 #   You may have as many of these as you require.                     #
 #   To allow/deny all connections use a *                             #
-#								      #
-#  Syntax is as follows:					      #
-#	<connect allow="ip or host">				      #
-#	<connect allow="ip or host" password="blahblah">              #
+#                                                                     #
+#  Syntax is as follows:                                              #
+#                                                                     #
+#       <connect allow="ip or host">                                  #
+#       <connect allow="ip or host" password="blahblah">              #
 #       <connect allow="ip or host" password="blah" timeout="10">     #
-#	<connect allow="ip or host" timeout="blah" flood="5">         #
+#       <connect allow="ip or host" timeout="blah" flood="5">         #
 #       <connect allow="ip or host" threshold="8" pingfreq="120">     #
 #       <connect allow="ip or host" sendq="99999" revcq="696969">     #
-#	<connect deny="ip or host">				      #
+#       <connect deny="ip or host">                                   #
 #                                                                     #
 #   You may optionally include timeout="x" on any allow line, which   #
 #   specifies the amount of time given before an unknown connection   #
 #   is closed if USER/NICK/PASS are not given. This value is in secs  #
-#								      #
+#                                                                     #
 #   You may also optionally include a flood="x" line which indicates  #
 #   the number of lines a user may place into their buffer at once    #
 #   before they are disconnected for excess flood. The default is to  #
@@ -195,14 +197,15 @@
 
 
 #-#-#-#-#-#-#-#-#-#-#-#-  CLASS CONFIGURATION   -#-#-#-#-#-#-#-#-#-#-#-
-#								      #
+#                                                                     #
 #   Classes are a group of commands which are grouped together        #
 #   and given a unique name. They used to define which commands       #
 #   are available to certain types of Operators.                      #
-#								      #
-#  Syntax is as follow:						      #
-#	<class name="name" commands="oper commands">		      #
-#								      #
+#                                                                     #
+#  Syntax is as follows:                                              #
+#                                                                     #
+#       <class name="name" commands="oper commands">                  #
+#                                                                     #
 #    ____                _   _____ _     _       ____  _ _   _        #
 #   |  _ \ ___  __ _  __| | |_   _| |__ (_)___  | __ )(_) |_| |       #
 #   | |_) / _ \/ _` |/ _` |   | | | '_ \| / __| |  _ \| | __| |       #
@@ -222,21 +225,23 @@
 
 
 #-#-#-#-#-#-#-#-#-#-#-#-  OPERATOR COMPOSITION   -#-#-#-#-#-#-#-#-#-#-#
-#								      #
+#                                                                     #
 #   This is where you specify which types of operators you have on    #
 #   your server, as well as the commands they are allowed to use.     #
-#   This works alongside with the classes specified above.	      #
-#								      #
-#  type name  - a name for the combined class types		      #
+#   This works alongside with the classes specified above.            #
+#                                                                     #
+#  type name  - a name for the combined class types                   #
+#                                                                     #
 #  classes    - specified above, used for flexibility for the         #
 #               server admin to decide on which operators get         #
-#		what commands					      #
-#  host	      - hostmask operators will recieve on oper-up.           #
-#(optional)							      #
+#               what commands                                         #
 #                                                                     #
-#  Syntax is as follows:					      #
-#	<type name="name" classes="class name" host="oper hostmask">  #
-#								      #
+#  host       - optional hostmask operators will recieve on oper-up.  #
+#                                                                     #
+#  Syntax is as follows:                                              #
+#                                                                     #
+#       <type name="name" classes="class name" host="oper hostmask">  #
+#                                                                     #
 #    ____                _   _____ _     _       ____  _ _   _        #
 #   |  _ \ ___  __ _  __| | |_   _| |__ (_)___  | __ )(_) |_| |       #
 #   | |_) / _ \/ _` |/ _` |   | | | '_ \| / __| |  _ \| | __| |       #
@@ -255,28 +260,30 @@
 
 
 #-#-#-#-#-#-#-#-#-#-#-  OPERATOR CONFIGURATION   -#-#-#-#-#-#-#-#-#-#-#
-#								      #
+#                                                                     #
 #   Opers are defined here. This is a very important section.         #
 #   Remember to only make operators out of truthworthy people.        #
-#								      #
-#  name      - oper name, best to use lower-case		      #
-#  password  - password to oper-up,	              	              #
+#                                                                     #
+#  name      - oper name, best to use lower-case                      #
+#                                                                     #
+#  password  - password to oper-up,                                   #
 #              encryption not supported by inspircd. However, there   #
-#              are modules that allow for oper password encryption.   #		      
+#              are modules that allow for oper password encryption.   #      
 #                                                                     #
 #  host      - host of client allowed to oper-up.                     #
 #              wildcards accepted                                     #
-#  type      - specified above, defines the kind of operator	      #
-#								      #
+#                                                                     #
+#  type      - specified above, defines the kind of operator          #
+#                                                                     #
 #  Syntax is as follows:                                              #
-#	<oper name="login"					      #
-#	      password="pass"					      #
-#             host="hostmask@of.oper"				      #
-#             type="oper type">					      #
-#								      #
+#       <oper name="login"                                            #
+#             password="pass"                                         #
+#             host="hostmask@of.oper"                                 #
+#             type="oper type">                                       #
+#                                                                     #
 
 <oper   name="katsklaw"
-	password="s3cret"
+        password="s3cret"
         host="*@*"
         type="NetAdmin">
 
@@ -335,35 +342,35 @@
 #                                                                     #
 
 <link name="hub.penguin.org"
-	ipaddr="penguin.box.com"
-	port="7000"
+        ipaddr="penguin.box.com"
+        port="7000"
         autoconnect="300"
-	sendpass="outgoing!password"
-	recvpass="incoming!password">
+        sendpass="outgoing!password"
+        recvpass="incoming!password">
 
 <link name="services.antarctic.com"
-	ipaddr="localhost"
-	port="7000"
-	sendpass="penguins"
-	recvpass="polarbears">
+        ipaddr="localhost"
+        port="7000"
+        sendpass="penguins"
+        recvpass="polarbears">
 
 <uline server="services.antarctic.com">
 
 
 #-#-#-#-#-#-#-#-#-#-  MISCELLANEOUS CONFIGURATION  -#-#-#-#-#-#-#-#-#-#
-#								      #
+#                                                                     #
 #   These options let you define the path to your motd and rules      #
-#   files.							      #
-#								      #
+#   files.                                                            #
+#                                                                     #
 
 <files  motd="/home/cc/inspircd/conf/inspire.motd"
-	rules="/home/cc/inspircd/conf/inspire.rules">
+        rules="/home/cc/inspircd/conf/inspire.rules">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-# DNS SERVER -#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 #                                                                     #
 # Define your DNS server address here. InspIRCd has its own resolver  #
 # and you must define this otherwise nobody's host will resolve. The  #
-# timeout value is in seconds.					      #
+# timeout value is in seconds.                                        #
 #                                                                     #
 #    ____                _   _____ _     _       ____  _ _   _        #
 #   |  _ \ ___  __ _  __| | |_   _| |__ (_)___  | __ )(_) |_| |       #
@@ -429,15 +436,15 @@
 
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-  SERVER OPTIONS   -#-#-#-#-#-#-#-#-#-#-#-#-#
-#								      #
+#                                                                     #
 #   Settings to define which features are useable on your server.     #
-#								      #
+#                                                                     #
 #  prefixquit    - a prefix for a client's quit message               #
 #                                                                     #
 #  loglevel      - specifies what detail of messages to log in the    #
 #                  log file. You may select from debug, verbose,      #
 #                  default, sparse and none.                          #
-#  allowhalfop   - allows the +h channel mode			      #
+#  allowhalfop   - allows the +h channel mode                         #
 #                                                                     #
 #  noservices    - If noservices is true, yes, or 1, then the first   #
 #                  user into a channel gets founder status. This is   #
@@ -446,7 +453,7 @@
 #                                                                     #
 #  netbuffersize - size of the buffer used to receive data from       #
 #                  clients. The ircd may only read() this amount      #
-#		   of text in one go at any time. (OPTIONAL)          #
+#                  of text in one go at any time. (OPTIONAL)          #
 #                                                                     #
 #  maxwho        - The maximum number of results returned by a /WHO   #
 #                  query. This is to prevent /WHO being used as a     #
@@ -473,14 +480,22 @@
 #                  if defined sets a soft maxconnections value, has   #
 #                  to be less than the ./configure maxclients         #
 #                                                                     #
+#  operonlystats - The operonlystats field is optional and specifies  #
+#                  which stats characters in /STATS may only be       #
+#                  requested by an IRC operator. Stats characters in  #
+#                  this field are case sensitive and enforced as      #
+#                  oper-only independent of if they are in a module   #
+#                  or the core.                                       #
+#                                                                     #
 
 <options prefixquit="Quit: "
-	 loglevel="default"
-	 netbuffersize="10240"
+         loglevel="default"
+         netbuffersize="10240"
          maxwho="128"
-	 noservices="0"
+         noservices="0"
          somaxconn="128"
-	 softlimit="128"
+         softlimit="128"
+         operonlystats="oclgkz"
          allowhalfop="yes">
 
 
@@ -847,8 +862,8 @@
 
 
 #########################################################################
-#									#
-#		 -InspIRCd Development and Coding Team-			#
-#                          www.inspircd.org				#
-#	 								#
+#                                                                       #
+#                     - InspIRCd Development Team -                     #
+#                        http://www.inspircd.org                        #
+#                                                                       #
 #########################################################################
