@@ -2663,6 +2663,25 @@ class ModuleSpanningTree : public Module
 		{
 			std::string Version = found->GetVersion();
 			WriteServ(user->fd,"351 %s :%s",user->nick,Version.c_str());
+			if (found == TreeRoot)
+			{
+			        std::stringstream out(Config->data005);
+			        std::string token = "";
+			        std::string line5 = "";
+			        int token_counter = 0;
+			        while (!out.eof())
+			        {
+			                out >> token;
+			                line5 = line5 + token + " ";   
+			                token_counter++;
+			                if ((token_counter >= 13) || (out.eof() == true))
+			                {
+			                        WriteServ(user->fd,"005 %s %s:are supported by this server",user->nick,line5.c_str());
+			                        line5 = "";
+			                        token_counter = 0;
+			                }
+			        }
+			}
 		}
 		else
 		{
