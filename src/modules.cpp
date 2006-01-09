@@ -620,6 +620,7 @@ bool Server::PseudoToUser(userrec* alive,userrec* zombie,std::string message)
 {
 	log(DEBUG,"PseudoToUser");
 	zombie->fd = alive->fd;
+	FOREACH_MOD(I_OnUserQuit,OnUserQuit(alive,message));
 	alive->fd = FD_MAGIC_NUMBER;
 	alive->FlushWriteBuf();
 	alive->ClearBuffer();

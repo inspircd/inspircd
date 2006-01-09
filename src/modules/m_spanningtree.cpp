@@ -1569,7 +1569,7 @@ class TreeSocket : public InspSocket
 			if (params.size() == 1)
 			{
 				userrec* x = Srv->FindNick(params[0]);
-				if (x->fd > -1)
+				if ((x) && (x->fd > -1))
 				{
 					userrec* x = Srv->FindNick(params[0]);
 					log(DEBUG,"Got IDLE");
@@ -1595,7 +1595,7 @@ class TreeSocket : public InspSocket
 			{
 				std::string who_did_the_whois = params[0];
 				userrec* who_to_send_to = Srv->FindNick(who_did_the_whois);
-				if (who_to_send_to->fd > -1)
+				if ((who_to_send_to) && (who_to_send_to->fd > -1))
 				{
 					log(DEBUG,"Got final IDLE");
 					// an incoming reply to a whois we sent out
