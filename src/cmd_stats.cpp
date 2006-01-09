@@ -86,7 +86,7 @@ void cmd_stats::Handle (char **parameters, int pcnt, userrec *user)
 
 	if ((*Config->OperOnlyStats) && (strchr(Config->OperOnlyStats,*parameters[0])) && (!*user->oper))
 	{
-		WriteServ(user->fd,"481 %s :Permission denied - This stats character is set as oper-only");
+		WriteServ(user->fd,"481 %s :Permission denied - STATS %c is oper-only",user->nick,*parameters[0]);
 		return;
 	}
 
