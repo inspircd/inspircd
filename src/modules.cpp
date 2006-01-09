@@ -652,7 +652,7 @@ bool Server::PseudoToUser(userrec* alive,userrec* zombie,std::string message)
                         }
                 }
         }
-	if (find(local_users.begin(),local_users.end(),zombie) == local_users.end())
+	if ((find(local_users.begin(),local_users.end(),zombie) == local_users.end()) && (zombie->fd != FD_MAGIC_NUMBER))
 		local_users.push_back(zombie);
 
 	return true;
