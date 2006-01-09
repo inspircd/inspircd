@@ -2721,7 +2721,7 @@ class ModuleSpanningTree : public Module
 	        {
 			for (unsigned int i = 0; i < LinkBlocks.size(); i++)
 			{
-				WriteServ(user->fd,"213 %s C *@%s * %s %d 0 %s",user->nick,LinkBlocks[i].IPAddr.c_str(),LinkBlocks[i].Name.c_str(),LinkBlocks[i].Port,(LinkBlocks[i].EncryptionKey != "" ? "es" : " s"));
+				WriteServ(user->fd,"213 %s C *@%s * %s %d 0 %c%c%c",user->nick,LinkBlocks[i].IPAddr.c_str(),LinkBlocks[i].Name.c_str(),LinkBlocks[i].Port,(LinkBlocks[i].EncryptionKey != "" ? 'e' : '-'),(LinkBlocks[i].AutoConnect ? 'a' : '-'),'s');
 				WriteServ(user->fd,"244 %s H * * %s",user->nick,LinkBlocks[i].Name.c_str());
 			}
 			WriteServ(user->fd,"219 %s %c :End of /STATS report",user->nick,statschar);
