@@ -598,9 +598,10 @@ int Server::CountUsers(chanrec* c)
 bool Server::UserToPseudo(userrec* user,std::string message)
 {
 	unsigned int old_fd = user->fd;
-	user->fd = FD_MAGIC_NUMBER;
-	user->ClearBuffer();
 	Write(old_fd,"ERROR :Closing link (%s@%s) [%s]",user->ident,user->host,message.c_str());
+	user->FlushWriteBuf();
+	user->ClearBuffer();
+	user->fd = FD_MAGIC_NUMBER;
 	ServerInstance->SE->DelFd(old_fd);
         shutdown(old_fd,2);
         close(old_fd);
@@ -611,6 +612,7 @@ bool Server::PseudoToUser(userrec* alive,userrec* zombie,std::string message)
 {
 	zombie->fd = alive->fd;
 	alive->fd = FD_MAGIC_NUMBER;
+	alive->FlushWriteBuf();
 	alive->ClearBuffer();
 	Write(zombie->fd,":%s!%s@%s NICK %s",alive->nick,alive->ident,alive->host,zombie->nick);
 	kill_link(alive,message.c_str());
