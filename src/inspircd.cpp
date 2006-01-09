@@ -282,14 +282,14 @@ void InspIRCd::MoveTo(std::string modulename,int slot)
 	log(DEBUG,"Moving %s to slot %d",modulename.c_str(),slot);
 	for (unsigned int v = 0; v < Config->module_names.size(); v++)
 	{
-		if (module_names[v] == modulename)
+		if (Config->module_names[v] == modulename)
 		{
 			// found an instance, swap it with the item at MODCOUNT
 			v2 = v;
 			break;
 		}
 	}
-	if (v == slot)
+	if (v2 == slot)
 	{
 		log(DEBUG,"Item %s already in slot %d!",modulename.c_str(),slot);
 	}
