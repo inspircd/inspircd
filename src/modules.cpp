@@ -57,6 +57,7 @@ extern int MODCOUNT;
 extern std::vector<Module*> modules;
 extern std::vector<ircd_module*> factory;
 extern std::vector<InspSocket*> module_sockets;
+extern std::vector<userrec*> local_users;
 extern time_t TIME;
 class Server;
 extern userrec* fd_ref_table[65536];
@@ -602,6 +603,13 @@ bool Server::UserToPseudo(userrec* user,std::string message)
 	user->FlushWriteBuf();
 	user->ClearBuffer();
 	user->fd = FD_MAGIC_NUMBER;
+
+	if (find(local_users.begin(),local_users.end(),user) != local_users.end())
+	{
+		local_users.erase(find(local_users.begin(),local_users.end(),user));
+		log(DEBUG,"Delete local user");
+	}
+
 	ServerInstance->SE->DelFd(old_fd);
         shutdown(old_fd,2);
         close(old_fd);
@@ -610,12 +618,20 @@ bool Server::UserToPseudo(userrec* user,std::string message)
 
 bool Server::PseudoToUser(userrec* alive,userrec* zombie,std::string message)
 {
+	log(DEBUG,"PseudoToUser");
 	zombie->fd = alive->fd;
 	alive->fd = FD_MAGIC_NUMBER;
 	alive->FlushWriteBuf();
 	alive->ClearBuffer();
 	Write(zombie->fd,":%s!%s@%s NICK %s",alive->nick,alive->ident,alive->host,zombie->nick);
 	kill_link(alive,message.c_str());
+
+        if (find(local_users.begin(),local_users.end(),alive) != local_users.end())
+        {
+		local_users.erase(find(local_users.begin(),local_users.end(),alive));
+		log(DEBUG,"Delete local user");
+        }
+
 	fd_ref_table[zombie->fd] = zombie;
         for (unsigned int i = 0; i < zombie->chans.size(); i++)
         {
@@ -636,6 +652,9 @@ bool Server::PseudoToUser(userrec* alive,userrec* zombie,std::string message)
                         }
                 }
         }
+	if (find(local_users.begin(),local_users.end(),zombie) == local_users.end())
+		local_users.push_back(zombie);
+
 	return true;
 }
 
