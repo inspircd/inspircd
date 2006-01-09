@@ -289,7 +289,7 @@ void InspIRCd::MoveTo(std::string modulename,int slot)
 			break;
 		}
 	}
-	if (v2 == slot)
+	if (v2 == (unsigned int)slot)
 	{
 		log(DEBUG,"Item %s already in slot %d!",modulename.c_str(),slot);
 	}

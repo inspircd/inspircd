@@ -298,7 +298,7 @@ void		Module::OnDelQLine(userrec* source, std::string nickmask) { };
 void		Module::OnDelELine(userrec* source, std::string hostmask) { };
 void 		Module::OnCleanup(int target_type, void* item) { };
 void		Module::Implements(char* Implements) { for (int j = 0; j < 255; j++) Implements[j] = 0; };
-Priority	Prioritize() { return PRIORITY_DONTCARE; }
+Priority	Modules::Prioritize() { return PRIORITY_DONTCARE; }
 
 /* server is a wrapper class that provides methods to all of the C-style
  * exports in the core
