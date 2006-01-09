@@ -2724,8 +2724,8 @@ class ModuleSpanningTree : public Module
 				WriteServ(user->fd,"213 %s C *@%s * %s %d 0 %s",user->nick,LinkBlocks[i].IPAddr.c_str(),LinkBlocks[i].Name.c_str(),LinkBlocks[i].Port,(LinkBlocks[i].EncryptionKey != "" ? "es" : " s"));
 				WriteServ(user->fd,"244 %s H * * %s",user->nick,LinkBlocks[i].Name.c_str());
 			}
-			WriteServ(user->fd,"219 %s %s :End of /STATS report",user->nick,parameters[0]);
-			WriteOpers("*** Notice: Stats '%s' requested by %s (%s@%s)",parameters[0],user->nick,user->ident,user->host);
+			WriteServ(user->fd,"219 %s %c :End of /STATS report",user->nick,statschar);
+			WriteOpers("*** Notice: Stats '%c' requested by %s (%s@%s)",statschar,user->nick,user->ident,user->host);
 			return 1;
 		}
 		return 0;
