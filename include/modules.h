@@ -274,6 +274,8 @@ class ExtMode : public classbase
 };
 
 
+enum Priority { PRIORITY_FIRST, PRIORITY_DONTCARE, PRIORITY_LAST };
+
 enum Implementation {	I_OnUserConnect, I_OnUserQuit, I_OnUserDisconnect, I_OnUserJoin, I_OnUserPart, I_OnRehash, I_OnServerRaw, 
 			I_OnExtendedMode, I_OnUserPreJoin, I_OnUserPreKick, I_OnUserKick, I_OnOper, I_OnInfo, I_OnWhois, I_OnUserPreInvite,
 			I_OnUserInvite, I_OnUserPreMessage, I_OnUserPreNotice, I_OnUserPreNick, I_OnUserMessage, I_OnUserNotice, I_OnMode,
@@ -314,6 +316,8 @@ class Module : public classbase
 	virtual Version GetVersion();
 
 	virtual void Implements(char* Implements);
+
+	virtual Priority Prioritize();
 
 	/** Called when a user connects.
 	 * The details of the connecting user are available to you in the parameter userrec *user

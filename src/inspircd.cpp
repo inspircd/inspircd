@@ -276,6 +276,62 @@ void InspIRCd::erase_module(int j)
 
 }
 
+void InspIRCd::MoveTo(std::string modulename,int slot)
+{
+	unsigned int v2 = 256;
+	log(DEBUG,"Moving %s to slot %d",modulename.c_str(),slot);
+	for (unsigned int v = 0; v < Config->module_names.size(); v++)
+	{
+		if (module_names[v] == modulename)
+		{
+			// found an instance, swap it with the item at MODCOUNT
+			v2 = v;
+			break;
+		}
+	}
+	if (v == slot)
+	{
+		log(DEBUG,"Item %s already in slot %d!",modulename.c_str(),slot);
+	}
+	else if (v2 < 256)
+	{
+		// Swap the module names over
+		Config->module_names[v2] = Config->module_names[slot];
+		Config->module_names[slot] = modulename;
+		// now swap the module factories
+		ircd_module* temp = factory[v2];
+		factory[v2] = factory[slot];
+		factory[slot] = temp;
+		// now swap the module objects
+		Module* temp_module = modules[v2];
+		modules[v2] = modules[slot];
+		modules[slot] = temp_module;
+		// now swap the implement lists (we dont
+		// need to swap the global or recount it)
+		for (int n = 0; n < 255; n++)
+		{
+			char x = Config->implement_lists[v2][n];
+			Config->implement_lists[v2][n] = Config->implement_lists[slot][n];
+			Config->implement_lists[slot][n] = x;
+		}
+		log(DEBUG,"Moved %s to slot successfully",modulename.c_str());
+	}
+	else
+	{
+		log(DEBUG,"Move of %s to slot failed!",modulename.c_str());
+	}
+}
+
+void InspIRCd::MoveToFirst(std::string modulename)
+{
+	MoveTo(modulename,0);
+}
+
+void InspIRCd::MoveToLast(std::string modulename)
+{
+	MoveTo(modulename,MODCOUNT);
+}
+
 void InspIRCd::BuildISupport()
 {
         // the neatest way to construct the initial 005 numeric, considering the number of configure constants to go in it...
@@ -424,6 +480,29 @@ bool InspIRCd::LoadModule(const char* filename)
 #endif
 	MODCOUNT++;
 	FOREACH_MOD(I_OnLoadModule,OnLoadModule(modules[MODCOUNT],filename_str));
+	// now work out which modules, if any, want to move to the back of the queue,
+	// and if they do, move them there.
+	std::vector<std::string> put_to_back;
+	std::vector<std::string> put_to_front;
+	for (unsigned int j = 0; j < Config->module_names.size(); j++)
+	{
+		if (modules[j]->Prioritize() == PRIORITY_LAST)
+		{
+			put_to_back.push_back(Config->module_names[j]);
+		}
+		else if (modules[j]->Prioritize() == PRIORITY_FIRST)
+		{
+			put_to_front.push_back(Config->module_names[j]);
+		}
+	}
+	for (unsigned int j = 0; j < put_to_back.size(); j++)
+	{
+		MoveToLast(put_to_back[j]);
+	}
+	for (unsigned int j = 0; j < put_to_front.size(); j++)
+	{
+		MoveToFirst(put_to_front[j]);
+	}
 	BuildISupport();
 	return true;
 }

@@ -104,6 +104,7 @@ class InspIRCd
         void erase_factory(int j);
         void erase_module(int j);
 	void BuildISupport();
+	void MoveTo(std::string modulename,int slot);
 
  public:
 	time_t startup_time;
@@ -118,6 +119,8 @@ class InspIRCd
 	char* ModuleError();
 	bool LoadModule(const char* filename);
 	bool UnloadModule(const char* filename);
+	void MoveToLast(std::string modulename);
+	void MoveToFirst(std::string modulename);
 	InspIRCd(int argc, char** argv);
 	int Run();
 
