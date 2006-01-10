@@ -1810,13 +1810,6 @@ class TreeSocket : public InspSocket
 		if (line == "")
 			return true;
 		Srv->Log(DEBUG,"IN: "+line);
-
-		/* Fix by brain:
-		 * When there is activity on the socket, reset the ping counter so
-		 * that we're not wasting bandwidth pinging an active server.
-		 */
-		this->SetNextPingTime(curtime + 300);
-		this->SetPingFlag();
 		
 		std::deque<std::string> params;
 	        this->Split(line,true,params);
@@ -1974,6 +1967,13 @@ class TreeSocket : public InspSocket
 							log(DEBUG,"Protocol violation: Fake direction in command '%s' from connection '%s'",line.c_str(),this->GetName().c_str());
 						return true;
 					}
+
+			                /* Fix by brain:
+					 * When there is activity on the socket, reset the ping counter so
+					 * that we're not wasting bandwidth pinging an active server.
+					 */                     
+			                route_back_again->SetNextPingTime(time(NULL) + 300);
+			                route_back_again->SetPingFlag();
 				}
 				
 				if (command == "SVSMODE")
