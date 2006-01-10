@@ -203,7 +203,7 @@ class TreeServer
 	{
 		VersionString = "";
 		UserCount = OperCount = 0;
-		this->SetNextPingTime(time(NULL) + 60);
+		this->SetNextPingTime(time(NULL) + 300);
 		this->SetPingFlag();
 
 		/* find the 'route' for this server (e.g. the one directly connected
@@ -2630,7 +2630,7 @@ class ModuleSpanningTree : public Module
 					if (serv->AnsweredLastPing())
 					{
 						sock->WriteLine(":"+Srv->GetServerName()+" PING "+serv->GetName());
-						serv->SetNextPingTime(curtime + 60);
+						serv->SetNextPingTime(curtime + 300);
 					}
 					else
 					{
