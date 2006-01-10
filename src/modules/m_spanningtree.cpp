@@ -1810,6 +1810,14 @@ class TreeSocket : public InspSocket
 		if (line == "")
 			return true;
 		Srv->Log(DEBUG,"IN: "+line);
+
+		/* Fix by brain:
+		 * When there is activity on the socket, reset the ping counter so
+		 * that we're not wasting bandwidth pinging an active server.
+		 */
+		this->SetNextPingTime(curtime + 300);
+		this->SetPingFlag();
+		
 		std::deque<std::string> params;
 	        this->Split(line,true,params);
 		std::string command = "";
