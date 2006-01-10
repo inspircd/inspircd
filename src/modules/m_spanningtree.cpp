@@ -1878,6 +1878,11 @@ class TreeSocket : public InspSocket
 				{
 					return this->Capab(params);
 				}
+				else if ((command == "U") || (command == "S"))
+				{
+					this->WriteLine("ERROR :Cannot use the old-style mesh linking protocol with m_spanningtree.so!");
+					return false;
+				}
 				else
 				{
 					this->WriteLine("ERROR :Invalid command in negotiation phase.");
@@ -1892,6 +1897,11 @@ class TreeSocket : public InspSocket
 					// cant do this, they sent it to us in the WAIT_AUTH_1 state!
 					// silently ignore.
 					return true;
+				}
+				else if ((command == "U") || (command == "S"))
+				{
+					this->WriteLine("ERROR :Cannot use the old-style mesh linking protocol with m_spanningtree.so!");
+					return false;
 				}
 				else if (command == "BURST")
 				{
