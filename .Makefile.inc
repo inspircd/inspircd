@@ -30,13 +30,30 @@ ircd:
 	${MAKE} -C src DIRNAME="src" $(MAKEARGS)
 
 bininst:
-	@-rm -f $(BINPATH)/*.so
-	@-rm -f $(BINPATH)/inspircd
-	@-cp src/*.so $(LIBPATH)
-	@-cp src/inspircd $(BINPATH)
-	@-cp inspircd $(BASE)
-	@-chmod 0700 $(BINPATH)/inspircd
-	@-chmod 0700 $(LIBPATH)/*.so
+	@install -C -v -m 0700 src/libIRCDaes.so $(LIBPATH)
+	@install -C -v -m 0700 src/libIRCDasyncdns.so $(LIBPATH)
+	@install -C -v -m 0700 src/libIRCDbase.so $(LIBPATH)
+	@install -C -v -m 0700 src/libIRCDchannels.so $(LIBPATH)
+	@install -C -v -m 0700 src/libIRCDcommand_parse.so $(LIBPATH)
+	@install -C -v -m 0700 src/libIRCDcommands.so $(LIBPATH)
+	@install -C -v -m 0700 src/libIRCDcull_list.so $(LIBPATH)
+	@install -C -v -m 0700 src/libIRCDdnsqueue.so $(LIBPATH)
+	@install -C -v -m 0700 src/libIRCDdynamic.so $(LIBPATH)
+	@install -C -v -m 0700 src/libIRCDhash.so $(LIBPATH)
+	@install -C -v -m 0700 src/libIRCDhelper.so $(LIBPATH)
+	@install -C -v -m 0700 src/libIRCDio.so $(LIBPATH)
+	@install -C -v -m 0700 src/libIRCDmessage.so $(LIBPATH)
+	@install -C -v -m 0700 src/libIRCDmode.so $(LIBPATH)
+	@install -C -v -m 0700 src/libIRCDmodules.so $(LIBPATH)
+	@install -C -v -m 0700 src/libIRCDsocket.so $(LIBPATH)
+	@install -C -v -m 0700 src/libIRCDsocketengine.so $(LIBPATH)
+	@install -C -v -m 0700 src/libIRCDstring.so $(LIBPATH)
+	@install -C -v -m 0700 src/libIRCDuserprocess.so $(LIBPATH)
+	@install -C -v -m 0700 src/libIRCDusers.so $(LIBPATH)
+	@install -C -v -m 0700 src/libIRCDwildcard.so $(LIBPATH)
+	@install -C -v -m 0700 src/libIRCDxline.so $(LIBPATH)
+	@install -C -v -m 0700 src/inspircd $(BINPATH)
+	@install -C -v -m 0700 inspircd $(BASE)
 	@echo "*************************************"
 	@echo "*      BUILD COMPLETE!              *"
 	@echo "* It is safe to ignore any messages *"
@@ -47,7 +64,7 @@ config:
 	@cp conf/inspire.motd $(CONPATH)/inspire.motd.example
 	@cp conf/inspire.quotes $(CONPATH)/inspire.quotes.example
 	@cp conf/inspire.rules $(CONPATH)/inspire.rules.example
-	@cp docs/*.example $(CONPATH)
+	@cp docs/inspircd.conf.example $(CONPATH)
 clean:
 	@echo Cleaning...
 	@rm -rvf src/*.so src/*.o src/inspircd src/modules/*.so src/modules/*.o *~ src/*~ src/modules/*~ src/modules/extra/*~
