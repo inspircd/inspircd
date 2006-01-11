@@ -60,14 +60,13 @@ extern chan_hash chanlist;
 extern whowas_hash whowas;
 extern std::vector<userrec*> all_opers;
 extern std::vector<userrec*> local_users;
-extern userrec* fd_ref_table[65536];
+extern userrec* fd_ref_table[MAX_DESCRIPTORS];
 
 void cmd_user::Handle (char **parameters, int pcnt, userrec *user)
 {
-	log(DEBUG,"Handling USER from cmd_user class!");
 	if (user->registered < 3)
 	{
-		if (isident(parameters[0]) == 0) {
+		if (!isident(parameters[0])) {
 			// This kinda Sucks, According to the RFC thou, its either this,
 			// or "You have already registered" :p -- Craig
 			WriteServ(user->fd,"461 %s USER :Not enough parameters",user->nick);

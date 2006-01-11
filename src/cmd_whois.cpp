@@ -60,7 +60,7 @@ extern chan_hash chanlist;
 extern whowas_hash whowas;
 extern std::vector<userrec*> all_opers;
 extern std::vector<userrec*> local_users;
-extern userrec* fd_ref_table[65536];
+extern userrec* fd_ref_table[MAX_DESCRIPTORS];
 
 void cmd_whois::Handle (char **parameters, int pcnt, userrec *user)
 {

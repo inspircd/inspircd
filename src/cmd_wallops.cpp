@@ -49,18 +49,9 @@ using namespace std;
 #include "command_parse.h"
 #include "cmd_wallops.h"
 
-extern ServerConfig* Config;
-extern InspIRCd* ServerInstance;
 extern int MODCOUNT;
 extern std::vector<Module*> modules;
 extern std::vector<ircd_module*> factory;
-extern time_t TIME;
-extern user_hash clientlist;
-extern chan_hash chanlist;
-extern whowas_hash whowas;
-extern std::vector<userrec*> all_opers;
-extern std::vector<userrec*> local_users;
-extern userrec* fd_ref_table[65536];
 
 void cmd_wallops::Handle (char **parameters, int pcnt, userrec *user)
 {

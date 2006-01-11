@@ -72,7 +72,7 @@ extern std::vector<userrec*> local_users;
 
 extern InspIRCd* ServerInstance;
 extern ServerConfig *Config;
-extern userrec* fd_ref_table[65536];
+extern userrec* fd_ref_table[MAX_DESCRIPTORS];
 char data[65536];
 
 extern user_hash clientlist;
