@@ -52,6 +52,7 @@ using namespace std;
 extern int MODCOUNT;
 extern std::vector<Module*> modules;
 extern std::vector<ircd_module*> factory;
+extern ServerConfig* Config;
 
 void cmd_wallops::Handle (char **parameters, int pcnt, userrec *user)
 {
