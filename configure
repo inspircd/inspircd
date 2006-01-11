@@ -925,7 +925,7 @@ m_$i.so: m_$i.cpp ../../include/modules.h ../../include/users.h ../../include/ch
 	\$(CC) -pipe -I../../include \$(FLAGS) $cmflags -export-dynamic -c m_$i.cpp
 	\$(CC) \$(FLAGS) -shared $liflags -o m_$i.so m_$i.o
 	\@-rm -f \$(MODPATH)/m_$i.so
-	install -C -v -m 0700 m_$i.so \$(MODPATH)
+	install -v -m 0700 m_$i.so \$(MODPATH)
 
 EOCHEESE
       }
