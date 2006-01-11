@@ -1,6 +1,7 @@
 using namespace std;
 
 // showwhois module by typobox43
+// Modified by Craig
 
 #include "users.h"
 #include "channels.h"
@@ -47,7 +48,7 @@ class ModuleShowwhois : public Module
 
 		virtual void OnWhois(userrec* source, userrec* dest)
 		{
-			if(strchr(dest->modes,'W'))
+			if((strchr(dest->modes,'W')) && (source != dest))
 			{
 				WriteServ(dest->fd,"NOTICE %s :*** %s (%s@%s) did a /whois on you.",dest->nick,source->nick,source->ident,source->host);
 			}
