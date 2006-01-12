@@ -649,14 +649,16 @@ void apply_lines(const int What)
 {
 	char reason[MAXBUF];
 	char host[MAXBUF];
-	
+
 	if ((!glines.size()) && (!klines.size()) && (!zlines.size()) && (!qlines.size()) &&
 	(!pglines.size()) && (!pklines.size()) && (!pzlines.size()) && (!pqlines.size()))
 		return;
 
 	CullList* Goners = new CullList();
-	for (std::vector<userrec*>::const_iterator u = local_users.begin(); u != local_users.end(); u++)
+	char* check = NULL;
+	for (std::vector<userrec*>::const_iterator u2 = local_users.begin(); u2 != local_users.end(); u2++)
 	{
+		userrec* u = (userrec*)(*u2);
 		u->MakeHost(host);
 		if (elines.size())
 		{
@@ -666,38 +668,34 @@ void apply_lines(const int What)
 		}
 		if ((What & APPLY_GLINES) && (glines.size() || pglines.size()))
 		{
-			char* check = matches_gline(host);
-			if (check)
+			if (check = matches_gline(host))
 			{
 				snprintf(reason,MAXBUF,"G-Lined: %s",check);
-				Goners->AddItem(u->second,reason);
+				Goners->AddItem(u,reason);
 			}
 		}
 		if ((What & APPLY_KLINES) && (klines.size() || pklines.size()))
 		{
-			char* check = matches_kline(host);
-			if (check)
+			if (check = matches_kline(host))
 			{
 				snprintf(reason,MAXBUF,"K-Lined: %s",check);
-				Goners->AddItem(u->second,reason);
+				Goners->AddItem(u,reason);
 			}
 		}
 		if ((What & APPLY_QLINES) && (qlines.size() || pqlines.size()))
 		{
-			char* check = matches_qline(u->second->nick);
-			if (check)
+			if (check = matches_qline(u->nick))
 			{
 				snprintf(reason,MAXBUF,"Matched Q-Lined nick: %s",check);
-				Goners->AddItem(u->second,reason);
+				Goners->AddItem(u,reason);
 			}
 		}
 		if ((What & APPLY_ZLINES) && (zlines.size() || pzlines.size()))
 		{
-			char* check = matches_zline(u->second->ip);
-			if (check)
+			if (check = matches_zline(u->ip))
 			{
-				snprintf(reason,MAXBUF,"Z-Lined: %s",check);
-				Goners->AddItem(u->second,reason);
+				snprintf(reasonz,MAXBUF,"Z-Lined: %s",check);
+				Goners->AddItem(u,reason);
 			}
 		}
 	}
@@ -745,3 +743,4 @@ void stats_e(userrec* user)
 	for (std::vector<ELine>::iterator i = pelines.begin(); i != pelines.end(); i++)
 		WriteServ(user->fd,"223 %s :%s %d %d %s %s",user->nick,i->hostmask,i->set_time,i->duration,i->source,i->reason);
 }
+
