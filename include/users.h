@@ -313,6 +313,8 @@ class userrec : public connection
 	 */
 	InvitedList* GetInviteList();
 
+	void MakeHost(char* nhost);
+
 	/** Shuts down and closes the user's socket
 	 */
 	void CloseSocket();

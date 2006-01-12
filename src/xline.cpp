@@ -55,6 +55,7 @@ extern std::vector<Module*> modules;
 extern std::vector<ircd_module*> factory;
 extern ServerConfig* Config;
 extern user_hash clientlist;
+extern std::vector<userrec*> local_users;
 
 /* Version two, now with optimized expiry!
  *
@@ -654,53 +655,49 @@ void apply_lines(const int What)
 		return;
 
 	CullList* Goners = new CullList();
-	
-	for (user_hash::const_iterator u = clientlist.begin(); u != clientlist.end(); u++)
+	for (std::vector<userrec*>::const_iterator u = local_users.begin(); u != local_users.end(); u++)
 	{
-		if (u->second->fd > -1)
+		u->MakeHost(host);
+		if (elines.size())
 		{
-			snprintf(host,MAXBUF,"%s@%s",u->second->ident,u->second->host);
-			if (elines.size())
+			// ignore people matching exempts
+			if (matches_exception(host))
+				continue;
+		}
+		if ((What & APPLY_GLINES) && (glines.size() || pglines.size()))
+		{
+			char* check = matches_gline(host);
+			if (check)
 			{
-				// ignore people matching exempts
-				if (matches_exception(host))
-					continue;
+				snprintf(reason,MAXBUF,"G-Lined: %s",check);
+				Goners->AddItem(u->second,reason);
 			}
-			if ((What & APPLY_GLINES) && (glines.size() || pglines.size()))
+		}
+		if ((What & APPLY_KLINES) && (klines.size() || pklines.size()))
+		{
+			char* check = matches_kline(host);
+			if (check)
 			{
-				char* check = matches_gline(host);
-				if (check)
-				{
-					snprintf(reason,MAXBUF,"G-Lined: %s",check);
-					Goners->AddItem(u->second,reason);
-				}
+				snprintf(reason,MAXBUF,"K-Lined: %s",check);
+				Goners->AddItem(u->second,reason);
 			}
-			if ((What & APPLY_KLINES) && (klines.size() || pklines.size()))
+		}
+		if ((What & APPLY_QLINES) && (qlines.size() || pqlines.size()))
+		{
+			char* check = matches_qline(u->second->nick);
+			if (check)
 			{
-				char* check = matches_kline(host);
-				if (check)
-				{
-					snprintf(reason,MAXBUF,"K-Lined: %s",check);
-					Goners->AddItem(u->second,reason);
-				}
+				snprintf(reason,MAXBUF,"Matched Q-Lined nick: %s",check);
+				Goners->AddItem(u->second,reason);
 			}
-			if ((What & APPLY_QLINES) && (qlines.size() || pqlines.size()))
+		}
+		if ((What & APPLY_ZLINES) && (zlines.size() || pzlines.size()))
+		{
+			char* check = matches_zline(u->second->ip);
+			if (check)
 			{
-				char* check = matches_qline(u->second->nick);
-				if (check)
-				{
-					snprintf(reason,MAXBUF,"Matched Q-Lined nick: %s",check);
-					Goners->AddItem(u->second,reason);
-				}
-			}
-			if ((What & APPLY_ZLINES) && (zlines.size() || pzlines.size()))
-			{
-				char* check = matches_zline(u->second->ip);
-				if (check)
-				{
-					snprintf(reason,MAXBUF,"Z-Lined: %s",check);
-					Goners->AddItem(u->second,reason);
-				}
+				snprintf(reason,MAXBUF,"Z-Lined: %s",check);
+				Goners->AddItem(u->second,reason);
 			}
 		}
 	}

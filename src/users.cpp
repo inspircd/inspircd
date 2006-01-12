@@ -80,6 +80,18 @@ userrec::~userrec()
 {
 }
 
+void userrec::MakeHost(char* nhost)
+{
+	/* This is much faster than snprintf */
+	char* t = nhost;
+	for(char* n = ident; n; n++)
+		*t++ = *n;
+	*t++ = '@';
+	for(char* n = host; n; n++)
+		*t++ = *n;
+	*t = 0;
+}
+
 void userrec::CloseSocket()
 {
 	shutdown(this->fd,2);
@@ -89,7 +101,16 @@ void userrec::CloseSocket()
 char* userrec::GetFullHost()
 {
 	static char result[MAXBUF];
-	snprintf(result,MAXBUF,"%s!%s@%s",nick,ident,dhost);
+	char* t = result;
+	for(char* n = nick; n; n++)
+		*t++ = *n;
+	*t++ = '!';
+	for(char* n = ident; n; n++)
+		*t++ = *n;
+	*t++ = '@';
+	for(char* n = dhost; n; n++)
+		*t++ = *n;
+	*t = 0;
 	return result;
 }
 
@@ -106,7 +127,16 @@ int userrec::ReadData(void* buffer, size_t size)
 char* userrec::GetFullRealHost()
 {
 	static char fresult[MAXBUF];
-	snprintf(fresult,MAXBUF,"%s!%s@%s",nick,ident,host);
+	char* t = fresult;
+	for(char* n = nick; n; n++)
+		*t++ = *n;
+	*t++ = '!';
+	for(char* n = ident; n; n++)
+		*t++ = *n;
+	*t++ = '@';
+	for(char* n = host; n; n++)
+		*t++ = *n;
+	*t = 0;
 	return fresult;
 }
 
