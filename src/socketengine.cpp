@@ -87,7 +87,7 @@ bool SocketEngine::AddFd(int fd, bool readable, char type)
 #ifdef USE_EPOLL
 	struct epoll_event ev;
 	log(DEBUG,"epoll: Add socket to events, ep=%d socket=%d",EngineHandle,fd);
-	readable ? ev.events = EPOLLIN | EPOLLET : ev.events = EPOLLOUT | EPOLLET;
+	readable ? ev.events = EPOLLIN : ev.events = EPOLLOUT;
 	ev.data.fd = fd;
 	int i = epoll_ctl(EngineHandle, EPOLL_CTL_ADD, fd, &ev);
 	if (i < 0)
@@ -138,7 +138,7 @@ bool SocketEngine::DelFd(int fd)
 #endif
 #ifdef USE_EPOLL
 	struct epoll_event ev;
-	ref[fd] && X_READBIT ? ev.events = EPOLLIN | EPOLLET : ev.events = EPOLLOUT | EPOLLET;
+	ref[fd] && X_READBIT ? ev.events = EPOLLIN : ev.events = EPOLLOUT;
 	ev.data.fd = fd;
 	int i = epoll_ctl(EngineHandle, EPOLL_CTL_DEL, fd, &ev);
 	if (i < 0)
