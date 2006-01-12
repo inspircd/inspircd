@@ -668,7 +668,7 @@ void apply_lines(const int What)
 		}
 		if ((What & APPLY_GLINES) && (glines.size() || pglines.size()))
 		{
-			if (check = matches_gline(host))
+			if ((check = matches_gline(host)))
 			{
 				snprintf(reason,MAXBUF,"G-Lined: %s",check);
 				Goners->AddItem(u,reason);
@@ -676,7 +676,7 @@ void apply_lines(const int What)
 		}
 		if ((What & APPLY_KLINES) && (klines.size() || pklines.size()))
 		{
-			if (check = matches_kline(host))
+			if ((check = matches_kline(host)))
 			{
 				snprintf(reason,MAXBUF,"K-Lined: %s",check);
 				Goners->AddItem(u,reason);
@@ -684,7 +684,7 @@ void apply_lines(const int What)
 		}
 		if ((What & APPLY_QLINES) && (qlines.size() || pqlines.size()))
 		{
-			if (check = matches_qline(u->nick))
+			if ((check = matches_qline(u->nick)))
 			{
 				snprintf(reason,MAXBUF,"Matched Q-Lined nick: %s",check);
 				Goners->AddItem(u,reason);
@@ -692,7 +692,7 @@ void apply_lines(const int What)
 		}
 		if ((What & APPLY_ZLINES) && (zlines.size() || pzlines.size()))
 		{
-			if (check = matches_zline(u->ip))
+			if ((check = matches_zline(u->ip)))
 			{
 				snprintf(reason,MAXBUF,"Z-Lined: %s",check);
 				Goners->AddItem(u,reason);
