@@ -694,7 +694,7 @@ void apply_lines(const int What)
 		{
 			if (check = matches_zline(u->ip))
 			{
-				snprintf(reasonz,MAXBUF,"Z-Lined: %s",check);
+				snprintf(reason,MAXBUF,"Z-Lined: %s",check);
 				Goners->AddItem(u,reason);
 			}
 		}
