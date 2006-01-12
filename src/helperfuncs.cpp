@@ -346,11 +346,10 @@ void WriteChannel(chanrec* Ptr, userrec* user, char* text, ...)
         vsnprintf(textbuffer, MAXBUF, text, argsPtr);
         va_end(argsPtr);
 
-        std::vector<char*> *ulist = Ptr->GetUsers();
-	unsigned int x = ulist->size();
-        for (unsigned int j = 0; j < x; j++)
+        std::map<char*,char*> *ulist= Ptr->GetUsers();
+	for (std::map<char*,char*>::iterator i = ulist->begin(); i != ulist->end(); i++)
         {
-                char* o = (*ulist)[j];
+                char* o = i->second;
                 userrec* otheruser = (userrec*)o;
                 if (otheruser->fd != FD_MAGIC_NUMBER)
                         WriteTo_NoFormat(user,otheruser,textbuffer);
@@ -364,11 +363,10 @@ void WriteChannel_NoFormat(chanrec* Ptr, userrec* user, const char* text)
                 log(DEFAULT,"*** BUG *** WriteChannel was given an invalid parameter");
                 return;
         }
-        std::vector<char*> *ulist = Ptr->GetUsers();
-        unsigned int x = ulist->size();
-        for (unsigned int j = 0; j < x; j++)
+        std::map<char*,char*> *ulist= Ptr->GetUsers();
+        for (std::map<char*,char*>::iterator i = ulist->begin(); i != ulist->end(); i++)
         {
-                char* o = (*ulist)[j];
+                char* o = i->second;
                 userrec* otheruser = (userrec*)o;
                 if (otheruser->fd != FD_MAGIC_NUMBER)
                         WriteTo_NoFormat(user,otheruser,text);
@@ -393,11 +391,10 @@ void WriteChannelLocal(chanrec* Ptr, userrec* user, char* text, ...)
         vsnprintf(textbuffer, MAXBUF, text, argsPtr);
         va_end(argsPtr);
 
-        std::vector<char*> *ulist = Ptr->GetUsers();
-	unsigned int x = ulist->size();
-        for (unsigned int j = 0; j < x; j++)
+        std::map<char*,char*> *ulist= Ptr->GetUsers();
+	for (std::map<char*,char*>::iterator i = ulist->begin(); i != ulist->end(); i++)
         {
-                char* o = (*ulist)[j];
+                char* o = i->second;
                 userrec* otheruser = (userrec*)o;
                 if ((otheruser->fd != FD_MAGIC_NUMBER) && (otheruser != user))
                 {
@@ -420,11 +417,10 @@ void WriteChannelLocal_NoFormat(chanrec* Ptr, userrec* user, const char* text)
                 log(DEFAULT,"*** BUG *** WriteChannel was given an invalid parameter");
                 return;
         }
-        std::vector<char*> *ulist = Ptr->GetUsers();
-        unsigned int x = ulist->size();
-        for (unsigned int j = 0; j < x; j++)
+        std::map<char*,char*> *ulist= Ptr->GetUsers();
+        for (std::map<char*,char*>::iterator i = ulist->begin(); i != ulist->end(); i++)
         {
-                char* o = (*ulist)[j];   
+                char* o = i->second;
                 userrec* otheruser = (userrec*)o;
                 if ((otheruser->fd != FD_MAGIC_NUMBER) && (otheruser != user))
                 {
@@ -456,11 +452,10 @@ void WriteChannelWithServ(char* ServName, chanrec* Ptr, char* text, ...)
         va_end(argsPtr);
 
 
-        std::vector<char*> *ulist = Ptr->GetUsers();
-	unsigned int x = ulist->size();
-        for (unsigned int j = 0; j < x; j++)
+        std::map<char*,char*> *ulist= Ptr->GetUsers();
+	for (std::map<char*,char*>::iterator i = ulist->begin(); i != ulist->end(); i++)
         {
-                char* o = (*ulist)[j];
+                char* o = i->second;
                 userrec* otheruser = (userrec*)o;
                 if (IS_LOCAL(otheruser))
                         WriteServ_NoFormat(otheruser->fd,textbuffer);
@@ -474,11 +469,10 @@ void WriteChannelWithServ_NoFormat(char* ServName, chanrec* Ptr, const char* tex
                 log(DEFAULT,"*** BUG *** WriteChannelWithServ was given an invalid parameter");
                 return;
         }
-        std::vector<char*> *ulist = Ptr->GetUsers();
-        unsigned int x = ulist->size();
-        for (unsigned int j = 0; j < x; j++)
+        std::map<char*,char*> *ulist= Ptr->GetUsers();
+        for (std::map<char*,char*>::iterator i = ulist->begin(); i != ulist->end(); i++)
         {
-                char* o = (*ulist)[j];
+                char* o = i->second;
                 userrec* otheruser = (userrec*)o;
                 if (IS_LOCAL(otheruser))
                         WriteServ_NoFormat(otheruser->fd,text);
@@ -503,11 +497,10 @@ void ChanExceptSender(chanrec* Ptr, userrec* user, char* text, ...)
         vsnprintf(textbuffer, MAXBUF, text, argsPtr);
         va_end(argsPtr);
 
-        std::vector<char*> *ulist = Ptr->GetUsers();
-	unsigned int x = ulist->size();
-        for (unsigned int j = 0; j < x; j++)
+        std::map<char*,char*> *ulist= Ptr->GetUsers();
+	for (std::map<char*,char*>::iterator i = ulist->begin(); i != ulist->end(); i++)
         {
-                char* o = (*ulist)[j];
+                char* o = i->second;
                 userrec* otheruser = (userrec*)o;
                 if ((IS_LOCAL(otheruser)) && (user != otheruser))
                         WriteFrom_NoFormat(otheruser->fd,user,textbuffer);
@@ -521,11 +514,10 @@ void ChanExceptSender_NoFormat(chanrec* Ptr, userrec* user, const char* text)
                 log(DEFAULT,"*** BUG *** ChanExceptSender was given an invalid parameter");
                 return;
         }
-        std::vector<char*> *ulist = Ptr->GetUsers();
-        unsigned int x = ulist->size();
-        for (unsigned int j = 0; j < x; j++)
+        std::map<char*,char*> *ulist= Ptr->GetUsers();
+        for (std::map<char*,char*>::iterator i = ulist->begin(); i != ulist->end(); i++)
         {
-                char* o = (*ulist)[j];
+                char* o = i->second;
                 userrec* otheruser = (userrec*)o;
                 if ((IS_LOCAL(otheruser)) && (user != otheruser))
                         WriteFrom_NoFormat(otheruser->fd,user,text);
@@ -578,11 +570,10 @@ void WriteCommon(userrec *u, char* text, ...)
         {
                 if (u->chans[i].channel)
                 {
-                        std::vector<char*> *ulist = u->chans[i].channel->GetUsers();
-			unsigned int x = ulist->size();
-                        for (unsigned int j = 0; j < x; j++)
+                        std::map<char*,char*> *ulist= u->chans[i].channel->GetUsers();
+			for (std::map<char*,char*>::iterator i = ulist->begin(); i != ulist->end(); i++)
                         {
-                                char* o = (*ulist)[j];
+                                char* o = i->second;
                                 userrec* otheruser = (userrec*)o;
                                 if ((otheruser->fd > -1) && (!already_sent[otheruser->fd]))
                                 {
@@ -623,11 +614,10 @@ void WriteCommon_NoFormat(userrec *u, const char* text)
         {
                 if (u->chans[i].channel)
                 {
-                        std::vector<char*> *ulist = u->chans[i].channel->GetUsers();
-                        unsigned int x = ulist->size();
-                        for (unsigned int j = 0; j < x; j++)
+                        std::map<char*,char*> *ulist= u->chans[i].channel->GetUsers();
+                        for (std::map<char*,char*>::iterator i = ulist->begin(); i != ulist->end(); i++)
                         {
-                                char* o = (*ulist)[j];
+                                char* o = i->second;
                                 userrec* otheruser = (userrec*)o;
                                 if ((otheruser->fd > -1) && (!already_sent[otheruser->fd]))
                                 {
@@ -677,11 +667,10 @@ void WriteCommonExcept(userrec *u, char* text, ...)
         {
                 if (u->chans[i].channel)
                 {
-                        std::vector<char*> *ulist = u->chans[i].channel->GetUsers();
-			unsigned int x = ulist->size();
-                        for (unsigned int j = 0; j < x; j++)
+                        std::map<char*,char*> *ulist= u->chans[i].channel->GetUsers();
+			for (std::map<char*,char*>::iterator i = ulist->begin(); i != ulist->end(); i++)
                         {
-                                char* o = (*ulist)[j];
+                                char* o = i->second;
                                 userrec* otheruser = (userrec*)o;
                                 if (u != otheruser)
                                 {
@@ -716,11 +705,10 @@ void WriteCommonExcept_NoFormat(userrec *u, const char* text)
         {
                 if (u->chans[i].channel)
                 {
-                        std::vector<char*> *ulist = u->chans[i].channel->GetUsers();
-                        unsigned int x = ulist->size();
-                        for (unsigned int j = 0; j < x; j++)
+                        std::map<char*,char*> *ulist= u->chans[i].channel->GetUsers();
+                        for (std::map<char*,char*>::iterator i = ulist->begin(); i != ulist->end(); i++)
                         {
-                                char* o = (*ulist)[j];
+                                char* o = i->second;
                                 userrec* otheruser = (userrec*)o;
                                 if (u != otheruser)
                                 {
@@ -1082,10 +1070,10 @@ void userlist(userrec *user,chanrec *c)
 
         snprintf(list,MAXBUF,"353 %s = %s :", user->nick, c->name);
 
-        std::vector<char*> *ulist = c->GetUsers();
-        for (unsigned int i = 0; i < ulist->size(); i++)
+        std::map<char*,char*> *ulist= c->GetUsers();
+        for (std::map<char*,char*>::iterator i = ulist->begin(); i != ulist->end(); i++)
         {
-                char* o = (*ulist)[i];
+                char* o = i->second;
                 userrec* otheruser = (userrec*)o;
                 if ((!has_channel(user,c)) && (strchr(otheruser->modes,'i')))
                 {

@@ -646,7 +646,8 @@ int InspIRCd::Run()
 					uslen = sizeof(sock_us);
 					length = sizeof(client);
 					incomingSockfd = accept (activefds[activefd],(struct sockaddr*)&client,&length);
-					if (!getsockname(incomingSockfd,(sockaddr*)&sock_us,&uslen))
+					
+					if ((incomingSockfd > -1) && (!getsockname(incomingSockfd,(sockaddr*)&sock_us,&uslen)))
 					{
 						in_port = ntohs(sock_us.sin_port);
 						log(DEBUG,"Accepted socket %d",incomingSockfd);
@@ -655,29 +656,21 @@ int InspIRCd::Run()
 						 * using gethostbyaddr(). That is sucky and we
 						 * don't do that any more...
 						 */
-						if (incomingSockfd >= 0)
+						NonBlocking(incomingSockfd);
+						if (Config->GetIOHook(in_port))
 						{
-							NonBlocking(incomingSockfd);
-							if (Config->GetIOHook(in_port))
-							{
-								Config->GetIOHook(in_port)->OnRawSocketAccept(incomingSockfd, target, in_port);
-							}
-							stats->statsAccept++;
-							AddClient(incomingSockfd, target, in_port, false, target);
-							log(DEBUG,"Adding client on port %lu fd=%lu",(unsigned long)in_port,(unsigned long)incomingSockfd);
+							Config->GetIOHook(in_port)->OnRawSocketAccept(incomingSockfd, target, in_port);
 						}
-						else
-						{
-							WriteOpers("*** WARNING: accept() failed on port %lu (%s)",(unsigned long)in_port,target);
-							log(DEBUG,"accept failed: %lu",(unsigned long)in_port);
-							stats->statsRefused++;
-						}
+						stats->statsAccept++;
+						AddClient(incomingSockfd, target, in_port, false, target);
+						log(DEBUG,"Adding client on port %lu fd=%lu",(unsigned long)in_port,(unsigned long)incomingSockfd);
 					}
 					else
 					{
-						log(DEBUG,"Couldnt look up the port number for fd %lu (OS BROKEN?!)",incomingSockfd);
+						log(DEBUG,"Accept failed on fd %lu: %s",(unsigned long)incomingSockfd,strerror(errno));
 						shutdown(incomingSockfd,2);
 						close(incomingSockfd);
+						stats->statsRefused++;
 					}
 				break;
 

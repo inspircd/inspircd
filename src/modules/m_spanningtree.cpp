@@ -1083,10 +1083,10 @@ class TreeSocket : public InspSocket
 		log(DEBUG,"Sending FJOINs to other server for %s",c->name);
 		char list[MAXBUF];
 		snprintf(list,MAXBUF,":%s FJOIN %s %lu",Srv->GetServerName().c_str(),c->name,(unsigned long)c->age);
-		std::vector<char*> *ulist = c->GetUsers();
-		for (unsigned int i = 0; i < ulist->size(); i++)
+		std::map<char*,char*> *ulist = c->GetUsers();
+		for (std::map<char*,char*>::iterator i = ulist->begin(); i != ulist->end(); i++)
 		{
-			char* o = (*ulist)[i];
+			char* o = i->second;
 			userrec* otheruser = (userrec*)o;
 			strlcat(list," ",MAXBUF);
 			strlcat(list,cmode(otheruser,c),MAXBUF);
@@ -2188,11 +2188,10 @@ void AddThisServer(TreeServer* server, std::deque<TreeServer*> &list)
 // returns a list of DIRECT servernames for a specific channel
 void GetListOfServersForChannel(chanrec* c, std::deque<TreeServer*> &list)
 {
-	std::vector<char*> *ulist = c->GetUsers();
-	unsigned int ucount = ulist->size();
-	for (unsigned int i = 0; i < ucount; i++)
+	std::map<char*,char*> *ulist = c->GetUsers();
+	for (std::map<char*,char*>::iterator i = ulist->begin(); i != ulist->end(); i++)
 	{
-		char* o = (*ulist)[i];
+		char* o = i->second;
 		userrec* otheruser = (userrec*)o;
 		if (otheruser->fd < 0)
 		{

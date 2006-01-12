@@ -377,10 +377,10 @@ chanuserlist Server::GetUsers(chanrec* chan)
 {
 	chanuserlist userl;
 	userl.clear();
-	std::vector<char*> *list = chan->GetUsers();
-  	for (std::vector<char*>::iterator i = list->begin(); i != list->end(); i++)
+	std::map<char*,char*> *list = chan->GetUsers();
+  	for (std::map<char*,char*>::iterator i = list->begin(); i != list->end(); i++)
 	{
-		char* o = *i;
+		char* o = i->second;
 		userl.push_back((userrec*)o);
 	}
 	return userl;

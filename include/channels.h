@@ -14,14 +14,15 @@
  * ---------------------------------------------------
  */
 
+#ifndef __CHANNELS_H__
+#define __CHANNELS_H__
+
 #include "inspircd_config.h"
 #include "base.h"
 #include <time.h>
 #include <vector>
 #include <string>
-
-#ifndef __CHANNELS_H__
-#define __CHANNELS_H__
+#include <map>
 
 #define CM_TOPICLOCK 1
 #define CM_NOEXTERNAL 2
@@ -114,7 +115,7 @@ class chanrec : public Extensible
 	/** User list (casted to char*'s to stop forward declaration stuff)
 	 * (chicken and egg scenario!)
 	 */
-	std::vector<char*> internal_userlist;
+	std::map<char*,char*> internal_userlist;
 	
 	/** Channel topic.
 	 * If this is an empty string, no channel topic is set.
@@ -217,7 +218,7 @@ class chanrec : public Extensible
 	 *
 	 * @return This function returns a vector of userrec pointers, each of which has been casted to char* to prevent circular references
 	 */
-	std::vector<char*> *GetUsers();
+	std::map<char*,char*> *GetUsers();
 
 	/** Creates a channel record and initialises it with default values
 	 */

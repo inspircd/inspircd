@@ -160,25 +160,23 @@ long chanrec::GetUserCounter()
 
 void chanrec::AddUser(char* castuser)
 {
-	internal_userlist.push_back(castuser);
+	internal_userlist[castuser] = castuser;
 	log(DEBUG,"Added casted user to channel's internal list");
 }
 
 void chanrec::DelUser(char* castuser)
 {
-	for (std::vector<char*>::iterator a = internal_userlist.begin(); a < internal_userlist.end(); a++)
+	std::map<char*,char*>::iterator a = internal_userlist.find(castuser);
+	if (a != internal_userlist.end())
 	{
-		if (*a == castuser)
-		{
-			log(DEBUG,"Removed casted user from channel's internal list");
-			internal_userlist.erase(a);
-			return;
-		}
+		log(DEBUG,"Removed casted user from channel's internal list");
+		internal_userlist.erase(a);
+		return;
 	}
 	log(DEBUG,"BUG BUG BUG! Attempt to remove an uncasted user from the internal list of %s!",name);
 }
 
-std::vector<char*> *chanrec::GetUsers()
+std::map<char*,char*> *chanrec::GetUsers()
 {
 	return &internal_userlist;
 }
