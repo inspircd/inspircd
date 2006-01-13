@@ -927,56 +927,61 @@ class TreeSocket : public InspSocket
 		{
 			/* process one channel at a time, applying modes. */
 			char* usr = (char*)params[usernum].c_str();
-			char permissions = *usr;
-			switch (permissions)
+			/* Safety check just to make sure someones not sent us an FJOIN full of spaces
+			 * (is this even possible?) */
+			if (usr && *usr)
 			{
-				case '@':
-					usr++;
-					mode_users[modectr++] = usr;
-					strlcat(modestring,"o",MAXBUF);
-				break;
-				case '%':
-					usr++;
-					mode_users[modectr++] = usr;
-					strlcat(modestring,"h",MAXBUF);
-				break;
-				case '+':
-					usr++;
-					mode_users[modectr++] = usr;
-					strlcat(modestring,"v",MAXBUF);
-				break;
-			}
-			who = Srv->FindNick(usr);
-			if (who)
-			{
-				Srv->JoinUserToChannel(who,channel,key);
-				if (modectr >= (MAXMODES-1))
+				char permissions = *usr;
+				switch (permissions)
 				{
-					/* theres a mode for this user. push them onto the mode queue, and flush it
-					 * if there are more than MAXMODES to go.
-					 */
-					if ((ourTS >= TS) || (Srv->IsUlined(who->server)))
+					case '@':
+						usr++;
+						mode_users[modectr++] = usr;
+						strlcat(modestring,"o",MAXBUF);
+					break;
+					case '%':
+						usr++;
+						mode_users[modectr++] = usr;
+						strlcat(modestring,"h",MAXBUF);
+					break;
+					case '+':
+						usr++;
+						mode_users[modectr++] = usr;
+						strlcat(modestring,"v",MAXBUF);
+					break;
+				}
+				who = Srv->FindNick(usr);
+				if (who)
+				{
+					Srv->JoinUserToChannel(who,channel,key);
+					if (modectr >= (MAXMODES-1))
 					{
-						/* We also always let u-lined clients win, no matter what the TS value */
-						log(DEBUG,"Our our channel newer than theirs, accepting their modes");
-						Srv->SendMode(mode_users,modectr,who);
-					}
-					else
-					{
-						log(DEBUG,"Their channel newer than ours, bouncing their modes");
-						/* bouncy bouncy! */
-						std::deque<std::string> params;
-						/* modes are now being UNSET... */
-						*mode_users[1] = '-';
-						for (unsigned int x = 0; x < modectr; x++)
+						/* theres a mode for this user. push them onto the mode queue, and flush it
+						 * if there are more than MAXMODES to go.
+						 */
+						if ((ourTS >= TS) || (Srv->IsUlined(who->server)))
 						{
-							params.push_back(mode_users[x]);
+							/* We also always let u-lined clients win, no matter what the TS value */
+							log(DEBUG,"Our our channel newer than theirs, accepting their modes");
+							Srv->SendMode(mode_users,modectr,who);
 						}
-						// tell everyone to bounce the modes. bad modes, bad!
-						DoOneToMany(Srv->GetServerName(),"FMODE",params);
+						else
+						{
+							log(DEBUG,"Their channel newer than ours, bouncing their modes");
+							/* bouncy bouncy! */
+							std::deque<std::string> params;
+							/* modes are now being UNSET... */
+							*mode_users[1] = '-';
+							for (unsigned int x = 0; x < modectr; x++)
+							{
+								params.push_back(mode_users[x]);
+							}
+							// tell everyone to bounce the modes. bad modes, bad!
+							DoOneToMany(Srv->GetServerName(),"FMODE",params);
+						}
+						strcpy(mode_users[1],"+");
+						modectr = 2;
 					}
-					strcpy(mode_users[1],"+");
-					modectr = 2;
 				}
 			}
 		}
