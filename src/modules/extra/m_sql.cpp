@@ -122,13 +122,10 @@ class SQLConnection
 				{
 					while (field_count < mysql_field_count(&connection))
 					{
-						if ((fields[field_count]) && (fields[field_count].name) && (row[field_count]))
-						{
-							std::string a = (fields[field_count].name ? fields[field_count].name : "");
-							std::string b = (row[field_count] ? row[field_count] : "");
-							thisrow[a] = b;
-							field_count++;
-						}
+						std::string a = (fields[field_count].name ? fields[field_count].name : "");
+						std::string b = (row[field_count] ? row[field_count] : "");
+						thisrow[a] = b;
+						field_count++;
 					}
 					return thisrow;
 				}
