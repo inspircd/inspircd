@@ -84,10 +84,10 @@ void userrec::MakeHost(char* nhost)
 {
 	/* This is much faster than snprintf */
 	char* t = nhost;
-	for(char* n = ident; n; n++)
+	for(char* n = ident; *n; n++)
 		*t++ = *n;
 	*t++ = '@';
-	for(char* n = host; n; n++)
+	for(char* n = host; *n; n++)
 		*t++ = *n;
 	*t = 0;
 }
@@ -102,13 +102,13 @@ char* userrec::GetFullHost()
 {
 	static char result[MAXBUF];
 	char* t = result;
-	for(char* n = nick; n; n++)
+	for(char* n = nick; *n; n++)
 		*t++ = *n;
 	*t++ = '!';
-	for(char* n = ident; n; n++)
+	for(char* n = ident; *n; n++)
 		*t++ = *n;
 	*t++ = '@';
-	for(char* n = dhost; n; n++)
+	for(char* n = dhost; *n; n++)
 		*t++ = *n;
 	*t = 0;
 	return result;
@@ -128,13 +128,13 @@ char* userrec::GetFullRealHost()
 {
 	static char fresult[MAXBUF];
 	char* t = fresult;
-	for(char* n = nick; n; n++)
+	for(char* n = nick; *n; n++)
 		*t++ = *n;
 	*t++ = '!';
-	for(char* n = ident; n; n++)
+	for(char* n = ident; *n; n++)
 		*t++ = *n;
 	*t++ = '@';
-	for(char* n = host; n; n++)
+	for(char* n = host; *n; n++)
 		*t++ = *n;
 	*t = 0;
 	return fresult;
