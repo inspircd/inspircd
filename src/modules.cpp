@@ -317,6 +317,23 @@ void Server::AddSocket(InspSocket* sock)
 	module_sockets.push_back(sock);
 }
 
+void Server::RemoveSocket(InspSocket* sock)
+{
+        for (std::vector<InspSocket*>::iterator a = module_sockets.begin(); a < module_sockets.end(); a++)
+        {
+                InspSocket* s = (InspSocket*)*a;
+                if (s == sock)
+                {
+			log(DEBUG,"Forcibly removed socket");
+                        ServerInstance->SE->DelFd(s->GetFd());
+                        s->Close();
+                        module_sockets.erase(a);
+                        delete s;
+                        return;
+                }
+        }
+}
+
 void Server::RehashServer()
 {
 	WriteOpers("*** Rehashing config file");
