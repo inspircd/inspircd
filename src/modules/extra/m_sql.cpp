@@ -115,15 +115,23 @@ class SQLConnection
 			if (row)
 			{
 				unsigned int field_count = 0;
+				MYSQL_FIELD *fields = mysql_fetch_fields(res);
 				if(mysql_field_count(&connection) == 0)
 					return thisrow;
-				MYSQL_FIELD *fields = mysql_fetch_fields(res);
-				while (field_count < mysql_field_count(&connection))
+				if (fields && mysql_field_count(&connection))
 				{
-					thisrow[std::string(fields[field_count].name)] = std::string(row[field_count]);
-					field_count++;
+					while (field_count < mysql_field_count(&connection))
+					{
+						if (fields[field_count] && fields[field_count].name && row[field_count])
+						{
+							std::string a = (fields[field_count].name ? fields[field_count].name : "");
+							std::string b = (row[field_count] ? row[field_count] : "");
+							thisrow[a] = b;
+							field_count++;
+						}
+					}
+					return thisrow;
 				}
-				return thisrow;
 			}
 		}
 		return thisrow;
