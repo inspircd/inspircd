@@ -91,6 +91,33 @@ bool ServerConfig::DelIOHook(int port)
 	return false;
 }
 
+bool ServerConfig::CheckOnce(char* tag,bool bail)
+{
+	if (ConfValueEnum(tag,&Config->config_f) > 1)
+	{
+		if (bail)
+		{
+			printf("There were errors in your configuration:\nYou have more than one <%s> tag, this is not permitted.\n",tag);
+			Exit(0);
+		}
+		else
+		{
+			if (user)
+			{
+				WriteServ(user->fd,"There were errors in your configuration:");
+				WriteServ(user->fd,"You have more than one <%s> tag, this is not permitted.\n",tag);
+			}
+			else
+			{
+				WriteOpers("There were errors in the configuration file:");
+				WriteOpers("You have more than one <%s> tag, this is not permitted.\n",tag);
+			}
+		}
+		return false;
+	}
+	return true;
+}
+
 void ServerConfig::Read(bool bail, userrec* user)
 {
         char dbg[MAXBUF],pauseval[MAXBUF],Value[MAXBUF],timeout[MAXBUF],NB[MAXBUF],flood[MAXBUF],MW[MAXBUF],MCON[MAXBUF];
@@ -132,6 +159,14 @@ void ServerConfig::Read(bool bail, userrec* user)
                         return;
                 }
         }
+
+	/* Check we dont have more than one of singular tags
+	 */
+	if (!CheckOnce("server") || !CheckOnce("admin") || !CheckOnce("files") || !CheckOnce("power") || !CheckOnce("options")
+		|| !CheckOnce("dns") || !CheckOnce("options") || !CheckOnce("disabled") || !CheckOnce("pid"))
+	{
+		return;
+	}
 
         ConfValue("server","name",0,Config->ServerName,&Config->config_f);
         ConfValue("server","description",0,Config->ServerDesc,&Config->config_f);

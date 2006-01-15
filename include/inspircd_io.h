@@ -61,6 +61,10 @@ class ServerConfig : public classbase
 	 */
 	std::string ConfProcess(char* buffer, long linenumber, std::stringstream* errorstream, bool &error, std::string filename);
 
+	/** Check that there is only one of each configuration item
+	 */
+	bool CheckOnce(char* tag,bool bail);
+
   public:
 
 	/** Holds the server name of the local server
