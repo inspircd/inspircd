@@ -487,6 +487,14 @@
 #                  oper-only independent of if they are in a module   #
 #                  or the core.                                       #
 #                                                                     #
+#  customversion - If you specify this configuration item, and it is  #
+#                  not set to an empty value, then when a user does   #
+#                  a /VERSION command on the ircd, this string will   #
+#                  be displayed as the second portion of the output,  #
+#                  replacing the system 'uname', compile flags and    #
+#                  socket engine/dns engine names. You may use this   #
+#                  to enhance security, or simply for vanity.         #
+#                                                                     #
 
 <options prefixquit="Quit: "
          loglevel="default"
@@ -496,6 +504,7 @@
          somaxconn="128"
          softlimit="128"
          operonlystats="oclgkz"
+	 customversion=""
          allowhalfop="yes">
 
 

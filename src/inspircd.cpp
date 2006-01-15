@@ -225,7 +225,14 @@ std::string InspIRCd::GetVersionString()
 #else
 	char dnsengine[] = "singlethread";
 #endif
-	snprintf(versiondata,MAXBUF,"%s Rev. %s %s :%s [FLAGS=%lu,%s,%s]",VERSION,GetRevision().c_str(),Config->ServerName,SYSTEM,(unsigned long)OPTIMISATION,SE->GetName().c_str(),dnsengine);
+	if (*Config->CustomVersion)
+	{
+		snprintf(versiondata,MAXBUF,"%s Rev. %s %s :%s",VERSION,GetRevision().c_str(),Config->ServerName,Config->CustomVersion);
+	}
+	else
+	{
+		snprintf(versiondata,MAXBUF,"%s Rev. %s %s :%s [FLAGS=%lu,%s,%s]",VERSION,GetRevision().c_str(),Config->ServerName,SYSTEM,(unsigned long)OPTIMISATION,SE->GetName().c_str(),dnsengine);
+	}
 	return versiondata;
 }
 

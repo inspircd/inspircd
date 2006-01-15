@@ -278,6 +278,10 @@ class ServerConfig : public classbase
 	 */
 	std::string logpath;
 
+	/** Custom version string, which if defined can replace the system info in VERSION.
+	 */
+	char CustomVersion[MAXBUF];
+
 	ServerConfig();
 
 	/** Clears the include stack in preperation for
