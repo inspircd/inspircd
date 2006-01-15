@@ -51,23 +51,13 @@ class cmd_nicklock : public command_t
 			}
 			if (Srv->IsNick(std::string(parameters[1])))
 			{
-				server = user->server;
-				me = Srv->GetServerName().c_str();
-	
-				if (server == me)
-				{
-					// give them a lock flag
-					Srv->SendOpers(std::string(user->nick)+" used NICKLOCK to change and hold "+std::string(parameters[0])+" to "+parameters[1]);
-					Srv->ChangeUserNick(source,std::string(parameters[1]));
-					// only attempt to set their lockflag after we know the change succeeded
-					source = Srv->FindNick(std::string(parameters[1]));
-					if (source)
-						source->Extend("nick_locked", "ON");
-				}
-				else
-				{
-					WriteServ(user->fd,"947 %s %s :Can't lock the nickname of a non-local user",user->nick,source->nick);
-				}
+				// give them a lock flag
+				Srv->SendOpers(std::string(user->nick)+" used NICKLOCK to change and hold "+std::string(parameters[0])+" to "+parameters[1]);
+				Srv->ChangeUserNick(source,std::string(parameters[1]));
+				// only attempt to set their lockflag after we know the change succeeded
+				source = Srv->FindNick(std::string(parameters[1]));
+				if (source)
+					source->Extend("nick_locked", "ON");
 			}
 		}
 	}
