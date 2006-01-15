@@ -99,7 +99,6 @@
 #                                                                     #
 # <bind address="ip number" port="port" type="clients">               #
 # <bind address="ip number" port="port" type="servers">               #
-# <bind address="ip number" port="port" type="servers" default="yes"> #
 #                                                                     #
 
 <bind address="" port="6660" type="clients">
