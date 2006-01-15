@@ -255,7 +255,6 @@
 
 <type name="NetAdmin" classes="OperChat BanControl HostCloak Shutdown ServerLink" host="netadmin.omega.org.za">
 <type name="GlobalOp" classes="OperChat BanControl HostCloak ServerLink" host="ircop.omega.org.za">
-<type name="LocalOp" classes="OperChat BanControl HostCloak" host="local.omega.org.za">
 <type name="Helper" classes="HostCloak" host="helper.omega.org.za">
 
 
