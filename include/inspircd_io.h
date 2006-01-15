@@ -274,6 +274,10 @@ class ServerConfig : public classbase
 	 */
 	char OperOnlyStats[MAXBUF];
 
+	/** The path and filename of the ircd.log file
+	 */
+	std::string logpath;
+
 	ServerConfig();
 
 	/** Clears the include stack in preperation for

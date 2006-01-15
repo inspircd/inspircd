@@ -56,6 +56,7 @@ using namespace std;
 #include "helperfuncs.h"
 #include "hashcomp.h"
 #include "socketengine.h"
+#include "userprocess.h"
 #include "typedefs.h"
 #include "command_parse.h"
 #include "cull_list.h"
@@ -347,18 +348,16 @@ bool DoBackgroundUserStuff(time_t TIME)
 
 void OpenLog(char** argv, int argc)
 {
-        std::string logpath = GetFullProgDir(argv,argc) + "/ircd.log";
-        Config->log_file = fopen(logpath.c_str(),"a+");
+	if (Config->logpath == "")
+	{
+	        Config->logpath = GetFullProgDir(argv,argc) + "/ircd.log";
+	}
+        Config->log_file = fopen(Config->logpath.c_str(),"a+");
         if (!Config->log_file)
         {
-                printf("ERROR: Could not write to logfile %s, bailing!\n\n",logpath.c_str());
+                printf("ERROR: Could not write to logfile %s, bailing!\n\n",Config->logpath.c_str());
                 Exit(ERROR);
         }
-#ifdef IS_CYGWIN
-        printf("Logging to ircd.log...\n");
-#else
-        printf("Logging to %s...\n",logpath.c_str());
-#endif
 }
 
 

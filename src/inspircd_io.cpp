@@ -29,6 +29,7 @@ using namespace std;
 #include "inspircd_io.h"
 #include "inspstring.h"
 #include "helperfuncs.h"
+#include "userprocess.h"
 #include "xline.h"
 
 extern ServerConfig *Config;
@@ -374,6 +375,8 @@ void Killed(int status)
 void Rehash(int status)
 {
 	WriteOpers("Rehashing config file %s due to SIGHUP",CONFIG_FILE);
+	fclose(Config->log_file);
+	OpenLog(NULL,NULL);
 	Config->Read(false,NULL);
 }
 
