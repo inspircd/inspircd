@@ -31,7 +31,7 @@ class cmd_sajoin : public command_t
  public:
 	cmd_sajoin() : command_t("SAJOIN", 'o', 2)
 	{
-		this->source = "m_sajoin.cpp";
+		this->source = "m_sajoin.so";
 	}
 
 	void Handle (char **parameters, int pcnt, userrec *user)

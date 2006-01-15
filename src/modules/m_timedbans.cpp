@@ -44,7 +44,7 @@ class cmd_tban : public command_t
  public:
 	cmd_tban () : command_t("TBAN", 0, 3)
 	{
-		this->source = "m_timedbans.cpp";
+		this->source = "m_timedbans.so";
 	}
 
 	void Handle (char **parameters, int pcnt, userrec *user)
