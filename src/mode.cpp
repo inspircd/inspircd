@@ -1365,7 +1365,10 @@ void cmd_mode::Handle (char **parameters, int pcnt, userrec *user)
 								strlcpy(dmodes,temp,52);
 
 								if (umode == 'o')
+								{
+									*dest->oper = 0;
 									DeleteOper(dest);
+								}
 							}
 						}
 					}
