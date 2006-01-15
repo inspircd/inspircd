@@ -412,10 +412,11 @@ void Killed(int status)
 
 void Rehash(int status)
 {
-	WriteOpers("Rehashing config file %s due to SIGHUP",CONFIG_FILE);
+	WriteOpers("Rehashing config file %s due to SIGHUP",CleanFilename(CONFIG_FILE));
 	fclose(Config->log_file);
 	OpenLog(NULL,0);
 	Config->Read(false,NULL);
+	FOREACH_MOD(I_OnRehash,OnRehash(""));
 }
 
 
