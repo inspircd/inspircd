@@ -1246,7 +1246,8 @@ class TreeSocket : public InspSocket
         virtual bool OnDataReady()
 	{
 		char* data = this->Read();
-		if (data)
+		/* Check that the data read is a valid pointer and it has some content */
+		if (data && *data)
 		{
 			this->in_buffer += data;
 			/* While there is at least one new line in the buffer,
@@ -1295,6 +1296,9 @@ class TreeSocket : public InspSocket
 				}
 			}
 		}
+		/* EAGAIN returns an empty but non-NULL string, so this
+		 * evaluates to TRUE for EAGAIN but to FALSE for EOF.
+		 */
 		return (data != NULL);
 	}
 

@@ -162,8 +162,15 @@ char* InspSocket::Read()
 	}
 	else
 	{
-		log(DEBUG,"EOF or error on socket");
-		return NULL;
+		if (n == EAGAIN)
+		{
+			return "";
+		}
+		else
+		{
+			log(DEBUG,"EOF or error on socket");
+			return NULL;
+		}
 	}
 }
 
