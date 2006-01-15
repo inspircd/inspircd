@@ -283,7 +283,3 @@ InspSocket::~InspSocket()
 	this->Close();
 }
 
-/*
-int BindSocket (int sockfd, struct sockaddr_in client, struct sockaddr_in server, int port, char* addr)
-int OpenTCPSocket (void)
-*/
