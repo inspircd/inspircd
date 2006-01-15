@@ -96,7 +96,8 @@ bool ServerConfig::DelIOHook(int port)
 
 bool ServerConfig::CheckOnce(char* tag, bool bail, userrec* user)
 {
-	if (ConfValueEnum(tag,&Config->config_f) > 1)
+	int count = ConfValueEnum(tag,&Config->config_f);
+	if (count > 1)
 	{
 		if (bail)
 		{
@@ -114,6 +115,28 @@ bool ServerConfig::CheckOnce(char* tag, bool bail, userrec* user)
 			{
 				WriteOpers("There were errors in the configuration file:");
 				WriteOpers("You have more than one <%s> tag, this is not permitted.\n",tag);
+			}
+		}
+		return false;
+	}
+	if (count < 1)
+	{
+		if (bail)
+		{
+			printf("There were errors in your configuration:\nYou have not defined a <%s> tag, this is required.",tag);
+			Exit(0);
+		}
+		else
+		{
+			if (user)
+			{
+				WriteServ(user->fd,"There were errors in your configuration:");
+				WriteServ(user->fd,"You have not defined a <%s> tag, this is required.",tag);
+			}
+			else
+			{
+				WriteOpers("There were errors in the configuration file:");
+				WriteOpers("You have not defined a <%s> tag, this is required.",tag);
 			}
 		}
 		return false;
@@ -167,8 +190,7 @@ void ServerConfig::Read(bool bail, userrec* user)
 	 */
 	if (!CheckOnce("server",bail,user) || !CheckOnce("admin",bail,user) || !CheckOnce("files",bail,user)
 		|| !CheckOnce("power",bail,user) || !CheckOnce("options",bail,user)
-		|| !CheckOnce("dns",bail,user) || !CheckOnce("options",bail,user)
-		|| !CheckOnce("disabled",bail,user) || !CheckOnce("pid",bail,user))
+		|| !CheckOnce("dns",bail,user) || !CheckOnce("pid",bail,user))
 	{
 		return;
 	}
