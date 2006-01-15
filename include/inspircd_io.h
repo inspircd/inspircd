@@ -63,7 +63,7 @@ class ServerConfig : public classbase
 
 	/** Check that there is only one of each configuration item
 	 */
-	bool CheckOnce(char* tag,bool bail);
+	bool CheckOnce(char* tag, bool bail, userrec* user);
 
   public:
 

@@ -91,7 +91,7 @@ bool ServerConfig::DelIOHook(int port)
 	return false;
 }
 
-bool ServerConfig::CheckOnce(char* tag,bool bail)
+bool ServerConfig::CheckOnce(char* tag, bool bail, userrec* user)
 {
 	if (ConfValueEnum(tag,&Config->config_f) > 1)
 	{
@@ -162,8 +162,10 @@ void ServerConfig::Read(bool bail, userrec* user)
 
 	/* Check we dont have more than one of singular tags
 	 */
-	if (!CheckOnce("server") || !CheckOnce("admin") || !CheckOnce("files") || !CheckOnce("power") || !CheckOnce("options")
-		|| !CheckOnce("dns") || !CheckOnce("options") || !CheckOnce("disabled") || !CheckOnce("pid"))
+	if (!CheckOnce("server",bail,user) || !CheckOnce("admin",bail,user) || !CheckOnce("files",bail,user)
+		|| !CheckOnce("power",bail,user) || !CheckOnce("options",bail,user)
+		|| !CheckOnce("dns",bail,user) || !CheckOnce("options",bail,user)
+		|| !CheckOnce("disabled",bail,user) || !CheckOnce("pid",bail,user))
 	{
 		return;
 	}
