@@ -39,9 +39,9 @@ class cmd_vhost : public command_t
                 for (int index = 0; index < Conf->Enumerate("vhost"); index++)
                 {
                         std::string mask = Conf->ReadValue("vhost","host",index);
-			std::string user = Conf->ReadValue("vhost","user",index);
+			std::string username = Conf->ReadValue("vhost","user",index);
 			std::string pass = Conf->ReadValue("vhost","pass",index);
-                        if ((!strcmp(parameters[0],user.c_str())) && (!strcmp(parameters[1],pass.c_str())))
+                        if ((!strcmp(parameters[0],username.c_str())) && (!strcmp(parameters[1],pass.c_str())))
                         {
                                 if (mask != "")
                                 {
