@@ -15,44 +15,53 @@
  */
 
 
-#ifndef __PLUGIN_H
-#define __PLUGIN_H
+#ifndef __MODULES_H
+#define __MODULES_H
 
 /** log levels
  */
-#define DEBUG 10
-#define VERBOSE 20
-#define DEFAULT 30
-#define SPARSE 40
-#define NONE 50
+enum DebugLevels { DEBUG, VERBOSE, DEFAULT, SPARSE, NONE };
 
 /** Used with OnExtendedMode() method of modules
  */
-#define MT_CHANNEL 1
-#define MT_CLIENT 2
-#define MT_SERVER 3
+enum ModeTargetType { MT_CHANNEL, MT_CLIENT, MT_SERVER };
 
 /** Used with OnAccessCheck() method of modules
  */
-#define ACR_DEFAULT 0		// Do default action (act as if the module isnt even loaded)
-#define ACR_DENY 1		// deny the action
-#define ACR_ALLOW 2		// allow the action
-#define AC_KICK 0		// a user is being kicked
-#define AC_DEOP 1		// a user is being deopped
-#define AC_OP 2			// a user is being opped
-#define AC_VOICE 3		// a user is being voiced
-#define AC_DEVOICE 4		// a user is being devoiced
-#define AC_HALFOP 5		// a user is being halfopped
-#define AC_DEHALFOP 6		// a user is being dehalfopped
-#define AC_INVITE 7		// a user is being invited
-#define AC_GENERAL_MODE 8	// a user channel mode is being changed
+enum AccessControlType {
+	ACR_DEFAULT,		// Do default action (act as if the module isnt even loaded)
+	ACR_DENY,		// deny the action
+	ACR_ALLOW,		// allow the action
+	AC_KICK,		// a user is being kicked
+	AC_DEOP,		// a user is being deopped
+	AC_OP,			// a user is being opped
+	AC_VOICE,		// a user is being voiced
+	AC_DEVOICE,		// a user is being devoiced
+	AC_HALFOP,		// a user is being halfopped
+	AC_DEHALFOP,		// a user is being dehalfopped
+	AC_INVITE,		// a user is being invited
+	AC_GENERAL_MODE		// a channel mode is being changed
+};
 
 /** Used to define a set of behavior bits for a module
  */
-#define VF_STATIC		1	// module is static, cannot be /unloadmodule'd
-#define VF_VENDOR		2	// module is a vendor module (came in the original tarball, not 3rd party)
-#define VF_SERVICEPROVIDER	4	// module provides a service to other modules (can be a dependency)
-#define VF_COMMON		8	// module needs to be common on all servers in a mesh to link
+enum ModuleFlags {
+	VF_STATIC = 1,		// module is static, cannot be /unloadmodule'd
+	VF_VENDOR = 2,		// module is a vendor module (came in the original tarball, not 3rd party)
+	VF_SERVICEPROVIDER = 4,	// module provides a service to other modules (can be a dependency)
+	VF_COMMON = 8		// module needs to be common on all servers in a network to link
+};
+
+enum WriteModeFlags {
+	WM_AND = 1,
+	WM_OR = 2
+};
+
+enum TargetTypeFlags {
+	TYPE_USER = 1,
+	TYPE_CHANNEL,
+	TYPE_SERVER
+};
 
 #include "dynamic.h"
 #include "base.h"
@@ -116,17 +125,6 @@ typedef std::deque<userrec*> chanuserlist;
 #define IS_LOCAL(x) (x->fd > -1)
 #define IS_REMOTE(x) (x->fd < 0)
 #define IS_MODULE_CREATED(x) (x->fd == FD_MAGIC_NUMBER)
-
-// flags for use with WriteMode
-
-#define WM_AND 1
-#define WM_OR 2
-
-// flags for use with OnUserPreMessage and OnUserPreNotice
-
-#define TYPE_USER 1
-#define TYPE_CHANNEL 2
-#define TYPE_SERVER 3
 
 /*extern void createcommand(char* cmd, handlerfunc f, char flags, int minparams, char* source);
 extern void server_mode(char **parameters, int pcnt, userrec *user);*/
