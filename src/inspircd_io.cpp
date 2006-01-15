@@ -377,7 +377,7 @@ void Rehash(int status)
 {
 	WriteOpers("Rehashing config file %s due to SIGHUP",CONFIG_FILE);
 	fclose(Config->log_file);
-	OpenLog(NULL,NULL);
+	OpenLog(NULL,0);
 	Config->Read(false,NULL);
 }
 
