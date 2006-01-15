@@ -89,12 +89,6 @@ extern std::vector<userrec*> local_users;
 // by an integer, meaning there is no need for a scan/search operation.
 extern userrec* fd_ref_table[MAX_DESCRIPTORS];
 
-char* CleanFilename(char* name)
-{
-	char* p = name + strlen(name);
-	while ((p != name) && (*p != '/')) p--;
-	return (p != name ? ++p : p);
-}
 
 void split_chlist(userrec* user, userrec* dest, std::string &cl)
 {

@@ -320,5 +320,6 @@ int OpenTCPSocket (void);
 int BindSocket (int sockfd, struct sockaddr_in client, struct sockaddr_in server, int port, char* addr);
 void WritePID(std::string filename);
 int BindPorts();
+char* CleanFilename(char* name);
 
 #endif

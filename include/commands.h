@@ -28,7 +28,6 @@
 #include "users.h"
 #include "channels.h"
 
-char* CleanFilename(char* name);
 bool is_uline(const char* server);
 long duration(const char* str);
 void do_whois(userrec* user, userrec* dest,unsigned long signon, unsigned long idle, char* nick);

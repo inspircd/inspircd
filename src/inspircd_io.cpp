@@ -37,6 +37,9 @@ extern InspIRCd* ServerInstance;
 extern int openSockfd[MAXSOCKS];
 extern time_t TIME;
 
+extern int MODCOUNT;
+extern std::vector<Module*> modules;
+extern std::vector<ircd_module*> factory;
 
 ServerConfig::ServerConfig()
 {
@@ -409,6 +412,14 @@ void Killed(int status)
 	send_error("Server terminated.");
 	exit(status);
 }
+
+char* CleanFilename(char* name)
+{
+	char* p = name + strlen(name);
+	while ((p != name) && (*p != '/')) p--;
+	return (p != name ? ++p : p);
+}
+
 
 void Rehash(int status)
 {
