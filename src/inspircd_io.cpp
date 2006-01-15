@@ -123,7 +123,7 @@ bool ServerConfig::CheckOnce(char* tag, bool bail, userrec* user)
 	{
 		if (bail)
 		{
-			printf("There were errors in your configuration:\nYou have not defined a <%s> tag, this is required.",tag);
+			printf("There were errors in your configuration:\nYou have not defined a <%s> tag, this is required.\n",tag);
 			Exit(0);
 		}
 		else
