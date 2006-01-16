@@ -107,9 +107,9 @@ void cmd_nick::Handle (char **parameters, int pcnt, userrec *user)
 		FOREACH_RESULT(I_OnUserPreNick,OnUserPreNick(user,parameters[0]));
 		if (MOD_RESULT)
 			return;
-		strlcpy(user->nick,parameters[0],NICKMAX);
 		if (user->registered == 7)
 			WriteCommon(user,"NICK %s",parameters[0]);
+		strlcpy(user->nick,parameters[0],NICKMAX);
 		FOREACH_MOD(I_OnUserPostNick,OnUserPostNick(user,oldnick));
 		return;
 	}
