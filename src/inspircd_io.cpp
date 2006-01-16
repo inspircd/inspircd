@@ -1138,7 +1138,7 @@ int BindPorts()
                 Config->ConfValue("bind","port",count,configToken,&Config->config_f);
                 Config->ConfValue("bind","address",count,Addr,&Config->config_f);
                 Config->ConfValue("bind","type",count,Type,&Config->config_f);
-                if (strcmp(Type,"servers"))
+                if ((!*Type) || (!strcmp(Type,"clients")))
                 {
                         // modules handle server bind types now,
                         // its not a typo in the strcmp.
