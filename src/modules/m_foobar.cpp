@@ -86,7 +86,7 @@ class ModuleFoobar : public Module
 		Srv->Log(DEBUG,"Foobar: User " + b + " joined " + c);
 	}
 
-	virtual void OnUserPart(userrec* user, chanrec* channel)
+	virtual void OnUserPart(userrec* user, chanrec* channel, std::string partreason)
 	{
 		// method called when a user parts a channel
 	

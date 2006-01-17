@@ -85,7 +85,7 @@ class ModuleChanProtect : public Module
 		user->Shrink("cm_protect_"+std::string(chan->name));
 	}
 
-	virtual void OnUserPart(userrec* user, chanrec* channel)
+	virtual void OnUserPart(userrec* user, chanrec* channel, std::string partreason)
 	{
 		// FIX: when someone parts a channel we must remove their Extensibles!
 		user->Shrink("cm_founder_"+std::string(channel->name));

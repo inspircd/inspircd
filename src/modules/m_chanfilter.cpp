@@ -72,7 +72,7 @@ class ModuleChanFilter : public Module
 	                output = temp2.substr(0,temp2.length()-1);
         }
 
-	virtual void OnUserPart(userrec* user, chanrec* channel)
+	virtual void OnUserPart(userrec* user, chanrec* channel, std::string partreason)
 	{
 		// when the last user parts, delete the list
 		if (Srv->CountUsers(channel) == 1)

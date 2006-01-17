@@ -353,8 +353,9 @@ class Module : public classbase
 	 * and the details of the channel they have left is available in the variable chanrec *channel
 	 * @param user The user who is parting
 	 * @param channel The channel being parted
+	 * @param partmessage The part message, or an empty string
 	 */
-	virtual void OnUserPart(userrec* user, chanrec* channel);
+	virtual void OnUserPart(userrec* user, chanrec* channel, std::string partmessage);
 
 	/** Called on rehash.
 	 * This method is called prior to a /REHASH or when a SIGHUP is received from the operating

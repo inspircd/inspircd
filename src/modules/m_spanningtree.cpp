@@ -2988,12 +2988,14 @@ class ModuleSpanningTree : public Module
 		DoOneToMany(user->nick,"FNAME",params);
 	}
 
-	virtual void OnUserPart(userrec* user, chanrec* channel)
+	virtual void OnUserPart(userrec* user, chanrec* channel, std::string partmessage)
 	{
 		if (user->fd > -1)
 		{
 			std::deque<std::string> params;
 			params.push_back(channel->name);
+			if (partmessage != "")
+				params.push_back(":"+partmessage);
 			DoOneToMany(user->nick,"PART",params);
 		}
 	}

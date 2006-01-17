@@ -404,7 +404,6 @@ chanrec* del_channel(userrec *user, const char* cname, const char* reason, bool 
         if (!Ptr)
                 return NULL;
 
-        FOREACH_MOD(I_OnUserPart,OnUserPart(user,Ptr));
         log(DEBUG,"del_channel: removing: %s %s",user->nick,Ptr->name);
 
         for (unsigned int i =0; i < user->chans.size(); i++)
@@ -414,10 +413,12 @@ chanrec* del_channel(userrec *user, const char* cname, const char* reason, bool 
                 {
                         if (reason)
                         {
+				FOREACH_MOD(I_OnUserPart,OnUserPart(user,Ptr,reason));
                                 WriteChannel(Ptr,user,"PART %s :%s",Ptr->name, reason);
                         }
                         else
                         {
+				FOREACH_MOD(I_OnUserPart,OnUserPart(user,Ptr,""));
                                 WriteChannel(Ptr,user,"PART :%s",Ptr->name);
                         }
                         user->chans[i].uc_modes = 0;
