@@ -71,6 +71,8 @@ DLLManager::DLLManager(char *fname)
 	h = dlopen(tmpfile_template, RTLD_NOW );
 	err = (char*)dlerror();
 	close(fd);
+	// We can delete the tempfile once it's loaded, leaving just the inode.
+	unlink(tmpfile_template);
 #endif
 }
 
