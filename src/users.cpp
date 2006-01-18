@@ -372,7 +372,7 @@ void kill_link(userrec *user,const char* r)
 
         char reason[MAXBUF];
 
-        strncpy(reason,r,MAXBUF);
+        strlcpy(reason,r,MAXBUF);
 
         if (strlen(reason)>MAXQUIT)
         {
@@ -435,7 +435,7 @@ void kill_link_silent(userrec *user,const char* r)
 
         char reason[MAXBUF];
 
-        strncpy(reason,r,MAXBUF);
+        strlcpy(reason,r,MAXBUF);
 
         if (strlen(reason)>MAXQUIT)
         {
@@ -796,7 +796,7 @@ void force_nickchange(userrec* user,const char* newnick)
         {
                 if (newnick)
                 {
-                        strncpy(nick,newnick,MAXBUF);
+                        strlcpy(nick,newnick,MAXBUF);
                 }
                 if (user->registered == 7)
                 {

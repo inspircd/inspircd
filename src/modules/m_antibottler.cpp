@@ -53,7 +53,7 @@ class ModuleAntiBottler : public Module
 		if (inbound)
 		{
 			char data[MAXBUF];
-			strncpy(data,raw.c_str(),MAXBUF);
+			strlcpy(data,raw.c_str(),MAXBUF);
 			bool not_bottler = false;
 			if (!strncmp(data,"user ",5))
 			{

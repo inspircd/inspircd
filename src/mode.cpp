@@ -428,8 +428,8 @@ char* ModeParser::AddBan(userrec *user,char *dest,chanrec *chan,int status)
 	}
 
 	b.set_time = TIME;
-	strncpy(b.data,dest,MAXBUF);
-	strncpy(b.set_by,user->nick,NICKMAX);
+	strlcpy(b.data,dest,MAXBUF);
+	strlcpy(b.set_by,user->nick,NICKMAX);
 	chan->bans.push_back(b);
 	return dest;
 }

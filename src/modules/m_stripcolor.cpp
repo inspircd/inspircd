@@ -85,7 +85,7 @@ class ModuleStripColor : public Module
 	{
 		int i, a, len, remove;
 		char sentence[MAXBUF];
-		strncpy(sentence,text.c_str(),MAXBUF);
+		strlcpy(sentence,text.c_str(),MAXBUF);
   
 		len = strlen(sentence);
 
