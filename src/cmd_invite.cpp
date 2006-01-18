@@ -56,10 +56,7 @@ void cmd_invite::Handle (char **parameters, int pcnt, userrec *user)
 			}
 			else
 			{
-				if (c->binarymodes & CM_INVITEONLY)
-				{
-					WriteServ(user->fd,"401 %s %s :No such nick/channel",user->nick, parameters[0]);
-				}
+				WriteServ(user->fd,"401 %s %s :No such nick/channel",user->nick, parameters[0]);
 			}
 
 			return;
