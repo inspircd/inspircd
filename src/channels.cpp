@@ -94,7 +94,7 @@ void chanrec::SetCustomMode(char mode,bool mode_on)
 		std::string a = this->custom_modes;
 		int pos = a.find(mode);
 		a.erase(pos,1);
-		strncpy(this->custom_modes,a.c_str(),MAXMODES);
+		strlcpy(this->custom_modes,a.c_str(),MAXMODES);
 
 		log(DEBUG,"Custom mode %c removed: modelist='%s'",mode,this->custom_modes);
 		this->SetCustomModeParam(mode,"",false);
@@ -195,7 +195,8 @@ chanrec* add_channel(userrec *user, const char* cn, const char* key, bool overri
         int created = 0;
         char cname[MAXBUF];
         int MOD_RESULT = 0;
-        strncpy(cname,cn,CHANMAX);
+        strlcpy(cname,cn,CHANMAX);
+	log(DEBUG,"cname='%s' cn='%s'",cname,cn);
 
         log(DEBUG,"add_channel: %s %s",user->nick,cname);
 
@@ -216,7 +217,7 @@ chanrec* add_channel(userrec *user, const char* cn, const char* key, bool overri
                 chanlist[cname]->binarymodes = CM_TOPICLOCK | CM_NOEXTERNAL;
                 chanlist[cname]->created = TIME;
                 *chanlist[cname]->topic = 0;
-                strncpy(chanlist[cname]->setby, user->nick,NICKMAX);
+                strlcpy(chanlist[cname]->setby, user->nick,NICKMAX);
                 chanlist[cname]->topicset = 0;
                 Ptr = chanlist[cname];
                 log(DEBUG,"add_channel: created: %s",cname);
