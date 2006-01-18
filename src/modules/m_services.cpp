@@ -101,10 +101,7 @@ class ModuleServices : public Module
 		}
 		else if (modechar == 'R')
 		{
-			if (type == MT_CHANNEL)
-			{
-				return 1;
-			}
+			return 1;
 		}
 		else if (modechar == 'M')
 		{
