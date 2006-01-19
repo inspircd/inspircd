@@ -17,6 +17,7 @@
 using namespace std;
 
 #include <stdio.h>
+#include <map>
 #include "users.h"
 #include "channels.h"
 #include "modules.h"
@@ -28,22 +29,46 @@ Server *Srv;
 	 
 class ModuleRestrictChans : public Module
 {
+
+	std::map<irc::string,int> allowchans;
+
+	void ReadConfig()
+	{
+		ConfigReader* MyConf = new ConfigReader();
+		allowchans.clear();
+		for (int i = 0; i < MyConf->Enumerate("allowchannel"); i++)
+		{
+			std::string txt;
+			txt = MyConf->ReadValue("allowchannel", "name", i);
+			irc::string channel = txt.c_str();
+			allowchans[channel] = 1;
+		}
+		delete MyConf;
+	}
+
  public:
 	ModuleRestrictChans(Server* Me)
 		: Module::Module(Me)
 	{
 		Srv = Me;
+		ReadConfig();
+	}
+
+	virtual void OnRehash(std::string parameter)
+	{
+		ReadConfig();
 	}
 
 	void Implements(char* List)
 	{
-		List[I_OnUserPreJoin] = 1;
+		List[I_OnUserPreJoin] = List[I_OnRehash] = 1;
 	}
 	
 	virtual int OnUserPreJoin(userrec* user, chanrec* chan, const char* cname)
 	{
-		// user is not an oper
-		if (!strchr(user->modes,'o'))
+		irc::string x = cname;
+		// user is not an oper and its not in the allow list
+		if ((!strchr(user->modes,'o')) && (allowchans.find(x) == allowchans.end()))
 		{
 			// channel does not yet exist (record is null, about to be created IF we were to allow it)
 			if (!chan)
