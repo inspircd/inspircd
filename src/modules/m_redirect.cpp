@@ -48,7 +48,8 @@ class ModuleRedirect : public Module
 				chanrec* c = Srv->FindChannel(ChanToJoin);
 				if (c)
 				{
-					if (c->IsCustomModeSet('L'))
+					/* Fix by brain: Dont let a channel be linked to *itself* either */
+					if ((c == target) || (c->IsCustomModeSet('L')))
 					{
 						WriteServ(user->fd,"690 %s :Circular redirection, mode +L to %s not allowed.",user->nick,params[0].c_str());
      						return 0;
