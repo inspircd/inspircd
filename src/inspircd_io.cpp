@@ -53,6 +53,7 @@ ServerConfig::ServerConfig()
 	unlimitcore = false;
 	AllowHalfop = true;
 	dns_timeout = 5;
+	MaxTargets = 20;
 	NetBufferSize = 10240;
 	SoftLimit = MAXCLIENTS;
 	MaxConn = SOMAXCONN;
@@ -146,7 +147,7 @@ bool ServerConfig::CheckOnce(char* tag, bool bail, userrec* user)
 
 void ServerConfig::Read(bool bail, userrec* user)
 {
-        char dbg[MAXBUF],pauseval[MAXBUF],Value[MAXBUF],timeout[MAXBUF],NB[MAXBUF],flood[MAXBUF],MW[MAXBUF],MCON[MAXBUF];
+        char dbg[MAXBUF],pauseval[MAXBUF],Value[MAXBUF],timeout[MAXBUF],NB[MAXBUF],flood[MAXBUF],MW[MAXBUF],MCON[MAXBUF],MT[MAXBUF];
         char AH[MAXBUF],AP[MAXBUF],AF[MAXBUF],DNT[MAXBUF],pfreq[MAXBUF],thold[MAXBUF],sqmax[MAXBUF],rqmax[MAXBUF],SLIMT[MAXBUF];
         ConnectClass c;
         std::stringstream errstr;
@@ -222,8 +223,16 @@ void ServerConfig::Read(bool bail, userrec* user)
         ConfValue("options","softlimit",0,SLIMT,&Config->config_f);
 	ConfValue("options","operonlystats",0,Config->OperOnlyStats,&Config->config_f);
 	ConfValue("options","customversion",0,Config->CustomVersion,&Config->config_f);
+	ConfValue("options","maxtargets",0,MT,&Config->config_f);
 
         Config->SoftLimit = atoi(SLIMT);
+	if (*MT)
+		Config->MaxTargets = atoi(MT);
+	if (Config->MaxTargets < 0) || (Config->MaxTargets > 31)
+	{
+		log(DEFAULT,"WARNING: <options:maxtargets> value is greater than 31 or less than 0, set to 20.");
+		Config->MaxTargets = 20;
+	}
         if ((Config->SoftLimit < 1) || (Config->SoftLimit > MAXCLIENTS))
         {
                 log(DEFAULT,"WARNING: <options:softlimit> value is greater than %d or less than 0, set to %d.",MAXCLIENTS,MAXCLIENTS);

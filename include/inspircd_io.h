@@ -197,6 +197,11 @@ class ServerConfig : public classbase
 	 */
         unsigned int SoftLimit;
 
+	/** Maximum number of targets for a multi target command
+	 * such as PRIVMSG or KICK
+	 */
+	unsigned int MaxTargets;
+
 	/** The maximum number of /WHO results allowed
 	 * in any single /WHO command.
 	 */
