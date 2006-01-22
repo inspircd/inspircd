@@ -127,8 +127,24 @@ void ProcessUser(userrec* cu)
                         {
                                 // AddBuffer returned false, theres too much data in the user's buffer and theyre up to no good.
                                 if (current->registered == 7)
-                                {
-                                        kill_link(current,"RecvQ exceeded");
+				{
+					// Make sure they arn't flooding long lines.
+				        if (TIME > current->reset_due)
+	                                {
+        	                                current->reset_due = TIME + current->threshold;
+                	                        current->lines_in = 0;
+                        	        }
+	                                current->lines_in++;
+        	                        if (current->lines_in > current->flood)
+                	                {
+                        	                log(DEFAULT,"Excess flood from: %s!%s@%s",current->nick,current->ident,current->host);
+                                	        WriteOpers("*** Excess flood from: %s!%s@%s",current->nick,current->ident,current->host);
+                                        	kill_link(current,"Excess flood");
+        	                                return;
+                	                } else {
+                                        	WriteServ(currfd, "NOTICE %s :Your previous line was too long and was not delivered (Over 512chars) Please shorten it.", current->nick);
+						current->recvq = "";
+					}
                                 }
                                 else
                                 {
