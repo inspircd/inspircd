@@ -67,6 +67,7 @@ class floodsettings
 		std::map<userrec*,int>::iterator iter = counters.find(who);
 		if (iter != counters.end())
 		{
+			log(DEBUG,"should kick? %d, %d",iter->second,this->lines);
 			return (iter->second >= this->lines);
 		}
 		else return false;
