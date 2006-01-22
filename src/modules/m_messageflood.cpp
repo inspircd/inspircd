@@ -148,7 +148,7 @@ class ModuleMsgFlood : public Module
 				// By doing this we're *assuming* no other module has fucked up the CHANMODES=
 				// section of the 005 numeric. If they have, we're going DOWN in a blaze of glory,
 				// with a honking great EXCEPTION :)
-				temp1.insert(temp1.find(",")+1,"L");
+				temp1.insert(temp1.find(",")+1,"f");
                         }
                         temp2 = temp2 + temp1 + " ";
                 }
