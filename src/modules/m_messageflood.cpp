@@ -208,7 +208,7 @@ class ModuleMsgFlood : public Module
 
 	void Implements(char* List)
 	{
-		List[I_On005Numeric] = List[I_OnExtendedMode] = List[I_OnChannelDelete] = 1;
+		List[I_On005Numeric] = List[I_OnExtendedMode] = List[I_OnChannelDelete] = List[I_OnUserPreNotice] = List[I_OnUserPreMessage] = 1;
 	}
 
         virtual void On005Numeric(std::string &output)
