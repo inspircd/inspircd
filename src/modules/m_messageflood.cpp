@@ -17,6 +17,7 @@
 using namespace std;
 
 #include <stdio.h>
+#include <map>
 #include "users.h"
 #include "channels.h"
 #include "modules.h"
@@ -30,9 +31,45 @@ class floodsettings
 	bool ban;
 	int secs;
 	int lines;
+	time_t reset;
+	std::map<userrec*,int> counters;
 
 	floodsettings() : ban(0), secs(0), lines(0) {};
-	floodsettings(bool a, int b, int c) : ban(a), secs(b), lines(c) {};
+	floodsettings(bool a, int b, int c) : ban(a), secs(b), lines(c) { reset = time(NULL) + secs };
+
+	void addmessage(userrec* who)
+	{
+		std::map<userrec*,int>::iterator iter = counters.find(who);
+		if (iter != counters.end())
+		{
+			iter->second++;
+			log(DEBUG,"Count for %s is now %d",who->nick,iter->second);
+		}
+		if (reset > time(NULL))
+		{
+			counters.clear();
+			reset = time(NULL) + secs;
+		}
+	}
+
+	bool shouldkick(userrec* who)
+	{
+		std::map<userrec*,int>::iterator iter = counters.find(who);
+		if (iter != counters.end())
+		{
+			return (iter->second >= this->lines);
+		}
+		else return false;
+	}
+
+	void clear(userrec* who)
+	{
+		std::map<userrec*,int>::iterator iter = counters.find(who);
+		if (iter != counters.end())
+		{
+			counters.erase(iter);
+		}
+	}
 };
 
 class ModuleMsgFlood : public Module
@@ -122,6 +159,40 @@ class ModuleMsgFlood : public Module
 			return 1;
 		}
 		return 0;
+	}
+
+	int ProcessMessages(userrec* user,chanrec* dest,std::string &text)
+	{
+		floodsettings *f = (floodsettings*)c->GetExt("flood");
+		if (f)
+		{
+			f->addmessage(user);
+			if (f->shouldkick(user))
+			{
+				/* Youre outttta here! */
+				f->clear(user);
+				Srv->KickUser(NULL, user, dest, "Channel flood triggered (mode +f)");
+				return 1;
+			}
+		}
+	}
+
+        virtual int OnUserPreMessage(userrec* user,void* dest,int target_type, std::string &text)
+        {
+                if (target_type == TYPE_CHANNEL)
+                {
+                        return ProcessMessages(user,(chanrec*)dest,text);
+                }
+                else return 0;
+	}
+
+	virtual int OnUserPreNotice(userrec* user,void* dest,int target_type, std::string &text)
+	{
+		if (target_type == TYPE_CHANNEL)
+		{
+			return ProcessMessages(user,(chanrec*)dest,text);
+		}
+		else return 0;
 	}
 
 	void OnChannelDelete(chanrec* chan)

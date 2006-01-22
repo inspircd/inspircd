@@ -451,17 +451,58 @@ chanrec* del_channel(userrec *user, const char* cname, const char* reason, bool 
         return NULL;
 }
 
+void server_kick_channel(userrec* user, chanrec* Ptr, char* reason, bool triggerevents)
+{
+	if ((!user) || (!Ptr) || (!reason))
+	{
+		return;
+	}
+
+	if (!has_channel(user,Ptr))
+	{
+		/* Not on channel */
+		return;
+	}
+
+	if (triggerevents)
+	{
+		FOREACH_MOD(I_OnUserKick,OnUserKick(NULL,user,Ptr,reason));
+	}
+
+	for (unsigned int i =0; i < user->chans.size(); i++)
+	{
+		if (user->chans[i].channel)
+		if (!strcasecmp(user->chans[i].channel->name,Ptr->name))
+		{
+			WriteChannelWithServ(Ptr,"KICK %s %s :%s",Ptr->name, user->nick, reason);
+			user->chans[i].uc_modes = 0;
+			user->chans[i].channel = NULL;
+			break;
+		}
+	}
+
+	Ptr->DelUser((char*)user);
+
+        if (!usercount(Ptr))
+        {
+                chan_hash::iterator iter = chanlist.find(Ptr->name);
+                log(DEBUG,"del_channel: destroying channel: %s",Ptr->name);
+                /* kill the record */
+                if (iter != chanlist.end())
+                {
+                        log(DEBUG,"del_channel: destroyed: %s",Ptr->name);
+                        FOREACH_MOD(I_OnChannelDelete,OnChannelDelete(Ptr));
+                        delete Ptr;
+                        chanlist.erase(iter);
+                }
+        }
+}
 
 void kick_channel(userrec *src,userrec *user, chanrec *Ptr, char* reason)
 {
         if ((!src) || (!user) || (!Ptr) || (!reason))
         {
                 log(DEFAULT,"*** BUG *** kick_channel was given an invalid parameter");
-                return;
-        }
-
-        if ((!Ptr) || (!user) || (!src))
-        {
                 return;
         }
 

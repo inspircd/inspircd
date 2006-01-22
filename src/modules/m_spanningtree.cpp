@@ -2029,6 +2029,14 @@ class TreeSocket : public InspSocket
 				{
 					return this->ForceTopic(prefix,params);
 				}
+				else if ((command == "KICK") && (!Srv->FindNick(prefix)))
+				{
+					/* Server kick */
+					userrec* who = Srv->FindNick(params[1]);
+					chanrec* where = Srv->FindChannel(params[0]);
+					server_kick_channel(who, where, (char*)params[2].c_str(), false);
+					return true;
+				}
 				else if (command == "REHASH")
 				{
 					return this->RemoteRehash(prefix,params);
@@ -3054,7 +3062,16 @@ class ModuleSpanningTree : public Module
 
 	virtual void OnUserKick(userrec* source, userrec* user, chanrec* chan, std::string reason)
 	{
-		if (source->fd > -1)
+		if (!source)
+		{
+			/* Server kick (ugh) */
+			std::deque<std::string> params;
+			params.push_back(chan->name);
+			params.push_back(user->nick);
+			params.push_back(":"+reason);
+			DoOneToMany(Srv->GetServerName(),"KICK",params);
+		}
+		else if (source->fd > -1)
 		{
 			std::deque<std::string> params;
 			params.push_back(chan->name);

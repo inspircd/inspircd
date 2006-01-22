@@ -261,6 +261,7 @@ class ucrec : public classbase
 chanrec* add_channel(userrec *user, const char* cn, const char* key, bool override);
 chanrec* del_channel(userrec *user, const char* cname, const char* reason, bool local);
 void kick_channel(userrec *src,userrec *user, chanrec *Ptr, char* reason);
+void server_kick_channel(userrec* user, chanrec* Ptr, char* reason, bool triggerevents);
 
 #endif
 

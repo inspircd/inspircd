@@ -408,6 +408,18 @@ void Server::ChangeUserNick(userrec* user, std::string nickname)
 	force_nickchange(user,nickname.c_str());
 }
 
+virtual void KickUser(userrec* source, userrec* target, chanrec* chan, std::string reason)
+{
+	if (source)
+	{
+		kick_channel(source,target,chan,reason);
+	}
+	else
+	{
+		server_kick_channel(target,chan,reason,true);
+	}
+}
+
 void Server::QuitUser(userrec* user, std::string reason)
 {
 	kill_link(user,reason.c_str());

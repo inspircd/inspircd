@@ -1410,6 +1410,8 @@ class Server : public classbase
 	 * action after calling this method is to immediately bail from your handler.
 	 */
 	virtual void QuitUser(userrec* user, std::string reason);
+
+	virtual void KickUser(userrec* source, userrec* target, chanrec* chan, std::string reason);
 	
 	/**  Matches text against a glob pattern.
 	 * Uses the ircd's internal matching function to match string against a globbing pattern, e.g. *!*@*.com
