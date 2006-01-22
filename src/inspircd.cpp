@@ -343,7 +343,7 @@ void InspIRCd::BuildISupport()
 {
         // the neatest way to construct the initial 005 numeric, considering the number of configure constants to go in it...
 	std::stringstream v;
-	v << "WALLCHOPS MODES=13 CHANTYPES=# PREFIX=(ohv)@%+ MAP SAFELIST MAXCHANNELS=" << MAXCHANS << " MAXBANS=60 NICKLEN=" << NICKMAX;
+	v << "WALLCHOPS MODES=13 CHANTYPES=# PREFIX=(ohv)@%+ MAP SAFELIST MAXCHANNELS=" << MAXCHANS << " MAXBANS=60 NICKLEN=" << NICKMAX-1;
 	v << " CASEMAPPING=rfc1459 STATUSMSG=@+ CHARSET=ascii TOPICLEN=" << MAXTOPIC << " KICKLEN=" << MAXKICK << " MAXTARGETS=20 AWAYLEN=";
 	v << MAXAWAY << " CHANMODES=ohvb,k,l,psmnti NETWORK=" << Config->Network;
 	Config->data005 = v.str();
