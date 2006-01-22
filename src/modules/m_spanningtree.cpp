@@ -2035,7 +2035,19 @@ class TreeSocket : public InspSocket
 					userrec* who = Srv->FindNick(params[1]);
 					chanrec* where = Srv->FindChannel(params[0]);
 					server_kick_channel(who, where, (char*)params[2].c_str(), false);
-					return true;
+                                        std::string sourceserv = this->myhost;
+                                        if (this->InboundServerName != "")
+                                        {
+	                                        sourceserv = this->InboundServerName;
+                                        }
+					if (IsServer(prefix))
+					{
+						return DoOneToAllButSenderRaw(line,sourceserv,prefix,command,params);
+					}
+					else
+					{
+						return true;
+					}
 				}
 				else if (command == "REHASH")
 				{

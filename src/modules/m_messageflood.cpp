@@ -35,7 +35,11 @@ class floodsettings
 	std::map<userrec*,int> counters;
 
 	floodsettings() : ban(0), secs(0), lines(0) {};
-	floodsettings(bool a, int b, int c) : ban(a), secs(b), lines(c) { reset = time(NULL) + secs; };
+	floodsettings(bool a, int b, int c) : ban(a), secs(b), lines(c)
+	{
+		reset = time(NULL) + secs;
+		log(DEBUG,"Create new floodsettings: %lu %lu",time(NULL),reset);
+	};
 
 	void addmessage(userrec* who)
 	{
@@ -45,8 +49,14 @@ class floodsettings
 			iter->second++;
 			log(DEBUG,"Count for %s is now %d",who->nick,iter->second);
 		}
-		if (reset > time(NULL))
+		else
 		{
+			counters[who] = 1;
+			log(DEBUG,"Count for %s is now *1*",who->nick);
+		}
+		if (time(NULL) > reset)
+		{
+			log(DEBUG,"floodsettings timer Resetting.");
 			counters.clear();
 			reset = time(NULL) + secs;
 		}
