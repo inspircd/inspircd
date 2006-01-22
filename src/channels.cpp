@@ -474,7 +474,7 @@ void server_kick_channel(userrec* user, chanrec* Ptr, char* reason, bool trigger
 		if (user->chans[i].channel)
 		if (!strcasecmp(user->chans[i].channel->name,Ptr->name))
 		{
-			WriteChannelWithServ(Ptr,"KICK %s %s :%s",Ptr->name, user->nick, reason);
+			WriteChannelWithServ(Config->ServerName,Ptr,"KICK %s %s :%s",Ptr->name, user->nick, reason);
 			user->chans[i].uc_modes = 0;
 			user->chans[i].channel = NULL;
 			break;
@@ -491,7 +491,7 @@ void server_kick_channel(userrec* user, chanrec* Ptr, char* reason, bool trigger
                 if (iter != chanlist.end())
                 {
                         log(DEBUG,"del_channel: destroyed: %s",Ptr->name);
-                        FOREACH_MOD(I_OnChannelDelete,OnChannelDelete(Ptr));
+                       	FOREACH_MOD(I_OnChannelDelete,OnChannelDelete(Ptr));
                         delete Ptr;
                         chanlist.erase(iter);
                 }
