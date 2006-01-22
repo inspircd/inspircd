@@ -191,28 +191,24 @@ class ModuleMsgFlood : public Module
 					Srv->SendMode(parameters,3,user);
 				}
 				Srv->KickUser(NULL, user, dest, "Channel flood triggered (mode +f)");
-				return 1;
 			}
 		}
-		return 0;
 	}
 
-        virtual int OnUserPreMessage(userrec* user,void* dest,int target_type, std::string &text)
-        {
+        virtual void OnUserMessage(userrec* user, void* dest, int target_type, std::string text);
+	{
                 if (target_type == TYPE_CHANNEL)
                 {
-                        return ProcessMessages(user,(chanrec*)dest,text);
+                        ProcessMessages(user,(chanrec*)dest,text);
                 }
-                else return 0;
 	}
 
-	virtual int OnUserPreNotice(userrec* user,void* dest,int target_type, std::string &text)
+	virtual void OnUserNotice(userrec* user, void* dest, int target_type, std::string text)
 	{
 		if (target_type == TYPE_CHANNEL)
 		{
-			return ProcessMessages(user,(chanrec*)dest,text);
+			ProcessMessages(user,(chanrec*)dest,text);
 		}
-		else return 0;
 	}
 
 	void OnChannelDelete(chanrec* chan)
@@ -227,7 +223,7 @@ class ModuleMsgFlood : public Module
 
 	void Implements(char* List)
 	{
-		List[I_On005Numeric] = List[I_OnExtendedMode] = List[I_OnChannelDelete] = List[I_OnUserPreNotice] = List[I_OnUserPreMessage] = 1;
+		List[I_On005Numeric] = List[I_OnExtendedMode] = List[I_OnChannelDelete] = List[I_OnUserNotice] = List[I_OnUserMessage] = 1;
 	}
 
         virtual void On005Numeric(std::string &output)
