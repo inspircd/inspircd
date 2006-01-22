@@ -285,7 +285,7 @@ enum Implementation {	I_OnUserConnect, I_OnUserQuit, I_OnUserDisconnect, I_OnUse
 			I_OnCheckKey, I_OnCheckLimit, I_OnCheckBan, I_OnStats, I_OnChangeLocalUserHost, I_OnChangeLocalUserGecos, I_OnLocalTopicChange,
 			I_OnPostLocalTopicChange, I_OnEvent, I_OnRequest, I_OnOperCompre, I_OnGlobalOper, I_OnGlobalConnect, I_OnAddBan, I_OnDelBan,
 			I_OnRawSocketAccept, I_OnRawSocketClose, I_OnRawSocketWrite, I_OnRawSocketRead, I_OnChangeLocalUserGECOS, I_OnUserRegister,
-			I_OnOperCompare };
+			I_OnOperCompare, I_OnChannelDelete };
 
 /** Base class for all InspIRCd modules
  *  This class is the base class for InspIRCd modules. All modules must inherit from this class,
@@ -339,6 +339,11 @@ class Module : public classbase
 	 * @param user The user who is disconnecting
 	 */
 	virtual void OnUserDisconnect(userrec* user);
+
+	/** Called whenever a channel is deleted, either by QUIT, KICK or PART.
+	 * @param chan The channel being deleted
+	 */
+	virtual void OnChannelDelete(chanrec* chan);
 
 	/** Called when a user joins a channel.
 	 * The details of the joining user are available to you in the parameter userrec *user,

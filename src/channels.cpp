@@ -442,6 +442,7 @@ chanrec* del_channel(userrec *user, const char* cname, const char* reason, bool 
                 if (iter != chanlist.end())
                 {
                         log(DEBUG,"del_channel: destroyed: %s",Ptr->name);
+			FOREACH_MOD(I_OnChannelDelete,OnChannelDelete(Ptr));
                         delete Ptr;
                         chanlist.erase(iter);
                 }
@@ -531,6 +532,7 @@ void kick_channel(userrec *src,userrec *user, chanrec *Ptr, char* reason)
                 if (iter != chanlist.end())
                 {
                         log(DEBUG,"del_channel: destroyed: %s",Ptr->name);
+			FOREACH_MOD(I_OnChannelDelete,OnChannelDelete(Ptr));
                         delete Ptr;
                         chanlist.erase(iter);
                 }

@@ -979,7 +979,10 @@ void purge_empty_chans(userrec* u)
                                 {
                                         log(DEBUG,"del_channel: destroyed: %s",i2->second->name);
                                         if (i2->second)
+					{
+						FOREACH_MOD(I_OnChannelDelete,OnChannelDelete(i2->second));
                                                 delete i2->second;
+					}
                                         chanlist.erase(i2);
                                         purge++;
                                         u->chans[i].channel = NULL;
