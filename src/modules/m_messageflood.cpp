@@ -26,13 +26,14 @@ using namespace std;
 
 class floodsettings
 {
+ public:
 	bool ban;
 	int secs;
 	int lines;
 
 	floodsettings() : ban(0), secs(0), lines(0) {};
 	floodsettings(bool a, int b, int c) : ban(a), secs(b), lines(c) {};
-}
+};
 
 class ModuleMsgFlood : public Module
 {
@@ -55,8 +56,9 @@ class ModuleMsgFlood : public Module
 			{
 				std::string FloodParams = params[0];
 				chanrec* c = (chanrec*)target;
-				char data[MAXBUF];
-				strlcpy(data,FloodParams.c_str(),MAXBUF);
+				char ndata[MAXBUF];
+				char* data = ndata;
+				strlcpy(ndata,FloodParams.c_str(),MAXBUF);
 				char* lines = data;
 				char* secs = NULL;
 				bool ban = false;
@@ -109,6 +111,7 @@ class ModuleMsgFlood : public Module
 			}
 			else
 			{
+				chanrec* c = (chanrec*)target;
 				if (c->GetExt("flood"))
 				{
 					floodsettings *f = (floodsettings*)c->GetExt("flood");
@@ -123,11 +126,11 @@ class ModuleMsgFlood : public Module
 
 	void OnChannelDelete(chanrec* chan)
 	{
-		if (c->GetExt("flood"))
+		if (chan->GetExt("flood"))
 		{
-			floodsettings *f = (floodsettings*)c->GetExt("flood");
+			floodsettings *f = (floodsettings*)chan->GetExt("flood");
 			delete f;
-			c->Shrink("flood");
+			chan->Shrink("flood");
 		}
 	}
 
