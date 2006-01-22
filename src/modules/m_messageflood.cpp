@@ -35,7 +35,7 @@ class floodsettings
 	std::map<userrec*,int> counters;
 
 	floodsettings() : ban(0), secs(0), lines(0) {};
-	floodsettings(bool a, int b, int c) : ban(a), secs(b), lines(c) { reset = time(NULL) + secs };
+	floodsettings(bool a, int b, int c) : ban(a), secs(b), lines(c) { reset = time(NULL) + secs; };
 
 	void addmessage(userrec* who)
 	{
@@ -163,7 +163,7 @@ class ModuleMsgFlood : public Module
 
 	int ProcessMessages(userrec* user,chanrec* dest,std::string &text)
 	{
-		floodsettings *f = (floodsettings*)c->GetExt("flood");
+		floodsettings *f = (floodsettings*)dest->GetExt("flood");
 		if (f)
 		{
 			f->addmessage(user);
