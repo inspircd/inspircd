@@ -72,11 +72,11 @@ class ModuleSSL : public Module
 		gnutls_global_init(); // This must be called once in the program
 
 		if(gnutls_certificate_allocate_credentials(&x509_cred) != 0)
-			log(DEBUG, "m_ssl_gnutls.so: Failed to allocate certificate credentials");
+			log(DEFAULT, "m_ssl_gnutls.so: Failed to allocate certificate credentials");
 
 		// Guessing return meaning
 		if(gnutls_dh_params_init(&dh_params) < 0)
-			log(DEBUG, "m_ssl_gnutls.so: Failed to initialise DH parameters");
+			log(DEFAULT, "m_ssl_gnutls.so: Failed to initialise DH parameters");
 
 		OnRehash("");
 
@@ -134,14 +134,14 @@ class ModuleSSL : public Module
 			dh_bits = 1024;
 		
 		if(gnutls_certificate_set_x509_trust_file(x509_cred, cafile.c_str(), GNUTLS_X509_FMT_PEM) < 0)
-			log(DEBUG, "m_ssl_gnutls.so: Failed to set X.509 trust file: %s", cafile.c_str());
+			log(DEFAULT, "m_ssl_gnutls.so: Failed to set X.509 trust file: %s", cafile.c_str());
 			
 		if(gnutls_certificate_set_x509_crl_file (x509_cred, crlfile.c_str(), GNUTLS_X509_FMT_PEM) < 0)
-			log(DEBUG, "m_ssl_gnutls.so: Failed to set X.509 CRL file: %s", crlfile.c_str());
+			log(DEFAULT, "m_ssl_gnutls.so: Failed to set X.509 CRL file: %s", crlfile.c_str());
 		
 		// Guessing on the return value of this, manual doesn't say :|
 		if(gnutls_certificate_set_x509_key_file (x509_cred, certfile.c_str(), keyfile.c_str(), GNUTLS_X509_FMT_PEM) < 0)
-			log(DEBUG, "m_ssl_gnutls.so: Failed to set X.509 certificate and key files: %s and %s", certfile.c_str(), keyfile.c_str());	
+			log(DEFAULT, "m_ssl_gnutls.so: Failed to set X.509 certificate and key files: %s and %s", certfile.c_str(), keyfile.c_str());	
 			
  		// Generate Diffie Hellman parameters - for use with DHE
 		// kx algorithms. These should be discarded and regenerated
@@ -149,7 +149,7 @@ class ModuleSSL : public Module
 		// security requirements.
 		
 		if(gnutls_dh_params_generate2(dh_params, dh_bits) < 0)
-			log(DEBUG, "m_ssl_gnutls.so: Failed to generate DH parameters (%d bits)", dh_bits);
+			log(DEFAULT, "m_ssl_gnutls.so: Failed to generate DH parameters (%d bits)", dh_bits);
 	}
 	
 	virtual ~ModuleSSL()
