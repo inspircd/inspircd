@@ -315,6 +315,8 @@ class userrec : public connection
 
 	void MakeHost(char* nhost);
 
+	char* MakeWildHost();
+
 	/** Shuts down and closes the user's socket
 	 */
 	void CloseSocket();

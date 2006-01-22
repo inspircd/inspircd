@@ -181,6 +181,14 @@ class ModuleMsgFlood : public Module
 			{
 				/* Youre outttta here! */
 				f->clear(user);
+				if (f->ban)
+				{
+					char* parameters[3];
+					parameters[0] = dest->name;
+					parameters[1] = "+b";
+					parameters[2] = user->MakeWildHost();
+					Srv->SendMode(parameters,3,user);
+				}
 				Srv->KickUser(NULL, user, dest, "Channel flood triggered (mode +f)");
 				return 1;
 			}

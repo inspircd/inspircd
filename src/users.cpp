@@ -114,6 +114,18 @@ char* userrec::GetFullHost()
 	return result;
 }
 
+char* userrec::MakeWildHost()
+{
+	static char nresult[MAXBUF];
+	char* t = nresult;
+	*t++ = '*';	*t++ = '!';
+	*t++ = '*';	*t++ = '@';
+	for(char* n = dhost; *n; n++)
+		*t++ = *n;
+	*t = 0;
+	return nresult;
+}
+
 int userrec::ReadData(void* buffer, size_t size)
 {
 	if (this->fd > -1)
