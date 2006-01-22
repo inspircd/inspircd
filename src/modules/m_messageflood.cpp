@@ -172,7 +172,7 @@ class ModuleMsgFlood : public Module
 		return 0;
 	}
 
-	int ProcessMessages(userrec* user,chanrec* dest,std::string &text)
+	void ProcessMessages(userrec* user,chanrec* dest,std::string &text)
 	{
 		floodsettings *f = (floodsettings*)dest->GetExt("flood");
 		if (f)
