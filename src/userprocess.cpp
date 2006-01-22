@@ -92,7 +92,7 @@ void ProcessUser(userrec* cu)
                 log(DEBUG,"Data result returned by module: %d",MOD_RESULT);
 		if (MOD_RESULT < 0)
 		{
-			result = EAGAIN;
+			result = -EAGAIN;
 		}
 		else
 		{
@@ -104,7 +104,7 @@ void ProcessUser(userrec* cu)
 		result = cu->ReadData(data, 65535);
 	}
         log(DEBUG,"Read result: %d",result);
-        if (result)
+        if ((result) && (result != -EAGAIN))
         {
                 ServerInstance->stats->statsRecv += result;
                 // perform a check on the raw buffer as an array (not a string!) to remove
@@ -247,7 +247,7 @@ void ProcessUser(userrec* cu)
                 }
         }
         // result EAGAIN means nothing read
-        else if (result == EAGAIN)
+        else if ((result == EAGAIN) || (result == -EAGAIN))
         {
         }
         else if (result == 0)
