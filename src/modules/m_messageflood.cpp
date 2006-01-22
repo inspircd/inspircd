@@ -175,6 +175,7 @@ class ModuleMsgFlood : public Module
 				return 1;
 			}
 		}
+		return 0;
 	}
 
         virtual int OnUserPreMessage(userrec* user,void* dest,int target_type, std::string &text)
