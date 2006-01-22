@@ -65,7 +65,7 @@ class ModuleMsgFlood : public Module
 				if (*data == '*')
 				{
 					ban = true;
-					data++;
+					lines++;
 				}
 				else
 				{
