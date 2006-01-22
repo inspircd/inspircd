@@ -99,7 +99,7 @@ class ModuleSSL : public Module
 		for(int i = 0; i < Conf->Enumerate("bind"); i++)
 		{
 			// For each <bind> tag
-			if((Conf->ReadValue("bind", "type", i) == "clients") && (Conf->ReadValue("bind", "ssl", i) == "gnutls"))
+			if(((Conf->ReadValue("bind", "type", i) == "") || (Conf->ReadValue("bind", "type", i) == "clients")) && (Conf->ReadValue("bind", "ssl", i) == "gnutls"))
 			{
 				// Get the port we're meant to be listening on with SSL
 				unsigned int port = Conf->ReadInteger("bind", "port", i, true);
