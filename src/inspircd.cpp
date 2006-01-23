@@ -373,6 +373,8 @@ bool InspIRCd::UnloadModule(const char* filename)
 				modules[j]->OnCleanup(TYPE_USER,u->second);
 			}
 
+			FOREACH_MOD(I_OnUnloadModule,OnUnloadModule(modules[j],Config->module_names[j]));
+
                         for(int t = 0; t < 255; t++)
 			{
 				Config->global_implementation[t] -= Config->implement_lists[j][t];
@@ -388,7 +390,6 @@ bool InspIRCd::UnloadModule(const char* filename)
 				}
 			}
 
-			FOREACH_MOD(I_OnUnloadModule,OnUnloadModule(modules[j],Config->module_names[j]));
 			// found the module
 			log(DEBUG,"Deleting module...");
 			erase_module(j);
