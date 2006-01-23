@@ -200,6 +200,7 @@ class ModuleSSL : public Module
 			{
 				// User is using SSL, and they're using one of *our* SSL ports.
 				// Potentially there could be multiple SSL modules loaded at once on different ports.
+				log(DEBUG, "m_ssl_gnutls.so: Adding user %s to cull list", user->nick);
 				culllist.AddItem(user, "SSL module unloading");
 			}
 		}
@@ -212,6 +213,9 @@ class ModuleSSL : public Module
 			// We're being unloaded, kill all the users added to the cull list in OnCleanup
 			int numusers = culllist.Apply();
 			log(DEBUG, "m_ssl_gnutls.so: Killed %d users for unload of GnuTLS SSL module", numusers);
+			
+			for(unsigned int i = 0; i < listenports.size(); i++)
+				SrvConf->DelIOHook(listenports[i]);
 		}
 	}
 	
