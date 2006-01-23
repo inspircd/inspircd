@@ -2184,7 +2184,7 @@ class TreeSocket : public InspSocket
 		{
 			Squit(s,"Remote host closed the connection");
 		}
-		WriteOpers("Server '\2%s\2[%s]' closed the connection.",quitserver.c_str(),this->GetIP().c_str());
+		WriteOpers("Server '\2%s\2' closed the connection.",quitserver.c_str());
 	}
 
 	virtual int OnIncomingConnection(int newsock, char* ip)
