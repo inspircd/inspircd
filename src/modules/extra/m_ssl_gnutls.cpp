@@ -13,6 +13,7 @@
 
 #include <gnutls/gnutls.h>
 
+#include "inspircd_config.h"
 #include "users.h"
 #include "channels.h"
 #include "modules.h"
@@ -112,26 +113,44 @@ class ModuleSSL : public Module
 			}
 		}
 		
+		std::string confdir(CONFIG_FILE);
+		// +1 so we the path ends with a /
+		confdir = confdir.substr(0, confdir.find_last_of('/') + 1);
+		
 		cafile	= Conf->ReadValue("gnutls", "cafile", 0);
 		crlfile	= Conf->ReadValue("gnutls", "crlfile", 0);
 		certfile	= Conf->ReadValue("gnutls", "certfile", 0);
 		keyfile	= Conf->ReadValue("gnutls", "keyfile", 0);
 		dh_bits	= Conf->ReadInteger("gnutls", "dhbits", 0, false);
 		
+		// Set all the default values needed.
 		if(cafile == "")
-			cafile = "conf/ca.pem";
+			cafile = "ca.pem";
 			
 		if(crlfile == "")
-			crlfile = "conf/crl.pem";
+			crlfile = "crl.pem";
 			
 		if(certfile == "")
-			certfile = "conf/cert.pem";
+			certfile = "cert.pem";
 			
 		if(keyfile == "")
-			keyfile = "conf/key.pem";
+			keyfile = "key.pem";
 			
 		if((dh_bits != 768) && (dh_bits != 1024) && (dh_bits != 2048) && (dh_bits != 3072) && (dh_bits != 4096))
 			dh_bits = 1024;
+			
+		// Prepend relative paths with the path to the config directory.	
+		if(cafile[0] != '/')
+			cafile = confdir + cafile;
+		
+		if(crlfile[0] != '/')
+			crlfile = confdir + crlfile;
+			
+		if(certfile[0] != '/')
+			certfile = confdir + certfile;
+			
+		if(keyfile[0] != '/')
+			keyfile = confdir + keyfile;
 		
 		if(gnutls_certificate_set_x509_trust_file(x509_cred, cafile.c_str(), GNUTLS_X509_FMT_PEM) < 0)
 			log(DEFAULT, "m_ssl_gnutls.so: Failed to set X.509 trust file: %s", cafile.c_str());
@@ -383,9 +402,7 @@ class ModuleSSL : public Module
 
 	virtual void OnUserQuit(userrec* user, std::string reason)
 	{
-		/* Fix by brain: Don't bork on remote user */
-		if ((user->fd > -1) && (user->GetExt("ssl")))
-			CloseSession(&sessions[user->fd]);
+		CloseSession(&sessions[user->fd]);
 	}
 	
 	// :kenny.chatspike.net 320 Om Epy|AFK :is a Secure Connection
