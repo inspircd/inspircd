@@ -313,6 +313,15 @@
 #                 16 or 32 characters in length for a 64, 128 or 256  #
 #                 bit key, respectively.                              #
 #                                                                     #
+# hidden        - When using m_spanningtree.so for linking. you may   #
+#                 set this to 'yes', and if you do, the IP address/   #
+#                 hostname of this connection will NEVER be shown to  #
+#                 any opers on the network. In /STATS c its address   #
+#                 will show as *@<hidden>, and during CONNECT and     #
+#                 inbound connections, its IP will show as <hidden>   #
+#                 UNLESS the connection fails (e.g. due to a bad      #
+#                 password or servername)                             #
+#                                                                     #
 # to u:line a server (give it extra privilages required for running   #
 # services, Q, etc) you must include the <uline server> tag as shown  #
 # in the example below. You can have as many of these as you like.    #
