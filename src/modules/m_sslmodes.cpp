@@ -60,7 +60,7 @@ class ModuleSSLModes : public Module
   			{
   				if(!userlist[i]->GetExt("ssl"))
   				{
-  					WriteServ(user->fd, "974 %s z :all members must be connected via SSL", user->nick);
+  					WriteServ(user->fd, "974 %s %s :all members must be connected via SSL", user->nick, chan->name);
   					return 0;
   				}
   			}
