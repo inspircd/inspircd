@@ -168,7 +168,7 @@ int CommandParser::LoopCall(command_t* fn, char **parameters, int pcnt, userrec 
                         plist[i] = '\0';
                         strlcpy(blog[j++],param,MAXBUF);
                         param = plist+i+1;
-                        if (j > Config->MaxTargets)
+                        if ((unsigned int)j > Config->MaxTargets)
                         {
                                 WriteServ(u->fd,"407 %s %s :Too many targets in list, message not delivered.",u->nick,blog[j-1]);
                                 return 1;
