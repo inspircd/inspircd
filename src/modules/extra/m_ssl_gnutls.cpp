@@ -196,7 +196,7 @@ class ModuleSSL : public Module
 		{
 			userrec* user = (userrec*)item;
 			
-			if(user->GetExt("ssl") && (user->fd > -1) && isin(user->port, listenports))
+			if(user->GetExt("ssl") && IS_LOCAL(user) && isin(user->port, listenports))
 			{
 				// User is using SSL, they're a local user, and they're using one of *our* SSL ports.
 				// Potentially there could be multiple SSL modules loaded at once on different ports.
