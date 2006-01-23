@@ -878,9 +878,7 @@ class TreeSocket : public InspSocket
 					}
 					else
 					{
-						userrec* user = Srv->FindNick(source);
-						if (user)
-							WriteChannel(c, user "TOPIC %s :%s", c->name, c->topic);
+						WriteChannel(c, user, "TOPIC %s :%s", c->name, c->topic);
 						nsource = user->server;
 					}
 				}
