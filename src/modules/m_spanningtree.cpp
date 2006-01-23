@@ -854,6 +854,7 @@ class TreeSocket : public InspSocket
 		time_t ts = atoi(params[1].c_str());
 		std::string setby = params[2];
 		std::string topic = params[3];
+		std::string nsource = source;
 
 		chanrec* c = Srv->FindChannel(channel);
 		if (c)
@@ -869,14 +870,27 @@ class TreeSocket : public InspSocket
 				 * update the set time and set nick.
 				 */
 				if (oldtopic != topic)
-					WriteChannelWithServ((char*)source.c_str(), c, "TOPIC %s :%s", c->name, c->topic);
+				{
+					userrec* user = Srv->FindNick(source);
+					if (!user)
+					{
+						WriteChannelWithServ((char*)source.c_str(), c, "TOPIC %s :%s", c->name, c->topic);
+					}
+					else
+					{
+						userrec* user = Srv->FindNick(source);
+						if (user)
+							WriteChannel(c, user "TOPIC %s :%s", c->name, c->topic);
+						nsource = user->server;
+					}
+				}
 			}
 			
 		}
 		
 		/* all done, send it on its way */
 		params[3] = ":" + params[3];
-		DoOneToAllButSender(source,"FTOPIC",params,source);
+		DoOneToAllButSender(source,"FTOPIC",params,nsource);
 
 		return true;
 	}
