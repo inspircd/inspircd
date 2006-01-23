@@ -1745,7 +1745,7 @@ class TreeSocket : public InspSocket
 					Srv->SendOpers("*** Server connection from \2"+servername+"\2 denied, remote server did not enable AES.");
 					return false;
 				}
-				Srv->SendOpers("*** Verified incoming server connection from \002"+servername+"\002["+(x->HideFromStats ? "<hidden>" : this->GetIP())+"] ("+description+")");
+				Srv->SendOpers("*** Verified incoming server connection from \002"+servername+"\002["+(x->HiddenFromStats ? "<hidden>" : this->GetIP())+"] ("+description+")");
 				this->InboundServerName = servername;
 				this->InboundDescription = description;
 				// this is good. Send our details: Our server name and description and hopcount of 0,
