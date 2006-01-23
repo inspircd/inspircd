@@ -493,6 +493,12 @@
 #                  socket engine/dns engine names. You may use this   #
 #                  to enhance security, or simply for vanity.         #
 #                                                                     #
+# maxtargets     - The maxtargets field is optional, and if not       #
+#                  defined, defaults to 20. It indicates the maximum  #
+#                  number of targets which may be given to commands   #
+#                  such as PRIVMSG, KICK etc.                         #
+#                                                                     #
+
 
 <options prefixquit="Quit: "
          loglevel="default"
@@ -502,7 +508,8 @@
          somaxconn="128"
          softlimit="128"
          operonlystats="oclgkz"
-	 customversion=""
+         customversion=""
+         maxtargets="20"
          allowhalfop="yes">
 
 
