@@ -196,9 +196,9 @@ class ModuleSSL : public Module
 		{
 			userrec* user = (userrec*)item;
 			
-			if(user->GetExt("ssl") && isin(user->port, listenports))
+			if(user->GetExt("ssl") && (user->fd > -1) && isin(user->port, listenports))
 			{
-				// User is using SSL, and they're using one of *our* SSL ports.
+				// User is using SSL, they're a local user, and they're using one of *our* SSL ports.
 				// Potentially there could be multiple SSL modules loaded at once on different ports.
 				log(DEBUG, "m_ssl_gnutls.so: Adding user %s to cull list", user->nick);
 				culllist.AddItem(user, "SSL module unloading");
