@@ -635,12 +635,12 @@ class TreeSocket : public InspSocket
 	{
 		if (this->LinkState == CONNECTING)
 		{
-			Srv->SendOpers("*** Connection to "+myhost+"["+this->GetIP()+"] established.");
 			/* we do not need to change state here. */
 			for (std::vector<Link>::iterator x = LinkBlocks.begin(); x < LinkBlocks.end(); x++)
 			{
 				if (x->Name == this->myhost)
 				{
+					Srv->SendOpers("*** Connection to \2"+myhost+"\2["+(x->HiddenFromStats ? "<hidden>" : this->GetIP())+"] established.");
 					this->SendCapabilities();
 					if (x->EncryptionKey != "")
 					{
@@ -665,6 +665,7 @@ class TreeSocket : public InspSocket
 		 * If that happens the connection hangs here until it's closed. Unlikely
 		 * and rather harmless.
 		 */
+		Srv->SendOpers("*** Connection to \2"+myhost+"\2 lost link tag(!)");
 		return true;
 	}
 	
