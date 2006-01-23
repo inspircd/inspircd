@@ -383,7 +383,9 @@ class ModuleSSL : public Module
 
 	virtual void OnUserQuit(userrec* user, std::string reason)
 	{
-		CloseSession(&sessions[user->fd]);
+		/* Fix by brain: Don't bork on remote user */
+		if ((user->fd > -1) && (user->GetExt("ssl")))
+			CloseSession(&sessions[user->fd]);
 	}
 	
 	// :kenny.chatspike.net 320 Om Epy|AFK :is a Secure Connection
