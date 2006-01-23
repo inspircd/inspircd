@@ -228,7 +228,7 @@ void ServerConfig::Read(bool bail, userrec* user)
         Config->SoftLimit = atoi(SLIMT);
 	if (*MT)
 		Config->MaxTargets = atoi(MT);
-	if (Config->MaxTargets < 0) || (Config->MaxTargets > 31)
+	if ((Config->MaxTargets < 0) || (Config->MaxTargets > 31))
 	{
 		log(DEFAULT,"WARNING: <options:maxtargets> value is greater than 31 or less than 0, set to 20.");
 		Config->MaxTargets = 20;
