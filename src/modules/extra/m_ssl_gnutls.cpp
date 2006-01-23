@@ -27,6 +27,15 @@
 
 enum issl_status { ISSL_NONE, ISSL_HANDSHAKING_READ, ISSL_HANDSHAKING_WRITE, ISSL_HANDSHAKEN, ISSL_CLOSING, ISSL_CLOSED };
 
+bool isin(int port, std::vector<int> portlist)
+{
+	for(unsigned int i = 0; i < portlist.size(); i++)
+		if(portlist[i] == port)
+			return true;
+			
+	return false;
+}
+
 class issl_session
 {
 public:
@@ -43,6 +52,8 @@ class ModuleSSL : public Module
 	Server* Srv;
 	ServerConfig* SrvConf;
 	ConfigReader* Conf;
+	
+	CullList culllist;
 	
 	std::vector<int> listenports;
 	
@@ -179,15 +190,40 @@ class ModuleSSL : public Module
 		gnutls_global_deinit();
 	}
 	
+	virtual void OnCleanup(int target_type, void* item)
+	{
+		if(target_type == TYPE_USER)
+		{
+			userrec* user = (userrec*)item;
+			
+			if(user->GetExt("ssl") && isin(user->port, listenports))
+			{
+				// User is using SSL, and they're using one of *our* SSL ports.
+				// Potentially there could be multiple SSL modules loaded at once on different ports.
+				culllist.AddItem(user, "SSL module unloading");
+			}
+		}
+	}
+	
+	virtual void OnUnloadModule(Module* mod, std::string name)
+	{
+		if(mod == this)
+		{
+			// We're being unloaded, kill all the users added to the cull list in OnCleanup
+			int numusers = culllist.Apply();
+			log(DEBUG, "m_ssl_gnutls.so: Killed %d users for unload of GnuTLS SSL module", numusers);
+		}
+	}
+	
 	virtual Version GetVersion()
 	{
-		return Version(1, 0, 0, 0, VF_STATIC | VF_VENDOR);
+		return Version(1, 0, 0, 0, VF_VENDOR);
 	}
 
 	void Implements(char* List)
 	{
-		List[I_OnRawSocketAccept] = List[I_OnRawSocketClose] = List[I_OnRawSocketRead] = List[I_OnRawSocketWrite] = 1;
-		List[I_OnSyncUserMetaData] = List[I_OnDecodeMetaData] = List[I_OnUserQuit] = List[I_OnRehash] = List[I_OnWhois] = 1;
+		List[I_OnRawSocketAccept] = List[I_OnRawSocketClose] = List[I_OnRawSocketRead] = List[I_OnRawSocketWrite] = List[I_OnCleanup] = 1;
+		List[I_OnSyncUserMetaData] = List[I_OnDecodeMetaData] = List[I_OnUnloadModule] = List[I_OnRehash] = List[I_OnWhois] = 1;
 	}
 
 	virtual void OnRawSocketAccept(int fd, std::string ip, int localport)
