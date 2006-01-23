@@ -452,6 +452,7 @@ class Link
 	 unsigned long AutoConnect;
 	 time_t NextConnectTime;
 	 std::string EncryptionKey;
+	 bool HiddenFromStats;
 };
 
 /* The usual stuff for inspircd modules,
@@ -1744,7 +1745,7 @@ class TreeSocket : public InspSocket
 					Srv->SendOpers("*** Server connection from \2"+servername+"\2 denied, remote server did not enable AES.");
 					return false;
 				}
-				Srv->SendOpers("*** Verified incoming server connection from \002"+servername+"\002["+this->GetIP()+"] ("+description+")");
+				Srv->SendOpers("*** Verified incoming server connection from \002"+servername+"\002["+(x->HideFromStats ? "<hidden>" : this->GetIP())+"] ("+description+")");
 				this->InboundServerName = servername;
 				this->InboundDescription = description;
 				// this is good. Send our details: Our server name and description and hopcount of 0,
@@ -2384,6 +2385,7 @@ void ReadConfiguration(bool rebind)
 		L.RecvPass = Conf->ReadValue("link","recvpass",j);
 		L.AutoConnect = Conf->ReadInteger("link","autoconnect",j,true);
 		L.EncryptionKey =  Conf->ReadValue("link","encryptionkey",j);
+		L.HiddenFromStats = Conf->ReadFlag("link","hidden",j);
 		L.NextConnectTime = time(NULL) + L.AutoConnect;
 		/* Bugfix by brain, do not allow people to enter bad configurations */
 		if ((L.RecvPass != "") && (L.SendPass != "") && (L.Name != "") && (L.Port))
@@ -2726,7 +2728,7 @@ class ModuleSpanningTree : public Module
 				TreeServer* CheckDupe = FindServer(x->Name);
 				if (!CheckDupe)
 				{
-					WriteServ(user->fd,"NOTICE %s :*** CONNECT: Connecting to server: \002%s\002 (%s:%d)",user->nick,x->Name.c_str(),x->IPAddr.c_str(),x->Port);
+					WriteServ(user->fd,"NOTICE %s :*** CONNECT: Connecting to server: \002%s\002 (%s:%d)",user->nick,x->Name.c_str(),(x->HiddenFromStats ? "<hidden>" : x->IPAddr.c_str()),x->Port);
 					TreeSocket* newsocket = new TreeSocket(x->IPAddr,x->Port,false,10,x->Name);
 					Srv->AddSocket(newsocket);
 					return 1;
@@ -2748,7 +2750,7 @@ class ModuleSpanningTree : public Module
 	        {
 			for (unsigned int i = 0; i < LinkBlocks.size(); i++)
 			{
-				WriteServ(user->fd,"213 %s C *@%s * %s %d 0 %c%c%c",user->nick,LinkBlocks[i].IPAddr.c_str(),LinkBlocks[i].Name.c_str(),LinkBlocks[i].Port,(LinkBlocks[i].EncryptionKey != "" ? 'e' : '-'),(LinkBlocks[i].AutoConnect ? 'a' : '-'),'s');
+				WriteServ(user->fd,"213 %s C *@%s * %s %d 0 %c%c%c",user->nick,(LinkBlocks[i].HiddenFromStats ? "<hidden>" : LinkBlocks[i].IPAddr).c_str(),LinkBlocks[i].Name.c_str(),LinkBlocks[i].Port,(LinkBlocks[i].EncryptionKey != "" ? 'e' : '-'),(LinkBlocks[i].AutoConnect ? 'a' : '-'),'s');
 				WriteServ(user->fd,"244 %s H * * %s",user->nick,LinkBlocks[i].Name.c_str());
 			}
 			WriteServ(user->fd,"219 %s %c :End of /STATS report",user->nick,statschar);
