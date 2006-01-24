@@ -48,8 +48,10 @@ class joinfloodsettings
 	void addjoin()
 	{
 		counter++;
+		log(DEBUG,"joinflood counter is %d",counter);
 		if (time(NULL) > reset)
 		{
+			log(DEBUG,"joinflood counter reset");
 			counter = 0;
 			reset = time(NULL) + secs;
 		}
@@ -62,6 +64,7 @@ class joinfloodsettings
 
 	void clear()
 	{
+		log(DEBUG,"joinflood counter clear");
 		counter = 0;
 	}
 
@@ -84,6 +87,7 @@ class joinfloodsettings
 
 	void lock()
 	{
+		log(DEBUG,"joinflood lock");
 		locked = true;
 		unlocktime = time(NULL) + 60;
 	}
@@ -142,7 +146,7 @@ class ModuleJoinFlood : public Module
 					{
 						if (!c->GetExt("joinflood"))
 						{
-							joinfloodsettings *f = new joinfloodsettings(njoins,nsecs);
+							joinfloodsettings *f = new joinfloodsettings(nsecs,njoins);
 							c->Extend("joinflood",(char*)f);
 						}
 					}
