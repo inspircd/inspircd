@@ -92,7 +92,7 @@ class ModuleServices : public Module
 			if (type == MT_CHANNEL)
 			{
 				// only a u-lined server may add or remove the +r mode.
-				if ((kludgeme) || (Srv->IsUlined(user->nick)) || (Srv->IsUlined(user->server)) || (!strcmp(user->server,"") || (strchr(user->nick,'.'))))
+				if ((Srv->IsUlined(user->nick)) || (Srv->IsUlined(user->server)) || (!strcmp(user->server,"") || (strchr(user->nick,'.'))))
 				{
 					log(DEBUG,"Allowing umode +r, server and nick are: '%s','%s'",user->nick,user->server);
 					return 1;
@@ -105,7 +105,7 @@ class ModuleServices : public Module
 			}
 			else
 			{
-				if ((Srv->IsUlined(user->nick)) || (Srv->IsUlined(user->server)) || (!strcmp(user->server,"") || (strchr(user->nick,'.'))))
+				if ((kludgeme) || (Srv->IsUlined(user->nick)) || (Srv->IsUlined(user->server)) || (!strcmp(user->server,"") || (strchr(user->nick,'.'))))
 				{
 					log(DEBUG,"Allowing umode +r, server and nick are: '%s','%s'",user->nick,user->server);
 					return 1;
