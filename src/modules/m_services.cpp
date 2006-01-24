@@ -63,7 +63,19 @@ class ModuleServices : public Module
 
 	void Implements(char* List)
 	{
-		List[I_OnUserPreMessage] = List[I_OnExtendedMode] = List[I_On005Numeric] = List[I_OnUserPreNotice] = List[I_OnUserPreJoin] = 1;
+		List[I_OnUserPostNick] = List[I_OnUserPreMessage] = List[I_OnExtendedMode] = List[I_On005Numeric] = List[I_OnUserPreNotice] = List[I_OnUserPreJoin] = 1;
+	}
+
+	virtual void OnUserPostNick(userrec* user, std::string oldnick)
+	{
+		/* On nickchange, if they have +r, remove it */
+		if (strchr(user->modes,'r'))
+		{
+			char* modechange[2];
+			modechange[0] = user->nick;
+			modechange[1] = "-r";
+			Srv->SendMode(modechange,2,user);
+		}
 	}
 	
 	virtual int OnExtendedMode(userrec* user, void* target, char modechar, int type, bool mode_on, string_list &params)
