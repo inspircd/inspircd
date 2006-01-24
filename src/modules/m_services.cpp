@@ -29,6 +29,8 @@ using namespace std;
 class ModuleServices : public Module
 {
 	Server *Srv; 
+	bool kludgeme;
+
  public:
 	ModuleServices(Server* Me)
 		: Module::Module(Me)
@@ -40,6 +42,8 @@ class ModuleServices : public Module
 		Srv->AddExtendedMode('R',MT_CHANNEL,false,0,0);
 		Srv->AddExtendedMode('R',MT_CLIENT,false,0,0);
 		Srv->AddExtendedMode('M',MT_CHANNEL,false,0,0);
+
+		kludgeme = false;
 	}
 
         virtual void On005Numeric(std::string &output)
@@ -74,7 +78,9 @@ class ModuleServices : public Module
 			char* modechange[2];
 			modechange[0] = user->nick;
 			modechange[1] = "-r";
+			kludgeme = true;
 			Srv->SendMode(modechange,2,user);
+			kludgeme = false;
 		}
 	}
 	
@@ -86,7 +92,7 @@ class ModuleServices : public Module
 			if (type == MT_CHANNEL)
 			{
 				// only a u-lined server may add or remove the +r mode.
-				if ((Srv->IsUlined(user->nick)) || (Srv->IsUlined(user->server)) || (!strcmp(user->server,"") || (strchr(user->nick,'.'))))
+				if ((kludgeme) || (Srv->IsUlined(user->nick)) || (Srv->IsUlined(user->server)) || (!strcmp(user->server,"") || (strchr(user->nick,'.'))))
 				{
 					log(DEBUG,"Allowing umode +r, server and nick are: '%s','%s'",user->nick,user->server);
 					return 1;
