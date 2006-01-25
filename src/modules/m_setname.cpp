@@ -40,7 +40,7 @@ class cmd_setname : public command_t
 		std::string line = "";
 		for (int i = 0; i < pcnt-1; i++)
 		{
-			line = line + std::string(parameters[i]);
+			line = line + std::string(parameters[i]) + " ";
 		}
 		line = line + std::string(parameters[pcnt-1]);
 		Srv->ChangeGECOS(user,line);
