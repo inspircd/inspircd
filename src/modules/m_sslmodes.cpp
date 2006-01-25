@@ -24,7 +24,7 @@ class ModuleSSLModes : public Module
 
 	virtual void On005Numeric(std::string &output)
 	{
-		output.insert(output.find(" ", output.find("CHANMODES=", 0)), "z");
+		InsertMode(output, "z", 4);
 	}
 	
 	virtual int OnUserPreJoin(userrec* user, chanrec* chan, const char* cname)
