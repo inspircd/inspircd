@@ -30,7 +30,7 @@ public:
 	
 	virtual void On005Numeric(std::string &output)
 	{
-		output.append(" INVEX=999");
+		output.append(" INVEX=I");
 		output.insert(output.find("CHANMODES=", 0)+10, "I");
 	}
 	 
