@@ -566,9 +566,9 @@ print "\033[0mMultithread DNS:\033[1;32m\t\t$config{THREADED_DNS}\033[0m\n\n";
 if ($config{USE_GNUTLS} eq "y") {
 	`cp src/modules/extra/m_ssl_gnutls.cpp src/modules/m_ssl_gnutls.cpp`;
 	$failed = 0;
-	open(TMP, "key.pem") or $failed = 1;
+	open(TMP, "<$config{CONFIG_DIR}/key.pem") or $failed = 1;
 	close(TMP);
-	open(TMP, "cert.pem") or $failed = 1;
+	open(TMP, "<$config{CONFIG_DIR}/cert.pem") or $failed = 1;
 	close(TMP);
 	if ($failed) {
 		print "SSL Certificates Not found, Generating.. \n\n
@@ -582,8 +582,8 @@ if ($config{USE_GNUTLS} eq "y") {
 		system("certtool --generate-privkey --outfile key.pem");
 		system("certtool --generate-self-signed --load-privkey key.pem --outfile cert.pem");
 		print "\nCertificate generation complete, copying to config directory... ";
-		`cp key.pem $config{CONFIG_DIR}/key.pem`;
-		`cp cert.pem $config{CONFIG_DIR}/cert.pem`;
+		`mv key.pem $config{CONFIG_DIR}/key.pem`;
+		`mv cert.pem $config{CONFIG_DIR}/cert.pem`;
 		print "Done.\n\n";
 	} else {
 		print "SSL Certificates found, skipping."
