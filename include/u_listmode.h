@@ -45,7 +45,6 @@ typedef std::vector<ListLimit> limitlist;
 class ListModeBaseModule : public Module
 {
 protected:
-	int maxlist;
 	char mode;
 	std::string infokey;
 	std::string listnumeric;
@@ -147,12 +146,15 @@ public:
 					}
 				}
 				
+				unsigned int maxsize = 0;
+				
 				for(limitlist::iterator it = chanlimits.begin(); it != chanlimits.end(); it++)
 				{
 					if(Srv->MatchText(chan->name, it->mask))
 					{
 						// We have a pattern matching the channel...
-						if(el->size() < it->limit)
+						maxsize = el->size();
+						if(maxsize < it->limit)
 						{
 							// And now add the mask onto the list...
 							ListItem e;
@@ -169,7 +171,7 @@ public:
 
 				// List is full
 				WriteServ(user->fd, "478 %s %s %s :Channel ban/ignore list is full", user->nick, chan->name, params[0].c_str());
-				log(DEBUG, "m_exceptionbase.so: %s tried to set mask %s on %s but the list is full (max %d)", user->nick, params[0].c_str(), chan->name, maxlist);
+				log(DEBUG, "m_exceptionbase.so: %s tried to set mask %s on %s but the list is full (max %d)", user->nick, params[0].c_str(), chan->name, maxsize);
 				return -1;
 			}
 			else
