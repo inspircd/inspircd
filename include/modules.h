@@ -271,9 +271,12 @@ class ExtMode : public classbase
         ExtMode(char mc, int ty, bool oper, int p_on, int p_off) : modechar(mc), type(ty), needsoper(oper), params_when_on(p_on), params_when_off(p_off) { };
 };
 
-
+/** Priority types which can be returned from Module::Prioritize()
+ */
 enum Priority { PRIORITY_FIRST, PRIORITY_DONTCARE, PRIORITY_LAST, PRIORITY_BEFORE, PRIORITY_AFTER };
 
+/** Implementation-specific flags which may be set in Module::Implements()
+ */
 enum Implementation {	I_OnUserConnect, I_OnUserQuit, I_OnUserDisconnect, I_OnUserJoin, I_OnUserPart, I_OnRehash, I_OnServerRaw, 
 			I_OnExtendedMode, I_OnUserPreJoin, I_OnUserPreKick, I_OnUserKick, I_OnOper, I_OnInfo, I_OnWhois, I_OnUserPreInvite,
 			I_OnUserInvite, I_OnUserPreMessage, I_OnUserPreNotice, I_OnUserPreNick, I_OnUserMessage, I_OnUserNotice, I_OnMode,
@@ -313,8 +316,39 @@ class Module : public classbase
 	 */
 	virtual Version GetVersion();
 
+	/** The Implements function specifies which methods a module should receive events for.
+	 * The char* parameter passed to this function contains a set of true or false values
+	 * (1 or 0) which indicate wether each function is implemented. You must use the Iimplementation
+	 * enum (documented elsewhere on this page) to mark functions as active. For example, to
+	 * receive events for OnUserJoin():
+	 *
+	 * Implements[I_OnUserJoin] = 1;
+	 *
+	 * @param The implement list
+	 */
 	virtual void Implements(char* Implements);
 
+	/** Used to set the 'priority' of a module (e.g. when it is called in relation to other modules.
+	 * Some modules prefer to be called before other modules, due to their design. For example, a
+	 * module which is expected to operate on complete information would expect to be placed last, so
+	 * that any other modules which wish to adjust that information would execute before it, to be sure
+	 * its information is correct. You can change your module's priority by returning one of:
+	 *
+	 * PRIORITY_FIRST - To place your module first in the list
+	 * 
+	 * PRIORITY_LAST - To place your module last in the list
+	 *
+	 * PRIORITY_DONTCARE - To leave your module as it is (this is the default value, if you do not implement this function)
+	 *
+	 * The result of Server::PriorityBefore() - To move your module before another named module
+	 *
+	 * The result of Server::PriorityLast() - To move your module after another named module
+	 *
+	 * For a good working example of this method call, please see src/modules/m_spanningtree.cpp
+	 * and src/modules/m_hostchange.so which make use of it. It is highly recommended that unless
+	 * your module has a real need to reorder its priority, it should not implement this function,
+	 * as many modules changing their priorities can make the system redundant.
+	 */
 	virtual Priority Prioritize();
 
 	/** Called when a user connects.
@@ -1154,10 +1188,12 @@ class Server : public classbase
 	 * Creates a Server object.
 	 */
 	Server();
+
 	/** Default destructor.
 	 * Destroys a Server object.
 	 */
 	virtual ~Server();
+
 	/** Obtains a pointer to the server's ServerConfig object.
 	 * The ServerConfig object contains most of the configuration data
 	 * of the IRC server, as read from the config file by the core.
@@ -1167,7 +1203,8 @@ class Server : public classbase
 	/** For use with Module::Prioritize().
 	 * When the return value of this function is returned from
 	 * Module::Prioritize(), this specifies that the module wishes
-	 * to be ordered exactly BEFORE 'modulename'.
+	 * to be ordered exactly BEFORE 'modulename'. For more information
+	 * please see Module::Prioritize().
 	 * @param modulename The module your module wants to be before in the call list
 	 * @returns a priority ID which the core uses to relocate the module in the list
 	 */
@@ -1176,7 +1213,8 @@ class Server : public classbase
 	/** For use with Module::Prioritize().
 	 * When the return value of this function is returned from
 	 * Module::Prioritize(), this specifies that the module wishes
-	 * to be ordered exactly AFTER 'modulename'.
+	 * to be ordered exactly AFTER 'modulename'. For more information please
+	 * see Module::Prioritize().
 	 * @param modulename The module your module wants to be after in the call list
 	 * @returns a priority ID which the core uses to relocate the module in the list
 	 */
@@ -1186,33 +1224,40 @@ class Server : public classbase
 	 * This method sends a server notice to all opers with the usermode +s.
 	 */
 	virtual void SendOpers(std::string s);
+
 	/** Returns the version string of this server
 	 */
 	std::string GetVersion();
+
 	/** Writes a log string.
 	 * This method writes a line of text to the log. If the level given is lower than the
 	 * level given in the configuration, this command has no effect.
 	 */
 	virtual void Log(int level, std::string s);
+
 	/** Sends a line of text down a TCP/IP socket.
 	 * This method writes a line of text to an established socket, cutting it to 510 characters
 	 * plus a carriage return and linefeed if required.
 	 */
 	virtual void Send(int Socket, std::string s);
+
 	/** Sends text from the server to a socket.
 	 * This method writes a line of text to an established socket, with the servername prepended
 	 * as used by numerics (see RFC 1459)
 	 */
 	virtual void SendServ(int Socket, std::string s);
+
 	/** Writes text to a channel, but from a server, including all.
 	 * This can be used to send server notices to a group of users.
 	 */
 	virtual void SendChannelServerNotice(std::string ServName, chanrec* Channel, std::string text);
+
 	/** Sends text from a user to a socket.
 	 * This method writes a line of text to an established socket, with the given user's nick/ident
 	 * /host combination prepended, as used in PRIVSG etc commands (see RFC 1459)
 	 */
 	virtual void SendFrom(int Socket, userrec* User, std::string s);
+
 	/** Sends text from a user to another user.
 	 * This method writes a line of text to a user, with a user's nick/ident
 	 * /host combination prepended, as used in PRIVMSG etc commands (see RFC 1459)
@@ -1228,6 +1273,7 @@ class Server : public classbase
 	 * Which is useful for numerics and server notices to single users, etc.
 	 */
 	virtual void SendTo(userrec* Source, userrec* Dest, std::string s);
+
 	/** Sends text from a user to a channel (mulicast).
 	 * This method writes a line of text to a channel, with the given user's nick/ident
 	 * /host combination prepended, as used in PRIVMSG etc commands (see RFC 1459). If the
@@ -1235,11 +1281,13 @@ class Server : public classbase
 	 * it originated, as seen in MODE (see RFC 1459).
 	 */
 	virtual void SendChannel(userrec* User, chanrec* Channel, std::string s,bool IncludeSender);
+
 	/** Returns true if two users share a common channel.
 	 * This method is used internally by the NICK and QUIT commands, and the Server::SendCommon
 	 * method.
 	 */
 	virtual bool CommonChannels(userrec* u1, userrec* u2);
+
 	/** Sends text from a user to one or more channels (mulicast).
 	 * This method writes a line of text to all users which share a common channel with a given	
 	 * user, with the user's nick/ident/host combination prepended, as used in PRIVMSG etc
@@ -1248,6 +1296,7 @@ class Server : public classbase
 	 * is only sent to the other recipients, as seen in QUIT.
 	 */
 	virtual void SendCommon(userrec* User, std::string text,bool IncludeSender);
+
 	/** Sends a WALLOPS message.
 	 * This method writes a WALLOPS message to all users with the +w flag, originating from the
 	 * specified user.
@@ -1258,46 +1307,57 @@ class Server : public classbase
 	 * Nicks for unregistered connections will return false.
 	 */
 	virtual bool IsNick(std::string nick);
+
 	/** Returns a count of the number of users on a channel.
 	 * This will NEVER be 0, as if the chanrec exists, it will have at least one user in the channel.
 	 */
 	virtual int CountUsers(chanrec* c);
+
 	/** Attempts to look up a nick and return a pointer to it.
 	 * This function will return NULL if the nick does not exist.
 	 */
 	virtual userrec* FindNick(std::string nick);
+
 	/** Attempts to look up a nick using the file descriptor associated with that nick.
 	 * This function will return NULL if the file descriptor is not associated with a valid user.
 	 */
 	virtual userrec* FindDescriptor(int socket);
+
 	/** Attempts to look up a channel and return a pointer to it.
 	 * This function will return NULL if the channel does not exist.
 	 */
 	virtual chanrec* FindChannel(std::string channel);
+
 	/** Attempts to look up a user's privilages on a channel.
 	 * This function will return a string containing either @, %, +, or an empty string,
 	 * representing the user's privilages upon the channel you specify.
 	 */
 	virtual std::string ChanMode(userrec* User, chanrec* Chan);
+
 	/** Checks if a user is on a channel.
 	 * This function will return true or false to indicate if user 'User' is on channel 'Chan'.
 	 */
 	virtual bool IsOnChannel(userrec* User, chanrec* Chan);
+
 	/** Returns the server name of the server where the module is loaded.
 	 */
 	virtual std::string GetServerName();
+
 	/** Returns the network name, global to all linked servers.
 	 */
 	virtual std::string GetNetworkName();
+
 	/** Returns the server description string of the local server
 	 */
 	virtual std::string GetServerDescription();
+
 	/** Returns the information of the server as returned by the /ADMIN command.
 	 * See the Admin class for further information of the return value. The members
 	 * Admin::Nick, Admin::Email and Admin::Name contain the information for the
 	 * server where the module is loaded.
 	 */
 	virtual Admin GetAdmin();
+
 	/** Adds an extended mode letter which is parsed by a module.
 	 * This allows modules to add extra mode letters, e.g. +x for hostcloak.
 	 * the "type" parameter is either MT_CHANNEL, MT_CLIENT, or MT_SERVER, to
@@ -1430,6 +1490,13 @@ class Server : public classbase
 	 */
 	virtual void QuitUser(userrec* user, std::string reason);
 
+	/** Makes a user kick another user, with the specified reason.
+	 * If source is NULL, the server will peform the kick.
+	 * @param The person or server (if NULL) performing the KICK
+	 * @param target The person being kicked
+	 * @param chan The channel to kick from
+	 * @param reason The kick reason
+	 */
 	virtual void KickUser(userrec* source, userrec* target, chanrec* chan, std::string reason);
 	
 	/**  Matches text against a glob pattern.
@@ -1451,6 +1518,11 @@ class Server : public classbase
 	 */
 	virtual void CallCommandHandler(std::string commandname, char** parameters, int pcnt, userrec* user);
 
+	/** This function returns true if the commandname exists, pcnt is equal to or greater than the number
+	 * of paramters the command requires, the user specified is allowed to execute the command, AND
+	 * if the command is implemented by a module (not the core). This has a few specific uses, usually
+	 * within network protocols (see src/modules/m_spanningtree.cpp)
+	 */
 	virtual bool IsValidModuleCommand(std::string commandname, int pcnt, userrec* user);
 	
 	/** Change displayed hostname of a user.
@@ -1470,10 +1542,7 @@ class Server : public classbase
 	/** Returns true if the servername you give is ulined.
 	 * ULined servers have extra privilages. They are allowed to change nicknames on remote servers,
 	 * change modes of clients which are on remote servers and set modes of channels where there are
-	 * no channel operators for that channel on the ulined server, amongst other things. Ulined server
-	 * data is also broadcast across the mesh at all times as opposed to selectively messaged in the
-	 * case of normal servers, as many ulined server types (such as services) do not support meshed
-	 * links and must operate in this manner.
+	 * no channel operators for that channel on the ulined server, amongst other things.
 	 */
 	virtual bool IsUlined(std::string server);
 	
@@ -1492,7 +1561,7 @@ class Server : public classbase
 
 	/** This user takes one user, and switches their file descriptor with another user, so that one user
 	 * "becomes" the other. The user in 'alive' is booted off the server with the given message. The user
-	 * referred to by 'zombie' should have previously been locked with Server::ZombifyUser, otherwise
+	 * referred to by 'zombie' should have previously been locked with Server::UserToPseudo, otherwise
 	 * stale sockets and file descriptor leaks can occur. After this call, the pointer to alive will be
 	 * invalid, and the pointer to zombie will be equivalent in effect to the old pointer to alive.
 	 */
@@ -1543,15 +1612,15 @@ class Server : public classbase
          */
 	virtual void AddELine(long duration, std::string source, std::string reason, std::string hostmask);
 
-	/** Deletes a G-Line from all servers on the mesh
+	/** Deletes a G-Line from all servers
 	 */
 	virtual bool DelGLine(std::string hostmask);
 
-	/** Deletes a Q-Line from all servers on the mesh
+	/** Deletes a Q-Line from all servers
 	 */
 	virtual bool DelQLine(std::string nickname);
 
-	/** Deletes a Z-Line from all servers on the mesh
+	/** Deletes a Z-Line from all servers
 	 */
 	virtual bool DelZLine(std::string ipaddr);
 
