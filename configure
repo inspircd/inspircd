@@ -402,7 +402,7 @@ while (!$continue) {
   print "What is the maximum number of mode changes in one line?\n";
   print "[\033[1;32m$config{MAXI_MODES}\033[0m] -> ";
   chomp($var = <STDIN>);
-  if ($var eq "") { $var = $onfig{MAXI_MODES}; }
+  if ($var eq "") { $var = $config{MAXI_MODES}; }
   if ($var =~ /^\d+$/) {
     # We don't care what the number is, set it and be on our way.
     $config{MAXI_MODES} = $var;
