@@ -121,6 +121,8 @@ class InspIRCd
 	bool UnloadModule(const char* filename);
 	void MoveToLast(std::string modulename);
 	void MoveToFirst(std::string modulename);
+	void MoveAfter(std::string modulename, std::string after);
+	void MoveBefore(std::string modulename, std::string before);
 	InspIRCd(int argc, char** argv);
 	int Run();
 

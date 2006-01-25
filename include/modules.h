@@ -272,7 +272,7 @@ class ExtMode : public classbase
 };
 
 
-enum Priority { PRIORITY_FIRST, PRIORITY_DONTCARE, PRIORITY_LAST };
+enum Priority { PRIORITY_FIRST, PRIORITY_DONTCARE, PRIORITY_LAST, PRIORITY_BEFORE, PRIORITY_AFTER };
 
 enum Implementation {	I_OnUserConnect, I_OnUserQuit, I_OnUserDisconnect, I_OnUserJoin, I_OnUserPart, I_OnRehash, I_OnServerRaw, 
 			I_OnExtendedMode, I_OnUserPreJoin, I_OnUserPreKick, I_OnUserKick, I_OnOper, I_OnInfo, I_OnWhois, I_OnUserPreInvite,
@@ -1163,6 +1163,25 @@ class Server : public classbase
 	 * of the IRC server, as read from the config file by the core.
 	 */
 	ServerConfig* GetConfig();
+
+	/** For use with Module::Prioritize().
+	 * When the return value of this function is returned from
+	 * Module::Prioritize(), this specifies that the module wishes
+	 * to be ordered exactly BEFORE 'modulename'.
+	 * @param modulename The module your module wants to be before in the call list
+	 * @returns a priority ID which the core uses to relocate the module in the list
+	 */
+	long PriorityBefore(std::string modulename);
+
+	/** For use with Module::Prioritize().
+	 * When the return value of this function is returned from
+	 * Module::Prioritize(), this specifies that the module wishes
+	 * to be ordered exactly AFTER 'modulename'.
+	 * @param modulename The module your module wants to be after in the call list
+	 * @returns a priority ID which the core uses to relocate the module in the list
+	 */
+	long PriorityAfter(std::string modulename);
+	
 	/** Sends text to all opers.
 	 * This method sends a server notice to all opers with the usermode +s.
 	 */

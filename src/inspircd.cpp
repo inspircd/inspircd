@@ -329,6 +329,40 @@ void InspIRCd::MoveTo(std::string modulename,int slot)
 	}
 }
 
+void InspIRCd::MoveAfter(std::string modulename, std::string after)
+{
+	log(DEBUG,"Move %s after %s...",modulename.c_str(),after.c_str());
+	for (unsigned int v = 0; v < Config->module_names.size(); v++)
+	{
+		log(DEBUG,"Curr=%s after=%s v=%d",Config->module_names[v].c_str(),after.c_str(),v);
+		if (Config->module_names[v] == after)
+		{
+			MoveTo(modulename, v);
+			return;
+		}
+	}
+}
+
+void InspIRCd::MoveBefore(std::string modulename, std::string before)
+{
+	log(DEBUG,"Move %s before %s...",modulename.c_str(),before.c_str());
+	for (unsigned int v = 0; v < Config->module_names.size(); v++)
+	{
+		if (Config->module_names[v] == before)
+		{
+			if (v > 0)
+			{
+				MoveTo(modulename, v-1);
+			}
+			else
+			{
+				MoveTo(modulename, v);
+			}
+			return;
+		}
+	}
+}
+
 void InspIRCd::MoveToFirst(std::string modulename)
 {
 	MoveTo(modulename,0);
@@ -492,6 +526,8 @@ bool InspIRCd::LoadModule(const char* filename)
 	// and if they do, move them there.
 	std::vector<std::string> put_to_back;
 	std::vector<std::string> put_to_front;
+	std::map<std::string,std::string> put_before;
+	std::map<std::string,std::string> put_after;
 	for (unsigned int j = 0; j < Config->module_names.size(); j++)
 	{
 		if (modules[j]->Prioritize() == PRIORITY_LAST)
@@ -502,6 +538,18 @@ bool InspIRCd::LoadModule(const char* filename)
 		{
 			put_to_front.push_back(Config->module_names[j]);
 		}
+		else if ((modules[j]->Prioritize() & 0xFF) == PRIORITY_BEFORE)
+		{
+			log(DEBUG,"Module %d wants PRIORITY_BEFORE",j);
+			put_before[Config->module_names[j]] = Config->module_names[modules[j]->Prioritize() >> 8];
+			log(DEBUG,"Before: %s",Config->module_names[modules[j]->Prioritize() >> 8].c_str());
+		}
+		else if ((modules[j]->Prioritize() & 0xFF) == PRIORITY_AFTER)
+		{
+			log(DEBUG,"Module %d wants PRIORITY_AFTER",j);
+			put_after[Config->module_names[j]] = Config->module_names[modules[j]->Prioritize() >> 8];
+			log(DEBUG,"After: %s",Config->module_names[modules[j]->Prioritize() >> 8].c_str());
+		}
 	}
 	for (unsigned int j = 0; j < put_to_back.size(); j++)
 	{
@@ -510,6 +558,14 @@ bool InspIRCd::LoadModule(const char* filename)
 	for (unsigned int j = 0; j < put_to_front.size(); j++)
 	{
 		MoveToFirst(put_to_front[j]);
+	}
+	for (std::map<std::string,std::string>::iterator j = put_before.begin(); j != put_before.end(); j++)
+	{
+		MoveBefore(j->first,j->second);
+	}
+	for (std::map<std::string,std::string>::iterator j = put_after.begin(); j != put_after.end(); j++)
+	{
+		MoveAfter(j->first,j->second);
 	}
 	BuildISupport();
 	return true;

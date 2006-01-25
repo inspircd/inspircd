@@ -335,6 +335,30 @@ void Server::RemoveSocket(InspSocket* sock)
         }
 }
 
+long Server::PriorityAfter(std::string modulename)
+{
+	for (unsigned int j = 0; j < Config->module_names.size(); j++)
+	{
+		if (Config->module_names[j] == modulename)
+		{
+			return ((j << 8) | PRIORITY_AFTER);
+		}
+	}
+	return PRIORITY_DONTCARE;
+}
+
+long Server::PriorityBefore(std::string modulename)
+{
+	for (unsigned int j = 0; j < Config->module_names.size(); j++)
+	{
+		if (Config->module_names[j] == modulename)
+		{
+			return ((j << 8) | PRIORITY_BEFORE);
+		}
+	}
+	return PRIORITY_DONTCARE;
+}
+
 void Server::RehashServer()
 {
 	WriteOpers("*** Rehashing config file");

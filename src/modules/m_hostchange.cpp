@@ -45,6 +45,11 @@ class ModuleHostChange : public Module
 		delete Conf;
 	}
 
+	Priority Prioritize()
+	{
+		return (Priority)Srv->PriorityAfter("m_cloaking.so");
+	}
+
 	void Implements(char* List)
 	{
 		List[I_OnRehash] = List[I_OnUserConnect] = 1;
