@@ -90,6 +90,7 @@ class ModuleSSL : public Module
 		if(gnutls_dh_params_init(&dh_params) < 0)
 			log(DEFAULT, "m_ssl_gnutls.so: Failed to initialise DH parameters");
 
+		// Needs the flag as it ignores a plain /rehash
 		OnRehash("ssl");
 		
 		// Void return, guess we assume success
