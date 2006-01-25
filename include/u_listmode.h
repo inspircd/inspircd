@@ -12,6 +12,7 @@
 
 /* $ModDesc: Provides support for easily creating listmodes, stores the time set, the user, and a parameter. */
 
+/* Updated to use the <banlist> config tag if it exists */
 /* Written by Om <omster@gmail.com>, December 2005. */
 /* Based on code previously written by Om - April 2005 */
 /* Originally based on m_chanprotect and m_silence */
@@ -38,7 +39,7 @@ public:
 	unsigned int limit;
 };
 
-// Just defining the type we use for the excpetion list here...
+// Just defining the type we use for the exception list here...
 typedef std::vector<ListItem> modelist;
 typedef std::vector<ListLimit> limitlist;
 
