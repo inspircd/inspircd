@@ -402,7 +402,7 @@ while (!$continue) {
   print "What is the maximum number of mode changes in one line?\n";
   print "[\033[1;32m$config{MAXI_MODES}\033[0m] -> ";
   chomp($var = <STDIN>);
-  if ($var eq "") { $var = $config{MAXI_MODES}; }
+  if ($var eq "") { $var = $onfig{MAXI_MODES}; }
   if ($var =~ /^\d+$/) {
     # We don't care what the number is, set it and be on our way.
     $config{MAXI_MODES} = $var;
@@ -564,7 +564,8 @@ print "\033[0mStatic modules:\033[1;32m\t\t\t$config{STATIC_LINK}\033[0m\n";
 print "\033[0mMultithread DNS:\033[1;32m\t\t$config{THREADED_DNS}\033[0m\n\n";
 
 if ($config{USE_GNUTLS} eq "y") {
-	`cp src/modules/extra/m_ssl_gnutls.cpp src/modules/m_ssl_gnutls.cpp`;
+	system("cp src/modules/extra/m_ssl_gnutls.cpp src/modules/m_ssl_gnutls.cpp");
+	getmodules();
 	$failed = 0;
 	open(TMP, "<$config{CONFIG_DIR}/key.pem") or $failed = 1;
 	close(TMP);
@@ -582,8 +583,8 @@ if ($config{USE_GNUTLS} eq "y") {
 		system("certtool --generate-privkey --outfile key.pem");
 		system("certtool --generate-self-signed --load-privkey key.pem --outfile cert.pem");
 		print "\nCertificate generation complete, copying to config directory... ";
-		`mv key.pem $config{CONFIG_DIR}/key.pem`;
-		`mv cert.pem $config{CONFIG_DIR}/cert.pem`;
+		system("mv key.pem $config{CONFIG_DIR}/key.pem");
+		system("mv cert.pem $config{CONFIG_DIR}/cert.pem");
 		print "Done.\n\n";
 	} else {
 		print "SSL Certificates found, skipping."
