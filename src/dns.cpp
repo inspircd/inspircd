@@ -665,7 +665,8 @@ char* DNS::dns_getresult_s(const int cfd, char *res) { /* retrieve result of DNS
 				alist->next = NULL;
 				break;
 			}
-			goto defaultcase;
+			memcpy(res,&h.payload[i],rr.rdlength);
+			res[rr.rdlength] = '\0';
 			break;
 		default:
 		defaultcase:
