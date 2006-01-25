@@ -797,14 +797,15 @@ void ModeParser::ProcessModes(char **parameters,userrec* user,chanrec *chan,int 
 							break;
 						previously_set_l = true;
 						bool invalid = false;
-						for (unsigned int i = 0; i < strlen(parameters[param]); i++)
+						for (char* f = parameters[param]; *f; f++)
 						{
-							if ((parameters[param][i] < '0') || (parameters[param][i] > '9'))
+							if ((*f < '0') || (*f > '9'))
 							{
 								invalid = true;
 							}
 						}
-						if (atoi(parameters[param]) < 1)
+						/* If the limit is < 1, or the new limit is the current limit, dont allow */
+						if ((atoi(parameters[param]) < 1) || ((chan->limit > 0) && (atoi(parameters[param]) == chan->limit)))
 						{
 							invalid = true;
 						}
