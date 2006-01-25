@@ -669,7 +669,6 @@ char* DNS::dns_getresult_s(const int cfd, char *res) { /* retrieve result of DNS
 			res[rr.rdlength] = '\0';
 			break;
 		default:
-		defaultcase:
 			memcpy(res,&h.payload[i],rr.rdlength);
 			res[rr.rdlength] = '\0';
 			break;
