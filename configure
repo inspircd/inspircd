@@ -587,7 +587,7 @@ if ($config{USE_GNUTLS} eq "y") {
 		system("mv cert.pem $config{CONFIG_DIR}/cert.pem");
 		print "Done.\n\n";
 	} else {
-		print "SSL Certificates found, skipping."
+		print "SSL Certificates found, skipping.\n\n"
 	}	
 }
 
