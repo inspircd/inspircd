@@ -90,14 +90,17 @@ class ModuleSSL : public Module
 		if(gnutls_dh_params_init(&dh_params) < 0)
 			log(DEFAULT, "m_ssl_gnutls.so: Failed to initialise DH parameters");
 
-		OnRehash("");
-
+		OnRehash("ssl");
+		
 		// Void return, guess we assume success
 		gnutls_certificate_set_dh_params(x509_cred, dh_params);
 	}
 	
 	virtual void OnRehash(std::string param)
 	{
+		if(param != "ssl")
+			return;
+	
 		delete Conf;
 		Conf = new ConfigReader;
 		
@@ -173,6 +176,12 @@ class ModuleSSL : public Module
 		if(gnutls_certificate_set_x509_key_file (x509_cred, certfile.c_str(), keyfile.c_str(), GNUTLS_X509_FMT_PEM) < 0)
 			log(DEFAULT, "m_ssl_gnutls.so: Failed to set X.509 certificate and key files: %s and %s", certfile.c_str(), keyfile.c_str());	
 			
+		// This may be on a large (once a day or week) timer eventually.
+		GenerateDHParams();
+	}
+	
+	void GenerateDHParams()
+	{
  		// Generate Diffie Hellman parameters - for use with DHE
 		// kx algorithms. These should be discarded and regenerated
 		// once a day, once a week or once a month. Depending on the
@@ -251,6 +260,7 @@ class ModuleSSL : public Module
 
 	virtual void OnRawSocketClose(int fd)
 	{
+		log(DEBUG, "OnRawSocketClose: %d", fd);
 		CloseSession(&sessions[fd]);
 	}
 	
