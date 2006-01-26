@@ -54,13 +54,9 @@ class RFC1413 : public InspSocket
 
 	virtual bool OnDataReady()
 	{
-		char* nbuf = this->Read();
-		if (nbuf)
+		char* ibuf = this->Read();
+		if (ibuf)
 		{
-			std::string databuf = nbuf;
-			char ibuf[1024];
-			strlcpy(ibuf,databuf.c_str(),1024);
-			Srv->Log(DEBUG,"Received ident response");
 			char* savept;
 			char* section = strtok_r(ibuf,":",&savept);
 			while (section)
