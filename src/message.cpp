@@ -243,7 +243,7 @@ int isident(const char* n)
         {
                 return 0;
         }
-        for (char* i = n; *i; i++)
+        for (char* i = (char*)n; *i; i++)
         {
                 if ((*i >= 'A') && (*i <= '}'))
                 {
@@ -269,7 +269,7 @@ int isnick(const char* n)
 	{
 		return 0;
 	}
-	for (char* i = n; *i; i++)
+	for (char* i = (char*)n; *i; i++)
 	{
 		/* can occur anywhere in a nickname */
 		if ((*i >= 'A') && (*i <= '}'))
