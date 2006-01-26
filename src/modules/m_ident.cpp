@@ -146,6 +146,8 @@ class ModuleIdent : public Module
 	{
 		Conf = new ConfigReader;
 		IdentTimeout = Conf->ReadInteger("ident","timeout",0,true);
+		if (!IdentTimeout)
+			IdentTimeout = 1;
 		delete Conf;
 	}
 
