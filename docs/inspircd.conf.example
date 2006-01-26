@@ -831,6 +831,15 @@
 
 #<randquote file="/path/to/inspircd/randquotes.conf">
 
+#-#-#-#-#-#-#-#-#-#-#-#-   IDENT CONFIGURATION   -#-#-#-#-#-#-#-#-#-#-#
+#                                                                     #
+# Optional - If you are using the m_ident.so module, then you can     #
+# specify the timeout for ident lookups here. If not defined, it will #
+# default to one second. This is a non-blocking timeout which holds   #
+# the user in a 'connecting' state until the lookup is complete.      #
+
+#<ident timeout="5">
+
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-  BAN OPTIONS  -#-#-#-#-#-#-#-#-#-#-#-#-#-#
 #                                                                     #
 # The ban tags define nick masks, host masks and ip ranges which are  #
