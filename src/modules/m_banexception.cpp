@@ -33,7 +33,7 @@ public:
 	virtual void On005Numeric(std::string &output)
 	{
 		output.append(" EXCEPTS=e");
-		output.insert(output.find("CHANMODES=", 0)+10, "e");
+		InsertMode(output, "e", 1);
 	}
 
 	virtual int OnCheckBan(userrec* user, chanrec* chan)
@@ -58,7 +58,7 @@ public:
 	
 	virtual Version GetVersion()
 	{
-		return Version(1, 0, 0, 2, VF_STATIC);
+		return Version(1, 0, 0, 3, VF_STATIC | VF_VENDOR);
 	}
 };
 

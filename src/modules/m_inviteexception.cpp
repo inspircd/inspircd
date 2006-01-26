@@ -31,7 +31,7 @@ public:
 	virtual void On005Numeric(std::string &output)
 	{
 		output.append(" INVEX=I");
-		output.insert(output.find("CHANMODES=", 0)+10, "I");
+		InsertMode(output, "I", 1);
 	}
 	 
 	virtual int OnCheckInvite(userrec* user, chanrec* chan)
@@ -59,7 +59,7 @@ public:
 		
 	virtual Version GetVersion()
 	{
-		return Version(1, 0, 0, 2, VF_STATIC);
+		return Version(1, 0, 0, 3, VF_VENDOR | VF_STATIC);
 	}
 };
 
