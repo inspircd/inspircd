@@ -243,17 +243,17 @@ int isident(const char* n)
         {
                 return 0;
         }
-        for (unsigned int i = 0; i < strlen(n); i++)
+        for (char* i = n; *i; i++)
         {
-                if ((n[i] < 33) || (n[i] > 125))
+                if ((*i >= 'A') && (*i <= '}'))
                 {
-                        return 0;
+                        continue;
                 }
-                /* can't occur ANYWHERE in an Ident! */
-                if (strchr("<>,/?:;@'~#=+()*&%$£ \"!",n[i]))
+                if (strchr(".-0123456789",*i))
                 {
-                        return 0;
+                        continue;
                 }
+		return 0;
         }
         return 1;
 }
@@ -261,11 +261,7 @@ int isident(const char* n)
 
 int isnick(const char* n)
 {
-	if (!n)
-	{
-		return 0;
-	}
-	if (!strcmp(n,""))
+	if (!n || !*n)
 	{
 		return 0;
 	}
@@ -273,22 +269,20 @@ int isnick(const char* n)
 	{
 		return 0;
 	}
-	for (unsigned int i = 0; i != strlen(n); i++)
+	for (char* i = n; *i; i++)
 	{
-		if ((n[i] < 33) || (n[i] > 125))
+		/* can occur anywhere in a nickname */
+		if ((*i >= 'A') && (*i <= '}'))
 		{
-			return 0;
+			continue;
 		}
-		/* can't occur ANYWHERE in a nickname! */
-		if (strchr("<>,./?:;@'~#=+()*&%$£ \"!",n[i]))
+		/* can occur anywhere BUT the first char of a nickname */
+		if ((strchr("-0123456789",*i)) && (i > n))
 		{
-			return 0;
+			continue;
 		}
-		/* can't occur as the first char of a nickname... */
-		if ((strchr("0123456789",n[i])) && (!i))
-		{
-			return 0;
-		}
+		/* invalid character! abort */
+		return 0;
 	}
 	return 1;
 }
