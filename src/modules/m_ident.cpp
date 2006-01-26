@@ -52,9 +52,9 @@ class RFC1413 : public InspSocket
 	// The destructor makes damn sure the socket is freed :)
 	RFC1413(userrec* user, int maxtime, Server* S) : InspSocket(user->host, 113, false, maxtime)
 	{
-		Srv->Log(DEBUG,"Ident: associated with user "+std::string(user->nick));
-		u = user;
 		Srv = S;
+		u = user;
+		Srv->Log(DEBUG,"Ident: associated with user "+std::string(user->nick));
 	}
 
 	virtual void OnTimeout()
