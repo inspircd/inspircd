@@ -334,7 +334,6 @@ void InspIRCd::MoveAfter(std::string modulename, std::string after)
 	log(DEBUG,"Move %s after %s...",modulename.c_str(),after.c_str());
 	for (unsigned int v = 0; v < Config->module_names.size(); v++)
 	{
-		log(DEBUG,"Curr=%s after=%s v=%d",Config->module_names[v].c_str(),after.c_str(),v);
 		if (Config->module_names[v] == after)
 		{
 			MoveTo(modulename, v);
