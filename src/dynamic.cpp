@@ -17,6 +17,7 @@
 using namespace std;
 
 #include "inspircd_config.h"
+#include "inspircd_io.h"
 #include "globals.h"
 #include "dynamic.h"
 
@@ -31,6 +32,8 @@ using namespace std;
 #include <unistd.h>
 #include <sys/types.h>
 #include <stdio.h>
+
+extern ServerConfig* Config;
 
 DLLManager::DLLManager(char *fname)
 {
@@ -72,7 +75,8 @@ DLLManager::DLLManager(char *fname)
 	err = (char*)dlerror();
 	close(fd);
 	// We can delete the tempfile once it's loaded, leaving just the inode.
-	unlink(tmpfile_template);
+	if (!Config->debugging)
+		unlink(tmpfile_template);
 #endif
 }
 
