@@ -782,6 +782,30 @@
 # SWHOIS module: Allows you to add arbitary lines to user WHOIS.
 #<module name="m_swhois.so">
 
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Ban except module: Adds support for channel ban exceptions (+e)
+#<module name="m_banexception.so">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Invite except module: Adds support for channel invite exceptions (+I)
+#<module name="m_inviteexception.so">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# GnuTLS ssl module: Adds support for client-server SSL using GnuTLS,
+# if enabled. You must copy the source for this module from the directory
+# src/modules/extra, or answer 'yes' in ./configure when asked if you
+# want to enable this, or it will not load.
+#<module name="m_ssl_gnutls.so">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# SSL channel mode module: Adds support for SSL-only channels (+z).
+# does not do anything useful without a working SSL module (see above)
+#<module name="m_sslmodes.so">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Anti-Auto-Rejoin: Adds support for prevention of auto-rejoin (+J)
+#<module name="m_nokickrejoin.so">
+
 
 #-#-#-#-#-#-#-#-#-#-#-  FILTER  CONFIGURATION  -#-#-#-#-#-#-#-#-#-#-#-#
 #                                                                     #
