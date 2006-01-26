@@ -72,7 +72,7 @@ DLLManager::DLLManager(char *fname)
 	err = (char*)dlerror();
 	close(fd);
 	// We can delete the tempfile once it's loaded, leaving just the inode.
-	unlink(tmpfile_template);
+	//unlink(tmpfile_template);
 #endif
 }
 
