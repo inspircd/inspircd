@@ -62,7 +62,7 @@ class ModuleWaitPong : public Module
 
 	void Implements(char* List)
 	{
-		List[I_OnUserRegister] = List[I_OnCheckReady] = List[I_OnUserDisconnect] = List[I_OnPreCommand] = List[I_OnRehash] = 1;
+		List[I_OnUserRegister] = List[I_OnCheckReady] = List[I_OnPreCommand] = List[I_OnRehash] = 1;
 	}
 
 	virtual void OnUserRegister(userrec* user)
@@ -93,6 +93,7 @@ class ModuleWaitPong : public Module
 			else if(killonbadreply)
 			{
 				Srv->QuitUser(user, "Incorrect ping reply for registration");
+				return 1;
 			}
 		}
 		
