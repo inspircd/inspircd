@@ -129,10 +129,16 @@ public:
 			chan->Shrink("norejoinusers");
 		}
 	}
+	
+	virtual void OnCleanup(int target_type, void* item)
+	{
+		if(target_type == TYPE_CHANNEL)
+			OnChannelDelete((chanrec*)item);
+	}
 
 	virtual void Implements(char* List)
 	{
-		List[I_On005Numeric] = List[I_OnExtendedMode] = List[I_OnChannelDelete] = List[I_OnUserPreJoin] = List[I_OnUserKick] = 1;
+		List[I_OnCleanup] = List[I_On005Numeric] = List[I_OnExtendedMode] = List[I_OnChannelDelete] = List[I_OnUserPreJoin] = List[I_OnUserKick] = 1;
 	}
 
 	virtual void On005Numeric(std::string &output)
