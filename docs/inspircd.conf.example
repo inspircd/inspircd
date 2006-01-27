@@ -158,7 +158,7 @@
 #   specifies the amount of time given before an unknown connection   #
 #   is closed if USER/NICK/PASS are not given. This value is in secs  #
 #                                                                     #
-#   You may also optionally include a flood="x" line which indicates  #
+#   You should also include a flood="x" line which indicates          #
 #   the number of lines a user may place into their buffer at once    #
 #   before they are disconnected for excess flood. The default is to  #
 #   DISABLE this feature. A recommended value is 10. A counter is     #
