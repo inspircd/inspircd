@@ -804,7 +804,7 @@
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Anti-Auto-Rejoin: Adds support for prevention of auto-rejoin (+J)
-#<module name="m_nokickrejoin.so">
+#<module name="m_kicknorejoin.so">
 
 
 #-#-#-#-#-#-#-#-#-#-#-  FILTER  CONFIGURATION  -#-#-#-#-#-#-#-#-#-#-#-#
