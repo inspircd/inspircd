@@ -1,16 +1,6 @@
 #include <string>
 #include <vector>
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <errno.h>
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <arpa/inet.h>
-#include <string.h>
-#include <unistd.h>
-
 #include <gnutls/gnutls.h>
 
 #include "inspircd_config.h"
@@ -47,7 +37,7 @@ public:
 	int fd;
 };
 
-class ModuleSSL : public Module
+class ModuleSSLGnuTLS : public Module
 {
 	Server* Srv;
 	ServerConfig* SrvConf;
@@ -71,7 +61,7 @@ class ModuleSSL : public Module
 	
  public:
 	
-	ModuleSSL(Server* Me)
+	ModuleSSLGnuTLS(Server* Me)
 		: Module::Module(Me)
 	{
 		Srv = Me;
@@ -192,7 +182,7 @@ class ModuleSSL : public Module
 			log(DEFAULT, "m_ssl_gnutls.so: Failed to generate DH parameters (%d bits)", dh_bits);
 	}
 	
-	virtual ~ModuleSSL()
+	virtual ~ModuleSSLGnuTLS()
 	{
 		delete Conf;
 		gnutls_dh_params_deinit(dh_params);
@@ -564,26 +554,26 @@ class ModuleSSL : public Module
 	}
 };
 
-class ModuleSSLFactory : public ModuleFactory
+class ModuleSSLGnuTLSFactory : public ModuleFactory
 {
  public:
-	ModuleSSLFactory()
+	ModuleSSLGnuTLSFactory()
 	{
 	}
 	
-	~ModuleSSLFactory()
+	~ModuleSSLGnuTLSFactory()
 	{
 	}
 	
 	virtual Module * CreateModule(Server* Me)
 	{
-		return new ModuleSSL(Me);
+		return new ModuleSSLGnuTLS(Me);
 	}
 };
 
 
 extern "C" void * init_module( void )
 {
-	return new ModuleSSLFactory;
+	return new ModuleSSLGnuTLSFactory;
 }
 
