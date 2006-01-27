@@ -714,7 +714,6 @@ int InspIRCd::Run()
 					{
 						in_port = ntohs(sock_us.sin_port);
 						log(DEBUG,"Accepted socket %d",incomingSockfd);
-						target = (char*)inet_ntoa(client.sin_addr);
 						/* Years and years ago, we used to resolve here
 						 * using gethostbyaddr(). That is sucky and we
 						 * don't do that any more...
@@ -722,10 +721,10 @@ int InspIRCd::Run()
 						NonBlocking(incomingSockfd);
 						if (Config->GetIOHook(in_port))
 						{
-							Config->GetIOHook(in_port)->OnRawSocketAccept(incomingSockfd, target, in_port);
+							Config->GetIOHook(in_port)->OnRawSocketAccept(incomingSockfd, (char*)inet_ntoa(client.sin_addr), in_port);
 						}
 						stats->statsAccept++;
-						AddClient(incomingSockfd, target, in_port, false, target);
+						AddClient(incomingSockfd, in_port, false, client.sin_addr);
 						log(DEBUG,"Adding client on port %lu fd=%lu",(unsigned long)in_port,(unsigned long)incomingSockfd);
 					}
 					else

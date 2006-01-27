@@ -1069,7 +1069,7 @@ class TreeSocket : public InspSocket
 		clientlist[tempnick]->registered = 7;
 		clientlist[tempnick]->signon = age;
 		strlcpy(clientlist[tempnick]->modes, modes.c_str(),53);
-		strlcpy(clientlist[tempnick]->ip,ip.c_str(),16);
+		inet_aton(ip.c_str(),&clientlist[tempnick]->ip4);
 
 		ucrec a;
 		a.channel = NULL;
@@ -1079,7 +1079,7 @@ class TreeSocket : public InspSocket
 
 		if (!this->bursting)
 		{
-			WriteOpers("*** Client connecting at %s: %s!%s@%s [%s]",clientlist[tempnick]->server,clientlist[tempnick]->nick,clientlist[tempnick]->ident,clientlist[tempnick]->host,clientlist[tempnick]->ip);
+			WriteOpers("*** Client connecting at %s: %s!%s@%s [%s]",clientlist[tempnick]->server,clientlist[tempnick]->nick,clientlist[tempnick]->ident,clientlist[tempnick]->host,(char*)inet_ntoa(clientlist[tempnick]->ip4));
 		}
 		params[7] = ":" + params[7];
 		DoOneToAllButSender(source,"NICK",params,source);
@@ -1210,7 +1210,7 @@ class TreeSocket : public InspSocket
 		{
 			if (u->second->registered == 7)
 			{
-				snprintf(data,MAXBUF,":%s NICK %lu %s %s %s %s +%s %s :%s",u->second->server,(unsigned long)u->second->age,u->second->nick,u->second->host,u->second->dhost,u->second->ident,u->second->modes,u->second->ip,u->second->fullname);
+				snprintf(data,MAXBUF,":%s NICK %lu %s %s %s %s +%s %s :%s",u->second->server,(unsigned long)u->second->age,u->second->nick,u->second->host,u->second->dhost,u->second->ident,u->second->modes,(char*)inet_ntoa(u->second->ip4),u->second->fullname);
 				this->WriteLine(data);
 				if (strchr(u->second->modes,'o'))
 				{
@@ -3028,7 +3028,7 @@ class ModuleSpanningTree : public Module
 			params.push_back(user->dhost);
 			params.push_back(user->ident);
 			params.push_back("+"+std::string(user->modes));
-			params.push_back(user->ip);
+			params.push_back((char*)inet_ntoa(user->ip4));
 			params.push_back(":"+std::string(user->fullname));
 			DoOneToMany(Srv->GetServerName(),"NICK",params);
 

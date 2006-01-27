@@ -64,7 +64,7 @@ template<typename T> inline string ConvToStr(const T &in)
 userrec::userrec()
 {
 	// the PROPER way to do it, AVOID bzero at *ALL* costs
-	*nick = *ident = *host = *dhost = *fullname = *modes = *awaymsg = *oper = *ip = 0;
+	*nick = *ident = *host = *dhost = *fullname = *modes = *awaymsg = *oper = 0;
 	server = (char*)FindServerNamePtr(Config->ServerName);
 	reset_due = TIME;
 	lines_in = fd = lastping = signon = idle_lastmsg = nping = registered = 0;
@@ -554,14 +554,14 @@ void AddWhoWas(userrec* u)
 }
 
 /* add a client connection to the sockets list */
-void AddClient(int socket, char* host, int port, bool iscached, char* ip)
+void AddClient(int socket, int port, bool iscached, in_addr ip4)
 {
         string tempnick;
         char tn2[MAXBUF];
         user_hash::iterator iter;
 
         tempnick = ConvToStr(socket) + "-unknown";
-        sprintf(tn2,"%lu-unknown",(unsigned long)socket);
+        sprintf(tn2,"%d-unknown",socket);
 
         iter = clientlist.find(tempnick);
 
@@ -588,19 +588,24 @@ void AddClient(int socket, char* host, int port, bool iscached, char* ip)
          */
         clientlist[tempnick] = new userrec();
 
-        log(DEBUG,"AddClient: %lu %s %d %s",(unsigned long)socket,host,port,ip);
+	char *ipaddr = (char*)inet_ntoa(ip4);
+
+        log(DEBUG,"AddClient: %d %d %s",socket,port,ipaddr);
 
         clientlist[tempnick]->fd = socket;
         strlcpy(clientlist[tempnick]->nick, tn2,NICKMAX);
-        strlcpy(clientlist[tempnick]->host, host,160);
-        strlcpy(clientlist[tempnick]->dhost, host,160);
+	/* We don't know the host yet, dns lookup could still be going on,
+	 * so instead we just put the ip address here, for now.
+	 */
+        strlcpy(clientlist[tempnick]->host, ipaddr, 160);
+        strlcpy(clientlist[tempnick]->dhost, ipaddr, 160);
         clientlist[tempnick]->server = (char*)FindServerNamePtr(Config->ServerName);
         strlcpy(clientlist[tempnick]->ident, "unknown",IDENTMAX);
         clientlist[tempnick]->registered = 0;
         clientlist[tempnick]->signon = TIME + Config->dns_timeout;
         clientlist[tempnick]->lastping = 1;
+	clientlist[tempnick]->ip4 = ip4;
         clientlist[tempnick]->port = port;
-        strlcpy(clientlist[tempnick]->ip,ip,16);
 
         // set the registration timeout for this user
         unsigned long class_regtimeout = 90;
@@ -611,7 +616,7 @@ void AddClient(int socket, char* host, int port, bool iscached, char* ip)
 
         for (ClassVector::iterator i = Config->Classes.begin(); i != Config->Classes.end(); i++)
         {
-                if (match(clientlist[tempnick]->host,i->host.c_str()) && (i->type == CC_ALLOW))
+                if (match(ipaddr,i->host.c_str()) && (i->type == CC_ALLOW))
                 {
                         class_regtimeout = (unsigned long)i->registration_timeout;
                         class_flood = i->flood;
@@ -660,10 +665,10 @@ void AddClient(int socket, char* host, int port, bool iscached, char* ip)
                 kill_link(clientlist[tempnick],"Server is full");
                 return;
         }
-        char* e = matches_exception(ip);
+        char* e = matches_exception(ipaddr);
         if (!e)
         {
-                char* r = matches_zline(ip);
+                char* r = matches_zline(ipaddr);
                 if (r)
                 {
                         char reason[MAXBUF];
@@ -677,6 +682,29 @@ void AddClient(int socket, char* host, int port, bool iscached, char* ip)
         ServerInstance->SE->AddFd(socket,true,X_ESTAB_CLIENT);
 
 	WriteServ(clientlist[tempnick]->fd,"NOTICE Auth :*** Looking up your hostname...");
+}
+
+long FindMatchingGlobal(userrec* user)
+{
+	long x = 0;
+	for (user_hash::const_iterator a = clientlist.begin(); a != clientlist.end(); a++)
+	{
+		if (a->second->ip4.s_addr == user->ip4.s_addr)
+			x++;
+	}
+	return x;
+}
+
+long FindMatchingLocal(userrec* user)
+{
+	long x = 0;
+	for (std::vector<userrec*>::const_iterator a = local_users.begin(); a != local_users.end(); a++)
+	{
+		userrec* comp = (userrec*)(*a);
+		if (comp->ip4.s_addr == user->ip4.s_addr)
+			x++;
+	}
+	return x;
 }
 
 void FullConnectUser(userrec* user, CullList* Goners)
@@ -697,6 +725,16 @@ void FullConnectUser(userrec* user, CullList* Goners)
 		Goners->AddItem(user,"Invalid password");
                 return;
         }
+	if (FindMatchingLocal(user) > a.maxlocal)
+	{
+		Goners->AddItem(user,"No more connections allowed from your host via this connect class (local)");
+		return;
+	}
+	if (FindMatchingGlobal(user) > a.maxglobal)
+	{
+		Goners->AddItem(user,"No more connections allowed from your host via this connect class (global)");
+		return;
+	}
 
         char match_against[MAXBUF];
         snprintf(match_against,MAXBUF,"%s@%s",user->ident,user->host);
@@ -752,7 +790,7 @@ void FullConnectUser(userrec* user, CullList* Goners)
         FOREACH_MOD(I_OnUserConnect,OnUserConnect(user));
         FOREACH_MOD(I_OnGlobalConnect,OnGlobalConnect(user));
         user->registered = 7;
-        WriteOpers("*** Client connecting on port %lu: %s!%s@%s [%s]",(unsigned long)user->port,user->nick,user->ident,user->host,user->ip);
+        WriteOpers("*** Client connecting on port %lu: %s!%s@%s [%s]",(unsigned long)user->port,user->nick,user->ident,user->host,(char*)inet_ntoa(user->ip4));
 }
 
 /* re-allocates a nick in the user_hash after they change nicknames,

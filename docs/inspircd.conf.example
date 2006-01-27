@@ -145,13 +145,14 @@
 #                                                                     #
 #  Syntax is as follows:                                              #
 #                                                                     #
-#       <connect allow="ip or host">                                  #
-#       <connect allow="ip or host" password="blahblah">              #
-#       <connect allow="ip or host" password="blah" timeout="10">     #
-#       <connect allow="ip or host" timeout="blah" flood="5">         #
-#       <connect allow="ip or host" threshold="8" pingfreq="120">     #
-#       <connect allow="ip or host" sendq="99999" revcq="696969">     #
-#       <connect deny="ip or host">                                   #
+#       <connect allow="ip mask">                                     #
+#       <connect allow="ip mask" password="blahblah">                 #
+#       <connect allow="ip mask" password="blah" timeout="10">        #
+#       <connect allow="ip mask" timeout="blah" flood="5">            #
+#       <connect allow="ip mask" threshold="8" pingfreq="120">        #
+#       <connect allow="ip mask" sendq="99999" revcq="696969">        #
+#       <connect allow="ip mask" maxlocal="3" maxglobal="3">          #
+#       <connect deny="ip mask">                                      #
 #                                                                     #
 #   You may optionally include timeout="x" on any allow line, which   #
 #   specifies the amount of time given before an unknown connection   #
@@ -188,9 +189,19 @@
 #   that of the user... Just to clear up any confusion or complaints  #
 #   that these are backwards :p                                       #
 #                                                                     #
+#   The maxlocal and maxglobal values can be used to enforce local    #
+#   and global session limits on connections. The session limits are  #
+#   counted against all users, but applied only to users within the   #
+#   class. For example, if you had a class 'A' which has a session    #
+#   limit of 3, and a class 'B' which has a session limit of 5, and   #
+#   somehow, two users managed to get into class B which also match   #
+#   class A, there is only one connection left for this IP now in A,  #
+#   but if they can connect again to B, there are three. You get the  #
+#   idea (i hope).                                                    #
+#                                                                     #
 
 <connect allow="196.12.*"  password="secret">
-<connect allow="*" timeout="60" flood="10" threshold="60" pingfreq="120" sendq="262144" recvq="4096">
+<connect allow="*" timeout="60" flood="10" threshold="60" pingfreq="120" sendq="262144" recvq="4096" maxlocal="3" maxglobal="3">
 
 <connect deny="69.254.*">
 

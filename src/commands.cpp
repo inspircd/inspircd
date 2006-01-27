@@ -119,7 +119,7 @@ void do_whois(userrec* user, userrec* dest,unsigned long signon, unsigned long i
 		WriteServ(user->fd,"311 %s %s %s %s * :%s",user->nick, dest->nick, dest->ident, dest->dhost, dest->fullname);
 		if ((user == dest) || (strchr(user->modes,'o')))
 		{
-			WriteServ(user->fd,"378 %s %s :is connecting from *@%s %s",user->nick, dest->nick, dest->host, dest->ip);
+			WriteServ(user->fd,"378 %s %s :is connecting from *@%s %s",user->nick, dest->nick, dest->host, (char*)inet_ntoa(dest->ip4));
 		}
 		std::string cl = chlist(dest,user);
 		if (cl.length())
@@ -309,7 +309,7 @@ bool ip_matches_everyone(std::string ip, userrec* user)
 	long matches = 0;
 	for (user_hash::iterator u = clientlist.begin(); u != clientlist.end(); u++)
 	{
-		if (match(u->second->ip,ip.c_str()))
+		if (match((char*)inet_ntoa(u->second->ip4),ip.c_str()))
 			matches++;
 	}
 	float percent = ((float)matches / (float)clientlist.size()) * 100;

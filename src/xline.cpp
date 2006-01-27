@@ -692,7 +692,7 @@ void apply_lines(const int What)
 		}
 		if ((What & APPLY_ZLINES) && (zlines.size() || pzlines.size()))
 		{
-			if ((check = matches_zline(u->ip)))
+			if ((check = matches_zline((char*)inet_ntoa(u->ip4))))
 			{
 				snprintf(reason,MAXBUF,"Z-Lined: %s",check);
 				Goners->AddItem(u,reason);

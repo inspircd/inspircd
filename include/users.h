@@ -83,6 +83,14 @@ class ConnectClass : public classbase
 	/** Maximum size of recvq for users in this class (bytes)
 	 */
 	long recvqmax;
+
+	/** Local max when connecting by this connection class
+	 */
+	long maxlocal;
+
+	/** Global max when connecting by this connection class
+	 */
+	long maxglobal;
 	
 	ConnectClass() : registration_timeout(0), flood(0), host(""), pingtime(0), pass(""), threshold(0), sendqmax(0), recvqmax(0)
 	{
@@ -203,6 +211,10 @@ class userrec : public connection
 	int lines_in;
 	time_t reset_due;
 	long threshold;
+
+	/** IPV4 ip address
+	 */
+	in_addr ip4;
 
 	/* Write error string
 	 */
@@ -347,9 +359,8 @@ void DeleteOper(userrec* user);
 void kill_link(userrec *user,const char* r);
 void kill_link_silent(userrec *user,const char* r);
 void AddWhoWas(userrec* u);
-void AddClient(int socket, char* host, int port, bool iscached, char* ip);
+void AddClient(int socket, int port, bool iscached, in_addr ip4);
 void FullConnectUser(userrec* user, CullList* Goners);
-//void ConnectUser(userrec *user, CullList* Goners);
 userrec* ReHashNick(char* Old, char* New);
 void force_nickchange(userrec* user,const char* newnick);
 

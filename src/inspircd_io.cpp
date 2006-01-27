@@ -149,6 +149,7 @@ void ServerConfig::Read(bool bail, userrec* user)
 {
         char dbg[MAXBUF],pauseval[MAXBUF],Value[MAXBUF],timeout[MAXBUF],NB[MAXBUF],flood[MAXBUF],MW[MAXBUF],MCON[MAXBUF],MT[MAXBUF];
         char AH[MAXBUF],AP[MAXBUF],AF[MAXBUF],DNT[MAXBUF],pfreq[MAXBUF],thold[MAXBUF],sqmax[MAXBUF],rqmax[MAXBUF],SLIMT[MAXBUF];
+	char localmax[MAXBUF],globalmax[MAXBUF];
         ConnectClass c;
         std::stringstream errstr;
         include_stack.clear();
@@ -293,6 +294,8 @@ void ServerConfig::Read(bool bail, userrec* user)
                 ConfValue("connect","threshold",i,thold,&Config->config_f);
                 ConfValue("connect","sendq",i,sqmax,&Config->config_f);
                 ConfValue("connect","recvq",i,rqmax,&Config->config_f);
+		ConfValue("connect","localmax",i,localmax,&Config->config_f);
+		ConfValue("connect","globalmax",i,globalmax,&Config->config_f);
                 if (*Value)
                 {
                         c.host = Value;
@@ -306,6 +309,16 @@ void ServerConfig::Read(bool bail, userrec* user)
                         c.threshold = 5;
                         c.sendqmax = 262144; // 256k
                         c.recvqmax = 4096;   // 4k
+			c.maxlocal = 3;
+			c.maxglobal = 3;
+			if (atoi(localmax)>0)
+			{
+				c.maxlocal = atoi(localmax);
+			}
+			if (atoi(globalmax)>0)
+			{
+				c.maxglobal = atoi(globalmax);
+			}
                         if (atoi(thold)>0)
                         {
                                 c.threshold = atoi(thold);

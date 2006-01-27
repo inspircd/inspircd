@@ -44,11 +44,7 @@ class connection : public Extensible
 	/** Hostname of connection. Not used if this is a serverrec
 	 */
 	char host[160];
-	
-	/** IP of connection.
-	 */
-	char ip[16];
-	
+
 	/** Stats counter for bytes inbound
 	 */
 	int bytes_in;
