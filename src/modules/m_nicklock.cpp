@@ -110,7 +110,7 @@ class ModuleNickLock : public Module
 
 	void Implements(char* List)
 	{
-		List[I_OnUserPreNick] = List[I_OnUserQuit] = 1;
+		List[I_OnUserPreNick] = List[I_OnUserQuit] = List[I_OnCleanup] = 1;
 	}
 
 	virtual int OnUserPreNick(userrec* user, std::string newnick)
@@ -123,11 +123,19 @@ class ModuleNickLock : public Module
 		return 0;
 	}
 
-        virtual void OnUserQuit(userrec* user, std::string reason)
-        {
-                user->Shrink("nick_locked");
-        }
+	virtual void OnUserQuit(userrec* user, std::string reason)
+	{
+		user->Shrink("nick_locked");
+	}
 
+	virtual void OnCleanup(int target_type, void* item)
+	{
+		if(target_type == TYPE_USER)
+		{
+			userrec* user = (userrec*)item;
+			user->Shrink("nick_locked");
+		}
+	}
 };
 
 // stuff down here is the module-factory stuff. For basic modules you can ignore this.
