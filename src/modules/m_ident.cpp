@@ -144,7 +144,7 @@ class ModuleIdent : public Module
 
 	void Implements(char* List)
 	{
-		List[I_OnRehash] = List[I_OnUserRegister] = List[I_OnCheckReady] = List[I_OnUserDisconnect] = 1;
+		List[I_OnCleanup] = List[I_OnRehash] = List[I_OnUserRegister] = List[I_OnCheckReady] = List[I_OnUserDisconnect] = 1;
 	}
 
 	virtual void OnRehash(std::string parameter)
@@ -171,6 +171,19 @@ class ModuleIdent : public Module
 		// have an ident field any more.
 		RFC1413* ident = (RFC1413*)user->GetExt("ident_data");
 		return (!ident);
+	}
+
+	virtual void OnCleanup(int target_type, void* item)
+	{
+		if (target_type == TYPE_USER)
+		{
+			userrec* user = (userrec*)item;
+			RFC1413* ident = (RFC1413*)user->GetExt("ident_data");
+			if (ident)
+			{
+				Srv->RemoveSocket(ident);
+			}
+		}
 	}
 
         virtual void OnUserDisconnect(userrec* user)
