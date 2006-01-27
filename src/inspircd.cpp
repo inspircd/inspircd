@@ -579,7 +579,6 @@ int InspIRCd::Run()
 	userrec* cu = NULL;
 	InspSocket* s = NULL;
 	InspSocket* s_del = NULL;
-	char* target;
 	unsigned int numberactive;
         sockaddr_in sock_us;     // our port number
 	socklen_t uslen;         // length of our port number
