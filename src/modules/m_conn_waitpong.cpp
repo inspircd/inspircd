@@ -62,7 +62,7 @@ class ModuleWaitPong : public Module
 
 	void Implements(char* List)
 	{
-		List[I_OnUserRegister] = List[I_OnCheckReady] = List[I_OnPreCommand] = List[I_OnRehash] = 1;
+		List[I_OnUserRegister] = List[I_OnCheckReady] = List[I_OnPreCommand] = List[I_OnRehash] = List[I_OnUserDisconnect] = 1;
 	}
 
 	virtual void OnUserRegister(userrec* user)
@@ -104,7 +104,18 @@ class ModuleWaitPong : public Module
 	{
 		return (!user->GetExt("waitpong_pingstr"));
 	}
-		
+	
+	virtual void OnUserDisconnect(userrec* user)
+	{
+		std::string* pingrpl = (std::string*)user->GetExt("waitpong_pingstr");
+
+		if(pingrpl)
+		{
+			delete pingrpl;
+			user->Shrink("waitpong_pingstr");
+		}
+	}
+	
 	virtual ~ModuleWaitPong()
 	{
 	}
