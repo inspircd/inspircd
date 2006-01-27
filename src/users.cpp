@@ -728,11 +728,13 @@ void FullConnectUser(userrec* user, CullList* Goners)
 	if (FindMatchingLocal(user) > a.maxlocal)
 	{
 		Goners->AddItem(user,"No more connections allowed from your host via this connect class (local)");
+		WriteOpers("*** WARNING: maximum LOCAL connections (%ld) exceeded for IP %s",a.maxlocal,(char*)inet_ntoa(user->ip4));
 		return;
 	}
-	if (FindMatchingGlobal(user) > a.maxglobal)
+	else if (FindMatchingGlobal(user) > a.maxglobal)
 	{
 		Goners->AddItem(user,"No more connections allowed from your host via this connect class (global)");
+		WriteOpers("*** WARNING: maximum GLOBAL connections (%ld) exceeded for IP %s",a.maxglobal,(char*)inet_ntoa(user->ip4));
 		return;
 	}
 
