@@ -37,7 +37,7 @@
 using namespace std;
 
 #include <stdio.h>
-#include <stdint.h>
+#include "inttypes.h"
 #include "users.h"
 #include "channels.h"
 #include "modules.h"

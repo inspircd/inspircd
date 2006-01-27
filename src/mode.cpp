@@ -864,7 +864,7 @@ void ModeParser::ProcessModes(char **parameters,userrec* user,chanrec *chan,int 
                                                 }
                                                 else
                                                 {
-							if (chan->binarymodes & CM_NOEXTERNAL) strlcat(outlist,"t",MAXBUF);
+							if (chan->binarymodes & CM_TOPICLOCK) strlcat(outlist,"t",MAXBUF);
                                                         chan->binarymodes &= ~CM_TOPICLOCK;
                                                 }
 					}
