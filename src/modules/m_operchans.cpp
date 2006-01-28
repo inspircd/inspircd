@@ -49,8 +49,9 @@ class ModuleOperChans : public Module
 		{
 			chanrec* chan = (chanrec*)target;
 			
-			if ((Srv->IsUlined(user->nick)) || (Srv->IsUlined(user->server)) || (!strcmp(user->server,"")) || (strchr(user->modes,'o')))
+			if ((Srv->IsUlined(user->nick)) || (Srv->IsUlined(user->server)) || (!*user->server) || (strchr(user->modes,'o')))
 			{
+				log(DEBUG,"Allowing mode +O");
 				return 1;
 			}
 			else
