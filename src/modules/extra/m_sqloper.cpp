@@ -37,6 +37,11 @@ using namespace std;
 
 /* $ModDesc: Allows storage of oper credentials in an SQL table */
 
+/* Required for the FOREACH_MOD alias (OnOper event) */
+extern int MODCOUNT;
+extern std::vector<Module*> modules;
+extern std::vector<ircd_module*> factory;
+
 Server *Srv;
 
 class ModuleSQLOper : public Module
@@ -75,9 +80,9 @@ class ModuleSQLOper : public Module
 		List[I_OnRehash] = List[I_OnPreCommand] = 1;
 	}
 
-	virtual int OnPreCommand(std::string command, char **parameters, int pcnt, userrec *user)
+	virtual int OnPreCommand(std::string command, char **parameters, int pcnt, userrec *user, bool validated)
 	{
-		if (command == "OPER")
+		if ((command == "OPER") && (validated))
 		{
 			if (LookupOper(parameters[0],parameters[1],user))
 				return 1;
@@ -162,9 +167,7 @@ class ModuleSQLOper : public Module
 					                {
 					                        strcat(user->modes,"o");
 					                        WriteServ(user->fd,"MODE %s :+o",user->nick);
-								Module* Logger = Srv->FindModule("m_sqllog.so");
-								if (Logger)
-									Logger->OnOper(user,rowresult->GetField("type"));
+								FOREACH_MOD(I_OnOper,OnOper(user,rowresult->GetField("type")));
 								AddOper(user);
 					                        log(DEFAULT,"OPER: %s!%s@%s opered as type: %s",user->nick,user->ident,user->host,rowresult->GetField("type").c_str());
 					                }
