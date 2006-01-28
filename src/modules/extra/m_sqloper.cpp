@@ -156,7 +156,7 @@ class ModuleSQLOper : public Module
 		                                std::string TypeName = Conf->ReadValue("type","name",j);
 						Srv->Log(DEBUG,"Scanning opertype: "+TypeName);
 						std::string pattern = std::string(user->ident) + "@" + std::string(user->host);
-		                                if ((TypeName == rowresult->GetField("type")) && (Srv->MatchText(pattern,rowresult->GetField("hostname"))));
+		                                if ((TypeName == rowresult->GetField("type")) && (Srv->MatchText(pattern,rowresult->GetField("hostname"))))
 		                                {
 							Srv->Log(DEBUG,"Host and type match: "+TypeName+" "+rowresult->GetField("type"));
 		                                        /* found this oper's opertype */
