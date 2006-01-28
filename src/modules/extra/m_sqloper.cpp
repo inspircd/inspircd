@@ -154,14 +154,16 @@ class ModuleSQLOper : public Module
 		                        for (int j =0; j < Conf->Enumerate("type"); j++)
 		                        {
 		                                std::string TypeName = Conf->ReadValue("type","name",j);
+						Srv->Log(DEBUG,"Scanning opertype: "+TypeName);
 						std::string pattern = std::string(user->ident) + "@" + std::string(user->host);
 		                                if ((TypeName == rowresult->GetField("type")) && (Srv->MatchText(pattern,rowresult->GetField("hostname"))));
 		                                {
+							Srv->Log(DEBUG,"Host and type match: "+TypeName+" "+rowresult->GetField("type"));
 		                                        /* found this oper's opertype */
 							std::string HostName = Conf->ReadValue("type","host",j);
 							if (HostName != "")
 			                                        Srv->ChangeHost(user,HostName);
-		                                        strlcpy(user->oper,TypeName.c_str(),NICKMAX);
+		                                        strlcpy(user->oper,rowresult->GetField("type").c_str(),NICKMAX);
 							WriteOpers("*** %s (%s@%s) is now an IRC operator of type %s",user->nick,user->ident,user->host,rowresult->GetField("type").c_str());
 							WriteServ(user->fd,"381 %s :You are now an IRC operator of type %s",user->nick,rowresult->GetField("type").c_str());
 					                if (!strchr(user->modes,'o'))
