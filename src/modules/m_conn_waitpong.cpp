@@ -8,23 +8,22 @@
 
 /* $ModDesc: Forces connecting clients to send a PONG message back to the server before they can complete their connection */
 
-static std::string RandString(unsigned int length)
+char* RandString(unsigned int length)
 {
 	unsigned char* tmp = new unsigned char[(length/4)*3];
 	
 	for(unsigned int i = 0; i < (length/4)*3; i++)
 		tmp[i] = (unsigned char)rand();
 		
-	unsigned char* out = new unsigned char[length];	
+	unsigned char* out = new unsigned char[length+1];
 
 	to64frombits(out, tmp, (length/4)*3);
 	
-	std::string ret((char*)out);
-
-	delete out;
+	out[length] = '\0';
+	
 	delete tmp;
 	
-	return ret;
+	return (char*)out;
 }
 
 class ModuleWaitPong : public Module
@@ -67,24 +66,23 @@ class ModuleWaitPong : public Module
 
 	virtual void OnUserRegister(userrec* user)
 	{
-		std::string* pingrpl = new std::string;
-		*pingrpl = RandString(10);
+		char* pingrpl = RandString(10);
 		
-		Srv->Send(user->fd, "PING :" + *pingrpl);
+		Write(user->fd, "PING :%s", pingrpl);
 		
 		if(sendsnotice)
-			WriteServ(user->fd, "NOTICE %s :*** If you are having problems connecting due to ping timeouts, please type /quote PONG %s or /raw PONG %s now.", user->nick, pingrpl->c_str(), pingrpl->c_str());
+			WriteServ(user->fd, "NOTICE %s :*** If you are having problems connecting due to ping timeouts, please type /quote PONG %s or /raw PONG %s now.", user->nick, pingrpl, pingrpl);
 			
-		user->Extend("waitpong_pingstr", (char*)pingrpl);
+		user->Extend("waitpong_pingstr", pingrpl);
 	}
 	
 	virtual int OnPreCommand(std::string command, char** parameters, int pcnt,	userrec* user,	bool validated)
 	{
 		if(command == "PONG")
 		{
-			std::string* pingrpl = (std::string*)user->GetExt("waitpong_pingstr");
+			char* pingrpl = user->GetExt("waitpong_pingstr");
 			
-			if(pingrpl && (*pingrpl == parameters[0]))
+			if(pingrpl && (strcmp(pingrpl, parameters[0]) == 0))
 			{
 				delete pingrpl;
 				user->Shrink("waitpong_pingstr");
@@ -107,7 +105,7 @@ class ModuleWaitPong : public Module
 	
 	virtual void OnUserDisconnect(userrec* user)
 	{
-		std::string* pingrpl = (std::string*)user->GetExt("waitpong_pingstr");
+		char* pingrpl = user->GetExt("waitpong_pingstr");
 
 		if(pingrpl)
 		{
@@ -121,7 +119,7 @@ class ModuleWaitPong : public Module
 		if(target_type == TYPE_USER)
 		{
 			userrec* user = (userrec*)item;
-			std::string* pingrpl = (std::string*)user->GetExt("waitpong_pingstr");
+			char* pingrpl = user->GetExt("waitpong_pingstr");
 			
 			if(pingrpl)
 			{
@@ -137,7 +135,7 @@ class ModuleWaitPong : public Module
 	
 	virtual Version GetVersion()
 	{
-		return Version(1, 0, 0, 0, VF_VENDOR);
+		return Version(1, 0, 0, 1, VF_VENDOR);
 	}
 	
 };
