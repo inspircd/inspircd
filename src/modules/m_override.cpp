@@ -103,7 +103,7 @@ class ModuleOverride : public Module
 							else return ACR_DEFAULT;
 						break;
 						case AC_DEOP:
-							if (CanOverride(source,"MODEOP"))
+							if (CanOverride(source,"MODEDEOP"))
 							{
 								Srv->SendOpers("*** NOTICE: "+std::string(source->nick)+" Override-Deopped "+std::string(dest->nick)+" on "+std::string(channel->name));
                                                                 return ACR_ALLOW;
@@ -111,7 +111,7 @@ class ModuleOverride : public Module
                                                         else return ACR_DEFAULT;
 						break;
 						case AC_OP:
-							if (CanOverride(source,"MODEDEOP"))
+							if (CanOverride(source,"MODEOP"))
 							{
 								Srv->SendOpers("*** NOTICE: "+std::string(source->nick)+" Override-Opped "+std::string(dest->nick)+" on "+std::string(channel->name));
                                                                 return ACR_ALLOW;
