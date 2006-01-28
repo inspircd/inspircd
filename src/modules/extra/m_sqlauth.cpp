@@ -127,14 +127,19 @@ class ModuleSQLAuth : public Module
 		password = temp;
 
 		// Create a request containing the SQL query and send it to m_sql.so
-		SQLRequest* query = new SQLRequest(SQL_RESULT,dbid,"SELECT * FROM "+usertable+" WHERE "+userfield+"='"+username+"' AND "+passfield+"="+encryption+"('"+password+"')");
+		std::string querystr("SELECT * FROM "+usertable+" WHERE "+userfield+"='"+username+"' AND "+passfield+"="+encryption+"('"+password+"')");
+		
+		Srv->Log(DEBUG, "m_sqlauth.so: Query: " + querystr);
+		
+		SQLRequest* query = new SQLRequest(SQL_RESULT,dbid,querystr);
 		Request queryrequest((char*)query, this, SQLModule);
 		SQLResult* result = (SQLResult*)queryrequest.Send();
 
 		// Did we get "OK" as a result?
 		if (result->GetType() == SQL_OK)
 		{
-
+			log(DEBUG, "m_sqlauth.so: Query OK");
+			
 			// if we did, this means we may now request a row... there should be only one row for each user, so,
 			// we don't need to loop to fetch multiple rows.
 			SQLRequest* rowrequest = new SQLRequest(SQL_ROW,dbid,"");
@@ -144,33 +149,42 @@ class ModuleSQLAuth : public Module
 			// did we get a row? If we did, we can now do something with the fields
 			if (rowresult->GetType() == SQL_ROW)
 			{
+				log(DEBUG, "m_sqlauth.so: Got row...user '%s'", rowresult->GetField(userfield).c_str());
+				
 				if (rowresult->GetField(userfield) == username)
 				{
+					log(DEBUG, "m_sqlauth.so: Got correct user...");
 					// because the query directly asked for the password hash, we do not need to check it -
 					// if it didnt match it wont be returned in the first place from the SELECT.
 					// This just checks we didnt get an empty row by accident.
 					found = true;
 				}
-				delete rowresult;
 			}
 			else
 			{
+				log(DEBUG, "m_sqlauth.so: Couldn't find row");
 				// we didn't have a row.
 				found = false;
 			}
+			
 			delete rowrequest;
-			delete result;
+			delete rowresult;
 		}
 		else
 		{
+			log(DEBUG, "m_sqlauth.so: Query failed");
 			// the query was bad
 			found = false;
 		}
+		
 		query->SetQueryType(SQL_DONE);
 		query->SetConnID(dbid);
 		Request donerequest((char*)query, this, SQLModule);
 		donerequest.Send();
+		
 		delete query;
+		delete result;
+		
 		return found;
 	}
 
@@ -180,7 +194,7 @@ class ModuleSQLAuth : public Module
 	
 	virtual Version GetVersion()
 	{
-		return Version(1,0,0,1,VF_VENDOR);
+		return Version(1,0,0,2,VF_VENDOR);
 	}
 	
 };
