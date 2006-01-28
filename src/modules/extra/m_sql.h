@@ -116,4 +116,139 @@ class SQLResult
 	}
 };
 
+class SQLQuery
+{
+  private:
+        SQLRequest* rowrequest;
+	SQLRequest* query;
+	SQLResult* result;
+	SQLResult* rowresult;
+        Request* rowquery;
+        unsigned long dbid;
+        Module* parent;
+        Module* SQLModule;
+        Server* Srv;
+
+
+        bool MakeQueryGoNow(std::string qry)
+	{
+                // Insert Lack of More Original Name here.
+                Request queryrequest((char*)query, parent, SQLModule);
+                result = (SQLResult*)queryrequest.Send();
+                if (result->GetType() != SQL_ERROR)
+		{
+			// Query Is fine.. Prepare to get first row...
+			rowrequest = new SQLRequest(SQL_ROW,dbid,"");
+			rowquery = new Request((char*)rowrequest, parent, SQLModule);
+			return true;
+		}
+		// Query Failed. - Coder Fucked up! (Probably me too :/)
+		Srv->Log(DEBUG, " ============= SQL Error, Query And Error Follow. ============= ");
+		Srv->Log(DEBUG, "Query: "+ qry);
+		Srv->Log(DEBUG, "Error: "+ result->GetError());
+                Srv->Log(DEBUG, " ============================================================== ");
+		// Destroy Variables that were set..
+		delete query;
+		query = NULL;
+		result = NULL;
+		return false;
+	}
+
+  public:
+
+	SQLQuery(Server* S) : Srv(S)
+	{
+	}
+
+        SQLQuery(Module* a, unsigned long b, Server* S) : dbid(b), parent(a), Srv(S)
+        {
+                // Make a few useful variables..
+                SQLModule = Srv->FindModule("m_sql.so");
+        }
+
+        ~SQLQuery()
+        {
+        }
+
+        bool Query(std::string qry)
+        {
+                query = new SQLRequest(SQL_RESULT, dbid, qry);
+                return MakeQueryGoNow(qry);
+        }
+
+        bool QueryCount(std::string qry)
+        {
+                query = new SQLRequest(SQL_COUNT, dbid, qry);
+                return MakeQueryGoNow(qry);
+        }
+
+        bool GetRow()
+        {
+		rowresult = (SQLResult*)rowquery->Send();
+		if (rowresult->GetType() == SQL_ROW)
+		{
+                	// We have got a row.. thats all for now.
+                        return true;
+                }
+                // No Row, Error, or end. KILL CALLER! *BANG*
+                return false;
+	}
+
+	std::string GetField(std::string fname)
+	{
+		return rowresult->GetField(fname);
+	}
+
+	int GetCount()
+	{
+		rowresult = (SQLResult*)rowquery->Send();
+                if (rowresult->GetType() == SQL_COUNT)
+		{
+                	return rowresult->GetCount();
+                }
+		else
+		{
+                        return 0;
+                }
+        }
+
+        void SQLDone()
+	{
+                // Tell m_sql we are finished..
+		query->SetQueryType(SQL_DONE);
+                query->SetConnID(dbid);
+                Request donerequest((char*)query, parent, SQLModule);
+                donerequest.Send();
+
+                // Do Some Clearing up.
+                delete query;
+                delete rowrequest;
+                // Null the variables, so they can be re-used without confusion..
+                result = NULL;
+                query = NULL;
+                rowrequest = NULL;
+                rowresult = NULL;
+        }
+
+        std::string Sanitise(std::string crap)
+        {
+                std::string temp = "";
+                for (unsigned int q = 0; q < crap.length(); q++)
+                {
+                        if (crap[q] == '\'')
+			{
+				temp = temp + "\'";
+			}
+                        else if (crap[q] == '"')
+			{
+				temp = temp + "\\\"";
+			}
+                        else
+				temp = temp + crap[q];
+                }
+                return temp;
+        }
+};
+
+
 #endif
