@@ -268,7 +268,7 @@ class ExtMode : public classbase
         int params_when_on;
         int params_when_off;
         bool list;
-        ExtMode(char mc, int ty, bool oper, int p_on, int p_off) : modechar(mc), type(ty), needsoper(oper), params_when_on(p_on), params_when_off(p_off) { };
+        ExtMode(char mc, int ty, bool oper, int p_on, int p_off) : modechar(mc), type(ty), needsoper(oper), params_when_on(p_on), params_when_off(p_off), list(false) { };
 };
 
 /** Priority types which can be returned from Module::Prioritize()
