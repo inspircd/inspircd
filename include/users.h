@@ -193,7 +193,7 @@ class userrec : public connection
 	 * This is stored even if the <connect> block doesnt need a password, so that
 	 * modules may check it.
 	 */
-	char password[MAXBUF];
+	char password[64];
 
 	/** User's receive queue.
 	 * Lines from the IRCd awaiting processing are stored here.

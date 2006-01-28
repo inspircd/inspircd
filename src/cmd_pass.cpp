@@ -71,7 +71,7 @@ void cmd_pass::Handle (char **parameters, int pcnt, userrec *user)
 		return;
 	}
 	ConnectClass a = GetClass(user);
-	strlcpy(user->password,parameters[0],MAXBUF);
+	strlcpy(user->password,parameters[0],63);
 	if (!strcmp(parameters[0],a.pass.c_str()))
 	{
 		user->haspassed = true;
