@@ -69,21 +69,7 @@ class ModuleOperChans : public Module
 
         virtual void On005Numeric(std::string &output)
         {
-                std::stringstream line(output);
-                std::string temp1, temp2;
-                while (!line.eof())
-                {
-                        line >> temp1;
-                        if (temp1.substr(0,10) == "CHANMODES=")
-                        {
-                                // append the chanmode to the end
-                                temp1 = temp1.substr(10,temp1.length());
-                                temp1 = "CHANMODES=" + temp1 + "O";
-                        }
-                        temp2 = temp2 + temp1 + " ";
-                }
-		if (temp2.length())
-	                output = temp2.substr(0,temp2.length()-1);
+		InsertMode(output,"O",4);
         }
 	
 	virtual int OnUserPreJoin(userrec* user, chanrec* chan, const char* cname)
