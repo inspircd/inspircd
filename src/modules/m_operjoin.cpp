@@ -32,8 +32,8 @@ class ModuleOperjoin : public Module
 
 		virtual void OnRehash(std::string parameter)
 		{
-			delete Conf;
-			Conf = new ConfigReader;
+			delete conf;
+			conf = new ConfigReader;
 		}
 
 		virtual ~ModuleOperjoin()
