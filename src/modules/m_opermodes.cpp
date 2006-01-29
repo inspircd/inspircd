@@ -64,6 +64,9 @@ class ModuleModesOnOper : public Module
                         if (!strcmp(typen.c_str(),user->oper))
                         {
                                 std::string ThisOpersModes = Conf->ReadValue("type","modes",j);
+				char first = *(ThisOpersModes.c_str());
+				if ((first != '+') && (first != '-'))
+					ThisOpersModes = "+" + ThisOpersModes;
 				if (ThisOpersModes != "")
 				{
 					char* modes[2];
