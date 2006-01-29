@@ -48,7 +48,7 @@ class ModuleNoNotice : public Module
 			chanrec* c = (chanrec*)dest;
 			if (c->IsCustomModeSet('T'))
 			{
-				if ((Srv->IsUline(user->server)) || (Srv->ChanMode(user,c) == "@") || (Srv->ChanMode(user,c) == "%"))
+				if ((Srv->IsUlined(user->server)) || (Srv->ChanMode(user,c) == "@") || (Srv->ChanMode(user,c) == "%"))
 				{
 					// ops and halfops can still /NOTICE the channel
 					return 0;
