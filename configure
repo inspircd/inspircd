@@ -23,7 +23,9 @@ $config{MODULE_DIR}         = resolve_directory($config{ME}."/modules");	# Modul
 $config{BINARY_DIR}         = resolve_directory($config{ME}."/bin");		# Binary Directory
 $config{LIBRARY_DIR}        = resolve_directory($config{ME}."/lib");		# Library Directory
 chomp($config{HAS_GNUTLS}   = `libgnutls-config --version 2>/dev/null | cut -c 1,2,3`); # GNUTLS Version.
-$config{USE_GNUTLS}         = "n";						# Use.
+chomp($config{HAS_OPENSSL}  = `openssl version 2>/dev/null`);			# Openssl version
+$config{USE_GNUTLS}         = "n";						# Use gnutls.
+$config{USE_OPENSSL}        = "n";						# Use openssl.
 $config{OPTIMITEMP}         = "0";                              		# Default Optimisation Value
 $config{OPTIMISATI}         = "-g";                             		# Optimisation Flag
 $config{NICK_LENGT}         = "31";                             		# Default Nick Length
@@ -50,6 +52,9 @@ $config{MAX_TOPIC}          = "307";						# max topic size
 $config{MAX_KICK}           = "255";						# max kick message size
 $config{MAX_GECOS}          = "128";						# max GECOS size
 $config{MAX_AWAY}           = "200";						# max AWAY size
+
+$config{HAS_OPENSSL} =~ /OpenSSL (\S+) \d+ \S+ \d{4}/;
+$config{HAS_OPENSSL} = $1;
 
 if ((!$config{OSNAME}) || ($config{OSNAME} eq "")) {
   chomp($config{OSNAME} = `/usr/bin/uname`);
@@ -205,6 +210,15 @@ if (($config{HAS_GNUTLS}) && (($config{HAS_GNUTLS} >= 1.2) || ($config{HAS_GNUTL
 	$config{HAS_GNUTLS} = "n";
 }
 
+printf "Checking for openssl... ";
+if (($config{HAS_OPENSSL}) && (($config{HAS_OPENSSL} >= 0.8) || ($config{HAS_OPENSSL} eq "y"))) {
+	print "yes\n";
+	$config{HAS_OPENSSL} = "y";
+} else {
+	print "no\n";
+	$config{HAS_OPENSSL} = "n";
+}
+
 ################################################################################
 #                          BEGIN INTERACTIVE PART                              #
 ################################################################################
@@ -293,8 +307,19 @@ if (!$chose_hiperf)
 yesno(THREADED_DNS,"Would you like to enable the experimental multi-threaded DNS lookup?");
 print "\n";
 
+if (($config{HAS_GNUTLS} eq "y") && ($config{HAS_OPENSSL} eq "y")) {
+	print "I have detected both GnuTLS and OpenSSL on your system.\n";
+	print "I will default to GnuTLS. If you wish to use OpenSSL\n";
+	print "instead, you should enable the OpenSSL module yourself\n";
+	print "by copying it from src/modules/extra to src/modules.\n\n";
+}
+
 if ($config{HAS_GNUTLS} eq "y") {
 	yesno(USE_GNUTLS, "Would you like to enable SSL Support?");
+	print "\nUsing GnuTLS SSL module.\n";
+} elsif ($config{HAS_OPENSSL} eq "y") {
+	yesno(USE_OPENSSL, "Would you like to enable SSL Support?");
+	print "\nUsing OpenSSL SSL module.\nYou will get better performance if you move to GnuTLS in the future.\n";
 }
 
 print "\nThe following questions will ask you for various figures relating\n";
@@ -562,7 +587,9 @@ print "\033[0mGCC Version Found:\033[1;32m\t\t$config{GCCVER}.$config{GCC34}\n";
 print "\033[0mOptimatizaton Flag:\033[1;32m\t\t$config{OPTIMISATI}\033[0m\n";
 print "\033[0mCompiler program:\033[1;32m\t\t$config{CC}\033[0m\n";
 print "\033[0mStatic modules:\033[1;32m\t\t\t$config{STATIC_LINK}\033[0m\n";
-print "\033[0mMultithread DNS:\033[1;32m\t\t$config{THREADED_DNS}\033[0m\n\n";
+print "\033[0mMultithread DNS:\033[1;32m\t\t$config{THREADED_DNS}\033[0m\n";
+print "\033[0mGnuTLS Support:\033[1;32m\t\t$config{USE_GNUTLS}\033[0m\n";
+print "\033[0mOpenSSL Support:\033[1;32m\t\t$config{USE_OPENSSL}\033[0m\n\n";
 
 if ($config{USE_GNUTLS} eq "y") {
 	system("cp src/modules/extra/m_ssl_gnutls.cpp src/modules/m_ssl_gnutls.cpp");
@@ -590,6 +617,33 @@ if ($config{USE_GNUTLS} eq "y") {
 	} else {
 		print "SSL Certificates found, skipping.\n\n"
 	}	
+} elsif ($config{USE_OPENSSL} eq "y") {
+	system("cp src/modules/extra/m_ssl_openssl.cpp src/modules/m_ssl_openssl.cpp");
+	getmodules();
+	$failed = 0;
+	open(TMP, "<$config{CONFIG_DIR}/key.pem") or $failed = 1;
+	close(TMP);
+	open(TMP, "<$config{CONFIG_DIR}/cert.pem") or $failed = 1;
+	close(TMP);
+	if ($failed) {
+		print "SSL Certificates Not found, Generating.. \n\n
+*************************************************************
+* Generating the certificates may take some time, go grab a *
+* coffee, or something.                                     *
+*************************************************************\n\n";
+		system("openssl req -x509 -nodes -newkey rsa:1024 -keyout key.pem -out cert.pem");
+		system("openssl dhparam -out dhparams.pem 1024");
+		print "\nCertificate generation complete, copying to config directory... ";
+		system("mv key.pem $config{CONFIG_DIR}/key.pem");
+		system("mv cert.pem $config{CONFIG_DIR}/cert.pem");
+		system("mv dhparams.pem $config{CONFIG_DIR}/dhparams.pem");
+		print "Done.\n\n";
+	} else {
+		print "SSL Certificates found, skipping.\n\n"
+	}
+}
+if (($config{USE_GNUTLS} eq "n") && ($config{USE_OPENSSL} eq "n")) {
+	print "Skipping SSL Certificate generation, SSL support is not available.\n\n";
 }
 
 makecache();
@@ -597,6 +651,12 @@ writefiles();
 
 print "\n\n";
 print "To build your server with these settings, please type '\033[1;32m$config{MAKEPROG}\033[0m' now.\n";
+if (($config{USE_GNUTLS} eq "y") || ($config{USE_OPENSSL} eq "y")) {
+	print "Please remember that to enable \033[1;32mSSL support\033[0m you must\n";
+	print "load the required modules in your config. This configure process\n";
+	print "has just prepared these modules to be compiled for you, and has not\n";
+	print "configured them to be compiled into the core of the ircd.\n";
+}
 print "*** \033[1;32mRemember to edit your configuration files!!!\033[0m ***\n\n\n";
 if (($config{OSNAME} eq "OpenBSD") && ($config{CC} ne "eg++")) {
 	print "\033[1;32mWARNING!\033[0m You are running OpenBSD but you are using the base gcc package\nrather than eg++. This compile will most likely fail, but i'm letting you\ngo ahead with it anyway, just in case i'm wrong :-)\n";
