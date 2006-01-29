@@ -680,16 +680,19 @@ bool Server::PseudoToUser(userrec* alive,userrec* zombie,std::string message)
 	alive->fd = FD_MAGIC_NUMBER;
 	alive->FlushWriteBuf();
 	alive->ClearBuffer();
-	Write(zombie->fd,":%s!%s@%s NICK %s",alive->nick,alive->ident,alive->host,zombie->nick);
+	// save these for later
+	std::string oldnick = alive->nick;
+	std::string oldhost = alive->host;
+	std::string oldident = alive->ident;
 	kill_link(alive,message.c_str());
-
         if (find(local_users.begin(),local_users.end(),alive) != local_users.end())
         {
 		local_users.erase(find(local_users.begin(),local_users.end(),alive));
 		log(DEBUG,"Delete local user");
         }
-
+	// Fix by brain - cant write the user until their fd table entry is updated
 	fd_ref_table[zombie->fd] = zombie;
+	Write(zombie->fd,":%s!%s@%s NICK %s",oldnick.c_str(),oldident.c_str(),oldhost.c_str(),zombie->nick);
         for (unsigned int i = 0; i < zombie->chans.size(); i++)
         {
                 if (zombie->chans[i].channel != NULL)
