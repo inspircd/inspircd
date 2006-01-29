@@ -40,7 +40,13 @@ class ModuleModesOnOper : public Module
 
 	void Implements(char* List)
 	{
-		List[I_OnOper] = 1;
+		List[I_OnPostOper] = List[I_OnRehash] = 1;
+	}
+
+	virtual void OnRehash(std::string parameter)
+	{
+		delete Conf;
+		Conf = new ConfigReader;
 	}
 	
 	virtual ~ModuleModesOnOper()
@@ -53,7 +59,7 @@ class ModuleModesOnOper : public Module
 		return Version(1,0,0,1,VF_VENDOR);
 	}
 	
-	virtual void OnOper(userrec* user, std::string opertype)
+	virtual void OnPostOper(userrec* user, std::string opertype)
 	{
 		// whenever a user opers, go through the oper types, find their <type:modes>,
 		// and if they have one apply their modes. The mode string can contain +modes

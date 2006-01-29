@@ -172,6 +172,7 @@ class ModuleSQLOper : public Module
 					                        WriteServ(user->fd,"MODE %s :+o",user->nick);
 								FOREACH_MOD(I_OnOper,OnOper(user,rowresult->GetField("type")));
 								AddOper(user);
+								FOREACH_MOD(I_OnPostOper,OnPostOper(user,rowresult->GetField("type")));
 					                        log(DEFAULT,"OPER: %s!%s@%s opered as type: %s",user->nick,user->ident,user->host,rowresult->GetField("type").c_str());
 					                }
 		                                        break;

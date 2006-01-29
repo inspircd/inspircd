@@ -231,6 +231,7 @@ int		Module::OnExtendedMode(userrec* user, void* target, char modechar, int type
 void		Module::OnMode(userrec* user, void* dest, int target_type, std::string text) { };
 Version		Module::GetVersion() { return Version(1,0,0,0,VF_VENDOR); }
 void		Module::OnOper(userrec* user, std::string opertype) { };
+void		Module::OnPostOper(userrec* user, std::string opertype) { };
 void		Module::OnInfo(userrec* user) { };
 void		Module::OnWhois(userrec* source, userrec* dest) { };
 int		Module::OnUserPreInvite(userrec* source,userrec* dest,chanrec* channel) { return 0; };

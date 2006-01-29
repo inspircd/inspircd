@@ -288,7 +288,7 @@ enum Implementation {	I_OnUserConnect, I_OnUserQuit, I_OnUserDisconnect, I_OnUse
 			I_OnCheckKey, I_OnCheckLimit, I_OnCheckBan, I_OnStats, I_OnChangeLocalUserHost, I_OnChangeLocalUserGecos, I_OnLocalTopicChange,
 			I_OnPostLocalTopicChange, I_OnEvent, I_OnRequest, I_OnOperCompre, I_OnGlobalOper, I_OnGlobalConnect, I_OnAddBan, I_OnDelBan,
 			I_OnRawSocketAccept, I_OnRawSocketClose, I_OnRawSocketWrite, I_OnRawSocketRead, I_OnChangeLocalUserGECOS, I_OnUserRegister,
-			I_OnOperCompare, I_OnChannelDelete };
+			I_OnOperCompare, I_OnChannelDelete, I_OnPostOper };
 
 /** Base class for all InspIRCd modules
  *  This class is the base class for InspIRCd modules. All modules must inherit from this class,
@@ -482,6 +482,15 @@ class Module : public classbase
 	 * @param opertype The opers type name
 	 */
 	virtual void OnOper(userrec* user, std::string opertype);
+
+	/** Called after a user opers locally.
+	 * This is identical to Module::OnOper(), except it is called after OnOper so that other modules
+	 * can be gauranteed to already have processed the oper-up, for example m_spanningtree has sent
+	 * out the OPERTYPE, etc.
+	 * @param user The user who is opering up
+	 * @param opertype The opers type name
+	 */
+	virtual void OnPostOper(userrec* user, std::string opertype);
 	
 	/** Called whenever a user types /INFO.
 	 * The userrec will contain the information of the user who typed the command. Modules may use this

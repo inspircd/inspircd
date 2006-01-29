@@ -117,6 +117,7 @@ void cmd_oper::Handle (char **parameters, int pcnt, userrec *user)
 			FOREACH_MOD(I_OnOper,OnOper(user,OperType));
 			log(DEFAULT,"OPER: %s!%s@%s opered as type: %s",user->nick,user->ident,user->host,OperType);
 			AddOper(user);
+			FOREACH_MOD(I_OnPostOper,OnPostOper(user,OperType));
 		}
 	}
 	else
