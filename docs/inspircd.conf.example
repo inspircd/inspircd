@@ -229,8 +229,8 @@
 
 <class name="Shutdown" commands="DIE RESTART REHASH">
 <class name="ServerLink" commands="CONNECT SQUIT">
-<class name="BanControl" commands="KILL GLINE KLINE ZLINE QLINE SHUN">
-<class name="OperChat" commands="WALLOPS CHATOPS">
+<class name="BanControl" commands="KILL GLINE KLINE ZLINE QLINE ELINE">
+<class name="OperChat" commands="WALLOPS GLOBOPS">
 <class name="HostCloak" commands="SETHOST SETIDENT SETNAME">
 
 
