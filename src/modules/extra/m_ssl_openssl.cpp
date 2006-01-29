@@ -86,8 +86,8 @@ class ModuleSSLOpenSSL : public Module
 		inbufsize = SrvConf->NetBufferSize;
 		
 		/* Global SSL library initialization*/
-      SSL_library_init();
-      SSL_load_error_strings();
+		SSL_library_init();
+		SSL_load_error_strings();
 		
 		/* Build our SSL context*/
 		ctx = SSL_CTX_new( SSLv23_server_method() );
@@ -567,7 +567,7 @@ class ModuleSSLOpenSSL : public Module
 	{		
 		int ret = SSL_accept(session->sess);
       
-      if(ret < 0)
+		if(ret < 0)
 		{
 			int err = SSL_get_error(session->sess, ret);
 				
