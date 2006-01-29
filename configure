@@ -588,7 +588,7 @@ print "\033[0mOptimatizaton Flag:\033[1;32m\t\t$config{OPTIMISATI}\033[0m\n";
 print "\033[0mCompiler program:\033[1;32m\t\t$config{CC}\033[0m\n";
 print "\033[0mStatic modules:\033[1;32m\t\t\t$config{STATIC_LINK}\033[0m\n";
 print "\033[0mMultithread DNS:\033[1;32m\t\t$config{THREADED_DNS}\033[0m\n";
-print "\033[0mGnuTLS Support:\033[1;32m\t\t$config{USE_GNUTLS}\033[0m\n";
+print "\033[0mGnuTLS Support:\033[1;32m\t\t\t$config{USE_GNUTLS}\033[0m\n";
 print "\033[0mOpenSSL Support:\033[1;32m\t\t$config{USE_OPENSSL}\033[0m\n\n";
 
 if ($config{USE_GNUTLS} eq "y") {
