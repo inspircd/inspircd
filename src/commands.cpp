@@ -146,7 +146,7 @@ void do_whois(userrec* user, userrec* dest,unsigned long signon, unsigned long i
 			}
 			else
 			{
-				WriteServ(user->fd,"313 %s %s :is opered but has an unknown type",user->nick, dest->nick);
+				WriteServ(user->fd,"313 %s %s :is an IRC operator",user->nick, dest->nick);
 			}
 		}
 		if ((!signon) && (!idle))
