@@ -19,7 +19,7 @@
 enum issl_status { ISSL_NONE, ISSL_HANDSHAKING, ISSL_OPEN };
 enum issl_io_status { ISSL_WRITE, ISSL_READ };
 
-bool isin(int port, std::vector<int> portlist)
+bool isin(int port, const std::vector<int> &portlist)
 {
 	for(unsigned int i = 0; i < portlist.size(); i++)
 		if(portlist[i] == port)
