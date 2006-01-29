@@ -54,6 +54,10 @@ void cmd_join::Handle (char **parameters, int pcnt, userrec *user)
 	{
 		Ptr = add_channel(user,parameters[0],parameters[1],false);
 	}
+	else
+	{
+		WriteServ(user->fd,"403 %s %s :Invalid channel name",user->nick, parameters[0]);
+	}
 }
 
 
