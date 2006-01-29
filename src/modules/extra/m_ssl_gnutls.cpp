@@ -66,7 +66,6 @@ class ModuleSSLGnuTLS : public Module
 	{
 		Srv = Me;
 		SrvConf = Srv->GetConfig();
-		Conf = new ConfigReader;
 		
 		// Not rehashable...because I cba to reduce all the sizes of existing buffers.
 		inbufsize = SrvConf->NetBufferSize;
@@ -92,7 +91,6 @@ class ModuleSSLGnuTLS : public Module
 		if(param != "ssl")
 			return;
 	
-		delete Conf;
 		Conf = new ConfigReader;
 		
 		for(unsigned int i = 0; i < listenports.size(); i++)
@@ -109,12 +107,17 @@ class ModuleSSLGnuTLS : public Module
 			{
 				// Get the port we're meant to be listening on with SSL
 				unsigned int port = Conf->ReadInteger("bind", "port", i, true);
-				SrvConf->AddIOHook(port, this);
+				if(SrvConf->AddIOHook(port, this))
+				{
+					// We keep a record of which ports we're listening on with SSL
+					listenports.push_back(port);
 				
-				// We keep a record of which ports we're listening on with SSL
-				listenports.push_back(port);
-				
-				log(DEFAULT, "m_ssl_gnutls.so: Enabling SSL for port %d", port);
+					log(DEFAULT, "m_ssl_gnutls.so: Enabling SSL for port %d", port);
+				}
+				else
+				{
+					log(DEFAULT, "m_ssl_gnutls.so: FAILED to enable SSL on port %d, maybe you have another ssl or similar module loaded?", port);
+				}
 			}
 		}
 		

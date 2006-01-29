@@ -117,12 +117,17 @@ class ModuleSSLOpenSSL : public Module
 			{
 				// Get the port we're meant to be listening on with SSL
 				unsigned int port = Conf->ReadInteger("bind", "port", i, true);
-				SrvConf->AddIOHook(port, this);
+				if(SrvConf->AddIOHook(port, this))
+				{
+					// We keep a record of which ports we're listening on with SSL
+					listenports.push_back(port);
 				
-				// We keep a record of which ports we're listening on with SSL
-				listenports.push_back(port);
-				
-				log(DEFAULT, "m_ssl_openssl.so: Enabling SSL for port %d", port);
+					log(DEFAULT, "m_ssl_openssl.so: Enabling SSL for port %d", port);
+				}
+				else
+				{
+					log(DEFAULT, "m_ssl_openssl.so: FAILED to enable SSL on port %d, maybe you have another ssl or similar module loaded?", port);
+				}
 			}
 		}
 		
