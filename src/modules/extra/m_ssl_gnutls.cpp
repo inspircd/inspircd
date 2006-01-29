@@ -172,6 +172,8 @@ class ModuleSSLGnuTLS : public Module
 			
 		// This may be on a large (once a day or week) timer eventually.
 		GenerateDHParams();
+		
+		delete Conf;
 	}
 	
 	void GenerateDHParams()
@@ -187,7 +189,6 @@ class ModuleSSLGnuTLS : public Module
 	
 	virtual ~ModuleSSLGnuTLS()
 	{
-		delete Conf;
 		gnutls_dh_params_deinit(dh_params);
 		gnutls_certificate_free_credentials(x509_cred);
 		gnutls_global_deinit();
