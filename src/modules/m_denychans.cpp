@@ -14,9 +14,6 @@
  * ---------------------------------------------------
  */
 
-using namespace std;
-
-#include <stdio.h>
 #include "users.h"
 #include "channels.h"
 #include "modules.h"
@@ -33,10 +30,15 @@ class ModuleDenyChannels : public Module
 	ConfigReader *Conf;
 
  public:
-	ModuleDenyChannels(Server* Me)
-		: Module::Module(Me)
+	ModuleDenyChannels(Server* Me) : Module::Module(Me)
 	{
 		Srv = Me;
+		Conf = new ConfigReader;
+	}
+	
+	virtual void OnRehash(std::string param)
+	{
+		delete Conf;
 		Conf = new ConfigReader;
 	}
 	
@@ -52,7 +54,7 @@ class ModuleDenyChannels : public Module
 
 	void Implements(char* List)
 	{
-		List[I_OnUserPreJoin] = 1;
+		List[I_OnUserPreJoin] = List[I_OnRehash] = 1;
 	}
 
         virtual int OnUserPreJoin(userrec* user, chanrec* chan, const char* cname)

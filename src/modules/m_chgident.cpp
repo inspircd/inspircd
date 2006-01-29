@@ -31,7 +31,7 @@ class cmd_chgident : public command_t
 				return;
 			}
 		
-			WriteOpers("%s used CHGIDENT to change %s's host from '%s' to '%s'", user->nick, dest->nick, dest->ident, parameters[1]);
+			WriteOpers("%s used CHGIDENT to change %s's ident from '%s' to '%s'", user->nick, dest->nick, dest->ident, parameters[1]);
 			strlcpy(dest->ident, parameters[1], IDENTMAX+2);
 		}
 		else
