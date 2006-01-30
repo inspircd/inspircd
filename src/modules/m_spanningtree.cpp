@@ -1245,7 +1245,7 @@ class TreeSocket : public InspSocket
 		/* Send everything else (channel modes, xlines etc) */
 		this->SendChannelModes(s);
 		this->SendXLines(s);
-		FOREACH_MOD(I_OnSyncOtherMetaData,OnSyncOtherMetaData((Module*)TreeProtocolModule,(void*)this,list[j]));
+		FOREACH_MOD(I_OnSyncOtherMetaData,OnSyncOtherMetaData((Module*)TreeProtocolModule,(void*)this));
 		this->WriteLine("ENDBURST");
 		Srv->SendOpers("*** Finished bursting to \2"+s->GetName()+"\2.");
 	}

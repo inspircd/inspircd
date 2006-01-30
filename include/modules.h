@@ -289,7 +289,7 @@ enum Implementation {	I_OnUserConnect, I_OnUserQuit, I_OnUserDisconnect, I_OnUse
 			I_OnCheckKey, I_OnCheckLimit, I_OnCheckBan, I_OnStats, I_OnChangeLocalUserHost, I_OnChangeLocalUserGecos, I_OnLocalTopicChange,
 			I_OnPostLocalTopicChange, I_OnEvent, I_OnRequest, I_OnOperCompre, I_OnGlobalOper, I_OnGlobalConnect, I_OnAddBan, I_OnDelBan,
 			I_OnRawSocketAccept, I_OnRawSocketClose, I_OnRawSocketWrite, I_OnRawSocketRead, I_OnChangeLocalUserGECOS, I_OnUserRegister,
-			I_OnOperCompare, I_OnChannelDelete, I_OnPostOper };
+			I_OnOperCompare, I_OnChannelDelete, I_OnPostOper, I_OnSyncOtherMetaData };
 
 /** Base class for all InspIRCd modules
  *  This class is the base class for InspIRCd modules. All modules must inherit from this class,
@@ -675,6 +675,17 @@ class Module : public classbase
 	 * @param extname The extensions name which is being searched for
 	 */
 	virtual void OnSyncUserMetaData(userrec* user, Module* proto,void* opaque, std::string extname);
+
+	/* Allows modules to syncronize metadata not related to users or channels, over the network during a netburst.
+	 * Whenever the linking module wants to send out data, but doesnt know what the data
+	 * represents (e.g. it is Extensible metadata, added to a userrec or chanrec by a module) then
+	 * this method is called. You should use the ProtoSendMetaData function after you've
+	 * correctly decided how the data should be represented, to send the metadata on its way if
+	 * if it belongs to your module.
+	 * @param proto A pointer to the module handling network protocol
+	 * @param opaque An opaque pointer set by the protocol module, should not be modified!
+	 */
+	virtual void OnSyncOtherMetaData(Module* proto, void* opaque);
 
 	/** Allows module data, sent via ProtoSendMetaData, to be decoded again by a receiving module.
 	 * Please see src/modules/m_swhois.cpp for a working example of how to use this method call.

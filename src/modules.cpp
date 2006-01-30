@@ -282,6 +282,7 @@ void		Module::OnSyncChannel(chanrec* chan, Module* proto, void* opaque) { };
 void		Module::ProtoSendMode(void* opaque, int target_type, void* target, std::string modeline) { };
 void		Module::OnSyncChannelMetaData(chanrec* chan, Module* proto,void* opaque, std::string extname) { };
 void		Module::OnSyncUserMetaData(userrec* user, Module* proto,void* opaque, std::string extname) { };
+void		Module::OnSyncOtherMetaData(Module* proto, void* opaque) { };
 void		Module::OnDecodeMetaData(int target_type, void* target, std::string extname, std::string extdata) { };
 void		Module::ProtoSendMetaData(void* opaque, int target_type, void* target, std::string extname, std::string extdata) { };
 void		Module::OnWallops(userrec* user, std::string text) { };
