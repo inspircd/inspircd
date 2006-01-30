@@ -530,7 +530,7 @@ class ModuleSSLOpenSSL : public Module
 	{
 		if(dest->GetExt("ssl"))
 		{
-			WriteServ(source->fd, "320 %s %s :is a Secure Connection", source->nick, dest->nick);
+			WriteServ(source->fd, "320 %s %s :is a secure connection", source->nick, dest->nick);
 		}
 	}
 	
