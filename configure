@@ -12,11 +12,6 @@
 #
 ########################################
 
-if (!$>) {
-	print "Cannot configure/build InspIRCd as root.\n";
-	exit(666);
-}
-
 chomp($topdir = `pwd`);
 $this = resolve_directory($topdir);						# PWD, Regardless.
 @modlist = ();                                                  		# Declare for Module List..
@@ -60,6 +55,14 @@ $config{MAX_AWAY}           = "200";						# max AWAY size
 
 $config{HAS_OPENSSL} =~ /OpenSSL (\S+) \d+ \S+ \d{4}/;
 $config{HAS_OPENSSL} = $1;
+
+# Minihack! Convert Cygwin to 'Cyg-Static' so i can
+# Keep my dynamic module experiments here for later
+# concideration!
+
+if ($config{OSNAME} =~ /CYGWIN/) {
+  $config{OSNAME} = "CYG-STATIC";
+}
 
 if ((!$config{OSNAME}) || ($config{OSNAME} eq "")) {
   chomp($config{OSNAME} = `/usr/bin/uname`);
@@ -109,7 +112,7 @@ if ($arg eq "-modupdate") {
     getosflags();
     $has_epoll = $config{HAS_EPOLL};
     $has_kqueue = $config{HAS_KQUEUE};
-    if ($config{OSNAME} =~ /CYGWIN/) {
+    if ($config{STATIC_LINK} == "yes") {
       write_static_modules_makefile();
     } else {
       write_dynamic_modules_makefile();
@@ -199,7 +202,7 @@ if ($has_epoll) {
 print "yes\n" if $has_epoll == 1;
 print "no\n" if $has_epoll == 0;
 
-if ($config{OSNAME} =~ /CYGWIN/) {
+if (($config{OSNAME} =~ /CYGWIN/) || ($config{OSNAME} == "CYG-STATIC")) {
 	$config{HAS_STRLCPY} = "true";
 }
 
@@ -783,6 +786,13 @@ sub getosflags {
        $config{LDLIBS} = "";
        $config{MAKEPROG} = "/usr/bin/make";
        $config{MAKEORDER} = "ircd mods config bininst";
+    } elsif ($config{OSNAME} == "CYG-STATIC") {
+       $config{FLAGS} = "-frtti $OPTIMISATI -Wall -Woverloaded-virtual $config{OPTIMISATI}";
+       $config{LDLIBS} = "";
+       $config{MAKEPROG} = "/usr/bin/make";
+       $config{MAKEORDER} = "mods ircd config bininst";
+       $config{STATICLIBS} = "modules/mods.a";
+       $config{STATIC_LINK} = "yes";
     }
   }
   if ($config{OSNAME} =~ /SunOS/) {
@@ -864,6 +874,10 @@ EOF
     print FILEHANDLE "#define IS_CYGWIN\n";
     print FILEHANDLE "#ifndef FD_SETSIZE\n#define FD_SETSIZE	1024\n#endif\n";
   }
+  if ($config{OSNAME} == "CYG-STATIC") {
+    print FILEHANDLE "#ifndef FD_SETSIZE\n#define FD_SETSIZE    1024\n#endif\n";
+  }
+
   if ($config{STATIC_LINK} eq "yes") {
     print FILEHANDLE "#define STATIC_LINK\n";
   }
@@ -922,7 +936,7 @@ EOF
   my $file = "";
   my $exe = "inspircd";
 
-  if ($config{OSNAME} =~ /CYGWIN/) {
+  if (($config{OSNAME} =~ /CYGWIN/) || ($config{OSNAME} == "CYG-STATIC")) {
     $exe = "inspircd.exe";
   }
 
@@ -1099,10 +1113,10 @@ foreach $i (@modlist)
 		$cmflags = getcompilerflags("src/modules/m_".$i.".cpp");
 		$liflags = getlinkerflags("src/modules/m_".$i.".cpp");
 
+		###
+		# Write Entry to the Makefile
+		###
 		print FILEHANDLE <<EOCHEESE;
-		###
-		# Write Entry to the MakeFile
-		###
 m_$i.o: m_$i\_static.cpp ../../include/modules.h ../../include/users.h ../../include/channels.h ../../include/base.h
 	\$(CC) -pipe -I../../include \$(FLAGS) $flags -export-dynamic -c m_$i\_static.cpp
 	mv m_$i\_static.o ../m_$i.o
