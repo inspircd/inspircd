@@ -60,7 +60,8 @@ enum WriteModeFlags {
 enum TargetTypeFlags {
 	TYPE_USER = 1,
 	TYPE_CHANNEL,
-	TYPE_SERVER
+	TYPE_SERVER,
+	TYPE_OTHER
 };
 
 #include "dynamic.h"
