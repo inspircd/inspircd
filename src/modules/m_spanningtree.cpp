@@ -3251,6 +3251,18 @@ class ModuleSpanningTree : public Module
 		}
 	}
 
+	virtual void OnEvent(Event* event)
+	{
+		if (event->GetEventID() == "send_metadata")
+		{
+			std::deque<std::string>* params = (std::deque<std::string>*)event->GetData();
+			if (params->size() < 3)
+				return;
+			(*params)[2] = ":" + (*params)[2];
+			DoOneToMany(Srv->GetServerName(),"METADATA ",*params);
+		}
+	}
+
 	virtual ~ModuleSpanningTree()
 	{
 	}
@@ -3268,7 +3280,7 @@ class ModuleSpanningTree : public Module
 		List[I_OnUserQuit] = List[I_OnUserPostNick] = List[I_OnUserKick] = List[I_OnRemoteKill] = List[I_OnRehash] = 1;
 		List[I_OnOper] = List[I_OnAddGLine] = List[I_OnAddZLine] = List[I_OnAddQLine] = List[I_OnAddELine] = 1;
 		List[I_OnDelGLine] = List[I_OnDelZLine] = List[I_OnDelQLine] = List[I_OnDelELine] = List[I_ProtoSendMode] = List[I_OnMode] = 1;
-		List[I_OnStats] = List[I_ProtoSendMetaData] = 1;
+		List[I_OnStats] = List[I_ProtoSendMetaData] = List[I_OnEvent] = 1;
 	}
 
 	/* It is IMPORTANT that m_spanningtree is the last module in the chain

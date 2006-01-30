@@ -523,10 +523,23 @@ class ModuleSSLGnuTLS : public Module
 			log(DEBUG, "m_ssl_gnutls.so: Handshake completed");
 			
 			// This will do for setting the ssl flag...it could be done earlier if it's needed. But this seems neater.
-			Srv->FindDescriptor(session->fd)->Extend("ssl", "ON");
+			userrec* extendme = Srv->FindDescriptor(session->fd);
+			extendme->Extend("ssl", "ON");
+
+			// Tell whatever protocol module we're using that we need to inform other servers of this metadata NOW.
+			std::deque<std::string>* metadata = new std::deque<std::string>;
+			metadata->push_back(extendme->nick);
+			metadata->push_back("ssl");
+			metadata->push_back("ON");
+			Event* event = new Event((char*)metadata,(Module*)this,"send_metadata");
+			event->Send();
+			delete event;
+			delete metadata;
 			
+			// Change the seesion state
 			session->status = ISSL_HANDSHAKEN;
 			
+			// Finish writing, if any left
 			MakePollWrite(session);
 			
 			return true;
