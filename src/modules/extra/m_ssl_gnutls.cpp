@@ -231,7 +231,7 @@ class ModuleSSLGnuTLS : public Module
 	void Implements(char* List)
 	{
 		List[I_OnRawSocketAccept] = List[I_OnRawSocketClose] = List[I_OnRawSocketRead] = List[I_OnRawSocketWrite] = List[I_OnCleanup] = 1;
-		List[I_OnSyncUserMetaData] = List[I_OnDecodeMetaData] = List[I_OnUnloadModule] = List[I_OnRehash] = List[I_OnWhois] = 1;
+		List[I_OnSyncUserMetaData] = List[I_OnDecodeMetaData] = List[I_OnUnloadModule] = List[I_OnRehash] = List[I_OnWhois] = List[I_OnGlobalConnect] = 1;
 	}
 
 	virtual void OnRawSocketAccept(int fd, std::string ip, int localport)
@@ -526,6 +526,22 @@ class ModuleSSLGnuTLS : public Module
 			userrec* extendme = Srv->FindDescriptor(session->fd);
 			extendme->Extend("ssl", "ON");
 
+			// Change the seesion state
+			session->status = ISSL_HANDSHAKEN;
+			
+			// Finish writing, if any left
+			MakePollWrite(session);
+			
+			return true;
+		}
+	}
+
+	virtual void OnGlobalConnect(userrec* user)
+	{
+		// This occurs AFTER OnUserConnect so we can be sure the
+		// protocol module has propogated the NICK message.
+		if ((user->GetExt("ssl")) && (IS_LOCAL(user)))
+		{
 			// Tell whatever protocol module we're using that we need to inform other servers of this metadata NOW.
 			std::deque<std::string>* metadata = new std::deque<std::string>;
 			metadata->push_back(extendme->nick);
@@ -535,14 +551,6 @@ class ModuleSSLGnuTLS : public Module
 			event->Send();
 			delete event;
 			delete metadata;
-			
-			// Change the seesion state
-			session->status = ISSL_HANDSHAKEN;
-			
-			// Finish writing, if any left
-			MakePollWrite(session);
-			
-			return true;
 		}
 	}
 	
