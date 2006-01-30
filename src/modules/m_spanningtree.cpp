@@ -3259,7 +3259,7 @@ class ModuleSpanningTree : public Module
 			if (params->size() < 3)
 				return;
 			(*params)[2] = ":" + (*params)[2];
-			DoOneToMany(Srv->GetServerName(),"METADATA ",*params);
+			DoOneToMany(Srv->GetServerName(),"METADATA",*params);
 		}
 	}
 
