@@ -1245,6 +1245,7 @@ class TreeSocket : public InspSocket
 		/* Send everything else (channel modes, xlines etc) */
 		this->SendChannelModes(s);
 		this->SendXLines(s);
+		FOREACH_MOD(I_OnSyncOtherMetaData,OnSyncOtherMetaData((Module*)TreeProtocolModule,(void*)this,list[j]));
 		this->WriteLine("ENDBURST");
 		Srv->SendOpers("*** Finished bursting to \2"+s->GetName()+"\2.");
 	}
@@ -1473,7 +1474,11 @@ class TreeSocket : public InspSocket
 		TreeServer* ServerSource = FindServer(prefix);
 		if (ServerSource)
 		{
-			if (*(params[0].c_str()) == '#')
+			if (params[0] == "*")
+			{
+				FOREACH_MOD(I_OnDecodeMetaData,OnDecodeMetaData(TYPE_OTHER,NULL,params[1],params[2]));
+			}
+			else if (*(params[0].c_str()) == '#')
 			{
 				chanrec* c = Srv->FindChannel(params[0]);
 				if (c)
@@ -1481,7 +1486,7 @@ class TreeSocket : public InspSocket
 					FOREACH_MOD(I_OnDecodeMetaData,OnDecodeMetaData(TYPE_CHANNEL,c,params[1],params[2]));
 				}
 			}
-			else
+			else if (*(params[0].c_str()) != '#')
 			{
 				userrec* u = Srv->FindNick(params[0]);
 				if (u)
@@ -3234,7 +3239,11 @@ class ModuleSpanningTree : public Module
 				userrec* u = (userrec*)target;
 				s->WriteLine(":"+Srv->GetServerName()+" METADATA "+u->nick+" "+extname+" :"+extdata);
 			}
-			else
+			else if (target_type == TYPE_OTHER)
+			{
+				s->WriteLine(":"+Srv->GetServerName()+" METADATA * "+extname+" :"+extdata);
+			}
+			else if (target_type == TYPE_CHANNEL)
 			{
 				chanrec* c = (chanrec*)target;
 				s->WriteLine(":"+Srv->GetServerName()+" METADATA "+c->name+" "+extname+" :"+extdata);
