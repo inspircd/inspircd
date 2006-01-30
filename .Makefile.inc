@@ -53,8 +53,8 @@ bininst:
 	-install -v -m 0700 src/libIRCDwildcard.so $(LIBPATH)
 	-install -v -m 0700 src/libIRCDxline.so $(LIBPATH)
 	-install -v -m 0700 src/inspircd $(BINPATH)
-	-install -v -m 0700 src/inspircd.dll $(BINPATH)
-	-install -v -m 0700 inspircd $(BASE)
+	@-install -v -m 0700 src/inspircd.dll $(BINPATH)
+	@-install -v -m 0700 inspircd $(BASE)
 	@echo "*************************************"
 	@echo "*      BUILD COMPLETE!              *"
 	@echo "* It is safe to ignore any messages *"
