@@ -451,12 +451,14 @@ bool InspIRCd::LoadModule(const char* filename)
 #endif
 	std::string filename_str = filename;
 #ifndef STATIC_LINK
+#ifndef IS_CYGWIN
 	if (!DirValid(modfile))
 	{
 		log(DEFAULT,"Module %s is not within the modules directory.",modfile);
 		snprintf(MODERR,MAXBUF,"Module %s is not within the modules directory.",modfile);
 		return false;
 	}
+#endif
 #endif
 	log(DEBUG,"Loading module: %s",modfile);
 #ifndef STATIC_LINK
