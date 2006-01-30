@@ -661,15 +661,6 @@ print "*** \033[1;32mRemember to edit your configuration files!!!\033[0m ***\n\n
 if (($config{OSNAME} eq "OpenBSD") && ($config{CC} ne "eg++")) {
 	print "\033[1;32mWARNING!\033[0m You are running OpenBSD but you are using the base gcc package\nrather than eg++. This compile will most likely fail, but i'm letting you\ngo ahead with it anyway, just in case i'm wrong :-)\n";
 }
-if ($config{OSNAME} =~ /CYGWIN/) {
-	print <<FOO;
-\033[1;32mWARNING!\033[0m CYGWIN does not properly support shared modules,
-so modules will be compiled statically into the core of the ircd. The modules
-will act like they are being loaded from disk and being unloaded from RAM,
-however they are in fact being enabled and disabled similar to features in
-other ircds.
-FOO
-}
 
 if ($config{GCCVER} < "3") {
 	print <<FOO2;
@@ -786,9 +777,7 @@ sub getosflags {
        $config{FLAGS}  = "-frtti $OPTIMISATI -Wall -Woverloaded-virtual $config{OPTIMISATI}";
        $config{LDLIBS} = "";
        $config{MAKEPROG} = "/usr/bin/make";
-       $config{MAKEORDER} = "mods ircd config bininst";
-       $config{STATICLIBS} = "modules/mods.a";
-       $config{STATIC_LINK} = "yes";
+       $config{MAKEORDER} = "ircd mods config bininst";
     }
   }
   if ($config{OSNAME} =~ /SunOS/) {
@@ -913,7 +902,7 @@ EOF
   my $modules = "";
   foreach $i (@modlist)
   {
-    if ($config{OSNAME} =~ /CYGWIN/) {
+    if ($config{STATIC_LINK} eq "yes") {
         $modules .= "m_".$i.".o ";
     }
     else {
@@ -972,12 +961,15 @@ EOF
   # Make inspircd executable!
   chmod 0744, 'inspircd';
 
-  if ($config{OSNAME} =~ /CYGWIN/) {
+  if ($config{STATIC_LINK} eq "yes") {
 	print "Writing static-build \033[1;32msrc/Makefile\033[0m\n";
 	write_static_makefile();
 	write_static_modules_makefile();
-  }
-  else {
+  } elsif ($config{OSNAME} =~ /CYGWIN/) {
+	print "Writing cygwin-build \033[1;32msrc/Makefile\033[0m\n";
+	write_static_makefile();
+	write_dynamic_modules_makefile();
+  } else {
 	print "Writing dynamic-build \033[1;32msrc/Makefile\033[0m\n";
 	write_dynamic_makefile();
 	write_dynamic_modules_makefile();
@@ -1138,6 +1130,11 @@ sub write_dynamic_modules_makefile {
   # Modules Makefile..
   print "Writing \033[1;32msrc/modules/Makefile\033[0m\n";
   open(FILEHANDLE, ">src/modules/Makefile");
+  my $extra = "";
+
+  if ($config{OSNAME} =~ /CYGWIN/) {
+	$extra = "../inspircd.dll.a";
+  }
 
 ###
 # Module Makefile Header
@@ -1172,7 +1169,7 @@ foreach $i (@modlist) {
 	print FILEHANDLE <<EOCHEESE;
 m_$i.so: m_$i.cpp ../../include/modules.h ../../include/users.h ../../include/channels.h ../../include/base.h ../../include/inspircd_config.h ../../include/inspircd.h ../../include/inspircd_io.h
 	\$(CC) -pipe -I../../include \$(FLAGS) $cmflags -export-dynamic -c m_$i.cpp
-	\$(CC) \$(FLAGS) -shared $liflags -o m_$i.so m_$i.o
+	\$(CC) \$(FLAGS) -shared $liflags -o m_$i.so m_$i.o $extra
 	\@-rm -f \$(MODPATH)/m_$i.so
 	install -v -m 0700 m_$i.so \$(MODPATH)
 
@@ -1206,17 +1203,43 @@ sub write_static_makefile {
 #
 # (C) ChatSpike development team
 # Makefile by <Craig\@ChatSpike.net>
-# Makefile version 2 (dynamically linked core) by <brain\@inspircd.org>
+# Makefile version 2 (statically linked core) by <brain\@inspircd.org>
 #
 
 CC = im a cheezeball
 
 CXXFLAGS = -I../include \${FLAGS}
 
+EOM
+###
+# This next section is for cygwin dynamic module builds.
+# Basically, what we do, is build the inspircd core as a library
+# then the main executable uses that. the library is capable of
+# loading / unloading the modules dynamically :)
+# Massive thanks to the guys on #cygwin @ irc.freenode.net for helping
+# make this work :)
+###
+
+if ($config{OSNAME} =~ /CYGWIN/) {
+	print FH <<EOM;
+all: aes.o command_parse.o cull_list.o userprocess.o socketengine.o socket.o hashcomp.o channels.o mode.o xline.o inspstring.o dns.o base.o inspircd_io.o message.o $cmdobjs commands.o dnsqueue.o dynamic.o users.o modules.o wildcard.o helperfuncs.o inspircd.exe
+
+inspircd.exe: inspircd.dll.a
+	\$(CC) -o \$@ \$^
+
+inspircd.dll inspircd.dll.a: inspircd.o channels.o mode.o xline.o inspstring.o dns.o base.o inspircd_io.o message.o $cmdobjs  commands.o dnsqueue.o dynamic.o users.o modules.o wildcard.o helperfuncs.o hashcomp.o socket.o socketengine.o userprocess.o cull_list.o command_parse.o aes.o
+	\$(CC) -shared -Wl,--out-implib=inspircd.dll.a -o inspircd.dll \$^
+EOM
+} else {
+	print FH <<EOM;
 all: aes.o command_parse.o cull_list.o userprocess.o socketengine.o socket.o hashcomp.o channels.o mode.o xline.o inspstring.o dns.o base.o inspircd_io.o message.o $cmdobjs commands.o dnsqueue.o dynamic.o users.o modules.o wildcard.o helperfuncs.o \$(MODULES) inspircd.exe
 
 inspircd.exe: inspircd.cpp ../include/base.h ../include/channels.h ../include/inspircd.h ../include/channels.h ../include/globals.h ../include/inspircd_config.h ../include/base.h
 	\$(CC) -I../include \$(FLAGS) inspircd.cpp -o inspircd.exe \$(LDLIBS) channels.o mode.o xline.o inspstring.o dns.o base.o inspircd_io.o message.o $cmdobjs commands.o dnsqueue.o dynamic.o users.o modules.o wildcard.o helperfuncs.o hashcomp.o socket.o socketengine.o userprocess.o cull_list.o command_parse.o aes.o \$(MODULES)
+EOM
+}
+
+print FH <<EOM;
 
 cull_list.o: cull_list.cpp ../include/base.h ../include/hashcomp.h ../include/globals.h ../include/inspircd_config.h ../include/users.h ../include/channels.h
 	\$(CC) -pipe -I../include \$(FLAGS) -export-dynamic -c cull_list.cpp

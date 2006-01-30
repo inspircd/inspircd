@@ -53,6 +53,17 @@ DLLManager::DLLManager(char *fname)
 	}
 	err = "Module is not statically compiled into the ircd";
 #else
+#ifdef IS_CYGWIN
+	// Cygwin behaviour is handled slightly differently
+	// With the advent of dynamic modules. Because Windows
+	// wont let you overwrite a file which is currently in
+	// Use, we can safely attempt to load the module from its
+	// Current location :)
+
+	h = dlopen(fname, RTLD_NOW );
+	err = (char*)dlerror();
+
+#else
 	// Copy the library to a temp location, this makes recompiles
 	// a little safer if the ircd is running at the time as the
 	// shared libraries are mmap()ed and not doing this causes
@@ -77,6 +88,7 @@ DLLManager::DLLManager(char *fname)
 	// We can delete the tempfile once it's loaded, leaving just the inode.
 	if (!Config->debugging)
 		unlink(tmpfile_template);
+#endif
 #endif
 }
 
