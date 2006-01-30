@@ -544,11 +544,11 @@ class ModuleSSLGnuTLS : public Module
 		{
 			// Tell whatever protocol module we're using that we need to inform other servers of this metadata NOW.
 			std::deque<std::string>* metadata = new std::deque<std::string>;
-			metadata->push_back(extendme->nick);
-			metadata->push_back("ssl");
-			metadata->push_back("ON");
+			metadata->push_back(user->nick);
+			metadata->push_back("ssl");		// The metadata id
+			metadata->push_back("ON");		// The value to send
 			Event* event = new Event((char*)metadata,(Module*)this,"send_metadata");
-			event->Send();
+			event->Send();				// Trigger the event. We don't care what module picks it up.
 			delete event;
 			delete metadata;
 		}
