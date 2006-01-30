@@ -12,6 +12,11 @@
 #
 ########################################
 
+if (!$>) {
+	print "Cannot configure/build InspIRCd as root.\n";
+	exit(666);
+}
+
 chomp($topdir = `pwd`);
 $this = resolve_directory($topdir);						# PWD, Regardless.
 @modlist = ();                                                  		# Declare for Module List..
