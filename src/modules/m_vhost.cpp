@@ -23,8 +23,8 @@ using namespace std;
 
 /* $ModDesc: Provides masking of user hostnames via traditional /VHOST command */
 
-ConfigReader *Conf;
-Server* Srv;
+static ConfigReader *Conf;
+static Server* Srv;
 
 class cmd_vhost : public command_t
 {
