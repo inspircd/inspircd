@@ -254,7 +254,7 @@ class ModuleSSLOpenSSL : public Module
 	void Implements(char* List)
 	{
 		List[I_OnRawSocketAccept] = List[I_OnRawSocketClose] = List[I_OnRawSocketRead] = List[I_OnRawSocketWrite] = List[I_OnCleanup] = 1;
-		List[I_OnSyncUserMetaData] = List[I_OnDecodeMetaData] = List[I_OnUnloadModule] = List[I_OnRehash] = List[I_OnWhois] = 1;
+		List[I_OnSyncUserMetaData] = List[I_OnDecodeMetaData] = List[I_OnUnloadModule] = List[I_OnRehash] = List[I_OnWhois] = List[I_OnGlobalConnect] = 1;
 	}
 
 	virtual void OnRawSocketAccept(int fd, std::string ip, int localport)
@@ -605,6 +605,24 @@ class ModuleSSLOpenSSL : public Module
 			MakePollWrite(session);
 			
 			return true;
+		}
+	}
+	
+	virtual void OnGlobalConnect(userrec* user)
+	{
+		// This occurs AFTER OnUserConnect so we can be sure the
+		// protocol module has propogated the NICK message.
+		if ((user->GetExt("ssl")) && (IS_LOCAL(user)))
+		{
+			// Tell whatever protocol module we're using that we need to inform other servers of this metadata NOW.
+			std::deque<std::string>* metadata = new std::deque<std::string>;
+			metadata->push_back(user->nick);
+			metadata->push_back("ssl");		// The metadata id
+			metadata->push_back("ON");		// The value to send
+			Event* event = new Event((char*)metadata,(Module*)this,"send_metadata");
+			event->Send();				// Trigger the event. We don't care what module picks it up.
+			delete event;
+			delete metadata;
 		}
 	}
 	

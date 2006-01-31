@@ -98,19 +98,21 @@ class cmd_cban : public command_t
 				// parameters[1] = 1h3m2s
 				// parameters[2] = Tortoise abuser
 				long length = Srv->CalcDuration(parameters[1]);
+				std::string reason = (pcnt > 2) ? parameters[2] : "No reason supplied";
 				
-				cbans.push_back(CBan(parameters[0], user->nick, TIME, length, parameters[2]));
+				cbans.push_back(CBan(parameters[0], user->nick, TIME, length, reason));
+					
 				std::sort(cbans.begin(), cbans.end(), CBanComp);
 				
 				if(length > 0)
 				{
-					WriteServ(user->fd, "385 %s %s :Added %lu second channel ban (%s)", user->nick, parameters[0], length, parameters[2]);
-					WriteOpers("*** %s added %lu second channel ban on %s (%s)", user->nick, length, parameters[0], parameters[2]);
+					WriteServ(user->fd, "385 %s %s :Added %lu second channel ban (%s)", user->nick, parameters[0], length, reason.c_str());
+					WriteOpers("*** %s added %lu second channel ban on %s (%s)", user->nick, length, parameters[0], reason.c_str());
 				}
 				else
 				{
-					WriteServ(user->fd, "385 %s %s :Added permenant channel ban (%s)", user->nick, parameters[0], parameters[2]);
-					WriteOpers("*** %s added permenant channel ban on %s (%s)", user->nick, parameters[0], parameters[2]);
+					WriteServ(user->fd, "385 %s %s :Added permenant channel ban (%s)", user->nick, parameters[0], reason.c_str());
+					WriteOpers("*** %s added permenant channel ban on %s (%s)", user->nick, parameters[0], reason.c_str());
 				}
 			}
 			else
@@ -143,10 +145,13 @@ class ModuleCBan : public Module
 	{
 		ExpireBans();
 	
-		for(cbanlist::iterator iter = cbans.begin(); iter != cbans.end(); iter++)
+		if(symbol == 'C')
 		{
-			unsigned long remaining = (iter->set_on + iter->length) - TIME;
-			WriteServ(user->fd, "210 %s %s %s %lu %lu %lu :%s", user->nick, iter->chname.c_str(), iter->set_by.c_str(), iter->set_on, iter->length, remaining, iter->reason.c_str());
+			for(cbanlist::iterator iter = cbans.begin(); iter != cbans.end(); iter++)
+			{
+				unsigned long remaining = (iter->set_on + iter->length) - TIME;
+				WriteServ(user->fd, "210 %s %s %s %lu %lu %lu :%s", user->nick, iter->chname.c_str(), iter->set_by.c_str(), iter->set_on, iter->length, remaining, iter->reason.c_str());
+			}
 		}
 		
 		return 0;
