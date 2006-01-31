@@ -1179,7 +1179,7 @@ class TreeSocket : public InspSocket
 		for (chan_hash::iterator c = chanlist.begin(); c != chanlist.end(); c++)
 		{
 			SendFJoins(Current, c->second);
-			snprintf(data,MAXBUF,":%s FMODE %s +%s",Srv->GetServerName().c_str(),c->second->name,chanmodes(c->second));
+			snprintf(data,MAXBUF,":%s FMODE %s +%s",Srv->GetServerName().c_str(),c->second->name,chanmodes(c->second,true));
 			this->WriteLine(data);
 			if (*c->second->topic)
 			{

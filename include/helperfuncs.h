@@ -64,7 +64,7 @@ userrec* Find(std::string nick);
 chanrec* FindChan(const char* chan);
 long GetMaxBans(char* name);
 void purge_empty_chans(userrec* u);
-char* chanmodes(chanrec *chan);
+char* chanmodes(chanrec *chan, bool showkey);
 void userlist(userrec *user,chanrec *c);
 int usercount_i(chanrec *c);
 int usercount(chanrec *c);

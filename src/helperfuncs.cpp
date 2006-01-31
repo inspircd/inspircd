@@ -1000,7 +1000,7 @@ void purge_empty_chans(userrec* u)
 }
 
 
-char* chanmodes(chanrec *chan)
+char* chanmodes(chanrec *chan, bool showkey)
 {
 	static char scratch[MAXBUF];
 	static char sparam[MAXBUF];
@@ -1032,7 +1032,9 @@ char* chanmodes(chanrec *chan)
         if (chan->binarymodes & CM_PRIVATE)
                 *offset++ = 'p';
         if (*chan->key)
-		snprintf(sparam,MAXBUF," %s",chan->key);
+	{
+		snprintf(sparam,MAXBUF," %s",showkey ? chan->key : "<key>");
+	}
         if (chan->limit)
         {
                 char foo[24];

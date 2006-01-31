@@ -1436,7 +1436,7 @@ void cmd_mode::Handle (char **parameters, int pcnt, userrec *user)
 		if (pcnt == 1)
 		{
 			/* just /modes #channel */
-			WriteServ(user->fd,"324 %s %s +%s",user->nick, Ptr->name, chanmodes(Ptr));
+			WriteServ(user->fd,"324 %s %s +%s",user->nick, Ptr->name, chanmodes(Ptr,has_channel(user,Ptr)));
                         WriteServ(user->fd,"329 %s %s %d", user->nick, Ptr->name, Ptr->created);
 			return;
 		}
