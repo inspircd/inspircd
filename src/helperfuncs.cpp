@@ -237,7 +237,7 @@ void WriteFrom_NoFormat(int sock, userrec *user, const char* text)
 	if ((sock < 0) || (!text) || (!user))
 		return;
 	char tb[MAXBUF];
-	int bytes = snprintf(tb,MAXBUF,":%s!%s@%s %s\r\n",user->nick,user->ident,user->dhost,text);
+	int bytes = snprintf(tb,MAXBUF,":%s %s\r\n",user->GetFullHost(),text);
 	chop(tb);
 	if (fd_ref_table[sock])
 	{
@@ -270,7 +270,7 @@ void WriteFrom(int sock, userrec *user,char* text, ...)
 	char textbuffer[MAXBUF],tb[MAXBUF];
         vsnprintf(textbuffer, MAXBUF, text, argsPtr);
         va_end(argsPtr);
-        int bytes = snprintf(tb,MAXBUF,":%s!%s@%s %s\r\n",user->nick,user->ident,user->dhost,textbuffer);
+        int bytes = snprintf(tb,MAXBUF,":%s %s\r\n",user->GetFullHost(),textbuffer);
         chop(tb);
         if (fd_ref_table[sock])
         {
@@ -308,7 +308,7 @@ void WriteTo(userrec *source, userrec *dest,char *data, ...)
         // if no source given send it from the server.
         if (!source)
         {
-                WriteServ(dest->fd,":%s %s",Config->ServerName,textbuffer);
+                WriteServ_NoFormat(dest->fd,textbuffer);
         }
         else
         {
@@ -322,7 +322,7 @@ void WriteTo_NoFormat(userrec *source, userrec *dest, const char *data)
 		return;
 	if (!source)
 	{
-		WriteServ(dest->fd,":%s %s",Config->ServerName,data);
+		WriteServ_NoFormat(dest->fd,data);
 	}
 	else
 	{
