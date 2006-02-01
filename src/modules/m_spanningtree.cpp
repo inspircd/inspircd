@@ -2135,8 +2135,20 @@ class TreeSocket : public InspSocket
 							userrec* x = Srv->FindNick(params[0]);
 							if (x)
 							{
-								this->WriteLine(":"+Srv->GetServerName()+" KILL "+params[0]+" :Nickname collision ("+prefix+" -> "+params[0]+")");
+								std::deque<std::string> p;
+								p.push_back(params[0]);
+								p.push_back("Nickname collision ("+prefix+" -> "+params[0]+")");
+								DoOneToMany(Srv->GetServerName(),"KILL",p);
+								p.clear();
+								p.push_back(prefix);
+								p.push_back("KILL "+prefix+" :Nickname collision");
+								DoOneToMany(Srv->GetServerName(),"KILL",p);
 								Srv->QuitUser(x,"Nickname collision ("+prefix+" -> "+params[0]+")");
+								userrec* y = Srv->FindNick(prefix);
+								if (y)
+								{
+									Srv->QuitUser(y,"Nickname collision");
+								}
 								return DoOneToAllButSenderRaw(line,sourceserv,prefix,command,params);
 							}
 						}
