@@ -72,19 +72,21 @@ char* ModeParser::GiveOps(userrec *user,char *dest,chanrec *chan,int status)
 	}
 	else
 	{
-
-		int MOD_RESULT = 0;
-		FOREACH_RESULT(I_OnAccessCheck,OnAccessCheck(user,d,chan,AC_OP));
-		
-		if (MOD_RESULT == ACR_DENY)
-			return NULL;
-		if (MOD_RESULT == ACR_DEFAULT)
+		if (user->server == d->server)
 		{
-			if ((status < STATUS_OP) && (!is_uline(user->server)))
-			{
-				log(DEBUG,"%s cant give ops to %s because they nave status %d and needs %d",user->nick,dest,status,STATUS_OP);
-				WriteServ(user->fd,"482 %s %s :You're not a channel operator",user->nick, chan->name);
+			int MOD_RESULT = 0;
+			FOREACH_RESULT(I_OnAccessCheck,OnAccessCheck(user,d,chan,AC_OP));
+			
+			if (MOD_RESULT == ACR_DENY)
 				return NULL;
+			if (MOD_RESULT == ACR_DEFAULT)
+			{
+				if ((status < STATUS_OP) && (!is_uline(user->server)) && (IS_LOCAL(user)))
+				{
+					log(DEBUG,"%s cant give ops to %s because they nave status %d and needs %d",user->nick,dest,status,STATUS_OP);
+					WriteServ(user->fd,"482 %s %s :You're not a channel operator",user->nick, chan->name);
+					return NULL;
+				}
 			}
 		}
 
@@ -128,17 +130,20 @@ char* ModeParser::GiveHops(userrec *user,char *dest,chanrec *chan,int status)
 	}
 	else
 	{
-		int MOD_RESULT = 0;
-		FOREACH_RESULT(I_OnAccessCheck,OnAccessCheck(user,d,chan,AC_HALFOP));
-		
-		if (MOD_RESULT == ACR_DENY)
-			return NULL;
-		if (MOD_RESULT == ACR_DEFAULT)
+		if (user->server == d->server)
 		{
-			if ((status < STATUS_OP) && (!is_uline(user->server)))
-			{
-				WriteServ(user->fd,"482 %s %s :You're not a channel operator",user->nick, chan->name);
+			int MOD_RESULT = 0;
+			FOREACH_RESULT(I_OnAccessCheck,OnAccessCheck(user,d,chan,AC_HALFOP));
+		
+			if (MOD_RESULT == ACR_DENY)
 				return NULL;
+			if (MOD_RESULT == ACR_DEFAULT)
+			{
+				if ((status < STATUS_OP) && (!is_uline(user->server)) && (IS_LOCAL(user)))
+				{
+					WriteServ(user->fd,"482 %s %s :You're not a channel operator",user->nick, chan->name);
+					return NULL;
+				}
 			}
 		}
 
@@ -179,17 +184,20 @@ char* ModeParser::GiveVoice(userrec *user,char *dest,chanrec *chan,int status)
 	}
 	else
 	{
-		int MOD_RESULT = 0;
-		FOREACH_RESULT(I_OnAccessCheck,OnAccessCheck(user,d,chan,AC_VOICE));
-		
-		if (MOD_RESULT == ACR_DENY)
-			return NULL;
-		if (MOD_RESULT == ACR_DEFAULT)
+		if (user->server == d->server)
 		{
-			if ((status < STATUS_HOP) && (!is_uline(user->server)))
-			{
-				WriteServ(user->fd,"482 %s %s :You must be at least a half-operator to change modes on this channel",user->nick, chan->name);
+			int MOD_RESULT = 0;
+			FOREACH_RESULT(I_OnAccessCheck,OnAccessCheck(user,d,chan,AC_VOICE));
+			
+			if (MOD_RESULT == ACR_DENY)
 				return NULL;
+			if (MOD_RESULT == ACR_DEFAULT)
+			{
+				if ((status < STATUS_HOP) && (!is_uline(user->server)) && (IS_LOCAL(user)))
+				{
+					WriteServ(user->fd,"482 %s %s :You must be at least a half-operator to change modes on this channel",user->nick, chan->name);
+					return NULL;
+				}
 			}
 		}
 
@@ -231,17 +239,20 @@ char* ModeParser::TakeOps(userrec *user,char *dest,chanrec *chan,int status)
 	}
 	else
 	{
-		int MOD_RESULT = 0;
-		FOREACH_RESULT(I_OnAccessCheck,OnAccessCheck(user,d,chan,AC_DEOP));
-		
-		if (MOD_RESULT == ACR_DENY)
-			return NULL;
-		if (MOD_RESULT == ACR_DEFAULT)
+		if (user->server == d->server)
 		{
-			if ((status < STATUS_OP) && (!is_uline(user->server)))
-			{
-				WriteServ(user->fd,"482 %s %s :You are not a channel operator",user->nick, chan->name);
+			int MOD_RESULT = 0;
+			FOREACH_RESULT(I_OnAccessCheck,OnAccessCheck(user,d,chan,AC_DEOP));
+			
+			if (MOD_RESULT == ACR_DENY)
 				return NULL;
+			if (MOD_RESULT == ACR_DEFAULT)
+			{
+				if ((status < STATUS_OP) && (!is_uline(user->server)) && (IS_LOCAL(user)) && (IS_LOCAL(user)))
+				{
+					WriteServ(user->fd,"482 %s %s :You are not a channel operator",user->nick, chan->name);
+					return NULL;
+				}
 			}
 		}
 
@@ -283,18 +294,21 @@ char* ModeParser::TakeHops(userrec *user,char *dest,chanrec *chan,int status)
 	}
 	else
 	{
-		int MOD_RESULT = 0;
-		FOREACH_RESULT(I_OnAccessCheck,OnAccessCheck(user,d,chan,AC_DEHALFOP));
-		
-		if (MOD_RESULT == ACR_DENY)
-			return NULL;
-		if (MOD_RESULT == ACR_DEFAULT)
+		if (user->server == d->server)
 		{
-			/* Tweak by Brain suggested by w00t, allow a halfop to dehalfop themselves */
-			if ((user != d) && ((status < STATUS_OP) && (!is_uline(user->server))))
-			{
-				WriteServ(user->fd,"482 %s %s :You are not a channel operator",user->nick, chan->name);
+			int MOD_RESULT = 0;
+			FOREACH_RESULT(I_OnAccessCheck,OnAccessCheck(user,d,chan,AC_DEHALFOP));
+			
+			if (MOD_RESULT == ACR_DENY)
 				return NULL;
+			if (MOD_RESULT == ACR_DEFAULT)
+			{
+				/* Tweak by Brain suggested by w00t, allow a halfop to dehalfop themselves */
+				if ((user != d) && ((status < STATUS_OP) && (!is_uline(user->server))) && (IS_LOCAL(user)))
+				{
+					WriteServ(user->fd,"482 %s %s :You are not a channel operator",user->nick, chan->name);
+					return NULL;
+				}
 			}
 		}
 
@@ -335,17 +349,20 @@ char* ModeParser::TakeVoice(userrec *user,char *dest,chanrec *chan,int status)
 	}
 	else
 	{
-		int MOD_RESULT = 0;
-		FOREACH_RESULT(I_OnAccessCheck,OnAccessCheck(user,d,chan,AC_DEVOICE));
-		
-		if (MOD_RESULT == ACR_DENY)
-			return NULL;
-		if (MOD_RESULT == ACR_DEFAULT)
+		if (user->server == d->server)
 		{
-			if ((status < STATUS_HOP) && (!is_uline(user->server)))
-			{
-				WriteServ(user->fd,"482 %s %s :You must be at least a half-operator to change modes on this channel",user->nick, chan->name);
+			int MOD_RESULT = 0;
+			FOREACH_RESULT(I_OnAccessCheck,OnAccessCheck(user,d,chan,AC_DEVOICE));
+			
+			if (MOD_RESULT == ACR_DENY)
 				return NULL;
+			if (MOD_RESULT == ACR_DEFAULT)
+			{
+				if ((status < STATUS_HOP) && (!is_uline(user->server)) && (IS_LOCAL(user)))
+				{
+					WriteServ(user->fd,"482 %s %s :You must be at least a half-operator to change modes on this channel",user->nick, chan->name);
+					return NULL;
+				}
 			}
 		}
 
@@ -530,10 +547,13 @@ void ModeParser::ProcessModes(char **parameters,userrec* user,chanrec *chan,int 
 	}
 
 	int MOD_RESULT = 0;
-	FOREACH_RESULT(I_OnAccessCheck,OnAccessCheck(user,NULL,chan,AC_GENERAL_MODE));
 	
-	if (MOD_RESULT == ACR_DENY)
-		return;
+	if (IS_LOCAL(user))
+	{
+		FOREACH_RESULT(I_OnAccessCheck,OnAccessCheck(user,NULL,chan,AC_GENERAL_MODE));	
+		if (MOD_RESULT == ACR_DENY)
+			return;
+	}
 
 	log(DEBUG,"process_modes: start: parameters=%d",pcnt);
 
@@ -1470,7 +1490,7 @@ void cmd_mode::Handle (char **parameters, int pcnt, userrec *user)
 			}
 		}
 
-                if (((Ptr) && (!has_channel(user,Ptr))) && (!is_uline(user->server)))
+                if (((Ptr) && (!has_channel(user,Ptr))) && (!is_uline(user->server)) && (IS_LOCAL(user)))
                 {
                         WriteServ(user->fd,"442 %s %s :You're not on that channel!",user->nick, Ptr->name);
                         return;
@@ -1485,7 +1505,7 @@ void cmd_mode::Handle (char **parameters, int pcnt, userrec *user)
 				return;
 			if (MOD_RESULT == ACR_DEFAULT)
 			{
-				if (cstatus(user,Ptr) < STATUS_HOP)
+				if ((cstatus(user,Ptr) < STATUS_HOP) && (IS_LOCAL(user)))
 				{
 					WriteServ(user->fd,"482 %s %s :You must be at least a half-operator to change modes on this channel",user->nick, Ptr->name);
 					return;
