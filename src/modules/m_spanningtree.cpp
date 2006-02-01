@@ -2126,6 +2126,20 @@ class TreeSocket : public InspSocket
 					}
 					if (who)
 					{
+						if ((command == "NICK") && (params.size() > 0))
+						{
+							/* On nick messages, check that the nick doesnt
+							 * already exist here. If it does, kill their copy,
+							 * and our copy.
+							 */
+							userrec* x = Srv->FindNick(params[0]);
+							if (x)
+							{
+								this->WriteLine(":"+Srv->GetServerName()+" KILL "+params[0]+" :Nickname collision ("+prefix+" -> "+params[0]+")");
+								Srv->QuitUser(x,"Nickname collision ("+prefix+" -> "+params[0]+")");
+								return DoOneToAllButSenderRaw(line,sourceserv,prefix,command,params);
+							}
+						}
 						// its a user
 						target = who->server;
 						char* strparams[127];
