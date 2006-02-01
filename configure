@@ -201,7 +201,7 @@ if ($has_epoll) {
 print "yes\n" if $has_epoll == 1;
 print "no\n" if $has_epoll == 0;
 
-if (($config{OSNAME} =~ /CYGWIN/) || ($config{OSNAME} == "CYG-STATIC")) {
+if (($config{OSNAME} =~ /CYGWIN/) || ($config{OSNAME} eq "CYG-STATIC")) {
 	$config{HAS_STRLCPY} = "true";
 }
 
@@ -785,7 +785,7 @@ sub getosflags {
        $config{LDLIBS} = "";
        $config{MAKEPROG} = "/usr/bin/make";
        $config{MAKEORDER} = "ircd mods config bininst";
-    } elsif ($config{OSNAME} == "CYG-STATIC") {
+    } elsif ($config{OSNAME} eq "CYG-STATIC") {
        $config{FLAGS} = "-frtti $OPTIMISATI -Wall -Woverloaded-virtual $config{OPTIMISATI}";
        $config{LDLIBS} = "";
        $config{MAKEPROG} = "/usr/bin/make";
@@ -873,7 +873,7 @@ EOF
     print FILEHANDLE "#define IS_CYGWIN\n";
     print FILEHANDLE "#ifndef FD_SETSIZE\n#define FD_SETSIZE	1024\n#endif\n";
   }
-  if ($config{OSNAME} == "CYG-STATIC") {
+  if ($config{OSNAME} eq "CYG-STATIC") {
     print FILEHANDLE "#ifndef FD_SETSIZE\n#define FD_SETSIZE    1024\n#endif\n";
   }
 
