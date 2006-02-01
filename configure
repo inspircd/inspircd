@@ -935,7 +935,7 @@ EOF
   my $file = "";
   my $exe = "inspircd";
 
-  if (($config{OSNAME} =~ /CYGWIN/) || ($config{OSNAME} == "CYG-STATIC")) {
+  if ($config{OSNAME} =~ /CYGWIN/) {
     $exe = "inspircd.exe";
   }
 
