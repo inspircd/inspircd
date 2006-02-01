@@ -23,13 +23,14 @@
 #include "channels.h"
 #include "modules.h"
 #include "helperfuncs.h"
+#include "hashcomp.h"
 
 /* $ModDesc: Gives /cban, aka C:lines. Think Q:lines, for channels. */
 
 class CBan
 {
 public:
-	std::string chname;
+	irc::string chname;
 	std::string set_by;
 	time_t set_on;
 	long length;
@@ -39,7 +40,7 @@ public:
 	{
 	}
 
-	CBan(std::string cn, std::string sb, time_t so, long ln, std::string rs) : chname(cn), set_by(sb), set_on(so), length(ln), reason(rs)
+	CBan(irc::string cn, std::string sb, time_t so, long ln, std::string rs) : chname(cn), set_by(sb), set_on(so), length(ln), reason(rs)
 	{
 	}
 };
@@ -205,7 +206,7 @@ class ModuleCBan : public Module
 std::string EncodeCBan(const CBan &ban)
 {
 	std::ostringstream stream;	
-	stream << ban.chname << " " << ban.set_by << " " << ban.set_on << " " << ban.length << " " << ban.reason;
+	stream << ban.chname.c_str() << " " << ban.set_by << " " << ban.set_on << " " << ban.length << " " << ban.reason;
 	return stream.str();	
 }
 
@@ -213,11 +214,14 @@ CBan DecodeCBan(const std::string &data)
 {
 	CBan res;
 	std::istringstream stream;
-	stream >> res.chname;
+	// XXX - Change this...we shouldn't need tempname, need an overloaded iostream operator on irc::string?
+	std::string tempname;
+	stream >> tempname;
 	stream >> res.set_by;
 	stream >> res.set_on;
 	stream >> res.length;
 	res.reason = stream.str();
+	res.chname = tempname.c_str();
 	
 	return res;
 }
