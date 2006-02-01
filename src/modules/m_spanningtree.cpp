@@ -2141,7 +2141,7 @@ class TreeSocket : public InspSocket
 								DoOneToMany(Srv->GetServerName(),"KILL",p);
 								p.clear();
 								p.push_back(prefix);
-								p.push_back("KILL "+prefix+" :Nickname collision");
+								p.push_back("Nickname collision");
 								DoOneToMany(Srv->GetServerName(),"KILL",p);
 								Srv->QuitUser(x,"Nickname collision ("+prefix+" -> "+params[0]+")");
 								userrec* y = Srv->FindNick(prefix);
