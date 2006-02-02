@@ -38,6 +38,7 @@ using namespace std;
 
 
 extern InspIRCd* ServerInstance;
+extern ServerConfig* Config;
 extern time_t TIME;
 
 InspSocket* socket_ref[MAX_DESCRIPTORS];
@@ -95,6 +96,7 @@ InspSocket::InspSocket(std::string host, int port, bool listening, unsigned long
 		if (!inet_aton(host.c_str(),&addy))
 		{
 			/* Its not an ip, spawn the resolver */
+			this->dns.SetNS(std::string(Config->DNSServer));
 			this->dns.ForwardLookupWithFD(host,fd);
 	                timeout_end = time(NULL)+maxtime;
 	                timeout = false;
