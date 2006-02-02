@@ -262,14 +262,10 @@ void ProcessUser(userrec* cu)
 /**
  * This function is called once a second from the mainloop.
  * It is intended to do background checking on all the user structs, e.g.
- * stuff like ping checks, registration timeouts, etc.
- * The function returns false when it is finished, and true if
- * it needs to be run again (e.g. it has processed one of a batch of
- * QUIT messages, but couldnt continue iterating because the iterator
- * became invalid). This function is also responsible for checking
- * if InspSocket derived classes are timed out.
+ * stuff like ping checks, registration timeouts, etc. This function is
+ * also responsible for checking if InspSocket derived classes are timed out.
  */
-bool DoBackgroundUserStuff(time_t TIME)
+void DoBackgroundUserStuff(time_t TIME)
 {
         unsigned int numsockets = module_sockets.size();
 	SocketEngine* SE = ServerInstance->SE;
@@ -295,7 +291,7 @@ bool DoBackgroundUserStuff(time_t TIME)
                 if (*count2)
                         curr = (userrec*)(*count2);
                 if ((long)curr == -1)
-                        return false;
+                        return;
 
                 if (curr)
                 {
@@ -323,7 +319,6 @@ bool DoBackgroundUserStuff(time_t TIME)
                                 continue;
                         }
 			// It's time to PING this user. Send them a ping.
-			// XXX: We were checking isnick() here -- why when we check curr->registered? - Brain
                         if ((TIME > curr->nping) && (curr->registered == 7))
                         {
 				// This user didn't answer the last ping, remove them
@@ -336,7 +331,7 @@ bool DoBackgroundUserStuff(time_t TIME)
 				curr->lastping = 0;
 				curr->nping = TIME+curr->pingmax;
 			}
-			// XXX: We can flush the write buffer as the last thing we do, because if they
+			// We can flush the write buffer as the last thing we do, because if they
 			// match any of the above conditions its no use flushing their buffer anyway.
 			curr->FlushWriteBuf();
 			if (curr->GetWriteError() != "")
@@ -352,14 +347,7 @@ bool DoBackgroundUserStuff(time_t TIME)
 	/** Free to memory used
 	 */
 	delete GlobalGoners;
-	/** XXX: The old system prior to 1.0RC2 would call this function
-	 * repeatedly until everything was ship-shape, however now we are
-	 * using CullList to avoid bailing from the loop, so this is no
-	 * longer required. We always return false here so this only executes
-	 * once. At some future date the while loop may be removed from
-	 * the mainloop which calls this function.
-	 */
-        return false;
+        return;
 }
 
 void OpenLog(char** argv, int argc)
