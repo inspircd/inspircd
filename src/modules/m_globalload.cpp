@@ -27,6 +27,7 @@ using namespace std;
 #include "users.h"
 #include "channels.h"
 #include "modules.h"
+#include "inspircd.h"
 
 Server *Srv;
 extern InspIRCd *ServerInstance;
@@ -56,7 +57,7 @@ class cmd_gloadmodule : public command_t
 class cmd_gunloadmodule : public command_t
 {
  public:
-	cmd_gloadmodule () : command_t("GUNLOADMODULE", 'o', 1)
+	cmd_gunloadmodule () : command_t("GUNLOADMODULE", 'o', 1)
 	{
 		this->source = "m_globalload.so";
 	}
