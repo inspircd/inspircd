@@ -926,6 +926,13 @@
 #<module name="m_showwhois.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Spy module: Adds the commands SPYLIST and SPYNAMES that let opers
+# see who is in a +s channel, and list +s channels, show keys of keyed
+# channels the oper is not a member of etc. (standard 'abusive' features
+# of unrealircd, modulized here in InspIRCd).
+#<module name="m_spy.so">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # SSL channel mode module: Adds support for SSL-only channels (+z).
 # does not do anything useful without a working SSL module (see below)
 #<module name="m_sslmodes.so">
