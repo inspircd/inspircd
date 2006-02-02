@@ -22,6 +22,7 @@
 #include <netinet/in.h>
 #include <sstream>
 #include <string>
+#include "dns.h"
 
 /**
  * States which a socket may be in
@@ -314,7 +315,8 @@ public:
 	 */
 	virtual ~InspSocket();
 
-	virtual DoResolve();
+	virtual bool DoResolve();
+	virtual bool DoConnect();
 };
 
 #endif

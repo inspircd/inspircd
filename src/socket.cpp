@@ -87,21 +87,25 @@ InspSocket::InspSocket(std::string host, int port, bool listening, unsigned long
 				return;
 			}
 		}			
-	} else {
+	}
+	else
+	{
 		this->host = host;
 
-		if (this->dns.ForwardLookupWithFD(host,fd))
+		if (!inet_aton(host.c_str(),&addy))
 		{
+			/* Its not an ip, spawn the resolver */
+			this->dns.ForwardLookupWithFD(host,fd);
 	                timeout_end = time(NULL)+maxtime;
 	                timeout = false;
 			this->state = I_RESOLVING;
 		}
 		else
 		{
-			this->state = I_ERROR;
-			this->OnError(I_ERR_RESOLVE);
-                        return;
+			this->IP = host;
+			this->DoConnect();
 		}
+	}
 }
 
 bool InspSocket::DoResolve()
@@ -109,48 +113,57 @@ bool InspSocket::DoResolve()
 	if (this->dns.HasResult())
 	{
 		std::string res_ip = dns.GetResultIP();
-		
 		if (res_ip != "")
 		{
-			this->IP = ip;
+			this->IP = res_ip;
 		}
 		else
 		{
-			this->IP = this->host;
-		}
-
-		if ((this->fd = socket(AF_INET, SOCK_STREAM, 0)) == -1)
-		{
+			this->Close();
 			this->state = I_ERROR;
-			this->OnError(I_ERR_SOCKET);
+			this->OnError(I_ERR_RESOLVE);
 			return false;
 		}
-		this->port = port;
-		inet_aton(ip,&addy);
-		addr.sin_family = AF_INET;
-		addr.sin_addr = addy;
-		addr.sin_port = htons(this->port);
-
-		int flags;
-		flags = fcntl(this->fd, F_GETFL, 0);
-		fcntl(this->fd, F_SETFL, flags | O_NONBLOCK);
-
-		if(connect(this->fd, (sockaddr*)&this->addr,sizeof(this->addr)) == -1)
-		{
-			if (errno != EINPROGRESS)
-			{
-				this->Close();
-				this->OnError(I_ERR_CONNECT);
-				this->state = I_ERROR;
-				return false;
-			}
-		}
-		this->state = I_CONNECTING;
-		ServerInstance->SE->AddFd(this->fd,false,X_ESTAB_MODULE);
-		socket_ref[this->fd] = this;
-		return true;
+		return this->DoConnect();
 	}
+	else return true;
 }
+
+bool InspSocket::DoConnect()
+{
+	if ((this->fd = socket(AF_INET, SOCK_STREAM, 0)) == -1)
+	{
+		this->state = I_ERROR;
+		this->OnError(I_ERR_SOCKET);
+		return false;
+	}
+
+	this->port = port;
+	inet_aton(this->IP.c_str(),&addy);
+	addr.sin_family = AF_INET;
+	addr.sin_addr = addy;
+	addr.sin_port = htons(this->port);
+
+	int flags;
+	flags = fcntl(this->fd, F_GETFL, 0);
+	fcntl(this->fd, F_SETFL, flags | O_NONBLOCK);
+
+	if(connect(this->fd, (sockaddr*)&this->addr,sizeof(this->addr)) == -1)
+	{
+		if (errno != EINPROGRESS)
+		{
+			this->Close();
+			this->OnError(I_ERR_CONNECT);
+			this->state = I_ERROR;
+			return false;
+		}
+	}
+	this->state = I_CONNECTING;
+	ServerInstance->SE->AddFd(this->fd,false,X_ESTAB_MODULE);
+	socket_ref[this->fd] = this;
+	return true;
+}
+
 
 void InspSocket::Close()
 {
