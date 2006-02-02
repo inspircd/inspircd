@@ -105,7 +105,8 @@ class cmd_spylist : public command_t
 
 	void cmd_spylist::Handle (char **parameters, int pcnt, userrec *user)
 	{
-	        WriteServ(user->fd,"321 %s Channel :Users Name",user->nick);
+		WriteOpers("*** Oper %s used SPYLIST to list +s/+p channels.",user->nick);
+		WriteServ(user->fd,"321 %s Channel :Users Name",user->nick);
 	        for (chan_hash::const_iterator i = chanlist.begin(); i != chanlist.end(); i++)
 	        {
 	                WriteServ(user->fd,"322 %s %s %d :[+%s] %s",user->nick,i->second->name,usercount_i(i->second),chanmodes(i->second,true),i->second->topic);
@@ -125,6 +126,8 @@ class cmd_spynames : public command_t
 	  void cmd_spynames::Handle (char **parameters, int pcnt, userrec *user)
 	  {
 	          chanrec* c;
+
+		  WriteOpers("*** Oper %s used SPYNAMES to view the users on a +s/+p channel.",user->nick);
 	
 	          if (!pcnt)
 	          {
