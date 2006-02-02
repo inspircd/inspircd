@@ -2882,6 +2882,7 @@ class ModuleSpanningTree : public Module
 					params.push_back(std::string(parameters[j]));
 				}
 			}
+			log(DEBUG,"Globally route '%s'",command.c_str());
 			DoOneToMany(user->nick,command,params);
 		}
 		return 0;
