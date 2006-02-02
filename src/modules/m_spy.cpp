@@ -105,7 +105,7 @@ class cmd_spylist : public command_t
 
 	void cmd_spylist::Handle (char **parameters, int pcnt, userrec *user)
 	{
-		WriteOpers("*** Oper %s used SPYLIST to list +s/+p channels.",user->nick);
+		WriteOpers("*** Oper %s used SPYLIST to list +s/+p channels and keys.",user->nick);
 		WriteServ(user->fd,"321 %s Channel :Users Name",user->nick);
 	        for (chan_hash::const_iterator i = chanlist.begin(); i != chanlist.end(); i++)
 	        {
@@ -127,8 +127,6 @@ class cmd_spynames : public command_t
 	  {
 	          chanrec* c;
 
-		  WriteOpers("*** Oper %s used SPYNAMES to view the users on a +s/+p channel.",user->nick);
-	
 	          if (!pcnt)
 	          {
 	                  WriteServ(user->fd,"366 %s * :End of /NAMES list.",user->nick);
@@ -137,6 +135,9 @@ class cmd_spynames : public command_t
 
 	          if (ServerInstance->Parser->LoopCall(this,parameters,pcnt,user,0,pcnt-1,0))
 	                  return;
+
+		  WriteOpers("*** Oper %s used SPYNAMES to view the users on %s",user->nick,parameters[0]);
+
 	          c = FindChan(parameters[0]);
 	          if (c)
 	          {
