@@ -98,6 +98,11 @@ class RFC1413 : public InspSocket
 		u->Shrink("ident_data");
 	}
 
+	virtual void OnError(InspSocketError e)
+	{
+		u->Shrink("ident_data");
+	}
+
 	virtual bool OnConnected()
 	{
 		uslen = sizeof(sock_us);
