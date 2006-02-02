@@ -21,11 +21,9 @@ using namespace std;
 #include "inspircd_config.h"
 #include "inspircd.h"
 #include "inspircd_io.h"
-#include <unistd.h>
 #include <fcntl.h>
 #include <sys/errno.h>
 #include <sys/ioctl.h>
-#include <sys/utsname.h>
 #include <time.h>
 #include <string>
 #ifdef GCC3
@@ -480,7 +478,6 @@ bool InspIRCd::LoadModule(const char* filename)
                 {
                         log(DEFAULT,"Unable to load %s: %s",modfile,factory[MODCOUNT+1]->LastError());
 			snprintf(MODERR,MAXBUF,"Loader/Linker error: %s",factory[MODCOUNT+1]->LastError());
-			MODCOUNT--;
 			return false;
                 }
                 if (factory[MODCOUNT+1]->factory)

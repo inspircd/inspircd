@@ -26,12 +26,12 @@
 /**
  * States which a socket may be in
  */
-enum InspSocketState { I_DISCONNECTED, I_CONNECTING, I_CONNECTED, I_LISTENING, I_ERROR };
+enum InspSocketState { I_DISCONNECTED, I_RESOLVING, I_CONNECTING, I_CONNECTED, I_LISTENING, I_ERROR };
 
 /**
  * Error types which a socket may exhibit
  */
-enum InspSocketError { I_ERR_TIMEOUT, I_ERR_SOCKET, I_ERR_CONNECT, I_ERR_BIND };
+enum InspSocketError { I_ERR_TIMEOUT, I_ERR_SOCKET, I_ERR_CONNECT, I_ERR_BIND, I_ERR_RESOLVE };
 
 /**
  * InspSocket is an extendable socket class which modules
@@ -52,6 +52,11 @@ private:
 	 * The file descriptor of this socket
 	 */
         int fd;
+
+	/**
+	 * The resolver for this socket
+	 */
+	DNS dns;
 
 	/**
 	 * The hostname connected to
@@ -308,6 +313,8 @@ public:
 	 * used for this socket.
 	 */
 	virtual ~InspSocket();
+
+	virtual DoResolve();
 };
 
 #endif

@@ -735,6 +735,20 @@ bool DNS::ForwardLookup(std::string host)
 	return true;
 }
 
+bool DNS::ForwardLookupWithFD(std::string host, int &fd)
+{
+	ServerInstance->stats->statsDns++;
+	this->myfd = dns_getip4(host.c_str());
+	fd = this->myfd;
+	if (this->myfd == -1)
+	{
+		
+	}
+	log(DEBUG,"DNS: ForwardLookupWithFD, fd=%d",this->myfd);
+	ServerInstance->SE->AddFd(this->myfd,true,X_ESTAB_MODULE);
+	return true;
+}
+
 bool DNS::HasResult(int fd)
 {
 	return (fd == this->myfd);

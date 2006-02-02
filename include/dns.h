@@ -78,6 +78,9 @@ public:
 	 * and returns true if the lookup was successfully initiated.
 	 */
 	bool ForwardLookup(std::string host);
+	/** Used by modules to perform a dns lookup but have the socket engine poll a module, instead of the dns object directly.
+	 */
+	bool ForwardLookupWithFD(std::string host, int &fd);
 	/** This method will return true when the lookup is completed. It uses poll internally
 	 * to determine the status of the socket.
 	 */
