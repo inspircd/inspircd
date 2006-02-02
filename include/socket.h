@@ -165,8 +165,10 @@ public:
 
 	/**
 	 * This constructor is used to create a new
-	 * socket, either listening for connections,
-	 * or an outbound connection to another host.
+	 * socket, either listening for connections, or an outbound connection to another host.
+	 * Note that if you specify a hostname in the 'host' parameter, then there will be an extra
+	 * step involved (a nonblocking DNS lookup) which will cause your connection to be established
+	 * slower than if it was an IP. Therefore, use an IP address where it is available instead.
 	 * @param host The hostname to connect to, or bind to
 	 * @param port The port number to connect to, or bind to
 	 * @param listening true to listen on the given host:port pair, or false to connect to them
@@ -212,9 +214,13 @@ public:
 	/**
 	 * When an outbound connection fails, and the
 	 * attempt times out, you will receive this event.
-	 * The mthod will trigger once maxtime secons are
+	 * The method will trigger once maxtime seconds are
 	 * reached (as given in the constructor) just
 	 * before the socket's descriptor is closed.
+	 * A failed DNS lookup may cause this event if
+	 * the DNS server is not responding, as well as
+	 * a failed connect() call, because DNS lookups are
+	 * nonblocking as implemented by this class.
 	 */
 	virtual void OnTimeout();
 
