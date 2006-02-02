@@ -228,6 +228,7 @@ void ChangeDisplayedHost(userrec* user, const char* host)
 		FOREACH_MOD(I_OnChangeHost,OnChangeHost(user,host));
         }
 	strlcpy(user->dhost,host,160);
+	WriteServ(user->fd,"396 %s %s :is now your hidden host",user->nick,user->dhost);
 }
 
 /* verify that a user's ident and nickname is valid */
