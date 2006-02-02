@@ -2722,7 +2722,15 @@ class ModuleSpanningTree : public Module
 					// an autoconnected server is not connected. Check if its time to connect it
 					WriteOpers("*** AUTOCONNECT: Auto-connecting server \002%s\002 (%lu seconds until next attempt)",x->Name.c_str(),x->AutoConnect);
 					TreeSocket* newsocket = new TreeSocket(x->IPAddr,x->Port,false,10,x->Name);
-					Srv->AddSocket(newsocket);
+					if (newsocket->GetState() != I_ERROR)
+					{
+						Srv->AddSocket(newsocket);
+					}
+					else
+					{
+						WriteOpers("*** AUTOCONNECT: Error autoconnecting \002%s\002.",x->Name.c_str());
+						delete newsocket;
+					}
 				}
 			}
 		}
@@ -2774,7 +2782,15 @@ class ModuleSpanningTree : public Module
 				{
 					WriteServ(user->fd,"NOTICE %s :*** CONNECT: Connecting to server: \002%s\002 (%s:%d)",user->nick,x->Name.c_str(),(x->HiddenFromStats ? "<hidden>" : x->IPAddr.c_str()),x->Port);
 					TreeSocket* newsocket = new TreeSocket(x->IPAddr,x->Port,false,10,x->Name);
-					Srv->AddSocket(newsocket);
+					if (newsocket->GetState() != I_ERROR)
+					{
+						Srv->AddSocket(newsocket);
+					}
+					else
+					{
+						WriteServ(user->fd,"NOTICE %s :*** CONNECT: Error connecting \002%s\002.",user->nick,x->Name.c_str());
+						delete newsocket;
+					}
 					return 1;
 				}
 				else

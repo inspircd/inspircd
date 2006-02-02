@@ -165,8 +165,16 @@ class ModuleIdent : public Module
 		// Server::AddSocket() call.
 		Srv->SendServ(user->fd,"NOTICE "+std::string(user->nick)+" :*** Looking up your ident...");
 		RFC1413* ident = new RFC1413(user, IdentTimeout, Srv);
-		user->Extend("ident_data", (char*)ident);
-		Srv->AddSocket(ident);
+		if (ident->GetState() != I_ERROR)
+		{
+			user->Extend("ident_data", (char*)ident);
+			Srv->AddSocket(ident);
+		}
+		else
+		{
+			Srv->SendServ(user->fd,"NOTICE "+std::string(user->nick)+" :*** Could not find your ident, using "+std::string(user->ident)+" instead.");
+			delete ident;
+		}
 	}
 
 	virtual bool OnCheckReady(userrec* user)
