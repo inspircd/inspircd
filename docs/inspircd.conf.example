@@ -571,192 +571,69 @@
 #<module name="m_spanningtree.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# Foobar module - does nothing
-#<module name="m_foobar.so">
-
-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# Chanprotect module: gives +q and +a channel modes
-#<module name="m_chanprotect.so">
-
-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# Globops module: gives /GLOBOPS and usermode +g
-#<module name="m_globops.so">
-
-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# Noinvite module: Gives channel mode +V
-#<module name="m_noinvite.so">
-
-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# Oper MD5 module: Allows MD5 hashed oper passwords
-#<module name="m_opermd5.so">
-
-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# Restricted channels module: Allows only opers to create channels
-#<module name="m_restrictchans.so">
-
-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# Deny Channels: Deny Channels from being used by users
-#<module name="m_denychans.so"> 
-
-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# Services support module: Adds several usermodes such as +R and +M
-#<module name="m_services.so">
-
-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# Userip module: Adds the /USERIP command
-#<module name="m_userip.so">
-
-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Alias module: Allows you to define server-side command aliases
 #<module name="m_alias.so">
-
-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# CHGHOST module: Adds the /CHGHOST command
-#<module name="m_chghost.so">
-
-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# HELPOP module: Provides the /HELPOP command
-#<module name="m_helpop.so">
-
-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# No kicks module: Adds the +Q channel mode
-#<module name="m_nokicks.so">
-
-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# Oper MOTD module: Provides support for seperate message of the day
-# on oper-up
-#<module name="m_opermotd.so">
-
-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# Restrict message module: Allows users to only message opers
-#<module name="m_restrictmsg.so">
-
-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# Sethost module: Adds the /SETHOST command
-#<module name="m_sethost.so">
+#
+#-#-#-#-#-#-#-#-#-#-#-  ALIAS DEFINITIONS  -#-#-#-#-#-#-#-#-#-#-#-#-#-#
+#                                                                     #
+# If you have the m_alias.so module loaded, you may also define       #
+# aliases as shown below. They are commonly used to provide shortcut  #
+# commands to services, however they are not limited to jsut this use.#
+# An alias tag requires the following values to be defined in it:     #
+#                                                                     #
+# text        -      The text to detect at the start of the line,     #
+#                    must be at the start of the line to trigger the  #
+#                    alias. May contain spaces, but case insensitive. #
+# replace     -      The text to replace 'text' with. Usually this    #
+#                    will be "PRIVMSG ServiceName" or similar.        #
+# requires    -      If you provide a value for 'requires' this means #
+#                    the given nickname MUST be online for the alias  #
+#                    to successfully trigger. If they are not, then   #
+#                    the user receives a 'no such nick' 401 numeric.  #
+# uline       -      Defining this value with 'yes', 'true' or '1'    #
+#                    will ensure that the user given in 'requires'    #
+#                    must also be on a u-lined server, as well as     #
+#                    actually being on the network. If the user is    #
+#                    online, but not on a u-lined server, then an     #
+#                    oper-alert is sent out as this is possibly signs #
+#                    of a user trying to impersonate a service.       #
+#                                                                     #
+#<alias text="NICKSERV" replace="PRIVMSG NickServ" requires="NickServ" uline="yes">
+#<alias text="CHANSERV" replace="PRIVMSG ChanServ" requires="ChanServ" uline="yes">
+#<alias text="NS" replace="PRIVMSG NickServ" requires="NickServ" uline="yes">
+#<alias text="CS" replace="PRIVMSG ChanServ" requires="ChanServ" uline="yes">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Antibottler module: Labels bottler leech bots
 #<module name="m_antibottler.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# Watch module: Adds the WATCH command, which is used by clients to 
-# maintain notify lists.
-#<module name="m_watch.so">
+# Ban except module: Adds support for channel ban exceptions (+e)
+#<module name="m_banexception.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# Cloaking module: Adds usermode +x and cloaking support
-#<module name="m_cloaking.so">
-
-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# Hostchange module: Allows a different style of cloaking
-#<module name="m_hostchange.so">
-
-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# No nicks module: Adds the +N channel mode
-#<module name="m_nonicks.so">
-
-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# Override module: Adds support for oper override
-#<module name="m_override.so">
-
-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# SAJOIN module: Adds the /SAJOIN command
-#<module name="m_sajoin.so">
-
-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# Set Idle module: Adds a command for opers to change their
-# idle time (mainly a toy)
-#<module name="m_setidle.so">
-
-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# Block colour module: Adds the +c channel mode
+# Block colour module: Blocking colour-coded messages with cmode +c
 #<module name="m_blockcolor.so">
-
-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# Conn-Lusers: Shows the LUSERS output on connect
-#<module name="m_conn_lusers.so">
-
-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# Ident: Provides RFC 1413 ident lookup support
-#<module name="m_ident.so">
-
-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# No Notice module: adds the channel mode +T
-#<module name="m_nonotice.so">
-
-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# Parking module: Adds parking support and /PARK and /UNPARK
-#<module name="m_park.so">
-
-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# SAMODE module: Adds the oper /SAMODE command
-#<module name="m_samode.so">
-
-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# SETNAME module: Adds the /SETNAME command
-#<module name="m_setname.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Botmode module: Adds the user mode +B
 #<module name="m_botmode.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# Filter module: Provides glob-based message filtering
-#<module name="m_filter.so">
-
-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# Knock module: adds the /KNOCK command and +K channel mode
-#<module name="m_knock.so">
-
-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# Oper channels mode: Adds the +O channel mode
-#<module name="m_operchans.so">
-
-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# Random Quote module: provides a random quote on connect
-#<module name="m_randquote.so">
-
-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# SANICK module: Allows opers to change user's nicks
-#<module name="m_sanick.so">
-
-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# Show Whois module: Adds the +W usermode which allows opers
-# to see when they are whois'ed
-#<module name="m_showwhois.so">
-
-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# Strip colour module: Adds the channel mode +S
-#<module name="m_stripcolor.so">
+# CBAN module: Lets you disallow channels from being used at runtime.
+#<module name="m_cban.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Censor module: Adds the channel mode +G
 #<module name="m_censor.so">
-
-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# Nick locking module: Adds the oper-only /NICKLOCK command
-#<module name="m_nicklock.so">
-
-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# Oper Join module: Forces opers to join a channel on oper-up
-#<module name="m_operjoin.so">
-
-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# Redirect module: Adds channel redirection (mode +L)
-#<module name="m_redirect.so">
-
-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# SAPART module: Adds the oper /SAPART command
-#<module name="m_sapart.so">
-
-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# SILENCE module: Adds support for /SILENCE
-#<module name="m_silence.so">
-
-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# Test command module: Does nothing significant
-#<module name="m_testcommand.so">
+#
+#-#-#-#-#-#-#-#-#-#-#-  CENSOR  CONFIGURATION  -#-#-#-#-#-#-#-#-#-#-#-#
+#                                                                     #
+# Optional - If you specify to use the m_censor module, then specfiy  #
+# below the path to the censor.conf file. See also:                   #
+# Censor file, see http://www.inspircd.org/wiki/Censor_Module         #
+#
+#<censor file="/path/to/censor.conf">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Channel filter module: Allows channel-op defined message
@@ -764,13 +641,230 @@
 #<module name="m_chanfilter.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Chanprotect module: gives +q and +a channel modes
+#<module name="m_chanprotect.so">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# CHGHOST module: Adds the /CHGHOST command
+#<module name="m_chghost.so">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# CHGIDENT module: Adds the /CHGIDENT command
+#<module name="m_chgident.so">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Cloaking module: Adds usermode +x and cloaking support
+#<module name="m_cloaking.so">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Conn-Lusers: Shows the LUSERS output on connect
+#<module name="m_conn_lusers.so">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Conn-Wait-for-Pong: Don't let a user connect until they PONG
+#<module name="m_conn_waitpong.so">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Deny Channels: Deny Channels from being used by users
+#<module name="m_denychans.so"> 
+#
+#-#-#-#-#-#-#-#-#-#-#-   DENYCHAN DEFINITIONS  -#-#-#-#-#-#-#-#-#-#-#-#
+#                                                                     #
+# If you have the m_denychans.so module loaded, you need to specify   #
+# the channels to deny:
+#                                                                     #
+# name        -      The channel name to deny.                        #
+# allowopers  -      If operators are allowed to override the deny.   #
+# reason      -      Reason given for the deny.                       #
+#
+#<badchan name="#gods" allowopers="yes" reason="Tortoises!">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Devoice Module: Let users devoice themselves.
+#<module name="m_devoice.so">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Filter module: Provides glob-based message filtering
+#<module name="m_filter.so">
+#OR
+# PCRE filter module: Filters messages using regular expressions
+#<module name="m_filter_pcre.so">
+#
+#-#-#-#-#-#-#-#-#-#-#-  FILTER  CONFIGURATION  -#-#-#-#-#-#-#-#-#-#-#-#
+#                                                                     #
+# Optional - If you specify to use the m_filter or m_filter_pcre      #
+# modules, then specfiy below the path to the filter.conf file.       #
+#
+#<filter file="/path/to/inspircd/filter.conf">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Foobar module - does nothing - historical relic
+#<module name="m_foobar.so">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Globops module: gives /GLOBOPS and usermode +g
+#<module name="m_globops.so">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# HELPOP module: Provides the /HELPOP command
+#<module name="m_helpop.so">
+#
+#-#-#-#-#-#-#-#-#-#-#-#-  HELPOP  CONFIGURATION  -#-#-#-#-#-#-#-#-#-#-#
+#                                                                     #
+# Optional - If you specify to use the m_helpop.so module, then       #
+# specify below the path to the helpop.conf file.                     #
+#
+#<helpop file="/path/to/inspircd/helpop.conf">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Hostchange module: Allows a different style of cloaking
+#<module name="m_hostchange.so">
+#
+#-#-#-#-#-#-#-#-#-#-#-  HOSTCHANGE  CONFIGURATION  -#-#-#-#-#-#-#-#-#-#
+#                                                                     #
+# Optional - If you choose to use the m_hostchange.so module.         #
+# Config Help -  See http://www.inspircd.org/wiki/Host_Changer_Module #
+#
+#<host suffix="polarbears.org">
+#<hostchange mask="*@fbi.gov" action="addnick">
+#<hostchange mask="*r00t@*" action="suffix">
+#<hostchange mask="a@b.com" action="set" value="blah.blah.blah">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Ident: Provides RFC 1413 ident lookup support
+#<module name="m_ident.so">
+#
+#-#-#-#-#-#-#-#-#-#-#-#-   IDENT CONFIGURATION   -#-#-#-#-#-#-#-#-#-#-#
+#                                                                     #
+# Optional - If you are using the m_ident.so module, then you can     #
+# specify the timeout for ident lookups here. If not defined, it will #
+# default to one second. This is a non-blocking timeout which holds   #
+# the user in a 'connecting' state until the lookup is complete.      #
+#
+#<ident timeout="5">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Invite except module: Adds support for channel invite exceptions (+I)
+#<module name="m_inviteexception.so">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Join flood module: Adds support for join flood protection (+j)
+#<module name="m_joinflood.so">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Anti-Auto-Rejoin: Adds support for prevention of auto-rejoin (+J)
+#<module name="m_kicknorejoin.so">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Knock module: adds the /KNOCK command and +K channel mode
+#<module name="m_knock.so">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Msg flood module: Adds message/notice flood protection (+f)
+#<module name="m_messageflood.so">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Nicklock module: Let opers change a user's nick and then stop that
+# user from changing their nick again. /NICKLOCK and /NICKUNLOCK
+#<module name="m_nicklock.so">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # No ctcp module: Adds the channel mode +C to block CTCPs
 #<module name="m_noctcp.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Noinvite module: Gives channel mode +V
+#<module name="m_noinvite.so">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# No kicks module: Adds the +Q channel mode
+#<module name="m_nokicks.so">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# No nicks module: Adds the +N channel mode
+#<module name="m_nonicks.so">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# No Notice module: adds the channel mode +T
+#<module name="m_nonotice.so">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Oper channels mode: Adds the +O channel mode
+#<module name="m_operchans.so">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Oper Join module: Forces opers to join a channel on oper-up
+#<module name="m_operjoin.so">
+#
+#-#-#-#-#-#-#-#-#-#-#   OPERJOIN CONFIGURATION   -#-#-#-#-#-#-#-#-#-#-#
+#                                                                     #
+# If you are using the m_operjoin.so module, specify the channel here #
+#
+#<operjoin channel="#channel">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Oper MOTD module: Provides support for seperate message of the day
+# on oper-up
+#<module name="m_opermotd.so">
+#
+#-#-#-#-#-#-#-#-#-#-#   OPERMOTD CONFIGURATION   -#-#-#-#-#-#-#-#-#-#-#
+#                                                                     #
+# If you are using the m_opermotd.so module, specify the motd here    #
+#
+#<opermotd file="/path/to/oper.motd">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Override module: Adds support for oper override
+#<module name="m_override.so">
+#
+#-#-#-#-#-#-#-#-#-#-#   OVERRIDE CONFIGURATION   -#-#-#-#-#-#-#-#-#-#-#
+#                                                                     #
+# m_override.so is too complex it describe here, see the wiki:        #
+# http://www.inspircd.org/wiki/Oper_Override_Module                   #
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Oper levels module: Gives each oper a level and prevents
 # actions being taken against higher level opers
+# Specify the level as the 'level' parameter of the <type> tag
 #<module name="m_operlevels.so">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Oper MD5 module: Allows MD5 hashed oper passwords
+#<module name="m_opermd5.so">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Oper SHA256 module: Allows SHA256 hashed oper passwords
+# This module is in src/modules/extra
+#<module name="m_opersha256.so">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Oper modes module: Allows you to specify modes to add/remove on oper
+# Specify the modes as the 'modes' parameter of the <type> tag
+#<module name="m_opermodes.so">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Parking module: Adds parking support and /PARK and /UNPARK
+#<module name="m_park.so">
+#
+#-#-#-#-#-#-#-#-#-#-#-#   PARK CONFIGURATION   -#-#-#-#-#-#-#-#-#-#-#-#
+#                                                                     #
+# m_park.so is too complex it describe here, see the wiki:            #
+# http://www.inspircd.org/wiki/User_Parking_Module                    #
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Random Quote module: provides a random quote on connect
+#<module name="m_randquote.so">
+#
+#-#-#-#-#-#-#-#-#-#-  RANDOMQUOTES CONFIGURATION -#-#-#-#-#-#-#-#-#-#-#
+#                                                                     #
+# Optional - If you specify to use the m_randquote.so module, then    #
+# specify below the path to the randquotes.conf file.                 #
+#
+#<randquote file="/path/to/inspircd/randquotes.conf">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Redirect module: Adds channel redirection (mode +L)
+#<module name="m_redirect.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Remove module: Adds the /REMOVE command which is a peaceful
@@ -778,28 +872,63 @@
 #<module name="m_remove.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Restricted channels module: Allows only opers to create channels
+#<module name="m_restrictchans.so">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Restrict message module: Allows users to only message opers
+#<module name="m_restrictmsg.so">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# SAJOIN module: Adds the /SAJOIN command
+#<module name="m_sajoin.so">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# SAMODE module: Adds the oper /SAMODE command
+#<module name="m_samode.so">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# SANICK module: Allows opers to change user's nicks
+#<module name="m_sanick.so">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# SAPART module: Adds the oper /SAPART command
+#<module name="m_sapart.so">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # SAQUIT module: Adds the oper /SAQUIT command (abusable!!!)
 #<module name="m_saquit.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# Timed bans module: Adds timed bans and the /TBAN command
-#<module name="m_timedbans.so">
+# Set Idle module: Adds a command for opers to change their
+# idle time (mainly a toy)
+#<module name="m_setidle.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# Oper modes module: Allows you to specify modes to add/remove on oper
-#<module name="m_opermodes.so">
+# Services support module: Adds several usermodes such as +R and +M
+#<module name="m_services.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# SWHOIS module: Allows you to add arbitary lines to user WHOIS.
-#<module name="m_swhois.so">
+# Sethost module: Adds the /SETHOST command
+#<module name="m_sethost.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# Ban except module: Adds support for channel ban exceptions (+e)
-#<module name="m_banexception.so">
+# Setident module: Adds the /SETIDENT command
+#<module name="m_setident.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# Invite except module: Adds support for channel invite exceptions (+I)
-#<module name="m_inviteexception.so">
+# SETNAME module: Adds the /SETNAME command
+#<module name="m_setname.so">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Show Whois module: Adds the +W usermode which allows opers
+# to see when they are whois'ed
+#<module name="m_showwhois.so">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# SSL channel mode module: Adds support for SSL-only channels (+z).
+# does not do anything useful without a working SSL module (see below)
+#<module name="m_sslmodes.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # GnuTLS ssl module: Adds support for client-server SSL using GnuTLS,
@@ -807,49 +936,118 @@
 # src/modules/extra, or answer 'yes' in ./configure when asked if you
 # want to enable this, or it will not load.
 #<module name="m_ssl_gnutls.so">
+#
+#-#-#-#-#-#-#-#-#-#-#-  GNUTLS CONFIGURATION   -#-#-#-#-#-#-#-#-#-#-#-#
+#                                                                     #
+# m_ssl_gnutls.so is too complex it describe here, see the wiki:      #
+# http://www.inspircd.org/wiki/GnuTLS_SSL_Module                      #
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# SSL channel mode module: Adds support for SSL-only channels (+z).
-# does not do anything useful without a working SSL module (see above)
-#<module name="m_sslmodes.so">
+# OpenSSL ssl module: Adds support for client-server SSL using OpenSSL,
+# if enabled. You must copy the source for this module from the directory
+# src/modules/extra, or answer 'yes' in ./configure when asked if you
+# want to enable this, or it will not load.
+#<module name="m_ssl_openssl.so">
+#
+#-#-#-#-#-#-#-#-#-#-#- OPENSSL CONFIGURATION   -#-#-#-#-#-#-#-#-#-#-#-#
+#                                                                     #
+# m_ssl_openssl.so is too complex it describe here, see the wiki:     #
+# http://www.inspircd.org/wiki/OpenSSL_SSL_Module                     #
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# Anti-Auto-Rejoin: Adds support for prevention of auto-rejoin (+J)
-#<module name="m_kicknorejoin.so">
+# Strip colour module: Adds the channel mode +S
+#<module name="m_stripcolor.so">
 
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# SILENCE module: Adds support for /SILENCE
+#<module name="m_silence.so">
 
-#-#-#-#-#-#-#-#-#-#-#-  FILTER  CONFIGURATION  -#-#-#-#-#-#-#-#-#-#-#-#
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# SQL module: Allows other SQL modules to access SQL databases
+# through a unified API. You must copy the source for this module
+# from the directory src/modules/extra
+#<module name="m_sql.so">
+#
+#-#-#-#-#-#-#-#-#-#-#-#- SQL CONFIGURATION   -#-#-#-#-#-#-#-#-#-#-#-#-#
 #                                                                     #
-# Optional - If you specify to use the m_filter.so module, then       #
-# specfiy below the path to the filter.conf file.                     #
+# m_sql.so is more complex than described here, see the wiki for more:#
+# http://www.inspircd.org/wiki/SQL_Service_Provider_Module            #
+#
+#<database name="mydb" username="myuser" password="mypass" hostname="localhost" id="1">
 
-#<filter file="/path/to/inspircd/filter.conf">
-
-
-#-#-#-#-#-#-#-#-#-#-#-#-  HELPOP  CONFIGURATION  -#-#-#-#-#-#-#-#-#-#-#
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# SQL authentication module: Allows IRCd connections to be tied into
+# a database table (for example a forum). You must copy the source for
+# this module from the directory src/modules/extra
+#<module name="m_sqlauth.so">
+#
+#-#-#-#-#-#-#-#-#-#-#- SQLAUTH CONFIGURATION   -#-#-#-#-#-#-#-#-#-#-#-#
 #                                                                     #
-# Optional - If you specify to use the m_helpop.so module, then       #
-# specify below the path to the helpop.conf file.                     #
+# m_sqlauth.so is too complex it describe here, see the wiki:         #
+# http://www.inspircd.org/wiki/SQL_Authentication_Module              #
 
-<die value="If you used the helpop include above then do *NOT* use this tag.">
-#<helpop file="/path/to/inspircd/helpop.conf">
-
-
-#-#-#-#-#-#-#-#-#-#-  RANDOMQUOTES CONFIGURATION -#-#-#-#-#-#-#-#-#-#-#
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# SQL logging module: Allows you to log network-wide data for your
+# network in a fully normalized set of SQL tables. You must copy the
+# source for this module from the directory src/modules/extra
+#<module name="m_sqllog.so">
+#
+#-#-#-#-#-#-#-#-#-#-#-  SQLLOG CONFIGURATION   -#-#-#-#-#-#-#-#-#-#-#-#
 #                                                                     #
-# Optional - If you specify to use the m_randquotes.so module, then   #
-# specify below the path to the randquotes.conf file.                 #
-
-#<randquote file="/path/to/inspircd/randquotes.conf">
-
-#-#-#-#-#-#-#-#-#-#-#-#-   IDENT CONFIGURATION   -#-#-#-#-#-#-#-#-#-#-#
+# dbid       - Database ID to use (see m_sql)                         #
 #                                                                     #
-# Optional - If you are using the m_ident.so module, then you can     #
-# specify the timeout for ident lookups here. If not defined, it will #
-# default to one second. This is a non-blocking timeout which holds   #
-# the user in a 'connecting' state until the lookup is complete.      #
+# See also: http://www.inspircd.org/wiki/SQL_Logging_Module           #
+#                                                                     #
+#<sqllog dbid="1">
 
-#<ident timeout="5">
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# SQL oper module: Allows you to store oper credentials in an SQL table
+# You must copy the source for this module from the directory src/modules/extra
+#<module name="m_sqloper.so">
+#
+#-#-#-#-#-#-#-#-#-#-#- SQLOPER CONFIGURATION   -#-#-#-#-#-#-#-#-#-#-#-#
+#                                                                     #
+# dbid       - Database ID to use (see m_sql)                         #
+#                                                                     #
+# See also: http://www.inspircd.org/wiki/SQL_Oper_Storage_Module      #
+#                                                                     #
+#<sqloper dbid="1">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# SWHOIS module: Allows you to add arbitary lines to user WHOIS.
+#<module name="m_swhois.so">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Test command module: Does nothing significant. Read: pointless.
+#<module name="m_testcommand.so">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Timed bans module: Adds timed bans and the /TBAN command
+#<module name="m_timedbans.so">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Userip module: Adds the /USERIP command
+#<module name="m_userip.so">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Vhost module: Adds the VHOST command which allows for adding virtual
+# hosts which are accessible using a username and password in the config.
+#<module name="m_vhost.so">
+#
+#-#-#-#-#-#-#-#-#-#-#- VHOST CONFIGURATION   -#-#-#-#-#-#-#-#-#-#-#-#-#
+#                                                                     #
+# user       - Username for the vhost.                                #
+#                                                                     #
+# pass       - Password for the vhost.                                #
+#                                                                     #
+# host       - Vhost to set.                                          #
+#
+#<vhost user="some_username" pass="some_password" host="some.host">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Watch module: Adds the WATCH command, which is used by clients to 
+# maintain notify lists.
+#<module name="m_watch.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-  BAN OPTIONS  -#-#-#-#-#-#-#-#-#-#-#-#-#-#
 #                                                                     #
@@ -890,36 +1088,6 @@
 <badhost host="*@localhost" reason="No irc from localhost!">
 
 <exception host="*@ircop.host.com" reason="Opers hostname">
-
-#-#-#-#-#-#-#-#-#-#-#-  ALIAS DEFINITIONS  -#-#-#-#-#-#-#-#-#-#-#-#-#-#
-#                                                                     #
-# If you have the m_alias.so module loaded, you may also define       #
-# aliases as shown below. They are commonly used to provide shortcut  #
-# commands to services, however they are not limited to jsut this use.#
-# An alias tag requires the following values to be defined in it:     #
-#                                                                     #
-# text        -      The text to detect at the start of the line,     #
-#                    must be at the start of the line to trigger the  #
-#                    alias. May contain spaces, but case insensitive. #
-# replace     -      The text to replace 'text' with. Usually this    #
-#                    will be "PRIVMSG ServiceName" or similar.        #
-# requires    -      If you provide a value for 'requires' this means #
-#                    the given nickname MUST be online for the alias  #
-#                    to successfully trigger. If they are not, then   #
-#                    the user receives a 'no such nick' 401 numeric.  #
-# uline       -      Defining this value with 'yes', 'true' or '1'    #
-#                    will ensure that the user given in 'requires'    #
-#                    must also be on a u-lined server, as well as     #
-#                    actually being on the network. If the user is    #
-#                    online, but not on a u-lined server, then an     #
-#                    oper-alert is sent out as this is possibly signs #
-#                    of a user trying to impersonate a service.       #
-#                                                                     #
-
-<alias text="NICKSERV" replace="PRIVMSG NickServ" requires="NickServ" uline="yes">
-<alias text="CHANSERV" replace="PRIVMSG ChanServ" requires="ChanServ" uline="yes">
-<alias text="NS" replace="PRIVMSG NickServ" requires="NickServ" uline="yes">
-<alias text="CS" replace="PRIVMSG ChanServ" requires="ChanServ" uline="yes">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#- YAWN  -#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 #                                                                     #
