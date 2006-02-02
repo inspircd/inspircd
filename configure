@@ -111,7 +111,7 @@ if ($arg eq "-modupdate") {
     getosflags();
     $has_epoll = $config{HAS_EPOLL};
     $has_kqueue = $config{HAS_KQUEUE};
-    if ($config{STATIC_LINK} == "yes") {
+    if ($config{STATIC_LINK} eq "yes") {
       write_static_modules_makefile();
     } else {
       write_dynamic_modules_makefile();
