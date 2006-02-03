@@ -122,7 +122,7 @@ void cmd_privmsg::Handle (char **parameters, int pcnt, userrec *user)
 			}
 			
 			ChanExceptSender(chan, user, status, "PRIVMSG %s :%s", chan->name, parameters[1]);
-			FOREACH_MOD(I_OnUserMessage,OnUserMessage(user,chan,TYPE_CHANNEL,parameters[1]));
+			FOREACH_MOD(I_OnUserMessage,OnUserMessage(user,chan,TYPE_CHANNEL,parameters[1],status));
 		}
 		else
 		{
@@ -156,7 +156,7 @@ void cmd_privmsg::Handle (char **parameters, int pcnt, userrec *user)
 			WriteTo(user, dest, "PRIVMSG %s :%s", dest->nick, parameters[1]);
 		}
 
-		FOREACH_MOD(I_OnUserMessage,OnUserMessage(user,dest,TYPE_USER,parameters[1]));
+		FOREACH_MOD(I_OnUserMessage,OnUserMessage(user,dest,TYPE_USER,parameters[1],0));
 	}
 	else
 	{

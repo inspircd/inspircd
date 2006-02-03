@@ -124,7 +124,7 @@ void cmd_notice::Handle (char **parameters, int pcnt, userrec *user)
 
 			ChanExceptSender(chan, user, status, "NOTICE %s :%s", chan->name, parameters[1]);
 
-			FOREACH_MOD(I_OnUserNotice,OnUserNotice(user,chan,TYPE_CHANNEL,parameters[1]));
+			FOREACH_MOD(I_OnUserNotice,OnUserNotice(user,chan,TYPE_CHANNEL,parameters[1],status));
 		}
 		else
 		{
@@ -152,7 +152,7 @@ void cmd_notice::Handle (char **parameters, int pcnt, userrec *user)
 			WriteTo(user, dest, "NOTICE %s :%s", dest->nick, parameters[1]);
 		}
 
-		FOREACH_MOD(I_OnUserNotice,OnUserNotice(user,dest,TYPE_USER,parameters[1]));
+		FOREACH_MOD(I_OnUserNotice,OnUserNotice(user,dest,TYPE_USER,parameters[1],0));
 	}
 	else
 	{
