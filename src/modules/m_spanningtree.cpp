@@ -124,6 +124,9 @@ bool DoOneToMany(std::string prefix, std::string command, std::deque<std::string
 bool DoOneToAllButSenderRaw(std::string data, std::string omit, std::string prefix, std::string command, std::deque<std::string> &params);
 void ReadConfiguration(bool rebind);
 
+/* Flatten links and /MAP for non-opers */
+bool FlatLinks;
+
 /* Imported from xline.cpp for use during netburst */
 extern std::vector<KLine> klines;
 extern std::vector<GLine> glines;
@@ -2418,6 +2421,7 @@ void ReadConfiguration(bool rebind)
 			}
 		}
 	}
+	FlatLinks = Conf->ReadFlag("options","flatlinks",0);
 	LinkBlocks.clear();
 	for (int j =0; j < Conf->Enumerate("link"); j++)
 	{
@@ -2492,7 +2496,7 @@ class ModuleSpanningTree : public Module
 		{
 			ShowLinks(Current->GetChild(q),user,hops+1);
 		}
-		WriteServ(user->fd,"364 %s %s %s :%d %s",user->nick,Current->GetName().c_str(),Parent.c_str(),hops,Current->GetDesc().c_str());
+		WriteServ(user->fd,"364 %s %s %s :%d %s",user->nick,Current->GetName().c_str(),Parent.c_str(),(FlatLinks && (!*user->oper)) ? 1 : hops,Current->GetDesc().c_str());
 	}
 
 	int CountLocalServs()
@@ -2561,7 +2565,7 @@ class ModuleSpanningTree : public Module
 			line++;
 			for (unsigned int q = 0; q < Current->ChildCount(); q++)
 			{
-				ShowMap(Current->GetChild(q),user,depth+2,matrix);
+				ShowMap(Current->GetChild(q),user,(FlatLinks && (!*user->oper)) ? depth : depth+2,matrix);
 			}
 		}
 	}

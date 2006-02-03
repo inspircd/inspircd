@@ -530,6 +530,10 @@
 #                  something like '*.netname.net' to conceal the      #
 #                  actual server the user is on.                      #
 #                                                                     #
+#  flatlinks     - When you are using m_spanningtree.so, and this     #
+#                  value is set to true, yes or 1, /MAP and /LINKS    #
+#                  will be flattened when shown to a non-oper.        #
+#                                                                     #
 
 <options prefixquit="Quit: "
          loglevel="default"
@@ -543,6 +547,7 @@
          maxtargets="20"
 	 hidesplits="no"
 	 hidewhois=""
+	 flatlinks="no"
          allowhalfop="yes">
 
 
