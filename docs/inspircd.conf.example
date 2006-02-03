@@ -513,12 +513,16 @@
 #                  socket engine/dns engine names. You may use this   #
 #                  to enhance security, or simply for vanity.         #
 #                                                                     #
-# maxtargets     - The maxtargets field is optional, and if not       #
+#  maxtargets    - The maxtargets field is optional, and if not       #
 #                  defined, defaults to 20. It indicates the maximum  #
 #                  number of targets which may be given to commands   #
 #                  such as PRIVMSG, KICK etc.                         #
 #                                                                     #
-
+#  hidesplits    - When set to 'yes', will hide split server names    #
+#                  from non-opers. Non-opers will see '*.net *.split' #
+#                  instead of the server names in the quit message,   #
+#                  identical to the way IRCu displays them.           #
+#                                                                     #
 
 <options prefixquit="Quit: "
          loglevel="default"
@@ -530,6 +534,7 @@
          operonlystats="oclgkz"
          customversion=""
          maxtargets="20"
+	 hidesplits="no"
          allowhalfop="yes">
 
 
