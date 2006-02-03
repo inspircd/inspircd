@@ -103,6 +103,7 @@ char* ModeParser::GiveOps(userrec *user,char *dest,chanrec *chan,int status)
 					return NULL;
 				}
 				d->chans[i].uc_modes = d->chans[i].uc_modes | UCMODE_OP;
+				d->chans[i].channel->AddOppedUser((char*)d);
 				log(DEBUG,"gave ops: %s %s",d->chans[i].channel->name,d->nick);
 				return d->nick;
 			}
@@ -158,6 +159,7 @@ char* ModeParser::GiveHops(userrec *user,char *dest,chanrec *chan,int status)
 					return NULL;
 				}
 				d->chans[i].uc_modes = d->chans[i].uc_modes | UCMODE_HOP;
+				d->chans[i].channel->AddHalfoppedUser((char*)d);
 				log(DEBUG,"gave h-ops: %s %s",d->chans[i].channel->name,d->nick);
 				return d->nick;
 			}
@@ -212,6 +214,7 @@ char* ModeParser::GiveVoice(userrec *user,char *dest,chanrec *chan,int status)
 					return NULL;
 				}
 				d->chans[i].uc_modes = d->chans[i].uc_modes | UCMODE_VOICE;
+				d->chans[i].channel->AddVoicedUser((char*)d);
 				log(DEBUG,"gave voice: %s %s",d->chans[i].channel->name,d->nick);
 				return d->nick;
 			}
@@ -267,6 +270,7 @@ char* ModeParser::TakeOps(userrec *user,char *dest,chanrec *chan,int status)
 					return NULL;
 				}
 				d->chans[i].uc_modes ^= UCMODE_OP;
+				d->chans[i].channel->DelOppedUser((char*)d);
 				log(DEBUG,"took ops: %s %s",d->chans[i].channel->name,d->nick);
 				return d->nick;
 			}
@@ -323,6 +327,7 @@ char* ModeParser::TakeHops(userrec *user,char *dest,chanrec *chan,int status)
 					return NULL;
 				}
 				d->chans[i].uc_modes ^= UCMODE_HOP;
+				d->chans[i].channel->DelHalfoppedUser((char*)d);
 				log(DEBUG,"took h-ops: %s %s",d->chans[i].channel->name,d->nick);
 				return d->nick;
 			}
@@ -377,6 +382,7 @@ char* ModeParser::TakeVoice(userrec *user,char *dest,chanrec *chan,int status)
 					return NULL;
 				}
 				d->chans[i].uc_modes ^= UCMODE_VOICE;
+				d->chans[i].channel->DelVoicedUser((char*)d);
 				log(DEBUG,"took voice: %s %s",d->chans[i].channel->name,d->nick);
 				return d->nick;
 			}

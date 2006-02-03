@@ -82,7 +82,13 @@ void cmd_privmsg::Handle (char **parameters, int pcnt, userrec *user)
                 }
 		return;
         }
-        else if (parameters[0][0] == '#')
+        char status = 0;
+        if ((*parameters[0] == '@') || (*parameters[0] == '%') || (*parameters[0] == '+'))
+        {
+                status = *parameters[0];
+                parameters[0]++;
+        }
+        if (parameters[0][0] == '#')
 	{
 		chan = FindChan(parameters[0]);
 		if (chan)
@@ -115,7 +121,7 @@ void cmd_privmsg::Handle (char **parameters, int pcnt, userrec *user)
 				return;
 			}
 			
-			ChanExceptSender(chan, user, "PRIVMSG %s :%s", chan->name, parameters[1]);
+			ChanExceptSender(chan, user, status, "PRIVMSG %s :%s", chan->name, parameters[1]);
 			FOREACH_MOD(I_OnUserMessage,OnUserMessage(user,chan,TYPE_CHANNEL,parameters[1]));
 		}
 		else

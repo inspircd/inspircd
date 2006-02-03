@@ -176,9 +176,78 @@ void chanrec::DelUser(char* castuser)
 	log(DEBUG,"BUG BUG BUG! Attempt to remove an uncasted user from the internal list of %s!",name);
 }
 
+void chanrec::AddOppedUser(char* castuser)
+{
+        internal_op_userlist[castuser] = castuser;
+        log(DEBUG,"Added casted user to channel's internal list");
+}
+
+void chanrec::DelOppedUser(char* castuser)
+{
+        std::map<char*,char*>::iterator a = internal_op_userlist.find(castuser);
+        if (a != internal_op_userlist.end())
+        {
+                log(DEBUG,"Removed casted user from channel's internal list");
+                internal_op_userlist.erase(a);
+                return;
+        }
+        log(DEBUG,"BUG BUG BUG! Attempt to remove an uncasted user from the internal list of %s!",name);
+}
+
+void chanrec::AddHalfoppedUser(char* castuser)
+{
+        internal_halfop_userlist[castuser] = castuser;
+        log(DEBUG,"Added casted user to channel's internal list");
+}
+
+void chanrec::DelHalfoppedUser(char* castuser)
+{
+        std::map<char*,char*>::iterator a = internal_halfop_userlist.find(castuser);
+        if (a != internal_halfop_userlist.end())
+        {       
+                log(DEBUG,"Removed casted user from channel's internal list");
+                internal_halfop_userlist.erase(a);
+                return; 
+        }       
+        log(DEBUG,"BUG BUG BUG! Attempt to remove an uncasted user from the internal list of %s!",name);
+}
+
+void chanrec::AddVoicedUser(char* castuser)
+{
+        internal_voice_userlist[castuser] = castuser;
+        log(DEBUG,"Added casted user to channel's internal list");
+}
+
+void chanrec::DelOppedUser(char* castuser)
+{
+        std::map<char*,char*>::iterator a = internal_voice_userlist.find(castuser);
+        if (a != internal_voice_userlist.end())
+        {       
+                log(DEBUG,"Removed casted user from channel's internal list");
+                internal_voice_userlist.erase(a);
+                return; 
+        }       
+        log(DEBUG,"BUG BUG BUG! Attempt to remove an uncasted user from the internal list of %s!",name);
+}
+
 std::map<char*,char*> *chanrec::GetUsers()
 {
 	return &internal_userlist;
+}
+
+std::map<char*,char*> *chanrec::GetOppedUsers()
+{
+	        return &internal_op_userlist;
+}
+
+std::map<char*,char*> *chanrec::GetHalfoppedUsers()
+{
+	        return &internal_halfop_userlist;
+}
+
+std::map<char*,char*> *chanrec::GetVoicedUsers()
+{
+	        return &internal_voice_userlist;
 }
 
 /* add a channel to a user, creating the record for it if needed and linking
@@ -369,6 +438,7 @@ chanrec* ForceChan(chanrec* Ptr,ucrec &a,userrec* user, int created)
         {
                 /* first user in is given ops */
                 a.uc_modes = UCMODE_OP;
+		Ptr->AddOppedUser((char*)user);
         }
         else
         {

@@ -116,7 +116,10 @@ class chanrec : public Extensible
 	 * (chicken and egg scenario!)
 	 */
 	std::map<char*,char*> internal_userlist;
-	
+	std::map<char*,char*> internal_op_userlist;
+	std::map<char*,char*> internal_halfop_userlist;
+	std::map<char*,char*> internal_voice_userlist;
+
 	/** Channel topic.
 	 * If this is an empty string, no channel topic is set.
 	 */
@@ -199,6 +202,9 @@ class chanrec : public Extensible
 	 * as this is a very fast 32 or 64 bit integer comparison.
 	 */
 	void AddUser(char* castuser);
+	void AddOppedUser(char* castuser);
+	void AddHalfoppedUser(char* castuser);
+	void AddVoicedUser(char* castuser);
 
         /** Delete a user pointer to the internal reference list
 	 * @param castuser This should be a pointer to a userrec, casted to char*
@@ -208,6 +214,9 @@ class chanrec : public Extensible
          * as this is a very fast 32 or 64 bit integer comparison.
          */
 	void DelUser(char* castuser);
+	void DelOppedUser(char* castuser);
+	void DelHalfoppedUser(char* castuser);
+	void DelVoicedUser(char* castuser);
 
 	/** Obrain the internal reference list
 	 * The internal reference list contains a list of userrec*
@@ -219,6 +228,9 @@ class chanrec : public Extensible
 	 * @return This function returns a vector of userrec pointers, each of which has been casted to char* to prevent circular references
 	 */
 	std::map<char*,char*> *GetUsers();
+	std::map<char*,char*> *GetOppedUsers();
+	std::map<char*,char*> *GetHalfoppedUsers();
+	std::map<char*,char*> *GetVoicedUsers();
 
 	/** Creates a channel record and initialises it with default values
 	 */

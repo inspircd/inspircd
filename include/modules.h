@@ -585,8 +585,9 @@ class Module : public classbase
 	 * @param dest The target of the message
 	 * @param target_type The type of target (TYPE_USER or TYPE_CHANNEL)
 	 * @param text the text being sent by the user
+	 * @param status The status being used, e.g. PRIVMSG @#chan has status== '@', 0 to send to everyone.
 	 */
-	virtual void OnUserMessage(userrec* user, void* dest, int target_type, std::string text);
+	virtual void OnUserMessage(userrec* user, void* dest, int target_type, std::string text, char status);
 
         /** Called after any NOTICE sent from a user.
 	 * The dest variable contains a userrec* if target_type is TYPE_USER and a chanrec*
@@ -595,8 +596,9 @@ class Module : public classbase
 	 * @param dest The target of the message
 	 * @param target_type The type of target (TYPE_USER or TYPE_CHANNEL)
 	 * @param text the text being sent by the user
+	 * @param status The status being used, e.g. NOTICE @#chan has status== '@', 0 to send to everyone.
 	 */
-	virtual void OnUserNotice(userrec* user, void* dest, int target_type, std::string text);
+	virtual void OnUserNotice(userrec* user, void* dest, int target_type, std::string text, char status);
 
 	/** Called after every MODE command sent from a user
 	 * The dest variable contains a userrec* if target_type is TYPE_USER and a chanrec*

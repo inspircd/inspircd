@@ -272,8 +272,8 @@ int		Module::OnRawSocketWrite(int fd, char* buffer, int count) { return 0; };
 void		Module::OnRawSocketClose(int fd) { };
 int		Module::OnRawSocketRead(int fd, char* buffer, unsigned int count, int &readresult) { return 0; };
 void		Module::OnUserMessage(userrec* user, void* dest, int target_type, std::string text) { };
-void		Module::OnUserNotice(userrec* user, void* dest, int target_type, std::string text) { };
-void 		Module::OnRemoteKill(userrec* source, userrec* dest, std::string reason) { };
+void		Module::OnUserNotice(userrec* user, void* dest, int target_type, std::string text, char status) { };
+void 		Module::OnRemoteKill(userrec* source, userrec* dest, std::string reason, char status) { };
 void		Module::OnUserInvite(userrec* source,userrec* dest,chanrec* channel) { };
 void		Module::OnPostLocalTopicChange(userrec* user, chanrec* chan, std::string topic) { };
 void		Module::OnGetServerDescription(std::string servername,std::string &description) { };
@@ -523,7 +523,7 @@ void Server::SendChannel(userrec* User, chanrec* Channel, std::string s,bool Inc
 	}
 	else
 	{
-		ChanExceptSender_NoFormat(Channel,User,s.c_str());
+		ChanExceptSender_NoFormat(Channel,User,0,s.c_str());
 	}
 }
 

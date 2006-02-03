@@ -484,7 +484,7 @@ void WriteChannelWithServ_NoFormat(char* ServName, chanrec* Ptr, const char* tex
 /* write formatted text from a source user to all users on a channel except
  * for the sender (for privmsg etc) */
 
-void ChanExceptSender(chanrec* Ptr, userrec* user, char* text, ...)
+void ChanExceptSender(chanrec* Ptr, userrec* user, char status, char* text, ...)
 {
         if ((!Ptr) || (!user) || (!text))
         {
@@ -497,7 +497,22 @@ void ChanExceptSender(chanrec* Ptr, userrec* user, char* text, ...)
         vsnprintf(textbuffer, MAXBUF, text, argsPtr);
         va_end(argsPtr);
 
-        std::map<char*,char*> *ulist= Ptr->GetUsers();
+        std::map<char*,char*> *ulist;
+	switch (status)
+	{
+		case '@':
+			Ptr->GetOppedUsers();
+		break;
+		case '%':
+			Ptr->GetHalfoppedUsers();
+		break;
+		case '+':
+			Ptr->GetVoicedUsers();
+		break;
+		default:
+			Ptr->GetUsers();
+		break;
+	}
 	for (std::map<char*,char*>::iterator i = ulist->begin(); i != ulist->end(); i++)
         {
                 char* o = i->second;
@@ -507,14 +522,29 @@ void ChanExceptSender(chanrec* Ptr, userrec* user, char* text, ...)
         }
 }
 
-void ChanExceptSender_NoFormat(chanrec* Ptr, userrec* user, const char* text)
+void ChanExceptSender_NoFormat(chanrec* Ptr, userrec* user, char status, const char* text)
 {
         if ((!Ptr) || (!user) || (!text))
         {
                 log(DEFAULT,"*** BUG *** ChanExceptSender was given an invalid parameter");
                 return;
         }
-        std::map<char*,char*> *ulist= Ptr->GetUsers();
+        std::map<char*,char*> *ulist;
+        switch (status)
+        {
+                case '@':
+                        Ptr->GetOppedUsers();
+                break;  
+                case '%':
+                        Ptr->GetHalfoppedUsers();
+                break;
+                case '+':
+                        Ptr->GetVoicedUsers();
+                break;
+                default:
+	                Ptr->GetUsers();
+		break;
+        }
         for (std::map<char*,char*>::iterator i = ulist->begin(); i != ulist->end(); i++)
         {
                 char* o = i->second;

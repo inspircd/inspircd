@@ -2296,6 +2296,11 @@ bool DoOneToAllButSenderRaw(std::string data, std::string omit, std::string pref
 	{
 		if ((params.size() >= 2) && (*(params[0].c_str()) != '$'))
 		{
+			/* Prefixes */
+			if ((*(params[0].c_str()) == '@') || (*(params[0].c_str()) == '%') || (*(params[0].c_str()) == '+'))
+			{
+				params[0] = params[0].substr(1, params[0].length()-1);
+			}
 			if (*(params[0].c_str()) != '#')
 			{
 				// special routing for private messages/notices
@@ -2984,7 +2989,7 @@ class ModuleSpanningTree : public Module
 		}
 	}
 
-	virtual void OnUserNotice(userrec* user, void* dest, int target_type, std::string text)
+	virtual void OnUserNotice(userrec* user, void* dest, int target_type, std::string text, char status)
 	{
 		if (target_type == TYPE_USER)
 		{
@@ -3002,6 +3007,9 @@ class ModuleSpanningTree : public Module
 		{
 			if (user->fd > -1)
 			{
+				std::string cname = c->name;
+				if (status)
+					cname = status + cname;
 				chanrec *c = (chanrec*)dest;
 				std::deque<TreeServer*> list;
 				GetListOfServersForChannel(c,list);
@@ -3010,13 +3018,13 @@ class ModuleSpanningTree : public Module
 				{
 					TreeSocket* Sock = list[i]->GetSocket();
 					if (Sock)
-						Sock->WriteLine(":"+std::string(user->nick)+" NOTICE "+std::string(c->name)+" :"+text);
+						Sock->WriteLine(":"+std::string(user->nick)+" NOTICE "+cname+" :"+text);
 				}
 			}
 		}
 	}
 
-	virtual void OnUserMessage(userrec* user, void* dest, int target_type, std::string text)
+	virtual void OnUserMessage(userrec* user, void* dest, int target_type, std::string text, char status)
 	{
 		if (target_type == TYPE_USER)
 		{
@@ -3036,6 +3044,9 @@ class ModuleSpanningTree : public Module
 		{
 			if (user->fd > -1)
 			{
+				std::string cname = c->name;
+				if (status)
+					cname = status + cname;
 				chanrec *c = (chanrec*)dest;
 				std::deque<TreeServer*> list;
 				GetListOfServersForChannel(c,list);
@@ -3044,7 +3055,7 @@ class ModuleSpanningTree : public Module
 				{
 					TreeSocket* Sock = list[i]->GetSocket();
 					if (Sock)
-						Sock->WriteLine(":"+std::string(user->nick)+" PRIVMSG "+std::string(c->name)+" :"+text);
+						Sock->WriteLine(":"+std::string(user->nick)+" PRIVMSG "+cname+" :"+text);
 				}
 			}
 		}
