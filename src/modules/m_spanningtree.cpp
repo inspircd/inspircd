@@ -531,6 +531,31 @@ bool IsServer(std::string ServerName)
 	return (FindServer(ServerName) != NULL);
 }
 
+
+class cmd_rconnect : public command_t    
+{
+	Module* Creator;
+ public:
+         cmd_rconnect (Module* Callback) : command_t("RCONNECT", 'o', 2), Creator(Callback)
+         {
+                this->source = "m_spanningtree.so";
+         }
+                
+         void Handle (char **parameters, int pcnt, userrec *user)
+         {
+                /* Is this aimed at our server? */
+                if (Srv->MatchText(Srv->GetServerName(),parameters[0]))
+                {
+                        /* Yes, initiate the given connect */
+                        char* para[1];
+                        para[0] = parameters[1];
+                        Creator->OnPreCommand("CONNECT", para, 1, user, true);
+                }
+         }
+};
+         
+
+
 /* Every SERVER connection inbound or outbound is represented by
  * an object of type TreeSocket.
  * TreeSockets, being inherited from InspSocket, can be tied into
@@ -2473,6 +2498,7 @@ class ModuleSpanningTree : public Module
 	std::vector<TreeSocket*> Bindings;
 	int line;
 	int NumServers;
+	cmd_rconnect* command_rconnect;
 
  public:
 
@@ -2486,6 +2512,9 @@ class ModuleSpanningTree : public Module
 		TreeRoot = new TreeServer(Srv->GetServerName(),Srv->GetServerDescription());
 
 		ReadConfiguration(true);
+
+		command_rconnect = new cmd_rconnect(this);
+		Srv->AddCommand(command_rconnect);
 	}
 
 	void ShowLinks(TreeServer* Current, userrec* user, int hops)
