@@ -87,17 +87,19 @@ void cmd_privmsg::Handle (char **parameters, int pcnt, userrec *user)
 		chan = FindChan(parameters[0]);
 		if (chan)
 		{
-			if ((chan->binarymodes & CM_NOEXTERNAL) && (!has_channel(user,chan)))
+			if (IS_LOCAL(user))
 			{
-				WriteServ(user->fd,"404 %s %s :Cannot send to channel (no external messages)", user->nick, chan->name);
-				return;
+				if ((chan->binarymodes & CM_NOEXTERNAL) && (!has_channel(user,chan)))
+				{
+					WriteServ(user->fd,"404 %s %s :Cannot send to channel (no external messages)", user->nick, chan->name);
+					return;
+				}
+				if ((chan->binarymodes & CM_MODERATED) && (cstatus(user,chan)<STATUS_VOICE))
+				{
+					WriteServ(user->fd,"404 %s %s :Cannot send to channel (+m)", user->nick, chan->name);
+					return;
+				}
 			}
-			if ((chan->binarymodes & CM_MODERATED) && (cstatus(user,chan)<STATUS_VOICE))
-			{
-				WriteServ(user->fd,"404 %s %s :Cannot send to channel (+m)", user->nick, chan->name);
-				return;
-			}
-			
 			int MOD_RESULT = 0;
 
 			std::string temp = parameters[1];
