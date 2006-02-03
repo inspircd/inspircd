@@ -129,4 +129,11 @@ namespace irc
 	typedef basic_string<char, irc_char_traits, allocator<char> > string;
 }
 
+/* Define operators for using >> and << with irc::string to an ostream on an istream. */
+/* This was endless fun. No. Really. */
+/* It was also the first core change Ommeh made, if anyone cares */
+
+std::ostream& operator<<(std::ostream &os, const irc::string &str);
+std::istream& operator>>(std::istream &is, irc::string &str);
+
 #endif

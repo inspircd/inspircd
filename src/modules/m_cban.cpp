@@ -199,7 +199,7 @@ class ModuleCBan : public Module
 	
 	virtual Version GetVersion()
 	{
-		return Version(1,0,0,0,VF_VENDOR);
+		return Version(1,0,0,1,VF_VENDOR);
 	}
 };
 
@@ -214,14 +214,11 @@ CBan DecodeCBan(const std::string &data)
 {
 	CBan res;
 	std::istringstream stream;
-	// XXX - Change this...we shouldn't need tempname, need an overloaded iostream operator on irc::string?
-	std::string tempname;
-	stream >> tempname;
+	stream >> res.chname;
 	stream >> res.set_by;
 	stream >> res.set_on;
 	stream >> res.length;
 	res.reason = stream.str();
-	res.chname = tempname.c_str();
 	
 	return res;
 }

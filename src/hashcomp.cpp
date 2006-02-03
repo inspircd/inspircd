@@ -148,3 +148,17 @@ const char* irc::irc_char_traits::find(const char* s1, int  n, char c)
 		s1++;
 	return s1;
 }
+
+/* See hashcomp.h if you care about these... */
+std::ostream& operator<<(std::ostream &os, const irc::string &str)
+{
+	return os << str.c_str();
+}
+
+std::istream& operator>>(std::istream &is, irc::string &str)
+{
+	std::string tmp;
+	is >> tmp;
+	str = tmp.c_str();
+	return is;
+}
