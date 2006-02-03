@@ -92,13 +92,7 @@ bool irc::StrHashComp::operator()(const std::string& s1, const std::string& s2) 
 
 bool irc::InAddr_HashComp::operator()(const in_addr &s1, const in_addr &s2) const
 {
-        size_t q;
-        size_t p;
-
-        memcpy(&q,&s1,sizeof(size_t));
-        memcpy(&p,&s2,sizeof(size_t));
-
-        return (q == p);
+        return (s1.s_addr == s1.s_addr);
 }
 
 /******************************************************
