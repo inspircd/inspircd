@@ -688,6 +688,17 @@
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Conn-Wait-for-Pong: Don't let a user connect until they PONG
 #<module name="m_conn_waitpong.so">
+#
+#-#-#-#-#-#-#-#-#-#-#-   WAITPONG CONFIGURATION  -#-#-#-#-#-#-#-#-#-#-#
+#                                                                     #
+# If you have the m_conn_waitpong.so module loaded, configure it with #
+# the <waitpong> tag:                                                 #
+#                                                                     #
+# sendsnotice    -   Whether to send a snotice on connect, like Unreal#
+# killonbadreply -   Whether to kill the user if they send the wrong  #
+#                    PONG reply.                                      #
+#
+#<waitpong sendsnotice="yes" killonbadreply="yes">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Deny Channels: Deny Channels from being used by users
