@@ -173,7 +173,10 @@ void chanrec::DelUser(char* castuser)
 		internal_userlist.erase(a);
 		return;
 	}
-	log(DEBUG,"BUG BUG BUG! Attempt to remove an uncasted user from the internal list of %s!",name);
+	/* Tidy up any others */
+	DelOppedUser(castuser);
+	DelHalfoppedUser(castuser);
+	DelVoicedUser(castuser);
 }
 
 void chanrec::AddOppedUser(char* castuser)
@@ -191,7 +194,6 @@ void chanrec::DelOppedUser(char* castuser)
                 internal_op_userlist.erase(a);
                 return;
         }
-        log(DEBUG,"BUG BUG BUG! Attempt to remove an uncasted user from the internal list of %s!",name);
 }
 
 void chanrec::AddHalfoppedUser(char* castuser)
@@ -209,7 +211,6 @@ void chanrec::DelHalfoppedUser(char* castuser)
                 internal_halfop_userlist.erase(a);
                 return; 
         }       
-        log(DEBUG,"BUG BUG BUG! Attempt to remove an uncasted user from the internal list of %s!",name);
 }
 
 void chanrec::AddVoicedUser(char* castuser)
@@ -227,7 +228,6 @@ void chanrec::DelVoicedUser(char* castuser)
                 internal_voice_userlist.erase(a);
                 return; 
         }       
-        log(DEBUG,"BUG BUG BUG! Attempt to remove an uncasted user from the internal list of %s!",name);
 }
 
 std::map<char*,char*> *chanrec::GetUsers()
