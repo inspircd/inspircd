@@ -513,6 +513,7 @@ void ChanExceptSender(chanrec* Ptr, userrec* user, char status, char* text, ...)
 			ulist = Ptr->GetUsers();
 		break;
 	}
+	log(DEBUG,"%d users to write to",ulist->size());
 	for (std::map<char*,char*>::iterator i = ulist->begin(); i != ulist->end(); i++)
         {
                 char* o = i->second;
