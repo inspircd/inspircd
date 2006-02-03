@@ -543,10 +543,12 @@ class cmd_rconnect : public command_t
                 
          void Handle (char **parameters, int pcnt, userrec *user)
          {
+		WriteServ(user->fd,"NOTICE %s :*** RCONNECT: Sending remote connect to \002%s\002 to connect server \002%s\002.",user->nick,parameters[0],parameters[1]);
                 /* Is this aimed at our server? */
                 if (Srv->MatchText(Srv->GetServerName(),parameters[0]))
                 {
                         /* Yes, initiate the given connect */
+			WriteOpers("*** Remote CONNECT from %s matching \002%s\002, connecting server \002%s\002",user->nick,parameters[0],parameters[1]);
                         char* para[1];
                         para[0] = parameters[1];
                         Creator->OnPreCommand("CONNECT", para, 1, user, true);
