@@ -72,13 +72,13 @@ void cmd_userhost::Handle (char **parameters, int pcnt, userrec *user)
 		userrec *u = Find(parameters[i]);
 		if(u)
 		{
-			if(strchr(u->modes,'o'))
-				if(strchr(user->modes, 'o'))
+			if(*u->oper)
+				if(*user->oper)
 					snprintf(junk,MAXBUF,"%s*=+%s@%s ",u->nick,u->ident,u->host);
 				else
 					snprintf(junk,MAXBUF,"%s*=+%s@%s ",u->nick,u->ident,u->dhost);
 			else
-				if(strchr(user->modes, 'o'))
+				if(*user->oper)
 					snprintf(junk,MAXBUF,"%s=+%s@%s ",u->nick,u->ident,u->host);
 				else
 					snprintf(junk,MAXBUF,"%s=+%s@%s ",u->nick,u->ident,u->dhost);
