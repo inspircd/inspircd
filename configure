@@ -323,10 +323,14 @@ if (($config{HAS_GNUTLS} eq "y") && ($config{HAS_OPENSSL} eq "y")) {
 
 if ($config{HAS_GNUTLS} eq "y") {
 	yesno(USE_GNUTLS, "Would you like to enable SSL Support?");
-	print "\nUsing GnuTLS SSL module.\n";
+	if ($config{USE_GNUTLS} eq "y") {
+		print "\nUsing GnuTLS SSL module.\n";
+	}
 } elsif ($config{HAS_OPENSSL} eq "y") {
 	yesno(USE_OPENSSL, "Would you like to enable SSL Support?");
-	print "\nUsing OpenSSL SSL module.\nYou will get better performance if you move to GnuTLS in the future.\n";
+	if ($config{USE_OPENSSL} eq "y") {
+		print "\nUsing OpenSSL SSL module.\nYou will get better performance if you move to GnuTLS in the future.\n";
+	}
 }
 
 print "\nThe following questions will ask you for various figures relating\n";
