@@ -640,7 +640,11 @@ int InspIRCd::Run()
 		
 		/* Once a second, do the background processing */
 		if (TIME != OLDTIME)
+		{
+			if (TIME < OLDTIME)
+				WriteOpers("*** \002EH?!\002 -- Time is flowing BACKWARDS in this dimension! Clock drifted backwards %d secs.",abs(OLDTIME-TIME));
 			DoBackgroundUserStuff(TIME);
+		}
 
 		/* Call the socket engine to wait on the active
 		 * file descriptors. The socket engine has everything's
