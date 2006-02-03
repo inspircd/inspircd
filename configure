@@ -595,7 +595,7 @@ print "\033[0mMax kick length:\033[1;32m\t\t$config{MAX_KICK}\n";
 print "\033[0mMax name length:\033[1;32m\t\t$config{MAX_GECOS}\n";
 print "\033[0mMax away length:\033[1;32m\t\t$config{MAX_AWAY}\n";
 print "\033[0mGCC Version Found:\033[1;32m\t\t$config{GCCVER}.$config{GCC34}\n";
-print "\033[0mOptimatizaton Flag:\033[1;32m\t\t$config{OPTIMISATI}\033[0m\n";
+print "\033[0mOptimization Flag:\033[1;32m\t\t$config{OPTIMISATI}\033[0m\n";
 print "\033[0mCompiler program:\033[1;32m\t\t$config{CC}\033[0m\n";
 print "\033[0mStatic modules:\033[1;32m\t\t\t$config{STATIC_LINK}\033[0m\n";
 print "\033[0mMultithread DNS:\033[1;32m\t\t$config{THREADED_DNS}\033[0m\n";
@@ -657,6 +657,7 @@ if (($config{USE_GNUTLS} eq "n") && ($config{USE_OPENSSL} eq "n")) {
 	print "Skipping SSL Certificate generation, SSL support is not available.\n\n";
 }
 
+getosflags();
 makecache();
 writefiles();
 
@@ -767,7 +768,7 @@ sub dir_check {
 sub getosflags {
   if ($config{OSNAME} =~ /BSD$/) {
     $config{LDLIBS} = "-Ldl -lstdc++";
-    $config{FLAGS}  = "-fPIC -frtti $OPTIMISATI -Wall -Woverloaded-virtual $config{OPTIMISATI}";
+    $config{FLAGS}  = "-fPIC -frtti -Wall -Woverloaded-virtual $config{OPTIMISATI}";
     $config{MAKEPROG} = "gmake";
     if ($config{OSNAME} eq "OpenBSD") {
 	chomp($foo = `eg++ -dumpversion | cut -c 1`);
@@ -782,15 +783,15 @@ sub getosflags {
     }
   } else {
     $config{LDLIBS} = "-ldl -lstdc++";
-    $config{FLAGS}  = "-fPIC -frtti $OPTIMISATI -Wall -Woverloaded-virtual $config{OPTIMISATI}";
+    $config{FLAGS}  = "-fPIC -frtti -Wall -Woverloaded-virtual $config{OPTIMISATI}";
     $config{MAKEPROG} = "make";
     if ($config{OSNAME} =~ /CYGWIN/) {
-       $config{FLAGS}  = "-frtti $OPTIMISATI -Wall -Woverloaded-virtual $config{OPTIMISATI}";
+       $config{FLAGS}  = "-frtti -Wall -Woverloaded-virtual $config{OPTIMISATI}";
        $config{LDLIBS} = "";
        $config{MAKEPROG} = "/usr/bin/make";
        $config{MAKEORDER} = "ircd mods config bininst";
     } elsif ($config{OSNAME} eq "CYG-STATIC") {
-       $config{FLAGS} = "-frtti $OPTIMISATI -Wall -Woverloaded-virtual $config{OPTIMISATI}";
+       $config{FLAGS} = "-frtti -Wall -Woverloaded-virtual $config{OPTIMISATI}";
        $config{LDLIBS} = "";
        $config{MAKEPROG} = "/usr/bin/make";
        $config{MAKEORDER} = "mods ircd config bininst";
