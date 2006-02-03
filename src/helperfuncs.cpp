@@ -501,16 +501,16 @@ void ChanExceptSender(chanrec* Ptr, userrec* user, char status, char* text, ...)
 	switch (status)
 	{
 		case '@':
-			Ptr->GetOppedUsers();
+			ulist = Ptr->GetOppedUsers();
 		break;
 		case '%':
-			Ptr->GetHalfoppedUsers();
+			ulist = Ptr->GetHalfoppedUsers();
 		break;
 		case '+':
-			Ptr->GetVoicedUsers();
+			ulist = Ptr->GetVoicedUsers();
 		break;
 		default:
-			Ptr->GetUsers();
+			ulist = Ptr->GetUsers();
 		break;
 	}
 	for (std::map<char*,char*>::iterator i = ulist->begin(); i != ulist->end(); i++)
@@ -533,16 +533,16 @@ void ChanExceptSender_NoFormat(chanrec* Ptr, userrec* user, char status, const c
         switch (status)
         {
                 case '@':
-                        Ptr->GetOppedUsers();
+                        ulist = Ptr->GetOppedUsers();
                 break;  
                 case '%':
-                        Ptr->GetHalfoppedUsers();
+                        ulist = Ptr->GetHalfoppedUsers();
                 break;
                 case '+':
-                        Ptr->GetVoicedUsers();
+                        ulist = Ptr->GetVoicedUsers();
                 break;
                 default:
-	                Ptr->GetUsers();
+	                ulist = Ptr->GetUsers();
 		break;
         }
         for (std::map<char*,char*>::iterator i = ulist->begin(); i != ulist->end(); i++)
