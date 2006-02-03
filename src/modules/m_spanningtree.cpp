@@ -126,6 +126,8 @@ void ReadConfiguration(bool rebind);
 
 /* Flatten links and /MAP for non-opers */
 bool FlatLinks;
+/* Hide U-Lined servers in /MAP and /LINKS */
+bool HideULines;
 
 /* Imported from xline.cpp for use during netburst */
 extern std::vector<KLine> klines;
@@ -2422,6 +2424,7 @@ void ReadConfiguration(bool rebind)
 		}
 	}
 	FlatLinks = Conf->ReadFlag("options","flatlinks",0);
+	HideULines = Conf->ReadFlag("options","hideulines",0);
 	LinkBlocks.clear();
 	for (int j =0; j < Conf->Enumerate("link"); j++)
 	{
@@ -2494,7 +2497,17 @@ class ModuleSpanningTree : public Module
 		}
 		for (unsigned int q = 0; q < Current->ChildCount(); q++)
 		{
-			ShowLinks(Current->GetChild(q),user,hops+1);
+			if ((HideULines) && (Srv->IsUlined(Current->GetName())))
+			{
+				if (*user->oper)
+				{
+					 ShowLinks(Current->GetChild(q),user,hops+1);
+				}
+			}
+			else
+			{
+				ShowLinks(Current->GetChild(q),user,hops+1);
+			}
 		}
 		WriteServ(user->fd,"364 %s %s %s :%d %s",user->nick,Current->GetName().c_str(),Parent.c_str(),(FlatLinks && (!*user->oper)) ? 0 : hops,Current->GetDesc().c_str());
 	}
@@ -2565,7 +2578,17 @@ class ModuleSpanningTree : public Module
 			line++;
 			for (unsigned int q = 0; q < Current->ChildCount(); q++)
 			{
-				ShowMap(Current->GetChild(q),user,(FlatLinks && (!*user->oper)) ? depth : depth+2,matrix);
+				if ((HideULines) && (Srv->IsUlined(Current->GetChild(q)->GetName())))
+				{
+					if (*user->oper)
+					{
+						ShowMap(Current->GetChild(q),user,(FlatLinks && (!*user->oper)) ? depth : depth+2,matrix);
+					}
+				}
+				else
+				{
+					ShowMap(Current->GetChild(q),user,(FlatLinks && (!*user->oper)) ? depth : depth+2,matrix);
+				}
 			}
 		}
 	}

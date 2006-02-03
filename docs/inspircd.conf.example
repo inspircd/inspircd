@@ -534,6 +534,12 @@
 #                  value is set to true, yes or 1, /MAP and /LINKS    #
 #                  will be flattened when shown to a non-oper.        #
 #                                                                     #
+#  hideulines    - When you are using m_spanningtree.so, and this     #
+#                  value is set to true, yes or 1, then U-lined       #
+#                  servers will be hidden in /LINKS and /MAP. For non #
+#                  opers. Please be aware that this will also hide    #
+#                  any leaf servers of a U-lined server, e.g. jupes.  #
+#                                                                     #
 
 <options prefixquit="Quit: "
          loglevel="default"
@@ -548,6 +554,7 @@
 	 hidesplits="no"
 	 hidewhois=""
 	 flatlinks="no"
+	 hideulines="no"
          allowhalfop="yes">
 
 
