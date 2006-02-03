@@ -2496,7 +2496,7 @@ class ModuleSpanningTree : public Module
 		{
 			ShowLinks(Current->GetChild(q),user,hops+1);
 		}
-		WriteServ(user->fd,"364 %s %s %s :%d %s",user->nick,Current->GetName().c_str(),Parent.c_str(),(FlatLinks && (!*user->oper)) ? 1 : hops,Current->GetDesc().c_str());
+		WriteServ(user->fd,"364 %s %s %s :%d %s",user->nick,Current->GetName().c_str(),Parent.c_str(),(FlatLinks && (!*user->oper)) ? 0 : hops,Current->GetDesc().c_str());
 	}
 
 	int CountLocalServs()
