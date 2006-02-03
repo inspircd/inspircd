@@ -66,21 +66,24 @@ void cmd_userhost::Handle (char **parameters, int pcnt, userrec *user)
 {
 	char Return[MAXBUF],junk[MAXBUF];
 	snprintf(Return,MAXBUF,"302 %s :",user->nick);
+	
 	for (int i = 0; i < pcnt; i++)
 	{
 		userrec *u = Find(parameters[i]);
-		if (u)
+		if(u)
 		{
-			if (strchr(u->modes,'o'))
-			{
-				snprintf(junk,MAXBUF,"%s*=+%s@%s ",u->nick,u->ident,u->host);
-				strlcat(Return,junk,MAXBUF);
-			}
+			if(strchr(u->modes,'o'))
+				if(strchr(user->modes, 'o'))
+					snprintf(junk,MAXBUF,"%s*=+%s@%s ",u->nick,u->ident,u->host);
+				else
+					snprintf(junk,MAXBUF,"%s*=+%s@%s ",u->nick,u->ident,u->dhost);
 			else
-			{
-				snprintf(junk,MAXBUF,"%s=+%s@%s ",u->nick,u->ident,u->host);
-				strlcat(Return,junk,MAXBUF);
-			}
+				if(strchr(user->modes, 'o'))
+					snprintf(junk,MAXBUF,"%s=+%s@%s ",u->nick,u->ident,u->host);
+				else
+					snprintf(junk,MAXBUF,"%s=+%s@%s ",u->nick,u->ident,u->dhost);
+
+			strlcat(Return,junk,MAXBUF);
 		}
 	}
 	WriteServ(user->fd,Return);
