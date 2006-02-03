@@ -171,12 +171,12 @@ void chanrec::DelUser(char* castuser)
 	{
 		log(DEBUG,"Removed casted user from channel's internal list");
 		internal_userlist.erase(a);
+		/* And tidy any others... */
+		DelOppedUser(castuser);
+		DelHalfoppedUser(castuser);
+		DelVoicedUser(castuser);
 		return;
 	}
-	/* Tidy up any others */
-	DelOppedUser(castuser);
-	DelHalfoppedUser(castuser);
-	DelVoicedUser(castuser);
 }
 
 void chanrec::AddOppedUser(char* castuser)
