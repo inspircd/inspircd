@@ -125,7 +125,7 @@ void readfile(file_cache &F, const char* fname)
 
 void Write_NoFormat(int sock, const char *text)
 {
-	if ((sock < 0) || (!text))
+	if ((sock < 0) || (!text) || (sock > MAX_DESCRIPTORS))
 		return;
 
 	char tb[MAXBUF];
@@ -148,7 +148,7 @@ void Write_NoFormat(int sock, const char *text)
 
 void Write(int sock,char *text, ...)
 {
-        if (sock < 0)
+        if ((sock < 0) || (sock > MAX_DESCRIPTORS))
                 return;
         if (!text)
         {
@@ -179,7 +179,7 @@ void Write(int sock,char *text, ...)
 
 void WriteServ_NoFormat(int sock, const char* text)
 {
-	if ((sock < 0) || (!text))
+	if ((sock < 0) || (!text) || (sock > MAX_DESCRIPTORS))
 		return;
 	char tb[MAXBUF];
 	int bytes = snprintf(tb,MAXBUF,":%s %s\r\n",Config->ServerName,text);
@@ -203,7 +203,7 @@ void WriteServ_NoFormat(int sock, const char* text)
 
 void WriteServ(int sock, char* text, ...)
 {
-        if (sock < 0)
+        if ((sock < 0) || (sock > MAX_DESCRIPTORS))
                 return;
         if (!text)
         {
@@ -234,7 +234,7 @@ void WriteServ(int sock, char* text, ...)
 
 void WriteFrom_NoFormat(int sock, userrec *user, const char* text)
 {
-	if ((sock < 0) || (!text) || (!user))
+	if ((sock < 0) || (!text) || (!user) || (sock > MAX_DESCRIPTORS))
 		return;
 	char tb[MAXBUF];
 	int bytes = snprintf(tb,MAXBUF,":%s %s\r\n",user->GetFullHost(),text);
@@ -258,7 +258,7 @@ void WriteFrom_NoFormat(int sock, userrec *user, const char* text)
 
 void WriteFrom(int sock, userrec *user,char* text, ...)
 {
-        if (sock < 0)
+        if ((sock < 0) || (sock > MAX_DESCRIPTORS))
                 return;
         if ((!text) || (!user))
         {
