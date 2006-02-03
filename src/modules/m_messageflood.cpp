@@ -195,7 +195,7 @@ class ModuleMsgFlood : public Module
 		}
 	}
 
-        virtual void OnUserMessage(userrec* user, void* dest, int target_type, std::string text)
+        virtual void OnUserMessage(userrec* user, void* dest, int target_type, std::string text, char status)
 	{
                 if (target_type == TYPE_CHANNEL)
                 {
@@ -203,7 +203,7 @@ class ModuleMsgFlood : public Module
                 }
 	}
 
-	virtual void OnUserNotice(userrec* user, void* dest, int target_type, std::string text)
+	virtual void OnUserNotice(userrec* user, void* dest, int target_type, std::string text, char status)
 	{
 		if (target_type == TYPE_CHANNEL)
 		{
