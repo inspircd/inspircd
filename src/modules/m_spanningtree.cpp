@@ -3007,10 +3007,10 @@ class ModuleSpanningTree : public Module
 		{
 			if (user->fd > -1)
 			{
+				chanrec *c = (chanrec*)dest;
 				std::string cname = c->name;
 				if (status)
 					cname = status + cname;
-				chanrec *c = (chanrec*)dest;
 				std::deque<TreeServer*> list;
 				GetListOfServersForChannel(c,list);
 				unsigned int ucount = list.size();
@@ -3044,10 +3044,10 @@ class ModuleSpanningTree : public Module
 		{
 			if (user->fd > -1)
 			{
+				chanrec *c = (chanrec*)dest;
 				std::string cname = c->name;
 				if (status)
 					cname = status + cname;
-				chanrec *c = (chanrec*)dest;
 				std::deque<TreeServer*> list;
 				GetListOfServersForChannel(c,list);
 				unsigned int ucount = list.size();
