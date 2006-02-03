@@ -218,7 +218,7 @@ void chanrec::AddVoicedUser(char* castuser)
         log(DEBUG,"Added casted user to channel's internal list");
 }
 
-void chanrec::DelOppedUser(char* castuser)
+void chanrec::DelVoicedUser(char* castuser)
 {
         std::map<char*,char*>::iterator a = internal_voice_userlist.find(castuser);
         if (a != internal_voice_userlist.end())
