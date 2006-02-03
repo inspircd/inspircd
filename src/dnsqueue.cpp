@@ -137,6 +137,7 @@ public:
 									log(DEBUG,"Caching hostname %s -> %s",(char*)inet_ntoa(usr->ip4),hostname.c_str());
 									addrcache[usr->ip4] = new std::string(hostname);
 								}
+								WriteServ(usr->fd,"NOTICE Auth :*** Found your hostname");
 							}
 							usr->dns_done = true;
 							return true;
@@ -176,6 +177,7 @@ public:
 					{
 						if ((usr->registered > 3) || (hostname == ""))
 						{
+							WriteServ(usr->fd,"NOTICE Auth :*** Could not resolve your hostname -- Using your IP address instead");
 							usr->dns_done = true;
 							return true;
 						}
