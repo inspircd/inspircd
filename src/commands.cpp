@@ -133,7 +133,14 @@ void do_whois(userrec* user, userrec* dest,unsigned long signon, unsigned long i
 				WriteServ(user->fd,"319 %s %s :%s",user->nick, dest->nick, cl.c_str());
 			}
 		}
-		WriteServ(user->fd,"312 %s %s %s :%s",user->nick, dest->nick, dest->server, GetServerDescription(dest->server).c_str());
+		if (*Config->HideWhoisServer)
+		{
+			WriteServ(user->fd,"312 %s %s %s :%s",user->nick, dest->nick, *user->oper ? dest->server : Config->HideWhoisServer, *user->oper ? GetServerDescription(dest->server).c_str() : Config->Network);
+		}
+		else
+		{
+			WriteServ(user->fd,"312 %s %s %s :%s",user->nick, dest->nick, dest->server, GetServerDescription(dest->server).c_str());
+		}
 		if (*dest->awaymsg)
 		{
 			WriteServ(user->fd,"301 %s %s :%s",user->nick, dest->nick, dest->awaymsg);

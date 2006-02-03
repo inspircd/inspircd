@@ -45,7 +45,7 @@ ServerConfig::ServerConfig()
 {
 	this->ClearStack();
 	*ServerName = *Network = *ServerDesc = *AdminName = '\0';
-	*AdminEmail = *AdminNick = *diepass = *restartpass = '\0';
+	*HideWhoisServer = *AdminEmail = *AdminNick = *diepass = *restartpass = '\0';
 	*CustomVersion = *motd = *rules = *PrefixQuit = *DieValue = *DNSServer = '\0';
 	*OperOnlyStats = *ModPath = *MyExecutable = *DisabledCommands = *PID = '\0';
 	log_file = NULL;
@@ -227,6 +227,7 @@ void ServerConfig::Read(bool bail, userrec* user)
 	ConfValue("options","customversion",0,Config->CustomVersion,&Config->config_f);
 	ConfValue("options","maxtargets",0,MT,&Config->config_f);
 	ConfValue("options","hidesplits",0,HS,&Config->config_f);
+	ConfValue("options","hidewhois",0,Config->HideWhoisServer,&Config->config_f);
 
 	Config->HideSplits = ((*HS == 'y') || (*HS == 'Y') || (*HS == '1') || (*HS == 't') || (*HS == 'T'));
         Config->SoftLimit = atoi(SLIMT);

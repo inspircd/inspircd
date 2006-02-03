@@ -224,6 +224,10 @@ class ServerConfig : public classbase
 	 */
 	bool HideSplits;
 
+	/** Set to a non-empty string to obfuscate the server name of users in WHOIS
+	 */
+	char HideWhoisServer[MAXBUF];
+
 	/** A list of IP addresses the server is listening
 	 * on.
 	 */

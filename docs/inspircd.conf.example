@@ -523,6 +523,13 @@
 #                  instead of the server names in the quit message,   #
 #                  identical to the way IRCu displays them.           #
 #                                                                     #
+#  hidewhois     - When defined with a non-empty value, the given     #
+#                  text will be used in place of the user's server    #
+#                  in WHOIS, when a user is WHOISed by a non-oper.    #
+#                  For example, most nets will want to set this to    #
+#                  something like '*.netname.net' to conceal the      #
+#                  actual server the user is on.                      #
+#                                                                     #
 
 <options prefixquit="Quit: "
          loglevel="default"
@@ -535,6 +542,7 @@
          customversion=""
          maxtargets="20"
 	 hidesplits="no"
+	 hidewhois=""
          allowhalfop="yes">
 
 
