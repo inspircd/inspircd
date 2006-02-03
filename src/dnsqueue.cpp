@@ -131,7 +131,7 @@ public:
 							{
 								strlcpy(usr->host,hostname.c_str(),MAXBUF);
 								strlcpy(usr->dhost,hostname.c_str(),MAXBUF);
-								address_hash::iterator address = addrcache.find(usr->ip4);
+								address_cache::iterator address = addrcache.find(usr->ip4);
 								if (address == addrcache.end())
 								{
 									log(DEBUG,"Caching hostname %s -> %s",(char*)inet_ntoa(usr->ip4),hostname.c_str());
@@ -210,7 +210,7 @@ bool lookup_dns(std::string nick)
 	if (u)
 	{
 		/* Check the cache */
-		address_hash::iterator address = addrcache.find(u->ip4);
+		address_cache::iterator address = addrcache.find(u->ip4);
 		if (address != addrcache.end())
 		{
 			/* Theyre in the cache, dont waste a lookup */
