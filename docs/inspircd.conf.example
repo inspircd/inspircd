@@ -711,6 +711,11 @@
 #<module name="m_globops.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Global load module: Allows loading and unloading of modules network-
+# wide (USE WITH EXTREME CAUTION!)
+#<module name="m_globalload.so">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # HELPOP module: Provides the /HELPOP command
 #<module name="m_helpop.so">
 #
