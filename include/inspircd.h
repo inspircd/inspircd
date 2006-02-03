@@ -131,5 +131,6 @@ class InspIRCd
 /* userrec optimization stuff */
 void AddServerName(std::string servername);
 const char* FindServerNamePtr(std::string servername);
+bool FindServerName(std::string servername);
 
 #endif

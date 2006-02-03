@@ -637,7 +637,6 @@ void WriteCommon_NoFormat(userrec *u, const char* text)
 }
 
 
-
 /* write a formatted string to all users who share at least one common
  * channel, NOT including the source user e.g. for use in QUIT */
 
@@ -655,10 +654,33 @@ void WriteCommonExcept(userrec *u, char* text, ...)
         }
 
         char textbuffer[MAXBUF];
+	char oper_quit[MAXBUF];
+	bool quit_munge = false;
+
         va_list argsPtr;
         va_start (argsPtr, text);
-        vsnprintf(textbuffer, MAXBUF, text, argsPtr);
+        int total = vsnprintf(textbuffer, MAXBUF, text, argsPtr);
         va_end(argsPtr);
+
+	if ((Config->HideSplits) && (total > 6))
+	{
+		/* Yeah yeah, this is ugly. But its fast, live with it. */
+		char* check = textbuffer;
+		if ((*check++ == 'Q') && (*check++ == 'U') && (*check++ == 'I') && (*check++ == 'T') && (*check++ == ' ') && (*check++ == ':'))
+		{
+			std::stringstream split(check);
+			std::string server_one;
+			std::string server_two;
+			split >> server_one;
+			split >> server_two;
+			if ((FindServerName(server_one)) && (FindServerName(server_two)))
+			{
+				strlcpy(oper_quit,textbuffer,MAXBUF);
+				strlcpy(check,"*.net *.split",MAXQUIT);
+				quit_munge = true;
+			}
+		}
+	}
 
         memset(&already_sent,0,MAX_DESCRIPTORS);
 
@@ -677,7 +699,18 @@ void WriteCommonExcept(userrec *u, char* text, ...)
                                         if ((otheruser->fd > -1) && (!already_sent[otheruser->fd]))
                                         {
                                                 already_sent[otheruser->fd] = 1;
-                                                WriteFrom_NoFormat(otheruser->fd,u,textbuffer);
+						if (quit_munge)
+						{
+							if (*otheruser->oper)
+							{
+								WriteFrom_NoFormat(otheruser->fd,u,oper_quit);
+							}
+							else
+							{
+								WriteFrom_NoFormat(otheruser->fd,u,textbuffer);
+							}
+						}
+						else WriteFrom_NoFormat(otheruser->fd,u,textbuffer);
                                         }
                                 }
                         }

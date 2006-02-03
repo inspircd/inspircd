@@ -114,6 +114,16 @@ const char* FindServerNamePtr(std::string servername)
 	return FindServerNamePtr(servername);
 }
 
+bool FindServerName(std::string servername)
+{
+	for (servernamelist::iterator a = servernames.begin(); a < servernames.end(); a++)
+	{
+		if (*a == servername)
+			return true;
+	}
+	return false;
+}
+
 std::string InspIRCd::GetRevision()
 {
 	/* w00t got me to replace a bunch of strtok_r

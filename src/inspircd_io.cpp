@@ -52,6 +52,7 @@ ServerConfig::ServerConfig()
 	nofork = false;
 	unlimitcore = false;
 	AllowHalfop = true;
+	HideSplits = false;
 	dns_timeout = 5;
 	MaxTargets = 20;
 	NetBufferSize = 10240;
@@ -149,7 +150,7 @@ void ServerConfig::Read(bool bail, userrec* user)
 {
         char dbg[MAXBUF],pauseval[MAXBUF],Value[MAXBUF],timeout[MAXBUF],NB[MAXBUF],flood[MAXBUF],MW[MAXBUF],MCON[MAXBUF],MT[MAXBUF];
         char AH[MAXBUF],AP[MAXBUF],AF[MAXBUF],DNT[MAXBUF],pfreq[MAXBUF],thold[MAXBUF],sqmax[MAXBUF],rqmax[MAXBUF],SLIMT[MAXBUF];
-	char localmax[MAXBUF],globalmax[MAXBUF];
+	char localmax[MAXBUF],globalmax[MAXBUF],HS[MAXBUF];
         ConnectClass c;
         std::stringstream errstr;
         include_stack.clear();
@@ -225,7 +226,9 @@ void ServerConfig::Read(bool bail, userrec* user)
 	ConfValue("options","operonlystats",0,Config->OperOnlyStats,&Config->config_f);
 	ConfValue("options","customversion",0,Config->CustomVersion,&Config->config_f);
 	ConfValue("options","maxtargets",0,MT,&Config->config_f);
+	ConfValue("options","hidesplits",0,HS,&Config->config_f);
 
+	Config->HideSplits = ((*HS == 'y') || (*HS == 'Y') || (*HS == '1') || (*HS == 't') || (*HS == 'T'));
         Config->SoftLimit = atoi(SLIMT);
 	if (*MT)
 		Config->MaxTargets = atoi(MT);

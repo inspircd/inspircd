@@ -220,6 +220,10 @@ class ServerConfig : public classbase
 	 */
         int DieDelay;
 
+	/** True if we're going to hide netsplits as *.net *.split for non-opers
+	 */
+	bool HideSplits;
+
 	/** A list of IP addresses the server is listening
 	 * on.
 	 */
