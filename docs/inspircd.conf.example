@@ -293,7 +293,7 @@
 
 <oper   name="katsklaw"
         password="s3cret"
-        host="*@server.com ident@dialup15.isp.com *@localhost"
+        host="ident@dialup15.isp.com *@localhost *@server.com"
         type="NetAdmin">
 
 
