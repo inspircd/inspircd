@@ -34,6 +34,7 @@ using namespace std;
 #include "inspircd.h"
 #include "helperfuncs.h"
 #include "m_sql.h"
+#include "cmd_oper.h"
 
 /* $ModDesc: Allows storage of oper credentials in an SQL table */
 
@@ -156,7 +157,7 @@ class ModuleSQLOper : public Module
 		                                std::string TypeName = Conf->ReadValue("type","name",j);
 						Srv->Log(DEBUG,"Scanning opertype: "+TypeName);
 						std::string pattern = std::string(user->ident) + "@" + std::string(user->host);
-		                                if ((TypeName == rowresult->GetField("type")) && (Srv->MatchText(pattern,rowresult->GetField("hostname"))))
+		                                if ((TypeName == rowresult->GetField("type")) && (OneOfMatches(pattern,rowresult->GetField("hostname"))))
 		                                {
 							Srv->Log(DEBUG,"Host and type match: "+TypeName+" "+rowresult->GetField("type"));
 		                                        /* found this oper's opertype */
