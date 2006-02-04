@@ -14,9 +14,6 @@
  * ---------------------------------------------------
  */
 
-using namespace std;
-
-#include <stdio.h>
 #include "users.h"
 #include "channels.h"
 #include "modules.h"
@@ -24,37 +21,48 @@ using namespace std;
 
 /* $ModDesc: Provides the SWHOIS command which allows setting of arbitary WHOIS lines */
 
-Server *Srv;
-
 class cmd_swhois : public command_t
 {
+	Server* Srv;
  public:
-	cmd_swhois () : command_t("SWHOIS",'o',2)
+	cmd_swhois(Server* server) : command_t("SWHOIS",'o',2)
 	{
+		this->Srv = server;
 		this->source = "m_swhois.so";
 	}
 
-	void Handle (char **parameters, int pcnt, userrec *user)
+	void Handle(char** parameters, int pcnt, userrec* user)
 	{
 		userrec* dest = Srv->FindNick(std::string(parameters[0]));
-		if (dest)
+		if(dest)
 		{
-			std::string line = "";
-			for (int i = 1; i < pcnt; i++)
+			std::string line;
+			for(int i = 1; i < pcnt; i++)
 			{
 				if (i != 1)
-					line = line + " ";
-				line = line + std::string(parameters[i]);
+					line.append(" ");
+					
+				line.append(parameters[i]);
 			}
-			char* field = dest->GetExt("swhois");
-			if (field)
+			
+			std::string* text = (std::string*)dest->GetExt("swhois");
+	
+			if(text)
 			{
-				std::string* text = (std::string*)field;
+				// We already had it set...
+								
+				WriteOpers("%s used SWHOIS to set %s's extra whois from '%s' to '%s'", user->nick, dest->nick, text->c_str(), line.c_str());
+				
 				dest->Shrink("swhois");
 				delete text;
 			}
-			std::string* text = new std::string(line);
-			dest->Extend("swhois",(char*)text);
+			else
+			{
+				WriteOpers("%s used SWHOIS to set %s's extra whois to '%s'", user->nick, dest->nick, line.c_str());
+			}
+			
+			text = new std::string(line);
+			dest->Extend("swhois", (char*)text);
 		}
 	}
 };
@@ -62,18 +70,27 @@ class cmd_swhois : public command_t
 class ModuleSWhois : public Module
 {
 	cmd_swhois* mycommand;
+	Server* Srv;
+	ConfigReader* Conf;
+	
  public:
-	ModuleSWhois(Server* Me)
-		: Module::Module(Me)
+	ModuleSWhois(Server* Me) : Module::Module(Me)
 	{
 		Srv = Me;
-		mycommand = new cmd_swhois();
+		Conf = new ConfigReader();
+		mycommand = new cmd_swhois(Srv);
 		Srv->AddCommand(mycommand);
+	}
+
+	void OnRehash(std::string parameter)
+	{
+		delete Conf;
+		Conf = new ConfigReader();
 	}
 
 	void Implements(char* List)
 	{
-		List[I_OnWhois] = List[I_OnSyncUserMetaData] = List[I_OnUserQuit] = List[I_OnCleanup] = 1;
+		List[I_OnWhois] = List[I_OnSyncUserMetaData] = List[I_OnUserQuit] = List[I_OnCleanup] = List[I_OnRehash] = List[I_OnOper] = 1;
 	}
 
 	// :kenny.chatspike.net 320 Brain Azhrarn :is getting paid to play games.
@@ -160,8 +177,33 @@ class ModuleSWhois : public Module
 		}
 	}
 	
+	virtual void OnOper(userrec* user, std::string opertype)
+	{
+		for(int i =0; i < Conf->Enumerate("type"); i++)
+		{
+			std::string type = Conf->ReadValue("type", "name", i);
+			
+			if(strcmp(type.c_str(), user->oper) == 0)
+			{
+				std::string swhois = Conf->ReadValue("type", "swhois", i);
+				
+				if(std::string* old = (std::string*)user->GetExt("swhois"))
+				{
+					user->Shrink("swhois");
+					delete old;
+				}
+			
+				std::string* text = new std::string(swhois);
+				user->Extend("swhois", (char*)text);
+				
+				break;
+			}
+		}		
+	}
+	
 	virtual ~ModuleSWhois()
 	{
+		delete Conf;
 	}
 	
 	virtual Version GetVersion()
