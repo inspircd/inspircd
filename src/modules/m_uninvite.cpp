@@ -23,6 +23,7 @@ using namespace std;
 #include "channels.h"
 #include "modules.h"
 #include "helperfuncs.h"
+#include "message.h"
 
 Server *Srv;
 	 
@@ -77,7 +78,7 @@ class cmd_uninvite : public command_t
 
                 u->RemoveInvite(xname);
                 WriteServ(user->fd,"NOTICE %s :*** Uninvited %s from %s",user->nick,u->nick,c->name);
-                WriteChannel(user,"NOTICE %s :*** %s uninvited %s.",c->name,user->nick,u->nick);
+                WriteChannel(c,user,"NOTICE %s :*** %s uninvited %s.",c->name,user->nick,u->nick);
         }
 };
 
