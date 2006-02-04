@@ -77,7 +77,8 @@ class cmd_uninvite : public command_t
                 }
 
                 u->RemoveInvite(xname);
-                WriteServ(user->fd,"NOTICE %s :*** Uninvited %s from %s",user->nick,u->nick,c->name);
+                WriteServ(user->fd,"494 %s %s %s :Uninvited",user->nick,c->name,u->nick);
+		WriteServ(u->fd,"493 %s :You were uninvited from %s by %s",u->nick,c->name,user->nick);
                 WriteChannel(c,user,"NOTICE %s :*** %s uninvited %s.",c->name,user->nick,u->nick);
         }
 };
