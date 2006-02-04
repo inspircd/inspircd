@@ -62,7 +62,7 @@ void cmd_invite::Handle (char **parameters, int pcnt, userrec *user)
 			return;
 		}
 
-		if (c->binarymodes & CM_INVITEONLY)
+		if ((c->binarymodes & CM_INVITEONLY) && (IS_LOCAL(user)))
 		{
 			if (cstatus(user,c) < STATUS_HOP)
 			{
@@ -75,7 +75,7 @@ void cmd_invite::Handle (char **parameters, int pcnt, userrec *user)
 	 		WriteServ(user->fd,"443 %s %s %s :Is already on channel %s",user->nick,u->nick,c->name,c->name);
 	 		return;
 		}
-		if (!has_channel(user,c))
+		if ((IS_LOCAL(user)) && (!has_channel(user,c)))
 	 	{
 			WriteServ(user->fd,"442 %s %s :You're not on that channel!",user->nick, c->name);
 	  		return;
