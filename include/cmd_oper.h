@@ -28,6 +28,8 @@
 #include "users.h"
 #include "channels.h"
 
+bool OneOfMatches(char* host, char* hostlist);
+
 class cmd_oper : public command_t
 {
  public:

@@ -62,6 +62,21 @@ extern std::vector<userrec*> all_opers;
 extern std::vector<userrec*> local_users;
 extern userrec* fd_ref_table[MAX_DESCRIPTORS];
 
+bool OneOfMatches(char* host, char* hostlist)
+{
+	std::stringstream hl(hostlist);
+	std::string xhost;
+	while (hl >> xhost)
+	{
+		log(DEBUG,"Oper: Matching host %s",xhost.c_str());
+		if (match(host,xhost.c_str()))
+		{
+			return true;
+		}
+	}
+	return false;
+}
+
 void cmd_oper::Handle (char **parameters, int pcnt, userrec *user)
 {
 	char LoginName[MAXBUF];
@@ -82,7 +97,7 @@ void cmd_oper::Handle (char **parameters, int pcnt, userrec *user)
 		Config->ConfValue("oper","password",i,Password,&Config->config_f);
 		Config->ConfValue("oper","type",i,OperType,&Config->config_f);
 		Config->ConfValue("oper","host",i,HostName,&Config->config_f);
-		if ((!strcmp(LoginName,parameters[0])) && (!operstrcmp(Password,parameters[1])) && (match(TheHost,HostName)))
+		if ((!strcmp(LoginName,parameters[0])) && (!operstrcmp(Password,parameters[1])) && (OneOfMatches(TheHost,HostName)))
 		{
 			fail2 = true;
 			for (j =0; j < Config->ConfValueEnum("type",&Config->config_f); j++)
