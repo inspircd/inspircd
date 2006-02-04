@@ -187,16 +187,19 @@ class ModuleSWhois : public Module
 			{
 				std::string swhois = Conf->ReadValue("type", "swhois", i);
 				
-				if(std::string* old = (std::string*)user->GetExt("swhois"))
+				if(swhois.length())
 				{
-					user->Shrink("swhois");
-					delete old;
-				}
+					if(std::string* old = (std::string*)user->GetExt("swhois"))
+					{
+						user->Shrink("swhois");
+						delete old;
+					}
 			
-				std::string* text = new std::string(swhois);
-				user->Extend("swhois", (char*)text);
-				
-				break;
+					std::string* text = new std::string(swhois);
+					user->Extend("swhois", (char*)text);
+					
+					break;
+				}
 			}
 		}		
 	}
