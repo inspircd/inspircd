@@ -280,7 +280,7 @@
 #              are modules that allow for oper password encryption.   #      
 #                                                                     #
 #  host      - host of client allowed to oper-up.                     #
-#              wildcards accepted                                     #
+#              wildcards accepted, seperate multiple hosts with space #
 #                                                                     #
 #  type      - specified above, defines the kind of operator          #
 #                                                                     #
@@ -293,7 +293,7 @@
 
 <oper   name="katsklaw"
         password="s3cret"
-        host="*@*"
+        host="*@server.com ident@dialup15.isp.com *@localhost"
         type="NetAdmin">
 
 
