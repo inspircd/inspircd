@@ -107,7 +107,7 @@ class ModuleCensor : public Module
 	
 	// format of a config entry is <badword text="shit" replace="poo">
 	
-	virtual int OnUserPreMessage(userrec* user,void* dest,int target_type, std::string &text)
+	virtual int OnUserPreMessage(userrec* user,void* dest,int target_type, std::string &text, char status)
 	{
 		bool active = false;
 		for (int index = 0; index < MyConf->Enumerate("badword"); index++)
@@ -137,34 +137,9 @@ class ModuleCensor : public Module
 		return 0;
 	}
 	
-	virtual int OnUserPreNotice(userrec* user,void* dest,int target_type, std::string &text)
+	virtual int OnUserPreNotice(userrec* user,void* dest,int target_type, std::string &text, char status)
 	{
-		bool active = false;
-		for (int index = 0; index < MyConf->Enumerate("badword"); index++)
-		{
-			std::string pattern = MyConf->ReadValue("badword","text",index);
-			if (text.find(pattern) != std::string::npos)
-			{
-				std::string replace = MyConf->ReadValue("badword","replace",index);
-
-				if (target_type == TYPE_USER)
-				{
-					userrec* t = (userrec*)dest;
-					active = (strchr(t->modes,'G') > 0);
-				}
-				else if (target_type == TYPE_CHANNEL)
-				{
-					chanrec* t = (chanrec*)dest;
-					active = (t->IsCustomModeSet('G'));
-				}
-				
-				if (active)
-				{
-					this->ReplaceLine(text,pattern,replace);
-				}
-			}
-		}
-		return 0;
+		return OnUserPreMessage(user,dest,target_type,text,status);
 	}
 	
 	virtual void OnRehash(std::string parameter)

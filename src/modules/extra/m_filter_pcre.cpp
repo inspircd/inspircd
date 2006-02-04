@@ -94,54 +94,12 @@ class ModuleFilterPCRE : public Module
 
 	// format of a config entry is <keyword pattern="^regexp$" reason="Some reason here" action="kill/block">
 	
-	virtual int OnUserPreMessage(userrec* user,void* dest,int target_type, std::string &text)
+	virtual int OnUserPreMessage(userrec* user,void* dest,int target_type, std::string &text, char status)
 	{
-		for (unsigned int index = 0; index < filters.size(); index++)
-		{
-			if (pcre_exec(filters[index],NULL,text.c_str(),text.length(),0,0,NULL,0) > -1)
-			{
-				std::string target = "";
-				std::string reason = MyConf->ReadValue("keyword","reason",index);
-				std::string do_action = MyConf->ReadValue("keyword","action",index);
-
-				if (do_action == "")
-					do_action = "none";
-
-				if (target_type == TYPE_USER)
-				{
-					userrec* t = (userrec*)dest;
-					target = std::string(t->nick);
-				}
-				else if (target_type == TYPE_CHANNEL)
-				{
-					chanrec* t = (chanrec*)dest;
-					target = std::string(t->name);
-				}
-				if (do_action == "block")
-	      			{	
-					Srv->SendOpers(std::string("FilterPCRE: ")+std::string(user->nick)+
-							std::string(" had their message filtered, target was ")+
-							target+": "+reason);
-					// this form of SendTo (with the source as NuLL) sends a server notice
-					Srv->SendTo(NULL,user,"NOTICE "+std::string(user->nick)+
-							" :Your message has been filtered and opers notified: "+reason);
-				}
-
-				Srv->Log(DEFAULT,std::string("Filter: ")+std::string(user->nick)+
-    						std::string(" had their message filtered, target was ")+
-    						target+": "+reason+" Action: "+do_action);
-
-				if (do_action == "kill")
-				{
-					Srv->QuitUser(user,reason);
-				}
-				return 1;
-			}
-		}
-		return 0;
+		return OnUserPreNotice(user,dest,target_type,text,status);
 	}
 	
-	virtual int OnUserPreNotice(userrec* user,void* dest,int target_type, std::string &text)
+	virtual int OnUserPreNotice(userrec* user,void* dest,int target_type, std::string &text, char status)
 	{
 		for (unsigned int index = 0; index < filters.size(); index++)
 		{

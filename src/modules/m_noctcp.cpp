@@ -47,27 +47,12 @@ class ModuleNoCTCP : public Module
 		InsertMode(output,"C",4);
         }
 	
-	virtual int OnUserPreMessage(userrec* user,void* dest,int target_type, std::string &text)
+	virtual int OnUserPreMessage(userrec* user,void* dest,int target_type, std::string &text, char status)
 	{
-		if (target_type == TYPE_CHANNEL)
-		{
-			chanrec* c = (chanrec*)dest;
-			if (c->IsCustomModeSet('C'))
-			{
-				if ((text.length()) && (text[0] == '\1'))
-				{
-					if (strncmp(text.c_str(),"\1ACTION ",8))
-					{
-						WriteServ(user->fd,"492 %s %s :Can't send CTCP to channel (+C set)",user->nick, c->name);
-						return 1;
-					}
-				}
-			}
-		}
-		return 0;
+		return OnUserPreNotice(user,dest,target_type,text,status);
 	}
 	
-	virtual int OnUserPreNotice(userrec* user,void* dest,int target_type, std::string &text)
+	virtual int OnUserPreNotice(userrec* user,void* dest,int target_type, std::string &text, char status)
 	{
 		if (target_type == TYPE_CHANNEL)
 		{

@@ -122,7 +122,7 @@ class ModuleStripColor : public Module
 		text = sentence;
 	}
 	
-	virtual int OnUserPreMessage(userrec* user,void* dest,int target_type, std::string &text)
+	virtual int OnUserPreMessage(userrec* user,void* dest,int target_type, std::string &text, char status)
 	{
 		bool active = false;
 		if (target_type == TYPE_USER)
@@ -142,24 +142,9 @@ class ModuleStripColor : public Module
 		return 0;
 	}
 	
-	virtual int OnUserPreNotice(userrec* user,void* dest,int target_type, std::string &text)
+	virtual int OnUserPreNotice(userrec* user,void* dest,int target_type, std::string &text, char status)
 	{
-		bool active = false;
-		if (target_type == TYPE_USER)
-		{
-			userrec* t = (userrec*)dest;
-			active = (strchr(t->modes,'S') > 0);
-		}
-		else if (target_type == TYPE_CHANNEL)
-		{
-			chanrec* t = (chanrec*)dest;
-			active = (t->IsCustomModeSet('S'));
-		}
-		if (active)
-		{
-			this->ReplaceLine(text);
-		}
-		return 0;
+		return OnUserPreMessage(user,dest,target_type,text,status);
 	}
 	
 	virtual Version GetVersion()

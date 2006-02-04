@@ -322,7 +322,7 @@ class ModulePark : public Module
 	        }
 	}
 
-	virtual int OnUserPreMessage(userrec* user,void* dest,int target_type, std::string &text)
+	virtual int OnUserPreMessage(userrec* user,void* dest,int target_type, std::string &text, char status)
 	{
 		if (target_type == TYPE_USER)
 		{

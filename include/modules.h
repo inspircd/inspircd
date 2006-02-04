@@ -544,9 +544,10 @@ class Module : public classbase
 	 * @param dest The target of the message (chanrec* or userrec*)
 	 * @param target_type The type of target (TYPE_USER or TYPE_CHANNEL)
 	 * @param text Changeable text being sent by the user
+	 * @param status The status being used, e.g. PRIVMSG @#chan has status== '@', 0 to send to everyone.
 	 * @return 1 to deny the NOTICE, 0 to allow it
 	 */
-	virtual int OnUserPreMessage(userrec* user,void* dest,int target_type, std::string &text);
+	virtual int OnUserPreMessage(userrec* user,void* dest,int target_type, std::string &text,char status);
 
 	/** Called whenever a user is about to NOTICE A user or a channel, before any processing is done.
 	 * Returning any nonzero value from this function stops the process immediately, causing no
@@ -562,9 +563,10 @@ class Module : public classbase
 	 * @param dest The target of the message (chanrec* or userrec*)
 	 * @param target_type The type of target (TYPE_USER or TYPE_CHANNEL)
 	 * @param text Changeable text being sent by the user
+	 * @param status The status being used, e.g. PRIVMSG @#chan has status== '@', 0 to send to everyone.
 	 * @return 1 to deny the NOTICE, 0 to allow it
 	 */
-	virtual int OnUserPreNotice(userrec* user,void* dest,int target_type, std::string &text);
+	virtual int OnUserPreNotice(userrec* user,void* dest,int target_type, std::string &text,char status);
 	
 	/** Called before any nickchange, local or remote. This can be used to implement Q-lines etc.
 	 * Please note that although you can see remote nickchanges through this function, you should

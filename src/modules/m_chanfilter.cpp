@@ -101,7 +101,7 @@ class ModuleChanFilter : public Module
 		return 0;
 	}
 
-	virtual int OnUserPreMessage(userrec* user,void* dest,int target_type, std::string &text)
+	virtual int OnUserPreMessage(userrec* user,void* dest,int target_type, std::string &text, char status)
 	{
 		if (target_type == TYPE_CHANNEL)
 		{
@@ -110,13 +110,9 @@ class ModuleChanFilter : public Module
 		else return 0;
 	}
 
-	virtual int OnUserPreNotice(userrec* user,void* dest,int target_type, std::string &text)
+	virtual int OnUserPreNotice(userrec* user,void* dest,int target_type, std::string &text, char status)
 	{
-		if (target_type == TYPE_CHANNEL)
-		{
-			return ProcessMessages(user,(chanrec*)dest,text);
-		}
-		else return 0;
+		return OnUserPreMessage(user,dest,target_type,text,status);
 	}
 	
 	virtual int OnExtendedMode(userrec* user, void* target, char modechar, int type, bool mode_on, string_list &params)

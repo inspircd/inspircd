@@ -118,7 +118,7 @@ class ModuleServices : public Module
 		return 0;
 	}
 
-	virtual int OnUserPreMessage(userrec* user,void* dest,int target_type, std::string &text)
+	virtual int OnUserPreMessage(userrec* user,void* dest,int target_type, std::string &text, char status)
 	{
 		if (target_type == TYPE_CHANNEL)
 		{
@@ -153,39 +153,9 @@ class ModuleServices : public Module
 		return 0;
 	}
  	
-	virtual int OnUserPreNotice(userrec* user,void* dest,int target_type, std::string &text)
+	virtual int OnUserPreNotice(userrec* user,void* dest,int target_type, std::string &text, char status)
 	{
-		if (target_type == TYPE_CHANNEL)
-		{
-			chanrec* c = (chanrec*)dest;
-			if ((c->IsCustomModeSet('M')) && (!strchr(user->modes,'r')))
-			{
-				if ((Srv->IsUlined(user->nick)) || (Srv->IsUlined(user->server)))
-				{
-					// user is ulined, can speak regardless
-					return 0;
-				}
-				// user noticing a +M channel and is not registered
-				Srv->SendServ(user->fd,"477 "+std::string(user->nick)+" "+std::string(c->name)+" :You need a registered nickname to speak on this channel");
-				return 1;
-			}
-		}
-		if (target_type == TYPE_USER)
-		{
-			userrec* u = (userrec*)dest;
-			if ((strchr(u->modes,'R')) && (!strchr(user->modes,'r')))
-			{
-				if ((Srv->IsUlined(user->nick)) || (Srv->IsUlined(user->server)))
-				{
-					// user is ulined, can speak regardless
-					return 0;
-				}
-				// user noticing a +R user and is not registered
-				Srv->SendServ(user->fd,"477 "+std::string(user->nick)+" "+std::string(u->nick)+" :You need a registered nickname to message this user");
-				return 1;
-			}
-		}
-		return 0;
+		return OnUserPreMessage(user,dest,target_type,text,status);
 	}
  	
 	virtual int OnUserPreJoin(userrec* user, chanrec* chan, const char* cname)

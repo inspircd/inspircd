@@ -110,7 +110,7 @@ void cmd_notice::Handle (char **parameters, int pcnt, userrec *user)
 			int MOD_RESULT = 0;
 
 			std::string temp = parameters[1];
-			FOREACH_RESULT(I_OnUserPreNotice,OnUserPreNotice(user,chan,TYPE_CHANNEL,temp));
+			FOREACH_RESULT(I_OnUserPreNotice,OnUserPreNotice(user,chan,TYPE_CHANNEL,temp,status));
 			if (MOD_RESULT) {
 				return;
 			}
@@ -140,7 +140,7 @@ void cmd_notice::Handle (char **parameters, int pcnt, userrec *user)
 		int MOD_RESULT = 0;
 		
 		std::string temp = parameters[1];
-		FOREACH_RESULT(I_OnUserPreNotice,OnUserPreNotice(user,dest,TYPE_USER,temp));
+		FOREACH_RESULT(I_OnUserPreNotice,OnUserPreNotice(user,dest,TYPE_USER,temp,0));
 		if (MOD_RESULT) {
 			return;
 		}

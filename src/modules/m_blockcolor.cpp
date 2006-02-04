@@ -47,7 +47,7 @@ class ModuleBlockColor : public Module
 		InsertMode(output,"c",4);
         }
 	
-	virtual int OnUserPreMessage(userrec* user,void* dest,int target_type, std::string &text)
+	virtual int OnUserPreMessage(userrec* user,void* dest,int target_type, std::string &text, char status)
 	{
 		if (target_type == TYPE_CHANNEL)
 		{
@@ -80,37 +80,9 @@ class ModuleBlockColor : public Module
 		return 0;
 	}
 	
-	virtual int OnUserPreNotice(userrec* user,void* dest,int target_type, std::string &text)
+	virtual int OnUserPreNotice(userrec* user,void* dest,int target_type, std::string &text, char status)
 	{
-		if (target_type == TYPE_CHANNEL)
-		{
-			chanrec* c = (chanrec*)dest;
-			char ctext[MAXBUF];
-			char *ctptr = ctext;
-			strlcpy(ctext,text.c_str(),MAXBUF);
-
-
-			if (c->IsCustomModeSet('c'))
-			{
-				/* Instead of using strchr() here, do our own loop. Hopefully faster. --w00t */
-				while (ctptr && *ctptr)
-				{
-					switch (*ctptr++)
-					{
-						case 2:
-						case 3:
-						case 15:
-						case 21:
-						case 22:
-						case 31:
-							WriteServ(user->fd,"404 %s %s :Can't send colors to channel (+c set)",user->nick, c->name);
-							return 1;
-						break;
-					}
-				}
-			}
-		}
-		return 0;
+		return OnUserPreMessage(user,dest,target_type,text,status);
 	}
 	
 	virtual int OnExtendedMode(userrec* user, void* target, char modechar, int type, bool mode_on, string_list &params)
