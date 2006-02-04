@@ -13,7 +13,7 @@
 
 /* $ModDesc: Provides SSL support for clients */
 /* $CompileFlags: `libgnutls-config --cflags` */
-/* $LinkerFlags: `libgnutls-config --libs` */
+/* $LinkerFlags: `libgnutls-config --libs` `perl ../gnutls_rpath.pl` */
 
 enum issl_status { ISSL_NONE, ISSL_HANDSHAKING_READ, ISSL_HANDSHAKING_WRITE, ISSL_HANDSHAKEN, ISSL_CLOSING, ISSL_CLOSED };
 
