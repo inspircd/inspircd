@@ -101,7 +101,8 @@ class ModuleUninvite : public Module
 	
 	virtual Version GetVersion()
 	{
-		return Version(1, 0, 0, 0, VF_VENDOR);
+		/* Must be static, because we dont want to desync invite lists */
+		return Version(1, 0, 0, 0, VF_VENDOR|VF_STATIC);
 	}
 };
 
