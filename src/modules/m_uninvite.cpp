@@ -70,7 +70,7 @@ class cmd_uninvite : public command_t
                         WriteServ(user->fd,"491 %s %s %s :Is not invited to channel %s",user->nick,u->nick,c->name,c->name);
                         return;
                 }
-                if (has_channel(user,c))
+                if (!has_channel(user,c))
                 {
                         WriteServ(user->fd,"492 %s %s :You're not on that channel!",user->nick, c->name);
                         return;
