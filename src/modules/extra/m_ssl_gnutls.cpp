@@ -448,7 +448,8 @@ class ModuleSSLGnuTLS : public Module
 	// :kenny.chatspike.net 320 Om Epy|AFK :is a Secure Connection
 	virtual void OnWhois(userrec* source, userrec* dest)
 	{
-		if(dest->GetExt("ssl"))
+		// Bugfix, only send this numeric for *our* SSL users
+		if(dest->GetExt("ssl") && isin(dest->port, listenports))
 		{
 			WriteServ(source->fd, "320 %s %s :is using a secure connection", source->nick, dest->nick);
 		}
