@@ -417,12 +417,14 @@ void ServerConfig::Read(bool bail, userrec* user)
                         if (ServerInstance->UnloadModule(removing->c_str()))
                         {
                                 WriteOpers("*** REHASH UNLOADED MODULE: %s",removing->c_str());
-                                WriteServ(user->fd,"973 %s %s :Module %s successfully unloaded.",user->nick, removing->c_str(), removing->c_str());
+                                if (user)
+					WriteServ(user->fd,"973 %s %s :Module %s successfully unloaded.",user->nick, removing->c_str(), removing->c_str());
                                 rem++;
                         }
                         else
                         {
-                                WriteServ(user->fd,"972 %s %s :Failed to unload module %s: %s",user->nick, removing->c_str(), removing->c_str(), ServerInstance->ModuleError());
+				if (user)
+                                	WriteServ(user->fd,"972 %s %s :Failed to unload module %s: %s",user->nick, removing->c_str(), removing->c_str(), ServerInstance->ModuleError());
                         }
                 }
                 if (!added_modules.empty())
@@ -431,12 +433,14 @@ void ServerConfig::Read(bool bail, userrec* user)
                         if (ServerInstance->LoadModule(adding->c_str()))
                         {
                                 WriteOpers("*** REHASH LOADED MODULE: %s",adding->c_str());
-                                WriteServ(user->fd,"975 %s %s :Module %s successfully loaded.",user->nick, adding->c_str(), adding->c_str());
+				if (user)
+                                	WriteServ(user->fd,"975 %s %s :Module %s successfully loaded.",user->nick, adding->c_str(), adding->c_str());
                                 add++;
                         }
                         else
                         {
-                                WriteServ(user->fd,"974 %s %s :Failed to load module %s: %s",user->nick, adding->c_str(), adding->c_str(), ServerInstance->ModuleError());
+				if (user)
+                                	WriteServ(user->fd,"974 %s %s :Failed to load module %s: %s",user->nick, adding->c_str(), adding->c_str(), ServerInstance->ModuleError());
                         }
                 }
                 log(DEFAULT,"Successfully unloaded %lu of %lu modules and loaded %lu of %lu modules.",(unsigned long)rem,(unsigned long)removed_modules.size(),
