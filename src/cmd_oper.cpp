@@ -62,7 +62,7 @@ extern std::vector<userrec*> all_opers;
 extern std::vector<userrec*> local_users;
 extern userrec* fd_ref_table[MAX_DESCRIPTORS];
 
-bool OneOfMatches(char* host, char* hostlist)
+bool OneOfMatches(const char* host, const char* hostlist)
 {
 	std::stringstream hl(hostlist);
 	std::string xhost;

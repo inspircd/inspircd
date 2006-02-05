@@ -152,35 +152,40 @@ class ModuleSQLOper : public Module
 				{
 					found = true;
 					// oper up the user.
-		                        for (int j =0; j < Conf->Enumerate("type"); j++)
-		                        {
-		                                std::string TypeName = Conf->ReadValue("type","name",j);
+					
+					for (int j =0; j < Conf->Enumerate("type"); j++)
+					{
+						std::string TypeName = Conf->ReadValue("type","name",j);
 						Srv->Log(DEBUG,"Scanning opertype: "+TypeName);
 						std::string pattern = std::string(user->ident) + "@" + std::string(user->host);
-		                                if ((TypeName == rowresult->GetField("type")) && (OneOfMatches(pattern,rowresult->GetField("hostname"))))
-		                                {
+							
+						if((TypeName == rowresult->GetField("type")) && OneOfMatches(pattern.c_str(), rowresult->GetField("hostname").c_str()))
+						{
+							/* found this oper's opertype */
 							Srv->Log(DEBUG,"Host and type match: "+TypeName+" "+rowresult->GetField("type"));
-		                                        /* found this oper's opertype */
 							std::string HostName = Conf->ReadValue("type","host",j);
-							if (HostName != "")
-			                                        Srv->ChangeHost(user,HostName);
-		                                        strlcpy(user->oper,rowresult->GetField("type").c_str(),NICKMAX);
+							
+							if(HostName != "")
+								Srv->ChangeHost(user,HostName);
+								
+							strlcpy(user->oper,rowresult->GetField("type").c_str(),NICKMAX);
 							WriteOpers("*** %s (%s@%s) is now an IRC operator of type %s",user->nick,user->ident,user->host,rowresult->GetField("type").c_str());
 							WriteServ(user->fd,"381 %s :You are now an IRC operator of type %s",user->nick,rowresult->GetField("type").c_str());
-					                if (!strchr(user->modes,'o'))
-					                {
-					                        strcat(user->modes,"o");
-					                        WriteServ(user->fd,"MODE %s :+o",user->nick);
+							if(!strchr(user->modes,'o'))
+							{
+								strcat(user->modes,"o");
+								WriteServ(user->fd,"MODE %s :+o",user->nick);
 								FOREACH_MOD(I_OnOper,OnOper(user,rowresult->GetField("type")));
 								AddOper(user);
 								FOREACH_MOD(I_OnPostOper,OnPostOper(user,rowresult->GetField("type")));
-					                        log(DEFAULT,"OPER: %s!%s@%s opered as type: %s",user->nick,user->ident,user->host,rowresult->GetField("type").c_str());
-					                }
-		                                        break;
-                		                }
-		                        }
-
+								log(DEFAULT,"OPER: %s!%s@%s opered as type: %s",user->nick,user->ident,user->host,rowresult->GetField("type").c_str());
+							}
+								
+							break;
+						}
+					}
 				}
+				
 				delete rowresult;
 			}
 			else
@@ -188,6 +193,7 @@ class ModuleSQLOper : public Module
 				// we didn't have a row.
 				found = false;
 			}
+			
 			delete rowrequest;
 			delete result;
 		}
