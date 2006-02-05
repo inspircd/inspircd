@@ -41,24 +41,22 @@
 	line12="WATCH     USERIP">
 	
 <watch line1="/WATCH [C|S|+/-[NICK]]"
-	line2="Adds or deletes a user from the watch list. C clears the list
+	line2="Adds or deletes a user from the watch list. C clears the list"
 	line3="and S queries the status.">
 	
 <vhost line1="/VHOST [username] [password]"
 	line2="Authenticate for a vhost.">
 
 <park line1="/PARK"
-	line2="Parks the nickname which issues the command. The session's 
-	line3="connection is closed, but the session remains as a ghost, to 
-	line4="be reclaimed later. When the user quits, they will be given a 
+	line2="Parks the nickname which issues the command. The session's"
+	line3="connection is closed, but the session remains as a ghost, to"
+	line4="be reclaimed later. When the user quits, they will be given a" 
 	line5="key which is random.">
 	
-<unpark line1=/UNPARK [nickname] [key]"
-	line2="Unparks the nickname specified. The nickname must already
-	line3="be previously parked, and the key must match the one for
+<unpark line1="/UNPARK [nickname] [key]"
+	line2="Unparks the nickname specified. The nickname must already"
+	line3="be previously parked, and the key must match the one for"
 	line4="this nickname.">
-	
-<parkstats
 
 <kick line1="/REMOVE [channel] [nick] {[reason]}"
 	line2="Removes a user from a channel you specify. You must be"
@@ -298,19 +296,19 @@
 	line2="Re-displays the Oper MOTD.">
 
 <nicklock line1="/NICKLOCK [nick] [new nick]"
-	line2="Changes user's nick to the new nick, and forces 
+	line2="Changes user's nick to the new nick, and forces"
 	line3="it to remain as such for the remainder of the session.">
 	
-<nickunlock line1=/NICKUNLOCK [nick]"
+<nickunlock line1="/NICKUNLOCK [nick]"
 	line2="Allows the user to change nicks.">
 
-<chghost line1=/CHGHOST [nickname] [new hostname]"
+<chghost line1="/CHGHOST [nickname] [new hostname]"
 	line2="Changes the hostname of the user to the new hostname>.">
 	
-<chgname line1=/CHGNAME [nickname] [new name]"
+<chgname line1="/CHGNAME [nickname] [new name]"
 	line2="Changes the name of the user to the new name>.">
 
-<chgident line1=/CHGIDENT [nickname] [new ident]"
+<chgident line1="/CHGIDENT [nickname] [new ident]"
 	line2="Changes the ident of the user to the new ident.">
 
 <shun line1="/SHUN [user@host] {[duration] :[reason]}"
@@ -469,7 +467,7 @@
 	line35="R                  Only registered users can join"
 	line36="M                  Non-registered users can't chat"
 	line37="z                  SSL clients only"
-	line38="x                  Join exception mask. Avoids +ibkO
+	line38="x                  Join exception mask. Avoids +ibkO"
 	line39="-------------"
 	line40="NOTE: A large number of these modes are dependent upon server-side modules"
 	line41="being loaded by a server/network administrator. The actual modes available"
