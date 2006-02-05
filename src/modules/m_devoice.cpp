@@ -33,7 +33,7 @@ Server *Srv;
 class cmd_devoice : public command_t
 {
  public:
-	cmd_devoice () : command_t("DEVOICE", 'o', 2)
+	cmd_devoice () : command_t("DEVOICE", 0, 2)
 	{
 		this->source = "m_devoice.so";
 	}
