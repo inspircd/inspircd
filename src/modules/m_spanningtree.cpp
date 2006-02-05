@@ -3330,7 +3330,7 @@ class ModuleSpanningTree : public Module
 	virtual void OnSetAway(userrec* user)
 	{
 		std::deque<std::string> params;
-		params.push_back(":"+std::string(u->awaymsg));
+		params.push_back(":"+std::string(user->awaymsg));
 		DoOneToMany(user->nick,"AWAY",params);
 	}
 
