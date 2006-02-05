@@ -3342,7 +3342,7 @@ class ModuleSpanningTree : public Module
 		if (IS_LOCAL(user))
 		{
 			std::deque<std::string> params;
-			params.push_back(":");
+			params.clear();
 			DoOneToMany(user->nick,"AWAY",params);
 		}
 	}
