@@ -57,7 +57,7 @@ class ModuleOverride : public Module
 
 	void Implements(char* List)
 	{
-		List[I_OnRehash] = List[I_OnAccessCheck] = List[I_On005Numeric] = List[I_OnUserPreJoin] = 1;
+		List[I_OnRehash] = List[I_OnAccessCheck] = List[I_On005Numeric] = List[I_OnUserPreJoin] = List[I_OnUserPreKick] = 1;
 	}
 
         virtual void On005Numeric(std::string &output)
@@ -81,10 +81,24 @@ class ModuleOverride : public Module
 		// its not defined at all, count as false
 		return false;
 	}
+
+	virtual int OnUserPreKick(userrec* source, userrec* user, chanrec* chan, std::string reason)
+	{
+		if ((*source->oper) && (CanOverride(source,"KICK")))
+		{
+			if (((Srv->ChanMode(source,channel) == "%") && (Srv->ChanMode(user,channel) == "@")) ||	(Srv->ChanMode(source,channel) == ""))
+			{
+				Srv->SendOpers("*** NOTICE: "+std::string(source->nick)+" Override-Kicked "+std::string(user->nick)+" on "+std::string(chan->name)+" ("+reason+")");
+			}
+			/* Returning -1 explicitly allows the kick */
+			return -1;
+		}
+		return 0;
+	}
 	
 	virtual int OnAccessCheck(userrec* source,userrec* dest,chanrec* channel,int access_type)
 	{
-		if (strchr(source->modes,'o'))
+		if (*source->oper)
 		{
 			if ((Srv) && (source) && (channel))
 			{
@@ -94,14 +108,6 @@ class ModuleOverride : public Module
 				{
 					switch (access_type)
 					{
-						case AC_KICK:
-							if (CanOverride(source,"KICK"))
-							{
-								Srv->SendOpers("*** NOTICE: "+std::string(source->nick)+" Override-Kicked "+std::string(dest->nick)+" on "+std::string(channel->name));
-								return ACR_ALLOW;
-							}
-							else return ACR_DEFAULT;
-						break;
 						case AC_DEOP:
 							if (CanOverride(source,"MODEDEOP"))
 							{

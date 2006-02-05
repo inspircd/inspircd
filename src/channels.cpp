@@ -589,33 +589,38 @@ void kick_channel(userrec *src,userrec *user, chanrec *Ptr, char* reason)
 	                return;
 	        }
 	        int MOD_RESULT = 0;
-	        FOREACH_RESULT(I_OnAccessCheck,OnAccessCheck(src,user,Ptr,AC_KICK));
-	        if ((MOD_RESULT == ACR_DENY) && (!is_uline(src->server)))
-	                return;
+
+		if (!is_uline(src->server))
+		{
+			MOD_RESULT = 0;
+			FOREACH_RESULT(I_OnUserPreKick,OnUserPreKick(src,user,Ptr,reason));
+			if (MOD_RESULT == 1)
+				return;
+		}
+		/* Set to -1 by OnUserPreKick if explicit allow was set */
+		if (MOD_RESULT != -1)
+		{
+		        FOREACH_RESULT(I_OnAccessCheck,OnAccessCheck(src,user,Ptr,AC_KICK));
+		        if ((MOD_RESULT == ACR_DENY) && (!is_uline(src->server)))
+		                return;
 	
-	        if ((MOD_RESULT == ACR_DEFAULT) || (!is_uline(src->server)))
-	        {
-        	        if ((cstatus(src,Ptr) < STATUS_HOP) || (cstatus(src,Ptr) < cstatus(user,Ptr)))
-	                {
-	                        if (cstatus(src,Ptr) == STATUS_HOP)
-	                        {
-	                                WriteServ(src->fd,"482 %s %s :You must be a channel operator",src->nick, Ptr->name);
-	                        }
-	                        else
-	                        {
-	                                WriteServ(src->fd,"482 %s %s :You must be at least a half-operator to change modes on this channel",src->nick, Ptr->name);
-	                        }
-	
-	                        return;
-	                }
-	        }
-	        if (!is_uline(src->server))
-	        {
-	      	        MOD_RESULT = 0;
-     		        FOREACH_RESULT(I_OnUserPreKick,OnUserPreKick(src,user,Ptr,reason));
-	                if (MOD_RESULT)
-	                        return;
-	        }
+		        if ((MOD_RESULT == ACR_DEFAULT) || (!is_uline(src->server)))
+		        {
+       		 	        if ((cstatus(src,Ptr) < STATUS_HOP) || (cstatus(src,Ptr) < cstatus(user,Ptr)))
+		                {
+		                        if (cstatus(src,Ptr) == STATUS_HOP)
+		                        {
+		                                WriteServ(src->fd,"482 %s %s :You must be a channel operator",src->nick, Ptr->name);
+		                        }
+		                        else
+		                        {
+		                                WriteServ(src->fd,"482 %s %s :You must be at least a half-operator to change modes on this channel",src->nick, Ptr->name);
+		                        }
+		
+		                        return;
+		                }
+		        }
+		}
 	}
 
         FOREACH_MOD(I_OnUserKick,OnUserKick(src,user,Ptr,reason));
