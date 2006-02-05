@@ -462,7 +462,7 @@ class Module : public classbase
 	 * @param user The user being kicked
 	 * @param chan The channel the user is being kicked from
 	 * @param reason The kick reason
-	 * @return 1 to prevent the kick, 0 to allow it
+	 * @return 1 to prevent the kick, 0 to continue normally, -1 to explicitly allow the kick regardless of normal operation
          */
 	virtual int OnUserPreKick(userrec* source, userrec* user, chanrec* chan, std::string reason);
 
