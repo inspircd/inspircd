@@ -86,7 +86,7 @@ class ModuleOverride : public Module
 	{
 		if ((*source->oper) && (CanOverride(source,"KICK")))
 		{
-			if (((Srv->ChanMode(source,channel) == "%") && (Srv->ChanMode(user,channel) == "@")) ||	(Srv->ChanMode(source,channel) == ""))
+			if (((Srv->ChanMode(source,chan) == "%") && (Srv->ChanMode(user,chan) == "@")) || (Srv->ChanMode(source,chan) == ""))
 			{
 				Srv->SendOpers("*** NOTICE: "+std::string(source->nick)+" Override-Kicked "+std::string(user->nick)+" on "+std::string(chan->name)+" ("+reason+")");
 			}
