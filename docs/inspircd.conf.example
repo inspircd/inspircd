@@ -1074,6 +1074,11 @@
 #<module name="m_timedbans.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Uninvite module: Adds the /UNINVITE command which lets users remove
+# pending invites from channels without waiting for the user to join.
+#<module name="m_uninvite.so">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Userip module: Adds the /USERIP command
 #<module name="m_userip.so">
 
