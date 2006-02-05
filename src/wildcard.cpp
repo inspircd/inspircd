@@ -22,6 +22,8 @@ using namespace std;
 #include "helperfuncs.h"
 #include "inspstring.h"
 
+extern char lowermap[255];
+
 // Wed 27 Apr 2005 - Brain
 // I've taken our our old wildcard routine -
 // although comprehensive, it was topheavy and very
@@ -57,7 +59,7 @@ int wildcmp(char *wild, char *string)
 			cp = string+1;
 		}
 		else
-		if ((*wild == *string) || (*wild == '?'))
+		if ((lowermap[(unsigned)*wild] == lowermap[(unsigned)*string]) || (*wild == '?'))
 		{
 			wild++;
 			string++;
@@ -86,11 +88,6 @@ int wildcmp(char *wild, char *string)
 
 bool match(const char* literal, const char* mask)
 {
-	static char L[10240];
-	static char M[10240];
-	strlcpy(L,literal,10240);
-	strlcpy(M,mask,10240);
-	strlower(L);
-	strlower(M);
-	return wildcmp(M,L);
+	return wildcmp((char*)mask, (char*)literal);
 }
+
