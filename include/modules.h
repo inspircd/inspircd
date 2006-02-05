@@ -289,7 +289,7 @@ enum Implementation {	I_OnUserConnect, I_OnUserQuit, I_OnUserDisconnect, I_OnUse
 			I_OnCheckKey, I_OnCheckLimit, I_OnCheckBan, I_OnStats, I_OnChangeLocalUserHost, I_OnChangeLocalUserGecos, I_OnLocalTopicChange,
 			I_OnPostLocalTopicChange, I_OnEvent, I_OnRequest, I_OnOperCompre, I_OnGlobalOper, I_OnGlobalConnect, I_OnAddBan, I_OnDelBan,
 			I_OnRawSocketAccept, I_OnRawSocketClose, I_OnRawSocketWrite, I_OnRawSocketRead, I_OnChangeLocalUserGECOS, I_OnUserRegister,
-			I_OnOperCompare, I_OnChannelDelete, I_OnPostOper, I_OnSyncOtherMetaData };
+			I_OnOperCompare, I_OnChannelDelete, I_OnPostOper, I_OnSyncOtherMetaData, I_OnSetAway, I_OnCancelAway };
 
 /** Base class for all InspIRCd modules
  *  This class is the base class for InspIRCd modules. All modules must inherit from this class,
@@ -1198,6 +1198,10 @@ class Module : public classbase
 	 * @return nonzero if the event was handled, in which case readresult must be valid on exit
 	 */
 	virtual int OnRawSocketRead(int fd, char* buffer, unsigned int count, int &readresult);
+
+	virtual void OnSetAway(userrec* user);
+
+	virtual void OnCancelAway(userrec* user);
 };
 
 

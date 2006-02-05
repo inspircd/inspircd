@@ -302,6 +302,8 @@ void 		Module::OnCleanup(int target_type, void* item) { };
 void		Module::Implements(char* Implements) { for (int j = 0; j < 255; j++) Implements[j] = 0; };
 void		Module::OnChannelDelete(chanrec* chan) { };
 Priority	Module::Prioritize() { return PRIORITY_DONTCARE; }
+void		Module::OnSetAway(userrec* user) { };
+void		Module::OnCancelAway(userrec* user) { };
 
 /* server is a wrapper class that provides methods to all of the C-style
  * exports in the core

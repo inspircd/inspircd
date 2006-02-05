@@ -46,11 +46,13 @@ void cmd_away::Handle (char **parameters, int pcnt, userrec *user)
 	{
 		strlcpy(user->awaymsg,parameters[0],MAXAWAY);
 		WriteServ(user->fd,"306 %s :You have been marked as being away",user->nick);
+		FOREACH_MOD(I_OnSetAway,OnSetAway(user));
 	}
 	else
 	{
 		*user->awaymsg = 0;
 		WriteServ(user->fd,"305 %s :You are no longer marked as being away",user->nick);
+		FOREACH_MOD(I_OnCancelAway,OnCancelAway(user));
 	}
 }
 

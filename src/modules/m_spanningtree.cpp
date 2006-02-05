@@ -1248,6 +1248,10 @@ class TreeSocket : public InspSocket
 				{
 					this->WriteLine(":"+std::string(u->second->nick)+" OPERTYPE "+std::string(u->second->oper));
 				}
+				if (*u->second->awaymsg)
+				{
+					this->WriteLine(":"+std::string(u->second->nick)+" AWAY :"+std::string(u->second->awaymsg));
+				}
 				FOREACH_MOD(I_OnSyncUser,OnSyncUser(u->second,(Module*)TreeProtocolModule,(void*)this));
 				list.clear();
 				u->second->GetExtList(list);
@@ -3323,6 +3327,20 @@ class ModuleSpanningTree : public Module
 		}
 	}
 
+	virtual void OnSetAway(userrec* user)
+	{
+		std::deque<std::string> params;
+		params.push_back(":"+std::string(u->awaymsg));
+		DoOneToMany(user->nick,"AWAY",params);
+	}
+
+	virtual void OnCancelAway(userrec* user)
+	{
+		std::deque<std::string> params;
+		params.push_back(":");
+		DoOneToMany(user->nick,"AWAY",params);
+	}
+
 	virtual void ProtoSendMode(void* opaque, int target_type, void* target, std::string modeline)
 	{
 		TreeSocket* s = (TreeSocket*)opaque;
@@ -3392,7 +3410,7 @@ class ModuleSpanningTree : public Module
 		List[I_OnUserQuit] = List[I_OnUserPostNick] = List[I_OnUserKick] = List[I_OnRemoteKill] = List[I_OnRehash] = 1;
 		List[I_OnOper] = List[I_OnAddGLine] = List[I_OnAddZLine] = List[I_OnAddQLine] = List[I_OnAddELine] = 1;
 		List[I_OnDelGLine] = List[I_OnDelZLine] = List[I_OnDelQLine] = List[I_OnDelELine] = List[I_ProtoSendMode] = List[I_OnMode] = 1;
-		List[I_OnStats] = List[I_ProtoSendMetaData] = List[I_OnEvent] = 1;
+		List[I_OnStats] = List[I_ProtoSendMetaData] = List[I_OnEvent] = List[I_OnSetAway] = List[I_OnCancelAway] = 1;
 	}
 
 	/* It is IMPORTANT that m_spanningtree is the last module in the chain
