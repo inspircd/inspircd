@@ -3329,16 +3329,22 @@ class ModuleSpanningTree : public Module
 
 	virtual void OnSetAway(userrec* user)
 	{
-		std::deque<std::string> params;
-		params.push_back(":"+std::string(user->awaymsg));
-		DoOneToMany(user->nick,"AWAY",params);
+		if (IS_LOCAL(user))
+		{
+			std::deque<std::string> params;
+			params.push_back(":"+std::string(user->awaymsg));
+			DoOneToMany(user->nick,"AWAY",params);
+		}
 	}
 
 	virtual void OnCancelAway(userrec* user)
 	{
-		std::deque<std::string> params;
-		params.push_back(":");
-		DoOneToMany(user->nick,"AWAY",params);
+		if (IS_LOCAL(user))
+		{
+			std::deque<std::string> params;
+			params.push_back(":");
+			DoOneToMany(user->nick,"AWAY",params);
+		}
 	}
 
 	virtual void ProtoSendMode(void* opaque, int target_type, void* target, std::string modeline)
