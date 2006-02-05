@@ -92,8 +92,11 @@ class ModuleAlias : public Module
 			userrec *u = NULL;
 			irc::string c = command.c_str();
 
-			/* If the command is valid, we dont want to know */
-			if (validated)
+			/* If the command is valid, we dont want to know,
+			 * and if theyre not registered yet, we dont want
+			 * to know either
+			 */
+			if ((validated) || (user->registered != 7))
 				return 0;
 			
 			for (unsigned int i = 0; i < Aliases.size(); i++)
