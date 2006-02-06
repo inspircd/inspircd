@@ -451,7 +451,14 @@ char* ModeParser::AddBan(userrec *user,char *dest,chanrec *chan,int status)
 
 	b.set_time = TIME;
 	strlcpy(b.data,dest,MAXBUF);
-	strlcpy(b.set_by,user->nick,NICKMAX);
+	if (*user->nick)
+	{
+		strlcpy(b.set_by,user->nick,NICKMAX);
+	}
+	else
+	{
+		strlcpy(b.set_by,Srv->GetServerName().c_str(),NICKMAX);
+	}
 	chan->bans.push_back(b);
 	return dest;
 }
