@@ -71,11 +71,13 @@ public:
 	Lookup()
 	{
 		*u = 0;
+		hostname = "";
 	}
 
 	void Reset()
 	{
 		*u = 0;
+		hostname = "";
 	}
 
 	~Lookup()
