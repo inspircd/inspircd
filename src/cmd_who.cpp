@@ -90,8 +90,7 @@ void cmd_who::Handle (char **parameters, int pcnt, userrec *user)
 						}
 						if (strchr(i->second->modes,'o')) { strlcat(tmp, "*", 9); }
 						WriteServ(user->fd,"352 %s %s %s %s %s %s %s :0 %s",user->nick, Ptr ? Ptr->name : "*", i->second->ident, i->second->dhost, i->second->server, i->second->nick, tmp, i->second->fullname);
-						n_list++;
-						if (n_list > Config->MaxWhoResults)
+						if (n_list++ > Config->MaxWhoResults)
 						{
 							WriteServ(user->fd,"523 %s WHO :Command aborted: More results than configured limit",user->nick);
 							break;
