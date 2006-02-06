@@ -96,10 +96,9 @@ char* ModeParser::GiveOps(userrec *user,char *dest,chanrec *chan,int status)
 			if ((d->chans[i].channel != NULL) && (chan != NULL))
 			if (!strcasecmp(d->chans[i].channel->name,chan->name))
 			{
-			if (d->chans[i].uc_modes & UCMODE_OP)
+				if (d->chans[i].uc_modes & UCMODE_OP)
 				{
 					/* mode already set on user, dont allow multiple */
-					log(DEFAULT,"The target user given to GiveOps was already opped on the channel");
 					return NULL;
 				}
 				d->chans[i].uc_modes = d->chans[i].uc_modes | UCMODE_OP;

@@ -775,7 +775,7 @@ bool ServerConfig::LoadConf(const char* filename, std::stringstream *target, std
 									break;
 								}
 							}
-							log(DEFAULT,"Opening included file '%s'",buf);
+							log(DEBUG,"Opening included file '%s'",buf);
 							if (*buf != '/')
 							{
 								strlcpy(confpath,CONFIG_FILE,10240);
