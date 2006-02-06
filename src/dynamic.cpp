@@ -71,7 +71,7 @@ DLLManager::DLLManager(char *fname)
 	FILE* x = fopen(fname,"rb");
 	char tmpfile_template[255];
 	char buffer[65536];
-	snprintf(tmpfile_template, 255, "/tmp/inspircd_file.so.%d.XXXXXXXXXX",getpid());
+	snprintf(tmpfile_template, 255, "%s/inspircd_file.so.%d.XXXXXXXXXX",Config->TempDir,getpid());
 	int fd = mkstemp(tmpfile_template);
 	while (!feof(x))
 	{

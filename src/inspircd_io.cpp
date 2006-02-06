@@ -44,7 +44,7 @@ extern std::vector<ircd_module*> factory;
 ServerConfig::ServerConfig()
 {
 	this->ClearStack();
-	*ServerName = *Network = *ServerDesc = *AdminName = '\0';
+	*TempDir = *ServerName = *Network = *ServerDesc = *AdminName = '\0';
 	*HideWhoisServer = *AdminEmail = *AdminNick = *diepass = *restartpass = '\0';
 	*CustomVersion = *motd = *rules = *PrefixQuit = *DieValue = *DNSServer = '\0';
 	*OperOnlyStats = *ModPath = *MyExecutable = *DisabledCommands = *PID = '\0';
@@ -228,7 +228,10 @@ void ServerConfig::Read(bool bail, userrec* user)
 	ConfValue("options","maxtargets",0,MT,&Config->config_f);
 	ConfValue("options","hidesplits",0,HS,&Config->config_f);
 	ConfValue("options","hidewhois",0,Config->HideWhoisServer,&Config->config_f);
+	ConfValue("options","tempdir",0,Config->TempDir,&Config->config_f);
 
+	if (!*Config->TempDir)
+		strlcpy(Config->TempDir,"/tmp");
 	Config->HideSplits = ((*HS == 'y') || (*HS == 'Y') || (*HS == '1') || (*HS == 't') || (*HS == 'T'));
         Config->SoftLimit = atoi(SLIMT);
 	if (*MT)
