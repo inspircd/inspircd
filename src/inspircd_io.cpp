@@ -231,7 +231,7 @@ void ServerConfig::Read(bool bail, userrec* user)
 	ConfValue("options","tempdir",0,Config->TempDir,&Config->config_f);
 
 	if (!*Config->TempDir)
-		strlcpy(Config->TempDir,"/tmp");
+		strlcpy(Config->TempDir,"/tmp",1024);
 	Config->HideSplits = ((*HS == 'y') || (*HS == 'Y') || (*HS == '1') || (*HS == 't') || (*HS == 'T'));
         Config->SoftLimit = atoi(SLIMT);
 	if (*MT)
