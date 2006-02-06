@@ -50,14 +50,17 @@ class cmd_swhois : public command_t
 			if(text)
 			{
 				// We already had it set...
-								
-				WriteOpers("%s used SWHOIS to set %s's extra whois from '%s' to '%s'", user->nick, dest->nick, text->c_str(), line.c_str());
+				
+				if (!Srv->IsUlined(user->server))
+					// Ulines set SWHOISes silently
+					WriteOpers("%s used SWHOIS to set %s's extra whois from '%s' to '%s'", user->nick, dest->nick, text->c_str(), line.c_str());
 				
 				dest->Shrink("swhois");
 				delete text;
 			}
-			else
+			else if(!Srv->IsUlined(user->server))
 			{
+				// Ulines set SWHOISes silently
 				WriteOpers("%s used SWHOIS to set %s's extra whois to '%s'", user->nick, dest->nick, line.c_str());
 			}
 			
