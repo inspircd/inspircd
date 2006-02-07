@@ -1286,7 +1286,10 @@ int usercount_invisible(void)
 
 int usercount_opers(void)
 {
-        return all_opers.size();
+	int c = 0;
+	for (user_hash::const_iterator i = clientlist.begin(); i != clientlist.end(); i++)
+		if (*i->second->oper) c++;
+        return c;
 }
 
 int usercount_unknown(void)
