@@ -883,26 +883,23 @@ class TreeSocket : public InspSocket
 	{
 		if (params.size() != 4)
 			return true;
-		std::string channel = params[0];
 		time_t ts = atoi(params[1].c_str());
-		std::string setby = params[2];
-		std::string topic = params[3];
 		std::string nsource = source;
 
-		chanrec* c = Srv->FindChannel(channel);
+		chanrec* c = Srv->FindChannel(params[0]);
 		if (c)
 		{
 			if ((ts >= c->topicset) || (!*c->topic))
 			{
 				std::string oldtopic = c->topic;
-				strlcpy(c->topic,topic.c_str(),MAXTOPIC);
-				strlcpy(c->setby,setby.c_str(),NICKMAX);
+				strlcpy(c->topic,params[3].c_str(),MAXTOPIC);
+				strlcpy(c->setby,params[2].c_str(),NICKMAX);
 				c->topicset = ts;
 				/* if the topic text is the same as the current topic,
 				 * dont bother to send the TOPIC command out, just silently
 				 * update the set time and set nick.
 				 */
-				if (oldtopic != topic)
+				if (oldtopic != params[3])
 				{
 					userrec* user = Srv->FindNick(source);
 					if (!user)
@@ -1063,10 +1060,6 @@ class TreeSocket : public InspSocket
 			return true;
 		// NICK age nick host dhost ident +modes ip :gecos
 		//       0   1    2    3      4     5    6   7
-		std::string nick = params[1];
-		std::string host = params[2];
-		std::string dhost = params[3];
-		std::string ident = params[4];
 		time_t age = atoi(params[0].c_str());
 		std::string modes = params[5];
 		while (*(modes.c_str()) == '+')
@@ -1075,17 +1068,15 @@ class TreeSocket : public InspSocket
 			m++;
 			modes = m;
 		}
-		std::string ip = params[6];
-		std::string gecos = params[7];
-		char* tempnick = (char*)nick.c_str();
-		log(DEBUG,"Introduce client %s!%s@%s",tempnick,ident.c_str(),host.c_str());
+		char* tempnick = (char*)params[1].c_str();
+		log(DEBUG,"Introduce client %s!%s@%s",tempnick,params[4].c_str(),params[2].c_str());
 		
 		user_hash::iterator iter;
 		iter = clientlist.find(tempnick);
 		if (iter != clientlist.end())
 		{
 			// nick collision
-			log(DEBUG,"Nick collision on %s!%s@%s: %lu %lu",tempnick,ident.c_str(),host.c_str(),(unsigned long)age,(unsigned long)iter->second->age);
+			log(DEBUG,"Nick collision on %s!%s@%s: %lu %lu",tempnick,params[4].c_str(),params[2].c_str(),(unsigned long)age,(unsigned long)iter->second->age);
 			this->WriteLine(":"+Srv->GetServerName()+" KILL "+tempnick+" :Nickname collision");
 			return true;
 		}
@@ -1093,15 +1084,15 @@ class TreeSocket : public InspSocket
 		clientlist[tempnick] = new userrec();
 		clientlist[tempnick]->fd = FD_MAGIC_NUMBER;
 		strlcpy(clientlist[tempnick]->nick, tempnick,NICKMAX);
-		strlcpy(clientlist[tempnick]->host, host.c_str(),160);
-		strlcpy(clientlist[tempnick]->dhost, dhost.c_str(),160);
+		strlcpy(clientlist[tempnick]->host, params[2].c_str(),160);
+		strlcpy(clientlist[tempnick]->dhost, params[3].c_str(),160);
 		clientlist[tempnick]->server = (char*)FindServerNamePtr(source.c_str());
-		strlcpy(clientlist[tempnick]->ident, ident.c_str(),IDENTMAX);
-		strlcpy(clientlist[tempnick]->fullname, gecos.c_str(),MAXGECOS);
+		strlcpy(clientlist[tempnick]->ident, params[4].c_str(),IDENTMAX);
+		strlcpy(clientlist[tempnick]->fullname, params[7].c_str(),MAXGECOS);
 		clientlist[tempnick]->registered = 7;
 		clientlist[tempnick]->signon = age;
 		strlcpy(clientlist[tempnick]->modes, modes.c_str(),53);
-		inet_aton(ip.c_str(),&clientlist[tempnick]->ip4);
+		inet_aton(params[6].c_str(),&clientlist[tempnick]->ip4);
 
 		ucrec a;
 		a.channel = NULL;
@@ -1160,45 +1151,46 @@ class TreeSocket : public InspSocket
 	void SendXLines(TreeServer* Current)
 	{
 		char data[MAXBUF];
+		const char* sn = Srv->GetServerName().c_str();
 		/* Yes, these arent too nice looking, but they get the job done */
 		for (std::vector<ZLine>::iterator i = zlines.begin(); i != zlines.end(); i++)
 		{
-			snprintf(data,MAXBUF,":%s ADDLINE Z %s %s %lu %lu :%s",Srv->GetServerName().c_str(),i->ipaddr,i->source,(unsigned long)i->set_time,(unsigned long)i->duration,i->reason);
+			snprintf(data,MAXBUF,":%s ADDLINE Z %s %s %lu %lu :%s",sn,i->ipaddr,i->source,(unsigned long)i->set_time,(unsigned long)i->duration,i->reason);
 			this->WriteLine(data);
 		}
 		for (std::vector<QLine>::iterator i = qlines.begin(); i != qlines.end(); i++)
 		{
-			snprintf(data,MAXBUF,":%s ADDLINE Q %s %s %lu %lu :%s",Srv->GetServerName().c_str(),i->nick,i->source,(unsigned long)i->set_time,(unsigned long)i->duration,i->reason);
+			snprintf(data,MAXBUF,":%s ADDLINE Q %s %s %lu %lu :%s",sn,i->nick,i->source,(unsigned long)i->set_time,(unsigned long)i->duration,i->reason);
 			this->WriteLine(data);
 		}
 		for (std::vector<GLine>::iterator i = glines.begin(); i != glines.end(); i++)
 		{
-			snprintf(data,MAXBUF,":%s ADDLINE G %s %s %lu %lu :%s",Srv->GetServerName().c_str(),i->hostmask,i->source,(unsigned long)i->set_time,(unsigned long)i->duration,i->reason);
+			snprintf(data,MAXBUF,":%s ADDLINE G %s %s %lu %lu :%s",sn,i->hostmask,i->source,(unsigned long)i->set_time,(unsigned long)i->duration,i->reason);
 			this->WriteLine(data);
 		}
 		for (std::vector<ELine>::iterator i = elines.begin(); i != elines.end(); i++)
 		{
-			snprintf(data,MAXBUF,":%s ADDLINE E %s %s %lu %lu :%s",Srv->GetServerName().c_str(),i->hostmask,i->source,(unsigned long)i->set_time,(unsigned long)i->duration,i->reason);
+			snprintf(data,MAXBUF,":%s ADDLINE E %s %s %lu %lu :%s",sn,i->hostmask,i->source,(unsigned long)i->set_time,(unsigned long)i->duration,i->reason);
 			this->WriteLine(data);
 		}
 		for (std::vector<ZLine>::iterator i = pzlines.begin(); i != pzlines.end(); i++)
 		{
-			snprintf(data,MAXBUF,":%s ADDLINE Z %s %s %lu %lu :%s",Srv->GetServerName().c_str(),i->ipaddr,i->source,(unsigned long)i->set_time,(unsigned long)i->duration,i->reason);
+			snprintf(data,MAXBUF,":%s ADDLINE Z %s %s %lu %lu :%s",sn,i->ipaddr,i->source,(unsigned long)i->set_time,(unsigned long)i->duration,i->reason);
 			this->WriteLine(data);
 		}
 		for (std::vector<QLine>::iterator i = pqlines.begin(); i != pqlines.end(); i++)
 		{
-			snprintf(data,MAXBUF,":%s ADDLINE Q %s %s %lu %lu :%s",Srv->GetServerName().c_str(),i->nick,i->source,(unsigned long)i->set_time,(unsigned long)i->duration,i->reason);
+			snprintf(data,MAXBUF,":%s ADDLINE Q %s %s %lu %lu :%s",sn,i->nick,i->source,(unsigned long)i->set_time,(unsigned long)i->duration,i->reason);
 			this->WriteLine(data);
 		}
 		for (std::vector<GLine>::iterator i = pglines.begin(); i != pglines.end(); i++)
 		{
-			snprintf(data,MAXBUF,":%s ADDLINE G %s %s %lu %lu :%s",Srv->GetServerName().c_str(),i->hostmask,i->source,(unsigned long)i->set_time,(unsigned long)i->duration,i->reason);
+			snprintf(data,MAXBUF,":%s ADDLINE G %s %s %lu %lu :%s",sn,i->hostmask,i->source,(unsigned long)i->set_time,(unsigned long)i->duration,i->reason);
 			this->WriteLine(data);
 		}
 		for (std::vector<ELine>::iterator i = pelines.begin(); i != pelines.end(); i++)
 		{
-			snprintf(data,MAXBUF,":%s ADDLINE E %s %s %lu %lu :%s",Srv->GetServerName().c_str(),i->hostmask,i->source,(unsigned long)i->set_time,(unsigned long)i->duration,i->reason);
+			snprintf(data,MAXBUF,":%s ADDLINE E %s %s %lu %lu :%s",sn,i->hostmask,i->source,(unsigned long)i->set_time,(unsigned long)i->duration,i->reason);
 			this->WriteLine(data);
 		}
 	}
@@ -1208,19 +1200,20 @@ class TreeSocket : public InspSocket
 	{
 		char data[MAXBUF];
 		std::deque<std::string> list;
+		const char* sn = Srv->GetServerName().c_str();
 		for (chan_hash::iterator c = chanlist.begin(); c != chanlist.end(); c++)
 		{
 			SendFJoins(Current, c->second);
-			snprintf(data,MAXBUF,":%s FMODE %s +%s",Srv->GetServerName().c_str(),c->second->name,chanmodes(c->second,true));
+			snprintf(data,MAXBUF,":%s FMODE %s +%s",sn,c->second->name,chanmodes(c->second,true));
 			this->WriteLine(data);
 			if (*c->second->topic)
 			{
-				snprintf(data,MAXBUF,":%s FTOPIC %s %lu %s :%s",Srv->GetServerName().c_str(),c->second->name,(unsigned long)c->second->topicset,c->second->setby,c->second->topic);
+				snprintf(data,MAXBUF,":%s FTOPIC %s %lu %s :%s",sn,c->second->name,(unsigned long)c->second->topicset,c->second->setby,c->second->topic);
 				this->WriteLine(data);
 			}
 			for (BanList::iterator b = c->second->bans.begin(); b != c->second->bans.end(); b++)
 			{
-				snprintf(data,MAXBUF,":%s FMODE %s +b %s",Srv->GetServerName().c_str(),c->second->name,b->data);
+				snprintf(data,MAXBUF,":%s FMODE %s +b %s",sn,c->second->name,b->data);
 				this->WriteLine(data);
 			}
 			FOREACH_MOD(I_OnSyncChannel,OnSyncChannel(c->second,(Module*)TreeProtocolModule,(void*)this));
@@ -1244,7 +1237,7 @@ class TreeSocket : public InspSocket
 			{
 				snprintf(data,MAXBUF,":%s NICK %lu %s %s %s %s +%s %s :%s",u->second->server,(unsigned long)u->second->age,u->second->nick,u->second->host,u->second->dhost,u->second->ident,u->second->modes,(char*)inet_ntoa(u->second->ip4),u->second->fullname);
 				this->WriteLine(data);
-				if (strchr(u->second->modes,'o'))
+				if (*u->second->oper)
 				{
 					this->WriteLine(":"+std::string(u->second->nick)+" OPERTYPE "+std::string(u->second->oper));
 				}
