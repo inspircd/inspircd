@@ -457,7 +457,7 @@ char* ModeParser::AddBan(userrec *user,char *dest,chanrec *chan,int status)
 	}
 	else
 	{
-		strlcpy(b.set_by,Srv->GetServerName().c_str(),NICKMAX);
+		strlcpy(b.set_by,Config->ServerName,NICKMAX);
 	}
 	chan->bans.push_back(b);
 	return dest;
