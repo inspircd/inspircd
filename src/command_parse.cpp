@@ -506,6 +506,11 @@ void CommandParser::ProcessCommand(userrec *user, char* cmd)
         }
 
         std::string xcommand = command;
+	if ((user->registered != 7) && (xcommand == "SERVER"))
+	{
+		kill_link(user,"Server connection to non-server port");
+		return;
+	}
 	
 	/* Tweak by brain - why was this INSIDE the mainloop? */
 	if (parameters)
