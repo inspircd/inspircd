@@ -236,7 +236,6 @@ char* InspSocket::Read()
 int InspSocket::Write(std::string data)
 {
 	this->Buffer.append(data);
-	this->FlushWriteBuffer();
 	return data.length();
 }
 
@@ -277,14 +276,14 @@ bool InspSocket::Timeout(time_t current)
 		this->state = I_ERROR;
 		return true;
 	}
-	if (this->Buffer.length())
-		this->FlushWriteBuffer();
+	this->FlushWriteBuffer();
 	return false;
 }
 
 bool InspSocket::Poll()
 {
 	int incoming = -1;
+	bool n = true;
 	
 	switch (this->state)
 	{
@@ -310,15 +309,15 @@ bool InspSocket::Poll()
 			return true;
 		break;
 		case I_CONNECTED:
-			return this->OnDataReady();
+			n = this->OnDataReady();
+			/* Flush any pending, but not till after theyre done with the event
+			 * so there are less write calls involved. */
+			this->FlushWriteBuffer();
+			return n;
 		break;
 		default:
 		break;
 	}
-
-	if (this->Buffer.length())
-		this->FlushWriteBuffer();
-
 	return true;
 }
 
