@@ -2584,8 +2584,8 @@ class ModuleSpanningTree : public Module
 		WriteServ(user->fd,"253 %s %d :unknown connections",user->nick,usercount_unknown());
 		WriteServ(user->fd,"254 %s %d :channels formed",user->nick,chancount());
 		WriteServ(user->fd,"254 %s :I have %d clients and %d servers",user->nick,local_count(),this->CountLocalServs());
-		WriteServ(user->fd,"265 %s :Current Local Users: %d Max: %d",user->nick,local_count(),max_local);
-		WriteServ(user->fd,"266 %s :Current Global Users: %d Max: %d",user->nick,clientlist.size(),max_global);
+		WriteServ(user->fd,"265 %s :Current Local Users: %d  Max: %d",user->nick,local_count(),max_local);
+		WriteServ(user->fd,"266 %s :Current Global Users: %d  Max: %d",user->nick,clientlist.size(),max_global);
 		return;
 	}
 
