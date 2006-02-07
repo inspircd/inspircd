@@ -1306,17 +1306,10 @@ class TreeSocket : public InspSocket
 			 */
 			while (in_buffer.find("\n") != std::string::npos)
 			{
-				char* line = (char*)in_buffer.c_str();
-				std::string ret = "";
-			        while ((*line != '\n') && (*line))
-				{
-					if ((*line != '\r') && (*line != '\n'))
-						ret = ret + *line;
-					line++;
-				}
-				if ((*line == '\n') || (*line == '\r'))
-					line++;
-				in_buffer = line;
+				std::string ret = in_buffer.substr(0,in_buffer.find("\n")-1);
+				in_buffer = in_buffer.substr(in_buffer.find("\n")+1,in_buffer.length()-in_buffer.find("\n"));
+				if (ret.find("\r") != std::string::npos)
+					ret = in_buffer.substr(0,in_buffer.find("\r")-1);
 				/* Process this one, abort if it
 				 * didnt return true.
 				 */

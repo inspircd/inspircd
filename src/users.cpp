@@ -276,7 +276,8 @@ bool userrec::AddBuffer(std::string a)
 
 bool userrec::BufferIsReady()
 {
-        for (unsigned int i = 0; i < recvq.length(); i++)
+	unsigned int t = recvq.length();
+        for (unsigned int i = 0; i < t; i++)
 		if (recvq[i] == '\n')
 			return true;
         return false;
@@ -293,7 +294,7 @@ std::string userrec::GetBuffer()
 		return "";
         char* line = (char*)recvq.c_str();
         std::string ret = "";
-        while ((*line != '\n') && (strlen(line)))
+        while ((*line != '\n') && (*line))
         {
                 ret = ret + *line;
                 line++;

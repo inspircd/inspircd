@@ -603,11 +603,11 @@ std::string ServerConfig::ConfProcess(char* buffer, long linenumber, std::string
 		return "";
 	}
 	// firstly clean up the line by stripping spaces from the start and end and converting tabs to spaces
-	for (unsigned int d = 0; d < strlen(buffer); d++)
-		if ((buffer[d]) == 9)
-			buffer[d] = ' ';
-	while ((buffer[0] == ' ') && (strlen(buffer)>0)) buffer++;
-	while ((buffer[strlen(buffer)-1] == ' ') && (strlen(buffer)>0)) buffer[strlen(buffer)-1] = '\0';
+	for (char* d = buffer; *d; d++)
+		if (*d == 9)
+			*d = ' ';
+	while (*buffer == ' ') buffer++;
+	while ((buffer[strlen(buffer)-1] == ' ') && (*buffer)) buffer[strlen(buffer)-1] = '\0';
 
 	// empty lines are syntactically valid, as are comments
 	if (!(*buffer) || buffer[0] == '#')

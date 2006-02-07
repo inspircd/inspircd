@@ -475,9 +475,9 @@ void CommandParser::ProcessCommand(userrec *user, char* cmd)
                 }
                 else
                 {
-                        for (unsigned int i = 0; i <= strlen(cmd); i++)
+                        for (char* i = cmd; *i; i++)
                         {
-                                cmd[i] = toupper(cmd[i]);
+                                *i = toupper(*i);
                         }
                 }
 
@@ -541,17 +541,16 @@ void CommandParser::ProcessCommand(userrec *user, char* cmd)
 	
         if (cm != cmdlist.end())
         {
-                        
-                                if (user)
+                        if (user)
+                        {
+                                /* activity resets the ping pending timer */
+                                user->nping = TIME + user->pingmax;
+                                if ((items) < cm->second->min_params)
                                 {
-                                        /* activity resets the ping pending timer */
-                                        user->nping = TIME + user->pingmax;
-                                        if ((items) < cm->second->min_params)
-                                        {
-                                                log(DEBUG,"not enough parameters: %s %s",user->nick,command);
-                                                WriteServ(user->fd,"461 %s %s :Not enough parameters",user->nick,command);
-                                                return;
-                                        }
+                                        log(DEBUG,"not enough parameters: %s %s",user->nick,command);
+                                        WriteServ(user->fd,"461 %s %s :Not enough parameters",user->nick,command);
+                                        return;
+                                }
                                         if ((!strchr(user->modes,cm->second->flags_needed)) && (cm->second->flags_needed))
                                         {
                                                 log(DEBUG,"permission denied: %s %s",user->nick,command);

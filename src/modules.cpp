@@ -778,26 +778,26 @@ long Server::CalcDuration(std::string delta)
 
 bool Server::IsValidMask(std::string mask)
 {
-	const char* dest = mask.c_str();
+	char* dest = (char*)mask.c_str();
         if (strchr(dest,'!')==0)
                 return false;
         if (strchr(dest,'@')==0)
                 return false;
-        for (unsigned int i = 0; i < strlen(dest); i++)
-                if (dest[i] < 32)
+        for (char* i = dest; *i; i++)
+                if (*i < 32)
                         return false;
-        for (unsigned int i = 0; i < strlen(dest); i++)
-                if (dest[i] > 126)
+        for (char* i = dest; *i; i++)
+                if (*i > 126)
                         return false;
         unsigned int c = 0;
-        for (unsigned int i = 0; i < strlen(dest); i++)
-                if (dest[i] == '!')
+        for (char* i = dest; *i; i++)
+                if (*i == '!')
                         c++;
         if (c>1)
                 return false;
         c = 0;
-        for (unsigned int i = 0; i < strlen(dest); i++)
-                if (dest[i] == '@')
+        for (char* i = dest; *i; i++)
+                if (*i == '@')
                         c++;
         if (c>1)
                 return false;
@@ -893,9 +893,9 @@ long ConfigReader::ReadInteger(std::string tag, std::string name, int index, boo
 		this->error = CONF_VALUE_NOT_FOUND;
 		return 0;
 	}
-	for (unsigned int i = 0; i < strlen(val); i++)
+	for (char* i = val; *i; i++)
 	{
-		if (!isdigit(val[i]))
+		if (!isdigit(*i))
 		{
 			this->error = CONF_NOT_A_NUMBER;
 			return 0;
