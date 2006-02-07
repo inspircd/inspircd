@@ -603,7 +603,7 @@ print "\033[0mGnuTLS Support:\033[1;32m\t\t\t$config{USE_GNUTLS}\033[0m\n";
 print "\033[0mOpenSSL Support:\033[1;32m\t\t$config{USE_OPENSSL}\033[0m\n\n";
 
 if ($config{USE_GNUTLS} eq "y") {
-	system("cp src/modules/extra/m_ssl_gnutls.cpp src/modules/m_ssl_gnutls.cpp");
+	system("ln -s src/modules/extra/m_ssl_gnutls.cpp src/modules/m_ssl_gnutls.cpp");
 	getmodules();
 	$failed = 0;
 	open(TMP, "<$config{CONFIG_DIR}/key.pem") or $failed = 1;
@@ -629,7 +629,7 @@ if ($config{USE_GNUTLS} eq "y") {
 		print "SSL Certificates found, skipping.\n\n"
 	}	
 } elsif ($config{USE_OPENSSL} eq "y") {
-	system("cp src/modules/extra/m_ssl_openssl.cpp src/modules/m_ssl_openssl.cpp");
+	system("ln -s src/modules/extra/m_ssl_openssl.cpp src/modules/m_ssl_openssl.cpp");
 	getmodules();
 	$failed = 0;
 	open(TMP, "<$config{CONFIG_DIR}/key.pem") or $failed = 1;
