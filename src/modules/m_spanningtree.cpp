@@ -1560,37 +1560,31 @@ class TreeSocket : public InspSocket
 	{
 		if (params.size() < 6)
 			return true;
-		std::string linetype = params[0]; /* Z, Q, E, G, K */
-		std::string mask = params[1]; /* Line type dependent */
-		std::string source = params[2]; /* may not be online or may be a server */
-		std::string settime = params[3]; /* EPOCH time set */
-		std::string duration = params[4]; /* Duration secs */
-		std::string reason = params[5];
 
-		switch (*(linetype.c_str()))
+		switch (*(params[0].c_str()))
 		{
 			case 'Z':
-				add_zline(atoi(duration.c_str()), source.c_str(), reason.c_str(), mask.c_str());
-				zline_set_creation_time((char*)mask.c_str(), atoi(settime.c_str()));
+				add_zline(atoi(params[4].c_str()), params[2].c_str(), params[5].c_str(), params[1].c_str());
+				zline_set_creation_time((char*)params[1].c_str(), atoi(params[3].c_str()));
 			break;
 			case 'Q':
-				add_qline(atoi(duration.c_str()), source.c_str(), reason.c_str(), mask.c_str());
-				qline_set_creation_time((char*)mask.c_str(), atoi(settime.c_str()));
+				add_qline(atoi(params[4].c_str()), params[2].c_str(), params[5].c_str(), params[1].c_str());
+				qline_set_creation_time((char*)params[1].c_str(), atoi(params[3].c_str()));
 			break;
 			case 'E':
-				add_eline(atoi(duration.c_str()), source.c_str(), reason.c_str(), mask.c_str());
-				eline_set_creation_time((char*)mask.c_str(), atoi(settime.c_str()));
+				add_eline(atoi(params[4].c_str()), params[2].c_str(), params[5].c_str(), params[1].c_str());
+				eline_set_creation_time((char*)params[1].c_str(), atoi(params[3].c_str()));
 			break;
 			case 'G':
-				add_gline(atoi(duration.c_str()), source.c_str(), reason.c_str(), mask.c_str());
-				gline_set_creation_time((char*)mask.c_str(), atoi(settime.c_str()));
+				add_gline(atoi(params[4].c_str()), params[2].c_str(), params[5].c_str(), params[1].c_str());
+				gline_set_creation_time((char*)params[1].c_str(), atoi(params[3].c_str()));
 			break;
 			case 'K':
-				add_kline(atoi(duration.c_str()), source.c_str(), reason.c_str(), mask.c_str());
+				add_kline(atoi(params[4].c_str()), params[2].c_str(), params[5].c_str(), params[1].c_str());
 			break;
 			default:
 				/* Just in case... */
-				Srv->SendOpers("*** \2WARNING\2: Invalid xline type '"+linetype+"' sent by server "+prefix+", ignored!");
+				Srv->SendOpers("*** \2WARNING\2: Invalid xline type '"+params[0]+"' sent by server "+prefix+", ignored!");
 			break;
 		}
 		/* Send it on its way */
