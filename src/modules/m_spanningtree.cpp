@@ -2509,8 +2509,8 @@ class ModuleSpanningTree : public Module
 	std::vector<TreeSocket*> Bindings;
 	int line;
 	int NumServers;
-	int max_local;
-	int max_global;
+	unsigned int max_local;
+	unsigned int max_global;
 	cmd_rconnect* command_rconnect;
 
  public:
@@ -2574,7 +2574,7 @@ class ModuleSpanningTree : public Module
 	void HandleLusers(char** parameters, int pcnt, userrec* user)
 	{
 		/* Only update these when someone wants to see them, more efficient */
-		if (local_count() > max_local)
+		if ((unsigned int)local_count() > max_local)
 			max_local = local_count();
 		if (clientlist.size() > max_global)
 			max_global = clientlist.size();
