@@ -425,6 +425,7 @@ std::string chlist(userrec *user,userrec* source)
 	{
 		return lst;
 	}
+	bool userinvisible = (strchr(user->modes,'i'));
 	for (unsigned int i = 0; i < user->chans.size(); i++)
 	{
 		if (user->chans[i].channel != NULL)
@@ -434,8 +435,9 @@ std::string chlist(userrec *user,userrec* source)
 				cmp = std::string(user->chans[i].channel->name) + " ";
 				if (!strstr(lst.c_str(),cmp.c_str()))
 				{
-					// if the channel is NOT private/secret, OR the source user is on the channel
-					if (((!(user->chans[i].channel->binarymodes & CM_PRIVATE)) && (!(user->chans[i].channel->binarymodes & CM_SECRET))) || (has_channel(source,user->chans[i].channel)))
+					// if the channel is NOT private/secret, OR the source user is on the channel, AND the user is not invisible.
+					// if the user is the same as the source, shortcircuit the comparison.
+					if ((source == user) || ((((!(user->chans[i].channel->binarymodes & CM_PRIVATE)) && (!(user->chans[i].channel->binarymodes & CM_SECRET)) && (!userinvisible)) || (has_channel(source,user->chans[i].channel)))))
 					{
 						lst = lst + std::string(cmode(user,user->chans[i].channel)) + std::string(user->chans[i].channel->name) + " ";
 					}
