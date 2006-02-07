@@ -145,6 +145,8 @@ private:
 	 */
 	void FlushWriteBuffer();
 
+	void SetQueues(int nfd);
+
 public:
 
 	/**

@@ -1300,7 +1300,7 @@ class TreeSocket : public InspSocket
 		/* Check that the data read is a valid pointer and it has some content */
 		if (data && *data)
 		{
-			this->in_buffer += data;
+			this->in_buffer.append(data);
 			/* While there is at least one new line in the buffer,
 			 * do something useful (we hope!) with it.
 			 */

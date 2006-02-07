@@ -114,6 +114,15 @@ InspSocket::InspSocket(std::string host, int port, bool listening, unsigned long
 	}
 }
 
+void InspSocket::SetQueues(int nfd)
+{
+        // attempt to increase socket sendq and recvq as high as its possible
+	int sendbuf = 32768;
+	int recvbuf = 32768;
+	setsockopt(nfd,SOL_SOCKET,SO_SNDBUF,(const void *)&sendbuf,sizeof(sendbuf));
+	setsockopt(nfd,SOL_SOCKET,SO_RCVBUF,(const void *)&recvbuf,sizeof(sendbuf));
+}
+
 bool InspSocket::DoResolve()
 {
 	log(DEBUG,"In DoResolve(), trying to resolve IP");
@@ -176,6 +185,7 @@ bool InspSocket::DoConnect()
 	this->state = I_CONNECTING;
 	ServerInstance->SE->AddFd(this->fd,false,X_ESTAB_MODULE);
 	socket_ref[this->fd] = this;
+	this->SetQueues(this->fd);
 	return true;
 }
 
@@ -225,7 +235,7 @@ char* InspSocket::Read()
 // and should be aborted.
 int InspSocket::Write(std::string data)
 {
-	this->Buffer = this->Buffer + data;
+	this->Buffer.append(data);
 	this->FlushWriteBuffer();
 	return data.length();
 }
@@ -238,10 +248,17 @@ void InspSocket::FlushWriteBuffer()
 		result = send(this->fd,this->Buffer.c_str(),this->Buffer.length(),0);
 		if (result > 0)
 		{
-			/* If we wrote some, advance the buffer forwards */
-			char* n = (char*)this->Buffer.c_str();
-			n += result;
-			this->Buffer = n;
+			if (result == (int)this->Buffer.length())
+			{
+				this->Buffer = "";
+			}
+			else
+			{
+				/* If we wrote some, advance the buffer forwards */
+				char* n = (char*)this->Buffer.c_str();
+				n += result;
+				this->Buffer = n;
+			}
 		}
 	}
 }
@@ -288,6 +305,7 @@ bool InspSocket::Poll()
 		case I_LISTENING:
 			length = sizeof (client);
 			incoming = accept (this->fd, (sockaddr*)&client,&length);
+			this->SetQueues(incoming);
 			this->OnIncomingConnection(incoming,inet_ntoa(client.sin_addr));
 			return true;
 		break;
