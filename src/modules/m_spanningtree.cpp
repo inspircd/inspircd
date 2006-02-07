@@ -1308,7 +1308,7 @@ class TreeSocket : public InspSocket
 			{
 				char* line = (char*)in_buffer.c_str();
 				std::string ret = "";
-			        while ((*line != '\n') && (strlen(line)))
+			        while ((*line != '\n') && (*line))
 				{
 					if ((*line != '\r') && (*line != '\n'))
 						ret = ret + *line;
