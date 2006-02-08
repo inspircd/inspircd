@@ -367,176 +367,198 @@ you wish to do this? It may cause the IRCd to malfunction [y/n]
 
 my $continue = 0;
 while (!$continue) {
-  print "What is the maximum length of nicknames?\n";
-  print "[\033[1;32m$config{NICK_LENGT}\033[0m] -> ";
-  chomp($var = <STDIN>);
-  if ($var eq "") { $var = $config{NICK_LENGT}; }
-  if ($var =~ /^\d+$/) {
-    # We don't care what the number is, set it and be on our way.
-    $config{NICK_LENGT} = $var;
-    $continue = 1;
-    print "\n";
-  } else {
-    print "You must enter a number in this field. Please try again.\n\n";
-  }
+	print "What is the maximum length of nicknames?\n";
+	print "[\033[1;32m$config{NICK_LENGT}\033[0m] -> ";
+	chomp($var = <STDIN>);
+	if ($var eq "") {
+		$var = $config{NICK_LENGT};
+	}
+	if ($var =~ /^\d+$/) {
+		# We don't care what the number is, set it and be on our way.
+		$config{NICK_LENGT} = $var;
+		$continue = 1;
+		print "\n";
+	} else {
+		print "You must enter a number in this field. Please try again.\n\n";
+	}
 }
 
 $continue = 0;
 while (!$continue) {
-  print "What is the maximum length of channel names?\n";
-  print "[\033[1;32m$config{CHAN_LENGT}\033[0m] -> ";
-  chomp($var = <STDIN>);
-  if ($var eq "") { $var = $config{CHAN_LENGT}; }
-  if ($var =~ /^\d+$/) {
-    # We don't care what the number is, set it and be on our way.
-    $config{CHAN_LENGT} = $var;
-    $continue = 1;
-    print "\n";
-  } else {
-    print "You must enter a number in this field. Please try again.\n\n";
-  }
+	print "What is the maximum length of channel names?\n";
+	print "[\033[1;32m$config{CHAN_LENGT}\033[0m] -> ";
+	chomp($var = <STDIN>);
+	if ($var eq "") {
+		$var = $config{CHAN_LENGT};
+	}
+	if ($var =~ /^\d+$/) {
+		# We don't care what the number is, set it and be on our way.
+		$config{CHAN_LENGT} = $var;
+		$continue = 1;
+		print "\n";
+	} else {
+		print "You must enter a number in this field. Please try again.\n\n";
+	}
 }
 
 $continue = 0;
 while (!$continue) {
-  print "What is the maximum number of channels a normal user may join at any one time?\n";
-  print "[\033[1;32m$config{MAX_CHANNE}\033[0m] -> ";
-  chomp($var = <STDIN>);
-  if ($var eq "") { $var = $config{MAX_CHANNE}; }
-  if ($var =~ /^\d+$/) {
-    # We don't care what the number is, set it and be on our way.
-    $config{MAX_CHANNE} = $var;
-    $continue = 1;
-    print "\n";
-  } else {
-    print "You must enter a number in this field. Please try again.\n\n";
-  }
+	print "What is the maximum number of channels a normal user may join at any one time?\n";
+	print "[\033[1;32m$config{MAX_CHANNE}\033[0m] -> ";
+	chomp($var = <STDIN>);
+	if ($var eq "") {
+		$var = $config{MAX_CHANNE};
+	}
+	if ($var =~ /^\d+$/) {
+		# We don't care what the number is, set it and be on our way.
+		$config{MAX_CHANNE} = $var;
+		$continue = 1;
+		print "\n";
+	} else {
+		print "You must enter a number in this field. Please try again.\n\n";
+	}
 }
 
 $continue = 0;
 while (!$continue) {
-  print "What is the maximum number of channels an oper may join at any one time?\n";
-  print "[\033[1;32m$config{MAX_OPERCH}\033[0m] -> ";
-  chomp($var = <STDIN>);
-  if ($var eq "") { $var = $config{MAX_OPERCH}; }
-  if ($var =~ /^\d+$/) {
-    # We don't care what the number is, set it and be on our way.
-    $config{MAX_OPERCH} = $var;
-    $continue = 1;
-    print "\n";
- }
+	print "What is the maximum number of channels an oper may join at any one time?\n";
+	print "[\033[1;32m$config{MAX_OPERCH}\033[0m] -> ";
+	chomp($var = <STDIN>);
+	if ($var eq "") {
+		$var = $config{MAX_OPERCH};
+	}
+	if ($var =~ /^\d+$/) {
+		# We don't care what the number is, set it and be on our way.
+		$config{MAX_OPERCH} = $var;
+		$continue = 1;
+		print "\n";
+	}
 }
 
 $continue = 0;
 while (!$continue) {
-  print "What is the maximum number of mode changes in one line?\n";
-  print "[\033[1;32m$config{MAXI_MODES}\033[0m] -> ";
-  chomp($var = <STDIN>);
-  if ($var eq "") { $var = $config{MAXI_MODES}; }
-  if ($var =~ /^\d+$/) {
-    # We don't care what the number is, set it and be on our way.
-    $config{MAXI_MODES} = $var;
-    $continue = 1;
-    print "\n";
-  } else {
-    print "You must enter a number in this field. Please try again.\n\n";
-  }
+	print "What is the maximum number of mode changes in one line?\n";
+	print "[\033[1;32m$config{MAXI_MODES}\033[0m] -> ";
+	chomp($var = <STDIN>);
+	if ($var eq "") {
+		$var = $config{MAXI_MODES};
+	}
+	if ($var =~ /^\d+$/) {
+		# We don't care what the number is, set it and be on our way.
+		$config{MAXI_MODES} = $var;
+		$continue = 1;
+		print "\n";
+	} else {
+		print "You must enter a number in this field. Please try again.\n\n";
+	}
 }
 
 $continue = 0;
 while (!$continue) {
-  print "What is the maximum length of an ident (username)?\n";
-  print "[\033[1;32m$config{MAX_IDENT}\033[0m] -> ";
-  chomp($var = <STDIN>);
-  if ($var eq "") { $var = $config{MAX_IDENT}; }
-  if ($var =~ /^\d+$/) {
-    # We don't care what the number is, set it and be on our way.
-    $config{MAX_IDENT} = $var;
-    $continue = 1;
-    print "\n";
-  } else {
-    print "You must enter a number in this field. Please try again.\n\n";
-  }
+	print "What is the maximum length of an ident (username)?\n";
+	print "[\033[1;32m$config{MAX_IDENT}\033[0m] -> ";
+	chomp($var = <STDIN>);
+	if ($var eq "") {
+		$var = $config{MAX_IDENT};
+	}
+	if ($var =~ /^\d+$/) {
+		# We don't care what the number is, set it and be on our way.
+		$config{MAX_IDENT} = $var;
+		$continue = 1;
+		print "\n";
+	} else {
+		print "You must enter a number in this field. Please try again.\n\n";
+	}
 }
 
 $continue = 0;
 while (!$continue) {
-  print "What is the maximum length of a quit message?\n";
-  print "[\033[1;32m$config{MAX_QUIT}\033[0m] -> ";
-  chomp($var = <STDIN>);
-  if ($var eq "") { $var = $config{MAX_QUIT}; }
-  if ($var =~ /^\d+$/) {
-    # We don't care what the number is, set it and be on our way.
-    $config{MAX_QUIT} = $var;
-    $continue = 1;
-    print "\n";
-  } else {
-    print "You must enter a number in this field. Please try again.\n\n";
-  }
+	print "What is the maximum length of a quit message?\n";
+	print "[\033[1;32m$config{MAX_QUIT}\033[0m] -> ";
+	chomp($var = <STDIN>);
+	if ($var eq "") {
+		$var = $config{MAX_QUIT};
+	}
+	if ($var =~ /^\d+$/) {
+		# We don't care what the number is, set it and be on our way.
+		$config{MAX_QUIT} = $var;
+		$continue = 1;
+		print "\n";
+	} else {
+		print "You must enter a number in this field. Please try again.\n\n";
+	}
 }
 
 $continue = 0;
 while (!$continue) {
-  print "What is the maximum length of a channel topic?\n";
-  print "[\033[1;32m$config{MAX_TOPIC}\033[0m] -> ";
-  chomp($var = <STDIN>);
-  if ($var eq "") { $var = $config{MAX_TOPIC}; }
-  if ($var =~ /^\d+$/) {
-    # We don't care what the number is, set it and be on our way.
-    $config{MAX_TOPIC} = $var;
-    $continue = 1;
-    print "\n";
-  } else {
-    print "You must enter a number in this field. Please try again.\n\n";
-  }
+	print "What is the maximum length of a channel topic?\n";
+	print "[\033[1;32m$config{MAX_TOPIC}\033[0m] -> ";
+	chomp($var = <STDIN>);
+	if ($var eq "") {
+		$var = $config{MAX_TOPIC};
+	}
+	if ($var =~ /^\d+$/) {
+		# We don't care what the number is, set it and be on our way.
+		$config{MAX_TOPIC} = $var;
+		$continue = 1;
+		print "\n";
+	} else {
+		print "You must enter a number in this field. Please try again.\n\n";
+	}
 }
 
 $continue = 0;
 while (!$continue) {
-  print "What is the maximum length of a kick message?\n";
-  print "[\033[1;32m$config{MAX_KICK}\033[0m] -> ";
-  chomp($var = <STDIN>);
-  if ($var eq "") { $var = $config{MAX_KICK}; }
-  if ($var =~ /^\d+$/) {
-    # We don't care what the number is, set it and be on our way.
-    $config{MAX_KICK} = $var;
-    $continue = 1;
-    print "\n";
-  } else {
-    print "You must enter a number in this field. Please try again.\n\n";
-  }
+	print "What is the maximum length of a kick message?\n";
+	print "[\033[1;32m$config{MAX_KICK}\033[0m] -> ";
+	chomp($var = <STDIN>);
+	if ($var eq "") {
+		$var = $config{MAX_KICK};
+	}
+	if ($var =~ /^\d+$/) {
+		# We don't care what the number is, set it and be on our way.
+		$config{MAX_KICK} = $var;
+		$continue = 1;
+		print "\n";
+	} else {
+		print "You must enter a number in this field. Please try again.\n\n";
+	}
 }
 
 $continue = 0;
 while (!$continue) {
-  print "What is the maximum length of a GECOS (real name) field?\n";
-  print "[\033[1;32m$config{MAX_GECOS}\033[0m] -> ";
-  chomp($var = <STDIN>);
-  if ($var eq "") { $var = $config{MAX_GECOS}; }
-  if ($var =~ /^\d+$/) {
-    # We don't care what the number is, set it and be on our way.
-    $config{MAX_GECOS} = $var;
-    $continue = 1;
-    print "\n";
-  } else {
-    print "You must enter a number in this field. Please try again.\n\n";
-  }
+	print "What is the maximum length of a GECOS (real name) field?\n";
+	print "[\033[1;32m$config{MAX_GECOS}\033[0m] -> ";
+	chomp($var = <STDIN>);
+	if ($var eq "") {
+		$var = $config{MAX_GECOS};
+	}
+	if ($var =~ /^\d+$/) {
+		# We don't care what the number is, set it and be on our way.
+		$config{MAX_GECOS} = $var;
+		$continue = 1;
+		print "\n";
+	} else {
+		print "You must enter a number in this field. Please try again.\n\n";
+	}
 }
 
 $continue = 0;
 while (!$continue) {
-  print "What is the maximum length of an away message?\n";
-  print "[\033[1;32m$config{MAX_AWAY}\033[0m] -> ";
-  chomp($var = <STDIN>);
-  if ($var eq "") { $var = $config{MAX_AWAY}; }
-  if ($var =~ /^\d+$/) {
-    # We don't care what the number is, set it and be on our way.
-    $config{MAX_AWAY} = $var;
-    $continue = 1;
-    print "\n";
-  } else {
-    print "You must enter a number in this field. Please try again.\n\n";
-  }
+	print "What is the maximum length of an away message?\n";
+	print "[\033[1;32m$config{MAX_AWAY}\033[0m] -> ";
+	chomp($var = <STDIN>);
+	if ($var eq "") {
+		$var = $config{MAX_AWAY};
+	}
+	if ($var =~ /^\d+$/) {
+		# We don't care what the number is, set it and be on our way.
+		$config{MAX_AWAY} = $var;
+		$continue = 1;
+		print "\n";
+	} else {
+		print "You must enter a number in this field. Please try again.\n\n";
+	}
 }
 
 # Code Optimisation
@@ -553,21 +575,21 @@ As always, if you are unsure, just press enter and accept the default.\n\n";
 print "[\033[1;32m$config{OPTIMITEMP}\033[0m] -> ";
 chomp($var = <STDIN>);
 if ($var eq "") {
-  $var = $config{OPTIMITEMP};
+	$var = $config{OPTIMITEMP};
 }
 
 if ($var eq "1") {
-  $config{OPTIMITEMP} = 1;
-  $config{OPTIMISATI} = "-O";
+	$config{OPTIMITEMP} = 1;
+	$config{OPTIMISATI} = "-O";
 } elsif ($var eq "2") {
-  $config{OPTIMITEMP} = 2;
-  $config{OPTIMISATI} = "-O2";
+	$config{OPTIMITEMP} = 2;
+	$config{OPTIMISATI} = "-O2";
 } elsif ($var eq "3") {
-  $config{OPTIMITEMP} = 3;
-  $config{OPTIMISATI} = "-O3";
+	$config{OPTIMITEMP} = 3;
+	$config{OPTIMISATI} = "-O3";
 } else {
-  $config{OPTIMITEMP} = 0;
-  $config{OPTIMISATI} = "-g";
+	$config{OPTIMITEMP} = 0;
+	$config{OPTIMISATI} = "-g";
 }
 
 print "\n\033[1;32mPre-build configuration is complete!\033[0m\n\n";
@@ -681,33 +703,30 @@ FOO2
 #                              HELPER FUNCTIONS                                #
 ################################################################################
 sub getcache {
-  # Retrieves the .config.cache file, and loads values into the main config hash.
-  open(CACHE, ".config.cache") or return undef;
-  while (<CACHE>) {
-    chomp;
-
-    # Ignore Blank lines, and comments..
-    next if /^\s*$/;
-    next if /^\s*#/;
-
-    my ($key, $value) = split("=", $_);
-    $value =~ /^\"(.*)\"$/;
-    # Do something with data here!
-    $config{$key} = $1;
-  }
-  close(CONFIG);
-  return "true";
+	# Retrieves the .config.cache file, and loads values into the main config hash.
+	open(CACHE, ".config.cache") or return undef;
+	while (<CACHE>) {
+		chomp;
+		# Ignore Blank lines, and comments..
+		next if /^\s*$/;
+		next if /^\s*#/;
+		my ($key, $value) = split("=", $_);
+		$value =~ /^\"(.*)\"$/;
+		# Do something with data here!
+		$config{$key} = $1;
+	}
+	close(CONFIG);
+	return "true";
 }
 
 sub makecache {
-  # Dump the contents of %config
-  print "Writing \033[1;32mcache file\033[0m for future ./configures ...\n";
-  open(FILEHANDLE, ">.config.cache");
-  foreach $key (keys %config)
-  {
-    print FILEHANDLE "$key=\"$config{$key}\"\n";
-  }
-  close(FILEHANDLE);
+	# Dump the contents of %config
+	print "Writing \033[1;32mcache file\033[0m for future ./configures ...\n";
+	open(FILEHANDLE, ">.config.cache");
+	foreach $key (keys %config) {
+		print FILEHANDLE "$key=\"$config{$key}\"\n";
+	}
+	close(FILEHANDLE);
 }
 
 sub dir_check {
@@ -761,47 +780,47 @@ sub dir_check {
 }
 
 sub getosflags {
-  if ($config{OSNAME} =~ /BSD$/) {
-    $config{LDLIBS} = "-Ldl -lstdc++";
-    $config{FLAGS}  = "-fPIC -frtti -Wall -Woverloaded-virtual $config{OPTIMISATI}";
-    $config{MAKEPROG} = "gmake";
-    if ($config{OSNAME} eq "OpenBSD") {
-	chomp($foo = `eg++ -dumpversion | cut -c 1`);
-	# theyre running the package version of gcc (eg++)... detect it and set up its version numbers.
-	# if theyre not running this, configure lets the build continue but they probably wont manage to
-	# compile as this standard version is 2.95.3!
-	if ($foo ne "") {
-		$config{CC} = "eg++";
-		chomp($config{GCCVER}       = `eg++ -dumpversion | cut -c 1`); # we must redo these if we change
-		chomp($config{GCC34}        = `eg++ -dumpversion | cut -c 3`); # the compiler path
+	if ($config{OSNAME} =~ /BSD$/) {
+		$config{LDLIBS} = "-Ldl -lstdc++";
+		$config{FLAGS}  = "-fPIC -frtti -Wall -Woverloaded-virtual $config{OPTIMISATI}";
+		$config{MAKEPROG} = "gmake";
+		if ($config{OSNAME} eq "OpenBSD") {
+			chomp($foo = `eg++ -dumpversion | cut -c 1`);
+			# theyre running the package version of gcc (eg++)... detect it and set up its version numbers.
+			# if theyre not running this, configure lets the build continue but they probably wont manage to
+			# compile as this standard version is 2.95.3!
+			if ($foo ne "") {
+				$config{CC} = "eg++";
+				chomp($config{GCCVER}       = `eg++ -dumpversion | cut -c 1`); # we must redo these if we change
+				chomp($config{GCC34}        = `eg++ -dumpversion | cut -c 3`); # the compiler path
+			}
+		}
+	} else {
+		$config{LDLIBS} = "-ldl -lstdc++";
+		$config{FLAGS}  = "-fPIC -frtti -Wall -Woverloaded-virtual $config{OPTIMISATI}";
+		$config{MAKEPROG} = "make";
+		if ($config{OSNAME} =~ /CYGWIN/) {
+			$config{FLAGS}  = "-frtti -Wall -Woverloaded-virtual $config{OPTIMISATI}";
+			$config{LDLIBS} = "";
+			$config{MAKEPROG} = "/usr/bin/make";
+			$config{MAKEORDER} = "ircd mods config bininst";
+		} elsif ($config{OSNAME} eq "CYG-STATIC") {
+			$config{FLAGS} = "-frtti -Wall -Woverloaded-virtual $config{OPTIMISATI}";
+			$config{LDLIBS} = "";
+			$config{MAKEPROG} = "/usr/bin/make";
+			$config{MAKEORDER} = "mods ircd config bininst";
+			$config{STATICLIBS} = "modules/mods.a";
+			$config{STATIC_LINK} = "yes";
+		}
 	}
-    }
-  } else {
-    $config{LDLIBS} = "-ldl -lstdc++";
-    $config{FLAGS}  = "-fPIC -frtti -Wall -Woverloaded-virtual $config{OPTIMISATI}";
-    $config{MAKEPROG} = "make";
-    if ($config{OSNAME} =~ /CYGWIN/) {
-       $config{FLAGS}  = "-frtti -Wall -Woverloaded-virtual $config{OPTIMISATI}";
-       $config{LDLIBS} = "";
-       $config{MAKEPROG} = "/usr/bin/make";
-       $config{MAKEORDER} = "ircd mods config bininst";
-    } elsif ($config{OSNAME} eq "CYG-STATIC") {
-       $config{FLAGS} = "-frtti -Wall -Woverloaded-virtual $config{OPTIMISATI}";
-       $config{LDLIBS} = "";
-       $config{MAKEPROG} = "/usr/bin/make";
-       $config{MAKEORDER} = "mods ircd config bininst";
-       $config{STATICLIBS} = "modules/mods.a";
-       $config{STATIC_LINK} = "yes";
-    }
-  }
-  if ($config{OSNAME} =~ /SunOS/) {
-    # solaris/sunos needs these
-    # socket = bsd sockets api
-    # nsl = dns stuff
-    # rt = POSIX realtime extensions
-    # resolv = inet_aton only (why isnt this in nsl?!)
-    $config{LDLIBS} = $config{LDLIBS} . " -lsocket -lnsl -lrt -lresolv";
-  }
+	if ($config{OSNAME} =~ /SunOS/) {
+		# solaris/sunos needs these
+		# socket = bsd sockets api
+		# nsl = dns stuff
+		# rt = POSIX realtime extensions
+		# resolv = inet_aton only (why isnt this in nsl?!)
+		$config{LDLIBS} = $config{LDLIBS} . " -lsocket -lnsl -lrt -lresolv";
+	}
 }
 
 sub is_dir {
