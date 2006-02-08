@@ -125,11 +125,11 @@ class QLine : public XLine
 
 void read_xline_defaults();
 
-void add_gline(long duration, const char* source, const char* reason, const char* hostmask);
-void add_qline(long duration, const char* source, const char* reason, const char* nickname);
-void add_zline(long duration, const char* source, const char* reason, const char* ipaddr);
-void add_kline(long duration, const char* source, const char* reason, const char* hostmask);
-void add_eline(long duration, const char* source, const char* reason, const char* hostmask);
+bool add_gline(long duration, const char* source, const char* reason, const char* hostmask);
+bool add_qline(long duration, const char* source, const char* reason, const char* nickname);
+bool add_zline(long duration, const char* source, const char* reason, const char* ipaddr);
+bool add_kline(long duration, const char* source, const char* reason, const char* hostmask);
+bool add_eline(long duration, const char* source, const char* reason, const char* hostmask);
 
 bool del_gline(const char* hostmask);
 bool del_qline(const char* nickname);

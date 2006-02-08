@@ -148,9 +148,9 @@ void read_xline_defaults()
 
 // adds a g:line
 
-void add_gline(long duration, const char* source,const char* reason,const char* hostmask)
+bool add_gline(long duration, const char* source,const char* reason,const char* hostmask)
 {
-	del_gline(hostmask);
+	bool ret = del_gline(hostmask);
 	GLine item;
 	item.duration = duration;
 	strlcpy(item.hostmask,hostmask,199);
@@ -167,13 +167,14 @@ void add_gline(long duration, const char* source,const char* reason,const char* 
 	{
 		pglines.push_back(item);
 	}
+	return !ret;
 }
 
 // adds an e:line (exception to bans)
 
-void add_eline(long duration, const char* source, const char* reason, const char* hostmask)
+bool add_eline(long duration, const char* source, const char* reason, const char* hostmask)
 {
-        del_eline(hostmask);
+        bool ret = del_eline(hostmask);
         ELine item;
         item.duration = duration;
         strlcpy(item.hostmask,hostmask,199);
@@ -190,13 +191,14 @@ void add_eline(long duration, const char* source, const char* reason, const char
 	{
 		pelines.push_back(item);
 	}
+	return !ret;
 }
 
 // adds a q:line
 
-void add_qline(long duration, const char* source, const char* reason, const char* nickname)
+bool add_qline(long duration, const char* source, const char* reason, const char* nickname)
 {
-	del_qline(nickname);
+	bool ret = del_qline(nickname);
 	QLine item;
 	item.duration = duration;
 	strlcpy(item.nick,nickname,63);
@@ -214,13 +216,14 @@ void add_qline(long duration, const char* source, const char* reason, const char
 	{
 		pqlines.push_back(item);
 	}
+	return !ret;
 }
 
 // adds a z:line
 
-void add_zline(long duration, const char* source, const char* reason, const char* ipaddr)
+bool add_zline(long duration, const char* source, const char* reason, const char* ipaddr)
 {
-	del_zline(ipaddr);
+	bool ret = del_zline(ipaddr);
 	ZLine item;
 	item.duration = duration;
 	if (strchr(ipaddr,'@'))
@@ -244,13 +247,14 @@ void add_zline(long duration, const char* source, const char* reason, const char
 	{
 		pzlines.push_back(item);
 	}
+	return !ret;
 }
 
 // adds a k:line
 
-void add_kline(long duration, const char* source, const char* reason, const char* hostmask)
+bool add_kline(long duration, const char* source, const char* reason, const char* hostmask)
 {
-	del_kline(hostmask);
+	bool ret = del_kline(hostmask);
 	KLine item;
 	item.duration = duration;
 	strlcpy(item.hostmask,hostmask,200);
@@ -267,6 +271,7 @@ void add_kline(long duration, const char* source, const char* reason, const char
 	{
 		pklines.push_back(item);
 	}
+	return !ret;
 }
 
 // deletes a g:line, returns true if the line existed and was removed

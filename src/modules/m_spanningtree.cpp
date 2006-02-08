@@ -1554,35 +1554,42 @@ class TreeSocket : public InspSocket
 		if (params.size() < 6)
 			return true;
 
+		bool propogate = false;
+
 		switch (*(params[0].c_str()))
 		{
 			case 'Z':
-				add_zline(atoi(params[4].c_str()), params[2].c_str(), params[5].c_str(), params[1].c_str());
+				propogate = add_zline(atoi(params[4].c_str()), params[2].c_str(), params[5].c_str(), params[1].c_str());
 				zline_set_creation_time((char*)params[1].c_str(), atoi(params[3].c_str()));
 			break;
 			case 'Q':
-				add_qline(atoi(params[4].c_str()), params[2].c_str(), params[5].c_str(), params[1].c_str());
+				propogate = add_qline(atoi(params[4].c_str()), params[2].c_str(), params[5].c_str(), params[1].c_str());
 				qline_set_creation_time((char*)params[1].c_str(), atoi(params[3].c_str()));
 			break;
 			case 'E':
-				add_eline(atoi(params[4].c_str()), params[2].c_str(), params[5].c_str(), params[1].c_str());
+				propogate = add_eline(atoi(params[4].c_str()), params[2].c_str(), params[5].c_str(), params[1].c_str());
 				eline_set_creation_time((char*)params[1].c_str(), atoi(params[3].c_str()));
 			break;
 			case 'G':
-				add_gline(atoi(params[4].c_str()), params[2].c_str(), params[5].c_str(), params[1].c_str());
+				propogate = add_gline(atoi(params[4].c_str()), params[2].c_str(), params[5].c_str(), params[1].c_str());
 				gline_set_creation_time((char*)params[1].c_str(), atoi(params[3].c_str()));
 			break;
 			case 'K':
-				add_kline(atoi(params[4].c_str()), params[2].c_str(), params[5].c_str(), params[1].c_str());
+				propogate = add_kline(atoi(params[4].c_str()), params[2].c_str(), params[5].c_str(), params[1].c_str());
+				kline_set_creation_time((char*)params[1].c_str(), atoi(params[3].c_str()));
 			break;
 			default:
 				/* Just in case... */
 				Srv->SendOpers("*** \2WARNING\2: Invalid xline type '"+params[0]+"' sent by server "+prefix+", ignored!");
+				propogate = false;
 			break;
 		}
 		/* Send it on its way */
-		params[5] = ":" + params[5];
-		DoOneToAllButSender(prefix,"ADDLINE",params,prefix);
+		if (propogate)
+		{
+			params[5] = ":" + params[5];
+			DoOneToAllButSender(prefix,"ADDLINE",params,prefix);
+		}
 		return true;
 	}
 
