@@ -718,51 +718,53 @@ sub makecache {
 }
 
 sub dir_check {
-  my ($desc, $hash_key) = @_;
-  my $complete = 0;
-  while (!$complete) {
-    print "In what directory $desc?\n";
-    print "[\033[1;32m$config{$hash_key}\033[0m] -> ";
-    chomp($var = <STDIN>);
-    if ($var eq "") { $var = $config{$hash_key}; }
-    if ($var =~ /^\~\/(.+)$/) {
-	# Convert it to a full path..
-	$var = resolve_directory($ENV{HOME} . "/" . $1);
-    }
-    if (substr($var,0,1) ne "/")
-    {
-        # Assume relative Path was given.. fill in the rest.
-        $var = $this . "/$var";
-    }
-    $var = resolve_directory($var); 
-    if (! -e $var) {
-      print "$var does not exist. Create it?\n[\033[1;32my\033[0m] ";
-      chomp($tmp = <STDIN>);
-      if (($tmp eq "") || ($tmp =~ /^y/i)) {
-        # Attempt to Create the Dir..
-        $chk = system("mkdir -p \"$var\" >> /dev/null 2>&1") / 256;
-        if ($chk != 0) {
-          print "Unable to create directory. ($var)\n\n";
-          # Restart Loop..
-          next;
-        }
-      } else {
-        # They said they don't want to create, and we can't install there.
-        print "\n\n";
-        next;
-      }
-    } else {
-      if (!is_dir($var)) {
-        # Target exists, but is not a directory.
-        print "File $var exists, but is not a directory.\n\n";
-        next;
-      }
-    }
-    # Either Dir Exists, or was created fine.
-    $config{$hash_key} = $var;
-    $complete = 1;
-    print "\n";
-  }
+	my ($desc, $hash_key) = @_;
+	my $complete = 0;
+	while (!$complete) {
+		print "In what directory $desc?\n";
+		print "[\033[1;32m$config{$hash_key}\033[0m] -> ";
+		chomp($var = <STDIN>);
+		if ($var eq "") {
+			$var = $config{$hash_key};
+		}
+		if ($var =~ /^\~\/(.+)$/) {
+			# Convert it to a full path..
+			$var = resolve_directory($ENV{HOME} . "/" . $1);
+		}
+		if (substr($var,0,1) ne "/")
+		{
+			# Assume relative Path was given.. fill in the rest.
+			$var = $this . "/$var";
+		}
+		$var = resolve_directory($var); 
+		if (! -e $var) {
+			print "$var does not exist. Create it?\n[\033[1;32my\033[0m] ";
+			chomp($tmp = <STDIN>);
+			if (($tmp eq "") || ($tmp =~ /^y/i)) {
+				# Attempt to Create the Dir..
+				$chk = system("mkdir -p \"$var\" >> /dev/null 2>&1") / 256;
+				if ($chk != 0) {
+					print "Unable to create directory. ($var)\n\n";
+					# Restart Loop..
+					next;
+				}
+			} else {
+				# They said they don't want to create, and we can't install there.
+				print "\n\n";
+				next;
+			}
+		} else {
+			if (!is_dir($var)) {
+				# Target exists, but is not a directory.
+				print "File $var exists, but is not a directory.\n\n";
+				next;
+			}
+		}
+		# Either Dir Exists, or was created fine.
+		$config{$hash_key} = $var;
+		$complete = 1;
+		print "\n";
+	}
 }
 
 sub getosflags {
