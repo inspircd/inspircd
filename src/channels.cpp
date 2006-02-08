@@ -581,7 +581,7 @@ void kick_channel(userrec *src,userrec *user, chanrec *Ptr, char* reason)
 
         log(DEBUG,"kick_channel: removing: %s %s %s",user->nick,Ptr->name,src->nick);
 
-	if (IS_LOCAL(user))
+	if (IS_LOCAL(src))
 	{
 	        if (!has_channel(user,Ptr))
 	        {
