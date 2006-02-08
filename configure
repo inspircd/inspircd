@@ -60,65 +60,67 @@ $config{HAS_OPENSSL} = $1;
 # concideration!
 
 if ($config{OSNAME} =~ /CYGWIN/) {
-  $config{OSNAME} = "CYG-STATIC";
+	$config{OSNAME} = "CYG-STATIC";
 }
 
 if ((!$config{OSNAME}) || ($config{OSNAME} eq "")) {
-  chomp($config{OSNAME} = `/usr/bin/uname`);
-  if ((!$config{OSNAME}) || ($config{OSNAME} eq "")){
-	$config{OSNAME} = "Unknown";
-  }
+	chomp($config{OSNAME} = `/usr/bin/uname`);
+	if ((!$config{OSNAME}) || ($config{OSNAME} eq "")){
+		$config{OSNAME} = "Unknown";
+	}
 }
 
 if (!$config{MAX_CLIENT_T}) { 
-  $config{MAX_CLIENT_T} = 1024;                                 # Set a reasonable 'Default'
-  $fd_scan_fail = "true";                                       # Used Later
+	$config{MAX_CLIENT_T} = 1024;                                 # Set a reasonable 'Default'
+	$fd_scan_fail = "true";                                       # Used Later
 }
 
 # Get and Set some important vars..
 getmodules();
 
 my $arg = $ARGV[0];	                                        # Do Some Argument Checks..
-if ($arg eq "-clean") { `rm -rf .config.cache`; }               # Remove the config.cache file.
+if ($arg eq "-clean") {
+	system("rm -rf .config.cache");
+}               # Remove the config.cache file.
 
 if ($arg eq "-update") {
-  # Does the cache file exist?
-  if (!getcache()) {
-    # No, No it doesn't.. *BASH*
-    print "You have not run ./configure before. Please do this before trying to run the update script.\n";
-    exit 0;
-  } else {
-    # We've Loaded the cache file and all our variables..
-    print "Updating Files..\n";
-    getosflags();
-    $has_epoll = $config{HAS_EPOLL};
-    $has_kqueue = $config{HAS_KQUEUE};
-    writefiles();
-    print "Complete.\n";
-    exit;
-  }
+	# Does the cache file exist?
+	if (!getcache()) {
+		# No, No it doesn't.. *BASH*
+		print "You have not run ./configure before. Please do this before trying to run the update script.\n";
+		exit 0;
+	} else {
+		# We've Loaded the cache file and all our variables..
+		print "Updating Files..\n";
+		getosflags();
+		$has_epoll = $config{HAS_EPOLL};
+		$has_kqueue = $config{HAS_KQUEUE};
+		writefiles();
+		print "Complete.\n";
+		exit;
+	}
 }
 
 if ($arg eq "-modupdate") {
-  # Does the cache file exist?
-  if (!getcache()) {
-    # No, No it doesn't.. *BASH*
-    print "You have not run ./configure before. Please do this before trying to run the update script.\n";
-    exit 0;
-  } else {
-    # We've Loaded the cache file and all our variables..
-    print "Updating Files..\n";
-    getosflags();
-    $has_epoll = $config{HAS_EPOLL};
-    $has_kqueue = $config{HAS_KQUEUE};
-    if ($config{STATIC_LINK} eq "yes") {
-      write_static_modules_makefile();
-    } else {
-      write_dynamic_modules_makefile();
-    }
-    print "Complete.\n";
-    exit;
-  }
+	# Does the cache file exist?
+	if (!getcache()) {
+		# No, No it doesn't.. *BASH*
+		print "You have not run ./configure before. Please do this before trying to run the update script.\n";
+		exit 0;
+	} else {
+		# We've Loaded the cache file and all our variables..
+		print "Updating Files..\n";
+		getosflags();
+		$has_epoll = $config{HAS_EPOLL};
+		$has_kqueue = $config{HAS_KQUEUE};
+		if ($config{STATIC_LINK} eq "yes") {
+			write_static_modules_makefile();
+		} else {
+			write_dynamic_modules_makefile();
+		}
+		print "Complete.\n";
+		exit;
+	}
 }
 
 print "Checking for cache from previous configure...\n";
@@ -127,10 +129,10 @@ print "Checking operating system version...\n";
 getosflags();
 
 if (!$config{MAX_CLIENT}) { 
-  # If the cache hasn't set the max clients, copy the variable of MAX_CLIENT_T, this
-  # allows us to keep _T for testing purposes. (ie. "Are you sure you want to go
-  # higher than the found value" :))
-  $config{MAX_CLIENT} = $config{MAX_CLIENT_T};
+	# If the cache hasn't set the max clients, copy the variable of MAX_CLIENT_T, this
+	# allows us to keep _T for testing purposes. (ie. "Are you sure you want to go
+	# higher than the found value" :))
+	$config{MAX_CLIENT} = $config{MAX_CLIENT_T};
 }
 
 printf "Checking if strlcpy exists... ";
@@ -138,14 +140,11 @@ printf "Checking if strlcpy exists... ";
 $config{HAS_STRLCPY} = "false";
 my $fail = 0;
 open(STRLCPY, "</usr/include/string.h") or $fail = 1;
-if (!$fail)
-{
-	while (chomp($line = <STRLCPY>))
-	{
+if (!$fail) {
+	while (chomp($line = <STRLCPY>)) {
 		# try and find the delcaration of:
 		# size_t strlcpy(...)
-		if ($line =~ /size_t(\0x9|\s)+strlcpy/)
-		{
+		if ($line =~ /size_t(\0x9|\s)+strlcpy/)	{
 			$config{HAS_STRLCPY} = "true";
 		}
 	}
@@ -158,14 +157,11 @@ printf "Checking if kqueue exists... ";
 $has_kqueue = 0;
 $fail = 0;
 open(KQUEUE, "</usr/include/sys/event.h") or $fail = 1;
-if (!$fail)
-{
-        while (chomp($line = <KQUEUE>))
-        {
+if (!$fail) {
+        while (chomp($line = <KQUEUE>)) {
                 # try and find the delcaration of:
 		# int kqueue(void);
-		if ($line =~ /int(\0x9|\s)+kqueue/)
-		{
+		if ($line =~ /int(\0x9|\s)+kqueue/) {
 			$has_kqueue = 1;
 		}
 	}
@@ -178,14 +174,11 @@ printf "Checking if epoll exists... ";
 $has_epoll = 0;
 $fail = 0;
 open(EPOLL, "</usr/include/sys/epoll.h") or $fail = 1;
-if (!$fail)
-{
-	while (chomp($line = <EPOLL>))
-	{
+if (!$fail) {
+	while (chomp($line = <EPOLL>)) {
 		# try and find the declaration of:
 		# extern int epoll_create (int __size) __THROW;
-		if (($line =~ /int(\0x9|\s)+epoll_create(\0x9|\s)+\(/) || ($line =~ /int(\0x9|\s)+epoll_create\(/))
-		{
+		if (($line =~ /int(\0x9|\s)+epoll_create(\0x9|\s)+\(/) || ($line =~ /int(\0x9|\s)+epoll_create\(/)) {
 			$has_epoll = 1;
 		}
 	}
@@ -255,28 +248,27 @@ Your operating system is: \033[1;32m$config{OSNAME}\033[0m ($wholeos), fdmax: $c
 $config{CHANGE_COMPILER} = "n";
 print "I have detected the following compiler: \033[1;32m$config{CC}\033[0m (version \033[1;32m$config{GCCVER}.$config{GCC34}\033[0m)\n";
 
-if ($config{GCCVER} < 3)
-{
+if ($config{GCCVER} < 3) {
 	print "\033[1;32mIMPORTANT!\033[0m A GCC 2.x compiler has been detected, and
 should NOT be used. You should probably specify a newer compiler.\n";
 }
 yesno(CHANGE_COMPILER,"Do you want to change the compiler?");
-if ($config{CHANGE_COMPILER} =~ /y/i)
-{
-    print "What command do you want to use to invoke your compiler?\n";
-    print "[\033[1;32m$config{CC}\033[0m] -> ";
-    chomp($config{CC} = <STDIN>);
-    if ($config{CC} eq "") { $config{CC} = "g++"; }
-    chomp($foo = `$config{CC} -dumpversion | cut -c 1`);
-    if ($foo ne "") {
-            chomp($config{GCCVER}       = `$config{CC} -dumpversion | cut -c 1`); # we must redo these if we change
-            chomp($config{GCC34}        = `$config{CC} -dumpversion | cut -c 3`); # the compiler path
-	    print "Queried compiler: \033[1;32m$config{CC}\033[0m (version \033[1;32m$config{GCCVER}.$config{GCC34}\033[0m)\n";
-    }
-    else
-    {
-	    print "\033[1;32mWARNING!\033[0m Could not execute the compiler you specified. You may want to try again.\n";
-    }
+if ($config{CHANGE_COMPILER} =~ /y/i) {
+	print "What command do you want to use to invoke your compiler?\n";
+	print "[\033[1;32m$config{CC}\033[0m] -> ";
+	chomp($config{CC} = <STDIN>);
+	if ($config{CC} eq "") {
+		$config{CC} = "g++";
+	}
+	chomp($foo = `$config{CC} -dumpversion | cut -c 1`);
+	if ($foo ne "") {
+		chomp($config{GCCVER}       = `$config{CC} -dumpversion | cut -c 1`); # we must redo these if we change
+		chomp($config{GCC34}        = `$config{CC} -dumpversion | cut -c 3`); # the compiler path
+		print "Queried compiler: \033[1;32m$config{CC}\033[0m (version \033[1;32m$config{GCCVER}.$config{GCC34}\033[0m)\n";
+	}
+	else {
+		print "\033[1;32mWARNING!\033[0m Could not execute the compiler you specified. You may want to try again.\n";
+	}
 }
 
 print "\n";
@@ -305,8 +297,7 @@ if ($has_epoll) {
 	print "\n";
 }
 $chose_hiperf = (($config{USE_EPOLL} eq "y") || ($config{USE_KQUEUE} eq "y"));
-if (!$chose_hiperf)
-{
+if (!$chose_hiperf) {
 	print "No high-performance socket engines are available, or you chose\n";
 	print "not to enable one. Defaulting to select() engine.\n\n";
 }
@@ -344,32 +335,34 @@ print "different servers on the network.\n\n";
 # File Descriptor Settings..
 my $continue = 0;
 while (!$continue) {
-  print "Maximum number of clients at any one time ($config{MAX_CLIENT_T})\n";
-  print "[\033[1;32m$config{MAX_CLIENT}\033[0m] -> ";
-  chomp($var = <STDIN>);
-  if ($var eq "") { $var = $config{MAX_CLIENT}; }
-  if ($var =~ /^\d+$/) {
-    if (($var > $config{MAX_CLIENT_T}) && ($fd_scan_failed ne true)) {
-      # Client has entered a larger number than the 'discovered' value
-      # Confirm.
-      print "WARNING: Our scans have indicated that you are attempting
+	print "Maximum number of clients at any one time ($config{MAX_CLIENT_T})\n";
+	print "[\033[1;32m$config{MAX_CLIENT}\033[0m] -> ";
+	chomp($var = <STDIN>);
+	if ($var eq "") {
+		$var = $config{MAX_CLIENT};
+	}
+	if ($var =~ /^\d+$/) {
+		if (($var > $config{MAX_CLIENT_T}) && ($fd_scan_failed ne true)) {
+			# Client has entered a larger number than the 'discovered' value
+			# Confirm.
+			print "WARNING: Our scans have indicated that you are attempting
 to use more sockets than there are avaliable. Are you sure
 you wish to do this? It may cause the IRCd to malfunction [y/n]
 [\033[1;32mn\033[0m] -> $c";
-      chomp($tmp = <STDIN>);
-      if ($tmp ne "y") {
-        print "Please enter the correct value.\n\n";
-        next;
-      }
-    }
-  } else {
-    print "You must enter a number in this field. Please try again.\n\n";
-    next;
-  }
-  # If we get here, we should be good to go.
-  $config{MAX_CLIENT} = $var;
-  $continue = 1;
-  print "\n";
+			chomp($tmp = <STDIN>);
+			if ($tmp ne "y") {
+				print "Please enter the correct value.\n\n";
+				next;
+			}
+		}
+	} else {
+		print "You must enter a number in this field. Please try again.\n\n";
+		next;
+	}
+	# If we get here, we should be good to go.
+	$config{MAX_CLIENT} = $var;
+	$continue = 1;
+	print "\n";
 }
 
 my $continue = 0;
