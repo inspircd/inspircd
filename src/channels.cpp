@@ -614,7 +614,7 @@ void kick_channel(userrec *src,userrec *user, chanrec *Ptr, char* reason)
 		                        }
 		                        else
 		                        {
-		                                WriteServ(src->fd,"482 %s %s :You must be at least a half-operator to change modes on this channel",src->nick, Ptr->name);
+		                                WriteServ(src->fd,"482 %s %s :You must be at least a half-operator",src->nick, Ptr->name);
 		                        }
 		
 		                        return;
