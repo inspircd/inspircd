@@ -1000,29 +1000,29 @@ EOF
 }
 
 sub getcompilerflags {
-  my ($file) = @_;
-  open(FLAGS, $file);
-  while (<FLAGS>) {
-    if ($_ =~ /^\/\* \$CompileFlags: (.+) \*\/$/) {
-      close(FLAGS);
-      return $1;
-    }
-  }
-  close(FLAGS);
-  return undef;
+	my ($file) = @_;
+	open(FLAGS, $file);
+	while (<FLAGS>) {
+	if ($_ =~ /^\/\* \$CompileFlags: (.+) \*\/$/) {
+		close(FLAGS);
+			return $1;
+		}
+	}
+	close(FLAGS);
+	return undef;
 }
 
 sub getlinkerflags {
-  my ($file) = @_;
-  open(FLAGS, $file);
-  while (<FLAGS>) {
-    if ($_ =~ /^\/\* \$LinkerFlags: (.+) \*\/$/) {
-      close(FLAGS);
-      return $1;
-    }
-  }
-  close(FLAGS);
-  return undef;
+	my ($file) = @_;
+	open(FLAGS, $file);
+	while (<FLAGS>) {
+		if ($_ =~ /^\/\* \$LinkerFlags: (.+) \*\/$/) {
+			close(FLAGS);
+			return $1;
+		}
+	}
+	close(FLAGS);
+	return undef;
 }
 
 sub show_splash {
@@ -1056,14 +1056,14 @@ sub yesno {
 }
 
 sub write_static_modules_makefile {
-  # Modules Makefile..
-  print "Writing \033[1;32msrc/modules/Makefile\033[0m\n";
-  open(FILEHANDLE, ">src/modules/Makefile");
+	# Modules Makefile..
+	print "Writing \033[1;32msrc/modules/Makefile\033[0m\n";
+	open(FILEHANDLE, ">src/modules/Makefile");
 
-###
-# Module Makefile Header
-###
-  print FILEHANDLE <<EOF;
+	###
+	# Module Makefile Header
+	###
+	print FILEHANDLE <<EOF;
 # (C) ChatSpike development team
 # Makefile by <Craig\@ChatSpike.net>
 # Many Thanks to Andrew Church <achurch\@achurch.org>
@@ -1075,94 +1075,94 @@ sub write_static_modules_makefile {
 all: \$(MODULES)
 
 EOF
-###
-# End Module Makefile Header
-###
+	###
+	# End Module Makefile Header
+	###
 
-# Create a Modules List..
-my $modules = "";
-my $cmflags = "";
-my $liflags = "";
+	# Create a Modules List..
+	my $modules = "";
+	my $cmflags = "";
+	my $liflags = "";
 
-open(MODLIST,">include/modlist.h");
+	open(MODLIST,">include/modlist.h");
 
-###
-# Include File Header
-###
-print MODLIST <<HEADER;
+	###
+	# Include File Header
+	###
+	print MODLIST <<HEADER;
 // Generated automatically by configure. DO NOT EDIT!
 
 #ifndef __SYMBOLS__H_CONFIGURED__
 #define __SYMBOLS__H_CONFIGURED__
 
 HEADER
-###
-# End Include File Header
-###
+	###
+	# End Include File Header
+	###
 
-# Place Module List into Include
-foreach $i (@modlist) {
-	if ($i !~ /_static$/) {
-		print MODLIST "extern \"C\" void * $i\_init (void);\n";
+	# Place Module List into Include
+	foreach $i (@modlist) {
+		if ($i !~ /_static$/) {
+			print MODLIST "extern \"C\" void * $i\_init (void);\n";
+		}
 	}
-}
-print MODLIST "\nstruct {const char *name; initfunc *value; } modsyms[] = {\n";
+	print MODLIST "\nstruct {const char *name; initfunc *value; } modsyms[] = {\n";
 
-###
-# Build Module Crap
-###
-foreach $i (@modlist)
-{
-	if ($i !~ /_static$/) {
-		$cmflags = getcompilerflags("src/modules/m_".$i.".cpp");
-		$liflags = getlinkerflags("src/modules/m_".$i.".cpp");
+	###
+	# Build Module Crap
+	###
+	foreach $i (@modlist)
+	{
+		if ($i !~ /_static$/) {
+			$cmflags = getcompilerflags("src/modules/m_".$i.".cpp");
+			$liflags = getlinkerflags("src/modules/m_".$i.".cpp");
 
-		###
-		# Write Entry to the Makefile
-		###
-		print FILEHANDLE <<EOCHEESE;
+			###
+			# Write Entry to the Makefile
+			###
+			print FILEHANDLE <<EOCHEESE;
 m_$i.o: m_$i\_static.cpp ../../include/modules.h ../../include/users.h ../../include/channels.h ../../include/base.h
 	\$(CC) -pipe -I../../include \$(FLAGS) $flags -export-dynamic -c m_$i\_static.cpp
 	mv m_$i\_static.o ../m_$i.o
 
 EOCHEESE
-		###
-		# End Write Entry to the MakeFile
-		###
-		print "Configuring module [\033[1;32mm_$i.so\033[0m] for static linking... ";
-		open(MODULE,"<src/modules/m_".$i.".cpp") or die("Could not open m_".$i.".cpp");
-		open(MUNGED,">src/modules/m_".$i."_static.cpp") or die("Could not create m_".$i."_static.cpp");
-		while (chomp($a = <MODULE>)) { 
-			$a =~ s/init_module/$i\_init/g;
-			$a =~ s/Srv/$i\Srv/g;
-			print MUNGED "$a\n";
-		}
-		close(MODULE);
-		close(MUNGED);
-		print MODLIST <<EOENT;
+			###
+			# End Write Entry to the MakeFile
+			###
+			print "Configuring module [\033[1;32mm_$i.so\033[0m] for static linking... ";
+			open(MODULE,"<src/modules/m_".$i.".cpp") or die("Could not open m_".$i.".cpp");
+			open(MUNGED,">src/modules/m_".$i."_static.cpp") or die("Could not create m_".$i."_static.cpp");
+			while (chomp($a = <MODULE>)) { 
+				$a =~ s/init_module/$i\_init/g;
+				$a =~ s/Srv/$i\Srv/g;
+				print MUNGED "$a\n";
+			}
+			close(MODULE);
+			close(MUNGED);
+			print MODLIST <<EOENT;
 {"m_$i.so",\&$i\_init},
 EOENT
-		print "done\n";
+			print "done\n";
+		}
 	}
-}
-print MODLIST "{0}};\n\n#endif\n";
-close(MODLIST);
+	print MODLIST "{0}};\n\n#endif\n";
+	close(MODLIST);
 }
 
 sub write_dynamic_modules_makefile {
-  # Modules Makefile..
-  print "Writing \033[1;32msrc/modules/Makefile\033[0m\n";
-  open(FILEHANDLE, ">src/modules/Makefile");
-  my $extra = "";
+	# Modules Makefile..
+	print "Writing \033[1;32msrc/modules/Makefile\033[0m\n";
+	open(FILEHANDLE, ">src/modules/Makefile");
+	my $extra = "";
 
-  if ($config{OSNAME} =~ /CYGWIN/) {
-	$extra = "../inspircd.dll.a";
-  }
+	if ($config{OSNAME} =~ /CYGWIN/) {
+		$extra = "../inspircd.dll.a";
+	}
 
 ###
 # Module Makefile Header
 ###
-  print FILEHANDLE <<EOF;
+	print FILEHANDLE <<EOF;
 # (C) ChatSpike development team
 # Makefile by <Craig\@ChatSpike.net>
 # Many Thanks to Andrew Church <achurch\@achurch.org>
@@ -1174,16 +1174,16 @@ sub write_dynamic_modules_makefile {
 all: \$(MODULES)
 
 EOF
-###
-# End Module Makefile Header
-###
+	###
+	# End Module Makefile Header
+	###
 
-# Create a Modules List..
-my $modules = "";
-my $cmflags = "";
-my $liflags = "";
+	# Create a Modules List..
+	my $modules = "";
+	my $cmflags = "";
+	my $liflags = "";
 
-foreach $i (@modlist) {
+	foreach $i (@modlist) {
 	###
 	# Write Entry to the MakeFile
 	###
@@ -1200,7 +1200,7 @@ EOCHEESE
 	###
 	# End Write Entry to the MakeFile
 	###
-}
+	}
 }
 
 
@@ -1234,17 +1234,17 @@ CC = im a cheezeball
 CXXFLAGS = -I../include \${FLAGS}
 
 EOM
-###
-# This next section is for cygwin dynamic module builds.
-# Basically, what we do, is build the inspircd core as a library
-# then the main executable uses that. the library is capable of
-# loading / unloading the modules dynamically :)
-# Massive thanks to the guys on #cygwin @ irc.freenode.net for helping
-# make this work :)
-###
+	###
+	# This next section is for cygwin dynamic module builds.
+	# Basically, what we do, is build the inspircd core as a library
+	# then the main executable uses that. the library is capable of
+	# loading / unloading the modules dynamically :)
+	# Massive thanks to the guys on #cygwin @ irc.freenode.net for helping
+	# make this work :)
+	###
 
-if ($config{OSNAME} =~ /CYGWIN/) {
-	print FH <<EOM;
+	if ($config{OSNAME} =~ /CYGWIN/) {
+		print FH <<EOM;
 all: aes.o command_parse.o cull_list.o userprocess.o socketengine.o socket.o hashcomp.o channels.o mode.o xline.o inspstring.o dns.o base.o inspircd_io.o message.o $cmdobjs commands.o dnsqueue.o dynamic.o users.o modules.o wildcard.o helperfuncs.o inspircd.exe
 
 inspircd.exe: inspircd.dll.a
@@ -1253,16 +1253,16 @@ inspircd.exe: inspircd.dll.a
 inspircd.dll inspircd.dll.a: inspircd.o channels.o mode.o xline.o inspstring.o dns.o base.o inspircd_io.o message.o $cmdobjs  commands.o dnsqueue.o dynamic.o users.o modules.o wildcard.o helperfuncs.o hashcomp.o socket.o socketengine.o userprocess.o cull_list.o command_parse.o aes.o
 	\$(CC) -shared -Wl,--out-implib=inspircd.dll.a -o inspircd.dll \$^
 EOM
-} else {
-	print FH <<EOM;
+	} else {
+		print FH <<EOM;
 all: aes.o command_parse.o cull_list.o userprocess.o socketengine.o socket.o hashcomp.o channels.o mode.o xline.o inspstring.o dns.o base.o inspircd_io.o message.o $cmdobjs commands.o dnsqueue.o dynamic.o users.o modules.o wildcard.o helperfuncs.o \$(MODULES) inspircd.exe
 
 inspircd.exe: inspircd.cpp ../include/base.h ../include/channels.h ../include/inspircd.h ../include/channels.h ../include/globals.h ../include/inspircd_config.h ../include/base.h
 	\$(CC) -I../include \$(FLAGS) inspircd.cpp -o inspircd.exe \$(LDLIBS) channels.o mode.o xline.o inspstring.o dns.o base.o inspircd_io.o message.o $cmdobjs commands.o dnsqueue.o dynamic.o users.o modules.o wildcard.o helperfuncs.o hashcomp.o socket.o socketengine.o userprocess.o cull_list.o command_parse.o aes.o \$(MODULES)
 EOM
-}
+	}
 
-print FH <<EOM;
+	print FH <<EOM;
 
 cull_list.o: cull_list.cpp ../include/base.h ../include/hashcomp.h ../include/globals.h ../include/inspircd_config.h ../include/users.h ../include/channels.h
 	\$(CC) -pipe -I../include \$(FLAGS) -export-dynamic -c cull_list.cpp
@@ -1337,7 +1337,7 @@ cmd_$cmd.o: cmd_$cmd.cpp ../include/base.h ../include/modules.h ../include/inspi
 	\$(CC) -pipe -I../include \$(FLAGS) -export-dynamic -c cmd_$cmd.cpp
 ITEM
 	}
-close(FH);
+	close(FH);
 }
 
 sub write_dynamic_makefile {
