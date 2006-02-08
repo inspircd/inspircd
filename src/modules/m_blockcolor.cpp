@@ -25,12 +25,12 @@ using namespace std;
 
 /* $ModDesc: Provides support for unreal-style channel mode +c */
 
-class ModuleBlockColor : public Module
+class ModuleBlockColour : public Module
 {
 	Server *Srv;
  public:
  
-	ModuleBlockColor(Server* Me)
+	ModuleBlockColour(Server* Me)
 		: Module::Module(Me)
 	{
 		Srv = Me;
@@ -70,7 +70,7 @@ class ModuleBlockColor : public Module
 						case 21:
 						case 22:
 						case 31:
-							WriteServ(user->fd,"404 %s %s :Can't send colors to channel (+c set)",user->nick, c->name);
+							WriteServ(user->fd,"404 %s %s :Can't send colours to channel (+c set)",user->nick, c->name);
 							return 1;
 						break;
 					}
@@ -99,7 +99,7 @@ class ModuleBlockColor : public Module
 		}
 	}
 
-	virtual ~ModuleBlockColor()
+	virtual ~ModuleBlockColour()
 	{
 	}
 	
@@ -110,20 +110,20 @@ class ModuleBlockColor : public Module
 };
 
 
-class ModuleBlockColorFactory : public ModuleFactory
+class ModuleBlockColourFactory : public ModuleFactory
 {
  public:
-	ModuleBlockColorFactory()
+	ModuleBlockColourFactory()
 	{
 	}
 	
-	~ModuleBlockColorFactory()
+	~ModuleBlockColourFactory()
 	{
 	}
 	
 	virtual Module * CreateModule(Server* Me)
 	{
-		return new ModuleBlockColor(Me);
+		return new ModuleBlockColour(Me);
 	}
 	
 };
@@ -131,6 +131,6 @@ class ModuleBlockColorFactory : public ModuleFactory
 
 extern "C" void * init_module( void )
 {
-	return new ModuleBlockColorFactory;
+	return new ModuleBlockColourFactory;
 }
 
