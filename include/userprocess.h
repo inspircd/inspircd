@@ -10,5 +10,6 @@ void CheckRoot();
 void OpenLog(char** argv, int argc);
 void DoBackgroundUserStuff(time_t TIME);
 void ProcessUser(userrec* cu);
+void DoSocketTimeouts(time_t TIME);
 
 #endif

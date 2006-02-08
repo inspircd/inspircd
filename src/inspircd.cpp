@@ -646,6 +646,13 @@ int InspIRCd::Run()
 			DoBackgroundUserStuff(TIME);
 		}
 
+		/* Process timeouts on module sockets each time around
+		 * the loop. There shouldnt be many module sockets, at
+		 * most, 20 or so, so this won't be much of a performance
+		 * hit at all.
+		 */
+		DoSocketTimeouts(TIME);
+
 		/* Call the socket engine to wait on the active
 		 * file descriptors. The socket engine has everything's
 		 * descriptors in its list... dns, modules, users,

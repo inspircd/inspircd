@@ -259,16 +259,10 @@ void ProcessUser(userrec* cu)
         }
 }
 
-/**
- * This function is called once a second from the mainloop.
- * It is intended to do background checking on all the user structs, e.g.
- * stuff like ping checks, registration timeouts, etc. This function is
- * also responsible for checking if InspSocket derived classes are timed out.
- */
-void DoBackgroundUserStuff(time_t TIME)
+void DoSocketTimeouts(time_t TIME)
 {
         unsigned int numsockets = module_sockets.size();
-	SocketEngine* SE = ServerInstance->SE;
+        SocketEngine* SE = ServerInstance->SE;
         for (std::vector<InspSocket*>::iterator a = module_sockets.begin(); a < module_sockets.end(); a++)
         {
                 InspSocket* s = (InspSocket*)*a;
@@ -283,6 +277,16 @@ void DoBackgroundUserStuff(time_t TIME)
                 }
                 if (module_sockets.size() != numsockets) break;
         }
+}
+
+/**
+ * This function is called once a second from the mainloop.
+ * It is intended to do background checking on all the user structs, e.g.
+ * stuff like ping checks, registration timeouts, etc. This function is
+ * also responsible for checking if InspSocket derived classes are timed out.
+ */
+void DoBackgroundUserStuff(time_t TIME)
+{
         CullList* GlobalGoners = new CullList();
         for (std::vector<userrec*>::iterator count2 = local_users.begin(); count2 != local_users.end(); count2++)
         {
