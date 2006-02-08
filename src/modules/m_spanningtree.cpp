@@ -1576,7 +1576,6 @@ class TreeSocket : public InspSocket
 			break;
 			case 'K':
 				propogate = add_kline(atoi(params[4].c_str()), params[2].c_str(), params[5].c_str(), params[1].c_str());
-				kline_set_creation_time((char*)params[1].c_str(), atoi(params[3].c_str()));
 			break;
 			default:
 				/* Just in case... */
