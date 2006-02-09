@@ -214,7 +214,7 @@ void ChangeName(userrec* user, const char* gecos)
 			return;
 		FOREACH_MOD(I_OnChangeName,OnChangeName(user,gecos));
 	}
-	strlcpy(user->fullname,gecos,MAXBUF);
+	strlcpy(user->fullname,gecos,MAXGECOS+1);
 }
 
 void ChangeDisplayedHost(userrec* user, const char* host)
