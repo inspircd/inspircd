@@ -148,6 +148,11 @@ bool ServerConfig::CheckOnce(char* tag, bool bail, userrec* user)
 
 void ServerConfig::Read(bool bail, userrec* user)
 {
+	/** Yes yes, i know, this function is craq worthy of
+	 * sirv. Its a mess, and some day i will tidy it.
+	 * ...But that day will not be today. or probaby not
+	 * tomorrow even, because it works fine.
+	 */
         char dbg[MAXBUF],pauseval[MAXBUF],Value[MAXBUF],timeout[MAXBUF],NB[MAXBUF],flood[MAXBUF],MW[MAXBUF],MCON[MAXBUF],MT[MAXBUF];
         char AH[MAXBUF],AP[MAXBUF],AF[MAXBUF],DNT[MAXBUF],pfreq[MAXBUF],thold[MAXBUF],sqmax[MAXBUF],rqmax[MAXBUF],SLIMT[MAXBUF];
 	char localmax[MAXBUF],globalmax[MAXBUF],HS[MAXBUF];

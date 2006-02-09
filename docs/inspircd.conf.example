@@ -160,12 +160,14 @@
 #                                                                     #
 #   You should also include a flood="x" line which indicates          #
 #   the number of lines a user may place into their buffer at once    #
-#   before they are disconnected for excess flood. The default is to  #
-#   DISABLE this feature. A recommended value is 10. A counter is     #
-#   maintained for each user which is reset every 'threshold' seconds #
-#   and specifying this threshold value with threshold="X" indicates  #
-#   how often the counter is reset. For example, with flood="5" and   #
-#   threshold="8", the user may not send more than 5 lines in 8 secs. #
+#   before they are disconnected for excess flood. This feature can   #
+#   not be disabled, however it can be set to exremely high values,   #
+#   rendering it effectively disabled. A recommended value is 10.     #
+#   A counter is maintained for each user which is reset every        #
+#   'threshold' seconds and specifying this threshold value with      #
+#   threshold="X" indicates how often the counter is reset. For       #
+#   example, with flood="5" and threshold="8", the user may not send  #
+#   more than 5 lines in 8 secs.                                      #
 #                                                                     #
 #   You may optionally specify the sendq size and ping frequency of   #
 #   each connect:allow line using the pingfreq="X" and sendq="X"      #
