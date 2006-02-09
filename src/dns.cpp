@@ -833,7 +833,7 @@ void* dns_task(void* arg)
         DNS dns2;
         std::string host;
         std::string ip;
-        if (dns1.ReverseLookup((char*)inet_ntoa(dest->ip4)))
+        if (dns1.ReverseLookup((char*)inet_ntoa(u->ip4)))
         {
                 while (!dns1.HasResult())
                 {
@@ -849,7 +849,7 @@ void* dns_task(void* arg)
                                         usleep(100);
                                 }
                                 ip = dns2.GetResultIP();
-                                if (ip == std::string((char*)inet_ntoa(dest->ip4)))
+                                if (ip == std::string((char*)inet_ntoa(u->ip4)))
                                 {
                                         if (host.length() < 160)
                                         {
