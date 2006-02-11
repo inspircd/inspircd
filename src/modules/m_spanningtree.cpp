@@ -1673,7 +1673,14 @@ class TreeSocket : public InspSocket
 		if (IS_LOCAL(u))
 		{
 			// push the raw to the user
-			::Write(u->fd,"%s",params[1].c_str());
+			if (Srv->IsUlined(prefix))
+			{
+				::Write(u->fd,"%s",params[1].c_str());
+			}
+			else
+			{
+				log(DEBUG,"PUSH from non-ulined server dropped into the bit-bucket: %s %s %s",prefix.c_str(),params[0].c_str(),params[1].c_str());
+			}
 		}
 		else
 		{
