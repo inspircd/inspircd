@@ -1707,7 +1707,7 @@ class TreeSocket : public InspSocket
 					snprintf(curtime,256,"%lu",(unsigned long)time(NULL));
 					params.push_back(curtime);
 					params[0] = prefix;
-					DoOneToOne(Srv->GetServerName(),"TIME",params,params[0];
+					DoOneToOne(Srv->GetServerName(),"TIME",params,params[0]);
 				}
 			}
 			else
