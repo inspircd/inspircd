@@ -623,9 +623,9 @@ if ($config{USE_GNUTLS} eq "y") {
 	close(TMP);
 	if ($failed) {
 		print "Symlinking src/modules/m_ssl_gnutls.cpp from extra/\n";
-		system("cd src/modules");
+		chdir("src/modules");
 		system("ln -s extra/m_ssl_gnutls.cpp");
-		system("cd ../..");
+		chdir("../..");
 	}
 	getmodules();
 	$failed = 0;
@@ -657,9 +657,9 @@ if ($config{USE_GNUTLS} eq "y") {
 	close(TMP);
 	if ($failed) {
 		print "Symlinking src/modules/m_ssl_openssl.cpp from extra/\n";
-		system("cd src/modules");
+		chdir("src/modules");
 		system("ln -s extra/m_ssl_openssl.cpp");
-		system("cd ../..");
+		chdir("../..");
 	}
 	getmodules();
 	$failed = 0;
