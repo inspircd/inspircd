@@ -1698,7 +1698,7 @@ class TreeSocket : public InspSocket
 		if (params.size() == 2)
 		{
 			// someone querying our time?
-			if (Srv->MatchText(Srv->GetServerName(),params[0]))
+			if (Srv->GetServerName() == params[0])
 			{
 				userrec* u = Srv->FindNick(params[1]);
 				if (u)
@@ -1707,7 +1707,7 @@ class TreeSocket : public InspSocket
 					snprintf(curtime,256,"%lu",(unsigned long)time(NULL));
 					params.push_back(curtime);
 					params[0] = prefix;
-					DoOneToOne(Srv->GetServerName(),"TIME",params,u->server);
+					DoOneToOne(Srv->GetServerName(),"TIME",params,params[0];
 				}
 			}
 			else
@@ -1715,7 +1715,7 @@ class TreeSocket : public InspSocket
 				// not us, pass it on
 				userrec* u = Srv->FindNick(params[1]);
 				if (u)
-					DoOneToOne(prefix,"TIME",params,u->server);
+					DoOneToOne(prefix,"TIME",params,params[0]);
 			}
 		}
 		else if (params.size() == 3)
