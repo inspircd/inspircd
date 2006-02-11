@@ -1717,14 +1717,14 @@ class TreeSocket : public InspSocket
 			userrec* u = Srv->FindNick(params[1]);
 			if ((u) && (IS_LOCAL(u)))
 			{
-			        time_t rawtime = atol(params[2]);
+			        time_t rawtime = atol(params[2].c_str());
 			        struct tm * timeinfo;
 			        timeinfo = localtime(&rawtime);
-			        WriteServ(u->fd,"391 %s %s :%s",u->nick,source,asctime(timeinfo));
+			        WriteServ(u->fd,"391 %s %s :%s",u->nick,prefix.c_str(),asctime(timeinfo));
 			}
 			else
 			{
-				DoOneToOne(source,"TIME",params,u->server);
+				DoOneToOne(prefix,"TIME",params,u->server);
 			}
 		}
 		return true;
