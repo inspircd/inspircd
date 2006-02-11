@@ -335,6 +335,12 @@ void ServerConfig::Read(bool bail, userrec* user)
                         {
                                 c.threshold = atoi(thold);
                         }
+			else
+			{
+				c.threshold = 1;
+				c.flood = 999;
+				log(DEFAULT,"Warning: Connect allow line '%s' has no flood/threshold settings. Setting this tag to 999 lines in 1 second.",c.host.c_str());
+			}
                         if (atoi(sqmax)>0)
                         {
                                 c.sendqmax = atoi(sqmax);
