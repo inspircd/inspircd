@@ -1664,6 +1664,24 @@ class TreeSocket : public InspSocket
 		}
 		return true;
 	}
+
+	bool Push(std::string prefix, std::deque<std::string> &params)
+	{
+		if (params.size() < 2)
+			return true;
+		userrec* u = Srv->FindNick(params[0]);
+		if (IS_LOCAL(u))
+		{
+			// push the raw to the user
+			::Write(u->fd,"%s",params[1].c_str());
+		}
+		else
+		{
+			// continue the raw onwards
+			DoOneToOne(prefix,"PUSH",params,u->server);
+		}
+		return true;
+	}
 	
 	bool LocalPing(std::string prefix, std::deque<std::string> &params)
 	{
@@ -2113,6 +2131,10 @@ class TreeSocket : public InspSocket
 				else if (command == "IDLE")
 				{
 					return this->Whois(prefix,params);
+				}
+				else if (command == "PUSH")
+				{
+					return this->Push(prefix,params);
 				}
 				else if (command == "SVSJOIN")
 				{
