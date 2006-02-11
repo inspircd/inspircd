@@ -2801,6 +2801,26 @@ class ModuleSpanningTree : public Module
 		return 1;
 	}
 
+	int HandleTime(char** parameters, int pcnt, userrec* user)
+	{
+		if ((user->fd > -1) && (pcnt))
+		{
+			TreeServer* found = FindServerMask(parameters[0]);
+			if (found)
+			{
+				std::deque<std::string> params;
+				params.push_back(found->GetName());
+				params.push_back(user->nick);
+				DoOneToOne(Srv->GetServerName(),"TIME",params,found->GetName());
+			}
+			else
+			{
+				WriteServ(user->fd,"402 %s %s :No such server",user->nick,parameters[0]);
+			}
+		}
+		return 1;
+	}
+
 	int HandleRemoteWhois(char** parameters, int pcnt, userrec* user)
 	{
 		if ((user->fd > -1) && (pcnt > 1))
@@ -2982,6 +3002,10 @@ class ModuleSpanningTree : public Module
 		{
 			this->HandleMap(parameters,pcnt,user);
 			return 1;
+		}
+		else if ((command == "TIME") && (pcnt > 0))
+		{
+			return this->HandleTime(parameters,pcnt,user);
 		}
 		else if (command == "LUSERS")
 		{
