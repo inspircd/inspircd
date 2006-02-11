@@ -525,7 +525,10 @@ class ModuleSSLGnuTLS : public Module
 			
 			// This will do for setting the ssl flag...it could be done earlier if it's needed. But this seems neater.
 			userrec* extendme = Srv->FindDescriptor(session->fd);
-			extendme->Extend("ssl", "ON");
+			if (extendme)
+			{
+				extendme->Extend("ssl", "ON");
+			}
 
 			// Change the seesion state
 			session->status = ISSL_HANDSHAKEN;

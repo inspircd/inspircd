@@ -599,7 +599,11 @@ class ModuleSSLOpenSSL : public Module
 			log(DEBUG, "m_ssl_openssl.so: Handshake completed");
 			
 			// This will do for setting the ssl flag...it could be done earlier if it's needed. But this seems neater.
-			Srv->FindDescriptor(session->fd)->Extend("ssl", "ON");
+			userrec* u = Srv->FindDescriptor(session->fd);
+			if (u)
+			{
+				u->Extend("ssl", "ON");
+			}
 			
 			session->status = ISSL_OPEN;
 			
