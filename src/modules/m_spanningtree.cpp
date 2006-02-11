@@ -1415,9 +1415,15 @@ class TreeSocket : public InspSocket
 		userrec* u = Srv->FindNick(params[0]);
 		if (u)
 		{
-			Srv->ChangeUserNick(u,params[1]);
-			u->age = atoi(params[2].c_str());
 			DoOneToAllButSender(prefix,"SVSNICK",params,prefix);
+			if (IS_LOCAL(u))
+			{
+				std::deque<std::string> par;
+				par.push_back(params[1]);
+				DoOneToMany(u->nick,"NICK",par);
+				Srv->ChangeUserNick(u,params[1]);
+				u->age = atoi(params[2].c_str());
+			}
 		}
 		return true;
 	}
