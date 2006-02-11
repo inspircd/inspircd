@@ -1690,6 +1690,45 @@ class TreeSocket : public InspSocket
 		}
 		return true;
 	}
+
+	bool Time(std::string prefix, std::deque<std::string> &params)
+	{
+		// :source.server TIME remote.server sendernick
+		// :remote.server TIME source.server sendernick TS
+		if (params.size() == 2)
+		{
+			// someone querying our time?
+			if (Srv->MatchText(Srv->GetServerName(),params[0]))
+			{
+				userrec* u = Srv->FindNick(params[1]);
+				if (u)
+				{
+					char curtime[256];
+					snprintf(curtime,256,"%lu",(unsigned long)time(NULL));
+					params.push_back(curtime);
+					params[0] = prefix;
+					DoOneToOne(Srv->GetServerName(),"TIME",params,u->server);
+				}
+			}
+		}
+		else if (params.size() == 3)
+		{
+			// a response to a previous TIME
+			userrec* u = Srv->FindNick(params[1]);
+			if ((u) && (IS_LOCAL(u)))
+			{
+			        time_t rawtime = atol(params[2]);
+			        struct tm * timeinfo;
+			        timeinfo = localtime(&rawtime);
+			        WriteServ(u->fd,"391 %s %s :%s",u->nick,source,asctime(timeinfo));
+			}
+			else
+			{
+				DoOneToOne(source,"TIME",params,u->server);
+			}
+		}
+		return true;
+	}
 	
 	bool LocalPing(std::string prefix, std::deque<std::string> &params)
 	{
@@ -2143,6 +2182,10 @@ class TreeSocket : public InspSocket
 				else if (command == "PUSH")
 				{
 					return this->Push(prefix,params);
+				}
+				else if (command == "TIME")
+				{
+					return this->Time(prefix,params);
 				}
 				else if (command == "SVSJOIN")
 				{
