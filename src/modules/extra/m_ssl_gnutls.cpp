@@ -527,7 +527,8 @@ class ModuleSSLGnuTLS : public Module
 			userrec* extendme = Srv->FindDescriptor(session->fd);
 			if (extendme)
 			{
-				extendme->Extend("ssl", "ON");
+				if (!extendme->GetExt("ssl"))
+					extendme->Extend("ssl", "ON");
 			}
 
 			// Change the seesion state

@@ -602,7 +602,8 @@ class ModuleSSLOpenSSL : public Module
 			userrec* u = Srv->FindDescriptor(session->fd);
 			if (u)
 			{
-				u->Extend("ssl", "ON");
+				if (!u->GetExt("ssl"))
+					u->Extend("ssl", "ON");
 			}
 			
 			session->status = ISSL_OPEN;
