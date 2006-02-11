@@ -1710,6 +1710,13 @@ class TreeSocket : public InspSocket
 					DoOneToOne(Srv->GetServerName(),"TIME",params,u->server);
 				}
 			}
+			else
+			{
+				// not us, pass it on
+				userrec* u = Srv->FindNick(params[1]);
+				if (u)
+					DoOneToOne(prefix,"TIME",params,u->server);
+			}
 		}
 		else if (params.size() == 3)
 		{
@@ -1724,7 +1731,8 @@ class TreeSocket : public InspSocket
 			}
 			else
 			{
-				DoOneToOne(prefix,"TIME",params,u->server);
+				if (u)
+					DoOneToOne(prefix,"TIME",params,u->server);
 			}
 		}
 		return true;
