@@ -39,7 +39,7 @@ int wildcmp(char *wild, char *string)
 	char *cp, *mp;
 	while ((*string) && (*wild != '*'))
 	{
-		if ((*wild != *string) && (*wild != '?'))
+		if ((lowermap[(unsigned)*wild] != lowermap[(unsigned)*string]) && (*wild != '?'))
 		{
 			return 0;
 		}
