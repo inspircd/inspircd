@@ -1058,6 +1058,11 @@ class TreeSocket : public InspSocket
 	{
 		if (params.size() < 8)
 			return true;
+		if (params.size() > 8)
+		{
+			this->WriteLine(":"+Srv->GetServerName()+" KILL "+params[1]+" :Invalid client introduction ("+params[1]+"?)");
+			return true;
+		}
 		// NICK age nick host dhost ident +modes ip :gecos
 		//       0   1    2    3      4     5    6   7
 		time_t age = atoi(params[0].c_str());
