@@ -1679,12 +1679,13 @@ class TreeSocket : public InspSocket
 			}
 			else
 			{
-				log(DEBUG,"PUSH from non-ulined server dropped into the bit-bucket: %s %s %s",prefix.c_str(),params[0].c_str(),params[1].c_str());
+				log(DEBUG,"PUSH from non-ulined server dropped into the bit-bucket:  :%s PUSH %s :%s",prefix.c_str(),params[0].c_str(),params[1].c_str());
 			}
 		}
 		else
 		{
 			// continue the raw onwards
+			params[1] = ":" + params[1];
 			DoOneToOne(prefix,"PUSH",params,u->server);
 		}
 		return true;
