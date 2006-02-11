@@ -69,7 +69,12 @@ void cmd_time::Handle (char **parameters, int pcnt, userrec *user)
 
 	time(&rawtime);
 	timeinfo = localtime(&rawtime);
-	WriteServ(user->fd,"391 %s %s :%s",user->nick,Config->ServerName,asctime(timeinfo));
+
+        char tms[26];
+        snprintf(tms,26,"%s",asctime(timeinfo));
+        tms[24] = 0;
+
+	WriteServ(user->fd,"391 %s %s :%s",user->nick,Config->ServerName,tms);
   
 }
 

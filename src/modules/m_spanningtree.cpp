@@ -1727,7 +1727,10 @@ class TreeSocket : public InspSocket
 			        time_t rawtime = atol(params[2].c_str());
 			        struct tm * timeinfo;
 			        timeinfo = localtime(&rawtime);
-			        WriteServ(u->fd,"391 %s %s :%s",u->nick,prefix.c_str(),asctime(timeinfo));
+				char tms[26];
+				snprintf(tms,26,"%s",asctime(timeinfo));
+				tms[24] = 0;
+			        WriteServ(u->fd,"391 %s %s :%s",u->nick,prefix.c_str(),tms);
 			}
 			else
 			{
@@ -2808,6 +2811,10 @@ class ModuleSpanningTree : public Module
 			TreeServer* found = FindServerMask(parameters[0]);
 			if (found)
 			{
+				// we dont' override for local server
+				if (found == TreeRoot)
+					return 0;
+				
 				std::deque<std::string> params;
 				params.push_back(found->GetName());
 				params.push_back(user->nick);
