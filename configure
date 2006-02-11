@@ -618,9 +618,15 @@ print "\033[0mGnuTLS Support:\033[1;32m\t\t\t$config{USE_GNUTLS}\033[0m\n";
 print "\033[0mOpenSSL Support:\033[1;32m\t\t$config{USE_OPENSSL}\033[0m\n\n";
 
 if ($config{USE_GNUTLS} eq "y") {
-	system("cd src/modules");
-	system("ln -s extra/m_ssl_gnutls.cpp");
-	system("cd ../..");
+	$failed = 0;
+	open(TMP, "<src/modules/m_ssl_gnutls.cpp") or $failed = 1;
+	close(TMP);
+	if ($failed) {
+		print "Symlinking src/modules/m_ssl_gnutls.cpp from extra/\n";
+		system("cd src/modules");
+		system("ln -s extra/m_ssl_gnutls.cpp");
+		system("cd ../..");
+	}
 	getmodules();
 	$failed = 0;
 	open(TMP, "<$config{CONFIG_DIR}/key.pem") or $failed = 1;
@@ -646,9 +652,15 @@ if ($config{USE_GNUTLS} eq "y") {
 		print "SSL Certificates found, skipping.\n\n"
 	}	
 } elsif ($config{USE_OPENSSL} eq "y") {
-	system("cd src/modules");
-	system("ln -s extra/m_ssl_openssl.cpp");
-	system("cd ../..");
+	$failed = 0;
+	open(TMP, "<src/modules/m_ssl_openssl.cpp") or $failed = 1;
+	close(TMP);
+	if ($failed) {
+		print "Symlinking src/modules/m_ssl_openssl.cpp from extra/\n";
+		system("cd src/modules");
+		system("ln -s extra/m_ssl_openssl.cpp");
+		system("cd ../..");
+	}
 	getmodules();
 	$failed = 0;
 	open(TMP, "<$config{CONFIG_DIR}/key.pem") or $failed = 1;
