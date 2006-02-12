@@ -61,10 +61,9 @@ bininst:
 	@echo "*************************************"
 
 config:
-	@cp conf/inspircd.motd $(CONPATH)/inspircd.motd.example
-	@cp conf/inspircd.quotes $(CONPATH)/inspircd.quotes.example
-	@cp conf/inspircd.rules $(CONPATH)/inspircd.rules.example
-	@cp docs/inspircd.conf.example $(CONPATH)
+	@-cp conf/inspircd.quotes.example $(CONPATH)
+	@-cp conf/inspircd.rules.example $(CONPATH)
+	@-cp docs/inspircd.conf.example $(CONPATH)
 clean:
 	@echo Cleaning...
 	@rm -rvf src/*.so src/*.o src/inspircd src/modules/*.so src/modules/*.o *~ src/*~ src/modules/*~ src/modules/extra/*~
