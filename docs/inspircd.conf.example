@@ -191,7 +191,7 @@
 #   that of the user... Just to clear up any confusion or complaints  #
 #   that these are backwards :p                                       #
 #                                                                     #
-#   The maxlocal and maxglobal values can be used to enforce local    #
+#   The localmax and globalmax values can be used to enforce local    #
 #   and global session limits on connections. The session limits are  #
 #   counted against all users, but applied only to users within the   #
 #   class. For example, if you had a class 'A' which has a session    #
@@ -203,7 +203,7 @@
 #                                                                     #
 
 <connect allow="196.12.*"  password="secret">
-<connect allow="*" timeout="60" flood="10" threshold="60" pingfreq="120" sendq="262144" recvq="4096" maxlocal="3" maxglobal="3">
+<connect allow="*" timeout="60" flood="10" threshold="60" pingfreq="120" sendq="262144" recvq="4096" localmax="3" globalmax="3">
 
 <connect deny="69.254.*">
 
