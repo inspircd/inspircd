@@ -1129,26 +1129,67 @@ class TreeSocket : public InspSocket
 	{
 		log(DEBUG,"Sending FJOINs to other server for %s",c->name);
 		char list[MAXBUF];
+		std::string individual_halfops = ":"+Srv->GetServerName()+" FMODE "+c->name;
 		snprintf(list,MAXBUF,":%s FJOIN %s %lu",Srv->GetServerName().c_str(),c->name,(unsigned long)c->age);
 		std::map<char*,char*> *ulist = c->GetUsers();
+		std::vector<userrec*> specific_halfop;
+		std::vector<userrec*> specific_voice;
 		for (std::map<char*,char*>::iterator i = ulist->begin(); i != ulist->end(); i++)
 		{
 			char* o = i->second;
 			userrec* otheruser = (userrec*)o;
 			strlcat(list," ",MAXBUF);
-			strlcat(list,cmode(otheruser,c),MAXBUF);
+			int x = cflags(otheruser,c);
+			if ((x & UCMODE_HOP) && (x & UCMODE_OP))
+			{
+				specific_halfop.push_back(otheruser);
+			}
+			if (((x & UCMODE_HOP) || (x & UCMODE_OP)) && (x & UCMODE_VOICE))
+			{
+				specific_voice.push_back(otheruser);
+			}
+			char* n = "";
+			if (x & UCMODE_OP)
+			{
+				n = "@";
+			}
+			else if (x & UCMODE_HOP)
+			{
+				n = "%";
+			}
+			else if (x & UCMODE_VOICE)
+			{
+				n = "+";
+			}
+			strlcat(list,n,MAXBUF);
 			strlcat(list,otheruser->nick,MAXBUF);
 			if (strlen(list)>(480-NICKMAX))
 			{
 				log(DEBUG,"FJOIN line wrapped");
 				this->WriteLine(list);
 				snprintf(list,MAXBUF,":%s FJOIN %s %lu",Srv->GetServerName().c_str(),c->name,(unsigned long)c->age);
+				for (unsigned int y = 0; y < specific_voice.size(); y++)
+				{
+					this->WriteLine(":"+Srv->GetServerName()+" FMODE "+c->name+" +v "+specific_voice[y]->nick);
+				}
+				for (unsigned int y = 0; y < specific_halfop.size(); y++)
+				{
+					this->WriteLine(":"+Srv->GetServerName()+" FMODE "+c->name+" +h "+specific_halfop[y]->nick);
+				}
 			}
 		}
 		if (list[strlen(list)-1] != ':')
 		{
 			log(DEBUG,"Final FJOIN line");
 			this->WriteLine(list);
+			for (unsigned int y = 0; y < specific_voice.size(); y++)
+			{
+				this->WriteLine(":"+Srv->GetServerName()+" FMODE "+c->name+" +v "+specific_voice[y]->nick);
+			}
+			for (unsigned int y = 0; y < specific_halfop.size(); y++)
+			{
+				this->WriteLine(":"+Srv->GetServerName()+" FMODE "+c->name+" +h "+specific_halfop[y]->nick);
+			}
 		}
 	}
 

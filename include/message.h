@@ -46,5 +46,6 @@ int has_channel(userrec *u, chanrec *c);
 void TidyBan(char *ban);
 std::string chlist(userrec *user, userrec* source);
 void send_network_quit(const char* nick, const char* reason);
+int cflags(userrec *user, chanrec *chan);
 
 #endif

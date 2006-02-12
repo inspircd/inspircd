@@ -325,6 +325,24 @@ char* cmode(userrec *user, chanrec *chan)
 	return "";
 }
 
+int cflags(userrec *user, chanrec *chan)
+{
+	if ((!chan) || (!user))
+		return 0;
+
+	for (unsigned int i = 0; i < user->chans.size(); i++)
+	{
+		if (user->chans[i].channel)
+		{
+			if ((!strcasecmp(user->chans[i].channel->name,chan->name)) && (chan != NULL))
+			{
+				return user->chans[i].uc_modes;
+			}
+		}
+	}
+	return 0;
+}
+
 /* returns the status value for a given user on a channel, e.g. STATUS_OP for
  * op, STATUS_VOICE for voice etc. If the user has several modes set, the
  * highest mode the user has must be returned. */
