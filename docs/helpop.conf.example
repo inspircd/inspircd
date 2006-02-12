@@ -1,6 +1,11 @@
 # Sample configuration file for m_helpop.so
 # You can either copy this into your conf folder and set up the module to use it,
 # or you can customise the responses for your network and/or add more.
+#
+# WARNING!!! Do not <include> this file into your main conf, use <helpop file> tag
+# instead! There are tags in this file which will conflict with the main config,
+# like <admin> and <server>, and if you include it directly, inspircd will complain!
+#
 
 <start line1="     InspIRCd help system"
 	line2="     --------------------"
