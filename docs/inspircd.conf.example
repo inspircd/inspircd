@@ -383,8 +383,8 @@
 #   files.                                                            #
 #                                                                     #
 
-<files  motd="/home/cc/inspircd/conf/inspire.motd"
-        rules="/home/cc/inspircd/conf/inspire.rules">
+<files  motd="/home/cc/inspircd/conf/inspircd.motd"
+        rules="/home/cc/inspircd/conf/inspircd.rules">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-# DNS SERVER -#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 #                                                                     #
