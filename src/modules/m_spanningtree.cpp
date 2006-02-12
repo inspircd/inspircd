@@ -1641,6 +1641,10 @@ class TreeSocket : public InspSocket
 			params[5] = ":" + params[5];
 			DoOneToAllButSender(prefix,"ADDLINE",params,prefix);
 		}
+		if (!this->bursting)
+		{
+			apply_lines(APPLY_ZLINES|APPLY_GLINES|APPLY_QLINES);
+		}
 		return true;
 	}
 
@@ -2269,6 +2273,7 @@ class TreeSocket : public InspSocket
 				else if (command == "ENDBURST")
 				{
 					this->bursting = false;
+					apply_lines(APPLY_ZLINES|APPLY_GLINES|APPLY_QLINES);
 					return true;
 				}
 				else
