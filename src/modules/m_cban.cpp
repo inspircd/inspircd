@@ -117,7 +117,7 @@ class cmd_cban : public command_t
 			}
 			else
 			{
-				WriteServ(user->fd, "403 %s %s :No such channel", user->nick, parameters[0]);
+				WriteServ(user->fd, "403 %s %s :Invalid channel name", user->nick, parameters[0]);
 			}
 		}
 	}
