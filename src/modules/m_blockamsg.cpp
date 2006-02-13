@@ -14,6 +14,8 @@
  *
  * ---------------------------------------------------
  */
+ 
+/* <3's to Lauren for original info on mIRC's weird behaviour */
 
 #include <string>
 #include <time.h>
