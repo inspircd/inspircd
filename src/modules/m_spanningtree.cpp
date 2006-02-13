@@ -2256,10 +2256,18 @@ class TreeSocket : public InspSocket
 				}
 				else if (command == "PING")
 				{
+					if (prefix == "")
+					{
+						prefix = this->GetName();
+					}
 					return this->LocalPing(prefix,params);
 				}
 				else if (command == "PONG")
 				{
+					if (prefix == "")
+					{
+						prefix = this->GetName();
+					}
 					return this->LocalPong(prefix,params);
 				}
 				else if (command == "VERSION")
