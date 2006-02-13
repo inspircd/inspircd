@@ -1533,11 +1533,35 @@ class TreeSocket : public InspSocket
 	{
 		if (params.size() < 1)
 			return true;
-		TreeServer* ServerSource = FindServer(prefix);
-		if (ServerSource)
+		if (params.size() == 1)
 		{
-			ServerSource->SetPingFlag();
+			TreeServer* ServerSource = FindServer(prefix);
+			if (ServerSource)
+			{
+				ServerSource->SetPingFlag();
+			}
 		}
+                else
+                {       
+                        std::string forwardto = params[1];
+                        if (forwardto == Srv->GetServerName())
+                        {
+                                // this is a PONG for us
+				// if the prefix is a user, check theyre local, and if they are,
+				// dump the PONG reply back to their fd. If its a server, do nowt.
+				// Services might want to send these s->s, but we dont need to yet.
+				userrec* u = Srv->FindNick(prefix);
+				if (u)
+				{
+					WriteServ(u->fd,"PONG %s %s",params[0].c_str(),params[1].c_str());
+				}
+                        }
+                        else
+                        {
+                                // not for us, pass it on :)
+                                DoOneToOne(prefix,"PONG",params,forwardto);
+                        }
+                }
 		return true;
 	}
 	
@@ -1801,9 +1825,29 @@ class TreeSocket : public InspSocket
 	{
 		if (params.size() < 1)
 			return true;
-		std::string stufftobounce = params[0];
-		this->WriteLine(":"+Srv->GetServerName()+" PONG "+stufftobounce);
-		return true;
+		if (params.size() == 1)
+		{
+			std::string stufftobounce = params[0];
+			this->WriteLine(":"+Srv->GetServerName()+" PONG "+stufftobounce);
+			return true;
+		}
+		else
+		{
+			std::string forwardto = params[1];
+			if (forwardto == Srv->GetServerName())
+			{
+				// this is a ping for us, send back PONG to the requesting server
+				params[1] = params[0];
+				params[0] = forwardto;
+				DoOneToOne(prefix,"PONG",params,forwardto);
+			}
+			else
+			{
+				// not for us, pass it on :)
+				DoOneToOne(prefix,"PING",params,forwardto);
+			}
+			return true;
+		}
 	}
 
 	bool RemoteServer(std::string prefix, std::deque<std::string> &params)
