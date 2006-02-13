@@ -2884,7 +2884,7 @@ class ModuleSpanningTree : public Module
 			WriteServ(user->fd,"006 %s :%s",user->nick,&matrix[t][0]);
 		}
 		float avg_users = totusers / totservers;
-		WriteServ(user->fd,"270 %s :%.0f server%s and %.0f user%s, average %5.2f%% users per server",user->nick,totservers,(totservers > 1 ? "s" : ""),totusers,(totusers > 1 ? "s" : ""),avg_users);
+		WriteServ(user->fd,"270 %s :%.0f server%s and %.0f user%s, average %.2f users per server",user->nick,totservers,(totservers > 1 ? "s" : ""),totusers,(totusers > 1 ? "s" : ""),avg_users);
 	        WriteServ(user->fd,"007 %s :End of /MAP",user->nick);
 		return;
 	}
