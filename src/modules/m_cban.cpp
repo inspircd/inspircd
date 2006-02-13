@@ -49,7 +49,6 @@ std::string EncodeCBan(const CBan &ban);
 CBan DecodeCBan(const std::string &data);
 bool CBanComp(const CBan &ban1, const CBan &ban2);
 void ExpireBans();
-bool IsValidChan(const char* cname);
 
 extern time_t TIME;
 typedef std::vector<CBan> cbanlist;
@@ -93,7 +92,7 @@ class cmd_cban : public command_t
 		else if (pcnt >= 2)
 		{
 			/* full form to add a CBAN */
-			if(IsValidChan(parameters[0]))
+			if (IsValidChannelName(parameters[0]))
 			{
 				// parameters[0] = #channel
 				// parameters[1] = 1h3m2s
@@ -238,21 +237,6 @@ void ExpireBans()
 		WriteOpers("*** %li second CBAN on %s (%s) set %u seconds ago expired", iter->length, iter->chname.c_str(), iter->reason.c_str(), TIME - iter->set_on);
 		cbans.erase(iter);
 	}
-}
-
-bool IsValidChan(const char* cname)
-{
-	if(!cname)
-		return false;
-		
-	if(cname[0] != '#')
-		return false;
-		
-	for(unsigned int i = 0; i < strlen(cname); i++)
-		if((cname[i] == ' ') || (cname[i] == '\7') || (cname[i] == ','))
-			return false;
-			
-	return true;
 }
 
 class ModuleCBanFactory : public ModuleFactory
