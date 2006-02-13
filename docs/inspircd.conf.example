@@ -643,6 +643,23 @@
 #<module name="m_banexception.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Block amsg module: Attempt to block all usage of /amsg and /ame
+#<module name="m_blockamsg.so">
+#
+#-#-#-#-#-#-#-#-#-#-#-  BLOCKAMSG CONFIGURATION  -#-#-#-#-#-#-#-#-#-#-#
+#                                                                     #
+# If you have the m_blockamsg.so module loaded, you can configure it  #
+# with the <blockamsg> tag:                                           #
+#                                                                     #
+# delay          -   How many seconds between two messages to force   #
+#                    them to be recognised as unrelated.              #
+# action         -   Any of 'notice', 'noticeopers', 'silent', 'kill' #
+#                    or 'killopers'. Define how to take action when   #
+#                    a user uses /amsg or /ame.                       #
+#
+#<blockamsg delay="3" action="killopers">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Block colour module: Blocking colour-coded messages with cmode +c
 #<module name="m_blockcolor.so">
 
