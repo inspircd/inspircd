@@ -1839,7 +1839,7 @@ class TreeSocket : public InspSocket
 				// this is a ping for us, send back PONG to the requesting server
 				params[1] = params[0];
 				params[0] = forwardto;
-				DoOneToOne(prefix,"PONG",params,params[1]);
+				DoOneToOne(forwardto,"PONG",params,params[1]);
 			}
 			else
 			{
