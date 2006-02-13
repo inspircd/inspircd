@@ -2770,7 +2770,7 @@ class ModuleSpanningTree : public Module
 
 	// WARNING: NOT THREAD SAFE - DONT GET ANY SMART IDEAS.
 
-	void ShowMap(TreeServer* Current, userrec* user, int depth, char matrix[128][80])
+	void ShowMap(TreeServer* Current, userrec* user, int depth, char matrix[128][80], float &totusers, float &totservers)
 	{
 		if (line < 128)
 		{
@@ -2803,6 +2803,8 @@ class ModuleSpanningTree : public Module
 				percent = ((float)Current->GetUserCount() / (float)clientlist.size()) * 100;
 			}
 			snprintf(text, 80, "%s %s%5d [%5.2f%%]", Current->GetName().c_str(), spacer, Current->GetUserCount(), percent);
+			totusers += Current->GetUserCount();
+			totservers++;
 			strlcpy(&matrix[line][depth],text,80);
 			line++;
 			for (unsigned int q = 0; q < Current->ChildCount(); q++)
@@ -2836,6 +2838,8 @@ class ModuleSpanningTree : public Module
 		// This array represents a virtual screen which we will
 		// "scratch" draw to, as the console device of an irc
 		// client does not provide for a proper terminal.
+		float totusers = 0;
+		float totservers = 0;
 		char matrix[128][80];
 		for (unsigned int t = 0; t < 128; t++)
 		{
@@ -2843,7 +2847,7 @@ class ModuleSpanningTree : public Module
 		}
 		line = 0;
 		// The only recursive bit is called here.
-		ShowMap(TreeRoot,user,0,matrix);
+		ShowMap(TreeRoot,user,0,matrix,totusers,totservers);
 		// Process each line one by one. The algorithm has a limit of
 		// 128 servers (which is far more than a spanning tree should have
 		// anyway, so we're ok). This limit can be raised simply by making
@@ -2879,6 +2883,8 @@ class ModuleSpanningTree : public Module
 		{
 			WriteServ(user->fd,"006 %s :%s",user->nick,&matrix[t][0]);
 		}
+		float avg_users = totusers / totservers;
+		WriteServ(user->fd,"270 %s :%.0f server%s and %.0f user%s, average %5.2f%% users per server",user->nick,totservers,(totservers > 1 ? "s" : ""),totusers,(totusers > 1 ? "s" : ""),avg_users);
 	        WriteServ(user->fd,"007 %s :End of /MAP",user->nick);
 		return;
 	}
