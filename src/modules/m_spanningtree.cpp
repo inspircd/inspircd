@@ -2813,12 +2813,12 @@ class ModuleSpanningTree : public Module
 				{
 					if (*user->oper)
 					{
-						ShowMap(Current->GetChild(q),user,(FlatLinks && (!*user->oper)) ? depth : depth+2,matrix);
+						ShowMap(Current->GetChild(q),user,(FlatLinks && (!*user->oper)) ? depth : depth+2,matrix,totusers,totservers);
 					}
 				}
 				else
 				{
-					ShowMap(Current->GetChild(q),user,(FlatLinks && (!*user->oper)) ? depth : depth+2,matrix);
+					ShowMap(Current->GetChild(q),user,(FlatLinks && (!*user->oper)) ? depth : depth+2,matrix,totusers,totservers);
 				}
 			}
 		}
