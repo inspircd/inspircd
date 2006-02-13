@@ -83,7 +83,7 @@ void ShowRULES(userrec *user);
 bool AllModulesReportReady(userrec* user);
 bool DirValid(char* dirandfile);
 std::string GetFullProgDir(char** argv, int argc);
-
 int InsertMode(std::string &output, const char* modes, unsigned short section);
+bool IsValidChannelName(const char *);
 
 #endif

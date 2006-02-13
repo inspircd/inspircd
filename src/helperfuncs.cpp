@@ -1465,3 +1465,36 @@ int InsertMode(std::string &output, const char* mode, unsigned short section)
 	output.insert(pos, mode);
 	return 1;
 }
+
+bool IsValidChannelName(const char *chname)
+{
+		char *c;
+
+		/* check for no name - don't check for !*chname, as if it is empty, it won't be '#'! */
+		if (!chname || *chname != '#')
+		{
+				return false;
+		}
+
+		c = (char *)chname + 1;
+		while (*c)
+		{
+				switch (*c)
+				{
+						case ' ':
+						case ',':
+						case 7:
+								return false;
+				}
+
+				c++;
+		}
+		
+		/* too long a name - note funky pointer arithmetic here. */
+		if ((c - chname) > CHANMAX)
+		{
+				return false;
+		}
+
+		return true;
+}
