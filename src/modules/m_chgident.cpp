@@ -1,19 +1,19 @@
 #include <string>
 #include "users.h"
 #include "modules.h"
+#include "message.h"
 #include "helperfuncs.h"
 
 /* $ModDesc: Provides support for the CHGIDENT command */
 
-Server *Srv;
-
-
 class cmd_chgident : public command_t
 {
+	Server* Srv;
  public:
-	cmd_chgident() : command_t("CHGIDENT", 'o', 2)
+	cmd_chgident(Server* serv) : command_t("CHGIDENT", 'o', 2)
 	{
 		this->source = "m_chgident.so";
+		Srv = serv;
 	}
 	
 	void Handle(char **parameters, int pcnt, userrec *user)
@@ -22,11 +22,8 @@ class cmd_chgident : public command_t
 		
 		if(dest)
 		{
-			for(unsigned int x = 0; x < strlen(parameters[1]); x++)
+			if(!isident(parameters[1]))
 			{
-				if(((parameters[1][x] >= 'A') && (parameters[1][x] <= '}')) || strchr(".-0123456789", parameters[1][x]))
-					continue;
-			
 				WriteServ(user->fd, "NOTICE %s :*** Invalid characters in ident", user->nick);
 				return;
 			}
@@ -49,9 +46,8 @@ class ModuleChgIdent : public Module
 public:
 	ModuleChgIdent(Server* Me) : Module::Module(Me)
 	{
-		Srv = Me;
-		mycommand = new cmd_chgident();
-		Srv->AddCommand(mycommand);
+		mycommand = new cmd_chgident(Me);
+		Me->AddCommand(mycommand);
 	}
 	
 	virtual ~ModuleChgIdent()
