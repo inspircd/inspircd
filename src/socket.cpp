@@ -209,15 +209,17 @@ std::string InspSocket::GetIP()
 
 char* InspSocket::Read()
 {
+	if ((n < 0) || (n > MAX_DESCRIPTOR))
+		return NULL;
 	int n = recv(this->fd,this->ibuf,sizeof(this->ibuf),0);
-	if (n > 0)
+	if ((n > 0) && (n <= sizeof(this->ibuf)))
 	{
 		ibuf[n] = 0;
 		return ibuf;
 	}
 	else
 	{
-		if (n == EAGAIN)
+		if (errno == EAGAIN)
 		{
 			return "";
 		}

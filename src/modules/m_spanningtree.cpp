@@ -1414,17 +1414,11 @@ class TreeSocket : public InspSocket
 	}
 
 	/* Handle ERROR command */
-	bool Error(std::deque<std::string> params)
+	bool Error(std::deque<std::string> &params)
 	{
 		if (params.size() < 1)
 			return false;
-		std::string Errmsg = params[0];
-		std::string SName = myhost;
-		if (InboundServerName != "")
-		{
-			SName = InboundServerName;
-		}
-		Srv->SendOpers("*** ERROR from "+SName+": "+Errmsg);
+		WriteOpers("*** ERROR from %s: %s",(InboundServerName != "" ? InboundServerName.c_str() : myhost.c_str()),params[0].c_str());
 		/* we will return false to cause the socket to close.
 		 */
 		return false;
