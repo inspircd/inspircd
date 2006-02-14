@@ -46,6 +46,7 @@ InspSocket* socket_ref[MAX_DESCRIPTORS];
 InspSocket::InspSocket()
 {
 	this->state = I_DISCONNECTED;
+	this->fd = -1;
 }
 
 InspSocket::InspSocket(int newfd, char* ip)
@@ -59,6 +60,7 @@ InspSocket::InspSocket(int newfd, char* ip)
 
 InspSocket::InspSocket(std::string host, int port, bool listening, unsigned long maxtime)
 {
+	this->fd = -1;
 	if (listening) {
 		if ((this->fd = OpenTCPSocket()) == ERROR)
 		{
