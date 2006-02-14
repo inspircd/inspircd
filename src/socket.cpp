@@ -209,7 +209,7 @@ std::string InspSocket::GetIP()
 
 char* InspSocket::Read()
 {
-	if ((n < 0) || (n > MAX_DESCRIPTOR))
+	if ((fd < 0) || (fd > MAX_DESCRIPTOR))
 		return NULL;
 	int n = recv(this->fd,this->ibuf,sizeof(this->ibuf),0);
 	if ((n > 0) && (n <= sizeof(this->ibuf)))
