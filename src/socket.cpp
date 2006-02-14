@@ -214,7 +214,7 @@ char* InspSocket::Read()
 	if ((fd < 0) || (fd > MAX_DESCRIPTORS))
 		return NULL;
 	int n = recv(this->fd,this->ibuf,sizeof(this->ibuf),0);
-	if ((n > 0) && (n <= sizeof(this->ibuf)))
+	if ((n > 0) && (n <= (int)sizeof(this->ibuf)))
 	{
 		ibuf[n] = 0;
 		return ibuf;
