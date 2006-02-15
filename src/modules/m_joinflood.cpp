@@ -23,7 +23,7 @@ using namespace std;
 #include "modules.h"
 #include "helperfuncs.h"
 
-/* $ModDesc: Provides channel mode +f (message flood protection) */
+/* $ModDesc: Provides channel mode +j (join flood protection) */
 
 class joinfloodsettings
 {
