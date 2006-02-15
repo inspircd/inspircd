@@ -111,6 +111,7 @@ void split_chlist(userrec* user, userrec* dest, std::string &cl)
 	}
 }
 
+/* XXX - perhaps this should be in cmd_whois? -- w00t */
 void do_whois(userrec* user, userrec* dest,unsigned long signon, unsigned long idle, char* nick)
 {
 	// bug found by phidjit - were able to whois an incomplete connection if it had sent a NICK or USER
@@ -179,6 +180,8 @@ void do_whois(userrec* user, userrec* dest,unsigned long signon, unsigned long i
 	}
 }
 
+
+/* XXX - these really belong in helperfuncs perhaps -- w00t */
 bool is_uline(const char* server)
 {
 	char ServName[MAXBUF];
