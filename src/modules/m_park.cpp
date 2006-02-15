@@ -67,6 +67,7 @@ class cmd_park : public command_t
 		 * We then disconnect the real user leaving a controlled ghost in their place :)
 		 */
 		int othersessions = 0;
+		/* XXX - why can't just use pinfo.size() like we do below, rather than iterating over the whole vector? -- w00t */
 		if (pinfo.size())
 		        for (parkinfo::iterator j = pinfo.begin(); j != pinfo.end(); j++)
 				if (j->host == std::string(user->host))
@@ -284,6 +285,7 @@ class ModulePark : public Module
 	{
 		// track nickchanges in our parked user list
 		// (this isnt too efficient, i'll tidy it up some time)
+		/* XXX - perhaps extend the user record, or, that wouldn't work - perhaps use a map? -- w00t */
                 for (parkinfo::iterator j = pinfo.begin(); j != pinfo.end(); j++)
                 {
                         if (j->nick == std::string(user->nick))
@@ -322,6 +324,7 @@ class ModulePark : public Module
 	        }
 	}
 
+	/* XXX - why is OnPrePrivmsg seperated here, I assume there is reason for the extra function call? --w00t */
 	virtual int OnUserPreMessage(userrec* user,void* dest,int target_type, std::string &text, char status)
 	{
 		if (target_type == TYPE_USER)
