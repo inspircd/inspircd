@@ -135,6 +135,8 @@ std::string InspIRCd::GetRevision()
 	 * into the same variable twice, the first word
 	 * is discarded, and the second one returned.
 	 */
+
+	/* XXX - this revision ID is NOT bumping automatically -- w00t */
 	std::stringstream Revision("$Revision$");
 	std::string single;
 	Revision >> single >> single;
