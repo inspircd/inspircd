@@ -9,11 +9,14 @@
 
 /* $ModDesc: Provides support for the +I channel mode */
 
-/* Written by Om<om@inspircd.org>, April 2005. */
-/* Based on m_exception, which was originally based on m_chanprotect and m_silence */
-
-// The +I channel mode takes a nick!ident@host, glob patterns allowed,
-// and if a user matches an entry on the +I list then they can join the channel, ignoring if +i is set on the channel
+/*
+ * Written by Om <om@inspircd.org>, April 2005.
+ * Based on m_exception, which was originally based on m_chanprotect and m_silence
+ *
+ * The +I channel mode takes a nick!ident@host, glob patterns allowed,
+ * and if a user matches an entry on the +I list then they can join the channel,
+ * ignoring if +i is set on the channel
+ */
 
 class ModuleInviteException : public ListModeBaseModule
 {
