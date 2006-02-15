@@ -59,13 +59,15 @@ class ModuleDenyChannels : public Module
 
         virtual int OnUserPreJoin(userrec* user, chanrec* chan, const char* cname)
         {
+		bool isoper = strchr(user->modes,'o') ? true : false;
+
 		for (int j =0; j < Conf->Enumerate("badchan"); j++)
 		{
 			irc::string cn = Conf->ReadValue("badchan","name",j).c_str();
 			irc::string thischan = cname;
 			if (thischan == cn)
 			{
-				if ((Conf->ReadFlag("badchan","allowopers",j)) && (strchr(user->modes,'o')))
+				if ((Conf->ReadFlag("badchan","allowopers",j)) && isoper == true)
 				{
 					return 0;
 				}
