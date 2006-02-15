@@ -66,7 +66,7 @@ extern chan_hash chanlist;
 
 using namespace std;
 
-std::vector<ModeParameter> custom_mode_params;
+//std::vector<ModeParameter> custom_mode_params;
 
 chanrec* ForceChan(chanrec* Ptr,ucrec &a,userrec* user, int created);
 
@@ -139,7 +139,6 @@ bool chanrec::IsCustomModeSet(char mode)
 	return (strchr(this->custom_modes,mode));
 }
 
-/* XXX - would it not be better to store a vector for each channel, rather than one huge list? -- w00t */
 std::string chanrec::GetModeParameter(char mode)
 {
 	if (custom_mode_params.size())

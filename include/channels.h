@@ -120,6 +120,10 @@ class chanrec : public Extensible
 	std::map<char*,char*> internal_halfop_userlist;
 	std::map<char*,char*> internal_voice_userlist;
 
+	/** Parameters for custom modes
+	 */
+	std::vector<ModeParameter> custom_mode_params;
+
 	/** Channel topic.
 	 * If this is an empty string, no channel topic is set.
 	 */
