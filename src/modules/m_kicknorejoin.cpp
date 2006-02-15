@@ -37,14 +37,14 @@ public:
 	{
 		if ((modechar == 'J') && (type == MT_CHANNEL))
 		{
-			if(!mode_on)
+			if (!mode_on)
 			{
 				// Taking the mode off, we need to clean up.
 				chanrec* c = (chanrec*)target;
 				
 				delaylist* dl = (delaylist*)c->GetExt("norejoinusers");
 				
-				if(dl)
+				if (dl)
 				{
 					delete dl;
 					c->Shrink("norejoinusers");
@@ -57,23 +57,23 @@ public:
 
 	virtual int OnUserPreJoin(userrec* user, chanrec* chan, const char* cname)
 	{
-		if(chan)
+		if (chan)
 		{
 			delaylist* dl = (delaylist*)chan->GetExt("norejoinusers");
 			log(DEBUG, "m_kicknorejoin.so: tried to grab delay list");
 			
-			if(dl)
+			if (dl)
 			{
 				log(DEBUG, "m_kicknorejoin.so: got delay list, iterating over it");
 				std::vector<userrec*> itemstoremove;
 			
-				for(delaylist::iterator iter = dl->begin(); iter != dl->end(); iter++)
+				for (delaylist::iterator iter = dl->begin(); iter != dl->end(); iter++)
 				{
 					log(DEBUG, "m_kicknorejoin.so:\t[%s] => %d", iter->first->nick, iter->second);
-					if(iter->second > time(NULL))
+					if (iter->second > time(NULL))
 					{
 						log(DEBUG, "m_kicknorejoin.so: still inside time slot");
-						if(iter->first == user)					
+						if (iter->first == user)					
 						{
 							log(DEBUG, "m_kicknorejoin.so: and we have the right user");
 							WriteServ(user->fd, "495 %s %s :You cannot rejoin this channel yet after being kicked (+J)", user->nick, chan->name);
@@ -88,10 +88,10 @@ public:
 					}
 				}
 				
-				for(unsigned int i = 0; i < itemstoremove.size(); i++)
+				for (unsigned int i = 0; i < itemstoremove.size(); i++)
 					dl->erase(itemstoremove[i]);
 																	
-				if(!dl->size())
+				if (!dl->size())
 				{
 					// Now it's empty..
 					delete dl;
@@ -104,11 +104,11 @@ public:
 	
 	virtual void OnUserKick(userrec* source, userrec* user, chanrec* chan, std::string reason)
 	{
-		if(chan->IsCustomModeSet('J') && (source != user))
+		if (chan->IsCustomModeSet('J') && (source != user))
 		{
 			delaylist* dl = (delaylist*)chan->GetExt("norejoinusers");
 			
-			if(!dl)
+			if (!dl)
 			{
 				dl = new delaylist;
 				chan->Extend("norejoinusers", (char*)dl);
@@ -123,7 +123,7 @@ public:
 	{
 		delaylist* dl = (delaylist*)chan->GetExt("norejoinusers");
 		
-		if(dl)
+		if (dl)
 		{
 			delete dl;
 			chan->Shrink("norejoinusers");
