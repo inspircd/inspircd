@@ -96,7 +96,7 @@ void cmd_modules::Handle (char **parameters, int pcnt, userrec *user)
 		if (!flagstate[0])
 			strcpy(flagstate,"  <no flags>");
 		strlcpy(modulename,Config->module_names[i].c_str(),256);
-		if (strchr(user->modes,'o'))
+		if (*user->oper)
 		{
 			if ((pcnt >= 2) && (!strcasecmp(parameters[0],"debug")))
 			{

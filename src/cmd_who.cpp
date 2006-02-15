@@ -88,7 +88,7 @@ void cmd_who::Handle (char **parameters, int pcnt, userrec *user)
 						} else {
 							strlcat(tmp, "H", 9);
 						}
-						if (strchr(i->second->modes,'o')) { strlcat(tmp, "*", 9); }
+						if (*i->second->oper) { strlcat(tmp, "*", 9); }
 						WriteServ(user->fd,"352 %s %s %s %s %s %s %s :0 %s",user->nick, Ptr ? Ptr->name : "*", i->second->ident, i->second->dhost, i->second->server, i->second->nick, tmp, i->second->fullname);
 						if (n_list++ > Config->MaxWhoResults)
 						{
@@ -125,7 +125,7 @@ void cmd_who::Handle (char **parameters, int pcnt, userrec *user)
 						} else {
 							strlcat(tmp, "H", 9);
 						}
-						if (strchr(i->second->modes,'o')) { strlcat(tmp, "*", 9); }
+						if (*i->second->oper) { strlcat(tmp, "*", 9); }
 						strlcat(tmp, cmode(i->second, Ptr),5);
 						WriteServ(user->fd,"352 %s %s %s %s %s %s %s :0 %s",user->nick, Ptr->name, i->second->ident, i->second->dhost, i->second->server, i->second->nick, tmp, i->second->fullname);
                                                 n_list++;
@@ -156,7 +156,7 @@ void cmd_who::Handle (char **parameters, int pcnt, userrec *user)
 				} else {
 					strlcat(tmp, "H" ,9);
 				}
-				if (strchr(u->modes,'o')) { strlcat(tmp, "*" ,9); }
+				if (*u->oper) { strlcat(tmp, "*" ,9); }
 				WriteServ(user->fd,"352 %s %s %s %s %s %s %s :0 %s",user->nick, u->chans.size() && u->chans[0].channel ? u->chans[0].channel->name
                                 : "*", u->ident, u->dhost, u->server, u->nick, tmp, u->fullname);
 			}

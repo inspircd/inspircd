@@ -70,7 +70,7 @@ void cmd_trace::Handle (char **parameters, int pcnt, userrec *user)
 		{
 			if (isnick(i->second->nick))
 			{
-				if (strchr(i->second->modes,'o'))
+				if (*i->second->oper)
 				{
 					WriteServ(user->fd,"205 %s :Oper 0 %s",user->nick,i->second->nick);
 				}

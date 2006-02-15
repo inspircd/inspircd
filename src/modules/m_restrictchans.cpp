@@ -68,7 +68,7 @@ class ModuleRestrictChans : public Module
 	{
 		irc::string x = cname;
 		// user is not an oper and its not in the allow list
-		if ((!strchr(user->modes,'o')) && (allowchans.find(x) == allowchans.end()))
+		if ((!*user->oper) && (allowchans.find(x) == allowchans.end()))
 		{
 			// channel does not yet exist (record is null, about to be created IF we were to allow it)
 			if (!chan)

@@ -174,7 +174,7 @@ class ModuleOverride : public Module
 	
 	virtual int OnUserPreJoin(userrec* user, chanrec* chan, const char* cname)
 	{
-		if (strchr(user->modes,'o'))
+		if (*user->oper)
 		{
 			if (chan)
 			{

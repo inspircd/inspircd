@@ -211,7 +211,7 @@ bool userrec::HasPermission(std::string &command)
 		return true;
 	
 	// are they even an oper at all?
-	if (strchr(this->modes,'o'))
+	if (*this->oper)
 	{
 		for (int j =0; j < Config->ConfValueEnum("type",&Config->config_f); j++)
 		{

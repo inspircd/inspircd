@@ -49,7 +49,7 @@ class ModuleOperChans : public Module
 		{
 			chanrec* chan = (chanrec*)target;
 			
-			if ((Srv->IsUlined(user->nick)) || (Srv->IsUlined(user->server)) || (!*user->server) || (strchr(user->modes,'o')))
+			if ((Srv->IsUlined(user->nick)) || (Srv->IsUlined(user->server)) || (!*user->server) || (*user->oper))
 			{
 				log(DEBUG,"Allowing mode +O");
 				return 1;
@@ -75,7 +75,7 @@ class ModuleOperChans : public Module
 	
 	virtual int OnUserPreJoin(userrec* user, chanrec* chan, const char* cname)
 	{
-		if (!strchr(user->modes,'o'))
+		if (!*user->oper)
 		{
 			if (chan)
 			{

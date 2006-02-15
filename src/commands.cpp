@@ -118,7 +118,7 @@ void do_whois(userrec* user, userrec* dest,unsigned long signon, unsigned long i
 	if (dest->registered == 7)
 	{
 		WriteServ(user->fd,"311 %s %s %s %s * :%s",user->nick, dest->nick, dest->ident, dest->dhost, dest->fullname);
-		if ((user == dest) || (strchr(user->modes,'o')))
+		if ((user == dest) || (*user->oper))
 		{
 			WriteServ(user->fd,"378 %s %s :is connecting from *@%s %s",user->nick, dest->nick, dest->host, (char*)inet_ntoa(dest->ip4));
 		}
@@ -146,16 +146,9 @@ void do_whois(userrec* user, userrec* dest,unsigned long signon, unsigned long i
 		{
 			WriteServ(user->fd,"301 %s %s :%s",user->nick, dest->nick, dest->awaymsg);
 		}
-		if (strchr(dest->modes,'o'))
+		if (*dest->oper)
 		{
-			if (*dest->oper)
-			{
-				WriteServ(user->fd,"313 %s %s :is %s %s on %s",user->nick, dest->nick, (strchr("aeiou",dest->oper[0]) ? "an" : "a"),dest->oper, Config->Network);
-			}
-			else
-			{
-				WriteServ(user->fd,"313 %s %s :is an IRC operator",user->nick, dest->nick);
-			}
+			WriteServ(user->fd,"313 %s %s :is %s %s on %s",user->nick, dest->nick, (strchr("aeiou",*dest->oper) ? "an" : "a"),dest->oper, Config->Network);
 		}
 		if ((!signon) && (!idle))
 		{

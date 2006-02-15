@@ -52,7 +52,7 @@ class ModuleOperLevels : public Module
 		{
 			long dest_level = 0,source_level = 0;
 			// oper killing an oper?
-			if (strchr(dest->modes,'o'))
+			if (*dest->oper)
 			{
 				for (int j =0; j < conf->Enumerate("type"); j++)
 				{

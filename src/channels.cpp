@@ -427,7 +427,7 @@ chanrec* add_channel(userrec *user, const char* cn, const char* key, bool overri
 		user->chans.push_back(a);
 		return c;
 	}
-	else if (strchr(user->modes,'o'))
+	else if (*user->oper)
 	{
 		/* Oper allows extension up to the OPERMAXCHANS value */
 		if (user->chans.size() < OPERMAXCHANS)

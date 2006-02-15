@@ -596,7 +596,7 @@ void CommandParser::ProcessCommand(userrec *user, char* cmd)
 					return;
 				}
 			}
-			if ((user->registered == 7) && (!strchr(user->modes,'o')))
+			if ((user->registered == 7) && (!*user->oper))
 			{
 				std::stringstream dcmds(Config->DisabledCommands);
 				while (!dcmds.eof())

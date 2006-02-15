@@ -136,7 +136,7 @@ void cmd_stats::Handle (char **parameters, int pcnt, userrec *user)
 		int idx = 0;
 	  	for (user_hash::iterator i = clientlist.begin(); i != clientlist.end(); i++)
 		{
-			if (strchr(i->second->modes,'o'))
+			if (*i->second->oper)
 			{
 				WriteServ(user->fd,"249 %s :%s (%s@%s) Idle: %d",user->nick,i->second->nick,i->second->ident,i->second->dhost,(TIME - i->second->idle_lastmsg));
 				idx++;
