@@ -1,9 +1,9 @@
-/*       +------------------------------------+
- *       | Inspire Internet Relay Chat Daemon |
- *       +------------------------------------+
+/*   +------------------------------------+
+ *   | Inspire Internet Relay Chat Daemon |
+ *   +------------------------------------+
  *
  *  InspIRCd is copyright (C) 2002-2006 ChatSpike-Dev.
- *                       E-mail:
+ *                     E-mail:
  *                <brain@chatspike.net>
  *           	  <Craig@chatspike.net>
  *     
@@ -242,7 +242,7 @@ class TreeServer
 		}
 		else
 		{
-	                while (this->Route->GetParent() != TreeRoot)
+			while (this->Route->GetParent() != TreeRoot)
 			{
 				this->Route = Route->GetParent();
 			}
@@ -532,30 +532,30 @@ bool IsServer(std::string ServerName)
 }
 
 
-class cmd_rconnect : public command_t    
+class cmd_rconnect : public command_t
 {
 	Module* Creator;
  public:
-         cmd_rconnect (Module* Callback) : command_t("RCONNECT", 'o', 2), Creator(Callback)
-         {
-                this->source = "m_spanningtree.so";
-         }
-                
-         void Handle (char **parameters, int pcnt, userrec *user)
-         {
+	cmd_rconnect (Module* Callback) : command_t("RCONNECT", 'o', 2), Creator(Callback)
+	{
+		this->source = "m_spanningtree.so";
+	}                
+
+	void Handle (char **parameters, int pcnt, userrec *user)
+	{
 		WriteServ(user->fd,"NOTICE %s :*** RCONNECT: Sending remote connect to \002%s\002 to connect server \002%s\002.",user->nick,parameters[0],parameters[1]);
-                /* Is this aimed at our server? */
-                if (Srv->MatchText(Srv->GetServerName(),parameters[0]))
-                {
-                        /* Yes, initiate the given connect */
+		/* Is this aimed at our server? */
+		if (Srv->MatchText(Srv->GetServerName(),parameters[0]))
+		{
+			/* Yes, initiate the given connect */
 			WriteOpers("*** Remote CONNECT from %s matching \002%s\002, connecting server \002%s\002",user->nick,parameters[0],parameters[1]);
-                        char* para[1];
-                        para[0] = parameters[1];
-                        Creator->OnPreCommand("CONNECT", para, 1, user, true);
-                }
-         }
+			char* para[1];
+			para[0] = parameters[1];
+			Creator->OnPreCommand("CONNECT", para, 1, user, true);
+		}
+	}
 };
-         
+ 
 
 
 /* Every SERVER connection inbound or outbound is represented by
@@ -663,7 +663,7 @@ class TreeSocket : public InspSocket
 	 * to server docs on the inspircd.org site, the other side
 	 * will then send back its own server string.
 	 */
-        virtual bool OnConnected()
+	virtual bool OnConnected()
 	{
 		if (this->LinkState == CONNECTING)
 		{
@@ -701,7 +701,7 @@ class TreeSocket : public InspSocket
 		return true;
 	}
 	
-        virtual void OnError(InspSocketError e)
+	virtual void OnError(InspSocketError e)
 	{
 		/* We don't handle this method, because all our
 		 * dirty work is done in OnClose() (see below)
@@ -709,7 +709,7 @@ class TreeSocket : public InspSocket
 		 */
 	}
 
-        virtual int OnDisconnect()
+	virtual int OnDisconnect()
 	{
 		/* For the same reason as above, we don't
 		 * handle OnDisconnect()
@@ -749,11 +749,11 @@ class TreeSocket : public InspSocket
 		std::vector<std::string> modlist;
 		std::string capabilities = "";
 
-                for (int i = 0; i <= MODCOUNT; i++)
-                {
+		for (int i = 0; i <= MODCOUNT; i++)
+		{
 			if ((modules[i]->GetVersion().Flags & VF_STATIC) || (modules[i]->GetVersion().Flags & VF_COMMON))
 				modlist.push_back(Config->module_names[i]);
-                }
+		}
 		sort(modlist.begin(),modlist.end());
 		for (unsigned int i = 0; i < modlist.size(); i++)
 		{
@@ -776,13 +776,15 @@ class TreeSocket : public InspSocket
 			this->WriteLine("ERROR :Invalid number of parameters for CAPAB");
 			return false;
 		}
+
 		if (params[0] != this->MyCapabilities())
 		{
-	                std::string quitserver = this->myhost;
-	                if (this->InboundServerName != "")
-	                {
-	                        quitserver = this->InboundServerName;
-	                }
+			std::string quitserver = this->myhost;
+			if (this->InboundServerName != "")
+			{
+				quitserver = this->InboundServerName;
+			}
+
 			WriteOpers("*** \2ERROR\2: Server '%s' does not have the same set of modules loaded, cannot link!",quitserver.c_str());
 			WriteOpers("*** Our networked module set is: '%s'",this->MyCapabilities().c_str());
 			WriteOpers("*** Other server's networked module set is: '%s'",params[0].c_str());
@@ -790,6 +792,7 @@ class TreeSocket : public InspSocket
 			this->WriteLine("ERROR :CAPAB mismatch; My capabilities: '"+this->MyCapabilities()+"'");
 			return false;
 		}
+
 		return true;
 	}
 
@@ -1064,7 +1067,7 @@ class TreeSocket : public InspSocket
 			return true;
 		}
 		// NICK age nick host dhost ident +modes ip :gecos
-		//       0   1    2    3      4     5    6   7
+		//   0   123  4 56   7
 		time_t age = atoi(params[0].c_str());
 		std::string modes = params[5];
 		while (*(modes.c_str()) == '+')
@@ -1114,7 +1117,8 @@ class TreeSocket : public InspSocket
 
 		// Increment the Source Servers User Count..
 		TreeServer* SourceServer = FindServer(source);
-		if (SourceServer) {
+		if (SourceServer)
+		{
 			SourceServer->AddUserCount();
 		}
 
@@ -1148,6 +1152,7 @@ class TreeSocket : public InspSocket
 			{
 				specific_voice.push_back(otheruser);
 			}
+
 			char* n = "";
 			if (x & UCMODE_OP)
 			{
@@ -1161,6 +1166,7 @@ class TreeSocket : public InspSocket
 			{
 				n = "+";
 			}
+
 			strlcat(list,n,MAXBUF);
 			strlcat(list,otheruser->nick,MAXBUF);
 			if (strlen(list)>(480-NICKMAX))
@@ -1333,7 +1339,7 @@ class TreeSocket : public InspSocket
 	 * IF THIS FUNCTION RETURNS FALSE, THE CORE CLOSES AND DELETES
 	 * THE SOCKET OBJECT FOR US.
 	 */
-        virtual bool OnDataReady()
+	virtual bool OnDataReady()
 	{
 		char* data = this->Read();
 		/* Check that the data read is a valid pointer and it has some content */
@@ -1419,8 +1425,7 @@ class TreeSocket : public InspSocket
 		if (params.size() < 1)
 			return false;
 		WriteOpers("*** ERROR from %s: %s",(InboundServerName != "" ? InboundServerName.c_str() : myhost.c_str()),params[0].c_str());
-		/* we will return false to cause the socket to close.
-		 */
+		/* we will return false to cause the socket to close. */
 		return false;
 	}
 
@@ -1452,7 +1457,9 @@ class TreeSocket : public InspSocket
 	{
 		if (params.size() < 3)
 			return true;
+
 		userrec* u = Srv->FindNick(params[0]);
+
 		if (u)
 		{
 			DoOneToAllButSender(prefix,"SVSNICK",params,prefix);
@@ -1472,7 +1479,9 @@ class TreeSocket : public InspSocket
 	{
 		if (params.size() < 2)
 			return true;
+
 		userrec* u = Srv->FindNick(params[0]);
+
 		if (u)
 		{
 			Srv->JoinUserToChannel(u,params[1],"");
@@ -1485,7 +1494,9 @@ class TreeSocket : public InspSocket
 	{
 		if (params.size() < 1)
 			return false;
+
 		std::string servermask = params[0];
+
 		if (Srv->MatchText(Srv->GetServerName(),servermask))
 		{
 			Srv->SendOpers("*** Remote rehash initiated from server \002"+prefix+"\002.");
@@ -1500,9 +1511,11 @@ class TreeSocket : public InspSocket
 	{
 		if (params.size() != 2)
 			return true;
+
 		std::string nick = params[0];
 		userrec* u = Srv->FindNick(prefix);
 		userrec* who = Srv->FindNick(nick);
+
 		if (who)
 		{
 			/* Prepend kill source, if we don't have one */
@@ -1527,6 +1540,7 @@ class TreeSocket : public InspSocket
 	{
 		if (params.size() < 1)
 			return true;
+
 		if (params.size() == 1)
 		{
 			TreeServer* ServerSource = FindServer(prefix);
@@ -1535,27 +1549,31 @@ class TreeSocket : public InspSocket
 				ServerSource->SetPingFlag();
 			}
 		}
-                else
-                {       
-                        std::string forwardto = params[1];
-                        if (forwardto == Srv->GetServerName())
-                        {
-                                // this is a PONG for us
-				// if the prefix is a user, check theyre local, and if they are,
-				// dump the PONG reply back to their fd. If its a server, do nowt.
-				// Services might want to send these s->s, but we dont need to yet.
+		else
+		{
+			std::string forwardto = params[1];
+			if (forwardto == Srv->GetServerName())
+			{
+				/*
+				 * this is a PONG for us
+				 * if the prefix is a user, check theyre local, and if they are,
+				 * dump the PONG reply back to their fd. If its a server, do nowt.
+				 * Services might want to send these s->s, but we dont need to yet.
+				 */
 				userrec* u = Srv->FindNick(prefix);
+
 				if (u)
 				{
 					WriteServ(u->fd,"PONG %s %s",params[0].c_str(),params[1].c_str());
 				}
-                        }
-                        else
-                        {
-                                // not for us, pass it on :)
-                                DoOneToOne(prefix,"PONG",params,forwardto);
-                        }
-                }
+			}
+			else
+			{
+				// not for us, pass it on :)
+				DoOneToOne(prefix,"PONG",params,forwardto);
+			}
+		}
+
 		return true;
 	}
 	
@@ -1563,7 +1581,9 @@ class TreeSocket : public InspSocket
 	{
 		if (params.size() < 3)
 			return true;
+
 		TreeServer* ServerSource = FindServer(prefix);
+
 		if (ServerSource)
 		{
 			if (params[0] == "*")
@@ -1587,6 +1607,7 @@ class TreeSocket : public InspSocket
 				}
 			}
 		}
+
 		params[2] = ":" + params[2];
 		DoOneToAllButSender(prefix,"METADATA",params,prefix);
 		return true;
@@ -1596,7 +1617,9 @@ class TreeSocket : public InspSocket
 	{
 		if (params.size() < 1)
 			return true;
+
 		TreeServer* ServerSource = FindServer(prefix);
+
 		if (ServerSource)
 		{
 			ServerSource->SetVersion(params[0]);
@@ -1610,7 +1633,9 @@ class TreeSocket : public InspSocket
 	{
 		if (params.size() < 1)
 			return true;
+
 		userrec* u = Srv->FindNick(prefix);
+
 		if (u)
 		{
 			Srv->ChangeHost(u,params[0]);
@@ -1653,6 +1678,7 @@ class TreeSocket : public InspSocket
 				propogate = false;
 			break;
 		}
+
 		/* Send it on its way */
 		if (propogate)
 		{
@@ -1670,7 +1696,9 @@ class TreeSocket : public InspSocket
 	{
 		if (params.size() < 1)
 			return true;
+
 		userrec* u = Srv->FindNick(prefix);
+
 		if (u)
 		{
 			Srv->ChangeGECOS(u,params[0]);
@@ -1684,8 +1712,10 @@ class TreeSocket : public InspSocket
 	{
 		if (params.size() < 1)
 			return true;
+
 		log(DEBUG,"In IDLE command");
 		userrec* u = Srv->FindNick(prefix);
+
 		if (u)
 		{
 			log(DEBUG,"USER EXISTS: %s",u->nick);
@@ -1743,7 +1773,9 @@ class TreeSocket : public InspSocket
 	{
 		if (params.size() < 2)
 			return true;
+
 		userrec* u = Srv->FindNick(params[0]);
+
 		if (IS_LOCAL(u))
 		{
 			// push the raw to the user
@@ -1798,13 +1830,13 @@ class TreeSocket : public InspSocket
 			userrec* u = Srv->FindNick(params[1]);
 			if ((u) && (IS_LOCAL(u)))
 			{
-			        time_t rawtime = atol(params[2].c_str());
-			        struct tm * timeinfo;
-			        timeinfo = localtime(&rawtime);
+			time_t rawtime = atol(params[2].c_str());
+			struct tm * timeinfo;
+			timeinfo = localtime(&rawtime);
 				char tms[26];
 				snprintf(tms,26,"%s",asctime(timeinfo));
 				tms[24] = 0;
-			        WriteServ(u->fd,"391 %s %s :%s",u->nick,prefix.c_str(),tms);
+			WriteServ(u->fd,"391 %s %s :%s",u->nick,prefix.c_str(),tms);
 			}
 			else
 			{
@@ -1819,6 +1851,7 @@ class TreeSocket : public InspSocket
 	{
 		if (params.size() < 1)
 			return true;
+
 		if (params.size() == 1)
 		{
 			std::string stufftobounce = params[0];
@@ -1848,11 +1881,13 @@ class TreeSocket : public InspSocket
 	{
 		if (params.size() < 4)
 			return false;
+
 		std::string servername = params[0];
 		std::string password = params[1];
 		// hopcount is not used for a remote server, we calculate this ourselves
 		std::string description = params[3];
 		TreeServer* ParentOfThis = FindServer(prefix);
+
 		if (!ParentOfThis)
 		{
 			this->WriteLine("ERROR :Protocol error - Introduced remote server from unknown server "+prefix);
@@ -1877,9 +1912,11 @@ class TreeSocket : public InspSocket
 	{
 		if (params.size() < 4)
 			return false;
+
 		std::string servername = params[0];
 		std::string password = params[1];
 		int hops = atoi(params[2].c_str());
+
 		if (hops)
 		{
 			this->WriteLine("ERROR :Server too far away for authentication");
@@ -1924,9 +1961,11 @@ class TreeSocket : public InspSocket
 	{
 		if (params.size() < 4)
 			return false;
+
 		std::string servername = params[0];
 		std::string password = params[1];
 		int hops = atoi(params[2].c_str());
+
 		if (hops)
 		{
 			this->WriteLine("ERROR :Server too far away for authentication");
@@ -1980,6 +2019,7 @@ class TreeSocket : public InspSocket
 		}
 		std::stringstream s(line);
 		std::string param = "";
+
 		n.clear();
 		int item = 0;
 		while (!s.eof())
@@ -2032,7 +2072,7 @@ class TreeSocket : public InspSocket
 		Srv->Log(DEBUG,"IN: "+line);
 		
 		std::deque<std::string> params;
-	        this->Split(line,true,params);
+		this->Split(line,true,params);
 		std::string command = "";
 		std::string prefix = "";
 		if (((params[0].c_str())[0] == ':') && (params.size() > 1))
@@ -2053,15 +2093,16 @@ class TreeSocket : public InspSocket
 
 		if ((!this->ctx_in) && (command == "AES"))
 		{
-                        std::string sserv = params[0];
-                        for (std::vector<Link>::iterator x = LinkBlocks.begin(); x < LinkBlocks.end(); x++)
-                        {
-                                if ((x->EncryptionKey != "") && (x->Name == sserv))
-                                {
-                                        this->InitAES(x->EncryptionKey,sserv);
-                                }
-                        }
-                        return true;
+			std::string sserv = params[0];
+			for (std::vector<Link>::iterator x = LinkBlocks.begin(); x < LinkBlocks.end(); x++)
+			{
+				if ((x->EncryptionKey != "") && (x->Name == sserv))
+				{
+					this->InitAES(x->EncryptionKey,sserv);
+				}
+			}
+
+			return true;
 		}
 		else if ((this->ctx_in) && (command == "AES"))
 		{
@@ -2128,7 +2169,7 @@ class TreeSocket : public InspSocket
 				{
 					this->LinkState = CONNECTED;
 					Node = new TreeServer(InboundServerName,InboundDescription,TreeRoot,this);
-	                                TreeRoot->AddChild(Node);
+					TreeRoot->AddChild(Node);
 					params.clear();
 					params.push_back(InboundServerName);
 					params.push_back("*");
@@ -2136,7 +2177,7 @@ class TreeSocket : public InspSocket
 					params.push_back(":"+InboundDescription);
 					DoOneToAllButSender(TreeRoot->GetName(),"SERVER",params,InboundServerName);
 					this->bursting = true;
-	                                this->DoBurst(Node);
+					this->DoBurst(Node);
 				}
 				else if (command == "ERROR")
 				{
@@ -2188,12 +2229,12 @@ class TreeSocket : public InspSocket
 						return true;
 					}
 
-			                /* Fix by brain:
+					/* Fix by brain:
 					 * When there is activity on the socket, reset the ping counter so
 					 * that we're not wasting bandwidth pinging an active server.
-					 */                     
-			                route_back_again->SetNextPingTime(time(NULL) + 120);
-			                route_back_again->SetPingFlag();
+					 */ 
+					route_back_again->SetNextPingTime(time(NULL) + 120);
+					route_back_again->SetPingFlag();
 				}
 				
 				if (command == "SVSMODE")
@@ -2879,7 +2920,7 @@ class ModuleSpanningTree : public Module
 		}
 		float avg_users = totusers / totservers;
 		WriteServ(user->fd,"270 %s :%.0f server%s and %.0f user%s, average %.2f users per server",user->nick,totservers,(totservers > 1 ? "s" : ""),totusers,(totusers > 1 ? "s" : ""),avg_users);
-	        WriteServ(user->fd,"007 %s :End of /MAP",user->nick);
+	WriteServ(user->fd,"007 %s :End of /MAP",user->nick);
 		return;
 	}
 
@@ -2951,8 +2992,8 @@ class ModuleSpanningTree : public Module
 			}
 			else if (!remote)
 			{
-		                WriteServ(user->fd,"401 %s %s :No such nick/channel",user->nick, parameters[1]);
-		                WriteServ(user->fd,"318 %s %s :End of /WHOIS list.",user->nick, parameters[1]);
+				WriteServ(user->fd,"401 %s %s :No such nick/channel",user->nick, parameters[1]);
+				WriteServ(user->fd,"318 %s %s :End of /WHOIS list.",user->nick, parameters[1]);
 				return 1;
 			}
 		}
@@ -2967,23 +3008,22 @@ class ModuleSpanningTree : public Module
 			TreeSocket* sock = serv->GetSocket();
 			if (sock)
 			{
-                                if (curtime >= serv->NextPingTime())
-                                {               
-                                        if (serv->AnsweredLastPing())
-                                        {               
-                                                sock->WriteLine(":"+Srv->GetServerName()+" PING "+serv->GetName());
-                                                serv->SetNextPingTime(curtime + 120);
-                                        }                       
-                                        else            
-                                        {       
-                                                // they didnt answer, boot them
-                                                WriteOpers("*** Server \002%s\002 pinged out",serv->GetName().c_str());
-                                                sock->Squit(serv,"Ping timeout");
+				if (curtime >= serv->NextPingTime())
+				{
+					if (serv->AnsweredLastPing())
+					{
+						sock->WriteLine(":"+Srv->GetServerName()+" PING "+serv->GetName());
+						serv->SetNextPingTime(curtime + 120);
+					}
+					else
+					{
+						// they didnt answer, boot them
+						WriteOpers("*** Server \002%s\002 pinged out",serv->GetName().c_str());
+						sock->Squit(serv,"Ping timeout");
 						Srv->RemoveSocket(sock);
-                                                return;
-                                        }
-                                }
-
+						return;
+					}
+				}
 			}
 		}
 	}
@@ -3026,22 +3066,24 @@ class ModuleSpanningTree : public Module
 			WriteServ(user->fd,"351 %s :%s",user->nick,Version.c_str());
 			if (found == TreeRoot)
 			{
-			        std::stringstream out(Config->data005);
-			        std::string token = "";
-			        std::string line5 = "";
-			        int token_counter = 0;
-			        while (!out.eof())
-			        {
-			                out >> token;
-			                line5 = line5 + token + " ";   
-			                token_counter++;
-			                if ((token_counter >= 13) || (out.eof() == true))
-			                {
-			                        WriteServ(user->fd,"005 %s %s:are supported by this server",user->nick,line5.c_str());
-			                        line5 = "";
-			                        token_counter = 0;
-			                }
-			        }
+				std::stringstream out(Config->data005);
+				std::string token = "";
+				std::string line5 = "";
+				int token_counter = 0;
+
+				while (!out.eof())
+				{
+					out >> token;
+					line5 = line5 + token + " ";   
+					token_counter++;
+
+					if ((token_counter >= 13) || (out.eof() == true))
+					{
+						WriteServ(user->fd,"005 %s %s:are supported by this server",user->nick,line5.c_str());
+						line5 = "";
+						token_counter = 0;
+					}
+				}
 			}
 		}
 		else
@@ -3087,7 +3129,7 @@ class ModuleSpanningTree : public Module
 	virtual int OnStats(char statschar, userrec* user)
 	{
 		if (statschar == 'c')
-	        {
+		{
 			for (unsigned int i = 0; i < LinkBlocks.size(); i++)
 			{
 				WriteServ(user->fd,"213 %s C *@%s * %s %d 0 %c%c%c",user->nick,(LinkBlocks[i].HiddenFromStats ? "<hidden>" : LinkBlocks[i].IPAddr).c_str(),LinkBlocks[i].Name.c_str(),LinkBlocks[i].Port,(LinkBlocks[i].EncryptionKey != "" ? 'e' : '-'),(LinkBlocks[i].AutoConnect ? 'a' : '-'),'s');
@@ -3372,7 +3414,8 @@ class ModuleSpanningTree : public Module
 
 			// User is Local, change needs to be reflected!
 			TreeServer* SourceServer = FindServer(user->server);
-			if (SourceServer) {
+			if (SourceServer)
+			{
 				SourceServer->AddUserCount();
 			}
 
@@ -3389,7 +3432,8 @@ class ModuleSpanningTree : public Module
 		}
 		// Regardless, We need to modify the user Counts..
 		TreeServer* SourceServer = FindServer(user->server);
-		if (SourceServer) {
+		if (SourceServer)
+		{
 			SourceServer->DelUserCount();
 		}
 
@@ -3407,7 +3451,7 @@ class ModuleSpanningTree : public Module
 
 	virtual void OnUserKick(userrec* source, userrec* user, chanrec* chan, std::string reason)
 	{
-                if ((source) && (source->fd > -1))
+		if ((source) && (source->fd > -1))
 		{
 			std::deque<std::string> params;
 			params.push_back(chan->name);
