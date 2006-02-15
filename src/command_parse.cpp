@@ -596,14 +596,12 @@ void CommandParser::ProcessCommand(userrec *user, char* cmd)
 					return;
 				}
 			}
-			if ((user->registered == 7) && (!*user->oper))
+			if ((user->registered == 7) && (!*user->oper) && (*Config->DisabledCommands))
 			{
 				std::stringstream dcmds(Config->DisabledCommands);
-				while (!dcmds.eof())
+				std::string thiscmd;
+				while (dcmds >> thiscmd)
 				{
-					std::string thiscmd;
-					dcmds >> thiscmd;
-
 					if (!strcasecmp(thiscmd.c_str(),command))
 					{
 						// command is disabled!
