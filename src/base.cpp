@@ -120,6 +120,6 @@ BoolSet::BoolSet(char bitmask)
 
 bool BoolSet::operator=(BoolSet other)
 {
-        this->bits = other.bits;
-        return true;
+	this->bits = other.bits;
+	return true;
 }
