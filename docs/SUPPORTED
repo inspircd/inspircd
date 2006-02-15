@@ -37,23 +37,24 @@ Module commands (non-rfc):
 
 ------------------------------------------------------------------------------
 
-CHANNEL MODES:	    i,m,n,t,k,l,p,s,o,h**,v,b
+CHANNEL MODES:	    i,m,n,t,k,l,p,s,o,h**,v,b,q**,a**,I**,e**
 USER MODES:	    i,w,s,o
 MODULE CHAN MODES:  c,G,K,C,V,Q,N,T,O,L,r,R,M,S,Z,g
-MODULE USER MODES:  B,G,x,g,h,r,R,W,S
+MODULE USER MODES:  B,G,x,g,h,r,R,W,S,a,x,V,C
 
 	Documentation for all modes and commands may be found on the wiki:
 	http://www.inspircd.org/wiki/
 
 ------------------------------------------------------------------------------
 
-** CHANNEL MODE h is optional, and can be enabled / disabled via a config flag.
+** CHANNEL MODE h is optional, and can be enabled / disabled via a config flag or module.
 
 The following features are supported:
 
 	* Dynamic module support
 	* Object orientated architecture to save memory and increase speed
 	* Connection multiplexing, one process for all (no forking!)
+	* Experimental DNS multithreading
 
 The following operating systems are supported:
 
@@ -61,9 +62,6 @@ The following operating systems are supported:
 				Tested on: RedHat, Slackware, Gentoo, SELinux, Debian
 	* FreeBSD 	(i386, possibly others)
 				Tested on: 4.10, 4.11, 5.0, 5.2.1, 5.3, 5.4
-
-* FreeBSD users may make use of performance enhancements built into InspIRCd.
-
 
 The following compilers are supported:
 
