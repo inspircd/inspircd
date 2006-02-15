@@ -173,7 +173,7 @@ bool InspSocket::DoConnect()
 	flags = fcntl(this->fd, F_GETFL, 0);
 	fcntl(this->fd, F_SETFL, flags | O_NONBLOCK);
 
-	if(connect(this->fd, (sockaddr*)&this->addr,sizeof(this->addr)) == -1)
+	if (connect(this->fd, (sockaddr*)&this->addr,sizeof(this->addr)) == -1)
 	{
 		if (errno != EINPROGRESS)
 		{
@@ -188,6 +188,7 @@ bool InspSocket::DoConnect()
 	ServerInstance->SE->AddFd(this->fd,false,X_ESTAB_MODULE);
 	socket_ref[this->fd] = this;
 	this->SetQueues(this->fd);
+	log(DEBUG,"Returning true from InspSocket::DoConnect");
 	return true;
 }
 
