@@ -102,7 +102,7 @@ InspSocket::InspSocket(std::string host, int port, bool listening, unsigned long
 			/* Its not an ip, spawn the resolver */
 			this->dns.SetNS(std::string(Config->DNSServer));
 			this->dns.ForwardLookupWithFD(host,fd);
-			timeout_end = time(NULL)+maxtime;
+			timeout_end = time(NULL) + maxtime;
 	                timeout = false;
 			this->state = I_RESOLVING;
 			socket_ref[this->fd] = this;
@@ -111,6 +111,7 @@ InspSocket::InspSocket(std::string host, int port, bool listening, unsigned long
 		{
 			log(DEBUG,"No need to resolve %s",this->host.c_str());
 			this->IP = host;
+			timeout_end = time(NULL) + maxtime;
 			this->DoConnect();
 		}
 	}
@@ -271,6 +272,7 @@ bool InspSocket::Timeout(time_t current)
 {
 	if (((this->state == I_RESOLVING) || (this->state == I_CONNECTING)) && (current > timeout_end))
 	{
+		log(DEBUG,"Timed out, current=%lu timeout_end=%lu");
 		// for non-listening sockets, the timeout can occur
 		// which causes termination of the connection after
 		// the given number of seconds without a successful
@@ -289,6 +291,8 @@ bool InspSocket::Poll()
 {
 	int incoming = -1;
 	bool n = true;
+
+	log(DEBUG,"InspSocket::Poll()");
 	
 	switch (this->state)
 	{
@@ -314,7 +318,9 @@ bool InspSocket::Poll()
 			return true;
 		break;
 		case I_CONNECTED:
+			log(DEBUG,"State = I_CONNECTED");
 			n = this->OnDataReady();
+			log(DEBUG,"State return: %d",(int)n);
 			/* Flush any pending, but not till after theyre done with the event
 			 * so there are less write calls involved. */
 			this->FlushWriteBuffer();
