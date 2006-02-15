@@ -1341,10 +1341,12 @@ class TreeSocket : public InspSocket
 	 */
 	virtual bool OnDataReady()
 	{
+		log(DEBUG,"TreeSocket::OnDataReady");
 		char* data = this->Read();
 		/* Check that the data read is a valid pointer and it has some content */
 		if (data && *data)
 		{
+			log(DEBUG,"got some data");
 			this->in_buffer.append(data);
 			/* While there is at least one new line in the buffer,
 			 * do something useful (we hope!) with it.
@@ -1381,6 +1383,7 @@ class TreeSocket : public InspSocket
 				}
 				if (!this->ProcessLine(ret))
 				{
+					log(DEBUG,"ProcessLine says no!");
 					return false;
 				}
 			}
