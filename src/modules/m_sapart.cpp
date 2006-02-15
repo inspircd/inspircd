@@ -39,13 +39,10 @@ class cmd_sapart : public command_t
 		userrec* dest = Srv->FindNick(std::string(parameters[0]));
 		if (dest)
 		{
-			for (unsigned int x = 0; x < strlen(parameters[1]); x++)
+			if (!IsValidChannelName(parameters[1]))
 			{
-					if ((parameters[1][0] != '#') || (parameters[1][x] == ' ') || (parameters[1][x] == ','))
-					{
-						Srv->SendTo(NULL,user,"NOTICE "+std::string(user->nick)+" :*** Invalid characters in channel name");
-						return;
-					}
+				Srv->SendTo(NULL,user,"NOTICE "+std::string(user->nick)+" :*** Invalid characters in channel name");
+				return;
 			}
 
 			Srv->SendOpers(std::string(user->nick)+" used SAPART to make "+std::string(dest->nick)+" part "+parameters[1]);
