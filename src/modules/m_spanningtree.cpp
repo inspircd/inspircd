@@ -1434,7 +1434,10 @@ class TreeSocket : public InspSocket
 	bool OperType(std::string prefix, std::deque<std::string> &params)
 	{
 		if (params.size() != 1)
+		{
+			log(DEBUG,"Received invalid oper type from %s",prefix.c_str());
 			return true;
+		}
 		std::string opertype = params[0];
 		userrec* u = Srv->FindNick(prefix);
 		if (u)
