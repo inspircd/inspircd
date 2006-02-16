@@ -1407,7 +1407,7 @@ class TreeSocket : public InspSocket
 				int n = line.length() % this->keylength;
 				if (n)
 				{
-					log(DEBUG,"Append %d chars to line to make it %d long from %d",n,n+line.length(),line.length());
+					log(DEBUG,"Append %d chars to line to make it %d long from %d, key length %d",n,n+line.length(),line.length(),this->keylength);
 					line.append(n,'\7');
 				}
 			}
