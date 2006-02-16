@@ -110,6 +110,13 @@ void cmd_oper::Handle (char **parameters, int pcnt, userrec *user)
 					Config->ConfValue("type","host",j,HostName,&Config->config_f);
 					if (*HostName)
 						ChangeDisplayedHost(user,HostName);
+					if (!isnick(TypeName))
+					{
+						WriteServ(user->fd,"491 %s :Invalid oper type (oper types must follow the same syntax as nicknames)",user->nick);
+						WriteOpers("*** CONFIGURATION ERROR! Oper type invalid for OperType '%s'",OperType);
+						log(DEFAULT,"OPER: Failed oper attempt by %s!%s@%s: credentials valid, but oper type erroneous.",user->nick,user->ident,user->host);
+						return;
+					}
 					strlcpy(user->oper,TypeName,NICKMAX);
 					found = true;
 					fail2 = false;

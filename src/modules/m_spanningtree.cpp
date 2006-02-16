@@ -1399,7 +1399,6 @@ class TreeSocket : public InspSocket
 		log(DEBUG,"OUT: %s",line.c_str());
 		if (this->ctx_out)
 		{
-			log(DEBUG,"AES context");
 			char result[10240];
 			char result64[10240];
 			if (this->keylength)
@@ -1411,12 +1410,9 @@ class TreeSocket : public InspSocket
 				}
 			}
 			unsigned int ll = line.length();
-			log(DEBUG,"Plaintext line with padding = %d chars",ll);
 			ctx_out->Encrypt(line.c_str(), result, ll, 1);
-			log(DEBUG,"Encrypted.");
 			to64frombits((unsigned char*)result64,(unsigned char*)result,ll);
 			line = result64;
-			log(DEBUG,"Encrypted: %s",line.c_str());
 			//int from64tobits(char *out, const char *in, int maxlen);
 		}
 		return this->Write(line + "\r\n");
