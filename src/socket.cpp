@@ -29,6 +29,7 @@ using namespace std;
 #include <sstream>
 #include <iostream>
 #include <fstream>
+#include <stdexcept>
 #include "socket.h"
 #include "inspircd.h"
 #include "inspircd_io.h"
@@ -241,7 +242,16 @@ char* InspSocket::Read()
 // and should be aborted.
 int InspSocket::Write(std::string data)
 {
-	this->Buffer.append(data);
+	try
+	{
+		if ((data != "") && (this->Buffer.length() + data.length() < this->Buffer.max_size()))
+			this->Buffer.append(data);
+	}
+	catch (std::length_error)
+	{
+		log(DEBUG,"std::length_error exception caught while appending to socket buffer!");
+		return 0;
+	}
 	return data.length();
 }
 
