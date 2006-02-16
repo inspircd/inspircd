@@ -1,4 +1,4 @@
-Implimented server to server commands:
+Implemented server to server commands:
 
 	SERVER	CONNECT
 	LINKS	SQUIT
@@ -37,10 +37,10 @@ Module commands (non-rfc):
 
 ------------------------------------------------------------------------------
 
-CHANNEL MODES:	    i,m,n,t,k,l,p,s,o,h**,v,b,q**,a**,I**,e**
-USER MODES:	    i,w,s,o
-MODULE CHAN MODES:  c,G,K,C,V,Q,N,T,O,L,r,R,M,S,Z,g
-MODULE USER MODES:  B,G,x,g,h,r,R,W,S,a,x,V,C
+CHANNEL MODES:	     b,h**,i,k,l,m,n,o,p,s,t,v
+USER MODES:	        i,o,s,w
+MODULE CHAN MODES:  a,c,e,f,g,j,q,r,z,C,D,G,I,J,K,L,M,N,O,Q,R,S,T,V,Z
+MODULE USER MODES:  g,h,r,x,B,G,R,S,W
 
 	Documentation for all modes and commands may be found on the wiki:
 	http://www.inspircd.org/wiki/
