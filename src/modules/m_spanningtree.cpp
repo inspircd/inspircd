@@ -1403,11 +1403,8 @@ class TreeSocket : public InspSocket
 			char result64[10240];
 			if (this->keylength)
 			{
-				while (line.length() % this->keylength != 0)
-				{
-					// pad it to be a multiple of the key length
-					line = line + "\7";
-				}
+				// pad it to the key length
+				line.append(line.length() % this->keylength,'\7');
 			}
 			unsigned int ll = line.length();
 			ctx_out->Encrypt(line.c_str(), result, ll, 1);
