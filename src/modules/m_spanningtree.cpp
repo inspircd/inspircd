@@ -1404,7 +1404,7 @@ class TreeSocket : public InspSocket
 			if (this->keylength)
 			{
 				// pad it to the key length
-				int n = line.length() % this->keylength;
+				int n = this->keylength - (line.length() % this->keylength);
 				if (n)
 				{
 					log(DEBUG,"Append %d chars to line to make it %d long from %d, key length %d",n,n+line.length(),line.length(),this->keylength);
