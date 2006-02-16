@@ -1406,7 +1406,10 @@ class TreeSocket : public InspSocket
 				// pad it to the key length
 				int n = line.length() % this->keylength;
 				if (n)
+				{
+					log(DEBUG,"Append %d chars to line to make it %d long from %d",n,n+line.length(),line.length());
 					line.append(n,'\7');
+				}
 			}
 			unsigned int ll = line.length();
 			ctx_out->Encrypt(line.c_str(), result, ll, 1);
