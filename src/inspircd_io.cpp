@@ -202,8 +202,7 @@ void ServerConfig::Read(bool bail, userrec* user)
 	/* Check we dont have more than one of singular tags
 	 */
 	if (!CheckOnce("server",bail,user) || !CheckOnce("admin",bail,user) || !CheckOnce("files",bail,user)
-		|| !CheckOnce("power",bail,user) || !CheckOnce("options",bail,user)
-		|| !CheckOnce("dns",bail,user) || !CheckOnce("pid",bail,user))
+		|| !CheckOnce("power",bail,user) || !CheckOnce("options",bail,user) || !CheckOnce("pid",bail,user))
 	{
 		return;
 	}
