@@ -528,6 +528,7 @@ bool InspIRCd::LoadModule(const char* filename)
 		{
 			log(DEFAULT,"Unable to load %s: ",modfile,modexcept.GetReason());
 			snprintf(MODERR,MAXBUF,"Factory function threw an exception: %s",modexcept.GetReason());
+			return false;
 		}
 #ifndef STATIC_LINK
         }
