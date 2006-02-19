@@ -257,12 +257,46 @@ void ServerConfig::Read(bool bail, userrec* user)
         Config->NetBufferSize = atoi(NB);
         Config->MaxWhoResults = atoi(MW);
         Config->dns_timeout = atoi(DNT);
+	if (!strchr(Config->ServerName,'.'))
+	{
+		log(DEFAULT,"WARNING: <server:name> '%s' is not a fully-qualified domain name. Changed to '%s\.'",Config->ServerName,Config->ServerName);
+		strlcat(Config->ServerName,".",MAXBUF);
+	}
         if (!Config->dns_timeout)
                 Config->dns_timeout = 5;
         if (!Config->MaxConn)
                 Config->MaxConn = SOMAXCONN;
         if (!*Config->DNSServer)
-                strlcpy(Config->DNSServer,"127.0.0.1",MAXBUF);
+	{
+		// attempt to look up their nameserver from /etc/resolv.conf
+		log(DEFAULT,"WARNING: <dns:server> not defined, attempting to find working server in /etc/resolv.conf...");
+		ifstream resolv("/etc/resolv.conf");
+		std::string nameserver;
+		bool found_server = false;
+		if (resolv.is_open())
+		{
+			while (resolv >> nameserver)
+			{
+				if ((nameserver == "nameserver") && (!found_server))
+				{
+					resolv >> nameserver;
+					strlcpy(Config->DNSServer,nameserver.c_str(),MAXBUF);
+					found_server = true;
+					log(DEFAULT,"<dns:server> set to '%s' as first resolver in /etc/resolv.conf.",nameserver.c_str());
+				}
+			}
+			if (!found_server)
+			{
+				log(DEFAULT,"/etc/resolv.conf contains no viable nameserver entries! Defaulting to nameserver '127.0.0.1'!");
+				strlcpy(Config->DNSServer,"127.0.0.1",MAXBUF);
+			}
+		}
+		else
+		{
+			log(DEFAULT,"/etc/resolv.conf can't be opened! Defaulting to nameserver '127.0.0.1'!");
+        	        strlcpy(Config->DNSServer,"127.0.0.1",MAXBUF);
+		}
+	}
         if (!*Config->ModPath)
                 strlcpy(Config->ModPath,MOD_PATH,MAXBUF);
         Config->AllowHalfop = ((!strcasecmp(AH,"true")) || (!strcasecmp(AH,"1")) || (!strcasecmp(AH,"yes")));
