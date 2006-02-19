@@ -287,14 +287,32 @@ class ExtMode : public classbase
 };
 
 
+/** This class can be used on its own to represent an exception, or derived to represent a module-specific exception.
+ * When a module whishes to abort, e.g. within a constructor, it should throw an exception using ModuleException or
+ * a class derived from ModuleException. If a module throws an exception during its constructor, the module will not
+ * be loaded. If this happens, the error message returned by ModuleException::GetReason will be displayed to the user
+ * attempting to load the module, or dumped to the console if the ircd is currently loading for the first time.
+ */
 class ModuleException
 {
  private:
+	/** Holds the error message to be displayed
+	 */
 	std::string err;
  public:
+	/** Default constructor, just uses the error mesage 'Module threw an exception'.
+	 */
 	ModuleException() : err("Module threw an exception") {}
+	/** This constructor can be used to specify an error message before throwing.
+	 */
 	ModuleException(std::string message) : err(message) {}
+	/** This destructor solves world hunger, cancels the world debt, and causes the world to end.
+	 * Actually no, it does nothing. Never mind.
+	 */
 	virtual ~ModuleException() {};
+	/** Returns the reason for the exception.
+	 * The module should probably put something informative here as the user will see this upon failure.
+	 */
 	virtual char *GetReason()
 	{
 		return (char*)err.c_str();
@@ -332,6 +350,7 @@ class Module : public classbase
 	/** Default constructor
 	 * Creates a module class.
 	 * @param Me An instance of the Server class which can be saved for future use
+	 * \exception ModuleException { Throwing this class, or any class derived from ModuleException, causes loading of the module to abort. }
 	 */
 	Module(Server* Me);
 
