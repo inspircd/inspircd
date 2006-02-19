@@ -27,6 +27,7 @@ using namespace std;
 
 class CensorException : public ModuleException
 {
+ public:
 	virtual char* GetReason()
 	{
 		return "Could not find <censor file=\"\"> definition in your config file!";

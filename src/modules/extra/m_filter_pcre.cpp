@@ -28,6 +28,15 @@ using namespace std;
 #include "modules.h"
 #include "helperfuncs.h"
 
+class FilterPCREException
+{
+ public:
+	virtual char* GetReason()
+	{
+		return "Could not find <filter file=\"\"> definition in your config file!";
+	}
+};
+
 /* $ModDesc: m_filter with regexps */
 /* $CompileFlags: -I/usr/local/include */
 /* $LinkerFlags: -L/usr/local/lib -lpcre */
@@ -56,9 +65,8 @@ class ModuleFilterPCRE : public Module
 		MyConf = new ConfigReader(filterfile);
 		if ((filterfile == "") || (!MyConf->Verify()))
 		{
-			printf("Error, could not find <filter file=\"\"> definition in your config file!\n");
-			log(DEFAULT,"Error, could not find <filter file=\"\"> definition in your config file!");
-			return;
+			FilterPCREException e;
+			throw(e);
 		}
 		Srv->Log(DEFAULT,std::string("m_filter_pcre: read configuration from ")+filterfile);
 
@@ -156,10 +164,9 @@ class ModuleFilterPCRE : public Module
 		MyConf = new ConfigReader(filterfile);
 		if ((filterfile == "") || (!MyConf->Verify()))
 		{
+			FilterPCREException e;
 			// bail if the user forgot to create a config file
-			printf("Error, could not find <filter file=\"\"> definition in your config file!");
-			log(DEFAULT,"Error, could not find <filter file=\"\"> definition in your config file!");
-			return;
+			throw(e);
 		}
 		Srv->Log(DEFAULT,std::string("m_filter_pcre: read configuration from ")+filterfile);
 

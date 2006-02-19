@@ -160,6 +160,15 @@ void sendtohelpop(userrec *src, int pcnt, char **params)
 	Srv->SendToModeMask("oh",WM_AND,line);
 }
 
+class HelpopException
+{
+ private:
+	std::string err;
+ public:
+	HelpopException(std::string message) : err(message) { }
+	virtual char* GetReason() { return (char*)err.c_str(); }
+};
+
 class ModuleHelpop : public Module
 {
 	private:
@@ -192,8 +201,8 @@ class ModuleHelpop : public Module
 			if (h_file == "")
 			{
 				helpop = NULL;
-				log(DEFAULT,"m_helpop: Helpop file not Specified.");
-				return;
+				HelpopException e("Missing helpop file");
+				throw(e);
 			}
 
 			helpop = new ConfigReader(h_file);
@@ -201,8 +210,8 @@ class ModuleHelpop : public Module
 				(helpop->ReadValue("nohelpo", "line1", 0) == "") ||
 				(helpop->ReadValue("start",   "line1", 0) == ""))
 			{
-				log(DEFAULT,"m_helpop: Helpop file is missing important entries. Please check the example conf.");
-				return;
+				HelpopException e("m_helpop: Helpop file is missing important entries. Please check the example conf.");
+				throw(e);
 			}
 		}
 

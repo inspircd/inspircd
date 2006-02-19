@@ -31,6 +31,7 @@ using namespace std;
 
 class FilterException : public ModuleException
 {
+ public:
 	virtual char* GetReason()
 	{
 		return "Could not find <filter file=\"\"> definition in your config file!";
