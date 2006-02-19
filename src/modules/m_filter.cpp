@@ -29,6 +29,14 @@ using namespace std;
 
 /* $ModDesc: An enhanced version of the unreal m_filter.so used by chatspike.net */
 
+class FilterException : public ModuleException
+{
+	virtual char* GetReason()
+	{
+		return "Could not find <filter file=\"\"> definition in your config file!";
+	}
+};
+
 class ModuleFilter : public Module
 {
  Server *Srv;
@@ -49,9 +57,8 @@ class ModuleFilter : public Module
 		MyConf = new ConfigReader(filterfile);
 		if ((filterfile == "") || (!MyConf->Verify()))
 		{
-			printf("Error, could not find <filter file=\"\"> definition in your config file!\n");
-			log(DEFAULT,"Error, could not find <filter file=\"\"> definition in your config file!");
-			return;
+			FilterException e;
+			throw(e);
 		}
 		Srv->Log(DEFAULT,std::string("m_filter: read configuration from ")+filterfile);
 	}
@@ -134,9 +141,8 @@ class ModuleFilter : public Module
 		if ((filterfile == "") || (!MyConf->Verify()))
 		{
 			// bail if the user forgot to create a config file
-			printf("Error, could not find <filter file=\"\"> definition in your config file!");
-			log(DEFAULT,"Error, could not find <filter file=\"\"> definition in your config file!");
-			return;
+			FilterException e;
+			throw(e);
 		}
 		Srv->Log(DEFAULT,std::string("m_filter: read configuration from ")+filterfile);
 	}
