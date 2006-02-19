@@ -748,7 +748,7 @@ bool CommandParser::CreateCommand(command_t *f)
 		log(DEBUG,"Added command %s (%lu parameters)",f->command.c_str(),(unsigned long)f->min_params);
 		return true;
 	}
-	else return false
+	else return false;
 }
 
 CommandParser::CommandParser()
