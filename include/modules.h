@@ -290,7 +290,7 @@ class ExtMode : public classbase
 class ModuleException
 {
  public:
-	virtual ModuleException() {};
+	ModuleException() {};
 	virtual ~ModuleException() {};
 	virtual char *GetReason()
 	{
