@@ -45,7 +45,15 @@ class ModuleRedirect : public Module
 			if (mode_on)
 			{
 				std::string ChanToJoin = params[0];
-				chanrec* c = Srv->FindChannel(ChanToJoin);
+				chanrec *c;
+
+				if (!IsValidChannelName(ChanToJoin.c_str()))
+				{
+					WriteServ(user->fd,"403 %s %s :Invalid channel name",user->nick, ChanToJoin.c_str());
+					return 0;
+				}
+
+				c = Srv->FindChannel(ChanToJoin);
 				if (c)
 				{
 					/* Fix by brain: Dont let a channel be linked to *itself* either */
