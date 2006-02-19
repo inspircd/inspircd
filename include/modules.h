@@ -289,12 +289,15 @@ class ExtMode : public classbase
 
 class ModuleException
 {
+ private:
+	std::string err;
  public:
-	ModuleException() {};
+	ModuleException() : err("Module threw an exception") {}
+	ModuleException(std::string message) : err(message) {}
 	virtual ~ModuleException() {};
 	virtual char *GetReason()
 	{
-		return "Module threw an exception";
+		return (char*)err.c_str();
 	}
 };
 
