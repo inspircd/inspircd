@@ -391,9 +391,11 @@
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-# DNS SERVER -#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 #                                                                     #
-# Define your DNS server address here. InspIRCd has its own resolver  #
-# and you must define this otherwise nobody's host will resolve. The  #
-# timeout value is in seconds.                                        #
+# Define your DNS server address here. InspIRCd has its own resolver. #
+# If you do not define this value, the first dns server from your     #
+# /etc/resolv.conf file is read. If no entries are found in this file #
+# or the file cannot be opened, the default value '127.0.0.1' is used #
+# instead. The timeout value is in seconds.                           #
 #                                                                     #
 #    ____                _   _____ _     _       ____  _ _   _        #
 #   |  _ \ ___  __ _  __| | |_   _| |__ (_)___  | __ )(_) |_| |       #
