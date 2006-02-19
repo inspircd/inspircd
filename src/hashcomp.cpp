@@ -159,7 +159,7 @@ bool operator== (std::string& leftval, irc::string& rightval)
 
 bool operator== (irc::string& leftval, std::string& rightval)
 {
-	return (rightval == irc::string(leftval.c_str()));
+	return (rightval == std::string(leftval.c_str()));
 }
 
 const char* irc::irc_char_traits::find(const char* s1, int  n, char c)

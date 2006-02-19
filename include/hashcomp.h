@@ -142,7 +142,7 @@ std::istream& operator>>(std::istream &is, irc::string &str);
 
 std::string operator+ (std::string& leftval, irc::string& rightval);
 irc::string operator+ (irc::string& leftval, std::string& rightval);
-std::string operator== (std::string& leftval, irc::string& rightval);
-irc::string operator== (irc::string& leftval, std::string& rightval);
+bool operator== (std::string& leftval, irc::string& rightval);
+bool operator== (irc::string& leftval, std::string& rightval);
 
 #endif
