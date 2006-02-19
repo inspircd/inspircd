@@ -413,7 +413,7 @@ void kill_link(userrec *user,const char* r)
 			{
                 		Config->GetIOHook(user->port)->OnRawSocketClose(user->fd);
 			}
-                        catch (ModuleException modexcept)
+                        catch (ModuleException& modexcept)
                         {
                                 log(DEBUG,"Module exception cought: %s",modexcept.GetReason()); \
                         }
@@ -483,7 +483,7 @@ void kill_link_silent(userrec *user,const char* r)
 			{
                 		Config->GetIOHook(user->port)->OnRawSocketClose(user->fd);
 			}
-                        catch (ModuleException modexcept)
+                        catch (ModuleException& modexcept)
                         {
                                 log(DEBUG,"Module exception cought: %s",modexcept.GetReason()); \
                         }

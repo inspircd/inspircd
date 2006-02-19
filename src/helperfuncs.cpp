@@ -139,7 +139,7 @@ void Write_NoFormat(int sock, const char *text)
 			{
 				Config->GetIOHook(fd_ref_table[sock]->port)->OnRawSocketWrite(sock,tb,bytes);
 			}
-			catch (ModuleException modexcept)
+			catch (ModuleException& modexcept)
 			{
 				log(DEBUG,"Module exception cought: %s",modexcept.GetReason()); \
 			}
@@ -177,7 +177,7 @@ void Write(int sock,char *text, ...)
 			{
 				Config->GetIOHook(fd_ref_table[sock]->port)->OnRawSocketWrite(sock,tb,bytes);
 			}
-			catch (ModuleException modexcept)
+			catch (ModuleException& modexcept)
 			{
 				log(DEBUG,"Module exception cought: %s",modexcept.GetReason()); \
 			}						                
@@ -206,7 +206,7 @@ void WriteServ_NoFormat(int sock, const char* text)
 			{
 				Config->GetIOHook(fd_ref_table[sock]->port)->OnRawSocketWrite(sock,tb,bytes);
 			}
-                        catch (ModuleException modexcept)
+                        catch (ModuleException& modexcept)
                         {
                                 log(DEBUG,"Module exception cought: %s",modexcept.GetReason()); \
                         }
@@ -246,7 +246,7 @@ void WriteServ(int sock, char* text, ...)
 			{
 				Config->GetIOHook(fd_ref_table[sock]->port)->OnRawSocketWrite(sock,tb,bytes);
 			}
-                        catch (ModuleException modexcept)
+                        catch (ModuleException& modexcept)
                         {
                                 log(DEBUG,"Module exception cought: %s",modexcept.GetReason()); \
                         }
@@ -275,7 +275,7 @@ void WriteFrom_NoFormat(int sock, userrec *user, const char* text)
 			{
 				Config->GetIOHook(fd_ref_table[sock]->port)->OnRawSocketWrite(sock,tb,bytes);
 			}
-                        catch (ModuleException modexcept)
+                        catch (ModuleException& modexcept)
                         {
                                 log(DEBUG,"Module exception cought: %s",modexcept.GetReason()); \
                         }
@@ -315,7 +315,7 @@ void WriteFrom(int sock, userrec *user,char* text, ...)
 			{
 				Config->GetIOHook(fd_ref_table[sock]->port)->OnRawSocketWrite(sock,tb,bytes);
 			}
-                        catch (ModuleException modexcept)
+                        catch (ModuleException& modexcept)
                         {
                                 log(DEBUG,"Module exception cought: %s",modexcept.GetReason()); \
                         }
@@ -1386,7 +1386,7 @@ void ShowMOTD(userrec *user)
 		{
 			Config->GetIOHook(user->port)->OnRawSocketWrite(user->fd,(char*)WholeMOTD.c_str(),WholeMOTD.length());
 		}
-                catch (ModuleException modexcept)
+                catch (ModuleException& modexcept)
                 {
                         log(DEBUG,"Module exception cought: %s",modexcept.GetReason()); \
                 }

@@ -88,12 +88,13 @@ void ProcessUser(userrec* cu)
 	if (Config->GetIOHook(cu->port))
 	{
 	        int result2 = 0;
+		int MOD_RESULT = 0;
 		try
 		{
-			int MOD_RESULT = Config->GetIOHook(cu->port)->OnRawSocketRead(cu->fd,data,65535,result2);
+			MOD_RESULT = Config->GetIOHook(cu->port)->OnRawSocketRead(cu->fd,data,65535,result2);
 	                log(DEBUG,"Data result returned by module: %d",MOD_RESULT);
 		}
-                catch (ModuleException modexcept)
+                catch (ModuleException& modexcept)
                 {
                         log(DEBUG,"Module exception cought: %s",modexcept.GetReason()); \
                 }

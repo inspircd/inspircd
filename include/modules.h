@@ -97,7 +97,7 @@ typedef std::deque<userrec*> chanuserlist;
 		{ \
 			modules[_i]->x ; \
 		} \
-		catch (ModuleException modexcept) \
+		catch (ModuleException& modexcept) \
 		{ \
 			log(DEBUG,"Module exception cought: %s",modexcept.GetReason()); \
 		} \
@@ -122,7 +122,7 @@ typedef std::deque<userrec*> chanuserlist;
 						break; \
 					} \
 				} \
-				catch (ModuleException modexcept) \
+				catch (ModuleException& modexcept) \
 				{ \
 					log(DEBUG,"Module exception cought: %s",modexcept.GetReason()); \
 				} \

@@ -524,7 +524,7 @@ bool InspIRCd::LoadModule(const char* filename)
 				return false;
 	                }
 		}
-		catch (ModuleException modexcept)
+		catch (ModuleException& modexcept)
 		{
 			log(DEFAULT,"Unable to load %s: ",modfile,modexcept.GetReason());
 			snprintf(MODERR,MAXBUF,"Factory function threw an exception: %s",modexcept.GetReason());
@@ -754,7 +754,7 @@ int InspIRCd::Run()
 							{
 								Config->GetIOHook(in_port)->OnRawSocketAccept(incomingSockfd, (char*)inet_ntoa(client.sin_addr), in_port);
 							}
-							catch (ModuleException modexcept)
+							catch (ModuleException& modexcept)
 				                        {
 				                                log(DEBUG,"Module exception cought: %s",modexcept.GetReason()); \
 				                        }
