@@ -492,35 +492,43 @@ bool InspIRCd::LoadModule(const char* filename)
 			snprintf(MODERR,MAXBUF,"Loader/Linker error: %s",factory[MODCOUNT+1]->LastError());
 			return false;
                 }
-                if (factory[MODCOUNT+1]->factory)
-                {
-			Module* m = factory[MODCOUNT+1]->factory->CreateModule(MyServer);
-                        modules[MODCOUNT+1] = m;
-                        /* save the module and the module's classfactory, if
-                         * this isnt done, random crashes can occur :/ */
-                        Config->module_names.push_back(filename);
+		try
+		{
+	                if (factory[MODCOUNT+1]->factory)
+	                {
+				Module* m = factory[MODCOUNT+1]->factory->CreateModule(MyServer);
+	                        modules[MODCOUNT+1] = m;
+	                        /* save the module and the module's classfactory, if
+	                         * this isnt done, random crashes can occur :/ */
+	                        Config->module_names.push_back(filename);
 
-			char* x = &Config->implement_lists[MODCOUNT+1][0];
-			for(int t = 0; t < 255; t++)
-				x[t] = 0;
+				char* x = &Config->implement_lists[MODCOUNT+1][0];
+				for(int t = 0; t < 255; t++)
+					x[t] = 0;
 
-			modules[MODCOUNT+1]->Implements(x);
+				modules[MODCOUNT+1]->Implements(x);
 
-			for(int t = 0; t < 255; t++)
-			{
-				Config->global_implementation[t] += Config->implement_lists[MODCOUNT+1][t];
-				if (Config->implement_lists[MODCOUNT+1][t])
+				for(int t = 0; t < 255; t++)
 				{
-					log(DEBUG,"Add global implementation: %d %d => %d",MODCOUNT+1,t,Config->global_implementation[t]);
+					Config->global_implementation[t] += Config->implement_lists[MODCOUNT+1][t];
+					if (Config->implement_lists[MODCOUNT+1][t])
+					{
+						log(DEBUG,"Add global implementation: %d %d => %d",MODCOUNT+1,t,Config->global_implementation[t]);
+					}
 				}
-			}
-                }
-		else
-                {
-                        log(DEFAULT,"Unable to load %s",modfile);
-			snprintf(MODERR,MAXBUF,"Factory function failed!");
-			return false;
-                }
+	                }
+			else
+			{
+       	        		log(DEFAULT,"Unable to load %s",modfile);
+				snprintf(MODERR,MAXBUF,"Factory function failed!");
+				return false;
+	                }
+		}
+		catch (ModuleException modexcept)
+		{
+			log(DEFAULT,"Unable to load %s: ",modfile,modexcept.GetReason());
+			snprintf(MODERR,MAXBUF,"Factory function threw an exception: %s",modexcept.GetReason());
+		}
 #ifndef STATIC_LINK
         }
         else
@@ -742,7 +750,14 @@ int InspIRCd::Run()
 						NonBlocking(incomingSockfd);
 						if (Config->GetIOHook(in_port))
 						{
-							Config->GetIOHook(in_port)->OnRawSocketAccept(incomingSockfd, (char*)inet_ntoa(client.sin_addr), in_port);
+							try
+							{
+								Config->GetIOHook(in_port)->OnRawSocketAccept(incomingSockfd, (char*)inet_ntoa(client.sin_addr), in_port);
+							}
+							catch (ModuleException modexcept)
+				                        {
+				                                log(DEBUG,"Module exception cought: %s",modexcept.GetReason()); \
+				                        }
 						}
 						stats->statsAccept++;
 						AddClient(incomingSockfd, in_port, false, client.sin_addr);

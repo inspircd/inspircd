@@ -93,7 +93,14 @@ typedef std::deque<userrec*> chanuserlist;
 #define FOREACH_MOD(y,x) if (Config->global_implementation[y] > 0) { \
 	for (int _i = 0; _i <= MODCOUNT; _i++) { \
 	if (Config->implement_lists[_i][y]) \
-		modules[_i]->x ; \
+		try \
+		{ \
+			modules[_i]->x ; \
+		} \
+		catch (ModuleException modexcept) \
+		{ \
+			log(DEBUG,"Module exception cought: %s",modexcept.GetReason()); \
+		} \
 	} \
   }
 
@@ -107,10 +114,17 @@ typedef std::deque<userrec*> chanuserlist;
 			MOD_RESULT = 0; \
 			for (int _i = 0; _i <= MODCOUNT; _i++) { \
 			if (Config->implement_lists[_i][y]) {\
-				int res = modules[_i]->x ; \
-				if (res != 0) { \
-					MOD_RESULT = res; \
-					break; \
+				try \
+				{ \
+					int res = modules[_i]->x ; \
+					if (res != 0) { \
+						MOD_RESULT = res; \
+						break; \
+					} \
+				} \
+				catch (ModuleException modexcept) \
+				{ \
+					log(DEBUG,"Module exception cought: %s",modexcept.GetReason()); \
 				} \
 			} \
 		} \
@@ -270,6 +284,18 @@ class ExtMode : public classbase
         int params_when_off;
         bool list;
         ExtMode(char mc, int ty, bool oper, int p_on, int p_off) : modechar(mc), type(ty), needsoper(oper), params_when_on(p_on), params_when_off(p_off), list(false) { };
+};
+
+
+class ModuleException
+{
+ public:
+	virtual ModuleException() {};
+	virtual ~ModuleException() {};
+	virtual char *GetReason()
+	{
+		return "Module threw an exception";
+	}
 };
 
 /** Priority types which can be returned from Module::Prioritize()
