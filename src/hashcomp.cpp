@@ -152,12 +152,12 @@ irc::string operator+ (irc::string& leftval, std::string& rightval)
 	return leftval + irc::string(rightval.c_str());
 }
 
-std::string operator== (std::string& leftval, irc::string& rightval)
+bool operator== (std::string& leftval, irc::string& rightval)
 {
 	return (leftval == std::string(rightval.c_str()));
 }
 
-irc::string operator== (irc::string& leftval, std::string& rightval)
+bool operator== (irc::string& leftval, std::string& rightval)
 {
 	return (rightval == irc::string(leftval.c_str()));
 }
