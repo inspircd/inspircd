@@ -82,7 +82,12 @@ bool ServerConfig::AddIOHook(int port, Module* iomod)
 		IOHookModule[port] = iomod;
 		return true;
 	}
-	return false;
+	else
+	{
+		ModuleException err("Port already hooked by another module");
+		throw(err);
+		return false;
+	}
 }
 
 bool ServerConfig::DelIOHook(int port)
@@ -259,7 +264,7 @@ void ServerConfig::Read(bool bail, userrec* user)
         Config->dns_timeout = atoi(DNT);
 	if (!strchr(Config->ServerName,'.'))
 	{
-		log(DEFAULT,"WARNING: <server:name> '%s' is not a fully-qualified domain name. Changed to '%s\.'",Config->ServerName,Config->ServerName);
+		log(DEFAULT,"WARNING: <server:name> '%s' is not a fully-qualified domain name. Changed to '%s%c'",Config->ServerName,Config->ServerName,'.');
 		strlcat(Config->ServerName,".",MAXBUF);
 	}
         if (!Config->dns_timeout)
