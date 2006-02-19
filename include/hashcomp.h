@@ -136,4 +136,13 @@ namespace irc
 std::ostream& operator<<(std::ostream &os, const irc::string &str);
 std::istream& operator>>(std::istream &is, irc::string &str);
 
+/* Define operators for + and == with irc::string to std::string for easy assignment
+ * and comparison - Brain
+ */
+
+std::string& operator+ (std::string& leftval, irc::string& rightval);
+irc::string& operator+ (irc::string& leftval, std::string& rightval);
+std::string& operator== (std::string& leftval, irc::string& rightval);
+irc::string& operator== (irc::string& leftval, std::string& rightval);
+
 #endif

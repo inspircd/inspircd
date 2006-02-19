@@ -142,6 +142,26 @@ int irc::irc_char_traits::compare(const char* str1, const char* str2, size_t n)
 	return 0;
 }
 
+std::string& operator+ (std::string& leftval, irc::string& rightval)
+{
+	return leftval + std::string(rightval.c_str());
+}
+
+irc::string& operator+ (irc::string& leftval, std::string& rightval)
+{
+	return leftval + irc::string(rightval.c_str());
+}
+
+std::string& operator== (std::string& leftval, irc::string& rightval)
+{
+	return (leftval == std::string(rightval.c_str()));
+}
+
+irc::string& operator== (irc::string& leftval, std::string& rightval)
+{
+	return (rightval == irc::string(leftval.c_str()));
+}
+
 const char* irc::irc_char_traits::find(const char* s1, int  n, char c)
 {
 	while(n-- > 0 && lowermap[(unsigned)*s1] != lowermap[(unsigned)c])
