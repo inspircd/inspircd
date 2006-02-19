@@ -350,7 +350,7 @@ class Module : public classbase
 	/** Default constructor
 	 * Creates a module class.
 	 * @param Me An instance of the Server class which can be saved for future use
-	 * \exception ModuleException { Throwing this class, or any class derived from ModuleException, causes loading of the module to abort. }
+	 * \exception ModuleException Throwing this class, or any class derived from ModuleException, causes loading of the module to abort.
 	 */
 	Module(Server* Me);
 
