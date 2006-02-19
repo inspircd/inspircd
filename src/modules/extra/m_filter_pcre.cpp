@@ -28,7 +28,7 @@ using namespace std;
 #include "modules.h"
 #include "helperfuncs.h"
 
-class FilterPCREException
+class FilterPCREException : public ModuleException
 {
  public:
 	virtual char* GetReason()

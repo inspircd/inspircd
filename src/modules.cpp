@@ -475,7 +475,11 @@ void Server::Log(int level, std::string s)
 
 void Server::AddCommand(command_t *f)
 {
-	ServerInstance->Parser->CreateCommand(f);
+	if (!ServerInstance->Parser->CreateCommand(f))
+	{
+		ModuleException err("Command "+std::string(f->command)+" already exists.");
+		throw (err);
+	}
 }
 
 void Server::SendMode(char **parameters, int pcnt, userrec *user)
@@ -619,24 +623,28 @@ bool Server::AddExtendedMode(char modechar, int type, bool requires_oper, int pa
 	{
 		if (type == MT_SERVER)
 		{
-			log(DEBUG,"*** API ERROR *** Modes of type MT_SERVER are reserved for future expansion");
+			ModuleException e("Modes of type MT_SERVER are reserved for future expansion");
+			throw(e);
 			return false;
 		}
 		if (((params_when_on>0) || (params_when_off>0)) && (type == MT_CLIENT))
 		{
-			log(DEBUG,"*** API ERROR *** Parameters on MT_CLIENT modes are not supported");
+			ModuleException e("Parameters on MT_CLIENT modes are not supported");
+			throw(e);
 			return false;
 		}
 		if ((params_when_on>1) || (params_when_off>1))
 		{
-			log(DEBUG,"*** API ERROR *** More than one parameter for an MT_CHANNEL mode is not yet supported");
+			ModuleException e("More than one parameter for an MT_CHANNEL mode is not yet supported");
+			throw(e);
 			return false;
 		}
 		return DoAddExtendedMode(modechar,type,requires_oper,params_when_on,params_when_off);
 	}
 	else
 	{
-		log(DEBUG,"*** API ERROR *** Muppet modechar detected.");
+		ModuleException e("Muppet modechar detected.");
+		throw(e);
 	}
 	return false;
 }

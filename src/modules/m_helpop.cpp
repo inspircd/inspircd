@@ -160,7 +160,7 @@ void sendtohelpop(userrec *src, int pcnt, char **params)
 	Srv->SendToModeMask("oh",WM_AND,line);
 }
 
-class HelpopException
+class HelpopException : public ModuleException
 {
  private:
 	std::string err;

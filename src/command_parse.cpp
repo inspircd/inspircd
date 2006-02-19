@@ -742,9 +742,13 @@ void CommandParser::ProcessBuffer(const char* cmdbuf,userrec *user)
 bool CommandParser::CreateCommand(command_t *f)
 {
 	/* create the command and push it onto the table */
-	cmdlist[f->command] = f;
-	log(DEBUG,"Added command %s (%lu parameters)",f->command.c_str(),(unsigned long)f->min_params);
-	return true;
+	if (cmdlist.find(f->command) != cmdlist.end())
+	{
+		cmdlist[f->command] = f;
+		log(DEBUG,"Added command %s (%lu parameters)",f->command.c_str(),(unsigned long)f->min_params);
+		return true;
+	}
+	else return false
 }
 
 CommandParser::CommandParser()
