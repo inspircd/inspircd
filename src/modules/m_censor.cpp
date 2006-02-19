@@ -25,6 +25,14 @@ using namespace std;
 
 /* $ModDesc: Provides user and channel +G mode */
 
+class CensorException : public ModuleException
+{
+	virtual char* GetReason()
+	{
+		return "Could not find <censor file=\"\"> definition in your config file!";
+	}
+};
+
 class ModuleCensor : public Module
 {
  Server *Srv;
@@ -52,9 +60,8 @@ class ModuleCensor : public Module
 		MyConf = new ConfigReader(Censorfile);
 		if ((Censorfile == "") || (!MyConf->Verify()))
 		{
-			printf("Error, could not find <censor file=\"\"> definition in your config file!");
-			log(DEFAULT,"Error, could not find <censor file=\"\"> definition in your config file!");
-			return;
+			CensorException e;
+			throw(e);
 		}
 		Srv->Log(DEFAULT,std::string("m_censor: read configuration from ")+Censorfile);
 		Srv->AddExtendedMode('G',MT_CHANNEL,false,0,0);
@@ -157,9 +164,8 @@ class ModuleCensor : public Module
 		MyConf = new ConfigReader(Censorfile);
 		if ((Censorfile == "") || (!MyConf->Verify()))
 		{
-			// bail if the user forgot to create a config file
-			printf("Error, could not find <censor file=\"\"> definition in your config file!\n");
-			log(DEFAULT,"Error, could not find <censor file=\"\"> definition in your config file!");
+			CensorException e;
+			throw(e);
 		}
 		Srv->Log(DEFAULT,std::string("m_censor: read configuration from ")+Censorfile);
 	}
