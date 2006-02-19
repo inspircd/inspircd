@@ -73,7 +73,7 @@ class RandquoteException : public ModuleException
 	{
 		return (char*)err.c_str();
 	}
-}
+};
 
 class ModuleRandQuote : public Module
 {
