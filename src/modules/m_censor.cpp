@@ -110,10 +110,11 @@ class ModuleCensor : public Module
 	virtual int OnUserPreMessage(userrec* user,void* dest,int target_type, std::string &text, char status)
 	{
 		bool active = false;
+		irc::string text2 = text.c_str();
 		for (int index = 0; index < MyConf->Enumerate("badword"); index++)
 		{
-			std::string pattern = MyConf->ReadValue("badword","text",index);
-			if (text.find(pattern) != std::string::npos)
+			irc::string pattern = (MyConf->ReadValue("badword","text",index)).c_str();
+			if (text2.find(pattern) != std::string::npos)
 			{
 				std::string replace = MyConf->ReadValue("badword","replace",index);
 
@@ -130,7 +131,7 @@ class ModuleCensor : public Module
 				
 				if (active)
 				{
-					this->ReplaceLine(text,pattern,replace);
+					this->ReplaceLine(text,std::string(pattern.c_str()),replace);
 				}
 			}
 		}
