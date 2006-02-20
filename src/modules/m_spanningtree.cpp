@@ -2757,7 +2757,7 @@ class ModuleSpanningTree : public Module
 		}
 		for (unsigned int q = 0; q < Current->ChildCount(); q++)
 		{
-			if ((HideULines) && (Srv->IsUlined(Current->GetName())))
+			if ((HideULines) && (Srv->IsUlined(Current->GetChild(q))))
 			{
 				if (*user->oper)
 				{
@@ -2769,6 +2769,9 @@ class ModuleSpanningTree : public Module
 				ShowLinks(Current->GetChild(q),user,hops+1);
 			}
 		}
+		/* Don't display the line if its a uline, hide ulines is on, and the user isnt an oper */
+		if ((HideULines) && (Srv->IsUlined(Current->GetName())) && (!*user->oper))
+			return;
 		WriteServ(user->fd,"364 %s %s %s :%d %s",user->nick,Current->GetName().c_str(),(FlatLinks && (!*user->oper)) ? Srv->GetServerName().c_str() : Parent.c_str(),(FlatLinks && (!*user->oper)) ? 0 : hops,Current->GetDesc().c_str());
 	}
 
