@@ -2345,6 +2345,24 @@ class TreeSocket : public InspSocket
 				{
 					return this->Time(prefix,params);
 				}
+				else if (command == "KICK")
+				{
+					std::string sourceserv = this->myhost;
+					if (params.size() == 3)
+					{
+						userrec* user = Srv->FindNick(params[1]);
+						chanrec* chan = Srv->FindChannel(params[0]);
+						if (user && chan)
+						{
+							server_kick_channel(user,chan,(char*)params[2].c_str(),false);
+						}
+					}
+					if (this->InboundServerName != "")
+					{
+						sourceserv = this->InboundServerName;
+					}
+					return DoOneToAllButSenderRaw(line,sourceserv,prefix,command,params);
+				}
 				else if (command == "SVSJOIN")
 				{
 					if (prefix == "")
@@ -2757,7 +2775,7 @@ class ModuleSpanningTree : public Module
 		}
 		for (unsigned int q = 0; q < Current->ChildCount(); q++)
 		{
-			if ((HideULines) && (Srv->IsUlined(Current->GetChild(q))))
+			if ((HideULines) && (Srv->IsUlined(Current->GetChild(q)->GetName())))
 			{
 				if (*user->oper)
 				{
@@ -3465,6 +3483,14 @@ class ModuleSpanningTree : public Module
 			params.push_back(user->nick);
 			params.push_back(":"+reason);
 			DoOneToMany(source->nick,"KICK",params);
+		}
+		else if (!source)
+		{
+			std::deque<std::string> params;
+			params.push_back(chan->name);
+			params.push_back(user->nick);
+			params.push_back(":"+reason);
+			DoOneToMany(Srv->GetServerName(),"KICK",params);
 		}
 	}
 

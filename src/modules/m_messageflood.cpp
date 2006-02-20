@@ -174,23 +174,26 @@ class ModuleMsgFlood : public Module
 
 	void ProcessMessages(userrec* user,chanrec* dest,std::string &text)
 	{
-		floodsettings *f = (floodsettings*)dest->GetExt("flood");
-		if (f)
+		if (IS_LOCAL(user))
 		{
-			f->addmessage(user);
-			if (f->shouldkick(user))
+			floodsettings *f = (floodsettings*)dest->GetExt("flood");
+			if (f)
 			{
-				/* Youre outttta here! */
-				f->clear(user);
-				if (f->ban)
+				f->addmessage(user);
+				if (f->shouldkick(user))
 				{
-					char* parameters[3];
-					parameters[0] = dest->name;
-					parameters[1] = "+b";
-					parameters[2] = user->MakeWildHost();
-					Srv->SendMode(parameters,3,user);
+					/* Youre outttta here! */
+					f->clear(user);
+					if (f->ban)
+					{
+						char* parameters[3];
+						parameters[0] = dest->name;
+						parameters[1] = "+b";
+						parameters[2] = user->MakeWildHost();
+						Srv->SendMode(parameters,3,user);
+					}
+					Srv->KickUser(NULL, user, dest, "Channel flood triggered (mode +f)");
 				}
-				Srv->KickUser(NULL, user, dest, "Channel flood triggered (mode +f)");
 			}
 		}
 	}
