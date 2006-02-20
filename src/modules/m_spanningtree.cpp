@@ -2345,27 +2345,23 @@ class TreeSocket : public InspSocket
 				{
 					return this->Time(prefix,params);
 				}
-				else if (command == "KICK")
+				else if ((command == "KICK") && (IsServer(prefix)))
 				{
 					std::string sourceserv = this->myhost;
-					userrec* source = Srv->FindNick(prefix);
-					if (!source)
+					if (params.size() == 3)
 					{
-						if (params.size() == 3)
+						userrec* user = Srv->FindNick(params[1]);
+						chanrec* chan = Srv->FindChannel(params[0]);
+						if (user && chan)
 						{
-							userrec* user = Srv->FindNick(params[1]);
-							chanrec* chan = Srv->FindChannel(params[0]);
-							if (user && chan)
-							{
-								server_kick_channel(user,chan,(char*)params[2].c_str(),false);
-							}
+							server_kick_channel(user,chan,(char*)params[2].c_str(),false);
 						}
-						if (this->InboundServerName != "")
-						{
-							sourceserv = this->InboundServerName;
-						}
-						return DoOneToAllButSenderRaw(line,sourceserv,prefix,command,params);
 					}
+					if (this->InboundServerName != "")
+					{
+						sourceserv = this->InboundServerName;
+					}
+					return DoOneToAllButSenderRaw(line,sourceserv,prefix,command,params);
 				}
 				else if (command == "SVSJOIN")
 				{
