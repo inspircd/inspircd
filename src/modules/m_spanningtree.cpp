@@ -2350,9 +2350,10 @@ class TreeSocket : public InspSocket
 					std::string sourceserv = this->myhost;
 					if (params.size() == 3)
 					{
+						userrec* source = Srv->FindNick(prefix);
 						userrec* user = Srv->FindNick(params[1]);
 						chanrec* chan = Srv->FindChannel(params[0]);
-						if (user && chan)
+						if (user && chan && !source)
 						{
 							server_kick_channel(user,chan,(char*)params[2].c_str(),false);
 						}
