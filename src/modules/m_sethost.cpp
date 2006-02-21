@@ -37,6 +37,11 @@ class cmd_sethost : public command_t
 
 	void Handle (char **parameters, int pcnt, userrec *user)
 	{
+		if (strlen(parameters[0]) > 64)
+		{
+			WriteServ(user->fd,"NOTICE %s :*** SETHOST: Host too long",user->nick);
+			return;
+		}
 		for (unsigned int x = 0; x < strlen(parameters[0]); x++)
 		{
 			if (((tolower(parameters[0][x]) < 'a') || (tolower(parameters[0][x]) > 'z')) && (parameters[0][x] != '.'))

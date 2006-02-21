@@ -37,6 +37,11 @@ class cmd_chghost : public command_t
 	 
         void Handle(char **parameters, int pcnt, userrec *user)
 	{
+                if (strlen(parameters[1]) > 64)
+                {
+                        WriteServ(user->fd,"NOTICE %s :*** CHGHOST: Host too long",user->nick);
+			return;
+                }
 		for (unsigned int x = 0; x < strlen(parameters[1]); x++)
 		{
 			if (((tolower(parameters[1][x]) < 'a') || (tolower(parameters[1][x]) > 'z')) && (parameters[1][x] != '.'))
