@@ -592,7 +592,7 @@ void ModeParser::ProcessModes(char **parameters,userrec* user,chanrec *chan,int 
 		/* If we have more than MAXMODES changes in one line,
 		 * drop all after the MAXMODES
 		 */
-		if (pc > MAXMODES)
+		if (pc > MAXMODES-1)
 			break;
 
 		{
