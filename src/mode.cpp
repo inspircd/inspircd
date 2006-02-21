@@ -589,6 +589,12 @@ void ModeParser::ProcessModes(char **parameters,userrec* user,chanrec *chan,int 
 	{
 		r = NULL;
 
+		/* If we have more than MAXMODES changes in one line,
+		 * drop all after the MAXMODES
+		 */
+		if (pc > MAXMODES)
+			break;
+
 		{
 			switch (*modechar)
 			{
@@ -629,6 +635,7 @@ void ModeParser::ProcessModes(char **parameters,userrec* user,chanrec *chan,int 
 					log(DEBUG,"Ops");
 					if ((param >= pcnt)) break;
 					log(DEBUG,"Enough parameters left");
+					r = NULL;
 					if (mdir == 1)
 					{
 						MOD_RESULT = 0;
@@ -660,6 +667,7 @@ void ModeParser::ProcessModes(char **parameters,userrec* user,chanrec *chan,int 
 			
 				case 'h':
 					if (((param >= pcnt)) || (!Config->AllowHalfop)) break;
+					r = NULL;
 					if (mdir == 1)
 					{
                                                 MOD_RESULT = 0;
@@ -690,6 +698,7 @@ void ModeParser::ProcessModes(char **parameters,userrec* user,chanrec *chan,int 
 				
 				case 'v':
 					if ((param >= pcnt)) break;
+					r = NULL;
 					if (mdir == 1)
 					{
                                                 MOD_RESULT = 0;
@@ -719,6 +728,7 @@ void ModeParser::ProcessModes(char **parameters,userrec* user,chanrec *chan,int 
 				
 				case 'b':
 					if ((param >= pcnt)) break;
+					r = NULL;
 					if (mdir == 1)
 					{
                                                 MOD_RESULT = 0;
