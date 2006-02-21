@@ -93,7 +93,7 @@ class ModuleChanFilter : public Module
 			{
 				if (line.find(*i) != std::string::npos)
 				{
-					WriteServ(user->fd,"936 %s %s :Your message contained a censored word, and was blocked",user->nick, chan->name);
+					WriteServ(user->fd,"936 %s %s %s :Your message contained a censored word, and was blocked",user->nick, chan->name, i->c_str());
 					return 1;
 				}
 			}
