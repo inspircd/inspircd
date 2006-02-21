@@ -102,14 +102,14 @@ void cmd_nick::Handle (char **parameters, int pcnt, userrec *user)
 		 * the nick AAA is the same as the nick aaa.
 		 */
 		log(DEBUG,"old nick is new nick, not updating hash (case change only)");
-		strlcpy(oldnick,user->nick,NICKMAX);
+		strlcpy(oldnick, user->nick, NICKMAX - 1);
 		int MOD_RESULT = 0;
 		FOREACH_RESULT(I_OnUserPreNick,OnUserPreNick(user,parameters[0]));
 		if (MOD_RESULT)
 			return;
 		if (user->registered == 7)
 			WriteCommon(user,"NICK %s",parameters[0]);
-		strlcpy(user->nick,parameters[0],NICKMAX);
+		strlcpy(user->nick, parameters[0], NICKMAX - 1);
 		FOREACH_MOD(I_OnUserPostNick,OnUserPostNick(user,oldnick));
 		return;
 	}
