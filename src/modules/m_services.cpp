@@ -51,9 +51,19 @@ class ModuleServices : public Module
 		InsertMode(output, "rRM", 4);
 	}
 
+	/* <- :stitch.chatspike.net 307 w00t w00t :is a registered nick */
+	virtual void OnWhois(userrec* source, userrec* dest)
+	{
+		if (strchr(dest->modes, 'r'))
+		{
+			/* user is registered */
+			WriteServ(source->fd, "307 %s %s :is a registered nick", source->nick, dest->nick);
+		}
+	}
+
 	void Implements(char* List)
 	{
-		List[I_OnUserPostNick] = List[I_OnUserPreMessage] = List[I_OnExtendedMode] = List[I_On005Numeric] = List[I_OnUserPreNotice] = List[I_OnUserPreJoin] = 1;
+		List[I_OnWhois] = List[I_OnUserPostNick] = List[I_OnUserPreMessage] = List[I_OnExtendedMode] = List[I_On005Numeric] = List[I_OnUserPreNotice] = List[I_OnUserPreJoin] = 1;
 	}
 
 	virtual void OnUserPostNick(userrec* user, std::string oldnick)
