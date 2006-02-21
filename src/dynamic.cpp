@@ -69,6 +69,10 @@ DLLManager::DLLManager(char *fname)
 	// shared libraries are mmap()ed and not doing this causes
 	// segfaults.
 	FILE* x = fopen(fname,"rb");
+	if (!x)
+	{
+		err = "Module file not found or cannot access, game over man!";
+	}
 	char tmpfile_template[255];
 	char buffer[65536];
 	snprintf(tmpfile_template, 255, "%s/inspircd_file.so.%d.XXXXXXXXXX",Config->TempDir,getpid());
