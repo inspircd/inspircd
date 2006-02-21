@@ -440,6 +440,27 @@ chanrec* add_channel(userrec *user, const char* cn, const char* key, bool overri
 
 	log(DEBUG,"add_channel: user channel max exceeded: %s %s",user->nick,cname);
 	WriteServ(user->fd,"405 %s %s :You are on too many channels",user->nick, cname);
+
+	if (created == 2)
+	{
+		log(DEBUG,"BLAMMO, Whacking channel.");
+		/* Things went seriously pear shaped, so take this away. bwahaha. */
+		chan_hash::iterator n = chanlist.find(cname);
+		if (n != chanlist.end())
+		{
+			Ptr->DelUser((char*)user);
+			delete Ptr;
+			chanlist.erase(n);
+			for (unsigned int index =0; index < user->chans.size(); index++)
+			{
+				if (user->chans[index].channel == Ptr)
+				{
+					user->chans[index].channel == NULL;
+					user->chans[index].uc_modes = 0;	
+				}
+			}
+		}
+	}
 	return NULL;
 }
 

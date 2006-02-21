@@ -397,6 +397,7 @@ void kill_link(userrec *user,const char* r)
         log(DEBUG,"closing fd %lu",(unsigned long)user->fd);
 
         if (user->registered == 7) {
+		purge_empty_chans(user);
                 FOREACH_MOD(I_OnUserQuit,OnUserQuit(user,reason));
                 WriteCommonExcept(user,"QUIT :%s",reason);
         }
@@ -425,7 +426,6 @@ void kill_link(userrec *user,const char* r)
         // this must come before the WriteOpers so that it doesnt try to fill their buffer with anything
         // if they were an oper with +s.
         if (user->registered == 7) {
-                purge_empty_chans(user);
                 // fix by brain: only show local quits because we only show local connects (it just makes SENSE)
                 if (user->fd > -1)
                         WriteOpers("*** Client exiting: %s!%s@%s [%s]",user->nick,user->ident,user->host,reason);
