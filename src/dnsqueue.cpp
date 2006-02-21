@@ -87,7 +87,7 @@ public:
 	bool DoLookup(std::string nick)
 	{
 		hostname = "";
-		userrec* usr = Find(nick.c_str());
+		userrec* usr = Find(nick);
 		if (usr)
 		{
 			resolver1.SetNS(std::string(Config->DNSServer));
@@ -210,7 +210,7 @@ public:
 bool lookup_dns(std::string nick)
 {
 	/* First attempt to find the nickname */
-	userrec* u = Find(nick.c_str());
+	userrec* u = Find(nick);
 	if (u)
 	{
 		/* Check the cache */
