@@ -1024,6 +1024,18 @@ userrec* Find(std::string &nick)
         return iter->second;
 }
 
+userrec* Find(const char* nick)
+{
+	if (!nick)
+		return NULL;
+	user_hash::iterator iter = clientlist.find(nick);
+	
+	if (iter == clientlist.end())
+		return NULL;
+
+	return iter->second;
+}
+
 /* find a channel record by channel name and return a pointer to it */
 
 chanrec* FindChan(const char* chan)

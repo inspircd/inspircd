@@ -61,6 +61,7 @@ void ServerPrivmsgAll(char* text, ...);
 void WriteWallOps(userrec *source, bool local_only, char* text, ...);
 void strlower(char *n);
 userrec* Find(std::string &nick);
+userrec* Find(const char* nick);
 chanrec* FindChan(const char* chan);
 long GetMaxBans(char* name);
 void purge_empty_chans(userrec* u);
