@@ -153,7 +153,7 @@ void cmd_nick::Handle (char **parameters, int pcnt, userrec *user)
 		
 	}
 
-	strlcpy(oldnick,user->nick,NICKMAX);
+	strlcpy(oldnick, user->nick, NICKMAX - 1);
 
 	/* change the nick of the user in the users_hash */
 	user = ReHashNick(user->nick, parameters[0]);
@@ -161,7 +161,7 @@ void cmd_nick::Handle (char **parameters, int pcnt, userrec *user)
 	if (!user) return;
 	if (!user->nick) return;
 
-	strlcpy(user->nick, parameters[0],NICKMAX);
+	strlcpy(user->nick, parameters[0], NICKMAX - 1);
 
 	log(DEBUG,"new nick set: %s",user->nick);
 	
