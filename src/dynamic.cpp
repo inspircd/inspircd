@@ -37,6 +37,11 @@ extern ServerConfig* Config;
 
 DLLManager::DLLManager(char *fname)
 {
+	if (!strstr(fname,".so"))
+	{
+		err = "This doesn't look like a module file to me...";
+		return;
+	}
 #ifdef STATIC_LINK
 	this->staticname[0] = '\0';
 	log(DEBUG,"Loading core-compiled module '%s'",fname);
@@ -72,6 +77,7 @@ DLLManager::DLLManager(char *fname)
 	if (!x)
 	{
 		err = "Module file not found or cannot access, game over man!";
+		return;
 	}
 	char tmpfile_template[255];
 	char buffer[65536];
