@@ -1013,7 +1013,7 @@ void strlower(char *n)
 
 /* Find a user record by nickname and return a pointer to it */
 
-userrec* Find(std::string nick)
+userrec* Find(std::string &nick)
 {
         user_hash::iterator iter = clientlist.find(nick);
 
