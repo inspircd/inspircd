@@ -129,7 +129,7 @@ class ModuleSafeList : public Module
 						int counter = snprintf(buffer,MAXBUF,"322 %s %s %d :[+%s] %s",u->nick,chan->name,usercount_i(chan),chanmodes(chan,has_channel(u,chan)),chan->topic);
 						amount_sent += counter + 4 + Srv->GetServerName().length();
 						log(DEBUG,"m_safelist.so: Sent %ld of safe %ld / 2",amount_sent,u->sendqmax);
-						WriteServ(u->fd,"%s",buffer);
+						WriteServ_NoFormat(u->fd,buffer);
 					}
 					else
 					{
