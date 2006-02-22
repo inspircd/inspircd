@@ -2295,6 +2295,16 @@ class TreeSocket : public InspSocket
 				}
 				else if (command == "PING")
 				{
+					/*
+					 * We just got a ping from a server that's bursting.
+					 * This can't be right, so set them to not bursting, and
+					 * apply their lines.
+					 */
+					if (this->bursting)
+					{
+						this->bursting = false;
+						apply_lines(APPLY_ZLINES|APPLY_GLINES|APPLY_QLINES);
+					}
 					if (prefix == "")
 					{
 						prefix = this->GetName();
@@ -2303,6 +2313,16 @@ class TreeSocket : public InspSocket
 				}
 				else if (command == "PONG")
 				{
+					/*
+					 * We just got a pong from a server that's bursting.
+					 * This can't be right, so set them to not bursting, and
+					 * apply their lines.
+					 */
+					if (this->bursting)
+					{
+						this->bursting = false;
+						apply_lines(APPLY_ZLINES|APPLY_GLINES|APPLY_QLINES);
+					}
 					if (prefix == "")
 					{
 						prefix = this->GetName();
