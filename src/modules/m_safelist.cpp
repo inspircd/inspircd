@@ -200,7 +200,7 @@ class ModuleSafeList : public Module
                 if(target_type == TYPE_USER)
 		{
 			userrec* u = (userrec*)item;
-			ListData* ld = u->GetExt("safelist_cache");
+			ListData* ld = (ListData*)u->GetExt("safelist_cache");
 			if (ld)
 			{
 				u->Shrink("safelist_cache");
@@ -215,11 +215,11 @@ class ModuleSafeList : public Module
 					break;
 				}
 			}
-			time_t* last_list_time = (time_t*)user->GetExt("safelist_last");
+			time_t* last_list_time = (time_t*)u->GetExt("safelist_last");
 			if (last_list_time)
 			{
 				delete last_list_time;
-				user->Shrink("safelist_last");
+				u->Shrink("safelist_last");
 			}
 		}
 	}
