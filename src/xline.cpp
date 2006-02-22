@@ -665,7 +665,7 @@ void apply_lines(const int What)
 	{
 		userrec* u = (userrec*)(*u2);
 		u->MakeHost(host);
-		if (elines.size())
+		if (elines.size() || pelines.size())
 		{
 			// ignore people matching exempts
 			if (matches_exception(host))
