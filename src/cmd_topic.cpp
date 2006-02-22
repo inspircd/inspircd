@@ -132,7 +132,7 @@ void cmd_topic::Handle (char **parameters, int pcnt, userrec *user)
                                 }
 
 				strlcpy(Ptr->topic,topic,MAXTOPIC);
-				strlcpy(Ptr->setby,user->nick,NICKMAX);
+				strlcpy(Ptr->setby,user->nick,NICKMAX-1);
 				Ptr->topicset = TIME;
 				WriteChannel(Ptr,user,"TOPIC %s :%s",Ptr->name, Ptr->topic);
 				if (IS_LOCAL(user))

@@ -95,7 +95,7 @@ public:
 			{
 				return false;
 			}
-			strlcpy(u,nick.c_str(),NICKMAX);
+			strlcpy(u,nick.c_str(),NICKMAX-1);
 
 			/* ASSOCIATE WITH DNS LOOKUP LIST */
 			if (resolver1.GetFD() != -1)

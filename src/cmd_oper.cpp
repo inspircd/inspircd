@@ -117,7 +117,7 @@ void cmd_oper::Handle (char **parameters, int pcnt, userrec *user)
 						log(DEFAULT,"OPER: Failed oper attempt by %s!%s@%s: credentials valid, but oper type erroneous.",user->nick,user->ident,user->host);
 						return;
 					}
-					strlcpy(user->oper,TypeName,NICKMAX);
+					strlcpy(user->oper,TypeName,NICKMAX-1);
 					found = true;
 					fail2 = false;
 					break;

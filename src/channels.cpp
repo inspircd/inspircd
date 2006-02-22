@@ -290,7 +290,7 @@ chanrec* add_channel(userrec *user, const char* cn, const char* key, bool overri
 		chanlist[cname]->binarymodes = CM_TOPICLOCK | CM_NOEXTERNAL;
 		chanlist[cname]->created = TIME;
 		*chanlist[cname]->topic = 0;
-		strlcpy(chanlist[cname]->setby, user->nick,NICKMAX);
+		strlcpy(chanlist[cname]->setby, user->nick,NICKMAX-1);
 		chanlist[cname]->topicset = 0;
 		Ptr = chanlist[cname];
 		log(DEBUG,"add_channel: created: %s",cname);

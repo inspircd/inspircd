@@ -519,7 +519,7 @@ void AddWhoWas(userrec* u)
 {
         whowas_hash::iterator iter = whowas.find(u->nick);
         WhoWasUser *a = new WhoWasUser();
-        strlcpy(a->nick,u->nick,NICKMAX);
+        strlcpy(a->nick,u->nick,NICKMAX-1);
         strlcpy(a->ident,u->ident,IDENTMAX);
         strlcpy(a->dhost,u->dhost,160);
         strlcpy(a->host,u->host,160);
@@ -608,7 +608,7 @@ void AddClient(int socket, int port, bool iscached, in_addr ip4)
         log(DEBUG,"AddClient: %d %d %s",socket,port,ipaddr);
 
         clientlist[tempnick]->fd = socket;
-        strlcpy(clientlist[tempnick]->nick, tn2,NICKMAX);
+        strlcpy(clientlist[tempnick]->nick, tn2,NICKMAX-1);
 	/* We don't know the host yet, dns lookup could still be going on,
 	 * so instead we just put the ip address here, for now.
 	 */

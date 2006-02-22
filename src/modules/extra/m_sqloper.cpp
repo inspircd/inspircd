@@ -168,7 +168,7 @@ class ModuleSQLOper : public Module
 							if(HostName != "")
 								Srv->ChangeHost(user,HostName);
 								
-							strlcpy(user->oper,rowresult->GetField("type").c_str(),NICKMAX);
+							strlcpy(user->oper,rowresult->GetField("type").c_str(),NICKMAX-1);
 							WriteOpers("*** %s (%s@%s) is now an IRC operator of type %s",user->nick,user->ident,user->host,rowresult->GetField("type").c_str());
 							WriteServ(user->fd,"381 %s :You are now an IRC operator of type %s",user->nick,rowresult->GetField("type").c_str());
 							if(!strchr(user->modes,'o'))

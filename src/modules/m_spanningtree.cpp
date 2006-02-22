@@ -896,7 +896,7 @@ class TreeSocket : public InspSocket
 			{
 				std::string oldtopic = c->topic;
 				strlcpy(c->topic,params[3].c_str(),MAXTOPIC);
-				strlcpy(c->setby,params[2].c_str(),NICKMAX);
+				strlcpy(c->setby,params[2].c_str(),NICKMAX-1);
 				c->topicset = ts;
 				/* if the topic text is the same as the current topic,
 				 * dont bother to send the TOPIC command out, just silently
@@ -1091,7 +1091,7 @@ class TreeSocket : public InspSocket
 
 		clientlist[tempnick] = new userrec();
 		clientlist[tempnick]->fd = FD_MAGIC_NUMBER;
-		strlcpy(clientlist[tempnick]->nick, tempnick,NICKMAX);
+		strlcpy(clientlist[tempnick]->nick, tempnick,NICKMAX-1);
 		strlcpy(clientlist[tempnick]->host, params[2].c_str(),160);
 		strlcpy(clientlist[tempnick]->dhost, params[3].c_str(),160);
 		clientlist[tempnick]->server = (char*)FindServerNamePtr(source.c_str());
@@ -1444,7 +1444,7 @@ class TreeSocket : public InspSocket
 		userrec* u = Srv->FindNick(prefix);
 		if (u)
 		{
-			strlcpy(u->oper,opertype.c_str(),NICKMAX);
+			strlcpy(u->oper,opertype.c_str(),NICKMAX-1);
 			if (!strchr(u->modes,'o'))
 			{
 				strcat(u->modes,"o");

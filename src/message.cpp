@@ -425,7 +425,7 @@ void TidyBan(char *ban)
 	pos_of_pling++;
 	pos_of_at++;
 
-	strlcpy(NICK,temp,NICKMAX);
+	strlcpy(NICK,temp,NICKMAX-1);
 	strlcpy(IDENT,pos_of_pling,IDENTMAX+1);
 	strlcpy(HOST,pos_of_at,160);
 

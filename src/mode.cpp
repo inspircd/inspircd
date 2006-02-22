@@ -453,11 +453,11 @@ char* ModeParser::AddBan(userrec *user,char *dest,chanrec *chan,int status)
 	strlcpy(b.data,dest,MAXBUF);
 	if (*user->nick)
 	{
-		strlcpy(b.set_by,user->nick,NICKMAX);
+		strlcpy(b.set_by,user->nick,NICKMAX-1);
 	}
 	else
 	{
-		strlcpy(b.set_by,Config->ServerName,NICKMAX);
+		strlcpy(b.set_by,Config->ServerName,NICKMAX-1);
 	}
 	chan->bans.push_back(b);
 	return dest;
@@ -1215,7 +1215,7 @@ bool ModeParser::ProcessModuleUmode(char umode, userrec* source, void* dest, boo
 	if (!source)
 	{
 		s2 = new userrec;
-		strlcpy(s2->nick,Config->ServerName,NICKMAX);
+		strlcpy(s2->nick,Config->ServerName,NICKMAX-1);
 		strlcpy(s2->modes,"o",52);
 		s2->fd = -1;
 		source = s2;
