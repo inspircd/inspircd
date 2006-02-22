@@ -405,6 +405,7 @@ long Server::GetChannelCount()
 
 chanrec* Server::GetChannelIndex(long index)
 {
+	int target = 0;
 	for (chan_hash::iterator n = chanlist.begin(); n != chanlist.end(); n++, target++)
 	{
 		if (index == target)

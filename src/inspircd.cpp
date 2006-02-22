@@ -637,14 +637,14 @@ int InspIRCd::Run()
 		 * timing using this event, so we dont have to
 		 * time this exactly).
 		 */
-		if (((TIME % 8) == 0) && (!expire_run))
+		if (((TIME % 5) == 0) && (!expire_run))
 		{
 			expire_lines();
 			FOREACH_MOD(I_OnBackgroundTimer,OnBackgroundTimer(TIME));
 			expire_run = true;
 			continue;
 		}
-		else if ((TIME % 8) == 1)
+		else if ((TIME % 5) == 1)
 		{
 			expire_run = false;
 		}
