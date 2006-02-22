@@ -62,7 +62,7 @@ class ModuleSafeList : public Module
  
 	void Implements(char* List)
 	{
-		List[I_OnPreCommand] = List[I_OnBackgroundTimer] = 1;
+		List[I_OnPreCommand] = List[I_OnBackgroundTimer] = List[I_OnCleanup] = List[I_OnUserQuit] = 1;
 	}
 
 	/*
@@ -175,13 +175,6 @@ class ModuleSafeList : public Module
 			user->Shrink("safelist_last");
 		}
  
-		/* no? let's check when they did a /list last.. */
-		/*if ((ld) && (*list_start >= TIME - 100))
-		{
-			Srv->SendServ(user->fd,"NOTICE "+std::string(user->nick)+" :*** You are attempting to LIST too quickly. Please wait a while.");
-			return 1;
-		}*/
- 
 		/*
 		 * start at channel 0! ;)
 		 */
@@ -201,6 +194,41 @@ class ModuleSafeList : public Module
 		this->OnBackgroundTimer(TIME);
 		return 1;
 	}
+
+        virtual void OnCleanup(int target_type, void* item)
+        {
+                if(target_type == TYPE_USER)
+		{
+			userrec* u = (userrec*)item;
+			ListData* ld = u->GetExt("safelist_cache");
+			if (ld)
+			{
+				u->Shrink("safelist_cache");
+	                        delete ld;
+			}
+			for (UserList::iterator iter = listusers.begin(); iter != listusers.end(); iter++)
+			{
+				userrec* u2 = (userrec*)(*iter);
+				if (u2 == u)
+				{
+					listusers.erase(iter);
+					break;
+				}
+			}
+			time_t* last_list_time = (time_t*)user->GetExt("safelist_last");
+			if (last_list_time)
+			{
+				delete last_list_time;
+				user->Shrink("safelist_last");
+			}
+		}
+	}
+
+	virtual void OnUserQuit(userrec* user, std::string message)
+	{
+		this->OnCleanup(TYPE_USER,user);
+	}
+
 };
  
  
