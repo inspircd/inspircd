@@ -62,7 +62,7 @@ class ModuleSafeList : public Module
  
 	void Implements(char* List)
 	{
-		List[I_OnPreCommand] = List[I_OnBackgroundTimer] = List[I_OnCleanup] = List[I_OnUserQuit] = 1;
+		List[I_OnPreCommand] = List[I_OnBackgroundTimer] = List[I_OnCleanup] = List[I_OnUserQuit] = List[I_On005Numeric] = 1;
 	}
 
 	/*
@@ -222,6 +222,11 @@ class ModuleSafeList : public Module
 				u->Shrink("safelist_last");
 			}
 		}
+	}
+
+	virtual void On005Numeric(std::string &output)
+	{
+		output.append(" SAFELIST");
 	}
 
 	virtual void OnUserQuit(userrec* user, std::string message)
