@@ -391,6 +391,28 @@ void Server::DelSocket(InspSocket* sock)
 	}
 }
 
+long Server::GetChannelCount()
+{
+	return (long)chanlist.size();
+}
+
+/* This is ugly, yes, but hash_map's arent designed to be
+ * addressed in this manner, and this is a bit of a kludge.
+ * Luckily its a specialist function and rarely used by
+ * many modules (in fact, it was specially created to make
+ * m_safelist possible, initially).
+ */
+
+chanrec* Server::GetChannelIndex(long index)
+{
+	for (chan_hash::iterator n = chanlist.begin(); n != chanlist.end(); n++, target++)
+	{
+		if (index == target)
+			return n->second;
+	}
+	return NULL;
+}
+
 void Server::SendOpers(std::string s)
 {
 	WriteOpers("%s",s.c_str());

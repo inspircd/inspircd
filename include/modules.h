@@ -1739,6 +1739,10 @@ class Server : public classbase
 	virtual void DelSocket(InspSocket* sock);
 
 	virtual void RehashServer();
+
+	virtual long GetChannelCount();
+
+	virtual chanrec* GetChannelIndex(long index);
 };
 
 
