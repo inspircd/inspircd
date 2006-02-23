@@ -142,7 +142,7 @@ class ModuleSafeList : public Module
  
 	void Implements(char* List)
 	{
-		List[I_OnPreCommand] List[I_OnCleanup] = List[I_OnUserQuit] = List[I_On005Numeric] = 1;
+		List[I_OnPreCommand] = List[I_OnCleanup] = List[I_OnUserQuit] = List[I_On005Numeric] = 1;
 	}
 
 	/*
