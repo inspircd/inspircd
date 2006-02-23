@@ -1276,20 +1276,20 @@ EOM
 
 	if ($config{OSNAME} =~ /CYGWIN/) {
 		print FH <<EOM;
-all: aes.o command_parse.o cull_list.o userprocess.o socketengine.o socket.o hashcomp.o channels.o mode.o xline.o inspstring.o dns.o base.o inspircd_io.o message.o $cmdobjs commands.o dnsqueue.o dynamic.o users.o modules.o wildcard.o helperfuncs.o inspircd.exe
+all: timers.o aes.o command_parse.o cull_list.o userprocess.o socketengine.o socket.o hashcomp.o channels.o mode.o xline.o inspstring.o dns.o base.o inspircd_io.o message.o $cmdobjs commands.o dnsqueue.o dynamic.o users.o modules.o wildcard.o helperfuncs.o inspircd.exe
 
 inspircd.exe: inspircd.dll.a
 	\$(CC) -o \$@ \$^
 
-inspircd.dll inspircd.dll.a: inspircd.o channels.o mode.o xline.o inspstring.o dns.o base.o inspircd_io.o message.o $cmdobjs  commands.o dnsqueue.o dynamic.o users.o modules.o wildcard.o helperfuncs.o hashcomp.o socket.o socketengine.o userprocess.o cull_list.o command_parse.o aes.o
+inspircd.dll inspircd.dll.a: inspircd.o channels.o mode.o xline.o inspstring.o dns.o base.o inspircd_io.o message.o $cmdobjs  commands.o dnsqueue.o dynamic.o users.o modules.o wildcard.o helperfuncs.o hashcomp.o socket.o socketengine.o userprocess.o cull_list.o command_parse.o aes.o timers.o
 	\$(CC) -shared -Wl,--out-implib=inspircd.dll.a -o inspircd.dll \$^
 EOM
 	} else {
 		print FH <<EOM;
-all: aes.o command_parse.o cull_list.o userprocess.o socketengine.o socket.o hashcomp.o channels.o mode.o xline.o inspstring.o dns.o base.o inspircd_io.o message.o $cmdobjs commands.o dnsqueue.o dynamic.o users.o modules.o wildcard.o helperfuncs.o \$(MODULES) inspircd.exe
+all: timers.o aes.o command_parse.o cull_list.o userprocess.o socketengine.o socket.o hashcomp.o channels.o mode.o xline.o inspstring.o dns.o base.o inspircd_io.o message.o $cmdobjs commands.o dnsqueue.o dynamic.o users.o modules.o wildcard.o helperfuncs.o \$(MODULES) inspircd.exe
 
 inspircd.exe: inspircd.cpp ../include/base.h ../include/channels.h ../include/inspircd.h ../include/channels.h ../include/globals.h ../include/inspircd_config.h ../include/base.h
-	\$(CC) -I../include \$(FLAGS) inspircd.cpp -o inspircd.exe \$(LDLIBS) channels.o mode.o xline.o inspstring.o dns.o base.o inspircd_io.o message.o $cmdobjs commands.o dnsqueue.o dynamic.o users.o modules.o wildcard.o helperfuncs.o hashcomp.o socket.o socketengine.o userprocess.o cull_list.o command_parse.o aes.o \$(MODULES)
+	\$(CC) -I../include \$(FLAGS) inspircd.cpp -o inspircd.exe \$(LDLIBS) channels.o mode.o xline.o inspstring.o dns.o base.o inspircd_io.o message.o $cmdobjs commands.o dnsqueue.o dynamic.o users.o modules.o wildcard.o helperfuncs.o hashcomp.o socket.o socketengine.o userprocess.o cull_list.o command_parse.o aes.o timers.o \$(MODULES)
 EOM
 	}
 
@@ -1361,6 +1361,9 @@ socket.o: socket.cpp ../include/base.h ../include/inspircd.h ../include/globals.
 aes.o: aes.cpp ../include/base.h ../include/inspircd.h ../include/globals.h ../include/inspircd_config.h
 	\$(CC) -pipe -I../include \$(FLAGS) -export-dynamic -c aes.cpp
 
+timers.o: timers.cpp ../include/base.h ../include/inspircd.h ../include/globals.h ../include/inspircd_config.h
+	\$(CC) -pipe -I../include \$(FLAGS) -export-dynamic -c timers.cpp
+
 EOM
 	foreach my $cmd (@cmdlist) {
 		print FH <<ITEM;
@@ -1403,10 +1406,10 @@ CC = im a cheezeball
 
 CXXFLAGS = -I../include \${FLAGS}
 
-all: libIRCDaes.so libIRCDcull_list.so libIRCDuserprocess.so libIRCDsocketengine.so libIRCDsocket.so libIRCDhash.so libIRCDchannels.so libIRCDmode.so libIRCDxline.so libIRCDstring.so libIRCDasyncdns.so libIRCDbase.so libIRCDio.so libIRCDmessage.so $cmdobjs libIRCDcommands.so libIRCDdnsqueue.so libIRCDdynamic.so libIRCDusers.so libIRCDmodules.so libIRCDwildcard.so libIRCDhelper.so libIRCDcommand_parse.so inspircd
+all: libIRCDtimers.so libIRCDaes.so libIRCDcull_list.so libIRCDuserprocess.so libIRCDsocketengine.so libIRCDsocket.so libIRCDhash.so libIRCDchannels.so libIRCDmode.so libIRCDxline.so libIRCDstring.so libIRCDasyncdns.so libIRCDbase.so libIRCDio.so libIRCDmessage.so $cmdobjs libIRCDcommands.so libIRCDdnsqueue.so libIRCDdynamic.so libIRCDusers.so libIRCDmodules.so libIRCDwildcard.so libIRCDhelper.so libIRCDcommand_parse.so inspircd
 
 inspircd: inspircd.cpp ../include/base.h ../include/channels.h ../include/inspircd.h ../include/channels.h ../include/globals.h ../include/inspircd_config.h ../include/socket.h
-	\$(CC) -I../include -Wl,--rpath -Wl,$config{LIBRARY_DIR} \$(FLAGS) -rdynamic -L. inspircd.cpp -o inspircd \$(LDLIBS) libIRCDchannels.so libIRCDmode.so libIRCDxline.so libIRCDstring.so libIRCDasyncdns.so libIRCDbase.so libIRCDio.so libIRCDmessage.so libIRCDcommands.so libIRCDdnsqueue.so libIRCDdynamic.so libIRCDusers.so libIRCDmodules.so libIRCDwildcard.so libIRCDhelper.so libIRCDhash.so libIRCDsocket.so libIRCDsocketengine.so libIRCDuserprocess.so libIRCDcull_list.so libIRCDcommand_parse.so libIRCDaes.so
+	\$(CC) -I../include -Wl,--rpath -Wl,$config{LIBRARY_DIR} \$(FLAGS) -rdynamic -L. inspircd.cpp -o inspircd \$(LDLIBS) libIRCDchannels.so libIRCDmode.so libIRCDxline.so libIRCDstring.so libIRCDasyncdns.so libIRCDbase.so libIRCDio.so libIRCDmessage.so libIRCDcommands.so libIRCDdnsqueue.so libIRCDdynamic.so libIRCDusers.so libIRCDmodules.so libIRCDwildcard.so libIRCDhelper.so libIRCDhash.so libIRCDsocket.so libIRCDsocketengine.so libIRCDuserprocess.so libIRCDcull_list.so libIRCDcommand_parse.so libIRCDaes.so libIRCDtimers.so
 
 libIRCDsocketengine.so: socketengine.cpp ../include/base.h ../include/hashcomp.h ../include/globals.h ../include/inspircd_config.h
 	\$(CC) -pipe -I../include \$(FLAGS) -export-dynamic -c socketengine.cpp
@@ -1495,6 +1498,10 @@ libIRCDsocket.so: socket.cpp ../include/base.h ../include/inspircd.h ../include/
 libIRCDaes.so: aes.cpp ../include/base.h ../include/inspircd.h ../include/globals.h ../include/inspircd_config.h
 	\$(CC) -pipe -I../include \$(FLAGS) -export-dynamic -c aes.cpp
 	\$(CC) -Wl,--rpath -Wl,$config{LIBRARY_DIR} -shared -o libIRCDaes.so aes.o
+
+libIRCDtimers.so: timers.cpp ../include/base.h ../include/inspircd.h ../include/globals.h ../include/inspircd_config.h
+	\$(CC) -pipe -I../include \$(FLAGS) -export-dynamic -c timers.cpp
+	\$(CC) -Wl,--rpath -Wl,$config{LIBRARY_DIR} -shared -o libIRCDtimers.so timers.o
 
 EOM
 	foreach my $cmd (@cmdlist) {
