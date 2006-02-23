@@ -52,6 +52,7 @@ bininst:
 	-install -v -m 0700 src/libIRCDusers.so $(LIBPATH)
 	-install -v -m 0700 src/libIRCDwildcard.so $(LIBPATH)
 	-install -v -m 0700 src/libIRCDxline.so $(LIBPATH)
+	-install -v -m 0700 src/libIRCDtimer.so $(LIBPATH)
 	-install -v -m 0700 src/inspircd $(BINPATH)
 	@-install -v -m 0700 inspircd $(BASE) 2>/dev/null
 	@echo "*************************************"
