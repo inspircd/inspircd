@@ -65,6 +65,14 @@ void TickTimers(time_t TIME)
 	}
 }
 
+/*
+ * Because some muppets may do odd things, and their ircd may lock up due
+ * to crappy 3rd party modules, or they may change their system time a bit,
+ * this accounts for shifts of up to 120 secs by looking behind for missed
+ * timers and executing them. This is only executed once every 5 secs.
+ * If you move your clock BACK, and your timers move further ahead as a result,
+ * then tough titty you'll just have to wait.
+ */
 void TickMissedTimers(time_t TIME)
 {
 	for (time_t n = TIME-1; n > TIME-120; n--)
