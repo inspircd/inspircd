@@ -67,7 +67,7 @@ void TickTimers(time_t TIME)
 
 void TickMissedTimers(time_t TIME)
 {
-	for (time_t n = TIME-1; time_t n > TIME-120; n--)
+	for (time_t n = TIME-1; n > TIME-120; n--)
 	{
 		timerlist::iterator found = Timers.find(n);
 		if (found != Timers.end())
