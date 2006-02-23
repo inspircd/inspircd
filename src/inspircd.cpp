@@ -641,6 +641,7 @@ int InspIRCd::Run()
 		{
 			expire_lines();
 			FOREACH_MOD(I_OnBackgroundTimer,OnBackgroundTimer(TIME));
+			TickMissedTimers(TIME);
 			expire_run = true;
 			continue;
 		}

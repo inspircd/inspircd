@@ -35,4 +35,5 @@ class InspTimer
 
 void TickTimers(time_t TIME);
 void AddTimer(InspTimer* T);
+void TickMissedTimers(time_t TIME);
 

@@ -65,6 +65,27 @@ void TickTimers(time_t TIME)
 	}
 }
 
+void TickMissedTimers(time_t TIME)
+{
+	for (time_t n = TIME-1; time_t n > TIME-120; n--)
+	{
+		timerlist::iterator found = Timers.find(n);
+		if (found != Timers.end())
+		{
+			timergroup* x = found->second;
+			for (timergroup::iterator y = x->begin(); y != x->end(); y++)
+			{
+				InspTimer* z = (InspTimer*)*y;
+				z->Tick(TIME);
+				delete z;
+			}
+
+			Timers.erase(found);
+			delete x;
+		}
+	}
+}
+
 void AddTimer(InspTimer* T)
 {
 	timergroup* x = NULL;
