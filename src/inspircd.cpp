@@ -57,7 +57,6 @@ using namespace std;
 #include "socket.h"
 #include "typedefs.h"
 #include "command_parse.h"
-#include "timer.h"
 
 InspIRCd* ServerInstance;
 

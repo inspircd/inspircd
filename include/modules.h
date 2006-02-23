@@ -72,6 +72,7 @@ enum TargetTypeFlags {
 #include <deque>
 #include <sstream>
 #include <typeinfo>
+#include "timer.h"
 
 class Server;
 class ServerConfig;

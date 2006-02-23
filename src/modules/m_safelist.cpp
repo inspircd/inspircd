@@ -45,14 +45,14 @@ class ListTimer : public InspTimer
  private:
 	Server* Srv;
  public:
-	ListTimer(long interval, Server* Me) : InspTimer(interval), Server(Me)
+	ListTimer(long interval, Server* Me) : InspTimer(interval), Srv(Me)
 	{
 	}
 
-	Tick(time_t TIME)
+	virtual void Tick(time_t TIME)
 	{
 		log(DEBUG,"*** Timer tick!");
-		MyTimer = new ListTimer(1);
+		ListTimer* MyTimer = new ListTimer(1,Srv);
 		Srv->AddTimer(MyTimer);
 	}
 };
@@ -68,8 +68,8 @@ class ModuleSafeList : public Module
 	{
 		Srv = Me;
 
-		MyTimer = new ListTimer(1);
-		Srv->AddTimer(MyTimer,Me);
+		MyTimer = new ListTimer(1,Srv);
+		Srv->AddTimer(MyTimer);
 	}
  
 	virtual ~ModuleSafeList()

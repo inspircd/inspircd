@@ -50,7 +50,6 @@ using namespace std;
 #include "typedefs.h"
 #include "modules.h"
 #include "command_parse.h"
-#include "timer.h"
 
 extern ServerConfig *Config;
 extern InspIRCd* ServerInstance;
