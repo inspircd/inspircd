@@ -41,22 +41,28 @@ class ListData
 typedef std::vector<userrec *> UserList;
 UserList listusers;    /* vector of people doing a /list */
 
+/*
+ * To create a timer which recurs every second, we inherit from InspTimer.
+ * InspTimer is only one-shot however, so at the end of each Tick() we simply
+ * insert another of ourselves into the pending queue :)
+ */
 class ListTimer : public InspTimer
 {
  private:
+
 	Server* Srv;
+	char buffer[MAXBUF];
+	chanrec *chan;
+
  public:
+
 	ListTimer(long interval, Server* Me) : InspTimer(interval,TIME), Srv(Me)
 	{
 	}
 
 	virtual void Tick(time_t TIME)
 	{
-		log(DEBUG,"*** Timer tick!");
-
                 bool go_again = true;
-                chanrec *chan;
-                char buffer[MAXBUF];
 
                 while (go_again)
                 {
