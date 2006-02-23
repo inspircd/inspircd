@@ -51,7 +51,7 @@ void TickTimers(time_t TIME)
 	{
 		timergroup* x = found->second;
 		/*
-		 * There are pending timers to trigger
+		 * There are pending timers to trigger :o
 		 */
 		for (timergroup::iterator y = x->begin(); y != x->end(); y++)
 		{
