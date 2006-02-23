@@ -659,7 +659,6 @@ int InspIRCd::Run()
 			/*
 			 * Trigger all InspTimers that are pending
 			 */
-			TickTimers(TIME);
 		}
 
 		/* Process timeouts on module sockets each time around
@@ -668,6 +667,8 @@ int InspIRCd::Run()
 		 * hit at all.
 		 */
 		DoSocketTimeouts(TIME);
+
+		TickTimers(TIME);
 
 		/* Call the socket engine to wait on the active
 		 * file descriptors. The socket engine has everything's

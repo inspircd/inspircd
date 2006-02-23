@@ -30,7 +30,6 @@ using namespace std;
 #include <iostream>
 #include <fstream>
 #include <stdexcept>
-#include "timer.h"
 #include "inspircd.h"
 #include "inspircd_io.h"
 #include "inspstring.h"
@@ -50,21 +49,17 @@ void TickTimers(time_t TIME)
 
 	if (found != Timers.end())
 	{
-		log(DEBUG,"timer.cpp: There are timers to trigger");
 		timergroup* x = found->second;
 		/*
 		 * There are pending timers to trigger
 		 */
 		for (timergroup::iterator y = x->begin(); y != x->end(); y++)
 		{
-			log(DEBUG,"timer.cpp: Triggering a timer");
 			InspTimer* n = (InspTimer*)*y;
 			n->Tick(TIME);
-			log(DEBUG,"timer.cpp: TICK!");
 			delete n;
 		}
 
-		log(DEBUG,"timer.cpp: Done triggering timers, tidying up");
 		Timers.erase(found);
 		delete x;
 	}
@@ -72,20 +67,16 @@ void TickTimers(time_t TIME)
 
 void AddTimer(InspTimer* T)
 {
-	log(DEBUG,"timer.cpp: Adding timer");
-	
 	timergroup* x = NULL;
 
 	timerlist::iterator found = Timers.find(T->GetTimer());
 	
 	if (found != Timers.end())
 	{
-		log(DEBUG,"timer.cpp: Add timer to existing group");
 		x = found->second;
 	}
 	else
 	{
-		log(DEBUG,"timer.cpp: Add timer to new group");
 		x = new timergroup;
 		Timers[T->GetTimer()] = x;
 	}

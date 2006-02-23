@@ -45,13 +45,72 @@ class ListTimer : public InspTimer
  private:
 	Server* Srv;
  public:
-	ListTimer(long interval, Server* Me) : InspTimer(interval), Srv(Me)
+	ListTimer(long interval, Server* Me) : InspTimer(interval,TIME), Srv(Me)
 	{
 	}
 
 	virtual void Tick(time_t TIME)
 	{
 		log(DEBUG,"*** Timer tick!");
+
+                bool go_again = true;
+                chanrec *chan;
+                char buffer[MAXBUF];
+
+                while (go_again)
+                {
+                        go_again = false;
+                        for (UserList::iterator iter = listusers.begin(); iter != listusers.end(); iter++)
+                        {
+                                /*
+                                 * What we do here:
+                                 *  - Get where they are up to
+                                 *  - If it's > GetChannelCount, erase them from the iterator, set go_again to true
+                                 *  - If not, spool the next 20 channels
+                                 */
+                                userrec* u = (userrec*)(*iter);
+                                ListData* ld = (ListData*)u->GetExt("safelist_cache");
+                                if (ld->list_position > Srv->GetChannelCount())
+                                {
+                                        u->Shrink("safelist_cache");
+                                        delete ld;
+                                        listusers.erase(iter);
+                                        go_again = true;
+                                        break;
+                                }
+
+                                log(DEBUG, "m_safelist.so: resuming spool of list to client %s at channel %ld", u->nick, ld->list_position);
+                                chan = NULL;
+                                /* Attempt to fill up to half the user's sendq with /LIST output */
+                                long amount_sent = 0;
+                                do
+                                {
+                                        log(DEBUG,"Channel %ld",ld->list_position);
+                                        chan = Srv->GetChannelIndex(ld->list_position);
+                                        /* spool details */
+                                        if (chan)
+                                        {
+                                                /* Increment total plus linefeed */
+                                                int counter = snprintf(buffer,MAXBUF,"322 %s %s %d :[+%s] %s",u->nick,chan->name,usercount_i(chan),chanmodes(chan,has_channel(u,chan)),chan->topic);
+                                                amount_sent += counter + 4 + Srv->GetServerName().length();
+                                                log(DEBUG,"m_safelist.so: Sent %ld of safe %ld / 2",amount_sent,u->sendqmax);
+                                                WriteServ_NoFormat(u->fd,buffer);
+                                        }
+                                        else
+                                        {
+                                                if (!ld->list_ended)
+                                                {
+                                                        ld->list_ended = true;
+                                                        WriteServ(u->fd,"323 %s :End of channel list.",u->nick);
+                                                }
+                                        }
+
+                                        ld->list_position++;
+                                }
+                                while ((chan != NULL) && (amount_sent < (u->sendqmax / 2)));
+                        }
+                }
+
 		ListTimer* MyTimer = new ListTimer(1,Srv);
 		Srv->AddTimer(MyTimer);
 	}
@@ -83,7 +142,7 @@ class ModuleSafeList : public Module
  
 	void Implements(char* List)
 	{
-		List[I_OnPreCommand] = List[I_OnBackgroundTimer] = List[I_OnCleanup] = List[I_OnUserQuit] = List[I_On005Numeric] = 1;
+		List[I_OnPreCommand] List[I_OnCleanup] = List[I_OnUserQuit] = List[I_On005Numeric] = 1;
 	}
 
 	/*
@@ -103,71 +162,6 @@ class ModuleSafeList : public Module
 		return 0;
 	}
 	
-	/*
-	 * OnBackgroundTimer()
-	 *   Spool off safelist information to users currently doing /list.
-	 */
-	virtual void OnBackgroundTimer(time_t curtime)
-	{
-		bool go_again = true;
-		chanrec *chan;
-		char buffer[MAXBUF];
- 
-		while (go_again)
-		{
-			go_again = false;
-			for (UserList::iterator iter = listusers.begin(); iter != listusers.end(); iter++)
-			{
-				/*
-				 * What we do here:
-				 *  - Get where they are up to
-				 *  - If it's > GetChannelCount, erase them from the iterator, set go_again to true
-				 *  - If not, spool the next 20 channels
-				 */
-				userrec* u = (userrec*)(*iter);
-				ListData* ld = (ListData*)u->GetExt("safelist_cache");
-				if (ld->list_position > Srv->GetChannelCount())
-				{
-					u->Shrink("safelist_cache");
-					delete ld;
-					listusers.erase(iter);
-					go_again = true;
-					break;
-				}
-	 
-				log(DEBUG, "m_safelist.so: resuming spool of list to client %s at channel %ld", u->nick, ld->list_position);
-				chan = NULL;
-				/* Attempt to fill up to half the user's sendq with /LIST output */
-				long amount_sent = 0;
-				do
-				{
-					log(DEBUG,"Channel %ld",ld->list_position);
-					chan = Srv->GetChannelIndex(ld->list_position);
-					/* spool details */
-					if (chan)
-					{
-						/* Increment total plus linefeed */
-						int counter = snprintf(buffer,MAXBUF,"322 %s %s %d :[+%s] %s",u->nick,chan->name,usercount_i(chan),chanmodes(chan,has_channel(u,chan)),chan->topic);
-						amount_sent += counter + 4 + Srv->GetServerName().length();
-						log(DEBUG,"m_safelist.so: Sent %ld of safe %ld / 2",amount_sent,u->sendqmax);
-						WriteServ_NoFormat(u->fd,buffer);
-					}
-					else
-					{
-						if (!ld->list_ended)
-						{
-							ld->list_ended = true;
-							WriteServ(u->fd,"323 %s :End of channel list.",u->nick);
-						}
-					}
-
-					ld->list_position++;
-				}
-				while ((chan != NULL) && (amount_sent < (u->sendqmax / 2)));
-			}
-		}
-	}
- 
 	/*
 	 * HandleList()
 	 *   Handle (override) the LIST command.
