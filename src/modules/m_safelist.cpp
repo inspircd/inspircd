@@ -87,6 +87,8 @@ class ListTimer : public InspTimer
                                 do
                                 {
                                         log(DEBUG,"Channel %ld",ld->list_position);
+					if (!ld->list_position)
+						WriteServ(u->fd,"321 %s Channel :Users Name",u->nick);
                                         chan = Srv->GetChannelIndex(ld->list_position);
                                         /* spool details */
                                         if (chan)
@@ -200,13 +202,7 @@ class ModuleSafeList : public Module
 		time_t* llt = new time_t;
 		*llt = TIME;
 		user->Extend("safelist_last",(char*)llt);
-		
-		WriteServ(user->fd,"321 %s Channel :Users Name",user->nick);
-		/*
-		 * If we can, we try and fill up the user's sendq right now with the first batch of channels,
-		 * which on a small net, may be ALL of them.
-		 */
-		this->OnBackgroundTimer(TIME);
+	
 		return 1;
 	}
 
