@@ -1390,6 +1390,10 @@ class Server : public classbase
 	 */
 	virtual int CountUsers(chanrec* c);
 
+	/** Adds an InspTimer which will trigger at a future time
+	 */
+	virtual void AddTimer(InspTimer* T);
+
 	/** Attempts to look up a nick and return a pointer to it.
 	 * This function will return NULL if the nick does not exist.
 	 */

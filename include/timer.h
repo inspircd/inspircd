@@ -12,4 +12,6 @@ class InspTimer
 	virtual void Tick(time_t TIME) {}
 };
 
+void TickTimers(time_t TIME);
+void AddTimer(InspTimer* T);
 

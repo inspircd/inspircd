@@ -50,6 +50,7 @@ using namespace std;
 #include "typedefs.h"
 #include "modules.h"
 #include "command_parse.h"
+#include "timer.h"
 
 extern ServerConfig *Config;
 extern InspIRCd* ServerInstance;
@@ -412,6 +413,11 @@ chanrec* Server::GetChannelIndex(long index)
 			return n->second;
 	}
 	return NULL;
+}
+
+void Server::AddTimer(InspTimer* T)
+{
+	AddTimer(T);
 }
 
 void Server::SendOpers(std::string s)

@@ -57,6 +57,7 @@ using namespace std;
 #include "socket.h"
 #include "typedefs.h"
 #include "command_parse.h"
+#include "timer.h"
 
 InspIRCd* ServerInstance;
 
@@ -655,6 +656,11 @@ int InspIRCd::Run()
 			if (TIME < OLDTIME)
 				WriteOpers("*** \002EH?!\002 -- Time is flowing BACKWARDS in this dimension! Clock drifted backwards %d secs.",abs(OLDTIME-TIME));
 			DoBackgroundUserStuff(TIME);
+
+			/*
+			 * Trigger all InspTimers that are pending
+			 */
+			TickTimers(TIME);
 		}
 
 		/* Process timeouts on module sockets each time around

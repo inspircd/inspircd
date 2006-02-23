@@ -40,15 +40,36 @@ class ListData
  
 typedef std::vector<userrec *> UserList;
 
+class ListTimer : public InspTimer
+{
+ private:
+	Server* Srv;
+ public:
+	ListTimer(long interval, Server* Me) : InspTimer(interval), Server(Me)
+	{
+	}
+
+	Tick(time_t TIME)
+	{
+		log(DEBUG,"*** Timer tick!");
+		MyTimer = new ListTimer(1);
+		Srv->AddTimer(MyTimer);
+	}
+};
+
 class ModuleSafeList : public Module
 {
  private:
 	 Server *Srv;
+	 ListTimer* MyTimer;
 	 UserList listusers;	/* vector of people doing a /list */
  public:
 	ModuleSafeList(Server* Me) : Module::Module(Me)
 	{
 		Srv = Me;
+
+		MyTimer = new ListTimer(1);
+		Srv->AddTimer(MyTimer,Me);
 	}
  
 	virtual ~ModuleSafeList()
