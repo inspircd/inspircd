@@ -39,6 +39,7 @@ class ListData
 /* $ModDesc: A module overriding /list, and making it safe - stop those sendq problems. */
  
 typedef std::vector<userrec *> UserList;
+UserList listusers;    /* vector of people doing a /list */
 
 class ListTimer : public InspTimer
 {
@@ -121,7 +122,6 @@ class ModuleSafeList : public Module
  private:
 	 Server *Srv;
 	 ListTimer* MyTimer;
-	 UserList listusers;	/* vector of people doing a /list */
  public:
 	ModuleSafeList(Server* Me) : Module::Module(Me)
 	{
