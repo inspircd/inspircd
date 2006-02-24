@@ -949,6 +949,11 @@
 #<module name="m_restrictmsg.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Provide /LIST throttling (to prevent flooding) and /LIST safety to
+# prevent excess flood when the list is large.
+#<module name="m_safelist.so">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # SAJOIN module: Adds the /SAJOIN command
 #<module name="m_sajoin.so">
 
