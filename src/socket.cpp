@@ -59,9 +59,10 @@ InspSocket::InspSocket(int newfd, char* ip)
 	socket_ref[this->fd] = this;
 }
 
-InspSocket::InspSocket(std::string host, int port, bool listening, unsigned long maxtime)
+InspSocket::InspSocket(std::string ahost, int port, bool listening, unsigned long maxtime)
 {
 	this->fd = -1;
+	this->host = ahost;
 	if (listening) {
 		if ((this->fd = OpenTCPSocket()) == ERROR)
 		{
@@ -73,7 +74,7 @@ InspSocket::InspSocket(std::string host, int port, bool listening, unsigned long
 		}
 		else
 		{
-			if (BindSocket(this->fd,this->client,this->server,port,(char*)host.c_str()) == ERROR)
+			if (BindSocket(this->fd,this->client,this->server,port,(char*)ahost.c_str()) == ERROR)
 			{
 				this->Close();
 				this->fd = -1;
