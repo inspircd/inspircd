@@ -54,6 +54,8 @@
 #define MAXSOCKS 64
 #define MAXCOMMAND 32
 
+#define ETIREDGERBILS EAGAIN
+
 /*
 flags for use with WriteMode
 
