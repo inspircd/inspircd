@@ -59,7 +59,7 @@ InspSocket::InspSocket(int newfd, char* ip)
 	socket_ref[this->fd] = this;
 }
 
-InspSocket::InspSocket(std::string ahost, int port, bool listening, unsigned long maxtime)
+InspSocket::InspSocket(std::string ahost, int aport, bool listening, unsigned long maxtime)
 {
 	this->fd = -1;
 	this->host = ahost;
@@ -74,7 +74,7 @@ InspSocket::InspSocket(std::string ahost, int port, bool listening, unsigned lon
 		}
 		else
 		{
-			if (BindSocket(this->fd,this->client,this->server,port,(char*)ahost.c_str()) == ERROR)
+			if (BindSocket(this->fd,this->client,this->server,aport,(char*)ahost.c_str()) == ERROR)
 			{
 				this->Close();
 				this->fd = -1;
@@ -96,7 +96,7 @@ InspSocket::InspSocket(std::string ahost, int port, bool listening, unsigned lon
 	else
 	{
 		this->host = ahost;
-		this->port = port;
+		this->port = aport;
 
 		if (!inet_aton(host.c_str(),&addy))
 		{
