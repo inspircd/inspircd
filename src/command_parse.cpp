@@ -304,6 +304,11 @@ void CommandParser::CallHandler(std::string &commandname,char **parameters, int 
 					{
 						n->second->Handle(parameters,pcnt,user);
 					}
+					else
+					{
+						if (!IS_LOCAL(user))
+							WriteOpers("*** \2WARNING\2: Command '%s' not allowed for oper '%s', dropped.",commandname.c_str(),user->nick);
+					}
 				}
 				else
 				{
@@ -582,6 +587,8 @@ void CommandParser::ProcessCommand(userrec *user, char* cmd)
 			{
 				log(DEBUG,"permission denied: %s %s",user->nick,command);
 				WriteServ(user->fd,"481 %s :Permission Denied- Oper type %s does not have access to command %s",user->nick,user->oper,command);
+				if (!IS_LOCAL(user))
+					WriteOpers("*** \2WARNING\2: Command '%s' not allowed for oper '%s', dropped.",command,user->nick);
 				cmd_found = 1;
 				return;
 			}
