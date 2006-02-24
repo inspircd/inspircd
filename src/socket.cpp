@@ -95,7 +95,7 @@ InspSocket::InspSocket(std::string ahost, int port, bool listening, unsigned lon
 	}
 	else
 	{
-		this->host = host;
+		this->host = ahost;
 		this->port = port;
 
 		if (!inet_aton(host.c_str(),&addy))
