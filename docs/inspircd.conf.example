@@ -619,7 +619,7 @@
 #                                                                     #
 # text        -      The text to detect at the start of the line,     #
 #                    must be at the start of the line to trigger the  #
-#                    alias. May contain spaces, but case insensitive. #
+#                    alias. Cant contain spaces, but case insensitive #
 # replace     -      The text to replace 'text' with. Usually this    #
 #                    will be "PRIVMSG ServiceName" or similar.        #
 # requires    -      If you provide a value for 'requires' this means #
