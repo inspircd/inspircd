@@ -455,7 +455,7 @@ chanrec* add_channel(userrec *user, const char* cn, const char* key, bool overri
 			{
 				if (user->chans[index].channel == Ptr)
 				{
-					user->chans[index].channel == NULL;
+					user->chans[index].channel = NULL;
 					user->chans[index].uc_modes = 0;	
 				}
 			}
