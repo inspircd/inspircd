@@ -30,6 +30,12 @@ using namespace std;
 #include <iostream>
 #include <fstream>
 #include <stdexcept>
+#include "users.h"
+#include "ctables.h"
+#include "typedefs.h"
+#include "commands.h"
+#include "globals.h"
+#include "hashcomp.h"
 #include "inspircd.h"
 #include "inspircd_io.h"
 #include "inspstring.h"
