@@ -2721,7 +2721,11 @@ void ReadConfiguration(bool rebind)
 	for (int j =0; j < Conf->Enumerate("link"); j++)
 	{
 		Link L;
+		char ServerN[MAXBUF];
 		L.Name = Conf->ReadValue("link","name",j);
+		strlcpy(ServerN,L.Name.c_str(),MAXBUF);
+		strlower(ServerN);
+		L.Name = ServerN;
 		L.IPAddr = Conf->ReadValue("link","ipaddr",j);
 		L.Port = Conf->ReadInteger("link","port",j,true);
 		L.SendPass = Conf->ReadValue("link","sendpass",j);
