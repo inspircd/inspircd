@@ -883,6 +883,10 @@
 #<opermotd file="/path/to/oper.motd">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Oper WHO module: Provides a more revealing /WHO to opers
+#<module name="m_operwho.so">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Override module: Adds support for oper override
 #<module name="m_override.so">
 #
