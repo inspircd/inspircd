@@ -4,7 +4,7 @@
 
 /* $ModDesc: Provides support for the SETIDENT command */
 
-Server *Srv;
+static Server *Srv;
 
 class cmd_setident : public command_t
 {

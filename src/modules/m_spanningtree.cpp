@@ -109,7 +109,7 @@ class TreeSocket;
  */
 TreeServer *TreeRoot;
 
-Server* Srv;
+static Server* Srv;
 
 /* This hash_map holds the hash equivalent of the server
  * tree, used for rapid linear lookups.

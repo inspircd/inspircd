@@ -42,7 +42,7 @@ class parkedinfo
 	time_t parktime;
 };
 
-Server *Srv;
+static Server *Srv;
 typedef std::vector<awaymsg> awaylog;
 typedef std::vector<parkedinfo> parkinfo;
 parkinfo pinfo;

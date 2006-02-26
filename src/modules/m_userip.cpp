@@ -25,7 +25,7 @@ using namespace std;
 
 /* $ModDesc: Provides support for USERIP command */
 
-Server *Srv;
+static Server *Srv;
 
 class cmd_userip : public command_t
 {

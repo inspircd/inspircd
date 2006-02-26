@@ -17,24 +17,33 @@ using namespace std;
  * eg: +h can remove +hv and users with no modes. +a can remove +aohv and users with no modes.
 */
 
-Server *Srv;
+static Server *Srv;
 
 /* This little function just converts a chanmode character (~ & @ & +) into an integer (5 4 3 2 1) */
 /* XXX - this could be handy in the core, so it can be used elsewhere */
-int chartolevel(std::string privs)
-{
-	/* XXX - if we just passed this a char, we could do a switch. Look nicer, really. */
+int chartolevel(std::string &privs)
+{1
+	const char* n = privs.c_str();
 
-	if (privs == "~")
-		return 5;
-	else if (privs == "&")
-		return 4;
-	else if (privs == "@")
-		return 3;
-	else if (privs == "%")
-		return 2;
-	else
-		return 1;
+	switch (*n)
+	{
+		case '~':
+			return 5;
+		break;
+		case '&':
+			return 4;
+		break;
+		case '@':
+			return 3;
+		break;
+		case '%':
+			return 2;
+		break;
+		default:
+			return 1;
+		break;
+	}
+	return 1;
 }
 
 class cmd_remove : public command_t

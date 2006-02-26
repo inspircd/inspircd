@@ -26,7 +26,7 @@ using namespace std;
 
 /* $ModDesc: Provides support for unreal-style GLOBOPS and umode +g */
 
-Server *Srv;
+static Server *Srv;
 
 class cmd_globops : public command_t
 {

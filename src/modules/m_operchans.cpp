@@ -24,11 +24,9 @@ using namespace std;
 
 /* $ModDesc: Provides support for oper-only chans via the +O channel mode */
 
-Server *Srv;
-	 
-
 class ModuleOperChans : public Module
 {
+	Server* Srv;
  public:
 	ModuleOperChans(Server* Me)
 		: Module::Module(Me)

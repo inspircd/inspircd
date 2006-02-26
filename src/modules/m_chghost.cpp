@@ -25,8 +25,7 @@ using namespace std;
 
 /* $ModDesc: Provides support for the CHGHOST command */
 
-Server *Srv;
-
+static Server *Srv;
 
 class cmd_chghost : public command_t
 {

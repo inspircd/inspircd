@@ -44,8 +44,6 @@ struct MD5Context {
 	word32 in[16];
 };
 
-Server *Srv;
-
 void MD5Init(struct MD5Context *context);
 void MD5Update(struct MD5Context *context, byte const *buf, int len);
 void MD5Final(byte digest[16], struct MD5Context *context);
@@ -279,6 +277,7 @@ class cmd_mkpasswd : public command_t
 
 class ModuleOperMD5 : public Module
 {
+	Server* Srv;
 	cmd_mkpasswd* mycommand;
  public:
 

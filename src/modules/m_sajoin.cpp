@@ -25,7 +25,7 @@ using namespace std;
 
 /* $ModDesc: Provides support for unreal-style SAJOIN command */
 
-Server *Srv;
+static Server *Srv;
 
 class cmd_sajoin : public command_t
 {

@@ -25,7 +25,7 @@ using namespace std;
 #include "helperfuncs.h"
 #include "message.h"
 
-Server *Srv;
+static Server *Srv;
 	 
 class cmd_uninvite : public command_t
 {

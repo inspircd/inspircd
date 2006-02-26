@@ -25,7 +25,7 @@ using namespace std;
 
 /* $ModDesc: Provides support for /KNOCK and mode +K */
 
-Server *Srv;
+static Server *Srv;
 
 class cmd_knock : public command_t
 {

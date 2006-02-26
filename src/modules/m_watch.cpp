@@ -27,7 +27,7 @@ using namespace std;
 
 /* $ModDesc: Provides support for the /watch command */
 
-Server *Srv;
+static Server *Srv;
 
 class watchentry
 {

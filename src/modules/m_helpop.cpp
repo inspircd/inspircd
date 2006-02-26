@@ -22,9 +22,8 @@ using namespace std;
 #include "helperfuncs.h"
 
 // Global Vars
-/* XXX - should all this be marked static? clear the global namespace, etc. */
-ConfigReader *helpop;
-Server *Srv;
+static ConfigReader *helpop;
+static Server *Srv;
 
 void handle_helpop(char**, int, userrec*);
 bool do_helpop(char**, int, userrec*);

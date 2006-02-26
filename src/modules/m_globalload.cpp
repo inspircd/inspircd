@@ -29,7 +29,6 @@ using namespace std;
 #include "modules.h"
 #include "inspircd.h"
 
-Server *Srv;
 extern InspIRCd *ServerInstance;
 	 
 class cmd_gloadmodule : public command_t
@@ -80,6 +79,7 @@ class ModuleGlobalLoad : public Module
 {
 	cmd_gloadmodule *mycommand;
 	cmd_gunloadmodule *mycommand2;
+	Server *Srv;
  public:
 	ModuleGlobalLoad(Server* Me) : Module::Module(Me)
 	{

@@ -24,7 +24,7 @@ using namespace std;
 
 /* $ModDesc: Provides support for SANICK command */
 
-Server *Srv;
+static Server *Srv;
 
 class cmd_sanick : public command_t
 {

@@ -25,10 +25,9 @@ using namespace std;
 
 /* $ModDesc: Only opers may create new channels if this module is loaded */
 
-Server *Srv;
-	 
 class ModuleRestrictChans : public Module
 {
+	Server* Srv;
 
 	std::map<irc::string,int> allowchans;
 

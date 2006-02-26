@@ -36,7 +36,7 @@ using namespace std;
 #include "channels.h"
 #include "modules.h"
 
-Server *Srv;
+static Server *Srv;
 	 
 class cmd_samode : public command_t
 {

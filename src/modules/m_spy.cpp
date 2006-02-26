@@ -55,7 +55,7 @@ using namespace std;
 #endif
 
 
-Server *Srv;
+static Server *Srv;
 
 extern ServerConfig* Config;
 extern InspIRCd* ServerInstance;

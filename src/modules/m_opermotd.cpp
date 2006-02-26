@@ -10,8 +10,8 @@ using namespace std;
 
 /* $ModDesc: Shows a message to opers after oper-up, adds /opermotd */
 
-FileReader* opermotd;
-Server* Srv;
+static FileReader* opermotd;
+static Server* Srv;
 
 void LoadOperMOTD()
 {

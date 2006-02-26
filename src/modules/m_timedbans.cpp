@@ -26,7 +26,7 @@ using namespace std;
 #include "helperfuncs.h"
 #include "hashcomp.h"
 
-Server *Srv;
+static Server *Srv;
 	 
 class TimedBan
 {

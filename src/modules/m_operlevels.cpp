@@ -8,13 +8,12 @@ using namespace std;
 
 /* $ModDesc: Gives each oper type a 'level', cannot kill opers 'above' your level. */
 
-Server *Srv;
-
 class ModuleOperLevels : public Module
 {
 
 	private:
 
+		Server* Srv;
 		ConfigReader* conf;
 
 	public:

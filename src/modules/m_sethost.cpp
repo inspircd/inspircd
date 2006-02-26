@@ -25,7 +25,7 @@ using namespace std;
 
 /* $ModDesc: Provides support for the SETHOST command */
 
-Server *Srv;
+static Server *Srv;
 
 class cmd_sethost : public command_t
 {

@@ -23,7 +23,7 @@ using namespace std;
 
 /* $ModDesc: Povides a proof-of-concept test /WOOT command */
 
-Server *Srv;
+static Server *Srv;
 	 
 class cmd_woot : public command_t
 {

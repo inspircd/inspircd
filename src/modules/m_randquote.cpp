@@ -24,8 +24,8 @@ using namespace std;
 #include "modules.h"
 #include "helperfuncs.h"
 
-Server *Srv;
-FileReader *quotes = NULL;
+static Server *Srv;
+static FileReader *quotes = NULL;
 
 std::string q_file = "";
 std::string prefix = "";
