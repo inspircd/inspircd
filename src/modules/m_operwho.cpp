@@ -126,7 +126,6 @@ class ModuleOperWho : public Module
 				Ptr = FindChan(parameters[0]);
 				if (Ptr)
 				{
-					int n_list = 0;
 				  	for (user_hash::const_iterator i = clientlist.begin(); i != clientlist.end(); i++)
 					{
 						if ((has_channel(i->second,Ptr)) && (isnick(i->second->nick)))
@@ -150,6 +149,7 @@ class ModuleOperWho : public Module
 				{
 					WriteServ(user->fd,"401 %s %s :No such nick/channel",user->nick, parameters[0]);
 				}
+				return 1;
 			}
 			else
 			{
@@ -168,6 +168,7 @@ class ModuleOperWho : public Module
 	                                : "*", u->ident, u->dhost, u->server, u->nick, tmp, u->fullname);
 				}
 				WriteServ(user->fd,"315 %s %s :End of /WHO list.",user->nick, parameters[0]);
+				return 1;
 			}
 		}
 		if (pcnt == 2)
@@ -192,6 +193,7 @@ class ModuleOperWho : public Module
 	                        return 1;
 	                }
 		}
+		return 0;
 	}
 	
 	virtual ~ModuleOperWho()
