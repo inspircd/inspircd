@@ -74,7 +74,7 @@ class ModuleSpanningTree;
 static ModuleSpanningTree* TreeProtocolModule;
 
 extern ServerConfig* Config;
-
+extern InspIRCd* ServerInstance;
 extern std::vector<Module*> modules;
 extern std::vector<ircd_module*> factory;
 extern int MODCOUNT;
@@ -1209,41 +1209,73 @@ class TreeSocket : public InspSocket
 		{
 			snprintf(data,MAXBUF,":%s ADDLINE Z %s %s %lu %lu :%s",sn,i->ipaddr,i->source,(unsigned long)i->set_time,(unsigned long)i->duration,i->reason);
 			this->WriteLine(data);
+			if ((i % 20) == 0)
+			{
+				ServerInstance->DoOneIteration(false);
+			}
 		}
 		for (std::vector<QLine>::iterator i = qlines.begin(); i != qlines.end(); i++)
 		{
 			snprintf(data,MAXBUF,":%s ADDLINE Q %s %s %lu %lu :%s",sn,i->nick,i->source,(unsigned long)i->set_time,(unsigned long)i->duration,i->reason);
 			this->WriteLine(data);
+			if ((i % 20) == 0)
+			{
+				ServerInstance->DoOneIteration(false);
+			}
 		}
 		for (std::vector<GLine>::iterator i = glines.begin(); i != glines.end(); i++)
 		{
 			snprintf(data,MAXBUF,":%s ADDLINE G %s %s %lu %lu :%s",sn,i->hostmask,i->source,(unsigned long)i->set_time,(unsigned long)i->duration,i->reason);
 			this->WriteLine(data);
+			if ((i % 20) == 0)
+			{
+				ServerInstance->DoOneIteration(false);
+			}
 		}
 		for (std::vector<ELine>::iterator i = elines.begin(); i != elines.end(); i++)
 		{
 			snprintf(data,MAXBUF,":%s ADDLINE E %s %s %lu %lu :%s",sn,i->hostmask,i->source,(unsigned long)i->set_time,(unsigned long)i->duration,i->reason);
 			this->WriteLine(data);
+			if ((i % 20) == 0)
+			{
+				ServerInstance->DoOneIteration(false);
+			}
 		}
 		for (std::vector<ZLine>::iterator i = pzlines.begin(); i != pzlines.end(); i++)
 		{
 			snprintf(data,MAXBUF,":%s ADDLINE Z %s %s %lu %lu :%s",sn,i->ipaddr,i->source,(unsigned long)i->set_time,(unsigned long)i->duration,i->reason);
 			this->WriteLine(data);
+			if ((i % 20) == 0)
+			{
+				ServerInstance->DoOneIteration(false);
+			}
 		}
 		for (std::vector<QLine>::iterator i = pqlines.begin(); i != pqlines.end(); i++)
 		{
 			snprintf(data,MAXBUF,":%s ADDLINE Q %s %s %lu %lu :%s",sn,i->nick,i->source,(unsigned long)i->set_time,(unsigned long)i->duration,i->reason);
 			this->WriteLine(data);
+			if ((i % 20) == 0)
+			{
+				ServerInstance->DoOneIteration(false);
+			}
 		}
 		for (std::vector<GLine>::iterator i = pglines.begin(); i != pglines.end(); i++)
 		{
 			snprintf(data,MAXBUF,":%s ADDLINE G %s %s %lu %lu :%s",sn,i->hostmask,i->source,(unsigned long)i->set_time,(unsigned long)i->duration,i->reason);
 			this->WriteLine(data);
+			if ((i % 20) == 0)
+			{
+				ServerInstance->DoOneIteration(false);
+			}
 		}
 		for (std::vector<ELine>::iterator i = pelines.begin(); i != pelines.end(); i++)
 		{
 			snprintf(data,MAXBUF,":%s ADDLINE E %s %s %lu %lu :%s",sn,i->hostmask,i->source,(unsigned long)i->set_time,(unsigned long)i->duration,i->reason);
 			this->WriteLine(data);
+			if ((i % 20) == 0)
+			{
+				ServerInstance->DoOneIteration(false);
+			}
 		}
 	}
 
@@ -1252,8 +1284,9 @@ class TreeSocket : public InspSocket
 	{
 		char data[MAXBUF];
 		std::deque<std::string> list;
+		int iterations = 0;
 		const char* sn = Srv->GetServerName().c_str();
-		for (chan_hash::iterator c = chanlist.begin(); c != chanlist.end(); c++)
+		for (chan_hash::iterator c = chanlist.begin(); c != chanlist.end(); c++, iterations++)
 		{
 			SendFJoins(Current, c->second);
 			snprintf(data,MAXBUF,":%s FMODE %s +%s",sn,c->second->name,chanmodes(c->second,true));
@@ -1275,6 +1308,10 @@ class TreeSocket : public InspSocket
 			{
 				FOREACH_MOD(I_OnSyncChannelMetaData,OnSyncChannelMetaData(c->second,(Module*)TreeProtocolModule,(void*)this,list[j]));
 			}
+			if ((iterations % 20) == 0)
+			{
+				ServerInstance->DoOneIteration(false);
+			}
 		}
 	}
 
@@ -1283,7 +1320,8 @@ class TreeSocket : public InspSocket
 	{
 		char data[MAXBUF];
 		std::deque<std::string> list;
-		for (user_hash::iterator u = clientlist.begin(); u != clientlist.end(); u++)
+		int interations = 0;
+		for (user_hash::iterator u = clientlist.begin(); u != clientlist.end(); u++, iterations++)
 		{
 			if (u->second->registered == 7)
 			{
@@ -1303,6 +1341,10 @@ class TreeSocket : public InspSocket
 				for (unsigned int j = 0; j < list.size(); j++)
 				{
 					FOREACH_MOD(I_OnSyncUserMetaData,OnSyncUserMetaData(u->second,(Module*)TreeProtocolModule,(void*)this,list[j]));
+				}
+				if ((iterations % 20) == 0)
+				{
+					ServerInstance->DoOneIteration(false);
 				}
 			}
 		}
@@ -1342,6 +1384,7 @@ class TreeSocket : public InspSocket
 	virtual bool OnDataReady()
 	{
 		log(DEBUG,"TreeSocket::OnDataReady");
+		int iterations = 0;
 		char* data = this->Read();
 		/* Check that the data read is a valid pointer and it has some content */
 		if (data && *data)
@@ -1353,6 +1396,11 @@ class TreeSocket : public InspSocket
 			 */
 			while (in_buffer.find("\n") != std::string::npos)
 			{
+				iterations++;
+				if ((iterations % 20) == 0)
+				{
+					ServerInstance->DoOneIteration(false);
+				}
 				std::string ret = in_buffer.substr(0,in_buffer.find("\n")-1);
 				in_buffer = in_buffer.substr(in_buffer.find("\n")+1,in_buffer.length()-in_buffer.find("\n"));
 				if (ret.find("\r") != std::string::npos)
