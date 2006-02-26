@@ -585,8 +585,6 @@ int DaemonSeed (void)
 	umask (007);
 	printf("InspIRCd Process ID: \033[1;32m%lu\033[0m\n",(unsigned long)getpid());
 
-	setpriority(PRIO_PROCESS,(int)getpid(),15);
-
 	if (Config->unlimitcore)
 	{
 		rlimit rl;
