@@ -2077,12 +2077,12 @@ class TreeSocket : public InspSocket
 		
 		std::deque<std::string> params;
 		this->Split(line,true,params);
-		std::string command = "";
+		irc::string command = "";
 		std::string prefix = "";
 		if (((params[0].c_str())[0] == ':') && (params.size() > 1))
 		{
 			prefix = params[0];
-			command = params[1];
+			command = params[1].c_str();
 			char* pref = (char*)prefix.c_str();
 			prefix = ++pref;
 			params.pop_front();
@@ -2091,7 +2091,7 @@ class TreeSocket : public InspSocket
 		else
 		{
 			prefix = "";
-			command = params[0];
+			command = params[0].c_str();
 			params.pop_front();
 		}
 
@@ -2549,7 +2549,7 @@ void GetListOfServersForChannel(chanrec* c, std::deque<TreeServer*> &list)
 	return;
 }
 
-bool DoOneToAllButSenderRaw(std::string data, std::string omit, std::string prefix, std::string command, std::deque<std::string> &params)
+bool DoOneToAllButSenderRaw(std::string data, std::string omit, std::string prefix, irc::string command, std::deque<std::string> &params)
 {
 	TreeServer* omitroute = BestRouteTo(omit);
 	if ((command == "NOTICE") || (command == "PRIVMSG"))
