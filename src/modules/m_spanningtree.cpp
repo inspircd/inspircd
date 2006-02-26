@@ -1309,10 +1309,6 @@ class TreeSocket : public InspSocket
 			{
 				FOREACH_MOD(I_OnSyncChannelMetaData,OnSyncChannelMetaData(c->second,(Module*)TreeProtocolModule,(void*)this,list[j]));
 			}
-			if ((iterations % 20) == 0)
-			{
-				ServerInstance->DoOneIteration(false);
-			}
 		}
 	}
 
@@ -1343,10 +1339,6 @@ class TreeSocket : public InspSocket
 				{
 					FOREACH_MOD(I_OnSyncUserMetaData,OnSyncUserMetaData(u->second,(Module*)TreeProtocolModule,(void*)this,list[j]));
 				}
-				if ((iterations % 20) == 0)
-				{
-					ServerInstance->DoOneIteration(false);
-				}
 			}
 		}
 	}
@@ -1358,18 +1350,26 @@ class TreeSocket : public InspSocket
 	 */
 	void DoBurst(TreeServer* s)
 	{
+		/* The calls here to ServerInstance->DoOneIteration(false); yield the processing
+		 * back to the core so that a large burst is split into at least 6 sections
+		 * (possibly more)
+		 */
 		Srv->SendOpers("*** Bursting to \2"+s->GetName()+"\2.");
 		this->WriteLine("BURST");
 		/* send our version string */
 		this->WriteLine(":"+Srv->GetServerName()+" VERSION :"+Srv->GetVersion());
 		/* Send server tree */
 		this->SendServers(TreeRoot,s,1);
+		ServerInstance->DoOneIteration(false);
 		/* Send users and their oper status */
 		this->SendUsers(s);
+		ServerInstance->DoOneIteration(false);
 		/* Send everything else (channel modes, xlines etc) */
 		this->SendChannelModes(s);
+		ServerInstance->DoOneIteration(false);
 		this->SendXLines(s);
 		FOREACH_MOD(I_OnSyncOtherMetaData,OnSyncOtherMetaData((Module*)TreeProtocolModule,(void*)this));
+		ServerInstance->DoOneIteration(false);
 		this->WriteLine("ENDBURST");
 		Srv->SendOpers("*** Finished bursting to \2"+s->GetName()+"\2.");
 	}
