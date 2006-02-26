@@ -303,8 +303,6 @@ bool InspSocket::Poll()
 	int incoming = -1;
 	bool n = true;
 
-	log(DEBUG,"InspSocket::Poll()");
-	
 	switch (this->state)
 	{
 		case I_RESOLVING:
@@ -312,7 +310,7 @@ bool InspSocket::Poll()
 			return this->DoResolve();
 		break;
 		case I_CONNECTING:
-			log(DEBUG,"State = I_CONNECTED");
+			log(DEBUG,"State = I_CONNECTING");
 			this->SetState(I_CONNECTED);
 			/* Our socket was in write-state, so delete it and re-add it
 			 * in read-state.
@@ -329,9 +327,7 @@ bool InspSocket::Poll()
 			return true;
 		break;
 		case I_CONNECTED:
-			log(DEBUG,"State = I_CONNECTED");
 			n = this->OnDataReady();
-			log(DEBUG,"State return: %d",(int)n);
 			/* Flush any pending, but not till after theyre done with the event
 			 * so there are less write calls involved. */
 			this->FlushWriteBuffer();

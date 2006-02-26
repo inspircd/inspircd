@@ -1210,7 +1210,7 @@ class TreeSocket : public InspSocket
 		{
 			snprintf(data,MAXBUF,":%s ADDLINE Z %s %s %lu %lu :%s",sn,i->ipaddr,i->source,(unsigned long)i->set_time,(unsigned long)i->duration,i->reason);
 			this->WriteLine(data);
-			if ((iterations % 20) == 0)
+			if ((iterations % 10) == 0)
 			{
 				ServerInstance->DoOneIteration(false);
 			}
@@ -1219,7 +1219,7 @@ class TreeSocket : public InspSocket
 		{
 			snprintf(data,MAXBUF,":%s ADDLINE Q %s %s %lu %lu :%s",sn,i->nick,i->source,(unsigned long)i->set_time,(unsigned long)i->duration,i->reason);
 			this->WriteLine(data);
-			if ((iterations % 20) == 0)
+			if ((iterations % 10) == 0)
 			{
 				ServerInstance->DoOneIteration(false);
 			}
@@ -1228,7 +1228,7 @@ class TreeSocket : public InspSocket
 		{
 			snprintf(data,MAXBUF,":%s ADDLINE G %s %s %lu %lu :%s",sn,i->hostmask,i->source,(unsigned long)i->set_time,(unsigned long)i->duration,i->reason);
 			this->WriteLine(data);
-			if ((iterations % 20) == 0)
+			if ((iterations % 10) == 0)
 			{
 				ServerInstance->DoOneIteration(false);
 			}
@@ -1237,7 +1237,7 @@ class TreeSocket : public InspSocket
 		{
 			snprintf(data,MAXBUF,":%s ADDLINE E %s %s %lu %lu :%s",sn,i->hostmask,i->source,(unsigned long)i->set_time,(unsigned long)i->duration,i->reason);
 			this->WriteLine(data);
-			if ((iterations % 20) == 0)
+			if ((iterations % 10) == 0)
 			{
 				ServerInstance->DoOneIteration(false);
 			}
@@ -1246,7 +1246,7 @@ class TreeSocket : public InspSocket
 		{
 			snprintf(data,MAXBUF,":%s ADDLINE Z %s %s %lu %lu :%s",sn,i->ipaddr,i->source,(unsigned long)i->set_time,(unsigned long)i->duration,i->reason);
 			this->WriteLine(data);
-			if ((iterations % 20) == 0)
+			if ((iterations % 10) == 0)
 			{
 				ServerInstance->DoOneIteration(false);
 			}
@@ -1255,7 +1255,7 @@ class TreeSocket : public InspSocket
 		{
 			snprintf(data,MAXBUF,":%s ADDLINE Q %s %s %lu %lu :%s",sn,i->nick,i->source,(unsigned long)i->set_time,(unsigned long)i->duration,i->reason);
 			this->WriteLine(data);
-			if ((iterations % 20) == 0)
+			if ((iterations % 10) == 0)
 			{
 				ServerInstance->DoOneIteration(false);
 			}
@@ -1264,7 +1264,7 @@ class TreeSocket : public InspSocket
 		{
 			snprintf(data,MAXBUF,":%s ADDLINE G %s %s %lu %lu :%s",sn,i->hostmask,i->source,(unsigned long)i->set_time,(unsigned long)i->duration,i->reason);
 			this->WriteLine(data);
-			if ((iterations % 20) == 0)
+			if ((iterations % 10) == 0)
 			{
 				ServerInstance->DoOneIteration(false);
 			}
@@ -1273,7 +1273,7 @@ class TreeSocket : public InspSocket
 		{
 			snprintf(data,MAXBUF,":%s ADDLINE E %s %s %lu %lu :%s",sn,i->hostmask,i->source,(unsigned long)i->set_time,(unsigned long)i->duration,i->reason);
 			this->WriteLine(data);
-			if ((iterations % 20) == 0)
+			if ((iterations % 10) == 0)
 			{
 				ServerInstance->DoOneIteration(false);
 			}
@@ -1386,7 +1386,6 @@ class TreeSocket : public InspSocket
 	 */
 	virtual bool OnDataReady()
 	{
-		log(DEBUG,"TreeSocket::OnDataReady");
 		int iterations = 0;
 		char* data = this->Read();
 		/* Check that the data read is a valid pointer and it has some content */
@@ -1400,7 +1399,7 @@ class TreeSocket : public InspSocket
 			while (in_buffer.find("\n") != std::string::npos)
 			{
 				iterations++;
-				if ((iterations % 20) == 0)
+				if ((iterations % 10) == 0)
 				{
 					ServerInstance->DoOneIteration(false);
 				}
@@ -1438,11 +1437,12 @@ class TreeSocket : public InspSocket
 					return false;
 				}
 			}
+			return true;
 		}
 		/* EAGAIN returns an empty but non-NULL string, so this
 		 * evaluates to TRUE for EAGAIN but to FALSE for EOF.
 		 */
-		return (data != NULL);
+		return false;
 	}
 
 	int WriteLine(std::string line)
