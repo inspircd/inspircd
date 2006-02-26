@@ -1204,75 +1204,76 @@ class TreeSocket : public InspSocket
 	{
 		char data[MAXBUF];
 		const char* sn = Srv->GetServerName().c_str();
+		int iterations = 0;
 		/* Yes, these arent too nice looking, but they get the job done */
-		for (std::vector<ZLine>::iterator i = zlines.begin(); i != zlines.end(); i++)
+		for (std::vector<ZLine>::iterator i = zlines.begin(); i != zlines.end(); i++, iterations++)
 		{
 			snprintf(data,MAXBUF,":%s ADDLINE Z %s %s %lu %lu :%s",sn,i->ipaddr,i->source,(unsigned long)i->set_time,(unsigned long)i->duration,i->reason);
 			this->WriteLine(data);
-			if ((i % 20) == 0)
+			if ((iterations % 20) == 0)
 			{
 				ServerInstance->DoOneIteration(false);
 			}
 		}
-		for (std::vector<QLine>::iterator i = qlines.begin(); i != qlines.end(); i++)
+		for (std::vector<QLine>::iterator i = qlines.begin(); i != qlines.end(); i++, iterations++)
 		{
 			snprintf(data,MAXBUF,":%s ADDLINE Q %s %s %lu %lu :%s",sn,i->nick,i->source,(unsigned long)i->set_time,(unsigned long)i->duration,i->reason);
 			this->WriteLine(data);
-			if ((i % 20) == 0)
+			if ((iterations % 20) == 0)
 			{
 				ServerInstance->DoOneIteration(false);
 			}
 		}
-		for (std::vector<GLine>::iterator i = glines.begin(); i != glines.end(); i++)
+		for (std::vector<GLine>::iterator i = glines.begin(); i != glines.end(); i++, iterations++)
 		{
 			snprintf(data,MAXBUF,":%s ADDLINE G %s %s %lu %lu :%s",sn,i->hostmask,i->source,(unsigned long)i->set_time,(unsigned long)i->duration,i->reason);
 			this->WriteLine(data);
-			if ((i % 20) == 0)
+			if ((iterations % 20) == 0)
 			{
 				ServerInstance->DoOneIteration(false);
 			}
 		}
-		for (std::vector<ELine>::iterator i = elines.begin(); i != elines.end(); i++)
+		for (std::vector<ELine>::iterator i = elines.begin(); i != elines.end(); i++, iterations++)
 		{
 			snprintf(data,MAXBUF,":%s ADDLINE E %s %s %lu %lu :%s",sn,i->hostmask,i->source,(unsigned long)i->set_time,(unsigned long)i->duration,i->reason);
 			this->WriteLine(data);
-			if ((i % 20) == 0)
+			if ((iterations % 20) == 0)
 			{
 				ServerInstance->DoOneIteration(false);
 			}
 		}
-		for (std::vector<ZLine>::iterator i = pzlines.begin(); i != pzlines.end(); i++)
+		for (std::vector<ZLine>::iterator i = pzlines.begin(); i != pzlines.end(); i++, iterations++)
 		{
 			snprintf(data,MAXBUF,":%s ADDLINE Z %s %s %lu %lu :%s",sn,i->ipaddr,i->source,(unsigned long)i->set_time,(unsigned long)i->duration,i->reason);
 			this->WriteLine(data);
-			if ((i % 20) == 0)
+			if ((iterations % 20) == 0)
 			{
 				ServerInstance->DoOneIteration(false);
 			}
 		}
-		for (std::vector<QLine>::iterator i = pqlines.begin(); i != pqlines.end(); i++)
+		for (std::vector<QLine>::iterator i = pqlines.begin(); i != pqlines.end(); i++, iterations++)
 		{
 			snprintf(data,MAXBUF,":%s ADDLINE Q %s %s %lu %lu :%s",sn,i->nick,i->source,(unsigned long)i->set_time,(unsigned long)i->duration,i->reason);
 			this->WriteLine(data);
-			if ((i % 20) == 0)
+			if ((iterations % 20) == 0)
 			{
 				ServerInstance->DoOneIteration(false);
 			}
 		}
-		for (std::vector<GLine>::iterator i = pglines.begin(); i != pglines.end(); i++)
+		for (std::vector<GLine>::iterator i = pglines.begin(); i != pglines.end(); i++, iterations++)
 		{
 			snprintf(data,MAXBUF,":%s ADDLINE G %s %s %lu %lu :%s",sn,i->hostmask,i->source,(unsigned long)i->set_time,(unsigned long)i->duration,i->reason);
 			this->WriteLine(data);
-			if ((i % 20) == 0)
+			if ((iterations % 20) == 0)
 			{
 				ServerInstance->DoOneIteration(false);
 			}
 		}
-		for (std::vector<ELine>::iterator i = pelines.begin(); i != pelines.end(); i++)
+		for (std::vector<ELine>::iterator i = pelines.begin(); i != pelines.end(); i++, iterations++)
 		{
 			snprintf(data,MAXBUF,":%s ADDLINE E %s %s %lu %lu :%s",sn,i->hostmask,i->source,(unsigned long)i->set_time,(unsigned long)i->duration,i->reason);
 			this->WriteLine(data);
-			if ((i % 20) == 0)
+			if ((iterations % 20) == 0)
 			{
 				ServerInstance->DoOneIteration(false);
 			}
