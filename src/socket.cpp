@@ -63,6 +63,7 @@ InspSocket::InspSocket(std::string ahost, int aport, bool listening, unsigned lo
 {
 	this->fd = -1;
 	this->host = ahost;
+	this->Buffer = "";
 	if (listening) {
 		if ((this->fd = OpenTCPSocket()) == ERROR)
 		{
@@ -258,23 +259,26 @@ int InspSocket::Write(std::string data)
 
 void InspSocket::FlushWriteBuffer()
 {
-	int result = 0;
-	const char* n = this->Buffer.c_str();
-	int v = this->Buffer.length();
-	if (v > 0)
+	if ((this->fd > -1) && (this->state == I_CONNECTED))
 	{
-		result = send(this->fd,n,v,0);
-		if (result > 0)
+		int result = 0;
+		const char* n = Buffer.c_str();
+		int v = Buffer.length();
+		if (v > 0)
 		{
-			if (result == v)
+			result = write(this->fd,n,v);
+			if (result > 0)
 			{
-				this->Buffer = "";
-			}
-			else
-			{
-				/* If we wrote some, advance the buffer forwards */
-				n += result;
-				this->Buffer = n;
+				if (result == v)
+				{
+					Buffer = "";
+				}
+				else
+				{
+					/* If we wrote some, advance the buffer forwards */
+					n += result;
+					Buffer = n;
+				}
 			}
 		}
 	}
