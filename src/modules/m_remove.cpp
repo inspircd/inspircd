@@ -22,7 +22,7 @@ static Server *Srv;
 /* This little function just converts a chanmode character (~ & @ & +) into an integer (5 4 3 2 1) */
 /* XXX - this could be handy in the core, so it can be used elsewhere */
 int chartolevel(std::string &privs)
-{1
+{
 	const char* n = privs.c_str();
 
 	switch (*n)
