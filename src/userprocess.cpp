@@ -380,6 +380,7 @@ void OpenLog(char** argv, int argc)
 			printf("ERROR: Could not write to logfile %s, bailing!\n\n",Config->logpath.c_str());
 			Exit(ERROR);
 		}
+		return;
 	}
         Config->log_file = fopen(Config->logpath.c_str(),"a+");
         if (!Config->log_file)

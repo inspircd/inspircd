@@ -189,7 +189,7 @@ InspIRCd::InspIRCd(int argc, char** argv)
 				if (argc > i)
 				{
 					strlcpy(LOG_FILE,argv[i+1],MAXBUF);
-					printf("LOG: Setting logfile to %s",LOG_FILE);
+					printf("LOG: Setting logfile to %s\n",LOG_FILE);
 				}
 				else
 				{
