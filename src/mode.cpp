@@ -1675,7 +1675,7 @@ void ModeParser::ServerMode(char **parameters, int pcnt, userrec *user)
 		if (outpars[0])
 		{
 			char b[MAXBUF];
-			strlcpy(b,"",MAXBUF);
+			*b = 0;
 			unsigned int z = 0;
 			unsigned int i = 0;
 			while (i < strlen (outpars))
@@ -1707,7 +1707,7 @@ void ModeParser::ServerMode(char **parameters, int pcnt, userrec *user)
 			if ((!b[0]) || (!strcmp(b,"+")) || (!strcmp(b,"-")))
 				return;
 
-			if (strcmp(b,""))
+			if (*b)
 			{
 				WriteTo(user, dest, "MODE %s :%s", dest->nick, b);
 				FOREACH_MOD(I_OnMode,OnMode(user, dest, TYPE_USER, b));

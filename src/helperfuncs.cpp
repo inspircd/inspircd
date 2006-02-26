@@ -340,12 +340,12 @@ void WriteTo(userrec *source, userrec *dest,char *data, ...)
         }
         if (!IS_LOCAL(dest))
                 return;
-	char textbuffer[MAXBUF],tb[MAXBUF];
+	char textbuffer[MAXBUF];
         va_list argsPtr;
         va_start (argsPtr, data);
         vsnprintf(textbuffer, MAXBUF, data, argsPtr);
         va_end(argsPtr);
-        chop(tb);
+        chop(textbuffer);
 
         // if no source given send it from the server.
         if (!source)

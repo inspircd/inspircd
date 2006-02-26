@@ -881,9 +881,10 @@ int ServerConfig::EnumConf(std::stringstream *config, const char* tag)
 	char buffer[MAXBUF], c_tag[MAXBUF], c, lastc;
 	int in_token, in_quotes, tptr, idx = 0;
 
-	const char* buf = config->str().c_str();
+	std::string x = config->str();
+	const char* buf = x.c_str();
 	long bptr = 0;
-	long len = strlen(buf);
+	long len = config->str().length();
 	
 	ptr = 0;
 	in_token = 0;
@@ -1050,7 +1051,8 @@ int ServerConfig::ReadConf(std::stringstream *config, const char* tag, const cha
 	int in_token, in_quotes, tptr, idx = 0;
 	char* key;
 
-	const char* buf = config->str().c_str();
+	std::string x = config->str();
+	const char* buf = x.c_str();
 	long bptr = 0;
 	long len = config->str().length();
 	
