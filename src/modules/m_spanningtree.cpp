@@ -1358,8 +1358,10 @@ class TreeSocket : public InspSocket
 		 * back to the core so that a large burst is split into at least 6 sections
 		 * (possibly more)
 		 */
+		std::string burst = "BURST";
+		std::string endburst = "ENDBURST";
 		Srv->SendOpers("*** Bursting to \2"+s->GetName()+"\2.");
-		this->WriteLine("BURST");
+		this->WriteLine(burst);
 		ServerInstance->DoOneIteration(false);
 		/* send our version string */
 		this->WriteLine(":"+Srv->GetServerName()+" VERSION :"+Srv->GetVersion());
@@ -1376,7 +1378,7 @@ class TreeSocket : public InspSocket
 		ServerInstance->DoOneIteration(false);
 		FOREACH_MOD(I_OnSyncOtherMetaData,OnSyncOtherMetaData((Module*)TreeProtocolModule,(void*)this));
 		ServerInstance->DoOneIteration(false);
-		this->WriteLine("ENDBURST");
+		this->WriteLine(endburst);
 		Srv->SendOpers("*** Finished bursting to \2"+s->GetName()+"\2.");
 	}
 
@@ -2083,7 +2085,7 @@ class TreeSocket : public InspSocket
 		int item = 0;
 		while (!s.eof())
 		{
-			char c;
+			char c = 0;
 			s.get(c);
 			if (c == ' ')
 			{

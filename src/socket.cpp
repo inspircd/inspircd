@@ -261,9 +261,9 @@ void InspSocket::FlushWriteBuffer()
 {
 	if ((this->fd > -1) && (this->state == I_CONNECTED))
 	{
-		int result = 0;
+		int result = 0, v = 0;
 		const char* n = Buffer.c_str();
-		int v = Buffer.length();
+		v = Buffer.length();
 		if (v > 0)
 		{
 			result = write(this->fd,n,v);
