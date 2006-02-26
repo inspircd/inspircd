@@ -121,7 +121,7 @@ server_hash serverlist;
 bool DoOneToOne(std::string prefix, std::string command, std::deque<std::string> &params, std::string target);
 bool DoOneToAllButSender(std::string prefix, std::string command, std::deque<std::string> &params, std::string omit);
 bool DoOneToMany(std::string prefix, std::string command, std::deque<std::string> &params);
-bool DoOneToAllButSenderRaw(std::string data, std::string omit, std::string prefix, std::string command, std::deque<std::string> &params);
+bool DoOneToAllButSenderRaw(std::string data, std::string omit, std::string prefix, irc::string command, std::deque<std::string> &params);
 void ReadConfiguration(bool rebind);
 
 /* Flatten links and /MAP for non-opers */
@@ -2451,7 +2451,7 @@ class TreeSocket : public InspSocket
 						{
 							strparams[q] = (char*)params[q].c_str();
 						}
-						Srv->CallCommandHandler(command, strparams, params.size(), who);
+						Srv->CallCommandHandler(command.c_str(), strparams, params.size(), who);
 					}
 					else
 					{
@@ -2570,7 +2570,7 @@ bool DoOneToAllButSenderRaw(std::string data, std::string omit, std::string pref
 					std::deque<std::string> par;
 					par.push_back(params[0]);
 					par.push_back(":"+params[1]);
-					DoOneToOne(prefix,command,par,d->server);
+					DoOneToOne(prefix,command.c_str(),par,d->server);
 					return true;
 				}
 			}
