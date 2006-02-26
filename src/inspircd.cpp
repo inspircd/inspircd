@@ -186,7 +186,7 @@ InspIRCd::InspIRCd(int argc, char** argv)
 				Config->unlimitcore = true;
 			}
 			if (!strcmp(argv[i],"-logfile")) {
-				if (argc > i)
+				if (argc > i+1)
 				{
 					strlcpy(LOG_FILE,argv[i+1],MAXBUF);
 					printf("LOG: Setting logfile to %s\n",LOG_FILE);
