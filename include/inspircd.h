@@ -126,6 +126,7 @@ class InspIRCd
 	void MoveAfter(std::string modulename, std::string after);
 	void MoveBefore(std::string modulename, std::string before);
 	InspIRCd(int argc, char** argv);
+	void DoOneIteration(bool process_module_sockets);
 	int Run();
 
 };

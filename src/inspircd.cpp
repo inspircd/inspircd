@@ -604,19 +604,183 @@ bool InspIRCd::LoadModule(const char* filename)
 	return true;
 }
 
+void InspIRCd::DoOneIteration(bool process_module_sockets)
+{
+        bool expire_run = false;
+        int activefds[MAX_DESCRIPTORS];
+        int incomingSockfd;
+        int in_port;
+        userrec* cu = NULL;
+        InspSocket* s = NULL;
+        InspSocket* s_del = NULL;
+        unsigned int numberactive;
+        sockaddr_in sock_us;     // our port number
+        socklen_t uslen;         // length of our port number
+
+        /* time() seems to be a pretty expensive syscall, so avoid calling it too much.
+         * Once per loop iteration is pleanty.
+         */
+        OLDTIME = TIME;
+        TIME = time(NULL);
+        
+        /* Run background module timers every few seconds
+         * (the docs say modules shouldnt rely on accurate
+         * timing using this event, so we dont have to
+         * time this exactly).
+         */
+        if (((TIME % 5) == 0) && (!expire_run))
+        {
+                expire_lines();
+                FOREACH_MOD(I_OnBackgroundTimer,OnBackgroundTimer(TIME));
+                TickMissedTimers(TIME);
+                expire_run = true;
+                return;
+        }   
+        else if ((TIME % 5) == 1)
+        {
+                expire_run = false;
+        }
+ 
+        /* Once a second, do the background processing */
+        if (TIME != OLDTIME)
+        {
+                if (TIME < OLDTIME)
+                        WriteOpers("*** \002EH?!\002 -- Time is flowing BACKWARDS in this dimension! Clock drifted backwards %d secs.",abs(OLDTIME-TIME));
+                DoBackgroundUserStuff(TIME);
+        }
+               
+        /* Process timeouts on module sockets each time around
+         * the loop. There shouldnt be many module sockets, at
+         * most, 20 or so, so this won't be much of a performance
+         * hit at all.   
+         */ 
+        DoSocketTimeouts(TIME);  
+         
+        TickTimers(TIME);
+         
+        /* Call the socket engine to wait on the active
+         * file descriptors. The socket engine has everything's
+         * descriptors in its list... dns, modules, users,
+         * servers... so its nice and easy, just one call.
+         */
+        if (!(numberactive = SE->Wait(activefds)))
+                return;
+
+        /**
+         * Now process each of the fd's. For users, we have a fast
+         * lookup table which can find a user by file descriptor, so
+         * processing them by fd isnt expensive. If we have a lot of
+         * listening ports or module sockets though, things could get
+         * ugly.
+         */
+        for (unsigned int activefd = 0; activefd < numberactive; activefd++)
+        {
+                int socket_type = SE->GetType(activefds[activefd]);
+                switch (socket_type)
+                {
+                        case X_ESTAB_CLIENT:
+
+                                cu = fd_ref_table[activefds[activefd]];
+                                if (cu)
+                                        ProcessUser(cu);  
+        
+                        break;
+        
+                        case X_ESTAB_MODULE:
+
+				if (!process_module_sockets)
+					return;
+
+                                /* Process module-owned sockets.
+                                 * Modules are encouraged to inherit their sockets from
+                                 * InspSocket so we can process them neatly like this.
+                                 */
+                                s = socket_ref[activefds[activefd]]; 
+              
+                                if ((s) && (!s->Poll()))
+                                {
+                                        log(DEBUG,"Socket poll returned false, close and bail");
+                                        SE->DelFd(s->GetFd());
+                                        for (std::vector<InspSocket*>::iterator a = module_sockets.begin(); a < module_sockets.end(); a++)
+                                        {
+                                                s_del = (InspSocket*)*a;
+                                                if ((s_del) && (s_del->GetFd() == activefds[activefd]))
+                                                {
+                                                        module_sockets.erase(a);
+                                                        break;
+                                                }
+                                        }
+                                        s->Close();
+                                        delete s;
+                                }
+                        break;
+
+                        case X_ESTAB_DNS:
+                                /* When we are using single-threaded dns,
+                                 * the sockets for dns end up in our mainloop.
+                                 * When we are using multi-threaded dns,
+                                 * each thread has its own basic poll() loop
+                                 * within it, making them 'fire and forget'
+                                 * and independent of the mainloop.
+                                 */
+#ifndef THREADED_DNS
+                                dns_poll(activefds[activefd]);
+#endif
+                        break;
+
+			case X_LISTEN:
+
+                                /* It's a listener */
+                                uslen = sizeof(sock_us);
+                                length = sizeof(client);
+                                incomingSockfd = accept (activefds[activefd],(struct sockaddr*)&client,&length);
+        
+                                if ((incomingSockfd > -1) && (!getsockname(incomingSockfd,(sockaddr*)&sock_us,&uslen)))
+                                {
+                                        in_port = ntohs(sock_us.sin_port);
+                                        log(DEBUG,"Accepted socket %d",incomingSockfd);
+                                        /* Years and years ago, we used to resolve here
+                                         * using gethostbyaddr(). That is sucky and we
+                                         * don't do that any more...
+                                         */
+                                        NonBlocking(incomingSockfd);
+                                        if (Config->GetIOHook(in_port))
+                                        {
+                                                try
+                                                {
+                                                        Config->GetIOHook(in_port)->OnRawSocketAccept(incomingSockfd, (char*)inet_ntoa(client.sin_addr), in_port);
+                                                }
+                                                catch (ModuleException& modexcept)
+                                                {
+                                                        log(DEBUG,"Module exception cought: %s",modexcept.GetReason()); \
+                                                }
+                                        }
+                                        stats->statsAccept++;
+                                        AddClient(incomingSockfd, in_port, false, client.sin_addr);
+                                        log(DEBUG,"Adding client on port %lu fd=%lu",(unsigned long)in_port,(unsigned long)incomingSockfd);
+                                }
+                                else
+                                {
+                                        log(DEBUG,"Accept failed on fd %lu: %s",(unsigned long)incomingSockfd,strerror(errno));
+                                        shutdown(incomingSockfd,2);
+                                        close(incomingSockfd);
+                                        stats->statsRefused++;
+                                }
+                        break;
+
+                        default:
+                                /* Something went wrong if we're in here.
+                                 * In fact, so wrong, im not quite sure
+                                 * what we would do, so for now, its going
+                                 * to safely do bugger all.
+                                 */
+                        break;
+                }
+        }
+}
+
 int InspIRCd::Run()
 {
-	bool expire_run = false;
-	int activefds[MAX_DESCRIPTORS];
-	int incomingSockfd;
-	int in_port;
-	userrec* cu = NULL;
-	InspSocket* s = NULL;
-	InspSocket* s_del = NULL;
-	unsigned int numberactive;
-        sockaddr_in sock_us;     // our port number
-	socklen_t uslen;         // length of our port number
-
 	/* Until THIS point, ServerInstance == NULL */
 	
         LoadAllModules(this);
@@ -638,172 +802,9 @@ int InspIRCd::Run()
 	WritePID(Config->PID);
 
 	/* main loop, this never returns */
-	for (;;)
+	while (true)
 	{
-		/* time() seems to be a pretty expensive syscall, so avoid calling it too much.
-		 * Once per loop iteration is pleanty.
-		 */
-		OLDTIME = TIME;
-		TIME = time(NULL);
-
-		/* Run background module timers every few seconds
-		 * (the docs say modules shouldnt rely on accurate
-		 * timing using this event, so we dont have to
-		 * time this exactly).
-		 */
-		if (((TIME % 5) == 0) && (!expire_run))
-		{
-			expire_lines();
-			FOREACH_MOD(I_OnBackgroundTimer,OnBackgroundTimer(TIME));
-			TickMissedTimers(TIME);
-			expire_run = true;
-			continue;
-		}
-		else if ((TIME % 5) == 1)
-		{
-			expire_run = false;
-		}
-		
-		/* Once a second, do the background processing */
-		if (TIME != OLDTIME)
-		{
-			if (TIME < OLDTIME)
-				WriteOpers("*** \002EH?!\002 -- Time is flowing BACKWARDS in this dimension! Clock drifted backwards %d secs.",abs(OLDTIME-TIME));
-			DoBackgroundUserStuff(TIME);
-
-			/*
-			 * Trigger all InspTimers that are pending
-			 */
-		}
-
-		/* Process timeouts on module sockets each time around
-		 * the loop. There shouldnt be many module sockets, at
-		 * most, 20 or so, so this won't be much of a performance
-		 * hit at all.
-		 */
-		DoSocketTimeouts(TIME);
-
-		TickTimers(TIME);
-
-		/* Call the socket engine to wait on the active
-		 * file descriptors. The socket engine has everything's
-		 * descriptors in its list... dns, modules, users,
-		 * servers... so its nice and easy, just one call.
-		 */
-		if (!(numberactive = SE->Wait(activefds)))
-			continue;
-
-		/**
-		 * Now process each of the fd's. For users, we have a fast
-		 * lookup table which can find a user by file descriptor, so
-		 * processing them by fd isnt expensive. If we have a lot of
-		 * listening ports or module sockets though, things could get
-		 * ugly.
-		 */
-		for (unsigned int activefd = 0; activefd < numberactive; activefd++)
-		{
-			int socket_type = SE->GetType(activefds[activefd]);
-			switch (socket_type)
-			{
-				case X_ESTAB_CLIENT:
-
-					cu = fd_ref_table[activefds[activefd]];
-					if (cu)
-						ProcessUser(cu);
-
-				break;
-
-				case X_ESTAB_MODULE:
-
-					/* Process module-owned sockets.
-					 * Modules are encouraged to inherit their sockets from
-					 * InspSocket so we can process them neatly like this.
-					 */
-					s = socket_ref[activefds[activefd]];
-
-					if ((s) && (!s->Poll()))
-					{
-						log(DEBUG,"Socket poll returned false, close and bail");
-						SE->DelFd(s->GetFd());
-						for (std::vector<InspSocket*>::iterator a = module_sockets.begin(); a < module_sockets.end(); a++)
-						{
-							s_del = (InspSocket*)*a;
-							if ((s_del) && (s_del->GetFd() == activefds[activefd]))
-							{
-								module_sockets.erase(a);
-								break;
-							}
-						}
-						s->Close();
-						delete s;
-					}
-
-				break;
-
-				case X_ESTAB_DNS:
-
-					/* When we are using single-threaded dns,
-					 * the sockets for dns end up in our mainloop.
-					 * When we are using multi-threaded dns,
-					 * each thread has its own basic poll() loop
-					 * within it, making them 'fire and forget'
-					 * and independent of the mainloop.
-					 */
-#ifndef THREADED_DNS
-					dns_poll(activefds[activefd]);
-#endif
-				break;
-				
-				case X_LISTEN:
-
-					/* It's a listener */
-					uslen = sizeof(sock_us);
-					length = sizeof(client);
-					incomingSockfd = accept (activefds[activefd],(struct sockaddr*)&client,&length);
-					
-					if ((incomingSockfd > -1) && (!getsockname(incomingSockfd,(sockaddr*)&sock_us,&uslen)))
-					{
-						in_port = ntohs(sock_us.sin_port);
-						log(DEBUG,"Accepted socket %d",incomingSockfd);
-						/* Years and years ago, we used to resolve here
-						 * using gethostbyaddr(). That is sucky and we
-						 * don't do that any more...
-						 */
-						NonBlocking(incomingSockfd);
-						if (Config->GetIOHook(in_port))
-						{
-							try
-							{
-								Config->GetIOHook(in_port)->OnRawSocketAccept(incomingSockfd, (char*)inet_ntoa(client.sin_addr), in_port);
-							}
-							catch (ModuleException& modexcept)
-				                        {
-				                                log(DEBUG,"Module exception cought: %s",modexcept.GetReason()); \
-				                        }
-						}
-						stats->statsAccept++;
-						AddClient(incomingSockfd, in_port, false, client.sin_addr);
-						log(DEBUG,"Adding client on port %lu fd=%lu",(unsigned long)in_port,(unsigned long)incomingSockfd);
-					}
-					else
-					{
-						log(DEBUG,"Accept failed on fd %lu: %s",(unsigned long)incomingSockfd,strerror(errno));
-						shutdown(incomingSockfd,2);
-						close(incomingSockfd);
-						stats->statsRefused++;
-					}
-				break;
-
-				default:
-					/* Something went wrong if we're in here.
-					 * In fact, so wrong, im not quite sure
-					 * what we would do, so for now, its going
-					 * to safely do bugger all.
-					 */
-				break;
-			}
-		}
-
+		DoOneIteration(true);
 	}
 	/* This is never reached -- we hope! */
 	return 0;
