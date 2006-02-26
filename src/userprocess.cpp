@@ -70,6 +70,7 @@ extern std::vector<InspSocket*> module_sockets;
 extern time_t TIME;
 extern time_t OLDTIME;
 extern std::vector<userrec*> local_users;
+char LOG_FILE[MAXBUF];
 
 extern InspIRCd* ServerInstance;
 extern ServerConfig *Config;
@@ -364,9 +365,21 @@ void DoBackgroundUserStuff(time_t TIME)
 
 void OpenLog(char** argv, int argc)
 {
-	if (Config->logpath == "")
+	if (!*LOG_FILE)
 	{
-	        Config->logpath = GetFullProgDir(argv,argc) + "/ircd.log";
+		if (Config->logpath == "")
+		{
+		        Config->logpath = GetFullProgDir(argv,argc) + "/ircd.log";
+		}
+	}
+	else
+	{
+		Config->log_file = fopen(LOG_FILE,"a+");
+		if (!Config->log_file)
+		{
+			printf("ERROR: Could not write to logfile %s, bailing!\n\n",Config->logpath.c_str());
+			Exit(ERROR);
+		}
 	}
         Config->log_file = fopen(Config->logpath.c_str(),"a+");
         if (!Config->log_file)

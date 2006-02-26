@@ -70,6 +70,7 @@ std::vector<InspSocket*> module_sockets;
 std::vector<userrec*> local_users;
 
 extern int MODCOUNT;
+extern char LOG_FILE[MAXBUF];
 int openSockfd[MAXSOCKS];
 sockaddr_in client,server;
 socklen_t length;
@@ -171,6 +172,7 @@ InspIRCd::InspIRCd(int argc, char** argv)
 		printf("ERROR: Your config file is missing, this IRCd will self destruct in 10 seconds!\n");
 		Exit(ERROR);
 	}
+	*LOG_FILE = 0;
 	if (argc > 1) {
 		for (int i = 1; i < argc; i++)
 		{
@@ -182,6 +184,18 @@ InspIRCd::InspIRCd(int argc, char** argv)
 			}
 			if (!strcmp(argv[i],"-nolimit")) {
 				Config->unlimitcore = true;
+			}
+			if (!strcmp(argv[i],"-logfile")) {
+				if (argc > i)
+				{
+					strlcpy(LOG_FILE,argv[i+1],MAXBUF);
+					printf("LOG: Setting logfile to %s",LOG_FILE);
+				}
+				else
+				{
+					printf("ERROR: The -logfile parameter must be followed by a log file name and path.\n");
+					Exit(ERROR);
+				}
 			}
 		}
 	}
