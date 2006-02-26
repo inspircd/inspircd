@@ -64,7 +64,7 @@ class ModuleOperWho : public Module
 	virtual int OnPreCommand(std::string command, char **parameters, int pcnt, userrec *user, bool validated)
 	{
 
-		if (!*user->oper)
+		if ((!*user->oper) || (command != "WHO"))
 			return 0;
 
 		chanrec* Ptr = NULL;
