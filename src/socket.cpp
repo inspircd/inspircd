@@ -259,19 +259,20 @@ int InspSocket::Write(std::string data)
 void InspSocket::FlushWriteBuffer()
 {
 	int result = 0;
-	if (this->Buffer.length())
+	const char* n = this->Buffer.c_str();
+	int v = this->Buffer.length();
+	if (v > 0)
 	{
-		result = send(this->fd,this->Buffer.c_str(),this->Buffer.length(),0);
+		result = send(this->fd,n,v,0);
 		if (result > 0)
 		{
-			if (result == (int)this->Buffer.length())
+			if (result == v)
 			{
 				this->Buffer = "";
 			}
 			else
 			{
 				/* If we wrote some, advance the buffer forwards */
-				char* n = (char*)this->Buffer.c_str();
 				n += result;
 				this->Buffer = n;
 			}
