@@ -16,11 +16,6 @@
 
 using namespace std;
 
-/*
- * DEVOICE module for InspIRCd
- *  Syntax: /DEVOICE <#chan>
- */
-
 /* $ModDesc: Provides an extended version of /WHO for opers */
 
 #include "inspircd_config.h"
@@ -41,6 +36,7 @@ using namespace std;
 #include "globals.h"
 #include "modules.h"
 #include "helperfuncs.h"
+#include "message.h"
 #include "hashcomp.h"
 #include "typedefs.h"
 
@@ -97,7 +93,6 @@ class ModuleOperWho : public Module
 			{
 				if ((user->chans.size()) && (user->chans[0].channel))
 				{
-					int n_list = 0;
 				  	for (user_hash::const_iterator i = clientlist.begin(); i != clientlist.end(); i++)
 					{
 						Ptr = i->second->chans[0].channel;
