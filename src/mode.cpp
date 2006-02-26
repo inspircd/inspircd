@@ -585,6 +585,8 @@ void ModeParser::ProcessModes(char **parameters,userrec* user,chanrec *chan,int 
 	while (modelist[len-1] == ' ')
 		modelist[--len] = '\0';
 
+	bool next_cant_be_modifier = false;
+
 	for (char* modechar = modelist; *modechar; ptr++, modechar++)
 	{
 		r = NULL;
@@ -595,40 +597,50 @@ void ModeParser::ProcessModes(char **parameters,userrec* user,chanrec *chan,int 
 		if (pc > MAXMODES-1)
 			break;
 
+		if ((*modechar != '+') && (*modechar != '-'))
+			next_cant_be_modifier = false;
+
 		{
 			switch (*modechar)
 			{
 				case '-':
-					if (mdir != 0)
+					if (!next_cant_be_modifier)
 					{
-						int t = strlen(outlist)-1;
-						if ((outlist[t] == '+') || (outlist[t] == '-'))
+						if (mdir != 0)
 						{
-							outlist[t] = '-';
+							int t = strlen(outlist)-1;
+							if ((outlist[t] == '+') || (outlist[t] == '-'))
+							{
+								outlist[t] = '-';
+							}
+							else
+							{
+								strcat(outlist,"-");
+							}
 						}
-						else
-						{
-							strcat(outlist,"-");
-						}
+						mdir = 0;
+						next_cant_be_modifier = true;
 					}
-					mdir = 0;
-					
 				break;			
 
 				case '+':
-					if (mdir != 1)
+					if (!next_cant_be_modifier)
 					{
-						int t = strlen(outlist)-1;
-						if ((outlist[t] == '+') || (outlist[t] == '-'))
+						if (mdir != 1)
 						{
-							outlist[t] = '+';
+							int t = strlen(outlist)-1;
+							if ((outlist[t] == '+') || (outlist[t] == '-'))
+							{
+								outlist[t] = '+';
+							}
+							else
+							{
+								strcat(outlist,"+");
+							}
 						}
-						else
-						{
-							strcat(outlist,"+");
-						}
+						mdir = 1;
+						next_cant_be_modifier = true;
 					}
-					mdir = 1;
 				break;
 
 				case 'o':
@@ -1113,13 +1125,14 @@ void ModeParser::ProcessModes(char **parameters,userrec* user,chanrec *chan,int 
 	}
 
 	/* this ensures only the *valid* modes are sent out onto the network */
-	int xt = strlen(outlist)-1;
+	/*int xt = strlen(outlist)-1;
 	while ((outlist[xt] == '-') || (outlist[xt] == '+'))
 	{
 		outlist[xt] = '\0';
 		xt = strlen(outlist)-1;
-	}
-	if (outlist[0])
+	}*/
+	/* The mode change must be at least two characters long (+ or - and at least one mode) */
+	if (((*outlist == '+') || (*outlist == '-')) && *(outlist+1))
 	{
 		strlcpy(outstr,outlist,MAXBUF);
 		for (ptr = 0; ptr < pc; ptr++)

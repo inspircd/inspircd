@@ -864,13 +864,14 @@ class TreeSocket : public InspSocket
 	}
 
 	/* FMODE command */
-	bool ForceMode(std::string source, std::deque<std::string> params)
+	bool ForceMode(std::string source, std::deque<std::string> &params)
 	{
-		userrec* who = new userrec;
-		who->fd = FD_MAGIC_NUMBER;
 		if (params.size() < 2)
 			return true;
-		char* modelist[255];
+		userrec* who = new userrec();
+		who->fd = FD_MAGIC_NUMBER;
+		char* modelist[64];
+		memset(&modelist,0,sizeof(modelist));
 		for (unsigned int q = 0; q < params.size(); q++)
 		{
 			modelist[q] = (char*)params[q].c_str();
@@ -882,7 +883,7 @@ class TreeSocket : public InspSocket
 	}
 
 	/* FTOPIC command */
-	bool ForceTopic(std::string source, std::deque<std::string> params)
+	bool ForceTopic(std::string source, std::deque<std::string> &params)
 	{
 		if (params.size() != 4)
 			return true;
@@ -927,7 +928,7 @@ class TreeSocket : public InspSocket
 	}
 
 	/* FJOIN, similar to unreal SJOIN */
-	bool ForceJoin(std::string source, std::deque<std::string> params)
+	bool ForceJoin(std::string source, std::deque<std::string> &params)
 	{
 		if (params.size() < 3)
 			return true;
@@ -935,6 +936,7 @@ class TreeSocket : public InspSocket
 		char first[MAXBUF];
 		char modestring[MAXBUF];
 		char* mode_users[127];
+		memset(&mode_users,0,sizeof(mode_users));
 		mode_users[0] = first;
 		mode_users[1] = modestring;
 		strcpy(mode_users[1],"+");
@@ -1057,7 +1059,7 @@ class TreeSocket : public InspSocket
 	}
 
 	/* NICK command */
-	bool IntroduceClient(std::string source, std::deque<std::string> params)
+	bool IntroduceClient(std::string source, std::deque<std::string> &params)
 	{
 		if (params.size() < 8)
 			return true;
@@ -1203,7 +1205,8 @@ class TreeSocket : public InspSocket
 	void SendXLines(TreeServer* Current)
 	{
 		char data[MAXBUF];
-		const char* sn = Srv->GetServerName().c_str();
+		std::string n = Srv->GetServerName();
+		const char* sn = n.c_str();
 		int iterations = 0;
 		/* Yes, these arent too nice looking, but they get the job done */
 		for (std::vector<ZLine>::iterator i = zlines.begin(); i != zlines.end(); i++, iterations++)
@@ -1286,7 +1289,8 @@ class TreeSocket : public InspSocket
 		char data[MAXBUF];
 		std::deque<std::string> list;
 		int iterations = 0;
-		const char* sn = Srv->GetServerName().c_str();
+		std::string n = Srv->GetServerName();
+		const char* sn = n.c_str();
 		for (chan_hash::iterator c = chanlist.begin(); c != chanlist.end(); c++, iterations++)
 		{
 			SendFJoins(Current, c->second);
