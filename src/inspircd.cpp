@@ -654,7 +654,8 @@ void InspIRCd::DoOneIteration(bool process_module_sockets)
          * most, 20 or so, so this won't be much of a performance
          * hit at all.   
          */ 
-        DoSocketTimeouts(TIME);  
+	if (!process_module_sockets)
+	        DoSocketTimeouts(TIME);  
          
         TickTimers(TIME);
          
