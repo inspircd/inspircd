@@ -239,6 +239,8 @@ void ServerConfig::Read(bool bail, userrec* user)
 	ConfValue("options","hidewhois",0,Config->HideWhoisServer,&Config->config_f);
 	ConfValue("options","tempdir",0,Config->TempDir,&Config->config_f);
 
+	strlower(Config->ServerName);
+
 	if (!*Config->TempDir)
 		strlcpy(Config->TempDir,"/tmp",1024);
 	Config->HideSplits = ((*HS == 'y') || (*HS == 'Y') || (*HS == '1') || (*HS == 't') || (*HS == 'T'));
