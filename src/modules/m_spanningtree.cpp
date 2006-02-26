@@ -1321,7 +1321,7 @@ class TreeSocket : public InspSocket
 	{
 		char data[MAXBUF];
 		std::deque<std::string> list;
-		int interations = 0;
+		int iterations = 0;
 		for (user_hash::iterator u = clientlist.begin(); u != clientlist.end(); u++, iterations++)
 		{
 			if (u->second->registered == 7)
