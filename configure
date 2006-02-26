@@ -1165,7 +1165,6 @@ EOCHEESE
 			open(MUNGED,">src/modules/m_".$i."_static.cpp") or die("Could not create m_".$i."_static.cpp");
 			while (chomp($a = <MODULE>)) { 
 				$a =~ s/init_module/$i\_init/g;
-				$a =~ s/Srv/$i\Srv/g;
 				print MUNGED "$a\n";
 			}
 			close(MODULE);
