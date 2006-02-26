@@ -394,7 +394,7 @@ void kill_link(userrec *user,const char* r)
 
         log(DEBUG,"kill_link: %s '%s'",user->nick,reason);
         Write(user->fd,"ERROR :Closing link (%s@%s) [%s]",user->ident,user->host,reason);
-        log(DEBUG,"closing fd %lu",(unsigned long)user->fd);
+        log(DEBUG,"closing fd %d",user->fd);
 
         if (user->registered == 7) {
 		purge_empty_chans(user);
@@ -434,7 +434,7 @@ void kill_link(userrec *user,const char* r)
 
         if (iter != clientlist.end())
         {
-                log(DEBUG,"deleting user hash value %lu",(unsigned long)user);
+                log(DEBUG,"deleting user hash value %lx",(unsigned long)user);
                 if (user->fd > -1)
 		{
                         fd_ref_table[user->fd] = NULL;
@@ -542,16 +542,16 @@ void AddWhoWas(userrec* u)
                                 // 3600 seconds in an hour ;)
                                 if ((i->second->signon)<(TIME-(WHOWAS_STALE*3600)))
                                 {
-                                        // delete the old one
+                                        // delete an old one
                                         if (i->second) delete i->second;
+					whowas.erase(i);
                                         // replace with new one
-                                        i->second = a;
+                                        whowas[a->nick] = a;
                                         log(DEBUG,"added WHOWAS entry, purged an old record");
                                         return;
                                 }
                         }
                         // no space left and user doesnt exist. Don't leave ram in use!
-                        log(DEBUG,"Not able to update whowas (list at WHOWAS_MAX entries and trying to add new?), freeing excess ram");
                         delete a;
                 }
                 else
