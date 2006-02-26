@@ -1356,15 +1356,20 @@ class TreeSocket : public InspSocket
 		 */
 		Srv->SendOpers("*** Bursting to \2"+s->GetName()+"\2.");
 		this->WriteLine("BURST");
+		ServerInstance->DoOneIteration(false);
 		/* send our version string */
 		this->WriteLine(":"+Srv->GetServerName()+" VERSION :"+Srv->GetVersion());
 		/* Send server tree */
 		this->SendServers(TreeRoot,s,1);
+		ServerInstance->DoOneIteration(false);
 		/* Send users and their oper status */
 		this->SendUsers(s);
+		ServerInstance->DoOneIteration(false);
 		/* Send everything else (channel modes, xlines etc) */
 		this->SendChannelModes(s);
+		ServerInstance->DoOneIteration(false);
 		this->SendXLines(s);
+		ServerInstance->DoOneIteration(false);
 		FOREACH_MOD(I_OnSyncOtherMetaData,OnSyncOtherMetaData((Module*)TreeProtocolModule,(void*)this));
 		ServerInstance->DoOneIteration(false);
 		this->WriteLine("ENDBURST");
