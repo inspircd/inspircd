@@ -44,10 +44,9 @@ extern ServerConfig* Config;
 extern std::vector<Module*> modules;
 extern std::vector<ircd_module*> factory;
 
-Server *Srv;
-
 class ModuleSQLOper : public Module
 {
+	Server* Srv;
 	ConfigReader* Conf;
 	unsigned long dbid;
 	Module* SQLModule;

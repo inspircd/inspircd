@@ -37,10 +37,9 @@ using namespace std;
 
 /* $ModDesc: Allow/Deny connections based upon an arbitary SQL table */
 
-Server *Srv;
-
 class ModuleSQLAuth : public Module
 {
+	Server* Srv;
 	ConfigReader* Conf;
 	std::string usertable;
 	std::string userfield;

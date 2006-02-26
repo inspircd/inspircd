@@ -34,21 +34,13 @@ using namespace std;
 #include "inspircd.h"
 #include "m_sql.h"
 
-#define LT_OPER		1
-#define LT_KILL		2
-#define LT_SERVLINK	3
-#define LT_XLINE	4
-#define LT_CONNECT	5
-#define LT_DISCONNECT	6
-#define LT_FLOOD	7
-#define LT_LOADMODULE	8
+enum LogTypes { LT_OPER = 1, LT_KILL, LT_SERVLINK, LT_XLINE, LT_CONNECT, LT_DISCONNECT, LT_FLOOD, LT_LOADMODULE };
 
 /* $ModDesc: Logs network-wide data to an SQL database */
 
-Server *Srv;
-
 class ModuleSQLLog : public Module
 {
+	Server* Srv;
 	ConfigReader* Conf;
 	unsigned long dbid;
 	Module* SQLModule;

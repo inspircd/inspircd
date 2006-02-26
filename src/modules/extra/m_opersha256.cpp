@@ -43,7 +43,7 @@ using namespace std;
 #include "modules.h"
 #include "helperfuncs.h"
 
-Server *Srv;
+static Server *Srv;
 
 #define SHA256_DIGEST_SIZE (256 / 8)
 #define SHA256_BLOCK_SIZE  (512 / 8)
