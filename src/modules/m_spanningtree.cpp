@@ -2237,7 +2237,6 @@ class TreeSocket : public InspSocket
 					params.push_back(":"+InboundDescription);
 					DoOneToAllButSender(TreeRoot->GetName(),"SERVER",params,InboundServerName);
 					this->bursting = true;
-					WriteOpers("*** Received start of netburst from \2%s\2",InboundServerName.c_str());
 					this->DoBurst(Node);
 				}
 				else if (command == "ERROR")
