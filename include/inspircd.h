@@ -108,15 +108,6 @@ class InspIRCd
 	void BuildISupport();
 	void MoveTo(std::string modulename,int slot);
         bool expire_run;
-        int activefds[MAX_DESCRIPTORS];
-        int incomingSockfd;
-        int in_port;
-        userrec* cu;
-        InspSocket* s;
-        InspSocket* s_del;
-        unsigned int numberactive;
-        sockaddr_in sock_us;     // our port number
-        socklen_t uslen;         // length of our port number
 
  public:
 	time_t startup_time;

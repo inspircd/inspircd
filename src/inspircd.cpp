@@ -606,7 +606,6 @@ bool InspIRCd::LoadModule(const char* filename)
 
 void InspIRCd::DoOneIteration(bool process_module_sockets)
 {
-        /*bool expire_run = false;
         int activefds[MAX_DESCRIPTORS];
         int incomingSockfd;
         int in_port;
@@ -615,7 +614,7 @@ void InspIRCd::DoOneIteration(bool process_module_sockets)
         InspSocket* s_del = NULL;
         unsigned int numberactive;
         sockaddr_in sock_us;     // our port number
-        socklen_t uslen;*/         // length of our port number
+        socklen_t uslen;         // length of our port number
 
         /* time() seems to be a pretty expensive syscall, so avoid calling it too much.
          * Once per loop iteration is pleanty.
