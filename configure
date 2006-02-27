@@ -870,7 +870,6 @@ sub getmodules {
 }
 
 sub writefiles {
-
 	print "Writing \033[1;32minspircd_config.h\033[0m\n";
 	# First File.. inspircd_config.h
 	chomp(my $incos = `uname -n -s -r`);
