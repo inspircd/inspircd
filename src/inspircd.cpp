@@ -138,7 +138,7 @@ std::string InspIRCd::GetRevision()
 	 */
 
 	/* XXX - this revision ID is NOT bumping automatically -- w00t */
-	std::stringstream Revision("$Revision$");
+	std::stringstream Revision(REVISION);
 	std::string single;
 	Revision >> single >> single;
 	return single;

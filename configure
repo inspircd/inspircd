@@ -873,7 +873,11 @@ sub writefiles {
 	print "Writing \033[1;32minspircd_config.h\033[0m\n";
 	# First File.. inspircd_config.h
 	chomp(my $incos = `uname -n -s -r`);
-	chomp(my $version = `sh ./src/version.sh` + " (r" + `./src/svn-rev.sh` + ")");
+	chomp(my $version = `sh ./src/version.sh`);
+        chomp(my $revision = " (r" + `./src/svn-rev.sh`);
+	$revision = $revision + ")";
+	my $version = $version + $revision;
+	chomp(my $revision2 = `./src/svn-rev.sh`);
 	open(FILEHANDLE, ">include/inspircd_config.h");
 	my $NL = $config{NICK_LENGT}+1;
 	my $CL = $config{CHAN_LENGT}+1;
@@ -885,6 +889,7 @@ sub writefiles {
 #define CONFIG_FILE "$config{CONFIG_DIR}/inspircd.conf"
 #define MOD_PATH "$config{MODULE_DIR}"
 #define VERSION "$version"
+#define REVISION "$revision2"
 #define MAXCLIENTS $config{MAX_CLIENT}
 #define MAX_DESCRIPTORS $config{MAX_DESCRIPTORS}
 #define NICKMAX $NL
