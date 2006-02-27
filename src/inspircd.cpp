@@ -127,21 +127,7 @@ bool FindServerName(std::string servername)
 
 std::string InspIRCd::GetRevision()
 {
-	/* w00t got me to replace a bunch of strtok_r
-	 * with something nicer, so i did this. Its the
-	 * same thing really, only in C++. It places the
-	 * text into a std::stringstream which is a readable
-	 * and writeable buffer stream, and then pops two
-	 * words off it, space delimited. Because it reads
-	 * into the same variable twice, the first word
-	 * is discarded, and the second one returned.
-	 */
-
-	/* XXX - this revision ID is NOT bumping automatically -- w00t */
-	std::stringstream Revision(REVISION);
-	std::string single;
-	Revision >> single >> single;
-	return single;
+	return REVISION;
 }
 
 void InspIRCd::MakeLowerMap()
@@ -251,11 +237,11 @@ std::string InspIRCd::GetVersionString()
 #endif
 	if (*Config->CustomVersion)
 	{
-		snprintf(versiondata,MAXBUF,"%s Rev. %s %s :%s",VERSION,GetRevision().c_str(),Config->ServerName,Config->CustomVersion);
+		snprintf(versiondata,MAXBUF,"%s %s :%s",VERSION,Config->ServerName,Config->CustomVersion);
 	}
 	else
 	{
-		snprintf(versiondata,MAXBUF,"%s Rev. %s %s :%s [FLAGS=%lu,%s,%s]",VERSION,GetRevision().c_str(),Config->ServerName,SYSTEM,(unsigned long)OPTIMISATION,SE->GetName().c_str(),dnsengine);
+		snprintf(versiondata,MAXBUF,"%s %s :%s [FLAGS=%lu,%s,%s]",VERSION,Config->ServerName,SYSTEM,(unsigned long)OPTIMISATION,SE->GetName().c_str(),dnsengine);
 	}
 	return versiondata;
 }
