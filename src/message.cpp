@@ -235,12 +235,7 @@ void ChangeDisplayedHost(userrec* user, const char* host)
 
 int isident(const char* n)
 {
-        if (!n)
-
-        {
-                return 0;
-        }
-        if (!strcmp(n,""))
+        if (!n || !*n)
         {
                 return 0;
         }
@@ -266,11 +261,8 @@ int isnick(const char* n)
 	{
 		return 0;
 	}
-	if (strlen(n) > NICKMAX-1)
-	{
-		return 0;
-	}
-	for (char* i = (char*)n; *i; i++)
+	int p = 0;
+	for (char* i = (char*)n; *i; i++, p++)
 	{
 		/* can occur anywhere in a nickname */
 		if ((*i >= 'A') && (*i <= '}'))
@@ -285,7 +277,7 @@ int isnick(const char* n)
 		/* invalid character! abort */
 		return 0;
 	}
-	return 1;
+	return (p < NICKMAX - 1);
 }
 
 /* returns the status character for a given user on a channel, e.g. @ for op,
