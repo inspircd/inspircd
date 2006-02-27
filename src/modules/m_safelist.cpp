@@ -102,7 +102,7 @@ class ListTimer : public InspTimer
                                                 /* Increment total plus linefeed */
                                                 int counter = snprintf(buffer,MAXBUF,"322 %s %s %d :[+%s] %s",u->nick,chan->name,usercount_i(chan),chanmodes(chan,has_channel(u,chan)),chan->topic);
                                                 amount_sent += counter + 4 + Srv->GetServerName().length();
-                                                log(DEBUG,"m_safelist.so: Sent %ld of safe %ld / 2",amount_sent,u->sendqmax);
+                                                log(DEBUG,"m_safelist.so: Sent %ld of safe %ld / 4",amount_sent,u->sendqmax);
                                                 WriteServ_NoFormat(u->fd,buffer);
                                         }
                                         else
@@ -116,7 +116,7 @@ class ListTimer : public InspTimer
 
                                         ld->list_position++;
                                 }
-                                while ((chan != NULL) && (amount_sent < (u->sendqmax / 2)));
+                                while ((chan != NULL) && (amount_sent < (u->sendqmax / 4)));
                         }
                 }
 
