@@ -54,6 +54,7 @@
 #define MAXSOCKS 64
 #define MAXCOMMAND 32
 
+// crucial defines
 #define ETIREDGERBILS EAGAIN
 
 /*
