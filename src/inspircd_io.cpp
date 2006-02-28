@@ -1224,9 +1224,16 @@ int BindPorts()
                 Config->ConfValue("bind","type",count,Type,&Config->config_f);
                 if ((!*Type) || (!strcmp(Type,"clients")))
                 {
-                        // modules handle server bind types now,
-                        // its not a typo in the strcmp.
+                        // modules handle server bind types now
                         Config->ports[clientportcount] = atoi(configToken);
+
+			// If the client put bind "*", this is an unrealism.
+			// We don't actually support this as documented, but
+			// i got fed up of people trying it, so now it converts
+			// it to an empty string meaning the same 'bind to all'.
+			if (*Addr == '*')
+				*Addr = 0;
+
                         strlcpy(Config->addrs[clientportcount],Addr,256);
                         clientportcount++;
                         log(DEBUG,"InspIRCd: startup: read binding %s:%s [%s] from config",Addr,configToken, Type);
