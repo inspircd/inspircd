@@ -51,6 +51,17 @@ using namespace std;
 
 extern InspIRCd* ServerInstance;
 
+bool CullList::IsValid(userrec* user)
+{
+	for (user_hash::iterator u = clientlist.begin(); u != clientlist.end(); u++)
+	{
+		userrec* u2 = (userrec*)*u;
+		if (user == u2)
+			return true;
+	}
+	return false;
+}
+
 CullItem::CullItem(userrec* u, std::string r)
 {
         this->user = u;
@@ -79,6 +90,7 @@ void CullList::AddItem(userrec* user, std::string reason)
 	{
 	        CullItem item(user,reason);
 	        list.push_back(item);
+		names.push_back(user->nick);
 	        exempt[user] = 1;
 	}
 }
@@ -90,17 +102,27 @@ int CullList::Apply()
         {
 		std::vector<CullItem>::iterator a = list.begin();
 		userrec* u = a->GetUser();
-		kill_link(u,a->GetReason().c_str());
-		list.erase(list.begin());
-		/* So that huge numbers of quits dont block,
-		 * we yield back to our mainloop every 15
-		 * iterations.
-		 * The DoOneIteration call basically acts
-		 * like a software threading mechanism.
+		/* Because ServerInstance->DoOneIteration can
+		 * take the user away from us in the middle of
+		 * our operation, we should check to see if this
+		 * pointer is still valid by iterating the hash.
+		 * It's expensive, yes, but the DoOneIteration
+		 * call stops it being horrendously bad.
 		 */
-		if ((n++ % 15) == 0)
+		if (IsValid(u))
 		{
-			ServerInstance->DoOneIteration(false);
+			kill_link(u,a->GetReason().c_str());
+			list.erase(list.begin());
+			/* So that huge numbers of quits dont block,
+			 * we yield back to our mainloop every 15
+			 * iterations.
+			 * The DoOneIteration call basically acts
+			 * like a software threading mechanism.
+			 */
+			if (((n++) % 15) == 0)
+			{
+				ServerInstance->DoOneIteration(false);
+			}
 		}
         }
         return n;

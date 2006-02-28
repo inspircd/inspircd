@@ -85,6 +85,11 @@ class CullList
 	  * reference.
 	  */
 	 std::map<userrec*,int> exempt;
+	 
+	 /** Check if a user pointer is valid
+	  * (e.g. it exists in the user hash)
+	  */
+	 bool IsValid(userrec* user);
  public:
 	 /** Constructor.
 	  * Clears the CullList::list and CullList::exempt
