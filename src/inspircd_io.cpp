@@ -157,7 +157,7 @@ void ServerConfig::Read(bool bail, userrec* user)
 	 */
         char dbg[MAXBUF],pauseval[MAXBUF],Value[MAXBUF],timeout[MAXBUF],NB[MAXBUF],flood[MAXBUF],MW[MAXBUF],MCON[MAXBUF],MT[MAXBUF];
         char AH[MAXBUF],AP[MAXBUF],AF[MAXBUF],DNT[MAXBUF],pfreq[MAXBUF],thold[MAXBUF],sqmax[MAXBUF],rqmax[MAXBUF],SLIMT[MAXBUF];
-	char localmax[MAXBUF],globalmax[MAXBUF],HS[MAXBUF];
+	char localmax[MAXBUF],globalmax[MAXBUF],HS[MAXBUF],HB[MAXBUF];
         ConnectClass c;
         std::stringstream errstr;
         include_stack.clear();
