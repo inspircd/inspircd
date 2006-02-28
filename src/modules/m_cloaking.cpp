@@ -320,8 +320,8 @@ class ModuleCloaking : public Module
 			key2 = 0xefcdab89;
 			key3 = 0x98badcfe;
 			key4 = 0x10325476;
-			Srv->Log("WARNING! You have not defined cloak keys for m_cloaking!!! THIS IS INSECURE AND SHOULD BE CHECKED!");
-			Srv->Log("Using default builtin keys (INSECURE): 0x67452301, 0xefcdab89, 0x98badcfe, 0x10325476");
+			Srv->Log(SPARSE,"WARNING! You have not defined cloak keys for m_cloaking!!! THIS IS INSECURE AND SHOULD BE CHECKED!");
+			Srv->Log(SPARSE,"Using default builtin keys (INSECURE): 0x67452301, 0xefcdab89, 0x98badcfe, 0x10325476");
 		}
 
 		/*ctx->buf[0] = 0x67452301;
