@@ -748,8 +748,22 @@ void WriteCommonExcept(userrec *u, char* text, ...)
 			split >> server_two;
 			if ((FindServerName(server_one)) && (FindServerName(server_two)))
 			{
-				strlcpy(oper_quit,textbuffer,MAXBUF);
+				strlcpy(oper_quit,textbuffer,MAXQUIT);
 				strlcpy(check,"*.net *.split",MAXQUIT);
+				quit_munge = true;
+			}
+		}
+	}
+	if ((Config->HideBans) && (total > 13) && (!quit_munge))
+	{
+		char* check = textbuffer;
+		if ((*check++ == 'Q') && (*check++ == 'U') && (*check++ == 'I') && (*check++ == 'T') && (*check++ == ' ') && (*check++ == ':'))
+		{
+			check++;
+			if ((*check++ == '-') && (*check++ == 'L') && (*check++ == 'i') && (*check++ == 'n') && (*check++ == 'e') && (*check++ == 'd') && (*check++ == ':'))
+			{
+				strlcpy(oper_quit,textbuffer,MAXQUIT);
+				*(--check) = 0;		// We don't need to strlcpy, we just chop it from the :
 				quit_munge = true;
 			}
 		}
@@ -774,14 +788,7 @@ void WriteCommonExcept(userrec *u, char* text, ...)
                                                 already_sent[otheruser->fd] = 1;
 						if (quit_munge)
 						{
-							if (*otheruser->oper)
-							{
-								WriteFrom_NoFormat(otheruser->fd,u,oper_quit);
-							}
-							else
-							{
-								WriteFrom_NoFormat(otheruser->fd,u,textbuffer);
-							}
+							WriteFrom_NoFormat(otheruser->fd,u,*otheruser->oper ? oper_quit : textbuffer);
 						}
 						else WriteFrom_NoFormat(otheruser->fd,u,textbuffer);
                                         }

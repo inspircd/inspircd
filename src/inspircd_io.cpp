@@ -49,11 +49,9 @@ ServerConfig::ServerConfig()
 	*CustomVersion = *motd = *rules = *PrefixQuit = *DieValue = *DNSServer = '\0';
 	*OperOnlyStats = *ModPath = *MyExecutable = *DisabledCommands = *PID = '\0';
 	log_file = NULL;
-	nofork = false;
-	unlimitcore = false;
+	nofork = HideBans = HideSplits = unlimitcore = false;
 	AllowHalfop = true;
-	HideSplits = false;
-	dns_timeout = 5;
+	dns_timeout = DieDelay = 5;
 	MaxTargets = 20;
 	NetBufferSize = 10240;
 	SoftLimit = MAXCLIENTS;
@@ -61,7 +59,6 @@ ServerConfig::ServerConfig()
 	MaxWhoResults = 100;
 	debugging = 0;
 	LogLevel = DEFAULT;
-	DieDelay = 5;
 }
 
 void ServerConfig::ClearStack()
@@ -236,6 +233,7 @@ void ServerConfig::Read(bool bail, userrec* user)
 	ConfValue("options","customversion",0,Config->CustomVersion,&Config->config_f);
 	ConfValue("options","maxtargets",0,MT,&Config->config_f);
 	ConfValue("options","hidesplits",0,HS,&Config->config_f);
+	ConfValue("options","hidebans",0,HB,&Config->config_f);
 	ConfValue("options","hidewhois",0,Config->HideWhoisServer,&Config->config_f);
 	ConfValue("options","tempdir",0,Config->TempDir,&Config->config_f);
 
@@ -244,6 +242,7 @@ void ServerConfig::Read(bool bail, userrec* user)
 	if (!*Config->TempDir)
 		strlcpy(Config->TempDir,"/tmp",1024);
 	Config->HideSplits = ((*HS == 'y') || (*HS == 'Y') || (*HS == '1') || (*HS == 't') || (*HS == 'T'));
+	Config->HideBans = ((*HB == 'y') || (*HB == 'Y') || (*HB == '1') || (*HB == 't') || (*HB == 'T'));
         Config->SoftLimit = atoi(SLIMT);
 	if (*MT)
 		Config->MaxTargets = atoi(MT);

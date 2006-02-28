@@ -691,7 +691,7 @@ void apply_lines(const int What)
 		{
 			if ((check = matches_qline(u->nick)))
 			{
-				snprintf(reason,MAXBUF,"Matched Q-Lined nick: %s",check);
+				snprintf(reason,MAXBUF,"Q-Lined: %s",check);
 				Goners->AddItem(u,reason);
 			}
 		}

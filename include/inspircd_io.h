@@ -228,6 +228,11 @@ class ServerConfig : public classbase
 	 */
 	bool HideSplits;
 
+	/** True if we're going to hide ban reasons for non-opers (e.g. G-Lines,
+	 * K-Lines, Z-Lines)
+	 */
+	bool HideBans;
+
 	/** Set to a non-empty string to obfuscate the server name of users in WHOIS
 	 */
 	char HideWhoisServer[MAXBUF];
