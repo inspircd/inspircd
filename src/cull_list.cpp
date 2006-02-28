@@ -56,8 +56,7 @@ bool CullList::IsValid(userrec* user)
 {
 	for (user_hash::iterator u = clientlist.begin(); u != clientlist.end(); u++)
 	{
-		userrec* u2 = (userrec*)*u;
-		if (user == u2)
+		if (user == u->second)
 			return true;
 	}
 	return false;
@@ -91,7 +90,6 @@ void CullList::AddItem(userrec* user, std::string reason)
 	{
 	        CullItem item(user,reason);
 	        list.push_back(item);
-		names.push_back(user->nick);
 	        exempt[user] = 1;
 	}
 }
