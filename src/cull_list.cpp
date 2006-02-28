@@ -50,6 +50,7 @@ using namespace std;
 #include "cull_list.h"
 
 extern InspIRCd* ServerInstance;
+extern user_hash clientlist;
 
 bool CullList::IsValid(userrec* user)
 {
