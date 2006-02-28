@@ -1238,12 +1238,12 @@ int BindPorts()
         {
                 if ((openSockfd[BoundPortCount] = OpenTCPSocket()) == ERROR)
                 {
-                        log(DEBUG,"InspIRCd: startup: bad fd %lu",(unsigned long)openSockfd[BoundPortCount]);
+                        log(DEBUG,"InspIRCd: startup: bad fd %lu binding port [%s:%d]",(unsigned long)openSockfd[BoundPortCount],Config->addrs[count],(unsigned long)Config->ports[count]);
                         return(ERROR);
                 }
                 if (BindSocket(openSockfd[BoundPortCount],client,server,Config->ports[count],Config->addrs[count]) == ERROR)
                 {
-                        log(DEFAULT,"InspIRCd: startup: failed to bind port %lu",(unsigned long)Config->ports[count]);
+                        log(DEFAULT,"InspIRCd: startup: failed to bind port [%s:%lu]: %s",Config->addrs[count],(unsigned long)Config->ports[count],strerror(errno));
                 }
                 else    /* well we at least bound to one socket so we'll continue */
                 {
