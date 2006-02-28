@@ -43,10 +43,13 @@ using namespace std;
 #include "commands.h"
 #include "xline.h"
 #include "inspstring.h"
+#include "inspircd.h"
 #include "helperfuncs.h"
 #include "hashcomp.h"
 #include "typedefs.h"
 #include "cull_list.h"
+
+extern InspIRCd* ServerInstance;
 
 CullItem::CullItem(userrec* u, std::string r)
 {
@@ -85,12 +88,20 @@ int CullList::Apply()
         int n = 0;
         while (list.size())
         {
-               std::vector<CullItem>::iterator a = list.begin();
-               userrec* u = a->GetUser();
-               std::string reason = a->GetReason();
-               kill_link(u,reason.c_str());
-               list.erase(list.begin());
-               n++;
+		std::vector<CullItem>::iterator a = list.begin();
+		userrec* u = a->GetUser();
+		kill_link(u,a->GetReason().c_str());
+		list.erase(list.begin());
+		/* So that huge numbers of quits dont block,
+		 * we yield back to our mainloop every 15
+		 * iterations.
+		 * The DoOneIteration call basically acts
+		 * like a software threading mechanism.
+		 */
+		if ((n++ % 15) == 0)
+		{
+			ServerInstance->DoOneIteration(false);
+		}
         }
         return n;
 }
