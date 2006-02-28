@@ -530,6 +530,12 @@
 #                  instead of the server names in the quit message,   #
 #                  identical to the way IRCu displays them.           #
 #                                                                     #
+#  hidebans      - When set to 'yes', will hide gline, kline, zline   #
+#                  and qline quit messages from non-opers. For        #
+#                  example, user A who is not an oper will just see   #
+#                  (G-Lined) while user B who is an oper will see the #
+#                  text (G-Lined: Reason here) instead.               #
+#                                                                     #
 #  hidewhois     - When defined with a non-empty value, the given     #
 #                  text will be used in place of the user's server    #
 #                  in WHOIS, when a user is WHOISed by a non-oper.    #
@@ -563,6 +569,7 @@
          customversion=""
          maxtargets="20"
 	 hidesplits="no"
+	 hidebans="no"
 	 hidewhois=""
 	 flatlinks="no"
 	 hideulines="no"
