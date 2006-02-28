@@ -61,7 +61,12 @@ class ModuleCloaking : public Module
 {
  private:
 
-	 Server *Srv;
+	Server *Srv;
+	std::string prefix;
+	int key1;
+	int key2;
+	int key3;
+	int key4;
 
 	void byteSwap(word32 *buf, unsigned words)
 	{
@@ -77,10 +82,10 @@ class ModuleCloaking : public Module
 
 	void xMD5Init(struct xMD5Context *ctx)
 	{
-		ctx->buf[0] = 0x67452301;
-		ctx->buf[1] = 0xefcdab89;
-		ctx->buf[2] = 0x98badcfe;
-		ctx->buf[3] = 0x10325476;
+		ctx->buf[0] = key1;
+		ctx->buf[1] = key2;
+		ctx->buf[2] = key3;
+		ctx->buf[3] = key4;
 
 		ctx->bytes[0] = 0;
 		ctx->bytes[1] = 0;
@@ -280,17 +285,9 @@ class ModuleCloaking : public Module
 		// we must create a new mode. Set the parameters so the
 		// mode doesn't require oper, and is a client usermode
   		// with no parameters (actually, you cant have params for a umode!)
-		if (!Srv->AddExtendedMode('x',MT_CLIENT,false,0,0))
-		{
-			// we couldn't claim mode x... possibly anther module has it,
-			// this might become likely to happen if there are a lot of 3rd
-			// party modules around in the future -- any 3rd party modules
-			// SHOULD implement a system of configurable mode letters (e.g.
-			// from a config file)
-			Srv->Log(DEFAULT,"*** m_cloaking: ERROR, failed to allocate user mode +x!");
-			printf("Could not claim usermode +x for this module!");
-			return;
-		}
+		Srv->AddExtendedMode('x',MT_CLIENT,false,0,0);
+
+		OnRehash("");
 	}
 	
 	virtual ~ModuleCloaking()
@@ -304,9 +301,38 @@ class ModuleCloaking : public Module
 		return Version(1,0,0,1,VF_STATIC|VF_VENDOR);
 	}
 
+	virtual void OnRehash(std::string parameter)
+	{
+		ConfigReader* Conf = new ConfigReader();
+		key1 = key2 = key3 = key4 = 0;
+		key1 = Conf->ReadInteger("cloak","key1",0,false);
+		key2 = Conf->ReadInteger("cloak","key2",0,false);
+		key3 = Conf->ReadInteger("cloak","key3",0,false);
+		key4 = Conf->ReadInteger("cloak","key4",0,false);
+		prefix = Conf->ReadValue("cloak","prefix",0);
+		if (prefix == "")
+		{
+			prefix = Srv->GetNetworkName();
+		}
+		if (!key1 && !key2 && !key3 && !key4)
+		{
+			key1 = 0x67452301;
+			key2 = 0xefcdab89;
+			key3 = 0x98badcfe;
+			key4 = 0x10325476;
+			Srv->Log("WARNING! You have not defined cloak keys for m_cloaking!!! THIS IS INSECURE AND SHOULD BE CHECKED!");
+			Srv->Log("Using default builtin keys (INSECURE): 0x67452301, 0xefcdab89, 0x98badcfe, 0x10325476");
+		}
+
+		/*ctx->buf[0] = 0x67452301;
+		ctx->buf[1] = 0xefcdab89;
+		ctx->buf[2] = 0x98badcfe;
+		ctx->buf[3] = 0x10325476;*/
+	}
+
 	void Implements(char* List)
 	{
-		List[I_OnExtendedMode] = List[I_OnUserConnect] = 1;
+		List[I_OnRehash] = List[I_OnExtendedMode] = List[I_OnUserConnect] = 1;
 	}
 	
 	virtual int OnExtendedMode(userrec* user, void* target, char modechar, int type, bool mode_on, string_list &params)
@@ -349,12 +375,12 @@ class ModuleCloaking : public Module
 					if (!inet_aton(dest->host,&testaddr))
 					{
 						// if they have a hostname, make something appropriate
-						b = Srv->GetNetworkName() + "-" + std::string(ra) + a;
+						b = prefix + "-" + std::string(ra) + a;
 					}
 					else
 					{
 						// else, they have an ip
-						b = std::string(ra) + "." + Srv->GetNetworkName() + ".cloak";
+						b = std::string(ra) + "." + prefix + ".cloak";
 					}
 					Srv->Log(DEBUG,"cloak: allocated "+b);
 					Srv->ChangeHost(dest,b);
