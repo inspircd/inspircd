@@ -715,6 +715,24 @@
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Cloaking module: Adds usermode +x and cloaking support
 #<module name="m_cloaking.so">
+#
+#-#-#-#-#-#-#-#-#-#-#- CLOAKING  CONFIGURATION -#-#-#-#-#-#-#-#-#-#-#-#
+#                                                                     #
+# Optional - If ypu specify the m_cloaking.so module as above, you    #
+# must define cloak keys, and optionally a cloak prefix as shown      #
+# below. When using cloaking, the cloak keys are MANDITORY and must   #
+# be included. However, if prefix is not included, it will default    #
+# to your networks name from the <server> tag.                        #
+#                                                                     #
+# <cloak key1="-543241423"                                            #
+#        key2="5378410432"                                            #
+#        key3="1143242382"                                            #
+#        key4="9504324581"                                            #
+#        prefix="mynet">                                              #
+#                                                                     #
+# Please note that the key values will accept any number, positive    #
+# or negative, and should be large numbers. Using small numbers such  #
+# as "7" or "1924" will seriously weaken the security of your cloak.  #
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Conn-Lusers: Shows the LUSERS output on connect
