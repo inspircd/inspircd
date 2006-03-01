@@ -43,7 +43,7 @@ chomp($config{GCCVER}       = `gcc -dumpversion | cut -c 1`);   		# Major GCC Ve
 chomp($config{GCC34}        = `gcc -dumpversion | cut -c 3`);   		# Minor GCC Version
 chomp($config{OSNAME}       = `/bin/uname`);                      		# Operating System Name
 $config{CC} 		    = "g++";						# C++ compiler
-$config{MAKEORDER}	    = "ircd mods config bininst";			# build order
+$config{MAKEORDER}	    = "ircd mods";					# build order
 $config{STATICLIBS}         = "";						# library archive path
 $config{MAX_IDENT}          = "12";						# max ident size
 $config{MAX_QUIT}           = "255";						# max quit message size
@@ -816,12 +816,12 @@ sub getosflags {
 			$config{FLAGS}  = "-frtti -Wall -Woverloaded-virtual $config{OPTIMISATI}";
 			$config{LDLIBS} = "";
 			$config{MAKEPROG} = "/usr/bin/make";
-			$config{MAKEORDER} = "ircd mods config bininst";
+			$config{MAKEORDER} = "ircd mods";
 		} elsif ($config{OSNAME} eq "CYG-STATIC") {
 			$config{FLAGS} = "-frtti -Wall -Woverloaded-virtual $config{OPTIMISATI}";
 			$config{LDLIBS} = "";
 			$config{MAKEPROG} = "/usr/bin/make";
-			$config{MAKEORDER} = "mods ircd config bininst";
+			$config{MAKEORDER} = "mods ircd";
 			$config{STATICLIBS} = "modules/mods.a";
 			$config{STATIC_LINK} = "yes";
 		}

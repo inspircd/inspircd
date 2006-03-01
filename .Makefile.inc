@@ -24,12 +24,19 @@ MAKEARGS = 'PROGS=${PROGS}' 'FLAGS=${FLAGS}' 'CC=${CC}' 'LDLIBS=${LDLIBS}' 'MODU
 all : @MAKEORDER@
 
 mods:
+	@echo "Making modules..."
 	${MAKE} -C src/modules DIRNAME="src/modules" $(MAKEARGS)
 
 ircd:
+	@echo "Making ircd..."
 	${MAKE} -C src DIRNAME="src" $(MAKEARGS)
+	@echo "*************************************"
+	@echo "*        BUILD COMPLETE!            *"
+	@echo "*   To install InspIRCd, type:      *"
+	@echo "*         make install              *"
+	@echo "*************************************"
 
-bininst:
+install:
 	-install -v -m 0700 src/libIRCDaes.so $(LIBPATH)
 	-install -v -m 0700 src/libIRCDasyncdns.so $(LIBPATH)
 	-install -v -m 0700 src/libIRCDbase.so $(LIBPATH)
@@ -55,17 +62,18 @@ bininst:
 	-install -v -m 0700 src/libIRCDtimer.so $(LIBPATH)
 	-install -v -m 0700 src/inspircd $(BINPATH)
 	@-install -v -m 0700 inspircd $(BASE) 2>/dev/null
-	${MAKE} -C src/modules DIRNAME="src/modules" $(MAKEARGS) modinst
-	@echo "*************************************"
-	@echo "*      BUILD COMPLETE!              *"
-	@echo "* It is safe to ignore any messages *"
-	@echo "* related to copying of files.      *"
-	@echo "*************************************"
-
-config:
 	@-cp conf/inspircd.quotes.example $(CONPATH)
 	@-cp conf/inspircd.rules.example $(CONPATH)
 	@-cp docs/inspircd.conf.example $(CONPATH)
+	${MAKE} -C src/modules DIRNAME="src/modules" $(MAKEARGS) modinst
+	@echo "*************************************"
+	@echo "*        INSTALL COMPLETE!          *"
+	@echo "* It is safe to ignore any messages *"
+	@echo "* related to copying of files.      *"
+	@echo "*                                   *"
+	@echo "* REMEMBER TO EDIT YOUR CONFIG FILE *"
+	@echo "*************************************"
+
 clean:
 	@echo Cleaning...
 	@rm -rvf src/*.so src/*.o src/inspircd src/modules/*.so src/modules/*.o *~ src/*~ src/modules/*~ src/modules/extra/*~
