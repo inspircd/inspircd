@@ -1228,7 +1228,7 @@ EOCHEESE
 	# End Write Entry to the MakeFile
 	###
 	}
-	print FILEHANDLE "modinst:\n" . $crud;
+	print FILEHANDLE "modinst:\n	echo \"*** Installing InspIRCd\"\n" . $crud;
 }
 
 
