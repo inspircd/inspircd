@@ -1429,7 +1429,7 @@ class TreeSocket : public InspSocket
 						if ((nbytes > 0) && (nbytes < 1024))
 						{
 							log(DEBUG,"m_spanningtree: decrypt %d bytes",nbytes);
-							ctx_in->Decrypt(out, result, nbytes, 1);
+							ctx_in->Decrypt(out, result, nbytes, 0);
 							for (int t = 0; t < nbytes; t++)
 								if (result[t] == '\7') result[t] = 0;
 							ret = result;
@@ -1468,7 +1468,7 @@ class TreeSocket : public InspSocket
 				}
 			}
 			unsigned int ll = line.length();
-			ctx_out->Encrypt(line.c_str(), result, ll, 1);
+			ctx_out->Encrypt(line.c_str(), result, ll, 0);
 			to64frombits((unsigned char*)result64,(unsigned char*)result,ll);
 			line = result64;
 			//int from64tobits(char *out, const char *in, int maxlen);
