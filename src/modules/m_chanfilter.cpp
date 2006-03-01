@@ -133,6 +133,11 @@ class ModuleChanFilter : public Module
 				}
 				if (spamlist->size() < (unsigned)MaxEntries)
 				{
+					if (word.length() > 35)
+					{
+						WriteServ(user->fd,"935 %s %s %s :word is too long for censor list",user->nick, chan->name,word.c_str());
+						return -1;
+					}
 					for (SpamList::iterator i = spamlist->begin(); i != spamlist->end(); i++)
 					{
 						if (*i == word)
