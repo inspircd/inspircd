@@ -1223,19 +1223,12 @@ m_$i.so: m_$i.cpp ../../include/modules.h ../../include/users.h ../../include/ch
 	\$(CC) \$(FLAGS) -shared $liflags -o m_$i.so m_$i.o $extra
 
 EOCHEESE
-	$crud = $crud . "
-	install -v -m 0700 m_$i.so \$(MODPATH)
-";
-
-EOCHEESE
+	$crud = $crud . "	install -v -m 0700 m_$i.so \$(MODPATH)\n";
 	###
 	# End Write Entry to the MakeFile
 	###
 	}
-	print FILEHANDLE "modinst:
-" . $crud;
-
-EOPIE
+	print FILEHANDLE "modinst:\n" . $crud;
 }
 
 
