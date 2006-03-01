@@ -50,7 +50,8 @@ public:
 					c->Shrink("norejoinusers");
 				}
 			}
-			return 1;
+			/* Don't allow negative or 0 +J value */
+			return (atoi(params[0].c_str()) > 0);
 		}
 		return 0;
 	}
