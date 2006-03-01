@@ -103,7 +103,7 @@ class cmd_spylist : public command_t
                 this->source = "m_spy.so";
         }
 
-	void cmd_spylist::Handle (char **parameters, int pcnt, userrec *user)
+	void Handle (char **parameters, int pcnt, userrec *user)
 	{
 		WriteOpers("*** Oper %s used SPYLIST to list +s/+p channels and keys.",user->nick);
 		WriteServ(user->fd,"321 %s Channel :Users Name",user->nick);
