@@ -216,14 +216,7 @@ void ProcessUser(userrec* cu)
                                 std::string single_line = current->GetBuffer();
                                 current->bytes_in += single_line.length();
                                 current->cmds_in++;
-                                if (single_line.length()>512)
-                                {
-                                        log(DEFAULT,"Excess flood from: %s!%s@%s",current->nick,current->ident,current->host);
-                                        WriteOpers("*** Excess flood from: %s!%s@%s",current->nick,current->ident,current->host);
-                                        kill_link(current,"Excess flood");
-                                        return;
-                                }
-                                strlcpy(sanitized,single_line.c_str(),MAXBUF);
+                                strlcpy(sanitized,single_line.c_str(),511);
                                 if (*sanitized)
                                 {
                                         userrec* old_comp = fd_ref_table[currfd];
