@@ -26,15 +26,15 @@ all : @MAKEORDER@
 mods:
 	@echo "Making modules..."
 	${MAKE} -C src/modules DIRNAME="src/modules" $(MAKEARGS)
-
-ircd:
-	@echo "Making ircd..."
-	${MAKE} -C src DIRNAME="src" $(MAKEARGS)
 	@echo "*************************************"
 	@echo "*        BUILD COMPLETE!            *"
 	@echo "*   To install InspIRCd, type:      *"
 	@echo "*         make install              *"
 	@echo "*************************************"
+
+ircd:
+	@echo "Making ircd..."
+	${MAKE} -C src DIRNAME="src" $(MAKEARGS)
 
 install:
 	-install -v -m 0700 src/libIRCDaes.so $(LIBPATH)
