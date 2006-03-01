@@ -175,13 +175,7 @@ $has_epoll = 0;
 $fail = 0;
 open(EPOLL, "</usr/include/sys/epoll.h") or $fail = 1;
 if (!$fail) {
-	while (chomp($line = <EPOLL>)) {
-		# try and find the declaration of:
-		# extern int epoll_create (int __size) __THROW;
-		if (($line =~ /int(\0x9|\s)+epoll_create(\0x9|\s)+\(/) || ($line =~ /int(\0x9|\s)+epoll_create\(/)) {
-			$has_epoll = 1;
-		}
-	}
+	$has_epoll = 1;
 	close(EPOLL);
 }
 if ($has_epoll) {
