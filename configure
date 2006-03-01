@@ -1209,6 +1209,7 @@ EOF
 	my $modules = "";
 	my $cmflags = "";
 	my $liflags = "";
+	my $crud = "";
 
 	foreach $i (@modlist) {
 	###
@@ -1220,14 +1221,21 @@ EOF
 m_$i.so: m_$i.cpp ../../include/modules.h ../../include/users.h ../../include/channels.h ../../include/base.h ../../include/inspircd_config.h ../../include/inspircd.h ../../include/inspircd_io.h
 	\$(CC) -pipe -I../../include \$(FLAGS) $cmflags -export-dynamic -c m_$i.cpp
 	\$(CC) \$(FLAGS) -shared $liflags -o m_$i.so m_$i.o $extra
-	\@-rm -f \$(MODPATH)/m_$i.so
+
+EOCHEESE
+	$crud = $crud . "
 	install -v -m 0700 m_$i.so \$(MODPATH)
+";
 
 EOCHEESE
 	###
 	# End Write Entry to the MakeFile
 	###
 	}
+	print FILEHANDLE "modinst:
+" . $crud;
+
+EOPIE
 }
 
 

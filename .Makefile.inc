@@ -55,6 +55,7 @@ bininst:
 	-install -v -m 0700 src/libIRCDtimer.so $(LIBPATH)
 	-install -v -m 0700 src/inspircd $(BINPATH)
 	@-install -v -m 0700 inspircd $(BASE) 2>/dev/null
+	${MAKE} -C src/modules DIRNAME="src/modules" $(MAKEARGS) modinst
 	@echo "*************************************"
 	@echo "*      BUILD COMPLETE!              *"
 	@echo "* It is safe to ignore any messages *"
