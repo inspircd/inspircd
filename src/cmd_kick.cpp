@@ -46,7 +46,7 @@ void cmd_kick::Handle (char **parameters, int pcnt, userrec *user)
 
 	if ((!u) || (!Ptr))
 	{
-		WriteServ(user->fd,"401 %s %s :No such nick/channel",user->nick, parameters[0]);
+		WriteServ(user->fd,"401 %s %s :No such nick/channel",user->nick, u ? parameters[0] : parameters[1]);
 		return;
 	}
 	
