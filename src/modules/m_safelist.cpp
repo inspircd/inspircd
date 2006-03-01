@@ -107,11 +107,14 @@ class ListTimer : public InspTimer
                                         }
                                         else
                                         {
-                                                if (!ld->list_ended)
-                                                {
-                                                        ld->list_ended = true;
-                                                        WriteServ(u->fd,"323 %s :End of channel list.",u->nick);
-                                                }
+						if (!chan)
+						{
+	                                                if (!ld->list_ended)
+	                                                {
+	                                                        ld->list_ended = true;
+	                                                        WriteServ(u->fd,"323 %s :End of channel list.",u->nick);
+	                                                }
+						}
                                         }
 
                                         ld->list_position++;
