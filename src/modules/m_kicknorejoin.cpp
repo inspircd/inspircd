@@ -51,7 +51,7 @@ public:
 				}
 			}
 			/* Don't allow negative or 0 +J value */
-			return (atoi(params[0].c_str()) > 0);
+			return ((!mode_on) || (atoi(params[0].c_str()) > 0));
 		}
 		return 0;
 	}
