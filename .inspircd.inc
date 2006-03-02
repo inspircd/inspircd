@@ -92,7 +92,7 @@ sub debug {
         # Check to see its not 'running' already.
         if (getstatus() == 1) { print "InspIRCd is already running.\n"; return 0; }
         # If we are still alive here.. Try starting the IRCd..
-        system("gdb --args $binpath/$executable -nofork -debug");
+        system("gdb --eval-command=\"handle SIGPIPE pass nostop noprint\" --eval-command=\"run\" --args $binpath/$executable -nofork -debug");
 }
 
 
@@ -198,4 +198,3 @@ sub getprocessid {
 	close PIDFILE;
 	return $pid;
 }
-
