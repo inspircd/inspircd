@@ -486,9 +486,9 @@ bool Server::IsUlined(std::string server)
 	return is_uline(server.c_str());
 }
 
-void Server::CallCommandHandler(std::string commandname, char** parameters, int pcnt, userrec* user)
+bool Server::CallCommandHandler(std::string commandname, char** parameters, int pcnt, userrec* user)
 {
-	ServerInstance->Parser->CallHandler(commandname,parameters,pcnt,user);
+	return ServerInstance->Parser->CallHandler(commandname,parameters,pcnt,user);
 }
 
 bool Server::IsValidModuleCommand(std::string commandname, int pcnt, userrec* user)

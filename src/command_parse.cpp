@@ -288,7 +288,7 @@ bool CommandParser::IsValidCommand(std::string &commandname, int pcnt, userrec *
 
 // calls a handler function for a command
 
-void CommandParser::CallHandler(std::string &commandname,char **parameters, int pcnt, userrec *user)
+bool CommandParser::CallHandler(std::string &commandname,char **parameters, int pcnt, userrec *user)
 {
 	nspace::hash_map<std::string,command_t*>::iterator n = cmdlist.find(commandname);
 
@@ -300,23 +300,21 @@ void CommandParser::CallHandler(std::string &commandname,char **parameters, int 
 			{
 				if (n->second->flags_needed)
 				{
-					if ((user->HasPermission(commandname)) || (is_uline(user->server)))
+					if ((user->HasPermission(commandname)) || (!IS_LOCAL(user)))
 					{
 						n->second->Handle(parameters,pcnt,user);
-					}
-					else
-					{
-						if (!IS_LOCAL(user))
-							WriteOpers("*** \2WARNING\2: Command '%s' not allowed for oper '%s', dropped.",commandname.c_str(),user->nick);
+						return true;
 					}
 				}
 				else
 				{
 					n->second->Handle(parameters,pcnt,user);
+					return true;
 				}
 			}
 		}
 	}
+	return false;
 }
 
 int CommandParser::ProcessParameters(char **command_p,char *parameters)

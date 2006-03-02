@@ -2513,7 +2513,11 @@ class TreeSocket : public InspSocket
 						{
 							strparams[q] = (char*)params[q].c_str();
 						}
-						Srv->CallCommandHandler(command.c_str(), strparams, params.size(), who);
+						if (!Srv->CallCommandHandler(command.c_str(), strparams, params.size(), who))
+						{
+							this->WriteLine("ERROR :Unrecognised command -- possibly loaded mismatched modules");
+							return false;
+						}
 					}
 					else
 					{

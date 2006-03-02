@@ -1597,8 +1597,9 @@ class Server : public classbase
 	 * in the array. If you do not pass enough parameters to meet the minimum needed by the handler, the
 	 * functiom will silently ignore it. The final parameter is the user executing the command handler,
 	 * used for privilage checks, etc.
+	 * @return True if the command exists
 	 */
-	virtual void CallCommandHandler(std::string commandname, char** parameters, int pcnt, userrec* user);
+	virtual bool CallCommandHandler(std::string commandname, char** parameters, int pcnt, userrec* user);
 
 	/** This function returns true if the commandname exists, pcnt is equal to or greater than the number
 	 * of paramters the command requires, the user specified is allowed to execute the command, AND

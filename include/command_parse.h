@@ -34,7 +34,7 @@ class CommandParser
 	command_table cmdlist;
 
 	CommandParser();
-	void CallHandler(std::string &commandname,char **parameters, int pcnt, userrec *user);
+	bool CallHandler(std::string &commandname,char **parameters, int pcnt, userrec *user);
 	bool IsValidCommand(std::string &commandname, int pcnt, userrec * user);
 	int LoopCall(command_t *fn, char **parameters, int pcnt, userrec *u, int start, int end, int joins);
 	void ProcessBuffer(const char* cmdbuf,userrec *user);
