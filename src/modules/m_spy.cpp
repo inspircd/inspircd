@@ -123,7 +123,7 @@ class cmd_spynames : public command_t
 		  this->source = "m_spy.so";
 	  }
 
-	  void cmd_spynames::Handle (char **parameters, int pcnt, userrec *user)
+	  void Handle (char **parameters, int pcnt, userrec *user)
 	  {
 	          chanrec* c;
 
