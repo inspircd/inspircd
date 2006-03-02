@@ -233,11 +233,9 @@ void userrec::RemoveInvite(irc::string &channel)
 
 bool userrec::HasPermission(std::string &command)
 {
-	char* CommandList;
 	char* mycmd;
 	char* savept;
 	char* savept2;
-	char* Classes;
 	
 	// users on remote servers can completely bypass
 	// all permissions based checks.
@@ -252,7 +250,7 @@ bool userrec::HasPermission(std::string &command)
 		opertype_t::iterator iter_opertype = opertypes.find(this->oper);
 		if (iter_opertype != opertypes.end())
 		{
-			Classes = iter_opertype->second;
+			char* Classes = iter_opertype->second;
 			char* myclass = strtok_r(Classes," ",&savept);
 			while (myclass)
 			{
