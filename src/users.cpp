@@ -54,6 +54,43 @@ extern std::vector<userrec*> local_users;
 
 std::vector<userrec*> all_opers;
 
+typedef std::map<irc::string,char*> opertype_t;
+typedef opertype_t operclass_t;
+
+opertype_t opertypes;
+operclass_t operclass;
+
+void ReadClassesAndTypes()
+{
+	char TypeName[MAXBUF],Classes[MAXBUF],ClassName[MAXBUF],CommandList[MAXBUF];
+	for (opertype_t::iterator n = opertypes.begin(); n != opertypes.end(); n++)
+	{
+		if (n->second)
+			delete[] n->second;
+	}
+	for (operclass_t::iterator n = operclass.begin(); n != operclass.end(); n++)
+	{
+		if (n->second)
+			delete[] n->second;
+	}
+	opertypes.clear();
+	operclass.clear();
+	for (int j =0; j < Config->ConfValueEnum("type",&Config->config_f); j++)
+	{
+		Config->ConfValue("type","name",j,TypeName,&Config->config_f);
+		Config->ConfValue("type","classes",j,Classes,&Config->config_f);
+		opertypes[TypeName] = sstrdup(Classes);
+		log(DEBUG,"Read oper TYPE '%s' with classes '%s'",TypeName,Classes);
+	}
+	for (int k =0; k < Config->ConfValueEnum("class",&Config->config_f); k++)
+	{
+		Config->ConfValue("class","name",k,ClassName,&Config->config_f);
+		Config->ConfValue("class","commands",k,CommandList,&Config->config_f);
+		operclass[ClassName] = sstrdup(CommandList);
+		log(DEBUG,"Read oper CLASS '%s' with commands '%s'",ClassName,CommandList);
+	}
+}
+
 template<typename T> inline string ConvToStr(const T &in)
 {
         stringstream tmp;
@@ -196,10 +233,11 @@ void userrec::RemoveInvite(irc::string &channel)
 
 bool userrec::HasPermission(std::string &command)
 {
-	char TypeName[MAXBUF],Classes[MAXBUF],ClassName[MAXBUF],CommandList[MAXBUF];
+	char* CommandList;
 	char* mycmd;
 	char* savept;
 	char* savept2;
+	char* Classes;
 	
 	// users on remote servers can completely bypass
 	// all permissions based checks.
@@ -211,34 +249,28 @@ bool userrec::HasPermission(std::string &command)
 	// are they even an oper at all?
 	if (*this->oper)
 	{
-		for (int j =0; j < Config->ConfValueEnum("type",&Config->config_f); j++)
+		opertype_t::iterator iter_opertype = opertypes.find(this->oper);
+		if (iter_opertype != opertypes.end())
 		{
-			Config->ConfValue("type","name",j,TypeName,&Config->config_f);
-			if (!strcmp(TypeName,this->oper))
+			Classes = iter_opertype->second;
+			char* myclass = strtok_r(Classes," ",&savept);
+			while (myclass)
 			{
-				Config->ConfValue("type","classes",j,Classes,&Config->config_f);
-				char* myclass = strtok_r(Classes," ",&savept);
-				while (myclass)
+				operclass_t::iterator iter_operclass = operclass.find(myclass);
+				if (iter_operclass != operclass.end())
 				{
-					for (int k =0; k < Config->ConfValueEnum("class",&Config->config_f); k++)
+					char* CommandList = iter_operclass->second;
+					mycmd = strtok_r(CommandList," ",&savept2);
+					while (mycmd)
 					{
-						Config->ConfValue("class","name",k,ClassName,&Config->config_f);
-						if (!strcmp(ClassName,myclass))
+						if ((!strcasecmp(mycmd,command.c_str())) || (*mycmd == '*'))
 						{
-							Config->ConfValue("class","commands",k,CommandList,&Config->config_f);
-							mycmd = strtok_r(CommandList," ",&savept2);
-							while (mycmd)
-							{
-								if ((!strcasecmp(mycmd,command.c_str())) || (*mycmd == '*'))
-								{
-									return true;
-								}
-								mycmd = strtok_r(NULL," ",&savept2);
-							}
+							return true;
 						}
+						mycmd = strtok_r(NULL," ",&savept2);
 					}
-					myclass = strtok_r(NULL," ",&savept);
 				}
+				myclass = strtok_r(NULL," ",&savept);
 			}
 		}
 	}

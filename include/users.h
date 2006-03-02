@@ -363,5 +363,6 @@ void AddClient(int socket, int port, bool iscached, in_addr ip4);
 void FullConnectUser(userrec* user, CullList* Goners);
 userrec* ReHashNick(char* Old, char* New);
 void force_nickchange(userrec* user,const char* newnick);
+void ReadClassesAndTypes();
 
 #endif

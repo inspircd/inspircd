@@ -417,6 +417,7 @@ void ServerConfig::Read(bool bail, userrec* user)
                         Config->ulines.push_back(ServName);
                 }
         }
+	ReadClassesAndTypes();
         log(DEFAULT,"Reading K lines,Q lines and Z lines from config...");
         read_xline_defaults();
         log(DEFAULT,"Applying K lines, Q lines and Z lines...");
