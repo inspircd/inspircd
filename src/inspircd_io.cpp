@@ -265,7 +265,7 @@ void ServerConfig::Read(bool bail, userrec* user)
 	if (!strchr(Config->ServerName,'.'))
 	{
 		log(DEFAULT,"WARNING: <server:name> '%s' is not a fully-qualified domain name. Changed to '%s%c'",Config->ServerName,Config->ServerName,'.');
-		strlcat(Config->ServerName,".",MAXBUF);
+		charlcat(Config->ServerName,'.',MAXBUF);
 	}
         if (!Config->dns_timeout)
                 Config->dns_timeout = 5;

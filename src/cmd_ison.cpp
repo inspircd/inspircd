@@ -44,7 +44,7 @@ void cmd_ison::Handle (char **parameters, int pcnt, userrec *user)
 		if (u)
 		{
 			strlcat(Return,u->nick,MAXBUF);
-			strlcat(Return," ",MAXBUF);
+			charlcat(Return,' ',MAXBUF);
 		}
 	}
 	WriteServ(user->fd,Return);

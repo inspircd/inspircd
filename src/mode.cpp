@@ -672,7 +672,7 @@ void ModeParser::ProcessModes(char **parameters,userrec* user,chanrec *chan,int 
 					}
 					if (r)
 					{
-						strlcat(outlist,"o",MAXBUF);
+						charlcat(outlist,'o',MAXBUF);
 						strlcpy(outpars[pc++],r,MAXBUF);
 					}
 				break;
@@ -702,7 +702,7 @@ void ModeParser::ProcessModes(char **parameters,userrec* user,chanrec *chan,int 
 					}
 					if (r)
 					{
-						strlcat(outlist,"h",MAXBUF);
+						charlcat(outlist,'h',MAXBUF);
 						strlcpy(outpars[pc++],r,MAXBUF);
 					}
 				break;
@@ -733,7 +733,7 @@ void ModeParser::ProcessModes(char **parameters,userrec* user,chanrec *chan,int 
 					}
 					if (r)
 					{
-						strlcat(outlist,"v",MAXBUF);
+						charlcat(outlist,'v',MAXBUF);
 						strlcpy(outpars[pc++],r,MAXBUF);
 					}
 				break;
@@ -763,7 +763,7 @@ void ModeParser::ProcessModes(char **parameters,userrec* user,chanrec *chan,int 
 					}
 					if (r)
 					{
-						strlcat(outlist,"b",MAXBUF);
+						charlcat(outlist,'b',MAXBUF);
 						strlcpy(outpars[pc++],parameters[param-1],MAXBUF);
 					}
 				break;
@@ -815,8 +815,8 @@ void ModeParser::ProcessModes(char **parameters,userrec* user,chanrec *chan,int 
 							/* only allow -k if correct key given */
 							if (!strcmp(chan->key,key))
 							{
-								strlcat(outlist,"k",MAXBUF);
-								strlcpy(chan->key,"",MAXBUF);
+								charlcat(outlist,'k',MAXBUF);
+								*chan->key = 0;
 								strlcpy(outpars[pc++],key,MAXBUF);
 							}
 						}
@@ -836,7 +836,7 @@ void ModeParser::ProcessModes(char **parameters,userrec* user,chanrec *chan,int 
                                                 {
 							if (chan->limit)
 							{
-								strcat(outlist,"l");
+								charlcat(outlist,'l',MAXBUF);
 								chan->limit = 0;
 							}
 						}
@@ -881,7 +881,7 @@ void ModeParser::ProcessModes(char **parameters,userrec* user,chanrec *chan,int 
 							
 						if (chan->limit)
 						{
-							strlcat(outlist,"l",MAXBUF);
+							charlcat(outlist,'l',MAXBUF);
 							strlcpy(outpars[pc++],parameters[param++],MAXBUF);
 							l_set = true;
 						}
@@ -895,12 +895,12 @@ void ModeParser::ProcessModes(char **parameters,userrec* user,chanrec *chan,int 
                                         {
 						if (mdir)
 						{
-							if (!(chan->binarymodes & CM_INVITEONLY)) strlcat(outlist,"i",MAXBUF);
+							if (!(chan->binarymodes & CM_INVITEONLY)) charlcat(outlist,'i',MAXBUF);
 							chan->binarymodes |= CM_INVITEONLY;
 						}
 						else
 						{
-							if (chan->binarymodes & CM_INVITEONLY) strlcat(outlist,"i",MAXBUF);
+							if (chan->binarymodes & CM_INVITEONLY) charlcat(outlist,'i',MAXBUF);
 							chan->binarymodes &= ~CM_INVITEONLY;
 						}
 					}
@@ -913,12 +913,12 @@ void ModeParser::ProcessModes(char **parameters,userrec* user,chanrec *chan,int 
                                         {
 						if (mdir)
                                                 {
-							if (!(chan->binarymodes & CM_TOPICLOCK)) strlcat(outlist,"t",MAXBUF);
+							if (!(chan->binarymodes & CM_TOPICLOCK)) charlcat(outlist,'t',MAXBUF);
                                                         chan->binarymodes |= CM_TOPICLOCK;
                                                 }
                                                 else
                                                 {
-							if (chan->binarymodes & CM_TOPICLOCK) strlcat(outlist,"t",MAXBUF);
+							if (chan->binarymodes & CM_TOPICLOCK) charlcat(outlist,'t',MAXBUF);
                                                         chan->binarymodes &= ~CM_TOPICLOCK;
                                                 }
 					}
@@ -931,12 +931,12 @@ void ModeParser::ProcessModes(char **parameters,userrec* user,chanrec *chan,int 
                                         {
                                                 if (mdir)
                                                 {
-							if (!(chan->binarymodes & CM_NOEXTERNAL)) strlcat(outlist,"n",MAXBUF);
+							if (!(chan->binarymodes & CM_NOEXTERNAL)) charlcat(outlist,'n',MAXBUF);
                                                         chan->binarymodes |= CM_NOEXTERNAL;
                                                 }
                                                 else
                                                 {
-							if (chan->binarymodes & CM_NOEXTERNAL) strlcat(outlist,"n",MAXBUF);
+							if (chan->binarymodes & CM_NOEXTERNAL) charlcat(outlist,'n',MAXBUF);
                                                         chan->binarymodes &= ~CM_NOEXTERNAL;
                                                 }
 					}
@@ -949,12 +949,12 @@ void ModeParser::ProcessModes(char **parameters,userrec* user,chanrec *chan,int 
                                         {
                                                 if (mdir)
                                                 {
-                                                        if (!(chan->binarymodes & CM_MODERATED)) strlcat(outlist,"m",MAXBUF);
+                                                        if (!(chan->binarymodes & CM_MODERATED)) charlcat(outlist,'m',MAXBUF);
                                                         chan->binarymodes |= CM_MODERATED;
                                                 }
                                                 else
                                                 {
-                                                        if (chan->binarymodes & CM_MODERATED) strlcat(outlist,"m",MAXBUF);
+                                                        if (chan->binarymodes & CM_MODERATED) charlcat(outlist,'m',MAXBUF);
                                                         chan->binarymodes &= ~CM_MODERATED;
                                                 }
 					}
@@ -967,7 +967,7 @@ void ModeParser::ProcessModes(char **parameters,userrec* user,chanrec *chan,int 
                                         {
                                                 if (mdir)
                                                 {
-                                                        if (!(chan->binarymodes & CM_SECRET)) strlcat(outlist,"s",MAXBUF);
+                                                        if (!(chan->binarymodes & CM_SECRET)) charlcat(outlist,'s',MAXBUF);
                                                         chan->binarymodes |= CM_SECRET;
                                                         if (chan->binarymodes & CM_PRIVATE)
                                                         {
@@ -980,7 +980,7 @@ void ModeParser::ProcessModes(char **parameters,userrec* user,chanrec *chan,int 
                                                 }
                                                 else
                                                 {
-                                                        if (chan->binarymodes & CM_SECRET) strlcat(outlist,"s",MAXBUF);
+                                                        if (chan->binarymodes & CM_SECRET) charlcat(outlist,'s',MAXBUF);
                                                         chan->binarymodes &= ~CM_SECRET;
                                                 }
 					}
@@ -993,7 +993,7 @@ void ModeParser::ProcessModes(char **parameters,userrec* user,chanrec *chan,int 
                                         {
                                                 if (mdir)
                                                 {
-                                                        if (!(chan->binarymodes & CM_PRIVATE)) strlcat(outlist,"p",MAXBUF);
+                                                        if (!(chan->binarymodes & CM_PRIVATE)) charlcat(outlist,'p',MAXBUF);
                                                         chan->binarymodes |= CM_PRIVATE;
                                                         if (chan->binarymodes & CM_SECRET)
                                                         {
@@ -1006,7 +1006,7 @@ void ModeParser::ProcessModes(char **parameters,userrec* user,chanrec *chan,int 
                                                 }
                                                 else
                                                 {
-                                                        if (chan->binarymodes & CM_PRIVATE) strlcat(outlist,"p",MAXBUF);
+                                                        if (chan->binarymodes & CM_PRIVATE) charlcat(outlist,'p',MAXBUF);
                                                         chan->binarymodes &= ~CM_PRIVATE;
                                                 }
 					}
@@ -1069,7 +1069,6 @@ void ModeParser::ProcessModes(char **parameters,userrec* user,chanrec *chan,int 
 									if (t != 0)
 									{
 										log(DEBUG,"OnExtendedMode returned nonzero for a module");
-										char app[] = {*modechar, 0};
 										if (ModeIsListMode(*modechar,MT_CHANNEL))
 										{
 											if (t == -1)
@@ -1081,7 +1080,7 @@ void ModeParser::ProcessModes(char **parameters,userrec* user,chanrec *chan,int 
 											{
 												if (ptr>0)
 												{
-													strlcat(outlist, app,MAXBUF);
+													charlcat(outlist,*modechar,MAXBUF);
 												}
 												strlcpy(outpars[pc++],parameters[param++],MAXBUF);
 											}
@@ -1092,11 +1091,11 @@ void ModeParser::ProcessModes(char **parameters,userrec* user,chanrec *chan,int 
 											{
 												if ((modelist[ptr-1] == '+') || (modelist[ptr-1] == '-'))
 												{
-													strlcat(outlist, app,MAXBUF);
+													charlcat(outlist,*modechar,MAXBUF);
 												}
 												else if (!strchr(outlist,*modechar))
 												{
-													strlcat(outlist, app,MAXBUF);
+													charlcat(outlist,*modechar,MAXBUF);
 												}
 											}
 											chan->SetCustomMode(*modechar,mdir);
@@ -1137,7 +1136,7 @@ void ModeParser::ProcessModes(char **parameters,userrec* user,chanrec *chan,int 
 		strlcpy(outstr,outlist,MAXBUF);
 		for (ptr = 0; ptr < pc; ptr++)
 		{
-			strlcat(outstr," ",MAXBUF);
+			charlcat(outstr,' ',MAXBUF);
 			strlcat(outstr,outpars[ptr],MAXBUF);
 		}
 		if (local)
@@ -1401,8 +1400,7 @@ void cmd_mode::Handle (char **parameters, int pcnt, userrec *user)
 							if ((ServerInstance->ModeGrok->ProcessModuleUmode(umode, user, dest, direction)) || (umode == 'i') || (umode == 's') || (umode == 'w') || (umode == 'o'))
 							{
 								unsigned int q = 0;
-								char temp[MAXBUF];	
-								char moo[MAXBUF];	
+								char temp[MAXBUF];
 
 								unsigned int r = strlen(outpars);
 								outpars[r+1]='\0';
@@ -1413,9 +1411,7 @@ void cmd_mode::Handle (char **parameters, int pcnt, userrec *user)
 								{
 									if (dmodes[q] != parameters[1][i])
 									{
-										moo[0] = dmodes[q];
-										moo[1] = '\0';
-										strlcat(temp,moo,MAXBUF);
+										charlcat(temp,dmodes[q],MAXBUF);
 									}
 								}
 								strlcpy(dmodes,temp,52);
@@ -1663,7 +1659,6 @@ void ModeParser::ServerMode(char **parameters, int pcnt, userrec *user)
 							{
 								unsigned int q = 0;
 								char temp[MAXBUF];
-								char moo[MAXBUF];	
 
 								unsigned int v1 = strlen(outpars);
 								outpars[v1+1]='\0';
@@ -1673,9 +1668,7 @@ void ModeParser::ServerMode(char **parameters, int pcnt, userrec *user)
 								{
 									if (dmodes[q] != parameters[1][i])
 									{
-										moo[0] = dmodes[q];
-										moo[1] = '\0';
-										strlcat(temp,moo,MAXBUF);
+										charlcat(temp,dmodes[q],MAXBUF);
 									}
 								}
 								strlcpy(dmodes,temp,52);

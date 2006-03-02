@@ -285,7 +285,7 @@ bool host_matches_everyone(std::string mask, userrec* user)
 	for (user_hash::iterator u = clientlist.begin(); u != clientlist.end(); u++)
 	{
 		strlcpy(buffer,u->second->ident,MAXBUF);
-		strlcat(buffer,"@",MAXBUF);
+		charlcat(buffer,'@',MAXBUF);
 		strlcat(buffer,u->second->host,MAXBUF);
 		if (match(buffer,mask.c_str()))
 			matches++;
