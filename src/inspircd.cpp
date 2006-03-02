@@ -616,7 +616,22 @@ void InspIRCd::DoOneIteration(bool process_module_sockets)
         if (((TIME % 5) == 0) && (!expire_run))
         {
                 expire_lines();
-                FOREACH_MOD(I_OnBackgroundTimer,OnBackgroundTimer(TIME));
+		if (process_module_sockets)
+		{
+			/* Fix by brain - the addition of DoOneIteration means that this
+			 * can end up getting called recursively in the following pattern:
+			 *
+			 * m_spanningtree DoPingChecks
+			 * (server pings out and is squit)
+			 * (squit causes call to DoOneIteration)
+			 * DoOneIteration enters here
+			 * calls DoBackground timer
+			 * enters m_spanningtree DoPingChecks... see step 1.
+			 *
+			 * This should do the job and fix the bug.
+			 */
+	                FOREACH_MOD(I_OnBackgroundTimer,OnBackgroundTimer(TIME));
+		}
                 TickMissedTimers(TIME);
                 expire_run = true;
                 return;
@@ -633,7 +648,7 @@ void InspIRCd::DoOneIteration(bool process_module_sockets)
                         WriteOpers("*** \002EH?!\002 -- Time is flowing BACKWARDS in this dimension! Clock drifted backwards %d secs.",abs(OLDTIME-TIME));
                 DoBackgroundUserStuff(TIME);
         }
-               
+
         /* Process timeouts on module sockets each time around
          * the loop. There shouldnt be many module sockets, at
          * most, 20 or so, so this won't be much of a performance
