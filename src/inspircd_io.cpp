@@ -1183,7 +1183,7 @@ int BindSocket (int sockfd, struct sockaddr_in client, struct sockaddr_in server
 	struct in_addr addy;
 	inet_aton(addr,&addy);
 	server.sin_family = AF_INET;
-	if (!strcmp(addr,""))
+	if (!*addr)
 	{
 		server.sin_addr.s_addr = htonl(INADDR_ANY);
 	}

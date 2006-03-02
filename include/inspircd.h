@@ -57,22 +57,11 @@
 // crucial defines
 #define ETIREDGERBILS EAGAIN
 
-/*
-flags for use with WriteMode
-
-#define WM_AND 1
-#define WM_OR 2
-
-flags for use with OnUserPreMessage and OnUserPreNotice
-
-#define TYPE_USER 1
-#define TYPE_CHANNEL 2
-#define TYPE_SERVER 3
-
-#define IS_LOCAL(x) (x->fd > -1)
-#define IS_REMOTE(x) (x->fd < 0)
-#define IS_MODULE_CREATED(x) (x->fd == FD_MAGIC_NUMBER)
-*/
+// This define is used in place of strcmp when we 
+// want to check if a char* string contains only one
+// letter. Pretty fast, its just two compares and an
+// addition.
+#define IS_SINGLE(x,y) ( (*x == y) && (*(x+1) == 0) )
 
 class serverstats
 {

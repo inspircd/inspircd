@@ -1460,10 +1460,10 @@ void cmd_mode::Handle (char **parameters, int pcnt, userrec *user)
 			if ((b[z] == '-') || (b[z] == '+'))
 				b[z] = '\0';
 
-			if ((!b[0]) || (!strcmp(b,"+")) || (!strcmp(b,"-")))
+			if ((!*b) || (IS_SINGLE(b,"+")) || (IS_SINGLE(b,"-")))
 				return;
 
-			if (strcmp(b,""))
+			if (*b)
 			{
 				WriteTo(user, dest, "MODE %s :%s", dest->nick, b);
 				FOREACH_MOD(I_OnMode,OnMode(user, dest, TYPE_USER, b));
@@ -1711,7 +1711,7 @@ void ModeParser::ServerMode(char **parameters, int pcnt, userrec *user)
 			if ((b[z] == '-') || (b[z] == '+'))
 				b[z] = '\0';
 
-			if ((!b[0]) || (!strcmp(b,"+")) || (!strcmp(b,"-")))
+			if ((!*b) || (IS_SINGLE(b,'+')) || (IS_SINGLE(b,'-')))
 				return;
 
 			if (*b)

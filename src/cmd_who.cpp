@@ -70,7 +70,7 @@ void cmd_who::Handle (char **parameters, int pcnt, userrec *user)
 	/* theres more to do here, but for now just close the socket */
 	if (pcnt == 1)
 	{
-		if ((!strcmp(parameters[0],"0")) || (!strcmp(parameters[0],"*")))
+		if ((IS_SINGLE(parameters[0],'0)) || (IS_SINGLE(parameters[0],'*')))
 		{
 			if ((user->chans.size()) && (user->chans[0].channel))
 			{
@@ -165,7 +165,7 @@ void cmd_who::Handle (char **parameters, int pcnt, userrec *user)
 	}
 	if (pcnt == 2)
 	{
-                if ((!strcmp(parameters[0],"0")) || (!strcmp(parameters[0],"*")) && (!strcmp(parameters[1],"o")))
+                if ((IS_SINGLE(parameters[0],'0')) || (IS_SINGLE(parameters[0],'*')) && (IS_SINGLE(parameters[1],'o')))
                 {
 		  	for (std::vector<userrec*>::iterator i = all_opers.begin(); i != all_opers.end(); i++)
                         {
