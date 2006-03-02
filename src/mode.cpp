@@ -1228,7 +1228,8 @@ bool ModeParser::ProcessModuleUmode(char umode, userrec* source, void* dest, boo
 	{
 		s2 = new userrec;
 		strlcpy(s2->nick,Config->ServerName,NICKMAX-1);
-		strlcpy(s2->modes,"o",52);
+		*s2->modes = 'o';
+		*(s2->modes+1) = 0;
 		s2->fd = -1;
 		source = s2;
 		faked = true;
@@ -1430,7 +1431,7 @@ void cmd_mode::Handle (char **parameters, int pcnt, userrec *user)
 		if (outpars[0])
 		{
 			char b[MAXBUF];
-			strlcpy(b,"",MAXBUF);
+			*b = 0;
 			unsigned int z = 0;
 			unsigned int i = 0;
 			while (i < strlen (outpars))

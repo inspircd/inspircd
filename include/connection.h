@@ -43,7 +43,7 @@ class connection : public Extensible
 	
 	/** Hostname of connection. Not used if this is a serverrec
 	 */
-	char host[160];
+	char host[64];
 
 	/** Stats counter for bytes inbound
 	 */

@@ -227,7 +227,7 @@ void ChangeDisplayedHost(userrec* user, const char* host)
                         return;
 		FOREACH_MOD(I_OnChangeHost,OnChangeHost(user,host));
         }
-	strlcpy(user->dhost,host,160);
+	strlcpy(user->dhost,host,63);
 	WriteServ(user->fd,"396 %s %s :is now your hidden host",user->nick,user->dhost);
 }
 
@@ -419,7 +419,7 @@ void TidyBan(char *ban)
 
 	strlcpy(NICK,temp,NICKMAX-1);
 	strlcpy(IDENT,pos_of_pling,IDENTMAX+1);
-	strlcpy(HOST,pos_of_at,160);
+	strlcpy(HOST,pos_of_at,63);
 
 	snprintf(ban,MAXBUF,"%s!%s@%s",NICK,IDENT,HOST);
 }

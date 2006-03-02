@@ -519,8 +519,8 @@ void AddWhoWas(userrec* u)
         WhoWasUser *a = new WhoWasUser();
         strlcpy(a->nick,u->nick,NICKMAX-1);
         strlcpy(a->ident,u->ident,IDENTMAX);
-        strlcpy(a->dhost,u->dhost,160);
-        strlcpy(a->host,u->host,160);
+        strlcpy(a->dhost,u->dhost,63);
+        strlcpy(a->host,u->host,63);
         strlcpy(a->fullname,u->fullname,MAXGECOS);
 	if (u->server)
 	        strlcpy(a->server,u->server,256);
@@ -610,8 +610,8 @@ void AddClient(int socket, int port, bool iscached, in_addr ip4)
 	/* We don't know the host yet, dns lookup could still be going on,
 	 * so instead we just put the ip address here, for now.
 	 */
-        strlcpy(clientlist[tempnick]->host, ipaddr, 160);
-        strlcpy(clientlist[tempnick]->dhost, ipaddr, 160);
+        strlcpy(clientlist[tempnick]->host, ipaddr, 63);
+        strlcpy(clientlist[tempnick]->dhost, ipaddr, 63);
         clientlist[tempnick]->server = (char*)FindServerNamePtr(Config->ServerName);
         strlcpy(clientlist[tempnick]->ident, "unknown",IDENTMAX);
         clientlist[tempnick]->registered = 0;

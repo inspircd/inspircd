@@ -136,7 +136,7 @@ class userrec : public connection
 	/** The host displayed to non-opers (used for cloaking etc).
 	 * This usually matches the value of userrec::host.
 	 */
-	char dhost[160];
+	char dhost[64];
 	
 	/** The users full name.
 	 */
@@ -347,8 +347,8 @@ class WhoWasUser
  public:
 	char nick[NICKMAX];
 	char ident[IDENTMAX+1];
-	char dhost[160];
-	char host[160];
+	char dhost[64];
+	char host[64];
 	char fullname[MAXGECOS+1];
 	char server[256];
 	time_t signon;
