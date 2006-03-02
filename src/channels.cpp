@@ -81,24 +81,59 @@ void chanrec::SetCustomMode(char mode,bool mode_on)
 {
 	if (mode_on)
 	{
-		static char m[3];
-		m[0] = mode;
-		m[1] = '\0';
-		if (!strchr(this->custom_modes,mode))
-		{
-			strlcat(custom_modes,m,MAXMODES);
-		}
-		log(DEBUG,"Custom mode %c set",mode);
-	}
-	else {
+		char* mptr = this->custom_modes;
+		int ssize = 0;
 
-		std::string a = this->custom_modes;
-		int pos = a.find(mode);
-		a.erase(pos,1);
-		strlcpy(this->custom_modes,a.c_str(),MAXMODES);
+		/* Attempt to find the end of the mode string */
+		while (*mptr++)
+		{
+			/* While iterating the mode string, we found that they already have
+			 * this mode in their list. Abort right now. */
+			if (*mptr == mode)
+				return;
+			/* Increment the string size, saves us doing strlen */
+			ssize++;
+		}
+
+		log(DEBUG,"ssize=%d",ssize);
+
+		/* Is there room left in the buffer? If there is append the mode */
+		if (ssize < MAXMODES-1)
+		{
+			*--mptr = mode;
+			*++mptr = 0;
+		}
+
+		log(DEBUG,"Custom mode %c set, modes='%s'",mode,this->custom_modes);
+	}
+	else
+	{
+		char* mptr = this->custom_modes;
+		bool shift_down = false;
+		/* Iterate through the string */
+		while (*mptr)
+		{
+			/* When we find the mode we intend to remove, set the
+			 * flag to tell the loop to start moving chars down
+			 * one place
+			 */
+			if (*mptr == mode)
+				shift_down = true;
+			/* If we're moving chars down one place, take the current
+			 * char, and move it down one slot, so:
+			 * ABC\0  becomes BBC\0 then next iteration, BBC\0 becomes
+			 * BC\0.
+			 */
+			if (shift_down)
+				*mptr = *(mptr+1);
+			*mptr++;
+		}
 
 		log(DEBUG,"Custom mode %c removed: modelist='%s'",mode,this->custom_modes);
-		this->SetCustomModeParam(mode,"",false);
+
+		/* Only call this if we found the mode */
+		if (shift_down)
+			this->SetCustomModeParam(mode,"",false);
 	}
 }
 
@@ -130,7 +165,6 @@ void chanrec::SetCustomModeParam(char mode,char* parameter,bool mode_on)
 				}
 			}
 		}
-		log(DEBUG,"*** BUG *** Attempt to remove non-existent mode parameter!");
 	}
 }
 
