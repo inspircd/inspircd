@@ -1460,7 +1460,7 @@ void cmd_mode::Handle (char **parameters, int pcnt, userrec *user)
 			if ((b[z] == '-') || (b[z] == '+'))
 				b[z] = '\0';
 
-			if ((!*b) || (IS_SINGLE(b,"+")) || (IS_SINGLE(b,"-")))
+			if ((!*b) || (IS_SINGLE(b,'+')) || (IS_SINGLE(b,'-')))
 				return;
 
 			if (*b)
