@@ -17,7 +17,6 @@
 using namespace std;
 
 #include "inspircd_config.h"
-#include "inspircd.h"
 #include "inspircd_io.h"
 #include <time.h>
 #include <string>
@@ -47,6 +46,7 @@ using namespace std;
 #include "socketengine.h"
 #include "typedefs.h"
 #include "command_parse.h"
+#include "inspircd.h"
 #include "cmd_who.h"
 
 extern ServerConfig* Config;
@@ -70,7 +70,7 @@ void cmd_who::Handle (char **parameters, int pcnt, userrec *user)
 	/* theres more to do here, but for now just close the socket */
 	if (pcnt == 1)
 	{
-		if ((IS_SINGLE(parameters[0],'0)) || (IS_SINGLE(parameters[0],'*')))
+		if ((IS_SINGLE(parameters[0],'0')) || (IS_SINGLE(parameters[0],'*')))
 		{
 			if ((user->chans.size()) && (user->chans[0].channel))
 			{
