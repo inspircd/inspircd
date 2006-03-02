@@ -2072,13 +2072,18 @@ class TreeSocket : public InspSocket
 
 	void Split(std::string line, bool stripcolon, std::deque<std::string> &n)
 	{
+		// we don't do anything with a line > 2048
+		if (line.length() > 2048)
+			return;
 		if (!strchr(line.c_str(),' '))
 		{
 			n.push_back(line);
 			return;
 		}
 		std::stringstream s(line);
-		std::string param = "";
+		int count = 0;
+		char param[1024];
+		char* pptr = param;
 
 		n.clear();
 		int item = 0;
@@ -2089,32 +2094,34 @@ class TreeSocket : public InspSocket
 			if (c == ' ')
 			{
 				n.push_back(param);
-				param = "";
+				*param = count = 0;
 				item++;
 			}
 			else
 			{
 				if (!s.eof())
 				{
-					param = param + c;
+					*pptr++ = c;
+					count++;
 				}
-				if ((param == ":") && (item > 0))
+				if ((*param == ':') && (count == 1) && (item > 0))
 				{
-					param = "";
+					*param = 0;
 					while (!s.eof())
 					{
 						s.get(c);
 						if (!s.eof())
 						{
-							param = param + c;
+							*pptr++ = c;
+							count++;
 						}
 					}
 					n.push_back(param);
-					param = "";
+					*param = count = 0;
 				}
 			}
 		}
-		if (param != "")
+		if (*param)
 		{
 			n.push_back(param);
 		}
