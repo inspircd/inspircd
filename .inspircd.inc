@@ -84,7 +84,6 @@ sub start {
         if (getstatus() == 1) { print "InspIRCd is already running.\n"; return 0; }
         # If we are still alive here.. Try starting the IRCd..
         system("$binpath/$executable");
-	sleep 2;
         return 1;
 }
 
@@ -102,7 +101,6 @@ sub stop {
         my $pid = getprocessid();
 	print "Stopping InspIRCd...\n";
         system("kill -TERM $pid >/dev/null 2>&1");
-	sleep 2;
 	if (getstatus() == 1)
 	{
 		print "InspIRCd not dying Quietly -- Forcing Kill\n";
