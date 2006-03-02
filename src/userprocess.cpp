@@ -413,11 +413,11 @@ void LoadAllModules(InspIRCd* ServerInstance)
         for (int count = 0; count < Config->ConfValueEnum("module",&Config->config_f); count++)
         {
                 Config->ConfValue("module","name",count,configToken,&Config->config_f);
-                printf("Loading module... \033[1;32m%s\033[0m\n",configToken);
+                printf("[\033[1;32m*\033[0m] Loading module:\t\033[1;32m%s\033[0m\n",configToken);
                 if (!ServerInstance->LoadModule(configToken))
                 {
                         log(DEFAULT,"Exiting due to a module loader error.");
-                        printf("\nThere was an error loading a module: %s\n\nYou might want to do './inspircd start' instead of 'bin/inspircd'\n\n",ServerInstance->ModuleError());
+                        printf("\nThere was an error loading a module: %s\n\n",ServerInstance->ModuleError());
                         Exit(0);
                 }
         }
