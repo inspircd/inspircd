@@ -201,13 +201,11 @@ bool userrec::HasPermission(std::string &command)
 	char* savept;
 	char* savept2;
 	
-	// users on u-lined servers can completely bypass
+	// users on remote servers can completely bypass
 	// all permissions based checks.
-	//
-	// of course, if this is sent to a remote server and this
-	// server is not ulined there, then that other server
-	// silently drops the command.
-	if (is_uline(this->server))
+	// This prevents desyncs when one server has different
+	// type/class tags to another.
+	if (!IS_LOCAL(this))
 		return true;
 	
 	// are they even an oper at all?
