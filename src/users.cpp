@@ -283,9 +283,12 @@ bool userrec::HasPermission(std::string &command)
 bool userrec::AddBuffer(std::string a)
 {
         std::string b = "";
-        for (unsigned int i = 0; i < a.length(); i++)
-                if ((a[i] != '\r') && (a[i] != '\0') && (a[i] != 7))
-                        b = b + a[i];
+	char* n = (char*)a.c_str();
+        for (char* i = n; *i; i++)
+	{
+                if ((*i != '\r') && (*i != '\0') && (*i != 7))
+                        b = b + *i;
+	}
         std::stringstream stream(recvq);
         stream << b;
         recvq = stream.str();
