@@ -84,11 +84,11 @@ void cmd_who::Handle (char **parameters, int pcnt, userrec *user)
 						// Bug Fix #29
 						*tmp = 0;
 						if (*i->second->awaymsg) {
-							strlcat(tmp, "G", 9);
+							charlcat(tmp, 'G', 9);
 						} else {
-							strlcat(tmp, "H", 9);
+							charlcat(tmp, 'H', 9);
 						}
-						if (*i->second->oper) { strlcat(tmp, "*", 9); }
+						if (*i->second->oper) { charlcat(tmp, '*', 9); }
 						WriteServ(user->fd,"352 %s %s %s %s %s %s %s :0 %s",user->nick, Ptr ? Ptr->name : "*", i->second->ident, i->second->dhost, i->second->server, i->second->nick, tmp, i->second->fullname);
 						if (n_list++ > Config->MaxWhoResults)
 						{
@@ -121,11 +121,11 @@ void cmd_who::Handle (char **parameters, int pcnt, userrec *user)
 						// Fix Bug #29 - Part 2..
 						*tmp = 0;
 						if (*i->second->awaymsg) {
-							strlcat(tmp, "G", 9);
+							charlcat(tmp, 'G', 9);
 						} else {
-							strlcat(tmp, "H", 9);
+							charlcat(tmp, 'H', 9);
 						}
-						if (*i->second->oper) { strlcat(tmp, "*", 9); }
+						if (*i->second->oper) { charlcat(tmp, '*', 9); }
 						strlcat(tmp, cmode(i->second, Ptr),5);
 						WriteServ(user->fd,"352 %s %s %s %s %s %s %s :0 %s",user->nick, Ptr->name, i->second->ident, i->second->dhost, i->second->server, i->second->nick, tmp, i->second->fullname);
                                                 n_list++;
@@ -152,11 +152,11 @@ void cmd_who::Handle (char **parameters, int pcnt, userrec *user)
 				// Bug Fix #29 -- Part 29..
 				*tmp = 0;
 				if (*u->awaymsg) {
-					strlcat(tmp, "G" ,9);
+					charlcat(tmp, 'G' ,9);
 				} else {
-					strlcat(tmp, "H" ,9);
+					charlcat(tmp, 'H' ,9);
 				}
-				if (*u->oper) { strlcat(tmp, "*" ,9); }
+				if (*u->oper) { charlcat(tmp, '*' ,9); }
 				WriteServ(user->fd,"352 %s %s %s %s %s %s %s :0 %s",user->nick, u->chans.size() && u->chans[0].channel ? u->chans[0].channel->name
                                 : "*", u->ident, u->dhost, u->server, u->nick, tmp, u->fullname);
 			}
@@ -174,9 +174,9 @@ void cmd_who::Handle (char **parameters, int pcnt, userrec *user)
 				userrec* oper = *i;
 				*tmp = 0;
 				if (*oper->awaymsg) {
-					strlcat(tmp, "G" ,9);
+					charlcat(tmp, 'G' ,9);
 				} else {
-					strlcat(tmp, "H" ,9);
+					charlcat(tmp, 'H' ,9);
 				}
                                 WriteServ(user->fd,"352 %s %s %s %s %s %s %s* :0 %s", user->nick, oper->chans.size() && oper->chans[0].channel ? oper->chans[0].channel->name 
 				: "*", oper->ident, oper->dhost, oper->server, oper->nick, tmp, oper->fullname);
@@ -186,5 +186,4 @@ void cmd_who::Handle (char **parameters, int pcnt, userrec *user)
                 }
 	}
 }
-
 

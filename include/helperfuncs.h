@@ -87,4 +87,6 @@ std::string GetFullProgDir(char** argv, int argc);
 int InsertMode(std::string &output, const char* modes, unsigned short section);
 bool IsValidChannelName(const char *);
 
+inline int charlcat(char* x,char y,int z);
+
 #endif

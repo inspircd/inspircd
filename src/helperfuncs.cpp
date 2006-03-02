@@ -1175,7 +1175,7 @@ char* chanmodes(chanrec *chan, bool showkey)
                         std::string extparam = chan->GetModeParameter(chan->custom_modes[z]);
                         if (extparam != "")
                         {
-                                strlcat(sparam," ",MAXBUF);
+                                charlcat(sparam,' ',MAXBUF);
                                 strlcat(sparam,extparam.c_str(),MAXBUF);
                         }
                 }
@@ -1213,7 +1213,7 @@ void userlist(userrec *user,chanrec *c)
                 }
                 strlcat(list,cmode(otheruser,c),MAXBUF);
                 strlcat(list,otheruser->nick,MAXBUF);
-                strlcat(list," ",MAXBUF);
+                charlcat(list,' ',MAXBUF);
                 if (strlen(list)>(480-NICKMAX))
                 {
                         /* list overflowed into
@@ -1567,3 +1567,18 @@ bool IsValidChannelName(const char *chname)
 
 		return true;
 }
+
+inline int charlcat(char* x,char y,int z)
+{
+        char* x__n = x;
+        int v = 0;
+        while(*x__n++)
+                v++;
+        if (v < z - 1)
+        {
+                *--x__n = y;
+                *++x__n = 0;
+        }
+	return v;
+}
+
