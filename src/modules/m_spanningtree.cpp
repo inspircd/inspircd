@@ -2098,10 +2098,7 @@ class TreeSocket : public InspSocket
 			{
 				*pptr = 0;
 				if (*param)
-				{
-					log(DEBUG,"Pushback(1) '%s'",param);
 					n.push_back(param);
-				}
 				*param = count = 0;
 				pptr = param;
 				item++;
@@ -2117,7 +2114,6 @@ class TreeSocket : public InspSocket
 				{
 					*param = count = 0;
 					pptr = param;
-					log(DEBUG,"Final param");
 					while (!s.eof())
 					{
 						s.get(c);
@@ -2128,11 +2124,7 @@ class TreeSocket : public InspSocket
 						}
 					}
 					*pptr = 0;
-					if (*param)
-					{
-						log(DEBUG,"Pushback(2) '%s'",param);
-						n.push_back(param);
-					}
+					n.push_back(param);
 					*param = count = 0;
 					pptr = param;
 				}
@@ -2141,7 +2133,6 @@ class TreeSocket : public InspSocket
 		*pptr = 0;
 		if (*param)
 		{
-			log(DEBUG,"Pushback(3) '%s'",param);
 			n.push_back(param);
 		}
 
