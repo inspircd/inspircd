@@ -383,7 +383,7 @@ void kill_link(userrec *user,const char* r)
 
         char reason[MAXBUF];
 
-        strlcpy(reason,r,MAXBUF);
+        strlcpy(reason,r,MAXBUF-1);
 
         if (strlen(reason)>MAXQUIT)
         {
@@ -414,7 +414,7 @@ void kill_link(userrec *user,const char* r)
 			}
                         catch (ModuleException& modexcept)
                         {
-                                log(DEBUG,"Module exception cought: %s",modexcept.GetReason()); \
+                                log(DEBUG,"Module exception cought: %s",modexcept.GetReason());
                         }
 		}
                 ServerInstance->SE->DelFd(user->fd);
@@ -446,71 +446,6 @@ void kill_link(userrec *user,const char* r)
         }
         delete user;
 }
-
-void kill_link_silent(userrec *user,const char* r)
-{
-        user_hash::iterator iter = clientlist.find(user->nick);
-
-        char reason[MAXBUF];
-
-        strlcpy(reason,r,MAXBUF);
-
-        if (strlen(reason)>MAXQUIT)
-        {
-                reason[MAXQUIT-1] = '\0';
-        }
-
-        log(DEBUG,"kill_link: %s '%s'",user->nick,reason);
-        Write(user->fd,"ERROR :Closing link (%s@%s) [%s]",user->ident,user->host,reason);
-        log(DEBUG,"closing fd %lu",(unsigned long)user->fd);
-
-        user->FlushWriteBuf();
-
-        if (user->registered == 7) {
-                FOREACH_MOD(I_OnUserQuit,OnUserQuit(user,reason));
-                WriteCommonExcept(user,"QUIT :%s",reason);
-        }
-
-        FOREACH_MOD(I_OnUserDisconnect,OnUserDisconnect(user));
-
-        if (user->fd > -1)
-        {
-		if (Config->GetIOHook(user->port))
-		{
-			try
-			{
-                		Config->GetIOHook(user->port)->OnRawSocketClose(user->fd);
-			}
-                        catch (ModuleException& modexcept)
-                        {
-                                log(DEBUG,"Module exception cought: %s",modexcept.GetReason()); \
-                        }
-		}
-                ServerInstance->SE->DelFd(user->fd);
-                user->CloseSocket();
-        }
-
-        if (user->registered == 7) {
-                purge_empty_chans(user);
-        }
-
-        if (iter != clientlist.end())
-        {
-                log(DEBUG,"deleting user hash value %lu",(unsigned long)user);
-                if (user->fd > -1)
-		{
-                        fd_ref_table[user->fd] = NULL;
-			if (find(local_users.begin(),local_users.end(),user) != local_users.end())
-			{
-				log(DEBUG,"Delete local user");
-	                        local_users.erase(find(local_users.begin(),local_users.end(),user));
-			}
-		}
-                clientlist.erase(iter);
-        }
-        delete user;
-}
-
 
 /* adds or updates an entry in the whowas list */
 void AddWhoWas(userrec* u)
@@ -569,14 +504,10 @@ void AddWhoWas(userrec* u)
 /* add a client connection to the sockets list */
 void AddClient(int socket, int port, bool iscached, in_addr ip4)
 {
-        string tempnick;
-        char tn2[MAXBUF];
-        user_hash::iterator iter;
-
-        tempnick = ConvToStr(socket) + "-unknown";
-        sprintf(tn2,"%d-unknown",socket);
-
-        iter = clientlist.find(tempnick);
+	std::string tempnick = ConvToStr(socket) + "-unknown";
+	user_hash::iterator iter = clientlist.find(tempnick);
+	const char *ipaddr = inet_ntoa(ip4);
+	int j = 0;
 
         // fix by brain.
         // as these nicknames are 'RFC impossible', we can be sure nobody is going to be
@@ -592,28 +523,21 @@ void AddClient(int socket, int port, bool iscached, in_addr ip4)
                 clientlist.erase(iter);
         }
 
-        /*
-         * It is OK to access the value here this way since we know
-         * it exists, we just created it above.
-         *
-         * At NO other time should you access a value in a map or a
-         * hash_map this way.
-         */
+	log(DEBUG,"AddClient: %d %d %s",socket,port,ipaddr);
+	
         clientlist[tempnick] = new userrec();
-
-	char *ipaddr = (char*)inet_ntoa(ip4);
-
-        log(DEBUG,"AddClient: %d %d %s",socket,port,ipaddr);
-
         clientlist[tempnick]->fd = socket;
-        strlcpy(clientlist[tempnick]->nick, tn2,NICKMAX-1);
-	/* We don't know the host yet, dns lookup could still be going on,
-	 * so instead we just put the ip address here, for now.
-	 */
-        strlcpy(clientlist[tempnick]->host, ipaddr, 63);
-        strlcpy(clientlist[tempnick]->dhost, ipaddr, 63);
+        strlcpy(clientlist[tempnick]->nick,tempnick.c_str(),NICKMAX-1);
+
+	/* Smarter than your average bear^H^H^H^Hset of strlcpys. */
+	for (char* temp = (char*)ipaddr; *temp && j < 64; temp++, j++)
+		clientlist[tempnick]->dhost[j] = clientlist[tempnick]->host[j] = *temp;
+	clientlist[tempnick]->dhost[j] = clientlist[tempnick]->host[j] = 0;
+
         clientlist[tempnick]->server = (char*)FindServerNamePtr(Config->ServerName);
-        strlcpy(clientlist[tempnick]->ident, "unknown",IDENTMAX);
+	/* We don't need range checking here, we KNOW 'unknown\0' will fit into the ident field. */
+        strcpy(clientlist[tempnick]->ident, "unknown");
+
         clientlist[tempnick]->registered = 0;
         clientlist[tempnick]->signon = TIME + Config->dns_timeout;
         clientlist[tempnick]->lastping = 1;
@@ -629,7 +553,7 @@ void AddClient(int socket, int port, bool iscached, in_addr ip4)
 
         for (ClassVector::iterator i = Config->Classes.begin(); i != Config->Classes.end(); i++)
         {
-                if (match(ipaddr,i->host.c_str()) && (i->type == CC_ALLOW))
+                if ((i->type == CC_ALLOW) && (match(ipaddr,i->host.c_str())))
                 {
                         class_regtimeout = (unsigned long)i->registration_timeout;
                         class_flood = i->flood;
@@ -639,7 +563,7 @@ void AddClient(int socket, int port, bool iscached, in_addr ip4)
                         class_rqmax = i->recvqmax;
                         break;
                 }
-        }
+	}
 
         clientlist[tempnick]->nping = TIME+clientlist[tempnick]->pingmax + Config->dns_timeout;
         clientlist[tempnick]->timeout = TIME+class_regtimeout;
@@ -653,6 +577,9 @@ void AddClient(int socket, int port, bool iscached, in_addr ip4)
         a.uc_modes = 0;
         for (int i = 0; i < MAXCHANS; i++)
                 clientlist[tempnick]->chans.push_back(a);
+
+	fd_ref_table[socket] = clientlist[tempnick];
+	local_users.push_back(clientlist[tempnick]);
 
         if (local_users.size() > Config->SoftLimit)
         {
@@ -673,7 +600,7 @@ void AddClient(int socket, int port, bool iscached, in_addr ip4)
         // irc server at once (or the irc server otherwise initiating this many connections, files etc)
         // which for the time being is a physical impossibility (even the largest networks dont have more
         // than about 10,000 users on ONE server!)
-        if ((unsigned)socket > MAX_DESCRIPTORS)
+        if ((unsigned)socket >= MAX_DESCRIPTORS)
         {
                 kill_link(clientlist[tempnick],"Server is full");
                 return;
@@ -690,8 +617,7 @@ void AddClient(int socket, int port, bool iscached, in_addr ip4)
                         return;
                 }
         }
-        fd_ref_table[socket] = clientlist[tempnick];
-	local_users.push_back(clientlist[tempnick]);
+
         ServerInstance->SE->AddFd(socket,true,X_ESTAB_CLIENT);
 
 	WriteServ(clientlist[tempnick]->fd,"NOTICE Auth :*** Looking up your hostname...");
@@ -861,7 +787,7 @@ void force_nickchange(userrec* user,const char* newnick)
         {
                 if (newnick)
                 {
-                        strlcpy(nick,newnick,MAXBUF);
+                        strlcpy(nick,newnick,MAXBUF-1);
                 }
                 if (user->registered == 7)
                 {
