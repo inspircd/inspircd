@@ -79,14 +79,14 @@ void ReadClassesAndTypes()
 	{
 		Config->ConfValue("type","name",j,TypeName,&Config->config_f);
 		Config->ConfValue("type","classes",j,Classes,&Config->config_f);
-		opertypes[TypeName] = sstrdup(Classes);
+		opertypes[TypeName] = strdup(Classes);
 		log(DEBUG,"Read oper TYPE '%s' with classes '%s'",TypeName,Classes);
 	}
 	for (int k =0; k < Config->ConfValueEnum("class",&Config->config_f); k++)
 	{
 		Config->ConfValue("class","name",k,ClassName,&Config->config_f);
 		Config->ConfValue("class","commands",k,CommandList,&Config->config_f);
-		operclass[ClassName] = sstrdup(CommandList);
+		operclass[ClassName] = strdup(CommandList);
 		log(DEBUG,"Read oper CLASS '%s' with commands '%s'",ClassName,CommandList);
 	}
 }
