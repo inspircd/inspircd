@@ -177,22 +177,12 @@ void do_whois(userrec* user, userrec* dest,unsigned long signon, unsigned long i
 /* XXX - these really belong in helperfuncs perhaps -- w00t */
 bool is_uline(const char* server)
 {
-	char ServName[MAXBUF];
-
 	if (!server)
 		return false;
-	if (!(*server))
+	if (!*server)
 		return true;
 
-	for (int i = 0; i < Config->ConfValueEnum("uline",&Config->config_f); i++)
-	{
-		Config->ConfValue("uline","server",i,ServName,&Config->config_f);
-		if (!strcasecmp(server,ServName))
-		{
-			return true;
-		}
-	}
-	return false;
+	return (find(Config->ulines.begin(),Config->ulines.end(),server) != Config->ulines.end());
 }
 
 int operstrcmp(char* data,char* input)

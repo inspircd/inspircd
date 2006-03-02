@@ -308,6 +308,8 @@ class ServerConfig : public classbase
 	 */
 	char CustomVersion[MAXBUF];
 
+	std::vector<irc::string> ulines;
+
 	ServerConfig();
 
 	/** Clears the include stack in preperation for

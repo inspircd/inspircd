@@ -1094,8 +1094,8 @@ class TreeSocket : public InspSocket
 		clientlist[tempnick] = new userrec();
 		clientlist[tempnick]->fd = FD_MAGIC_NUMBER;
 		strlcpy(clientlist[tempnick]->nick, tempnick,NICKMAX-1);
-		strlcpy(clientlist[tempnick]->host, params[2].c_str(),160);
-		strlcpy(clientlist[tempnick]->dhost, params[3].c_str(),160);
+		strlcpy(clientlist[tempnick]->host, params[2].c_str(),63);
+		strlcpy(clientlist[tempnick]->dhost, params[3].c_str(),63);
 		clientlist[tempnick]->server = (char*)FindServerNamePtr(source.c_str());
 		strlcpy(clientlist[tempnick]->ident, params[4].c_str(),IDENTMAX);
 		strlcpy(clientlist[tempnick]->fullname, params[7].c_str(),MAXGECOS);
