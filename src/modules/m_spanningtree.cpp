@@ -2074,7 +2074,10 @@ class TreeSocket : public InspSocket
 	{
 		// we don't do anything with a line > 2048
 		if (line.length() > 2048)
+		{
+			log(DEBUG,"Line too long!");
 			return;
+		}
 		if (!strchr(line.c_str(),' '))
 		{
 			n.push_back(line);
@@ -2095,6 +2098,7 @@ class TreeSocket : public InspSocket
 			{
 				n.push_back(param);
 				*param = count = 0;
+				pptr = param;
 				item++;
 			}
 			else
@@ -2118,13 +2122,13 @@ class TreeSocket : public InspSocket
 					}
 					n.push_back(param);
 					*param = count = 0;
+					pptr = param;
 				}
 			}
 		}
 		if (*param)
-		{
 			n.push_back(param);
-		}
+
 		return;
 	}
 
