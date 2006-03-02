@@ -2116,7 +2116,7 @@ class TreeSocket : public InspSocket
 				if ((*param == ':') && (count == 1) && (item > 0))
 				{
 					*param = count = 0;
-					*pptr = param;
+					pptr = param;
 					log(DEBUG,"Final param");
 					while (!s.eof())
 					{
