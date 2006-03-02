@@ -250,26 +250,30 @@ bool userrec::HasPermission(std::string &command)
 		opertype_t::iterator iter_opertype = opertypes.find(this->oper);
 		if (iter_opertype != opertypes.end())
 		{
-			char* Classes = iter_opertype->second;
+			char* Classes = strdup(iter_opertype->second);
 			char* myclass = strtok_r(Classes," ",&savept);
 			while (myclass)
 			{
 				operclass_t::iterator iter_operclass = operclass.find(myclass);
 				if (iter_operclass != operclass.end())
 				{
-					char* CommandList = iter_operclass->second;
+					char* CommandList = strdup(iter_operclass->second);
 					mycmd = strtok_r(CommandList," ",&savept2);
 					while (mycmd)
 					{
 						if ((!strcasecmp(mycmd,command.c_str())) || (*mycmd == '*'))
 						{
+							free(Classes);
+							free(CommandList);
 							return true;
 						}
 						mycmd = strtok_r(NULL," ",&savept2);
 					}
+					free(CommandList);
 				}
 				myclass = strtok_r(NULL," ",&savept);
 			}
+			free(Classes);
 		}
 	}
 	return false;
