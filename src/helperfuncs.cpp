@@ -64,29 +64,38 @@ extern chan_hash chanlist;
 
 extern std::vector<userrec*> local_users;
 
+static char TIMESTR[26];
+static time_t LAST = 0;
+
 void log(int level,char *text, ...)
 {
         va_list argsPtr;
-        struct tm * timeinfo;
-        if (level < Config->LogLevel)
+
+	if (level < Config->LogLevel)
                 return;
+
 	char textbuffer[MAXBUF];
-        timeinfo = localtime(&TIME);
+	if (TIME != LAST)
+	{
+		struct tm * timeinfo;
+        	timeinfo = localtime(&TIME);
+		strlcpy(TIMESTR,asctime(timeinfo),26);
+		TIMESTR[24] = ':';
+		LAST = TIME;
+	}
 
         if (Config->log_file)
         {
-                char b[26];
                 va_start (argsPtr, text);
                 vsnprintf(textbuffer, MAXBUF, text, argsPtr);
                 va_end(argsPtr);
-                strlcpy(b,asctime(timeinfo),26);
-                b[24] = ':';    // we know this is the end of the time string
+
 		if (Config->log_file)
-	                fprintf(Config->log_file,"%s %s\n",b,textbuffer);
+	                fprintf(Config->log_file,"%s %s\n",TIMESTR,textbuffer);
                 if (Config->nofork)
                 {
                         // nofork enabled? display it on terminal too
-                        printf("%s %s\n",b,textbuffer);
+                        printf("%s %s\n",TIMESTR,textbuffer);
                 }
         }
 }
