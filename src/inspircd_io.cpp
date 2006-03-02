@@ -589,7 +589,11 @@ int DaemonSeed (void)
 	if ((childpid = fork ()) < 0)
 		return (ERROR);
 	else if (childpid > 0)
+	{
+		/* We wait a few seconds here, so that the shell prompt doesnt come back over the output */
+		sleep(6);
 		exit (0);
+	}
 	setsid ();
 	umask (007);
 	printf("InspIRCd Process ID: \033[1;32m%lu\033[0m\n",(unsigned long)getpid());
