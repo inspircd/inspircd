@@ -586,8 +586,9 @@ void ModeParser::ProcessModes(char **parameters,userrec* user,chanrec *chan,int 
 		modelist[--len] = '\0';
 
 	bool next_cant_be_modifier = false;
+	char* modechar;
 
-	for (char* modechar = modelist; *modechar; ptr++, modechar++)
+	for (modechar = modelist; *modechar; ptr++, modechar++)
 	{
 		r = NULL;
 
@@ -599,6 +600,9 @@ void ModeParser::ProcessModes(char **parameters,userrec* user,chanrec *chan,int 
 
 		if ((*modechar != '+') && (*modechar != '-'))
 			next_cant_be_modifier = false;
+
+		if (((*modechar == '+') || (*modechar == '-')) && ((*(modechar+1) == 0) || (*(modechar+1) == '+') || (*(modechar+1) == '-')))
+			next_cant_be_modifier = true;
 
 		{
 			switch (*modechar)
@@ -615,7 +619,7 @@ void ModeParser::ProcessModes(char **parameters,userrec* user,chanrec *chan,int 
 							}
 							else
 							{
-								strcat(outlist,"-");
+								charlcat(outlist,'-',MAXBUF);
 							}
 						}
 						mdir = 0;
@@ -635,7 +639,7 @@ void ModeParser::ProcessModes(char **parameters,userrec* user,chanrec *chan,int 
 							}
 							else
 							{
-								strcat(outlist,"+");
+								charlcat(outlist,'+',MAXBUF);
 							}
 						}
 						mdir = 1;
@@ -788,7 +792,7 @@ void ModeParser::ProcessModes(char **parameters,userrec* user,chanrec *chan,int 
 							FOREACH_RESULT(I_OnRawMode,OnRawMode(user, chan, 'k', parameters[param], true, 1));
 							if (!MOD_RESULT)
 							{
-								strcat(outlist,"k");
+								charlcat(outlist,'k',MAXBUF);
 								char key[MAXBUF];
 								strlcpy(key,parameters[param++],32);
 								strlcpy(outpars[pc++],key,MAXBUF);
@@ -1123,12 +1127,11 @@ void ModeParser::ProcessModes(char **parameters,userrec* user,chanrec *chan,int 
 		}
 	}
 
-	/* this ensures only the *valid* modes are sent out onto the network */
-	/*int xt = strlen(outlist)-1;
-	while ((outlist[xt] == '-') || (outlist[xt] == '+'))
+	/* This means the mode line is something like: "+o-", we have to take the last char off.
+	if ((*--modechar == '-') || (*modechar == '+'))
 	{
-		outlist[xt] = '\0';
-		xt = strlen(outlist)-1;
+		log(DEBUG,"Cut off trailing modifier");
+		*modechar = 0;
 	}*/
 	/* The mode change must be at least two characters long (+ or - and at least one mode) */
 	if (((*outlist == '+') || (*outlist == '-')) && *(outlist+1))
@@ -1335,7 +1338,7 @@ void cmd_mode::Handle (char **parameters, int pcnt, userrec *user)
 					}
 					else
 					{
-						strcat(outpars,"+");
+						charlcat(outpars,'+',MAXBUF);
 					}
 				}
 				direction = 1;
@@ -1352,7 +1355,7 @@ void cmd_mode::Handle (char **parameters, int pcnt, userrec *user)
 					}
 					else
 					{
-						strcat(outpars,"-");
+						charlcat(outpars,'-',MAXBUF);
 					}
 				}
 				direction = 0;
@@ -1602,7 +1605,7 @@ void ModeParser::ServerMode(char **parameters, int pcnt, userrec *user)
 					}
 					else
 					{
-						strcat(outpars,"+");
+						charlcat(outpars,'+',MAXBUF);
 					}
 				}
 				direction = 1;
@@ -1619,7 +1622,7 @@ void ModeParser::ServerMode(char **parameters, int pcnt, userrec *user)
 					}
 					else
 					{
-						strcat(outpars,"-");
+						charlcat(outpars,'-',MAXBUF);
 					}
 				}
 				direction = 0;
