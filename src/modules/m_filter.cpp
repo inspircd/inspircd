@@ -29,6 +29,14 @@ using namespace std;
 
 /* $ModDesc: An enhanced version of the unreal m_filter.so used by chatspike.net */
 
+class Filter
+{
+	std::string reason;
+	std::string action;
+};
+
+typedef std::map<std::string,Filter*> filter_t;
+
 class FilterException : public ModuleException
 {
  public:
@@ -42,6 +50,7 @@ class ModuleFilter : public Module
 {
  Server *Srv;
  ConfigReader *Conf, *MyConf;
+ filter_t* filters;
  
  public:
 	ModuleFilter(Server* Me)
@@ -53,14 +62,7 @@ class ModuleFilter : public Module
 		// of the main config... but rather messy. That's why the capability
 		// of using a seperate config file is provided.
 		Srv = Me;
-		Conf = new ConfigReader;
-		std::string filterfile = Conf->ReadValue("filter","file",0);
-		MyConf = new ConfigReader(filterfile);
-		if ((filterfile == "") || (!MyConf->Verify()))
-		{
-			FilterException e;
-			throw(e);
-		}
+		OnRehash("");
 		Srv->Log(DEFAULT,std::string("m_filter: read configuration from ")+filterfile);
 	}
 	
@@ -85,18 +87,13 @@ class ModuleFilter : public Module
 	virtual int OnUserPreNotice(userrec* user,void* dest,int target_type, std::string &text, char status)
 	{
 		std::string text2 = text+" ";
-		for (int index = 0; index < MyConf->Enumerate("keyword"); index++)
+		for (filter_t::iterator index = filters.begin(); index != filters.end(); index++)
 		{
-			std::string pattern = MyConf->ReadValue("keyword","pattern",index);
-			if ((Srv->MatchText(text2,pattern)) || (Srv->MatchText(text,pattern)))
+			if ((Srv->MatchText(text2,index->first)) || (Srv->MatchText(text,index->first)))
 			{
+				Filter* f = (Filter*)*x->second;
 				std::string target = "";
-				std::string reason = MyConf->ReadValue("keyword","reason",index);
-				std::string do_action = MyConf->ReadValue("keyword","action",index);
 
-				if (do_action == "")
-					do_action = "none";
-					
 				if (target_type == TYPE_USER)
 				{
 					userrec* t = (userrec*)dest;
@@ -107,21 +104,22 @@ class ModuleFilter : public Module
 					chanrec* t = (chanrec*)dest;
 					target = std::string(t->name);
 				}
-				if (do_action == "block")
+
+				if (f->action == "block")
 	      			{	
 					Srv->SendOpers(std::string("FILTER: ")+std::string(user->nick)+
     							std::string(" had their notice filtered, target was ")+
-    							target+": "+reason);
+    							target+": "+f->reason);
 					Srv->SendTo(NULL,user,"NOTICE "+std::string(user->nick)+
-    							" :Your notice has been filtered and opers notified: "+reason);
+    							" :Your notice has been filtered and opers notified: "+f->reason);
     				}
 				Srv->Log(DEFAULT,std::string("FILTER: ")+std::string(user->nick)+
     						std::string(" had their notice filtered, target was ")+
-    						target+": "+reason+" Action: "+do_action);
+    						target+": "+f->reason+" Action: "+f->action);
 
-				if (do_action == "kill")
+				if (f->action == "kill")
 				{
-					Srv->QuitUser(user,reason);
+					Srv->QuitUser(user,f->reason);
 				}
 				return 1;
 			}
@@ -133,8 +131,6 @@ class ModuleFilter : public Module
 	{
 		// reload our config file on rehash - we must destroy and re-allocate the classes
 		// to call the constructor again and re-read our data.
-		delete Conf;
-		delete MyConf;
 		Conf = new ConfigReader;
 		std::string filterfile = Conf->ReadValue("filter","file",0);
 		// this automatically re-reads the configuration file into the class
@@ -145,13 +141,32 @@ class ModuleFilter : public Module
 			FilterException e;
 			throw(e);
 		}
+		for (filter_t::iterator n = filters.begin(); n != filters.end(); n++)
+		{
+			delete n->second;
+		}
+		filters.clear();
+		for (int index = 0; index < MyConf->Enumerate("keyword"); index++)
+		{
+			std::string pattern = MyConf->ReadValue("keyword","pattern",index);
+			std::string reason = MyConf->ReadValue("keyword","reason",index);
+			std::string do_action = MyConf->ReadValue("keyword","action",index);
+			if (do_action == "")
+				do_action = "none";
+			Filter* x = new Filter;
+			x->reason = reason;
+			x->action = do_action;
+			filters[pattern] = x;
+		}
 		Srv->Log(DEFAULT,std::string("m_filter: read configuration from ")+filterfile);
+		delete Conf;
+		delete MyConf;
 	}
 	
 	virtual Version GetVersion()
 	{
 		// This is version 2 because version 1.x is the unreleased unrealircd module
-		return Version(2,0,0,1,VF_VENDOR);
+		return Version(2,0,0,2,VF_VENDOR);
 	}
 	
 };
