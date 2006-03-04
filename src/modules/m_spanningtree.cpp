@@ -2533,7 +2533,7 @@ class TreeSocket : public InspSocket
 						}
 						if (!Srv->CallCommandHandler(command.c_str(), strparams, params.size(), who))
 						{
-							this->WriteLine("ERROR :Unrecognised command '"+command+"' -- possibly loaded mismatched modules");
+							this->WriteLine("ERROR :Unrecognised command '"+std::string(command.c_str())+"' -- possibly loaded mismatched modules");
 							return false;
 						}
 					}
