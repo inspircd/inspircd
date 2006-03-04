@@ -50,7 +50,7 @@ class ModuleFilter : public Module
 {
  Server *Srv;
  ConfigReader *Conf, *MyConf;
- filter_t* filters;
+ filter_t filters;
  
  public:
 	ModuleFilter(Server* Me)
@@ -63,7 +63,6 @@ class ModuleFilter : public Module
 		// of using a seperate config file is provided.
 		Srv = Me;
 		OnRehash("");
-		Srv->Log(DEFAULT,std::string("m_filter: read configuration from ")+filterfile);
 	}
 	
 	virtual ~ModuleFilter()
