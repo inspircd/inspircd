@@ -24,9 +24,12 @@ using namespace std;
 
 /* $ModDesc: Provides support for unreal-style oper-override */
 
+typedef std::map<std::string,std::string> override_t;
+
 class ModuleOverride : public Module
 {
 	Server *Srv;
+	override_t overrides;
 	bool NoisyOverride;
 	ConfigReader *Conf;
 	
@@ -43,7 +46,7 @@ class ModuleOverride : public Module
 		Conf = new ConfigReader;
 		
 		// read our config options (main config file)
-		NoisyOverride = Conf->ReadFlag("override","noisy",0);
+		OnRehash("");
 	}
 	
 	virtual void OnRehash(std::string parameter)
@@ -53,6 +56,13 @@ class ModuleOverride : public Module
 		Conf = new ConfigReader;
 		// re-read our config options on a rehash
 		NoisyOverride = Conf->ReadFlag("override","noisy",0);
+		overrides.clear();
+		for (int j =0; j < Conf->Enumerate("type"); j++)
+		{
+			std::string typen = Conf->ReadValue("type","name",j);
+			std::string tokenlist = Conf->ReadValue("type","override",j);
+			overrides[typen] = tokenlist;
+		}
 	}
 
 	void Implements(char* List)
@@ -68,15 +78,11 @@ class ModuleOverride : public Module
 	virtual bool CanOverride(userrec* source, char* token)
 	{
 		// checks to see if the oper's type has <type:override>
-		for (int j =0; j < Conf->Enumerate("type"); j++)
+		override_t::iterator j = overrides.find(source->oper);
+		if (j != overrides.end())
                 {
-			std::string typen = Conf->ReadValue("type","name",j);
-			if (!strcmp(typen.c_str(),source->oper))
-			{
-				// its defined, return its value as a boolean for if the token is set
-                        	std::string tokenlist = Conf->ReadValue("type","override",j);
-				return strstr(tokenlist.c_str(),token);
-                        }
+			// its defined, return its value as a boolean for if the token is set
+			return strstr(j->second.c_str(),token);
                 }
 		// its not defined at all, count as false
 		return false;
