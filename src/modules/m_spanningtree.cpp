@@ -1742,11 +1742,20 @@ class TreeSocket : public InspSocket
 		/* Send it on its way */
 		if (propogate)
 		{
+			if (atoi(params[4].c_str()))
+			{
+				WriteOpers("*** %s Added %cLINE on %s to expire in %lu seconds (%s).",prefix.c_str(),*(params[0].c_str()),params[1].c_str(),atoi(params[4].c_str()),params[5].c_str());
+			}
+			else
+			{
+				WriteOpers("*** %s Added permenant %cLINE on %s (%s).",prefix.c_str(),*(params[0].c_str()),params[1].c_str(),params[5].c_str());
+			}
 			params[5] = ":" + params[5];
 			DoOneToAllButSender(prefix,"ADDLINE",params,prefix);
 		}
 		if (!this->bursting)
 		{
+			log(DEBUG,"Applying lines...");
 			apply_lines(APPLY_ZLINES|APPLY_GLINES|APPLY_QLINES);
 		}
 		return true;
