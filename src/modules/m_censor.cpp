@@ -100,11 +100,11 @@ class ModuleCensor : public Module
 		delete Conf;
 	}
 	
-	virtual void ReplaceLine(std::string &text,std::string pattern, std::string replace)
+	virtual void ReplaceLine(irc::string &text, irc::string pattern, irc::string replace)
 	{
 		if ((pattern != "") && (text != ""))
 		{
-			while (text.find(pattern) != std::string::npos)
+			while (text.find(pattern) != irc::string::npos)
 			{
 				int pos = text.find(pattern);
 				text.erase(pos,pattern.length());
@@ -122,7 +122,7 @@ class ModuleCensor : public Module
 		for (int index = 0; index < MyConf->Enumerate("badword"); index++)
 		{
 			irc::string pattern = (MyConf->ReadValue("badword","text",index)).c_str();
-			if (text2.find(pattern) != std::string::npos)
+			if (text2.find(pattern) != irc::string::npos)
 			{
 				std::string replace = MyConf->ReadValue("badword","replace",index);
 
@@ -139,7 +139,9 @@ class ModuleCensor : public Module
 				
 				if (active)
 				{
-					this->ReplaceLine(text,std::string(pattern.c_str()),replace);
+					irc::string x = text.c_str();
+					this->ReplaceLine(x,pattern,irc::string(replace.c_str()));
+					text = x.c_str();
 				}
 			}
 		}
