@@ -23,12 +23,22 @@ using namespace std;
 
 /* $ModDesc: Provides masking of user hostnames in a different way to m_cloaking */
 
+class Host
+{
+ public:
+	std::string action;
+	std::string newhost;
+};
+
+typedef std::map<std::string,Host*> hostchanges_t;
+
 class ModuleHostChange : public Module
 {
  private:
 
 	Server *Srv;
 	ConfigReader *Conf;
+	hostchanges_t hostchanges;
 	std::string MySuffix;
 	 
  public:
@@ -37,7 +47,7 @@ class ModuleHostChange : public Module
 	{
 		Srv = Me;
                 Conf = new ConfigReader;
-		MySuffix = Conf->ReadValue("host","suffix",0);
+		OnRehash("");
 	}
 	
 	virtual ~ModuleHostChange()
@@ -60,6 +70,21 @@ class ModuleHostChange : public Module
 		delete Conf;
 		Conf = new ConfigReader;
 		MySuffix = Conf->ReadValue("host","suffix",0);
+		for (hostchanges_t::iterator i = hostchanges.begin(); i != hostchanges.end(); i++)
+		{
+			delete i->second;
+		}
+		hostchanges.clear();
+		for (int index = 0; index < Conf->Enumerate("hostchange"); index++)
+		{
+			std::string mask = Conf->ReadValue("hostchange","mask",index);
+			std::string action = Conf->ReadValue("hostchange","action",index);
+			std::string newhost = Conf->ReadValue("hostchange","value",index);
+			Host* x = new Host;
+			x->action = action;
+			x->newhost = newhost;
+			hostchanges[mask] = x;
+		}
 	}
 	
 	virtual Version GetVersion()
@@ -71,23 +96,22 @@ class ModuleHostChange : public Module
 	
 	virtual void OnUserConnect(userrec* user)
 	{
-		for (int index = 0; index < Conf->Enumerate("hostchange"); index++)
+		for (hostchanges_t::iterator i = hostchanges.begin(); i != hostchanges.end(); i++)
 		{
-			std::string mask = Conf->ReadValue("hostchange","mask",index);
-			if (Srv->MatchText(std::string(user->ident)+"@"+std::string(user->host),mask))
+			if (Srv->MatchText(std::string(user->ident)+"@"+std::string(user->host),i->first))
 			{
-				std::string newhost = "";
+				Host* h = (Host*)i->second;
 				// host of new user matches a hostchange tag's mask
-				std::string action = Conf->ReadValue("hostchange","action",index);
-				if (action == "set")
+				std::string newhost = "";
+				if (h->action == "set")
 				{
-					newhost = Conf->ReadValue("hostchange","value",index);
+					newhost = h->newhost;
 				}
-				else if (action == "suffix")
+				else if (h->action == "suffix")
 				{
 					newhost = MySuffix;
 				}
-				else if (action == "addnick")
+				else if (h->action == "addnick")
 				{
 					// first take their nick and strip out non-dns, leaving just [A-Z0-9\-]
 					std::string complete = "";
@@ -108,7 +132,7 @@ class ModuleHostChange : public Module
 				}
 				if (newhost != "")
 				{
-					Srv->SendServ(user->fd,"NOTICE "+std::string(user->nick)+" :Setting your VHost: " + newhost);
+					Srv->SendServ(user->fd,"NOTICE "+std::string(user->nick)+" :Setting your virtual host: " + newhost);
 					Srv->ChangeHost(user,newhost);
 					return;
 				}
