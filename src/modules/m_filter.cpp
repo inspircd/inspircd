@@ -31,6 +31,7 @@ using namespace std;
 
 class Filter
 {
+ public:
 	std::string reason;
 	std::string action;
 };
@@ -49,7 +50,6 @@ class FilterException : public ModuleException
 class ModuleFilter : public Module
 {
  Server *Srv;
- ConfigReader *Conf, *MyConf;
  filter_t filters;
  
  public:
@@ -67,8 +67,6 @@ class ModuleFilter : public Module
 	
 	virtual ~ModuleFilter()
 	{
-		delete MyConf;
-		delete Conf;
 	}
 
 	void Implements(char* List)
@@ -90,7 +88,7 @@ class ModuleFilter : public Module
 		{
 			if ((Srv->MatchText(text2,index->first)) || (Srv->MatchText(text,index->first)))
 			{
-				Filter* f = (Filter*)*x->second;
+				Filter* f = (Filter*)index->second;
 				std::string target = "";
 
 				if (target_type == TYPE_USER)
@@ -130,10 +128,10 @@ class ModuleFilter : public Module
 	{
 		// reload our config file on rehash - we must destroy and re-allocate the classes
 		// to call the constructor again and re-read our data.
-		Conf = new ConfigReader;
+		ConfigReader* Conf = new ConfigReader;
 		std::string filterfile = Conf->ReadValue("filter","file",0);
 		// this automatically re-reads the configuration file into the class
-		MyConf = new ConfigReader(filterfile);
+		ConfigReader* MyConf = new ConfigReader(filterfile);
 		if ((filterfile == "") || (!MyConf->Verify()))
 		{
 			// bail if the user forgot to create a config file
