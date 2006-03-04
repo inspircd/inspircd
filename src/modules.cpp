@@ -859,7 +859,6 @@ ConfigReader::ConfigReader()
 	this->cache = new std::stringstream(std::stringstream::in | std::stringstream::out);
 	this->errorlog = new std::stringstream(std::stringstream::in | std::stringstream::out);
 	this->readerror = Config->LoadConf(CONFIG_FILE,this->cache,this->errorlog);
-	tags.clear();
 	if (!this->readerror)
 		this->error = CONF_FILE_NOT_FOUND;
 }
@@ -880,7 +879,6 @@ ConfigReader::ConfigReader(std::string filename)
 	this->cache = new std::stringstream(std::stringstream::in | std::stringstream::out);
 	this->errorlog = new std::stringstream(std::stringstream::in | std::stringstream::out);
 	this->readerror = Config->LoadConf(filename.c_str(),this->cache,this->errorlog);
-	tags.clear();
 	if (!this->readerror)
 		this->error = CONF_FILE_NOT_FOUND;
 };
