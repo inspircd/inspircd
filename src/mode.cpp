@@ -1127,12 +1127,13 @@ void ModeParser::ProcessModes(char **parameters,userrec* user,chanrec *chan,int 
 		}
 	}
 
-	/* This means the mode line is something like: "+o-", we have to take the last char off.
-	if ((*--modechar == '-') || (*modechar == '+'))
+	/* This means the mode line is something like: "+o-", we have to take the last char off. */
+	char* x = outlist + strlen(outlist) - 1;
+	while (((*x == '-') || (*x == '+')) && (x != outlist))
 	{
 		log(DEBUG,"Cut off trailing modifier");
-		*modechar = 0;
-	}*/
+		*x-- = 0;
+	}
 	/* The mode change must be at least two characters long (+ or - and at least one mode) */
 	if (((*outlist == '+') || (*outlist == '-')) && *(outlist+1))
 	{
