@@ -23,6 +23,8 @@ using namespace std;
 #include "modules.h"
 #include "helperfuncs.h"
 
+typedef std::map<irc::string,irc::string> censor_t;
+
 /* $ModDesc: Provides user and channel +G mode */
 
 class CensorException : public ModuleException
@@ -36,8 +38,9 @@ class CensorException : public ModuleException
 
 class ModuleCensor : public Module
 {
- Server *Srv;
- ConfigReader *Conf, *MyConf;
+
+	Server *Srv;
+	censor_t censors;
  
  public:
 	ModuleCensor(Server* Me)
@@ -56,15 +59,7 @@ class ModuleCensor : public Module
 		 * XXX - These module pre-date the include directive which exists since beta 5 -- Brain
 		 */
 		Srv = Me;
-		Conf = new ConfigReader;
-		std::string Censorfile = Conf->ReadValue("censor","file",0);
-		MyConf = new ConfigReader(Censorfile);
-		if ((Censorfile == "") || (!MyConf->Verify()))
-		{
-			CensorException e;
-			throw(e);
-		}
-		Srv->Log(DEFAULT,std::string("m_censor: read configuration from ")+Censorfile);
+		OnRehash("");
 		Srv->AddExtendedMode('G',MT_CHANNEL,false,0,0);
 		Srv->AddExtendedMode('G',MT_CLIENT,false,0,0);
 	}
@@ -96,8 +91,6 @@ class ModuleCensor : public Module
  	
 	virtual ~ModuleCensor()
 	{
-		delete MyConf;
-		delete Conf;
 	}
 	
 	virtual void ReplaceLine(irc::string &text, irc::string pattern, irc::string replace)
@@ -119,13 +112,10 @@ class ModuleCensor : public Module
 	{
 		bool active = false;
 		irc::string text2 = text.c_str();
-		for (int index = 0; index < MyConf->Enumerate("badword"); index++)
-		{
-			irc::string pattern = (MyConf->ReadValue("badword","text",index)).c_str();
-			if (text2.find(pattern) != irc::string::npos)
+		for (censor_t::iterator index = censors.begin(); index != censors.end(); index++)
+		{ 
+			if (text2.find(index->first) != irc::string::npos)
 			{
-				std::string replace = MyConf->ReadValue("badword","replace",index);
-
 				if (target_type == TYPE_USER)
 				{
 					userrec* t = (userrec*)dest;
@@ -139,9 +129,8 @@ class ModuleCensor : public Module
 				
 				if (active)
 				{
-					irc::string x = text.c_str();
-					this->ReplaceLine(x,pattern,irc::string(replace.c_str()));
-					text = x.c_str();
+					this->ReplaceLine(text2,index->first,index->second);
+					text = text2.c_str();
 				}
 			}
 		}
@@ -159,18 +148,24 @@ class ModuleCensor : public Module
 		 * reload our config file on rehash - we must destroy and re-allocate the classes
 		 * to call the constructor again and re-read our data.
 		 */
-		delete Conf;
-		delete MyConf;
-		Conf = new ConfigReader;
+		ConfigReader* Conf = new ConfigReader;
 		std::string Censorfile = Conf->ReadValue("censor","file",0);
 		// this automatically re-reads the configuration file into the class
-		MyConf = new ConfigReader(Censorfile);
+		ConfigReader* MyConf = new ConfigReader(Censorfile);
 		if ((Censorfile == "") || (!MyConf->Verify()))
 		{
 			CensorException e;
 			throw(e);
 		}
-		Srv->Log(DEFAULT,std::string("m_censor: read configuration from ")+Censorfile);
+		censors.clear();
+                for (int index = 0; index < MyConf->Enumerate("badword"); index++)
+                {
+                        irc::string pattern = (MyConf->ReadValue("badword","text",index)).c_str();
+                        irc::string replace = (MyConf->ReadValue("badword","replace",index)).c_str();
+			censors[pattern] = replace;
+		}
+		delete Conf;
+		delete MyConf;
 	}
 	
 	virtual Version GetVersion()
