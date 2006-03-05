@@ -36,7 +36,7 @@ ircd:
 	@echo "Making ircd..."
 	${MAKE} -C src DIRNAME="src" $(MAKEARGS)
 
-install:
+install: all
 	-install -v -m 0700 src/libIRCDaes.so $(LIBPATH)
 	-install -v -m 0700 src/libIRCDasyncdns.so $(LIBPATH)
 	-install -v -m 0700 src/libIRCDbase.so $(LIBPATH)
