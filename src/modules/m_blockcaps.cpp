@@ -20,7 +20,7 @@
 #include "modules.h"
 #include "helperfuncs.h"
 
-/* $ModDesc: Provides support for unreal-style channel mode +c */
+/* $ModDesc: Provides support for channel mode +P to block all-CAPS channel messages and notices */
 
 class ModuleBlockCAPS : public Module
 {
