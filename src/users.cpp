@@ -612,8 +612,7 @@ void AddClient(int socket, int port, bool iscached, in_addr ip4)
         ucrec a;
         a.channel = NULL;
         a.uc_modes = 0;
-        for (int i = 0; i < MAXCHANS; i++)
-                clientlist[tempnick]->chans.push_back(a);
+	clientlist[tempnick]->chans.resize(MAXCHANS);
 
 	fd_ref_table[socket] = clientlist[tempnick];
 	local_users.push_back(clientlist[tempnick]);

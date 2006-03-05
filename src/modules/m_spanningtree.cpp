@@ -1107,13 +1107,10 @@ class TreeSocket : public InspSocket
 		ucrec a;
 		a.channel = NULL;
 		a.uc_modes = 0;
-		for (int i = 0; i < MAXCHANS; i++)
-			clientlist[tempnick]->chans.push_back(a);
+		clientlist[tempnick]->chans.resize(MAXCHANS);
 
-		if (!this->bursting)
-		{
-			WriteOpers("*** Client connecting at %s: %s!%s@%s [%s]",clientlist[tempnick]->server,clientlist[tempnick]->nick,clientlist[tempnick]->ident,clientlist[tempnick]->host,(char*)inet_ntoa(clientlist[tempnick]->ip4));
-		}
+		WriteOpers("*** Client connecting at %s: %s!%s@%s [%s]",clientlist[tempnick]->server,clientlist[tempnick]->nick,clientlist[tempnick]->ident,clientlist[tempnick]->host,(char*)inet_ntoa(clientlist[tempnick]->ip4));
+
 		params[7] = ":" + params[7];
 		DoOneToAllButSender(source,"NICK",params,source);
 

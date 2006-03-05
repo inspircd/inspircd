@@ -270,7 +270,7 @@ class ucrec : public classbase
 	 */
 	chanrec *channel;
 
-	ucrec() { /* stub */ }
+	ucrec() : uc_modes(0), channel(NULL) { /* stub */ }
 	virtual ~ucrec() { /* stub */ }
 };
 
