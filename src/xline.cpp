@@ -712,40 +712,40 @@ void apply_lines(const int What)
 void stats_k(userrec* user)
 {
 	for (std::vector<KLine>::iterator i = klines.begin(); i != klines.end(); i++)
-		WriteServ(user->fd,"216 %s :%s %d %d %s %s",user->nick,i->hostmask,i->set_time,i->duration,i->source,i->reason);
+		WriteServ(user->fd,"216 %s :%s %d %d %s :%s",user->nick,i->hostmask,i->set_time,i->duration,i->source,i->reason);
 	for (std::vector<KLine>::iterator i = pklines.begin(); i != pklines.end(); i++)
-		WriteServ(user->fd,"216 %s :%s %d %d %s %s",user->nick,i->hostmask,i->set_time,i->duration,i->source,i->reason);
+		WriteServ(user->fd,"216 %s :%s %d %d %s :%s",user->nick,i->hostmask,i->set_time,i->duration,i->source,i->reason);
 }
 
 void stats_g(userrec* user)
 {
 	for (std::vector<GLine>::iterator i = glines.begin(); i != glines.end(); i++)
-		WriteServ(user->fd,"223 %s :%s %d %d %s %s",user->nick,i->hostmask,i->set_time,i->duration,i->source,i->reason);
+		WriteServ(user->fd,"223 %s :%s %d %d %s :%s",user->nick,i->hostmask,i->set_time,i->duration,i->source,i->reason);
 	for (std::vector<GLine>::iterator i = pglines.begin(); i != pglines.end(); i++)
-		WriteServ(user->fd,"223 %s :%s %d %d %s %s",user->nick,i->hostmask,i->set_time,i->duration,i->source,i->reason);
+		WriteServ(user->fd,"223 %s :%s %d %d %s :%s",user->nick,i->hostmask,i->set_time,i->duration,i->source,i->reason);
 }
 
 void stats_q(userrec* user)
 {
 	for (std::vector<QLine>::iterator i = qlines.begin(); i != qlines.end(); i++)
-		WriteServ(user->fd,"217 %s :%s %d %d %s %s",user->nick,i->nick,i->set_time,i->duration,i->source,i->reason);
+		WriteServ(user->fd,"217 %s :%s %d %d %s :%s",user->nick,i->nick,i->set_time,i->duration,i->source,i->reason);
 	for (std::vector<QLine>::iterator i = pqlines.begin(); i != pqlines.end(); i++)
-		WriteServ(user->fd,"217 %s :%s %d %d %s %s",user->nick,i->nick,i->set_time,i->duration,i->source,i->reason);
+		WriteServ(user->fd,"217 %s :%s %d %d %s :%s",user->nick,i->nick,i->set_time,i->duration,i->source,i->reason);
 }
 
 void stats_z(userrec* user)
 {
 	for (std::vector<ZLine>::iterator i = zlines.begin(); i != zlines.end(); i++)
-		WriteServ(user->fd,"223 %s :%s %d %d %s %s",user->nick,i->ipaddr,i->set_time,i->duration,i->source,i->reason);
+		WriteServ(user->fd,"223 %s :%s %d %d %s :%s",user->nick,i->ipaddr,i->set_time,i->duration,i->source,i->reason);
 	for (std::vector<ZLine>::iterator i = pzlines.begin(); i != pzlines.end(); i++)
-		WriteServ(user->fd,"223 %s :%s %d %d %s %s",user->nick,i->ipaddr,i->set_time,i->duration,i->source,i->reason);
+		WriteServ(user->fd,"223 %s :%s %d %d %s :%s",user->nick,i->ipaddr,i->set_time,i->duration,i->source,i->reason);
 }
 
 void stats_e(userrec* user)
 {
         for (std::vector<ELine>::iterator i = elines.begin(); i != elines.end(); i++)
-                WriteServ(user->fd,"223 %s :%s %d %d %s %s",user->nick,i->hostmask,i->set_time,i->duration,i->source,i->reason);
+                WriteServ(user->fd,"223 %s :%s %d %d %s :%s",user->nick,i->hostmask,i->set_time,i->duration,i->source,i->reason);
 	for (std::vector<ELine>::iterator i = pelines.begin(); i != pelines.end(); i++)
-		WriteServ(user->fd,"223 %s :%s %d %d %s %s",user->nick,i->hostmask,i->set_time,i->duration,i->source,i->reason);
+		WriteServ(user->fd,"223 %s :%s %d %d %s :%s",user->nick,i->hostmask,i->set_time,i->duration,i->source,i->reason);
 }
 
