@@ -53,7 +53,7 @@ public:
 			{
 				for(unsigned int i = 0; i < text.length(); i++)
 				{
-					if((text[i] <= 'A') || (text[i] >= 'Z'))
+					if((text[i] < 'A') || (text[i] > 'Z'))
 					{
 						return 0;
 					}
