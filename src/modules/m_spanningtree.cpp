@@ -1141,7 +1141,7 @@ class TreeSocket : public InspSocket
 		{
 			char* o = i->second;
 			userrec* otheruser = (userrec*)o;
-			strlcat(list," ",MAXBUF);
+			charlcat(list,' ',MAXBUF);
 			int x = cflags(otheruser,c);
 			if ((x & UCMODE_HOP) && (x & UCMODE_OP))
 			{
@@ -1152,21 +1152,23 @@ class TreeSocket : public InspSocket
 				specific_voice.push_back(otheruser);
 			}
 
-			char* n = "";
+			char n = 0;
 			if (x & UCMODE_OP)
 			{
-				n = "@";
+				n = '@';
 			}
 			else if (x & UCMODE_HOP)
 			{
-				n = "%";
+				n = '%';
 			}
 			else if (x & UCMODE_VOICE)
 			{
-				n = "+";
+				n = '+';
 			}
 
-			strlcat(list,n,MAXBUF);
+			if (n)
+				charlcat(list,n,MAXBUF);
+
 			strlcat(list,otheruser->nick,MAXBUF);
 			if (strlen(list)>(480-NICKMAX))
 			{
@@ -2148,15 +2150,18 @@ class TreeSocket : public InspSocket
 	bool ProcessLine(std::string line)
 	{
 		char* l = (char*)line.c_str();
-		while ((strlen(l)) && (l[strlen(l)-1] == '\r') || (l[strlen(l)-1] == '\n'))
-			l[strlen(l)-1] = '\0';
-		line = l;
-		if (line == "")
+		for (char* x = l; *x; x++)
+		{
+			if ((*x == '\r') || (*x == '\n'))
+				*x = 0;
+		}
+		if (!*l)
 			return true;
-		Srv->Log(DEBUG,"IN: "+line);
-		
+
+		log(DEBUG,"IN: %s",l);
+
 		std::deque<std::string> params;
-		this->Split(line,true,params);
+		this->Split(l,true,params);
 		irc::string command = "";
 		std::string prefix = "";
 		if (((params[0].c_str())[0] == ':') && (params.size() > 1))
