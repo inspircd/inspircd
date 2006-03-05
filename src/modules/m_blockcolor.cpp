@@ -30,39 +30,34 @@ class ModuleBlockColour : public Module
 	Server *Srv;
  public:
  
-	ModuleBlockColour(Server* Me)
-		: Module::Module(Me)
+	ModuleBlockColour(Server* Me) : Module::Module(Me)
 	{
 		Srv = Me;
 		Srv->AddExtendedMode('c',MT_CHANNEL,false,0,0);
 	}
 
 	void Implements(char* List)
-        {
-                List[I_On005Numeric] = List[I_OnUserPreMessage] = List[I_OnUserPreNotice] = List[I_OnExtendedMode] = 1;
-        }
+	{
+		List[I_On005Numeric] = List[I_OnUserPreMessage] = List[I_OnUserPreNotice] = List[I_OnExtendedMode] = 1;
+	}
 
-        virtual void On005Numeric(std::string &output)
-        {
+	virtual void On005Numeric(std::string &output)
+	{
 		InsertMode(output,"c",4);
-        }
+	}
 	
 	virtual int OnUserPreMessage(userrec* user,void* dest,int target_type, std::string &text, char status)
 	{
 		if (target_type == TYPE_CHANNEL)
 		{
 			chanrec* c = (chanrec*)dest;
-			char ctext[MAXBUF];
-			char *ctptr = ctext;
-			strlcpy(ctext,text.c_str(),MAXBUF);
-
-
-			if (c->IsCustomModeSet('c'))
+			
+			if(c->IsCustomModeSet('c'))
 			{
-				/* Instead of using strchr() here, do our own loop. Hopefully faster. --w00t */
-				while (ctptr && *ctptr)
+				/* Replace a strlcpy(), which ran even when +c wasn't set, with this (no copies at all) -- Om */
+				for(unsigned int i = 0; i < text.length(); i++)
 				{
-					switch (*ctptr++)
+					switch (text[i])
 					{
 						case 2:
 						case 3:
@@ -133,4 +128,3 @@ extern "C" void * init_module( void )
 {
 	return new ModuleBlockColourFactory;
 }
-
