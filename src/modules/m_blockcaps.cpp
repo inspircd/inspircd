@@ -42,7 +42,7 @@ public:
 	{
 		InsertMode(output, "P", 4);
 	}
-	
+
 	virtual int OnUserPreMessage(userrec* user,void* dest,int target_type, std::string &text, char status)
 	{
 		if (target_type == TYPE_CHANNEL)
@@ -51,9 +51,10 @@ public:
 
 			if (c->IsCustomModeSet('P'))
 			{
-				for(unsigned int i = 0; i < text.length(); i++)
+				char* n = (char*)text.c_str();
+				for (char* i = n; *i; i++)
 				{
-					if(((text[i] != ' ') && (text[i] != '\t')) && ((text[i] < 'A') || (text[i] > 'Z')))
+					if (((*i != ' ') && (*i != '\t')) && ((*i < 'A') || (*i > 'Z')))
 					{
 						return 0;
 					}
