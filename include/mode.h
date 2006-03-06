@@ -40,6 +40,9 @@ class ModeParser
 	char* TakeVoice(userrec *user,char *dest,chanrec *chan,int status);
 	char* AddBan(userrec *user,char *dest,chanrec *chan,int status);
 	char* TakeBan(userrec *user,char *dest,chanrec *chan,int status);
+	userrec* SanityChecks(userrec *user,char *dest,chanrec *chan,int status);
+	char* Grant(userrec *d,chanrec *chan,int MASK);
+	char* Revoke(userrec *d,chanrec *chan,int MASK);
  public:
 	std::string CompressModes(std::string modes,bool channelmodes);
 	void ProcessModes(char **parameters,userrec* user,chanrec *chan,int status, int pcnt, bool servermode, bool silent, bool local);

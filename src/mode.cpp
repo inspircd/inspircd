@@ -54,23 +54,89 @@ extern ServerConfig* Config;
 
 extern time_t TIME;
 
-char* ModeParser::GiveOps(userrec *user,char *dest,chanrec *chan,int status)
+userrec* ModeParser::SanityChecks(userrec *user,char *dest,chanrec *chan,int status)
 {
 	userrec *d;
-	
 	if ((!user) || (!dest) || (!chan) || (!*dest))
 	{
-		log(DEFAULT,"*** BUG *** GiveOps was given an invalid parameter");
 		return NULL;
 	}
 	d = Find(dest);
 	if (!d)
 	{
-		log(DEFAULT,"the target nickname given to GiveOps couldnt be found");
 		WriteServ(user->fd,"401 %s %s :No such nick/channel",user->nick, dest);
 		return NULL;
 	}
-	else
+	return d;
+}
+
+char* ModeParser::Grant(userrec *d,chanrec *chan,int MASK)
+{
+	for (unsigned int i = 0; i < d->chans.size(); i++)
+	{
+		if ((d->chans[i].channel != NULL) && (chan != NULL))
+		if (d->chans[i].channel == chan)
+		{
+			if (d->chans[i].uc_modes & MASK)
+			{
+				return NULL;
+			}
+			d->chans[i].uc_modes = d->chans[i].uc_modes | MASK;
+			switch (MASK)
+			{
+				case UCMODE_OP:
+					d->chans[i].channel->AddOppedUser((char*)d);
+				break;
+				case UCMODE_HOP:
+					d->chans[i].channel->AddHalfoppedUser((char*)d);
+				break;
+				case UCMODE_VOICE:
+					d->chans[i].channel->AddVoicedUser((char*)d);
+				break;
+			}
+			log(DEBUG,"grant: %s %s",d->chans[i].channel->name,d->nick);
+			return d->nick;
+		}
+	}
+	return NULL;
+}
+
+char* ModeParser::Revoke(userrec *d,chanrec *chan,int MASK)
+{
+	for (unsigned int i = 0; i < d->chans.size(); i++)
+	{
+		if ((d->chans[i].channel != NULL) && (chan != NULL))
+		if (d->chans[i].channel == chan)
+		{
+			if ((d->chans[i].uc_modes & MASK) == 0)
+			{
+				return NULL;
+			}
+			d->chans[i].uc_modes ^= MASK;
+			switch (MASK)
+			{
+				case UCMODE_OP:
+					d->chans[i].channel->DelOppedUser((char*)d);
+				break;
+				case UCMODE_HOP:
+					d->chans[i].channel->DelHalfoppedUser((char*)d);
+				break;
+				case UCMODE_VOICE:
+					d->chans[i].channel->DelVoicedUser((char*)d);
+				break;
+			}
+			log(DEBUG,"revoke: %s %s",d->chans[i].channel->name,d->nick);
+			return d->nick;
+		}
+	}
+	return NULL;
+}
+
+char* ModeParser::GiveOps(userrec *user,char *dest,chanrec *chan,int status)
+{
+	userrec *d = this->SanityChecks(user,dest,chan,status);
+	
+	if (d)
 	{
 		if (user->server == d->server)
 		{
@@ -83,52 +149,23 @@ char* ModeParser::GiveOps(userrec *user,char *dest,chanrec *chan,int status)
 			{
 				if ((status < STATUS_OP) && (!is_uline(user->server)) && (IS_LOCAL(user)))
 				{
-					log(DEBUG,"%s cant give ops to %s because they nave status %d and needs %d",user->nick,dest,status,STATUS_OP);
+					log(DEBUG,"%s cant give ops to %s because they have status %d and needs %d",user->nick,dest,status,STATUS_OP);
 					WriteServ(user->fd,"482 %s %s :You're not a channel operator",user->nick, chan->name);
 					return NULL;
 				}
 			}
 		}
 
-
-		for (unsigned int i = 0; i < d->chans.size(); i++)
-		{
-			if ((d->chans[i].channel != NULL) && (chan != NULL))
-			if (d->chans[i].channel == chan)
-			{
-				if (d->chans[i].uc_modes & UCMODE_OP)
-				{
-					/* mode already set on user, dont allow multiple */
-					return NULL;
-				}
-				d->chans[i].uc_modes = d->chans[i].uc_modes | UCMODE_OP;
-				d->chans[i].channel->AddOppedUser((char*)d);
-				log(DEBUG,"gave ops: %s %s",d->chans[i].channel->name,d->nick);
-				return d->nick;
-			}
-		}
-		log(DEFAULT,"The target channel given to GiveOps was not in the users mode list");
+		return this->Grant(d,chan,UCMODE_OP);
 	}
 	return NULL;
 }
 
 char* ModeParser::GiveHops(userrec *user,char *dest,chanrec *chan,int status)
 {
-	userrec *d;
+	userrec *d = this->SanityChecks(user,dest,chan,status);
 	
-	if ((!user) || (!dest) || (!chan) || (!*dest))
-	{
-		log(DEFAULT,"*** BUG *** GiveHops was given an invalid parameter");
-		return NULL;
-	}
-
-	d = Find(dest);
-	if (!d)
-	{
-		WriteServ(user->fd,"401 %s %s :No such nick/channel",user->nick, dest);
-		return NULL;
-	}
-	else
+	if (d)
 	{
 		if (user->server == d->server)
 		{
@@ -147,43 +184,16 @@ char* ModeParser::GiveHops(userrec *user,char *dest,chanrec *chan,int status)
 			}
 		}
 
-		for (unsigned int i = 0; i < d->chans.size(); i++)
-		{
-			if ((d->chans[i].channel != NULL) && (chan != NULL))
-			if (d->chans[i].channel == chan)
-			{
-				if (d->chans[i].uc_modes & UCMODE_HOP)
-				{
-					/* mode already set on user, dont allow multiple */
-					return NULL;
-				}
-				d->chans[i].uc_modes = d->chans[i].uc_modes | UCMODE_HOP;
-				d->chans[i].channel->AddHalfoppedUser((char*)d);
-				log(DEBUG,"gave h-ops: %s %s",d->chans[i].channel->name,d->nick);
-				return d->nick;
-			}
-		}
+		return this->Grant(d,chan,UCMODE_HOP);
 	}
 	return NULL;
 }
 
 char* ModeParser::GiveVoice(userrec *user,char *dest,chanrec *chan,int status)
 {
-	userrec *d;
+	userrec *d = this->SanityChecks(user,dest,chan,status);
 	
-	if ((!user) || (!dest) || (!chan) || (!*dest))
-	{
-		log(DEFAULT,"*** BUG *** GiveVoice was given an invalid parameter");
-		return NULL;
-	}
-
-	d = Find(dest);
-	if (!d)
-	{
-		WriteServ(user->fd,"401 %s %s :No such nick/channel",user->nick, dest);
-		return NULL;
-	}
-	else
+	if (d)
 	{
 		if (user->server == d->server)
 		{
@@ -202,44 +212,16 @@ char* ModeParser::GiveVoice(userrec *user,char *dest,chanrec *chan,int status)
 			}
 		}
 
-		for (unsigned int i = 0; i < d->chans.size(); i++)
-		{
-			if ((d->chans[i].channel != NULL) && (chan != NULL))
-			if (d->chans[i].channel == chan)
-			{
-				if (d->chans[i].uc_modes & UCMODE_VOICE)
-				{
-					/* mode already set on user, dont allow multiple */
-					return NULL;
-				}
-				d->chans[i].uc_modes = d->chans[i].uc_modes | UCMODE_VOICE;
-				d->chans[i].channel->AddVoicedUser((char*)d);
-				log(DEBUG,"gave voice: %s %s",d->chans[i].channel->name,d->nick);
-				return d->nick;
-			}
-		}
+		return this->Grant(d,chan,UCMODE_VOICE);
 	}
 	return NULL;
 }
 
 char* ModeParser::TakeOps(userrec *user,char *dest,chanrec *chan,int status)
 {
-	userrec *d;
+	userrec *d = this->SanityChecks(user,dest,chan,status);
 	
-	if ((!user) || (!dest) || (!chan) || (!*dest))
-	{
-		log(DEFAULT,"*** BUG *** TakeOps was given an invalid parameter");
-		return NULL;
-	}
-
-	d = Find(dest);
-	if (!d)
-	{
-		log(DEBUG,"TakeOps couldnt resolve the target nickname: %s",dest);
-		WriteServ(user->fd,"401 %s %s :No such nick/channel",user->nick, dest);
-		return NULL;
-	}
-	else
+	if (d)
 	{
 		if (user->server == d->server)
 		{
@@ -258,44 +240,16 @@ char* ModeParser::TakeOps(userrec *user,char *dest,chanrec *chan,int status)
 			}
 		}
 
-		for (unsigned int i = 0; i < d->chans.size(); i++)
-		{
-			if ((d->chans[i].channel != NULL) && (chan != NULL))
-			if (d->chans[i].channel == chan)
-			{
-				if ((d->chans[i].uc_modes & UCMODE_OP) == 0)
-				{
-					/* mode already set on user, dont allow multiple */
-					return NULL;
-				}
-				d->chans[i].uc_modes ^= UCMODE_OP;
-				d->chans[i].channel->DelOppedUser((char*)d);
-				log(DEBUG,"took ops: %s %s",d->chans[i].channel->name,d->nick);
-				return d->nick;
-			}
-		}
-		log(DEBUG,"TakeOps couldnt locate the target channel in the target users list");
+		return this->Revoke(d,chan,UCMODE_OP);
 	}
 	return NULL;
 }
 
 char* ModeParser::TakeHops(userrec *user,char *dest,chanrec *chan,int status)
 {
-	userrec *d;
+	userrec *d = this->SanityChecks(user,dest,chan,status);
 	
-	if ((!user) || (!dest) || (!chan) || (!*dest))
-	{
-		log(DEFAULT,"*** BUG *** TakeHops was given an invalid parameter");
-		return NULL;
-	}
-
-	d = Find(dest);
-	if (!d)
-	{
-		WriteServ(user->fd,"401 %s %s :No such nick/channel",user->nick, dest);
-		return NULL;
-	}
-	else
+	if (d)
 	{
 		if (user->server == d->server)
 		{
@@ -315,43 +269,16 @@ char* ModeParser::TakeHops(userrec *user,char *dest,chanrec *chan,int status)
 			}
 		}
 
-		for (unsigned int i = 0; i < d->chans.size(); i++)
-		{
-			if ((d->chans[i].channel != NULL) && (chan != NULL))
-			if (d->chans[i].channel == chan)
-			{
-				if ((d->chans[i].uc_modes & UCMODE_HOP) == 0)
-				{
-					/* mode already set on user, dont allow multiple */
-					return NULL;
-				}
-				d->chans[i].uc_modes ^= UCMODE_HOP;
-				d->chans[i].channel->DelHalfoppedUser((char*)d);
-				log(DEBUG,"took h-ops: %s %s",d->chans[i].channel->name,d->nick);
-				return d->nick;
-			}
-		}
+		return this->Revoke(d,chan,UCMODE_HOP);
 	}
 	return NULL;
 }
 
 char* ModeParser::TakeVoice(userrec *user,char *dest,chanrec *chan,int status)
 {
-	userrec *d;
-	
-	if ((!user) || (!dest) || (!chan) || (!*dest))
-	{
-		log(DEFAULT,"*** BUG *** TakeVoice was given an invalid parameter");
-		return NULL;
-	}
+	userrec *d = this->SanityChecks(user,dest,chan,status);
 
-	d = Find(dest);
-	if (!d)
-	{
-		WriteServ(user->fd,"401 %s %s :No such nick/channel",user->nick, dest);
-		return NULL;
-	}
-	else
+	if (d)	
 	{
 		if (user->server == d->server)
 		{
@@ -370,22 +297,7 @@ char* ModeParser::TakeVoice(userrec *user,char *dest,chanrec *chan,int status)
 			}
 		}
 
-		for (unsigned int i = 0; i < d->chans.size(); i++)
-		{
-			if ((d->chans[i].channel != NULL) && (chan != NULL))
-			if (d->chans[i].channel == chan)
-			{
-				if ((d->chans[i].uc_modes & UCMODE_VOICE) == 0)
-				{
-					/* mode already set on user, dont allow multiple */
-					return NULL;
-				}
-				d->chans[i].uc_modes ^= UCMODE_VOICE;
-				d->chans[i].channel->DelVoicedUser((char*)d);
-				log(DEBUG,"took voice: %s %s",d->chans[i].channel->name,d->nick);
-				return d->nick;
-			}
-		}
+		return this->Revoke(d,chan,UCMODE_VOICE);
 	}
 	return NULL;
 }
