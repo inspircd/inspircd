@@ -496,7 +496,6 @@ void ModeParser::ProcessModes(char **parameters,userrec* user,chanrec *chan,int 
 	while (modelist[len-1] == ' ')
 		modelist[--len] = '\0';
 
-	bool next_cant_be_modifier = false;
 	char* modechar;
 
 	for (modechar = (modelist + 1); *modechar; ptr++, modechar++)
@@ -517,14 +516,11 @@ void ModeParser::ProcessModes(char **parameters,userrec* user,chanrec *chan,int 
 				case '-':
 					*outl++ = '-';
 					mdir = 0;
-					next_cant_be_modifier = true;
-					
 				break;			
 
 				case '+':
 					*outl++ = '+';
 					mdir = 1;
-					next_cant_be_modifier = true;
 				break;
 
 				case 'o':
