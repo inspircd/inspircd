@@ -542,9 +542,7 @@ void ModeParser::ProcessModes(char **parameters,userrec* user,chanrec *chan,int 
 		return;
 	}
 
-	char modelist[MAXBUF];
 	char outlist[MAXBUF];
-	char outstr[MAXBUF];
 	char outpars[32][MAXBUF];
 	int param = 2;
 	int pc = 0;
@@ -569,7 +567,7 @@ void ModeParser::ProcessModes(char **parameters,userrec* user,chanrec *chan,int 
 
 	log(DEBUG,"process_modes: start: parameters=%d",pcnt);
 
-	strlcpy(modelist,parameters[1],MAXBUF); /* mode list, e.g. +oo-o *
+	char* modelist = parameters[1];         /* mode list, e.g. +oo-o *
 						 * parameters[2] onwards are parameters for
 					 	 * modes that require them :) */
 	*outlist = *modelist;
@@ -1113,7 +1111,6 @@ void ModeParser::ProcessModes(char **parameters,userrec* user,chanrec *chan,int 
 	/* The mode change must be at least two characters long (+ or - and at least one mode) */
 	if (((*outl == '+') || (*outl == '-')) && *(outl+1))
 	{
-		//strlcpy(outstr,outl,MAXBUF);
 		for (ptr = 0; ptr < pc; ptr++)
 		{
 			charlcat(outl,' ',MAXBUF);
