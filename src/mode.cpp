@@ -449,8 +449,7 @@ std::string ModeParser::CompressModes(std::string modes,bool channelmodes)
 
 void ModeParser::ProcessModes(char **parameters,userrec* user,chanrec *chan,int status, int pcnt, bool servermode, bool silent, bool local)
 {
-	if (!parameters) {
-		log(DEFAULT,"*** BUG *** process_modes was given an invalid parameter");
+	if ((!parameters) || (pcnt < 2)) {
 		return;
 	}
 
@@ -463,11 +462,6 @@ void ModeParser::ProcessModes(char **parameters,userrec* user,chanrec *chan,int 
 	char* r = NULL;
 	bool k_set = false, l_set = false, previously_set_l = false, previously_unset_l = false, previously_set_k = false, previously_unset_k = false;
 
-	if (pcnt < 2)
-	{
-		return;
-	}
-
 	int MOD_RESULT = 0;
 	
 	if (IS_LOCAL(user))
@@ -476,8 +470,6 @@ void ModeParser::ProcessModes(char **parameters,userrec* user,chanrec *chan,int 
 		if (MOD_RESULT == ACR_DENY)
 			return;
 	}
-
-	log(DEBUG,"process_modes: start: parameters=%d",pcnt);
 
 	char* modelist = parameters[1];         /* mode list, e.g. +oo-o *
 						 * parameters[2] onwards are parameters for
@@ -496,9 +488,7 @@ void ModeParser::ProcessModes(char **parameters,userrec* user,chanrec *chan,int 
 	while (modelist[len-1] == ' ')
 		modelist[--len] = '\0';
 
-	char* modechar;
-
-	for (modechar = (modelist + 1); *modechar; ptr++, modechar++)
+	for (char* modechar = (modelist + 1); *modechar; ptr++, modechar++)
 	{
 		r = NULL;
 
