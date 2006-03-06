@@ -690,7 +690,7 @@ void InspIRCd::DoOneIteration(bool process_module_sockets)
                         case X_ESTAB_MODULE:
 
 				if (!process_module_sockets)
-					return;
+					break;
 
                                 /* Process module-owned sockets.
                                  * Modules are encouraged to inherit their sockets from
