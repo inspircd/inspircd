@@ -1098,7 +1098,7 @@ chanrec* FindChan(const char* chan)
 
 long GetMaxBans(char* name)
 {
-	for (std::map<std::string,int>::iterator n = Config->maxbans.begin(); n != Config->MaxBans.end(); n++)
+	for (std::map<std::string,int>::iterator n = Config->maxbans.begin(); n != Config->maxbans.end(); n++)
 	{
 		if (match(name,n->first->c_str()))
 			return atoi(n->second);
