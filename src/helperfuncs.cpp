@@ -1098,17 +1098,12 @@ chanrec* FindChan(const char* chan)
 
 long GetMaxBans(char* name)
 {
-        char CM[MAXBUF];
-        for (int count = 0; count < Config->ConfValueEnum("banlist",&Config->config_f); count++)
-        {
-		Config->ConfValue("banlist","chan",count,CM,&Config->config_f);
-                if (match(name,CM))
-                {
-                        Config->ConfValue("banlist","limit",count,CM,&Config->config_f);
-                        return atoi(CM);
-                }
-        }
-        return 64;
+	for (std::map<std::string,int>::iterator n = Config->maxbans.begin(); n != Config->MaxBans.end(); n++)
+	{
+		if (match(name,n->first->c_str()))
+			return atoi(n->second);
+	}
+	return 64;
 }
 
 void purge_empty_chans(userrec* u)

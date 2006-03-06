@@ -59,6 +59,7 @@ ServerConfig::ServerConfig()
 	MaxWhoResults = 100;
 	debugging = 0;
 	LogLevel = DEFAULT;
+	maxbans.clear();
 }
 
 void ServerConfig::ClearStack()
@@ -416,6 +417,14 @@ void ServerConfig::Read(bool bail, userrec* user)
 			log(DEBUG,"Read ULINE '%s'",ServName);
                         Config->ulines.push_back(ServName);
                 }
+        }
+	maxbans.clear();
+        char CM[MAXBUF],CM2[MAXBUF];
+        for (int count = 0; count < Config->ConfValueEnum("banlist",&Config->config_f); count++)
+        {
+                Config->ConfValue("banlist","chan",count,CM1,&Config->config_f);
+		Config->ConfValue("banlist","limit",count,CM2,&Config->config_f);
+		maxbans[CM1] = atoi(CM2);
         }
 	ReadClassesAndTypes();
         log(DEFAULT,"Reading K lines,Q lines and Z lines from config...");

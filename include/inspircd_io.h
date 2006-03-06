@@ -308,7 +308,13 @@ class ServerConfig : public classbase
 	 */
 	char CustomVersion[MAXBUF];
 
+	/** List of u-lined servers
+	 */
 	std::vector<irc::string> ulines;
+
+	/** Max banlist sizes for channels (the std::string is a glob)
+	 */
+	std::map<std::string,int> maxbans;
 
 	ServerConfig();
 
