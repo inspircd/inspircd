@@ -67,8 +67,7 @@ extern std::vector<userrec*> local_users;
 static char TIMESTR[26];
 static time_t LAST = 0;
 
-/** Writes information about events to a file.
- * log()
+/** log()
  *  Write a line of text `text' to the logfile (and stdout, if in nofork) if the level `level'
  *  is greater than the configured loglevel.
  */
@@ -105,8 +104,7 @@ void log(int level, char *text, ...)
         }
 }
 
-/**
- * readfile()
+/** readfile()
  *  Read the contents of a file located by `fname' into a file_cache pointed at by `F'.
  *
  *  XXX - we may want to consider returning a file_cache or pointer to one, less confusing.
@@ -143,6 +141,10 @@ void readfile(file_cache &F, const char* fname)
         log(DEBUG,"readfile: loaded %s, %lu lines",fname,(unsigned long)F.size());
 }
 
+/** Write_NoFormat()
+ *  Writes a given string in `text' to the socket on fd `sock' - only if the socket
+ *  is a valid entry in the local FD table.
+ */
 void Write_NoFormat(int sock, const char *text)
 {
 	if ((sock < 0) || (!text) || (sock > MAX_DESCRIPTORS))
@@ -173,7 +175,10 @@ void Write_NoFormat(int sock, const char *text)
 	else log(DEFAULT,"ERROR! attempted write to a user with no fd_ref_table entry!!!");
 }
 
-void Write(int sock,char *text, ...)
+/** Write()
+ *  Same as Write_NoFormat(), but formatted printf() style first.
+ */
+void Write(int sock, char *text, ...)
 {
         if ((sock < 0) || (sock > MAX_DESCRIPTORS))
                 return;
@@ -211,6 +216,9 @@ void Write(int sock,char *text, ...)
         else log(DEFAULT,"ERROR! attempted write to a user with no fd_ref_table entry!!!");
 }
 
+/** WriteServ_NoFormat()
+ *  Same as Write_NoFormat(), except prefixes `text' with `:server.name '.
+ */
 void WriteServ_NoFormat(int sock, const char* text)
 {
 	if ((sock < 0) || (!text) || (sock > MAX_DESCRIPTORS))
@@ -240,8 +248,9 @@ void WriteServ_NoFormat(int sock, const char* text)
 	else log(DEFAULT,"ERROR! attempted write to a user with no fd_ref_table entry!!!");
 }
 
-/* write a server formatted numeric response to a single socket */
-
+/** WriteServ()
+ *  Same as Write(), except `text' is prefixed with `:server.name '.
+ */
 void WriteServ(int sock, char* text, ...)
 {
         if ((sock < 0) || (sock > MAX_DESCRIPTORS))
@@ -280,6 +289,10 @@ void WriteServ(int sock, char* text, ...)
         else log(DEFAULT,"ERROR! attempted write to a user with no fd_ref_table entry!!!");
 }
 
+/** WriteFrom_NoFormat()
+ * Write `text' to a socket with fd `sock' prefixed with `:n!u@h' - taken from
+ * the nick, user, and host of `user'.
+ */
 void WriteFrom_NoFormat(int sock, userrec *user, const char* text)
 {
 	if ((sock < 0) || (!text) || (!user) || (sock > MAX_DESCRIPTORS))
