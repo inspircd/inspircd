@@ -94,7 +94,7 @@ char* ModeParser::GiveOps(userrec *user,char *dest,chanrec *chan,int status)
 		for (unsigned int i = 0; i < d->chans.size(); i++)
 		{
 			if ((d->chans[i].channel != NULL) && (chan != NULL))
-			if (!strcasecmp(d->chans[i].channel->name,chan->name))
+			if (d->chans[i].channel == chan)
 			{
 				if (d->chans[i].uc_modes & UCMODE_OP)
 				{
@@ -150,7 +150,7 @@ char* ModeParser::GiveHops(userrec *user,char *dest,chanrec *chan,int status)
 		for (unsigned int i = 0; i < d->chans.size(); i++)
 		{
 			if ((d->chans[i].channel != NULL) && (chan != NULL))
-			if (!strcasecmp(d->chans[i].channel->name,chan->name))
+			if (d->chans[i].channel == chan)
 			{
 				if (d->chans[i].uc_modes & UCMODE_HOP)
 				{
@@ -205,7 +205,7 @@ char* ModeParser::GiveVoice(userrec *user,char *dest,chanrec *chan,int status)
 		for (unsigned int i = 0; i < d->chans.size(); i++)
 		{
 			if ((d->chans[i].channel != NULL) && (chan != NULL))
-			if (!strcasecmp(d->chans[i].channel->name,chan->name))
+			if (d->chans[i].channel == chan)
 			{
 				if (d->chans[i].uc_modes & UCMODE_VOICE)
 				{
@@ -261,7 +261,7 @@ char* ModeParser::TakeOps(userrec *user,char *dest,chanrec *chan,int status)
 		for (unsigned int i = 0; i < d->chans.size(); i++)
 		{
 			if ((d->chans[i].channel != NULL) && (chan != NULL))
-			if (!strcasecmp(d->chans[i].channel->name,chan->name))
+			if (d->chans[i].channel == chan)
 			{
 				if ((d->chans[i].uc_modes & UCMODE_OP) == 0)
 				{
@@ -318,7 +318,7 @@ char* ModeParser::TakeHops(userrec *user,char *dest,chanrec *chan,int status)
 		for (unsigned int i = 0; i < d->chans.size(); i++)
 		{
 			if ((d->chans[i].channel != NULL) && (chan != NULL))
-			if (!strcasecmp(d->chans[i].channel->name,chan->name))
+			if (d->chans[i].channel == chan)
 			{
 				if ((d->chans[i].uc_modes & UCMODE_HOP) == 0)
 				{
@@ -373,7 +373,7 @@ char* ModeParser::TakeVoice(userrec *user,char *dest,chanrec *chan,int status)
 		for (unsigned int i = 0; i < d->chans.size(); i++)
 		{
 			if ((d->chans[i].channel != NULL) && (chan != NULL))
-			if (!strcasecmp(d->chans[i].channel->name,chan->name))
+			if (d->chans[i].channel == chan)
 			{
 				if ((d->chans[i].uc_modes & UCMODE_VOICE) == 0)
 				{
