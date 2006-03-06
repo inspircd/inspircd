@@ -204,7 +204,7 @@ void Write(int sock, char *text, ...)
 			}
 			catch (ModuleException& modexcept)
 			{
-				log(DEBUG,"Module exception cought: %s",modexcept.GetReason()); \
+				log(DEBUG,"Module exception cought: %s",modexcept.GetReason());
 			}						                
 		}
 		else
@@ -236,7 +236,7 @@ void WriteServ_NoFormat(int sock, const char* text)
 			}
                         catch (ModuleException& modexcept)
                         {
-                                log(DEBUG,"Module exception cought: %s",modexcept.GetReason()); \
+                                log(DEBUG,"Module exception cought: %s",modexcept.GetReason());
                         }
 		}
 		else
@@ -277,7 +277,7 @@ void WriteServ(int sock, char* text, ...)
 			}
                         catch (ModuleException& modexcept)
                         {
-                                log(DEBUG,"Module exception cought: %s",modexcept.GetReason()); \
+                                log(DEBUG,"Module exception cought: %s",modexcept.GetReason());
                         }
 		}
 		else
@@ -310,7 +310,7 @@ void WriteFrom_NoFormat(int sock, userrec *user, const char* text)
 			}
                         catch (ModuleException& modexcept)
                         {
-                                log(DEBUG,"Module exception cought: %s",modexcept.GetReason()); \
+                                log(DEBUG,"Module exception cought: %s",modexcept.GetReason());
                         }
 		}
 		else
@@ -350,7 +350,7 @@ void WriteFrom(int sock, userrec *user,char* text, ...)
 			}
                         catch (ModuleException& modexcept)
                         {
-                                log(DEBUG,"Module exception cought: %s",modexcept.GetReason()); \
+                                log(DEBUG,"Module exception cought: %s",modexcept.GetReason());
                         }
 		}
 		else
@@ -1440,7 +1440,7 @@ void ShowMOTD(userrec *user)
 		}
                 catch (ModuleException& modexcept)
                 {
-                        log(DEBUG,"Module exception cought: %s",modexcept.GetReason()); \
+                        log(DEBUG,"Module exception cought: %s",modexcept.GetReason());
                 }
 
 	}
