@@ -543,7 +543,7 @@ void ModeParser::ProcessModes(char **parameters,userrec* user,chanrec *chan,int 
 	}
 
 	char outlist[MAXBUF];
-	char outpars[32][MAXBUF];
+	char *outpars[32];
 	int param = 2;
 	int pc = 0;
 	int ptr = 0;
@@ -645,7 +645,7 @@ void ModeParser::ProcessModes(char **parameters,userrec* user,chanrec *chan,int 
 					if (r)
 					{
 						*outl++ = 'o';
-						strlcpy(outpars[pc++],r,MAXBUF);
+						outpars[pc++] = r;
 					}
 				break;
 			
@@ -675,7 +675,7 @@ void ModeParser::ProcessModes(char **parameters,userrec* user,chanrec *chan,int 
 					if (r)
 					{
 						*outl++ = 'h';
-						strlcpy(outpars[pc++],r,MAXBUF);
+						outpars[pc++] = r;
 					}
 				break;
 			
@@ -706,7 +706,7 @@ void ModeParser::ProcessModes(char **parameters,userrec* user,chanrec *chan,int 
 					if (r)
 					{
 						*outl++ = 'v';
-						strlcpy(outpars[pc++],r,MAXBUF);
+						outpars[pc++] = r;
 					}
 				break;
 				
@@ -736,7 +736,7 @@ void ModeParser::ProcessModes(char **parameters,userrec* user,chanrec *chan,int 
 					if (r)
 					{
 						*outl++ = 'b';
-						strlcpy(outpars[pc++],parameters[param-1],MAXBUF);
+						outpars[pc++] = parameters[param-1];
 					}
 				break;
 
@@ -763,7 +763,7 @@ void ModeParser::ProcessModes(char **parameters,userrec* user,chanrec *chan,int 
 								*outl++ = 'k';
 								char key[MAXBUF];
 								strlcpy(key,parameters[param++],32);
-								strlcpy(outpars[pc++],key,MAXBUF);
+								outpars[pc++] = key;
 								strlcpy(chan->key,key,MAXBUF);
 								k_set = true;
 							}
@@ -789,7 +789,7 @@ void ModeParser::ProcessModes(char **parameters,userrec* user,chanrec *chan,int 
 							{
 								*outl++ = 'k';
 								*chan->key = 0;
-								strlcpy(outpars[pc++],key,MAXBUF);
+								outpars[pc++] = key;
 							}
 						}
 						else param++;
@@ -854,7 +854,7 @@ void ModeParser::ProcessModes(char **parameters,userrec* user,chanrec *chan,int 
 						if (chan->limit)
 						{
 							*outl++ = 'l';
-							strlcpy(outpars[pc++],parameters[param++],MAXBUF);
+							outpars[pc++] = parameters[param++];
 							l_set = true;
 						}
 					}
@@ -1054,7 +1054,7 @@ void ModeParser::ProcessModes(char **parameters,userrec* user,chanrec *chan,int 
 												{
 													*outl++ = *modechar;
 												}
-												strlcpy(outpars[pc++],parameters[param++],MAXBUF);
+												outpars[pc++] = parameters[param++];
 											}
 										}
 										else
@@ -1070,7 +1070,7 @@ void ModeParser::ProcessModes(char **parameters,userrec* user,chanrec *chan,int 
 												if ((ModeDefinedOn(*modechar,MT_CHANNEL)>0) && (mdir))
 												{
 													chan->SetCustomModeParam(modelist[ptr],parameters[param],mdir);
-													strlcpy(outpars[pc++],parameters[param++],MAXBUF);
+													outpars[pc++] = parameters[param++];
 												}
 											}
 										}
