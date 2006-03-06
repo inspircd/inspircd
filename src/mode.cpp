@@ -508,87 +508,86 @@ void ModeParser::ProcessModes(char **parameters,userrec* user,chanrec *chan,int 
 		if (pc > MAXMODES-1)
 			break;
 
-		log(DEBUG,"Mode %c",*modechar);
 
+		
+		switch (*modechar)
 		{
-			switch (*modechar)
-			{
-				case '-':
-					*outl++ = '-';
-					mdir = 0;
-				break;			
+			case '-':
+				*outl++ = '-';
+				mdir = 0;
+			break;			
 
-				case '+':
-					*outl++ = '+';
-					mdir = 1;
-				break;
+			case '+':
+				*outl++ = '+';
+				mdir = 1;
+			break;
 
-				case 'o':
-					log(DEBUG,"Ops");
-					if ((param >= pcnt)) break;
-					log(DEBUG,"Enough parameters left");
-					r = NULL;
-					if (mdir == 1)
+			case 'o':
+				log(DEBUG,"Ops");
+				if ((param >= pcnt)) break;
+				log(DEBUG,"Enough parameters left");
+				r = NULL;
+				if (mdir == 1)
+				{
+					MOD_RESULT = 0;
+					FOREACH_RESULT(I_OnRawMode,OnRawMode(user, chan, 'o', parameters[param], true, 1));
+					if (!MOD_RESULT)
 					{
-						MOD_RESULT = 0;
-						FOREACH_RESULT(I_OnRawMode,OnRawMode(user, chan, 'o', parameters[param], true, 1));
-						if (!MOD_RESULT)
-						{
-							log(DEBUG,"calling GiveOps");
-							r = GiveOps(user,parameters[param++],chan,status);
-						}
-						else param++;
+						log(DEBUG,"calling GiveOps");
+						r = GiveOps(user,parameters[param++],chan,status);
 					}
-					else
-					{
-                                                MOD_RESULT = 0;
-                                                FOREACH_RESULT(I_OnRawMode,OnRawMode(user, chan, 'o', parameters[param], false, 1));
-                                                if (!MOD_RESULT)
-                                                {
-							log(DEBUG,"calling TakeOps");
-							r = TakeOps(user,parameters[param++],chan,status);
-						}
-						else param++;
+					else param++;
+				}
+				else
+				{
+                                        MOD_RESULT = 0;
+                                        FOREACH_RESULT(I_OnRawMode,OnRawMode(user, chan, 'o', parameters[param], false, 1));
+                                        if (!MOD_RESULT)
+                                        {
+						log(DEBUG,"calling TakeOps");
+						r = TakeOps(user,parameters[param++],chan,status);
 					}
-					if (r)
-					{
-						*outl++ = 'o';
-						outpars[pc++] = r;
-					}
-				break;
+					else param++;
+				}
+				if (r)
+				{
+					*outl++ = 'o';
+					outpars[pc++] = r;
+				}
+			break;
 			
-				case 'h':
-					if (((param >= pcnt)) || (!Config->AllowHalfop)) break;
-					r = NULL;
-					if (mdir == 1)
-					{
-                                                MOD_RESULT = 0;
-                                                FOREACH_RESULT(I_OnRawMode,OnRawMode(user, chan, 'h', parameters[param], true, 1));
-                                                if (!MOD_RESULT)
-                                                {
-							r = GiveHops(user,parameters[param++],chan,status);
-						}
-						else param++;
+			case 'h':
+				if (((param >= pcnt)) || (!Config->AllowHalfop)) break;
+				r = NULL;
+				if (mdir == 1)
+				{
+                                        MOD_RESULT = 0;
+                                        FOREACH_RESULT(I_OnRawMode,OnRawMode(user, chan, 'h', parameters[param], true, 1));
+                                        if (!MOD_RESULT)
+                                        {
+						r = GiveHops(user,parameters[param++],chan,status);
 					}
-					else
-					{
-                                                MOD_RESULT = 0;
-                                                FOREACH_RESULT(I_OnRawMode,OnRawMode(user, chan, 'h', parameters[param], false, 1));
-                                                if (!MOD_RESULT)
-                                                {
-							r = TakeHops(user,parameters[param++],chan,status);
-						}
-						else param++;
+					else param++;
+				}
+				else
+				{
+                                        MOD_RESULT = 0;
+                                        FOREACH_RESULT(I_OnRawMode,OnRawMode(user, chan, 'h', parameters[param], false, 1));
+                                        if (!MOD_RESULT)
+                                        {
+						r = TakeHops(user,parameters[param++],chan,status);
 					}
-					if (r)
-					{
-						*outl++ = 'h';
-						outpars[pc++] = r;
-					}
-				break;
+					else param++;
+				}
+				if (r)
+				{
+					*outl++ = 'h';
+					outpars[pc++] = r;
+				}
+			break;
 			
 				
-				case 'v':
+			case 'v':
 					if ((param >= pcnt)) break;
 					r = NULL;
 					if (mdir == 1)
@@ -616,383 +615,380 @@ void ModeParser::ProcessModes(char **parameters,userrec* user,chanrec *chan,int 
 						*outl++ = 'v';
 						outpars[pc++] = r;
 					}
-				break;
+			break;
 				
-				case 'b':
-					if ((param >= pcnt)) break;
-					r = NULL;
-					if (mdir == 1)
-					{
-                                                MOD_RESULT = 0;
-                                                FOREACH_RESULT(I_OnRawMode,OnRawMode(user, chan, 'b', parameters[param], true, 1));
-                                                if (!MOD_RESULT)
-                                                {
-							r = AddBan(user,parameters[param++],chan,status);
-						}
-						else param++;
+			case 'b':
+				if ((param >= pcnt)) break;
+				r = NULL;
+				if (mdir == 1)
+				{
+                                        MOD_RESULT = 0;
+                                        FOREACH_RESULT(I_OnRawMode,OnRawMode(user, chan, 'b', parameters[param], true, 1));
+                                        if (!MOD_RESULT)
+                                        {
+						r = AddBan(user,parameters[param++],chan,status);
 					}
-					else
-					{
-                                                MOD_RESULT = 0;
-                                                FOREACH_RESULT(I_OnRawMode,OnRawMode(user, chan, 'b', parameters[param], false, 1));
-                                                if (!MOD_RESULT)
-                                                {
-							r = TakeBan(user,parameters[param++],chan,status);
-						}
-						else param++;
+					else param++;
+				}
+				else
+				{
+                                        MOD_RESULT = 0;
+                                        FOREACH_RESULT(I_OnRawMode,OnRawMode(user, chan, 'b', parameters[param], false, 1));
+                                        if (!MOD_RESULT)
+                                        {
+						r = TakeBan(user,parameters[param++],chan,status);
 					}
-					if (r)
-					{
-						*outl++ = 'b';
-						outpars[pc++] = parameters[param-1];
-					}
-				break;
+					else param++;
+				}
+				if (r)
+				{
+					*outl++ = 'b';
+					outpars[pc++] = parameters[param-1];
+				}
+			break;
 
 
-				case 'k':
-					if ((param >= pcnt))
+			case 'k':
+				if ((param >= pcnt))
+					break;
+
+				if (mdir == 1)
+				{
+					if (k_set)
 						break;
 
-					if (mdir == 1)
-					{
-						if (k_set)
-							break;
-
-						if (previously_unset_k)
-							break;
-						previously_set_k = true;
+					if (previously_unset_k)
+						break;
+					previously_set_k = true;
 						
-						if (!*chan->key)
-						{
-							MOD_RESULT = 0;
-							FOREACH_RESULT(I_OnRawMode,OnRawMode(user, chan, 'k', parameters[param], true, 1));
-							if (!MOD_RESULT)
-							{
-								*outl++ = 'k';
-								char key[MAXBUF];
-								strlcpy(key,parameters[param++],32);
-								outpars[pc++] = key;
-								strlcpy(chan->key,key,MAXBUF);
-								k_set = true;
-							}
-							else param++;
-						}
-					}
-					else
+					if (!*chan->key)
 					{
-						/* checks on -k are case sensitive and only accurate to the
-  						   first 32 characters */
-						if (previously_set_k)
-							break;
-						previously_unset_k = true;
-
-						char key[MAXBUF];
 						MOD_RESULT = 0;
-						FOREACH_RESULT(I_OnRawMode,OnRawMode(user, chan, 'k', parameters[param], false, 1));
+						FOREACH_RESULT(I_OnRawMode,OnRawMode(user, chan, 'k', parameters[param], true, 1));
 						if (!MOD_RESULT)
 						{
+							*outl++ = 'k';
+							char key[MAXBUF];
 							strlcpy(key,parameters[param++],32);
-							/* only allow -k if correct key given */
-							if (!strcmp(chan->key,key))
-							{
-								*outl++ = 'k';
-								*chan->key = 0;
-								outpars[pc++] = key;
-							}
+							outpars[pc++] = key;
+							strlcpy(chan->key,key,MAXBUF);
+							k_set = true;
 						}
 						else param++;
 					}
-				break;
-				
-				case 'l':
-					if (mdir == 0)
+				}
+				else
+				{
+					/* checks on -k are case sensitive and only accurate to the
+ 						   first 32 characters */
+					if (previously_set_k)
+						break;
+					previously_unset_k = true;
+
+					char key[MAXBUF];
+					MOD_RESULT = 0;
+					FOREACH_RESULT(I_OnRawMode,OnRawMode(user, chan, 'k', parameters[param], false, 1));
+					if (!MOD_RESULT)
 					{
-						if (previously_set_l)
-							break;
-						previously_unset_l = true;
-                                                MOD_RESULT = 0;
-                                                FOREACH_RESULT(I_OnRawMode,OnRawMode(user, chan, 'l', "", false, 0));
-                                                if (!MOD_RESULT)
-                                                {
-							if (chan->limit)
-							{
-								*outl++ = 'l';
-								chan->limit = 0;
-							}
+						strlcpy(key,parameters[param++],32);
+						/* only allow -k if correct key given */
+						if (!strcmp(chan->key,key))
+						{
+							*outl++ = 'k';
+							*chan->key = 0;
+							outpars[pc++] = key;
 						}
 					}
-					
-					if ((param >= pcnt)) break;
-					if (mdir == 1)
-					{
-						if (l_set)
-							break;
-						if (previously_unset_l)
-							break;
-						previously_set_l = true;
-						bool invalid = false;
-						for (char* f = parameters[param]; *f; f++)
-						{
-							if ((*f < '0') || (*f > '9'))
-							{
-								invalid = true;
-							}
-						}
-						/* If the limit is < 1, or the new limit is the current limit, dont allow */
-						if ((atoi(parameters[param]) < 1) || ((chan->limit > 0) && (atoi(parameters[param]) == chan->limit)))
-						{
-							invalid = true;
-						}
-
-						if (invalid)
-							break;
-
-                                                MOD_RESULT = 0;
-                                                FOREACH_RESULT(I_OnRawMode,OnRawMode(user, chan, 'l', parameters[param], true, 1));
-                                                if (!MOD_RESULT)
-                                                {
-	
-							chan->limit = atoi(parameters[param]);
-							
-							// reported by mech: large values cause underflow
-							if (chan->limit < 0)
-								chan->limit = 0x7FFF;
-						}
-							
+					else param++;
+				}
+			break;
+				
+			case 'l':
+				if (mdir == 0)
+				{
+					if (previously_set_l)
+						break;
+					previously_unset_l = true;
+                                        MOD_RESULT = 0;
+                                        FOREACH_RESULT(I_OnRawMode,OnRawMode(user, chan, 'l', "", false, 0));
+                                        if (!MOD_RESULT)
+                                        {
 						if (chan->limit)
 						{
 							*outl++ = 'l';
-							outpars[pc++] = parameters[param++];
-							l_set = true;
+							chan->limit = 0;
 						}
 					}
-				break;
-				
-				case 'i':
-                                        MOD_RESULT = 0;
-                                        FOREACH_RESULT(I_OnRawMode,OnRawMode(user, chan, 'i', "", mdir, 0));
-                                        if (!MOD_RESULT)
-                                        {
-						if (mdir)
-						{
-							if (!(chan->binarymodes & CM_INVITEONLY)) *outl++ = 'i';
-							chan->binarymodes |= CM_INVITEONLY;
-						}
-						else
-						{
-							if (chan->binarymodes & CM_INVITEONLY) *outl++ = 'i';
-							chan->binarymodes &= ~CM_INVITEONLY;
-						}
-					}
-				break;
-				
-				case 't':
-                                        MOD_RESULT = 0;
-                                        FOREACH_RESULT(I_OnRawMode,OnRawMode(user, chan, 't', "", mdir, 0));
-                                        if (!MOD_RESULT)
-                                        {
-						if (mdir)
-                                                {
-							if (!(chan->binarymodes & CM_TOPICLOCK)) *outl++ = 't';
-                                                        chan->binarymodes |= CM_TOPICLOCK;
-                                                }
-                                                else
-                                                {
-							if (chan->binarymodes & CM_TOPICLOCK) *outl++ = 't';
-                                                        chan->binarymodes &= ~CM_TOPICLOCK;
-                                                }
-					}
-				break;
-				
-				case 'n':
-                                        MOD_RESULT = 0;
-                                        FOREACH_RESULT(I_OnRawMode,OnRawMode(user, chan, 'n', "", mdir, 0));
-                                        if (!MOD_RESULT)
-                                        {
-                                                if (mdir)
-                                                {
-							if (!(chan->binarymodes & CM_NOEXTERNAL)) *outl++ = 'n';
-                                                        chan->binarymodes |= CM_NOEXTERNAL;
-                                                }
-                                                else
-                                                {
-							if (chan->binarymodes & CM_NOEXTERNAL) *outl++ = 'n';
-                                                        chan->binarymodes &= ~CM_NOEXTERNAL;
-                                                }
-					}
-				break;
-				
-				case 'm':
-                                        MOD_RESULT = 0;
-                                        FOREACH_RESULT(I_OnRawMode,OnRawMode(user, chan, 'm', "", mdir, 0));
-                                        if (!MOD_RESULT)
-                                        {
-                                                if (mdir)
-                                                {
-                                                        if (!(chan->binarymodes & CM_MODERATED)) *outl++ = 'm';
-                                                        chan->binarymodes |= CM_MODERATED;
-                                                }
-                                                else
-                                                {
-                                                        if (chan->binarymodes & CM_MODERATED) *outl++ = 'm';
-                                                        chan->binarymodes &= ~CM_MODERATED;
-                                                }
-					}
-				break;
-				
-				case 's':
-                                        MOD_RESULT = 0;
-                                        FOREACH_RESULT(I_OnRawMode,OnRawMode(user, chan, 's', "", mdir, 0));
-                                        if (!MOD_RESULT)
-                                        {
-                                                if (mdir)
-                                                {
-                                                        if (!(chan->binarymodes & CM_SECRET)) *outl++ = 's';
-                                                        chan->binarymodes |= CM_SECRET;
-                                                        if (chan->binarymodes & CM_PRIVATE)
-                                                        {
-                                                                chan->binarymodes &= ~CM_PRIVATE;
-                                                                if (mdir)
-                                                                {
-									*outl++ = '-'; *outl++ = 'p'; *outl++ = '+';
-                                                                }
-                                                        }
-                                                }
-                                                else
-                                                {
-                                                        if (chan->binarymodes & CM_SECRET) *outl++ = 's';
-                                                        chan->binarymodes &= ~CM_SECRET;
-                                                }
-					}
-				break;
-				
-				case 'p':
-                                        MOD_RESULT = 0;
-                                        FOREACH_RESULT(I_OnRawMode,OnRawMode(user, chan, 'p', "", mdir, 0));
-                                        if (!MOD_RESULT)
-                                        {
-                                                if (mdir)
-                                                {
-                                                        if (!(chan->binarymodes & CM_PRIVATE)) *outl++ = 'p';
-                                                        chan->binarymodes |= CM_PRIVATE;
-                                                        if (chan->binarymodes & CM_SECRET)
-                                                        {
-                                                                chan->binarymodes &= ~CM_SECRET;
-                                                                if (mdir)
-                                                                {
-									*outl++ = '-'; *outl++ = 's'; *outl++ = '+';
-                                                                }
-                                                        }
-                                                }
-                                                else
-                                                {
-                                                        if (chan->binarymodes & CM_PRIVATE) *outl++ = 'p';
-                                                        chan->binarymodes &= ~CM_PRIVATE;
-                                                }
-					}
-				break;
-				
-				default:
-					log(DEBUG,"Preprocessing custom mode %c: modelist: %s",*modechar,chan->custom_modes);
-					string_list p;
-					p.clear();
-					if (((!strchr(chan->custom_modes,*modechar)) && (!mdir)) || ((strchr(chan->custom_modes,*modechar)) && (mdir)))
+				}
+					
+				if ((param >= pcnt)) break;
+				if (mdir == 1)
+				{
+					if (l_set)
+						break;
+					if (previously_unset_l)
+						break;
+					previously_set_l = true;
+					bool invalid = false;
+					for (char* f = parameters[param]; *f; f++)
 					{
-						if (!ModeIsListMode(*modechar,MT_CHANNEL))
+						if ((*f < '0') || (*f > '9'))
 						{
-							log(DEBUG,"Mode %c isnt set on %s but trying to remove!",*modechar,chan->name);
-							break;
+							invalid = true;
 						}
 					}
-					if (ModeDefined(*modechar,MT_CHANNEL))
+					/* If the limit is < 1, or the new limit is the current limit, dont allow */
+					if ((atoi(parameters[param]) < 1) || ((chan->limit > 0) && (atoi(parameters[param]) == chan->limit)))
 					{
-						log(DEBUG,"A module has claimed this mode");
-						if (param<pcnt)
-						{
-     							if ((ModeDefinedOn(*modechar,MT_CHANNEL)>0) && (mdir))
-							{
-      								p.push_back(parameters[param]);
-  							}
-							if ((ModeDefinedOff(*modechar,MT_CHANNEL)>0) && (!mdir))
-							{
-      								p.push_back(parameters[param]);
-  							}
-  						}
-  						bool handled = false;
-  						if (param>=pcnt)
-  						{
-  							// we're supposed to have a parameter, but none was given... so dont handle the mode.
-  							if (((ModeDefinedOn(*modechar,MT_CHANNEL)>0) && (mdir)) || ((ModeDefinedOff(*modechar,MT_CHANNEL)>0) && (!mdir)))	
-  							{
-  								log(DEBUG,"Not enough parameters for module-mode %c",*modechar);
-  								handled = true;
-  								param++;
-  							}
-  						}
+						invalid = true;
+					}
 
-						// BIG ASS IDIOTIC CODER WARNING!
-						// Using OnRawMode on another modules mode's behavour 
-						// will confuse the crap out of admins! just because you CAN
-						// do it, doesnt mean you SHOULD!
-	                                        MOD_RESULT = 0;
-						std::string para = "";
-						if (p.size())
-							para = p[0];
-        	                                FOREACH_RESULT(I_OnRawMode,OnRawMode(user, chan, *modechar, para, mdir, pcnt));
-                	                        if (!MOD_RESULT)
-                        	                {
-  							for (int i = 0; i <= MODCOUNT; i++)
+					if (invalid)
+						break;
+
+                                        MOD_RESULT = 0;
+                                        FOREACH_RESULT(I_OnRawMode,OnRawMode(user, chan, 'l', parameters[param], true, 1));
+                                        if (!MOD_RESULT)
+                                        {
+	
+						chan->limit = atoi(parameters[param]);
+							
+						// reported by mech: large values cause underflow
+						if (chan->limit < 0)
+							chan->limit = 0x7FFF;
+					}
+						
+					if (chan->limit)
+					{
+						*outl++ = 'l';
+						outpars[pc++] = parameters[param++];
+						l_set = true;
+					}
+				}
+			break;
+				
+			case 'i':
+                                MOD_RESULT = 0;
+                                FOREACH_RESULT(I_OnRawMode,OnRawMode(user, chan, 'i', "", mdir, 0));
+                                if (!MOD_RESULT)
+                                {
+					if (mdir)
+					{
+						if (!(chan->binarymodes & CM_INVITEONLY)) *outl++ = 'i';
+						chan->binarymodes |= CM_INVITEONLY;
+					}
+					else
+					{
+						if (chan->binarymodes & CM_INVITEONLY) *outl++ = 'i';
+						chan->binarymodes &= ~CM_INVITEONLY;
+					}
+				}
+			break;
+				
+			case 't':
+                                MOD_RESULT = 0;
+                                FOREACH_RESULT(I_OnRawMode,OnRawMode(user, chan, 't', "", mdir, 0));
+                                if (!MOD_RESULT)
+                                {
+					if (mdir)
+                                        {
+						if (!(chan->binarymodes & CM_TOPICLOCK)) *outl++ = 't';
+                                                chan->binarymodes |= CM_TOPICLOCK;
+                                        }
+                                        else
+                                        {
+						if (chan->binarymodes & CM_TOPICLOCK) *outl++ = 't';
+                                                chan->binarymodes &= ~CM_TOPICLOCK;
+                                        }
+				}
+			break;
+				
+			case 'n':
+                                MOD_RESULT = 0;
+                                FOREACH_RESULT(I_OnRawMode,OnRawMode(user, chan, 'n', "", mdir, 0));
+                                if (!MOD_RESULT)
+                                {
+                                        if (mdir)
+                                        {
+						if (!(chan->binarymodes & CM_NOEXTERNAL)) *outl++ = 'n';
+                                                chan->binarymodes |= CM_NOEXTERNAL;
+                                        }
+                                        else
+                                        {
+						if (chan->binarymodes & CM_NOEXTERNAL) *outl++ = 'n';
+                                                chan->binarymodes &= ~CM_NOEXTERNAL;
+                                        }
+				}
+			break;
+				
+			case 'm':
+                                MOD_RESULT = 0;
+                                FOREACH_RESULT(I_OnRawMode,OnRawMode(user, chan, 'm', "", mdir, 0));
+                                if (!MOD_RESULT)
+                                {
+                                        if (mdir)
+                                        {
+                                                if (!(chan->binarymodes & CM_MODERATED)) *outl++ = 'm';
+                                                chan->binarymodes |= CM_MODERATED;
+                                        }
+                                        else
+                                        {
+                                                if (chan->binarymodes & CM_MODERATED) *outl++ = 'm';
+                                                chan->binarymodes &= ~CM_MODERATED;
+                                        }
+				}
+			break;
+				
+			case 's':
+                                MOD_RESULT = 0;
+                                FOREACH_RESULT(I_OnRawMode,OnRawMode(user, chan, 's', "", mdir, 0));
+                                if (!MOD_RESULT)
+                                {
+                                        if (mdir)
+                                        {
+                                                if (!(chan->binarymodes & CM_SECRET)) *outl++ = 's';
+                                                chan->binarymodes |= CM_SECRET;
+                                                if (chan->binarymodes & CM_PRIVATE)
+                                                {
+                                                        chan->binarymodes &= ~CM_PRIVATE;
+                                                        if (mdir)
+                                                        {
+								*outl++ = '-'; *outl++ = 'p'; *outl++ = '+';
+                                                        }
+                                                }
+                                        }
+                                        else
+                                        {
+                                                if (chan->binarymodes & CM_SECRET) *outl++ = 's';
+                                                chan->binarymodes &= ~CM_SECRET;
+                                        }
+				}
+			break;
+				
+			case 'p':
+                                MOD_RESULT = 0;
+                                FOREACH_RESULT(I_OnRawMode,OnRawMode(user, chan, 'p', "", mdir, 0));
+                                if (!MOD_RESULT)
+                                {
+                                        if (mdir)
+                                        {
+                                                if (!(chan->binarymodes & CM_PRIVATE)) *outl++ = 'p';
+                                                chan->binarymodes |= CM_PRIVATE;
+                                                if (chan->binarymodes & CM_SECRET)
+                                                {
+                                                        chan->binarymodes &= ~CM_SECRET;
+                                                        if (mdir)
+                                                        {
+								*outl++ = '-'; *outl++ = 's'; *outl++ = '+';
+                                                        }
+                                                }
+                                        }
+                                        else
+                                        {
+                                                if (chan->binarymodes & CM_PRIVATE) *outl++ = 'p';
+                                                chan->binarymodes &= ~CM_PRIVATE;
+                                        }
+				}
+			break;
+				
+			default:
+				log(DEBUG,"Preprocessing custom mode %c: modelist: %s",*modechar,chan->custom_modes);
+				string_list p;
+				p.clear();
+				if (((!strchr(chan->custom_modes,*modechar)) && (!mdir)) || ((strchr(chan->custom_modes,*modechar)) && (mdir)))
+				{
+					if (!ModeIsListMode(*modechar,MT_CHANNEL))
+					{
+						log(DEBUG,"Mode %c isnt set on %s but trying to remove!",*modechar,chan->name);
+						break;
+					}
+				}
+				if (ModeDefined(*modechar,MT_CHANNEL))
+				{
+					log(DEBUG,"A module has claimed this mode");
+					if (param<pcnt)
+					{
+     						if ((ModeDefinedOn(*modechar,MT_CHANNEL)>0) && (mdir))
+						{
+							p.push_back(parameters[param]);
+						}
+						if ((ModeDefinedOff(*modechar,MT_CHANNEL)>0) && (!mdir))
+						{
+							p.push_back(parameters[param]);
+						}
+					}
+					bool handled = false;
+					if (param>=pcnt)
+					{
+						// we're supposed to have a parameter, but none was given... so dont handle the mode.
+						if (((ModeDefinedOn(*modechar,MT_CHANNEL)>0) && (mdir)) || ((ModeDefinedOff(*modechar,MT_CHANNEL)>0) && (!mdir)))	
+						{
+							log(DEBUG,"Not enough parameters for module-mode %c",*modechar);
+							handled = true;
+							param++;
+						}
+					}
+					// BIG ASS IDIOTIC CODER WARNING!
+					// Using OnRawMode on another modules mode's behavour 
+					// will confuse the crap out of admins! just because you CAN
+					// do it, doesnt mean you SHOULD!
+                                        MOD_RESULT = 0;
+					std::string para = "";
+					if (p.size())
+						para = p[0];
+       	                                FOREACH_RESULT(I_OnRawMode,OnRawMode(user, chan, *modechar, para, mdir, pcnt));
+               	                        if (!MOD_RESULT)
+                       	                {
+ 							for (int i = 0; i <= MODCOUNT; i++)
+						{
+							if (!handled)
 							{
-								if (!handled)
+								int t = modules[i]->OnExtendedMode(user,chan,*modechar,MT_CHANNEL,mdir,p);
+								if (t != 0)
 								{
-									int t = modules[i]->OnExtendedMode(user,chan,*modechar,MT_CHANNEL,mdir,p);
-									if (t != 0)
+									log(DEBUG,"OnExtendedMode returned nonzero for a module");
+									if (ModeIsListMode(*modechar,MT_CHANNEL))
 									{
-										log(DEBUG,"OnExtendedMode returned nonzero for a module");
-										if (ModeIsListMode(*modechar,MT_CHANNEL))
+										if (t == -1)
 										{
-											if (t == -1)
-											{
-												//pc++;
-												param++;
-											}
-											else
-											{
-												if (param < pcnt)
-												{
-													*outl++ = *modechar;
-												}
-												outpars[pc++] = parameters[param++];
-											}
+											//pc++;
+											param++;
 										}
 										else
 										{
 											if (param < pcnt)
 											{
 												*outl++ = *modechar;
-												chan->SetCustomMode(*modechar,mdir);
-												// include parameters in output if mode has them
-												if ((ModeDefinedOn(*modechar,MT_CHANNEL)>0) && (mdir))
-												{
-													chan->SetCustomModeParam(modelist[ptr],parameters[param],mdir);
-													outpars[pc++] = parameters[param++];
-												}
+											}
+											outpars[pc++] = parameters[param++];
+										}
+									}
+									else
+									{
+										if (param < pcnt)
+										{
+											*outl++ = *modechar;
+											chan->SetCustomMode(*modechar,mdir);
+											// include parameters in output if mode has them
+											if ((ModeDefinedOn(*modechar,MT_CHANNEL)>0) && (mdir))
+											{
+												chan->SetCustomModeParam(modelist[ptr],parameters[param],mdir);
+												outpars[pc++] = parameters[param++];
 											}
 										}
-										// break, because only one module can handle the mode.
-										handled = true;
 									}
+									// break, because only one module can handle the mode.
+									handled = true;
 								}
 							}
 						}
 					}
-					else
-					{
-						WriteServ(user->fd,"472 %s %c :is unknown mode char to me",user->nick,*modechar);
-					}
-				break;
-				
-			}
+				}
+				else
+				{
+					WriteServ(user->fd,"472 %s %c :is unknown mode char to me",user->nick,*modechar);
+				}
+			break;
 		}
 	}
 
