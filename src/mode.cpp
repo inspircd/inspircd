@@ -1073,11 +1073,11 @@ void ModeParser::ProcessModes(char **parameters,userrec* user,chanrec *chan,int 
 										}
 										// break, because only one module can handle the mode.
 										handled = true;
-       	 		 						}
-       	 	 						}
-	     						}
+									}
+								}
+							}
 						}
-     					}
+					}
 					else
 					{
 						WriteServ(user->fd,"472 %s %c :is unknown mode char to me",user->nick,*modechar);
