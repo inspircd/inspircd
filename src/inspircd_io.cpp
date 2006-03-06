@@ -419,7 +419,7 @@ void ServerConfig::Read(bool bail, userrec* user)
                 }
         }
 	maxbans.clear();
-        char CM[MAXBUF],CM2[MAXBUF];
+        char CM1[MAXBUF],CM2[MAXBUF];
         for (int count = 0; count < Config->ConfValueEnum("banlist",&Config->config_f); count++)
         {
                 Config->ConfValue("banlist","chan",count,CM1,&Config->config_f);
