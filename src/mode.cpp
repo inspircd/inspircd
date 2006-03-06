@@ -1113,17 +1113,17 @@ void ModeParser::ProcessModes(char **parameters,userrec* user,chanrec *chan,int 
 	/* The mode change must be at least two characters long (+ or - and at least one mode) */
 	if (((*outl == '+') || (*outl == '-')) && *(outl+1))
 	{
-		strlcpy(outstr,outl,MAXBUF);
+		//strlcpy(outstr,outl,MAXBUF);
 		for (ptr = 0; ptr < pc; ptr++)
 		{
-			charlcat(outstr,' ',MAXBUF);
-			strlcat(outstr,outpars[ptr],MAXBUF);
+			charlcat(outl,' ',MAXBUF);
+			strlcat(outl,outpars[ptr],MAXBUF);
 		}
 		if (local)
 		{
 			log(DEBUG,"Local mode change");
-			WriteChannelLocal(chan, user, "MODE %s %s",chan->name,outstr);
-			FOREACH_MOD(I_OnMode,OnMode(user, chan, TYPE_CHANNEL, outstr));
+			WriteChannelLocal(chan, user, "MODE %s %s",chan->name,outl);
+			FOREACH_MOD(I_OnMode,OnMode(user, chan, TYPE_CHANNEL, outl));
 		}
 		else
 		{
@@ -1131,7 +1131,7 @@ void ModeParser::ProcessModes(char **parameters,userrec* user,chanrec *chan,int 
 			{
 				if (!silent)
 				{
-					WriteChannelWithServ(Config->ServerName,chan,"MODE %s %s",chan->name,outstr);
+					WriteChannelWithServ(Config->ServerName,chan,"MODE %s %s",chan->name,outl);
 				}
 					
 			}
@@ -1139,8 +1139,8 @@ void ModeParser::ProcessModes(char **parameters,userrec* user,chanrec *chan,int 
 			{
 				if (!silent)
 				{
-					WriteChannel(chan,user,"MODE %s %s",chan->name,outstr);
-					FOREACH_MOD(I_OnMode,OnMode(user, chan, TYPE_CHANNEL, outstr));
+					WriteChannel(chan,user,"MODE %s %s",chan->name,outl);
+					FOREACH_MOD(I_OnMode,OnMode(user, chan, TYPE_CHANNEL, outl));
 				}
 			}
 		}
