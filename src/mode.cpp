@@ -138,7 +138,7 @@ char* ModeParser::GiveOps(userrec *user,char *dest,chanrec *chan,int status)
 	
 	if (d)
 	{
-		if (user->server == d->server)
+		if (IS_LOCAL(user))
 		{
 			int MOD_RESULT = 0;
 			FOREACH_RESULT(I_OnAccessCheck,OnAccessCheck(user,d,chan,AC_OP));
@@ -147,9 +147,8 @@ char* ModeParser::GiveOps(userrec *user,char *dest,chanrec *chan,int status)
 				return NULL;
 			if (MOD_RESULT == ACR_DEFAULT)
 			{
-				if ((status < STATUS_OP) && (!is_uline(user->server)) && (IS_LOCAL(user)))
+				if ((status < STATUS_OP) && (!is_uline(user->server)))
 				{
-					log(DEBUG,"%s cant give ops to %s because they have status %d and needs %d",user->nick,dest,status,STATUS_OP);
 					WriteServ(user->fd,"482 %s %s :You're not a channel operator",user->nick, chan->name);
 					return NULL;
 				}
@@ -167,7 +166,7 @@ char* ModeParser::GiveHops(userrec *user,char *dest,chanrec *chan,int status)
 	
 	if (d)
 	{
-		if (user->server == d->server)
+		if (IS_LOCAL(user))
 		{
 			int MOD_RESULT = 0;
 			FOREACH_RESULT(I_OnAccessCheck,OnAccessCheck(user,d,chan,AC_HALFOP));
@@ -176,7 +175,7 @@ char* ModeParser::GiveHops(userrec *user,char *dest,chanrec *chan,int status)
 				return NULL;
 			if (MOD_RESULT == ACR_DEFAULT)
 			{
-				if ((status < STATUS_OP) && (!is_uline(user->server)) && (IS_LOCAL(user)))
+				if ((status < STATUS_OP) && (!is_uline(user->server)))
 				{
 					WriteServ(user->fd,"482 %s %s :You're not a channel operator",user->nick, chan->name);
 					return NULL;
@@ -195,7 +194,7 @@ char* ModeParser::GiveVoice(userrec *user,char *dest,chanrec *chan,int status)
 	
 	if (d)
 	{
-		if (user->server == d->server)
+		if (IS_LOCAL(user))
 		{
 			int MOD_RESULT = 0;
 			FOREACH_RESULT(I_OnAccessCheck,OnAccessCheck(user,d,chan,AC_VOICE));
@@ -204,7 +203,7 @@ char* ModeParser::GiveVoice(userrec *user,char *dest,chanrec *chan,int status)
 				return NULL;
 			if (MOD_RESULT == ACR_DEFAULT)
 			{
-				if ((status < STATUS_HOP) && (!is_uline(user->server)) && (IS_LOCAL(user)))
+				if ((status < STATUS_HOP) && (!is_uline(user->server)))
 				{
 					WriteServ(user->fd,"482 %s %s :You must be at least a half-operator to change modes on this channel",user->nick, chan->name);
 					return NULL;
@@ -223,7 +222,7 @@ char* ModeParser::TakeOps(userrec *user,char *dest,chanrec *chan,int status)
 	
 	if (d)
 	{
-		if (user->server == d->server)
+		if (IS_LOCAL(user))
 		{
 			int MOD_RESULT = 0;
 			FOREACH_RESULT(I_OnAccessCheck,OnAccessCheck(user,d,chan,AC_DEOP));
@@ -232,7 +231,7 @@ char* ModeParser::TakeOps(userrec *user,char *dest,chanrec *chan,int status)
 				return NULL;
 			if (MOD_RESULT == ACR_DEFAULT)
 			{
-				if ((status < STATUS_OP) && (!is_uline(user->server)) && (IS_LOCAL(user)) && (IS_LOCAL(user)))
+				if ((status < STATUS_OP) && (!is_uline(user->server)) && (IS_LOCAL(user)))
 				{
 					WriteServ(user->fd,"482 %s %s :You are not a channel operator",user->nick, chan->name);
 					return NULL;
@@ -251,7 +250,7 @@ char* ModeParser::TakeHops(userrec *user,char *dest,chanrec *chan,int status)
 	
 	if (d)
 	{
-		if (user->server == d->server)
+		if (IS_LOCAL(user))
 		{
 			int MOD_RESULT = 0;
 			FOREACH_RESULT(I_OnAccessCheck,OnAccessCheck(user,d,chan,AC_DEHALFOP));
@@ -261,7 +260,7 @@ char* ModeParser::TakeHops(userrec *user,char *dest,chanrec *chan,int status)
 			if (MOD_RESULT == ACR_DEFAULT)
 			{
 				/* Tweak by Brain suggested by w00t, allow a halfop to dehalfop themselves */
-				if ((user != d) && ((status < STATUS_OP) && (!is_uline(user->server))) && (IS_LOCAL(user)))
+				if ((user != d) && ((status < STATUS_OP) && (!is_uline(user->server))))
 				{
 					WriteServ(user->fd,"482 %s %s :You are not a channel operator",user->nick, chan->name);
 					return NULL;
@@ -280,7 +279,7 @@ char* ModeParser::TakeVoice(userrec *user,char *dest,chanrec *chan,int status)
 
 	if (d)	
 	{
-		if (user->server == d->server)
+		if (IS_LOCAL(user))
 		{
 			int MOD_RESULT = 0;
 			FOREACH_RESULT(I_OnAccessCheck,OnAccessCheck(user,d,chan,AC_DEVOICE));
@@ -289,7 +288,7 @@ char* ModeParser::TakeVoice(userrec *user,char *dest,chanrec *chan,int status)
 				return NULL;
 			if (MOD_RESULT == ACR_DEFAULT)
 			{
-				if ((status < STATUS_HOP) && (!is_uline(user->server)) && (IS_LOCAL(user)))
+				if ((status < STATUS_HOP) && (!is_uline(user->server)))
 				{
 					WriteServ(user->fd,"482 %s %s :You must be at least a half-operator to change modes on this channel",user->nick, chan->name);
 					return NULL;
@@ -523,7 +522,6 @@ void ModeParser::ProcessModes(char **parameters,userrec* user,chanrec *chan,int 
 					FOREACH_RESULT(I_OnRawMode,OnRawMode(user, chan, 'o', parameters[param], true, 1));
 					if (!MOD_RESULT)
 					{
-						log(DEBUG,"calling GiveOps");
 						r = GiveOps(user,parameters[param++],chan,status);
 					}
 					else param++;
@@ -534,7 +532,6 @@ void ModeParser::ProcessModes(char **parameters,userrec* user,chanrec *chan,int 
                                         FOREACH_RESULT(I_OnRawMode,OnRawMode(user, chan, 'o', parameters[param], false, 1));
                                         if (!MOD_RESULT)
                                         {
-						log(DEBUG,"calling TakeOps");
 						r = TakeOps(user,parameters[param++],chan,status);
 					}
 					else param++;
@@ -882,10 +879,10 @@ void ModeParser::ProcessModes(char **parameters,userrec* user,chanrec *chan,int 
 			break;
 				
 			default:
-				log(DEBUG,"Preprocessing custom mode %c: modelist: %s",*modechar,chan->custom_modes);
 				string_list p;
 				p.clear();
-				if (((!strchr(chan->custom_modes,*modechar)) && (!mdir)) || ((strchr(chan->custom_modes,*modechar)) && (mdir)))
+				bool x = strchr(chan->custom_modes,*modechar);
+				if ((!x && !mdir) || (x && mdir))
 				{
 					if (!ModeIsListMode(*modechar,MT_CHANNEL))
 					{
@@ -895,7 +892,7 @@ void ModeParser::ProcessModes(char **parameters,userrec* user,chanrec *chan,int 
 				}
 				if (ModeDefined(*modechar,MT_CHANNEL))
 				{
-					log(DEBUG,"A module has claimed this mode");
+					/* A module has claimed this mode */
 					if (param<pcnt)
 					{
      						if ((ModeDefinedOn(*modechar,MT_CHANNEL)>0) && (mdir))
@@ -1042,6 +1039,7 @@ void ModeParser::ProcessModes(char **parameters,userrec* user,chanrec *chan,int 
 
 bool ModeParser::AllowedUmode(char umode, char* sourcemodes,bool adding,bool serveroverride)
 {
+	bool sourceoper = (strchr(sourcemodes,'o') != NULL);
 	log(DEBUG,"Allowed_umode: %c %s",umode,sourcemodes);
 	// Servers can +o and -o arbitrarily
 	if ((serveroverride == true) && (umode == 'o'))
@@ -1051,34 +1049,32 @@ bool ModeParser::AllowedUmode(char umode, char* sourcemodes,bool adding,bool ser
 	// RFC1459 specified modes
 	if ((umode == 'w') || (umode == 's') || (umode == 'i'))
 	{
-		log(DEBUG,"umode %c allowed by RFC1459 scemantics",umode);
+		/* umode allowed by RFC1459 scemantics */
 		return true;
 	}
 	
-	// user may not +o themselves or others, but an oper may de-oper other opers or themselves
-	if ((strchr(sourcemodes,'o')) && (!adding))
+	/* user may not +o themselves or others, but an oper may de-oper other opers or themselves */
+	if (sourceoper && !adding)
 	{
-		log(DEBUG,"umode %c allowed by RFC1459 scemantics",umode);
 		return true;
 	}
 	else if (umode == 'o')
 	{
-		log(DEBUG,"umode %c allowed by RFC1459 scemantics",umode);
+		/* Bad oper, bad bad! */
 		return false;
 	}
 	
-	// process any module-defined modes that need oper
-	if ((ModeDefinedOper(umode,MT_CLIENT)) && (strchr(sourcemodes,'o')))
+	/* process any module-defined modes that need oper */
+	if ((ModeDefinedOper(umode,MT_CLIENT)) && (sourceoper))
 	{
 		log(DEBUG,"umode %c allowed by module handler (oper only mode)",umode);
 		return true;
 	}
-	else
-	if (ModeDefined(umode,MT_CLIENT))
+	else if (ModeDefined(umode,MT_CLIENT))
 	{
 		// process any module-defined modes that don't need oper
 		log(DEBUG,"umode %c allowed by module handler (non-oper mode)",umode);
-		if ((ModeDefinedOper(umode,MT_CLIENT)) && (!strchr(sourcemodes,'o')))
+		if ((ModeDefinedOper(umode,MT_CLIENT)) && (!sourceoper))
 		{
 			// no, this mode needs oper, and this user 'aint got what it takes!
 			return false;
@@ -1139,26 +1135,21 @@ bool ModeParser::ProcessModuleUmode(char umode, userrec* source, void* dest, boo
 void cmd_mode::Handle (char **parameters, int pcnt, userrec *user)
 {
 	chanrec* Ptr;
-	userrec* dest;
+	userrec* dest = Find(parameters[0]);
 	int can_change;
 	int direction = 1;
 	char outpars[MAXBUF];
 	bool next_ok = true;
 
-	dest = Find(parameters[0]);
-
 	if (!user)
-	{
 		return;
-	}
 
 	if ((dest) && (pcnt == 1))
 	{
 		WriteServ(user->fd,"221 %s :+%s",dest->nick,dest->modes);
 		return;
 	}
-
-	if ((dest) && (pcnt > 1))
+	else if ((dest) && (pcnt > 1))
 	{
 		std::string tidied = ServerInstance->ModeGrok->CompressModes(parameters[1],false);
 		parameters[1] = (char*)tidied.c_str();
@@ -1170,7 +1161,7 @@ void cmd_mode::Handle (char **parameters, int pcnt, userrec *user)
 		can_change = 0;
 		if (user != dest)
 		{
-			if ((strchr(user->modes,'o')) || (is_uline(user->server)))
+			if ((*user->oper) || (is_uline(user->server)))
 			{
 				can_change = 1;
 			}
@@ -1194,79 +1185,80 @@ void cmd_mode::Handle (char **parameters, int pcnt, userrec *user)
 
 		for (char* i = parameters[1]; *i; i++)
 		{
-			if (*i == ' ')
-				continue;
-
 			if ((i != parameters[1]) && (*i != '+') && (*i != '-'))
 				next_ok = true;
 
-			if (*i == '+')
+			case (*i)
 			{
-				if ((direction != 1) && (next_ok))
-				{
-					charlcat(outpars,'+',MAXBUF);
-					next_ok = false;
-				}	
-				direction = 1;
-			}
-			else
-			if (*i == '-')
-			{
-				if ((direction != 0) && (next_ok))
-				{
-					charlcat(outpars,'-',MAXBUF);
-					next_ok = false;
-				}
-				direction = 0;
-			}
-			else
-			{
-				can_change = 0;
-				if (strchr(user->modes,'o'))
-				{
-					can_change = 1;
-				}
-				else
-				{
-					if ((*i == 'i') || (*i == 'w') || (*i == 's') || (ServerInstance->ModeGrok->AllowedUmode(*i,user->modes,direction,false)))
+				case ' ':
+				continue;
+
+				case '+':
+					if ((direction != 1) && (next_ok))
+					{
+						charlcat(outpars,'+',MAXBUF);
+						next_ok = false;
+					}	
+					direction = 1;
+				break;
+
+				case '-':
+					if ((direction != 0) && (next_ok))
+					{
+						charlcat(outpars,'-',MAXBUF);
+						next_ok = false;
+					}
+					direction = 0;
+				break;
+
+				default:
+					can_change = 0;
+					if (*user->oper)
 					{
 						can_change = 1;
 					}
-				}
-				if (can_change)
-				{
-					if (direction == 1)
-					{
-						if ((!strchr(dmodes,*i)) && (ServerInstance->ModeGrok->AllowedUmode(*i,user->modes,true,false)))
-						{
-							if ((ServerInstance->ModeGrok->ProcessModuleUmode(*i, user, dest, direction)) || (*i == 'i') || (*i == 's') || (*i == 'w') || (*i == 'o'))
-							{
-								charlcat(dmodes,*i,MAXMODES);
-								charlcat(outpars,*i,MAXMODES);
-								if (*i == 'o')
-								{
-									FOREACH_MOD(I_OnGlobalOper,OnGlobalOper(dest));
-								}
-							}
-						}
-					}
 					else
 					{
-						if ((ServerInstance->ModeGrok->AllowedUmode(*i,user->modes,false,false)) && (strchr(dmodes,*i)))
+						if ((*i == 'i') || (*i == 'w') || (*i == 's') || (ServerInstance->ModeGrok->AllowedUmode(*i,user->modes,direction,false)))
 						{
-							if ((ServerInstance->ModeGrok->ProcessModuleUmode(*i, user, dest, direction)) || (*i == 'i') || (*i == 's') || (*i == 'w') || (*i == 'o'))
+							can_change = 1;
+						}
+					}
+					if (can_change)
+					{
+						if (direction == 1)
+						{
+							if ((!strchr(dmodes,*i)) && (ServerInstance->ModeGrok->AllowedUmode(*i,user->modes,true,false)))
 							{
-								charlcat(outpars,*i,MAXMODES);
-								charremove(dmodes,*i);
-								if (*i == 'o')
+								if ((ServerInstance->ModeGrok->ProcessModuleUmode(*i, user, dest, direction)) || (*i == 'i') || (*i == 's') || (*i == 'w') || (*i == 'o'))
 								{
-									*dest->oper = 0;
-									DeleteOper(dest);
+									charlcat(dmodes,*i,53);
+									charlcat(outpars,*i,MAXMODES);
+									if (*i == 'o')
+									{
+										FOREACH_MOD(I_OnGlobalOper,OnGlobalOper(dest));
+									}
+								}
+							}
+						}
+						else
+						{
+							if ((ServerInstance->ModeGrok->AllowedUmode(*i,user->modes,false,false)) && (strchr(dmodes,*i)))
+							{
+								if ((ServerInstance->ModeGrok->ProcessModuleUmode(*i, user, dest, direction)) || (*i == 'i') || (*i == 's') || (*i == 'w') || (*i == 'o'))
+								{
+									charlcat(outpars,*i,MAXMODES);
+									charremove(dmodes,*i);
+									if (*i == 'o')
+									{
+										*dest->oper = 0;
+										DeleteOper(dest);
+									}
 								}
 							}
 						}
 					}
-				}
+				break;
 			}
 		}
 		if (*outpars)
@@ -1309,75 +1301,75 @@ void cmd_mode::Handle (char **parameters, int pcnt, userrec *user)
 
 		return;
 	}
-	
-	Ptr = FindChan(parameters[0]);
-	if (Ptr)
-	{
-		if (pcnt == 1)
-		{
-			/* just /modes #channel */
-			WriteServ(user->fd,"324 %s %s +%s",user->nick, Ptr->name, chanmodes(Ptr,has_channel(user,Ptr)));
-                        WriteServ(user->fd,"329 %s %s %d", user->nick, Ptr->name, Ptr->created);
-			return;
-		}
-		else
-		if (pcnt == 2)
-		{
-			char* mode = parameters[1];
-			if (*mode == '+')
-				mode++;
-			int MOD_RESULT = 0;
-                        FOREACH_RESULT(I_OnRawMode,OnRawMode(user, Ptr, *mode, "", false, 0));
-                        if (!MOD_RESULT)
-                        {
-				if (*mode == 'b')
-				{
-
-					for (BanList::iterator i = Ptr->bans.begin(); i != Ptr->bans.end(); i++)
-					{
-						WriteServ(user->fd,"367 %s %s %s %s %d",user->nick, Ptr->name, i->data, i->set_by, i->set_time);
-					}
-					WriteServ(user->fd,"368 %s %s :End of channel ban list",user->nick, Ptr->name);
-					return;
-				}
-				if ((ModeDefined(*mode,MT_CHANNEL)) && (ModeIsListMode(*mode,MT_CHANNEL)))
-				{
-					// list of items for an extmode
-					log(DEBUG,"Calling OnSendList for all modules, list output for mode %c",*mode);
-					FOREACH_MOD(I_OnSendList,OnSendList(user,Ptr,*mode));
-					return;
-				}
-			}
-		}
-
-                if (((Ptr) && (!has_channel(user,Ptr))) && (!is_uline(user->server)) && (IS_LOCAL(user)))
-                {
-                        WriteServ(user->fd,"442 %s %s :You're not on that channel!",user->nick, Ptr->name);
-                        return;
-                }
-
-		if (Ptr)
-		{
-			int MOD_RESULT = 0;
-			FOREACH_RESULT(I_OnAccessCheck,OnAccessCheck(user,NULL,Ptr,AC_GENERAL_MODE));
-			
-			if (MOD_RESULT == ACR_DENY)
-				return;
-			if (MOD_RESULT == ACR_DEFAULT)
-			{
-				if ((cstatus(user,Ptr) < STATUS_HOP) && (IS_LOCAL(user)))
-				{
-					WriteServ(user->fd,"482 %s %s :You must be at least a half-operator to change modes on this channel",user->nick, Ptr->name);
-					return;
-				}
-			}
-
-			ServerInstance->ModeGrok->ProcessModes(parameters,user,Ptr,cstatus(user,Ptr),pcnt,false,false,false);
-		}
-	}
 	else
 	{
-		WriteServ(user->fd,"401 %s %s :No such nick/channel",user->nick, parameters[0]);
+		Ptr = FindChan(parameters[0]);
+		if (Ptr)
+		{
+			if (pcnt == 1)
+			{
+				/* just /modes #channel */
+				WriteServ(user->fd,"324 %s %s +%s",user->nick, Ptr->name, chanmodes(Ptr,has_channel(user,Ptr)));
+	                        WriteServ(user->fd,"329 %s %s %d", user->nick, Ptr->name, Ptr->created);
+				return;
+			}
+			else if (pcnt == 2)
+			{
+				char* mode = parameters[1];
+				if (*mode == '+')
+					mode++;
+				int MOD_RESULT = 0;
+	                        FOREACH_RESULT(I_OnRawMode,OnRawMode(user, Ptr, *mode, "", false, 0));
+	                        if (!MOD_RESULT)
+	                        {
+					if (*mode == 'b')
+					{
+						for (BanList::iterator i = Ptr->bans.begin(); i != Ptr->bans.end(); i++)
+						{
+							WriteServ(user->fd,"367 %s %s %s %s %d",user->nick, Ptr->name, i->data, i->set_by, i->set_time);
+						}
+						WriteServ(user->fd,"368 %s %s :End of channel ban list",user->nick, Ptr->name);
+						return;
+					}
+					if ((ModeDefined(*mode,MT_CHANNEL)) && (ModeIsListMode(*mode,MT_CHANNEL)))
+					{
+						// list of items for an extmode
+						log(DEBUG,"Calling OnSendList for all modules, list output for mode %c",*mode);
+						FOREACH_MOD(I_OnSendList,OnSendList(user,Ptr,*mode));
+						return;
+					}
+				}
+			}
+
+	                if (((Ptr) && (!has_channel(user,Ptr))) && (!is_uline(user->server)) && (IS_LOCAL(user)))
+	                {
+	                        WriteServ(user->fd,"442 %s %s :You're not on that channel!",user->nick, Ptr->name);
+	                        return;
+	                }
+	
+			if (Ptr)
+			{
+				int MOD_RESULT = 0;
+				FOREACH_RESULT(I_OnAccessCheck,OnAccessCheck(user,NULL,Ptr,AC_GENERAL_MODE));
+				
+				if (MOD_RESULT == ACR_DENY)
+					return;
+				if (MOD_RESULT == ACR_DEFAULT)
+				{
+					if ((cstatus(user,Ptr) < STATUS_HOP) && (IS_LOCAL(user)))
+					{
+						WriteServ(user->fd,"482 %s %s :You must be at least a half-operator to change modes on this channel",user->nick, Ptr->name);
+						return;
+					}
+				}
+	
+				ServerInstance->ModeGrok->ProcessModes(parameters,user,Ptr,cstatus(user,Ptr),pcnt,false,false,false);
+			}
+		}
+		else
+		{
+			WriteServ(user->fd,"401 %s %s :No such nick/channel",user->nick, parameters[0]);
+		}
 	}
 }
 
@@ -1387,19 +1379,11 @@ void cmd_mode::Handle (char **parameters, int pcnt, userrec *user)
 void ModeParser::ServerMode(char **parameters, int pcnt, userrec *user)
 {
 	chanrec* Ptr;
-	userrec* dest;
+	userrec* dest = Find(parameters[0]);
 	int can_change;
 	int direction = 1;
 	char outpars[MAXBUF];
 	bool next_ok = true;
-
-	dest = Find(parameters[0]);
-	
-	// fix: ChroNiCk found this - we cant use this as debug if its null!
-	if (dest)
-	{
-		log(DEBUG,"server_mode on %s",dest->nick);
-	}
 
 	if ((dest) && (pcnt > 1))
 	{
@@ -1418,65 +1402,66 @@ void ModeParser::ServerMode(char **parameters, int pcnt, userrec *user)
 
 		for (char* i = parameters[1]; *i; i++)
 		{
-                        if (*i == ' ')
-                                continue;
-
 			if ((i != parameters[1]) && (*i != '+') && (*i != '-'))
 				next_ok = true;
 
-			if (*i == '+')
+			switch (*i)
 			{
-				if ((direction != 1) && (next_ok))
-				{
-					next_ok = false;
-					charlcat(outpars,'+',MAXBUF);
-				}
-				direction = 1;
-			}
-			else
-			if (*i == '-')
-			{
-				if ((direction != 0) && (next_ok))
-				{
-					next_ok = false;
-					charlcat(outpars,'-',MAXBUF);
-				}
-				direction = 0;
-			}
-			else
-			{
-				log(DEBUG,"begin mode processing entry");
-				can_change = 1;
-				if (can_change)
-				{
-					if (direction == 1)
+                        	case ' ':
+                                continue;
+
+				case '+':
+					if ((direction != 1) && (next_ok))
 					{
-						log(DEBUG,"umode %c being added",*i);
-						if ((!strchr(dmodes,*i)) && (ServerInstance->ModeGrok->AllowedUmode(*i,user->modes,true,true)))
+						next_ok = false;
+						charlcat(outpars,'+',MAXBUF);
+					}
+					direction = 1;
+				break;
+
+				case '-':
+					if ((direction != 0) && (next_ok))
+					{
+						next_ok = false;
+						charlcat(outpars,'-',MAXBUF);
+					}
+					direction = 0;
+				break;
+
+				default:
+					log(DEBUG,"begin mode processing entry");
+					can_change = 1;
+					if (can_change)
+					{
+						if (direction == 1)
 						{
-							log(DEBUG,"umode %c is an allowed umode",*i);
-							if ((ServerInstance->ModeGrok->ProcessModuleUmode(*i, user, dest, direction)) || (*i == 'i') || (*i == 's') || (*i == 'w') || (*i == 'o'))
+							log(DEBUG,"umode %c being added",*i);
+							if ((!strchr(dmodes,*i)) && (ServerInstance->ModeGrok->AllowedUmode(*i,user->modes,true,true)))
 							{
-								charlcat(dmodes,*i,MAXMODES);
-								charlcat(outpars,*i,MAXMODES);
+								log(DEBUG,"umode %c is an allowed umode",*i);
+								if ((*i == 'i') || (*i == 's') || (*i == 'w') || (*i == 'o') || (ServerInstance->ModeGrok->ProcessModuleUmode(*i, user, dest, direction)))
+								{
+									charlcat(dmodes,*i,MAXBUF);
+									charlcat(outpars,*i,53);
+								}
+							}
+						}
+						else
+						{
+							// can only remove a mode they already have
+							log(DEBUG,"umode %c being removed",*i);
+							if ((ServerInstance->ModeGrok->AllowedUmode(*i,user->modes,false,true)) && (strchr(dmodes,*i)))
+							{
+								log(DEBUG,"umode %c is an allowed umode",*i);
+								if ((*i == 'i') || (*i == 's') || (*i == 'w') || (*i == 'o') || (ServerInstance->ModeGrok->ProcessModuleUmode(*i, user, dest, direction)))
+								{
+									charlcat(outpars,*i,MAXBUF);
+									charremove(dmodes,*i);
+								}
 							}
 						}
 					}
-					else
-					{
-						// can only remove a mode they already have
-						log(DEBUG,"umode %c being removed",*i);
-						if ((ServerInstance->ModeGrok->AllowedUmode(*i,user->modes,false,true)) && (strchr(dmodes,*i)))
-						{
-							log(DEBUG,"umode %c is an allowed umode",*i);
-							if ((ServerInstance->ModeGrok->ProcessModuleUmode(*i, user, dest, direction)) || (*i == 'i') || (*i == 's') || (*i == 'w') || (*i == 'o'))
-							{
-								charlcat(outpars,*i,MAXMODES);
-								charremove(dmodes,*i);
-							}
-						}
-					}
-				}
+				break;
 			}
 		}
                 if (*outpars)
