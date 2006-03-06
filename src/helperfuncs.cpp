@@ -161,7 +161,7 @@ void Write_NoFormat(int sock, const char *text)
 			}
 			catch (ModuleException& modexcept)
 			{
-				log(DEBUG,"Module exception cought: %s",modexcept.GetReason()); \
+				log(DEBUG,"Module exception caught: %s",modexcept.GetReason());
 			}
 		}
 		else
