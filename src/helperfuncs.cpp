@@ -67,7 +67,12 @@ extern std::vector<userrec*> local_users;
 static char TIMESTR[26];
 static time_t LAST = 0;
 
-void log(int level,char *text, ...)
+/** Writes information about events to a file.
+ * log()
+ *  Write a line of text `text' to the logfile (and stdout, if in nofork) if the level `level'
+ *  is greater than the configured loglevel.
+ */
+void log(int level, char *text, ...)
 {
         va_list argsPtr;
 
@@ -100,6 +105,12 @@ void log(int level,char *text, ...)
         }
 }
 
+/**
+ * readfile()
+ *  Read the contents of a file located by `fname' into a file_cache pointed at by `F'.
+ *
+ *  XXX - we may want to consider returning a file_cache or pointer to one, less confusing.
+ */
 void readfile(file_cache &F, const char* fname)
 {
         FILE* file;
