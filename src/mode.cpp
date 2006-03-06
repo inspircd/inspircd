@@ -1188,7 +1188,7 @@ void cmd_mode::Handle (char **parameters, int pcnt, userrec *user)
 			if ((i != parameters[1]) && (*i != '+') && (*i != '-'))
 				next_ok = true;
 
-			case (*i)
+			switch (*i)
 			{
 				case ' ':
 				continue;
