@@ -88,5 +88,6 @@ int InsertMode(std::string &output, const char* modes, unsigned short section);
 bool IsValidChannelName(const char *);
 
 int charlcat(char* x,char y,int z);
+bool charremove(char* mp, char remove);
 
 #endif

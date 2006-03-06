@@ -572,9 +572,10 @@ void ModeParser::ProcessModes(char **parameters,userrec* user,chanrec *chan,int 
 	strlcpy(modelist,parameters[1],MAXBUF); /* mode list, e.g. +oo-o *
 						 * parameters[2] onwards are parameters for
 					 	 * modes that require them :) */
-	*outlist = '+';
-	*(outlist+1) = 0;
-	mdir = 1;
+	*outlist = *modelist;
+	char* outl = outlist+1;
+
+	mdir = (*modelist == '+');
 
 	log(DEBUG,"process_modes: modelist: %s",modelist);
 
@@ -588,7 +589,7 @@ void ModeParser::ProcessModes(char **parameters,userrec* user,chanrec *chan,int 
 	bool next_cant_be_modifier = false;
 	char* modechar;
 
-	for (modechar = modelist; *modechar; ptr++, modechar++)
+	for (modechar = (modelist + 1); *modechar; ptr++, modechar++)
 	{
 		r = NULL;
 
@@ -598,53 +599,22 @@ void ModeParser::ProcessModes(char **parameters,userrec* user,chanrec *chan,int 
 		if (pc > MAXMODES-1)
 			break;
 
-		if ((*modechar != '+') && (*modechar != '-'))
-			next_cant_be_modifier = false;
-
-		if (((*modechar == '+') || (*modechar == '-')) && ((*(modechar+1) == 0) || (*(modechar+1) == '+') || (*(modechar+1) == '-')))
-			next_cant_be_modifier = true;
+		log(DEBUG,"Mode %c",*modechar);
 
 		{
 			switch (*modechar)
 			{
 				case '-':
-					if (!next_cant_be_modifier)
-					{
-						if (mdir != 0)
-						{
-							int t = strlen(outlist)-1;
-							if ((outlist[t] == '+') || (outlist[t] == '-'))
-							{
-								outlist[t] = '-';
-							}
-							else
-							{
-								charlcat(outlist,'-',MAXBUF);
-							}
-						}
-						mdir = 0;
-						next_cant_be_modifier = true;
-					}
+					*outl++ = '-';
+					mdir = 0;
+					next_cant_be_modifier = true;
+					
 				break;			
 
 				case '+':
-					if (!next_cant_be_modifier)
-					{
-						if (mdir != 1)
-						{
-							int t = strlen(outlist)-1;
-							if ((outlist[t] == '+') || (outlist[t] == '-'))
-							{
-								outlist[t] = '+';
-							}
-							else
-							{
-								charlcat(outlist,'+',MAXBUF);
-							}
-						}
-						mdir = 1;
-						next_cant_be_modifier = true;
-					}
+					*outl++ = '+';
+					mdir = 1;
+					next_cant_be_modifier = true;
 				break;
 
 				case 'o':
@@ -676,7 +646,7 @@ void ModeParser::ProcessModes(char **parameters,userrec* user,chanrec *chan,int 
 					}
 					if (r)
 					{
-						charlcat(outlist,'o',MAXBUF);
+						*outl++ = 'o';
 						strlcpy(outpars[pc++],r,MAXBUF);
 					}
 				break;
@@ -706,7 +676,7 @@ void ModeParser::ProcessModes(char **parameters,userrec* user,chanrec *chan,int 
 					}
 					if (r)
 					{
-						charlcat(outlist,'h',MAXBUF);
+						*outl++ = 'h';
 						strlcpy(outpars[pc++],r,MAXBUF);
 					}
 				break;
@@ -737,7 +707,7 @@ void ModeParser::ProcessModes(char **parameters,userrec* user,chanrec *chan,int 
 					}
 					if (r)
 					{
-						charlcat(outlist,'v',MAXBUF);
+						*outl++ = 'v';
 						strlcpy(outpars[pc++],r,MAXBUF);
 					}
 				break;
@@ -767,7 +737,7 @@ void ModeParser::ProcessModes(char **parameters,userrec* user,chanrec *chan,int 
 					}
 					if (r)
 					{
-						charlcat(outlist,'b',MAXBUF);
+						*outl++ = 'b';
 						strlcpy(outpars[pc++],parameters[param-1],MAXBUF);
 					}
 				break;
@@ -792,7 +762,7 @@ void ModeParser::ProcessModes(char **parameters,userrec* user,chanrec *chan,int 
 							FOREACH_RESULT(I_OnRawMode,OnRawMode(user, chan, 'k', parameters[param], true, 1));
 							if (!MOD_RESULT)
 							{
-								charlcat(outlist,'k',MAXBUF);
+								*outl++ = 'k';
 								char key[MAXBUF];
 								strlcpy(key,parameters[param++],32);
 								strlcpy(outpars[pc++],key,MAXBUF);
@@ -819,7 +789,7 @@ void ModeParser::ProcessModes(char **parameters,userrec* user,chanrec *chan,int 
 							/* only allow -k if correct key given */
 							if (!strcmp(chan->key,key))
 							{
-								charlcat(outlist,'k',MAXBUF);
+								*outl++ = 'k';
 								*chan->key = 0;
 								strlcpy(outpars[pc++],key,MAXBUF);
 							}
@@ -840,7 +810,7 @@ void ModeParser::ProcessModes(char **parameters,userrec* user,chanrec *chan,int 
                                                 {
 							if (chan->limit)
 							{
-								charlcat(outlist,'l',MAXBUF);
+								*outl++ = 'l';
 								chan->limit = 0;
 							}
 						}
@@ -885,7 +855,7 @@ void ModeParser::ProcessModes(char **parameters,userrec* user,chanrec *chan,int 
 							
 						if (chan->limit)
 						{
-							charlcat(outlist,'l',MAXBUF);
+							*outl++ = 'l';
 							strlcpy(outpars[pc++],parameters[param++],MAXBUF);
 							l_set = true;
 						}
@@ -899,12 +869,12 @@ void ModeParser::ProcessModes(char **parameters,userrec* user,chanrec *chan,int 
                                         {
 						if (mdir)
 						{
-							if (!(chan->binarymodes & CM_INVITEONLY)) charlcat(outlist,'i',MAXBUF);
+							if (!(chan->binarymodes & CM_INVITEONLY)) *outl++ = 'i';
 							chan->binarymodes |= CM_INVITEONLY;
 						}
 						else
 						{
-							if (chan->binarymodes & CM_INVITEONLY) charlcat(outlist,'i',MAXBUF);
+							if (chan->binarymodes & CM_INVITEONLY) *outl++ = 'i';
 							chan->binarymodes &= ~CM_INVITEONLY;
 						}
 					}
@@ -917,12 +887,12 @@ void ModeParser::ProcessModes(char **parameters,userrec* user,chanrec *chan,int 
                                         {
 						if (mdir)
                                                 {
-							if (!(chan->binarymodes & CM_TOPICLOCK)) charlcat(outlist,'t',MAXBUF);
+							if (!(chan->binarymodes & CM_TOPICLOCK)) *outl++ = 't';
                                                         chan->binarymodes |= CM_TOPICLOCK;
                                                 }
                                                 else
                                                 {
-							if (chan->binarymodes & CM_TOPICLOCK) charlcat(outlist,'t',MAXBUF);
+							if (chan->binarymodes & CM_TOPICLOCK) *outl++ = 't';
                                                         chan->binarymodes &= ~CM_TOPICLOCK;
                                                 }
 					}
@@ -935,12 +905,12 @@ void ModeParser::ProcessModes(char **parameters,userrec* user,chanrec *chan,int 
                                         {
                                                 if (mdir)
                                                 {
-							if (!(chan->binarymodes & CM_NOEXTERNAL)) charlcat(outlist,'n',MAXBUF);
+							if (!(chan->binarymodes & CM_NOEXTERNAL)) *outl++ = 'n';
                                                         chan->binarymodes |= CM_NOEXTERNAL;
                                                 }
                                                 else
                                                 {
-							if (chan->binarymodes & CM_NOEXTERNAL) charlcat(outlist,'n',MAXBUF);
+							if (chan->binarymodes & CM_NOEXTERNAL) *outl++ = 'n';
                                                         chan->binarymodes &= ~CM_NOEXTERNAL;
                                                 }
 					}
@@ -953,12 +923,12 @@ void ModeParser::ProcessModes(char **parameters,userrec* user,chanrec *chan,int 
                                         {
                                                 if (mdir)
                                                 {
-                                                        if (!(chan->binarymodes & CM_MODERATED)) charlcat(outlist,'m',MAXBUF);
+                                                        if (!(chan->binarymodes & CM_MODERATED)) *outl++ = 'm';
                                                         chan->binarymodes |= CM_MODERATED;
                                                 }
                                                 else
                                                 {
-                                                        if (chan->binarymodes & CM_MODERATED) charlcat(outlist,'m',MAXBUF);
+                                                        if (chan->binarymodes & CM_MODERATED) *outl++ = 'm';
                                                         chan->binarymodes &= ~CM_MODERATED;
                                                 }
 					}
@@ -971,20 +941,20 @@ void ModeParser::ProcessModes(char **parameters,userrec* user,chanrec *chan,int 
                                         {
                                                 if (mdir)
                                                 {
-                                                        if (!(chan->binarymodes & CM_SECRET)) charlcat(outlist,'s',MAXBUF);
+                                                        if (!(chan->binarymodes & CM_SECRET)) *outl++ = 's';
                                                         chan->binarymodes |= CM_SECRET;
                                                         if (chan->binarymodes & CM_PRIVATE)
                                                         {
                                                                 chan->binarymodes &= ~CM_PRIVATE;
                                                                 if (mdir)
                                                                 {
-                                                                        strlcat(outlist,"-p+",MAXBUF);
+									*outl++ = '-'; *outl++ = 'p'; *outl++ = '+';
                                                                 }
                                                         }
                                                 }
                                                 else
                                                 {
-                                                        if (chan->binarymodes & CM_SECRET) charlcat(outlist,'s',MAXBUF);
+                                                        if (chan->binarymodes & CM_SECRET) *outl++ = 's';
                                                         chan->binarymodes &= ~CM_SECRET;
                                                 }
 					}
@@ -997,20 +967,20 @@ void ModeParser::ProcessModes(char **parameters,userrec* user,chanrec *chan,int 
                                         {
                                                 if (mdir)
                                                 {
-                                                        if (!(chan->binarymodes & CM_PRIVATE)) charlcat(outlist,'p',MAXBUF);
+                                                        if (!(chan->binarymodes & CM_PRIVATE)) *outl++ = 'p';
                                                         chan->binarymodes |= CM_PRIVATE;
                                                         if (chan->binarymodes & CM_SECRET)
                                                         {
                                                                 chan->binarymodes &= ~CM_SECRET;
                                                                 if (mdir)
                                                                 {
-                                                                        strlcat(outlist,"-s+",MAXBUF);
+									*outl++ = '-'; *outl++ = 's'; *outl++ = '+';
                                                                 }
                                                         }
                                                 }
                                                 else
                                                 {
-                                                        if (chan->binarymodes & CM_PRIVATE) charlcat(outlist,'p',MAXBUF);
+                                                        if (chan->binarymodes & CM_PRIVATE) *outl++ = 'p';
                                                         chan->binarymodes &= ~CM_PRIVATE;
                                                 }
 					}
@@ -1082,32 +1052,28 @@ void ModeParser::ProcessModes(char **parameters,userrec* user,chanrec *chan,int 
 											}
 											else
 											{
-												if (ptr>0)
+												if (param < pcnt)
 												{
-													charlcat(outlist,*modechar,MAXBUF);
+													*outl++ = *modechar;
 												}
 												strlcpy(outpars[pc++],parameters[param++],MAXBUF);
 											}
 										}
 										else
 										{
-											if (ptr>0)
+											if (param < pcnt)
 											{
-												if ((modelist[ptr-1] == '+') || (modelist[ptr-1] == '-'))
+												/* Null terminate it early for the 'else' below
+												 * so it can use strchr (ugh)
+												 */
+												*outl++ = *modechar;
+												chan->SetCustomMode(*modechar,mdir);
+												// include parameters in output if mode has them
+												if ((ModeDefinedOn(*modechar,MT_CHANNEL)>0) && (mdir))
 												{
-													charlcat(outlist,*modechar,MAXBUF);
+													chan->SetCustomModeParam(modelist[ptr],parameters[param],mdir);
+													strlcpy(outpars[pc++],parameters[param++],MAXBUF);
 												}
-												else if (!strchr(outlist,*modechar))
-												{
-													charlcat(outlist,*modechar,MAXBUF);
-												}
-											}
-											chan->SetCustomMode(*modechar,mdir);
-											// include parameters in output if mode has them
-											if ((ModeDefinedOn(*modechar,MT_CHANNEL)>0) && (mdir))
-											{
-												chan->SetCustomModeParam(modelist[ptr],parameters[param],mdir);
-												strlcpy(outpars[pc++],parameters[param++],MAXBUF);
 											}
 										}
 										// break, because only one module can handle the mode.
@@ -1127,17 +1093,30 @@ void ModeParser::ProcessModes(char **parameters,userrec* user,chanrec *chan,int 
 		}
 	}
 
-	/* This means the mode line is something like: "+o-", we have to take the last char off. */
-	char* x = outlist + strlen(outlist) - 1;
-	while (((*x == '-') || (*x == '+')) && (x != outlist))
+	/* Null terminate it now we're done */
+	*outl = 0;
+
+	outl = outlist;
+	while (*outl && (*outl < 'A'))
+		outl++;
+	/* outl now points to the first mode character after +'s and -'s */
+	outl--;
+	/* Now points at first mode-modifier + or - symbol */
+
+	char* trim = outl;
+	/* Now we tidy off any trailing -'s etc */
+	while (*trim++);
+	trim--;
+	while ((*--trim == '+') || (*trim == '-'))
 	{
-		log(DEBUG,"Cut off trailing modifier");
-		*x-- = 0;
+		log(DEBUG,"Removed trailing modifier");
+		*trim = 0;
 	}
+	
 	/* The mode change must be at least two characters long (+ or - and at least one mode) */
-	if (((*outlist == '+') || (*outlist == '-')) && *(outlist+1))
+	if (((*outl == '+') || (*outl == '-')) && *(outl+1))
 	{
-		strlcpy(outstr,outlist,MAXBUF);
+		strlcpy(outstr,outl,MAXBUF);
 		for (ptr = 0; ptr < pc; ptr++)
 		{
 			charlcat(outstr,' ',MAXBUF);
@@ -1276,6 +1255,7 @@ void cmd_mode::Handle (char **parameters, int pcnt, userrec *user)
 	int can_change;
 	int direction = 1;
 	char outpars[MAXBUF];
+	bool next_ok = true;
 
 	dest = Find(parameters[0]);
 
@@ -1296,7 +1276,7 @@ void cmd_mode::Handle (char **parameters, int pcnt, userrec *user)
 		parameters[1] = (char*)tidied.c_str();
 
 		char dmodes[MAXBUF];
-		strlcpy(dmodes,dest->modes,52);
+		strlcpy(dmodes,dest->modes,MAXMODES);
 		log(DEBUG,"pulled up dest user modes: %s",dmodes);
 
 		can_change = 0;
@@ -1317,47 +1297,37 @@ void cmd_mode::Handle (char **parameters, int pcnt, userrec *user)
 			return;
 		}
 		
-		outpars[0] = '+';
+		outpars[0] = *parameters[1];
 		outpars[1] = 0;
-		direction = 1;
+		direction = (*parameters[1] == '+');
 
-		if ((parameters[1][0] != '+') && (parameters[1][0] != '-'))
+		if ((*parameters[1] != '+') && (*parameters[1] != '-'))
 			return;
 
-		for (unsigned int i = 0; i < strlen(parameters[1]); i++)
+		for (char* i = parameters[1]; *i; i++)
 		{
-			if (parameters[1][i] == ' ')
+			if (*i == ' ')
 				continue;
-			if (parameters[1][i] == '+')
+
+			if ((i != parameters[1]) && (*i != '+') && (*i != '-'))
+				next_ok = true;
+
+			if (*i == '+')
 			{
-				if (direction != 1)
+				if ((direction != 1) && (next_ok))
 				{
-					int t = strlen(outpars)-1;
-					if ((outpars[t] == '+') || (outpars[t] == '-'))
-					{
-						outpars[t] = '+';
-					}
-					else
-					{
-						charlcat(outpars,'+',MAXBUF);
-					}
-				}
+					charlcat(outpars,'+',MAXBUF);
+					next_ok = false;
+				}	
 				direction = 1;
 			}
 			else
-			if (parameters[1][i] == '-')
+			if (*i == '-')
 			{
-				if (direction != 0)
+				if ((direction != 0) && (next_ok))
 				{
-					int t = strlen(outpars)-1;
-					if ((outpars[t] == '+') || (outpars[t] == '-'))
-					{
-						outpars[t] = '-';
-					}
-					else
-					{
-						charlcat(outpars,'-',MAXBUF);
-					}
+					charlcat(outpars,'-',MAXBUF);
+					next_ok = false;
 				}
 				direction = 0;
 			}
@@ -1370,7 +1340,7 @@ void cmd_mode::Handle (char **parameters, int pcnt, userrec *user)
 				}
 				else
 				{
-					if ((parameters[1][i] == 'i') || (parameters[1][i] == 'w') || (parameters[1][i] == 's') || (ServerInstance->ModeGrok->AllowedUmode(parameters[1][i],user->modes,direction,false)))
+					if ((*i == 'i') || (*i == 'w') || (*i == 's') || (ServerInstance->ModeGrok->AllowedUmode(*i,user->modes,direction,false)))
 					{
 						can_change = 1;
 					}
@@ -1379,18 +1349,13 @@ void cmd_mode::Handle (char **parameters, int pcnt, userrec *user)
 				{
 					if (direction == 1)
 					{
-						if ((!strchr(dmodes,parameters[1][i])) && (ServerInstance->ModeGrok->AllowedUmode(parameters[1][i],user->modes,true,false)))
+						if ((!strchr(dmodes,*i)) && (ServerInstance->ModeGrok->AllowedUmode(*i,user->modes,true,false)))
 						{
-							char umode = parameters[1][i];
-							if ((ServerInstance->ModeGrok->ProcessModuleUmode(umode, user, dest, direction)) || (umode == 'i') || (umode == 's') || (umode == 'w') || (umode == 'o'))
+							if ((ServerInstance->ModeGrok->ProcessModuleUmode(*i, user, dest, direction)) || (*i == 'i') || (*i == 's') || (*i == 'w') || (*i == 'o'))
 							{
-								int q = strlen(dmodes);
-								int r = strlen(outpars);
-								dmodes[q+1]='\0';
-								dmodes[q] = parameters[1][i];
-								outpars[r+1]='\0';
-								outpars[r] = parameters[1][i];
-								if (parameters[1][i] == 'o')
+								charlcat(dmodes,*i,MAXMODES);
+								charlcat(outpars,*i,MAXMODES);
+								if (*i == 'o')
 								{
 									FOREACH_MOD(I_OnGlobalOper,OnGlobalOper(dest));
 								}
@@ -1399,29 +1364,13 @@ void cmd_mode::Handle (char **parameters, int pcnt, userrec *user)
 					}
 					else
 					{
-						if ((ServerInstance->ModeGrok->AllowedUmode(parameters[1][i],user->modes,false,false)) && (strchr(dmodes,parameters[1][i])))
+						if ((ServerInstance->ModeGrok->AllowedUmode(*i,user->modes,false,false)) && (strchr(dmodes,*i)))
 						{
-							char umode = parameters[1][i];
-							if ((ServerInstance->ModeGrok->ProcessModuleUmode(umode, user, dest, direction)) || (umode == 'i') || (umode == 's') || (umode == 'w') || (umode == 'o'))
+							if ((ServerInstance->ModeGrok->ProcessModuleUmode(*i, user, dest, direction)) || (*i == 'i') || (*i == 's') || (*i == 'w') || (*i == 'o'))
 							{
-								unsigned int q = 0;
-								char temp[MAXBUF];
-
-								unsigned int r = strlen(outpars);
-								outpars[r+1]='\0';
-								outpars[r] = parameters[1][i];
-							
-								*temp = 0;
-								for (q = 0; q < strlen(dmodes); q++)
-								{
-									if (dmodes[q] != parameters[1][i])
-									{
-										charlcat(temp,dmodes[q],MAXBUF);
-									}
-								}
-								strlcpy(dmodes,temp,52);
-
-								if (umode == 'o')
+								charlcat(outpars,*i,MAXMODES);
+								charremove(dmodes,*i);
+								if (*i == 'o')
 								{
 									*dest->oper = 0;
 									DeleteOper(dest);
@@ -1432,54 +1381,41 @@ void cmd_mode::Handle (char **parameters, int pcnt, userrec *user)
 				}
 			}
 		}
-		if (outpars[0])
+		if (*outpars)
 		{
 			char b[MAXBUF];
-			*b = 0;
-			unsigned int z = 0;
-			unsigned int i = 0;
-			while (i < strlen (outpars))
+			char* z = b;
+
+			for (char* i = outpars; *i;)
 			{
-				b[z++] = outpars[i++];
-				b[z] = '\0';
-				if (i<strlen(outpars)-1)
+				*z++ = *i++;
+				if (((*i == '-') || (*i == '+')) && ((*(i+1) == '-') || (*(i+1) == '+')))
 				{
-					if (((outpars[i] == '-') || (outpars[i] == '+')) && ((outpars[i+1] == '-') || (outpars[i+1] == '+')))
-					{
-						// someones playing silly buggers and trying
-						// to put a +- or -+ into the line...
-						i++;
-					}
+					// someones playing silly buggers and trying
+					// to put a +- or -+ into the line...
+					i++;
 				}
-				if (i == strlen(outpars)-1)
+				if (!*(i+1))
 				{
-					if ((outpars[i] == '-') || (outpars[i] == '+'))
+					// Someone's trying to make the last character in
+					// the line be a + or - symbol.
+					if ((*i == '-') || (*i == '+'))
 					{
 						i++;
 					}
 				}
 			}
+			*z = 0;
 
-			z = strlen(b)-1;
-			if ((b[z] == '-') || (b[z] == '+'))
-				b[z] = '\0';
-
-			if ((!*b) || (IS_SINGLE(b,'+')) || (IS_SINGLE(b,'-')))
-				return;
-
-			if (*b)
+			if ((*b) && (!IS_SINGLE(b,'+')) && (!IS_SINGLE(b,'-')))
 			{
 				WriteTo(user, dest, "MODE %s :%s", dest->nick, b);
 				FOREACH_MOD(I_OnMode,OnMode(user, dest, TYPE_USER, b));
 			}
 
-			if (strlen(dmodes)>MAXMODES)
-			{
-				dmodes[MAXMODES-1] = '\0';
-			}
 			log(DEBUG,"Stripped mode line");
 			log(DEBUG,"Line dest is now %s",dmodes);
-			strlcpy(dest->modes,dmodes,52);
+			strlcpy(dest->modes,dmodes,MAXMODES-1);
 
 		}
 
@@ -1567,6 +1503,7 @@ void ModeParser::ServerMode(char **parameters, int pcnt, userrec *user)
 	int can_change;
 	int direction = 1;
 	char outpars[MAXBUF];
+	bool next_ok = true;
 
 	dest = Find(parameters[0]);
 	
@@ -1582,49 +1519,39 @@ void ModeParser::ServerMode(char **parameters, int pcnt, userrec *user)
                 parameters[1] = (char*)tidied.c_str();
 
 		char dmodes[MAXBUF];
-		strlcpy(dmodes,dest->modes,52);
+		strlcpy(dmodes,dest->modes,MAXBUF);
 
-		outpars[0] = '+';
+		outpars[0] = *parameters[1];
 		outpars[1] = 0;
-		direction = 1;
+		direction = (*parameters[1] == '+');
 
-		if ((parameters[1][0] != '+') && (parameters[1][0] != '-'))
+		if ((*parameters[1] != '+') && (*parameters[1] != '-'))
 			return;
 
-		for (unsigned int i = 0; i < strlen(parameters[1]); i++)
+		for (char* i = parameters[1]; *i; i++)
 		{
-                        if (parameters[1][i] == ' ')
+                        if (*i == ' ')
                                 continue;
-			if (parameters[1][i] == '+')
+
+			if ((i != parameters[1]) && (*i != '+') && (*i != '-'))
+				next_ok = true;
+
+			if (*i == '+')
 			{
-				if (direction != 1)
+				if ((direction != 1) && (next_ok))
 				{
-					int t = strlen(outpars)-1;
-					if ((outpars[t] == '+') || (outpars[t] == '-'))
-					{
-						outpars[t] = '+';
-					}
-					else
-					{
-						charlcat(outpars,'+',MAXBUF);
-					}
+					next_ok = false;
+					charlcat(outpars,'+',MAXBUF);
 				}
 				direction = 1;
 			}
 			else
-			if (parameters[1][i] == '-')
+			if (*i == '-')
 			{
-				if (direction != 0)
+				if ((direction != 0) && (next_ok))
 				{
-					int t = strlen(outpars)-1;
-					if ((outpars[t] == '+') || (outpars[t] == '-'))
-					{
-						outpars[t] = '-';
-					}
-					else
-					{
-						charlcat(outpars,'-',MAXBUF);
-					}
+					next_ok = false;
+					charlcat(outpars,'-',MAXBUF);
 				}
 				direction = 0;
 			}
@@ -1636,103 +1563,71 @@ void ModeParser::ServerMode(char **parameters, int pcnt, userrec *user)
 				{
 					if (direction == 1)
 					{
-						log(DEBUG,"umode %c being added",parameters[1][i]);
-						if ((!strchr(dmodes,parameters[1][i])) && (ServerInstance->ModeGrok->AllowedUmode(parameters[1][i],user->modes,true,true)))
+						log(DEBUG,"umode %c being added",*i);
+						if ((!strchr(dmodes,*i)) && (ServerInstance->ModeGrok->AllowedUmode(*i,user->modes,true,true)))
 						{
-							char umode = parameters[1][i];
-							log(DEBUG,"umode %c is an allowed umode",umode);
-							if ((ServerInstance->ModeGrok->ProcessModuleUmode(umode, user, dest, direction)) || (umode == 'i') || (umode == 's') || (umode == 'w') || (umode == 'o'))
+							log(DEBUG,"umode %c is an allowed umode",*i);
+							if ((ServerInstance->ModeGrok->ProcessModuleUmode(*i, user, dest, direction)) || (*i == 'i') || (*i == 's') || (*i == 'w') || (*i == 'o'))
 							{
-								int v1 = strlen(dmodes);
-								int v2 = strlen(outpars);
-								dmodes[v1+1]='\0';
-								dmodes[v1] = parameters[1][i];
-								outpars[v2+1]='\0';
-								outpars[v2] = parameters[1][i];
+								charlcat(dmodes,*i,MAXMODES);
+								charlcat(outpars,*i,MAXMODES);
 							}
 						}
 					}
 					else
 					{
 						// can only remove a mode they already have
-						log(DEBUG,"umode %c being removed",parameters[1][i]);
-						if ((ServerInstance->ModeGrok->AllowedUmode(parameters[1][i],user->modes,false,true)) && (strchr(dmodes,parameters[1][i])))
+						log(DEBUG,"umode %c being removed",*i);
+						if ((ServerInstance->ModeGrok->AllowedUmode(*i,user->modes,false,true)) && (strchr(dmodes,*i)))
 						{
-							char umode = parameters[1][i];
-							log(DEBUG,"umode %c is an allowed umode",umode);
-							if ((ServerInstance->ModeGrok->ProcessModuleUmode(umode, user, dest, direction)) || (umode == 'i') || (umode == 's') || (umode == 'w') || (umode == 'o'))
+							log(DEBUG,"umode %c is an allowed umode",*i);
+							if ((ServerInstance->ModeGrok->ProcessModuleUmode(*i, user, dest, direction)) || (*i == 'i') || (*i == 's') || (*i == 'w') || (*i == 'o'))
 							{
-								unsigned int q = 0;
-								char temp[MAXBUF];
-
-								unsigned int v1 = strlen(outpars);
-								outpars[v1+1]='\0';
-								outpars[v1] = parameters[1][i];
-								*temp = 0;
-								for (q = 0; q < strlen(dmodes); q++)
-								{
-									if (dmodes[q] != parameters[1][i])
-									{
-										charlcat(temp,dmodes[q],MAXBUF);
-									}
-								}
-								strlcpy(dmodes,temp,52);
+								charlcat(outpars,*i,MAXMODES);
+								charremove(dmodes,*i);
 							}
 						}
 					}
 				}
 			}
 		}
-		if (outpars[0])
-		{
-			char b[MAXBUF];
-			*b = 0;
-			unsigned int z = 0;
-			unsigned int i = 0;
-			while (i < strlen (outpars))
-			{
-				b[z++] = outpars[i++];
-				b[z] = '\0';
-				if (i<strlen(outpars)-1)
-				{
-					if (((outpars[i] == '-') || (outpars[i] == '+')) && ((outpars[i+1] == '-') || (outpars[i+1] == '+')))
-					{
-						// someones playing silly buggers and trying
-						// to put a +- or -+ into the line...
-						i++;
-					}
-				}
-				if (i == strlen(outpars)-1)
-				{
-					if ((outpars[i] == '-') || (outpars[i] == '+'))
-					{
-						i++;
-					}
-				}
-			}
+                if (*outpars)
+                {
+                        char b[MAXBUF];
+                        char* z = b;
 
-			z = strlen(b)-1;
-			if ((b[z] == '-') || (b[z] == '+'))
-				b[z] = '\0';
+                        for (char* i = outpars; *i;)
+                        {
+                                *z++ = *i++;
+                                if (((*i == '-') || (*i == '+')) && ((*(i+1) == '-') || (*(i+1) == '+')))
+                                {
+                                        // someones playing silly buggers and trying
+                                        // to put a +- or -+ into the line...
+                                        i++;
+                                }
+                                if (!*(i+1))
+                                {
+                                        // Someone's trying to make the last character in
+                                        // the line be a + or - symbol.
+                                        if ((*i == '-') || (*i == '+'))
+                                        {
+                                                i++;
+                                        }
+                                }
+                        }
+                        *z = 0;
 
-			if ((!*b) || (IS_SINGLE(b,'+')) || (IS_SINGLE(b,'-')))
-				return;
+                        if ((*b) && (!IS_SINGLE(b,'+')) && (!IS_SINGLE(b,'-')))
+                        {
+                                WriteTo(user, dest, "MODE %s :%s", dest->nick, b);
+                                FOREACH_MOD(I_OnMode,OnMode(user, dest, TYPE_USER, b));
+                        }
 
-			if (*b)
-			{
-				WriteTo(user, dest, "MODE %s :%s", dest->nick, b);
-				FOREACH_MOD(I_OnMode,OnMode(user, dest, TYPE_USER, b));
-			}
-			
-			if (strlen(dmodes)>MAXMODES)
-			{
-				dmodes[MAXMODES-1] = '\0';
-			}
-			log(DEBUG,"Stripped mode line");
-			log(DEBUG,"Line dest is now %s",dmodes);
-			strlcpy(dest->modes,dmodes,MAXMODES);
-
-		}
+                        log(DEBUG,"Stripped mode line");
+                        log(DEBUG,"Line dest is now %s",dmodes);
+                        strlcpy(dest->modes,dmodes,MAXMODES-1);
+                                         
+                }
 
 		return;
 	}

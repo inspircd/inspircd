@@ -1591,3 +1591,18 @@ inline int charlcat(char* x,char y,int z)
 	return v;
 }
 
+bool charremove(char* mp, char remove)
+{
+	char* mptr = mp;
+        bool shift_down = false;
+        while (*mptr)
+        {
+                if (*mptr == remove)
+                        shift_down = true;
+                if (shift_down)
+                        *mptr = *(mptr+1);
+                *mptr++;
+        }
+	return shift_down;
+}
+
