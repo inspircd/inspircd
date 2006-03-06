@@ -1061,9 +1061,6 @@ void ModeParser::ProcessModes(char **parameters,userrec* user,chanrec *chan,int 
 										{
 											if (param < pcnt)
 											{
-												/* Null terminate it early for the 'else' below
-												 * so it can use strchr (ugh)
-												 */
 												*outl++ = *modechar;
 												chan->SetCustomMode(*modechar,mdir);
 												// include parameters in output if mode has them
@@ -1094,27 +1091,30 @@ void ModeParser::ProcessModes(char **parameters,userrec* user,chanrec *chan,int 
 	/* Null terminate it now we're done */
 	*outl = 0;
 
+
+	/************ Fast, but confusing string tidying ************/
 	outl = outlist;
 	while (*outl && (*outl < 'A'))
 		outl++;
 	/* outl now points to the first mode character after +'s and -'s */
 	outl--;
 	/* Now points at first mode-modifier + or - symbol */
-
 	char* trim = outl;
 	/* Now we tidy off any trailing -'s etc */
 	while (*trim++);
 	trim--;
 	while ((*--trim == '+') || (*trim == '-'))
 		*trim = 0;
-	
+	/************ Done wih the string tidy functions ************/
+
+
 	/* The mode change must be at least two characters long (+ or - and at least one mode) */
 	if (((*outl == '+') || (*outl == '-')) && *(outl+1))
 	{
 		for (ptr = 0; ptr < pc; ptr++)
 		{
 			charlcat(outl,' ',MAXBUF);
-			strlcat(outl,outpars[ptr],MAXBUF);
+			strlcat(outl,outpars[ptr],MAXBUF-1);
 		}
 		if (local)
 		{
