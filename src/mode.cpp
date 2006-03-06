@@ -1108,10 +1108,7 @@ void ModeParser::ProcessModes(char **parameters,userrec* user,chanrec *chan,int 
 	while (*trim++);
 	trim--;
 	while ((*--trim == '+') || (*trim == '-'))
-	{
-		log(DEBUG,"Removed trailing modifier");
 		*trim = 0;
-	}
 	
 	/* The mode change must be at least two characters long (+ or - and at least one mode) */
 	if (((*outl == '+') || (*outl == '-')) && *(outl+1))
