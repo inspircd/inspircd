@@ -1133,15 +1133,19 @@ class TreeSocket : public InspSocket
 		log(DEBUG,"Sending FJOINs to other server for %s",c->name);
 		char list[MAXBUF];
 		std::string individual_halfops = ":"+Srv->GetServerName()+" FMODE "+c->name;
-		snprintf(list,MAXBUF,":%s FJOIN %s %lu",Srv->GetServerName().c_str(),c->name,(unsigned long)c->age);
+		size_t counter = snprintf(list,MAXBUF,":%s FJOIN %s %lu",Srv->GetServerName().c_str(),c->name,(unsigned long)c->age);
+		size_t initial = counter;
+
 		std::map<char*,char*> *ulist = c->GetUsers();
 		std::vector<userrec*> specific_halfop;
 		std::vector<userrec*> specific_voice;
+
 		for (std::map<char*,char*>::iterator i = ulist->begin(); i != ulist->end(); i++)
 		{
 			char* o = i->second;
 			userrec* otheruser = (userrec*)o;
 			charlcat(list,' ',MAXBUF);
+			counter++;
 			int x = cflags(otheruser,c);
 			if ((x & UCMODE_HOP) && (x & UCMODE_OP))
 			{
@@ -1167,14 +1171,18 @@ class TreeSocket : public InspSocket
 			}
 
 			if (n)
+			{
 				charlcat(list,n,MAXBUF);
+				counter++;
+			}
 
-			strlcat(list,otheruser->nick,MAXBUF);
-			if (strlen(list)>(480-NICKMAX))
+			counter += strlcat(list,otheruser->nick,MAXBUF);
+
+			if (counter > (480-NICKMAX))
 			{
 				log(DEBUG,"FJOIN line wrapped");
 				this->WriteLine(list);
-				snprintf(list,MAXBUF,":%s FJOIN %s %lu",Srv->GetServerName().c_str(),c->name,(unsigned long)c->age);
+				counter = snprintf(list,MAXBUF,":%s FJOIN %s %lu",Srv->GetServerName().c_str(),c->name,(unsigned long)c->age);
 				for (unsigned int y = 0; y < specific_voice.size(); y++)
 				{
 					this->WriteLine(":"+Srv->GetServerName()+" FMODE "+c->name+" +v "+specific_voice[y]->nick);
@@ -1185,7 +1193,7 @@ class TreeSocket : public InspSocket
 				}
 			}
 		}
-		if (list[strlen(list)-1] != ':')
+		if (counter != initial)
 		{
 			log(DEBUG,"Final FJOIN line");
 			this->WriteLine(list);
