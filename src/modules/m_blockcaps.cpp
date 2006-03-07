@@ -51,8 +51,8 @@ public:
 
 			if (c->IsCustomModeSet('P'))
 			{
-				char* n = (char*)text.c_str();
-				for (char* i = n; *i; i++)
+				char* i = (char*)text.c_str();
+				for (; *i; i++)
 				{
 					if (((*i != ' ') && (*i != '\t')) && ((*i < 'A') || (*i > 'Z')))
 					{
