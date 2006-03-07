@@ -72,6 +72,7 @@ std::vector<userrec*> local_users;
 extern int MODCOUNT;
 extern char LOG_FILE[MAXBUF];
 int openSockfd[MAXSOCKS];
+int yield_depth;
 sockaddr_in client,server;
 socklen_t length;
 
@@ -602,6 +603,11 @@ void InspIRCd::DoOneIteration(bool process_module_sockets)
         sockaddr_in sock_us;     // our port number
         socklen_t uslen;         // length of our port number
 
+	if (yield_depth > 3)
+		return;
+
+	yield_depth++;
+
         /* time() seems to be a pretty expensive syscall, so avoid calling it too much.
          * Once per loop iteration is pleanty.
          */
@@ -634,6 +640,7 @@ void InspIRCd::DoOneIteration(bool process_module_sockets)
 		}
                 TickMissedTimers(TIME);
                 expire_run = true;
+		yield_depth--;
                 return;
         }   
         else if ((TIME % 5) == 1)
@@ -665,7 +672,10 @@ void InspIRCd::DoOneIteration(bool process_module_sockets)
          * servers... so its nice and easy, just one call.
          */
         if (!(numberactive = SE->Wait(activefds)))
+	{
+		yield_depth--;
                 return;
+	}
 
         /**
          * Now process each of the fd's. For users, we have a fast
@@ -778,6 +788,7 @@ void InspIRCd::DoOneIteration(bool process_module_sockets)
                         break;
                 }
         }
+	yield_depth--;
 }
 
 int InspIRCd::Run()
@@ -804,6 +815,7 @@ int InspIRCd::Run()
 
 	/* main loop, this never returns */
 	expire_run = false;
+	yield_depth = 0;
 
 	while (true)
 	{
