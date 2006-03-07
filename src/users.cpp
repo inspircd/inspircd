@@ -420,12 +420,7 @@ void kill_link(userrec *user,const char* r)
 
         char reason[MAXBUF];
 
-        strlcpy(reason,r,MAXBUF-1);
-
-        if (strlen(reason)>MAXQUIT)
-        {
-                reason[MAXQUIT-1] = '\0';
-        }
+        strlcpy(reason,r,MAXQUIT-1);
 
         log(DEBUG,"kill_link: %s '%s'",user->nick,reason);
         Write(user->fd,"ERROR :Closing link (%s@%s) [%s]",user->ident,user->host,reason);

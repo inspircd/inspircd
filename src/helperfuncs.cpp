@@ -1229,9 +1229,11 @@ void userlist(userrec *user,chanrec *c)
                 return;
         }
 
-        snprintf(list,MAXBUF,"353 %s = %s :", user->nick, c->name);
+        size_t dlen = snprintf(list,MAXBUF,"353 %s = %s :", user->nick, c->name);
+	size_t initial = dlen;
 
         std::map<char*,char*> *ulist= c->GetUsers();
+
         for (std::map<char*,char*>::iterator i = ulist->begin(); i != ulist->end(); i++)
         {
                 char* o = i->second;
@@ -1242,19 +1244,20 @@ void userlist(userrec *user,chanrec *c)
                          * nick in NAMES list */
                         continue;
                 }
-                strlcat(list,cmode(otheruser,c),MAXBUF);
-                strlcat(list,otheruser->nick,MAXBUF);
+                dlen += strlcat(list,cmode(otheruser,c),MAXBUF);
+                dlen += strlcat(list,otheruser->nick,MAXBUF);
                 charlcat(list,' ',MAXBUF);
-                if (strlen(list)>(480-NICKMAX))
+		dlen++;
+                if (dlen > (480-NICKMAX))
                 {
                         /* list overflowed into
                          * multiple numerics */
                         WriteServ_NoFormat(user->fd,list);
-                        snprintf(list,MAXBUF,"353 %s = %s :", user->nick, c->name);
+                        dlen = snprintf(list,MAXBUF,"353 %s = %s :", user->nick, c->name);
                 }
         }
         /* if whats left in the list isnt empty, send it */
-        if (list[strlen(list)-1] != ':')
+        if (dlen != initial)
         {
                 WriteServ_NoFormat(user->fd,list);
         }
