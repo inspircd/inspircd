@@ -23,6 +23,7 @@
 #include <sstream>
 #include <string>
 #include "dns.h"
+#include <deque>
 
 /**
  * States which a socket may be in
@@ -114,7 +115,7 @@ private:
 	/**
 	 * The output buffer for this socket
 	 */
-	std::string Buffer;
+	std::deque<std::string> outbuffer;
 
 	/**
 	 * The IP address being connected

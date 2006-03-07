@@ -201,7 +201,7 @@ int SocketEngine::Wait(int* fdlist)
 		
 	}
 	tval.tv_sec = 0;
-	tval.tv_usec = 100L;
+	tval.tv_usec = 50L;
 	sresult = select(FD_SETSIZE, &rfdset, &wfdset, NULL, &tval);
 	if (sresult > 0)
 	{
@@ -213,14 +213,14 @@ int SocketEngine::Wait(int* fdlist)
 	}
 #endif
 #ifdef USE_KQUEUE
-	ts.tv_nsec = 10000L;
+	ts.tv_nsec = 5000L;
 	ts.tv_sec = 0;
 	int i = kevent(EngineHandle, NULL, 0, &ke_list[0], MAX_DESCRIPTORS, &ts);
 	for (int j = 0; j < i; j++)
 		fdlist[result++] = ke_list[j].ident;
 #endif
 #ifdef USE_EPOLL
-	int i = epoll_wait(EngineHandle, events, MAX_DESCRIPTORS, 100);
+	int i = epoll_wait(EngineHandle, events, MAX_DESCRIPTORS, 50);
 	for (int j = 0; j < i; j++)
 		fdlist[result++] = events[j].data.fd;
 #endif

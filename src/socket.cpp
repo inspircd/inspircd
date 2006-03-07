@@ -63,7 +63,7 @@ InspSocket::InspSocket(std::string ahost, int aport, bool listening, unsigned lo
 {
 	this->fd = -1;
 	this->host = ahost;
-	this->Buffer = "";
+	this->outbuffer.clear();
 	if (listening) {
 		if ((this->fd = OpenTCPSocket()) == ERROR)
 		{
@@ -244,40 +244,31 @@ char* InspSocket::Read()
 // and should be aborted.
 int InspSocket::Write(std::string data)
 {
-	try
-	{
-		if ((data != "") && (this->Buffer.length() + data.length() < this->Buffer.max_size()))
-			this->Buffer.append(data);
-	}
-	catch (std::length_error)
-	{
-		log(DEBUG,"std::length_error exception caught while appending to socket buffer!");
-		return 0;
-	}
-	return data.length();
+	/* Try and append the data to the back of the queue, and send it on its way
+	 */
+	outbuffer.push_back(data);
+	return (!this->FlushWriteBuffer());
 }
 
 bool InspSocket::FlushWriteBuffer()
 {
 	if ((this->fd > -1) && (this->state == I_CONNECTED))
 	{
-		int result = 0, v = 0;
-		const char* n = Buffer.c_str();
-		v = Buffer.length();
-		if (v > 0)
+		if (outbuffer.size())
 		{
-			result = write(this->fd,n,v);
+			int result = write(this->fd,outbuffer[0].c_str(),outbuffer[0].length());
 			if (result > 0)
 			{
-				if (result == v)
+				if ((unsigned int)result == outbuffer[0].length())
 				{
-					Buffer = "";
+					/* The whole block was written (usually a line)
+					 * Pop the block off the front of the queue
+					 */
+					outbuffer.pop_front();
 				}
 				else
 				{
-					/* If we wrote some, advance the buffer forwards */
-					n += result;
-					Buffer = n;
+					outbuffer[0] = outbuffer[0].substr(result + 1,outbuffer[0].length());
 				}
 			}
 			else if ((result == -1) && (errno != EAGAIN))
