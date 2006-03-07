@@ -73,10 +73,10 @@ void cmd_whowas::Handle (char **parameters, int pcnt, userrec* user)
 	}
 	else
 	{
-		whowas_group* grp = (whowas_group*)i;
+		whowas_set* grp = (whowas_set*)i;
 		if (grp->size())
 		{
-			for (whowas_group::iterator u = grp->begin(); u != grp->end(); u++)
+			for (whowas_set::iterator u = grp->begin(); u != grp->end(); u++)
 			{
 				time_t rawtime = u->signon;
 				tm *timeinfo;
