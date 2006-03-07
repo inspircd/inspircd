@@ -366,29 +366,30 @@ bool CommandParser::CallHandler(std::string &commandname,char **parameters, int 
 int CommandParser::ProcessParameters(char **command_p,char *parameters)
 {
 	int j = 0;
-	int q = strlen(parameters);
+	//int q = strlen(parameters);
 
-	if (!q)
+	if (!*parameters)
 	{
 		/* no parameters, command_p invalid! */
 		return 0;
 	}
 
-	if (parameters[0] == ':')
+	if (*parameters == ':')
 	{
 		command_p[0] = parameters+1;
 		return 1;
 	}
 
-	if (q)
+	if (*parameters)
 	{
-		if ((strchr(parameters,' ')==NULL) || (parameters[0] == ':'))
+		char* n = strchr(parameters,' ');
+		if ((!n) || (*parameters == ':'))
 		{
 			/* only one parameter */
 			command_p[0] = parameters;
-			if (parameters[0] == ':')
+			if (*parameters == ':')
 			{
-				if (strchr(parameters,' ') != NULL)
+				if (n)
 				{
 					command_p[0]++;
 				}
@@ -400,14 +401,14 @@ int CommandParser::ProcessParameters(char **command_p,char *parameters)
 
 	command_p[j++] = parameters;
 
-	for (int i = 0; i <= q; i++)
+	for (char* i = parameters; *i; i++)
 	{
-		if (parameters[i] == ' ')
+		if (*i == ' ')
 		{
-			command_p[j++] = parameters+i+1;
-			parameters[i] = '\0';
+			command_p[j++] = i+1;
+			*i = '\0';
 
-			if (command_p[j-1][0] == ':')
+			if (*command_p[j-1] == ':')
 			{
 				*command_p[j-1]++; /* remove dodgy ":" */
 				break;
@@ -415,6 +416,8 @@ int CommandParser::ProcessParameters(char **command_p,char *parameters)
 			}
 		}
 	}
+	//command_p[j] = parameters+i+1;
+	//*i = '\0';
 
 	return j; /* returns total number of items in the list */
 }
