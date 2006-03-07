@@ -73,11 +73,12 @@ void cmd_whowas::Handle (char **parameters, int pcnt, userrec* user)
 	}
 	else
 	{
-		whowas_set* grp = (whowas_set*)i;
+		whowas_set* grp = (whowas_set*)i->second;
 		if (grp->size())
 		{
-			for (whowas_set::iterator u = grp->begin(); u != grp->end(); u++)
+			for (whowas_set::iterator ux = grp->begin(); ux != grp->end(); ux++)
 			{
+				WhoWasGroup* u = (WhoWasGroup*)*ux;
 				time_t rawtime = u->signon;
 				tm *timeinfo;
 				char b[MAXBUF];

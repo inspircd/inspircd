@@ -515,12 +515,13 @@ void AddWhoWas(userrec* u)
 	}
 	else
 	{
-		if (iter->size() > 10)
+		whowas_set* group = (whowas_set*)iter->second;
+		if (group->size() > 10)
 		{
-			iter->pop_front();
+			group->pop_front();
 		}
 		WhoWasGroup *a = new WhoWasGroup(u);
-		iter->push_back(a);
+		group->push_back(a);
 	}
 }
 
@@ -529,10 +530,10 @@ void MaintainWhoWas(time_t TIME)
 {
 	for (whowas_users::iterator iter = whowas.begin(); iter != whowas.end(); iter++)
 	{
-		whowas_set* n = (whowas_set*)iter;
+		whowas_set* n = (whowas_set*)iter->second;
 		if (n->size())
 		{
-			while ((n->begin() != n->end()) && (n->begin()->signon < TIME - 259200)) // 3 days
+			while ((n->begin() != n->end()) && ((*n->begin())->signon < TIME - 259200)) // 3 days
 			{
 				WhoWasGroup *a = *(n->begin());
 				delete a;

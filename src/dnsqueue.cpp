@@ -53,8 +53,6 @@ using namespace std;
 extern ServerConfig* Config;
 extern InspIRCd* ServerInstance;
 
-address_cache addrcache;
-
 class Lookup;
 
 Lookup* dnslist[MAX_DESCRIPTORS];

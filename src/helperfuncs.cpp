@@ -1494,7 +1494,7 @@ bool DirValid(char* dirandfile)
         if( getcwd( otherdir, MAXBUF ) == NULL )
                 return false;
         chdir(buffer);
-	int t = strlen(work);
+	size_t t = strlen(work);
         if (strlen(otherdir) >= t)
         {
                 otherdir[t] = '\0';
