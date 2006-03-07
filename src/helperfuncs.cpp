@@ -1198,19 +1198,18 @@ char* chanmodes(chanrec *chan, bool showkey)
                 sprintf(foo," %lu",(unsigned long)chan->limit);
                 strlcat(sparam,foo,MAXBUF);
         }
-        if (*chan->custom_modes)
+        for (int n = 0; n < 190; n++)
         {
-		for (char* t = chan->custom_modes; *t; t++)
-	                *offset++ = *t;
-                for (int z = 0; chan->custom_modes[z]; z++)
-                {
-                        std::string extparam = chan->GetModeParameter(chan->custom_modes[z]);
-                        if (extparam != "")
-                        {
-                                charlcat(sparam,' ',MAXBUF);
-                                strlcat(sparam,extparam.c_str(),MAXBUF);
-                        }
-                }
+		if (custom_modes[n])
+		{
+	                *offset++ = n+65;
+			std::string extparam = chan->GetModeParameter(n+65);
+			if (extparam != "")
+			{
+				charlcat(sparam,' ',MAXBUF);
+				strlcat(sparam,extparam.c_str(),MAXBUF);
+			}
+		}
         }
 	/* Null terminate scratch */
 	*offset = '\0';

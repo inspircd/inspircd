@@ -66,104 +66,59 @@ extern chan_hash chanlist;
 
 using namespace std;
 
-//std::vector<ModeParameter> custom_mode_params;
-
 chanrec* ForceChan(chanrec* Ptr,ucrec &a,userrec* user, int created);
 
 chanrec::chanrec()
 {
-	*name = *custom_modes = *topic = *setby = *key = 0;
+	*name = *topic = *setby = *key = 0;
 	created = topicset = limit = binarymodes = 0;
 	internal_userlist.clear();
+	memset(&custom_modes,0,190);
 }
 
 void chanrec::SetCustomMode(char mode,bool mode_on)
 {
-	if (mode_on)
-	{
-		char* mptr = this->custom_modes;
-		int ssize = 0;
-
-		/* Attempt to find the end of the mode string */
-		while (*mptr++)
-		{
-			/* While iterating the mode string, we found that they already have
-			 * this mode in their list. Abort right now. */
-			if (*mptr == mode)
-				return;
-			/* Increment the string size, saves us doing strlen */
-			ssize++;
-		}
-
-		log(DEBUG,"ssize=%d",ssize);
-
-		/* Is there room left in the buffer? If there is append the mode */
-		if (ssize < MAXMODES-1)
-		{
-			*--mptr = mode;
-			*++mptr = 0;
-		}
-
-		log(DEBUG,"Custom mode %c set, modes='%s'",mode,this->custom_modes);
-	}
-	else
-	{
-		if (charremove(this->custom_modes,mode))
-		{
-			log(DEBUG,"Custom mode %c removed: modelist='%s'",mode,this->custom_modes);
-			/* Only call this if we found the mode */
-			this->SetCustomModeParam(mode,"",false);
-		}
-	}
+	custom_modes[mode-65] = mode_on;
+	if (!mode_on)
+		this->SetCustomModeParam(mode,"",false);
 }
 
 
 void chanrec::SetCustomModeParam(char mode,char* parameter,bool mode_on)
 {
-
 	log(DEBUG,"SetCustomModeParam called");
-	ModeParameter M;
-	M.mode = mode;
-	strlcpy(M.channel,this->name,CHANMAX);
-	strlcpy(M.parameter,parameter,MAXBUF);
+	
+	std::map<char,char*>::iterator n = custom_mode_params.find(mode);	
+
 	if (mode_on)
 	{
 		log(DEBUG,"Custom mode parameter %c %s added",mode,parameter);
-		custom_mode_params.push_back(M);
+		if (n == custom_mode_params.end())
+		{
+			custom_mode_params[mode] = strdup(parameter);
+		}
 	}
 	else
 	{
-		if (custom_mode_params.size())
+		if (n != custom_mode_params.end())
 		{
-			for (vector<ModeParameter>::iterator i = custom_mode_params.begin(); i < custom_mode_params.end(); i++)
-			{
-				if ((i->mode == mode) && (!strcasecmp(this->name,i->channel)))
-				{
-					log(DEBUG,"Custom mode parameter %c %s removed",mode,parameter);
-					custom_mode_params.erase(i);
-					return;
-				}
-			}
+			free(n->second);
+			custom_mode_params.erase(n);
 		}
 	}
 }
 
 bool chanrec::IsCustomModeSet(char mode)
 {
-	return (strchr(this->custom_modes,mode));
+	return custom_modes[mode-65];
 }
 
 std::string chanrec::GetModeParameter(char mode)
 {
-	if (custom_mode_params.size())
+	std::map<char,char*>::iterator n = custom_mode_params.find(mode);
+	if (n != custom_mode_params.end())
 	{
-		for (vector<ModeParameter>::iterator i = custom_mode_params.begin(); i < custom_mode_params.end(); i++)
-		{
-			if ((i->mode == mode) && (!strcasecmp(this->name,i->channel)))
-			{
-				return i->parameter;
-			}
-		}
+		return n->second;
 	}
 	return "";
 }

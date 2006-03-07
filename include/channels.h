@@ -72,19 +72,6 @@ class InviteItem : public HostItem
 {
 };
 
-
-/** Holds a custom parameter to a module-defined channel mode
-  * e.g. for +L this would hold the channel name.
-  */
-
-class ModeParameter : public classbase
-{
- public:
-	char mode;
-	char parameter[MAXBUF];
-	char channel[CHANMAX];
-};
-
 /** Holds a complete ban list
  */
 typedef std::vector<BanItem> 	BanList;
@@ -110,7 +97,7 @@ class chanrec : public Extensible
 	/** Custom modes for the channel.
 	 * Plugins may use this field in any way they see fit.
 	 */
-	char custom_modes[MAXMODES];     /* modes handled by modules */
+	char custom_modes[190];     /* modes handled by modules */
 
 	/** User list (casted to char*'s to stop forward declaration stuff)
 	 * (chicken and egg scenario!)
@@ -122,7 +109,7 @@ class chanrec : public Extensible
 
 	/** Parameters for custom modes
 	 */
-	std::vector<ModeParameter> custom_mode_params;
+	std::map<char,char*> custom_mode_params;
 
 	/** Channel topic.
 	 * If this is an empty string, no channel topic is set.
