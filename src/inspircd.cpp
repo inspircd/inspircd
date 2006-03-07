@@ -649,7 +649,7 @@ void InspIRCd::DoOneIteration(bool process_module_sockets)
                 expire_run = false;
         }
 
-	if (iterations++ == 30)
+	if (iterations++ == 15)
 	{
 		iterations = 0;
 		DoBackgroundUserStuff(TIME);
