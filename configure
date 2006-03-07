@@ -869,7 +869,7 @@ sub writefiles {
 	chomp(my $incos = `uname -n -s -r`);
 	chomp(my $version = `sh ./src/version.sh`);
         chomp(my $revision = `./src/svn-rev.sh`);
-	$version = "$version (r$revision)";
+	$version = "$version(r$revision)";
 	chomp(my $revision2 = `./src/svn-rev.sh`);
 	open(FILEHANDLE, ">include/inspircd_config.h");
 	my $NL = $config{NICK_LENGT}+1;
