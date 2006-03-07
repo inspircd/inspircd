@@ -89,7 +89,6 @@ void cmd_whowas::Handle (char **parameters, int pcnt, userrec* user)
 
 				WriteServ(user->fd,"314 %s %s %s %s * :%s",user->nick,parameters[0],u->ident,u->dhost,u->gecos);
 				WriteServ(user->fd,"312 %s %s %s :%s",user->nick,parameters[0], *Config->HideWhoisServer ? Config->HideWhoisServer : u->server,b);
-				WriteServ(user->fd,"369 %s %s :End of WHOWAS",user->nick,parameters[0]);
 			}
 		}
 		else
