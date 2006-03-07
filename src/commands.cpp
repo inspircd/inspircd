@@ -79,7 +79,6 @@ const long duration_y = duration_w * 52;
 
 extern user_hash clientlist;
 extern chan_hash chanlist;
-extern whowas_hash whowas;
 
 extern std::vector<userrec*> all_opers;
 extern std::vector<userrec*> local_users;

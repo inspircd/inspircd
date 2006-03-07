@@ -57,35 +57,45 @@ extern std::vector<ircd_module*> factory;
 extern time_t TIME;
 extern user_hash clientlist;
 extern chan_hash chanlist;
-extern whowas_hash whowas;
 extern std::vector<userrec*> all_opers;
 extern std::vector<userrec*> local_users;
 extern userrec* fd_ref_table[MAX_DESCRIPTORS];
 
+extern whowas_users whowas;
+
 void cmd_whowas::Handle (char **parameters, int pcnt, userrec* user)
 {
-	whowas_hash::iterator i = whowas.find(parameters[0]);
+	whowas_users::iterator i = whowas.find(parameters[0]);
 
 	if (i == whowas.end())
 	{
 		WriteServ(user->fd,"406 %s %s :There was no such nickname",user->nick,parameters[0]);
-		WriteServ(user->fd,"369 %s %s :End of WHOWAS",user->nick,parameters[0]);
 	}
 	else
 	{
-		time_t rawtime = i->second->signon;
-		tm *timeinfo;
-		char b[MAXBUF];
+		whowas_group* grp = (whowas_group*)i;
+		if (grp->size())
+		{
+			for (whowas_group::iterator u = grp->begin(); u != grp->end(); u++)
+			{
+				time_t rawtime = u->signon;
+				tm *timeinfo;
+				char b[MAXBUF];
+	
+				timeinfo = localtime(&rawtime);
+				strlcpy(b,asctime(timeinfo),MAXBUF);
+				b[24] = 0;
 
-		timeinfo = localtime(&rawtime);
-		strlcpy(b,asctime(timeinfo),MAXBUF);
-		b[24] = 0;
-
-		WriteServ(user->fd,"314 %s %s %s %s * :%s",user->nick,i->second->nick,i->second->ident,i->second->dhost,i->second->fullname);
-		WriteServ(user->fd,"312 %s %s %s :%s",user->nick,i->second->nick, *Config->HideWhoisServer ? Config->HideWhoisServer : i->second->server,b);
-		WriteServ(user->fd,"369 %s %s :End of WHOWAS",user->nick,parameters[0]);
+				WriteServ(user->fd,"314 %s %s %s %s * :%s",user->nick,parameters[0],u->ident,u->dhost,u->gecos);
+				WriteServ(user->fd,"312 %s %s %s :%s",user->nick,parameters[0], *Config->HideWhoisServer ? Config->HideWhoisServer : u->server,b);
+				WriteServ(user->fd,"369 %s %s :End of WHOWAS",user->nick,parameters[0]);
+			}
+		}
+		else
+		{
+			WriteServ(user->fd,"406 %s %s :There was no such nickname",user->nick,parameters[0]);
+		}
 	}
-
+	WriteServ(user->fd,"369 %s %s :End of WHOWAS",user->nick,parameters[0]);
 }
-
 

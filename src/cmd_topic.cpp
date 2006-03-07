@@ -57,7 +57,6 @@ extern std::vector<ircd_module*> factory;
 extern time_t TIME;
 extern user_hash clientlist;
 extern chan_hash chanlist;
-extern whowas_hash whowas;
 extern std::vector<userrec*> all_opers;
 extern std::vector<userrec*> local_users;
 extern userrec* fd_ref_table[MAX_DESCRIPTORS];

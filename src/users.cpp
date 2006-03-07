@@ -49,7 +49,9 @@ extern time_t TIME;
 extern userrec* fd_ref_table[MAX_DESCRIPTORS];
 extern ServerConfig *Config;
 extern user_hash clientlist;
-extern whowas_hash whowas;
+
+whowas_users whowas;
+
 extern std::vector<userrec*> local_users;
 
 std::vector<userrec*> all_opers;
@@ -479,58 +481,65 @@ void kill_link(userrec *user,const char* r)
         delete user;
 }
 
+WhoWasGroup::WhoWasGroup(userrec* user) : host(NULL), dhost(NULL), ident(NULL), server(NULL), gecos(NULL), signon(user->signon)
+{
+	this->host = strdup(user->host);
+	this->dhost = strdup(user->dhost);
+	this->ident = strdup(user->ident);
+	this->server = user->server;
+	this->gecos = strdup(user->fullname);
+}
+
+WhoWasGroup::~WhoWasGroup()
+{
+	if (host)
+		free(host);
+	if (dhost)
+		free(dhost);
+	if (ident)
+		free(ident);
+	if (gecos)
+		free(gecos);
+}
+
 /* adds or updates an entry in the whowas list */
 void AddWhoWas(userrec* u)
 {
-        whowas_hash::iterator iter = whowas.find(u->nick);
-        WhoWasUser *a = new WhoWasUser();
-        strlcpy(a->nick,u->nick,NICKMAX-1);
-        strlcpy(a->ident,u->ident,IDENTMAX);
-        strlcpy(a->dhost,u->dhost,63);
-        strlcpy(a->host,u->host,63);
-        strlcpy(a->fullname,u->fullname,MAXGECOS);
-	if (u->server)
-	        strlcpy(a->server,u->server,256);
-        a->signon = u->signon;
+        whowas_users::iterator iter = whowas.find(u->nick);
+	if (iter == whowas.end())
+	{
+		whowas_set* n = new whowas_set;
+		WhoWasGroup *a = new WhoWasGroup(u);
+		n->push_back(a);
+		whowas[u->nick] = n;
+	}
+	else
+	{
+		if (iter->size() > 10)
+		{
+			iter->pop_front();
+		}
+		WhoWasGroup *a = new WhoWasGroup(u);
+		iter->push_back(a);
+	}
+}
 
-        /* MAX_WHOWAS:   max number of /WHOWAS items
-         * WHOWAS_STALE: number of hours before a WHOWAS item is marked as stale and
-         *               can be replaced by a newer one
-         */
-
-        if (iter == whowas.end())
-        {
-                if (whowas.size() >= (unsigned)WHOWAS_MAX)
-                {
-                        for (whowas_hash::iterator i = whowas.begin(); i != whowas.end(); i++)
-                        {
-                                // 3600 seconds in an hour ;)
-                                if ((i->second->signon)<(TIME-(WHOWAS_STALE*3600)))
-                                {
-                                        // delete an old one
-                                        if (i->second) delete i->second;
-					whowas.erase(i);
-                                        // replace with new one
-                                        whowas[a->nick] = a;
-                                        log(DEBUG,"added WHOWAS entry, purged an old record");
-                                        return;
-                                }
-                        }
-                        // no space left and user doesnt exist. Don't leave ram in use!
-                        delete a;
-                }
-                else
-                {
-                        log(DEBUG,"added fresh WHOWAS entry");
-                        whowas[a->nick] = a;
-                }
-        }
-        else
-        {
-                log(DEBUG,"updated WHOWAS entry");
-                if (iter->second) delete iter->second;
-                iter->second = a;
-        }
+/* every hour, run this function which removes all entries over 3 days */
+void MaintainWhoWas(time_t TIME)
+{
+	for (whowas_users::iterator iter = whowas.begin(); iter != whowas.end(); iter++)
+	{
+		whowas_set* n = (whowas_set*)iter;
+		if (n->size())
+		{
+			while ((n->begin() != n->end()) && (n->begin()->signon < TIME - 259200)) // 3 days
+			{
+				WhoWasGroup *a = *(n->begin());
+				delete a;
+				n->erase(n->begin());
+			}
+		}
+	}
 }
 
 /* add a client connection to the sockets list */

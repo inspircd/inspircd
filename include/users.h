@@ -340,25 +340,32 @@ class userrec : public connection
 #endif
 };
 
-/** A lightweight userrec used by WHOWAS
- */
-class WhoWasUser
+class WhoWasGroup
 {
  public:
-	char nick[NICKMAX];
-	char ident[IDENTMAX+1];
-	char dhost[64];
-	char host[64];
-	char fullname[MAXGECOS+1];
-	char server[256];
+	char* host;
+	char* dhost;
+	char* ident;
+	char* server;
+	char* gecos;
 	time_t signon;
+
+	WhoWasGroup(userrec* user);
+	~WhoWasGroup();
 };
+
+typedef std::deque<WhoWasGroup*> whowas_set;
+typedef std::map<irc::string,whowas_set*> whowas_users;
+
+/** A lightweight userrec used by WHOWAS
+ */
 
 void AddOper(userrec* user);
 void DeleteOper(userrec* user);
 void kill_link(userrec *user,const char* r);
 void kill_link_silent(userrec *user,const char* r);
 void AddWhoWas(userrec* u);
+void MaintainWhoWas(time_t TIME);
 void AddClient(int socket, int port, bool iscached, in_addr ip4);
 void FullConnectUser(userrec* user, CullList* Goners);
 userrec* ReHashNick(char* Old, char* New);

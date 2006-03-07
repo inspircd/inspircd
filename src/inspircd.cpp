@@ -90,7 +90,7 @@ ServerConfig *Config = new ServerConfig;
 
 user_hash clientlist;
 chan_hash chanlist;
-whowas_hash whowas;
+
 servernamelist servernames;
 char lowermap[255];
 
