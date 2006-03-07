@@ -802,7 +802,7 @@ class TreeSocket : public InspSocket
 	 * is having a REAL bad hair day, this function shouldnt be called
 	 * too many times a month ;-)
 	 */
-	void SquitServer(TreeServer* Current, CullList* Goners)
+	void SquitServer(std::string &from, TreeServer* Current, CullList* Goners)
 	{
 		/* recursively squit the servers attached to 'Current'.
 		 * We're going backwards so we don't remove users
@@ -811,7 +811,7 @@ class TreeSocket : public InspSocket
 		for (unsigned int q = 0; q < Current->ChildCount(); q++)
 		{
 			TreeServer* recursive_server = Current->GetChild(q);
-			this->SquitServer(recursive_server,Goners);
+			this->SquitServer(from,recursive_server,Goners);
 		}
 		/* Now we've whacked the kids, whack self */
 		num_lost_servers++;
@@ -819,8 +819,7 @@ class TreeSocket : public InspSocket
 		{
 			if (!strcasecmp(u->second->server,Current->GetName().c_str()))
 			{
-				std::string qreason = Current->GetName()+" "+std::string(Srv->GetServerName());
-				Goners->AddItem(u->second,qreason);
+				Goners->AddItem(u->second,from);
 				num_lost_users++;
 			}
 		}
@@ -849,7 +848,8 @@ class TreeSocket : public InspSocket
 			num_lost_servers = 0;
 			num_lost_users = 0;
 			CullList* Goners = new CullList();
-			SquitServer(Current, Goners);
+			std::string from = Current->GetParent()->GetName()+" "+Current->GetName();
+			SquitServer(from, Current, Goners);
 			Goners->Apply();
 			Current->Tidy();
 			Current->GetParent()->DelChild(Current);
