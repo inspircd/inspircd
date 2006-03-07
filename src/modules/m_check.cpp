@@ -34,7 +34,58 @@ class cmd_check : public command_t
 
 	void Handle (char **parameters, int pcnt, userrec *user)
 	{
+		userrec *targuser;
+		chanrec *targchan;
+		std::string checkstr;
 
+		checkstr = "304 " + std::string(user->nick) + " :CHECK";
+
+		targuser = Srv->FindNick(std::string(parameters[0]));
+		targchan = Srv->FindChannel(std::string(parameters[0]));
+
+		/*
+		 * Syntax of a /check reply:
+		 *  :server.name 304 target :CHECK START <target>
+		 *  :server.name 304 target :CHECK <field> <value>
+		 *  :server.name 304 target :CHECK END
+		 */
+
+		Srv->SendTo(NULL, user, checkstr + " START " + std::string(parameters[0]));
+
+		if (targuser)
+		{
+			/* /check on a user */
+			Srv->SendTo(NULL, user, checkstr + " nuh " + std::string(targuser->GetFullHost()));
+			Srv->SendTo(NULL, user, checkstr + " realnuh " + std::string(targuser->GetFullRealHost()));
+			Srv->SendTo(NULL, user, checkstr + " realname " + std::string(targuser->fullname));
+			Srv->SendTo(NULL, user, checkstr + " modes +" + std::string(targuser->modes));
+			Srv->SendTo(NULL, user, checkstr + " server " + std::string(targuser->server));
+			if (targuser->awaymsg[0] != 0)
+			{
+				/* user is away */
+				Srv->SendTo(NULL, user, checkstr + " awaymsg " + std::string(targuser->awaymsg));
+			}
+			if (targuser->oper[0] != 0)
+			{
+				/* user is an oper of type ____ */
+				Srv->SendTo(NULL, user, checkstr + " opertype " + std::string(targuser->oper));
+			}
+			if (IS_LOCAL(targuser))
+			{
+				/* port information is only held for a local user! */
+				Srv->SendTo(NULL, user, checkstr + " onport " + ConvToStr(targuser->port));
+			}
+		}
+		else if (targchan)
+		{
+			/* /check on a channel */
+		}
+		else
+		{
+			/*  /check on an IP address, or something that doesn't exist */
+		}
+
+		Srv->SendTo(NULL, user, "304 " + std::string(user->nick) + " :CHECK END " + std::string(parameters[0]));
 	}
 };
 
