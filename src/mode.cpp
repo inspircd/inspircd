@@ -959,7 +959,7 @@ void ModeParser::ProcessModes(char **parameters,userrec* user,chanrec *chan,int 
 										{
 											if (param < pcnt)
 											{
-												chan->SetCustomModeParam(modelist[ptr],parameters[param],mdir);
+												chan->SetCustomModeParam(*modechar,parameters[param],mdir);
 												outpars[pc++] = parameters[param++];
 											}
 										}
