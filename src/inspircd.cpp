@@ -73,6 +73,7 @@ extern int MODCOUNT;
 extern char LOG_FILE[MAXBUF];
 int openSockfd[MAXSOCKS];
 int yield_depth;
+int iterations = 0;
 sockaddr_in client,server;
 socklen_t length;
 
@@ -647,13 +648,22 @@ void InspIRCd::DoOneIteration(bool process_module_sockets)
         {
                 expire_run = false;
         }
+
+	if (iterations++ == 30)
+	{
+		iterations = 0;
+		DoBackgroundUserStuff(TIME);
+	}
  
         /* Once a second, do the background processing */
         if (TIME != OLDTIME)
         {
                 if (TIME < OLDTIME)
                         WriteOpers("*** \002EH?!\002 -- Time is flowing BACKWARDS in this dimension! Clock drifted backwards %d secs.",abs(OLDTIME-TIME));
-                DoBackgroundUserStuff(TIME);
+		if ((TIME % 3600) == 0)
+		{
+			MaintainWhoWas(TIME);
+		}
         }
 
         /* Process timeouts on module sockets each time around
@@ -816,6 +826,7 @@ int InspIRCd::Run()
 	/* main loop, this never returns */
 	expire_run = false;
 	yield_depth = 0;
+	iterations = 0;
 
 	while (true)
 	{

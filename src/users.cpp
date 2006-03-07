@@ -518,6 +518,8 @@ void AddWhoWas(userrec* u)
 		whowas_set* group = (whowas_set*)iter->second;
 		if (group->size() > 10)
 		{
+			WhoWasGroup *a = (WhoWasGroup*)*(group->begin());
+			delete a;
 			group->pop_front();
 		}
 		WhoWasGroup *a = new WhoWasGroup(u);
