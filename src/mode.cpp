@@ -881,7 +881,7 @@ void ModeParser::ProcessModes(char **parameters,userrec* user,chanrec *chan,int 
 			default:
 				string_list p;
 				p.clear();
-				bool x = strchr(chan->custom_modes,*modechar);
+				bool x = chan->custom_modes[*modechar-65];
 				if ((!x && !mdir) || (x && mdir))
 				{
 					if (!ModeIsListMode(*modechar,MT_CHANNEL))
