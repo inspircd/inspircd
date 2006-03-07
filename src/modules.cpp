@@ -535,7 +535,7 @@ void Server::SendTo(userrec* Source, userrec* Dest, std::string s)
 	if (!Source)
 	{
 		// if source is NULL, then the message originates from the local server
-		Write(Dest->fd,":%s %s",this->GetServerName().c_str(),s.c_str());
+		WriteServ_NoFormat(Dest->fd,s.c_str());
 	}
 	else
 	{
