@@ -453,6 +453,7 @@ void ModeParser::ProcessModes(char **parameters,userrec* user,chanrec *chan,int 
 	}
 
 	char outlist[MAXBUF];
+	char mlist[MAXBUF];
 	char *outpars[32];
 	int param = 2;
 	int pc = 0;
@@ -470,18 +471,16 @@ void ModeParser::ProcessModes(char **parameters,userrec* user,chanrec *chan,int 
 			return;
 	}
 
-	char* modelist = parameters[1];         /* mode list, e.g. +oo-o *
-						 * parameters[2] onwards are parameters for
-					 	 * modes that require them :) */
+	std::string tidied = this->CompressModes(parameters[1],true);
+	strlcpy(mlist,tidied.c_str(),MAXBUF);
+	char* modelist = mlist;
+
 	*outlist = *modelist;
 	char* outl = outlist+1;
 
 	mdir = (*modelist == '+');
 
 	log(DEBUG,"process_modes: modelist: %s",modelist);
-
-	std::string tidied = this->CompressModes(modelist,true);
-	strlcpy(modelist,tidied.c_str(),MAXBUF);
 
 	int len = tidied.length();
 	while (modelist[len-1] == ' ')

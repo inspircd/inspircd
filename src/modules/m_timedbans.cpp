@@ -83,7 +83,7 @@ class cmd_tban : public command_t
 				char duration[MAXBUF];
 				snprintf(duration,MAXBUF,"%lu",Srv->CalcDuration(parameters[1]));
 				std::string mask = parameters[2];
-				char *setban[3];
+				char *setban[32];
 				setban[0] = parameters[0];
 				setban[1] = "+b";
 				setban[2] = parameters[2];
