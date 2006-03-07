@@ -80,34 +80,9 @@ class cmd_check : public command_t
 			}
 
 			chliststr = chlist(targuser, targuser);
-			if (chliststr.length())
-			{
-				if (chliststr.length() > 400)
-				{
-					/* XXX - this sucks. deal with it. */
-					std::stringstream chstream(chliststr);
-					std::string line = "";
-					std::string cname = "";
-					while (!chstream.eof())
-					{
-						chstream >> cname;
-						line = line + cname + " ";
-						if (line.length() > 400)
-						{
-							Srv->SendTo(NULL, user, checkstr + " onchans " + line);
-							line = "";
-						}
-					}
-					if (line.length())
-					{
-						Srv->SendTo(NULL, user, checkstr + " onchans " + line);
-					}
-				}
-				else
-				{
-					Srv->SendTo(NULL, user, checkstr + " onchans " + chliststr);
-				}				
-			}
+			std::stringstream dump(chliststr);
+			/* XXX - This doent suck so much */
+			Srv->DumpText(user,checkstr + " onchans ", dump);
 		}
 		else if (targchan)
 		{
