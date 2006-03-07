@@ -37,7 +37,7 @@
 #define CC_ALLOW	0
 #define CC_DENY		1
 
-template<typename T> inline string ConvToStr(const T &in);
+template<typename T> string ConvToStr(const T &in);
 
 /** Holds a channel name to which a user has been invited.
  */
