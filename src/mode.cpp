@@ -952,12 +952,12 @@ void ModeParser::ProcessModes(char **parameters,userrec* user,chanrec *chan,int 
 									}
 									else
 									{
-										if (param < pcnt)
+										*outl++ = *modechar;
+										chan->SetCustomMode(*modechar,mdir);
+										// include parameters in output if mode has them
+										if ((ModeDefinedOn(*modechar,MT_CHANNEL)>0) && (mdir))
 										{
-											*outl++ = *modechar;
-											chan->SetCustomMode(*modechar,mdir);
-											// include parameters in output if mode has them
-											if ((ModeDefinedOn(*modechar,MT_CHANNEL)>0) && (mdir))
+											if (param < pcnt)
 											{
 												chan->SetCustomModeParam(modelist[ptr],parameters[param],mdir);
 												outpars[pc++] = parameters[param++];
