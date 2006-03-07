@@ -1268,31 +1268,18 @@ void userlist(userrec *user,chanrec *c)
 
 int usercount_i(chanrec *c)
 {
+	if (!c)
+		return 0;
+
         int count = 0;
-
-        if (!c)
-        {
-                log(DEFAULT,"*** BUG *** usercount_i was given an invalid parameter");
-                return 0;
-        }
-
-        for (user_hash::const_iterator i = clientlist.begin(); i != clientlist.end(); i++)
-        {
-                        if (has_channel(i->second,c))
-                        {
-                                if (i->second->registered == 7)
-                                {
-                                        if ((!has_channel(i->second,c)) && (strchr(i->second->modes,'i')))
-                                        {
-                                                /* user is +i, and source not on the channel, does not show
-                                                 * nick in NAMES list */
-                                                continue;
-                                        }
-                                        count++;
-                                }
-                        }
-        }
-        log(DEBUG,"usercount_i: %s %lu",c->name,(unsigned long)count);
+	std::map<char*,char*> *ulist= c->GetUsers();
+	for (std::map<char*,char*>::iterator i = ulist->begin(); i != ulist->end(); i++)
+	{
+		char* o = i->second;
+		userrec* user = (userrec*)o;
+		if (!strchr(user->modes,'i'))
+			count++;
+	}
         return count;
 }
 
@@ -1507,9 +1494,10 @@ bool DirValid(char* dirandfile)
         if( getcwd( otherdir, MAXBUF ) == NULL )
                 return false;
         chdir(buffer);
-        if (strlen(otherdir) >= strlen(work))
+	int t = strlen(work);
+        if (strlen(otherdir) >= t)
         {
-                otherdir[strlen(work)] = '\0';
+                otherdir[t] = '\0';
                 if (!strcmp(otherdir,work))
                 {
                         return true;
