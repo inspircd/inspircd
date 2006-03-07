@@ -566,6 +566,22 @@ bool Server::CommonChannels(userrec* u1, userrec* u2)
 	return (common_channels(u1,u2) != 0);
 }
 
+void Server::DumpText(userrec* User, std::string LinePrefix, stringstream &TextStream)
+{
+	std::string CompleteLine = LinePrefix;
+	std::string Word = "";
+	while (TextStream >> Word)
+	{
+		if (CompleteLine.length() + Word.length() + 3 > 500)
+		{
+			WriteServ_NoFormat(User->fd,CompleteLine.c_str());
+			CompleteLine = LinePrefix;
+		}
+		CompleteLine = CompleteLine + Word + " ";
+	}
+	WriteServ_NoFormat(User->fd,CompleteLine.c_str());
+}
+
 void Server::SendCommon(userrec* User, std::string text,bool IncludeSender)
 {
 	if (IncludeSender)

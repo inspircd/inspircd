@@ -1749,6 +1749,8 @@ class Server : public classbase
 	virtual long GetChannelCount();
 
 	virtual chanrec* GetChannelIndex(long index);
+
+	void DumpText(userrec* User, std::string LinePrefix, stringstream &TextStream);
 };
 
 
