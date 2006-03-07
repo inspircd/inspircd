@@ -811,9 +811,9 @@ int InspIRCd::Run()
 	
 	if (!Config->nofork)
 	{
-		close(stdout);
-		close(stderr);
-		close(stdin);
+		fclose(stdout);
+		fclose(stderr);
+		fclose(stdin);
 	}
 
 	/* Add the listening sockets used for client inbound connections
