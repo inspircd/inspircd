@@ -82,9 +82,12 @@ class CullList
          std::vector<CullItem> list;
 	 /** A list of users who have already been
 	  * placed on the list, as a map for fast
-	  * reference.
+	  * reference. When deleting an item, the
+	  * time_t value stored here must match
+	  * the one of the actual userrec, otherwise
+	  * we don't delete it (its a different user)
 	  */
-	 std::map<userrec*,int> exempt;
+	 std::map<userrec*,time_t> exempt;
 	 
 	 /** Check if a user pointer is valid
 	  * (e.g. it exists in the user hash)
