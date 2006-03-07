@@ -19,6 +19,8 @@ using namespace std;
 #include "users.h"
 #include "channels.h"
 #include "modules.h"
+#include "message.h"
+#include "commands.h"
 
 /* $ModDesc: Provides the /check command to retrieve information on a user, channel, or IP address */
 
@@ -37,6 +39,7 @@ class cmd_check : public command_t
 		userrec *targuser;
 		chanrec *targchan;
 		std::string checkstr;
+		std::string chliststr;
 
 		checkstr = "304 " + std::string(user->nick) + " :CHECK";
 
@@ -75,6 +78,36 @@ class cmd_check : public command_t
 				/* port information is only held for a local user! */
 				Srv->SendTo(NULL, user, checkstr + " onport " + ConvToStr(targuser->port));
 			}
+
+			chliststr = chlist(targuser, targuser);
+			if (chliststr.length())
+			{
+				if (chliststr.length() > 400)
+				{
+					/* XXX - this sucks. deal with it. */
+					std::stringstream chstream(chliststr);
+					std::string line = "";
+					std::string cname = "";
+					while (!chstream.eof())
+					{
+						chstream >> cname;
+						line = line + cname + " ";
+						if (line.length() > 400)
+						{
+							Srv->SendTo(NULL, user, checkstr + " onchans " + line);
+							line = "";
+						}
+					}
+					if (line.length())
+					{
+						Srv->SendTo(NULL, user, checkstr + " onchans " + line);
+					}
+				}
+				else
+				{
+					Srv->SendTo(NULL, user, checkstr + " onchans " + chliststr);
+				}				
+			}
 		}
 		else if (targchan)
 		{
@@ -85,7 +118,7 @@ class cmd_check : public command_t
 			/*  /check on an IP address, or something that doesn't exist */
 		}
 
-		Srv->SendTo(NULL, user, "304 " + std::string(user->nick) + " :CHECK END " + std::string(parameters[0]));
+		Srv->SendTo(NULL, user, checkstr + " END " + std::string(parameters[0]));
 	}
 };
 
