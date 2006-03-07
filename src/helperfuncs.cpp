@@ -1200,7 +1200,7 @@ char* chanmodes(chanrec *chan, bool showkey)
         }
         for (int n = 0; n < 190; n++)
         {
-		if (custom_modes[n])
+		if (chan->custom_modes[n])
 		{
 	                *offset++ = n+65;
 			std::string extparam = chan->GetModeParameter(n+65);
