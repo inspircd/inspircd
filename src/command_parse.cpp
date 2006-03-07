@@ -416,9 +416,6 @@ int CommandParser::ProcessParameters(char **command_p,char *parameters)
 			}
 		}
 	}
-	//command_p[j] = parameters+i+1;
-	//*i = '\0';
-
 	return j; /* returns total number of items in the list */
 }
 
@@ -430,7 +427,6 @@ void CommandParser::ProcessCommand(userrec *user, char* cmd)
 	char p[MAXBUF], temp[MAXBUF];
 	int j, items, cmd_found;
 	int total_params = 0;
-	unsigned int xl;
 
 	for (int i = 0; i < 127; i++)
 		command_p[i] = NULL;
@@ -440,15 +436,17 @@ void CommandParser::ProcessCommand(userrec *user, char* cmd)
 		return;
 	}
 
-	xl = strlen(cmd);
+	char* first_space = NULL;
 
-	if (xl > 2)
+	/* If the command is > 2 characters (quick and dirty way to find out) */
+	if (*cmd && *(cmd+1) && *(cmd+2))
 	{
-		for (unsigned int q = 0; q < xl - 1; q++)
+		for (char* q = cmd; *q; q++)
 		{
-			if (cmd[q] == ' ')
+			if (*q == ' ')
 			{
-				if (cmd[q+1] == ':')
+				first_space = q;
+				if (*(q+1) == ':')
 				{
 					total_params++;
 					// found a 'trailing', we dont count them after this.
@@ -463,7 +461,7 @@ void CommandParser::ProcessCommand(userrec *user, char* cmd)
 	// another phidjit bug...
 	if (total_params > 126)
 	{
-		*(strchr(cmd,' ')) = '\0';
+		*first_space = 0;
 		WriteServ(user->fd,"421 %s %s :Too many parameters given",user->nick,cmd);
 		return;
 	}
@@ -488,7 +486,9 @@ void CommandParser::ProcessCommand(userrec *user, char* cmd)
 	strlcpy(cmd,tmp.c_str(),MAXBUF);
 	strlcpy(temp,cmd,MAXBUF);
 
-	if (!strchr(cmd,' '))
+	char* has_space = strchr(cmd,' ');
+	int cm_length = 0;
+	if (!has_space)
 	{
 		/*
 		 * no parameters, lets skip the formalities and not chop up
@@ -498,11 +498,8 @@ void CommandParser::ProcessCommand(userrec *user, char* cmd)
 		items = 0;
 		command_p[0] = NULL;
 		parameters = NULL;
-		unsigned int tl = strlen(cmd);
-		for (unsigned int i = 0; i <= tl; i++)
-		{
-			cmd[i] = toupper(cmd[i]);
-		}
+		for (char* i = cmd; *i; i++,cm_length++)
+			*i = toupper(*i);
 		command = cmd;
 	}
 	else
@@ -510,16 +507,15 @@ void CommandParser::ProcessCommand(userrec *user, char* cmd)
 		*cmd = 0;
 		j = 0;
 
-		unsigned int vl = strlen(temp);
 		/* strip out extraneous linefeeds through mirc's crappy pasting (thanks Craig) */
-		for (unsigned int i = 0; i < vl; i++)
+		for (char* i = temp; *i; i++)
 		{
-			if ((temp[i] != 10) && (temp[i] != 13) && (temp[i] != 0) && (temp[i] != 7))
+			if ((*i != 10) && (*i != 13) && (*i != 0) && (*i != 7))
 			{
-				cmd[j++] = temp[i];
-				cmd[j] = 0;
+				cmd[j++] = *i;
 			}
 		}
+		cmd[j] = 0;
 
 		/* split the full string into a command plus parameters */
 		parameters = p;
@@ -528,34 +524,32 @@ void CommandParser::ProcessCommand(userrec *user, char* cmd)
 
 		command = cmd;
 
-		if (strchr(cmd,' '))
+		if (has_space)
 		{
-			unsigned int cl = strlen(cmd);
-
-			for (unsigned int i = 0; i <= cl; i++)
+			for (char* i = cmd; *i; i++)
 			{
 				/* capitalise the command ONLY, leave params intact */
-				cmd[i] = toupper(cmd[i]);
+				*i = toupper(*i);
 				/* are we nearly there yet?! :P */
-				if (cmd[i] == ' ')
+				if (*i == ' ')
 				{
 					command = cmd;
-					parameters = cmd+i+1;
-					cmd[i] = '\0';
+					parameters = i+1;
+					*i = 0;
 					break;
 				}
 			}
 		}
 		else
 		{
-			for (char* i = cmd; *i; i++)
+			for (char* i = cmd; *i; i++,cm_length++)
 			{
 				*i = toupper(*i);
 			}
 		}
 	}
 
-	if (strlen(command)>MAXCOMMAND)
+	if (cm_length > MAXCOMMAND)
 	{
 		WriteServ(user->fd,"421 %s %s :Command too long",user->nick,command);
 		return;
@@ -731,63 +725,36 @@ void CommandParser::ProcessBuffer(const char* cmdbuf,userrec *user)
 {
 	char cmd[MAXBUF];
 
-	if (!user)
+	if (!user || !cmdbuf || !*cmdbuf)
 	{
 		log(DEFAULT,"*** BUG *** process_buffer was given an invalid parameter");
-		return;
-	}
-	if (!cmdbuf)
-	{
-		log(DEFAULT,"*** BUG *** process_buffer was given an invalid parameter");
-		return;
-	}
-	if (!cmdbuf[0])
-	{
 		return;
 	}
 
 	while (*cmdbuf == ' ') cmdbuf++; // strip leading spaces
 
+	if (!*cmdbuf)
+		return;
+	
 	strlcpy(cmd,cmdbuf,MAXBUF);
 
-	if (!cmd[0])
-	{
-		return;
-	}
+	while (charremove(cmd,10));
+	while (charremove(cmd,13));
 
-
-	/* XXX - This is ugly as sin, and incomprehensible - why are we doing this twice, for instance? --w00t */
 	int sl = strlen(cmd)-1;
-
-	if ((cmd[sl] == 13) || (cmd[sl] == 10))
+	while (sl && (cmd[sl] == ' ')) // strip trailing spaces
 	{
-		cmd[sl] = '\0';
+		cmd[sl--] = 0;
 	}
 
-	sl = strlen(cmd)-1;
-
-	if ((cmd[sl] == 13) || (cmd[sl] == 10))
-	{
-		cmd[sl] = '\0';
-	}
-
-	sl = strlen(cmd)-1;
-
-
-	while (cmd[sl] == ' ') // strip trailing spaces
-	{
-		cmd[sl] = '\0';
-		sl = strlen(cmd)-1;
-	}
-
-	if (!cmd[0])
-	{
+	if (!sl)
 		return;
-	}
 
 	log(DEBUG,"CMDIN: %s %s",user->nick,cmd);
+
 	tidystring(cmd);
-	if ((user) && (cmd))
+
+	if (user && cmd)
 	{
 		this->ProcessCommand(user,cmd);
 	}
