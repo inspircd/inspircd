@@ -35,6 +35,7 @@ bool host_matches_everyone(std::string mask, userrec* user);
 bool ip_matches_everyone(std::string ip, userrec* user);
 bool nick_matches_everyone(std::string nick, userrec* user);	
 int operstrcmp(char* data,char* input);
+void split_chlist(userrec* user, userrec* dest, std::string &cl);
 
 /*       XXX Serious WTFness XXX
  *
