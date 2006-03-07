@@ -285,11 +285,11 @@ bool InspSocket::FlushWriteBuffer()
 				log(DEBUG,"Write error on socket: %s",strerror(errno));
 				this->OnError(I_ERR_WRITE);
 				this->state = I_ERROR;
-				return false;
+				return true;
 			}
 		}
 	}
-	return true;
+	return false;
 }
 
 bool InspSocket::Timeout(time_t current)
@@ -345,7 +345,7 @@ bool InspSocket::Poll()
 			 * Both FlushWriteBuffer AND the return result of OnDataReady must
 			 * return true for this to be ok.
 			 */
-			return (n && this->FlushWriteBuffer());
+			return (n && !this->FlushWriteBuffer());
 		break;
 		default:
 		break;
