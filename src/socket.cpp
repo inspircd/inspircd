@@ -232,7 +232,7 @@ char* InspSocket::Read()
 		}
 		else
 		{
-			log(DEBUG,"EOF or error on socket");
+			log(DEBUG,"EOF or error on socket: %s",strerror(errno));
 			return NULL;
 		}
 	}
@@ -257,7 +257,7 @@ int InspSocket::Write(std::string data)
 	return data.length();
 }
 
-void InspSocket::FlushWriteBuffer()
+bool InspSocket::FlushWriteBuffer()
 {
 	if ((this->fd > -1) && (this->state == I_CONNECTED))
 	{
@@ -280,8 +280,16 @@ void InspSocket::FlushWriteBuffer()
 					Buffer = n;
 				}
 			}
+			else if (result == -1)
+			{
+				log(DEBUG,"Write error on socket: %s",strerror(errno));
+				this->OnError(I_ERR_WRITE);
+				this->state = I_ERROR;
+				return false;
+			}
 		}
 	}
+	return true;
 }
 
 bool InspSocket::Timeout(time_t current)
@@ -299,8 +307,7 @@ bool InspSocket::Timeout(time_t current)
 		this->state = I_ERROR;
 		return true;
 	}
-	this->FlushWriteBuffer();
-	return false;
+	return this->FlushWriteBuffer();
 }
 
 bool InspSocket::Poll()
@@ -334,9 +341,11 @@ bool InspSocket::Poll()
 		case I_CONNECTED:
 			n = this->OnDataReady();
 			/* Flush any pending, but not till after theyre done with the event
-			 * so there are less write calls involved. */
-			this->FlushWriteBuffer();
-			return n;
+			 * so there are less write calls involved.
+			 * Both FlushWriteBuffer AND the return result of OnDataReady must
+			 * return true for this to be ok.
+			 */
+			return (n && this->FlushWriteBuffer());
 		break;
 		default:
 		break;

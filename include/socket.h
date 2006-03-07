@@ -32,7 +32,7 @@ enum InspSocketState { I_DISCONNECTED, I_RESOLVING, I_CONNECTING, I_CONNECTED, I
 /**
  * Error types which a socket may exhibit
  */
-enum InspSocketError { I_ERR_TIMEOUT, I_ERR_SOCKET, I_ERR_CONNECT, I_ERR_BIND, I_ERR_RESOLVE };
+enum InspSocketError { I_ERR_TIMEOUT, I_ERR_SOCKET, I_ERR_CONNECT, I_ERR_BIND, I_ERR_RESOLVE, I_ERR_WRITE };
 
 /**
  * InspSocket is an extendable socket class which modules
@@ -143,7 +143,7 @@ private:
 
 	/** Flushes the write buffer
 	 */
-	void FlushWriteBuffer();
+	bool FlushWriteBuffer();
 
 	void SetQueues(int nfd);
 
