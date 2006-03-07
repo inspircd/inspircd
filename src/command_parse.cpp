@@ -89,6 +89,11 @@ extern ServerConfig *Config;
 extern user_hash clientlist;
 extern chan_hash chanlist;
 
+/* Special commands which may occur without registration of the user */
+cmd_user* command_user;
+cmd_nick* command_nick;
+cmd_pass* command_pass;
+
 /* This function pokes and hacks at a parameter list like the following:
  *
  * PART #winbot,#darkgalaxy :m00!
@@ -366,7 +371,6 @@ bool CommandParser::CallHandler(std::string &commandname,char **parameters, int 
 int CommandParser::ProcessParameters(char **command_p,char *parameters)
 {
 	int j = 0;
-	//int q = strlen(parameters);
 
 	if (!*parameters)
 	{
@@ -635,7 +639,7 @@ void CommandParser::ProcessCommand(userrec *user, char* cmd)
 			}
 			/* if the command isnt USER, PASS, or NICK, and nick is empty,
 			 * deny command! */
-			if ((strncmp(command,"USER",4)) && (strncmp(command,"NICK",4)) && (strncmp(command,"PASS",4)))
+			if ((cm->second != command_user) && (cm->second != command_nick) && (cm->second != command_pass))
 			{
 				if ((!isnick(user->nick)) || (user->registered != 7))
 				{
@@ -658,7 +662,7 @@ void CommandParser::ProcessCommand(userrec *user, char* cmd)
 					}
 				}
 			}
-			if ((user->registered == 7) || (!strncmp(command,"USER",4)) || (!strncmp(command,"NICK",4)) || (!strncmp(command,"PASS",4)))
+			if ((user->registered == 7) || (cm->second == command_user) || (cm->second == command_nick) || (cm->second == command_pass))
 			{
 				/* ikky /stats counters */
 				if (temp)
@@ -779,8 +783,19 @@ CommandParser::CommandParser()
 
 void CommandParser::SetupCommandTable()
 {
-	this->CreateCommand(new cmd_user);
-	this->CreateCommand(new cmd_nick);
+	/* These three are special (can occur without
+	 * full user registration) and so are saved
+	 * for later use.
+	 */
+	command_user = new cmd_user;
+	command_nick = new cmd_nick;
+	command_pass = new cmd_pass;
+	this->CreateCommand(command_user);
+	this->CreateCommand(command_nick);
+	this->CreateCommand(command_pass);
+
+	/* The rest of these arent special. boo hoo.
+	 */
 	this->CreateCommand(new cmd_quit);
 	this->CreateCommand(new cmd_version);
 	this->CreateCommand(new cmd_ping);
@@ -815,7 +830,6 @@ void CommandParser::SetupCommandTable()
 	this->CreateCommand(new cmd_summon);
 	this->CreateCommand(new cmd_users);
 	this->CreateCommand(new cmd_invite);
-	this->CreateCommand(new cmd_pass);
 	this->CreateCommand(new cmd_trace);
 	this->CreateCommand(new cmd_whowas);
 	this->CreateCommand(new cmd_connect);
