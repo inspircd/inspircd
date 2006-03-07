@@ -78,10 +78,10 @@ void cmd_stats::Handle (char **parameters, int pcnt, userrec *user)
 	{
 		return;
 	}
-	if (strlen(parameters[0])>1)
+	if (parameters[0][1])
 	{
 		/* make the stats query 1 character long */
-		parameters[0][1] = '\0';
+		parameters[0][1] = 0;
 	}
 
 	if ((*Config->OperOnlyStats) && (strchr(Config->OperOnlyStats,*parameters[0])) && (!*user->oper))

@@ -76,11 +76,11 @@ void cmd_whowas::Handle (char **parameters, int pcnt, userrec* user)
 		time_t rawtime = i->second->signon;
 		tm *timeinfo;
 		char b[MAXBUF];
-		
+
 		timeinfo = localtime(&rawtime);
 		strlcpy(b,asctime(timeinfo),MAXBUF);
-		b[strlen(b)-1] = '\0';
-		
+		b[24] = 0;
+
 		WriteServ(user->fd,"314 %s %s %s %s * :%s",user->nick,i->second->nick,i->second->ident,i->second->dhost,i->second->fullname);
 		WriteServ(user->fd,"312 %s %s %s :%s",user->nick,i->second->nick, *Config->HideWhoisServer ? Config->HideWhoisServer : i->second->server,b);
 		WriteServ(user->fd,"369 %s %s :End of WHOWAS",user->nick,parameters[0]);

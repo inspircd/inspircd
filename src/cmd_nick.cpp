@@ -115,12 +115,9 @@ void cmd_nick::Handle (char **parameters, int pcnt, userrec *user)
 	}
 	else
 	{
-		if (strlen(parameters[0]) > 1)
+		if ((*parameters[0] == ':') && (*(parameters[0]+1) != 0))
 		{
-			if (parameters[0][0] == ':')
-			{
-				*parameters[0]++;
-			}
+			parameters[0]++;
 		}
 		if (matches_qline(parameters[0]))
 		{

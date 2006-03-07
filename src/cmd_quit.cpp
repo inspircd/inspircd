@@ -72,16 +72,13 @@ void cmd_quit::Handle (char **parameters, int pcnt, userrec *user)
 		/* theres more to do here, but for now just close the socket */
 		if (pcnt == 1)
 		{
-			if (parameters[0][0] == ':')
-			{
-				*parameters[0]++;
-			}
+			if (*parameters[0] == ':')
+				parameters[0]++;
+
 			reason = parameters[0];
 
-			if (strlen(reason)>MAXQUIT)
-			{
-				reason[MAXQUIT-1] = '\0';
-			}
+			if (strlen(reason) > MAXQUIT)
+				reason[MAXQUIT-1] = 0;
 
 			/* We should only prefix the quit for a local user. Remote users have
 			 * already been prefixed, where neccessary, by the upstream server.

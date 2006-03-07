@@ -68,7 +68,7 @@ int common_channels(userrec *u, userrec *u2)
 		{
 			if ((u->chans[i].channel != NULL) && (u2->chans[z].channel != NULL))
 			{
-				if ((!strcasecmp(u->chans[i].channel->name,u2->chans[z].channel->name)) && (u->chans[i].channel) && (u2->chans[z].channel) && (u->registered == 7) && (u2->registered == 7))
+				if ((u->chans[i].channel == u2->chans[z].channel) && (u->chans[i].channel) && (u2->chans[z].channel) && (u->registered == 7) && (u2->registered == 7))
 				{
 					if ((c_count(u)) && (c_count(u2)))
 					{
@@ -157,17 +157,13 @@ void chop(char* str)
 
 void Blocking(int s)
 {
-	int flags;
-	log(DEBUG,"Blocking: %d",s);
-	flags = fcntl(s, F_GETFL, 0);
+	int flags = fcntl(s, F_GETFL, 0);
 	fcntl(s, F_SETFL, flags ^ O_NONBLOCK);
 }
 
 void NonBlocking(int s)
 {
-	int flags;
-	log(DEBUG,"NonBlocking: %d",s);
-	flags = fcntl(s, F_GETFL, 0);
+	int flags = fcntl(s, F_GETFL, 0);
 	fcntl(s, F_SETFL, flags | O_NONBLOCK);
 }
 
@@ -296,7 +292,7 @@ char* cmode(userrec *user, chanrec *chan)
 	{
 		if (user->chans[i].channel)
 		{
-			if ((!strcasecmp(user->chans[i].channel->name,chan->name)) && (chan != NULL))
+			if ((user->chans[i].channel == chan) && (chan != NULL))
 			{
 				if ((user->chans[i].uc_modes & UCMODE_OP) > 0)
 				{
@@ -326,7 +322,7 @@ int cflags(userrec *user, chanrec *chan)
 	{
 		if (user->chans[i].channel)
 		{
-			if ((!strcasecmp(user->chans[i].channel->name,chan->name)) && (chan != NULL))
+			if ((user->chans[i].channel == chan) && (chan != NULL))
 			{
 				return user->chans[i].uc_modes;
 			}
@@ -354,7 +350,7 @@ int cstatus(userrec *user, chanrec *chan)
 	{
 		if (user->chans[i].channel)
 		{
-			if ((!strcasecmp(user->chans[i].channel->name,chan->name)) && (chan != NULL))
+			if ((user->chans[i].channel == chan) && (chan != NULL))
 			{
 				if ((user->chans[i].uc_modes & UCMODE_OP) > 0)
 				{
@@ -388,7 +384,7 @@ int has_channel(userrec *u, chanrec *c)
 	{
 		if (u->chans[i].channel)
 		{
-			if (!strcasecmp(u->chans[i].channel->name,c->name))
+			if (u->chans[i].channel == c)
 			{
 				return 1;
 			}
