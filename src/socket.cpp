@@ -280,7 +280,7 @@ bool InspSocket::FlushWriteBuffer()
 					Buffer = n;
 				}
 			}
-			else if (result == -1)
+			else if ((result == -1) && (errno != EAGAIN))
 			{
 				log(DEBUG,"Write error on socket: %s",strerror(errno));
 				this->OnError(I_ERR_WRITE);
