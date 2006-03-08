@@ -280,7 +280,7 @@ int isnick(const char* n)
  * % for halfop etc. If the user has several modes set, the highest mode
  * the user has must be returned. */
 
-char* cmode(userrec *user, chanrec *chan)
+const char* cmode(userrec *user, chanrec *chan)
 {
 	if ((!user) || (!chan))
 	{

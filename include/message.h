@@ -40,7 +40,7 @@ void ChangeName(userrec* user, const char* gecos);
 void ChangeDisplayedHost(userrec* user, const char* host);
 int isident(const char* n);
 int isnick(const char* n);
-char* cmode(userrec *user, chanrec *chan);
+const char* cmode(userrec *user, chanrec *chan);
 int cstatus(userrec *user, chanrec *chan);
 int has_channel(userrec *u, chanrec *c);
 void TidyBan(char *ban);
