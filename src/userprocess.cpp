@@ -386,23 +386,23 @@ void OpenLog(char** argv, int argc)
 
 void CheckRoot()
 {
-        if (geteuid() == 0)
-        {
-                printf("WARNING!!! You are running an irc server as ROOT!!! DO NOT DO THIS!!!\n\n");
-                log(DEFAULT,"InspIRCd: startup: not starting with UID 0!");
-                Exit(ERROR);
-        }
+	if (geteuid() == 0)
+	{
+		printf("WARNING!!! You are running an irc server as ROOT!!! DO NOT DO THIS!!!\n\n");
+		log(DEFAULT,"InspIRCd: startup: not starting with UID 0!");
+		Exit(ERROR);
+	}
 }
 
 
 void CheckDie()
 {
-        if (*Config->DieValue)
-        {
-                printf("WARNING: %s\n\n",Config->DieValue);
-                log(DEFAULT,"Ut-Oh, somebody didn't read their config file: '%s'",Config->DieValue);
-                exit(0);
-        }
+	if (*Config->DieValue)
+	{
+		printf("WARNING: %s\n\n",Config->DieValue);
+		log(DEFAULT,"Uh-Oh, somebody didn't read their config file: '%s'",Config->DieValue);
+		Exit(ERROR);
+	}
 }
 
 void LoadAllModules(InspIRCd* ServerInstance)
