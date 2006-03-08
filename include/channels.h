@@ -97,7 +97,7 @@ class chanrec : public Extensible
 	/** Custom modes for the channel.
 	 * Plugins may use this field in any way they see fit.
 	 */
-	char custom_modes[96];     /* modes handled by modules */
+	char custom_modes[64];     /* modes handled by modules */
 
 	/** User list (casted to char*'s to stop forward declaration stuff)
 	 * (chicken and egg scenario!)
