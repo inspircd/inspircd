@@ -397,33 +397,36 @@ char* ModeParser::TakeBan(userrec *user,char *dest,chanrec *chan,int status)
 	return NULL;
 }
 
-// tidies up redundant modes, e.g. +nt-nt+i becomes +-+i,
-// a section further down the chain tidies up the +-+- crap.
+
+/** ModeParser::CompressModes()
+ * Tidies up redundant modes,
+ * e.g. +nt-nt+i becomes +-+i
+ * A section further down the chain tidies up the +-+- crap.
+ */
 std::string ModeParser::CompressModes(std::string modes,bool channelmodes)
 {
-	int counts[127];
-	bool active[127];
-	memset(counts,0,sizeof(counts));
-	memset(active,0,sizeof(active));
+	/*
+	 * OK, iterate over the mode string and count how many times a certain mode appears in it.
+	 * Then, erase all instances of any character that appears more than once.
+	 * This only operates on modes with no parameters, you can still +v-v+v-v+v-v to your heart's content.
+	 */
 	
-	for (unsigned int i = 0; i < modes.length(); i++)
+	/* Do we really need an int here? Can you fit enough modes in a line to overflow a short? */
+	short counts[127];
+	bool active[127];
+	memset(counts, 0, sizeof(counts));
+	memset(active, 0, sizeof(active));
+	
+	for(unsigned char* i = (unsigned char*)modes.c_str(); *i; i++)
 	{
-		if ((modes[i] == '+') || (modes[i] == '-'))
+		if((*i == '+') || (*i == '-'))
 			continue;
-		if (channelmodes)
+
+		if(!channelmodes || (channelmodes && (strchr("itnmsp", *i) || (ModeDefined(*i, MT_CHANNEL) && !ModeDefinedOn(*i,MT_CHANNEL) && !ModeDefinedOff(*i,MT_CHANNEL)))))
 		{
-			if ((strchr("itnmsp",modes[i])) || ((ModeDefined(modes[i],MT_CHANNEL)) && (ModeDefinedOn(modes[i],MT_CHANNEL)==0) && (ModeDefinedOff(modes[i],MT_CHANNEL)==0)))
-			{
-				log(DEBUG,"Tidy mode %c",modes[i]);
-				counts[(unsigned int)modes[i]]++;
-				active[(unsigned int)modes[i]] = true;
-			}
-		}
-		else
-		{
-			log(DEBUG,"Tidy mode %c",modes[i]);
-			counts[(unsigned int)modes[i]]++;
-			active[(unsigned int)modes[i]] = true;
+			log(DEBUG,"Tidy mode %c", *i);
+			counts[*i]++;
+			active[*i] = true;
 		}
 	}
 	
