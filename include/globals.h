@@ -43,13 +43,6 @@ void WriteWallOps(userrec *source, bool local_only, char* text, ...);
 int isnick(const char *n);
 userrec* Find(std::string nick);
 chanrec* FindChan(const char* chan);
-//char* cmode(userrec *user, chanrec *chan);
-std::string getservername();
-std::string getnetworkname();
-std::string getadminname();
-std::string getadminemail();
-std::string getadminnick();
 void readfile(file_cache &F, const char* fname);
-int ModeDefiend(char c, int i);
 
 #endif
