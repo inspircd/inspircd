@@ -64,6 +64,10 @@ class ModuleSQLAuth : public Module
 									// define, but leave blank if no encryption is to be used.
 		WallOperFail = Conf->ReadFlag("sqlauth","verbose",0);	// set to 1 if failed connects should be reported to operators
 		allowpattern = Conf->ReadValue("sqlauth","allowpattern",0); 	// allow nicks matching the pattern without requiring auth
+		if (encryption.find("(") == std::string::npos)
+		{
+			encryption.append("(");
+		}
 		delete Conf;
 		SQLModule = Srv->FindModule("m_sql.so");
 		if (!SQLModule)
@@ -126,7 +130,7 @@ class ModuleSQLAuth : public Module
 		password = temp;
 
 		// Create a request containing the SQL query and send it to m_sql.so
-		std::string querystr("SELECT * FROM "+usertable+" WHERE "+userfield+"='"+username+"' AND "+passfield+"="+encryption+"('"+password+"')");
+		std::string querystr("SELECT * FROM "+usertable+" WHERE "+userfield+"='"+username+"' AND "+passfield+"="+encryption+"'"+password+"')");
 		
 		Srv->Log(DEBUG, "m_sqlauth.so: Query: " + querystr);
 		
