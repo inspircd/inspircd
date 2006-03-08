@@ -128,7 +128,7 @@ class ModuleOperWho : public Module
 				{
 				  	for (user_hash::const_iterator i = clientlist.begin(); i != clientlist.end(); i++)
 					{
-						if ((has_channel(i->second,Ptr)) && (isnick(i->second->nick)))
+						if ((Ptr->HasUser(i->second)) && (isnick(i->second->nick)))
 						{
 							// Fix Bug #29 - Part 2..
 							*tmp = 0;

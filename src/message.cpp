@@ -371,29 +371,6 @@ int cstatus(userrec *user, chanrec *chan)
 	return STATUS_NORMAL;
 }
 
-/* returns 1 if user u has channel c in their record, 0 if not */
-
-int has_channel(userrec *u, chanrec *c)
-{
-	if ((!u) || (!c))
-	{
-		log(DEFAULT,"*** BUG *** has_channel was given an invalid parameter");
-		return 0;
-	}
-	for (unsigned int i =0; i < u->chans.size(); i++)
-	{
-		if (u->chans[i].channel)
-		{
-			if (u->chans[i].channel == c)
-			{
-				return 1;
-			}
-		}
-	}
-	return 0;
-}
-
-
 void TidyBan(char *ban)
 {
 	if (!ban) {
@@ -443,7 +420,7 @@ std::string chlist(userrec *user,userrec* source)
 				{
 					// if the channel is NOT private/secret, OR the source user is on the channel, AND the user is not invisible.
 					// if the user is the same as the source, shortcircuit the comparison.
-					if ((source == user) || ((((!(user->chans[i].channel->binarymodes & CM_PRIVATE)) && (!(user->chans[i].channel->binarymodes & CM_SECRET)) && (!userinvisible)) || (has_channel(source,user->chans[i].channel)))))
+					if ((source == user) || ((((!(user->chans[i].channel->binarymodes & CM_PRIVATE)) && (!(user->chans[i].channel->binarymodes & CM_SECRET)) && (!userinvisible)) || (user->chans[i].channel->HasUser(source)))))
 					{
 						lst = lst + std::string(cmode(user,user->chans[i].channel)) + std::string(user->chans[i].channel->name) + " ";
 					}

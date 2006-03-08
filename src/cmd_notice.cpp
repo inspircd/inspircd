@@ -94,7 +94,7 @@ void cmd_notice::Handle (char **parameters, int pcnt, userrec *user)
 		{
 			if (IS_LOCAL(user))
 			{
-				if ((chan->binarymodes & CM_NOEXTERNAL) && (!has_channel(user,chan)))
+				if ((chan->binarymodes & CM_NOEXTERNAL) && (!chan->HasUser(user)))
 				{
 					WriteServ(user->fd,"404 %s %s :Cannot send to channel (no external messages)", user->nick, chan->name);
 					return;

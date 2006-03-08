@@ -92,6 +92,10 @@ class userrec;
  */
 typedef std::map<userrec*,userrec*> CUList;
 
+/** A list of custom modes parameters on a channel
+ */
+typedef std::map<char,char*> CustomModeList;
+
 /** Holds all relevent information for a channel.
  * This class represents a channel, and contains its name, modes, time created, topic, topic set time,
  * etc, and an instance of the BanList type.
@@ -107,8 +111,10 @@ class chanrec : public Extensible
 	 */
 	char custom_modes[64];     /* modes handled by modules */
 
-	/** User list (casted to char*'s to stop forward declaration stuff)
-	 * (chicken and egg scenario!)
+	/** User lists
+	 * There are four user lists, one for 
+	 * all the users, one for the ops, one for
+	 * the halfops and another for the voices.
 	 */
 	CUList internal_userlist;
 	CUList internal_op_userlist;
@@ -117,12 +123,12 @@ class chanrec : public Extensible
 
 	/** Parameters for custom modes
 	 */
-	std::map<char,char*> custom_mode_params;
+	CustomModeList custom_mode_params;
 
 	/** Channel topic.
 	 * If this is an empty string, no channel topic is set.
 	 */
-	char topic[MAXBUF];
+	char topic[MAXTOPIC];
 	/** Creation time.
 	 */
 	time_t created;
@@ -194,42 +200,40 @@ class chanrec : public Extensible
 	long GetUserCounter();
 
 	/** Add a user pointer to the internal reference list
-	 * @param castuser This should be a pointer to a userrec, casted to char*
+	 * @param user The user to add
 	 *
 	 * The data inserted into the reference list is a table as it is
 	 * an arbitary pointer compared to other users by its memory address,
 	 * as this is a very fast 32 or 64 bit integer comparison.
 	 */
-	void AddUser(userrec* castuser);
-	void AddOppedUser(userrec* castuser);
-	void AddHalfoppedUser(userrec* castuser);
-	void AddVoicedUser(userrec* castuser);
+	void AddUser(userrec* user);
+	void AddOppedUser(userrec* user);
+	void AddHalfoppedUser(userrec* user);
+	void AddVoicedUser(userrec* user);
 
         /** Delete a user pointer to the internal reference list
-	 * @param castuser This should be a pointer to a userrec, casted to char*
-	 *
-         * The data removed from the reference list is a table as it is
-         * an arbitary pointer compared to other users by its memory address,
-         * as this is a very fast 32 or 64 bit integer comparison.
+	 * @param user The user to delete
          */
-	void DelUser(userrec* castuser);
-	void DelOppedUser(userrec* castuser);
-	void DelHalfoppedUser(userrec* castuser);
-	void DelVoicedUser(userrec* castuser);
+	void DelUser(userrec* user);
+	void DelOppedUser(userrec* user);
+	void DelHalfoppedUser(userrec* user);
+	void DelVoicedUser(userrec* user);
 
 	/** Obrain the internal reference list
-	 * The internal reference list contains a list of userrec*
-	 * cast to char*. These are used for rapid comparison to determine
+	 * The internal reference list contains a list of userrec*.
+	 * These are used for rapid comparison to determine
 	 * channel membership for PRIVMSG, NOTICE, QUIT, PART etc.
 	 * The resulting pointer to the vector should be considered
 	 * readonly and only modified via AddUser and DelUser.
 	 *
-	 * @return This function returns a vector of userrec pointers, each of which has been casted to char* to prevent circular references
+	 * @return This function returns pointer to a map of userrec pointers (CUList*).
 	 */
-	CUList *GetUsers();
-	CUList *GetOppedUsers();
-	CUList *GetHalfoppedUsers();
-	CUList *GetVoicedUsers();
+	CUList* GetUsers();
+	CUList* GetOppedUsers();
+	CUList* GetHalfoppedUsers();
+	CUList* GetVoicedUsers();
+
+	bool HasUser(userrec* user);
 
 	/** Creates a channel record and initialises it with default values
 	 */

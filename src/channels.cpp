@@ -128,94 +128,91 @@ long chanrec::GetUserCounter()
 	return (this->internal_userlist.size());
 }
 
-void chanrec::AddUser(userrec* castuser)
+void chanrec::AddUser(userrec* user)
 {
-	internal_userlist[castuser] = castuser;
-	log(DEBUG,"Added casted user to channel's internal list");
+	internal_userlist[user] = user;
 }
 
-void chanrec::DelUser(userrec* castuser)
+void chanrec::DelUser(userrec* user)
 {
-	CUList::iterator a = internal_userlist.find(castuser);
+	CUList::iterator a = internal_userlist.find(user);
 	if (a != internal_userlist.end())
 	{
-		log(DEBUG,"Removed casted user from channel's internal list");
 		internal_userlist.erase(a);
 		/* And tidy any others... */
-		DelOppedUser(castuser);
-		DelHalfoppedUser(castuser);
-		DelVoicedUser(castuser);
+		DelOppedUser(user);
+		DelHalfoppedUser(user);
+		DelVoicedUser(user);
 		return;
 	}
 }
 
-void chanrec::AddOppedUser(userrec* castuser)
+bool chanrec::HasUser(userrec* user)
 {
-	internal_op_userlist[castuser] = castuser;
-	log(DEBUG,"Added casted user to channel's internal list");
+	return (internal_userlist.find(user) != internal_userlist.end());
 }
 
-void chanrec::DelOppedUser(userrec* castuser)
+void chanrec::AddOppedUser(userrec* user)
 {
-	CUList::iterator a = internal_op_userlist.find(castuser);
+	internal_op_userlist[user] = user;
+}
+
+void chanrec::DelOppedUser(userrec* user)
+{
+	CUList::iterator a = internal_op_userlist.find(user);
 	if (a != internal_op_userlist.end())
 	{
-		log(DEBUG,"Removed casted user from channel's internal list");
 		internal_op_userlist.erase(a);
 		return;
 	}
 }
 
-void chanrec::AddHalfoppedUser(userrec* castuser)
+void chanrec::AddHalfoppedUser(userrec* user)
 {
-	internal_halfop_userlist[castuser] = castuser;
-	log(DEBUG,"Added casted user to channel's internal list");
+	internal_halfop_userlist[user] = user;
 }
 
-void chanrec::DelHalfoppedUser(userrec* castuser)
+void chanrec::DelHalfoppedUser(userrec* user)
 {
-	CUList::iterator a = internal_halfop_userlist.find(castuser);
+	CUList::iterator a = internal_halfop_userlist.find(user);
 	if (a != internal_halfop_userlist.end())
 	{   
-		log(DEBUG,"Removed casted user from channel's internal list");
 		internal_halfop_userlist.erase(a);
 		return; 
 	}
 }
 
-void chanrec::AddVoicedUser(userrec* castuser)
+void chanrec::AddVoicedUser(userrec* user)
 {
-	internal_voice_userlist[castuser] = castuser;
-	log(DEBUG,"Added casted user to channel's internal list");
+	internal_voice_userlist[user] = user;
 }
 
-void chanrec::DelVoicedUser(userrec* castuser)
+void chanrec::DelVoicedUser(userrec* user)
 {
-	CUList::iterator a = internal_voice_userlist.find(castuser);
+	CUList::iterator a = internal_voice_userlist.find(user);
 	if (a != internal_voice_userlist.end())
 	{
-		log(DEBUG,"Removed casted user from channel's internal list");
 		internal_voice_userlist.erase(a);
 		return; 
 	}
 }
 
-CUList *chanrec::GetUsers()
+CUList* chanrec::GetUsers()
 {
 	return &internal_userlist;
 }
 
-CUList *chanrec::GetOppedUsers()
+CUList* chanrec::GetOppedUsers()
 {
 	return &internal_op_userlist;
 }
 
-CUList *chanrec::GetHalfoppedUsers()
+CUList* chanrec::GetHalfoppedUsers()
 {
 	return &internal_halfop_userlist;
 }
 
-CUList *chanrec::GetVoicedUsers()
+CUList* chanrec::GetVoicedUsers()
 {
 	return &internal_voice_userlist;
 }
@@ -273,7 +270,7 @@ chanrec* add_channel(userrec *user, const char* cn, const char* key, bool overri
 	else
 	{
 		/* Already on the channel */
-		if (has_channel(user,Ptr))
+		if (Ptr->HasUser(user))
 			return NULL;
 
 		/*
@@ -536,7 +533,7 @@ void server_kick_channel(userrec* user, chanrec* Ptr, char* reason, bool trigger
 
 	if (IS_LOCAL(user))
 	{
-		if (!has_channel(user,Ptr))
+		if (!Ptr->HasUser(user))
 		{
 			/* Not on channel */
 			return;
@@ -589,7 +586,7 @@ void kick_channel(userrec *src,userrec *user, chanrec *Ptr, char* reason)
 
 	if (IS_LOCAL(src))
 	{
-		if (!has_channel(user,Ptr))
+		if (!Ptr->HasUser(user))
 		{
 			WriteServ(src->fd,"441 %s %s %s :They are not on that channel",src->nick, user->nick, Ptr->name);
 			return;

@@ -1310,7 +1310,7 @@ void cmd_mode::Handle (char **parameters, int pcnt, userrec *user)
 			if (pcnt == 1)
 			{
 				/* just /modes #channel */
-				WriteServ(user->fd,"324 %s %s +%s",user->nick, Ptr->name, chanmodes(Ptr,has_channel(user,Ptr)));
+				WriteServ(user->fd,"324 %s %s +%s",user->nick, Ptr->name, chanmodes(Ptr,Ptr->HasUser(user)));
 	                        WriteServ(user->fd,"329 %s %s %d", user->nick, Ptr->name, Ptr->created);
 				return;
 			}
@@ -1342,7 +1342,7 @@ void cmd_mode::Handle (char **parameters, int pcnt, userrec *user)
 				}
 			}
 
-	                if (((Ptr) && (!has_channel(user,Ptr))) && (!is_uline(user->server)) && (IS_LOCAL(user)))
+			if ((IS_LOCAL(user)) && (!is_uline(user->server)) && (!Ptr->HasUser(user)))
 	                {
 	                        WriteServ(user->fd,"442 %s %s :You're not on that channel!",user->nick, Ptr->name);
 	                        return;
@@ -1357,7 +1357,7 @@ void cmd_mode::Handle (char **parameters, int pcnt, userrec *user)
 					return;
 				if (MOD_RESULT == ACR_DEFAULT)
 				{
-					if ((cstatus(user,Ptr) < STATUS_HOP) && (IS_LOCAL(user)))
+					if ((IS_LOCAL(user)) && (cstatus(user,Ptr) < STATUS_HOP))
 					{
 						WriteServ(user->fd,"482 %s %s :You must be at least a half-operator to change modes on this channel",user->nick, Ptr->name);
 						return;

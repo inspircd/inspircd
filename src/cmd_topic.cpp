@@ -70,7 +70,7 @@ void cmd_topic::Handle (char **parameters, int pcnt, userrec *user)
 		Ptr = FindChan(parameters[0]);
 		if (Ptr)
 		{
-			if (((Ptr) && (!has_channel(user,Ptr))) && (Ptr->binarymodes & CM_SECRET))
+			if ((Ptr->binarymodes & CM_SECRET) && (!Ptr->HasUser(user)))
 			{
 				WriteServ(user->fd,"401 %s %s :No such nick/channel",user->nick, Ptr->name);
 				return;

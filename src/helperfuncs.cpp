@@ -1348,9 +1348,14 @@ void userlist(userrec *user,chanrec *c)
 
 	CUList *ulist= c->GetUsers();
 
+	/* Improvement by Brain - this doesnt change in value, so why was it inside
+	 * the loop?
+	 */
+	bool has_user = c->HasUser(user,c);
+
 	for (CUList::iterator i = ulist->begin(); i != ulist->end(); i++)
 	{
-		if ((!has_channel(user,c)) && (strchr(i->second->modes,'i')))
+		if ((!n) && (strchr(i->second->modes,'i')))
 		{
 			/*
 			 * user is +i, and source not on the channel, does not show

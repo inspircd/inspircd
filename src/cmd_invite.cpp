@@ -70,12 +70,12 @@ void cmd_invite::Handle (char **parameters, int pcnt, userrec *user)
 				return;
 			}
 		}
-		if (has_channel(u,c))
+		if (c->HasUser(u))
 	 	{
 	 		WriteServ(user->fd,"443 %s %s %s :Is already on channel %s",user->nick,u->nick,c->name,c->name);
 	 		return;
 		}
-		if ((IS_LOCAL(user)) && (!has_channel(user,c)))
+		if ((IS_LOCAL(user)) && (!c->HasUser(user)))
 	 	{
 			WriteServ(user->fd,"442 %s %s :You're not on that channel!",user->nick, c->name);
 	  		return;

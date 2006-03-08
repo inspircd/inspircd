@@ -97,10 +97,11 @@ class ListTimer : public InspTimer
 						WriteServ(u->fd,"321 %s Channel :Users Name",u->nick);
                                         chan = Srv->GetChannelIndex(ld->list_position);
                                         /* spool details */
-                                        if ((chan) && (((!(chan->binarymodes & CM_PRIVATE)) && (!(chan->binarymodes & CM_SECRET))) || (has_channel(u,chan))))
+					bool has_user = chan->HasUser(u);
+                                        if ((chan) && (((!(chan->binarymodes & CM_PRIVATE)) && (!(chan->binarymodes & CM_SECRET))) || (has_user)))
                                         {
                                                 /* Increment total plus linefeed */
-                                                int counter = snprintf(buffer,MAXBUF,"322 %s %s %d :[+%s] %s",u->nick,chan->name,usercount_i(chan),chanmodes(chan,has_channel(u,chan)),chan->topic);
+                                                int counter = snprintf(buffer,MAXBUF,"322 %s %s %d :[+%s] %s",u->nick,chan->name,usercount_i(chan),chanmodes(chan,has_user),chan->topic);
                                                 amount_sent += counter + 4 + Srv->GetServerName().length();
                                                 log(DEBUG,"m_safelist.so: Sent %ld of safe %ld / 4",amount_sent,u->sendqmax);
                                                 WriteServ_NoFormat(u->fd,buffer);

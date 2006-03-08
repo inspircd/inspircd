@@ -46,9 +46,9 @@ void cmd_list::Handle (char **parameters, int pcnt, userrec *user)
 	for (chan_hash::const_iterator i = chanlist.begin(); i != chanlist.end(); i++)
 	{
 		// if the channel is not private/secret, OR the user is on the channel anyway
-		if (((!(i->second->binarymodes & CM_PRIVATE)) && (!(i->second->binarymodes & CM_SECRET))) || (has_channel(user,i->second)))
+		if (((!(i->second->binarymodes & CM_PRIVATE)) && (!(i->second->binarymodes & CM_SECRET))) || (i->second->HasUser(user)))
 		{
-			WriteServ(user->fd,"322 %s %s %d :[+%s] %s",user->nick,i->second->name,usercount_i(i->second),chanmodes(i->second,has_channel(user,i->second)),i->second->topic);
+			WriteServ(user->fd,"322 %s %s %d :[+%s] %s",user->nick,i->second->name,usercount_i(i->second),chanmodes(i->second,i->second->HasUser(user)),i->second->topic);
 		}
 	}
 	WriteServ(user->fd,"323 %s :End of channel list.",user->nick);

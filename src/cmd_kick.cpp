@@ -51,7 +51,7 @@ void cmd_kick::Handle (char **parameters, int pcnt, userrec *user)
 		WriteServ(user->fd,"401 %s %s :No such nick/channel",user->nick, u ? parameters[0] : parameters[1]);
 		return;
 	}
-	if ((IS_LOCAL(user)) && (!has_channel(user,Ptr)) && (!is_uline(user->server)))
+	if ((IS_LOCAL(user)) && (!Ptr->HasUser(user)) && (!is_uline(user->server)))
 	{
 		WriteServ(user->fd,"442 %s %s :You're not on that channel!",user->nick, parameters[0]);
 		return;
