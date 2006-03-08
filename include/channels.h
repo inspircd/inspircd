@@ -24,12 +24,14 @@
 #include <string>
 #include <map>
 
-#define CM_TOPICLOCK 1
-#define CM_NOEXTERNAL 2
-#define CM_INVITEONLY 4
-#define CM_MODERATED 8
-#define CM_SECRET 16
-#define CM_PRIVATE 32
+enum ChannelModes {
+	CM_TOPICLOCK = 1,
+	CM_NOEXTERNAL = 2,
+	CM_INVITEONLY = 4,
+	CM_MODERATED = 8,
+	CM_SECRET = 16,
+	CM_PRIVATE = 32
+};
 
 class userrec;
 
@@ -230,14 +232,13 @@ class chanrec : public Extensible
 	virtual ~chanrec() { /* stub */ }
 };
 
-/* used to hold a channel and a users modes on that channel, e.g. +v, +h, +o
+/** used to hold a channel and a users modes on that channel, e.g. +v, +h, +o
  * needs to come AFTER struct chanrec */
-
-#define UCMODE_OP      1
-#define UCMODE_VOICE   2
-#define UCMODE_HOP     4
-#define UCMODE_PROTECT 8
-#define UCMODE_FOUNDER 16
+enum UserChannelModes {
+	UCMODE_OP      = 1,
+	UCMODE_VOICE   = 2,
+	UCMODE_HOP     = 4
+};
  
 /** Holds a user's modes on a channel
  * This class associates a users privilages with a channel by creating a pointer link between
