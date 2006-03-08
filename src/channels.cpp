@@ -73,7 +73,7 @@ chanrec::chanrec()
 	*name = *topic = *setby = *key = 0;
 	created = topicset = limit = binarymodes = 0;
 	internal_userlist.clear();
-	memset(&custom_modes,0,190);
+	memset(&custom_modes,0,96);
 }
 
 void chanrec::SetCustomMode(char mode,bool mode_on)
