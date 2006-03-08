@@ -405,6 +405,7 @@ std::string ModeParser::CompressModes(std::string modes,bool channelmodes)
 	bool active[127];
 	memset(counts,0,sizeof(counts));
 	memset(active,0,sizeof(active));
+	
 	for (unsigned int i = 0; i < modes.length(); i++)
 	{
 		if ((modes[i] == '+') || (modes[i] == '-'))
@@ -429,20 +430,17 @@ std::string ModeParser::CompressModes(std::string modes,bool channelmodes)
 	{
 		if ((counts[j] > 1) && (active[j] == true))
 		{
-			static char v[2];
-			v[0] = (unsigned char)j;
-			v[1] = '\0';
-			std::string mode_str = v;
-			std::string::size_type pos = modes.find(mode_str);
-			if (pos != std::string::npos)
+			std::string::size_type pos;
+
+			while((pos = modes.find((unsigned char)j)) != std::string::npos)
 			{
-				log(DEBUG,"all occurances of mode %c to be deleted...",(unsigned char)j);
-				while (modes.find(mode_str) != std::string::npos)
-					modes.erase(modes.find(mode_str),1);
-				log(DEBUG,"New mode line: %s",modes.c_str());
+				log(DEBUG, "Deleting occurence of mode %c...", (unsigned char)j);
+				modes.erase(pos, 1);
+				log(DEBUG,"New mode line: %s", modes.c_str());
 			}
 		}
 	}
+	
 	return modes;
 }
 
