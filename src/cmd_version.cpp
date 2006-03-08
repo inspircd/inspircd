@@ -1,4 +1,4 @@
-/*       +------------------------------------+
+/*   +------------------------------------+
  *       | Inspire Internet Relay Chat Daemon |
  *       +------------------------------------+
  *
@@ -54,23 +54,26 @@ extern InspIRCd* ServerInstance;
 
 void cmd_version::Handle (char **parameters, int pcnt, userrec *user)
 {
+	std::stringstream out(Config->data005);
+	std::string token = "";
+	std::string line5 = "";
+	int token_counter = 0;
+
 	WriteServ(user->fd,"351 %s :%s",user->nick,ServerInstance->GetVersionString().c_str());
-        std::stringstream out(Config->data005);
-        std::string token = "";
-        std::string line5 = "";
-        int token_counter = 0;
-        while (!out.eof())
-        {
-                out >> token;
-                line5 = line5 + token + " ";
-                token_counter++;
-                if ((token_counter >= 13) || (out.eof() == true))
-                {
-                        WriteServ(user->fd,"005 %s %s:are supported by this server",user->nick,line5.c_str());
-                        line5 = "";
-                        token_counter = 0;
-                }
-        }
+
+	while (!out.eof())
+	{
+		out >> token;
+		line5 = line5 + token + " ";
+		token_counter++;
+
+		if ((token_counter >= 13) || (out.eof() == true))
+		{
+			WriteServ(user->fd,"005 %s %s:are supported by this server",user->nick,line5.c_str());
+			line5 = "";
+			token_counter = 0;
+		}
+	}
 }
 
 
