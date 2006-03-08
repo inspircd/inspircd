@@ -1143,24 +1143,22 @@ class TreeSocket : public InspSocket
 		size_t counter = snprintf(list,MAXBUF,":%s FJOIN %s %lu",Srv->GetServerName().c_str(),c->name,(unsigned long)c->age);
 		size_t initial = counter;
 
-		std::map<char*,char*> *ulist = c->GetUsers();
+		CUList *ulist = c->GetUsers();
 		std::vector<userrec*> specific_halfop;
 		std::vector<userrec*> specific_voice;
 
-		for (std::map<char*,char*>::iterator i = ulist->begin(); i != ulist->end(); i++)
+		for (CUList::iterator i = ulist->begin(); i != ulist->end(); i++)
 		{
-			char* o = i->second;
-			userrec* otheruser = (userrec*)o;
 			charlcat(list,' ',MAXBUF);
 			counter++;
-			int x = cflags(otheruser,c);
+			int x = cflags(i->second,c);
 			if ((x & UCMODE_HOP) && (x & UCMODE_OP))
 			{
-				specific_halfop.push_back(otheruser);
+				specific_halfop.push_back(i->second);
 			}
 			if (((x & UCMODE_HOP) || (x & UCMODE_OP)) && (x & UCMODE_VOICE))
 			{
-				specific_voice.push_back(otheruser);
+				specific_voice.push_back(i->second);
 			}
 
 			char n = 0;
@@ -1183,7 +1181,7 @@ class TreeSocket : public InspSocket
 				counter++;
 			}
 
-			counter += strlcat(list,otheruser->nick,MAXBUF);
+			counter += strlcat(list,i->second->nick,MAXBUF);
 
 			if (counter > (480-NICKMAX))
 			{
@@ -2660,14 +2658,12 @@ void AddThisServer(TreeServer* server, std::deque<TreeServer*> &list)
 // returns a list of DIRECT servernames for a specific channel
 void GetListOfServersForChannel(chanrec* c, std::deque<TreeServer*> &list)
 {
-	std::map<char*,char*> *ulist = c->GetUsers();
-	for (std::map<char*,char*>::iterator i = ulist->begin(); i != ulist->end(); i++)
+	CUList *ulist = c->GetUsers();
+	for (CUList::iterator i = ulist->begin(); i != ulist->end(); i++)
 	{
-		char* o = i->second;
-		userrec* otheruser = (userrec*)o;
-		if (otheruser->fd < 0)
+		if (i->second->fd < 0)
 		{
-			TreeServer* best = BestRouteTo(otheruser->server);
+			TreeServer* best = BestRouteTo(i->second->server);
 			if (best)
 				AddThisServer(best,list);
 		}

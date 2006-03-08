@@ -128,15 +128,15 @@ long chanrec::GetUserCounter()
 	return (this->internal_userlist.size());
 }
 
-void chanrec::AddUser(char* castuser)
+void chanrec::AddUser(userrec* castuser)
 {
 	internal_userlist[castuser] = castuser;
 	log(DEBUG,"Added casted user to channel's internal list");
 }
 
-void chanrec::DelUser(char* castuser)
+void chanrec::DelUser(userrec* castuser)
 {
-	std::map<char*,char*>::iterator a = internal_userlist.find(castuser);
+	CUList::iterator a = internal_userlist.find(castuser);
 	if (a != internal_userlist.end())
 	{
 		log(DEBUG,"Removed casted user from channel's internal list");
@@ -149,15 +149,15 @@ void chanrec::DelUser(char* castuser)
 	}
 }
 
-void chanrec::AddOppedUser(char* castuser)
+void chanrec::AddOppedUser(userrec* castuser)
 {
 	internal_op_userlist[castuser] = castuser;
 	log(DEBUG,"Added casted user to channel's internal list");
 }
 
-void chanrec::DelOppedUser(char* castuser)
+void chanrec::DelOppedUser(userrec* castuser)
 {
-	std::map<char*,char*>::iterator a = internal_op_userlist.find(castuser);
+	CUList::iterator a = internal_op_userlist.find(castuser);
 	if (a != internal_op_userlist.end())
 	{
 		log(DEBUG,"Removed casted user from channel's internal list");
@@ -166,15 +166,15 @@ void chanrec::DelOppedUser(char* castuser)
 	}
 }
 
-void chanrec::AddHalfoppedUser(char* castuser)
+void chanrec::AddHalfoppedUser(userrec* castuser)
 {
 	internal_halfop_userlist[castuser] = castuser;
 	log(DEBUG,"Added casted user to channel's internal list");
 }
 
-void chanrec::DelHalfoppedUser(char* castuser)
+void chanrec::DelHalfoppedUser(userrec* castuser)
 {
-	std::map<char*,char*>::iterator a = internal_halfop_userlist.find(castuser);
+	CUList::iterator a = internal_halfop_userlist.find(castuser);
 	if (a != internal_halfop_userlist.end())
 	{   
 		log(DEBUG,"Removed casted user from channel's internal list");
@@ -183,15 +183,15 @@ void chanrec::DelHalfoppedUser(char* castuser)
 	}
 }
 
-void chanrec::AddVoicedUser(char* castuser)
+void chanrec::AddVoicedUser(userrec* castuser)
 {
 	internal_voice_userlist[castuser] = castuser;
 	log(DEBUG,"Added casted user to channel's internal list");
 }
 
-void chanrec::DelVoicedUser(char* castuser)
+void chanrec::DelVoicedUser(userrec* castuser)
 {
-	std::map<char*,char*>::iterator a = internal_voice_userlist.find(castuser);
+	CUList::iterator a = internal_voice_userlist.find(castuser);
 	if (a != internal_voice_userlist.end())
 	{
 		log(DEBUG,"Removed casted user from channel's internal list");
@@ -200,22 +200,22 @@ void chanrec::DelVoicedUser(char* castuser)
 	}
 }
 
-std::map<char*,char*> *chanrec::GetUsers()
+CUList *chanrec::GetUsers()
 {
 	return &internal_userlist;
 }
 
-std::map<char*,char*> *chanrec::GetOppedUsers()
+CUList *chanrec::GetOppedUsers()
 {
 	return &internal_op_userlist;
 }
 
-std::map<char*,char*> *chanrec::GetHalfoppedUsers()
+CUList *chanrec::GetHalfoppedUsers()
 {
 	return &internal_halfop_userlist;
 }
 
-std::map<char*,char*> *chanrec::GetVoicedUsers()
+CUList *chanrec::GetVoicedUsers()
 {
 	return &internal_voice_userlist;
 }
@@ -417,7 +417,7 @@ chanrec* add_channel(userrec *user, const char* cn, const char* key, bool overri
 		chan_hash::iterator n = chanlist.find(cname);
 		if (n != chanlist.end())
 		{
-			Ptr->DelUser((char*)user);
+			Ptr->DelUser(user);
 			delete Ptr;
 			chanlist.erase(n);
 			for (unsigned int index =0; index < user->chans.size(); index++)
@@ -439,7 +439,7 @@ chanrec* ForceChan(chanrec* Ptr,ucrec &a,userrec* user, int created)
 	{
 		/* first user in is given ops */
 		a.uc_modes = UCMODE_OP;
-		Ptr->AddOppedUser((char*)user);
+		Ptr->AddOppedUser(user);
 	}
 	else
 	{
@@ -447,7 +447,7 @@ chanrec* ForceChan(chanrec* Ptr,ucrec &a,userrec* user, int created)
 	}
 
 	a.channel = Ptr;
-	Ptr->AddUser((char*)user);
+	Ptr->AddUser(user);
 	WriteChannel(Ptr,user,"JOIN :%s",Ptr->name);
 	log(DEBUG,"Sent JOIN to client");
 
@@ -505,7 +505,7 @@ chanrec* del_channel(userrec *user, const char* cname, const char* reason, bool 
 		}
 	}
 
-	Ptr->DelUser((char*)user);
+	Ptr->DelUser(user);
 
 	/* if there are no users left on the channel */
 	if (!usercount(Ptr))
@@ -560,7 +560,7 @@ void server_kick_channel(userrec* user, chanrec* Ptr, char* reason, bool trigger
 		}
 	}
 
-	Ptr->DelUser((char*)user);
+	Ptr->DelUser(user);
 
 	if (!usercount(Ptr))
 	{
@@ -647,7 +647,7 @@ void kick_channel(userrec *src,userrec *user, chanrec *Ptr, char* reason)
 		}
 	}
 
-	Ptr->DelUser((char*)user);
+	Ptr->DelUser(user);
 
 	/* if there are no users left on the channel */
 	if (!usercount(Ptr))

@@ -451,12 +451,9 @@ chanuserlist Server::GetUsers(chanrec* chan)
 {
 	chanuserlist userl;
 	userl.clear();
-	std::map<char*,char*> *list = chan->GetUsers();
-  	for (std::map<char*,char*>::iterator i = list->begin(); i != list->end(); i++)
-	{
-		char* o = i->second;
-		userl.push_back((userrec*)o);
-	}
+	CUList *list = chan->GetUsers();
+  	for (CUList::iterator i = list->begin(); i != list->end(); i++)
+		userl.push_back(i->second);
 	return userl;
 }
 void Server::ChangeUserNick(userrec* user, std::string nickname)

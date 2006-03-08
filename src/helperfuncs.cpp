@@ -458,7 +458,7 @@ void WriteChannel(chanrec* Ptr, userrec* user, char* text, ...)
 {
 	char textbuffer[MAXBUF];
 	va_list argsPtr;
-	std::map<char*,char*> *ulist;
+	CUList *ulist;
 
 	if ((!Ptr) || (!user) || (!text))
 	{
@@ -472,18 +472,16 @@ void WriteChannel(chanrec* Ptr, userrec* user, char* text, ...)
 
 	ulist = Ptr->GetUsers();
 
-	for (std::map<char*,char*>::iterator i = ulist->begin(); i != ulist->end(); i++)
+	for (CUList::iterator i = ulist->begin(); i != ulist->end(); i++)
 	{
-		userrec* otheruser = (userrec*)i->second;
-
-		if (otheruser->fd != FD_MAGIC_NUMBER)
-			WriteTo_NoFormat(user,otheruser,textbuffer);
+		if (i->second->fd != FD_MAGIC_NUMBER)
+			WriteTo_NoFormat(user,i->second,textbuffer);
 	}
 }
 
 void WriteChannel_NoFormat(chanrec* Ptr, userrec* user, const char* text)
 {
-	std::map<char*,char*> *ulist;
+	CUList *ulist;
 
 	if ((!Ptr) || (!user) || (!text))
 	{
@@ -493,12 +491,10 @@ void WriteChannel_NoFormat(chanrec* Ptr, userrec* user, const char* text)
 
 	ulist = Ptr->GetUsers();
 
-	for (std::map<char*,char*>::iterator i = ulist->begin(); i != ulist->end(); i++)
+	for (CUList::iterator i = ulist->begin(); i != ulist->end(); i++)
 	{
-		userrec* otheruser = (userrec*)i->second;
-
-		if (otheruser->fd != FD_MAGIC_NUMBER)
-			WriteTo_NoFormat(user,otheruser,text);
+		if (i->second->fd != FD_MAGIC_NUMBER)
+			WriteTo_NoFormat(user,i->second,text);
 	}
 }
 
@@ -511,7 +507,7 @@ void WriteChannelLocal(chanrec* Ptr, userrec* user, char* text, ...)
 {
 	char textbuffer[MAXBUF];
 	va_list argsPtr;
-	std::map<char*,char*> *ulist;
+	CUList *ulist;
 
 	if ((!Ptr) || (!text))
 	{
@@ -525,19 +521,17 @@ void WriteChannelLocal(chanrec* Ptr, userrec* user, char* text, ...)
 
 	ulist = Ptr->GetUsers();
 
-	for (std::map<char*,char*>::iterator i = ulist->begin(); i != ulist->end(); i++)
+	for (CUList::iterator i = ulist->begin(); i != ulist->end(); i++)
 	{
-		userrec* otheruser = (userrec*)i->second;
-
-		if ((otheruser->fd != FD_MAGIC_NUMBER) && (otheruser != user))
+		if ((i->second->fd != FD_MAGIC_NUMBER) && (i->second != user))
 		{
 			if (!user)
 			{
-				WriteServ_NoFormat(otheruser->fd,textbuffer);
+				WriteServ_NoFormat(i->second->fd,textbuffer);
 			}
 			else
 			{
-				WriteTo_NoFormat(user,otheruser,textbuffer);
+				WriteTo_NoFormat(user,i->second,textbuffer);
 			}
 		}
 	}
@@ -545,7 +539,7 @@ void WriteChannelLocal(chanrec* Ptr, userrec* user, char* text, ...)
 
 void WriteChannelLocal_NoFormat(chanrec* Ptr, userrec* user, const char* text)
 {
-	std::map<char*,char*> *ulist;
+	CUList *ulist;
 
 	if ((!Ptr) || (!text))
 	{
@@ -555,19 +549,17 @@ void WriteChannelLocal_NoFormat(chanrec* Ptr, userrec* user, const char* text)
 
 	ulist = Ptr->GetUsers();
 
-	for (std::map<char*,char*>::iterator i = ulist->begin(); i != ulist->end(); i++)
+	for (CUList::iterator i = ulist->begin(); i != ulist->end(); i++)
 	{
-		userrec* otheruser = (userrec*)i->second;
-
-		if ((otheruser->fd != FD_MAGIC_NUMBER) && (otheruser != user))
+		if ((i->second->fd != FD_MAGIC_NUMBER) && (i->second != user))
 		{
 			if (!user)
 			{
-				WriteServ_NoFormat(otheruser->fd,text);
+				WriteServ_NoFormat(i->second->fd,text);
 			}
 			else
 			{
-				WriteTo_NoFormat(user,otheruser,text);
+				WriteTo_NoFormat(user,i->second,text);
 			}
 		}
 	}
@@ -579,7 +571,7 @@ void WriteChannelWithServ(char* ServName, chanrec* Ptr, char* text, ...)
 {
 	char textbuffer[MAXBUF];
 	va_list argsPtr;
-	std::map<char*,char*> *ulist;
+	CUList *ulist;
 
 	if ((!Ptr) || (!text))
 	{
@@ -593,18 +585,16 @@ void WriteChannelWithServ(char* ServName, chanrec* Ptr, char* text, ...)
 
 	ulist = Ptr->GetUsers();
 
-	for (std::map<char*,char*>::iterator i = ulist->begin(); i != ulist->end(); i++)
+	for (CUList::iterator i = ulist->begin(); i != ulist->end(); i++)
 	{
-		userrec* otheruser = (userrec*)i->second;
-
-		if (IS_LOCAL(otheruser))
-			WriteServ_NoFormat(otheruser->fd,textbuffer);
+		if (IS_LOCAL(i->second))
+			WriteServ_NoFormat(i->second->fd,textbuffer);
 	}
 }
 
 void WriteChannelWithServ_NoFormat(char* ServName, chanrec* Ptr, const char* text)
 {
-	std::map<char*,char*> *ulist;
+	CUList *ulist;
 
 	if ((!Ptr) || (!text))
 	{
@@ -614,12 +604,10 @@ void WriteChannelWithServ_NoFormat(char* ServName, chanrec* Ptr, const char* tex
 
 	ulist = Ptr->GetUsers();
 
-	for (std::map<char*,char*>::iterator i = ulist->begin(); i != ulist->end(); i++)
+	for (CUList::iterator i = ulist->begin(); i != ulist->end(); i++)
 	{
-		userrec* otheruser = (userrec*)i->second;
-
-		if (IS_LOCAL(otheruser))
-			WriteServ_NoFormat(otheruser->fd,text);
+		if (IS_LOCAL(i->second))
+			WriteServ_NoFormat(i->second->fd,text);
 	}
 }
 
@@ -632,7 +620,7 @@ void ChanExceptSender(chanrec* Ptr, userrec* user, char status, char* text, ...)
 {
 	char textbuffer[MAXBUF];
 	va_list argsPtr;
-	std::map<char*,char*> *ulist;
+	CUList *ulist;
 
 	if ((!Ptr) || (!user) || (!text))
 	{
@@ -662,18 +650,16 @@ void ChanExceptSender(chanrec* Ptr, userrec* user, char status, char* text, ...)
 
 	log(DEBUG,"%d users to write to",ulist->size());
 
-	for (std::map<char*,char*>::iterator i = ulist->begin(); i != ulist->end(); i++)
+	for (CUList::iterator i = ulist->begin(); i != ulist->end(); i++)
 	{
-		userrec* otheruser = (userrec*)i->second;
-
-		if ((IS_LOCAL(otheruser)) && (user != otheruser))
-			WriteFrom_NoFormat(otheruser->fd,user,textbuffer);
+		if ((IS_LOCAL(i->second)) && (user != i->second))
+			WriteFrom_NoFormat(i->second->fd,user,textbuffer);
 	}
 }
 
 void ChanExceptSender_NoFormat(chanrec* Ptr, userrec* user, char status, const char* text)
 {
-	std::map<char*,char*> *ulist;
+	CUList *ulist;
 
 	if ((!Ptr) || (!user) || (!text))
 	{
@@ -697,12 +683,10 @@ void ChanExceptSender_NoFormat(chanrec* Ptr, userrec* user, char status, const c
 			break;
 	}
 
-	for (std::map<char*,char*>::iterator i = ulist->begin(); i != ulist->end(); i++)
+	for (CUList::iterator i = ulist->begin(); i != ulist->end(); i++)
 	{
-		userrec* otheruser = (userrec*)i->second;
-
-		if ((IS_LOCAL(otheruser)) && (user != otheruser))
-			WriteFrom_NoFormat(otheruser->fd,user,text);
+		if ((IS_LOCAL(i->second)) && (user != i->second))
+			WriteFrom_NoFormat(i->second->fd,user,text);
 	}
 }
 
@@ -757,16 +741,14 @@ void WriteCommon(userrec *u, char* text, ...)
 	{
 		if (u->chans[i].channel)
 		{
-			std::map<char*,char*> *ulist= u->chans[i].channel->GetUsers();
+			CUList *ulist= u->chans[i].channel->GetUsers();
 
-			for (std::map<char*,char*>::iterator i = ulist->begin(); i != ulist->end(); i++)
+			for (CUList::iterator i = ulist->begin(); i != ulist->end(); i++)
 			{
-				userrec* otheruser = (userrec*)i->second;
-
-				if ((otheruser->fd > -1) && (!already_sent[otheruser->fd]))
+				if ((i->second->fd > -1) && (!already_sent[i->second->fd]))
 				{
-					already_sent[otheruser->fd] = 1;
-					WriteFrom_NoFormat(otheruser->fd,u,textbuffer);
+					already_sent[i->second->fd] = 1;
+					WriteFrom_NoFormat(i->second->fd,u,textbuffer);
 					sent_to_at_least_one = true;
 				}
 			}
@@ -808,16 +790,14 @@ void WriteCommon_NoFormat(userrec *u, const char* text)
 	{
 		if (u->chans[i].channel)
 		{
-			std::map<char*,char*> *ulist= u->chans[i].channel->GetUsers();
+			CUList *ulist= u->chans[i].channel->GetUsers();
 
-			for (std::map<char*,char*>::iterator i = ulist->begin(); i != ulist->end(); i++)
+			for (CUList::iterator i = ulist->begin(); i != ulist->end(); i++)
 			{
-				userrec* otheruser = (userrec*)i->second;
-
-				if ((otheruser->fd > -1) && (!already_sent[otheruser->fd]))
+				if ((i->second->fd > -1) && (!already_sent[i->second->fd]))
 				{
-					already_sent[otheruser->fd] = 1;
-					WriteFrom_NoFormat(otheruser->fd,u,text);
+					already_sent[i->second->fd] = 1;
+					WriteFrom_NoFormat(i->second->fd,u,text);
 					sent_to_at_least_one = true;
 				}
 			}
@@ -912,24 +892,22 @@ void WriteCommonExcept(userrec *u, char* text, ...)
 	{
 		if (u->chans[i].channel)
 		{
-			std::map<char*,char*> *ulist= u->chans[i].channel->GetUsers();
+			CUList *ulist= u->chans[i].channel->GetUsers();
 
-			for (std::map<char*,char*>::iterator i = ulist->begin(); i != ulist->end(); i++)
+			for (CUList::iterator i = ulist->begin(); i != ulist->end(); i++)
 			{
-				userrec* otheruser = (userrec*)i->second;
-
-				if (u != otheruser)
+				if (u != i->second)
 				{
-					if ((otheruser->fd > -1) && (!already_sent[otheruser->fd]))
+					if ((i->second->fd > -1) && (!already_sent[i->second->fd]))
 					{
-						already_sent[otheruser->fd] = 1;
+						already_sent[i->second->fd] = 1;
 
 						if (quit_munge)
 						{
-							WriteFrom_NoFormat(otheruser->fd,u,*otheruser->oper ? oper_quit : textbuffer);
+							WriteFrom_NoFormat(i->second->fd,u,*i->second->oper ? oper_quit : textbuffer);
 						}
 						else
-							WriteFrom_NoFormat(otheruser->fd,u,textbuffer);
+							WriteFrom_NoFormat(i->second->fd,u,textbuffer);
 					}
 				}
 			}
@@ -960,18 +938,16 @@ void WriteCommonExcept_NoFormat(userrec *u, const char* text)
 	{
 		if (u->chans[i].channel)
 		{
-			std::map<char*,char*> *ulist= u->chans[i].channel->GetUsers();
+			CUList *ulist= u->chans[i].channel->GetUsers();
 
-			for (std::map<char*,char*>::iterator i = ulist->begin(); i != ulist->end(); i++)
+			for (CUList::iterator i = ulist->begin(); i != ulist->end(); i++)
 			{
-				userrec* otheruser = (userrec*)i->second;
-
-				if (u != otheruser)
+				if (u != i->second)
 				{
-					if ((otheruser->fd > -1) && (!already_sent[otheruser->fd]))
+					if ((i->second->fd > -1) && (!already_sent[i->second->fd]))
 					{
-						already_sent[otheruser->fd] = 1;
-						WriteFrom_NoFormat(otheruser->fd,u,text);
+						already_sent[i->second->fd] = 1;
+						WriteFrom_NoFormat(i->second->fd,u,text);
 					}
 				}
 			}
@@ -1249,7 +1225,7 @@ void purge_empty_chans(userrec* u)
 	{
 		if (u->chans[f].channel)
 		{
-			u->chans[f].channel->DelUser((char*)u);
+			u->chans[f].channel->DelUser(u);
 		}
 	}
 
@@ -1370,13 +1346,11 @@ void userlist(userrec *user,chanrec *c)
 	size_t dlen = snprintf(list,MAXBUF,"353 %s = %s :", user->nick, c->name);
 	size_t initial = dlen;
 
-	std::map<char*,char*> *ulist= c->GetUsers();
+	CUList *ulist= c->GetUsers();
 
-	for (std::map<char*,char*>::iterator i = ulist->begin(); i != ulist->end(); i++)
+	for (CUList::iterator i = ulist->begin(); i != ulist->end(); i++)
 	{
-		userrec* otheruser = (userrec*)i->second;
-
-		if ((!has_channel(user,c)) && (strchr(otheruser->modes,'i')))
+		if ((!has_channel(user,c)) && (strchr(i->second->modes,'i')))
 		{
 			/*
 			 * user is +i, and source not on the channel, does not show
@@ -1385,8 +1359,8 @@ void userlist(userrec *user,chanrec *c)
 			continue;
 		}
 
-		dlen += strlcat(list,cmode(otheruser,c),MAXBUF);
-		dlen += strlcat(list,otheruser->nick,MAXBUF);
+		dlen += strlcat(list,cmode(i->second,c),MAXBUF);
+		dlen += strlcat(list,i->second->nick,MAXBUF);
 		charlcat(list,' ',MAXBUF);
 		dlen++;
 
@@ -1416,11 +1390,10 @@ int usercount_i(chanrec *c)
 	if (!c)
 		return 0;
 
-	std::map<char*,char*> *ulist= c->GetUsers();
-	for (std::map<char*,char*>::iterator i = ulist->begin(); i != ulist->end(); i++)
+	CUList *ulist= c->GetUsers();
+	for (CUList::iterator i = ulist->begin(); i != ulist->end(); i++)
 	{
-		userrec* user = (userrec*)i->second;
-		if (!strchr(user->modes,'i'))
+		if (!strchr(i->second->modes,'i'))
 			count++;
 	}
 

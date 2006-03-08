@@ -86,6 +86,12 @@ typedef std::vector<ExemptItem>	ExemptList;
  */
 typedef std::vector<InviteItem>	InviteList;
 
+class userrec;
+
+/** A list of users on a channel
+ */
+typedef std::map<userrec*,userrec*> CUList;
+
 /** Holds all relevent information for a channel.
  * This class represents a channel, and contains its name, modes, time created, topic, topic set time,
  * etc, and an instance of the BanList type.
@@ -104,10 +110,10 @@ class chanrec : public Extensible
 	/** User list (casted to char*'s to stop forward declaration stuff)
 	 * (chicken and egg scenario!)
 	 */
-	std::map<char*,char*> internal_userlist;
-	std::map<char*,char*> internal_op_userlist;
-	std::map<char*,char*> internal_halfop_userlist;
-	std::map<char*,char*> internal_voice_userlist;
+	CUList internal_userlist;
+	CUList internal_op_userlist;
+	CUList internal_halfop_userlist;
+	CUList internal_voice_userlist;
 
 	/** Parameters for custom modes
 	 */
@@ -194,10 +200,10 @@ class chanrec : public Extensible
 	 * an arbitary pointer compared to other users by its memory address,
 	 * as this is a very fast 32 or 64 bit integer comparison.
 	 */
-	void AddUser(char* castuser);
-	void AddOppedUser(char* castuser);
-	void AddHalfoppedUser(char* castuser);
-	void AddVoicedUser(char* castuser);
+	void AddUser(userrec* castuser);
+	void AddOppedUser(userrec* castuser);
+	void AddHalfoppedUser(userrec* castuser);
+	void AddVoicedUser(userrec* castuser);
 
         /** Delete a user pointer to the internal reference list
 	 * @param castuser This should be a pointer to a userrec, casted to char*
@@ -206,10 +212,10 @@ class chanrec : public Extensible
          * an arbitary pointer compared to other users by its memory address,
          * as this is a very fast 32 or 64 bit integer comparison.
          */
-	void DelUser(char* castuser);
-	void DelOppedUser(char* castuser);
-	void DelHalfoppedUser(char* castuser);
-	void DelVoicedUser(char* castuser);
+	void DelUser(userrec* castuser);
+	void DelOppedUser(userrec* castuser);
+	void DelHalfoppedUser(userrec* castuser);
+	void DelVoicedUser(userrec* castuser);
 
 	/** Obrain the internal reference list
 	 * The internal reference list contains a list of userrec*
@@ -220,10 +226,10 @@ class chanrec : public Extensible
 	 *
 	 * @return This function returns a vector of userrec pointers, each of which has been casted to char* to prevent circular references
 	 */
-	std::map<char*,char*> *GetUsers();
-	std::map<char*,char*> *GetOppedUsers();
-	std::map<char*,char*> *GetHalfoppedUsers();
-	std::map<char*,char*> *GetVoicedUsers();
+	CUList *GetUsers();
+	CUList *GetOppedUsers();
+	CUList *GetHalfoppedUsers();
+	CUList *GetVoicedUsers();
 
 	/** Creates a channel record and initialises it with default values
 	 */

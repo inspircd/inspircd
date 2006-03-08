@@ -70,13 +70,11 @@ void spy_userlist(userrec *user,chanrec *c)
 
         snprintf(list,MAXBUF,"353 %s = %s :", user->nick, c->name);
 
-        std::map<char*,char*> *ulist= c->GetUsers();
-        for (std::map<char*,char*>::iterator i = ulist->begin(); i != ulist->end(); i++)
+        CUList *ulist= c->GetUsers();
+        for (CUList::iterator i = ulist->begin(); i != ulist->end(); i++)
         {
-                char* o = i->second;
-                userrec* otheruser = (userrec*)o;
-                strlcat(list,cmode(otheruser,c),MAXBUF);
-                strlcat(list,otheruser->nick,MAXBUF);
+                strlcat(list,cmode(i->second,c),MAXBUF);
+                strlcat(list,i->second->nick,MAXBUF);
                 strlcat(list," ",MAXBUF);
                 if (strlen(list)>(480-NICKMAX))
                 {

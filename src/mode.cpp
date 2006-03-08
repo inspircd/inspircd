@@ -85,13 +85,13 @@ char* ModeParser::Grant(userrec *d,chanrec *chan,int MASK)
 			switch (MASK)
 			{
 				case UCMODE_OP:
-					d->chans[i].channel->AddOppedUser((char*)d);
+					d->chans[i].channel->AddOppedUser(d);
 				break;
 				case UCMODE_HOP:
-					d->chans[i].channel->AddHalfoppedUser((char*)d);
+					d->chans[i].channel->AddHalfoppedUser(d);
 				break;
 				case UCMODE_VOICE:
-					d->chans[i].channel->AddVoicedUser((char*)d);
+					d->chans[i].channel->AddVoicedUser(d);
 				break;
 			}
 			log(DEBUG,"grant: %s %s",d->chans[i].channel->name,d->nick);
@@ -116,13 +116,13 @@ char* ModeParser::Revoke(userrec *d,chanrec *chan,int MASK)
 			switch (MASK)
 			{
 				case UCMODE_OP:
-					d->chans[i].channel->DelOppedUser((char*)d);
+					d->chans[i].channel->DelOppedUser(d);
 				break;
 				case UCMODE_HOP:
-					d->chans[i].channel->DelHalfoppedUser((char*)d);
+					d->chans[i].channel->DelHalfoppedUser(d);
 				break;
 				case UCMODE_VOICE:
-					d->chans[i].channel->DelVoicedUser((char*)d);
+					d->chans[i].channel->DelVoicedUser(d);
 				break;
 			}
 			log(DEBUG,"revoke: %s %s",d->chans[i].channel->name,d->nick);
