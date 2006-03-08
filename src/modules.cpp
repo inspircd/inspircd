@@ -631,11 +631,6 @@ std::string Server::ChanMode(userrec* User, chanrec* Chan)
 	return cmode(User,Chan);
 }
 
-bool Server::IsOnChannel(userrec* User, chanrec* Chan)
-{
-	return has_channel(User,Chan);
-}
-
 std::string Server::GetServerName()
 {
 	return Config->ServerName;

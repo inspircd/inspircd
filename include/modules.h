@@ -1416,11 +1416,6 @@ class Server : public classbase
 	 */
 	virtual std::string ChanMode(userrec* User, chanrec* Chan);
 
-	/** Checks if a user is on a channel.
-	 * This function will return true or false to indicate if user 'User' is on channel 'Chan'.
-	 */
-	virtual bool IsOnChannel(userrec* User, chanrec* Chan);
-
 	/** Returns the server name of the server where the module is loaded.
 	 */
 	virtual std::string GetServerName();

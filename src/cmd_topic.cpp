@@ -98,7 +98,7 @@ void cmd_topic::Handle (char **parameters, int pcnt, userrec *user)
 		{
 			if (IS_LOCAL(user))
 			{
-				if ((Ptr) && (!has_channel(user,Ptr)))
+				if (!Ptr->HasUser(user))
 				{
 					WriteServ(user->fd,"442 %s %s :You're not on that channel!",user->nick, Ptr->name);
 					return;
