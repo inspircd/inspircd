@@ -426,15 +426,16 @@ std::string ModeParser::CompressModes(std::string modes,bool channelmodes)
 			active[(unsigned int)modes[i]] = true;
 		}
 	}
-	for (int j = 65; j < 127; j++)
+	
+	for(unsigned char j = 65; j < 127; j++)
 	{
 		if ((counts[j] > 1) && (active[j] == true))
 		{
 			std::string::size_type pos;
 
-			while((pos = modes.find((unsigned char)j)) != std::string::npos)
+			while((pos = modes.find(j)) != std::string::npos)
 			{
-				log(DEBUG, "Deleting occurence of mode %c...", (unsigned char)j);
+				log(DEBUG, "Deleting occurence of mode %c...", j);
 				modes.erase(pos, 1);
 				log(DEBUG,"New mode line: %s", modes.c_str());
 			}
