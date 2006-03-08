@@ -1365,7 +1365,7 @@ class TreeSocket : public InspSocket
 		 * back to the core so that a large burst is split into at least 6 sections
 		 * (possibly more)
 		 */
-		std::string burst = "BURST "+ConvToStr(TIME);
+		std::string burst = "BURST "+ConvToStr(time(NULL));
 		std::string endburst = "ENDBURST";
 		Srv->SendOpers("*** Bursting to \2"+s->GetName()+"\2.");
 		this->WriteLine(burst);
@@ -2265,10 +2265,10 @@ class TreeSocket : public InspSocket
 				else if (command == "BURST")
 				{
 					time_t THEM = atoi(params[0].c_str());
-					long delta = THEM-TIME;
+					long delta = THEM-time(NULL);
 					if ((delta < -600) || (delta > 600))
 					{
-						WriteOpers("*** \2ERROR\2: Your clocks are out by "+ConvToStr(abs(delta))+" seconds (this is more than ten minutes). Link aborted, \2PLEASE SYNC YOUR CLOCKS!\2");
+						WriteOpers("*** \2ERROR\2: Your clocks are out by %d seconds (this is more than ten minutes). Link aborted, \2PLEASE SYNC YOUR CLOCKS!\2",abs(delta));
 						this->WriteLine("ERROR :Your clocks are out by "+ConvToStr(abs(delta))+" seconds (this is more than ten minutes). Link aborted, PLEASE SYNC YOUR CLOCKS!");
 						return false;
 					}
