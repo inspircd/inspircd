@@ -2271,7 +2271,7 @@ class TreeSocket : public InspSocket
 				}
 				else if (command == "BURST")
 				{
-					if (params.count())
+					if (params.size())
 					{
 						/* If a time stamp is provided, try and check syncronization */
 						time_t THEM = atoi(params[0].c_str());
