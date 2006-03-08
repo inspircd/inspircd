@@ -82,16 +82,20 @@ class ModuleWaitPong : public Module
 		{
 			char* pingrpl = user->GetExt("waitpong_pingstr");
 			
-			if(pingrpl && (strcmp(pingrpl, parameters[0]) == 0))
+			if(pingrpl)
 			{
-				delete pingrpl;
-				user->Shrink("waitpong_pingstr");
-				return 1;
-			}
-			else if(killonbadreply)
-			{
-				Srv->QuitUser(user, "Incorrect ping reply for registration");
-				return 1;
+				if(strcmp(pingrpl, parameters[0]) == 0)
+				{
+					delete pingrpl;
+					user->Shrink("waitpong_pingstr");
+					return 1;
+				}
+				else
+				{
+					if(killonbadreply)
+						Srv->QuitUser(user, "Incorrect ping reply for registration");
+					return 1;
+				}
 			}
 		}
 		
