@@ -474,9 +474,7 @@ void WriteChannel(chanrec* Ptr, userrec* user, char* text, ...)
 
 	for (std::map<char*,char*>::iterator i = ulist->begin(); i != ulist->end(); i++)
 	{
-		/* XXX - WHAT THE HELL are we doing here? :P --w00t */
-		char* o = i->second;
-		userrec* otheruser = (userrec*)o;
+		userrec* otheruser = (userrec*)i->second;
 
 		if (otheruser->fd != FD_MAGIC_NUMBER)
 			WriteTo_NoFormat(user,otheruser,textbuffer);
@@ -497,9 +495,7 @@ void WriteChannel_NoFormat(chanrec* Ptr, userrec* user, const char* text)
 
 	for (std::map<char*,char*>::iterator i = ulist->begin(); i != ulist->end(); i++)
 	{
-		/* XXX - .....and here! --w00t */
-		char* o = i->second;
-		userrec* otheruser = (userrec*)o;
+		userrec* otheruser = (userrec*)i->second;
 
 		if (otheruser->fd != FD_MAGIC_NUMBER)
 			WriteTo_NoFormat(user,otheruser,text);
@@ -531,9 +527,7 @@ void WriteChannelLocal(chanrec* Ptr, userrec* user, char* text, ...)
 
 	for (std::map<char*,char*>::iterator i = ulist->begin(); i != ulist->end(); i++)
 	{
-		/* XXX -- w00t */
-		char* o = i->second;
-		userrec* otheruser = (userrec*)o;
+		userrec* otheruser = (userrec*)i->second;
 
 		if ((otheruser->fd != FD_MAGIC_NUMBER) && (otheruser != user))
 		{
@@ -563,9 +557,7 @@ void WriteChannelLocal_NoFormat(chanrec* Ptr, userrec* user, const char* text)
 
 	for (std::map<char*,char*>::iterator i = ulist->begin(); i != ulist->end(); i++)
 	{
-		/* XXX -- w00t */
-		char* o = i->second;
-		userrec* otheruser = (userrec*)o;
+		userrec* otheruser = (userrec*)i->second;
 
 		if ((otheruser->fd != FD_MAGIC_NUMBER) && (otheruser != user))
 		{
@@ -603,9 +595,7 @@ void WriteChannelWithServ(char* ServName, chanrec* Ptr, char* text, ...)
 
 	for (std::map<char*,char*>::iterator i = ulist->begin(); i != ulist->end(); i++)
 	{
-		/* XXX */
-		char* o = i->second;
-		userrec* otheruser = (userrec*)o;
+		userrec* otheruser = (userrec*)i->second;
 
 		if (IS_LOCAL(otheruser))
 			WriteServ_NoFormat(otheruser->fd,textbuffer);
@@ -626,9 +616,7 @@ void WriteChannelWithServ_NoFormat(char* ServName, chanrec* Ptr, const char* tex
 
 	for (std::map<char*,char*>::iterator i = ulist->begin(); i != ulist->end(); i++)
 	{
-		/* XXX */
-		char* o = i->second;
-		userrec* otheruser = (userrec*)o;
+		userrec* otheruser = (userrec*)i->second;
 
 		if (IS_LOCAL(otheruser))
 			WriteServ_NoFormat(otheruser->fd,text);
@@ -676,9 +664,7 @@ void ChanExceptSender(chanrec* Ptr, userrec* user, char status, char* text, ...)
 
 	for (std::map<char*,char*>::iterator i = ulist->begin(); i != ulist->end(); i++)
 	{
-		/* XXX */
-		char* o = i->second;
-		userrec* otheruser = (userrec*)o;
+		userrec* otheruser = (userrec*)i->second;
 
 		if ((IS_LOCAL(otheruser)) && (user != otheruser))
 			WriteFrom_NoFormat(otheruser->fd,user,textbuffer);
@@ -713,9 +699,7 @@ void ChanExceptSender_NoFormat(chanrec* Ptr, userrec* user, char status, const c
 
 	for (std::map<char*,char*>::iterator i = ulist->begin(); i != ulist->end(); i++)
 	{
-		/* XXX */
-		char* o = i->second;
-		userrec* otheruser = (userrec*)o;
+		userrec* otheruser = (userrec*)i->second;
 
 		if ((IS_LOCAL(otheruser)) && (user != otheruser))
 			WriteFrom_NoFormat(otheruser->fd,user,text);
@@ -777,8 +761,7 @@ void WriteCommon(userrec *u, char* text, ...)
 
 			for (std::map<char*,char*>::iterator i = ulist->begin(); i != ulist->end(); i++)
 			{
-				char* o = i->second;
-				userrec* otheruser = (userrec*)o;
+				userrec* otheruser = (userrec*)i->second;
 
 				if ((otheruser->fd > -1) && (!already_sent[otheruser->fd]))
 				{
@@ -829,8 +812,7 @@ void WriteCommon_NoFormat(userrec *u, const char* text)
 
 			for (std::map<char*,char*>::iterator i = ulist->begin(); i != ulist->end(); i++)
 			{
-				char* o = i->second;
-				userrec* otheruser = (userrec*)o;
+				userrec* otheruser = (userrec*)i->second;
 
 				if ((otheruser->fd > -1) && (!already_sent[otheruser->fd]))
 				{
@@ -887,7 +869,6 @@ void WriteCommonExcept(userrec *u, char* text, ...)
 		/* Yeah yeah, this is ugly. But its fast, live with it. */
 		char* check = textbuffer;
 
-		/* XXX - don't mean to be picky, but I think this could be done better */
 		if ((*check++ == 'Q') && (*check++ == 'U') && (*check++ == 'I') && (*check++ == 'T') && (*check++ == ' ') && (*check++ == ':'))
 		{
 			std::stringstream split(check);
@@ -935,8 +916,7 @@ void WriteCommonExcept(userrec *u, char* text, ...)
 
 			for (std::map<char*,char*>::iterator i = ulist->begin(); i != ulist->end(); i++)
 			{
-				char* o = i->second;
-				userrec* otheruser = (userrec*)o;
+				userrec* otheruser = (userrec*)i->second;
 
 				if (u != otheruser)
 				{
@@ -984,8 +964,7 @@ void WriteCommonExcept_NoFormat(userrec *u, const char* text)
 
 			for (std::map<char*,char*>::iterator i = ulist->begin(); i != ulist->end(); i++)
 			{
-				char* o = i->second;
-				userrec* otheruser = (userrec*)o;
+				userrec* otheruser = (userrec*)i->second;
 
 				if (u != otheruser)
 				{
@@ -1001,7 +980,13 @@ void WriteCommonExcept_NoFormat(userrec *u, const char* text)
 }
 
 
-/* XXX - replace with a call to WriteMode() ? -- w00t */
+/* XXX - We don't use WriteMode for this because WriteMode is very slow and
+ * this isnt. Basically WriteMode has to iterate ALL the users 'n' times for
+ * the number of modes provided, e.g. if you send WriteMode 'og' to write to
+ * opers with globops, and you have 2000 users, thats 4000 iterations. WriteOpers
+ * uses the oper list, which means if you have 2000 users but only 5 opers,
+ * it iterates 5 times.
+ */
 void WriteOpers(char* text, ...)
 {
 	char textbuffer[MAXBUF];
@@ -1389,8 +1374,7 @@ void userlist(userrec *user,chanrec *c)
 
 	for (std::map<char*,char*>::iterator i = ulist->begin(); i != ulist->end(); i++)
 	{
-		char* o = i->second;
-		userrec* otheruser = (userrec*)o;
+		userrec* otheruser = (userrec*)i->second;
 
 		if ((!has_channel(user,c)) && (strchr(otheruser->modes,'i')))
 		{
@@ -1435,8 +1419,7 @@ int usercount_i(chanrec *c)
 	std::map<char*,char*> *ulist= c->GetUsers();
 	for (std::map<char*,char*>::iterator i = ulist->begin(); i != ulist->end(); i++)
 	{
-		char* o = i->second;
-		userrec* user = (userrec*)o;
+		userrec* user = (userrec*)i->second;
 		if (!strchr(user->modes,'i'))
 			count++;
 	}
