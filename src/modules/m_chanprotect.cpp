@@ -209,7 +209,7 @@ class ModuleChanProtect : public Module
 				return -1;
 			
 			// given user isnt even on the channel, eat the mode change
-			if (!Srv->IsOnChannel(theuser,chan))
+			if (!chan->HasUser(theuser))
 				return -1;
 			
 			// source is a server, or ulined, we'll let them +-q the user.
@@ -252,7 +252,7 @@ class ModuleChanProtect : public Module
 				return -1;
 			
 			// given user isnt even on the channel, eat the mode change
-			if (!Srv->IsOnChannel(theuser,chan))
+			if (!chan->HasUser(theuser))
 				return -1;
 
 			// source has +q, is a server, or ulined, we'll let them +-a the user.
