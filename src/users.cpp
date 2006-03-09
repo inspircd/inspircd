@@ -246,7 +246,7 @@ void userrec::RemoveInvite(irc::string &channel)
        	}
 }
 
-bool userrec::HasPermission(std::string &command)
+bool userrec::HasPermission(const std::string &command)
 {
 	char* mycmd;
 	char* savept;
@@ -295,7 +295,7 @@ bool userrec::HasPermission(std::string &command)
 }
 
 
-bool userrec::AddBuffer(std::string a)
+bool userrec::AddBuffer(const std::string &a)
 {
         std::string b = "";
 	char* n = (char*)a.c_str();
@@ -355,7 +355,7 @@ std::string userrec::GetBuffer()
         return ret;
 }
 
-void userrec::AddWriteBuf(std::string data)
+void userrec::AddWriteBuf(const std::string &data)
 {
 	if (*this->GetWriteError())
 		return;
@@ -397,7 +397,7 @@ void userrec::FlushWriteBuf()
 	}
 }
 
-void userrec::SetWriteError(std::string error)
+void userrec::SetWriteError(const std::string &error)
 {
 	log(DEBUG,"Setting error string for %s to '%s'",this->nick,error.c_str());
 	// don't try to set the error twice, its already set take the first string.
@@ -849,4 +849,3 @@ void force_nickchange(userrec* user,const char* newnick)
                 }
         }
 }
-

@@ -268,7 +268,7 @@ class userrec : public connection
 	 * This is done by looking up their oper type from userrec::oper, then referencing
 	 * this to their oper classes and checking the commands they can execute.
 	 */
-	bool HasPermission(std::string &command);
+	bool HasPermission(const std::string &command);
 
 	/** Calls read() to read some data for this user using their fd.
 	 */
@@ -281,7 +281,7 @@ class userrec : public connection
 	 * RFC-specified limit per line) then the method will return false and the
 	 * text will not be inserted.
 	 */
-	bool AddBuffer(std::string a);
+	bool AddBuffer(const std::string &a);
 
 	/** This method returns true if the buffer contains at least one carriage return
 	 * character (e.g. one complete line may be read)
@@ -306,7 +306,7 @@ class userrec : public connection
 	 * The WriteErrors of clients are checked at a more ideal time (in the mainloop) and
 	 * errored clients purged.
 	 */
-	void SetWriteError(std::string error);
+	void SetWriteError(const std::string &error);
 
 	/** Returns the write error which last occured on this connection or an empty string
 	 * if none occured.
@@ -318,7 +318,7 @@ class userrec : public connection
 	 * sendq value, SetWriteError() will be called to set the users error string to
 	 * "SendQ exceeded", and further buffer adds will be dropped.
 	 */
-	void AddWriteBuf(std::string data);
+	void AddWriteBuf(const std::string &data);
 
 	/** Flushes as much of the user's buffer to the file descriptor as possible.
 	 * This function may not always flush the entire buffer, rather instead as much of it
