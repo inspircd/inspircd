@@ -157,8 +157,8 @@ struct InitialConfig {
 	char* tag;
 	char* value;
 	void* val;
-	ConfigDataType datatype;
-	Validator validate_function;
+	int datatype;
+	Validator validation_function;
 };
 
 bool NoValidation(const char* tag, const char* value, void* data)
@@ -171,13 +171,13 @@ void ServerConfig::Read(bool bail, userrec* user)
 {
 	char debug[MAXBUF];
 
-	InitialConfig Values[] = {
+	static InitialConfig Values[] = {
 		{"options",	"softlimit",		&this->SoftLimit,		DT_INTEGER, NoValidation},
 		{"options",	"somaxconn",		&this->MaxConn,			DT_INTEGER, NoValidation},
 		{"server",	"name",			&this->ServerName,		DT_CHARPTR, NoValidation},
 		{"server",	"description",		&this->ServerDesc,		DT_CHARPTR, NoValidation},
 		{"server",	"network",		&this->Network,			DT_CHARPTR, NoValidation},
-		{"admin"	"name",			&this->AdminName,		DT_CHARPTR, NoValidation},
+		{"admin",	"name",			&this->AdminName,		DT_CHARPTR, NoValidation},
 		{"admin",	"email",		&this->AdminEmail,		DT_CHARPTR, NoValidation},
 		{"admin",	"nick",			&this->AdminNick,		DT_CHARPTR, NoValidation},
 		{"files",	"motd",			&this->motd,			DT_CHARPTR, NoValidation},
@@ -259,27 +259,28 @@ void ServerConfig::Read(bool bail, userrec* user)
 	}
 
 	char* convert;
-	for (int Index = 0; Values[Index].datatype != DT_NOTHING; Index++)
+	for (int Index = 0; Values[Index].tag; Index++)
 	{
-		void* val = Values[Index].val;
+		int* val_i = (int*) Values[Index].val;
+		char* val_c = (char*) Values[Index].val;
 
 		switch (Values[Index].datatype)
 		{
 			case DT_CHARPTR:
-				ConfValue((char*)Values[Index].tag,(char*)Values[Index].value,(char*) val,this->config_f);
+				ConfValue(Values[Index].tag, Values[Index].value, 0, val_c, &this->config_f);
 			break;
 
 			case DT_INTEGER:
 				convert = new char[MAXBUF];
-				ConfValue(Values[Index].tag,Values[Index].value,convert,this->config_f);
-				*val = atoi(convert);
+				ConfValue(Values[Index].tag, Values[Index].value, 0, convert, &this->config_f);
+				*val_i = atoi(convert);
 				delete[] convert;
 			break;
 
 			case DT_BOOLEAN:
 				convert = new char[MAXBUF];
-				ConfValue(Values[Index].tag,Values[Index].value,convert,this->config_f);
-				*val = ((*convert == tolower('y')) || (*convert == tolower('t')) || (*convert == '1'));
+				ConfValue(Values[Index].tag, Values[Index].value, 0, convert, &this->config_f);
+				*val_i = ((*convert == tolower('y')) || (*convert == tolower('t')) || (*convert == '1'));
 				delete[] convert;
 			break;
 
