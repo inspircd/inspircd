@@ -1272,13 +1272,13 @@ void cmd_mode::Handle (char **parameters, int pcnt, userrec *user)
 											DeleteOper(dest);
 										break;
 										case 'i':
-											dest->modebits ^= UM_INVISIBLE;
+											dest->modebits &= ~UM_INVISIBLE;
 										break;
 										case 's':
-											dest->modebits ^= UM_SERVERNOTICE;
+											dest->modebits &= ~UM_SERVERNOTICE;
 										break;
 										case 'w':
-											dest->modebits ^= UM_WALLOPS;
+											dest->modebits &= ~UM_WALLOPS;
 										break;
 									}
 								}

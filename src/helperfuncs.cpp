@@ -1324,8 +1324,8 @@ void userlist(userrec *user,chanrec *c)
 
 	char list[MAXBUF];
 	size_t dlen = snprintf(list,MAXBUF,"353 %s = %s :", user->nick, c->name);
-	int n = 0;
-	char* ptr = list + dlen;
+	int numusers = 0;
+	char* ptr = list + dlen - 1;
 
 	CUList *ulist= c->GetUsers();
 
@@ -1351,7 +1351,7 @@ void userlist(userrec *user,chanrec *c)
 		for (char* t = i->second->nick; *t; t++)
 			*ptr++ = *t;
 		*ptr++ = ' ';
-		n++;
+		numusers++;
 
 		if ((ptr - list) > (480-NICKMAX))
 		{
@@ -1359,14 +1359,14 @@ void userlist(userrec *user,chanrec *c)
 			*--ptr = 0;
 			WriteServ_NoFormat(user->fd,list);
 			dlen = snprintf(list,MAXBUF,"353 %s = %s :", user->nick, c->name);
-			ptr = list + dlen;
-			n = 0;
+			ptr = list + dlen - 1;
+			numusers = 0;
 		}
 	}
 	*--ptr = 0;
 
 	/* if whats left in the list isnt empty, send it */
-	if (n)
+	if (numusers)
 	{
 		WriteServ_NoFormat(user->fd,list);
 	}
