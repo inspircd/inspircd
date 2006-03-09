@@ -117,6 +117,8 @@ userrec::userrec()
         for (unsigned int n = 0; n < MAXCHANS; n++)
         {       
 		clientlist[tempnick]->chans[n] = new ucrec();
+		clientlist[tempnick]->chans[n]->channel = NULL;
+		clientlist[tempnick]->chans[n]->uc_modes = 0;
         }
 }
 

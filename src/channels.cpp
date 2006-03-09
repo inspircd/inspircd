@@ -373,11 +373,11 @@ chanrec* add_channel(userrec *user, const char* cn, const char* key, bool overri
 
 	log(DEBUG,"Passed channel checks");
 
-	for (unsigned int index =0; index < user->chans.size(); index++)
+	for (std::vector<ucrec*>::const_iterator index = user->chans.begin(); index != user->chans.end(); index++)
 	{
-		if (user->chans[index].channel == NULL)
+		if ((ucrec*)(*index)->channel == NULL)
 		{
-			return ForceChan(Ptr,user->chans[index],user,created);
+			return ForceChan(Ptr,(ucrec*)(*index),user,created);
 		}
 	}
 
@@ -444,7 +444,7 @@ chanrec* ForceChan(chanrec* Ptr,ucrec *a,userrec* user, int created)
 		a->uc_modes = 0;
 	}
 
-	a.channel = Ptr;
+	a->channel = Ptr;
 	Ptr->AddUser(user);
 	WriteChannel(Ptr,user,"JOIN :%s",Ptr->name);
 	log(DEBUG,"Sent JOIN to client");
@@ -548,7 +548,7 @@ void server_kick_channel(userrec* user, chanrec* Ptr, char* reason, bool trigger
 
 	for (unsigned int i =0; i < user->chans.size(); i++)
 	{
-		if ((user->chans[i]->channel) && (user->chans[i]->channel->name == Ptr))
+		if ((user->chans[i]->channel) && (user->chans[i]->channel == Ptr))
 		{
 			WriteChannelWithServ(Config->ServerName,Ptr,"KICK %s %s :%s",Ptr->name, user->nick, reason);
 			user->chans[i]->uc_modes = 0;
@@ -627,15 +627,15 @@ void kick_channel(userrec *src,userrec *user, chanrec *Ptr, char* reason)
 	}
 
 	FOREACH_MOD(I_OnUserKick,OnUserKick(src,user,Ptr,reason));
-
-	for (unsigned int i =0; i < user->chans.size(); i++)
+			
+	for (std::vector<ucrec*>::const_iterator i = user->chans.begin(); i != user->chans.end(); i++)
 	{
 		/* zap it from the channel list of the user */
-		if ((user->chans[i].channel) && (user->chans[i].channel == Ptr->name))
+		if ((((ucrec*)(*i))->channel) && (((ucrec*)(*i))->channel == Ptr))
 		{
 			WriteChannel(Ptr,src,"KICK %s %s :%s",Ptr->name, user->nick, reason);
-			user->chans[i].uc_modes = 0;
-			user->chans[i].channel = NULL;
+			((ucrec*)(*i))->uc_modes = 0;
+			((ucrec*)(*i))->channel = NULL;
 			log(DEBUG,"del_channel: unlinked: %s %s",user->nick,Ptr->name);
 			break;
 		}
