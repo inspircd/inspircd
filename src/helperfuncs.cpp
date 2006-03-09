@@ -55,7 +55,6 @@ extern ServerConfig *Config;
 extern InspIRCd* ServerInstance;
 extern time_t TIME;
 extern char lowermap[255];
-static char list[MAXBUF];
 extern userrec* fd_ref_table[MAX_DESCRIPTORS];
 static char already_sent[MAX_DESCRIPTORS];
 extern std::vector<userrec*> all_opers;
@@ -1323,8 +1322,10 @@ void userlist(userrec *user,chanrec *c)
 		return;
 	}
 
+	char list[MAXBUF];
 	size_t dlen = snprintf(list,MAXBUF,"353 %s = %s :", user->nick, c->name);
-	size_t initial = dlen;
+	int n = 0;
+	char* ptr = list + dlen;
 
 	CUList *ulist= c->GetUsers();
 
@@ -1344,21 +1345,28 @@ void userlist(userrec *user,chanrec *c)
 			continue;
 		}
 
-		dlen += strlcat(list,cmode(i->second,c),MAXBUF);
-		dlen += strlcat(list,i->second->nick,MAXBUF);
-		charlcat(list,' ',MAXBUF);
-		dlen++;
+		const char* n = cmode(i->second,c);
+		if (*n)
+			*ptr++ = *n;
+		for (char* t = i->second->nick; *t; t++)
+			*ptr++ = *t;
+		*ptr++ = ' ';
+		n++;
 
-		if (dlen > (480-NICKMAX))
+		if ((ptr - list) > (480-NICKMAX))
 		{
 			/* list overflowed into multiple numerics */
+			*--ptr = 0;
 			WriteServ_NoFormat(user->fd,list);
 			dlen = snprintf(list,MAXBUF,"353 %s = %s :", user->nick, c->name);
+			ptr = list + dlen;
+			n = 0;
 		}
 	}
+	*--ptr = 0;
 
 	/* if whats left in the list isnt empty, send it */
-	if (dlen != initial)
+	if (n)
 	{
 		WriteServ_NoFormat(user->fd,list);
 	}
