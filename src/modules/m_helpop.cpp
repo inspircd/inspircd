@@ -105,7 +105,6 @@ bool do_helpop(char **parameters, int pcnt, userrec *src)
 	char *search;
 	std::string output = " "; // a fix bought to you by brain :p
 	char a[MAXBUF];
-	char lower[MAXBUF];
 	int nlines = 0;
 
 	if (!parameters)
