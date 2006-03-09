@@ -37,22 +37,24 @@ class cmd_chghost : public command_t
 	 
         void Handle(char **parameters, int pcnt, userrec *user)
 	{
-                if (strlen(parameters[1]) > 64)
-                {
-                        WriteServ(user->fd,"NOTICE %s :*** CHGHOST: Host too long",user->nick);
-			return;
-                }
-		for (unsigned int x = 0; x < strlen(parameters[1]); x++)
+		char * x = parameters[1];
+
+		for (; *x; x++)
 		{
-			if (((tolower(parameters[1][x]) < 'a') || (tolower(parameters[1][x]) > 'z')) && (parameters[1][x] != '.'))
+			if (((tolower(*x) < 'a') || (tolower(*x) > 'z')) && (*x != '.'))
 			{
-				if (((parameters[1][x] < '0') || (parameters[1][x]> '9')) && (parameters[1][x] != '-'))
+				if (((*x < '0') || (*x > '9')) && (*x != '-'))
 				{
 					Srv->SendTo(NULL,user,"NOTICE "+std::string(user->nick)+" :*** Invalid characters in hostname");
 					return;
 				}
 			}
-		}	
+		}
+		if ((parameters[1] - x) > 63)
+		{
+			WriteServ(user->fd,"NOTICE %s :*** CHGHOST: Host too long",user->nick);
+			return;
+		}
 		userrec* dest = Srv->FindNick(std::string(parameters[0]));
 		if (dest)
 		{
