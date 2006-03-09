@@ -1109,7 +1109,7 @@ class TreeSocket : public InspSocket
 		clientlist[tempnick]->registered = 7;
 		clientlist[tempnick]->signon = age;
 		strlcpy(clientlist[tempnick]->modes, modes.c_str(),53);
-		for (*v = clientlist[tempnick]->modes; *v; v++)
+		for (char *v = clientlist[tempnick]->modes; *v; v++)
 		{
 			switch (*v)
 			{
