@@ -1109,6 +1109,23 @@ class TreeSocket : public InspSocket
 		clientlist[tempnick]->registered = 7;
 		clientlist[tempnick]->signon = age;
 		strlcpy(clientlist[tempnick]->modes, modes.c_str(),53);
+		for (*v = clientlist[tempnick]->modes; *v; v++)
+		{
+			switch (*v)
+			{
+				case 'i':
+					clientlist[tempnick]->modebits |= UM_INVISIBLE;
+				break;
+				case 'w':
+					clientlist[tempnick]->modebits |= UM_WALLOPS;
+				break;
+				case 's':
+					clientlist[tempnick]->modebits |= UM_SERVERNOTICE;
+				break;
+				default:
+				break;
+			}
+		}
 		inet_aton(params[6].c_str(),&clientlist[tempnick]->ip4);
 
 		WriteOpers("*** Client connecting at %s: %s!%s@%s [%s]",clientlist[tempnick]->server,clientlist[tempnick]->nick,clientlist[tempnick]->ident,clientlist[tempnick]->host,(char*)inet_ntoa(clientlist[tempnick]->ip4));
