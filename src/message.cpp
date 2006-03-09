@@ -57,18 +57,17 @@ extern ServerConfig* Config;
 
 int common_channels(userrec *u, userrec *u2)
 {
-	if ((!u) || (!u2))
+	if ((!u) || (!u2) || (u->registered != 7) || (u2->registered != 7))
 	{
-		log(DEFAULT,"*** BUG *** common_channels was given an invalid parameter");
 		return 0;
 	}
-	for (unsigned int i = 0; i < u->chans.size(); i++)
+	for (std::vector<ucrec*>::const_iterator i = u->chans.begin(); i != u->chans.end(); i++)
 	{
-		for (unsigned int z = 0; z != u2->chans.size(); z++)
+		for (std::vector<ucrec*>::const_iterator z = u2->chans.begin(); i != u2->chans.end(); z++)
 		{
-			if ((u->chans[i].channel != NULL) && (u2->chans[z].channel != NULL))
+			if ((((ucrec*)(*i))->channel != NULL) && (((ucrec*)(*z))->channel != NULL))
 			{
-				if ((u->chans[i].channel == u2->chans[z].channel) && (u->chans[i].channel) && (u2->chans[z].channel) && (u->registered == 7) && (u2->registered == 7))
+				if ((((ucrec*)(*i))->channel == ((ucrec*)(*z))->channel) && (((ucrec*)(*i))->channel) && (((ucrec*)(*z))->channel))
 				{
 					if ((c_count(u)) && (c_count(u2)))
 					{
@@ -183,8 +182,8 @@ int CleanAndResolve (char *resolvedHost, const char *unresolvedHost)
 int c_count(userrec* u)
 {
 	int z = 0;
-	for (unsigned int i =0; i < u->chans.size(); i++)
-		if (u->chans[i].channel != NULL)
+	for (std::vector<ucrec*>::const_iterator i = u->chans.begin(); i != u->chans.end(); i++)
+		if (((ucrec*)(*i))->channel)
 			z++;
 	return z;
 
@@ -288,26 +287,23 @@ const char* cmode(userrec *user, chanrec *chan)
 		return "";
 	}
 
-	for (unsigned int i = 0; i < user->chans.size(); i++)
+	for (std::vector<ucrec*>::const_iterator i = user->chans.begin(); i != user->chans.end(); i++)
 	{
-		if (user->chans[i].channel)
+		if (((ucrec*)(*i))->channel == chan)
 		{
-			if ((user->chans[i].channel == chan) && (chan != NULL))
+			if ((((ucrec*)(*i))->uc_modes & UCMODE_OP) > 0)
 			{
-				if ((user->chans[i].uc_modes & UCMODE_OP) > 0)
-				{
-					return "@";
-				}
-				if ((user->chans[i].uc_modes & UCMODE_HOP) > 0)
-				{
-					return "%";
-				}
-				if ((user->chans[i].uc_modes & UCMODE_VOICE) > 0)
-				{
-					return "+";
-				}
-				return "";
+				return "@";
 			}
+			if ((((ucrec*)(*i))->uc_modes & UCMODE_HOP) > 0)
+			{
+				return "%";
+			}
+			if ((((ucrec*)(*i))->uc_modes & UCMODE_VOICE) > 0)
+			{
+				return "+";
+			}
+			return "";
 		}
 	}
 	return "";
@@ -318,14 +314,11 @@ int cflags(userrec *user, chanrec *chan)
 	if ((!chan) || (!user))
 		return 0;
 
-	for (unsigned int i = 0; i < user->chans.size(); i++)
+	for (std::vector<ucrec*>::const_iterator i = user->chans.begin(); i != user->chans.end(); i++)
 	{
-		if (user->chans[i].channel)
+		if (((ucrec*)(*i))->channel == chan)
 		{
-			if ((user->chans[i].channel == chan) && (chan != NULL))
-			{
-				return user->chans[i].uc_modes;
-			}
+			return ((ucrec*)(*i))->uc_modes;
 		}
 	}
 	return 0;
@@ -346,26 +339,23 @@ int cstatus(userrec *user, chanrec *chan)
 	if (is_uline(user->server))
 		return STATUS_OP;
 
-	for (unsigned int i = 0; i < user->chans.size(); i++)
+	for (std::vector<ucrec*>::const_iterator i = user->chans.begin(); i != user->chans.end(); i++)
 	{
-		if (user->chans[i].channel)
+		if (((ucrec*)(*i))->channel == chan)
 		{
-			if ((user->chans[i].channel == chan) && (chan != NULL))
+			if ((((ucrec*)(*i))->uc_modes & UCMODE_OP) > 0)
 			{
-				if ((user->chans[i].uc_modes & UCMODE_OP) > 0)
-				{
-					return STATUS_OP;
-				}
-				if ((user->chans[i].uc_modes & UCMODE_HOP) > 0)
-				{
-					return STATUS_HOP;
-				}
-				if ((user->chans[i].uc_modes & UCMODE_VOICE) > 0)
-				{
-					return STATUS_VOICE;
-				}
-				return STATUS_NORMAL;
+				return STATUS_OP;
 			}
+			if ((((ucrec*)(*i))->uc_modes & UCMODE_HOP) > 0)
+			{
+				return STATUS_HOP;
+			}
+			if ((((ucrec*)(*i))->uc_modes & UCMODE_VOICE) > 0)
+			{
+				return STATUS_VOICE;
+			}
+			return STATUS_NORMAL;
 		}
 	}
 	return STATUS_NORMAL;
@@ -403,27 +393,23 @@ std::string chlist(userrec *user,userrec* source)
 {
 	std::string cmp = "";
 	std::string lst = "";
-        log(DEBUG,"chlist: %s",user->nick);
-	if (!user)
+	if (!user || !source)
 	{
 		return lst;
 	}
 	bool userinvisible = (strchr(user->modes,'i'));
-	for (unsigned int i = 0; i < user->chans.size(); i++)
+	for (std::vector<ucrec*>::const_iterator i = user->chans.begin(); i != user->chans.end(); i++)
 	{
-		if (user->chans[i].channel != NULL)
+		if ((((ucrec*)(*i))->channel != NULL) && (((ucrec*)(*i))->channel->name))
 		{
-			if (user->chans[i].channel->name)
+			cmp = std::string(((ucrec*)(*i))->channel->name) + " ";
+			if (!strstr(lst.c_str(),cmp.c_str()))
 			{
-				cmp = std::string(user->chans[i].channel->name) + " ";
-				if (!strstr(lst.c_str(),cmp.c_str()))
+				// if the channel is NOT private/secret, OR the source user is on the channel, AND the user is not invisible.
+				// if the user is the same as the source, shortcircuit the comparison.
+				if ((source == user) || ((((!(((ucrec*)(*i))->channel->binarymodes & CM_PRIVATE)) && (!(((ucrec*)(*i))->channel->binarymodes & CM_SECRET)) && (!userinvisible)) || (((ucrec*)(*i))->channel->HasUser(source)))))
 				{
-					// if the channel is NOT private/secret, OR the source user is on the channel, AND the user is not invisible.
-					// if the user is the same as the source, shortcircuit the comparison.
-					if ((source == user) || ((((!(user->chans[i].channel->binarymodes & CM_PRIVATE)) && (!(user->chans[i].channel->binarymodes & CM_SECRET)) && (!userinvisible)) || (user->chans[i].channel->HasUser(source)))))
-					{
-						lst = lst + std::string(cmode(user,user->chans[i].channel)) + std::string(user->chans[i].channel->name) + " ";
-					}
+					lst = lst + std::string(cmode(user,((ucrec*)(*i))->channel)) + std::string(((ucrec*)(*i))->channel->name) + " ";
 				}
 			}
 		}
