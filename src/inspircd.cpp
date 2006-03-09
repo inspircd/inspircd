@@ -773,7 +773,7 @@ void InspIRCd::DoOneIteration(bool process_module_sockets)
                                                 }
                                                 catch (ModuleException& modexcept)
                                                 {
-                                                        log(DEBUG,"Module exception cought: %s",modexcept.GetReason()); \
+                                                        log(DEBUG,"Module exception cought: %s",modexcept.GetReason());
                                                 }
                                         }
                                         stats->statsAccept++;
@@ -795,6 +795,7 @@ void InspIRCd::DoOneIteration(bool process_module_sockets)
                                  * what we would do, so for now, its going
                                  * to safely do bugger all.
                                  */
+				SE->DelFd(activefds[activefd]);
                         break;
                 }
         }
