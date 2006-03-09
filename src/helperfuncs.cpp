@@ -1310,9 +1310,10 @@ char* chanmodes(chanrec *chan, bool showkey)
 		strlcat(sparam,foo,MAXBUF);
 	}
 
-	for (int n = 0; n < 190; n++)
+	/* This was still iterating up to 190, chanrec::custom_modes is only 64 elements -- Om */
+	for(int n = 0; n < 64; n++)
 	{
-		if (chan->custom_modes[n])
+		if(chan->custom_modes[n])
 		{
 			*offset++ = n+65;
 			std::string extparam = chan->GetModeParameter(n+65);
@@ -1796,4 +1797,3 @@ bool charremove(char* mp, char remove)
 
 	return shift_down;
 }
-
