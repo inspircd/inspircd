@@ -740,13 +740,11 @@ bool Server::PseudoToUser(userrec* alive,userrec* zombie,std::string message)
 	// Fix by brain - cant write the user until their fd table entry is updated
 	fd_ref_table[zombie->fd] = zombie;
 	Write(zombie->fd,":%s!%s@%s NICK %s",oldnick.c_str(),oldident.c_str(),oldhost.c_str(),zombie->nick);
-        for (unsigned int i = 0; i < zombie->chans.size(); i++)
+        for (std::vector<ucrec*>::const_iterator i = zombie->chans.begin(); i != zombie->chans.end(); i++)
         {
-                if (zombie->chans[i].channel != NULL)
+                if (((ucrec*)(*i))->channel != NULL)
                 {
-                        if (zombie->chans[i].channel->name)
-                        {
-				chanrec* Ptr = zombie->chans[i].channel;
+				chanrec* Ptr = ((ucrec*)(*i))->channel;
 				WriteFrom(zombie->fd,zombie,"JOIN %s",Ptr->name);
 	                        if (Ptr->topicset)
                         	{
@@ -755,8 +753,6 @@ bool Server::PseudoToUser(userrec* alive,userrec* zombie,std::string message)
                         	}
                         	userlist(zombie,Ptr);
                         	WriteServ(zombie->fd,"366 %s %s :End of /NAMES list.", zombie->nick, Ptr->name);
-
-                        }
                 }
         }
 	if ((find(local_users.begin(),local_users.end(),zombie) == local_users.end()) && (zombie->fd != FD_MAGIC_NUMBER))

@@ -715,7 +715,6 @@ void WriteCommon(userrec *u, char* text, ...)
 	char textbuffer[MAXBUF];
 	va_list argsPtr;
 	bool sent_to_at_least_one = false;
-	unsigned int y;
 
 	if (!u)
 	{
@@ -735,13 +734,12 @@ void WriteCommon(userrec *u, char* text, ...)
 
 	// FIX: Stops a message going to the same person more than once
 	memset(&already_sent,0,MAX_DESCRIPTORS);
-	y = u->chans.size();
 
-	for (unsigned int i = 0; i < y; i++)
+	for (std::vector<ucrec*>::const_iterator v = u->chans.begin(); v != u->chans.end(); v++)
 	{
-		if (u->chans[i].channel)
+		if (((ucrec*)(*v))->channel)
 		{
-			CUList *ulist= u->chans[i].channel->GetUsers();
+			CUList *ulist= ((ucrec*)(*v))->channel->GetUsers();
 
 			for (CUList::iterator i = ulist->begin(); i != ulist->end(); i++)
 			{
@@ -768,7 +766,6 @@ void WriteCommon(userrec *u, char* text, ...)
 void WriteCommon_NoFormat(userrec *u, const char* text)
 {
 	bool sent_to_at_least_one = false;
-	unsigned int y;
 
 	if (!u)
 	{
@@ -784,13 +781,12 @@ void WriteCommon_NoFormat(userrec *u, const char* text)
 
 	// FIX: Stops a message going to the same person more than once
 	memset(&already_sent,0,MAX_DESCRIPTORS);
-	y = u->chans.size();
 
-	for (unsigned int i = 0; i < y; i++)
+	for (std::vector<ucrec*>::const_iterator v = u->chans.begin(); v != u->chans.end(); v++)
 	{
-		if (u->chans[i].channel)
+		if (((ucrec*)(*v))->channel)
 		{
-			CUList *ulist= u->chans[i].channel->GetUsers();
+			CUList *ulist= ((ucrec*)(*v))->channel->GetUsers();
 
 			for (CUList::iterator i = ulist->begin(); i != ulist->end(); i++)
 			{
@@ -826,7 +822,6 @@ void WriteCommonExcept(userrec *u, char* text, ...)
 	bool quit_munge = false;
 	va_list argsPtr;
 	int total;
-	unsigned int y;
 
 	if (!u)
 	{
@@ -886,13 +881,12 @@ void WriteCommonExcept(userrec *u, char* text, ...)
 	}
 
 	memset(&already_sent,0,MAX_DESCRIPTORS);
-	y = u->chans.size();
 
-	for (unsigned int i = 0; i < y; i++)
+	for (std::vector<ucrec*>::const_iterator v = u->chans.begin(); v != u->chans.end(); v++)
 	{
-		if (u->chans[i].channel)
+		if (((ucrec*)(*v))->channel)
 		{
-			CUList *ulist= u->chans[i].channel->GetUsers();
+			CUList *ulist= ((ucrec*)(*v))->channel->GetUsers();
 
 			for (CUList::iterator i = ulist->begin(); i != ulist->end(); i++)
 			{
@@ -917,8 +911,6 @@ void WriteCommonExcept(userrec *u, char* text, ...)
 
 void WriteCommonExcept_NoFormat(userrec *u, const char* text)
 {
-	unsigned int y;
-
 	if (!u)
 	{
 		log(DEFAULT,"*** BUG *** WriteCommon was given an invalid parameter");
@@ -932,13 +924,12 @@ void WriteCommonExcept_NoFormat(userrec *u, const char* text)
 	}
 
 	memset(&already_sent,0,MAX_DESCRIPTORS);
-	y = u->chans.size();
 
-	for (unsigned int i = 0; i < y; i++)
+	for (std::vector<ucrec*>::const_iterator v = u->chans.begin(); v != u->chans.end(); v++)
 	{
-		if (u->chans[i].channel)
+		if (((ucrec*)(*v))->channel)
 		{
-			CUList *ulist= u->chans[i].channel->GetUsers();
+			CUList *ulist= ((ucrec*)(*v))->channel->GetUsers();
 
 			for (CUList::iterator i = ulist->begin(); i != ulist->end(); i++)
 			{
@@ -1218,23 +1209,23 @@ long GetMaxBans(char* name)
 
 void purge_empty_chans(userrec* u)
 {
-	int purge = 0;
 	std::vector<chanrec*> to_delete;
 
 	// firstly decrement the count on each channel
 	for (std::vector<ucrec*>::iterator f = u->chans.begin(); f != u->chans.end(); f++)
 	{
-		ucrec* (ucrec*)*f;
-		if (f->channel)
+		if (((ucrec*)(*f))->channel)
 		{
-			if (f->channel->DelUser(u) == 0)
+			if (((ucrec*)(*f))->channel->DelUser(u) == 0)
 			{
 				/* No users left in here, mark it for deletion */
-				to_delete.push_back(f->channel);
-				f->channel = NULL;
+				to_delete.push_back(((ucrec*)(*f))->channel);
+				((ucrec*)(*f))->channel = NULL;
 			}
 		}
 	}
+
+	log(DEBUG,"purge_empty_chans: %d channels to delete",to_delete.size());
 
 	for (std::vector<chanrec*>::iterator n = to_delete.begin(); n != to_delete.end(); n++)
 	{

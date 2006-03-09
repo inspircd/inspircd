@@ -113,18 +113,19 @@ userrec::userrec()
 	sendq = "";
 	chans.clear();
 	invites.clear();
-        clientlist[tempnick]->chans.resize(MAXCHANS);
+        chans.resize(MAXCHANS);
         for (unsigned int n = 0; n < MAXCHANS; n++)
-        {       
-		clientlist[tempnick]->chans[n] = new ucrec();
-		clientlist[tempnick]->chans[n]->channel = NULL;
-		clientlist[tempnick]->chans[n]->uc_modes = 0;
+        {
+		ucrec* x = new ucrec();
+		chans[n] = x;
+		x->channel = NULL;
+		x->uc_modes = 0;
         }
 }
 
 userrec::~userrec()
 {
-	for (std::vector<ucrec*>::iterator n = clientlist[tempnick]->chans.begin(); n != clientlist[tempnick]->chans.end(); n++)
+	for (std::vector<ucrec*>::iterator n = chans.begin(); n != chans.end(); n++)
 	{
 		ucrec* x = (ucrec*)*n;
 		delete x;
