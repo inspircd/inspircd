@@ -36,18 +36,23 @@ using namespace std;
 
 void cmd_ison::Handle (char **parameters, int pcnt, userrec *user)
 {
-	char Return[MAXBUF];
-	snprintf(Return,MAXBUF,"303 %s :",user->nick);
+	char retbuf[MAXBUF];
+	userrec *u;
+
+	snprintf(retbuf, MAXBUF, "303 %s :", user->nick);
+
 	for (int i = 0; i < pcnt; i++)
 	{
-		userrec *u = Find(parameters[i]);
+		u = Find(parameters[i]);
+
 		if (u)
 		{
-			strlcat(Return,u->nick,MAXBUF);
-			charlcat(Return,' ',MAXBUF);
+			strlcat(retbuf, u->nick, MAXBUF);
+			charlcat(retbuf, ' ', MAXBUF);
 		}
 	}
-	WriteServ(user->fd,Return);
+
+	WriteServ(user->fd, retbuf);
 }
 
 

@@ -43,6 +43,8 @@ extern std::vector<ircd_module*> factory;
 
 void cmd_invite::Handle (char **parameters, int pcnt, userrec *user)
 {
+	int MOD_RESULT = 0;
+
 	if (pcnt == 2)
 	{
 		userrec* u = Find(parameters[0]);
@@ -70,20 +72,23 @@ void cmd_invite::Handle (char **parameters, int pcnt, userrec *user)
 				return;
 			}
 		}
+
 		if (c->HasUser(u))
 	 	{
 	 		WriteServ(user->fd,"443 %s %s %s :Is already on channel %s",user->nick,u->nick,c->name,c->name);
 	 		return;
 		}
+
 		if ((IS_LOCAL(user)) && (!c->HasUser(user)))
 	 	{
 			WriteServ(user->fd,"442 %s %s :You're not on that channel!",user->nick, c->name);
 	  		return;
 		}
 
-		int MOD_RESULT = 0;
 		FOREACH_RESULT(I_OnUserPreInvite,OnUserPreInvite(user,u,c));
-		if (MOD_RESULT == 1) {
+
+		if (MOD_RESULT == 1)
+		{
 			return;
 		}
 
@@ -105,5 +110,3 @@ void cmd_invite::Handle (char **parameters, int pcnt, userrec *user)
 		WriteServ(user->fd,"347 %s :End of INVITE list",user->nick);
 	}
 }
-
-
