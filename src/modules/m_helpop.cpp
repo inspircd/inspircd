@@ -122,16 +122,12 @@ bool do_helpop(char **parameters, int pcnt, userrec *src)
  		search++;
    	}
 
-	/* XXX - don't we have an strtolower()? if not, might pay to add one.. that works on char *, preferably.. */
-	strlcpy(lower, search, MAXBUF);
-	for (unsigned int t = 0; t < strlen(lower); t++)
-		lower[t] = tolower(lower[t]);
-
+	strlower(search);
 
 	for (int i = 1; output != ""; i++)
 	{
 		snprintf(a,MAXBUF,"line%d",i);
-		output = helpop->ReadValue(lower, a, 0);
+		output = helpop->ReadValue(search, a, 0);
 		if (output != "")
 		{
 			Srv->SendTo(NULL,src,"290 "+std::string(src->nick)+" :"+output);

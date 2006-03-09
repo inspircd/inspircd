@@ -72,11 +72,6 @@ class ModuleAntiBottler : public Module
 				if (!(data) || !(*data))
 					return;
 
-				/*
-				 * slight efficiency fix: strtok() just returns NULL if it has no more
-				 * tokens to return. Plus strlen's here really could have been replaced
-				 * with above pointer voodoo :-). --w00t
-				 */
 				strtok(data," ");
 				char *ident = strtok(NULL," ");
 				char *local = strtok(NULL," ");

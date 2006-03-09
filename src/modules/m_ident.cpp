@@ -71,11 +71,10 @@ class RFC1413 : public InspSocket
 						if (section)
 						{
 							while (*section == ' ') section++; // strip leading spaces
-                                                        int t = strlen(section);
-                                                        for (int j = 0; j < t; j++)
-                                                        if ((section[j] < 33) || (section[j]>126))
-								section[j] = '\0'; // truncate at invalid chars
-                                                        if (strlen(section))
+                                                        for (char* j = section; *j; j++)
+                                                        if ((*j < 33) || (*j > 126))
+								*j = '\0'; // truncate at invalid chars
+                                                        if (*section)
                                                         {
                                                         	strlcpy(u->ident,section,IDENTMAX);
                                                                 Srv->Log(DEBUG,"IDENT SET: "+std::string(u->ident));
