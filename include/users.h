@@ -311,7 +311,7 @@ class userrec : public connection
 	/** Returns the write error which last occured on this connection or an empty string
 	 * if none occured.
 	 */
-	std::string GetWriteError();
+	const char* GetWriteError();
 
 	/** Adds to the user's write buffer.
 	 * You may add any amount of text up to this users sendq value, if you exceed the

@@ -87,6 +87,12 @@ CullItem::CullItem(userrec* u, std::string &r)
         this->reason = r;
 }
 
+CullItem::CullItem(userrec* u, const char* r)
+{
+	this->user = u;
+	this->reason = r;
+}
+
 userrec* CullItem::GetUser()
 {
         return this->user;
@@ -110,6 +116,16 @@ void CullList::AddItem(userrec* user, std::string &reason)
 	        CullItem item(user,reason);
 	        list.push_back(item);
 	        exempt[user] = user->signon;
+	}
+}
+
+void CullList::AddItem(userrec* user, const char* reason)
+{
+	if (exempt.find(user) == exempt.end())
+	{
+		CullItem item(user,reason);
+		list.push_back(item);
+		exempt[user] = user->signon;
 	}
 }
 

@@ -357,7 +357,7 @@ std::string userrec::GetBuffer()
 
 void userrec::AddWriteBuf(std::string data)
 {
-	if (this->GetWriteError() != "")
+	if (*this->GetWriteError())
 		return;
 	if (sendq.length() + data.length() > (unsigned)this->sendqmax)
 	{
@@ -405,9 +405,9 @@ void userrec::SetWriteError(std::string error)
 		this->WriteError = error;
 }
 
-std::string userrec::GetWriteError()
+const char* userrec::GetWriteError()
 {
-	return this->WriteError;
+	return this->WriteError.c_str();
 }
 
 void AddOper(userrec* user)

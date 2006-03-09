@@ -404,7 +404,7 @@ void DoBackgroundUserStuff(time_t TIME)
 			 */
 			curr->FlushWriteBuf();
 
-			if (curr->GetWriteError() != "")
+			if (*curr->GetWriteError())
 			{
 				GlobalGoners.AddItem(curr,curr->GetWriteError());
 				continue;
