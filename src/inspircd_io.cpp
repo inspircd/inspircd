@@ -167,6 +167,17 @@ bool NoValidation(const char* tag, const char* value, void* data)
 	return true;
 }
 
+bool ValidateServerName(const char* tag, const char* value, void* data)
+{
+	char* x = (char*)data;
+	if (!strchr(x,'.'))
+	{
+                log(DEFAULT,"WARNING: <server:name> '%s' is not a fully-qualified domain name. Changed to '%s%c'",x,x,'.');
+                charlcat(x,'.',MAXBUF);
+        }
+	return true;
+}
+
 void ServerConfig::Read(bool bail, userrec* user)
 {
 	char debug[MAXBUF];
@@ -174,7 +185,7 @@ void ServerConfig::Read(bool bail, userrec* user)
 	static InitialConfig Values[] = {
 		{"options",	"softlimit",		&this->SoftLimit,		DT_INTEGER, NoValidation},
 		{"options",	"somaxconn",		&this->MaxConn,			DT_INTEGER, NoValidation},
-		{"server",	"name",			&this->ServerName,		DT_CHARPTR, NoValidation},
+		{"server",	"name",			&this->ServerName,		DT_CHARPTR, ValidateServerName},
 		{"server",	"description",		&this->ServerDesc,		DT_CHARPTR, NoValidation},
 		{"server",	"network",		&this->Network,			DT_CHARPTR, NoValidation},
 		{"admin",	"name",			&this->AdminName,		DT_CHARPTR, NoValidation},
@@ -308,20 +319,8 @@ void ServerConfig::Read(bool bail, userrec* user)
 		Config->SoftLimit = MAXCLIENTS;
 	}
 
-	Config->MaxConn = atoi(MCON);
-
 	if (Config->MaxConn > SOMAXCONN)
 		log(DEFAULT,"WARNING: <options:somaxconn> value may be higher than the system-defined SOMAXCONN value!");
-
-	Config->NetBufferSize = atoi(NB);
-	Config->MaxWhoResults = atoi(MW);
-	Config->dns_timeout = atoi(DNT);
-
-	if (!strchr(Config->ServerName,'.'))
-	{
-		log(DEFAULT,"WARNING: <server:name> '%s' is not a fully-qualified domain name. Changed to '%s%c'",Config->ServerName,Config->ServerName,'.');
-		charlcat(Config->ServerName,'.',MAXBUF);
-	}
 
 	if (!Config->dns_timeout)
 		Config->dns_timeout = 5;
