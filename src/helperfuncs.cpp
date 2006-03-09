@@ -1386,7 +1386,7 @@ int usercount_i(chanrec *c)
 	CUList *ulist= c->GetUsers();
 	for (CUList::iterator i = ulist->begin(); i != ulist->end(); i++)
 	{
-		if (i->second->modebits & UM_INVISIBLE)
+		if (!(i->second->modebits & UM_INVISIBLE))
 			count++;
 	}
 
