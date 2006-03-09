@@ -75,7 +75,7 @@ class ModuleOperWho : public Module
 			for (user_hash::const_iterator i = clientlist.begin(); i != clientlist.end(); i++)
 			{
 				*tmp = 0;
-				Ptr = i->second->chans[0].channel;
+				Ptr = ((ucrec*)*(i->second->chans.begin()))->channel;
 				if (*i->second->awaymsg) {
 					strlcat(tmp, "G", 9);
 				} else {
@@ -91,11 +91,11 @@ class ModuleOperWho : public Module
 		{
 			if ((!strcmp(parameters[0],"0")) || (!strcmp(parameters[0],"*")))
 			{
-				if ((user->chans.size()) && (user->chans[0].channel))
+				if ((user->chans.size()) && (((ucrec*)*(user->chans.begin()))->channel))
 				{
 				  	for (user_hash::const_iterator i = clientlist.begin(); i != clientlist.end(); i++)
 					{
-						Ptr = i->second->chans[0].channel;
+						Ptr = ((ucrec*)*(i->second->chans.begin()))->channel;
 						// suggested by phidjit and FCS
 						if ((!common_channels(user,i->second)) && (isnick(i->second->nick)))
 						{
@@ -164,7 +164,7 @@ class ModuleOperWho : public Module
 						strlcat(tmp, "H" ,9);
 					}
 					if (*u->oper) { strlcat(tmp, "*" ,9); }
-					WriteServ(user->fd,"352 %s %s %s %s %s %s %s :0 %s",user->nick, u->chans.size() && u->chans[0].channel ? u->chans[0].channel->name
+					WriteServ(user->fd,"352 %s %s %s %s %s %s %s :0 %s",user->nick, u->chans.size() && ((ucrec*)*(u->chans.begin()))->channel ? ((ucrec*)*(u->chans.begin()))->channel->name
 	                                : "*", u->ident, u->dhost, u->server, u->nick, tmp, u->fullname);
 				}
 				WriteServ(user->fd,"315 %s %s :End of /WHO list.",user->nick, parameters[0]);
@@ -186,8 +186,8 @@ class ModuleOperWho : public Module
 					} else {
 						strlcat(tmp, "H" ,9);
 					}
-	                                WriteServ(user->fd,"352 %s %s %s %s %s %s %s* :0 %s", user->nick, oper->chans.size() && oper->chans[0].channel ? oper->chans[0].channel->name 
-					: "*", oper->ident, oper->host, oper->server, oper->nick, tmp, oper->fullname);
+	                                WriteServ(user->fd,"352 %s %s %s %s %s %s %s* :0 %s", user->nick, oper->chans.size() && ((ucrec*)*(oper->chans.begin()))->channel ?
+					((ucrec*)*(oper->chans.begin()))->channel->name : "*", oper->ident, oper->host, oper->server, oper->nick, tmp, oper->fullname);
 	                        }
 	                        WriteServ(user->fd,"315 %s %s :End of /WHO list.",user->nick, parameters[0]);
 	                        return 1;
