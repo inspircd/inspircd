@@ -1253,6 +1253,8 @@ void cmd_mode::Handle (char **parameters, int pcnt, userrec *user)
 										case 'w':
 											dest->modebits |= UM_WALLOPS;
 										break;
+										default:
+										break;
 									}
 								}
 							}
@@ -1279,6 +1281,8 @@ void cmd_mode::Handle (char **parameters, int pcnt, userrec *user)
 										break;
 										case 'w':
 											dest->modebits &= ~UM_WALLOPS;
+										break;
+										default:
 										break;
 									}
 								}

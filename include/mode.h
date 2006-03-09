@@ -32,7 +32,7 @@
 enum UserModeBits {
 	UM_INVISIBLE = 1,
 	UM_SERVERNOTICE = 2,
-	UM_WALLOPS = 3
+	UM_WALLOPS = 4
 };
 
 class ModeParser
