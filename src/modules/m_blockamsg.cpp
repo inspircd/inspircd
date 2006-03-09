@@ -121,8 +121,8 @@ public:
 				if((*c == ',') && *(c+1) && (*(c+1) == '#'))
 					targets++;
 					
-			for(unsigned int i = 0; i < user->chans.size(); i++)
-				if(user->chans[i].channel)
+			for(std::vector<ucrec*>::iterator f = user->chans.begin(); f != user->chans.end(); f++)
+				if(((ucrec*)(*f))->channel)
 					userchans++;
 
 			// Check that this message wasn't already sent within a few seconds.
