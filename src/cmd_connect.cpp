@@ -31,6 +31,9 @@ using namespace std;
 #include "typedefs.h"
 #include "cmd_connect.h"
 
+/*
+ * This is handled by the server linking module, if necessary. Do not remove this stub.
+ */
 void cmd_connect::Handle (char **parameters, int pcnt, userrec *user)
 {
 }

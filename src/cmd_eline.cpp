@@ -48,33 +48,36 @@ extern std::vector<ircd_module*> factory;
 
 void cmd_eline::Handle (char **parameters, int pcnt, userrec *user)
 {
-        if (pcnt >= 3)
-        {
+	if (pcnt >= 3)
+	{
 		if (host_matches_everyone(parameters[0],user))
 			return;
-                add_eline(duration(parameters[1]),user->nick,parameters[2],parameters[0]);
+
+		add_eline(duration(parameters[1]),user->nick,parameters[2],parameters[0]);
 		FOREACH_MOD(I_OnAddELine,OnAddELine(duration(parameters[1]), user, parameters[2], parameters[0]));
-                if (!duration(parameters[1]))
-                {
-                        WriteOpers("*** %s added permenant E-line for %s.",user->nick,parameters[0]);
-                }
-                else
-                {
-                        WriteOpers("*** %s added timed E-line for %s, expires in %d seconds.",user->nick,parameters[0],duration(parameters[1]));
-                }
-        }
-        else
-        {
-                if (del_eline(parameters[0]))
-                {
+
+		if (!duration(parameters[1]))
+		{
+			WriteOpers("*** %s added permenant E-line for %s.",user->nick,parameters[0]);
+		}
+		else
+		{
+			WriteOpers("*** %s added timed E-line for %s, expires in %d seconds.",user->nick,parameters[0],duration(parameters[1]));
+		}
+	}
+	else
+	{
+		if (del_eline(parameters[0]))
+		{
 			FOREACH_MOD(I_OnDelELine,OnDelELine(user, parameters[0]));
-                        WriteOpers("*** %s Removed E-line on %s.",user->nick,parameters[0]);
-                }
-                else
-                {
-                        WriteServ(user->fd,"NOTICE %s :*** E-Line %s not found in list, try /stats e.",user->nick,parameters[0]);
-                }
-        }
+			WriteOpers("*** %s Removed E-line on %s.",user->nick,parameters[0]);
+		}
+		else
+		{
+			WriteServ(user->fd,"NOTICE %s :*** E-Line %s not found in list, try /stats e.",user->nick,parameters[0]);
+		}
+	}
+
 	// no need to apply the lines for an eline
 }
 
