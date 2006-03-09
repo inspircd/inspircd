@@ -150,6 +150,13 @@ class userrec : public connection
 	 * an optional + character.
 	 */
 	char modes[54];
+
+	/** This contains a bitmask of the RFC modes +swi,
+	 * which can be used for fast lookup when iterating all the users.
+	 * It is maintained by the mode parser and matches the character
+	 * modes stored in 'modes'.
+	 */
+	char modebits;
 	
 	std::vector<ucrec*> chans;
 	

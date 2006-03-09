@@ -1239,9 +1239,20 @@ void cmd_mode::Handle (char **parameters, int pcnt, userrec *user)
 								{
 									charlcat(dmodes,*i,53);
 									charlcat(outpars,*i,MAXMODES);
-									if (*i == 'o')
+									switch (*i)
 									{
-										FOREACH_MOD(I_OnGlobalOper,OnGlobalOper(dest));
+										case 'o':
+											FOREACH_MOD(I_OnGlobalOper,OnGlobalOper(dest));
+										break;
+										case 'i':
+											dest->modebits |= UM_INVISIBLE;
+										break;
+										case 's':
+											dest->modebits |= UM_SERVERNOTICE;
+										break;
+										case 'w':
+											dest->modebits |= UM_WALLOPS;
+										break;
 									}
 								}
 							}
@@ -1254,10 +1265,21 @@ void cmd_mode::Handle (char **parameters, int pcnt, userrec *user)
 								{
 									charlcat(outpars,*i,MAXMODES);
 									charremove(dmodes,*i);
-									if (*i == 'o')
+									switch (*i)
 									{
-										*dest->oper = 0;
-										DeleteOper(dest);
+										case 'o':
+											*dest->oper = 0;
+											DeleteOper(dest);
+										break;
+										case 'i':
+											dest->modebits ^= UM_INVISIBLE;
+										break;
+										case 's':
+											dest->modebits ^= UM_SERVERNOTICE;
+										break;
+										case 'w':
+											dest->modebits ^= UM_WALLOPS;
+										break;
 									}
 								}
 							}

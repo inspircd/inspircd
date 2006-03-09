@@ -107,7 +107,7 @@ userrec::userrec()
 	server = (char*)FindServerNamePtr(Config->ServerName);
 	reset_due = TIME;
 	lines_in = fd = lastping = signon = idle_lastmsg = nping = registered = 0;
-	timeout = flood = port = bytes_in = bytes_out = cmds_in = cmds_out = 0;
+	modebits = timeout = flood = port = bytes_in = bytes_out = cmds_in = cmds_out = 0;
 	haspassed = dns_done = false;
 	recvq = "";
 	sendq = "";

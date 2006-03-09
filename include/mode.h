@@ -29,6 +29,12 @@
 #include "channels.h"
 #include "ctables.h"
 
+enum UserModeBits {
+	UM_INVISIBLE = 1,
+	UM_SERVERNOTICE = 2,
+	UM_WALLOPS = 3
+};
+
 class ModeParser
 {
  private:

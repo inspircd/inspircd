@@ -397,7 +397,7 @@ std::string chlist(userrec *user,userrec* source)
 	{
 		return lst;
 	}
-	bool userinvisible = (strchr(user->modes,'i'));
+	bool userinvisible = (user->modebits & UM_INVISIBLE);
 	for (std::vector<ucrec*>::const_iterator i = user->chans.begin(); i != user->chans.end(); i++)
 	{
 		if ((((ucrec*)(*i))->channel != NULL) && (((ucrec*)(*i))->channel->name))
