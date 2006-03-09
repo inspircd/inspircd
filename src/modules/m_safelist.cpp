@@ -105,7 +105,7 @@ class ListTimer : public InspTimer
 						/* If there are only invisible users on the channel, dont show it */
 						if (users)
 						{
-							int counter = snprintf(buffer,MAXBUF,"322 %s %s %d :[+%s] %s",u->nick,chan->name,users,chanmodes(chan,has_user),chan->topic);
+							int counter = snprintf(buffer,MAXBUF,"322 %s %s %ld :[+%s] %s",u->nick,chan->name,users,chanmodes(chan,has_user),chan->topic);
 							amount_sent += counter + 4 + Srv->GetServerName().length();
 							log(DEBUG,"m_safelist.so: Sent %ld of safe %ld / 4",amount_sent,u->sendqmax);
 							WriteServ_NoFormat(u->fd,buffer);
