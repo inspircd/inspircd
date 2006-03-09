@@ -151,51 +151,51 @@ bool ServerConfig::CheckOnce(char* tag, bool bail, userrec* user)
 
 void ServerConfig::Read(bool bail, userrec* user)
 {
-	/** Yes yes, i know, this function is craq worthy of
-	 * sirv. Its a mess, and some day i will tidy it.
-	 * ...But that day will not be today. or probaby not
-	 * tomorrow even, because it works fine.
-	 */
-        char dbg[MAXBUF],pauseval[MAXBUF],Value[MAXBUF],timeout[MAXBUF],NB[MAXBUF],flood[MAXBUF],MW[MAXBUF],MCON[MAXBUF],MT[MAXBUF];
-        char AH[MAXBUF],AP[MAXBUF],AF[MAXBUF],DNT[MAXBUF],pfreq[MAXBUF],thold[MAXBUF],sqmax[MAXBUF],rqmax[MAXBUF],SLIMT[MAXBUF];
+	/* XXX - this needs a rework someday, BAD. */
+	char dbg[MAXBUF],pauseval[MAXBUF],Value[MAXBUF],timeout[MAXBUF],NB[MAXBUF],flood[MAXBUF],MW[MAXBUF],MCON[MAXBUF],MT[MAXBUF];
+	char AH[MAXBUF],AP[MAXBUF],AF[MAXBUF],DNT[MAXBUF],pfreq[MAXBUF],thold[MAXBUF],sqmax[MAXBUF],rqmax[MAXBUF],SLIMT[MAXBUF];
 	char localmax[MAXBUF],globalmax[MAXBUF],HS[MAXBUF],HB[MAXBUF],ServName[MAXBUF];
-        ConnectClass c;
-        std::stringstream errstr;
-        include_stack.clear();
+	ConnectClass c;
+	std::stringstream errstr;
+	
+	include_stack.clear();
 
-        if (!LoadConf(CONFIG_FILE,&Config->config_f,&errstr))
-        {
-                errstr.seekg(0);
-                log(DEFAULT,"There were errors in your configuration:\n%s",errstr.str().c_str());
-                if (bail)
-                {
-                        printf("There were errors in your configuration:\n%s",errstr.str().c_str());
-                        Exit(0);
-                }
-                else
-                {
-                        char dataline[1024];
-                        if (user)
-                        {
-                                WriteServ(user->fd,"NOTICE %s :There were errors in the configuration file:",user->nick);
-                                while (!errstr.eof())
-                                {
-                                        errstr.getline(dataline,1024);
-                                        WriteServ(user->fd,"NOTICE %s :%s",user->nick,dataline);
-                                }
-                        }
-                        else
-                        {
-                                WriteOpers("There were errors in the configuration file:");
-                                while (!errstr.eof())
-                                {
-                                        errstr.getline(dataline,1024);
-                                        WriteOpers(dataline);
-                                }
-                        }
-                        return;
-                }
-        }
+	if (!LoadConf(CONFIG_FILE,&Config->config_f,&errstr))
+	{
+		errstr.seekg(0);
+		log(DEFAULT,"There were errors in your configuration:\n%s",errstr.str().c_str());
+
+		if (bail)
+		{
+			printf("There were errors in your configuration:\n%s",errstr.str().c_str());
+			Exit(0);
+		}
+		else
+		{
+			char dataline[1024];
+
+			if (user)
+			{
+				WriteServ(user->fd,"NOTICE %s :There were errors in the configuration file:",user->nick);
+				while (!errstr.eof())
+				{
+					errstr.getline(dataline,1024);
+					WriteServ(user->fd,"NOTICE %s :%s",user->nick,dataline);
+				}
+			}
+			else
+			{
+				WriteOpers("There were errors in the configuration file:");
+				while (!errstr.eof())
+				{
+					errstr.getline(dataline,1024);
+					WriteOpers(dataline);
+				}
+			}
+
+			return;
+		}
+	}
 
 	/* Check we dont have more than one of singular tags
 	 */
@@ -205,31 +205,31 @@ void ServerConfig::Read(bool bail, userrec* user)
 		return;
 	}
 
-        ConfValue("server","name",0,Config->ServerName,&Config->config_f);
-        ConfValue("server","description",0,Config->ServerDesc,&Config->config_f);
-        ConfValue("server","network",0,Config->Network,&Config->config_f);
-        ConfValue("admin","name",0,Config->AdminName,&Config->config_f);
-        ConfValue("admin","email",0,Config->AdminEmail,&Config->config_f);
-        ConfValue("admin","nick",0,Config->AdminNick,&Config->config_f);
-        ConfValue("files","motd",0,Config->motd,&Config->config_f);
-        ConfValue("files","rules",0,Config->rules,&Config->config_f);
-        ConfValue("power","diepass",0,Config->diepass,&Config->config_f);
-        ConfValue("power","pause",0,pauseval,&Config->config_f);
-        ConfValue("power","restartpass",0,Config->restartpass,&Config->config_f);
-        ConfValue("options","prefixquit",0,Config->PrefixQuit,&Config->config_f);
-        ConfValue("die","value",0,Config->DieValue,&Config->config_f);
-        ConfValue("options","loglevel",0,dbg,&Config->config_f);
-        ConfValue("options","netbuffersize",0,NB,&Config->config_f);
-        ConfValue("options","maxwho",0,MW,&Config->config_f);
-        ConfValue("options","allowhalfop",0,AH,&Config->config_f);
-        ConfValue("options","allowprotect",0,AP,&Config->config_f);
-        ConfValue("options","allowfounder",0,AF,&Config->config_f);
-        ConfValue("dns","server",0,Config->DNSServer,&Config->config_f);
-        ConfValue("dns","timeout",0,DNT,&Config->config_f);
-        ConfValue("options","moduledir",0,Config->ModPath,&Config->config_f);
-        ConfValue("disabled","commands",0,Config->DisabledCommands,&Config->config_f);
-        ConfValue("options","somaxconn",0,MCON,&Config->config_f);
-        ConfValue("options","softlimit",0,SLIMT,&Config->config_f);
+	ConfValue("server","name",0,Config->ServerName,&Config->config_f);
+	ConfValue("server","description",0,Config->ServerDesc,&Config->config_f);
+	ConfValue("server","network",0,Config->Network,&Config->config_f);
+	ConfValue("admin","name",0,Config->AdminName,&Config->config_f);
+	ConfValue("admin","email",0,Config->AdminEmail,&Config->config_f);
+	ConfValue("admin","nick",0,Config->AdminNick,&Config->config_f);
+	ConfValue("files","motd",0,Config->motd,&Config->config_f);
+	ConfValue("files","rules",0,Config->rules,&Config->config_f);
+	ConfValue("power","diepass",0,Config->diepass,&Config->config_f);
+	ConfValue("power","pause",0,pauseval,&Config->config_f);
+	ConfValue("power","restartpass",0,Config->restartpass,&Config->config_f);
+	ConfValue("options","prefixquit",0,Config->PrefixQuit,&Config->config_f);
+	ConfValue("die","value",0,Config->DieValue,&Config->config_f);
+	ConfValue("options","loglevel",0,dbg,&Config->config_f);
+	ConfValue("options","netbuffersize",0,NB,&Config->config_f);
+	ConfValue("options","maxwho",0,MW,&Config->config_f);
+	ConfValue("options","allowhalfop",0,AH,&Config->config_f);
+	ConfValue("options","allowprotect",0,AP,&Config->config_f);
+	ConfValue("options","allowfounder",0,AF,&Config->config_f);
+	ConfValue("dns","server",0,Config->DNSServer,&Config->config_f);
+	ConfValue("dns","timeout",0,DNT,&Config->config_f);
+	ConfValue("options","moduledir",0,Config->ModPath,&Config->config_f);
+	ConfValue("disabled","commands",0,Config->DisabledCommands,&Config->config_f);
+	ConfValue("options","somaxconn",0,MCON,&Config->config_f);
+	ConfValue("options","softlimit",0,SLIMT,&Config->config_f);
 	ConfValue("options","operonlystats",0,Config->OperOnlyStats,&Config->config_f);
 	ConfValue("options","customversion",0,Config->CustomVersion,&Config->config_f);
 	ConfValue("options","maxtargets",0,MT,&Config->config_f);
@@ -242,43 +242,55 @@ void ServerConfig::Read(bool bail, userrec* user)
 
 	if (!*Config->TempDir)
 		strlcpy(Config->TempDir,"/tmp",1024);
+
 	Config->HideSplits = ((*HS == 'y') || (*HS == 'Y') || (*HS == '1') || (*HS == 't') || (*HS == 'T'));
 	Config->HideBans = ((*HB == 'y') || (*HB == 'Y') || (*HB == '1') || (*HB == 't') || (*HB == 'T'));
-        Config->SoftLimit = atoi(SLIMT);
+	Config->SoftLimit = atoi(SLIMT);
+
 	if (*MT)
 		Config->MaxTargets = atoi(MT);
+
 	if ((Config->MaxTargets < 0) || (Config->MaxTargets > 31))
 	{
 		log(DEFAULT,"WARNING: <options:maxtargets> value is greater than 31 or less than 0, set to 20.");
 		Config->MaxTargets = 20;
 	}
-        if ((Config->SoftLimit < 1) || (Config->SoftLimit > MAXCLIENTS))
-        {
-                log(DEFAULT,"WARNING: <options:softlimit> value is greater than %d or less than 0, set to %d.",MAXCLIENTS,MAXCLIENTS);
-                Config->SoftLimit = MAXCLIENTS;
-        }
-        Config->MaxConn = atoi(MCON);
-        if (Config->MaxConn > SOMAXCONN)
-                log(DEFAULT,"WARNING: <options:somaxconn> value may be higher than the system-defined SOMAXCONN value!");
-        Config->NetBufferSize = atoi(NB);
-        Config->MaxWhoResults = atoi(MW);
-        Config->dns_timeout = atoi(DNT);
+
+	if ((Config->SoftLimit < 1) || (Config->SoftLimit > MAXCLIENTS))
+	{
+		log(DEFAULT,"WARNING: <options:softlimit> value is greater than %d or less than 0, set to %d.",MAXCLIENTS,MAXCLIENTS);
+		Config->SoftLimit = MAXCLIENTS;
+	}
+
+	Config->MaxConn = atoi(MCON);
+
+	if (Config->MaxConn > SOMAXCONN)
+		log(DEFAULT,"WARNING: <options:somaxconn> value may be higher than the system-defined SOMAXCONN value!");
+
+	Config->NetBufferSize = atoi(NB);
+	Config->MaxWhoResults = atoi(MW);
+	Config->dns_timeout = atoi(DNT);
+
 	if (!strchr(Config->ServerName,'.'))
 	{
 		log(DEFAULT,"WARNING: <server:name> '%s' is not a fully-qualified domain name. Changed to '%s%c'",Config->ServerName,Config->ServerName,'.');
 		charlcat(Config->ServerName,'.',MAXBUF);
 	}
-        if (!Config->dns_timeout)
-                Config->dns_timeout = 5;
-        if (!Config->MaxConn)
-                Config->MaxConn = SOMAXCONN;
-        if (!*Config->DNSServer)
+
+	if (!Config->dns_timeout)
+		Config->dns_timeout = 5;
+
+	if (!Config->MaxConn)
+		Config->MaxConn = SOMAXCONN;
+
+	if (!*Config->DNSServer)
 	{
 		// attempt to look up their nameserver from /etc/resolv.conf
 		log(DEFAULT,"WARNING: <dns:server> not defined, attempting to find working server in /etc/resolv.conf...");
 		ifstream resolv("/etc/resolv.conf");
 		std::string nameserver;
 		bool found_server = false;
+
 		if (resolv.is_open())
 		{
 			while (resolv >> nameserver)
@@ -291,6 +303,7 @@ void ServerConfig::Read(bool bail, userrec* user)
 					log(DEFAULT,"<dns:server> set to '%s' as first resolver in /etc/resolv.conf.",nameserver.c_str());
 				}
 			}
+
 			if (!found_server)
 			{
 				log(DEFAULT,"/etc/resolv.conf contains no viable nameserver entries! Defaulting to nameserver '127.0.0.1'!");
@@ -300,223 +313,253 @@ void ServerConfig::Read(bool bail, userrec* user)
 		else
 		{
 			log(DEFAULT,"/etc/resolv.conf can't be opened! Defaulting to nameserver '127.0.0.1'!");
-        	        strlcpy(Config->DNSServer,"127.0.0.1",MAXBUF);
+			strlcpy(Config->DNSServer,"127.0.0.1",MAXBUF);
 		}
 	}
-        if (!*Config->ModPath)
-                strlcpy(Config->ModPath,MOD_PATH,MAXBUF);
-        Config->AllowHalfop = ((!strcasecmp(AH,"true")) || (!strcasecmp(AH,"1")) || (!strcasecmp(AH,"yes")));
-        if ((!Config->NetBufferSize) || (Config->NetBufferSize > 65535) || (Config->NetBufferSize < 1024))
-        {
-                log(DEFAULT,"No NetBufferSize specified or size out of range, setting to default of 10240.");
-                Config->NetBufferSize = 10240;
-        }
-        if ((!Config->MaxWhoResults) || (Config->MaxWhoResults > 65535) || (Config->MaxWhoResults < 1))
-        {
-                log(DEFAULT,"No MaxWhoResults specified or size out of range, setting to default of 128.");
-                Config->MaxWhoResults = 128;
-        }
-        Config->LogLevel = DEFAULT;
-        if (!strcmp(dbg,"debug"))
-        {
-                Config->LogLevel = DEBUG;
-                Config->debugging = 1;
-        }
-        if (!strcmp(dbg,"verbose"))
-                Config->LogLevel = VERBOSE;
-        if (!strcmp(dbg,"default"))
-                Config->LogLevel = DEFAULT;
-        if (!strcmp(dbg,"sparse"))
-                Config->LogLevel = SPARSE;
-        if (!strcmp(dbg,"none"))
-                Config->LogLevel = NONE;
 
-        readfile(Config->MOTD,Config->motd);
-        log(DEFAULT,"Reading message of the day...");
-        readfile(Config->RULES,Config->rules);
-        log(DEFAULT,"Reading connect classes...");
-        Classes.clear();
-        for (int i = 0; i < ConfValueEnum("connect",&Config->config_f); i++)
-        {
-                *Value = 0;
-                ConfValue("connect","allow",i,Value,&Config->config_f);
-                ConfValue("connect","timeout",i,timeout,&Config->config_f);
-                ConfValue("connect","flood",i,flood,&Config->config_f);
-                ConfValue("connect","pingfreq",i,pfreq,&Config->config_f);
-                ConfValue("connect","threshold",i,thold,&Config->config_f);
-                ConfValue("connect","sendq",i,sqmax,&Config->config_f);
-                ConfValue("connect","recvq",i,rqmax,&Config->config_f);
+	if (!*Config->ModPath)
+		strlcpy(Config->ModPath,MOD_PATH,MAXBUF);
+
+	Config->AllowHalfop = ((!strcasecmp(AH,"true")) || (!strcasecmp(AH,"1")) || (!strcasecmp(AH,"yes")));
+
+	if ((!Config->NetBufferSize) || (Config->NetBufferSize > 65535) || (Config->NetBufferSize < 1024))
+	{
+		log(DEFAULT,"No NetBufferSize specified or size out of range, setting to default of 10240.");
+		Config->NetBufferSize = 10240;
+	}
+
+	if ((!Config->MaxWhoResults) || (Config->MaxWhoResults > 65535) || (Config->MaxWhoResults < 1))
+	{
+		log(DEFAULT,"No MaxWhoResults specified or size out of range, setting to default of 128.");
+		Config->MaxWhoResults = 128;
+	}
+
+	Config->LogLevel = DEFAULT;
+
+	if (!strcmp(dbg,"debug"))
+	{
+		Config->LogLevel = DEBUG;
+		Config->debugging = 1;
+	}
+	else if (!strcmp(dbg,"verbose"))
+		Config->LogLevel = VERBOSE;
+	else if (!strcmp(dbg,"default"))
+		Config->LogLevel = DEFAULT;
+	else if (!strcmp(dbg,"sparse"))
+		Config->LogLevel = SPARSE;
+	else if (!strcmp(dbg,"none"))
+		Config->LogLevel = NONE;
+
+	readfile(Config->MOTD,Config->motd);
+	log(DEFAULT,"Reading message of the day...");
+	readfile(Config->RULES,Config->rules);
+	log(DEFAULT,"Reading connect classes...");
+	Classes.clear();
+
+	for (int i = 0; i < ConfValueEnum("connect",&Config->config_f); i++)
+	{
+		*Value = 0;
+		ConfValue("connect","allow",i,Value,&Config->config_f);
+		ConfValue("connect","timeout",i,timeout,&Config->config_f);
+		ConfValue("connect","flood",i,flood,&Config->config_f);
+		ConfValue("connect","pingfreq",i,pfreq,&Config->config_f);
+		ConfValue("connect","threshold",i,thold,&Config->config_f);
+		ConfValue("connect","sendq",i,sqmax,&Config->config_f);
+		ConfValue("connect","recvq",i,rqmax,&Config->config_f);
 		ConfValue("connect","localmax",i,localmax,&Config->config_f);
 		ConfValue("connect","globalmax",i,globalmax,&Config->config_f);
-                if (*Value)
-                {
-                        c.host = Value;
-                        c.type = CC_ALLOW;
-                        strlcpy(Value,"",MAXBUF);
-                        ConfValue("connect","password",i,Value,&Config->config_f);
-                        c.pass = Value;
-                        c.registration_timeout = 90; // default is 2 minutes
-                        c.pingtime = 120;
-                        c.flood = atoi(flood);
-                        c.threshold = 5;
-                        c.sendqmax = 262144; // 256k
-                        c.recvqmax = 4096;   // 4k
+
+		if (*Value)
+		{
+			c.host = Value;
+			c.type = CC_ALLOW;
+			strlcpy(Value,"",MAXBUF);
+			ConfValue("connect","password",i,Value,&Config->config_f);
+			c.pass = Value;
+			c.registration_timeout = 90; // default is 2 minutes
+			c.pingtime = 120;
+			c.flood = atoi(flood);
+			c.threshold = 5;
+			c.sendqmax = 262144; // 256k
+			c.recvqmax = 4096;   // 4k
 			c.maxlocal = 3;
 			c.maxglobal = 3;
+
 			if (atoi(localmax)>0)
 			{
 				c.maxlocal = atoi(localmax);
 			}
+
 			if (atoi(globalmax)>0)
 			{
 				c.maxglobal = atoi(globalmax);
 			}
-                        if (atoi(thold)>0)
-                        {
-                                c.threshold = atoi(thold);
-                        }
+
+			if (atoi(thold)>0)
+			{
+				c.threshold = atoi(thold);
+			}
 			else
 			{
 				c.threshold = 1;
 				c.flood = 999;
 				log(DEFAULT,"Warning: Connect allow line '%s' has no flood/threshold settings. Setting this tag to 999 lines in 1 second.",c.host.c_str());
 			}
-                        if (atoi(sqmax)>0)
-                        {
-                                c.sendqmax = atoi(sqmax);
-                        }
-                        if (atoi(rqmax)>0)
-                        {
-                                c.recvqmax = atoi(rqmax);
-                        }
-                        if (atoi(timeout)>0)
-                        {
-                                c.registration_timeout = atoi(timeout);
-                        }
-                        if (atoi(pfreq)>0)
-                        {
-                                c.pingtime = atoi(pfreq);
-                        }
-                        Classes.push_back(c);
-		}
-                else
-                {
-                        ConfValue("connect","deny",i,Value,&Config->config_f);
-                        c.host = Value;
-                        c.type = CC_DENY;
-                        Classes.push_back(c);
-                        log(DEBUG,"Read connect class type DENY, host=%s",c.host.c_str());
-                }
 
-        }
+			if (atoi(sqmax)>0)
+			{
+				c.sendqmax = atoi(sqmax);
+			}
+			if (atoi(rqmax)>0)
+			{
+				c.recvqmax = atoi(rqmax);
+			}
+			if (atoi(timeout)>0)
+			{
+				c.registration_timeout = atoi(timeout);
+			}
+			if (atoi(pfreq)>0)
+			{
+				c.pingtime = atoi(pfreq);
+			}
+
+			Classes.push_back(c);
+		}
+		else
+		{
+			ConfValue("connect","deny",i,Value,&Config->config_f);
+			c.host = Value;
+			c.type = CC_DENY;
+			Classes.push_back(c);
+			log(DEBUG,"Read connect class type DENY, host=%s",c.host.c_str());
+		}
+	}
+
 	Config->ulines.clear();
-        for (int i = 0; i < ConfValueEnum("uline",&Config->config_f); i++)
-        {       
-                ConfValue("uline","server",i,ServName,&Config->config_f);
-                {
+
+	for (int i = 0; i < ConfValueEnum("uline",&Config->config_f); i++)
+	{   
+		ConfValue("uline","server",i,ServName,&Config->config_f);
+		{
 			log(DEBUG,"Read ULINE '%s'",ServName);
-                        Config->ulines.push_back(ServName);
-                }
-        }
+			Config->ulines.push_back(ServName);
+		}
+	}
+
 	maxbans.clear();
-        char CM1[MAXBUF],CM2[MAXBUF];
-        for (int count = 0; count < Config->ConfValueEnum("banlist",&Config->config_f); count++)
-        {
-                Config->ConfValue("banlist","chan",count,CM1,&Config->config_f);
+	char CM1[MAXBUF],CM2[MAXBUF];
+
+	for (int count = 0; count < Config->ConfValueEnum("banlist",&Config->config_f); count++)
+	{
+		Config->ConfValue("banlist","chan",count,CM1,&Config->config_f);
 		Config->ConfValue("banlist","limit",count,CM2,&Config->config_f);
 		maxbans[CM1] = atoi(CM2);
-        }
+	}
+
 	ReadClassesAndTypes();
-        log(DEFAULT,"Reading K lines,Q lines and Z lines from config...");
-        read_xline_defaults();
-        log(DEFAULT,"Applying K lines, Q lines and Z lines...");
-        apply_lines(APPLY_ALL);
+	log(DEFAULT,"Reading K lines,Q lines and Z lines from config...");
+	read_xline_defaults();
+	log(DEFAULT,"Applying K lines, Q lines and Z lines...");
+	apply_lines(APPLY_ALL);
 
-        ConfValue("pid","file",0,Config->PID,&Config->config_f);
-        // write once here, to try it out and make sure its ok
-        WritePID(Config->PID);
+	ConfValue("pid","file",0,Config->PID,&Config->config_f);
+	// write once here, to try it out and make sure its ok
+	WritePID(Config->PID);
 
-        log(DEFAULT,"Done reading configuration file, InspIRCd is now starting.");
-        if (!bail)
-        {
-                log(DEFAULT,"Adding and removing modules due to rehash...");
+	log(DEFAULT,"Done reading configuration file, InspIRCd is now starting.");
+	if (!bail)
+	{
+		log(DEFAULT,"Adding and removing modules due to rehash...");
 
-                std::vector<std::string> old_module_names, new_module_names, added_modules, removed_modules;
+		std::vector<std::string> old_module_names, new_module_names, added_modules, removed_modules;
 
-                // store the old module names
-                for (std::vector<std::string>::iterator t = module_names.begin(); t != module_names.end(); t++)
-                {
-                        old_module_names.push_back(*t);
-                }
+		// store the old module names
+		for (std::vector<std::string>::iterator t = module_names.begin(); t != module_names.end(); t++)
+		{
+			old_module_names.push_back(*t);
+		}
 
-                // get the new module names
-                for (int count2 = 0; count2 < ConfValueEnum("module",&Config->config_f); count2++)
-                {
-                        ConfValue("module","name",count2,Value,&Config->config_f);
-                        new_module_names.push_back(Value);
-                }
+		// get the new module names
+		for (int count2 = 0; count2 < ConfValueEnum("module",&Config->config_f); count2++)
+		{
+			ConfValue("module","name",count2,Value,&Config->config_f);
+			new_module_names.push_back(Value);
+		}
 
-                // now create a list of new modules that are due to be loaded
-                // and a seperate list of modules which are due to be unloaded
-                for (std::vector<std::string>::iterator _new = new_module_names.begin(); _new != new_module_names.end(); _new++)
-                {
-                        bool added = true;
-                        for (std::vector<std::string>::iterator old = old_module_names.begin(); old != old_module_names.end(); old++)
-                        {
-                                if (*old == *_new)
-                                        added = false;
-                        }
-                        if (added)
-                                added_modules.push_back(*_new);
-                }
-                for (std::vector<std::string>::iterator oldm = old_module_names.begin(); oldm != old_module_names.end(); oldm++)
-                {
-                        bool removed = true;
-                        for (std::vector<std::string>::iterator newm = new_module_names.begin(); newm != new_module_names.end(); newm++)
-                        {
-                                if (*newm == *oldm)
-                                        removed = false;
-                        }
-                        if (removed)
-                                removed_modules.push_back(*oldm);
-                }
-                // now we have added_modules, a vector of modules to be loaded, and removed_modules, a vector of modules
-                // to be removed.
-                int rem = 0, add = 0;
-                if (!removed_modules.empty())
-                for (std::vector<std::string>::iterator removing = removed_modules.begin(); removing != removed_modules.end(); removing++)
-                {
-                        if (ServerInstance->UnloadModule(removing->c_str()))
-                        {
-                                WriteOpers("*** REHASH UNLOADED MODULE: %s",removing->c_str());
-                                if (user)
-					WriteServ(user->fd,"973 %s %s :Module %s successfully unloaded.",user->nick, removing->c_str(), removing->c_str());
-                                rem++;
-                        }
-                        else
-                        {
+		// now create a list of new modules that are due to be loaded
+		// and a seperate list of modules which are due to be unloaded
+		for (std::vector<std::string>::iterator _new = new_module_names.begin(); _new != new_module_names.end(); _new++)
+		{
+			bool added = true;
+
+			for (std::vector<std::string>::iterator old = old_module_names.begin(); old != old_module_names.end(); old++)
+			{
+				if (*old == *_new)
+					added = false;
+			}
+
+			if (added)
+				added_modules.push_back(*_new);
+		}
+
+		for (std::vector<std::string>::iterator oldm = old_module_names.begin(); oldm != old_module_names.end(); oldm++)
+		{
+			bool removed = true;
+			for (std::vector<std::string>::iterator newm = new_module_names.begin(); newm != new_module_names.end(); newm++)
+			{
+				if (*newm == *oldm)
+					removed = false;
+			}
+
+			if (removed)
+				removed_modules.push_back(*oldm);
+		}
+
+		/*
+		 * now we have added_modules, a vector of modules to be loaded,
+		 * and removed_modules, a vector of modules
+		 * to be removed.
+		 */
+		int rem = 0, add = 0;
+		if (!removed_modules.empty())
+			for (std::vector<std::string>::iterator removing = removed_modules.begin(); removing != removed_modules.end(); removing++)
+			{
+				if (ServerInstance->UnloadModule(removing->c_str()))
+				{
+					WriteOpers("*** REHASH UNLOADED MODULE: %s",removing->c_str());
+
+					if (user)
+						WriteServ(user->fd,"973 %s %s :Module %s successfully unloaded.",user->nick, removing->c_str(), removing->c_str());
+
+					rem++;
+				}
+				else
+				{
+					if (user)
+						WriteServ(user->fd,"972 %s %s :Failed to unload module %s: %s",user->nick, removing->c_str(), removing->c_str(), ServerInstance->ModuleError());
+				}
+			}
+
+		if (!added_modules.empty())
+		for (std::vector<std::string>::iterator adding = added_modules.begin(); adding != added_modules.end(); adding++)
+		{
+			if (ServerInstance->LoadModule(adding->c_str()))
+			{
+				WriteOpers("*** REHASH LOADED MODULE: %s",adding->c_str());
+
 				if (user)
-                                	WriteServ(user->fd,"972 %s %s :Failed to unload module %s: %s",user->nick, removing->c_str(), removing->c_str(), ServerInstance->ModuleError());
-                        }
-                }
-                if (!added_modules.empty())
-                for (std::vector<std::string>::iterator adding = added_modules.begin(); adding != added_modules.end(); adding++)
-                {
-                        if (ServerInstance->LoadModule(adding->c_str()))
-                        {
-                                WriteOpers("*** REHASH LOADED MODULE: %s",adding->c_str());
+					WriteServ(user->fd,"975 %s %s :Module %s successfully loaded.",user->nick, adding->c_str(), adding->c_str());
+
+				add++;
+			}
+			else
+			{
 				if (user)
-                                	WriteServ(user->fd,"975 %s %s :Module %s successfully loaded.",user->nick, adding->c_str(), adding->c_str());
-                                add++;
-                        }
-                        else
-                        {
-				if (user)
-                                	WriteServ(user->fd,"974 %s %s :Failed to load module %s: %s",user->nick, adding->c_str(), adding->c_str(), ServerInstance->ModuleError());
-                        }
-                }
-                log(DEFAULT,"Successfully unloaded %lu of %lu modules and loaded %lu of %lu modules.",(unsigned long)rem,(unsigned long)removed_modules.size(),
-													(unsigned long)add,(unsigned long)added_modules.size());
+					WriteServ(user->fd,"974 %s %s :Failed to load module %s: %s",user->nick, adding->c_str(), adding->c_str(), ServerInstance->ModuleError());
+			}
+		}
+
+		log(DEFAULT,"Successfully unloaded %lu of %lu modules and loaded %lu of %lu modules.",(unsigned long)rem,(unsigned long)removed_modules.size(),(unsigned long)add,(unsigned long)added_modules.size());
 	}
 }
 
@@ -560,8 +603,8 @@ void Start (void)
 {
 	printf("\033[1;32mInspire Internet Relay Chat Server, compiled %s at %s\n",__DATE__,__TIME__);
 	printf("(C) ChatSpike Development team.\033[0m\n\n");
-	printf("Developers:\033[1;32m     Brain, FrostyCoolSlug, w00t, Om\033[0m\n");
-	printf("Others:\033[1;32m         See /INFO Output\033[0m\n");
+	printf("Developers:\033[1;32m Brain, FrostyCoolSlug, w00t, Om\033[0m\n");
+	printf("Others:\033[1;32m See /INFO Output\033[0m\n");
 	printf("Name concept:\033[1;32m   Lord_Zathras\033[0m\n\n");
 }
 
@@ -649,12 +692,12 @@ bool FileExists (const char* file)
 /* ConfProcess does the following things to a config line in the following order:
  *
  * Processes the line for syntax errors as shown below
- *      (1) Line void of quotes or equals (a malformed, illegal tag format)
- *      (2) Odd number of quotes on the line indicating a missing quote
- *      (3) number of equals signs not equal to number of quotes / 2 (missing an equals sign)
- *      (4) Spaces between the opening bracket (<) and the keyword
- *      (5) Spaces between a keyword and an equals sign
- *      (6) Spaces between an equals sign and a quote
+ *  (1) Line void of quotes or equals (a malformed, illegal tag format)
+ *  (2) Odd number of quotes on the line indicating a missing quote
+ *  (3) number of equals signs not equal to number of quotes / 2 (missing an equals sign)
+ *  (4) Spaces between the opening bracket (<) and the keyword
+ *  (5) Spaces between a keyword and an equals sign
+ *  (6) Spaces between an equals sign and a quote
  * Removes trailing spaces
  * Removes leading spaces
  * Converts tabs to spaces
@@ -1234,19 +1277,21 @@ int OpenTCPSocket (void)
 
 int BindPorts()
 {
-        char configToken[MAXBUF], Addr[MAXBUF], Type[MAXBUF];
+	char configToken[MAXBUF], Addr[MAXBUF], Type[MAXBUF];
 	sockaddr_in client,server;
-        int clientportcount = 0;
+	int clientportcount = 0;
 	int BoundPortCount = 0;
-        for (int count = 0; count < Config->ConfValueEnum("bind",&Config->config_f); count++)
-        {
-                Config->ConfValue("bind","port",count,configToken,&Config->config_f);
-                Config->ConfValue("bind","address",count,Addr,&Config->config_f);
-                Config->ConfValue("bind","type",count,Type,&Config->config_f);
-                if ((!*Type) || (!strcmp(Type,"clients")))
-                {
-                        // modules handle server bind types now
-                        Config->ports[clientportcount] = atoi(configToken);
+
+	for (int count = 0; count < Config->ConfValueEnum("bind",&Config->config_f); count++)
+	{
+		Config->ConfValue("bind","port",count,configToken,&Config->config_f);
+		Config->ConfValue("bind","address",count,Addr,&Config->config_f);
+		Config->ConfValue("bind","type",count,Type,&Config->config_f);
+
+		if ((!*Type) || (!strcmp(Type,"clients")))
+		{
+			// modules handle server bind types now
+			Config->ports[clientportcount] = atoi(configToken);
 
 			// If the client put bind "*", this is an unrealism.
 			// We don't actually support this as documented, but
@@ -1255,38 +1300,41 @@ int BindPorts()
 			if (*Addr == '*')
 				*Addr = 0;
 
-                        strlcpy(Config->addrs[clientportcount],Addr,256);
-                        clientportcount++;
-                        log(DEBUG,"InspIRCd: startup: read binding %s:%s [%s] from config",Addr,configToken, Type);
-                }
-        }
-        int PortCount = clientportcount;
+			strlcpy(Config->addrs[clientportcount],Addr,256);
+			clientportcount++;
+			log(DEBUG,"InspIRCd: startup: read binding %s:%s [%s] from config",Addr,configToken, Type);
+		}
+	}
 
-        for (int count = 0; count < PortCount; count++)
-        {
-                if ((openSockfd[BoundPortCount] = OpenTCPSocket()) == ERROR)
-                {
-                        log(DEBUG,"InspIRCd: startup: bad fd %lu binding port [%s:%d]",(unsigned long)openSockfd[BoundPortCount],Config->addrs[count],(unsigned long)Config->ports[count]);
-                        return(ERROR);
-                }
-                if (BindSocket(openSockfd[BoundPortCount],client,server,Config->ports[count],Config->addrs[count]) == ERROR)
-                {
-                        log(DEFAULT,"InspIRCd: startup: failed to bind port [%s:%lu]: %s",Config->addrs[count],(unsigned long)Config->ports[count],strerror(errno));
-                }
-                else    /* well we at least bound to one socket so we'll continue */
-                {
-                        BoundPortCount++;
-                }
-        }
+	int PortCount = clientportcount;
 
-        /* if we didn't bind to anything then abort */
-        if (!BoundPortCount)
-        {
-                log(DEFAULT,"InspIRCd: startup: no ports bound, bailing!");
-                printf("\nERROR: Was not able to bind any of %lu ports! Please check your configuration.\n\n", (unsigned long)PortCount);
-                return (ERROR);
-        }
+	for (int count = 0; count < PortCount; count++)
+	{
+		if ((openSockfd[BoundPortCount] = OpenTCPSocket()) == ERROR)
+		{
+			log(DEBUG,"InspIRCd: startup: bad fd %lu binding port [%s:%d]",(unsigned long)openSockfd[BoundPortCount],Config->addrs[count],(unsigned long)Config->ports[count]);
+			return(ERROR);
+		}
 
-        return BoundPortCount;
+		if (BindSocket(openSockfd[BoundPortCount],client,server,Config->ports[count],Config->addrs[count]) == ERROR)
+		{
+			log(DEFAULT,"InspIRCd: startup: failed to bind port [%s:%lu]: %s",Config->addrs[count],(unsigned long)Config->ports[count],strerror(errno));
+		}
+		else
+		{
+			/* well we at least bound to one socket so we'll continue */
+			BoundPortCount++;
+		}
+	}
+
+	/* if we didn't bind to anything then abort */
+	if (!BoundPortCount)
+	{
+		log(DEFAULT,"InspIRCd: startup: no ports bound, bailing!");
+		printf("\nERROR: Was not able to bind any of %lu ports! Please check your configuration.\n\n", (unsigned long)PortCount);
+		return (ERROR);
+	}
+
+	return BoundPortCount;
 }
 
