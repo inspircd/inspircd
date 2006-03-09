@@ -72,29 +72,31 @@ userrec* ModeParser::SanityChecks(userrec *user,char *dest,chanrec *chan,int sta
 
 char* ModeParser::Grant(userrec *d,chanrec *chan,int MASK)
 {
-	for (unsigned int i = 0; i < d->chans.size(); i++)
+	if (!chan)
+		return NULL;
+
+	for (std::vector<ucrec*>::const_iterator i = d->chans.begin(); i != d->chans.end(); i++)
 	{
-		if ((d->chans[i].channel != NULL) && (chan != NULL))
-		if (d->chans[i].channel == chan)
+		if (((ucrec*)(*i))->channel == chan)
 		{
-			if (d->chans[i].uc_modes & MASK)
+			if (((ucrec*)(*i))->uc_modes & MASK)
 			{
 				return NULL;
 			}
-			d->chans[i].uc_modes = d->chans[i].uc_modes | MASK;
+			((ucrec*)(*i))->uc_modes = ((ucrec*)(*i))->uc_modes | MASK;
 			switch (MASK)
 			{
 				case UCMODE_OP:
-					d->chans[i].channel->AddOppedUser(d);
+					((ucrec*)(*i))->channel->AddOppedUser(d);
 				break;
 				case UCMODE_HOP:
-					d->chans[i].channel->AddHalfoppedUser(d);
+					((ucrec*)(*i))->channel->AddHalfoppedUser(d);
 				break;
 				case UCMODE_VOICE:
-					d->chans[i].channel->AddVoicedUser(d);
+					((ucrec*)(*i))->channel->AddVoicedUser(d);
 				break;
 			}
-			log(DEBUG,"grant: %s %s",d->chans[i].channel->name,d->nick);
+			log(DEBUG,"grant: %s %s",((ucrec*)(*i))->channel->name,d->nick);
 			return d->nick;
 		}
 	}
@@ -103,29 +105,31 @@ char* ModeParser::Grant(userrec *d,chanrec *chan,int MASK)
 
 char* ModeParser::Revoke(userrec *d,chanrec *chan,int MASK)
 {
-	for (unsigned int i = 0; i < d->chans.size(); i++)
+	if (!chan)
+		return NULL;
+
+	for (std::vector<ucrec*>::const_iterator i = d->chans.begin(); i != d->chans.end(); i++)
 	{
-		if ((d->chans[i].channel != NULL) && (chan != NULL))
-		if (d->chans[i].channel == chan)
+		if (((ucrec*)(*i))->channel == chan)
 		{
-			if ((d->chans[i].uc_modes & MASK) == 0)
+			if ((((ucrec*)(*i))->uc_modes & MASK) == 0)
 			{
 				return NULL;
 			}
-			d->chans[i].uc_modes ^= MASK;
+			((ucrec*)(*i))->uc_modes ^= MASK;
 			switch (MASK)
 			{
 				case UCMODE_OP:
-					d->chans[i].channel->DelOppedUser(d);
+					((ucrec*)(*i))->channel->DelOppedUser(d);
 				break;
 				case UCMODE_HOP:
-					d->chans[i].channel->DelHalfoppedUser(d);
+					((ucrec*)(*i))->channel->DelHalfoppedUser(d);
 				break;
 				case UCMODE_VOICE:
-					d->chans[i].channel->DelVoicedUser(d);
+					((ucrec*)(*i))->channel->DelVoicedUser(d);
 				break;
 			}
-			log(DEBUG,"revoke: %s %s",d->chans[i].channel->name,d->nick);
+			log(DEBUG,"revoke: %s %s",((ucrec*)(*i))->channel->name,d->nick);
 			return d->nick;
 		}
 	}
