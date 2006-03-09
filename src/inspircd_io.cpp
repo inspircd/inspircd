@@ -149,12 +149,65 @@ bool ServerConfig::CheckOnce(char* tag, bool bail, userrec* user)
 	return true;
 }
 
+typedef bool (*Validator)(const char*, const char*, void*);
+
+enum ConfigDataType { DT_NOTHING, DT_INTEGER, DT_CHARPTR, DT_BOOLEAN };
+
+struct InitialConfig {
+	char* tag;
+	char* value;
+	void* val;
+	ConfigDataType datatype;
+	Validator validate_function;
+};
+
+bool NoValidation(const char* tag, const char* value, void* data)
+{
+	log(DEBUG,"No validation for <%s:%s>",tag,value);
+	return true;
+}
+
 void ServerConfig::Read(bool bail, userrec* user)
 {
+	char debug[MAXBUF];
+
+	InitialConfig Values[] = {
+		{"options",	"softlimit",		&this->SoftLimit,		DT_INTEGER, NoValidation},
+		{"options",	"somaxconn",		&this->MaxConn,			DT_INTEGER, NoValidation},
+		{"server",	"name",			&this->ServerName,		DT_CHARPTR, NoValidation},
+		{"server",	"description",		&this->ServerDesc,		DT_CHARPTR, NoValidation},
+		{"server",	"network",		&this->Network,			DT_CHARPTR, NoValidation},
+		{"admin"	"name",			&this->AdminName,		DT_CHARPTR, NoValidation},
+		{"admin",	"email",		&this->AdminEmail,		DT_CHARPTR, NoValidation},
+		{"admin",	"nick",			&this->AdminNick,		DT_CHARPTR, NoValidation},
+		{"files",	"motd",			&this->motd,			DT_CHARPTR, NoValidation},
+		{"files",	"rules",		&this->rules,			DT_CHARPTR, NoValidation},
+		{"power",	"diepass",		&this->diepass,			DT_CHARPTR, NoValidation},	
+		{"power",	"pauseval",		&this->DieDelay,		DT_INTEGER, NoValidation},
+		{"power",	"restartpass",		&this->restartpass,		DT_CHARPTR, NoValidation},
+		{"options",	"prefixquit",		&this->PrefixQuit,		DT_CHARPTR, NoValidation},
+		{"die",		"value",		&this->DieValue,		DT_CHARPTR, NoValidation},
+		{"options",	"loglevel",		&debug,				DT_CHARPTR, NoValidation},
+		{"options",	"netbuffersize",	&this->NetBufferSize,		DT_INTEGER, NoValidation},
+		{"options",	"maxwho",		&this->MaxWhoResults,		DT_INTEGER, NoValidation},
+		{"options",	"allowhalfop",		&this->AllowHalfop,		DT_BOOLEAN, NoValidation},
+		{"dns",		"server",		&this->DNSServer,		DT_CHARPTR, NoValidation},
+		{"dns",		"timeout",		&this->dns_timeout,		DT_INTEGER, NoValidation},
+		{"options",	"moduledir",		&this->ModPath,			DT_CHARPTR, NoValidation},
+		{"disabled",	"commands",		&this->DisabledCommands,	DT_CHARPTR, NoValidation},
+		{"options",	"operonlystats",	&this->OperOnlyStats,		DT_CHARPTR, NoValidation},
+		{"options",	"customversion",	&this->CustomVersion,		DT_CHARPTR, NoValidation},
+		{"options",	"hidesplits",		&this->HideSplits,		DT_BOOLEAN, NoValidation},
+		{"options",	"hidebans",		&this->HideBans,		DT_BOOLEAN, NoValidation},
+		{"options",	"hidewhois",		&this->HideWhoisServer,		DT_CHARPTR, NoValidation},
+		{"options",	"tempdir",		&this->TempDir,			DT_CHARPTR, NoValidation},
+		{NULL}
+	};
+
 	/* XXX - this needs a rework someday, BAD. */
-	char dbg[MAXBUF],pauseval[MAXBUF],Value[MAXBUF],timeout[MAXBUF],NB[MAXBUF],flood[MAXBUF],MW[MAXBUF],MCON[MAXBUF],MT[MAXBUF];
-	char AH[MAXBUF],AP[MAXBUF],AF[MAXBUF],DNT[MAXBUF],pfreq[MAXBUF],thold[MAXBUF],sqmax[MAXBUF],rqmax[MAXBUF],SLIMT[MAXBUF];
-	char localmax[MAXBUF],globalmax[MAXBUF],HS[MAXBUF],HB[MAXBUF],ServName[MAXBUF];
+	char timeout[MAXBUF],flood[MAXBUF],pfreq[MAXBUF],thold[MAXBUF],sqmax[MAXBUF],rqmax[MAXBUF],SLIMT[MAXBUF];
+	char localmax[MAXBUF],globalmax[MAXBUF],ServName[MAXBUF];
+
 	ConnectClass c;
 	std::stringstream errstr;
 	
@@ -205,50 +258,42 @@ void ServerConfig::Read(bool bail, userrec* user)
 		return;
 	}
 
-	ConfValue("server","name",0,Config->ServerName,&Config->config_f);
-	ConfValue("server","description",0,Config->ServerDesc,&Config->config_f);
-	ConfValue("server","network",0,Config->Network,&Config->config_f);
-	ConfValue("admin","name",0,Config->AdminName,&Config->config_f);
-	ConfValue("admin","email",0,Config->AdminEmail,&Config->config_f);
-	ConfValue("admin","nick",0,Config->AdminNick,&Config->config_f);
-	ConfValue("files","motd",0,Config->motd,&Config->config_f);
-	ConfValue("files","rules",0,Config->rules,&Config->config_f);
-	ConfValue("power","diepass",0,Config->diepass,&Config->config_f);
-	ConfValue("power","pause",0,pauseval,&Config->config_f);
-	ConfValue("power","restartpass",0,Config->restartpass,&Config->config_f);
-	ConfValue("options","prefixquit",0,Config->PrefixQuit,&Config->config_f);
-	ConfValue("die","value",0,Config->DieValue,&Config->config_f);
-	ConfValue("options","loglevel",0,dbg,&Config->config_f);
-	ConfValue("options","netbuffersize",0,NB,&Config->config_f);
-	ConfValue("options","maxwho",0,MW,&Config->config_f);
-	ConfValue("options","allowhalfop",0,AH,&Config->config_f);
-	ConfValue("options","allowprotect",0,AP,&Config->config_f);
-	ConfValue("options","allowfounder",0,AF,&Config->config_f);
-	ConfValue("dns","server",0,Config->DNSServer,&Config->config_f);
-	ConfValue("dns","timeout",0,DNT,&Config->config_f);
-	ConfValue("options","moduledir",0,Config->ModPath,&Config->config_f);
-	ConfValue("disabled","commands",0,Config->DisabledCommands,&Config->config_f);
-	ConfValue("options","somaxconn",0,MCON,&Config->config_f);
-	ConfValue("options","softlimit",0,SLIMT,&Config->config_f);
-	ConfValue("options","operonlystats",0,Config->OperOnlyStats,&Config->config_f);
-	ConfValue("options","customversion",0,Config->CustomVersion,&Config->config_f);
-	ConfValue("options","maxtargets",0,MT,&Config->config_f);
-	ConfValue("options","hidesplits",0,HS,&Config->config_f);
-	ConfValue("options","hidebans",0,HB,&Config->config_f);
-	ConfValue("options","hidewhois",0,Config->HideWhoisServer,&Config->config_f);
-	ConfValue("options","tempdir",0,Config->TempDir,&Config->config_f);
+	char* convert;
+	for (int Index = 0; Values[Index].datatype != DT_NOTHING; Index++)
+	{
+		void* val = Values[Index].val;
 
-	strlower(Config->ServerName);
+		switch (Values[Index].datatype)
+		{
+			case DT_CHARPTR:
+				ConfValue((char*)Values[Index].tag,(char*)Values[Index].value,(char*) val,this->config_f);
+			break;
+
+			case DT_INTEGER:
+				convert = new char[MAXBUF];
+				ConfValue(Values[Index].tag,Values[Index].value,convert,this->config_f);
+				*val = atoi(convert);
+				delete[] convert;
+			break;
+
+			case DT_BOOLEAN:
+				convert = new char[MAXBUF];
+				ConfValue(Values[Index].tag,Values[Index].value,convert,this->config_f);
+				*val = ((*convert == tolower('y')) || (*convert == tolower('t')) || (*convert == '1'));
+				delete[] convert;
+			break;
+
+			case DT_NOTHING:
+			break;
+		}
+
+		Values[Index].validation_function(Values[Index].tag, Values[Index].value, Values[Index].val);
+	}
+
+	strlower(this->ServerName);
 
 	if (!*Config->TempDir)
 		strlcpy(Config->TempDir,"/tmp",1024);
-
-	Config->HideSplits = ((*HS == 'y') || (*HS == 'Y') || (*HS == '1') || (*HS == 't') || (*HS == 'T'));
-	Config->HideBans = ((*HB == 'y') || (*HB == 'Y') || (*HB == '1') || (*HB == 't') || (*HB == 'T'));
-	Config->SoftLimit = atoi(SLIMT);
-
-	if (*MT)
-		Config->MaxTargets = atoi(MT);
 
 	if ((Config->MaxTargets < 0) || (Config->MaxTargets > 31))
 	{
