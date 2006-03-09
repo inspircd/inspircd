@@ -1792,7 +1792,7 @@ bool charremove(char* mp, char remove)
 		if (shift_down)
 			*mptr = *(mptr+1);
 
-		*mptr++;
+		mptr++;
 	}
 
 	return shift_down;
