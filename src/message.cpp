@@ -63,11 +63,11 @@ int common_channels(userrec *u, userrec *u2)
 	}
 	for (std::vector<ucrec*>::const_iterator i = u->chans.begin(); i != u->chans.end(); i++)
 	{
-		for (std::vector<ucrec*>::const_iterator z = u2->chans.begin(); i != u2->chans.end(); z++)
+		for (std::vector<ucrec*>::const_iterator z = u2->chans.begin(); z != u2->chans.end(); z++)
 		{
 			if ((((ucrec*)(*i))->channel != NULL) && (((ucrec*)(*z))->channel != NULL))
 			{
-				if ((((ucrec*)(*i))->channel == ((ucrec*)(*z))->channel) && (((ucrec*)(*i))->channel) && (((ucrec*)(*z))->channel))
+				if ((((ucrec*)(*i))->channel == ((ucrec*)(*z))->channel))
 				{
 					if ((c_count(u)) && (c_count(u2)))
 					{
