@@ -36,6 +36,7 @@ using namespace std;
  */
 void cmd_connect::Handle (char **parameters, int pcnt, userrec *user)
 {
+	WriteServ(user->fd, "NOTICE %s :You are a nub. Load a linking module.", user->nick);
 }
 
 

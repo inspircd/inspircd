@@ -61,8 +61,10 @@ extern std::vector<userrec*> all_opers;
 extern std::vector<userrec*> local_users;
 extern userrec* fd_ref_table[MAX_DESCRIPTORS];
 
+/*
+ * This is handled by the server linking module, if necessary. Do not remove this stub.
+ */
 void cmd_squit::Handle (char **parameters, int pcnt, userrec *user)
 {
+	WriteServ(user->fd, "NOTICE %s :You are a nub. Load a linking module.", user->nick);
 }
-
-
