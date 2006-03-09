@@ -29,7 +29,7 @@ const int inverted_bitfields[]  =       {~1,~2,~4,~8,~16,~32,~64,~128};
 
 extern time_t TIME;
 
-bool Extensible::Extend(std::string key, char* p)
+bool Extensible::Extend(const std::string &key, char* p)
 {
 	// only add an item if it doesnt already exist
 	if (this->Extension_Items.find(key) == this->Extension_Items.end())
@@ -42,7 +42,7 @@ bool Extensible::Extend(std::string key, char* p)
 	return false;
 }
 
-bool Extensible::Shrink(std::string key)
+bool Extensible::Shrink(const std::string &key)
 {
 	// only attempt to remove a map item that exists
 	if (this->Extension_Items.find(key) != this->Extension_Items.end())
@@ -54,7 +54,7 @@ bool Extensible::Shrink(std::string key)
 	return false;
 }
 
-char* Extensible::GetExt(std::string key)
+char* Extensible::GetExt(const std::string &key)
 {
 	if (this->Extension_Items.find(key) != this->Extension_Items.end())
 	{

@@ -67,7 +67,7 @@ public:
 	 *
 	 * @return Returns true on success, false if otherwise
 	 */
-	bool Extend(std::string key, char* p);
+	bool Extend(const std::string &key, char* p);
 
 	/** Shrink an Extensible class.
 	 *
@@ -78,7 +78,7 @@ public:
 	 *
 	 * @return Returns true on success.
 	 */
-	bool Shrink(std::string key);
+	bool Shrink(const std::string &key);
 	
 	/** Get an extension item.
 	 *
@@ -86,7 +86,7 @@ public:
 	 *
 	 * @return If you provide a non-existent key name, the function returns NULL, otherwise a pointer to the item referenced by the key is returned.
 	 */
-	char* GetExt(std::string key);
+	char* GetExt(const std::string &key);
 
 	/** Get a list of all extension items names.
 	 *
@@ -160,4 +160,3 @@ class BoolSet
 
 
 #endif
-
