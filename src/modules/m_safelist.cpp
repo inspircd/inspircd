@@ -97,7 +97,7 @@ class ListTimer : public InspTimer
 						WriteServ(u->fd,"321 %s Channel :Users Name",u->nick);
                                         chan = Srv->GetChannelIndex(ld->list_position);
                                         /* spool details */
-					bool has_user = (u && chan->HasUser(u));
+					bool has_user = (chan && chan->HasUser(u));
                                         if ((chan) && (((!(chan->binarymodes & CM_PRIVATE)) && (!(chan->binarymodes & CM_SECRET))) || (has_user)))
                                         {
                                                 /* Increment total plus linefeed */
