@@ -560,9 +560,8 @@ void Start (void)
 {
 	printf("\033[1;32mInspire Internet Relay Chat Server, compiled %s at %s\n",__DATE__,__TIME__);
 	printf("(C) ChatSpike Development team.\033[0m\n\n");
-	printf("Developers:\033[1;32m     Brain, FrostyCoolSlug\033[0m\n");
-	printf("Documentation:\033[1;32m  FrostyCoolSlug, w00t\033[0m\n");
-	printf("Testers:\033[1;32m        typobox43, piggles, Lord_Zathras, CC\033[0m\n");
+	printf("Developers:\033[1;32m     Brain, FrostyCoolSlug, w00t, Om\033[0m\n");
+	printf("Others:\033[1;32m         See /INFO Output\033[0m\n");
 	printf("Name concept:\033[1;32m   Lord_Zathras\033[0m\n\n");
 }
 
