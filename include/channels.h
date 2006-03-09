@@ -213,8 +213,9 @@ class chanrec : public Extensible
 
         /** Delete a user pointer to the internal reference list
 	 * @param user The user to delete
+	 * @return number of users left on the channel
          */
-	void DelUser(userrec* user);
+	unsigned long DelUser(userrec* user);
 	void DelOppedUser(userrec* user);
 	void DelHalfoppedUser(userrec* user);
 	void DelVoicedUser(userrec* user);

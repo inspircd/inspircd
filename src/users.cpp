@@ -113,10 +113,20 @@ userrec::userrec()
 	sendq = "";
 	chans.clear();
 	invites.clear();
+        clientlist[tempnick]->chans.resize(MAXCHANS);
+        for (unsigned int n = 0; n < MAXCHANS; n++)
+        {       
+		clientlist[tempnick]->chans[n] = new ucrec();
+        }
 }
 
 userrec::~userrec()
 {
+	for (std::vector<ucrec*>::iterator n = clientlist[tempnick]->chans.begin(); n != clientlist[tempnick]->chans.end(); n++)
+	{
+		ucrec* x = (ucrec*)*n;
+		delete x;
+	}
 }
 
 void userrec::MakeHost(char* nhost)
@@ -615,11 +625,6 @@ void AddClient(int socket, int port, bool iscached, in_addr ip4)
         clientlist[tempnick]->threshold = class_threshold;
         clientlist[tempnick]->sendqmax = class_sqmax;
         clientlist[tempnick]->recvqmax = class_rqmax;
-
-        ucrec a;
-        a.channel = NULL;
-        a.uc_modes = 0;
-	clientlist[tempnick]->chans.resize(MAXCHANS);
 
 	fd_ref_table[socket] = clientlist[tempnick];
 	local_users.push_back(clientlist[tempnick]);

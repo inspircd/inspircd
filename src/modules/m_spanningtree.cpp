@@ -1111,11 +1111,6 @@ class TreeSocket : public InspSocket
 		strlcpy(clientlist[tempnick]->modes, modes.c_str(),53);
 		inet_aton(params[6].c_str(),&clientlist[tempnick]->ip4);
 
-		ucrec a;
-		a.channel = NULL;
-		a.uc_modes = 0;
-		clientlist[tempnick]->chans.resize(MAXCHANS);
-
 		WriteOpers("*** Client connecting at %s: %s!%s@%s [%s]",clientlist[tempnick]->server,clientlist[tempnick]->nick,clientlist[tempnick]->ident,clientlist[tempnick]->host,(char*)inet_ntoa(clientlist[tempnick]->ip4));
 
 		params[7] = ":" + params[7];

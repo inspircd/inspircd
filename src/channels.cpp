@@ -66,7 +66,7 @@ extern chan_hash chanlist;
 
 using namespace std;
 
-chanrec* ForceChan(chanrec* Ptr,ucrec &a,userrec* user, int created);
+chanrec* ForceChan(chanrec* Ptr,ucrec *a,userrec* user, int created);
 
 chanrec::chanrec()
 {
@@ -133,7 +133,7 @@ void chanrec::AddUser(userrec* user)
 	internal_userlist[user] = user;
 }
 
-void chanrec::DelUser(userrec* user)
+unsigned long chanrec::DelUser(userrec* user)
 {
 	CUList::iterator a = internal_userlist.find(user);
 	if (a != internal_userlist.end())
@@ -143,8 +143,9 @@ void chanrec::DelUser(userrec* user)
 		DelOppedUser(user);
 		DelHalfoppedUser(user);
 		DelVoicedUser(user);
-		return;
+		return internal_userlist.size();
 	}
+	return internal_userlist.size();
 }
 
 bool chanrec::HasUser(userrec* user)
@@ -387,7 +388,7 @@ chanrec* add_channel(userrec *user, const char* cn, const char* key, bool overri
 	 */
 	if (!IS_LOCAL(user)) /* was a check on fd < 0 */
 	{
-		ucrec a;
+		ucrec* a = new ucrec();
 		chanrec* c = ForceChan(Ptr,a,user,created);
 		user->chans.push_back(a);
 		return c;
@@ -397,7 +398,7 @@ chanrec* add_channel(userrec *user, const char* cn, const char* key, bool overri
 		/* Oper allows extension up to the OPERMAXCHANS value */
 		if (user->chans.size() < OPERMAXCHANS)
 		{
-			ucrec a;
+			ucrec* a = new ucrec();
 			chanrec* c = ForceChan(Ptr,a,user,created);
 			user->chans.push_back(a);
 			return c;
@@ -419,10 +420,10 @@ chanrec* add_channel(userrec *user, const char* cn, const char* key, bool overri
 			chanlist.erase(n);
 			for (unsigned int index =0; index < user->chans.size(); index++)
 			{
-				if (user->chans[index].channel == Ptr)
+				if (user->chans[index]->channel == Ptr)
 				{
-					user->chans[index].channel = NULL;
-					user->chans[index].uc_modes = 0;	
+					user->chans[index]->channel = NULL;
+					user->chans[index]->uc_modes = 0;	
 				}
 			}
 		}
@@ -430,17 +431,17 @@ chanrec* add_channel(userrec *user, const char* cn, const char* key, bool overri
 	return NULL;
 }
 
-chanrec* ForceChan(chanrec* Ptr,ucrec &a,userrec* user, int created)
+chanrec* ForceChan(chanrec* Ptr,ucrec *a,userrec* user, int created)
 {
 	if (created == 2)
 	{
 		/* first user in is given ops */
-		a.uc_modes = UCMODE_OP;
+		a->uc_modes = UCMODE_OP;
 		Ptr->AddOppedUser(user);
 	}
 	else
 	{
-		a.uc_modes = 0;
+		a->uc_modes = 0;
 	}
 
 	a.channel = Ptr;
@@ -483,7 +484,7 @@ chanrec* del_channel(userrec *user, const char* cname, const char* reason, bool 
 	for (unsigned int i =0; i < user->chans.size(); i++)
 	{
 		/* zap it from the channel list of the user */
-		if (user->chans[i].channel == Ptr)
+		if (user->chans[i]->channel == Ptr)
 		{
 			if (reason)
 			{
@@ -495,8 +496,8 @@ chanrec* del_channel(userrec *user, const char* cname, const char* reason, bool 
 				FOREACH_MOD(I_OnUserPart,OnUserPart(user,Ptr,""));
 				WriteChannel(Ptr,user,"PART :%s",Ptr->name);
 			}
-			user->chans[i].uc_modes = 0;
-			user->chans[i].channel = NULL;
+			user->chans[i]->uc_modes = 0;
+			user->chans[i]->channel = NULL;
 			log(DEBUG,"del_channel: unlinked: %s %s",user->nick,Ptr->name);
 			break;
 		}
@@ -547,12 +548,11 @@ void server_kick_channel(userrec* user, chanrec* Ptr, char* reason, bool trigger
 
 	for (unsigned int i =0; i < user->chans.size(); i++)
 	{
-		if (user->chans[i].channel)
-		if (!strcasecmp(user->chans[i].channel->name,Ptr->name))
+		if ((user->chans[i]->channel) && (user->chans[i]->channel->name == Ptr))
 		{
 			WriteChannelWithServ(Config->ServerName,Ptr,"KICK %s %s :%s",Ptr->name, user->nick, reason);
-			user->chans[i].uc_modes = 0;
-			user->chans[i].channel = NULL;
+			user->chans[i]->uc_modes = 0;
+			user->chans[i]->channel = NULL;
 			break;
 		}
 	}
@@ -631,23 +631,18 @@ void kick_channel(userrec *src,userrec *user, chanrec *Ptr, char* reason)
 	for (unsigned int i =0; i < user->chans.size(); i++)
 	{
 		/* zap it from the channel list of the user */
-		if (user->chans[i].channel)
+		if ((user->chans[i].channel) && (user->chans[i].channel == Ptr->name))
 		{
-			if (!strcasecmp(user->chans[i].channel->name,Ptr->name))
-			{
-				WriteChannel(Ptr,src,"KICK %s %s :%s",Ptr->name, user->nick, reason);
-				user->chans[i].uc_modes = 0;
-				user->chans[i].channel = NULL;
-				log(DEBUG,"del_channel: unlinked: %s %s",user->nick,Ptr->name);
-				break;
-			}
+			WriteChannel(Ptr,src,"KICK %s %s :%s",Ptr->name, user->nick, reason);
+			user->chans[i].uc_modes = 0;
+			user->chans[i].channel = NULL;
+			log(DEBUG,"del_channel: unlinked: %s %s",user->nick,Ptr->name);
+			break;
 		}
 	}
 
-	Ptr->DelUser(user);
-
+	if (!Ptr->DelUser(user))
 	/* if there are no users left on the channel */
-	if (!usercount(Ptr))
 	{
 		chan_hash::iterator iter = chanlist.find(Ptr->name);
 

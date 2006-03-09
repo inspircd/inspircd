@@ -1219,49 +1219,37 @@ long GetMaxBans(char* name)
 void purge_empty_chans(userrec* u)
 {
 	int purge = 0;
+	std::vector<chanrec*> to_delete;
 
 	// firstly decrement the count on each channel
-	for (unsigned int f = 0; f < u->chans.size(); f++)
+	for (std::vector<ucrec*>::iterator f = u->chans.begin(); f != u->chans.end(); f++)
 	{
-		if (u->chans[f].channel)
+		ucrec* (ucrec*)*f;
+		if (f->channel)
 		{
-			u->chans[f].channel->DelUser(u);
-		}
-	}
-
-	for (unsigned int i = 0; i < u->chans.size(); i++)
-	{
-		if (u->chans[i].channel)
-		{
-			if (!usercount(u->chans[i].channel))
+			if (f->channel->DelUser(u) == 0)
 			{
-				chan_hash::iterator i2 = chanlist.find(u->chans[i].channel->name);
-
-				/* kill the record */
-				if (i2 != chanlist.end())
-				{
-					log(DEBUG,"del_channel: destroyed: %s",i2->second->name);
-
-					if (i2->second)
-					{
-						FOREACH_MOD(I_OnChannelDelete,OnChannelDelete(i2->second));
-						delete i2->second;
-					}
-
-					chanlist.erase(i2);
-					purge++;
-					u->chans[i].channel = NULL;
-				}
-			}
-			else
-			{
-				log(DEBUG,"skipped purge for %s",u->chans[i].channel->name);
+				/* No users left in here, mark it for deletion */
+				to_delete.push_back(f->channel);
+				f->channel = NULL;
 			}
 		}
 	}
 
-	log(DEBUG,"completed channel purge, killed %lu",(unsigned long)purge);
-	DeleteOper(u);
+	for (std::vector<chanrec*>::iterator n = to_delete.begin(); n != to_delete.end(); n++)
+	{
+		chanrec* thischan = (chanrec*)*n;
+		chan_hash::iterator i2 = chanlist.find(thischan->name);
+		if (i2 != chanlist.end())
+		{
+			FOREACH_MOD(I_OnChannelDelete,OnChannelDelete(i2->second));
+			delete i2->second;
+			chanlist.erase(i2);
+		}
+	}
+
+	if (*u->oper)
+		DeleteOper(u);
 }
 
 
