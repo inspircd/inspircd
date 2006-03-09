@@ -42,31 +42,31 @@ using namespace std;
 void cmd_kick::Handle (char **parameters, int pcnt, userrec *user)
 {
 	char reason[MAXKICK];
-	
-	chanrec* Ptr = FindChan(parameters[0]);
+	chanrec* c = FindChan(parameters[0]);
 	userrec* u   = Find(parameters[1]);
 
-	if (!u || !Ptr)
+	if (!u || !c)
 	{
-		WriteServ(user->fd,"401 %s %s :No such nick/channel",user->nick, u ? parameters[0] : parameters[1]);
+		WriteServ(user->fd, "401 %s %s :No such nick/channel", user->nick, u ? parameters[0] : parameters[1]);
 		return;
 	}
-	if ((IS_LOCAL(user)) && (!Ptr->HasUser(user)) && (!is_uline(user->server)))
+
+	if ((IS_LOCAL(user)) && (!c->HasUser(user)) && (!is_uline(user->server)))
 	{
-		WriteServ(user->fd,"442 %s %s :You're not on that channel!",user->nick, parameters[0]);
+		WriteServ(user->fd, "442 %s %s :You're not on that channel!", user->nick, parameters[0]);
 		return;
 	}
 
 	if (pcnt > 2)
 	{
-		strlcpy(reason,parameters[2],MAXKICK-1);
-		kick_channel(user,u,Ptr,reason);
+		strlcpy(reason, parameters[2], MAXKICK - 1);
 	}
 	else
 	{
-		strlcpy(reason,user->nick,MAXKICK-1);
-		kick_channel(user,u,Ptr,reason);
+		strlcpy(reason, user->nick, MAXKICK - 1);
 	}
+
+	kick_channel(user, u, c, reason);
 }
 
 

@@ -50,52 +50,57 @@ void cmd_kill::Handle (char **parameters, int pcnt, userrec *user)
 {
 	userrec *u = Find(parameters[0]);
 	char killreason[MAXBUF];
+	int MOD_RESULT = 0;
 
-        log(DEBUG,"kill: %s %s",parameters[0],parameters[1]);
+        log(DEBUG,"kill: %s %s", parameters[0], parameters[1]);
+
 	if (u)
 	{
-		log(DEBUG,"into kill mechanism");
-		int MOD_RESULT = 0;
-                FOREACH_RESULT(I_OnKill,OnKill(user,u,parameters[1]));
-                if (MOD_RESULT) {
-			log(DEBUG,"A module prevented the kill with result %d",MOD_RESULT);
+		log(DEBUG, "into kill mechanism");
+                FOREACH_RESULT(I_OnKill, OnKill(user, u, parameters[1]));
+
+                if (MOD_RESULT)
+		{
+			log(DEBUG, "A module prevented the kill with result %d", MOD_RESULT);
                         return;
                 }
 
-		if (u->fd < 0)
+		if (!IS_LOCAL(u))
 		{
 			// remote kill
-			WriteOpers("*** Remote kill by %s: %s!%s@%s (%s)",user->nick,u->nick,u->ident,u->host,parameters[1]);
-			snprintf(killreason,MAXBUF,"[%s] Killed (%s (%s))",Config->ServerName,user->nick,parameters[1]);
-			WriteCommonExcept(u,"QUIT :%s",killreason);
-
-			FOREACH_MOD(I_OnRemoteKill,OnRemoteKill(user,u,killreason));
+			WriteOpers("*** Remote kill by %s: %s!%s@%s (%s)", user->nick, u->nick, u->ident, u->host, parameters[1]);
+			snprintf(killreason, MAXBUF,"[%s] Killed (%s (%s))", Config->ServerName, user->nick, parameters[1]);
+			WriteCommonExcept(u, "QUIT :%s", killreason);
+			FOREACH_MOD(I_OnRemoteKill, OnRemoteKill(user, u, killreason));
 			
 			user_hash::iterator iter = clientlist.find(u->nick);
+
 			if (iter != clientlist.end())
 			{
-				log(DEBUG,"deleting user hash value %d",iter->second);
+				log(DEBUG,"deleting user hash value %d", iter->second);
 				clientlist.erase(iter);
 			}
+
 			if (u->registered == 7)
 			{
 				purge_empty_chans(u);
 			}
+
 			delete u;
 		}
 		else
 		{
 			// local kill
-			log(DEFAULT,"LOCAL KILL: %s :%s!%s!%s (%s)", u->nick, Config->ServerName,user->dhost,user->nick,parameters[1]);
-			WriteTo(user, u, "KILL %s :%s!%s!%s (%s)", u->nick, Config->ServerName,user->dhost,user->nick,parameters[1]);
-			WriteOpers("*** Local Kill by %s: %s!%s@%s (%s)",user->nick,u->nick,u->ident,u->host,parameters[1]);
-			snprintf(killreason,MAXBUF,"Killed (%s (%s))",user->nick,parameters[1]);
-			kill_link(u,killreason);
+			log(DEFAULT,"LOCAL KILL: %s :%s!%s!%s (%s)", u->nick, Config->ServerName, user->dhost, user->nick, parameters[1]);
+			WriteTo(user, u, "KILL %s :%s!%s!%s (%s)", u->nick, Config->ServerName, user->dhost, user->nick, parameters[1]);
+			WriteOpers("*** Local Kill by %s: %s!%s@%s (%s)", user->nick, u->nick, u->ident, u->host, parameters[1]);
+			snprintf(killreason,MAXBUF,"Killed (%s (%s))", user->nick, parameters[1]);
+			kill_link(u, killreason);
 		}
 	}
 	else
 	{
-		WriteServ(user->fd,"401 %s %s :No such nick/channel",user->nick, parameters[0]);
+		WriteServ(user->fd, "401 %s %s :No such nick/channel", user->nick, parameters[0]);
 	}
 }
 
