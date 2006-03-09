@@ -339,7 +339,7 @@ void DoSocketTimeouts(time_t TIME)
  */
 void DoBackgroundUserStuff(time_t TIME)
 {
-	CullList* GlobalGoners = new CullList();
+	CullList GlobalGoners;
 
 	for (std::vector<userrec*>::iterator count2 = local_users.begin(); count2 != local_users.end(); count2++)
 	{
@@ -360,7 +360,7 @@ void DoBackgroundUserStuff(time_t TIME)
 			if (((unsigned)TIME > (unsigned)curr->timeout) && (curr->registered != 7))
 			{
 				log(DEBUG,"InspIRCd: registration timeout: %s",curr->nick);
-				GlobalGoners->AddItem(curr,"Registration timeout");
+				GlobalGoners.AddItem(curr,"Registration timeout");
 				continue;
 			}
 
@@ -372,14 +372,14 @@ void DoBackgroundUserStuff(time_t TIME)
 			{
 				curr->dns_done = true;
 				ServerInstance->stats->statsDnsBad++;
-				FullConnectUser(curr,GlobalGoners);
+				FullConnectUser(curr,&GlobalGoners);
 				continue;
 			}
 
 			if ((curr->dns_done) && (curr->registered == 3) && (AllModulesReportReady(curr)))
 			{
 				log(DEBUG,"dns done, registered=3, and modules ready, OK");
-				FullConnectUser(curr,GlobalGoners);
+				FullConnectUser(curr,&GlobalGoners);
 				continue;
 			}
 
@@ -389,7 +389,7 @@ void DoBackgroundUserStuff(time_t TIME)
 				// This user didn't answer the last ping, remove them
 				if (!curr->lastping)
 				{
-					GlobalGoners->AddItem(curr,"Ping timeout");
+					GlobalGoners.AddItem(curr,"Ping timeout");
 					continue;
 				}
 
@@ -406,16 +406,14 @@ void DoBackgroundUserStuff(time_t TIME)
 
 			if (curr->GetWriteError() != "")
 			{
-				GlobalGoners->AddItem(curr,curr->GetWriteError());
+				GlobalGoners.AddItem(curr,curr->GetWriteError());
 				continue;
 			}
 		}
 	}
 
 	/* Remove all the queued users who are due to be quit, free memory used. */
-	GlobalGoners->Apply();
-	delete GlobalGoners;
-	return;
+	GlobalGoners.Apply();
 }
 
 void OpenLog(char** argv, int argc)

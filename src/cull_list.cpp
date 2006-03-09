@@ -81,7 +81,7 @@ bool CullList::IsValid(userrec* user)
 	return false;
 }
 
-CullItem::CullItem(userrec* u, std::string r)
+CullItem::CullItem(userrec* u, std::string &r)
 {
         this->user = u;
         this->reason = r;
@@ -103,7 +103,7 @@ CullList::CullList()
         exempt.clear();
 }
 
-void CullList::AddItem(userrec* user, std::string reason)
+void CullList::AddItem(userrec* user, std::string &reason)
 {
 	if (exempt.find(user) == exempt.end())
 	{

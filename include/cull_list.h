@@ -50,7 +50,7 @@ class CullItem
 	 * @param u The user to add
 	 * @param r The quit reason of the added user
 	 */
-        CullItem(userrec* u, std::string r);
+        CullItem(userrec* u, std::string &r);
 	/** Returns a pointer to the user
 	 */
         userrec* GetUser();
@@ -104,7 +104,7 @@ class CullList
 	  * @param user The user to add
 	  * @param reason The quit reason of the user being added
 	  */
-         void AddItem(userrec* user, std::string reason);
+         void AddItem(userrec* user, std::string &reason);
 	 /** Applies the cull list, quitting all the users
 	  * on the list with their quit reasons all at once.
 	  * This is a very fast operation compared to
