@@ -858,30 +858,35 @@ void ModeParser::ProcessModes(char **parameters,userrec* user,chanrec *chan,int 
 			break;
 				
 			case 'p':
-                                MOD_RESULT = 0;
-                                FOREACH_RESULT(I_OnRawMode,OnRawMode(user, chan, 'p', "", mdir, 0));
-                                if (!MOD_RESULT)
-                                {
-                                        if (mdir)
-                                        {
-                                                if (!(chan->binarymodes & CM_PRIVATE)) *outl++ = 'p';
-                                                chan->binarymodes |= CM_PRIVATE;
-                                                if (chan->binarymodes & CM_SECRET)
-                                                {
-                                                        chan->binarymodes &= ~CM_SECRET;
-                                                        if (mdir)
-                                                        {
-								*outl++ = '-'; *outl++ = 's'; *outl++ = '+';
-                                                        }
-                                                }
-                                        }
-                                        else
-                                        {
-                                                if (chan->binarymodes & CM_PRIVATE) *outl++ = 'p';
-                                                chan->binarymodes &= ~CM_PRIVATE;
-                                        }
+				MOD_RESULT = 0;
+				FOREACH_RESULT(I_OnRawMode,OnRawMode(user, chan, 'p', "", mdir, 0));
+				if(!MOD_RESULT)
+				{
+					if(mdir)
+					{
+						if(!(chan->binarymodes & CM_PRIVATE))
+							*outl++ = 'p';
+						
+						chan->binarymodes |= CM_PRIVATE;
+						
+						if(chan->binarymodes & CM_SECRET)
+						{
+							chan->binarymodes &= ~CM_SECRET;
+
+							*outl++ = '-';
+							*outl++ = 's';
+							*outl++ = '+';
+						}
+					}
+					else
+					{
+						if(chan->binarymodes & CM_PRIVATE)
+							*outl++ = 'p';
+						
+						chan->binarymodes &= ~CM_PRIVATE;
+					}
 				}
-			break;
+				break;
 				
 			default:
 				string_list p;
@@ -900,7 +905,7 @@ void ModeParser::ProcessModes(char **parameters,userrec* user,chanrec *chan,int 
 					/* A module has claimed this mode */
 					if (param<pcnt)
 					{
-     						if ((ModeDefinedOn(*modechar,MT_CHANNEL)>0) && (mdir))
+						if ((ModeDefinedOn(*modechar,MT_CHANNEL)>0) && (mdir))
 						{
 							p.push_back(parameters[param]);
 						}
@@ -924,14 +929,15 @@ void ModeParser::ProcessModes(char **parameters,userrec* user,chanrec *chan,int 
 					// Using OnRawMode on another modules mode's behavour 
 					// will confuse the crap out of admins! just because you CAN
 					// do it, doesnt mean you SHOULD!
-                                        MOD_RESULT = 0;
+					MOD_RESULT = 0;
 					std::string para = "";
 					if (p.size())
 						para = p[0];
-       	                                FOREACH_RESULT(I_OnRawMode,OnRawMode(user, chan, *modechar, para, mdir, pcnt));
-               	                        if (!MOD_RESULT)
-                       	                {
- 							for (int i = 0; i <= MODCOUNT; i++)
+					
+					FOREACH_RESULT(I_OnRawMode,OnRawMode(user, chan, *modechar, para, mdir, pcnt));
+					if(!MOD_RESULT)
+					{
+ 						for (int i = 0; i <= MODCOUNT; i++)
 						{
 							if (!handled)
 							{
@@ -1139,8 +1145,9 @@ bool ModeParser::ProcessModuleUmode(char umode, userrec* source, void* dest, boo
 
 void cmd_mode::Handle (char **parameters, int pcnt, userrec *user)
 {
-	chanrec* Ptr;
+	chanrec* chan;
 	userrec* dest = Find(parameters[0]);
+	int MOD_RESULT;
 	int can_change;
 	int direction = 1;
 	char outpars[MAXBUF];
@@ -1334,68 +1341,70 @@ void cmd_mode::Handle (char **parameters, int pcnt, userrec *user)
 	}
 	else
 	{
-		Ptr = FindChan(parameters[0]);
-		if (Ptr)
+		chan = FindChan(parameters[0]);
+		if(chan)
 		{
 			if (pcnt == 1)
 			{
 				/* just /modes #channel */
-				WriteServ(user->fd,"324 %s %s +%s",user->nick, Ptr->name, chanmodes(Ptr,Ptr->HasUser(user)));
-	                        WriteServ(user->fd,"329 %s %s %d", user->nick, Ptr->name, Ptr->created);
+				WriteServ(user->fd,"324 %s %s +%s",user->nick, chan->name, chanmodes(chan, chan->HasUser(user)));
+				WriteServ(user->fd,"329 %s %s %d", user->nick, chan->name, chan->created);
 				return;
 			}
 			else if (pcnt == 2)
 			{
 				char* mode = parameters[1];
+				
+				MOD_RESULT = 0;
+				
 				if (*mode == '+')
 					mode++;
-				int MOD_RESULT = 0;
-	                        FOREACH_RESULT(I_OnRawMode,OnRawMode(user, Ptr, *mode, "", false, 0));
-	                        if (!MOD_RESULT)
-	                        {
+
+				FOREACH_RESULT(I_OnRawMode,OnRawMode(user, chan, *mode, "", false, 0));
+				if(!MOD_RESULT)
+				{
 					if (*mode == 'b')
 					{
-						for (BanList::iterator i = Ptr->bans.begin(); i != Ptr->bans.end(); i++)
+						for (BanList::iterator i = chan->bans.begin(); i != chan->bans.end(); i++)
 						{
-							WriteServ(user->fd,"367 %s %s %s %s %d",user->nick, Ptr->name, i->data, i->set_by, i->set_time);
+							WriteServ(user->fd,"367 %s %s %s %s %d",user->nick, chan->name, i->data, i->set_by, i->set_time);
 						}
-						WriteServ(user->fd,"368 %s %s :End of channel ban list",user->nick, Ptr->name);
+						WriteServ(user->fd,"368 %s %s :End of channel ban list",user->nick, chan->name);
 						return;
 					}
+					
 					if ((ModeDefined(*mode,MT_CHANNEL)) && (ModeIsListMode(*mode,MT_CHANNEL)))
 					{
 						// list of items for an extmode
 						log(DEBUG,"Calling OnSendList for all modules, list output for mode %c",*mode);
-						FOREACH_MOD(I_OnSendList,OnSendList(user,Ptr,*mode));
+						FOREACH_MOD(I_OnSendList,OnSendList(user,chan,*mode));
 						return;
 					}
 				}
 			}
 
-			if ((IS_LOCAL(user)) && (!is_uline(user->server)) && (!Ptr->HasUser(user)))
-	                {
-	                        WriteServ(user->fd,"442 %s %s :You're not on that channel!",user->nick, Ptr->name);
-	                        return;
-	                }
-	
-			if (Ptr)
+			if ((IS_LOCAL(user)) && (!is_uline(user->server)) && (!chan->HasUser(user)))
 			{
-				int MOD_RESULT = 0;
-				FOREACH_RESULT(I_OnAccessCheck,OnAccessCheck(user,NULL,Ptr,AC_GENERAL_MODE));
-				
-				if (MOD_RESULT == ACR_DENY)
-					return;
-				if (MOD_RESULT == ACR_DEFAULT)
-				{
-					if ((IS_LOCAL(user)) && (cstatus(user,Ptr) < STATUS_HOP))
-					{
-						WriteServ(user->fd,"482 %s %s :You must be at least a half-operator to change modes on this channel",user->nick, Ptr->name);
-						return;
-					}
-				}
-	
-				ServerInstance->ModeGrok->ProcessModes(parameters,user,Ptr,cstatus(user,Ptr),pcnt,false,false,false);
+				WriteServ(user->fd,"442 %s %s :You're not on that channel!",user->nick, chan->name);
+				return;
 			}
+	
+			MOD_RESULT = 0;
+			FOREACH_RESULT(I_OnAccessCheck,OnAccessCheck(user, NULL, chan, AC_GENERAL_MODE));
+				
+			if(MOD_RESULT == ACR_DENY)
+				return;
+
+			if(MOD_RESULT == ACR_DEFAULT)
+			{
+				if ((IS_LOCAL(user)) && (cstatus(user,chan) < STATUS_HOP))
+				{
+					WriteServ(user->fd,"482 %s %s :You must be at least a half-operator to change modes on this channel",user->nick, chan->name);
+					return;
+				}
+			}
+	
+			ServerInstance->ModeGrok->ProcessModes(parameters,user,chan,cstatus(user,chan),pcnt,false,false,false);
 		}
 		else
 		{
