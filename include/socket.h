@@ -177,7 +177,7 @@ public:
 	 * @param listening true to listen on the given host:port pair, or false to connect to them
 	 * @param maxtime Number of seconds to wait, if connecting, before the connection times out and an OnTimeout() event is generated
 	 */
-	InspSocket(std::string host, int port, bool listening, unsigned long maxtime);
+	InspSocket(const std::string &host, int port, bool listening, unsigned long maxtime);
 
 	/**
 	 * This method is called when an outbound
@@ -264,7 +264,7 @@ public:
 	 * returns or linefeeds are appended to the string.
 	 * @param data The data to send
 	 */
-	virtual int Write(std::string data);
+	virtual int Write(const std::string &data);
 
 	/**
 	 * If your socket is a listening socket, when a new

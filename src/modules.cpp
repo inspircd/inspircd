@@ -166,59 +166,59 @@ Request::Request(char* anydata, Module* src, Module* dst) : data(anydata), sourc
 
 char* Request::GetData()
 {
-        return this->data;
+	return this->data;
 }
 
 Module* Request::GetSource()
 {
-        return this->source;
+	return this->source;
 }
 
 Module* Request::GetDest()
 {
-        return this->dest;
+	return this->dest;
 }
 
 char* Request::Send()
 {
-        if (this->dest)
-        {
-                return dest->OnRequest(this);
-        }
-        else
-        {
-                return NULL;
-        }
+	if (this->dest)
+	{
+		return dest->OnRequest(this);
+	}
+	else
+	{
+		return NULL;
+	}
 }
 
-Event::Event(char* anydata, Module* src, std::string eventid) : data(anydata), source(src), id(eventid) { };
+Event::Event(char* anydata, Module* src, const std::string &eventid) : data(anydata), source(src), id(eventid) { };
 
 char* Event::GetData()
 {
-        return this->data;
+	return this->data;
 }
 
 Module* Event::GetSource()
 {
-        return this->source;
+	return this->source;
 }
 
 char* Event::Send()
 {
-        FOREACH_MOD(I_OnEvent,OnEvent(this));
-        return NULL;
+	FOREACH_MOD(I_OnEvent,OnEvent(this));
+	return NULL;
 }
 
 std::string Event::GetEventID()
 {
-        return this->id;
+	return this->id;
 }
 
 
 // These declarations define the behavours of the base class Module (which does nothing at all)
 
-		Module::Module(Server* Me) { }
-		Module::~Module() { }
+			Module::Module(Server* Me) { }
+			Module::~Module() { }
 void		Module::OnUserConnect(userrec* user) { }
 void		Module::OnUserQuit(userrec* user, std::string message) { }
 void		Module::OnUserDisconnect(userrec* user) { }
@@ -226,51 +226,51 @@ void		Module::OnUserJoin(userrec* user, chanrec* channel) { }
 void		Module::OnUserPart(userrec* user, chanrec* channel, std::string partmessage) { }
 void		Module::OnRehash(std::string parameter) { }
 void		Module::OnServerRaw(std::string &raw, bool inbound, userrec* user) { }
-int		Module::OnUserPreJoin(userrec* user, chanrec* chan, const char* cname) { return 0; }
-int		Module::OnExtendedMode(userrec* user, void* target, char modechar, int type, bool mode_on, string_list &params) { return false; }
+int			Module::OnUserPreJoin(userrec* user, chanrec* chan, const char* cname) { return 0; }
+int			Module::OnExtendedMode(userrec* user, void* target, char modechar, int type, bool mode_on, string_list &params) { return false; }
 void		Module::OnMode(userrec* user, void* dest, int target_type, std::string text) { };
 Version		Module::GetVersion() { return Version(1,0,0,0,VF_VENDOR); }
 void		Module::OnOper(userrec* user, std::string opertype) { };
 void		Module::OnPostOper(userrec* user, std::string opertype) { };
 void		Module::OnInfo(userrec* user) { };
 void		Module::OnWhois(userrec* source, userrec* dest) { };
-int		Module::OnUserPreInvite(userrec* source,userrec* dest,chanrec* channel) { return 0; };
-int		Module::OnUserPreMessage(userrec* user,void* dest,int target_type, std::string &text,char status) { return 0; };
-int		Module::OnUserPreNotice(userrec* user,void* dest,int target_type, std::string &text,char status) { return 0; };
-int		Module::OnUserPreNick(userrec* user, std::string newnick) { return 0; };
+int			Module::OnUserPreInvite(userrec* source,userrec* dest,chanrec* channel) { return 0; };
+int			Module::OnUserPreMessage(userrec* user,void* dest,int target_type, std::string &text,char status) { return 0; };
+int			Module::OnUserPreNotice(userrec* user,void* dest,int target_type, std::string &text,char status) { return 0; };
+int			Module::OnUserPreNick(userrec* user, std::string newnick) { return 0; };
 void		Module::OnUserPostNick(userrec* user, std::string oldnick) { };
-int		Module::OnAccessCheck(userrec* source,userrec* dest,chanrec* channel,int access_type) { return ACR_DEFAULT; };
+int			Module::OnAccessCheck(userrec* source,userrec* dest,chanrec* channel,int access_type) { return ACR_DEFAULT; };
 void		Module::On005Numeric(std::string &output) { };
-int		Module::OnKill(userrec* source, userrec* dest, std::string reason) { return 0; };
+int			Module::OnKill(userrec* source, userrec* dest, std::string reason) { return 0; };
 void		Module::OnLoadModule(Module* mod,std::string name) { };
 void		Module::OnUnloadModule(Module* mod,std::string name) { };
 void		Module::OnBackgroundTimer(time_t curtime) { };
 void		Module::OnSendList(userrec* user, chanrec* channel, char mode) { };
-int		Module::OnPreCommand(std::string command, char **parameters, int pcnt, userrec *user, bool validated) { return 0; };
+int			Module::OnPreCommand(std::string command, char **parameters, int pcnt, userrec *user, bool validated) { return 0; };
 bool		Module::OnCheckReady(userrec* user) { return true; };
 void		Module::OnUserRegister(userrec* user) { };
-int		Module::OnUserPreKick(userrec* source, userrec* user, chanrec* chan, std::string reason) { return 0; };
+int			Module::OnUserPreKick(userrec* source, userrec* user, chanrec* chan, std::string reason) { return 0; };
 void		Module::OnUserKick(userrec* source, userrec* user, chanrec* chan, std::string reason) { };
-int		Module::OnRawMode(userrec* user, chanrec* chan, char mode, std::string param, bool adding, int pcnt) { return 0; };
-int		Module::OnCheckInvite(userrec* user, chanrec* chan) { return 0; };
-int		Module::OnCheckKey(userrec* user, chanrec* chan, std::string keygiven) { return 0; };
-int		Module::OnCheckLimit(userrec* user, chanrec* chan) { return 0; };
-int		Module::OnCheckBan(userrec* user, chanrec* chan) { return 0; };
-int		Module::OnStats(char symbol, userrec* user) { return 0; };
-int		Module::OnChangeLocalUserHost(userrec* user, std::string newhost) { return 0; };
-int		Module::OnChangeLocalUserGECOS(userrec* user, std::string newhost) { return 0; };
-int		Module::OnLocalTopicChange(userrec* user, chanrec* chan, std::string topic) { return 0; };
+int			Module::OnRawMode(userrec* user, chanrec* chan, char mode, std::string param, bool adding, int pcnt) { return 0; };
+int			Module::OnCheckInvite(userrec* user, chanrec* chan) { return 0; };
+int			Module::OnCheckKey(userrec* user, chanrec* chan, std::string keygiven) { return 0; };
+int			Module::OnCheckLimit(userrec* user, chanrec* chan) { return 0; };
+int			Module::OnCheckBan(userrec* user, chanrec* chan) { return 0; };
+int			Module::OnStats(char symbol, userrec* user) { return 0; };
+int			Module::OnChangeLocalUserHost(userrec* user, std::string newhost) { return 0; };
+int			Module::OnChangeLocalUserGECOS(userrec* user, std::string newhost) { return 0; };
+int			Module::OnLocalTopicChange(userrec* user, chanrec* chan, std::string topic) { return 0; };
 void		Module::OnEvent(Event* event) { return; };
 char*		Module::OnRequest(Request* request) { return NULL; };
-int		Module::OnOperCompare(std::string password, std::string input) { return 0; };
+int			Module::OnOperCompare(std::string password, std::string input) { return 0; };
 void		Module::OnGlobalOper(userrec* user) { };
 void		Module::OnGlobalConnect(userrec* user) { };
-int		Module::OnAddBan(userrec* source, chanrec* channel,std::string banmask) { return 0; };
-int		Module::OnDelBan(userrec* source, chanrec* channel,std::string banmask) { return 0; };
+int			Module::OnAddBan(userrec* source, chanrec* channel,std::string banmask) { return 0; };
+int			Module::OnDelBan(userrec* source, chanrec* channel,std::string banmask) { return 0; };
 void		Module::OnRawSocketAccept(int fd, std::string ip, int localport) { };
-int		Module::OnRawSocketWrite(int fd, char* buffer, int count) { return 0; };
+int			Module::OnRawSocketWrite(int fd, char* buffer, int count) { return 0; };
 void		Module::OnRawSocketClose(int fd) { };
-int		Module::OnRawSocketRead(int fd, char* buffer, unsigned int count, int &readresult) { return 0; };
+int			Module::OnRawSocketRead(int fd, char* buffer, unsigned int count, int &readresult) { return 0; };
 void		Module::OnUserMessage(userrec* user, void* dest, int target_type, std::string text, char status) { };
 void		Module::OnUserNotice(userrec* user, void* dest, int target_type, std::string text, char status) { };
 void 		Module::OnRemoteKill(userrec* source, userrec* dest, std::string reason) { };
@@ -877,7 +877,7 @@ ConfigReader::~ConfigReader()
 }
 
 
-ConfigReader::ConfigReader(std::string filename)
+ConfigReader::ConfigReader(const std::string &filename)
 {
 	Config->ClearStack();
 	this->cache = new std::stringstream(std::stringstream::in | std::stringstream::out);
@@ -887,14 +887,11 @@ ConfigReader::ConfigReader(std::string filename)
 		this->error = CONF_FILE_NOT_FOUND;
 };
 
-std::string ConfigReader::ReadValue(std::string tag, std::string name, int index)
+std::string ConfigReader::ReadValue(const std::string &tag, const std::string &name, int index)
 {
+	/* Don't need to strlcpy() tag and name anymore, ReadConf() takes const char* */ 
 	char val[MAXBUF];
-	char t[MAXBUF];
-	char n[MAXBUF];
-	strlcpy(t,tag.c_str(),MAXBUF);
-	strlcpy(n,name.c_str(),MAXBUF);
-	int res = Config->ReadConf(cache,t,n,index,val);
+	int res = Config->ReadConf(cache, tag.c_str(), name.c_str(), index, val);
 	if (!res)
 	{
 		this->error = CONF_VALUE_NOT_FOUND;
@@ -903,31 +900,29 @@ std::string ConfigReader::ReadValue(std::string tag, std::string name, int index
 	return val;
 }
 
-bool ConfigReader::ReadFlag(std::string tag, std::string name, int index)
+bool ConfigReader::ReadFlag(const std::string &tag, const std::string &name, int index)
 {
+	/* Don't need to strlcpy() tag and name anymore, ReadConf() takes const char* */ 
 	char val[MAXBUF];
-	char t[MAXBUF];
-	char n[MAXBUF];
-	strlcpy(t,tag.c_str(),MAXBUF);
-	strlcpy(n,name.c_str(),MAXBUF);
-	int res = Config->ReadConf(cache,t,n,index,val);
+	std::string s;
+	
+	int res = Config->ReadConf(cache, tag.c_str(), name.c_str(), index, val);
 	if (!res)
 	{
 		this->error = CONF_VALUE_NOT_FOUND;
 		return false;
 	}
-	std::string s = val;
+	
+	s = val;
+	
 	return ((s == "yes") || (s == "YES") || (s == "true") || (s == "TRUE") || (s == "1"));
 }
 
-long ConfigReader::ReadInteger(std::string tag, std::string name, int index, bool needs_unsigned)
+long ConfigReader::ReadInteger(const std::string &tag, const std::string &name, int index, bool needs_unsigned)
 {
 	char val[MAXBUF];
-	char t[MAXBUF];
-	char n[MAXBUF];
-	strlcpy(t,tag.c_str(),MAXBUF);
-	strlcpy(n,name.c_str(),MAXBUF);
-	int res = Config->ReadConf(cache,t,n,index,val);
+
+	int res = Config->ReadConf(cache, tag.c_str(), name.c_str(), index, val);
 	if (!res)
 	{
 		this->error = CONF_VALUE_NOT_FOUND;
@@ -958,43 +953,47 @@ long ConfigReader::GetError()
 
 void ConfigReader::DumpErrors(bool bail, userrec* user)
 {
-        if (bail)
-        {
-                printf("There were errors in your configuration:\n%s",errorlog->str().c_str());
-                exit(0);
-        }
-        else
-        {
-                char dataline[1024];
-                if (user)
-                {
-                        WriteServ(user->fd,"NOTICE %s :There were errors in the configuration file:",user->nick);
-                        while (!errorlog->eof())
-                        {
-                                errorlog->getline(dataline,1024);
-                                WriteServ(user->fd,"NOTICE %s :%s",user->nick,dataline);
-                        }
-                }
-                else
-                {
-                        WriteOpers("There were errors in the configuration file:",user->nick);
-                        while (!errorlog->eof())
-                        {
-                                errorlog->getline(dataline,1024);
-                                WriteOpers(dataline);
-                        }
-                }
-                return;
-        }
+	if (bail)
+	{
+		printf("There were errors in your configuration:\n%s",errorlog->str().c_str());
+		exit(0);
+	}
+	else
+	{
+		char dataline[1024];
+		
+		if (user)
+		{
+			WriteServ(user->fd,"NOTICE %s :There were errors in the configuration file:",user->nick);
+
+			while (!errorlog->eof())
+			{
+				errorlog->getline(dataline,1024);
+				WriteServ(user->fd,"NOTICE %s :%s",user->nick,dataline);
+			}
+		}
+		else
+		{
+			WriteOpers("There were errors in the configuration file:",user->nick);
+			
+			while (!errorlog->eof())
+			{
+				errorlog->getline(dataline,1024);
+				WriteOpers(dataline);
+			}
+		}
+		
+		return;
+	}
 }
 
 
-int ConfigReader::Enumerate(std::string tag)
+int ConfigReader::Enumerate(const std::string &tag)
 {
 	return Config->EnumConf(cache,tag.c_str());
 }
 
-int ConfigReader::EnumerateValues(std::string tag, int index)
+int ConfigReader::EnumerateValues(const std::string &tag, int index)
 {
 	return Config->EnumValues(cache, tag.c_str(), index);
 }
@@ -1005,7 +1004,7 @@ bool ConfigReader::Verify()
 }
 
 
-FileReader::FileReader(std::string filename)
+FileReader::FileReader(const std::string &filename)
 {
 	file_cache c;
 	readfile(c,filename.c_str());
@@ -1016,7 +1015,7 @@ FileReader::FileReader()
 {
 }
 
-void FileReader::LoadFile(std::string filename)
+void FileReader::LoadFile(const std::string &filename)
 {
 	file_cache c;
 	readfile(c,filename.c_str());
@@ -1030,14 +1029,7 @@ FileReader::~FileReader()
 
 bool FileReader::Exists()
 {
-	if (fc.size() == 0)
-	{
-		return(false);
-	}
-	else
-	{
-		return(true);
-	}
+	return (!(fc.size() == 0));
 }
 
 std::string FileReader::GetLine(int x)
@@ -1057,5 +1049,3 @@ std::vector<Module*> modules(255);
 std::vector<ircd_module*> factory(255);
 
 int MODCOUNT  = -1;
-
-

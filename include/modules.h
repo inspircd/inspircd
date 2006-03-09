@@ -185,9 +185,9 @@ class Module;
 class ModuleMessage : public classbase
 {
  public:
-        /** This class is pure virtual and must be inherited.
-         */
-        virtual char* Send() = 0;
+	/** This class is pure virtual and must be inherited.
+	 */
+	virtual char* Send() = 0;
 	virtual ~ModuleMessage() {};
 };
 
@@ -199,35 +199,35 @@ class ModuleMessage : public classbase
 class Request : public ModuleMessage
 {
  protected:
-        /** This member holds a pointer to arbitary data set by the emitter of the message
-         */
-        char* data;
-        /** This is a pointer to the sender of the message, which can be used to
-         * directly trigger events, or to create a reply.
-         */
-        Module* source;
-        /** The single destination of the Request
-         */
-        Module* dest;
+	/** This member holds a pointer to arbitary data set by the emitter of the message
+	 */
+	char* data;
+	/** This is a pointer to the sender of the message, which can be used to
+	 * directly trigger events, or to create a reply.
+	 */
+	Module* source;
+	/** The single destination of the Request
+	 */
+	Module* dest;
  public:
-        /** Create a new Request
-         */
-        Request(char* anydata, Module* src, Module* dst);
-        /** Fetch the Request data
-         */
-        char* GetData();
-        /** Fetch the request source
-         */
-        Module* GetSource();
-        /** Fetch the request destination (should be 'this' in the receiving module)
-         */
-        Module* GetDest();
-        /** Send the Request.
-         * Upon returning the result will be arbitary data returned by the module you
-         * sent the request to. It is up to your module to know what this data is and
-         * how to deal with it.
-         */
-        char* Send();
+	/** Create a new Request
+	 */
+	Request(char* anydata, Module* src, Module* dst);
+	/** Fetch the Request data
+	 */
+	char* GetData();
+	/** Fetch the request source
+	 */
+	Module* GetSource();
+	/** Fetch the request destination (should be 'this' in the receiving module)
+	 */
+	Module* GetDest();
+	/** Send the Request.
+	 * Upon returning the result will be arbitary data returned by the module you
+	 * sent the request to. It is up to your module to know what this data is and
+	 * how to deal with it.
+	 */
+	char* Send();
 };
 
 
@@ -239,37 +239,37 @@ class Request : public ModuleMessage
 class Event : public ModuleMessage
 {
  protected:
-        /** This member holds a pointer to arbitary data set by the emitter of the message
-         */
-        char* data;
-        /** This is a pointer to the sender of the message, which can be used to
-         * directly trigger events, or to create a reply.
-         */
-        Module* source;
-        /** The event identifier.
-         * This is arbitary text which should be used to distinguish
-         * one type of event from another.
-         */
-        std::string id;
+	/** This member holds a pointer to arbitary data set by the emitter of the message
+	 */
+	char* data;
+	/** This is a pointer to the sender of the message, which can be used to
+	 * directly trigger events, or to create a reply.
+	 */
+	Module* source;
+	/** The event identifier.
+	 * This is arbitary text which should be used to distinguish
+	 * one type of event from another.
+	 */
+	std::string id;
  public:
-        /** Create a new Event
-         */
-        Event(char* anydata, Module* src, std::string eventid);
-        /** Get the Event data
-         */
-        char* GetData();
-        /** Get the event Source
-         */
-        Module* GetSource();
-        /** Get the event ID.
-         * Use this to determine the event type for safe casting of the data
-         */
-        std::string GetEventID();
-        /** Send the Event.
-         * The return result of an Event::Send() will always be NULL as
-         * no replies are expected.
-         */
-        char* Send();
+	/** Create a new Event
+	 */
+	Event(char* anydata, Module* src, const std::string &eventid);
+	/** Get the Event data
+	 */
+	char* GetData();
+	/** Get the event Source
+	 */
+	Module* GetSource();
+	/** Get the event ID.
+	 * Use this to determine the event type for safe casting of the data
+	 */
+	std::string GetEventID();
+	/** Send the Event.
+	 * The return result of an Event::Send() will always be NULL as
+	 * no replies are expected.
+	 */
+	char* Send();
 };
 
 /** Holds an extended mode's details.
@@ -278,13 +278,13 @@ class Event : public ModuleMessage
 class ExtMode : public classbase
 {
  public:
-        char modechar;
-        int type;
-        bool needsoper;
-        int params_when_on;
-        int params_when_off;
-        bool list;
-        ExtMode(char mc, int ty, bool oper, int p_on, int p_off) : modechar(mc), type(ty), needsoper(oper), params_when_on(p_on), params_when_off(p_off), list(false) { };
+	char modechar;
+	int type;
+	bool needsoper;
+	int params_when_on;
+	int params_when_off;
+	bool list;
+	ExtMode(char mc, int ty, bool oper, int p_on, int p_off) : modechar(mc), type(ty), needsoper(oper), params_when_on(p_on), params_when_off(p_off), list(false) { };
 };
 
 
@@ -314,9 +314,9 @@ class ModuleException
 	/** Returns the reason for the exception.
 	 * The module should probably put something informative here as the user will see this upon failure.
 	 */
-	virtual char *GetReason()
+	virtual const char* GetReason()
 	{
-		return (char*)err.c_str();
+		return err.c_str();
 	}
 };
 
@@ -503,7 +503,7 @@ class Module : public classbase
 	 */
 	virtual int OnUserPreJoin(userrec* user, chanrec* chan, const char* cname);
 	
-        /** Called whenever a user is about to be kicked.
+	/** Called whenever a user is about to be kicked.
          * Returning a value of 1 from this function stops the process immediately, causing no
          * output to be sent to the user by the core. If you do this you must produce your own numerics,
          * notices etc.
@@ -640,7 +640,7 @@ class Module : public classbase
 	 */
 	virtual void OnUserMessage(userrec* user, void* dest, int target_type, std::string text, char status);
 
-        /** Called after any NOTICE sent from a user.
+	/** Called after any NOTICE sent from a user.
 	 * The dest variable contains a userrec* if target_type is TYPE_USER and a chanrec*
 	 * if target_type is TYPE_CHANNEL.
 	 * @param user The user sending the message
@@ -1069,7 +1069,7 @@ class Module : public classbase
 	 */
 	virtual int OnCheckInvite(userrec* user, chanrec* chan);
 
-        /** Called whenever a user joins a channel, to determine if key checks should go ahead or not.
+	/** Called whenever a user joins a channel, to determine if key checks should go ahead or not.
          * This method will always be called for each join, wether or not the channel is actually +k, and
          * determines the outcome of an if statement around the whole section of key checking code.
 	 * if the user specified no key, the keygiven string will be a valid but empty value.
@@ -1080,7 +1080,7 @@ class Module : public classbase
          */
 	virtual int OnCheckKey(userrec* user, chanrec* chan, std::string keygiven);
 
-        /** Called whenever a user joins a channel, to determine if channel limit checks should go ahead or not.
+	/** Called whenever a user joins a channel, to determine if channel limit checks should go ahead or not.
          * This method will always be called for each join, wether or not the channel is actually +l, and
          * determines the outcome of an if statement around the whole section of channel limit checking code.
          * return 1 to explicitly allow the join to go ahead or 0 to ignore the event.
@@ -1090,7 +1090,7 @@ class Module : public classbase
          */
 	virtual int OnCheckLimit(userrec* user, chanrec* chan);
 
-        /** Called whenever a user joins a channel, to determine if banlist checks should go ahead or not.
+	/** Called whenever a user joins a channel, to determine if banlist checks should go ahead or not.
          * This method will always be called for each join, wether or not the user actually matches a channel ban, and
          * determines the outcome of an if statement around the whole section of ban checking code.
          * return 1 to explicitly allow the join to go ahead or 0 to ignore the event.
@@ -1654,40 +1654,40 @@ class Server : public classbase
 	 */
 	virtual void AddGLine(long duration, std::string source, std::string reason, std::string hostmask);
 
-        /** Adds a Q-line
-         * The Q-line is propogated to all of the servers in the mesh and enforced as soon as it is added.
-         * The duration must be in seconds, however you can use the Server::CalcDuration method to convert
-         * durations into the 1w2d3h3m6s format used by /GLINE etc. The source is an arbitary string used
-         * to indicate who or what sent the data, usually this is the nickname of a person, or a server
-         * name.
-         */
+	/** Adds a Q-line
+	 * The Q-line is propogated to all of the servers in the mesh and enforced as soon as it is added.
+	 * The duration must be in seconds, however you can use the Server::CalcDuration method to convert
+	 * durations into the 1w2d3h3m6s format used by /GLINE etc. The source is an arbitary string used
+	 * to indicate who or what sent the data, usually this is the nickname of a person, or a server
+	 * name.
+	 */
 	virtual void AddQLine(long duration, std::string source, std::string reason, std::string nickname);
 
-        /** Adds a Z-line
-         * The Z-line is propogated to all of the servers in the mesh and enforced as soon as it is added.
-         * The duration must be in seconds, however you can use the Server::CalcDuration method to convert
-         * durations into the 1w2d3h3m6s format used by /GLINE etc. The source is an arbitary string used
-         * to indicate who or what sent the data, usually this is the nickname of a person, or a server
-         * name.
-         */
+	/** Adds a Z-line
+	 * The Z-line is propogated to all of the servers in the mesh and enforced as soon as it is added.
+	 * The duration must be in seconds, however you can use the Server::CalcDuration method to convert
+	 * durations into the 1w2d3h3m6s format used by /GLINE etc. The source is an arbitary string used
+	 * to indicate who or what sent the data, usually this is the nickname of a person, or a server
+	 * name.
+	 */
 	virtual void AddZLine(long duration, std::string source, std::string reason, std::string ipaddr);
 
-        /** Adds a K-line
-         * The K-line is enforced as soon as it is added.
-         * The duration must be in seconds, however you can use the Server::CalcDuration method to convert
-         * durations into the 1w2d3h3m6s format used by /GLINE etc. The source is an arbitary string used
-         * to indicate who or what sent the data, usually this is the nickname of a person, or a server
-         * name.
-         */
+	/** Adds a K-line
+	 * The K-line is enforced as soon as it is added.
+	 * The duration must be in seconds, however you can use the Server::CalcDuration method to convert
+	 * durations into the 1w2d3h3m6s format used by /GLINE etc. The source is an arbitary string used
+	 * to indicate who or what sent the data, usually this is the nickname of a person, or a server
+	 * name.
+	 */
 	virtual void AddKLine(long duration, std::string source, std::string reason, std::string hostmask);
 
-        /** Adds a E-line
-         * The E-line is enforced as soon as it is added.
-         * The duration must be in seconds, however you can use the Server::CalcDuration method to convert
-         * durations into the 1w2d3h3m6s format used by /GLINE etc. The source is an arbitary string used
-         * to indicate who or what sent the data, usually this is the nickname of a person, or a server
-         * name.
-         */
+	/** Adds a E-line
+	 * The E-line is enforced as soon as it is added.
+	 * The duration must be in seconds, however you can use the Server::CalcDuration method to convert
+	 * durations into the 1w2d3h3m6s format used by /GLINE etc. The source is an arbitary string used
+	 * to indicate who or what sent the data, usually this is the nickname of a person, or a server
+	 * name.
+	 */
 	virtual void AddELine(long duration, std::string source, std::string reason, std::string hostmask);
 
 	/** Deletes a G-Line from all servers
@@ -1785,7 +1785,7 @@ class ConfigReader : public classbase
 	/** Overloaded constructor.
 	 * This constructor initialises the ConfigReader class to read a user-specified config file
 	 */
-	ConfigReader(std::string filename);	// read a module-specific config
+	ConfigReader(const std::string &filename);	// read a module-specific config
 	/** Default destructor.
 	 * This method destroys the ConfigReader class.
 	 */
@@ -1794,13 +1794,13 @@ class ConfigReader : public classbase
 	 * This method retrieves a value from the config file. Where multiple copies of the tag
 	 * exist in the config file, index indicates which of the values to retrieve.
 	 */
-	std::string ReadValue(std::string tag, std::string name, int index);
+	std::string ReadValue(const std::string &tag, const std::string &name, int index);
 	/** Retrieves a boolean value from the config file.
 	 * This method retrieves a boolean value from the config file. Where multiple copies of the tag
 	 * exist in the config file, index indicates which of the values to retrieve. The values "1", "yes"
 	 * and "true" in the config file count as true to ReadFlag, and any other value counts as false.
 	 */
-	bool ReadFlag(std::string tag, std::string name, int index);
+	bool ReadFlag(const std::string &tag, const std::string &name, int index);
 	/** Retrieves an integer value from the config file.
 	 * This method retrieves an integer value from the config file. Where multiple copies of the tag
 	 * exist in the config file, index indicates which of the values to retrieve. Any invalid integer
@@ -1809,7 +1809,7 @@ class ConfigReader : public classbase
 	 * If a signed number is placed into a tag which is specified unsigned, 0 will be returned and GetError()
 	 * will return CONF_NOT_UNSIGNED
 	 */
-	long ReadInteger(std::string tag, std::string name, int index, bool needs_unsigned);
+	long ReadInteger(const std::string &tag, const std::string &name, int index, bool needs_unsigned);
 	/** Returns the last error to occur.
 	 * Valid errors can be found by looking in modules.h. Any nonzero value indicates an error condition.
 	 * A call to GetError() resets the error flag back to 0.
@@ -1821,7 +1821,7 @@ class ConfigReader : public classbase
 	 * used with the index value of ConfigReader::ReadValue to loop through all copies of a
 	 * multiple instance tag.
 	 */
-	int Enumerate(std::string tag);
+	int Enumerate(const std::string &tag);
 	/** Returns true if a config file is valid.
 	 * This method is partially implemented and will only return false if the config
 	 * file does not exist or could not be opened.
@@ -1840,7 +1840,7 @@ class ConfigReader : public classbase
 	 * function would return 2. Spaces and newlines both qualify as valid seperators
 	 * between values.
 	 */
-	int EnumerateValues(std::string tag, int index);
+	int EnumerateValues(const std::string &tag, int index);
 };
 
 
@@ -1852,7 +1852,7 @@ class ConfigReader : public classbase
  */
 class FileReader : public classbase
 {
- file_cache fc;
+	file_cache fc;
  public:
 	 /** Default constructor.
 	  * This method does not load any file into memory, you must use the LoadFile method
@@ -1865,7 +1865,7 @@ class FileReader : public classbase
 	  * and other methods to be called. If the file could not be loaded, FileReader::FileSize
 	  * returns 0.
 	  */
-	 FileReader(std::string filename);
+	 FileReader(const std::string &filename);
 
 	 /** Default destructor.
 	  * This deletes the memory allocated to the file.
@@ -1877,7 +1877,7 @@ class FileReader : public classbase
 	  * and other methods to be called. If the file could not be loaded, FileReader::FileSize
 	  * returns 0.
 	  */
-	 void LoadFile(std::string filename);
+	 void LoadFile(const std::string &filename);
 
 	 /** Returns true if the file exists
 	  * This function will return false if the file could not be opened.

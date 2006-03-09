@@ -59,10 +59,9 @@ InspSocket::InspSocket(int newfd, char* ip)
 	socket_ref[this->fd] = this;
 }
 
-InspSocket::InspSocket(std::string ahost, int aport, bool listening, unsigned long maxtime)
+InspSocket::InspSocket(const std::string &ahost, int aport, bool listening, unsigned long maxtime)
+ : fd(-1), host(ahost)
 {
-	this->fd = -1;
-	this->host = ahost;
 	this->outbuffer.clear();
 	if (listening) {
 		if ((this->fd = OpenTCPSocket()) == ERROR)
@@ -242,7 +241,7 @@ char* InspSocket::Read()
 // It will either write all of the data, or an undefined amount.
 // If an undefined amount is written the connection has failed
 // and should be aborted.
-int InspSocket::Write(std::string data)
+int InspSocket::Write(const std::string &data)
 {
 	/* Try and append the data to the back of the queue, and send it on its way
 	 */
@@ -372,4 +371,3 @@ InspSocket::~InspSocket()
 {
 	this->Close();
 }
-
