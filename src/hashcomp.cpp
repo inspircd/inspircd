@@ -85,8 +85,8 @@ size_t nspace::hash<string>::operator()(const string &s) const
 
 bool irc::StrHashComp::operator()(const std::string& s1, const std::string& s2) const
 {
-	char* n1 = (char*)s1.c_str();
-	char* n2 = (char*)s2.c_str();
+	unsigned char* n1 = (unsigned char*)s1.c_str();
+	unsigned char* n2 = (unsigned char*)s2.c_str();
 	for (; *n1 && *n2; n1++, n2++)
 		if (lowermap[*n1] != lowermap[*n2])
 			return false;
