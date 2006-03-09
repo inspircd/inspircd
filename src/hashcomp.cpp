@@ -76,18 +76,21 @@ size_t nspace::hash<in_addr>::operator()(const struct in_addr &a) const
 
 size_t nspace::hash<string>::operator()(const string &s) const
 {
-        char a[MAXBUF];
-        static struct hash<const char *> strhash;
-        strlcpy(a,s.c_str(),MAXBUF);
-        strlower(a);
-        return strhash(a);
+	char a[MAXBUF];
+	static struct hash<const char *> strhash;
+	strlcpy(a,s.c_str(),MAXBUF);
+	strlower(a);
+	return strhash(a);
 }
 
 bool irc::StrHashComp::operator()(const std::string& s1, const std::string& s2) const
 {
-	irc::string a = s1.c_str();
-	irc::string b = s2.c_str();
-        return (a == b);
+	char* n1 = (char*)s1.c_str();
+	char* n2 = (char*)s2.c_str();
+	for (; *n1 && *n2; n1++, n2++)
+		if (lowertab[*n1] != lowertab[*n2])
+			return false;
+	return (lowertab[*n1] == lowertab[*n2]);
 }
 
 bool irc::InAddr_HashComp::operator()(const in_addr &s1, const in_addr &s2) const
