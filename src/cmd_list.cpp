@@ -49,7 +49,9 @@ void cmd_list::Handle (char **parameters, int pcnt, userrec *user)
 		bool n = i->second->HasUser(user);
 		if (((!(i->second->binarymodes & CM_PRIVATE)) && (!(i->second->binarymodes & CM_SECRET))) || (n))
 		{
-			WriteServ(user->fd,"322 %s %s %d :[+%s] %s",user->nick,i->second->name,usercount_i(i->second),chanmodes(i->second,n),i->second->topic);
+			long users = usercount_i(i->second);
+			if (users)
+				WriteServ(user->fd,"322 %s %s %d :[+%s] %s",user->nick,i->second->name,users,chanmodes(i->second,n),i->second->topic);
 		}
 	}
 	WriteServ(user->fd,"323 %s :End of channel list.",user->nick);
