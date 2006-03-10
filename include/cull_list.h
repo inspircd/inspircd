@@ -42,7 +42,7 @@ class CullItem
         userrec* user;
 	/** Holds the quit reason to use for this user.
 	 */
-	char* reason;
+	std::string reason;
  public:
 	/** Constrcutor.
 	 * Initializes the CullItem with a user pointer
