@@ -673,9 +673,9 @@ void Start (void)
 {
 	printf("\033[1;32mInspire Internet Relay Chat Server, compiled %s at %s\n",__DATE__,__TIME__);
 	printf("(C) ChatSpike Development team.\033[0m\n\n");
-	printf("Developers:\033[1;32m Brain, FrostyCoolSlug, w00t, Om\033[0m\n");
-	printf("Others:\033[1;32m See /INFO Output\033[0m\n");
-	printf("Name concept:\033[1;32m   Lord_Zathras\033[0m\n\n");
+	printf("Developers:\t\t\033[1;32mBrain, FrostyCoolSlug, w00t, Om\033[0m\n");
+	printf("Others:\t\t\t\033[1;32mSee /INFO Output\033[0m\n");
+	printf("Name concept:\t\t\033[1;32mLord_Zathras\033[0m\n\n");
 }
 
 void WritePID(std::string filename)
