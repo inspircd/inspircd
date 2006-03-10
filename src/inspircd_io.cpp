@@ -366,8 +366,7 @@ void ServerConfig::Read(bool bail, userrec* user)
 	};
 
 	//
-	char timeout[MAXBUF],flood[MAXBUF],pfreq[MAXBUF],thold[MAXBUF],sqmax[MAXBUF],rqmax[MAXBUF];
-	char localmax[MAXBUF],globalmax[MAXBUF],ServName[MAXBUF],Value[MAXBUF];
+	char ServName[MAXBUF],Value[MAXBUF];
 
 	ConnectClass c;
 	std::stringstream errstr;
@@ -459,67 +458,55 @@ void ServerConfig::Read(bool bail, userrec* user)
 	{
 		*Value = 0;
 		ConfValue("connect","allow",i,Value,&Config->config_f);
-		ConfValue("connect","timeout",i,timeout,&Config->config_f);
-		ConfValue("connect","flood",i,flood,&Config->config_f);
-		ConfValue("connect","pingfreq",i,pfreq,&Config->config_f);
-		ConfValue("connect","threshold",i,thold,&Config->config_f);
-		ConfValue("connect","sendq",i,sqmax,&Config->config_f);
-		ConfValue("connect","recvq",i,rqmax,&Config->config_f);
-		ConfValue("connect","localmax",i,localmax,&Config->config_f);
-		ConfValue("connect","globalmax",i,globalmax,&Config->config_f);
-
 		if (*Value)
 		{
 			c.host = Value;
 			c.type = CC_ALLOW;
-			strlcpy(Value,"",MAXBUF);
+			*Value = 0;
 			ConfValue("connect","password",i,Value,&Config->config_f);
 			c.pass = Value;
-			c.registration_timeout = 90; // default is 2 minutes
-			c.pingtime = 120;
-			c.flood = atoi(flood);
-			c.threshold = 5;
-			c.sendqmax = 262144; // 256k
-			c.recvqmax = 4096;   // 4k
-			c.maxlocal = 3;
-			c.maxglobal = 3;
+			c.registration_timeout = ConfValueInteger("connect","timeout",i,&Config->config_f); // default is 2 minutes
+			c.pingtime = ConfValueInteger("connect","pingfreq",i,&Config->config_f);
+			c.flood = ConfValueInteger("connect","flood",i,&Config->config_f);
+			c.threshold = ConfValueInteger("connect","threshold",i,&Config->config_f);
+			c.sendqmax = ConfValueInteger("connect","sendq",i,&Config->config_f);
+			c.recvqmax = ConfValueInteger("connect","recvq",i,&Config->config_f);
+			c.maxlocal = ConfValueInteger("connect","localmax",i,&Config->config_f);
+			c.maxglobal = ConfValueInteger("connect","globalmax",i,&Config->config_f);
 
-			if (atoi(localmax)>0)
+			
+			if (c.maxlocal == 0)
 			{
-				c.maxlocal = atoi(localmax);
+				c.maxlocal = 3;
 			}
 
-			if (atoi(globalmax)>0)
+			if (c.maxglobal == 0)
 			{
-				c.maxglobal = atoi(globalmax);
+				c.maxglobal = 3;
 			}
 
-			if (atoi(thold)>0)
-			{
-				c.threshold = atoi(thold);
-			}
-			else
+			if (c.threshold == 0)
 			{
 				c.threshold = 1;
 				c.flood = 999;
 				log(DEFAULT,"Warning: Connect allow line '%s' has no flood/threshold settings. Setting this tag to 999 lines in 1 second.",c.host.c_str());
 			}
 
-			if (atoi(sqmax)>0)
+			if (c.sendqmax == 0)
 			{
-				c.sendqmax = atoi(sqmax);
+				c.sendqmax = 262114;
 			}
-			if (atoi(rqmax)>0)
+			if (c.recvqmax == 0)
 			{
-				c.recvqmax = atoi(rqmax);
+				c.recvqmax = 4096;
 			}
-			if (atoi(timeout)>0)
+			if (c.registration_timeout == 0)
 			{
-				c.registration_timeout = atoi(timeout);
+				c.registration_timeout = 90;
 			}
-			if (atoi(pfreq)>0)
+			if (c.pingtime == 0)
 			{
-				c.pingtime = atoi(pfreq);
+				c.pingtime = 120;
 			}
 
 			Classes.push_back(c);
@@ -1324,7 +1311,12 @@ int ServerConfig::ConfValue(char* tag, char* var, int index, char *result,std::s
 	return 0;
 }
 
-
+int ServerConfig::ConfValueInteger(char* tag, char* var, int index, std::stringstream *config)
+{
+	char result[MAXBUF];
+	ReadConf(config, tag, var, index, result);
+	return atoi(result);
+}
 
 // This will bind a socket to a port. It works for UDP/TCP
 int BindSocket (int sockfd, struct sockaddr_in client, struct sockaddr_in server, int port, char* addr)

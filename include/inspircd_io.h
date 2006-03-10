@@ -331,6 +331,7 @@ class ServerConfig : public classbase
 
 	bool LoadConf(const char* filename, std::stringstream *target, std::stringstream* errorstream);
 	int ConfValue(char* tag, char* var, int index, char *result, std::stringstream *config);
+	int ConfValueInteger(char* tag, char* var, int index, std::stringstream *config);
 	int ReadConf(std::stringstream *config_f,const char* tag, const char* var, int index, char *result);
 	int ConfValueEnum(char* tag,std::stringstream *config);
 	int EnumConf(std::stringstream *config_f,const char* tag);
