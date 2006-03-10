@@ -344,48 +344,48 @@ bool DoConnect(const char* tag, char** entries, void** values, int* types)
 	int* localmax = (int*)values[9];
 	int* globalmax = (int*)values[10];
 
-        if (*allow)
-        {
-                c.host = allow;
-                c.type = CC_ALLOW;
-                c.pass = password;
-                c.registration_timeout = *timeout;
-                c.pingtime = *pingfreq;
-                c.flood = *flood;
-                c.threshold = *threshold;
-                c.sendqmax = *sendq;
-                c.recvqmax = *recvq;
-                c.maxlocal = *localmax;
-                c.maxglobal = *globalmax;
+	if (*allow)
+	{
+		c.host = allow;
+		c.type = CC_ALLOW;
+		c.pass = password;
+		c.registration_timeout = *timeout;
+		c.pingtime = *pingfreq;
+		c.flood = *flood;
+		c.threshold = *threshold;
+		c.sendqmax = *sendq;
+		c.recvqmax = *recvq;
+		c.maxlocal = *localmax;
+		c.maxglobal = *globalmax;
 
 
-                if (c.maxlocal == 0)
+		if (c.maxlocal == 0)
 			c.maxlocal = 3;
-                if (c.maxglobal == 0)
+		if (c.maxglobal == 0)
 			c.maxglobal = 3;
-                if (c.threshold == 0)
-                {
+		if (c.threshold == 0)
+		{
 			c.threshold = 1;
 			c.flood = 999;
 			log(DEFAULT,"Warning: Connect allow line '%s' has no flood/threshold settings. Setting this tag to 999 lines in 1 second.",c.host.c_str());
-                }
-                if (c.sendqmax == 0)
+		}
+		if (c.sendqmax == 0)
 			c.sendqmax = 262114;
-                if (c.recvqmax == 0)
+		if (c.recvqmax == 0)
 			c.recvqmax = 4096;
-                if (c.registration_timeout == 0)
+		if (c.registration_timeout == 0)
 			c.registration_timeout = 90;
-                if (c.pingtime == 0)
+		if (c.pingtime == 0)
 			c.pingtime = 120;
-                Config->Classes.push_back(c);
-        }
-        else
-        {
-                c.host = deny;
-                c.type = CC_DENY;
-                Config->Classes.push_back(c);
-                log(DEBUG,"Read connect class type DENY, host=%s",deny);
-        }
+		Config->Classes.push_back(c);
+	}
+	else
+	{
+		c.host = deny;
+		c.type = CC_DENY;
+		Config->Classes.push_back(c);
+		log(DEBUG,"Read connect class type DENY, host=%s",deny);
+	}
 
 	return true;
 }
@@ -451,34 +451,34 @@ bool DoModule(const char* tag, char** entries, void** values, int* types)
  */
 bool DoneModule(const char* tag)
 {
-        // now create a list of new modules that are due to be loaded
-        // and a seperate list of modules which are due to be unloaded
-        for (std::vector<std::string>::iterator _new = new_module_names.begin(); _new != new_module_names.end(); _new++)
-        {
-                bool added = true;
+	// now create a list of new modules that are due to be loaded
+	// and a seperate list of modules which are due to be unloaded
+	for (std::vector<std::string>::iterator _new = new_module_names.begin(); _new != new_module_names.end(); _new++)
+	{
+		bool added = true;
 
-                for (std::vector<std::string>::iterator old = old_module_names.begin(); old != old_module_names.end(); old++)
-                {
-                        if (*old == *_new)
-                                added = false;
-                }
+		for (std::vector<std::string>::iterator old = old_module_names.begin(); old != old_module_names.end(); old++)
+		{
+			if (*old == *_new)
+				added = false;
+		}
 
-                if (added)
-                        added_modules.push_back(*_new);
-        }
+		if (added)
+			added_modules.push_back(*_new);
+	}
 
-        for (std::vector<std::string>::iterator oldm = old_module_names.begin(); oldm != old_module_names.end(); oldm++)
-        {
-                bool removed = true;
-                for (std::vector<std::string>::iterator newm = new_module_names.begin(); newm != new_module_names.end(); newm++)
-                {
-                        if (*newm == *oldm)
-                                removed = false;
-                }
+	for (std::vector<std::string>::iterator oldm = old_module_names.begin(); oldm != old_module_names.end(); oldm++)
+	{
+		bool removed = true;
+		for (std::vector<std::string>::iterator newm = new_module_names.begin(); newm != new_module_names.end(); newm++)
+		{
+			if (*newm == *oldm)
+				removed = false;
+		}
 
-                if (removed)
-                        removed_modules.push_back(*oldm);
-        }
+		if (removed)
+			removed_modules.push_back(*oldm);
+	}
 	return true;
 }
 
@@ -563,7 +563,7 @@ void ServerConfig::Read(bool bail, userrec* user)
 
 		{"connect",
 				{"allow",	"deny",		"password",	"timeout",	"pingfreq",	"flood",
-			        "threshold",	"sendq",	"recvq",	"localmax",	"globalmax",	NULL},
+				"threshold",	"sendq",	"recvq",	"localmax",	"globalmax",	NULL},
 				{DT_CHARPTR,	DT_CHARPTR,	DT_CHARPTR,	DT_INTEGER,	DT_INTEGER,	DT_INTEGER,
 				 DT_INTEGER,	DT_INTEGER,	DT_INTEGER,	DT_INTEGER,	DT_INTEGER},
 				InitConnect, DoConnect, DoneConnect},
