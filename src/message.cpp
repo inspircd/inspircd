@@ -166,15 +166,24 @@ void NonBlocking(int s)
 	fcntl(s, F_SETFL, flags | O_NONBLOCK);
 }
 
-int CleanAndResolve (char *resolvedHost, const char *unresolvedHost)
+int CleanAndResolve (char *resolvedHost, const char *unresolvedHost, bool forward)
 {
+	int fd;
+	std::string ipaddr;
+
 	DNS d(Config->DNSServer);
-	int fd = d.ReverseLookup(unresolvedHost);
+	if (forward)
+		fd = d.ForwardLookup(unresolvedHost);
+	else
+		fd = d.ReverseLookup(unresolvedHost);
 	if (fd < 0)
 		return 0;
 	time_t T = time(NULL)+1;
 	while ((!d.HasResult()) && (time(NULL)<T));
-	std::string ipaddr = d.GetResult();
+	if (forward)
+		ipaddr = d.GetResultIP();
+	else
+		ipaddr = d.GetResult();
 	strlcpy(resolvedHost,ipaddr.c_str(),MAXBUF);
 	return (ipaddr != "");
 }

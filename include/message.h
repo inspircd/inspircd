@@ -33,7 +33,7 @@ void chop(char* str);
 void tidystring(char* str);
 void Blocking(int s);
 void NonBlocking(int s);
-int CleanAndResolve (char *resolvedHost, const char *unresolvedHost);
+int CleanAndResolve (char *resolvedHost, const char *unresolvedHost, bool forward);
 int c_count(userrec* u);
 bool hasumode(userrec* user, char mode);
 void ChangeName(userrec* user, const char* gecos);

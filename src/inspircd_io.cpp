@@ -25,6 +25,7 @@ using namespace std;
 #include <sstream>
 #include <iostream>
 #include <fstream>
+#include "message.h"
 #include "inspircd.h"
 #include "inspircd_io.h"
 #include "inspstring.h"
@@ -1303,25 +1304,57 @@ int BindSocket (int sockfd, struct sockaddr_in client, struct sockaddr_in server
 {
 	memset((char *)&server,0,sizeof(server));
 	struct in_addr addy;
-	inet_aton(addr,&addy);
-	server.sin_family = AF_INET;
-	if (!*addr)
+	bool resolved = false;
+	char resolved_addr[128];
+
+	if (*addr == '*')
+		*addr = 0;
+
+	if (*addr && !inet_aton(addr,&addy))
 	{
-		server.sin_addr.s_addr = htonl(INADDR_ANY);
+		/* If they gave a hostname, bind to the IP it resolves to */
+		if (CleanAndResolve(resolved_addr, addr, true))
+		{
+			inet_aton(resolved_addr,&addy);
+			log(DEFAULT,"Resolved binding '%s' -> '%s'",addr,resolved_addr);
+			server.sin_addr = addy;
+			resolved = true;
+		}
+		else
+		{
+			log(DEFAULT,"WARNING: Could not resolve '%s' to an IP for binding to on port %d",addr,port);
+			return(FALSE);
+		}
 	}
-	else
+	server.sin_family = AF_INET;
+	if (!resolved)
 	{
-		server.sin_addr = addy;
+		if (!*addr)
+		{
+			server.sin_addr.s_addr = htonl(INADDR_ANY);
+		}
+		else
+		{
+			server.sin_addr = addy;
+		}
 	}
 	server.sin_port = htons(port);
-	if (bind(sockfd,(struct sockaddr*)&server,sizeof(server))<0)
+	if (bind(sockfd,(struct sockaddr*)&server,sizeof(server)) < 0)
 	{
 		return(ERROR);
 	}
 	else
 	{
-		listen(sockfd, Config->MaxConn);
-		return(TRUE);
+		log(DEBUG,"Bound port %s:%d",*addr ? addr : "*",port);
+		if (listen(sockfd, Config->MaxConn) == -1)
+		{
+			log(DEFAULT,"ERROR in listen(): %s",strerror(errno));
+			return(FALSE);
+		}
+		else
+		{
+			return(TRUE);
+		}
 	}
 }
 

@@ -162,7 +162,8 @@ inline void dns_empty_header(unsigned char *output, const s_header *header, cons
 void dns_close(int fd)
 {
 #ifndef THREADED_DNS
-        ServerInstance->SE->DelFd(fd);
+	if (ServerInstance && ServerInstance->SE)
+		ServerInstance->SE->DelFd(fd);
 #endif
 	log(DEBUG,"DNS: dns_close on fd %d",fd);
 	if (fd == lastcreate)
@@ -686,7 +687,7 @@ DNS::DNS()
 DNS::DNS(std::string dnsserver)
 {
 	dns_init_2(dnsserver.c_str());
-	log(DEBUG,"Create DNS");
+	log(DEBUG,"Create DNS with server '%s'",dnsserver.c_str());
 }
 
 void DNS::SetNS(std::string dnsserver)
@@ -701,7 +702,8 @@ DNS::~DNS()
 
 bool DNS::ReverseLookup(std::string ip)
 {
-	ServerInstance->stats->statsDns++;
+	if (ServerInstance && ServerInstance->stats)
+		ServerInstance->stats->statsDns++;
         binip = dns_aton4(ip.c_str());
         if (binip == NULL)
 	{
@@ -715,14 +717,16 @@ bool DNS::ReverseLookup(std::string ip)
 	}
 	log(DEBUG,"DNS: ReverseLookup, fd=%d",this->myfd);
 #ifndef THREADED_DNS
-	ServerInstance->SE->AddFd(this->myfd,true,X_ESTAB_DNS);
+	if (ServerInstance && ServerInstance->SE)
+		ServerInstance->SE->AddFd(this->myfd,true,X_ESTAB_DNS);
 #endif
 	return true;
 }
 
 bool DNS::ForwardLookup(std::string host)
 {
-	ServerInstance->stats->statsDns++;
+	if (ServerInstance && ServerInstance->stats)
+		ServerInstance->stats->statsDns++;
 	this->myfd = dns_getip4(host.c_str());
 	if (this->myfd == -1)
 	{
@@ -730,14 +734,16 @@ bool DNS::ForwardLookup(std::string host)
 	}
 	log(DEBUG,"DNS: ForwardLookup, fd=%d",this->myfd);
 #ifndef THREADED_DNS
-	ServerInstance->SE->AddFd(this->myfd,true,X_ESTAB_DNS);
+	if (ServerInstance && ServerInstance->SE)
+		ServerInstance->SE->AddFd(this->myfd,true,X_ESTAB_DNS);
 #endif
 	return true;
 }
 
 bool DNS::ForwardLookupWithFD(std::string host, int &fd)
 {
-	ServerInstance->stats->statsDns++;
+	if (ServerInstance && ServerInstance->stats)
+		ServerInstance->stats->statsDns++;
 	this->myfd = dns_getip4(host.c_str());
 	fd = this->myfd;
 	if (this->myfd == -1)
@@ -745,7 +751,8 @@ bool DNS::ForwardLookupWithFD(std::string host, int &fd)
 		
 	}
 	log(DEBUG,"DNS: ForwardLookupWithFD, fd=%d",this->myfd);
-	ServerInstance->SE->AddFd(this->myfd,true,X_ESTAB_MODULE);
+	if (ServerInstance && ServerInstance->SE)
+		ServerInstance->SE->AddFd(this->myfd,true,X_ESTAB_MODULE);
 	return true;
 }
 
@@ -780,13 +787,15 @@ std::string DNS::GetResult()
         result = dns_getresult(this->myfd);
         if (result)
 	{
-		ServerInstance->stats->statsDnsGood++;
+		if (ServerInstance && ServerInstance->stats)
+			ServerInstance->stats->statsDnsGood++;
 		dns_close(this->myfd);
 		return result;
         }
 	else
 	{
-		ServerInstance->stats->statsDnsBad++;
+		if (ServerInstance && ServerInstance->stats)
+			ServerInstance->stats->statsDnsBad++;
 		if (this->myfd != -1)
 		{
 			dns_close(this->myfd);
@@ -806,7 +815,8 @@ std::string DNS::GetResultIP()
 	}
 	if (result)
 	{
-		ServerInstance->stats->statsDnsGood++;
+		if (ServerInstance && ServerInstance->stats)
+			ServerInstance->stats->statsDnsGood++;
 		unsigned char a = (unsigned)result[0];
 		unsigned char b = (unsigned)result[1];
 		unsigned char c = (unsigned)result[2];
@@ -816,7 +826,8 @@ std::string DNS::GetResultIP()
 	}
 	else
 	{
-		ServerInstance->stats->statsDnsBad++;
+		if (ServerInstance && ServerInstance->stats)
+			ServerInstance->stats->statsDnsBad++;
 		log(DEBUG,"DANGER WILL ROBINSON! NXDOMAIN for forward lookup, but we got a reverse lookup!");
 		return "";
 	}
