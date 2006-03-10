@@ -42,7 +42,7 @@ class CullItem
         userrec* user;
 	/** Holds the quit reason to use for this user.
 	 */
-        std::string reason;
+	char* reason;
  public:
 	/** Constrcutor.
 	 * Initializes the CullItem with a user pointer
@@ -52,12 +52,15 @@ class CullItem
 	 */
         CullItem(userrec* u, std::string &r);
 	CullItem(userrec* u, const char* r);
+
+	~CullItem();
+
 	/** Returns a pointer to the user
 	 */
         userrec* GetUser();
 	/** Returns the user's quit reason
 	 */
-        std::string GetReason();
+	const char* GetReason();
 };
 
 /** The CullList class can be used by modules, and is used
