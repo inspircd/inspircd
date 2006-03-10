@@ -95,7 +95,9 @@ CullItem::CullItem(userrec* u, const char* r)
 
 CullItem::~CullItem()
 {
-	free(reason);
+	if (reason)
+		free(reason);
+	reason = NULL;
 }
 
 userrec* CullItem::GetUser()
