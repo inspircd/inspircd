@@ -354,7 +354,7 @@ void ServerConfig::Read(bool bail, userrec* user)
 		{"options",	"allowhalfop",		&this->AllowHalfop,		DT_BOOLEAN, NoValidation},
 		{"dns",		"server",		&this->DNSServer,		DT_CHARPTR, ValidateDnsServer},
 		{"dns",		"timeout",		&this->dns_timeout,		DT_INTEGER, ValidateDnsTimeout},
-		{"options",	"moduledir",		&this->ModPath,			DT_CHARPTR, NoValidation},
+		{"options",	"moduledir",		&this->ModPath,			DT_CHARPTR, ValidateModPath},
 		{"disabled",	"commands",		&this->DisabledCommands,	DT_CHARPTR, NoValidation},
 		{"options",	"operonlystats",	&this->OperOnlyStats,		DT_CHARPTR, NoValidation},
 		{"options",	"customversion",	&this->CustomVersion,		DT_CHARPTR, NoValidation},
