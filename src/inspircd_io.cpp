@@ -316,6 +316,54 @@ bool ValidateRules(const char* tag, const char* value, void* data)
 	return true;
 }
 
+bool InitConnect(const char* tag)
+{
+	log(DEBUG,"InitConnect called for tag: %s",tag);
+	return true;
+}
+
+bool DoConnect(const char* tag, char** entries, void** values, int* types)
+{
+	log(DEBUG,"DoConnect called for tag: %s",tag);
+	return true;
+}
+
+bool DoneConnect(const char* tag)
+{
+	log(DEBUG,"DoneConnect called for tag: %s",tag);
+	return true;
+}
+
+bool InitULine(const char* tag)
+{
+	return true;
+}
+
+bool DoULine(const char* tag, char** entries, void** values, int* types)
+{
+	return true;
+}
+
+bool DoneULine(const char* tag)
+{
+	return true;
+}
+
+bool InitModule(const char* tag)
+{
+	return true;
+}
+
+bool DoModule(const char* tag, char** entries, void** values, int* types)
+{
+	return true;
+}
+
+bool DoneModule(const char* tag)
+{
+	return true;
+}
+
 
 void ServerConfig::Read(bool bail, userrec* user)
 {
@@ -356,6 +404,29 @@ void ServerConfig::Read(bool bail, userrec* user)
 		{"options",	"hidebans",		&this->HideBans,		DT_BOOLEAN, NoValidation},
 		{"options",	"hidewhois",		&this->HideWhoisServer,		DT_CHARPTR, NoValidation},
 		{"options",	"tempdir",		&this->TempDir,			DT_CHARPTR, ValidateTempDir},
+		{"pid",		"file",			&this->PID,			DT_CHARPTR, NoValidation},
+		{NULL}
+	};
+
+	static MultiConfig MultiValues[] = {
+
+		{"connect",
+				{"allow",	"deny",		"password",	"timeout",	"pingfreq"	"flood",
+			        "threshold"	"sendq"		"recvq"		"localmax"	"globalmax",	NULL},
+				{DT_CHARPTR,	DT_CHARPTR,	DT_CHARPTR,	DT_INTEGER,	DT_INTEGER,	DT_INTEGER,
+				 DT_INTEGER,	DT_INTEGER,	DT_INTEGER,	DT_INTEGER,	DT_INTEGER},
+				InitConnect,DoConnect,DoneConnect},
+
+		{"uline",
+				{"server",	NULL},
+				{DT_CHARPTR},
+				InitULine,DoULine,DoneULine},
+
+		{"module",
+				{"name",	NULL},
+				{DT_CHARPTR},
+				InitModule,DoModule,DoneModule},
+
 		{NULL}
 	};
 	
@@ -436,6 +507,55 @@ void ServerConfig::Read(bool bail, userrec* user)
 
 		Values[Index].validation_function(Values[Index].tag, Values[Index].value, Values[Index].val);
 	}
+
+	char* data[12];
+	void* ptr[12];
+	int r_i[12];
+	int* ptr_i[12];
+
+	for (int n = 0; n < 12; n++)
+	{
+		data[n] = new char[MAXBUF];
+		ptr_i[n] = &r_i[n];
+	}
+
+	for (int Index = 0; MultiValues[Index].tag; Index++)
+	{
+		MultiValues[Index].init_function(MultiValues[Index].tag);
+
+		int number_of_tags = ConfValueEnum((char*)MultiValues[Index].tag, &this->config_f);
+
+		for (int tagnum = 0; tagnum < number_of_tags; tagnum++)
+		{
+			for (int valuenum = 0; MultiValues[Index].items[valuenum]; valuenum++)
+			{
+				ConfValue((char*)MultiValues[Index].tag,(char*)MultiValues[Index].items[valuenum], valuenum, data[valuenum], &this->config_f);
+
+				switch (MultiValues[Index].datatype[valuenum])
+				{
+					case DT_CHARPTR:
+						ptr[valuenum] = data[valuenum];
+					break;
+					case DT_INTEGER:
+						*ptr_i[valuenum] = atoi(data[valuenum]);
+						ptr[valuenum] = ptr_i[valuenum];
+					break;
+					case DT_BOOLEAN:
+						*ptr_i[valuenum] = ((*data[valuenum] == tolower('y')) || (*data[valuenum] == tolower('t')) || (*data[valuenum] == '1'));
+						ptr[valuenum] = ptr_i[valuenum];
+					break;
+					default:
+					break;
+				}
+				MultiValues[Index].validation_function(MultiValues[Index].tag, (char**)MultiValues[Index].items, ptr, MultiValues[Index].datatype);
+			}
+		}
+
+		MultiValues[Index].finish_function(MultiValues[Index].tag);
+	}
+
+	for (int n = 0; n < 12; n++)
+		delete[] data[n];
 
 	log(DEFAULT,"Reading connect classes...");
 	Classes.clear();
@@ -533,7 +653,6 @@ void ServerConfig::Read(bool bail, userrec* user)
 	log(DEFAULT,"Applying K lines, Q lines and Z lines...");
 	apply_lines(APPLY_ALL);
 
-	ConfValue("pid","file",0,Config->PID,&Config->config_f);
 	// write once here, to try it out and make sure its ok
 	WritePID(Config->PID);
 

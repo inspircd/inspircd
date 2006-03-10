@@ -33,7 +33,8 @@
 #define NONE 50
 
 typedef bool (*Validator)(const char*, const char*, void*);
-typedef bool (*MultiValidator)(const char*, const char**, void**, int**);
+typedef bool (*MultiValidator)(const char*, char**, void**, int*);
+typedef bool (*MultiNotify)(const char*);
 
 enum ConfigDataType { DT_NOTHING, DT_INTEGER, DT_CHARPTR, DT_BOOLEAN };
 
@@ -46,11 +47,12 @@ struct InitialConfig {
 };
 
 struct MultiConfig {
-	char* tag;
-	char** items;
-	void** values;
-	ConfigDataType** datatype;
-	MultiValidator validation_function;
+	const char* tag;
+	char* items[12];
+	int datatype[12];
+	MultiNotify	init_function;
+	MultiValidator	validation_function;
+	MultiNotify	finish_function;
 };
 
 /** This class holds the bulk of the runtime configuration for the ircd.
