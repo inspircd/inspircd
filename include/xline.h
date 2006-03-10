@@ -123,7 +123,13 @@ class QLine : public XLine
 	bool is_global;
 };
 
-void read_xline_defaults();
+bool InitXLine(const char* tag);
+bool DoneXLine(const char* tag);
+
+bool DoZLine(const char* tag, char** entries, void** values, int* types);
+bool DoQLine(const char* tag, char** entries, void** values, int* types);
+bool DoKLine(const char* tag, char** entries, void** values, int* types);
+bool DoELine(const char* tag, char** entries, void** values, int* types);
 
 bool add_gline(long duration, const char* source, const char* reason, const char* hostmask);
 bool add_qline(long duration, const char* source, const char* reason, const char* nickname);

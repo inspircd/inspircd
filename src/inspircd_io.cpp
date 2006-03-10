@@ -42,6 +42,8 @@ extern int MODCOUNT;
 extern std::vector<Module*> modules;
 extern std::vector<ircd_module*> factory;
 
+std::vector<std::string> old_module_names, new_module_names, added_modules, removed_modules;
+
 ServerConfig::ServerConfig()
 {
 	this->ClearStack();
@@ -318,13 +320,69 @@ bool ValidateRules(const char* tag, const char* value, void* data)
 
 bool InitConnect(const char* tag)
 {
-	log(DEBUG,"InitConnect called for tag: %s",tag);
+	log(DEFAULT,"Reading connect classes...");
+	Config->Classes.clear();
 	return true;
 }
 
 bool DoConnect(const char* tag, char** entries, void** values, int* types)
 {
-	log(DEBUG,"DoConnect called for tag: %s",tag);
+	ConnectClass c;
+	char* allow = (char*)values[0];
+	char* deny = (char*)values[1];
+	char* password = (char*)values[2];
+	int* timeout = (int*)values[3];
+	int* pingfreq = (int*)values[4];
+	int* flood = (int*)values[5];
+	int* threshold = (int*)values[6];
+	int* sendq = (int*)values[7];
+	int* recvq = (int*)values[8];
+	int* localmax = (int*)values[9];
+	int* globalmax = (int*)values[10];
+
+        if (*allow)
+        {
+                c.host = allow;
+                c.type = CC_ALLOW;
+                c.pass = password;
+                c.registration_timeout = *timeout;
+                c.pingtime = *pingfreq;
+                c.flood = *flood;
+                c.threshold = *threshold;
+                c.sendqmax = *sendq;
+                c.recvqmax = *recvq;
+                c.maxlocal = *localmax;
+                c.maxglobal = *globalmax;
+
+
+                if (c.maxlocal == 0)
+			c.maxlocal = 3;
+                if (c.maxglobal == 0)
+			c.maxglobal = 3;
+                if (c.threshold == 0)
+                {
+			c.threshold = 1;
+			c.flood = 999;
+			log(DEFAULT,"Warning: Connect allow line '%s' has no flood/threshold settings. Setting this tag to 999 lines in 1 second.",c.host.c_str());
+                }
+                if (c.sendqmax == 0)
+			c.sendqmax = 262114;
+                if (c.recvqmax == 0)
+			c.recvqmax = 4096;
+                if (c.registration_timeout == 0)
+			c.registration_timeout = 90;
+                if (c.pingtime == 0)
+			c.pingtime = 120;
+                Config->Classes.push_back(c);
+        }
+        else
+        {
+                c.host = deny;
+                c.type = CC_DENY;
+                Config->Classes.push_back(c);
+                log(DEBUG,"Read connect class type DENY, host=%s",deny);
+        }
+
 	return true;
 }
 
@@ -336,11 +394,15 @@ bool DoneConnect(const char* tag)
 
 bool InitULine(const char* tag)
 {
+	Config->ulines.clear();
 	return true;
 }
 
 bool DoULine(const char* tag, char** entries, void** values, int* types)
 {
+	char* server = (char*)values[0];
+	log(DEBUG,"Read ULINE '%s'",server);
+	Config->ulines.push_back(server);
 	return true;
 }
 
@@ -351,27 +413,81 @@ bool DoneULine(const char* tag)
 
 bool InitModule(const char* tag)
 {
+	old_module_names.clear();
+	new_module_names.clear();
+	added_modules.clear();
+	removed_modules.clear();
+	for (std::vector<std::string>::iterator t = module_names.begin(); t != module_names.end(); t++)
+	{
+		old_module_names.push_back(*t);
+	}
 	return true;
 }
 
 bool DoModule(const char* tag, char** entries, void** values, int* types)
 {
+	char* modname = (char*)values[0];
+	new_module_names.push_back(modname);
 	return true;
 }
 
 bool DoneModule(const char* tag)
 {
+        // now create a list of new modules that are due to be loaded
+        // and a seperate list of modules which are due to be unloaded
+        for (std::vector<std::string>::iterator _new = new_module_names.begin(); _new != new_module_names.end(); _new++)
+        {
+                bool added = true;
+
+                for (std::vector<std::string>::iterator old = old_module_names.begin(); old != old_module_names.end(); old++)
+                {
+                        if (*old == *_new)
+                                added = false;
+                }
+
+                if (added)
+                        added_modules.push_back(*_new);
+        }
+
+        for (std::vector<std::string>::iterator oldm = old_module_names.begin(); oldm != old_module_names.end(); oldm++)
+        {
+                bool removed = true;
+                for (std::vector<std::string>::iterator newm = new_module_names.begin(); newm != new_module_names.end(); newm++)
+                {
+                        if (*newm == *oldm)
+                                removed = false;
+                }
+
+                if (removed)
+                        removed_modules.push_back(*oldm);
+        }
 	return true;
 }
 
+bool InitMaxBans(const char* tag)
+{
+	Config->maxbans.clear();
+	return true;
+}
+
+bool DoMaxBans(const char* tag, char** entries, void** values, int* types)
+{
+	char* channel = (char*)values[0];
+	int* limit = (int*)values[1];
+	Config->maxbans[channel] = limit;
+	return true;
+}
+
+bool DoneMaxBans(const char* tag)
+{
+	return true;
+}
 
 void ServerConfig::Read(bool bail, userrec* user)
 {
 	char debug[MAXBUF];
-	char CM1[MAXBUF],CM2[MAXBUF];
-	char ServName[MAXBUF],Value[MAXBUF];
+	char Value[MAXBUF];
 	char dataline[1024];
-	ConnectClass c;
 	std::stringstream errstr;
 
 	static InitialConfig Values[] = {
@@ -411,21 +527,46 @@ void ServerConfig::Read(bool bail, userrec* user)
 	static MultiConfig MultiValues[] = {
 
 		{"connect",
-				{"allow",	"deny",		"password",	"timeout",	"pingfreq"	"flood",
-			        "threshold"	"sendq"		"recvq"		"localmax"	"globalmax",	NULL},
+				{"allow",	"deny",		"password",	"timeout",	"pingfreq",	"flood",
+			        "threshold",	"sendq",	"recvq",	"localmax",	"globalmax",	NULL},
 				{DT_CHARPTR,	DT_CHARPTR,	DT_CHARPTR,	DT_INTEGER,	DT_INTEGER,	DT_INTEGER,
 				 DT_INTEGER,	DT_INTEGER,	DT_INTEGER,	DT_INTEGER,	DT_INTEGER},
-				InitConnect,DoConnect,DoneConnect},
+				InitConnect, DoConnect, DoneConnect},
 
 		{"uline",
 				{"server",	NULL},
 				{DT_CHARPTR},
 				InitULine,DoULine,DoneULine},
 
+		{"banlist",
+				{"chan",	"limit",	NULL},
+				{DT_CHARPTR,	DT_INTEGER},
+				InitMaxBans, DoMaxBans, DoneLastBans},
+
 		{"module",
 				{"name",	NULL},
 				{DT_CHARPTR},
-				InitModule,DoModule,DoneModule},
+				InitModule, DoModule, DoneModule},
+
+		{"badip",
+				{"reason",	"ipmask",	NULL},
+				{DT_CHARPTR,	DT_CHARPTR},
+				InitXLine, DoZLine, DoneXLine},
+
+		{"badnick",
+				{"reason",	"nick",		NULL},
+				{DT_CHARPTR,	DT_CHARPTR},
+				InitXLine, DoQLine, DoneXLine},
+
+		{"badhost",
+				{"reason",	"host",		NULL},
+				{DT_CHARPTR,	DT_CHARPTR},
+				InitXLine, DoKLine, DoneXLine},
+
+		{"exception",
+				{"reason",	"host",		NULL},
+				{DT_CHARPTR,	DT_CHARPTR},
+				InitXLine, DoELine, DoneXLine},
 
 		{NULL}
 	};
@@ -511,13 +652,9 @@ void ServerConfig::Read(bool bail, userrec* user)
 	char* data[12];
 	void* ptr[12];
 	int r_i[12];
-	int* ptr_i[12];
 
 	for (int n = 0; n < 12; n++)
-	{
 		data[n] = new char[MAXBUF];
-		ptr_i[n] = &r_i[n];
-	}
 
 	for (int Index = 0; MultiValues[Index].tag; Index++)
 	{
@@ -529,7 +666,7 @@ void ServerConfig::Read(bool bail, userrec* user)
 		{
 			for (int valuenum = 0; MultiValues[Index].items[valuenum]; valuenum++)
 			{
-				ConfValue((char*)MultiValues[Index].tag,(char*)MultiValues[Index].items[valuenum], valuenum, data[valuenum], &this->config_f);
+				ConfValue((char*)MultiValues[Index].tag,(char*)MultiValues[Index].items[valuenum], tagnum, data[valuenum], &this->config_f);
 
 				switch (MultiValues[Index].datatype[valuenum])
 				{
@@ -537,18 +674,18 @@ void ServerConfig::Read(bool bail, userrec* user)
 						ptr[valuenum] = data[valuenum];
 					break;
 					case DT_INTEGER:
-						*ptr_i[valuenum] = atoi(data[valuenum]);
-						ptr[valuenum] = ptr_i[valuenum];
+						r_i[valuenum] = atoi(data[valuenum]);
+						ptr[valuenum] = &r_i[valuenum];
 					break;
 					case DT_BOOLEAN:
-						*ptr_i[valuenum] = ((*data[valuenum] == tolower('y')) || (*data[valuenum] == tolower('t')) || (*data[valuenum] == '1'));
-						ptr[valuenum] = ptr_i[valuenum];
+						r_i[valuenum] = ((*data[valuenum] == tolower('y')) || (*data[valuenum] == tolower('t')) || (*data[valuenum] == '1'));
+						ptr[valuenum] = &r_i[valuenum];
 					break;
 					default:
 					break;
 				}
-				MultiValues[Index].validation_function(MultiValues[Index].tag, (char**)MultiValues[Index].items, ptr, MultiValues[Index].datatype);
 			}
+			MultiValues[Index].validation_function(MultiValues[Index].tag, (char**)MultiValues[Index].items, ptr, MultiValues[Index].datatype);
 		}
 
 		MultiValues[Index].finish_function(MultiValues[Index].tag);
@@ -557,101 +694,7 @@ void ServerConfig::Read(bool bail, userrec* user)
 	for (int n = 0; n < 12; n++)
 		delete[] data[n];
 
-	log(DEFAULT,"Reading connect classes...");
-	Classes.clear();
-
-	for (int i = 0; i < ConfValueEnum("connect",&Config->config_f); i++)
-	{
-		*Value = 0;
-		ConfValue("connect","allow",i,Value,&Config->config_f);
-		if (*Value)
-		{
-			c.host = Value;
-			c.type = CC_ALLOW;
-			*Value = 0;
-			ConfValue("connect","password",i,Value,&Config->config_f);
-			c.pass = Value;
-			c.registration_timeout = ConfValueInteger("connect","timeout",i,&Config->config_f); // default is 2 minutes
-			c.pingtime = ConfValueInteger("connect","pingfreq",i,&Config->config_f);
-			c.flood = ConfValueInteger("connect","flood",i,&Config->config_f);
-			c.threshold = ConfValueInteger("connect","threshold",i,&Config->config_f);
-			c.sendqmax = ConfValueInteger("connect","sendq",i,&Config->config_f);
-			c.recvqmax = ConfValueInteger("connect","recvq",i,&Config->config_f);
-			c.maxlocal = ConfValueInteger("connect","localmax",i,&Config->config_f);
-			c.maxglobal = ConfValueInteger("connect","globalmax",i,&Config->config_f);
-
-			
-			if (c.maxlocal == 0)
-			{
-				c.maxlocal = 3;
-			}
-
-			if (c.maxglobal == 0)
-			{
-				c.maxglobal = 3;
-			}
-
-			if (c.threshold == 0)
-			{
-				c.threshold = 1;
-				c.flood = 999;
-				log(DEFAULT,"Warning: Connect allow line '%s' has no flood/threshold settings. Setting this tag to 999 lines in 1 second.",c.host.c_str());
-			}
-
-			if (c.sendqmax == 0)
-			{
-				c.sendqmax = 262114;
-			}
-			if (c.recvqmax == 0)
-			{
-				c.recvqmax = 4096;
-			}
-			if (c.registration_timeout == 0)
-			{
-				c.registration_timeout = 90;
-			}
-			if (c.pingtime == 0)
-			{
-				c.pingtime = 120;
-			}
-
-			Classes.push_back(c);
-		}
-		else
-		{
-			ConfValue("connect","deny",i,Value,&Config->config_f);
-			c.host = Value;
-			c.type = CC_DENY;
-			Classes.push_back(c);
-			log(DEBUG,"Read connect class type DENY, host=%s",c.host.c_str());
-		}
-	}
-
-	Config->ulines.clear();
-
-	for (int i = 0; i < ConfValueEnum("uline",&Config->config_f); i++)
-	{   
-		ConfValue("uline","server",i,ServName,&Config->config_f);
-		{
-			log(DEBUG,"Read ULINE '%s'",ServName);
-			Config->ulines.push_back(ServName);
-		}
-	}
-
-	maxbans.clear();
-
-	for (int count = 0; count < Config->ConfValueEnum("banlist",&Config->config_f); count++)
-	{
-		Config->ConfValue("banlist","chan",count,CM1,&Config->config_f);
-		Config->ConfValue("banlist","limit",count,CM2,&Config->config_f);
-		maxbans[CM1] = atoi(CM2);
-	}
-
 	ReadClassesAndTypes();
-	log(DEFAULT,"Reading K lines,Q lines and Z lines from config...");
-	read_xline_defaults();
-	log(DEFAULT,"Applying K lines, Q lines and Z lines...");
-	apply_lines(APPLY_ALL);
 
 	// write once here, to try it out and make sure its ok
 	WritePID(Config->PID);
@@ -661,55 +704,6 @@ void ServerConfig::Read(bool bail, userrec* user)
 	{
 		log(DEFAULT,"Adding and removing modules due to rehash...");
 
-		std::vector<std::string> old_module_names, new_module_names, added_modules, removed_modules;
-
-		// store the old module names
-		for (std::vector<std::string>::iterator t = module_names.begin(); t != module_names.end(); t++)
-		{
-			old_module_names.push_back(*t);
-		}
-
-		// get the new module names
-		for (int count2 = 0; count2 < ConfValueEnum("module",&Config->config_f); count2++)
-		{
-			ConfValue("module","name",count2,Value,&Config->config_f);
-			new_module_names.push_back(Value);
-		}
-
-		// now create a list of new modules that are due to be loaded
-		// and a seperate list of modules which are due to be unloaded
-		for (std::vector<std::string>::iterator _new = new_module_names.begin(); _new != new_module_names.end(); _new++)
-		{
-			bool added = true;
-
-			for (std::vector<std::string>::iterator old = old_module_names.begin(); old != old_module_names.end(); old++)
-			{
-				if (*old == *_new)
-					added = false;
-			}
-
-			if (added)
-				added_modules.push_back(*_new);
-		}
-
-		for (std::vector<std::string>::iterator oldm = old_module_names.begin(); oldm != old_module_names.end(); oldm++)
-		{
-			bool removed = true;
-			for (std::vector<std::string>::iterator newm = new_module_names.begin(); newm != new_module_names.end(); newm++)
-			{
-				if (*newm == *oldm)
-					removed = false;
-			}
-
-			if (removed)
-				removed_modules.push_back(*oldm);
-		}
-
-		/*
-		 * now we have added_modules, a vector of modules to be loaded,
-		 * and removed_modules, a vector of modules
-		 * to be removed.
-		 */
 		int rem = 0, add = 0;
 		if (!removed_modules.empty())
 			for (std::vector<std::string>::iterator removing = removed_modules.begin(); removing != removed_modules.end(); removing++)

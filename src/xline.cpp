@@ -107,43 +107,68 @@ bool KSortComparison ( const KLine one, const KLine two );
 // this way these days, such as qlines against 
 // services nicks, etc.
 
-void read_xline_defaults()
-{
-	char ipmask[MAXBUF];
-	char nick[MAXBUF];
-	char host[MAXBUF];
-	char reason[MAXBUF];
-
-	for (int i = 0; i < Config->ConfValueEnum("badip",&Config->config_f); i++)
+/*	for (int i = 0; i < Config->ConfValueEnum("badip",&Config->config_f); i++)
 	{
 		Config->ConfValue("badip","ipmask",i,ipmask,&Config->config_f);
-		Config->ConfValue("badip","reason",i,reason,&Config->config_f);
-		add_zline(0,"<Config>",reason,ipmask);
-		log(DEBUG,"Read Z line (badip tag): ipmask=%s reason=%s",ipmask,reason);
-	}
-	
-	for (int i = 0; i < Config->ConfValueEnum("badnick",&Config->config_f); i++)
+		Config->ConfValue("badip","reason",i,reason,&Config->config_f);*/
+
+bool InitXLine(const char* tag)
+{
+	return true;
+}
+
+bool DoneXLine(const char* tag)
+{
+	apply_lines(APPLY_ALL);
+	return true;
+}
+
+bool DoZLine(const char* tag, char** entries, void** values, int* types)
+{
+	char* reason = (char*)values[0];
+	char* ipmask = (char*)values[1];
+	add_zline(0,"<Config>",reason,ipmask);
+	log(DEBUG,"Read Z line (badip tag): ipmask=%s reason=%s",ipmask,reason);
+	return true;
+}
+
+/*	for (int i = 0; i < Config->ConfValueEnum("badnick",&Config->config_f); i++)
 	{
 		Config->ConfValue("badnick","nick",i,nick,&Config->config_f);
-		Config->ConfValue("badnick","reason",i,reason,&Config->config_f);
-		add_qline(0,"<Config>",reason,nick);
-		log(DEBUG,"Read Q line (badnick tag): nick=%s reason=%s",nick,reason);
-	}
-	
-	for (int i = 0; i < Config->ConfValueEnum("badhost",&Config->config_f); i++)
+		Config->ConfValue("badnick","reason",i,reason,&Config->config_f);*/
+
+bool DoQLine(const char* tag, char** entries, void** values, int* types)
+{
+	char* reason = (char*)values[0];
+	char* nick = (char*)values[1];
+	add_qline(0,"<Config>",reason,nick);
+	log(DEBUG,"Read Q line (badnick tag): nick=%s reason=%s",nick,reason);
+	return true;
+}
+
+/*	for (int i = 0; i < Config->ConfValueEnum("badhost",&Config->config_f); i++)
 	{
 		Config->ConfValue("badhost","host",i,host,&Config->config_f);
-		Config->ConfValue("badhost","reason",i,reason,&Config->config_f);
-		add_kline(0,"<Config>",reason,host);
-		log(DEBUG,"Read K line (badhost tag): host=%s reason=%s",host,reason);
-	}
-	for (int i = 0; i < Config->ConfValueEnum("exception",&Config->config_f); i++)
+		Config->ConfValue("badhost","reason",i,reason,&Config->config_f);*/
+bool DoKLine(const char* tag, char** entries, void** values, int* types)
+{
+	char* reason = (char*)values[0];
+	char* host = (char*)values[1];
+	add_kline(0,"<Config>",reason,host);
+	log(DEBUG,"Read K line (badhost tag): host=%s reason=%s",host,reason);
+	return true;
+}
+/*	for (int i = 0; i < Config->ConfValueEnum("exception",&Config->config_f); i++)
 	{
 		Config->ConfValue("exception","host",i,host,&Config->config_f);
-		Config->ConfValue("exception","reason",i,reason,&Config->config_f);
-		add_eline(0,"<Config>",reason,host);
-		log(DEBUG,"Read E line (exception tag): host=%s reason=%s",host,reason);
-	}
+		Config->ConfValue("exception","reason",i,reason,&Config->config_f);*/
+bool DoELine(const char* tag, char** entries, void** values, int* types)
+{
+	char* reason = (char*)values[0];
+	char* host = (char*)values[1];
+	add_eline(0,"<Config>",reason,host);
+	log(DEBUG,"Read E line (exception tag): host=%s reason=%s",host,reason);
+	return true;
 }
 
 // adds a g:line
