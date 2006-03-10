@@ -575,7 +575,7 @@ void ServerConfig::Read(bool bail, userrec* user)
 		{"class",
 				{"name",	"commands",	NULL},
 				{DT_CHARPTR,	DT_CHARPTR},
-				InitClasss, DoClass, DoneClassesAndTypes},
+				InitClasses, DoClass, DoneClassesAndTypes},
 
 		{NULL}
 	};
