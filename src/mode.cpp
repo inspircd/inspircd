@@ -1483,6 +1483,20 @@ void ModeParser::ServerMode(char **parameters, int pcnt, userrec *user)
 								{
 									charlcat(dmodes,*i,MAXBUF);
 									charlcat(outpars,*i,53);
+                                                                        switch (*i)
+                                                                        {
+                                                                                case 'i':
+                                                                                        dest->modebits |= UM_INVISIBLE;
+                                                                                break;
+                                                                                case 's':
+                                                                                        dest->modebits |= UM_SERVERNOTICE;
+                                                                                break;
+                                                                                case 'w':
+                                                                                        dest->modebits |= UM_WALLOPS;
+                                                                                break;
+                                                                                default:
+                                                                                break;
+                                                                        }
 								}
 							}
 						}
@@ -1497,6 +1511,20 @@ void ModeParser::ServerMode(char **parameters, int pcnt, userrec *user)
 								{
 									charlcat(outpars,*i,MAXBUF);
 									charremove(dmodes,*i);
+                                                                        switch (*i)
+                                                                        {
+                                                                                case 'i':
+                                                                                        dest->modebits &= ~UM_INVISIBLE;
+                                                                                break;
+                                                                                case 's':
+                                                                                        dest->modebits &= ~UM_SERVERNOTICE;
+                                                                                break;
+                                                                                case 'w':
+                                                                                        dest->modebits &= ~UM_WALLOPS;
+                                                                                break;
+                                                                                default:
+                                                                                break;
+                                                                        }
 								}
 							}
 						}
