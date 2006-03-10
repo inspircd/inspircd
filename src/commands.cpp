@@ -259,7 +259,7 @@ long duration(const char* str)
 
 /* All other ircds when doing this check usually just look for a string of *@* or *. We're smarter than that, though. */
 
-bool host_matches_everyone(std::string mask, userrec* user)
+bool host_matches_everyone(const std::string &mask, userrec* user)
 {
 	char insanemasks[MAXBUF];
 	char buffer[MAXBUF];
@@ -288,7 +288,7 @@ bool host_matches_everyone(std::string mask, userrec* user)
 	return false;
 }
 
-bool ip_matches_everyone(std::string ip, userrec* user)
+bool ip_matches_everyone(const std::string &ip, userrec* user)
 {
 	char insanemasks[MAXBUF];
 	char itrigger[MAXBUF];
@@ -313,7 +313,7 @@ bool ip_matches_everyone(std::string ip, userrec* user)
 	return false;
 }
 
-bool nick_matches_everyone(std::string nick, userrec* user)
+bool nick_matches_everyone(const std::string &nick, userrec* user)
 {
 	char insanemasks[MAXBUF];
 	char itrigger[MAXBUF];
