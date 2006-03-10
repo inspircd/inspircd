@@ -104,6 +104,9 @@ if ($arg eq "-update") {
 if ($arg eq "-svnupdate") {
 	system("svn update");
 	system("perl configure -update");
+	if ($ARGV[1] eq "rebuild") {
+		system("make install");
+	}
 	exit;
 }
 
