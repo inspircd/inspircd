@@ -79,8 +79,13 @@
 #                                                                     #
 #   Enter the port and address bindings here.                         #
 #                                                                     #
-#  bind address - specifies which the address which ports bind        #
-#  port         - opens an unused port                                #
+#  bind address - specifies which the address which ports bind.       #
+#                 may be a hostname or an IP address. Resolution of   #
+#                 hostnames may block for up to one second per IP     #
+#                 as port binding occurs before the socket engine is  #
+#                 initialized and therefore nonblocking DNS is not    #
+#                 available at this point until startup is complete.  #
+#  port         - The port number to bind to                          #
 #  type         - can be 'clients' or 'servers'. The clients type is  #
 #                 a standard tcp based socket, the servers type is a  #
 #                 also a TCP based connection but of a different      #
@@ -100,8 +105,8 @@
 #                                                                     #
 #  Syntax is as follows:                                              #
 #                                                                     #
-# <bind address="ip number" port="port" type="clients">               #
-# <bind address="ip number" port="port" type="servers">               #
+# <bind address="ip or host" port="port" type="clients">              #
+# <bind address="ip or host" port="port" type="servers">              #
 #                                                                     #
 
 <bind address="" port="6660" type="clients">
