@@ -331,6 +331,11 @@ bool ValidateRules(const char* tag, const char* value, void* data)
 void ServerConfig::Read(bool bail, userrec* user)
 {
 	char debug[MAXBUF];
+	char CM1[MAXBUF],CM2[MAXBUF];
+	char ServName[MAXBUF],Value[MAXBUF];
+	char dataline[1024];
+	ConnectClass c;
+	std::stringstream errstr;
 
 	static InitialConfig Values[] = {
 		{"options",	"softlimit",		&this->SoftLimit,		DT_INTEGER, ValidateSoftLimit},
@@ -364,12 +369,6 @@ void ServerConfig::Read(bool bail, userrec* user)
 		{"options",	"tempdir",		&this->TempDir,			DT_CHARPTR, ValidateTempDir},
 		{NULL}
 	};
-
-	//
-	char ServName[MAXBUF],Value[MAXBUF];
-
-	ConnectClass c;
-	std::stringstream errstr;
 	
 	include_stack.clear();
 
@@ -385,8 +384,6 @@ void ServerConfig::Read(bool bail, userrec* user)
 		}
 		else
 		{
-			char dataline[1024];
-
 			if (user)
 			{
 				WriteServ(user->fd,"NOTICE %s :There were errors in the configuration file:",user->nick);
@@ -533,7 +530,6 @@ void ServerConfig::Read(bool bail, userrec* user)
 	}
 
 	maxbans.clear();
-	char CM1[MAXBUF],CM2[MAXBUF];
 
 	for (int count = 0; count < Config->ConfValueEnum("banlist",&Config->config_f); count++)
 	{
