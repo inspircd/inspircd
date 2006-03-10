@@ -473,6 +473,7 @@ void CheckDie()
 void LoadAllModules(InspIRCd* ServerInstance)
 {
 	char configToken[MAXBUF];
+	Config->module_names.clear();
 
 	MODCOUNT = -1;
 

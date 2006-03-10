@@ -318,6 +318,8 @@ bool ValidateRules(const char* tag, const char* value, void* data)
 	return true;
 }
 
+/* Callback called before processing the first <connect> tag
+ */
 bool InitConnect(const char* tag)
 {
 	log(DEFAULT,"Reading connect classes...");
@@ -325,10 +327,12 @@ bool InitConnect(const char* tag)
 	return true;
 }
 
+/* Callback called to process a single <connect> tag
+ */
 bool DoConnect(const char* tag, char** entries, void** values, int* types)
 {
 	ConnectClass c;
-	char* allow = (char*)values[0];
+	char* allow = (char*)values[0]; /* Yeah, there are a lot of values. Live with it. */
 	char* deny = (char*)values[1];
 	char* password = (char*)values[2];
 	int* timeout = (int*)values[3];
@@ -386,18 +390,24 @@ bool DoConnect(const char* tag, char** entries, void** values, int* types)
 	return true;
 }
 
+/* Callback called when there are no more <connect> tags
+ */
 bool DoneConnect(const char* tag)
 {
 	log(DEBUG,"DoneConnect called for tag: %s",tag);
 	return true;
 }
 
+/* Callback called before processing the first <uline> tag
+ */
 bool InitULine(const char* tag)
 {
 	Config->ulines.clear();
 	return true;
 }
 
+/* Callback called to process a single <uline> tag
+ */
 bool DoULine(const char* tag, char** entries, void** values, int* types)
 {
 	char* server = (char*)values[0];
@@ -406,11 +416,15 @@ bool DoULine(const char* tag, char** entries, void** values, int* types)
 	return true;
 }
 
+/* Callback called when there are no more <uline> tags
+ */
 bool DoneULine(const char* tag)
 {
 	return true;
 }
 
+/* Callback called before processing the first <module> tag
+ */
 bool InitModule(const char* tag)
 {
 	old_module_names.clear();
@@ -424,6 +438,8 @@ bool InitModule(const char* tag)
 	return true;
 }
 
+/* Callback called to process a single <module> tag
+ */
 bool DoModule(const char* tag, char** entries, void** values, int* types)
 {
 	char* modname = (char*)values[0];
@@ -431,6 +447,8 @@ bool DoModule(const char* tag, char** entries, void** values, int* types)
 	return true;
 }
 
+/* Callback called when there are no more <module> tags
+ */
 bool DoneModule(const char* tag)
 {
         // now create a list of new modules that are due to be loaded
@@ -464,12 +482,16 @@ bool DoneModule(const char* tag)
 	return true;
 }
 
+/* Callback called before processing the first <banlist> tag
+ */
 bool InitMaxBans(const char* tag)
 {
 	Config->maxbans.clear();
 	return true;
 }
 
+/* Callback called to process a single <banlist> tag
+ */
 bool DoMaxBans(const char* tag, char** entries, void** values, int* types)
 {
 	char* channel = (char*)values[0];
@@ -478,6 +500,8 @@ bool DoMaxBans(const char* tag, char** entries, void** values, int* types)
 	return true;
 }
 
+/* Callback called when there are no more <banlist> tags.
+ */
 bool DoneMaxBans(const char* tag)
 {
 	return true;
@@ -485,10 +509,19 @@ bool DoneMaxBans(const char* tag)
 
 void ServerConfig::Read(bool bail, userrec* user)
 {
-	char debug[MAXBUF];
-	char dataline[1024];
-	std::stringstream errstr;
+	char debug[MAXBUF];		/* Temporary buffer for debugging value */
+	char dataline[1024];		/* Temporary buffer for error output */
+	char* convert;			/* Temporary buffer used for reading singular values into */
+	char* data[12];			/* Temporary buffers for reading multiple occurance tags into */
+	void* ptr[12];			/* Temporary pointers for passing to callbacks */
+	int r_i[12];			/* Temporary array for casting */
+	int rem = 0, add = 0;		/* Number of modules added, number of modules removed */
+	std::stringstream errstr;	/* String stream containing the error output */
 
+	/* These tags MUST occur and must ONLY occur once in the config file */
+	static char* Once[] = { "server", "admin", "files", "power", "options", "pid" };
+
+	/* These tags can occur ONCE or not at all */
 	static InitialConfig Values[] = {
 		{"options",	"softlimit",		&this->SoftLimit,		DT_INTEGER, ValidateSoftLimit},
 		{"options",	"somaxconn",		&this->MaxConn,			DT_INTEGER, ValidateMaxConn},
@@ -523,6 +556,9 @@ void ServerConfig::Read(bool bail, userrec* user)
 		{NULL}
 	};
 
+	/* These tags can occur multiple times, and therefore they have special code to read them
+	 * which is different to the code for reading the singular tags listed above.
+	 */
 	static MultiConfig MultiValues[] = {
 
 		{"connect",
@@ -579,9 +615,11 @@ void ServerConfig::Read(bool bail, userrec* user)
 
 		{NULL}
 	};
-	
+
 	include_stack.clear();
 
+	/* Initially, load the config into memory, bail if there are errors
+	 */
 	if (!LoadConf(CONFIG_FILE,&Config->config_f,&errstr))
 	{
 		errstr.seekg(0);
@@ -617,15 +655,14 @@ void ServerConfig::Read(bool bail, userrec* user)
 		}
 	}
 
-	/* Check we dont have more than one of singular tags
+	/* Check we dont have more than one of singular tags, or any of them missing
 	 */
-	if (!CheckOnce("server",bail,user) || !CheckOnce("admin",bail,user) || !CheckOnce("files",bail,user)
-		|| !CheckOnce("power",bail,user) || !CheckOnce("options",bail,user) || !CheckOnce("pid",bail,user))
-	{
-		return;
-	}
+	for (int Index = 0; Once[Index]; Index++)
+		if (!CheckOnce(Once[Index],bail,user))
+			return;
 
-	char* convert;
+	/* Read the values of all the tags which occur once or not at all, and call their callbacks.
+	 */
 	for (int Index = 0; Values[Index].tag; Index++)
 	{
 		int* val_i = (int*) Values[Index].val;
@@ -658,13 +695,15 @@ void ServerConfig::Read(bool bail, userrec* user)
 		Values[Index].validation_function(Values[Index].tag, Values[Index].value, Values[Index].val);
 	}
 
-	char* data[12];
-	void* ptr[12];
-	int r_i[12];
-
+	/* Claim memory for use when reading multiple tags
+	 */
 	for (int n = 0; n < 12; n++)
 		data[n] = new char[MAXBUF];
 
+	/* Read the multiple-tag items (class tags, connect tags, etc)
+	 * and call the callbacks associated with them. We have three
+	 * callbacks for these, a 'start', 'item' and 'end' callback.
+	 */
 	for (int Index = 0; MultiValues[Index].tag; Index++)
 	{
 		MultiValues[Index].init_function(MultiValues[Index].tag);
@@ -700,6 +739,8 @@ void ServerConfig::Read(bool bail, userrec* user)
 		MultiValues[Index].finish_function(MultiValues[Index].tag);
 	}
 
+	/* Free any memory we claimed
+	 */
 	for (int n = 0; n < 12; n++)
 		delete[] data[n];
 
@@ -707,11 +748,11 @@ void ServerConfig::Read(bool bail, userrec* user)
 	WritePID(Config->PID);
 
 	log(DEFAULT,"Done reading configuration file, InspIRCd is now starting.");
+
+	/* If we're rehashing, let's load any new modules, and unload old ones
+	 */
 	if (!bail)
 	{
-		log(DEFAULT,"Adding and removing modules due to rehash...");
-
-		int rem = 0, add = 0;
 		if (!removed_modules.empty())
 			for (std::vector<std::string>::iterator removing = removed_modules.begin(); removing != removed_modules.end(); removing++)
 			{
@@ -753,7 +794,6 @@ void ServerConfig::Read(bool bail, userrec* user)
 		log(DEFAULT,"Successfully unloaded %lu of %lu modules and loaded %lu of %lu modules.",(unsigned long)rem,(unsigned long)removed_modules.size(),(unsigned long)add,(unsigned long)added_modules.size());
 	}
 }
-
 
 void Exit (int status)
 {
