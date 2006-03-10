@@ -106,7 +106,7 @@ bool DoClass(const char* tag, char** entries, void** values, int* types)
 	return true;
 }
 
-bool DoneClassesAndTypes()
+bool DoneClassesAndTypes(const char* tag)
 {
 	return true;
 }
