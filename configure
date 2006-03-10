@@ -101,6 +101,12 @@ if ($arg eq "-update") {
 	}
 }
 
+if ($arg eq "-svnupdate") {
+	system("svn update");
+	system("perl configure -update");
+	exit;
+}
+
 if ($arg eq "-modupdate") {
 	# Does the cache file exist?
 	if (!getcache()) {
