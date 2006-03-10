@@ -336,7 +336,7 @@ void ServerConfig::Read(bool bail, userrec* user)
 		{"options",	"softlimit",		&this->SoftLimit,		DT_INTEGER, ValidateSoftLimit},
 		{"options",	"somaxconn",		&this->MaxConn,			DT_INTEGER, ValidateMaxConn},
 		{"server",	"name",			&this->ServerName,		DT_CHARPTR, ValidateServerName},
-		{"server",	"description",		&this->ServerDesc,		DT_CHARPTR, ValidateServerName},
+		{"server",	"description",		&this->ServerDesc,		DT_CHARPTR, NoValidation},
 		{"server",	"network",		&this->Network,			DT_CHARPTR, NoValidation},
 		{"admin",	"name",			&this->AdminName,		DT_CHARPTR, NoValidation},
 		{"admin",	"email",		&this->AdminEmail,		DT_CHARPTR, NoValidation},
