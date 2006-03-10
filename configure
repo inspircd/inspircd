@@ -102,6 +102,12 @@ if ($arg eq "-update") {
 }
 
 if ($arg eq "-svnupdate") {
+	my $fail = 0;
+	open(FH,"<.svn/entries") or $fail = 1;
+	if ($fail) {
+		print "This is not an SVN copy of InspIRCd.\n";
+		exit;
+	}
 	system("svn update");
 	system("perl configure -update");
 	if ($ARGV[1] eq "rebuild") {
