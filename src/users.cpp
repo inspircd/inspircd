@@ -62,35 +62,53 @@ typedef opertype_t operclass_t;
 opertype_t opertypes;
 operclass_t operclass;
 
-void ReadClassesAndTypes()
+bool InitTypes(const char* tag)
 {
-	char TypeName[MAXBUF],Classes[MAXBUF],ClassName[MAXBUF],CommandList[MAXBUF];
 	for (opertype_t::iterator n = opertypes.begin(); n != opertypes.end(); n++)
 	{
 		if (n->second)
 			delete[] n->second;
 	}
+	opertypes.clear();
+	return true;
+}
+
+bool InitClasses(const char* tag)
+{
 	for (operclass_t::iterator n = operclass.begin(); n != operclass.end(); n++)
 	{
 		if (n->second)
 			delete[] n->second;
 	}
-	opertypes.clear();
 	operclass.clear();
-	for (int j =0; j < Config->ConfValueEnum("type",&Config->config_f); j++)
-	{
-		Config->ConfValue("type","name",j,TypeName,&Config->config_f);
-		Config->ConfValue("type","classes",j,Classes,&Config->config_f);
-		opertypes[TypeName] = strdup(Classes);
-		log(DEBUG,"Read oper TYPE '%s' with classes '%s'",TypeName,Classes);
-	}
-	for (int k =0; k < Config->ConfValueEnum("class",&Config->config_f); k++)
-	{
-		Config->ConfValue("class","name",k,ClassName,&Config->config_f);
-		Config->ConfValue("class","commands",k,CommandList,&Config->config_f);
-		operclass[ClassName] = strdup(CommandList);
-		log(DEBUG,"Read oper CLASS '%s' with commands '%s'",ClassName,CommandList);
-	}
+	return true;
+}
+
+bool DoType(const char* tag, char** entries, void** values, int* types)
+{
+	char* TypeName = (char*)values[0];
+	char* Classes = (char*)values[1];
+	/*Config->ConfValue("type","name",j,TypeName,&Config->config_f);
+	Config->ConfValue("type","classes",j,Classes,&Config->config_f);*/
+	opertypes[TypeName] = strdup(Classes);
+	log(DEBUG,"Read oper TYPE '%s' with classes '%s'",TypeName,Classes);
+	return true;
+}
+
+bool DoClass(const char* tag, char** entries, void** values, int* types)
+{
+	char* ClassName = (char*)values[0];
+	char* CommandList = (char*)values[1];
+	/*Config->ConfValue("class","name",k,ClassName,&Config->config_f);
+	Config->ConfValue("class","commands",k,CommandList,&Config->config_f);*/
+	operclass[ClassName] = strdup(CommandList);
+	log(DEBUG,"Read oper CLASS '%s' with commands '%s'",ClassName,CommandList);
+	return true;
+}
+
+bool DoneClassesAndTypes()
+{
+	return true;
 }
 
 template<typename T> inline string ConvToStr(const T &in)

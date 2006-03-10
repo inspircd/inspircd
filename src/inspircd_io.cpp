@@ -567,6 +567,16 @@ void ServerConfig::Read(bool bail, userrec* user)
 				{DT_CHARPTR,	DT_CHARPTR},
 				InitXLine, DoELine, DoneXLine},
 
+		{"type",
+				{"name",	"classes",	NULL},
+				{DT_CHARPTR,	DT_CHARPTR},
+				InitTypes, DoType, DoneClassesAndTypes},
+
+		{"class",
+				{"name",	"commands",	NULL},
+				{DT_CHARPTR,	DT_CHARPTR},
+				InitClasss, DoClass, DoneClassesAndTypes},
+
 		{NULL}
 	};
 	
@@ -692,8 +702,6 @@ void ServerConfig::Read(bool bail, userrec* user)
 
 	for (int n = 0; n < 12; n++)
 		delete[] data[n];
-
-	ReadClassesAndTypes();
 
 	// write once here, to try it out and make sure its ok
 	WritePID(Config->PID);

@@ -364,9 +364,6 @@ class WhoWasGroup
 typedef std::deque<WhoWasGroup*> whowas_set;
 typedef std::map<irc::string,whowas_set*> whowas_users;
 
-/** A lightweight userrec used by WHOWAS
- */
-
 void AddOper(userrec* user);
 void DeleteOper(userrec* user);
 void kill_link(userrec *user,const char* r);
@@ -377,6 +374,12 @@ void AddClient(int socket, int port, bool iscached, in_addr ip4);
 void FullConnectUser(userrec* user, CullList* Goners);
 userrec* ReHashNick(char* Old, char* New);
 void force_nickchange(userrec* user,const char* newnick);
-void ReadClassesAndTypes();
+
+/* Configuration callbacks */
+bool InitTypes(const char* tag);
+bool InitClasses(const char* tag);
+bool DoType(const char* tag, char** entries, void** values, int* types);
+bool DoClass(const char* tag, char** entries, void** values, int* types);
+bool DoneClassesAndTypes(const char* tag);
 
 #endif
