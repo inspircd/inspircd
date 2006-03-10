@@ -41,7 +41,6 @@ void WriteCommon(userrec *u, char* text, ...);
 void WriteCommonExcept(userrec *u, char* text, ...);
 void WriteWallOps(userrec *source, bool local_only, char* text, ...);
 int isnick(const char *n);
-userrec* Find(std::string nick);
 chanrec* FindChan(const char* chan);
 void readfile(file_cache &F, const char* fname);
 
