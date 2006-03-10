@@ -60,7 +60,7 @@ class CullItem
         userrec* GetUser();
 	/** Returns the user's quit reason
 	 */
-	const char* GetReason();
+	std::string& GetReason();
 };
 
 /** The CullList class can be used by modules, and is used

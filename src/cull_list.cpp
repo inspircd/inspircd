@@ -84,20 +84,17 @@ bool CullList::IsValid(userrec* user)
 CullItem::CullItem(userrec* u, std::string &r)
 {
         this->user = u;
-        this->reason = strdup(r.c_str());
+        this->reason = r;
 }
 
 CullItem::CullItem(userrec* u, const char* r)
 {
 	this->user = u;
-	this->reason = strdup(r);
+	this->reason = r;
 }
 
 CullItem::~CullItem()
 {
-	if (reason)
-		free(reason);
-	reason = NULL;
 }
 
 userrec* CullItem::GetUser()
@@ -105,7 +102,7 @@ userrec* CullItem::GetUser()
         return this->user;
 }
 
-const char* CullItem::GetReason()
+std::string& CullItem::GetReason()
 {
         return this->reason;
 }
@@ -152,7 +149,7 @@ int CullList::Apply()
 		 */
 		if (IsValid(u))
 		{
-			kill_link(u,a->GetReason());
+			kill_link(u,a->GetReason().c_str());
 			list.erase(list.begin());
 			/* So that huge numbers of quits dont block,
 			 * we yield back to our mainloop every 15
