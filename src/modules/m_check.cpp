@@ -21,6 +21,7 @@ using namespace std;
 #include "modules.h"
 #include "message.h"
 #include "commands.h"
+#include "inspircd.h"
 
 /* $ModDesc: Provides the /check command to retrieve information on a user, channel, or IP address */
 
