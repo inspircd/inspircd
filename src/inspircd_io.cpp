@@ -417,7 +417,7 @@ bool InitModule(const char* tag)
 	new_module_names.clear();
 	added_modules.clear();
 	removed_modules.clear();
-	for (std::vector<std::string>::iterator t = module_names.begin(); t != module_names.end(); t++)
+	for (std::vector<std::string>::iterator t = Config->module_names.begin(); t != Config->module_names.end(); t++)
 	{
 		old_module_names.push_back(*t);
 	}
@@ -474,7 +474,7 @@ bool DoMaxBans(const char* tag, char** entries, void** values, int* types)
 {
 	char* channel = (char*)values[0];
 	int* limit = (int*)values[1];
-	Config->maxbans[channel] = limit;
+	Config->maxbans[channel] = *limit;
 	return true;
 }
 
@@ -486,7 +486,6 @@ bool DoneMaxBans(const char* tag)
 void ServerConfig::Read(bool bail, userrec* user)
 {
 	char debug[MAXBUF];
-	char Value[MAXBUF];
 	char dataline[1024];
 	std::stringstream errstr;
 
@@ -541,7 +540,7 @@ void ServerConfig::Read(bool bail, userrec* user)
 		{"banlist",
 				{"chan",	"limit",	NULL},
 				{DT_CHARPTR,	DT_INTEGER},
-				InitMaxBans, DoMaxBans, DoneLastBans},
+				InitMaxBans, DoMaxBans, DoneMaxBans},
 
 		{"module",
 				{"name",	NULL},
