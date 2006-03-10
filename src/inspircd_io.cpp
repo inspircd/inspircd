@@ -5,7 +5,7 @@
  *  InspIRCd is copyright (C) 2002-2006 ChatSpike-Dev.
  *                       E-mail:
  *                <brain@chatspike.net>
- *           	  <Craig@chatspike.net>
+ *                <Craig@chatspike.net>
  *     
  * Written by Craig Edwards, Craig McLure, and others.
  * This program is free but copyrighted software; see
@@ -158,95 +158,95 @@ bool NoValidation(const char* tag, const char* value, void* data)
 bool ValidateTempDir(const char* tag, const char* value, void* data)
 {
 	char* x = (char*)data;
-        if (!*x)
-               strlcpy(x,"/tmp",1024);
+	if (!*x)
+		strlcpy(x,"/tmp",1024);
 	return true;
 }
  
 bool ValidateMaxTargets(const char* tag, const char* value, void* data)
 {
 	int* x = (int*)data;
-        if ((*x < 0) || (*x > 31))
-        {
-                log(DEFAULT,"WARNING: <options:maxtargets> value is greater than 31 or less than 0, set to 20.");
-                *x = 20;
-        }
+	if ((*x < 0) || (*x > 31))
+	{
+		log(DEFAULT,"WARNING: <options:maxtargets> value is greater than 31 or less than 0, set to 20.");
+		*x = 20;
+	}
 	return true;
 }
 
 bool ValidateSoftLimit(const char* tag, const char* value, void* data)
 {
 	int* x = (int*)data;	
-        if ((*x < 1) || (*x > MAXCLIENTS))
-        {
-                log(DEFAULT,"WARNING: <options:softlimit> value is greater than %d or less than 0, set to %d.",MAXCLIENTS,MAXCLIENTS);
-                *x = MAXCLIENTS;
-        }
+	if ((*x < 1) || (*x > MAXCLIENTS))
+	{
+		log(DEFAULT,"WARNING: <options:softlimit> value is greater than %d or less than 0, set to %d.",MAXCLIENTS,MAXCLIENTS);
+		*x = MAXCLIENTS;
+	}
 	return true;
 }
 
 bool ValidateMaxConn(const char* tag, const char* value, void* data)
 {
 	int* x = (int*)data;	
-        if (*x > SOMAXCONN)
-                log(DEFAULT,"WARNING: <options:somaxconn> value may be higher than the system-defined SOMAXCONN value!");
-        if (!*x)
-                *x = SOMAXCONN;
+	if (*x > SOMAXCONN)
+		log(DEFAULT,"WARNING: <options:somaxconn> value may be higher than the system-defined SOMAXCONN value!");
+	if (!*x)
+		*x = SOMAXCONN;
 	return true;
 }
 
 bool ValidateDnsTimeout(const char* tag, const char* value, void* data)
 {
 	int* x = (int*)data;
-        if (!*x)
-                *x = 5;
+	if (!*x)
+		*x = 5;
 	return true;
 }
 
 bool ValidateDnsServer(const char* tag, const char* value, void* data)
 {
 	char* x = (char*)data;
-        if (!*x)
-        {
-                // attempt to look up their nameserver from /etc/resolv.conf
-                log(DEFAULT,"WARNING: <dns:server> not defined, attempting to find working server in /etc/resolv.conf...");
-                ifstream resolv("/etc/resolv.conf");
-                std::string nameserver;
-                bool found_server = false;
-         
-                if (resolv.is_open())
-                {
-                        while (resolv >> nameserver)
-                        {
-                                if ((nameserver == "nameserver") && (!found_server))
-                                {
-                                        resolv >> nameserver;
-                                        strlcpy(x,nameserver.c_str(),MAXBUF);
-                                        found_server = true;
-                                        log(DEFAULT,"<dns:server> set to '%s' as first resolver in /etc/resolv.conf.",nameserver.c_str());
-                                }
-                        }
-                                
-                        if (!found_server)
-                        {
-                                log(DEFAULT,"/etc/resolv.conf contains no viable nameserver entries! Defaulting to nameserver '127.0.0.1'!");
-                                strlcpy(x,"127.0.0.1",MAXBUF);
-                        }
-                }
-                else
-                {
-                        log(DEFAULT,"/etc/resolv.conf can't be opened! Defaulting to nameserver '127.0.0.1'!");
-                        strlcpy(x,"127.0.0.1",MAXBUF);
-                }
-        }
+	if (!*x)
+	{
+		// attempt to look up their nameserver from /etc/resolv.conf
+		log(DEFAULT,"WARNING: <dns:server> not defined, attempting to find working server in /etc/resolv.conf...");
+		ifstream resolv("/etc/resolv.conf");
+		std::string nameserver;
+		bool found_server = false;
+
+		if (resolv.is_open())
+		{
+			while (resolv >> nameserver)
+			{
+				if ((nameserver == "nameserver") && (!found_server))
+				{
+					resolv >> nameserver;
+					strlcpy(x,nameserver.c_str(),MAXBUF);
+					found_server = true;
+					log(DEFAULT,"<dns:server> set to '%s' as first resolver in /etc/resolv.conf.",nameserver.c_str());
+				}
+			}
+
+			if (!found_server)
+			{
+				log(DEFAULT,"/etc/resolv.conf contains no viable nameserver entries! Defaulting to nameserver '127.0.0.1'!");
+				strlcpy(x,"127.0.0.1",MAXBUF);
+			}
+		}
+		else
+		{
+			log(DEFAULT,"/etc/resolv.conf can't be opened! Defaulting to nameserver '127.0.0.1'!");
+			strlcpy(x,"127.0.0.1",MAXBUF);
+		}
+	}
 	return true;
 }
 
 bool ValidateModPath(const char* tag, const char* value, void* data)
 {
 	char* x = (char*)data;	
-        if (!*x)
-                strlcpy(x,MOD_PATH,MAXBUF);
+	if (!*x)
+		strlcpy(x,MOD_PATH,MAXBUF);
 	return true;
 }
 
@@ -256,62 +256,62 @@ bool ValidateServerName(const char* tag, const char* value, void* data)
 	char* x = (char*)data;
 	if (!strchr(x,'.'))
 	{
-                log(DEFAULT,"WARNING: <server:name> '%s' is not a fully-qualified domain name. Changed to '%s%c'",x,x,'.');
-                charlcat(x,'.',MAXBUF);
-        }
+		log(DEFAULT,"WARNING: <server:name> '%s' is not a fully-qualified domain name. Changed to '%s%c'",x,x,'.');
+		charlcat(x,'.',MAXBUF);
+	}
 	strlower(x);
 	return true;
 }
 
 bool ValidateNetBufferSize(const char* tag, const char* value, void* data)
 {
-        if ((!Config->NetBufferSize) || (Config->NetBufferSize > 65535) || (Config->NetBufferSize < 1024))
-        {
-                log(DEFAULT,"No NetBufferSize specified or size out of range, setting to default of 10240.");
-                Config->NetBufferSize = 10240;
-        }
+	if ((!Config->NetBufferSize) || (Config->NetBufferSize > 65535) || (Config->NetBufferSize < 1024))
+	{
+		log(DEFAULT,"No NetBufferSize specified or size out of range, setting to default of 10240.");
+		Config->NetBufferSize = 10240;
+	}
 	return true;
 }
 
 bool ValidateMaxWho(const char* tag, const char* value, void* data)
 {
-        if ((!Config->MaxWhoResults) || (Config->MaxWhoResults > 65535) || (Config->MaxWhoResults < 1))
-        {
-                log(DEFAULT,"No MaxWhoResults specified or size out of range, setting to default of 128.");
-                Config->MaxWhoResults = 128;
-        }
+	if ((!Config->MaxWhoResults) || (Config->MaxWhoResults > 65535) || (Config->MaxWhoResults < 1))
+	{
+		log(DEFAULT,"No MaxWhoResults specified or size out of range, setting to default of 128.");
+		Config->MaxWhoResults = 128;
+	}
 	return true;
 }
 
 bool ValidateLogLevel(const char* tag, const char* value, void* data)
 {
 	const char* dbg = (const char*)data;
-        Config->LogLevel = DEFAULT;                        
-        if (!strcmp(dbg,"debug"))
-        {
-                Config->LogLevel = DEBUG;
-                Config->debugging = 1;
-        }
-        else if (!strcmp(dbg,"verbose"))
-                Config->LogLevel = VERBOSE;
-        else if (!strcmp(dbg,"default"))
-                Config->LogLevel = DEFAULT;
-        else if (!strcmp(dbg,"sparse"))
-                Config->LogLevel = SPARSE;
-        else if (!strcmp(dbg,"none"))
-                Config->LogLevel = NONE;
+	Config->LogLevel = DEFAULT;
+	if (!strcmp(dbg,"debug"))
+	{
+		Config->LogLevel = DEBUG;
+		Config->debugging = 1;
+	}
+	else if (!strcmp(dbg,"verbose"))
+		Config->LogLevel = VERBOSE;
+	else if (!strcmp(dbg,"default"))
+		Config->LogLevel = DEFAULT;
+	else if (!strcmp(dbg,"sparse"))
+		Config->LogLevel = SPARSE;
+	else if (!strcmp(dbg,"none"))
+		Config->LogLevel = NONE;
 	return true;
 }
 
 bool ValidateMotd(const char* tag, const char* value, void* data)
 {
-        readfile(Config->MOTD,Config->motd);
+	readfile(Config->MOTD,Config->motd);
 	return true;
 }
 
 bool ValidateRules(const char* tag, const char* value, void* data)
 {
-        readfile(Config->RULES,Config->rules);
+	readfile(Config->RULES,Config->rules);
 	return true;
 }
 
@@ -780,6 +780,8 @@ std::string ServerConfig::ConfProcess(char* buffer, long linenumber, std::string
 	long number_of_equals = 0;
 	bool has_open_bracket = false;
 	bool in_quotes = false;
+	char* trailing;
+
 	error = false;
 	if (!buffer)
 	{
@@ -790,61 +792,62 @@ std::string ServerConfig::ConfProcess(char* buffer, long linenumber, std::string
 		if (*d == 9)
 			*d = ' ';
 	while (*buffer == ' ') buffer++;
-	while ((buffer[strlen(buffer)-1] == ' ') && (*buffer)) buffer[strlen(buffer)-1] = '\0';
+	trailing = buffer + strlen(buffer) - 1;
+	while (*trailing == ' ') *trailing-- = '\0';
 
 	// empty lines are syntactically valid, as are comments
 	if (!(*buffer) || buffer[0] == '#')
 		return "";
 
-	for (unsigned int c = 0; c < strlen(buffer); c++)
+	for (char* c = buffer; *c; c++)
 	{
 		// convert all spaces that are OUTSIDE quotes into hardspace (0xA0) as this will make them easier to
 		// search and replace later :)
-		if ((!in_quotes) && (buffer[c] == ' '))
-			buffer[c] = '\xA0';
-		if ((buffer[c] == '<') && (!in_quotes))
+		if ((!in_quotes) && (*c == ' '))
+			*c = '\xA0';
+		if ((*c == '<') && (!in_quotes))
 		{
 			has_open_bracket = true;
-			if (strlen(buffer) == 1)
+			if (!(*(buffer+1)))
 			{
 				*errorstream << "Tag without identifier at " << filename << ":" << linenumber << endl;
 				error = true;
 				return "";
 			}
-			else if ((tolower(buffer[c+1]) < 'a') || (tolower(buffer[c+1]) > 'z'))
+			else if ((tolower(*(c+1)) < 'a') || (tolower(*(c+1)) > 'z'))
 			{
 				*errorstream << "Invalid characters in identifier at " << filename << ":" << linenumber << endl;
 				error = true;
 				return "";
 			}
 		}
-		if (buffer[c] == '"')
+		if (*c == '"')
 		{
 			number_of_quotes++;
 			in_quotes = (!in_quotes);
 		}
-		if ((buffer[c] == '=') && (!in_quotes))
+		if ((*c == '=') && (!in_quotes))
 		{
 			number_of_equals++;
-			if (strlen(buffer) == c)
+			if (*(c+1) == 0)
 			{
 				*errorstream << "Variable without a value at " << filename << ":" << linenumber << endl;
 				error = true;
 				return "";
 			}
-			else if (buffer[c+1] != '"')
+			else if (*(c+1) != '"')
 			{
 				*errorstream << "Variable name not followed immediately by its value at " << filename << ":" << linenumber << endl;
 				error = true;
 				return "";
 			}
-			else if (!c)
+			else if (c == buffer)
 			{
 				*errorstream << "Value without a variable (line starts with '=') at " << filename << ":" << linenumber << endl;
 				error = true;
 				return "";
 			}
-			else if (buffer[c-1] == '\xA0')
+			else if (*(c-1) == '\xA0')
 			{
 				*errorstream << "Variable name not followed immediately by its value at " << filename << ":" << linenumber << endl;
 				error = true;
@@ -853,7 +856,7 @@ std::string ServerConfig::ConfProcess(char* buffer, long linenumber, std::string
 		}
 	}
 	// no quotes, and no equals. something freaky.
-	if ((!number_of_quotes) || (!number_of_equals) && (strlen(buffer)>2) && (buffer[0]=='<'))
+	if ((!number_of_quotes) || (!number_of_equals) && (strlen(buffer)>2) && (*buffer == '<'))
 	{
 		*errorstream << "Malformed tag at " << filename << ":" << linenumber << endl;
 		error = true;
@@ -895,16 +898,20 @@ std::string ServerConfig::ConfProcess(char* buffer, long linenumber, std::string
 
 int ServerConfig::fgets_safe(char* buffer, size_t maxsize, FILE* &file)
 {
-	char c_read = '\0';
-	unsigned int bufptr = 0;
-	while ((!feof(file)) && (c_read != '\n') && (c_read != '\r') && (bufptr < maxsize))
+	char c_read = 0;
+	size_t n = 0;
+	char* bufptr = buffer;
+	while ((!feof(file)) && (c_read != '\n') && (c_read != '\r') && (n < maxsize))
 	{
 		c_read = fgetc(file);
 		if ((c_read != '\n') && (c_read != '\r'))
-			buffer[bufptr++] = c_read;
+		{
+			*bufptr++ = c_read;
+			n++;
+		}
 	}
-	buffer[bufptr] = '\0';
-	return bufptr;
+	*bufptr = 0;
+	return bufptr - buffer;
 }
 
 bool ServerConfig::LoadConf(const char* filename, std::stringstream *target, std::stringstream* errorstream)
@@ -938,7 +945,7 @@ bool ServerConfig::LoadConf(const char* filename, std::stringstream *target, std
 		{
 			if (fgets_safe(buffer, MAXBUF, conf))
 			{
-				if ((!feof(conf)) && (buffer) && (strlen(buffer)))
+				if ((!feof(conf)) && (buffer) && (*buffer))
 				{
 					if ((buffer[0] != '#') && (buffer[0] != '\r')  && (buffer[0] != '\n'))
 					{
@@ -948,13 +955,13 @@ bool ServerConfig::LoadConf(const char* filename, std::stringstream *target, std
 							char confpath[10240],newconf[10240];
 							// include file directive
 							buf += 15;	// advance to filename
-							for (unsigned int j = 0; j < strlen(buf); j++)
+							for (char* j = buf; *j; j++)
 							{
-								if (buf[j] == '\\')
-									buf[j] = '/';
-								if (buf[j] == '"')
+								if (*j == '\\')
+									*j = '/';
+								if (*j == '"')
 								{
-									buf[j] = '\0';
+									*j = 0;
 									break;
 								}
 							}
@@ -1017,23 +1024,22 @@ int ServerConfig::EnumConf(std::stringstream *config, const char* tag)
 
 	std::string x = config->str();
 	const char* buf = x.c_str();
-	long bptr = 0;
-	long len = config->str().length();
+	char* bptr = (char*)buf;
 	
 	ptr = 0;
 	in_token = 0;
 	in_quotes = 0;
 	lastc = '\0';
-	while (bptr<len)
+	while (*bptr)
 	{
 		lastc = c;
-		c = buf[bptr++];
+		c = *bptr++;
 		if ((c == '#') && (lastc == '\n'))
 		{
-			while ((c != '\n') && (bptr<len))
+			while ((c != '\n') && (*bptr))
 			{
 				lastc = c;
-				c = buf[bptr++];
+				c = *bptr++;
 			}
 		}
 		if ((c == '<') && (!in_quotes))
@@ -1041,7 +1047,7 @@ int ServerConfig::EnumConf(std::stringstream *config, const char* tag)
 			tptr = 0;
 			in_token = 1;
 			do {
-				c = buf[bptr++];
+				c = *bptr++;
 				if (c != ' ')
 				{
 					c_tag[tptr++] = c;
@@ -1085,28 +1091,26 @@ int ServerConfig::EnumValues(std::stringstream *config, const char* tag, int ind
 	int ptr = 0;
 	char buffer[MAXBUF], c_tag[MAXBUF], c, lastc;
 	int in_token, in_quotes, tptr, idx = 0;
-	
 	bool correct_tag = false;
 	int num_items = 0;
-
 	const char* buf = config->str().c_str();
-	long bptr = 0;
-	long len = strlen(buf);
-	
+	char* bptr = (char*)buf;
+
 	ptr = 0;
 	in_token = 0;
 	in_quotes = 0;
-	lastc = '\0';
-	while (bptr<len)
+	lastc = 0;
+
+	while (*bptr)
 	{
 		lastc = c;
-		c = buf[bptr++];
+		c = *bptr++;
 		if ((c == '#') && (lastc == '\n'))
 		{
-			while ((c != '\n') && (bptr<len))
+			while ((c != '\n') && (*bptr))
 			{
 				lastc = c;
-				c = buf[bptr++];
+				c = *bptr++;
 			}
 		}
 		if ((c == '<') && (!in_quotes))
@@ -1114,7 +1118,7 @@ int ServerConfig::EnumValues(std::stringstream *config, const char* tag, int ind
 			tptr = 0;
 			in_token = 1;
 			do {
-				c = buf[bptr++];
+				c = *bptr++;
 				if (c != ' ')
 				{
 					c_tag[tptr++] = c;
@@ -1164,19 +1168,11 @@ int ServerConfig::EnumValues(std::stringstream *config, const char* tag, int ind
 }
 
 
-
 int ServerConfig::ConfValueEnum(char* tag, std::stringstream* config)
 {
 	return EnumConf(config,tag);
 }
 
-
-
-/* Retrieves a value from the config file. If there is more than one value of the specified
- * key and section (e.g. for opers etc) then the index value specifies which to retreive, e.g.
- *
- * ConfValue("oper","name",2,result);
- */
 
 int ServerConfig::ReadConf(std::stringstream *config, const char* tag, const char* var, int index, char *result)
 {
@@ -1184,22 +1180,21 @@ int ServerConfig::ReadConf(std::stringstream *config, const char* tag, const cha
 	char buffer[65535], c_tag[MAXBUF], c, lastc;
 	int in_token, in_quotes, tptr, idx = 0;
 	char* key;
-
 	std::string x = config->str();
 	const char* buf = x.c_str();
-	long bptr = 0;
-	long len = config->str().length();
+	char* bptr = (char*)buf;
 	
 	ptr = 0;
 	in_token = 0;
 	in_quotes = 0;
-	lastc = '\0';
-	c_tag[0] = '\0';
-	buffer[0] = '\0';
-	while (bptr<len)
+	lastc = 0;
+	c_tag[0] = 0;
+	buffer[0] = 0;
+
+	while (*bptr)
 	{
 		lastc = c;
-		c = buf[bptr++];
+		c = *bptr++;
 		// FIX: Treat tabs as spaces
 		if (c == 9)
 			c = 32;
@@ -1208,7 +1203,7 @@ int ServerConfig::ReadConf(std::stringstream *config, const char* tag, const cha
 			tptr = 0;
 			in_token = 1;
 			do {
-				c = buf[bptr++];
+				c = *bptr++;
 				if (c != ' ')
 				{
 					c_tag[tptr++] = c;
@@ -1251,11 +1246,12 @@ int ServerConfig::ReadConf(std::stringstream *config, const char* tag, const cha
 								key++;
 							}
 							key++;
-							for (unsigned j = 0; j < strlen(key); j++)
+							for (char* j = key; *j; j++)
 							{
-								if (key[j] == '"')
+								if (*j == '"')
 								{
-									key[j] = '\0';
+									*j = 0;
+									break;
 								}
 							}
 							strlcpy(result,key,MAXBUF);
