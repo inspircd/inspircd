@@ -149,18 +149,6 @@ bool ServerConfig::CheckOnce(char* tag, bool bail, userrec* user)
 	return true;
 }
 
-typedef bool (*Validator)(const char*, const char*, void*);
-
-enum ConfigDataType { DT_NOTHING, DT_INTEGER, DT_CHARPTR, DT_BOOLEAN };
-
-struct InitialConfig {
-	char* tag;
-	char* value;
-	void* val;
-	int datatype;
-	Validator validation_function;
-};
-
 bool NoValidation(const char* tag, const char* value, void* data)
 {
 	log(DEBUG,"No validation for <%s:%s>",tag,value);

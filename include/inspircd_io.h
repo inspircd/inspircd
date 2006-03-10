@@ -32,6 +32,18 @@
 #define SPARSE 40
 #define NONE 50
 
+typedef bool (*Validator)(const char*, const char*, void*);
+
+enum ConfigDataType { DT_NOTHING, DT_INTEGER, DT_CHARPTR, DT_BOOLEAN };
+
+struct InitialConfig {
+	char* tag;
+	char* value;
+	void* val;
+	int datatype;
+	Validator validation_function;
+};
+
 /** This class holds the bulk of the runtime configuration for the ircd.
  * It allows for reading new config values, accessing configuration files,
  * and storage of the configuration data needed to run the ircd, such as
