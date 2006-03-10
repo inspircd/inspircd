@@ -167,6 +167,102 @@ bool NoValidation(const char* tag, const char* value, void* data)
 	return true;
 }
 
+bool ValidateTempDir(const char* tag, const char* value, void* data)
+{
+	char* x = (char*)data;
+        if (!*x)
+               strlcpy(x,"/tmp",1024);
+	return true;
+}
+ 
+bool ValidateMaxTargets(const char* tag, const char* value, void* data)
+{
+	int* x = (int*)data;
+        if ((*x < 0) || (*x > 31))
+        {
+                log(DEFAULT,"WARNING: <options:maxtargets> value is greater than 31 or less than 0, set to 20.");
+                *x = 20;
+        }
+	return true;
+}
+
+bool ValidateSoftLimit(const char* tag, const char* value, void* data)
+{
+	int* x = (int*)data;	
+        if ((*x < 1) || (*x > MAXCLIENTS))
+        {
+                log(DEFAULT,"WARNING: <options:softlimit> value is greater than %d or less than 0, set to %d.",MAXCLIENTS,MAXCLIENTS);
+                *x = MAXCLIENTS;
+        }
+	return true;
+}
+
+bool ValidateMaxConn(const char* tag, const char* value, void* data)
+{
+	int* x = (int*)data;	
+        if (*x > SOMAXCONN)
+                log(DEFAULT,"WARNING: <options:somaxconn> value may be higher than the system-defined SOMAXCONN value!");
+        if (!*x)
+                *x = SOMAXCONN;
+	return true;
+}
+
+bool ValidateDnsTimeout(const char* tag, const char* value, void* data)
+{
+	int* x = (int*)data;
+        if (!*x)
+                *x = 5;
+	return true;
+}
+
+bool ValidateDnsServer(const char* tag, const char* value, void* data)
+{
+	char* x = (char*)data;
+        if (!*x)
+        {
+                // attempt to look up their nameserver from /etc/resolv.conf
+                log(DEFAULT,"WARNING: <dns:server> not defined, attempting to find working server in /etc/resolv.conf...");
+                ifstream resolv("/etc/resolv.conf");
+                std::string nameserver;
+                bool found_server = false;
+         
+                if (resolv.is_open())
+                {
+                        while (resolv >> nameserver)
+                        {
+                                if ((nameserver == "nameserver") && (!found_server))
+                                {
+                                        resolv >> nameserver;
+                                        strlcpy(x,nameserver.c_str(),MAXBUF);
+                                        found_server = true;
+                                        log(DEFAULT,"<dns:server> set to '%s' as first resolver in /etc/resolv.conf.",nameserver.c_str());
+                                }
+                        }
+                                
+                        if (!found_server)
+                        {
+                                log(DEFAULT,"/etc/resolv.conf contains no viable nameserver entries! Defaulting to nameserver '127.0.0.1'!");
+                                strlcpy(x,"127.0.0.1",MAXBUF);
+                        }
+                }
+                else
+                {
+                        log(DEFAULT,"/etc/resolv.conf can't be opened! Defaulting to nameserver '127.0.0.1'!");
+                        strlcpy(x,"127.0.0.1",MAXBUF);
+                }
+        }
+	return true;
+}
+
+bool ValidateModPath(const char* tag, const char* value, void* data)
+{
+	char* x = (char*)data;	
+        if (!*x)
+                strlcpy(x,MOD_PATH,MAXBUF);
+	return true;
+}
+
+
 bool ValidateServerName(const char* tag, const char* value, void* data)
 {
 	char* x = (char*)data;
@@ -175,35 +271,89 @@ bool ValidateServerName(const char* tag, const char* value, void* data)
                 log(DEFAULT,"WARNING: <server:name> '%s' is not a fully-qualified domain name. Changed to '%s%c'",x,x,'.');
                 charlcat(x,'.',MAXBUF);
         }
+	strlower(x);
 	return true;
 }
+
+bool ValidateNetBufferSize(const char* tag, const char* value, void* data)
+{
+        if ((!Config->NetBufferSize) || (Config->NetBufferSize > 65535) || (Config->NetBufferSize < 1024))
+        {
+                log(DEFAULT,"No NetBufferSize specified or size out of range, setting to default of 10240.");
+                Config->NetBufferSize = 10240;
+        }
+	return true;
+}
+
+bool ValidateMaxWho(const char* tag, const char* value, void* data)
+{
+        if ((!Config->MaxWhoResults) || (Config->MaxWhoResults > 65535) || (Config->MaxWhoResults < 1))
+        {
+                log(DEFAULT,"No MaxWhoResults specified or size out of range, setting to default of 128.");
+                Config->MaxWhoResults = 128;
+        }
+	return true;
+}
+
+bool ValidateLogLevel(const char* tag, const char* value, void* data)
+{
+	const char* dbg = (const char*)data;
+        Config->LogLevel = DEFAULT;                        
+        if (!strcmp(dbg,"debug"))
+        {
+                Config->LogLevel = DEBUG;
+                Config->debugging = 1;
+        }
+        else if (!strcmp(dbg,"verbose"))
+                Config->LogLevel = VERBOSE;
+        else if (!strcmp(dbg,"default"))
+                Config->LogLevel = DEFAULT;
+        else if (!strcmp(dbg,"sparse"))
+                Config->LogLevel = SPARSE;
+        else if (!strcmp(dbg,"none"))
+                Config->LogLevel = NONE;
+	return true;
+}
+
+bool ValidateMotd(const char* tag, const char* value, void* data)
+{
+        readfile(Config->MOTD,Config->motd);
+	return true;
+}
+
+bool ValidateRules(const char* tag, const char* value, void* data)
+{
+        readfile(Config->RULES,Config->rules);
+	return true;
+}
+
 
 void ServerConfig::Read(bool bail, userrec* user)
 {
 	char debug[MAXBUF];
 
 	static InitialConfig Values[] = {
-		{"options",	"softlimit",		&this->SoftLimit,		DT_INTEGER, NoValidation},
-		{"options",	"somaxconn",		&this->MaxConn,			DT_INTEGER, NoValidation},
+		{"options",	"softlimit",		&this->SoftLimit,		DT_INTEGER, ValidateSoftLimit},
+		{"options",	"somaxconn",		&this->MaxConn,			DT_INTEGER, ValidateMaxConn},
 		{"server",	"name",			&this->ServerName,		DT_CHARPTR, ValidateServerName},
-		{"server",	"description",		&this->ServerDesc,		DT_CHARPTR, NoValidation},
+		{"server",	"description",		&this->ServerDesc,		DT_CHARPTR, ValidateServerName},
 		{"server",	"network",		&this->Network,			DT_CHARPTR, NoValidation},
 		{"admin",	"name",			&this->AdminName,		DT_CHARPTR, NoValidation},
 		{"admin",	"email",		&this->AdminEmail,		DT_CHARPTR, NoValidation},
 		{"admin",	"nick",			&this->AdminNick,		DT_CHARPTR, NoValidation},
-		{"files",	"motd",			&this->motd,			DT_CHARPTR, NoValidation},
-		{"files",	"rules",		&this->rules,			DT_CHARPTR, NoValidation},
+		{"files",	"motd",			&this->motd,			DT_CHARPTR, ValidateMotd},
+		{"files",	"rules",		&this->rules,			DT_CHARPTR, ValidateRules},
 		{"power",	"diepass",		&this->diepass,			DT_CHARPTR, NoValidation},	
 		{"power",	"pauseval",		&this->DieDelay,		DT_INTEGER, NoValidation},
 		{"power",	"restartpass",		&this->restartpass,		DT_CHARPTR, NoValidation},
 		{"options",	"prefixquit",		&this->PrefixQuit,		DT_CHARPTR, NoValidation},
 		{"die",		"value",		&this->DieValue,		DT_CHARPTR, NoValidation},
-		{"options",	"loglevel",		&debug,				DT_CHARPTR, NoValidation},
-		{"options",	"netbuffersize",	&this->NetBufferSize,		DT_INTEGER, NoValidation},
-		{"options",	"maxwho",		&this->MaxWhoResults,		DT_INTEGER, NoValidation},
+		{"options",	"loglevel",		&debug,				DT_CHARPTR, ValidateLogLevel},
+		{"options",	"netbuffersize",	&this->NetBufferSize,		DT_INTEGER, ValidateNetBufferSize},
+		{"options",	"maxwho",		&this->MaxWhoResults,		DT_INTEGER, ValidateMaxWho},
 		{"options",	"allowhalfop",		&this->AllowHalfop,		DT_BOOLEAN, NoValidation},
-		{"dns",		"server",		&this->DNSServer,		DT_CHARPTR, NoValidation},
-		{"dns",		"timeout",		&this->dns_timeout,		DT_INTEGER, NoValidation},
+		{"dns",		"server",		&this->DNSServer,		DT_CHARPTR, ValidateDnsServer},
+		{"dns",		"timeout",		&this->dns_timeout,		DT_INTEGER, ValidateDnsTimeout},
 		{"options",	"moduledir",		&this->ModPath,			DT_CHARPTR, NoValidation},
 		{"disabled",	"commands",		&this->DisabledCommands,	DT_CHARPTR, NoValidation},
 		{"options",	"operonlystats",	&this->OperOnlyStats,		DT_CHARPTR, NoValidation},
@@ -211,13 +361,13 @@ void ServerConfig::Read(bool bail, userrec* user)
 		{"options",	"hidesplits",		&this->HideSplits,		DT_BOOLEAN, NoValidation},
 		{"options",	"hidebans",		&this->HideBans,		DT_BOOLEAN, NoValidation},
 		{"options",	"hidewhois",		&this->HideWhoisServer,		DT_CHARPTR, NoValidation},
-		{"options",	"tempdir",		&this->TempDir,			DT_CHARPTR, NoValidation},
+		{"options",	"tempdir",		&this->TempDir,			DT_CHARPTR, ValidateTempDir},
 		{NULL}
 	};
 
-	/* XXX - this needs a rework someday, BAD. */
-	char timeout[MAXBUF],flood[MAXBUF],pfreq[MAXBUF],thold[MAXBUF],sqmax[MAXBUF],rqmax[MAXBUF],SLIMT[MAXBUF];
-	char localmax[MAXBUF],globalmax[MAXBUF],ServName[MAXBUF];
+	//
+	char timeout[MAXBUF],flood[MAXBUF],pfreq[MAXBUF],thold[MAXBUF],sqmax[MAXBUF],rqmax[MAXBUF];
+	char localmax[MAXBUF],globalmax[MAXBUF],ServName[MAXBUF],Value[MAXBUF];
 
 	ConnectClass c;
 	std::stringstream errstr;
@@ -302,102 +452,6 @@ void ServerConfig::Read(bool bail, userrec* user)
 		Values[Index].validation_function(Values[Index].tag, Values[Index].value, Values[Index].val);
 	}
 
-	strlower(this->ServerName);
-
-	if (!*Config->TempDir)
-		strlcpy(Config->TempDir,"/tmp",1024);
-
-	if ((Config->MaxTargets < 0) || (Config->MaxTargets > 31))
-	{
-		log(DEFAULT,"WARNING: <options:maxtargets> value is greater than 31 or less than 0, set to 20.");
-		Config->MaxTargets = 20;
-	}
-
-	if ((Config->SoftLimit < 1) || (Config->SoftLimit > MAXCLIENTS))
-	{
-		log(DEFAULT,"WARNING: <options:softlimit> value is greater than %d or less than 0, set to %d.",MAXCLIENTS,MAXCLIENTS);
-		Config->SoftLimit = MAXCLIENTS;
-	}
-
-	if (Config->MaxConn > SOMAXCONN)
-		log(DEFAULT,"WARNING: <options:somaxconn> value may be higher than the system-defined SOMAXCONN value!");
-
-	if (!Config->dns_timeout)
-		Config->dns_timeout = 5;
-
-	if (!Config->MaxConn)
-		Config->MaxConn = SOMAXCONN;
-
-	if (!*Config->DNSServer)
-	{
-		// attempt to look up their nameserver from /etc/resolv.conf
-		log(DEFAULT,"WARNING: <dns:server> not defined, attempting to find working server in /etc/resolv.conf...");
-		ifstream resolv("/etc/resolv.conf");
-		std::string nameserver;
-		bool found_server = false;
-
-		if (resolv.is_open())
-		{
-			while (resolv >> nameserver)
-			{
-				if ((nameserver == "nameserver") && (!found_server))
-				{
-					resolv >> nameserver;
-					strlcpy(Config->DNSServer,nameserver.c_str(),MAXBUF);
-					found_server = true;
-					log(DEFAULT,"<dns:server> set to '%s' as first resolver in /etc/resolv.conf.",nameserver.c_str());
-				}
-			}
-
-			if (!found_server)
-			{
-				log(DEFAULT,"/etc/resolv.conf contains no viable nameserver entries! Defaulting to nameserver '127.0.0.1'!");
-				strlcpy(Config->DNSServer,"127.0.0.1",MAXBUF);
-			}
-		}
-		else
-		{
-			log(DEFAULT,"/etc/resolv.conf can't be opened! Defaulting to nameserver '127.0.0.1'!");
-			strlcpy(Config->DNSServer,"127.0.0.1",MAXBUF);
-		}
-	}
-
-	if (!*Config->ModPath)
-		strlcpy(Config->ModPath,MOD_PATH,MAXBUF);
-
-	Config->AllowHalfop = ((!strcasecmp(AH,"true")) || (!strcasecmp(AH,"1")) || (!strcasecmp(AH,"yes")));
-
-	if ((!Config->NetBufferSize) || (Config->NetBufferSize > 65535) || (Config->NetBufferSize < 1024))
-	{
-		log(DEFAULT,"No NetBufferSize specified or size out of range, setting to default of 10240.");
-		Config->NetBufferSize = 10240;
-	}
-
-	if ((!Config->MaxWhoResults) || (Config->MaxWhoResults > 65535) || (Config->MaxWhoResults < 1))
-	{
-		log(DEFAULT,"No MaxWhoResults specified or size out of range, setting to default of 128.");
-		Config->MaxWhoResults = 128;
-	}
-
-	Config->LogLevel = DEFAULT;
-
-	if (!strcmp(dbg,"debug"))
-	{
-		Config->LogLevel = DEBUG;
-		Config->debugging = 1;
-	}
-	else if (!strcmp(dbg,"verbose"))
-		Config->LogLevel = VERBOSE;
-	else if (!strcmp(dbg,"default"))
-		Config->LogLevel = DEFAULT;
-	else if (!strcmp(dbg,"sparse"))
-		Config->LogLevel = SPARSE;
-	else if (!strcmp(dbg,"none"))
-		Config->LogLevel = NONE;
-
-	readfile(Config->MOTD,Config->motd);
-	log(DEFAULT,"Reading message of the day...");
-	readfile(Config->RULES,Config->rules);
 	log(DEFAULT,"Reading connect classes...");
 	Classes.clear();
 
