@@ -28,16 +28,18 @@
 
 #include "hashcomp.h"
 #include "cull_list.h"
- 
-#define STATUS_OP	4
-#define STATUS_HOP	2
-#define STATUS_VOICE	1
-#define STATUS_NORMAL	0
 
-#define CC_ALLOW	0
-#define CC_DENY		1
+enum ChanStatus {
+	STATUS_OP     = 4,
+	STATUS_HOP    = 2,
+	STATUS_VOICE  = 1,
+	STATUS_NORMAL = 0
+};
 
-template<typename T> string ConvToStr(const T &in);
+enum ClassTypes {
+	CC_ALLOW = 0,
+	CC_DENY  = 1
+};
 
 /** Holds a channel name to which a user has been invited.
  */

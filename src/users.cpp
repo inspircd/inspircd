@@ -88,8 +88,6 @@ bool DoType(const char* tag, char** entries, void** values, int* types)
 {
 	char* TypeName = (char*)values[0];
 	char* Classes = (char*)values[1];
-	/*Config->ConfValue("type","name",j,TypeName,&Config->config_f);
-	Config->ConfValue("type","classes",j,Classes,&Config->config_f);*/
 	opertypes[TypeName] = strdup(Classes);
 	log(DEBUG,"Read oper TYPE '%s' with classes '%s'",TypeName,Classes);
 	return true;
@@ -99,8 +97,6 @@ bool DoClass(const char* tag, char** entries, void** values, int* types)
 {
 	char* ClassName = (char*)values[0];
 	char* CommandList = (char*)values[1];
-	/*Config->ConfValue("class","name",k,ClassName,&Config->config_f);
-	Config->ConfValue("class","commands",k,CommandList,&Config->config_f);*/
 	operclass[ClassName] = strdup(CommandList);
 	log(DEBUG,"Read oper CLASS '%s' with commands '%s'",ClassName,CommandList);
 	return true;
@@ -109,13 +105,6 @@ bool DoClass(const char* tag, char** entries, void** values, int* types)
 bool DoneClassesAndTypes(const char* tag)
 {
 	return true;
-}
-
-template<typename T> inline string ConvToStr(const T &in)
-{
-        stringstream tmp;
-        if (!(tmp << in)) return string();
-        return tmp.str();
 }
 
 userrec::userrec()

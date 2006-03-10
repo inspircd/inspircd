@@ -468,13 +468,6 @@ class Link
 ConfigReader *Conf;
 std::vector<Link> LinkBlocks;
 
-template<typename T> inline string ConvToStr(const T &in)
-{
-	stringstream tmp;
-	if (!(tmp << in)) return string();
-	return tmp.str();
-}
-
 /* Yay for fast searches!
  * This is hundreds of times faster than recursion
  * or even scanning a linked list, especially when

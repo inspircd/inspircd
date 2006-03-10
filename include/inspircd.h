@@ -37,6 +37,7 @@
 #include <arpa/inet.h>
 #include <string>
 #include <deque>
+#include <sstream>
 
 #include "inspircd_io.h"
 #include "users.h"
@@ -62,6 +63,14 @@
 // letter. Pretty fast, its just two compares and an
 // addition.
 #define IS_SINGLE(x,y) ( (*x == y) && (*(x+1) == 0) )
+
+template<typename T> inline std::string ConvToStr(const T &in)
+{
+	std::stringstream tmp;
+	if (!(tmp << in)) return std::string();
+	return tmp.str();
+}
+
 
 class serverstats
 {
