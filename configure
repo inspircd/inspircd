@@ -238,6 +238,7 @@ system("clear");
 show_splash();
 chomp($wholeos = `uname -mnr`);
 
+my $rev = getrevision();
 # Display Introduction Message..
 print "
 Welcome to the InspIRCd Configuration program!
@@ -252,7 +253,12 @@ Press \033[1m<RETURN>\033[0m to accept the default for any option, or enter
 a new value. Please note: You will \033[1mHAVE\033[0m to read the docs
 dir, otherwise you won't have a config file!
 
-Your operating system is: \033[1;32m$config{OSNAME}\033[0m ($wholeos), fdmax: $config{MAX_CLIENT_T}\n\n";
+Your operating system is: \033[1;32m$config{OSNAME}\033[0m ($wholeos), fdmax: $config{MAX_CLIENT_T}
+Your InspIRCd revision ID is \033[1;32mr$rev\033[0m";
+if ($rev eq "r0") {
+	print " (Non-SVN build)";
+}
+print ".\n\n";
 
 $config{CHANGE_COMPILER} = "n";
 print "I have detected the following compiler: \033[1;32m$config{CC}\033[0m (version \033[1;32m$config{GCCVER}.$config{GCC34}\033[0m)\n";
@@ -878,14 +884,24 @@ sub getmodules {
 	closedir(DIRHANDLE);
 }
 
+sub getrevision {
+	my $data = `svn info`;
+	$data =~ /Revision: (\d+)/;
+	my $rev = $1;
+	if (!defined($rev)) {
+		$rev = "r0";
+	}
+	return $rev;
+}
+
 sub writefiles {
 	print "Writing \033[1;32minspircd_config.h\033[0m\n";
 	# First File.. inspircd_config.h
 	chomp(my $incos = `uname -n -s -r`);
 	chomp(my $version = `sh ./src/version.sh`);
-        chomp(my $revision = `./src/svn-rev.sh`);
+        chomp(my $revision = getrevision());
 	$version = "$version(r$revision)";
-	chomp(my $revision2 = `./src/svn-rev.sh`);
+	chomp(my $revision2 = getrevision());
 	open(FILEHANDLE, ">include/inspircd_config.h");
 	my $NL = $config{NICK_LENGT}+1;
 	my $CL = $config{CHAN_LENGT}+1;
