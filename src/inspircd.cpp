@@ -298,7 +298,6 @@ void InspIRCd::erase_module(int j)
 void InspIRCd::MoveTo(std::string modulename,int slot)
 {
 	unsigned int v2 = 256;
-	log(DEBUG,"Moving %s to slot %d",modulename.c_str(),slot);
 	for (unsigned int v = 0; v < Config->module_names.size(); v++)
 	{
 		if (Config->module_names[v] == modulename)
@@ -308,11 +307,7 @@ void InspIRCd::MoveTo(std::string modulename,int slot)
 			break;
 		}
 	}
-	if (v2 == (unsigned int)slot)
-	{
-		log(DEBUG,"Item %s already in slot %d!",modulename.c_str(),slot);
-	}
-	else if (v2 < 256)
+	if ((v2 != (unsigned int)slot) && (v2 < 256))
 	{
 		// Swap the module names over
 		Config->module_names[v2] = Config->module_names[slot];
@@ -333,7 +328,6 @@ void InspIRCd::MoveTo(std::string modulename,int slot)
 			Config->implement_lists[v2][n] = Config->implement_lists[slot][n];
 			Config->implement_lists[slot][n] = x;
 		}
-		log(DEBUG,"Moved %s to slot successfully",modulename.c_str());
 	}
 	else
 	{
@@ -343,7 +337,6 @@ void InspIRCd::MoveTo(std::string modulename,int slot)
 
 void InspIRCd::MoveAfter(std::string modulename, std::string after)
 {
-	log(DEBUG,"Move %s after %s...",modulename.c_str(),after.c_str());
 	for (unsigned int v = 0; v < Config->module_names.size(); v++)
 	{
 		if (Config->module_names[v] == after)
@@ -356,7 +349,6 @@ void InspIRCd::MoveAfter(std::string modulename, std::string after)
 
 void InspIRCd::MoveBefore(std::string modulename, std::string before)
 {
-	log(DEBUG,"Move %s before %s...",modulename.c_str(),before.c_str());
 	for (unsigned int v = 0; v < Config->module_names.size(); v++)
 	{
 		if (Config->module_names[v] == before)
@@ -511,13 +503,7 @@ bool InspIRCd::LoadModule(const char* filename)
 				modules[MODCOUNT+1]->Implements(x);
 
 				for(int t = 0; t < 255; t++)
-				{
 					Config->global_implementation[t] += Config->implement_lists[MODCOUNT+1][t];
-					if (Config->implement_lists[MODCOUNT+1][t])
-					{
-						log(DEBUG,"Add global implementation: %d %d => %d",MODCOUNT+1,t,Config->global_implementation[t]);
-					}
-				}
 	                }
 			else
 			{
@@ -561,15 +547,11 @@ bool InspIRCd::LoadModule(const char* filename)
 		}
 		else if ((modules[j]->Prioritize() & 0xFF) == PRIORITY_BEFORE)
 		{
-			log(DEBUG,"Module %d wants PRIORITY_BEFORE",j);
 			put_before[Config->module_names[j]] = Config->module_names[modules[j]->Prioritize() >> 8];
-			log(DEBUG,"Before: %s",Config->module_names[modules[j]->Prioritize() >> 8].c_str());
 		}
 		else if ((modules[j]->Prioritize() & 0xFF) == PRIORITY_AFTER)
 		{
-			log(DEBUG,"Module %d wants PRIORITY_AFTER",j);
 			put_after[Config->module_names[j]] = Config->module_names[modules[j]->Prioritize() >> 8];
-			log(DEBUG,"After: %s",Config->module_names[modules[j]->Prioritize() >> 8].c_str());
 		}
 	}
 	for (unsigned int j = 0; j < put_to_back.size(); j++)
