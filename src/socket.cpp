@@ -403,6 +403,6 @@ void InspSocket::OnClose() { return; }
 
 InspSocket::~InspSocket()
 {
-	outbuffer.clear();
-	this->Close();
+	//outbuffer.clear();
+	//this->Close();
 }
