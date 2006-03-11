@@ -62,7 +62,7 @@ private:
 	/**
 	 * The hostname connected to
 	 */
-	std::string host;
+	char host[MAXBUF];
 
 	/**
 	 * The port connected to, or the port
@@ -116,7 +116,7 @@ private:
 	 * to stored in string form for
 	 * easy retrieval by accessors.
 	 */
-	std::string IP;
+	char IP[MAXBUF];
 
 	/**
 	 * Client sockaddr structure used

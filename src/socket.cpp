@@ -55,14 +55,15 @@ InspSocket::InspSocket(int newfd, char* ip)
 {
 	this->fd = newfd;
 	this->state = I_CONNECTED;
-	this->IP = ip;
+	strlcpy(this->IP,ip,MAXBUF);
 	this->ClosePending = false;
 	ServerInstance->SE->AddFd(this->fd,true,X_ESTAB_MODULE);
 	socket_ref[this->fd] = this;
 }
 
-InspSocket::InspSocket(const std::string &ahost, int aport, bool listening, unsigned long maxtime) : fd(-1), host(ahost)
+InspSocket::InspSocket(const std::string &ahost, int aport, bool listening, unsigned long maxtime) : fd(-1)
 {
+	strlcpy(host,ahost.c_str(),MAXBUF);
 	this->ClosePending = false;
 	if (listening) {
 		if ((this->fd = OpenTCPSocket()) == ERROR)
@@ -96,12 +97,12 @@ InspSocket::InspSocket(const std::string &ahost, int aport, bool listening, unsi
 	}
 	else
 	{
-		this->host = ahost;
+		strlcpy(this->host,ahost.c_str(),MAXBUF);
 		this->port = aport;
 
-		if (!inet_aton(host.c_str(),&addy))
+		if (!inet_aton(host,&addy))
 		{
-			log(DEBUG,"Attempting to resolve %s",this->host.c_str());
+			log(DEBUG,"Attempting to resolve %s",this->host);
 			/* Its not an ip, spawn the resolver */
 			this->dns.SetNS(std::string(Config->DNSServer));
 			this->dns.ForwardLookupWithFD(host,fd);
@@ -112,8 +113,8 @@ InspSocket::InspSocket(const std::string &ahost, int aport, bool listening, unsi
 		}
 		else
 		{
-			log(DEBUG,"No need to resolve %s",this->host.c_str());
-			this->IP = host;
+			log(DEBUG,"No need to resolve %s",this->host);
+			strlcpy(this->IP,host,MAXBUF);
 			timeout_end = time(NULL) + maxtime;
 			this->DoConnect();
 		}
@@ -139,7 +140,7 @@ bool InspSocket::DoResolve()
 		if (res_ip != "")
 		{
 			log(DEBUG,"Socket result set to %s",res_ip.c_str());
-			this->IP = res_ip;
+			strlcpy(this->IP,res_ip.c_str(),MAXBUF);
 			socket_ref[this->fd] = NULL;
 		}
 		else
@@ -169,8 +170,8 @@ bool InspSocket::DoConnect()
 		return false;
 	}
 
-	log(DEBUG,"Part 2 DoConnect() %s",this->IP.c_str());
-	inet_aton(this->IP.c_str(),&addy);
+	log(DEBUG,"Part 2 DoConnect() %s",this->IP);
+	inet_aton(this->IP,&addy);
 	addr.sin_family = AF_INET;
 	addr.sin_addr = addy;
 	addr.sin_port = htons(this->port);
