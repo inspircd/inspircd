@@ -214,7 +214,7 @@ class ModuleHelpop : public Module
 			List[I_OnRehash] = List[I_OnExtendedMode] = List[I_OnWhois] = 1;
 		}
 
-		virtual void OnRehash(std::string parameter)
+		virtual void OnRehash(const std::string &parameter)
 		{
 			delete conf;
 			if (helpop)

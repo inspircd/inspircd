@@ -69,7 +69,7 @@ class ModuleFoobar : public Module
 		Srv->Log(DEBUG,"Foobar: User connecting: " + b);
 	}
 
-	virtual void OnUserQuit(userrec* user, std::string reason)
+	virtual void OnUserQuit(userrec* user, const std::string &reason)
 	{
 		// method called when a user disconnects
 	
@@ -86,7 +86,7 @@ class ModuleFoobar : public Module
 		Srv->Log(DEBUG,"Foobar: User " + b + " joined " + c);
 	}
 
-	virtual void OnUserPart(userrec* user, chanrec* channel, std::string partreason)
+	virtual void OnUserPart(userrec* user, chanrec* channel, const std::string &partreason)
 	{
 		// method called when a user parts a channel
 	

@@ -65,7 +65,7 @@ class ModuleHostChange : public Module
 		List[I_OnRehash] = List[I_OnUserConnect] = 1;
 	}
 
-	virtual void OnRehash(std::string parameter)
+	virtual void OnRehash(const std::string &parameter)
 	{
 		delete Conf;
 		Conf = new ConfigReader;

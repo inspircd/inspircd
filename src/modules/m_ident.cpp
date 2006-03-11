@@ -151,7 +151,7 @@ class ModuleIdent : public Module
 		List[I_OnCleanup] = List[I_OnRehash] = List[I_OnUserRegister] = List[I_OnCheckReady] = List[I_OnUserDisconnect] = 1;
 	}
 
-	virtual void OnRehash(std::string parameter)
+	virtual void OnRehash(const std::string &parameter)
 	{
 		ReadSettings();
 	}

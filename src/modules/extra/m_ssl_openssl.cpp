@@ -550,7 +550,7 @@ class ModuleSSLOpenSSL : public Module
 		}
 	}
 	
-	virtual void OnDecodeMetaData(int target_type, void* target, std::string extname, const std::string &extdata)
+	virtual void OnDecodeMetaData(int target_type, void* target, const std::string &extname, const std::string &extdata)
 	{
 		// check if its our metadata key, and its associated with a user
 		if ((target_type == TYPE_USER) && (extname == "ssl"))
