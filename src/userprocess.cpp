@@ -317,13 +317,13 @@ void DoSocketTimeouts(time_t TIME)
 	for (std::vector<InspSocket*>::iterator a = module_sockets.begin(); a < module_sockets.end(); a++)
 	{
 		InspSocket* s = (InspSocket*)*a;
-		if (s->Timeout(TIME))
+		if ((s) && (socket_ref[s->GetFd()] != NULL) && (s->Timeout(TIME)))
 		{
 			log(DEBUG,"userprocess.cpp: Socket poll returned false, close and bail");
-			SE->DelFd(s->GetFd());
 			socket_ref[s->GetFd()] = NULL;
-			s->Close();
+			SE->DelFd(s->GetFd());
 			module_sockets.erase(a);
+			s->Close();
 			delete s;
 			break;
 		}
