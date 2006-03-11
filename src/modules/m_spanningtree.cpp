@@ -1410,26 +1410,32 @@ class TreeSocket : public InspSocket
 		 */
 		std::string burst = "BURST "+ConvToStr(time(NULL));
 		std::string endburst = "ENDBURST";
-		Srv->SendOpers("*** Bursting to \2"+s->GetName()+"\2.");
+		// Because by the end of the netburst, it  could be gone!
+		std::string name = s->GetName();
+		Srv->SendOpers("*** Bursting to \2"+name+"\2.");
 		this->WriteLine(burst);
 		ServerInstance->DoOneIteration(false);
 		/* send our version string */
 		this->WriteLine(":"+Srv->GetServerName()+" VERSION :"+Srv->GetVersion());
 		/* Send server tree */
-		this->SendServers(TreeRoot,s,1);
+		if (FindServer(name))
+			this->SendServers(TreeRoot,s,1);
 		ServerInstance->DoOneIteration(false);
 		/* Send users and their oper status */
-		this->SendUsers(s);
+		if (FindServer(name))
+			this->SendUsers(s);
 		ServerInstance->DoOneIteration(false);
 		/* Send everything else (channel modes, xlines etc) */
-		this->SendChannelModes(s);
+		if (FindServer(name))
+			this->SendChannelModes(s);
 		ServerInstance->DoOneIteration(false);
-		this->SendXLines(s);
+		if (FindServer(name))
+			this->SendXLines(s);
 		ServerInstance->DoOneIteration(false);
 		FOREACH_MOD(I_OnSyncOtherMetaData,OnSyncOtherMetaData((Module*)TreeProtocolModule,(void*)this));
 		ServerInstance->DoOneIteration(false);
 		this->WriteLine(endburst);
-		Srv->SendOpers("*** Finished bursting to \2"+s->GetName()+"\2.");
+		Srv->SendOpers("*** Finished bursting to \2"+name+"\2.");
 	}
 
 	/* This function is called when we receive data from a remote
