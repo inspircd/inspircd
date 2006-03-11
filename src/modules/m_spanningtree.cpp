@@ -1177,8 +1177,11 @@ class TreeSocket : public InspSocket
 		log(DEBUG,"Sending FJOINs to other server for %s",c->name);
 		char list[MAXBUF];
 		std::string individual_halfops = ":"+Srv->GetServerName()+" FMODE "+c->name;
-		size_t counter = snprintf(list,MAXBUF,":%s FJOIN %s %lu",Srv->GetServerName().c_str(),c->name,(unsigned long)c->age);
-		size_t initial = counter;
+		
+		size_t dlen, curlen;
+		dlen = curlen = snprintf(list,MAXBUF,":%s FJOIN %s %lu",Srv->GetServerName().c_str(),c->name,(unsigned long)c->age);
+		int numusers = 0;
+		char* ptr = list + dlen;
 
 		CUList *ulist = c->GetUsers();
 		std::vector<userrec*> specific_halfop;
@@ -1186,8 +1189,6 @@ class TreeSocket : public InspSocket
 
 		for (CUList::iterator i = ulist->begin(); i != ulist->end(); i++)
 		{
-			charlcat(list,' ',MAXBUF);
-			counter++;
 			int x = cflags(i->second,c);
 			if ((x & UCMODE_HOP) && (x & UCMODE_OP))
 			{
@@ -1212,19 +1213,20 @@ class TreeSocket : public InspSocket
 				n = '+';
 			}
 
-			if (n)
-			{
-				charlcat(list,n,MAXBUF);
-				counter++;
-			}
+			size_t ptrlen = snprintf(ptr, MAXBUF, " %c%s", n, i->second->nick);
 
-			counter += strlcat(list,i->second->nick,MAXBUF);
+			curlen += ptrlen;
+			ptr += ptrlen;
 
-			if (counter > (480-NICKMAX))
+			numusers++;
+
+			if (curlen > (480-NICKMAX))
 			{
-				log(DEBUG,"FJOIN line wrapped to %d %d",counter,(480-NICKMAX));
 				this->WriteLine(list);
-				counter = snprintf(list,MAXBUF,":%s FJOIN %s %lu",Srv->GetServerName().c_str(),c->name,(unsigned long)c->age);
+				dlen = curlen = snprintf(list,MAXBUF,":%s FJOIN %s %lu",Srv->GetServerName().c_str(),c->name,(unsigned long)c->age);
+				ptr = list + dlen;
+				ptrlen = 0;
+				numusers = 0;
 				for (unsigned int y = 0; y < specific_voice.size(); y++)
 				{
 					this->WriteLine(":"+Srv->GetServerName()+" FMODE "+c->name+" +v "+specific_voice[y]->nick);
@@ -1235,9 +1237,8 @@ class TreeSocket : public InspSocket
 				}
 			}
 		}
-		if (counter != initial)
+		if (numusers)
 		{
-			log(DEBUG,"Final FJOIN line");
 			this->WriteLine(list);
 			for (unsigned int y = 0; y < specific_voice.size(); y++)
 			{
