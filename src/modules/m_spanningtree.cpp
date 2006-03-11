@@ -1199,21 +1199,21 @@ class TreeSocket : public InspSocket
 				specific_voice.push_back(i->second);
 			}
 
-			char n = 0;
+			const char* n = "";
 			if (x & UCMODE_OP)
 			{
-				n = '@';
+				n = "@";
 			}
 			else if (x & UCMODE_HOP)
 			{
-				n = '%';
+				n = "%";
 			}
 			else if (x & UCMODE_VOICE)
 			{
-				n = '+';
+				n = "+";
 			}
 
-			size_t ptrlen = snprintf(ptr, MAXBUF, " %c%s", n, i->second->nick);
+			size_t ptrlen = snprintf(ptr, MAXBUF, " %s%s", n, i->second->nick);
 
 			curlen += ptrlen;
 			ptr += ptrlen;
