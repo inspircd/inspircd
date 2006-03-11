@@ -256,10 +256,14 @@ int InspSocket::Write(const std::string &data)
 {
 	if (this->ClosePending)
 		return false;
+
+	write(this->fd,data.c_str(),data.length());
+	return true;
+
 	/* Try and append the data to the back of the queue, and send it on its way
 	 */
-	outbuffer.push_back(data);
-	return (!this->FlushWriteBuffer());
+	//outbuffer.push_back(data);
+	//return (!this->FlushWriteBuffer());
 }
 
 bool InspSocket::FlushWriteBuffer()
@@ -267,7 +271,7 @@ bool InspSocket::FlushWriteBuffer()
 	if (this->ClosePending)
 		return true;
 
-	if ((this->fd > -1) && (this->state == I_CONNECTED))
+	/*if ((this->fd > -1) && (this->state == I_CONNECTED))
 	{
 		if (outbuffer.size())
 		{
@@ -278,9 +282,9 @@ bool InspSocket::FlushWriteBuffer()
 				log(DEBUG,"Wrote %d to socket",result);
 				if ((unsigned int)result == outbuffer[0].length())
 				{
-					/* The whole block was written (usually a line)
+					 * The whole block was written (usually a line)
 					 * Pop the block off the front of the queue
-					 */
+					 *
 					log(DEBUG,"Popping front item, now %d items left",outbuffer.size());
 					outbuffer.pop_front();
 				}
@@ -300,7 +304,7 @@ bool InspSocket::FlushWriteBuffer()
 				return true;
 			}
 		}
-	}
+	}*/
 	return false;
 }
 
