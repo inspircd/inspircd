@@ -319,7 +319,7 @@ bool InspSocket::Timeout(time_t current)
 bool InspSocket::Poll()
 {
 	if (!socket_ref[this->fd] || !ServerInstance->SE->HasFd(this->fd))
-		return true;
+		return false;
 
 	int incoming = -1;
 	bool n = true;
