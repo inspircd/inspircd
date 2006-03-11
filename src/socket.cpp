@@ -48,6 +48,7 @@ InspSocket::InspSocket()
 {
 	this->state = I_DISCONNECTED;
 	this->fd = -1;
+	this->ClosePending = false;
 }
 
 InspSocket::InspSocket(int newfd, char* ip)
@@ -55,13 +56,14 @@ InspSocket::InspSocket(int newfd, char* ip)
 	this->fd = newfd;
 	this->state = I_CONNECTED;
 	this->IP = ip;
+	this->ClosePending = false;
 	ServerInstance->SE->AddFd(this->fd,true,X_ESTAB_MODULE);
 	socket_ref[this->fd] = this;
 }
 
-InspSocket::InspSocket(const std::string &ahost, int aport, bool listening, unsigned long maxtime)
- : fd(-1), host(ahost)
+InspSocket::InspSocket(const std::string &ahost, int aport, bool listening, unsigned long maxtime) : fd(-1), host(ahost)
 {
+	this->ClosePending = false;
 	this->outbuffer.clear();
 	if (listening) {
 		if ((this->fd = OpenTCPSocket()) == ERROR)
@@ -240,6 +242,11 @@ char* InspSocket::Read()
 	}
 }
 
+void InspSocket::MarkAsClosed()
+{
+	this->ClosePending = true;
+}
+
 // There are two possible outcomes to this function.
 // It will either write all of the data, or an undefined amount.
 // If an undefined amount is written the connection has failed
@@ -290,6 +297,9 @@ bool InspSocket::Timeout(time_t current)
 	if (!socket_ref[this->fd] || !ServerInstance->SE->HasFd(this->fd))
 		return false;
 
+	if (this->ClosePending)
+		return true;
+
 	if (((this->state == I_RESOLVING) || (this->state == I_CONNECTING)) && (current > timeout_end))
 	{
 		log(DEBUG,"Timed out, current=%lu timeout_end=%lu");
@@ -314,7 +324,7 @@ bool InspSocket::Poll()
 	int incoming = -1;
 	bool n = true;
 
-	if ((fd < 0) || (fd > MAX_DESCRIPTORS))
+	if ((fd < 0) || (fd > MAX_DESCRIPTORS) || (this->ClosePending))
 		return false;
 
 	switch (this->state)

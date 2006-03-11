@@ -148,6 +148,8 @@ private:
 
 	void SetQueues(int nfd);
 
+	bool ClosePending;
+
 public:
 
 	/**
@@ -326,6 +328,8 @@ public:
 
 	virtual bool DoResolve();
 	virtual bool DoConnect();
+
+	void MarkAsClosed();
 };
 
 #endif

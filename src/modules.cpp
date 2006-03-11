@@ -328,17 +328,7 @@ void Server::RemoveSocket(InspSocket* sock)
         {
                 InspSocket* s = (InspSocket*)*a;
                 if (s == sock)
-                {
-			s->Close();
-			/*
-			log(DEBUG,"Forcibly removed socket");
-                        ServerInstance->SE->DelFd(s->GetFd());
-			log(DEBUG,"Delete Fd from socket engine");
-                        s->Close();
-                        module_sockets.erase(a);
-                        delete s;
-                        return;*/
-                }
+			s->MarkAsClosed();
         }
 }
 
