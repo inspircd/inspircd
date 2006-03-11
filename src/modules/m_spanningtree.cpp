@@ -169,6 +169,7 @@ class TreeServer
 	TreeSocket* Socket;			/* For directly connected servers this points at the socket object */
 	time_t NextPing;			/* After this time, the server should be PINGed*/
 	bool LastPingWasGood;			/* True if the server responded to the last PING with a PONG */
+	std::map<userrec*,userrec*> Users;	/* Users on this server */
 	
  public:
 
@@ -263,6 +264,38 @@ class TreeServer
 		 */
 
 		this->AddHashEntry();
+	}
+
+	void AddUser(userrec* user)
+	{
+		log(DEBUG,"Add user %s to server %s",user->nick,this->ServerName.c_str());
+		std::map<userrec*,userrec*>::iterator iter;
+		iter = Users.find(user);
+		if (iter == Users.end())
+			Users[user] = user;
+	}
+
+	void DelUser(userrec* user)
+	{
+		log(DEBUG,"Remove user %s from server %s",user->nick,this->ServerName.c_str());
+		std::map<userrec*,userrec*>::iterator iter;
+		iter = Users.find(user);
+		if (iter != Users.end())
+			Users.erase(iter);
+	}
+
+	int QuitUsers(const std::string &reason)
+	{
+		int x = Users.size();
+		log(DEBUG,"Removing all users from server %s",this->ServerName.c_str());
+		const char* reason_s = reason.c_str();
+		for (std::map<userrec*,userrec*>::iterator n = Users.begin(); n != Users.end(); n++)
+		{
+			log(DEBUG,"Kill %s",n->second->nick);
+			kill_link(n->second,reason_s);
+		}
+		Users.clear();
+		return x;
 	}
 
 	/* This method is used to add the structure to the
@@ -802,7 +835,7 @@ class TreeSocket : public InspSocket
 	 * is having a REAL bad hair day, this function shouldnt be called
 	 * too many times a month ;-)
 	 */
-	void SquitServer(std::string &from, TreeServer* Current, CullList* Goners)
+	void SquitServer(std::string &from, TreeServer* Current)
 	{
 		/* recursively squit the servers attached to 'Current'.
 		 * We're going backwards so we don't remove users
@@ -811,18 +844,19 @@ class TreeSocket : public InspSocket
 		for (unsigned int q = 0; q < Current->ChildCount(); q++)
 		{
 			TreeServer* recursive_server = Current->GetChild(q);
-			this->SquitServer(from,recursive_server,Goners);
+			this->SquitServer(from,recursive_server);
 		}
 		/* Now we've whacked the kids, whack self */
 		num_lost_servers++;
-		for (user_hash::iterator u = clientlist.begin(); u != clientlist.end(); u++)
+		num_lost_users += Current->QuitUsers(from);
+		/*for (user_hash::iterator u = clientlist.begin(); u != clientlist.end(); u++)
 		{
 			if (!strcasecmp(u->second->server,Current->GetName().c_str()))
 			{
 				Goners->AddItem(u->second,from);
 				num_lost_users++;
 			}
-		}
+		}*/
 	}
 
 	/* This is a wrapper function for SquitServer above, which
@@ -847,14 +881,11 @@ class TreeSocket : public InspSocket
 			}
 			num_lost_servers = 0;
 			num_lost_users = 0;
-			CullList* Goners = new CullList();
 			std::string from = Current->GetParent()->GetName()+" "+Current->GetName();
-			SquitServer(from, Current, Goners);
-			Goners->Apply();
+			SquitServer(from, Current);
 			Current->Tidy();
 			Current->GetParent()->DelChild(Current);
 			delete Current;
-			delete Goners;
 			WriteOpers("Netsplit complete, lost \002%d\002 users on \002%d\002 servers.", num_lost_users, num_lost_servers);
 		}
 		else
@@ -1130,6 +1161,7 @@ class TreeSocket : public InspSocket
 		TreeServer* SourceServer = FindServer(source);
 		if (SourceServer)
 		{
+			SourceServer->AddUser(clientlist[tempnick]);
 			SourceServer->AddUserCount();
 		}
 
@@ -2543,7 +2575,15 @@ class TreeSocket : public InspSocket
 					}
 					if (who)
 					{
-						if ((command == "NICK") && (params.size() > 0))
+						if (command == "QUIT")
+						{
+							TreeServer* s = FindServer(who->server);
+							if (s)
+							{
+								s->DelUser(who);
+							}
+						}
+						else if ((command == "NICK") && (params.size() > 0))
 						{
 							/* On nick messages, check that the nick doesnt
 							 * already exist here. If it does, kill their copy,
