@@ -142,7 +142,7 @@ class ModuleCensor : public Module
 		return OnUserPreMessage(user,dest,target_type,text,status);
 	}
 	
-	virtual void OnRehash(std::string parameter)
+	virtual void OnRehash(const std::string &parameter)
 	{
 		/*
 		 * reload our config file on rehash - we must destroy and re-allocate the classes

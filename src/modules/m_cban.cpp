@@ -183,7 +183,7 @@ class ModuleCBan : public Module
 		}
 	}
 	
-	virtual void OnDecodeMetaData(int target_type, void* target, std::string extname, std::string extdata)
+	virtual void OnDecodeMetaData(int target_type, void* target, const std::string &extname, const std::string &extdata)
 	{
 		if((target_type == TYPE_OTHER) && (extname == "cban"))
 		{

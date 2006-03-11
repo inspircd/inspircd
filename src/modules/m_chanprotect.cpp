@@ -64,21 +64,21 @@ class ModuleChanProtect : public Module
 		InsertMode(output,"qa",1);
         }
 
-	virtual void OnUserKick(userrec* source, userrec* user, chanrec* chan, std::string reason)
+	virtual void OnUserKick(userrec* source, userrec* user, chanrec* chan, const std::string &reason)
 	{
 		// FIX: when someone gets kicked from a channel we must remove their Extensibles!
 		user->Shrink("cm_founder_"+std::string(chan->name));
 		user->Shrink("cm_protect_"+std::string(chan->name));
 	}
 
-	virtual void OnUserPart(userrec* user, chanrec* channel, std::string partreason)
+	virtual void OnUserPart(userrec* user, chanrec* channel, const std::string &partreason)
 	{
 		// FIX: when someone parts a channel we must remove their Extensibles!
 		user->Shrink("cm_founder_"+std::string(channel->name));
 		user->Shrink("cm_protect_"+std::string(channel->name));
 	}
 
-	virtual void OnRehash(std::string parameter)
+	virtual void OnRehash(const std::string &parameter)
 	{
 		// on a rehash we delete our classes for good measure and create them again.
 		delete Conf;

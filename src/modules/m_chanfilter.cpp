@@ -58,7 +58,7 @@ class ModuleChanFilter : public Module
 		InsertMode(output,"g",1);
         }
 
-	virtual void OnUserPart(userrec* user, chanrec* channel, std::string partreason)
+	virtual void OnUserPart(userrec* user, chanrec* channel, const std::string &partreason)
 	{
 		// when the last user parts, delete the list
 		if (Srv->CountUsers(channel) == 1)
@@ -72,7 +72,7 @@ class ModuleChanFilter : public Module
 		}
 	}
 
-	virtual void OnRehash(std::string parameter)
+	virtual void OnRehash(const std::string &parameter)
 	{
 		delete Conf;
 		Conf = new ConfigReader;

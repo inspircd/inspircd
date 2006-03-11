@@ -42,7 +42,7 @@ class ModuleWaitPong : public Module
 		OnRehash("");
 	}
 	
-	virtual void OnRehash(std::string param)
+	virtual void OnRehash(const std::string &param)
 	{
 		Conf = new ConfigReader;
 		
@@ -76,7 +76,7 @@ class ModuleWaitPong : public Module
 		user->Extend("waitpong_pingstr", pingrpl);
 	}
 	
-	virtual int OnPreCommand(std::string command, char** parameters, int pcnt,	userrec* user,	bool validated)
+	virtual int OnPreCommand(const std::string &command, char** parameters, int pcnt, userrec* user, bool validated)
 	{
 		if(command == "PONG")
 		{

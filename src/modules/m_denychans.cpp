@@ -36,7 +36,7 @@ class ModuleDenyChannels : public Module
 		Conf = new ConfigReader;
 	}
 	
-	virtual void OnRehash(std::string param)
+	virtual void OnRehash(const std::string &param)
 	{
 		delete Conf;
 		Conf = new ConfigReader;
