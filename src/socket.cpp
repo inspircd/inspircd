@@ -271,7 +271,7 @@ bool InspSocket::FlushWriteBuffer()
 	{
 		if (outbuffer.size())
 		{
-			log(DEBUG,"Writing %d to socket",outbuffer.size())
+			log(DEBUG,"Writing %d to socket",outbuffer.size());
 			int result = write(this->fd,outbuffer[0].c_str(),outbuffer[0].length());
 			if (result > 0)
 			{
