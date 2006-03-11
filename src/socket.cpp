@@ -64,7 +64,6 @@ InspSocket::InspSocket(int newfd, char* ip)
 InspSocket::InspSocket(const std::string &ahost, int aport, bool listening, unsigned long maxtime) : fd(-1), host(ahost)
 {
 	this->ClosePending = false;
-	this->outbuffer.clear();
 	if (listening) {
 		if ((this->fd = OpenTCPSocket()) == ERROR)
 		{

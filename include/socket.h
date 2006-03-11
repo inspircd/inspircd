@@ -23,7 +23,6 @@
 #include <sstream>
 #include <string>
 #include "dns.h"
-#include <deque>
 
 /**
  * States which a socket may be in
@@ -111,11 +110,6 @@ private:
 	 * space.
 	 */
 	char ibuf[65535];
-
-	/**
-	 * The output buffer for this socket
-	 */
-	std::deque<std::string> outbuffer;
 
 	/**
 	 * The IP address being connected
