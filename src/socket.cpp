@@ -283,7 +283,7 @@ bool InspSocket::FlushWriteBuffer()
 				}
 				else
 				{
-					std::string temp = outbuffer[0].substr(result + 1,outbuffer[0].length() - result - 1);
+					std::string temp = outbuffer[0].substr(result);
 					outbuffer[0] = temp;
 				}
 			}
@@ -404,6 +404,5 @@ void InspSocket::OnClose() { return; }
 
 InspSocket::~InspSocket()
 {
-	//outbuffer.clear();
-	//this->Close();
+	this->Close();
 }
