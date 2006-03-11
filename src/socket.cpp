@@ -257,7 +257,9 @@ int InspSocket::Write(const std::string &data)
 	if (this->ClosePending)
 		return false;
 
-	write(this->fd,data.c_str(),data.length());
+	int result = write(this->fd,data.c_str(),data.length());
+	if (result < 1)
+		return false;
 	return true;
 
 	/* Try and append the data to the back of the queue, and send it on its way
