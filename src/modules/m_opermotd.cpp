@@ -85,12 +85,12 @@ class ModuleOpermotd : public Module
 			List[I_OnRehash] = List[I_OnOper] = 1;
 		}
 
-		virtual void OnOper(userrec* user, std::string opertype)
+		virtual void OnOper(userrec* user, const std::string &opertype)
 		{
 			ShowOperMOTD(user);
 		}
 
-		virtual void OnRehash(std::string parameter)
+		virtual void OnRehash(const std::string &parameter)
 		{
 			LoadOperMOTD();
 		}

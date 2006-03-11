@@ -166,7 +166,7 @@ class ModuleSafeList : public Module
 	 * OnPreCommand()
 	 *   Intercept the LIST command.
 	 */ 
-	virtual int OnPreCommand(std::string command, char **parameters, int pcnt, userrec *user, bool validated)
+	virtual int OnPreCommand(const std::string &command, char **parameters, int pcnt, userrec *user, bool validated)
 	{
 		/* If the command doesnt appear to be valid, we dont want to mess with it. */
 		if (!validated)
@@ -255,7 +255,7 @@ class ModuleSafeList : public Module
 		output.append(" SAFELIST");
 	}
 
-	virtual void OnUserQuit(userrec* user, std::string message)
+	virtual void OnUserQuit(userrec* user, const std::string &message)
 	{
 		this->OnCleanup(TYPE_USER,user);
 	}

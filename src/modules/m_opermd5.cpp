@@ -298,7 +298,7 @@ class ModuleOperMD5 : public Module
 		List[I_OnOperCompare] = 1;
 	}
 
-	virtual int OnOperCompare(std::string data, std::string input)
+	virtual int OnOperCompare(const std::string &data, const std::string &input)
 	{
 		char buffer[MAXBUF];
 		if (data.length() == 32)	// if its 32 chars long, try it as an md5

@@ -53,7 +53,7 @@ class ModuleRestrictChans : public Module
 		ReadConfig();
 	}
 
-	virtual void OnRehash(std::string parameter)
+	virtual void OnRehash(const std::string &parameter)
 	{
 		ReadConfig();
 	}

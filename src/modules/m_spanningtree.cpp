@@ -3361,7 +3361,7 @@ class ModuleSpanningTree : public Module
 		return 0;
 	}
 
-	virtual int OnPreCommand(std::string command, char **parameters, int pcnt, userrec *user, bool validated)
+	virtual int OnPreCommand(const std::string &command, char **parameters, int pcnt, userrec *user, bool validated)
 	{
 		/* If the command doesnt appear to be valid, we dont want to mess with it. */
 		if (!validated)
@@ -3433,7 +3433,7 @@ class ModuleSpanningTree : public Module
 		return 0;
 	}
 
-	virtual void OnGetServerDescription(std::string servername,std::string &description)
+	virtual void OnGetServerDescription(const std::string &servername,std::string &description)
 	{
 		TreeServer* s = FindServer(servername);
 		if (s)
@@ -3453,7 +3453,7 @@ class ModuleSpanningTree : public Module
 		}
 	}
 
-	virtual void OnPostLocalTopicChange(userrec* user, chanrec* chan, std::string topic)
+	virtual void OnPostLocalTopicChange(userrec* user, chanrec* chan, const std::string &topic)
 	{
 		std::deque<std::string> params;
 		params.push_back(chan->name);
@@ -3461,7 +3461,7 @@ class ModuleSpanningTree : public Module
 		DoOneToMany(user->nick,"TOPIC",params);
 	}
 
-	virtual void OnWallops(userrec* user, std::string text)
+	virtual void OnWallops(userrec* user, const std::string &text)
 	{
 		if (user->fd > -1)
 		{
@@ -3471,7 +3471,7 @@ class ModuleSpanningTree : public Module
 		}
 	}
 
-	virtual void OnUserNotice(userrec* user, void* dest, int target_type, std::string text, char status)
+	virtual void OnUserNotice(userrec* user, void* dest, int target_type, const std::string &text, char status)
 	{
 		if (target_type == TYPE_USER)
 		{
@@ -3506,7 +3506,7 @@ class ModuleSpanningTree : public Module
 		}
 	}
 
-	virtual void OnUserMessage(userrec* user, void* dest, int target_type, std::string text, char status)
+	virtual void OnUserMessage(userrec* user, void* dest, int target_type, const std::string &text, char status)
 	{
 		if (target_type == TYPE_USER)
 		{
@@ -3582,7 +3582,7 @@ class ModuleSpanningTree : public Module
 		}
 	}
 
-	virtual void OnChangeHost(userrec* user, std::string newhost)
+	virtual void OnChangeHost(userrec* user, const std::string &newhost)
 	{
 		// only occurs for local clients
 		if (user->registered != 7)
@@ -3592,7 +3592,7 @@ class ModuleSpanningTree : public Module
 		DoOneToMany(user->nick,"FHOST",params);
 	}
 
-	virtual void OnChangeName(userrec* user, std::string gecos)
+	virtual void OnChangeName(userrec* user, const std::string &gecos)
 	{
 		// only occurs for local clients
 		if (user->registered != 7)
@@ -3602,7 +3602,7 @@ class ModuleSpanningTree : public Module
 		DoOneToMany(user->nick,"FNAME",params);
 	}
 
-	virtual void OnUserPart(userrec* user, chanrec* channel, std::string partmessage)
+	virtual void OnUserPart(userrec* user, chanrec* channel, const std::string &partmessage)
 	{
 		if (user->fd > -1)
 		{
@@ -3641,7 +3641,7 @@ class ModuleSpanningTree : public Module
 		}
 	}
 
-	virtual void OnUserQuit(userrec* user, std::string reason)
+	virtual void OnUserQuit(userrec* user, const std::string &reason)
 	{
 		if ((user->fd > -1) && (user->registered == 7))
 		{
@@ -3658,7 +3658,7 @@ class ModuleSpanningTree : public Module
 
 	}
 
-	virtual void OnUserPostNick(userrec* user, std::string oldnick)
+	virtual void OnUserPostNick(userrec* user, const std::string &oldnick)
 	{
 		if (user->fd > -1)
 		{
@@ -3668,7 +3668,7 @@ class ModuleSpanningTree : public Module
 		}
 	}
 
-	virtual void OnUserKick(userrec* source, userrec* user, chanrec* chan, std::string reason)
+	virtual void OnUserKick(userrec* source, userrec* user, chanrec* chan, const std::string &reason)
 	{
 		if ((source) && (source->fd > -1))
 		{
@@ -3688,7 +3688,7 @@ class ModuleSpanningTree : public Module
 		}
 	}
 
-	virtual void OnRemoteKill(userrec* source, userrec* dest, std::string reason)
+	virtual void OnRemoteKill(userrec* source, userrec* dest, const std::string &reason)
 	{
 		std::deque<std::string> params;
 		params.push_back(dest->nick);
@@ -3696,7 +3696,7 @@ class ModuleSpanningTree : public Module
 		DoOneToMany(source->nick,"KILL",params);
 	}
 
-	virtual void OnRehash(std::string parameter)
+	virtual void OnRehash(const std::string &parameter)
 	{
 		if (parameter != "")
 		{
@@ -3716,7 +3716,7 @@ class ModuleSpanningTree : public Module
 	// note: the protocol does not allow direct umode +o except
 	// via NICK with 8 params. sending OPERTYPE infers +o modechange
 	// locally.
-	virtual void OnOper(userrec* user, std::string opertype)
+	virtual void OnOper(userrec* user, const std::string &opertype)
 	{
 		if (user->fd > -1)
 		{
@@ -3726,7 +3726,7 @@ class ModuleSpanningTree : public Module
 		}
 	}
 
-	void OnLine(userrec* source, std::string host, bool adding, char linetype, long duration, std::string reason)
+	void OnLine(userrec* source, const std::string &host, bool adding, char linetype, long duration, const std::string &reason)
 	{
 		if (source->fd > -1)
 		{
@@ -3752,47 +3752,47 @@ class ModuleSpanningTree : public Module
 		}
 	}
 
-	virtual void OnAddGLine(long duration, userrec* source, std::string reason, std::string hostmask)
+	virtual void OnAddGLine(long duration, userrec* source, const std::string &reason, const std::string &hostmask)
 	{
 		OnLine(source,hostmask,true,'G',duration,reason);
 	}
 	
-	virtual void OnAddZLine(long duration, userrec* source, std::string reason, std::string ipmask)
+	virtual void OnAddZLine(long duration, userrec* source, const std::string &reason, const std::string &ipmask)
 	{
 		OnLine(source,ipmask,true,'Z',duration,reason);
 	}
 
-	virtual void OnAddQLine(long duration, userrec* source, std::string reason, std::string nickmask)
+	virtual void OnAddQLine(long duration, userrec* source, const std::string &reason, const std::string &nickmask)
 	{
 		OnLine(source,nickmask,true,'Q',duration,reason);
 	}
 
-	virtual void OnAddELine(long duration, userrec* source, std::string reason, std::string hostmask)
+	virtual void OnAddELine(long duration, userrec* source, const std::string &reason, const std::string &hostmask)
 	{
 		OnLine(source,hostmask,true,'E',duration,reason);
 	}
 
-	virtual void OnDelGLine(userrec* source, std::string hostmask)
+	virtual void OnDelGLine(userrec* source, const std::string &hostmask)
 	{
 		OnLine(source,hostmask,false,'G',0,"");
 	}
 
-	virtual void OnDelZLine(userrec* source, std::string ipmask)
+	virtual void OnDelZLine(userrec* source, const std::string &ipmask)
 	{
 		OnLine(source,ipmask,false,'Z',0,"");
 	}
 
-	virtual void OnDelQLine(userrec* source, std::string nickmask)
+	virtual void OnDelQLine(userrec* source, const std::string &nickmask)
 	{
 		OnLine(source,nickmask,false,'Q',0,"");
 	}
 
-	virtual void OnDelELine(userrec* source, std::string hostmask)
+	virtual void OnDelELine(userrec* source, const std::string &hostmask)
 	{
 		OnLine(source,hostmask,false,'E',0,"");
 	}
 
-	virtual void OnMode(userrec* user, void* dest, int target_type, std::string text)
+	virtual void OnMode(userrec* user, void* dest, int target_type, const std::string &text)
 	{
 		if ((user->fd > -1) && (user->registered == 7))
 		{
@@ -3835,7 +3835,7 @@ class ModuleSpanningTree : public Module
 		}
 	}
 
-	virtual void ProtoSendMode(void* opaque, int target_type, void* target, std::string modeline)
+	virtual void ProtoSendMode(void* opaque, int target_type, void* target, const std::string &modeline)
 	{
 		TreeSocket* s = (TreeSocket*)opaque;
 		if (target)
@@ -3853,7 +3853,7 @@ class ModuleSpanningTree : public Module
 		}
 	}
 
-	virtual void ProtoSendMetaData(void* opaque, int target_type, void* target, std::string extname, std::string extdata)
+	virtual void ProtoSendMetaData(void* opaque, int target_type, void* target, const std::string &extname, const std::string &extdata)
 	{
 		TreeSocket* s = (TreeSocket*)opaque;
 		if (target)

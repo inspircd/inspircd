@@ -113,7 +113,7 @@ class ModuleNickLock : public Module
 		List[I_OnUserPreNick] = List[I_OnUserQuit] = List[I_OnCleanup] = 1;
 	}
 
-	virtual int OnUserPreNick(userrec* user, std::string newnick)
+	virtual int OnUserPreNick(userrec* user, const std::string &newnick)
 	{
 		if (user->GetExt("nick_locked"))
 		{
@@ -123,7 +123,7 @@ class ModuleNickLock : public Module
 		return 0;
 	}
 
-	virtual void OnUserQuit(userrec* user, std::string reason)
+	virtual void OnUserQuit(userrec* user, const std::string &reason)
 	{
 		user->Shrink("nick_locked");
 	}

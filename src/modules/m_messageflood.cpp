@@ -172,7 +172,7 @@ class ModuleMsgFlood : public Module
 		return 0;
 	}
 
-	void ProcessMessages(userrec* user,chanrec* dest,std::string &text)
+	void ProcessMessages(userrec* user,chanrec* dest, const std::string &text)
 	{
 		if (IS_LOCAL(user))
 		{
@@ -198,7 +198,7 @@ class ModuleMsgFlood : public Module
 		}
 	}
 
-        virtual void OnUserMessage(userrec* user, void* dest, int target_type, std::string text, char status)
+        virtual void OnUserMessage(userrec* user, void* dest, int target_type, const std::string &text, char status)
 	{
                 if (target_type == TYPE_CHANNEL)
                 {
@@ -206,7 +206,7 @@ class ModuleMsgFlood : public Module
                 }
 	}
 
-	virtual void OnUserNotice(userrec* user, void* dest, int target_type, std::string text, char status)
+	virtual void OnUserNotice(userrec* user, void* dest, int target_type, const std::string &text, char status)
 	{
 		if (target_type == TYPE_CHANNEL)
 		{

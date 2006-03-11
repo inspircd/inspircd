@@ -49,7 +49,7 @@ class ModuleOverride : public Module
 		OnRehash("");
 	}
 	
-	virtual void OnRehash(std::string parameter)
+	virtual void OnRehash(const std::string &parameter)
 	{
 		// on a rehash we delete our classes for good measure and create them again.
 		delete Conf;
@@ -88,7 +88,7 @@ class ModuleOverride : public Module
 		return false;
 	}
 
-	virtual int OnUserPreKick(userrec* source, userrec* user, chanrec* chan, std::string reason)
+	virtual int OnUserPreKick(userrec* source, userrec* user, chanrec* chan, const std::string &reason)
 	{
 		if ((*source->oper) && (CanOverride(source,"KICK")))
 		{

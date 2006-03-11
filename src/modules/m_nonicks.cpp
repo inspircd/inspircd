@@ -58,7 +58,7 @@ class ModuleNoNickChange : public Module
 		InsertMode(output,"N",4);
         }
 	
-	virtual int OnUserPreNick(userrec* user, std::string newnick)
+	virtual int OnUserPreNick(userrec* user, const std::string &newnick)
 	{
 		irc::string server = user->server;
 		irc::string me = Srv->GetServerName().c_str();

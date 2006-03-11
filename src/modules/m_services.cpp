@@ -66,7 +66,7 @@ class ModuleServices : public Module
 		List[I_OnWhois] = List[I_OnUserPostNick] = List[I_OnUserPreMessage] = List[I_OnExtendedMode] = List[I_On005Numeric] = List[I_OnUserPreNotice] = List[I_OnUserPreJoin] = 1;
 	}
 
-	virtual void OnUserPostNick(userrec* user, std::string oldnick)
+	virtual void OnUserPostNick(userrec* user, const std::string &oldnick)
 	{
 		/* On nickchange, if they have +r, remove it */
 		if (strchr(user->modes,'r'))

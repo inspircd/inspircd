@@ -235,7 +235,7 @@ class ModulePark : public Module
 		List[I_On005Numeric] = List[I_OnRehash] = List[I_OnUserQuit] = List[I_OnUserPreMessage] = List[I_OnUserPreNick] = List[I_OnBackgroundTimer] = List[I_OnWhois] = 1;
 	}
 
-	virtual void OnRehash(std::string parameter)
+	virtual void OnRehash(const std::string &parameter)
 	{
 		this->ReadSettings();
 	}
@@ -245,7 +245,7 @@ class ModulePark : public Module
                 output = output + std::string(" PARK");
         }
 
-        virtual void OnUserQuit(userrec* user, std::string reason)
+        virtual void OnUserQuit(userrec* user, const std::string &reason)
         {
                 std::string nick = user->nick;
                 // track quits in our parked user list
@@ -260,7 +260,7 @@ class ModulePark : public Module
         }
 
 
-	virtual void OnPrePrivmsg(userrec* user, userrec* dest, std::string text)
+	virtual void OnPrePrivmsg(userrec* user, userrec* dest, const std::string &text)
 	{
 		awaylog* awy = (awaylog*)dest->GetExt("park_awaylog");
 		if (awy)
@@ -278,7 +278,7 @@ class ModulePark : public Module
 		}
 	}
 
-	virtual int OnUserPreNick(userrec* user, std::string newnick)
+	virtual int OnUserPreNick(userrec* user, const std::string &newnick)
 	{
 		// track nickchanges in our parked user list
 		// (this isnt too efficient, i'll tidy it up some time)
