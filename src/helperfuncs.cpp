@@ -689,7 +689,7 @@ void ChanExceptSender_NoFormat(chanrec* Ptr, userrec* user, char status, const c
 	}
 }
 
-std::string GetServerDescription(char* servername)
+std::string& GetServerDescription(char* servername)
 {
 	std::string description = "";
 
@@ -956,6 +956,7 @@ void WriteCommonExcept_NoFormat(userrec *u, const char* text)
 void WriteOpers(char* text, ...)
 {
 	char textbuffer[MAXBUF];
+	char formatbuffer[MAXBUF];
 	va_list argsPtr;
 
 	if (!text)
@@ -968,6 +969,8 @@ void WriteOpers(char* text, ...)
 	vsnprintf(textbuffer, MAXBUF, text, argsPtr);
 	va_end(argsPtr);
 
+	snprintf(formatbuffer,MAXBUF,"NOTICE %s :%s",a->nick,textbuffer);
+
 	for (std::vector<userrec*>::iterator i = all_opers.begin(); i != all_opers.end(); i++)
 	{
 		userrec* a = *i;
@@ -977,7 +980,7 @@ void WriteOpers(char* text, ...)
 			if (a->modebits & UM_SERVERNOTICE)
 			{
 				// send server notices to all with +s
-				WriteServ(a->fd,"NOTICE %s :%s",a->nick,textbuffer);
+				WriteServ_NoFormat(a->fd,formatbuffer);
 			}
 		}
 	}
@@ -989,15 +992,18 @@ void ServerNoticeAll(char* text, ...)
 		return;
 
 	char textbuffer[MAXBUF];
+	char formatbuffer[MAXBUF];
 	va_list argsPtr;
 	va_start (argsPtr, text);
 	vsnprintf(textbuffer, MAXBUF, text, argsPtr);
 	va_end(argsPtr);
 
+	snprintf(formatbuffer,MAXBUF,"NOTICE $%s :%s",Config->ServerName,textbuffer);
+
 	for (std::vector<userrec*>::const_iterator i = local_users.begin(); i != local_users.end(); i++)
 	{
 		userrec* t = (userrec*)(*i);
-		WriteServ(t->fd,"NOTICE $%s :%s",Config->ServerName,textbuffer);
+		WriteServ_NoFormat(t->fd,formatbuffer);
 	}
 }
 
@@ -1007,21 +1013,25 @@ void ServerPrivmsgAll(char* text, ...)
 		return;
 
 	char textbuffer[MAXBUF];
+	char formatbuffer[MAXBUF];
 	va_list argsPtr;
 	va_start (argsPtr, text);
 	vsnprintf(textbuffer, MAXBUF, text, argsPtr);
 	va_end(argsPtr);
 
+	snprintf(formatbuffer,MAXBUF,"NOTICE $%s :%s",Config->ServerName,textbuffer);
+
 	for (std::vector<userrec*>::const_iterator i = local_users.begin(); i != local_users.end(); i++)
 	{
 		userrec* t = (userrec*)(*i);
-		WriteServ(t->fd,"PRIVMSG $%s :%s",Config->ServerName,textbuffer);
+		WriteServ_NoFormat(t->fd,formatbuffer);
 	}
 }
 
 void WriteMode(const char* modes, int flags, const char* text, ...)
 {
 	char textbuffer[MAXBUF];
+	char formatbuffer[MAXBUF];
 	int modelen;
 	va_list argsPtr;
 
@@ -1035,6 +1045,8 @@ void WriteMode(const char* modes, int flags, const char* text, ...)
 	vsnprintf(textbuffer, MAXBUF, text, argsPtr);
 	va_end(argsPtr);
 	modelen = strlen(modes);
+
+	snprintf(formatbuffer,MAXBUF,"NOTICE %s :%s",t->nick,textbuffer);
 
 	for (std::vector<userrec*>::const_iterator i = local_users.begin(); i != local_users.end(); i++)
 	{
@@ -1070,7 +1082,7 @@ void WriteMode(const char* modes, int flags, const char* text, ...)
 
 		if (send_to_user)
 		{
-			WriteServ(t->fd,"NOTICE %s :%s",t->nick,textbuffer);
+			WriteServ_NoFormat(t->fd,formatbuffer);
 		}
 	}
 }
@@ -1078,6 +1090,7 @@ void WriteMode(const char* modes, int flags, const char* text, ...)
 void NoticeAll(userrec *source, bool local_only, char* text, ...)
 {
 	char textbuffer[MAXBUF];
+	char formatbuffer[MAXBUF];
 	va_list argsPtr;
 
 	if ((!text) || (!source))
@@ -1090,10 +1103,12 @@ void NoticeAll(userrec *source, bool local_only, char* text, ...)
 	vsnprintf(textbuffer, MAXBUF, text, argsPtr);
 	va_end(argsPtr);
 
+	snprintf(formatbuffer,MAXBUF,"NOTICE $* :%s",textbuffer);
+
 	for (std::vector<userrec*>::const_iterator i = local_users.begin(); i != local_users.end(); i++)
 	{
 		userrec* t = (userrec*)(*i);
-		WriteFrom(t->fd,source,"NOTICE $* :%s",textbuffer);
+		WriteFrom_NoFormat(t->fd,source,formatbuffer);
 	}
 }
 
@@ -1101,6 +1116,7 @@ void NoticeAll(userrec *source, bool local_only, char* text, ...)
 void WriteWallOps(userrec *source, bool local_only, char* text, ...)
 {
 	char textbuffer[MAXBUF];
+	char formatbuffer[MAXBUF];
 	va_list argsPtr;
 
 	if ((!text) || (!source))
@@ -1113,13 +1129,15 @@ void WriteWallOps(userrec *source, bool local_only, char* text, ...)
 	vsnprintf(textbuffer, MAXBUF, text, argsPtr);
 	va_end(argsPtr);
 
+	snprintf(formatbuffer,MAXBUF,"WALLOPS :%s",textbuffer);
+
 	for (std::vector<userrec*>::const_iterator i = local_users.begin(); i != local_users.end(); i++)
 	{
 		userrec* t = (userrec*)(*i);
 
 		if ((IS_LOCAL(t)) && (t->modebits & UM_WALLOPS))
 		{
-			WriteTo(source,t,"WALLOPS :%s",textbuffer);
+			WriteTo_NoFormat(source,t,formatbuffer);
 		}
 	}
 }

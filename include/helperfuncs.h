@@ -50,7 +50,7 @@ void ChanExceptSender_NoFormat(chanrec* Ptr, userrec* user, char status, const c
 void WriteCommon_NoFormat(userrec *u, const char* text);
 void WriteCommonExcept_NoFormat(userrec *u, const char* text);
 
-std::string GetServerDescription(char* servername);
+std::string& GetServerDescription(char* servername);
 void WriteCommon(userrec *u, char* text, ...);
 void WriteCommonExcept(userrec *u, char* text, ...);
 void WriteOpers(char* text, ...);
