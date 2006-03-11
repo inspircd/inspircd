@@ -54,7 +54,7 @@ class ModuleSSLDummy : public Module
 		}
 	}
 	
-	virtual void OnSyncUserMetaData(userrec* user, Module* proto, void* opaque, std::string extname)
+	virtual void OnSyncUserMetaData(userrec* user, Module* proto, void* opaque, const std::string &extname)
 	{
 		// check if the linking module wants to know about OUR metadata
 		if(extname == "ssl")
@@ -69,7 +69,7 @@ class ModuleSSLDummy : public Module
 		}
 	}
 	
-	virtual void OnDecodeMetaData(int target_type, void* target, std::string extname, std::string extdata)
+	virtual void OnDecodeMetaData(int target_type, void* target, const std::string &extname, const std::string &extdata)
 	{
 		// check if its our metadata key, and its associated with a user
 		if ((target_type == TYPE_USER) && (extname == "ssl"))
