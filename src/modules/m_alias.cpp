@@ -87,7 +87,7 @@ class ModuleAlias : public Module
 			return Version(1,0,0,1,VF_VENDOR);
 		}
 
-		virtual int OnPreCommand(std::string command, char **parameters, int pcnt, userrec *user, bool validated)
+		virtual int OnPreCommand(const std::string &command, char **parameters, int pcnt, userrec *user, bool validated)
 		{
 			userrec *u = NULL;
 			irc::string c = command.c_str();
@@ -148,7 +148,7 @@ class ModuleAlias : public Module
 			return 0;
 	 	}
   
-		virtual void OnRehash(std::string parameter)
+		virtual void OnRehash(const std::string &parameter)
 		{
 			delete MyConf;
 			MyConf = new ConfigReader;

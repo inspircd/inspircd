@@ -689,7 +689,7 @@ void ChanExceptSender_NoFormat(chanrec* Ptr, userrec* user, char status, const c
 	}
 }
 
-std::string& GetServerDescription(char* servername)
+std::string GetServerDescription(char* servername)
 {
 	std::string description = "";
 
@@ -956,7 +956,6 @@ void WriteCommonExcept_NoFormat(userrec *u, const char* text)
 void WriteOpers(char* text, ...)
 {
 	char textbuffer[MAXBUF];
-	char formatbuffer[MAXBUF];
 	va_list argsPtr;
 
 	if (!text)
@@ -969,8 +968,6 @@ void WriteOpers(char* text, ...)
 	vsnprintf(textbuffer, MAXBUF, text, argsPtr);
 	va_end(argsPtr);
 
-	snprintf(formatbuffer,MAXBUF,"NOTICE %s :%s",a->nick,textbuffer);
-
 	for (std::vector<userrec*>::iterator i = all_opers.begin(); i != all_opers.end(); i++)
 	{
 		userrec* a = *i;
@@ -980,7 +977,7 @@ void WriteOpers(char* text, ...)
 			if (a->modebits & UM_SERVERNOTICE)
 			{
 				// send server notices to all with +s
-				WriteServ_NoFormat(a->fd,formatbuffer);
+				WriteServ(a->fd,"NOTICE %s :%s",a->nick,textbuffer);
 			}
 		}
 	}
@@ -1031,7 +1028,6 @@ void ServerPrivmsgAll(char* text, ...)
 void WriteMode(const char* modes, int flags, const char* text, ...)
 {
 	char textbuffer[MAXBUF];
-	char formatbuffer[MAXBUF];
 	int modelen;
 	va_list argsPtr;
 
@@ -1045,8 +1041,6 @@ void WriteMode(const char* modes, int flags, const char* text, ...)
 	vsnprintf(textbuffer, MAXBUF, text, argsPtr);
 	va_end(argsPtr);
 	modelen = strlen(modes);
-
-	snprintf(formatbuffer,MAXBUF,"NOTICE %s :%s",t->nick,textbuffer);
 
 	for (std::vector<userrec*>::const_iterator i = local_users.begin(); i != local_users.end(); i++)
 	{
@@ -1082,7 +1076,7 @@ void WriteMode(const char* modes, int flags, const char* text, ...)
 
 		if (send_to_user)
 		{
-			WriteServ_NoFormat(t->fd,formatbuffer);
+			WriteServ(t->fd,"NOTICE %s :%s",t->nick,textbuffer);
 		}
 	}
 }

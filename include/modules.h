@@ -414,7 +414,7 @@ class Module : public classbase
 	 * @param user The user who is quitting
 	 * @param message The user's quit message
 	 */
-	virtual void OnUserQuit(userrec* user, std::string message);
+	virtual void OnUserQuit(userrec* user, const std::string &message);
 
 	/** Called whenever a user's socket is closed.
 	 * The details of the exiting user are available to you in the parameter userrec *user
@@ -444,7 +444,7 @@ class Module : public classbase
 	 * @param channel The channel being parted
 	 * @param partmessage The part message, or an empty string
 	 */
-	virtual void OnUserPart(userrec* user, chanrec* channel, std::string partmessage);
+	virtual void OnUserPart(userrec* user, chanrec* channel, const std::string &partmessage);
 
 	/** Called on rehash.
 	 * This method is called prior to a /REHASH or when a SIGHUP is received from the operating
@@ -453,7 +453,7 @@ class Module : public classbase
 	 * receiving the event can decide if this parameter has any relevence to it.
 	 * @param parameter The (optional) parameter given to REHASH from the user.
 	 */
- 	virtual void OnRehash(std::string parameter);
+ 	virtual void OnRehash(const std::string &parameter);
 
 	/** Called when a raw command is transmitted or received.
 	 * This method is the lowest level of handler available to a module. It will be called with raw
@@ -513,7 +513,7 @@ class Module : public classbase
 	 * @param reason The kick reason
 	 * @return 1 to prevent the kick, 0 to continue normally, -1 to explicitly allow the kick regardless of normal operation
          */
-	virtual int OnUserPreKick(userrec* source, userrec* user, chanrec* chan, std::string reason);
+	virtual int OnUserPreKick(userrec* source, userrec* user, chanrec* chan, const std::string &reason);
 
 	/** Called whenever a user is kicked.
 	 * If this method is called, the kick is already underway and cannot be prevented, so
@@ -523,7 +523,7 @@ class Module : public classbase
 	 * @param chan The channel the user is being kicked from
 	 * @param reason The kick reason
 	 */
-	virtual void OnUserKick(userrec* source, userrec* user, chanrec* chan, std::string reason);
+	virtual void OnUserKick(userrec* source, userrec* user, chanrec* chan, const std::string &reason);
 
 	/** Called whenever a user opers locally.
 	 * The userrec will contain the oper mode 'o' as this function is called after any modifications
@@ -531,7 +531,7 @@ class Module : public classbase
 	 * @param user The user who is opering up
 	 * @param opertype The opers type name
 	 */
-	virtual void OnOper(userrec* user, std::string opertype);
+	virtual void OnOper(userrec* user, const std::string &opertype);
 
 	/** Called after a user opers locally.
 	 * This is identical to Module::OnOper(), except it is called after OnOper so that other modules
@@ -540,7 +540,7 @@ class Module : public classbase
 	 * @param user The user who is opering up
 	 * @param opertype The opers type name
 	 */
-	virtual void OnPostOper(userrec* user, std::string opertype);
+	virtual void OnPostOper(userrec* user, const std::string &opertype);
 	
 	/** Called whenever a user types /INFO.
 	 * The userrec will contain the information of the user who typed the command. Modules may use this
@@ -627,7 +627,7 @@ class Module : public classbase
 	 * @param newnick Their new nickname
 	 * @return 1 to deny the change, 0 to allow
 	 */
-	virtual int OnUserPreNick(userrec* user, std::string newnick);
+	virtual int OnUserPreNick(userrec* user, const std::string &newnick);
 
 	/** Called after any PRIVMSG sent from a user.
 	 * The dest variable contains a userrec* if target_type is TYPE_USER and a chanrec*
@@ -638,7 +638,7 @@ class Module : public classbase
 	 * @param text the text being sent by the user
 	 * @param status The status being used, e.g. PRIVMSG @#chan has status== '@', 0 to send to everyone.
 	 */
-	virtual void OnUserMessage(userrec* user, void* dest, int target_type, std::string text, char status);
+	virtual void OnUserMessage(userrec* user, void* dest, int target_type, const std::string &text, char status);
 
 	/** Called after any NOTICE sent from a user.
 	 * The dest variable contains a userrec* if target_type is TYPE_USER and a chanrec*
@@ -649,7 +649,7 @@ class Module : public classbase
 	 * @param text the text being sent by the user
 	 * @param status The status being used, e.g. NOTICE @#chan has status== '@', 0 to send to everyone.
 	 */
-	virtual void OnUserNotice(userrec* user, void* dest, int target_type, std::string text, char status);
+	virtual void OnUserNotice(userrec* user, void* dest, int target_type, const std::string &text, char status);
 
 	/** Called after every MODE command sent from a user
 	 * The dest variable contains a userrec* if target_type is TYPE_USER and a chanrec*
@@ -660,7 +660,7 @@ class Module : public classbase
 	 * @param target_type The type of target (TYPE_USER or TYPE_CHANNEL)
 	 * @param text The actual modes and their parameters if any
 	 */
-	virtual void OnMode(userrec* user, void* dest, int target_type, std::string text);
+	virtual void OnMode(userrec* user, void* dest, int target_type, const std::string &text);
 
 	/** Allows modules to alter or create server descriptions
 	 * Whenever a module requires a server description, for example for display in
@@ -670,7 +670,7 @@ class Module : public classbase
 	 * @param servername The servername being searched for
 	 * @param description Alterable server description for this server
 	 */
-	virtual void OnGetServerDescription(std::string servername,std::string &description);
+	virtual void OnGetServerDescription(const std::string &servername,std::string &description);
 
 	/** Allows modules to synchronize data which relates to users during a netburst.
 	 * When this function is called, it will be called from the module which implements
@@ -714,7 +714,7 @@ class Module : public classbase
 	 * @param opaque An opaque pointer set by the protocol module, should not be modified!
 	 * @param extname The extensions name which is being searched for
 	 */
-	virtual void OnSyncChannelMetaData(chanrec* chan, Module* proto,void* opaque, std::string extname);
+	virtual void OnSyncChannelMetaData(chanrec* chan, Module* proto,void* opaque, const std::string &extname);
 
 	/* Allows modules to syncronize metadata related to users over the network during a netburst.
 	 * Whenever the linking module wants to send out data, but doesnt know what the data
@@ -727,7 +727,7 @@ class Module : public classbase
 	 * @param opaque An opaque pointer set by the protocol module, should not be modified!
 	 * @param extname The extensions name which is being searched for
 	 */
-	virtual void OnSyncUserMetaData(userrec* user, Module* proto,void* opaque, std::string extname);
+	virtual void OnSyncUserMetaData(userrec* user, Module* proto,void* opaque, const std::string &extname);
 
 	/* Allows modules to syncronize metadata not related to users or channels, over the network during a netburst.
 	 * Whenever the linking module wants to send out data, but doesnt know what the data
@@ -747,7 +747,7 @@ class Module : public classbase
 	 * @param extname The extension name which is being sent
 	 * @param extdata The extension data, encoded at the other end by an identical module through OnSyncChannelMetaData or OnSyncUserMetaData
 	 */
-	virtual void OnDecodeMetaData(int target_type, void* target, std::string extname, std::string extdata);
+	virtual void OnDecodeMetaData(int target_type, void* target, const std::string &extname, const std::string &extdata);
 
 	/** Implemented by modules which provide the ability to link servers.
 	 * These modules will implement this method, which allows transparent sending of servermodes
@@ -762,7 +762,7 @@ class Module : public classbase
 	 * @param target The chanrec* or userrec* that modes should be sent for
 	 * @param modeline The modes and parameters to be sent
 	 */
-	virtual void ProtoSendMode(void* opaque, int target_type, void* target, std::string modeline);
+	virtual void ProtoSendMode(void* opaque, int target_type, void* target, const std::string &modeline);
 
 	/** Implemented by modules which provide the ability to link servers.
 	 * These modules will implement this method, which allows metadata (extra data added to
@@ -778,27 +778,27 @@ class Module : public classbase
 	 * @param extname The extension name to send metadata for
 	 * @param extdata Encoded data for this extension name, which will be encoded at the oppsite end by an identical module using OnDecodeMetaData
 	 */
-	virtual void ProtoSendMetaData(void* opaque, int target_type, void* target, std::string extname, std::string extdata);
+	virtual void ProtoSendMetaData(void* opaque, int target_type, void* target, const std::string &extname, const std::string &extdata);
 	
 	/** Called after every WALLOPS command.
 	 * @param user The user sending the WALLOPS
 	 * @param text The content of the WALLOPS message
 	 */
-	virtual void OnWallops(userrec* user, std::string text);
+	virtual void OnWallops(userrec* user, const std::string &text);
 
 	/** Called whenever a user's hostname is changed.
 	 * This event triggers after the host has been set.
 	 * @param user The user whos host is being changed
 	 * @param newhost The new hostname being set
 	 */
-	virtual void OnChangeHost(userrec* user, std::string newhost);
+	virtual void OnChangeHost(userrec* user, const std::string &newhost);
 
 	/** Called whenever a user's GECOS (realname) is changed.
 	 * This event triggers after the name has been set.
 	 * @param user The user who's GECOS is being changed
 	 * @param gecos The new GECOS being set on the user
 	 */
-	virtual void OnChangeName(userrec* user, std::string gecos);
+	virtual void OnChangeName(userrec* user, const std::string &gecos);
 
 	/** Called whenever a gline is added by a local user.
 	 * This method is triggered after the line is added.
@@ -807,7 +807,7 @@ class Module : public classbase
 	 * @param reason The reason text to be displayed
 	 * @param hostmask The hostmask to add
 	 */
-	virtual void OnAddGLine(long duration, userrec* source, std::string reason, std::string hostmask);
+	virtual void OnAddGLine(long duration, userrec* source, const std::string &reason, const std::string &hostmask);
 
 	/** Called whenever a zline is added by a local user.
 	 * This method is triggered after the line is added.
@@ -816,7 +816,7 @@ class Module : public classbase
          * @param reason The reason text to be displayed
          * @param ipmask The hostmask to add
 	 */
-	virtual void OnAddZLine(long duration, userrec* source, std::string reason, std::string ipmask);
+	virtual void OnAddZLine(long duration, userrec* source, const std::string &reason, const std::string &ipmask);
 
 	/** Called whenever a kline is added by a local user.
 	 * This method is triggered after the line is added.
@@ -825,7 +825,7 @@ class Module : public classbase
          * @param reason The reason text to be displayed
          * @param hostmask The hostmask to add
 	 */
-	virtual void OnAddKLine(long duration, userrec* source, std::string reason, std::string hostmask);
+	virtual void OnAddKLine(long duration, userrec* source, const std::string &reason, const std::string &hostmask);
 
 	/** Called whenever a qline is added by a local user.
 	 * This method is triggered after the line is added.
@@ -834,7 +834,7 @@ class Module : public classbase
          * @param reason The reason text to be displayed
          * @param nickmask The hostmask to add
 	 */
-	virtual void OnAddQLine(long duration, userrec* source, std::string reason, std::string nickmask);
+	virtual void OnAddQLine(long duration, userrec* source, const std::string &reason, const std::string &nickmask);
 
 	/** Called whenever a eline is added by a local user.
 	 * This method is triggered after the line is added.
@@ -843,42 +843,42 @@ class Module : public classbase
          * @param reason The reason text to be displayed
          * @param hostmask The hostmask to add
 	 */
-	virtual void OnAddELine(long duration, userrec* source, std::string reason, std::string hostmask);
+	virtual void OnAddELine(long duration, userrec* source, const std::string &reason, const std::string &hostmask);
 
 	/** Called whenever a gline is deleted.
 	 * This method is triggered after the line is deleted.
          * @param source The user removing the line
          * @param hostmask The hostmask to delete
 	 */
-	virtual void OnDelGLine(userrec* source, std::string hostmask);
+	virtual void OnDelGLine(userrec* source, const std::string &hostmask);
 
 	/** Called whenever a zline is deleted.
 	 * This method is triggered after the line is deleted.
          * @param source The user removing the line
          * @param hostmask The hostmask to delete
 	 */
-	virtual void OnDelZLine(userrec* source, std::string ipmask);
+	virtual void OnDelZLine(userrec* source, const std::string &ipmask);
 
 	/** Called whenever a kline is deleted.
 	 * This method is triggered after the line is deleted.
          * @param source The user removing the line
          * @param hostmask The hostmask to delete
 	 */
-	virtual void OnDelKLine(userrec* source, std::string hostmask);
+	virtual void OnDelKLine(userrec* source, const std::string &hostmask);
 	
 	/** Called whenever a qline is deleted.
 	 * This method is triggered after the line is deleted.
          * @param source The user removing the line
          * @param hostmask The hostmask to delete
 	 */
-	virtual void OnDelQLine(userrec* source, std::string nickmask);
+	virtual void OnDelQLine(userrec* source, const std::string &nickmask);
 
 	/** Called whenever a eline is deleted.
 	 * This method is triggered after the line is deleted.
          * @param source The user removing the line
          * @param hostmask The hostmask to delete
 	 */
-	virtual void OnDelELine(userrec* source, std::string hostmask);
+	virtual void OnDelELine(userrec* source, const std::string &hostmask);
 
 	/** Called before your module is unloaded to clean up Extensibles.
 	 * This method is called once for every user and channel on the network,
@@ -900,7 +900,7 @@ class Module : public classbase
 	 * @param user The user changing their nick
 	 * @param oldnick The old nickname of the user before the nickchange
          */
-	virtual void OnUserPostNick(userrec* user, std::string oldnick);
+	virtual void OnUserPostNick(userrec* user, const std::string &oldnick);
 
 	/** Called before an action which requires a channel privilage check.
 	 * This function is called before many functions which check a users status on a channel, for example
@@ -948,14 +948,14 @@ class Module : public classbase
 	 * @param reason The kill reason
 	 * @return 1 to prevent the kill, 0 to allow
 	 */
-	virtual int OnKill(userrec* source, userrec* dest, std::string reason);
+	virtual int OnKill(userrec* source, userrec* dest, const std::string &reason);
 
 	/** Called when an oper wants to disconnect a remote user via KILL
 	 * @param source The user sending the KILL
 	 * @param dest The user being killed
 	 * @param reason The kill reason
 	 */
-	virtual void OnRemoteKill(userrec* source, userrec* dest, std::string reason);
+	virtual void OnRemoteKill(userrec* source, userrec* dest, const std::string &reason);
 
 	/** Called whenever a module is loaded.
 	 * mod will contain a pointer to the module, and string will contain its name,
@@ -969,7 +969,7 @@ class Module : public classbase
 	 * @param mod A pointer to the new module
 	 * @param name The new module's filename
 	 */
-	virtual void OnLoadModule(Module* mod,std::string name);
+	virtual void OnLoadModule(Module* mod,const std::string &name);
 
 	/** Called whenever a module is unloaded.
          * mod will contain a pointer to the module, and string will contain its name,
@@ -983,7 +983,7 @@ class Module : public classbase
 	 * @param mod Pointer to the module being unloaded (still valid)
 	 * @param name The filename of the module being unloaded
          */
-	virtual void OnUnloadModule(Module* mod,std::string name);
+	virtual void OnUnloadModule(Module* mod,const std::string &name);
 
 	/** Called once every five seconds for background processing.
 	 * This timer can be used to control timed features. Its period is not accurate
@@ -1021,7 +1021,7 @@ class Module : public classbase
 	 * @param validated True if the command has passed all checks, e.g. it is recognised, has enough parameters, the user has permission to execute it, etc.
 	 * @return 1 to block the command, 0 to allow
 	 */
-	virtual int OnPreCommand(std::string command, char **parameters, int pcnt, userrec *user, bool validated);
+	virtual int OnPreCommand(const std::string &command, char **parameters, int pcnt, userrec *user, bool validated);
 
 	/** Called to check if a user who is connecting can now be allowed to register
 	 * If any modules return false for this function, the user is held in the waiting
@@ -1057,7 +1057,7 @@ class Module : public classbase
 	 * @param pcnt The parameter count for the mode (0 or 1)
 	 * @return 1 to deny the mode, 0 to allow
 	 */
-	virtual int OnRawMode(userrec* user, chanrec* chan, char mode, std::string param, bool adding, int pcnt);
+	virtual int OnRawMode(userrec* user, chanrec* chan, char mode, const std::string &param, bool adding, int pcnt);
 
 	/** Called whenever a user joins a channel, to determine if invite checks should go ahead or not.
 	 * This method will always be called for each join, wether or not the channel is actually +i, and
@@ -1078,7 +1078,7 @@ class Module : public classbase
 	 * @param chan The channel being joined
 	 * @return 1 to explicitly allow the join, 0 to proceed as normal
          */
-	virtual int OnCheckKey(userrec* user, chanrec* chan, std::string keygiven);
+	virtual int OnCheckKey(userrec* user, chanrec* chan, const std::string &keygiven);
 
 	/** Called whenever a user joins a channel, to determine if channel limit checks should go ahead or not.
          * This method will always be called for each join, wether or not the channel is actually +l, and
@@ -1114,7 +1114,7 @@ class Module : public classbase
 	 * @param newhost The new hostname
 	 * @return 1 to deny the host change, 0 to allow
 	 */
-	virtual int OnChangeLocalUserHost(userrec* user, std::string newhost);
+	virtual int OnChangeLocalUserHost(userrec* user, const std::string &newhost);
 
 	/** Called whenever a change of a local users GECOS (fullname field) is attempted.
 	 * return 1 to deny the name change, or 0 to allow it.
@@ -1122,7 +1122,7 @@ class Module : public classbase
 	 * @param newhost The new GECOS
 	 * @return 1 to deny the GECOS change, 0 to allow
 	 */
-	virtual int OnChangeLocalUserGECOS(userrec* user, std::string newhost); 
+	virtual int OnChangeLocalUserGECOS(userrec* user, const std::string &newhost); 
 
 	/** Called whenever a topic is changed by a local user.
 	 * Return 1 to deny the topic change, or 0 to allow it.
@@ -1131,7 +1131,7 @@ class Module : public classbase
 	 * @param topic The actual topic text
 	 * @param 1 to block the topic change, 0 to allow
 	 */
-	virtual int OnLocalTopicChange(userrec* user, chanrec* chan, std::string topic);
+	virtual int OnLocalTopicChange(userrec* user, chanrec* chan, const std::string &topic);
 
 	/** Called whenever a local topic has been changed.
 	 * To block topic changes you must use OnLocalTopicChange instead.
@@ -1139,7 +1139,7 @@ class Module : public classbase
 	 * @param chan The channels who's topic is being changed
 	 * @param topic The actual topic text
 	 */
-	virtual void OnPostLocalTopicChange(userrec* user, chanrec* chan, std::string topic);
+	virtual void OnPostLocalTopicChange(userrec* user, chanrec* chan, const std::string &topic);
 
 	/** Called whenever an Event class is sent to all module by another module.
 	 * Please see the documentation of Event::Send() for further information. The Event sent can
@@ -1167,7 +1167,7 @@ class Module : public classbase
 	 * @param input The password entered
 	 * @return 1 to match the passwords, 0 to do nothing
 	 */
-	virtual int OnOperCompare(std::string password, std::string input);
+	virtual int OnOperCompare(const std::string &password, const std::string &input);
 
 	/** Called whenever a user is given usermode +o, anywhere on the network.
 	 * You cannot override this and prevent it from happening as it is already happened and
@@ -1191,7 +1191,7 @@ class Module : public classbase
 	 * @param banmask The ban mask being added
 	 * @return 1 to block the ban, 0 to continue as normal
 	 */
-	virtual int OnAddBan(userrec* source, chanrec* channel,std::string banmask);
+	virtual int OnAddBan(userrec* source, chanrec* channel,const std::string &banmask);
 
 	/** Called whenever a ban is removed from a channel's list.
 	 * Return a non-zero value to 'eat' the mode change and prevent the ban from being removed.
@@ -1200,7 +1200,7 @@ class Module : public classbase
 	 * @param banmask The ban mask being deleted
 	 * @return 1 to block the unban, 0 to continue as normal
 	 */
-	virtual int OnDelBan(userrec* source, chanrec* channel,std::string banmask);
+	virtual int OnDelBan(userrec* source, chanrec* channel,const std::string &banmask);
 
 	/** Called immediately after any  connection is accepted. This is intended for raw socket
 	 * processing (e.g. modules which wrap the tcp connection within another library) and provides
@@ -1211,7 +1211,7 @@ class Module : public classbase
 	 * @param ip The IP address of the connecting user
 	 * @param localport The local port number the user connected to
 	 */
-	virtual void OnRawSocketAccept(int fd, std::string ip, int localport);
+	virtual void OnRawSocketAccept(int fd, const std::string &ip, int localport);
 
 	/** Called immediately before any write() operation on a user's socket in the core. Because
 	 * this event is a low level event no user information is associated with it. It is intended

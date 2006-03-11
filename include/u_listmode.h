@@ -70,7 +70,7 @@ public:
 		Srv->AddExtendedListMode(modechar);		
 	}
 	
-	virtual void OnRehash(std::string param)
+	virtual void OnRehash(const std::string &param)
 	{
 		delete Conf;
 		Conf = new ConfigReader;

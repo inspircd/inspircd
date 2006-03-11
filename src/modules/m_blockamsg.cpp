@@ -70,7 +70,7 @@ public:
 		return Version(1,0,0,0,VF_VENDOR);
 	}
 	
-	virtual void OnRehash(std::string parameter)
+	virtual void OnRehash(const std::string &parameter)
 	{
 		ConfigReader* Conf = new ConfigReader;
 		
@@ -94,7 +94,7 @@ public:
 		delete Conf;
 	}
 
-	virtual int OnPreCommand(std::string command, char **parameters, int pcnt, userrec *user, bool validated)
+	virtual int OnPreCommand(const std::string &command, char **parameters, int pcnt, userrec *user, bool validated)
 	{
 		// Don't do anything with unregistered users, or remote ones.
 		if(!user || (user->registered != 7) || !IS_LOCAL(user))
