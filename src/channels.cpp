@@ -447,16 +447,19 @@ chanrec* ForceChan(chanrec* Ptr,ucrec *a,userrec* user, int created)
 	a->channel = Ptr;
 	Ptr->AddUser(user);
 	WriteChannel(Ptr,user,"JOIN :%s",Ptr->name);
-	log(DEBUG,"Sent JOIN to client");
 
-	if (Ptr->topicset)
+	/* Major improvement by Brain - we dont need to be calculating all this pointlessly for remote users */
+	if (IS_LOCAL(user))
 	{
-		WriteServ(user->fd,"332 %s %s :%s", user->nick, Ptr->name, Ptr->topic);
-		WriteServ(user->fd,"333 %s %s %s %lu", user->nick, Ptr->name, Ptr->setby, (unsigned long)Ptr->topicset);
+		log(DEBUG,"Sent JOIN to client");
+		if (Ptr->topicset)
+		{
+			WriteServ(user->fd,"332 %s %s :%s", user->nick, Ptr->name, Ptr->topic);
+			WriteServ(user->fd,"333 %s %s %s %lu", user->nick, Ptr->name, Ptr->setby, (unsigned long)Ptr->topicset);
+		}
+		userlist(user,Ptr);
+		WriteServ(user->fd,"366 %s %s :End of /NAMES list.", user->nick, Ptr->name);
 	}
-
-	userlist(user,Ptr);
-	WriteServ(user->fd,"366 %s %s :End of /NAMES list.", user->nick, Ptr->name);
 	FOREACH_MOD(I_OnUserJoin,OnUserJoin(user,Ptr));
 	return Ptr;
 }
