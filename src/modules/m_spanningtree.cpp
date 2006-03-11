@@ -1222,7 +1222,7 @@ class TreeSocket : public InspSocket
 
 			if (counter > (480-NICKMAX))
 			{
-				log(DEBUG,"FJOIN line wrapped");
+				log(DEBUG,"FJOIN line wrapped to %d %d",counter,(480-NICKMAX));
 				this->WriteLine(list);
 				counter = snprintf(list,MAXBUF,":%s FJOIN %s %lu",Srv->GetServerName().c_str(),c->name,(unsigned long)c->age);
 				for (unsigned int y = 0; y < specific_voice.size(); y++)
