@@ -278,7 +278,6 @@ bool InspSocket::FlushWriteBuffer()
 				log(DEBUG,"Write error on socket: %s",strerror(errno));
 				this->OnError(I_ERR_WRITE);
 				this->state = I_ERROR;
-				this->fd = -1;
 				return true;
 			}
 		}
@@ -299,7 +298,6 @@ bool InspSocket::Timeout(time_t current)
 		this->OnError(I_ERR_TIMEOUT);
 		timeout = true;
 		this->state = I_ERROR;
-		this->fd = -1;
 		return true;
 	}
 	return this->FlushWriteBuffer();

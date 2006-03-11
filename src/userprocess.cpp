@@ -70,6 +70,7 @@ extern std::vector<InspSocket*> module_sockets;
 extern time_t TIME;
 extern time_t OLDTIME;
 extern std::vector<userrec*> local_users;
+extern InspSocket* socket_ref[MAX_DESCRIPTORS];
 char LOG_FILE[MAXBUF];
 
 extern InspIRCd* ServerInstance;
@@ -320,6 +321,7 @@ void DoSocketTimeouts(time_t TIME)
 		{
 			log(DEBUG,"Socket poll returned false, close and bail");
 			SE->DelFd(s->GetFd());
+			socket_ref[s->GetFd()] = NULL;
 			s->Close();
 			module_sockets.erase(a);
 			delete s;
