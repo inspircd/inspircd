@@ -1286,7 +1286,7 @@ class Server : public classbase
 	 * @param modulename The module your module wants to be before in the call list
 	 * @returns a priority ID which the core uses to relocate the module in the list
 	 */
-	long PriorityBefore(std::string modulename);
+	long PriorityBefore(const std::string &modulename);
 
 	/** For use with Module::Prioritize().
 	 * When the return value of this function is returned from
@@ -1296,12 +1296,12 @@ class Server : public classbase
 	 * @param modulename The module your module wants to be after in the call list
 	 * @returns a priority ID which the core uses to relocate the module in the list
 	 */
-	long PriorityAfter(std::string modulename);
+	long PriorityAfter(const std::string &modulename);
 	
 	/** Sends text to all opers.
 	 * This method sends a server notice to all opers with the usermode +s.
 	 */
-	virtual void SendOpers(std::string s);
+	virtual void SendOpers(const std::string &s);
 
 	/** Returns the version string of this server
 	 */
@@ -1311,30 +1311,30 @@ class Server : public classbase
 	 * This method writes a line of text to the log. If the level given is lower than the
 	 * level given in the configuration, this command has no effect.
 	 */
-	virtual void Log(int level, std::string s);
+	virtual void Log(int level, const std::string &s);
 
 	/** Sends a line of text down a TCP/IP socket.
 	 * This method writes a line of text to an established socket, cutting it to 510 characters
 	 * plus a carriage return and linefeed if required.
 	 */
-	virtual void Send(int Socket, std::string s);
+	virtual void Send(int Socket, const std::string &s);
 
 	/** Sends text from the server to a socket.
 	 * This method writes a line of text to an established socket, with the servername prepended
 	 * as used by numerics (see RFC 1459)
 	 */
-	virtual void SendServ(int Socket, std::string s);
+	virtual void SendServ(int Socket, const std::string &s);
 
 	/** Writes text to a channel, but from a server, including all.
 	 * This can be used to send server notices to a group of users.
 	 */
-	virtual void SendChannelServerNotice(std::string ServName, chanrec* Channel, std::string text);
+	virtual void SendChannelServerNotice(const std::string &ServName, chanrec* Channel, const std::string &text);
 
 	/** Sends text from a user to a socket.
 	 * This method writes a line of text to an established socket, with the given user's nick/ident
 	 * /host combination prepended, as used in PRIVSG etc commands (see RFC 1459)
 	 */
-	virtual void SendFrom(int Socket, userrec* User, std::string s);
+	virtual void SendFrom(int Socket, userrec* User, const std::string &s);
 
 	/** Sends text from a user to another user.
 	 * This method writes a line of text to a user, with a user's nick/ident
@@ -1350,7 +1350,7 @@ class Server : public classbase
 	 *
 	 * Which is useful for numerics and server notices to single users, etc.
 	 */
-	virtual void SendTo(userrec* Source, userrec* Dest, std::string s);
+	virtual void SendTo(userrec* Source, userrec* Dest, const std::string &s);
 
 	/** Sends text from a user to a channel (mulicast).
 	 * This method writes a line of text to a channel, with the given user's nick/ident
@@ -1358,7 +1358,7 @@ class Server : public classbase
 	 * IncludeSender flag is set, then the text is also sent back to the user from which
 	 * it originated, as seen in MODE (see RFC 1459).
 	 */
-	virtual void SendChannel(userrec* User, chanrec* Channel, std::string s,bool IncludeSender);
+	virtual void SendChannel(userrec* User, chanrec* Channel, const std::string &s, bool IncludeSender);
 
 	/** Returns true if two users share a common channel.
 	 * This method is used internally by the NICK and QUIT commands, and the Server::SendCommon
@@ -1373,18 +1373,18 @@ class Server : public classbase
 	 * back to the user from which it originated, as seen in NICK (see RFC 1459). Otherwise, it
 	 * is only sent to the other recipients, as seen in QUIT.
 	 */
-	virtual void SendCommon(userrec* User, std::string text,bool IncludeSender);
+	virtual void SendCommon(userrec* User, std::string text, bool IncludeSender);
 
 	/** Sends a WALLOPS message.
 	 * This method writes a WALLOPS message to all users with the +w flag, originating from the
 	 * specified user.
 	 */
-	virtual void SendWallops(userrec* User, std::string text);
+	virtual void SendWallops(userrec* User, const std::string &text);
 
 	/** Returns true if a nick is valid.
 	 * Nicks for unregistered connections will return false.
 	 */
-	virtual bool IsNick(std::string nick);
+	virtual bool IsNick(const std::string &nick);
 
 	/** Returns a count of the number of users on a channel.
 	 * This will NEVER be 0, as if the chanrec exists, it will have at least one user in the channel.
@@ -1398,7 +1398,7 @@ class Server : public classbase
 	/** Attempts to look up a nick and return a pointer to it.
 	 * This function will return NULL if the nick does not exist.
 	 */
-	virtual userrec* FindNick(std::string nick);
+	virtual userrec* FindNick(const std::string &nick);
 
 	/** Attempts to look up a nick using the file descriptor associated with that nick.
 	 * This function will return NULL if the file descriptor is not associated with a valid user.
@@ -1408,7 +1408,7 @@ class Server : public classbase
 	/** Attempts to look up a channel and return a pointer to it.
 	 * This function will return NULL if the channel does not exist.
 	 */
-	virtual chanrec* FindChannel(std::string channel);
+	virtual chanrec* FindChannel(const std::string &channel);
 
 	/** Attempts to look up a user's privilages on a channel.
 	 * This function will return a string containing either @, %, +, or an empty string,
@@ -1532,28 +1532,28 @@ class Server : public classbase
   	 * Then the text 'm00' will be sent to all users with EITHER mode x or i. Conversely if you used WM_AND, the
   	 * user must have both modes set to receive the message.
   	 */
-  	virtual void SendToModeMask(std::string modes, int flags, std::string text);
+  	virtual void SendToModeMask(const std::string &modes, int flags, const std::string &text);
 
 	/** Forces a user to join a channel.
 	 * This is similar to svsjoin and can be used to implement redirection, etc.
 	 * On success, the return value is a valid pointer to a chanrec* of the channel the user was joined to.
 	 * On failure, the result is NULL.
 	 */
-	virtual chanrec* JoinUserToChannel(userrec* user, std::string cname, std::string key);
+	virtual chanrec* JoinUserToChannel(userrec* user, const std::string &cname, const std::string &key);
 	
 	/** Forces a user to part a channel.
 	 * This is similar to svspart and can be used to implement redirection, etc.
 	 * Although the return value of this function is a pointer to a channel record, the returned data is
 	 * undefined and should not be read or written to. This behaviour may be changed in a future version.
 	 */
-	virtual chanrec* PartUserFromChannel(userrec* user, std::string cname, std::string reason);
+	virtual chanrec* PartUserFromChannel(userrec* user, const std::string &cname, const std::string &reason);
 	
 	/** Forces a user nickchange.
 	 * This command works similarly to SVSNICK, and can be used to implement Q-lines etc.
 	 * If you specify an invalid nickname, the nick change will be dropped and the target user will receive
 	 * the error numeric for it.
 	 */
-	virtual void ChangeUserNick(userrec* user, std::string nickname);
+	virtual void ChangeUserNick(userrec* user, const std::string &nickname);
 	
 	/** Forces a user to quit with the specified reason.
 	 * To the user, it will appear as if they typed /QUIT themselves, except for the fact that this function
@@ -1565,7 +1565,7 @@ class Server : public classbase
 	 * read from this pointer after calling the QuitUser method UNDER ANY CIRCUMSTANCES! The best course of
 	 * action after calling this method is to immediately bail from your handler.
 	 */
-	virtual void QuitUser(userrec* user, std::string reason);
+	virtual void QuitUser(userrec* user, const std::string &reason);
 
 	/** Makes a user kick another user, with the specified reason.
 	 * If source is NULL, the server will peform the kick.
@@ -1574,13 +1574,13 @@ class Server : public classbase
 	 * @param chan The channel to kick from
 	 * @param reason The kick reason
 	 */
-	virtual void KickUser(userrec* source, userrec* target, chanrec* chan, std::string reason);
+	virtual void KickUser(userrec* source, userrec* target, chanrec* chan, const std::string &reason);
 	
 	/**  Matches text against a glob pattern.
 	 * Uses the ircd's internal matching function to match string against a globbing pattern, e.g. *!*@*.com
 	 * Returns true if the literal successfully matches the pattern, false if otherwise.
 	 */
-	virtual bool MatchText(std::string sliteral, std::string spattern);
+	virtual bool MatchText(const std::string &sliteral, const std::string &spattern);
 	
 	/** Calls the handler for a command, either implemented by the core or by another module.
 	 * You can use this function to trigger other commands in the ircd, such as PRIVMSG, JOIN,
@@ -1594,14 +1594,14 @@ class Server : public classbase
 	 * used for privilage checks, etc.
 	 * @return True if the command exists
 	 */
-	virtual bool CallCommandHandler(std::string commandname, char** parameters, int pcnt, userrec* user);
+	virtual bool CallCommandHandler(const std::string &commandname, char** parameters, int pcnt, userrec* user);
 
 	/** This function returns true if the commandname exists, pcnt is equal to or greater than the number
 	 * of paramters the command requires, the user specified is allowed to execute the command, AND
 	 * if the command is implemented by a module (not the core). This has a few specific uses, usually
 	 * within network protocols (see src/modules/m_spanningtree.cpp)
 	 */
-	virtual bool IsValidModuleCommand(std::string commandname, int pcnt, userrec* user);
+	virtual bool IsValidModuleCommand(const std::string &commandname, int pcnt, userrec* user);
 	
 	/** Change displayed hostname of a user.
 	 * You should always call this method to change a user's host rather than writing directly to the
@@ -1622,7 +1622,7 @@ class Server : public classbase
 	 * change modes of clients which are on remote servers and set modes of channels where there are
 	 * no channel operators for that channel on the ulined server, amongst other things.
 	 */
-	virtual bool IsUlined(std::string server);
+	virtual bool IsUlined(const std::string &server);
 	
 	/** Fetches the userlist of a channel. This function must be here and not a member of userrec or
 	 * chanrec due to include constraints.
@@ -1635,7 +1635,7 @@ class Server : public classbase
 	 * remain until it is restored with a valid file descriptor, or is removed from IRC by an operator
 	 * After this call, the pointer to user will be invalid.
 	 */
-	virtual bool UserToPseudo(userrec* user,std::string message);
+	virtual bool UserToPseudo(userrec* user, const std::string &message);
 
 	/** This user takes one user, and switches their file descriptor with another user, so that one user
 	 * "becomes" the other. The user in 'alive' is booted off the server with the given message. The user
@@ -1643,7 +1643,7 @@ class Server : public classbase
 	 * stale sockets and file descriptor leaks can occur. After this call, the pointer to alive will be
 	 * invalid, and the pointer to zombie will be equivalent in effect to the old pointer to alive.
 	 */
-	virtual bool PseudoToUser(userrec* alive,userrec* zombie,std::string message);
+	virtual bool PseudoToUser(userrec* alive, userrec* zombie, const std::string &message);
 
 	/** Adds a G-line
 	 * The G-line is propogated to all of the servers in the mesh and enforced as soon as it is added.
@@ -1652,7 +1652,7 @@ class Server : public classbase
 	 * to indicate who or what sent the data, usually this is the nickname of a person, or a server
 	 * name.
 	 */
-	virtual void AddGLine(long duration, std::string source, std::string reason, std::string hostmask);
+	virtual void AddGLine(long duration, const std::string &source, const std::string &reason, const std::string &hostmask);
 
 	/** Adds a Q-line
 	 * The Q-line is propogated to all of the servers in the mesh and enforced as soon as it is added.
@@ -1661,7 +1661,7 @@ class Server : public classbase
 	 * to indicate who or what sent the data, usually this is the nickname of a person, or a server
 	 * name.
 	 */
-	virtual void AddQLine(long duration, std::string source, std::string reason, std::string nickname);
+	virtual void AddQLine(long duration, const std::string &source, const std::string &reason, const std::string nickname);
 
 	/** Adds a Z-line
 	 * The Z-line is propogated to all of the servers in the mesh and enforced as soon as it is added.
@@ -1670,7 +1670,7 @@ class Server : public classbase
 	 * to indicate who or what sent the data, usually this is the nickname of a person, or a server
 	 * name.
 	 */
-	virtual void AddZLine(long duration, std::string source, std::string reason, std::string ipaddr);
+	virtual void AddZLine(long duration, const std::string &source, const std::string &reason, const std::string &ipaddr);
 
 	/** Adds a K-line
 	 * The K-line is enforced as soon as it is added.
@@ -1679,7 +1679,7 @@ class Server : public classbase
 	 * to indicate who or what sent the data, usually this is the nickname of a person, or a server
 	 * name.
 	 */
-	virtual void AddKLine(long duration, std::string source, std::string reason, std::string hostmask);
+	virtual void AddKLine(long duration, const std::string &source, const std::string &reason, const std::string &hostmask);
 
 	/** Adds a E-line
 	 * The E-line is enforced as soon as it is added.
@@ -1688,44 +1688,44 @@ class Server : public classbase
 	 * to indicate who or what sent the data, usually this is the nickname of a person, or a server
 	 * name.
 	 */
-	virtual void AddELine(long duration, std::string source, std::string reason, std::string hostmask);
+	virtual void AddELine(long duration, const std::string &source, const std::string &reason, const std::string &hostmask);
 
 	/** Deletes a G-Line from all servers
 	 */
-	virtual bool DelGLine(std::string hostmask);
+	virtual bool DelGLine(const std::string &hostmask);
 
 	/** Deletes a Q-Line from all servers
 	 */
-	virtual bool DelQLine(std::string nickname);
+	virtual bool DelQLine(const std::string &nickname);
 
 	/** Deletes a Z-Line from all servers
 	 */
-	virtual bool DelZLine(std::string ipaddr);
+	virtual bool DelZLine(const std::string &ipaddr);
 
 	/** Deletes a local K-Line
 	 */
-	virtual bool DelKLine(std::string hostmask);
+	virtual bool DelKLine(const std::string &hostmask);
 
 	/** Deletes a local E-Line
 	 */
-	virtual bool DelELine(std::string hostmask);
+	virtual bool DelELine(const std::string &hostmask);
 
 	/** Calculates a duration
 	 * This method will take a string containing a formatted duration (e.g. "1w2d") and return its value
 	 * as a total number of seconds. This is the same function used internally by /GLINE etc to set
 	 * the ban times.
 	 */
-	virtual long CalcDuration(std::string duration);
+	virtual long CalcDuration(const std::string &duration);
 
 	/** Returns true if a nick!ident@host string is correctly formatted, false if otherwise.
 	 */
-	virtual bool IsValidMask(std::string mask);
+	virtual bool IsValidMask(const std::string &mask);
 
 	/** This function finds a module by name.
 	 * You must provide the filename of the module. If the module cannot be found (is not loaded)
 	 * the function will return NULL.
 	 */
-	virtual Module* FindModule(std::string name);
+	virtual Module* FindModule(const std::string &name);
 
 	/** Adds a class derived from InspSocket to the server's socket engine.
 	 */

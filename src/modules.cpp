@@ -217,8 +217,8 @@ std::string Event::GetEventID()
 
 // These declarations define the behavours of the base class Module (which does nothing at all)
 
-			Module::Module(Server* Me) { }
-			Module::~Module() { }
+		Module::Module(Server* Me) { }
+		Module::~Module() { }
 void		Module::OnUserConnect(userrec* user) { }
 void		Module::OnUserQuit(userrec* user, const std::string& message) { }
 void		Module::OnUserDisconnect(userrec* user) { }
@@ -226,51 +226,51 @@ void		Module::OnUserJoin(userrec* user, chanrec* channel) { }
 void		Module::OnUserPart(userrec* user, chanrec* channel, const std::string &partmessage) { }
 void		Module::OnRehash(const std::string &parameter) { }
 void		Module::OnServerRaw(std::string &raw, bool inbound, userrec* user) { }
-int			Module::OnUserPreJoin(userrec* user, chanrec* chan, const char* cname) { return 0; }
-int			Module::OnExtendedMode(userrec* user, void* target, char modechar, int type, bool mode_on, string_list &params) { return false; }
+int		Module::OnUserPreJoin(userrec* user, chanrec* chan, const char* cname) { return 0; }
+int		Module::OnExtendedMode(userrec* user, void* target, char modechar, int type, bool mode_on, string_list &params) { return false; }
 void		Module::OnMode(userrec* user, void* dest, int target_type, const std::string &text) { };
 Version		Module::GetVersion() { return Version(1,0,0,0,VF_VENDOR); }
 void		Module::OnOper(userrec* user, const std::string &opertype) { };
 void		Module::OnPostOper(userrec* user, const std::string &opertype) { };
 void		Module::OnInfo(userrec* user) { };
 void		Module::OnWhois(userrec* source, userrec* dest) { };
-int			Module::OnUserPreInvite(userrec* source,userrec* dest,chanrec* channel) { return 0; };
-int			Module::OnUserPreMessage(userrec* user,void* dest,int target_type, std::string &text,char status) { return 0; };
-int			Module::OnUserPreNotice(userrec* user,void* dest,int target_type, std::string &text,char status) { return 0; };
-int			Module::OnUserPreNick(userrec* user, const std::string &newnick) { return 0; };
+int		Module::OnUserPreInvite(userrec* source,userrec* dest,chanrec* channel) { return 0; };
+int		Module::OnUserPreMessage(userrec* user,void* dest,int target_type, std::string &text,char status) { return 0; };
+int		Module::OnUserPreNotice(userrec* user,void* dest,int target_type, std::string &text,char status) { return 0; };
+int		Module::OnUserPreNick(userrec* user, const std::string &newnick) { return 0; };
 void		Module::OnUserPostNick(userrec* user, const std::string &oldnick) { };
-int			Module::OnAccessCheck(userrec* source,userrec* dest,chanrec* channel,int access_type) { return ACR_DEFAULT; };
+int		Module::OnAccessCheck(userrec* source,userrec* dest,chanrec* channel,int access_type) { return ACR_DEFAULT; };
 void		Module::On005Numeric(std::string &output) { };
-int			Module::OnKill(userrec* source, userrec* dest, const std::string &reason) { return 0; };
+int		Module::OnKill(userrec* source, userrec* dest, const std::string &reason) { return 0; };
 void		Module::OnLoadModule(Module* mod,const std::string &name) { };
 void		Module::OnUnloadModule(Module* mod,const std::string &name) { };
 void		Module::OnBackgroundTimer(time_t curtime) { };
 void		Module::OnSendList(userrec* user, chanrec* channel, char mode) { };
-int			Module::OnPreCommand(const std::string &command, char **parameters, int pcnt, userrec *user, bool validated) { return 0; };
+int		Module::OnPreCommand(const std::string &command, char **parameters, int pcnt, userrec *user, bool validated) { return 0; };
 bool		Module::OnCheckReady(userrec* user) { return true; };
 void		Module::OnUserRegister(userrec* user) { };
-int			Module::OnUserPreKick(userrec* source, userrec* user, chanrec* chan, const std::string &reason) { return 0; };
+int		Module::OnUserPreKick(userrec* source, userrec* user, chanrec* chan, const std::string &reason) { return 0; };
 void		Module::OnUserKick(userrec* source, userrec* user, chanrec* chan, const std::string &reason) { };
-int			Module::OnRawMode(userrec* user, chanrec* chan, char mode, const std::string &param, bool adding, int pcnt) { return 0; };
-int			Module::OnCheckInvite(userrec* user, chanrec* chan) { return 0; };
-int			Module::OnCheckKey(userrec* user, chanrec* chan, const std::string &keygiven) { return 0; };
-int			Module::OnCheckLimit(userrec* user, chanrec* chan) { return 0; };
-int			Module::OnCheckBan(userrec* user, chanrec* chan) { return 0; };
-int			Module::OnStats(char symbol, userrec* user) { return 0; };
-int			Module::OnChangeLocalUserHost(userrec* user, const std::string &newhost) { return 0; };
-int			Module::OnChangeLocalUserGECOS(userrec* user, const std::string &newhost) { return 0; };
-int			Module::OnLocalTopicChange(userrec* user, chanrec* chan, const std::string &topic) { return 0; };
+int		Module::OnRawMode(userrec* user, chanrec* chan, char mode, const std::string &param, bool adding, int pcnt) { return 0; };
+int		Module::OnCheckInvite(userrec* user, chanrec* chan) { return 0; };
+int		Module::OnCheckKey(userrec* user, chanrec* chan, const std::string &keygiven) { return 0; };
+int		Module::OnCheckLimit(userrec* user, chanrec* chan) { return 0; };
+int		Module::OnCheckBan(userrec* user, chanrec* chan) { return 0; };
+int		Module::OnStats(char symbol, userrec* user) { return 0; };
+int		Module::OnChangeLocalUserHost(userrec* user, const std::string &newhost) { return 0; };
+int		Module::OnChangeLocalUserGECOS(userrec* user, const std::string &newhost) { return 0; };
+int		Module::OnLocalTopicChange(userrec* user, chanrec* chan, const std::string &topic) { return 0; };
 void		Module::OnEvent(Event* event) { return; };
 char*		Module::OnRequest(Request* request) { return NULL; };
-int			Module::OnOperCompare(const std::string &password, const std::string &input) { return 0; };
+int		Module::OnOperCompare(const std::string &password, const std::string &input) { return 0; };
 void		Module::OnGlobalOper(userrec* user) { };
 void		Module::OnGlobalConnect(userrec* user) { };
-int			Module::OnAddBan(userrec* source, chanrec* channel,const std::string &banmask) { return 0; };
-int			Module::OnDelBan(userrec* source, chanrec* channel,const std::string &banmask) { return 0; };
+int		Module::OnAddBan(userrec* source, chanrec* channel,const std::string &banmask) { return 0; };
+int		Module::OnDelBan(userrec* source, chanrec* channel,const std::string &banmask) { return 0; };
 void		Module::OnRawSocketAccept(int fd, const std::string &ip, int localport) { };
-int			Module::OnRawSocketWrite(int fd, char* buffer, int count) { return 0; };
+int		Module::OnRawSocketWrite(int fd, char* buffer, int count) { return 0; };
 void		Module::OnRawSocketClose(int fd) { };
-int			Module::OnRawSocketRead(int fd, char* buffer, unsigned int count, int &readresult) { return 0; };
+int		Module::OnRawSocketRead(int fd, char* buffer, unsigned int count, int &readresult) { return 0; };
 void		Module::OnUserMessage(userrec* user, void* dest, int target_type, const std::string &text, char status) { };
 void		Module::OnUserNotice(userrec* user, void* dest, int target_type, const std::string &text, char status) { };
 void 		Module::OnRemoteKill(userrec* source, userrec* dest, const std::string &reason) { };
@@ -339,7 +339,7 @@ void Server::RemoveSocket(InspSocket* sock)
         }
 }
 
-long Server::PriorityAfter(std::string modulename)
+long Server::PriorityAfter(const std::string &modulename)
 {
 	for (unsigned int j = 0; j < Config->module_names.size(); j++)
 	{
@@ -351,7 +351,7 @@ long Server::PriorityAfter(std::string modulename)
 	return PRIORITY_DONTCARE;
 }
 
-long Server::PriorityBefore(std::string modulename)
+long Server::PriorityBefore(const std::string &modulename)
 {
 	for (unsigned int j = 0; j < Config->module_names.size(); j++)
 	{
@@ -419,30 +419,27 @@ void Server::AddTimer(InspTimer* T)
 	::AddTimer(T);
 }
 
-void Server::SendOpers(std::string s)
+void Server::SendOpers(const std::string &s)
 {
 	WriteOpers("%s",s.c_str());
 }
 
-bool Server::MatchText(std::string sliteral, std::string spattern)
+bool Server::MatchText(const std::string &sliteral, const std::string &spattern)
 {
-	char literal[MAXBUF],pattern[MAXBUF];
-	strlcpy(literal,sliteral.c_str(),MAXBUF);
-	strlcpy(pattern,spattern.c_str(),MAXBUF);
-	return match(literal,pattern);
+	return match(sliteral.c_str(),spattern.c_str());
 }
 
-void Server::SendToModeMask(std::string modes, int flags, std::string text)
+void Server::SendToModeMask(const std::string &modes, int flags, const std::string &text)
 {
 	WriteMode(modes.c_str(),flags,"%s",text.c_str());
 }
 
-chanrec* Server::JoinUserToChannel(userrec* user, std::string cname, std::string key)
+chanrec* Server::JoinUserToChannel(userrec* user, const std::string &cname, const std::string &key)
 {
 	return add_channel(user,cname.c_str(),key.c_str(),false);
 }
 
-chanrec* Server::PartUserFromChannel(userrec* user, std::string cname, std::string reason)
+chanrec* Server::PartUserFromChannel(userrec* user, const std::string &cname, const std::string &reason)
 {
 	return del_channel(user,cname.c_str(),reason.c_str(),false);
 }
@@ -456,12 +453,12 @@ chanuserlist Server::GetUsers(chanrec* chan)
 		userl.push_back(i->second);
 	return userl;
 }
-void Server::ChangeUserNick(userrec* user, std::string nickname)
+void Server::ChangeUserNick(userrec* user, const std::string &nickname)
 {
 	force_nickchange(user,nickname.c_str());
 }
 
-void Server::KickUser(userrec* source, userrec* target, chanrec* chan, std::string reason)
+void Server::KickUser(userrec* source, userrec* target, chanrec* chan, const std::string &reason)
 {
 	if (source)
 	{
@@ -473,7 +470,7 @@ void Server::KickUser(userrec* source, userrec* target, chanrec* chan, std::stri
 	}
 }
 
-void Server::QuitUser(userrec* user, std::string reason)
+void Server::QuitUser(userrec* user, const std::string &reason)
 {
 	kill_link(user,reason.c_str());
 }
@@ -483,17 +480,17 @@ bool Server::IsUlined(std::string server)
 	return is_uline(server.c_str());
 }
 
-bool Server::CallCommandHandler(std::string commandname, char** parameters, int pcnt, userrec* user)
+bool Server::CallCommandHandler(const std::string &commandname, char** parameters, int pcnt, userrec* user)
 {
 	return ServerInstance->Parser->CallHandler(commandname,parameters,pcnt,user);
 }
 
-bool Server::IsValidModuleCommand(std::string commandname, int pcnt, userrec* user)
+bool Server::IsValidModuleCommand(const std::string &commandname, int pcnt, userrec* user)
 {
 	return ServerInstance->Parser->IsValidCommand(commandname, pcnt, user);
 }
 
-void Server::Log(int level, std::string s)
+void Server::Log(int level, const std::string &s)
 {
 	log(level,"%s",s.c_str());
 }
@@ -512,22 +509,22 @@ void Server::SendMode(char **parameters, int pcnt, userrec *user)
 	ServerInstance->ModeGrok->ServerMode(parameters,pcnt,user);
 }
 
-void Server::Send(int Socket, std::string s)
+void Server::Send(int Socket, const std::string &s)
 {
 	Write_NoFormat(Socket,s.c_str());
 }
 
-void Server::SendServ(int Socket, std::string s)
+void Server::SendServ(int Socket, const std::string &s)
 {
 	WriteServ_NoFormat(Socket,s.c_str());
 }
 
-void Server::SendFrom(int Socket, userrec* User, std::string s)
+void Server::SendFrom(int Socket, userrec* User, const std::string &s)
 {
 	WriteFrom_NoFormat(Socket,User,s.c_str());
 }
 
-void Server::SendTo(userrec* Source, userrec* Dest, std::string s)
+void Server::SendTo(userrec* Source, userrec* Dest, const std::string &s)
 {
 	if (!Source)
 	{
@@ -541,12 +538,12 @@ void Server::SendTo(userrec* Source, userrec* Dest, std::string s)
 	}
 }
 
-void Server::SendChannelServerNotice(std::string ServName, chanrec* Channel, std::string text)
+void Server::SendChannelServerNotice(const std::string &ServName, chanrec* Channel, const std::string &text)
 {
 	WriteChannelWithServ_NoFormat((char*)ServName.c_str(), Channel, text.c_str());
 }
 
-void Server::SendChannel(userrec* User, chanrec* Channel, std::string s,bool IncludeSender)
+void Server::SendChannel(userrec* User, chanrec* Channel, const std::string &s, bool IncludeSender)
 {
 	if (IncludeSender)
 	{
@@ -563,7 +560,7 @@ bool Server::CommonChannels(userrec* u1, userrec* u2)
 	return (common_channels(u1,u2) != 0);
 }
 
-void Server::DumpText(userrec* User, std::string LinePrefix, stringstream &TextStream)
+void Server::DumpText(userrec* User, const std::string &LinePrefix, stringstream &TextStream)
 {
 	std::string CompleteLine = LinePrefix;
 	std::string Word = "";
@@ -579,7 +576,7 @@ void Server::DumpText(userrec* User, std::string LinePrefix, stringstream &TextS
 	WriteServ_NoFormat(User->fd,CompleteLine.c_str());
 }
 
-void Server::SendCommon(userrec* User, std::string text,bool IncludeSender)
+void Server::SendCommon(userrec* User, const std::string &text, bool IncludeSender)
 {
 	if (IncludeSender)
 	{
@@ -591,27 +588,27 @@ void Server::SendCommon(userrec* User, std::string text,bool IncludeSender)
 	}
 }
 
-void Server::SendWallops(userrec* User, std::string text)
+void Server::SendWallops(userrec* User, const std::string &text)
 {
 	WriteWallOps(User,false,"%s",text.c_str());
 }
 
-void Server::ChangeHost(userrec* user, std::string host)
+void Server::ChangeHost(userrec* user, const std::string &host)
 {
 	ChangeDisplayedHost(user,host.c_str());
 }
 
-void Server::ChangeGECOS(userrec* user, std::string gecos)
+void Server::ChangeGECOS(userrec* user, const std::string &gecos)
 {
 	ChangeName(user,gecos.c_str());
 }
 
-bool Server::IsNick(std::string nick)
+bool Server::IsNick(const std::string &nick)
 {
 	return (isnick(nick.c_str()) != 0);
 }
 
-userrec* Server::FindNick(std::string nick)
+userrec* Server::FindNick(const std::string &nick)
 {
 	return Find(nick);
 }
@@ -621,7 +618,7 @@ userrec* Server::FindDescriptor(int socket)
 	return (socket < 65536 ? fd_ref_table[socket] : NULL);
 }
 
-chanrec* Server::FindChannel(std::string channel)
+chanrec* Server::FindChannel(const std::string &channel)
 {
 	return FindChan(channel.c_str());
 }
@@ -699,7 +696,7 @@ int Server::CountUsers(chanrec* c)
 }
 
 
-bool Server::UserToPseudo(userrec* user,std::string message)
+bool Server::UserToPseudo(userrec* user, const std::string &message)
 {
 	unsigned int old_fd = user->fd;
 	Write(old_fd,"ERROR :Closing link (%s@%s) [%s]",user->ident,user->host,message.c_str());
@@ -719,7 +716,7 @@ bool Server::UserToPseudo(userrec* user,std::string message)
 	return true;
 }
 
-bool Server::PseudoToUser(userrec* alive,userrec* zombie,std::string message)
+bool Server::PseudoToUser(userrec* alive, userrec* zombie, const std::string &message)
 {
 	log(DEBUG,"PseudoToUser");
 	zombie->fd = alive->fd;
@@ -761,62 +758,62 @@ bool Server::PseudoToUser(userrec* alive,userrec* zombie,std::string message)
 	return true;
 }
 
-void Server::AddGLine(long duration, std::string source, std::string reason, std::string hostmask)
+void Server::AddGLine(long duration, const std::string &source, const std::string &reason, const std::string &hostmask)
 {
 	add_gline(duration, source.c_str(), reason.c_str(), hostmask.c_str());
 }
 
-void Server::AddQLine(long duration, std::string source, std::string reason, std::string nickname)
+void Server::AddQLine(long duration, const std::string &source, const std::string &reason, const std::string &nickname)
 {
 	add_qline(duration, source.c_str(), reason.c_str(), nickname.c_str());
 }
 
-void Server::AddZLine(long duration, std::string source, std::string reason, std::string ipaddr)
+void Server::AddZLine(long duration, const std::string &source, const std::string &reason, const std::string &ipaddr)
 {
 	add_zline(duration, source.c_str(), reason.c_str(), ipaddr.c_str());
 }
 
-void Server::AddKLine(long duration, std::string source, std::string reason, std::string hostmask)
+void Server::AddKLine(long duration, const std::string &source, const std::string &reason, const std::string &hostmask)
 {
 	add_kline(duration, source.c_str(), reason.c_str(), hostmask.c_str());
 }
 
-void Server::AddELine(long duration, std::string source, std::string reason, std::string hostmask)
+void Server::AddELine(long duration, const std::string &source, const std::string &reason, const std::string &hostmask)
 {
 	add_eline(duration, source.c_str(), reason.c_str(), hostmask.c_str());
 }
 
-bool Server::DelGLine(std::string hostmask)
+bool Server::DelGLine(const std::string &hostmask)
 {
 	return del_gline(hostmask.c_str());
 }
 
-bool Server::DelQLine(std::string nickname)
+bool Server::DelQLine(const std::string &nickname)
 {
 	return del_qline(nickname.c_str());
 }
 
-bool Server::DelZLine(std::string ipaddr)
+bool Server::DelZLine(const std::string &ipaddr)
 {
 	return del_zline(ipaddr.c_str());
 }
 
-bool Server::DelKLine(std::string hostmask)
+bool Server::DelKLine(const std::string &hostmask)
 {
 	return del_kline(hostmask.c_str());
 }
 
-bool Server::DelELine(std::string hostmask)
+bool Server::DelELine(const std::string &hostmask)
 {
 	return del_eline(hostmask.c_str());
 }
 
-long Server::CalcDuration(std::string delta)
+long Server::CalcDuration(const std::string &delta)
 {
 	return duration(delta.c_str());
 }
 
-bool Server::IsValidMask(std::string mask)
+bool Server::IsValidMask(const std::string &mask)
 {
 	char* dest = (char*)mask.c_str();
         if (strchr(dest,'!')==0)
@@ -845,7 +842,7 @@ bool Server::IsValidMask(std::string mask)
 	return true;
 }
 
-Module* Server::FindModule(std::string name)
+Module* Server::FindModule(const std::string &name)
 {
 	for (int i = 0; i <= MODCOUNT; i++)
 	{
