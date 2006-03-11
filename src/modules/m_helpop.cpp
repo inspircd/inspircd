@@ -160,7 +160,7 @@ class HelpopException : public ModuleException
 	std::string err;
  public:
 	HelpopException(std::string message) : err(message) { }
-	virtual char* GetReason() { return (char*)err.c_str(); }
+	virtual const char* GetReason() { return err.c_str(); }
 };
 
 class ModuleHelpop : public Module

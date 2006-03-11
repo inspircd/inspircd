@@ -41,7 +41,7 @@ typedef std::map<std::string,Filter*> filter_t;
 class FilterException : public ModuleException
 {
  public:
-	virtual char* GetReason()
+	virtual const char* GetReason()
 	{
 		return "Could not find <filter file=\"\"> definition in your config file!";
 	}

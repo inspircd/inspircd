@@ -30,7 +30,7 @@ typedef std::map<irc::string,irc::string> censor_t;
 class CensorException : public ModuleException
 {
  public:
-	virtual char* GetReason()
+	virtual const char* GetReason()
 	{
 		return "Could not find <censor file=\"\"> definition in your config file!";
 	}
