@@ -147,6 +147,7 @@ bool InspSocket::DoResolve()
 			this->Close();
 			this->state = I_ERROR;
 			this->OnError(I_ERR_RESOLVE);
+			this->fd = -1;
 			return false;
 		}
 		return this->DoConnect();
@@ -163,6 +164,7 @@ bool InspSocket::DoConnect()
 		log(DEBUG,"Cant socket()");
 		this->state = I_ERROR;
 		this->OnError(I_ERR_SOCKET);
+		this->fd = -1;
 		return false;
 	}
 
@@ -184,6 +186,7 @@ bool InspSocket::DoConnect()
 			this->OnError(I_ERR_CONNECT);
 			this->state = I_ERROR;
 			this->Close();
+			this->fd = -1;
 			return false;
 		}
 	}
@@ -275,6 +278,7 @@ bool InspSocket::FlushWriteBuffer()
 				log(DEBUG,"Write error on socket: %s",strerror(errno));
 				this->OnError(I_ERR_WRITE);
 				this->state = I_ERROR;
+				this->fd = -1;
 				return true;
 			}
 		}
@@ -295,6 +299,7 @@ bool InspSocket::Timeout(time_t current)
 		this->OnError(I_ERR_TIMEOUT);
 		timeout = true;
 		this->state = I_ERROR;
+		this->fd = -1;
 		return true;
 	}
 	return this->FlushWriteBuffer();
@@ -304,6 +309,9 @@ bool InspSocket::Poll()
 {
 	int incoming = -1;
 	bool n = true;
+
+	if ((fd < 0) || (fd > MAX_DESCRIPTORS))
+		return false;
 
 	switch (this->state)
 	{
