@@ -1373,7 +1373,7 @@ class Server : public classbase
 	 * back to the user from which it originated, as seen in NICK (see RFC 1459). Otherwise, it
 	 * is only sent to the other recipients, as seen in QUIT.
 	 */
-	virtual void SendCommon(userrec* User, std::string text, bool IncludeSender);
+	virtual void SendCommon(userrec* User, const std::string &text, bool IncludeSender);
 
 	/** Sends a WALLOPS message.
 	 * This method writes a WALLOPS message to all users with the +w flag, originating from the
@@ -1608,14 +1608,14 @@ class Server : public classbase
 	 * dhost member of userrec, as any change applied via this method will be propogated to any
 	 * linked servers.
 	 */	
-	virtual void ChangeHost(userrec* user, std::string host);
+	virtual void ChangeHost(userrec* user, const std::string &host);
 	
 	/** Change GECOS (fullname) of a user.
 	 * You should always call this method to change a user's GECOS rather than writing directly to the
 	 * fullname member of userrec, as any change applied via this method will be propogated to any
 	 * linked servers.
 	 */	
-	virtual void ChangeGECOS(userrec* user, std::string gecos);
+	virtual void ChangeGECOS(userrec* user, const std::string &gecos);
 	
 	/** Returns true if the servername you give is ulined.
 	 * ULined servers have extra privilages. They are allowed to change nicknames on remote servers,
@@ -1661,7 +1661,7 @@ class Server : public classbase
 	 * to indicate who or what sent the data, usually this is the nickname of a person, or a server
 	 * name.
 	 */
-	virtual void AddQLine(long duration, const std::string &source, const std::string &reason, const std::string nickname);
+	virtual void AddQLine(long duration, const std::string &source, const std::string &reason, const std::string &nickname);
 
 	/** Adds a Z-line
 	 * The Z-line is propogated to all of the servers in the mesh and enforced as soon as it is added.
@@ -1745,7 +1745,7 @@ class Server : public classbase
 
 	virtual chanrec* GetChannelIndex(long index);
 
-	void DumpText(userrec* User, std::string LinePrefix, stringstream &TextStream);
+	void DumpText(userrec* User, const std::string &LinePrefix, stringstream &TextStream);
 };
 
 

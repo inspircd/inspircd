@@ -307,7 +307,7 @@ int CommandParser::LoopCall(command_t* fn, char **parameters, int pcnt, userrec 
 	return 1;
 }
 
-bool CommandParser::IsValidCommand(std::string &commandname, int pcnt, userrec * user)
+bool CommandParser::IsValidCommand(const std::string &commandname, int pcnt, userrec * user)
 {
 	nspace::hash_map<std::string,command_t*>::iterator n = cmdlist.find(commandname);
 
@@ -330,7 +330,7 @@ bool CommandParser::IsValidCommand(std::string &commandname, int pcnt, userrec *
 
 // calls a handler function for a command
 
-bool CommandParser::CallHandler(std::string &commandname,char **parameters, int pcnt, userrec *user)
+bool CommandParser::CallHandler(const std::string &commandname,char **parameters, int pcnt, userrec *user)
 {
 	nspace::hash_map<std::string,command_t*>::iterator n = cmdlist.find(commandname);
 

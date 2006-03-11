@@ -475,7 +475,7 @@ void Server::QuitUser(userrec* user, const std::string &reason)
 	kill_link(user,reason.c_str());
 }
 
-bool Server::IsUlined(std::string server)
+bool Server::IsUlined(const std::string &server)
 {
 	return is_uline(server.c_str());
 }
