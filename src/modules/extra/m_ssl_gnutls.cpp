@@ -86,7 +86,7 @@ class ModuleSSLGnuTLS : public Module
 		gnutls_certificate_set_dh_params(x509_cred, dh_params);
 	}
 	
-	virtual void OnRehash(std::string param)
+	virtual void OnRehash(const std::string &param)
 	{
 		if(param != "ssl")
 			return;
@@ -210,7 +210,7 @@ class ModuleSSLGnuTLS : public Module
 		}
 	}
 	
-	virtual void OnUnloadModule(Module* mod, std::string name)
+	virtual void OnUnloadModule(Module* mod, const std::string &name)
 	{
 		if(mod == this)
 		{
@@ -234,7 +234,7 @@ class ModuleSSLGnuTLS : public Module
 		List[I_OnSyncUserMetaData] = List[I_OnDecodeMetaData] = List[I_OnUnloadModule] = List[I_OnRehash] = List[I_OnWhois] = List[I_OnGlobalConnect] = 1;
 	}
 
-	virtual void OnRawSocketAccept(int fd, std::string ip, int localport)
+	virtual void OnRawSocketAccept(int fd, const std::string &ip, int localport)
 	{
 		issl_session* session = &sessions[fd];
 	
@@ -455,7 +455,7 @@ class ModuleSSLGnuTLS : public Module
 		}
 	}
 	
-	virtual void OnSyncUserMetaData(userrec* user, Module* proto, void* opaque, std::string extname)
+	virtual void OnSyncUserMetaData(userrec* user, Module* proto, void* opaque, const std::string &extname)
 	{
 		// check if the linking module wants to know about OUR metadata
 		if(extname == "ssl")
@@ -470,7 +470,7 @@ class ModuleSSLGnuTLS : public Module
 		}
 	}
 	
-	virtual void OnDecodeMetaData(int target_type, void* target, std::string extname, std::string extdata)
+	virtual void OnDecodeMetaData(int target_type, void* target, const std::string &extname, const std::string &extdata)
 	{
 		// check if its our metadata key, and its associated with a user
 		if ((target_type == TYPE_USER) && (extname == "ssl"))

@@ -87,7 +87,7 @@ class ModuleSQLAuth : public Module
 		List[I_OnRehash] = List[I_OnUserRegister] = 1;
 	}
 
-	virtual void OnRehash(std::string parameter)
+	virtual void OnRehash(const std::string &parameter)
 	{
 		ReadConfig();
 	}
@@ -105,7 +105,7 @@ class ModuleSQLAuth : public Module
 		}
 	}
 
-	bool CheckCredentials(std::string username, std::string password)
+	bool CheckCredentials(const std::string &username, const std::string &password)
 	{
 		bool found = false;
 

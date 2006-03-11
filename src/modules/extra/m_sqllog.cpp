@@ -71,12 +71,12 @@ class ModuleSQLLog : public Module
 		List[I_OnUserQuit] = List[I_OnLoadModule] = 1;
 	}
 
-	virtual void OnRehash(std::string parameter)
+	virtual void OnRehash(const std::string &parameter)
 	{
 		ReadConfig();
 	}
 
-	long InsertNick(std::string nick)
+	long InsertNick(const std::string &nick)
 	{
 		long nid = -1;
                 SQLRequest* query = new SQLRequest(SQL_RESULT,dbid,"SELECT id,actor FROM ircd_log_actors WHERE actor='"+nick+"'");
@@ -136,7 +136,7 @@ class ModuleSQLLog : public Module
 		return;
 	}
 
-	long InsertHost(std::string host)
+	long InsertHost(const std::string &host)
 	{
                 long hid = -1;
                 SQLRequest* query = new SQLRequest(SQL_RESULT,dbid,"SELECT id,hostname FROM ircd_log_hosts WHERE hostname='"+host+"'");
@@ -178,7 +178,7 @@ class ModuleSQLLog : public Module
                 return hid;
 	}
 
-	void AddLogEntry(int category, std::string nick, std::string host, std::string source)
+	void AddLogEntry(int category, const std::string &nick, const std::string &host, const std::string &source)
 	{
 		// is the sql module loaded? If not, we don't attempt to do anything.
 		if (!SQLModule)
@@ -190,7 +190,7 @@ class ModuleSQLLog : public Module
 		InsertEntry((unsigned)category,(unsigned)nickid,(unsigned)hostid,(unsigned)sourceid,(unsigned long)time(NULL));
 	}
 
-	virtual void OnOper(userrec* user, std::string opertype)
+	virtual void OnOper(userrec* user, const std::string &opertype)
 	{
 		AddLogEntry(LT_OPER,user->nick,user->host,user->server);
 	}
@@ -200,13 +200,13 @@ class ModuleSQLLog : public Module
 		AddLogEntry(LT_OPER,user->nick,user->host,user->server);
 	}
 
-	virtual int OnKill(userrec* source, userrec* dest, std::string reason)
+	virtual int OnKill(userrec* source, userrec* dest, const std::string &reason)
 	{
 		AddLogEntry(LT_KILL,dest->nick,dest->host,source->nick);
 		return 0;
 	}
 
-	virtual int OnPreCommand(std::string command, char **parameters, int pcnt, userrec *user)
+	virtual int OnPreCommand(const std::string &command, char **parameters, int pcnt, userrec *user, bool validated)
 	{
 		if ((command == "GLINE") || (command == "KLINE") || (command == "ELINE") || (command == "ZLINE"))
 		{
@@ -225,12 +225,12 @@ class ModuleSQLLog : public Module
 		AddLogEntry(LT_CONNECT,user->nick,user->host,user->server);
 	}
 
-	virtual void OnUserQuit(userrec* user, std::string reason)
+	virtual void OnUserQuit(userrec* user, const std::string &reason)
 	{
 		AddLogEntry(LT_DISCONNECT,user->nick,user->host,user->server);
 	}
 
-	virtual void OnLoadModule(Module* mod,std::string name)
+	virtual void OnLoadModule(Module* mod, const std::string &name)
 	{
 		AddLogEntry(LT_LOADMODULE,name,Srv->GetServerName(),Srv->GetServerName());
 	}

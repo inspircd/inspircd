@@ -152,7 +152,7 @@ class ModuleFilterPCRE : public Module
 		return 0;
 	}
 	
-	virtual void OnRehash(std::string parameter)
+	virtual void OnRehash(const std::string &parameter)
 	{
 		// reload our config file on rehash - we must destroy and re-allocate the classes
 		// to call the constructor again and re-read our data.

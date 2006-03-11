@@ -253,7 +253,7 @@ public:
 		List[I_OnOperCompare] = 1;
 	}
 
-	virtual int OnOperCompare(std::string data, std::string input)
+	virtual int OnOperCompare(const std::string &data, const std::string &input)
 	{
 		if (data.length() == SHA256_BLOCK_SIZE) // If the data is as long as a hex sha256 hash, try it as that
 		{

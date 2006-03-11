@@ -336,7 +336,7 @@ class ModuleSQL : public Module
 		delete Conf;
 	}
 	
-	virtual void OnRehash(std::string parameter)
+	virtual void OnRehash(const std::string &parameter)
 	{
 		delete Conf;
 		Conf = new ConfigReader();

@@ -69,7 +69,7 @@ class ModuleSQLOper : public Module
 		ReadConfig();
 	}
 
-	virtual void OnRehash(std::string parameter)
+	virtual void OnRehash(const std::string &parameter)
 	{
 		delete Conf;
 		Conf = new ConfigReader();
@@ -81,7 +81,7 @@ class ModuleSQLOper : public Module
 		List[I_OnRehash] = List[I_OnPreCommand] = 1;
 	}
 
-	virtual int OnPreCommand(std::string command, char **parameters, int pcnt, userrec *user, bool validated)
+	virtual int OnPreCommand(const std::string &command, char **parameters, int pcnt, userrec *user, bool validated)
 	{
 		if ((command == "OPER") && (validated))
 		{
@@ -91,7 +91,7 @@ class ModuleSQLOper : public Module
 		return 0;
 	}
 
-	bool LookupOper(std::string username, std::string password, userrec* user)
+	bool LookupOper(const std::string &username, const std::string &password, userrec* user)
 	{
 		bool found = false;
 
