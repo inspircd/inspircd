@@ -112,6 +112,13 @@ bool SocketEngine::AddFd(int fd, bool readable, char type)
 	return true;
 }
 
+bool SocketEngine::HasFd(int fd)
+{
+	if ((fd < 0) || (fd > MAX_DESCRIPTORS))
+		return false;
+	return (ref[fd] != 0);
+}
+
 bool SocketEngine::DelFd(int fd)
 {
 	log(DEBUG,"SocketEngine::DelFd(%d)",fd);

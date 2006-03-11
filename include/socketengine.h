@@ -131,12 +131,14 @@ public:
 	 */
 	int GetRemainingFds();
 
-	/** Delete a file descriptor f rom the engine
+	/** Delete a file descriptor from the engine
 	 * This function call deletes a file descriptor
 	 * from the engine, returning true if it succeeded
 	 * and false if it failed.
 	 */
 	bool DelFd(int fd);
+
+	bool HasFd(int fd);
 
 	/** Waits for an event.
 	 * Please note that this doesnt wait long, only

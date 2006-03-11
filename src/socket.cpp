@@ -287,6 +287,9 @@ bool InspSocket::FlushWriteBuffer()
 
 bool InspSocket::Timeout(time_t current)
 {
+	if (!socket_ref[this->fd] || !ServerInstance->SE->HasFd(this->fd))
+		return false;
+
 	if (((this->state == I_RESOLVING) || (this->state == I_CONNECTING)) && (current > timeout_end))
 	{
 		log(DEBUG,"Timed out, current=%lu timeout_end=%lu");
@@ -305,6 +308,9 @@ bool InspSocket::Timeout(time_t current)
 
 bool InspSocket::Poll()
 {
+	if (!socket_ref[this->fd] || !ServerInstance->SE->HasFd(this->fd))
+		return true;
+
 	int incoming = -1;
 	bool n = true;
 
