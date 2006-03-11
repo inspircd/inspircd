@@ -254,6 +254,8 @@ void InspSocket::MarkAsClosed()
 // and should be aborted.
 int InspSocket::Write(const std::string &data)
 {
+	if (this->ClosePending)
+		return false;
 	/* Try and append the data to the back of the queue, and send it on its way
 	 */
 	outbuffer.push_back(data);
@@ -262,6 +264,9 @@ int InspSocket::Write(const std::string &data)
 
 bool InspSocket::FlushWriteBuffer()
 {
+	if (this->ClosePending)
+		return true;
+
 	if ((this->fd > -1) && (this->state == I_CONNECTED))
 	{
 		if (outbuffer.size())
