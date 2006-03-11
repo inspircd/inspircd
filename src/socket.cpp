@@ -283,7 +283,8 @@ bool InspSocket::FlushWriteBuffer()
 				}
 				else
 				{
-					outbuffer[0] = outbuffer[0].substr(result + 1,outbuffer[0].length() - result);
+					std::string temp = outbuffer[0].substr(result + 1,outbuffer[0].length() - result - 1);
+					outbuffer[0] = temp;
 				}
 			}
 			else if ((result == -1) && (errno != EAGAIN))
