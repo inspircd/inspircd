@@ -278,7 +278,7 @@ bool InspSocket::FlushWriteBuffer()
 				}
 				else
 				{
-					outbuffer[0] = outbuffer[0].substr(result + 1,outbuffer[0].length());
+					outbuffer[0] = outbuffer[0].substr(result + 1,outbuffer[0].length() - result);
 				}
 			}
 			else if ((result == -1) && (errno != EAGAIN))
@@ -398,5 +398,6 @@ void InspSocket::OnClose() { return; }
 
 InspSocket::~InspSocket()
 {
+	outbuffer.clear();
 	this->Close();
 }
