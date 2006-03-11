@@ -85,7 +85,7 @@ class ModuleSWhois : public Module
 		Srv->AddCommand(mycommand);
 	}
 
-	void OnRehash(std::string parameter)
+	void OnRehash(const std::string &parameter)
 	{
 		delete Conf;
 		Conf = new ConfigReader();
@@ -112,7 +112,7 @@ class ModuleSWhois : public Module
 	// this method is called. We should use the ProtoSendMetaData function after we've
 	// corrected decided how the data should look, to send the metadata on its way if
 	// it is ours.
-	virtual void OnSyncUserMetaData(userrec* user, Module* proto, void* opaque, std::string extname)
+	virtual void OnSyncUserMetaData(userrec* user, Module* proto, void* opaque, const std::string &extname)
 	{
 		// check if the linking module wants to know about OUR metadata
 		if (extname == "swhois")
@@ -131,7 +131,7 @@ class ModuleSWhois : public Module
 	}
 
 	// when a user quits, tidy up their metadata
-	virtual void OnUserQuit(userrec* user, std::string message)
+	virtual void OnUserQuit(userrec* user, const std::string &message)
 	{
 		char* field = user->GetExt("swhois");
 		if (field)
@@ -165,7 +165,7 @@ class ModuleSWhois : public Module
 	// In our case we're only sending a single string around, so we just construct a std::string.
 	// Some modules will probably get much more complex and format more detailed structs and classes
 	// in a textual way for sending over the link.
-	virtual void OnDecodeMetaData(int target_type, void* target, std::string extname, std::string extdata)
+	virtual void OnDecodeMetaData(int target_type, void* target, const std::string &extname, const std::string &extdata)
 	{
 		// check if its our metadata key, and its associated with a user
 		if ((target_type == TYPE_USER) && (extname == "swhois"))
@@ -180,7 +180,7 @@ class ModuleSWhois : public Module
 		}
 	}
 	
-	virtual void OnOper(userrec* user, std::string opertype)
+	virtual void OnOper(userrec* user, const std::string &opertype)
 	{
 		for(int i =0; i < Conf->Enumerate("type"); i++)
 		{

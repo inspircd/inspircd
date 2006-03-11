@@ -204,7 +204,7 @@ class Modulewatch : public Module
 		List[I_OnUserQuit] = List[I_OnGlobalConnect] = List[I_OnUserPostNick] = List[I_On005Numeric] = 1;
 	}
 
-	virtual void OnUserQuit(userrec* user, std::string reason)
+	virtual void OnUserQuit(userrec* user, const std::string &reason)
 	{
 		log(DEBUG,"*** WATCH: On global quit: user %s",user->nick);
 		irc::string n2 = user->nick;
@@ -248,7 +248,7 @@ class Modulewatch : public Module
 		}
 	}
 
-	virtual void OnUserPostNick(userrec* user, std::string oldnick)
+	virtual void OnUserPostNick(userrec* user, const std::string &oldnick)
 	{
 		irc::string n2 = oldnick.c_str();
 		irc::string n3 = user->nick;
