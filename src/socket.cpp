@@ -244,6 +244,7 @@ char* InspSocket::Read()
 
 void InspSocket::MarkAsClosed()
 {
+	log(DEBUG,"Marked as closed");
 	this->ClosePending = true;
 }
 
@@ -295,10 +296,16 @@ bool InspSocket::FlushWriteBuffer()
 bool InspSocket::Timeout(time_t current)
 {
 	if (!socket_ref[this->fd] || !ServerInstance->SE->HasFd(this->fd))
+	{
+		log(DEBUG,"No FD or socket ref");
 		return false;
+	}
 
 	if (this->ClosePending)
+	{
+		log(DEBUG,"Close is pending");
 		return true;
+	}
 
 	if (((this->state == I_RESOLVING) || (this->state == I_CONNECTING)) && (current > timeout_end))
 	{

@@ -319,7 +319,7 @@ void DoSocketTimeouts(time_t TIME)
 		InspSocket* s = (InspSocket*)*a;
 		if (s->Timeout(TIME))
 		{
-			log(DEBUG,"Socket poll returned false, close and bail");
+			log(DEBUG,"userprocess.cpp: Socket poll returned false, close and bail");
 			SE->DelFd(s->GetFd());
 			socket_ref[s->GetFd()] = NULL;
 			s->Close();

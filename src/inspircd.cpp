@@ -702,7 +702,7 @@ void InspIRCd::DoOneIteration(bool process_module_sockets)
               
                                 if ((s) && (!s->Poll()))
                                 {
-                                        log(DEBUG,"Socket poll returned false, close and bail");
+                                        log(DEBUG,"inspircd.cpp: Socket poll returned false, close and bail");
                                         SE->DelFd(s->GetFd());
 					socket_ref[activefds[activefd]] = NULL;
                                         for (std::vector<InspSocket*>::iterator a = module_sockets.begin(); a < module_sockets.end(); a++)
