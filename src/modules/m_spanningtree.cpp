@@ -114,7 +114,7 @@ static Server* Srv;
 /* This hash_map holds the hash equivalent of the server
  * tree, used for rapid linear lookups.
  */
-typedef nspace::hash_map<std::string, TreeServer*> server_hash;
+typedef nspace::hash_map<irc::string, TreeServer*> server_hash;
 server_hash serverlist;
 
 /* More forward declarations */
@@ -482,7 +482,7 @@ class TreeServer
 class Link
 {
  public:
-	 std::string Name;
+	 irc::string Name;
 	 std::string IPAddr;
 	 int Port;
 	 std::string SendPass;
@@ -2038,7 +2038,7 @@ class TreeSocket : public InspSocket
 		if (params.size() < 4)
 			return false;
 
-		std::string servername = params[0];
+		irc::string servername = params[0].c_str();
 		std::string password = params[1];
 		int hops = atoi(params[2].c_str());
 
@@ -2087,7 +2087,7 @@ class TreeSocket : public InspSocket
 		if (params.size() < 4)
 			return false;
 
-		std::string servername = params[0];
+		irc::string servername = params[0].c_str();
 		std::string password = params[1];
 		int hops = atoi(params[2].c_str());
 
