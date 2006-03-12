@@ -153,7 +153,7 @@ class chanrec : public Extensible
 	
 	/** Contains a bitmask of the CM_* builtin (RFC) binary mode symbols
 	 */
-	char binarymodes;
+	//char binarymodes;
 	
 	/** The list of all bans set on the channel.
 	 */
