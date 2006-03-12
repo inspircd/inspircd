@@ -114,7 +114,7 @@ static Server* Srv;
 /* This hash_map holds the hash equivalent of the server
  * tree, used for rapid linear lookups.
  */
-typedef nspace::hash_map<irc::string, TreeServer*> server_hash;
+typedef nspace::hash_map<std::string, TreeServer*, nspace::hash<string>, irc::StrHashComp> server_hash;
 server_hash serverlist;
 
 /* More forward declarations */
@@ -151,7 +151,7 @@ extern std::vector<ELine> pelines;
  * constructors below), and also a dynamic list of pointers
  * to its children which can be iterated recursively
  * if required. Creating or deleting objects of type
- * TreeServer automatically maintains the hash_map of
+ i* TreeServer automatically maintains the hash_map of
  * TreeServer items, deleting and inserting them as they
  * are created and destroyed.
  */
@@ -161,7 +161,7 @@ class TreeServer
 	TreeServer* Parent;			/* Parent entry */
 	TreeServer* Route;			/* Route entry */
 	std::vector<TreeServer*> Children;	/* List of child objects */
-	std::string ServerName;			/* Server's name */
+	irc::string ServerName;			/* Server's name */
 	std::string ServerDesc;			/* Server's description */
 	std::string VersionString;		/* Version string or empty string */
 	int UserCount;				/* Not used in this version */
@@ -190,7 +190,7 @@ class TreeServer
 	 * represents our own server. Therefore, it has no route, no parent, and
 	 * no socket associated with it. Its version string is our own local version.
 	 */
-	TreeServer(std::string Name, std::string Desc) : ServerName(Name), ServerDesc(Desc)
+	TreeServer(std::string Name, std::string Desc) : ServerName(Name.c_str()), ServerDesc(Desc)
 	{
 		Parent = NULL;
 		VersionString = "";
@@ -205,7 +205,7 @@ class TreeServer
 	 * This constructor initializes the server's Route and Parent, and sets up
 	 * its ping counters so that it will be pinged one minute from now.
 	 */
-	TreeServer(std::string Name, std::string Desc, TreeServer* Above, TreeSocket* Sock) : Parent(Above), ServerName(Name), ServerDesc(Desc), Socket(Sock)
+	TreeServer(std::string Name, std::string Desc, TreeServer* Above, TreeSocket* Sock) : Parent(Above), ServerName(Name.c_str()), ServerDesc(Desc), Socket(Sock)
 	{
 		VersionString = "";
 		UserCount = OperCount = 0;
@@ -305,9 +305,9 @@ class TreeServer
 	void AddHashEntry()
 	{
 		server_hash::iterator iter;
-		iter = serverlist.find(this->ServerName);
+		iter = serverlist.find(this->ServerName.c_str());
 		if (iter == serverlist.end())
-			serverlist[this->ServerName] = this;
+			serverlist[this->ServerName.c_str()] = this;
 	}
 
 	/* This method removes the reference to this object
@@ -317,7 +317,7 @@ class TreeServer
 	void DelHashEntry()
 	{
 		server_hash::iterator iter;
-		iter = serverlist.find(this->ServerName);
+		iter = serverlist.find(this->ServerName.c_str());
 		if (iter != serverlist.end())
 			serverlist.erase(iter);
 	}
@@ -333,7 +333,7 @@ class TreeServer
 
 	std::string GetName()
 	{
-		return ServerName;
+		return ServerName.c_str();
 	}
 
 	std::string GetDesc()
@@ -510,7 +510,7 @@ std::vector<Link> LinkBlocks;
 TreeServer* FindServer(std::string ServerName)
 {
 	server_hash::iterator iter;
-	iter = serverlist.find(ServerName);
+	iter = serverlist.find(ServerName.c_str());
 	if (iter != serverlist.end())
 	{
 		return iter->second;
@@ -552,7 +552,7 @@ TreeServer* FindServerMask(std::string ServerName)
 {
 	for (server_hash::iterator i = serverlist.begin(); i != serverlist.end(); i++)
 	{
-		if (Srv->MatchText(i->first,ServerName))
+		if (Srv->MatchText(i->first.c_str(),ServerName))
 			return i->second;
 	}
 	return NULL;
@@ -716,7 +716,7 @@ class TreeSocket : public InspSocket
 						else
 						{
 							this->WriteLine("AES "+Srv->GetServerName());
-							this->InitAES(x->EncryptionKey,x->Name);
+							this->InitAES(x->EncryptionKey,x->Name.c_str());
 						}
 					}
 					/* found who we're supposed to be connecting to, send the neccessary gubbins. */
@@ -2039,13 +2039,14 @@ class TreeSocket : public InspSocket
 			return false;
 
 		irc::string servername = params[0].c_str();
+		std::string sname = params[0];
 		std::string password = params[1];
 		int hops = atoi(params[2].c_str());
 
 		if (hops)
 		{
 			this->WriteLine("ERROR :Server too far away for authentication");
-			Srv->SendOpers("*** Server connection from \2"+servername+"\2 denied, server is too far away for authentication");
+			Srv->SendOpers("*** Server connection from \2"+sname+"\2 denied, server is too far away for authentication");
 			return false;
 		}
 		std::string description = params[3];
@@ -2053,11 +2054,11 @@ class TreeSocket : public InspSocket
 		{
 			if ((x->Name == servername) && (x->RecvPass == password))
 			{
-				TreeServer* CheckDupe = FindServer(servername);
+				TreeServer* CheckDupe = FindServer(sname);
 				if (CheckDupe)
 				{
-					this->WriteLine("ERROR :Server "+servername+" already exists on server "+CheckDupe->GetParent()->GetName()+"!");
-					Srv->SendOpers("*** Server connection from \2"+servername+"\2 denied, already exists on server "+CheckDupe->GetParent()->GetName());
+					this->WriteLine("ERROR :Server "+sname+" already exists on server "+CheckDupe->GetParent()->GetName()+"!");
+					Srv->SendOpers("*** Server connection from \2"+sname+"\2 denied, already exists on server "+CheckDupe->GetParent()->GetName());
 					return false;
 				}
 				// Begin the sync here. this kickstarts the
@@ -2068,17 +2069,17 @@ class TreeSocket : public InspSocket
 				// we should add the details of this server now
 				// to the servers tree, as a child of the root
 				// node.
-				TreeServer* Node = new TreeServer(servername,description,TreeRoot,this);
+				TreeServer* Node = new TreeServer(sname,description,TreeRoot,this);
 				TreeRoot->AddChild(Node);
 				params[3] = ":" + params[3];
-				DoOneToAllButSender(TreeRoot->GetName(),"SERVER",params,servername);
+				DoOneToAllButSender(TreeRoot->GetName(),"SERVER",params,sname);
 				this->bursting = true;
 				this->DoBurst(Node);
 				return true;
 			}
 		}
 		this->WriteLine("ERROR :Invalid credentials");
-		Srv->SendOpers("*** Server connection from \2"+servername+"\2 denied, invalid link credentials");
+		Srv->SendOpers("*** Server connection from \2"+sname+"\2 denied, invalid link credentials");
 		return false;
 	}
 
@@ -2088,13 +2089,14 @@ class TreeSocket : public InspSocket
 			return false;
 
 		irc::string servername = params[0].c_str();
+		std::string sname = params[0];
 		std::string password = params[1];
 		int hops = atoi(params[2].c_str());
 
 		if (hops)
 		{
 			this->WriteLine("ERROR :Server too far away for authentication");
-			Srv->SendOpers("*** Server connection from \2"+servername+"\2 denied, server is too far away for authentication");
+			Srv->SendOpers("*** Server connection from \2"+sname+"\2 denied, server is too far away for authentication");
 			return false;
 		}
 		std::string description = params[3];
@@ -2102,11 +2104,11 @@ class TreeSocket : public InspSocket
 		{
 			if ((x->Name == servername) && (x->RecvPass == password))
 			{
-				TreeServer* CheckDupe = FindServer(servername);
+				TreeServer* CheckDupe = FindServer(sname);
 				if (CheckDupe)
 				{
-					this->WriteLine("ERROR :Server "+servername+" already exists on server "+CheckDupe->GetParent()->GetName()+"!");
-					Srv->SendOpers("*** Server connection from \2"+servername+"\2 denied, already exists on server "+CheckDupe->GetParent()->GetName());
+					this->WriteLine("ERROR :Server "+sname+" already exists on server "+CheckDupe->GetParent()->GetName()+"!");
+					Srv->SendOpers("*** Server connection from \2"+sname+"\2 denied, already exists on server "+CheckDupe->GetParent()->GetName());
 					return false;
 				}
 				/* If the config says this link is encrypted, but the remote side
@@ -2116,11 +2118,11 @@ class TreeSocket : public InspSocket
 				if ((x->EncryptionKey != "") && (!this->ctx_in))
 				{
 					this->WriteLine("ERROR :This link requires AES encryption to be enabled. Plaintext connection refused.");
-					Srv->SendOpers("*** Server connection from \2"+servername+"\2 denied, remote server did not enable AES.");
+					Srv->SendOpers("*** Server connection from \2"+sname+"\2 denied, remote server did not enable AES.");
 					return false;
 				}
-				Srv->SendOpers("*** Verified incoming server connection from \002"+servername+"\002["+(x->HiddenFromStats ? "<hidden>" : this->GetIP())+"] ("+description+")");
-				this->InboundServerName = servername;
+				Srv->SendOpers("*** Verified incoming server connection from \002"+sname+"\002["+(x->HiddenFromStats ? "<hidden>" : this->GetIP())+"] ("+description+")");
+				this->InboundServerName = sname;
 				this->InboundDescription = description;
 				// this is good. Send our details: Our server name and description and hopcount of 0,
 				// along with the sendpass from this block.
@@ -2131,7 +2133,7 @@ class TreeSocket : public InspSocket
 			}
 		}
 		this->WriteLine("ERROR :Invalid credentials");
-		Srv->SendOpers("*** Server connection from \2"+servername+"\2 denied, invalid link credentials");
+		Srv->SendOpers("*** Server connection from \2"+sname+"\2 denied, invalid link credentials");
 		return false;
 	}
 
@@ -2895,11 +2897,7 @@ void ReadConfiguration(bool rebind)
 	for (int j =0; j < Conf->Enumerate("link"); j++)
 	{
 		Link L;
-		char ServerN[MAXBUF];
-		L.Name = Conf->ReadValue("link","name",j);
-		strlcpy(ServerN,L.Name.c_str(),MAXBUF);
-		strlower(ServerN);
-		L.Name = ServerN;
+		L.Name = (Conf->ReadValue("link","name",j)).c_str();
 		L.IPAddr = Conf->ReadValue("link","ipaddr",j);
 		L.Port = Conf->ReadInteger("link","port",j,true);
 		L.SendPass = Conf->ReadValue("link","sendpass",j);
@@ -3261,12 +3259,12 @@ class ModuleSpanningTree : public Module
 			{
 				log(DEBUG,"Auto-Connecting %s",x->Name.c_str());
 				x->NextConnectTime = curtime + x->AutoConnect;
-				TreeServer* CheckDupe = FindServer(x->Name);
+				TreeServer* CheckDupe = FindServer(x->Name.c_str());
 				if (!CheckDupe)
 				{
 					// an autoconnected server is not connected. Check if its time to connect it
 					WriteOpers("*** AUTOCONNECT: Auto-connecting server \002%s\002 (%lu seconds until next attempt)",x->Name.c_str(),x->AutoConnect);
-					TreeSocket* newsocket = new TreeSocket(x->IPAddr,x->Port,false,10,x->Name);
+					TreeSocket* newsocket = new TreeSocket(x->IPAddr,x->Port,false,10,x->Name.c_str());
 					if (newsocket->GetState() != I_ERROR)
 					{
 						Srv->AddSocket(newsocket);
@@ -3324,11 +3322,11 @@ class ModuleSpanningTree : public Module
 		{
 			if (Srv->MatchText(x->Name.c_str(),parameters[0]))
 			{
-				TreeServer* CheckDupe = FindServer(x->Name);
+				TreeServer* CheckDupe = FindServer(x->Name.c_str());
 				if (!CheckDupe)
 				{
 					WriteServ(user->fd,"NOTICE %s :*** CONNECT: Connecting to server: \002%s\002 (%s:%d)",user->nick,x->Name.c_str(),(x->HiddenFromStats ? "<hidden>" : x->IPAddr.c_str()),x->Port);
-					TreeSocket* newsocket = new TreeSocket(x->IPAddr,x->Port,false,10,x->Name);
+					TreeSocket* newsocket = new TreeSocket(x->IPAddr,x->Port,false,10,x->Name.c_str());
 					if (newsocket->GetState() != I_ERROR)
 					{
 						Srv->AddSocket(newsocket);
