@@ -311,9 +311,7 @@ bool userrec::AddBuffer(const std::string &a)
                 if ((*i != '\r') && (*i != '\0') && (*i != 7))
                         b = b + *i;
 	}
-        std::stringstream stream(recvq);
-        stream << b;
-        recvq = stream.str();
+	recvq.append(b);
 	unsigned int i = 0;
 	// count the size of the first line in the buffer.
 	while (i < recvq.length())
@@ -356,7 +354,7 @@ std::string userrec::GetBuffer()
                 ret = ret + *line;
                 line++;
         }
-        if ((*line == '\n') || (*line == '\r'))
+        while ((*line == '\n') || (*line == '\r'))
                 line++;
         recvq = line;
         return ret;
