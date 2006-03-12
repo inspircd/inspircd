@@ -124,7 +124,7 @@ class ModuleCensor : public Module
 				else if (target_type == TYPE_CHANNEL)
 				{
 					chanrec* t = (chanrec*)dest;
-					active = (t->IsCustomModeSet('G'));
+					active = (t->IsModeSet('G'));
 				}
 				
 				if (active)

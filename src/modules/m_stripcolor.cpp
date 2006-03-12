@@ -133,7 +133,7 @@ class ModuleStripColor : public Module
 		else if (target_type == TYPE_CHANNEL)
 		{
 			chanrec* t = (chanrec*)dest;
-			active = (t->IsCustomModeSet('S'));
+			active = (t->IsModeSet('S'));
 		}
 		if (active)
 		{

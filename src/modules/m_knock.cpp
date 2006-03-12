@@ -40,7 +40,7 @@ class cmd_knock : public command_t
 		chanrec* c = Srv->FindChannel(parameters[0]);
 		std::string line = "";
 
-		if (c->IsCustomModeSet('K'))
+		if (c->IsModeSet('K'))
 		{
 			WriteServ(user->fd,"480 %s :Can't KNOCK on %s, +K is set.",user->nick, c->name);
 			return;
@@ -52,7 +52,7 @@ class cmd_knock : public command_t
 		}
 		line = line + std::string(parameters[pcnt-1]);
 
-		if (c->custom_modes[CM_INVITEONLY])
+		if (c->modes[CM_INVITEONLY])
 		{
 			WriteChannelWithServ((char*)Srv->GetServerName().c_str(),c,"NOTICE %s :User %s is KNOCKing on %s (%s)",c->name,user->nick,c->name,line.c_str());
 			WriteServ(user->fd,"NOTICE %s :KNOCKing on %s",user->nick,c->name);

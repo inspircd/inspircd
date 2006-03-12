@@ -98,7 +98,7 @@ class ListTimer : public InspTimer
                                         chan = Srv->GetChannelIndex(ld->list_position);
                                         /* spool details */
 					bool has_user = (chan && chan->HasUser(u));
-                                        if ((chan) && (((!(chan->custom_modes[CM_PRIVATE])) && (!(chan->custom_modes[CM_SECRET]))) || (has_user)))
+                                        if ((chan) && (((!(chan->modes[CM_PRIVATE])) && (!(chan->modes[CM_SECRET]))) || (has_user)))
                                         {
                                                 /* Increment total plus linefeed */
 						long users = usercount_i(chan);

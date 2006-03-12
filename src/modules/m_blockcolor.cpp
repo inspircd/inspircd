@@ -52,7 +52,7 @@ class ModuleBlockColour : public Module
 		{
 			chanrec* c = (chanrec*)dest;
 			
-			if(c->IsCustomModeSet('c'))
+			if(c->IsModeSet('c'))
 			{
 				/* Replace a strlcpy(), which ran even when +c wasn't set, with this (no copies at all) -- Om */
 				for(unsigned int i = 0; i < text.length(); i++)

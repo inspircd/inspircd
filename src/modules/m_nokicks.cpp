@@ -51,7 +51,7 @@ class ModuleNoKicks : public Module
 	{
 		if (access_type == AC_KICK)
 		{
-			if (channel->IsCustomModeSet('Q'))
+			if (channel->IsModeSet('Q'))
 			{
 				if ((Srv->IsUlined(source->nick)) || (Srv->IsUlined(source->server)) || (!strcmp(source->server,"")))
 				{

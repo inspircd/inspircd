@@ -111,7 +111,7 @@ class chanrec : public Extensible
 	/** Custom modes for the channel.
 	 * Plugins may use this field in any way they see fit.
 	 */
-	char custom_modes[64];     /* modes handled by modules */
+	char modes[64];     /* modes handled by modules */
 
 	/** User lists
 	 * There are four user lists, one for 
@@ -174,11 +174,11 @@ class chanrec : public Extensible
 	 */
 	void SetCustomModeParam(char mode,char* parameter,bool mode_on);
  
-	/** Returns true if a custom mode is set on a channel
+	/** Returns true if a mode is set on a channel
 	  * @param mode The mode character you wish to query
 	  * @return True if the custom mode is set, false if otherwise
 	  */
-	bool IsCustomModeSet(char mode);
+	bool IsModeSet(char mode);
 
 	/** Returns the parameter for a custom mode on a channel.
 	  * @param mode The mode character you wish to query

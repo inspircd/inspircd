@@ -49,7 +49,7 @@ public:
 		{
 			chanrec* c = (chanrec*)dest;
 
-			if (c->IsCustomModeSet('P'))
+			if (c->IsModeSet('P'))
 			{
 				char* i = (char*)text.c_str();
 				for (; *i; i++)

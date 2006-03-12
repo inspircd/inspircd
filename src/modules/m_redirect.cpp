@@ -57,7 +57,7 @@ class ModuleRedirect : public Module
 				if (c)
 				{
 					/* Fix by brain: Dont let a channel be linked to *itself* either */
-					if ((c == target) || (c->IsCustomModeSet('L')))
+					if ((c == target) || (c->IsModeSet('L')))
 					{
 						WriteServ(user->fd,"690 %s :Circular redirection, mode +L to %s not allowed.",user->nick,params[0].c_str());
      						return 0;
@@ -83,7 +83,7 @@ class ModuleRedirect : public Module
 	{
 		if (chan)
 		{
-			if (chan->IsCustomModeSet('L'))
+			if (chan->IsModeSet('L'))
 			{
 				if (Srv->CountUsers(chan) >= chan->limit)
 				{

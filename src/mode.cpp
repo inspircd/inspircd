@@ -653,7 +653,7 @@ void ModeParser::ProcessModes(char **parameters,userrec* user,chanrec *chan,int 
 						break;
 					previously_set_k = true;
 						
-					if (!chan->custom_modes[CM_KEY])
+					if (!chan->modes[CM_KEY])
 					{
 						MOD_RESULT = 0;
 						FOREACH_RESULT(I_OnRawMode,OnRawMode(user, chan, 'k', parameters[param], true, 1));
@@ -664,7 +664,7 @@ void ModeParser::ProcessModes(char **parameters,userrec* user,chanrec *chan,int 
 							strlcpy(key,parameters[param++],32);
 							outpars[pc++] = key;
 							strlcpy(chan->key,key,MAXBUF);
-							chan->custom_modes[CM_KEY] = 1;
+							chan->modes[CM_KEY] = 1;
 							k_set = true;
 						}
 						else param++;
@@ -689,7 +689,7 @@ void ModeParser::ProcessModes(char **parameters,userrec* user,chanrec *chan,int 
 						{
 							*outl++ = 'k';
 							*chan->key = 0;
-							chan->custom_modes[CM_KEY] = 0;
+							chan->modes[CM_KEY] = 0;
 							outpars[pc++] = key;
 						}
 					}
@@ -707,11 +707,11 @@ void ModeParser::ProcessModes(char **parameters,userrec* user,chanrec *chan,int 
                                         FOREACH_RESULT(I_OnRawMode,OnRawMode(user, chan, 'l', "", false, 0));
                                         if (!MOD_RESULT)
                                         {
-						if (chan->custom_modes[CM_LIMIT])
+						if (chan->modes[CM_LIMIT])
 						{
 							*outl++ = 'l';
 							chan->limit = 0;
-							chan->custom_modes[CM_LIMIT] = 0;
+							chan->modes[CM_LIMIT] = 0;
 						}
 					}
 				}
@@ -756,7 +756,7 @@ void ModeParser::ProcessModes(char **parameters,userrec* user,chanrec *chan,int 
 					if (chan->limit)
 					{
 						*outl++ = 'l';
-						chan->custom_modes[CM_LIMIT] = 1;
+						chan->modes[CM_LIMIT] = 1;
 						outpars[pc++] = parameters[param++];
 						l_set = true;
 					}
@@ -770,13 +770,13 @@ void ModeParser::ProcessModes(char **parameters,userrec* user,chanrec *chan,int 
                                 {
 					if (mdir)
 					{
-						if (!(chan->custom_modes[CM_INVITEONLY])) *outl++ = 'i';
-						chan->custom_modes[CM_INVITEONLY] = 1;
+						if (!(chan->modes[CM_INVITEONLY])) *outl++ = 'i';
+						chan->modes[CM_INVITEONLY] = 1;
 					}
 					else
 					{
-						if (chan->custom_modes[CM_INVITEONLY]) *outl++ = 'i';
-						chan->custom_modes[CM_INVITEONLY] = 0;
+						if (chan->modes[CM_INVITEONLY]) *outl++ = 'i';
+						chan->modes[CM_INVITEONLY] = 0;
 					}
 				}
 			break;
@@ -788,13 +788,13 @@ void ModeParser::ProcessModes(char **parameters,userrec* user,chanrec *chan,int 
                                 {
 					if (mdir)
                                         {
-						if (!(chan->custom_modes[CM_TOPICLOCK])) *outl++ = 't';
-                                                chan->custom_modes[CM_TOPICLOCK] = 1;
+						if (!(chan->modes[CM_TOPICLOCK])) *outl++ = 't';
+                                                chan->modes[CM_TOPICLOCK] = 1;
                                         }
                                         else
                                         {
-						if (chan->custom_modes[CM_TOPICLOCK]) *outl++ = 't';
-                                                chan->custom_modes[CM_TOPICLOCK] = 0;
+						if (chan->modes[CM_TOPICLOCK]) *outl++ = 't';
+                                                chan->modes[CM_TOPICLOCK] = 0;
                                         }
 				}
 			break;
@@ -806,13 +806,13 @@ void ModeParser::ProcessModes(char **parameters,userrec* user,chanrec *chan,int 
                                 {
                                         if (mdir)
                                         {
-						if (!(chan->custom_modes[CM_NOEXTERNAL])) *outl++ = 'n';
-                                                chan->custom_modes[CM_NOEXTERNAL] = 1;
+						if (!(chan->modes[CM_NOEXTERNAL])) *outl++ = 'n';
+                                                chan->modes[CM_NOEXTERNAL] = 1;
                                         }
                                         else
                                         {
-						if (chan->custom_modes[CM_NOEXTERNAL]) *outl++ = 'n';
-                                                chan->custom_modes[CM_NOEXTERNAL] = 0;
+						if (chan->modes[CM_NOEXTERNAL]) *outl++ = 'n';
+                                                chan->modes[CM_NOEXTERNAL] = 0;
                                         }
 				}
 			break;
@@ -824,13 +824,13 @@ void ModeParser::ProcessModes(char **parameters,userrec* user,chanrec *chan,int 
                                 {
                                         if (mdir)
                                         {
-                                                if (!(chan->custom_modes[CM_MODERATED])) *outl++ = 'm';
-                                                chan->custom_modes[CM_MODERATED] = 1;
+                                                if (!(chan->modes[CM_MODERATED])) *outl++ = 'm';
+                                                chan->modes[CM_MODERATED] = 1;
                                         }
                                         else
                                         {
-                                                if (chan->custom_modes[CM_MODERATED]) *outl++ = 'm';
-                                                chan->custom_modes[CM_MODERATED] = 0;
+                                                if (chan->modes[CM_MODERATED]) *outl++ = 'm';
+                                                chan->modes[CM_MODERATED] = 0;
                                         }
 				}
 			break;
@@ -842,11 +842,11 @@ void ModeParser::ProcessModes(char **parameters,userrec* user,chanrec *chan,int 
                                 {
                                         if (mdir)
                                         {
-                                                if (!(chan->custom_modes[CM_SECRET])) *outl++ = 's';
-                                                chan->custom_modes[CM_SECRET] = 1;
-                                                if (chan->custom_modes[CM_PRIVATE])
+                                                if (!(chan->modes[CM_SECRET])) *outl++ = 's';
+                                                chan->modes[CM_SECRET] = 1;
+                                                if (chan->modes[CM_PRIVATE])
                                                 {
-                                                        chan->custom_modes[CM_PRIVATE] = 0;
+                                                        chan->modes[CM_PRIVATE] = 0;
                                                         if (mdir)
                                                         {
 								*outl++ = '-'; *outl++ = 'p'; *outl++ = '+';
@@ -855,8 +855,8 @@ void ModeParser::ProcessModes(char **parameters,userrec* user,chanrec *chan,int 
                                         }
                                         else
                                         {
-                                                if (chan->custom_modes[CM_SECRET]) *outl++ = 's';
-                                                chan->custom_modes[CM_SECRET] = 0;
+                                                if (chan->modes[CM_SECRET]) *outl++ = 's';
+                                                chan->modes[CM_SECRET] = 0;
                                         }
 				}
 			break;
@@ -868,14 +868,14 @@ void ModeParser::ProcessModes(char **parameters,userrec* user,chanrec *chan,int 
 				{
 					if(mdir)
 					{
-						if(!(chan->custom_modes[CM_PRIVATE]))
+						if(!(chan->modes[CM_PRIVATE]))
 							*outl++ = 'p';
 						
-						chan->custom_modes[CM_PRIVATE] = 1;
+						chan->modes[CM_PRIVATE] = 1;
 						
-						if(chan->custom_modes[CM_SECRET])
+						if(chan->modes[CM_SECRET])
 						{
-							chan->custom_modes[CM_SECRET] = 0;
+							chan->modes[CM_SECRET] = 0;
 
 							*outl++ = '-';
 							*outl++ = 's';
@@ -884,10 +884,10 @@ void ModeParser::ProcessModes(char **parameters,userrec* user,chanrec *chan,int 
 					}
 					else
 					{
-						if(chan->custom_modes[CM_PRIVATE])
+						if(chan->modes[CM_PRIVATE])
 							*outl++ = 'p';
 						
-						chan->custom_modes[CM_PRIVATE] = 0;
+						chan->modes[CM_PRIVATE] = 0;
 					}
 				}
 				break;
@@ -895,7 +895,7 @@ void ModeParser::ProcessModes(char **parameters,userrec* user,chanrec *chan,int 
 			default:
 				string_list p;
 				p.clear();
-				bool x = chan->custom_modes[*modechar-65];
+				bool x = chan->modes[*modechar-65];
 				if ((!x && !mdir) || (x && mdir))
 				{
 					if (!ModeIsListMode(*modechar,MT_CHANNEL))

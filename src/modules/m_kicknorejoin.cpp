@@ -105,7 +105,7 @@ public:
 	
 	virtual void OnUserKick(userrec* source, userrec* user, chanrec* chan, const std::string &reason)
 	{
-		if (chan->IsCustomModeSet('J') && (source != user))
+		if (chan->IsModeSet('J') && (source != user))
 		{
 			delaylist* dl = (delaylist*)chan->GetExt("norejoinusers");
 			

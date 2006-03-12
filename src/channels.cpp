@@ -73,12 +73,12 @@ chanrec::chanrec()
 	*name = *topic = *setby = *key = 0;
 	created = topicset = limit = 0;
 	internal_userlist.clear();
-	memset(&custom_modes,0,64);
+	memset(&modes,0,64);
 }
 
 void chanrec::SetCustomMode(char mode,bool mode_on)
 {
-	custom_modes[mode-65] = mode_on;
+	modes[mode-65] = mode_on;
 	if (!mode_on)
 		this->SetCustomModeParam(mode,"",false);
 }
@@ -108,19 +108,30 @@ void chanrec::SetCustomModeParam(char mode,char* parameter,bool mode_on)
 	}
 }
 
-bool chanrec::IsCustomModeSet(char mode)
+bool chanrec::IsModeSet(char mode)
 {
-	return custom_modes[mode-65];
+	return modes[mode-65];
 }
 
 std::string chanrec::GetModeParameter(char mode)
 {
-	std::map<char,char*>::iterator n = custom_mode_params.find(mode);
-	if (n != custom_mode_params.end())
+	if (mode == 'k')
 	{
-		return n->second;
+		return this->key;
 	}
-	return "";
+	else if (mode == 'l')
+	{
+		return ConvToStr(this->limit);
+	}
+	else
+	{
+		std::map<char,char*>::iterator n = custom_mode_params.find(mode);
+		if (n != custom_mode_params.end())
+		{
+			return n->second;
+		}
+		return "";
+	}
 }
 
 long chanrec::GetUserCounter()
@@ -254,7 +265,7 @@ chanrec* add_channel(userrec *user, const char* cn, const char* key, bool overri
 		/* create a new one */
 		chanlist[cname] = new chanrec();
 		strlcpy(chanlist[cname]->name, cname,CHANMAX);
-		chanlist[cname]->custom_modes[CM_TOPICLOCK] = chanlist[cname]->custom_modes[CM_NOEXTERNAL] = 1;
+		chanlist[cname]->modes[CM_TOPICLOCK] = chanlist[cname]->modes[CM_NOEXTERNAL] = 1;
 		//chanlist[cname]->binarymodes = CM_TOPICLOCK | CM_NOEXTERNAL;
 		chanlist[cname]->created = TIME;
 		*chanlist[cname]->topic = 0;
@@ -312,7 +323,7 @@ chanrec* add_channel(userrec *user, const char* cn, const char* key, bool overri
 						}
 					}
 				}
-				if (Ptr->custom_modes[CM_INVITEONLY])
+				if (Ptr->modes[CM_INVITEONLY])
 				{
 					MOD_RESULT = 0;
 					irc::string xname(Ptr->name);

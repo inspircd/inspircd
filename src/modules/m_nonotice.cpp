@@ -46,7 +46,7 @@ class ModuleNoNotice : public Module
 		if (target_type == TYPE_CHANNEL)
 		{
 			chanrec* c = (chanrec*)dest;
-			if (c->IsCustomModeSet('T'))
+			if (c->IsModeSet('T'))
 			{
 				if ((Srv->IsUlined(user->server)) || (Srv->ChanMode(user,c) == "@") || (Srv->ChanMode(user,c) == "%"))
 				{

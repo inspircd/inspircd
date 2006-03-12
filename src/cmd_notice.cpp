@@ -94,12 +94,12 @@ void cmd_notice::Handle (char **parameters, int pcnt, userrec *user)
 		{
 			if (IS_LOCAL(user))
 			{
-				if ((chan->custom_modes[CM_NOEXTERNAL]) && (!chan->HasUser(user)))
+				if ((chan->modes[CM_NOEXTERNAL]) && (!chan->HasUser(user)))
 				{
 					WriteServ(user->fd,"404 %s %s :Cannot send to channel (no external messages)", user->nick, chan->name);
 					return;
 				}
-				if ((chan->custom_modes[CM_MODERATED]) && (cstatus(user,chan)<STATUS_VOICE))
+				if ((chan->modes[CM_MODERATED]) && (cstatus(user,chan)<STATUS_VOICE))
 				{
 					WriteServ(user->fd,"404 %s %s :Cannot send to channel (+m)", user->nick, chan->name);
 					return;

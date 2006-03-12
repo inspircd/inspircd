@@ -416,7 +416,7 @@ std::string chlist(userrec *user,userrec* source)
 			{
 				// if the channel is NOT private/secret, OR the source user is on the channel, AND the user is not invisible.
 				// if the user is the same as the source, shortcircuit the comparison.
-				if ((source == user) || ((((!(((ucrec*)(*i))->channel->custom_modes[CM_PRIVATE])) && (!(((ucrec*)(*i))->channel->custom_modes[CM_SECRET])) && (!userinvisible)) || (((ucrec*)(*i))->channel->HasUser(source)))))
+				if ((source == user) || ((((!(((ucrec*)(*i))->channel->modes[CM_PRIVATE])) && (!(((ucrec*)(*i))->channel->modes[CM_SECRET])) && (!userinvisible)) || (((ucrec*)(*i))->channel->HasUser(source)))))
 				{
 					lst = lst + std::string(cmode(user,((ucrec*)(*i))->channel)) + std::string(((ucrec*)(*i))->channel->name) + " ";
 				}

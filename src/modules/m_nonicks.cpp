@@ -69,7 +69,7 @@ class ModuleNoNickChange : public Module
 				if (((ucrec*)(*i))->channel != NULL)
 				{
 					chanrec* curr = ((ucrec*)(*i))->channel;
-					if ((curr->IsCustomModeSet('N')) && (!*user->oper))
+					if ((curr->IsModeSet('N')) && (!*user->oper))
 					{
 						// don't allow the nickchange, theyre on at least one channel with +N set
 						// and theyre not an oper

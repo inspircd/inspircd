@@ -29,7 +29,7 @@ class ModuleSSLModes : public Module
 	
 	virtual int OnUserPreJoin(userrec* user, chanrec* chan, const char* cname)
 	{
-		if(chan && chan->IsCustomModeSet('z'))
+		if(chan && chan->IsModeSet('z'))
 		{
 			if(user->GetExt("ssl"))
 			{

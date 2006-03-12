@@ -50,7 +50,7 @@ class ModuleNoInvite : public Module
 
 		virtual int OnUserPreInvite(userrec* user,userrec* dest,chanrec* channel)
 		{
-			if (channel->IsCustomModeSet('V'))
+			if (channel->IsModeSet('V'))
 			{
 				WriteServ(user->fd,"492 %s %s :Can't invite %s to channel (+V set)",user->nick, channel->name, dest->nick);
 				return 1;

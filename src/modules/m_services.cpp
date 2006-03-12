@@ -133,7 +133,7 @@ class ModuleServices : public Module
 		if (target_type == TYPE_CHANNEL)
 		{
 			chanrec* c = (chanrec*)dest;
-			if ((c->IsCustomModeSet('M')) && (!strchr(user->modes,'r')))
+			if ((c->IsModeSet('M')) && (!strchr(user->modes,'r')))
 			{
 				if ((Srv->IsUlined(user->nick)) || (Srv->IsUlined(user->server)) || (!strcmp(user->server,"")))
 				{
@@ -172,7 +172,7 @@ class ModuleServices : public Module
 	{
 		if (chan)
 		{
-			if (chan->IsCustomModeSet('R'))
+			if (chan->IsModeSet('R'))
 			{
 				if (!strchr(user->modes,'r'))
 				{

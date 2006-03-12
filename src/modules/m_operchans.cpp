@@ -77,7 +77,7 @@ class ModuleOperChans : public Module
 		{
 			if (chan)
 			{
-				if (chan->IsCustomModeSet('O'))
+				if (chan->IsModeSet('O'))
 				{
 					WriteServ(user->fd,"520 %s %s :Only IRC operators may join the channel %s (+O is set)",user->nick, chan->name,chan->name);
 					return 1;

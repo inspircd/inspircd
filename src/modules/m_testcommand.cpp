@@ -109,7 +109,7 @@ class ModuleTestCommand : public Module
 	virtual void OnUserJoin(userrec* user, chanrec* channel)
 	{
 		Srv->Log(DEBUG,"OnUserJoin triggered");
-		if (channel->IsCustomModeSet('Z'))
+		if (channel->IsModeSet('Z'))
 		{
 			std::string param = channel->GetModeParameter('Z');
 			Srv->Log(DEBUG,"Custom mode is set on this channel! Parameter="+param);

@@ -57,7 +57,7 @@ class ModuleNoCTCP : public Module
 		if (target_type == TYPE_CHANNEL)
 		{
 			chanrec* c = (chanrec*)dest;
-			if (c->IsCustomModeSet('C'))
+			if (c->IsModeSet('C'))
 			{
 				if ((text.length()) && (text[0] == '\1'))
 				{
