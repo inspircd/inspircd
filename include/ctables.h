@@ -59,7 +59,7 @@ class command_t
 	 */
 	std::string source;
 
-	command_t(std::string cmd, char flags, int minpara) : command(cmd), flags_needed(flags), min_params(minpara)
+	command_t(const std::string &cmd, char flags, int minpara) : command(cmd), flags_needed(flags), min_params(minpara)
 	{
 		use_count = total_bytes = 0;
 		source = "<core>";

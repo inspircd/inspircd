@@ -56,7 +56,7 @@ protected:
 	Server* Srv;
 	ConfigReader* Conf;
 public:
-	ListModeBaseModule(Server* serv, char modechar, std::string eolstr, std::string lnum, std::string eolnum) : Module::Module(serv)
+	ListModeBaseModule(Server* serv, char modechar, const std::string &eolstr, const std::string &lnum, const std::string &eolnum) : Module::Module(serv)
 	{
 		Srv = serv;
 		Conf = new ConfigReader;

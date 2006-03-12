@@ -839,7 +839,7 @@ void Start (void)
 	printf("Name concept:\t\t\033[1;32mLord_Zathras\033[0m\n\n");
 }
 
-void WritePID(std::string filename)
+void WritePID(const std::string &filename)
 {
 	ofstream outfile(filename.c_str());
 	if (outfile.is_open())

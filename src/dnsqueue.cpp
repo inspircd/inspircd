@@ -205,7 +205,7 @@ public:
 	}
 };
 
-bool lookup_dns(std::string nick)
+bool lookup_dns(const std::string &nick)
 {
 	/* First attempt to find the nickname */
 	userrec* u = Find(nick);

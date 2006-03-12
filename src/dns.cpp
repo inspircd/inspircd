@@ -684,13 +684,13 @@ DNS::DNS()
 	log(DEBUG,"Create blank DNS");
 }
 
-DNS::DNS(std::string dnsserver)
+DNS::DNS(const std::string &dnsserver)
 {
 	dns_init_2(dnsserver.c_str());
 	log(DEBUG,"Create DNS with server '%s'",dnsserver.c_str());
 }
 
-void DNS::SetNS(std::string dnsserver)
+void DNS::SetNS(const std::string &dnsserver)
 {
 	dns_init_2(dnsserver.c_str());
 	log(DEBUG,"Set NS");
@@ -700,7 +700,7 @@ DNS::~DNS()
 {
 }
 
-bool DNS::ReverseLookup(std::string ip)
+bool DNS::ReverseLookup(const std::string &ip)
 {
 	if (ServerInstance && ServerInstance->stats)
 		ServerInstance->stats->statsDns++;
@@ -723,7 +723,7 @@ bool DNS::ReverseLookup(std::string ip)
 	return true;
 }
 
-bool DNS::ForwardLookup(std::string host)
+bool DNS::ForwardLookup(const std::string &host)
 {
 	if (ServerInstance && ServerInstance->stats)
 		ServerInstance->stats->statsDns++;
@@ -740,7 +740,7 @@ bool DNS::ForwardLookup(std::string host)
 	return true;
 }
 
-bool DNS::ForwardLookupWithFD(std::string host, int &fd)
+bool DNS::ForwardLookupWithFD(const std::string &host, int &fd)
 {
 	if (ServerInstance && ServerInstance->stats)
 		ServerInstance->stats->statsDns++;

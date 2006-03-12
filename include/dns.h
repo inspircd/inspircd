@@ -65,7 +65,7 @@ public:
 	/** This constructor accepts a dns server address. The address must be in dotted
 	 * decimal form, e.g. 1.2.3.4.
 	 */
-	DNS(std::string dnsserver);
+	DNS(const std::string &dnsserver);
 	/** The destructor frees all used structures.
 	 */
 	~DNS();
@@ -73,14 +73,14 @@ public:
 	 * format, e.g. 1.2.3.4, and returns true if the lookup was successfully
 	 * initiated.
 	 */
-	bool ReverseLookup(std::string ip);
+	bool ReverseLookup(const std::string &ip);
 	/** This method will start the forward lookup of a hostname, e.g. www.inspircd.org,
 	 * and returns true if the lookup was successfully initiated.
 	 */
-	bool ForwardLookup(std::string host);
+	bool ForwardLookup(const std::string &host);
 	/** Used by modules to perform a dns lookup but have the socket engine poll a module, instead of the dns object directly.
 	 */
-	bool ForwardLookupWithFD(std::string host, int &fd);
+	bool ForwardLookupWithFD(const std::string &host, int &fd);
 	/** This method will return true when the lookup is completed. It uses poll internally
 	 * to determine the status of the socket.
 	 */
@@ -97,7 +97,7 @@ public:
 	 * query is invalid for some reason, e.g. the dns server not responding.
 	 */
 	int GetFD();
-	void SetNS(std::string dnsserver);
+	void SetNS(const std::string &dnsserver);
 };
 
 /** This is the handler function for multi-threaded DNS.
