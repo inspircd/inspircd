@@ -140,8 +140,18 @@ private:
 	 */
 	bool FlushWriteBuffer();
 
+	/** Set the queue sizes
+	 * This private method sets the operating system queue
+	 * sizes for this socket to 65535 so that it can queue
+	 * more information without application-level queueing
+	 * which was required in older software.
+	 */
 	void SetQueues(int nfd);
 
+	/** When the socket has been marked as closing, this flag
+	 * will be set to true, then the next time the socket is
+	 * examined, the socket is deleted and closed.
+	 */
 	bool ClosePending;
 
 public:
@@ -320,9 +330,27 @@ public:
 	 */
 	virtual ~InspSocket();
 
+	/**
+	 * This method attempts to resolve the hostname,
+	 * if a hostname is given and not an IP,
+	 * before a connection can occur. This method is
+	 * asyncronous.
+	 */
 	virtual bool DoResolve();
+
+	/**
+	 * This method attempts to connect to a hostname.
+	 * This only occurs on a non-listening socket. This
+	 * method is asyncronous.
+	 */
 	virtual bool DoConnect();
 
+	/**
+	 * This method marks the socket closed.
+	 * The next time the core examines a socket marked
+	 * as closed, the socket will be closed and the 
+	 * memory reclaimed.
+	 */
 	void MarkAsClosed();
 };
 

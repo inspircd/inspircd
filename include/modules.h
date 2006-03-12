@@ -87,10 +87,11 @@ typedef file_cache string_list;
 typedef std::deque<userrec*> chanuserlist;
 
 
-// This #define allows us to call a method in all
-// loaded modules in a readable simple way, e.g.:
-// 'FOREACH_MOD OnConnect(user);'
-
+/**
+ * This #define allows us to call a method in all
+ * loaded modules in a readable simple way, e.g.:
+ * 'FOREACH_MOD(I_OnXonnwxr,OnConnect(user));'
+ */
 #define FOREACH_MOD(y,x) if (Config->global_implementation[y] > 0) { \
 	for (int _i = 0; _i <= MODCOUNT; _i++) { \
 	if (Config->implement_lists[_i][y]) \
@@ -105,12 +106,11 @@ typedef std::deque<userrec*> chanuserlist;
 	} \
   }
 
-// This define is similar to the one above but returns a result in MOD_RESULT.
-// The first module to return a nonzero result is the value to be accepted,
-// and any modules after are ignored.
-
-// *********************************************************************************************
-
+/**
+ *  This define is similar to the one above but returns a result in MOD_RESULT.
+ * The first module to return a nonzero result is the value to be accepted,
+ * and any modules after are ignored.
+ */
 #define FOREACH_RESULT(y,x) { if (Config->global_implementation[y] > 0) { \
 			MOD_RESULT = 0; \
 			for (int _i = 0; _i <= MODCOUNT; _i++) { \
@@ -131,8 +131,6 @@ typedef std::deque<userrec*> chanuserlist;
 		} \
 	} \
  }
-   
-// *********************************************************************************************
 
 #define FD_MAGIC_NUMBER -42
 
@@ -141,12 +139,6 @@ typedef std::deque<userrec*> chanuserlist;
 #define IS_LOCAL(x) (x->fd > -1)
 #define IS_REMOTE(x) (x->fd < 0)
 #define IS_MODULE_CREATED(x) (x->fd == FD_MAGIC_NUMBER)
-
-/*extern void createcommand(char* cmd, handlerfunc f, char flags, int minparams, char* source);
-extern void server_mode(char **parameters, int pcnt, userrec *user);*/
-
-// class Version holds the version information of a Module, returned
-// by Module::GetVersion (thanks RD)
 
 /** Holds a module's Version information
  *  The four members (set by the constructor only) indicate details as to the version number
@@ -171,12 +163,8 @@ class Admin : public classbase
 	 Admin(std::string name, std::string email, std::string nick);
 };
 
-
 // Forward-delacare module for ModuleMessage etc
 class Module;
-
-// Thanks to Rob (from anope) for the idea of this message passing API
-// (its been done before, but this seemed a very neat and tidy way...
 
 /** The ModuleMessage class is the base class of Request and Event
  * This class is used to represent a basic data structure which is passed
@@ -342,7 +330,7 @@ enum Implementation {	I_OnUserConnect, I_OnUserQuit, I_OnUserDisconnect, I_OnUse
 /** Base class for all InspIRCd modules
  *  This class is the base class for InspIRCd modules. All modules must inherit from this class,
  *  its methods will be called when irc server events occur. class inherited from module must be
- *  instantiated by the ModuleFactory class (see relevent section) for the plugin to be initialised.
+ *  instantiated by the ModuleFactory class (see relevent section) for the module to be initialised.
  */
 class Module : public classbase
 {
@@ -1248,8 +1236,14 @@ class Module : public classbase
 	 */
 	virtual int OnRawSocketRead(int fd, char* buffer, unsigned int count, int &readresult);
 
+	/** Called whenever a user sets away.
+	 * This method has no parameter for the away message, as it is available in the
+	 * user record as userrec::awaymsg.
+	 */
 	virtual void OnSetAway(userrec* user);
 
+	/** Called when a user cancels their away state.
+	 */
 	virtual void OnCancelAway(userrec* user);
 };
 
@@ -1739,12 +1733,27 @@ class Server : public classbase
 	 */
 	virtual void DelSocket(InspSocket* sock);
 
+	/** Causes the local server to rehash immediately.
+	 * WARNING: Do not call this method from within your rehash method, for
+	 * obvious reasons!
+	 */
 	virtual void RehashServer();
 
+	/** This method returns the total number of channels on the network.
+	 */
 	virtual long GetChannelCount();
 
+	/** This method returns a channel whos index is greater than or equal to 0 and less than the number returned by Server::GetChannelCount().
+	 * This is slower (by factors of dozens) than requesting a channel by name with Server::FindChannel(), however there are times when
+	 * you wish to safely iterate the channel list, saving your position, with large amounts of time in between, which is what this function
+	 * is useful for.
+	 */
 	virtual chanrec* GetChannelIndex(long index);
 
+	/** Dumps text (in a stringstream) to a user. The stringstream should not contain linefeeds, as it will be split
+	 * automatically by the function into safe amounts. The line prefix given is prepended onto each line (e.g. a servername
+	 * and a numeric).
+	 */
 	void DumpText(userrec* User, const std::string &LinePrefix, stringstream &TextStream);
 };
 
@@ -1852,6 +1861,8 @@ class ConfigReader : public classbase
  */
 class FileReader : public classbase
 {
+	/** The file contents
+	 */
 	file_cache fc;
  public:
 	 /** Default constructor.

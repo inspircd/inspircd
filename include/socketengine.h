@@ -138,6 +138,9 @@ public:
 	 */
 	bool DelFd(int fd);
 
+	/** Returns true if a socket exists in the socket
+	 * engine's list.
+	 */
 	bool HasFd(int fd);
 
 	/** Waits for an event.

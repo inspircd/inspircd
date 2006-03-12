@@ -237,6 +237,8 @@ class userrec : public connection
 	 */
 	long recvqmax;
 
+	/** Default constructor
+	 */
 	userrec();
 	
 	/** Returns the full displayed host of the user
@@ -334,21 +336,33 @@ class userrec : public connection
 	 */
 	InvitedList* GetInviteList();
 
-	void MakeHost(char* nhost);
-
+	/** Creates a wildcard host.
+	 * Takes a buffer to use and fills the given buffer with the host in the format *!*@hostname
+	 */
 	char* MakeWildHost();
+
+	/** Creates a host.
+	 * Takes a buffer to use and fills the given buffer with the host in the format nick!user@host
+	 */
+	void MakeHost(char* nhost);
 
 	/** Shuts down and closes the user's socket
 	 */
 	void CloseSocket();
 
+	/** Default destructor
+	 */
 	virtual ~userrec();
 
 #ifdef THREADED_DNS
+	/** Thread used for threaded lookups
+	 */
 	pthread_t dnsthread;
 #endif
 };
 
+/** Used to hold WHOWAS information
+ */
 class WhoWasGroup
 {
  public:

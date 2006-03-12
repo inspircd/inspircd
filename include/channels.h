@@ -24,6 +24,8 @@
 #include <string>
 #include <map>
 
+/** RFC1459 channel modes
+ */
 enum ChannelModes {
 	CM_TOPICLOCK = 't'-65,
 	CM_NOEXTERNAL = 'n'-65,
@@ -51,24 +53,17 @@ class HostItem : public classbase
 	virtual ~HostItem() { /* stub */ }
 };
 
-// banlist is inherited from HostList mainly for readability
-// reasons only
-
 /** A subclass of HostItem designed to hold channel bans (+b)
  */
 class BanItem : public HostItem
 {
 };
 
-// same with this...
-
 /** A subclass of HostItem designed to hold channel exempts (+e)
  */
 class ExemptItem : public HostItem
 {
 };
-
-// and this...
 
 /** A subclass of HostItem designed to hold channel invites (+I)
  */
@@ -88,8 +83,6 @@ typedef std::vector<ExemptItem>	ExemptList;
  */
 typedef std::vector<InviteItem>	InviteList;
 
-class userrec;
-
 /** A list of users on a channel
  */
 typedef std::map<userrec*,userrec*> CUList;
@@ -108,10 +101,13 @@ class chanrec : public Extensible
 	/** The channels name.
 	 */
 	char name[CHANMAX]; /* channel name */
-	/** Custom modes for the channel.
-	 * Plugins may use this field in any way they see fit.
+	/** Modes for the channel.
+	 * This is not a null terminated string! It is a hash where
+	 * each item in it represents if a mode is set. For example
+	 * for mode +A, index 0. Use modechar-65 to calculate which
+	 * field to check.
 	 */
-	char modes[64];     /* modes handled by modules */
+	char modes[64];
 
 	/** User lists
 	 * There are four user lists, one for 
@@ -222,7 +218,7 @@ class chanrec : public Extensible
 	void DelHalfoppedUser(userrec* user);
 	void DelVoicedUser(userrec* user);
 
-	/** Obrain the internal reference list
+	/** Obtain the internal reference list
 	 * The internal reference list contains a list of userrec*.
 	 * These are used for rapid comparison to determine
 	 * channel membership for PRIVMSG, NOTICE, QUIT, PART etc.
@@ -236,12 +232,16 @@ class chanrec : public Extensible
 	CUList* GetHalfoppedUsers();
 	CUList* GetVoicedUsers();
 
+	/** Returns true if the user given is on the given channel.
+	 */
 	bool HasUser(userrec* user);
 
 	/** Creates a channel record and initialises it with default values
 	 */
 	chanrec();
 
+	/** Destructor for chanrec
+	 */
 	virtual ~chanrec() { /* stub */ }
 };
 
@@ -271,7 +271,12 @@ class ucrec : public classbase
 	 */
 	chanrec *channel;
 
+	/** Constructor for ucrec
+	 */
 	ucrec() : uc_modes(0), channel(NULL) { /* stub */ }
+
+	/** Destructor for ucrec
+	 */
 	virtual ~ucrec() { /* stub */ }
 };
 
