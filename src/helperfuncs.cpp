@@ -1260,6 +1260,7 @@ char* chanmodes(chanrec *chan, bool showkey)
 	static char scratch[MAXBUF];
 	static char sparam[MAXBUF];
 	char* offset = scratch;
+	std::string extparam = "";
 
 	if (!chan)
 	{
@@ -1271,43 +1272,33 @@ char* chanmodes(chanrec *chan, bool showkey)
 	*scratch = '\0';
 	*sparam = '\0';
 
-	if (chan->binarymodes & CM_NOEXTERNAL)
-		*offset++ = 'n';
-	if (chan->binarymodes & CM_TOPICLOCK)
-		*offset++ = 't';
-	if (*chan->key)
-		*offset++ = 'k';
-	if (chan->limit)
-		*offset++ = 'l';
-	if (chan->binarymodes & CM_INVITEONLY)
-		*offset++ = 'i';
-	if (chan->binarymodes & CM_MODERATED)
-		*offset++ = 'm';
-	if (chan->binarymodes & CM_SECRET)
-		*offset++ = 's';
-	if (chan->binarymodes & CM_PRIVATE)
-		*offset++ = 'p';
-
-	if (*chan->key)
-	{
-		snprintf(sparam,MAXBUF," %s",showkey ? chan->key : "<key>");
-	}
-
-	if (chan->limit)
-	{
-		char foo[24];
-		sprintf(foo," %lu",(unsigned long)chan->limit);
-		strlcat(sparam,foo,MAXBUF);
-	}
-
 	/* This was still iterating up to 190, chanrec::custom_modes is only 64 elements -- Om */
 	for(int n = 0; n < 64; n++)
 	{
 		if(chan->custom_modes[n])
 		{
 			*offset++ = n+65;
-			std::string extparam = chan->GetModeParameter(n+65);
-
+			extparam = "";
+			switch (n)
+			{
+				case CM_KEY:
+					extparam = (showkey ? chan->key : "<key>");
+				break;
+				case CM_LIMIT:
+					extparam = ConvToStr(chan->limit);
+				break;
+				case CM_NOEXTERNAL:
+				case CM_TOPICLOCK:
+				case CM_INVITEONLY:
+				case CM_MODERATED:
+				case CM_SECRET:
+				case CM_PRIVATE:
+					/* We know these have no parameters */
+				break;
+				default:
+					extparam = chan->GetModeParameter(n+65);
+				break;
+			}
 			if (extparam != "")
 			{
 				charlcat(sparam,' ',MAXBUF);

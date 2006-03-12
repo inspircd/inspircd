@@ -70,7 +70,7 @@ void cmd_topic::Handle (char **parameters, int pcnt, userrec *user)
 		Ptr = FindChan(parameters[0]);
 		if (Ptr)
 		{
-			if ((Ptr->binarymodes & CM_SECRET) && (!Ptr->HasUser(user)))
+			if ((Ptr->custom_modes[CM_SECRET]) && (!Ptr->HasUser(user)))
 			{
 				WriteServ(user->fd,"401 %s %s :No such nick/channel",user->nick, Ptr->name);
 				return;
@@ -103,7 +103,7 @@ void cmd_topic::Handle (char **parameters, int pcnt, userrec *user)
 					WriteServ(user->fd,"442 %s %s :You're not on that channel!",user->nick, Ptr->name);
 					return;
 				}
-				if ((Ptr->binarymodes & CM_TOPICLOCK) && (cstatus(user,Ptr)<STATUS_HOP))
+				if ((Ptr->custom_modes[CM_TOPICLOCK]) && (cstatus(user,Ptr)<STATUS_HOP))
 				{
 					WriteServ(user->fd,"482 %s %s :You must be at least a half-operator to change modes on this channel", user->nick, Ptr->name);
 					return;

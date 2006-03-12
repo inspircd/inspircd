@@ -25,12 +25,14 @@
 #include <map>
 
 enum ChannelModes {
-	CM_TOPICLOCK = 1,
-	CM_NOEXTERNAL = 2,
-	CM_INVITEONLY = 4,
-	CM_MODERATED = 8,
-	CM_SECRET = 16,
-	CM_PRIVATE = 32
+	CM_TOPICLOCK = 't'-65,
+	CM_NOEXTERNAL = 'n'-65,
+	CM_INVITEONLY = 'i'-65,
+	CM_MODERATED = 'm'-65,
+	CM_SECRET = 's'-65,
+	CM_PRIVATE = 'p'-65,
+	CM_KEY = 'k'-65,
+	CM_LIMIT = 'l'-65
 };
 
 class userrec;

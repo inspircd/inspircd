@@ -71,7 +71,7 @@ chanrec* ForceChan(chanrec* Ptr,ucrec *a,userrec* user, int created);
 chanrec::chanrec()
 {
 	*name = *topic = *setby = *key = 0;
-	created = topicset = limit = binarymodes = 0;
+	created = topicset = limit = 0;
 	internal_userlist.clear();
 	memset(&custom_modes,0,64);
 }
@@ -254,7 +254,8 @@ chanrec* add_channel(userrec *user, const char* cn, const char* key, bool overri
 		/* create a new one */
 		chanlist[cname] = new chanrec();
 		strlcpy(chanlist[cname]->name, cname,CHANMAX);
-		chanlist[cname]->binarymodes = CM_TOPICLOCK | CM_NOEXTERNAL;
+		chanlist[cname]->custom_modes[CM_TOPICLOCK] = chanlist[cname]->custom_modes[CM_NOEXTERNAL] = 1;
+		//chanlist[cname]->binarymodes = CM_TOPICLOCK | CM_NOEXTERNAL;
 		chanlist[cname]->created = TIME;
 		*chanlist[cname]->topic = 0;
 		strlcpy(chanlist[cname]->setby, user->nick,NICKMAX-1);
@@ -311,7 +312,7 @@ chanrec* add_channel(userrec *user, const char* cn, const char* key, bool overri
 						}
 					}
 				}
-				if (Ptr->binarymodes & CM_INVITEONLY)
+				if (Ptr->custom_modes[CM_INVITEONLY])
 				{
 					MOD_RESULT = 0;
 					irc::string xname(Ptr->name);

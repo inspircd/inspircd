@@ -54,7 +54,7 @@ class cmd_uninvite : public command_t
                         return; 
                 }        
 
-                if (c->binarymodes & CM_INVITEONLY)
+                if (c->custom_modes[CM_INVITEONLY])
                 {
                         if (cstatus(user,c) < STATUS_HOP)
                         {

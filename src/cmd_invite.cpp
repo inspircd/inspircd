@@ -64,7 +64,7 @@ void cmd_invite::Handle (char **parameters, int pcnt, userrec *user)
 			return;
 		}
 
-		if ((c->binarymodes & CM_INVITEONLY) && (IS_LOCAL(user)))
+		if ((c->custom_modes[CM_INVITEONLY]) && (IS_LOCAL(user)))
 		{
 			if (cstatus(user,c) < STATUS_HOP)
 			{

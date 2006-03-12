@@ -47,7 +47,7 @@ void cmd_list::Handle (char **parameters, int pcnt, userrec *user)
 	{
 		// if the channel is not private/secret, OR the user is on the channel anyway
 		bool n = i->second->HasUser(user);
-		if (((!(i->second->binarymodes & CM_PRIVATE)) && (!(i->second->binarymodes & CM_SECRET))) || (n))
+		if (((!(i->second->custom_modes[CM_PRIVATE])) && (!(i->second->custom_modes[CM_SECRET]))) || (n))
 		{
 			long users = usercount_i(i->second);
 			if (users)
