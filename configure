@@ -886,6 +886,10 @@ sub getmodules {
 
 sub getrevision {
 	my $data = `svn info`;
+	if ($data eq "") {
+		$rev = "r0";
+		return $rev;
+	}
 	$data =~ /Revision: (\d+)/;
 	my $rev = $1;
 	if (!defined($rev)) {
