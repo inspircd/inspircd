@@ -795,7 +795,7 @@ void ServerConfig::Read(bool bail, userrec* user)
 	}
 }
 
-void Exit (int status)
+void Exit(int status)
 {
 	if (Config->log_file)
 		fclose(Config->log_file);
@@ -830,7 +830,7 @@ void Rehash(int status)
 
 
 
-void Start (void)
+void Start()
 {
 	printf("\033[1;32mInspire Internet Relay Chat Server, compiled %s at %s\n",__DATE__,__TIME__);
 	printf("(C) ChatSpike Development team.\033[0m\n\n");
@@ -865,7 +865,7 @@ void SetSignals()
 }
 
 
-int DaemonSeed (void)
+bool DaemonSeed()
 {
 	int childpid;
 	if ((childpid = fork ()) < 0)
@@ -886,7 +886,7 @@ int DaemonSeed (void)
 		if (getrlimit(RLIMIT_CORE, &rl) == -1)
 		{
 			log(DEFAULT,"Failed to getrlimit()!");
-			return(FALSE);
+			return false;
 		}
 		else
 		{
@@ -896,7 +896,7 @@ int DaemonSeed (void)
 		}
 	}
   
-	return (TRUE);
+	return true;
 }
 
 
@@ -1459,8 +1459,14 @@ int ServerConfig::ConfValueInteger(char* tag, char* var, int index, std::strings
 	return atoi(result);
 }
 
-// This will bind a socket to a port. It works for UDP/TCP
-int BindSocket (int sockfd, struct sockaddr_in client, struct sockaddr_in server, int port, char* addr)
+/** This will bind a socket to a port. It works for UDP/TCP.
+ * If a hostname is given to bind to, the function will first
+ * attempt to resolve the hostname, then bind to the IP the 
+ * hostname resolves to. This is a blocking lookup blocking for
+ * a maximum of one second before it times out, using the DNS
+ * server specified in the configuration file.
+ */ 
+bool BindSocket (int sockfd, struct sockaddr_in client, struct sockaddr_in server, int port, char* addr)
 {
 	memset((char *)&server,0,sizeof(server));
 	struct in_addr addy;
@@ -1483,7 +1489,7 @@ int BindSocket (int sockfd, struct sockaddr_in client, struct sockaddr_in server
 		else
 		{
 			log(DEFAULT,"WARNING: Could not resolve '%s' to an IP for binding to on port %d",addr,port);
-			return(FALSE);
+			return false;
 		}
 	}
 	server.sin_family = AF_INET;
@@ -1501,7 +1507,7 @@ int BindSocket (int sockfd, struct sockaddr_in client, struct sockaddr_in server
 	server.sin_port = htons(port);
 	if (bind(sockfd,(struct sockaddr*)&server,sizeof(server)) < 0)
 	{
-		return(ERROR);
+		return false;
 	}
 	else
 	{
@@ -1509,25 +1515,28 @@ int BindSocket (int sockfd, struct sockaddr_in client, struct sockaddr_in server
 		if (listen(sockfd, Config->MaxConn) == -1)
 		{
 			log(DEFAULT,"ERROR in listen(): %s",strerror(errno));
-			return(FALSE);
+			return false;
 		}
 		else
 		{
-			return(TRUE);
+			return true;
 		}
 	}
 }
 
 
 // Open a TCP Socket
-int OpenTCPSocket (void)
+int OpenTCPSocket()
 {
 	int sockfd;
 	int on = 1;
 	struct linger linger = { 0 };
   
 	if ((sockfd = socket (AF_INET, SOCK_STREAM, 0)) < 0)
+	{
+		log(DEFAULT,"Error creating TCP socket: %s",strerror(errno));
 		return (ERROR);
+	}
 	else
 	{
 		setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, (const char*)&on, sizeof(on));
@@ -1580,7 +1589,7 @@ int BindPorts()
 			return(ERROR);
 		}
 
-		if (BindSocket(openSockfd[BoundPortCount],client,server,Config->ports[count],Config->addrs[count]) == ERROR)
+		if (!BindSocket(openSockfd[BoundPortCount],client,server,Config->ports[count],Config->addrs[count]))
 		{
 			log(DEFAULT,"InspIRCd: startup: failed to bind port [%s:%lu]: %s",Config->addrs[count],(unsigned long)Config->ports[count],strerror(errno));
 		}

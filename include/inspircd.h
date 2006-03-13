@@ -48,11 +48,7 @@
 #include "command_parse.h"
 
 // some misc defines
-
 #define ERROR -1
-#define TRUE 1
-#define FALSE 0
-#define MAXSOCKS 64
 #define MAXCOMMAND 32
 
 // crucial defines

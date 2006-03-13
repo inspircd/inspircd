@@ -76,7 +76,7 @@ InspSocket::InspSocket(const std::string &ahost, int aport, bool listening, unsi
 		}
 		else
 		{
-			if (BindSocket(this->fd,this->client,this->server,aport,(char*)ahost.c_str()) == ERROR)
+			if (!BindSocket(this->fd,this->client,this->server,aport,(char*)ahost.c_str()))
 			{
 				this->Close();
 				this->fd = -1;

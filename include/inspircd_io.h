@@ -365,13 +365,13 @@ class ServerConfig : public classbase
 };
 
 
-void Exit (int); 
-void Start (void); 
+void Exit(int status); 
+void Start(); 
 void SetSignals();
-int DaemonSeed (void); 
-bool FileExists (const char* file);
-int OpenTCPSocket (void); 
-int BindSocket (int sockfd, struct sockaddr_in client, struct sockaddr_in server, int port, char* addr);
+bool DaemonSeed(); 
+bool FileExists(const char* file);
+int OpenTCPSocket(); 
+bool BindSocket(int sockfd, struct sockaddr_in client, struct sockaddr_in server, int port, char* addr);
 void WritePID(const std::string &filename);
 int BindPorts();
 char* CleanFilename(char* name);
