@@ -91,7 +91,7 @@ class ModuleSQLOper : public Module
 		return 0;
 	}
 
-	bool LookupOper(const std::string &username, const std::string &password, userrec* user)
+	bool LookupOper(std::string username, std::string password, userrec* user)
 	{
 		bool found = false;
 
