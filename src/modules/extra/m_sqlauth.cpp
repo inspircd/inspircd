@@ -105,7 +105,7 @@ class ModuleSQLAuth : public Module
 		}
 	}
 
-	bool CheckCredentials(const std::string &username, const std::string &password)
+	bool CheckCredentials(const std::string &username, std::string password)
 	{
 		bool found = false;
 
