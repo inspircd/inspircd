@@ -71,7 +71,7 @@ std::vector<userrec*> local_users;
 
 extern int MODCOUNT;
 extern char LOG_FILE[MAXBUF];
-int openSockfd[MAXSOCKS];
+int openSockfd[MAX_DESCRIPTORS];
 int yield_depth;
 int iterations = 0;
 sockaddr_in client,server;

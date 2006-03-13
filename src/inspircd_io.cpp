@@ -35,7 +35,7 @@ using namespace std;
 
 extern ServerConfig *Config;
 extern InspIRCd* ServerInstance;
-extern int openSockfd[MAXSOCKS];
+extern int openSockfd[MAX_DESCRIPTORS];
 extern time_t TIME;
 
 extern int MODCOUNT;
