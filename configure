@@ -52,6 +52,8 @@ $config{MAX_KICK}           = "255";						# max kick message size
 $config{MAX_GECOS}          = "128";						# max GECOS size
 $config{MAX_AWAY}           = "200";						# max AWAY size
 
+$no_svn = 0;
+
 $config{HAS_OPENSSL} =~ /OpenSSL (\S+) \d+ \S+ \d{4}/;
 $config{HAS_OPENSSL} = $1;
 
@@ -885,15 +887,19 @@ sub getmodules {
 }
 
 sub getrevision {
+	if ($no_svn) {
+		return "0";
+	}
 	my $data = `svn info`;
 	if ($data eq "") {
-		$rev = "r0";
+		$no_svn = 1;
+		$rev = "0";
 		return $rev;
 	}
 	$data =~ /Revision: (\d+)/;
 	my $rev = $1;
 	if (!defined($rev)) {
-		$rev = "r0";
+		$rev = "0";
 	}
 	return $rev;
 }
