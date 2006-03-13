@@ -443,8 +443,8 @@ void kill_link(userrec *user,const char* r)
         strlcpy(reason,r,MAXQUIT-1);
 
         log(DEBUG,"kill_link: %s '%s'",user->nick,reason);
-        Write(user->fd,"ERROR :Closing link (%s@%s) [%s]",user->ident,user->host,reason);
-        log(DEBUG,"closing fd %d",user->fd);
+	if (IS_LOCAL(user))
+	        Write(user->fd,"ERROR :Closing link (%s@%s) [%s]",user->ident,user->host,reason);
 
         if (user->registered == 7) {
 		purge_empty_chans(user);
@@ -456,7 +456,7 @@ void kill_link(userrec *user,const char* r)
 
         FOREACH_MOD(I_OnUserDisconnect,OnUserDisconnect(user));
 
-        if (user->fd > -1)
+        if (IS_LOCAL(user))
         {
 		if (Config->GetIOHook(user->port))
 		{
@@ -477,7 +477,7 @@ void kill_link(userrec *user,const char* r)
         // if they were an oper with +s.
         if (user->registered == 7) {
                 // fix by brain: only show local quits because we only show local connects (it just makes SENSE)
-                if (user->fd > -1)
+                if (IS_LOCAL(user))
                         WriteOpers("*** Client exiting: %s!%s@%s [%s]",user->nick,user->ident,user->host,reason);
                 AddWhoWas(user);
         }
@@ -485,7 +485,7 @@ void kill_link(userrec *user,const char* r)
         if (iter != clientlist.end())
         {
                 log(DEBUG,"deleting user hash value %lx",(unsigned long)user);
-                if (user->fd > -1)
+                if (IS_LOCAL(user))
 		{
                         fd_ref_table[user->fd] = NULL;
 			if (find(local_users.begin(),local_users.end(),user) != local_users.end())
