@@ -248,7 +248,13 @@ class ModuleSSLGnuTLS : public Module
 		gnutls_credentials_set(session->sess, GNUTLS_CRD_CERTIFICATE, x509_cred);
 		gnutls_certificate_server_set_request(session->sess, GNUTLS_CERT_REQUEST); // Request client certificate if any.
 		gnutls_dh_set_prime_bits(session->sess, dh_bits);
-		gnutls_transport_set_ptr(session->sess, (gnutls_transport_ptr_t) fd); // Give gnutls the fd for the socket.
+		
+		/* This is an experimental change to avoid a warning on 64bit systems about casting between integer and pointer of different sizes
+		 * This needs testing, but it's easy enough to rollback if need be
+		 * Old: gnutls_transport_set_ptr(session->sess, (gnutls_transport_ptr_t) fd); // Give gnutls the fd for the socket.
+		 */
+		
+		gnutls_transport_set_ptr(session->sess, &fd); // Give gnutls the fd for the socket.
 		
 		Handshake(session);
 	}
@@ -606,4 +612,3 @@ extern "C" void * init_module( void )
 {
 	return new ModuleSSLGnuTLSFactory;
 }
-
