@@ -31,14 +31,10 @@ class ModuleSecureList : public Module
 {
  private:
 	 Server *Srv;
-	 ListTimer* MyTimer;
  public:
 	ModuleSecureList(Server* Me) : Module::Module(Me)
 	{
 		Srv = Me;
-
-		MyTimer = new ListTimer(1,Srv);
-		Srv->AddTimer(MyTimer);
 	}
  
 	virtual ~ModuleSecureList()
