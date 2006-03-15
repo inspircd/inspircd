@@ -102,7 +102,7 @@ void ProcessUser(userrec* cu)
 		}
 		catch (ModuleException& modexcept)
 		{
-			log(DEBUG,"Module exception cought: %s",modexcept.GetReason()); \
+			log(DEBUG,"Module exception caught: %s",modexcept.GetReason());
 		}
 
 		if (MOD_RESULT < 0)
@@ -136,6 +136,8 @@ void ProcessUser(userrec* cu)
 
 		/*
 		 * XXX - potential replacement for the below using my beloved pointers. --w00t
+		 * XXX - no garauntee there's not \0's in the middle of the data,
+		 *       and no reason for it to be terminated either. -- Om
 		 *
 		 * for (char *c = data; data && *data; data++)
 		 * {
@@ -494,5 +496,3 @@ void LoadAllModules(InspIRCd* ServerInstance)
 
 	log(DEFAULT,"Total loaded modules: %lu",(unsigned long)MODCOUNT+1);
 }
-
-
