@@ -81,7 +81,7 @@ class ModuleSecureList : public Module
 
 	virtual Priority Prioritize()
 	{
-		return Srv->PriorityBefore("m_safelist.so");
+		return (Priority)Srv->PriorityBefore("m_safelist.so");
 	}
 
 };
