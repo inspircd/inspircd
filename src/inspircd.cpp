@@ -215,7 +215,7 @@ InspIRCd::InspIRCd(int argc, char** argv)
 	SetSignals();
         if (!Config->nofork)
         {
-                if (DaemonSeed() == ERROR)
+		if (!DaemonSeed())
                 {
                         printf("ERROR: could not go into daemon mode. Shutting down.\n");
                         Exit(ERROR);
