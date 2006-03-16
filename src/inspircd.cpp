@@ -26,6 +26,9 @@ using namespace std;
 #include <sys/ioctl.h>
 #include <time.h>
 #include <string>
+#include <exception>
+#include <stdexcept>
+#include <new>
 #ifdef GCC3
 #include <ext/hash_map>
 #else
@@ -829,9 +832,18 @@ int InspIRCd::Run()
 
 int main(int argc, char** argv)
 {
-        ServerInstance = new InspIRCd(argc, argv);
-        ServerInstance->Run();
-        delete ServerInstance;
-        return 0;
+	try
+	{
+		ServerInstance = new InspIRCd(argc, argv);
+		ServerInstance->Run();
+	        delete ServerInstance;
+	}
+	catch (std::bad_alloc)
+	{
+		log(DEFAULT,"You are out of memory! (got exception std::bad_alloc!)");
+		send_error("**** OUT OF MEMORY **** We're gonna need a bigger boat!");
+		printf("Out of memory! (got exception std::bad_alloc!");
+	}
+	return 0;
 }
 
