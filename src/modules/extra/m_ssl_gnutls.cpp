@@ -252,10 +252,12 @@ class ModuleSSLGnuTLS : public Module
 		/* This is an experimental change to avoid a warning on 64bit systems about casting between integer and pointer of different sizes
 		 * This needs testing, but it's easy enough to rollback if need be
 		 * Old: gnutls_transport_set_ptr(session->sess, (gnutls_transport_ptr_t) fd); // Give gnutls the fd for the socket.
+		 * New: gnutls_transport_set_ptr(session->sess, &fd); // Give gnutls the fd for the socket.
+		 *
+		 * With testing this seems to...not work :/
 		 */
 		
 		gnutls_transport_set_ptr(session->sess, (gnutls_transport_ptr_t) fd); // Give gnutls the fd for the socket.
-		// gnutls_transport_set_ptr(session->sess, &fd); // Give gnutls the fd for the socket.
 		
 		Handshake(session);
 	}
