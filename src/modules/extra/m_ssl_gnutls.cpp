@@ -364,7 +364,7 @@ class ModuleSSLGnuTLS : public Module
 					readresult = length;
 				}
 			
-				log(DEBUG, "m_ssl_gnutls.so: OnRawSocketRead: Passing %d bytes up to insp:");
+				log(DEBUG, "m_ssl_gnutls.so: OnRawSocketRead: Passing %d bytes up to insp:", length);
 				Srv->Log(DEBUG, std::string(buffer, readresult));
 			}
 		}
