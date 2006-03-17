@@ -254,7 +254,8 @@ class ModuleSSLGnuTLS : public Module
 		 * Old: gnutls_transport_set_ptr(session->sess, (gnutls_transport_ptr_t) fd); // Give gnutls the fd for the socket.
 		 */
 		
-		gnutls_transport_set_ptr(session->sess, &fd); // Give gnutls the fd for the socket.
+		gnutls_transport_set_ptr(session->sess, (gnutls_transport_ptr_t) fd); // Give gnutls the fd for the socket.
+		// gnutls_transport_set_ptr(session->sess, &fd); // Give gnutls the fd for the socket.
 		
 		Handshake(session);
 	}
