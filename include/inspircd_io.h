@@ -373,7 +373,7 @@ bool FileExists(const char* file);
 int OpenTCPSocket(); 
 bool BindSocket(int sockfd, struct sockaddr_in client, struct sockaddr_in server, int port, char* addr);
 void WritePID(const std::string &filename);
-int BindPorts();
+int BindPorts(bool bail);
 char* CleanFilename(char* name);
 
 #endif

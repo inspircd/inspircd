@@ -196,15 +196,15 @@ InspIRCd::InspIRCd(int argc, char** argv)
 	this->MakeLowerMap();
 
         OpenLog(argv, argc);
+	this->stats = new serverstats();
         Config->ClearStack();
         Config->Read(true,NULL);
         CheckRoot();
 	this->ModeGrok = new ModeParser();
 	this->Parser = new CommandParser();
-	this->stats = new serverstats();
         AddServerName(Config->ServerName);
         CheckDie();
-        stats->BoundPortCount = BindPorts();
+        stats->BoundPortCount = BindPorts(true);
 
 	for(int t = 0; t < 255; t++)
 		Config->global_implementation[t] = 0;
