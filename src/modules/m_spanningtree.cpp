@@ -946,14 +946,13 @@ class TreeSocket : public InspSocket
 						WriteChannel(c, user, "TOPIC %s :%s", c->name, c->topic);
 						nsource = user->server;
 					}
+					/* all done, send it on its way */
+					params[3] = ":" + params[3];
+					DoOneToAllButSender(source,"FTOPIC",params,nsource);
 				}
 			}
 			
 		}
-		
-		/* all done, send it on its way */
-		params[3] = ":" + params[3];
-		DoOneToAllButSender(source,"FTOPIC",params,nsource);
 
 		return true;
 	}
