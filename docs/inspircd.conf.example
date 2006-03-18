@@ -652,6 +652,11 @@
 #<alias text="CS" replace="PRIVMSG ChanServ" requires="ChanServ" uline="yes">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Antibear security module: Prevents 'bear.txt' based trojans from
+# connecting to your network by sending them a numeric they can't handle.
+#<module name="m_antibear.txt">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Antibottler module: Labels bottler leech bots
 #<module name="m_antibottler.so">
 
@@ -1010,6 +1015,11 @@
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # SAQUIT module: Adds the oper /SAQUIT command (abusable!!!)
 #<module name="m_saquit.so">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-
+# Secure list module: Prevent /LIST in the first minute of connection,
+# crippling most spambots and trojan spreader bots.
+#<module name="m_securelist.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Set Idle module: Adds a command for opers to change their
