@@ -107,7 +107,7 @@ class cmd_spylist : public command_t
 		WriteServ(user->fd,"321 %s Channel :Users Name",user->nick);
 	        for (chan_hash::const_iterator i = chanlist.begin(); i != chanlist.end(); i++)
 	        {
-	                WriteServ(user->fd,"322 %s %s %d :[+%s] %s",user->nick,i->second->name,usercount_i(i->second),chanmodes(i->second,true),i->second->topic);
+			WriteServ(user->fd,"322 %s %s %d :[+%s] %s",user->nick,i->second->name,usercount(i->second),chanmodes(i->second,true),i->second->topic);
 	        }
 	        WriteServ(user->fd,"323 %s :End of channel list.",user->nick);
 	}
