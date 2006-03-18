@@ -100,12 +100,11 @@ class ListTimer : public InspTimer
 					bool has_user = (chan && chan->HasUser(u));
                                         if ((chan) && (((!(chan->modes[CM_PRIVATE])) && (!(chan->modes[CM_SECRET]))) || (has_user)))
                                         {
-                                                /* Increment total plus linefeed */
-						long users = usercount_i(chan);
-						/* If there are only invisible users on the channel, dont show it */
+						long users = usercount(chan);
 						if (users)
 						{
 							int counter = snprintf(buffer,MAXBUF,"322 %s %s %ld :[+%s] %s",u->nick,chan->name,users,chanmodes(chan,has_user),chan->topic);
+							/* Increment total plus linefeed */
 							amount_sent += counter + 4 + Srv->GetServerName().length();
 							log(DEBUG,"m_safelist.so: Sent %ld of safe %ld / 4",amount_sent,u->sendqmax);
 							WriteServ_NoFormat(u->fd,buffer);

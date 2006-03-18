@@ -49,7 +49,7 @@ void cmd_list::Handle (char **parameters, int pcnt, userrec *user)
 		bool n = i->second->HasUser(user);
 		if (((!(i->second->modes[CM_PRIVATE])) && (!(i->second->modes[CM_SECRET]))) || (n))
 		{
-			long users = usercount_i(i->second);
+			long users = usercount(i->second);
 			if (users)
 				WriteServ(user->fd,"322 %s %s %d :[+%s] %s",user->nick,i->second->name,users,chanmodes(i->second,n),i->second->topic);
 		}
