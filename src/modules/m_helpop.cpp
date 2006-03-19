@@ -34,7 +34,7 @@ void sendtohelpop(userrec*, int, char**);
 class cmd_helpop : public command_t
 {
  public:
-	 cmd_helpop () : command_t("HELPOP",0,0)
+	 cmd_helpop () : command_t("HELPOP",0,1)
 	 {
 		 this->source = "m_helpop.so";
 	 }
