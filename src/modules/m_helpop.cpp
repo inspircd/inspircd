@@ -107,7 +107,7 @@ bool do_helpop(char **parameters, int pcnt, userrec *src)
 	char a[MAXBUF];
 	int nlines = 0;
 
-	if (!parameters)
+	if (!pcnt)
 	{
  		search = "start";
   	}
