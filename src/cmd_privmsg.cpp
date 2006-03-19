@@ -70,7 +70,7 @@ void cmd_privmsg::Handle (char **parameters, int pcnt, userrec *user)
 	
 	if (ServerInstance->Parser->LoopCall(this,parameters,pcnt,user,0,pcnt-2,0))
 		return;
-        if (parameters[0][0] == '$')
+	if ((parameters[0][0] == '$') && (*user->oper))
 	{
 		// notice to server mask
 		char* servermask = parameters[0];
