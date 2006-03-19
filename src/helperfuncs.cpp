@@ -1495,7 +1495,7 @@ int usercount_opers(void)
 
 	for (user_hash::const_iterator i = clientlist.begin(); i != clientlist.end(); i++)
 	{
-		if (i->second->oper)
+		if (*(i->second->oper))
 			c++;
 	}
 	return c;
