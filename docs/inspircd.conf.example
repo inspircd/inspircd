@@ -1060,6 +1060,13 @@
 #<module name="m_sslmodes.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Dummy ssl module: If you have other servers on your network which
+# have SSL, but your server does not have ssl enabled, you should load
+# this module, which will handle SSL metadata (e.g. the "Is using ssl"
+# field in the WHOIS information).
+#<module name="m_ssl_dummy.so">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # GnuTLS ssl module: Adds support for client-server SSL using GnuTLS,
 # if enabled. You must copy the source for this module from the directory
 # src/modules/extra, or answer 'yes' in ./configure when asked if you
