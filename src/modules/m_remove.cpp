@@ -63,7 +63,10 @@ class cmd_remove : public command_t
 
 		/* Fix by brain - someone needs to learn to validate their input! */
 		if (!target || !channel)
+		{
+			WriteServ(user->fd,"401 %s %s :No such nick/channel",user->nick, !target ? parameters[0] : parameters[1]);
 			return;
+		}
 
 		/* And see if the person calling the command has access to use it on the channel */
 		std::string privs = Srv->ChanMode(user, channel);
