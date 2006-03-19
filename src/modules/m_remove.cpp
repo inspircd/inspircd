@@ -60,10 +60,16 @@ class cmd_remove : public command_t
 		userrec* target = Srv->FindNick(std::string(parameters[0]));
 		/* And the channel we're meant to be removing them from */
 		chanrec* channel = Srv->FindChannel(std::string(parameters[1]));
+
+		/* Fix by brain - someone needs to learn to validate their input! */
+		if (!target || !channel)
+			return;
+
 		/* And see if the person calling the command has access to use it on the channel */
 		std::string privs = Srv->ChanMode(user, channel);
 		/* Check what privs the person being removed has */
 		std::string targetprivs = Srv->ChanMode(target, channel);
+
 		int tlevel;
 		int ulevel;
 		int n = 2;
