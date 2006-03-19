@@ -2906,14 +2906,18 @@ void ReadConfiguration(bool rebind)
 		L.HiddenFromStats = Conf->ReadFlag("link","hidden",j);
 		L.NextConnectTime = time(NULL) + L.AutoConnect;
 		/* Bugfix by brain, do not allow people to enter bad configurations */
-		if ((L.RecvPass != "") && (L.SendPass != "") && (L.Name != "") && (L.Port))
+		if ((L.IPAddr != "") && (L.RecvPass != "") && (L.SendPass != "") && (L.Name != "") && (L.Port))
 		{
 			LinkBlocks.push_back(L);
 			log(DEBUG,"m_spanningtree: Read server %s with host %s:%d",L.Name.c_str(),L.IPAddr.c_str(),L.Port);
 		}
 		else
 		{
-			if (L.RecvPass == "")
+			if (L.IPAddr == "")
+			{
+				log(DEFAULT,"Invalid configuration for server '%s', IP address not defined!",L.Name.c_str());
+			}
+			else if (L.RecvPass == "")
 			{
 				log(DEFAULT,"Invalid configuration for server '%s', recvpass not defined!",L.Name.c_str());
 			}
