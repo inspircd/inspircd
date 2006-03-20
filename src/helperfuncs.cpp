@@ -1016,7 +1016,7 @@ void ServerPrivmsgAll(char* text, ...)
 	vsnprintf(textbuffer, MAXBUF, text, argsPtr);
 	va_end(argsPtr);
 
-	snprintf(formatbuffer,MAXBUF,"NOTICE $%s :%s",Config->ServerName,textbuffer);
+	snprintf(formatbuffer,MAXBUF,"PRIVMSG $%s :%s",Config->ServerName,textbuffer);
 
 	for (std::vector<userrec*>::const_iterator i = local_users.begin(); i != local_users.end(); i++)
 	{
