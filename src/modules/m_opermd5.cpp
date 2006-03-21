@@ -24,7 +24,6 @@ using namespace std;
 #include "modules.h"
 #include "helperfuncs.h"
 
-
 /* The four core functions - F1 is optimized somewhat */
 #define F1(x, y, z) (z ^ (x & (y ^ z)))
 #define F2(x, y, z) F1(z, x, y)
@@ -35,7 +34,7 @@ using namespace std;
 #define MD5STEP(f,w,x,y,z,in,s) \
          (w += f(x,y,z) + in, w = (w<<s | w>>(32-s)) + x)
 
-typedef unsigned long word32;
+typedef unsigned int word32; /* NOT unsigned long. We don't support 16 bit platforms, anyway. */
 typedef unsigned char byte;
 
 struct MD5Context {
