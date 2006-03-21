@@ -654,7 +654,7 @@
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Antibear security module: Prevents 'bear.txt' based trojans from
 # connecting to your network by sending them a numeric they can't handle.
-#<module name="m_antibear.txt">
+#<module name="m_antibear.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Antibottler module: Labels bottler leech bots
