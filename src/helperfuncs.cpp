@@ -1150,7 +1150,7 @@ void strlower(char *n)
 	if (n)
 	{
 		for (char* t = n; *t; t++)
-			*t = lowermap[(unsigned)*t];
+			*t = lowermap[(unsigned char)*t];
 	}
 }
 

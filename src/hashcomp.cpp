@@ -113,27 +113,27 @@ bool irc::InAddr_HashComp::operator()(const in_addr &s1, const in_addr &s2) cons
 
 bool irc::irc_char_traits::eq(char c1st, char c2nd)
 {
-	return lowermap[(unsigned)c1st] == lowermap[(unsigned)c2nd];
+	return lowermap[(unsigned char)c1st] == lowermap[(unsigned char)c2nd];
 }
 
 bool irc::irc_char_traits::ne(char c1st, char c2nd)
 {
-	return lowermap[(unsigned)c1st] != lowermap[(unsigned)c2nd];
+	return lowermap[(unsigned char)c1st] != lowermap[(unsigned char)c2nd];
 }
 
 bool irc::irc_char_traits::lt(char c1st, char c2nd)
 {
-	return lowermap[(unsigned)c1st] < lowermap[(unsigned)c2nd];
+	return lowermap[(unsigned char)c1st] < lowermap[(unsigned char)c2nd];
 }
 
 int irc::irc_char_traits::compare(const char* str1, const char* str2, size_t n)
 {
 	for(unsigned int i = 0; i < n; i++)
 	{
-		if(lowermap[(unsigned)*str1] > lowermap[(unsigned)*str2])
+		if(lowermap[(unsigned char)*str1] > lowermap[(unsigned char)*str2])
        	        	return 1;
 
-		if(lowermap[(unsigned)*str1] < lowermap[(unsigned)*str2])
+		if(lowermap[(unsigned char)*str1] < lowermap[(unsigned char)*str2])
 	               	return -1;
 
 	        if(*str1 == 0 || *str2 == 0)
@@ -167,7 +167,7 @@ bool operator== (irc::string& leftval, std::string& rightval)
 
 const char* irc::irc_char_traits::find(const char* s1, int  n, char c)
 {
-	while(n-- > 0 && lowermap[(unsigned)*s1] != lowermap[(unsigned)c])
+	while(n-- > 0 && lowermap[(unsigned char)*s1] != lowermap[(unsigned char)c])
 		s1++;
 	return s1;
 }
