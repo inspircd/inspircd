@@ -589,7 +589,7 @@ void InspIRCd::DoOneIteration(bool process_module_sockets)
         sockaddr_in sock_us;     // our port number
         socklen_t uslen;         // length of our port number
 
-	if (yield_depth > 3)
+	if (yield_depth > 100)
 		return;
 
 	yield_depth++;
