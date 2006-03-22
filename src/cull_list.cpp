@@ -52,6 +52,9 @@ using namespace std;
 extern InspIRCd* ServerInstance;
 extern user_hash clientlist;
 
+/*
+ * In current implementation of CullList, this isn't used. It did odd things with a lot of sockets.
+ */
 bool CullList::IsValid(userrec* user)
 {
 	time_t esignon = 0;
@@ -139,29 +142,9 @@ int CullList::Apply()
         while (list.size())
         {
 		std::vector<CullItem>::iterator a = list.begin();
-		userrec* u = a->GetUser();
-		/* Because ServerInstance->DoOneIteration can
-		 * take the user away from us in the middle of
-		 * our operation, we should check to see if this
-		 * pointer is still valid by iterating the hash.
-		 * It's expensive, yes, but the DoOneIteration
-		 * call stops it being horrendously bad.
-		 */
-		if (IsValid(u))
-		{
-			kill_link(u,a->GetReason().c_str());
-			list.erase(list.begin());
-			/* So that huge numbers of quits dont block,
-			 * we yield back to our mainloop every 15
-			 * iterations.
-			 * The DoOneIteration call basically acts
-			 * like a software threading mechanism.
-			 */
-			if (((n++) % 15) == 0)
-			{
-				ServerInstance->DoOneIteration(false);
-			}
-		}
+
+		kill_link(a->GetUser(), a->GetReason().c_str());
+		list.erase(list.begin());
         }
         return n;
 }
