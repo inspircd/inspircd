@@ -437,6 +437,8 @@ void DeleteOper(userrec* user)
 void kill_link(userrec *user,const char* r)
 {
         user_hash::iterator iter = clientlist.find(user->nick);
+	if (iter == clientlist.end())
+		return;
 
         char reason[MAXBUF];
 
@@ -495,8 +497,8 @@ void kill_link(userrec *user,const char* r)
 			}
 		}
                 clientlist.erase(iter);
+		delete user;
         }
-        delete user;
 }
 
 WhoWasGroup::WhoWasGroup(userrec* user) : host(NULL), dhost(NULL), ident(NULL), server(NULL), gecos(NULL), signon(user->signon)
