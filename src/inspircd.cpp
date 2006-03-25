@@ -794,6 +794,9 @@ int InspIRCd::Run()
 	
         LoadAllModules(this);
 
+	/* Just in case no modules were loaded - fix for bug #101 */
+	this->BuildISupport();
+
         printf("\nInspIRCd is now running!\n");
 	
 	if (!Config->nofork)
