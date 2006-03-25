@@ -437,8 +437,18 @@ void DeleteOper(userrec* user)
 void kill_link(userrec *user,const char* r)
 {
         user_hash::iterator iter = clientlist.find(user->nick);
-	if (iter == clientlist.end())
-		return;
+
+
+/*
+ * I'm pretty sure returning here is causing a desync when part of the net thinks a user is gone,
+ * and another part doesn't. We want to broadcast the quit/kill before bailing so the net stays in sync.
+ *
+ * I can't imagine this blowing up, so I'm commenting it out. We still check
+ * before playing with a bad iterator below in our if(). DISCUSS THIS BEFORE YOU DO ANYTHING. --w00t
+ *
+ *	if (iter == clientlist.end())
+ *		return;
+ */
 
         char reason[MAXBUF];
 
