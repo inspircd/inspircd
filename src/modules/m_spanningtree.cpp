@@ -1264,7 +1264,7 @@ class TreeSocket : public InspSocket
 			this->WriteLine(data);
 			if ((iterations % 10) == 0)
 			{
-				ServerInstance->DoOneIteration(false);
+				//ServerInstance->DoOneIteration(false);
 			}
 		}
 		for (std::vector<QLine>::iterator i = qlines.begin(); i != qlines.end(); i++, iterations++)
@@ -1273,7 +1273,7 @@ class TreeSocket : public InspSocket
 			this->WriteLine(data);
 			if ((iterations % 10) == 0)
 			{
-				ServerInstance->DoOneIteration(false);
+				//ServerInstance->DoOneIteration(false);
 			}
 		}
 		for (std::vector<GLine>::iterator i = glines.begin(); i != glines.end(); i++, iterations++)
@@ -1282,7 +1282,7 @@ class TreeSocket : public InspSocket
 			this->WriteLine(data);
 			if ((iterations % 10) == 0)
 			{
-				ServerInstance->DoOneIteration(false);
+				//ServerInstance->DoOneIteration(false);
 			}
 		}
 		for (std::vector<ELine>::iterator i = elines.begin(); i != elines.end(); i++, iterations++)
@@ -1291,7 +1291,7 @@ class TreeSocket : public InspSocket
 			this->WriteLine(data);
 			if ((iterations % 10) == 0)
 			{
-				ServerInstance->DoOneIteration(false);
+				//ServerInstance->DoOneIteration(false);
 			}
 		}
 		for (std::vector<ZLine>::iterator i = pzlines.begin(); i != pzlines.end(); i++, iterations++)
@@ -1300,7 +1300,7 @@ class TreeSocket : public InspSocket
 			this->WriteLine(data);
 			if ((iterations % 10) == 0)
 			{
-				ServerInstance->DoOneIteration(false);
+				//ServerInstance->DoOneIteration(false);
 			}
 		}
 		for (std::vector<QLine>::iterator i = pqlines.begin(); i != pqlines.end(); i++, iterations++)
@@ -1309,7 +1309,7 @@ class TreeSocket : public InspSocket
 			this->WriteLine(data);
 			if ((iterations % 10) == 0)
 			{
-				ServerInstance->DoOneIteration(false);
+				//ServerInstance->DoOneIteration(false);
 			}
 		}
 		for (std::vector<GLine>::iterator i = pglines.begin(); i != pglines.end(); i++, iterations++)
@@ -1318,7 +1318,7 @@ class TreeSocket : public InspSocket
 			this->WriteLine(data);
 			if ((iterations % 10) == 0)
 			{
-				ServerInstance->DoOneIteration(false);
+				//ServerInstance->DoOneIteration(false);
 			}
 		}
 		for (std::vector<ELine>::iterator i = pelines.begin(); i != pelines.end(); i++, iterations++)
@@ -1327,7 +1327,7 @@ class TreeSocket : public InspSocket
 			this->WriteLine(data);
 			if ((iterations % 10) == 0)
 			{
-				ServerInstance->DoOneIteration(false);
+				//ServerInstance->DoOneIteration(false);
 			}
 		}
 	}
@@ -1413,26 +1413,25 @@ class TreeSocket : public InspSocket
 		std::string name = s->GetName();
 		Srv->SendOpers("*** Bursting to \2"+name+"\2.");
 		this->WriteLine(burst);
-		ServerInstance->DoOneIteration(false);
 		/* send our version string */
 		this->WriteLine(":"+Srv->GetServerName()+" VERSION :"+Srv->GetVersion());
 		/* Send server tree */
 		if (FindServer(name))
 			this->SendServers(TreeRoot,s,1);
-		ServerInstance->DoOneIteration(false);
+		//ServerInstance->DoOneIteration(false);
 		/* Send users and their oper status */
 		if (FindServer(name))
 			this->SendUsers(s);
-		ServerInstance->DoOneIteration(false);
+		//ServerInstance->DoOneIteration(false);
 		/* Send everything else (channel modes, xlines etc) */
 		if (FindServer(name))
 			this->SendChannelModes(s);
-		ServerInstance->DoOneIteration(false);
+		//ServerInstance->DoOneIteration(false);
 		if (FindServer(name))
 			this->SendXLines(s);
-		ServerInstance->DoOneIteration(false);
+		//ServerInstance->DoOneIteration(false);
 		FOREACH_MOD(I_OnSyncOtherMetaData,OnSyncOtherMetaData((Module*)TreeProtocolModule,(void*)this));
-		ServerInstance->DoOneIteration(false);
+		//ServerInstance->DoOneIteration(false);
 		this->WriteLine(endburst);
 		Srv->SendOpers("*** Finished bursting to \2"+name+"\2.");
 	}
@@ -1461,7 +1460,7 @@ class TreeSocket : public InspSocket
 				iterations++;
 				if ((iterations % 10) == 0)
 				{
-					ServerInstance->DoOneIteration(false);
+					//ServerInstance->DoOneIteration(false);
 				}
 				std::string ret = in_buffer.substr(0,in_buffer.find("\n")-1);
 				in_buffer = in_buffer.substr(in_buffer.find("\n")+1,in_buffer.length()-in_buffer.find("\n"));
