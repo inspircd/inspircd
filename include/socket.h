@@ -22,6 +22,7 @@
 #include <netinet/in.h>
 #include <sstream>
 #include <string>
+#include <deque>
 #include "dns.h"
 
 /**
@@ -48,6 +49,8 @@ enum InspSocketError { I_ERR_TIMEOUT, I_ERR_SOCKET, I_ERR_CONNECT, I_ERR_BIND, I
 class InspSocket
 {
 private:
+
+	std::deque<std::string> outbuffer;
 
 	/**
 	 * The file descriptor of this socket
