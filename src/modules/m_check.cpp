@@ -54,25 +54,25 @@ class cmd_check : public command_t
 		 *  :server.name 304 target :CHECK END
 		 */
 
-		Srv->SendTo(NULL, user, checkstr + " START " + std::string(parameters[0]));
+		Srv->SendTo(NULL, user, checkstr + " START " + parameters[0]);
 
 		if (targuser)
 		{
 			/* /check on a user */
-			Srv->SendTo(NULL, user, checkstr + " nuh " + std::string(targuser->GetFullHost()));
-			Srv->SendTo(NULL, user, checkstr + " realnuh " + std::string(targuser->GetFullRealHost()));
-			Srv->SendTo(NULL, user, checkstr + " realname " + std::string(targuser->fullname));
-			Srv->SendTo(NULL, user, checkstr + " modes +" + std::string(targuser->modes));
-			Srv->SendTo(NULL, user, checkstr + " server " + std::string(targuser->server));
+			Srv->SendTo(NULL, user, checkstr + " nuh " + targuser->GetFullHost());
+			Srv->SendTo(NULL, user, checkstr + " realnuh " + targuser->GetFullRealHost());
+			Srv->SendTo(NULL, user, checkstr + " realname " + targuser->fullname);
+			Srv->SendTo(NULL, user, checkstr + " modes +" + targuser->modes);
+			Srv->SendTo(NULL, user, checkstr + " server " + targuser->server);
 			if (targuser->awaymsg[0] != 0)
 			{
 				/* user is away */
-				Srv->SendTo(NULL, user, checkstr + " awaymsg " + std::string(targuser->awaymsg));
+				Srv->SendTo(NULL, user, checkstr + " awaymsg " + targuser->awaymsg);
 			}
 			if (targuser->oper[0] != 0)
 			{
 				/* user is an oper of type ____ */
-				Srv->SendTo(NULL, user, checkstr + " opertype " + std::string(targuser->oper));
+				Srv->SendTo(NULL, user, checkstr + " opertype " + targuser->oper);
 			}
 			if (IS_LOCAL(targuser))
 			{
@@ -82,7 +82,7 @@ class cmd_check : public command_t
 
 			chliststr = chlist(targuser, targuser);
 			std::stringstream dump(chliststr);
-			/* XXX - This doent suck so much */
+
 			Srv->DumpText(user,checkstr + " onchans ", dump);
 		}
 		else if (targchan)
