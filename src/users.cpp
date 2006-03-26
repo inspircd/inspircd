@@ -464,7 +464,8 @@ void kill_link(userrec *user,const char* r)
                 WriteCommonExcept(user,"QUIT :%s",reason);
         }
 
-        user->FlushWriteBuf();
+	if (IS_LOCAL(user))
+	        user->FlushWriteBuf();
 
         FOREACH_MOD(I_OnUserDisconnect,OnUserDisconnect(user));
 
