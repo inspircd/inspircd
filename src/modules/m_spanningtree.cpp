@@ -1262,73 +1262,41 @@ class TreeSocket : public InspSocket
 		{
 			snprintf(data,MAXBUF,":%s ADDLINE Z %s %s %lu %lu :%s",sn,i->ipaddr,i->source,(unsigned long)i->set_time,(unsigned long)i->duration,i->reason);
 			this->WriteLine(data);
-			if ((iterations % 10) == 0)
-			{
-				//ServerInstance->DoOneIteration(false);
-			}
 		}
 		for (std::vector<QLine>::iterator i = qlines.begin(); i != qlines.end(); i++, iterations++)
 		{
 			snprintf(data,MAXBUF,":%s ADDLINE Q %s %s %lu %lu :%s",sn,i->nick,i->source,(unsigned long)i->set_time,(unsigned long)i->duration,i->reason);
 			this->WriteLine(data);
-			if ((iterations % 10) == 0)
-			{
-				//ServerInstance->DoOneIteration(false);
-			}
 		}
 		for (std::vector<GLine>::iterator i = glines.begin(); i != glines.end(); i++, iterations++)
 		{
 			snprintf(data,MAXBUF,":%s ADDLINE G %s %s %lu %lu :%s",sn,i->hostmask,i->source,(unsigned long)i->set_time,(unsigned long)i->duration,i->reason);
 			this->WriteLine(data);
-			if ((iterations % 10) == 0)
-			{
-				//ServerInstance->DoOneIteration(false);
-			}
 		}
 		for (std::vector<ELine>::iterator i = elines.begin(); i != elines.end(); i++, iterations++)
 		{
 			snprintf(data,MAXBUF,":%s ADDLINE E %s %s %lu %lu :%s",sn,i->hostmask,i->source,(unsigned long)i->set_time,(unsigned long)i->duration,i->reason);
 			this->WriteLine(data);
-			if ((iterations % 10) == 0)
-			{
-				//ServerInstance->DoOneIteration(false);
-			}
 		}
 		for (std::vector<ZLine>::iterator i = pzlines.begin(); i != pzlines.end(); i++, iterations++)
 		{
 			snprintf(data,MAXBUF,":%s ADDLINE Z %s %s %lu %lu :%s",sn,i->ipaddr,i->source,(unsigned long)i->set_time,(unsigned long)i->duration,i->reason);
 			this->WriteLine(data);
-			if ((iterations % 10) == 0)
-			{
-				//ServerInstance->DoOneIteration(false);
-			}
 		}
 		for (std::vector<QLine>::iterator i = pqlines.begin(); i != pqlines.end(); i++, iterations++)
 		{
 			snprintf(data,MAXBUF,":%s ADDLINE Q %s %s %lu %lu :%s",sn,i->nick,i->source,(unsigned long)i->set_time,(unsigned long)i->duration,i->reason);
 			this->WriteLine(data);
-			if ((iterations % 10) == 0)
-			{
-				//ServerInstance->DoOneIteration(false);
-			}
 		}
 		for (std::vector<GLine>::iterator i = pglines.begin(); i != pglines.end(); i++, iterations++)
 		{
 			snprintf(data,MAXBUF,":%s ADDLINE G %s %s %lu %lu :%s",sn,i->hostmask,i->source,(unsigned long)i->set_time,(unsigned long)i->duration,i->reason);
 			this->WriteLine(data);
-			if ((iterations % 10) == 0)
-			{
-				//ServerInstance->DoOneIteration(false);
-			}
 		}
 		for (std::vector<ELine>::iterator i = pelines.begin(); i != pelines.end(); i++, iterations++)
 		{
 			snprintf(data,MAXBUF,":%s ADDLINE E %s %s %lu %lu :%s",sn,i->hostmask,i->source,(unsigned long)i->set_time,(unsigned long)i->duration,i->reason);
 			this->WriteLine(data);
-			if ((iterations % 10) == 0)
-			{
-				//ServerInstance->DoOneIteration(false);
-			}
 		}
 	}
 
@@ -1403,7 +1371,7 @@ class TreeSocket : public InspSocket
 	 */
 	void DoBurst(TreeServer* s)
 	{
-		/* The calls here to ServerInstance->DoOneIteration(false); yield the processing
+		/* The calls here to ServerInstance-> yield the processing
 		 * back to the core so that a large burst is split into at least 6 sections
 		 * (possibly more)
 		 */
@@ -1416,22 +1384,13 @@ class TreeSocket : public InspSocket
 		/* send our version string */
 		this->WriteLine(":"+Srv->GetServerName()+" VERSION :"+Srv->GetVersion());
 		/* Send server tree */
-		if (FindServer(name))
-			this->SendServers(TreeRoot,s,1);
-		//ServerInstance->DoOneIteration(false);
+		this->SendServers(TreeRoot,s,1);
 		/* Send users and their oper status */
-		if (FindServer(name))
-			this->SendUsers(s);
-		//ServerInstance->DoOneIteration(false);
+		this->SendUsers(s);
 		/* Send everything else (channel modes, xlines etc) */
-		if (FindServer(name))
-			this->SendChannelModes(s);
-		//ServerInstance->DoOneIteration(false);
-		if (FindServer(name))
-			this->SendXLines(s);
-		//ServerInstance->DoOneIteration(false);
+		this->SendChannelModes(s);
+		this->SendXLines(s);		
 		FOREACH_MOD(I_OnSyncOtherMetaData,OnSyncOtherMetaData((Module*)TreeProtocolModule,(void*)this));
-		//ServerInstance->DoOneIteration(false);
 		this->WriteLine(endburst);
 		Srv->SendOpers("*** Finished bursting to \2"+name+"\2.");
 	}
@@ -1457,11 +1416,6 @@ class TreeSocket : public InspSocket
 			 */
 			while (in_buffer.find("\n") != std::string::npos)
 			{
-				iterations++;
-				if ((iterations % 10) == 0)
-				{
-					//ServerInstance->DoOneIteration(false);
-				}
 				std::string ret = in_buffer.substr(0,in_buffer.find("\n")-1);
 				in_buffer = in_buffer.substr(in_buffer.find("\n")+1,in_buffer.length()-in_buffer.find("\n"));
 				if (ret.find("\r") != std::string::npos)
