@@ -1468,7 +1468,7 @@ int ServerConfig::ConfValueInteger(char* tag, char* var, int index, std::strings
  * a maximum of one second before it times out, using the DNS
  * server specified in the configuration file.
  */ 
-bool BindSocket (int sockfd, struct sockaddr_in client, struct sockaddr_in server, int port, char* addr)
+bool BindSocket(int sockfd, struct sockaddr_in client, struct sockaddr_in server, int port, char* addr)
 {
 	memset((char *)&server,0,sizeof(server));
 	struct in_addr addy;
@@ -1521,6 +1521,7 @@ bool BindSocket (int sockfd, struct sockaddr_in client, struct sockaddr_in serve
 		}
 		else
 		{
+			NonBlocking(sockfd);
 			return true;
 		}
 	}
