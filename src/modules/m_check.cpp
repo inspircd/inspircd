@@ -22,6 +22,7 @@ using namespace std;
 #include "message.h"
 #include "commands.h"
 #include "inspircd.h"
+#include "helperfuncs.h"
 
 /* $ModDesc: Provides the /check command to retrieve information on a user, channel, or IP address */
 
@@ -41,6 +42,10 @@ class cmd_check : public command_t
 		chanrec *targchan;
 		std::string checkstr;
 		std::string chliststr;
+
+		char timebuf[60];
+		struct tm *mytime;
+
 
 		checkstr = "304 " + std::string(user->nick) + " :CHECK";
 
@@ -88,6 +93,25 @@ class cmd_check : public command_t
 		else if (targchan)
 		{
 			/* /check on a channel */
+			time_t creation_time = targchan->created;
+			time_t topic_time = targchan->topicset;
+
+			mytime = gmtime(&creation_time);
+			strftime(timebuf, 59, "%Y/%m/%d - %H:%M:%S", mytime);
+			Srv->SendTo(NULL, user, checkstr + " created " + timebuf);
+
+			if (targchan->topic[0] != 0)
+			{
+				/* there is a topic, assume topic related information exists */
+				Srv->SendTo(NULL, user, checkstr + " topic " + targchan->topic);
+				Srv->SendTo(NULL, user, checkstr + " topic_setby " + targchan->setby);
+				mytime = gmtime(&topic_time);
+				strftime(timebuf, 59, "%Y/%m/%d - %H:%M:%S", mytime);
+				Srv->SendTo(NULL, user, checkstr + " topic_setat " + timebuf);
+			}
+
+			Srv->SendTo(NULL, user, checkstr + " modes " + chanmodes(targchan, true));
+			Srv->SendTo(NULL, user, checkstr + " usercount " + ConvToStr(targchan->GetUserCounter()));
 		}
 		else
 		{
