@@ -14,9 +14,6 @@
  * ---------------------------------------------------
  */
 
-using namespace std;
-
-#include <stdio.h>
 #include "users.h"
 #include "channels.h"
 #include "modules.h"
@@ -31,8 +28,6 @@ class ModuleOverride : public Module
 	Server *Srv;
 	override_t overrides;
 	bool NoisyOverride;
-	ConfigReader *Conf;
-	
  public:
  
 	ModuleOverride(Server* Me)
@@ -43,7 +38,6 @@ class ModuleOverride : public Module
 		// classes.
 		
 		Srv = Me;
-		Conf = new ConfigReader;
 		
 		// read our config options (main config file)
 		OnRehash("");
@@ -52,8 +46,8 @@ class ModuleOverride : public Module
 	virtual void OnRehash(const std::string &parameter)
 	{
 		// on a rehash we delete our classes for good measure and create them again.
-		delete Conf;
-		Conf = new ConfigReader;
+		ConfigReader* Conf = new ConfigReader;
+		
 		// re-read our config options on a rehash
 		NoisyOverride = Conf->ReadFlag("override","noisy",0);
 		overrides.clear();
@@ -63,6 +57,8 @@ class ModuleOverride : public Module
 			std::string tokenlist = Conf->ReadValue("type","override",j);
 			overrides[typen] = tokenlist;
 		}
+		
+		delete Conf;
 	}
 
 	void Implements(char* List)
@@ -70,20 +66,22 @@ class ModuleOverride : public Module
 		List[I_OnRehash] = List[I_OnAccessCheck] = List[I_On005Numeric] = List[I_OnUserPreJoin] = List[I_OnUserPreKick] = 1;
 	}
 
-        virtual void On005Numeric(std::string &output)
-        {
-		output = output + std::string(" OVERRIDE");
-        }
+	virtual void On005Numeric(std::string &output)
+	{
+		output.append(" OVERRIDE");
+	}
 
 	virtual bool CanOverride(userrec* source, char* token)
 	{
 		// checks to see if the oper's type has <type:override>
 		override_t::iterator j = overrides.find(source->oper);
+		
 		if (j != overrides.end())
-                {
+		{
 			// its defined, return its value as a boolean for if the token is set
-			return strstr(j->second.c_str(),token);
-                }
+			return (j->second.find(token, 0) != std::string::npos);
+		}
+		
 		// its not defined at all, count as false
 		return false;
 	}
@@ -119,53 +117,71 @@ class ModuleOverride : public Module
 							if (CanOverride(source,"MODEDEOP"))
 							{
 								Srv->SendOpers("*** NOTICE: "+std::string(source->nick)+" Override-Deopped "+std::string(dest->nick)+" on "+std::string(channel->name));
-                                                                return ACR_ALLOW;
+								return ACR_ALLOW;
 							}
-                                                        else return ACR_DEFAULT;
-						break;
+							else
+							{
+								return ACR_DEFAULT;
+							}
+
 						case AC_OP:
 							if (CanOverride(source,"MODEOP"))
 							{
 								Srv->SendOpers("*** NOTICE: "+std::string(source->nick)+" Override-Opped "+std::string(dest->nick)+" on "+std::string(channel->name));
-                                                                return ACR_ALLOW;
+								return ACR_ALLOW;
 							}
-                                                        else return ACR_DEFAULT;
-						break;
+							else
+							{
+								return ACR_DEFAULT;
+							}
+
 						case AC_VOICE:
 							if (CanOverride(source,"MODEVOICE"))
 							{
 								Srv->SendOpers("*** NOTICE: "+std::string(source->nick)+" Override-Voiced "+std::string(dest->nick)+" on "+std::string(channel->name));
-                                                                return ACR_ALLOW;
+								return ACR_ALLOW;
 							}
-                                                        else return ACR_DEFAULT;
-						break;
+							else
+							{
+								return ACR_DEFAULT;
+							}
+
 						case AC_DEVOICE:
 							if (CanOverride(source,"MODEDEVOICE"))
 							{
 								Srv->SendOpers("*** NOTICE: "+std::string(source->nick)+" Override-Devoiced "+std::string(dest->nick)+" on "+std::string(channel->name));
-                                                                return ACR_ALLOW;
+								return ACR_ALLOW;
 							}
-                                                        else return ACR_DEFAULT;
-						break;
+							else
+							{
+								return ACR_DEFAULT;
+							}
+
 						case AC_HALFOP:
 							if (CanOverride(source,"MODEHALFOP"))
 							{
 								Srv->SendOpers("*** NOTICE: "+std::string(source->nick)+" Override-Halfopped "+std::string(dest->nick)+" on "+std::string(channel->name));
-                                                                return ACR_ALLOW;
+								return ACR_ALLOW;
 							}
-                                                        else return ACR_DEFAULT;
-						break;
+							else
+							{
+								return ACR_DEFAULT;
+							}
+
 						case AC_DEHALFOP:
 							if (CanOverride(source,"MODEDEHALFOP"))
 							{
 								Srv->SendOpers("*** NOTICE: "+std::string(source->nick)+" Override-Dehalfopped "+std::string(dest->nick)+" on "+std::string(channel->name));
-                                                                return ACR_ALLOW;
+								return ACR_ALLOW;
 							}
-                                                        else return ACR_DEFAULT;
-						break;
+							else
+							{
+								return ACR_DEFAULT;
+							}
 					}
 				}
 			}
+			
 			if (CanOverride(source,"OTHERMODE"))
 			{
 				return ACR_ALLOW;
@@ -192,7 +208,8 @@ class ModuleOverride : public Module
 						irc::string x = chan->name;
 						if (!user->IsInvited(x))
 						{
-							WriteChannelWithServ((char*)Srv->GetServerName().c_str(),chan,"NOTICE %s :%s invited himself into the channel",cname,user->nick);
+							/* XXX - Ugly cast for a parameter that isn't used? :< - Om */
+							WriteChannelWithServ((char*)Srv->GetServerName().c_str(), chan, "NOTICE %s :%s invited himself into the channel",cname,user->nick);
 						}
 					}
 					Srv->SendOpers("*** "+std::string(user->nick)+" used operoverride to bypass +i on "+std::string(cname));
@@ -207,7 +224,7 @@ class ModuleOverride : public Module
 					return -1;
 				}
 					
-				if ((Srv->CountUsers(chan) >=  chan->limit) && (CanOverride(user,"LIMIT")))
+				if ((chan->limit > 0) && (Srv->CountUsers(chan) >=  chan->limit) && (CanOverride(user,"LIMIT")))
 				{
 					if (NoisyOverride)
 						WriteChannelWithServ((char*)Srv->GetServerName().c_str(),chan,"NOTICE %s :%s passed through your channel limit",cname,user->nick);
@@ -227,7 +244,6 @@ class ModuleOverride : public Module
 	
 	virtual ~ModuleOverride()
 	{
-		delete Conf;
 	}
 	
 	virtual Version GetVersion()
