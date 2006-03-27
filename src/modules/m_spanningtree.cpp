@@ -1,4 +1,4 @@
-/*   +------------------------------------+
+;/*   +------------------------------------+
  *   | Inspire Internet Relay Chat Daemon |
  *   +------------------------------------+
  *
@@ -3517,11 +3517,7 @@ class ModuleSpanningTree : public Module
 			std::deque<std::string> params;
 			params.clear();
 			params.push_back(channel->name);
-			if (*channel->key)
-			{
-				// if the channel has a key, force the join by emulating the key.
-				params.push_back(channel->key);
-			}
+
 			if (channel->GetUserCounter() > 1)
 			{
 				// not the first in the channel
