@@ -118,7 +118,7 @@ class cmd_remove : public command_t
 			if(ulevel > 1)
 			{
 				/* For now, we'll let everyone remove their level and below, eg ops can remove ops, halfops, voices, and those with no mode (no moders actually are set to 1) */
-				if(ulevel >= tlevel)
+				if(ulevel >= tlevel && tlevel != 5)
 				{
 					Srv->PartUserFromChannel(target,std::string(parameters[1]), "Removed by "+std::string(user->nick)+":"+result);
 					Srv->SendTo(NULL,user,"NOTICE "+std::string(channel->name)+" : "+std::string(user->nick)+" removed "+std::string(target->nick)+ " from the channel");
