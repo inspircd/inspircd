@@ -1405,7 +1405,6 @@ class TreeSocket : public InspSocket
 	 */
 	virtual bool OnDataReady()
 	{
-		int iterations = 0;
 		char* data = this->Read();
 		/* Check that the data read is a valid pointer and it has some content */
 		if (data && *data)
