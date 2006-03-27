@@ -1200,7 +1200,7 @@ class TreeSocket : public InspSocket
 
 			const char* n = "";
 			if (x & UCMODE_OP)
-		;	{
+			{
 				n = "@";
 			}
 			else if (x & UCMODE_HOP)

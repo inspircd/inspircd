@@ -368,16 +368,22 @@ class ModuleCloaking : public Module
 					this->GenHash(dest->host,ra);
 					std::string b = "";
 					in_addr testaddr;
-					if (!inet_aton(dest->host,&testaddr))
-					{
-						// if they have a hostname, make something appropriate
-						b = prefix + "-" + std::string(ra) + a;
-					}
-					else
-					{
-						// else, they have an ip
-						b = std::string(ra) + "." + prefix + ".cloak";
-					}
+                                        std::string hostcloak = prefix + "-" + std::string(ra) + a;
+                                        /* Fix by brain - if the cloaked host is > the max length of a host (64 bytes
+                                         * according to the DNS RFC) then tough titty, they get cloaked as an IP. 
+                                         * Their ISP shouldnt go to town on subdomains, or they shouldnt have a kiddie
+                                         * vhost.
+                                         */
+                                        if ((!inet_aton(dest->host,&testaddr)) && (hostcloak.length() < 64))
+                                        {
+                                                // if they have a hostname, make something appropriate
+                                                b = hostcloak;
+                                        }
+                                        else
+                                        {
+                                                // else, they have an ip
+                                                b = std::string(ra) + "." + prefix + ".cloak";
+                                        }
 					Srv->Log(DEBUG,"cloak: allocated "+b);
 					Srv->ChangeHost(dest,b);
 				}
