@@ -135,11 +135,9 @@ bool InspSocket::DoResolve()
 	log(DEBUG,"In DoResolve(), trying to resolve IP");
 	if (this->dns.HasResult())
 	{
-		log(DEBUG,"Socket has result");
 		std::string res_ip = dns.GetResultIP();
 		if (res_ip != "")
 		{
-			log(DEBUG,"Socket result set to %s",res_ip.c_str());
 			strlcpy(this->IP,res_ip.c_str(),MAXBUF);
 			socket_ref[this->fd] = NULL;
 		}
@@ -277,25 +275,20 @@ bool InspSocket::FlushWriteBuffer()
 	{
 		if (outbuffer.size())
 		{
-			log(DEBUG,"Writing %d to socket",outbuffer.size());
 			int result = write(this->fd,outbuffer[0].c_str(),outbuffer[0].length());
 			if (result > 0)
 			{
-				log(DEBUG,"Wrote %d to socket",result);
 				if ((unsigned int)result == outbuffer[0].length())
 				{
 					/* The whole block was written (usually a line)
 					 * Pop the block off the front of the queue
 					 */
-					log(DEBUG,"Popping front item, now %d items left",outbuffer.size());
 					outbuffer.pop_front();
 				}
 				else
 				{
-					log(DEBUG,"Cutting front item");
 					std::string temp = outbuffer[0].substr(result);
 					outbuffer[0] = temp;
-					log(DEBUG,"Front item is now: ",outbuffer[0].c_str());
 				}
 			}
 			else if ((result == -1) && (errno != EAGAIN))
