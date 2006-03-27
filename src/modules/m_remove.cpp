@@ -89,15 +89,6 @@ class cmd_remove : public command_t
 		/* If the target nick exists... */
 		if (target && channel)
 		{
-			for (unsigned int x = 0; x < strlen(parameters[1]); x++)
-			{
-					if ((parameters[1][0] != '#') || (parameters[1][x] == ' ') || (parameters[1][x] == ','))
-					{
-						Srv->SendTo(NULL,user,"NOTICE "+std::string(user->nick)+" :*** Invalid characters in channel name");
-						return;
-					}
-			}
-			
 			/* This is adding support for the +q and +a channel modes, basically if they are enabled, and the remover has them set. */
 			/* Then we change the @|%|+ to & if they are +a, or ~ if they are +q */
 			if (user->GetExt("cm_protect_"+std::string(channel->name)))
