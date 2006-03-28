@@ -57,10 +57,17 @@ class cmd_remove : public command_t
 
 	void Handle (char **parameters, int pcnt, userrec *user)
 	{
+		userrec* target;
+		chanrec* channel;
+		int tlevel, ulevel;
+		std::string tprivs, uprivs, reason;
+		
+		
 		/* Look up the user we're meant to be removing from the channel */
-		userrec* target = Srv->FindNick(std::string(parameters[0]));
+		target = Srv->FindNick(parameters[0]);
+		
 		/* And the channel we're meant to be removing them from */
-		chanrec* channel = Srv->FindChannel(std::string(parameters[1]));
+		channel = Srv->FindChannel(parameters[1]);
 
 		/* Fix by brain - someone needs to learn to validate their input! */
 		if (!target || !channel)
@@ -70,60 +77,58 @@ class cmd_remove : public command_t
 		}
 
 		/* And see if the person calling the command has access to use it on the channel */
-		std::string privs = Srv->ChanMode(user, channel);
+		uprivs = Srv->ChanMode(user, channel);
+		
 		/* Check what privs the person being removed has */
-		std::string targetprivs = Srv->ChanMode(target, channel);
+		tprivs = Srv->ChanMode(target, channel);
 
-		int tlevel;
-		int ulevel;
-		int n = 2;
-		std::string result;
+		if(pcnt > 2)
+			reason = "Removed by " + std::string(user->nick) + ":";
+		else
+			reason = "Removed by " + std::string(user->nick);
 		
 		/* This turns all the parameters after the first two into a single string, so the part reason can be multi-word */
-		while (n < pcnt)
+		for (int n = 2; n < pcnt; n++)
 		{
-			result=result + std::string(" ") + std::string(parameters[n]);
-			n++;
+			reason += " ";
+			reason += parameters[n];
 		}
 		
-		/* If the target nick exists... */
-		if (target && channel)
-		{
-			/* This is adding support for the +q and +a channel modes, basically if they are enabled, and the remover has them set. */
-			/* Then we change the @|%|+ to & if they are +a, or ~ if they are +q */
-			if (user->GetExt("cm_protect_"+std::string(channel->name)))
-				privs = std::string("&");
-			if (user->GetExt("cm_founder_"+std::string(channel->name)))
-				privs = std::string("~");
-				
-			/* Now it's the same idea, except for the target */
-			if (target->GetExt("cm_protect_"+std::string(channel->name)))
-				targetprivs = std::string("&");
-			if (target->GetExt("cm_founder_"+std::string(channel->name)))
-				targetprivs = std::string("~");
-				
-			tlevel = chartolevel(targetprivs);
-			ulevel = chartolevel(privs);
+		/* This is adding support for the +q and +a channel modes, basically if they are enabled, and the remover has them set. */
+		/* Then we change the @|%|+ to & if they are +a, or ~ if they are +q */
+		
+		if (user->GetExt("cm_protect_" + std::string(channel->name)))
+			uprivs = "&";
+		if (user->GetExt("cm_founder_"+std::string(channel->name)))
+			uprivs = "~";
 			
-			/* If the user calling the command is either an admin, owner, operator or a half-operator on the channel */
-			if (ulevel > 1)
+		/* Now it's the same idea, except for the target */
+		if (target->GetExt("cm_protect_"+std::string(channel->name)))
+			tprivs = "&";
+		if (target->GetExt("cm_founder_"+std::string(channel->name)))
+			tprivs = "~";
+			
+		tlevel = chartolevel(tprivs);
+		ulevel = chartolevel(uprivs);
+		
+		/* If the user calling the command is either an admin, owner, operator or a half-operator on the channel */
+		if (ulevel > 1)
+		{
+			/* For now, we'll let everyone remove their level and below, eg ops can remove ops, halfops, voices, and those with no mode (no moders actually are set to 1) */
+			if(ulevel >= tlevel && tlevel != 5)
 			{
-				/* For now, we'll let everyone remove their level and below, eg ops can remove ops, halfops, voices, and those with no mode (no moders actually are set to 1) */
-				if(ulevel >= tlevel && tlevel != 5)
-				{
-					Srv->PartUserFromChannel(target,std::string(parameters[1]), "Removed by "+std::string(user->nick)+":"+result);
-					Srv->SendTo(NULL,user,"NOTICE "+std::string(channel->name)+" : "+std::string(user->nick)+" removed "+std::string(target->nick)+ " from the channel");
-					Srv->SendTo(NULL,target,"NOTICE "+std::string(target->nick)+" :*** "+std::string(user->nick)+" removed you from "+std::string(channel->name)+" with the message:"+std::string(result));
-				}
-				else
-				{
-					Srv->SendTo(NULL,user,"NOTICE "+std::string(user->nick)+" :*** You do not have access to remove "+std::string(target->nick)+" from the "+std::string(channel->name));
-				}
+				Srv->PartUserFromChannel(target, channel->name, reason);
+				WriteServ(user->fd, "NOTICE %s :%s removed %s from the channel", channel->name, user->nick, target->nick);
+				WriteServ(target->fd, "NOTICE %s :*** %s removed you from %s with the message:%s", target->nick, user->nick, channel->name, reason.c_str());
 			}
 			else
 			{
-				Srv->SendTo(NULL,user,"NOTICE "+std::string(user->nick)+" :*** You do not have access to use /remove on "+std::string(channel->name));
+				WriteServ(user->fd, "NOTICE %s :*** You do not have access to /remove %s from %s", user->nick, target->nick, channel->name);
 			}
+		}
+		else
+		{
+			WriteServ(user->fd, "NOTICE %s :*** You do not have access to use /remove on %s", user->nick, channel->name);
 		}
 	}
 };
@@ -186,4 +191,3 @@ extern "C" void * init_module( void )
 {
 	return new ModuleRemoveFactory;
 }
-
