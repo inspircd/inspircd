@@ -71,6 +71,7 @@ InspSocket::InspSocket(const std::string &ahost, int aport, bool listening, unsi
 			this->fd = -1;
 			this->state = I_ERROR;
 			this->OnError(I_ERR_SOCKET);
+			this->ClosePending = true;
 			log(DEBUG,"OpenTCPSocket() error");
                         return;
 		}
@@ -82,6 +83,7 @@ InspSocket::InspSocket(const std::string &ahost, int aport, bool listening, unsi
 				this->fd = -1;
 				this->state = I_ERROR;
 				this->OnError(I_ERR_BIND);
+				this->ClosePending = true;
 				log(DEBUG,"BindSocket() error %s",strerror(errno));
 				return;
 			}
@@ -150,6 +152,7 @@ bool InspSocket::DoResolve()
 			this->state = I_ERROR;
 			this->OnError(I_ERR_RESOLVE);
 			this->fd = -1;
+			this->ClosePending = true;
 			return false;
 		}
 		return this->DoConnect();
@@ -189,6 +192,7 @@ bool InspSocket::DoConnect()
 			this->state = I_ERROR;
 			this->Close();
 			this->fd = -1;
+			this->ClosePending = true;
 			return false;
 		}
 	}
@@ -209,6 +213,7 @@ void InspSocket::Close()
 	        shutdown(this->fd,2);
 	        close(this->fd);
 		socket_ref[this->fd] = NULL;
+		this->ClosePending = true;
 	        this->fd = -1;
 	}
 }
