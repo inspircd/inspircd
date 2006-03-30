@@ -73,22 +73,31 @@ void cmd_whowas::Handle (char **parameters, int pcnt, userrec* user)
 	}
 	else
 	{
-		whowas_set* grp = (whowas_set*)i->second;
+		whowas_set* grp = i->second;
 		if (grp->size())
 		{
 			for (whowas_set::iterator ux = grp->begin(); ux != grp->end(); ux++)
 			{
-				WhoWasGroup* u = (WhoWasGroup*)*ux;
+				WhoWasGroup* u = *ux;
 				time_t rawtime = u->signon;
 				tm *timeinfo;
 				char b[MAXBUF];
 	
 				timeinfo = localtime(&rawtime);
+				
+				/* XXX - 'b' could be only 25 chars long and then strlcpy() would terminate it for us too? */
 				strlcpy(b,asctime(timeinfo),MAXBUF);
 				b[24] = 0;
 
 				WriteServ(user->fd,"314 %s %s %s %s * :%s",user->nick,parameters[0],u->ident,u->dhost,u->gecos);
-				WriteServ(user->fd,"312 %s %s %s :%s",user->nick,parameters[0], *Config->HideWhoisServer ? Config->HideWhoisServer : u->server,b);
+				
+				if(*user->oper)
+					WriteServ(user->fd,"379 %s %s :was connecting from *@%s", user->nick, parameters[0], u->host);
+				
+				if(*Config->HideWhoisServer && !(*user->oper))
+					WriteServ(user->fd,"312 %s %s %s :%s",user->nick,parameters[0], Config->HideWhoisServer, b);
+				else
+					WriteServ(user->fd,"312 %s %s %s :%s",user->nick,parameters[0], u->server, b);
 			}
 		}
 		else
@@ -96,6 +105,6 @@ void cmd_whowas::Handle (char **parameters, int pcnt, userrec* user)
 			WriteServ(user->fd,"406 %s %s :There was no such nickname",user->nick,parameters[0]);
 		}
 	}
+	
 	WriteServ(user->fd,"369 %s %s :End of WHOWAS",user->nick,parameters[0]);
 }
-
