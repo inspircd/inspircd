@@ -517,6 +517,11 @@
 #                  oper-only independent of if they are in a module   #
 #                  or the core.                                       #
 #                                                                     #
+#  operspywhois  - If this is set then when an IRC operator uses      #
+#                  /WHOIS on a user they will see all channels, even  #
+#                  ones if channels are secret (+s), private (+p) or  #
+#                  if the target user is invisible +i.                #
+#                                                                     #
 #  customversion - If you specify this configuration item, and it is  #
 #                  not set to an empty value, then when a user does   #
 #                  a /VERSION command on the ircd, this string will   #
@@ -571,13 +576,14 @@
          somaxconn="128"
          softlimit="128"
          operonlystats="oclgkz"
+		 operspywhois="no"
          customversion=""
          maxtargets="20"
-	 hidesplits="no"
-	 hidebans="no"
-	 hidewhois=""
-	 flatlinks="no"
-	 hideulines="no"
+         hidesplits="no"
+         hidebans="no"
+         hidewhois=""
+         flatlinks="no"
+         hideulines="no"
          allowhalfop="yes">
 
 
