@@ -400,29 +400,35 @@ char lst[MAXBUF];
 
 std::string chlist(userrec *user,userrec* source)
 {
-	std::string cmp = "";
-	std::string lst = "";
+	/* Should this be a stringstream? Not sure if it would be faster as streams are more oriented at appending stuff, which is all we do */
+	std::string lst;
+	
 	if (!user || !source)
 	{
 		return lst;
 	}
-	bool userinvisible = (user->modebits & UM_INVISIBLE);
+	
 	for (std::vector<ucrec*>::const_iterator i = user->chans.begin(); i != user->chans.end(); i++)
 	{
-		if ((((ucrec*)(*i))->channel != NULL) && (((ucrec*)(*i))->channel->name))
+		ucrec* rec = *i;
+		
+		if(rec->channel && rec->channel->name)
 		{
-			cmp = std::string(((ucrec*)(*i))->channel->name) + " ";
-			if (!strstr(lst.c_str(),cmp.c_str()))
-			{
+			/* XXX - Why does this check need to be here at all? :< */
+			/* Commenting this out until someone finds a case where we need it */
+			//if (lst.find(rec->channel->name) == std::string::npos)
+			//{
 				// if the channel is NOT private/secret, OR the source user is on the channel, AND the user is not invisible.
-				// if the user is the same as the source, shortcircuit the comparison.
-				if ((source == user) || ((((!(((ucrec*)(*i))->channel->modes[CM_PRIVATE])) && (!(((ucrec*)(*i))->channel->modes[CM_SECRET])) && (!userinvisible)) || (((ucrec*)(*i))->channel->HasUser(source)))))
+				// if the user is the same as the source or is an oper, shortcircuit the comparison.
+				if ((source == user) || (*source->oper && Config->OperSpyWhois) || (((!rec->channel->modes[CM_PRIVATE]) && (!rec->channel->modes[CM_SECRET]) && !(user->modebits & UM_INVISIBLE)) || (rec->channel->HasUser(source))))
 				{
-					lst = lst + std::string(cmode(user,((ucrec*)(*i))->channel)) + std::string(((ucrec*)(*i))->channel->name) + " ";
+					lst += cmode(user, rec->channel);
+					lst += rec->channel->name;
+					lst += " ";
 				}
-			}
+			//}
 		}
 	}
+	
 	return lst;
 }
-

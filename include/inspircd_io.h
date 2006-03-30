@@ -256,6 +256,11 @@ class ServerConfig : public classbase
 	 */
 	bool HideBans;
 
+	/** If this is enabled then operators will
+	 * see invisible (+i) channels in /whois.
+	 */
+	bool OperSpyWhois;
+
 	/** Set to a non-empty string to obfuscate the server name of users in WHOIS
 	 */
 	char HideWhoisServer[MAXBUF];
@@ -322,7 +327,7 @@ class ServerConfig : public classbase
 	 * only to operators.
 	 */
 	char OperOnlyStats[MAXBUF];
-
+	
 	/** The path and filename of the ircd.log file
 	 */
 	std::string logpath;
