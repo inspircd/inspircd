@@ -416,8 +416,12 @@ std::string chlist(userrec *user,userrec* source)
 			/* Commenting this out until someone finds a case where we need it */
 			//if (lst.find(rec->channel->name) == std::string::npos)
 			//{
-				// if the channel is NOT private/secret, OR the source user is on the channel, AND the user is not invisible.
-				// if the user is the same as the source or is an oper, shortcircuit the comparison.
+			
+				/*
+				 * If the target is the same as the sender, let them see all their channels.
+				 * If the channel is NOT private/secret AND the user is not invisible.
+				 * If the user is an oper, and the <options:operspywhois> option is set.
+				 */
 				if ((source == user) || (*source->oper && Config->OperSpyWhois) || (((!rec->channel->modes[CM_PRIVATE]) && (!rec->channel->modes[CM_SECRET]) && !(user->modebits & UM_INVISIBLE)) || (rec->channel->HasUser(source))))
 				{
 					list << cmode(user, rec->channel) << rec->channel->name << " ";
