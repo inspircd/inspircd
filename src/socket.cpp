@@ -189,8 +189,8 @@ bool InspSocket::DoConnect()
 		{
 			log(DEBUG,"Error connect() %d: %s",this->fd,strerror(errno));
 			this->OnError(I_ERR_CONNECT);
-			this->state = I_ERROR;
 			this->Close();
+			this->state = I_ERROR;
 			this->fd = -1;
 			this->ClosePending = true;
 			return false;
