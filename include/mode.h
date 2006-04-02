@@ -55,6 +55,9 @@ class ModeParser
 	bool AllowedUmode(char umode, char* sourcemodes,bool adding,bool serveroverride);
 	bool ProcessModuleUmode(char umode, userrec* source, void* dest, bool adding);
 	void ServerMode(char **parameters, int pcnt, userrec *user);
+ 
+	void HandleChannelModes(char** parameters, int pcnt, userrec* user, chanrec* chan);
+	void HandleUserModes(char** parameters, int pcnt, userrec* user, userrec* target);
 };
 
 class cmd_mode : public command_t

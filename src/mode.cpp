@@ -1149,73 +1149,143 @@ bool ModeParser::ProcessModuleUmode(char umode, userrec* source, void* dest, boo
 
 void cmd_mode::Handle (char **parameters, int pcnt, userrec *user)
 {
+	/*
+	 * In theory what happens is...
+	 * 
+	 * Parse mode string here.
+	 *
+	 * For each mode character, check against a list of mode 'watchers',
+	 * a watcher can explicitly deny or allow a mode, it can also modify
+	 * the mode parameter if there is one.
+	 *
+	 * If the mode passes all the 'watchers's checks, call a mode 'handler'
+	 * for the mode, if one of the watchers said to explicitly allow it then
+	 * the mode handler will have a flag set, this *should* be honoured and
+	 * access checks *should* be overridden.
+	 *
+	 */
+	
+	/*
+	 * Mode handlers should be added with Server::AddHandler(), or some backend call that it uses.
+	 *
+	 * Watchers should be added with Server::AddWatcher() or likewise a backend call for it,
+	 * there should be a way of adding a watcher for all modes, and whatever the method of
+	 * the watchers that gets called is should have a parameter giving the mode.
+	 */
+	 
+	/* All module callbacks for modes will be removed. */
+	
+	/*
+	 * How I *think* this works is that cmd_mode::Handle() has access checks for modes, but
+	 * ModeParser::ServerMode() doesn't...
+	 */
+	
 	chanrec* chan;
-	userrec* dest = Find(parameters[0]);
-	int MOD_RESULT;
-	int can_change;
-	int direction = 1;
-	char outpars[MAXBUF];
-	bool next_ok = true;
+	userrec* dest;
 
-	if (!user)
-		return;
-
-	if ((dest) && (pcnt == 1))
+	if(!user)
 	{
-		WriteServ(user->fd,"221 %s :+%s",dest->nick,dest->modes);
+		log(DEBUG, "cmd_mode::Handle() got a null user");
 		return;
 	}
-	else if ((dest) && (pcnt > 1))
+	
+	if(dest = Find(parameters[0]))
 	{
-		std::string tidied = ServerInstance->ModeGrok->CompressModes(parameters[1],false);
-		parameters[1] = (char*)tidied.c_str();
-
-		char dmodes[MAXBUF];
-		strlcpy(dmodes,dest->modes,MAXMODES);
-		log(DEBUG,"pulled up dest user modes: %s",dmodes);
-
-		can_change = 0;
-		if (user != dest)
+		if(pcnt == 1)
 		{
-			if ((*user->oper) || (is_uline(user->server)))
-			{
-				can_change = 1;
-			}
-		}
-		else
-		{
-			can_change = 1;
-		}
-		if (!can_change)
-		{
-			WriteServ(user->fd,"482 %s :Can't change mode for other users",user->nick);
+			/* If there was only one parameter, they were just asking what modes someone has. */
+			WriteServ(user->fd, "221 %s :+%s",dest->nick,dest->modes);
 			return;
+		}
+		else if(pcnt > 1)
+		{
+			ServerInstance->ModeGrok->HandleUserModes(parameters, pcnt, user, dest);
+			return;
+		}
+	}
+	else if(chan = FindChan(parameters[0]))
+	{
+		if(pcnt == 1)
+		{
+			/* One parameter, just tell them the channel's modes. */
+			WriteServ(user->fd,"324 %s %s +%s",user->nick, chan->name, chanmodes(chan, chan->HasUser(user)));
+			WriteServ(user->fd,"329 %s %s %d", user->nick, chan->name, chan->created);
+			return;
+		}
+		else if(pcnt > 1)
+		{
+			ServerInstance->ModeGrok->HandleChannelModes(parameters, pcnt, user, chan);
+			return;
+		}
+	}
+	else
+	{
+		WriteServ(user->fd,"401 %s %s :No such nick/channel",user->nick, parameters[0]);
+	}
+}
+
+void ModeParser::HandleUserModes(char** parameters, int pcnt, userrec* user, userrec* target)
+{
+	std::string tidied;
+	bool setting_on;
+	/* XXX - Neccessary? */
+	char dmodes[MAXBUF];
+	char out[MAXBUF];
+	char* outend;
+	char* outpos;
+	
+	/* XXX - This is nasty, change it somehow so we don't create a std::string and then pretty much discard it */
+	/* Maybe as the mode string will always get shorter then we should just pass a char* and modify that? */
+	/* This should _not_ leave any '+-+-' in the string, it should be well-formed "+a-b+c" */
+	tidied = ServerInstance->ModeGrok->CompressModes(parameters[1],false);
+	parameters[1] = (char*)tidied.c_str();
+
+	strlcpy(dmodes,dest->modes,MAXMODES);
+	log(DEBUG,"pulled up dest user modes: %s",dmodes);
+
+	if((user != dest) && (!*user->oper) && (!is_uline(user->server)))
+	{
+		WriteServ(user->fd,"482 %s :Can't change mode for other users",user->nick);
+		return;
+	}
+	
+	/* 
+	 * Leaving this so a mode string with no + or - is taken as having a +.
+	 */
+	
+	*outpos = (*parameters[1] == '-') ? '-' : '+';
+	
+	setting_on = true;
+	outend = out+MAXBUF;
+	outpos = out;
+	
+	/*
+	 * outpos always points at where the next char should be added,
+	 * we have added the first character before we enter the loop
+	 * so it's safe to check --outpos
+	 */
+
+	for(char* i = parameters[1]; *i; i++)
+	{
+		if(outpos == outend)
+		{
+			/* We somehow hit the end of our buffer... :s */
+			break;
 		}
 		
-		outpars[0] = *parameters[1];
-		outpars[1] = 0;
-		direction = (*parameters[1] == '+');
-
-		if ((*parameters[1] != '+') && (*parameters[1] != '-'))
-			return;
-
-		for (char* i = parameters[1]; *i; i++)
+		switch (*i)
 		{
-			if ((i != parameters[1]) && (*i != '+') && (*i != '-'))
-				next_ok = true;
-
-			switch (*i)
-			{
-				case ' ':
+			case ' ':
+				/* When does this happen? */
 				continue;
 
-				case '+':
-					if ((direction != 1) && (next_ok))
-					{
-						charlcat(outpars,'+',MAXBUF);
-						next_ok = false;
-					}	
-					direction = 1;
+			case '+':
+				if(!setting_on && (*--outpos != '-'))
+				{
+					charlcat(outpars,'+',MAXBUF);
+					next_ok = false;
+				}	
+				direction = 1;
 				break;
 
 				case '-':
