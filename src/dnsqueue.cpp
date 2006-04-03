@@ -127,7 +127,7 @@ public:
 						}
 						if ((hostname != "") && (usr->registered != 7))
 						{
-							if (std::string((char*)inet_ntoa(usr->ip4)) == ip)
+							if ((std::string((char*)inet_ntoa(usr->ip4)) == ip) && (hostname.length() < 65))
 							{
 								strlcpy(usr->host,hostname.c_str(),MAXBUF);
 								strlcpy(usr->dhost,hostname.c_str(),MAXBUF);
