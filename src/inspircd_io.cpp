@@ -52,7 +52,7 @@ ServerConfig::ServerConfig()
 	*CustomVersion = *motd = *rules = *PrefixQuit = *DieValue = *DNSServer = '\0';
 	*OperOnlyStats = *ModPath = *MyExecutable = *DisabledCommands = *PID = '\0';
 	log_file = NULL;
-	nofork = HideBans = HideSplits = unlimitcore = false;
+	OperSpyWhois = nofork = HideBans = HideSplits = unlimitcore = false;
 	AllowHalfop = true;
 	dns_timeout = DieDelay = 5;
 	MaxTargets = 20;
