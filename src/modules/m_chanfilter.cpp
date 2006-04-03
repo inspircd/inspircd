@@ -123,6 +123,9 @@ class ModuleChanFilter : public Module
 
 			irc::string word = params[0].c_str();
 
+			if (word == "")
+				return -1;
+
 			if (mode_on)
 			{
 				SpamList* spamlist = (SpamList*)chan->GetExt("spam_list");
