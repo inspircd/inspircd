@@ -679,6 +679,8 @@ void InspIRCd::DoOneIteration(bool process_module_sockets)
          * listening ports or module sockets though, things could get
          * ugly.
          */
+	log(DEBUG,"There are %d fd's to process.",numberactive);
+
         for (unsigned int activefd = 0; activefd < numberactive; activefd++)
         {
                 int socket_type = SE->GetType(activefds[activefd]);
@@ -686,6 +688,7 @@ void InspIRCd::DoOneIteration(bool process_module_sockets)
                 {
                         case X_ESTAB_CLIENT:
 
+				log(DEBUG,"Type: X_ESTAB_CLIENT: fd=%d",activefds[activefd]);
                                 cu = fd_ref_table[activefds[activefd]];
                                 if (cu)
                                         ProcessUser(cu);  
@@ -693,6 +696,8 @@ void InspIRCd::DoOneIteration(bool process_module_sockets)
                         break;
         
                         case X_ESTAB_MODULE:
+
+				log(DEBUG,"Type: X_ESTAB_MODULE: fd=%d",activefds[activefd]);
 
 				if (!process_module_sockets)
 					break;
@@ -720,6 +725,11 @@ void InspIRCd::DoOneIteration(bool process_module_sockets)
                                         s->Close();
                                         delete s;
                                 }
+				else if (!s)
+				{
+					log(DEBUG,"WTF, X_ESTAB_MODULE for nonexistent InspSocket, removed!");
+					SE->DelFd(s->GetFd());
+				}
                         break;
 
                         case X_ESTAB_DNS:
@@ -731,11 +741,14 @@ void InspIRCd::DoOneIteration(bool process_module_sockets)
                                  * and independent of the mainloop.
                                  */
 #ifndef THREADED_DNS
+				log(DEBUG,"Type: X_ESTAB_DNS: fd=%d",activefds[activefd]);
                                 dns_poll(activefds[activefd]);
 #endif
                         break;
 
 			case X_LISTEN:
+
+				log(DEBUG,"Type: X_LISTEN_MODULE: fd=%d",activefds[activefd]);
 
                                 /* It's a listener */
                                 uslen = sizeof(sock_us);
@@ -781,6 +794,7 @@ void InspIRCd::DoOneIteration(bool process_module_sockets)
                                  * what we would do, so for now, its going
                                  * to safely do bugger all.
                                  */
+				log(DEBUG,"Type: X_WHAT_THE_FUCK_BBQ: fd=%d",activefds[activefd]);
 				SE->DelFd(activefds[activefd]);
                         break;
                 }
