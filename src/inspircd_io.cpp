@@ -1340,7 +1340,7 @@ int ServerConfig::ConfValueEnum(char* tag, std::stringstream* config)
 int ServerConfig::ReadConf(std::stringstream *config, const char* tag, const char* var, int index, char *result)
 {
 	int ptr = 0;
-	char buffer[65535], c_tag[MAXBUF], c, lastc;
+	char buffer[65535], c_tag[MAXBUF], c, lastc, varname[MAXBUF];
 	int in_token, in_quotes, tptr, idx = 0;
 	char* key;
 	std::string x = config->str();
@@ -1354,6 +1354,15 @@ int ServerConfig::ReadConf(std::stringstream *config, const char* tag, const cha
 	c_tag[0] = 0;
 	buffer[0] = 0;
 
+	/*
+	 * Fun bug here, if was searching for whatever var was  *in the whole tag*,
+	 * so if you had the name of the var you were searching for in one of the values
+	 * it would try to use that part of a value as the varnme, usually giving a value
+	 * something like "anothervarname="
+	 */
+	strlcpy(varname, var, MAXBUF);
+	strlcat(varname, "=", MAXBUF);
+	
 	while (*bptr)
 	{
 		lastc = c;
@@ -1388,7 +1397,7 @@ int ServerConfig::ReadConf(std::stringstream *config, const char* tag, const cha
 				{
 					if ((buffer) && (c_tag) && (var))
 					{
-						key = strstr(buffer,var);
+						key = strstr(buffer,varname);
 						if (!key)
 						{
 							/* value not found in tag */
@@ -1677,4 +1686,3 @@ int BindPorts(bool bail)
 
 	return BoundPortCount;
 }
-
