@@ -216,17 +216,16 @@ long duration(const char* str)
 {
 	char n_field[MAXBUF];
 	long total = 0;
-	const char* str_end = str + strlen(str);
 	n_field[0] = 0;
 
 	if ((!strchr(str,'s')) && (!strchr(str,'m')) && (!strchr(str,'h')) && (!strchr(str,'d')) && (!strchr(str,'w')) && (!strchr(str,'y')))
 	{
 		std::string n = str;
-		n = n + "s";
+		n += 's';
 		return duration(n.c_str());
 	}
 	
-	for (char* i = (char*)str; i < str_end; i++)
+	for (char* i = (char*)str; *i; i++)
 	{
 		// if we have digits, build up a string for the value in n_field,
 		// up to 10 digits in size.
