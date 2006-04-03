@@ -266,6 +266,24 @@ bool ValidateServerName(const char* tag, const char* value, void* data)
 	return true;
 }
 
+bool ValidateNetworkName(const char* tag, const char* value, void* data)
+{
+	char* x = (char*)data;
+
+	log(DEFAULT,"<server:network> '%s'",x);
+
+	return true;
+}
+
+bool ValidateServerDesc(const char* tag, const char* value, void* data)
+{
+	char* x = (char*)data;
+
+	log(DEFAULT,"<server:description> '%s'",x);
+
+	return true;
+}
+
 bool ValidateNetBufferSize(const char* tag, const char* value, void* data)
 {
 	if ((!Config->NetBufferSize) || (Config->NetBufferSize > 65535) || (Config->NetBufferSize < 1024))
@@ -526,8 +544,8 @@ void ServerConfig::Read(bool bail, userrec* user)
 		{"options",		"softlimit",		&this->SoftLimit,		DT_INTEGER, ValidateSoftLimit},
 		{"options",		"somaxconn",		&this->MaxConn,			DT_INTEGER, ValidateMaxConn},
 		{"server",		"name",				&this->ServerName,		DT_CHARPTR, ValidateServerName},
-		{"server",		"description",		&this->ServerDesc,		DT_CHARPTR, NoValidation},
-		{"server",		"network",			&this->Network,			DT_CHARPTR, NoValidation},
+		{"server",		"description",		&this->ServerDesc,		DT_CHARPTR, ValidateServerDesc},
+		{"server",		"network",			&this->Network,			DT_CHARPTR, ValidateNetworkName},
 		{"admin",		"name",				&this->AdminName,		DT_CHARPTR, NoValidation},
 		{"admin",		"email",			&this->AdminEmail,		DT_CHARPTR, NoValidation},
 		{"admin",		"nick",				&this->AdminNick,		DT_CHARPTR, NoValidation},
@@ -1341,12 +1359,10 @@ int ServerConfig::ConfValueEnum(char* tag, std::stringstream* config)
 int ServerConfig::ReadConf(std::stringstream *config, const char* tag, const char* var, int index, char *result)
 {
 	int ptr = 0;
-	char buffer[65535], c_tag[MAXBUF], c, lastc;
+	char buffer[65535], c_tag[MAXBUF], c, lastc, varname[MAXBUF];
 	int in_token, in_quotes, tptr, idx = 0;
 	char* key;
-	std::string x = config->str();
-	const char* buf = x.c_str();
-	char* bptr = (char*)buf;
+	char* bptr = (char*)config->str().c_str();
 	
 	ptr = 0;
 	in_token = 0;
@@ -1354,6 +1370,15 @@ int ServerConfig::ReadConf(std::stringstream *config, const char* tag, const cha
 	lastc = 0;
 	c_tag[0] = 0;
 	buffer[0] = 0;
+	
+	/*
+	 * Fun bug here, if was searching for whatever var was  *in the whole tag*,
+	 * so if you had the name of the var you were searching for in one of the values
+	 * it would try to use that part of a value as the varnme, usually giving a value
+	 * something like "anothervarname="
+	 */
+	strlcpy(varname, var, MAXBUF);
+	strlcat(varname, "=", MAXBUF);
 
 	while (*bptr)
 	{
@@ -1389,7 +1414,7 @@ int ServerConfig::ReadConf(std::stringstream *config, const char* tag, const cha
 				{
 					if ((buffer) && (c_tag) && (var))
 					{
-						key = strstr(buffer,var);
+						key = strstr(buffer,varname);
 						if (!key)
 						{
 							/* value not found in tag */
@@ -1443,6 +1468,7 @@ int ServerConfig::ReadConf(std::stringstream *config, const char* tag, const cha
 			}
 		}
 	}
+	
 	*result = 0; // value or its tag not found at all
 	return 0;
 }
