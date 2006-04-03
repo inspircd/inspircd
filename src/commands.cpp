@@ -89,24 +89,39 @@ extern std::vector<userrec*> local_users;
 extern userrec* fd_ref_table[MAX_DESCRIPTORS];
 
 
-void split_chlist(userrec* user, userrec* dest, std::string &cl)
+void split_chlist(userrec* user, userrec* dest, const std::string &cl)
 {
-	std::stringstream channels(cl);
-	std::string line = "";
-	std::string cname = "";
-	while (!channels.eof())
+	std::string line;
+	std::ostringstream prefix;
+	std::string::size_type start, pos, length;
+	
+	prefix << ":" << Config->ServerName << " 319 " << user->nick << " " << dest->nick << " :";
+	line = prefix.str();
+	
+	for (start = 0; pos = cl.find(' ', start); start = pos+1)
 	{
-		channels >> cname;
-		line = line + cname + " ";
-		if (line.length() > 400)
+		length = (pos == std::string::npos) ? cl.length() : pos;
+		
+		if (line.length() + length - start > 510)
 		{
-			WriteServ(user->fd,"319 %s %s :%s",user->nick, dest->nick, line.c_str());
-			line = "";
+			Write_NoFormat(user->fd, line.c_str());
+			line = prefix.str();
+		}
+		
+		if(pos == std::string::npos)
+		{
+			line += cl.substr(start, length - start);
+			break;
+		}
+		else
+		{
+			line += cl.substr(start, length - start + 1);
 		}
 	}
+	
 	if (line.length())
 	{
-		WriteServ(user->fd,"319 %s %s :%s",user->nick, dest->nick, line.c_str());
+		Write_NoFormat(user->fd, line.c_str());
 	}
 }
 
