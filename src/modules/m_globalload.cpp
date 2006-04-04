@@ -28,6 +28,7 @@ using namespace std;
 #include "channels.h"
 #include "modules.h"
 #include "inspircd.h"
+#include "helperfuncs.h"
 
 extern InspIRCd *ServerInstance;
 	 
