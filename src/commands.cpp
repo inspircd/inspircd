@@ -212,16 +212,16 @@ long duration(const char* str)
 
 bool host_matches_everyone(const std::string &mask, userrec* user)
 {
-	char insanemasks[MAXBUF];
 	char buffer[MAXBUF];
 	char itrigger[MAXBUF];
-	Config->ConfValue(Config->config_data, "insane","hostmasks", 0, insanemasks, MAXBUF);
-	Config->ConfValue(Config->config_data, "insane","trigger", 0, itrigger, MAXBUF);
-	if (*itrigger == 0)
-		strlcpy(itrigger,"95.5",MAXBUF);
-	if ((*insanemasks == 'y') || (*insanemasks == 't') || (*insanemasks == '1'))
-		return false;
 	long matches = 0;
+	
+	if (!Config->ConfValue(Config->config_data, "insane","trigger", 0, itrigger, MAXBUF))
+		strlcpy(itrigger,"95.5",MAXBUF);
+	
+	if (Config->ConfValueBool(Config->config_data, "insane","hostmasks", 0))
+		return false;
+	
 	for (user_hash::iterator u = clientlist.begin(); u != clientlist.end(); u++)
 	{
 		strlcpy(buffer,u->second->ident,MAXBUF);
@@ -241,20 +241,21 @@ bool host_matches_everyone(const std::string &mask, userrec* user)
 
 bool ip_matches_everyone(const std::string &ip, userrec* user)
 {
-	char insanemasks[MAXBUF];
 	char itrigger[MAXBUF];
-	Config->ConfValue(Config->config_data, "insane","ipmasks",0,insanemasks,MAXBUF);
-	Config->ConfValue(Config->config_data, "insane","trigger",0,itrigger,MAXBUF);
-	if (*itrigger == 0)
-		strlcpy(itrigger,"95.5",MAXBUF);
-	if ((*insanemasks == 'y') || (*insanemasks == 't') || (*insanemasks == '1'))
-		return false;
 	long matches = 0;
+	
+	if (!Config->ConfValue(Config->config_data, "insane","trigger",0,itrigger,MAXBUF))
+		strlcpy(itrigger,"95.5",MAXBUF);
+	
+	if (Config->ConfValueBool(Config->config_data, "insane","ipmasks",0))
+		return false;
+	
 	for (user_hash::iterator u = clientlist.begin(); u != clientlist.end(); u++)
 	{
 		if (match((char*)inet_ntoa(u->second->ip4),ip.c_str()))
 			matches++;
 	}
+	
 	float percent = ((float)matches / (float)clientlist.size()) * 100;
 	if (percent > (float)atof(itrigger))
 	{
@@ -266,20 +267,21 @@ bool ip_matches_everyone(const std::string &ip, userrec* user)
 
 bool nick_matches_everyone(const std::string &nick, userrec* user)
 {
-	char insanemasks[MAXBUF];
 	char itrigger[MAXBUF];
-	Config->ConfValue(Config->config_data, "insane","nickmasks",0,insanemasks,MAXBUF);
-	Config->ConfValue(Config->config_data, "insane","trigger",0,itrigger,MAXBUF);
-	if (*itrigger == 0)
-		strlcpy(itrigger,"95.5",MAXBUF);
-	if ((*insanemasks == 'y') || (*insanemasks == 't') || (*insanemasks == '1'))
-		return false;
 	long matches = 0;
+	
+	if (!Config->ConfValue(Config->config_data, "insane","trigger",0,itrigger,MAXBUF))
+		strlcpy(itrigger,"95.5",MAXBUF);
+	
+	if (Config->ConfValueBool(Config->config_data, "insane","nickmasks",0))
+		return false;
+
 	for (user_hash::iterator u = clientlist.begin(); u != clientlist.end(); u++)
 	{
 		if (match(u->second->nick,nick.c_str()))
 			matches++;
 	}
+	
 	float percent = ((float)matches / (float)clientlist.size()) * 100;
 	if (percent > (float)atof(itrigger))
 	{
