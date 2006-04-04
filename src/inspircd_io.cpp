@@ -1393,7 +1393,7 @@ int ServerConfig::ConfVarEnum(ConfigDataHash &target, const std::string &tag, in
  */ 
 bool BindSocket(int sockfd, struct sockaddr_in client, struct sockaddr_in server, int port, char* addr)
 {
-	memset((char *)&server,0,sizeof(server));
+	memset(&server,0,sizeof(server));
 	struct in_addr addy;
 	bool resolved = false;
 	char resolved_addr[128];
@@ -1465,11 +1465,11 @@ int OpenTCPSocket()
 	}
 	else
 	{
-		setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, (const char*)&on, sizeof(on));
+		setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, &on, sizeof(on));
 		/* This is BSD compatible, setting l_onoff to 0 is *NOT* http://web.irc.org/mla/ircd-dev/msg02259.html */
 		linger.l_onoff = 1;
 		linger.l_linger = 1;
-		setsockopt(sockfd, SOL_SOCKET, SO_LINGER, (const char*)&linger,sizeof(linger));
+		setsockopt(sockfd, SOL_SOCKET, SO_LINGER, &linger,sizeof(linger));
 		return (sockfd);
 	}
 }
