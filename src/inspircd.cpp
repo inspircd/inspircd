@@ -167,16 +167,20 @@ InspIRCd::InspIRCd(int argc, char** argv)
 	if (argc > 1) {
 		for (int i = 1; i < argc; i++)
 		{
-			if (!strcmp(argv[i],"-nofork")) {
+			if (!strcmp(argv[i],"-nofork"))
+			{
 				Config->nofork = true;
 			}
-			if (!strcmp(argv[i],"-wait")) {
+			if (!strcmp(argv[i],"-wait"))
+			{
 				sleep(6);
 			}
-			if (!strcmp(argv[i],"-nolimit")) {
-				Config->unlimitcore = true;
+			if (!strcmp(argv[i],"-nolimit"))
+			{
+				printf("WARNING: The `-nolimit' option is deprecated, and now on by default. This behaviour may change in the future.\n");
 			}
-			if (!strcmp(argv[i],"-logfile")) {
+			if (!strcmp(argv[i],"-logfile"))
+			{
 				if (argc > i+1)
 				{
 					strlcpy(LOG_FILE,argv[i+1],MAXBUF);
