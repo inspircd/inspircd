@@ -1042,7 +1042,10 @@ bool ServerConfig::LoadConf(ConfigDataHash &target, const char* filename, std::o
 		 */
 		
 		if((ch == '#') && !in_quote)
+		{
 			in_comment = true;
+			continue;
+		}
 		
 		switch(ch)
 		{
@@ -1055,9 +1058,6 @@ bool ServerConfig::LoadConf(ConfigDataHash &target, const char* filename, std::o
 			case '\t':
 				ch = ' ';
 		}
-		
-		if(in_comment)
-			continue;
 		
 		line += ch;
 		
