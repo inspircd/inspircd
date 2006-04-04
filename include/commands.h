@@ -30,7 +30,6 @@
 
 bool is_uline(const char* server);
 long duration(const char* str);
-void do_whois(userrec* user, userrec* dest,unsigned long signon, unsigned long idle, char* nick);
 bool host_matches_everyone(const std::string &mask, userrec* user);
 bool ip_matches_everyone(const std::string &ip, userrec* user);
 bool nick_matches_everyone(const std::string &nick, userrec* user);	

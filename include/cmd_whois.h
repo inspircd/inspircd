@@ -28,6 +28,8 @@
 #include "users.h"
 #include "channels.h"
 
+void do_whois(userrec* user, userrec* dest,unsigned long signon, unsigned long idle, char* nick);
+
 class cmd_whois : public command_t
 {
  public:
