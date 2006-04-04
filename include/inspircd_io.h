@@ -189,14 +189,6 @@ class ServerConfig : public classbase
 	 */
         bool nofork;
 
-	/** If this value is true, the owner of the
-	 * server has chosen to unlimit the coredump
-	 * size to as large a value as his account
-	 * settings will allow. This is often used
-	 * when debugging.
-	 */
-        bool unlimitcore;
-
 	/** If this value is true, halfops have been
 	 * enabled in the configuration file.
 	 */
