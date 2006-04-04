@@ -740,6 +740,10 @@ class TreeSocket : public InspSocket
 		 * dirty work is done in OnClose() (see below)
 		 * which is still called on error conditions too.
 		 */
+		if (e == I_ERR_CONNECT)
+		{
+			Srv->SendOpers("*** Connection failed: Connection refused");
+		}
 	}
 
 	virtual int OnDisconnect()
