@@ -306,7 +306,7 @@ bool InspSocket::FlushWriteBuffer()
 			}
 		}
 	}
-	return false;
+	return (fd < 0);
 }
 
 bool InspSocket::Timeout(time_t current)
@@ -380,7 +380,9 @@ bool InspSocket::Poll()
 			 * Both FlushWriteBuffer AND the return result of OnDataReady must
 			 * return true for this to be ok.
 			 */
-			return (n && !this->FlushWriteBuffer());
+			if (this->FlushWriteBuffer())
+				return false;
+			return n;
 		break;
 		default:
 		break;
