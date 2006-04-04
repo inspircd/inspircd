@@ -85,8 +85,6 @@ void cmd_oper::Handle (char **parameters, int pcnt, userrec *user)
 	char HostName[MAXBUF];
 	char TheHost[MAXBUF];
 	int j;
-	bool found = false;
-	bool fail2 = false;
 
 	snprintf(TheHost,MAXBUF,"%s@%s",user->ident,user->host);
 
@@ -96,66 +94,82 @@ void cmd_oper::Handle (char **parameters, int pcnt, userrec *user)
 		Config->ConfValue("oper","password",i,Password,&Config->config_f);
 		Config->ConfValue("oper","type",i,OperType,&Config->config_f);
 		Config->ConfValue("oper","host",i,HostName,&Config->config_f);
-		if ((!strcmp(LoginName,parameters[0])) && (!operstrcmp(Password,parameters[1])) && (OneOfMatches(TheHost,HostName)))
-		{
-			fail2 = true;
-			for (j =0; j < Config->ConfValueEnum("type",&Config->config_f); j++)
-			{
-				Config->ConfValue("type","name",j,TypeName,&Config->config_f);
 
-				if (!strcmp(TypeName,OperType))
+		if (!strcmp(LoginName, parameters[0]))
+		{
+			/* login name matches */
+			if (!operstrcmp(Password, parameters[1]))
+			{
+				/* password matches */
+				if (OneOfMatches(TheHost, HostName))
 				{
-					/* found this oper's opertype */
-					Config->ConfValue("type","host",j,HostName,&Config->config_f);
-					if (*HostName)
-						ChangeDisplayedHost(user,HostName);
-					if (!isnick(TypeName))
+					for (j =0; j < Config->ConfValueEnum("type",&Config->config_f); j++)
 					{
-						WriteServ(user->fd,"491 %s :Invalid oper type (oper types must follow the same syntax as nicknames)",user->nick);
-						WriteOpers("*** CONFIGURATION ERROR! Oper type invalid for OperType '%s'",OperType);
-						log(DEFAULT,"OPER: Failed oper attempt by %s!%s@%s: credentials valid, but oper type erroneous.",user->nick,user->ident,user->host);
-						return;
+						Config->ConfValue("type","name",j,TypeName,&Config->config_f);
+
+						if (!strcmp(TypeName,OperType))
+						{
+							/* found this oper's opertype */
+							Config->ConfValue("type","host",j,HostName,&Config->config_f);
+							if (*HostName)
+								ChangeDisplayedHost(user,HostName);
+							if (!isnick(TypeName))
+							{
+								WriteServ(user->fd,"491 %s :Invalid oper type (oper types must follow the same syntax as nicknames)",user->nick);
+								WriteOpers("*** CONFIGURATION ERROR! Oper type invalid for OperType '%s'",OperType);
+								log(DEFAULT,"OPER: Failed oper attempt by %s!%s@%s: credentials valid, but oper type erroneous.",user->nick,user->ident,user->host);
+								return;
+							}
+
+					                /* correct oper credentials */
+					                WriteOpers("*** %s (%s@%s) is now an IRC operator of type %s",user->nick,user->ident,user->host,OperType);
+					                WriteServ(user->fd,"381 %s :You are now an IRC operator of type %s",user->nick,OperType);
+
+							if (!strchr(user->modes,'o'))
+							{
+								strcat(user->modes,"o");
+								WriteServ(user->fd,"MODE %s :+o",user->nick);
+								FOREACH_MOD(I_OnOper,OnOper(user,OperType));
+								log(DEFAULT,"OPER: %s!%s@%s opered as type: %s",user->nick,user->ident,user->host,OperType);
+								AddOper(user);
+								FOREACH_MOD(I_OnPostOper,OnPostOper(user,OperType));
+							}
+
+							strlcpy(user->oper,TypeName,NICKMAX-1);
+							return;
+						}
 					}
-					strlcpy(user->oper,TypeName,NICKMAX-1);
-					found = true;
-					fail2 = false;
-					break;
+
+					/* if we get to here, we have NOT found their opertype. */
+					WriteServ(user->fd,"491 %s :Your oper block does not have a valid opertype associated with it",user->nick);
+					WriteOpers("*** CONFIGURATION ERROR! Oper block mismatch for OperType %s",OperType);
+		                        log(DEFAULT,"OPER: Failed oper attempt by %s!%s@%s: credentials valid, but oper type nonexistent.",user->nick,user->ident,user->host);
+					return;
+				}
+				else
+				{
+					/* no host matches */
+					WriteServ(user->fd, "491 %s :Invalid Credentials", user->nick);
+					WriteOpers("*** WARNING! Failed oper attempt by %s!%s@%s (incorrect hostname)!", user->nick, user->ident, user->host);
+					log(DEFAULT, "OPER: Failed oper attempt by %s!%s@%s: host did not match.", user->nick, user->ident, user->host);
+					return;
 				}
 			}
-		}
-		if (found)
-			break;
-	}
-	if (found)
-	{
-                /* correct oper credentials */
-                WriteOpers("*** %s (%s@%s) is now an IRC operator of type %s",user->nick,user->ident,user->host,OperType);
-                WriteServ(user->fd,"381 %s :You are now an IRC operator of type %s",user->nick,OperType);
-		if (!strchr(user->modes,'o'))
-		{
-			strcat(user->modes,"o");
-			WriteServ(user->fd,"MODE %s :+o",user->nick);
-			FOREACH_MOD(I_OnOper,OnOper(user,OperType));
-			log(DEFAULT,"OPER: %s!%s@%s opered as type: %s",user->nick,user->ident,user->host,OperType);
-			AddOper(user);
-			FOREACH_MOD(I_OnPostOper,OnPostOper(user,OperType));
+			else
+			{
+				/* password WRONG */
+				WriteServ(user->fd, "491 %s :Invalid Credentials", user->nick);
+				WriteOpers("*** WARNING! Failed oper attempt by %s!%s@%s (incorrect password)!", user->nick, user->ident, user->host);
+				log(DEFAULT, "OPER: Failed oper attempt by %s!%s@%s: password did not match.", user->nick, user->ident, user->host);
+				return;
+			}
 		}
 	}
-	else
-	{
-		if (!fail2)
-		{
-			WriteServ(user->fd,"491 %s :Invalid oper credentials",user->nick);
-			WriteOpers("*** WARNING! Failed oper attempt by %s!%s@%s!",user->nick,user->ident,user->host);
-			log(DEFAULT,"OPER: Failed oper attempt by %s!%s@%s: user, host or password did not match.",user->nick,user->ident,user->host);
-		}
-		else
-		{
-			WriteServ(user->fd,"491 %s :Your oper block does not have a valid opertype associated with it",user->nick);
-			WriteOpers("*** CONFIGURATION ERROR! Oper block mismatch for OperType %s",OperType);
-                        log(DEFAULT,"OPER: Failed oper attempt by %s!%s@%s: credentials valid, but oper type nonexistent.",user->nick,user->ident,user->host);
-		}
-	}
+
+	/* if we get here, invalid oper login */
+	WriteServ(user->fd, "491 %s :Invalid Credentials", user->nick);
+	WriteOpers("*** WARNING! Failed oper attempt by %s!%s@%s (incorrect oper (%s))!", user->nick, user->ident, user->host, parameters[0]);
+	log(DEFAULT, "OPER: Failed oper attempt by %s!%s@%s: incorrect oper (%s)", user->nick, user->ident, user->host, parameters[0]);
 	return;
 }
 

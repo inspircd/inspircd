@@ -61,7 +61,6 @@ using namespace std;
 #include "command_parse.h"
 #include "cull_list.h"
 
-extern int MODCOUNT;
 extern struct sockaddr_in client,server;
 extern socklen_t length;
 extern std::vector<Module*> modules;
@@ -71,7 +70,6 @@ extern time_t TIME;
 extern time_t OLDTIME;
 extern std::vector<userrec*> local_users;
 extern InspSocket* socket_ref[MAX_DESCRIPTORS];
-char LOG_FILE[MAXBUF];
 
 extern InspIRCd* ServerInstance;
 extern ServerConfig *Config;
@@ -420,79 +418,3 @@ void DoBackgroundUserStuff(time_t TIME)
 	GlobalGoners.Apply();
 }
 
-void OpenLog(char** argv, int argc)
-{
-	if (!*LOG_FILE)
-	{
-		if (Config->logpath == "")
-		{
-			Config->logpath = GetFullProgDir(argv,argc) + "/ircd.log";
-		}
-	}
-	else
-	{
-		Config->log_file = fopen(LOG_FILE,"a+");
-
-		if (!Config->log_file)
-		{
-			printf("ERROR: Could not write to logfile %s, bailing!\n\n",Config->logpath.c_str());
-			Exit(ERROR);
-		}
-
-		return;
-	}
-
-	Config->log_file = fopen(Config->logpath.c_str(),"a+");
-
-	if (!Config->log_file)
-	{
-		printf("ERROR: Could not write to logfile %s, bailing!\n\n",Config->logpath.c_str());
-		Exit(ERROR);
-	}
-}
-
-
-void CheckRoot()
-{
-	if (geteuid() == 0)
-	{
-		printf("WARNING!!! You are running an irc server as ROOT!!! DO NOT DO THIS!!!\n\n");
-		log(DEFAULT,"InspIRCd: startup: not starting with UID 0!");
-		Exit(ERROR);
-	}
-}
-
-
-void CheckDie()
-{
-	if (*Config->DieValue)
-	{
-		printf("WARNING: %s\n\n",Config->DieValue);
-		log(DEFAULT,"Uh-Oh, somebody didn't read their config file: '%s'",Config->DieValue);
-		Exit(ERROR);
-	}
-}
-
-/* We must load the modules AFTER initializing the socket engine, now */
-void LoadAllModules(InspIRCd* ServerInstance)
-{
-	char configToken[MAXBUF];
-	Config->module_names.clear();
-
-	MODCOUNT = -1;
-
-	for (int count = 0; count < Config->ConfValueEnum("module",&Config->config_f); count++)
-	{
-		Config->ConfValue("module","name",count,configToken,&Config->config_f);
-		printf("[\033[1;32m*\033[0m] Loading module:\t\033[1;32m%s\033[0m\n",configToken);
-
-		if (!ServerInstance->LoadModule(configToken))
-		{
-			log(DEFAULT,"Exiting due to a module loader error.");
-			printf("\nThere was an error loading a module: %s\n\n",ServerInstance->ModuleError());
-			Exit(0);
-		}
-	}
-
-	log(DEFAULT,"Total loaded modules: %lu",(unsigned long)MODCOUNT+1);
-}
