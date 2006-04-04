@@ -267,24 +267,6 @@ bool ValidateServerName(const char* tag, const char* value, void* data)
 	return true;
 }
 
-bool ValidateNetworkName(const char* tag, const char* value, void* data)
-{
-	char* x = (char*)data;
-
-	log(DEFAULT,"<server:network> '%s'",x);
-
-	return true;
-}
-
-bool ValidateServerDesc(const char* tag, const char* value, void* data)
-{
-	char* x = (char*)data;
-
-	log(DEFAULT,"<server:description> '%s'",x);
-
-	return true;
-}
-
 bool ValidateNetBufferSize(const char* tag, const char* value, void* data)
 {
 	if ((!Config->NetBufferSize) || (Config->NetBufferSize > 65535) || (Config->NetBufferSize < 1024))
@@ -543,8 +525,8 @@ void ServerConfig::Read(bool bail, userrec* user)
 		{"options",		"softlimit",			&this->SoftLimit,		DT_INTEGER, ValidateSoftLimit},
 		{"options",		"somaxconn",			&this->MaxConn,			DT_INTEGER, ValidateMaxConn},
 		{"server",		"name",				&this->ServerName,		DT_CHARPTR, ValidateServerName},
-		{"server",		"description",			&this->ServerDesc,		DT_CHARPTR, ValidateServerDesc},
-		{"server",		"network",			&this->Network,			DT_CHARPTR, ValidateNetworkName},
+		{"server",		"description",			&this->ServerDesc,		DT_CHARPTR, NoValidation},
+		{"server",		"network",			&this->Network,			DT_CHARPTR, NoValidation},
 		{"admin",		"name",				&this->AdminName,		DT_CHARPTR, NoValidation},
 		{"admin",		"email",			&this->AdminEmail,		DT_CHARPTR, NoValidation},
 		{"admin",		"nick",				&this->AdminNick,		DT_CHARPTR, NoValidation},
