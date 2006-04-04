@@ -1045,6 +1045,12 @@ bool ServerConfig::LoadConf(ConfigDataHash &target, const char* filename, std::o
 		if((ch == '#') && !in_quote)
 			in_comment = true;
 		
+		if(((ch == '\n') || (ch == '\r')) && in_quote)
+		{
+			errorstream << "Got a newline within a quoted section, this is probably a typo: " << filename << ":" << linenumber << std::endl;
+			return false;
+		}
+		
 		switch(ch)
 		{
 			case '\n':
