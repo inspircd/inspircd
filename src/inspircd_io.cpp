@@ -646,46 +646,22 @@ void ServerConfig::Read(bool bail, userrec* user)
 		/* If we succeeded, set the ircd config to the new one */
 		Config->config_data = newconfig;
 		
-		int c = 1;
+/* 		int c = 1;
 		std::string last;
 		
 		for(ConfigDataHash::const_iterator i = this->config_data.begin(); i != this->config_data.end(); i++)
 		{
-			if(i->first != last)
-				c = 1;
-			else
-				c++;
+			c = (i->first != last) ? 1 : c+1;
+			last = i->first;
 			
 			std::cout << "[" << i->first << " " << c << "/" << this->config_data.count(i->first) << "]" << std::endl;
 			
 			for(KeyValList::const_iterator j = i->second.begin(); j != i->second.end(); j++)
-			{
 				std::cout << "\t" << j->first << " = " << j->second << std::endl;
-			}
 			
 			std::cout << "[/" << i->first << " " << c << "/" << this->config_data.count(i->first) << "]" << std::endl;
-			
-			last = i->first;
 		}
-		
-		for(ConfigDataHash::const_iterator i = this->config_data.begin(); i != this->config_data.end(); i++)
-		{
-			std::cout << "There are " << ConfValueEnum(this->config_data, i->first) << " <" << i->first << "> tags" << std::endl;
-			
-			for(int j = 0; j < ConfValueEnum(this->config_data, i->first); j++)
-			{
-				std::string foo;
-				if(ConfValue(this->config_data, i->first, "name", j, foo))
-				{
-					std::cout << "<" << i->first << ":name> " << foo << std::endl;
-				}
-				else
-				{
-					std::cout << "<" << i->first << ":name> undef" << std::endl;
-				}
-			}
-		}
-	}
+ */	}
 	else
 	{
 		log(DEFAULT, "There were errors in your configuration:\n%s", errstr.str().c_str());
