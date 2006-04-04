@@ -589,21 +589,21 @@ void server_kick_channel(userrec* user, chanrec* Ptr, char* reason, bool trigger
 	}
 }
 
-void kick_channel(userrec *src,userrec *user, chanrec *chan, char* reason)
+void kick_channel(userrec *src,userrec *user, chanrec *Ptr, char* reason)
 {
-	if ((!src) || (!user) || (!chan) || (!reason))
+	if ((!src) || (!user) || (!Ptr) || (!reason))
 	{
 		log(DEFAULT,"*** BUG *** kick_channel was given an invalid parameter");
 		return;
 	}
 
-	log(DEBUG,"kick_channel: removing: %s %s %s",user->nick,chan->name,src->nick);
+	log(DEBUG,"kick_channel: removing: %s %s %s",user->nick,Ptr->name,src->nick);
 
 	if (IS_LOCAL(src))
 	{
-		if (!chan->HasUser(user))
+		if (!Ptr->HasUser(user))
 		{
-			WriteServ(src->fd,"441 %s %s %s :They are not on that channel",src->nick, user->nick, chan->name);
+			WriteServ(src->fd,"441 %s %s %s :They are not on that channel",src->nick, user->nick, Ptr->name);
 			return;
 		}
 		int MOD_RESULT = 0;
@@ -611,28 +611,28 @@ void kick_channel(userrec *src,userrec *user, chanrec *chan, char* reason)
 		if (!is_uline(src->server))
 		{
 			MOD_RESULT = 0;
-			FOREACH_RESULT(I_OnUserPreKick,OnUserPreKick(src,user,chan,reason));
+			FOREACH_RESULT(I_OnUserPreKick,OnUserPreKick(src,user,Ptr,reason));
 			if (MOD_RESULT == 1)
 				return;
 		}
 		/* Set to -1 by OnUserPreKick if explicit allow was set */
 		if (MOD_RESULT != -1)
 		{
-			FOREACH_RESULT(I_OnAccessCheck,OnAccessCheck(src,user,chan,AC_KICK));
+			FOREACH_RESULT(I_OnAccessCheck,OnAccessCheck(src,user,Ptr,AC_KICK));
 			if ((MOD_RESULT == ACR_DENY) && (!is_uline(src->server)))
 				return;
 	
 			if ((MOD_RESULT == ACR_DEFAULT) || (!is_uline(src->server)))
 			{
-   			 	if ((cstatus(src,chan) < STATUS_HOP) || (cstatus(src,chan) < cstatus(user,chan)))
+   			 	if ((cstatus(src,Ptr) < STATUS_HOP) || (cstatus(src,Ptr) < cstatus(user,Ptr)))
 				{
-					if (cstatus(src,chan) == STATUS_HOP)
+					if (cstatus(src,Ptr) == STATUS_HOP)
 					{
-						WriteServ(src->fd,"482 %s %s :You must be a channel operator",src->nick, chan->name);
+						WriteServ(src->fd,"482 %s %s :You must be a channel operator",src->nick, Ptr->name);
 					}
 					else
 					{
-						WriteServ(src->fd,"482 %s %s :You must be at least a half-operator",src->nick, chan->name);
+						WriteServ(src->fd,"482 %s %s :You must be at least a half-operator",src->nick, Ptr->name);
 					}
 		
 					return;
@@ -641,34 +641,34 @@ void kick_channel(userrec *src,userrec *user, chanrec *chan, char* reason)
 		}
 	}
 
-	FOREACH_MOD(I_OnUserKick,OnUserKick(src,user,chan,reason));
+	FOREACH_MOD(I_OnUserKick,OnUserKick(src,user,Ptr,reason));
 			
 	for (std::vector<ucrec*>::const_iterator i = user->chans.begin(); i != user->chans.end(); i++)
 	{
 		/* zap it from the channel list of the user */
-		if ((((ucrec*)(*i))->channel) && (((ucrec*)(*i))->channel == chan))
+		if ((((ucrec*)(*i))->channel) && (((ucrec*)(*i))->channel == Ptr))
 		{
-			WriteChannel(chan,src,"KICK %s %s :%s",chan->name, user->nick, reason);
+			WriteChannel(Ptr,src,"KICK %s %s :%s",Ptr->name, user->nick, reason);
 			((ucrec*)(*i))->uc_modes = 0;
 			((ucrec*)(*i))->channel = NULL;
-			log(DEBUG,"del_channel: unlinked: %s %s",user->nick,chan->name);
+			log(DEBUG,"del_channel: unlinked: %s %s",user->nick,Ptr->name);
 			break;
 		}
 	}
 
-	if (!chan->DelUser(user))
+	if (!Ptr->DelUser(user))
 	/* if there are no users left on the channel */
 	{
-		chan_hash::iterator iter = chanlist.find(chan->name);
+		chan_hash::iterator iter = chanlist.find(Ptr->name);
 
-		log(DEBUG,"del_channel: destroying channel: %s",chan->name);
+		log(DEBUG,"del_channel: destroying channel: %s",Ptr->name);
 
 		/* kill the record */
 		if (iter != chanlist.end())
 		{
-			log(DEBUG,"del_channel: destroyed: %s",chan->name);
-			FOREACH_MOD(I_OnChannelDelete,OnChannelDelete(chan));
-			delete chan;
+			log(DEBUG,"del_channel: destroyed: %s",Ptr->name);
+			FOREACH_MOD(I_OnChannelDelete,OnChannelDelete(Ptr));
+			delete Ptr;
 			chanlist.erase(iter);
 		}
 	}
