@@ -692,7 +692,8 @@ void ServerConfig::Read(bool bail, userrec* user)
 
 		if (bail)
 		{
-			printf("There were errors in your configuration:\n%s",errstr.str().c_str());
+			/* Unneeded because of the log() aboive? */
+			// printf("There were errors in your configuration:\n%s",errstr.str().c_str());
 			Exit(0);
 		}
 		else
