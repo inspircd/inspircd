@@ -849,30 +849,43 @@ Module* Server::FindModule(const std::string &name)
 
 ConfigReader::ConfigReader()
 {
-	Config->ClearStack();
-	this->cache = new std::stringstream(std::stringstream::in | std::stringstream::out);
-	this->errorlog = new std::stringstream(std::stringstream::in | std::stringstream::out);
-	this->readerror = Config->LoadConf(CONFIG_FILE,this->cache,this->errorlog);
-	if (!this->readerror)
-		this->error = CONF_FILE_NOT_FOUND;
+	// Config->ClearStack();
+	
+	/* Is there any reason to load the entire config file again here?
+	 * it's needed if they specify another config file, but using the
+	 * default one we can just use the global config data - pre-parsed!
+	 */
+	//~ this->cache = new std::stringstream(std::stringstream::in | std::stringstream::out);
+	this->errorlog = new std::ostringstream(std::stringstream::in | std::stringstream::out);
+	
+	//~ this->readerror = Config->LoadConf(CONFIG_FILE, this->cache,this->errorlog);
+	//~ if (!this->readerror)
+		//~ this->error = CONF_FILE_NOT_FOUND;
+	
+	this->data = &Config->config_data;
+	this->privatehash = false;
 }
 
 
 ConfigReader::~ConfigReader()
 {
-	if (this->cache)
-		delete this->cache;
+	//~ if (this->cache)
+		//~ delete this->cache;
 	if (this->errorlog)
 		delete this->errorlog;
+	if(this->privatehash)
+		delete this->data;
 }
 
 
 ConfigReader::ConfigReader(const std::string &filename)
 {
 	Config->ClearStack();
-	this->cache = new std::stringstream(std::stringstream::in | std::stringstream::out);
-	this->errorlog = new std::stringstream(std::stringstream::in | std::stringstream::out);
-	this->readerror = Config->LoadConf(filename.c_str(),this->cache,this->errorlog);
+	
+	this->data = new ConfigDataHash;
+	this->privatehash = true;
+	this->errorlog = new std::ostringstream(std::stringstream::in | std::stringstream::out);
+	this->readerror = Config->LoadConf(*this->data, filename, *this->errorlog);
 	if (!this->readerror)
 		this->error = CONF_FILE_NOT_FOUND;
 };
@@ -880,58 +893,39 @@ ConfigReader::ConfigReader(const std::string &filename)
 std::string ConfigReader::ReadValue(const std::string &tag, const std::string &name, int index)
 {
 	/* Don't need to strlcpy() tag and name anymore, ReadConf() takes const char* */ 
-	char val[MAXBUF];
-	int res = Config->ReadConf(cache, tag.c_str(), name.c_str(), index, val);
-	if (!res)
+	std::string result;
+	
+	if (!Config->ConfValue(*this->data, tag, name, index, result))
 	{
 		this->error = CONF_VALUE_NOT_FOUND;
 		return "";
 	}
-	return val;
+	
+	return result;
 }
 
 bool ConfigReader::ReadFlag(const std::string &tag, const std::string &name, int index)
 {
-	/* Don't need to strlcpy() tag and name anymore, ReadConf() takes const char* */ 
-	char val[MAXBUF];
-	std::string s;
-	
-	int res = Config->ReadConf(cache, tag.c_str(), name.c_str(), index, val);
-	if (!res)
-	{
-		this->error = CONF_VALUE_NOT_FOUND;
-		return false;
-	}
-	
-	s = val;
-	
-	return ((s == "yes") || (s == "YES") || (s == "true") || (s == "TRUE") || (s == "1"));
+	return Config->ConfValueBool(*this->data, tag, name, index);
 }
 
 long ConfigReader::ReadInteger(const std::string &tag, const std::string &name, int index, bool needs_unsigned)
 {
-	char val[MAXBUF];
-
-	int res = Config->ReadConf(cache, tag.c_str(), name.c_str(), index, val);
-	if (!res)
+	int result;
+	
+	if(!Config->ConfValueInteger(*this->data, tag, name, index, result))
 	{
 		this->error = CONF_VALUE_NOT_FOUND;
 		return 0;
 	}
-	for (char* i = val; *i; i++)
-	{
-		if (!isdigit(*i))
-		{
-			this->error = CONF_NOT_A_NUMBER;
-			return 0;
-		}
-	}
-	if ((needs_unsigned) && (atoi(val)<0))
+	
+	if ((needs_unsigned) && (result < 0))
 	{
 		this->error = CONF_NOT_UNSIGNED;
 		return 0;
 	}
-	return atoi(val);
+	
+	return result;
 }
 
 long ConfigReader::GetError()
@@ -943,36 +937,44 @@ long ConfigReader::GetError()
 
 void ConfigReader::DumpErrors(bool bail, userrec* user)
 {
+	/* XXX - Duplicated code */
+	
 	if (bail)
 	{
-		printf("There were errors in your configuration:\n%s",errorlog->str().c_str());
-		exit(0);
+		printf("There were errors in your configuration:\n%s", this->errorlog->str().c_str());
+		Exit(0);
 	}
 	else
 	{
-		char dataline[1024];
+		std::string errors = this->errorlog->str();
+		std::string::size_type start;
+		unsigned int prefixlen;
 		
+		start = 0;
+		/* ":Config->ServerName NOTICE user->nick :" */
+		prefixlen = strlen(Config->ServerName) + strlen(user->nick) + 11;
+	
 		if (user)
 		{
 			WriteServ(user->fd,"NOTICE %s :There were errors in the configuration file:",user->nick);
-
-			while (!errorlog->eof())
+			
+			while(start < errors.length())
 			{
-				errorlog->getline(dataline,1024);
-				WriteServ(user->fd,"NOTICE %s :%s",user->nick,dataline);
+				WriteServ(user->fd, "NOTICE %s :%s",user->nick, errors.substr(start, 510 - prefixlen).c_str());
+				start += 510 - prefixlen;
 			}
 		}
 		else
 		{
-			WriteOpers("There were errors in the configuration file:",user->nick);
+			WriteOpers("There were errors in the configuration file:");
 			
-			while (!errorlog->eof())
+			while(start < errors.length())
 			{
-				errorlog->getline(dataline,1024);
-				WriteOpers(dataline);
+				WriteOpers(errors.substr(start, 360).c_str());
+				start += 360;
 			}
 		}
-		
+
 		return;
 	}
 }
@@ -980,12 +982,12 @@ void ConfigReader::DumpErrors(bool bail, userrec* user)
 
 int ConfigReader::Enumerate(const std::string &tag)
 {
-	return Config->EnumConf(cache,tag.c_str());
+	return Config->ConfValueEnum(*this->data, tag);
 }
 
 int ConfigReader::EnumerateValues(const std::string &tag, int index)
 {
-	return Config->EnumValues(cache, tag.c_str(), index);
+	return Config->ConfVarEnum(*this->data, tag, index);
 }
 
 bool ConfigReader::Verify()

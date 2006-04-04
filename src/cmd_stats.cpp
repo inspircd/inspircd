@@ -123,9 +123,9 @@ void cmd_stats::Handle (char **parameters, int pcnt, userrec *user)
 	if (*parameters[0] == 'U')
 	{
 		char ulined[MAXBUF];
-		for (int i = 0; i < Config->ConfValueEnum("uline",&Config->config_f); i++)
+		for (int i = 0; i < Config->ConfValueEnum(Config->config_data, "uline"); i++)
 		{
-			Config->ConfValue("uline","server",i,ulined,&Config->config_f);
+			Config->ConfValue(Config->config_data, "uline","server", i, ulined, MAXBUF);
 			WriteServ(user->fd,"248 %s U %s",user->nick,ulined);
 		}
 	}
@@ -216,14 +216,14 @@ void cmd_stats::Handle (char **parameters, int pcnt, userrec *user)
 	/* stats o */
 	if (*parameters[0] == 'o')
 	{
-		for (int i = 0; i < Config->ConfValueEnum("oper",&Config->config_f); i++)
+		for (int i = 0; i < Config->ConfValueEnum(Config->config_data, "oper"); i++)
 		{
 			char LoginName[MAXBUF];
 			char HostName[MAXBUF];
 			char OperType[MAXBUF];
-			Config->ConfValue("oper","name",i,LoginName,&Config->config_f);
-			Config->ConfValue("oper","host",i,HostName,&Config->config_f);
-			Config->ConfValue("oper","type",i,OperType,&Config->config_f);
+			Config->ConfValue(Config->config_data, "oper","name", i, LoginName, MAXBUF);
+			Config->ConfValue(Config->config_data, "oper","host", i, HostName, MAXBUF);
+			Config->ConfValue(Config->config_data, "oper","type", i, OperType, MAXBUF);
 			WriteServ(user->fd,"243 %s O %s * %s %s 0",user->nick,HostName,LoginName,OperType);
 		}
 	}
@@ -270,6 +270,3 @@ void cmd_stats::Handle (char **parameters, int pcnt, userrec *user)
 	WriteOpers("*** Notice: Stats '%s' requested by %s (%s@%s)",parameters[0],user->nick,user->ident,user->host);
 	
 }
-
-
-

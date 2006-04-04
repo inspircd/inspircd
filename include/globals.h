@@ -27,6 +27,9 @@
 #include "channels.h"
 
 typedef std::deque<std::string> file_cache;
+typedef std::pair< std::string, std::string > KeyVal;
+typedef std::vector< KeyVal > KeyValList;
+typedef std::multimap< std::string, KeyValList > ConfigDataHash;
 
 void WriteOpers(char* text, ...);
 void log(int level, char *text, ...);

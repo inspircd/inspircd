@@ -278,8 +278,8 @@ bool host_matches_everyone(const std::string &mask, userrec* user)
 	char insanemasks[MAXBUF];
 	char buffer[MAXBUF];
 	char itrigger[MAXBUF];
-	Config->ConfValue("insane","hostmasks",0,insanemasks,&Config->config_f);
-	Config->ConfValue("insane","trigger",0,itrigger,&Config->config_f);
+	Config->ConfValue(Config->config_data, "insane","hostmasks", 0, insanemasks, MAXBUF);
+	Config->ConfValue(Config->config_data, "insane","trigger", 0, itrigger, MAXBUF);
 	if (*itrigger == 0)
 		strlcpy(itrigger,"95.5",MAXBUF);
 	if ((*insanemasks == 'y') || (*insanemasks == 't') || (*insanemasks == '1'))
@@ -306,8 +306,8 @@ bool ip_matches_everyone(const std::string &ip, userrec* user)
 {
 	char insanemasks[MAXBUF];
 	char itrigger[MAXBUF];
-	Config->ConfValue("insane","ipmasks",0,insanemasks,&Config->config_f);
-	Config->ConfValue("insane","trigger",0,itrigger,&Config->config_f);
+	Config->ConfValue(Config->config_data, "insane","ipmasks",0,insanemasks,MAXBUF);
+	Config->ConfValue(Config->config_data, "insane","trigger",0,itrigger,MAXBUF);
 	if (*itrigger == 0)
 		strlcpy(itrigger,"95.5",MAXBUF);
 	if ((*insanemasks == 'y') || (*insanemasks == 't') || (*insanemasks == '1'))
@@ -331,8 +331,8 @@ bool nick_matches_everyone(const std::string &nick, userrec* user)
 {
 	char insanemasks[MAXBUF];
 	char itrigger[MAXBUF];
-	Config->ConfValue("insane","nickmasks",0,insanemasks,&Config->config_f);
-	Config->ConfValue("insane","trigger",0,itrigger,&Config->config_f);
+	Config->ConfValue(Config->config_data, "insane","nickmasks",0,insanemasks,MAXBUF);
+	Config->ConfValue(Config->config_data, "insane","trigger",0,itrigger,MAXBUF);
 	if (*itrigger == 0)
 		strlcpy(itrigger,"95.5",MAXBUF);
 	if ((*insanemasks == 'y') || (*insanemasks == 't') || (*insanemasks == '1'))

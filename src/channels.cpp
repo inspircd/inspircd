@@ -64,7 +64,6 @@ extern int WHOWAS_MAX;
 extern time_t TIME;
 extern chan_hash chanlist;
 
-using namespace std;
 
 chanrec* ForceChan(chanrec* Ptr,ucrec *a,userrec* user, int created);
 

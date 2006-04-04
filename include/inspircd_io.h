@@ -20,6 +20,7 @@
 #include <sstream>
 #include <string>
 #include <vector>
+#include <map>
 #include "inspircd.h"
 #include "globals.h"
 #include "modules.h"
@@ -70,25 +71,24 @@ class ServerConfig : public classbase
 	 */
 	std::vector<std::string> include_stack;
 
-	/** Used by the config file subsystem to
-	 * safely read a C-style string without
-	 * dependency upon any certain style of
-	 * linefeed, e.g. it can read both windows
-	 * and UNIX style linefeeds transparently.
-	 */
-	int fgets_safe(char* buffer, size_t maxsize, FILE* &file);
-
 	/** This private method processes one line of
 	 * configutation, appending errors to errorstream
 	 * and setting error if an error has occured.
 	 */
-	std::string ConfProcess(char* buffer, long linenumber, std::stringstream* errorstream, bool &error, std::string filename);
+	bool ParseLine(ConfigDataHash &target, std::string &line, long linenumber, std::ostringstream &errorstream);
+  
+	bool DoInclude(ConfigDataHash &target, const std::string &file, std::ostringstream &errorstream);
 
 	/** Check that there is only one of each configuration item
 	 */
 	bool CheckOnce(char* tag, bool bail, userrec* user);
-
+  
   public:
+	  
+  	/** This holds all the information in the config file,
+	 * it's indexed by tag name to a vector of key/values.
+	 */
+	ConfigDataHash config_data;
 
 	/** Holds the server name of the local server
 	 * as defined by the administrator.
@@ -275,15 +275,6 @@ class ServerConfig : public classbase
 	 */
 	char PID[1024];
 
-	/** The parsed configuration file as a stringstream.
-	 * You should pass this to any configuration methods
-	 * of this class, and not access it directly. It is
-	 * recommended that modules use ConfigReader instead
-	 * which provides a simpler abstraction of configuration
-	 * files.
-	 */
-	std::stringstream config_f;
-
 	/** The connect classes in use by the IRC server.
 	 */
 	ClassVector Classes;
@@ -349,13 +340,34 @@ class ServerConfig : public classbase
 	 */
 	void Read(bool bail, userrec* user);
 
-	bool LoadConf(const char* filename, std::stringstream *target, std::stringstream* errorstream);
-	int ConfValue(char* tag, char* var, int index, char *result, std::stringstream *config);
-	int ConfValueInteger(char* tag, char* var, int index, std::stringstream *config);
-	int ReadConf(std::stringstream *config_f,const char* tag, const char* var, int index, char *result);
-	int ConfValueEnum(char* tag,std::stringstream *config);
-	int EnumConf(std::stringstream *config_f,const char* tag);
-	int EnumValues(std::stringstream *config, const char* tag, int index);
+	/** Load 'filename' into 'target', with the new config parser everything is parsed into
+	 * tag/key/value at load-time rather than at read-value time.
+	 */
+	bool LoadConf(ConfigDataHash &target, const char* filename, std::ostringstream &errorstream);
+	bool LoadConf(ConfigDataHash &target, const std::string &filename, std::ostringstream &errorstream);
+	
+	/* Both these return true if the value existed or false otherwise */
+	
+	/* Writes 'length' chars into 'result' as a string */
+	bool ConfValue(ConfigDataHash &target, const char* tag, const char* var, int index, char* result, int length);
+	bool ConfValue(ConfigDataHash &target, const std::string &tag, const std::string &var, int index, std::string &result);
+	
+	/* Tries to convert the value to an integer and write it to 'result' */
+	bool ConfValueInteger(ConfigDataHash &target, const char* tag, const char* var, int index, int &result);
+	bool ConfValueInteger(ConfigDataHash &target, const std::string &tag, const std::string &var, int index, int &result);
+	
+	/* Returns true if the value exists and has a true value, false otherwise */
+	bool ConfValueBool(ConfigDataHash &target, const char* tag, const char* var, int index);
+	bool ConfValueBool(ConfigDataHash &target, const std::string &tag, const std::string &var, int index);
+	
+	/* Returns the number of occurences of tag in the config file */
+	int ConfValueEnum(ConfigDataHash &target, const char* tag);
+	int ConfValueEnum(ConfigDataHash &target, const std::string &tag);
+	
+	/* Returns the numbers of vars inside the index'th 'tag in the config file */
+	int ConfVarEnum(ConfigDataHash &target, const char* tag, int index);
+	int ConfVarEnum(ConfigDataHash &target, const std::string &tag, int index);
+	
 	Module* GetIOHook(int port);
 	bool AddIOHook(int port, Module* iomod);
 	bool DelIOHook(int port);

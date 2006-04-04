@@ -64,6 +64,7 @@ enum TargetTypeFlags {
 	TYPE_OTHER
 };
 
+#include "globals.h"
 #include "dynamic.h"
 #include "base.h"
 #include "ctables.h"
@@ -1778,10 +1779,11 @@ class ConfigReader : public classbase
 	 * core is changed). It will contain a pointer to the configuration file data with unneeded data
 	 * (such as comments) stripped from it.
 	 */
-	std::stringstream *cache;
-	std::stringstream *errorlog;
+	ConfigDataHash* data;
+	std::ostringstream* errorlog;;
 	/** Used to store errors
 	 */
+	bool privatehash; // If we're using our own config data hash or not.
 	bool readerror;
 	long error;
 	

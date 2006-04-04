@@ -104,7 +104,8 @@ bool ServerConfig::DelIOHook(int port)
 
 bool ServerConfig::CheckOnce(char* tag, bool bail, userrec* user)
 {
-	int count = ConfValueEnum(tag,&Config->config_f);
+	int count = ConfValueEnum(Config->config_data, tag);
+	
 	if (count > 1)
 	{
 		if (bail)
@@ -528,13 +529,11 @@ bool DoneMaxBans(const char* tag)
 void ServerConfig::Read(bool bail, userrec* user)
 {
 	char debug[MAXBUF];		/* Temporary buffer for debugging value */
-	char dataline[1024];		/* Temporary buffer for error output */
-	char* convert;			/* Temporary buffer used for reading singular values into */
 	char* data[12];			/* Temporary buffers for reading multiple occurance tags into */
 	void* ptr[12];			/* Temporary pointers for passing to callbacks */
 	int r_i[12];			/* Temporary array for casting */
 	int rem = 0, add = 0;		/* Number of modules added, number of modules removed */
-	std::stringstream errstr;	/* String stream containing the error output */
+	std::ostringstream errstr;	/* String stream containing the error output */
 
 	/* These tags MUST occur and must ONLY occur once in the config file */
 	static char* Once[] = { "server", "admin", "files", "power", "options", "pid", NULL };
@@ -563,7 +562,7 @@ void ServerConfig::Read(bool bail, userrec* user)
 		{"dns",			"server",			&this->DNSServer,		DT_CHARPTR, ValidateDnsServer},
 		{"dns",			"timeout",			&this->dns_timeout,		DT_INTEGER, ValidateDnsTimeout},
 		{"options",		"moduledir",		&this->ModPath,			DT_CHARPTR, ValidateModPath},
-		{"disabled",	"commands",		&this->DisabledCommands,DT_CHARPTR, NoValidation},
+		{"disabled",	"commands",			&this->DisabledCommands,DT_CHARPTR, NoValidation},
 		{"options",		"operonlystats",	&this->OperOnlyStats,	DT_CHARPTR, NoValidation},
 		{"options",		"customversion",	&this->CustomVersion,	DT_CHARPTR, NoValidation},
 		{"options",		"hidesplits",		&this->HideSplits,		DT_BOOLEAN, NoValidation},
@@ -637,12 +636,59 @@ void ServerConfig::Read(bool bail, userrec* user)
 
 	include_stack.clear();
 
-	/* Initially, load the config into memory, bail if there are errors
-	 */
-	if (!LoadConf(CONFIG_FILE,&Config->config_f,&errstr))
+	/* Load and parse the config file, if there are any errors then explode */
+	
+	/* Make a copy here so if it fails then we can carry on running with an unaffected config */
+	ConfigDataHash newconfig;
+	
+	if (this->LoadConf(newconfig, CONFIG_FILE, errstr))
 	{
-		errstr.seekg(0);
-		log(DEFAULT,"There were errors in your configuration:\n%s",errstr.str().c_str());
+		/* If we succeeded, set the ircd config to the new one */
+		Config->config_data = newconfig;
+		
+		int c = 1;
+		std::string last;
+		
+		for(ConfigDataHash::const_iterator i = this->config_data.begin(); i != this->config_data.end(); i++)
+		{
+			if(i->first != last)
+				c = 1;
+			else
+				c++;
+			
+			std::cout << "[" << i->first << " " << c << "/" << this->config_data.count(i->first) << "]" << std::endl;
+			
+			for(KeyValList::const_iterator j = i->second.begin(); j != i->second.end(); j++)
+			{
+				std::cout << "\t" << j->first << " = " << j->second << std::endl;
+			}
+			
+			std::cout << "[/" << i->first << " " << c << "/" << this->config_data.count(i->first) << "]" << std::endl;
+			
+			last = i->first;
+		}
+		
+		for(ConfigDataHash::const_iterator i = this->config_data.begin(); i != this->config_data.end(); i++)
+		{
+			std::cout << "There are " << ConfValueEnum(this->config_data, i->first) << " <" << i->first << "> tags" << std::endl;
+			
+			for(int j = 0; j < ConfValueEnum(this->config_data, i->first); j++)
+			{
+				std::string foo;
+				if(ConfValue(this->config_data, i->first, "name", j, foo))
+				{
+					std::cout << "<" << i->first << ":name> " << foo << std::endl;
+				}
+				else
+				{
+					std::cout << "<" << i->first << ":name> undef" << std::endl;
+				}
+			}
+		}
+	}
+	else
+	{
+		log(DEFAULT, "There were errors in your configuration:\n%s", errstr.str().c_str());
 
 		if (bail)
 		{
@@ -651,22 +697,32 @@ void ServerConfig::Read(bool bail, userrec* user)
 		}
 		else
 		{
+			std::string errors = errstr.str();
+			std::string::size_type start;
+			unsigned int prefixlen;
+			
+			start = 0;
+			/* ":Config->ServerName NOTICE user->nick :" */
+			prefixlen = strlen(Config->ServerName) + strlen(user->nick) + 11;
+	
 			if (user)
 			{
 				WriteServ(user->fd,"NOTICE %s :There were errors in the configuration file:",user->nick);
-				while (!errstr.eof())
+				
+				while(start < errors.length())
 				{
-					errstr.getline(dataline,1024);
-					WriteServ(user->fd,"NOTICE %s :%s",user->nick,dataline);
+					WriteServ(user->fd, "NOTICE %s :%s",user->nick, errors.substr(start, 510 - prefixlen).c_str());
+					start += 510 - prefixlen;
 				}
 			}
 			else
 			{
 				WriteOpers("There were errors in the configuration file:");
-				while (!errstr.eof())
+				
+				while(start < errors.length())
 				{
-					errstr.getline(dataline,1024);
-					WriteOpers(dataline);
+					WriteOpers(errors.substr(start, 360).c_str());
+					start += 360;
 				}
 			}
 
@@ -690,21 +746,16 @@ void ServerConfig::Read(bool bail, userrec* user)
 		switch (Values[Index].datatype)
 		{
 			case DT_CHARPTR:
-				ConfValue(Values[Index].tag, Values[Index].value, 0, val_c, &this->config_f);
+				/* Assuming MAXBUF here, potentially unsafe */
+				ConfValue(this->config_data, Values[Index].tag, Values[Index].value, 0, val_c, MAXBUF);
 			break;
 
 			case DT_INTEGER:
-				convert = new char[MAXBUF];
-				ConfValue(Values[Index].tag, Values[Index].value, 0, convert, &this->config_f);
-				*val_i = atoi(convert);
-				delete[] convert;
+				ConfValueInteger(this->config_data, Values[Index].tag, Values[Index].value, 0, *val_i);
 			break;
 
 			case DT_BOOLEAN:
-				convert = new char[MAXBUF];
-				ConfValue(Values[Index].tag, Values[Index].value, 0, convert, &this->config_f);
-				*val_i = ((*convert == tolower('y')) || (*convert == tolower('t')) || (*convert == '1'));
-				delete[] convert;
+				*val_i = ConfValueBool(this->config_data, Values[Index].tag, Values[Index].value, 0);
 			break;
 
 			case DT_NOTHING:
@@ -723,17 +774,19 @@ void ServerConfig::Read(bool bail, userrec* user)
 	 * and call the callbacks associated with them. We have three
 	 * callbacks for these, a 'start', 'item' and 'end' callback.
 	 */
+	
+	/* XXX - Make this use ConfValueInteger and so on */
 	for (int Index = 0; MultiValues[Index].tag; Index++)
 	{
 		MultiValues[Index].init_function(MultiValues[Index].tag);
 
-		int number_of_tags = ConfValueEnum((char*)MultiValues[Index].tag, &this->config_f);
+		int number_of_tags = ConfValueEnum(this->config_data, MultiValues[Index].tag);
 
 		for (int tagnum = 0; tagnum < number_of_tags; tagnum++)
 		{
 			for (int valuenum = 0; MultiValues[Index].items[valuenum]; valuenum++)
 			{
-				ConfValue((char*)MultiValues[Index].tag,(char*)MultiValues[Index].items[valuenum], tagnum, data[valuenum], &this->config_f);
+				ConfValue(this->config_data, MultiValues[Index].tag, MultiValues[Index].items[valuenum], tagnum, data[valuenum], MAXBUF);
 
 				switch (MultiValues[Index].datatype[valuenum])
 				{
@@ -924,6 +977,7 @@ bool DaemonSeed()
  * to work with other API functions
  */
 
+/* XXX - Needed? */
 bool FileExists (const char* file)
 {
 	FILE *input;
@@ -938,551 +992,396 @@ bool FileExists (const char* file)
 	}
 }
 
-/* ConfProcess does the following things to a config line in the following order:
- *
- * Processes the line for syntax errors as shown below
- *  (1) Line void of quotes or equals (a malformed, illegal tag format)
- *  (2) Odd number of quotes on the line indicating a missing quote
- *  (3) number of equals signs not equal to number of quotes / 2 (missing an equals sign)
- *  (4) Spaces between the opening bracket (<) and the keyword
- *  (5) Spaces between a keyword and an equals sign
- *  (6) Spaces between an equals sign and a quote
- * Removes trailing spaces
- * Removes leading spaces
- * Converts tabs to spaces
- * Turns multiple spaces that are outside of quotes into single spaces
- */
-
-std::string ServerConfig::ConfProcess(char* buffer, long linenumber, std::stringstream* errorstream, bool &error, std::string filename)
+bool ServerConfig::LoadConf(ConfigDataHash &target, const char* filename, std::ostringstream &errorstream)
 {
-	long number_of_quotes = 0;
-	long number_of_equals = 0;
-	bool has_open_bracket = false;
-	bool in_quotes = false;
-	char* trailing;
-
-	error = false;
-	if (!buffer)
+	std::ifstream conf(filename);
+	std::string line;
+	char ch;
+	long linenumber;
+	bool in_tag;
+	bool in_quote;
+	bool in_comment;
+	
+	linenumber = 1;
+	in_tag = false;
+	in_quote = false;
+	in_comment = false;
+	
+	/* Check if the file open failed first */
+	if (!conf)
 	{
-		return "";
-	}
-	// firstly clean up the line by stripping spaces from the start and end and converting tabs to spaces
-	for (char* d = buffer; *d; d++)
-		if (*d == 9)
-			*d = ' ';
-	while (*buffer == ' ') buffer++;
-	trailing = buffer + strlen(buffer) - 1;
-	while (*trailing == ' ') *trailing-- = '\0';
-
-	// empty lines are syntactically valid, as are comments
-	if (!(*buffer) || buffer[0] == '#')
-		return "";
-
-	for (char* c = buffer; *c; c++)
-	{
-		// convert all spaces that are OUTSIDE quotes into hardspace (0xA0) as this will make them easier to
-		// search and replace later :)
-		if ((!in_quotes) && (*c == ' '))
-			*c = '\xA0';
-		if ((*c == '<') && (!in_quotes))
-		{
-			has_open_bracket = true;
-			if (!(*(buffer+1)))
-			{
-				*errorstream << "Tag without identifier at " << filename << ":" << linenumber << endl;
-				error = true;
-				return "";
-			}
-			else if ((tolower(*(c+1)) < 'a') || (tolower(*(c+1)) > 'z'))
-			{
-				*errorstream << "Invalid characters in identifier at " << filename << ":" << linenumber << endl;
-				error = true;
-				return "";
-			}
-		}
-		if (*c == '"')
-		{
-			number_of_quotes++;
-			in_quotes = (!in_quotes);
-		}
-		if ((*c == '=') && (!in_quotes))
-		{
-			number_of_equals++;
-			if (*(c+1) == 0)
-			{
-				*errorstream << "Variable without a value at " << filename << ":" << linenumber << endl;
-				error = true;
-				return "";
-			}
-			else if (*(c+1) != '"')
-			{
-				*errorstream << "Variable name not followed immediately by its value at " << filename << ":" << linenumber << endl;
-				error = true;
-				return "";
-			}
-			else if (c == buffer)
-			{
-				*errorstream << "Value without a variable (line starts with '=') at " << filename << ":" << linenumber << endl;
-				error = true;
-				return "";
-			}
-			else if (*(c-1) == '\xA0')
-			{
-				*errorstream << "Variable name not followed immediately by its value at " << filename << ":" << linenumber << endl;
-				error = true;
-				return "";
-			}
-		}
-	}
-	// no quotes, and no equals. something freaky.
-	if ((!number_of_quotes) || (!number_of_equals) && (strlen(buffer)>2) && (*buffer == '<'))
-	{
-		*errorstream << "Malformed tag at " << filename << ":" << linenumber << endl;
-		error = true;
-		return "";
-	}
-	// odd number of quotes. thats just wrong.
-	if ((number_of_quotes % 2) != 0)
-	{
-		*errorstream << "Missing \" at " << filename << ":" << linenumber << endl;
-		error = true;
-		return "";
-	}
-	if (number_of_equals < (number_of_quotes/2))
-	{
-		*errorstream << "Missing '=' at " << filename << ":" << linenumber << endl;
-	}
-	if (number_of_equals > (number_of_quotes/2))
-	{
-		*errorstream << "Too many '=' at " << filename << ":" << linenumber << endl;
-	}
-
-	std::string parsedata = buffer;
-	// turn multispace into single space
-	while (parsedata.find("\xA0\xA0") != std::string::npos)
-	{
-		parsedata.erase(parsedata.find("\xA0\xA0"),1);
-	}
-
-	// turn our hardspace back into softspace
-	for (unsigned int d = 0; d < parsedata.length(); d++)
-	{
-		if (parsedata[d] == '\xA0')
-			parsedata[d] = ' ';
-	}
-
-	// and we're done, the line is fine!
-	return parsedata;
-}
-
-int ServerConfig::fgets_safe(char* buffer, size_t maxsize, FILE* &file)
-{
-	char c_read = 0;
-	size_t n = 0;
-	char* bufptr = buffer;
-	while ((!feof(file)) && (c_read != '\n') && (c_read != '\r') && (n < maxsize))
-	{
-		c_read = fgetc(file);
-		if ((c_read != '\n') && (c_read != '\r'))
-		{
-			*bufptr++ = c_read;
-			n++;
-		}
-	}
-	*bufptr = 0;
-	return bufptr - buffer;
-}
-
-bool ServerConfig::LoadConf(const char* filename, std::stringstream *target, std::stringstream* errorstream)
-{
-	target->str("");
-	errorstream->str("");
-	long linenumber = 1;
-	// first, check that the file exists before we try to do anything with it
-	if (!FileExists(filename))
-	{
-		*errorstream << "File " << filename << " not found." << endl;
+		errorstream << "LoadConf: Couldn't open config file: " << filename << std::endl;
 		return false;
 	}
-	// Fix the chmod of the file to restrict it to the current user and group
+	
+	/* Fix the chmod of the file to restrict it to the current user and group */
 	chmod(filename,0600);
+	
 	for (unsigned int t = 0; t < include_stack.size(); t++)
 	{
 		if (std::string(filename) == include_stack[t])
 		{
-			*errorstream << "File " << filename << " is included recursively (looped inclusion)." << endl;
+			errorstream << "File " << filename << " is included recursively (looped inclusion)." << std::endl;
 			return false;
 		}
 	}
+	
+	/* It's not already included, add it to the list of files we've loaded */
 	include_stack.push_back(filename);
-	// now open it
-	FILE* conf = fopen(filename,"r");
-	char buffer[MAXBUF];
-	if (conf)
+	
+	/* Start reading characters... */	
+	while(conf.get(ch))
 	{
-		while (!feof(conf))
+		/*
+		 * Here we try and get individual tags on separate lines,
+		 * this would be so easy if we just made people format
+		 * their config files like that, but they don't so...
+		 * We check for a '<' and then know the line is over when
+		 * we get a '>' not inside quotes. If we find two '<' and
+		 * no '>' then die with an error.
+		 */
+		
+		if((ch == '#') && !in_quote)
+			in_comment = true;
+		
+		switch(ch)
 		{
-			if (fgets_safe(buffer, MAXBUF, conf))
+			case '\n':
+				linenumber++;
+			case '\r':
+				in_comment = false;
+			case '\0':
+				continue;
+			case '\t':
+				ch = ' ';
+		}
+		
+		if(in_comment)
+			continue;
+		
+		line += ch;
+		
+		if(ch == '<')
+		{
+			if(in_tag)
 			{
-				if ((!feof(conf)) && (buffer) && (*buffer))
+				if(!in_quote)
 				{
-					if ((buffer[0] != '#') && (buffer[0] != '\r')  && (buffer[0] != '\n'))
-					{
-						if (!strncmp(buffer,"<include file=\"",15))
-						{
-							char* buf = buffer;
-							char confpath[10240],newconf[10240];
-							// include file directive
-							buf += 15;	// advance to filename
-							for (char* j = buf; *j; j++)
-							{
-								if (*j == '\\')
-									*j = '/';
-								if (*j == '"')
-								{
-									*j = 0;
-									break;
-								}
-							}
-							log(DEBUG,"Opening included file '%s'",buf);
-							if (*buf != '/')
-							{
-								strlcpy(confpath,CONFIG_FILE,10240);
-								if (strstr(confpath,"/inspircd.conf"))
-								{
-									// leaves us with just the path
-									*(strstr(confpath,"/inspircd.conf")) = '\0';
-								}
-								snprintf(newconf,10240,"%s/%s",confpath,buf);
-							}
-							else strlcpy(newconf,buf,10240);
-							std::stringstream merge(stringstream::in | stringstream::out);
-							// recursively call LoadConf and get the new data, use the same errorstream
-							if (LoadConf(newconf, &merge, errorstream))
-							{
-								// append to the end of the file
-								std::string newstuff = merge.str();
-								*target << newstuff;
-							}
-							else
-							{
-								// the error propogates up to its parent recursively
-								// causing the config reader to bail at the top level.
-								fclose(conf);
-								return false;
-							}
-						}
-						else
-						{
-							bool error = false;
-							std::string data = this->ConfProcess(buffer,linenumber++,errorstream,error,filename);
-							if (error)
-							{
-								return false;
-							}
-							*target << data;
-						}
-					}
-					else linenumber++;
+					errorstream << "Got another opening < when the first one wasn't closed on line " << linenumber << std::endl;
+					return false;
+				}
+			}
+			else
+			{
+				if(in_quote)
+				{
+					errorstream << "We're in a quote but outside a tag, interesting. Line: " << linenumber << std::endl;
+					return false;
+				}
+				else
+				{
+					// errorstream << "Opening new config tag on line " << linenumber << std::endl;
+					in_tag = true;
 				}
 			}
 		}
-		fclose(conf);
+		else if(ch == '"')
+		{
+			if(in_tag)
+			{
+				if(in_quote)
+				{
+					// errorstream << "Closing quote in config tag on line " << linenumber << std::endl;
+					in_quote = false;
+				}
+				else
+				{
+					// errorstream << "Opening quote in config tag on line " << linenumber << std::endl;
+					in_quote = true;
+				}
+			}
+			else
+			{
+				if(in_quote)
+				{
+					errorstream << "Found a (closing) \" outside a tag on line " << linenumber << std::endl;
+				}
+				else
+				{
+					errorstream << "Found a (opening) \" outside a tag on line " << linenumber << std::endl;
+				}
+			}
+		}
+		else if(ch == '>')
+		{
+			if(!in_quote)
+			{
+				if(in_tag)
+				{
+					// errorstream << "Closing config tag on line " << linenumber << std::endl;
+					in_tag = false;
+
+					/*
+					 * If this finds an <include> then ParseLine can simply call
+					 * LoadConf() and load the included config into the same ConfigDataHash
+					 */
+					
+					if(!this->ParseLine(target, line, linenumber, errorstream))
+						return false;
+					
+					line.clear();
+				}
+				else
+				{
+					errorstream << "Got a closing > when we weren't inside a tag on line " << linenumber << std::endl;
+					return false;
+				}
+			}
+		}
 	}
-	target->seekg(0);
+	
 	return true;
 }
 
-/* Counts the number of tags of a certain type within the config file, e.g. to enumerate opers */
-
-int ServerConfig::EnumConf(std::stringstream *config, const char* tag)
+bool ServerConfig::LoadConf(ConfigDataHash &target, const std::string &filename, std::ostringstream &errorstream)
 {
-	int ptr = 0;
-	char buffer[MAXBUF], c_tag[MAXBUF], c, lastc;
-	int in_token, in_quotes, tptr, idx = 0;
+	return this->LoadConf(target, filename.c_str(), errorstream);
+}
 
-	std::string x = config->str();
-	const char* buf = x.c_str();
-	char* bptr = (char*)buf;
+bool ServerConfig::ParseLine(ConfigDataHash &target, std::string &line, long linenumber, std::ostringstream &errorstream)
+{
+	std::string tagname;
+	std::string current_key;
+	std::string current_value;
+	KeyValList results;
+	bool got_name;
+	bool got_key;
+	bool in_quote;
 	
-	ptr = 0;
-	in_token = 0;
-	in_quotes = 0;
-	lastc = '\0';
-	while (*bptr)
+	got_name = got_key = in_quote = false;
+	
+	std::cout << "ParseLine(data, '" << line << "', " << linenumber << ", stream)" << std::endl;
+	
+	for(std::string::iterator c = line.begin(); c != line.end(); c++)
 	{
-		lastc = c;
-		c = *bptr++;
-		if ((c == '#') && (lastc == '\n'))
+		if(!got_name)
 		{
-			while ((c != '\n') && (*bptr))
+			/* We don't know the tag name yet. */
+			
+			if(*c != ' ')
 			{
-				lastc = c;
-				c = *bptr++;
-			}
-		}
-		if ((c == '<') && (!in_quotes))
-		{
-			tptr = 0;
-			in_token = 1;
-			do {
-				c = *bptr++;
-				if (c != ' ')
+				if(*c != '<')
 				{
-					c_tag[tptr++] = c;
-					c_tag[tptr] = '\0';
+					tagname += *c;
 				}
-			} while (c != ' ');
-		}
-		if (c == '"')
-		{
-			in_quotes = (!in_quotes);
-		}
-		if ((c == '>') && (!in_quotes))
-		{
-			in_token = 0;
-			if (!strcmp(c_tag,tag))
-			{
-				/* correct tag, but wrong index */
-				idx++;
 			}
-			c_tag[0] = '\0';
-			buffer[0] = '\0';
-			ptr = 0;
-			tptr = 0;
-		}
-		if (c != '>')
-		{
-			if ((in_token) && (c != '\n') && (c != '\r'))
+			else
 			{
-				buffer[ptr++] = c;
-				buffer[ptr] = '\0';
+				/* We got to a space, we should have the tagname now. */
+				if(tagname.length())
+				{
+					got_name = true;
+				}
+			}
+		}
+		else
+		{
+			/* We have the tag name */
+			if(!got_key)
+			{
+				/* We're still reading the key name */
+				if(*c != '=')
+				{
+					if(*c != ' ')
+					{
+						current_key += *c;
+					}
+				}
+				else
+				{
+					/* We got an '=', end of the key name. */
+					got_key = true;
+				}
+			}
+			else
+			{
+				/* We have the key name, now we're looking for quotes and the value */
+				if(*c == '"')
+				{
+					if(!in_quote)
+					{
+						/* We're not already in a quote. */
+						in_quote = true;
+					}
+					else
+					{
+						/* Leaving quotes, we have the value */
+						results.push_back(KeyVal(current_key, current_value));
+						std::cout << "<" << tagname << ":" << current_key << "> " << current_value << std::endl;
+						in_quote = false;
+						got_key = false;
+						
+						if((tagname == "include") && (current_key == "file"))
+						{
+							this->DoInclude(target, current_value, errorstream);
+						}
+						
+						current_key.clear();
+						current_value.clear();
+					}
+				}
+				else
+				{
+					if(in_quote)
+					{
+						current_value += *c;
+					}
+				}
 			}
 		}
 	}
-	return idx;
+	
+	/* Finished parsing the tag, add it to the config hash */
+	target.insert(std::pair<std::string, KeyValList > (tagname, results));
+	std::cout << "Finished parsing " << tagname << std::endl;
+	std::cout << "Count of <server> tag: " << target.count("server") << std::endl;
+	
+	return true;
 }
 
-/* Counts the number of values within a certain tag */
-
-int ServerConfig::EnumValues(std::stringstream *config, const char* tag, int index)
+bool ServerConfig::DoInclude(ConfigDataHash &target, const std::string &file, std::ostringstream &errorstream)
 {
-	int ptr = 0;
-	char buffer[MAXBUF], c_tag[MAXBUF], c, lastc;
-	int in_token, in_quotes, tptr, idx = 0;
-	bool correct_tag = false;
-	int num_items = 0;
-	const char* buf = config->str().c_str();
-	char* bptr = (char*)buf;
-
-	ptr = 0;
-	in_token = 0;
-	in_quotes = 0;
-	lastc = 0;
-
-	while (*bptr)
+	std::string confpath;
+	std::string newfile;
+	std::string::size_type pos;
+	
+	confpath = CONFIG_FILE;
+	newfile = file;
+	
+	for (std::string::iterator c = newfile.begin(); c != newfile.end(); c++)
 	{
-		lastc = c;
-		c = *bptr++;
-		if ((c == '#') && (lastc == '\n'))
+		if (*c == '\\')
 		{
-			while ((c != '\n') && (*bptr))
-			{
-				lastc = c;
-				c = *bptr++;
-			}
+			*c = '/';
 		}
-		if ((c == '<') && (!in_quotes))
+	}
+
+	if (file[0] != '/')
+	{
+		if((pos = confpath.find("/inspircd.conf")) != std::string::npos)
 		{
-			tptr = 0;
-			in_token = 1;
-			do {
-				c = *bptr++;
-				if (c != ' ')
-				{
-					c_tag[tptr++] = c;
-					c_tag[tptr] = '\0';
-					
-					if ((!strcmp(c_tag,tag)) && (idx == index))
-					{
-						correct_tag = true;
-					}
-				}
-			} while (c != ' ');
+			/* Leaves us with just the path */
+			newfile = confpath.substr(0, pos) + std::string("/") + newfile;
 		}
-		if (c == '"')
+		else
 		{
-			in_quotes = (!in_quotes);
+			errorstream << "Couldn't get config path from: " << confpath << std::endl;
+			return false;
 		}
+	}
+	
+	return LoadConf(target, newfile, errorstream);
+}
+
+bool ServerConfig::ConfValue(ConfigDataHash &target, const char* tag, const char* var, int index, char* result, int length)
+{
+	std::string value;
+	bool r = ConfValue(target, std::string(tag), std::string(var), index, value);
+	strlcpy(result, value.c_str(), length);
+	return r;
+}
+
+bool ServerConfig::ConfValue(ConfigDataHash &target, const std::string &tag, const std::string &var, int index, std::string &result)
+{
+	ConfigDataHash::size_type pos = index;
+	if((pos >= 0) && (pos < target.count(tag)))
+	{
+		ConfigDataHash::const_iterator iter = target.find(tag);
 		
-		if ( (correct_tag) && (!in_quotes) && ( (c == ' ') || (c == '\n') || (c == '\r') ) )
+		for(int i = 0; i < index; i++)
+			iter++;
+		
+		for(KeyValList::const_iterator j = iter->second.begin(); j != iter->second.end(); j++)
 		{
-			num_items++;
-		}
-		if ((c == '>') && (!in_quotes))
-		{
-			in_token = 0;
-			if (correct_tag)
-				correct_tag = false;
-			if (!strcmp(c_tag,tag))
+			if(j->first == var)
 			{
-				/* correct tag, but wrong index */
-				idx++;
-			}
-			c_tag[0] = '\0';
-			buffer[0] = '\0';
-			ptr = 0;
-			tptr = 0;
-		}
-		if (c != '>')
-		{
-			if ((in_token) && (c != '\n') && (c != '\r'))
-			{
-				buffer[ptr++] = c;
-				buffer[ptr] = '\0';
+				result = j->second;
+				return true;
 			}
 		}
 	}
-	return num_items+1;
-}
-
-
-int ServerConfig::ConfValueEnum(char* tag, std::stringstream* config)
-{
-	return EnumConf(config,tag);
-}
-
-
-int ServerConfig::ReadConf(std::stringstream *config, const char* tag, const char* var, int index, char *result)
-{
-	int ptr = 0;
-	char buffer[65535], c_tag[MAXBUF], c, lastc, varname[MAXBUF];
-	int in_token, in_quotes, tptr, idx = 0;
-	char* key;
-	char* bptr = (char*)config->str().c_str();
-	
-	ptr = 0;
-	in_token = 0;
-	in_quotes = 0;
-	lastc = 0;
-	c_tag[0] = 0;
-	buffer[0] = 0;
-	
-	/*
-	 * Fun bug here, if was searching for whatever var was  *in the whole tag*,
-	 * so if you had the name of the var you were searching for in one of the values
-	 * it would try to use that part of a value as the varnme, usually giving a value
-	 * something like "anothervarname="
-	 */
-	strlcpy(varname, var, MAXBUF);
-	strlcat(varname, "=", MAXBUF);
-
-	while (*bptr)
+	else
 	{
-		lastc = c;
-		c = *bptr++;
-		// FIX: Treat tabs as spaces
-		if (c == 9)
-			c = 32;
-		if ((c == '<') && (!in_quotes))
-		{
-			tptr = 0;
-			in_token = 1;
-			do {
-				c = *bptr++;
-				if (c != ' ')
-				{
-					c_tag[tptr++] = c;
-					c_tag[tptr] = '\0';
-				}
-			// FIX: Tab can follow a tagname as well as space.
-			} while ((c != ' ') && (c != 9));
-		}
-		if (c == '"')
-		{
-			in_quotes = (!in_quotes);
-		}
-		if ((c == '>') && (!in_quotes))
-		{
-			in_token = 0;
-			if (idx == index)
-			{
-				if (!strcmp(c_tag,tag))
-				{
-					if ((buffer) && (c_tag) && (var))
-					{
-						key = strstr(buffer,varname);
-						if (!key)
-						{
-							/* value not found in tag */
-							*result = 0;
-							return 0;
-						}
-						else
-						{
-							key+=strlen(var);
-							while (*key !='"')
-							{
-								if (!*key)
-								{
-									/* missing quote */
-									*result = 0;
-									return 0;
-								}
-								key++;
-							}
-							key++;
-							for (char* j = key; *j; j++)
-							{
-								if (*j == '"')
-								{
-									*j = 0;
-									break;
-								}
-							}
-							strlcpy(result,key,MAXBUF);
-							return 1;
-						}
-					}
-				}
-			}
-			if (!strcmp(c_tag,tag))
-			{
-				/* correct tag, but wrong index */
-				idx++;
-			}
-			c_tag[0] = '\0';
-			buffer[0] = '\0';
-			ptr = 0;
-			tptr = 0;
-		}
-		if (c != '>')
-		{
-			if ((in_token) && (c != '\n') && (c != '\r'))
-			{
-				buffer[ptr++] = c;
-				buffer[ptr] = '\0';
-			}
-		}
+		log(DEBUG, "ConfValue got an out-of-range index %d", index);
 	}
 	
-	*result = 0; // value or its tag not found at all
-	return 0;
+	return false;
+}
+	
+bool ServerConfig::ConfValueInteger(ConfigDataHash &target, const char* tag, const char* var, int index, int &result)
+{
+	return ConfValueInteger(target, std::string(tag), std::string(var), index, result);
 }
 
-
-
-int ServerConfig::ConfValue(char* tag, char* var, int index, char *result,std::stringstream *config)
+bool ServerConfig::ConfValueInteger(ConfigDataHash &target, const std::string &tag, const std::string &var, int index, int &result)
 {
-	ReadConf(config, tag, var, index, result);
-	return 0;
+	std::string value;
+	std::istringstream stream;
+	bool r = ConfValue(target, tag, var, index, value);
+	stream.str(value);
+	if(!(stream >> result))
+		return false;
+	return r;
+}
+	
+bool ServerConfig::ConfValueBool(ConfigDataHash &target, const char* tag, const char* var, int index)
+{
+	return ConfValueBool(target, std::string(tag), std::string(var), index);
 }
 
-int ServerConfig::ConfValueInteger(char* tag, char* var, int index, std::stringstream *config)
+bool ServerConfig::ConfValueBool(ConfigDataHash &target, const std::string &tag, const std::string &var, int index)
 {
-	char result[MAXBUF];
-	ReadConf(config, tag, var, index, result);
-	return atoi(result);
+	std::string result;
+	if(!ConfValue(target, tag, var, index, result))
+		return false;
+	
+	return ((result == "yes") || (result == "true") || (result == "1"));
+}
+	
+int ServerConfig::ConfValueEnum(ConfigDataHash &target, const char* tag)
+{
+	return ConfValueEnum(target, std::string(tag));
+}
+
+int ServerConfig::ConfValueEnum(ConfigDataHash &target, const std::string &tag)
+{
+	return target.count(tag);
+}
+	
+int ServerConfig::ConfVarEnum(ConfigDataHash &target, const char* tag, int index)
+{
+	return 1;
+}
+
+int ServerConfig::ConfVarEnum(ConfigDataHash &target, const std::string &tag, int index)
+{
+	ConfigDataHash::size_type pos = index;
+	
+	if((pos >= 0) && (pos < target.count(tag)))
+	{
+		ConfigDataHash::const_iterator iter = target.find(tag);
+		
+		for(int i = 0; i < index; i++)
+			iter++;
+		
+		return iter->second.size();
+	}
+	else
+	{
+		log(DEBUG, "ConfVarEnum got an out-of-range index %d", index);
+	}
+	
+	return 0;
 }
 
 /** This will bind a socket to a port. It works for UDP/TCP.
@@ -1599,11 +1498,12 @@ int BindPorts(bool bail)
 		int InitialPortCount = ServerInstance->stats->BoundPortCount;
 		log(DEBUG,"Initial port count: %d",InitialPortCount);
 
-		for (int count = 0; count < Config->ConfValueEnum("bind",&Config->config_f); count++)
+		for (int count = 0; count < Config->ConfValueEnum(Config->config_data, "bind"); count++)
 		{
-			Config->ConfValue("bind","port",count,configToken,&Config->config_f);
-			Config->ConfValue("bind","address",count,Addr,&Config->config_f);
-			Config->ConfValue("bind","type",count,Type,&Config->config_f);
+			Config->ConfValue(Config->config_data, "bind", "port", count, configToken, MAXBUF);
+			Config->ConfValue(Config->config_data, "bind", "address", count, Addr, MAXBUF);
+			Config->ConfValue(Config->config_data, "bind", "type", count, Type, MAXBUF);
+
 			if (((!*Type) || (!strcmp(Type,"clients"))) && (!HasPort(atoi(configToken),Addr)))
 			{
 				// modules handle server bind types now
@@ -1646,11 +1546,11 @@ int BindPorts(bool bail)
 		return InitialPortCount;
 	}
 
-	for (int count = 0; count < Config->ConfValueEnum("bind",&Config->config_f); count++)
+	for (int count = 0; count < Config->ConfValueEnum(Config->config_data, "bind"); count++)
 	{
-		Config->ConfValue("bind","port",count,configToken,&Config->config_f);
-		Config->ConfValue("bind","address",count,Addr,&Config->config_f);
-		Config->ConfValue("bind","type",count,Type,&Config->config_f);
+		Config->ConfValue(Config->config_data, "bind", "port", count, configToken, MAXBUF);
+		Config->ConfValue(Config->config_data, "bind", "address", count, Addr, MAXBUF);
+		Config->ConfValue(Config->config_data, "bind", "type", count, Type, MAXBUF);
 
 		if ((!*Type) || (!strcmp(Type,"clients")))
 		{

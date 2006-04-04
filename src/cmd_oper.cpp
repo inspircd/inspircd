@@ -90,23 +90,24 @@ void cmd_oper::Handle (char **parameters, int pcnt, userrec *user)
 
 	snprintf(TheHost,MAXBUF,"%s@%s",user->ident,user->host);
 
-	for (int i = 0; i < Config->ConfValueEnum("oper",&Config->config_f); i++)
+	for (int i = 0; i < Config->ConfValueEnum(Config->config_data, "oper"); i++)
 	{
-		Config->ConfValue("oper","name",i,LoginName,&Config->config_f);
-		Config->ConfValue("oper","password",i,Password,&Config->config_f);
-		Config->ConfValue("oper","type",i,OperType,&Config->config_f);
-		Config->ConfValue("oper","host",i,HostName,&Config->config_f);
+		Config->ConfValue(Config->config_data, "oper", "name", i, LoginName, MAXBUF);
+		Config->ConfValue(Config->config_data, "oper", "password", i, Password, MAXBUF);
+		Config->ConfValue(Config->config_data, "oper", "type", i, OperType, MAXBUF);
+		Config->ConfValue(Config->config_data, "oper", "host", i, HostName, MAXBUF);
+
 		if ((!strcmp(LoginName,parameters[0])) && (!operstrcmp(Password,parameters[1])) && (OneOfMatches(TheHost,HostName)))
 		{
 			fail2 = true;
-			for (j =0; j < Config->ConfValueEnum("type",&Config->config_f); j++)
+			for (j =0; j < Config->ConfValueEnum(Config->config_data, "type"); j++)
 			{
-				Config->ConfValue("type","name",j,TypeName,&Config->config_f);
+				Config->ConfValue(Config->config_data, "type","name", j, TypeName, MAXBUF);
 
 				if (!strcmp(TypeName,OperType))
 				{
 					/* found this oper's opertype */
-					Config->ConfValue("type","host",j,HostName,&Config->config_f);
+					Config->ConfValue(Config->config_data, "type","host", j, HostName, MAXBUF);
 					if (*HostName)
 						ChangeDisplayedHost(user,HostName);
 					if (!isnick(TypeName))
@@ -158,5 +159,3 @@ void cmd_oper::Handle (char **parameters, int pcnt, userrec *user)
 	}
 	return;
 }
-
-

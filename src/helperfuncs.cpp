@@ -955,7 +955,7 @@ void WriteCommonExcept_NoFormat(userrec *u, const char* text)
  * uses the oper list, which means if you have 2000 users but only 5 opers,
  * it iterates 5 times.
  */
-void WriteOpers(char* text, ...)
+void WriteOpers(const char* text, ...)
 {
 	char textbuffer[MAXBUF];
 	va_list argsPtr;
@@ -1852,19 +1852,12 @@ void LoadAllModules(InspIRCd* ServerInstance)
 	Config->module_names.clear();
 	MODCOUNT = -1;
                                         
-	for (int count = 0; count < Config->ConfValueEnum("module",&Config->config_f); count++)
+	for (int count = 0; count < Config->ConfValueEnum(Config->config_data, "module"); count++)
 	{
-		Config->ConfValue("module","name",count,configToken,&Config->config_f);
+		Config->ConfValue(Config->config_data, "module","name",count,configToken,MAXBUF);
 		printf("[\033[1;32m*\033[0m] Loading module:\t\033[1;32m%s\033[0m\n",configToken);
 		
 		if (!ServerInstance->LoadModule(configToken))                
-		{
-			log(DEFAULT,"Exiting due to a module loader error.");
-			printf("\nThere was an error loading a module: %s\n\n",ServerInstance->ModuleError());
-			Exit(0);
-		}
-
-		if (!ServerInstance->LoadModule(configToken))
 		{
 			log(DEFAULT,"Exiting due to a module loader error.");
 			printf("\nThere was an error loading a module: %s\n\n",ServerInstance->ModuleError());
