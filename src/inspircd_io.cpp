@@ -1042,10 +1042,7 @@ bool ServerConfig::LoadConf(ConfigDataHash &target, const char* filename, std::o
 		 */
 		
 		if((ch == '#') && !in_quote)
-		{
 			in_comment = true;
-			continue;
-		}
 		
 		switch(ch)
 		{
@@ -1059,6 +1056,9 @@ bool ServerConfig::LoadConf(ConfigDataHash &target, const char* filename, std::o
 				ch = ' ';
 		}
 		
+		if(in_comment)
+			continue;
+		
 		line += ch;
 		
 		if(ch == '<')
@@ -1067,7 +1067,7 @@ bool ServerConfig::LoadConf(ConfigDataHash &target, const char* filename, std::o
 			{
 				if(!in_quote)
 				{
-					errorstream << "Got another opening < when the first one wasn't closed on line " << linenumber << std::endl;
+					errorstream << "Got another opening < when the first one wasn't closed: " << filename << ":" << linenumber << std::endl;
 					return false;
 				}
 			}
@@ -1075,7 +1075,7 @@ bool ServerConfig::LoadConf(ConfigDataHash &target, const char* filename, std::o
 			{
 				if(in_quote)
 				{
-					errorstream << "We're in a quote but outside a tag, interesting. Line: " << linenumber << std::endl;
+					errorstream << "We're in a quote but outside a tag, interesting. " << filename << ":" << linenumber << std::endl;
 					return false;
 				}
 				else
@@ -1104,11 +1104,11 @@ bool ServerConfig::LoadConf(ConfigDataHash &target, const char* filename, std::o
 			{
 				if(in_quote)
 				{
-					errorstream << "Found a (closing) \" outside a tag on line " << linenumber << std::endl;
+					errorstream << "Found a (closing) \" outside a tag: " << filename << ":" << linenumber << std::endl;
 				}
 				else
 				{
-					errorstream << "Found a (opening) \" outside a tag on line " << linenumber << std::endl;
+					errorstream << "Found a (opening) \" outside a tag: " << filename << ":" << linenumber << std::endl;
 				}
 			}
 		}
@@ -1133,7 +1133,7 @@ bool ServerConfig::LoadConf(ConfigDataHash &target, const char* filename, std::o
 				}
 				else
 				{
-					errorstream << "Got a closing > when we weren't inside a tag on line " << linenumber << std::endl;
+					errorstream << "Got a closing > when we weren't inside a tag: " << filename << ":" << linenumber << std::endl;
 					return false;
 				}
 			}
@@ -1160,7 +1160,7 @@ bool ServerConfig::ParseLine(ConfigDataHash &target, std::string &line, long lin
 	
 	got_name = got_key = in_quote = false;
 	
-	std::cout << "ParseLine(data, '" << line << "', " << linenumber << ", stream)" << std::endl;
+	// std::cout << "ParseLine(data, '" << line << "', " << linenumber << ", stream)" << std::endl;
 	
 	for(std::string::iterator c = line.begin(); c != line.end(); c++)
 	{
@@ -1243,8 +1243,6 @@ bool ServerConfig::ParseLine(ConfigDataHash &target, std::string &line, long lin
 	
 	/* Finished parsing the tag, add it to the config hash */
 	target.insert(std::pair<std::string, KeyValList > (tagname, results));
-	std::cout << "Finished parsing " << tagname << std::endl;
-	std::cout << "Count of <server> tag: " << target.count("server") << std::endl;
 	
 	return true;
 }
@@ -1312,7 +1310,7 @@ bool ServerConfig::ConfValue(ConfigDataHash &target, const std::string &tag, con
 	}
 	else
 	{
-		log(DEBUG, "ConfValue got an out-of-range index %d", index);
+		log(DEBUG, "ConfValue got an out-of-range index %d", pos);
 	}
 	
 	return false;
@@ -1378,7 +1376,7 @@ int ServerConfig::ConfVarEnum(ConfigDataHash &target, const std::string &tag, in
 	}
 	else
 	{
-		log(DEBUG, "ConfVarEnum got an out-of-range index %d", index);
+		log(DEBUG, "ConfVarEnum got an out-of-range index %d", pos);
 	}
 	
 	return 0;
