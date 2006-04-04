@@ -38,6 +38,9 @@ void WriteChannel(chanrec* Ptr, userrec* user, char* text, ...);
 void WriteChannelLocal(chanrec* Ptr, userrec* user, char* text, ...);
 void WriteChannelWithServ(char* ServName, chanrec* Ptr, char* text, ...);
 void ChanExceptSender(chanrec* Ptr, userrec* user, char status, char* text, ...);
+void WriteCommon(userrec *u, char* text, ...);
+void WriteCommonExcept(userrec *u, char* text, ...);
+void WriteOpers(const char* text, ...);
 
 void Write_NoFormat(int sock,const char *text);
 void WriteServ_NoFormat(int sock, const char* text);
@@ -49,11 +52,9 @@ void WriteChannelWithServ_NoFormat(char* ServName, chanrec* Ptr, const char* tex
 void ChanExceptSender_NoFormat(chanrec* Ptr, userrec* user, char status, const char* text);
 void WriteCommon_NoFormat(userrec *u, const char* text);
 void WriteCommonExcept_NoFormat(userrec *u, const char* text);
+void WriteOpers_NoFormat(const char* text);
 
 std::string GetServerDescription(char* servername);
-void WriteCommon(userrec *u, char* text, ...);
-void WriteCommonExcept(userrec *u, char* text, ...);
-void WriteOpers(const char* text, ...);
 void WriteMode(const char* modes, int flags, const char* text, ...);
 void NoticeAll(userrec *source, bool local_only, char* text, ...);
 void ServerNoticeAll(char* text, ...);

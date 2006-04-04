@@ -970,6 +970,17 @@ void WriteOpers(const char* text, ...)
 	vsnprintf(textbuffer, MAXBUF, text, argsPtr);
 	va_end(argsPtr);
 
+	WriteOpers_NoFormat(textbuffer);
+}
+
+void WriteOpers_NoFormat(const char* text)
+{
+	if (!text)
+	{
+		log(DEFAULT,"*** BUG *** WriteOpers_NoFormat was given an invalid parameter");
+		return;
+	}
+
 	for (std::vector<userrec*>::iterator i = all_opers.begin(); i != all_opers.end(); i++)
 	{
 		userrec* a = *i;
@@ -979,7 +990,7 @@ void WriteOpers(const char* text, ...)
 			if (a->modebits & UM_SERVERNOTICE)
 			{
 				// send server notices to all with +s
-				WriteServ(a->fd,"NOTICE %s :%s",a->nick,textbuffer);
+				WriteServ(a->fd,"NOTICE %s :%s",a->nick,text);
 			}
 		}
 	}
