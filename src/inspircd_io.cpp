@@ -1200,7 +1200,9 @@ bool ServerConfig::ParseLine(ConfigDataHash &target, std::string &line, long lin
 					{
 						/* Leaving quotes, we have the value */
 						results.push_back(KeyVal(current_key, current_value));
-						std::cout << "<" << tagname << ":" << current_key << "> " << current_value << std::endl;
+						
+						// std::cout << "<" << tagname << ":" << current_key << "> " << current_value << std::endl;
+						
 						in_quote = false;
 						got_key = false;
 						
