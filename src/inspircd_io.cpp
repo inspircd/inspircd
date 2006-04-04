@@ -52,7 +52,7 @@ ServerConfig::ServerConfig()
 	*CustomVersion = *motd = *rules = *PrefixQuit = *DieValue = *DNSServer = '\0';
 	*OperOnlyStats = *ModPath = *MyExecutable = *DisabledCommands = *PID = '\0';
 	log_file = NULL;
-	OperSpyWhois = nofork = HideBans = HideSplits = unlimitcore = false;
+	OperSpyWhois = nofork = HideBans = HideSplits = false;
 	AllowHalfop = true;
 	dns_timeout = DieDelay = 5;
 	MaxTargets = 20;
@@ -901,20 +901,17 @@ bool DaemonSeed()
 	umask (007);
 	printf("InspIRCd Process ID: \033[1;32m%lu\033[0m\n",(unsigned long)getpid());
 
-	if (Config->unlimitcore)
+	rlimit rl;
+	if (getrlimit(RLIMIT_CORE, &rl) == -1)
 	{
-		rlimit rl;
-		if (getrlimit(RLIMIT_CORE, &rl) == -1)
-		{
-			log(DEFAULT,"Failed to getrlimit()!");
-			return false;
-		}
-		else
-		{
-			rl.rlim_cur = rl.rlim_max;
-			if (setrlimit(RLIMIT_CORE, &rl) == -1)
-				log(DEFAULT,"setrlimit() failed, cannot increase coredump size.");
-		}
+		log(DEFAULT,"Failed to getrlimit()!");
+		return false;
+	}
+	else
+	{
+		rl.rlim_cur = rl.rlim_max;
+		if (setrlimit(RLIMIT_CORE, &rl) == -1)
+			log(DEFAULT,"setrlimit() failed, cannot increase coredump size.");
 	}
   
 	return true;
