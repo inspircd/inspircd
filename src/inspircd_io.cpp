@@ -1223,7 +1223,8 @@ bool ServerConfig::ParseLine(ConfigDataHash &target, std::string &line, long lin
 						
 						if((tagname == "include") && (current_key == "file"))
 						{
-							this->DoInclude(target, current_value, errorstream);
+							if(!this->DoInclude(target, current_value, errorstream))
+								return false;
 						}
 						
 						current_key.clear();
