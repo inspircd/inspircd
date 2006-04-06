@@ -46,12 +46,12 @@ class cmd_devoice : public command_t
 		 *
 		 * - I'm not aware what checking I need, so for now... be supreme evil.
 		 */
-                char* modes[3];
-                modes[0] = parameters[0];
-                modes[1] = "-v";
-                modes[2] = user->nick;
+		char* modes[3];
+		modes[0] = parameters[0];
+		modes[1] = "-v";
+		modes[2] = user->nick;
 
-                Srv->SendMode(modes,3,user);
+		Srv->SendMode(modes,3,user);
 	}
 };
 
@@ -96,7 +96,7 @@ class ModuleDeVoiceFactory : public ModuleFactory
 };
 
 
-extern "C" void * init_module( void )
+extern "C" void * devoice_init( void )
 {
 	return new ModuleDeVoiceFactory;
 }

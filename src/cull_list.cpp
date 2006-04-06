@@ -86,8 +86,8 @@ bool CullList::IsValid(userrec* user)
 
 CullItem::CullItem(userrec* u, std::string &r)
 {
-        this->user = u;
-        this->reason = r;
+	this->user = u;
+	this->reason = r;
 }
 
 CullItem::CullItem(userrec* u, const char* r)
@@ -102,27 +102,27 @@ CullItem::~CullItem()
 
 userrec* CullItem::GetUser()
 {
-        return this->user;
+	return this->user;
 }
 
 std::string& CullItem::GetReason()
 {
-        return this->reason;
+	return this->reason;
 }
 
 CullList::CullList()
 {
 	list.clear();
-        exempt.clear();
+	exempt.clear();
 }
 
 void CullList::AddItem(userrec* user, std::string &reason)
 {
 	if (exempt.find(user) == exempt.end())
 	{
-	        CullItem item(user,reason);
-	        list.push_back(item);
-	        exempt[user] = user->signon;
+		CullItem item(user,reason);
+		list.push_back(item);
+		exempt[user] = user->signon;
 	}
 }
 
@@ -138,13 +138,13 @@ void CullList::AddItem(userrec* user, const char* reason)
 
 int CullList::Apply()
 {
-        int n = 0;
-        while (list.size())
-        {
+	int n = 0;
+	while (list.size())
+	{
 		std::vector<CullItem>::iterator a = list.begin();
 
 		kill_link(a->GetUser(), a->GetReason().c_str());
 		list.erase(list.begin());
-        }
-        return n;
+	}
+	return n;
 }

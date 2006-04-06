@@ -60,22 +60,22 @@ class ModuleOperjoin : public Module
 class ModuleOperjoinFactory : public ModuleFactory
 {
 	public:
-	        ModuleOperjoinFactory()
-        	{
-	        }
+		ModuleOperjoinFactory()
+		{
+		}
 
-	        ~ModuleOperjoinFactory()
-        	{
-	        }
+		~ModuleOperjoinFactory()
+		{
+		}
 
-	        virtual Module * CreateModule(Server* Me)
-        	{
-                	return new ModuleOperjoin(Me);
-	        }
+		virtual Module * CreateModule(Server* Me)
+		{
+			return new ModuleOperjoin(Me);
+		}
 };
 
 extern "C" void * init_module( void )
 {
-        return new ModuleOperjoinFactory;
+	return new ModuleOperjoinFactory;
 }
 

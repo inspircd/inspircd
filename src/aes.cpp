@@ -1467,11 +1467,11 @@ int from64tobits(char *out, const char *in, int maxlen)
 	{
 	    ++len;
 	    if (maxlen && len > maxlen)
-	        return(-1);
+			return(-1);
 	    *out++ = ((DECODE64(digit2) << 4) & 0xf0) | (DECODE64(digit3) >> 2);
 	    if (digit4 != '=')
 	    {
-	        ++len;
+			++len;
 		if (maxlen && len > maxlen)
 		    return(-1);
 		*out++ = ((DECODE64(digit3) << 6) & 0xc0) | DECODE64(digit4);

@@ -3,7 +3,7 @@
  *       +------------------------------------+
  *
  *  InspIRCd is copyright (C) 2002-2006 ChatSpike-Dev.
- *                       E-mail:
+ *	     	          E-mail:
  *                <brain@chatspike.net>
  *                <Craig@chatspike.net>
  *
@@ -112,13 +112,13 @@ void cmd_topic::Handle (char **parameters, int pcnt, userrec *user)
 			char topic[MAXTOPIC];
 			strlcpy(topic,parameters[1],MAXTOPIC-1);
 
-                        if (IS_LOCAL(user))
-                        {
-                                int MOD_RESULT = 0;
-                                FOREACH_RESULT(I_OnLocalTopicChange,OnLocalTopicChange(user,Ptr,topic));
-                                if (MOD_RESULT)
-                                        return;
-                        }
+			if (IS_LOCAL(user))
+			{
+				int MOD_RESULT = 0;
+				FOREACH_RESULT(I_OnLocalTopicChange,OnLocalTopicChange(user,Ptr,topic));
+				if (MOD_RESULT)
+					return;
+			}
 
 			strlcpy(Ptr->topic,topic,MAXTOPIC-1);
 			strlcpy(Ptr->setby,user->nick,NICKMAX-1);

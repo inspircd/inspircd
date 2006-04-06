@@ -66,10 +66,10 @@ class ModuleOperChans : public Module
 		return 0;
 	}
 
-        virtual void On005Numeric(std::string &output)
-        {
+	virtual void On005Numeric(std::string &output)
+	{
 		InsertMode(output,"O",4);
-        }
+	}
 	
 	virtual int OnUserPreJoin(userrec* user, chanrec* chan, const char* cname)
 	{

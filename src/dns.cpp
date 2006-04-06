@@ -210,12 +210,12 @@ void DNS::dns_init()
 
 void DNS::dns_init_2(const char* dnsserver)
 {
-        in_addr addr4;
-        i4 = 0;
-        srand((unsigned int) TIME);
-        memset(servers4,'\0',sizeof(in_addr) * 8);
-        if (dns_aton4_s(dnsserver,&addr4) != NULL)
-            memcpy(&servers4[i4++],&addr4,sizeof(in_addr));
+	in_addr addr4;
+	i4 = 0;
+	srand((unsigned int) TIME);
+	memset(servers4,'\0',sizeof(in_addr) * 8);
+	if (dns_aton4_s(dnsserver,&addr4) != NULL)
+	    memcpy(&servers4[i4++],&addr4,sizeof(in_addr));
 }
 
 
@@ -704,13 +704,13 @@ bool DNS::ReverseLookup(const std::string &ip)
 {
 	if (ServerInstance && ServerInstance->stats)
 		ServerInstance->stats->statsDns++;
-        binip = dns_aton4(ip.c_str());
-        if (binip == NULL)
+	binip = dns_aton4(ip.c_str());
+	if (binip == NULL)
 	{
-                return false;
-        }
+		return false;
+	}
 
-        this->myfd = dns_getname4(binip);
+	this->myfd = dns_getname4(binip);
 	if (this->myfd == -1)
 	{
 		return false;
@@ -784,14 +784,14 @@ int DNS::GetFD()
 std::string DNS::GetResult()
 {
 	log(DEBUG,"DNS: GetResult()");
-        result = dns_getresult(this->myfd);
-        if (result)
+	result = dns_getresult(this->myfd);
+	if (result)
 	{
 		if (ServerInstance && ServerInstance->stats)
 			ServerInstance->stats->statsDnsGood++;
 		dns_close(this->myfd);
 		return result;
-        }
+	}
 	else
 	{
 		if (ServerInstance && ServerInstance->stats)
@@ -838,40 +838,40 @@ std::string DNS::GetResultIP()
 #ifdef THREADED_DNS
 void* dns_task(void* arg)
 {
-        userrec* u = (userrec*)arg;
-        log(DEBUG,"DNS thread for user %s",u->nick);
-        DNS dns1;
-        DNS dns2;
-        std::string host;
-        std::string ip;
-        if (dns1.ReverseLookup((char*)inet_ntoa(u->ip4)))
-        {
-                while (!dns1.HasResult())
-                {
-                        usleep(100);
-                }
-                host = dns1.GetResult();
-                if (host != "")
-                {
-                        if (dns2.ForwardLookup(host))
-                        {
-                                while (!dns2.HasResult())
-                                {
-                                        usleep(100);
-                                }
-                                ip = dns2.GetResultIP();
-                                if (ip == std::string((char*)inet_ntoa(u->ip4)))
-                                {
-                                        if (host.length() < 160)
-                                        {
-                                                strcpy(u->host,host.c_str());
-                                                strcpy(u->dhost,host.c_str());
-                                        }
-                                }
-                        }
-                }
-        }
-        u->dns_done = true;
-        return NULL;
+	userrec* u = (userrec*)arg;
+	log(DEBUG,"DNS thread for user %s",u->nick);
+	DNS dns1;
+	DNS dns2;
+	std::string host;
+	std::string ip;
+	if (dns1.ReverseLookup((char*)inet_ntoa(u->ip4)))
+	{
+		while (!dns1.HasResult())
+		{
+			usleep(100);
+		}
+		host = dns1.GetResult();
+		if (host != "")
+		{
+			if (dns2.ForwardLookup(host))
+			{
+				while (!dns2.HasResult())
+				{
+					usleep(100);
+				}
+				ip = dns2.GetResultIP();
+				if (ip == std::string((char*)inet_ntoa(u->ip4)))
+				{
+					if (host.length() < 160)
+					{
+						strcpy(u->host,host.c_str());
+						strcpy(u->dhost,host.c_str());
+					}
+				}
+			}
+		}
+	}
+	u->dns_done = true;
+	return NULL;
 }
 #endif

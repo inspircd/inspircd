@@ -73,7 +73,7 @@ InspSocket::InspSocket(const std::string &ahost, int aport, bool listening, unsi
 			this->OnError(I_ERR_SOCKET);
 			this->ClosePending = true;
 			log(DEBUG,"OpenTCPSocket() error");
-                        return;
+			return;
 		}
 		else
 		{
@@ -109,7 +109,7 @@ InspSocket::InspSocket(const std::string &ahost, int aport, bool listening, unsi
 			this->dns.SetNS(std::string(Config->DNSServer));
 			this->dns.ForwardLookupWithFD(host,fd);
 			timeout_end = time(NULL) + maxtime;
-	                timeout = false;
+			timeout = false;
 			this->state = I_RESOLVING;
 			socket_ref[this->fd] = this;
 		}
@@ -125,7 +125,7 @@ InspSocket::InspSocket(const std::string &ahost, int aport, bool listening, unsi
 
 void InspSocket::SetQueues(int nfd)
 {
-        // attempt to increase socket sendq and recvq as high as its possible
+	// attempt to increase socket sendq and recvq as high as its possible
 	int sendbuf = 32768;
 	int recvbuf = 32768;
 	setsockopt(nfd,SOL_SOCKET,SO_SNDBUF,(const void *)&sendbuf,sizeof(sendbuf));
@@ -210,11 +210,11 @@ void InspSocket::Close()
 	if (this->fd != -1)
 	{
 		this->OnClose();
-	        shutdown(this->fd,2);
-	        close(this->fd);
+		shutdown(this->fd,2);
+		close(this->fd);
 		socket_ref[this->fd] = NULL;
 		this->ClosePending = true;
-	        this->fd = -1;
+		this->fd = -1;
 	}
 }
 

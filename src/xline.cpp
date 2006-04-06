@@ -122,6 +122,7 @@ bool DoZLine(const char* tag, char** entries, void** values, int* types)
 {
 	char* reason = (char*)values[0];
 	char* ipmask = (char*)values[1];
+	
 	add_zline(0,"<Config>",reason,ipmask);
 	log(DEBUG,"Read Z line (badip tag): ipmask=%s reason=%s",ipmask,reason);
 	return true;
@@ -131,6 +132,7 @@ bool DoQLine(const char* tag, char** entries, void** values, int* types)
 {
 	char* reason = (char*)values[0];
 	char* nick = (char*)values[1];
+	
 	add_qline(0,"<Config>",reason,nick);
 	log(DEBUG,"Read Q line (badnick tag): nick=%s reason=%s",nick,reason);
 	return true;
@@ -140,6 +142,7 @@ bool DoKLine(const char* tag, char** entries, void** values, int* types)
 {
 	char* reason = (char*)values[0];
 	char* host = (char*)values[1];
+	
 	add_kline(0,"<Config>",reason,host);
 	log(DEBUG,"Read K line (badhost tag): host=%s reason=%s",host,reason);
 	return true;
@@ -149,6 +152,7 @@ bool DoELine(const char* tag, char** entries, void** values, int* types)
 {
 	char* reason = (char*)values[0];
 	char* host = (char*)values[1];
+	
 	add_eline(0,"<Config>",reason,host);
 	log(DEBUG,"Read E line (exception tag): host=%s reason=%s",host,reason);
 	return true;
@@ -159,6 +163,7 @@ bool DoELine(const char* tag, char** entries, void** values, int* types)
 bool add_gline(long duration, const char* source,const char* reason,const char* hostmask)
 {
 	bool ret = del_gline(hostmask);
+	
 	GLine item;
 	item.duration = duration;
 	strlcpy(item.hostmask,hostmask,199);
@@ -166,6 +171,7 @@ bool add_gline(long duration, const char* source,const char* reason,const char* 
 	strlcpy(item.source,source,255);
 	item.n_matches = 0;
 	item.set_time = TIME;
+	
 	if (duration)
 	{
 		glines.push_back(item);
@@ -175,6 +181,7 @@ bool add_gline(long duration, const char* source,const char* reason,const char* 
 	{
 		pglines.push_back(item);
 	}
+	
 	return !ret;
 }
 
@@ -182,17 +189,17 @@ bool add_gline(long duration, const char* source,const char* reason,const char* 
 
 bool add_eline(long duration, const char* source, const char* reason, const char* hostmask)
 {
-        bool ret = del_eline(hostmask);
-        ELine item;
-        item.duration = duration;
-        strlcpy(item.hostmask,hostmask,199);
-        strlcpy(item.reason,reason,MAXBUF);
-        strlcpy(item.source,source,255);
-        item.n_matches = 0;
-        item.set_time = TIME;
+	bool ret = del_eline(hostmask);
+	ELine item;
+	item.duration = duration;
+	strlcpy(item.hostmask,hostmask,199);
+	strlcpy(item.reason,reason,MAXBUF);
+	strlcpy(item.source,source,255);
+	item.n_matches = 0;
+	item.set_time = TIME;
 	if (duration)
 	{
-        	elines.push_back(item);
+		elines.push_back(item);
 		sort(elines.begin(), elines.end(),ESortComparison);
 	}
 	else
@@ -309,14 +316,14 @@ bool del_gline(const char* hostmask)
 
 bool del_eline(const char* hostmask)
 {
-        for (std::vector<ELine>::iterator i = elines.begin(); i != elines.end(); i++)
-        {
-                if (!strcasecmp(hostmask,i->hostmask))
-                {
-                        elines.erase(i);
-                        return true;
-                }
-        }
+	for (std::vector<ELine>::iterator i = elines.begin(); i != elines.end(); i++)
+	{
+		if (!strcasecmp(hostmask,i->hostmask))
+		{
+			elines.erase(i);
+			return true;
+		}
+	}
 	for (std::vector<ELine>::iterator i = pelines.begin(); i != pelines.end(); i++)
 	{
 		if (!strcasecmp(hostmask,i->hostmask))
@@ -325,7 +332,7 @@ bool del_eline(const char* hostmask)
 			return true;
 		}
 	}
-        return false;
+	return false;
 }
 
 // deletes a q:line, returns true if the line existed and was removed
@@ -442,8 +449,8 @@ char* matches_qline(const char* nick)
 
 char* matches_gline(const char* host)
 {
-        if ((glines.empty()) && (pglines.empty()))
-                return NULL;
+	if ((glines.empty()) && (pglines.empty()))
+		return NULL;
 	for (std::vector<GLine>::iterator i = glines.begin(); i != glines.end(); i++)
 		if (match(host,i->hostmask))
 			return i->reason;
@@ -455,17 +462,17 @@ char* matches_gline(const char* host)
 
 char* matches_exception(const char* host)
 {
-        if ((elines.empty()) && (pelines.empty()))
-                return NULL;
+	if ((elines.empty()) && (pelines.empty()))
+		return NULL;
 	char host2[MAXBUF];
 	snprintf(host2,MAXBUF,"*@%s",host);
-        for (std::vector<ELine>::iterator i = elines.begin(); i != elines.end(); i++)
-                if ((match(host,i->hostmask)) || (match(host2,i->hostmask)))
-                        return i->reason;
+	for (std::vector<ELine>::iterator i = elines.begin(); i != elines.end(); i++)
+		if ((match(host,i->hostmask)) || (match(host2,i->hostmask)))
+			return i->reason;
 	for (std::vector<ELine>::iterator i = pelines.begin(); i != pelines.end(); i++)
 		if ((match(host,i->hostmask)) || (match(host2,i->hostmask)))
 			return i->reason;
-        return NULL;
+	return NULL;
 }
 
 
@@ -557,8 +564,8 @@ void zline_set_creation_time(char* ip, time_t create_time)
 
 char* matches_zline(const char* ipaddr)
 {
-        if ((zlines.empty()) && (pzlines.empty()))
-                return NULL;
+	if ((zlines.empty()) && (pzlines.empty()))
+		return NULL;
 	for (std::vector<ZLine>::iterator i = zlines.begin(); i != zlines.end(); i++)
 		if (match(ipaddr,i->ipaddr))
 			return i->reason;
@@ -572,8 +579,8 @@ char* matches_zline(const char* ipaddr)
 
 char* matches_kline(const char* host)
 {
-        if ((klines.empty()) && (pklines.empty()))
-                return NULL;
+	if ((klines.empty()) && (pklines.empty()))
+		return NULL;
 	for (std::vector<KLine>::iterator i = klines.begin(); i != klines.end(); i++)
 		if (match(host,i->hostmask))
 			return i->reason;
@@ -590,7 +597,7 @@ bool GSortComparison ( const GLine one, const GLine two )
 
 bool ESortComparison ( const ELine one, const ELine two )
 {
-        return (one.duration + one.set_time) < (two.duration + two.set_time);
+	return (one.duration + one.set_time) < (two.duration + two.set_time);
 }
 
 bool ZSortComparison ( const ZLine one, const ZLine two )
@@ -600,12 +607,12 @@ bool ZSortComparison ( const ZLine one, const ZLine two )
 
 bool KSortComparison ( const KLine one, const KLine two )
 {
-        return (one.duration + one.set_time) < (two.duration + two.set_time);
+	return (one.duration + one.set_time) < (two.duration + two.set_time);
 }
 
 bool QSortComparison ( const QLine one, const QLine two )
 {
-        return (one.duration + one.set_time) < (two.duration + two.set_time);
+	return (one.duration + one.set_time) < (two.duration + two.set_time);
 }
 
 // removes lines that have expired
@@ -751,8 +758,8 @@ void stats_z(userrec* user)
 
 void stats_e(userrec* user)
 {
-        for (std::vector<ELine>::iterator i = elines.begin(); i != elines.end(); i++)
-                WriteServ(user->fd,"223 %s :%s %d %d %s :%s",user->nick,i->hostmask,i->set_time,i->duration,i->source,i->reason);
+	for (std::vector<ELine>::iterator i = elines.begin(); i != elines.end(); i++)
+		WriteServ(user->fd,"223 %s :%s %d %d %s :%s",user->nick,i->hostmask,i->set_time,i->duration,i->source,i->reason);
 	for (std::vector<ELine>::iterator i = pelines.begin(); i != pelines.end(); i++)
 		WriteServ(user->fd,"223 %s :%s %d %d %s :%s",user->nick,i->hostmask,i->set_time,i->duration,i->source,i->reason);
 }

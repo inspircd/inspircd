@@ -84,10 +84,10 @@ class ModuleKnock : public Module
 		List[I_On005Numeric] = List[I_OnExtendedMode] = 1;
 	}
 
-        virtual void On005Numeric(std::string &output)
-        {
+	virtual void On005Numeric(std::string &output)
+	{
 		InsertMode(output,"K",4);
-        }
+	}
 
 	virtual ~ModuleKnock()
 	{

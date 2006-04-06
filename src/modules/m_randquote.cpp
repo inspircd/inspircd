@@ -99,7 +99,7 @@ class ModuleRandQuote : public Module
 		{
 			RandquoteException e("m_randquote: Quotefile not specified - Please check your config.");
 			throw(e);
-                }
+		}
 
 		quotes = new FileReader(q_file);
 		if(!quotes->Exists())

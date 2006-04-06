@@ -189,7 +189,7 @@ class ModuleSSLOpenSSL : public Module
 		{
 			log(DEFAULT, "m_ssl_openssl.so: Can't read CA list from ", cafile.c_str());
 		}
-		        	
+
 		FILE* dhpfile = fopen(dhfile.c_str(), "r");
 		DH* ret;
 

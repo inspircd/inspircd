@@ -42,10 +42,10 @@ class ModuleNoKicks : public Module
 		List[I_On005Numeric] = List[I_OnAccessCheck] = List[I_OnExtendedMode] = 1;
 	}
 
-        virtual void On005Numeric(std::string &output)
-        {
+	virtual void On005Numeric(std::string &output)
+	{
 		InsertMode(output,"Q",4);
-        }
+	}
 
 	virtual int OnAccessCheck(userrec* source,userrec* dest,chanrec* channel,int access_type)
 	{

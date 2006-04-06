@@ -127,12 +127,12 @@ void cmd_who::Handle (char **parameters, int pcnt, userrec *user)
 						if (*i->second->oper) { charlcat(tmp, '*', 9); }
 						strlcat(tmp, cmode(i->second, Ptr),5);
 						WriteServ(user->fd,"352 %s %s %s %s %s %s %s :0 %s",user->nick, Ptr->name, i->second->ident, i->second->dhost, i->second->server, i->second->nick, tmp, i->second->fullname);
-                                                n_list++;
-                                                if (n_list > Config->MaxWhoResults)
-                                                {
-                                                        WriteServ(user->fd,"523 %s WHO :Command aborted: More results than configured limit",user->nick);
-                                                        break;
-                                                }
+						n_list++;
+						if (n_list > Config->MaxWhoResults)
+						{
+							WriteServ(user->fd,"523 %s WHO :Command aborted: More results than configured limit",user->nick);
+							break;
+						}
 
 					}
 				}
@@ -157,17 +157,17 @@ void cmd_who::Handle (char **parameters, int pcnt, userrec *user)
 				}
 				if (*u->oper) { charlcat(tmp, '*' ,9); }
 				WriteServ(user->fd,"352 %s %s %s %s %s %s %s :0 %s",user->nick, u->chans.size() && ((ucrec*)*(u->chans.begin()))->channel ? ((ucrec*)*(u->chans.begin()))->channel->name
-                                : "*", u->ident, u->dhost, u->server, u->nick, tmp, u->fullname);
+				: "*", u->ident, u->dhost, u->server, u->nick, tmp, u->fullname);
 			}
 			WriteServ(user->fd,"315 %s %s :End of /WHO list.",user->nick, parameters[0]);
 		}
 	}
 	if (pcnt == 2)
 	{
-                if ((IS_SINGLE(parameters[0],'0')) || (IS_SINGLE(parameters[0],'*')) && (IS_SINGLE(parameters[1],'o')))
-                {
+		if ((IS_SINGLE(parameters[0],'0')) || (IS_SINGLE(parameters[0],'*')) && (IS_SINGLE(parameters[1],'o')))
+		{
 		  	for (std::vector<userrec*>::iterator i = all_opers.begin(); i != all_opers.end(); i++)
-                        {
+			{
 				// If i were a rich man.. I wouldn't need to me making these bugfixes..
 				// But i'm a poor bastard with nothing better to do.
 				userrec* oper = *i;
@@ -177,12 +177,12 @@ void cmd_who::Handle (char **parameters, int pcnt, userrec *user)
 				} else {
 					charlcat(tmp, 'H' ,9);
 				}
-                                WriteServ(user->fd,"352 %s %s %s %s %s %s %s* :0 %s", user->nick, oper->chans.size() && ((ucrec*)*(oper->chans.begin()))->channel ? ((ucrec*)*(oper->chans.begin()))->channel->name
+				WriteServ(user->fd,"352 %s %s %s %s %s %s %s* :0 %s", user->nick, oper->chans.size() && ((ucrec*)*(oper->chans.begin()))->channel ? ((ucrec*)*(oper->chans.begin()))->channel->name
 				: "*", oper->ident, oper->dhost, oper->server, oper->nick, tmp, oper->fullname);
-                        }
-                        WriteServ(user->fd,"315 %s %s :End of /WHO list.",user->nick, parameters[0]);
-                        return;
-                }
+			}
+			WriteServ(user->fd,"315 %s %s :End of /WHO list.",user->nick, parameters[0]);
+			return;
+		}
 	}
 }
 

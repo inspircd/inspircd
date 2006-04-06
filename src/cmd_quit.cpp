@@ -113,11 +113,11 @@ void cmd_quit::Handle (char **parameters, int pcnt, userrec *user)
 	if (user->fd > -1)
 	{
 		ServerInstance->SE->DelFd(user->fd);
-                if (find(local_users.begin(),local_users.end(),user) != local_users.end())
-                {
-                        log(DEBUG,"Delete local user");
-                        local_users.erase(find(local_users.begin(),local_users.end(),user));
-                }
+		if (find(local_users.begin(),local_users.end(),user) != local_users.end())
+		{
+			log(DEBUG,"Delete local user");
+			local_users.erase(find(local_users.begin(),local_users.end(),user));
+		}
 		user->CloseSocket();
 	}
 	
@@ -129,8 +129,8 @@ void cmd_quit::Handle (char **parameters, int pcnt, userrec *user)
 	if (user->registered == 7) {
 		purge_empty_chans(user);
 	}
-        if (user->fd > -1)
-                fd_ref_table[user->fd] = NULL;
+	if (user->fd > -1)
+		fd_ref_table[user->fd] = NULL;
 	delete user;
 }
 

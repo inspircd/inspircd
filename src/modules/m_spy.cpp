@@ -65,30 +65,30 @@ void spy_userlist(userrec *user,chanrec *c)
 {
 	static char list[MAXBUF];
 
-        if ((!c) || (!user))
-                return;
+	if ((!c) || (!user))
+		return;
 
-        snprintf(list,MAXBUF,"353 %s = %s :", user->nick, c->name);
+	snprintf(list,MAXBUF,"353 %s = %s :", user->nick, c->name);
 
-        CUList *ulist= c->GetUsers();
-        for (CUList::iterator i = ulist->begin(); i != ulist->end(); i++)
-        {
-                strlcat(list,cmode(i->second,c),MAXBUF);
-                strlcat(list,i->second->nick,MAXBUF);
-                strlcat(list," ",MAXBUF);
-                if (strlen(list)>(480-NICKMAX))
-                {
-                        /* list overflowed into
-                         * multiple numerics */
-                        WriteServ_NoFormat(user->fd,list);
-                        snprintf(list,MAXBUF,"353 %s = %s :", user->nick, c->name);
-                }
-        }
-        /* if whats left in the list isnt empty, send it */
-        if (list[strlen(list)-1] != ':')
-        {
-                WriteServ_NoFormat(user->fd,list);
-        }
+	CUList *ulist= c->GetUsers();
+	for (CUList::iterator i = ulist->begin(); i != ulist->end(); i++)
+	{
+		strlcat(list,cmode(i->second,c),MAXBUF);
+		strlcat(list,i->second->nick,MAXBUF);
+		strlcat(list," ",MAXBUF);
+		if (strlen(list)>(480-NICKMAX))
+		{
+			/* list overflowed into
+			 * multiple numerics */
+			WriteServ_NoFormat(user->fd,list);
+			snprintf(list,MAXBUF,"353 %s = %s :", user->nick, c->name);
+		}
+	}
+	/* if whats left in the list isnt empty, send it */
+	if (list[strlen(list)-1] != ':')
+	{
+		WriteServ_NoFormat(user->fd,list);
+	}
 }
 
 
@@ -96,20 +96,20 @@ void spy_userlist(userrec *user,chanrec *c)
 class cmd_spylist : public command_t
 {
   public:
-        cmd_spylist () : command_t("SPYLIST", 'o', 0)
-        {
-                this->source = "m_spy.so";
-        }
+	cmd_spylist () : command_t("SPYLIST", 'o', 0)
+	{
+		this->source = "m_spy.so";
+	}
 
 	void Handle (char **parameters, int pcnt, userrec *user)
 	{
 		WriteOpers("*** Oper %s used SPYLIST to list +s/+p channels and keys.",user->nick);
 		WriteServ(user->fd,"321 %s Channel :Users Name",user->nick);
-	        for (chan_hash::const_iterator i = chanlist.begin(); i != chanlist.end(); i++)
-	        {
+		for (chan_hash::const_iterator i = chanlist.begin(); i != chanlist.end(); i++)
+		{
 			WriteServ(user->fd,"322 %s %s %d :[+%s] %s",user->nick,i->second->name,usercount(i->second),chanmodes(i->second,true),i->second->topic);
-	        }
-	        WriteServ(user->fd,"323 %s :End of channel list.",user->nick);
+		}
+		WriteServ(user->fd,"323 %s :End of channel list.",user->nick);
 	}
 };
 
@@ -123,29 +123,29 @@ class cmd_spynames : public command_t
 
 	  void Handle (char **parameters, int pcnt, userrec *user)
 	  {
-	          chanrec* c;
+		  chanrec* c;
 
-	          if (!pcnt)
-	          {
-	                  WriteServ(user->fd,"366 %s * :End of /NAMES list.",user->nick);
-	                  return;
-	          }
+		  if (!pcnt)
+		  {
+			  WriteServ(user->fd,"366 %s * :End of /NAMES list.",user->nick);
+			  return;
+		  }
 
-	          if (ServerInstance->Parser->LoopCall(this,parameters,pcnt,user,0,pcnt-1,0))
-	                  return;
+		  if (ServerInstance->Parser->LoopCall(this,parameters,pcnt,user,0,pcnt-1,0))
+			  return;
 
 		  WriteOpers("*** Oper %s used SPYNAMES to view the users on %s",user->nick,parameters[0]);
 
-	          c = FindChan(parameters[0]);
-	          if (c)
-	          {
-	                  spy_userlist(user,c);
-	                  WriteServ(user->fd,"366 %s %s :End of /NAMES list.", user->nick, c->name);
-	          }
-	          else
-	          {
-	                  WriteServ(user->fd,"401 %s %s :No such nick/channel",user->nick, parameters[0]);
-	          }
+		  c = FindChan(parameters[0]);
+		  if (c)
+		  {
+			  spy_userlist(user,c);
+			  WriteServ(user->fd,"366 %s %s :End of /NAMES list.", user->nick, c->name);
+		  }
+		  else
+		  {
+			  WriteServ(user->fd,"401 %s %s :No such nick/channel",user->nick, parameters[0]);
+		  }
 	  }
 };
 

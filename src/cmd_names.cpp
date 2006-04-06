@@ -77,10 +77,10 @@ void cmd_names::Handle (char **parameters, int pcnt, userrec *user)
 	if (c)
 	{
 		if ((c->modes[CM_SECRET]) && (!c->HasUser(user)))
-                {
-                      WriteServ(user->fd,"401 %s %s :No such nick/channel",user->nick, c->name);
-                      return;
-                }
+		{
+		      WriteServ(user->fd,"401 %s %s :No such nick/channel",user->nick, c->name);
+		      return;
+		}
 		userlist(user,c);
 		WriteServ(user->fd,"366 %s %s :End of /NAMES list.", user->nick, c->name);
 	}

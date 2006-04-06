@@ -95,10 +95,10 @@ class ModuleFilterPCRE : public Module
 		delete Conf;
 	}
 
-        void Implements(char* List)
-        {
-                List[I_OnUserPreMessage] = List[I_OnUserPreNotice] = List[I_OnRehash] = 1;
-        }
+	void Implements(char* List)
+	{
+		List[I_OnUserPreMessage] = List[I_OnUserPreNotice] = List[I_OnRehash] = 1;
+	}
 
 	// format of a config entry is <keyword pattern="^regexp$" reason="Some reason here" action="kill/block">
 	
@@ -170,22 +170,22 @@ class ModuleFilterPCRE : public Module
 		}
 		Srv->Log(DEFAULT,std::string("m_filter_pcre: read configuration from ")+filterfile);
 
-                filters.clear();
-                for (int index = 0; index < MyConf->Enumerate("keyword"); index++)
-                {
-                        std::string pattern = MyConf->ReadValue("keyword","pattern",index);
-                        re = pcre_compile(pattern.c_str(),0,&error,&erroffset,NULL);
-                        if (!re)
-                        {
-                                log(DEFAULT,"Error in regular expression: %s at offset %d: %s\n", pattern.c_str(), erroffset, error);
-                                log(DEFAULT,"Regular expression %s not loaded.", pattern.c_str());
-                        }
-                        else
-                        {
-                                filters.push_back(re);
-                                log(DEFAULT,"Regular expression %s loaded.", pattern.c_str());
-                        }
-                }
+		filters.clear();
+		for (int index = 0; index < MyConf->Enumerate("keyword"); index++)
+		{
+			std::string pattern = MyConf->ReadValue("keyword","pattern",index);
+			re = pcre_compile(pattern.c_str(),0,&error,&erroffset,NULL);
+			if (!re)
+			{
+				log(DEFAULT,"Error in regular expression: %s at offset %d: %s\n", pattern.c_str(), erroffset, error);
+				log(DEFAULT,"Regular expression %s not loaded.", pattern.c_str());
+			}
+			else
+			{
+				filters.push_back(re);
+				log(DEFAULT,"Regular expression %s loaded.", pattern.c_str());
+			}
+		}
 
 	}
 	

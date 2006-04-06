@@ -150,10 +150,10 @@ class ModuleRemove : public Module
 		List[I_On005Numeric] = 1;
 	}
 
-        virtual void On005Numeric(std::string &output)
-        {
-                output = output + std::string(" REMOVE");
-        }
+	virtual void On005Numeric(std::string &output)
+	{
+		output = output + std::string(" REMOVE");
+	}
 	
 	virtual ~ModuleRemove()
 	{

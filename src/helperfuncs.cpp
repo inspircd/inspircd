@@ -1862,7 +1862,7 @@ void LoadAllModules(InspIRCd* ServerInstance)
 	char configToken[MAXBUF];
 	Config->module_names.clear();
 	MODCOUNT = -1;
-                                        
+
 	for (int count = 0; count < Config->ConfValueEnum(Config->config_data, "module"); count++)
 	{
 		Config->ConfValue(Config->config_data, "module","name",count,configToken,MAXBUF);

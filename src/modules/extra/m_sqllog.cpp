@@ -57,8 +57,7 @@ class ModuleSQLLog : public Module
 		return (SQLModule);
 	}
 
-	ModuleSQLLog(Server* Me)
-		: Module::Module(Me)
+	ModuleSQLLog(Server* Me) : Module::Module(Me)
 	{
 		Srv = Me;
 		ReadConfig();
@@ -67,7 +66,7 @@ class ModuleSQLLog : public Module
 	void Implements(char* List)
 	{
 		List[I_OnRehash] = List[I_OnOper] = List[I_OnGlobalOper] = List[I_OnKill] = 1;
-	       	List[I_OnPreCommand] = List[I_OnUserConnect] = List[I_OnGlobalConnect] = 1;
+		List[I_OnPreCommand] = List[I_OnUserConnect] = List[I_OnGlobalConnect] = 1;
 		List[I_OnUserQuit] = List[I_OnLoadModule] = 1;
 	}
 
@@ -79,40 +78,49 @@ class ModuleSQLLog : public Module
 	long InsertNick(const std::string &nick)
 	{
 		long nid = -1;
-                SQLRequest* query = new SQLRequest(SQL_RESULT,dbid,"SELECT id,actor FROM ircd_log_actors WHERE actor='"+nick+"'");
-                Request queryrequest((char*)query, this, SQLModule);
-                SQLResult* result = (SQLResult*)queryrequest.Send();
-                if (result->GetType() == SQL_OK)
-                {
-                        SQLRequest* rowrequest = new SQLRequest(SQL_ROW,dbid,"");
-                        Request rowquery((char*)rowrequest, this, SQLModule);
-                        SQLResult* rowresult = (SQLResult*)rowquery.Send();
-                        if (rowresult->GetType() == SQL_ROW)
-                        {
-                                nid = atoi(rowresult->GetField("id").c_str());
-                                delete rowresult;
-                        }
-                        delete rowrequest;
-                        delete result;
-                }
-                query->SetQueryType(SQL_DONE);
-                query->SetConnID(dbid);
-                Request donerequest((char*)query, this, SQLModule);
-                donerequest.Send();
-                delete query;
+		
+		SQLRequest* query = new SQLRequest(SQL_RESULT,dbid,"SELECT id,actor FROM ircd_log_actors WHERE actor='"+nick+"'");
+		Request queryrequest((char*)query, this, SQLModule);
+		SQLResult* result = (SQLResult*)queryrequest.Send();
+		
+		if (result->GetType() == SQL_OK)
+		{
+			SQLRequest* rowrequest = new SQLRequest(SQL_ROW,dbid,"");
+			Request rowquery((char*)rowrequest, this, SQLModule);
+			SQLResult* rowresult = (SQLResult*)rowquery.Send();
+			
+			if (rowresult->GetType() == SQL_ROW)
+			{
+				nid = atoi(rowresult->GetField("id").c_str());
+				delete rowresult;
+			}
+			
+			delete rowrequest;
+			delete result;
+		}
+		
+		query->SetQueryType(SQL_DONE);
+		query->SetConnID(dbid);
+		Request donerequest((char*)query, this, SQLModule);
+		donerequest.Send();
+		delete query;
+		
 		if (nid < 1)
 		{
 			SQLRequest* query2 = new SQLRequest(SQL_COUNT,dbid,"INSERT INTO ircd_log_actors VALUES('','"+nick+"')");
 			Request queryrequest2((char*)query2, this, SQLModule);
 			SQLResult* result2 = (SQLResult*)queryrequest2.Send();
-	                if (result2->GetType() == SQL_ERROR)
-	                {
-	                        Srv->Log(DEFAULT,"SQL log error: " + result2->GetError());
-	                }
+			
+			if (result2->GetType() == SQL_ERROR)
+			{
+				Srv->Log(DEFAULT,"SQL log error: " + result2->GetError());
+			}
+			
 			if (result2)
 				delete result;
 			if (query2)
 				delete query2;
+				
 			nid = InsertNick(nick);
 		}
 		return nid;
@@ -121,61 +129,74 @@ class ModuleSQLLog : public Module
 	void InsertEntry(unsigned long category,unsigned long nickid,unsigned long hostid,unsigned long sourceid,unsigned long date)
 	{
 		char querybuffer[MAXBUF];
+		
 		snprintf(querybuffer,MAXBUF,"INSERT INTO ircd_log VALUES('',%lu,%lu,%lu,%lu,%lu)",(unsigned long)category,(unsigned long)nickid,(unsigned long)hostid,(unsigned long)sourceid,(unsigned long)date);
 		SQLRequest* query = new SQLRequest(SQL_COUNT,dbid,querybuffer);
 		Request queryrequest((char*)query, this, SQLModule);
 		SQLResult* result = (SQLResult*)queryrequest.Send();
+		
 		if (result->GetType() == SQL_ERROR)
 		{
 			Srv->Log(DEFAULT,"SQL log error: " + result->GetError());
 		}
+		
 		if (result)
 			delete result;
 		if (query)
 			delete query;
+			
 		return;
 	}
 
 	long InsertHost(const std::string &host)
 	{
-                long hid = -1;
-                SQLRequest* query = new SQLRequest(SQL_RESULT,dbid,"SELECT id,hostname FROM ircd_log_hosts WHERE hostname='"+host+"'");
-                Request queryrequest((char*)query, this, SQLModule);
-                SQLResult* result = (SQLResult*)queryrequest.Send();
-                if (result->GetType() == SQL_OK)
-                {
-                        SQLRequest* rowrequest = new SQLRequest(SQL_ROW,dbid,"");
-                        Request rowquery((char*)rowrequest, this, SQLModule);
-                        SQLResult* rowresult = (SQLResult*)rowquery.Send();
-                        if (rowresult->GetType() == SQL_ROW)
-                        {
-                                hid = atoi(rowresult->GetField("id").c_str());
-                                delete rowresult;
-                        }
-                        delete rowrequest;
-                        delete result;
-                }
-                query->SetQueryType(SQL_DONE);
-                query->SetConnID(dbid);
-                Request donerequest((char*)query, this, SQLModule);
-                donerequest.Send();
-                delete query;
-                if (hid < 1)
-                {
-                        SQLRequest* query2 = new SQLRequest(SQL_COUNT,dbid,"INSERT INTO ircd_log_hosts VALUES('','"+host+"')");
-                        Request queryrequest2((char*)query2, this, SQLModule);
-                        SQLResult* result2 = (SQLResult*)queryrequest2.Send();
-        	        if (result2->GetType() == SQL_ERROR)
-	                {
-	                        Srv->Log(DEFAULT,"SQL log error: " + result2->GetError());
-	                }
-                        if (result)
-                                delete result2;
+		long hid = -1;
+		
+		SQLRequest* query = new SQLRequest(SQL_RESULT,dbid,"SELECT id,hostname FROM ircd_log_hosts WHERE hostname='"+host+"'");
+		Request queryrequest((char*)query, this, SQLModule);
+		SQLResult* result = (SQLResult*)queryrequest.Send();
+		
+		if (result->GetType() == SQL_OK)
+		{
+			SQLRequest* rowrequest = new SQLRequest(SQL_ROW,dbid,"");
+			Request rowquery((char*)rowrequest, this, SQLModule);
+			SQLResult* rowresult = (SQLResult*)rowquery.Send();
+			
+			if (rowresult->GetType() == SQL_ROW)
+			{
+				hid = atoi(rowresult->GetField("id").c_str());
+				delete rowresult;
+			}
+			
+			delete rowrequest;
+			delete result;
+		}
+		
+		query->SetQueryType(SQL_DONE);
+		query->SetConnID(dbid);
+		Request donerequest((char*)query, this, SQLModule);
+		donerequest.Send();
+		delete query;
+		
+		if (hid < 1)
+		{
+			SQLRequest* query2 = new SQLRequest(SQL_COUNT,dbid,"INSERT INTO ircd_log_hosts VALUES('','"+host+"')");
+			Request queryrequest2((char*)query2, this, SQLModule);
+			SQLResult* result2 = (SQLResult*)queryrequest2.Send();
+			
+			if (result2->GetType() == SQL_ERROR)
+			{
+				Srv->Log(DEFAULT,"SQL log error: " + result2->GetError());
+			}
+			
+			if (result)
+				delete result2;
 			if (query)
 				delete query2;
-                        hid = InsertHost(host);
-                }
-                return hid;
+			hid = InsertHost(host);
+		}
+		
+		return hid;
 	}
 
 	void AddLogEntry(int category, const std::string &nick, const std::string &host, const std::string &source)

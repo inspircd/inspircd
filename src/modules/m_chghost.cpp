@@ -30,12 +30,12 @@ static Server *Srv;
 class cmd_chghost : public command_t
 {
  public:
-         cmd_chghost () : command_t("CHGHOST",'o',2)
-	 {
-		 this->source = "m_chghost.so";
-	 }
+	cmd_chghost () : command_t("CHGHOST",'o',2)
+	{
+		this->source = "m_chghost.so";
+	}
 	 
-        void Handle(char **parameters, int pcnt, userrec *user)
+	void Handle(char **parameters, int pcnt, userrec *user)
 	{
 		char * x = parameters[1];
 

@@ -199,39 +199,39 @@ InspIRCd::InspIRCd(int argc, char** argv)
 
 	this->MakeLowerMap();
 
-        OpenLog(argv, argc);
+	OpenLog(argv, argc);
 	this->stats = new serverstats();
-        Config->ClearStack();
-        Config->Read(true,NULL);
-        CheckRoot();
+	Config->ClearStack();
+	Config->Read(true,NULL);
+	CheckRoot();
 	this->ModeGrok = new ModeParser();
 	this->Parser = new CommandParser();
-        AddServerName(Config->ServerName);
-        CheckDie();
-        stats->BoundPortCount = BindPorts(true);
+	AddServerName(Config->ServerName);
+	CheckDie();
+	stats->BoundPortCount = BindPorts(true);
 
 	for(int t = 0; t < 255; t++)
 		Config->global_implementation[t] = 0;
 
 	memset(&Config->implement_lists,0,sizeof(Config->implement_lists));
 
-        printf("\n");
+	printf("\n");
 	SetSignals();
-        if (!Config->nofork)
-        {
+	if (!Config->nofork)
+	{
 		if (!DaemonSeed())
-                {
-                        printf("ERROR: could not go into daemon mode. Shutting down.\n");
-                        Exit(ERROR);
-                }
-        }
+		{
+			printf("ERROR: could not go into daemon mode. Shutting down.\n");
+			Exit(ERROR);
+		}
+	}
 
-        /* Because of limitations in kqueue on freebsd, we must fork BEFORE we
-         * initialize the socket engine.
-         */
-        SE = new SocketEngine();
+	/* Because of limitations in kqueue on freebsd, we must fork BEFORE we
+	 * initialize the socket engine.
+	 */
+	SE = new SocketEngine();
 
-        /* We must load the modules AFTER initializing the socket engine, now */
+	/* We must load the modules AFTER initializing the socket engine, now */
 
 	return;
 }
@@ -267,38 +267,38 @@ void InspIRCd::erase_factory(int j)
 	{
 		if (v == j)
 		{
-                	factory.erase(t);
-                 	factory.push_back(NULL);
-                 	return;
-           	}
+			factory.erase(t);
+		 	factory.push_back(NULL);
+		 	return;
+	   	}
 		v++;
-     	}
+	}
 }
 
 void InspIRCd::erase_module(int j)
 {
 	int v1 = 0;
 	for (std::vector<Module*>::iterator m = modules.begin(); m!= modules.end(); m++)
-        {
-                if (v1 == j)
-                {
+	{
+		if (v1 == j)
+		{
 			delete *m;
-                        modules.erase(m);
-                        modules.push_back(NULL);
+			modules.erase(m);
+			modules.push_back(NULL);
 			break;
-                }
+		}
 		v1++;
-        }
+	}
 	int v2 = 0;
-        for (std::vector<std::string>::iterator v = Config->module_names.begin(); v != Config->module_names.end(); v++)
-        {
-                if (v2 == j)
-                {
-                       Config->module_names.erase(v);
-                       break;
-                }
+	for (std::vector<std::string>::iterator v = Config->module_names.begin(); v != Config->module_names.end(); v++)
+	{
+		if (v2 == j)
+		{
+		       Config->module_names.erase(v);
+		       break;
+		}
 		v2++;
-        }
+	}
 
 }
 
@@ -385,7 +385,7 @@ void InspIRCd::MoveToLast(std::string modulename)
 
 void InspIRCd::BuildISupport()
 {
-        // the neatest way to construct the initial 005 numeric, considering the number of configure constants to go in it...
+	// the neatest way to construct the initial 005 numeric, considering the number of configure constants to go in it...
 	std::stringstream v;
 	v << "WALLCHOPS WALLVOICES MODES=" << MAXMODES << " CHANTYPES=# PREFIX=(ohv)@%+ MAP MAXCHANNELS=" << MAXCHANS << " MAXBANS=60 VBANLIST NICKLEN=" << NICKMAX-1;
 	v << " CASEMAPPING=rfc1459 STATUSMSG=@%+ CHARSET=ascii TOPICLEN=" << MAXTOPIC << " KICKLEN=" << MAXKICK << " MAXTARGETS=" << Config->MaxTargets << " AWAYLEN=";
@@ -419,7 +419,7 @@ bool InspIRCd::UnloadModule(const char* filename)
 
 			FOREACH_MOD(I_OnUnloadModule,OnUnloadModule(modules[j],Config->module_names[j]));
 
-                        for(int t = 0; t < 255; t++)
+			for(int t = 0; t < 255; t++)
 			{
 				Config->global_implementation[t] -= Config->implement_lists[j][t];
 			}
@@ -439,8 +439,8 @@ bool InspIRCd::UnloadModule(const char* filename)
 			erase_module(j);
 			log(DEBUG,"Erasing module entry...");
 			erase_factory(j);
-                        log(DEBUG,"Removing dependent commands...");
-                        Parser->RemoveCommands(filename);
+			log(DEBUG,"Removing dependent commands...");
+			Parser->RemoveCommands(filename);
 			log(DEFAULT,"Module %s unloaded",filename);
 			MODCOUNT--;
 			BuildISupport();
@@ -473,8 +473,8 @@ bool InspIRCd::LoadModule(const char* filename)
 #endif
 	log(DEBUG,"Loading module: %s",modfile);
 #ifndef STATIC_LINK
-        if (FileExists(modfile))
-        {
+	if (FileExists(modfile))
+	{
 #endif
 		for (unsigned int j = 0; j < Config->module_names.size(); j++)
 		{
@@ -486,22 +486,22 @@ bool InspIRCd::LoadModule(const char* filename)
 			}
 		}
 		ircd_module* a = new ircd_module(modfile);
-                factory[MODCOUNT+1] = a;
-                if (factory[MODCOUNT+1]->LastError())
-                {
-                        log(DEFAULT,"Unable to load %s: %s",modfile,factory[MODCOUNT+1]->LastError());
+		factory[MODCOUNT+1] = a;
+		if (factory[MODCOUNT+1]->LastError())
+		{
+			log(DEFAULT,"Unable to load %s: %s",modfile,factory[MODCOUNT+1]->LastError());
 			snprintf(MODERR,MAXBUF,"Loader/Linker error: %s",factory[MODCOUNT+1]->LastError());
 			return false;
-                }
+		}
 		try
 		{
-	                if (factory[MODCOUNT+1]->factory)
-	                {
+			if (factory[MODCOUNT+1]->factory)
+			{
 				Module* m = factory[MODCOUNT+1]->factory->CreateModule(MyServer);
-	                        modules[MODCOUNT+1] = m;
-	                        /* save the module and the module's classfactory, if
-	                         * this isnt done, random crashes can occur :/ */
-	                        Config->module_names.push_back(filename);
+				modules[MODCOUNT+1] = m;
+				/* save the module and the module's classfactory, if
+				 * this isnt done, random crashes can occur :/ */
+				Config->module_names.push_back(filename);
 
 				char* x = &Config->implement_lists[MODCOUNT+1][0];
 				for(int t = 0; t < 255; t++)
@@ -511,13 +511,13 @@ bool InspIRCd::LoadModule(const char* filename)
 
 				for(int t = 0; t < 255; t++)
 					Config->global_implementation[t] += Config->implement_lists[MODCOUNT+1][t];
-	                }
+			}
 			else
 			{
-       	        		log(DEFAULT,"Unable to load %s",modfile);
+       				log(DEFAULT,"Unable to load %s",modfile);
 				snprintf(MODERR,MAXBUF,"Factory function failed!");
 				return false;
-	                }
+			}
 		}
 		catch (ModuleException& modexcept)
 		{
@@ -526,13 +526,13 @@ bool InspIRCd::LoadModule(const char* filename)
 			return false;
 		}
 #ifndef STATIC_LINK
-        }
-        else
-        {
-                log(DEFAULT,"InspIRCd: startup: Module Not Found %s",modfile);
+	}
+	else
+	{
+		log(DEFAULT,"InspIRCd: startup: Module Not Found %s",modfile);
 		snprintf(MODERR,MAXBUF,"Module file could not be found");
 		return false;
-        }
+	}
 #endif
 	MODCOUNT++;
 	FOREACH_MOD(I_OnLoadModule,OnLoadModule(modules[MODCOUNT],filename_str));
@@ -583,35 +583,35 @@ bool InspIRCd::LoadModule(const char* filename)
 
 void InspIRCd::DoOneIteration(bool process_module_sockets)
 {
-        int activefds[MAX_DESCRIPTORS];
-        int incomingSockfd;
-        int in_port;
-        userrec* cu = NULL;
-        InspSocket* s = NULL;
-        InspSocket* s_del = NULL;
-        unsigned int numberactive;
-        sockaddr_in sock_us;     // our port number
-        socklen_t uslen;         // length of our port number
+	int activefds[MAX_DESCRIPTORS];
+	int incomingSockfd;
+	int in_port;
+	userrec* cu = NULL;
+	InspSocket* s = NULL;
+	InspSocket* s_del = NULL;
+	unsigned int numberactive;
+	sockaddr_in sock_us;     // our port number
+	socklen_t uslen;	 // length of our port number
 
 	if (yield_depth > 100)
 		return;
 
 	yield_depth++;
 
-        /* time() seems to be a pretty expensive syscall, so avoid calling it too much.
-         * Once per loop iteration is pleanty.
-         */
-        OLDTIME = TIME;
-        TIME = time(NULL);
-        
-        /* Run background module timers every few seconds
-         * (the docs say modules shouldnt rely on accurate
-         * timing using this event, so we dont have to
-         * time this exactly).
-         */
-        if (((TIME % 5) == 0) && (!expire_run))
-        {
-                expire_lines();
+	/* time() seems to be a pretty expensive syscall, so avoid calling it too much.
+	 * Once per loop iteration is pleanty.
+	 */
+	OLDTIME = TIME;
+	TIME = time(NULL);
+	
+	/* Run background module timers every few seconds
+	 * (the docs say modules shouldnt rely on accurate
+	 * timing using this event, so we dont have to
+	 * time this exactly).
+	 */
+	if (((TIME % 5) == 0) && (!expire_run))
+	{
+		expire_lines();
 		if (process_module_sockets)
 		{
 			/* Fix by brain - the addition of DoOneIteration means that this
@@ -626,17 +626,17 @@ void InspIRCd::DoOneIteration(bool process_module_sockets)
 			 *
 			 * This should do the job and fix the bug.
 			 */
-	                FOREACH_MOD(I_OnBackgroundTimer,OnBackgroundTimer(TIME));
+			FOREACH_MOD(I_OnBackgroundTimer,OnBackgroundTimer(TIME));
 		}
-                TickMissedTimers(TIME);
-                expire_run = true;
+		TickMissedTimers(TIME);
+		expire_run = true;
 		yield_depth--;
-                return;
-        }   
-        else if ((TIME % 5) == 1)
-        {
-                expire_run = false;
-        }
+		return;
+	}   
+	else if ((TIME % 5) == 1)
+	{
+		expire_run = false;
+	}
 
 	if (iterations++ == 15)
 	{
@@ -644,165 +644,165 @@ void InspIRCd::DoOneIteration(bool process_module_sockets)
 		DoBackgroundUserStuff(TIME);
 	}
  
-        /* Once a second, do the background processing */
-        if (TIME != OLDTIME)
-        {
-                if (TIME < OLDTIME)
-                        WriteOpers("*** \002EH?!\002 -- Time is flowing BACKWARDS in this dimension! Clock drifted backwards %d secs.",abs(OLDTIME-TIME));
+	/* Once a second, do the background processing */
+	if (TIME != OLDTIME)
+	{
+		if (TIME < OLDTIME)
+			WriteOpers("*** \002EH?!\002 -- Time is flowing BACKWARDS in this dimension! Clock drifted backwards %d secs.",abs(OLDTIME-TIME));
 		if ((TIME % 3600) == 0)
 		{
 			MaintainWhoWas(TIME);
 		}
-        }
-
-        /* Process timeouts on module sockets each time around
-         * the loop. There shouldnt be many module sockets, at
-         * most, 20 or so, so this won't be much of a performance
-         * hit at all.   
-         */ 
-	if (process_module_sockets)
-	        DoSocketTimeouts(TIME);  
-         
-        TickTimers(TIME);
-         
-        /* Call the socket engine to wait on the active
-         * file descriptors. The socket engine has everything's
-         * descriptors in its list... dns, modules, users,
-         * servers... so its nice and easy, just one call.
-         */
-        if (!(numberactive = SE->Wait(activefds)))
-	{
-		yield_depth--;
-                return;
 	}
 
-        /**
-         * Now process each of the fd's. For users, we have a fast
-         * lookup table which can find a user by file descriptor, so
-         * processing them by fd isnt expensive. If we have a lot of
-         * listening ports or module sockets though, things could get
-         * ugly.
-         */
+	/* Process timeouts on module sockets each time around
+	 * the loop. There shouldnt be many module sockets, at
+	 * most, 20 or so, so this won't be much of a performance
+	 * hit at all.   
+	 */ 
+	if (process_module_sockets)
+		DoSocketTimeouts(TIME);  
+	 
+	TickTimers(TIME);
+	 
+	/* Call the socket engine to wait on the active
+	 * file descriptors. The socket engine has everything's
+	 * descriptors in its list... dns, modules, users,
+	 * servers... so its nice and easy, just one call.
+	 */
+	if (!(numberactive = SE->Wait(activefds)))
+	{
+		yield_depth--;
+		return;
+	}
+
+	/**
+	 * Now process each of the fd's. For users, we have a fast
+	 * lookup table which can find a user by file descriptor, so
+	 * processing them by fd isnt expensive. If we have a lot of
+	 * listening ports or module sockets though, things could get
+	 * ugly.
+	 */
 	log(DEBUG,"There are %d fd's to process.",numberactive);
 
-        for (unsigned int activefd = 0; activefd < numberactive; activefd++)
-        {
-                int socket_type = SE->GetType(activefds[activefd]);
-                switch (socket_type)
-                {
-                        case X_ESTAB_CLIENT:
+	for (unsigned int activefd = 0; activefd < numberactive; activefd++)
+	{
+		int socket_type = SE->GetType(activefds[activefd]);
+		switch (socket_type)
+		{
+			case X_ESTAB_CLIENT:
 
 				log(DEBUG,"Type: X_ESTAB_CLIENT: fd=%d",activefds[activefd]);
-                                cu = fd_ref_table[activefds[activefd]];
-                                if (cu)
-                                        ProcessUser(cu);  
-        
-                        break;
-        
-                        case X_ESTAB_MODULE:
+				cu = fd_ref_table[activefds[activefd]];
+				if (cu)
+					ProcessUser(cu);  
+	
+			break;
+	
+			case X_ESTAB_MODULE:
 
 				log(DEBUG,"Type: X_ESTAB_MODULE: fd=%d",activefds[activefd]);
 
 				if (!process_module_sockets)
 					break;
 
-                                /* Process module-owned sockets.
-                                 * Modules are encouraged to inherit their sockets from
-                                 * InspSocket so we can process them neatly like this.
-                                 */
-                                s = socket_ref[activefds[activefd]]; 
-              
-                                if ((s) && (!s->Poll()))
-                                {
-                                        log(DEBUG,"inspircd.cpp: Socket poll returned false, close and bail");
-                                        SE->DelFd(s->GetFd());
+				/* Process module-owned sockets.
+				 * Modules are encouraged to inherit their sockets from
+				 * InspSocket so we can process them neatly like this.
+				 */
+				s = socket_ref[activefds[activefd]]; 
+	      
+				if ((s) && (!s->Poll()))
+				{
+					log(DEBUG,"inspircd.cpp: Socket poll returned false, close and bail");
+					SE->DelFd(s->GetFd());
 					socket_ref[activefds[activefd]] = NULL;
-                                        for (std::vector<InspSocket*>::iterator a = module_sockets.begin(); a < module_sockets.end(); a++)
-                                        {
-                                                s_del = (InspSocket*)*a;
-                                                if ((s_del) && (s_del->GetFd() == activefds[activefd]))
-                                                {
-                                                        module_sockets.erase(a);
-                                                        break;
-                                                }
-                                        }
-                                        s->Close();
-                                        delete s;
-                                }
+					for (std::vector<InspSocket*>::iterator a = module_sockets.begin(); a < module_sockets.end(); a++)
+					{
+						s_del = (InspSocket*)*a;
+						if ((s_del) && (s_del->GetFd() == activefds[activefd]))
+						{
+							module_sockets.erase(a);
+							break;
+						}
+					}
+					s->Close();
+					delete s;
+				}
 				else if (!s)
 				{
 					log(DEBUG,"WTF, X_ESTAB_MODULE for nonexistent InspSocket, removed!");
 					SE->DelFd(s->GetFd());
 				}
-                        break;
+			break;
 
-                        case X_ESTAB_DNS:
-                                /* When we are using single-threaded dns,
-                                 * the sockets for dns end up in our mainloop.
-                                 * When we are using multi-threaded dns,
-                                 * each thread has its own basic poll() loop
-                                 * within it, making them 'fire and forget'
-                                 * and independent of the mainloop.
-                                 */
+			case X_ESTAB_DNS:
+				/* When we are using single-threaded dns,
+				 * the sockets for dns end up in our mainloop.
+				 * When we are using multi-threaded dns,
+				 * each thread has its own basic poll() loop
+				 * within it, making them 'fire and forget'
+				 * and independent of the mainloop.
+				 */
 #ifndef THREADED_DNS
 				log(DEBUG,"Type: X_ESTAB_DNS: fd=%d",activefds[activefd]);
-                                dns_poll(activefds[activefd]);
+				dns_poll(activefds[activefd]);
 #endif
-                        break;
+			break;
 
 			case X_LISTEN:
 
 				log(DEBUG,"Type: X_LISTEN_MODULE: fd=%d",activefds[activefd]);
 
-                                /* It's a listener */
-                                uslen = sizeof(sock_us);
-                                length = sizeof(client);
-                                incomingSockfd = accept (activefds[activefd],(struct sockaddr*)&client,&length);
-        
-                                if ((incomingSockfd > -1) && (!getsockname(incomingSockfd,(sockaddr*)&sock_us,&uslen)))
-                                {
-                                        in_port = ntohs(sock_us.sin_port);
-                                        log(DEBUG,"Accepted socket %d",incomingSockfd);
-                                        /* Years and years ago, we used to resolve here
-                                         * using gethostbyaddr(). That is sucky and we
-                                         * don't do that any more...
-                                         */
-                                        NonBlocking(incomingSockfd);
-                                        if (Config->GetIOHook(in_port))
-                                        {
-                                                try
-                                                {
-                                                        Config->GetIOHook(in_port)->OnRawSocketAccept(incomingSockfd, (char*)inet_ntoa(client.sin_addr), in_port);
-                                                }
-                                                catch (ModuleException& modexcept)
-                                                {
-                                                        log(DEBUG,"Module exception cought: %s",modexcept.GetReason());
-                                                }
-                                        }
-                                        stats->statsAccept++;
-                                        AddClient(incomingSockfd, in_port, false, client.sin_addr);
-                                        log(DEBUG,"Adding client on port %lu fd=%lu",(unsigned long)in_port,(unsigned long)incomingSockfd);
-                                }
-                                else
-                                {
-                                        log(DEBUG,"Accept failed on fd %lu: %s",(unsigned long)incomingSockfd,strerror(errno));
-                                        shutdown(incomingSockfd,2);
-                                        close(incomingSockfd);
-                                        stats->statsRefused++;
-                                }
-                        break;
+				/* It's a listener */
+				uslen = sizeof(sock_us);
+				length = sizeof(client);
+				incomingSockfd = accept (activefds[activefd],(struct sockaddr*)&client,&length);
+	
+				if ((incomingSockfd > -1) && (!getsockname(incomingSockfd,(sockaddr*)&sock_us,&uslen)))
+				{
+					in_port = ntohs(sock_us.sin_port);
+					log(DEBUG,"Accepted socket %d",incomingSockfd);
+					/* Years and years ago, we used to resolve here
+					 * using gethostbyaddr(). That is sucky and we
+					 * don't do that any more...
+					 */
+					NonBlocking(incomingSockfd);
+					if (Config->GetIOHook(in_port))
+					{
+						try
+						{
+							Config->GetIOHook(in_port)->OnRawSocketAccept(incomingSockfd, (char*)inet_ntoa(client.sin_addr), in_port);
+						}
+						catch (ModuleException& modexcept)
+						{
+							log(DEBUG,"Module exception cought: %s",modexcept.GetReason());
+						}
+					}
+					stats->statsAccept++;
+					AddClient(incomingSockfd, in_port, false, client.sin_addr);
+					log(DEBUG,"Adding client on port %lu fd=%lu",(unsigned long)in_port,(unsigned long)incomingSockfd);
+				}
+				else
+				{
+					log(DEBUG,"Accept failed on fd %lu: %s",(unsigned long)incomingSockfd,strerror(errno));
+					shutdown(incomingSockfd,2);
+					close(incomingSockfd);
+					stats->statsRefused++;
+				}
+			break;
 
-                        default:
-                                /* Something went wrong if we're in here.
-                                 * In fact, so wrong, im not quite sure
-                                 * what we would do, so for now, its going
-                                 * to safely do bugger all.
-                                 */
+			default:
+				/* Something went wrong if we're in here.
+				 * In fact, so wrong, im not quite sure
+				 * what we would do, so for now, its going
+				 * to safely do bugger all.
+				 */
 				log(DEBUG,"Type: X_WHAT_THE_FUCK_BBQ: fd=%d",activefds[activefd]);
 				SE->DelFd(activefds[activefd]);
-                        break;
-                }
-        }
+			break;
+		}
+	}
 	yield_depth--;
 }
 
@@ -810,12 +810,12 @@ int InspIRCd::Run()
 {
 	/* Until THIS point, ServerInstance == NULL */
 	
-        LoadAllModules(this);
+	LoadAllModules(this);
 
 	/* Just in case no modules were loaded - fix for bug #101 */
 	this->BuildISupport();
 
-        printf("\nInspIRCd is now running!\n");
+	printf("\nInspIRCd is now running!\n");
 	
 	if (!Config->nofork)
 	{
@@ -857,7 +857,7 @@ int main(int argc, char** argv)
 	{
 		ServerInstance = new InspIRCd(argc, argv);
 		ServerInstance->Run();
-	        delete ServerInstance;
+		delete ServerInstance;
 	}
 	catch (std::bad_alloc)
 	{

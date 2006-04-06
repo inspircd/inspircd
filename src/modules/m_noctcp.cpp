@@ -42,10 +42,10 @@ class ModuleNoCTCP : public Module
 		List[I_OnExtendedMode] = List[I_On005Numeric] = List[I_OnUserPreMessage] = List[I_OnUserPreNotice] = 1;
 	}
 
-        virtual void On005Numeric(std::string &output)
-        {
+	virtual void On005Numeric(std::string &output)
+	{
 		InsertMode(output,"C",4);
-        }
+	}
 	
 	virtual int OnUserPreMessage(userrec* user,void* dest,int target_type, std::string &text, char status)
 	{

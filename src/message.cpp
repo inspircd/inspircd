@@ -223,14 +223,14 @@ void ChangeName(userrec* user, const char* gecos)
 
 void ChangeDisplayedHost(userrec* user, const char* host)
 {
-        if (user->fd > -1)
-        {
-                int MOD_RESULT = 0;
-                FOREACH_RESULT(I_OnChangeLocalUserHost,OnChangeLocalUserHost(user,host));
-                if (MOD_RESULT)
-                        return;
+	if (user->fd > -1)
+	{
+		int MOD_RESULT = 0;
+		FOREACH_RESULT(I_OnChangeLocalUserHost,OnChangeLocalUserHost(user,host));
+		if (MOD_RESULT)
+			return;
 		FOREACH_MOD(I_OnChangeHost,OnChangeHost(user,host));
-        }
+	}
 	strlcpy(user->dhost,host,63);
 	WriteServ(user->fd,"396 %s %s :is now your hidden host",user->nick,user->dhost);
 }
@@ -239,23 +239,23 @@ void ChangeDisplayedHost(userrec* user, const char* host)
 
 int isident(const char* n)
 {
-        if (!n || !*n)
-        {
-                return 0;
-        }
-        for (char* i = (char*)n; *i; i++)
-        {
-                if ((*i >= 'A') && (*i <= '}'))
-                {
-                        continue;
-                }
-                if (strchr(".-0123456789",*i))
-                {
-                        continue;
-                }
+	if (!n || !*n)
+	{
 		return 0;
-        }
-        return 1;
+	}
+	for (char* i = (char*)n; *i; i++)
+	{
+		if ((*i >= 'A') && (*i <= '}'))
+		{
+			continue;
+		}
+		if (strchr(".-0123456789",*i))
+		{
+			continue;
+		}
+		return 0;
+	}
+	return 1;
 }
 
 

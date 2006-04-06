@@ -132,10 +132,10 @@ void cmd_whois::Handle (char **parameters, int pcnt, userrec *user)
 	{
 		do_whois(user,dest,0,0,parameters[0]);
 	}
-        else
-        {
-                /* no such nick/channel */
-                WriteServ(user->fd,"401 %s %s :No such nick/channel",user->nick, parameters[0]);
-                WriteServ(user->fd,"318 %s %s :End of /WHOIS list.",user->nick, parameters[0]);
+	else
+	{
+		/* no such nick/channel */
+		WriteServ(user->fd,"401 %s %s :No such nick/channel",user->nick, parameters[0]);
+		WriteServ(user->fd,"318 %s %s :End of /WHOIS list.",user->nick, parameters[0]);
 	}
 }

@@ -198,12 +198,12 @@ class ModuleMsgFlood : public Module
 		}
 	}
 
-        virtual void OnUserMessage(userrec* user, void* dest, int target_type, const std::string &text, char status)
+	virtual void OnUserMessage(userrec* user, void* dest, int target_type, const std::string &text, char status)
 	{
-                if (target_type == TYPE_CHANNEL)
-                {
-                        ProcessMessages(user,(chanrec*)dest,text);
-                }
+		if (target_type == TYPE_CHANNEL)
+		{
+			ProcessMessages(user,(chanrec*)dest,text);
+		}
 	}
 
 	virtual void OnUserNotice(userrec* user, void* dest, int target_type, const std::string &text, char status)

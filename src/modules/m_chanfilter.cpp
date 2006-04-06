@@ -53,10 +53,10 @@ class ModuleChanFilter : public Module
 		List[I_On005Numeric] = List[I_OnUserPart] = List[I_OnRehash] = List[I_OnUserPreMessage] = List[I_OnUserPreNotice] = List[I_OnExtendedMode] = List[I_OnSendList] = List[I_OnSyncChannel] = 1;
 	}
 	
-        virtual void On005Numeric(std::string &output)
-        {
+	virtual void On005Numeric(std::string &output)
+	{
 		InsertMode(output,"g",1);
-        }
+	}
 
 	virtual void OnUserPart(userrec* user, chanrec* channel, const std::string &partreason)
 	{
@@ -80,8 +80,8 @@ class ModuleChanFilter : public Module
 		MaxEntries = Conf->ReadInteger("chanfilter","maxsize",0,true);
 	}
 
-        virtual int ProcessMessages(userrec* user,chanrec* chan,std::string &text)
-        {
+	virtual int ProcessMessages(userrec* user,chanrec* chan,std::string &text)
+	{
 
 		// Create a copy of the string in irc::string
 		irc::string line = text.c_str();

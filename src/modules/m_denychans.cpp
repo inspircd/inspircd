@@ -57,8 +57,8 @@ class ModuleDenyChannels : public Module
 		List[I_OnUserPreJoin] = List[I_OnRehash] = 1;
 	}
 
-        virtual int OnUserPreJoin(userrec* user, chanrec* chan, const char* cname)
-        {
+	virtual int OnUserPreJoin(userrec* user, chanrec* chan, const char* cname)
+	{
 		for (int j =0; j < Conf->Enumerate("badchan"); j++)
 		{
 			irc::string cn = Conf->ReadValue("badchan","name",j).c_str();
@@ -78,7 +78,7 @@ class ModuleDenyChannels : public Module
 			}
 		}
 		return 0;
-        }
+	}
 };
 
 // stuff down here is the module-factory stuff. For basic modules you can ignore this.

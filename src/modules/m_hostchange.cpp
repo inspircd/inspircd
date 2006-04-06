@@ -46,7 +46,7 @@ class ModuleHostChange : public Module
 		: Module::Module(Me)
 	{
 		Srv = Me;
-                Conf = new ConfigReader;
+		Conf = new ConfigReader;
 		OnRehash("");
 	}
 	

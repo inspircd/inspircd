@@ -59,10 +59,10 @@ class ModuleChanProtect : public Module
 		List[I_On005Numeric] = List[I_OnUserKick] = List[I_OnUserPart] = List[I_OnRehash] = List[I_OnUserJoin] = List[I_OnAccessCheck] = List[I_OnExtendedMode] = List[I_OnSendList] = List[I_OnSyncChannel] = 1;
 	}
 	
-        virtual void On005Numeric(std::string &output)
-        {
+	virtual void On005Numeric(std::string &output)
+	{
 		InsertMode(output,"qa",1);
-        }
+	}
 
 	virtual void OnUserKick(userrec* source, userrec* user, chanrec* chan, const std::string &reason)
 	{
@@ -301,18 +301,18 @@ class ModuleChanProtect : public Module
 			}
 			WriteServ(user->fd,"387 %s %s :End of channel founder list",user->nick, channel->name);
 		}
-                if (mode == 'a')
-                {
-                        chanuserlist cl = Srv->GetUsers(channel);
-                        for (unsigned int i = 0; i < cl.size(); i++)
-                        {
-                                if (cl[i]->GetExt("cm_protect_"+std::string(channel->name)))
-                                {
-                                        WriteServ(user->fd,"388 %s %s %s",user->nick, channel->name,cl[i]->nick);
-                                }
-                        }
+		if (mode == 'a')
+		{
+			chanuserlist cl = Srv->GetUsers(channel);
+			for (unsigned int i = 0; i < cl.size(); i++)
+			{
+				if (cl[i]->GetExt("cm_protect_"+std::string(channel->name)))
+				{
+					WriteServ(user->fd,"388 %s %s %s",user->nick, channel->name,cl[i]->nick);
+				}
+			}
 			WriteServ(user->fd,"389 %s %s :End of channel protected user list",user->nick, channel->name);
-                }
+		}
 
 	}
 	

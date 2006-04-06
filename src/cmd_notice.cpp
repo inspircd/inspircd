@@ -115,11 +115,11 @@ void cmd_notice::Handle (char **parameters, int pcnt, userrec *user)
 			}
 			parameters[1] = (char*)temp.c_str();
 
-                        if (temp == "")
-                        {
-                                WriteServ(user->fd,"412 %s No text to send", user->nick);
-                                return;
-                        }
+			if (temp == "")
+			{
+				WriteServ(user->fd,"412 %s No text to send", user->nick);
+				return;
+			}
 
 			ChanExceptSender(chan, user, status, "NOTICE %s :%s", chan->name, parameters[1]);
 

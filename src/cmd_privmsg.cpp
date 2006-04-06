@@ -76,18 +76,18 @@ void cmd_privmsg::Handle (char **parameters, int pcnt, userrec *user)
 		char* servermask = parameters[0];
 		servermask++;
 		if (match(Config->ServerName,servermask))
-                {
+		{
 			ServerPrivmsgAll("%s",parameters[1]);
-                }
+		}
 		return;
-        }
-        char status = 0;
-        if ((*parameters[0] == '@') || (*parameters[0] == '%') || (*parameters[0] == '+'))
-        {
-                status = *parameters[0];
-                parameters[0]++;
-        }
-        if (parameters[0][0] == '#')
+	}
+	char status = 0;
+	if ((*parameters[0] == '@') || (*parameters[0] == '%') || (*parameters[0] == '+'))
+	{
+		status = *parameters[0];
+		parameters[0]++;
+	}
+	if (parameters[0][0] == '#')
 	{
 		chan = FindChan(parameters[0]);
 		if (chan)

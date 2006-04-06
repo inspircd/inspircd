@@ -71,16 +71,16 @@ class RFC1413 : public InspSocket
 						if (section)
 						{
 							while (*section == ' ') section++; // strip leading spaces
-                                                        for (char* j = section; *j; j++)
-                                                        if ((*j < 33) || (*j > 126))
+							for (char* j = section; *j; j++)
+							if ((*j < 33) || (*j > 126))
 								*j = '\0'; // truncate at invalid chars
-                                                        if (*section)
-                                                        {
-                                                        	strlcpy(u->ident,section,IDENTMAX);
-                                                                Srv->Log(DEBUG,"IDENT SET: "+std::string(u->ident));
-                                                                Srv->SendServ(u->fd,"NOTICE "+std::string(u->nick)+" :*** Found your ident: "+std::string(u->ident));
-                                                        }
-                                                        return false;
+							if (*section)
+							{
+								strlcpy(u->ident,section,IDENTMAX);
+								Srv->Log(DEBUG,"IDENT SET: "+std::string(u->ident));
+								Srv->SendServ(u->fd,"NOTICE "+std::string(u->nick)+" :*** Found your ident: "+std::string(u->ident));
+							}
+							return false;
 						}
 					}
 				}
@@ -158,10 +158,12 @@ class ModuleIdent : public Module
 
 	virtual void OnUserRegister(userrec* user)
 	{
-		// when the new user connects, before they authenticate with USER/NICK/PASS, we do
-		// their ident lookup. We do this by instantiating an object of type RFC1413, which
-		// is derived from InspSocket, and inserting it into the socket engine using the
-		// Server::AddSocket() call.
+		/*
+		 * when the new user connects, before they authenticate with USER/NICK/PASS, we do
+		 * their ident lookup. We do this by instantiating an object of type RFC1413, which
+		 * is derived from InspSocket, and inserting it into the socket engine using the
+		 * Server::AddSocket() call.
+		 */
 		Srv->SendServ(user->fd,"NOTICE "+std::string(user->nick)+" :*** Looking up your ident...");
 		RFC1413* ident = new RFC1413(user, IdentTimeout, Srv);
 		if (ident->GetState() != I_ERROR)
@@ -178,9 +180,11 @@ class ModuleIdent : public Module
 
 	virtual bool OnCheckReady(userrec* user)
 	{
-		// The socket engine will clean up their ident request for us when it completes,
-		// either due to timeout or due to closing, so, we just hold them until they dont
-		// have an ident field any more.
+		/*
+		 * The socket engine will clean up their ident request for us when it completes,
+		 * either due to timeout or due to closing, so, we just hold them until they dont
+		 * have an ident field any more.
+		 */
 		RFC1413* ident = (RFC1413*)user->GetExt("ident_data");
 		return (!ident);
 	}
@@ -198,20 +202,22 @@ class ModuleIdent : public Module
 		}
 	}
 
-        virtual void OnUserDisconnect(userrec* user)
-        {
-                // when the user quits tidy up any ident lookup they have pending to keep things tidy.
-                // When we call RemoveSocket, the abstractions tied into the system evnetually work their
-		// way to RFC1459::OnClose(), which shrinks off the ident_data for us, so we dont need
-		// to do it here. If we don't tidy this up, there may still be lingering idents for users
-		// who have quit, as class RFC1459 is only loosely bound to userrec* via a pair of pointers
-		// and this would leave at least one of the invalid ;)
+	virtual void OnUserDisconnect(userrec* user)
+	{
+		/*
+		 * when the user quits tidy up any ident lookup they have pending to keep things tidy.
+		 * When we call RemoveSocket, the abstractions tied into the system evnetually work their
+		 * way to RFC1459::OnClose(), which shrinks off the ident_data for us, so we dont need
+		 * to do it here. If we don't tidy this up, there may still be lingering idents for users
+		 * who have quit, as class RFC1459 is only loosely bound to userrec* via a pair of pointers
+		 * and this would leave at least one of the invalid ;)
+		 */
 		RFC1413* ident = (RFC1413*)user->GetExt("ident_data");
-                if (ident)
-                {
+		if (ident)
+		{
 			Srv->RemoveSocket(ident);
-                }
-        }
+		}
+	}
 	
 	virtual ~ModuleIdent()
 	{

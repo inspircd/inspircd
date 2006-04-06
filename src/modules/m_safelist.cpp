@@ -3,13 +3,13 @@
  *       +------------------------------------+
  *
  *  InspIRCd is copyright (C) 2002-2006 ChatSpike-Dev.
- *		       E-mail:
- *		<brain@chatspike.net>
- *	   	  <Craig@chatspike.net>
+ *                       E-mail:
+ *                <brain@chatspike.net>
+ *           	  <Craig@chatspike.net>
  *     
  * Written by Craig Edwards, Craig McLure, and others.
  * This program is free but copyrighted software; see
- *	    the file COPYING for details.
+ *            the file COPYING for details.
  *
  * ---------------------------------------------------
  */
@@ -62,44 +62,44 @@ class ListTimer : public InspTimer
 
 	virtual void Tick(time_t TIME)
 	{
-                bool go_again = true;
+		bool go_again = true;
 
-                while (go_again)
-                {
-                        go_again = false;
-                        for (UserList::iterator iter = listusers.begin(); iter != listusers.end(); iter++)
-                        {
-                                /*
-                                 * What we do here:
-                                 *  - Get where they are up to
-                                 *  - If it's > GetChannelCount, erase them from the iterator, set go_again to true
-                                 *  - If not, spool the next 20 channels
-                                 */
-                                userrec* u = (userrec*)(*iter);
-                                ListData* ld = (ListData*)u->GetExt("safelist_cache");
-                                if (ld->list_position > Srv->GetChannelCount())
-                                {
-                                        u->Shrink("safelist_cache");
-                                        delete ld;
-                                        listusers.erase(iter);
-                                        go_again = true;
-                                        break;
-                                }
+		while (go_again)
+		{
+			go_again = false;
+			for (UserList::iterator iter = listusers.begin(); iter != listusers.end(); iter++)
+			{
+				/*
+				 * What we do here:
+				 *  - Get where they are up to
+				 *  - If it's > GetChannelCount, erase them from the iterator, set go_again to true
+				 *  - If not, spool more channels
+				 */
+				userrec* u = (userrec*)(*iter);
+				ListData* ld = (ListData*)u->GetExt("safelist_cache");
+				if (ld->list_position > Srv->GetChannelCount())
+				{
+					u->Shrink("safelist_cache");
+					delete ld;
+					listusers.erase(iter);
+					go_again = true;
+					break;
+				}
 
-                                log(DEBUG, "m_safelist.so: resuming spool of list to client %s at channel %ld", u->nick, ld->list_position);
-                                chan = NULL;
-                                /* Attempt to fill up to half the user's sendq with /LIST output */
-                                long amount_sent = 0;
-                                do
-                                {
-                                        log(DEBUG,"Channel %ld",ld->list_position);
+				log(DEBUG, "m_safelist.so: resuming spool of list to client %s at channel %ld", u->nick, ld->list_position);
+				chan = NULL;
+				/* Attempt to fill up to half the user's sendq with /LIST output */
+				long amount_sent = 0;
+				do
+				{
+					log(DEBUG,"Channel %ld",ld->list_position);
 					if (!ld->list_position)
 						WriteServ(u->fd,"321 %s Channel :Users Name",u->nick);
-                                        chan = Srv->GetChannelIndex(ld->list_position);
-                                        /* spool details */
+					chan = Srv->GetChannelIndex(ld->list_position);
+					/* spool details */
 					bool has_user = (chan && chan->HasUser(u));
-                                        if ((chan) && (((!(chan->modes[CM_PRIVATE])) && (!(chan->modes[CM_SECRET]))) || (has_user)))
-                                        {
+					if ((chan) && (((!(chan->modes[CM_PRIVATE])) && (!(chan->modes[CM_SECRET]))) || (has_user)))
+					{
 						long users = usercount(chan);
 						if (users)
 						{
@@ -109,24 +109,24 @@ class ListTimer : public InspTimer
 							log(DEBUG,"m_safelist.so: Sent %ld of safe %ld / 4",amount_sent,u->sendqmax);
 							WriteServ_NoFormat(u->fd,buffer);
 						}
-                                        }
-                                        else
-                                        {
+					}
+					else
+					{
 						if (!chan)
 						{
-	                                                if (!ld->list_ended)
-	                                                {
-	                                                        ld->list_ended = true;
-	                                                        WriteServ(u->fd,"323 %s :End of channel list.",u->nick);
-	                                                }
+							if (!ld->list_ended)
+							{
+								ld->list_ended = true;
+								WriteServ(u->fd,"323 %s :End of channel list.",u->nick);
+							}
 						}
-                                        }
+					}
 
-                                        ld->list_position++;
-                                }
-                                while ((chan != NULL) && (amount_sent < (u->sendqmax / 4)));
-                        }
-                }
+					ld->list_position++;
+				}
+				while ((chan != NULL) && (amount_sent < (u->sendqmax / 4)));
+			}
+		}
 
 		ListTimer* MyTimer = new ListTimer(1,Srv);
 		Srv->AddTimer(MyTimer);
@@ -220,16 +220,16 @@ class ModuleSafeList : public Module
 		return 1;
 	}
 
-        virtual void OnCleanup(int target_type, void* item)
-        {
-                if(target_type == TYPE_USER)
+	virtual void OnCleanup(int target_type, void* item)
+	{
+		if(target_type == TYPE_USER)
 		{
 			userrec* u = (userrec*)item;
 			ListData* ld = (ListData*)u->GetExt("safelist_cache");
 			if (ld)
 			{
 				u->Shrink("safelist_cache");
-	                        delete ld;
+				delete ld;
 			}
 			for (UserList::iterator iter = listusers.begin(); iter != listusers.end(); iter++)
 			{

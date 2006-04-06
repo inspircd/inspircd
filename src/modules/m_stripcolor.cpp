@@ -58,10 +58,10 @@ class ModuleStripColor : public Module
 		}
 	}
 
-        virtual void On005Numeric(std::string &output)
-        {
+	virtual void On005Numeric(std::string &output)
+	{
 		InsertMode(output,"S",4);
-        }
+	}
  	
 	virtual ~ModuleStripColor()
 	{
@@ -176,7 +176,7 @@ class ModuleStripColorFactory : public ModuleFactory
 };
 
 
-extern "C" void * init_module( void )
+extern "C" void * stripcolor_init( void )
 {
 	return new ModuleStripColorFactory;
 }

@@ -69,9 +69,9 @@ using namespace std;
 
 size_t nspace::hash<in_addr>::operator()(const struct in_addr &a) const
 {
-        size_t q;
-        memcpy(&q,&a,sizeof(size_t));
-        return q;
+	size_t q;
+	memcpy(&q,&a,sizeof(size_t));
+	return q;
 }
 
 size_t nspace::hash<string>::operator()(const string &s) const
@@ -95,7 +95,7 @@ bool irc::StrHashComp::operator()(const std::string& s1, const std::string& s2) 
 
 bool irc::InAddr_HashComp::operator()(const in_addr &s1, const in_addr &s2) const
 {
-        return (s1.s_addr == s1.s_addr);
+	return (s1.s_addr == s1.s_addr);
 }
 
 /******************************************************
@@ -131,13 +131,13 @@ int irc::irc_char_traits::compare(const char* str1, const char* str2, size_t n)
 	for(unsigned int i = 0; i < n; i++)
 	{
 		if(lowermap[(unsigned char)*str1] > lowermap[(unsigned char)*str2])
-       	        	return 1;
+       			return 1;
 
 		if(lowermap[(unsigned char)*str1] < lowermap[(unsigned char)*str2])
-	               	return -1;
+		       	return -1;
 
-	        if(*str1 == 0 || *str2 == 0)
-	              	return 0;
+		if(*str1 == 0 || *str2 == 0)
+		      	return 0;
 
 	       	str1++;
 		str2++;

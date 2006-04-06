@@ -63,10 +63,10 @@ class ModuleNoNotice : public Module
 		return 0;
 	}
 
-        virtual void On005Numeric(std::string &output)
-        {
+	virtual void On005Numeric(std::string &output)
+	{
 		InsertMode(output,"T",4);
-        }
+	}
 
 	virtual int OnExtendedMode(userrec* user, void* target, char modechar, int type, bool mode_on, string_list &params)
 	{

@@ -53,10 +53,10 @@ class ModuleNoNickChange : public Module
 		List[I_On005Numeric] = List[I_OnUserPreNick] = List[I_OnExtendedMode] = 1;
 	}
 
-        virtual void On005Numeric(std::string &output)
-        {
+	virtual void On005Numeric(std::string &output)
+	{
 		InsertMode(output,"N",4);
-        }
+	}
 	
 	virtual int OnUserPreNick(userrec* user, const std::string &newnick)
 	{

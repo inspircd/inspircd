@@ -87,23 +87,23 @@ class ModuleOperLevels : public Module
 class ModuleOperLevelsFactory : public ModuleFactory
 {
  public:
-        ModuleOperLevelsFactory()
-        {
-        }
+	ModuleOperLevelsFactory()
+	{
+	}
 
-        ~ModuleOperLevelsFactory()
-        {
-        }
+	~ModuleOperLevelsFactory()
+	{
+	}
 
-        virtual Module * CreateModule(Server* Me)
-        {
-                return new ModuleOperLevels(Me);
-        }
+	virtual Module * CreateModule(Server* Me)
+	{
+		return new ModuleOperLevels(Me);
+	}
 
 };
 
-extern "C" void * init_module( void )
+extern "C" void * operlevels_init( void )
 {
-        return new ModuleOperLevelsFactory;
+	return new ModuleOperLevelsFactory;
 }
 
