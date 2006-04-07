@@ -34,20 +34,35 @@ using namespace std;
 #include "cmd_die.h"
 
 extern ServerConfig* Config;
+extern std::vector<userrec*> all_opers;
 
 void cmd_die::Handle (char **parameters, int pcnt, userrec *user)
 {
-	log(DEBUG,"die: %s",user->nick);
 	if (!strcmp(parameters[0],Config->diepass))
 	{
-		WriteOpers("*** DIE command from %s!%s@%s, terminating...",user->nick,user->ident,user->host);
+		log(SPARSE, "/DIE command from %s!%s@%s, terminating in %d seconds...", user->nick, user->ident, user->host, Config->DieDelay);
+		
+		/* This would just be WriteOpers(), but as we just sleep() and then die then the write buffers never get flushed.
+		 * so we iterate the oper list, writing the message and immediately trying to flush their write buffer.
+		 */
+		
+		for (std::vector<userrec*>::iterator i = all_opers.begin(); i != all_opers.end(); i++)
+		{
+			userrec* a = *i;
+			
+			if (IS_LOCAL(a) && (a->modebits & UM_SERVERNOTICE))
+			{
+				WriteServ(a->fd, "NOTICE %s :*** DIE command from %s!%s@%s, terminating...", a->nick, a->nick, a->ident, a->host);
+				a->FlushWriteBuf();
+			}
+		}
+		
 		sleep(Config->DieDelay);
 		Exit(ERROR);
 	}
 	else
 	{
+		log(SPARSE, "Failed /DIE command from %s!%s@%s", user->nick, user->ident, user->host);
 		WriteOpers("*** Failed DIE Command from %s!%s@%s.",user->nick,user->ident,user->host);
 	}
 }
-
-

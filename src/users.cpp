@@ -404,9 +404,8 @@ void userrec::AddWriteBuf(const std::string &data)
 		WriteOpers("*** User %s SendQ of %d exceeds connect class maximum of %d",this->nick,sendq.length() + data.length(),this->sendqmax);
 		return;
 	}
-	std::stringstream stream;
-	stream << sendq << data;
-	sendq = stream.str();
+	
+	sendq.append(data);
 }
 
 // send AS MUCH OF THE USERS SENDQ as we are able to (might not be all of it)

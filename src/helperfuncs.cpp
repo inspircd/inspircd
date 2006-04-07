@@ -293,31 +293,8 @@ void WriteServ(int sock, char* text, ...)
 	va_start(argsPtr, text);
 	vsnprintf(textbuffer, MAXBUF, text, argsPtr);
 	va_end(argsPtr);
-	bytes = snprintf(tb,MAXBUF,":%s %s\r\n",Config->ServerName,textbuffer);
-	chop(tb);
-
-	if (fd_ref_table[sock])
-	{
-		if (Config->GetIOHook(fd_ref_table[sock]->port))
-		{
-			try
-			{
-				Config->GetIOHook(fd_ref_table[sock]->port)->OnRawSocketWrite(sock,tb,bytes);
-			}
-			catch (ModuleException& modexcept)
-			{
-				log(DEBUG,"Module exception caught: %s",modexcept.GetReason());
-			}
-		}
-		else
-		{
-			fd_ref_table[sock]->AddWriteBuf(tb);
-		}
-
-		ServerInstance->stats->statsSent += bytes;
-	}
-	else
-		log(DEFAULT,"ERROR! attempted write to a user with no fd_ref_table entry!!!");
+	
+	WriteServ_NoFormat(sock, textbuffer);
 }
 
 /** WriteFrom_NoFormat()
