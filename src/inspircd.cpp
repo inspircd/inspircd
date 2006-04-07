@@ -171,15 +171,23 @@ InspIRCd::InspIRCd(int argc, char** argv)
 			{
 				Config->nofork = true;
 			}
-			if (!strcmp(argv[i],"-wait"))
+			else if(!strcmp(argv[i],"-debug"))
+			{
+				Config->forcedebug = true;
+			}
+			else if(!strcmp(argv[i],"-nolog"))
+			{
+				Config->writelog = false;
+			}
+			else if (!strcmp(argv[i],"-wait"))
 			{
 				sleep(6);
 			}
-			if (!strcmp(argv[i],"-nolimit"))
+			else if (!strcmp(argv[i],"-nolimit"))
 			{
 				printf("WARNING: The `-nolimit' option is deprecated, and now on by default. This behaviour may change in the future.\n");
 			}
-			if (!strcmp(argv[i],"-logfile"))
+			else if (!strcmp(argv[i],"-logfile"))
 			{
 				if (argc > i+1)
 				{
@@ -867,4 +875,3 @@ int main(int argc, char** argv)
 	}
 	return 0;
 }
-

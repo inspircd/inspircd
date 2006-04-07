@@ -163,7 +163,7 @@ class ServerConfig : public classbase
 	 * overridden in the configuration file via
 	 * the <options> tag.
 	 */
-        char ModPath[1024];
+	char ModPath[1024];
 
 	/** The temporary directory where modules are copied
 	 */
@@ -172,7 +172,7 @@ class ServerConfig : public classbase
 	/** The full pathname to the executable, as
 	 * given in argv[0] when the program starts.
 	 */
-        char MyExecutable[1024];
+	char MyExecutable[1024];
 
 	/** The file handle of the logfile. If this
 	 * value is NULL, the log file is not open,
@@ -180,24 +180,42 @@ class ServerConfig : public classbase
 	 * startup (this should not happen in normal
 	 * operation!).
 	 */
-        FILE *log_file;
+	FILE *log_file;
 
 	/** If this value is true, the owner of the
 	 * server specified -nofork on the command
 	 * line, causing the daemon to stay in the
 	 * foreground.
 	 */
-        bool nofork;
+	bool nofork;
+	
+	/** If this value if true then all log
+	 * messages will be output, regardless of
+	 * the level given in the config file.
+	 * This is set with the -debug commandline
+	 * option.
+	 */
+	bool forcedebug;
+	
+	/** If this is true then log output will be
+	 * written to the logfile. This is the default.
+	 * If you put -nolog on the commandline then
+	 * the logfile will not be written.
+	 * This is meant to be used in conjunction with
+	 * -debug for debugging without filling up the
+	 * hard disk.
+	 */
+	bool writelog;
 
 	/** If this value is true, halfops have been
 	 * enabled in the configuration file.
 	 */
-        bool AllowHalfop;
+	bool AllowHalfop;
 
 	/** The number of seconds the DNS subsystem
 	 * will wait before timing out any request.
 	 */
-        int dns_timeout;
+	int dns_timeout;
 
 	/** The size of the read() buffer in the user
 	 * handling code, used to read data into a user's

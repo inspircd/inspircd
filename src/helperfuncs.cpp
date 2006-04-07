@@ -77,7 +77,8 @@ void log(int level, char *text, ...)
 	va_list argsPtr;
 	char textbuffer[MAXBUF];
 
-	if (level < Config->LogLevel)
+	/* If we were given -debug we output all messages, regardless of configured loglevel */
+	if ((level < Config->LogLevel) && !Config->forcedebug)
 		return;
 
 	if (TIME != LAST)
@@ -95,13 +96,13 @@ void log(int level, char *text, ...)
 		vsnprintf(textbuffer, MAXBUF, text, argsPtr);
 		va_end(argsPtr);
 
-		if (Config->log_file)
+		if (Config->writelog)
 			fprintf(Config->log_file,"%s %s\n",TIMESTR,textbuffer);
-
-		if (Config->nofork)
-		{
-			printf("%s %s\n", TIMESTR, textbuffer);
-		}
+	}
+	
+	if (Config->nofork)
+	{
+		printf("%s %s\n", TIMESTR, textbuffer);
 	}
 }
 

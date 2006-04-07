@@ -52,8 +52,8 @@ ServerConfig::ServerConfig()
 	*CustomVersion = *motd = *rules = *PrefixQuit = *DieValue = *DNSServer = '\0';
 	*OperOnlyStats = *ModPath = *MyExecutable = *DisabledCommands = *PID = '\0';
 	log_file = NULL;
-	OperSpyWhois = nofork = HideBans = HideSplits = false;
-	AllowHalfop = true;
+	forcedebug = OperSpyWhois = nofork = HideBans = HideSplits = false;
+	writelog = AllowHalfop = true;
 	dns_timeout = DieDelay = 5;
 	MaxTargets = 20;
 	NetBufferSize = 10240;
@@ -1320,7 +1320,7 @@ bool ServerConfig::ConfValueBool(ConfigDataHash &target, const std::string &tag,
 	
 int ServerConfig::ConfValueEnum(ConfigDataHash &target, const char* tag)
 {
-	return ConfValueEnum(target, std::string(tag));
+	return target.count(tag);
 }
 
 int ServerConfig::ConfValueEnum(ConfigDataHash &target, const std::string &tag)

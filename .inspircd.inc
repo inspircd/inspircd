@@ -91,7 +91,7 @@ sub debug {
         # Check to see its not 'running' already.
         if (getstatus() == 1) { print "InspIRCd is already running.\n"; return 0; }
         # If we are still alive here.. Try starting the IRCd..
-        system("gdb --command=.gdbargs --args $binpath/$executable -nofork -debug");
+        system("gdb --command=.gdbargs --args $binpath/$executable -nofork -debug -nolog");
 }
 
 
