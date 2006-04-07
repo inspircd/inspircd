@@ -1330,7 +1330,7 @@ int ServerConfig::ConfValueEnum(ConfigDataHash &target, const std::string &tag)
 	
 int ServerConfig::ConfVarEnum(ConfigDataHash &target, const char* tag, int index)
 {
-	return 1;
+	return ConfVarEnum(target, std::string(tag), index);
 }
 
 int ServerConfig::ConfVarEnum(ConfigDataHash &target, const std::string &tag, int index)
@@ -1346,9 +1346,13 @@ int ServerConfig::ConfVarEnum(ConfigDataHash &target, const std::string &tag, in
 		
 		return iter->second.size();
 	}
+	else if(pos == 0)
+	{
+		log(DEBUG, "No <%s> tags in config file.", tag.c_str());
+	}
 	else
 	{
-		log(DEBUG, "ConfVarEnum got an out-of-range index %d", pos);
+		log(DEBUG, "ConfVarEnum got an out-of-range index %d, there are only %d occurences of %s", pos, target.count(tag), tag.c_str());
 	}
 	
 	return 0;
