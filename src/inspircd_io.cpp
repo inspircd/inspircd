@@ -1276,9 +1276,13 @@ bool ServerConfig::ConfValue(ConfigDataHash &target, const std::string &tag, con
 			}
 		}
 	}
+	else if(pos == 0)
+	{
+		log(DEBUG, "No <%s> tags in config file.", tag.c_str());
+	}
 	else
 	{
-		log(DEBUG, "ConfValue got an out-of-range index %d", pos);
+		log(DEBUG, "ConfValue got an out-of-range index %d, there are only %d occurences of %s", pos, target.count(tag), tag.c_str());
 	}
 	
 	return false;
