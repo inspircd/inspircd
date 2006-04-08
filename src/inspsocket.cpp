@@ -14,20 +14,12 @@
  * ---------------------------------------------------
  */
 
-#include "inspircd_config.h"
-#include <sys/time.h>
-#include <sys/resource.h>
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
 #include <string>
-#include <unistd.h>
-#include <fcntl.h>
-#include <poll.h>
 #include <sstream>
 #include <iostream>
 #include <fstream>
 #include <stdexcept>
+#include "inspircd_config.h"
 #include "socket.h"
 #include "inspircd.h"
 #include "configreader.h"

@@ -27,7 +27,6 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <poll.h>
-
 #include "inspircd_config.h"
 
 /* macros to the relevant system address description structs */
