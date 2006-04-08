@@ -14,9 +14,8 @@
  * ---------------------------------------------------
  */
 
-using namespace std;
-
-#include "inspircd_config.h" 
+#include "inspircd_config.h"
+#include "configreader.h"
 #include "channels.h"
 #include "connection.h"
 #include "users.h"

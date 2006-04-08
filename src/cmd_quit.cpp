@@ -14,22 +14,11 @@
  * ---------------------------------------------------
  */
 
-using namespace std;
-
 #include "inspircd_config.h"
 #include "inspircd.h"
-#include "inspircd_io.h"
-#include <time.h>
+#include "configreader.h"
 #include <string>
-#ifdef GCC3
-#include <ext/hash_map>
-#else
-#include <hash_map>
-#endif
-#include <map>
-#include <sstream>
 #include <vector>
-#include <deque>
 #include "users.h"
 #include "ctables.h"
 #include "globals.h"
@@ -45,19 +34,16 @@ using namespace std;
 #include "helperfuncs.h"
 #include "hashcomp.h"
 #include "socketengine.h"
-#include "typedefs.h"
-#include "command_parse.h"
 #include "cmd_quit.h"
 
 extern ServerConfig* Config;
 extern InspIRCd* ServerInstance;
 extern int MODCOUNT;
-extern std::vector<Module*> modules;
-extern std::vector<ircd_module*> factory;
+extern ModuleList modules;
+extern FactoryList factory;
 extern time_t TIME;
 extern user_hash clientlist;
 extern chan_hash chanlist;
-extern std::vector<userrec*> all_opers;
 extern std::vector<userrec*> local_users;
 extern userrec* fd_ref_table[MAX_DESCRIPTORS];
 
@@ -133,5 +119,3 @@ void cmd_quit::Handle (char **parameters, int pcnt, userrec *user)
 		fd_ref_table[user->fd] = NULL;
 	delete user;
 }
-
-

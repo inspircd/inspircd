@@ -16,7 +16,7 @@
 
 using namespace std;
 
-#include "inspircd_config.h"
+#include "configreader.h"
 #include "inspircd.h"
 #include "inspircd_io.h"
 #include <unistd.h>
@@ -672,5 +672,3 @@ void kick_channel(userrec *src,userrec *user, chanrec *Ptr, char* reason)
 		}
 	}
 }
-
-

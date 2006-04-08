@@ -14,23 +14,10 @@
  * ---------------------------------------------------
  */
 
-using namespace std;
-
-#include "inspircd_config.h"
-#include "inspircd.h"
-#include "inspircd_io.h"
-#include <string>
-#include <vector>
+#include "configreader.h"
 #include "users.h"
-#include "ctables.h"
-#include "globals.h"
-#include "wildcard.h"
-#include "message.h"
 #include "commands.h"
-#include "inspstring.h"
 #include "helperfuncs.h"
-#include "hashcomp.h"
-#include "typedefs.h"
 #include "cmd_admin.h"
 
 extern ServerConfig* Config;
@@ -42,5 +29,3 @@ void cmd_admin::Handle (char **parameters, int pcnt, userrec *user)
 	WriteServ(user->fd,"258 %s :Nickname - %s",user->nick,Config->AdminNick);
 	WriteServ(user->fd,"258 %s :E-Mail   - %s",user->nick,Config->AdminEmail);
 }
-
-

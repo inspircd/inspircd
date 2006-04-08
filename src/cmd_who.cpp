@@ -14,59 +14,24 @@
  * ---------------------------------------------------
  */
 
-using namespace std;
-
-#include "inspircd_config.h"
-#include "inspircd_io.h"
-#include <time.h>
-#include <string>
-#ifdef GCC3
-#include <ext/hash_map>
-#else
-#include <hash_map>
-#endif
-#include <map>
-#include <sstream>
-#include <vector>
-#include <deque>
+#include "configreader.h"
 #include "users.h"
-#include "ctables.h"
-#include "globals.h"
-#include "modules.h"
-#include "dynamic.h"
-#include "wildcard.h"
 #include "message.h"
+#include "modules.h"
 #include "commands.h"
-#include "mode.h"
-#include "xline.h"
-#include "inspstring.h"
-#include "dnsqueue.h"
 #include "helperfuncs.h"
-#include "hashcomp.h"
-#include "socketengine.h"
-#include "typedefs.h"
-#include "command_parse.h"
-#include "inspircd.h"
 #include "cmd_who.h"
 
 extern ServerConfig* Config;
-extern InspIRCd* ServerInstance;
-extern int MODCOUNT;
-extern std::vector<Module*> modules;
-extern std::vector<ircd_module*> factory;
-extern time_t TIME;
 extern user_hash clientlist;
 extern chan_hash chanlist;
 extern std::vector<userrec*> all_opers;
-extern std::vector<userrec*> local_users;
-extern userrec* fd_ref_table[MAX_DESCRIPTORS];
 
 void cmd_who::Handle (char **parameters, int pcnt, userrec *user)
 {
 	chanrec* Ptr = NULL;
 	char tmp[10];
 	
-	/* theres more to do here, but for now just close the socket */
 	if (pcnt == 1)
 	{
 		if ((IS_SINGLE(parameters[0],'0')) || (IS_SINGLE(parameters[0],'*')))
@@ -185,4 +150,3 @@ void cmd_who::Handle (char **parameters, int pcnt, userrec *user)
 		}
 	}
 }
-

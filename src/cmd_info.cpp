@@ -14,23 +14,11 @@
  * ---------------------------------------------------
  */
 
-using namespace std;
-
-#include "inspircd_config.h"
-#include "inspircd.h"
-#include "inspircd_io.h"
-#include <string>
+#include "configreader.h"
 #include "users.h"
-#include "ctables.h"
-#include "globals.h"
 #include "modules.h"
-#include "dynamic.h"
-#include "message.h"
 #include "commands.h"
-#include "inspstring.h"
 #include "helperfuncs.h"
-#include "hashcomp.h"
-#include "typedefs.h"
 #include "cmd_info.h"
 
 extern ServerConfig* Config;
@@ -82,5 +70,3 @@ void cmd_info::Handle (char **parameters, int pcnt, userrec *user)
 	FOREACH_MOD(I_OnInfo,OnInfo(user));
 	WriteServ(user->fd, "374 %s :End of /INFO list", user->nick);
 }
-
-

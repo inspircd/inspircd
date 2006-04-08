@@ -68,7 +68,7 @@ enum TargetTypeFlags {
 #include "dynamic.h"
 #include "base.h"
 #include "ctables.h"
-#include "socket.h"
+#include "inspsocket.h"
 #include <string>
 #include <deque>
 #include <sstream>
@@ -102,7 +102,7 @@ typedef std::deque<userrec*> chanuserlist;
 		} \
 		catch (ModuleException& modexcept) \
 		{ \
-			log(DEBUG,"Module exception cought: %s",modexcept.GetReason()); \
+			log(DEBUG,"Module exception caught: %s",modexcept.GetReason()); \
 		} \
 	} \
   }
@@ -1932,6 +1932,8 @@ class ModuleFactory : public classbase
 
 
 typedef DLLFactory<ModuleFactory> ircd_module;
+typedef std::vector<Module*> ModuleList;
+typedef std::vector<ircd_module*> FactoryList;
 
 bool ModeDefined(char c, int i);
 bool ModeDefinedOper(char c, int i);

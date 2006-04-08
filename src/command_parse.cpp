@@ -14,11 +14,9 @@
  * ---------------------------------------------------
  */
 
-using namespace std;
-
 #include "inspircd_config.h"
 #include "inspircd.h"
-#include "inspircd_io.h"
+#include "configreader.h"
 #include <unistd.h>
 #include <fcntl.h>
 #include <sys/errno.h>
@@ -26,15 +24,8 @@ using namespace std;
 #include <sys/utsname.h>
 #include <time.h>
 #include <string>
-#ifdef GCC3
-#include <ext/hash_map>
-#else
-#include <hash_map>
-#endif
-#include <map>
 #include <sstream>
 #include <vector>
-#include <deque>
 #include <sched.h>
 #ifdef THREADED_DNS
 #include <pthread.h>
@@ -838,4 +829,3 @@ void CommandParser::SetupCommandTable()
 	this->CreateCommand(new cmd_server);
 	this->CreateCommand(new cmd_commands);
 }
-

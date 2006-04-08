@@ -23,11 +23,8 @@ using namespace std;
 #include <deque>
 #include "globals.h"
 #include "inspircd_config.h"
-#ifdef GCC3
-#include <ext/hash_map>
-#else
-#include <hash_map>
-#endif
+#include "hash_map.h"
+#include "configreader.h"
 #include "users.h"
 #include "channels.h"
 #include "modules.h"

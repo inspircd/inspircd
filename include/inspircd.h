@@ -127,6 +127,13 @@ class InspIRCd
 
 };
 
+/* Miscellaneous stuff here, moved from inspircd_io.h */
+void Exit(int status); 
+void Start(); 
+void SetSignals();
+bool DaemonSeed();
+void WritePID(const std::string &filename);
+
 /* userrec optimization stuff */
 void AddServerName(std::string servername);
 const char* FindServerNamePtr(std::string servername);

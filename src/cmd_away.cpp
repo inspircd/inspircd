@@ -14,27 +14,13 @@
  * ---------------------------------------------------
  */
 
-using namespace std;
-
-#include "inspircd_config.h"
-#include "inspircd.h"
-#include "inspircd_io.h"
-#include <string>
-#include <map>
-#include <sstream>
 #include <vector>
-#include <deque>
+#include "inspircd_config.h"
+#include "configreader.h"
 #include "users.h"
-#include "ctables.h"
-#include "globals.h"
 #include "modules.h"
-#include "message.h"
 #include "commands.h"
-#include "inspstring.h"
-#include "dnsqueue.h"
 #include "helperfuncs.h"
-#include "hashcomp.h"
-#include "typedefs.h"
 #include "cmd_away.h"
 
 extern ServerConfig* Config;
@@ -59,5 +45,3 @@ void cmd_away::Handle (char **parameters, int pcnt, userrec *user)
 		FOREACH_MOD(I_OnCancelAway,OnCancelAway(user));
 	}
 }
-
-

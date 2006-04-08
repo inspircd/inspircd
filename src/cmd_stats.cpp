@@ -14,18 +14,10 @@
  * ---------------------------------------------------
  */
 
-using namespace std;
-
 #include "inspircd_config.h"
 #include "inspircd.h"
-#include "inspircd_io.h"
-#include <time.h>
-#include <string>
-#ifdef GCC3
-#include <ext/hash_map>
-#else
-#include <hash_map>
-#endif
+#include "configreader.h"
+#include "hash_map.h"
 #include <sys/types.h>
 #include <sys/time.h>
 #include <sys/resource.h>
@@ -36,10 +28,7 @@ using namespace std;
 #define   RUSAGE_SELF     0
 #define   RUSAGE_CHILDREN     -1
 #endif
-#include <map>
-#include <sstream>
-#include <vector>
-#include <deque>
+
 #include "users.h"
 #include "ctables.h"
 #include "globals.h"
@@ -55,21 +44,17 @@ using namespace std;
 #include "helperfuncs.h"
 #include "hashcomp.h"
 #include "socketengine.h"
-#include "typedefs.h"
 #include "command_parse.h"
 #include "cmd_stats.h"
 
 extern ServerConfig* Config;
 extern InspIRCd* ServerInstance;
 extern int MODCOUNT;
-extern std::vector<Module*> modules;
-extern std::vector<ircd_module*> factory;
+extern ModuleList modules;
+extern FactoryList factory;
 extern time_t TIME;
 extern user_hash clientlist;
 extern chan_hash chanlist;
-extern std::vector<userrec*> all_opers;
-extern std::vector<userrec*> local_users;
-extern userrec* fd_ref_table[MAX_DESCRIPTORS];
 
 void cmd_stats::Handle (char **parameters, int pcnt, userrec *user)
 {
@@ -205,12 +190,12 @@ void cmd_stats::Handle (char **parameters, int pcnt, userrec *user)
 
 	if (*parameters[0] == 'T')
 	{
-		WriteServ(user->fd,"249 Brain :accepts %d refused %d",ServerInstance->stats->statsAccept,ServerInstance->stats->statsRefused);
-		WriteServ(user->fd,"249 Brain :unknown commands %d",ServerInstance->stats->statsUnknown);
-		WriteServ(user->fd,"249 Brain :nick collisions %d",ServerInstance->stats->statsCollisions);
-		WriteServ(user->fd,"249 Brain :dns requests %d succeeded %d failed %d",ServerInstance->stats->statsDns,ServerInstance->stats->statsDnsGood,ServerInstance->stats->statsDnsBad);
-		WriteServ(user->fd,"249 Brain :connections %d",ServerInstance->stats->statsConnects);
-		WriteServ(user->fd,"249 Brain :bytes sent %dK recv %dK",(ServerInstance->stats->statsSent / 1024),(ServerInstance->stats->statsRecv / 1024));
+		WriteServ(user->fd,"249 %s :accepts %d refused %d",user->nick,ServerInstance->stats->statsAccept,ServerInstance->stats->statsRefused);
+		WriteServ(user->fd,"249 %s :unknown commands %d",user->nick,ServerInstance->stats->statsUnknown);
+		WriteServ(user->fd,"249 %s :nick collisions %d",user->nick,ServerInstance->stats->statsCollisions);
+		WriteServ(user->fd,"249 %s :dns requests %d succeeded %d failed %d",user->nick,ServerInstance->stats->statsDns,ServerInstance->stats->statsDnsGood,ServerInstance->stats->statsDnsBad);
+		WriteServ(user->fd,"249 %s :connections %d",user->nick,ServerInstance->stats->statsConnects);
+		WriteServ(user->fd,"249 %s :bytes sent %dK recv %dK",user->nick,(ServerInstance->stats->statsSent / 1024),(ServerInstance->stats->statsRecv / 1024));
 	}
 	
 	/* stats o */

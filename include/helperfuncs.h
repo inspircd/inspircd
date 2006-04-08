@@ -27,6 +27,14 @@
 #include <deque>
 #include <sstream>
 
+/** Flags for use with log()
+ */
+#define DEBUG 10
+#define VERBOSE 20
+#define DEFAULT 30
+#define SPARSE 40
+#define NONE 50
+
 void log(int level,char *text, ...);
 void readfile(file_cache &F, const char* fname);
 
@@ -84,6 +92,8 @@ void ShowMOTD(userrec *user);
 void ShowRULES(userrec *user);
 bool AllModulesReportReady(userrec* user);
 bool DirValid(char* dirandfile);
+bool FileExists(const char* file);
+char* CleanFilename(char* name);
 std::string GetFullProgDir(char** argv, int argc);
 int InsertMode(std::string &output, const char* modes, unsigned short section);
 bool IsValidChannelName(const char *);

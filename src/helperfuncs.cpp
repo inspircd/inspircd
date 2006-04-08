@@ -14,25 +14,16 @@
  * ---------------------------------------------------
  */
 
-using namespace std;
-
+#include <stdarg.h>
 #include "inspircd_config.h"
 #include "inspircd.h"
-#include "inspircd_io.h"
+#include "configreader.h"
 #include <unistd.h>
 #include <fcntl.h>
 #include <sys/errno.h>
 #include <time.h>
 #include <string>
-#ifdef GCC3
-#include <ext/hash_map>
-#else
-#include <hash_map>
-#endif
 #include <sstream>
-#include <vector>
-#include <deque>
-#include <stdarg.h>
 #include "connection.h"
 #include "users.h"
 #include "ctables.h"
@@ -50,7 +41,7 @@ using namespace std;
 #include "typedefs.h"
 
 extern int MODCOUNT;
-extern std::vector<Module*> modules;
+extern ModuleList modules;
 extern ServerConfig *Config;
 extern InspIRCd* ServerInstance;
 extern time_t TIME;
@@ -278,8 +269,6 @@ void WriteServ(int sock, char* text, ...)
 {
 	va_list argsPtr;
 	char textbuffer[MAXBUF];
-	char tb[MAXBUF];
-	int bytes;
 
 	if ((sock < 0) || (sock > MAX_DESCRIPTORS))
 		return;
@@ -1601,6 +1590,34 @@ bool AllModulesReportReady(userrec* user)
 	}
 
 	return true;
+}
+
+/* Make Sure Modules Are Avaliable!
+ * (BugFix By Craig.. See? I do work! :p)
+ * Modified by brain, requires const char*
+ * to work with other API functions
+ */
+
+/* XXX - Needed? */
+bool FileExists (const char* file)
+{
+	FILE *input;
+	if ((input = fopen (file, "r")) == NULL)
+	{
+		return(false);
+	}
+	else
+	{
+		fclose (input);
+		return(true);
+	}
+}
+
+char* CleanFilename(char* name)
+{
+	char* p = name + strlen(name);
+	while ((p != name) && (*p != '/')) p--;
+	return (p != name ? ++p : p);
 }
 
 bool DirValid(char* dirandfile)

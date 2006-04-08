@@ -4,6 +4,7 @@
 #include <gnutls/gnutls.h>
 
 #include "inspircd_config.h"
+#include "configreader.h"
 #include "users.h"
 #include "channels.h"
 #include "modules.h"

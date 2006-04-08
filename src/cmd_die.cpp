@@ -14,23 +14,13 @@
  * ---------------------------------------------------
  */
 
-using namespace std;
-
-#include "inspircd_config.h"
-#include "inspircd.h"
-#include "inspircd_io.h"
-#include <time.h>
+#include <unistd.h>
 #include <string>
+#include <vector>
+#include "configreader.h"
 #include "users.h"
-#include "ctables.h"
-#include "globals.h"
-#include "wildcard.h"
-#include "message.h"
 #include "commands.h"
-#include "inspstring.h"
 #include "helperfuncs.h"
-#include "hashcomp.h"
-#include "typedefs.h"
 #include "cmd_die.h"
 
 extern ServerConfig* Config;

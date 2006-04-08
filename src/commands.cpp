@@ -14,11 +14,9 @@
  * ---------------------------------------------------
  */
 
-using namespace std;
-
 #include "inspircd_config.h"
 #include "inspircd.h"
-#include "inspircd_io.h"
+#include "configreader.h"
 #include <unistd.h>
 #include <sys/errno.h>
 #include <sys/ioctl.h>
@@ -26,15 +24,8 @@ using namespace std;
 #include <cstdio>
 #include <time.h>
 #include <string>
-#ifdef GCC3
-#include <ext/hash_map>
-#else
-#include <hash_map>
-#endif
-#include <map>
 #include <sstream>
 #include <vector>
-#include <deque>
 #include <sys/types.h>
 #include <sys/time.h>
 #include <sys/resource.h>
@@ -67,8 +58,8 @@ extern ServerConfig* Config;
 extern InspIRCd* ServerInstance;
 
 extern int MODCOUNT;
-extern std::vector<Module*> modules;
-extern std::vector<ircd_module*> factory;
+extern ModuleList modules;
+extern FactoryList factory;
 extern time_t TIME;
 
 const long duration_m = 60;

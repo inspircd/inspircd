@@ -14,410 +14,236 @@
  * ---------------------------------------------------
  */
 
-using namespace std;
-
-#include "inspircd_config.h"
-#include <sys/time.h>
-#include <sys/resource.h>
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
 #include <string>
-#include <unistd.h>
-#include <fcntl.h>
-#include <poll.h>
-#include <sstream>
-#include <iostream>
-#include <fstream>
-#include <stdexcept>
+#include "configreader.h"
 #include "socket.h"
 #include "inspircd.h"
-#include "inspircd_io.h"
 #include "inspstring.h"
 #include "helperfuncs.h"
 #include "socketengine.h"
-
+#include "message.h"
 
 extern InspIRCd* ServerInstance;
 extern ServerConfig* Config;
 extern time_t TIME;
+extern int openSockfd[MAX_DESCRIPTORS];
 
 InspSocket* socket_ref[MAX_DESCRIPTORS];
 
-InspSocket::InspSocket()
+/** This will bind a socket to a port. It works for UDP/TCP.
+ * If a hostname is given to bind to, the function will first
+ * attempt to resolve the hostname, then bind to the IP the 
+ * hostname resolves to. This is a blocking lookup blocking for
+ * a maximum of one second before it times out, using the DNS
+ * server specified in the configuration file.
+ */ 
+bool BindSocket(int sockfd, insp_sockaddr client, insp_sockaddr server, int port, char* addr)
 {
-	this->state = I_DISCONNECTED;
-	this->fd = -1;
-	this->ClosePending = false;
-}
+	memset(&server,0,sizeof(server));
+	insp_inaddr addy;
+	bool resolved = false;
+	char resolved_addr[128];
 
-InspSocket::InspSocket(int newfd, char* ip)
-{
-	this->fd = newfd;
-	this->state = I_CONNECTED;
-	strlcpy(this->IP,ip,MAXBUF);
-	this->ClosePending = false;
-	ServerInstance->SE->AddFd(this->fd,true,X_ESTAB_MODULE);
-	socket_ref[this->fd] = this;
-}
+	if (*addr == '*')
+		*addr = 0;
 
-InspSocket::InspSocket(const std::string &ahost, int aport, bool listening, unsigned long maxtime) : fd(-1)
-{
-	strlcpy(host,ahost.c_str(),MAXBUF);
-	this->ClosePending = false;
-	if (listening) {
-		if ((this->fd = OpenTCPSocket()) == ERROR)
+	if (*addr && !inet_aton(addr,&addy))
+	{
+		/* If they gave a hostname, bind to the IP it resolves to */
+		if (CleanAndResolve(resolved_addr, addr, true))
 		{
-			this->fd = -1;
-			this->state = I_ERROR;
-			this->OnError(I_ERR_SOCKET);
-			this->ClosePending = true;
-			log(DEBUG,"OpenTCPSocket() error");
-			return;
+			inet_aton(resolved_addr,&addy);
+			log(DEFAULT,"Resolved binding '%s' -> '%s'",addr,resolved_addr);
+			server.sin_addr = addy;
+			resolved = true;
 		}
 		else
 		{
-			if (!BindSocket(this->fd,this->client,this->server,aport,(char*)ahost.c_str()))
-			{
-				this->Close();
-				this->fd = -1;
-				this->state = I_ERROR;
-				this->OnError(I_ERR_BIND);
-				this->ClosePending = true;
-				log(DEBUG,"BindSocket() error %s",strerror(errno));
-				return;
-			}
-			else
-			{
-				this->state = I_LISTENING;
-				ServerInstance->SE->AddFd(this->fd,true,X_ESTAB_MODULE);
-				socket_ref[this->fd] = this;
-				log(DEBUG,"New socket now in I_LISTENING state");
-				return;
-			}
-		}			
-	}
-	else
-	{
-		strlcpy(this->host,ahost.c_str(),MAXBUF);
-		this->port = aport;
-
-		if (!inet_aton(host,&addy))
-		{
-			log(DEBUG,"Attempting to resolve %s",this->host);
-			/* Its not an ip, spawn the resolver */
-			this->dns.SetNS(std::string(Config->DNSServer));
-			this->dns.ForwardLookupWithFD(host,fd);
-			timeout_end = time(NULL) + maxtime;
-			timeout = false;
-			this->state = I_RESOLVING;
-			socket_ref[this->fd] = this;
-		}
-		else
-		{
-			log(DEBUG,"No need to resolve %s",this->host);
-			strlcpy(this->IP,host,MAXBUF);
-			timeout_end = time(NULL) + maxtime;
-			this->DoConnect();
-		}
-	}
-}
-
-void InspSocket::SetQueues(int nfd)
-{
-	// attempt to increase socket sendq and recvq as high as its possible
-	int sendbuf = 32768;
-	int recvbuf = 32768;
-	setsockopt(nfd,SOL_SOCKET,SO_SNDBUF,(const void *)&sendbuf,sizeof(sendbuf));
-	setsockopt(nfd,SOL_SOCKET,SO_RCVBUF,(const void *)&recvbuf,sizeof(sendbuf));
-}
-
-bool InspSocket::DoResolve()
-{
-	log(DEBUG,"In DoResolve(), trying to resolve IP");
-	if (this->dns.HasResult())
-	{
-		log(DEBUG,"Socket has result");
-		std::string res_ip = dns.GetResultIP();
-		if (res_ip != "")
-		{
-			log(DEBUG,"Socket result set to %s",res_ip.c_str());
-			strlcpy(this->IP,res_ip.c_str(),MAXBUF);
-			socket_ref[this->fd] = NULL;
-		}
-		else
-		{
-			log(DEBUG,"Socket DNS failure");
-			this->Close();
-			this->state = I_ERROR;
-			this->OnError(I_ERR_RESOLVE);
-			this->fd = -1;
-			this->ClosePending = true;
-			return false;
-		}
-		return this->DoConnect();
-	}
-	log(DEBUG,"No result for socket yet!");
-	return true;
-}
-
-bool InspSocket::DoConnect()
-{
-	log(DEBUG,"In DoConnect()");
-	if ((this->fd = socket(AF_INET, SOCK_STREAM, 0)) == -1)
-	{
-		log(DEBUG,"Cant socket()");
-		this->state = I_ERROR;
-		this->OnError(I_ERR_SOCKET);
-		this->fd = -1;
-		return false;
-	}
-
-	log(DEBUG,"Part 2 DoConnect() %s",this->IP);
-	inet_aton(this->IP,&addy);
-	addr.sin_family = AF_INET;
-	addr.sin_addr = addy;
-	addr.sin_port = htons(this->port);
-
-	int flags;
-	flags = fcntl(this->fd, F_GETFL, 0);
-	fcntl(this->fd, F_SETFL, flags | O_NONBLOCK);
-
-	if (connect(this->fd, (sockaddr*)&this->addr,sizeof(this->addr)) == -1)
-	{
-		if (errno != EINPROGRESS)
-		{
-			log(DEBUG,"Error connect() %d: %s",this->fd,strerror(errno));
-			this->OnError(I_ERR_CONNECT);
-			this->Close();
-			this->state = I_ERROR;
-			this->fd = -1;
-			this->ClosePending = true;
+			log(DEFAULT,"WARNING: Could not resolve '%s' to an IP for binding to on port %d",addr,port);
 			return false;
 		}
 	}
-	this->state = I_CONNECTING;
-	ServerInstance->SE->AddFd(this->fd,false,X_ESTAB_MODULE);
-	socket_ref[this->fd] = this;
-	this->SetQueues(this->fd);
-	log(DEBUG,"Returning true from InspSocket::DoConnect");
-	return true;
-}
-
-
-void InspSocket::Close()
-{
-	if (this->fd != -1)
+	server.sin_family = AF_INET;
+	if (!resolved)
 	{
-		this->OnClose();
-		shutdown(this->fd,2);
-		close(this->fd);
-		socket_ref[this->fd] = NULL;
-		this->ClosePending = true;
-		this->fd = -1;
-	}
-}
-
-std::string InspSocket::GetIP()
-{
-	return this->IP;
-}
-
-char* InspSocket::Read()
-{
-	if ((fd < 0) || (fd > MAX_DESCRIPTORS))
-		return NULL;
-	int n = recv(this->fd,this->ibuf,sizeof(this->ibuf),0);
-	if ((n > 0) && (n <= (int)sizeof(this->ibuf)))
-	{
-		ibuf[n] = 0;
-		return ibuf;
-	}
-	else
-	{
-		if (errno == EAGAIN)
+		if (!*addr)
 		{
-			return "";
+			server.sin_addr.s_addr = htonl(INADDR_ANY);
 		}
 		else
 		{
-			log(DEBUG,"EOF or error on socket: %s",strerror(errno));
-			return NULL;
+			server.sin_addr = addy;
+		}
+	}
+	server.sin_port = htons(port);
+	if (bind(sockfd,(struct sockaddr*)&server,sizeof(server)) < 0)
+	{
+		return false;
+	}
+	else
+	{
+		log(DEBUG,"Bound port %s:%d",*addr ? addr : "*",port);
+		if (listen(sockfd, Config->MaxConn) == -1)
+		{
+			log(DEFAULT,"ERROR in listen(): %s",strerror(errno));
+			return false;
+		}
+		else
+		{
+			NonBlocking(sockfd);
+			return true;
 		}
 	}
 }
 
-void InspSocket::MarkAsClosed()
+
+// Open a TCP Socket
+int OpenTCPSocket()
 {
-	log(DEBUG,"Marked as closed");
-	this->ClosePending = true;
-}
-
-// There are two possible outcomes to this function.
-// It will either write all of the data, or an undefined amount.
-// If an undefined amount is written the connection has failed
-// and should be aborted.
-int InspSocket::Write(const std::string &data)
-{
-	if (this->ClosePending)
-		return false;
-
-	/*int result = write(this->fd,data.c_str(),data.length());
-	if (result < 1)
-		return false;
-	return true;*/
-
-	/* Try and append the data to the back of the queue, and send it on its way
-	 */
-	outbuffer.push_back(data);
-	return (!this->FlushWriteBuffer());
-}
-
-bool InspSocket::FlushWriteBuffer()
-{
-	if (this->ClosePending)
-		return true;
-
-	if ((this->fd > -1) && (this->state == I_CONNECTED))
+	int sockfd;
+	int on = 1;
+	struct linger linger = { 0 };
+  
+	if ((sockfd = socket (AF_INET, SOCK_STREAM, 0)) < 0)
 	{
-		if (outbuffer.size())
+		log(DEFAULT,"Error creating TCP socket: %s",strerror(errno));
+		return (ERROR);
+	}
+	else
+	{
+		setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, &on, sizeof(on));
+		/* This is BSD compatible, setting l_onoff to 0 is *NOT* http://web.irc.org/mla/ircd-dev/msg02259.html */
+		linger.l_onoff = 1;
+		linger.l_linger = 1;
+		setsockopt(sockfd, SOL_SOCKET, SO_LINGER, &linger,sizeof(linger));
+		return (sockfd);
+	}
+}
+
+bool HasPort(int port, char* addr)
+{
+	for (int count = 0; count < ServerInstance->stats->BoundPortCount; count++)
+	{
+		if ((port == Config->ports[count]) && (!strcasecmp(Config->addrs[count],addr)))
 		{
-			int result = write(this->fd,outbuffer[0].c_str(),outbuffer[0].length());
-			if (result > 0)
+			return true;
+		}
+	}
+	return false;
+}
+
+int BindPorts(bool bail)
+{
+	char configToken[MAXBUF], Addr[MAXBUF], Type[MAXBUF];
+	insp_sockaddr client, server;
+	int clientportcount = 0;
+	int BoundPortCount = 0;
+
+	if (!bail)
+	{
+		int InitialPortCount = ServerInstance->stats->BoundPortCount;
+		log(DEBUG,"Initial port count: %d",InitialPortCount);
+
+		for (int count = 0; count < Config->ConfValueEnum(Config->config_data, "bind"); count++)
+		{
+			Config->ConfValue(Config->config_data, "bind", "port", count, configToken, MAXBUF);
+			Config->ConfValue(Config->config_data, "bind", "address", count, Addr, MAXBUF);
+			Config->ConfValue(Config->config_data, "bind", "type", count, Type, MAXBUF);
+
+			if (((!*Type) || (!strcmp(Type,"clients"))) && (!HasPort(atoi(configToken),Addr)))
 			{
-				if ((unsigned int)result == outbuffer[0].length())
+				// modules handle server bind types now
+				Config->ports[clientportcount+InitialPortCount] = atoi(configToken);
+				if (*Addr == '*')
+					*Addr = 0;
+
+				strlcpy(Config->addrs[clientportcount+InitialPortCount],Addr,256);
+				clientportcount++;
+				log(DEBUG,"NEW binding %s:%s [%s] from config",Addr,configToken, Type);
+			}
+		}
+		int PortCount = clientportcount;
+		if (PortCount)
+		{
+			for (int count = InitialPortCount; count < InitialPortCount + PortCount; count++)
+			{
+				if ((openSockfd[count] = OpenTCPSocket()) == ERROR)
 				{
-					/* The whole block was written (usually a line)
-					 * Pop the block off the front of the queue
-					 */
-					outbuffer.pop_front();
+					log(DEBUG,"Bad fd %d binding port [%s:%d]",openSockfd[count],Config->addrs[count],Config->ports[count]);
+					return ERROR;
+				}
+				if (!BindSocket(openSockfd[count],client,server,Config->ports[count],Config->addrs[count]))
+				{
+					log(DEFAULT,"Failed to bind port [%s:%d]: %s",Config->addrs[count],Config->ports[count],strerror(errno));
 				}
 				else
 				{
-					std::string temp = outbuffer[0].substr(result);
-					outbuffer[0] = temp;
+					/* Associate the new open port with a slot in the socket engine */
+					ServerInstance->SE->AddFd(openSockfd[count],true,X_LISTEN);
+					BoundPortCount++;
 				}
 			}
-			else if ((result == -1) && (errno != EAGAIN))
-			{
-				log(DEBUG,"Write error on socket: %s",strerror(errno));
-				this->OnError(I_ERR_WRITE);
-				this->state = I_ERROR;
-				this->ClosePending = true;
-				return true;
-			}
+			return InitialPortCount + BoundPortCount;
+		}
+		else
+		{
+			log(DEBUG,"There is nothing new to bind!");
+		}
+		return InitialPortCount;
+	}
+
+	for (int count = 0; count < Config->ConfValueEnum(Config->config_data, "bind"); count++)
+	{
+		Config->ConfValue(Config->config_data, "bind", "port", count, configToken, MAXBUF);
+		Config->ConfValue(Config->config_data, "bind", "address", count, Addr, MAXBUF);
+		Config->ConfValue(Config->config_data, "bind", "type", count, Type, MAXBUF);
+
+		if ((!*Type) || (!strcmp(Type,"clients")))
+		{
+			// modules handle server bind types now
+			Config->ports[clientportcount] = atoi(configToken);
+
+			// If the client put bind "*", this is an unrealism.
+			// We don't actually support this as documented, but
+			// i got fed up of people trying it, so now it converts
+			// it to an empty string meaning the same 'bind to all'.
+			if (*Addr == '*')
+				*Addr = 0;
+
+			strlcpy(Config->addrs[clientportcount],Addr,256);
+			clientportcount++;
+			log(DEBUG,"Binding %s:%s [%s] from config",Addr,configToken, Type);
 		}
 	}
-	return (fd < 0);
-}
 
-bool InspSocket::Timeout(time_t current)
-{
-	if (!socket_ref[this->fd] || !ServerInstance->SE->HasFd(this->fd))
+	int PortCount = clientportcount;
+
+	for (int count = 0; count < PortCount; count++)
 	{
-		log(DEBUG,"No FD or socket ref");
-		return false;
+		if ((openSockfd[BoundPortCount] = OpenTCPSocket()) == ERROR)
+		{
+			log(DEBUG,"Bad fd %d binding port [%s:%d]",openSockfd[BoundPortCount],Config->addrs[count],Config->ports[count]);
+			return ERROR;
+		}
+
+		if (!BindSocket(openSockfd[BoundPortCount],client,server,Config->ports[count],Config->addrs[count]))
+		{
+			log(DEFAULT,"Failed to bind port [%s:%d]: %s",Config->addrs[count],Config->ports[count],strerror(errno));
+		}
+		else
+		{
+			/* well we at least bound to one socket so we'll continue */
+			BoundPortCount++;
+		}
 	}
 
-	if (this->ClosePending)
+	/* if we didn't bind to anything then abort */
+	if (!BoundPortCount)
 	{
-		log(DEBUG,"Close is pending");
-		return true;
+		log(DEFAULT,"No ports bound, bailing!");
+		printf("\nERROR: Could not bind any of %d ports! Please check your configuration.\n\n", PortCount);
+		return ERROR;
 	}
 
-	if (((this->state == I_RESOLVING) || (this->state == I_CONNECTING)) && (current > timeout_end))
-	{
-		log(DEBUG,"Timed out, current=%lu timeout_end=%lu");
-		// for non-listening sockets, the timeout can occur
-		// which causes termination of the connection after
-		// the given number of seconds without a successful
-		// connection.
-		this->OnTimeout();
-		this->OnError(I_ERR_TIMEOUT);
-		timeout = true;
-		this->state = I_ERROR;
-		this->ClosePending = true;
-		return true;
-	}
-	return this->FlushWriteBuffer();
-}
-
-bool InspSocket::Poll()
-{
-	if (!socket_ref[this->fd] || !ServerInstance->SE->HasFd(this->fd))
-		return false;
-
-	int incoming = -1;
-	bool n = true;
-
-	if ((fd < 0) || (fd > MAX_DESCRIPTORS) || (this->ClosePending))
-		return false;
-
-	switch (this->state)
-	{
-		case I_RESOLVING:
-			log(DEBUG,"State = I_RESOLVING, calling DoResolve()");
-			return this->DoResolve();
-		break;
-		case I_CONNECTING:
-			log(DEBUG,"State = I_CONNECTING");
-			this->SetState(I_CONNECTED);
-			/* Our socket was in write-state, so delete it and re-add it
-			 * in read-state.
-			 */
-			ServerInstance->SE->DelFd(this->fd);
-			ServerInstance->SE->AddFd(this->fd,true,X_ESTAB_MODULE);
-			return this->OnConnected();
-		break;
-		case I_LISTENING:
-			length = sizeof (client);
-			incoming = accept (this->fd, (sockaddr*)&client,&length);
-			this->SetQueues(incoming);
-			this->OnIncomingConnection(incoming,inet_ntoa(client.sin_addr));
-			return true;
-		break;
-		case I_CONNECTED:
-			n = this->OnDataReady();
-			/* Flush any pending, but not till after theyre done with the event
-			 * so there are less write calls involved.
-			 * Both FlushWriteBuffer AND the return result of OnDataReady must
-			 * return true for this to be ok.
-			 */
-			if (this->FlushWriteBuffer())
-				return false;
-			return n;
-		break;
-		default:
-		break;
-	}
-	return true;
-}
-
-void InspSocket::SetState(InspSocketState s)
-{
-	log(DEBUG,"Socket state change");
-	this->state = s;
-}
-
-InspSocketState InspSocket::GetState()
-{
-	return this->state;
-}
-
-int InspSocket::GetFd()
-{
-	return this->fd;
-}
-
-bool InspSocket::OnConnected() { return true; }
-void InspSocket::OnError(InspSocketError e) { return; }
-int InspSocket::OnDisconnect() { return 0; }
-int InspSocket::OnIncomingConnection(int newfd, char* ip) { return 0; }
-bool InspSocket::OnDataReady() { return true; }
-void InspSocket::OnTimeout() { return; }
-void InspSocket::OnClose() { return; }
-
-InspSocket::~InspSocket()
-{
-	this->Close();
+	return BoundPortCount;
 }

@@ -20,7 +20,7 @@ using namespace std;
 
 #include "inspircd_config.h"
 #include "inspircd.h"
-#include "inspircd_io.h"
+#include "configreader.h"
 #include <unistd.h>
 #include <fcntl.h>
 #include <sys/errno.h>
@@ -417,4 +417,3 @@ void DoBackgroundUserStuff(time_t TIME)
 	/* Remove all the queued users who are due to be quit, free memory used. */
 	GlobalGoners.Apply();
 }
-

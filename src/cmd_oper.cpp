@@ -14,24 +14,13 @@
  * ---------------------------------------------------
  */
 
-using namespace std;
-
-#include "inspircd_config.h"
-#include "inspircd.h"
-#include "inspircd_io.h"
-#include <time.h>
 #include <string>
-#ifdef GCC3
-#include <ext/hash_map>
-#else
-#include <hash_map>
-#endif
-#include <map>
 #include <sstream>
 #include <vector>
-#include <deque>
+#include "inspircd_config.h"
+#include "configreader.h"
+#include "typedefs.h"
 #include "users.h"
-#include "ctables.h"
 #include "globals.h"
 #include "modules.h"
 #include "dynamic.h"
@@ -45,21 +34,15 @@ using namespace std;
 #include "helperfuncs.h"
 #include "hashcomp.h"
 #include "socketengine.h"
-#include "typedefs.h"
+
 #include "command_parse.h"
 #include "cmd_oper.h"
 
 extern ServerConfig* Config;
-extern InspIRCd* ServerInstance;
 extern int MODCOUNT;
-extern std::vector<Module*> modules;
-extern std::vector<ircd_module*> factory;
+extern ModuleList modules;
+extern FactoryList factory;
 extern time_t TIME;
-extern user_hash clientlist;
-extern chan_hash chanlist;
-extern std::vector<userrec*> all_opers;
-extern std::vector<userrec*> local_users;
-extern userrec* fd_ref_table[MAX_DESCRIPTORS];
 
 bool OneOfMatches(const char* host, const char* hostlist)
 {

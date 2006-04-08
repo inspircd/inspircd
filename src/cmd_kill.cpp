@@ -14,30 +14,14 @@
  * ---------------------------------------------------
  */
 
-using namespace std;
-
-#include "inspircd_config.h"
-#include "inspircd.h"
-#include "inspircd_io.h"
-#include <string>
-#ifdef GCC3
-#include <ext/hash_map>
-#else
-#include <hash_map>
-#endif
 #include <vector>
-#include <deque>
+#include "inspircd_config.h"
+#include "hash_map.h"
+#include "configreader.h"
 #include "users.h"
-#include "ctables.h"
-#include "globals.h"
 #include "modules.h"
-#include "dynamic.h"
-#include "message.h"
 #include "commands.h"
-#include "inspstring.h"
 #include "helperfuncs.h"
-#include "hashcomp.h"
-#include "typedefs.h"
 #include "cmd_kill.h"
 
 extern ServerConfig* Config;
@@ -103,5 +87,3 @@ void cmd_kill::Handle (char **parameters, int pcnt, userrec *user)
 		WriteServ(user->fd, "401 %s %s :No such nick/channel", user->nick, parameters[0]);
 	}
 }
-
-

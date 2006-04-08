@@ -18,7 +18,7 @@ using namespace std;
 
 #include "inspircd_config.h"
 #include "inspircd.h"
-#include "inspircd_io.h"
+#include "configreader.h"
 #include <unistd.h>
 #include <sys/errno.h>
 #include <time.h>

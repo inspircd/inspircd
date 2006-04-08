@@ -17,7 +17,7 @@
 using namespace std;
 
 #include "inspircd_config.h"
-#include "inspircd_io.h"
+#include "configreader.h"
 #include "globals.h"
 #include "dynamic.h"
 

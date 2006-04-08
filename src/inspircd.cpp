@@ -16,11 +16,9 @@
 
 /* Now with added unF! ;) */
 
-using namespace std;
-
 #include "inspircd_config.h"
 #include "inspircd.h"
-#include "inspircd_io.h"
+#include "configreader.h"
 #include <fcntl.h>
 #include <sys/errno.h>
 #include <sys/ioctl.h>
@@ -29,13 +27,9 @@ using namespace std;
 #include <exception>
 #include <stdexcept>
 #include <new>
-#ifdef GCC3
-#include <ext/hash_map>
-#else
-#include <hash_map>
-#endif
 #include <map>
 #include <sstream>
+#include <fstream>
 #include <vector>
 #include <deque>
 #ifdef THREADED_DNS
@@ -130,6 +124,96 @@ bool FindServerName(std::string servername)
 			return true;
 	}
 	return false;
+}
+
+void Exit(int status)
+{
+	if (Config->log_file)
+		fclose(Config->log_file);
+	send_error("Server shutdown.");
+	exit (status);
+}
+
+void Start()
+{
+	printf("\033[1;32mInspire Internet Relay Chat Server, compiled %s at %s\n",__DATE__,__TIME__);
+	printf("(C) ChatSpike Development team.\033[0m\n\n");
+	printf("Developers:\t\t\033[1;32mBrain, FrostyCoolSlug, w00t, Om\033[0m\n");
+	printf("Others:\t\t\t\033[1;32mSee /INFO Output\033[0m\n");
+	printf("Name concept:\t\t\033[1;32mLord_Zathras\033[0m\n\n");
+}
+
+void Killed(int status)
+{
+	if (Config->log_file)
+		fclose(Config->log_file);
+	send_error("Server terminated.");
+	exit(status);
+}
+
+void Rehash(int status)
+{
+	WriteOpers("Rehashing config file %s due to SIGHUP",CleanFilename(CONFIG_FILE));
+	fclose(Config->log_file);
+	OpenLog(NULL,0);
+	Config->Read(false,NULL);
+	FOREACH_MOD(I_OnRehash,OnRehash(""));
+}
+
+void SetSignals()
+{
+	signal (SIGALRM, SIG_IGN);
+	signal (SIGHUP, Rehash);
+	signal (SIGPIPE, SIG_IGN);
+	signal (SIGTERM, Exit);
+	signal (SIGSEGV, Error);
+}
+
+bool DaemonSeed()
+{
+	int childpid;
+	if ((childpid = fork ()) < 0)
+		return (ERROR);
+	else if (childpid > 0)
+	{
+		/* We wait a few seconds here, so that the shell prompt doesnt come back over the output */
+		sleep(6);
+		exit (0);
+	}
+	setsid ();
+	umask (007);
+	printf("InspIRCd Process ID: \033[1;32m%lu\033[0m\n",(unsigned long)getpid());
+
+	rlimit rl;
+	if (getrlimit(RLIMIT_CORE, &rl) == -1)
+	{
+		log(DEFAULT,"Failed to getrlimit()!");
+		return false;
+	}
+	else
+	{
+		rl.rlim_cur = rl.rlim_max;
+		if (setrlimit(RLIMIT_CORE, &rl) == -1)
+			log(DEFAULT,"setrlimit() failed, cannot increase coredump size.");
+	}
+  
+	return true;
+}
+
+void WritePID(const std::string &filename)
+{
+	std::ofstream outfile(filename.c_str());
+	if (outfile.is_open())
+	{
+		outfile << getpid();
+		outfile.close();
+	}
+	else
+	{
+		printf("Failed to write PID-file '%s', exiting.\n",filename.c_str());
+		log(DEFAULT,"Failed to write PID-file '%s', exiting.",filename.c_str());
+		Exit(0);
+	}
 }
 
 std::string InspIRCd::GetRevision()

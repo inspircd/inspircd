@@ -14,20 +14,13 @@
  * ---------------------------------------------------
  */
 
-using namespace std;
-
 #include "inspircd_config.h"
 #include "inspircd.h"
-#include "inspircd_io.h"
+#include "configreader.h"
 #include <unistd.h>
 #include <sys/errno.h>
 #include <time.h>
 #include <string>
-#ifdef GCC3
-#include <ext/hash_map>
-#else
-#include <hash_map>
-#endif
 #include <map>
 #include <sstream>
 #include <vector>
@@ -54,17 +47,18 @@ using namespace std;
 extern ServerConfig *Config;
 extern InspIRCd* ServerInstance;
 extern int MODCOUNT;
-extern std::vector<Module*> modules;
-extern std::vector<ircd_module*> factory;
+extern ModuleList modules;
+extern FactoryList factory;
 extern std::vector<InspSocket*> module_sockets;
 extern std::vector<userrec*> local_users;
 extern time_t TIME;
-class Server;
 extern userrec* fd_ref_table[MAX_DESCRIPTORS];
-
 extern user_hash clientlist;
 extern chan_hash chanlist;
 extern command_table cmdlist;
+
+class Server;
+
 ExtModeList EMode;
 
 // returns true if an extended mode character is in use

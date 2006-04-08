@@ -14,41 +14,23 @@
  * ---------------------------------------------------
  */
 
-using namespace std;
-
 #include "inspircd_config.h"
 #include "inspircd.h"
-#include "inspircd_io.h"
+#include "configreader.h"
 #include <unistd.h>
 #include <sys/errno.h>
 #include <sys/ioctl.h>
 #include <sys/utsname.h>
-#include <cstdio>
-#include <time.h>
 #include <string>
-#ifdef GCC3
-#include <ext/hash_map>
-#else
-#include <hash_map>
-#endif
-#include <map>
-#include <sstream>
-#include <vector>
-#include <deque>
 #include "users.h"
 #include "globals.h"
 #include "inspstring.h"
 #include "dnsqueue.h"
-#include <time.h>
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <sys/time.h>
-#include <netinet/in.h>
-#include <string.h>
 #include "dns.h"
 #include "helperfuncs.h"
 #include "hashcomp.h"
 #include "socketengine.h"
+#include "socket.h"
 
 extern ServerConfig* Config;
 extern InspIRCd* ServerInstance;
@@ -288,4 +270,3 @@ void dns_poll(int fdcheck)
 	if (ServerInstance && ServerInstance->SE)
 		ServerInstance->SE->DelFd(fdcheck);
 }
-

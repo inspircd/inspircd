@@ -32,6 +32,7 @@ using namespace std;
 #include "channels.h"
 #include "modules.h"
 #include "inspircd.h"
+#include "configreader.h"
 #include "helperfuncs.h"
 #include "m_sql.h"
 #include "cmd_oper.h"
@@ -244,4 +245,3 @@ extern "C" void * init_module( void )
 {
 	return new ModuleSQLOperFactory;
 }
-
