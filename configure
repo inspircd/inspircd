@@ -37,6 +37,7 @@ $config{HAS_STRLCPY}        = "false";                          		# strlcpy Chec
 $config{USE_KQUEUE}         = "y";						# kqueue enabled
 $config{USE_EPOLL}          = "y";						# epoll enabled
 $config{THREADED_DNS}       = "n";						# threaded dns (experimental)
+$config{IPV6}               = "n";						# IPv6 support (experimental)
 $config{STATIC_LINK}	    = "no";						# are doing static modules?
 chomp($config{MAX_CLIENT_T} = `sh -c \"ulimit -n\"`);           		# FD Limit
 chomp($config{MAX_DESCRIPTORS} = `sh -c \"ulimit -n\"`);			# Hard FD Limit
@@ -324,6 +325,9 @@ if (!$chose_hiperf) {
 }
 
 yesno(THREADED_DNS,"Would you like to enable the experimental multi-threaded DNS lookup?");
+print "\n";
+
+yesno(IPV6,"Would you like to enable IPv6 support?");
 print "\n";
 
 if (($config{HAS_GNUTLS} eq "y") && ($config{HAS_OPENSSL} eq "y")) {
@@ -635,6 +639,7 @@ print "\033[0mOptimization Flag:\033[1;32m\t\t$config{OPTIMISATI}\033[0m\n";
 print "\033[0mCompiler program:\033[1;32m\t\t$config{CC}\033[0m\n";
 print "\033[0mStatic modules:\033[1;32m\t\t\t$config{STATIC_LINK}\033[0m\n";
 print "\033[0mMultithread DNS:\033[1;32m\t\t$config{THREADED_DNS}\033[0m\n";
+print "\033[0mIPv6 Support:\033[1;32m\t\t\t$config{IPV6}\033[0m\n";
 print "\033[0mGnuTLS Support:\033[1;32m\t\t\t$config{USE_GNUTLS}\033[0m\n";
 print "\033[0mOpenSSL Support:\033[1;32m\t\t$config{USE_OPENSSL}\033[0m\n\n";
 
@@ -974,6 +979,9 @@ EOF
 	}
 	if ($config{THREADED_DNS} =~ /y/i) {
 		print FILEHANDLE "#define THREADED_DNS\n";
+	}
+	if ($config{IPV6} =~/y/i) {
+		print FILEHANDLE "#define IPV6\n";
 	}
 	my $use_hiperf = 0;
 	if (($has_kqueue) && ($config{USE_KQUEUE} eq "y")) {
