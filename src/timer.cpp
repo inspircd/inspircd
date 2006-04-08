@@ -17,19 +17,9 @@
 using namespace std;
 
 #include "inspircd_config.h"
-#include <sys/time.h>
-#include <sys/resource.h>
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <string>
-#include <unistd.h>
-#include <fcntl.h>
-#include <poll.h>
-#include <sstream>
-#include <iostream>
-#include <fstream>
-#include <stdexcept>
+#include <time.h>
+#include <vector>
+#include <map>
 #include "users.h"
 #include "ctables.h"
 #include "typedefs.h"
@@ -61,7 +51,7 @@ void TickTimers(time_t TIME)
 		 */
 		for (timergroup::iterator y = x->begin(); y != x->end(); y++)
 		{
-			InspTimer* n = (InspTimer*)*y;
+			InspTimer* n = *y;
 			n->Tick(TIME);
 			delete n;
 		}
@@ -89,7 +79,7 @@ void TickMissedTimers(time_t TIME)
 			timergroup* x = found->second;
 			for (timergroup::iterator y = x->begin(); y != x->end(); y++)
 			{
-				InspTimer* z = (InspTimer*)*y;
+				InspTimer* z = *y;
 				z->Tick(TIME);
 				delete z;
 			}
