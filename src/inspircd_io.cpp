@@ -1365,10 +1365,10 @@ int ServerConfig::ConfVarEnum(ConfigDataHash &target, const std::string &tag, in
  * a maximum of one second before it times out, using the DNS
  * server specified in the configuration file.
  */ 
-bool BindSocket(int sockfd, struct sockaddr_in client, struct sockaddr_in server, int port, char* addr)
+bool BindSocket(int sockfd, insp_sockaddr client, insp_sockaddr server, int port, char* addr)
 {
 	memset(&server,0,sizeof(server));
-	struct in_addr addy;
+	insp_inaddr addy;
 	bool resolved = false;
 	char resolved_addr[128];
 
@@ -1463,7 +1463,7 @@ bool HasPort(int port, char* addr)
 int BindPorts(bool bail)
 {
 	char configToken[MAXBUF], Addr[MAXBUF], Type[MAXBUF];
-	sockaddr_in client,server;
+	insp_sockaddr client, server;
 	int clientportcount = 0;
 	int BoundPortCount = 0;
 

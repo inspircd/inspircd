@@ -24,6 +24,20 @@
 #include <string>
 #include <deque>
 #include "dns.h"
+#include "inspircd_config.h"
+
+/* macros to the relevant system address description structs */
+#ifdef IPV6
+
+typedef struct sockaddr_in6 insp_sockaddr;
+typedef struct in6_addr     insp_inaddr;
+
+#else
+
+typedef struct sockaddr_in  insp_sockaddr;
+typedef struct in_addr      insp_inaddr;
+
+#endif
 
 /**
  * States which a socket may be in
@@ -84,13 +98,13 @@ private:
 	 * The host being connected to,
 	 * in sockaddr form
 	 */
-        sockaddr_in addr;
+        insp_sockaddr addr;
 
 	/** 
 	 * The host being connected to,
 	 * in in_addr form
 	 */
-        in_addr addy;
+        insp_inaddr addy;
 
 	/**
 	 * When this time is reached,
@@ -125,13 +139,13 @@ private:
 	 * Client sockaddr structure used
 	 * by accept()
 	 */
-	sockaddr_in client;
+	insp_sockaddr client;
 
 	/**
 	 * Server sockaddr structure used
 	 * by accept()
 	 */
-	sockaddr_in server;
+	insp_sockaddr server;
 
 	/**
 	 * Used by accept() to indicate the

@@ -77,7 +77,9 @@ extern char LOG_FILE[MAXBUF];
 int openSockfd[MAX_DESCRIPTORS];
 int yield_depth;
 int iterations = 0;
-sockaddr_in client,server;
+
+insp_sockaddr client, server;
+
 socklen_t length;
 
 extern InspSocket* socket_ref[MAX_DESCRIPTORS];
@@ -598,7 +600,7 @@ void InspIRCd::DoOneIteration(bool process_module_sockets)
 	InspSocket* s = NULL;
 	InspSocket* s_del = NULL;
 	unsigned int numberactive;
-	sockaddr_in sock_us;     // our port number
+	insp_sockaddr sock_us;     // our port number
 	socklen_t uslen;	 // length of our port number
 
 	if (yield_depth > 100)

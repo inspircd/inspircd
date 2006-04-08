@@ -398,7 +398,7 @@ void SetSignals();
 bool DaemonSeed(); 
 bool FileExists(const char* file);
 int OpenTCPSocket(); 
-bool BindSocket(int sockfd, struct sockaddr_in client, struct sockaddr_in server, int port, char* addr);
+bool BindSocket(int sockfd, insp_sockaddr client, insp_sockaddr server, int port, char* addr);
 void WritePID(const std::string &filename);
 int BindPorts(bool bail);
 char* CleanFilename(char* name);
