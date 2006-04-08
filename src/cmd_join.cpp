@@ -14,32 +14,10 @@
  * ---------------------------------------------------
  */
 
-using namespace std;
-
-#include "inspircd_config.h"
 #include "inspircd.h"
-#include "inspircd_io.h"
-#include <time.h>
-#include <string>
-#ifdef GCC3
-#include <ext/hash_map>
-#else
-#include <hash_map>
-#endif
-#include <map>
-#include <sstream>
-#include <vector>
-#include <deque>
 #include "users.h"
-#include "ctables.h"
-#include "globals.h"
-#include "message.h"
 #include "commands.h"
-#include "inspstring.h"
 #include "helperfuncs.h"
-#include "hashcomp.h"
-#include "typedefs.h"
-#include "command_parse.h"
 #include "cmd_join.h"
 
 extern InspIRCd* ServerInstance;
@@ -58,6 +36,3 @@ void cmd_join::Handle (char **parameters, int pcnt, userrec *user)
 		WriteServ(user->fd,"403 %s %s :Invalid channel name",user->nick, parameters[0]);
 	}
 }
-
-
-

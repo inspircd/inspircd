@@ -27,7 +27,6 @@ using namespace std;
 #include "globals.h"
 #include "hashcomp.h"
 #include "inspircd.h"
-#include "inspircd_io.h"
 #include "inspstring.h"
 #include "helperfuncs.h"
 

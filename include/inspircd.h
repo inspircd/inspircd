@@ -39,7 +39,6 @@
 #include <deque>
 #include <sstream>
 
-#include "inspircd_io.h"
 #include "users.h"
 #include "channels.h"
 #include "socket.h"

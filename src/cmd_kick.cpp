@@ -14,29 +14,10 @@
  * ---------------------------------------------------
  */
 
-using namespace std;
-
 #include "inspircd_config.h"
-#include "inspircd.h"
-#include "inspircd_io.h"
-#include <time.h>
-#include <string>
-#include <sstream>
-#include <vector>
-#include <deque>
 #include "users.h"
-#include "ctables.h"
-#include "globals.h"
-#include "modules.h"
-#include "dynamic.h"
-#include "wildcard.h"
-#include "message.h"
 #include "commands.h"
-#include "inspstring.h"
 #include "helperfuncs.h"
-#include "hashcomp.h"
-#include "typedefs.h"
-#include "command_parse.h"
 #include "cmd_kick.h"
 
 void cmd_kick::Handle (char **parameters, int pcnt, userrec *user)
@@ -68,5 +49,3 @@ void cmd_kick::Handle (char **parameters, int pcnt, userrec *user)
 
 	kick_channel(user, u, c, reason);
 }
-
-

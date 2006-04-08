@@ -14,21 +14,9 @@
  * ---------------------------------------------------
  */
 
-using namespace std;
-
-#include "inspircd_config.h"
-#include "inspircd.h"
-#include "inspircd_io.h"
-#include <string>
 #include "users.h"
-#include "ctables.h"
-#include "globals.h"
-#include "message.h"
 #include "commands.h"
-#include "inspstring.h"
 #include "helperfuncs.h"
-#include "hashcomp.h"
-#include "typedefs.h"
 #include "cmd_connect.h"
 
 /*
@@ -38,5 +26,3 @@ void cmd_connect::Handle (char **parameters, int pcnt, userrec *user)
 {
 	WriteServ(user->fd, "NOTICE %s :You are a nub. Load a linking module.", user->nick);
 }
-
-

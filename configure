@@ -1268,7 +1268,7 @@ EOF
 	$cmflags = getcompilerflags("src/modules/m_".$i.".cpp");
 	$liflags = getlinkerflags("src/modules/m_".$i.".cpp");
 	print FILEHANDLE <<EOCHEESE;
-m_$i.so: m_$i.cpp ../../include/modules.h ../../include/users.h ../../include/channels.h ../../include/base.h ../../include/inspircd_config.h ../../include/inspircd.h ../../include/inspircd_io.h
+m_$i.so: m_$i.cpp ../../include/modules.h ../../include/users.h ../../include/channels.h ../../include/base.h ../../include/inspircd_config.h ../../include/inspircd.h ../../include/configreader.h
 	\$(CC) -pipe -I../../include \$(FLAGS) $cmflags -export-dynamic -c m_$i.cpp
 	\$(CC) \$(FLAGS) -shared $liflags -o m_$i.so m_$i.o $extra
 

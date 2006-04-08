@@ -14,28 +14,10 @@
  * ---------------------------------------------------
  */
 
-using namespace std;
-
-#include "inspircd_config.h"
-#include "inspircd.h"
-#include "inspircd_io.h"
-#include <string>
-#ifdef GCC3
-#include <ext/hash_map>
-#else
-#include <hash_map>
-#endif
 #include "users.h"
 #include "ctables.h"
-#include "globals.h"
-#include "modules.h"
-#include "dynamic.h"
-#include "message.h"
 #include "commands.h"
-#include "inspstring.h"
 #include "helperfuncs.h"
-#include "hashcomp.h"
-#include "typedefs.h"
 #include "cmd_list.h"
 
 extern chan_hash chanlist;
@@ -56,6 +38,3 @@ void cmd_list::Handle (char **parameters, int pcnt, userrec *user)
 	}
 	WriteServ(user->fd,"323 %s :End of channel list.",user->nick);
 }
-
-
-

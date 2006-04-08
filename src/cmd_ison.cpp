@@ -14,24 +14,11 @@
  * ---------------------------------------------------
  */
 
-using namespace std;
-
 #include "inspircd_config.h"
-#include "inspircd.h"
-#include "inspircd_io.h"
-#include <string>
-#include "users.h"
 #include "ctables.h"
-#include "globals.h"
-#include "modules.h"
-#include "dynamic.h"
-#include "wildcard.h"
-#include "message.h"
+#include "users.h"
 #include "commands.h"
-#include "inspstring.h"
 #include "helperfuncs.h"
-#include "hashcomp.h"
-#include "typedefs.h"
 #include "cmd_ison.h"
 
 void cmd_ison::Handle (char **parameters, int pcnt, userrec *user)
@@ -54,6 +41,3 @@ void cmd_ison::Handle (char **parameters, int pcnt, userrec *user)
 
 	WriteServ(user->fd, retbuf);
 }
-
-
-

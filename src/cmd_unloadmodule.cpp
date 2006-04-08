@@ -14,25 +14,10 @@
  * ---------------------------------------------------
  */
 
-using namespace std;
-
-#include "inspircd_config.h"
 #include "inspircd.h"
-#include "inspircd_io.h"
-#include <time.h>
-#include <string>
 #include "users.h"
-#include "ctables.h"
-#include "globals.h"
-#include "modules.h"
-#include "dynamic.h"
-#include "message.h"
 #include "commands.h"
-#include "inspstring.h"
 #include "helperfuncs.h"
-#include "hashcomp.h"
-#include "socketengine.h"
-#include "typedefs.h"
 #include "cmd_unloadmodule.h"
 
 extern InspIRCd* ServerInstance;
@@ -49,4 +34,3 @@ void cmd_unloadmodule::Handle (char **parameters, int pcnt, userrec *user)
 		WriteServ(user->fd,"972 %s %s :Failed to unload module: %s",user->nick, parameters[0],ServerInstance->ModuleError());
 	}
 }
-

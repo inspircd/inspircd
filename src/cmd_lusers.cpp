@@ -14,23 +14,9 @@
  * ---------------------------------------------------
  */
 
-using namespace std;
-
-#include "inspircd_config.h"
-#include "inspircd.h"
-#include "inspircd_io.h"
-#include <string>
-#include <vector>
 #include "users.h"
-#include "ctables.h"
-#include "globals.h"
-#include "message.h"
 #include "commands.h"
-#include "inspstring.h"
 #include "helperfuncs.h"
-#include "hashcomp.h"
-#include "typedefs.h"
-#include "command_parse.h"
 #include "cmd_lusers.h"
 
 void cmd_lusers::Handle (char **parameters, int pcnt, userrec *user)
@@ -43,5 +29,3 @@ void cmd_lusers::Handle (char **parameters, int pcnt, userrec *user)
 	WriteServ(user->fd,"254 %s %d :channels formed",user->nick,chancount());
 	WriteServ(user->fd,"254 %s :I have %d clients and 0 servers",user->nick,local_count());
 }
-
-

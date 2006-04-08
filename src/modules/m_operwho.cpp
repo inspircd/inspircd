@@ -14,38 +14,18 @@
  * ---------------------------------------------------
  */
 
-using namespace std;
-
 /* $ModDesc: Provides an extended version of /WHO for opers */
 
-#include "inspircd_config.h"
-#include "inspircd.h"
-#include "inspircd_io.h"
-#include <time.h>
 #include <string>
-#ifdef GCC3
-#include <ext/hash_map>
-#else
-#include <hash_map>
-#endif
-#include <map>
-#include <sstream>
 #include <vector>
-#include <deque>
+#include "inspircd_config.h"
 #include "users.h"
-#include "globals.h"
 #include "modules.h"
 #include "helperfuncs.h"
 #include "message.h"
-#include "hashcomp.h"
-#include "typedefs.h"
 
-extern ServerConfig* Config;
-extern InspIRCd* ServerInstance;
 extern user_hash clientlist;
-extern chan_hash chanlist;
 extern std::vector<userrec*> all_opers;
-extern std::vector<userrec*> local_users;
 
 class ModuleOperWho : public Module
 {

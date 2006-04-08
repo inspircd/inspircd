@@ -17,16 +17,9 @@
 #ifndef __CMD_CONNECT_H__
 #define __CMD_CONNECT_H__
 
-// include the common header files
-
-#include <typeinfo>
-#include <iostream>
-#include <string>
-#include <deque>
-#include <sstream>
-#include <vector>
 #include "users.h"
 #include "channels.h"
+#include "ctables.h"
 
 class cmd_connect : public command_t
 {

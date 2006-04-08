@@ -18,17 +18,7 @@ using namespace std;
 
 #include "inspircd_config.h"
 #include "inspircd.h"
-#include "inspircd_io.h"
-#include <unistd.h>
-#include <fcntl.h>
-#include <sys/errno.h>
-#include <time.h>
 #include <string>
-#ifdef GCC3
-#include <ext/hash_map>
-#else
-#include <hash_map>
-#endif
 #include <map>
 #include <sstream>
 #include <vector>
@@ -763,4 +753,3 @@ void stats_e(userrec* user)
 	for (std::vector<ELine>::iterator i = pelines.begin(); i != pelines.end(); i++)
 		WriteServ(user->fd,"223 %s :%s %d %d %s :%s",user->nick,i->hostmask,i->set_time,i->duration,i->source,i->reason);
 }
-

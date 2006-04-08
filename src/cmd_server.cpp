@@ -14,57 +14,13 @@
  * ---------------------------------------------------
  */
 
-using namespace std;
-
-#include "inspircd_config.h"
-#include "inspircd.h"
-#include "inspircd_io.h"
-#include <time.h>
-#include <string>
-#ifdef GCC3
-#include <ext/hash_map>
-#else
-#include <hash_map>
-#endif
-#include <map>
-#include <sstream>
-#include <vector>
-#include <deque>
 #include "users.h"
-#include "ctables.h"
-#include "globals.h"
-#include "modules.h"
-#include "dynamic.h"
-#include "wildcard.h"
-#include "message.h"
 #include "commands.h"
-#include "mode.h"
-#include "xline.h"
-#include "inspstring.h"
-#include "dnsqueue.h"
 #include "helperfuncs.h"
-#include "hashcomp.h"
-#include "socketengine.h"
-#include "typedefs.h"
-#include "command_parse.h"
 #include "cmd_server.h"
-
-extern ServerConfig* Config;
-extern InspIRCd* ServerInstance;
-extern int MODCOUNT;
-extern std::vector<Module*> modules;
-extern std::vector<ircd_module*> factory;
-extern time_t TIME;
-extern user_hash clientlist;
-extern chan_hash chanlist;
-extern std::vector<userrec*> all_opers;
-extern std::vector<userrec*> local_users;
-extern userrec* fd_ref_table[MAX_DESCRIPTORS];
 
 void cmd_server::Handle (char **parameters, int pcnt, userrec *user)
 {
 	WriteServ(user->fd,"666 %s :You cannot identify as a server, you are a USER. IRC Operators informed.",user->nick);
 	WriteOpers("*** WARNING: %s attempted to issue a SERVER command and is registered as a user!",user->nick);
 }
-
-
