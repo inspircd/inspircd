@@ -54,20 +54,6 @@ extern ServerConfig* Config;
 
 extern time_t TIME;
 
-ModeOutput::ModeOutput(std::string parameter, ModeAction action) : par(parameter), act(action)
-{
-}
-
-ModeAction ModeOutput::GetAction()
-{
-	return act;
-}
-
-std::string& ModeOutput::GetParameter()
-{
-	return par;
-}
-
 ModeHandler::ModeHandler(char modeletter, int parameters, bool listmode, ModeType type, bool operonly) : mode(modeletter), n_params(parameters), list(listmode), m_type(type), oper(operonly)
 {
 }
@@ -101,9 +87,9 @@ char ModeHandler::GetModeChar()
 	return mode;
 }
 
-ModeOutput ModeHandler::OnModeChange(userrec* source, userrec* dest, chanrec* channel, const std::string &parameter, bool adding)
+ModeAction ModeHandler::OnModeChange(userrec* source, userrec* dest, chanrec* channel, std::string &parameter, bool adding)
 {
-	return ModeOutput("", MODEACTION_DENY);
+	return MODEACTION_DENY;
 }
 
 void ModeHandler::DisplayList(userrec* user, chanrec* channel)
@@ -133,7 +119,7 @@ ModeType ModeWatcher::GetModeType()
 	return m_type;
 }
 
-bool ModeWatcher::BeforeMode(userrec* source, userrec* dest, chanrec* channel, const std::string &parameter, bool adding)
+bool ModeWatcher::BeforeMode(userrec* source, userrec* dest, chanrec* channel, std::string &parameter, bool adding)
 {
 	return true;
 }
