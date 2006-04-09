@@ -54,6 +54,94 @@ extern ServerConfig* Config;
 
 extern time_t TIME;
 
+ModeOutput::ModeOutput(std::string parameter, ModeAction action) : par(parameter), act(action)
+{
+}
+
+ModeAction ModeOutput::GetAction()
+{
+	return act;
+}
+
+std::string& ModeOutput::GetParameter()
+{
+	return par;
+}
+
+ModeHandler::ModeHandler(char modeletter, int parameters, bool listmode, ModeType type, bool operonly) : mode(modeletter), n_params(parameters), list(listmode), m_type(type), oper(operonly)
+{
+}
+
+ModeHandler::~ModeHandler()
+{
+}
+
+bool ModeHandler::IsListMode()
+{
+	return list;
+}
+
+ModeType ModeHandler::GetModeType()
+{
+	return m_type;
+}
+
+bool ModeHandler::NeedsOper()
+{
+	return oper;
+}
+
+int ModeHandler::GetNumParams()
+{
+	return n_params;
+}
+
+char ModeHandler::GetModeChar()
+{
+	return mode;
+}
+
+ModeOutput ModeHandler::OnModeChange(userrec* source, userrec* dest, chanrec* channel, const std::string &parameter, bool adding)
+{
+	return ModeOutput("", MODEACTION_DENY);
+}
+
+void ModeHandler::DisplayList(userrec* user, chanrec* channel)
+{
+}
+
+bool ModeHandler::CheckTimeStamp(time_t theirs, time_t ours, const std::string &their_param, const std::string &our_param, chanrec* channel)
+{
+	return (ours < theirs);
+}
+
+ModeWatcher::ModeWatcher(char modeletter, ModeType type) : mode(modeletter), m_type(type)
+{
+}
+
+ModeWatcher::~ModeWatcher()
+{
+}
+
+char ModeWatcher::GetModeChar()
+{
+	return mode;
+}
+
+ModeType ModeWatcher::GetModeType()
+{
+	return m_type;
+}
+
+bool ModeWatcher::BeforeMode(userrec* source, userrec* dest, chanrec* channel, const std::string &parameter, bool adding)
+{
+	return true;
+}
+
+void ModeWatcher::AfterMode(userrec* source, userrec* dest, chanrec* channel, const std::string &parameter, bool adding)
+{
+}
+
 userrec* ModeParser::SanityChecks(userrec *user,char *dest,chanrec *chan,int status)
 {
 	userrec *d;
