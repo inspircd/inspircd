@@ -16,12 +16,14 @@
 
 /* Now with added unF! ;) */
 
+#include <algorithm>
 #include "inspircd_config.h"
 #include "inspircd.h"
 #include "configreader.h"
 #include <fcntl.h>
 #include <sys/errno.h>
 #include <sys/ioctl.h>
+#include <signal.h>
 #include <time.h>
 #include <string>
 #include <exception>
@@ -60,8 +62,8 @@ InspIRCd* ServerInstance;
 int WHOWAS_STALE = 48; // default WHOWAS Entries last 2 days before they go 'stale'
 int WHOWAS_MAX = 100;  // default 100 people maximum in the WHOWAS list
 
-extern std::vector<Module*> modules;
-extern std::vector<ircd_module*> factory;
+extern ModuleList modules;
+extern FactoryList factory;
 
 std::vector<InspSocket*> module_sockets;
 std::vector<userrec*> local_users;
@@ -94,36 +96,30 @@ chan_hash chanlist;
 servernamelist servernames;
 char lowermap[255];
 
-void AddServerName(std::string servername)
+void AddServerName(const std::string &servername)
 {
 	log(DEBUG,"Adding server name: %s",servername.c_str());
-	for (servernamelist::iterator a = servernames.begin(); a < servernames.end(); a++)
-	{
-		if (*a == servername)
-			return;
-	}
-	servernames.push_back(servername);
+	
+	if(find(servernames.begin(), servernames.end(), servername) == servernames.end())
+		servernames.push_back(servername); /* Wasn't already there. */
 }
 
-const char* FindServerNamePtr(std::string servername)
+const char* FindServerNamePtr(const std::string &servername)
 {
-	for (servernamelist::iterator a = servernames.begin(); a < servernames.end(); a++)
-	{
-		if (*a == servername)
-			return a->c_str();
+	servernamelist::iterator iter = find(servernames.begin(), servernames.end(), servername);
+	
+	if(iter == servernames.end())
+	{		
+		AddServerName(servername);
+		iter = --servernames.end();
 	}
-	AddServerName(servername);
-	return FindServerNamePtr(servername);
+
+	return iter->c_str();
 }
 
-bool FindServerName(std::string servername)
+bool FindServerName(const std::string &servername)
 {
-	for (servernamelist::iterator a = servernames.begin(); a < servernames.end(); a++)
-	{
-		if (*a == servername)
-			return true;
-	}
-	return false;
+	return (find(servernames.begin(), servernames.end(), servername) != servernames.end());
 }
 
 void Exit(int status)

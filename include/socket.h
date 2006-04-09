@@ -19,14 +19,18 @@
 
 /* This is where we'll define wrappers for socket IO stuff, for neat winsock compatability */
 
+#include <arpa/inet.h>
 #include <sys/time.h>
 #include <sys/resource.h>
 #include <sys/types.h>
 #include <sys/socket.h>
+#include <sys/stat.h>
 #include <netinet/in.h>
 #include <unistd.h>
 #include <fcntl.h>
 #include <poll.h>
+#include <errno.h>
+#include <netdb.h>
 #include "inspircd_config.h"
 
 /* macros to the relevant system address description structs */

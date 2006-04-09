@@ -17,28 +17,9 @@
 #ifndef __INSPIRCD_H__
 #define __INSPIRCD_H__
 
-#include "inspircd_config.h"
 #include <string>
-#include <stdio.h>
-#include <unistd.h>
-#include <signal.h>
-#include <time.h>
-#include <netdb.h>
-#include <string.h>
-#include <errno.h>
-#include <sys/types.h>
-
-#ifndef _LINUX_C_LIB_VERSION
-#include <sys/socket.h>
-#include <sys/stat.h>
-#include <netinet/in.h>
-#endif
-
-#include <arpa/inet.h>
-#include <string>
-#include <deque>
 #include <sstream>
-
+#include "inspircd_config.h"
 #include "users.h"
 #include "channels.h"
 #include "socket.h"
@@ -46,17 +27,18 @@
 #include "socketengine.h"
 #include "command_parse.h"
 
-// some misc defines
+/* Some misc defines */
 #define ERROR -1
 #define MAXCOMMAND 32
 
-// crucial defines
+/* Crucial defines */
 #define ETIREDGERBILS EAGAIN
 
-// This define is used in place of strcmp when we 
-// want to check if a char* string contains only one
-// letter. Pretty fast, its just two compares and an
-// addition.
+/* This define is used in place of strcmp when we 
+ * want to check if a char* string contains only one
+ * letter. Pretty fast, its just two compares and an
+ * addition.
+ */
 #define IS_SINGLE(x,y) ( (*x == y) && (*(x+1) == 0) )
 
 template<typename T> inline std::string ConvToStr(const T &in)
@@ -65,7 +47,6 @@ template<typename T> inline std::string ConvToStr(const T &in)
 	if (!(tmp << in)) return std::string();
 	return tmp.str();
 }
-
 
 class serverstats
 {
@@ -94,14 +75,14 @@ class serverstats
 
 class InspIRCd
 {
-
  private:
 	char MODERR[MAXBUF];
-        void erase_factory(int j);
-        void erase_module(int j);
+	bool expire_run;
+ 
+	void erase_factory(int j);
+	void erase_module(int j);
 	void BuildISupport();
 	void MoveTo(std::string modulename,int slot);
-        bool expire_run;
 
  public:
 	time_t startup_time;
@@ -134,8 +115,8 @@ bool DaemonSeed();
 void WritePID(const std::string &filename);
 
 /* userrec optimization stuff */
-void AddServerName(std::string servername);
-const char* FindServerNamePtr(std::string servername);
-bool FindServerName(std::string servername);
+void AddServerName(const std::string &servername);
+const char* FindServerNamePtr(const std::string &servername);
+bool FindServerName(const std::string &servername);
 
 #endif
