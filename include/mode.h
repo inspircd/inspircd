@@ -96,7 +96,7 @@ class ModeParser
 	/**
 	 * Mode watcher classes
 	 */
-	std::vector<ModeWatcher*> modewatchers[65];
+	std::vector<ModeWatcher*> modewatchers[64];
 	
 	char* GiveOps(userrec *user,char *dest,chanrec *chan,int status);
 	char* GiveHops(userrec *user,char *dest,chanrec *chan,int status);
@@ -110,7 +110,8 @@ class ModeParser
 	char* Grant(userrec *d,chanrec *chan,int MASK);
 	char* Revoke(userrec *d,chanrec *chan,int MASK);
  public:
-	void Process(char **parameters, int pcnt, userrec *user);
+	void Process(char **parameters, int pcnt, userrec *user, bool servermode);
+
 	std::string CompressModes(std::string modes,bool channelmodes);
 	void ProcessModes(char **parameters,userrec* user,chanrec *chan,int status, int pcnt, bool servermode, bool silent, bool local);
 	bool AllowedUmode(char umode, char* sourcemodes,bool adding,bool serveroverride);
