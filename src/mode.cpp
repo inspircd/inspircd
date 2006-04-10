@@ -499,7 +499,7 @@ void ModeParser::Process(char **parameters, int pcnt, userrec *user)
 		}
 		std::string mode_sequence = parameters[1];
 		std::string parameter = "";
-		std::istringstream parameter_list;
+		std::ostringstream parameter_list;
 		std::string output_sequence = "";
 		bool adding = true, state_change = false;
 		int handler_id = 0;
@@ -566,8 +566,7 @@ void ModeParser::Process(char **parameters, int pcnt, userrec *user)
 
 								if ((modehandlers[handler_id]->GetNumParams(adding)) && (parameter != ""))
 								{
-									parameter = " " + parameter;
-									parameter_list >> parameter;
+									parameter_list << " " << parameter;
 								}
 
 								for (std::vector<ModeWatcher*>::iterator watchers = modewatchers[handler_id].begin(); watchers != modewatchers[handler_id].end(); watchers++)
