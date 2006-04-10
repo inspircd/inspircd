@@ -29,43 +29,62 @@ const int inverted_bitfields[]  =       {~1,~2,~4,~8,~16,~32,~64,~128};
 
 extern time_t TIME;
 
-bool Extensible::Extend(const std::string &key, char* p)
-{
-	// only add an item if it doesnt already exist
-	if (this->Extension_Items.find(key) == this->Extension_Items.end())
-	{
-		this->Extension_Items[key] = p;
-		log(DEBUG,"Extending object with item %s",key.c_str());
-		return true;
-	}
-	// item already exists, return false
-	return false;
-}
+/* This is now a template in base.h
+ *
+ * bool Extensible::Extend(const std::string &key, char* p)
+ * {
+ *	// only add an item if it doesnt already exist
+ *	if (this->Extension_Items.find(key) == this->Extension_Items.end())
+ *	{
+ *		this->Extension_Items[key] = p;
+ *		log(DEBUG,"Extending object with item %s",key.c_str());
+ *		return true;
+ *	}
+ *	// item already exists, return false
+ *	return false;
+ * }
+ */
 
 bool Extensible::Shrink(const std::string &key)
 {
-	// only attempt to remove a map item that exists
-	if (this->Extension_Items.find(key) != this->Extension_Items.end())
+	/* map::size_type map::erase( const key_type& key );
+	 * returns the number of elements removed, std::map
+	 * is single-associative so this should only be 0 or 1
+	 */
+	if(this->Extension_Items.erase(key))
 	{
-		this->Extension_Items.erase(this->Extension_Items.find(key));
-		log(DEBUG,"Shrinking object with item %s",key.c_str());
+		log(DEBUG, "Shrinking object with item %s",key.c_str());
 		return true;
 	}
-	return false;
+	else
+	{
+		log(DEBUG, "Tried to shrink object with item %s but no items removed", key.c_str());		
+		return false;
+	}
 }
 
 char* Extensible::GetExt(const std::string &key)
 {
-	if (this->Extension_Items.find(key) != this->Extension_Items.end())
+	/* This was calling ExtensibleStore::find() twice,
+	 * once to see if there was a value, and again to
+	 * get that value if it was there. Now we store
+	 * the iterator so we only have to search for it once.
+	 */
+	ExtensibleStore::iterator iter = this->Extension_Items.find(key);
+	
+	if(iter != this->Extension_Items.end())
 	{
-		return (this->Extension_Items.find(key))->second;
+		return iter->second;
 	}
-	return NULL;
+	else
+	{
+		return NULL;
+	}
 }
 
 void Extensible::GetExtList(std::deque<std::string> &list)
 {
-	for (std::map<std::string,char*>::iterator u = Extension_Items.begin(); u != Extension_Items.end(); u++)
+	for (ExtensibleStore::iterator u = Extension_Items.begin(); u != Extension_Items.end(); u++)
 	{
 		list.push_back(u->first);
 	}

@@ -17,13 +17,14 @@
 #ifndef __BASE_H__ 
 #define __BASE_H__ 
 
-#include "inspircd_config.h" 
+#include "inspircd_config.h"
 #include <time.h>
 #include <map>
 #include <deque>
 #include <string>
 
 typedef void* VoidPointer;
+typedef std::map<std::string,char*> ExtensibleStore;
  
 /** The base class for all inspircd classes
 */ 
@@ -52,7 +53,7 @@ class Extensible : public classbase
 {
 	/** Private data store
 	 */
-	std::map<std::string,char*> Extension_Items;
+	ExtensibleStore Extension_Items;
 	
 public:
 
@@ -67,7 +68,14 @@ public:
 	 *
 	 * @return Returns true on success, false if otherwise
 	 */
-	bool Extend(const std::string &key, char* p);
+	template<typename T> bool Extend(const std::string &key, T* p)
+	{
+		/* This will only add an item if it doesnt already exist,
+		 * the return value is a std::pair of an iterator to the
+		 * element, and a bool saying if it was actually inserted.
+		 */
+		return this->Extension_Items.insert(std::make_pair(key, (char*)p)).second;
+	}
 
 	/** Shrink an Extensible class.
 	 *
