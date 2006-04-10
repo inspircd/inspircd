@@ -566,7 +566,8 @@ void ModeParser::Process(char **parameters, int pcnt, userrec *user)
 
 								if ((modehandlers[handler_id]->GetNumParams(adding)) && (parameter != ""))
 								{
-									parameter_list >> " " >> parameter;
+									parameter = " " + parameter;
+									parameter_list >> parameter;
 								}
 
 								for (std::vector<ModeWatcher*>::iterator watchers = modewatchers[handler_id].begin(); watchers != modewatchers[handler_id].end(); watchers++)
