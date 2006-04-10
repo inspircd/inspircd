@@ -80,13 +80,23 @@ class ModeWatcher
 	char GetModeChar();
 	ModeType GetModeType();
 
-	virtual bool BeforeMode(userrec* source, userrec* dest, chanrec* channel, std::string &parameter, bool adding); /* Can change the mode parameter */
-	virtual void AfterMode(userrec* source, userrec* dest, chanrec* channel, const std::string &parameter, bool adding);
+	virtual bool BeforeMode(userrec* source, userrec* dest, chanrec* channel, std::string &parameter, bool adding, ModeType type); /* Can change the mode parameter */
+	virtual void AfterMode(userrec* source, userrec* dest, chanrec* channel, const std::string &parameter, bool adding, ModeType type);
 };
 
 class ModeParser
 {
  private:
+	/**
+	 * Mode handlers for each mode, to access a handler subtract
+	 * 65 from the ascii value of the mode letter.
+	 */
+	ModeHandler* modehandlers[64];
+	/**
+	 * Mode watcher classes
+	 */
+	std::vector<ModeWatcher*> modewatchers[65];
+	
 	char* GiveOps(userrec *user,char *dest,chanrec *chan,int status);
 	char* GiveHops(userrec *user,char *dest,chanrec *chan,int status);
 	char* GiveVoice(userrec *user,char *dest,chanrec *chan,int status);
@@ -99,6 +109,7 @@ class ModeParser
 	char* Grant(userrec *d,chanrec *chan,int MASK);
 	char* Revoke(userrec *d,chanrec *chan,int MASK);
  public:
+	void Process(char **parameters, int pcnt, userrec *user);
 	std::string CompressModes(std::string modes,bool channelmodes);
 	void ProcessModes(char **parameters,userrec* user,chanrec *chan,int status, int pcnt, bool servermode, bool silent, bool local);
 	bool AllowedUmode(char umode, char* sourcemodes,bool adding,bool serveroverride);

@@ -119,12 +119,12 @@ ModeType ModeWatcher::GetModeType()
 	return m_type;
 }
 
-bool ModeWatcher::BeforeMode(userrec* source, userrec* dest, chanrec* channel, std::string &parameter, bool adding)
+bool ModeWatcher::BeforeMode(userrec* source, userrec* dest, chanrec* channel, std::string &parameter, bool adding, ModeType type)
 {
 	return true;
 }
 
-void ModeWatcher::AfterMode(userrec* source, userrec* dest, chanrec* channel, const std::string &parameter, bool adding)
+void ModeWatcher::AfterMode(userrec* source, userrec* dest, chanrec* channel, const std::string &parameter, bool adding, ModeType type)
 {
 }
 
@@ -473,6 +473,84 @@ char* ModeParser::TakeBan(userrec *user,char *dest,chanrec *chan,int status)
 		}
 	}
 	return NULL;
+}
+
+void ModeParser::Process(char **parameters, int pcnt, userrec *user)
+{
+	std::string target = parameters[0];
+	ModeType type = MODETYPE_USER;
+	chanrec* targetchannel = FindChan(parameters[0]);
+	userrec* targetuser  = Find(parameters[0]);
+
+	if (pcnt > 1)
+	{
+		if (targetchannel)
+		{
+			type = MODETYPE_CHANNEL;
+		}
+		else if (targetuser)
+		{
+			type = MODETYPE_USER;
+		}
+		else
+		{
+			/* No such nick/channel */
+			return;
+		}
+		std::string mode_sequence = parameters[1];
+		std::string parameter = "";
+		std::ostringstream parameter_list;
+		std::string output_sequence = "";
+		bool adding = true, state_change = false;
+		int handler_id = 0;
+
+		for (std::string::const_iterator modeletter = mode_sequence.begin(); modeletter != mode_sequence.end(); modeletter++)
+		{
+			switch (*modeletter)
+			{
+				case '+':
+					adding = true;
+					state_change = true;
+					continue;
+				break;
+				case '-':
+					adding = false;
+					state_change = true;
+					continue;
+				break;
+				default:
+					if (state_change)
+						output_sequence.append(adding ? "+" : "-");
+
+					handler_id = *modeletter-65;
+					state_change = false;
+
+					if (modehandlers[handler_id])
+					{
+						bool abort = false;
+						for (std::vector<ModeWatcher*>::iterator watchers = modewatchers[handler_id].begin(); watchers != modewatchers[handler_id].end(); watchers++)
+						{
+							if ((*watchers)->BeforeMode(user, targetuser, targetchannel, parameter, adding, type) == MODEACTION_DENY)
+								abort = true;
+						}
+						if ((modehandlers[handler_id]->GetModeType() == type) && (!abort))
+						{
+							ModeAction ma = modehandlers[handler_id]->OnModeChange(user, targetuser, targetchannel, parameter, adding);
+							if (ma == MODEACTION_ALLOW)
+							{
+								output_sequence = output_sequence + *modeletter;
+
+								for (std::vector<ModeWatcher*>::iterator watchers = modewatchers[handler_id].begin(); watchers != modewatchers[handler_id].end(); watchers++)
+								{
+									(*watchers)->AfterMode(user, targetuser, targetchannel, parameter, adding, type);
+								}
+							}
+						}
+					}
+				break;
+			}
+		}
+	}
 }
 
 
