@@ -1,6 +1,9 @@
 #ifndef __TYPEDEF_H__
 #define __TYPEDEF_H__
 
+#include <string>
+#include "inspircd_config.h"
+#include "hash_map.h"
 #include "users.h"
 #include "channels.h"
 #include "hashcomp.h"
@@ -9,13 +12,6 @@
 #include "inspircd.h"
 #include "modules.h"
 #include "globals.h"
-#include "inspircd_config.h"
-#include <string>
-#ifdef GCC3
-#include <ext/hash_map>
-#else
-#include <hash_map>
-#endif
 
 typedef nspace::hash_map<std::string, userrec*, nspace::hash<string>, irc::StrHashComp> user_hash;
 typedef nspace::hash_map<std::string, chanrec*, nspace::hash<string>, irc::StrHashComp> chan_hash;

@@ -18,10 +18,8 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #ifndef _DNS_H
 #define _DNS_H
 
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
 #include <string>
+#include "socket.h"
 
 struct dns_ip4list {
 	in_addr ip;

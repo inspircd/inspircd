@@ -17,27 +17,12 @@
 #ifndef __INSP_SOCKET_H__
 #define __INSP_SOCKET_H__
 
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
 #include <sstream>
 #include <string>
 #include <deque>
-#include "dns.h"
 #include "inspircd_config.h"
-
-/* macros to the relevant system address description structs */
-#ifdef IPV6
-
-typedef struct sockaddr_in6 insp_sockaddr;
-typedef struct in6_addr     insp_inaddr;
-
-#else
-
-typedef struct sockaddr_in  insp_sockaddr;
-typedef struct in_addr      insp_inaddr;
-
-#endif
+#include "dns.h"
+#include "socket.h"
 
 /**
  * States which a socket may be in

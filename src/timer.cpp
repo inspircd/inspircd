@@ -14,24 +14,14 @@
  * ---------------------------------------------------
  */
 
-using namespace std;
-
-#include "inspircd_config.h"
-#include <time.h>
 #include <vector>
 #include <map>
-#include "users.h"
-#include "ctables.h"
-#include "typedefs.h"
-#include "commands.h"
-#include "globals.h"
-#include "hashcomp.h"
+#include "inspircd_config.h"
 #include "inspircd.h"
-#include "inspstring.h"
+#include "typedefs.h"
 #include "helperfuncs.h"
+#include "timer.h"
 
-extern InspIRCd* ServerInstance;
-extern ServerConfig* Config;
 extern time_t TIME;
 
 typedef std::vector<InspTimer*> timergroup;

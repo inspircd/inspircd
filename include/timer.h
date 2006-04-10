@@ -14,6 +14,9 @@
  * ---------------------------------------------------
  */
 
+#ifndef INSPIRCD_TIMER_H
+#define INSPIRCD_TIMER_H
+
 /** Timer class for one-second resolution timers
  * InspTimer provides a facility which allows module
  * developers to create one-shot timers. The timer
@@ -55,3 +58,4 @@ void TickTimers(time_t TIME);
 void AddTimer(InspTimer* T);
 void TickMissedTimers(time_t TIME);
 
+#endif

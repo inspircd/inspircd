@@ -36,8 +36,9 @@
 
 #else
 
-#include <windows_defs.h>
+#include <windef.h>
 #include <winsock2.h>
+typedef int socklen_t;
 
 #endif
 
