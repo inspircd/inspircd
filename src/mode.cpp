@@ -499,7 +499,7 @@ void ModeParser::Process(char **parameters, int pcnt, userrec *user)
 		}
 		std::string mode_sequence = parameters[1];
 		std::string parameter = "";
-		std::ostringstream parameter_list;
+		std::istringstream parameter_list;
 		std::string output_sequence = "";
 		bool adding = true, state_change = false;
 		int handler_id = 0;
