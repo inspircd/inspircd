@@ -17,6 +17,7 @@
 #ifndef __INSPIRCD_H__
 #define __INSPIRCD_H__
 
+#include <time.h>
 #include <string>
 #include <sstream>
 #include "inspircd_config.h"

@@ -16,18 +16,13 @@
 
 using namespace std;
 
-#include "configreader.h"
-#include "inspircd.h"
-#include <unistd.h>
-#include <sys/errno.h>
-#include <sys/ioctl.h>
-#include <sys/utsname.h>
-#include <time.h>
 #include <string>
 #include <map>
 #include <sstream>
 #include <vector>
 #include <deque>
+#include "configreader.h"
+#include "inspircd.h"
 #include "hash_map.h"
 #include "users.h"
 #include "ctables.h"
@@ -48,8 +43,6 @@ extern ServerConfig* Config;
 extern int MODCOUNT;
 extern std::vector<Module*> modules;
 extern std::vector<ircd_module*> factory;
-extern int WHOWAS_STALE;
-extern int WHOWAS_MAX;
 extern time_t TIME;
 extern chan_hash chanlist;
 
@@ -76,14 +69,18 @@ void chanrec::SetCustomModeParam(char mode,char* parameter,bool mode_on)
 {
 	log(DEBUG,"SetCustomModeParam called");
 	
-	std::map<char,char*>::iterator n = custom_mode_params.find(mode);	
+	CustomModeList::iterator n = custom_mode_params.find(mode);	
 
 	if (mode_on)
 	{
-		log(DEBUG,"Custom mode parameter %c %s added",mode,parameter);
 		if (n == custom_mode_params.end())
 		{
 			custom_mode_params[mode] = strdup(parameter);
+			log(DEBUG,"Custom mode parameter %c %s added",mode,parameter);
+		}
+		else
+		{
+			log(DEBUG, "Tried to set custom mode parameter for %c '%s' when it was already '%s'", mode, parameter, n->second);
 		}
 	}
 	else
@@ -113,7 +110,7 @@ std::string chanrec::GetModeParameter(char mode)
 	}
 	else
 	{
-		std::map<char,char*>::iterator n = custom_mode_params.find(mode);
+		CustomModeList::iterator n = custom_mode_params.find(mode);
 		if (n != custom_mode_params.end())
 		{
 			return n->second;
@@ -375,9 +372,9 @@ chanrec* add_channel(userrec *user, const char* cn, const char* key, bool overri
 
 	for (std::vector<ucrec*>::const_iterator index = user->chans.begin(); index != user->chans.end(); index++)
 	{
-		if ((ucrec*)(*index)->channel == NULL)
+		if ((*index)->channel == NULL)
 		{
-			return ForceChan(Ptr,(ucrec*)(*index),user,created);
+			return ForceChan(Ptr, *index, user, created);
 		}
 	}
 
@@ -634,11 +631,11 @@ void kick_channel(userrec *src,userrec *user, chanrec *Ptr, char* reason)
 	for (std::vector<ucrec*>::const_iterator i = user->chans.begin(); i != user->chans.end(); i++)
 	{
 		/* zap it from the channel list of the user */
-		if ((((ucrec*)(*i))->channel) && (((ucrec*)(*i))->channel == Ptr))
+		if ((*i)->channel && ((*i)->channel == Ptr))
 		{
 			WriteChannel(Ptr,src,"KICK %s %s :%s",Ptr->name, user->nick, reason);
-			((ucrec*)(*i))->uc_modes = 0;
-			((ucrec*)(*i))->channel = NULL;
+			(*i)->uc_modes = 0;
+			(*i)->channel = NULL;
 			log(DEBUG,"del_channel: unlinked: %s %s",user->nick,Ptr->name);
 			break;
 		}
