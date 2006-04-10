@@ -109,6 +109,10 @@ typedef std::vector<Invited> InvitedList;
  */
 typedef std::vector<ConnectClass> ClassVector;
 
+/** Typedef for the list of user-channel records for a user
+ */
+typedef std::vector<ucrec*> UserChanList;
+
 /** Holds all information about a user
  * This class stores all information about a user connected to the irc server. Everything about a
  * connection is stored here primarily, from the user's socket ID (file descriptor) through to the
@@ -160,7 +164,7 @@ class userrec : public connection
 	 */
 	char modebits;
 	
-	std::vector<ucrec*> chans;
+	UserChanList chans;
 	
 	/** The server the user is connected to.
 	 */

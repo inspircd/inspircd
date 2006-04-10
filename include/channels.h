@@ -87,6 +87,11 @@ typedef std::vector<InviteItem>	InviteList;
  */
 typedef std::map<userrec*,userrec*> CUList;
 
+/** Shorthand for CUList::iterator
+ */
+typedef CUList::iterator CUListIter;
+typedef CUList::const_iterator CUListConstIter;
+
 /** A list of custom modes parameters on a channel
  */
 typedef std::map<char,char*> CustomModeList;
@@ -286,4 +291,3 @@ void kick_channel(userrec *src,userrec *user, chanrec *Ptr, char* reason);
 void server_kick_channel(userrec* user, chanrec* Ptr, char* reason, bool triggerevents);
 
 #endif
-

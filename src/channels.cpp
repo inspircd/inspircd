@@ -131,7 +131,8 @@ void chanrec::AddUser(userrec* user)
 
 unsigned long chanrec::DelUser(userrec* user)
 {
-	CUList::iterator a = internal_userlist.find(user);
+	CUListIter a = internal_userlist.find(user);
+	
 	if (a != internal_userlist.end())
 	{
 		internal_userlist.erase(a);
@@ -139,8 +140,8 @@ unsigned long chanrec::DelUser(userrec* user)
 		DelOppedUser(user);
 		DelHalfoppedUser(user);
 		DelVoicedUser(user);
-		return internal_userlist.size();
 	}
+	
 	return internal_userlist.size();
 }
 
@@ -156,7 +157,7 @@ void chanrec::AddOppedUser(userrec* user)
 
 void chanrec::DelOppedUser(userrec* user)
 {
-	CUList::iterator a = internal_op_userlist.find(user);
+	CUListIter a = internal_op_userlist.find(user);
 	if (a != internal_op_userlist.end())
 	{
 		internal_op_userlist.erase(a);
@@ -171,11 +172,11 @@ void chanrec::AddHalfoppedUser(userrec* user)
 
 void chanrec::DelHalfoppedUser(userrec* user)
 {
-	CUList::iterator a = internal_halfop_userlist.find(user);
+	CUListIter a = internal_halfop_userlist.find(user);
+
 	if (a != internal_halfop_userlist.end())
 	{   
 		internal_halfop_userlist.erase(a);
-		return; 
 	}
 }
 
@@ -186,11 +187,11 @@ void chanrec::AddVoicedUser(userrec* user)
 
 void chanrec::DelVoicedUser(userrec* user)
 {
-	CUList::iterator a = internal_voice_userlist.find(user);
+	CUListIter a = internal_voice_userlist.find(user);
+	
 	if (a != internal_voice_userlist.end())
 	{
 		internal_voice_userlist.erase(a);
-		return; 
 	}
 }
 
@@ -370,7 +371,7 @@ chanrec* add_channel(userrec *user, const char* cn, const char* key, bool overri
 
 	log(DEBUG,"Passed channel checks");
 
-	for (std::vector<ucrec*>::const_iterator index = user->chans.begin(); index != user->chans.end(); index++)
+	for (UserChanList::const_iterator index = user->chans.begin(); index != user->chans.end(); index++)
 	{
 		if ((*index)->channel == NULL)
 		{
@@ -628,7 +629,7 @@ void kick_channel(userrec *src,userrec *user, chanrec *Ptr, char* reason)
 
 	FOREACH_MOD(I_OnUserKick,OnUserKick(src,user,Ptr,reason));
 			
-	for (std::vector<ucrec*>::const_iterator i = user->chans.begin(); i != user->chans.end(); i++)
+	for (UserChanList::const_iterator i = user->chans.begin(); i != user->chans.end(); i++)
 	{
 		/* zap it from the channel list of the user */
 		if ((*i)->channel && ((*i)->channel == Ptr))
