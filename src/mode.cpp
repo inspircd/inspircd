@@ -54,7 +54,7 @@ extern ServerConfig* Config;
 
 extern time_t TIME;
 
-ModeHandler::ModeHandler(char modeletter, int parameters, bool listmode, ModeType type, bool operonly) : mode(modeletter), n_params(parameters), list(listmode), m_type(type), oper(operonly)
+ModeHandler::ModeHandler(char modeletter, int parameters_on, int parameters_off, bool listmode, ModeType type, bool operonly) : mode(modeletter), n_params_on(parameters_on), n_params_off(parameters_off), list(listmode), m_type(type), oper(operonly)
 {
 }
 
@@ -77,9 +77,9 @@ bool ModeHandler::NeedsOper()
 	return oper;
 }
 
-int ModeHandler::GetNumParams()
+int ModeHandler::GetNumParams(bool adding)
 {
-	return n_params;
+	return adding ? n_params_on : n_params_off;
 }
 
 char ModeHandler::GetModeChar()
@@ -503,19 +503,32 @@ void ModeParser::Process(char **parameters, int pcnt, userrec *user)
 		std::string output_sequence = "";
 		bool adding = true, state_change = false;
 		int handler_id = 0;
+		int parameter_counter = 2; /* Index of first parameter */
 
 		for (std::string::const_iterator modeletter = mode_sequence.begin(); modeletter != mode_sequence.end(); modeletter++)
 		{
 			switch (*modeletter)
 			{
+				/* NB:
+				 * For + and - mode characters, we don't just stick the character into the output sequence.
+				 * This is because the user may do something dumb, like: +-+ooo or +oo-+. To prevent this
+				 * appearing in the output sequence, we store a flag which says there was a state change,
+				 * which is set on any + or -, however, the + or - that we finish on is only appended to
+				 * the output stream in the event it is followed by a non "+ or -" character, such as o or v.
+				 */
 				case '+':
+					/* The following expression prevents: +o+o nick nick, compressing it to +oo nick nick,
+					 * however, will allow the + if it is the first item in the sequence, regardless.
+					 */
+					if ((!adding) || (!output_sequence.length()))
+						state_change = true;
 					adding = true;
-					state_change = true;
 					continue;
 				break;
 				case '-':
+					if ((adding) || (!output_sequence.length()))
+						state_change = true;
 					adding = false;
-					state_change = true;
 					continue;
 				break;
 				default:
@@ -535,10 +548,26 @@ void ModeParser::Process(char **parameters, int pcnt, userrec *user)
 						}
 						if ((modehandlers[handler_id]->GetModeType() == type) && (!abort))
 						{
+							if (modehandlers[handler_id]->GetNumParams(adding))
+							{
+								if (pcnt < parameter_counter)
+								{
+									parameter = parameters[parameter_counter++];
+								}
+								else
+								{
+									parameter = "";
+								}
+							}
 							ModeAction ma = modehandlers[handler_id]->OnModeChange(user, targetuser, targetchannel, parameter, adding);
 							if (ma == MODEACTION_ALLOW)
 							{
 								output_sequence = output_sequence + *modeletter;
+
+								if ((modehandlers[handler_id]->GetNumParams(adding)) && (parameter != ""))
+								{
+									parameter_list >> " " >> parameter;
+								}
 
 								for (std::vector<ModeWatcher*>::iterator watchers = modewatchers[handler_id].begin(); watchers != modewatchers[handler_id].end(); watchers++)
 								{
@@ -553,55 +582,9 @@ void ModeParser::Process(char **parameters, int pcnt, userrec *user)
 	}
 }
 
-
-/** ModeParser::CompressModes()
- * Tidies up redundant modes,
- * e.g. +nt-nt+i becomes +-+i
- * A section further down the chain tidies up the +-+- crap.
- */
 std::string ModeParser::CompressModes(std::string modes,bool channelmodes)
 {
-	/*
-	 * OK, iterate over the mode string and count how many times a certain mode appears in it.
-	 * Then, erase all instances of any character that appears more than once.
-	 * This only operates on modes with no parameters, you can still +v-v+v-v+v-v to your heart's content.
-	 */
-	
-	/* Do we really need an int here? Can you fit enough modes in a line to overflow a short? */
-	short counts[127];
-	bool active[127];
-	memset(counts, 0, sizeof(counts));
-	memset(active, 0, sizeof(active));
-	
-	for(unsigned char* i = (unsigned char*)modes.c_str(); *i; i++)
-	{
-		if((*i == '+') || (*i == '-'))
-			continue;
-
-		if(!channelmodes || (channelmodes && (strchr("itnmsp", *i) || (ModeDefined(*i, MT_CHANNEL) && !ModeDefinedOn(*i,MT_CHANNEL) && !ModeDefinedOff(*i,MT_CHANNEL)))))
-		{
-			log(DEBUG,"Tidy mode %c", *i);
-			counts[*i]++;
-			active[*i] = true;
-		}
-	}
-	
-	for(unsigned char j = 65; j < 127; j++)
-	{
-		if ((counts[j] > 1) && (active[j] == true))
-		{
-			std::string::size_type pos;
-
-			while((pos = modes.find(j)) != std::string::npos)
-			{
-				log(DEBUG, "Deleting occurence of mode %c...", j);
-				modes.erase(pos, 1);
-				log(DEBUG,"New mode line: %s", modes.c_str());
-			}
-		}
-	}
-	
-	return modes;
+	return "";
 }
 
 void ModeParser::ProcessModes(char **parameters,userrec* user,chanrec *chan,int status, int pcnt, bool servermode, bool silent, bool local)

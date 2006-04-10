@@ -48,19 +48,20 @@ enum ModeAction {
 class ModeHandler
 {
 	char mode;
-	int n_params;
+	int n_params_on;
+	int n_params_off;
 	bool list;
 	ModeType m_type;
 	bool oper;
 
  public:
-	ModeHandler(char modeletter, int parameters, bool listmode, ModeType type, bool operonly);
+	ModeHandler(char modeletter, int parameters_on, int parameters_off, bool listmode, ModeType type, bool operonly);
 	virtual ~ModeHandler();
 
 	bool IsListMode();
 	ModeType GetModeType();
 	bool NeedsOper();
-	int GetNumParams();
+	int GetNumParams(bool adding);
 	char GetModeChar();
 
 	virtual ModeAction OnModeChange(userrec* source, userrec* dest, chanrec* channel, std::string &parameter, bool adding); /* Can change the mode parameter as its a ref */
