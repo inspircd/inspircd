@@ -475,7 +475,7 @@ char* ModeParser::TakeBan(userrec *user,char *dest,chanrec *chan,int status)
 	return NULL;
 }
 
-void ModeParser::Process(char **parameters, int pcnt, userrec *user)
+void ModeParser::Process(char **parameters, int pcnt, userrec *user, bool servermode)
 {
 	std::string target = parameters[0];
 	ModeType type = MODETYPE_USER;
@@ -532,11 +532,9 @@ void ModeParser::Process(char **parameters, int pcnt, userrec *user)
 					continue;
 				break;
 				default:
-					if (state_change)
-						output_sequence.append(adding ? "+" : "-");
 
-					handler_id = *modeletter-65;
-					state_change = false;
+					/* 65 is the ascii value of 'A' */
+					handler_id = *modeletter - 65;
 
 					if (modehandlers[handler_id])
 					{
@@ -562,21 +560,46 @@ void ModeParser::Process(char **parameters, int pcnt, userrec *user)
 							ModeAction ma = modehandlers[handler_id]->OnModeChange(user, targetuser, targetchannel, parameter, adding);
 							if (ma == MODEACTION_ALLOW)
 							{
+								/* We're about to output a valid mode letter - was there previously a pending state-change? */
+								if (state_change)
+									output_sequence.append(adding ? "+" : "-");
+								
+								/* Add the mode letter */
 								output_sequence = output_sequence + *modeletter;
 
+								/* Is there a valid parameter for this mode? If so add it to the parameter list */
 								if ((modehandlers[handler_id]->GetNumParams(adding)) && (parameter != ""))
 								{
 									parameter_list << " " << parameter;
 								}
 
+								/* Call all the AfterMode events in the mode watchers for this mode */
 								for (std::vector<ModeWatcher*>::iterator watchers = modewatchers[handler_id].begin(); watchers != modewatchers[handler_id].end(); watchers++)
 								{
 									(*watchers)->AfterMode(user, targetuser, targetchannel, parameter, adding, type);
 								}
+
+								/* Reset the state change flag */
+								state_change = false;
 							}
 						}
 					}
 				break;
+			}
+		}
+		if (servermode)
+		{
+			if (type == MODETYPE_CHANNEL)
+			{
+				WriteChannelWithServ(Config->ServerName,targetchannel,"MODE %s %s%s",targetchannel->name,output_sequence.c_str(),parameter_list.str().c_str());
+			}
+		}
+		else
+		{
+			if (type == MODETYPE_CHANNEL)
+			{
+				WriteChannel(targetchannel,user,"MODE %s %s%s",targetchannel->name,output_sequence.c_str(),parameter_list.str().c_str());
+				FOREACH_MOD(I_OnMode,OnMode(user, targetchannel, TYPE_CHANNEL, output_sequence + parameter_list.str()));
 			}
 		}
 	}
