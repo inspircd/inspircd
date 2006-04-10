@@ -14,18 +14,20 @@
  * ---------------------------------------------------
  */
 
-#include "inspircd_config.h" 
-#include "channels.h"
-#include "inspstring.h"
-#include "connection.h"
-#include <string>
-#ifdef THREADED_DNS
-#include <pthread.h>
-#endif
- 
 #ifndef __USERS_H__ 
 #define __USERS_H__ 
 
+#include <string>
+
+#ifdef THREADED_DNS
+#include <pthread.h>
+#endif
+
+#include "inspircd_config.h" 
+#include "socket.h"
+#include "channels.h"
+#include "inspstring.h"
+#include "connection.h"
 #include "hashcomp.h"
 #include "cull_list.h"
 

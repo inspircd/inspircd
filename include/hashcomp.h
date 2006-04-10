@@ -18,6 +18,8 @@
 #define _HASHCOMP_H_
 
 #include "inspircd_config.h"
+#include "socket.h"
+#include "hash_map.h"
 
 /*******************************************************
  * This file contains classes and templates that deal
@@ -33,19 +35,7 @@
  * backwards compatible with other code which is not
  * aware of irc::string.
  *******************************************************/
-
-#ifdef GCC3
-#include <ext/hash_map>
-#else
-#include <hash_map>
-#endif
-
-#ifdef GCC3
-#define nspace __gnu_cxx
-#else
-#define nspace std
-#endif
-
+ 
 using namespace std;
 
 namespace nspace

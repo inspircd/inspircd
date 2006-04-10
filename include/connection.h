@@ -14,23 +14,12 @@
  * ---------------------------------------------------
  */
 
-#include "inspircd_config.h"
-#include "base.h"
-#include <string>
-#include <map>
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <netdb.h>
-#include <netinet/in.h>
-#include <unistd.h>
-#include <errno.h>
-#include <time.h>
-#include <vector>
-#include <deque>
-#include <sstream>
-
 #ifndef __CONNECTION_H__
 #define __CONNECTION_H__
+
+#include <time.h>
+#include "inspircd_config.h"
+#include "base.h"
 
 /** Please note: classes serverrec and userrec both inherit from class connection.
  */
@@ -101,5 +90,3 @@ class connection : public Extensible
 
 
 #endif
-
-

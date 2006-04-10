@@ -19,6 +19,8 @@
 
 /* This is where we'll define wrappers for socket IO stuff, for neat winsock compatability */
 
+#ifndef WIN32
+
 #include <arpa/inet.h>
 #include <sys/time.h>
 #include <sys/resource.h>
@@ -29,8 +31,16 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <poll.h>
-#include <errno.h>
 #include <netdb.h>
+#include <errno.h>
+
+#else
+
+#include <windows_defs.h>
+#include <winsock2.h>
+
+#endif
+
 #include "inspircd_config.h"
 
 /* macros to the relevant system address description structs */
