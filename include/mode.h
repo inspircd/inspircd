@@ -85,6 +85,8 @@ class ModeWatcher
 	virtual void AfterMode(userrec* source, userrec* dest, chanrec* channel, const std::string &parameter, bool adding, ModeType type);
 };
 
+typedef std::vector<ModeWatcher*>::iterator ModeWatchIter;
+
 class ModeParser
 {
  private:
