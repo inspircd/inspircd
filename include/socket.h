@@ -17,10 +17,6 @@
 #ifndef INSPIRCD_SOCKET_H
 #define INSPIRCD_SOCKET_H
 
-/* This is where we'll define wrappers for socket IO stuff, for neat winsock compatability */
-
-#ifndef WIN32
-
 #include <arpa/inet.h>
 #include <sys/time.h>
 #include <sys/resource.h>
@@ -33,14 +29,6 @@
 #include <poll.h>
 #include <netdb.h>
 #include <errno.h>
-
-#else
-
-#include <windef.h>
-#include <winsock2.h>
-typedef int socklen_t;
-
-#endif
 
 #include "inspircd_config.h"
 
