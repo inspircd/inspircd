@@ -22,10 +22,9 @@
 #include "helperfuncs.h"
 #include "timer.h"
 
-extern time_t TIME;
-
 typedef std::vector<InspTimer*> timergroup;
 typedef std::map<time_t, timergroup*> timerlist;
+
 timerlist Timers;
 
 void TickTimers(time_t TIME)
