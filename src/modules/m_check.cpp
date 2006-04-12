@@ -111,7 +111,45 @@ class cmd_check : public command_t
 			}
 
 			Srv->SendTo(NULL, user, checkstr + " modes " + chanmodes(targchan, true));
-			Srv->SendTo(NULL, user, checkstr + " usercount " + ConvToStr(targchan->GetUserCounter()));
+			Srv->SendTo(NULL, user, checkstr + " membercount " + ConvToStr(targchan->GetUserCounter()));
+			
+			/* now the ugly bit, spool current members of a channel. :| */
+
+			CUList *ulist= targchan->GetUsers();
+
+			/* note that unlike /names, we do NOT check +i vs in the channel */
+			for (CUList::iterator i = ulist->begin(); i != ulist->end(); i++)
+			{
+				char list[MAXBUF];
+				char tmpbuf[MAXBUF];
+				char* ptr = list;
+				int flags = cflags(i->second, targchan);
+				/*
+				 * find how many connections from this user's IP -- unlike Asuka,
+				 * I define a clone as coming from the same host. --w00t
+				 */
+				sprintf(ptr, "%l    ", FindMatchingGlobal(i->second));
+				
+				if (flags & UCMODE_OP)
+				{
+					strcat(ptr, "@");
+				}
+				
+				if (flags & UCMODE_HOP)
+				{
+					strcat(ptr, "%");
+				}
+				
+				if (flags & UCMODE_VOICE)
+				{
+					strcat(ptr, "+");
+				}
+				
+				sprintf(tmpbuf, "%s (%s@%s) %s ", i->second->nick, i->second->ident, i->second->dhost, i->second->fullname);
+				strcat(ptr, tmpbuf);
+				
+				Srv->SendTo(NULL, user, checkstr + " member " + ptr);
+			}
 		}
 		else
 		{
