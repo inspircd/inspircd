@@ -404,4 +404,7 @@ bool DoType(const char* tag, char** entries, void** values, int* types);
 bool DoClass(const char* tag, char** entries, void** values, int* types);
 bool DoneClassesAndTypes(const char* tag);
 
+long FindMatchingGlobal(userrec* user);
+long FindMatchingLocal(userrec* user);
+
 #endif
