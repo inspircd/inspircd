@@ -28,8 +28,6 @@ extern ServerConfig* Config;
 extern time_t TIME;
 extern int openSockfd[MAX_DESCRIPTORS];
 
-InspSocket* socket_ref[MAX_DESCRIPTORS];
-
 /** This will bind a socket to a port. It works for UDP/TCP.
  * If a hostname is given to bind to, the function will first
  * attempt to resolve the hostname, then bind to the IP the 
