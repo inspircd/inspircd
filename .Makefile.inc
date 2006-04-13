@@ -34,7 +34,6 @@ mods:
 
 ircd:
 	@echo "Making ircd..."
-	${MAKE} -C src/modes DIRNAME="src/modes" $(MAKEARGS)
 	${MAKE} -C src DIRNAME="src" $(MAKEARGS)
 
 install: all
