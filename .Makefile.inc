@@ -65,6 +65,8 @@ install: all
 	@-install -v -m 0700 inspircd $(BASE) 2>/dev/null
 	@-cp conf/inspircd.quotes.example $(CONPATH)
 	@-cp conf/inspircd.rules.example $(CONPATH)
+	@-cp conf/key.pem $(CONPATH)
+	@-cp conf/cert.pem $(CONPATH)
 	@-cp docs/inspircd.conf.example $(CONPATH)
 	${MAKE} -C src/modules DIRNAME="src/modules" $(MAKEARGS) modinst
 	@echo "*************************************"
