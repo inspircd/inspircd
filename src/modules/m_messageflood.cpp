@@ -144,7 +144,7 @@ class ModuleMsgFlood : public Module
 					{
 						if (!c->GetExt("flood"))
 						{
-							floodsettings *f = new floodsettings(ban,nlines,nsecs);
+							floodsettings *f = new floodsettings(ban,nsecs,nlines);
 							c->Extend("flood",(char*)f);
 						}
 					}
