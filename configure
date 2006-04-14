@@ -59,6 +59,11 @@ $no_svn = 0;
 $config{HAS_OPENSSL} =~ /OpenSSL (\S+) \d+ \S+ \d{4}/;
 $config{HAS_OPENSSL} = $1;
 
+if ($config{GCCVER} eq "") {
+	print "g++ was not found! You require g++ (the GNU C++ compiler, part of GCC) to build InspIRCd!\n";
+	return 0;
+}
+
 # Minihack! Convert Cygwin to 'Cyg-Static' so i can
 # Keep my dynamic module experiments here for later
 # concideration!
