@@ -31,13 +31,14 @@ class RFC1413 : public InspSocket
 {
  protected:
 	Server* Srv;		 // Server* class used for core communications
-	userrec* u;		 // user record that the lookup is associated with
 	sockaddr_in sock_us;	 // our port number
 	sockaddr_in sock_them;	 // their port number
 	socklen_t uslen;	 // length of our port number
 	socklen_t themlen;	 // length of their port number
 	char ident_request[128]; // buffer used to make up the request string
  public:
+
+	userrec* u;		 // user record that the lookup is associated with
 
 	RFC1413(userrec* user, int maxtime, Server* S) : InspSocket((char*)inet_ntoa(user->ip4), 113, false, maxtime), Srv(S), u(user)
 	{
@@ -48,8 +49,11 @@ class RFC1413 : public InspSocket
 	{
 		// When we timeout, the connection failed within the allowed timeframe,
 		// so we just display a notice, and tidy off the ident_data.
-		u->Shrink("ident_data");
-		Srv->SendServ(u->fd,"NOTICE "+std::string(u->nick)+" :*** Could not find your ident, using "+std::string(u->ident)+" instead.");
+		if (u)
+		{
+			u->Shrink("ident_data");
+			Srv->SendServ(u->fd,"NOTICE "+std::string(u->nick)+" :*** Could not find your ident, using "+std::string(u->ident)+" instead.");
+		}
 	}
 
 	virtual bool OnDataReady()
@@ -76,9 +80,12 @@ class RFC1413 : public InspSocket
 								*j = '\0'; // truncate at invalid chars
 							if (*section)
 							{
-								strlcpy(u->ident,section,IDENTMAX);
-								Srv->Log(DEBUG,"IDENT SET: "+std::string(u->ident));
-								Srv->SendServ(u->fd,"NOTICE "+std::string(u->nick)+" :*** Found your ident: "+std::string(u->ident));
+								if (u)
+								{
+									strlcpy(u->ident,section,IDENTMAX);
+									Srv->Log(DEBUG,"IDENT SET: "+std::string(u->ident));
+									Srv->SendServ(u->fd,"NOTICE "+std::string(u->nick)+" :*** Found your ident: "+std::string(u->ident));
+								}
 							}
 							return false;
 						}
@@ -94,12 +101,18 @@ class RFC1413 : public InspSocket
 	{
 		// tidy up after ourselves when the connection is done.
 		// We receive this event straight after a timeout, too.
-		u->Shrink("ident_data");
+		if (u)
+		{
+			u->Shrink("ident_data");
+		}
 	}
 
 	virtual void OnError(InspSocketError e)
 	{
-		u->Shrink("ident_data");
+		if (u)
+		{
+			u->Shrink("ident_data");
+		}
 	}
 
 	virtual bool OnConnected()
@@ -197,6 +210,11 @@ class ModuleIdent : public Module
 			RFC1413* ident = (RFC1413*)user->GetExt("ident_data");
 			if (ident)
 			{
+				// FIX: If the user record is deleted, the socket wont be removed
+				// immediately so there is chance of the socket trying to write to
+				// a user which has now vanished! To prevent this, set ident::u
+				// to NULL and check it so that we dont write users who have gone away.
+				ident->u = NULL;
 				Srv->RemoveSocket(ident);
 			}
 		}
