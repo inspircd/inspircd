@@ -34,6 +34,7 @@ $config{MAX_CHANNE}         = "20";                             		# Default Max.
 $config{MAX_OPERCH}         = "60"; 						# Default Max. Channels per oper
 $config{MAXI_MODES}         = "20";                             		# Default Max. Number of Modes set at once.
 $config{HAS_STRLCPY}        = "false";                          		# strlcpy Check.
+$config{HAS_EXECINFO}       = "0";						# execinfo.h Check.
 $config{USE_KQUEUE}         = "y";						# kqueue enabled
 $config{USE_EPOLL}          = "y";						# epoll enabled
 $config{THREADED_DNS}       = "n";						# threaded dns (experimental)
@@ -176,6 +177,28 @@ if (!$fail) {
 }
 print "yes\n" if $config{HAS_STRLCPY} eq "true";
 print "no\n" if $config{HAS_STRLCPY} eq "false";
+
+printf "Checking if execinfo.h exists... ";
+$config{HAS_EXECINFO} = "0";
+my $fail = 0;
+open(EXECINFO, "</usr/include/execinfo.h") or $fail = 1;
+if ($fail) {
+	$fail = 0;
+	open(EXECINFO, "</usr/local/include/execinfo.h") or $fail = 1;
+	if (!$fail) {
+		printf "/usr/local/include/execinfo.h\n";
+		$config{HAS_EXECINFO} = "1";
+		close(EXECINFO);
+	}
+	else {
+		printf "Not found!\n";
+	}
+}
+else {
+	printf "/usr/include/execinfo.h\n";
+	$config{HAS_EXECINFO} = "1";
+	close(EXECINFO);
+}
 
 printf "Checking if kqueue exists... ";
 $has_kqueue = 0;
@@ -937,6 +960,7 @@ sub writefiles {
 #define REVISION "$revision2"
 #define MAXCLIENTS $config{MAX_CLIENT}
 #define MAX_DESCRIPTORS $config{MAX_DESCRIPTORS}
+#define HAS_EXECINFO $config{HAS_EXECINFO}
 #define NICKMAX $NL
 #define CHANMAX $CL
 #define MAXCHANS $config{MAX_CHANNE}
