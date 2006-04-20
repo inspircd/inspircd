@@ -21,7 +21,7 @@
 #include "users.h"
 #include "commands.h"
 #include "helperfuncs.h"
-#include "cmd_die.h"
+#include "commands/cmd_die.h"
 
 extern ServerConfig* Config;
 extern std::vector<userrec*> all_opers;

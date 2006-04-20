@@ -17,7 +17,7 @@
 #include "users.h"
 #include "commands.h"
 #include "helperfuncs.h"
-#include "cmd_connect.h"
+#include "commands/cmd_connect.h"
 
 /*
  * This is handled by the server linking module, if necessary. Do not remove this stub.

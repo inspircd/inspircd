@@ -19,7 +19,7 @@
 #include "users.h"
 #include "commands.h"
 #include "helperfuncs.h"
-#include "cmd_ison.h"
+#include "commands/cmd_ison.h"
 
 void cmd_ison::Handle (char **parameters, int pcnt, userrec *user)
 {

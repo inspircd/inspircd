@@ -18,7 +18,7 @@
 #include "users.h"
 #include "commands.h"
 #include "helperfuncs.h"
-#include "cmd_join.h"
+#include "commands/cmd_join.h"
 
 extern InspIRCd* ServerInstance;
 

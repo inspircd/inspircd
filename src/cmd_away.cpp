@@ -21,7 +21,7 @@
 #include "modules.h"
 #include "commands.h"
 #include "helperfuncs.h"
-#include "cmd_away.h"
+#include "commands/cmd_away.h"
 
 extern ServerConfig* Config;
 extern InspIRCd* ServerInstance;

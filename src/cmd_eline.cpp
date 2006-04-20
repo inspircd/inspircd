@@ -22,7 +22,7 @@
 #include "commands.h"
 #include "xline.h"
 #include "helperfuncs.h"
-#include "cmd_eline.h"
+#include "commands/cmd_eline.h"
 
 extern int MODCOUNT;
 extern ServerConfig* Config;

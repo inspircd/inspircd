@@ -22,7 +22,7 @@
 #include "modules.h"
 #include "commands.h"
 #include "helperfuncs.h"
-#include "cmd_kill.h"
+#include "commands/cmd_kill.h"
 
 extern ServerConfig* Config;
 extern int MODCOUNT;

@@ -19,7 +19,7 @@
 #include "modules.h"
 #include "commands.h"
 #include "helperfuncs.h"
-#include "cmd_info.h"
+#include "commands/cmd_info.h"
 
 extern ServerConfig* Config;
 extern int MODCOUNT;
