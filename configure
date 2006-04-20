@@ -1450,7 +1450,7 @@ timer.o: timer.cpp ../include/base.h ../include/inspircd.h ../include/globals.h 
 EOM
 	foreach my $cmd (@cmdlist) {
 		print FH <<ITEM;
-cmd_$cmd.o: cmd_$cmd.cpp ../include/base.h ../include/modules.h ../include/inspircd.h ../include/channels.h ../include/users.h ../include/globals.h ../include/inspircd_config.h ../include/cmd_$cmd.h
+cmd_$cmd.o: cmd_$cmd.cpp ../include/base.h ../include/modules.h ../include/inspircd.h ../include/channels.h ../include/users.h ../include/globals.h ../include/inspircd_config.h ../include/commands/cmd_$cmd.h
 	\$(CC) -pipe -I../include \$(FLAGS) -export-dynamic -c cmd_$cmd.cpp
 ITEM
 	}
@@ -1602,7 +1602,7 @@ libIRCDtimer.so: timer.cpp ../include/base.h ../include/inspircd.h ../include/gl
 EOM
 	foreach my $cmd (@cmdlist) {
 		print FH <<ITEM;
-cmd_$cmd.o: cmd_$cmd.cpp ../include/base.h ../include/modules.h ../include/inspircd.h ../include/channels.h ../include/users.h ../include/globals.h ../include/inspircd_config.h ../include/cmd_$cmd.h
+cmd_$cmd.o: cmd_$cmd.cpp ../include/base.h ../include/modules.h ../include/inspircd.h ../include/channels.h ../include/users.h ../include/globals.h ../include/inspircd_config.h ../include/commands/cmd_$cmd.h
 	\$(CC) -pipe -I../include \$(FLAGS) -export-dynamic -c cmd_$cmd.cpp
 
 ITEM
