@@ -176,7 +176,7 @@ class ModuleStripColorFactory : public ModuleFactory
 };
 
 
-extern "C" void * stripcolor_init( void )
+extern "C" void * init_module( void )
 {
 	return new ModuleStripColorFactory;
 }
