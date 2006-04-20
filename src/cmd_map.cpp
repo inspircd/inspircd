@@ -19,7 +19,7 @@
 #include "users.h"
 #include "commands.h"
 #include "helperfuncs.h"
-#include "cmd_map.h"
+#include "commands/cmd_map.h"
 
 extern ServerConfig* Config;
 

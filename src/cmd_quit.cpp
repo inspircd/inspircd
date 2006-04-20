@@ -34,7 +34,7 @@
 #include "helperfuncs.h"
 #include "hashcomp.h"
 #include "socketengine.h"
-#include "cmd_quit.h"
+#include "commands/cmd_quit.h"
 
 extern ServerConfig* Config;
 extern InspIRCd* ServerInstance;

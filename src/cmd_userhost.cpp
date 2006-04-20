@@ -18,7 +18,7 @@
 #include "users.h"
 #include "commands.h"
 #include "helperfuncs.h"
-#include "cmd_userhost.h"
+#include "commands/cmd_userhost.h"
 
 void cmd_userhost::Handle (char **parameters, int pcnt, userrec *user)
 {

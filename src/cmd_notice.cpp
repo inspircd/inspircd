@@ -27,7 +27,7 @@
 #include "commands.h"
 #include "helperfuncs.h"
 #include "hashcomp.h"
-#include "cmd_notice.h"
+#include "commands/cmd_notice.h"
 
 extern ServerConfig* Config;
 extern InspIRCd* ServerInstance;

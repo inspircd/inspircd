@@ -17,7 +17,7 @@
 #include "users.h"
 #include "commands.h"
 #include "helperfuncs.h"
-#include "cmd_users.h"
+#include "commands/cmd_users.h"
 
 void cmd_users::Handle (char **parameters, int pcnt, userrec *user)
 {

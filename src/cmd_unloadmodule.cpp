@@ -18,7 +18,7 @@
 #include "users.h"
 #include "commands.h"
 #include "helperfuncs.h"
-#include "cmd_unloadmodule.h"
+#include "commands/cmd_unloadmodule.h"
 
 extern InspIRCd* ServerInstance;
 

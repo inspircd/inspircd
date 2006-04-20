@@ -18,7 +18,7 @@
 #include "users.h"
 #include "commands.h"
 #include "helperfuncs.h"
-#include "cmd_ping.h"
+#include "commands/cmd_ping.h"
 
 extern ServerConfig* Config;
 

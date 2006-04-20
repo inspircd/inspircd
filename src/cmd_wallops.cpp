@@ -18,7 +18,7 @@
 #include "modules.h"
 #include "commands.h"
 #include "helperfuncs.h"
-#include "cmd_wallops.h"
+#include "commands/cmd_wallops.h"
 
 extern int MODCOUNT;
 extern std::vector<Module*> modules;

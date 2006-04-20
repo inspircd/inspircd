@@ -17,7 +17,7 @@
 #include "users.h"
 #include "commands.h"
 #include "helperfuncs.h"
-#include "cmd_pass.h"
+#include "commands/cmd_pass.h"
 
 void cmd_pass::Handle (char **parameters, int pcnt, userrec *user)
 {

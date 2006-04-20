@@ -20,7 +20,7 @@
 #include "modules.h"
 #include "message.h"
 #include "commands.h"
-#include "cmd_topic.h"
+#include "commands/cmd_topic.h"
 
 extern ServerConfig* Config;
 extern int MODCOUNT;

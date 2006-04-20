@@ -21,14 +21,10 @@
 #include <sys/types.h>
 #include <sys/time.h>
 #include <sys/resource.h>
-#ifdef THREADED_DNS
-#include <pthread.h>
-#endif
 #ifndef RUSAGE_SELF
 #define   RUSAGE_SELF     0
 #define   RUSAGE_CHILDREN     -1
 #endif
-
 #include "users.h"
 #include "ctables.h"
 #include "globals.h"
@@ -45,7 +41,7 @@
 #include "hashcomp.h"
 #include "socketengine.h"
 #include "command_parse.h"
-#include "cmd_stats.h"
+#include "commands/cmd_stats.h"
 
 extern ServerConfig* Config;
 extern InspIRCd* ServerInstance;

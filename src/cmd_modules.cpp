@@ -29,7 +29,7 @@
 #include "commands.h"
 #include "helperfuncs.h"
 #include "wildcard.h"
-#include "cmd_modules.h"
+#include "commands/cmd_modules.h"
 
 extern ServerConfig* Config;
 extern int MODCOUNT;

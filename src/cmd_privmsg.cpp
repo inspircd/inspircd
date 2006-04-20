@@ -24,7 +24,7 @@
 #include "wildcard.h"
 #include "commands.h"
 #include "helperfuncs.h"
-#include "cmd_privmsg.h"
+#include "commands/cmd_privmsg.h"
 
 extern ServerConfig* Config;
 extern InspIRCd* ServerInstance;

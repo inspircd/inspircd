@@ -18,7 +18,7 @@
 #include "users.h"
 #include "commands.h"
 #include "helperfuncs.h"
-#include "cmd_restart.h"
+#include "commands/cmd_restart.h"
 
 extern ServerConfig* Config;;
 

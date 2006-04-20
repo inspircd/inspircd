@@ -18,7 +18,7 @@
 #include "ctables.h"
 #include "commands.h"
 #include "helperfuncs.h"
-#include "cmd_list.h"
+#include "commands/cmd_list.h"
 
 extern chan_hash chanlist;
 

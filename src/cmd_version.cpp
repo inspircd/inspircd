@@ -19,7 +19,7 @@
 #include "users.h"
 #include "commands.h"
 #include "helperfuncs.h"
-#include "cmd_version.h"
+#include "commands/cmd_version.h"
 
 extern ServerConfig* Config;
 extern InspIRCd* ServerInstance;

@@ -20,7 +20,7 @@
 #include "modules.h"
 #include "commands.h"
 #include "helperfuncs.h"
-#include "cmd_rehash.h"
+#include "commands/cmd_rehash.h"
 
 extern ServerConfig* Config;
 extern int MODCOUNT;

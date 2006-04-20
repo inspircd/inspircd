@@ -36,7 +36,7 @@
 #include "socketengine.h"
 
 #include "command_parse.h"
-#include "cmd_oper.h"
+#include "commands/cmd_oper.h"
 
 extern ServerConfig* Config;
 extern int MODCOUNT;

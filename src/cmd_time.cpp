@@ -19,7 +19,7 @@
 #include "users.h"
 #include "commands.h"
 #include "helperfuncs.h"
-#include "cmd_time.h"
+#include "commands/cmd_time.h"
 
 extern ServerConfig* Config;
 extern time_t TIME;

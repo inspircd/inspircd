@@ -17,7 +17,7 @@
 #include "users.h"
 #include "commands.h"
 #include "helperfuncs.h"
-#include "cmd_squit.h"
+#include "commands/cmd_squit.h"
 
 /*
  * This is handled by the server linking module, if necessary. Do not remove this stub.

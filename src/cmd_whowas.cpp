@@ -19,7 +19,7 @@
 #include "users.h"
 #include "commands.h"
 #include "helperfuncs.h"
-#include "cmd_whowas.h"
+#include "commands/cmd_whowas.h"
 
 extern ServerConfig* Config;
 extern whowas_users whowas;

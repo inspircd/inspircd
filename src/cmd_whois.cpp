@@ -21,7 +21,7 @@
 #include "modules.h"
 #include "commands.h"
 #include "helperfuncs.h"
-#include "cmd_whois.h"
+#include "commands/cmd_whois.h"
 
 extern ServerConfig* Config;
 extern InspIRCd* ServerInstance;

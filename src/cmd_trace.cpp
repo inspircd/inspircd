@@ -17,7 +17,7 @@
 #include "users.h"
 #include "commands.h"
 #include "helperfuncs.h"
-#include "cmd_trace.h"
+#include "commands/cmd_trace.h"
 
 extern user_hash clientlist;
 

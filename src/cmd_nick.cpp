@@ -27,7 +27,7 @@
 #include "dns.h"
 #include "helperfuncs.h"
 #include "hashcomp.h"
-#include "cmd_nick.h"
+#include "commands/cmd_nick.h"
 
 extern ServerConfig* Config;
 extern int MODCOUNT;

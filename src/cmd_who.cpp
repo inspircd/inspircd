@@ -20,7 +20,7 @@
 #include "modules.h"
 #include "commands.h"
 #include "helperfuncs.h"
-#include "cmd_who.h"
+#include "commands/cmd_who.h"
 
 extern ServerConfig* Config;
 extern user_hash clientlist;

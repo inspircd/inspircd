@@ -21,7 +21,7 @@
 #include "commands.h"
 #include "xline.h"
 #include "helperfuncs.h"
-#include "cmd_eline.h"
+#include "commands/cmd_qline.h"
 
 extern ServerConfig* Config;
 extern int MODCOUNT;

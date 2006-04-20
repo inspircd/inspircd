@@ -29,7 +29,7 @@
 #include "commands.h"
 #include "xline.h"
 #include "helperfuncs.h"
-#include "cmd_kline.h"
+#include "commands/cmd_kline.h"
 
 extern ServerConfig* Config;
 extern int MODCOUNT;

@@ -17,7 +17,7 @@
 #include "users.h"
 #include "commands.h"
 #include "helperfuncs.h"
-#include "cmd_rules.h"
+#include "commands/cmd_rules.h"
 
 void cmd_rules::Handle (char **parameters, int pcnt, userrec *user)
 {
