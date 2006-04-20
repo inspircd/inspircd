@@ -1390,7 +1390,7 @@ hashcomp.o: hashcomp.cpp ../include/base.h ../include/hashcomp.h ../include/insp
 	\$(CC) -pipe -I../include \$(FLAGS) -export-dynamic -c hashcomp.cpp
 
 helperfuncs.o: helperfuncs.cpp ../include/base.h ../include/helperfuncs.h ../include/inspircd.h ../include/users.h ../include/globals.h ../include/inspircd_config.h
-	\$(CC) -pipe -I../include \$(FLAGS) -export-dynamic -c helperfuncs.cpp
+	\$(CC) -pipe -I/usr/local/include -I../include \$(FLAGS) -export-dynamic -c helperfuncs.cpp
 
 channels.o: channels.cpp ../include/base.h ../include/channels.h ../include/inspircd.h ../include/users.h ../include/globals.h ../include/inspircd_config.h
 	\$(CC) -pipe -I../include \$(FLAGS) -export-dynamic -c channels.cpp
@@ -1517,7 +1517,7 @@ libIRCDhash.so: hashcomp.cpp ../include/base.h ../include/hashcomp.h ../include/
 	\$(CC) -Wl,--rpath -Wl,$config{LIBRARY_DIR} -shared -o libIRCDhash.so hashcomp.o
 
 libIRCDhelper.so: helperfuncs.cpp ../include/base.h ../include/helperfuncs.h ../include/inspircd.h ../include/users.h ../include/globals.h ../include/inspircd_config.h
-	\$(CC) -pipe -I../include \$(FLAGS) -export-dynamic -c helperfuncs.cpp
+	\$(CC) -pipe -I/usr/local/include -I../include \$(FLAGS) -export-dynamic -c helperfuncs.cpp
 	\$(CC) -Wl,--rpath -Wl,$config{LIBRARY_DIR} -shared -o libIRCDhelper.so helperfuncs.o
 
 libIRCDchannels.so: channels.cpp ../include/base.h ../include/channels.h ../include/inspircd.h ../include/users.h ../include/globals.h ../include/inspircd_config.h
