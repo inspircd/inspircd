@@ -960,7 +960,6 @@ sub writefiles {
 #define REVISION "$revision2"
 #define MAXCLIENTS $config{MAX_CLIENT}
 #define MAX_DESCRIPTORS $config{MAX_DESCRIPTORS}
-#define HAS_EXECINFO $config{HAS_EXECINFO}
 #define NICKMAX $NL
 #define CHANMAX $CL
 #define MAXCHANS $config{MAX_CHANNE}
@@ -986,7 +985,9 @@ EOF
 	if ($config{OSNAME} eq "CYG-STATIC") {
 		print FILEHANDLE "#ifndef FD_SETSIZE\n#define FD_SETSIZE    1024\n#endif\n";
 	}
-
+	if ($config{HAS_EXECINFO} eq "1") {
+		print FILEHANDLE "#define HAS_EXECINFO\n";
+	}
 	if ($config{STATIC_LINK} eq "yes") {
 		print FILEHANDLE "#define STATIC_LINK\n";
 	}

@@ -37,6 +37,9 @@
 #ifdef THREADED_DNS
 #include <pthread.h>
 #endif
+#ifdef HAS_EXECINFO
+#include <execinfo.h>
+#endif
 #include "users.h"
 #include "ctables.h"
 #include "globals.h"
