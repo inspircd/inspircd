@@ -102,7 +102,7 @@ class ModuleOperLevelsFactory : public ModuleFactory
 
 };
 
-extern "C" void * operlevels_init( void )
+extern "C" void * init_modules( void )
 {
 	return new ModuleOperLevelsFactory;
 }
