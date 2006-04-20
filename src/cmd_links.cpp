@@ -1,4 +1,4 @@
-/*       +------------------------------------+
+u/*       +------------------------------------+
  *       | Inspire Internet Relay Chat Daemon |
  *       +------------------------------------+
  *
@@ -20,7 +20,7 @@
 #include "modules.h"
 #include "commands.h"
 #include "helperfuncs.h"
-#include "cmd_links.h"
+#include "commands/cmd_links.h"
 
 extern ServerConfig* Config;
 

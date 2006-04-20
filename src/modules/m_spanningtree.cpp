@@ -29,7 +29,7 @@ using namespace std;
 #include "channels.h"
 #include "modules.h"
 #include "commands.h"
-#include "cmd_whois.h"
+#include "commands/cmd_whois.h"
 #include "socket.h"
 #include "helperfuncs.h"
 #include "inspircd.h"

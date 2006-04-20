@@ -35,7 +35,7 @@ using namespace std;
 #include "configreader.h"
 #include "helperfuncs.h"
 #include "m_sql.h"
-#include "cmd_oper.h"
+#include "commands/cmd_oper.h"
 
 /* $ModDesc: Allows storage of oper credentials in an SQL table */
 
