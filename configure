@@ -1477,7 +1477,7 @@ sub write_dynamic_makefile {
 	}
 
 if (($config{OSNAME} !~ /Linux/i) && ($config{HAS_EXECINFO} eq "1")) {
-	$extra = "-l/usr/local/lib/libexecinfo.so";
+	$extra = "-L/usr/local/lib -lexecinfo";
 } else {
 	$extra = "";
 }
