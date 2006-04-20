@@ -97,12 +97,13 @@ class ModuleOperLevelsFactory : public ModuleFactory
 
 	virtual Module * CreateModule(Server* Me)
 	{
+		log(DEBUG,"CreateModule");
 		return new ModuleOperLevels(Me);
 	}
 
 };
 
-extern "C" void * init_modules( void )
+extern "C" void * init_module( void )
 {
 	return new ModuleOperLevelsFactory;
 }
