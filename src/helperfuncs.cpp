@@ -25,6 +25,9 @@
 #include <time.h>
 #include <string>
 #include <sstream>
+#ifdef HAS_EXECINFO
+#include <execinfo.h>
+#endif
 #include "connection.h"
 #include "users.h"
 #include "ctables.h"
@@ -1426,6 +1429,10 @@ void send_error(char *s)
 
 void Error(int status)
 {
+	void *array[300];
+	size_t size;
+	char **strings;
+
 	signal(SIGALRM, SIG_IGN);
 	signal(SIGPIPE, SIG_IGN);
 	signal(SIGTERM, SIG_IGN);
@@ -1434,7 +1441,19 @@ void Error(int status)
 	signal(SIGURG, SIG_IGN);
 	signal(SIGKILL, SIG_IGN);
 	log(DEFAULT,"*** fell down a pothole in the road to perfection ***");
-	send_error("Error! Segmentation fault! save meeeeeeeeeeeeee *splat!*");
+#ifdef HAS_EXECINFO
+	log(DEFAULT,"Please report the backtrace lines shown below with any bugreport to the bugtracker at http://www.inspircd.org/bugtrack/");
+	size = backtrace(array, 30);
+	strings = backtrace_symbols(array, size);
+	for (int i = 0; i < size; i++) {
+		log(DEFAULT,"[%d] %s", i, strings[i]);
+	}
+	free(strings);
+	WriteOpers("*** SIGSEGV: Please see the ircd.log for backtrace and report the error to http://www.inspircd.org/bugtrack/");
+#else
+	log(DEFAULT,"You do not have execinfo.h so i could not backtrace -- on FreeBSD, please install the libexecinfo port.");
+#endif
+	send_error("Somebody screwed up... Whoops. IRC Server terminating.");
 	Exit(status);
 }
 
