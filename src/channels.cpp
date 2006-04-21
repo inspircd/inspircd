@@ -440,6 +440,17 @@ chanrec* add_channel(userrec *user, const char* cn, const char* key, bool overri
 			}
 		}
 	}
+	else
+	{
+		for (unsigned int index =0; index < user->chans.size(); index++)
+		{
+			if (user->chans[index]->channel == Ptr)
+			{
+				user->chans[index]->channel = NULL;
+				user->chans[index]->uc_modes = 0;
+			}
+		}
+	}
 	return NULL;
 }
 

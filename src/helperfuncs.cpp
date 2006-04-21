@@ -1225,7 +1225,7 @@ void purge_empty_chans(userrec* u)
 	// firstly decrement the count on each channel
 	for (std::vector<ucrec*>::iterator f = u->chans.begin(); f != u->chans.end(); f++)
 	{
-		if (((ucrec*)(*f))->channel)
+		if ((*f) && ((ucrec*)(*f))->channel)
 		{
 			if (((ucrec*)(*f))->channel->DelUser(u) == 0)
 			{
