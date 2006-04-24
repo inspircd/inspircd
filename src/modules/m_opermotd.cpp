@@ -21,7 +21,7 @@ void LoadOperMOTD()
 	filename = conf->ReadValue("opermotd","file",0);
 
 	opermotd->LoadFile(filename);
-	delete conf;
+	DELETE(conf);
 }
 
 void ShowOperMOTD(userrec* user)

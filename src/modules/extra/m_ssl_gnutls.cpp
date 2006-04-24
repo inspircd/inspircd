@@ -174,7 +174,7 @@ class ModuleSSLGnuTLS : public Module
 		// This may be on a large (once a day or week) timer eventually.
 		GenerateDHParams();
 		
-		delete Conf;
+		DELETE(Conf);
 	}
 	
 	void GenerateDHParams()
@@ -564,8 +564,8 @@ class ModuleSSLGnuTLS : public Module
 			metadata->push_back("ON");		// The value to send
 			Event* event = new Event((char*)metadata,(Module*)this,"send_metadata");
 			event->Send();				// Trigger the event. We don't care what module picks it up.
-			delete event;
-			delete metadata;
+			DELETE(event);
+			DELETE(metadata);
 		}
 	}
 	

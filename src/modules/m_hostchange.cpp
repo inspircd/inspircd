@@ -52,7 +52,7 @@ class ModuleHostChange : public Module
 	
 	virtual ~ModuleHostChange()
 	{
-		delete Conf;
+		DELETE(Conf);
 	}
 
 	Priority Prioritize()
@@ -67,12 +67,12 @@ class ModuleHostChange : public Module
 
 	virtual void OnRehash(const std::string &parameter)
 	{
-		delete Conf;
+		DELETE(Conf);
 		Conf = new ConfigReader;
 		MySuffix = Conf->ReadValue("host","suffix",0);
 		for (hostchanges_t::iterator i = hostchanges.begin(); i != hostchanges.end(); i++)
 		{
-			delete i->second;
+			DELETE(i->second);
 		}
 		hostchanges.clear();
 		for (int index = 0; index < Conf->Enumerate("hostchange"); index++)

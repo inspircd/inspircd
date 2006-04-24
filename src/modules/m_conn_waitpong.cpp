@@ -21,7 +21,7 @@ char* RandString(unsigned int length)
 	
 	out[length] = '\0';
 	
-	delete tmp;
+	DELETE(tmp);
 	
 	return (char*)out;
 }
@@ -56,7 +56,7 @@ class ModuleWaitPong : public Module
 		if(Conf->GetError() == CONF_VALUE_NOT_FOUND)
 			killonbadreply = true;
 				
-		delete Conf;
+		DELETE(Conf);
 	}
 
 	void Implements(char* List)
@@ -86,7 +86,7 @@ class ModuleWaitPong : public Module
 			{
 				if(strcmp(pingrpl, parameters[0]) == 0)
 				{
-					delete pingrpl;
+					DELETE(pingrpl);
 					user->Shrink("waitpong_pingstr");
 					return 1;
 				}
@@ -113,7 +113,7 @@ class ModuleWaitPong : public Module
 
 		if(pingrpl)
 		{
-			delete pingrpl;
+			DELETE(pingrpl);
 			user->Shrink("waitpong_pingstr");
 		}
 	}
@@ -127,7 +127,7 @@ class ModuleWaitPong : public Module
 			
 			if(pingrpl)
 			{
-				delete pingrpl;
+				DELETE(pingrpl);
 				user->Shrink("waitpong_pingstr");
 			} 
 		}

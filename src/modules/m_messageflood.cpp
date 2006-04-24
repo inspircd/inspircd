@@ -163,7 +163,7 @@ class ModuleMsgFlood : public Module
 				if (c->GetExt("flood"))
 				{
 					floodsettings *f = (floodsettings*)c->GetExt("flood");
-					delete f;
+					DELETE(f);
 					c->Shrink("flood");
 				}
 			}
@@ -219,7 +219,7 @@ class ModuleMsgFlood : public Module
 		if (chan->GetExt("flood"))
 		{
 			floodsettings *f = (floodsettings*)chan->GetExt("flood");
-			delete f;
+			DELETE(f);
 			chan->Shrink("flood");
 		}
 	}

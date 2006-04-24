@@ -72,7 +72,7 @@ class ModuleVHost : public Module
 	
 	virtual ~ModuleVHost()
 	{
-		delete Conf;
+		DELETE(Conf);
 	}
 
 	void Implements(char* List)
@@ -82,7 +82,7 @@ class ModuleVHost : public Module
 
 	virtual void OnRehash(const std::string &parameter)
 	{
-		delete Conf;
+		DELETE(Conf);
 		Conf = new ConfigReader;
 	}
 	

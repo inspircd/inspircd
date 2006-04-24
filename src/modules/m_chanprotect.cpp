@@ -81,7 +81,7 @@ class ModuleChanProtect : public Module
 	virtual void OnRehash(const std::string &parameter)
 	{
 		// on a rehash we delete our classes for good measure and create them again.
-		delete Conf;
+		DELETE(Conf);
 		Conf = new ConfigReader;
 		// re-read our config options on a rehash
 		FirstInGetsFounder = Conf->ReadFlag("options","noservices",0);
@@ -318,7 +318,7 @@ class ModuleChanProtect : public Module
 	
 	virtual ~ModuleChanProtect()
 	{
-		delete Conf;
+		DELETE(Conf);
 	}
 	
 	virtual Version GetVersion()

@@ -711,7 +711,7 @@ void apply_lines(const int What)
 	}
 
 	Goners->Apply();
-	delete Goners;
+	DELETE(Goners);
 }
 
 void stats_k(userrec* user)

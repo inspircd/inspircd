@@ -210,7 +210,7 @@ class ModuleSSLOpenSSL : public Module
 			log(DEFAULT, "m_ssl_openssl.so: Couldn't set DH parameters");
 		}
 
-		delete Conf;
+		DELETE(Conf);
 	}
 
 	virtual ~ModuleSSLOpenSSL()
@@ -628,8 +628,8 @@ class ModuleSSLOpenSSL : public Module
 			metadata->push_back("ON");		// The value to send
 			Event* event = new Event((char*)metadata,(Module*)this,"send_metadata");
 			event->Send();				// Trigger the event. We don't care what module picks it up.
-			delete event;
-			delete metadata;
+			DELETE(event);
+			DELETE(metadata);
 		}
 	}
 	

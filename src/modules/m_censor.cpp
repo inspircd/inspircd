@@ -164,8 +164,8 @@ class ModuleCensor : public Module
 			irc::string replace = (MyConf->ReadValue("badword","replace",index)).c_str();
 			censors[pattern] = replace;
 		}
-		delete Conf;
-		delete MyConf;
+		DELETE(Conf);
+		DELETE(MyConf);
 	}
 	
 	virtual Version GetVersion()

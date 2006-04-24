@@ -176,7 +176,7 @@ class cmd_unpark : public command_t
 				timebuf[strlen(timebuf)-1] = '\0';
 				WriteServ(unpark->fd,"NOTICE %s :From %s at %s: \2%s\2",unpark->nick,i->from.c_str(),timebuf,i->text.c_str());
 			}
-			delete awy;
+			DELETE(awy);
 			unpark->Shrink("park_awaylog");
 			unpark->Shrink("park_key");
 			for (parkinfo::iterator j = pinfo.begin(); j != pinfo.end(); j++)
@@ -209,7 +209,7 @@ class ModulePark : public Module
 		ParkMaxTime = Conf->ReadInteger("park","maxtime",0,true);
 		ConcurrentParks = Conf->ReadInteger("park","maxperip",0,true);
 		ParkMaxMsgs = Conf->ReadInteger("park","maxmessages",0,true);
-		delete Conf;
+		DELETE(Conf);
 	}
 
 	ModulePark(Server* Me)

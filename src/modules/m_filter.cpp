@@ -140,7 +140,7 @@ class ModuleFilter : public Module
 		}
 		for (filter_t::iterator n = filters.begin(); n != filters.end(); n++)
 		{
-			delete n->second;
+			DELETE(n->second);
 		}
 		filters.clear();
 		for (int index = 0; index < MyConf->Enumerate("keyword"); index++)
@@ -156,8 +156,8 @@ class ModuleFilter : public Module
 			filters[pattern] = x;
 		}
 		Srv->Log(DEFAULT,std::string("m_filter: read configuration from ")+filterfile);
-		delete Conf;
-		delete MyConf;
+		DELETE(Conf);
+		DELETE(MyConf);
 	}
 	
 	virtual Version GetVersion()

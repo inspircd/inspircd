@@ -67,14 +67,14 @@ class ModuleChanFilter : public Module
 			if (spamlist)
 			{
 				channel->Shrink("spam_list");
-				delete spamlist;
+				DELETE(spamlist);
 			}
 		}
 	}
 
 	virtual void OnRehash(const std::string &parameter)
 	{
-		delete Conf;
+		DELETE(Conf);
 		Conf = new ConfigReader;
 		// re-read our config options on a rehash
 		MaxEntries = Conf->ReadInteger("chanfilter","maxsize",0,true);
@@ -195,7 +195,7 @@ class ModuleChanFilter : public Module
 	
 	virtual ~ModuleChanFilter()
 	{
-		delete Conf;
+		DELETE(Conf);
 	}
 	
 	virtual Version GetVersion()

@@ -45,13 +45,13 @@ class ModuleModesOnOper : public Module
 
 	virtual void OnRehash(const std::string &parameter)
 	{
-		delete Conf;
+		DELETE(Conf);
 		Conf = new ConfigReader;
 	}
 	
 	virtual ~ModuleModesOnOper()
 	{
-		delete Conf;
+		DELETE(Conf);
 	}
 	
 	virtual Version GetVersion()

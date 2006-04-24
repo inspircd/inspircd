@@ -91,7 +91,7 @@ public:
 		else
 			action = IBLOCK_KILLOPERS;
 
-		delete Conf;
+		DELETE(Conf);
 	}
 
 	virtual int OnPreCommand(const std::string &command, char **parameters, int pcnt, userrec *user, bool validated)
@@ -171,7 +171,7 @@ public:
 			BlockedMessage* m = (BlockedMessage*)user->GetExt("amsgblock");
 			if(m)
 			{
-				delete m;
+				DELETE(m);
 				user->Shrink("amsgblock");
 			}
 		}

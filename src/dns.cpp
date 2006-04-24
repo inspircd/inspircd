@@ -285,7 +285,7 @@ s_connection *dns_add_query(s_header *h)
 	}
 	if (s->fd == -1)
 	{
-		delete s;
+		DELETE(s);
 		return NULL;
 	}
 	/* create new connection object, add to linked list */
@@ -352,7 +352,7 @@ in_addr* DNS::dns_aton4_r(const char *ipstring) { /* ascii to numeric (reentrant
 	ip = new in_addr;
 	if(dns_aton4_s(ipstring,ip) == NULL)
 	{
-		delete ip;
+		DELETE(ip);
 		return NULL;
 	}
 	return ip;
@@ -479,38 +479,38 @@ char* DNS::dns_getresult_s(const int cfd, char *res) { /* retrieve result of DNS
 	dns_close(c->fd);
 	if (l < 12)
 	{
-		delete c;
+		DELETE(c);
 		return NULL;
 	}
 	dns_fill_header(&h,buffer,l - 12);
 	if (c->id[0] != h.id[0] || c->id[1] != h.id[1])
 	{
 		log(DEBUG,"DNS: id mismatch on query");
-		delete c;
+		DELETE(c);
 		return NULL; /* ID mismatch */
 	}
 	if ((h.flags1 & FLAGS1_MASK_QR) == 0)
 	{
 		log(DEBUG,"DNS: didnt get a query result");
-		delete c;
+		DELETE(c);
 		return NULL;
 	}
 	if ((h.flags1 & FLAGS1_MASK_OPCODE) != 0)
 	{
 		log(DEBUG,"DNS: got an OPCODE and didnt want one");
-		delete c;
+		DELETE(c);
 		return NULL;
 	}
 	if ((h.flags2 & FLAGS2_MASK_RCODE) != 0)
 	{
 		log(DEBUG,"DNS lookup failed due to SERVFAIL");
-		delete c;
+		DELETE(c);
 		return NULL;
 	}
 	if (h.ancount < 1)
 	{
 		log(DEBUG,"DNS: no answers!");
-		delete c;
+		DELETE(c);
 		return NULL;
 	}
 	i = 0;
@@ -556,7 +556,7 @@ char* DNS::dns_getresult_s(const int cfd, char *res) { /* retrieve result of DNS
 		}
 		if (l - i < 10)
 		{
-			delete c;
+			DELETE(c);
 			return NULL;
 		}
 		dns_fill_rr(&rr,&h.payload[i]);
@@ -627,7 +627,7 @@ char* DNS::dns_getresult_s(const int cfd, char *res) { /* retrieve result of DNS
 						break;
 					if (rr.rdlength != 4)
 					{
-						delete c;
+						DELETE(c);
 						return NULL;
 					}
 					memcpy(&alist->ip,&h.payload[i],4);
@@ -654,7 +654,7 @@ char* DNS::dns_getresult_s(const int cfd, char *res) { /* retrieve result of DNS
 					}
 					if (l - i < 10)
 					{
-						delete c;
+						DELETE(c);
 						return NULL;
 					}
 					dns_fill_rr(&rr,&h.payload[i]);
@@ -674,7 +674,7 @@ char* DNS::dns_getresult_s(const int cfd, char *res) { /* retrieve result of DNS
 			res[rr.rdlength] = '\0';
 			break;
 	}
-	delete c;
+	DELETE(c);
 	return res;
 }
 

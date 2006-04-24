@@ -170,7 +170,7 @@ class ModuleTimedBans : public Module
 						temp->fd = FD_MAGIC_NUMBER;
 						temp->server = "";
 						Srv->SendMode(setban,3,temp);
-						delete temp;
+						DELETE(temp);
 					}
 					// we used to delete the item here, but we dont need to as the servermode above does it for us,
 					break;

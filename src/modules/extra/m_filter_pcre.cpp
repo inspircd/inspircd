@@ -91,8 +91,8 @@ class ModuleFilterPCRE : public Module
 	
 	virtual ~ModuleFilterPCRE()
 	{
-		delete MyConf;
-		delete Conf;
+		DELETE(MyConf);
+		DELETE(Conf);
 	}
 
 	void Implements(char* List)
@@ -156,8 +156,8 @@ class ModuleFilterPCRE : public Module
 	{
 		// reload our config file on rehash - we must destroy and re-allocate the classes
 		// to call the constructor again and re-read our data.
-		delete Conf;
-		delete MyConf;
+		DELETE(Conf);
+		DELETE(MyConf);
 		Conf = new ConfigReader;
 		std::string filterfile = Conf->ReadValue("filter","file",0);
 		// this automatically re-reads the configuration file into the class

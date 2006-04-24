@@ -91,7 +91,7 @@ class cmd_silence : public command_t
 					{
 						// tidy up -- if a user's list is empty, theres no use having it
 						// hanging around in the user record.
-						delete sl;
+						DELETE(sl);
 						user->Shrink("silence_list");
 					}
 				}
@@ -153,7 +153,7 @@ class ModuleSilence : public Module
 		silencelist* sl = (silencelist*)user->GetExt("silence_list");
 		if (sl)
 		{
-			delete sl;
+			DELETE(sl);
 			user->Shrink("silence_list");
 		}
 	}

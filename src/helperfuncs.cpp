@@ -1229,7 +1229,7 @@ void purge_empty_chans(userrec* u)
 		if (i2 != chanlist.end())
 		{
 			FOREACH_MOD(I_OnChannelDelete,OnChannelDelete(i2->second));
-			delete i2->second;
+			DELETE(i2->second);
 			chanlist.erase(i2);
 		}
 	}

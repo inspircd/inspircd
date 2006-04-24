@@ -117,5 +117,5 @@ void cmd_quit::Handle (char **parameters, int pcnt, userrec *user)
 	}
 	if (user->fd > -1)
 		fd_ref_table[user->fd] = NULL;
-	delete user;
+	DELETE(user);
 }

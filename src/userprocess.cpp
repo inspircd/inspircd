@@ -324,7 +324,7 @@ void DoSocketTimeouts(time_t TIME)
 			SE->DelFd(s->GetFd());
 			module_sockets.erase(a);
 			s->Close();
-			delete s;
+			DELETE(s);
 			break;
 		}
 

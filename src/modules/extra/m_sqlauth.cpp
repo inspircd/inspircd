@@ -68,7 +68,7 @@ class ModuleSQLAuth : public Module
 		{
 			encryption.append("(");
 		}
-		delete Conf;
+		DELETE(Conf);
 		SQLModule = Srv->FindModule("m_sql.so");
 		if (!SQLModule)
 			Srv->Log(DEFAULT,"WARNING: m_sqlauth.so could not initialize because m_sql.so is not loaded. Load the module and rehash your server.");
@@ -170,8 +170,8 @@ class ModuleSQLAuth : public Module
 				found = false;
 			}
 			
-			delete rowrequest;
-			delete rowresult;
+			DELETE(rowrequest);
+			DELETE(rowresult);
 		}
 		else
 		{
@@ -185,8 +185,8 @@ class ModuleSQLAuth : public Module
 		Request donerequest((char*)query, this, SQLModule);
 		donerequest.Send();
 		
-		delete query;
-		delete result;
+		DELETE(query);
+		DELETE(result);
 		
 		return found;
 	}

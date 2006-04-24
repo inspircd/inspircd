@@ -414,7 +414,7 @@ chanrec* add_channel(userrec *user, const char* cn, const char* key, bool overri
 		if (n != chanlist.end())
 		{
 			Ptr->DelUser(user);
-			delete Ptr;
+			DELETE(Ptr);
 			chanlist.erase(n);
 			for (unsigned int index =0; index < user->chans.size(); index++)
 			{
@@ -529,7 +529,7 @@ chanrec* del_channel(userrec *user, const char* cname, const char* reason, bool 
 		{
 			log(DEBUG,"del_channel: destroyed: %s",Ptr->name);
 			FOREACH_MOD(I_OnChannelDelete,OnChannelDelete(Ptr));
-			delete Ptr;
+			DELETE(Ptr);
 			chanlist.erase(iter);
 		}
 	}
@@ -579,8 +579,8 @@ void server_kick_channel(userrec* user, chanrec* Ptr, char* reason, bool trigger
 		if (iter != chanlist.end())
 		{
 			log(DEBUG,"del_channel: destroyed: %s",Ptr->name);
-		   	FOREACH_MOD(I_OnChannelDelete,OnChannelDelete(Ptr));
-			delete Ptr;
+			FOREACH_MOD(I_OnChannelDelete,OnChannelDelete(Ptr));
+			DELETE(Ptr);
 			chanlist.erase(iter);
 		}
 	}
@@ -665,7 +665,7 @@ void kick_channel(userrec *src,userrec *user, chanrec *Ptr, char* reason)
 		{
 			log(DEBUG,"del_channel: destroyed: %s",Ptr->name);
 			FOREACH_MOD(I_OnChannelDelete,OnChannelDelete(Ptr));
-			delete Ptr;
+			DELETE(Ptr);
 			chanlist.erase(iter);
 		}
 	}

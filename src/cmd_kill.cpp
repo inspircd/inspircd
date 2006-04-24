@@ -70,7 +70,7 @@ void cmd_kill::Handle (char **parameters, int pcnt, userrec *user)
 				purge_empty_chans(u);
 			}
 
-			delete u;
+			DELETE(u);
 		}
 		else
 		{

@@ -455,7 +455,7 @@ class TreeServer
 				TreeServer* s = (TreeServer*)*a;
 				s->Tidy();
 				Children.erase(a);
-				delete s;
+				DELETE(s);
 				stillchildren = true;
 				break;
 			}
@@ -658,9 +658,9 @@ class TreeSocket : public InspSocket
 	~TreeSocket()
 	{
 		if (ctx_in)
-			delete ctx_in;
+			DELETE(ctx_in);
 		if (ctx_out)
-			delete ctx_out;
+			DELETE(ctx_out);
 	}
 
 	void InitAES(std::string key,std::string SName)
@@ -887,7 +887,7 @@ class TreeSocket : public InspSocket
 			SquitServer(from, Current);
 			Current->Tidy();
 			Current->GetParent()->DelChild(Current);
-			delete Current;
+			DELETE(Current);
 			WriteOpers("Netsplit complete, lost \002%d\002 users on \002%d\002 servers.", num_lost_users, num_lost_servers);
 		}
 		else
@@ -911,7 +911,7 @@ class TreeSocket : public InspSocket
 		}
 		Srv->SendMode(modelist,params.size(),who);
 		DoOneToAllButSender(source,"FMODE",params,source);
-		delete who;
+		DELETE(who);
 		return true;
 	}
 
@@ -2839,7 +2839,7 @@ void ReadConfiguration(bool rebind)
 				{
 					log(DEFAULT,"m_spanningtree: Warning: Failed to bind server port %d",Port);
 					listener->Close();
-					delete listener;
+					DELETE(listener);
 				}
 			}
 		}
@@ -2889,7 +2889,7 @@ void ReadConfiguration(bool rebind)
 			}
 		}
 	}
-	delete Conf;
+	DELETE(Conf);
 }
 
 
@@ -3229,7 +3229,7 @@ class ModuleSpanningTree : public Module
 					else
 					{
 						WriteOpers("*** AUTOCONNECT: Error autoconnecting \002%s\002: %s.",x->Name.c_str(),strerror(errno));
-						delete newsocket;
+						DELETE(newsocket);
 					}
 				}
 			}
@@ -3291,7 +3291,7 @@ class ModuleSpanningTree : public Module
 					else
 					{
 						WriteServ(user->fd,"NOTICE %s :*** CONNECT: Error connecting \002%s\002: %s.",user->nick,x->Name.c_str(),strerror(errno));
-						delete newsocket;
+						DELETE(newsocket);
 					}
 					return 1;
 				}

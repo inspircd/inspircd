@@ -32,13 +32,13 @@ class ModuleOperjoin : public Module
 
 		virtual void OnRehash(const std::string &parameter)
 		{
-			delete conf;
+			DELETE(conf);
 			conf = new ConfigReader;
 		}
 
 		virtual ~ModuleOperjoin()
 		{
-			delete conf;
+			DELETE(conf);
 		}
 
 		virtual Version GetVersion()

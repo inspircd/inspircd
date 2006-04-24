@@ -41,11 +41,11 @@ void TickTimers(time_t TIME)
 		{
 			InspTimer* n = *y;
 			n->Tick(TIME);
-			delete n;
+			DELETE(n);
 		}
 
 		Timers.erase(found);
-		delete x;
+		DELETE(x);
 	}
 }
 
@@ -69,11 +69,11 @@ void TickMissedTimers(time_t TIME)
 			{
 				InspTimer* z = *y;
 				z->Tick(TIME);
-				delete z;
+				DELETE(z);
 			}
 
 			Timers.erase(found);
-			delete x;
+			DELETE(x);
 		}
 	}
 }

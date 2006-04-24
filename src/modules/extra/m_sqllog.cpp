@@ -50,7 +50,7 @@ class ModuleSQLLog : public Module
 	{
 		Conf = new ConfigReader();
 		dbid = Conf->ReadInteger("sqllog","dbid",0,true);	// database id of a database configured in m_sql (see m_sql config)
-		delete Conf;
+		DELETE(Conf);
 		SQLModule = Srv->FindModule("m_sql.so");
 		if (!SQLModule)
 			Srv->Log(DEFAULT,"WARNING: m_SQLLog.so could not initialize because m_sql.so is not loaded. Load the module and rehash your server.");
@@ -92,18 +92,18 @@ class ModuleSQLLog : public Module
 			if (rowresult->GetType() == SQL_ROW)
 			{
 				nid = atoi(rowresult->GetField("id").c_str());
-				delete rowresult;
+				DELETE(rowresult);
 			}
 			
-			delete rowrequest;
-			delete result;
+			DELETE(rowrequest);
+			DELETE(result);
 		}
 		
 		query->SetQueryType(SQL_DONE);
 		query->SetConnID(dbid);
 		Request donerequest((char*)query, this, SQLModule);
 		donerequest.Send();
-		delete query;
+		DELETE(query);
 		
 		if (nid < 1)
 		{
@@ -117,9 +117,9 @@ class ModuleSQLLog : public Module
 			}
 			
 			if (result2)
-				delete result;
+				DELETE(result);
 			if (query2)
-				delete query2;
+				DELETE(query2);
 				
 			nid = InsertNick(nick);
 		}
@@ -141,9 +141,9 @@ class ModuleSQLLog : public Module
 		}
 		
 		if (result)
-			delete result;
+			DELETE(result);
 		if (query)
-			delete query;
+			DELETE(query);
 			
 		return;
 	}
@@ -165,18 +165,18 @@ class ModuleSQLLog : public Module
 			if (rowresult->GetType() == SQL_ROW)
 			{
 				hid = atoi(rowresult->GetField("id").c_str());
-				delete rowresult;
+				DELETE(rowresult);
 			}
 			
-			delete rowrequest;
-			delete result;
+			DELETE(rowrequest);
+			DELETE(result);
 		}
 		
 		query->SetQueryType(SQL_DONE);
 		query->SetConnID(dbid);
 		Request donerequest((char*)query, this, SQLModule);
 		donerequest.Send();
-		delete query;
+		DELETE(query);
 		
 		if (hid < 1)
 		{
@@ -190,9 +190,9 @@ class ModuleSQLLog : public Module
 			}
 			
 			if (result)
-				delete result2;
+				DELETE(result2);
 			if (query)
-				delete query2;
+				DELETE(query2);
 			hid = InsertHost(host);
 		}
 		

@@ -1293,7 +1293,7 @@ bool ModeParser::ProcessModuleUmode(char umode, userrec* source, void* dest, boo
 		log(DEBUG,"No module claims umode %c",umode);
 		if (faked)
 		{
-			delete s2;
+			DELETE(s2);
 			source = NULL;
 		}
 		return false;
@@ -1302,7 +1302,7 @@ bool ModeParser::ProcessModuleUmode(char umode, userrec* source, void* dest, boo
 	{
 		if (faked)
 		{
-			delete s2;
+			DELETE(s2);
 			source = NULL;
 		}
 		return false;

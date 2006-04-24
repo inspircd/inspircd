@@ -149,7 +149,7 @@ class ModuleIdent : public Module
 		IdentTimeout = Conf->ReadInteger("ident","timeout",0,true);
 		if (!IdentTimeout)
 			IdentTimeout = 1;
-		delete Conf;
+		DELETE(Conf);
 	}
 
 	ModuleIdent(Server* Me)
@@ -187,7 +187,7 @@ class ModuleIdent : public Module
 		else
 		{
 			Srv->SendServ(user->fd,"NOTICE "+std::string(user->nick)+" :*** Could not find your ident, using "+std::string(user->ident)+" instead.");
-			delete ident;
+			DELETE(ident);
 		}
 	}
 

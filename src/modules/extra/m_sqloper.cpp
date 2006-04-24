@@ -72,7 +72,7 @@ class ModuleSQLOper : public Module
 
 	virtual void OnRehash(const std::string &parameter)
 	{
-		delete Conf;
+		DELETE(Conf);
 		Conf = new ConfigReader();
 		ReadConfig();
 	}
@@ -186,7 +186,7 @@ class ModuleSQLOper : public Module
 					}
 				}
 				
-				delete rowresult;
+				DELETE(rowresult);
 			}
 			else
 			{
@@ -194,8 +194,8 @@ class ModuleSQLOper : public Module
 				found = false;
 			}
 			
-			delete rowrequest;
-			delete result;
+			DELETE(rowrequest);
+			DELETE(result);
 		}
 		else
 		{
@@ -206,13 +206,13 @@ class ModuleSQLOper : public Module
 		query->SetConnID(dbid);
 		Request donerequest((char*)query, this, SQLModule);
 		donerequest.Send();
-		delete query;
+		DELETE(query);
 		return found;
 	}
 
 	virtual ~ModuleSQLOper()
 	{
-		delete Conf;
+		DELETE(Conf);
 	}
 	
 	virtual Version GetVersion()

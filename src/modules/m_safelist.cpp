@@ -80,7 +80,7 @@ class ListTimer : public InspTimer
 				if (ld->list_position > Srv->GetChannelCount())
 				{
 					u->Shrink("safelist_cache");
-					delete ld;
+					DELETE(ld);
 					listusers.erase(iter);
 					go_again = true;
 					break;
@@ -202,7 +202,7 @@ class ModuleSafeList : public Module
 				return 1;
 			}
 
-			delete last_list_time;
+			DELETE(last_list_time);
 			user->Shrink("safelist_last");
 		}
  
@@ -229,7 +229,7 @@ class ModuleSafeList : public Module
 			if (ld)
 			{
 				u->Shrink("safelist_cache");
-				delete ld;
+				DELETE(ld);
 			}
 			for (UserList::iterator iter = listusers.begin(); iter != listusers.end(); iter++)
 			{
@@ -243,7 +243,7 @@ class ModuleSafeList : public Module
 			time_t* last_list_time = (time_t*)u->GetExt("safelist_last");
 			if (last_list_time)
 			{
-				delete last_list_time;
+				DELETE(last_list_time);
 				u->Shrink("safelist_last");
 			}
 		}

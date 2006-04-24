@@ -870,9 +870,9 @@ ConfigReader::~ConfigReader()
 	//~ if (this->cache)
 		//~ delete this->cache;
 	if (this->errorlog)
-		delete this->errorlog;
+		DELETE(this->errorlog);
 	if(this->privatehash)
-		delete this->data;
+		DELETE(this->data);
 }
 
 

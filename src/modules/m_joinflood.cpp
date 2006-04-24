@@ -165,7 +165,7 @@ class ModuleJoinFlood : public Module
 				if (c->GetExt("joinflood"))
 				{
 					joinfloodsettings *f = (joinfloodsettings*)c->GetExt("joinflood");
-					delete f;
+					DELETE(f);
 					c->Shrink("joinflood");
 				}
 			}
@@ -211,7 +211,7 @@ class ModuleJoinFlood : public Module
 		if (chan->GetExt("joinflood"))
 		{
 			joinfloodsettings *f = (joinfloodsettings*)chan->GetExt("joinflood");
-			delete f;
+			DELETE(f);
 			chan->Shrink("joinflood");
 		}
 	}

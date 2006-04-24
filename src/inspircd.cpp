@@ -372,7 +372,7 @@ void InspIRCd::erase_module(int j)
 	{
 		if (v1 == j)
 		{
-			delete *m;
+			DELETE(*m);
 			modules.erase(m);
 			modules.push_back(NULL);
 			break;
@@ -817,7 +817,7 @@ void InspIRCd::DoOneIteration(bool process_module_sockets)
 						}
 					}
 					s->Close();
-					delete s;
+					DELETE(s);
 				}
 				else if (!s)
 				{
@@ -947,7 +947,7 @@ int main(int argc, char** argv)
 	{
 		ServerInstance = new InspIRCd(argc, argv);
 		ServerInstance->Run();
-		delete ServerInstance;
+		DELETE(ServerInstance);
 	}
 	catch (std::bad_alloc)
 	{

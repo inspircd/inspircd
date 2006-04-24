@@ -333,12 +333,12 @@ class ModuleSQL : public Module
 	virtual ~ModuleSQL()
 	{
 		Connections.clear();
-		delete Conf;
+		DELETE(Conf);
 	}
 	
 	virtual void OnRehash(const std::string &parameter)
 	{
-		delete Conf;
+		DELETE(Conf);
 		Conf = new ConfigReader();
 		LoadDatabases(Conf);
 	}

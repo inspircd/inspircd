@@ -216,9 +216,9 @@ class ModuleHelpop : public Module
 
 		virtual void OnRehash(const std::string &parameter)
 		{
-			delete conf;
+			DELETE(conf);
 			if (helpop)
-				delete helpop;
+				DELETE(helpop);
 
 			ReadConfig();
 		}
@@ -242,8 +242,8 @@ class ModuleHelpop : public Module
 
 		virtual ~ModuleHelpop()
 		{
-			delete conf;
-			delete helpop;
+			DELETE(conf);
+			DELETE(helpop);
 		}
 	
 		virtual Version GetVersion()

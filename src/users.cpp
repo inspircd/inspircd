@@ -139,7 +139,7 @@ userrec::~userrec()
 	for (std::vector<ucrec*>::iterator n = chans.begin(); n != chans.end(); n++)
 	{
 		ucrec* x = (ucrec*)*n;
-		delete x;
+		DELETE(x);
 	}
 }
 
@@ -543,7 +543,7 @@ void kill_link(userrec *user,const char* r)
 			}
 		}
 		clientlist.erase(iter);
-		delete user;
+		DELETE(user);
 	}
 }
 
@@ -587,7 +587,7 @@ void AddWhoWas(userrec* u)
 		if (group->size() > 10)
 		{
 			WhoWasGroup *a = (WhoWasGroup*)*(group->begin());
-			delete a;
+			DELETE(a);
 			group->pop_front();
 		}
 		
@@ -607,7 +607,7 @@ void MaintainWhoWas(time_t TIME)
 			while ((n->begin() != n->end()) && ((*n->begin())->signon < TIME - 259200)) // 3 days
 			{
 				WhoWasGroup *a = *(n->begin());
-				delete a;
+				DELETE(a);
 				n->erase(n->begin());
 			}
 		}
@@ -634,7 +634,7 @@ void AddClient(int socket, int port, bool iscached, in_addr ip4)
 	if (iter != clientlist.end())
 	{
 		userrec* goner = iter->second;
-		delete goner;
+		DELETE(goner);
 		clientlist.erase(iter);
 	}
 

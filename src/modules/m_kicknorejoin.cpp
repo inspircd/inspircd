@@ -46,7 +46,7 @@ public:
 				
 				if (dl)
 				{
-					delete dl;
+					DELETE(dl);
 					c->Shrink("norejoinusers");
 				}
 			}
@@ -95,38 +95,38 @@ public:
 				if (!dl->size())
 				{
 					// Now it's empty..
-					delete dl;
-					chan->Shrink("norejoinusers");
+						DELETE(dl);
+						chan->Shrink("norejoinusers");
+					}
 				}
 			}
+			return 0;
 		}
-		return 0;
-	}
-	
-	virtual void OnUserKick(userrec* source, userrec* user, chanrec* chan, const std::string &reason)
-	{
-		if (chan->IsModeSet('J') && (source != user))
+		
+		virtual void OnUserKick(userrec* source, userrec* user, chanrec* chan, const std::string &reason)
+		{
+			if (chan->IsModeSet('J') && (source != user))
+			{
+				delaylist* dl = (delaylist*)chan->GetExt("norejoinusers");
+				
+				if (!dl)
+				{
+					dl = new delaylist;
+					chan->Extend("norejoinusers", (char*)dl);
+				}
+				
+				log(DEBUG, "m_kicknorejoin.so: setting record for %s, %d second delay", user->nick, strtoint(chan->GetModeParameter('J')));
+				(*dl)[user] = time(NULL) + strtoint(chan->GetModeParameter('J'));
+			}
+		}
+		
+		virtual void OnChannelDelete(chanrec* chan)
 		{
 			delaylist* dl = (delaylist*)chan->GetExt("norejoinusers");
 			
-			if (!dl)
+			if (dl)
 			{
-				dl = new delaylist;
-				chan->Extend("norejoinusers", (char*)dl);
-			}
-			
-			log(DEBUG, "m_kicknorejoin.so: setting record for %s, %d second delay", user->nick, strtoint(chan->GetModeParameter('J')));
-			(*dl)[user] = time(NULL) + strtoint(chan->GetModeParameter('J'));
-		}
-	}
-	
-	virtual void OnChannelDelete(chanrec* chan)
-	{
-		delaylist* dl = (delaylist*)chan->GetExt("norejoinusers");
-		
-		if (dl)
-		{
-			delete dl;
+				DELETE(dl);
 			chan->Shrink("norejoinusers");
 		}
 	}

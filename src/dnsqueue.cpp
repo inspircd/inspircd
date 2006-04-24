@@ -247,7 +247,7 @@ void dns_poll(int fdcheck)
 				 * from the socket engine, as dns.cpp tracks it
 				 * for us if we are in single-threaded country.
 				 */
-				delete x;
+				DELETE(x);
 			}
 		}
 		else
@@ -255,7 +255,7 @@ void dns_poll(int fdcheck)
 			/* its fd is dodgy, the dns code probably
 			 * bashed it due to error. Free the class.
 			 */
-			delete x;
+			DELETE(x);
 		}
 		/* If we got down here, the dns lookup was valid, BUT,
 		 * its still in progress. Be patient, and wait for

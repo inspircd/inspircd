@@ -79,7 +79,7 @@ class ModuleAlias : public Module
 	
 		virtual ~ModuleAlias()
 		{
-			delete MyConf;
+			DELETE(MyConf);
 		}
 	
 		virtual Version GetVersion()
@@ -150,7 +150,7 @@ class ModuleAlias : public Module
   
 		virtual void OnRehash(const std::string &parameter)
 		{
-			delete MyConf;
+			DELETE(MyConf);
 			MyConf = new ConfigReader;
 		
 			ReadAliases();
