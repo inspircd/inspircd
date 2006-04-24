@@ -42,7 +42,7 @@
  */
 #define IS_SINGLE(x,y) ( (*x == y) && (*(x+1) == 0) )
 
-#define DELETE(x) { log(DEBUG,__FILE__" ("__LINE__"): delete()"); delete x; }
+#define DELETE(x) { log(DEBUG,"%s:%s: delete()",__FILE__,__LINE__); delete x; }
 
 template<typename T> inline std::string ConvToStr(const T &in)
 {
