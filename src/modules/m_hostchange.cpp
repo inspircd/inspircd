@@ -20,6 +20,7 @@ using namespace std;
 #include "users.h"
 #include "channels.h"
 #include "modules.h"
+#include "inspircd.h"
 
 /* $ModDesc: Provides masking of user hostnames in a different way to m_cloaking */
 
