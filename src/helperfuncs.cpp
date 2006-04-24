@@ -1445,7 +1445,7 @@ void Error(int status)
 	log(DEFAULT,"Please report the backtrace lines shown below with any bugreport to the bugtracker at http://www.inspircd.org/bugtrack/");
 	size = backtrace(array, 30);
 	strings = backtrace_symbols(array, size);
-	for (int i = 0; i < size; i++) {
+	for (size_t i = 0; i < size; i++) {
 		log(DEFAULT,"[%d] %s", i, strings[i]);
 	}
 	free(strings);

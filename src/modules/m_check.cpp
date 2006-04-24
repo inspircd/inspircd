@@ -128,7 +128,7 @@ class cmd_check : public command_t
 				 * find how many connections from this user's IP -- unlike Asuka,
 				 * I define a clone as coming from the same host. --w00t
 				 */
-				sprintf(ptr, "%l    ", FindMatchingGlobal(i->second));
+				sprintf(ptr, "%lu    ", FindMatchingGlobal(i->second));
 				
 				if (flags & UCMODE_OP)
 				{
