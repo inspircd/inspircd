@@ -96,7 +96,7 @@ class ModuleDeVoiceFactory : public ModuleFactory
 };
 
 
-extern "C" void * devoice_init( void )
+extern "C" void * module_init( void )
 {
 	return new ModuleDeVoiceFactory;
 }
