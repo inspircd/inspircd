@@ -1090,6 +1090,26 @@ class TreeSocket : public InspSocket
 		return true;
 	}
 
+	bool SyncChannelTS(std::string source, std::deque<std::string> &params)
+	{
+		if (params.size() == 2)
+		{
+			chanrec* c = Srv->FindChannel(params[0]);
+			if (c)
+			{
+				time_t theirTS = atoi(params[1].c_str());
+				time_t ourTS = c->age;
+				if (ourTS >= theirTS)
+				{
+					log(DEBUG,"Updating timestamp for %s, our timestamp was %lu and theirs is %lu",c->name,ourTS,theirTS);
+					c->age = theirTS;
+				}
+			}
+		}
+		DoOneToMany(Srv->GetServerName(),"SYNCTS",params);
+		return true;
+	}
+
 	/* NICK command */
 	bool IntroduceClient(std::string source, std::deque<std::string> &params)
 	{
@@ -1250,6 +1270,7 @@ class TreeSocket : public InspSocket
 				this->WriteLine(":"+Srv->GetServerName()+" FMODE "+c->name+" +h "+specific_halfop[y]->nick);
 			}
 		}
+		this->WriteLine(":"+Srv->GetServerName()+" SYNCTS "+c->name+" "+ConvToStr(c->age));
 	}
 
 	/* Send G, Q, Z and E lines */
@@ -2373,6 +2394,10 @@ class TreeSocket : public InspSocket
 				else if (command == "FJOIN")
 				{
 					return this->ForceJoin(prefix,params);
+				}
+				else if (command == "SYNCTS")
+				{
+					return this->SyncChannelTS(prefix,params);
 				}
 				else if (command == "SERVER")
 				{
