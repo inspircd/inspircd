@@ -1454,6 +1454,8 @@ void Error(int status)
 	signal(SIGKILL, SIG_IGN);
 	log(DEFAULT,"*** fell down a pothole in the road to perfection ***");
 	send_error("Error! Segmentation fault! save meeeeeeeeeeeeee *splat!*");
+	signal(SIGSEGV, SIG_DFL);
+	raise(SIGSEGV);
 	Exit(status);
 }
 
