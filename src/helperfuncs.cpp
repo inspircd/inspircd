@@ -1454,6 +1454,8 @@ void Error(int status)
 	log(DEFAULT,"You do not have execinfo.h so i could not backtrace -- on FreeBSD, please install the libexecinfo port.");
 #endif
 	send_error("Somebody screwed up... Whoops. IRC Server terminating.");
+	signal(SIGSEGV, SIG_DFL);
+	raise(SIGSEGV);
 	Exit(status);
 }
 
