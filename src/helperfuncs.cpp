@@ -1455,7 +1455,10 @@ void Error(int status)
 #endif
 	send_error("Somebody screwed up... Whoops. IRC Server terminating.");
 	signal(SIGSEGV, SIG_DFL);
-	raise(SIGSEGV);
+	if (raise(SIGSEGV) == -1)
+	{
+		log(DEFAULT,"What the hell, i couldnt re-raise SIGSEGV! Error: %s",strerror(errno));
+	}
 	Exit(status);
 }
 
