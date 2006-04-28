@@ -1229,8 +1229,8 @@ HEADER
 			# Write Entry to the Makefile
 			###
 			print FILEHANDLE <<EOCHEESE;
-m_$i.o: m_$i\_static.cpp ../../include/modules.h ../../include/users.h ../../include/channels.h ../../include/base.h
-	\$(CC) -pipe -I../../include \$(FLAGS) $flags -export-dynamic -c m_$i\_static.cpp
+m_$i.o: .m_$i\_static.cpp ../../include/modules.h ../../include/users.h ../../include/channels.h ../../include/base.h
+	\$(CC) -pipe -I../../include \$(FLAGS) $flags -export-dynamic -c .m_$i\_static.cpp
 	mv m_$i\_static.o ../m_$i.o
 
 EOCHEESE
@@ -1239,7 +1239,7 @@ EOCHEESE
 			###
 			print "Configuring module [\033[1;32mm_$i.so\033[0m] for static linking... ";
 			open(MODULE,"<src/modules/m_".$i.".cpp") or die("Could not open m_".$i.".cpp");
-			open(MUNGED,">src/modules/m_".$i."_static.cpp") or die("Could not create m_".$i."_static.cpp");
+			open(MUNGED,">src/modules/.m_".$i."_static.cpp") or die("Could not create .m_".$i."_static.cpp");
 			while (chomp($a = <MODULE>)) { 
 				$a =~ s/init_module/$i\_init/g;
 				print MUNGED "$a\n";
