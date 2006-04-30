@@ -64,15 +64,15 @@ class SQLConnection
 		this->pass = thispass;
 		this->db = thisdb;
 		this->id = myid;
-		unsigned int timeout = 1;
-		mysql_init(&connection);
-		mysql_options(&connection,MYSQL_OPT_CONNECT_TIMEOUT,(char*)&timeout);
 	}
 
 	// This method connects to the database using the credentials supplied to the constructor, and returns
 	// true upon success.
 	bool Connect()
 	{
+		unsigned int timeout = 1;
+		mysql_init(&connection);
+		mysql_options(&connection,MYSQL_OPT_CONNECT_TIMEOUT,(char*)&timeout);
 		return mysql_real_connect(&connection, host.c_str(), user.c_str(), pass.c_str(), db.c_str(), 0, NULL, 0);
 	}
 
@@ -80,6 +80,8 @@ class SQLConnection
 	// multiple rows.
 	bool QueryResult(std::string query)
 	{
+		if (!CheckConnection()) return false;
+		
 		int r = mysql_query(&connection, query.c_str());
 		if (!r)
 		{
@@ -92,6 +94,8 @@ class SQLConnection
 	// the number of effected rows is returned in the return value.
 	unsigned long QueryCount(std::string query)
 	{
+		if (!CheckConnection()) return 0;
+
 		int r = mysql_query(&connection, query.c_str());
 		if (!r)
 		{
@@ -139,9 +143,26 @@ class SQLConnection
 		if (res)
 		{
 			mysql_free_result(res);
+			res = NULL;
 			return true;
 		}
 		else return false;
+	}
+
+	bool ConnectionLost()
+	{
+		if (&connection) {
+			return (mysql_ping(&connection) != 0);
+		}
+		else return false;
+	}
+
+	bool CheckConnection()
+	{
+		if (ConnectionLost()) {
+			return Connect();
+		}
+		else return true;
 	}
 
 	std::string GetError()
