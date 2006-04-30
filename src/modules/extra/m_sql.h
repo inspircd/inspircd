@@ -69,10 +69,11 @@ class SQLResult
 {
  protected:
 	int resptype;
-	unsigned long count;
+	long count;
 	std::string error;
 	std::map<std::string,std::string> row;
  public:
+
 	void SetRow(std::map<std::string,std::string> r)
 	{
 		row = r;
@@ -105,12 +106,13 @@ class SQLResult
 		return error;
 	}
 
-	void SetCount(unsigned long c)
+	void SetCount(long c)
 	{
 		count = c;
 	}
 
-	unsigned long GetCount()
+	/* This will return a negative value of the SQL server is down */
+	long GetCount()
 	{
 		return count;
 	}
@@ -199,7 +201,7 @@ class SQLQuery
 		return rowresult->GetField(fname);
 	}
 
-	int GetCount()
+	long GetCount()
 	{
 		rowresult = (SQLResult*)rowquery->Send();
                 if (rowresult->GetType() == SQL_COUNT)
