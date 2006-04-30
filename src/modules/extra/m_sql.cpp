@@ -92,9 +92,10 @@ class SQLConnection
 
 	// This method issues a query that just expects a number of 'effected' rows (e.g. UPDATE or DELETE FROM).
 	// the number of effected rows is returned in the return value.
-	unsigned long QueryCount(std::string query)
+	long QueryCount(std::string query)
 	{
-		if (!CheckConnection()) return 0;
+		/* If the connection is down, we return a negative value - New to 1.1 */
+		if (!CheckConnection()) return -1;
 
 		int r = mysql_query(&connection, query.c_str());
 		if (!r)
