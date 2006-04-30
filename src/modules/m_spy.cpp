@@ -47,7 +47,7 @@ extern time_t TIME;
 
 typedef std::vector<userrec *> UserList;
 
-UserList listusers;    /* vector of people doing a /list */
+UserList spy_listusers;    /* vector of people doing a /list */
 
 void spy_userlist(userrec *user,chanrec *c)
 {
@@ -120,7 +120,7 @@ class SpyListTimer : public InspTimer
 		{
 			go_again = false;
 			
-			for (UserList::iterator iter = listusers.begin(); iter != listusers.end(); iter++)
+			for (UserList::iterator iter = spy_listusers.begin(); iter != spy_listusers.end(); iter++)
 			{
 				/*
 				 * What we do here:
@@ -136,7 +136,7 @@ class SpyListTimer : public InspTimer
 				{
 					u->Shrink("safespylist_cache");
 					delete ld;
-					listusers.erase(iter);
+					spy_listusers.erase(iter);
 					go_again = true;
 					break;
 				}
@@ -231,7 +231,7 @@ class cmd_spylist : public command_t
 		 */
 		ld = new SpyListData(0,TIME);
 		user->Extend("safespylist_cache", (char*)ld);
-		listusers.push_back(user);
+		spy_listusers.push_back(user);
 
 		time_t* llt = new time_t;
 		*llt = TIME;
@@ -323,12 +323,12 @@ class ModuleSpy : public Module
 				delete ld;
 			}
 			
-			for (UserList::iterator iter = listusers.begin(); iter != listusers.end(); iter++)
+			for (UserList::iterator iter = spy_listusers.begin(); iter != spy_listusers.end(); iter++)
 			{
 				userrec* u2 = (userrec*)(*iter);
 				if (u2 == u)
 				{
-					listusers.erase(iter);
+					spy_listusers.erase(iter);
 					break;
 				}
 			}

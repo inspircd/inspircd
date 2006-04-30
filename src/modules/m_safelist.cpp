@@ -39,7 +39,7 @@ class ListData
 /* $ModDesc: A module overriding /list, and making it safe - stop those sendq problems. */
  
 typedef std::vector<userrec *> UserList;
-UserList listusers;    /* vector of people doing a /list */
+UserList safelist_listusers;    /* vector of people doing a /list */
 
 /*
  * To create a timer which recurs every second, we inherit from InspTimer.
@@ -67,7 +67,7 @@ class ListTimer : public InspTimer
                 while (go_again)
                 {
                         go_again = false;
-                        for (UserList::iterator iter = listusers.begin(); iter != listusers.end(); iter++)
+                        for (UserList::iterator iter = safelist_listusers.begin(); iter != safelist_listusers.end(); iter++)
                         {
                                 /*
                                  * What we do here:
@@ -81,7 +81,7 @@ class ListTimer : public InspTimer
                                 {
                                         u->Shrink("safelist_cache");
                                         delete ld;
-                                        listusers.erase(iter);
+                                        safelist_listusers.erase(iter);
                                         go_again = true;
                                         break;
                                 }
@@ -211,7 +211,7 @@ class ModuleSafeList : public Module
 		 */
 		ld = new ListData(0,TIME);
 		user->Extend("safelist_cache", (char*)ld);
-		listusers.push_back(user);
+		safelist_listusers.push_back(user);
 
 		time_t* llt = new time_t;
 		*llt = TIME;
@@ -231,12 +231,12 @@ class ModuleSafeList : public Module
 				u->Shrink("safelist_cache");
 	                        delete ld;
 			}
-			for (UserList::iterator iter = listusers.begin(); iter != listusers.end(); iter++)
+			for (UserList::iterator iter = safelist_listusers.begin(); iter != safelist_listusers.end(); iter++)
 			{
 				userrec* u2 = (userrec*)(*iter);
 				if (u2 == u)
 				{
-					listusers.erase(iter);
+					safelist_listusers.erase(iter);
 					break;
 				}
 			}
