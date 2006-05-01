@@ -898,12 +898,18 @@ bool ServerConfig::LoadConf(ConfigDataHash &target, const char* filename, std::o
 		 * Note that this WILL NOT usually allow insertion of newlines,
 		 * because a newline is two characters long. Use it primarily to
 		 * insert the " symbol.
+		 *
+		 * Note that this also involves a further check when parsing the line,
+		 * which can be found below.
 		 */
-		if ((ch == '\\') && in_quote && in_tag)
+		if ((ch == '\\') && (in_quote) && (in_tag))
 		{
+			line += ch;
+			log(DEBUG,"Escape sequence in config line.");
 			char real_character;
 			if (conf.get(real_character))
 			{
+				log(DEBUG,"Escaping %c", real_character);
 				line += real_character;
 				continue;
 			}
@@ -1042,12 +1048,12 @@ bool ServerConfig::ParseLine(ConfigDataHash &target, std::string &line, long lin
 		else
 		{
 			/* We have the tag name */
-			if(!got_key)
+			if (!got_key)
 			{
 				/* We're still reading the key name */
-				if(*c != '=')
+				if (*c != '=')
 				{
-					if(*c != ' ')
+					if (*c != ' ')
 					{
 						current_key += *c;
 					}
@@ -1061,9 +1067,19 @@ bool ServerConfig::ParseLine(ConfigDataHash &target, std::string &line, long lin
 			else
 			{
 				/* We have the key name, now we're looking for quotes and the value */
-				if(*c == '"')
+
+				/* Correctly handle escaped characters here.
+				 * See the XXX'ed section above.
+				 */
+				if ((*c == '\\') && (in_quote))
 				{
-					if(!in_quote)
+					c++;
+					current_value += *c;
+					continue;
+				}
+				if (*c == '"')
+				{
+					if (!in_quote)
 					{
 						/* We're not already in a quote. */
 						in_quote = true;
