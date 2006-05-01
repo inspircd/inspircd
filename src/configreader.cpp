@@ -893,7 +893,27 @@ bool ServerConfig::LoadConf(ConfigDataHash &target, const char* filename, std::o
 		
 		if(in_comment)
 			continue;
-		
+
+		/* XXX: Added by Brain, May 1st 2006 - Escaping of characters.
+		 * Note that this WILL NOT usually allow insertion of newlines,
+		 * because a newline is two characters long. Use it primarily to
+		 * insert the " symbol.
+		 */
+		if ((ch == '\\') && in_quote && in_tag)
+		{
+			char real_character;
+			if (conf.get(real_character))
+			{
+				line += real_character;
+				continue;
+			}
+			else
+			{
+				errorstream << "End of file after a \\, what did you want to escape?: " << filename << ":" << linenumber << std::endl;
+				return false;
+			}
+		}
+
 		line += ch;
 		
 		if(ch == '<')
