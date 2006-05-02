@@ -117,19 +117,26 @@ class RFC1413 : public InspSocket
 
 	virtual bool OnConnected()
 	{
-		uslen = sizeof(sock_us);
-		themlen = sizeof(sock_them);
-		if ((getsockname(this->u->fd,(sockaddr*)&sock_us,&uslen) || getpeername(this->u->fd, (sockaddr*)&sock_them, &themlen)))
+		if (u)
 		{
-			Srv->Log(DEBUG,"Ident: failed to get socket names, bailing");
-			return false;
+			uslen = sizeof(sock_us);
+			themlen = sizeof(sock_them);
+			if ((getsockname(this->u->fd,(sockaddr*)&sock_us,&uslen) || getpeername(this->u->fd, (sockaddr*)&sock_them, &themlen)))
+			{
+				Srv->Log(DEBUG,"Ident: failed to get socket names, bailing");
+				return false;
+			}
+			else
+			{
+				// send the request in the following format: theirsocket,oursocket
+				snprintf(ident_request,127,"%d,%d\r\n",ntohs(sock_them.sin_port),ntohs(sock_us.sin_port));
+				this->Write(ident_request);
+				Srv->Log(DEBUG,"Sent ident request, waiting for reply");
+				return true;
+			}
 		}
 		else
 		{
-			// send the request in the following format: theirsocket,oursocket
-			snprintf(ident_request,127,"%d,%d\r\n",ntohs(sock_them.sin_port),ntohs(sock_us.sin_port));
-			this->Write(ident_request);
-			Srv->Log(DEBUG,"Sent ident request, waiting for reply");
 			return true;
 		}
 	}
@@ -233,6 +240,7 @@ class ModuleIdent : public Module
 		RFC1413* ident = (RFC1413*)user->GetExt("ident_data");
 		if (ident)
 		{
+			ident->u = NULL;
 			Srv->RemoveSocket(ident);
 		}
 	}
