@@ -730,7 +730,10 @@ void AddClient(int socket, int port, bool iscached, in_addr ip4)
 		}
 	}
 
-	ServerInstance->SE->AddFd(socket,true,X_ESTAB_CLIENT);
+	if (socket > -1)
+	{
+		ServerInstance->SE->AddFd(socket,true,X_ESTAB_CLIENT);
+	}
 
 	WriteServ(clientlist[tempnick]->fd,"NOTICE Auth :*** Looking up your hostname...");
 }

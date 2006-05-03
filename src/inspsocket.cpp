@@ -47,8 +47,11 @@ InspSocket::InspSocket(int newfd, char* ip)
 	this->state = I_CONNECTED;
 	strlcpy(this->IP,ip,MAXBUF);
 	this->ClosePending = false;
-	ServerInstance->SE->AddFd(this->fd,true,X_ESTAB_MODULE);
-	socket_ref[this->fd] = this;
+	if (this->fd > -1)
+	{
+		ServerInstance->SE->AddFd(this->fd,true,X_ESTAB_MODULE);
+		socket_ref[this->fd] = this;
+	}
 }
 
 InspSocket::InspSocket(const std::string &ahost, int aport, bool listening, unsigned long maxtime) : fd(-1)
@@ -80,8 +83,11 @@ InspSocket::InspSocket(const std::string &ahost, int aport, bool listening, unsi
 			else
 			{
 				this->state = I_LISTENING;
-				ServerInstance->SE->AddFd(this->fd,true,X_ESTAB_MODULE);
-				socket_ref[this->fd] = this;
+				if (this->fd > -1)
+				{
+					ServerInstance->SE->AddFd(this->fd,true,X_ESTAB_MODULE);
+					socket_ref[this->fd] = this;
+				}
 				log(DEBUG,"New socket now in I_LISTENING state");
 				return;
 			}
@@ -187,9 +193,12 @@ bool InspSocket::DoConnect()
 		}
 	}
 	this->state = I_CONNECTING;
-	ServerInstance->SE->AddFd(this->fd,false,X_ESTAB_MODULE);
-	socket_ref[this->fd] = this;
-	this->SetQueues(this->fd);
+	if (this->fd > -1)
+	{
+		ServerInstance->SE->AddFd(this->fd,false,X_ESTAB_MODULE);
+		socket_ref[this->fd] = this;
+		this->SetQueues(this->fd);
+	}
 	log(DEBUG,"Returning true from InspSocket::DoConnect");
 	return true;
 }
@@ -355,8 +364,11 @@ bool InspSocket::Poll()
 			/* Our socket was in write-state, so delete it and re-add it
 			 * in read-state.
 			 */
-			ServerInstance->SE->DelFd(this->fd);
-			ServerInstance->SE->AddFd(this->fd,true,X_ESTAB_MODULE);
+			if (this->fd > -1)
+			{
+				ServerInstance->SE->DelFd(this->fd);
+				ServerInstance->SE->AddFd(this->fd,true,X_ESTAB_MODULE);
+			}
 			return this->OnConnected();
 		break;
 		case I_LISTENING:

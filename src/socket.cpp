@@ -177,8 +177,11 @@ int BindPorts(bool bail)
 				else
 				{
 					/* Associate the new open port with a slot in the socket engine */
-					ServerInstance->SE->AddFd(openSockfd[count],true,X_LISTEN);
-					BoundPortCount++;
+					if (openSockfd[count] > -1)
+					{
+						ServerInstance->SE->AddFd(openSockfd[count],true,X_LISTEN);
+						BoundPortCount++;
+					}
 				}
 			}
 			return InitialPortCount + BoundPortCount;
