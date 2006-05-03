@@ -748,7 +748,7 @@ bool DNS::ForwardLookupWithFD(const std::string &host, int &fd)
 	fd = this->myfd;
 	if (this->myfd == -1)
 	{
-		
+		return false;
 	}
 	log(DEBUG,"DNS: ForwardLookupWithFD, fd=%d",this->myfd);
 	if (ServerInstance && ServerInstance->SE)
