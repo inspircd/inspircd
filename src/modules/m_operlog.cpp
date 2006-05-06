@@ -60,7 +60,7 @@ class ModuleOperLog : public Module
 			std::string plist = "";
 			for (int j = 0; j < pcnt; j++)
 			{
-				plist.append(" "+parameters[j]);
+				plist.append(std::string(" ")+std::string(parameters[j]));
 			}
 			log(DEFAULT,"OPERLOG: [%s!%s@%s] %s%s",user->nick,user->ident,user->host,command.c_str(),plist.c_str());
 		}
