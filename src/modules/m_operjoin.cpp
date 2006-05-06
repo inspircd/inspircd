@@ -9,6 +9,15 @@ using namespace std;
 
 /* $ModDesc: Forces opers to join a specified channel on oper-up */
 
+class OperJoinException : public ModuleException
+{
+ private:
+	std::string err;
+ public:
+	OperJoinException(std::string message) : err(message) { }
+	virtual const char* GetReason() { return err.c_str(); }
+};
+
 class ModuleOperjoin : public Module
 {
 	private:
@@ -23,6 +32,11 @@ class ModuleOperjoin : public Module
 			Srv = Me;
 			conf = new ConfigReader;
 			operChan = conf->ReadValue("operjoin", "channel", 0);
+			
+			if(!IsValidChannelName(operChan.c_str()))
+			{
+				throw OperJoinException("m_operjoin.so: Channel name configured invalid: " + operChan);				
+			}
 		}
 
 		void Implements(char* List)
@@ -78,4 +92,3 @@ extern "C" void * init_module( void )
 {
         return new ModuleOperjoinFactory;
 }
-
