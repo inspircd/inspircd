@@ -416,7 +416,8 @@ void userrec::FlushWriteBuf()
 		int n_sent = write(this->fd,tb,this->sendq.length());
 		if (n_sent == -1)
 		{
-			this->SetWriteError(strerror(errno));
+			if (errno != EAGAIN)
+				this->SetWriteError(strerror(errno));
 		}
 		else
 		{
