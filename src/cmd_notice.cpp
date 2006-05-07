@@ -70,7 +70,7 @@ void cmd_notice::Handle (char **parameters, int pcnt, userrec *user)
 	
 	if (ServerInstance->Parser->LoopCall(this,parameters,pcnt,user,0,pcnt-2,0))
 		return;
-	if ((parameters[0][0] == '$') && (*user->oper))
+	if ((parameters[0][0] == '$') && ((*user->oper) || (is_uline(user->server))))
 	{
 		// notice to server mask
 		char* servermask = parameters[0];
