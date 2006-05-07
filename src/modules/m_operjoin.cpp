@@ -7,7 +7,7 @@ using namespace std;
 #include "modules.h"
 #include "helperfuncs.h"
 
-/* $ModDesc: Forces opers to join a specified channel on oper-up */
+/* $ModDesc: Forces opers to join the specified channel(s) on oper-up */
 
 class ModuleOperjoin : public Module
 {
@@ -102,4 +102,3 @@ extern "C" void * init_module( void )
 {
 	return new ModuleOperjoinFactory;
 }
-
