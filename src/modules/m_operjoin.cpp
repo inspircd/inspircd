@@ -16,6 +16,25 @@ class ModuleOperjoin : public Module
 		ConfigReader* conf;
 		Server* Srv;
 
+		int tokenize(const string &str, std::vector<std::string> &tokens)
+		{
+			// skip delimiters at beginning.
+			string::size_type lastPos = str.find_first_not_of(",", 0);
+			// find first "non-delimiter".
+			string::size_type pos = str.find_first_of(",", lastPos);
+
+			while (string::npos != pos || string::npos != lastPos)
+			{
+				// found a token, add it to the vector.
+				tokens.push_back(str.substr(lastPos, pos - lastPos));
+				// skip delimiters. Note the "not_of"
+				lastPos = str.find_first_not_of(",", pos);
+				// find next "non-delimiter"
+				pos = str.find_first_of(",", lastPos);
+			}
+			return tokens.size();
+		}
+
 	public:
 		ModuleOperjoin(Server* Me)
 			: Module::Module(Me)
@@ -50,7 +69,12 @@ class ModuleOperjoin : public Module
 		{
 			if(operChan != "")
 			{
-				Srv->JoinUserToChannel(user,operChan,"");
+				std::vector<std::string> operChans;
+				tokenize(operChan,operChans);
+				for(std::vector<std::string>::iterator it = operChans.begin(); it != operChans.end(); it++)
+				{
+					Srv->JoinUserToChannel(user,(*it),"");
+				}
 			}
 
 		}
