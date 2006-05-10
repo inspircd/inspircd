@@ -1875,6 +1875,9 @@ class TreeSocket : public InspSocket
 
 		userrec* u = Srv->FindNick(params[0]);
 
+		if (!u)
+			return true;
+
 		if (IS_LOCAL(u))
 		{
 			// push the raw to the user
