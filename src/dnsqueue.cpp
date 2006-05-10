@@ -111,8 +111,8 @@ public:
 						{
 							if ((std::string((char*)inet_ntoa(usr->ip4)) == ip) && (hostname.length() < 65))
 							{
-								strlcpy(usr->host,hostname.c_str(),MAXBUF);
-								strlcpy(usr->dhost,hostname.c_str(),MAXBUF);
+								strlcpy(usr->host,hostname.c_str(),64);
+								strlcpy(usr->dhost,hostname.c_str(),64);
 								/*address_cache::iterator address = addrcache.find(usr->ip4);
 								if (address == addrcache.end())
 								{
