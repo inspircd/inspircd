@@ -3593,16 +3593,17 @@ class ModuleSpanningTree : public Module
 			params.push_back(":"+std::string(user->fullname));
 			DoOneToMany(Srv->GetServerName(),"NICK",params);
 
+			TreeServer* SourceServer = FindServer(Srv->GetServerName());
 			// User is Local, change needs to be reflected!
-			if (user->server)
-			{
-				log(DEBUG,"Server name is %s",user->server);
-				TreeServer* SourceServer = FindServer(user->server);
-				if (SourceServer)
-				{
-					SourceServer->AddUserCount();
-				}
-			}
+			//if (user->server)
+			//{
+			//	log(DEBUG,"Server name is %s",user->server);
+			//	TreeServer* SourceServer = FindServer(user->server);
+			//	if (SourceServer)
+			//	{
+			//		SourceServer->AddUserCount();
+			//	}
+			//}
 
 		}
 	}
