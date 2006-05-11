@@ -38,6 +38,13 @@ class cmd_knock : public command_t
 	void Handle (char **parameters, int pcnt, userrec *user)
 	{
 		chanrec* c = Srv->FindChannel(parameters[0]);
+
+		if (!c)
+		{
+			WriteServ(user->fd,"401 %s %s :No such channel",user->nick, parameters[0]);
+			return;
+		}
+
 		std::string line = "";
 
 		if (c->IsModeSet('K'))
