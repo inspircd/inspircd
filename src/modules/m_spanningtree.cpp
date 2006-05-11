@@ -3598,7 +3598,7 @@ class ModuleSpanningTree : public Module
 			//if (user->server)
 			//{
 			//	log(DEBUG,"Server name is %s",user->server);
-			//	TreeServer* SourceServer = FindServer(user->server);
+			//	tREEsErver* SourceServer = FindServer(user->server);
 			//	if (SourceServer)
 			//	{
 					SourceServer->AddUserCount();
@@ -3617,7 +3617,7 @@ class ModuleSpanningTree : public Module
 			DoOneToMany(user->nick,"QUIT",params);
 		}
 		// Regardless, We need to modify the user Counts..
-		TreeServer* SourceServer = FindServer(user->server);
+		TreeServer* SourceServer = FindServer(Srv->GetServerName());
 		if (SourceServer)
 		{
 			SourceServer->DelUserCount();
