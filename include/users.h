@@ -144,7 +144,7 @@ class userrec : public connection
 	/** The host displayed to non-opers (used for cloaking etc).
 	 * This usually matches the value of userrec::host.
 	 */
-	char dhost[64];
+	char dhost[65];
 	
 	/** The users full name.
 	 */
