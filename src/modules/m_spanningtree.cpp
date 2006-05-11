@@ -3601,7 +3601,7 @@ class ModuleSpanningTree : public Module
 			//	TreeServer* SourceServer = FindServer(user->server);
 			//	if (SourceServer)
 			//	{
-			//		SourceServer->AddUserCount();
+					SourceServer->AddUserCount();
 			//	}
 			//}
 
