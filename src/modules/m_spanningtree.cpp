@@ -3593,17 +3593,20 @@ class ModuleSpanningTree : public Module
 			params.push_back(":"+std::string(user->fullname));
 			DoOneToMany(Srv->GetServerName(),"NICK",params);
 
-			//TreeServer* SourceServer = FindServer(Srv->GetServerName());
+			//TreeServer* SourceServer = FindServer(user->server);
+			log(DEBUG,"User %s!%s@%s '%s'",user->nick,user->ident,user->host,user->fullname);
+			char* xxx = user->server;
+			TreeServer* SourceServer = FindServer(user->server);
 			// User is Local, change needs to be reflected!
-			//if (user->server)
-			//{
-			//	log(DEBUG,"Server name is %s",user->server);
-			//	tREEsErver* SourceServer = FindServer(user->server);
-			//	if (SourceServer)
-			//	{
-			//		SourceServer->AddUserCount();
-			//	}
-			//}
+			if (user->server)
+			{
+				log(DEBUG,"Server name is %s",user->server);
+				tREEsErver* SourceServer = FindServer(user->server);
+				if (SourceServer)
+				{
+					SourceServer->AddUserCount();
+				}
+			}
 
 		}
 	}
@@ -3617,11 +3620,11 @@ class ModuleSpanningTree : public Module
 			DoOneToMany(user->nick,"QUIT",params);
 		}
 		// Regardless, We need to modify the user Counts..
-		//TreeServer* SourceServer = FindServer(Srv->GetServerName());
-		//if (SourceServer)
-		//{
-		//	SourceServer->DelUserCount();
-		//}
+		TreeServer* SourceServer = FindServer(user->server);
+		if (SourceServer)
+		{
+			SourceServer->DelUserCount();
+		}
 
 	}
 
