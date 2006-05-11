@@ -3596,6 +3596,7 @@ class ModuleSpanningTree : public Module
 			// User is Local, change needs to be reflected!
 			if (user->server)
 			{
+				log(DEBUG,"Server name is %s",user->server);
 				TreeServer* SourceServer = FindServer(user->server);
 				if (SourceServer)
 				{
