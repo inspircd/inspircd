@@ -3594,10 +3594,13 @@ class ModuleSpanningTree : public Module
 			DoOneToMany(Srv->GetServerName(),"NICK",params);
 
 			// User is Local, change needs to be reflected!
-			TreeServer* SourceServer = FindServer(user->server);
-			if (SourceServer)
+			if (user->server)
 			{
-				SourceServer->AddUserCount();
+				TreeServer* SourceServer = FindServer(user->server);
+				if (SourceServer)
+				{
+					SourceServer->AddUserCount();
+				}
 			}
 
 		}
