@@ -3601,7 +3601,7 @@ class ModuleSpanningTree : public Module
 			if (user->server)
 			{
 				log(DEBUG,"Server name is %s",user->server);
-				tREEsErver* SourceServer = FindServer(user->server);
+				TreeServer* SourceServer = FindServer(user->server);
 				if (SourceServer)
 				{
 					SourceServer->AddUserCount();
