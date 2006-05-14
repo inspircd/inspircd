@@ -59,7 +59,8 @@ The following features are supported:
 The following operating systems are supported:
 
 	* Linux		(i386, amd64, possibly others)
-				Tested on: RedHat, Slackware, Gentoo, SELinux, Debian
+				Tested on: RedHat, Slackware, Gentoo, Debian
+				(Also known to work on proper SELinux configurations.)
 	* FreeBSD 	(i386, possibly others)
 				Tested on: 4.10, 4.11, 5.0, 5.2.1, 5.3, 5.4
 
