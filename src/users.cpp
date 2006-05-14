@@ -760,7 +760,8 @@ void FullConnectUser(userrec* user, CullList* Goners)
 			Goners->AddItem(user,reason);
                         return;
                 }
-                r = matches_kline(user->host);
+
+                r = matches_kline(match_against);
                 if (r)
                 {
                         char reason[MAXBUF];
