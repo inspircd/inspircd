@@ -811,7 +811,7 @@ void FullConnectUser(userrec* user, CullList* Goners)
 			return;
 		}
 		
-		r = matches_kline(user->host);
+		r = matches_kline(match_against);
 		
 		if (r)
 		{
