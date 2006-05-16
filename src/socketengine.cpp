@@ -40,6 +40,17 @@ SocketEngine::SocketEngine()
 #ifdef USE_KQUEUE
 	EngineHandle = kqueue();
 #endif
+#ifdef USE_SELECT
+	EngineHandle = 0;
+#endif
+	if (EngineHandle == -1)
+	{
+		log(SPARSE,"ERROR: Could not initialize socket engine. Your kernel probably does not have the proper features.");
+		log(SPARSE,"ERROR: this is a fatal error, exiting now.");
+		printf("ERROR: Could not initialize socket engine. Your kernel probably does not have the proper features.");
+		printf("ERROR: this is a fatal error, exiting now.");
+		Exit(0);
+	}
 	CurrentSetSize = 0;
 }
 
