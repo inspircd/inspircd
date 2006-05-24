@@ -269,7 +269,10 @@ class TreeServer
 	void AddUser(userrec* user)
 	{
 		if (this->DontModifyHash)
+		{
+			log(DEBUG,"Not modifying hash");
 			return;
+		}
 
 		log(DEBUG,"Add user %s to server %s",user->nick,this->ServerName.c_str());
 		std::map<userrec*,userrec*>::iterator iter;
@@ -286,7 +289,10 @@ class TreeServer
 		 * When netsplitting, this->DontModifyHash is set to prevent it now!
 		 */
 		if (this->DontModifyHash)
+		{
+			log(DEBUG,"Not modifying hash");
 			return;
+		}
 
 		log(DEBUG,"Remove user %s from server %s",user->nick,this->ServerName.c_str());
 		std::map<userrec*,userrec*>::iterator iter;
@@ -298,7 +304,7 @@ class TreeServer
 	int QuitUsers(const std::string &reason)
 	{
 		int x = Users.size();
-		log(DEBUG,"Removing all users from server %s",this->ServerName.c_str());
+		log(DEBUG,"Removing %d users from server %s",x,this->ServerName.c_str());
 		const char* reason_s = reason.c_str();
 		this->DontModifyHash = true;
 		for (std::map<userrec*,userrec*>::iterator n = Users.begin(); n != Users.end(); n++)
@@ -1198,6 +1204,7 @@ class TreeSocket : public InspSocket
 		TreeServer* SourceServer = FindServer(source);
 		if (SourceServer)
 		{
+			log(DEBUG,"Found source server of %s",clientlist[tempnick]->nick);
 			SourceServer->AddUser(clientlist[tempnick]);
 			SourceServer->AddUserCount();
 		}
