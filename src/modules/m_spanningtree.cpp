@@ -168,6 +168,7 @@ class TreeServer
 	time_t NextPing;			/* After this time, the server should be PINGed*/
 	bool LastPingWasGood;			/* True if the server responded to the last PING with a PONG */
 	std::map<userrec*,userrec*> Users;	/* Users on this server */
+	bool DontModifyHash;			/* When the server is splitting, this is set to true so we dont bash our own iterator to death */
 	
  public:
 
@@ -182,6 +183,7 @@ class TreeServer
 		VersionString = "";
 		UserCount = OperCount = 0;
 		VersionString = Srv->GetVersion();
+		DontModifyHash = false;
 	}
 
 	/* We use this constructor only to create the 'root' item, TreeRoot, which
@@ -266,6 +268,9 @@ class TreeServer
 
 	void AddUser(userrec* user)
 	{
+		if (this->DontModifyHash)
+			return;
+
 		log(DEBUG,"Add user %s to server %s",user->nick,this->ServerName.c_str());
 		std::map<userrec*,userrec*>::iterator iter;
 		iter = Users.find(user);
@@ -275,6 +280,14 @@ class TreeServer
 
 	void DelUser(userrec* user)
 	{
+		/* FIX BY BRAIN:
+		 * Quitting the user in QuitUsers changes the hash by removing the user here,
+		 * corrupting the iterator!
+		 * When netsplitting, this->DontModifyHash is set to prevent it now!
+		 */
+		if (this->DontModifyHash)
+			return;
+
 		log(DEBUG,"Remove user %s from server %s",user->nick,this->ServerName.c_str());
 		std::map<userrec*,userrec*>::iterator iter;
 		iter = Users.find(user);
@@ -287,12 +300,15 @@ class TreeServer
 		int x = Users.size();
 		log(DEBUG,"Removing all users from server %s",this->ServerName.c_str());
 		const char* reason_s = reason.c_str();
+		this->DontModifyHash = true;
 		for (std::map<userrec*,userrec*>::iterator n = Users.begin(); n != Users.end(); n++)
 		{
-			log(DEBUG,"Kill %s",n->second->nick);
-			kill_link(n->second,reason_s);
+			log(DEBUG,"Kill %s fd=%d",n->second->nick,n->second->fd);
+			if (!IS_LOCAL(n->second))
+				kill_link(n->second,reason_s);
 		}
 		Users.clear();
+		this->DontModifyHash = false;
 		return x;
 	}
 
