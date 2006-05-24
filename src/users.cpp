@@ -455,7 +455,7 @@ void kill_link(userrec *user,const char* r)
 
         strlcpy(reason,r,MAXQUIT-1);
 
-        log(DEBUG,"kill_link: %s '%s'",user->nick,reason);
+        log(DEBUG,"kill_link: %s fd=%d '%s'",user->nick,user->fd,reason);
 	if (IS_LOCAL(user))
 	        Write(user->fd,"ERROR :Closing link (%s@%s) [%s]",user->ident,user->host,reason);
 
