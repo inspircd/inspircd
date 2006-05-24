@@ -200,6 +200,7 @@ class TreeServer
 		VersionString = Srv->GetVersion();
 		Route = NULL;
 		Socket = NULL; /* Fix by brain */
+		DontModifyHash = false;
 		AddHashEntry();
 	}
 
@@ -211,6 +212,7 @@ class TreeServer
 	{
 		VersionString = "";
 		UserCount = OperCount = 0;
+		DontModifyHash = false;
 		this->SetNextPingTime(time(NULL) + 120);
 		this->SetPingFlag();
 
