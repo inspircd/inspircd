@@ -1122,7 +1122,7 @@ class TreeSocket : public InspSocket
 				}
 			}
 		}
-		DoOneToMany(Srv->GetServerName(),"SYNCTS",params);
+		DoOneToAllButSender(Srv->GetServerName(),"SYNCTS",params,source);
 		return true;
 	}
 
