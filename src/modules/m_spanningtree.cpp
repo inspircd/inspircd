@@ -3629,7 +3629,7 @@ class ModuleSpanningTree : public Module
 
 			//TreeServer* SourceServer = FindServer(user->server);
 			log(DEBUG,"User %s!%s@%s '%s'",user->nick,user->ident,user->host,user->fullname);
-			char* xxx = user->server;
+
 			// User is Local, change needs to be reflected!
 			if (user->server)
 			{
