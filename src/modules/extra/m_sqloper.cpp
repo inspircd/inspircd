@@ -91,7 +91,7 @@ class ModuleSQLOper : public Module
 		return 0;
 	}
 
-	bool LookupOper(std::string username, std::string password, userrec* user)
+	bool LookupOper(const std::string &s_username, const std::string &s_password, userrec* user)
 	{
 		bool found = false;
 
@@ -100,34 +100,8 @@ class ModuleSQLOper : public Module
 			return false;
 
 		// sanitize the password (we dont want any mysql insertion exploits!)
-		std::string temp = "";
-		for (unsigned int q = 0; q < password.length(); q++)
-		{
-			if (password[q] == '\'')
-			{
-				temp = temp + "\'";
-			}
-			else if (password[q] == '"')
-			{
-				temp = temp + "\\\"";
-			}
-			else temp = temp + password[q];
-		}
-		password = temp;
-		temp = "";
-		for (unsigned int v = 0; v < username.length(); v++)
-		{
-			if (username[v] == '\'')
-			{
-				temp = temp + "\'";
-			}
-			if (username[v] == '"')
-			{
-				temp = temp + "\\\"";
-			}
-			else temp = temp + username[v];
-		}
-		username = temp;
+		std::string username = SQLQuery::Sanitise(s_username);
+		std::string password = SQLQuery::Sanitise(s_password);
 
 		// Create a request containing the SQL query and send it to m_sql.so
 		SQLRequest* query = new SQLRequest(SQL_RESULT,dbid,"SELECT username,password,hostname,type FROM ircd_opers WHERE username='"+username+"' AND password=md5('"+password+"')");

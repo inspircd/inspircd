@@ -230,7 +230,7 @@ class SQLQuery
                 rowresult = NULL;
         }
 
-        std::string Sanitise(std::string crap)
+        static std::string Sanitise(const std::string& crap)
         {
                 std::string temp = "";
                 for (unsigned int q = 0; q < crap.length(); q++)

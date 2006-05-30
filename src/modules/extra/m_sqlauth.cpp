@@ -105,7 +105,7 @@ class ModuleSQLAuth : public Module
 		}
 	}
 
-	bool CheckCredentials(const std::string &username, std::string password)
+	bool CheckCredentials(const std::string &s_username, const std::string &s_password)
 	{
 		bool found = false;
 
@@ -114,20 +114,8 @@ class ModuleSQLAuth : public Module
 			return false;
 
 		// sanitize the password (we dont want any mysql insertion exploits!)
-		std::string temp = "";
-		for (unsigned int q = 0; q < password.length(); q++)
-		{
-			if (password[q] == '\'')
-			{
-				temp = temp + "\'";
-			}
-			else if (password[q] == '"')
-			{
-				temp = temp + "\\\"";
-			}
-			else temp = temp + password[q];
-		}
-		password = temp;
+		std::string username = SQLQuery::Sanitise(s_username);
+		std::string password = SQLQuery::Sanitise(s_password);
 
 		// Create a request containing the SQL query and send it to m_sql.so
 		std::string querystr("SELECT * FROM "+usertable+" WHERE "+userfield+"='"+username+"' AND "+passfield+"="+encryption+"'"+password+"')");
