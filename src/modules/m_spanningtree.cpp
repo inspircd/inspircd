@@ -2013,8 +2013,8 @@ class TreeSocket : public InspSocket
 		TreeServer* CheckDupe = FindServer(servername);
 		if (CheckDupe)
 		{
-			this->WriteLine("ERROR :Server "+servername+" already exists on server "+CheckDupe->GetParent()->GetName()+"!");
-			Srv->SendOpers("*** Server connection from \2"+servername+"\2 denied, already exists on server "+CheckDupe->GetParent()->GetName());
+			this->WriteLine("ERROR :Server "+servername+" already exists!");
+			Srv->SendOpers("*** Server connection from \2"+servername+"\2 denied, already exists");
 			return false;
 		}
 		TreeServer* Node = new TreeServer(servername,description,ParentOfThis,NULL);
