@@ -458,7 +458,7 @@ class ModuleSSLGnuTLS : public Module
 	virtual void OnWhois(userrec* source, userrec* dest)
 	{
 		// Bugfix, only send this numeric for *our* SSL users
-		if(dest->GetExt("ssl") && isin(dest->port, listenports))
+		if(dest->GetExt("ssl") || (IS_LOCAL(dest) && isin(dest->port, listenports)))
 		{
 			WriteServ(source->fd, "320 %s %s :is using a secure connection", source->nick, dest->nick);
 		}
