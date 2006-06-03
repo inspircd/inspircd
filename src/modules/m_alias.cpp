@@ -112,7 +112,7 @@ class ModuleAlias : public Module
 							return 1;
 						}
 					}
-					if (Aliases[i].uline)
+					if ((u != NULL) && (Aliases[i].requires != "") && (Aliases[i].uline))
 					{
 						if (!Srv->IsUlined(u->server))
 						{
