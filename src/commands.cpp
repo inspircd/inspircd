@@ -147,7 +147,7 @@ void do_whois(userrec* user, userrec* dest,unsigned long signon, unsigned long i
 		}
 		if (*dest->oper)
 		{
-			WriteServ(user->fd,"313 %s %s :is %s %s on %s",user->nick, dest->nick, (strchr("aeiou",*dest->oper) ? "an" : "a"),dest->oper, Config->Network);
+			WriteServ(user->fd,"313 %s %s :is %s %s on %s",user->nick, dest->nick, (strchr("AEIOUaeiou",*dest->oper) ? "an" : "a"),dest->oper, Config->Network);
 		}
 		if ((!signon) && (!idle))
 		{
