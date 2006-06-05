@@ -2591,7 +2591,7 @@ class TreeSocket : public InspSocket
 							 * and our copy.
 							 */
 							userrec* x = Srv->FindNick(params[0]);
-							if (x)
+							if ((x) && (x != who))
 							{
 								std::deque<std::string> p;
 								p.push_back(params[0]);
