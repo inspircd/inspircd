@@ -23,6 +23,8 @@ using namespace std;
 #include "modules.h"
 #include "inspircd.h"
 
+extern userrec* fd_ref_table[MAX_DESCRIPTORS];
+
 /* $ModDesc: Provides support for RFC 1413 ident lookups */
 
 // Version 1.5.0.0 - Updated to use InspSocket, faster and neater.
@@ -39,8 +41,9 @@ class RFC1413 : public InspSocket
  public:
 
 	userrec* u;		 // user record that the lookup is associated with
+	int ufd;
 
-	RFC1413(userrec* user, int maxtime, Server* S) : InspSocket((char*)inet_ntoa(user->ip4), 113, false, maxtime), Srv(S), u(user)
+	RFC1413(userrec* user, int maxtime, Server* S) : InspSocket((char*)inet_ntoa(user->ip4), 113, false, maxtime), Srv(S), u(user), ufd(user->fd)
 	{
 		Srv->Log(DEBUG,"Ident: associated.");
 	}
@@ -49,7 +52,7 @@ class RFC1413 : public InspSocket
 	{
 		// When we timeout, the connection failed within the allowed timeframe,
 		// so we just display a notice, and tidy off the ident_data.
-		if (u)
+		if (u && (fd_ref_table[ufd] == u))
 		{
 			u->Shrink("ident_data");
 			Srv->SendServ(u->fd,"NOTICE "+std::string(u->nick)+" :*** Could not find your ident, using "+std::string(u->ident)+" instead.");
@@ -80,7 +83,7 @@ class RFC1413 : public InspSocket
 								*j = '\0'; // truncate at invalid chars
 							if (*section)
 							{
-								if (u)
+								if (u && (fd_ref_table[ufd] == u))
 								{
 									strlcpy(u->ident,section,IDENTMAX);
 									Srv->Log(DEBUG,"IDENT SET: "+std::string(u->ident));
@@ -101,7 +104,24 @@ class RFC1413 : public InspSocket
 	{
 		// tidy up after ourselves when the connection is done.
 		// We receive this event straight after a timeout, too.
-		if (u)
+		//
+		//
+		// OK, now listen up. The weird looking check here is
+		// REQUIRED. Don't try and optimize it away.
+		//
+		// When a socket is closed, it is not immediately removed
+		// from the socket list, there can be a short delay
+		// before it is culled from the list. This means that
+		// without this check, there is a chance that a user
+		// may not exist when we come to ::Shrink them, which
+		// results in a segfault. The value of "u" may not
+		// always be NULL at this point, so, what we do is
+		// check against the fd_ref_table, to see if (1) the user
+		// exists, and (2) its the SAME user, on the same file
+		// descriptor that they were when the lookup began.
+		//
+		// Fixes issue reported by webs, 7 Jun 2006
+		if (u && (fd_ref_table[ufd] == u))
 		{
 			u->Shrink("ident_data");
 		}
@@ -109,7 +129,7 @@ class RFC1413 : public InspSocket
 
 	virtual void OnError(InspSocketError e)
 	{
-		if (u)
+		if (u && (fd_ref_table[ufd] == u))
 		{
 			u->Shrink("ident_data");
 		}
@@ -117,7 +137,7 @@ class RFC1413 : public InspSocket
 
 	virtual bool OnConnected()
 	{
-		if (u)
+		if (u && (fd_ref_table[ufd] == u))
 		{
 			uslen = sizeof(sock_us);
 			themlen = sizeof(sock_them);
