@@ -25,6 +25,8 @@ using namespace std;
 
 /* $ModDesc: Provides support for RFC 1413 ident lookups */
 
+extern userrec* fd_ref_table[MAX_DESCRIPTORS];
+
 // Version 1.5.0.0 - Updated to use InspSocket, faster and neater.
 
 class RFC1413 : public InspSocket
@@ -39,8 +41,9 @@ class RFC1413 : public InspSocket
  public:
 
 	userrec* u;		 // user record that the lookup is associated with
+	int ufd;
 
-	RFC1413(userrec* user, int maxtime, Server* S) : InspSocket((char*)inet_ntoa(user->ip4), 113, false, maxtime), Srv(S), u(user)
+	RFC1413(userrec* user, int maxtime, Server* S) : InspSocket((char*)inet_ntoa(user->ip4), 113, false, maxtime), Srv(S), u(user), ufd(user->fd)
 	{
 		Srv->Log(DEBUG,"Ident: associated.");
 	}
@@ -49,7 +52,7 @@ class RFC1413 : public InspSocket
 	{
 		// When we timeout, the connection failed within the allowed timeframe,
 		// so we just display a notice, and tidy off the ident_data.
-		if (u)
+		if (u && (fd_ref_table[ufd] == u))
 		{
 			u->Shrink("ident_data");
 			Srv->SendServ(u->fd,"NOTICE "+std::string(u->nick)+" :*** Could not find your ident, using "+std::string(u->ident)+" instead.");
@@ -80,7 +83,7 @@ class RFC1413 : public InspSocket
 								*j = '\0'; // truncate at invalid chars
 							if (*section)
 							{
-								if (u)
+								if (u && (fd_ref_table[ufd] == u))
 								{
 									strlcpy(u->ident,section,IDENTMAX);
 									Srv->Log(DEBUG,"IDENT SET: "+std::string(u->ident));
@@ -101,7 +104,8 @@ class RFC1413 : public InspSocket
 	{
 		// tidy up after ourselves when the connection is done.
 		// We receive this event straight after a timeout, too.
-		if (u)
+		// See trunk for an explaination of this if() statement.
+		if (u && (fd_ref_table[ufd] == u))
 		{
 			u->Shrink("ident_data");
 		}
@@ -109,7 +113,7 @@ class RFC1413 : public InspSocket
 
 	virtual void OnError(InspSocketError e)
 	{
-		if (u)
+		if (u && (fd_ref_table[ufd] == u))
 		{
 			u->Shrink("ident_data");
 		}
@@ -117,7 +121,7 @@ class RFC1413 : public InspSocket
 
 	virtual bool OnConnected()
 	{
-		if (u)
+		if (u && (fd_ref_table[ufd] == u))
 		{
 			uslen = sizeof(sock_us);
 			themlen = sizeof(sock_them);
