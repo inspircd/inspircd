@@ -1293,7 +1293,7 @@ char* chanmodes(chanrec *chan, bool showkey)
 
 	/* Null terminate scratch */
 	*offset = '\0';
-	strlcat(scratch,sparam,MAXMODES);
+	strlcat(scratch,sparam,MAXBUF);
 	return scratch;
 }
 
