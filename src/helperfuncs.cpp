@@ -1390,12 +1390,16 @@ int usercount(chanrec *c)
 }
 
 
-/* looks up a users password for their connection class (<ALLOW>/<DENY> tags) */
+/* looks up a users password for their connection class (<ALLOW>/<DENY> tags)
+ * NOTE: If the <ALLOW> or <DENY> tag specifies an ip, and this user resolves,
+ * then their ip will be taken as 'priority' anyway, so for example,
+ * <connect allow="127.0.0.1"> will match joe!bloggs@localhost
+ */
 ConnectClass GetClass(userrec *user)
 {
 	for (ClassVector::iterator i = Config->Classes.begin(); i != Config->Classes.end(); i++)
 	{
-		if (match(user->host,i->host.c_str()))
+		if ((match(inet_ntoa(user->ip4),i->host.c_str())) || (match(user->host,i->host.c_str())))
 		{
 			return *i;
 		}
