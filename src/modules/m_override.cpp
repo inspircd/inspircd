@@ -205,7 +205,7 @@ class ModuleOverride : public Module
                                         Srv->SendOpers("*** "+std::string(user->nick)+" used operoverride to bypass +k on "+std::string(cname));
 					return -1;
                                 }
-                                if ((chan->limit >= Srv->CountUsers(chan)) && (CanOverride(user,"LIMIT")))
+				if ((chan->limit > 0) && (Srv->CountUsers(chan) >= chan->limit) && (CanOverride(user,"LIMIT")))
                                 {
                                         if (NoisyOverride)
                                                 WriteChannelWithServ((char*)Srv->GetServerName().c_str(),chan,"NOTICE %s :%s passed through your channel limit",cname,user->nick);
