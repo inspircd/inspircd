@@ -25,7 +25,7 @@ Implemented commands:
 
 Module commands (non-rfc):
 
-	MODLIST   CHGHOST
+	MODULES   CHGHOST
 	GLOBOPS   HELPOP
 	KNOCK     OPERMOTD
 	QUOTE     SAJOIN
