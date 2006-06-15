@@ -39,7 +39,7 @@ Module commands (non-rfc):
 
 CHANNEL MODES:	     b,h**,i,k,l,m,n,o,p,s,t,v
 USER MODES:	        i,o,s,w
-MODULE CHAN MODES:  a,c,e,f,g,j,q,r,z,C,D,G,I,J,K,L,M,N,O,Q,R,S,T,V,Z
+MODULE CHAN MODES:  a,c,e,f,g,j,q,r,z,C,D,G,I,J,K,L,M,N,O,P,Q,R,S,T,V,Z
 MODULE USER MODES:  g,h,r,x,B,G,R,S,W
 
 	Documentation for all modes and commands may be found on the wiki:
@@ -59,10 +59,10 @@ The following features are supported:
 The following operating systems are supported:
 
 	* Linux		(i386, amd64, possibly others)
-				Tested on: RedHat, Slackware, Gentoo, Debian
+				Tested on: RedHat, Slackware, Gentoo, Debian, SuSE
 				(Also known to work on proper SELinux configurations.)
 	* FreeBSD 	(i386, possibly others)
-				Tested on: 4.10, 4.11, 5.0, 5.2.1, 5.3, 5.4
+				Tested on: 4.10, 4.11, 5.0, 5.2.1, 5.3, 5.4, 6.0, 6.1
 
 The following compilers are supported:
 
