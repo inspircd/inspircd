@@ -26,8 +26,8 @@ using namespace std;
 #include "m_sql.h"
 
 /* $ModDesc: SQL Service Provider module for all other m_sql* modules */
-/* $CompileFlags: -I/usr/local/include/mysql -I/usr/include/mysql -I/usr/local/include -I/usr/include */
-/* $LinkerFlags: -L/usr/local/lib/mysql -Wl,--rpath -Wl,/usr/local/lib/mysql -L/usr/lib/mysql -Wl,--rpath -Wl,/usr/lib/mysql -lmysqlclient */
+/* $CompileFlags: `mysql_config --include` */
+/* $LinkerFlags: `mysql_config --libs` `perl ../mysql_rpath.pl` */
 
 /** SQLConnection represents one mysql session.
  * Each session has its own persistent connection to the database.
