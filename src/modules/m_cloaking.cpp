@@ -33,6 +33,7 @@ using namespace std;
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
+#include <stdint.h>
 #include "users.h"
 #include "channels.h"
 #include "modules.h"
@@ -48,7 +49,7 @@ using namespace std;
 #define F4(x, y, z) (y ^ (x | ~z))
 #define MD5STEP(f,w,x,y,z,in,s) (w += f(x,y,z) + in, w = (w<<s | w>>(32-s)) + x)
 
-typedef unsigned int word32; /* NOT unsigned long. We don't support 16 bit platforms, anyway. */
+typedef uint32_t word32; /* NOT unsigned long. We don't support 16 bit platforms, anyway. */
 typedef unsigned char byte;
 
 struct xMD5Context {
@@ -63,10 +64,10 @@ class ModuleCloaking : public Module
 
 	Server *Srv;
 	std::string prefix;
-	int key1;
-	int key2;
-	int key3;
-	int key4;
+	word32 key1;
+	word32 key2;
+	word32 key3;
+	word32 key4;
 
 	void byteSwap(word32 *buf, unsigned words)
 	{
