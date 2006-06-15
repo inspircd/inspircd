@@ -48,7 +48,7 @@ using namespace std;
 #define F4(x, y, z) (y ^ (x | ~z))
 #define MD5STEP(f,w,x,y,z,in,s) (w += f(x,y,z) + in, w = (w<<s | w>>(32-s)) + x)
 
-typedef unsigned long word32;
+typedef unsigned int word32; /* NOT unsigned long. We don't support 16 bit platforms, anyway. */
 typedef unsigned char byte;
 
 struct xMD5Context {
