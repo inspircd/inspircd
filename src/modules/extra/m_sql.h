@@ -230,24 +230,32 @@ class SQLQuery
                 rowresult = NULL;
         }
 
-        static std::string Sanitise(const std::string& crap)
-        {
-                std::string temp = "";
-                for (unsigned int q = 0; q < crap.length(); q++)
-                {
-                        if (crap[q] == '\'')
+
+	static std::string Sanitise(const std::string& crap)
+	{
+		std::string temp = "";
+		for (unsigned int q = 0; q < crap.length(); q++)
+		{
+			if (crap[q] == '\'')
 			{
-				temp = temp + "\'";
+				temp += "\\'";
 			}
-                        else if (crap[q] == '"')
+			else if (crap[q] == '"')
 			{
-				temp = temp + "\\\"";
+				temp += "\\\"";
 			}
-                        else
-				temp = temp + crap[q];
-                }
-                return temp;
-        }
+			else if (crap[q] == '\\')
+			{
+				temp += "\\\\";
+			}
+			else
+			{
+				temp += crap[q];
+			}
+		}
+		return temp;
+	}
+
 };
 
 
