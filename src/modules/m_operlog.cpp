@@ -55,7 +55,7 @@ class ModuleOperLog : public Module
 		if (!validated)
 			return 0;
  
-		if (*user->oper)
+		if ((*user->oper) && (IS_LOCAL(user)) && (user->HasPermission(command)))
 		{
 			std::string plist = "";
 			for (int j = 0; j < pcnt; j++)
