@@ -197,18 +197,19 @@ class ModuleSSLOpenSSL : public Module
 		if(dhpfile == NULL)
 		{
 			log(DEFAULT, "m_ssl_openssl.so Couldn't open DH file %s: %s", dhfile.c_str(), strerror(errno));
+			throw ModuleException();
 		}
 		else
 		{
 			ret = PEM_read_DHparams(dhpfile, NULL, NULL, NULL);
+		
+			if(SSL_CTX_set_tmp_dh(ctx, ret) < 0)
+			{
+				log(DEFAULT, "m_ssl_openssl.so: Couldn't set DH parameters");
+			}
 		}
 		
 		fclose(dhpfile);
-    
-		if(SSL_CTX_set_tmp_dh(ctx, ret) < 0)
-		{
-			log(DEFAULT, "m_ssl_openssl.so: Couldn't set DH parameters");
-		}
 
 		DELETE(Conf);
 	}
