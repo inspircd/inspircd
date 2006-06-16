@@ -22,6 +22,7 @@ using namespace std;
 #include "message.h"
 #include "commands.h"
 #include "inspircd.h"
+#include "helperfuncs.h"
 
 /* $ModDesc: Provides the /check command to retrieve information on a user, channel, or IP address */
 
@@ -41,6 +42,10 @@ class cmd_check : public command_t
 		chanrec *targchan;
 		std::string checkstr;
 		std::string chliststr;
+
+		char timebuf[60];
+		struct tm *mytime;
+
 
 		checkstr = "304 " + std::string(user->nick) + " :CHECK";
 
@@ -88,6 +93,63 @@ class cmd_check : public command_t
 		else if (targchan)
 		{
 			/* /check on a channel */
+			time_t creation_time = targchan->created;
+			time_t topic_time = targchan->topicset;
+
+			mytime = gmtime(&creation_time);
+			strftime(timebuf, 59, "%Y/%m/%d - %H:%M:%S", mytime);
+			Srv->SendTo(NULL, user, checkstr + " created " + timebuf);
+
+			if (targchan->topic[0] != 0)
+			{
+				/* there is a topic, assume topic related information exists */
+				Srv->SendTo(NULL, user, checkstr + " topic " + targchan->topic);
+				Srv->SendTo(NULL, user, checkstr + " topic_setby " + targchan->setby);
+				mytime = gmtime(&topic_time);
+				strftime(timebuf, 59, "%Y/%m/%d - %H:%M:%S", mytime);
+				Srv->SendTo(NULL, user, checkstr + " topic_setat " + timebuf);
+			}
+
+			Srv->SendTo(NULL, user, checkstr + " modes " + chanmodes(targchan, true));
+			Srv->SendTo(NULL, user, checkstr + " membercount " + ConvToStr(targchan->GetUserCounter()));
+			
+			/* now the ugly bit, spool current members of a channel. :| */
+
+			CUList *ulist= targchan->GetUsers();
+
+			/* note that unlike /names, we do NOT check +i vs in the channel */
+			for (CUList::iterator i = ulist->begin(); i != ulist->end(); i++)
+			{
+				char list[MAXBUF];
+				char tmpbuf[MAXBUF];
+				char* ptr = list;
+				int flags = cflags(i->second, targchan);
+				/*
+				 * find how many connections from this user's IP -- unlike Asuka,
+				 * I define a clone as coming from the same host. --w00t
+				 */
+				sprintf(ptr, "%lu    ", FindMatchingGlobal(i->second));
+				
+				if (flags & UCMODE_OP)
+				{
+					strcat(ptr, "@");
+				}
+				
+				if (flags & UCMODE_HOP)
+				{
+					strcat(ptr, "%");
+				}
+				
+				if (flags & UCMODE_VOICE)
+				{
+					strcat(ptr, "+");
+				}
+				
+				sprintf(tmpbuf, "%s (%s@%s) %s ", i->second->nick, i->second->ident, i->second->dhost, i->second->fullname);
+				strcat(ptr, tmpbuf);
+				
+				Srv->SendTo(NULL, user, checkstr + " member " + ptr);
+			}
 		}
 		else
 		{
