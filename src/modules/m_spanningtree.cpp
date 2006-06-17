@@ -1582,7 +1582,9 @@ class TreeSocket : public InspSocket
 			{
 				std::deque<std::string> par;
 				par.push_back(params[1]);
-				DoOneToMany(u->nick,"NICK",par);
+				/* This is not required as one is sent in OnUserPostNick below
+				 */
+				//DoOneToMany(u->nick,"NICK",par);
 				Srv->ChangeUserNick(u,params[1]);
 				u->age = atoi(params[2].c_str());
 			}
