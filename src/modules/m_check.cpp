@@ -168,10 +168,10 @@ class cmd_check : public command_t
 				/* IP address */
 				for (user_hash::const_iterator a = clientlist.begin(); a != clientlist.end(); a++)
 				{
-					if (addr.sin_addr.s_addr == user->ip4.s_addr)
+					if (addr.sin_addr.s_addr == a->second->ip4.s_addr)
 					{
 						/* same IP. */
-						Srv->SendTo(NULL, user, checkstr + " match " + ConvToStr(++x) + " " + user->GetFullRealHost());
+						Srv->SendTo(NULL, user, checkstr + " match " + ConvToStr(++x) + " " + a->second->GetFullRealHost());
 					}
 				}
 			}
