@@ -1636,6 +1636,8 @@ class TreeSocket : public InspSocket
 			std::string reason = params[1];
 			params[1] = ":" + params[1];
 			DoOneToAllButSender(prefix,"KILL",params,sourceserv);
+			/* XXX - should we use a kill path here.. -- w00t */
+			WriteServ(who->fd, "KILL %s :%s!%s!%s (%s)", who->nick, Config->ServerName, u->dhost, u->nick, reason.c_str());
 			Srv->QuitUser(who,reason);
 		}
 		return true;
