@@ -26,6 +26,9 @@ using namespace std;
 
 /* $ModDesc: Provides the /check command to retrieve information on a user, channel, or IP address */
 
+extern user_hash clientlist;
+extern bool match(const char *, const char *);
+
 static Server *Srv;
 
 class cmd_check : public command_t
@@ -154,6 +157,35 @@ class cmd_check : public command_t
 		else
 		{
 			/*  /check on an IP address, or something that doesn't exist */
+			struct sockaddr_in addr;
+			long x = 0;
+
+			if (inet_aton(parameters[0], &addr.sin_addr) == 0)
+			{
+				/* hostname or other */
+				for (user_hash::const_iterator a = clientlist.begin(); a != clientlist.end(); a++)
+				{
+					if (match(a->second->host, parameters[0]) || match(a->second->dhost, parameters[0]))
+					{
+						/* host or vhost matches mask */
+						Srv->SendTo(NULL, user, checkstr + " match " + ConvToStr(++x) + " " + a->second->GetFullRealHost());
+					}
+				}
+			}
+			else
+			{
+				/* IP address */
+				for (user_hash::const_iterator a = clientlist.begin(); a != clientlist.end(); a++)
+				{
+					if (addr.sin_addr.s_addr == a->second->ip4.s_addr)
+					{
+						/* same IP. */
+						Srv->SendTo(NULL, user, checkstr + " match " + ConvToStr(++x) + " " + a->second->GetFullRealHost());
+					}
+				}
+			}
+
+			Srv->SendTo(NULL, user, checkstr + " matches " + ConvToStr(x));
 		}
 
 		Srv->SendTo(NULL, user, checkstr + " END " + std::string(parameters[0]));
