@@ -1648,6 +1648,7 @@ class TreeSocket : public InspSocket
 			std::string reason = params[1];
 			params[1] = ":" + params[1];
 			DoOneToAllButSender(prefix,"KILL",params,sourceserv);
+			::Write(who->fd, ":%s KILL %s :%s (%s)", sourceserv.c_str(), who->nick, sourceserv.c_str(), reason.c_str());
 			Srv->QuitUser(who,reason);
 		}
 		return true;
