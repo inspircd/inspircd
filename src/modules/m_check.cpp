@@ -27,6 +27,7 @@ using namespace std;
 /* $ModDesc: Provides the /check command to retrieve information on a user, channel, or IP address */
 
 extern user_hash clientlist;
+extern bool match(const char *, const char *);
 
 static Server *Srv;
 
@@ -162,6 +163,14 @@ class cmd_check : public command_t
 			if (inet_aton(parameters[0], &addr.sin_addr) == 0)
 			{
 				/* hostname or other */
+				for (user_hash::const_iterator a = clientlist.begin(); a != clientlist.end(); a++)
+				{
+					if (match(a->second->host, parameters[0]) || match(a->second->dhost, parameters[0]))
+					{
+						/* host or vhost matches mask */
+						Srv->SendTo(NULL, user, checkstr + " match " + ConvToStr(++x) + " " + a->second->GetFullRealHost());
+					}
+				}
 			}
 			else
 			{
