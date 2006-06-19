@@ -1,16 +1,16 @@
-/*       +------------------------------------+
- *       | Inspire Internet Relay Chat Daemon |
- *       +------------------------------------+
+/*   +------------------------------------+
+ *   | Inspire Internet Relay Chat Daemon |
+ *   +------------------------------------+
  *
  *  InspIRCd is copyright (C) 2002-2006 ChatSpike-Dev.
- *                       E-mail:
- *                <brain@chatspike.net>
- *           	  <Craig@chatspike.net>
+ *   E-mail:
+ *<brain@chatspike.net>
+ *   	  <Craig@chatspike.net>
  *						<omster@gmail.com>
- *     
+ * 
  * Written by Craig Edwards, Craig McLure, and others.
  * This program is free but copyrighted software; see
- *            the file COPYING for details.
+ *the file COPYING for details.
  *
  * ---------------------------------------------------
  */
@@ -229,13 +229,29 @@ bool CBanComp(const CBan &ban1, const CBan &ban2)
 
 void ExpireBans()
 {
-	while(cbans.size() && ((cbans.begin()->set_on + cbans.begin()->length) <= TIME))
+	bool go_again = true;
+
+	while (go_again)
 	{
-		cbanlist::iterator iter = cbans.begin();
-		
-		log(DEBUG, "m_cban.so: Ban on %s expired, removing...", iter->chname.c_str());
-		WriteOpers("*** %li second CBAN on %s (%s) set %u seconds ago expired", iter->length, iter->chname.c_str(), iter->reason.c_str(), TIME - iter->set_on);
-		cbans.erase(iter);
+		go_again = false;
+
+		for (cbanlist::iterator iter = cbans.begin(); iter != cbans.end(); iter++)
+		{
+			/* 0 == permanent, don't mess with them! -- w00t */
+			if (iter->length != 0)
+			{
+				if (iter->set_on + iter->length <= TIME)
+				{
+					log(DEBUG, "m_cban.so: Ban on %s expired, removing...", iter->chname.c_str());
+					WriteOpers("*** %li second CBAN on %s (%s) set %u seconds ago expired", iter->length, iter->chname.c_str(), iter->reason.c_str(), TIME - iter->set_on);
+					cbans.erase(iter);
+					go_again = true;
+				}
+			}
+
+			if (go_again == true)
+				break;
+		}
 	}
 }
 
