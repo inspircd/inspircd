@@ -229,7 +229,7 @@ bool CBanComp(const CBan &ban1, const CBan &ban2)
 
 void ExpireBans()
 {
-	while(cbans.size() && ((cbans.begin()->set_on + cbans.begin()->length) <= TIME))
+	while(cbans.size() && (cbans.begin()->length != 0) && ((cbans.begin()->set_on + cbans.begin()->length) <= TIME))
 	{
 		cbanlist::iterator iter = cbans.begin();
 		
