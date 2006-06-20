@@ -190,7 +190,7 @@ class Request : public ModuleMessage
  protected:
 	/** This member holds a pointer to arbitary data set by the emitter of the message
 	 */
-	char* data;
+	void* data;
 	/** This is a pointer to the sender of the message, which can be used to
 	 * directly trigger events, or to create a reply.
 	 */
@@ -201,7 +201,7 @@ class Request : public ModuleMessage
  public:
 	/** Create a new Request
 	 */
-	Request(char* anydata, Module* src, Module* dst);
+	Request(void* anydata, Module* src, Module* dst);
 	/** Fetch the Request data
 	 */
 	char* GetData();
@@ -230,7 +230,7 @@ class Event : public ModuleMessage
  protected:
 	/** This member holds a pointer to arbitary data set by the emitter of the message
 	 */
-	char* data;
+	void* data;
 	/** This is a pointer to the sender of the message, which can be used to
 	 * directly trigger events, or to create a reply.
 	 */
@@ -243,7 +243,7 @@ class Event : public ModuleMessage
  public:
 	/** Create a new Event
 	 */
-	Event(char* anydata, Module* src, const std::string &eventid);
+	Event(void* anydata, Module* src, const std::string &eventid);
 	/** Get the Event data
 	 */
 	char* GetData();
