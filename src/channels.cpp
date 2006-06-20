@@ -603,6 +603,11 @@ void kick_channel(userrec *src,userrec *user, chanrec *Ptr, char* reason)
 			WriteServ(src->fd,"441 %s %s %s :They are not on that channel",src->nick, user->nick, Ptr->name);
 			return;
 		}
+                if ((is_uline(user->server)) && (!is_uline(src->server)))
+		{
+			WriteServ(src->fd,"482 %s %s :Only a u-line may kick a u-line from a channel.",src->nick, Ptr->name);
+			return;
+		}
 		int MOD_RESULT = 0;
 
 		if (!is_uline(src->server))
