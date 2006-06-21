@@ -78,6 +78,9 @@ enum TargetTypeFlags {
 class Server;
 class ServerConfig;
 
+// Forward-delacare module for ModuleMessage etc
+class Module;
+
 /** Low level definition of a FileReader classes file cache area
  */
 typedef std::deque<std::string> file_cache;
@@ -87,6 +90,10 @@ typedef file_cache string_list;
  */
 typedef std::deque<userrec*> chanuserlist;
 
+
+/** Holds a list of 'published features' for modules.
+ */
+typedef std::map<std::string,Module*> featurelist;
 
 /**
  * This #define allows us to call a method in all
@@ -163,9 +170,6 @@ class Admin : public classbase
 	 const std::string Name, Email, Nick;
 	 Admin(std::string name, std::string email, std::string nick);
 };
-
-// Forward-delacare module for ModuleMessage etc
-class Module;
 
 /** The ModuleMessage class is the base class of Request and Event
  * This class is used to represent a basic data structure which is passed
@@ -1301,6 +1305,43 @@ class Server : public classbase
 	/** Returns the version string of this server
 	 */
 	std::string GetVersion();
+
+	/** Publish a 'feature'.
+	 * There are two ways for a module to find another module it depends on.
+	 * Either by name, using Server::FindModule, or by feature, using this
+	 * function. A feature is an arbitary string which identifies something this
+	 * module can do. For example, if your module provides SSL support, but other
+	 * modules provide SSL support too, all the modules supporting SSL should
+	 * publish an identical 'SSL' feature. This way, any module requiring use
+	 * of SSL functions can just look up the 'SSL' feature using FindFeature,
+	 * then use the module pointer they are given.
+	 * @param FeatureName The case sensitive feature name to make available
+	 * @param Mod a pointer to your module class
+	 * @returns True on success, false if the feature is already published by
+	 * another module.
+	 */
+	bool PublishFeature(std::string FeatureName, Module* Mod);
+
+	/** Unpublish a 'feature'.
+	 * When your module exits, it must call this method for every feature it
+	 * is providing so that the feature table is cleaned up.
+	 * @param FeatureName the feature to remove
+	 */
+	bool UnpublishFeature(std::string FeatureName);
+
+	/** Find a 'feature'.
+	 * There are two ways for a module to find another module it depends on.
+	 * Either by name, using Server::FindModule, or by feature, using the
+	 * Server::PublishFeature method. A feature is an arbitary string which
+	 * identifies something this module can do. For example, if your module
+	 * provides SSL support, but other modules provide SSL support too, all
+	 * the modules supporting SSL should publish an identical 'SSL' feature.
+	 * To find a module capable of providing the feature you want, simply
+	 * call this method with the feature name you are looking for.
+	 * @param FeatureName The feature name you wish to obtain the module for
+	 * @returns A pointer to a valid module class on success, NULL on failure.
+	 */
+	Module* FindFeature(std::string FeatureName);
 
 	/** Writes a log string.
 	 * This method writes a line of text to the log. If the level given is lower than the

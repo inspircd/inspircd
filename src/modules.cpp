@@ -60,6 +60,7 @@ extern command_table cmdlist;
 class Server;
 
 ExtModeList EMode;
+featurelist Features;
 
 // returns true if an extended mode character is in use
 bool ModeDefined(char modechar, int type)
@@ -348,6 +349,36 @@ long Server::PriorityBefore(const std::string &modulename)
 		}
 	}
 	return PRIORITY_DONTCARE;
+}
+
+bool Server::PublishFeature(std::string FeatureName, Module* Mod)
+{
+	if (Features.find(FeatureName) == Features.end())
+	{
+		Features[FeatureName] = Mod;
+		return true;
+	}
+	return false;
+}
+
+bool Server::UnpublishFeature(std::string FeatureName)
+{
+	featurelist::iterator iter = Features.find(FeatureName);
+	
+	if (iter == Features.end())
+		return false;
+
+	Features.erase(iter);
+}
+
+Module* Server::FindFeature(std::string FeatureName)
+{
+	featurelist::iterator iter = Features.find(FeatureName);
+
+	if (iter == Features.end())
+		return NULL;
+
+	return iter->second;
 }
 
 void Server::RehashServer()
