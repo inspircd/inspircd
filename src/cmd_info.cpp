@@ -52,6 +52,7 @@ void cmd_info::Handle (char **parameters, int pcnt, userrec *user)
 	WriteServ(user->fd, "371 %s :Contributors:", user->nick);
 	WriteServ(user->fd, "371 %s :        typobox43", user->nick);
 	WriteServ(user->fd, "371 %s :        Jazza", user->nick);
+	WriteServ(user->fd, "371 %s :        BuildSmart (initial Mac OS X patch)", user->nick);
 	WriteServ(user->fd, "371 %s : ", user->nick);
 	WriteServ(user->fd, "371 %s :Testers:", user->nick);
 	WriteServ(user->fd, "371 %s :        CC", user->nick);

@@ -52,6 +52,7 @@ $config{MAX_TOPIC}          = "307";						# max topic size
 $config{MAX_KICK}           = "255";						# max kick message size
 $config{MAX_GECOS}          = "128";						# max GECOS size
 $config{MAX_AWAY}           = "200";						# max AWAY size
+$config{IS_DARWIN} = "NO";								# Darwin Handler
 
 $no_svn = 0;
 
@@ -208,6 +209,10 @@ print "no\n" if $has_epoll == 0;
 
 if (($config{OSNAME} =~ /CYGWIN/) || ($config{OSNAME} eq "CYG-STATIC")) {
 	$config{HAS_STRLCPY} = "true";
+}
+
+if ($config{OSNAME} =~ /Darwin/) {
+	$config{IS_DARWIN} = "YES";
 }
 
 $config{HAS_EPOLL} = $has_epoll;
@@ -1042,6 +1047,7 @@ EOF
 			$tmp =~ s/\@MODULES\@/$modules/;
 			$tmp =~ s/\@EXECUTABLE\@/$exe/;
 			$tmp =~ s/\@MAKEORDER\@/$config{MAKEORDER}/;
+			$tmp =~ s/\@IS_DARWIN\@/$config{IS_DARWIN}/;
 			$tmp =~ s/\@STATICLIBS\@/$config{STATICLIBS}/;
 
 			print "Writing \033[1;32m$file\033[0m\n";
@@ -1073,9 +1079,16 @@ sub getcompilerflags {
 	my ($file) = @_;
 	open(FLAGS, $file);
 	while (<FLAGS>) {
-	if ($_ =~ /^\/\* \$CompileFlags: (.+) \*\/$/) {
-		close(FLAGS);
-			return $1;
+		if ($config{OSNAME} =~ /Darwin/) {
+			if ($_ =~ /^\/\* \$MacCompileFlags: (.+) \*\/$/) {
+				close(FLAGS);
+				return $1;
+			}
+		} else {
+			if ($_ =~ /^\/\* \$CompileFlags: (.+) \*\/$/) {
+				close(FLAGS);
+				return $1;
+			}
 		}
 	}
 	close(FLAGS);
@@ -1086,9 +1099,16 @@ sub getlinkerflags {
 	my ($file) = @_;
 	open(FLAGS, $file);
 	while (<FLAGS>) {
-		if ($_ =~ /^\/\* \$LinkerFlags: (.+) \*\/$/) {
-			close(FLAGS);
-			return $1;
+		if ($config{OSNAME} =~ /Darwin/) {
+			if ($_ =~ /^\/\* \$MacLinkerFlags: (.+) \*\/$/) {
+				close(FLAGS);
+				return $1;
+			}
+		} else {
+			if ($_ =~ /^\/\* \$LinkerFlags: (.+) \*\/$/) {
+				close(FLAGS);
+				return $1;
+			}
 		}
 	}
 	close(FLAGS);
@@ -1262,9 +1282,20 @@ EOF
 	print FILEHANDLE <<EOCHEESE;
 m_$i.so: m_$i.cpp ../../include/modules.h ../../include/users.h ../../include/channels.h ../../include/base.h ../../include/inspircd_config.h ../../include/inspircd.h ../../include/inspircd_io.h
 	\$(CC) -pipe -I../../include \$(FLAGS) $cmflags -export-dynamic -c m_$i.cpp
+EOCHEESE
+
+	if ($config{OSNAME} =~ /Darwin/) {
+	print FILEHANDLE <<EOCHEESE;
+	\$(CC) -bundle -flat_namespace -undefined suppress $liflags -o m_$i.so m_$i.o $extra
+
+EOCHEESE
+	} else {
+	print FILEHANDLE <<EOCHEESE;
 	\$(CC) \$(FLAGS) -shared $liflags -o m_$i.so m_$i.o $extra
 
 EOCHEESE
+	}
+
 	$crud = $crud . "	\@install -v -m 0700 m_$i.so \$(MODPATH)\n";
 	###
 	# End Write Entry to the MakeFile
@@ -1447,6 +1478,110 @@ CXXFLAGS = -I../include \${FLAGS}
 
 all: libIRCDtimer.so libIRCDaes.so libIRCDcull_list.so libIRCDuserprocess.so libIRCDsocketengine.so libIRCDsocket.so libIRCDhash.so libIRCDchannels.so libIRCDmode.so libIRCDxline.so libIRCDstring.so libIRCDasyncdns.so libIRCDbase.so libIRCDio.so libIRCDmessage.so $cmdobjs libIRCDcommands.so libIRCDdnsqueue.so libIRCDdynamic.so libIRCDusers.so libIRCDmodules.so libIRCDwildcard.so libIRCDhelper.so libIRCDcommand_parse.so inspircd
 
+EOM
+
+	if ($config{OSNAME} =~ /Darwin/) {
+	print FH <<EOM;
+
+inspircd:
+	\$(CC) -I../include  \$(FLAGS) -L. inspircd.cpp -o inspircd \$(LDLIBS) commands.o socketengine.o command_parse.o cull_list.o userprocess.o hashcomp.o helperfuncs.o channels.o mode.o xline.o inspstring.o dns.o base.o inspircd_io.o message.o dnsqueue.o dynamic.o users.o modules.o wildcard.o socket.o aes.o timer.o $cmdobjs
+
+libIRCDsocketengine.so:
+	\$(CC) -pipe -I../include \$(FLAGS) -export-dynamic -c socketengine.cpp
+	\$(CC)  -dynamiclib -flat_namespace -undefined suppress -o libIRCDsocketengine.so -install_name $config{LIBRARY_DIR}/libIRCDsocketengine.so socketengine.o
+
+libIRCDcommand_parse.so:
+	\$(CC) -pipe -I../include \$(FLAGS) -export-dynamic -c command_parse.cpp
+	\$(CC)  -dynamiclib -flat_namespace -undefined suppress -o libIRCDcommand_parse.so -install_name $config{LIBRARY_DIR}/libIRCDcommand_parse.so command_parse.o
+
+libIRCDcull_list.so:
+	\$(CC) -pipe -I../include \$(FLAGS) -export-dynamic -c cull_list.cpp
+	\$(CC)  -dynamiclib -flat_namespace -undefined suppress -o libIRCDcull_list.so -install_name $config{LIBRARY_DIR}/libIRCDcull_list.so cull_list.o
+
+libIRCDuserprocess.so:
+	\$(CC) -pipe -I../include \$(FLAGS) -export-dynamic -c userprocess.cpp
+	\$(CC)  -dynamiclib -flat_namespace -undefined suppress -o libIRCDuserprocess.so -install_name $config{LIBRARY_DIR}/libIRCDuserprocess.so userprocess.o
+
+libIRCDhash.so:
+	\$(CC) -pipe -I../include \$(FLAGS) -export-dynamic -c hashcomp.cpp
+	\$(CC)  -dynamiclib -flat_namespace -undefined suppress -o libIRCDhash.so -install_name $config{LIBRARY_DIR}/libIRCDhash.so hashcomp.o
+
+libIRCDhelper.so:
+	\$(CC) -pipe -I../include \$(FLAGS) -export-dynamic -c helperfuncs.cpp
+	\$(CC)  -dynamiclib -flat_namespace -undefined suppress -o libIRCDhelper.so -install_name $config{LIBRARY_DIR}/libIRCDhelper.so helperfuncs.o
+
+libIRCDchannels.so:
+	\$(CC) -pipe -I../include \$(FLAGS) -export-dynamic -c channels.cpp
+	\$(CC)  -dynamiclib -flat_namespace -undefined suppress -o libIRCDchannels.so -install_name $config{LIBRARY_DIR}/libIRCDchannels.so channels.o
+
+libIRCDmode.so:
+	\$(CC) -pipe -I../include \$(FLAGS) -export-dynamic -c mode.cpp
+	\$(CC)  -dynamiclib -flat_namespace -undefined suppress -o libIRCDmode.so -install_name $config{LIBRARY_DIR}/libIRCDmode.so mode.o
+
+libIRCDxline.so:
+	\$(CC) -pipe -I../include \$(FLAGS) -export-dynamic -c xline.cpp
+	\$(CC)  -dynamiclib -flat_namespace -undefined suppress -o libIRCDxline.so -install_name $config{LIBRARY_DIR}/libIRCDxline.so xline.o
+
+libIRCDstring.so:
+	\$(CC) -pipe -I../include \$(FLAGS) -export-dynamic -c inspstring.cpp
+	\$(CC)  -dynamiclib -flat_namespace -undefined suppress -o libIRCDstring.so -install_name $config{LIBRARY_DIR}/libIRCDstring.so inspstring.o
+
+libIRCDasyncdns.so:
+	\$(CC) -pipe -I../include \$(FLAGS) -export-dynamic -c dns.cpp
+	\$(CC)  -dynamiclib -flat_namespace -undefined suppress -o libIRCDasyncdns.so -install_name $config{LIBRARY_DIR}/libIRCDasyncdns.so dns.o
+
+libIRCDbase.so:
+	\$(CC) -pipe -I../include \$(FLAGS) -export-dynamic -c base.cpp
+	\$(CC)  -dynamiclib -flat_namespace -undefined suppress -o libIRCDbase.so -install_name $config{LIBRARY_DIR}/libIRCDbase.so base.o
+
+libIRCDio.so:
+	\$(CC) -pipe -I../include \$(FLAGS) -export-dynamic -c inspircd_io.cpp
+	\$(CC)  -dynamiclib -flat_namespace -undefined suppress -o libIRCDio.so -install_name $config{LIBRARY_DIR}/libIRCDio.so inspircd_io.o
+
+libIRCDmessage.so:
+	\$(CC) -pipe -I../include \$(FLAGS) -export-dynamic -c message.cpp
+	\$(CC)  -dynamiclib -flat_namespace -undefined suppress -o libIRCDmessage.so -install_name $config{LIBRARY_DIR}/libIRCDmessage.so message.o
+
+libIRCDcommands.so:
+	\$(CC) -pipe -I../include \$(FLAGS) -export-dynamic -c commands.cpp
+	\$(CC)  -dynamiclib -flat_namespace -undefined suppress -o libIRCDcommands.so -install_name $config{LIBRARY_DIR}/libIRCDcommands.so commands.o $cmdobjs
+
+libIRCDdnsqueue.so:
+	\$(CC) -pipe -I../include \$(FLAGS) -export-dynamic -c dnsqueue.cpp
+	\$(CC)  -dynamiclib -flat_namespace -undefined suppress -o libIRCDdnsqueue.so -install_name $config{LIBRARY_DIR}/libIRCDdnsqueue.so dnsqueue.o
+
+libIRCDdynamic.so:
+	\$(CC) -pipe -I../include \$(FLAGS) -export-dynamic -c dynamic.cpp
+	\$(CC)  -dynamiclib -flat_namespace -undefined suppress -o libIRCDdynamic.so -install_name $config{LIBRARY_DIR}/libIRCDdynamic.so dynamic.o
+
+libIRCDusers.so:
+	\$(CC) -pipe -I../include \$(FLAGS) -export-dynamic -c users.cpp
+	\$(CC)  -dynamiclib -flat_namespace -undefined suppress -o libIRCDusers.so -install_name $config{LIBRARY_DIR}/libIRCDusers.so users.o
+
+libIRCDmodules.so:
+	\$(CC) -pipe -I../include \$(FLAGS) -export-dynamic -c modules.cpp
+	\$(CC)  -dynamiclib -flat_namespace -undefined suppress -o libIRCDmodules.so -install_name $config{LIBRARY_DIR}/libIRCDmodules.so modules.o
+
+libIRCDwildcard.so:
+	\$(CC) -pipe -I../include \$(FLAGS) -export-dynamic -c wildcard.cpp
+	\$(CC)  -dynamiclib -flat_namespace -undefined suppress -o libIRCDwildcard.so -install_name $config{LIBRARY_DIR}/libIRCDwildcard.so wildcard.o
+
+libIRCDsocket.so:
+	\$(CC) -pipe -I../include \$(FLAGS) -export-dynamic -c socket.cpp
+	\$(CC)  -dynamiclib -flat_namespace -undefined suppress -o libIRCDsocket.so -install_name $config{LIBRARY_DIR}/libIRCDsocket.so socket.o
+
+libIRCDaes.so:
+	\$(CC) -pipe -I../include \$(FLAGS) -export-dynamic -c aes.cpp
+	\$(CC)  -dynamiclib -flat_namespace -undefined suppress -o libIRCDaes.so -install_name $config{LIBRARY_DIR}/libIRCDaes.so aes.o
+
+libIRCDtimer.so:
+	\$(CC) -pipe -I../include \$(FLAGS) -export-dynamic -c timer.cpp
+	\$(CC)  -dynamiclib -flat_namespace -undefined suppress -o libIRCDtimer.so -install_name $config{LIBRARY_DIR}/libIRCDtimer.so timer.o
+
+EOM
+	} else {
+	print FH <<EOM;
+
 inspircd: inspircd.cpp ../include/base.h ../include/channels.h ../include/inspircd.h ../include/channels.h ../include/globals.h ../include/inspircd_config.h ../include/socket.h libIRCDtimer.so libIRCDaes.so libIRCDcull_list.so libIRCDuserprocess.so libIRCDsocketengine.so libIRCDsocket.so libIRCDhash.so libIRCDchannels.so libIRCDmode.so libIRCDxline.so libIRCDstring.so libIRCDasyncdns.so libIRCDbase.so libIRCDmessage.so $cmdobjs libIRCDcommands.so libIRCDdnsqueue.so libIRCDdynamic.so libIRCDusers.so libIRCDmodules.so libIRCDwildcard.so libIRCDhelper.so libIRCDcommand_parse.so
 	\$(CC) -I../include -Wl,--rpath -Wl,$config{LIBRARY_DIR} \$(FLAGS) -rdynamic -L. inspircd.cpp -o inspircd \$(LDLIBS) libIRCDchannels.so libIRCDmode.so libIRCDxline.so libIRCDstring.so libIRCDasyncdns.so libIRCDbase.so libIRCDio.so libIRCDmessage.so libIRCDcommands.so libIRCDdnsqueue.so libIRCDdynamic.so libIRCDusers.so libIRCDmodules.so libIRCDwildcard.so libIRCDhelper.so libIRCDhash.so libIRCDsocket.so libIRCDsocketengine.so libIRCDuserprocess.so libIRCDcull_list.so libIRCDcommand_parse.so libIRCDaes.so libIRCDtimer.so
 
@@ -1543,6 +1678,7 @@ libIRCDtimer.so: timer.cpp ../include/base.h ../include/inspircd.h ../include/gl
 	\$(CC) -Wl,--rpath -Wl,$config{LIBRARY_DIR} -shared -o libIRCDtimer.so timer.o
 
 EOM
+}
 	foreach my $cmd (@cmdlist) {
 		print FH <<ITEM;
 cmd_$cmd.o: cmd_$cmd.cpp ../include/base.h ../include/modules.h ../include/inspircd.h ../include/channels.h ../include/users.h ../include/globals.h ../include/inspircd_config.h ../include/cmd_$cmd.h

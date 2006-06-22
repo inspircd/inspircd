@@ -28,6 +28,8 @@ using namespace std;
 /* $ModDesc: SQL Service Provider module for all other m_sql* modules */
 /* $CompileFlags: `mysql_config --include` */
 /* $LinkerFlags: `mysql_config --libs` `perl ../mysql_rpath.pl` */
+/* $MacCompileFlags: -I/usr/local/include/mysql -I/usr/include/mysql -I/usr/local/include -I/usr/include */
+/* $MacLinkerFlags: -L/usr/local/lib/mysql -L/usr/lib/mysql -lmysqlclient -lz */
 
 /** SQLConnection represents one mysql session.
  * Each session has its own persistent connection to the database.
