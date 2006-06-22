@@ -2687,6 +2687,26 @@ class TreeSocket : public InspSocket
 
 	virtual int OnIncomingConnection(int newsock, char* ip)
 	{
+		/* To prevent anyone from attempting to flood opers/DDoS by connecting to the server port,
+		 * or discovering if something even is the server port, we don't allow connections from any
+		 * IPs for which we don't have a link block. -Special
+		 */
+		bool found = false;
+		vector<Link>::iterator i;
+		for (i = LinkBlocks.begin(); i != LinkBlocks.end(); i++)
+		{
+			if (i->IPAddr == ip)
+			{
+				found = true;
+				break;
+			}
+		}
+		if (!found)
+		{
+			WriteOpers("Server connection from %s denied (no link blocks with that IP address)", ip);
+			close(newsock);
+			return false;
+		}
 		TreeSocket* s = new TreeSocket(newsock, ip);
 		Srv->AddSocket(s);
 		return true;
