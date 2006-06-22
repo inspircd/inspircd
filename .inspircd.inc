@@ -57,6 +57,7 @@ if ($arg eq "cron") {
 
 if ($arg eq "restart") {
 	stop();
+	unlink($pidfile) if (-e $pidfile);
 	start();
 	# kthxbye();
 	exit();
