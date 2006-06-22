@@ -47,6 +47,7 @@ void cmd_info::Handle (char **parameters, int pcnt, userrec *user)
 	WriteServ(user->fd, "371 %s :        Craig McLure", user->nick);
 	WriteServ(user->fd, "371 %s :        w00t", user->nick);
 	WriteServ(user->fd, "371 %s :        Om", user->nick);
+	WriteServ(user->fd, "371 %s :        Special", user->nick);
 	WriteServ(user->fd, "371 %s : ", user->nick);
 	WriteServ(user->fd, "371 %s :Contributors:", user->nick);
 	WriteServ(user->fd, "371 %s :        typobox43", user->nick);
