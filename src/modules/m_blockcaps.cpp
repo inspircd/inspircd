@@ -51,7 +51,7 @@ public:
 
 			if (c->IsModeSet('P'))
 			{
-				char* i = (char*)text.c_str();
+				const char* i = text.c_str();
 				for (; *i; i++)
 				{
 					if (((*i != ' ') && (*i != '\t')) && ((*i < 'A') || (*i > 'Z')))
