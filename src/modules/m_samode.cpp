@@ -51,16 +51,16 @@ class cmd_samode : public command_t
 		/*
 		 * Handles an SAMODE request. Notifies all +s users.
 	 	 */
-		int n=0;
 		std::string result;
 		Srv->Log(DEBUG,"SAMODE: Being handled");
 		Srv->SendMode(parameters,pcnt,user);
 		Srv->Log(DEBUG,"SAMODE: Modechange handled");
-		result = std::string(user->nick) + std::string(" used SAMODE ");
-	  	while (n<pcnt)
+		result = std::string(user->nick);
+		result.append(" used SAMODE");
+	  	for (int n = 0; n < pcnt; n++)
 		{
-			result=result + std::string(" ") + std::string(parameters[n]);
-			n++;
+			result.append(" ");
+			result.append(parameters[n]);
 		}
 		Srv->SendOpers(result);
 	}
