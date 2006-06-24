@@ -76,6 +76,12 @@ class cmd_remove : public command_t
 			return;
 		}
 
+		if (!channel->HasUser(target))
+		{
+			Srv->SendTo(NULL,user,"NOTICE "+std::string(user->nick)+" :*** The user "+target->nick+" is not on channel "+channel->name);
+			return;
+		}	
+
 		/* And see if the person calling the command has access to use it on the channel */
 		uprivs = Srv->ChanMode(user, channel);
 		
@@ -115,7 +121,7 @@ class cmd_remove : public command_t
 		if (ulevel > 1)
 		{
 			/* For now, we'll let everyone remove their level and below, eg ops can remove ops, halfops, voices, and those with no mode (no moders actually are set to 1) */
-			if(ulevel >= tlevel && tlevel != 5)
+			if ((ulevel >= tlevel && tlevel != 5) && (!Srv->IsUlined(target->server)))
 			{
 				Srv->PartUserFromChannel(target, channel->name, reason);
 				WriteServ(user->fd, "NOTICE %s :%s removed %s from the channel", channel->name, user->nick, target->nick);
