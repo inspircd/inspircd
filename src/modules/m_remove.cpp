@@ -89,6 +89,12 @@ class cmd_remove : public command_t
 		/* If the target nick exists... */
 		if (target && channel)
 		{
+			if (!channel->HasUser(target))
+			{
+				Srv->SendTo(NULL,user,"NOTICE "+std::string(user->nick)+" :*** The user "+target->nick+" is not on channel "+channel->name);
+				return;
+			}
+
 			for (unsigned int x = 0; x < strlen(parameters[1]); x++)
 			{
 					if ((parameters[1][0] != '#') || (parameters[1][x] == ' ') || (parameters[1][x] == ','))
@@ -118,7 +124,7 @@ class cmd_remove : public command_t
 			if(ulevel > 1)
 			{
 				/* For now, we'll let everyone remove their level and below, eg ops can remove ops, halfops, voices, and those with no mode (no moders actually are set to 1) */
-				if(ulevel >= tlevel && tlevel != 5)
+				if ((ulevel >= tlevel && tlevel != 5) && (!Srv->IsUlined(target->server)))
 				{
 					Srv->PartUserFromChannel(target,std::string(parameters[1]), "Removed by "+std::string(user->nick)+":"+result);
 					Srv->SendTo(NULL,user,"NOTICE "+std::string(channel->name)+" : "+std::string(user->nick)+" removed "+std::string(target->nick)+ " from the channel");
@@ -126,7 +132,7 @@ class cmd_remove : public command_t
 				}
 				else
 				{
-					Srv->SendTo(NULL,user,"NOTICE "+std::string(user->nick)+" :*** You do not have access to remove "+std::string(target->nick)+" from the "+std::string(channel->name));
+					Srv->SendTo(NULL,user,"NOTICE "+std::string(user->nick)+" :*** You do not have access to remove "+std::string(target->nick)+" from "+std::string(channel->name));
 				}
 			}
 			else
