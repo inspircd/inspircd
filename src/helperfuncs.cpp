@@ -155,11 +155,11 @@ void Write_NoFormat(int sock, const char *text)
 	if ((sock < 0) || (!text) || (sock > MAX_DESCRIPTORS))
 		return;
 
-	bytes = snprintf(tb,MAXBUF,"%s\r\n",text);
-	chop(tb);
-
 	if (fd_ref_table[sock])
 	{
+		bytes = snprintf(tb,MAXBUF,"%s\r\n",text);
+		chop(tb);
+
 		if (Config->GetIOHook(fd_ref_table[sock]->port))
 		{
 			try
@@ -200,14 +200,15 @@ void Write(int sock, char *text, ...)
 		return;
 	}
 
-	va_start(argsPtr, text);
-	vsnprintf(textbuffer, MAXBUF, text, argsPtr);
-	va_end(argsPtr);
-	bytes = snprintf(tb,MAXBUF,"%s\r\n",textbuffer);
-	chop(tb);
-
 	if (fd_ref_table[sock])
 	{
+
+		va_start(argsPtr, text);
+		vsnprintf(textbuffer, MAXBUF, text, argsPtr);
+		va_end(argsPtr);
+		bytes = snprintf(tb,MAXBUF,"%s\r\n",textbuffer);
+		chop(tb);
+
 		if (Config->GetIOHook(fd_ref_table[sock]->port))
 		{
 			try
@@ -240,11 +241,11 @@ void WriteServ_NoFormat(int sock, const char* text)
 	if ((sock < 0) || (!text) || (sock > MAX_DESCRIPTORS))
 		return;
 
-	bytes = snprintf(tb,MAXBUF,":%s %s\r\n",Config->ServerName,text);
-	chop(tb);
-
 	if (fd_ref_table[sock])
 	{
+		bytes = snprintf(tb,MAXBUF,":%s %s\r\n",Config->ServerName,text);
+		chop(tb);
+
 		if (Config->GetIOHook(fd_ref_table[sock]->port))
 		{
 			try
@@ -283,6 +284,9 @@ void WriteServ(int sock, char* text, ...)
 		return;
 	}
 
+	if (!fd_ref_table[sock])
+		return;
+
 	va_start(argsPtr, text);
 	vsnprintf(textbuffer, MAXBUF, text, argsPtr);
 	va_end(argsPtr);
@@ -302,11 +306,11 @@ void WriteFrom_NoFormat(int sock, userrec *user, const char* text)
 	if ((sock < 0) || (!text) || (!user) || (sock > MAX_DESCRIPTORS))
 		return;
 
-	bytes = snprintf(tb,MAXBUF,":%s %s\r\n",user->GetFullHost(),text);
-	chop(tb);
-
 	if (fd_ref_table[sock])
 	{
+		bytes = snprintf(tb,MAXBUF,":%s %s\r\n",user->GetFullHost(),text);
+		chop(tb);
+
 		if (Config->GetIOHook(fd_ref_table[sock]->port))
 		{
 			try
@@ -346,14 +350,15 @@ void WriteFrom(int sock, userrec *user,char* text, ...)
 		return;
 	}
 
-	va_start(argsPtr, text);
-	vsnprintf(textbuffer, MAXBUF, text, argsPtr);
-	va_end(argsPtr);
-	bytes = snprintf(tb,MAXBUF,":%s %s\r\n",user->GetFullHost(),textbuffer);
-	chop(tb);
-
 	if (fd_ref_table[sock])
 	{
+
+		va_start(argsPtr, text);
+		vsnprintf(textbuffer, MAXBUF, text, argsPtr);
+		va_end(argsPtr);
+		bytes = snprintf(tb,MAXBUF,":%s %s\r\n",user->GetFullHost(),textbuffer);
+		chop(tb);
+
 		if (Config->GetIOHook(fd_ref_table[sock]->port))
 		{
 			try
