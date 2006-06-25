@@ -3681,6 +3681,7 @@ class ModuleSpanningTree : public Module
 		if (SourceServer)
 		{
 			SourceServer->DelUserCount();
+			SourceServer->DelUser(user);
 		}
 
 	}
