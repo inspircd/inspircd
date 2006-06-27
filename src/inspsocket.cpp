@@ -157,6 +157,49 @@ bool InspSocket::DoResolve()
 	return true;
 }
 
+bool InspSocket::BindAddr()
+{
+	insp_inaddr n;
+	ConfigReader Conf;
+
+	log(DEBUG,"In InspSocket::BindAddr()");
+	for (int j =0; j < Conf.Enumerate("bind"); j++)
+	{
+		std::string Type = Conf.ReadValue("bind","type",j);
+		std::string IP = Conf.ReadValue("bind","address",j);
+		if (Type == "servers")
+		{
+			if ((IP != "*") && (IP != "127.0.0.1"))
+			{
+				insp_sockaddr s;
+
+				if (inet_aton(IP.c_str(),&n))
+				{
+					log(DEBUG,"Found an IP to bind to: %s",IP.c_str());
+					s.sin_addr = n;
+					s.sin_family = AF_INET;
+					if (bind(this->fd,(struct sockaddr*)&s,sizeof(s)) < 0)
+					{
+						log(DEBUG,"Cant bind()");
+						this->state = I_ERROR;
+						this->OnError(I_ERR_BIND);
+						this->fd = -1;
+						return false;
+					}
+					log(DEBUG,"bind() reports outbound fd bound to ip %s",IP.c_str());
+					return true;
+				}
+				else
+				{
+					log(DEBUG,"Address '%s' was not an IP address",IP.c_str());
+				}
+			}
+		}
+	}
+	log(DEBUG,"Found no suitable IPs to bind, binding INADDR_ANY");
+	return true;
+}
+
 bool InspSocket::DoConnect()
 {
 	log(DEBUG,"In DoConnect()");
@@ -168,6 +211,9 @@ bool InspSocket::DoConnect()
 		this->fd = -1;
 		return false;
 	}
+
+	if (!this->BindAddr())
+		return false;
 
 	log(DEBUG,"Part 2 DoConnect() %s",this->IP);
 	inet_aton(this->IP,&addy);
