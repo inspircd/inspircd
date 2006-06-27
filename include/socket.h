@@ -157,6 +157,8 @@ private:
 	 */
 	bool ClosePending;
 
+	bool BindAddr();
+
 public:
 
 	/**
