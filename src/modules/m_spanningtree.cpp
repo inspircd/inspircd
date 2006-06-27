@@ -2703,9 +2703,7 @@ class TreeSocket : public InspSocket
 		/* To prevent anyone from attempting to flood opers/DDoS by connecting to the server port,
 		 * or discovering if this port is the server port, we don't allow connections from any
 		 * IPs for which we don't have a link block.
-		 *
-		 * Do not uncomment this until we have a way to bind outbound sockets to an ip - Brain
-		 * 
+		 */
 		bool found = false;
 		vector<Link>::iterator i;
 		for (i = LinkBlocks.begin(); i != LinkBlocks.end(); i++)
@@ -2722,7 +2720,6 @@ class TreeSocket : public InspSocket
 			close(newsock);
 			return false;
 		}
-		*/
 		TreeSocket* s = new TreeSocket(newsock, ip);
 		Srv->AddSocket(s);
 		return true;
