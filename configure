@@ -1481,7 +1481,7 @@ EOM
 	if ($config{OSNAME} =~ /Darwin/) {
 	print FH <<EOM;
 
-all: socketengine.o command_parse.o cull_list.o userprocess.o hashcomp.o helperfuncs.o channels.o mode.o xline.o dns.o base.o inspircd_io.o message.o commands.o $cmdobjs dnsqueue.o dynamic.o users.o modules.o wildcard.o socket.o aes.o timer.o 
+all: socketengine.o command_parse.o cull_list.o userprocess.o hashcomp.o helperfuncs.o channels.o mode.o xline.o dns.o base.o inspircd_io.o message.o commands.o $cmdobjs dnsqueue.o dynamic.o users.o modules.o wildcard.o socket.o aes.o timer.o inspircd
 
 inspircd:
 	\$(CC) -I../include -DHAS_STRLCPY  \$(FLAGS) -L. inspircd.cpp -o inspircd \$(LDLIBS) socketengine.o command_parse.o cull_list.o userprocess.o hashcomp.o helperfuncs.o channels.o mode.o xline.o dns.o base.o inspircd_io.o message.o commands.o $cmdobjs dnsqueue.o dynamic.o users.o modules.o wildcard.o socket.o aes.o timer.o 
