@@ -159,6 +159,14 @@ bool InspSocket::DoResolve()
 	return true;
 }
 
+/* Most irc servers require you to specify the ip you want to bind to.
+ * If you dont specify an IP, they rather dumbly bind to the first IP
+ * of the box (e.g. INADDR_ANY). In InspIRCd, we scan thought the IP
+ * addresses we've bound server ports to, and we try and bind our outbound
+ * connections to the first usable non-loopback and non-any IP we find.
+ * This is easier to configure when you have a lot of links and a lot
+ * of servers to configure.
+ */
 bool InspSocket::BindAddr()
 {
 	in_addr n;
