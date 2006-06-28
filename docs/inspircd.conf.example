@@ -351,12 +351,6 @@
 # that server to operoverride modes. This should only be used for     #
 # services and protected oper servers!                                #
 #                                                                     #
-# IMPORTANT NOTE: When specifying the ip address and/or host, the     #
-# server software will prioritize RESOLVED hostnames above ip         #
-# addresses, so for example if your target server resolves to a.b.com #
-# you MUST put a.b.com into your link block, and NOT the IP address   #
-# of a.b.com. The system uses reverse resolution.                     #
-#                                                                     #
 #    ____                _   _____ _     _       ____  _ _   _        #
 #   |  _ \ ___  __ _  __| | |_   _| |__ (_)___  | __ )(_) |_| |       #
 #   | |_) / _ \/ _` |/ _` |   | | | '_ \| / __| |  _ \| | __| |       #
@@ -576,7 +570,7 @@
          somaxconn="128"
          softlimit="128"
          operonlystats="oclgkz"
-		 operspywhois="no"
+         operspywhois="no"
          customversion=""
          maxtargets="20"
          hidesplits="no"
