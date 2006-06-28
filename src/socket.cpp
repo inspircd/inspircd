@@ -36,6 +36,7 @@ using namespace std;
 #include "inspstring.h"
 #include "helperfuncs.h"
 #include "socketengine.h"
+#include "message.h"
 
 
 extern InspIRCd* ServerInstance;
@@ -179,10 +180,22 @@ bool InspSocket::BindAddr()
 		std::string IP = Conf.ReadValue("bind","address",j);
 		if (Type == "servers")
 		{
-			if ((IP != "*") && (IP != "127.0.0.1"))
+			if ((IP != "*") && (IP != "127.0.0.1") && (IP != ""))
 			{
 				sockaddr_in s;
+				char resolved_addr[MAXBUF];
 
+				if (!inet_aton(IP.c_str(),&n))
+				{
+					/* If they gave a hostname, bind to the IP it resolves to */
+					log(DEBUG,"Resolving host %s",IP.c_str());
+					if (CleanAndResolve(resolved_addr, IP.c_str(), true))
+			                {
+						log(DEBUG,"Resolved host %s to %s",IP.c_str(),resolved_addr);
+			                        IP = resolved_addr;
+					}
+				}
+		
 				if (inet_aton(IP.c_str(),&n))
 				{
 					log(DEBUG,"Found an IP to bind to: %s",IP.c_str());
