@@ -369,6 +369,7 @@ bool Server::UnpublishFeature(std::string FeatureName)
 		return false;
 
 	Features.erase(iter);
+	return true;
 }
 
 Module* Server::FindFeature(std::string FeatureName)
