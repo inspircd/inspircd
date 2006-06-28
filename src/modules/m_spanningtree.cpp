@@ -2692,6 +2692,7 @@ class TreeSocket : public InspSocket
 		 * IPs for which we don't have a link block. -Special
 		 */
 		bool found = false;
+		char resolved_host[MAXBUF];
 		vector<Link>::iterator i;
 		for (i = LinkBlocks.begin(); i != LinkBlocks.end(); i++)
 		{
@@ -2699,6 +2700,17 @@ class TreeSocket : public InspSocket
 			{
 				found = true;
 				break;
+			}
+			/* XXX: Fixme: blocks for a very short amount of time,
+			 * we should cache these on rehash/startup
+			 */
+			if (CleanAndResolve(resolved_host,i->IPAddr.c_str(),true))
+			{
+				if (std::string(resolved_host) == ip)
+				{
+					found = true;
+					break;
+				}
 			}
 		}
 		if (!found)
