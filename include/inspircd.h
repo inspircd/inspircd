@@ -42,7 +42,7 @@
  */
 #define IS_SINGLE(x,y) ( (*x == y) && (*(x+1) == 0) )
 
-#define DELETE(x) { log(DEBUG,"%s:%d: delete()",__FILE__,__LINE__); if (x) { delete x; x = NULL; } else log(DEBUG,"Attempt to delete NULL pointer!"); }
+#define DELETE(x) { do_log(DEBUG,"%s:%d: delete()",__FILE__,__LINE__); if (x) { delete x; x = NULL; } else log(DEBUG,"Attempt to delete NULL pointer!"); }
 
 template<typename T> inline std::string ConvToStr(const T &in)
 {
