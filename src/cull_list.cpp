@@ -138,13 +138,13 @@ void CullList::AddItem(userrec* user, const char* reason)
 
 int CullList::Apply()
 {
-        int n = 0;
-        while (list.size())
-        {
+	int n = list.size();
+	while (list.size())
+	{
 		std::vector<CullItem>::iterator a = list.begin();
 
 		kill_link(a->GetUser(), a->GetReason().c_str());
 		list.erase(list.begin());
-        }
-        return n;
+	}
+	return n;
 }
