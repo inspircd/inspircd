@@ -25,6 +25,7 @@
 #include "channels.h"
 #include "socket.h"
 #include "mode.h"
+#include "helperfuncs.h"
 #include "socketengine.h"
 #include "command_parse.h"
 
