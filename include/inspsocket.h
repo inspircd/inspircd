@@ -174,7 +174,7 @@ public:
 	 * will be set with the given IP address
 	 * and placed in CONNECTED state.
 	 */
-	InspSocket(int newfd, char* ip);
+	InspSocket(int newfd, const char* ip);
 
 	/**
 	 * This constructor is used to create a new

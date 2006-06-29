@@ -42,7 +42,7 @@ InspSocket::InspSocket()
 	this->ClosePending = false;
 }
 
-InspSocket::InspSocket(int newfd, char* ip)
+InspSocket::InspSocket(int newfd, const char* ip)
 {
 	this->fd = newfd;
 	this->state = I_CONNECTED;
