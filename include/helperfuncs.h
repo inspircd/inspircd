@@ -35,7 +35,17 @@
 #define SPARSE 40
 #define NONE 50
 
-void log(int level,char *text, ...);
+/* I'm not entirely happy with this, the ## before 'args' is a g++ extension.
+ * The problem is that if you #define log(l, x, args...) and then call it
+ * with only two parameters, you get do_log(l, x, ), which is a syntax error...
+ * The ## tells g++ to remove the trailing comma...
+ * If this is ever an issue, we can just have an #ifndef GCC then #define log(a...) do_log(a)
+ */
+#define STRINGIFY2(x) #x
+#define STRINGIFY(x) STRINGIFY2(x) 
+#define log(l, x, args...) do_log(l, __FILE__ ":" STRINGIFY(__LINE__) ": " x, ##args)
+
+void do_log(int level, const char *text, ...);
 void readfile(file_cache &F, const char* fname);
 
 void Write(int sock,char *text, ...);

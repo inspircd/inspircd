@@ -28,6 +28,7 @@
 #include <vector>
 #include <string>
 #include "socketengine.h"
+#include "helperfuncs.h"
 
 char ref[MAX_DESCRIPTORS];
 

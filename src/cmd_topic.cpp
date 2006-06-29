@@ -21,6 +21,7 @@
 #include "message.h"
 #include "commands.h"
 #include "commands/cmd_topic.h"
+#include "helperfuncs.h"
 
 extern ServerConfig* Config;
 extern int MODCOUNT;

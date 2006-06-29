@@ -67,7 +67,7 @@ static time_t LAST = 0;
  *  Write a line of text `text' to the logfile (and stdout, if in nofork) if the level `level'
  *  is greater than the configured loglevel.
  */
-void log(int level, char *text, ...)
+void do_log(int level, const char *text, ...)
 {
 	va_list argsPtr;
 	char textbuffer[MAXBUF];
