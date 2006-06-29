@@ -873,7 +873,7 @@ void InspIRCd::DoOneIteration(bool process_module_sockets)
 					{
 						try
 						{
-							Config->GetIOHook(in_port)->OnRawSocketAccept(incomingSockfd, (char*)inet_ntoa(client.sin_addr), in_port);
+							Config->GetIOHook(in_port)->OnRawSocketAccept(incomingSockfd, inet_ntoa(client.sin_addr), in_port);
 						}
 						catch (ModuleException& modexcept)
 						{
