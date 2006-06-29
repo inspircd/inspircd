@@ -128,7 +128,7 @@ void CullList::AddItem(userrec* user, const char* reason)
 
 int CullList::Apply()
 {
-	int n = 0;
+	int n = list.size();
 	while (list.size())
 	{
 		std::vector<CullItem>::iterator a = list.begin();
