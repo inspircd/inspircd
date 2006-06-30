@@ -2609,6 +2609,11 @@ class TreeSocket : public InspSocket
 								userrec* y = Srv->FindNick(prefix);
 								if (y)
 								{
+									TreeServer* n = FindServer(y->server);
+									if (n)
+									{
+										n->DelUser(y);
+									}
 									Srv->QuitUser(y,"Nickname collision");
 								}
 								return DoOneToAllButSenderRaw(line,sourceserv,prefix,command,params);
@@ -3734,6 +3739,17 @@ class ModuleSpanningTree : public Module
 		params.push_back(dest->nick);
 		params.push_back(":"+reason);
 		DoOneToMany(source->nick,"KILL",params);
+		/* NOTE: We must remove the user from the servers list here.
+		 * If we do not, there is a chance the user could hang around
+		 * in the list if there is a desync for example (this would
+		 * not be good).
+		 * Part of the 'random crash on netsplit' tidying up. -Brain
+		 */
+		TreeServer* n = FindServer(dest->server);
+		if (n)
+		{
+			n->DelUser(dest);
+		}
 	}
 
 	virtual void OnRehash(const std::string &parameter)
