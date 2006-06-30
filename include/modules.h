@@ -144,7 +144,7 @@ typedef std::map<std::string,Module*> featurelist;
 
 // useful macros
 
-#define IS_LOCAL(x) (x->fd > -1)
+#define IS_LOCAL(x) ((x->fd > -1) && (x->fd <= MAX_DESCRIPTORS))
 #define IS_REMOTE(x) (x->fd < 0)
 #define IS_MODULE_CREATED(x) (x->fd == FD_MAGIC_NUMBER)
 
