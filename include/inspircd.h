@@ -83,14 +83,18 @@ class InspIRCd
 	char MODERR[MAXBUF];
 	bool expire_run;
  
-	void erase_factory(int j);
-	void erase_module(int j);
+	void EraseFactory(int j);
+	void EraseModule(int j);
 	void BuildISupport();
 	void MoveTo(std::string modulename,int slot);
 	void Start();
 	void SetSignals();
 	bool DaemonSeed();
 	void MakeLowerMap();
+	void MoveToLast(std::string modulename);
+	void MoveToFirst(std::string modulename);
+	void MoveAfter(std::string modulename, std::string after);
+	void MoveBefore(std::string modulename, std::string before);
 
  public:
 	time_t startup_time;
@@ -105,10 +109,6 @@ class InspIRCd
 	char* ModuleError();
 	bool LoadModule(const char* filename);
 	bool UnloadModule(const char* filename);
-	void MoveToLast(std::string modulename);
-	void MoveToFirst(std::string modulename);
-	void MoveAfter(std::string modulename, std::string after);
-	void MoveBefore(std::string modulename, std::string before);
 	InspIRCd(int argc, char** argv);
 	void DoOneIteration(bool process_module_sockets);
 	int Run();

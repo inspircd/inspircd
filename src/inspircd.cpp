@@ -361,7 +361,7 @@ char* InspIRCd::ModuleError()
 	return MODERR;
 }
 
-void InspIRCd::erase_factory(int j)
+void InspIRCd::EraseFactory(int j)
 {
 	int v = 0;
 	for (std::vector<ircd_module*>::iterator t = factory.begin(); t != factory.end(); t++)
@@ -376,7 +376,7 @@ void InspIRCd::erase_factory(int j)
 	}
 }
 
-void InspIRCd::erase_module(int j)
+void InspIRCd::EraseModule(int j)
 {
 	int v1 = 0;
 	for (std::vector<Module*>::iterator m = modules.begin(); m!= modules.end(); m++)
@@ -537,9 +537,9 @@ bool InspIRCd::UnloadModule(const char* filename)
 
 			// found the module
 			log(DEBUG,"Deleting module...");
-			erase_module(j);
+			this->EraseModule(j);
 			log(DEBUG,"Erasing module entry...");
-			erase_factory(j);
+			this->EraseFactory(j);
 			log(DEBUG,"Removing dependent commands...");
 			Parser->RemoveCommands(filename);
 			log(DEFAULT,"Module %s unloaded",filename);
