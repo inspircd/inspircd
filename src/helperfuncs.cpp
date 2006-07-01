@@ -670,7 +670,7 @@ void ChanExceptSender_NoFormat(chanrec* Ptr, userrec* user, char status, const c
 	}
 }
 
-std::string GetServerDescription(char* servername)
+std::string GetServerDescription(const char* servername)
 {
 	std::string description = "";
 

@@ -1147,18 +1147,17 @@ class TreeSocket : public InspSocket
 		// NICK age nick host dhost ident +modes ip :gecos
 		//   0   123  4 56   7
 		time_t age = atoi(params[0].c_str());
-		std::string modes = params[5];
-		while (*(modes.c_str()) == '+')
-		{
-			char* m = (char*)modes.c_str();
-			m++;
-			modes = m;
-		}
-		char* tempnick = (char*)params[1].c_str();
+		
+		/* This used to have a pretty craq'y loop doing the same thing,
+		 * now we just let the STL do the hard work (more efficiently)
+		 */
+		params[5] = params[5].substr(params[5].find_first_not_of('+'));
+		
+		const char* tempnick = params[1].c_str();
 		log(DEBUG,"Introduce client %s!%s@%s",tempnick,params[4].c_str(),params[2].c_str());
 		
-		user_hash::iterator iter;
-		iter = clientlist.find(tempnick);
+		user_hash::iterator iter = clientlist.find(tempnick);
+		
 		if (iter != clientlist.end())
 		{
 			// nick collision
@@ -1172,12 +1171,13 @@ class TreeSocket : public InspSocket
 		strlcpy(clientlist[tempnick]->nick, tempnick,NICKMAX-1);
 		strlcpy(clientlist[tempnick]->host, params[2].c_str(),63);
 		strlcpy(clientlist[tempnick]->dhost, params[3].c_str(),63);
-		clientlist[tempnick]->server = (char*)FindServerNamePtr(source.c_str());
+		clientlist[tempnick]->server = FindServerNamePtr(source.c_str());
 		strlcpy(clientlist[tempnick]->ident, params[4].c_str(),IDENTMAX);
 		strlcpy(clientlist[tempnick]->fullname, params[7].c_str(),MAXGECOS);
 		clientlist[tempnick]->registered = 7;
 		clientlist[tempnick]->signon = age;
-		strlcpy(clientlist[tempnick]->modes, modes.c_str(),53);
+		strlcpy(clientlist[tempnick]->modes, params[5].c_str(),53);
+		
 		for (char *v = clientlist[tempnick]->modes; *v; v++)
 		{
 			switch (*v)

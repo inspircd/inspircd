@@ -170,7 +170,7 @@ class userrec : public connection
 	
 	/** The server the user is connected to.
 	 */
-	char* server;
+	const char* server;
 	
 	/** The user's away message.
 	 * If this string is empty, the user is not marked as away.
@@ -375,7 +375,7 @@ class WhoWasGroup
 	char* host;
 	char* dhost;
 	char* ident;
-	char* server;
+	const char* server;
 	char* gecos;
 	time_t signon;
 

@@ -72,7 +72,7 @@ void WriteCommon_NoFormat(userrec *u, const char* text);
 void WriteCommonExcept_NoFormat(userrec *u, const char* text);
 void WriteOpers_NoFormat(const char* text);
 
-std::string GetServerDescription(char* servername);
+std::string GetServerDescription(const char* servername);
 void WriteMode(const char* modes, int flags, const char* text, ...);
 void NoticeAll(userrec *source, bool local_only, char* text, ...);
 void ServerNoticeAll(char* text, ...);
