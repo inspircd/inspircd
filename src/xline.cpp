@@ -466,7 +466,7 @@ char* matches_exception(const char* host)
 }
 
 
-void gline_set_creation_time(char* host, time_t create_time)
+void gline_set_creation_time(const char* host, time_t create_time)
 {
 	for (std::vector<GLine>::iterator i = glines.begin(); i != glines.end(); i++)
 	{
@@ -487,7 +487,7 @@ void gline_set_creation_time(char* host, time_t create_time)
 	return ;	
 }
 
-void eline_set_creation_time(char* host, time_t create_time)
+void eline_set_creation_time(const char* host, time_t create_time)
 {
 	for (std::vector<ELine>::iterator i = elines.begin(); i != elines.end(); i++)
 	{
@@ -508,7 +508,7 @@ void eline_set_creation_time(char* host, time_t create_time)
 	return;
 }
 
-void qline_set_creation_time(char* nick, time_t create_time)
+void qline_set_creation_time(const char* nick, time_t create_time)
 {
 	for (std::vector<QLine>::iterator i = qlines.begin(); i != qlines.end(); i++)
 	{
@@ -529,7 +529,7 @@ void qline_set_creation_time(char* nick, time_t create_time)
 	return;
 }
 
-void zline_set_creation_time(char* ip, time_t create_time)
+void zline_set_creation_time(const char* ip, time_t create_time)
 {
 	for (std::vector<ZLine>::iterator i = zlines.begin(); i != zlines.end(); i++)
 	{

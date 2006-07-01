@@ -965,7 +965,7 @@ class TreeSocket : public InspSocket
 					userrec* user = Srv->FindNick(source);
 					if (!user)
 					{
-						WriteChannelWithServ((char*)source.c_str(), c, "TOPIC %s :%s", c->name, c->topic);
+						WriteChannelWithServ(source.c_str(), c, "TOPIC %s :%s", c->name, c->topic);
 					}
 					else
 					{
@@ -1030,7 +1030,7 @@ class TreeSocket : public InspSocket
 		for (unsigned int usernum = 2; usernum < params.size(); usernum++)
 		{
 			/* process one channel at a time, applying modes. */
-			char* usr = (char*)params[usernum].c_str();
+			char* usr = const_cast<char*>(params[usernum].c_str());
 			/* Safety check just to make sure someones not sent us an FJOIN full of spaces
 			 * (is this even possible?) */
 			if (usr && *usr)
@@ -1197,7 +1197,7 @@ class TreeSocket : public InspSocket
 		}
 		inet_aton(params[6].c_str(),&clientlist[tempnick]->ip4);
 
-		WriteOpers("*** Client connecting at %s: %s!%s@%s [%s]",clientlist[tempnick]->server,clientlist[tempnick]->nick,clientlist[tempnick]->ident,clientlist[tempnick]->host,(char*)inet_ntoa(clientlist[tempnick]->ip4));
+		WriteOpers("*** Client connecting at %s: %s!%s@%s [%s]",clientlist[tempnick]->server,clientlist[tempnick]->nick,clientlist[tempnick]->ident,clientlist[tempnick]->host, inet_ntoa(clientlist[tempnick]->ip4));
 
 		params[7] = ":" + params[7];
 		DoOneToAllButSender(source,"NICK",params,source);
@@ -1391,7 +1391,7 @@ class TreeSocket : public InspSocket
 		{
 			if (u->second->registered == 7)
 			{
-				snprintf(data,MAXBUF,":%s NICK %lu %s %s %s %s +%s %s :%s",u->second->server,(unsigned long)u->second->age,u->second->nick,u->second->host,u->second->dhost,u->second->ident,u->second->modes,(char*)inet_ntoa(u->second->ip4),u->second->fullname);
+				snprintf(data,MAXBUF,":%s NICK %lu %s %s %s %s +%s %s :%s",u->second->server,(unsigned long)u->second->age,u->second->nick,u->second->host,u->second->dhost,u->second->ident,u->second->modes,inet_ntoa(u->second->ip4),u->second->fullname);
 				this->WriteLine(data);
 				if (*u->second->oper)
 				{
@@ -1773,19 +1773,19 @@ class TreeSocket : public InspSocket
 		{
 			case 'Z':
 				propogate = add_zline(atoi(params[4].c_str()), params[2].c_str(), params[5].c_str(), params[1].c_str());
-				zline_set_creation_time((char*)params[1].c_str(), atoi(params[3].c_str()));
+				zline_set_creation_time(params[1].c_str(), atoi(params[3].c_str()));
 			break;
 			case 'Q':
 				propogate = add_qline(atoi(params[4].c_str()), params[2].c_str(), params[5].c_str(), params[1].c_str());
-				qline_set_creation_time((char*)params[1].c_str(), atoi(params[3].c_str()));
+				qline_set_creation_time(params[1].c_str(), atoi(params[3].c_str()));
 			break;
 			case 'E':
 				propogate = add_eline(atoi(params[4].c_str()), params[2].c_str(), params[5].c_str(), params[1].c_str());
-				eline_set_creation_time((char*)params[1].c_str(), atoi(params[3].c_str()));
+				eline_set_creation_time(params[1].c_str(), atoi(params[3].c_str()));
 			break;
 			case 'G':
 				propogate = add_gline(atoi(params[4].c_str()), params[2].c_str(), params[5].c_str(), params[1].c_str());
-				gline_set_creation_time((char*)params[1].c_str(), atoi(params[3].c_str()));
+				gline_set_creation_time(params[1].c_str(), atoi(params[3].c_str()));
 			break;
 			case 'K':
 				propogate = add_kline(atoi(params[4].c_str()), params[2].c_str(), params[5].c_str(), params[1].c_str());
@@ -1884,7 +1884,7 @@ class TreeSocket : public InspSocket
 					unsigned long signon = atoi(params[1].c_str());
 					unsigned long idle = atoi(params[2].c_str());
 					if ((who_to_send_to) && (who_to_send_to->fd > -1))
-						do_whois(who_to_send_to,u,signon,idle,(char*)nick_whoised.c_str());
+						do_whois(who_to_send_to,u,signon,idle,nick_whoised.c_str());
 				}
 				else
 				{
@@ -2213,19 +2213,16 @@ class TreeSocket : public InspSocket
 
 	bool ProcessLine(std::string line)
 	{
-		char* l = (char*)line.c_str();
-		for (char* x = l; *x; x++)
-		{
-			if ((*x == '\r') || (*x == '\n'))
-				*x = 0;
-		}
-		if (!*l)
+		if (!*line.c_str())
 			return true;
-
-		log(DEBUG,"IN: %s",l);
+		
+		line = line.substr(0, line.find_first_of("\r\n"));
+		
+		log(DEBUG,"IN: %s", line.c_str());
 
 		std::deque<std::string> params;
-		this->Split(l,true,params);
+		
+		this->Split(line.c_str(),true,params);
 		irc::string command = "";
 		std::string prefix = "";
 		if (((params[0].c_str())[0] == ':') && (params.size() > 1))

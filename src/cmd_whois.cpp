@@ -30,7 +30,7 @@ extern ModuleList modules;
 extern FactoryList factory;
 extern time_t TIME;
 
-void do_whois(userrec* user, userrec* dest,unsigned long signon, unsigned long idle, char* nick)
+void do_whois(userrec* user, userrec* dest,unsigned long signon, unsigned long idle, const char* nick)
 {
 	// bug found by phidjit - were able to whois an incomplete connection if it had sent a NICK or USER
 	if (dest->registered == 7)

@@ -547,7 +547,7 @@ void WriteChannelLocal_NoFormat(chanrec* Ptr, userrec* user, const char* text)
 
 
 
-void WriteChannelWithServ(char* ServName, chanrec* Ptr, char* text, ...)
+void WriteChannelWithServ(const char* ServName, chanrec* Ptr, const char* text, ...)
 {
 	char textbuffer[MAXBUF];
 	va_list argsPtr;
@@ -572,7 +572,7 @@ void WriteChannelWithServ(char* ServName, chanrec* Ptr, char* text, ...)
 	}
 }
 
-void WriteChannelWithServ_NoFormat(char* ServName, chanrec* Ptr, const char* text)
+void WriteChannelWithServ_NoFormat(const char* ServName, chanrec* Ptr, const char* text)
 {
 	CUList *ulist;
 
