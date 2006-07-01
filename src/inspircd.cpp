@@ -141,7 +141,7 @@ void Exit(int status)
 	exit (status);
 }
 
-void Start()
+void InspIRCd::Start()
 {
 	printf("\033[1;32mInspire Internet Relay Chat Server, compiled %s at %s\n",__DATE__,__TIME__);
 	printf("(C) ChatSpike Development team.\033[0m\n\n");
@@ -167,7 +167,7 @@ void Rehash(int status)
 	FOREACH_MOD(I_OnRehash,OnRehash(""));
 }
 
-void SetSignals()
+void InspIRCd::SetSignals()
 {
 	signal (SIGALRM, SIG_IGN);
 	signal (SIGHUP, Rehash);
@@ -176,7 +176,7 @@ void SetSignals()
 	signal (SIGSEGV, Error);
 }
 
-bool DaemonSeed()
+bool InspIRCd::DaemonSeed()
 {
 	int childpid;
 	if ((childpid = fork ()) < 0)
@@ -244,7 +244,7 @@ void InspIRCd::MakeLowerMap()
 
 InspIRCd::InspIRCd(int argc, char** argv)
 {
-	Start();
+	this->Start();
 	module_sockets.clear();
 	this->startup_time = time(NULL);
 	srand(time(NULL));
@@ -317,10 +317,10 @@ InspIRCd::InspIRCd(int argc, char** argv)
 	memset(&Config->implement_lists,0,sizeof(Config->implement_lists));
 
 	printf("\n");
-	SetSignals();
+	this->SetSignals();
 	if (!Config->nofork)
 	{
-		if (!DaemonSeed())
+		if (!this->DaemonSeed())
 		{
 			printf("ERROR: could not go into daemon mode. Shutting down.\n");
 			Exit(ERROR);

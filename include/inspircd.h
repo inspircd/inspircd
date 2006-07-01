@@ -87,6 +87,10 @@ class InspIRCd
 	void erase_module(int j);
 	void BuildISupport();
 	void MoveTo(std::string modulename,int slot);
+	void Start();
+	void SetSignals();
+	bool DaemonSeed();
+	void MakeLowerMap();
 
  public:
 	time_t startup_time;
@@ -95,7 +99,6 @@ class InspIRCd
 	SocketEngine* SE;
 	serverstats* stats;
 
-	void MakeLowerMap();
 	std::string GetRevision();
 	std::string GetVersionString();
 	char* ModuleError();
@@ -112,10 +115,7 @@ class InspIRCd
 };
 
 /* Miscellaneous stuff here, moved from inspircd_io.h */
-void Exit(int status); 
-void Start(); 
-void SetSignals();
-bool DaemonSeed();
+void Exit(int status);
 void WritePID(const std::string &filename);
 
 /* userrec optimization stuff */
