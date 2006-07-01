@@ -92,7 +92,10 @@ void do_log(int level, const char *text, ...)
 		va_end(argsPtr);
 
 		if (Config->writelog)
+		{
 			fprintf(Config->log_file,"%s %s\n",TIMESTR,textbuffer);
+			fflush(Config->log_file);
+		}
 	}
 	
 	if (Config->nofork)
