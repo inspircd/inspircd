@@ -769,7 +769,7 @@ void ServerConfig::Read(bool bail, userrec* user)
 		delete[] data[n];
 
 	// write once here, to try it out and make sure its ok
-	WritePID(Config->PID);
+	ServerInstance->WritePID(Config->PID);
 
 	log(DEFAULT,"Done reading configuration file, InspIRCd is now starting.");
 

@@ -101,6 +101,7 @@ class InspIRCd
 
 	std::string GetRevision();
 	std::string GetVersionString();
+	void WritePID(const std::string &filename);
 	char* ModuleError();
 	bool LoadModule(const char* filename);
 	bool UnloadModule(const char* filename);
@@ -116,7 +117,6 @@ class InspIRCd
 
 /* Miscellaneous stuff here, moved from inspircd_io.h */
 void Exit(int status);
-void WritePID(const std::string &filename);
 
 /* userrec optimization stuff */
 void AddServerName(const std::string &servername);

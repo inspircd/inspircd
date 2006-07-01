@@ -207,7 +207,7 @@ bool InspIRCd::DaemonSeed()
 	return true;
 }
 
-void WritePID(const std::string &filename)
+void InspIRCd::WritePID(const std::string &filename)
 {
 	std::ofstream outfile(filename.c_str());
 	if (outfile.is_open())
@@ -931,7 +931,7 @@ int InspIRCd::Run()
 	for (int count = 0; count < stats->BoundPortCount; count++)
 		SE->AddFd(openSockfd[count],true,X_LISTEN);
 
-	WritePID(Config->PID);
+	this->WritePID(Config->PID);
 
 	/* main loop, this never returns */
 	expire_run = false;
