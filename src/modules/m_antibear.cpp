@@ -52,6 +52,8 @@ class ModuleAntiBear : public Module
 	virtual void OnUserConnect(userrec* user)
 	{
 		WriteServ(user->fd,"439 %s :This server has anti-spambot mechanisms enabled.", user->nick);
+		WriteServ(user->fd,"931 %s :Spambots, trojans, and malicious botnets are", user->nick);
+		WriteServ(user->fd,"437 %s :NOT WELCOME HERE. Please take your war elsewhere.", user->nick);
 	}
 };
 
