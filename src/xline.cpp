@@ -53,8 +53,8 @@ extern std::vector<userrec*> local_users;
  * very efficient. I have improved the efficiency of the algorithm in two ways:
  *
  * (1) There are now two lists of items for each linetype. One list holds temporary
- *     items, and the other list holds permenant items (ones which will expire).
- *     Items which are on the permenant list are NEVER checked at all by the
+ *     items, and the other list holds permanent items (ones which will expire).
+ *     Items which are on the permanent list are NEVER checked at all by the
  *     expire_lines() function.
  * (2) The temporary xline lists are always kept in strict numerical order, keyed by 
  *     current time + duration. This means that the line which is due to expire the
