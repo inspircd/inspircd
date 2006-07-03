@@ -58,7 +58,7 @@ void cmd_eline::Handle (char **parameters, int pcnt, userrec *user)
 
 		if (!duration(parameters[1]))
 		{
-			WriteOpers("*** %s added permenant E-line for %s.",user->nick,parameters[0]);
+			WriteOpers("*** %s added permanent E-line for %s.",user->nick,parameters[0]);
 		}
 		else
 		{
@@ -80,5 +80,3 @@ void cmd_eline::Handle (char **parameters, int pcnt, userrec *user)
 
 	// no need to apply the lines for an eline
 }
-
-
