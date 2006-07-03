@@ -2223,12 +2223,14 @@ class TreeSocket : public InspSocket
 		std::deque<std::string> params;
 		
 		this->Split(line.c_str(),true,params);
+		
 		irc::string command = "";
 		std::string prefix = "";
-		if (((params[0].c_str())[0] == ':') && (params.size() > 1))
+		
+		if ((params[0][0] == ':') && (params.size() > 1))
 		{
 			prefix = params[0];
-			command = params[1].c_str();
+			command = params[1];
 			char* pref = (char*)prefix.c_str();
 			prefix = ++pref;
 			params.pop_front();
