@@ -2230,7 +2230,7 @@ class TreeSocket : public InspSocket
 		if ((params[0][0] == ':') && (params.size() > 1))
 		{
 			prefix = params[0];
-			command = params[1];
+			command = params[1].c_str();
 			char* pref = (char*)prefix.c_str();
 			prefix = ++pref;
 			params.pop_front();
