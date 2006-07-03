@@ -2213,35 +2213,27 @@ class TreeSocket : public InspSocket
 
 	bool ProcessLine(std::string line)
 	{
-		if (!*line.c_str())
+		std::deque<std::string> params;
+		irc::string command;
+		std::string prefix;
+		
+		if (line.empty())
 			return true;
 		
 		line = line.substr(0, line.find_first_of("\r\n"));
 		
 		log(DEBUG,"IN: %s", line.c_str());
-
-		std::deque<std::string> params;
 		
 		this->Split(line.c_str(),true,params);
-		
-		irc::string command = "";
-		std::string prefix = "";
-		
+			
 		if ((params[0][0] == ':') && (params.size() > 1))
 		{
-			prefix = params[0];
-			command = params[1].c_str();
-			char* pref = (char*)prefix.c_str();
-			prefix = ++pref;
-			params.pop_front();
+			prefix = params[0].substr(1);
 			params.pop_front();
 		}
-		else
-		{
-			prefix = "";
-			command = params[0].c_str();
-			params.pop_front();
-		}
+
+		command = params[0].c_str();
+		params.pop_front();
 
 		if ((!this->ctx_in) && (command == "AES"))
 		{
