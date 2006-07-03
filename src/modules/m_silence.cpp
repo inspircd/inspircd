@@ -36,7 +36,7 @@ typedef std::vector<std::string> silencelist;
 class cmd_silence : public command_t
 {
  public:
-	cmd_silence() : command_t("SILENCE", 0, 1)
+	cmd_silence() : command_t("SILENCE", 0, 0)
 	{
 		this->source = "m_silence.so";
 	}
