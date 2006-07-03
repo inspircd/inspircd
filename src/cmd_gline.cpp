@@ -41,7 +41,7 @@ void cmd_gline::Handle (char **parameters, int pcnt, userrec *user)
 
 		if (!duration(parameters[1]))
 		{
-			WriteOpers("*** %s added permenant G-line for %s.",user->nick,parameters[0]);
+			WriteOpers("*** %s added permanent G-line for %s.",user->nick,parameters[0]);
 		}
 		else
 		{
