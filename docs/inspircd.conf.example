@@ -768,6 +768,23 @@
 #<waitpong sendsnotice="yes" killonbadreply="yes">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Connection throttle module. Configuration:
+#<module name="m_connflood.so">
+#
+#-#-#-#-#-#-#-#-#-#-#- CONTHROTTLE CONFIGURATION -#-#-#-#-#-#-#-#-#-#-#
+#  seconds, maxconns -  Amount of connections per <seconds>.
+#  timeout           -  Time to wait after the throttle was activated
+#                       before deactivating it. Be aware that the time
+#                       is seconds + timeout.
+#  quitmsg           -  The message that users get if they attempt to
+#                       connect while the throttle is active.
+#  bootwait          -  Amount of time to wait before enforcing the
+#                       throttling when the server just booted.
+#
+#<connflood seconds="30" maxconns="3" timeout="30"
+#   quitmsg="Throttled" bootwait="10">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Deny Channels: Deny Channels from being used by users
 #<module name="m_denychans.so"> 
 #
