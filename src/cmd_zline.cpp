@@ -61,7 +61,7 @@ void cmd_zline::Handle (char **parameters, int pcnt, userrec *user)
 		FOREACH_MOD(I_OnAddZLine,OnAddZLine(duration(parameters[1]), user, parameters[2], parameters[0]));
 		if (!duration(parameters[1]))
 		{
-			WriteOpers("*** %s added permenant Z-line for %s.",user->nick,parameters[0]);
+			WriteOpers("*** %s added permanent Z-line for %s.",user->nick,parameters[0]);
 		}
 		else
 		{
@@ -82,5 +82,3 @@ void cmd_zline::Handle (char **parameters, int pcnt, userrec *user)
 		}
 	}
 }
-
-

@@ -74,7 +74,7 @@ void cmd_kline::Handle (char **parameters, int pcnt, userrec *user)
 
 		if (!duration(parameters[1]))
 		{
-			WriteOpers("*** %s added permenant K-line for %s.",user->nick,parameters[0]);
+			WriteOpers("*** %s added permanent K-line for %s.",user->nick,parameters[0]);
 		}
 		else
 		{
@@ -96,5 +96,3 @@ void cmd_kline::Handle (char **parameters, int pcnt, userrec *user)
 		}
 	}
 }
-
-

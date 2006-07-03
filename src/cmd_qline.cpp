@@ -56,7 +56,7 @@ void cmd_qline::Handle (char **parameters, int pcnt, userrec *user)
 		FOREACH_MOD(I_OnAddQLine,OnAddQLine(duration(parameters[1]), user, parameters[2], parameters[0]));
 		if (!duration(parameters[1]))
 		{
-			WriteOpers("*** %s added permenant Q-line for %s.",user->nick,parameters[0]);
+			WriteOpers("*** %s added permanent Q-line for %s.",user->nick,parameters[0]);
 		}
 		else
 		{
@@ -77,5 +77,3 @@ void cmd_qline::Handle (char **parameters, int pcnt, userrec *user)
 		}
 	}
 }
-
-
