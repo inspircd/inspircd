@@ -45,6 +45,11 @@ enum ModeAction {
 	MODEACTION_ALLOW = 1 /* Allow the mode */
 };
 
+enum ModeMasks {
+	MASK_USER = 128,	/* A user mode */
+	MASK_CHANNEL = 0	/* A channel mode */
+};
+
 class ModeHandler
 {
 	char mode;
@@ -93,12 +98,14 @@ class ModeParser
 	/**
 	 * Mode handlers for each mode, to access a handler subtract
 	 * 65 from the ascii value of the mode letter.
+	 * The upper bit of the value indicates if its a usermode
+	 * or a channel mode, so we have 255 of them not 64.
 	 */
-	ModeHandler* modehandlers[64];
+	ModeHandler* modehandlers[256];
 	/**
 	 * Mode watcher classes
 	 */
-	std::vector<ModeWatcher*> modewatchers[64];
+	std::vector<ModeWatcher*> modewatchers[256];
 	
 	char* GiveOps(userrec *user,char *dest,chanrec *chan,int status);
 	char* GiveHops(userrec *user,char *dest,chanrec *chan,int status);
