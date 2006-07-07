@@ -157,7 +157,7 @@ Version::Version(int major, int minor, int revision, int build, int flags) : Maj
 
 Admin::Admin(std::string name, std::string email, std::string nick) : Name(name), Email(email), Nick(nick) { };
 
-Request::Request(void* anydata, Module* src, Module* dst) : data(anydata), source(src), dest(dst) { };
+Request::Request(char* anydata, Module* src, Module* dst) : data(anydata), source(src), dest(dst) { };
 
 char* Request::GetData()
 {
@@ -186,7 +186,7 @@ char* Request::Send()
 	}
 }
 
-Event::Event(void* anydata, Module* src, const std::string &eventid) : data(anydata), source(src), id(eventid) { };
+Event::Event(char* anydata, Module* src, const std::string &eventid) : data(anydata), source(src), id(eventid) { };
 
 char* Event::GetData()
 {

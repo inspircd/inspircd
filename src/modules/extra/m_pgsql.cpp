@@ -135,6 +135,11 @@ public:
 		exit(-1);
 	}
 	
+	~SQLConn()
+	{
+		
+	}
+	
 	bool DoResolve()
 	{	
 		log(DEBUG, "Checking for DNS lookup result");
@@ -157,7 +162,7 @@ public:
 			else
 			{
 				log(DEBUG, "DNS lookup failed, dying horribly");
-				DoError();
+				Close();
 				return false;
 			}
 		}
@@ -177,14 +182,14 @@ public:
 		if(!(sql = PQconnectStart(MkInfoStr().c_str())))
 		{
 			log(DEBUG, "Couldn't allocate PGconn structure, aborting: %s", PQerrorMessage(sql));
-			DoError();
+			Close();
 			return false;
 		}
 		
 		if(PQstatus(sql) == CONNECTION_BAD)
 		{
 			log(DEBUG, "PQconnectStart failed: %s", PQerrorMessage(sql));
-			DoError();
+			Close();
 			return false;
 		}
 		
@@ -193,7 +198,7 @@ public:
 		if(PQsetnonblocking(sql, 1) == -1)
 		{
 			log(DEBUG, "Couldn't set connection nonblocking: %s", PQerrorMessage(sql));
-			DoError();
+			Close();
 			return false;
 		}
 		
@@ -208,7 +213,7 @@ public:
 		if(this->fd <= -1)
 		{
 			log(DEBUG, "PQsocket says we have an invalid FD: %d", this->fd);
-			DoError();
+			Close();
 			return false;
 		}
 		
@@ -221,13 +226,13 @@ public:
 		return DoPoll();
 	}
 	
-	void DoError()
+	virtual void Close()
 	{
 		this->fd = -1;
 		this->state = I_ERROR;
 		this->OnError(I_ERR_SOCKET);
 		this->ClosePending = true;
-		log(DEBUG,"SQLConn::DoError");
+		log(DEBUG,"SQLConn::Close");
 		
 		if(sql)
 		{
@@ -253,7 +258,7 @@ public:
 				break;
 			case PGRES_POLLING_FAILED:
 				log(DEBUG, "PGconnectPoll: PGRES_POLLING_FAILED: %s", PQerrorMessage(sql));
-				DoError();
+				Close();
 				return false;
 			case PGRES_POLLING_OK:
 				log(DEBUG, "PGconnectPoll: PGRES_POLLING_OK");
@@ -301,11 +306,6 @@ public:
 		}
 	}
 	
-	virtual void OnTimeout()
-	{
-		/* Unused, I think */
-	}
-
 	virtual bool OnDataReady()
 	{
 		/* Always return true here, false would close the socket - we need to do that ourselves with the pgsql API */
@@ -365,16 +365,6 @@ public:
 
 		return true;
 	}
-
-	virtual void OnClose()
-	{
-		/* Close PgSQL connection */
-	}
-
-	virtual void OnError(InspSocketError e)
-	{
-		/* Unsure if we need this, we should be reading/writing via the PgSQL API rather than the insp one... */
-	}
 	
 	std::string MkInfoStr()
 	{			
@@ -409,6 +399,7 @@ public:
 		if(status == CWRITE) return "CWRITE";
 		if(status == WREAD) return "WREAD";
 		if(status == WWRITE) return "WWRITE";
+		return "Err...what, erm..BUG!";
 	}
 	
 	bool Query(const std::string &query)
@@ -426,12 +417,26 @@ public:
 				return false;
 			}
 		}
-		else
-		{
-			log(DEBUG, "Can't query until connection is complete");
-			return false;
-		}
+
+		log(DEBUG, "Can't query until connection is complete");
+		return false;
 	}
+
+	virtual void OnClose()
+	{
+		/* Close PgSQL connection */
+	}
+
+	virtual void OnError(InspSocketError e)
+	{
+		/* Unsure if we need this, we should be reading/writing via the PgSQL API rather than the insp one... */
+	}
+	
+	virtual void OnTimeout()
+	{
+		/* Unused, I think */
+	}
+	
 };
 
 class ModulePgSQL : public Module
@@ -444,6 +449,9 @@ public:
 	ModulePgSQL(Server* Me)
 	: Module::Module(Me), Srv(Me)
 	{
+		log(DEBUG, "%s 'SQL' feature", Srv->PublishFeature("SQL", this) ? "Published" : "Couldn't publish");
+		log(DEBUG, "%s 'PgSQL' feature", Srv->PublishFeature("PgSQL", this) ? "Published" : "Couldn't publish");
+		
 		OnRehash("");
 	}
 
