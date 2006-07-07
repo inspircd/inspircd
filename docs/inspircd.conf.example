@@ -159,7 +159,7 @@
 #       <connect allow="ip mask" timeout="blah" flood="5">            #
 #       <connect allow="ip mask" threshold="8" pingfreq="120">        #
 #       <connect allow="ip mask" sendq="99999" revcq="696969">        #
-#       <connect allow="ip mask" maxlocal="3" maxglobal="3">          #
+#       <connect allow="ip mask" localmax="3" globalmax="3">          #
 #       <connect deny="ip mask">                                      #
 #                                                                     #
 #   You may optionally include timeout="x" on any allow line, which   #
