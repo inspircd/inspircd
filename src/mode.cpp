@@ -481,15 +481,16 @@ void ModeParser::Process(char **parameters, int pcnt, userrec *user, bool server
 
 							if (modehandlers[handler_id]->GetNumParams(adding))
 							{
-								log(DEBUG,"ModeHandler* for this mode says it has parameters");
+								log(DEBUG,"ModeHandler* for this mode says it has parameters. pcnt=%d parameter_counter=%d",pcnt,parameter_counter);
 
-								if (pcnt < parameter_counter)
+								if (parameter_counter < pcnt)
 								{
 									parameter = parameters[parameter_counter++];
 								}
 								else
 								{
-									parameter = "";
+									/* No parameter, continue to the next mode */
+									continue;
 								}
 							}
 							ModeAction ma = modehandlers[handler_id]->OnModeChange(user, targetuser, targetchannel, parameter, adding);
