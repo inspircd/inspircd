@@ -577,7 +577,7 @@ void ModeParser::CleanMask(std::string &mask)
 	if ((pos_of_pling == std::string::npos) && (pos_of_at == std::string::npos))
 	{
 		/* Just a nick, or just a host */
-		if ((pos_of_dot == std::string::npos) && (pos_of_dot == std::string::npos))
+		if ((pos_of_dot == std::string::npos) && (pos_of_colon == std::string::npos))
 		{
 			/* It has no '.' in it, it must be a nick. */
 			mask.append("!*@*");
