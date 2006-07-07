@@ -10,9 +10,9 @@ ModeChannelTopicOps::ModeChannelTopicOps() : ModeHandler('t', 0, 0, false, MODET
 
 ModeAction ModeChannelTopicOps::OnModeChange(userrec* source, userrec* dest, chanrec* channel, std::string &parameter, bool adding)
 {
-	if (channel->modes[CM_OPTOPIC] != adding)
+	if (channel->modes[CM_TOPICLOCK] != adding)
 	{
-		channel->modes[CM_OPTOPIC] = adding;
+		channel->modes[CM_TOPICLOCK] = adding;
 		return MODEACTION_ALLOW;
 	}
 	else
