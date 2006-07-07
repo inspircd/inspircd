@@ -50,6 +50,10 @@ using namespace std;
 #include "modes/cmode_b.h"
 /* +m (moderated) */
 #include "modes/cmode_m.h"
+/* +t (only (half) ops can change topic) */
+#include "modes/cmode_t.h"
+/* +n (no external messages) */
+#include "modes/cmode_n.h"
 
 extern int MODCOUNT;
 extern std::vector<Module*> modules;
@@ -646,5 +650,7 @@ ModeParser::ModeParser()
 	this->AddMode(new ModeChannelPrivate, 'p');
 	this->AddMode(new ModeChannelBan, 'b');
 	this->AddMode(new ModeChannelModerated, 'm');
+	this->AddMode(new ModeChannelTopicOps, 't');
+	this->AddMode(new ModeChannelNoExternal, 'n');
 }
 
