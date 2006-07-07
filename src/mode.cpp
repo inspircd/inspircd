@@ -54,6 +54,8 @@ using namespace std;
 #include "modes/cmode_t.h"
 /* +n (no external messages) */
 #include "modes/cmode_n.h"
+/* +i (invite only) */
+#include "modes/cmode_i.h"
 
 extern int MODCOUNT;
 extern std::vector<Module*> modules;
@@ -652,5 +654,6 @@ ModeParser::ModeParser()
 	this->AddMode(new ModeChannelModerated, 'm');
 	this->AddMode(new ModeChannelTopicOps, 't');
 	this->AddMode(new ModeChannelNoExternal, 'n');
+	this->AddMode(new ModeChannelInviteOnly, 'i');
 }
 
