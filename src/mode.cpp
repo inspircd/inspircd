@@ -676,6 +676,10 @@ bool ModeParser::AddMode(ModeHandler* mh, unsigned const char modeletter)
 
 ModeParser::ModeParser()
 {
+	/* Clear mode list */
+	memset(modehandlers, 0, sizeof(modehandlers));
+	memset(modewatchers, 0, sizeof(modewatchers));
+
 	/* Initialise the RFC mode letters */
 	this->AddMode(new ModeChannelSecret, 's');
 	this->AddMode(new ModeChannelPrivate, 'p');
