@@ -109,6 +109,9 @@ std::string& ModeChannelBan::DelBan(userrec *user,std::string& dest,chanrec *cha
 		return dest;
 	}
 
+	/* 'Clean' the mask, e.g. nick -> nick!*@* */
+	ModeParser::CleanMask(dest);
+
 	for (BanList::iterator i = chan->bans.begin(); i != chan->bans.end(); i++)
 	{
 		if (!strcasecmp(i->data,dest.c_str()))
