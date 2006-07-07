@@ -42,9 +42,14 @@ using namespace std;
 #include "helperfuncs.h"
 #include "mode.h"
 
+/* +s (secret) */
 #include "modes/cmode_s.h"
+/* +p (private) */
 #include "modes/cmode_p.h"
+/* +b (bans) */
 #include "modes/cmode_b.h"
+/* +m (moderated) */
+#include "modes/cmode_m.h"
 
 extern int MODCOUNT;
 extern std::vector<Module*> modules;
@@ -54,7 +59,8 @@ extern ServerConfig* Config;
 
 extern time_t TIME;
 
-ModeHandler::ModeHandler(char modeletter, int parameters_on, int parameters_off, bool listmode, ModeType type, bool operonly) : mode(modeletter), n_params_on(parameters_on), n_params_off(parameters_off), list(listmode), m_type(type), oper(operonly)
+ModeHandler::ModeHandler(char modeletter, int parameters_on, int parameters_off, bool listmode, ModeType type, bool operonly)
+	: mode(modeletter), n_params_on(parameters_on), n_params_off(parameters_off), list(listmode), m_type(type), oper(operonly)
 {
 }
 
@@ -593,5 +599,6 @@ ModeParser::ModeParser()
 	this->AddMode(new ModeChannelSecret, 's');
 	this->AddMode(new ModeChannelPrivate, 'p');
 	this->AddMode(new ModeChannelBan, 'b');
+	this->AddMode(new ModeChannelModerated, 'm');
 }
 
