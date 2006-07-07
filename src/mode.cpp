@@ -46,6 +46,8 @@ using namespace std;
 #include "helperfuncs.h"
 #include "mode.h"
 
+#include "modes/cmode_s.h"
+
 extern int MODCOUNT;
 extern std::vector<Module*> modules;
 extern std::vector<ircd_module*> factory;
@@ -1752,5 +1754,7 @@ void ModeParser::ServerMode(char **parameters, int pcnt, userrec *user)
 
 ModeParser::ModeParser()
 {
-	cmode_s = new ModeChannelSecret();
+	/* Dummy framework, XXX tidyme */
+	ModeChannelSecret* cmode_s = new ModeChannelSecret();
+	modehandlers[(unsigned char)'s'] = cmode_s;
 }
