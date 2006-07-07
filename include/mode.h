@@ -180,8 +180,7 @@ class ModeParser
 	ModeParser();
 	bool AddMode(ModeHandler* mh, unsigned const char modeletter);
 	void Process(char **parameters, int pcnt, userrec *user, bool servermode);
-
-	//void ServerMode(char **parameters, int pcnt, userrec *user);
+	static void CleanMask(std::string &mask);
 };
 
 class cmd_mode : public command_t

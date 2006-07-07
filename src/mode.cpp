@@ -567,6 +567,12 @@ void cmd_mode::Handle (char **parameters, int pcnt, userrec *user)
 	return;
 }
 
+void ModeParser::CleanMask(std::string &mask)
+{
+	std::string::size_type pos_of_pling = mask.find_first_of('!');
+	std::string::size_type pos_of_at = mask.find_first_of('@');
+}
+
 bool ModeParser::AddMode(ModeHandler* mh, unsigned const char modeletter)
 {
 	unsigned char mask = 0;
