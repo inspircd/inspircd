@@ -35,8 +35,6 @@ ModeAction ModeChannelBan::OnModeChange(userrec* source, userrec* dest, chanrec*
 std::string& ModeChannelBan::AddBan(userrec *user,std::string &dest,chanrec *chan,int status)
 {
 	BanItem b;
-	int toomanyexclamation = 0;
-	int toomanyat = 0;
 
 	if ((!user) || (!chan))
 	{
