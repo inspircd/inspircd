@@ -496,6 +496,16 @@ void ModeParser::Process(char **parameters, int pcnt, userrec *user, bool server
 								}
 							}
 							ModeAction ma = modehandlers[handler_id]->OnModeChange(user, targetuser, targetchannel, parameter, adding);
+
+							if ((modehandlers[handler_id]->GetNumParams(adding)) && (parameter == ""))
+							{
+								/* The handler nuked the parameter and they are supposed to have one.
+								 * We CANT continue now, even if they actually returned MODEACTION_ALLOW,
+								 * so we bail to the next mode character.
+								 */
+								continue;
+							}
+
 							if (ma == MODEACTION_ALLOW)
 							{
 								log(DEBUG,"ModeAction was allow");
@@ -597,16 +607,6 @@ void ModeParser::CleanMask(std::string &mask)
 	{
 		/* Has a ! but no @, it must be a nick!ident */
 		mask.append("@*");
-	}
-
-	/* Check for dumb stuff like *@*!*
-	 * swap the two items over so that at least the n!u@h ordering
-	 * is correct even if the elements may not be
-	 */
-	if (((pos_of_pling != std::string::npos) && (pos_of_at != std::string::npos)) && (pos_of_pling > pos_of_at))
-	{
-		mask.replace(pos_of_pling, 1, "@");
-		mask.replace(pos_of_at, 1, "!");
 	}
 }
 
