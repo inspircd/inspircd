@@ -29,7 +29,14 @@ ModeAction ModeChannelBan::OnModeChange(userrec* source, userrec* dest, chanrec*
 {
 	int status = cstatus(source, channel);
 	/* Call the correct method depending on wether we're adding or removing the mode */
-	adding ? parameter = this->AddBan(source, parameter, channel, status) : parameter = this->DelBan(source, parameter, channel, status);
+	if (adding)
+	{
+		parameter = this->AddBan(source, parameter, channel, status);
+	}
+	else
+	{
+		parameter = this->DelBan(source, parameter, channel, status);
+	}
 	/* If the method above 'ate' the parameter by reducing it to an empty string, then
 	 * it won't matter wether we return ALLOW or DENY here, as an empty string overrides
 	 * the return value and is always MODEACTION_DENY if the mode is supposed to have
