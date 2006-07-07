@@ -571,6 +571,43 @@ void ModeParser::CleanMask(std::string &mask)
 {
 	std::string::size_type pos_of_pling = mask.find_first_of('!');
 	std::string::size_type pos_of_at = mask.find_first_of('@');
+	std::string::size_type pos_of_dot = mask.find_first_of('.');
+	std::string::size_type pos_of_colon = mask.find_first_of(':'); /* Because ipv6 addresses are colon delimited */
+
+	if ((pos_of_pling == std::string::npos) && (pos_of_at == std::string::npos))
+	{
+		/* Just a nick, or just a host */
+		if ((pos_of_dot == std::string::npos) && (pos_of_dot == std::string::npos))
+		{
+			/* It has no '.' in it, it must be a nick. */
+			mask.append("!*@*");
+		}
+		else
+		{
+			/* Got a dot in it? Has to be a host */
+			mask = "*!*@" + mask;
+		}
+	}
+	else if ((pos_of_pling == std::string::npos) && (pos_of_at != std::string::npos))
+	{
+		/* Has an @ but no !, its a user@host */
+		 mask = "*!" + mask;
+	}
+	else if ((pos_of_pling != std::string::npos) && (pos_of_at == std::string::npos))
+	{
+		/* Has a ! but no @, it must be a nick!ident */
+		mask.append("@*");
+	}
+
+	/* Check for dumb stuff like *@*!*
+	 * swap the two items over so that at least the n!u@h ordering
+	 * is correct even if the elements may not be
+	 */
+	if (pos_of_pling > pos_of_at)
+	{
+		mask.replace(pos_of_pling, 1, "@");
+		mask.replace(pos_of_at, 1, "!");
+	}
 }
 
 bool ModeParser::AddMode(ModeHandler* mh, unsigned const char modeletter)
