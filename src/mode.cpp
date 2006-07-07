@@ -603,7 +603,7 @@ void ModeParser::CleanMask(std::string &mask)
 	 * swap the two items over so that at least the n!u@h ordering
 	 * is correct even if the elements may not be
 	 */
-	if (pos_of_pling > pos_of_at)
+	if (((pos_of_pling != std::string::npos) && (pos_of_at != std::string::npos)) && (pos_of_pling > pos_of_at))
 	{
 		mask.replace(pos_of_pling, 1, "@");
 		mask.replace(pos_of_at, 1, "!");
