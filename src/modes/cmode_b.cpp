@@ -28,14 +28,18 @@ ModeChannelBan::ModeChannelBan() : ModeHandler('b', 1, 1, true, MODETYPE_CHANNEL
 ModeAction ModeChannelBan::OnModeChange(userrec* source, userrec* dest, chanrec* channel, std::string &parameter, bool adding)
 {
 	int status = cstatus(source, channel);
+	/* Call the correct method depending on wether we're adding or removing the mode */
 	adding ? parameter = this->AddBan(source, parameter, channel, status) : parameter = this->DelBan(source, parameter, channel, status);
+	/* If the method above 'ate' the parameter by reducing it to an empty string, then
+	 * it won't matter wether we return ALLOW or DENY here, as an empty string overrides
+	 * the return value and is always MODEACTION_DENY if the mode is supposed to have
+	 * a parameter.
+	 */
 	return MODEACTION_ALLOW;
 }
 
 std::string& ModeChannelBan::AddBan(userrec *user,std::string &dest,chanrec *chan,int status)
 {
-	BanItem b;
-
 	if ((!user) || (!chan))
 	{
 		log(DEFAULT,"*** BUG *** AddBan was given an invalid parameter");

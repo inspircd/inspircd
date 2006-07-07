@@ -1,7 +1,10 @@
 #include "mode.h"
+#include "channels.h"
 
 class ModeChannelBan : public ModeHandler
 {
+ private:
+	BanItem b;
  public:
 	ModeChannelBan();
 	ModeAction OnModeChange(userrec* source, userrec* dest, chanrec* channel, std::string &parameter, bool adding);
