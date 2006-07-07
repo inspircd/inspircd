@@ -1,24 +1,38 @@
+#include <string>
+#include <vector>
+#include "inspircd_config.h"
+#include "configreader.h"
+#include "hash_map.h"
 #include "inspircd.h"
 #include "mode.h"
 #include "channels.h"
 #include "users.h"
 #include "helperfuncs.h"
+#include "message.h"
+#include "modules.h"
+#include "inspstring.h"
+#include "hashcomp.h"
 #include "modes/cmode_b.h"
 
 extern InspIRCd* ServerInstance;
+extern ServerConfig* Config;
+extern std::vector<Module*> modules;
+extern std::vector<ircd_module*> factory;
+extern int MODCOUNT;
+extern time_t TIME;
 
-ModeChannelPrivate::ModeChannelBan() : ModeHandler('b', 1, 1, true, MODETYPE_CHANNEL, false)
+ModeChannelBan::ModeChannelBan() : ModeHandler('b', 1, 1, true, MODETYPE_CHANNEL, false)
 {
 }
 
 ModeAction ModeChannelBan::OnModeChange(userrec* source, userrec* dest, chanrec* channel, std::string &parameter, bool adding)
 {
-	int status = cstatus(user, chan);
-	adding ? parameter = this->AddBan(user, parameter, channel, status) : parameter = this->DelBan(user, parameter, channel, status);
+	int status = cstatus(source, channel);
+	adding ? parameter = this->AddBan(source, parameter, channel, status) : parameter = this->DelBan(source, parameter, channel, status);
 	return MODEACTION_ALLOW;
 }
 
-std::string& ChannelModeBan::AddBan(userrec *user,std::string &dest,chanrec *chan,int status)
+std::string& ModeChannelBan::AddBan(userrec *user,std::string &dest,chanrec *chan,int status)
 {
         BanItem b;
         int toomanyexclamation = 0;
@@ -27,7 +41,8 @@ std::string& ChannelModeBan::AddBan(userrec *user,std::string &dest,chanrec *cha
         if ((!user) || (!chan))
         {
                 log(DEFAULT,"*** BUG *** AddBan was given an invalid parameter");
-                return NULL;
+		dest = "";
+                return dest;
         }
 
         for (std::string::iterator i = dest.begin(); i != dest.end(); i++)
@@ -75,10 +90,10 @@ std::string& ChannelModeBan::AddBan(userrec *user,std::string &dest,chanrec *cha
                 return dest;
 	}
 
-        TidyBan(dest);
+        //TidyBan(dest);
         for (BanList::iterator i = chan->bans.begin(); i != chan->bans.end(); i++)
         {
-                if (!strcasecmp(i->data,dest))
+                if (!strcasecmp(i->data,dest.c_str()))
                 {
                         // dont allow a user to set the same ban twice
 			dest = "";
@@ -87,7 +102,7 @@ std::string& ChannelModeBan::AddBan(userrec *user,std::string &dest,chanrec *cha
         }
 
         b.set_time = TIME;
-        strlcpy(b.data,dest,MAXBUF);
+        strlcpy(b.data,dest.c_str(),MAXBUF);
         if (*user->nick)
         {
                 strlcpy(b.set_by,user->nick,NICKMAX-1);
@@ -100,11 +115,12 @@ std::string& ChannelModeBan::AddBan(userrec *user,std::string &dest,chanrec *cha
         return dest;
 }
 
-std::string& ChannelModeBan::DelBan(userrec *user,std::string& dest,chanrec *chan,int status)
+std::string& ModeChannelBan::DelBan(userrec *user,std::string& dest,chanrec *chan,int status)
 {
         if ((!user) || (!chan)) {
                 log(DEFAULT,"*** BUG *** TakeBan was given an invalid parameter");
-                return 0;
+		dest = "";
+                return dest;
         }
 
         log(DEBUG,"del_ban: %s %s",chan->name,user->nick);
@@ -115,7 +131,10 @@ std::string& ChannelModeBan::DelBan(userrec *user,std::string& dest,chanrec *cha
                         int MOD_RESULT = 0;
                         FOREACH_RESULT(I_OnDelBan,OnDelBan(user,chan,dest));
                         if (MOD_RESULT)
-                                return NULL;
+			{
+				dest = "";
+                                return dest;
+			}
                         chan->bans.erase(i);
                         return dest;
                 }

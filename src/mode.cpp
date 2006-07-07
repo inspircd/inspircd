@@ -555,13 +555,6 @@ void ModeParser::Process(char **parameters, int pcnt, userrec *user, bool server
 
 void cmd_mode::Handle (char **parameters, int pcnt, userrec *user)
 {
-	chanrec* chan;
-	int MOD_RESULT;
-	int can_change;
-	int direction = 1;
-	char outpars[MAXBUF];
-	bool next_ok = true;
-
 	if (!user)
 		return;
 
