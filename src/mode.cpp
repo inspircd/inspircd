@@ -48,6 +48,7 @@ using namespace std;
 
 #include "modes/cmode_s.h"
 #include "modes/cmode_p.h"
+#include "modes/cmode_b.h"
 
 extern int MODCOUNT;
 extern std::vector<Module*> modules;
@@ -594,5 +595,6 @@ ModeParser::ModeParser()
 	/* Initialise the RFC mode letters */
 	this->AddMode(new ModeChannelSecret, 's');
 	this->AddMode(new ModeChannelPrivate, 'p');
+	this->AddMode(new ModeChannelBan, 'b');
 }
 
