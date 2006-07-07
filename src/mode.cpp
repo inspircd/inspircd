@@ -23,11 +23,7 @@ using namespace std;
 #include <sys/errno.h>
 #include <time.h>
 #include <string>
-#ifdef GCC3
-#include <ext/hash_map>
-#else
-#include <hash_map>
-#endif
+#include "hash_map.h"
 #include <map>
 #include <sstream>
 #include <vector>
