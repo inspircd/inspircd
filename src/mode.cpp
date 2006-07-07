@@ -423,12 +423,14 @@ void ModeParser::Process(char **parameters, int pcnt, userrec *user, bool server
 		int handler_id = 0;
 		int parameter_counter = 2; /* Index of first parameter */
 
-		for (std::string::const_iterator modeletter = mode_sequence.begin(); modeletter != mode_sequence.end(); modeletter++)
+		for (std::string::const_iterator letter = mode_sequence.begin(); letter != mode_sequence.end(); letter++)
 		{
-			switch (*modeletter)
+			unsigned char modechar = *letter;
+
+			switch (modechar)
 			{
 
-				log(DEBUG,"Iterate mode letter %c",*modeletter);
+				log(DEBUG,"Iterate mode letter %c",modechar);
 
 				/* NB:
 				 * For + and - mode characters, we don't just stick the character into the output sequence.
@@ -463,13 +465,13 @@ void ModeParser::Process(char **parameters, int pcnt, userrec *user, bool server
 					 * a user mode. This is a little stranger, but a lot
 					 * faster, than using a map of pairs.
 					 */
-					handler_id = (*modeletter - 65) | mask;
+					handler_id = (modechar - 65) | mask;
 
 					if (modehandlers[handler_id])
 					{
 						bool abort = false;
 
-						log(DEBUG,"Found a ModeHandler* for mode %c",*modeletter);
+						log(DEBUG,"Found a ModeHandler* for mode %c",modechar);
 
 						for (ModeWatchIter watchers = modewatchers[handler_id].begin(); watchers != modewatchers[handler_id].end(); watchers++)
 						{
@@ -518,7 +520,7 @@ void ModeParser::Process(char **parameters, int pcnt, userrec *user, bool server
 								}
 								
 								/* Add the mode letter */
-								output_sequence = output_sequence + *modeletter;
+								output_sequence.push_back(modechar);
 								log(DEBUG,"Added mode letter to output sequence, sequence now: '%s'",output_sequence.c_str());
 
 								/* Is there a valid parameter for this mode? If so add it to the parameter list */
