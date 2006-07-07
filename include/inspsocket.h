@@ -156,6 +156,12 @@ protected:
 	 */
 	bool ClosePending;
 
+	/** Set to true when we're waiting for a write event.
+	 * If this is true and a write event comes in, we
+	 * call the write instead of the read method.
+	 */
+	bool WaitingForWriteEvent;
+
 	bool BindAddr();
 
 public:
@@ -223,6 +229,8 @@ public:
 	 * @return false to close the socket
 	 */
 	virtual bool OnDataReady();
+
+	virtual bool OnWriteReady();
 
 	/**
 	 * When an outbound connection fails, and the
@@ -297,6 +305,13 @@ public:
 	 * it directly.
 	 */
 	void SetState(InspSocketState s);
+
+	/**
+	 * Call this to receive the next write event
+	 * that comes along for this fd to the OnWriteReady
+	 * method.
+	 */
+	void WantWrite();
 
 	/**
 	 * Returns the current socket state.

@@ -120,6 +120,23 @@ InspSocket::InspSocket(const std::string &ahost, int aport, bool listening, unsi
 	}
 }
 
+void InspSocket::WantWrite()
+{
+	/** XXX:
+	 * The socket engine may only have each FD in the list ONCE.
+	 * This means we cant watch for write AND read at the same
+	 * time. We have to remove the READ fd, to insert the WRITE
+	 * fd. Once we receive our WRITE event (which WILL ARRIVE,
+	 * pretty much gauranteed) we switch back to watching for
+	 * READ events again.
+	 *
+	 * This behaviour may be fixed in a later version.
+	 */
+	this->WaitingForWriteEvent = true;
+	ServerInstance->SE->DelFd(this->fd);
+	ServerInstance->SE->AddFd(this->fd,false,X_ESTAB_MODULE);
+}
+
 void InspSocket::SetQueues(int nfd)
 {
 	// attempt to increase socket sendq and recvq as high as its possible
@@ -446,7 +463,20 @@ bool InspSocket::Poll()
 			return true;
 		break;
 		case I_CONNECTED:
-			n = this->OnDataReady();
+
+			if (this->WaitingForWriteEvent)
+			{
+				/* Switch back to read events */
+				ServerInstance->SE->DelFd(this->fd);
+				ServerInstance->SE->AddFd(this->fd,true,X_ESTAB_MODULE);
+				/* Trigger the write event */
+				n = this->OnWriteReady();
+			}
+			else
+			{
+				/* Process the read event */
+				n = this->OnDataReady();
+			}
 			/* Flush any pending, but not till after theyre done with the event
 			 * so there are less write calls involved.
 			 * Both FlushWriteBuffer AND the return result of OnDataReady must
@@ -483,6 +513,7 @@ void InspSocket::OnError(InspSocketError e) { return; }
 int InspSocket::OnDisconnect() { return 0; }
 int InspSocket::OnIncomingConnection(int newfd, char* ip) { return 0; }
 bool InspSocket::OnDataReady() { return true; }
+bool InspSocket::OnWriteReady() { return true; }
 void InspSocket::OnTimeout() { return; }
 void InspSocket::OnClose() { return; }
 
