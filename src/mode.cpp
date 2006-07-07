@@ -47,6 +47,7 @@ using namespace std;
 #include "mode.h"
 
 #include "modes/cmode_s.h"
+#include "modes/cmode_p.h"
 
 extern int MODCOUNT;
 extern std::vector<Module*> modules;
@@ -481,6 +482,7 @@ void ModeParser::Process(char **parameters, int pcnt, userrec *user, bool server
 {
 	std::string target = parameters[0];
 	ModeType type = MODETYPE_USER;
+	unsigned char mask = 0;
 	chanrec* targetchannel = FindChan(parameters[0]);
 	userrec* targetuser  = Find(parameters[0]);
 
@@ -492,11 +494,13 @@ void ModeParser::Process(char **parameters, int pcnt, userrec *user, bool server
 		{
 			log(DEBUG,"Target type is CHANNEL");
 			type = MODETYPE_CHANNEL;
+			mask = MASK_CHANNEL;
 		}
 		else if (targetuser)
 		{
 			log(DEBUG,"Target type is USER");
 			type = MODETYPE_USER;
+			mask = MASK_USER;
 		}
 		else
 		{
@@ -543,8 +547,16 @@ void ModeParser::Process(char **parameters, int pcnt, userrec *user, bool server
 				break;
 				default:
 
-					/* 65 is the ascii value of 'A' */
-					handler_id = *modeletter - 65;
+					/**
+					 * Watch carefully for the sleight of hand trick.
+					 * 65 is the ascii value of 'A'. We take this from
+					 * the char we're looking at to get a number between
+					 * 1 and 127. We then logic-or it to get the hashed
+					 * position, dependent on wether its a channel or
+					 * a user mode. This is a little stranger, but a lot
+					 * faster, than using a map of pairs.
+					 */
+					handler_id = (*modeletter - 65) | mask;
 
 					if (modehandlers[handler_id])
 					{
@@ -654,10 +666,15 @@ void cmd_mode::Handle (char **parameters, int pcnt, userrec *user)
 	return;
 }
 
+ModeParser::AddMode(ModeHandler* mh, unsigned const char* modeletter)
+{
+	mh->GetType() == MODETYPE_USER ? mask = MASK_USER : mask = MASK_CHANNEL;
+	modehandlers[(modeletter-65) | mask] = mh;
+}
 
 ModeParser::ModeParser()
 {
-	/* Dummy framework, XXX tidyme */
-	ModeChannelSecret* cmode_s = new ModeChannelSecret();
-	modehandlers[(unsigned char)'s'-65] = cmode_s;
+	/* Initialise the RFC mode letters */
+	this->AddMode(new ModeChannelSecret, 's');
+	this->AddMode(new ModeChannelPrivate, 'p');
 }
