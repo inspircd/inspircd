@@ -669,8 +669,22 @@ void cmd_mode::Handle (char **parameters, int pcnt, userrec *user)
 bool ModeParser::AddMode(ModeHandler* mh, unsigned const char modeletter)
 {
 	unsigned char mask = 0;
+	unsigned char pos = 0;
+
+	/* Yes, i know, this might let people declare modes like '_' or '^'.
+	 * If they do that, thats their problem, and if i ever EVER see an
+	 * official InspIRCd developer do that, i'll beat them with a paddle!
+	 */
+	if ((modeletter < 'A') || (modeletter > 'z'))
+		return false;
+
 	mh->GetModeType() == MODETYPE_USER ? mask = MASK_USER : mask = MASK_CHANNEL;
-	modehandlers[(modeletter-65) | mask] = mh;
+	pos = (modeletter-65) | mask;
+
+	if (modehandlers[pos])
+		return false;
+
+	modehandlers[pos] = mh;
 	return true;
 }
 
@@ -684,3 +698,4 @@ ModeParser::ModeParser()
 	this->AddMode(new ModeChannelSecret, 's');
 	this->AddMode(new ModeChannelPrivate, 'p');
 }
+
