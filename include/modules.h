@@ -1320,14 +1320,14 @@ class Server : public classbase
 	 * @returns True on success, false if the feature is already published by
 	 * another module.
 	 */
-	bool PublishFeature(std::string FeatureName, Module* Mod);
+	bool PublishFeature(const std::string &FeatureName, Module* Mod);
 
 	/** Unpublish a 'feature'.
 	 * When your module exits, it must call this method for every feature it
 	 * is providing so that the feature table is cleaned up.
 	 * @param FeatureName the feature to remove
 	 */
-	bool UnpublishFeature(std::string FeatureName);
+	bool UnpublishFeature(const std::string &FeatureName);
 
 	/** Find a 'feature'.
 	 * There are two ways for a module to find another module it depends on.
@@ -1341,7 +1341,7 @@ class Server : public classbase
 	 * @param FeatureName The feature name you wish to obtain the module for
 	 * @returns A pointer to a valid module class on success, NULL on failure.
 	 */
-	Module* FindFeature(std::string FeatureName);
+	Module* FindFeature(const std::string &FeatureName);
 
 	/** Writes a log string.
 	 * This method writes a line of text to the log. If the level given is lower than the

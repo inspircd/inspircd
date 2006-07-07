@@ -351,7 +351,7 @@ long Server::PriorityBefore(const std::string &modulename)
 	return PRIORITY_DONTCARE;
 }
 
-bool Server::PublishFeature(std::string FeatureName, Module* Mod)
+bool Server::PublishFeature(const std::string &FeatureName, Module* Mod)
 {
 	if (Features.find(FeatureName) == Features.end())
 	{
@@ -361,7 +361,7 @@ bool Server::PublishFeature(std::string FeatureName, Module* Mod)
 	return false;
 }
 
-bool Server::UnpublishFeature(std::string FeatureName)
+bool Server::UnpublishFeature(const std::string &FeatureName)
 {
 	featurelist::iterator iter = Features.find(FeatureName);
 	
@@ -372,7 +372,7 @@ bool Server::UnpublishFeature(std::string FeatureName)
 	return true;
 }
 
-Module* Server::FindFeature(std::string FeatureName)
+Module* Server::FindFeature(const std::string &FeatureName)
 {
 	featurelist::iterator iter = Features.find(FeatureName);
 
