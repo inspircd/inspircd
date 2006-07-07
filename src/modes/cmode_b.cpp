@@ -45,32 +45,11 @@ std::string& ModeChannelBan::AddBan(userrec *user,std::string &dest,chanrec *cha
 		return dest;
 	}
 
-	for (std::string::iterator i = dest.begin(); i != dest.end(); i++)
-	{
-		if ((*i < 32) || (*i > 126))
-		{
-			dest = "";
-			return dest;
-		}
-		else if (*i == '!')
-		{
-			toomanyexclamation++;
-		}
-		else if (*i == '@')
-		{
-			toomanyat++;
-		}
-	}
-
-	if (toomanyexclamation != 1 || toomanyat != 1)
-	{
-		/*
-		 * this stops sillyness like n!u!u!u@h, though note that most
-		 * ircds don't actually verify banmask validity. --w00t
-		 */
-		dest = "";
+	/* Attempt to tidy the mask */
+	ModeParser::CleanMask(dest);
+	/* If the mask was invalid, we exit */
+	if (dest == "")
 		return dest;
-	}
 
 	long maxbans = GetMaxBans(chan->name);
 	if ((unsigned)chan->bans.size() > (unsigned)maxbans)
