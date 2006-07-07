@@ -666,10 +666,12 @@ void cmd_mode::Handle (char **parameters, int pcnt, userrec *user)
 	return;
 }
 
-ModeParser::AddMode(ModeHandler* mh, unsigned const char* modeletter)
+bool ModeParser::AddMode(ModeHandler* mh, unsigned const char modeletter)
 {
-	mh->GetType() == MODETYPE_USER ? mask = MASK_USER : mask = MASK_CHANNEL;
+	unsigned char mask = 0;
+	mh->GetModeType() == MODETYPE_USER ? mask = MASK_USER : mask = MASK_CHANNEL;
 	modehandlers[(modeletter-65) | mask] = mh;
+	return true;
 }
 
 ModeParser::ModeParser()

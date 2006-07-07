@@ -120,7 +120,7 @@ class ModeParser
 	char* Revoke(userrec *d,chanrec *chan,int MASK);
  public:
 	ModeParser();
-
+	bool AddMode(ModeHandler* mh, unsigned const char modeletter);
 	void Process(char **parameters, int pcnt, userrec *user, bool servermode);
 
 	//void ServerMode(char **parameters, int pcnt, userrec *user);
