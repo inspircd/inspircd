@@ -586,6 +586,7 @@ bool ModeParser::AddMode(ModeHandler* mh, unsigned const char modeletter)
 		return false;
 
 	modehandlers[pos] = mh;
+	log(DEBUG,"ModeParser::AddMode: added mode %c",modeletter);
 	return true;
 }
 
