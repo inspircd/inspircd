@@ -112,6 +112,8 @@ class ModeParser
 	char* Grant(userrec *d,chanrec *chan,int MASK);
 	char* Revoke(userrec *d,chanrec *chan,int MASK);
  public:
+	ModeParser();
+
 	void Process(char **parameters, int pcnt, userrec *user, bool servermode);
 
 	std::string CompressModes(std::string modes,bool channelmodes);

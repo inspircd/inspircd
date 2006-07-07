@@ -1749,3 +1749,8 @@ void ModeParser::ServerMode(char **parameters, int pcnt, userrec *user)
 		WriteServ(user->fd,"401 %s %s :No such nick/channel",user->nick, parameters[0]);
 	}
 }
+
+ModeParser::ModeParser()
+{
+	cmode_s = new ModeChannelSecret();
+}
