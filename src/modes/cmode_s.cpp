@@ -10,6 +10,13 @@ ModeChannelSecret::ModeChannelSecret() : ModeHandler('s', 0, 0, 0, MODETYPE_CHAN
 
 ModeAction ModeChannelSecret::OnModeChange(userrec* source, userrec* dest, chanrec* channel, std::string &parameter, bool adding)
 {
-	channel->modes[CM_SECRET] = adding;
-	return MODEACTION_ALLOW;
+	if (channel->modes[CM_SECRET] != adding)
+	{
+		channel->modes[CM_SECRET] = adding;
+		return MODEACTION_ALLOW;
+	}
+	else
+	{
+		return MODEACTION_DENY;
+	}
 }

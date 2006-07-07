@@ -525,7 +525,7 @@ void Server::AddCommand(command_t *f)
 
 void Server::SendMode(char **parameters, int pcnt, userrec *user)
 {
-	ServerInstance->ModeGrok->ServerMode(parameters,pcnt,user);
+	//ServerInstance->ModeGrok->ServerMode(parameters,pcnt,user);
 }
 
 void Server::Send(int Socket, const std::string &s)
