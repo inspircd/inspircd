@@ -36,11 +36,69 @@ class CensorException : public ModuleException
 	}
 };
 
+class CensorUser : public ModeHandler
+{
+ public:
+	CensorUser() : ModeHandler('G', 0, 0, false, MODETYPE_USER, false) { }
+
+	ModeAction OnModeChange(userrec* source, userrec* dest, chanrec* channel, std::string &parameter, bool adding)
+	{
+		if (adding)
+		{
+			if (!dest->IsModeSet('G'))
+			{
+				dest->SetMode('G',true);
+				return MODEACTION_ALLOW;
+			}
+		}
+		else
+		{
+			if (dest->IsModeSet('G'))
+			{
+				dest->SetMode('G',false);
+				return MODEACTION_ALLOW;
+			}
+		}
+
+		return MODEACTION_DENY;
+	}
+};
+
+class CensorChannel : public ModeHandler
+{
+ public:
+	CensorChannel() : ModeHandler('G', 0, 0, false, MODETYPE_CHANNEL, false) { }
+
+	ModeAction OnModeChange(userrec* source, userrec* dest, chanrec* channel, std::string &parameter, bool adding)
+	{
+		if (adding)
+		{
+			if (!channel->IsModeSet('G'))
+			{
+				channel->SetMode('G',false);
+				return MODEACTION_ALLOW;
+			}
+		}
+		else
+		{
+			if (channel->IsModeSet('G'))
+			{
+				channel->SetMode('G',false);
+				return MODEACTION_ALLOW;
+			}
+		}
+
+		return MODEACTION_ALLOW;
+	}
+};
+
 class ModuleCensor : public Module
 {
 
 	Server *Srv;
 	censor_t censors;
+	CensorUser *cu;
+	CensorChannel *cc;
  
  public:
 	ModuleCensor(Server* Me)
@@ -60,13 +118,15 @@ class ModuleCensor : public Module
 		 */
 		Srv = Me;
 		OnRehash("");
-		Srv->AddExtendedMode('G',MT_CHANNEL,false,0,0);
-		Srv->AddExtendedMode('G',MT_CLIENT,false,0,0);
+		cu = new CensorUser;
+		cc = new CensorChannel;
+		Srv->AddMode(cu, 'G');
+		Srv->AddMode(cc, 'G');
 	}
 
 	void Implements(char* List)
 	{
-		List[I_OnRehash] = List[I_On005Numeric] = List[I_OnUserPreMessage] = List[I_OnUserPreNotice] = List[I_OnExtendedMode] = 1;
+		List[I_OnRehash] = List[I_On005Numeric] = List[I_OnUserPreMessage] = List[I_OnUserPreNotice] = 1;
 	}
 
 
@@ -74,23 +134,11 @@ class ModuleCensor : public Module
 	{
 		InsertMode(output,"G",4);
 	}
-
-
-	virtual int OnExtendedMode(userrec* user, void* target, char modechar, int type, bool mode_on, string_list &params)
-	{
-		// check if this is our mode character...
-		if (modechar == 'G')
-  		{
-			return 1;
-		}
-		else
-		{
-			return 0;
-		}
-	}
- 	
+ 
 	virtual ~ModuleCensor()
 	{
+		delete cu;
+		delete cc;
 	}
 	
 	virtual void ReplaceLine(irc::string &text, irc::string pattern, irc::string replace)
@@ -119,7 +167,7 @@ class ModuleCensor : public Module
 				if (target_type == TYPE_USER)
 				{
 					userrec* t = (userrec*)dest;
-					active = t->modes['G'-65];
+					active = t->IsModeSet('G');
 				}
 				else if (target_type == TYPE_CHANNEL)
 				{
