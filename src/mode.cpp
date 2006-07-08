@@ -220,34 +220,7 @@ const char* ModeParser::Revoke(userrec *d,chanrec *chan,int MASK)
 	return "";
 }
 
-/*char* ModeParser::GiveHops(userrec *user,char *dest,chanrec *chan,int status)
-{
-	userrec *d = this->SanityChecks(user,dest,chan,status);
-	
-	if (d)
-	{
-		if (IS_LOCAL(user))
-		{
-			int MOD_RESULT = 0;
-			FOREACH_RESULT(I_OnAccessCheck,OnAccessCheck(user,d,chan,AC_HALFOP));
-		
-			if (MOD_RESULT == ACR_DENY)
-				return NULL;
-			if (MOD_RESULT == ACR_DEFAULT)
-			{
-				if ((status < STATUS_OP) && (!is_uline(user->server)))
-				{
-					WriteServ(user->fd,"482 %s %s :You're not a channel operator",user->nick, chan->name);
-					return NULL;
-				}
-			}
-		}
-
-		return this->Grant(d,chan,UCMODE_HOP);
-	}
-	return NULL;
-}
-
+/*
 char* ModeParser::GiveVoice(userrec *user,char *dest,chanrec *chan,int status)
 {
 	userrec *d = this->SanityChecks(user,dest,chan,status);
@@ -272,35 +245,6 @@ char* ModeParser::GiveVoice(userrec *user,char *dest,chanrec *chan,int status)
 		}
 
 		return this->Grant(d,chan,UCMODE_VOICE);
-	}
-	return NULL;
-}
-
-char* ModeParser::TakeHops(userrec *user,char *dest,chanrec *chan,int status)
-{
-	userrec *d = this->SanityChecks(user,dest,chan,status);
-	
-	if (d)
-	{
-		if (IS_LOCAL(user))
-		{
-			int MOD_RESULT = 0;
-			FOREACH_RESULT(I_OnAccessCheck,OnAccessCheck(user,d,chan,AC_DEHALFOP));
-			
-			if (MOD_RESULT == ACR_DENY)
-				return NULL;
-			if (MOD_RESULT == ACR_DEFAULT)
-			{
-				// Tweak by Brain suggested by w00t, allow a halfop to dehalfop themselves
-				if ((user != d) && ((status < STATUS_OP) && (!is_uline(user->server))))
-				{
-					WriteServ(user->fd,"482 %s %s :You are not a channel operator",user->nick, chan->name);
-					return NULL;
-				}
-			}
-		}
-
-		return this->Revoke(d,chan,UCMODE_HOP);
 	}
 	return NULL;
 }
