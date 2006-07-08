@@ -228,21 +228,23 @@ class ModeParser
 	 * we have 256 lists of them.
 	 */
 	std::vector<ModeWatcher*> modewatchers[256];
-	
-	char* GiveOps(userrec *user,char *dest,chanrec *chan,int status);
-	char* GiveHops(userrec *user,char *dest,chanrec *chan,int status);
+
+	/*char* GiveHops(userrec *user,char *dest,chanrec *chan,int status);
 	char* GiveVoice(userrec *user,char *dest,chanrec *chan,int status);
-	char* TakeOps(userrec *user,char *dest,chanrec *chan,int status);
 	char* TakeHops(userrec *user,char *dest,chanrec *chan,int status);
-	char* TakeVoice(userrec *user,char *dest,chanrec *chan,int status);
-	userrec* SanityChecks(userrec *user,char *dest,chanrec *chan,int status);
-	char* Grant(userrec *d,chanrec *chan,int MASK);
-	char* Revoke(userrec *d,chanrec *chan,int MASK);
+	char* TakeVoice(userrec *user,char *dest,chanrec *chan,int status);*/
+
  public:
+
 	ModeParser();
+
+	static userrec* SanityChecks(userrec *user,const char *dest,chanrec *chan,int status);
+	static const char* Grant(userrec *d,chanrec *chan,int MASK);
+	static const char* Revoke(userrec *d,chanrec *chan,int MASK);
+	static void CleanMask(std::string &mask);
+
 	bool AddMode(ModeHandler* mh, unsigned const char modeletter);
 	void Process(char **parameters, int pcnt, userrec *user, bool servermode);
-	static void CleanMask(std::string &mask);
 };
 
 class cmd_mode : public command_t

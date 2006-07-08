@@ -132,7 +132,7 @@ void ModeWatcher::AfterMode(userrec* source, userrec* dest, chanrec* channel, co
 {
 }
 
-userrec* ModeParser::SanityChecks(userrec *user,char *dest,chanrec *chan,int status)
+userrec* ModeParser::SanityChecks(userrec *user,const char *dest,chanrec *chan,int status)
 {
 	userrec *d;
 	if ((!user) || (!dest) || (!chan) || (!*dest))
@@ -148,101 +148,75 @@ userrec* ModeParser::SanityChecks(userrec *user,char *dest,chanrec *chan,int sta
 	return d;
 }
 
-char* ModeParser::Grant(userrec *d,chanrec *chan,int MASK)
+const char* ModeParser::Grant(userrec *d,chanrec *chan,int MASK)
 {
 	if (!chan)
-		return NULL;
+		return "";
 
 	for (std::vector<ucrec*>::const_iterator i = d->chans.begin(); i != d->chans.end(); i++)
 	{
-		if (((ucrec*)(*i))->channel == chan)
+		ucrec* n = (ucrec*)(*i);
+		if (n->channel == chan)
 		{
-			if (((ucrec*)(*i))->uc_modes & MASK)
+			if (n->uc_modes & MASK)
 			{
-				return NULL;
+				return "";
 			}
-			((ucrec*)(*i))->uc_modes = ((ucrec*)(*i))->uc_modes | MASK;
+			n->uc_modes = ((ucrec*)(*i))->uc_modes | MASK;
 			switch (MASK)
 			{
 				case UCMODE_OP:
-					((ucrec*)(*i))->channel->AddOppedUser(d);
+					n->channel->AddOppedUser(d);
 				break;
 				case UCMODE_HOP:
-					((ucrec*)(*i))->channel->AddHalfoppedUser(d);
+					n->channel->AddHalfoppedUser(d);
 				break;
 				case UCMODE_VOICE:
-					((ucrec*)(*i))->channel->AddVoicedUser(d);
+					n->channel->AddVoicedUser(d);
 				break;
 			}
-			log(DEBUG,"grant: %s %s",((ucrec*)(*i))->channel->name,d->nick);
+			log(DEBUG,"grant: %s %s",n->channel->name,d->nick);
 			return d->nick;
 		}
 	}
-	return NULL;
+	return "";
 }
 
-char* ModeParser::Revoke(userrec *d,chanrec *chan,int MASK)
+const char* ModeParser::Revoke(userrec *d,chanrec *chan,int MASK)
 {
 	if (!chan)
-		return NULL;
+		return "";
 
 	for (std::vector<ucrec*>::const_iterator i = d->chans.begin(); i != d->chans.end(); i++)
 	{
-		if (((ucrec*)(*i))->channel == chan)
+		ucrec* n = (ucrec*)(*i);
+		if (n->channel == chan)
 		{
-			if ((((ucrec*)(*i))->uc_modes & MASK) == 0)
+			if ((n->uc_modes & MASK) == 0)
 			{
-				return NULL;
+				return "";
 			}
-			((ucrec*)(*i))->uc_modes ^= MASK;
+			n->uc_modes ^= MASK;
 			switch (MASK)
 			{
 				case UCMODE_OP:
-					((ucrec*)(*i))->channel->DelOppedUser(d);
+					n->channel->DelOppedUser(d);
 				break;
 				case UCMODE_HOP:
-					((ucrec*)(*i))->channel->DelHalfoppedUser(d);
+					n->channel->DelHalfoppedUser(d);
 				break;
 				case UCMODE_VOICE:
-					((ucrec*)(*i))->channel->DelVoicedUser(d);
+					n->channel->DelVoicedUser(d);
 				break;
 			}
-			log(DEBUG,"revoke: %s %s",((ucrec*)(*i))->channel->name,d->nick);
+			log(DEBUG,"revoke: %s %s",n->channel->name,d->nick);
 			return d->nick;
 		}
 	}
-	return NULL;
+	return "";
 }
 
-char* ModeParser::GiveOps(userrec *user,char *dest,chanrec *chan,int status)
-{
-	userrec *d = this->SanityChecks(user,dest,chan,status);
-	
-	if (d)
-	{
-		if (IS_LOCAL(user))
-		{
-			int MOD_RESULT = 0;
-			FOREACH_RESULT(I_OnAccessCheck,OnAccessCheck(user,d,chan,AC_OP));
-			
-			if (MOD_RESULT == ACR_DENY)
-				return NULL;
-			if (MOD_RESULT == ACR_DEFAULT)
-			{
-				if ((status < STATUS_OP) && (!is_uline(user->server)))
-				{
-					WriteServ(user->fd,"482 %s %s :You're not a channel operator",user->nick, chan->name);
-					return NULL;
-				}
-			}
-		}
-
-		return this->Grant(d,chan,UCMODE_OP);
-	}
-	return NULL;
-}
-
-char* ModeParser::GiveHops(userrec *user,char *dest,chanrec *chan,int status)
+/*char* ModeParser::GiveHops(userrec *user,char *dest,chanrec *chan,int status)
 {
 	userrec *d = this->SanityChecks(user,dest,chan,status);
 	
@@ -298,34 +272,6 @@ char* ModeParser::GiveVoice(userrec *user,char *dest,chanrec *chan,int status)
 	return NULL;
 }
 
-char* ModeParser::TakeOps(userrec *user,char *dest,chanrec *chan,int status)
-{
-	userrec *d = this->SanityChecks(user,dest,chan,status);
-	
-	if (d)
-	{
-		if (IS_LOCAL(user))
-		{
-			int MOD_RESULT = 0;
-			FOREACH_RESULT(I_OnAccessCheck,OnAccessCheck(user,d,chan,AC_DEOP));
-			
-			if (MOD_RESULT == ACR_DENY)
-				return NULL;
-			if (MOD_RESULT == ACR_DEFAULT)
-			{
-				if ((status < STATUS_OP) && (!is_uline(user->server)) && (IS_LOCAL(user)))
-				{
-					WriteServ(user->fd,"482 %s %s :You are not a channel operator",user->nick, chan->name);
-					return NULL;
-				}
-			}
-		}
-
-		return this->Revoke(d,chan,UCMODE_OP);
-	}
-	return NULL;
-}
-
 char* ModeParser::TakeHops(userrec *user,char *dest,chanrec *chan,int status)
 {
 	userrec *d = this->SanityChecks(user,dest,chan,status);
@@ -341,7 +287,7 @@ char* ModeParser::TakeHops(userrec *user,char *dest,chanrec *chan,int status)
 				return NULL;
 			if (MOD_RESULT == ACR_DEFAULT)
 			{
-				/* Tweak by Brain suggested by w00t, allow a halfop to dehalfop themselves */
+				// Tweak by Brain suggested by w00t, allow a halfop to dehalfop themselves
 				if ((user != d) && ((status < STATUS_OP) && (!is_uline(user->server))))
 				{
 					WriteServ(user->fd,"482 %s %s :You are not a channel operator",user->nick, chan->name);
@@ -381,7 +327,7 @@ char* ModeParser::TakeVoice(userrec *user,char *dest,chanrec *chan,int status)
 		return this->Revoke(d,chan,UCMODE_VOICE);
 	}
 	return NULL;
-}
+}*/
 
 void ModeParser::Process(char **parameters, int pcnt, userrec *user, bool servermode)
 {
