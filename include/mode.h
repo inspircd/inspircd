@@ -242,6 +242,7 @@ class ModeParser
 	static const char* Grant(userrec *d,chanrec *chan,int MASK);
 	static const char* Revoke(userrec *d,chanrec *chan,int MASK);
 	static void CleanMask(std::string &mask);
+	static void BuildModeString(userrec* user);
 
 	bool AddMode(ModeHandler* mh, unsigned const char modeletter);
 	void Process(char **parameters, int pcnt, userrec *user, bool servermode);

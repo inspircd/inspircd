@@ -55,6 +55,13 @@ using namespace std;
 /* +v (channel voice) */
 #include "modes/cmode_v.h"
 
+/* +s (server notices) */
+#include "modes/umode_s.h"
+/* +w (see wallops) */
+#include "modes/umode_w.h"
+/* +i (invisible) */
+#include "modes/umode_i.h"
+
 extern int MODCOUNT;
 extern std::vector<Module*> modules;
 extern std::vector<ircd_module*> factory;
@@ -456,6 +463,10 @@ void ModeParser::CleanMask(std::string &mask)
 	}
 }
 
+void ModeParser::BuildModeString(userrec* user)
+{
+}
+
 bool ModeParser::AddMode(ModeHandler* mh, unsigned const char modeletter)
 {
 	unsigned char mask = 0;
@@ -504,6 +515,11 @@ ModeParser::ModeParser()
 	this->AddMode(new ModeChannelOp, 'o');
 	this->AddMode(new ModeChannelHalfOp, 'h');
 	this->AddMode(new ModeChannelVoice, 'v');
+
+	/* Now for usermodes */
+	this->AddMode(new ModeUserServerNotice, 's');
+	this->AddMode(new ModeUserWallops, 'w');
+	this->AddMode(new ModeUserInvisible, 'i');
 
 	/* TODO: User modes +swio */
 }
