@@ -52,6 +52,8 @@ using namespace std;
 #include "modes/cmode_o.h"
 /* +h (channel halfop) */
 #include "modes/cmode_h.h"
+/* +v (channel voice) */
+#include "modes/cmode_v.h"
 
 extern int MODCOUNT;
 extern std::vector<Module*> modules;
@@ -542,7 +544,7 @@ ModeParser::ModeParser()
 
 	/* Initialise the RFC mode letters */
 
-	/* Start with simple modes, no params */
+	/* Start with channel simple modes, no params */
 	this->AddMode(new ModeChannelSecret, 's');
 	this->AddMode(new ModeChannelPrivate, 'p');
 	this->AddMode(new ModeChannelModerated, 'm');
@@ -550,15 +552,16 @@ ModeParser::ModeParser()
 	this->AddMode(new ModeChannelNoExternal, 'n');
 	this->AddMode(new ModeChannelInviteOnly, 'i');
 
-	/* Now modes with params */
+	/* Cannel modes with params */
 	this->AddMode(new ModeChannelKey, 'k');
 	this->AddMode(new ModeChannelLimit, 'l');
 
-	/* Now listmodes */
+	/* Channel listmodes */
 	this->AddMode(new ModeChannelBan, 'b');
 	this->AddMode(new ModeChannelOp, 'o');
 	this->AddMode(new ModeChannelHalfOp, 'h');
+	this->AddMode(new ModeChannelVoice, 'v');
 
-	/* TODO: Modes +v, +h */
+	/* TODO: User modes +swio */
 }
 
