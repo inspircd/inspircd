@@ -12,14 +12,15 @@ ModeAction ModeUserServerNotice::OnModeChange(userrec* source, userrec* dest, ch
 {
 	/* Only opers can change other users modes */
 	if ((source != dest) && (!*source->oper))
-		return MODEACTION_ALLOW;
+		return MODEACTION_DENY;
 
 	/* Set the bitfields */
-	adding ? dest->modebits |= UM_SERVERNOTICE : dest->modebits &= ~UM_SERVERNOTICE;
-
-	/* Use the bitfields to build the user's mode string */
-	ModeParser::BuildModeString(dest);
+	if (dest->modes[UM_SERVERNOTICE] != adding)
+	{
+		dest->modes[UM_SERVERNOTICE] = adding;
+		return MODEACTION_ALLOW;
+	}
 
 	/* Allow the change */
-	return MODEACTION_ALLOW;
+	return MODEACTION_DENY;
 }

@@ -110,6 +110,19 @@ bool DoneClassesAndTypes(const char* tag)
 	return true;
 }
 
+const char* userrec::FormatModes()
+{
+	static char data[MAXBUF];
+	int offset = 0;
+	for (int n = 0; n < 64; n++)
+	{
+		if (modes[n])
+			data[offset++] = n+65;
+	}
+	data[offset] = 0;
+	return data;
+}
+
 userrec::userrec()
 {
 	// the PROPER way to do it, AVOID bzero at *ALL* costs

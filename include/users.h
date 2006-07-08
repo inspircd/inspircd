@@ -263,6 +263,11 @@ class userrec : public connection
 	 * e.g. through a module, then this method will ignore it and return the true hostname.
 	 */
 	virtual char* GetFullRealHost();
+
+	/*
+	 * Create a displayable mode string for this users umodes
+	 */
+	const char* FormatModes();
 	
 	/** Returns true if a user is invited to a channel.
 	 */

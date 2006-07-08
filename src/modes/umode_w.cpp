@@ -12,14 +12,15 @@ ModeAction ModeUserWallops::OnModeChange(userrec* source, userrec* dest, chanrec
 {
 	/* Only opers can change other users modes */
 	if ((source != dest) && (!*source->oper))
-		return MODEACTION_ALLOW;
+		return MODEACTION_DENY;
 
 	/* Set the bitfields */
-	adding ? dest->modebits |= UM_WALLOPS : dest->modebits &= ~UM_WALLOPS;
-
-	/* Use the bitfields to build the user's mode string */
-	ModeParser::BuildModeString(dest);
+	if (dest->modes[UM_WALLOPS] != adding)
+	{
+		dest->modes[UM_WALLOPS] = adding;
+		return MODEACTION_ALLOW;
+	}
 
 	/* Allow the change */
-	return MODEACTION_ALLOW;
+	return MODEACTION_DENY;
 }
