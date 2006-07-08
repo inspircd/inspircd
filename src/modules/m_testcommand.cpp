@@ -69,51 +69,15 @@ class ModuleTestCommand : public Module
 		// command takes only one parameter.
 		newcommand = new cmd_woot();
 		Srv->AddCommand(newcommand);
-
-		// Add a mode +Z for channels with no parameters		
-		Srv->AddExtendedMode('Z',MT_CHANNEL,false,1,0);
 	}
 
 	void Implements(char* List)
 	{
-		List[I_OnExtendedMode] = List[I_OnUserJoin] = 1;
+		List[I_OnUserJoin] = 1;
 	}
-	
-	virtual int OnExtendedMode(userrec* user, void* target, char modechar, int type, bool mode_on, string_list &params)
-	{
-		
-		if ((modechar != 'Z') || (type != MT_CHANNEL))
-		{
-			// this mode isn't ours, we have to bail and return 0 to not handle it.
-			Srv->Log(DEBUG,"Extended mode event triggered, but this is not a mode i've claimed!");
-			return 0;
-		}
-		
-		chanrec* chan = (chanrec*)target;
-		
-		if (mode_on)
-		{
-			Srv->Log(DEBUG,"Custom mode is being added to channel");
-			Srv->Log(DEBUG,chan->name);
-		}
-		else
-		{
-			Srv->Log(DEBUG,"Custom mode is being taken from a channel");
-			Srv->Log(DEBUG,chan->name);
-		}
 
-		// must return 1 to handle the mode!
-		return 1;
-	}
-	
 	virtual void OnUserJoin(userrec* user, chanrec* channel)
 	{
-		Srv->Log(DEBUG,"OnUserJoin triggered");
-		if (channel->IsModeSet('Z'))
-		{
-			std::string param = channel->GetModeParameter('Z');
-			Srv->Log(DEBUG,"Custom mode is set on this channel! Parameter="+param);
-		}
 	}
 	
 	virtual ~ModuleTestCommand()
