@@ -113,17 +113,18 @@ bool DoneClassesAndTypes(const char* tag)
 userrec::userrec()
 {
 	// the PROPER way to do it, AVOID bzero at *ALL* costs
-	*password = *nick = *ident = *host = *dhost = *fullname = *modes = *awaymsg = *oper = 0;
+	*password = *nick = *ident = *host = *dhost = *fullname = *awaymsg = *oper = 0;
 	server = (char*)FindServerNamePtr(Config->ServerName);
 	reset_due = TIME;
 	lines_in = fd = lastping = signon = idle_lastmsg = nping = registered = 0;
-	modebits = timeout = flood = port = bytes_in = bytes_out = cmds_in = cmds_out = 0;
+	timeout = flood = port = bytes_in = bytes_out = cmds_in = cmds_out = 0;
 	haspassed = dns_done = false;
 	recvq = "";
 	sendq = "";
 	chans.clear();
 	invites.clear();
 	chans.resize(MAXCHANS);
+	memset(modes,0,sizeof(modes));
 	
 	for (unsigned int n = 0; n < MAXCHANS; n++)
 	{

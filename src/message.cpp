@@ -198,11 +198,11 @@ int c_count(userrec* u)
 
 }
 
-bool hasumode(userrec* user, char mode)
+bool hasumode(userrec* user, unsigned char mode)
 {
 	if (user)
 	{
-		return (strchr(user->modes,mode)>0);
+		return user->modes[mode-65];
 	}
 	else return false;
 }
@@ -422,7 +422,7 @@ std::string chlist(userrec *user,userrec* source)
 				 * If the channel is NOT private/secret AND the user is not invisible.
 				 * If the user is an oper, and the <options:operspywhois> option is set.
 				 */
-				if ((source == user) || (*source->oper && Config->OperSpyWhois) || (((!rec->channel->modes[CM_PRIVATE]) && (!rec->channel->modes[CM_SECRET]) && !(user->modebits & UM_INVISIBLE)) || (rec->channel->HasUser(source))))
+				if ((source == user) || (*source->oper && Config->OperSpyWhois) || (((!rec->channel->modes[CM_PRIVATE]) && (!rec->channel->modes[CM_SECRET]) && !(user->modes[UM_INVISIBLE])) || (rec->channel->HasUser(source))))
 				{
 					list << cmode(user, rec->channel) << rec->channel->name << " ";
 				}

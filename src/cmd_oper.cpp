@@ -115,9 +115,10 @@ void cmd_oper::Handle (char **parameters, int pcnt, userrec *user)
 		/* correct oper credentials */
 		WriteOpers("*** %s (%s@%s) is now an IRC operator of type %s",user->nick,user->ident,user->host,OperType);
 		WriteServ(user->fd,"381 %s :You are now an IRC operator of type %s",user->nick,OperType);
-		if (!strchr(user->modes,'o'))
+		if (!user->modes[UM_OPERATOR])
 		{
-			strcat(user->modes,"o");
+			user->modes[UM_OPERATOR] = 1;
+			ModeParser::BuildModeString(user);
 			WriteServ(user->fd,"MODE %s :+o",user->nick);
 			FOREACH_MOD(I_OnOper,OnOper(user,OperType));
 			log(DEFAULT,"OPER: %s!%s@%s opered as type: %s",user->nick,user->ident,user->host,OperType);

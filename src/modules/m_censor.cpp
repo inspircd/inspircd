@@ -119,12 +119,12 @@ class ModuleCensor : public Module
 				if (target_type == TYPE_USER)
 				{
 					userrec* t = (userrec*)dest;
-					active = (strchr(t->modes,'G') > 0);
+					active = t->modes['G'-65];
 				}
 				else if (target_type == TYPE_CHANNEL)
 				{
 					chanrec* t = (chanrec*)dest;
-					active = (t->IsModeSet('G'));
+					active = t->IsModeSet('G');
 				}
 				
 				if (active)

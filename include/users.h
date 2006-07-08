@@ -43,6 +43,15 @@ enum ClassTypes {
 	CC_DENY  = 1
 };
 
+/** RFC1459 channel modes
+ *  */
+enum ChannelModes {
+	UM_SERVERNOTICE = 's'-65,
+	UM_WALLOPS = 'w'-65,
+	UM_INVISIBLE = 'i'-65,
+	UM_OPERATOR = 'o'-65,
+};
+
 /** Holds a channel name to which a user has been invited.
  */
 class Invited : public classbase
@@ -150,22 +159,17 @@ class userrec : public connection
 	 */
 	char fullname[MAXGECOS+1];
 	
-	/** The user's mode string.
-	 * This may contain any of the following RFC characters: o, w, s, i
-	 * Your module may define other mode characters as it sees fit.
-	 * it is limited to length 54, as there can only be a maximum of 52
-	 * user modes (26 upper, 26 lower case) a null terminating char, and
-	 * an optional + character.
+	/** The user's mode list.
+	 * This is NOT a null terminated string! In the 1.1 version of InspIRCd
+	 * this is an array of values in a similar way to channel modes.
+	 * A value of 1 in field (modeletter-65) indicates that the mode is
+	 * set, for example, to work out if mode +s is set, we  check the field
+	 * userrec::modes['s'-65] != 0.
+	 * The following RFC characters o, w, s, i have constants defined via an
+	 * enum, such as UM_SERVERNOTICE and UM_OPETATOR.
 	 */
-	char modes[54];
+	char modes[64];
 
-	/** This contains a bitmask of the RFC modes +swi,
-	 * which can be used for fast lookup when iterating all the users.
-	 * It is maintained by the mode parser and matches the character
-	 * modes stored in 'modes'.
-	 */
-	char modebits;
-	
 	UserChanList chans;
 	
 	/** The server the user is connected to.

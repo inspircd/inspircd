@@ -1176,24 +1176,10 @@ class TreeSocket : public InspSocket
 		strlcpy(clientlist[tempnick]->fullname, params[7].c_str(),MAXGECOS);
 		clientlist[tempnick]->registered = 7;
 		clientlist[tempnick]->signon = age;
-		strlcpy(clientlist[tempnick]->modes, params[5].c_str(),53);
 		
-		for (char *v = clientlist[tempnick]->modes; *v; v++)
+		for (std::string::iterator v = params[5].begin(); v != params[5].end(); v++)
 		{
-			switch (*v)
-			{
-				case 'i':
-					clientlist[tempnick]->modebits |= UM_INVISIBLE;
-				break;
-				case 'w':
-					clientlist[tempnick]->modebits |= UM_WALLOPS;
-				break;
-				case 's':
-					clientlist[tempnick]->modebits |= UM_SERVERNOTICE;
-				break;
-				default:
-				break;
-			}
+			clientlist[tempnick]->modes[(*v)-65] = 1;
 		}
 		inet_aton(params[6].c_str(),&clientlist[tempnick]->ip4);
 
@@ -1391,7 +1377,7 @@ class TreeSocket : public InspSocket
 		{
 			if (u->second->registered == 7)
 			{
-				snprintf(data,MAXBUF,":%s NICK %lu %s %s %s %s +%s %s :%s",u->second->server,(unsigned long)u->second->age,u->second->nick,u->second->host,u->second->dhost,u->second->ident,u->second->modes,inet_ntoa(u->second->ip4),u->second->fullname);
+				snprintf(data,MAXBUF,":%s NICK %lu %s %s %s %s +%s %s :%s",u->second->server,(unsigned long)u->second->age,u->second->nick,u->second->host,u->second->dhost,u->second->ident,u->second->FormatModes(),inet_ntoa(u->second->ip4),u->second->fullname);
 				this->WriteLine(data);
 				if (*u->second->oper)
 				{
@@ -1555,11 +1541,8 @@ class TreeSocket : public InspSocket
 		userrec* u = Srv->FindNick(prefix);
 		if (u)
 		{
+			u->modes[UM_OPERATOR] = 1;
 			strlcpy(u->oper,opertype.c_str(),NICKMAX-1);
-			if (!strchr(u->modes,'o'))
-			{
-				strcat(u->modes,"o");
-			}
 			DoOneToAllButSender(u->nick,"OPERTYPE",params,u->server);
 		}
 		return true;
@@ -3667,7 +3650,7 @@ class ModuleSpanningTree : public Module
 			params.push_back(user->host);
 			params.push_back(user->dhost);
 			params.push_back(user->ident);
-			params.push_back("+"+std::string(user->modes));
+			params.push_back("+"+std::string(user->FormatModes()));
 			params.push_back((char*)inet_ntoa(user->ip4));
 			params.push_back(":"+std::string(user->fullname));
 			DoOneToMany(Srv->GetServerName(),"NICK",params);

@@ -128,7 +128,7 @@ class ModuleStripColor : public Module
 		if (target_type == TYPE_USER)
 		{
 			userrec* t = (userrec*)dest;
-			active = (strchr(t->modes,'S') > 0);
+			active = t->modes['S'-65];
 		}
 		else if (target_type == TYPE_CHANNEL)
 		{

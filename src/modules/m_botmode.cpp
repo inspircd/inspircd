@@ -68,7 +68,7 @@ class ModuleBotMode : public Module
 
 	virtual void OnWhois(userrec* src, userrec* dst)
 	{
-		if (strchr(dst->modes,'B'))
+		if (dst->modes['B'-65])
 		{
 			Srv->SendTo(NULL,src,"335 "+std::string(src->nick)+" "+std::string(dst->nick)+" :is a \2bot\2 on "+Srv->GetNetworkName());
 		}

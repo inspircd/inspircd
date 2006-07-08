@@ -54,7 +54,7 @@ class ModuleServices : public Module
 	/* <- :stitch.chatspike.net 307 w00t w00t :is a registered nick */
 	virtual void OnWhois(userrec* source, userrec* dest)
 	{
-		if (strchr(dest->modes, 'r'))
+		if (dest->modes['r'-65])
 		{
 			/* user is registered */
 			WriteServ(source->fd, "307 %s %s :is a registered nick", source->nick, dest->nick);
@@ -69,7 +69,7 @@ class ModuleServices : public Module
 	virtual void OnUserPostNick(userrec* user, const std::string &oldnick)
 	{
 		/* On nickchange, if they have +r, remove it */
-		if (strchr(user->modes,'r'))
+		if (user->modes['r'-65])
 		{
 			char* modechange[2];
 			modechange[0] = user->nick;
@@ -133,7 +133,7 @@ class ModuleServices : public Module
 		if (target_type == TYPE_CHANNEL)
 		{
 			chanrec* c = (chanrec*)dest;
-			if ((c->IsModeSet('M')) && (!strchr(user->modes,'r')))
+			if ((c->IsModeSet('M')) && (!user->modes['r'-65]))
 			{
 				if ((Srv->IsUlined(user->nick)) || (Srv->IsUlined(user->server)) || (!strcmp(user->server,"")))
 				{
@@ -148,7 +148,7 @@ class ModuleServices : public Module
 		if (target_type == TYPE_USER)
 		{
 			userrec* u = (userrec*)dest;
-			if ((strchr(u->modes,'R')) && (!strchr(user->modes,'r')))
+			if ((u->modes['R'-65]) && (user->modes['r'-65]))
 			{
 				if ((Srv->IsUlined(user->nick)) || (Srv->IsUlined(user->server)))
 				{
@@ -174,7 +174,7 @@ class ModuleServices : public Module
 		{
 			if (chan->IsModeSet('R'))
 			{
-				if (!strchr(user->modes,'r'))
+				if (user->modes['r'-65])
 				{
 					if ((Srv->IsUlined(user->nick)) || (Srv->IsUlined(user->server)))
 					{

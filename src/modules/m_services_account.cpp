@@ -105,7 +105,7 @@ class ModuleServicesAccount : public Module
 		{
 			userrec* u = (userrec*)dest;
 			
-			if ((strchr(u->modes,'R')) && (!account))
+			if ((u->modes['R'-65]) && (!account))
 			{
 				if ((Srv->IsUlined(user->nick)) || (Srv->IsUlined(user->server)))
 				{

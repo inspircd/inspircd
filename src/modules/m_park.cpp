@@ -161,11 +161,11 @@ class cmd_unpark : public command_t
 				}
 			}
 			// remove all their old modes
-			WriteServ(user->fd,"MODE %s -%s",user->nick,user->modes);
+			WriteServ(user->fd,"MODE %s -%s",user->nick,user->FormatModes());
 			// now, map them to the parked user, while nobody can see :p
 			Srv->PseudoToUser(user,unpark,"Unparked to "+std::string(parameters[0]));
 			// set all their new modes
-			WriteServ(unpark->fd,"MODE %s +%s",unpark->nick,unpark->modes);
+			WriteServ(unpark->fd,"MODE %s +%s",unpark->nick,unpark->FormatModes());
 			// spool their away log to them
 			WriteServ(unpark->fd,"NOTICE %s :*** You are now unparked. You have successfully taken back the nickname and privilages of %s.",unpark->nick,unpark->nick);
 			for (awaylog::iterator i = awy->begin(); i != awy->end(); i++)

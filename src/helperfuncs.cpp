@@ -966,7 +966,7 @@ void WriteOpers_NoFormat(const char* text)
 
 		if (IS_LOCAL(a))
 		{
-			if (a->modebits & UM_SERVERNOTICE)
+			if (a->modes[UM_SERVERNOTICE])
 			{
 				// send server notices to all with +s
 				WriteServ(a->fd,"NOTICE %s :%s",a->nick,text);
@@ -1121,7 +1121,7 @@ void WriteWallOps(userrec *source, bool local_only, char* text, ...)
 	{
 		userrec* t = (userrec*)(*i);
 
-		if ((IS_LOCAL(t)) && (t->modebits & UM_WALLOPS))
+		if ((IS_LOCAL(t)) && (t->modes[UM_WALLOPS]))
 		{
 			WriteTo_NoFormat(source,t,formatbuffer);
 		}
@@ -1334,7 +1334,7 @@ void userlist(userrec *user,chanrec *c)
 
 	for (CUList::iterator i = ulist->begin(); i != ulist->end(); i++)
 	{
-		if ((!has_user) && (i->second->modebits & UM_INVISIBLE))
+		if ((!has_user) && (i->second->modes[UM_INVISIBLE]))
 		{
 			/*
 			 * user is +i, and source not on the channel, does not show
@@ -1385,7 +1385,7 @@ int usercount_i(chanrec *c)
 	CUList *ulist= c->GetUsers();
 	for (CUList::iterator i = ulist->begin(); i != ulist->end(); i++)
 	{
-		if (!(i->second->modebits & UM_INVISIBLE))
+		if (!(i->second->modes[UM_INVISIBLE]))
 			count++;
 	}
 
@@ -1499,7 +1499,7 @@ int usercount_invisible(void)
 
 	for (user_hash::const_iterator i = clientlist.begin(); i != clientlist.end(); i++)
 	{
-		if ((i->second->registered == 7) && (i->second->modebits & UM_INVISIBLE))
+		if ((i->second->registered == 7) && (i->second->modes[UM_INVISIBLE]))
 			c++;
 	}
 

@@ -30,17 +30,6 @@
 #include "ctables.h"
 
 /**
- * This enum contains a set of bitmasks which
- * are used to compress the 'standard' usermodes
- * +isw into a bitfield for fast checking.
- */
-enum UserModeBits {
-	UM_INVISIBLE = 1,
-	UM_SERVERNOTICE = 2,
-	UM_WALLOPS = 4
-};
-
-/**
  * Holds the values for different type of modes
  * that can exist, USER or CHANNEL type.
  */

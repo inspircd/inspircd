@@ -306,7 +306,7 @@ bool CommandParser::IsValidCommand(const std::string &commandname, int pcnt, use
 	{
 		if ((pcnt>=n->second->min_params) && (n->second->source != "<core>"))
 		{
-			if ((strchr(user->modes,n->second->flags_needed)) || (!n->second->flags_needed))
+			if ((!n->second->flags_needed) || (user->modes[n->second->flags_needed-65]))
 			{
 				if (n->second->flags_needed)
 				{
@@ -329,7 +329,7 @@ bool CommandParser::CallHandler(const std::string &commandname,char **parameters
 	{
 		if (pcnt >= n->second->min_params)
 		{
-			if ((strchr(user->modes,n->second->flags_needed)) || (!n->second->flags_needed))
+			if ((!n->second->flags_needed) || (user->modes[n->second->flags_needed-65]))
 			{
 				if (n->second->flags_needed)
 				{
@@ -603,12 +603,15 @@ void CommandParser::ProcessCommand(userrec *user, char* cmd)
 				WriteServ(user->fd,"461 %s %s :Not enough parameters",user->nick,command);
 				return;
 			}
-			if ((!strchr(user->modes,cm->second->flags_needed)) && (cm->second->flags_needed))
+			if (cm->second->flags_needed)
 			{
-				log(DEBUG,"permission denied: %s %s",user->nick,command);
-				WriteServ(user->fd,"481 %s :Permission Denied- You do not have the required operator privilages",user->nick);
-				cmd_found = 1;
-				return;
+				if (!user->modes[cm->second->flags_needed-65])
+				{
+					log(DEBUG,"permission denied: %s %s",user->nick,command);
+					WriteServ(user->fd,"481 %s :Permission Denied- You do not have the required operator privilages",user->nick);
+					cmd_found = 1;
+					return;
+				}
 			}
 			if ((cm->second->flags_needed) && (!user->HasPermission(xcommand)))
 			{

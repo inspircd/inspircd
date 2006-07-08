@@ -70,7 +70,7 @@ class cmd_check : public command_t
 			Srv->SendTo(NULL, user, checkstr + " nuh " + targuser->GetFullHost());
 			Srv->SendTo(NULL, user, checkstr + " realnuh " + targuser->GetFullRealHost());
 			Srv->SendTo(NULL, user, checkstr + " realname " + targuser->fullname);
-			Srv->SendTo(NULL, user, checkstr + " modes +" + targuser->modes);
+			Srv->SendTo(NULL, user, checkstr + " modes +" + targuser->FormatModes());
 			Srv->SendTo(NULL, user, checkstr + " server " + targuser->server);
 			if (targuser->awaymsg[0] != 0)
 			{

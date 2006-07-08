@@ -164,7 +164,7 @@ class ModuleCBan : public Module
 		/* check cbans in here, and apply as necessary. */
 		for(cbanlist::iterator iter = cbans.begin(); iter != cbans.end(); iter++)
 		{
-			if(iter->chname == cname && !strchr(user->modes, 'o'))
+			if(iter->chname == cname && !user->modes[UM_OPERATOR])
 			{
 				// Channel is banned.
 				WriteServ(user->fd, "384 %s %s :Cannot join channel, CBANed (%s)", user->nick, cname, iter->reason.c_str());
