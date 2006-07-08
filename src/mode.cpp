@@ -50,6 +50,8 @@ using namespace std;
 #include "modes/cmode_l.h"
 /* +o (channel op) */
 #include "modes/cmode_o.h"
+/* +h (channel halfop) */
+#include "modes/cmode_h.h"
 
 extern int MODCOUNT;
 extern std::vector<Module*> modules;
@@ -611,6 +613,7 @@ ModeParser::ModeParser()
 	/* Now listmodes */
 	this->AddMode(new ModeChannelBan, 'b');
 	this->AddMode(new ModeChannelOp, 'o');
+	this->AddMode(new ModeChannelHalfOp, 'h');
 
 	/* TODO: Modes +v, +h */
 }
