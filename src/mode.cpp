@@ -407,7 +407,7 @@ void ModeParser::Process(char **parameters, int pcnt, userrec *user, bool server
 				}
 				else
 				{
-					WriteServ("MODE %s %s",targetuser->nick,output_sequence.c_str());
+					WriteServ(targetuser->fd,"MODE %s %s",targetuser->nick,output_sequence.c_str());
 				}
 			}
 			else
@@ -420,7 +420,7 @@ void ModeParser::Process(char **parameters, int pcnt, userrec *user, bool server
 				}
 				else
 				{
-					WriteTo(targetuser->fd,user,"MODE %s %s",targetuser->nick,output_sequence.c_str());
+					WriteTo(user,targetuser,"MODE %s %s",targetuser->nick,output_sequence.c_str());
 					FOREACH_MOD(I_OnMode,OnMode(user, targetuser, TYPE_USER, output_sequence));
 				}
 			}
