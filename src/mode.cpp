@@ -348,6 +348,20 @@ void ModeParser::Process(char **parameters, int pcnt, userrec *user, bool server
 			log(DEBUG,"Target type is CHANNEL");
 			type = MODETYPE_CHANNEL;
 			mask = MASK_CHANNEL;
+
+			/* Extra security checks on channel modes
+			 * (e.g. are they a (half)op?
+			 */
+
+			if (((!is_uline(user->server)) && (!servermode)) || (cstatus(user, targetchannel) < STATUS_HOP))
+			{
+				/* Not enough permission:
+				 * NOT a uline and NOT a servermode,
+				 * OR, NOT halfop or above.
+				 */
+				WriteServ(user->fd,"482 %s %s :You're not a channel (half)operator",user->nick, targetchannel->name);
+				return;
+			}
 		}
 		else if (targetuser)
 		{
