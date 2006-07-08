@@ -26,6 +26,7 @@ using namespace std;
 
 class BotMode : public ModeHandler
 {
+ public:
 	BotMode() : ModeHandler('B', 0, 0, false, MODETYPE_USER, false) { }
 
 	ModeAction OnModeChange(userrec* source, userrec* dest, chanrec* channel, std::string &parameter, bool adding)
@@ -34,7 +35,7 @@ class BotMode : public ModeHandler
 		{
 			if (!dest->IsModeSet('B'))
 			{
-				user->SetMode('B',true);
+				dest->SetMode('B',true);
 				return MODEACTION_ALLOW;
 			}
 		}
@@ -42,7 +43,7 @@ class BotMode : public ModeHandler
 		{
 			if (dest->IsModeSet('B'))
 			{
-				user->SetMode('B',false);
+				dest->SetMode('B',false);
 				return MODEACTION_ALLOW;
 			}
 		}
@@ -51,23 +52,20 @@ class BotMode : public ModeHandler
 
 class ModuleBotMode : public Module
 {
-	Server *Srv; 
+	Server *Srv;
+	BotMode* bm;
  public:
 	ModuleBotMode(Server* Me)
 		: Module::Module(Me)
 	{
 		Srv = Me;
-		
-		if (!Srv->AddExtendedMode('B',MT_CLIENT,false,0,0))
-		{
-			Srv->Log(DEFAULT,"*** m_botmode: ERROR, failed to allocate user mode +B!");
-			return;
-		}
+		bm = new BotMode();
+		Srv->AddMode(bm, 'B');
 	}
 
 	void Implements(char* List)
 	{
-		List[I_OnWhois] = List[I_OnExtendedMode] = 1;
+		List[I_OnWhois] = 1;
 	}
 	
 	virtual ~ModuleBotMode()
@@ -78,22 +76,10 @@ class ModuleBotMode : public Module
 	{
 		return Version(1,0,0,0,VF_STATIC|VF_VENDOR);
 	}
-	
-	virtual int OnExtendedMode(userrec* user, void* target, char modechar, int type, bool mode_on, string_list &params)
-	{
-		if ((modechar == 'B') && (type == MT_CLIENT))
-  		{
-			return 1;
-		}
-		else
-		{
-			return 0;
-		}
-	}
 
 	virtual void OnWhois(userrec* src, userrec* dst)
 	{
-		if (dst->modes['B'-65])
+		if (dst->IsModeSet('B'))
 		{
 			Srv->SendTo(NULL,src,"335 "+std::string(src->nick)+" "+std::string(dst->nick)+" :is a \2bot\2 on "+Srv->GetNetworkName());
 		}
