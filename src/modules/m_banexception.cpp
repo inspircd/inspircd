@@ -4,6 +4,7 @@
 #include "users.h"
 #include "channels.h"
 #include "modules.h"
+#include "mode.h"
 #include "helperfuncs.h"
 #include "u_listmode.h"
 
@@ -16,17 +17,28 @@
 // The +e channel mode takes a nick!ident@host, glob patterns allowed,
 // and if a user matches an entry on the +e list then they can join the channel, overriding any (+b) bans set on them
 
-
-class ModuleBanException : public ListModeBaseModule
+class BanException : public ListModeBase
 {
+ public:
+	BanException(Server* serv) : ListModeBase(serv, 'e', "End of Channel Exception List", "348", "349") { }
+};
+
+
+class ModuleBanException : public Module
+{
+	BanException* be;
+	Server* Srv;
+
 public:
-	ModuleBanException(Server* serv) : ListModeBaseModule::ListModeBaseModule(serv, 'e', "End of Channel Exception List", "348", "349")
+	ModuleBanException(Server* serv) : Module(serv)
 	{
+		be = new BanException(serv);
+		Srv = serv;
 	}
 	
 	virtual void Implements(char* List)
 	{
-		this->DoImplements(List);
+		be->DoImplements(List);
 		List[I_On005Numeric] = List[I_OnCheckBan] = 1;
 	}
 	
@@ -40,7 +52,7 @@ public:
 	{
 		if(chan != NULL)
 		{
-			modelist* list = (modelist*)chan->GetExt(infokey);
+			modelist* list = (modelist*)chan->GetExt(be->GetInfoKey());
 			Srv->Log(DEBUG, std::string(user->nick)+" is trying to join "+std::string(chan->name)+", checking for ban exceptions");
 			
 			if(list)
@@ -54,6 +66,26 @@ public:
 			// or if there wasn't a list, there can't be anyone on it, so we don't need to do anything.
 		}
 		return 0;	
+	}
+
+	virtual void OnCleanup(int target_type, void* item)
+	{
+		be->DoCleanup(target_type, item);
+	}
+
+	virtual void OnSyncChannel(chanrec* chan, Module* proto, void* opaque)
+	{
+		be->DoSyncChannel(chan, proto, opaque);
+	}
+
+	virtual void OnChannelDelete(chanrec* chan)
+	{
+		be->DoChannelDelete(chan);
+	}
+
+	virtual void OnRehash(const std::string &param)
+	{
+		be->DoRehash();
 	}
 	
 	virtual Version GetVersion()

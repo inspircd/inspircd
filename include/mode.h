@@ -72,6 +72,7 @@ enum ModeMasks {
  */
 class ModeHandler
 {
+ protected:
 	/**
 	 * The mode letter you're implementing.
 	 */
@@ -185,6 +186,7 @@ class ModeHandler
 
 class ModeWatcher
 {
+ protected:
 	char mode;
 	ModeType m_type;
 
