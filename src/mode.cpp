@@ -177,7 +177,7 @@ const char* ModeParser::Grant(userrec *d,chanrec *chan,int MASK)
 			{
 				return "";
 			}
-			n->uc_modes = ((ucrec*)(*i))->uc_modes | MASK;
+			n->uc_modes = n->uc_modes | MASK;
 			switch (MASK)
 			{
 				case UCMODE_OP:
