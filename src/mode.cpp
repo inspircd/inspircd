@@ -229,6 +229,24 @@ const char* ModeParser::Revoke(userrec *d,chanrec *chan,int MASK)
 	return "";
 }
 
+void ModeParser::DisplayCurrentModes(userrec *user, userrec* targetuser, chanrec* targetchannel, const char* text)
+{
+	if (targetchannel)
+	{
+		/* Display channel's current mode string */
+		WriteServ(user->fd,"324 %s %s +%s",user->nick, targetchannel->name, chanmodes(targetchannel, targetchannel->HasUser(user)));
+		WriteServ(user->fd,"329 %s %s %d", user->nick, targetchannel->name, targetchannel->created);
+	}
+	else if (targetuser)
+	{
+		/* Display user's current mode string */
+		WriteServ(user->fd,"221 %s :+%s",targetuser->nick,targetuser->FormatModes());
+	}
+	/* No such nick/channel */
+	WriteServ(user->fd,"401 %s %s :No such nick/channel",user->nick, text);
+	return;
+}
+
 void ModeParser::Process(char **parameters, int pcnt, userrec *user, bool servermode)
 {
 	std::string target = parameters[0];
@@ -239,11 +257,14 @@ void ModeParser::Process(char **parameters, int pcnt, userrec *user, bool server
 
 	log(DEBUG,"ModeParser::Process start");
 
-	if (pcnt > 1)
+	if (pcnt == 1)
+	{
+		this->DisplayCurrentModes(user, targetuser, targetchannel, parameters[0]);
+	}
+	else if (pcnt > 1)
 	{
 		if (targetchannel)
 		{
-			log(DEBUG,"Target type is CHANNEL");
 			type = MODETYPE_CHANNEL;
 			mask = MASK_CHANNEL;
 
@@ -270,14 +291,13 @@ void ModeParser::Process(char **parameters, int pcnt, userrec *user, bool server
 		}
 		else if (targetuser)
 		{
-			log(DEBUG,"Target type is USER");
 			type = MODETYPE_USER;
 			mask = MASK_USER;
 		}
 		else
 		{
 			/* No such nick/channel */
-			log(DEBUG,"Target type is UNKNOWN, bailing");
+			WriteServ(user->fd,"401 %s %s :No such nick/channel",user->nick, parameters[0]);
 			return;
 		}
 		std::string mode_sequence = parameters[1];

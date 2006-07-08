@@ -218,10 +218,7 @@ class ModeParser
 	 */
 	std::vector<ModeWatcher*> modewatchers[256];
 
-	/*char* GiveHops(userrec *user,char *dest,chanrec *chan,int status);
-	char* GiveVoice(userrec *user,char *dest,chanrec *chan,int status);
-	char* TakeHops(userrec *user,char *dest,chanrec *chan,int status);
-	char* TakeVoice(userrec *user,char *dest,chanrec *chan,int status);*/
+	void DisplayCurrentModes(userrec *user, userrec* targetuser, chanrec* targetchannel, const char* text);
 
  public:
 
